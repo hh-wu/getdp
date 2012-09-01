@@ -41,6 +41,7 @@ int Message::_commRank = 0;
 int Message::_commSize = 1;
 int Message::_isCommWorld = 1; // is the communicator set to WORLD (==1) or SELF (!=1)
 int Message::_errorCount = 0;
+int Message::_lastPETScError = 0;
 int Message::_verbosity = 3;
 int Message::_progressMeterStep = 10;
 int Message::_progressMeterCurrent = 0;

@@ -54,9 +54,7 @@ static int Flag_Break = 0;
 
 // For adaptive time stepper (ugly, I know...)
 int Flag_IterativeLoopConverged = 1;
-int Flag_TimeLoopAdaptive = 0;
 int Flag_IterativeLoopN = 0;
-int Flag_TimeLoopAdaptive_PETSc_Error;
 
 // For IterativeTimeReduction (ugly also...)
 int  Flag_NextThetaFixed = 0 ;

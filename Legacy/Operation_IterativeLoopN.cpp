@@ -18,9 +18,6 @@
 extern struct CurrentData Current;
 extern int    Flag_IterativeLoopN;
 extern int    Flag_IterativeLoopConverged;
-extern int    Flag_TimeLoopAdaptive_PETSc_Error;
-
-
 
 /* ------------------------------------------------------------------------ */
 /*  C a l M a x E r r o r R a t i o                                         */
@@ -37,7 +34,6 @@ double CalcMaxErrorRatio(Resolution  *Resolution_P,
   gVector      *xPrevious_P, *xCurrent_P;       // new and last solution vector
   gVector      xError;                          // Local Truncation Error vector
   double       ErrorRatio, MaxErrorRatio;
-
 
   MaxErrorRatio = 0.;
 
@@ -85,8 +81,6 @@ double CalcMaxErrorRatio(Resolution  *Resolution_P,
         Message::Error("Unknown object for error norm");
         break;
     }
-
-
 
     LinAlg_DestroyVector(&xError);
 
@@ -186,28 +180,27 @@ void Operation_IterativeLoopN(Resolution  *Resolution_P,
       Message::Info("Flag Break detected. Aborting IterativeLoop");
       break;
     }
-#if defined(HAVE_PETSC)
-    else if (Flag_TimeLoopAdaptive_PETSc_Error) {
+    else if (Message::GetLastPETScError()) {
       Message::Warning("No valid solution found (PETSc-Error: %d)!",
-                    Flag_TimeLoopAdaptive_PETSc_Error);
+                       Message::GetLastPETScError());
       break;
     }
-#endif
+
     // Check if converged
     MaxErrorRatio = CalcMaxErrorRatio(Resolution_P,DofData_P0, ILsystems, xPrevious_L);
-    if (MaxErrorRatio != MaxErrorRatio) {      // If ErrorRatio = NaN => There was no valid solution!
+    if (MaxErrorRatio != MaxErrorRatio) { // If ErrorRatio = NaN => There was no valid solution!
       Flag_IterativeLoopConverged = 0;
       break;
     }
 
-
-    Message::Info("IterativeLoopN: Largest error ratio: %.3g  (after %d iteration%s)", MaxErrorRatio,
-                  (int)Current.Iteration, ((int)Current.Iteration==1)?"":"s");
+    Message::Info("IterativeLoopN: Largest error ratio: %.3g  (after %d iteration%s)",
+                  MaxErrorRatio, (int)Current.Iteration,
+                  ((int)Current.Iteration == 1) ? "" : "s");
     Message::AddOnelabNumberChoice(Message::GetOnelabClientName() +
-        "/IterativeLoop/ILmaxErrorRatio", MaxErrorRatio);
+                                   "/IterativeLoop/ILmaxErrorRatio", MaxErrorRatio);
     if (MaxErrorRatio < 1.) {
       Message::Info("IterativeLoopN: Converged after %d iteration%s",
-          (int)Current.Iteration, ((int)Current.Iteration==1)?"":"s");
+                    (int)Current.Iteration, ((int)Current.Iteration==1)?"":"s");
       break;
     }
   }
@@ -229,4 +222,3 @@ void Operation_IterativeLoopN(Resolution  *Resolution_P,
   List_Delete(xPrevious_L);
 
 }
-

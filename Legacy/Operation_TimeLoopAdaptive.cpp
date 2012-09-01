@@ -26,8 +26,6 @@
 
 extern struct CurrentData Current;
 extern int Flag_IterativeLoopConverged;
-extern int Flag_TimeLoopAdaptive;
-extern int Flag_TimeLoopAdaptive_PETSc_Error;
 extern int Flag_RESTART;
 
 /* ------------------------------------------------------------------------ */
@@ -531,7 +529,6 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
   else
     Current.Time = Time0 ;
 
-  Flag_TimeLoopAdaptive = 1;
   Current.TimeStep += 1.0;
   // Starting with 1st order (Backward Euler corrector)
   Order = 1;
@@ -565,9 +562,7 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
     Try++;
     BreakpointAtThisStep = BreakpointAtNextStep;
 
-#if defined(HAVE_PETSC)
-    Flag_TimeLoopAdaptive_PETSc_Error = 0;
-#endif
+    Message::SetLastPETScError(0);
 
     Message::Info("Time step %d  Try %d  Time = %.8g s  Stepsize = %.8g s  Order = %d",
                   (int)Current.TimeStep, Try, Current.Time, Current.DTime, Order);
@@ -594,7 +589,6 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
     Current.DTime    = Save_DTime;
     Current.TimeStep = Save_TimeStep;
     Current.Theta    = Save_Theta;
-    Flag_TimeLoopAdaptive = 1;
 
     if(*Flag_Break) {
       *Flag_Break = 0;
@@ -606,44 +600,39 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
     // Assessing the current time step and eventually
     // execute the 2nd set of operations
     // ----------------------------------------------
-    if (Flag_IterativeLoopConverged != 1)
-    {
+    if (Flag_IterativeLoopConverged != 1){
       TimeStepAccepted = false;
-      Message::Info("Time step %d  Try %d  Time = %.8g s  rejected (IterativeLoop not converged)",
-                    (int)Current.TimeStep, Try, Current.Time);
+      Message::Info("Time step %d  Try %d  Time = %.8g s  rejected (IterativeLoop not "
+                    "converged)", (int)Current.TimeStep, Try, Current.Time);
     }
-#if defined(HAVE_PETSC)
-    else if (Flag_TimeLoopAdaptive_PETSc_Error) {
+    else if (Message::GetLastPETScError()) {
       TimeStepAccepted = false;
       Flag_IterativeLoopConverged = 0;
       Message::Warning("Time step %d  Try %d  Time = %.8g s  rejected:",
                        (int)Current.TimeStep, Try, Current.Time);
       Message::Warning("No valid solution found (PETSc-Error: %d)!",
-                       Flag_TimeLoopAdaptive_PETSc_Error);
-      Flag_TimeLoopAdaptive_PETSc_Error = 0;
+                       Message::GetLastPETScError());
+      Message::SetLastPETScError(0);
     }
-#endif
-    else
-    {
+    else{
       maxLTEratio = CalcMaxLTEratio(Resolution_P, DofData_P0,TLAsystems,
-                                   Order, xPredicted_L);
-      if (maxLTEratio != maxLTEratio) {         // If maxLTEratio = NaN => There was no valid solution!
+                                    Order, xPredicted_L);
+      if (maxLTEratio != maxLTEratio) { // If maxLTEratio = NaN => There was no valid solution!
         TimeStepAccepted = false;
         Flag_IterativeLoopConverged = 0;
-        Message::Info("Time step %d  Try %d  Time = %.8g s  rejected: No valid solution found (NaN or Inf)!",
-                      (int)Current.TimeStep, Try, Current.Time);
+        Message::Info("Time step %d  Try %d  Time = %.8g s  rejected: No valid solution "
+                      "found (NaN or Inf)!", (int)Current.TimeStep, Try, Current.Time);
       }
       else {
         Message::AddOnelabNumberChoice(Message::GetOnelabClientName() +
                                        "/TimeLoopAdaptive/LTEmaxErrorRatio", maxLTEratio);
-        if (maxLTEratio <= 1.0)
-        {
+        if (maxLTEratio <= 1.0){
           TimeStepAccepted = true;
           Message::Info("Time step %d  Try %d  Time = %.8g s  accepted (max. LTE ratio = %.3g)",
                         (int)Current.TimeStep, Try, Current.Time, maxLTEratio);
         }
         else
-        {
+          {
           TimeStepAccepted = false;
           Message::Info("Time step %d  Try %d  Time = %.8g s  rejected (max. LTE ratio = %.3g)",
                         (int)Current.TimeStep, Try, Current.Time, maxLTEratio);
@@ -660,12 +649,10 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
       Current.DTime    = Save_DTime;
       Current.TimeStep = Save_TimeStep;
       Current.Theta    = Save_Theta;
-      Flag_TimeLoopAdaptive = 1;
       Current.TimeStep += 1.;
       Try = 0;
     }
-    else
-    {
+    else{
       if (BreakpointAtThisStep) {
         BreakpointNum = List_ISearchSeq(Breakpoints, &Current.Time, fcmp_double);
         List_Read(Breakpoints, BreakpointNum, &nextBreakpoint);
@@ -680,7 +667,6 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
       break;
     }
 
-
     // Calculate new time step
     // -----------------------
     DTimeMinAtLastStep = Current.DTime <= DTimeMin;
@@ -689,12 +675,10 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
         Order < 2)
       Message::Error("Time step too small! Simulation aborted!");
 
-    if (Flag_IterativeLoopConverged !=1)
-    {
+    if (Flag_IterativeLoopConverged != 1){
       Current.DTime /= 2.0;
     }
-    else
-    {
+    else{
       // Milne's estimate
       if ( maxLTEratio < s / pow(DTimeMaxScal, Order + 1.) )
         // At most double DTime if maxLTEratio is small
@@ -713,12 +697,10 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
 
     // Check that we do not jump over a breakpoint
     if ((Current.DTime + Current.Time >= nextBreakpoint - DTimeMin) &&
-        (BreakpointNum >= 0))
-    {
+        (BreakpointNum >= 0)){
       Current.DTime = nextBreakpoint - Current.Time;
       BreakpointAtNextStep = true;
-      if (BreakpointNum < List_Nbr(Breakpoints)-1)
-      {
+      if (BreakpointNum < List_Nbr(Breakpoints)-1){
         // There are further breakpoints
         BreakpointNum++;
         List_Read(Breakpoints, BreakpointNum, &nextBreakpoint);
@@ -763,8 +745,6 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
   } // while loop
 
   Current.TimeStep -= 1.;       // Correct the time step counter
-  Flag_TimeLoopAdaptive = 0;
-
 
   // Finally destroy vectors and delete Lists
   // ----------------------------------------
@@ -775,4 +755,3 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
   if (BreakpointListCreated)
     List_Delete(Breakpoints);
 }
-

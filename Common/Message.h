@@ -24,6 +24,8 @@ class Message {
   static int _commRank, _commSize, _isCommWorld;
   // error count
   static int _warningCount, _errorCount;
+  // last PETSc error code
+  static int _lastPETScError;
   // verbosity level
   static int _verbosity;
   // step (in %) of the progress meter and current progress %
@@ -68,6 +70,8 @@ class Message {
   static void SetProgressMeterStep(int step){ _progressMeterStep = (step > 0) ? step : 1; }
   static void ResetProgressMeter(){ if(!_commRank) _progressMeterCurrent = 0; }
   static void PrintErrorCounter(const char *title);
+  static void SetLastPETScError(int ierr){ _lastPETScError = ierr; }
+  static int GetLastPETScError(){ return _lastPETScError; }
   static double &Timer(std::string str){ return _timers[str]; }
   static void PrintTimers();
   static void InitializeSocket(std::string sockname);

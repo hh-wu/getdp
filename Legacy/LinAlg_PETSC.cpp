@@ -29,8 +29,6 @@
 #include "ProData.h"
 #include "DofData.h"
 extern struct CurrentData Current ;
-extern int Flag_TimeLoopAdaptive;
-extern int Flag_TimeLoopAdaptive_PETSc_Error;
 
 #if defined(HAVE_PETSC)
 
@@ -66,14 +64,8 @@ static PetscViewer MyPetscViewer;
 
 static void _try(int ierr)
 {
-  // if (!Flag_TimeLoopAdaptive) {
-  //  CHKERRABORT(MyComm, ierr);
-  //}
-  //else {
-    CHKERRCONTINUE(ierr);
-    if (PetscUnlikely(ierr))
-      Flag_TimeLoopAdaptive_PETSc_Error = ierr;
-    //}
+  CHKERRCONTINUE(ierr);
+  Message::SetLastPETScError(ierr);
 }
 
 static int SolverInitialized = 0;
