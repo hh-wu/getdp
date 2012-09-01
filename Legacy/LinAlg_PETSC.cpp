@@ -64,8 +64,11 @@ static PetscViewer MyPetscViewer;
 
 static void _try(int ierr)
 {
+  if(PetscUnlikely(ierr)){
+    Message::Error("PETSc error %", ierr);
+    Message::SetLastPETScError(ierr);
+  }
   CHKERRCONTINUE(ierr);
-  Message::SetLastPETScError(ierr);
 }
 
 static int SolverInitialized = 0;
