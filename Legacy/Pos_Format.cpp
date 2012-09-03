@@ -1366,7 +1366,10 @@ void Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
 
   if (Format == FORMAT_REGION_TABLE) {
     if(iRegion == 0){
-      fprintf(PostStream, "%d\n", NbrRegion) ;
+      if(PostStream == stdout || PostStream == stderr)
+        Message::Direct("%d", NbrRegion);
+      else
+        fprintf(PostStream, "%d\n", NbrRegion) ;
     }
     std::ostringstream sstream;
     sstream.precision(16);
