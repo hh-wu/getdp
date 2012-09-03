@@ -259,7 +259,7 @@ struct doubleXstring{
 %token        tFile tDepth tDimension tComma tTimeStep tHarmonicToTime
 %token        tValueIndex tValueName
 %token        tFormat tHeader tFooter tSkin tSmoothing
-%token        tTarget tSort tIso tNoNewLine tDecomposeInSimplex tChangeOfValues
+%token        tTarget tSort tIso tNoNewLine tNoTitle tDecomposeInSimplex tChangeOfValues
 %token        tTimeLegend tFrequencyLegend tEigenvalueLegend
 %token        tEvaluationPoints tStore tLastTimeStepOnly tAppendTimeStepToFileName
 %token        tOverrideTimeStepValue tNoMesh tSendToServer tStr tDate
@@ -5919,6 +5919,7 @@ PrintOptions :
       PostSubOperation_S.Iso_L = List_Create(10,10,sizeof(double));;
       PostSubOperation_S.Sort = 0;
       PostSubOperation_S.NoNewLine = 0;
+      PostSubOperation_S.NoTitle = 0;
       PostSubOperation_S.DecomposeInSimplex = 0;
       PostSubOperation_S.NewCoordinates = 0;
       PostSubOperation_S.NewCoordinatesFile = NULL;
@@ -6125,6 +6126,10 @@ PrintOption :
   | ',' tNoNewLine
     {
       PostSubOperation_S.NoNewLine = 1;
+    }
+  | ',' tNoTitle
+    {
+      PostSubOperation_S.NoTitle = 1;
     }
   | ',' tDecomposeInSimplex
     {

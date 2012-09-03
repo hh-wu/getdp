@@ -312,6 +312,7 @@ File                         return tFile;
 Sort                         return tSort;
 Iso                          return tIso;
 NoNewLine                    return tNoNewLine;
+NoTitle                      return tNoTitle;
 TimeLegend                   return tTimeLegend;
 FrequencyLegend              return tFrequencyLegend;
 EigenvalueLegend             return tEigenvalueLegend;

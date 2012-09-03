@@ -1249,7 +1249,8 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
       List_Sort(Region_L, fcmp_int) ;
       Nbr_Region = List_Nbr(Region_L) ;
 
-      if (PostSubOperation_P->Format != FORMAT_SPACE_TABLE &&
+      if (!PostSubOperation_P->NoTitle &&
+          PostSubOperation_P->Format != FORMAT_SPACE_TABLE &&
           PostSubOperation_P->Format != FORMAT_VALUE_ONLY) {
         std::ostringstream sstream;
         if (PostSubOperation_P->Format == FORMAT_GMSH)

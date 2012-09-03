@@ -276,34 +276,35 @@
      tSort = 493,
      tIso = 494,
      tNoNewLine = 495,
-     tDecomposeInSimplex = 496,
-     tChangeOfValues = 497,
-     tTimeLegend = 498,
-     tFrequencyLegend = 499,
-     tEigenvalueLegend = 500,
-     tEvaluationPoints = 501,
-     tStore = 502,
-     tLastTimeStepOnly = 503,
-     tAppendTimeStepToFileName = 504,
-     tOverrideTimeStepValue = 505,
-     tNoMesh = 506,
-     tSendToServer = 507,
-     tStr = 508,
-     tDate = 509,
-     tNewCoordinates = 510,
-     tDEF = 511,
-     tOR = 512,
-     tAND = 513,
-     tAPPROXEQUAL = 514,
-     tNOTEQUAL = 515,
-     tEQUAL = 516,
-     tGREATERGREATER = 517,
-     tLESSLESS = 518,
-     tGREATEROREQUAL = 519,
-     tLESSOREQUAL = 520,
-     tCROSSPRODUCT = 521,
-     UNARYPREC = 522,
-     tSHOW = 523
+     tNoTitle = 496,
+     tDecomposeInSimplex = 497,
+     tChangeOfValues = 498,
+     tTimeLegend = 499,
+     tFrequencyLegend = 500,
+     tEigenvalueLegend = 501,
+     tEvaluationPoints = 502,
+     tStore = 503,
+     tLastTimeStepOnly = 504,
+     tAppendTimeStepToFileName = 505,
+     tOverrideTimeStepValue = 506,
+     tNoMesh = 507,
+     tSendToServer = 508,
+     tStr = 509,
+     tDate = 510,
+     tNewCoordinates = 511,
+     tDEF = 512,
+     tOR = 513,
+     tAND = 514,
+     tAPPROXEQUAL = 515,
+     tNOTEQUAL = 516,
+     tEQUAL = 517,
+     tGREATERGREATER = 518,
+     tLESSLESS = 519,
+     tGREATEROREQUAL = 520,
+     tLESSOREQUAL = 521,
+     tCROSSPRODUCT = 522,
+     UNARYPREC = 523,
+     tSHOW = 524
    };
 #endif
 
@@ -325,7 +326,7 @@ typedef union YYSTYPE
 
 
 /* Line 1685 of yacc.c  */
-#line 329 "ProParser.tab.hpp"
+#line 330 "ProParser.tab.hpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
