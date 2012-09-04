@@ -709,14 +709,14 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
       if(c->Value.Float > 0){
         ps[0].setMin(c->Value.Float / fact);
         ps[0].setMax(c->Value.Float * fact);
-        ps[0].setStep((c->Value.Float * fact - c->Value.Float / fact) / 100.);
+        ps[0].setStep((ps[0].getMax() - ps[0].getMin()) / 100.);
       }
       else if(c->Value.Float < 0){
         ps[0].setMin(c->Value.Float * fact);
         ps[0].setMax(c->Value.Float / fact);
-        ps[0].setStep((c->Value.Float / fact - c->Value.Float * fact) / 100.);
+        ps[0].setStep((ps[0].getMax() - ps[0].getMin()) / 100.);
       }
-      if(isInteger){
+      if(c->Value.Float && isInteger){
         ps[0].setMin((int)ps[0].getMin());
         ps[0].setMax((int)ps[0].getMax());
         ps[0].setStep((int)ps[0].getStep());
