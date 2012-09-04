@@ -5,6 +5,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 #include <algorithm>
 #include <sys/stat.h>
 #include "GetDPConfig.h"
