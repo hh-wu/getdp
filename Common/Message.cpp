@@ -703,7 +703,7 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
     // range and step (this makes the gui much nicer to use)
     if(noRange && !fopt.count("Range") && !fopt.count("Step") &&
        !fopt.count("Min") && !fopt.count("Max")){
-      bool isInteger = (std::floor(c->Value.Float) == c->Value.Float);
+      bool isInteger = (floor(c->Value.Float) == c->Value.Float);
       double fact = isInteger ? 10. : 100.;
       if(c->Value.Float > 0){
         ps[0].setMin(c->Value.Float / fact);
@@ -715,7 +715,7 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
         ps[0].setMax(c->Value.Float / fact);
         ps[0].setStep((c->Value.Float / fact - c->Value.Float * fact) / 100.);
       }
-      if(std::floor(c->Value.Float) == c->Value.Float){ // integer
+      if(isInteger){
         ps[0].setMin((int)ps[0].getMin());
         ps[0].setMax((int)ps[0].getMax());
         ps[0].setStep((int)ps[0].getStep());
