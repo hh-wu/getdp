@@ -566,6 +566,33 @@ void F_nu_Vinch(F_ARG)
 }
 
 
+void F_dnudb2_Vinch(F_ARG)
+{
+  // input  :
+  // (A+0)->Val = magnetic field
+  // (A+1)->Val[0] = saturation magnetisation of the reversible case
+  //       -- Js_0
+  // (A+2)->Val[0] = characteristic magnetic field inversely proportional to the
+  //       slope of the curve at origin -- alpha
+  // output : dnudb2
+
+  double vh[3]  = {(A+0)->Val[0], (A+0)->Val[1], (A+0)->Val[2]};
+  double h  = norm(vh);
+  double Js0    = (A+1)->Val[0];
+  double alpha  = (A+2)->Val[0];
+
+
+  if (h < 1) h = 1 ;
+
+  double dnudb2 =
+    Js0 * (tanh(h/alpha) - (h/alpha)/SQU(cosh(h/alpha))) / SQU(MU0 * h + Js0 * tanh(h/alpha)) ;
+
+  V->Type = TENSOR_SYM ; // For extension to vectorial case ... Now it does not make any difference, of course.
+  V->Val[0] = dnudb2  ;  V->Val[1] = 0.0  ;  V->Val[2] = 0 ;
+  V->Val[3] = dnudb2  ;  V->Val[4] = 0 ;
+  V->Val[5] = dnudb2 ;
+}
+
 
 bool limiter(const double max, double v[3])
 {
@@ -682,8 +709,7 @@ void F_Update_Jk(F_ARG)
   context.alpha = (A+5)->Val[0];
  //http://www.gnu.org/software/gsl/manual/html_node/Multimin-Algorithms-with-Derivatives.html
 
-  const gsl_multimin_fdfminimizer_type *TYPE
-    = gsl_multimin_fdfminimizer_conjugate_fr;
+  const gsl_multimin_fdfminimizer_type *TYPE = gsl_multimin_fdfminimizer_conjugate_fr;
 
   //const gsl_multimin_fdfminimizer_type *TYPE = gsl_multimin_fdfminimizer_conjugate_pr;
   //const gsl_multimin_fdfminimizer_type *TYPE = gsl_multimin_fdfminimizer_vector_bfgs2;
@@ -711,16 +737,18 @@ void F_Update_Jk(F_ARG)
     if (status) break; // check if solver is stuck
   }  while( fabs(solver->f-omegap)>1e-2 && iter < MAX_ITER);
 
-  /*
+
   V->Type = VECTOR ;
+
   for (int i=0 ; i<3 ; i++)
     V->Val[i] = gsl_vector_get (solver->x, i) ;
-  */
+
+  /*
   for (int i=0 ; i<3 ; i++)
     J[i] = gsl_vector_get (solver->x, i) ;
   limiter(0.9999*(A+4)->Val[0], J) ;// +++ added - To FH: does this make sense???
-
   for (int i=0 ; i<3 ; i++) V->Val[i] = J[i];
+  */
 
   gsl_multimin_fdfminimizer_free (solver);
   gsl_vector_free (x);
