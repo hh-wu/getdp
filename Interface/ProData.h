@@ -962,7 +962,7 @@ struct Operation {
       int    MaxIter;
       int    Restart;
       List_T *FieldIndices;
-//      List_T *DeflationIndices;
+      List_T *DeflationIndices;
       List_T *Operations_Ax, *Operations_Mx;
     } IterativeLinearSolver;
     struct {

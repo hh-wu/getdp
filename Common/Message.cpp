@@ -209,7 +209,7 @@ void Message::Error(const char *fmt, ...)
 
 void Message::Warning(const char *fmt, ...)
 {
-  if(_commRank || _verbosity < 1) return;
+  if((_commRank && _isCommWorld) || _verbosity < 1) return;
   char str[1024];
   va_list args;
   va_start(args, fmt);
@@ -227,14 +227,17 @@ void Message::Warning(const char *fmt, ...)
     if(!streamIsFile(stdout) && streamIsVT100(stdout)){
       c0 = "\33[35m"; c1 = "\33[0m";  // magenta
     }
-    fprintf(stdout, "%sWarning : %s%s\n", c0, str, c1);
+  	if(_isCommWorld)
+    	fprintf(stdout, "%sWarning : %s%s\n", c0, str, c1);
+    else
+    	fprintf(stdout, "%sWarning : %s%s (on CPU %d)\n", c0, str, c1, _commRank);
     fflush(stdout);
   }
 }
 
 void Message::Info(const char *fmt, ...)
 {
-  if(_commRank || _verbosity < 2) return;
+  if((_commRank && _isCommWorld) || _verbosity < 2) return;
   char str[1024];
   va_list args;
   va_start(args, fmt);
@@ -246,7 +249,7 @@ void Message::Info(const char *fmt, ...)
 
 void Message::Info(int level, const char *fmt, ...)
 {
-  if(_commRank || _verbosity < level) return;
+  if((_commRank && _isCommWorld) || _verbosity < level) return;
   char str[1024];
   va_list args;
   va_start(args, fmt);
@@ -260,14 +263,17 @@ void Message::Info(int level, const char *fmt, ...)
     _onelabClient->sendInfo(str);
   }
   else{
-    fprintf(stdout, "Info    : %s\n", str);
+  	if(_isCommWorld)
+    	fprintf(stdout, "Info    : %s\n", str);
+    else
+    	fprintf(stdout, "Info    : %s (only on CPU %d)\n", str, _commRank);    
     fflush(stdout);
   }
 }
 
 void Message::Direct(const char *fmt, ...)
 {
-  if(_commRank || _verbosity < 1) return;
+  if((_commRank && _isCommWorld) || _verbosity < 1) return;
   va_list args;
   va_start(args, fmt);
   char str[1024];
@@ -279,7 +285,7 @@ void Message::Direct(const char *fmt, ...)
 
 void Message::Direct(int level, const char *fmt, ...)
 {
-  if(_commRank || _verbosity < level) return;
+  if((_commRank && _isCommWorld) || _verbosity < level) return;
   va_list args;
   va_start(args, fmt);
   char str[1024];
@@ -297,14 +303,17 @@ void Message::Direct(int level, const char *fmt, ...)
     if(level == 1 && !streamIsFile(stdout) && streamIsVT100(stdout)){
       c0 = "\33[34m"; c1 = "\33[0m";  // blue
     }
-    fprintf(stdout, "%s%s%s\n", c0, str, c1);
+  	if(_isCommWorld)
+    	fprintf(stdout, "%s%s%s\n", c0, str, c1);
+	else
+    	fprintf(stdout, "%s%s%s (only on CPU %d)\n", c0, str, c1, _commRank);
     fflush(stdout);
   }
 }
 
 void Message::Check(const char *fmt, ...)
 {
-  if(_commRank) return;
+  if(_commRank && _isCommWorld) return;
   char str[5000];
   va_list args;
   va_start(args, fmt);
@@ -349,7 +358,7 @@ void Message::Debug(const char *fmt, ...)
 
 void Message::Cpu(const char *fmt, ...)
 {
-  if(_commRank || _verbosity < 2) return;
+  if((_commRank && _isCommWorld) || _verbosity < 2) return;
   double s = 0.;
   long mem = 0;
   GetResources(&s, &mem);
@@ -363,7 +372,7 @@ void Message::Cpu(const char *fmt, ...)
   if(mem)
     sprintf(str2, "(CPU = %gs, Mem = %ldMb)", s, mem / 1024 / 1024);
   else
-    sprintf(str2, "(CPU = %gs)", s);
+	sprintf(str2, "(CPU = %gs)", s);
   strcat(str, str2);
 
   if(_client){
@@ -373,14 +382,17 @@ void Message::Cpu(const char *fmt, ...)
     _onelabClient->sendInfo(str);
   }
   else{
-    fprintf(stdout, "Info    : %s\n", str);
+  	if(_isCommWorld)
+    	fprintf(stdout, "Info    : %s\n", str);
+    else
+    	fprintf(stdout, "Info    : %s (only on CPU %d)\n", str, _commRank);    
     fflush(stdout);
   }
 }
 
 void Message::ProgressMeter(int n, int N, const char *fmt, ...)
 {
-  if(_commRank || _verbosity < 2) return;
+  if((_commRank && _isCommWorld) || _verbosity < 2) return;
 
   double percent = 100. * (double)n/(double)N;
 
@@ -834,9 +846,9 @@ void Message::Barrier()
   if(_isCommWorld) {
     MPI_Barrier(PETSC_COMM_WORLD);
   }
-  else{
+/*  else{
     MPI_Barrier(PETSC_COMM_SELF);
-  }
+  }*/
 #endif
 }
 

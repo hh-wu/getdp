@@ -907,6 +907,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  ------------------------------------------  */
     case OPERATION_SOLVEAGAIN : Flag_SolveAgain = 1 ;
     case OPERATION_SOLVE :
+//      printf("Operation_P->Rank = %d\n",Operation_P->Rank);
       /*  Solve : A x = b  */
       Init_OperationOnSystem(Flag_SolveAgain ? "SolveAgain" : "Solve",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
@@ -931,17 +932,17 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	LinAlg_AssembleVector(&DofData_P->b) ;
       }
 
-      if(!Flag_SolveAgain)
+      if(!Flag_SolveAgain){
+//      printf("Operation_P->Rank = %d\n",Operation_P->Rank);
 	LinAlg_Solve(&DofData_P->A, &DofData_P->b, &DofData_P->Solver,
 		     &DofData_P->CurrentSolution->x,
                      (Message::GetCommSize() > 1 || Operation_P->Rank < 0) ? 0 :
-                     Operation_P->Rank) ;
+                     Operation_P->Rank) ;}
       else
 	LinAlg_SolveAgain(&DofData_P->A, &DofData_P->b, &DofData_P->Solver,
                           &DofData_P->CurrentSolution->x,
                           (Message::GetCommSize() > 1 || Operation_P->Rank < 0) ? 0 :
                           Operation_P->Rank) ;
-
       Flag_CPU = 1 ;
       break ;
 
@@ -2523,7 +2524,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
     case OPERATION_BARRIER :
 #if defined(HAVE_PETSC)
+	  Message::Info("Barrier: waiting");
       MPI_Barrier(PETSC_COMM_WORLD);
+	  Message::Info("Barrier: let's continue");
 #endif
       break ;
 

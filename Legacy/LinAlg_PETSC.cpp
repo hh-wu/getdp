@@ -117,10 +117,12 @@ void LinAlg_SetCommSelf()
 {
   MyComm = PETSC_COMM_SELF;
   Message::SetIsCommWorld(0);
+  Message::Info("Set communicator to SELF");
 }
 
 void LinAlg_SetCommWorld()
 {
+  Message::Info("Set communicator to WORLD");
   MyComm = PETSC_COMM_WORLD;
   Message::SetIsCommWorld(1);
 }
@@ -1167,7 +1169,7 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
   PetscOptionsGetTruth(PETSC_NULL, "-zitsol", &zitsol, &set);
   if(zitsol){ _zitsol(A, B, X); return; }
 #endif
-
+//printf("INDEX SOLVER : %d\n", kspIndex);
   if(kspIndex < 0 || kspIndex > 9){
     Message::Error("Linear Solver index out of range (%d)", kspIndex);
     return;
@@ -1184,6 +1186,8 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
 
   if(kspIndex != 0)
     Message::Info("Using solver index %d", kspIndex);
+
+//printf("kspIndex = %d\n",kspIndex);
 
   if(!Solver->ksp[kspIndex]) {
     _try(KSPCreate(MyComm, &Solver->ksp[kspIndex]));
@@ -1225,6 +1229,7 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
     _try(KSPSetFromOptions(Solver->ksp[kspIndex]));
 
     if(view && (!Message::GetCommRank() || !Message::GetIsCommWorld())){
+    //either we are on parallel (!GetIsCommWorld) or in sequential with rank = 0(GetIsCommWorld)
       const KSPType ksptype;
       _try(KSPGetType(Solver->ksp[kspIndex], &ksptype));
       const PCType pctype;
@@ -1261,6 +1266,7 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
 void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
                   int solverIndex)
 {
+//	printf("solverIndex = %d\n", solverIndex);
   _solve(A, B, Solver, X, 1, solverIndex);
 }
 
@@ -1362,6 +1368,7 @@ static void _solveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R, gSolver *So
 
   bool view = (!Solver->snes[solverIndex] && Message::GetVerbosity() > 2);
 
+  //either we are on sequential (!GetIsCommWorld) or in parallel with rank = 0(GetIsCommWorld)
   if(view && (!Message::GetCommRank() || !Message::GetIsCommWorld()))
     Message::Info("N: %ld", (long)n);
 

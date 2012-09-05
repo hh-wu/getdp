@@ -4441,7 +4441,7 @@ OperationTerm :
       Operation_P->Case.IterativeLoop.Operation = $12;
     }
 
-  | tIterativeLinearSolver '[' CharExpr ',' FExpr ',' FExpr ',' FExpr ',' ListOfFExpr ']'
+  | tIterativeLinearSolver '[' CharExpr ',' FExpr ',' FExpr ',' FExpr ',' ListOfFExpr',' ListOfFExpr ']'
                            '{' Operation '}'
     { List_Pop(Operation_L);
       Operation_P = (struct Operation*)
@@ -4452,8 +4452,8 @@ OperationTerm :
       Operation_P->Case.IterativeLinearSolver.MaxIter = (int)$7;
       Operation_P->Case.IterativeLinearSolver.Restart = (int)$9;
       Operation_P->Case.IterativeLinearSolver.FieldIndices = $11;
-//      Operation_P->Case.IterativeLinearSolver.DeflationIndices = $13;
-      Operation_P->Case.IterativeLinearSolver.Operations_Ax = $14;
+      Operation_P->Case.IterativeLinearSolver.DeflationIndices = $13;
+      Operation_P->Case.IterativeLinearSolver.Operations_Ax = $16;
       Operation_P->Case.IterativeLinearSolver.Operations_Mx = 0;
     }
 

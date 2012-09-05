@@ -60,6 +60,7 @@ typedef struct { int dummy; }   gSolver ;
 
 void LinAlg_InitializeSolver(int* argc, char*** argv);
 void LinAlg_FinalizeSolver(void);
+
 void LinAlg_SetCommSelf();
 void LinAlg_SetCommWorld();
 
