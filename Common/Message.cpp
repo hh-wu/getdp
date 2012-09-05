@@ -266,7 +266,7 @@ void Message::Info(int level, const char *fmt, ...)
   	if(_isCommWorld)
     	fprintf(stdout, "Info    : %s\n", str);
     else
-    	fprintf(stdout, "Info    : %s (only on CPU %d)\n", str, _commRank);    
+    	fprintf(stdout, "Info    : %s (only on CPU %d)\n", str, _commRank);
     fflush(stdout);
   }
 }
@@ -385,7 +385,7 @@ void Message::Cpu(const char *fmt, ...)
   	if(_isCommWorld)
     	fprintf(stdout, "Info    : %s\n", str);
     else
-    	fprintf(stdout, "Info    : %s (only on CPU %d)\n", str, _commRank);    
+    	fprintf(stdout, "Info    : %s (only on CPU %d)\n", str, _commRank);
     fflush(stdout);
   }
 }
@@ -431,7 +431,7 @@ void Message::ProgressMeter(int n, int N, const char *fmt, ...)
       o.setReadOnly(true);
       _onelabClient->set(o);
     }
-    else{
+    else if(!streamIsFile(stdout)){
       fprintf(stdout, "%s                                          \r",
               (n > N - 1) ? "" : str2);
       fflush(stdout);
@@ -564,8 +564,8 @@ void Message::InitializeOnelab(std::string name, std::string sockname)
     // getdp is called without onelab server, but with the name of a onelab
     // database file
     _onelabClient = new onelab::localClient("GetDP");
-    Error("Reading OneLab db from file not implemented yet!");
-    //_onelabClient->readDatabaseFromFile(name);
+    Message::Info("Reading OneLab database '%s'", name.c_str());
+    _onelabClient->fromFile(name);
   }
 }
 
@@ -835,6 +835,8 @@ void Message::FinalizeOnelab()
         _onelabClient->set(ps[0]);
       }
     }
+    //_onelabClient->toFile("tmp.one");
+    //_onelabClient->fromFile("tmp.one");
     delete _onelabClient;
     _onelabClient = 0;
   }
