@@ -157,7 +157,7 @@ void Message::Fatal(const char *fmt, ...)
   if(_client){
     _client->Error(str);
   }
-  else if(_onelabClient){
+  else if(_onelabClient && _onelabClient->isNetworkClient()){
     _onelabClient->sendError(str);
   }
   else{
@@ -188,7 +188,7 @@ void Message::Error(const char *fmt, ...)
   if(_client){
     _client->Error(str);
   }
-  else if(_onelabClient){
+  else if(_onelabClient && _onelabClient->isNetworkClient()){
     _onelabClient->sendError(str);
   }
   else{
@@ -219,7 +219,7 @@ void Message::Warning(const char *fmt, ...)
   if(_client){
     _client->Warning(str);
   }
-  else if(_onelabClient){
+  else if(_onelabClient && _onelabClient->isNetworkClient()){
     _onelabClient->sendWarning(str);
   }
   else{
@@ -259,7 +259,7 @@ void Message::Info(int level, const char *fmt, ...)
   if(_client){
     _client->Info(str);
   }
-  else if(_onelabClient){
+  else if(_onelabClient && _onelabClient->isNetworkClient()){
     _onelabClient->sendInfo(str);
   }
   else{
@@ -295,7 +295,7 @@ void Message::Direct(int level, const char *fmt, ...)
   if(_client){
     _client->Info(str);
   }
-  else if(_onelabClient){
+  else if(_onelabClient && _onelabClient->isNetworkClient()){
     _onelabClient->sendInfo(str);
   }
   else{
@@ -323,7 +323,7 @@ void Message::Check(const char *fmt, ...)
   if(_client){
     _client->Info(str);
   }
-  else if(_onelabClient){
+  else if(_onelabClient && _onelabClient->isNetworkClient()){
     _onelabClient->sendInfo(str);
   }
   else{
@@ -344,7 +344,7 @@ void Message::Debug(const char *fmt, ...)
   if(_client){
     _client->Info(str);
   }
-  else if(_onelabClient){
+  else if(_onelabClient && _onelabClient->isNetworkClient()){
     _onelabClient->sendInfo(str);
   }
   else{
@@ -378,7 +378,7 @@ void Message::Cpu(const char *fmt, ...)
   if(_client){
     _client->Info(str);
   }
-  else if(_onelabClient){
+  else if(_onelabClient && _onelabClient->isNetworkClient()){
     _onelabClient->sendInfo(str);
   }
   else{
@@ -406,7 +406,7 @@ void Message::ProgressMeter(int n, int N, const char *fmt, ...)
     sprintf(str2, "%3d%%    : %s", _progressMeterCurrent, str);
 
     if(N <= 0){
-      if(_onelabClient){
+      if(_onelabClient && _onelabClient->isNetworkClient()){
         onelab::number o(_onelabClient->getName() + "/Progress", n);
         o.setLabel(std::string("GetDP ") + str);
         o.setMin(0);
@@ -421,7 +421,7 @@ void Message::ProgressMeter(int n, int N, const char *fmt, ...)
     if(_client){
       _client->Progress(str2);
     }
-    else if(_onelabClient){
+    else if(_onelabClient && _onelabClient->isNetworkClient()){
       onelab::number o(_onelabClient->getName() + "/Progress",
                        (n > N - 1) ? 0 : n);
       o.setLabel(std::string("GetDP ") + str);
@@ -457,7 +457,7 @@ void Message::PrintTimers()
   if(_client){
     _client->Info((char*)str.c_str());
   }
-  else if(_onelabClient){
+  else if(_onelabClient && _onelabClient->isNetworkClient()){
     _onelabClient->sendInfo(str);
   }
   else{
@@ -497,7 +497,7 @@ void Message::SendFileOnSocket(std::string filename)
   if(_client){
     _client->MergeFile((char*)filename.c_str());
   }
-  else if(_onelabClient){
+  else if(_onelabClient && _onelabClient->isNetworkClient()){
     _onelabClient->sendMergeFileRequest(filename);
   }
 }
