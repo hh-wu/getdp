@@ -72,12 +72,12 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
     std::vector<PetscInt> indices_field, sizes_field;
     std::vector<std::vector<std::vector<double> > > B_std; // right hand side (std version)
     Vec B, X;// right hand side and Solution
-    PetscInt n, n_loc, loc_size; // number of unknowns (globally and locally)
+    PetscInt n, n_loc; // number of unknowns (globally and locally)
     PC pc;
     int flag_operation = 1; //for the matmult product
     
-    KSPConvergedReason reason;
-    PetscInt its;
+//    KSPConvergedReason reason;
+//    PetscInt its;
     
     /*---------------------------------------------
      Reading data fromd GetDP
@@ -158,7 +158,11 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
 				ierr = DgmresDDM_Build(X, A, Operation_P, nb_field, nb_deflation, &M); CHKERRQ(ierr);			
 				ierr = PCSetType(pc,PCMAT);CHKERRQ(ierr);
 				ierr = PCSetOperators(pc, A, M, SAME_PRECONDITIONER);CHKERRQ(ierr);
+#if (PETSC_VERSION_RELEASE == 0  || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
 				ierr = KSPSetPCSide(ksp, PC_RIGHT);CHKERRQ(ierr);
+#else
+				ierr = PETSCKSP_DLLEXPORT KSPSetPreconditionerSide(ksp, PC_RIGHT);CHKERRQ(ierr);
+#endif
 			}
         }else{ierr = PCSetType(pc,PCNONE);CHKERRQ(ierr);        
         }
@@ -169,7 +173,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
         }
         
         // CONSTRUCT ITERATION MATRIX
-        Mat IterationMatrix;
+//        Mat IterationMatrix;
 //        ierr = BuildIterationMatrix(A, X, &IterationMatrix);CHKERRQ(ierr);
   //      ierr = PrintMatrix(IterationMatrix);CHKERRQ(ierr);
    //     ierr = PrintVec(B);CHKERRQ(ierr);
@@ -215,7 +219,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
     //we reuse B_std to avoid the creation of a new std::vector ...
     ierr = PETSc_Vec_to_STD_Vec(X, sizes_field, &B_std); CHKERRQ(ierr);
     //update views
-    for (int cpt_view = 0; cpt_view<indices_field.size(); cpt_view++){
+    for (unsigned int cpt_view = 0; cpt_view<indices_field.size(); cpt_view++){
         PView *view = PView::list[indices_field[cpt_view]];
         view->getData()->fromVector(B_std[cpt_view]);
     }
@@ -260,7 +264,7 @@ PetscErrorCode MatMultFieldMat(Mat A, Vec X, Vec Y)
     //convert X to a std vector
     ierr = PETSc_Vec_to_STD_Vec(X, field_sizes, &std_vec);CHKERRQ(ierr);
     // Update PViews
-    for (int cpt_view = 0; cpt_view<field_indices.size(); cpt_view++){
+    for (unsigned int cpt_view = 0; cpt_view<field_indices.size(); cpt_view++){
         PView *view = PView::list[field_indices[cpt_view]];
         view->getData()->fromVector(std_vec[cpt_view]);
     }
@@ -392,7 +396,7 @@ PetscErrorCode SetFieldMat(FieldMat **shell,
                            struct DofData *DofData_P0,
                            struct GeoData *GeoData_P0)
 {
-    PetscErrorCode	ierr;
+//    PetscErrorCode	ierr;
     
     (*shell)->flag_operation = flag_operation;
     (*shell)->FieldIndices = FieldIndices;
