@@ -936,13 +936,23 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 //      printf("Operation_P->Rank = %d\n",Operation_P->Rank);
 	LinAlg_Solve(&DofData_P->A, &DofData_P->b, &DofData_P->Solver,
 		     &DofData_P->CurrentSolution->x,
-                     (Message::GetCommSize() > 1 || Operation_P->Rank < 0) ? 0 :
-                     Operation_P->Rank) ;}
+                     (Operation_P->Rank < 0) ? (-Operation_P->Rank-1) : 0) ;
+    }
+	// By default, Operation_P->Rank = -1. 
+	// If Operation_P->Rank >= 0 then OPERATION_SOLVE is achieved sequentially on processus
+	// Operation_P->Rank only.
+	// If Operation_P->Rank < 0 then OPERATION_SOLVE is launched "classically" in parallel
+	// with a choice of the solver.
+	// The last argument of function "_solve" called by LinAlg_Solve defines which solver
+	// to use, from 0 to 9 (0=default, 1,2,... see "_solve" function)
+	// Thus, if Operation_P->Rank < 0, then we have to substitute Operation_P->Rank 
+	// to (-Operation_P->Rank-1) in the last argument to recover the solver number (0,1,2, ...)
+	// This modification permits to do numerical simulations of Domain Decomposition Method
+	// The same applies for LinAlg_SolveAgain, bellow
       else
 	LinAlg_SolveAgain(&DofData_P->A, &DofData_P->b, &DofData_P->Solver,
                           &DofData_P->CurrentSolution->x,
-                          (Message::GetCommSize() > 1 || Operation_P->Rank < 0) ? 0 :
-                          Operation_P->Rank) ;
+                          (Operation_P->Rank < 0) ? (-Operation_P->Rank-1) : 0) ;
       Flag_CPU = 1 ;
       break ;
 
