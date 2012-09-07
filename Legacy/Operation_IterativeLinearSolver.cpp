@@ -11,7 +11,7 @@
 #include "SolvingOperations.h"
 #include "Message.h"
 
-#if defined(HAVE_PETSC)
+#if defined(HAVE_PETSC) && defined(HAVE_GMSH)
 
 #include "petscksp.h"
 #include <gmsh/Gmsh.h>
