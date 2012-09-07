@@ -301,8 +301,6 @@ void LinAlg_ScanScalar(FILE *file, gScalar *S)
 
 void LinAlg_ScanVector(FILE *file, gVector *V)
 {
-  if(Message::GetCommSize() > 1)
-    Message::Error("ScanVector not implemented in parallel");
   PetscInt n;
   _try(VecGetSize(V->V, &n));
   for(PetscInt i = 0; i < n; i++){
@@ -318,6 +316,7 @@ void LinAlg_ScanVector(FILE *file, gVector *V)
 #endif
     _try(VecSetValues(V->V, 1, &i, &tmp, INSERT_VALUES));
   }
+  LinAlg_AssembleVector(V);
 }
 
 void LinAlg_ScanMatrix(FILE *file, gMatrix *M)
@@ -332,14 +331,13 @@ void LinAlg_ReadScalar(FILE *file, gScalar *S)
 
 void LinAlg_ReadVector(FILE *file, gVector *V)
 {
-  if(Message::GetCommSize() > 1)
-    Message::Error("ReadVector not implemented in parallel");
   PetscInt n;
   _try(VecGetSize(V->V, &n));
   PetscScalar *tmp = (PetscScalar*)Malloc(n*sizeof(PetscScalar));
   fread(tmp, sizeof(PetscScalar), n, file);
   for(PetscInt i = 0; i < n; i++)
     _try(VecSetValues(V->V, 1, &i, &tmp[i], INSERT_VALUES));
+  LinAlg_AssembleVector(V);
   Free(tmp);
 }
 
