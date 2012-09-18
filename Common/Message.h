@@ -26,6 +26,8 @@ class Message {
   static int _warningCount, _errorCount;
   // last PETSc error code
   static int _lastPETScError;
+  // should we exit on error?
+  static bool _exitOnError;
   // verbosity level
   static int _verbosity;
   // step (in %) of the progress meter and current progress %
@@ -57,6 +59,7 @@ class Message {
   static void Error(const char *fmt, ...);
   static void ResetErrorCounter(){ _errorCount = 0; }
   static int GetErrorCount(){ return _errorCount; }
+  static void SetExitOnError(bool val){ _exitOnError = val; }
   static void Warning(const char *fmt, ...);
   static void Info(const char *fmt, ...);
   static void Info(int level, const char *fmt, ...);

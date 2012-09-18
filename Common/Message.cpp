@@ -43,6 +43,7 @@ int Message::_commSize = 1;
 int Message::_isCommWorld = 1; // is the communicator set to WORLD (==1) or SELF (!=1)
 int Message::_errorCount = 0;
 int Message::_lastPETScError = 0;
+bool Message::_exitOnError = false;
 int Message::_verbosity = 3;
 int Message::_progressMeterStep = 10;
 int Message::_progressMeterCurrent = 0;
@@ -203,8 +204,10 @@ void Message::Error(const char *fmt, ...)
     fflush(stderr);
   }
 
-  // Error() should not exit; use Fatal() for that
-  // Exit(1);
+  if(_exitOnError){
+    // Error() should normally not exit; use Fatal() for that
+    Exit(1);
+  }
 }
 
 void Message::Warning(const char *fmt, ...)
