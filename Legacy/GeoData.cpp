@@ -366,8 +366,13 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
 	  Message::Info("Swapping bytes from binary file");
 	}
       }
-    }//=====Ruth
+    }
+
+    /* P H Y S I C A L   N A M E S */
+
     else if(!strncmp(&String[1], "PhysicalNames", 13)) {
+
+      // GetDP does not currently use the name information
 
       fgets(String, sizeof(String), File_GEO) ;
       int numNames;
