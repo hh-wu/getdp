@@ -7272,11 +7272,9 @@ StringIndex :
     {
       char tmpstr[256];
       sprintf(tmpstr, "_%d", (int)$4);
-      /* error in some cases?!?
-      $$ = (char *)Realloc($1,(strlen($1)+strlen(tmpstr)+1)*sizeof(char)) ;
-      */
       $$ = (char *)Malloc((strlen($1)+strlen(tmpstr)+1)*sizeof(char)) ;
       strcpy($$, $1) ; strcat($$, tmpstr) ;
+      Free($1);
     }
 
  ;
