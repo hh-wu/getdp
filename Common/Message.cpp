@@ -266,10 +266,10 @@ void Message::Info(int level, const char *fmt, ...)
     _onelabClient->sendInfo(str);
   }
   else{
-  	if(_isCommWorld)
-    	fprintf(stdout, "Info    : %s\n", str);
+    if(_isCommWorld)
+      fprintf(stdout, "Info    : %s\n", str);
     else
-    	fprintf(stdout, "Info    : %s (only on CPU %d)\n", str, _commRank);
+      fprintf(stdout, "Info    : %s (only on CPU %d)\n", str, _commRank);
     fflush(stdout);
   }
 }
@@ -306,10 +306,10 @@ void Message::Direct(int level, const char *fmt, ...)
     if(level == 1 && !streamIsFile(stdout) && streamIsVT100(stdout)){
       c0 = "\33[34m"; c1 = "\33[0m";  // blue
     }
-  	if(_isCommWorld)
-    	fprintf(stdout, "%s%s%s\n", c0, str, c1);
-	else
-    	fprintf(stdout, "%s%s%s (only on CPU %d)\n", c0, str, c1, _commRank);
+    if(_isCommWorld)
+      fprintf(stdout, "%s%s%s\n", c0, str, c1);
+    else
+      fprintf(stdout, "%s%s%s (only on CPU %d)\n", c0, str, c1, _commRank);
     fflush(stdout);
   }
 }
@@ -385,10 +385,10 @@ void Message::Cpu(const char *fmt, ...)
     _onelabClient->sendInfo(str);
   }
   else{
-  	if(_isCommWorld)
-    	fprintf(stdout, "Info    : %s\n", str);
+    if(_isCommWorld)
+      fprintf(stdout, "Info    : %s\n", str);
     else
-    	fprintf(stdout, "Info    : %s (only on CPU %d)\n", str, _commRank);
+      fprintf(stdout, "Info    : %s (only on CPU %d)\n", str, _commRank);
     fflush(stdout);
   }
 }

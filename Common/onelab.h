@@ -100,6 +100,11 @@ namespace onelab{
     const std::string &getName() const { return _name; }
     const std::string &getLabel() const { return _label; }
     const std::string &getHelp() const { return _help; }
+    std::string getPath() const
+    {
+      std::string::size_type last = _name.find_last_of('/');
+      return _name.substr(0, last);
+    }
     std::string getShortName() const
     {
       if(_label.size()) return _label;
@@ -310,6 +315,7 @@ namespace onelab{
       addClients(p.getClients()); // complete the list of clients
       setLabel(p.getLabel());
       setHelp(p.getHelp());
+      setChanged(p.getChanged());
       setVisible(p.getVisible());
       setReadOnly(p.getReadOnly());
       setAttributes(p.getAttributes());
@@ -385,6 +391,7 @@ namespace onelab{
       addClients(p.getClients());
       setLabel(p.getLabel());
       setHelp(p.getHelp());
+      setChanged(p.getChanged());
       setVisible(p.getVisible());
       setReadOnly(p.getReadOnly());
       setAttributes(p.getAttributes());
@@ -459,6 +466,7 @@ namespace onelab{
       addClients(p.getClients());
       setLabel(p.getLabel());
       setHelp(p.getHelp());
+      setChanged(p.getChanged());
       setAttributes(p.getAttributes());
       if(p.getValue() != getValue()){
         setValue(p.getValue());
@@ -539,6 +547,7 @@ namespace onelab{
       addClients(p.getClients());
       setLabel(p.getLabel());
       setHelp(p.getHelp());
+      setChanged(p.getChanged());
       setAttributes(p.getAttributes());
       if(p.getValue() != getValue()){
         setValue(p.getValue());
@@ -596,6 +605,8 @@ namespace onelab{
     // set a parameter in the parameter space; if it already exists, update it
     // (adding new clients if necessary). This needs to be locked to avoid race
     // conditions when several clients try to set a parameter at the same time.
+    // One needs to make an exception for parameters "client/Action".
+
     template <class T> bool _set(const T &p, const std::string &client,
                                  std::set<T*, parameterLessThan> &ps)
     {
