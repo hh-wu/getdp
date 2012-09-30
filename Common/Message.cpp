@@ -685,7 +685,8 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
   if(c->Type == VAR_FLOAT){
     std::vector<onelab::number> ps;
     _onelabClient->get(ps, name);
-    bool noRange = true, noChoices = true, noLoop = true, noGraph = true;
+    bool noRange = true, noChoices = true, noLoop = true;
+    bool noGraph = true, noClosed = true;
     if(ps.size()){
       c->Value.Float = ps[0].getValue(); // use value from server
       // keep track of these attributes, which can be changed server-side
@@ -695,6 +696,7 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
       if(ps[0].getChoices().size()) noChoices = false;
       if(ps[0].getAttribute("Loop").size()) noLoop = false;
       if(ps[0].getAttribute("Graph").size()) noGraph = false;
+      if(ps[0].getAttribute("Closed").size()) noClosed = false;
     }
     else{
       ps.resize(1);
@@ -743,6 +745,7 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
     }
     if(noLoop && copt.count("Loop")) ps[0].setAttribute("Loop", copt["Loop"][0]);
     if(noGraph && copt.count("Graph")) ps[0].setAttribute("Graph", copt["Graph"][0]);
+    if(noClosed && copt.count("Closed")) ps[0].setAttribute("Closed", copt["Closed"][0]);
     _setStandardOptions(&ps[0], fopt, copt);
     // If the parameter is set "read-only" here, the local value is used instead
     // of that from the server
@@ -752,8 +755,11 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
   else if(c->Type == VAR_CHAR){
     std::vector<onelab::string> ps;
     _onelabClient->get(ps, name);
+    bool noClosed = true;
     if(ps.size()){
       c->Value.Char = strSave(ps[0].getValue().c_str()); // use value from server
+      // keep track of these attributes, which can be changed server-side
+      if(ps[0].getAttribute("Closed").size()) noClosed = false;
     }
     else{
       ps.resize(1);
@@ -762,6 +768,7 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
     }
     // send updated parameter to server
     if(copt.count("Choices")) ps[0].setChoices(copt["Choices"]);
+    if(noClosed && copt.count("Closed")) ps[0].setAttribute("Closed", copt["Closed"][0]);
     _setStandardOptions(&ps[0], fopt, copt);
     // If the parameter is set "read-only" here, the local value is used instead
     // of that from the server
