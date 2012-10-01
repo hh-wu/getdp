@@ -688,7 +688,8 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
     bool noRange = true, noChoices = true, noLoop = true;
     bool noGraph = true, noClosed = true;
     if(ps.size()){
-      c->Value.Float = ps[0].getValue(); // use value from server
+      if(!ps[0].getReadOnly())
+        c->Value.Float = ps[0].getValue(); // use value from server
       // keep track of these attributes, which can be changed server-side
       if(ps[0].getMin() != -onelab::parameter::maxNumber() ||
          ps[0].getMax() != onelab::parameter::maxNumber() ||
@@ -757,7 +758,8 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
     _onelabClient->get(ps, name);
     bool noClosed = true;
     if(ps.size()){
-      c->Value.Char = strSave(ps[0].getValue().c_str()); // use value from server
+      if(!ps[0].getReadOnly())
+        c->Value.Char = strSave(ps[0].getValue().c_str()); // use value from server
       // keep track of these attributes, which can be changed server-side
       if(ps[0].getAttribute("Closed").size()) noClosed = false;
     }
@@ -788,11 +790,12 @@ void Message::ExchangeOnelabParameter(Group *g, fmap &fopt, cmap &copt)
   std::vector<onelab::region> ps;
   _onelabClient->get(ps, name);
   if(ps.size()){
-    // use value from server (FIXME: deal with ReadOnly)
-    List_Reset(g->InitialList);
-    std::set<std::string> val(ps[0].getValue());
-    for(std::set<std::string>::iterator it = val.begin(); it != val.end(); it++)
-      Fill_GroupInitialListFromString(g->InitialList, it->c_str());
+    if(!ps[0].getReadOnly()){ // use value from server
+      List_Reset(g->InitialList);
+      std::set<std::string> val(ps[0].getValue());
+      for(std::set<std::string>::iterator it = val.begin(); it != val.end(); it++)
+        Fill_GroupInitialListFromString(g->InitialList, it->c_str());
+    }
   }
   else{
     ps.resize(1);
@@ -845,8 +848,6 @@ void Message::FinalizeOnelab()
         _onelabClient->set(ps[0]);
       }
     }
-    //_onelabClient->toFile("tmp.one");
-    //_onelabClient->fromFile("tmp.one");
     delete _onelabClient;
     _onelabClient = 0;
   }
