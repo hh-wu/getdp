@@ -90,7 +90,8 @@ class Message {
   static void GetOnelabString(std::string name, char **val);
   static std::string GetOnelabAction();
   static void AddOnelabNumberChoice(std::string name, double val);
-  static void AddOnelabStringChoice(std::string name, std::string kind, std::string choice);
+  static void AddOnelabStringChoice(std::string name, std::string kind,
+                                    std::string choice);
   typedef std::map<std::string, std::vector<double> > fmap;
   typedef std::map<std::string, std::vector<std::string> > cmap;
   static void ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt);
