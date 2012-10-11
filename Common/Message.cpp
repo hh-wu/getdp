@@ -789,6 +789,7 @@ void Message::ExchangeOnelabParameter(Group *g, fmap &fopt, cmap &copt)
 
   std::vector<onelab::region> ps;
   _onelabClient->get(ps, name);
+  bool noClosed = true;
   if(ps.size()){
     if(!ps[0].getReadOnly()){ // use value from server
       List_Reset(g->InitialList);
@@ -796,6 +797,8 @@ void Message::ExchangeOnelabParameter(Group *g, fmap &fopt, cmap &copt)
       for(std::set<std::string>::iterator it = val.begin(); it != val.end(); it++)
         Fill_GroupInitialListFromString(g->InitialList, it->c_str());
     }
+    // keep track of these attributes, which can be changed server-side
+    if(ps[0].getAttribute("Closed").size()) noClosed = false;
   }
   else{
     ps.resize(1);
@@ -809,6 +812,7 @@ void Message::ExchangeOnelabParameter(Group *g, fmap &fopt, cmap &copt)
     }
   }
   // send updated parameter to server
+  if(noClosed && copt.count("Closed")) ps[0].setAttribute("Closed", copt["Closed"][0]);
   _setStandardOptions(&ps[0], fopt, copt);
   _onelabClient->set(ps[0]);
 }
