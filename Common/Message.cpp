@@ -688,8 +688,26 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
     bool noRange = true, noChoices = true, noLoop = true;
     bool noGraph = true, noClosed = true;
     if(ps.size()){
-      if(!ps[0].getReadOnly())
-        c->Value.Float = ps[0].getValue(); // use value from server
+
+      // modified implementation of ReadOnly
+      if(fopt.count("ReadOnly")) {
+	ps[0].setReadOnly(fopt["ReadOnly"][0] ? true : false);
+	// If the parameter is set "read-only" in this statement
+	if(ps[0].getReadOnly()) 
+	  // If the parameter is set "read-only" in this statement
+	  // use local value
+	  ps[0].setValue(c->Value.Float); 
+	else
+	  // use value from server
+	  c->Value.Float = ps[0].getValue(); 
+      }
+      else
+	c->Value.Float = ps[0].getValue(); // use value from server
+
+
+      //if(!ps[0].getReadOnly())
+      //  c->Value.Float = ps[0].getValue(); // use value from server
+
       // keep track of these attributes, which can be changed server-side
       if(ps[0].getMin() != -onelab::parameter::maxNumber() ||
          ps[0].getMax() != onelab::parameter::maxNumber() ||
@@ -748,9 +766,11 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
     if(noGraph && copt.count("Graph")) ps[0].setAttribute("Graph", copt["Graph"][0]);
     if(noClosed && copt.count("Closed")) ps[0].setAttribute("Closed", copt["Closed"][0]);
     _setStandardOptions(&ps[0], fopt, copt);
+
     // If the parameter is set "read-only" here, the local value is used instead
     // of that from the server
-    if(ps[0].getReadOnly()) ps[0].setValue(c->Value.Float);
+    // if(ps[0].getReadOnly()) ps[0].setValue(c->Value.Float);
+
     _onelabClient->set(ps[0]);
   }
   else if(c->Type == VAR_CHAR){
@@ -758,8 +778,26 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
     _onelabClient->get(ps, name);
     bool noClosed = true;
     if(ps.size()){
-      if(!ps[0].getReadOnly())
-        c->Value.Char = strSave(ps[0].getValue().c_str()); // use value from server
+
+      // modified implementation of ReadOnly
+      if(fopt.count("ReadOnly")) {
+	ps[0].setReadOnly(fopt["ReadOnly"][0] ? true : false);
+	// If the parameter is set "read-only" in this statement
+	if(ps[0].getReadOnly()) 
+	  // If the parameter is set "read-only" in this statement
+	  // use local value
+	  ps[0].setValue(c->Value.Char);
+	else
+	  // use value from server
+	  c->Value.Char = strSave(ps[0].getValue().c_str());
+      }
+      else
+	// use value from server
+	c->Value.Char = strSave(ps[0].getValue().c_str());
+
+      // if(!ps[0].getReadOnly())
+      //   c->Value.Char = strSave(ps[0].getValue().c_str()); // use value from server
+
       // keep track of these attributes, which can be changed server-side
       if(ps[0].getAttribute("Closed").size()) noClosed = false;
     }
@@ -772,9 +810,11 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
     if(copt.count("Choices")) ps[0].setChoices(copt["Choices"]);
     if(noClosed && copt.count("Closed")) ps[0].setAttribute("Closed", copt["Closed"][0]);
     _setStandardOptions(&ps[0], fopt, copt);
+
     // If the parameter is set "read-only" here, the local value is used instead
     // of that from the server
-    if(ps[0].getReadOnly()) ps[0].setValue(c->Value.Char);
+    // if(ps[0].getReadOnly()) ps[0].setValue(c->Value.Char);
+
     _onelabClient->set(ps[0]);
   }
 }

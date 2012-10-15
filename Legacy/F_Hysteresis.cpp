@@ -746,7 +746,7 @@ void F_Update_Jk(F_ARG)
   /*
   for (int i=0 ; i<3 ; i++)
     J[i] = gsl_vector_get (solver->x, i) ;
-  limiter(0.9999*(A+4)->Val[0], J) ;// +++ added - To FH: does this make sense???
+  limiter(0.9999*context.Js, J) ;
   for (int i=0 ; i<3 ; i++) V->Val[i] = J[i];
   */
 
