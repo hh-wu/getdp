@@ -27,7 +27,7 @@ class Message {
   // last PETSc error code
   static int _lastPETScError;
   // should we exit on error?
-  static bool _exitOnError;
+  static bool _exitOnError, _operatingInTimeLoopAdaptive;
   // verbosity level
   static int _verbosity;
   // step (in %) of the progress meter and current progress %
@@ -60,6 +60,8 @@ class Message {
   static void ResetErrorCounter(){ _errorCount = 0; }
   static int GetErrorCount(){ return _errorCount; }
   static void SetExitOnError(bool val){ _exitOnError = val; }
+  static void SetOperatingInTimeLoopAdaptive(bool val){ _operatingInTimeLoopAdaptive = val; }
+  static bool GetOperatingInTimeLoopAdaptive(){ return _operatingInTimeLoopAdaptive; }
   static void Warning(const char *fmt, ...);
   static void Info(const char *fmt, ...);
   static void Info(int level, const char *fmt, ...);

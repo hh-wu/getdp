@@ -422,15 +422,17 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
   bool   TimeStepAccepted, DTimeMinAtLastStep, BreakpointListCreated;
   bool   BreakpointAtThisStep, BreakpointAtNextStep;
   double Time0, TimeMax, DTimeInit, DTimeMin, DTimeMax;
-  double s, DTimeMaxScal;
+  double s, DTimeMaxScal, DTimeScal_NotConverged, DTimeScal_PETScError, DTimeScal=1.0;
   List_T *Breakpoints, *TLAsystems, *xPredicted_L;
   TimeLoopAdaptiveSystem TLAsystem;
   DofData *DofData_P=NULL;
 
 
   // Some constants influencing the time stepping
-  s = 0.8;               // target LTE ratio for next step (should be below 1)
-  DTimeMaxScal = 2.0;    // maximum factor for increasing the time step DTime
+  s                      = 0.8;    // target LTE ratio for next step (should be below 1)
+  DTimeMaxScal           = 2.0;    // maximum factor for increasing the time step DTime
+  DTimeScal_NotConverged = 0.25;   // step size scaling in case of a not converged iterative loop
+  DTimeScal_PETScError   = 0.25;   // step size scaling in case of a PETSc error
 
   Time0    = Operation_P->Case.TimeLoopAdaptive.Time0;
   TimeMax  = Operation_P->Case.TimeLoopAdaptive.TimeMax;
@@ -553,6 +555,8 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
 
     if(Message::GetOnelabAction() == "stop") break;
 
+    Message::SetOperatingInTimeLoopAdaptive(true);
+
     Current.TypeTime  = TypeTime;
     Current.Time     += Current.DTime;
     Save_DTime        = Current.DTime;
@@ -602,12 +606,14 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
     // ----------------------------------------------
     if (Flag_IterativeLoopConverged != 1){
       TimeStepAccepted = false;
+      DTimeScal = DTimeScal_NotConverged;
       Message::Info("Time step %d  Try %d  Time = %.8g s  rejected (IterativeLoop not "
                     "converged)", (int)Current.TimeStep, Try, Current.Time);
     }
     else if (Message::GetLastPETScError()) {
       TimeStepAccepted = false;
       Flag_IterativeLoopConverged = 0;
+      DTimeScal = DTimeScal_PETScError;
       Message::Warning("Time step %d  Try %d  Time = %.8g s  rejected:",
                        (int)Current.TimeStep, Try, Current.Time);
       Message::Warning("No valid solution found (PETSc-Error: %d)!",
@@ -620,6 +626,7 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
       if (maxLTEratio != maxLTEratio) { // If maxLTEratio = NaN => There was no valid solution!
         TimeStepAccepted = false;
         Flag_IterativeLoopConverged = 0;
+        DTimeScal = DTimeScal_PETScError;
         Message::Info("Time step %d  Try %d  Time = %.8g s  rejected: No valid solution "
                       "found (NaN or Inf)!", (int)Current.TimeStep, Try, Current.Time);
       }
@@ -676,7 +683,7 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
       Message::Error("Time step too small! Simulation aborted!");
 
     if (Flag_IterativeLoopConverged != 1){
-      Current.DTime /= 2.0;
+      Current.DTime *= DTimeScal;
     }
     else{
       // Milne's estimate
@@ -743,6 +750,8 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
           break;
       }
   } // while loop
+
+  Message::SetOperatingInTimeLoopAdaptive(false);
 
   Current.TimeStep -= 1.;       // Correct the time step counter
 

@@ -181,8 +181,8 @@ void Operation_IterativeLoopN(Resolution  *Resolution_P,
       break;
     }
     else if (Message::GetLastPETScError()) {
-      Message::Warning("No valid solution found (PETSc-Error: %d)!",
-                       Message::GetLastPETScError());
+      Message::Warning("No valid solution found (PETSc-Error: %d)! "
+                       "Aborting IterativeLoopN", Message::GetLastPETScError());
       break;
     }
 

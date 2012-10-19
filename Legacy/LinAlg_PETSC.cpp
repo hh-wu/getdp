@@ -65,7 +65,12 @@ static PetscViewer MyPetscViewer;
 static void _try(int ierr)
 {
   if(PetscUnlikely(ierr)){
-    Message::Error("PETSc error %d", ierr);
+    // Do not produce an error in case of a PETSc-crash
+    // when we are in TimeLoopAdaptive loop
+    if (Message::GetOperatingInTimeLoopAdaptive())
+      Message::Warning("PETSc error %d", ierr);
+    else
+      Message::Error("PETSc error %d", ierr);
     Message::SetLastPETScError(ierr);
   }
   CHKERRCONTINUE(ierr);
