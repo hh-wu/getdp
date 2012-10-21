@@ -1,11 +1,17 @@
 Group {
   // Input groups:
-  DefineGroup[ Domain_M = {{}, Label "Permanent magnets", Path "Regions"},
-               Domain_S = {{}, Label "Inductor with imposed js", Path "Regions"},
-               Domain_Inf = {{}, Label "Infinite domain (spherical shell)", Path "Regions"},
-               Domain_Mag = {{}, Label "Magnetic materials", Path "Regions"},
-               Dirichlet_phi_0 = {{}, Label "H.t = 0", Path "Regions"},
-               Dirichlet_a_0 = {{}, Label "B.n = 0", Path "Regions"} ];
+  DefineGroup[ Domain_M = {{}, Label "Permanent magnets",
+                           Path "Regions/0Sources"},
+               Domain_S = {{}, Label "Inductor (imposed j_s)",
+                           Path "Regions/0Sources"},
+               Domain_Inf = {{}, Label "Infinite domain (spherical shell)",
+                             Path "Regions/0Special regions", Closed "1"},
+               Domain_Mag = {{}, Label "Passive magnetic regions",
+                             Path "Regions/Other regions"},
+               Dirichlet_phi_0 = {{}, Label "h_t = 0", Closed "1",
+                                  Path "Regions/0Boundary conditions"},
+               Dirichlet_a_0 = {{}, Label "b_n = 0",
+                                Path "Regions/0Boundary conditions"} ];
 
   DefineGroup[ Domain = {{Domain_Mag, Domain_M, Domain_S, Domain_Inf},
                          Label "Computational domain", Path "Regions", Visible 0} ];
@@ -22,6 +28,13 @@ Function{
                   hc, // coercive magnetic field
                   js // source current density
                   ];
+
+  // remove this: only for demo
+  //DefineConstant[ hcx = {0, Label "Coercive field h_x", Path "Sources"}];
+  //DefineConstant[ hcy = {1000, Label "Coercive field h_y", Path "Sources"}];
+  //hc[] = Vector[hcx,hcy,0];
+  //mu[] = 4*Pi*10^-7;
+  //nu[] = 1/mu[];
 }
 
 Jacobian {
