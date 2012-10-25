@@ -33,18 +33,6 @@ static void swapBytes(char *array, int size, int n)
   Free(x);
 }
 
-static std::string ExtractDoubleQuotedString(const char *str, int len)
-{
-  char *c = strstr((char*)str, "\"");
-  if(!c) return "";
-  std::string ret;
-  for(int i = 1; i < len; i++) {
-    if(c[i] == '"' || c[i] == EOF || c[i] == '\n' || c[i] == '\r') break;
-    ret.push_back(c[i]);
-  }
-  return ret;
-}
-
 /* ------------------------------------------------------------------------ */
 /*  G e o _ A d d G e o D a t a                                             */
 /* ------------------------------------------------------------------------ */
@@ -384,8 +372,6 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
         }
         if(fscanf(File_GEO, "%d", &num) != 1) return ;
         fgets(String, sizeof(String), File_GEO) ;
-        std::string name = ExtractDoubleQuotedString(String, 256);
-        //if(name.size()) setPhysicalName(name, dim, num);
       }
     }
 
