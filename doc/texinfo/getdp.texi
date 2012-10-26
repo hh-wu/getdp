@@ -3349,6 +3349,12 @@ Linear interpolation of points. The number of constant expressions in
 Derivative of linear interpolation of points. The number of constant
 expressions in @var{expression-cst-list} must be even.
 
+@item InterpolationBilinear
+@code{[]@{@var{expression-cst-list}@}}
+
+Bilinear interpolation of a table based on two variables. See
+@url{https://geuz.org/trac/getdp/wiki/UsageOfTables} for an example.
+
 @item InterpolationAkima
 @code{[]@{@var{expression-cst-list}@}}
 
@@ -4545,6 +4551,11 @@ Time oriented column output, e.g., suitable for Gnuplot, Excel, Caleida
 Graph, etc. The columns are: @var{time-step} @var{time} @var{x-coord}
 @var{y-coord} @var{z-coord} <@var{x-coord} @var{y-coord} @var{z-coord}>
 @dots{} @var{value}.
+
+@item NodeTable
+Table of node values. The first value corresponds to the number of listed
+nodes. The columns of the following lines are: @var{node-number}
+@var{node-value(s)}
 
 @item Gnuplot
 Space oriented column output similar to the @code{Table} format, except that
