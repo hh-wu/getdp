@@ -72,6 +72,8 @@ Pi                           return tPi;
 1D                           return t1D;
 2D                           return t2D;
 3D                           return t3D;
+MPI_Rank                     return tMPI_Rank;
+MPI_Size                     return tMPI_Size;
 
 Include                      return tInclude;
 #include                     return tInclude;

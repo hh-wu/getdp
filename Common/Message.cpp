@@ -675,6 +675,7 @@ static void _setStandardOptions(onelab::parameter *p, Message::fmap &fopt, Messa
   if(fopt.count("Visible")) p->setVisible(fopt["Visible"][0] ? true : false);
   if(fopt.count("ReadOnly")) p->setReadOnly(fopt["ReadOnly"][0] ? true : false);
   if(copt.count("Highlight")) p->setAttribute("Highlight", copt["Highlight"][0]);
+  if(copt.count("AutoCheck")) p->setAttribute("AutoCheck", copt["AutoCheck"][0]);
 }
 
 void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
@@ -771,6 +772,7 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
       ps[0].setValue(c->Value.Char);
     }
     // send updated parameter to server
+    if(copt.count("Kind")) ps[0].setKind(copt["Kind"][0]);
     if(copt.count("Choices")) ps[0].setChoices(copt["Choices"]);
     if(noClosed && copt.count("Closed")) ps[0].setAttribute("Closed", copt["Closed"][0]);
     _setStandardOptions(&ps[0], fopt, copt);

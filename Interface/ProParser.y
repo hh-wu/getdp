@@ -171,7 +171,7 @@ struct doubleXstring{
 %token  tInclude
 %token  tConstant tList tListAlt tLinSpace tLogSpace tListFromFile
 %token  tChangeCurrentPosition
-%token  tDefineConstant tPi t0D t1D t2D t3D
+%token  tDefineConstant tPi tMPI_Rank tMPI_Size t0D t1D t2D t3D
 %token  tExp tLog tLog10 tSqrt tSin tAsin tCos tAcos tTan
 %token    tAtan tAtan2 tSinh tCosh tTanh tFabs tFloor tCeil tSign
 %token    tFmod tModulo tHypot tRand
@@ -6898,13 +6898,15 @@ FExpr :
 
 OneFExpr :
 
-    tFLOAT                     { $$ = $1; }
-  | tINT                       { $$ = (double)$1; }
-  | tPi                        { $$ = 3.1415926535897932; }
-  | t0D                        { $$ = (double)_0D; }
-  | t1D                        { $$ = (double)_1D; }
-  | t2D                        { $$ = (double)_2D; }
-  | t3D                        { $$ = (double)_3D; }
+    tFLOAT    { $$ = $1; }
+  | tINT      { $$ = (double)$1; }
+  | tPi       { $$ = 3.1415926535897932; }
+  | t0D       { $$ = (double)_0D; }
+  | t1D       { $$ = (double)_1D; }
+  | t2D       { $$ = (double)_2D; }
+  | t3D       { $$ = (double)_3D; }
+  | tMPI_Rank { $$ = Message::GetCommRank(); }
+  | tMPI_Size { $$ = Message::GetCommSize(); }
   | String__Index
     { Constant_S.Name = $1;
       if(!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant)) {
