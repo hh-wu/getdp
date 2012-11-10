@@ -5940,6 +5940,7 @@ PrintOptions :
       PostSubOperation_S.SendToServer = NULL;
       PostSubOperation_S.ValueIndex = 0;
       PostSubOperation_S.ValueName = NULL;
+      PostSubOperation_S.Label = NULL;
     }
   | PrintOptions PrintOption
  ;
@@ -6056,6 +6057,10 @@ PrintOption :
   | ',' tValueName  CharExpr
     {
       PostSubOperation_S.ValueName = $3;
+    }
+  | ',' tName  CharExpr
+    {
+      PostSubOperation_S.Label = $3;
     }
   | ',' tDimension FExpr
     {

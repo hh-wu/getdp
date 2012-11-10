@@ -197,7 +197,7 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
   // assembly performance: petsc really sucks at dynamic reallocation
   // in the AIJ matrix format)
   for(unsigned int i = 0; i < Current.DofData->NonLocalEquations.size(); i++)
-    nnz[Current.DofData->NonLocalEquations[i] - 1] = n;
+    nnz[Current.DofData->NonLocalEquations[i] - 1] = n / 10;
 
   if(Message::GetCommSize() > 1) // FIXME: alloc full lines...
 #if ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 3))

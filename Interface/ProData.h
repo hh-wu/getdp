@@ -1246,7 +1246,7 @@ struct PostSubOperation {
   int    Legend, FrozenTimeStepList;
   double LegendPosition[3];
   double Target;
-  char   *ValueName;
+  char   *ValueName, *Label;
   List_T *HeaderChar_L, *HeaderTag_L;
   List_T *FormatChar_L, *FormatTag_L;
   List_T *FooterChar_L, *FooterTag_L;

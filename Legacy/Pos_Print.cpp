@@ -170,8 +170,10 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 		    PostSubOperation_P->Iso, NbrTimeStep,
 		    PostSubOperation_P->HarmonicToTime,
 		    PostSubOperation_P->CombinationType, Order,
-		    NCPQ_P?NCPQ_P->Name:NULL,
-		    CPQ_P?CPQ_P->Name:NULL);
+                    PostSubOperation_P->Label ? PostSubOperation_P->Label :
+		    (NCPQ_P ? NCPQ_P->Name : NULL),
+                    PostSubOperation_P->Label ? NULL :
+                    (CPQ_P ? CPQ_P->Name : NULL));
 
   /* Get the region */
 
@@ -692,8 +694,10 @@ void  Pos_PrintOnSection(struct PostQuantity     *NCPQ_P,
 		    PostSubOperation_P->Iso, NbTimeStep,
 		    PostSubOperation_P->HarmonicToTime,
 		    PostSubOperation_P->CombinationType, Order,
-		    NCPQ_P?NCPQ_P->Name:NULL,
-		    CPQ_P?CPQ_P->Name:NULL);
+                    PostSubOperation_P->Label ? PostSubOperation_P->Label :
+		    (NCPQ_P ? NCPQ_P->Name : NULL),
+                    PostSubOperation_P->Label ? NULL :
+		    (CPQ_P ? CPQ_P->Name : NULL));
 
   if(CPQ_P){
     Cal_PostCumulativeQuantity(NULL,
@@ -972,8 +976,10 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
                     PSO_P->Iso,
 		    NbTimeStep, PSO_P->HarmonicToTime,
 		    PSO_P->CombinationType, Order,
-		    NCPQ_P?NCPQ_P->Name:NULL,
-		    CPQ_P?CPQ_P->Name:NULL);
+                    PSO_P->Label ? PSO_P->Label :
+		    (NCPQ_P ? NCPQ_P->Name : NULL),
+                    PSO_P->Label ? NULL :
+                    (CPQ_P ? CPQ_P->Name : NULL));
 
   PE = Create_PostElement(0, POINT, 1, 0) ;
 
@@ -1215,8 +1221,10 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
                     PostSubOperation_P->Iso,
 		    NbrTimeStep, PostSubOperation_P->HarmonicToTime,
 		    PostSubOperation_P->CombinationType, Order,
-		    NCPQ_P?NCPQ_P->Name:NULL,
-		    CPQ_P?CPQ_P->Name:NULL);
+                    PostSubOperation_P->Label ? PostSubOperation_P->Label :
+		    (NCPQ_P ? NCPQ_P->Name : NULL),
+                    PostSubOperation_P->Label ? NULL :
+                    (CPQ_P ? CPQ_P->Name : NULL));
 
   Group_P = (PostSubOperation_P->Case.OnRegion.RegionIndex < 0)?  NULL :
     (struct Group *)
@@ -1492,7 +1500,7 @@ void  Pos_PrintGroup(struct PostSubOperation *PostSubOperation_P)
 		    PostSubOperation_P->Iso, 1,
 		    PostSubOperation_P->HarmonicToTime,
 		    PostSubOperation_P->CombinationType, 0,
-		    NULL, NULL);
+                    PostSubOperation_P->Label, NULL);
 
   Region_L = ((struct Group *)
 	      List_Pointer(Problem_S.Group,

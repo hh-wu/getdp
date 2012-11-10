@@ -298,9 +298,8 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
 
     if(PostSubOperation_P->SendToServer == NULL ||
        strcmp(PostSubOperation_P->SendToServer, "No")){
-      if(!PostSubOperation_P->CatFile &&
-         (PostSubOperation_P->Format == FORMAT_GMSH_PARSED ||
-          PostSubOperation_P->Format == FORMAT_GMSH)){
+      if(PostSubOperation_P->Format == FORMAT_GMSH_PARSED ||
+         PostSubOperation_P->Format == FORMAT_GMSH){
         // send merge request
         Message::SendFileOnSocket(FileName);
       }
