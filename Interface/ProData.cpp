@@ -21,7 +21,7 @@
 struct Problem Problem_S;
 
 // Global run-time current data: this is the only current data
-// structure that is instanciated
+// structure that is instantiated
 struct CurrentData Current;
 
 // Sorting functions

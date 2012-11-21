@@ -87,7 +87,8 @@ void Free_UnusedSolutions(struct DofData * DofData_P)
       index = List_Nbr(DofData_P->Solutions)-4 ;
       break;
     case TIME_GEAR :
-      index = List_Nbr(DofData_P->Solutions)-8 ; // With -8 we store 6 past solutions
+      // With -9 we store 7 past solutions (for Gear_6)
+      index = List_Nbr(DofData_P->Solutions)-9 ;
       break;
     case TIME_NEWMARK :
       index = List_Nbr(DofData_P->Solutions)-4 ;
@@ -542,11 +543,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   int     Nbr_Operation, Nbr_Sol, i_Operation, Num_Iteration ;
   int     Flag_Jac, Flag_CPU, Flag_Binary = 0, Flag_SolveAgain = 0 ;
   int     Save_TypeTime ;
-  double  Save_Time, Save_TimeImag, Save_DTime, Save_TimeStep ;
+  double  Save_Time, Save_DTime ;
   double  Save_Iteration ;
-  Element *Save_Element = 0;
   double  MeanError, RelFactor_Modified ;
-  char    *str;
   char    ResName[256], ResNum[256] ;
   char    FileName[256];
   char    FileName_exMH[256];
@@ -557,8 +556,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   struct DefineSystem   * DefineSystem_P ;
   struct DofData        * DofData_P, * DofData2_P ;
   struct Solution       * Solution_P, Solution_S ;
-  struct PostOperation  * PostOperation_P ;
-  struct PostProcessing * PostProcessing_P ;
   struct Dof            Dof, * Dof_P ;
   struct Value          Value ;
 
@@ -2390,41 +2387,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
     case OPERATION_POSTOPERATION :
       Message::Info("PostOperation") ;
-      Save_Time = Current.Time ;
-      Save_TimeImag = Current.TimeImag ;
-      Save_TimeStep = Current.TimeStep ;
-      Save_Element = Current.Element;
-
-      for(i=0 ; i<List_Nbr(Operation_P->Case.PostOperation.PostOperations); i++){
-	str = *(char**)List_Pointer(Operation_P->Case.PostOperation.PostOperations, i);
-	if((j = List_ISearchSeq(Problem_S.PostOperation, str, fcmp_PostOperation_Name)) < 0){
-	  Message::Warning("Unknown PostOperation '%s'", str) ;
-	}
-	else{
-	  PostOperation_P = (struct PostOperation*)
-	    List_Pointer(Problem_S.PostOperation, j) ;
-	  PostProcessing_P = (struct PostProcessing *)
-	    List_Pointer(Problem_S.PostProcessing, PostOperation_P->PostProcessingIndex) ;
-	  Treatment_PostOperation
-	    (Resolution_P, DofData_P0,
-  	     (struct DefineSystem *)List_Pointer(Resolution_P->DefineSystem, 0),
-	     GeoData_P0, PostProcessing_P, PostOperation_P) ;
-	}
-      }
-
-      /* the post-processing can (and usually will) change the current
-	 timestep, current time and current solution pointers: we need
-	 to reset them */
-      Current.Time = Save_Time ;
-      Current.TimeImag = Save_TimeImag ;
-      Current.TimeStep = Save_TimeStep ;
-      for (k = 0 ; k < Current.NbrSystem ; k++){
-	i = List_Nbr((Current.DofData_P0+k)->Solutions) - 1;
-	if(i >= 0)
-	  (Current.DofData_P0+k)->CurrentSolution = (struct Solution*)
-	    List_Pointer((Current.DofData_P0+k)->Solutions, i);
-      }
-      Current.Element = Save_Element;
+      Operation_PostOperation(Resolution_P, DofData_P0, GeoData_P0,
+                              Operation_P->Case.PostOperation.PostOperations);
       break ;
 
       /*  -->  T i m e L o o p A d a p t i v e  */

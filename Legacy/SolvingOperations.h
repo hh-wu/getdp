@@ -58,6 +58,25 @@ void  Operation_DeformeMesh(struct Resolution  * Resolution_P,
                             struct DofData     * DofData_P0,
                             struct GeoData     * GeoData_P0);
 
+void Operation_PostOperation(Resolution  *Resolution_P,
+                             DofData     *DofData_P0,
+                             GeoData     *GeoData_P0,
+                             List_T      *PostOperations);
+
+void InitLEPostOperation(Resolution  *Resolution_P,
+                         DofData     *DofData_P0,
+                         GeoData     *GeoData_P0,
+                         List_T      *PostOp_L,
+                         List_T      *LEPostOpNames_L,
+                         List_T      *PostOpSolPredicted_L);
+
+void ClearLEPostOperation(Resolution  *Resolution_P,
+                          DofData     *DofData_P0,
+                          GeoData     *GeoData_P0,
+                          List_T      *LEPostOp_L,
+                          List_T      *LEPostOpNames_L,
+                          List_T      *PostOpSolPredicted_L);
+
 void Cal_SolutionErrorRatio(gVector *dx,
                             gVector *x,
                             double reltol,
@@ -68,5 +87,9 @@ void Cal_SolutionErrorRatio(gVector *dx,
 void Cal_SolutionError(gVector *dx, gVector *x, int diff, double *MeanError);
 
 void Free_UnusedSolutions(struct DofData * DofData_P);
+
+void Free_UnusedPOresults();
+
+void Free_AllPOresults();
 
 #endif

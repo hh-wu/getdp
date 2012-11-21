@@ -28,6 +28,7 @@ extern struct CurrentData Current;
 extern int Flag_IterativeLoopConverged;
 extern int Flag_RESTART;
 
+
 /* ------------------------------------------------------------------------ */
 /*  C a l c I n t e g r a t i o n C o e f f i c i e n t s                   */
 /* ------------------------------------------------------------------------ */
@@ -36,7 +37,8 @@ extern int Flag_RESTART;
 
 void CalcIntegrationCoefficients(Resolution  *Resolution_P,
                                  DofData     *DofData_P0,
-                                 List_T      *TimeLoopAdaptiveSystems,
+                                 List_T      *TLAsystems_L,
+                                 List_T      *TLAPostOp_L,
                                  int         Order)
 {
   Message::Error("TimeLoopAdaptive requires the GSL");
@@ -46,21 +48,24 @@ void CalcIntegrationCoefficients(Resolution  *Resolution_P,
 
 void CalcIntegrationCoefficients(Resolution  *Resolution_P,
                                  DofData     *DofData_P0,
-                                 List_T      *TimeLoopAdaptiveSystems,
+                                 List_T      *TLAsystems_L,
+                                 List_T      *TLAPostOp_L,
                                  int         Order)
 {
-  DefineSystem           *System_P;
-  DofData                *DofData_P;
+  DefineSystem           *System_P=NULL;
+  DofData                *DofData_P=NULL;
   Solution               *Solution_P;
   TimeLoopAdaptiveSystem TLAsystem;
-  int                    NbrOfSolutions, j, s;
+  List_T                 *Solutions_L=NULL;
+  PostOpSolutions        *PostOpSolutions_P0;
+  int                    j, s, NbrOfSolutions=0;
   double                 t[8], temp;
   double                 A_data[49], b_data[7];
+  bool                   RecomputeTimeStep;
   gsl_matrix_view        A;
   gsl_vector_view        b;
   gsl_vector             *coeff;
   gsl_permutation        *p;
-  bool                   RecomputeTimeStep;
 
   // Initialization
   for (int i=0; i<7; i++)
@@ -77,18 +82,38 @@ void CalcIntegrationCoefficients(Resolution  *Resolution_P,
   // First get the past time points
   // ------------------------------
 
-  List_Read(TimeLoopAdaptiveSystems, 0, &TLAsystem);
-  System_P = (DefineSystem*)List_Pointer(Resolution_P->DefineSystem,
-                                         TLAsystem.SystemIndex);
-  DofData_P = DofData_P0 + TLAsystem.SystemIndex;
-  NbrOfSolutions = List_Nbr(DofData_P->Solutions);
-  if (!NbrOfSolutions)
-    Message::Error("No initial solution for system %s", System_P->Name);
+  if (List_Nbr(TLAsystems_L)==0 && List_Nbr(TLAPostOp_L)==0) {
+    Message::Error("Neither systems nor PostOperations are specified "
+                       "for TimeLoopAdaptive");
+  }
+  if (List_Nbr(TLAsystems_L)) {
+    List_Read(TLAsystems_L, 0, &TLAsystem);
+    System_P = (DefineSystem*)List_Pointer(Resolution_P->DefineSystem,
+                                           TLAsystem.SystemIndex);
+    DofData_P = DofData_P0 + TLAsystem.SystemIndex;
+    Solutions_L = DofData_P->Solutions;
+    NbrOfSolutions = List_Nbr(Solutions_L);
+    if (!NbrOfSolutions)
+      Message::Error("No initial solution for system %s", System_P->Name);
+    if (NbrOfSolutions <= Order && Order > 1)
+        Message::Error("Too few past solutions for system %s", System_P->Name);
+  }
+  if (List_Nbr(TLAPostOp_L)) {
+    PostOpSolutions_P0 = (PostOpSolutions *)List_Pointer(Current.PostOpData_L, 0);
+    Solutions_L = PostOpSolutions_P0->Solutions_L;
+    NbrOfSolutions = List_Nbr(Solutions_L);
+    if (!NbrOfSolutions)
+      Message::Error("No initial PostOperations");
+    if (NbrOfSolutions <= Order && Order > 1)
+        Message::Error("Too few past PostOperations results");
+  }
 
-  if (NbrOfSolutions < Order)
-    Message::Error("Too few past solutions for system %s", System_P->Name);
+  // Set the predictor's and corrector's order
+  // -----------------------------------------
 
-  if (Current.TimeStep < 1.5){
+  Solution_P = (struct Solution*)List_Pointer(Solutions_L, NbrOfSolutions-1);
+
+  if (Current.TimeStep < 1.5 || NbrOfSolutions < 2){
     Current.PredOrder = 0;  // For 1st TimeStep just copy the initial solution
     Current.CorrOrder = 1;
   }
@@ -98,9 +123,7 @@ void CalcIntegrationCoefficients(Resolution  *Resolution_P,
   }
 
   // Check if we recompute actual TimeStep
-  Solution_P = (struct Solution*)List_Pointer(DofData_P->Solutions,
-                                              List_Nbr(DofData_P->Solutions)-1);
-  RecomputeTimeStep = (Solution_P->TimeStep == Current.TimeStep);
+  RecomputeTimeStep = (Solution_P->TimeStep == (int)Current.TimeStep);
 
   // Time values
   // t_n+1 -> t[0]
@@ -112,8 +135,7 @@ void CalcIntegrationCoefficients(Resolution  *Resolution_P,
   t[0] = Current.Time;
   for(int i=1; i <= Current.PredOrder+1; i++) {
     j = RecomputeTimeStep ? i+1 : i;
-    Solution_P = (struct Solution*)List_Pointer(DofData_P->Solutions,
-                                                List_Nbr(DofData_P->Solutions)-j);
+    Solution_P = (struct Solution*)List_Pointer(Solutions_L, NbrOfSolutions-j);
     t[i] = Solution_P->Time;
   }
 
@@ -190,7 +212,8 @@ void CalcIntegrationCoefficients(Resolution  *Resolution_P,
     A_data[(int)Current.CorrOrder] = 0.0;
     A_data[(int)Current.CorrOrder + 1*((int)Current.CorrOrder+1)] = t[0]-t[1];
     for (int r=2; r <= Current.CorrOrder; r++)
-      A_data[(int)Current.CorrOrder + r*((int)Current.CorrOrder+1)] = r*pow(t[0],r-1)*(t[0]-t[1]);
+      A_data[(int)Current.CorrOrder + r*((int)Current.CorrOrder+1)] =
+          r*pow(t[0],r-1)*(t[0]-t[1]);
     A = gsl_matrix_view_array(A_data, Current.CorrOrder+1, Current.CorrOrder+1);
 
     b_data[0] = 1.0;
@@ -264,22 +287,26 @@ void CalcIntegrationCoefficients(Resolution  *Resolution_P,
 
 void Predictor(Resolution  *Resolution_P,
                DofData     *DofData_P0,
-               List_T      *TimeLoopAdaptiveSystems,
+               List_T      *TLAsystems_L,
+               List_T      *TLAPostOp_L,
                int         Order,
-               List_T      *xPredicted_L)
+               List_T      *xPredicted_L,
+               List_T      *PostOpSolPredicted_L)
 {
   DefineSystem           *System_P;
   DofData                *DofData_P;
-  Solution               *Solution_P, Solution_S;
+  PostOpSolutions        *PostOpSolutions_P;
+  Solution               *Solution_P, *PastSolution_P, Solution_S;
   TimeLoopAdaptiveSystem TLAsystem;
   gVector                *xPredicted_P;
-  gVector                *x_Nminusi_P;              // past solution vector x_N-i
+  gVector                *x_NminusJ_P;              // past solution vector x_N-i
+  gVector                *PostOpSolPredicted_P;
   int                    TimeStep, NbrSolutions;
 
 
   // Loop through all given systems
-  for(int i = 0; i < List_Nbr(TimeLoopAdaptiveSystems); i++){
-    List_Read(TimeLoopAdaptiveSystems, i, &TLAsystem);
+  for(int i = 0; i < List_Nbr(TLAsystems_L); i++){
+    List_Read(TLAsystems_L, i, &TLAsystem);
     System_P = (DefineSystem*)List_Pointer(Resolution_P->DefineSystem,
                                       TLAsystem.SystemIndex);
     DofData_P = DofData_P0 + TLAsystem.SystemIndex;
@@ -316,12 +343,15 @@ void Predictor(Resolution  *Resolution_P,
     if(NbrSolutions < Current.PredOrder + 2)
       Message::Error("Too few past solutions for system %s", System_P->Name);
 
-
     LinAlg_ZeroVector(&Solution_P->x);
     for (int j=0; j<=Current.PredOrder; j++) {
-      x_Nminusi_P = &((struct Solution*)List_Pointer(DofData_P->Solutions,
-                                                     NbrSolutions-2-j))->x;
-      LinAlg_AddVectorProdVectorDouble(&Solution_P->x, x_Nminusi_P,
+      PastSolution_P = (struct Solution*)List_Pointer(DofData_P->Solutions,
+                                                      NbrSolutions-2-j);
+      if (!PastSolution_P->SolutionExist)
+        Message::Error("Too few past solutions for system %s", System_P->Name);
+
+      x_NminusJ_P = &PastSolution_P->x;
+      LinAlg_AddVectorProdVectorDouble(&Solution_P->x, x_NminusJ_P,
                                        Current.aPredCoeff[j], &Solution_P->x);
     }
 
@@ -329,6 +359,60 @@ void Predictor(Resolution  *Resolution_P,
     LinAlg_CopyVector(&Solution_P->x, xPredicted_P);
   }
 
+  // Loop through all specified PostOperations
+  if (List_Nbr(TLAPostOp_L) != List_Nbr(Current.PostOpData_L))
+    Message::Error("Current PostOpData_L list is not up to date");
+  for(int i = 0; i < List_Nbr(TLAPostOp_L); i++){
+
+    PostOpSolutions_P = (struct PostOpSolutions*)
+                           List_Pointer(Current.PostOpData_L, i);
+    NbrSolutions = List_Nbr(PostOpSolutions_P->Solutions_L);
+    if (!NbrSolutions)
+      Message::Error("No initial result for PostOperation %s",
+                     PostOpSolutions_P->PostOperation_P->Name);
+
+    Solution_P = (struct Solution*)
+                     List_Pointer(PostOpSolutions_P->Solutions_L,
+                                  List_Nbr(PostOpSolutions_P->Solutions_L)-1);
+
+    TimeStep = (int)Current.TimeStep;
+    if (Solution_P->TimeStep != TimeStep) {     // if we compute a new time step
+      Solution_S.TimeStep = TimeStep ;
+      Solution_S.Time = Current.Time ;
+      Solution_S.TimeImag = Current.TimeImag ;
+      Solution_S.SolutionExist = 1 ;
+      Solution_S.TimeFunctionValues = NULL;
+      LinAlg_CreateVector(&Solution_S.x, &DofData_P0->Solver, Solution_P->x.N);
+
+      List_Add(PostOpSolutions_P->Solutions_L, &Solution_S);
+      Solution_P = (struct Solution*)
+                   List_Pointer(PostOpSolutions_P->Solutions_L,
+                                List_Nbr(PostOpSolutions_P->Solutions_L)-1);
+    }
+    else {
+      // fix time values if we recompute the same step (with different time)
+      Solution_P->Time = Current.Time ;
+      Solution_P->TimeImag = Current.TimeImag ;
+    }
+
+    NbrSolutions = List_Nbr(PostOpSolutions_P->Solutions_L);
+    if(NbrSolutions < Current.PredOrder + 2)
+      Message::Error("Too few past results for PostOperation %s",
+                     PostOpSolutions_P->PostOperation_P->Name);
+
+    PostOpSolPredicted_P = (gVector*)List_Pointer(PostOpSolPredicted_L, i);
+    LinAlg_ZeroVector(PostOpSolPredicted_P);
+    for (int j=0; j<=Current.PredOrder; j++) {
+      PastSolution_P = (struct Solution*)List_Pointer(PostOpSolutions_P->Solutions_L,
+                                                      NbrSolutions-2-j);
+      if (!PastSolution_P->SolutionExist)
+        Message::Error("Too few past results for PostOperation %s",
+                             PostOpSolutions_P->PostOperation_P->Name);
+      x_NminusJ_P = &PastSolution_P->x;
+      LinAlg_AddVectorProdVectorDouble(PostOpSolPredicted_P, x_NminusJ_P,
+                                       Current.aPredCoeff[j], PostOpSolPredicted_P);
+    }
+  }
 }
 
 
@@ -338,25 +422,36 @@ void Predictor(Resolution  *Resolution_P,
 
 double CalcMaxLTEratio(Resolution  *Resolution_P,
 		       DofData     *DofData_P0,
-		       List_T      *TimeLoopAdaptiveSystems,
+		       List_T      *TLAsystems_L,
+		       List_T      *TLAPostOp_L,
 		       int         Order,
-		       List_T      *xPredicted_L)
+		       List_T      *xPredicted_L,
+		       List_T      *PostOpSolPredicted_L)
 {
   DefineSystem           *DefineSystem_P;
   DofData                *DofData_P;
+  PostOpSolutions        *PostOpSolutions_P;
   TimeLoopAdaptiveSystem TLAsystem;
-  gVector                *xPredictor_P, *xCorrector_P;    // predicted and actual solution vector
-  gVector                xLTE;                            // Local Truncation Error vector
-  double                 pec, cec;                        // predictor and corrector error constants
+  LoopErrorPostOperation TLAPostOp;
+  Solution               *Solution_P;
+  gVector                *xPredictor_P, *xCorrector_P;          // predicted and actual solution vector
+  gVector                xLTE;                                  // Local Truncation Error vector
+  gVector                *PostOpSolPred_P, *PostOpSolCorr_P;    // predicted and actual solution vector
+  gVector                PostOpSolLTE;                          // Local Truncation Error vector
+  double                 pec, cec;                              // predictor and corrector error constants
   double                 ErrorRatio, MaxErrorRatio;
   int                    NbrSolutions;
 
 
   MaxErrorRatio = 0.;
 
+  // Determine error constants
+  pec = Current.PredErrorConst;     // Predictor error constant
+  cec = Current.CorrErrorConst;     // Corrector error constant
+
   // Loop through all given systems
-  for(int i = 0; i < List_Nbr(TimeLoopAdaptiveSystems); i++) {
-    List_Read(TimeLoopAdaptiveSystems, i, &TLAsystem);
+  for(int i = 0; i < List_Nbr(TLAsystems_L); i++) {
+    List_Read(TLAsystems_L, i, &TLAsystem);
     DefineSystem_P = (DefineSystem*)List_Pointer(Resolution_P->DefineSystem,
                                                  TLAsystem.SystemIndex);
     DofData_P = DofData_P0 + TLAsystem.SystemIndex;
@@ -368,10 +463,6 @@ double CalcMaxLTEratio(Resolution  *Resolution_P,
     xPredictor_P = (gVector*)List_Pointer(xPredicted_L, i);
     xCorrector_P = &((struct Solution*)List_Pointer(DofData_P->Solutions,
                                                     NbrSolutions-1))->x;
-
-    // Determine error constants
-    pec = Current.PredErrorConst;     // Predictor error constant
-    cec = Current.CorrErrorConst;     // Corrector error constant
 
     // Vector of all local truncation errors
     // xLTE = cec / (pec - cec) * (xCorrector - xPredictor)
@@ -401,7 +492,100 @@ double CalcMaxLTEratio(Resolution  *Resolution_P,
     }
   }
 
+  // Loop through all given PostOperations
+  if (List_Nbr(TLAPostOp_L) != List_Nbr(Current.PostOpData_L))
+      Message::Error("Current PostOpData_L list is not up to date");
+  for(int i = 0; i < List_Nbr(TLAPostOp_L); i++) {
+    List_Read(TLAPostOp_L, i, &TLAPostOp);
+    PostOpSolutions_P = (struct PostOpSolutions*)
+                               List_Pointer(Current.PostOpData_L, i);
+    NbrSolutions = List_Nbr(PostOpSolutions_P->Solutions_L);
+    if(NbrSolutions < Order + 1)
+      Message::Error("Too few past solutions for PostOperations %s",
+                     PostOpSolutions_P->PostOperation_P->Name);
+    Solution_P = (struct Solution*)
+                    List_Pointer(PostOpSolutions_P->Solutions_L, NbrSolutions-1);
+
+    PostOpSolPred_P = (gVector*)List_Pointer(PostOpSolPredicted_L, i);
+    PostOpSolCorr_P = &Solution_P->x;
+
+    // Vector of all local truncation errors
+    // xLTE = cec / (pec - cec) * (xCorrector - xPredictor)
+    LinAlg_CreateVector(&PostOpSolLTE, &DofData_P0->Solver, PostOpSolCorr_P->N);
+    LinAlg_CopyVector(PostOpSolCorr_P, &PostOpSolLTE);
+    LinAlg_SubVectorVector(&PostOpSolLTE, PostOpSolPred_P, &PostOpSolLTE);
+    LinAlg_ProdVectorDouble(&PostOpSolLTE, cec / (pec - cec), &PostOpSolLTE);
+
+    Cal_SolutionErrorRatio(&PostOpSolLTE, PostOpSolCorr_P,
+                           TLAPostOp.PoLTEreltol, TLAPostOp.PoLTEabstol,
+                           TLAPostOp.NormType, &ErrorRatio);
+
+    LinAlg_DestroyVector(&PostOpSolLTE);
+
+    if (ErrorRatio != ErrorRatio) {     // If ErrorRatio = NaN => There was no valid solution!
+      MaxErrorRatio = ErrorRatio;
+      break;
+    }
+
+    if (ErrorRatio > MaxErrorRatio)
+      MaxErrorRatio = ErrorRatio;
+
+    if(Message::GetVerbosity() >= 5)
+    {
+      Message::Info("LTE %s of error ratio from PostOperation %s:  %.3g",
+                    TLAPostOp.NormTypeString,
+                    PostOpSolutions_P->PostOperation_P->Name, ErrorRatio);
+    }
+  }
+
   return MaxErrorRatio;
+}
+
+
+/* ------------------------------------------------------------------------ */
+/*  G e t I n t e g r a t i o n S c h e m e                                 */
+/* ------------------------------------------------------------------------ */
+
+void GetIntegrationScheme(Operation   *Operation_P,
+                          int         *TypeTime,
+                          int         *MaxOrder)
+{
+  if (!strcmp(Operation_P->Case.TimeLoopAdaptive.Scheme, "Euler")) {
+    *TypeTime = TIME_THETA;
+    *MaxOrder = 1;
+  }
+  else if (!strcmp(Operation_P->Case.TimeLoopAdaptive.Scheme, "Trapezoidal")) {
+    *TypeTime = TIME_THETA;
+    *MaxOrder = 2;
+  }
+  else if (!strcmp(Operation_P->Case.TimeLoopAdaptive.Scheme, "Gear_2") ||
+           !strcmp(Operation_P->Case.TimeLoopAdaptive.Scheme, "BDF_2")) {
+    *TypeTime = TIME_GEAR;
+    *MaxOrder = 2;
+  }
+  else if (!strcmp(Operation_P->Case.TimeLoopAdaptive.Scheme, "Gear_3") ||
+           !strcmp(Operation_P->Case.TimeLoopAdaptive.Scheme, "BDF_3")) {
+    *TypeTime = TIME_GEAR;
+    *MaxOrder = 3;
+  }
+  else if (!strcmp(Operation_P->Case.TimeLoopAdaptive.Scheme, "Gear_4") ||
+           !strcmp(Operation_P->Case.TimeLoopAdaptive.Scheme, "BDF_4")) {
+    *TypeTime = TIME_GEAR;
+    *MaxOrder = 4;
+  }
+  else if (!strcmp(Operation_P->Case.TimeLoopAdaptive.Scheme, "Gear_5") ||
+           !strcmp(Operation_P->Case.TimeLoopAdaptive.Scheme, "BDF_5")) {
+    *TypeTime = TIME_GEAR;
+    *MaxOrder = 5;
+  }
+  else if (!strcmp(Operation_P->Case.TimeLoopAdaptive.Scheme, "Gear_6") ||
+           !strcmp(Operation_P->Case.TimeLoopAdaptive.Scheme, "BDF_6")) {
+    *TypeTime = TIME_GEAR;
+    *MaxOrder = 6;
+  }
+  else
+    Message::Error("Unknown integration scheme: %s",
+                   Operation_P->Case.TimeLoopAdaptive.Scheme);
 }
 
 
@@ -415,17 +599,21 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
                                 GeoData     *GeoData_P0,
                                 int         *Flag_Break)
 {
-  int    TypeTime=0, MaxOrder=0, Order=0;
-  int    Try, BreakpointNum, NbrSolutions=0;
+  int    TypeTime=0, MaxOrder=0, Order=0, TLATimeStep;
+  int    Try, BreakpointNum, NbrSolutions=0, NbrPostOps;
+
   double Save_Time, Save_DTime, Save_Theta, maxLTEratio=0, nextBreakpoint;
   double Save_TimeStep;
-  bool   TimeStepAccepted, DTimeMinAtLastStep, BreakpointListCreated;
+  bool   TimeStepAccepted=true, DTimeMinAtLastStep, BreakpointListCreated;
   bool   BreakpointAtThisStep, BreakpointAtNextStep;
   double Time0, TimeMax, DTimeInit, DTimeMin, DTimeMax;
   double s, DTimeMaxScal, DTimeScal_NotConverged, DTimeScal_PETScError, DTimeScal=1.0;
-  List_T *Breakpoints, *TLAsystems, *xPredicted_L;
+  List_T *Breakpoints_L, *TLAsystems_L, *LEPostOp_L;
+  List_T *LEPostOpNames_L;
+  List_T *xPredicted_L, *PostOpSolPredicted_L;
   TimeLoopAdaptiveSystem TLAsystem;
-  DofData *DofData_P=NULL;
+  DofData                *DofData_P=NULL;
+  gVector                xPredicted_S;
 
 
   // Some constants influencing the time stepping
@@ -434,73 +622,29 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
   DTimeScal_NotConverged = 0.25;   // step size scaling in case of a not converged iterative loop
   DTimeScal_PETScError   = 0.25;   // step size scaling in case of a PETSc error
 
+
   Time0    = Operation_P->Case.TimeLoopAdaptive.Time0;
   TimeMax  = Operation_P->Case.TimeLoopAdaptive.TimeMax;
   DTimeInit = Operation_P->Case.TimeLoopAdaptive.DTimeInit;
   DTimeMin = Operation_P->Case.TimeLoopAdaptive.DTimeMin;
   DTimeMax = Operation_P->Case.TimeLoopAdaptive.DTimeMax;
-  Breakpoints = Operation_P->Case.TimeLoopAdaptive.Breakpoints;
-  TLAsystems = Operation_P->Case.TimeLoopAdaptive.TimeLoopAdaptiveSystems;
-
-  if (!strcmp(Operation_P->Case.TimeLoopAdaptive.Scheme, "Euler")) {
-    TypeTime = TIME_THETA;
-    MaxOrder = 1;
-  }
-  else if (!strcmp(Operation_P->Case.TimeLoopAdaptive.Scheme, "Trapezoidal")) {
-    TypeTime = TIME_THETA;
-    MaxOrder = 2;
-  }
-  else if (!strcmp(Operation_P->Case.TimeLoopAdaptive.Scheme, "Gear_2") ||
-           !strcmp(Operation_P->Case.TimeLoopAdaptive.Scheme, "BDF_2")) {
-    TypeTime = TIME_GEAR;
-    MaxOrder = 2;
-  }
-  else if (!strcmp(Operation_P->Case.TimeLoopAdaptive.Scheme, "Gear_3") ||
-           !strcmp(Operation_P->Case.TimeLoopAdaptive.Scheme, "BDF_3")) {
-    TypeTime = TIME_GEAR;
-    MaxOrder = 3;
-  }
-  else if (!strcmp(Operation_P->Case.TimeLoopAdaptive.Scheme, "Gear_4") ||
-           !strcmp(Operation_P->Case.TimeLoopAdaptive.Scheme, "BDF_4")) {
-    TypeTime = TIME_GEAR;
-    MaxOrder = 4;
-  }
-  else if (!strcmp(Operation_P->Case.TimeLoopAdaptive.Scheme, "Gear_5") ||
-           !strcmp(Operation_P->Case.TimeLoopAdaptive.Scheme, "BDF_5")) {
-    TypeTime = TIME_GEAR;
-    MaxOrder = 5;
-  }
-  else if (!strcmp(Operation_P->Case.TimeLoopAdaptive.Scheme, "Gear_6") ||
-           !strcmp(Operation_P->Case.TimeLoopAdaptive.Scheme, "BDF_6")) {
-    TypeTime = TIME_GEAR;
-    MaxOrder = 6;
-  }
-  else
-    Message::Error("Unknown integration scheme: %s",
-                   Operation_P->Case.TimeLoopAdaptive.Scheme);
-
+  Breakpoints_L = Operation_P->Case.TimeLoopAdaptive.Breakpoints_L;
+  TLAsystems_L = Operation_P->Case.TimeLoopAdaptive.TimeLoopAdaptiveSystems_L;
+  LEPostOp_L = Operation_P->Case.TimeLoopAdaptive.TimeLoopAdaptivePOs_L;
+  GetIntegrationScheme(Operation_P, &TypeTime, &MaxOrder);
 
   xPredicted_L = List_Create(4,4,sizeof(gVector));
+  PostOpSolPredicted_L = List_Create(4,4,sizeof(gVector));
 
 
   // Just some checks
   // ----------------
 
-  // Check if initial solutions for all specified systems are available
-  for(int i = 0; i < List_Nbr(TLAsystems); i++){
-    List_Read(TLAsystems, i, &TLAsystem);
-    DefineSystem *System_P = (DefineSystem*)List_Pointer(Resolution_P->DefineSystem,
-							 TLAsystem.SystemIndex);
-    DofData_P = DofData_P0 + TLAsystem.SystemIndex;
-    NbrSolutions = List_Nbr(DofData_P->Solutions);
+  if (TLAsystems_L == NULL)
+    TLAsystems_L = List_Create(1,1,sizeof(TimeLoopAdaptiveSystem));
+  if (LEPostOp_L == NULL)
+    LEPostOp_L = List_Create(1,1,sizeof(LoopErrorPostOperation));
 
-    if(!NbrSolutions)
-      Message::Error("No initial solution for system %s", System_P->Name);
-
-    gVector xPredicted_S;
-    LinAlg_CreateVector(&xPredicted_S, &DofData_P->Solver, DofData_P->NbrDof);
-    List_Add(xPredicted_L, &xPredicted_S);
-  }
 
   // Check the timing values
   if (Time0 > TimeMax)
@@ -516,6 +660,29 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
   // Initialization before starting the time loop
   // --------------------------------------------
 
+  // Check if initial solutions for all specified systems are available
+  // and create vectors for the predicted solutions
+  for(int i = 0; i < List_Nbr(TLAsystems_L); i++){
+    List_Read(TLAsystems_L, i, &TLAsystem);
+    DefineSystem *System_P = (DefineSystem*)List_Pointer(Resolution_P->DefineSystem,
+                                                         TLAsystem.SystemIndex);
+    DofData_P = DofData_P0 + TLAsystem.SystemIndex;
+    NbrSolutions = List_Nbr(DofData_P->Solutions);
+
+    if(!NbrSolutions)
+      Message::Error("No initial solution for system %s", System_P->Name);
+
+    LinAlg_CreateVector(&xPredicted_S, &DofData_P->Solver, DofData_P->NbrDof);
+    List_Add(xPredicted_L, &xPredicted_S);
+  }
+
+  // Initializing stuff for PostOperations
+  NbrPostOps = List_Nbr(LEPostOp_L);
+  LEPostOpNames_L = List_Create(NbrPostOps,1,sizeof(char *));
+  InitLEPostOperation(Resolution_P, DofData_P0, GeoData_P0, LEPostOp_L,
+                      LEPostOpNames_L, PostOpSolPredicted_L);
+
+  // Some other necessary initializations
   if(Flag_RESTART && NbrSolutions > 1)
     Current.DTime = ((struct Solution*)List_Pointer(DofData_P->Solutions,
                                                     NbrSolutions-1))->Time -
@@ -532,19 +699,20 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
     Current.Time = Time0 ;
 
   Current.TimeStep += 1.0;
+  TLATimeStep = 1;
   // Starting with 1st order (Backward Euler corrector)
   Order = 1;
   if (TypeTime == TIME_THETA)
     Current.Theta = 1.0;
 
-  BreakpointListCreated = !Breakpoints;
+  BreakpointListCreated = !Breakpoints_L;
   if (BreakpointListCreated)
-    Breakpoints = List_Create(1,1,sizeof(double));
-  List_Add(Breakpoints, &TimeMax);
-  List_Sort(Breakpoints, fcmp_double);
+    Breakpoints_L = List_Create(1,1,sizeof(double));
+  List_Add(Breakpoints_L, &TimeMax);
+  List_Sort(Breakpoints_L, fcmp_double);
   BreakpointNum = 0;
   BreakpointAtNextStep = false;
-  List_Read(Breakpoints, BreakpointNum, &nextBreakpoint);
+  List_Read(Breakpoints_L, BreakpointNum, &nextBreakpoint);
   Try = 0;
 
 
@@ -568,7 +736,7 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
 
     Message::SetLastPETScError(0);
 
-    Message::Info("Time step %d  Try %d  Time = %.8g s  Stepsize = %.8g s  Order = %d",
+    Message::Info("Time step %d  Try %d  Time = %.8g s  Stepsize = %.8g s  Integr. Order = %d",
                   (int)Current.TimeStep, Try, Current.Time, Current.DTime, Order);
     Message::AddOnelabNumberChoice(Message::GetOnelabClientName() +
                                    "/TimeLoopAdaptive/Time", Current.Time);
@@ -576,10 +744,15 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
                                    "/TimeLoopAdaptive/DTime", Current.DTime);
 
     // Calculate integration coefficients
-    CalcIntegrationCoefficients(Resolution_P, DofData_P0,TLAsystems, Order);
+    CalcIntegrationCoefficients(Resolution_P, DofData_P0,TLAsystems_L,
+                                LEPostOp_L, Order);
 
     // Execute predictor
-    Predictor(Resolution_P, DofData_P0,TLAsystems, Order, xPredicted_L);
+    Predictor(Resolution_P, DofData_P0, TLAsystems_L, LEPostOp_L, Order,
+              xPredicted_L, PostOpSolPredicted_L);
+
+    if (NbrPostOps && TimeStepAccepted)
+      Free_UnusedPOresults();
 
     // Execute corrector
     // -----------------
@@ -621,8 +794,10 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
       Message::SetLastPETScError(0);
     }
     else{
-      maxLTEratio = CalcMaxLTEratio(Resolution_P, DofData_P0,TLAsystems,
-                                    Order, xPredicted_L);
+      if (NbrPostOps) // Execute the PostOperations if necessary
+        Operation_PostOperation(Resolution_P, DofData_P0, GeoData_P0, LEPostOpNames_L);
+      maxLTEratio = CalcMaxLTEratio(Resolution_P, DofData_P0, TLAsystems_L, LEPostOp_L,
+                                    Order, xPredicted_L, PostOpSolPredicted_L);
       if (maxLTEratio != maxLTEratio) { // If maxLTEratio = NaN => There was no valid solution!
         TimeStepAccepted = false;
         Flag_IterativeLoopConverged = 0;
@@ -657,15 +832,16 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
       Current.TimeStep = Save_TimeStep;
       Current.Theta    = Save_Theta;
       Current.TimeStep += 1.;
+      TLATimeStep      += 1;
       Try = 0;
     }
     else{
       if (BreakpointAtThisStep) {
-        BreakpointNum = List_ISearchSeq(Breakpoints, &Current.Time, fcmp_double);
-        List_Read(Breakpoints, BreakpointNum, &nextBreakpoint);
+        BreakpointNum = List_ISearchSeq(Breakpoints_L, &Current.Time, fcmp_double);
+        List_Read(Breakpoints_L, BreakpointNum, &nextBreakpoint);
       }
       Current.Time -= Current.DTime;
-      BreakpointAtThisStep = (bool) List_Search(Breakpoints, &Current.Time, fcmp_double);
+      BreakpointAtThisStep = (bool) List_Search(Breakpoints_L, &Current.Time, fcmp_double);
     }
 
     if(*Flag_Break) {
@@ -688,14 +864,14 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
     else{
       // Milne's estimate
       if ( maxLTEratio < s / pow(DTimeMaxScal, Order + 1.) )
-        // At most double DTime if maxLTEratio is small
+        // At most scale DTime with DTimeMaxScal if maxLTEratio is small
         Current.DTime *= DTimeMaxScal;
       else
-        if (Current.TimeStep > 1)
-          Current.DTime *= pow(s/maxLTEratio, 1./(Order+1.));
-        else
+        if (Current.TimeStep < 1.5 || (NbrPostOps > 0 && TLATimeStep <= 2) )
           // linear adjustment because predictor is of order 0
           Current.DTime *= s/maxLTEratio;
+        else
+          Current.DTime *= pow(s/maxLTEratio, 1./(Order+1.));
     }
 
     // Limit the max step size
@@ -707,10 +883,10 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
         (BreakpointNum >= 0)){
       Current.DTime = nextBreakpoint - Current.Time;
       BreakpointAtNextStep = true;
-      if (BreakpointNum < List_Nbr(Breakpoints)-1){
+      if (BreakpointNum < List_Nbr(Breakpoints_L)-1){
         // There are further breakpoints
         BreakpointNum++;
-        List_Read(Breakpoints, BreakpointNum, &nextBreakpoint);
+        List_Read(Breakpoints_L, BreakpointNum, &nextBreakpoint);
       }
       else
         //No further breakpoint
@@ -730,7 +906,7 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
          BreakpointAtThisStep ||
          DTimeMinAtLastStep )
       Order = 1;
-    else if ( Current.TimeStep > 2.5 &&
+    else if ( TLATimeStep > 2 &&
               Current.DTime > DTimeMin &&
               TimeStepAccepted &&
               !BreakpointAtThisStep &&
@@ -755,12 +931,21 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
 
   Current.TimeStep -= 1.;       // Correct the time step counter
 
-  // Finally destroy vectors and delete Lists
-  // ----------------------------------------
+  // Finally clean up, destroy vectors and delete lists
+  // --------------------------------------------------
 
-  for(int i = 0; i < List_Nbr(TLAsystems); i++)
+  for(int i = 0; i < List_Nbr(TLAsystems_L); i++)
     LinAlg_DestroyVector((gVector*)List_Pointer(xPredicted_L, i));
+  List_Delete(TLAsystems_L);
   List_Delete(xPredicted_L);
+
+  ClearLEPostOperation(Resolution_P, DofData_P0, GeoData_P0, LEPostOp_L,
+                            LEPostOpNames_L, PostOpSolPredicted_L);
+
+  if (LEPostOpNames_L != NULL) {
+    List_Delete(LEPostOpNames_L);
+  }
+
   if (BreakpointListCreated)
-    List_Delete(Breakpoints);
+    List_Delete(Breakpoints_L);
 }

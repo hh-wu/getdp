@@ -86,6 +86,7 @@ static struct DefineSystem             DefineSystem_S;
 static struct Operation                Operation_S, *Operation_P;
 static struct ChangeOfState            ChangeOfState_S;
 static struct TimeLoopAdaptiveSystem   TimeLoopAdaptiveSystem_S;
+static struct LoopErrorPostOperation   TimeLoopAdaptivePO_S;
 static struct IterativeLoopSystem      IterativeLoopSystem_S;
 static struct PostProcessing         PostProcessing_S, InteractivePostProcessing_S;
 static struct PostQuantity             PostQuantity_S;
@@ -161,7 +162,7 @@ struct doubleXstring{
 %type <c>  NameForMathFunction NameForFunction CharExpr StrCat StringIndex String__Index
 %type <l>  RecursiveListOfString__Index
 %type <t>  Quantity_Def
-%type <l>  TimeLoopAdaptiveSystems IterativeLoopSystems
+%type <l>  TimeLoopAdaptiveSystems TimeLoopAdaptivePOs IterativeLoopSystems
 
 /* ------------------------------------------------------------------ */
 %token  tEND tDOTS
@@ -4378,15 +4379,13 @@ OperationTerm :
     }
 
   | tTimeLoopAdaptive '[' FExpr ',' FExpr ',' FExpr ',' FExpr ',' FExpr ',' CharExpr ','
-                      ListOfFExpr ',' tDefineSystem '{' TimeLoopAdaptiveSystems '}' ']'
+                      ListOfFExpr ',' LTEdefinitions ']'
                       '{' Operation '}' '{' Operation '}'
     {
       List_Pop(Operation_L);
       List_Pop(Operation_L);
       Operation_P = (struct Operation*)
         List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
-      if (!List_Nbr($19))
-        vyyerror("No system tolerances specified for TimeLoopAdaptive");
       Operation_P->Type = OPERATION_TIMELOOPADAPTIVE;
       Operation_P->Case.TimeLoopAdaptive.Time0 = $3;
       Operation_P->Case.TimeLoopAdaptive.TimeMax = $5;
@@ -4394,10 +4393,9 @@ OperationTerm :
       Operation_P->Case.TimeLoopAdaptive.DTimeMin = $9;
       Operation_P->Case.TimeLoopAdaptive.DTimeMax = $11;
       Operation_P->Case.TimeLoopAdaptive.Scheme = $13;
-      Operation_P->Case.TimeLoopAdaptive.Breakpoints = $15;
-      Operation_P->Case.TimeLoopAdaptive.TimeLoopAdaptiveSystems = $19;
-      Operation_P->Case.TimeLoopAdaptive.Operation = $23;
-      Operation_P->Case.TimeLoopAdaptive.OperationEnd = $26;
+      Operation_P->Case.TimeLoopAdaptive.Breakpoints_L = $15;
+      Operation_P->Case.TimeLoopAdaptive.Operation = $20;
+      Operation_P->Case.TimeLoopAdaptive.OperationEnd = $23;
     }
 
   | tIterativeLoopN '[' FExpr ',' Expression ','
@@ -4910,7 +4908,29 @@ PrintOperationOption :
 
 ;
 
-TimeLoopAdaptiveSystems :
+LTEdefinitions :
+    /* none */
+    {
+      Operation_P = (struct Operation*)
+        List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Case.TimeLoopAdaptive.TimeLoopAdaptiveSystems_L = NULL;
+      Operation_P->Case.TimeLoopAdaptive.TimeLoopAdaptivePOs_L = NULL;
+    }
+
+  | LTEdefinitions tDefineSystem '{' TimeLoopAdaptiveSystems '}'
+    {
+      Operation_P->Case.TimeLoopAdaptive.TimeLoopAdaptiveSystems_L = $4;
+    }
+
+  | LTEdefinitions tPostOperation '{' TimeLoopAdaptivePOs '}'
+    {
+      Operation_P->Case.TimeLoopAdaptive.TimeLoopAdaptivePOs_L = $4;
+    }
+            
+ ;
+
+
+ TimeLoopAdaptiveSystems :
     /* none */
     {
       $$ = List_Create(4, 4, sizeof(struct TimeLoopAdaptiveSystem));
@@ -4926,7 +4946,7 @@ TimeLoopAdaptiveSystems :
       TimeLoopAdaptiveSystem_S.SystemLTEabstol = $7;
       TimeLoopAdaptiveSystem_S.NormType = Get_DefineForString(ErrorNorm_Type, $9, &FlagError);
       if(FlagError){
-        vyyerror("Unknown error norm type of TimeLoopAdaptive system: %s", $3);
+        vyyerror("Unknown error norm type of TimeLoopAdaptive system %s", $3);
         Get_Valid_SXD(ChangeOfState_Type);
       }
       TimeLoopAdaptiveSystem_S.NormTypeString = $9;
@@ -4935,6 +4955,27 @@ TimeLoopAdaptiveSystems :
     }
  ;
 
+ TimeLoopAdaptivePOs :
+    /* none */
+    {
+      $$ = List_Create(4, 4, sizeof(struct LoopErrorPostOperation));
+    }
+
+  | TimeLoopAdaptivePOs '{' String__Index ',' FExpr ',' FExpr  ',' tSTRING '}'
+    {
+      TimeLoopAdaptivePO_S.PostOperationName = $3;
+      TimeLoopAdaptivePO_S.PoLTEreltol = $5;
+      TimeLoopAdaptivePO_S.PoLTEabstol = $7;
+      TimeLoopAdaptivePO_S.NormType = Get_DefineForString(ErrorNorm_Type, $9, &FlagError);
+      if(FlagError){
+        vyyerror("Unknown error norm type of TimeLoopAdaptive PostOperation %s", $3);
+        Get_Valid_SXD(ChangeOfState_Type);
+      }
+      TimeLoopAdaptivePO_S.NormTypeString = $9;
+      List_Add($$ = $1, &TimeLoopAdaptivePO_S);
+    }
+ ;
+ 
  IterativeLoopSystems :
      /* none */
     {

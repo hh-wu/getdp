@@ -940,8 +940,9 @@ struct Operation {
     struct {
       double  Time0, TimeMax, DTimeInit, DTimeMin, DTimeMax;
       char    *Scheme;
-      List_T  *Breakpoints;
-      List_T  *TimeLoopAdaptiveSystems;
+      List_T  *Breakpoints_L;
+      List_T  *TimeLoopAdaptiveSystems_L;
+      List_T  *TimeLoopAdaptivePOs_L;
       List_T  *Operation, *OperationEnd;
     } TimeLoopAdaptive;
     struct {
@@ -1056,6 +1057,17 @@ struct TimeLoopAdaptiveSystem {
   double  SystemLTEabstol;
   int     NormType;
   char    *NormTypeString;
+};
+
+struct LoopErrorPostOperation {
+  char    *PostOperationName;
+  int     PostOperationIndex;
+  double  PoLTEreltol;
+  double  PoLTEabstol;
+  int     NormType;
+  char    *NormTypeString;
+  List_T  *Save_Format_L, *Save_LastTimeStepOnly_L;
+  List_T  *Save_FileOut_L;
 };
 
 struct IterativeLoopSystem {
@@ -1265,6 +1277,11 @@ struct PostSubOperation {
   } Case;
 };
 
+struct PostOpSolutions {
+  PostOperation *PostOperation_P;
+  List_T        *Solutions_L;
+};
+
 /* PostOperation.Type */
 #define POP_NONE          0
 #define POP_PRINT         1
@@ -1328,6 +1345,7 @@ struct PostSubOperation {
 #define FORMAT_REGION_VALUE          17
 #define FORMAT_UNV                   18
 #define FORMAT_NODE_TABLE            19
+#define FORMAT_LOOP_ERROR            20
 
 /* PostSubOperation.Sort */
 #define SORT_BY_POSITION      1
@@ -1352,6 +1370,10 @@ struct CurrentData {
 
   struct DofData  *DofData;
   struct GeoData  *GeoData;
+
+  //PostOperation based solutions for TimeLoopAdaptive, IterativeLoopN
+  List_T  *PostOpData_L;
+  int     PostOpDataIndex;
 
   int     NbrHar;
   int     Region, SubRegion;

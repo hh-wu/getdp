@@ -34,6 +34,7 @@ set(SRC
       Operation_IterativeTimeReduction.cpp
       Operation_Update.cpp
       Operation_ChangeOfCoordinates.cpp
+	  Operation_PostOperation.cpp
       Treatment_Formulation.cpp
         Get_DofOfElement.cpp
         Get_ConstraintOfElement.cpp

@@ -841,6 +841,67 @@ static void NodeTable_PrintElement(int TimeStep, int NbTimeStep, int NbrHarmonic
 }
 
 /* ------------------------------------------------------------------------ */
+/*  S t o r e P o s t O p R e s u l t                                       */
+/* ------------------------------------------------------------------------ */
+
+static List_T *PostOpResults_L=NULL;
+
+static void StorePostOpResult(int NbrHarmonics, struct PostElement *PE)
+{
+  int    n, Size;
+  double val;
+
+  if(!PostOpResults_L)
+    PostOpResults_L = List_Create(1000,1000,sizeof(double));
+
+  for(int i = 0 ; i < PE->NbrNodes ; i++){
+    n = PE->NumNodes[i];
+    Size = 0;
+    switch(PE->Value[0].Type){
+    case SCALAR      : Size = 1 ; break ;
+    case VECTOR      : Size = 3 ; break ;
+    case TENSOR_DIAG : Size = 3 ; break ;
+    case TENSOR_SYM  : Size = 6 ; break ;
+    case TENSOR      : Size = 9 ; break ;
+    }
+    if(n > 0 && Size){ // we have data on an actual node
+      for(int k = 0 ; k < NbrHarmonics ; k++){
+        for(int j = 0 ; j < Size ; j++){
+          val = PE->Value[i].Val[MAX_DIM * k + j];
+          List_Add(PostOpResults_L, &val);
+        }
+      }
+    }
+  }
+}
+
+static void StorePostOpResult(int NbrHarmonics, struct Value *Value)
+{
+  int    Size;
+  double val;
+
+  if(!PostOpResults_L)
+    PostOpResults_L = List_Create(1000,1000,sizeof(double));
+
+  Size = 0;
+  switch(Value[0].Type){
+  case SCALAR      : Size = 1 ; break ;
+  case VECTOR      : Size = 3 ; break ;
+  case TENSOR_DIAG : Size = 3 ; break ;
+  case TENSOR_SYM  : Size = 6 ; break ;
+  case TENSOR      : Size = 9 ; break ;
+  }
+  if(Size){ // we have data
+    for(int k = 0 ; k < NbrHarmonics ; k++){
+      for(int j = 0 ; j < Size ; j++){
+        val = Value[0].Val[MAX_DIM * k + j];
+        List_Add(PostOpResults_L, &val);
+      }
+    }
+  }
+}
+
+/* ------------------------------------------------------------------------ */
 /*  UNV format                                                              */
 /* ------------------------------------------------------------------------ */
 
@@ -1001,12 +1062,15 @@ void  Format_PostHeader(int Format, int SubType, double Time, int TimeStep,
 
 void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
 {
-  List_T  * Iso_L[NBR_MAX_ISO] ;
+  List_T    *Iso_L[NBR_MAX_ISO], *Solutions_L;
   double    IsoMin = 1.e200, IsoMax = -1.e200, IsoVal = 0.0, freq, valr, vali ;
   int       NbrIso = 0 ;
   int       iPost, iNode, iIso, f, iTime, One=1, i, j, NbTimeStep ;
   char      tmp[1024];
-  struct PostElement *PE ;
+  bool      PostOpSolutionGenerated;
+  struct PostElement     *PE ;
+  struct Solution        *Solution_P=NULL, Solution_S;
+
 
   if( !(NbTimeStep = List_Nbr(PSO_P->TimeStep_L)) )
     NbTimeStep = List_Nbr(Current.DofData->Solutions);
@@ -1213,6 +1277,36 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
       fprintf(PostStream, "\n");
     }
     break;
+  case FORMAT_LOOP_ERROR :
+    Solutions_L = ((struct PostOpSolutions*)
+      List_Pointer(Current.PostOpData_L, Current.PostOpDataIndex))->Solutions_L;
+    PostOpSolutionGenerated = false;
+    if(List_Nbr(Solutions_L)>0) {
+      Solution_P = (struct Solution*)List_Pointer(Solutions_L, List_Nbr(Solutions_L)-1);
+      PostOpSolutionGenerated = (Solution_P->TimeStep == (int)Current.TimeStep);
+    }
+    if (!PostOpSolutionGenerated) {
+      Solution_S.Time = Current.Time;
+      Solution_S.TimeImag = Current.TimeImag;
+      Solution_S.TimeStep = Current.TimeStep;
+      Solution_S.SolutionExist = 1;
+      Solution_S.TimeFunctionValues = NULL;
+      LinAlg_CreateVector(&Solution_S.x, &Current.DofData->Solver, List_Nbr(PostOpResults_L));
+      for(int i=0; i<List_Nbr(PostOpResults_L); i++){
+        List_Read(PostOpResults_L, i, &valr);
+        LinAlg_SetDoubleInVector(valr, &Solution_S.x, i);
+      }
+      List_Add(Solutions_L, &Solution_S);
+    }
+    else
+      for(int i=0; i<List_Nbr(PostOpResults_L); i++){
+        List_Read(PostOpResults_L, i, &valr);
+        LinAlg_SetDoubleInVector(valr, &Solution_P->x, i);
+      }
+
+    List_Delete(PostOpResults_L);
+    PostOpResults_L = NULL;
+    break;
   }
 }
 
@@ -1326,6 +1420,9 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
   case FORMAT_NODE_TABLE :
     NodeTable_PrintElement(TimeStep, NbTimeStep, NbrHarmonics, PE);
     break;
+  case FORMAT_LOOP_ERROR :
+    StorePostOpResult(NbrHarmonics, PE);
+    break;
   case FORMAT_ADAPT:
     {
       if(Dummy[4]) fprintf(PostStream, "%d\n", (int)Dummy[4]) ;
@@ -1399,6 +1496,9 @@ void Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
   }
   else if (Format == FORMAT_UNV) {
     Unv_PrintRegion(PostStream, Flag_Comma, numRegion, NbrHarmonics, Size, Value);
+  }
+  else if (Format == FORMAT_LOOP_ERROR) {
+    StorePostOpResult(NbrHarmonics, Value);
   }
   else {
     if(iRegion == 0){
