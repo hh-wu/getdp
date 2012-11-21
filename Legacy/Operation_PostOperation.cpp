@@ -91,7 +91,6 @@ void InitLEPostOperation(Resolution  *Resolution_P,
                          List_T      *PostOpSolPredicted_L)
 {
   int                    NbrPostOps, Index, NbrPostSubOperation;
-  int                    PostOpSolLength=0;
   int                    *Save_Format_P, *Save_LastTimeStepOnly_P;
   char                   **Save_FileOut_P;
   PostOpSolutions        *PostOpSolutions_P, PostOpSolutions_S;
@@ -154,8 +153,11 @@ void InitLEPostOperation(Resolution  *Resolution_P,
     for (int i=0; i < NbrPostOps; i++) {
       PostOpSolutions_P = (struct PostOpSolutions*)
                           List_Pointer(Current.PostOpData_L, i);
-      PostOpSolLength = ((struct Solution*)
-                         List_Pointer(PostOpSolutions_P->Solutions_L, 0))->x.N;
+
+      int PostOpSolLength;
+      LinAlg_GetVectorSize
+        (&((struct Solution*)List_Pointer(PostOpSolutions_P->Solutions_L, 0))->x,
+         &PostOpSolLength);
       LinAlg_CreateVector(&PostOpSolPredicted_S, &DofData_P0->Solver, PostOpSolLength);
       List_Add(PostOpSolPredicted_L, &PostOpSolPredicted_S);
     }

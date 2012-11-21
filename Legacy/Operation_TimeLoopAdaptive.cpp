@@ -382,7 +382,9 @@ void Predictor(Resolution  *Resolution_P,
       Solution_S.TimeImag = Current.TimeImag ;
       Solution_S.SolutionExist = 1 ;
       Solution_S.TimeFunctionValues = NULL;
-      LinAlg_CreateVector(&Solution_S.x, &DofData_P0->Solver, Solution_P->x.N);
+      int nn;
+      LinAlg_GetVectorSize(&Solution_P->x, &nn);
+      LinAlg_CreateVector(&Solution_S.x, &DofData_P0->Solver, nn);
 
       List_Add(PostOpSolutions_P->Solutions_L, &Solution_S);
       Solution_P = (struct Solution*)
@@ -511,7 +513,9 @@ double CalcMaxLTEratio(Resolution  *Resolution_P,
 
     // Vector of all local truncation errors
     // xLTE = cec / (pec - cec) * (xCorrector - xPredictor)
-    LinAlg_CreateVector(&PostOpSolLTE, &DofData_P0->Solver, PostOpSolCorr_P->N);
+    int nn;
+    LinAlg_GetVectorSize(PostOpSolCorr_P, &nn);
+    LinAlg_CreateVector(&PostOpSolLTE, &DofData_P0->Solver, nn);
     LinAlg_CopyVector(PostOpSolCorr_P, &PostOpSolLTE);
     LinAlg_SubVectorVector(&PostOpSolLTE, PostOpSolPred_P, &PostOpSolLTE);
     LinAlg_ProdVectorDouble(&PostOpSolLTE, cec / (pec - cec), &PostOpSolLTE);
