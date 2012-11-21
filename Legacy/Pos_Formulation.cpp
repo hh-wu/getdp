@@ -205,7 +205,8 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
     if(PostSubOperation_P->AppendTimeStepToFileName) {
       /* We should implement something more general, like strings with
 	 tags (e.g., "file_%TimeStep.pos") */
-      sprintf(AddExt, "_%03d", (int)Current.TimeStep) ;
+      sprintf(AddExt, "_%03d", (PostSubOperation_P->OverrideTimeStepValue >= 0) ?
+              PostSubOperation_P->OverrideTimeStepValue : (int)Current.TimeStep) ;
       strcat(FileName, AddExt);
     }
 
