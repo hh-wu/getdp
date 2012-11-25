@@ -1657,7 +1657,7 @@ void Print_ListResolution(int choose, int Flag_LRES, char **name)
       std::vector<std::string> choices;
       for (i = 0; i < Nbr; i++) {
 	RE = (struct Resolution*)List_Pointer(Problem_S.Resolution, i);
-	if(print) Message::Check("(%d) %s\n", i+1, RE->Name);
+	if(print) Message::Info("(%d) %s", i+1, RE->Name);
 	if(Message::UseSocket()) Message::SendOptionOnSocket(1, RE->Name);
         choices.push_back(RE->Name);
       }
@@ -1721,7 +1721,7 @@ void Print_ListPostOperation(int choose, int Flag_LPOS, char *name[NBR_MAX_POS])
       std::vector<std::string> choices;
       for (i = 0; i < Nbr; i++) {
 	PO = (struct PostOperation*)List_Pointer(Problem_S.PostOperation, i);
-	if(print) Message::Check("(%d) %s\n", i+1, PO->Name);
+	if(print) Message::Info("(%d) %s", i+1, PO->Name);
 	if(Message::UseSocket()) Message::SendOptionOnSocket(2, PO->Name);
         choices.push_back(PO->Name);
       }
