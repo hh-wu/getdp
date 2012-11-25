@@ -1627,10 +1627,10 @@ void  Print_ProblemStructure()
 
   while (1) {
     Message::Info("Checking");
-    Message::Check("(1) Constants        (2) Groups          (3) Functions\n");
-    Message::Check("(4) Constraints      (5) Jacobians       (6) Integrations\n");
-    Message::Check("(7) FunctionSpaces   (8) Formulations    (9) Resolution\n");
-    Message::Check("(10) PostProcessings (11) PostOperations (other) Quit\n");
+    Message::Direct("(1) Constants        (2) Groups          (3) Functions");
+    Message::Direct("(4) Constraints      (5) Jacobians       (6) Integrations");
+    Message::Direct("(7) FunctionSpaces   (8) Formulations    (9) Resolution");
+    Message::Direct("(10) PostProcessings (11) PostOperations (other) Quit");
     Message::Check("Choice: ");
     fgets(buff, 128, stdin);
     ichoice = atoi(buff);
