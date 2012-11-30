@@ -948,7 +948,8 @@ struct Operation {
     struct {
       double  Criterion;
       int     NbrMaxIteration, RelaxationFactorIndex, Flag;
-      List_T  *IterativeLoopSystems;
+      List_T  *IterativeLoopSystems_L;
+      List_T  *IterativeLoopPOs_L;
       List_T  *Operation;
     } IterativeLoop;
     struct {
@@ -1062,8 +1063,8 @@ struct TimeLoopAdaptiveSystem {
 struct LoopErrorPostOperation {
   char    *PostOperationName;
   int     PostOperationIndex;
-  double  PoLTEreltol;
-  double  PoLTEabstol;
+  double  PostOperationReltol;
+  double  PostOperationAbstol;
   int     NormType;
   char    *NormTypeString;
   List_T  *Save_Format_L, *Save_LastTimeStepOnly_L;

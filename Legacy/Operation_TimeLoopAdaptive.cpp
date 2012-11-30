@@ -301,7 +301,7 @@ void Predictor(Resolution  *Resolution_P,
   gVector                *xPredicted_P;
   gVector                *x_NminusJ_P;              // past solution vector x_N-i
   gVector                *PostOpSolPredicted_P;
-  int                    TimeStep, NbrSolutions;
+  int                    TimeStep, NbrSolutions, PostOpSolLength;
 
 
   // Loop through all given systems
@@ -361,7 +361,7 @@ void Predictor(Resolution  *Resolution_P,
 
   // Loop through all specified PostOperations
   if (List_Nbr(TLAPostOp_L) != List_Nbr(Current.PostOpData_L))
-    Message::Error("Current PostOpData_L list is not up to date");
+    Message::Error("Current.PostOpData_L list is not up to date");
   for(int i = 0; i < List_Nbr(TLAPostOp_L); i++){
 
     PostOpSolutions_P = (struct PostOpSolutions*)
@@ -371,9 +371,8 @@ void Predictor(Resolution  *Resolution_P,
       Message::Error("No initial result for PostOperation %s",
                      PostOpSolutions_P->PostOperation_P->Name);
 
-    Solution_P = (struct Solution*)
-                     List_Pointer(PostOpSolutions_P->Solutions_L,
-                                  List_Nbr(PostOpSolutions_P->Solutions_L)-1);
+    Solution_P = (struct Solution*)List_Pointer(PostOpSolutions_P->Solutions_L,
+                                                NbrSolutions-1);
 
     TimeStep = (int)Current.TimeStep;
     if (Solution_P->TimeStep != TimeStep) {     // if we compute a new time step
@@ -382,9 +381,8 @@ void Predictor(Resolution  *Resolution_P,
       Solution_S.TimeImag = Current.TimeImag ;
       Solution_S.SolutionExist = 1 ;
       Solution_S.TimeFunctionValues = NULL;
-      int nn;
-      LinAlg_GetVectorSize(&Solution_P->x, &nn);
-      LinAlg_CreateVector(&Solution_S.x, &DofData_P0->Solver, nn);
+      LinAlg_GetVectorSize(&Solution_P->x, &PostOpSolLength);
+      LinAlg_CreateVector(&Solution_S.x, &DofData_P0->Solver, PostOpSolLength);
 
       List_Add(PostOpSolutions_P->Solutions_L, &Solution_S);
       Solution_P = (struct Solution*)
@@ -442,7 +440,7 @@ double CalcMaxLTEratio(Resolution  *Resolution_P,
   gVector                PostOpSolLTE;                          // Local Truncation Error vector
   double                 pec, cec;                              // predictor and corrector error constants
   double                 ErrorRatio, MaxErrorRatio;
-  int                    NbrSolutions;
+  int                    NbrSolutions, PostOpSolLength;
 
 
   MaxErrorRatio = 0.;
@@ -513,15 +511,14 @@ double CalcMaxLTEratio(Resolution  *Resolution_P,
 
     // Vector of all local truncation errors
     // xLTE = cec / (pec - cec) * (xCorrector - xPredictor)
-    int nn;
-    LinAlg_GetVectorSize(PostOpSolCorr_P, &nn);
-    LinAlg_CreateVector(&PostOpSolLTE, &DofData_P0->Solver, nn);
+    LinAlg_GetVectorSize(PostOpSolCorr_P, &PostOpSolLength);
+    LinAlg_CreateVector(&PostOpSolLTE, &DofData_P0->Solver, PostOpSolLength);
     LinAlg_CopyVector(PostOpSolCorr_P, &PostOpSolLTE);
     LinAlg_SubVectorVector(&PostOpSolLTE, PostOpSolPred_P, &PostOpSolLTE);
     LinAlg_ProdVectorDouble(&PostOpSolLTE, cec / (pec - cec), &PostOpSolLTE);
 
     Cal_SolutionErrorRatio(&PostOpSolLTE, PostOpSolCorr_P,
-                           TLAPostOp.PoLTEreltol, TLAPostOp.PoLTEabstol,
+                           TLAPostOp.PostOperationReltol, TLAPostOp.PostOperationAbstol,
                            TLAPostOp.NormType, &ErrorRatio);
 
     LinAlg_DestroyVector(&PostOpSolLTE);
@@ -944,11 +941,7 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
   List_Delete(xPredicted_L);
 
   ClearLEPostOperation(Resolution_P, DofData_P0, GeoData_P0, LEPostOp_L,
-                            LEPostOpNames_L, PostOpSolPredicted_L);
-
-  if (LEPostOpNames_L != NULL) {
-    List_Delete(LEPostOpNames_L);
-  }
+                            LEPostOpNames_L, PostOpSolPredicted_L, true);
 
   if (BreakpointListCreated)
     List_Delete(Breakpoints_L);

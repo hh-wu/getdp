@@ -75,7 +75,8 @@ void ClearLEPostOperation(Resolution  *Resolution_P,
                           GeoData     *GeoData_P0,
                           List_T      *LEPostOp_L,
                           List_T      *LEPostOpNames_L,
-                          List_T      *PostOpSolPredicted_L);
+                          List_T      *PostOpSolPredicted_L,
+                          bool        Delete_LEPostOp_L);
 
 void Cal_SolutionErrorRatio(gVector *dx,
                             gVector *x,

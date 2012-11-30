@@ -86,7 +86,7 @@ static struct DefineSystem             DefineSystem_S;
 static struct Operation                Operation_S, *Operation_P;
 static struct ChangeOfState            ChangeOfState_S;
 static struct TimeLoopAdaptiveSystem   TimeLoopAdaptiveSystem_S;
-static struct LoopErrorPostOperation   TimeLoopAdaptivePO_S;
+static struct LoopErrorPostOperation   TimeLoopAdaptivePO_S, IterativeLoopPO_S;
 static struct IterativeLoopSystem      IterativeLoopSystem_S;
 static struct PostProcessing         PostProcessing_S, InteractivePostProcessing_S;
 static struct PostQuantity             PostQuantity_S;
@@ -162,7 +162,7 @@ struct doubleXstring{
 %type <c>  NameForMathFunction NameForFunction CharExpr StrCat StringIndex String__Index
 %type <l>  RecursiveListOfString__Index
 %type <t>  Quantity_Def
-%type <l>  TimeLoopAdaptiveSystems TimeLoopAdaptivePOs IterativeLoopSystems
+%type <l>  TimeLoopAdaptiveSystems TimeLoopAdaptivePOs IterativeLoopSystems IterativeLoopPOs
 
 /* ------------------------------------------------------------------ */
 %token  tEND tDOTS
@@ -4398,19 +4398,15 @@ OperationTerm :
       Operation_P->Case.TimeLoopAdaptive.OperationEnd = $23;
     }
 
-  | tIterativeLoopN '[' FExpr ',' Expression ','
-                    tDefineSystem '{' IterativeLoopSystems '}' ']'
-                    '{' Operation '}'
+  | tIterativeLoopN '[' FExpr ',' Expression ',' IterativeLoopDefinitions ']'
+                    '{' Operation '}'                    
     { List_Pop(Operation_L);
       Operation_P = (struct Operation*)
         List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
-      if (!List_Nbr($9))
-        vyyerror("No system tolerances specified for IterativeLoopN");
       Operation_P->Type = OPERATION_ITERATIVELOOPN;
       Operation_P->Case.IterativeLoop.NbrMaxIteration = (int)$3;
       Operation_P->Case.IterativeLoop.RelaxationFactorIndex = $5;
-      Operation_P->Case.IterativeLoop.IterativeLoopSystems = $9;
-      Operation_P->Case.IterativeLoop.Operation = $13;
+      Operation_P->Case.IterativeLoop.Operation = $10;
     }
 
   | tIterativeLoop  '[' FExpr ',' FExpr ',' Expression ']'
@@ -4964,8 +4960,8 @@ LTEdefinitions :
   | TimeLoopAdaptivePOs '{' String__Index ',' FExpr ',' FExpr  ',' tSTRING '}'
     {
       TimeLoopAdaptivePO_S.PostOperationName = $3;
-      TimeLoopAdaptivePO_S.PoLTEreltol = $5;
-      TimeLoopAdaptivePO_S.PoLTEabstol = $7;
+      TimeLoopAdaptivePO_S.PostOperationReltol = $5;
+      TimeLoopAdaptivePO_S.PostOperationAbstol = $7;
       TimeLoopAdaptivePO_S.NormType = Get_DefineForString(ErrorNorm_Type, $9, &FlagError);
       if(FlagError){
         vyyerror("Unknown error norm type of TimeLoopAdaptive PostOperation %s", $3);
@@ -4975,6 +4971,28 @@ LTEdefinitions :
       List_Add($$ = $1, &TimeLoopAdaptivePO_S);
     }
  ;
+ 
+IterativeLoopDefinitions :
+    /* none */
+    {
+      Operation_P = (struct Operation*)
+        List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Case.IterativeLoop.IterativeLoopSystems_L = NULL;
+      Operation_P->Case.IterativeLoop.IterativeLoopPOs_L = NULL;
+    }
+
+  | IterativeLoopDefinitions tDefineSystem '{' IterativeLoopSystems '}'
+    {
+      Operation_P->Case.IterativeLoop.IterativeLoopSystems_L = $4;
+    }
+
+  | IterativeLoopDefinitions tPostOperation '{' IterativeLoopPOs '}'
+    {
+      Operation_P->Case.IterativeLoop.IterativeLoopPOs_L = $4;
+    }
+            
+ ;
+
  
  IterativeLoopSystems :
      /* none */
@@ -5004,6 +5022,28 @@ LTEdefinitions :
       IterativeLoopSystem_S.NormTypeString = $10;
       List_Add($$ = $1, &IterativeLoopSystem_S);
       Free($3);
+    }
+ ;
+
+
+ IterativeLoopPOs :
+    /* none */
+    {
+      $$ = List_Create(4, 4, sizeof(struct LoopErrorPostOperation));
+    }
+
+  | IterativeLoopPOs '{' String__Index ',' FExpr ',' FExpr  ',' tSTRING '}'
+    {
+      IterativeLoopPO_S.PostOperationName = $3;
+      IterativeLoopPO_S.PostOperationReltol = $5;
+      IterativeLoopPO_S.PostOperationAbstol = $7;
+      IterativeLoopPO_S.NormType = Get_DefineForString(ErrorNorm_Type, $9, &FlagError);
+      if(FlagError){
+        vyyerror("Unknown error norm type of IterativeLoopN PostOperation %s", $3);
+        Get_Valid_SXD(ChangeOfState_Type);
+      }
+      IterativeLoopPO_S.NormTypeString = $9;
+      List_Add($$ = $1, &IterativeLoopPO_S);
     }
  ;
 

@@ -87,17 +87,17 @@ void InitLEPostOperation(Resolution  *Resolution_P,
                          DofData     *DofData_P0,
                          GeoData     *GeoData_P0,
                          List_T      *LEPostOp_L,
-                         List_T      * LEPostOpNames_L,
-                         List_T      *PostOpSolPredicted_L)
+                         List_T      *LEPostOpNames_L,
+                         List_T      *PostOpSolution_L)
 {
-  int                    NbrPostOps, Index, NbrPostSubOperation;
+  int                    NbrPostOps, Index, NbrPostSubOperation, PostOpSolLength;
   int                    *Save_Format_P, *Save_LastTimeStepOnly_P;
   char                   **Save_FileOut_P;
   PostOpSolutions        *PostOpSolutions_P, PostOpSolutions_S;
   LoopErrorPostOperation *LEPostOp_P;
   PostSubOperation       *PostSubOperation_P;
   List_T                 *PostSubOperation_L;
-  gVector                PostOpSolPredicted_S;
+  gVector                PostOpSolution_S;
 
   Current.PostOpData_L = NULL;
   NbrPostOps = List_Nbr(LEPostOp_L);
@@ -149,17 +149,15 @@ void InitLEPostOperation(Resolution  *Resolution_P,
     // Execute the PostOperations
     Operation_PostOperation(Resolution_P, DofData_P0, GeoData_P0, LEPostOpNames_L);
 
-    // Creating vectors for the predicted PostOperation-solution
+    // Creating vectors for the PostOperation-solution
     for (int i=0; i < NbrPostOps; i++) {
       PostOpSolutions_P = (struct PostOpSolutions*)
                           List_Pointer(Current.PostOpData_L, i);
-
-      int PostOpSolLength;
       LinAlg_GetVectorSize
         (&((struct Solution*)List_Pointer(PostOpSolutions_P->Solutions_L, 0))->x,
          &PostOpSolLength);
-      LinAlg_CreateVector(&PostOpSolPredicted_S, &DofData_P0->Solver, PostOpSolLength);
-      List_Add(PostOpSolPredicted_L, &PostOpSolPredicted_S);
+      LinAlg_CreateVector(&PostOpSolution_S, &DofData_P0->Solver, PostOpSolLength);
+      List_Add(PostOpSolution_L, &PostOpSolution_S);
     }
   }
 }
@@ -228,7 +226,7 @@ void Free_AllPOresults()
     List_Delete(PostOpSolutions_P->Solutions_L);
   }
   List_Delete(Current.PostOpData_L);
-  Current.PostOpData_L = 0;
+  Current.PostOpData_L = NULL;
   Current.PostOpDataIndex = -1;
 }
 
@@ -243,11 +241,12 @@ void ClearLEPostOperation(Resolution  *Resolution_P,
                           GeoData     *GeoData_P0,
                           List_T      *LEPostOp_L,
                           List_T      *LEPostOpNames_L,
-                          List_T      *PostOpSolPredicted_L)
+                          List_T      *PostOpSolution_L,
+                          bool        Delete_LEPostOp_L)
 {
   int                    Index, NbrPostSubOperation;
-  int                    *Save_Format_P, *Save_LastTimeStepOnly_P;
-  char                   **Save_FileOut_P;
+  int                    *Format_P, *LastTimeStepOnly_P;
+  char                   **FileOut_P;
   LoopErrorPostOperation *LEPostOp_P;
   PostSubOperation       *PostSubOperation_P;
   List_T                 *PostSubOperation_L;
@@ -264,19 +263,23 @@ void ClearLEPostOperation(Resolution  *Resolution_P,
     // Restore variables Format, LastTimeStepOnly and FileOut of all used PostOperations
     for (int j=0; j<NbrPostSubOperation; j++) {
       PostSubOperation_P = (struct PostSubOperation*)List_Pointer(PostSubOperation_L, j);
-      Save_Format_P = &PostSubOperation_P->Format;
-      Save_LastTimeStepOnly_P = &PostSubOperation_P->LastTimeStepOnly;
-      Save_FileOut_P = &PostSubOperation_P->FileOut;
-      List_Read(LEPostOp_P->Save_Format_L, j, Save_Format_P);
-      List_Read(LEPostOp_P->Save_LastTimeStepOnly_L, j, Save_LastTimeStepOnly_P);
-      List_Read(LEPostOp_P->Save_FileOut_L, j, Save_FileOut_P);
+      Format_P = &PostSubOperation_P->Format;
+      LastTimeStepOnly_P = &PostSubOperation_P->LastTimeStepOnly;
+      FileOut_P = &PostSubOperation_P->FileOut;
+      List_Read(LEPostOp_P->Save_Format_L, j, Format_P);
+      List_Read(LEPostOp_P->Save_LastTimeStepOnly_L, j, LastTimeStepOnly_P);
+      List_Read(LEPostOp_P->Save_FileOut_L, j, FileOut_P);
     }
 
-    free(LEPostOp_P->PostOperationName);
-    LinAlg_DestroyVector((gVector*)List_Pointer(PostOpSolPredicted_L, i));
+    if (Delete_LEPostOp_L)
+      free(LEPostOp_P->PostOperationName);
+    LinAlg_DestroyVector((gVector*)List_Pointer(PostOpSolution_L, i));
   }
-  List_Delete(LEPostOp_L);
-  List_Delete(PostOpSolPredicted_L);
+  if (Delete_LEPostOp_L)
+    List_Delete(LEPostOp_L);
+  List_Delete(PostOpSolution_L);
 
   Free_AllPOresults();
+
+  List_Delete(LEPostOpNames_L);
 }
