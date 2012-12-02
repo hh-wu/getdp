@@ -30,7 +30,7 @@ double CalcMaxErrorRatio(Resolution  *Resolution_P,
                          List_T      *xPrevious_L,
                          List_T      *PostOpSolutionPrevious_L)
 {
-  DofData                 *DofData_P;
+  DofData                 *DofData_P=NULL;
   DefineSystem            *DefineSystem_P;
   IterativeLoopSystem     ILsystem;
   LoopErrorPostOperation  ILPostOp;
@@ -117,7 +117,7 @@ double CalcMaxErrorRatio(Resolution  *Resolution_P,
     xCurrent_P  = &Solution_P->x;
 
     LinAlg_GetVectorSize(xCurrent_P, &PostOpSolLength);
-    LinAlg_CreateVector(&xError, &DofData_P->Solver, PostOpSolLength);
+    LinAlg_CreateVector(&xError, &DofData_P0->Solver, PostOpSolLength);
 
     // Vector of errors: xError = xCurrent - xPrevious
     LinAlg_CopyVector(xCurrent_P, &xError);
@@ -164,7 +164,7 @@ void Operation_IterativeLoopN(Resolution  *Resolution_P,
   List_T    *SavePostOpData_L;
   gVector   *xPrevious_P, *PostOpResultPrevious_P;
   Value     Value;
-  DofData   *DofData_P;
+  DofData   *DofData_P=NULL;
   IterativeLoopSystem    ILsystem;
   PostOpSolutions        *PostOpSolutions_P;
   Solution               *Solution_P;
