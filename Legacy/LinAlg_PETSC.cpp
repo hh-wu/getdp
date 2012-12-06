@@ -191,6 +191,8 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
 
   // prealloc cannot be bigger than the number of rows!
   prealloc = (n < prealloc) ? n : prealloc;
+  prealloc_full = (n < prealloc_full) ? n : prealloc_full;
+
   std::vector<PetscInt> nnz(n, prealloc);
 
   // preallocate non local equations as full lines (this is not
