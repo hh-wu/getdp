@@ -23,6 +23,11 @@
 #include "MallocUtils.h"
 #include "Message.h"
 
+#if defined(HAVE_GMSH)
+#include <gmsh/PView.h>
+#include <gmsh/PViewData.h>
+#endif
+
 #define TWO_PI             6.2831853071795865
 
 #define NBR_MAX_ISO  200
@@ -43,32 +48,25 @@ static List_T *TimeValue_L = NULL ;
 
 // global static lists for new-style Gmsh output (cannot be saved incrementally
 // for each element)
-static int     Gmsh_StartNewView = 0 ;
-static int     NbSP, NbVP, NbTP, NbSL, NbVL, NbTL, NbST, NbVT, NbTT;
-static int     NbSQ, NbVQ, NbTQ, NbSS, NbVS, NbTS, NbSH, NbVH, NbTH;
-static int     NbSI, NbVI, NbTI, NbSY, NbVY, NbTY;
-static int     NbT2;
-static List_T *SP = NULL, *VP = NULL, *TP = NULL;
-static List_T *SL = NULL, *VL = NULL, *TL = NULL;
-static List_T *ST = NULL, *VT = NULL, *TT = NULL;
-static List_T *SQ = NULL, *VQ = NULL, *TQ = NULL;
-static List_T *SS = NULL, *VS = NULL, *TS1 = NULL; // TS<->TS1 fix compile with PETSc
-static List_T *SH = NULL, *VH = NULL, *TH = NULL;
-static List_T *SI = NULL, *VI = NULL, *TI = NULL;
-static List_T *SY = NULL, *VY = NULL, *TY = NULL;
-static List_T *T2D = NULL, *T2C = NULL;
-static char    CurrentName[256] = "";
-static int     CurrentPartitionNumber = 0;
+static int Gmsh_StartNewView = 0 ;
+static int NbSP, NbVP, NbTP, NbSL, NbVL, NbTL, NbST, NbVT, NbTT;
+static int NbSQ, NbVQ, NbTQ, NbSS, NbVS, NbTS, NbSH, NbVH, NbTH;
+static int NbSI, NbVI, NbTI, NbSY, NbVY, NbTY;
+static int NbT2;
+static std::vector<double> SP, VP, TP, SL, VL, TL, ST, VT, TT, SQ, VQ, TQ;
+static std::vector<double> SS, VS, TS1 /* for petsc */, SH, VH, TH;
+static std::vector<double> SI, VI, TI, SY, VY, TY, T2D;
+static std::vector<char> T2C;
+static char CurrentName[256] = "";
+static int CurrentPartitionNumber = 0;
 
 static void Gmsh_StringStart(int Format, double x, double y, double style)
 {
-  double d;
   if(Flag_BIN){ /* bricolage: should use Format instead */
-    List_Add(T2D, &x);
-    List_Add(T2D, &y);
-    List_Add(T2D, &style);
-    d = List_Nbr(T2C);
-    List_Add(T2D, &d);
+    T2D.push_back(x);
+    T2D.push_back(y);
+    T2D.push_back(style);
+    T2D.push_back(T2C.size());
     NbT2++;
   }
   else{
@@ -81,7 +79,7 @@ static void Gmsh_StringAdd(int Format, int first, char *text)
   int i;
   if(Flag_BIN){ /* bricolage: should use Format instead */
     for(i = 0; i < (int)strlen(text)+1; i++)
-      List_Add(T2C, &text[i]);
+      T2C.push_back(text[i]);
   }
   else{
     if(!first)
@@ -125,7 +123,7 @@ static int Gmsh_GetElementType(int Type)
 }
 
 static void Gmsh_PrintElementNodeData(struct PostSubOperation *PSO_P, int numTimeStep,
-                                      int numComp, int Nb[8], List_T *L[8])
+                                      int numComp, int Nb[8], std::vector<double> *L[8])
 {
   int N = 0;
   for(int i = 0; i < 8; i++) N += Nb[i];
@@ -148,9 +146,9 @@ static void Gmsh_PrintElementNodeData(struct PostSubOperation *PSO_P, int numTim
       fprintf(PostStream, "%d\n", CurrentPartitionNumber);
       for(int i = 0; i < 8; i++){
         if(!Nb[i]) continue;
-        int stride = List_Nbr(L[i]) / Nb[i];
-        for(int j = 0; j < List_Nbr(L[i]); j += stride){
-          double *tmp = (double*)List_Pointer(L[i], j);
+        int stride = (*L[i]).size() / Nb[i];
+        for(int j = 0; j < (*L[i]).size(); j += stride){
+          double *tmp = &(*L[i])[j];
           int num = (int)tmp[0];
           int mult = (stride - 1) / numTimeStep / Current.NbrHar / numComp;
           if(Flag_BIN){
@@ -398,7 +396,7 @@ static void Gmsh_PrintElement(double Time, int TimeStep, int NbTimeStep, int NbH
   int            i,j,k,jj ;
   double         TimeMH ;
   struct Value   TmpValue ;
-  static List_T *Current_L ;
+  static std::vector<double> *Current_L ;
   int symIndex[9] = {0, 1, 2, 1, 3, 4, 2, 4, 5} ;
   int diagIndex[9] = {0, -1, -1, -1, 1, -1, -1, -1, 2} ;
 
@@ -409,32 +407,11 @@ static void Gmsh_PrintElement(double Time, int TimeStep, int NbTimeStep, int NbH
     NbSS = NbVS = NbTS = NbSH = NbVH = NbTH = 0;
     NbSI = NbVI = NbTI = NbSY = NbVY = NbTY = 0;
     NbT2 = 0;
-    if(!SP) SP = List_Create(100,1000000,sizeof(double)); else List_Reset(SP);
-    if(!VP) VP = List_Create(100,1000000,sizeof(double)); else List_Reset(VP);
-    if(!TP) TP = List_Create(100,1000000,sizeof(double)); else List_Reset(TP);
-    if(!SL) SL = List_Create(100,1000000,sizeof(double)); else List_Reset(SL);
-    if(!VL) VL = List_Create(100,1000000,sizeof(double)); else List_Reset(VL);
-    if(!TL) TL = List_Create(100,1000000,sizeof(double)); else List_Reset(TL);
-    if(!ST) ST = List_Create(100,1000000,sizeof(double)); else List_Reset(ST);
-    if(!VT) VT = List_Create(100,1000000,sizeof(double)); else List_Reset(VT);
-    if(!TT) TT = List_Create(100,1000000,sizeof(double)); else List_Reset(TT);
-    if(!SQ) SQ = List_Create(100,1000000,sizeof(double)); else List_Reset(SQ);
-    if(!VQ) VQ = List_Create(100,1000000,sizeof(double)); else List_Reset(VQ);
-    if(!TQ) TQ = List_Create(100,1000000,sizeof(double)); else List_Reset(TQ);
-    if(!SS) SS = List_Create(100,1000000,sizeof(double)); else List_Reset(SS);
-    if(!VS) VS = List_Create(100,1000000,sizeof(double)); else List_Reset(VS);
-    if(!TS1) TS1 = List_Create(100,1000000,sizeof(double)); else List_Reset(TS1);
-    if(!SH) SH = List_Create(100,1000000,sizeof(double)); else List_Reset(SH);
-    if(!VH) VH = List_Create(100,1000000,sizeof(double)); else List_Reset(VH);
-    if(!TH) TH = List_Create(100,1000000,sizeof(double)); else List_Reset(TH);
-    if(!SI) SI = List_Create(100,1000000,sizeof(double)); else List_Reset(SI);
-    if(!VI) VI = List_Create(100,1000000,sizeof(double)); else List_Reset(VI);
-    if(!TI) TI = List_Create(100,1000000,sizeof(double)); else List_Reset(TI);
-    if(!SY) SY = List_Create(100,1000000,sizeof(double)); else List_Reset(SY);
-    if(!VY) VY = List_Create(100,1000000,sizeof(double)); else List_Reset(VY);
-    if(!TY) TY = List_Create(100,1000000,sizeof(double)); else List_Reset(TY);
-    if(!T2D) T2D = List_Create(100,1000000,sizeof(double)); else List_Reset(T2D);
-    if(!T2C) T2C = List_Create(100,1000000,sizeof(char)); else List_Reset(T2C);
+    SP.clear(); VP.clear(); TP.clear(); SL.clear(); VL.clear(); TL.clear();
+    ST.clear(); VT.clear(); TT.clear(); SQ.clear(); VQ.clear(); TQ.clear();
+    SS.clear(); VS.clear(); TS1.clear(); SH.clear(); VH.clear(); TH.clear();
+    SI.clear(); VI.clear(); TI.clear(); SY.clear(); VY.clear(); TY.clear();
+    T2D.clear(); T2C.clear();
     if(!TimeValue_L) TimeValue_L = List_Create(100,1000000,sizeof(double));
     else List_Reset(TimeValue_L);
   }
@@ -445,41 +422,41 @@ static void Gmsh_PrintElement(double Time, int TimeStep, int NbTimeStep, int NbH
 
     if(TimeStep == 0){
       switch(Type){
-      case POINT       : Current_L = SP ; NbSP++ ; break ;
-      case LINE        : Current_L = SL ; NbSL++ ; break ;
-      case TRIANGLE    : Current_L = ST ; NbST++ ; break ;
-      case QUADRANGLE  : Current_L = SQ ; NbSQ++ ; break ;
-      case TETRAHEDRON : Current_L = SS ; NbSS++ ; break ;
-      case HEXAHEDRON  : Current_L = SH ; NbSH++ ; break ;
-      case PRISM       : Current_L = SI ; NbSI++ ; break ;
-      case PYRAMID     : Current_L = SY ; NbSY++ ; break ;
-      case LINE_2      : Current_L = SL ; NbSL++ ; break ;
-      case TRIANGLE_2  : Current_L = ST ; NbST++ ; break ;
-      case QUADRANGLE_2: Current_L = SQ ; NbSQ++ ; break ;
-      case QUADRANGLE_2_8N: Current_L = SQ ; NbSQ++ ; break ;
+      case POINT       : Current_L = &SP ; NbSP++ ; break ;
+      case LINE        : Current_L = &SL ; NbSL++ ; break ;
+      case TRIANGLE    : Current_L = &ST ; NbST++ ; break ;
+      case QUADRANGLE  : Current_L = &SQ ; NbSQ++ ; break ;
+      case TETRAHEDRON : Current_L = &SS ; NbSS++ ; break ;
+      case HEXAHEDRON  : Current_L = &SH ; NbSH++ ; break ;
+      case PRISM       : Current_L = &SI ; NbSI++ ; break ;
+      case PYRAMID     : Current_L = &SY ; NbSY++ ; break ;
+      case LINE_2      : Current_L = &SL ; NbSL++ ; break ;
+      case TRIANGLE_2  : Current_L = &ST ; NbST++ ; break ;
+      case QUADRANGLE_2: Current_L = &SQ ; NbSQ++ ; break ;
+      case QUADRANGLE_2_8N: Current_L = &SQ ; NbSQ++ ; break ;
       }
       if(Flag_GMSH_VERSION != 2){
-        for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &x[i]);
-        for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &y[i]);
-        for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &z[i]);
+        for(i = 0 ; i < NbrNodes ; i++) Current_L->push_back(x[i]);
+        for(i = 0 ; i < NbrNodes ; i++) Current_L->push_back(y[i]);
+        for(i = 0 ; i < NbrNodes ; i++) Current_L->push_back(z[i]);
       }
       else{
         double tmp = ElementNum;
-        List_Add(Current_L, &tmp);
+        Current_L->push_back(tmp);
       }
     }
     if (HarmonicToTime == 1)
       for(k = 0 ; k < NbHarmonic ; k++){
 	List_Put(TimeValue_L, NbHarmonic*TimeStep+k, &Time);
 	for(i = 0 ; i < NbrNodes ; i++)
-	  List_Add(Current_L, &Value[i].Val[MAX_DIM*k]);
+	  Current_L->push_back(Value[i].Val[MAX_DIM*k]);
       }
     else
       for(k = 0 ; k < HarmonicToTime ; k++){
 	List_Put(TimeValue_L, HarmonicToTime*TimeStep+k, &Time);
 	for(i = 0 ; i < NbrNodes ; i++){
 	  F_MHToTime0(k+i, &Value[i], &TmpValue, k, HarmonicToTime, &TimeMH) ;
-	  List_Add(Current_L, &TmpValue.Val[0]);
+	  Current_L->push_back(TmpValue.Val[0]);
 	}
       }
     break ;
@@ -488,27 +465,27 @@ static void Gmsh_PrintElement(double Time, int TimeStep, int NbTimeStep, int NbH
 
     if(TimeStep == 0){
       switch(Type){
-      case POINT       : Current_L = VP ; NbVP++ ; break ;
-      case LINE        : Current_L = VL ; NbVL++ ; break ;
-      case TRIANGLE    : Current_L = VT ; NbVT++ ; break ;
-      case QUADRANGLE  : Current_L = VQ ; NbVQ++ ; break ;
-      case TETRAHEDRON : Current_L = VS ; NbVS++ ; break ;
-      case HEXAHEDRON  : Current_L = VH ; NbVH++ ; break ;
-      case PRISM       : Current_L = VI ; NbVI++ ; break ;
-      case PYRAMID     : Current_L = VY ; NbVY++ ; break ;
-      case LINE_2      : Current_L = VL ; NbVL++ ; break ;
-      case TRIANGLE_2  : Current_L = VT ; NbVT++ ; break ;
-      case QUADRANGLE_2: Current_L = VQ ; NbVQ++ ; break ;
-      case QUADRANGLE_2_8N: Current_L = VQ ; NbVQ++ ; break ;
+      case POINT       : Current_L = &VP ; NbVP++ ; break ;
+      case LINE        : Current_L = &VL ; NbVL++ ; break ;
+      case TRIANGLE    : Current_L = &VT ; NbVT++ ; break ;
+      case QUADRANGLE  : Current_L = &VQ ; NbVQ++ ; break ;
+      case TETRAHEDRON : Current_L = &VS ; NbVS++ ; break ;
+      case HEXAHEDRON  : Current_L = &VH ; NbVH++ ; break ;
+      case PRISM       : Current_L = &VI ; NbVI++ ; break ;
+      case PYRAMID     : Current_L = &VY ; NbVY++ ; break ;
+      case LINE_2      : Current_L = &VL ; NbVL++ ; break ;
+      case TRIANGLE_2  : Current_L = &VT ; NbVT++ ; break ;
+      case QUADRANGLE_2: Current_L = &VQ ; NbVQ++ ; break ;
+      case QUADRANGLE_2_8N: Current_L = &VQ ; NbVQ++ ; break ;
       }
       if(Flag_GMSH_VERSION != 2){
-        for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &x[i]);
-        for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &y[i]);
-        for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &z[i]);
+        for(i = 0 ; i < NbrNodes ; i++) Current_L->push_back(x[i]);
+        for(i = 0 ; i < NbrNodes ; i++) Current_L->push_back(y[i]);
+        for(i = 0 ; i < NbrNodes ; i++) Current_L->push_back(z[i]);
       }
       else{
         double tmp = ElementNum;
-        List_Add(Current_L, &tmp);
+        Current_L->push_back(tmp);
       }
     }
     if (HarmonicToTime == 1)
@@ -516,7 +493,7 @@ static void Gmsh_PrintElement(double Time, int TimeStep, int NbTimeStep, int NbH
 	List_Put(TimeValue_L, NbHarmonic*TimeStep+k, &Time);
 	for(i = 0 ; i < NbrNodes ; i++)
 	  for(j = 0 ; j < 3 ; j++)
-	    List_Add(Current_L, &Value[i].Val[MAX_DIM*k+j]);
+	    Current_L->push_back(Value[i].Val[MAX_DIM*k+j]);
       }
     else
       for(k = 0 ; k < HarmonicToTime ; k++){
@@ -524,7 +501,7 @@ static void Gmsh_PrintElement(double Time, int TimeStep, int NbTimeStep, int NbH
 	for(i = 0 ; i < NbrNodes ; i++){
 	  F_MHToTime0(k+i, &Value[i], &TmpValue, k, HarmonicToTime, &TimeMH) ;
 	  for(j = 0 ; j < 3 ; j++)
-	    List_Add(Current_L, &TmpValue.Val[j]);
+	    Current_L->push_back(TmpValue.Val[j]);
 	}
       }
     break ;
@@ -535,27 +512,27 @@ static void Gmsh_PrintElement(double Time, int TimeStep, int NbTimeStep, int NbH
 
     if(TimeStep == 0){
       switch(Type){
-      case POINT       : Current_L = TP ; NbTP++ ; break ;
-      case LINE        : Current_L = TL ; NbTL++ ; break ;
-      case TRIANGLE    : Current_L = TT ; NbTT++ ; break ;
-      case QUADRANGLE  : Current_L = TQ ; NbTQ++ ; break ;
-      case TETRAHEDRON : Current_L = TS1 ; NbTS++ ; break ;
-      case HEXAHEDRON  : Current_L = TH ; NbTH++ ; break ;
-      case PRISM       : Current_L = TI ; NbTI++ ; break ;
-      case PYRAMID     : Current_L = TY ; NbTY++ ; break ;
-      case LINE_2      : Current_L = TL ; NbTL++ ; break ;
-      case TRIANGLE_2  : Current_L = TT ; NbTT++ ; break ;
-      case QUADRANGLE_2: Current_L = TQ ; NbTQ++ ; break ;
-      case QUADRANGLE_2_8N: Current_L = TQ ; NbTQ++ ; break ;
+      case POINT       : Current_L = &TP ; NbTP++ ; break ;
+      case LINE        : Current_L = &TL ; NbTL++ ; break ;
+      case TRIANGLE    : Current_L = &TT ; NbTT++ ; break ;
+      case QUADRANGLE  : Current_L = &TQ ; NbTQ++ ; break ;
+      case TETRAHEDRON : Current_L = &TS1 ; NbTS++ ; break ;
+      case HEXAHEDRON  : Current_L = &TH ; NbTH++ ; break ;
+      case PRISM       : Current_L = &TI ; NbTI++ ; break ;
+      case PYRAMID     : Current_L = &TY ; NbTY++ ; break ;
+      case LINE_2      : Current_L = &TL ; NbTL++ ; break ;
+      case TRIANGLE_2  : Current_L = &TT ; NbTT++ ; break ;
+      case QUADRANGLE_2: Current_L = &TQ ; NbTQ++ ; break ;
+      case QUADRANGLE_2_8N: Current_L = &TQ ; NbTQ++ ; break ;
       }
       if(Flag_GMSH_VERSION != 2){
-        for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &x[i]);
-        for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &y[i]);
-        for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &z[i]);
+        for(i = 0 ; i < NbrNodes ; i++) Current_L->push_back(x[i]);
+        for(i = 0 ; i < NbrNodes ; i++) Current_L->push_back(y[i]);
+        for(i = 0 ; i < NbrNodes ; i++) Current_L->push_back(z[i]);
       }
       else{
         double tmp = ElementNum;
-        List_Add(Current_L, &tmp);
+        Current_L->push_back(tmp);
       }
     }
     if (HarmonicToTime == 1)
@@ -566,12 +543,12 @@ static void Gmsh_PrintElement(double Time, int TimeStep, int NbTimeStep, int NbH
             if(Value[0].Type != TENSOR_DIAG) {
               if(Value[0].Type == TENSOR_SYM) jj = symIndex[j];
               else jj = j;
-              List_Add(Current_L, &Value[i].Val[MAX_DIM*k+jj]);
+              Current_L->push_back(Value[i].Val[MAX_DIM*k+jj]);
             }
             else {
               jj = diagIndex[j];
-              if(jj == -1) List_Add(Current_L, new double(0.));
-              else List_Add(Current_L, &Value[i].Val[MAX_DIM*k+jj]);
+              if(jj == -1) Current_L->push_back(0.);
+              else Current_L->push_back(Value[i].Val[MAX_DIM*k+jj]);
             }
           }
         }
@@ -585,12 +562,12 @@ static void Gmsh_PrintElement(double Time, int TimeStep, int NbTimeStep, int NbH
             if(Value[0].Type != TENSOR_DIAG) {
               if(Value[0].Type == TENSOR_SYM) jj = symIndex[j];
               else jj = j;
-              List_Add(Current_L, &TmpValue.Val[jj]);
+              Current_L->push_back(TmpValue.Val[jj]);
             }
             else {
               jj = diagIndex[j];
-              if(jj == -1) List_Add(Current_L, new double(0.));
-              else List_Add(Current_L, &TmpValue.Val[jj]);
+              if(jj == -1) Current_L->push_back(0.);
+              else Current_L->push_back(TmpValue.Val[jj]);
             }
           }
 	}
@@ -601,12 +578,32 @@ static void Gmsh_PrintElement(double Time, int TimeStep, int NbTimeStep, int NbH
   // reduce memory requirements by automatically partitioning large
   // output views into chunks not larger than 1Gb
   if(Flag_GMSH_VERSION == 2 && TimeStep == NbTimeStep - 1 &&
-     List_Nbr(Current_L) > (int)(1024 * 1024 * 1024 / sizeof(double))){
+     Current_L->size() > (int)(1024 * 1024 * 1024 / sizeof(double))){
     Format_PostFooter(PSO_P, Store);
     CurrentPartitionNumber++;
     Gmsh_StartNewView = 1;
   }
 
+}
+
+static void dVecWrite(std::vector<double> &v, FILE *fp, bool binary)
+{
+  if(v.empty()) return;
+  if(binary)
+    fwrite(&v[0], sizeof(double), v.size(), fp);
+  else
+    for(unsigned i = 0; i < v.size(); i++)
+      fprintf(fp, " %.16g", v[i]);
+}
+
+static void cVecWrite(std::vector<char> &v, FILE *fp, bool binary)
+{
+  if(v.empty()) return;
+  if(binary)
+    fwrite(&v[0], sizeof(char), v.size(), fp);
+  else
+    for(unsigned i = 0; i < v.size(); i++)
+      fputc(v[i], fp);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1028,6 +1025,9 @@ void  Format_PostHeader(int Format, int SubType, double Time, int TimeStep,
     fprintf(PostStream, "View \"%s\" {\n", name) ;
     Gmsh_StartNewView = 1 ;
     break ;
+  case FORMAT_GMSH_IN_MEMORY :
+    Gmsh_StartNewView = 1 ;
+    break;
   case FORMAT_GMSH :
     if(Flag_GMSH_VERSION != 2){
       if(Flag_BIN){ /* bricolage */
@@ -1065,7 +1065,7 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
   List_T    *Iso_L[NBR_MAX_ISO], *Solutions_L;
   double    IsoMin = 1.e200, IsoMax = -1.e200, IsoVal = 0.0, freq, valr, vali ;
   int       NbrIso = 0 ;
-  int       iPost, iNode, iIso, f, iTime, One=1, i, j, NbTimeStep ;
+  int       iPost, iNode, iIso, iTime, One=1, i, j, NbTimeStep ;
   char      tmp[1024];
   bool      PostOpSolutionGenerated;
   struct PostElement     *PE ;
@@ -1200,18 +1200,35 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
     }
     fprintf(PostStream, "};\n") ;
     break ;
+  case FORMAT_GMSH_IN_MEMORY:
+#if defined(HAVE_GMSH)
+    {
+      Message::Info("Storing data in field %d", PSO_P->StoreInField);
+      int NS[24] = {NbSP, NbVP, NbTP,  NbSL, NbVL, NbTL,  NbST, NbVT, NbTT,
+                    NbSQ, NbVQ, NbTQ,  NbSS, NbVS, NbTS,  NbSH, NbVH, NbTH,
+                    NbSI, NbVI, NbTI,  NbSY, NbVY, NbTY};
+      std::vector<double> *LS[24] = {&SP, &VP, &TP,  &SL, &VL, &TL,  &ST, &VT, &TT,
+                                     &SQ, &VQ, &TQ,  &SS, &VS, &TS1,  &SH, &VH, &TH,
+                                     &SI, &VI, &TI,  &SY, &VY, &TY};
+      PView *v = new PView(PSO_P->StoreInField);
+      v->getData()->importLists(NS, LS);
+    }
+#else
+    Message::Error("GetDP must be compiled with Gmsh support to store data as field");
+#endif
+    break;
   case FORMAT_GMSH :
     if(Flag_GMSH_VERSION == 2){
       int NS[8] = {NbSP, NbSL, NbST, NbSQ, NbSS, NbSH, NbSI, NbSY};
-      List_T *LS[8] = {SP, SL, ST, SQ, SS, SH, SI, SY};
+      std::vector<double> *LS[8] = {&SP, &SL, &ST, &SQ, &SS, &SH, &SI, &SY};
       Gmsh_PrintElementNodeData(PSO_P, NbTimeStep, 1, NS, LS);
 
       int NV[8] = {NbVP, NbVL, NbVT, NbVQ, NbVS, NbVH, NbVI, NbVY};
-      List_T *LV[8] = {VP, VL, VT, VQ, VS, VH, VI, VY};
+      std::vector<double> *LV[8] = {&VP, &VL, &VT, &VQ, &VS, &VH, &VI, &VY};
       Gmsh_PrintElementNodeData(PSO_P, NbTimeStep, 3, NV, LV);
 
       int NT[8] = {NbTP, NbTL, NbTT, NbTQ, NbTS, NbTH, NbTI, NbTY};
-      List_T *LT[8] = {TP, TL, TT, TQ, TS1, TH, TI, TY};
+      std::vector<double> *LT[8] = {&TP, &TL, &TT, &TQ, &TS1, &TH, &TI, &TY};
       Gmsh_PrintElementNodeData(PSO_P, NbTimeStep, 9, NT, LT);
     }
     else if(Flag_BIN){ /* bricolage */
@@ -1220,32 +1237,28 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
 	      List_Nbr(TimeValue_L),
 	      NbSP, NbVP, NbTP, NbSL, NbVL, NbTL, NbST, NbVT, NbTT,
 	      NbSQ, NbVQ, NbTQ, NbSS, NbVS, NbTS, NbSH, NbVH, NbTH,
-	      NbSI, NbVI, NbTI, NbSY, NbVY, NbTY, NbT2, List_Nbr(T2C));
-      if(Flag_BIN){
-	f = LIST_FORMAT_BINARY;
-	fwrite(&One, sizeof(int), 1, PostStream);
-      }
-      else{
-	f = LIST_FORMAT_ASCII;
-      }
-      List_WriteToFile(TimeValue_L, PostStream, f);
-      List_WriteToFile(SP, PostStream, f); List_WriteToFile(VP, PostStream, f);
-      List_WriteToFile(TP, PostStream, f);
-      List_WriteToFile(SL, PostStream, f); List_WriteToFile(VL, PostStream, f);
-      List_WriteToFile(TL, PostStream, f);
-      List_WriteToFile(ST, PostStream, f); List_WriteToFile(VT, PostStream, f);
-      List_WriteToFile(TT, PostStream, f);
-      List_WriteToFile(SQ, PostStream, f); List_WriteToFile(VQ, PostStream, f);
-      List_WriteToFile(TQ, PostStream, f);
-      List_WriteToFile(SS, PostStream, f); List_WriteToFile(VS, PostStream, f);
-      List_WriteToFile(TS1, PostStream, f);
-      List_WriteToFile(SH, PostStream, f); List_WriteToFile(VH, PostStream, f);
-      List_WriteToFile(TH, PostStream, f);
-      List_WriteToFile(SI, PostStream, f); List_WriteToFile(VI, PostStream, f);
-      List_WriteToFile(TI, PostStream, f);
-      List_WriteToFile(SY, PostStream, f); List_WriteToFile(VY, PostStream, f);
-      List_WriteToFile(TY, PostStream, f);
-      List_WriteToFile(T2D, PostStream, f); List_WriteToFile(T2C, PostStream, f);
+	      NbSI, NbVI, NbTI, NbSY, NbVY, NbTY, NbT2, (int)T2C.size());
+      fwrite(&One, sizeof(int), 1, PostStream);
+      List_WriteToFile(TimeValue_L, PostStream, LIST_FORMAT_BINARY);
+      bool f = true;
+      dVecWrite(SP, PostStream, f);
+      dVecWrite(SP, PostStream, f); dVecWrite(VP, PostStream, f);
+      dVecWrite(TP, PostStream, f);
+      dVecWrite(SL, PostStream, f); dVecWrite(VL, PostStream, f);
+      dVecWrite(TL, PostStream, f);
+      dVecWrite(ST, PostStream, f); dVecWrite(VT, PostStream, f);
+      dVecWrite(TT, PostStream, f);
+      dVecWrite(SQ, PostStream, f); dVecWrite(VQ, PostStream, f);
+      dVecWrite(TQ, PostStream, f);
+      dVecWrite(SS, PostStream, f); dVecWrite(VS, PostStream, f);
+      dVecWrite(TS1, PostStream, f);
+      dVecWrite(SH, PostStream, f); dVecWrite(VH, PostStream, f);
+      dVecWrite(TH, PostStream, f);
+      dVecWrite(SI, PostStream, f); dVecWrite(VI, PostStream, f);
+      dVecWrite(TI, PostStream, f);
+      dVecWrite(SY, PostStream, f); dVecWrite(VY, PostStream, f);
+      dVecWrite(TY, PostStream, f);
+      dVecWrite(T2D, PostStream, f); cVecWrite(T2C, PostStream, f);
       fprintf(PostStream, "\n");
       fprintf(PostStream, "$EndView\n");
     }
@@ -1392,6 +1405,11 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
   case FORMAT_UNV :
     Unv_PrintElement(PostStream, Num_Element, PE->NbrNodes, PE->Value) ;
     break ;
+  case FORMAT_GMSH_IN_MEMORY :
+    Gmsh_PrintElement(Time, TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
+                      PE->Type, Num_Element, PE->NbrNodes, PE->x, PE->y, PE->z,
+                      PE->Value, PSO_P, Store) ;
+    break;
   case FORMAT_GMSH :
     if(Flag_GMSH_VERSION == 2 || Flag_BIN){ /* bricolage */
       Gmsh_PrintElement(Time, TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,

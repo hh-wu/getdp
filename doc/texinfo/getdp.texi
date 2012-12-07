@@ -4491,11 +4491,17 @@ solution (@var{$Val0}, @var{$Val1}, etc.).
 Decomposes all output elements in simplices (points, lines, triangles or
 tetrahedra).
 
-@item Store
+@item StoreInRegister
 @code{@var{expression-cst}}
 
 Stores the result of an @code{OnRegion} post-processing operation in the
 register @var{expression-cst}.
+
+@item StoreInField
+@code{@var{expression-cst}}
+
+Stores the result of a post-processing operation in the
+field (Gmsh view) @var{expression-cst}.
 
 @item TimeLegend
 @code{< @{ @var{expression}, @var{expression}, @var{expression} @} >}

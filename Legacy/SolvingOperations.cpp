@@ -935,14 +935,14 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 		     &DofData_P->CurrentSolution->x,
                      (Operation_P->Rank < 0) ? (-Operation_P->Rank-1) : 0) ;
     }
-	// By default, Operation_P->Rank = -1. 
+	// By default, Operation_P->Rank = -1.
 	// If Operation_P->Rank >= 0 then OPERATION_SOLVE is achieved sequentially on processus
 	// Operation_P->Rank only.
 	// If Operation_P->Rank < 0 then OPERATION_SOLVE is launched "classically" in parallel
 	// with a choice of the solver.
 	// The last argument of function "_solve" called by LinAlg_Solve defines which solver
 	// to use, from 0 to 9 (0=default, 1,2,... see "_solve" function)
-	// Thus, if Operation_P->Rank < 0, then we have to substitute Operation_P->Rank 
+	// Thus, if Operation_P->Rank < 0, then we have to substitute Operation_P->Rank
 	// to (-Operation_P->Rank-1) in the last argument to recover the solver number (0,1,2, ...)
 	// This modification permits to do numerical simulations of Domain Decomposition Method
 	// The same applies for LinAlg_SolveAgain, bellow
@@ -1757,6 +1757,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
     case OPERATION_GMSHREAD :
 #if defined(HAVE_GMSH)
+      if(Operation_P->Case.GmshRead.ViewTag >= 0)
+        PView::setGlobalTag(Operation_P->Case.GmshRead.ViewTag);
       GmshMergeFile(Operation_P->Case.GmshRead.FileName);
       Operation_P->Rank = -1;
 #else
@@ -1767,6 +1769,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_GMSHCLEARALL :
 #if defined(HAVE_GMSH)
       while(PView::list.size()) delete PView::list[0];
+      PView::setGlobalTag(0);
       Operation_P->Rank = -1;
 #else
       Message::Error("You need to compile GetDP with Gmsh support to use 'GmshRead'");

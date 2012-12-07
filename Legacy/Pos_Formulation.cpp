@@ -192,7 +192,12 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
   int                    i, Order = 0 ;
   char                   FileName[256], AddExt[100] ;
 
-  if(PostSubOperation_P->FileOut){
+  if(PostSubOperation_P->StoreInField >= 0){
+    PostSubOperation_P->Format = FORMAT_GMSH_IN_MEMORY;
+    PostSubOperation_P->FileOut = 0;
+    PostStream = stdout;
+  }
+  else if(PostSubOperation_P->FileOut){
     if(PostSubOperation_P->FileOut[0] == '/' ||
        PostSubOperation_P->FileOut[0] == '\\'){
       strcpy(FileName, PostSubOperation_P->FileOut);
