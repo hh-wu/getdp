@@ -192,12 +192,7 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
   int                    i, Order = 0 ;
   char                   FileName[256], AddExt[100] ;
 
-  if(PostSubOperation_P->StoreInField >= 0){
-    PostSubOperation_P->Format = FORMAT_GMSH_IN_MEMORY;
-    PostSubOperation_P->FileOut = 0;
-    PostStream = stdout;
-  }
-  else if(PostSubOperation_P->FileOut){
+  if(PostSubOperation_P->FileOut){
     if(PostSubOperation_P->FileOut[0] == '/' ||
        PostSubOperation_P->FileOut[0] == '\\'){
       strcpy(FileName, PostSubOperation_P->FileOut);
@@ -236,15 +231,22 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
     PostStream = stdout ;
   }
 
-  // hack: force Gmsh version 1 for anything else than OnElementsOf
+  // force Gmsh version 1 for anything else than OnElementsOf, or if we store in
+  // memory (which requires old-style list ordering)
   int oldVersion = Flag_GMSH_VERSION;
-  if(PostSubOperation_P->SubType != PRINT_ONELEMENTSOF || PostSubOperation_P->Depth != 1)
+  if(PostSubOperation_P->SubType != PRINT_ONELEMENTSOF ||
+     PostSubOperation_P->Depth != 1 ||
+     PostSubOperation_P->StoreInField >= 0)
     Flag_GMSH_VERSION = 1;
+
+  if(PostSubOperation_P->StoreInField >= 0 &&
+     PostSubOperation_P->Format != FORMAT_GMSH)
+    Message::Warning("StoreInField only available with Gmsh output format");
 
   if(PostSubOperation_P->CatFile == 2)  fprintf(PostStream, "\n\n") ;
   /*  two blanks lines for -index in gnuplot  */
 
-  Format_PostFormat(PostSubOperation_P->Format, PostSubOperation_P->NoMesh) ;
+  Format_PostFormat(PostSubOperation_P) ;
 
   if(PostSubOperation_P->PostQuantityIndex[0] >= 0) {
     if(PostSubOperation_P->PostQuantitySupport[0] < 0) { /* Noncumulative */

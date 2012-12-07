@@ -51,6 +51,7 @@ eps = 1.e-5 ;
 PostOperation {
   { Name phi ; NameOfPostProcessing MagSta_phi;
     Operation {
+      Print[ phi, OnElementsOf Domain, StoreInField 2 ] ;
       Print[ phi, OnElementsOf Domain, File "phi.pos" ] ;
       Print[ b, OnElementsOf Domain, File "b_phi.pos" ] ;
       Print[ b, OnLine {{-0.07,eps,0}{0.09,eps,0}} {500}, File "b_phi.txt", Format Table ] ;

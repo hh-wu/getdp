@@ -920,10 +920,14 @@ void Unv_PrintRegion(FILE *PostStream, int Flag_Comma, int numRegion, int NbrHar
 /*  F o r m a t _ P o s t F o r m a t                                       */
 /* ------------------------------------------------------------------------ */
 
-void  Format_PostFormat(int Format, int NoMesh)
+void  Format_PostFormat(struct PostSubOperation *PSO_P)
 {
+  int Format = PSO_P->Format;
+  int NoMesh = PSO_P->NoMesh;
+
   switch(Format){
   case FORMAT_GMSH :
+    if(PSO_P->StoreInField >= 0 && !PSO_P->FileOut) break;
     if(Flag_GMSH_VERSION == 2){
       fprintf(PostStream, "$MeshFormat\n") ;
       fprintf(PostStream, "2.2 %d %d\n", Flag_BIN, (int)sizeof(double)) ;
@@ -991,10 +995,16 @@ void  Format_PostFormat(int Format, int NoMesh)
 /*  F o r m a t _ P o s t H e a d e r                                       */
 /* ------------------------------------------------------------------------ */
 
-void  Format_PostHeader(int Format, int SubType, double Time, int TimeStep,
-			int Contour, int NbTimeStep, int HarmonicToTime,
-			int Type, int Order, char *Name1, char *Name2)
+void  Format_PostHeader(struct PostSubOperation *PSO_P, int NbTimeStep,
+			int Order, char *Name1, char *Name2)
 {
+  int Format = PSO_P->Format;
+  int SubType = PSO_P->SubType;
+  double Time = Current.Time;
+  int TimeStep = Current.TimeStep;
+  int Contour = PSO_P->Iso;
+  int Type = PSO_P->CombinationType;
+
   char name[256] ;
 
   CurrentPartitionNumber = 0;
@@ -1025,10 +1035,9 @@ void  Format_PostHeader(int Format, int SubType, double Time, int TimeStep,
     fprintf(PostStream, "View \"%s\" {\n", name) ;
     Gmsh_StartNewView = 1 ;
     break ;
-  case FORMAT_GMSH_IN_MEMORY :
-    Gmsh_StartNewView = 1 ;
-    break;
   case FORMAT_GMSH :
+    Gmsh_StartNewView = 1 ;
+    if(PSO_P->StoreInField >= 0 && !PSO_P->FileOut) break;
     if(Flag_GMSH_VERSION != 2){
       if(Flag_BIN){ /* bricolage */
         fprintf(PostStream, "$View /* %s */\n", name);
@@ -1038,7 +1047,6 @@ void  Format_PostHeader(int Format, int SubType, double Time, int TimeStep,
         fprintf(PostStream, "View \"%s\" {\n", name) ;
       }
     }
-    Gmsh_StartNewView = 1 ;
     break ;
   case FORMAT_UNV :
     Unv_PrintHeader(PostStream, name, SubType, Time, TimeStep);
@@ -1200,9 +1208,9 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
     }
     fprintf(PostStream, "};\n") ;
     break ;
-  case FORMAT_GMSH_IN_MEMORY:
+  case FORMAT_GMSH :
+    if(PSO_P->StoreInField >= 0){
 #if defined(HAVE_GMSH)
-    {
       Message::Info("Storing data in field %d", PSO_P->StoreInField);
       int NS[24] = {NbSP, NbVP, NbTP,  NbSL, NbVL, NbTL,  NbST, NbVT, NbTT,
                     NbSQ, NbVQ, NbTQ,  NbSS, NbVS, NbTS,  NbSH, NbVH, NbTH,
@@ -1212,12 +1220,11 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
                                      &SI, &VI, &TI,  &SY, &VY, &TY};
       PView *v = new PView(PSO_P->StoreInField);
       v->getData()->importLists(NS, LS);
-    }
 #else
-    Message::Error("GetDP must be compiled with Gmsh support to store data as field");
+      Message::Error("GetDP must be compiled with Gmsh support to store data as field");
 #endif
-    break;
-  case FORMAT_GMSH :
+      if(!PSO_P->FileOut) break;
+    }
     if(Flag_GMSH_VERSION == 2){
       int NS[8] = {NbSP, NbSL, NbST, NbSQ, NbSS, NbSH, NbSI, NbSY};
       std::vector<double> *LS[8] = {&SP, &SL, &ST, &SQ, &SS, &SH, &SI, &SY};
@@ -1304,7 +1311,8 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
       Solution_S.TimeStep = Current.TimeStep;
       Solution_S.SolutionExist = 1;
       Solution_S.TimeFunctionValues = NULL;
-      LinAlg_CreateVector(&Solution_S.x, &Current.DofData->Solver, List_Nbr(PostOpResults_L));
+      LinAlg_CreateVector(&Solution_S.x, &Current.DofData->Solver,
+                          List_Nbr(PostOpResults_L));
       for(int i=0; i<List_Nbr(PostOpResults_L); i++){
         List_Read(PostOpResults_L, i, &valr);
         LinAlg_SetDoubleInVector(valr, &Solution_S.x, i);
@@ -1405,12 +1413,13 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
   case FORMAT_UNV :
     Unv_PrintElement(PostStream, Num_Element, PE->NbrNodes, PE->Value) ;
     break ;
-  case FORMAT_GMSH_IN_MEMORY :
-    Gmsh_PrintElement(Time, TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
-                      PE->Type, Num_Element, PE->NbrNodes, PE->x, PE->y, PE->z,
-                      PE->Value, PSO_P, Store) ;
-    break;
   case FORMAT_GMSH :
+    if(PSO_P->StoreInField >= 0){
+      Gmsh_PrintElement(Time, TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
+                        PE->Type, Num_Element, PE->NbrNodes, PE->x, PE->y, PE->z,
+                        PE->Value, PSO_P, Store) ;
+      if(!PSO_P->FileOut || Flag_GMSH_VERSION == 2 || Flag_BIN) break;
+    }
     if(Flag_GMSH_VERSION == 2 || Flag_BIN){ /* bricolage */
       Gmsh_PrintElement(Time, TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
                         PE->Type, Num_Element, PE->NbrNodes, PE->x, PE->y, PE->z,
