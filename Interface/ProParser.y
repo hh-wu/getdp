@@ -262,7 +262,8 @@ struct doubleXstring{
 %token        tFormat tHeader tFooter tSkin tSmoothing
 %token        tTarget tSort tIso tNoNewLine tNoTitle tDecomposeInSimplex tChangeOfValues
 %token        tTimeLegend tFrequencyLegend tEigenvalueLegend
-%token        tEvaluationPoints tStore tLastTimeStepOnly tAppendTimeStepToFileName
+%token        tEvaluationPoints tStoreInRegister tStoreInField
+%token        tLastTimeStepOnly tAppendTimeStepToFileName
 %token        tOverrideTimeStepValue tNoMesh tSendToServer tStr tDate
 %token        tNewCoordinates
 
@@ -4399,7 +4400,7 @@ OperationTerm :
     }
 
   | tIterativeLoopN '[' FExpr ',' Expression ',' IterativeLoopDefinitions ']'
-                    '{' Operation '}'                    
+                    '{' Operation '}'
     { List_Pop(Operation_L);
       Operation_P = (struct Operation*)
         List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
@@ -4518,6 +4519,17 @@ OperationTerm :
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_GMSHREAD;
       Operation_P->Case.GmshRead.FileName = strSave(Get_AbsolutePath($3).c_str());
+      Operation_P->Case.GmshRead.ViewTag = -1;
+      Free($3);
+    }
+
+  | tGmshRead '[' CharExpr ',' FExpr ']' tEND
+    {
+      Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_GMSHREAD;
+      Operation_P->Case.GmshRead.FileName = strSave(Get_AbsolutePath($3).c_str());
+      Operation_P->Case.GmshRead.ViewTag = (int)$5;
       Free($3);
     }
 
@@ -4922,7 +4934,7 @@ LTEdefinitions :
     {
       Operation_P->Case.TimeLoopAdaptive.TimeLoopAdaptivePOs_L = $4;
     }
-            
+
  ;
 
 
@@ -4971,7 +4983,7 @@ LTEdefinitions :
       List_Add($$ = $1, &TimeLoopAdaptivePO_S);
     }
  ;
- 
+
 IterativeLoopDefinitions :
     /* none */
     {
@@ -4990,10 +5002,10 @@ IterativeLoopDefinitions :
     {
       Operation_P->Case.IterativeLoop.IterativeLoopPOs_L = $4;
     }
-            
+
  ;
 
- 
+
  IterativeLoopSystems :
      /* none */
     {
@@ -6014,6 +6026,7 @@ PrintOptions :
       PostSubOperation_S.LegendPosition[2] = 0.;
       PostSubOperation_S.EvaluationPoints = NULL;
       PostSubOperation_S.StoreInRegister = -1;
+      PostSubOperation_S.StoreInField = -1;
       PostSubOperation_S.LastTimeStepOnly = 0;
       PostSubOperation_S.AppendTimeStepToFileName = 0;
       PostSubOperation_S.OverrideTimeStepValue = -1;
@@ -6293,9 +6306,13 @@ PrintOption :
 	PostSubOperation_S.EvaluationPoints = $4;
       }
     }
-  | ',' tStore tINT
+  | ',' tStoreInRegister tINT
     {
       PostSubOperation_S.StoreInRegister = $3 - 1;
+    }
+  | ',' tStoreInField FExpr
+    {
+      PostSubOperation_S.StoreInField = $3;
     }
   | ',' tLastTimeStepOnly
     {

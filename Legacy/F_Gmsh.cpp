@@ -22,6 +22,10 @@ void F_Field(F_ARG)
     Message::Error("View[] expects XYZ coordinates as argument");
     return;
   }
+  if(PView::list.empty()){
+    Message::Error("No views available to interpolate from");
+    return;
+  }
   double x = A->Val[0];
   double y = A->Val[1];
   double z = A->Val[2];
@@ -34,7 +38,7 @@ void F_Field(F_ARG)
   std::vector<int> iview;
   if(!Fct->NbrParameters){
     // use last view by default
-    iview.push_back(PView::list.size() - 1);
+    iview.push_back(PView::list.back()->getTag());
   }
   else{
     for(int i = 0; i < Fct->NbrParameters; i++)
@@ -44,12 +48,13 @@ void F_Field(F_ARG)
   // add the values from all specified views
   for(unsigned int i = 0; i < iview.size(); i++){
 
-    if(iview[i] < 0 || iview[i] >= (int)PView::list.size()){
-      Message::Error("View[%d] does not exist", iview[i]);
+    PView *v = PView::getViewByTag(iview[i]);
+    if(!v){
+      Message::Error("View with tag %d does not exist", iview[i]);
       return;
     }
 
-    PViewData *data = PView::list[iview[i]]->getData();
+    PViewData *data = v->getData();
 
     std::vector<double> val(9 * data->getNumTimeSteps());
     if(data->searchScalar(x, y, z, &val[0])){
@@ -77,8 +82,8 @@ void F_Field(F_ARG)
       V->Type = TENSOR;
     }
     else{
-      Message::Error("Did not find data in View[%d] at point (%g,%g,%g)",
-                     iview[i], x, y, z);
+      Message::Error("Did not find data at point (%g,%g,%g) in View with tag %d",
+                     x, y, z, iview[i]);
     }
   }
 }
@@ -89,6 +94,11 @@ static void F_X_Field(F_ARG, int type, bool complex)
     Message::Error("View[] expects XYZ coordinates as argument");
     return;
   }
+  if(PView::list.empty()){
+    Message::Error("No views available to interpolate from");
+    return;
+  }
+
   double x = A->Val[0];
   double y = A->Val[1];
   double z = A->Val[2];
@@ -116,7 +126,7 @@ static void F_X_Field(F_ARG, int type, bool complex)
   std::vector<int> iview;
   if(!Fct->NbrParameters){
     // use last view by default
-    iview.push_back(PView::list.size() - 1);
+    iview.push_back(PView::list.back()->getTag());
   }
   else{
     for(int i = 0; i < Fct->NbrParameters; i++)
@@ -126,15 +136,16 @@ static void F_X_Field(F_ARG, int type, bool complex)
   // add the values from all specified views
   for(unsigned int i = 0; i < iview.size(); i++){
 
-    if(iview[i] < 0 || iview[i] >= (int)PView::list.size()){
-      Message::Error("View[%d] does not exist", iview[i]);
+    PView *v = PView::getViewByTag(iview[i]);
+    if(!v){
+      Message::Error("View with tag %d does not exist", iview[i]);
       return;
     }
 
-    PViewData *data = PView::list[iview[i]]->getData();
+    PViewData *data = v->getData();
 
     if(TimeStep < 0 || TimeStep >= data->getNumTimeSteps()){
-      Message::Error("Invalid step %d in View[%d]", TimeStep, iview[i]);
+      Message::Error("Invalid step %d in View with tag %d", TimeStep, iview[i]);
       continue;
     }
 

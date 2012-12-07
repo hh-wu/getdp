@@ -1,9 +1,9 @@
-/* A Bison parser, made by GNU Bison 2.4.2.  */
+/* A Bison parser, made by GNU Bison 2.4.3.  */
 
 /* Skeleton interface for Bison's Yacc-like parsers in C
    
-      Copyright (C) 1984, 1989-1990, 2000-2006, 2009-2010 Free Software
-   Foundation, Inc.
+      Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006,
+   2009, 2010 Free Software Foundation, Inc.
    
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -285,28 +285,29 @@
      tFrequencyLegend = 502,
      tEigenvalueLegend = 503,
      tEvaluationPoints = 504,
-     tStore = 505,
-     tLastTimeStepOnly = 506,
-     tAppendTimeStepToFileName = 507,
-     tOverrideTimeStepValue = 508,
-     tNoMesh = 509,
-     tSendToServer = 510,
-     tStr = 511,
-     tDate = 512,
-     tNewCoordinates = 513,
-     tDEF = 514,
-     tOR = 515,
-     tAND = 516,
-     tAPPROXEQUAL = 517,
-     tNOTEQUAL = 518,
-     tEQUAL = 519,
-     tGREATERGREATER = 520,
-     tLESSLESS = 521,
-     tGREATEROREQUAL = 522,
-     tLESSOREQUAL = 523,
-     tCROSSPRODUCT = 524,
-     UNARYPREC = 525,
-     tSHOW = 526
+     tStoreInRegister = 505,
+     tStoreInField = 506,
+     tLastTimeStepOnly = 507,
+     tAppendTimeStepToFileName = 508,
+     tOverrideTimeStepValue = 509,
+     tNoMesh = 510,
+     tSendToServer = 511,
+     tStr = 512,
+     tDate = 513,
+     tNewCoordinates = 514,
+     tDEF = 515,
+     tOR = 516,
+     tAND = 517,
+     tAPPROXEQUAL = 518,
+     tNOTEQUAL = 519,
+     tEQUAL = 520,
+     tGREATERGREATER = 521,
+     tLESSLESS = 522,
+     tGREATEROREQUAL = 523,
+     tLESSOREQUAL = 524,
+     tCROSSPRODUCT = 525,
+     UNARYPREC = 526,
+     tSHOW = 527
    };
 #endif
 
@@ -328,7 +329,7 @@ typedef union YYSTYPE
 
 
 /* Line 1685 of yacc.c  */
-#line 332 "ProParser.tab.hpp"
+#line 333 "ProParser.tab.hpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
