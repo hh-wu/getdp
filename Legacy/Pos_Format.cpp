@@ -147,7 +147,7 @@ static void Gmsh_PrintElementNodeData(struct PostSubOperation *PSO_P, int numTim
       for(int i = 0; i < 8; i++){
         if(!Nb[i]) continue;
         int stride = (*L[i]).size() / Nb[i];
-        for(int j = 0; j < (*L[i]).size(); j += stride){
+        for(unsigned int j = 0; j < (*L[i]).size(); j += stride){
           double *tmp = &(*L[i])[j];
           int num = (int)tmp[0];
           int mult = (stride - 1) / numTimeStep / Current.NbrHar / numComp;
@@ -1248,7 +1248,6 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
       fwrite(&One, sizeof(int), 1, PostStream);
       List_WriteToFile(TimeValue_L, PostStream, LIST_FORMAT_BINARY);
       bool f = true;
-      dVecWrite(SP, PostStream, f);
       dVecWrite(SP, PostStream, f); dVecWrite(VP, PostStream, f);
       dVecWrite(TP, PostStream, f);
       dVecWrite(SL, PostStream, f); dVecWrite(VL, PostStream, f);
