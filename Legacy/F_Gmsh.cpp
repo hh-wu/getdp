@@ -19,7 +19,7 @@ extern struct CurrentData Current ;
 void F_Field(F_ARG)
 {
   if(A->Type != VECTOR){
-    Message::Error("View[] expects XYZ coordinates as argument");
+    Message::Error("Field[] expects XYZ coordinates as argument");
     return;
   }
   if(PView::list.empty()){
@@ -91,7 +91,7 @@ void F_Field(F_ARG)
 static void F_X_Field(F_ARG, int type, bool complex)
 {
   if(A->Type != VECTOR){
-    Message::Error("View[] expects XYZ coordinates as argument");
+    Message::Error("Field[] expects XYZ coordinates as argument");
     return;
   }
   if(PView::list.empty()){
@@ -186,7 +186,7 @@ static void F_X_Field(F_ARG, int type, bool complex)
 
 void F_Field(F_ARG)
 {
-  Message::Error("You need to compile GetDP with Gmsh support to use 'View'");
+  Message::Error("You need to compile GetDP with Gmsh support to use 'Field'");
   V->Val[0] = 0. ;
   V->Type = SCALAR ;
 }
