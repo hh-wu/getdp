@@ -1025,7 +1025,7 @@ List of constant expressions are defined as:
   @var{expression-cst} : @var{expression-cst} |
   @var{expression-cst} : @var{expression-cst} : @var{expression-cst} |
   @var{constant-id} () |
-  @var{constant-id} ( @var{expression-cst-list} ) |
+  @var{constant-id} ( @{ @var{expression-cst-list} @} ) |
   List[ @var{constant-id} ] |
   ListAlt[ @var{constant-id}, @var{constant-id} ] |
   LinSpace[ @var{expression-cst}, @var{expression-cst}, @var{expression-cst} ] |
@@ -1077,10 +1077,10 @@ for the definition of constants is:
                              <, @var{string} @var{string} > @} <,@dots{}> ]; |
   @var{constant-id} = @var{constant-def}; |
   @var{string-id} = @var{string-def}; |
-  Printf("@var{string}"); |
-  Printf("@var{string}", @var{expression-cst-list}); |
-  Read(@var{constant-id}); |
-  Read(@var{constant-id})[@var{expression-cst}];
+  Printf [ "@var{string}" ]; |
+  Printf [ "@var{string}", @var{expression-cst-list} ]; |
+  Read [ @var{constant-id} ] ; |
+  Read [ @var{constant-id} , @var{expression-cst} ];
 @end example
 
 @noindent with
@@ -1150,8 +1150,8 @@ Character expressions are defined as follows:
   "@var{string}" |
   @var{string-id} |
   StrCat[ @var{expression-char} , @var{expression-char} ] |
-  Sprintf( @var{expression-char} ) |
-  Sprintf( @var{expression-char}, @var{expression-cst-list} ) |
+  Sprintf[ @var{expression-char} ] |
+  Sprintf[ @var{expression-char}, @var{expression-cst-list} ] |
   Date
 @end example
 

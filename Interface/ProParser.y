@@ -6679,7 +6679,13 @@ Affectation :
       List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant);
     }
 
+  // deprectated
   | tPrintf '(' tBIGSTR ')' tEND
+    {
+      Message::Direct($3);
+    }
+
+  | tPrintf '[' tBIGSTR ']' tEND
     {
       Message::Direct($3);
     }
@@ -6706,6 +6712,7 @@ Affectation :
       Message::Direct("Line number: %d", getdp_yylinenum);
     }
 
+  // deprectated
   | tPrintf '(' tBIGSTR ',' RecursiveListOfFExpr ')' tEND
     {
       char tmpstr[256];
@@ -6719,6 +6726,20 @@ Affectation :
       List_Delete($5);
     }
 
+  | tPrintf '[' tBIGSTR ',' RecursiveListOfFExpr ']' tEND
+    {
+      char tmpstr[256];
+      int i = Print_ListOfDouble($3, $5, tmpstr);
+      if(i < 0)
+	vyyerror("Too few arguments in Printf");
+      else if(i > 0)
+	vyyerror("Too many arguments (%d) in Printf", i);
+      else
+	Message::Direct(tmpstr);
+      List_Delete($5);
+    }
+
+  // deprectated
   | tRead '(' String__Index ')' tEND
     {
       Message::Info("? ");
@@ -6730,6 +6751,18 @@ Affectation :
       List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant);
     }
 
+  | tRead '[' String__Index ']' tEND
+    {
+      Message::Info("? ");
+      char tmpstr[256];
+      fgets(tmpstr, sizeof(tmpstr), stdin);
+      Constant_S.Value.Float = atof(tmpstr);
+      Constant_S.Name = $3;
+      Constant_S.Type = VAR_FLOAT;
+      List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant);
+    }
+
+  // deprectated
   | tRead '(' String__Index ')' '[' FExpr ']' tEND
     {
       Message::Info("[<return>=%g] ? ",$6);
@@ -6738,6 +6771,21 @@ Affectation :
 
       if(!strcmp(tmpstr,"\n"))
 	Constant_S.Value.Float = $6;
+      else
+	Constant_S.Value.Float = atof(tmpstr);
+      Constant_S.Name = $3;
+      Constant_S.Type = VAR_FLOAT;
+      List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant);
+    }
+
+  | tRead '[' String__Index ',' FExpr '}' tEND
+    {
+      Message::Info("[<return>=%g] ? ",$5);
+      char tmpstr[256];
+      fgets(tmpstr, sizeof(tmpstr), stdin);
+
+      if(!strcmp(tmpstr,"\n"))
+	Constant_S.Value.Float = $5;
       else
 	Constant_S.Value.Float = atof(tmpstr);
       Constant_S.Name = $3;
@@ -7241,7 +7289,7 @@ MultiFExpr :
 	  }
     }
 
-  // deprecated: same as tSTRING '(' ')'
+  // deprecated
   | tSTRING '{' '}'
     {
       $$ = List_Create(20,20,sizeof(double));
@@ -7260,7 +7308,7 @@ MultiFExpr :
 	  }
     }
 
-  | tSTRING '(' RecursiveListOfFExpr ')'
+  | tSTRING '(' '{' RecursiveListOfFExpr '}' ')'
     {
       $$ = List_Create(20,20,sizeof(double));
       Constant_S.Name = $1;
@@ -7270,8 +7318,8 @@ MultiFExpr :
 	if(Constant_S.Type != VAR_LISTOFFLOAT)
 	  vyyerror("Multi value Constant needed: %s", $1);
 	else
-	  for(int i = 0; i < List_Nbr($3); i++) {
-            int j = (int)(*(double*)List_Pointer($3, i));
+	  for(int i = 0; i < List_Nbr($4); i++) {
+            int j = (int)(*(double*)List_Pointer($4, i));
 	    if(j >= 0 && j < List_Nbr(Constant_S.Value.ListOfFloat)){
 	      double d;
 	      List_Read(Constant_S.Value.ListOfFloat, j, &d);
@@ -7282,6 +7330,7 @@ MultiFExpr :
 	      List_Add($$, &d);
 	    }
 	  }
+      Free($4);
     }
 
   // same as tSTRING '(' ')'
@@ -7432,12 +7481,39 @@ CharExpr :
       $$ = $1;
     }
 
+  // deprecated
   | tSprintf '(' CharExpr ')'
     {
       $$ = $3;
     }
 
+  | tSprintf '[' CharExpr ']'
+    {
+      $$ = $3;
+    }
+
+  // deprecated
   | tSprintf '(' CharExpr ',' RecursiveListOfFExpr ')'
+    {
+      char tmpstr[256];
+      int i = Print_ListOfDouble($3,$5,tmpstr);
+      if(i<0){
+	vyyerror("Too few arguments in Sprintf");
+	$$ = $3;
+      }
+      else if(i>0){
+	vyyerror("Too many arguments (%d) in Sprintf", i);
+	$$ = $3;
+      }
+      else{
+	$$ = (char*)Malloc((strlen(tmpstr)+1)*sizeof(char));
+	strcpy($$, tmpstr);
+	Free($3);
+      }
+      List_Delete($5);
+    }
+
+  | tSprintf '[' CharExpr ',' RecursiveListOfFExpr ']'
     {
       char tmpstr[256];
       int i = Print_ListOfDouble($3,$5,tmpstr);
