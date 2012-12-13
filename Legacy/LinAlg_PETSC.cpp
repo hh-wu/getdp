@@ -1223,10 +1223,10 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
     _try(PCILUSetLevels(pc, 6));
 #elif (PETSC_VERSION_MAJOR == 2) && (PETSC_VERSION_MINOR == 3) && (PETSC_VERSION_SUBMINOR < 3)
     _try(PCFactorSetMatOrdering(pc, MATORDERING_RCM));
-    _try(PCFactorSetLevels(pc, 1));
+    _try(PCFactorSetLevels(pc, 6));
 #else
     _try(PCFactorSetMatOrderingType(pc, MATORDERING_RCM));
-    _try(PCFactorSetLevels(pc, 1));
+    _try(PCFactorSetLevels(pc, 6));
 #endif
 #endif
 

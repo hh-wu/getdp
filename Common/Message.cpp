@@ -376,7 +376,7 @@ void Message::Cpu(const char *fmt, ...)
   if(mem)
     sprintf(str2, "(CPU = %gs, Mem = %ldMb)", s, mem / 1024 / 1024);
   else
-	sprintf(str2, "(CPU = %gs)", s);
+    sprintf(str2, "(CPU = %gs)", s);
   strcat(str, str2);
 
   if(_client){
