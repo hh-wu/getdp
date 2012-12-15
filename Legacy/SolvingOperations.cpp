@@ -2507,7 +2507,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 #endif
       break ;
 
-
       /*  -->  O t h e r                              */
       /*  ------------------------------------------  */
 

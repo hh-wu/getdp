@@ -4436,19 +4436,21 @@ OperationTerm :
       Operation_P->Case.IterativeLoop.Operation = $12;
     }
 
-  | tIterativeLinearSolver '[' CharExpr ',' FExpr ',' FExpr ',' FExpr ',' ListOfFExpr',' ListOfFExpr ']'
+  | tIterativeLinearSolver '[' CharExpr ',' CharExpr ',' FExpr ',' FExpr ',' FExpr',' ListOfFExpr',' ListOfFExpr',' ListOfFExpr ']'
                            '{' Operation '}'
     { List_Pop(Operation_L);
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_ITERATIVELINEARSOLVER;
-      Operation_P->Case.IterativeLinearSolver.Type = $3;
-      Operation_P->Case.IterativeLinearSolver.Tolerance = $5;
-      Operation_P->Case.IterativeLinearSolver.MaxIter = (int)$7;
-      Operation_P->Case.IterativeLinearSolver.Restart = (int)$9;
-      Operation_P->Case.IterativeLinearSolver.FieldIndices = $11;
-      Operation_P->Case.IterativeLinearSolver.DeflationIndices = $13;
-      Operation_P->Case.IterativeLinearSolver.Operations_Ax = $16;
+      Operation_P->Case.IterativeLinearSolver.OpMatMult = $3;
+      Operation_P->Case.IterativeLinearSolver.Type = $5;
+      Operation_P->Case.IterativeLinearSolver.Tolerance = $7;
+      Operation_P->Case.IterativeLinearSolver.MaxIter = (int)$9;
+      Operation_P->Case.IterativeLinearSolver.Restart = (int)$11;
+      Operation_P->Case.IterativeLinearSolver.MyFieldTag = $13;
+      Operation_P->Case.IterativeLinearSolver.NeighborFieldTag = $15;
+      Operation_P->Case.IterativeLinearSolver.DeflationIndices = $17;
+      Operation_P->Case.IterativeLinearSolver.Operations_Ax = $20;
       Operation_P->Case.IterativeLinearSolver.Operations_Mx = 0;
     }
 

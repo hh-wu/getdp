@@ -960,11 +960,13 @@ struct Operation {
       List_T  *Operation, *OperationEnd;
     } IterativeTimeReduction;
     struct {
+      char   *OpMatMult;
       char   *Type;
       double Tolerance;
       int    MaxIter;
       int    Restart;
-      List_T *FieldIndices;
+      List_T *MyFieldTag;
+      List_T *NeighborFieldTag;
       List_T *DeflationIndices;
       List_T *Operations_Ax, *Operations_Mx;
     } IterativeLinearSolver;

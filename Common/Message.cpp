@@ -231,7 +231,7 @@ void Message::Warning(const char *fmt, ...)
     if(!streamIsFile(stdout) && streamIsVT100(stdout)){
       c0 = "\33[35m"; c1 = "\33[0m";  // magenta
     }
-  	if(_isCommWorld)
+    if(_isCommWorld)
     	fprintf(stdout, "%sWarning : %s%s\n", c0, str, c1);
     else
     	fprintf(stdout, "%sWarning : %s%s (on CPU %d)\n", c0, str, c1, _commRank);

@@ -668,11 +668,12 @@ void SolvingAnalyse()
   }
 
  end:
-  for(int i = 0; i < List_Nbr(DofData_L); i++)
-    Dof_FreeDofData((DofData*)List_Pointer(DofData_L, i));
+  for(int i = 0; i < List_Nbr(DofData_L); i++) 
+      Dof_FreeDofData((DofData*)List_Pointer(DofData_L, i));
   List_Delete(DofData_L) ;
-
+ 
   for(int i = 0; i < List_Nbr(GeoData_L); i++)
-    Geo_FreeGeoData((GeoData*)List_Pointer(GeoData_L, i));
+      Geo_FreeGeoData((GeoData*)List_Pointer(GeoData_L, i));
+
   List_Delete(GeoData_L);
 }

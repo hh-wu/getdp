@@ -11,6 +11,10 @@
 #include "SolvingOperations.h"
 #include "Message.h"
 
+#include<iostream>
+#include<fstream>
+#include<stdlib.h>
+
 #if defined(HAVE_PETSC) && defined(HAVE_GMSH)
 
 #include "petscksp.h"
@@ -18,39 +22,57 @@
 #include <gmsh/PView.h>
 #include <gmsh/PViewData.h>
 
+
+class Field{
+public:
+  PetscInt nb_field; //number of Fields in this class
+  PetscInt n_elem; //total number of element owned by this Field
+  std::vector<PetscInt> GmshTag; //GmshTag[j] = tag of field j (in getdp/gmsh, ie : outside IterativeLinearSolver)
+  std::vector<PetscInt> ILSTag; //ILSTag[j] = local tag of field j, in the function IterativeLinearSolver
+  std::vector<PetscInt> rank; //rank[j] is the mpi_rank which owns field j
+  std::vector<PetscInt> size; //size[j] = nb of elements in the field j
+  std::vector<PetscInt> iStart; //starting index in the Petsc Vec containing all the fields
+  std::vector<PetscInt> iEnd; //same as iStart but ending (a priori useless)
+  std::vector<MPI_Comm> comm; //comm[j] is the communicator of process that need Field[j] (i.e : process that will participate to the broadcast of the view)
+};
+
 // Matrix Free structure (Matrix Shell)
 typedef struct{
-  int flag_operation; // MatMultFieldMat(A,X,Y) gives AX (flag_operation =0) or (I-A)X (flag_operation =1)
-  std::vector<PetscInt>	FieldIndices;
-  std::vector<PetscInt>	FieldSizes;
+  char *LinearSystemType;
+  Field *LocalField;
+  Field *GlobalField;
   struct Resolution *Resolution_P;
   struct Operation *Operation_P;
   struct DofData *DofData_P0;
   struct GeoData *GeoData_P0;
-} FieldMat;
+} ILSMat;
 
 PetscErrorCode ReadFields(int nb_field, int nth_vect, struct Operation *Operation_P,
                           std::vector<std::vector<std::vector<double> > > *vector_field,
-                          std::vector<PetscInt> *indices_field,
+                          std::vector<PetscInt> *tagFields_loc,
                           std::vector<PetscInt> *sizes_field,
                           int *n);
+PetscErrorCode InitData(Field *LocalField, Field *GlobalField, struct Operation *Operation_P, std::vector<std::vector<std::vector<double> > > *B_std);
+PetscErrorCode PViewBCast(Field LocalField, Field GlobalField);
 PetscErrorCode Orthonormalizer(std::vector<Vec> X, int SizeX);
-PetscErrorCode DgmresDDM_Build(Mat A, struct Operation *Operation_P, int nb_field, int nb_deflation, Mat *M);
+PetscErrorCode DgmresDDM_Build(Mat A, int nb_field, int nb_deflation, Mat *M);
 PetscErrorCode BuildIterationMatrix(Mat A, Mat *IterationMatrix);
-PetscErrorCode PrintMatrix(Mat A, const char* fileName, const char* varname, bool BINARY);
-PetscErrorCode PrintVecSeq(Vec b, const char* filename, const char* varname, bool BINARY);
+PetscErrorCode PrintMatrix(Mat A, const char* fileName, const char* varname);
+PetscErrorCode PrintVec(Vec b, const char* filename, const char* varname);
+PetscErrorCode PrintVecSeq(Vec b, const char* filename, const char* varname);
 PetscErrorCode Jacobi_Solver(Mat A, Vec X, Vec B, double Tol, int MaxIter);
-PetscErrorCode MatMultFieldMat(Mat A, Vec X, Vec Y);
+PetscErrorCode MatMultILSMat(Mat A, Vec X, Vec Y);
 PetscErrorCode STD_vector_to_PETSc_Vec(std::vector<std::vector<std::vector<double> > > std_vec,
-                                       Vec petsc_vec);
+                                       Vec petsc_vec,
+				       Field *Local);
 PetscErrorCode PETSc_Vec_to_STD_Vec(Vec petsc_vec,
-                                    std::vector<PetscInt> FieldSizes,
+                                    Field *Local,
                                     std::vector<std::vector<std::vector<double> > > *std_vec);
-PetscErrorCode CreateFieldMat(FieldMat **shell);
-PetscErrorCode SetFieldMat(FieldMat **shell,
-                           int flag_operation,
-                           std::vector<PetscInt> FieldIndices,
-                           std::vector<PetscInt> FieldSizes,
+PetscErrorCode CreateILSMat(ILSMat **shell);
+PetscErrorCode SetILSMat(ILSMat **shell,
+                           char *LinearSystemType,
+                           Field *LocalField,
+                           Field *GlobalField,
                            struct Resolution  	*Resolution_P,
                            struct Operation   	*Operation_P,
                            struct DofData     	*DofData_P0,
@@ -61,153 +83,174 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
                                     struct DofData     *DofData_P0,
                                     struct GeoData     *GeoData_P0)
 {
-  FieldMat *ctx; // Matrix Shell context
+  PetscErrorCode ierr;
+  int mpi_comm_size = Message::GetCommSize();
+  //  int mpi_comm_rank = Message::GetCommRank();
+  ILSMat *ctx; // Matrix Shell context
   Mat A;
   KSP ksp;
   const KSPType ksp_choice;
-  PetscErrorCode ierr;
   int MaxIter, Restart;
   double Tol;
-  PetscInt nb_field;
-  std::vector<PetscInt> indices_field, sizes_field;
   std::vector<std::vector<std::vector<double> > > B_std; // right hand side (std version)
   Vec B, X;// right hand side and Solution
-  PetscInt n, n_loc; // number of unknowns (global and local)
   PC pc;
-  int flag_operation = 1; //for the matmult product
-  /*---------------------------------------------
-    Reading data fromd GetDP
-    ---------------------------------------------*/
+  MPI_Comm ILSComm = PETSC_COMM_WORLD; //by default, KSP is launch in total parallel
+  char *LinearSystemType;
+  Field LocalField, GlobalField;
+  /*-------------
+    Initializing
+    -----------*/
+  MPI_Barrier(PETSC_COMM_WORLD);
+  Message::Info("Initalizing Iterative Linear Solver");
+  InitData(&LocalField, &GlobalField, Operation_P, &B_std);
+
+  /*-------------------
+    Print Informations
+    -----------------*/
   Tol = Operation_P->Case.IterativeLinearSolver.Tolerance;
   MaxIter = Operation_P->Case.IterativeLinearSolver.MaxIter;
   Restart = Operation_P->Case.IterativeLinearSolver.Restart;
   ksp_choice = Operation_P->Case.IterativeLinearSolver.Type;
-  //Print informations
-  if(Message::GetCommSize() >1){
-    ierr = PetscPrintf(PETSC_COMM_WORLD, "Number of Processus\t: %d\n", Message::GetCommSize());CHKERRQ(ierr);
+  LinearSystemType = Operation_P->Case.IterativeLinearSolver.OpMatMult;
+  if(strcmp(LinearSystemType, "I-A") && strcmp(LinearSystemType, "I+A") && strcmp(LinearSystemType, "A")){
+    char tmp[1024];
+    sprintf(tmp, "Linear system type \"%s\" unknown. Try \"A\", \"I-A\" or \"I+A\".", LinearSystemType);
+    Message::Error(tmp);
   }
+  //Print informations
+  if(!strcmp(LinearSystemType, "A")) ierr = PetscPrintf(PETSC_COMM_WORLD, "Linear system type\t: %sX = B\n", LinearSystemType);
+  else ierr = PetscPrintf(PETSC_COMM_WORLD, "Linear system type\t: (%s)X = B\n", LinearSystemType);
+  CHKERRQ(ierr);
+  if(mpi_comm_size >1){ ierr = PetscPrintf(PETSC_COMM_WORLD, "Number of Processus\t: %d\n", mpi_comm_size);CHKERRQ(ierr);}
   ierr = PetscPrintf(PETSC_COMM_WORLD, "Iterative solver\t: %s\n", ksp_choice);CHKERRQ(ierr);
   ierr = PetscPrintf(PETSC_COMM_WORLD, "Tolerance\t\t: %g\n", Tol);CHKERRQ(ierr);
   ierr = PetscPrintf(PETSC_COMM_WORLD, "Max. numb. of iterations: %i\n", MaxIter);CHKERRQ(ierr);
   if(Restart >0){ierr = PetscPrintf(PETSC_COMM_WORLD, "Restart\t\t\t: %i\n", Restart);CHKERRQ(ierr);}
   else{ierr = PetscPrintf(PETSC_COMM_WORLD, "Restart\t\t\t: No Restart\n");CHKERRQ(ierr);}
 
-  //if jacobi then MatMult(A,X) = A*X (otherwise (I-A)*X)
-  if(!strcmp(ksp_choice, "jacobi")){flag_operation = 0;}
+  //if jacobi then MatMult(A,X) = A*X for linear system (I-A)*X=B
+  if(!strcmp(ksp_choice, "jacobi")){
+    if(strcmp(LinearSystemType, "I-A"))
+      Message::Error("Jacobi method implemented only for linear system of type \"I-A\"");
+    LinearSystemType = (char *)"A";
+  }
 
-  /*---------------------------------------------
-    Initialization
-    Reading the existing .pos file in order to
-    create the vector of unknown (std and petsc).
-    ---------------------------------------------*/
-  nb_field = List_Nbr(Operation_P->Case.IterativeLinearSolver.FieldIndices);
-  ierr = ReadFields(nb_field, 0, Operation_P, &B_std, &indices_field, &sizes_field, &n);
-  ierr = PetscPrintf(PETSC_COMM_WORLD, "Number of Fields\t: %d\n", nb_field);
-  //information
-  for(int cpt_view = 0; cpt_view < nb_field; cpt_view++)
-  		ierr = PetscPrintf(PETSC_COMM_WORLD, "Local size of Field %d: %d\n", cpt_view, sizes_field[cpt_view]);
-  ierr = PetscPrintf(PETSC_COMM_WORLD, "Total system size: %d\n", n);
+  ierr = PetscPrintf(PETSC_COMM_WORLD, "Number of Fields\t: %d\n", GlobalField.nb_field);CHKERRQ(ierr);
+
+  for(int iField = 0; iField < GlobalField.nb_field; iField++)
+    if(mpi_comm_size>1) ierr = PetscPrintf(PETSC_COMM_WORLD, "Size of Field %d\t\t: %d (on CPU %d)\n", GlobalField.GmshTag[iField], GlobalField.size[iField], GlobalField.rank[iField]);
+    else ierr = PetscPrintf(PETSC_COMM_WORLD, "Size of Field %d\t\t: %d\n", GlobalField.GmshTag[iField], GlobalField.size[iField]);
+  CHKERRQ(ierr);
+  ierr = PetscPrintf(PETSC_COMM_WORLD, "Total system size\t: %d\n", GlobalField.n_elem); CHKERRQ(ierr);
 #if !defined(PETSC_USE_COMPLEX)
-  n *= 2;
-  ierr = PetscPrintf(PETSC_COMM_WORLD, "PETSc REAL arithmetic -> system size is doubled: n=%d\n", n);
+  GlobalField.n_elem *= 2;
+  LocalField.n_elem *= 2;
+  ierr = PetscPrintf(PETSC_COMM_WORLD, "PETSc REAL arithmetic -> system size is doubled: n=%d\n", GlobalField.n_elem); CHKERRQ(ierr);
 #endif
+  //  if(GlobalField.n_elem>20000) ILSComm = PETSC_COMM_WORLD; //sytem too large: must be solved in a fully parallel way
 
+  /*-------------------------
+    Creating the vector/matrix
+    -----------------------*/
   //Petsc Vec of unknown
-  ierr = VecCreateSeq(PETSC_COMM_SELF, n, &X);CHKERRQ(ierr);
-/*  ierr = VecCreate(PETSC_COMM_WORLD, &X);CHKERRQ(ierr);
-  ierr = VecSetSizes(X,PETSC_DECIDE, n);CHKERRQ(ierr);
-  ierr = VecSetFromOptions(X);CHKERRQ(ierr);*/
-  ierr = VecGetLocalSize(X,&n_loc);CHKERRQ(ierr);
+  //    ierr = VecCreateSeq(PETSC_COMM_SELF, n, &X);CHKERRQ(ierr);
+  ierr = VecCreate(ILSComm, &X);CHKERRQ(ierr);
+  ierr = VecSetSizes(X, LocalField.n_elem, GlobalField.n_elem);CHKERRQ(ierr);
+  ierr = VecSetFromOptions(X);CHKERRQ(ierr);
+  //  ierr = VecGetLocalSize(X,&n_loc);CHKERRQ(ierr);
   //Petsc Vec Right Hand Side
   ierr = VecDuplicate(X,&B);CHKERRQ(ierr);
-  STD_vector_to_PETSc_Vec(B_std, B);
+  STD_vector_to_PETSc_Vec(B_std, B, &LocalField);
+
   //context of the shell matrix
-  ierr = CreateFieldMat(&ctx);
-  ierr = SetFieldMat(&ctx, flag_operation, indices_field, sizes_field, Resolution_P, Operation_P, DofData_P0, GeoData_P0);
+  ierr = CreateILSMat(&ctx); CHKERRQ(ierr);
+  ierr = SetILSMat(&ctx, LinearSystemType, &LocalField, &GlobalField, Resolution_P, Operation_P, DofData_P0, GeoData_P0); CHKERRQ(ierr);
   //Shell matrix containg the indices of the unknown field (on which the iterative solver works)
-  ierr = MatCreateShell(PETSC_COMM_WORLD, n_loc, n_loc, n, n, ctx, &A);
-  ierr = MatShellSetContext(A, ctx);CHKERRQ(ierr);
-  ierr = MatShellSetOperation(A, MATOP_MULT, (void(*)(void))MatMultFieldMat);CHKERRQ(ierr);
-  ierr = PetscBarrier((PetscObject) A);
+  ierr = MatCreateShell(ILSComm, LocalField.n_elem, LocalField.n_elem, GlobalField.n_elem, GlobalField.n_elem, ctx, &A); CHKERRQ(ierr);
+  ierr = MatShellSetContext(A, ctx); CHKERRQ(ierr);
+  ierr = MatShellSetOperation(A, MATOP_MULT, (void(*)(void))MatMultILSMat); CHKERRQ(ierr);
+  ierr = PetscBarrier((PetscObject)PETSC_NULL); CHKERRQ(ierr);
+
     /*---------------------------------------------
     Creation of the iterative solver + solving
     ---------------------------------------------*/
   /*Jacobi Method (hand-made)*/
-   if(!strcmp(ksp_choice,"print") || !strcmp(ksp_choice,"print_bin")){
-					bool pBINARY = false;
-					ierr = PetscPrintf(PETSC_COMM_WORLD, "Launching Print mode (no resolution):\n");CHKERRQ(ierr);
-						if(!strcmp(ksp_choice,"print_bin")){
-								pBINARY = true;
-								ierr = PetscPrintf(PETSC_COMM_WORLD, "Print mode: Binary option enabled\n");CHKERRQ(ierr);
-						}
-					// Print ITERATION MATRIX
-					Mat IterationMatrix;
-					ierr = PetscPrintf(PETSC_COMM_WORLD, "Print mode: computing Iteration Matrix...");CHKERRQ(ierr);
-					ierr = BuildIterationMatrix(A, &IterationMatrix);CHKERRQ(ierr);
-					ierr = PetscPrintf(PETSC_COMM_WORLD, "done\nPrint mode: printing Iteration Matrix...");CHKERRQ(ierr);
-					ierr = PrintMatrix(IterationMatrix, "file_mat_itmat.m", "IterationMatrix", pBINARY);CHKERRQ(ierr);
-					ierr = PetscPrintf(PETSC_COMM_WORLD, "done\nPrint mode: printing Right Hand Side...");CHKERRQ(ierr);
-					ierr = PrintVecSeq(B, "file_vec_rhs.m", "RightHandSide", pBINARY);CHKERRQ(ierr);
-					ierr = PetscPrintf(PETSC_COMM_WORLD, "done\n");CHKERRQ(ierr);
+  if(!strcmp(ksp_choice,"print")){
+    ierr = PetscPrintf(PETSC_COMM_WORLD, "Launching Print mode (no resolution):\n");CHKERRQ(ierr);
+    // Print ITERATION MATRIX
+    Mat IterationMatrix;
+    ierr = PetscPrintf(PETSC_COMM_WORLD, "Print mode: computing Iteration Matrix...");CHKERRQ(ierr);
+    ierr = BuildIterationMatrix(A, &IterationMatrix);CHKERRQ(ierr);
+    ierr = PetscPrintf(PETSC_COMM_WORLD, "done\nPrint mode: printing Iteration Matrix...");CHKERRQ(ierr);
+    ierr = PrintMatrix(IterationMatrix, "file_mat_itmat.m", "IterationMatrix");CHKERRQ(ierr);
+    ierr = PetscPrintf(PETSC_COMM_WORLD, "done\nPrint mode: printing Right Hand Side...");CHKERRQ(ierr);
+    ierr = PrintVec(B, "file_vec_rhs.m", "RightHandSide");CHKERRQ(ierr);
+    ierr = PetscPrintf(PETSC_COMM_WORLD, "done\n");CHKERRQ(ierr);
 #if (PETSC_VERSION_RELEASE == 0  || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
-					ierr = VecDestroy(&X);CHKERRQ(ierr);
-					ierr = VecDestroy(&B);CHKERRQ(ierr);
-					ierr = MatDestroy(&A);CHKERRQ(ierr);
+    ierr = VecDestroy(&X);CHKERRQ(ierr);
+    ierr = VecDestroy(&B);CHKERRQ(ierr);
+    ierr = MatDestroy(&A);CHKERRQ(ierr);
 #else
-					ierr = VecDestroy(X);CHKERRQ(ierr);
-					ierr = VecDestroy(B);CHKERRQ(ierr);
-					ierr = MatDestroy(A);CHKERRQ(ierr);
+    ierr = VecDestroy(X);CHKERRQ(ierr);
+    ierr = VecDestroy(B);CHKERRQ(ierr);
+    ierr = MatDestroy(A);CHKERRQ(ierr);
 #endif
-					PetscFunctionReturn(0);
-					}else if(!strcmp(ksp_choice,"jacobi"))
-							ierr = Jacobi_Solver(A, X, B, Tol, MaxIter);
-					else{//KRYLOV SUBSPACE SOLVER
-						// creation of the ksp (iterative solver, not jacobi)
-						ierr = KSPCreate(PETSC_COMM_WORLD,&ksp);CHKERRQ(ierr);
-						ierr = KSPSetOperators(ksp,A,A,DIFFERENT_NONZERO_PATTERN);CHKERRQ(ierr);
-						//tol etc.
-						ierr = KSPSetTolerances(ksp, Tol, PETSC_DEFAULT, PETSC_DEFAULT, MaxIter); CHKERRQ(ierr);
-						//Preconditioning
-						ierr = KSPGetPC(ksp,&pc);CHKERRQ(ierr);
-						if(!strcmp(ksp_choice,"dgmres_ddm")){
-						// Special Deflated GMRES for the DDM (creation of a deflated vector space before the first iteration)
-								ksp_choice = "gmres";
-								Mat M; //deflation preconditioner
-								int nb_deflation = List_Nbr(Operation_P->Case.IterativeLinearSolver.DeflationIndices);
-								nb_deflation /= nb_field; // number of effective vectors
-								if(nb_deflation >0){
-										ierr = PetscPrintf(PETSC_COMM_WORLD, "DGMRES for DDM: adding %d vectors to the deflation...\n", nb_deflation); CHKERRQ(ierr);
-										ierr = DgmresDDM_Build(A, Operation_P, nb_field, nb_deflation, &M); CHKERRQ(ierr);
-										ierr = PCSetType(pc,PCMAT);CHKERRQ(ierr);
-										ierr = PCSetOperators(pc, A, M, SAME_PRECONDITIONER);CHKERRQ(ierr);
+    PetscFunctionReturn(0);
+  }else if(!strcmp(ksp_choice,"jacobi"))
+    ierr = Jacobi_Solver(A, X, B, Tol, MaxIter);
+  else{//KRYLOV SUBSPACE SOLVER
+    // creation of the ksp (iterative solver, not jacobi)
+    ierr = KSPCreate(ILSComm,&ksp);CHKERRQ(ierr);
+    ierr = KSPSetOperators(ksp,A,A,DIFFERENT_NONZERO_PATTERN);CHKERRQ(ierr);
+    //tol etc.
+    ierr = KSPSetTolerances(ksp, Tol, PETSC_DEFAULT, PETSC_DEFAULT, MaxIter); CHKERRQ(ierr);
+    //Preconditioning
+    ierr = KSPGetPC(ksp,&pc);CHKERRQ(ierr);
+    if(!strcmp(ksp_choice,"dgmres_ddm")){
+      // Special Deflated GMRES for the DDM (creation of a deflated vector space before the first iteration)
+      ksp_choice = "gmres";
+      Mat M; //deflation preconditioner
+      int nb_deflation = List_Nbr(Operation_P->Case.IterativeLinearSolver.DeflationIndices);
+      nb_deflation /= GlobalField.nb_field; // number of effective vectors
+      if(nb_deflation >0){
+	ierr = PetscPrintf(PETSC_COMM_WORLD, "DGMRES for DDM: adding %d vectors to the deflation...\n", nb_deflation); CHKERRQ(ierr);
+	ierr = DgmresDDM_Build(A, GlobalField.nb_field, nb_deflation, &M); CHKERRQ(ierr);
+	ierr = PCSetType(pc,PCMAT);CHKERRQ(ierr);
+	ierr = PCSetOperators(pc, A, M, SAME_PRECONDITIONER);CHKERRQ(ierr);
 #if (PETSC_VERSION_RELEASE == 0  || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
-		        ierr = KSPSetPCSide(ksp, PC_RIGHT);CHKERRQ(ierr);
+	ierr = KSPSetPCSide(ksp, PC_RIGHT);CHKERRQ(ierr);
 #else
-  		      ierr = KSPSetPreconditionerSide(ksp, PC_RIGHT); CHKERRQ(ierr);
+	ierr = KSPSetPreconditionerSide(ksp, PC_RIGHT); CHKERRQ(ierr);
 #endif
-    		  }
-						}else ierr = PCSetType(pc,PCNONE);CHKERRQ(ierr);
-					ierr = KSPSetType(ksp, ksp_choice); CHKERRQ(ierr);
-					// below is only for ksp = gmres and its variants (other ksp does not have a restart)
-					if(Restart>0 && (!strcmp(ksp_choice,"gmres") || !strcmp(ksp_choice,"dgmres") || !strcmp(ksp_choice,"lgmres") ||!strcmp(ksp_choice,"fgmres") )){
-							ierr = KSPGMRESSetRestart(ksp, Restart); CHKERRQ(ierr);
-					}
-					//set ksp
-					ierr = KSPSetFromOptions(ksp);CHKERRQ(ierr);
-					//Solve
-					ierr = KSPSolve(ksp,B,X);CHKERRQ(ierr);
-					ierr = KSPView(ksp,PETSC_VIEWER_STDOUT_WORLD);CHKERRQ(ierr);
-			}
+      }
+    }else ierr = PCSetType(pc,PCNONE);CHKERRQ(ierr);
+    ierr = KSPSetType(ksp, ksp_choice); CHKERRQ(ierr);
+    if(Restart>0 && (!strcmp(ksp_choice,"gmres") || !strcmp(ksp_choice,"dgmres") || !strcmp(ksp_choice,"lgmres") ||!strcmp(ksp_choice,"fgmres") ))
+      ierr = KSPGMRESSetRestart(ksp, Restart); CHKERRQ(ierr);
+    //set ksp
+    ierr = KSPSetFromOptions(ksp);CHKERRQ(ierr);
+    //Solve
+    ierr = KSPSolve(ksp,B,X);CHKERRQ(ierr);
+    ierr = KSPView(ksp,PETSC_VIEWER_STDOUT_WORLD);CHKERRQ(ierr);
+#if (PETSC_VERSION_RELEASE == 0  || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
+    ierr = KSPDestroy(&ksp);CHKERRQ(ierr);
+#else
+    ierr = KSPDestroy(ksp);CHKERRQ(ierr);
+#endif
+  }
   /*----------------------
     computing solution
     ----------------------*/
   //we reuse B_std to avoid the creation of a new std::vector ...
-  ierr = PETSc_Vec_to_STD_Vec(X, sizes_field, &B_std); CHKERRQ(ierr);
+  ierr = PETSc_Vec_to_STD_Vec(X, &LocalField, &B_std); CHKERRQ(ierr);
   //update views
-  for (unsigned int cpt_view = 0; cpt_view<indices_field.size(); cpt_view++){
-    PView *view = PView::list[indices_field[cpt_view]];
+  for (int cpt_view = 0 ; cpt_view < LocalField.nb_field; cpt_view++){
+    PView *view = PView::getViewByTag(LocalField.GmshTag[cpt_view]);
     view->getData()->fromVector(B_std[cpt_view]);
   }
+  // Transfer PView
+  PViewBCast(LocalField, GlobalField);
   /*-------------
     cleaning
     -------------*/
@@ -215,196 +258,394 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   ierr = VecDestroy(&X);CHKERRQ(ierr);
   ierr = VecDestroy(&B);CHKERRQ(ierr);
   ierr = MatDestroy(&A);CHKERRQ(ierr);
-  ierr = KSPDestroy(&ksp);CHKERRQ(ierr);
 #else
   ierr = VecDestroy(X);CHKERRQ(ierr);
   ierr = VecDestroy(B);CHKERRQ(ierr);
   ierr = MatDestroy(A);CHKERRQ(ierr);
-  ierr = KSPDestroy(ksp);CHKERRQ(ierr);
 #endif
+  for (int irank = 0 ; irank < mpi_comm_size ; irank ++)
+    MPI_Comm_free(&GlobalField.comm[irank]);
+
+  PetscBarrier((PetscObject)PETSC_NULL);CHKERRQ(ierr);
+  PetscFunctionReturn(0);
+}
+
+PetscErrorCode InitData(Field *LocalField, Field *GlobalField, struct Operation *Operation_P, std::vector<std::vector<std::vector<double> > > *B_std)
+{ 
+  int mpi_comm_size = Message::GetCommSize();
+  int mpi_comm_rank = Message::GetCommRank();  
+  std::vector<PetscInt> tab_nb_field_loc;
+  std::vector<PetscInt> displs(mpi_comm_size);
+  int counter = 0;
+
+  //number of fields owned by me and the other tasks
+  LocalField->nb_field = List_Nbr(Operation_P->Case.IterativeLinearSolver.MyFieldTag);
+  tab_nb_field_loc.resize(mpi_comm_size);
+  MPI_Allgather(&LocalField->nb_field, 1, MPI_INT, &tab_nb_field_loc[0], 1, MPI_INT, PETSC_COMM_WORLD);
+
+  GlobalField->nb_field = 0;
+  for (int irank = 0 ; irank < mpi_comm_size ; irank ++)
+    GlobalField->nb_field += tab_nb_field_loc[irank];
+
+  //displacement vector (for MPI_AllGatherV)
+  displs[0] = 0;
+  for (int irank = 1 ; irank < mpi_comm_size ; irank ++)
+    displs[irank] = tab_nb_field_loc[irank-1] + displs[irank-1];
+
+  // Tag of the fields owned by me ....
+  LocalField->GmshTag.resize(LocalField->nb_field);
+  LocalField->ILSTag.resize(LocalField->nb_field);
+  LocalField->rank.resize(LocalField->nb_field);
+  for(int iField = 0; iField < LocalField->nb_field; iField++) {
+    double d;
+    List_Read(Operation_P->Case.IterativeLinearSolver.MyFieldTag, iField, &d);
+    LocalField->GmshTag[iField] = (int)d;
+    LocalField->rank[iField] = mpi_comm_rank;
+    LocalField->ILSTag[iField] = displs[mpi_comm_rank] + iField;
+  }
+  //...and by the other tasks
+  GlobalField->GmshTag.resize(GlobalField->nb_field);
+  GlobalField->rank.resize(GlobalField->nb_field);
+  GlobalField->ILSTag.resize(GlobalField->nb_field);
+  for (int iField = 0; iField < GlobalField->nb_field ; iField ++)
+      GlobalField->ILSTag[iField] = iField;
+  MPI_Allgatherv(&LocalField->GmshTag[0], LocalField->nb_field, MPI_INT, &GlobalField->GmshTag[0], &tab_nb_field_loc[0], &displs[0], MPI_INT, PETSC_COMM_WORLD);
+  MPI_Allgatherv(&LocalField->rank[0], LocalField->nb_field, MPI_INT, &GlobalField->rank[0], &tab_nb_field_loc[0], &displs[0], MPI_INT, PETSC_COMM_WORLD);
+
+  // Now the (local) fields in RAM must be read
+  (*B_std).resize(LocalField->nb_field);
+  LocalField->n_elem = 0;
+  LocalField->size.resize(LocalField->nb_field);
+  for(int iField = 0; iField < LocalField->nb_field; iField ++) {
+    (*B_std)[iField].resize(2);
+    int d;
+    PView *view = PView::getViewByTag(LocalField->GmshTag[iField]);
+    view->getData()->toVector((*B_std)[iField]);
+    d = (*B_std)[iField][0].size();
+    LocalField->size[iField] = d;
+    LocalField->n_elem += d;
+  }
+
+  //Share information on the size of the local fields with other tasks
+  MPI_Allreduce(&LocalField->n_elem, &GlobalField->n_elem, 1, MPI_INT, MPI_SUM, PETSC_COMM_WORLD);
+  GlobalField->size.resize(GlobalField->nb_field);
+  MPI_Allgatherv(&LocalField->size[0], LocalField->nb_field, MPI_INT, &GlobalField->size[0], &tab_nb_field_loc[0], &displs[0], MPI_INT, PETSC_COMM_WORLD);
+
+  //Compute the starting/ending index in the futur Petsc Vec containing all the Gmsh fields
+  GlobalField->iStart.resize(GlobalField->nb_field);
+  GlobalField->iEnd.resize(GlobalField->nb_field);
+  LocalField->iStart.resize(LocalField->nb_field); 
+  LocalField->iEnd.resize(LocalField->nb_field);   
+  GlobalField->iStart[0] = 0;
+  counter = 0;
+  for(int j = 0; j < GlobalField->nb_field; j ++)
+    {
+      if(j > 0)
+	GlobalField->iStart[j] = GlobalField->iEnd[j-1] + 1;
+      GlobalField->iEnd[j] = GlobalField->iStart[j] + GlobalField->size[j] - 1;
+      //Store in LocalField if I am in charge of the Field
+      if(GlobalField->rank[j] == mpi_comm_rank)
+	{ LocalField->iStart[counter] = GlobalField->iStart[j];
+	  LocalField->iEnd[counter] = GlobalField->iEnd[j];
+	  counter++;
+	}
+    }
+
+  //Who are my Neighbor for the Broadcast ?
+  // For now, the neighbor are only seen process by process and not by Field.
+  // In other word, N_PROC MPI Communicators will be created, and not GlobalField.nb_field ...
+  // This is due to the fact that GetDP only create 1D-List
+  //(Thus, if GetDP changes, code below should be adapted !)
+  std::vector<int> tab_nNeighbor(mpi_comm_size);
+  std::vector<int> myNeighbor;
+  int nNeighbor_aux=0, nNeighbor;
+  GlobalField->comm.resize(mpi_comm_size);
+  nNeighbor_aux = List_Nbr(Operation_P->Case.IterativeLinearSolver.NeighborFieldTag);
+  myNeighbor.resize(nNeighbor_aux+1);
+  myNeighbor[0] = mpi_comm_rank;
+  nNeighbor = 1; // At least, one process in tab_MyNeighbor (self)
+  for(int j = 0 ; j < nNeighbor_aux ; j++)
+    {
+      double d;
+      int neig_rank;
+      List_Read(Operation_P->Case.IterativeLinearSolver.NeighborFieldTag, j, &d);
+      //rank of the neighbor process (!= field)
+      neig_rank = GlobalField->rank[(int)d];
+      //is it already stored ?
+      bool isNotAlreadyStored = true;
+      for (int i = 0; i < nNeighbor ; i ++)
+	{
+	  if(myNeighbor[i] == neig_rank)
+	    { isNotAlreadyStored = false;
+	      break;}
+	}
+      if(isNotAlreadyStored)
+	{ myNeighbor[nNeighbor] = neig_rank;
+	  nNeighbor ++;}// recalculation of the size (duplicate int is possible)
+    }
+  myNeighbor.resize(nNeighbor); //eliminate duplicate
+  //Exchange the number of neighbors per process
+  MPI_Allgather(&nNeighbor, 1, MPI_INT, &tab_nNeighbor[0], 1, MPI_INT, PETSC_COMM_WORLD);
+  //Exchange the mpi_rank of the neighbor
+  MPI_Group world_group;
+  MPI_Comm_group(MPI_COMM_WORLD, &world_group);
+  for(int irank = 0 ; irank < mpi_comm_size ; irank ++)
+    {
+      int nb_neigh = tab_nNeighbor[irank];
+      std::vector<int> irankNeighbor;
+      if(mpi_comm_rank != irank)
+	irankNeighbor.resize(nb_neigh);
+      else
+	irankNeighbor = myNeighbor;
+      //bcast
+     MPI_Bcast(&irankNeighbor[0], nb_neigh, MPI_INT, irank, MPI_COMM_WORLD);
+     //creation of the MPI_Communicator used when Processus irank is the root of a Broadcast
+     MPI_Group newgroup;
+     MPI_Group_incl(world_group, nb_neigh, &irankNeighbor[0], &newgroup);
+     MPI_Comm new_comm;
+     MPI_Comm_create(MPI_COMM_WORLD, newgroup, &new_comm);
+     GlobalField->comm[irank] = new_comm;
+    }
 
   PetscFunctionReturn(0);
 }
 
-/*-------- MatMultFieldMat ------
+/*-----PViewBCast--------
+BCast of all PView
+-----------------------*/
+PetscErrorCode PViewBCast(Field LocalField, Field GlobalField)
+{  //TRANSFER PVIEW
+  //  int mpi_comm_rank = Message::GetCommRank();
+  for (int iField = 0 ; iField < GlobalField.nb_field ; iField ++)
+    {
+      int GmshTag = GlobalField.GmshTag[iField];
+      int fieldRank = GlobalField.rank[iField];
+      MPI_Comm fieldcomm = GlobalField.comm[fieldRank];
+      int mpi_fieldcomm_rank = -1; // -1
+      MPI_Comm_rank(fieldcomm, &mpi_fieldcomm_rank);
+      if(mpi_fieldcomm_rank > -1)
+	{
+	  std::vector< std::vector<double>* > V(24);
+	  std::vector<int> sizeV;
+	  std::vector<int> N(24);
+	  sizeV.resize(24);
+	  if(mpi_fieldcomm_rank == 0)
+	    {
+	      PView *view = PView::getViewByTag(GmshTag);
+	      view->getData()->getListPointers(&N[0], &V[0]);
+	      for(int j = 0 ; j < 24 ; j++)
+		sizeV[j] = (*(V[j])).size();
+	    }      
+	  //Transfer PView
+	  MPI_Bcast(&N[0], 24, MPI_INT, 0, fieldcomm);
+	  MPI_Bcast(&sizeV[0], 24, MPI_INT, 0, fieldcomm);
+	  
+	  for(int j = 0; j < 24 ; j ++)
+	    {
+	      if(mpi_fieldcomm_rank > 0)
+		{
+		  V[j] = new std::vector<double>;
+		  (*(V[j])).resize(sizeV[j]);
+		}
+	      if(sizeV[j] > 0) //avoid useless BCast
+		MPI_Bcast(&(*(V[j]))[0], sizeV[j], MPI_DOUBLE, 0, fieldcomm);
+	    }
+	  //All other tasks create/update the views
+	  if(mpi_fieldcomm_rank > 0 )
+	    {
+	      PView *view = new PView(GmshTag);
+	      view->getData()->importLists(&N[0], &V[0]);
+	      for(int j = 0 ; j < 24 ; j++)
+		delete V[j] ;
+	    }
+	}
+    }
+  PetscFunctionReturn(0);
+}
+
+/*-------- MatMultILSMat ------
   User Matrix-vector product
   --------------------------------*/
-PetscErrorCode MatMultFieldMat(Mat A, Vec X, Vec Y)
+PetscErrorCode MatMultILSMat(Mat A, Vec X, Vec Y)
 {
   PetscErrorCode ierr;
   std::vector<std::vector<std::vector<double> > > std_vec;
-  std::vector<PetscInt>	field_indices, field_sizes;
-  FieldMat *ctx;
-  int nb_field;
-  int flag_operation;
+  Field LocalField, GlobalField;
+  ILSMat *ctx;
+  char *LinearSystemType;
 
   ierr = MatShellGetContext(A, (void**)&ctx);CHKERRQ(ierr);
-  field_indices = ctx->FieldIndices;
-  field_sizes = ctx->FieldSizes;
-  nb_field = (int)field_indices.size();
-  flag_operation = ctx->flag_operation;
+  LinearSystemType = ctx->LinearSystemType;
 
   //convert X to a std vector
-  ierr = PETSc_Vec_to_STD_Vec(X, field_sizes, &std_vec);CHKERRQ(ierr);
+  ierr = PETSc_Vec_to_STD_Vec(X, ctx->LocalField, &std_vec);CHKERRQ(ierr);
+
   // Update PViews
-  for (unsigned int cpt_view = 0; cpt_view<field_indices.size(); cpt_view++){
-    PView *view = PView::list[field_indices[cpt_view]];
+  for (int cpt_view = 0; cpt_view < ctx->LocalField->nb_field; cpt_view++){
+    PView *view = PView::getViewByTag(ctx->LocalField->GmshTag[cpt_view]);
     view->getData()->fromVector(std_vec[cpt_view]);
   }
+
+  //PVIEW BCAST !
+  PViewBCast(*(ctx->LocalField), *(ctx->GlobalField));
   //Getdp resolution (contained in the matrix context)
+  //Barrier to ensure that every process have the good data in RAM
+  //  ierr = PetscBarrier((PetscObject)PETSC_NULL);CHKERRQ(ierr);
   Treatment_Operation(ctx->Resolution_P,
                       ctx->Operation_P->Case.IterativeLinearSolver.Operations_Ax,
                       ctx->DofData_P0,
                       ctx->GeoData_P0,
                       NULL, NULL);
-  ierr = PetscBarrier((PetscObject)PETSC_NULL);CHKERRQ(ierr);
+
   //Extract the (std) vector from the (new) .pos files
-  for(int cpt_view = 0; cpt_view < nb_field; cpt_view++) {
-    PView *view = PView::list[field_indices[cpt_view]];
+  //This assumes that every process reads every .pos files
+  for(int cpt_view = 0; cpt_view < ctx->LocalField->nb_field; cpt_view++) {
+    PView *view = PView::getViewByTag(ctx->LocalField->GmshTag[cpt_view]);
     view->getData()->toVector(std_vec[cpt_view]);
   }
-  ierr = PetscBarrier((PetscObject)PETSC_NULL);CHKERRQ(ierr);
+
   //Convert the obtained vector to a Petsc Vec
-  ierr = STD_vector_to_PETSc_Vec(std_vec, Y);CHKERRQ(ierr);
+  ierr = STD_vector_to_PETSc_Vec(std_vec, Y, ctx->LocalField);CHKERRQ(ierr);
 
   //Set Y = X - Y
-  if(flag_operation == 1)
-    {ierr = VecAYPX(Y, -1.,X); CHKERRQ(ierr);}
+  if(!strcmp(LinearSystemType,"I-A")){
+    ierr = VecAYPX(Y, -1.,X); CHKERRQ(ierr);
+  }else if(!strcmp(LinearSystemType,"I+A")){
+    ierr = VecAYPX(Y, 1.,X); CHKERRQ(ierr);
+  }
+
+  ierr = PetscBarrier((PetscObject)PETSC_NULL);CHKERRQ(ierr);
 
   PetscFunctionReturn(0);
 }
 
 /* ----- STD_vector_to_PETSc_Vec ----
-   Copy a STD Vector (std_vec) to a PETSc vector (petsc_vec)
+   Copy a STD Vector (std_vec) to a PETSc VEc (petsc_vec)
+   In fact, copy the local part only of the PETSc Vec
 */
 PetscErrorCode STD_vector_to_PETSc_Vec(std::vector<std::vector<std::vector<double> > > std_vec,
-                                       Vec petsc_vec)
+                                       Vec petsc_vec,
+				       Field *Local)
 {
-  PetscInt		cpt = 0, nb_view;
-  PetscErrorCode 	ierr;
+  PetscInt        cpt = 0, nb_view = Local->nb_field;
+  PetscErrorCode  ierr;
 
-  nb_view = (int)std_vec.size();
   for (int cpt_view = 0; cpt_view < nb_view; cpt_view++){
     std::vector<PetscScalar> val;
-    int nb_element = (int)std_vec[cpt_view][0].size();
+    int nb_element = Local->size[cpt_view];
     std::vector<PetscInt> ix(nb_element);
-    for (int i =0; i<nb_element; i++){
-    		ix[i] = cpt + i;
+    for (int i = 0 ; i < nb_element ; i++){
+      ix[i] = Local->iStart[cpt_view] + i;      
 #if defined(PETSC_USE_COMPLEX)
-    		val.resize(nb_element);
-						val[i] = std_vec[cpt_view][0][i] + PETSC_i*std_vec[cpt_view][1][i];
+      val.resize(nb_element);
+      val[i] = std_vec[cpt_view][0][i] + PETSC_i*std_vec[cpt_view][1][i];
 #else
-    		val.resize(2*nb_element);
-						val[2*i] = std_vec[cpt_view][0][i];
-						val[2*i+1] = std_vec[cpt_view][1][i];
+      val.resize(2*nb_element);
+      val[2*i] = std_vec[cpt_view][0][i];
+      val[2*i+1] = std_vec[cpt_view][1][i];
 #endif
-				}
+    }
 #if defined(PETSC_USE_COMPLEX)
-      ierr = VecSetValues(petsc_vec, nb_element, &ix[0], &val[0], INSERT_VALUES);
+    ierr = VecSetValues(petsc_vec, nb_element, &ix[0], &val[0], INSERT_VALUES);
 #else
-      ierr = VecSetValues(petsc_vec, 2*nb_element, &ix[0], &val[0], INSERT_VALUES);
+    ierr = VecSetValues(petsc_vec, 2*nb_element, &ix[0], &val[0], INSERT_VALUES);
 #endif
-				cpt += nb_element;
-
-/*
-    for (int j = 0; j < nb_element; j++){
-      // The line below can surely be improved !!!
-#if defined(PETSC_USE_COMPLEX)
-      ierr = VecSetValue(petsc_vec, cpt, std_vec[cpt_view][0][j] + PETSC_i*std_vec[cpt_view][1][j], INSERT_VALUES);CHKERRQ(ierr);
-#else
-      ierr = VecSetValue(petsc_vec, 2*cpt, std_vec[cpt_view][0][j], INSERT_VALUES);CHKERRQ(ierr);
-      ierr = VecSetValue(petsc_vec, 2*cpt+1, std_vec[cpt_view][1][j], INSERT_VALUES);CHKERRQ(ierr);
-#endif
-      cpt++;
-    }*/
+    cpt += nb_element;
   }
   ierr = VecAssemblyBegin(petsc_vec);CHKERRQ(ierr);
   ierr = VecAssemblyEnd(petsc_vec);CHKERRQ(ierr);
+  PetscBarrier((PetscObject)petsc_vec);
   PetscFunctionReturn(0);
 }
 
 /* ----- PETSc_Vec_to_STD_Vec ----
    Copy Petsc Vec to a std::vector
-   Carreful if the vector is sequential (self) or parallel...
+   Send ONLY THE LOCAL Part of the PETSC VEC !!
 */
 PetscErrorCode PETSc_Vec_to_STD_Vec(Vec petsc_vec,
-                                    std::vector<PetscInt> FieldSizes,
+                                    Field *Local,
                                     std::vector<std::vector<std::vector<double> > > *std_vec)
 {
-  int cpt = 0, nb_view, nb_element;
   PetscErrorCode ierr;
-  PetscScalar val;
+  PetscScalar    val;
+  int nb_view = Local->nb_field;
   
-  nb_view = FieldSizes.size();
-
-		// SCATTER/GATHER IF NOT SEQUENTIAL
-		Vec petsc_vecSEQ;
-		const VecType type;
-		ierr = VecGetType(petsc_vec, &type);
-
-		if(strcmp(type, "seq")){//parallel vector
-				VecScatter ctx_scat;
-				ierr = VecScatterCreateToAll(petsc_vec, &ctx_scat, &petsc_vecSEQ);CHKERRQ(ierr);
-				ierr = VecScatterBegin(ctx_scat, petsc_vec, petsc_vecSEQ, INSERT_VALUES, SCATTER_FORWARD);CHKERRQ(ierr);
-				ierr = VecScatterEnd(ctx_scat, petsc_vec, petsc_vecSEQ, INSERT_VALUES, SCATTER_FORWARD);CHKERRQ(ierr);
-				// destroy scatter context and local vector when no longer needed
+  /*  // SCATTER/GATHER IF NOT SEQUENTIAL (each process needs the vector)
+  Vec petsc_vecSEQ;
+  const VecType type;
+  ierr = VecGetType(petsc_vec, &type);CHKERRQ(ierr);
+  
+  if(strcmp(type, "seq")){//parallel vector -> must be sequentialized
+    VecScatter ctx_scat;
+    ierr = VecScatterCreateToAll(petsc_vec, &ctx_scat, &petsc_vecSEQ);CHKERRQ(ierr);
+    ierr = VecScatterBegin(ctx_scat, petsc_vec, petsc_vecSEQ, INSERT_VALUES, SCATTER_FORWARD);CHKERRQ(ierr);
+    ierr = VecScatterEnd(ctx_scat, petsc_vec, petsc_vecSEQ, INSERT_VALUES, SCATTER_FORWARD);CHKERRQ(ierr);
 #if (PETSC_VERSION_RELEASE == 0  || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
-		ierr = VecScatterDestroy(&ctx_scat);CHKERRQ(ierr);
+    ierr = VecScatterDestroy(&ctx_scat);CHKERRQ(ierr);
 #else
-		ierr = VecScatterDestroy(ctx_scat);CHKERRQ(ierr);
+    ierr = VecScatterDestroy(ctx_scat);CHKERRQ(ierr);
 #endif
-		}else petsc_vecSEQ = petsc_vec;
+}*/
 
   //initializing std_vec
-  (*std_vec).resize(FieldSizes.size());
-  for (int cpt_view = 0; cpt_view<nb_view; cpt_view++){
+  (*std_vec).resize(Local->nb_field);
+  for (int cpt_view = 0 ; cpt_view < nb_view ; cpt_view++){
+    int nb_elem = Local->size[cpt_view];
     (*std_vec)[cpt_view].resize(2);
-    (*std_vec)[cpt_view][0].resize(FieldSizes[cpt_view]);
-    (*std_vec)[cpt_view][1].resize(FieldSizes[cpt_view]);
+    (*std_vec)[cpt_view][0].resize(nb_elem);
+    (*std_vec)[cpt_view][1].resize(nb_elem);
   }
 
-  for (int cpt_view = 0; cpt_view < nb_view; cpt_view++){
-    nb_element = (int)FieldSizes[cpt_view];
-    for (int j = 0; j<nb_element; j++) {
-      // FOLLOWING LINE TO IMPROVE ??
+  for (int cpt_view = 0 ; cpt_view < nb_view ; cpt_view++){
+    int nb_element = Local->size[cpt_view];
+    int iStart = Local->iStart[cpt_view];
+    for (int j = 0 ; j < nb_element ; j++) {
+      int cpt = iStart + j;
 #if defined(PETSC_USE_COMPLEX)
-      ierr = VecGetValues(petsc_vecSEQ, 1, &cpt, &val);CHKERRQ(ierr);
+      /*      if(strcmp(type, "seq"))
+        ierr = VecGetValues(petsc_vecSEQ, 1, &cpt, &val);
+	else*/
+      ierr = VecGetValues(petsc_vec, 1, &cpt, &val); CHKERRQ(ierr);
       (*std_vec)[cpt_view][0][j] = (double)PetscRealPart(val);
       (*std_vec)[cpt_view][1][j] = (double)PetscImaginaryPart(val);
 #else
-      ierr = VecGetValues(petsc_vecSEQ, 1, &cpt, &val);CHKERRQ(ierr);
+      /*      if(strcmp(type, "seq"))
+        ierr = VecGetValues(petsc_vecSEQ, 1, &cpt, &val);
+	else*/
+      ierr = VecGetValues(petsc_vec, 1, &cpt, &val); CHKERRQ(ierr);
       (*std_vec)[cpt_view][0][j] = (double)(val);
-      cpt++;
-      ierr = VecGetValues(petsc_vecSEQ, 1, &cpt, &val);CHKERRQ(ierr);
+      /*      if(strcmp(type, "seq"))
+        ierr = VecGetValues(petsc_vecSEQ, 1, &cpt, &val);CHKERRQ(ierr);
+	else*/
+      ierr = VecGetValues(petsc_vec, 1, &cpt, &val);CHKERRQ(ierr);
       (*std_vec)[cpt_view][1][j] = (double)(val);
 #endif
-      cpt++;
     }
   }
-		if(strcmp(type, "seq")){
+  /*  if(strcmp(type, "seq")){
 #if (PETSC_VERSION_RELEASE == 0  || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
-		ierr = VecDestroy(&petsc_vecSEQ);CHKERRQ(ierr);
+    ierr = VecDestroy(&petsc_vecSEQ);CHKERRQ(ierr);
 #else
-		ierr = VecDestroy(petsc_vecSEQ);CHKERRQ(ierr);
+    ierr = VecDestroy(petsc_vecSEQ);CHKERRQ(ierr);
 #endif
-		}
-		PetscFunctionReturn(0);
+}*/
+  PetscFunctionReturn(0);
 }
 
-/* ----- CreateFieldMat ----
+/* ----- CreateILSMat ----
    Initialize the MatShell Matrix
    Preallocate the memory
 */
-PetscErrorCode CreateFieldMat(FieldMat **shell)
+PetscErrorCode CreateILSMat(ILSMat **shell)
 {
-  FieldMat *newctx;
+  ILSMat *newctx;
   std::vector<PetscInt> vec_indice, vec_size;
   PetscErrorCode ierr;
 
-  ierr = PetscNew(FieldMat,&newctx);CHKERRQ(ierr);
-  newctx->FieldIndices = vec_indice;
-  newctx->FieldSizes = vec_size;
-  newctx->flag_operation = 1;
+  ierr = PetscNew(ILSMat,&newctx);CHKERRQ(ierr);
+  newctx->LocalField = NULL;
+  newctx->GlobalField = NULL;
+  newctx->LinearSystemType = NULL;
   newctx->Resolution_P = NULL;
   newctx->Operation_P = NULL;
   newctx->DofData_P0 = NULL;
@@ -413,22 +654,22 @@ PetscErrorCode CreateFieldMat(FieldMat **shell)
   PetscFunctionReturn(0);
 }
 
-/* ----- SetFieldMat ----
+/* ----- SetILSMat ----
  Set data to the shell matrix contex
  */
-PetscErrorCode SetFieldMat(FieldMat **shell,
-                           int flag_operation,
-                           std::vector<PetscInt> FieldIndices,
-                           std::vector<PetscInt> FieldSizes,
-                           struct Resolution *Resolution_P,
-                           struct Operation *Operation_P,
-                           struct DofData *DofData_P0,
-                           struct GeoData *GeoData_P0)
+PetscErrorCode SetILSMat(ILSMat **shell,
+			 char *LinearSystemType,
+			 Field *LocalField,
+			 Field *GlobalField,
+			 struct Resolution *Resolution_P,
+			 struct Operation *Operation_P,
+			 struct DofData *DofData_P0,
+			 struct GeoData *GeoData_P0)
 {
 //    PetscErrorCode	ierr;
-  (*shell)->flag_operation = flag_operation;
-  (*shell)->FieldIndices = FieldIndices;
-  (*shell)->FieldSizes = FieldSizes;
+  (*shell)->LinearSystemType = LinearSystemType;
+  (*shell)->LocalField = LocalField;
+  (*shell)->GlobalField = GlobalField;
   (*shell)->Resolution_P = Resolution_P;
   (*shell)->Operation_P = Operation_P;
   (*shell)->DofData_P0 = DofData_P0;
@@ -451,7 +692,7 @@ PetscErrorCode Jacobi_Solver(Mat A, Vec X, Vec B, double Tol, int MaxIter)
 
   for (int j=1; j < MaxIter; j++){
     ierr = VecCopy(X, X_old);
-    ierr = MatMultFieldMat(A, X_old, X);
+    ierr = MatMultILSMat(A, X_old, X);
     ierr = VecAYPX(X, 1.,B); // X = X + B
     //convergence test
 
@@ -488,29 +729,30 @@ PetscErrorCode Orthonormalizer(std::vector<Vec> X, int SizeX)
   PetscFunctionReturn(0);
 }
 
-/*Reads and reassembles vectors from GMSH View (or Field)*/
+/*Reads and reassembles vectors from GMSH View/Field*/
 PetscErrorCode ReadFields(int nb_field, int nth_vect, struct Operation *Operation_P,
                           std::vector<std::vector<std::vector<double> > > *vector_field,
-                          std::vector<PetscInt> *indices_field,
+                          std::vector<PetscInt> *tagFields_loc,
                           std::vector<PetscInt> *sizes_field,
                           int *n)
 {
   int loc_size;
   (*vector_field).resize(nb_field);
   (*sizes_field).resize(nb_field);
-  (*indices_field).resize(nb_field);
+  (*tagFields_loc).resize(nb_field);
   *n = 0;
   for(int cpt_view = 0; cpt_view < nb_field; cpt_view++) {
     double d;
     if(nth_vect == 0){ //we are creating the vector from the first argument of IterativeLinearSolver
-      List_Read(Operation_P->Case.IterativeLinearSolver.FieldIndices, cpt_view, &d);
+      List_Read(Operation_P->Case.IterativeLinearSolver.MyFieldTag, cpt_view, &d);
     }
     else{ //Here is the (nth_vect+1) vector from the last argument of IterativeLinearSolver (deflation !)
       int shift = (nth_vect-1)*nb_field; // one vector contains nb_field views
       List_Read(Operation_P->Case.IterativeLinearSolver.DeflationIndices, shift + cpt_view, &d);
     }
-    (*indices_field)[cpt_view] = (int)d;
-    PView *view = PView::list[(int)d];
+    (*tagFields_loc)[cpt_view] = (int)d;
+    //    PView *view = PView::list[(int)d];
+    PView *view = PView::getViewByTag((int)d);
     view->getData()->toVector((*vector_field)[cpt_view]);
     loc_size = (int)(*vector_field)[cpt_view][0].size();
     (*sizes_field)[cpt_view] = loc_size; // how many components ?
@@ -519,7 +761,7 @@ PetscErrorCode ReadFields(int nb_field, int nth_vect, struct Operation *Operatio
   PetscFunctionReturn(0);
 }
 
-PetscErrorCode DgmresDDM_Build(Mat A, struct Operation *Operation_P, int nb_field, int nb_deflation, Mat *M)
+PetscErrorCode DgmresDDM_Build(Mat A, int nb_field, int nb_deflation, Mat *M)
 {
   //Right Preconditionner for "Deflated GMRES" with pre-given vectors. This is used for, e.g., DDM
   //We follow the paper Burrage, Kevin and Erhel, Jocelyne
@@ -527,7 +769,10 @@ PetscErrorCode DgmresDDM_Build(Mat A, struct Operation *Operation_P, int nb_fiel
   //Numer. Linear Algebra Appl., 1998
   PetscErrorCode ierr;
   PetscInt m, n;
+  ILSMat *ctx;
 
+  ierr = MatShellGetContext(A, (void**)&ctx);CHKERRQ(ierr);
+  
   ierr = MatGetSize(A, &m, &n);
   int n_aux = 0;
   std::vector<PetscInt> ix(n);
@@ -539,25 +784,25 @@ PetscErrorCode DgmresDDM_Build(Mat A, struct Operation *Operation_P, int nb_fiel
   Mat UtAU; //Ut*A*U
   Mat invUtAU; //inverte of UtAU
   Mat Id_def; //identity matrix (size nb_deflation) and inverste of UtAU
-  Mat Id_n; //identity matrix (size n)
   Mat Id_defUt; //Id_def*Ut
   Mat UId_defUt; //U*Id_defUt
 
-/*  ierr = MatCreate(PETSC_COMM_WORLD, &U);CHKERRQ(ierr);
-  ierr = MatSetSizes(U, PETSC_DECIDE, PETSC_DECIDE, n, nb_deflation);CHKERRQ(ierr);
-  ierr = MatSetFromOptions(U);CHKERRQ(ierr);*/
+//  ierr = MatCreate(PETSC_COMM_WORLD, &U);CHKERRQ(ierr);
+//  ierr = MatSetSizes(U, PETSC_DECIDE, PETSC_DECIDE, n, nb_deflation);CHKERRQ(ierr);
+//  ierr = MatSetFromOptions(U);CHKERRQ(ierr);
   ierr = MatCreateSeqDense(PETSC_COMM_SELF, n, nb_deflation, PETSC_NULL, &U); CHKERRQ(ierr);
   //next two variables are useless but necessary to run ReadFields
   std::vector<PetscInt> indices_deflation, sizes_deflation;
   for(int cpt_deflation = 0; cpt_deflation < nb_deflation; cpt_deflation ++){
     std::vector<std::vector<std::vector<double> > > new_field;
-    ierr = ReadFields(nb_field, cpt_deflation+1, Operation_P, &new_field, &indices_deflation, &sizes_deflation, &n_aux);CHKERRQ(ierr);
+    ierr = ReadFields(nb_field, cpt_deflation+1, (ctx->Operation_P), &new_field, &indices_deflation, &sizes_deflation, &n_aux);CHKERRQ(ierr);
     //create a Vec from the std::vec
-				ierr = VecCreateSeq(PETSC_COMM_SELF, n, &DeflationVec[cpt_deflation]);CHKERRQ(ierr);
-/*    ierr = VecCreate(PETSC_COMM_WORLD, &DeflationVec[cpt_deflation]);CHKERRQ(ierr);
-				ierr = VecSetSizes(DeflationVec[cpt_deflation], PETSC_DECIDE, n);CHKERRQ(ierr);
-  		ierr = VecSetFromOptions(DeflationVec[cpt_deflation]);CHKERRQ(ierr);*/
-    ierr = STD_vector_to_PETSc_Vec(new_field, DeflationVec[cpt_deflation]);CHKERRQ(ierr);
+    ierr = VecCreateSeq(PETSC_COMM_SELF, n, &DeflationVec[cpt_deflation]);CHKERRQ(ierr);
+    //    ierr = VecCreate(PETSC_COMM_WORLD, &DeflationVec[cpt_deflation]);CHKERRQ(ierr);
+	 // ierr = VecSetSizes(DeflationVec[cpt_deflation], PETSC_DECIDE, n);CHKERRQ(ierr);
+	 // ierr = VecSetFromOptions(DeflationVec[cpt_deflation]);CHKERRQ(ierr);
+    // COMMENTED BELOW BUT TO BE CHANGED !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    
+//    ierr = STD_vector_to_PETSc_Vec(new_field, DeflationVec[cpt_deflation]);CHKERRQ(ierr);
   }
   ierr = Orthonormalizer(DeflationVec, nb_deflation); CHKERRQ(ierr);
   //Stocking into matrix U
@@ -573,14 +818,14 @@ PetscErrorCode DgmresDDM_Build(Mat A, struct Operation *Operation_P, int nb_fiel
 
   //Now compute AU
   ierr = MatCreateSeqDense(PETSC_COMM_SELF, n, nb_deflation, PETSC_NULL , &AU); CHKERRQ(ierr);
-/*  ierr = MatCreate(PETSC_COMM_WORLD, &AU);CHKERRQ(ierr);
-  ierr = MatSetSizes(AU, PETSC_DECIDE, PETSC_DECIDE, n, nb_deflation);CHKERRQ(ierr);
-  ierr = MatSetFromOptions(AU);*/
+//  ierr = MatCreate(PETSC_COMM_WORLD, &AU);CHKERRQ(ierr);
+//  ierr = MatSetSizes(AU, PETSC_DECIDE, PETSC_DECIDE, n, nb_deflation);CHKERRQ(ierr);
+//  ierr = MatSetFromOptions(AU);
   for (int cpt_deflation =0; cpt_deflation <nb_deflation; cpt_deflation ++){
     Vec Y;
     std::vector<PetscScalar> vec_temp(n);
     ierr = VecDuplicate(DeflationVec[0],&Y);CHKERRQ(ierr);
-    MatMultFieldMat(A, DeflationVec[cpt_deflation], Y);
+    MatMultILSMat(A, DeflationVec[cpt_deflation], Y);
     //plug Y into matrix AU
     ierr = VecGetValues(Y, n, &ix[0], &vec_temp[0]);CHKERRQ(ierr);
     ierr = MatSetValues(AU, n, &ix[0], 1, &cpt_deflation, &vec_temp[0], INSERT_VALUES);CHKERRQ(ierr);
@@ -601,23 +846,21 @@ PetscErrorCode DgmresDDM_Build(Mat A, struct Operation *Operation_P, int nb_fiel
   ierr = MatMatSolve(UtAU, Id_def, invUtAU);CHKERRQ(ierr);
   //Compute the preconditioner (Matrix M);
   // M = Id_n +U*(lambda*inv(UtAU) - Id_def)*Ut
-  ierr = MatCreateSeqDense(PETSC_COMM_SELF, n, n, PETSC_NULL, &Id_n); CHKERRQ(ierr);
-/*  ierr = MatCreate(PETSC_COMM_WORLD, &Id_n);CHKERRQ(ierr);
-  ierr = MatSetSizes(Id_n, PETSC_DECIDE, PETSC_DECIDE, n, n);CHKERRQ(ierr);*/
+  ierr = MatCreateSeqDense(PETSC_COMM_SELF, n, n, PETSC_NULL, M); CHKERRQ(ierr);
+//  ierr = MatCreate(PETSC_COMM_WORLD, &Id_n);CHKERRQ(ierr);
+//  ierr = MatSetSizes(Id_n, PETSC_DECIDE, PETSC_DECIDE, n, n);CHKERRQ(ierr);
   for(int cpt =0; cpt <n; cpt++)
-    ierr = MatSetValues(Id_n, 1, &cpt, 1, &cpt, &one, INSERT_VALUES);CHKERRQ(ierr);
-  ierr = MatAssemblyBegin(Id_n, MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
-  ierr = MatAssemblyEnd(Id_n, MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
+    ierr = MatSetValues((*M), 1, &cpt, 1, &cpt, &one, INSERT_VALUES);CHKERRQ(ierr);
+  ierr = MatAssemblyBegin((*M), MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
+  ierr = MatAssemblyEnd((*M), MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
   //Id_def <- inv(UtAU) - Id
   ierr = MatAYPX(Id_def, -1., invUtAU, SAME_NONZERO_PATTERN);CHKERRQ(ierr);
   //Id_def*Ut
   ierr = MatMatMult(Id_def, Ut, MAT_INITIAL_MATRIX, PETSC_DEFAULT, &Id_defUt);CHKERRQ(ierr);
   //U*Id_defUt
   ierr = MatMatMult(U, Id_defUt, MAT_INITIAL_MATRIX, PETSC_DEFAULT, &UId_defUt);CHKERRQ(ierr);
-  // Id_n + UId_defUt
-  ierr = MatAXPY(Id_n, 1., UId_defUt, SAME_NONZERO_PATTERN);CHKERRQ(ierr);
-  //Now M point to Id_n
-  ierr = MatDuplicate(Id_n, MAT_COPY_VALUES, M);CHKERRQ(ierr);
+  // Id_n (=M) + UId_defUt
+  ierr = MatAXPY((*M), 1., UId_defUt, SAME_NONZERO_PATTERN);CHKERRQ(ierr);
   //FREE MATRICES
 #if (PETSC_VERSION_RELEASE == 0  || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
   ierr = MatDestroy(&U);CHKERRQ(ierr);
@@ -626,7 +869,6 @@ PetscErrorCode DgmresDDM_Build(Mat A, struct Operation *Operation_P, int nb_fiel
   ierr = MatDestroy(&UtAU);CHKERRQ(ierr);
   ierr = MatDestroy(&invUtAU);CHKERRQ(ierr);
   ierr = MatDestroy(&Id_def);CHKERRQ(ierr);
-  ierr = MatDestroy(&Id_n);CHKERRQ(ierr);
   ierr = MatDestroy(&UId_defUt);CHKERRQ(ierr);
 #else
   ierr = MatDestroy(U);CHKERRQ(ierr);
@@ -635,7 +877,6 @@ PetscErrorCode DgmresDDM_Build(Mat A, struct Operation *Operation_P, int nb_fiel
   ierr = MatDestroy(UtAU);CHKERRQ(ierr);
   ierr = MatDestroy(invUtAU);CHKERRQ(ierr);
   ierr = MatDestroy(Id_def);CHKERRQ(ierr);
-  ierr = MatDestroy(Id_n);CHKERRQ(ierr);
   ierr = MatDestroy(UId_defUt);CHKERRQ(ierr);
 #endif
   PetscFunctionReturn(0);
@@ -647,113 +888,159 @@ PetscErrorCode BuildIterationMatrix(Mat A, Mat *IterationMatrix)
 {
   const PetscScalar one = 1., zero = 0.;
   PetscErrorCode ierr;
-  Mat AuxMatrix;
-  PetscInt m,n, m_loc, n_loc, m_start, m_end;
-
+  PetscInt n_proc, m,n, m_loc, n_loc;
+  PetscInt m_start, m_end, vec_m_start, vec_m_end;
+  
+  ierr = MPI_Comm_size(PETSC_COMM_WORLD, &n_proc); CHKERRQ(ierr);
   ierr = MatGetSize(A, &m, &n);
-  ierr = MatCreate(PETSC_COMM_WORLD, &AuxMatrix);CHKERRQ(ierr);
-  ierr = MatSetSizes(AuxMatrix, PETSC_DECIDE, PETSC_DECIDE, m, n);CHKERRQ(ierr);
-//TO IMPROVE : PREALLOCATION
-  ierr = MatSetUp(AuxMatrix); CHKERRQ(ierr);
-  ierr = MatSetFromOptions(AuxMatrix);CHKERRQ(ierr);
-
-		ierr = MatGetLocalSize(AuxMatrix, &m_loc, &n_loc); CHKERRQ(ierr);
-		ierr = MatGetOwnershipRange(AuxMatrix, &m_start, &m_end); CHKERRQ(ierr);
-		m_loc = m_end-m_start;
-  std::vector<PetscInt> ix(m_loc);
-  for(PetscInt i = 0; i<m_loc; i++)
+  ierr = MatCreate(PETSC_COMM_WORLD, IterationMatrix);CHKERRQ(ierr);
+  ierr = MatSetSizes((*IterationMatrix), PETSC_DECIDE, PETSC_DECIDE, m, n);CHKERRQ(ierr);
+  ierr = MatSetType((*IterationMatrix), MATMPIAIJ);CHKERRQ(ierr);
+  ierr = MatSetFromOptions((*IterationMatrix));CHKERRQ(ierr);
+//  ierr = MatMPIAIJSetPreallocation((*IterationMatrix), n/n_proc+1, PETSC_NULL, n-n/n_proc+1, PETSC_NULL);CHKERRQ(ierr);
+  ierr = MatSetUp((*IterationMatrix));
+  ierr = MatGetOwnershipRange((*IterationMatrix), &m_start, &m_end); CHKERRQ(ierr);
+  ierr = MatGetLocalSize((*IterationMatrix), &m_loc, &n_loc); CHKERRQ(ierr);
+  ierr = MatMPIAIJSetPreallocation((*IterationMatrix), m_loc, PETSC_NULL, n-m_loc, PETSC_NULL);CHKERRQ(ierr);
+  std::vector<PetscInt> ix(m);
+  for(PetscInt i = 0; i<m; i++)
     ix[i] = m_start + i;
 
-	 Vec ej, Aej;
-		ierr = VecCreateSeq(PETSC_COMM_SELF, m, &ej);CHKERRQ(ierr);
-		ierr = VecSetFromOptions(ej);CHKERRQ(ierr);
-		ierr = VecDuplicate(ej, &Aej);CHKERRQ(ierr);
+  Vec ej, Aej;
+  ierr = VecCreateSeq(PETSC_COMM_SELF, m, &ej);CHKERRQ(ierr);
+/*  ierr = VecCreate(PETSC_COMM_WORLD, &ej);CHKERRQ(ierr);
+  ierr = VecSetSizes(ej, m_loc, m);CHKERRQ(ierr);
+  ierr = VecSetFromOptions(ej);CHKERRQ(ierr);*/
+  ierr = VecDuplicate(ej, &Aej);CHKERRQ(ierr);
+  ierr = VecGetOwnershipRange(ej, &vec_m_start, &vec_m_end);CHKERRQ(ierr);
   
   for(int cpt=0;cpt<n;cpt++){
+    ierr = PetscPrintf(PETSC_COMM_WORLD, "Column number %d over %d\n", cpt, n-1);
     std::vector<PetscScalar> vec_temp(n);
-				VecSet(ej, zero);CHKERRQ(ierr);
-    ierr = VecSetValues(ej, 1., &cpt, &one, INSERT_VALUES) ;CHKERRQ(ierr);
+    VecSet(ej, zero);CHKERRQ(ierr);
+    if(cpt >= vec_m_start && cpt<vec_m_end)
+      ierr = VecSetValues(ej, 1., &cpt, &one, INSERT_VALUES) ;CHKERRQ(ierr);
     ierr = VecAssemblyBegin(ej);CHKERRQ(ierr);
     ierr = VecAssemblyEnd(ej);CHKERRQ(ierr);
-    ierr = MatMultFieldMat(A, ej, Aej);CHKERRQ(ierr);
+    ierr = MatMultILSMat(A, ej, Aej);CHKERRQ(ierr);
     //stocking it in a Matrix
     ierr = VecGetValues(Aej, m_loc, &ix[0], &vec_temp[0]);CHKERRQ(ierr);
-    ierr = MatSetValues(AuxMatrix, m_loc, &ix[0], 1, &cpt, &vec_temp[0], INSERT_VALUES);CHKERRQ(ierr);
+    ierr = MatSetValues((*IterationMatrix), m_loc, &ix[0], 1, &cpt, &vec_temp[0], INSERT_VALUES);CHKERRQ(ierr);
+    if(cpt%100 == 0){ // flushing
+      ierr = MatAssemblyBegin((*IterationMatrix), MAT_FLUSH_ASSEMBLY);CHKERRQ(ierr);
+      ierr = MatAssemblyEnd((*IterationMatrix), MAT_FLUSH_ASSEMBLY);CHKERRQ(ierr);}
   }
-  ierr = MatAssemblyBegin(AuxMatrix, MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
-  ierr = MatAssemblyEnd(AuxMatrix, MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
-  ierr = MatDuplicate(AuxMatrix, MAT_COPY_VALUES, IterationMatrix);CHKERRQ(ierr);
-
-#if (PETSC_VERSION_RELEASE == 0  || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
-  ierr = MatDestroy(&AuxMatrix);CHKERRQ(ierr);
-#else
-  ierr = MatDestroy(AuxMatrix);CHKERRQ(ierr);
-#endif
+  ierr = MatAssemblyBegin((*IterationMatrix), MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
+  ierr = MatAssemblyEnd((*IterationMatrix), MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
   PetscFunctionReturn(0);
 }
 
 //Print Iteration Matrix into file_IterationMatrix.m (matlab reading)
-PetscErrorCode PrintMatrix(Mat A, const char* filename, const char* varname, bool BINARY)
+PetscErrorCode PrintMatrix(Mat A, const char* filename, const char* varname)
 {
 //This function is copy/paste of function LinAlg_PrintMatrix function 
 // located in Legacy/LinAlg_PETSC.cpp 
   PetscErrorCode ierr;
-	 PetscViewer viewer;
-		std::string tmp(filename);
-		ierr = PetscObjectSetName((PetscObject)A, varname);
-		ierr = PetscViewerCreate(PETSC_COMM_WORLD, &viewer);CHKERRQ(ierr);
-		if(!BINARY){
-    // ASCII
-				ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD, filename, &viewer);CHKERRQ(ierr);
-				ierr = PetscViewerSetFormat(viewer, PETSC_VIEWER_ASCII_MATLAB);CHKERRQ(ierr);
-		}else{ //BINARY
-				//Add the petscfolder/bin/matlab path to your matlab paths and
-				//type the following command in matlab, for real arithmetic :
-				// PetscBinaryRead(filename) ;
-				// and for complex arithmetic :
-				// PetscBinaryRead(filename , 'complex') ;
-				ierr = PetscViewerBinaryOpen(PETSC_COMM_WORLD, (tmp + ".bin").c_str(), FILE_MODE_WRITE, &viewer);CHKERRQ(ierr);
-				ierr = PetscViewerSetFormat(viewer, PETSC_VIEWER_DEFAULT);CHKERRQ(ierr);
-		}
-				MatView(A,viewer);
-
+  std::string tmp(filename);
+  PetscInt m,n, m_max = 600;
+  
+  ierr = PetscObjectSetName((PetscObject)A, varname);
+  // ASCII (if the matrix is not too large)
+  ierr = MatGetSize(A, &m, &n);
+  if(m < m_max){
+    PetscViewer viewer;
+    ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD, filename, &viewer);CHKERRQ(ierr);
+    ierr = PetscViewerSetFormat(viewer, PETSC_VIEWER_ASCII_MATLAB);CHKERRQ(ierr);
+    ierr = MatView(A, viewer);CHKERRQ(ierr);
 #if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
     ierr = PetscViewerDestroy(&viewer);CHKERRQ(ierr);
 #else
-    ierr = PetscViewerDestroy(viewer);CHKERRQ(ierr);
+      ierr = PetscViewerDestroy(viewer);CHKERRQ(ierr);
 #endif
-
+  }
+  else{
+    ierr = PetscPrintf(PETSC_COMM_WORLD, "Warning: Matrix is too large, no ASCII Output (m=%d>%d)\n", m,m_max);
+    CHKERRQ(ierr);
+  }
+  //BINARY
+  //Add the petscfolder/bin/matlab path to your matlab paths and
+  //type the following command in matlab, for real arithmetic :
+  // A = PetscBinaryRead(filename) ;
+  // and for complex arithmetic :
+  // A = PetscBinaryRead(filename , 'complex', true) ;
+  PetscViewer viewer_bin;
+  ierr = PetscViewerBinaryOpen(PETSC_COMM_WORLD, (tmp + ".bin").c_str(), FILE_MODE_WRITE, &viewer_bin);CHKERRQ(ierr);
+  ierr = PetscViewerSetFormat(viewer_bin, PETSC_VIEWER_DEFAULT);CHKERRQ(ierr);
+  ierr = MatView(A, viewer_bin);CHKERRQ(ierr);
+#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
+  ierr = PetscViewerDestroy(&viewer_bin);CHKERRQ(ierr);
+#else
+  ierr = PetscViewerDestroy(viewer_bin);CHKERRQ(ierr);
+#endif
+  
   PetscFunctionReturn(0);
 }
 
 //Print a Petsc Vec into a Matlab File
-PetscErrorCode PrintVecSeq(Vec b, const char* filename, const char* varname, bool BINARY)
+// TO BE CHANGED !!!!!!!!!!!!!
+PetscErrorCode PrintVec(Vec b, const char* filename, const char* varname)
 {
 //This function is copy/paste of function LinAlg_PrintMatrix function 
 // located in Legacy/LinAlg_PETSC.cpp 
   PetscErrorCode ierr;
-	 PetscViewer viewer;
-		std::string tmp(filename);
-		
-		ierr = PetscObjectSetName((PetscObject)b, varname);CHKERRQ(ierr);
-		ierr = PetscViewerCreate(PETSC_COMM_WORLD, &viewer);CHKERRQ(ierr);
-		if(!BINARY){
-    // ASCII
-				ierr = PetscViewerASCIIOpen(PETSC_COMM_SELF, filename, &viewer);CHKERRQ(ierr);
-				ierr = PetscViewerSetFormat(viewer, PETSC_VIEWER_ASCII_MATLAB);CHKERRQ(ierr);
-		}else{ //BINARY
-				//see PrintMat function for the how-to use it
-				ierr = PetscViewerBinaryOpen(PETSC_COMM_SELF, (tmp + ".bin").c_str(), FILE_MODE_WRITE, &viewer);CHKERRQ(ierr);
-				ierr = PetscViewerSetFormat(viewer, PETSC_VIEWER_DEFAULT);CHKERRQ(ierr);
-		}
-				VecView(b,viewer);
+  const VecType type;
+  ierr = VecGetType(b, &type);CHKERRQ(ierr);
+  if(!strcmp(type, "seq")){ // AND NUM_PROC > 1 !!!!!
+    ierr = PrintVecSeq(b, filename, varname);CHKERRQ(ierr);
+    PetscFunctionReturn(0);
+  }
+
+  PetscViewer viewer, viewer_bin;
+  std::string tmp(filename);
+  ierr = PetscObjectSetName((PetscObject)b, varname);CHKERRQ(ierr);
+  // ASCII
+  ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD, filename, &viewer);CHKERRQ(ierr);
+  ierr = PetscViewerSetFormat(viewer, PETSC_VIEWER_ASCII_MATLAB);CHKERRQ(ierr);
+  //see PrintMat function for the how-to use it
+  ierr = PetscViewerBinaryOpen(PETSC_COMM_WORLD, (tmp + ".bin").c_str(), FILE_MODE_WRITE, &viewer_bin);CHKERRQ(ierr);
+  ierr = PetscViewerSetFormat(viewer_bin, PETSC_VIEWER_DEFAULT);CHKERRQ(ierr);
+  VecView(b,viewer);
+  VecView(b,viewer_bin);
 #if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
-    ierr = PetscViewerDestroy(&viewer);CHKERRQ(ierr);
+  ierr = PetscViewerDestroy(&viewer);CHKERRQ(ierr);
+  ierr = PetscViewerDestroy(&viewer_bin);CHKERRQ(ierr);
 #else
-    ierr = PetscViewerDestroy(viewer);CHKERRQ(ierr);
+  ierr = PetscViewerDestroy(viewer);CHKERRQ(ierr);
+  ierr = PetscViewerDestroy(viewer_bin);CHKERRQ(ierr);
 #endif
   PetscFunctionReturn(0);
 }
+
+//Print a SEQUENTIAL Petsc Vec into a Matlab File
+PetscErrorCode PrintVecSeq(Vec b, const char* filename, const char* varname){
+  PetscErrorCode ierr;
+  std::string tmp(filename);
+  PetscViewer viewer, viewer_bin;
+
+  ierr = PetscObjectSetName((PetscObject)b, varname);CHKERRQ(ierr);
+  ierr = PetscViewerASCIIOpen(PETSC_COMM_SELF, filename, &viewer);CHKERRQ(ierr);
+  ierr = PetscViewerSetFormat(viewer, PETSC_VIEWER_ASCII_MATLAB);CHKERRQ(ierr);
+  //see PrintMat function for the how-to use it
+  ierr = PetscViewerBinaryOpen(PETSC_COMM_SELF, (tmp + ".bin").c_str(), FILE_MODE_WRITE, &viewer_bin);CHKERRQ(ierr);
+  ierr = PetscViewerSetFormat(viewer_bin, PETSC_VIEWER_DEFAULT);CHKERRQ(ierr);
+  VecView(b,viewer);
+  VecView(b,viewer_bin);
+#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
+  ierr = PetscViewerDestroy(&viewer);CHKERRQ(ierr);
+  ierr = PetscViewerDestroy(&viewer_bin);CHKERRQ(ierr);
+#else
+  ierr = PetscViewerDestroy(viewer);CHKERRQ(ierr);
+  ierr = PetscViewerDestroy(viewer_bin);CHKERRQ(ierr);
+#endif
+
+  PetscFunctionReturn(0);
+}
+
 
 #else
 
