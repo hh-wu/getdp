@@ -674,6 +674,5 @@ void SolvingAnalyse()
  
   for(int i = 0; i < List_Nbr(GeoData_L); i++)
       Geo_FreeGeoData((GeoData*)List_Pointer(GeoData_L, i));
-
   List_Delete(GeoData_L);
 }

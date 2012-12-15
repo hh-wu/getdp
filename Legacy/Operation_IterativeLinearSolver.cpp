@@ -263,9 +263,10 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   ierr = VecDestroy(B);CHKERRQ(ierr);
   ierr = MatDestroy(A);CHKERRQ(ierr);
 #endif
-  for (int irank = 0 ; irank < mpi_comm_size ; irank ++)
-    MPI_Comm_free(&GlobalField.comm[irank]);
-
+  if(mpi_comm_size > 0 && GlobalField.comm.size() > 0)
+    {  for (int irank = 0 ; irank < GlobalField.comm.size() ; irank ++)
+	MPI_Comm_free(&GlobalField.comm[irank]);
+    }
   PetscBarrier((PetscObject)PETSC_NULL);CHKERRQ(ierr);
   PetscFunctionReturn(0);
 }
@@ -356,56 +357,62 @@ PetscErrorCode InitData(Field *LocalField, Field *GlobalField, struct Operation 
   // In other word, N_PROC MPI Communicators will be created, and not GlobalField.nb_field ...
   // This is due to the fact that GetDP only create 1D-List
   //(Thus, if GetDP changes, code below should be adapted !)
-  std::vector<int> tab_nNeighbor(mpi_comm_size);
-  std::vector<int> myNeighbor;
   int nNeighbor_aux=0, nNeighbor;
-  GlobalField->comm.resize(mpi_comm_size);
   nNeighbor_aux = List_Nbr(Operation_P->Case.IterativeLinearSolver.NeighborFieldTag);
-  myNeighbor.resize(nNeighbor_aux+1);
-  myNeighbor[0] = mpi_comm_rank;
-  nNeighbor = 1; // At least, one process in tab_MyNeighbor (self)
-  for(int j = 0 ; j < nNeighbor_aux ; j++)
-    {
-      double d;
-      int neig_rank;
-      List_Read(Operation_P->Case.IterativeLinearSolver.NeighborFieldTag, j, &d);
-      //rank of the neighbor process (!= field)
-      neig_rank = GlobalField->rank[(int)d];
-      //is it already stored ?
-      bool isNotAlreadyStored = true;
-      for (int i = 0; i < nNeighbor ; i ++)
-	{
-	  if(myNeighbor[i] == neig_rank)
-	    { isNotAlreadyStored = false;
-	      break;}
-	}
-      if(isNotAlreadyStored)
-	{ myNeighbor[nNeighbor] = neig_rank;
-	  nNeighbor ++;}// recalculation of the size (duplicate int is possible)
-    }
-  myNeighbor.resize(nNeighbor); //eliminate duplicate
-  //Exchange the number of neighbors per process
-  MPI_Allgather(&nNeighbor, 1, MPI_INT, &tab_nNeighbor[0], 1, MPI_INT, PETSC_COMM_WORLD);
-  //Exchange the mpi_rank of the neighbor
-  MPI_Group world_group;
-  MPI_Comm_group(MPI_COMM_WORLD, &world_group);
-  for(int irank = 0 ; irank < mpi_comm_size ; irank ++)
-    {
-      int nb_neigh = tab_nNeighbor[irank];
-      std::vector<int> irankNeighbor;
-      if(mpi_comm_rank != irank)
-	irankNeighbor.resize(nb_neigh);
-      else
-	irankNeighbor = myNeighbor;
-      //bcast
-     MPI_Bcast(&irankNeighbor[0], nb_neigh, MPI_INT, irank, MPI_COMM_WORLD);
-     //creation of the MPI_Communicator used when Processus irank is the root of a Broadcast
-     MPI_Group newgroup;
-     MPI_Group_incl(world_group, nb_neigh, &irankNeighbor[0], &newgroup);
-     MPI_Comm new_comm;
-     MPI_Comm_create(MPI_COMM_WORLD, newgroup, &new_comm);
-     GlobalField->comm[irank] = new_comm;
-    }
+  if(nNeighbor_aux == 0 || mpi_comm_size < 2)
+    GlobalField->comm.resize(0); // No Neighbor were provided -> PVIEWBcast on every process
+  else{ //construction of the mpi_comm_size mpi communicators
+    std::vector<int> tab_nNeighbor(mpi_comm_size);
+    std::vector<int> myNeighbor;
+    GlobalField->comm.resize(mpi_comm_size);
+    myNeighbor.resize(nNeighbor_aux+1);
+    myNeighbor[0] = mpi_comm_rank;
+    nNeighbor = 1; // At least, one process in tab_MyNeighbor (self)
+    for(int j = 0 ; j < nNeighbor_aux ; j++)
+      {
+	double d;
+	int neig_rank;
+	List_Read(Operation_P->Case.IterativeLinearSolver.NeighborFieldTag, j, &d);
+	//rank of the neighbor process (!= field)
+	neig_rank = GlobalField->rank[(int)d];
+	//is it already stored ?
+	bool isNotAlreadyStored = true;
+	for (int i = 0; i < nNeighbor ; i ++)
+	  {
+	    if(myNeighbor[i] == neig_rank)
+	      { isNotAlreadyStored = false;
+		break;}
+	  }
+	if(isNotAlreadyStored)
+	  { myNeighbor[nNeighbor] = neig_rank;
+	    nNeighbor ++;}// recompute the size (duplicate int is possible)
+      }
+    myNeighbor.resize(nNeighbor); //eliminate duplicate
+    //Exchange the number of neighbors per process
+    MPI_Allgather(&nNeighbor, 1, MPI_INT, &tab_nNeighbor[0], 1, MPI_INT, PETSC_COMM_WORLD);
+    //Exchange the mpi_rank of the neighbor
+    MPI_Group world_group;
+    MPI_Comm_group(MPI_COMM_WORLD, &world_group);
+    for(int irank = 0 ; irank < mpi_comm_size ; irank ++)
+      {
+	int nb_neigh = tab_nNeighbor[irank];
+	std::vector<int> irankNeighbor;
+	if(mpi_comm_rank != irank)
+	  irankNeighbor.resize(nb_neigh);
+	else
+	  irankNeighbor = myNeighbor;
+	//bcast
+	MPI_Bcast(&irankNeighbor[0], nb_neigh, MPI_INT, irank, MPI_COMM_WORLD); //VERIFIED
+	//creation of the MPI_Communicator used when Processus irank is the root of a Broadcast
+	MPI_Group newgroup;
+	MPI_Group_incl(world_group, nb_neigh, &irankNeighbor[0], &newgroup);
+	MPI_Comm new_comm;
+	MPI_Comm_create(MPI_COMM_WORLD, newgroup, &new_comm);
+	GlobalField->comm[irank] = new_comm;
+	MPI_Group_free(&newgroup);
+      }
+    MPI_Group_free(&world_group);
+  }
 
   PetscFunctionReturn(0);
 }
@@ -415,21 +422,35 @@ BCast of all PView
 -----------------------*/
 PetscErrorCode PViewBCast(Field LocalField, Field GlobalField)
 {  //TRANSFER PVIEW
-  //  int mpi_comm_rank = Message::GetCommRank();
+  bool noNewComm = true;
+  if(GlobalField.comm.size() > 0)
+     noNewComm = false;
   for (int iField = 0 ; iField < GlobalField.nb_field ; iField ++)
     {
       int GmshTag = GlobalField.GmshTag[iField];
       int fieldRank = GlobalField.rank[iField];
-      MPI_Comm fieldcomm = GlobalField.comm[fieldRank];
-      int mpi_fieldcomm_rank = -1; // -1
-      MPI_Comm_rank(fieldcomm, &mpi_fieldcomm_rank);
-      if(mpi_fieldcomm_rank > -1)
+      MPI_Comm fieldcomm; //communicator of MPI_Bcast
+      int masterRank; // rank of the process root for MPI_BCast
+      int mpi_fieldcomm_rank; //rank in the communicateur fieldcomm
+      if(noNewComm)
+	{
+	  masterRank = fieldRank;
+	  fieldcomm = MPI_COMM_WORLD;
+	  mpi_fieldcomm_rank = Message::GetCommRank();
+	}else{ //set master proc to 0, communicator to the right one
+	  masterRank = 0;
+	  fieldcomm = GlobalField.comm[fieldRank];
+	  mpi_fieldcomm_rank = -1;
+	  MPI_Comm_rank(fieldcomm, &mpi_fieldcomm_rank);
+	  //mpi_fieldcomm_rank == -1 if process not in communicator fieldcomm
+	}
+      if(mpi_fieldcomm_rank > -1) //I belong to fieldcomm
 	{
 	  std::vector< std::vector<double>* > V(24);
 	  std::vector<int> sizeV;
 	  std::vector<int> N(24);
 	  sizeV.resize(24);
-	  if(mpi_fieldcomm_rank == 0)
+	  if(mpi_fieldcomm_rank == masterRank)
 	    {
 	      PView *view = PView::getViewByTag(GmshTag);
 	      view->getData()->getListPointers(&N[0], &V[0]);
@@ -437,21 +458,21 @@ PetscErrorCode PViewBCast(Field LocalField, Field GlobalField)
 		sizeV[j] = (*(V[j])).size();
 	    }      
 	  //Transfer PView
-	  MPI_Bcast(&N[0], 24, MPI_INT, 0, fieldcomm);
-	  MPI_Bcast(&sizeV[0], 24, MPI_INT, 0, fieldcomm);
+	  MPI_Bcast(&N[0], 24, MPI_INT, masterRank, fieldcomm);
+	  MPI_Bcast(&sizeV[0], 24, MPI_INT, masterRank, fieldcomm);
 	  
 	  for(int j = 0; j < 24 ; j ++)
 	    {
-	      if(mpi_fieldcomm_rank > 0)
+	      if(mpi_fieldcomm_rank != masterRank)
 		{
 		  V[j] = new std::vector<double>;
 		  (*(V[j])).resize(sizeV[j]);
 		}
 	      if(sizeV[j] > 0) //avoid useless BCast
-		MPI_Bcast(&(*(V[j]))[0], sizeV[j], MPI_DOUBLE, 0, fieldcomm);
+		MPI_Bcast(&(*(V[j]))[0], sizeV[j], MPI_DOUBLE, masterRank, fieldcomm);
 	    }
-	  //All other tasks create/update the views
-	  if(mpi_fieldcomm_rank > 0 )
+	  //All other tasks of the communicator create/update the views
+	  if(mpi_fieldcomm_rank != masterRank)
 	    {
 	      PView *view = new PView(GmshTag);
 	      view->getData()->importLists(&N[0], &V[0]);
