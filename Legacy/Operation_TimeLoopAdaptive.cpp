@@ -590,6 +590,7 @@ void GetIntegrationScheme(Operation   *Operation_P,
 }
 
 
+
 /* ------------------------------------------------------------------------ */
 /*  O p e r a t i o n _ T i m e L o o p A d a p t i v e                     */
 /* ------------------------------------------------------------------------ */
@@ -608,7 +609,8 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
   bool   TimeStepAccepted=true, DTimeMinAtLastStep, BreakpointListCreated;
   bool   BreakpointAtThisStep, BreakpointAtNextStep;
   double Time0, TimeMax, DTimeInit, DTimeMin, DTimeMax;
-  double s, DTimeMaxScal, DTimeScal_NotConverged, DTimeScal_PETScError, DTimeScal=1.0;
+  double LTEtarget, DTimeMaxScal, DTimeScal_NotConverged, DTimeScal_PETScError;
+  double DTimeScal=1.0;
   List_T *Breakpoints_L, *TLAsystems_L, *LEPostOp_L;
   List_T *LEPostOpNames_L;
   List_T *xPredicted_L, *PostOpSolPredicted_L;
@@ -617,12 +619,25 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
   gVector                xPredicted_S;
 
 
-  // Some constants influencing the time stepping
-  s                      = 0.8;    // target LTE ratio for next step (should be below 1)
+  // Some default values for constants influencing the time stepping
+  LTEtarget              = 0.8;    // target LTE ratio for next step (should be below 1)
   DTimeMaxScal           = 2.0;    // maximum factor for increasing the time step DTime
   DTimeScal_NotConverged = 0.25;   // step size scaling in case of a not converged iterative loop
   DTimeScal_PETScError   = 0.25;   // step size scaling in case of a PETSc error
 
+  // Override default values if they are provided by the user
+  LTEtarget = (Operation_P->Case.TimeLoopAdaptive.LTEtarget < 0) ?
+      LTEtarget : Operation_P->Case.TimeLoopAdaptive.LTEtarget;
+  DTimeMaxScal = (Operation_P->Case.TimeLoopAdaptive.DTimeMaxScal < 0 ) ?
+      DTimeMaxScal : Operation_P->Case.TimeLoopAdaptive.DTimeMaxScal;
+  DTimeScal_NotConverged =
+      (Operation_P->Case.TimeLoopAdaptive.DTimeScal_NotConverged < 0) ?
+      DTimeScal_NotConverged :
+      Operation_P->Case.TimeLoopAdaptive.DTimeScal_NotConverged;
+  DTimeScal_PETScError =
+      (Operation_P->Case.TimeLoopAdaptive.DTimeScal_NotConverged < 0) ?
+      DTimeScal_PETScError :
+      Operation_P->Case.TimeLoopAdaptive.DTimeScal_NotConverged;
 
   Time0    = Operation_P->Case.TimeLoopAdaptive.Time0;
   TimeMax  = Operation_P->Case.TimeLoopAdaptive.TimeMax;
@@ -864,15 +879,15 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
     }
     else{
       // Milne's estimate
-      if ( maxLTEratio < s / pow(DTimeMaxScal, Order + 1.) )
+      if ( maxLTEratio < LTEtarget / pow(DTimeMaxScal, Order + 1.) )
         // At most scale DTime with DTimeMaxScal if maxLTEratio is small
         Current.DTime *= DTimeMaxScal;
       else
         if (Current.TimeStep < 1.5 || (NbrPostOps > 0 && TLATimeStep <= 2) )
           // linear adjustment because predictor is of order 0
-          Current.DTime *= s/maxLTEratio;
+          Current.DTime *= LTEtarget/maxLTEratio;
         else
-          Current.DTime *= pow(s/maxLTEratio, 1./(Order+1.));
+          Current.DTime *= pow(LTEtarget/maxLTEratio, 1./(Order+1.));
     }
 
     // Limit the max step size

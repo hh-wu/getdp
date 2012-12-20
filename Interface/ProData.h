@@ -940,6 +940,7 @@ struct Operation {
     } TimeLoopRungeKutta;
     struct {
       double  Time0, TimeMax, DTimeInit, DTimeMin, DTimeMax;
+      double  LTEtarget, DTimeMaxScal, DTimeScal_NotConverged;
       char    *Scheme;
       List_T  *Breakpoints_L;
       List_T  *TimeLoopAdaptiveSystems_L;

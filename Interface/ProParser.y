@@ -4380,7 +4380,7 @@ OperationTerm :
     }
 
   | tTimeLoopAdaptive '[' FExpr ',' FExpr ',' FExpr ',' FExpr ',' FExpr ',' CharExpr ','
-                      ListOfFExpr ',' LTEdefinitions ']'
+                      ListOfFExpr ',' LTEdefinitions TLAoptions ']'
                       '{' Operation '}' '{' Operation '}'
     {
       List_Pop(Operation_L);
@@ -4395,8 +4395,8 @@ OperationTerm :
       Operation_P->Case.TimeLoopAdaptive.DTimeMax = $11;
       Operation_P->Case.TimeLoopAdaptive.Scheme = $13;
       Operation_P->Case.TimeLoopAdaptive.Breakpoints_L = $15;
-      Operation_P->Case.TimeLoopAdaptive.Operation = $20;
-      Operation_P->Case.TimeLoopAdaptive.OperationEnd = $23;
+      Operation_P->Case.TimeLoopAdaptive.Operation = $21;
+      Operation_P->Case.TimeLoopAdaptive.OperationEnd = $24;
     }
 
   | tIterativeLoopN '[' FExpr ',' Expression ',' IterativeLoopDefinitions ']'
@@ -4918,6 +4918,37 @@ PrintOperationOption :
 
 ;
 
+TLAoptions :
+    /* none */
+    {
+      Operation_P->Case.TimeLoopAdaptive.LTEtarget = -1.;
+      Operation_P->Case.TimeLoopAdaptive.DTimeMaxScal = -1.;   
+      Operation_P->Case.TimeLoopAdaptive.DTimeScal_NotConverged = -1.;   
+    }
+
+  | ',' FExpr
+    {
+      Operation_P->Case.TimeLoopAdaptive.LTEtarget = $2;
+      Operation_P->Case.TimeLoopAdaptive.DTimeMaxScal = -1.;   
+      Operation_P->Case.TimeLoopAdaptive.DTimeScal_NotConverged = -1.;    
+    }
+
+  | ',' FExpr ',' FExpr
+    {
+      Operation_P->Case.TimeLoopAdaptive.LTEtarget = $2;
+      Operation_P->Case.TimeLoopAdaptive.DTimeMaxScal = $4;   
+      Operation_P->Case.TimeLoopAdaptive.DTimeScal_NotConverged = -1.;  
+    }
+
+  | ',' FExpr ',' FExpr ',' FExpr
+    {
+      Operation_P->Case.TimeLoopAdaptive.LTEtarget = $2;
+      Operation_P->Case.TimeLoopAdaptive.DTimeMaxScal = $4;   
+      Operation_P->Case.TimeLoopAdaptive.DTimeScal_NotConverged = $6;  
+    }
+
+ ;
+ 
 LTEdefinitions :
     /* none */
     {
