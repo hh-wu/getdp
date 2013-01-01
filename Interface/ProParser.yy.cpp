@@ -1486,7 +1486,7 @@ char *getdp_yytext;
 // GetDP - Copyright (C) 1997-2008 P. Dular, C. Geuzaine
 //
 // See the LICENSE.txt file for license information. Please report all
-// bugs and problems to <getdp@geuz.org>.
+// bugs and problems to the public mailing list <getdp@geuz.org>.
 
 #include <stdio.h>
 #include <stdlib.h>

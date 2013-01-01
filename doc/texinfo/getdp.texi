@@ -1,8 +1,8 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c GetDP - Copyright (C) 1997-2012 P. Dular, C. Geuzaine
+@c GetDP - Copyright (C) 1997-2013 P. Dular, C. Geuzaine
 @c
 @c See the LICENSE.txt file for license information. Please report all
-@c bugs and problems to <getdp@geuz.org>.
+@c bugs and problems to the public mailing list <getdp@geuz.org>.
 @c
 @c =========================================================================
 @c
@@ -22,7 +22,7 @@
 @c %**start of header
 @setfilename getdp.info
 @set GETDP-VERSION 2.2
-@set COPYRIGHT @copyright{} 1997-2012 Patrick Dular, Christophe Geuzaine
+@set COPYRIGHT @copyright{} 1997-2013 Patrick Dular, Christophe Geuzaine
 @settitle GetDP @value{GETDP-VERSION}
 @footnotestyle separate
 @setchapternewpage odd

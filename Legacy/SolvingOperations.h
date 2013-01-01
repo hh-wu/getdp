@@ -1,7 +1,7 @@
-// GetDP - Copyright (C) 1997-2012 P. Dular, C. Geuzaine
+// GetDP - Copyright (C) 1997-2013 P. Dular, C. Geuzaine
 //
 // See the LICENSE.txt file for license information. Please report all
-// bugs and problems to <getdp@geuz.org>.
+// bugs and problems to the public mailing list <getdp@geuz.org>.
 
 #ifndef _SOLVING_OPERATIONS_H_
 #define _SOLVING_OPERATIONS_H_
