@@ -22,27 +22,71 @@
 #include <gmsh/PView.h>
 #include <gmsh/PViewData.h>
 
+class ILS{
+  //A new communicator can be created. If some processes have no work they must 
+  //be excluded from the communicator to avoir dead-lock
+ private:
+  // current cpu number and total number of cpus
+  static MPI_Comm _comm;
+  static int _commRank, _commSize;
+public:
+  static int GetCommRank(){ return _commRank; }
+  static int GetCommSize(){ return _commSize; }
+  static MPI_Comm GetComm(){ return _comm; }
+};
+
+MPI_Comm ILS::_comm = MPI_COMM_WORLD;
+int ILS::_commRank = 0;
+int ILS::_commSize = 1;
+
 
 class Field{
 public:
   PetscInt nb_field; //number of Fields in this class
-  PetscInt n_elem; //total number of element owned by this Field
+  PetscInt n_elem; //total number of element of all fields in this class
   std::vector<PetscInt> GmshTag; //GmshTag[j] = tag of field j (in getdp/gmsh, ie : outside IterativeLinearSolver)
   std::vector<PetscInt> ILSTag; //ILSTag[j] = local tag of field j in the function IterativeLinearSolver (usefull for MyField).
   std::vector<PetscInt> rank; //rank[j] is the mpi_rank of the process that owns field j
   std::vector<PetscInt> size; //size[j] = nb of elements in the field j
   std::vector<PetscInt> iStart; //starting index in the Petsc Vec containing all the fields
   std::vector<PetscInt> iEnd; //same as iStart but ending (a priori useless)
-  std::vector<MPI_Comm> comm; //comm[j] is the communicator of process that need Field[j] (i.e : process that will participate to the broadcast of the view)
+  //variables for transfering data with neighbors
+  static bool areNeighbor;
+  int nb_field_to_receive; // number of field that this process must receive
+  //  std::vector<MPI_Comm> comm; //comm[j] is the communicator of process that need Field[j] (i.e : process that will participate to the broadcast of the view)
+  std::vector<std::vector<PetscInt> > myN;
+  std::vector<std::vector<PetscInt> > mySizeV; //sizes of vectors of PView that this process is in charge
+  std::vector<std::vector<PetscInt> > theirN;
+  std::vector<std::vector<PetscInt> > theirSizeV; 
+  std::vector<PetscInt>               FieldToReceive; //GmshTag of the fields that must be received by the current MPI processe (concatenation of myNeighbor)
+  std::vector<std::vector<PetscInt> > RankToSend; //RankToSend[j] returns the rank to which the j^th local field must be sent
+
   //The bellow function is usefull to do a reverse search:
   //Given the GmshTag of a field (GetDP/GMSH) it returns its local tag in IterativeLinearSolver (ILSTag)
   //Indeed, ILS can renumber the field in another way than gmsh/getdp 
-  int GmshTagToILSTag(int gTag){
+  int GetILSTagFromGmshTag(int gTag){
     for (int j = 0; j < nb_field ; j++)
-      if(GmshTag[j] == gTag) return j;
+      if(GmshTag[j] == gTag) return ILSTag[j];
+    return -1; //error
+  }
+  int GetRankFromGmshTag(int gTag){
+    for (int j = 0; j < nb_field ; j++)
+      if(GmshTag[j] == gTag) return rank[j];
+    return -1; //error
+  }
+  int GetRankFromILSTag(int ilsTag){
+    for (int j = 0; j < nb_field ; j++)
+      if(ILSTag[j] == ilsTag) return rank[j];
+    return -1; //error
+  }
+  int GetGmshTagFromRank(int irank){
+    for (int j = 0; j < nb_field ; j++)
+      if(rank[j] == irank) return GmshTag[j];
     return -1; //error
   }
 };
+
+bool Field::areNeighbor = false;
 
 // Matrix Free structure (Matrix Shell)
 typedef struct{
@@ -146,6 +190,9 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
 
   ierr = PetscPrintf(PETSC_COMM_WORLD, "Number of Fields\t: %d\n", AllField.nb_field);CHKERRQ(ierr);
 
+  if(Field::areNeighbor)
+    ierr = PetscPrintf(PETSC_COMM_WORLD, "Neighbors are specified\t: Fast exchange between process\n");CHKERRQ(ierr);
+
   for(int iField = 0; iField < AllField.nb_field; iField++)
     if(mpi_comm_size>1) ierr = PetscPrintf(PETSC_COMM_WORLD, "Size of Field %d\t\t: %d (on CPU %d)\n", AllField.GmshTag[iField], AllField.size[iField], AllField.rank[iField]);
     else ierr = PetscPrintf(PETSC_COMM_WORLD, "Size of Field %d\t\t: %d\n", AllField.GmshTag[iField], AllField.size[iField]);
@@ -156,7 +203,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   MyField.n_elem *= 2;
   ierr = PetscPrintf(PETSC_COMM_WORLD, "PETSc REAL arithmetic -> system size is doubled: n=%d\n", AllField.n_elem); CHKERRQ(ierr);
 #endif
-  //  if(AllField.n_elem>20000) ILSComm = PETSC_COMM_WORLD; //sytem too large: must be solved in a fully parallel way
+  //  if(AllField.n_elem > 20000) ILSComm = PETSC_COMM_WORLD; //sytem too large: must be solved in a fully parallel way
 
   /*-------------------------
     Creating the vector/matrix
@@ -271,14 +318,15 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   ierr = VecDestroy(B);CHKERRQ(ierr);
   ierr = MatDestroy(A);CHKERRQ(ierr);
 #endif
-  if(mpi_comm_size > 0 && AllField.comm.size() > 0)
+  /*  if(mpi_comm_size > 0 && AllField.comm.size() > 0)
     {  for (unsigned int irank = 0 ; irank < AllField.comm.size() ; irank ++)
 	MPI_Comm_free(&AllField.comm[irank]);
-    }
+	}*/
   PetscBarrier((PetscObject)PETSC_NULL);CHKERRQ(ierr);
   PetscFunctionReturn(0);
 }
 
+//////////////////////////////
 PetscErrorCode InitData(Field *MyField, Field *AllField, struct Operation *Operation_P, std::vector<std::vector<std::vector<double> > > *B_std)
 { 
   int mpi_comm_size = Message::GetCommSize();
@@ -359,18 +407,191 @@ PetscErrorCode InitData(Field *MyField, Field *AllField, struct Operation *Opera
 	  counter++;
 	}
     }
-
+  
   //Who are my Neighbor for the Broadcast ?
-  // For now, the neighbor are only seen process by process and not by Field.
-  // In other word, N_PROC MPI Communicators will be created, and not AllField.nb_field ...
-  // This is due to the fact that GetDP only create 1D-List
-  //(Thus, if GetDP changes, code below should be adapted !)
-  int nNeighbor_aux = 0, nNeighbor;
+  // At the time of writing, GetDP does not manage 2D-List. Thus, to act as-if, the list of neighbors is composed as follows:
+  // NeighborFieldTag = {n_0, ... n_0 GmshTag ... , n_1,  ... n_1 GmshTag, ...}
+  // example, if
+  // MyFieldTag = {0, 3}
+  // NeighborFieldTag = {2, 5, 1, 3, 2, 4, 6}
+  // This mean that current process is in charge of Field with GmshTag 0 and 7.
+  // Field of GmshTag 0 has 2 neighbors : fields of GmshTag 5 and 1
+  // Field of GmshTag 7 has 3 neighbors : fields of GmshTag 2, 4 and 6
+  //(if GetDP changes and accept list of list, then this trick should be useless and changed !)
+  int nNeighbor_aux = 0; //, nNeighbor;
   nNeighbor_aux = List_Nbr(Operation_P->Case.IterativeLinearSolver.NeighborFieldTag);
-  if(nNeighbor_aux == 0 || mpi_comm_size < 2)
-    AllField->comm.resize(0); // No Neighbor were provided -> PVIEWBcast on every process
-  else{ //construction of the mpi_comm_size mpi communicators
-    std::vector<int> tab_nNeighbor(mpi_comm_size);
+  //make every process agreed on whether there is neighbor or not
+  if(mpi_comm_size < 2)
+    Field::areNeighbor=false;
+    //    AllField->comm.resize(0); // No Neighbor were provided -> PVIEWBcast on every process
+  else{
+    //suppose it's true
+    Field::areNeighbor=true;
+    //share info on neighbor
+    int bool_neigh = (nNeighbor_aux > 0);
+    std::vector<int> tab_bool_neigh(mpi_comm_size);
+    MPI_Allgather(&bool_neigh, 1, MPI_INT, &tab_bool_neigh[0], 1, MPI_INT, MPI_COMM_WORLD);
+    for(int irank = 0; irank < mpi_comm_size ; irank ++)
+      if(tab_bool_neigh[irank] == 0 && AllField->GetGmshTagFromRank(irank) >= 0)
+	  //if one process has no neighbord AND is charge of some fields (=is a worker)
+	  Field::areNeighbor=false;
+  }
+  if(Field::areNeighbor){
+    int cpt_neigh = 0; //counter in list IterativeLinearSolver.NeighborFieldTag 
+    //for every field, RankToSend contain the rank of the process in need of the field
+    MyField->RankToSend.resize(MyField->nb_field);
+    int cpt_send = 0;
+    //over-sizing FieldToReceive, which contains the field that are needed by this mpi process
+    MyField->FieldToReceive.resize(AllField->nb_field - MyField->nb_field);
+    int cpt_recv = 0;
+    //read through every neighbors
+    for(int ifield = 0 ; ifield < MyField->nb_field ; ifield ++)
+      {
+	double d;
+	List_Read(Operation_P->Case.IterativeLinearSolver.NeighborFieldTag, cpt_neigh, &d);
+	int n_neigh = (int)d;
+	cpt_send = 0;
+	//at maximum n_neigh process to send this view
+	MyField->RankToSend[ifield].resize(n_neigh);
+	for(int j = 0; j < n_neigh ; j ++)
+	  {
+	    //counter in list NeighborFieldTag
+	    cpt_neigh ++;
+	    List_Read(Operation_P->Case.IterativeLinearSolver.NeighborFieldTag, cpt_neigh, &d);
+	    int GmshTag_newneigh = (int)d;
+	    //Check if not already stored (either because this process is in charge of the field or due to a doublon)
+	    bool isStored = false;
+	    for(int i = 0; i < MyField->nb_field ; i++)
+	      {if(GmshTag_newneigh == MyField->GmshTag[i])
+		  { isStored = true;
+		    break; }
+	      }
+	    for(int i = 0; i < cpt_recv ; i++)
+	      {if(GmshTag_newneigh == MyField->FieldToReceive[i])
+		  { isStored = true;
+		    break; }
+	      }
+	    // in case it's not already store
+	    if(!isStored)
+	      { MyField->FieldToReceive[cpt_recv] = GmshTag_newneigh;
+		cpt_recv++; }
+	    //check if stored in the table of Mpi processes which will receive this field
+	    isStored = false;
+	    int rank_new_neigh = AllField->rank[AllField->GetILSTagFromGmshTag(GmshTag_newneigh)];
+	    MyField->RankToSend[ifield].resize(n_neigh);
+	    //Maybe this process is in charge of this field..
+	    if(rank_new_neigh == mpi_comm_rank)
+	      isStored = true;
+	    else{//...or maybe it is already stored ...
+	      for(int i = 0; i < cpt_send ; i++)
+		{
+		  if(rank_new_neigh == MyField->RankToSend[ifield][i])
+		    { isStored = true;
+		      break; }
+		}
+	    }
+	    if(!isStored) // not already stored
+	      { MyField->RankToSend[ifield][cpt_send] = rank_new_neigh;
+		cpt_send++; }
+	  }
+	//resize
+	MyField->RankToSend[ifield].resize(cpt_send);
+	cpt_neigh++;
+      }
+    //resize
+    MyField->FieldToReceive.resize(cpt_recv);
+    MyField->nb_field_to_receive = cpt_recv;
+
+    //Check and exchange information on the size of the PView
+    //Exchange information on the size of the PView (Field) with the neighbors
+    MyField->myN.resize(MyField->nb_field);
+    MyField->mySizeV.resize(MyField->nb_field);
+    std::vector< MPI_Request > tab_request(0);
+    for (int mfield = 0 ; mfield < MyField->nb_field ; mfield ++)
+      {
+	//Measure the size of the vectors of Field of local number mfield
+	int GmshTag = MyField->GmshTag[mfield];
+	PView *view = PView::getViewByTag(GmshTag);
+	std::vector< std::vector<double>* > V(24);
+	MyField->myN[mfield].resize(24);
+	MyField->mySizeV[mfield].resize(24);
+	view->getData()->getListPointers(&(MyField->myN[mfield][0]), &V[0]);
+	for(int j = 0 ; j < 24 ; j++)
+	  MyField->mySizeV[mfield][j] = (*(V[j])).size();
+	//Exchange information about the sizes (mySizeV and myN)
+	int n_proc_to_send = MyField->RankToSend[mfield].size();
+	for(int j = 0 ; j < n_proc_to_send ; j++)
+	  {
+	    MPI_Request sendN, sendSizeV;
+	    int tagN = 10*GmshTag + 1; 
+	    int tagSizeV = 10*GmshTag + 2;
+	    //send vector myN and mysizeV
+	    MPI_Isend(&(MyField->myN[mfield][0]), 24, MPI_INT, MyField->RankToSend[mfield][j], tagN, MPI_COMM_WORLD, &sendN);
+	    MPI_Isend(&(MyField->mySizeV[mfield][0]), 24, MPI_INT, MyField->RankToSend[mfield][j], tagSizeV, MPI_COMM_WORLD, &sendSizeV);
+	    tab_request.push_back(sendN);
+	    tab_request.push_back(sendSizeV);
+	  }
+      }
+    //Receive information from the other process
+    MyField->theirN.resize(MyField->nb_field_to_receive);
+    MyField->theirSizeV.resize(MyField->nb_field_to_receive);
+    for (int ifield = 0 ; ifield < MyField->nb_field_to_receive ; ifield ++)
+      {
+	MPI_Request recvN, recvSizeV;
+	//receive information on vectors N and sizeV from the other
+	int fieldGmshTag = MyField->FieldToReceive[ifield];
+	int fieldILSTag = AllField->GetILSTagFromGmshTag(fieldGmshTag);
+	int rank_emiter = AllField->rank[fieldILSTag];
+	int tagN = 10*fieldGmshTag + 1;
+	int tagSizeV = 10*fieldGmshTag + 2;
+	//resize before receiving
+	MyField->theirN[ifield].resize(24);
+	MyField->theirSizeV[ifield].resize(24);
+	//Receive
+	MPI_Irecv(&(MyField->theirN[ifield][0]), 24, MPI_INT, rank_emiter, tagN, MPI_COMM_WORLD, &recvN);
+	MPI_Irecv(&(MyField->theirSizeV[ifield][0]), 24, MPI_INT, rank_emiter, tagSizeV, MPI_COMM_WORLD, &recvSizeV);    
+	tab_request.push_back(recvN);
+	tab_request.push_back(recvSizeV);
+      }
+
+    //check if reception is ok
+    std::vector< MPI_Status > tab_status;
+    MPI_Waitall(tab_request.size(), &tab_request[0], &tab_status[0]);
+    /*
+    for (int irank = 0 ; irank < mpi_comm_size ; irank ++)
+      {
+	if (mpi_comm_rank == irank)
+	  {
+	    for(int ifield = 0 ; ifield < MyField->nb_field ; ifield++)
+	      {
+		printf("PROC %d, Field numb. %d., Myfield = ", mpi_comm_rank, MyField->GmshTag[ifield]);
+		for (int j = 0 ; j < 24 ; j++)
+		  printf("%d, ", MyField->myN[ifield][j]);
+		printf("\nPROC %d, Field numb. %d., MySizeV = ", mpi_comm_rank, MyField->GmshTag[ifield]);
+		for (int j = 0 ; j < 24 ; j++)
+		  printf("%d, ", MyField->mySizeV[ifield][j]);
+		printf("\n");
+	      }
+	    printf("-------------------------------\n");
+	    for(int ifield = 0 ; ifield < MyField->nb_field_to_receive ; ifield ++)
+	      {
+		printf("PROC %d, Field numb. %d., THEIRfield = ", mpi_comm_rank, MyField->FieldToReceive[ifield]);
+		for (int j = 0 ; j < 24 ; j++)
+		  printf("%d, ", MyField->theirN[ifield][j]);
+		printf("\nPROC %d, Field numb. %d., THEIRSizeV = ", mpi_comm_rank, MyField->FieldToReceive[ifield]);
+		for (int j = 0 ; j < 24 ; j++)
+		  printf("%d, ", MyField->theirSizeV[ifield][j]);
+		printf("\n");		
+	      }
+	    printf("====================================\n");
+	    MPI_Barrier(MPI_COMM_WORLD);
+	    sleep(1);
+	  }
+      }
+*/
+
+
+ /*    std::vector<int> tab_nNeighbor(mpi_comm_size);
     std::vector<int> myNeighbor;
     AllField->comm.resize(mpi_comm_size);
     myNeighbor.resize(nNeighbor_aux+1);
@@ -382,7 +603,7 @@ PetscErrorCode InitData(Field *MyField, Field *AllField, struct Operation *Opera
 	int neighbor_rank;
 	List_Read(Operation_P->Case.IterativeLinearSolver.NeighborFieldTag, j, &d);
 	//rank of the neighbor process (!= field (warning!))
-	neighbor_rank = AllField->rank[AllField->GmshTagToILSTag((int)d)];
+	neighbor_rank = AllField->rank[AllField->GetILSTagFromGmshTag((int)d)];
 	//is it already stored ?
 	bool isNotAlreadyStored = true;
 	for (int i = 0; i < nNeighbor ; i ++)
@@ -420,7 +641,7 @@ PetscErrorCode InitData(Field *MyField, Field *AllField, struct Operation *Opera
 	AllField->comm[irank] = new_comm;
 	MPI_Group_free(&newgroup);
       }
-    MPI_Group_free(&world_group);
+    MPI_Group_free(&world_group);*/
   }
 
   PetscFunctionReturn(0);
@@ -431,10 +652,128 @@ BCast of all PView
 -----------------------*/
 PetscErrorCode PViewBCast(Field MyField, Field AllField)
 {  //TRANSFER PVIEW
-  bool noNewComm = true;
-  if(AllField.comm.size() > 0)
-     noNewComm = false;
-  for (int iField = 0 ; iField < AllField.nb_field ; iField ++)
+  if(!(Field::areNeighbor))
+    {
+      for (int iField = 0 ; iField < AllField.nb_field ; iField ++)
+	{
+	  int GmshTag = AllField.GmshTag[iField];
+	  int fieldRank = AllField.rank[iField];
+	  std::vector< std::vector<double>* > V(24);
+	  std::vector<int> sizeV(24);
+	  std::vector<int> N(24);
+	  int masterRank = fieldRank;
+	  MPI_Comm fieldcomm = MPI_COMM_WORLD;
+	  int mpi_fieldcomm_rank = Message::GetCommRank();
+	  if(mpi_fieldcomm_rank == fieldRank)
+	    {
+	      PView *view = PView::getViewByTag(GmshTag);
+	      view->getData()->getListPointers(&N[0], &V[0]);
+	      for(int j = 0 ; j < 24 ; j++)
+		sizeV[j] = (*(V[j])).size();
+	    }
+	  //Transfer PView
+	  MPI_Bcast(&N[0], 24, MPI_INT, masterRank, fieldcomm);
+	  MPI_Bcast(&sizeV[0], 24, MPI_INT, masterRank, fieldcomm);
+	  
+	  for(int j = 0; j < 24 ; j ++)
+	    {
+	      if(mpi_fieldcomm_rank != masterRank)
+		{
+		  V[j] = new std::vector<double>;
+		  (*(V[j])).resize(sizeV[j]);
+		}
+	      if(sizeV[j] > 0) //avoid useless BCast
+		MPI_Bcast(&(*(V[j]))[0], sizeV[j], MPI_DOUBLE, masterRank, fieldcomm);
+	    }
+	  //All other tasks of the communicator create/update the views
+	  if(mpi_fieldcomm_rank != masterRank)
+	    {
+	      PView *view = new PView(GmshTag);
+	      view->getData()->importLists(&N[0], &V[0]);
+	      for(int j = 0 ; j < 24 ; j++)
+		delete V[j] ;
+	    }
+	}
+      
+    }
+  //With a specification on the neighbors
+  //Asynchrone Send/Recv (only with the neighbors)
+  else{
+    std::vector< MPI_Request > tab_request(0);
+    //send my PView to my neighbors
+    for (int ifield = 0 ; ifield < MyField.nb_field ; ifield ++)
+      {
+	int GmshTag = MyField.GmshTag[ifield];
+	PView *view = PView::getViewByTag(GmshTag);
+	std::vector< std::vector<double>* > V_send(24);
+	std::vector<int> N(24);
+	view->getData()->getListPointers(&N[0], &V_send[0]);
+	for (int j = 0 ; j < 24 ; j ++)
+	  {
+	    int tag = 100*GmshTag + j;
+	    int n_data = MyField.mySizeV[ifield][j];
+	    if(n_data > 0)
+	      {
+		//Loop on the receiver
+		for (unsigned int ineigh = 0 ; ineigh < MyField.RankToSend[ifield].size() ; ineigh ++)
+		  {
+		    MPI_Request sendV;
+		    int receiver = MyField.RankToSend[ifield][ineigh];
+		    MPI_Isend(&(*(V_send[j]))[0], n_data, MPI_DOUBLE, receiver, tag, MPI_COMM_WORLD, &sendV);
+		    tab_request.push_back(sendV);
+		  }
+	      }
+	  }
+      } 
+    //receive all the PView I need
+    std::vector< std::vector< std::vector<double>* > > V_recv(MyField.nb_field_to_receive);
+    for (int ifield = 0 ; ifield < MyField.nb_field_to_receive ; ifield ++)
+      {
+	int GmshTag = MyField.FieldToReceive[ifield];
+	int sender = AllField.GetRankFromGmshTag(GmshTag);
+	/*	PView *view = new PView(GmshTag);
+		std::vector< std::vector<double>* > V_recv(24);
+		std::vector< std::vector<double>* > VV(24); //used to initialize PView*/
+	V_recv[ifield].resize(24);
+	std::vector<int> N(24);
+	//allocate memory
+	for (int j = 0 ; j < 24 ; j ++)
+	  {
+	    /*	    VV[j] = new std::vector<double>;
+		    (*(VV[j])).resize(MyField.theirSizeV[ifield][j]);*/
+	    V_recv[ifield][j] = new std::vector<double>;
+	    (*(V_recv[ifield][j])).resize(MyField.theirSizeV[ifield][j]);
+	  }
+	/* //Allocate memory in PView (could be better ... ?)
+	   view->getData()->importLists(&MyField.theirN[ifield][0], &VV[0]);
+	for (int j = 0 ; j < 24 ; j ++)
+	  delete VV[j];
+	view->getData()->getListPointers(&N[0], &V_recv[0]);*/
+	for (int j = 0 ; j < 24 ; j ++)
+	  {
+	    int n_data = MyField.theirSizeV[ifield][j];
+	    if(n_data > 0)
+	      {
+		MPI_Request recvV;
+		int tag = 100*GmshTag + j;
+		//		MPI_Irecv(&(*(V_recv[j]))[0], n_data, MPI_DOUBLE, sender, tag, MPI_COMM_WORLD, &recvV);
+		MPI_Irecv(&(*(V_recv[ifield][j]))[0], n_data, MPI_DOUBLE, sender, tag, MPI_COMM_WORLD, &recvV);
+		tab_request.push_back(recvV);
+	      }
+	  }
+      }
+    //check if reception is ok
+    std::vector< MPI_Status > tab_status(tab_request.size());
+    MPI_Waitall(tab_request.size(), &tab_request[0], &tab_status[0]);
+    for (int ifield = 0 ; ifield < MyField.nb_field_to_receive ; ifield ++)
+      {
+	int GmshTag = MyField.FieldToReceive[ifield];
+	PView *view = new PView(GmshTag);
+	view->getData()->importLists(&MyField.theirN[ifield][0], &V_recv[ifield][0]);
+      }
+
+  }
+  /*  for (int iField = 0 ; iField < AllField.nb_field ; iField ++)
     {
       PetscBarrier((PetscObject)PETSC_NULL);
       int GmshTag = AllField.GmshTag[iField];
@@ -442,7 +781,7 @@ PetscErrorCode PViewBCast(Field MyField, Field AllField)
       MPI_Comm fieldcomm; //communicator of MPI_Bcast
       int masterRank; // rank of the process root for MPI_BCast
       int mpi_fieldcomm_rank; //rank in the communicateur fieldcomm
-      if(noNewComm)
+      if(!(AllField->areNeighborSpecified()))
 	{
 	  masterRank = fieldRank;
 	  fieldcomm = MPI_COMM_WORLD;
@@ -490,7 +829,7 @@ PetscErrorCode PViewBCast(Field MyField, Field AllField)
 		delete V[j] ;
 	    }
 	}
-    }
+    }*/
   PetscFunctionReturn(0);
 }
 
