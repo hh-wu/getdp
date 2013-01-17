@@ -1007,8 +1007,11 @@ purely constant expressions, denoted by the metasyntactic variable
   @var{expression-cst} @var{operator-binary} @var{expression-cst} |
   @var{expression-cst} @var{operator-ternary-left} @var{expression-cst} @var{operator-ternary-right} 
       @var{expression-cst} |
-  @var{math-function-id} [ < @var{expression-cst-list} > ]
+  @var{math-function-id} [ < @var{expression-cst-list} > ] |
+  #@var{constant-id}() |
+  @var{constant-id}(@var{expression-cst})
 @end example
+
 
 List of constant expressions are defined as:
 
