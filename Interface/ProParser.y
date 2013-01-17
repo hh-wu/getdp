@@ -4922,33 +4922,33 @@ TLAoptions :
     /* none */
     {
       Operation_P->Case.TimeLoopAdaptive.LTEtarget = -1.;
-      Operation_P->Case.TimeLoopAdaptive.DTimeMaxScal = -1.;   
-      Operation_P->Case.TimeLoopAdaptive.DTimeScal_NotConverged = -1.;   
+      Operation_P->Case.TimeLoopAdaptive.DTimeMaxScal = -1.;
+      Operation_P->Case.TimeLoopAdaptive.DTimeScal_NotConverged = -1.;
     }
 
   | ',' FExpr
     {
       Operation_P->Case.TimeLoopAdaptive.LTEtarget = $2;
-      Operation_P->Case.TimeLoopAdaptive.DTimeMaxScal = -1.;   
-      Operation_P->Case.TimeLoopAdaptive.DTimeScal_NotConverged = -1.;    
+      Operation_P->Case.TimeLoopAdaptive.DTimeMaxScal = -1.;
+      Operation_P->Case.TimeLoopAdaptive.DTimeScal_NotConverged = -1.;
     }
 
   | ',' FExpr ',' FExpr
     {
       Operation_P->Case.TimeLoopAdaptive.LTEtarget = $2;
-      Operation_P->Case.TimeLoopAdaptive.DTimeMaxScal = $4;   
-      Operation_P->Case.TimeLoopAdaptive.DTimeScal_NotConverged = -1.;  
+      Operation_P->Case.TimeLoopAdaptive.DTimeMaxScal = $4;
+      Operation_P->Case.TimeLoopAdaptive.DTimeScal_NotConverged = -1.;
     }
 
   | ',' FExpr ',' FExpr ',' FExpr
     {
       Operation_P->Case.TimeLoopAdaptive.LTEtarget = $2;
-      Operation_P->Case.TimeLoopAdaptive.DTimeMaxScal = $4;   
-      Operation_P->Case.TimeLoopAdaptive.DTimeScal_NotConverged = $6;  
+      Operation_P->Case.TimeLoopAdaptive.DTimeMaxScal = $4;
+      Operation_P->Case.TimeLoopAdaptive.DTimeScal_NotConverged = $6;
     }
 
  ;
- 
+
 LTEdefinitions :
     /* none */
     {
@@ -7105,6 +7105,41 @@ OneFExpr :
       }
       Free($1);
     }
+  | '#' tSTRING '(' ')'
+    {
+      Constant_S.Name = $2;
+      int ret = 0;
+      if(!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant))
+	vyyerror("Unknown Constant: %s", $2);
+      else{
+	if(Constant_S.Type != VAR_LISTOFFLOAT)
+	  vyyerror("Multi value Constant needed: %s", $2);
+	else
+          ret = List_Nbr(Constant_S.Value.ListOfFloat);
+      }
+      $$ = ret;
+      Free($2);
+    }
+  | tSTRING '(' FExpr ')'
+    {
+      Constant_S.Name = $1;
+      double ret = 0.;
+      if(!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant))
+	vyyerror("Unknown Constant: %s", $1);
+      else{
+	if(Constant_S.Type != VAR_LISTOFFLOAT)
+	  vyyerror("Multi value Constant needed: %s", $1);
+	else{
+          int j = (int)$3;
+          if(j >= 0 && j < List_Nbr(Constant_S.Value.ListOfFloat))
+            List_Read(Constant_S.Value.ListOfFloat, j, &ret);
+          else
+            vyyerror("Index %d out of range", j);
+        }
+      }
+      $$ = ret;
+      Free($1);
+    }
  ;
 
 ListOfFExpr :
@@ -7359,6 +7394,7 @@ MultiFExpr :
 	      List_Add($$, &d);
 	    }
 	    else{
+              vyyerror("Index %d out of range", j);
 	      double d = 0.;
 	      List_Add($$, &d);
 	    }
