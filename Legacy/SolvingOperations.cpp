@@ -812,8 +812,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         //LinAlg_VectorNorm2(&DofData_P->CurrentSolution->x, &MeanError);
 	Message::Info("Mean error: %.3e  (after %d iteration%s)",
                       MeanError, (int)Current.Iteration, ((int)Current.Iteration==1)?"":"s") ;
-        Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Residual",
-                                       MeanError);
+        if(Message::GetVerbosity() > 1)
+          Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Residual",
+                                         MeanError);
 
 	Current.RelativeDifference +=
 	  MeanError * Operation_P->Case.AddCorrection.Alpha ;
@@ -1039,8 +1040,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       if(!Flag_IterativeLoopN){
         Message::Info("%3ld Nonlinear Residual norm %14.12e",
                       (int)Current.Iteration, MeanError);
-        Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Residual",
-                                       MeanError);
+        if(Message::GetVerbosity() > 1)
+          Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Residual",
+                                         MeanError);
       }
 
       Current.RelativeDifference += MeanError ;
@@ -1149,8 +1151,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       MeanError = Error_Prev ;
       Message::Info("Mean error: %.3e  (after %d iteration%s)",
                     MeanError, (int)Current.Iteration, ((int)Current.Iteration==1)?"":"s") ;
-      Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Residual",
-                                     MeanError);
+      if(Message::GetVerbosity() > 1)
+        Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Residual",
+                                       MeanError);
 
       Current.RelativeDifference = MeanError;
       Flag_CPU = 1 ;
@@ -1959,8 +1962,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
 	Message::Info(1, "Theta Time = %.8g s (TimeStep %d)", Current.Time,
                       (int)Current.TimeStep) ;
-        Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Time",
-                                       Current.Time);
+        if(Message::GetVerbosity() > 1)
+          Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Time",
+                                         Current.Time);
 
 	Save_Time = Current.Time ;
 
@@ -2012,8 +2016,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
 	Message::Info(1, "Newmark Time = %.8g s (TimeStep %d)", Current.Time,
                       (int)Current.TimeStep) ;
-        Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Time",
-                                       Current.Time);
+        if(Message::GetVerbosity() > 1)
+          Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Time",
+                                         Current.Time);
 
 	Treatment_Operation(Resolution_P, Operation_P->Case.TimeLoopNewmark.Operation,
 			    DofData_P0, GeoData_P0, NULL, NULL) ;
