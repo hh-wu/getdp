@@ -754,10 +754,12 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
 
     Message::Info("Time step %d  Try %d  Time = %.8g s  Stepsize = %.8g s  Integr. Order = %d",
                   (int)Current.TimeStep, Try, Current.Time, Current.DTime, Order);
-    Message::AddOnelabNumberChoice(Message::GetOnelabClientName() +
-                                   "/TimeLoopAdaptive/Time", Current.Time);
-    Message::AddOnelabNumberChoice(Message::GetOnelabClientName() +
-                                   "/TimeLoopAdaptive/DTime", Current.DTime);
+    if(Message::GetVerbosity() > 1) {
+      Message::AddOnelabNumberChoice(Message::GetOnelabClientName() +
+                                     "/TimeLoopAdaptive/Time", Current.Time);
+      Message::AddOnelabNumberChoice(Message::GetOnelabClientName() +
+                                     "/TimeLoopAdaptive/DTime", Current.DTime);
+    }
 
     // Calculate integration coefficients
     CalcIntegrationCoefficients(Resolution_P, DofData_P0,TLAsystems_L,
@@ -822,7 +824,8 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
                       "found (NaN or Inf)!", (int)Current.TimeStep, Try, Current.Time);
       }
       else {
-        Message::AddOnelabNumberChoice(Message::GetOnelabClientName() +
+        if(Message::GetVerbosity() > 1)
+          Message::AddOnelabNumberChoice(Message::GetOnelabClientName() +
                                        "/TimeLoopAdaptive/LTEmaxErrorRatio", maxLTEratio);
         if (maxLTEratio <= 1.0){
           TimeStepAccepted = true;

@@ -281,7 +281,8 @@ void Operation_IterativeLoopN(Resolution  *Resolution_P,
     Message::Info("IterativeLoopN: Largest error ratio: %.3g  (after %d iteration%s)",
                   MaxErrorRatio, (int)Current.Iteration,
                   ((int)Current.Iteration == 1) ? "" : "s");
-    Message::AddOnelabNumberChoice(Message::GetOnelabClientName() +
+    if(Message::GetVerbosity() > 1)
+      Message::AddOnelabNumberChoice(Message::GetOnelabClientName() +
                                    "/IterativeLoop/ILmaxErrorRatio", MaxErrorRatio);
     if (MaxErrorRatio < 1.) {
       Message::Info("IterativeLoopN: Converged after %d iteration%s",
