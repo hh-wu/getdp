@@ -396,7 +396,8 @@ void Message::Cpu(const char *fmt, ...)
 
 void Message::ProgressMeter(int n, int N, const char *fmt, ...)
 {
-  if((_commRank && _isCommWorld) || _verbosity < 2) return;
+  if((_commRank && _isCommWorld) || _verbosity < 2 ||
+     _progressMeterStep <= 0 || _progressMeterStep >= 100) return;
 
   double percent = 100. * (double)n/(double)N;
 

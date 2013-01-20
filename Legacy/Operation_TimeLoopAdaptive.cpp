@@ -754,7 +754,7 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
 
     Message::Info("Time step %d  Try %d  Time = %.8g s  Stepsize = %.8g s  Integr. Order = %d",
                   (int)Current.TimeStep, Try, Current.Time, Current.DTime, Order);
-    if(Message::GetVerbosity() > 1) {
+    if(Message::GetProgressMeterStep() > 0 && Message::GetProgressMeterStep() < 100){
       Message::AddOnelabNumberChoice(Message::GetOnelabClientName() +
                                      "/TimeLoopAdaptive/Time", Current.Time);
       Message::AddOnelabNumberChoice(Message::GetOnelabClientName() +

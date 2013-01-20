@@ -72,7 +72,8 @@ class Message {
   static void Cpu(const char *fmt, ...);
   static void ProgressMeter(int n, int N, const char *fmt, ...);
   static void ProgressMeter(int n, int N){ ProgressMeter(n, N, ""); }
-  static void SetProgressMeterStep(int step){ _progressMeterStep = (step > 0) ? step : 1; }
+  static void SetProgressMeterStep(int step){ _progressMeterStep = step; }
+  static int GetProgressMeterStep(){ return _progressMeterStep; }
   static void ResetProgressMeter(){ if(!_commRank) _progressMeterCurrent = 0; }
   static void PrintErrorCounter(const char *title);
   static void SetLastPETScError(int ierr){ _lastPETScError = ierr; }
