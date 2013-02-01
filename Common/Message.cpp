@@ -698,10 +698,15 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
       else
 	c->Value.Float = ps[0].getValue(); // use value from server
       // keep track of these attributes, which can be changed server-side
-      if(ps[0].getMin() != -onelab::parameter::maxNumber() ||
-         ps[0].getMax() != onelab::parameter::maxNumber() ||
-         ps[0].getStep() != 0.) noRange = false;
-      if(ps[0].getChoices().size()) noChoices = false;
+      // (unless explicitely setting these attributes ReadOnly)
+      if(!(fopt.count("ReadOnlyRange") && fopt["ReadOnlyRange"][0])){
+        if(ps[0].getMin() != -onelab::parameter::maxNumber() ||
+           ps[0].getMax() != onelab::parameter::maxNumber() ||
+           ps[0].getStep() != 0.) noRange = false;
+      }
+      if(!(fopt.count("ReadOnlyChoices") && fopt["ReadOnlyChoices"][0])){
+        if(ps[0].getChoices().size()) noChoices = false;
+      }
       if(ps[0].getAttribute("Loop").size()) noLoop = false;
       if(ps[0].getAttribute("Graph").size()) noGraph = false;
       if(ps[0].getAttribute("Closed").size()) noClosed = false;
