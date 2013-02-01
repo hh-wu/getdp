@@ -668,17 +668,27 @@ static std::string _getParameterName(char *Name, Message::cmap &copt)
   return name;
 }
 
-static void _setStandardOptions(onelab::parameter *p, Message::fmap &fopt, Message::cmap &copt)
+static void _setStandardOptions(onelab::parameter *p, Message::fmap &fopt,
+                                Message::cmap &copt)
 {
+  // strings
   if(copt.count("Label")) p->setLabel(copt["Label"][0]);
-  if(copt.count("ShortHelp")) p->setLabel(copt["ShortHelp"][0]);
+  if(copt.count("ShortHelp")) // for backward compatibility
+    p->setLabel(copt["ShortHelp"][0]);
   if(copt.count("Help")) p->setHelp(copt["Help"][0]);
-  if(fopt.count("Visible")) p->setVisible(fopt["Visible"][0] ? true : false);
-  if(fopt.count("ReadOnly")) p->setReadOnly(fopt["ReadOnly"][0] ? true : false);
   if(copt.count("Highlight")) p->setAttribute("Highlight", copt["Highlight"][0]);
-  if(copt.count("AutoCheck")) p->setAttribute("AutoCheck", copt["AutoCheck"][0]);
   if(copt.count("Macro")) p->setAttribute("Macro", copt["Macro"][0]);
   if(copt.count("GmshOption")) p->setAttribute("GmshOption", copt["GmshOption"][0]);
+  if(copt.count("AutoCheck")) // for backward compatibility
+    p->setAttribute("AutoCheck", copt["AutoCheck"][0]);
+
+  // numbers
+  if(fopt.count("Visible")) p->setVisible(fopt["Visible"][0] ? true : false);
+  if(fopt.count("ReadOnly")) p->setReadOnly(fopt["ReadOnly"][0] ? true : false);
+  if(fopt.count("ReadOnlyRange"))
+    p->setAttribute("ReadOnlyRange", fopt["ReadOnlyRange"][0] ? "1" : "0");
+  if(fopt.count("AutoCheck"))
+    p->setAttribute("AutoCheck", fopt["AutoCheck"][0] ? "1" : "0");
 }
 
 void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
@@ -698,13 +708,12 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
       else
 	c->Value.Float = ps[0].getValue(); // use value from server
       // keep track of these attributes, which can be changed server-side
-      // (unless explicitely setting these attributes ReadOnly)
+      // (unless, for the range/choices, when explicitely setting these
+      // attributes as ReadOnly)
       if(!(fopt.count("ReadOnlyRange") && fopt["ReadOnlyRange"][0])){
         if(ps[0].getMin() != -onelab::parameter::maxNumber() ||
            ps[0].getMax() != onelab::parameter::maxNumber() ||
            ps[0].getStep() != 0.) noRange = false;
-      }
-      if(!(fopt.count("ReadOnlyChoices") && fopt["ReadOnlyChoices"][0])){
         if(ps[0].getChoices().size()) noChoices = false;
       }
       if(ps[0].getAttribute("Loop").size()) noLoop = false;
