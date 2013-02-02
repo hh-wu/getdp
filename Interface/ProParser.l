@@ -255,6 +255,7 @@ ChangeOfValues               return tChangeOfValues;
 SystemCommand                return tSystemCommand;
 GmshRead                     return tGmshRead;
 GmshClearAll                 return tGmshClearAll;
+DeleteFile                   return tDeleteFile;
 Break                        return tBreak;
 SolveJac_AdaptRelax          return tSolveJac_AdaptRelax;
 TensorProductSolve           return tTensorProductSolve;

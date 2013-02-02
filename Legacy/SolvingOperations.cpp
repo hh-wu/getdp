@@ -2390,13 +2390,21 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	(Resolution_P, Operation_P, DofData_P0, GeoData_P0) ;
       break;
 
-      /*  -->  P o s t O p e r a t i o n */
-      /*  ------------------------------ */
+      /*  -->  P o s t O p e r a t i o n  */
+      /*  ------------------------------- */
 
     case OPERATION_POSTOPERATION :
       Message::Info("PostOperation") ;
       Operation_PostOperation(Resolution_P, DofData_P0, GeoData_P0,
                               Operation_P->Case.PostOperation.PostOperations);
+      break ;
+
+      /*  -->  D e l e t e F i l e  */
+      /*  ------------------------- */
+
+    case OPERATION_DELETEFILE :
+      Message::Info("DeleteFile") ;
+      DeleteFile(Operation_P->Case.DeleteFile.FileName);
       break ;
 
       /*  -->  T i m e L o o p A d a p t i v e  */

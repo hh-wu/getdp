@@ -74,7 +74,7 @@ int BlockingSystemCall(const char *command)
                 NORMAL_PRIORITY_CLASS, NULL, NULL, &suInfo, &prInfo);
   // wait until child process exits.
   WaitForSingleObject(prInfo.hProcess, INFINITE);
-  // close process and thread handles. 
+  // close process and thread handles.
   CloseHandle(prInfo.hProcess);
   CloseHandle(prInfo.hThread);
   return 0;
@@ -85,5 +85,14 @@ int BlockingSystemCall(const char *command)
   }
   Message::Info("Calling '%s'", command);
   return system(command);
+#endif
+}
+
+int DeleteFile(const std::string &fileName)
+{
+#if !defined(WIN32) || defined(__CYGWIN__)
+  return unlink(fileName.c_str());
+#else
+  return _unlink(fileName.c_str());
 #endif
 }

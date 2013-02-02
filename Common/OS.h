@@ -6,8 +6,11 @@
 #ifndef _OS_H_
 #define _OS_H_
 
+#include <string>
+
 void GetResources(double *s, long *mem);
 void IncreaseStackSize();
 int BlockingSystemCall(const char *command);
+int DeleteFile(const std::string &fileName);
 
 #endif

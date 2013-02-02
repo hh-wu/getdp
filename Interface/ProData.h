@@ -875,6 +875,9 @@ struct Operation {
       int ViewTag;
     } GmshRead;
     struct {
+      char *FileName;
+    } DeleteFile;
+    struct {
       int     ExpressionIndex;
     } SetTime;
     struct {
@@ -1161,6 +1164,7 @@ struct IterativeLoopSystem {
 #define OPERATION_POSTOPERATION            60
 #define OPERATION_GMSHREAD                 61
 #define OPERATION_GMSHCLEARALL             62
+#define OPERATION_DELETEFILE               71
 
 #define OPERATION_SETCOMMSELF              63
 #define OPERATION_SETCOMMWORLD             64
