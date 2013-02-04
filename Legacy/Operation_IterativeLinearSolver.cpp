@@ -29,16 +29,19 @@ class ILS{
   // current cpu number and total number of cpus
   static MPI_Comm _comm;
   static int _commRank, _commSize;
+  //static std::vector< double > time_MatMult;
+  //static std::vector< double > time_Bcast;
 public:
   static int GetCommRank(){ return _commRank; }
   static int GetCommSize(){ return _commSize; }
   static MPI_Comm GetComm(){ return _comm; }
+  //  static void AddTimeMatMult(double t){time_MatMult.push_back(t);};
+  //static void AddTimeBcast(double t){time_Bcast.push_back(t);};
 };
 
 MPI_Comm ILS::_comm = MPI_COMM_WORLD;
 int ILS::_commRank = 0;
 int ILS::_commSize = 1;
-
 
 class Field{
 public:
@@ -60,6 +63,8 @@ public:
   std::vector<std::vector<PetscInt> > theirSizeV; 
   std::vector<PetscInt>               FieldToReceive; //GmshTag of the fields that must be received by the current MPI processe (concatenation of myNeighbor)
   std::vector<std::vector<PetscInt> > RankToSend; //RankToSend[j] returns the rank to which the j^th local field must be sent
+  //CPU Time
+  std::vector<double> TimeBcast, TimeIt, TimeTreatment;
 
   //The bellow function is usefull to do a reverse search:
   //Given the GmshTag of a field (GetDP/GMSH) it returns its local tag in IterativeLinearSolver (ILSTag)
@@ -137,7 +142,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
 {
   PetscErrorCode ierr;
   int mpi_comm_size = Message::GetCommSize();
-  //  int mpi_comm_rank = Message::GetCommRank();
+  int mpi_comm_rank = Message::GetCommRank();
   ILSMat *ctx; // Matrix Shell context
   Mat A;
   KSP ksp;
@@ -150,6 +155,8 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   MPI_Comm ILSComm = PETSC_COMM_WORLD; //by default, KSP is launch in total parallel
   char *LinearSystemType;
   Field MyField, AllField;
+  double time_total;
+  clock_t time_start = clock();
   /*-------------
     Initializing
     -----------*/
@@ -194,8 +201,16 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
     ierr = PetscPrintf(PETSC_COMM_WORLD, "Neighbors are specified\t: Fast exchange between process\n");CHKERRQ(ierr);
 
   for(int iField = 0; iField < AllField.nb_field; iField++)
-    if(mpi_comm_size>1) ierr = PetscPrintf(PETSC_COMM_WORLD, "Size of Field %d\t\t: %d (on CPU %d)\n", AllField.GmshTag[iField], AllField.size[iField], AllField.rank[iField]);
-    else ierr = PetscPrintf(PETSC_COMM_WORLD, "Size of Field %d\t\t: %d\n", AllField.GmshTag[iField], AllField.size[iField]);
+    if(mpi_comm_size>1) 
+      if(AllField.GmshTag[iField] < 10)
+	ierr = PetscPrintf(PETSC_COMM_WORLD, "Size of Field %d\t\t: %d (on CPU %d)\n", AllField.GmshTag[iField], AllField.size[iField], AllField.rank[iField]);
+      else
+	ierr = PetscPrintf(PETSC_COMM_WORLD, "Size of Field %d\t: %d (on CPU %d)\n", AllField.GmshTag[iField], AllField.size[iField], AllField.rank[iField]);
+    else 
+      if(AllField.GmshTag[iField] < 10)
+	ierr = PetscPrintf(PETSC_COMM_WORLD, "Size of Field %d\t\t: %d\n", AllField.GmshTag[iField], AllField.size[iField]);
+      else
+	ierr = PetscPrintf(PETSC_COMM_WORLD, "Size of Field %d\t: %d\n", AllField.GmshTag[iField], AllField.size[iField]);
   CHKERRQ(ierr);
   ierr = PetscPrintf(PETSC_COMM_WORLD, "Total system size\t: %d\n", AllField.n_elem); CHKERRQ(ierr);
 #if !defined(PETSC_USE_COMPLEX)
@@ -203,7 +218,6 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   MyField.n_elem *= 2;
   ierr = PetscPrintf(PETSC_COMM_WORLD, "PETSc REAL arithmetic -> system size is doubled: n=%d\n", AllField.n_elem); CHKERRQ(ierr);
 #endif
-  //  if(AllField.n_elem > 20000) ILSComm = PETSC_COMM_WORLD; //sytem too large: must be solved in a fully parallel way
 
   /*-------------------------
     Creating the vector/matrix
@@ -305,7 +319,11 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
     view->getData()->fromVector(B_std[cpt_view]);
   }
   // Transfer PView
+  clock_t tbcast_start = clock();
   PViewBCast(MyField, AllField);
+  clock_t tbcast_end = clock();
+  double t_bcast = difftime(tbcast_end, tbcast_start)/CLOCKS_PER_SEC;
+  printf("Process %d: tbcast = %g\n", mpi_comm_rank, t_bcast);
   /*-------------
     cleaning
     -------------*/
@@ -318,10 +336,27 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   ierr = VecDestroy(B);CHKERRQ(ierr);
   ierr = MatDestroy(A);CHKERRQ(ierr);
 #endif
-  /*  if(mpi_comm_size > 0 && AllField.comm.size() > 0)
-    {  for (unsigned int irank = 0 ; irank < AllField.comm.size() ; irank ++)
-	MPI_Comm_free(&AllField.comm[irank]);
-	}*/
+  time_total = difftime(clock(), time_start)/CLOCKS_PER_SEC;
+
+  //CPU Times
+  double aver_it = 0, aver_com = 0;
+  char filename[50];
+  FILE *fid;
+  sprintf(filename, "log_cpu_%d", mpi_comm_rank);
+  fid = fopen(filename, "w");
+  fprintf(fid, "Process rank %d\n", mpi_comm_rank);
+  fprintf(fid, "it.  CPU \t CPU Treatment \t CPU communication\n");
+  for (unsigned int i = 0; i < MyField.TimeBcast.size() ; i ++){
+    fprintf(fid, "%d %g %g %g (%g%%)\n", i+1,  MyField.TimeIt[i], MyField.TimeTreatment[i], MyField.TimeBcast[i], MyField.TimeBcast[i]/MyField.TimeIt[i]*100);
+    aver_com += MyField.TimeBcast[i]/MyField.TimeBcast.size();
+    aver_it += MyField.TimeIt[i]/MyField.TimeIt.size();
+  }
+  fprintf(fid, "Average: %g %g\n", aver_it, aver_com);
+  fprintf(fid, "Percent of communication in average: %g%%\n", aver_com/aver_it*100);
+  fclose(fid);
+  printf("Processus %d : ended in %g. \n", mpi_comm_rank, time_total);
+  printf("Processus %d : Average iteration time %g with %g for communication (%g%%). \n", mpi_comm_rank, aver_it, aver_com, aver_com/aver_it*100);
+
   PetscBarrier((PetscObject)PETSC_NULL);CHKERRQ(ierr);
   PetscFunctionReturn(0);
 }
@@ -844,6 +879,11 @@ PetscErrorCode MatMultILSMat(Mat A, Vec X, Vec Y)
   ILSMat *ctx;
   char *LinearSystemType;
 
+  //time
+  clock_t tBcast_start, tBcast_end;
+  clock_t tTreatment_start, tTreatment_end;
+  clock_t t_start = clock(), t_end;
+
   ierr = MatShellGetContext(A, (void**)&ctx);CHKERRQ(ierr);
   LinearSystemType = ctx->LinearSystemType;
 
@@ -857,16 +897,19 @@ PetscErrorCode MatMultILSMat(Mat A, Vec X, Vec Y)
   }
 
   //PVIEW BCAST !
+  tBcast_start = clock();
   PViewBCast(*(ctx->MyField), *(ctx->AllField));
+  tBcast_end = clock();
   //Getdp resolution (contained in the matrix context)
   //Barrier to ensure that every process have the good data in RAM
   //  ierr = PetscBarrier((PetscObject)PETSC_NULL);CHKERRQ(ierr);
+  tTreatment_start = clock();
   Treatment_Operation(ctx->Resolution_P,
                       ctx->Operation_P->Case.IterativeLinearSolver.Operations_Ax,
                       ctx->DofData_P0,
                       ctx->GeoData_P0,
                       NULL, NULL);
-
+  tTreatment_end = clock();
   //Extract the (std) vector from the (new) .pos files
   //This assumes that every process reads every .pos files
   for(int cpt_view = 0; cpt_view < ctx->MyField->nb_field; cpt_view++) {
@@ -883,9 +926,19 @@ PetscErrorCode MatMultILSMat(Mat A, Vec X, Vec Y)
   }else if(!strcmp(LinearSystemType,"I+A")){
     ierr = VecAYPX(Y, 1.,X); CHKERRQ(ierr);
   }
-
+  
+  //time computation
+  t_end = clock();
+  double t_MatMult, t_Bcast, t_Treatment;
+  t_MatMult = difftime(t_end, t_start)/CLOCKS_PER_SEC;
+  t_Bcast = difftime(tBcast_end, tBcast_start)/CLOCKS_PER_SEC;
+  t_Treatment = difftime(tTreatment_end, tTreatment_start)/CLOCKS_PER_SEC;
+  
+  ctx->MyField->TimeTreatment.push_back(t_Treatment);
+  ctx->MyField->TimeBcast.push_back(t_Bcast);
+  ctx->MyField->TimeIt.push_back(t_MatMult);
+  printf("Processus %d ended iteration in %g seconds with %g for communication\n", Message::GetCommRank(), t_MatMult, t_Bcast);
   ierr = PetscBarrier((PetscObject)PETSC_NULL);CHKERRQ(ierr);
-
   PetscFunctionReturn(0);
 }
 
