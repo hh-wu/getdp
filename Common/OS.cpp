@@ -88,7 +88,7 @@ int BlockingSystemCall(const char *command)
 #endif
 }
 
-int DeleteFile(const std::string &fileName)
+int UnlinkFile(const std::string &fileName)
 {
 #if !defined(WIN32) || defined(__CYGWIN__)
   return unlink(fileName.c_str());
