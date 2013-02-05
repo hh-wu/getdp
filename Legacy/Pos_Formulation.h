@@ -21,5 +21,6 @@ void  Pos_FemFormulation(struct Formulation      * Formulation_P,
 
 int  Pos_InitTimeSteps(struct PostSubOperation * PostSubOperation_P) ;
 void Pos_InitAllSolutions(List_T * TimeStep_L, int Index_TimeStep) ;
+void Pos_ResampleTime(struct PostOperation *PostOperation_P);
 
 #endif

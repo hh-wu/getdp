@@ -4,6 +4,7 @@
 // bugs and problems to the public mailing list <getdp@geuz.org>.
 
 #include <string.h>
+#include <math.h>
 #include "ProData.h"
 #include "DofData.h"
 #include "GeoData.h"
@@ -18,6 +19,12 @@
 #include <gmsh/GModel.h>
 #include <gmsh/PView.h>
 #include <gmsh/PViewData.h>
+#endif
+#include "MallocUtils.h"
+#include "SolvingAnalyse.h"
+#if defined(HAVE_GSL)
+#include <gsl/gsl_errno.h>
+#include <gsl/gsl_spline.h>
 #endif
 
 #define TWO_PI             6.2831853071795865
@@ -175,6 +182,129 @@ void Pos_InitAllSolutions(List_T * TimeStep_L, int Index_TimeStep)
   Current.TimeImag = Current.DofData->CurrentSolution->TimeImag ;
   Current.TimeStep = Num_TimeStep ;
 }
+
+/* ------------------------------------------------------------------------ */
+/*  P o s _ R e s a m p l e T i m e                                         */
+/* ------------------------------------------------------------------------ */
+
+#if !defined(HAVE_GSL)
+
+void Pos_ResampleTime(struct PostOperation *PostOperation_P)
+{
+  Message::Error("ResampleTime requires the GSL");
+}
+
+#else
+
+void Pos_ResampleTime(struct PostOperation *PostOperation_P)
+{
+  double   ResampleTimeStart, ResampleTimeStop, ResampleTimeStep;
+  double   OriginalStopTime, *OriginalTime_P, *OriginalValueR_P, *OriginalValueI_P;
+  double   InterpValueRe, InterpValueIm;
+  int      OriginalNbrOfSolutions, NewNbrOfSolutions, xLength;
+  Solution *Solution_P, Solution_S;
+  List_T   *NewSolutions_L;
+
+  ResampleTimeStart = PostOperation_P->ResampleTimeStart;
+  ResampleTimeStop = PostOperation_P->ResampleTimeStop;
+  ResampleTimeStep = PostOperation_P->ResampleTimeStep;
+  OriginalNbrOfSolutions = List_Nbr(Current.DofData->Solutions);
+
+  OriginalTime_P  = (double *)Malloc(OriginalNbrOfSolutions * sizeof(double));
+  OriginalValueR_P = (double *)Malloc(OriginalNbrOfSolutions * sizeof(double));
+  if (gSCALAR_SIZE == 2)
+    OriginalValueI_P = (double *)Malloc(OriginalNbrOfSolutions * sizeof(double));
+  else
+    OriginalValueI_P = NULL;
+
+  Solution_P = (struct Solution*)List_Pointer(Current.DofData->Solutions,
+                                              OriginalNbrOfSolutions-1);
+  OriginalStopTime = Solution_P->Time;
+  ResampleTimeStop = (OriginalStopTime < ResampleTimeStop) ? OriginalStopTime :
+                                                             ResampleTimeStop;
+  for (int i=0; i<OriginalNbrOfSolutions; i++) {
+    Solution_P = (struct Solution*)List_Pointer(Current.DofData->Solutions, i);
+    if (!Solution_P->SolutionExist)
+      Message::Error("Empty solution(s) found");
+    OriginalTime_P[i] = Solution_P->Time;
+  }
+
+  LinAlg_GetVectorSize(&Solution_P->x, &xLength);
+
+  NewNbrOfSolutions = floor((ResampleTimeStop-ResampleTimeStart) /
+                            ResampleTimeStep) + 1;
+  if (NewNbrOfSolutions < 1)
+    Message::Error("Invalid ResampleTime settings - t_start: %.6g  t_stop: %.6g  "
+                   "t_sample: %.6g", ResampleTimeStart, ResampleTimeStop,
+                   ResampleTimeStep);
+  NewSolutions_L = List_Create(NewNbrOfSolutions, 1, sizeof(Solution));
+  for (int i=0; i<NewNbrOfSolutions; i++) {
+    // Create new Solutions list
+    Solution_S.TimeStep = i ;
+    Solution_S.Time = ResampleTimeStart + i * ResampleTimeStep;
+    Solution_S.TimeImag = 0.0;
+    Solution_S.SolutionExist = 1 ;
+    LinAlg_CreateVector(&Solution_S.x, &Current.DofData->Solver, xLength);
+    List_Add(NewSolutions_L, &Solution_S);
+  }
+
+  for (int i=0; i<xLength; i++) {
+    if (gSCALAR_SIZE == 1) {
+      for (int j=0; j<OriginalNbrOfSolutions; j++) {
+        Solution_P = (struct Solution*)List_Pointer(Current.DofData->Solutions, j);
+        LinAlg_GetDoubleInVector(&OriginalValueR_P[j], &Solution_P->x, i);
+      }
+      gsl_interp_accel *acc = gsl_interp_accel_alloc ();
+      gsl_spline *spline = gsl_spline_alloc (gsl_interp_cspline, OriginalNbrOfSolutions);
+      gsl_spline_init (spline, OriginalTime_P, OriginalValueR_P, OriginalNbrOfSolutions);
+
+      for (int j=0; j<NewNbrOfSolutions; j++) {
+        Solution_P = (struct Solution*)List_Pointer(NewSolutions_L, j);
+        InterpValueRe = gsl_spline_eval (spline, Solution_P->Time, acc);
+        LinAlg_SetDoubleInVector(InterpValueRe, &Solution_P->x, i);
+      }
+
+      gsl_spline_free (spline);
+      gsl_interp_accel_free (acc);
+    }
+    if (gSCALAR_SIZE == 2) {
+      for (int j=0; j<OriginalNbrOfSolutions; j++) {
+        Solution_P = (struct Solution*)List_Pointer(Current.DofData->Solutions, j);
+        LinAlg_GetComplexInVector(&OriginalValueR_P[j], &OriginalValueI_P[j], &Solution_P->x, i, -1);
+      }
+      gsl_interp_accel *accRe = gsl_interp_accel_alloc ();
+      gsl_interp_accel *accIm = gsl_interp_accel_alloc ();
+      gsl_spline *splineRe = gsl_spline_alloc (gsl_interp_cspline, OriginalNbrOfSolutions);
+      gsl_spline *splineIm = gsl_spline_alloc (gsl_interp_cspline, OriginalNbrOfSolutions);
+      gsl_spline_init (splineRe, OriginalTime_P, OriginalValueR_P, OriginalNbrOfSolutions);
+      gsl_spline_init (splineIm, OriginalTime_P, OriginalValueI_P, OriginalNbrOfSolutions);
+
+      for (int j=0; j<NewNbrOfSolutions; j++) {
+        Solution_P = (struct Solution*)List_Pointer(NewSolutions_L, j);
+        InterpValueRe = gsl_spline_eval (splineRe, Solution_P->Time, accRe);
+        InterpValueIm = gsl_spline_eval (splineIm, Solution_P->Time, accIm);
+        LinAlg_SetComplexInVector(InterpValueRe, InterpValueIm, &Solution_P->x, i, -1);
+      }
+
+      gsl_spline_free (splineRe);
+      gsl_spline_free (splineIm);
+      gsl_interp_accel_free (accRe);
+      gsl_interp_accel_free (accIm);
+    }
+  }
+  Current.DofData->Solutions = NewSolutions_L;
+  Current.DofData->CurrentSolution = (struct Solution*)
+          List_Pointer(NewSolutions_L, List_Nbr(NewSolutions_L)-1) ;
+  for (int j=0; j<NewNbrOfSolutions; j++) {
+    Solution_P = (struct Solution*)List_Pointer(Current.DofData->Solutions, j);
+    Solution_P->TimeFunctionValues = Get_TimeFunctionValues(Current.DofData) ;
+  }
+
+  Free(OriginalTime_P);
+  Free(OriginalValueR_P);
+  Free(OriginalValueI_P);
+}
+#endif
 
 /* ------------------------------------------------------------------------ */
 /*  P o s _ F o r m u l a t i o n                                           */

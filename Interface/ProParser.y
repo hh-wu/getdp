@@ -252,7 +252,7 @@ struct doubleXstring{
 %token      tNameOfSystem
 
 %token  tPostOperation
-%token    tNameOfPostProcessing tUsingPost tAppend
+%token    tNameOfPostProcessing tUsingPost tAppend tResampleTime
 %token      tPlot tPrint tPrintGroup tEcho tWrite tAdapt
 %token        tOnGlobal tOnRegion tOnElementsOf
 %token        tOnGrid tOnSection tOnPoint tOnLine tOnPlane tOnBox
@@ -5651,6 +5651,7 @@ PostOperation :
       PostOperation_S.AppendString = NULL;
       PostOperation_S.Format = FORMAT_GMSH;
       PostOperation_S.PostProcessingIndex = -1;
+      PostOperation_S.ResampleTime = false;
     }
 
   | PostOperation  PostOperationTerm
@@ -5691,6 +5692,14 @@ PostOperationTerm :
   | tAppend CharExpr tEND
     {
       PostOperation_S.AppendString = $2;
+    }
+  
+  | tResampleTime '[' FExpr ',' FExpr ',' FExpr ']' tEND  
+    {
+      PostOperation_S.ResampleTime = true;
+      PostOperation_S.ResampleTimeStart = $3;
+      PostOperation_S.ResampleTimeStop = $5;
+      PostOperation_S.ResampleTimeStep = $7;
     }
 
   | tOperation  '{' PostSubOperations '}'

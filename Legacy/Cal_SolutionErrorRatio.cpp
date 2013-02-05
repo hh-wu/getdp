@@ -37,8 +37,8 @@ void Cal_SolutionErrorRatio(gVector *dx, gVector *x,
     }
     if (gSCALAR_SIZE == 2)
     {
-      LinAlg_GetComplexInVector(&AbsVal_x, &ImagVal_x, x, i, i+1);
-      LinAlg_GetComplexInVector(&AbsVal_dx, &ImagVal_dx, dx, i, i+1);
+      LinAlg_GetComplexInVector(&AbsVal_x, &ImagVal_x, x, i, -1);
+      LinAlg_GetComplexInVector(&AbsVal_dx, &ImagVal_dx, dx, i, -1);
       AbsVal_x = sqrt( AbsVal_x*AbsVal_x + ImagVal_x*ImagVal_x);
       AbsVal_dx = sqrt( AbsVal_dx*AbsVal_dx + ImagVal_dx*ImagVal_dx);
     }
@@ -126,8 +126,8 @@ void Cal_SolutionError(gVector *dx, gVector *x, int diff, double *MeanError)
     }
   if (gSCALAR_SIZE == 2)
     for (i=0 ; i<n ; i++) {
-      LinAlg_GetComplexInVector(&valx, &valxi, x, i, i+1);
-      LinAlg_GetComplexInVector(&valdx, &valdxi, dx, i, i+1);
+      LinAlg_GetComplexInVector(&valx, &valxi, x, i, -1);
+      LinAlg_GetComplexInVector(&valdx, &valdxi, dx, i, -1);
       xmoy += sqrt(valx*valx+valxi*valxi) ;
       if(diff) dxmoy += sqrt((valdx-valx)*(valdx-valx)+(valdxi-valxi)*(valdxi-valxi)) ;
       else     dxmoy += sqrt(valdx*valdx + valdxi*valdxi) ;
@@ -154,8 +154,8 @@ void Cal_SolutionError(gVector *dx, gVector *x, int diff, double *MeanError)
 
     if (gSCALAR_SIZE == 2)
       for (i=0 ; i<n ; i++) {
-        LinAlg_GetComplexInVector(&valx, &valxi, x, i, i+1);
-        LinAlg_GetComplexInVector(&valdx, &valdxi, dx, i, i+1);
+        LinAlg_GetComplexInVector(&valx, &valxi, x, i, -1);
+        LinAlg_GetComplexInVector(&valdx, &valdxi, dx, i, -1);
         nvalx = sqrt(valx*valx+valxi*valxi) ;
         nvaldx = sqrt(valdx*valdx+valdxi*valdxi) ;
         if(diff){

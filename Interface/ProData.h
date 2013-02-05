@@ -1249,7 +1249,9 @@ struct PostOperation {
   char    *Name, *AppendString;
   int      PostProcessingIndex, Format;
   List_T  *PostSubOperation;
-  int Rank;
+  int      Rank;
+  double   ResampleTimeStart, ResampleTimeStop, ResampleTimeStep;
+  bool     ResampleTime;
 };
 
 struct PostSubOperation {

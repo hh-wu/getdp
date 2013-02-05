@@ -281,6 +281,7 @@ PostOperation                return tPostOperation;
 NameOfPostProcessing         return tNameOfPostProcessing;
 UsingPost                    return tUsingPost;
 Append                       return tAppend;
+ResampleTime                 return tResampleTime;
 Plot                         return tPlot;
 Print                        return tPrint;
 PrintGroup                   return tPrintGroup;

@@ -146,6 +146,8 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
   struct PostSubOperation  * PostSubOperation_P ;
   struct Formulation       * Formulation_P ;
   struct DefineSystem      * DefineSystem_P ;
+  struct List_T            * SaveSolutions_L=NULL;
+  struct Solution          * SaveCurrentSolution_P=NULL;
 
   int    Nbr_PostSubOperation, i_POP, i ;
 
@@ -210,6 +212,12 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
 
   Init_DofDataInDefineQuantity(DefineSystem_P,DofData_P0,Formulation_P);
 
+  if (PostOperation_P->ResampleTime) {
+    SaveSolutions_L = Current.DofData->Solutions;
+    SaveCurrentSolution_P = Current.DofData->CurrentSolution;
+    Pos_ResampleTime(PostOperation_P);
+  }
+
   Nbr_PostSubOperation = List_Nbr(PostOperation_P->PostSubOperation) ;
   for (i_POP = 0 ; i_POP < Nbr_PostSubOperation ; i_POP++) {
     Message::Info("PostOperation %d/%d ", i_POP+1, Nbr_PostSubOperation) ;
@@ -218,6 +226,16 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
     Pos_Formulation(Formulation_P, PostProcessing_P, PostSubOperation_P) ;
   }
 
+  if (PostOperation_P->ResampleTime) {
+    for(int i = 0; i < List_Nbr(Current.DofData->Solutions); i++) {
+      Solution *Solution_P = (struct Solution*)List_Pointer(Current.DofData->Solutions, i);
+      LinAlg_DestroyVector(&Solution_P->x);
+      Free(Solution_P->TimeFunctionValues);
+    }
+    List_Delete(Current.DofData->Solutions);
+    Current.DofData->Solutions = SaveSolutions_L;
+    Current.DofData->CurrentSolution = SaveCurrentSolution_P;
+  }
 }
 
 /* ------------------------------------------------------------------------ */
