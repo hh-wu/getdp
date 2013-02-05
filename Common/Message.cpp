@@ -774,7 +774,7 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
   else if(c->Type == VAR_CHAR){
     std::vector<onelab::string> ps;
     _onelabClient->get(ps, name);
-    bool noClosed = true;
+    bool noClosed = true, noMultipleChoice = true;
     if(ps.size()){
       if(fopt.count("ReadOnly") && fopt["ReadOnly"][0])
         ps[0].setValue(c->Value.Char); // use local value
@@ -782,6 +782,7 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
 	c->Value.Char = strSave(ps[0].getValue().c_str()); // use value from server
       // keep track of these attributes, which can be changed server-side
       if(ps[0].getAttribute("Closed").size()) noClosed = false;
+      if(ps[0].getAttribute("MultipleChoice").size()) noMultipleChoice = false;
     }
     else{
       ps.resize(1);
@@ -792,6 +793,8 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
     if(copt.count("Kind")) ps[0].setKind(copt["Kind"][0]);
     if(copt.count("Choices")) ps[0].setChoices(copt["Choices"]);
     if(noClosed && copt.count("Closed")) ps[0].setAttribute("Closed", copt["Closed"][0]);
+    if(noMultipleChoice && copt.count("MultipleChoice"))
+      ps[0].setAttribute("MultipleChoice", copt["MultipleChoice"][0]);
     _setStandardOptions(&ps[0], fopt, copt);
     _onelabClient->set(ps[0]);
   }
