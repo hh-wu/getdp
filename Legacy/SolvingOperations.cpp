@@ -2404,7 +2404,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
     case OPERATION_DELETEFILE :
       Message::Info("DeleteFile") ;
-      UnlinkFile(Operation_P->Case.DeleteFile.FileName);
+      RemoveFile(Operation_P->Case.DeleteFile.FileName);
       break ;
 
       /*  -->  T i m e L o o p A d a p t i v e  */
