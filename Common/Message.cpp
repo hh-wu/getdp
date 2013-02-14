@@ -767,7 +767,10 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
     }
     if(noLoop && copt.count("Loop")) ps[0].setAttribute("Loop", copt["Loop"][0]);
     if(noGraph && copt.count("Graph")) ps[0].setAttribute("Graph", copt["Graph"][0]);
-    if(noClosed && copt.count("Closed")) ps[0].setAttribute("Closed", copt["Closed"][0]);
+    if(noClosed && copt.count("Closed")) // for backward compatibility
+      ps[0].setAttribute("Closed", copt["Closed"][0]);
+    if(noClosed && fopt.count("Closed")) // for backward compatibility
+      ps[0].setAttribute("Closed", fopt["Closed"][0] ? "1" : "0");
     _setStandardOptions(&ps[0], fopt, copt);
     _onelabClient->set(ps[0]);
   }
@@ -792,7 +795,10 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
     // send updated parameter to server
     if(copt.count("Kind")) ps[0].setKind(copt["Kind"][0]);
     if(copt.count("Choices")) ps[0].setChoices(copt["Choices"]);
-    if(noClosed && copt.count("Closed")) ps[0].setAttribute("Closed", copt["Closed"][0]);
+    if(noClosed && copt.count("Closed")) // for backward compatibility
+      ps[0].setAttribute("Closed", copt["Closed"][0]);
+    if(noClosed && fopt.count("Closed")) // for backward compatibility
+      ps[0].setAttribute("Closed", fopt["Closed"][0] ? "1" : "0");
     if(noMultipleSelection && copt.count("MultipleSelection"))
       ps[0].setAttribute("MultipleSelection", copt["MultipleSelection"][0]);
     _setStandardOptions(&ps[0], fopt, copt);
@@ -836,7 +842,10 @@ void Message::ExchangeOnelabParameter(Group *g, fmap &fopt, cmap &copt)
     ps[0].setValue(val);
   }
   // send updated parameter to server
-  if(noClosed && copt.count("Closed")) ps[0].setAttribute("Closed", copt["Closed"][0]);
+  if(noClosed && copt.count("Closed")) // for backward compatibility
+    ps[0].setAttribute("Closed", copt["Closed"][0]);
+  if(noClosed && fopt.count("Closed")) // for backward compatibility
+    ps[0].setAttribute("Closed", fopt["Closed"][0] ? "1" : "0");
   _setStandardOptions(&ps[0], fopt, copt);
   _onelabClient->set(ps[0]);
 }
