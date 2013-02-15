@@ -10,7 +10,7 @@
 #include "ProData.h"
 #include "Message.h"
 
-#define SQU(a)     ((a)*(a)) 
+#define SQU(a)     ((a)*(a))
 
 #define NoEdge  Message::Error("Missing Edge Entity in Element %d", Element->Num)
 
@@ -20,7 +20,7 @@
 
 #define WrongNumEdge   Message::Error("Wrong Edge number in 'BF_Edge'")
 
-void BF_Edge(struct Element * Element, int NumEdge, 
+void BF_Edge(struct Element * Element, int NumEdge,
 	     double u, double v, double w,  double s[])
 {
   switch (Element->Type) {
@@ -131,7 +131,7 @@ void BF_Edge(struct Element * Element, int NumEdge,
                 s[1] =  0. ;
 		s[2] = -0.25 * (u + u * v / (1. - w)) ; break ;
       case 3  : s[0] =  0.25 * (w - v * w / (1. - w)) ;
-	        s[1] =  0.25 * (w - u * w / (1. - w)) ;
+                s[1] =  0.25 * (w - u * w / (1. - w)) ;
 		s[2] =  0.25 * (1. - u - v + u * v / SQU(1. - w) - 2 * u * v * w / SQU(1. - w)) ; break ;
       case 5  : s[0] = -0.25 * (w - v * w / (1. - w)) ;
                 s[1] =  0.25 * (w + u * w / (1. - w)) ;
@@ -139,7 +139,7 @@ void BF_Edge(struct Element * Element, int NumEdge,
       case 7  : s[0] = -0.25 * (w + v * w / (1. - w)) ;
                 s[1] = -0.25 * (w + u * w / (1. - w)) ;
                 s[2] =  0.25 * (1. + u + v + u * v / SQU(1. - w) - 2 * u * v * w / SQU(1. - w)) ; break ;
-      case 8  : s[0] =  0.25 * (w + v * w / (1. - w)) ; 
+      case 8  : s[0] =  0.25 * (w + v * w / (1. - w)) ;
 	        s[1] = -0.25 * (w - u * w / (1. - w)) ;
 		s[2] =  0.25 * (1. - u + v - u * v / SQU(1. - w) + 2 * u * v * w / SQU(1. - w)) ; break ;
       default : WrongNumEdge ;
@@ -168,7 +168,7 @@ void BF_Edge(struct Element * Element, int NumEdge,
       case 7  : s[0] = -0.25 ;
                 s[1] = -0.25 ;
                 s[2] =  0.25 * (1. + u + v) ; break ;
-      case 8  : s[0] =  0.25 ; 
+      case 8  : s[0] =  0.25 ;
 	        s[1] = -0.25 ;
 		s[2] =  0.25 * (1. - u + v) ; break ;
       default : WrongNumEdge ;
@@ -195,7 +195,7 @@ void BF_Edge(struct Element * Element, int NumEdge,
 
 #define WrongNumEdge   Message::Error("Wrong Edge number in 'BF_CurlEdge'")
 
-void BF_CurlEdge(struct Element * Element, int NumEdge, 
+void BF_CurlEdge(struct Element * Element, int NumEdge,
 		 double u, double v, double w,  double s[])
 {
   switch (Element->Type) {
@@ -279,7 +279,7 @@ void BF_CurlEdge(struct Element * Element, int NumEdge,
       switch(NumEdge) {
       case 1  : s[0] = -0.25 * u / (1. - w) ;       s[1] = -0.5 + 0.25 * v / (1. - w) ; s[2] =  0.25 ; break ;
       case 2  : s[0] =  0.5 - 0.25 * u / (1. - w) ; s[1] =  0.25 * v / (1. - w) ;       s[2] = -0.25 ; break ;
-      case 4  : s[0] =  0.5 - 0.25 * u / (1. - w) ; s[1] = -0.25 * v / (1. - w) ;       s[2] =  0.25 ; break ;
+      case 4  : s[0] =  0.5 + 0.25 * u / (1. - w) ; s[1] = -0.25 * v / (1. - w) ;       s[2] =  0.25 ; break ;
       case 6  : s[0] = -0.25 * u / (1. - w) ;       s[1] =  0.5 + 0.25 * v / (1. - w) ; s[2] =  0.25 ; break ;
       case 3  : s[0] = -0.5 * (1. - u / (1. - w)) ; s[1] =  0.5 * (1. - v / (1. - w)) ; s[2] =  0. ; break;
       case 5  : s[0] = -0.5 * (1. + u / (1. - w)) ; s[1] = -0.5 * (1. - v / (1. - w)) ; s[2] =  0. ; break;
