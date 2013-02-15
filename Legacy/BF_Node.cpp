@@ -10,7 +10,7 @@
 #include "ProData.h"
 #include "Message.h"
 
-#define SQU(a)     ((a)*(a)) 
+#define SQU(a)     ((a)*(a))
 
 /* ------------------------------------------------------------------------ */
 /*  B F _ N o d e                                                           */
@@ -18,7 +18,7 @@
 
 #define WrongNumNode   Message::Error("Wrong Node number in 'BF_Node'")
 
-void BF_Node(struct Element * Element, int NumNode, 
+void BF_Node(struct Element * Element, int NumNode,
 	     double u, double v, double w,  double *s )
 {
   double r;
@@ -173,7 +173,7 @@ void BF_Node(struct Element * Element, int NumNode,
 
 #define WrongNumNode   Message::Error("Wrong Node number in 'BF_GradNode'")
 
-void BF_GradNode(struct Element * Element, int NumNode, 
+void BF_GradNode(struct Element * Element, int NumNode,
 		 double u, double v, double w,  double s[])
 {
   double r;
@@ -255,22 +255,22 @@ void BF_GradNode(struct Element * Element, int NumNode,
 
   case PRISM :
     switch(NumNode) {
-    case 1  : s[0] = -0.5 * (1.-w)   ; 
+    case 1  : s[0] = -0.5 * (1.-w)   ;
               s[1] = -0.5 * (1.-w)   ;
               s[2] = -0.5 * (1.-u-v) ; break ;
-    case 2  : s[0] =  0.5 * (1.-w)   ; 
+    case 2  : s[0] =  0.5 * (1.-w)   ;
               s[1] =  0.             ;
               s[2] = -0.5 * u        ; break ;
-    case 3  : s[0] =  0.             ; 
+    case 3  : s[0] =  0.             ;
               s[1] =  0.5 * (1.-w)   ;
               s[2] = -0.5 * v        ; break ;
-    case 4  : s[0] = -0.5 * (1.+w)   ; 
+    case 4  : s[0] = -0.5 * (1.+w)   ;
               s[1] = -0.5 * (1.+w)   ;
               s[2] =  0.5 * (1.-u-v) ; break ;
-    case 5  : s[0] =  0.5 * (1.+w)   ; 
+    case 5  : s[0] =  0.5 * (1.+w)   ;
               s[1] =  0.             ;
               s[2] =  0.5 * u        ; break ;
-    case 6  : s[0] =  0.             ; 
+    case 6  : s[0] =  0.             ;
               s[1] =  0.5 * (1.+w)   ;
               s[2] =  0.5 * v        ; break ;
     default : WrongNumNode ;
@@ -280,20 +280,20 @@ void BF_GradNode(struct Element * Element, int NumNode,
   case PYRAMID :
     if(w == 1. && NumNode != 5) {
       //When w = 1 => u=v=0
-      switch(NumNode) { 
-      case 1 : s[0] = -0.25 ; 
+      switch(NumNode) {
+      case 1 : s[0] = -0.25 ;
 	       s[1] = -0.25 ;
 	       s[2] = -0.25 ; break ;
-      case 2 : s[0] =  0.25 ; 
+      case 2 : s[0] =  0.25 ;
 	       s[1] = -0.25 ;
 	       s[2] = -0.25 ; break ;
-      case 3 : s[0] =  0.25 ; 
+      case 3 : s[0] =  0.25 ;
                s[1] =  0.25 ;
                s[2] = -0.25 ; break ;
-      case 4 : s[0] = -0.25 ; 
+      case 4 : s[0] = -0.25 ;
                s[1] =  0.25 ;
                s[2] = -0.25 ; break ;
-      case 5 : s[0] =  0. ; 
+      case 5 : s[0] =  0. ;
 	       s[1] =  0. ;
 	       s[2] =  1. ; break ;
       default : WrongNumNode ;
@@ -301,19 +301,19 @@ void BF_GradNode(struct Element * Element, int NumNode,
     }
     else{
       switch(NumNode) {
-      case 1  : s[0] = 0.25 * ( -(1.-v) + v*w/(1.-w) ) ;            
-	        s[1] = 0.25 * ( -(1.-u) + u*w/(1.-w) ) ;            
-      	        s[2] = 0.25 * ( -1.     + u*v/(1.-w) + u*v*w/SQU(1.-w) ) ; break ;
-      case 2  : s[0] = 0.25 * (  (1.-v) - v*w/(1.-w) ) ;            
-	        s[1] = 0.25 * ( -(1.+u) - u*w/(1.-w) ) ;            
-	        s[2] = 0.25 * ( -1.     - u*v/(1.-w) - u*v*w/SQU(1.-w) ) ; break ;
-      case 3  : s[0] = 0.25 * (  (1.+v) + v*w/(1.-w) ) ; 
-                s[1] = 0.25 * (  (1.+u) + u*w/(1.-w) ) ;
-                s[2] = 0.25 * ( -1.     + u*v/(1.-w) + u*v*w/SQU(1.-w) ) ; break ;
-      case 4  : s[0] = 0.25 * ( -(1.+v) - v*w/(1.-w) ) ;
-                s[1] = 0.25 * (  (1.-u) - u*w/(1.-w) ) ;
-                s[2] = 0.25 * ( -1.     - u*v/(1.-w) - u*v*w/SQU(1.-w) ) ; break ;
-      case 5  : s[0] = 0. ; 
+      case 1  : s[0] = 0.25 * ( v/(1 - w) - 1) ;
+                s[1] = 0.25 * ( u/(1 - w) - 1) ;
+      	        s[2] = 0.25 * ( u*v/SQU(1 - w) - 1) ; break ;
+      case 2  : s[0] = 0.25 * (-v/(1 - w) + 1) ;
+                s[1] = 0.25 * (-u/(1 - w) - 1) ;
+	        s[2] = 0.25 * (-u*v/SQU(1 - w) - 1) ; break ;
+      case 3  : s[0] = 0.25 * ( v/(1 - w) + 1) ;
+                s[1] = 0.25 * ( u/(1 - w) + 1) ;
+                s[2] = 0.25 * ( u*v/SQU(1 - w) - 1) ; break ;
+      case 4  : s[0] = 0.25 * (-v/(1 - w) - 1) ;
+                s[1] = 0.25 * (-u/(1 - w) + 1) ;
+                s[2] = 0.25 * (-u*v/SQU(1 - w) - 1) ; break ;
+      case 5  : s[0] = 0. ;
                 s[1] = 0. ;
                 s[2] = 1. ; break ;
       default : WrongNumNode ;
