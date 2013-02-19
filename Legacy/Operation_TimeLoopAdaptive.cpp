@@ -113,7 +113,10 @@ void CalcIntegrationCoefficients(Resolution  *Resolution_P,
 
   Solution_P = (struct Solution*)List_Pointer(Solutions_L, NbrOfSolutions-1);
 
-  if (Current.TimeStep < 1.5 || NbrOfSolutions < 2){
+  // Check if we recompute actual TimeStep
+  RecomputeTimeStep = (Solution_P->TimeStep == (int)Current.TimeStep);
+
+  if (NbrOfSolutions < (2 + (RecomputeTimeStep ? 1 : 0))){
     Current.PredOrder = 0;  // For 1st TimeStep just copy the initial solution
     Current.CorrOrder = 1;
   }
@@ -121,9 +124,6 @@ void CalcIntegrationCoefficients(Resolution  *Resolution_P,
     Current.PredOrder = Order;
     Current.CorrOrder = Order;
   }
-
-  // Check if we recompute actual TimeStep
-  RecomputeTimeStep = (Solution_P->TimeStep == (int)Current.TimeStep);
 
   // Time values
   // t_n+1 -> t[0]
@@ -605,7 +605,7 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
   int    Try, BreakpointNum, NbrSolutions=0, NbrPostOps;
 
   double Save_Time, Save_DTime, Save_Theta, maxLTEratio=0, nextBreakpoint;
-  double Save_TimeStep;
+  double Save_TimeStep, FirstTimePoint, DTimeBeforeBreakpoint=1.;
   bool   TimeStepAccepted=true, DTimeMinAtLastStep, BreakpointListCreated;
   bool   BreakpointAtThisStep, BreakpointAtNextStep;
   double Time0, TimeMax, DTimeInit, DTimeMin, DTimeMax;
@@ -729,6 +729,18 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
   BreakpointNum = 0;
   BreakpointAtNextStep = false;
   List_Read(Breakpoints_L, BreakpointNum, &nextBreakpoint);
+  FirstTimePoint = Current.Time+Current.DTime;
+  if ((bool) List_Search(Breakpoints_L, &FirstTimePoint, fcmp_double)) {
+    BreakpointAtNextStep = true;
+    DTimeBeforeBreakpoint = Current.DTime;
+  }
+  for (int i = 0; i < List_Nbr(Breakpoints_L); i++){
+    List_Read(Breakpoints_L, i, &nextBreakpoint);
+    if (nextBreakpoint > (FirstTimePoint + DTimeMin)) {
+      BreakpointNum = i;
+      break;
+    }
+  }
   Try = 0;
 
 
@@ -877,21 +889,30 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
         Order < 2)
       Message::Error("Time step too small! Simulation aborted!");
 
-    if (Flag_IterativeLoopConverged != 1){
-      Current.DTime *= DTimeScal;
-    }
-    else{
+    if (Flag_IterativeLoopConverged == 1){
       // Milne's estimate
-      if ( maxLTEratio < LTEtarget / pow(DTimeMaxScal, Order + 1.) )
-        // At most scale DTime with DTimeMaxScal if maxLTEratio is small
-        Current.DTime *= DTimeMaxScal;
-      else
+      if (maxLTEratio <= 0)
+        DTimeScal = DTimeMaxScal;
+      else {
         if (Current.TimeStep < 1.5 || (NbrPostOps > 0 && TLATimeStep <= 2) )
           // linear adjustment because predictor is of order 0
-          Current.DTime *= LTEtarget/maxLTEratio;
+          DTimeScal = LTEtarget/maxLTEratio;
         else
-          Current.DTime *= pow(LTEtarget/maxLTEratio, 1./(Order+1.));
+          DTimeScal = pow(LTEtarget/maxLTEratio, 1./(Order+1.));
+      }
+      if (DTimeScal >= DTimeMaxScal) {
+        if (BreakpointAtThisStep) {
+          double dt1, dt2, dtmax;
+          dt1 = Current.DTime * DTimeMaxScal;
+          dt2 = DTimeBeforeBreakpoint;
+          dtmax = (dt1 > dt2) ? dt1 : dt2;
+          DTimeScal = dtmax / Current.DTime;
+        }
+        else
+          DTimeScal = DTimeMaxScal;
+      }
     }
+    Current.DTime *= DTimeScal;
 
     // Limit the max step size
     if (Current.DTime > DTimeMax)
@@ -900,6 +921,7 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
     // Check that we do not jump over a breakpoint
     if ((Current.DTime + Current.Time >= nextBreakpoint - DTimeMin) &&
         (BreakpointNum >= 0)){
+      DTimeBeforeBreakpoint = Current.DTime;
       Current.DTime = nextBreakpoint - Current.Time;
       BreakpointAtNextStep = true;
       if (BreakpointNum < List_Nbr(Breakpoints_L)-1){
@@ -922,7 +944,7 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
     // Adjust order
     // ------------
     if ( Flag_IterativeLoopConverged != 1 ||
-         BreakpointAtThisStep ||
+         // BreakpointAtThisStep ||
          DTimeMinAtLastStep )
       Order = 1;
     else if ( TLATimeStep > 2 &&

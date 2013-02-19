@@ -845,14 +845,13 @@ static List_T *PostOpResults_L=NULL;
 
 static void StorePostOpResult(int NbrHarmonics, struct PostElement *PE)
 {
-  int    n, Size;
+  int    Size;
   double val;
 
   if(!PostOpResults_L)
     PostOpResults_L = List_Create(1000,1000,sizeof(double));
 
   for(int i = 0 ; i < PE->NbrNodes ; i++){
-    n = PE->NumNodes[i];
     Size = 0;
     switch(PE->Value[0].Type){
     case SCALAR      : Size = 1 ; break ;
@@ -861,7 +860,7 @@ static void StorePostOpResult(int NbrHarmonics, struct PostElement *PE)
     case TENSOR_SYM  : Size = 6 ; break ;
     case TENSOR      : Size = 9 ; break ;
     }
-    if(n > 0 && Size){ // we have data on an actual node
+    if(Size){ // we have data
       for(int k = 0 ; k < NbrHarmonics ; k++){
         for(int j = 0 ; j < Size ; j++){
           val = PE->Value[i].Val[MAX_DIM * k + j];
