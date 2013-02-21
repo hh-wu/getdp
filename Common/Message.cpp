@@ -234,7 +234,7 @@ void Message::Warning(const char *fmt, ...)
     if(_isCommWorld)
     	fprintf(stdout, "%sWarning : %s%s\n", c0, str, c1);
     else
-    	fprintf(stdout, "%sWarning : %s%s (on CPU %d)\n", c0, str, c1, _commRank);
+    	fprintf(stdout, "%sWarning : %s%s (on Processus %d)\n", c0, str, c1, _commRank);
     fflush(stdout);
   }
 }
@@ -270,7 +270,7 @@ void Message::Info(int level, const char *fmt, ...)
     if(_isCommWorld)
       fprintf(stdout, "Info    : %s\n", str);
     else
-      fprintf(stdout, "Info    : %s (only on CPU %d)\n", str, _commRank);
+      fprintf(stdout, "Info    : %s (only on Processus %d)\n", str, _commRank);
     fflush(stdout);
   }
 }
@@ -310,7 +310,7 @@ void Message::Direct(int level, const char *fmt, ...)
     if(_isCommWorld)
       fprintf(stdout, "%s%s%s\n", c0, str, c1);
     else
-      fprintf(stdout, "%s%s%s (only on CPU %d)\n", c0, str, c1, _commRank);
+      fprintf(stdout, "%s%s%s (only on Processus %d)\n", c0, str, c1, _commRank);
     fflush(stdout);
   }
 }
@@ -353,7 +353,7 @@ void Message::Debug(const char *fmt, ...)
   }
   else{
     if(_commSize > 1)
-      fprintf(stdout, "Debug   : [On processor %d] %s\n", _commRank, str);
+      fprintf(stdout, "Debug   : [On Processus %d] %s\n", _commRank, str);
     else
       fprintf(stdout, "Debug   : %s\n", str);
     fflush(stdout);
@@ -389,7 +389,7 @@ void Message::Cpu(const char *fmt, ...)
     if(_isCommWorld)
       fprintf(stdout, "Info    : %s\n", str);
     else
-      fprintf(stdout, "Info    : %s (only on CPU %d)\n", str, _commRank);
+      fprintf(stdout, "Info    : %s (only on Processus %d)\n", str, _commRank);
     fflush(stdout);
   }
 }
@@ -896,9 +896,6 @@ void Message::Barrier()
   if(_isCommWorld) {
     MPI_Barrier(PETSC_COMM_WORLD);
   }
-/*  else{
-    MPI_Barrier(PETSC_COMM_SELF);
-  }*/
 #endif
 }
 

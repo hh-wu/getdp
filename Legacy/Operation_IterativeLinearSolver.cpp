@@ -124,6 +124,7 @@ PetscErrorCode PrintVec(Vec b, const char* filename, const char* varname);
 PetscErrorCode PrintVecSeq(Vec b, const char* filename, const char* varname);
 PetscErrorCode Jacobi_Solver(Mat A, Vec X, Vec B, double Tol, int MaxIter);
 PetscErrorCode MatMultILSMat(Mat A, Vec X, Vec Y);
+PetscErrorCode MatMultPC(PC pc, Vec X, Vec Y);
 PetscErrorCode STD_vector_to_PETSc_Vec(std::vector<std::vector<std::vector<double> > > std_vec,
                                        Vec petsc_vec,
 				       Field *Local);
@@ -132,13 +133,13 @@ PetscErrorCode PETSc_Vec_to_STD_Vec(Vec petsc_vec,
                                     std::vector<std::vector<std::vector<double> > > *std_vec);
 PetscErrorCode CreateILSMat(ILSMat **shell);
 PetscErrorCode SetILSMat(ILSMat **shell,
-                           char *LinearSystemType,
-                           Field *MyField,
-                           Field *AllField,
-                           struct Resolution  	*Resolution_P,
-                           struct Operation   	*Operation_P,
-                           struct DofData     	*DofData_P0,
-                           struct GeoData     	*GeoData_P0);
+			 char *LinearSystemType,
+			 Field *MyField,
+			 Field *AllField,
+			 struct Resolution  *Resolution_P,
+			 struct Operation   *Operation_P,
+			 struct DofData     *DofData_P0,
+			 struct GeoData     *GeoData_P0);
 
 int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
                                     struct Operation   *Operation_P,
@@ -148,7 +149,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   PetscErrorCode ierr;
   int mpi_comm_size = Message::GetCommSize();
   int mpi_comm_rank = Message::GetCommRank();
-  ILSMat *ctx; // Matrix Shell context
+  ILSMat *ctx, *ctx_pc; // Matrix Shell context and PC context
   Mat A;
   KSP ksp;
   const KSPType ksp_choice;
@@ -162,7 +163,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   Field MyField, AllField;
   double time_total = 0.;
 #if defined(TIMER)
-  clock_t time_start = clock();
+  double time_start = MPI_Wtime();
 #endif
   /*-------------
     Initializing
@@ -230,11 +231,9 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
     Creating the vector/matrix
     -----------------------*/
   //Petsc Vec of unknown
-  //    ierr = VecCreateSeq(PETSC_COMM_SELF, n, &X);CHKERRQ(ierr);
   ierr = VecCreate(ILSComm, &X);CHKERRQ(ierr);
   ierr = VecSetSizes(X, MyField.n_elem, AllField.n_elem);CHKERRQ(ierr);
   ierr = VecSetFromOptions(X);CHKERRQ(ierr);
-  //  ierr = VecGetLocalSize(X,&n_loc);CHKERRQ(ierr);
   //Petsc Vec Right Hand Side
   ierr = VecDuplicate(X,&B);CHKERRQ(ierr);
   STD_vector_to_PETSc_Vec(B_std, B, &MyField);
@@ -248,9 +247,9 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   ierr = MatShellSetOperation(A, MATOP_MULT, (void(*)(void))MatMultILSMat); CHKERRQ(ierr);
   ierr = PetscBarrier((PetscObject)PETSC_NULL); CHKERRQ(ierr);
 
-  /*---------------------------------------------
+  /*--------------------------------------------
     Creation of the iterative solver + solving
-    ---------------------------------------------*/
+    --------------------------------------------*/
   /*Jacobi Method (hand-made)*/
   if(!strcmp(ksp_choice,"print")){
     ierr = PetscPrintf(PETSC_COMM_WORLD, "Launching Print mode (no resolution):\n");CHKERRQ(ierr);
@@ -276,7 +275,6 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   }else if(!strcmp(ksp_choice,"jacobi"))
     ierr = Jacobi_Solver(A, X, B, Tol, MaxIter);
   else{//KRYLOV SUBSPACE SOLVER
-    // creation of the ksp (iterative solver, not jacobi)
     ierr = KSPCreate(ILSComm,&ksp);CHKERRQ(ierr);
     ierr = KSPSetOperators(ksp,A,A,DIFFERENT_NONZERO_PATTERN);CHKERRQ(ierr);
     //tol etc.
@@ -300,7 +298,26 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
 	ierr = KSPSetPreconditionerSide(ksp, PC_RIGHT); CHKERRQ(ierr);
 #endif
       }
-    }else ierr = PCSetType(pc,PCNONE);CHKERRQ(ierr);
+    }else{ //PETSc Krylov solver
+      //check if a preconditioner is specified
+      int nb_pc = List_Nbr(Operation_P->Case.IterativeLinearSolver.Operations_Mx);
+      if(nb_pc == 0) {ierr = PCSetType(pc,PCNONE);CHKERRQ(ierr);}
+      else{
+	printf("Right Preconditioner detected\n");
+	//context of the shell PC
+	ierr = CreateILSMat(&ctx_pc); CHKERRQ(ierr);
+	ierr = SetILSMat(&ctx_pc, LinearSystemType, &MyField, &AllField, Resolution_P, Operation_P, DofData_P0, GeoData_P0); CHKERRQ(ierr);
+	//Shell PC
+	ierr = PCSetType(pc,PCSHELL);CHKERRQ(ierr);
+	ierr = PCShellSetContext(pc, ctx_pc); CHKERRQ(ierr);
+	ierr = PCShellSetApply(pc, MatMultPC); CHKERRQ(ierr);
+#if (PETSC_VERSION_RELEASE == 0  || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
+	ierr = KSPSetPCSide(ksp, PC_RIGHT);CHKERRQ(ierr);
+#else
+	ierr = KSPSetPreconditionerSide(ksp, PC_RIGHT); CHKERRQ(ierr);
+#endif
+      }
+    }    
     ierr = KSPSetType(ksp, ksp_choice); CHKERRQ(ierr);
     if(Restart>0 && (!strcmp(ksp_choice,"gmres") || !strcmp(ksp_choice,"dgmres") || !strcmp(ksp_choice,"lgmres") ||!strcmp(ksp_choice,"fgmres") ))
       ierr = KSPGMRESSetRestart(ksp, Restart); CHKERRQ(ierr);
@@ -311,8 +328,12 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
     ierr = KSPView(ksp,PETSC_VIEWER_STDOUT_WORLD);CHKERRQ(ierr);
 #if (PETSC_VERSION_RELEASE == 0  || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
     ierr = KSPDestroy(&ksp);CHKERRQ(ierr);
+    //if(nb_pc > 0)
+      //      ierr = PCDestroy(&pc); CHKERRQ(ierr);
 #else
     ierr = KSPDestroy(ksp);CHKERRQ(ierr);
+    //    if(nb_pc > 0)
+      //ierr = PCDestroy(pc); CHKERRQ(ierr);
 #endif
   }
   /*----------------------
@@ -326,13 +347,13 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
     view->getData()->fromVector(B_std[cpt_view]);
   }
   // Transfer PView
-#if defined(TIMER)
-  clock_t tbcast_start = clock();
+#ifdef TIMER
+  double tbcast_start = MPI_Wtime();
 #endif
   PViewBCast(MyField, AllField);
-#if defined(TIMER)
-  clock_t tbcast_end = clock();
-  double t_bcast = difftime(tbcast_end, tbcast_start)/CLOCKS_PER_SEC;
+#ifdef TIMER
+  double tbcast_end = MPI_Wtime();
+  double t_bcast = tbcast_end - tbcast_start;
   printf("Process %d: tbcast = %g\n", mpi_comm_rank, t_bcast);
 #endif
   /*-------------
@@ -347,8 +368,9 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   ierr = VecDestroy(B);CHKERRQ(ierr);
   ierr = MatDestroy(A);CHKERRQ(ierr);
 #endif
-#if defined(TIMER)
-  time_total = difftime(clock(), time_start)/CLOCKS_PER_SEC;
+#ifdef TIMER
+  //  time_total = difftime(clock(), time_start)/CLOCKS_PER_SEC;
+  time_total = MPI_Wtime() - time_start;
 #endif
   //CPU Times
   double aver_it = 0, aver_com = 0;
@@ -357,18 +379,19 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   sprintf(filename, "log_cpu_%d", mpi_comm_rank);
   fid = fopen(filename, "w");
   fprintf(fid, "Process rank %d\n", mpi_comm_rank);
-  fprintf(fid, "it.  CPU \t CPU Treatment \t CPU communication\n");
+  fprintf(fid, "it.  CPU Total \t ... Treatment \t ... Communication\n");
   for (unsigned int i = 0; i < MyField.TimeBcast.size() ; i ++){
-    fprintf(fid, "%d %g %g %g (%g%%)\n", i+1,  MyField.TimeIt[i], MyField.TimeTreatment[i], MyField.TimeBcast[i], MyField.TimeBcast[i]/MyField.TimeIt[i]*100);
+    fprintf(fid, "%d \t%g\t %g\t %g\t (%g%%)\n", i+1,  MyField.TimeIt[i], MyField.TimeTreatment[i], MyField.TimeBcast[i], MyField.TimeBcast[i]/MyField.TimeIt[i]*100);
     aver_com += MyField.TimeBcast[i]/MyField.TimeBcast.size();
     aver_it += MyField.TimeIt[i]/MyField.TimeIt.size();
   }
   fprintf(fid, "Average: %g %g\n", aver_it, aver_com);
   fprintf(fid, "Percent of communication in average: %g%%\n", aver_com/aver_it*100);
   fclose(fid);
+#ifdef TIMER
   printf("Processus %d : ended in %g. \n", mpi_comm_rank, time_total);
   printf("Processus %d : Average iteration time %g with %g for communication (%g%%). \n", mpi_comm_rank, aver_it, aver_com, aver_com/aver_it*100);
-
+#endif
   PetscBarrier((PetscObject)PETSC_NULL);CHKERRQ(ierr);
   PetscFunctionReturn(0);
 }
@@ -604,91 +627,7 @@ PetscErrorCode InitData(Field *MyField, Field *AllField, struct Operation *Opera
     //check if reception is ok
     std::vector< MPI_Status > tab_status;
     MPI_Waitall(tab_request.size(), &tab_request[0], &tab_status[0]);
-    /*
-    for (int irank = 0 ; irank < mpi_comm_size ; irank ++)
-      {
-	if (mpi_comm_rank == irank)
-	  {
-	    for(int ifield = 0 ; ifield < MyField->nb_field ; ifield++)
-	      {
-		printf("PROC %d, Field numb. %d., Myfield = ", mpi_comm_rank, MyField->GmshTag[ifield]);
-		for (int j = 0 ; j < 24 ; j++)
-		  printf("%d, ", MyField->myN[ifield][j]);
-		printf("\nPROC %d, Field numb. %d., MySizeV = ", mpi_comm_rank, MyField->GmshTag[ifield]);
-		for (int j = 0 ; j < 24 ; j++)
-		  printf("%d, ", MyField->mySizeV[ifield][j]);
-		printf("\n");
-	      }
-	    printf("-------------------------------\n");
-	    for(int ifield = 0 ; ifield < MyField->nb_field_to_receive ; ifield ++)
-	      {
-		printf("PROC %d, Field numb. %d., THEIRfield = ", mpi_comm_rank, MyField->FieldToReceive[ifield]);
-		for (int j = 0 ; j < 24 ; j++)
-		  printf("%d, ", MyField->theirN[ifield][j]);
-		printf("\nPROC %d, Field numb. %d., THEIRSizeV = ", mpi_comm_rank, MyField->FieldToReceive[ifield]);
-		for (int j = 0 ; j < 24 ; j++)
-		  printf("%d, ", MyField->theirSizeV[ifield][j]);
-		printf("\n");
-	      }
-	    printf("====================================\n");
-	    MPI_Barrier(MPI_COMM_WORLD);
-	    sleep(1);
-	  }
-      }
-*/
 
-
- /*    std::vector<int> tab_nNeighbor(mpi_comm_size);
-    std::vector<int> myNeighbor;
-    AllField->comm.resize(mpi_comm_size);
-    myNeighbor.resize(nNeighbor_aux+1);
-    myNeighbor[0] = mpi_comm_rank;
-    nNeighbor = 1; // At least, one process in tab_MyNeighbor (self)
-    for(int j = 0 ; j < nNeighbor_aux ; j++)
-      {
-	double d;
-	int neighbor_rank;
-	List_Read(Operation_P->Case.IterativeLinearSolver.NeighborFieldTag, j, &d);
-	//rank of the neighbor process (!= field (warning!))
-	neighbor_rank = AllField->rank[AllField->GetILSTagFromGmshTag((int)d)];
-	//is it already stored ?
-	bool isNotAlreadyStored = true;
-	for (int i = 0; i < nNeighbor ; i ++)
-	  {
-	    if(myNeighbor[i] == neighbor_rank)
-	      { isNotAlreadyStored = false;
-		break;}
-	  }
-	if(isNotAlreadyStored)
-	  { myNeighbor[nNeighbor] = neighbor_rank;
-	    nNeighbor ++;}// recompute the size (duplicate int is possible)
-      }
-    myNeighbor.resize(nNeighbor); //eliminate duplicate
-    //Exchange the number of neighbors per process
-    MPI_Allgather(&nNeighbor, 1, MPI_INT, &tab_nNeighbor[0], 1, MPI_INT, PETSC_COMM_WORLD);
-    //Exchange the mpi_rank of the neighbor
-    MPI_Group world_group;
-    MPI_Comm_group(MPI_COMM_WORLD, &world_group);
-
-    for(int irank = 0 ; irank < mpi_comm_size ; irank ++)
-      {
-	int nb_neigh = tab_nNeighbor[irank];
-	std::vector<int> irankNeighbor;
-	if(mpi_comm_rank != irank)
-	  irankNeighbor.resize(nb_neigh);
-	else
-	  irankNeighbor = myNeighbor;
-	//bcast
-	MPI_Bcast(&irankNeighbor[0], nb_neigh, MPI_INT, irank, MPI_COMM_WORLD);
-	//creation of the MPI_Communicator used when Processus irank is the root of a Broadcast
-	MPI_Group newgroup;
-	MPI_Group_incl(world_group, nb_neigh, &irankNeighbor[0], &newgroup);
-	MPI_Comm new_comm;
-	MPI_Comm_create(MPI_COMM_WORLD, newgroup, &new_comm);
-	AllField->comm[irank] = new_comm;
-	MPI_Group_free(&newgroup);
-      }
-    MPI_Group_free(&world_group);*/
   }
 
   PetscFunctionReturn(0);
@@ -820,63 +759,6 @@ PetscErrorCode PViewBCast(Field MyField, Field AllField)
       }
 
   }
-  /*  for (int iField = 0 ; iField < AllField.nb_field ; iField ++)
-    {
-      PetscBarrier((PetscObject)PETSC_NULL);
-      int GmshTag = AllField.GmshTag[iField];
-      int fieldRank = AllField.rank[iField];
-      MPI_Comm fieldcomm; //communicator of MPI_Bcast
-      int masterRank; // rank of the process root for MPI_BCast
-      int mpi_fieldcomm_rank; //rank in the communicateur fieldcomm
-      if(!(AllField->areNeighborSpecified()))
-	{
-	  masterRank = fieldRank;
-	  fieldcomm = MPI_COMM_WORLD;
-	  mpi_fieldcomm_rank = Message::GetCommRank();
-	}else{ //select right communicator and set root proc for BCast to proc 0 (locally)
-	  masterRank = 0;
-	  fieldcomm = AllField.comm[fieldRank];
-	  mpi_fieldcomm_rank = -1;
-	  MPI_Comm_rank(fieldcomm, &mpi_fieldcomm_rank);
-	  //mpi_fieldcomm_rank stays equal to -1 if current process is not in communicator fieldcomm
-	}
-      if(mpi_fieldcomm_rank > -1) //I belong to fieldcomm
-	{
-	  std::vector< std::vector<double>* > V(24);
-	  std::vector<int> sizeV;
-	  std::vector<int> N(24);
-	  sizeV.resize(24);
-	  if(mpi_fieldcomm_rank == masterRank)
-	    {
-	      PView *view = PView::getViewByTag(GmshTag);
-	      view->getData()->getListPointers(&N[0], &V[0]);
-	      for(int j = 0 ; j < 24 ; j++)
-		sizeV[j] = (*(V[j])).size();
-	    }
-	  //Transfer PView
-	  MPI_Bcast(&N[0], 24, MPI_INT, masterRank, fieldcomm);
-	  MPI_Bcast(&sizeV[0], 24, MPI_INT, masterRank, fieldcomm);
-
-	  for(int j = 0; j < 24 ; j ++)
-	    {
-	      if(mpi_fieldcomm_rank != masterRank)
-		{
-		  V[j] = new std::vector<double>;
-		  (*(V[j])).resize(sizeV[j]);
-		}
-	      if(sizeV[j] > 0) //avoid useless BCast
-		MPI_Bcast(&(*(V[j]))[0], sizeV[j], MPI_DOUBLE, masterRank, fieldcomm);
-	    }
-	  //All other tasks of the communicator create/update the views
-	  if(mpi_fieldcomm_rank != masterRank)
-	    {
-	      PView *view = new PView(GmshTag);
-	      view->getData()->importLists(&N[0], &V[0]);
-	      for(int j = 0 ; j < 24 ; j++)
-		delete V[j] ;
-	    }
-	}
-    }*/
   PetscFunctionReturn(0);
 }
 
@@ -891,12 +773,12 @@ PetscErrorCode MatMultILSMat(Mat A, Vec X, Vec Y)
   ILSMat *ctx;
   char *LinearSystemType;
 
-  //time
-#if defined(TIMER)
-  clock_t tBcast_start, tBcast_end;
-  clock_t tTreatment_start, tTreatment_end;
-  clock_t t_start = clock(), t_end;
+#ifdef TIMER
+  double tBcast_start, tBcast_end;
+  double tTreatment_start, tTreatment_end;
+  double t_start = MPI_Wtime(), t_end;
 #endif
+
   ierr = MatShellGetContext(A, (void**)&ctx);CHKERRQ(ierr);
   LinearSystemType = ctx->LinearSystemType;
 
@@ -910,26 +792,25 @@ PetscErrorCode MatMultILSMat(Mat A, Vec X, Vec Y)
   }
 
   //PVIEW BCAST !
-#if defined(TIMER)
-  tBcast_start = clock();
+#ifdef TIMER
+  tBcast_start = MPI_Wtime();
 #endif
   PViewBCast(*(ctx->MyField), *(ctx->AllField));
-#if defined(TIMER)
-  tBcast_end = clock();
+#ifdef TIMER
+  tBcast_end = MPI_Wtime();
 #endif
   //Getdp resolution (contained in the matrix context)
   //Barrier to ensure that every process have the good data in RAM
-  //  ierr = PetscBarrier((PetscObject)PETSC_NULL);CHKERRQ(ierr);
-#if defined(TIMER)
-  tTreatment_start = clock();
+#ifdef TIMER
+  tTreatment_start = MPI_Wtime();
 #endif
   Treatment_Operation(ctx->Resolution_P,
                       ctx->Operation_P->Case.IterativeLinearSolver.Operations_Ax,
                       ctx->DofData_P0,
                       ctx->GeoData_P0,
                       NULL, NULL);
-#if defined(TIMER)
-  tTreatment_end = clock();
+#ifdef TIMER
+  tTreatment_end = MPI_Wtime();
 #endif
   //Extract the (std) vector from the (new) .pos files
   //This assumes that every process reads every .pos files
@@ -948,13 +829,13 @@ PetscErrorCode MatMultILSMat(Mat A, Vec X, Vec Y)
     ierr = VecAYPX(Y, 1.,X); CHKERRQ(ierr);
   }
 
+#ifdef TIMER
   //time computation
-#if defined(TIMER)
-  t_end = clock();
+  t_end = MPI_Wtime();
   double t_MatMult, t_Bcast, t_Treatment;
-  t_MatMult = difftime(t_end, t_start)/CLOCKS_PER_SEC;
-  t_Bcast = difftime(tBcast_end, tBcast_start)/CLOCKS_PER_SEC;
-  t_Treatment = difftime(tTreatment_end, tTreatment_start)/CLOCKS_PER_SEC;
+  t_MatMult = t_end - t_start;
+  t_Bcast = tBcast_end - tBcast_start;
+  t_Treatment = tTreatment_end - tTreatment_start;
   ctx->MyField->TimeTreatment.push_back(t_Treatment);
   ctx->MyField->TimeBcast.push_back(t_Bcast);
   ctx->MyField->TimeIt.push_back(t_MatMult);
@@ -1015,23 +896,6 @@ PetscErrorCode PETSc_Vec_to_STD_Vec(Vec petsc_vec,
   PetscScalar    val;
   int nb_view = Local->nb_field;
 
-  /*  // SCATTER/GATHER IF NOT SEQUENTIAL (each process needs the vector)
-  Vec petsc_vecSEQ;
-  const VecType type;
-  ierr = VecGetType(petsc_vec, &type);CHKERRQ(ierr);
-
-  if(strcmp(type, "seq")){//parallel vector -> must be sequentialized
-    VecScatter ctx_scat;
-    ierr = VecScatterCreateToAll(petsc_vec, &ctx_scat, &petsc_vecSEQ);CHKERRQ(ierr);
-    ierr = VecScatterBegin(ctx_scat, petsc_vec, petsc_vecSEQ, INSERT_VALUES, SCATTER_FORWARD);CHKERRQ(ierr);
-    ierr = VecScatterEnd(ctx_scat, petsc_vec, petsc_vecSEQ, INSERT_VALUES, SCATTER_FORWARD);CHKERRQ(ierr);
-#if (PETSC_VERSION_RELEASE == 0  || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
-    ierr = VecScatterDestroy(&ctx_scat);CHKERRQ(ierr);
-#else
-    ierr = VecScatterDestroy(ctx_scat);CHKERRQ(ierr);
-#endif
-}*/
-
   //initializing std_vec
   (*std_vec).resize(Local->nb_field);
   for (int cpt_view = 0 ; cpt_view < nb_view ; cpt_view++){
@@ -1047,33 +911,18 @@ PetscErrorCode PETSc_Vec_to_STD_Vec(Vec petsc_vec,
     for (int j = 0 ; j < nb_element ; j++) {
       int cpt = iStart + j;
 #if defined(PETSC_USE_COMPLEX)
-      /*      if(strcmp(type, "seq"))
-        ierr = VecGetValues(petsc_vecSEQ, 1, &cpt, &val);
-	else*/
       ierr = VecGetValues(petsc_vec, 1, &cpt, &val); CHKERRQ(ierr);
       (*std_vec)[cpt_view][0][j] = (double)PetscRealPart(val);
       (*std_vec)[cpt_view][1][j] = (double)PetscImaginaryPart(val);
 #else
-      /*      if(strcmp(type, "seq"))
-        ierr = VecGetValues(petsc_vecSEQ, 1, &cpt, &val);
-	else*/
+
       ierr = VecGetValues(petsc_vec, 1, &cpt, &val); CHKERRQ(ierr);
       (*std_vec)[cpt_view][0][j] = (double)(val);
-      /*      if(strcmp(type, "seq"))
-        ierr = VecGetValues(petsc_vecSEQ, 1, &cpt, &val);CHKERRQ(ierr);
-	else*/
       ierr = VecGetValues(petsc_vec, 1, &cpt, &val);CHKERRQ(ierr);
       (*std_vec)[cpt_view][1][j] = (double)(val);
 #endif
     }
   }
-  /*  if(strcmp(type, "seq")){
-#if (PETSC_VERSION_RELEASE == 0  || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
-    ierr = VecDestroy(&petsc_vecSEQ);CHKERRQ(ierr);
-#else
-    ierr = VecDestroy(petsc_vecSEQ);CHKERRQ(ierr);
-#endif
-}*/
   PetscFunctionReturn(0);
 }
 
@@ -1151,6 +1000,51 @@ PetscErrorCode Jacobi_Solver(Mat A, Vec X, Vec B, double Tol, int MaxIter)
 
   PetscFunctionReturn(0);
 }
+
+// ------------------------
+// PRECONDITIONING matrix-free
+// ------------------------
+// Matrix-vector product for the preconditioning. Quite a copy/past of MatMultILSMat
+PetscErrorCode MatMultPC(PC pc, Vec X, Vec Y)
+{
+  PetscErrorCode ierr;
+  std::vector<std::vector<std::vector<double> > > std_vec;
+  Field MyField, AllField;
+  ILSMat *ctx;
+
+  ierr = PCShellGetContext(pc, (void**)&ctx);CHKERRQ(ierr);
+
+  //convert X to a std vector
+  ierr = PETSc_Vec_to_STD_Vec(X, ctx->MyField, &std_vec);CHKERRQ(ierr);
+
+  // Update PViews
+  for (int cpt_view = 0; cpt_view < ctx->MyField->nb_field; cpt_view++){
+    PView *view = PView::getViewByTag(ctx->MyField->GmshTag[cpt_view]);
+    view->getData()->fromVector(std_vec[cpt_view]);
+  }
+
+  //PVIEW BCAST !
+  PViewBCast(*(ctx->MyField), *(ctx->AllField));
+  //Getdp resolution (contained in the matrix context)
+  Treatment_Operation(ctx->Resolution_P,
+                      ctx->Operation_P->Case.IterativeLinearSolver.Operations_Mx, //PRECONDITIONER !
+                      ctx->DofData_P0,
+                      ctx->GeoData_P0,
+                      NULL, NULL);
+  //Extract the (std) vector from the (new) .pos files
+  //This assumes that every process reads every .pos files
+  for(int cpt_view = 0; cpt_view < ctx->MyField->nb_field; cpt_view++) {
+    PView *view = PView::getViewByTag(ctx->MyField->GmshTag[cpt_view]);
+    view->getData()->toVector(std_vec[cpt_view]);
+  }
+
+  //Convert the obtained vector to a Petsc Vec
+  ierr = STD_vector_to_PETSc_Vec(std_vec, Y, ctx->MyField);CHKERRQ(ierr);
+
+  ierr = PetscBarrier((PetscObject)PETSC_NULL);CHKERRQ(ierr);
+  PetscFunctionReturn(0);
+}
+
 
 /*----- Orthonormalizer (modified gram-schmidt algormith) --------
   ----Used to orthonormalize initial deflated data (with DGMRES)----*/

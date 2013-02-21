@@ -32,6 +32,11 @@
 
 #define TWO_PI     6.2831853071795865
 
+// for performance tests
+#if !defined(WIN32)
+//#define TIMER
+#endif
+
 extern struct Problem Problem_S ;
 extern struct CurrentData Current ;
 
@@ -621,6 +626,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_GENERATEJAC :  Flag_Jac = 1 ;
     case OPERATION_GENERATERHS :
     case OPERATION_GENERATE :
+#ifdef TIMER
+      {double tstart = MPI_Wtime();
+#endif
       Init_OperationOnSystem(Get_StringForDefine(Operation_Type, Operation_P->Type),
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
 			     &DefineSystem_P, &DofData_P, Resolution2_P) ;
@@ -639,6 +647,14 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       DofData_P->Flag_RHS = 0;
       if(!Flag_Jac) Flag_CPU = 1 ;
+#ifdef TIMER
+      double timer = MPI_Wtime() - tstart;
+      if(Operation_P->Type == OPERATION_GENERATERHS)
+	printf("Proc %d, time spent in Generate_RHS %.16g\n", Message::GetCommRank(), timer);
+      else
+	printf("Proc %d, time spent in Generate %.16g\n", Message::GetCommRank(), timer);
+      }
+#endif
       break ;
 
       /*  -->  G e n e r a t e S e p a r a t e        */
@@ -905,7 +921,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  ------------------------------------------  */
     case OPERATION_SOLVEAGAIN : Flag_SolveAgain = 1 ;
     case OPERATION_SOLVE :
-//      printf("Operation_P->Rank = %d\n",Operation_P->Rank);
+#ifdef TIMER
+      {double tstart = MPI_Wtime();
+#endif
       /*  Solve : A x = b  */
       Init_OperationOnSystem(Flag_SolveAgain ? "SolveAgain" : "Solve",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
@@ -952,6 +970,14 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                           &DofData_P->CurrentSolution->x,
                           (Operation_P->Rank < 0) ? (-Operation_P->Rank-1) : 0) ;
       Flag_CPU = 1 ;
+#ifdef TIMER
+      double timer = MPI_Wtime() - tstart;
+      if(!Flag_SolveAgain)
+	printf("Proc %d, time spent in Solve %.16g\n", Message::GetCommRank(), timer);
+      else
+	printf("Proc %d, time spent in SolveAgain %.16g\n", Message::GetCommRank(), timer);
+    }
+#endif
       break ;
 
     // Using PETSC nonlinear solvers - SNES, nonlinear loop internal to PETSC
@@ -2394,9 +2420,17 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  ------------------------------- */
 
     case OPERATION_POSTOPERATION :
+#ifdef TIMER
+      {double tstart = MPI_Wtime();
+#endif
       Message::Info("PostOperation") ;
       Operation_PostOperation(Resolution_P, DofData_P0, GeoData_P0,
                               Operation_P->Case.PostOperation.PostOperations);
+#ifdef TIMER
+      double timer = MPI_Wtime() - tstart;
+      printf("Proc %d, time spent in PostOperation %.16g\n", Message::GetCommRank(), timer);
+    }
+#endif
       break ;
 
       /*  -->  D e l e t e F i l e  */

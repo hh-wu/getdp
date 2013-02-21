@@ -4438,6 +4438,7 @@ OperationTerm :
 
   | tIterativeLinearSolver '[' CharExpr ',' CharExpr ',' FExpr ',' FExpr ',' FExpr',' ListOfFExpr',' ListOfFExpr',' ListOfFExpr ']'
                            '{' Operation '}'
+                           '{' Operation '}'
     { List_Pop(Operation_L);
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
@@ -4451,7 +4452,7 @@ OperationTerm :
       Operation_P->Case.IterativeLinearSolver.NeighborFieldTag = $15;
       Operation_P->Case.IterativeLinearSolver.DeflationIndices = $17;
       Operation_P->Case.IterativeLinearSolver.Operations_Ax = $20;
-      Operation_P->Case.IterativeLinearSolver.Operations_Mx = 0;
+      Operation_P->Case.IterativeLinearSolver.Operations_Mx = $23;
     }
 
   | tPrint
