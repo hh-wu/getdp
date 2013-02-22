@@ -1389,6 +1389,7 @@ the only functions allowed in a constant definition (see the definition of
 @tindex $DTime
 @tindex $Theta
 @tindex $TimeStep
+@tindex $Breakpoint
 @tindex $Iteration
 @tindex $EigenvalueReal
 @tindex $EigenvalueImag
@@ -1416,6 +1417,10 @@ Value of the current time increment used in a time stepping algorithm.
 Current theta value in a theta time stepping algorithm.
 @item $TimeStep
 Number of the current time step in a time stepping algorithm.
+@item $Breakpoint
+In case of a breakpoint hit in TimeLoopAdaptive it is the number of the
+current breakpoint. In the other case when $Time corresponds not to a
+breakpoint the value is -1.
 @item $Iteration
 Number of the current iteration in a nonlinear loop.
 @item $EigenvalueReal
@@ -2694,6 +2699,7 @@ user-defined plane, etc.), and outputs the results in several file formats.
 PostOperation @{
   @{ Name @var{post-operation-id}; NameOfPostProcessing @var{post-processing-id}; 
     < Format @var{post-operation-fmt}; > < Append @var{expression-char}; >
+    < ResampleTime[@var{expression-cst, @var{expression-cst}, @var{expression-cst}}]; >
     Operation @{ 
       < @var{post-operation-op}; > @dots{} 
     @}
@@ -2750,6 +2756,9 @@ The format @var{post-operation-fmt} defined outside the @code{Operation}
 field is applied to all the post-processing operations, unless other formats
 are explicitly given in these operations with the @code{Format} option
 (@pxref{Types for PostOperation}). The default format is @code{Gmsh}.
+@item
+The @code{ResampleTime} option allows equidistant resampling of the time steps by a
+spline interpolation. The parameters are: start time, stop time, time step.
 @item
 The optional argument @code{[@var{group-def}]} of the @var{post-quantity-id}
 can only be used when this quantity has been defined as an

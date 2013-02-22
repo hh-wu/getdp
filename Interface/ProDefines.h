@@ -248,6 +248,7 @@ struct StringXPointer  Current_Value[] = {
   {"Iteration", &Current.Iteration},  {"Iter"     , &Current.Iteration},
   {"TimeImag" , &Current.TimeImag},   {"Eigenvalue" , &Current.Time},
   {"EigenvalueReal" , &Current.Time}, {"EigenvalueImag" , &Current.TimeImag},
+  {"Breakpoint" , &Current.Breakpoint},
 
   {"X"  , &Current.x}, {"Y"  , &Current.y},  {"Z"  , &Current.z},
   {"XS" , &Current.xs},{"YS" , &Current.ys}, {"ZS" , &Current.zs},

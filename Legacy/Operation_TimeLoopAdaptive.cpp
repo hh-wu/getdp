@@ -730,7 +730,8 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
   BreakpointAtNextStep = false;
   List_Read(Breakpoints_L, BreakpointNum, &nextBreakpoint);
   FirstTimePoint = Current.Time+Current.DTime;
-  if ((bool) List_Search(Breakpoints_L, &FirstTimePoint, fcmp_double)) {
+  Current.Breakpoint = List_ISearchSeq(Breakpoints_L, &FirstTimePoint, fcmp_double);
+  if (Current.Breakpoint >= 0) {
     BreakpointAtNextStep = true;
     DTimeBeforeBreakpoint = Current.DTime;
   }
@@ -924,6 +925,7 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
       DTimeBeforeBreakpoint = Current.DTime;
       Current.DTime = nextBreakpoint - Current.Time;
       BreakpointAtNextStep = true;
+      Current.Breakpoint = BreakpointNum;
       if (BreakpointNum < List_Nbr(Breakpoints_L)-1){
         // There are further breakpoints
         BreakpointNum++;
@@ -933,8 +935,10 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
         //No further breakpoint
         BreakpointNum = -1;
     }
-    else
+    else {
       BreakpointAtNextStep = false;
+      Current.Breakpoint = -1.;
+    }
 
     // Limit the min step size
     if (Current.DTime < DTimeMin)

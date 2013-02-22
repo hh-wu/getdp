@@ -1425,6 +1425,7 @@ struct CurrentData {
   // For TimeLoopAdaptive
   double  PredOrder, CorrOrder;
   double  aPredCoeff[7], aCorrCoeff[6], bCorrCoeff, PredErrorConst, CorrErrorConst;
+  double  Breakpoint;
 
   // For IterativeLoop
   double  Iteration, RelativeDifference, RelativeDifferenceOld;

@@ -476,6 +476,7 @@ void SolvingAnalyse()
       Current.Time = 0. ; Current.TimeImag = 0. ; Current.TimeStep = 0. ;
       Current.Iteration = 0 ;
       Current.RelativeDifference = 0. ; Current.RelaxationFactor = 1. ;
+      Current.Breakpoint = -1;
 
       TreatmentStatus = _CAL ;
 
@@ -586,6 +587,7 @@ void SolvingAnalyse()
     Current.RelaxationFactor = 1. ;
     Current.NbrSystem  = Nbr_DefineSystem ;  /* Attention: init for Dt[] */
     Current.DofData_P0 = DofData_P0 ;
+    Current.Breakpoint = -1;
 
     Treatment_Operation(Resolution_P, Resolution_P->Operation,
                         DofData_P0, GeoData_P0, NULL, NULL) ;
@@ -661,6 +663,7 @@ void SolvingAnalyse()
 	  Current.Time = Solution_P->Time ;
 	  Current.TimeImag = Solution_P->TimeImag ;
 	  Current.TimeStep = 0.;
+	  Current.Breakpoint = -1;
           Free(Solution_P->TimeFunctionValues);
 	  Solution_P->TimeFunctionValues = Get_TimeFunctionValues(DofData_P) ;
 	}
