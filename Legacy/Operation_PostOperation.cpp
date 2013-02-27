@@ -180,6 +180,8 @@ void Free_UnusedPOresults()
     switch (Current.TypeTime) {
     case TIME_THETA :
       index = List_Nbr(PostOpSolutions_P->Solutions_L)-4 ;
+      // Fore TimeLoopAdaptive (Trapezoidal) we need 3 past solutions for the predictor
+      index = Message::GetOperatingInTimeLoopAdaptive() ? index - 1 : index;
       break;
     case TIME_GEAR :
       // With -9 we store 7 past solutions (for Gear_6)
