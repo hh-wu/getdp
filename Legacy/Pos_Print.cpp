@@ -1286,6 +1286,9 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
       Cal_ZeroValue(&ValueSummed) ;
     }
 
+    if(Nbr_Region > 1)
+      Message::ResetProgressMeter();
+
     for(i = 0 ; i < Nbr_Region ; i++) {
 
       if (Region_L)
@@ -1342,6 +1345,9 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 	ValueSummed.Type = Value.Type ;
 	Cal_AddValue(&ValueSummed, &Value, &ValueSummed);
       }
+
+      if(Nbr_Region > 1)
+        Message::ProgressMeter(i + 1, Nbr_Region, "Post-processing (OnRegion)");
     }
 
     if (PSO_P->Format == FORMAT_REGION_VALUE) {
@@ -1357,7 +1363,6 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
           Message::Warning("Cannot send non-scalar values to server (yet)");
       }
     }
-
   }
 
   Format_PostFooter(PSO_P, 0);
