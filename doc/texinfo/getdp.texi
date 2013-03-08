@@ -123,7 +123,7 @@ dimensions. This is the @cite{GetDP Reference Manual} for GetDP
 * Objects::                     Definition of the 10 GetDP objects.
 * Types for objects::           Definition of all available types for the 10 objects.
 * Short examples::              Simple object examples.
-* Compssvlete examples::           Some simple complete examples.
+* Complete examples::           Some simple complete examples.
 * File formats::                Input and output file formats.
 * Gmsh examples::               Sample Gmsh input files.
 * Frequently asked questions::  The GetDP FAQ
@@ -2699,7 +2699,7 @@ user-defined plane, etc.), and outputs the results in several file formats.
 PostOperation @{
   @{ Name @var{post-operation-id}; NameOfPostProcessing @var{post-processing-id}; 
     < Format @var{post-operation-fmt}; > < Append @var{expression-char}; >
-    < ResampleTime[@var{expression-cst, @var{expression-cst}, @var{expression-cst}}]; >
+    < ResampleTime[@var{expression-cst}, @var{expression-cst}, @var{expression-cst}]; >
     Operation @{ 
       < @var{post-operation-op}; > @dots{} 
     @}
@@ -4650,7 +4650,7 @@ Graph, etc. The columns are: @var{time-step} @var{time} @var{x-coord}
 @item NodeTable
 Table of node values. The first value corresponds to the number of listed
 nodes. The columns of the following lines are: @var{node-number}
-@var{node-value(s)}
+@var{node-value}(s)
 
 @item Gnuplot
 Space oriented column output similar to the @code{Table} format, except that
