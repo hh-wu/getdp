@@ -123,7 +123,7 @@ dimensions. This is the @cite{GetDP Reference Manual} for GetDP
 * Objects::                     Definition of the 10 GetDP objects.
 * Types for objects::           Definition of all available types for the 10 objects.
 * Short examples::              Simple object examples.
-* Complete examples::           Some simple complete examples.
+* Compssvlete examples::           Some simple complete examples.
 * File formats::                Input and output file formats.
 * Gmsh examples::               Sample Gmsh input files.
 * Frequently asked questions::  The GetDP FAQ
@@ -3384,6 +3384,58 @@ expressions in @var{expression-cst-list} must be even.
 
 Returns the interpolation order of the @var{quantity}.
 
+@item Field
+@code{[@var{expression}]}
+
+Evaluate the last one of the fields loaded with @code{GmshRead}
+(@pxref{Types for Resolution}), at the point @var{expression}. Common
+usage is thus @code{Field[XYZ[]]}.
+
+@item Field
+@code{[@var{expression}]}
+
+Evaluate the last one of the fields loaded with @code{GmshRead}
+(@pxref{Types for Resolution}), at the point @var{expression}. Common
+usage is thus @code{Field[XYZ[]]}.
+
+@item Field
+@code{[@var{expression}]@{@var{expression-cst-list}@}}
+
+Idem, but evaluate all the fields corresponding to the tags in the
+list. The sum of all the values is returned. A field having no value at
+the given position is not an error: its contribution to the sum is
+simply assumed to be zero.
+
+@item ScalarField
+@code{[@var{expression}]@{@var{expression-cst-list}@}}
+
+Idem, but considers only real-valued scalar fields.
+
+@item VectorField
+@code{[@var{expression}]@{@var{expression-cst-list}@}}
+
+Idem, but considers only real-valued vector fields.
+
+@item TensorField
+@code{[@var{expression}]@{@var{expression-cst-list}@}}
+
+Idem, but considers only real-valued vector fields.
+
+@item ComplexScalarField
+@code{[@var{expression}]@{@var{expression-cst-list}@}}
+
+Idem, but considers only complex-valued scalar fields.
+
+@item ComplexVectorField
+@code{[@var{expression}]@{@var{expression-cst-list}@}}
+
+Idem, but considers only complex-valued vector fields.
+
+@item ComplexTensorField
+@code{[@var{expression}]@{@var{expression-cst-list}@}}
+
+Idem, but considers only complex-valued vector fields.
+
 @end ftable
 
 
@@ -4059,12 +4111,27 @@ Time loop of a theta scheme. The parameters are: the initial time, the end
 time, the time step and the theta parameter (e.g., 1 for implicit
 Euler, 0.5 for Crank-Nicholson).
 
+Warning: GetDP automatically handles time-dependent constraints when
+they are provided using the @code{TimeFunction} mechanism in an
+@code{Assign}-type @code{Constraint} (@pxref{Constraint}). However,
+GetDP cannot automatically transform general time-dependent source terms
+in weak formulations (time-dependent functions written in a
+@code{Galerkin} term). Such source terms will be correctly treated only
+for implicit Euler, as the expression in the @code{Galerkin} term is
+evaluated at the current time step. For other schemes, the source term
+should be written explicitly, by splitting it in two (@code{theta f_n+1
++ (1-theta) f_n}), making use of the @code{AtAnteriorTimeStep[]} for the
+second part, and specifying @code{NeverDt} in the @code{Galerkin} term.
+
 @item TimeLoopNewmark
 @code{[@var{expression-cst},@var{expression-cst},@var{expression},@var{expression-cst},@var{expression-cst}]}@*
 @{ @var{resolution-op} @}
 
 Time loop of a Newmark scheme. The parameters are: the initial time, the end
 time, the time step, the beta and the gamma parameter.
+
+Warning: same restrictions apply for time-dependent functions in the
+weak formulations as for @code{TimeLoopTheta}.
 
 @item TimeLoopAdaptive
 @code{[@var{expression-cst},@var{expression-cst},@var{expression-cst},@var{expression-cst},
@@ -4127,6 +4194,24 @@ MeanL2Norm, LinfNorm}.@*
 @code{[@var{post-operation-id}]}
 
 Perform the specified @code{PostOperation}.
+
+@item GmshRead
+@code{[@var{expression-char}]}
+
+When GetDP is linked with the Gmsh library, read a file using Gmsh. This
+file can be in any format recognized by Gmsh. If the file contains one
+or multiple post-processing fields, these fields will be evaluated using
+the built-in @code{Field[]}, @code{ScalarField[]}, @code{VectorField[]},
+etc., functions (@pxref{Miscellaneous functions}).
+
+@item GmshRead
+@code{[@var{expression-char}, @var{expression-cst}]}
+
+Same thing as the @code{GmshRead} command above, except that the field
+is forced to be stored with the given tag. The tag can be used to
+retrieve the given field with the built-in @code{Field[]},
+@code{ScalarField[]}, @code{VectorField[]}, etc., functions
+(@pxref{Miscellaneous functions}).
 
 @c todo:
 

@@ -328,6 +328,7 @@ LastTimeStepOnly             return tLastTimeStepOnly;
 AppendTimeStepToFileName     return tAppendTimeStepToFileName;
 OverrideTimeStepValue        return tOverrideTimeStepValue;
 SendToServer                 return tSendToServer;
+Color                        return tColor;
 NewCoordinates               return tNewCoordinates;
 
 If                           return tIf;

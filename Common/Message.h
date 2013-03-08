@@ -92,7 +92,7 @@ class Message {
   static std::string GetOnelabClientName();
   static void GetOnelabString(std::string name, char **val);
   static std::string GetOnelabAction();
-  static void AddOnelabNumberChoice(std::string name, double val);
+  static void AddOnelabNumberChoice(std::string name, double val, const char *color=0);
   static void AddOnelabStringChoice(std::string name, std::string kind,
                                     std::string choice);
   typedef std::map<std::string, std::vector<double> > fmap;

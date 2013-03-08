@@ -264,7 +264,7 @@ struct doubleXstring{
 %token        tTimeLegend tFrequencyLegend tEigenvalueLegend
 %token        tEvaluationPoints tStoreInRegister tStoreInField
 %token        tLastTimeStepOnly tAppendTimeStepToFileName
-%token        tOverrideTimeStepValue tNoMesh tSendToServer tStr tDate
+%token        tOverrideTimeStepValue tNoMesh tSendToServer tColor tStr tDate
 %token        tNewCoordinates
 
 /* ------------------------------------------------------------------ */
@@ -5694,8 +5694,8 @@ PostOperationTerm :
     {
       PostOperation_S.AppendString = $2;
     }
-  
-  | tResampleTime '[' FExpr ',' FExpr ',' FExpr ']' tEND  
+
+  | tResampleTime '[' FExpr ',' FExpr ',' FExpr ']' tEND
     {
       PostOperation_S.ResampleTime = true;
       PostOperation_S.ResampleTimeStart = $3;
@@ -6084,6 +6084,7 @@ PrintOptions :
       PostSubOperation_S.OverrideTimeStepValue = -1;
       PostSubOperation_S.NoMesh = 0;
       PostSubOperation_S.SendToServer = NULL;
+      PostSubOperation_S.Color = NULL;
       PostSubOperation_S.ValueIndex = 0;
       PostSubOperation_S.ValueName = NULL;
       PostSubOperation_S.Label = NULL;
@@ -6385,6 +6386,10 @@ PrintOption :
   | ',' tSendToServer CharExpr
     {
       PostSubOperation_S.SendToServer = $3;
+    }
+  | ',' tColor CharExpr
+    {
+      PostSubOperation_S.Color = $3;
     }
   | ',' tNewCoordinates CharExpr
     {
