@@ -3387,54 +3387,46 @@ Returns the interpolation order of the @var{quantity}.
 @item Field
 @code{[@var{expression}]}
 
-Evaluate the last one of the fields loaded with @code{GmshRead}
-(@pxref{Types for Resolution}), at the point @var{expression}. Common
-usage is thus @code{Field[XYZ[]]}.
-
-@item Field
-@code{[@var{expression}]}
-
-Evaluate the last one of the fields loaded with @code{GmshRead}
-(@pxref{Types for Resolution}), at the point @var{expression}. Common
-usage is thus @code{Field[XYZ[]]}.
+Evaluate the last one of the fields (``views'') loaded with
+@code{GmshRead} (@pxref{Types for Resolution}), at the point
+@var{expression}. Common usage is thus @code{Field[XYZ[]]}.
 
 @item Field
 @code{[@var{expression}]@{@var{expression-cst-list}@}}
 
-Idem, but evaluate all the fields corresponding to the tags in the
-list. The sum of all the values is returned. A field having no value at
-the given position is not an error: its contribution to the sum is
-simply assumed to be zero.
+Idem, but evaluate all the fields corresponding to the tags in the list,
+and sum all the values. A field having no value at the given position
+does not produce an error: its contribution to the sum is simply zero.
 
 @item ScalarField
 @code{[@var{expression}]@{@var{expression-cst-list}@}}
 
-Idem, but considers only real-valued scalar fields.
+Idem, but consider only real-valued scalar fields.
 
 @item VectorField
 @code{[@var{expression}]@{@var{expression-cst-list}@}}
 
-Idem, but considers only real-valued vector fields.
+Idem, but consider only real-valued vector fields.
 
 @item TensorField
 @code{[@var{expression}]@{@var{expression-cst-list}@}}
 
-Idem, but considers only real-valued vector fields.
+Idem, but consider only real-valued tensor fields.
 
 @item ComplexScalarField
 @code{[@var{expression}]@{@var{expression-cst-list}@}}
 
-Idem, but considers only complex-valued scalar fields.
+Idem, but consider only complex-valued scalar fields.
 
 @item ComplexVectorField
 @code{[@var{expression}]@{@var{expression-cst-list}@}}
 
-Idem, but considers only complex-valued vector fields.
+Idem, but consider only complex-valued vector fields.
 
 @item ComplexTensorField
 @code{[@var{expression}]@{@var{expression-cst-list}@}}
 
-Idem, but considers only complex-valued vector fields.
+Idem, but consider only complex-valued tensor fields.
 
 @end ftable
 
@@ -4597,8 +4589,8 @@ register @var{expression-cst}.
 @item StoreInField
 @code{@var{expression-cst}}
 
-Stores the result of a post-processing operation in the
-field (Gmsh view) @var{expression-cst}.
+Stores the result of a post-processing operation in the field (Gmsh
+view) with tag @var{expression-cst}.
 
 @item TimeLegend
 @code{< @{ @var{expression}, @var{expression}, @var{expression} @} >}

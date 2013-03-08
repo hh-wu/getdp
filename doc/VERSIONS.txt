@@ -1,5 +1,5 @@
-2.3.0: moved build system from autoconf to cmake; improved list handling;
-general code cleanup.
+2.3.0: moved build system from autoconf to cmake; new family of Field functions
+to use data imported from Gmsh; improved list handling; general code cleanup.
 
 2.2.1: cleaned up nonlinear convergence tests and integrated experimental
 adaptive time loop code; small bug fixes.
