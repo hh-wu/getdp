@@ -25,7 +25,7 @@ set(OPT "${OPT} -DPETSC_DIR=$ENV{HOME}/src/petsc-3.1-p8")
 set(OPT "${OPT} -DSLEPC_DIR=$ENV{HOME}/src/slepc-3.1-p6")
 set(CTEST_BUILD_OPTIONS ${OPT})
 include(getdp.ctest)
-upload_package(${WEB_BIN} Win 32c .zip .zip)
+upload_package(${WEB_BIN} Windows 32c .zip .zip)
 
 #################################################################################
 set(CTEST_BUILD_NAME "Win32-PETScReal")
@@ -41,7 +41,7 @@ set(OPT "${OPT} -DPETSC_DIR=$ENV{HOME}/src/petsc-3.1-p8")
 set(OPT "${OPT} -DSLEPC_DIR=$ENV{HOME}/src/slepc-3.1-p6")
 set(CTEST_BUILD_OPTIONS ${OPT})
 include(getdp.ctest)
-upload_package(${WEB_BIN} Win 32r .zip .zip)
+upload_package(${WEB_BIN} Windows 32r .zip .zip)
 
 #################################################################################
 set(CTEST_BUILD_NAME "Win32-Sparskit")
@@ -54,7 +54,7 @@ set(OPT "${OPT} -DENABLE_SPARSKIT=1")
 set(OPT "${OPT} -DENABLE_PETSC=0")
 set(CTEST_BUILD_OPTIONS ${OPT})
 include(getdp.ctest)
-upload_package(${WEB_BIN} Win 32s .zip .zip)
+upload_package(${WEB_BIN} Windows 32s .zip .zip)
 
 ####################  NX builds for Dr. Binde Ingenieure ########################
 
@@ -75,7 +75,7 @@ set(OPT "${OPT} -DSLEPC_DIR=$ENV{HOME}/src/slepc-3.1-p6")
 set(OPT "${OPT} -DENABLE_NX=1")
 set(CTEST_BUILD_OPTIONS ${OPT})
 include(getdp.ctest)
-upload_package(${WEB_BIN} Win 32c .zip .zip)
+upload_package(${WEB_BIN} Windows 32c .zip .zip)
 
 #################################################################################
 set(CTEST_BUILD_NAME "Win32-PETScReal-NX")
@@ -92,4 +92,4 @@ set(OPT "${OPT} -DSLEPC_DIR=$ENV{HOME}/src/slepc-3.1-p6")
 set(OPT "${OPT} -DENABLE_NX=1")
 set(CTEST_BUILD_OPTIONS ${OPT})
 include(getdp.ctest)
-upload_package(${WEB_BIN} Win 32r .zip .zip)
+upload_package(${WEB_BIN} Windows 32r .zip .zip)
