@@ -1,4 +1,4 @@
-// Gmsh - Copyright (C) 1997-2012 C. Geuzaine, J.-F. Remacle
+// Gmsh - Copyright (C) 1997-2013 C. Geuzaine, J.-F. Remacle
 //
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
@@ -22,7 +22,7 @@
 // ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE
 // OF THIS SOFTWARE.
 //
-// Please report all bugs and problems to <gmsh@geuz.org>.
+// Please report all bugs and problems to the public mailing list <gmsh@geuz.org>.
 
 #ifndef _GMSH_SOCKET_H_
 #define _GMSH_SOCKET_H_
@@ -75,6 +75,9 @@ class GmshSocket{
     GMSH_PARAMETER_QUERY = 24,
     GMSH_PARAM_QUERY_ALL = 25,
     GMSH_PARAM_QUERY_END = 26,
+    GMSH_CONNECT         = 27,
+    GMSH_OLPARSE         = 28,
+    GMSH_PARAM_NOT_FOUND = 29,
     GMSH_SPEED_TEST      = 30,
     GMSH_OPTION_1        = 100,
     GMSH_OPTION_2        = 101,
@@ -165,7 +168,9 @@ class GmshSocket{
     FD_SET(s, &rfds);
     // select checks all IO descriptors between 0 and its first arg,
     // minus 1... hence the +1 below
-    return select(s + 1, &rfds, NULL, NULL, &tv);
+    int ret = select(s + 1, &rfds, NULL, NULL, &tv);
+    if(ret > 0 && FD_ISSET(s, &rfds)) return 1;
+    return ret;
   }
   void SendMessage(int type, int length, const void *msg)
   {

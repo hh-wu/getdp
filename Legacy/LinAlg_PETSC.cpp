@@ -64,6 +64,7 @@ static PetscViewer MyPetscViewer;
 
 static void _try(int ierr)
 {
+  CHKERRCONTINUE(ierr);
   if(PetscUnlikely(ierr)){
     // Do not produce an error in case of a PETSc-crash
     // when we are in TimeLoopAdaptive loop
@@ -73,7 +74,6 @@ static void _try(int ierr)
       Message::Error("PETSc error %d", ierr);
     Message::SetLastPETScError(ierr);
   }
-  CHKERRCONTINUE(ierr);
 }
 
 static int SolverInitialized = 0;
