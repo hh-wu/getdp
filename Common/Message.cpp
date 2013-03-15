@@ -569,8 +569,10 @@ void Message::InitializeOnelab(std::string name, std::string sockname)
     // getdp is called without onelab server, but with the name of a onelab
     // database file
     _onelabClient = new onelab::localClient("GetDP");
-    Message::Info("Reading OneLab database '%s'", name.c_str());
-    _onelabClient->fromFile(name);
+    if(name != "GetDP"){
+      Message::Info("Reading OneLab database '%s'", name.c_str());
+      _onelabClient->fromFile(name);
+    }
   }
 }
 
