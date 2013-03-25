@@ -951,7 +951,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       }
 
       if(!Flag_SolveAgain){
-//      printf("Operation_P->Rank = %d\n",Operation_P->Rank);
 	LinAlg_Solve(&DofData_P->A, &DofData_P->b, &DofData_P->Solver,
 		     &DofData_P->CurrentSolution->x,
                      (Operation_P->Rank < 0) ? (-Operation_P->Rank-1) : 0) ;
@@ -1905,6 +1904,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  ------------------------------------------  */
 
     case OPERATION_EVALUATE :
+      printf("MPI_Rank = %d and Operation_P->Rank = %d\n",Message::GetCommRank(), Operation_P->Rank);
       Get_ValueOfExpressionByIndex(Operation_P->Case.Evaluate.ExpressionIndex,
 				   NULL, 0., 0., 0., &Value) ;
       break ;

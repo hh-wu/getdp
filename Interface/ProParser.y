@@ -3972,6 +3972,7 @@ OperationTerm :
 	Operation_P->Case.Generate.GroupIndex = -1;
 
       if($4 >= 0) Operation_P->Rank = $4;
+      else Operation_P->Rank = -1;
     }
 
   | tSetTime '[' Expression ']' tEND
@@ -4227,11 +4228,13 @@ OperationTerm :
       Operation_P->Case.EigenSolve.Shift_i = $9;
     }
 
-  | tEvaluate '[' Expression ']' tEND
+  | tEvaluate '[' Expression CommaFExprOrNothing ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_EVALUATE;
       Operation_P->Case.Evaluate.ExpressionIndex = (int)$3;
+      if($4 >= 0 ) Operation_P->Rank = $4;
+      else Operation_P->Rank = -1;
     }
 
   | tSelectCorrection '[' String__Index ',' FExpr ']' tEND
@@ -4506,6 +4509,7 @@ OperationTerm :
       List_Add(Operation_P->Case.PostOperation.PostOperations, &$3);
 
       if($4 >= 0) Operation_P->Rank = $4;
+      else Operation_P->Rank = -1;
     }
 
   | tSystemCommand '[' CharExpr ']' tEND
@@ -4789,6 +4793,7 @@ OperationTerm :
       Operation_P->Type = OPERATION_GENERATE;
       Operation_P->Case.Generate.GroupIndex = i;
       if($6 >= 0) Operation_P->Rank = $6;
+      else Operation_P->Rank = -1;
     }
 
   | tGenerateJacGroup  '[' String__Index ',' String__Index CommaFExprOrNothing ']'  tEND
@@ -4806,6 +4811,7 @@ OperationTerm :
       Operation_P->Type = OPERATION_GENERATEJAC;
       Operation_P->Case.Generate.GroupIndex = i;
       if($6 >= 0) Operation_P->Rank = $6;
+      else Operation_P->Rank = -1;
     }
 
   | tGenerateRHSGroup  '[' String__Index ',' String__Index CommaFExprOrNothing ']'  tEND
@@ -4823,6 +4829,7 @@ OperationTerm :
       Operation_P->Type = OPERATION_GENERATERHS;
       Operation_P->Case.Generate.GroupIndex = i;
       if($6 >= 0) Operation_P->Rank = $6;
+      else Operation_P->Rank = -1;
     }
 
     // FIXME: Roman

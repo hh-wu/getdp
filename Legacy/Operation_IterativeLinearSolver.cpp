@@ -17,7 +17,7 @@
 
 // for performance tests
 #if !defined(WIN32)
-#define TIMER
+//#define TIMER
 #endif
 
 #if defined(HAVE_PETSC) && defined(HAVE_GMSH)
