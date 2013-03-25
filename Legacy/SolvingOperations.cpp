@@ -1904,8 +1904,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  ------------------------------------------  */
 
     case OPERATION_EVALUATE :
-      printf("MPI_Rank = %d and Operation_P->Rank = %d\n",Message::GetCommRank(), Operation_P->Rank);
-      Get_ValueOfExpressionByIndex(Operation_P->Case.Evaluate.ExpressionIndex,
+       Get_ValueOfExpressionByIndex(Operation_P->Case.Evaluate.ExpressionIndex,
 				   NULL, 0., 0., 0., &Value) ;
       break ;
 
