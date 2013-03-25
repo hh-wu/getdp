@@ -1053,7 +1053,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       // of A)
 
       LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x, &DofData_P->res) ;
-      LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->Jac, &DofData_P->A) ;
+      LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->Jac, &DofData_P->A) ; // Problem with PETSc 3.3
       // res = b(xn)-A(xn)*xn
       LinAlg_SubVectorVector(&DofData_P->b, &DofData_P->res, &DofData_P->res) ;
       LinAlg_DummyVector(&DofData_P->res) ;
@@ -1094,7 +1094,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       LinAlg_AddVectorVector(&DofData_P->CurrentSolution->x, &DofData_P->dx,
 			     &DofData_P->CurrentSolution->x) ;
-
       Flag_CPU = 1 ;
       break ;
 
@@ -2078,10 +2077,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	Get_ValueOfExpressionByIndex
 	  (Operation_P->Case.IterativeLoop.RelaxationFactorIndex,
 	   NULL, 0., 0., 0., &Value) ;
-        if(Current.RelaxationFactor != Value.Val[0]){
-           Message::Info("Non Linear Iteration Relaxation %g", (int)Current.Iteration,
-                         Current.RelaxationFactor) ;
+        if(Current.RelaxationFactor != Value.Val[0] || Num_Iteration == 1){
            Current.RelaxationFactor = Value.Val[0] ;
+           Message::Info("Non Linear Iteration Relaxation %g", Current.RelaxationFactor) ;
         }
 
 	Flag_IterativeLoop = Operation_P->Case.IterativeLoop.Flag ; /* Attention: Test */
