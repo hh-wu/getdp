@@ -3971,9 +3971,9 @@ OperationTerm :
          Operation_P->Type == OPERATION_GENERATESEPARATE)
 	Operation_P->Case.Generate.GroupIndex = -1;
       
-      if($4 >= 0) Operation_P->Rank = $4;
+      if($4 >= -1) Operation_P->Rank = $4;
       else {
-	if ($4 != -1) Message::Warning("Negative MPI Rank") ;
+	Message::Warning("Negative MPI Rank");
 	Operation_P->Rank = -1;
       }
     }
@@ -4236,9 +4236,9 @@ OperationTerm :
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_EVALUATE;
       Operation_P->Case.Evaluate.ExpressionIndex = (int)$3;
-      if($4 >= 0 ) Operation_P->Rank = $4;
+      if($4 >= -1) Operation_P->Rank = $4;
       else {
-	if ($4 != -1) Message::Warning("Negative MPI Rank") ;
+	Message::Warning("Negative MPI Rank");
 	Operation_P->Rank = -1;
       }
     }
@@ -4514,9 +4514,9 @@ OperationTerm :
 	List_Create(1,1,sizeof(char*));
       List_Add(Operation_P->Case.PostOperation.PostOperations, &$3);
 
-      if($4 >= 0) Operation_P->Rank = $4;
+      if($4 >= -1) Operation_P->Rank = $4;
       else {
-	if ($4 != -1) Message::Warning("Negative MPI Rank") ;
+	Message::Warning("Negative MPI Rank");
 	Operation_P->Rank = -1;
       }
     }
@@ -4801,9 +4801,9 @@ OperationTerm :
       Free($5);
       Operation_P->Type = OPERATION_GENERATE;
       Operation_P->Case.Generate.GroupIndex = i;
-      if($6 >= 0) Operation_P->Rank = $6;
+      if($6 >= -1) Operation_P->Rank = $6;
       else {
-	if ($6 != -1) Message::Warning("Negative MPI Rank") ;
+	Message::Warning("Negative MPI Rank");
 	Operation_P->Rank = -1;
       }
     }
@@ -4822,9 +4822,9 @@ OperationTerm :
       Free($5);
       Operation_P->Type = OPERATION_GENERATEJAC;
       Operation_P->Case.Generate.GroupIndex = i;
-      if($6 >= 0) Operation_P->Rank = $6;
+      if($6 >= -1) Operation_P->Rank = $6;
       else {
-	if ($6 != -1) Message::Warning("Negative MPI Rank") ;
+	Message::Warning("Negative MPI Rank");
 	Operation_P->Rank = -1;
       }
     }
@@ -4843,9 +4843,9 @@ OperationTerm :
       Free($5);
       Operation_P->Type = OPERATION_GENERATERHS;
       Operation_P->Case.Generate.GroupIndex = i;
-      if($6 >= 0) Operation_P->Rank = $6;
+      if($6 >= -1) Operation_P->Rank = $6;
       else {
-	if ($6 != -1) Message::Warning("Negative MPI Rank") ;
+	Message::Warning("Negative MPI Rank");
 	Operation_P->Rank = -1;
       }
     }

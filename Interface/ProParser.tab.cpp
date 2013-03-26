@@ -9522,9 +9522,9 @@ yyreduce:
          Operation_P->Type == OPERATION_GENERATESEPARATE)
 	Operation_P->Case.Generate.GroupIndex = -1;
       
-      if((yyvsp[(4) - (6)].i) >= 0) Operation_P->Rank = (yyvsp[(4) - (6)].i);
+      if((yyvsp[(4) - (6)].i) >= -1) Operation_P->Rank = (yyvsp[(4) - (6)].i);
       else {
-	if ((yyvsp[(4) - (6)].i) != -1) Message::Warning("Negative MPI Rank") ;
+	Message::Warning("Negative MPI Rank");
 	Operation_P->Rank = -1;
       }
     ;}
@@ -9825,9 +9825,9 @@ yyreduce:
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_EVALUATE;
       Operation_P->Case.Evaluate.ExpressionIndex = (int)(yyvsp[(3) - (6)].i);
-      if((yyvsp[(4) - (6)].i) >= 0 ) Operation_P->Rank = (yyvsp[(4) - (6)].i);
+      if((yyvsp[(4) - (6)].i) >= -1) Operation_P->Rank = (yyvsp[(4) - (6)].i);
       else {
-	if ((yyvsp[(4) - (6)].i) != -1) Message::Warning("Negative MPI Rank") ;
+	Message::Warning("Negative MPI Rank");
 	Operation_P->Rank = -1;
       }
     ;}
@@ -10128,9 +10128,9 @@ yyreduce:
 	List_Create(1,1,sizeof(char*));
       List_Add(Operation_P->Case.PostOperation.PostOperations, &(yyvsp[(3) - (6)].c));
 
-      if((yyvsp[(4) - (6)].i) >= 0) Operation_P->Rank = (yyvsp[(4) - (6)].i);
+      if((yyvsp[(4) - (6)].i) >= -1) Operation_P->Rank = (yyvsp[(4) - (6)].i);
       else {
-	if ((yyvsp[(4) - (6)].i) != -1) Message::Warning("Negative MPI Rank") ;
+	Message::Warning("Negative MPI Rank");
 	Operation_P->Rank = -1;
       }
     ;}
@@ -10455,9 +10455,9 @@ yyreduce:
       Free((yyvsp[(5) - (8)].c));
       Operation_P->Type = OPERATION_GENERATE;
       Operation_P->Case.Generate.GroupIndex = i;
-      if((yyvsp[(6) - (8)].i) >= 0) Operation_P->Rank = (yyvsp[(6) - (8)].i);
+      if((yyvsp[(6) - (8)].i) >= -1) Operation_P->Rank = (yyvsp[(6) - (8)].i);
       else {
-	if ((yyvsp[(6) - (8)].i) != -1) Message::Warning("Negative MPI Rank") ;
+	Message::Warning("Negative MPI Rank");
 	Operation_P->Rank = -1;
       }
     ;}
@@ -10478,9 +10478,9 @@ yyreduce:
       Free((yyvsp[(5) - (8)].c));
       Operation_P->Type = OPERATION_GENERATEJAC;
       Operation_P->Case.Generate.GroupIndex = i;
-      if((yyvsp[(6) - (8)].i) >= 0) Operation_P->Rank = (yyvsp[(6) - (8)].i);
+      if((yyvsp[(6) - (8)].i) >= -1) Operation_P->Rank = (yyvsp[(6) - (8)].i);
       else {
-	if ((yyvsp[(6) - (8)].i) != -1) Message::Warning("Negative MPI Rank") ;
+	Message::Warning("Negative MPI Rank");
 	Operation_P->Rank = -1;
       }
     ;}
@@ -10501,9 +10501,9 @@ yyreduce:
       Free((yyvsp[(5) - (8)].c));
       Operation_P->Type = OPERATION_GENERATERHS;
       Operation_P->Case.Generate.GroupIndex = i;
-      if((yyvsp[(6) - (8)].i) >= 0) Operation_P->Rank = (yyvsp[(6) - (8)].i);
+      if((yyvsp[(6) - (8)].i) >= -1) Operation_P->Rank = (yyvsp[(6) - (8)].i);
       else {
-	if ((yyvsp[(6) - (8)].i) != -1) Message::Warning("Negative MPI Rank") ;
+	Message::Warning("Negative MPI Rank");
 	Operation_P->Rank = -1;
       }
     ;}
