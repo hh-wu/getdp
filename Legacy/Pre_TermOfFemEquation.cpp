@@ -43,6 +43,7 @@ void Pre_InitTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
 
 bool IsEquationNonLocal(BasisFunction *bf)
 {
+  if(!bf) return false;
   if(bf->Function == (void(*)())BF_Region ||
      bf->Function == (void(*)())BF_RegionX ||
      bf->Function == (void(*)())BF_RegionY ||
@@ -139,14 +140,14 @@ void Pre_TermOfFemEquation(struct Element          * Element,
 
     for (i = 0 ; i < QuantityStorageEqu_P->NbrElementaryBasisFunction ; i++){
 
-      NonLocal = (QuantityStorageEqu_P->TypeQuantity == INTEGRALQUANTITY) || 
+      NonLocal = (QuantityStorageEqu_P->TypeQuantity == INTEGRALQUANTITY) ||
         IsEquationNonLocal(QuantityStorageEqu_P->BasisFunction[i].BasisFunction);
 
       switch(QuantityStorageEqu_P->BasisFunction[i].Constraint){
       case NONE:
 	Dof_DefineUnknownDof
 	  (QuantityStorageEqu_P->BasisFunction[i].CodeBasisFunction,
-	   QuantityStorageEqu_P->BasisFunction[i].CodeEntity, Current.NbrHar, 
+	   QuantityStorageEqu_P->BasisFunction[i].CodeEntity, Current.NbrHar,
            NonLocal) ;
 	break;
       case ASSIGN:
@@ -160,7 +161,7 @@ void Pre_TermOfFemEquation(struct Element          * Element,
 	Dof_DefineInitFixedDof
 	  (QuantityStorageEqu_P->BasisFunction[i].CodeBasisFunction,
 	   QuantityStorageEqu_P->BasisFunction[i].CodeEntity, Current.NbrHar,
-	   QuantityStorageEqu_P->BasisFunction[i].Value, 
+	   QuantityStorageEqu_P->BasisFunction[i].Value,
            NonLocal) ;
 	break;
       case ASSIGNFROMRESOLUTION:
@@ -193,13 +194,13 @@ void Pre_TermOfFemEquation(struct Element          * Element,
   }
 
   if (QuantityStorageDof_P &&
-      (QuantityStorageDof_P != QuantityStorageEqu_P) && 
+      (QuantityStorageDof_P != QuantityStorageEqu_P) &&
       (QuantityStorageDof_P->NumLastElementForDofDefinition != Element->Num)) {
     QuantityStorageDof_P->NumLastElementForDofDefinition = Element->Num ;
 
     for (i = 0 ; i < QuantityStorageDof_P->NbrElementaryBasisFunction ; i++)
 
-      NonLocal = (QuantityStorageEqu_P->TypeQuantity == INTEGRALQUANTITY) || 
+      NonLocal = (QuantityStorageEqu_P->TypeQuantity == INTEGRALQUANTITY) ||
         IsEquationNonLocal(QuantityStorageEqu_P->BasisFunction[i].BasisFunction);
 
       switch(QuantityStorageDof_P->BasisFunction[i].Constraint){
@@ -214,7 +215,7 @@ void Pre_TermOfFemEquation(struct Element          * Element,
 	Dof_DefineInitFixedDof
 	  (QuantityStorageDof_P->BasisFunction[i].CodeBasisFunction,
 	   QuantityStorageDof_P->BasisFunction[i].CodeEntity, Current.NbrHar,
-	   QuantityStorageDof_P->BasisFunction[i].Value, 
+	   QuantityStorageDof_P->BasisFunction[i].Value,
            NonLocal) ;
         break;
       case ASSIGNFROMRESOLUTION:
@@ -308,7 +309,7 @@ void Pre_GlobalTermOfFemEquation(int  Num_Region,
       Dof_DefineInitFixedDof
 	(QuantityStorageEqu_P->BasisFunction[0].CodeBasisFunction,
 	 QuantityStorageEqu_P->BasisFunction[0].CodeEntity, Current.NbrHar,
-	 QuantityStorageEqu_P->BasisFunction[0].Value, 
+	 QuantityStorageEqu_P->BasisFunction[0].Value,
          true) ;
       break;
     case ASSIGNFROMRESOLUTION:
@@ -626,7 +627,7 @@ void Pre_FemGlobalEquation(struct EquationTerm    * EquationTerm_P,
     Message::Error("(%d equations obtained while %d branches are defined)",
                    Nbr_GlobalEqu, Nbr_EquAndDof);
   }
-  
+
   List_Delete(RegionIndex_L) ;
 }
 
@@ -695,7 +696,7 @@ void Cst_TermOfFemEquation(struct Element          * Element,
   }
 
   if (QuantityStorageDof_P &&
-      (QuantityStorageDof_P != QuantityStorageEqu_P) && 
+      (QuantityStorageDof_P != QuantityStorageEqu_P) &&
       (QuantityStorageDof_P->NumLastElementForDofDefinition != Element->Num)) {
     QuantityStorageDof_P->NumLastElementForDofDefinition = Element->Num ;
 
