@@ -50,7 +50,7 @@ void Contour_MovingBand2D(List_T * InitialList, List_T ** ExtendedList,
     GeoElement = Geo_GetGeoElement(i_El) ;
     if (List_Search(InitialList, &GeoElement->Region, fcmp_int)) {
       if (GeoElement->Type != LINE)
-	Message::Error("MovingBand2D contour must contain only LINE elements") ;
+	Message::Error("MovingBand2D contour must contain only line elements") ;
       ThreeInt1.Int1 = i_El; ThreeInt1.Int2 = 0; ThreeInt1.Int3 = 0;
       Tree_Add(Element_Tr, &ThreeInt1) ;
     }
@@ -82,7 +82,7 @@ void Contour_MovingBand2D(List_T * InitialList, List_T ** ExtendedList,
 	if (ThreeInt->Int3) break;
       }
     }
-    if (!ThreeInt->Int3) Message::Error("Moving Band contour is not connected !!") ;
+    if (!ThreeInt->Int3) Message::Error("Moving Band contour is not connected") ;
   }
 
   List_Sort(*ExtendedList, fcmp_int32) ;
@@ -272,7 +272,7 @@ void Mesh_MB2D(int nth1, int nth2, int ntr1, int ntr2, int closed1, int closed2,
     }
   }
   if(n1 != ntr1 || n2 != ntr2){
-    Message::Error("Meshing of 2D Moving Band failed!!! (%d != %d || %d != %d)",
+    Message::Error("Meshing of 2D Moving Band failed (%d != %d || %d != %d)",
                    n1, ntr1, n2, ntr2);
   }
 }
@@ -352,9 +352,9 @@ int Delauny_1234_MB (double x1, double y1, double x2, double y2,
   double Det1 = (x3-x1)*(y2-y1)-(x2-x1)*(y3-y1);
   double Det2 = (x4-x1)*(y2-y1)-(x2-x1)*(y4-y1);
   if( !Det1 || !Det2 ) {
-    Message::Error("Colinear points in Delauny_1234 !!!!"
-                   "Det1 %g Det2 %g"
-                   "     x1 %e y1 %e x2 %e y2 %e x3 %e y3 %e x4 %e y4 %e",
+    Message::Error("Colinear points in Delauny_1234 ("
+                   "Det1 %g Det2 %g "
+                   "x1 %e y1 %e x2 %e y2 %e x3 %e y3 %e x4 %e y4 %e)",
                    Det1, Det2, x1, y1, x2, y2, x3, y3, x4, y4);
   }
   double t1 = ( (x3-x1)*(x3-x2)+(y3-y1)*(y3-y2) ) / Det1 ;
