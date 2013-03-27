@@ -841,7 +841,12 @@ void Dof_InitDofType(struct DofData * DofData_P)
       Dof_P->Case.Link.Dof =
 	Dof_GetDofStruct(DofData_P, Dof_P->NumType,
 			 Dof_P->Case.Link.EntityRef, Dof_P->Harmonic) ;
-      if (Dof_P->Case.Link.Dof == NULL) {
+      if (Dof_P->Case.Link.Dof == NULL
+          ||
+          Dof_P->Case.Link.Dof ==
+          Dof_GetDofStruct(DofData_P, Dof_P->NumType,
+                           Dof_P->Entity, Dof_P->Harmonic)
+          ) {
 	Dof_P->Case.Link.Dof = /* Attention: bricolage ... */
 	  Dof_GetDofStruct(DofData_P, Dof_P->NumType-1,
 			   Dof_P->Case.Link.EntityRef, Dof_P->Harmonic) ;
@@ -969,7 +974,7 @@ void Dof_DefineAssignSolveDof(int D1, int D2, int NbrHar, int Index_TimeFunction
 /*  D o f _ D e f i n e I n i t F i x e d D o f                             */
 /* ------------------------------------------------------------------------ */
 
-void Dof_DefineInitFixedDof(int D1, int D2, int NbrHar, double *Val)
+void Dof_DefineInitFixedDof(int D1, int D2, int NbrHar, double *Val, bool NonLocal)
 {
   struct Dof  Dof ;
   int         k ;
@@ -982,7 +987,7 @@ void Dof_DefineInitFixedDof(int D1, int D2, int NbrHar, double *Val)
       Dof.Type = DOF_UNKNOWN_INIT ;
       LinAlg_SetScalar(&Dof.Val, &Val[k]) ;
       Dof.Case.Unknown.NumDof = ++(CurrentDofData->NbrDof) ;
-      Dof.Case.Unknown.NonLocal = false;
+      Dof.Case.Unknown.NonLocal = NonLocal;
       Tree_Add(CurrentDofData->DofTree, &Dof) ;
     }
   }
@@ -1102,7 +1107,7 @@ void Dof_NumberUnknownDof(void)
 /*  D o f _ D e f i n e A s s o c i a t e D o f                             */
 /* ------------------------------------------------------------------------ */
 
-void Dof_DefineAssociateDof(int E1, int E2, int D1, int D2, int NbrHar)
+void Dof_DefineAssociateDof(int E1, int E2, int D1, int D2, int NbrHar, int init, double *Val)
 {
   struct Dof  Dof, Equ, * Equ_P ;
   int         k ;
@@ -1116,12 +1121,19 @@ void Dof_DefineAssociateDof(int E1, int E2, int D1, int D2, int NbrHar)
       case DOF_FIXED :
 	Equ_P->Type = DOF_FIXEDWITHASSOCIATE ;
 	Equ_P->Case.FixedAssociate.NumDof = ++(CurrentDofData->NbrDof) ;
+        /* To be modified (Patrick): strange to define a new NumDof for Equ if associate-Dof already exists */
 	Dof.NumType = D1 ; Dof.Entity = D2 ; Dof.Harmonic = k ;
 	if (!Tree_PQuery(CurrentDofData->DofTree, &Dof)) {
-	  Dof.Type = DOF_UNKNOWN ;
-	  Dof.Case.Unknown.NumDof = CurrentDofData->NbrDof ;
-	  Dof.Case.Unknown.NonLocal = true ;
-	  Tree_Add(CurrentDofData->DofTree, &Dof) ;
+          if (!init) {
+            Dof.Type = DOF_UNKNOWN ;
+          }
+          else {
+            Dof.Type = DOF_UNKNOWN_INIT ;
+            LinAlg_SetScalar(&Dof.Val, &Val[k]) ;
+          }
+          Dof.Case.Unknown.NumDof = CurrentDofData->NbrDof ;
+          Dof.Case.Unknown.NonLocal = true ;
+          Tree_Add(CurrentDofData->DofTree, &Dof) ;
 	}
 	break ;
       case DOF_FIXED_SOLVE :
@@ -1129,7 +1141,13 @@ void Dof_DefineAssociateDof(int E1, int E2, int D1, int D2, int NbrHar)
 	Equ_P->Case.FixedAssociate.NumDof = ++(CurrentDofData->NbrDof) ;
 	Dof.NumType = D1 ; Dof.Entity = D2 ; Dof.Harmonic = k ;
 	if (!Tree_PQuery(CurrentDofData->DofTree, &Dof)) {
-	  Dof.Type = DOF_UNKNOWN ;
+          if (!init) {
+            Dof.Type = DOF_UNKNOWN ;
+          }
+          else {
+            Dof.Type = DOF_UNKNOWN_INIT ;
+            LinAlg_SetScalar(&Dof.Val, &Val[k]) ;
+          }
 	  Dof.Case.Unknown.NumDof = CurrentDofData->NbrDof ;
 	  Dof.Case.Unknown.NonLocal = true ;
 	  Tree_Add(CurrentDofData->DofTree, &Dof) ;

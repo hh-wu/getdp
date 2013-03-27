@@ -125,6 +125,7 @@ void Pre_TermOfFemEquation(struct Element          * Element,
 {
   struct QuantityStorage  * QuantityStorageEqu_P, * QuantityStorageDof_P ;
   int  i ;
+  bool NonLocal=false;
 
   QuantityStorageEqu_P = QuantityStorage_P0 +
     EquationTerm_P->Case.LocalTerm.Term.DefineQuantityIndexEqu ;
@@ -138,7 +139,7 @@ void Pre_TermOfFemEquation(struct Element          * Element,
 
     for (i = 0 ; i < QuantityStorageEqu_P->NbrElementaryBasisFunction ; i++){
 
-      bool NonLocal = (QuantityStorageEqu_P->TypeQuantity == INTEGRALQUANTITY) || 
+      NonLocal = (QuantityStorageEqu_P->TypeQuantity == INTEGRALQUANTITY) || 
         IsEquationNonLocal(QuantityStorageEqu_P->BasisFunction[i].BasisFunction);
 
       switch(QuantityStorageEqu_P->BasisFunction[i].Constraint){
@@ -159,7 +160,8 @@ void Pre_TermOfFemEquation(struct Element          * Element,
 	Dof_DefineInitFixedDof
 	  (QuantityStorageEqu_P->BasisFunction[i].CodeBasisFunction,
 	   QuantityStorageEqu_P->BasisFunction[i].CodeEntity, Current.NbrHar,
-	   QuantityStorageEqu_P->BasisFunction[i].Value) ;
+	   QuantityStorageEqu_P->BasisFunction[i].Value, 
+           NonLocal) ;
 	break;
       case ASSIGNFROMRESOLUTION:
 	Dof_DefineAssignSolveDof
@@ -197,6 +199,9 @@ void Pre_TermOfFemEquation(struct Element          * Element,
 
     for (i = 0 ; i < QuantityStorageDof_P->NbrElementaryBasisFunction ; i++)
 
+      NonLocal = (QuantityStorageEqu_P->TypeQuantity == INTEGRALQUANTITY) || 
+        IsEquationNonLocal(QuantityStorageEqu_P->BasisFunction[i].BasisFunction);
+
       switch(QuantityStorageDof_P->BasisFunction[i].Constraint){
       case ASSIGN:
 	Dof_DefineAssignFixedDof
@@ -209,7 +214,8 @@ void Pre_TermOfFemEquation(struct Element          * Element,
 	Dof_DefineInitFixedDof
 	  (QuantityStorageDof_P->BasisFunction[i].CodeBasisFunction,
 	   QuantityStorageDof_P->BasisFunction[i].CodeEntity, Current.NbrHar,
-	   QuantityStorageDof_P->BasisFunction[i].Value) ;
+	   QuantityStorageDof_P->BasisFunction[i].Value, 
+           NonLocal) ;
         break;
       case ASSIGNFROMRESOLUTION:
 	Dof_DefineAssignSolveDof
@@ -302,7 +308,8 @@ void Pre_GlobalTermOfFemEquation(int  Num_Region,
       Dof_DefineInitFixedDof
 	(QuantityStorageEqu_P->BasisFunction[0].CodeBasisFunction,
 	 QuantityStorageEqu_P->BasisFunction[0].CodeEntity, Current.NbrHar,
-	 QuantityStorageEqu_P->BasisFunction[0].Value) ;
+	 QuantityStorageEqu_P->BasisFunction[0].Value, 
+         true) ;
       break;
     case ASSIGNFROMRESOLUTION:
       Dof_DefineAssignSolveDof
@@ -342,7 +349,8 @@ void Pre_GlobalTermOfFemEquation(int  Num_Region,
 	    (QuantityStorageDof_P->BasisFunction[0].CodeAssociateBasisFunction,
 	     QuantityStorageDof_P->BasisFunction[0].CodeEntity,
 	     QuantityStorageDof_P->BasisFunction[0].CodeBasisFunction,
-	     QuantityStorageDof_P->BasisFunction[0].CodeEntity, Current.NbrHar) ;
+	     QuantityStorageDof_P->BasisFunction[0].CodeEntity, Current.NbrHar,
+             0, NULL) ;
 	break ;
       case ASSIGN:
 	Dof_DefineAssignFixedDof
@@ -352,10 +360,19 @@ void Pre_GlobalTermOfFemEquation(int  Num_Region,
 	   QuantityStorageDof_P->BasisFunction[0].TimeFunctionIndex) ;
 	break ;
       case INIT:
+	  Dof_DefineAssociateDof
+	    (QuantityStorageDof_P->BasisFunction[0].CodeAssociateBasisFunction,
+	     QuantityStorageDof_P->BasisFunction[0].CodeEntity,
+	     QuantityStorageDof_P->BasisFunction[0].CodeBasisFunction,
+	     QuantityStorageDof_P->BasisFunction[0].CodeEntity, Current.NbrHar,
+             1, QuantityStorageDof_P->BasisFunction[0].Value) ;
+          /*
 	Dof_DefineInitFixedDof
 	  (QuantityStorageDof_P->BasisFunction[0].CodeBasisFunction,
 	   QuantityStorageDof_P->BasisFunction[0].CodeEntity, Current.NbrHar,
-	   QuantityStorageDof_P->BasisFunction[0].Value);
+	   QuantityStorageDof_P->BasisFunction[0].Value,
+           true);
+          */
 	break;
       case ASSIGNFROMRESOLUTION:
 	Dof_DefineAssignSolveDof
@@ -485,7 +502,8 @@ void  Pre_FemGlobalEquation2(int Index_DefineQuantity, int Num_Region,
       Dof_DefineInitFixedDof
 	(QuaSto_S.BasisFunction[0].CodeBasisFunction,
 	 QuaSto_S.BasisFunction[0].CodeEntity, Current.NbrHar,
-	 QuaSto_S.BasisFunction[0].Value);
+	 QuaSto_S.BasisFunction[0].Value,
+         true);
       break;
     case ASSIGNFROMRESOLUTION:
       Dof_DefineAssignSolveDof
