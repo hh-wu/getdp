@@ -141,7 +141,7 @@ void Pre_TermOfFemEquation(struct Element          * Element,
     for (i = 0 ; i < QuantityStorageEqu_P->NbrElementaryBasisFunction ; i++){
 
       NonLocal = (QuantityStorageEqu_P->TypeQuantity == INTEGRALQUANTITY) ||
-        IsEquationNonLocal(QuantityStorageEqu_P->BasisFunction[i].BasisFunction);
+	IsEquationNonLocal(QuantityStorageEqu_P->BasisFunction[i].BasisFunction);
 
       switch(QuantityStorageEqu_P->BasisFunction[i].Constraint){
       case NONE:
@@ -200,8 +200,8 @@ void Pre_TermOfFemEquation(struct Element          * Element,
 
     for (i = 0 ; i < QuantityStorageDof_P->NbrElementaryBasisFunction ; i++)
 
-      NonLocal = (QuantityStorageEqu_P->TypeQuantity == INTEGRALQUANTITY) ||
-        IsEquationNonLocal(QuantityStorageEqu_P->BasisFunction[i].BasisFunction);
+      NonLocal = (QuantityStorageDof_P->TypeQuantity == INTEGRALQUANTITY) ||
+	IsEquationNonLocal(QuantityStorageDof_P->BasisFunction[i].BasisFunction);
 
       switch(QuantityStorageDof_P->BasisFunction[i].Constraint){
       case ASSIGN:
