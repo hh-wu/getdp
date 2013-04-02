@@ -368,14 +368,14 @@ void F_RCS_SphPhi(F_ARG)
 /* Scattering by a perfectly conducting sphere of radius a, under plane wave
    incidence pol*e^{ik \alpha\dot\r}, with alpha = (0,0,-1) and pol =
    (1,0,0). Returns the scattered electric field anywhere outside the sphere
-   (From Balanis, Advanced Engineering Electromagnetics, sec 11.8, p. 660) 
+   (From Balanis, Advanced Engineering Electromagnetics, sec 11.8, p. 660)
 
    Warning This is probably wring :-)
 
 	*/
 
 
-// diffraction onde plane par une sphere diectrique en -iwt 
+// diffraction onde plane par une sphere diectrique en -iwt
 void F_ElectricFieldDielectricSphereMwt(F_ARG)
 {
   double x = A->Val[0];
@@ -393,7 +393,7 @@ void F_ElectricFieldDielectricSphereMwt(F_ARG)
 
   double epsi = 2.25;
   double ki = k*sqrt(epsi);
-  double Zi = 1.0 / sqrt(epsi);  
+  double Zi = 1.0 / sqrt(epsi);
   double kia = ki * a;
   double kir = ki * r;
 
@@ -414,25 +414,21 @@ void F_ElectricFieldDielectricSphereMwt(F_ARG)
 
 
 
-  if( theta ==  0.) { 
-     
-   if (r >= a ) { 
+  if( theta ==  0.) {
+
+   if (r >= a ) {
     for (int n = 1 ; n < ns ; n++){
       std::complex<double> an = pow(-I, n) * (2. * n + 1.) / (n * (n + 1.));
 
       double A1 = -n * (n + 1.) / 2.;
 
-      std::complex<double> dHnka = - Hnka[n + 1] + (n + 1.) * Hnka[n] / ka;   
+      std::complex<double> dHnka = - Hnka[n + 1] + (n + 1.) * Hnka[n] / ka;
       std::complex<double> dHnkia = - Hnkia[n + 1] + (n + 1.) * Hnkia[n] / kia;
- 
-      std::complex<double> aln = (dHnka.real() * Hnkia[n].real() - Zi * dHnkia.real() * Hnka[n].real() ) / 
+
+      std::complex<double> aln = (dHnka.real() * Hnkia[n].real() - Zi * dHnkia.real() * Hnka[n].real() ) /
                                  (Zi*dHnkia.real() * Hnka[n] -   dHnka * Hnkia[n].real()) ;
-      std::complex<double> ben = (dHnkia.real() * Hnka[n].real() - Zi * dHnka.real() * Hnkia[n].real() ) / 
+      std::complex<double> ben = (dHnkia.real() * Hnka[n].real() - Zi * dHnka.real() * Hnkia[n].real() ) /
                                  (Zi*Hnkia[n].real() * dHnka -  dHnkia.real() * Hnka[n]) ;
-      std::complex<double> den = (ki * Zi / k) * (dHnka * Hnka[n].real() -  dHnka.real() * Hnka[n] ) / 
-                                 (Zi*Hnkia[n].real() * dHnka -  dHnkia.real() * Hnka[n]) ;
-      std::complex<double> gan = (ki * Zi / k) * (dHnka.real() * Hnka[n] -  dHnka * Hnka[n].real() ) / 
-                                 (Zi*dHnkia.real() * Hnka[n] -   dHnka * Hnkia[n].real()) ;
 
       std::complex<double> dn = aln*an;
 
@@ -450,29 +446,24 @@ void F_ElectricFieldDielectricSphereMwt(F_ARG)
     Er *=  I * cos(phi) / kr;
     Etheta *= (1. / kr) * (cos(phi));
     Ephi *= (-1. / kr) * (sin(phi));
-  } 
+  }
   else {
     for (int n = 1 ; n < ns ; n++){
       std::complex<double> an = pow(-I, n) * (2. * n + 1.) / (n * (n + 1.));
 
       double A1 = -n * (n + 1.) / 2.;
 
-      std::complex<double> dHnka = - Hnka[n + 1] + (n + 1.) * Hnka[n] / ka;   
+      std::complex<double> dHnka = - Hnka[n + 1] + (n + 1.) * Hnka[n] / ka;
       std::complex<double> dHnkia = - Hnkia[n + 1] + (n + 1.) * Hnkia[n] / kia;
       std::complex<double> dHnkir = - Hnkir[n + 1] + (n + 1.) * Hnkir[n] / kir;
- 
-      std::complex<double> aln = (dHnka.real() * Hnkia[n].real() - Zi * dHnkia.real() * Hnka[n].real() ) / 
-                                 (Zi*dHnkia.real() * Hnka[n] -   dHnka * Hnkia[n].real()) ;
-      std::complex<double> ben = (dHnkia.real() * Hnka[n].real() - Zi * dHnka.real() * Hnkia[n].real() ) / 
+
+      std::complex<double> den = (ki * Zi / k) * (dHnka * Hnka[n].real() -  dHnka.real() * Hnka[n] ) /
                                  (Zi*Hnkia[n].real() * dHnka -  dHnkia.real() * Hnka[n]) ;
-      std::complex<double> den = (ki * Zi / k) * (dHnka * Hnka[n].real() -  dHnka.real() * Hnka[n] ) / 
-                                 (Zi*Hnkia[n].real() * dHnka -  dHnkia.real() * Hnka[n]) ;
-      std::complex<double> gan = (ki * Zi / k) * (dHnka.real() * Hnka[n] -  dHnka * Hnka[n].real() ) / 
+      std::complex<double> gan = (ki * Zi / k) * (dHnka.real() * Hnka[n] -  dHnka * Hnka[n].real() ) /
                                  (Zi*dHnkia.real() * Hnka[n] -   dHnka * Hnkia[n].real()) ;
 
       std::complex<double> dn = gan*an;
 
-      std::complex<double> d2Hnkir = Hnkir[n] / kir;
       std::complex<double> jnkir = Hnkir[n].real() / kir;
 
       double Pn1 = Legendre(n, 1, ctheta);
@@ -485,30 +476,26 @@ void F_ElectricFieldDielectricSphereMwt(F_ARG)
     Er *=  I * cos(phi) / kir;
     Etheta *= (1. / kir) * (cos(phi));
     Ephi *= (-1. / kir) * (sin(phi));
- 
+
    }
  }
 
-  else if( theta ==  M_PI ) { 
+  else if( theta ==  M_PI ) {
 
-   if (r >= a ) { 
+   if (r >= a ) {
     for (int n = 1 ; n < ns ; n++){
       std::complex<double> an = pow(-I, n) * (2. * n + 1.) / (n * (n + 1.));
 
       double A2 = -pow(-1, n + 1) * n * (n + 1.) / 2.;
       double A3 = -pow(-1, n ) * n * (n + 1.) / 2.;
 
-      std::complex<double> dHnka = - Hnka[n + 1] + (n + 1.) * Hnka[n] / ka;   
+      std::complex<double> dHnka = - Hnka[n + 1] + (n + 1.) * Hnka[n] / ka;
       std::complex<double> dHnkia = - Hnkia[n + 1] + (n + 1.) * Hnkia[n] / kia;
- 
-      std::complex<double> aln = (dHnka.real() * Hnkia[n].real() - Zi * dHnkia.real() * Hnka[n].real() ) / 
+
+      std::complex<double> aln = (dHnka.real() * Hnkia[n].real() - Zi * dHnkia.real() * Hnka[n].real() ) /
                                  (Zi*dHnkia.real() * Hnka[n] -   dHnka * Hnkia[n].real()) ;
-      std::complex<double> ben = (dHnkia.real() * Hnka[n].real() - Zi * dHnka.real() * Hnkia[n].real() ) / 
+      std::complex<double> ben = (dHnkia.real() * Hnka[n].real() - Zi * dHnka.real() * Hnkia[n].real() ) /
                                  (Zi*Hnkia[n].real() * dHnka -  dHnkia.real() * Hnka[n]) ;
-      std::complex<double> den = (ki * Zi / k) * (dHnka * Hnka[n].real() -  dHnka.real() * Hnka[n] ) / 
-                                 (Zi*Hnkia[n].real() * dHnka -  dHnkia.real() * Hnka[n]) ;
-      std::complex<double> gan = (ki * Zi / k) * (dHnka.real() * Hnka[n] -  dHnka * Hnka[n].real() ) / 
-                                 (Zi*dHnkia.real() * Hnka[n] -   dHnka * Hnkia[n].real()) ;
 
       std::complex<double> dn = aln*an;
 
@@ -534,22 +521,17 @@ void F_ElectricFieldDielectricSphereMwt(F_ARG)
       double A2 = -pow(-1, n + 1) * n * (n + 1.) / 2.;
       double A3 = -pow(-1, n ) * n * (n + 1.) / 2.;
 
-      std::complex<double> dHnka = - Hnka[n + 1] + (n + 1.) * Hnka[n] / ka;   
+      std::complex<double> dHnka = - Hnka[n + 1] + (n + 1.) * Hnka[n] / ka;
       std::complex<double> dHnkia = - Hnkia[n + 1] + (n + 1.) * Hnkia[n] / kia;
       std::complex<double> dHnkir = - Hnkir[n + 1] + (n + 1.) * Hnkir[n] / kir;
- 
-      std::complex<double> aln = (dHnka.real() * Hnkia[n].real() - Zi * dHnkia.real() * Hnka[n].real() ) / 
-                                 (Zi*dHnkia.real() * Hnka[n] -   dHnka * Hnkia[n].real()) ;
-      std::complex<double> ben = (dHnkia.real() * Hnka[n].real() - Zi * dHnka.real() * Hnkia[n].real() ) / 
+
+      std::complex<double> den = (ki * Zi / k) * (dHnka * Hnka[n].real() -  dHnka.real() * Hnka[n] ) /
                                  (Zi*Hnkia[n].real() * dHnka -  dHnkia.real() * Hnka[n]) ;
-      std::complex<double> den = (ki * Zi / k) * (dHnka * Hnka[n].real() -  dHnka.real() * Hnka[n] ) / 
-                                 (Zi*Hnkia[n].real() * dHnka -  dHnkia.real() * Hnka[n]) ;
-      std::complex<double> gan = (ki * Zi / k) * (dHnka.real() * Hnka[n] -  dHnka * Hnka[n].real() ) / 
+      std::complex<double> gan = (ki * Zi / k) * (dHnka.real() * Hnka[n] -  dHnka * Hnka[n].real() ) /
                                  (Zi*dHnkia.real() * Hnka[n] -   dHnka * Hnkia[n].real()) ;
 
       std::complex<double> dn = gan*an;
 
-      std::complex<double> d2Hnkir = Hnkir[n] / kir;
       std::complex<double> jnkir = Hnkir[n].real() / kir;
 
       double Pn1 = Legendre(n, 1, ctheta);
@@ -562,27 +544,23 @@ void F_ElectricFieldDielectricSphereMwt(F_ARG)
     Er *=  I * cos(phi) / kir;
     Etheta *= (1. / kir) * (cos(phi));
     Ephi *= (-1. / kir) * (sin(phi));
- 
+
    }
  }
 
   else {
-   if (r >= a ) { 
+   if (r >= a ) {
     for (int n = 1 ; n < ns ; n++){
       std::complex<double> an = pow(-I, n) * (2. * n + 1.) / (n * (n + 1.));
 
 
-      std::complex<double> dHnka = - Hnka[n + 1] + (n + 1.) * Hnka[n] / ka;   
+      std::complex<double> dHnka = - Hnka[n + 1] + (n + 1.) * Hnka[n] / ka;
       std::complex<double> dHnkia = - Hnkia[n + 1] + (n + 1.) * Hnkia[n] / kia;
- 
-      std::complex<double> aln = (dHnka.real() * Hnkia[n].real() - Zi * dHnkia.real() * Hnka[n].real() ) / 
+
+      std::complex<double> aln = (dHnka.real() * Hnkia[n].real() - Zi * dHnkia.real() * Hnka[n].real() ) /
                                  (Zi*dHnkia.real() * Hnka[n] -   dHnka * Hnkia[n].real()) ;
-      std::complex<double> ben = (dHnkia.real() * Hnka[n].real() - Zi * dHnka.real() * Hnkia[n].real() ) / 
+      std::complex<double> ben = (dHnkia.real() * Hnka[n].real() - Zi * dHnka.real() * Hnkia[n].real() ) /
                                  (Zi*Hnkia[n].real() * dHnka -  dHnkia.real() * Hnka[n]) ;
-      std::complex<double> den = (ki * Zi / k) * (dHnka * Hnka[n].real() -  dHnka.real() * Hnka[n] ) / 
-                                 (Zi*Hnkia[n].real() * dHnka -  dHnkia.real() * Hnka[n]) ;
-      std::complex<double> gan = (ki * Zi / k) * (dHnka.real() * Hnka[n] -  dHnka * Hnka[n].real() ) / 
-                                 (Zi*dHnkia.real() * Hnka[n] -   dHnka * Hnkia[n].real()) ;
 
       std::complex<double> dn = aln*an;
 
@@ -609,22 +587,17 @@ void F_ElectricFieldDielectricSphereMwt(F_ARG)
     for (int n = 1 ; n < ns ; n++){
       std::complex<double> an = pow(-I, n) * (2. * n + 1.) / (n * (n + 1.));
 
-      std::complex<double> dHnka = - Hnka[n + 1] + (n + 1.) * Hnka[n] / ka;   
+      std::complex<double> dHnka = - Hnka[n + 1] + (n + 1.) * Hnka[n] / ka;
       std::complex<double> dHnkia = - Hnkia[n + 1] + (n + 1.) * Hnkia[n] / kia;
       std::complex<double> dHnkir = - Hnkir[n + 1] + (n + 1.) * Hnkir[n] / kir;
- 
-      std::complex<double> aln = (dHnka.real() * Hnkia[n].real() - Zi * dHnkia.real() * Hnka[n].real() ) / 
-                                 (Zi*dHnkia.real() * Hnka[n] -   dHnka * Hnkia[n].real()) ;
-      std::complex<double> ben = (dHnkia.real() * Hnka[n].real() - Zi * dHnka.real() * Hnkia[n].real() ) / 
+
+      std::complex<double> den = (ki * Zi / k) * (dHnka * Hnka[n].real() -  dHnka.real() * Hnka[n] ) /
                                  (Zi*Hnkia[n].real() * dHnka -  dHnkia.real() * Hnka[n]) ;
-      std::complex<double> den = (ki * Zi / k) * (dHnka * Hnka[n].real() -  dHnka.real() * Hnka[n] ) / 
-                                 (Zi*Hnkia[n].real() * dHnka -  dHnkia.real() * Hnka[n]) ;
-      std::complex<double> gan = (ki * Zi / k) * (dHnka.real() * Hnka[n] -  dHnka * Hnka[n].real() ) / 
+      std::complex<double> gan = (ki * Zi / k) * (dHnka.real() * Hnka[n] -  dHnka * Hnka[n].real() ) /
                                  (Zi*dHnkia.real() * Hnka[n] -   dHnka * Hnkia[n].real()) ;
 
       std::complex<double> dn = gan*an;
 
-      std::complex<double> d2Hnkir = Hnkir[n] / kir;
       std::complex<double> jnkir = Hnkir[n].real() / kir;
 
       double Pn1 = Legendre(n, 1, ctheta);
@@ -639,7 +612,7 @@ void F_ElectricFieldDielectricSphereMwt(F_ARG)
     Er *=  I * cos(phi) / kir;
     Etheta *= (1. / kir) * (cos(phi)/stheta);
     Ephi *= (-1. / kir) * (sin(phi)/stheta);
- 
+
    }
  }
 
@@ -678,7 +651,7 @@ void F_ElectricFieldDielectricSphereMwt(F_ARG)
   V->Type = VECTOR ;
 }
 
-// diffraction onde plane par une sphere PEC en -iwt 
+// diffraction onde plane par une sphere PEC en -iwt
 void F_ElectricFieldPerfectlyConductingSphereMwt(F_ARG)
 {
   double x = A->Val[0];
@@ -707,104 +680,85 @@ void F_ElectricFieldPerfectlyConductingSphereMwt(F_ARG)
 
   std::complex<double> Er(0.,0), Etheta(0.,0), Ephi(0.,0), I(0, 1.);
 
+  if( theta ==  0.) {
+    for (int n = 1 ; n < ns ; n++){
+      std::complex<double> an = pow(-I, n) * (2. * n + 1.) / (n * (n + 1.));
 
+      double A1 = n * (n + 1.) / 2.;
+      // PS: the following is correct (Hn(z) = z hn(z) is not a standard spherical
+      // bessel function!)
+      std::complex<double> dHnka = - Hnka[n + 1] + (n + 1.) * Hnka[n] / ka;
+      std::complex<double> bn = - dHnka.real() / dHnka;
+      std::complex<double> cn = - Hnka[n].real() / Hnka[n];
+      std::complex<double> dn = bn*an;
 
+      std::complex<double> dHnkr = - Hnkr[n + 1] + (n + 1.) * Hnkr[n] / kr;
+      std::complex<double> d2Hnkr = Hnkr[n] / kr;
 
-  if( theta ==  0.) { 
-  for (int n = 1 ; n < ns ; n++){
-    std::complex<double> an = pow(-I, n) * (2. * n + 1.) / (n * (n + 1.));
+      double Pn1 = Legendre(n, 1, ctheta);
+      Er     +=  n * (n + 1.) * d2Hnkr * Pn1 * dn;
+      Etheta += an * (I * bn * dHnkr * A1 + cn * Hnkr[n] * A1);
+      Ephi   += an * (I * bn * dHnkr * A1  + cn * Hnkr[n] * A1);
+    }
 
-    double A1 = n * (n + 1.) / 2.;
-    // PS: the following is correct (Hn(z) = z hn(z) is not a standard spherical
-    // bessel function!)
-    std::complex<double> dHnka = - Hnka[n + 1] + (n + 1.) * Hnka[n] / ka;
- //   std::complex<double> d Hnka = ((n + 1.) * Hnka[n-1] - n*Hnka[n + 1])/(2.*n + 1.);   
-    std::complex<double> bn = - dHnka.real() / dHnka;
-    std::complex<double> cn = - Hnka[n].real() / Hnka[n];
-    std::complex<double> dn = bn*an;
-
-    std::complex<double> dHnkr = - Hnkr[n + 1] + (n + 1.) * Hnkr[n] / kr;
-    std::complex<double> d2Hnkr = Hnkr[n] / kr;
-
-//    double Pn0 = Legendre(n, 0, ctheta);
-     double Pn1 = Legendre(n, 1, ctheta);
-//    double Pn11 = Legendre(n+1, 1, ctheta);
-//    double dPn1 = (n + 1) * n * Pn0 / stheta - (ctheta / (ctheta * ctheta - 1.)) * Pn1;
-//    double dPn1 =  n * Pn11   - (n + 1) * ctheta * Pn1 ;
-    Er     +=  n * (n + 1.) * d2Hnkr * Pn1 * dn;
-    Etheta += an * (I * bn * dHnkr * A1 + cn * Hnkr[n] * A1);
-    Ephi   += an * (I * bn * dHnkr * A1  + cn * Hnkr[n] * A1);
+    Er *=  I * cos(phi) / kr;
+    Etheta *= (1. / kr) * (cos(phi));
+    Ephi *= (-1. / kr) * (sin(phi));
   }
+  else if( theta ==  M_PI ) {
+    for (int n = 1 ; n < ns ; n++){
+      std::complex<double> an = std::pow(-I, n) * (2. * n + 1.) / (n * (n + 1.));
 
-  Er *=  I * cos(phi) / kr;
-  Etheta *= (1. / kr) * (cos(phi));
-  Ephi *= (-1. / kr) * (sin(phi));
+      double A2 = pow(-1, n + 1) * n * (n + 1.) / 2.;
+      double A3 = pow(-1, n ) * n * (n + 1.) / 2.;
+
+      // PS: the following is correct (Hn(z) = z hn(z) is not a standard spherical
+      // bessel function!)
+      std::complex<double> dHnka = - Hnka[n + 1] + (n + 1.) * Hnka[n] / ka;
+      std::complex<double> bn = - dHnka.real() / dHnka;
+      std::complex<double> cn = - Hnka[n].real() / Hnka[n];
+      std::complex<double> dn = bn*an;
+
+      std::complex<double> dHnkr = - Hnkr[n + 1] + (n + 1.) * Hnkr[n] / kr;
+      std::complex<double> d2Hnkr = Hnkr[n] / kr;
+
+      double Pn1 = Legendre(n, 1, ctheta);
+      Er     +=  n * (n + 1.) * d2Hnkr * Pn1 * dn;
+      Etheta += an * (I * bn * dHnkr *  A3 + cn * Hnkr[n] * A2 );
+      Ephi   += an * (I * bn * dHnkr * A2  + cn * Hnkr[n]  * A3);
+    }
+
+    Er *=  I * cos(phi) / kr;
+    Etheta *= (1.0 / kr) * cos(phi);
+    Ephi *= (-1.0 / kr) * sin(phi);
   }
-
-  else if( theta ==  M_PI ) { 
-  for (int n = 1 ; n < ns ; n++){
-    std::complex<double> an = std::pow(-I, n) * (2. * n + 1.) / (n * (n + 1.));
-
-    double A2 = pow(-1, n + 1) * n * (n + 1.) / 2.;
-    double A3 = pow(-1, n ) * n * (n + 1.) / 2.;
-
-    // PS: the following is correct (Hn(z) = z hn(z) is not a standard spherical
-    // bessel function!)
-    std::complex<double> dHnka = - Hnka[n + 1] + (n + 1.) * Hnka[n] / ka;
- //   std::complex<double> dHnka = ((n + 1.) * Hnka[n-1] - n*Hnka[n + 1])/(2.*n + 1.);   
-    std::complex<double> bn = - dHnka.real() / dHnka;
-    std::complex<double> cn = - Hnka[n].real() / Hnka[n];
-    std::complex<double> dn = bn*an;
-
-    std::complex<double> dHnkr = - Hnkr[n + 1] + (n + 1.) * Hnkr[n] / kr;
-    std::complex<double> d2Hnkr = Hnkr[n] / kr;
-
-//    double Pn0 = Legendre(n, 0, ctheta);
-    double Pn1 = Legendre(n, 1, ctheta);
-//    double Pn11 = Legendre(n+1, 1, ctheta);
-//    double dPn1 = (n + 1) * n * Pn0 / stheta - (ctheta / (ctheta * ctheta - 1.)) * Pn1;
-//    double dPn1 =  n * Pn11   - (n + 1) * ctheta * Pn1 ;
-    Er     +=  n * (n + 1.) * d2Hnkr * Pn1 * dn;
-    Etheta += an * (I * bn * dHnkr *  A3 + cn * Hnkr[n] * A2 );
-    Ephi   += an * (I * bn * dHnkr * A2  + cn * Hnkr[n]  * A3);
-  }
-
-  Er *=  I * cos(phi) / kr;
-  Etheta *= (1.0 / kr) * cos(phi);
-  Ephi *= (-1.0 / kr) * sin(phi);
-  }
-
   else {
 
-  for (int n = 1 ; n < ns ; n++){
-    std::complex<double> an = std::pow(-I, n) * (2. * n + 1.) / (n * (n + 1.));
+    for (int n = 1 ; n < ns ; n++){
+      std::complex<double> an = std::pow(-I, n) * (2. * n + 1.) / (n * (n + 1.));
 
-    // PS: the following is correct (Hn(z) = z hn(z) is not a standard spherical
-    // bessel function!)
-    std::complex<double> dHnka = - Hnka[n + 1] + (n + 1.) * Hnka[n] / ka;
- //   std::complex<double> dHnka = ((n + 1.) * Hnka[n-1] - n*Hnka[n + 1])/(2.*n + 1.);   
-    std::complex<double> bn = - dHnka.real() / dHnka;
-    std::complex<double> cn = - Hnka[n].real() / Hnka[n];
-    std::complex<double> dn = bn * an;
+      // PS: the following is correct (Hn(z) = z hn(z) is not a standard spherical
+      // bessel function!)
+      std::complex<double> dHnka = - Hnka[n + 1] + (n + 1.) * Hnka[n] / ka;
+      std::complex<double> bn = - dHnka.real() / dHnka;
+      std::complex<double> cn = - Hnka[n].real() / Hnka[n];
+      std::complex<double> dn = bn * an;
 
-    std::complex<double> dHnkr = - Hnkr[n + 1] + (n + 1.) * Hnkr[n] / kr;
-    std::complex<double> d2Hnkr = Hnkr[n] / kr;
+      std::complex<double> dHnkr = - Hnkr[n + 1] + (n + 1.) * Hnkr[n] / kr;
+      std::complex<double> d2Hnkr = Hnkr[n] / kr;
 
-    double Pn1 = Legendre(n, 1, ctheta);
-    double Pn11 = Legendre(n+1, 1, ctheta);
-//    double dPn1 = (n + 1) * n * Pn0 / stheta - (ctheta / (ctheta * ctheta - 1.)) * Pn1;
-    double dPn1 =  n * Pn11   - (n + 1) * ctheta * Pn1 ;
-    Er     +=  n * (n + 1.) * d2Hnkr * Pn1 * dn;
-    Etheta += an * (I * bn * dHnkr *  dPn1 + cn * Hnkr[n] * Pn1 );
-    Ephi   += an * (I * bn * dHnkr * Pn1  + cn * Hnkr[n]  * dPn1);
+      double Pn1 = Legendre(n, 1, ctheta);
+      double Pn11 = Legendre(n+1, 1, ctheta);
+      double dPn1 =  n * Pn11   - (n + 1) * ctheta * Pn1 ;
+      Er     +=  n * (n + 1.) * d2Hnkr * Pn1 * dn;
+      Etheta += an * (I * bn * dHnkr *  dPn1 + cn * Hnkr[n] * Pn1 );
+      Ephi   += an * (I * bn * dHnkr * Pn1  + cn * Hnkr[n]  * dPn1);
+    }
+
+    Er *=  I * cos(phi) / kr;
+    Etheta *= (1. / kr) * (cos(phi)/stheta);
+    Ephi *= (-1. / kr) * (sin(phi)/stheta);
   }
-
-  Er *=  I * cos(phi) / kr;
-  Etheta *= (1. / kr) * (cos(phi)/stheta);
-  Ephi *= (-1. / kr) * (sin(phi)/stheta);
-  }
-
-
 
   // r, theta, phi components
   std::complex<double> rtp[3] = {Er, Etheta, Ephi};
@@ -845,17 +799,11 @@ void F_ExactOsrcSolutionPerfectlyConductingSphereMwt(F_ARG)
   double x = A->Val[0];
   double y = A->Val[1];
   double z = A->Val[2];
-//  double r = sqrt(x * x + y * y + z * z);
   double theta =  atan2(sqrt(x * x + y * y), z);
   double phi = atan2(y, x);
 
-  // warning: approximation
- //if (theta == 0. ) theta += 1e-7;
- // if (theta == M_PI || theta == -M_PI) theta -= 1e-7;
-
   double k  = Fct->Para[0] ;
   double a  = Fct->Para[1] ;
-//  double Z0 = Fct->Para[2] ;
 
   double ka = k * a;
 
@@ -869,92 +817,82 @@ void F_ExactOsrcSolutionPerfectlyConductingSphereMwt(F_ARG)
   double ctheta = cos(theta);
   double stheta = sin(theta);
 
-
-
   std::complex<double> Er(0.,0), Etheta(0.,0), Ephi(0.,0), I(0, 1.);
 
+  if( theta == 0.) {
+    for (int n = 1 ; n < ns ; n++){
+      std::complex<double> an = pow(-I, n) * (2. * n + 1.) / (n * (n + 1.));
+
+      double A1 = n * (n + 1.0) / 2.;
+      double mu_n = 1 - n * (n + 1.0) / (k * k);
+
+      std::complex<double> dHnka = - Hnka[n + 1] + (n + 1.) * Hnka[n] / ka;
+      std::complex<double> bn = dHnka.real() ;
+      std::complex<double> cn = Hnka[n].real();
 
 
- if( theta == 0.) { 
-  for (int n = 1 ; n < ns ; n++){
-    std::complex<double> an = pow(-I, n) * (2. * n + 1.) / (n * (n + 1.));
-
-    double A1 = n * (n + 1.0) / 2.;
-    double mu_n = 1 - n * (n + 1.0) / (k * k);   
-
-    std::complex<double> dHnka = - Hnka[n + 1] + (n + 1.) * Hnka[n] / ka;   
-    std::complex<double> bn = dHnka.real() ;
-    std::complex<double> cn = Hnka[n].real();
-
-    
-    if ( k * k >= n * (n + 1) ) {  
-     Etheta += an * (-I * cn * A1 * sqrt(mu_n) + bn * A1 / sqrt(mu_n));
-     Ephi   += an * ( I * cn * A1 * sqrt(mu_n) - bn * A1 / sqrt(mu_n)); }
-    else{
-     Etheta += an * (-I * cn * A1 * I * sqrt(-mu_n) - I * bn * A1 / sqrt(-mu_n));
-     Ephi   += an * ( I * cn * A1 * I * sqrt(-mu_n) + I * bn * A1 / sqrt(-mu_n));     
-    }
-  }
-
-  Etheta *= cos(phi);
-  Ephi *=  sin(phi);
-  }
-
-  else if( theta == M_PI) { 
-  for (int n = 1 ; n < ns ; n++){
-    std::complex<double> an = std::pow(-I, n) * (2. * n + 1.) / (n * (n + 1.));
-    double A2 = pow(-1.0, n + 1.0) * n * (n + 1.) / 2.;
-    double A3 = pow(-1.0, n + 0.0) * n * (n + 1.) / 2.;
-    double mu_n = 1 - n * (n + 1.0) / (k * k);  
-
-    std::complex<double> dHnka = - Hnka[n + 1] + (n + 1.) * Hnka[n] / ka;  
-    std::complex<double> bn =  dHnka.real(); 
-    std::complex<double> cn =  Hnka[n].real(); 
-
-
-    if ( k * k >= n * (n+1)) { 
-    Etheta += an * (-I * cn * A2 * sqrt(mu_n) + bn * A3 / sqrt(mu_n));
-    Ephi   += an * ( I * cn * A3 * sqrt(mu_n) - bn * A2 / sqrt(mu_n));}
-    else {
-     Etheta += an * (-I * cn * A2 * I * sqrt(-mu_n) - I * bn * A3 / sqrt(-mu_n));
-     Ephi   += an * ( I * cn * A3 * I * sqrt(-mu_n) + I * bn * A2 / sqrt(-mu_n));     
+      if ( k * k >= n * (n + 1) ) {
+        Etheta += an * (-I * cn * A1 * sqrt(mu_n) + bn * A1 / sqrt(mu_n));
+        Ephi   += an * ( I * cn * A1 * sqrt(mu_n) - bn * A1 / sqrt(mu_n)); }
+      else{
+        Etheta += an * (-I * cn * A1 * I * sqrt(-mu_n) - I * bn * A1 / sqrt(-mu_n));
+        Ephi   += an * ( I * cn * A1 * I * sqrt(-mu_n) + I * bn * A1 / sqrt(-mu_n));
+      }
     }
 
+    Etheta *= cos(phi);
+    Ephi *=  sin(phi);
   }
+  else if( theta == M_PI) {
+    for (int n = 1 ; n < ns ; n++){
+      std::complex<double> an = std::pow(-I, n) * (2. * n + 1.) / (n * (n + 1.));
+      double A2 = pow(-1.0, n + 1.0) * n * (n + 1.) / 2.;
+      double A3 = pow(-1.0, n + 0.0) * n * (n + 1.) / 2.;
+      double mu_n = 1 - n * (n + 1.0) / (k * k);
 
-  Etheta *= cos(phi);
-  Ephi *=  sin(phi);
+      std::complex<double> dHnka = - Hnka[n + 1] + (n + 1.) * Hnka[n] / ka;
+      std::complex<double> bn =  dHnka.real();
+      std::complex<double> cn =  Hnka[n].real();
 
+      if ( k * k >= n * (n+1)) {
+        Etheta += an * (-I * cn * A2 * sqrt(mu_n) + bn * A3 / sqrt(mu_n));
+        Ephi   += an * ( I * cn * A3 * sqrt(mu_n) - bn * A2 / sqrt(mu_n));}
+      else {
+        Etheta += an * (-I * cn * A2 * I * sqrt(-mu_n) - I * bn * A3 / sqrt(-mu_n));
+        Ephi   += an * ( I * cn * A3 * I * sqrt(-mu_n) + I * bn * A2 / sqrt(-mu_n));
+      }
+
+    }
+
+    Etheta *= cos(phi);
+    Ephi *=  sin(phi);
   }
-
   else{
-  for (int n = 1 ; n < ns ; n++){
-    std::complex<double> an = std::pow(-I, n) * (2. * n + 1.) / (n * (n + 1.));
+    for (int n = 1 ; n < ns ; n++){
+      std::complex<double> an = std::pow(-I, n) * (2. * n + 1.) / (n * (n + 1.));
 
-    std::complex<double> dHnka = - Hnka[n + 1] + (n + 1.) * Hnka[n] / ka;  
-    std::complex<double> bn =  dHnka.real();
-    std::complex<double> cn =  Hnka[n].real();
+      std::complex<double> dHnka = - Hnka[n + 1] + (n + 1.) * Hnka[n] / ka;
+      std::complex<double> bn =  dHnka.real();
+      std::complex<double> cn =  Hnka[n].real();
 
-    double mu_n = 1 - n * (n + 1.0) / (k * k);  
-    double Pn1 = Legendre(n, 1, ctheta);
-    double Pn11 = Legendre(n+1, 1, ctheta);
-    double dPn1 =  n * Pn11   - (n + 1) * ctheta * Pn1 ;
+      double mu_n = 1 - n * (n + 1.0) / (k * k);
+      double Pn1 = Legendre(n, 1, ctheta);
+      double Pn11 = Legendre(n+1, 1, ctheta);
+      double dPn1 =  n * Pn11   - (n + 1) * ctheta * Pn1 ;
 
-    if ( k * k >= n * (n+1)) { 
-    Etheta += an * (-I * cn * Pn1 * sqrt(mu_n) + bn * dPn1 / sqrt(mu_n));
-    Ephi  += an * (  I * cn * dPn1 * sqrt(mu_n)  - bn * Pn1 / sqrt(mu_n));}
-    else {
-    Etheta += an * (-I * cn * Pn1 * I * sqrt(-mu_n) -I * bn * dPn1 / sqrt(-mu_n));
-    Ephi  += an * (  I * cn * dPn1 * I * sqrt(-mu_n)  + I * bn * Pn1 / sqrt(-mu_n));    
+      if ( k * k >= n * (n+1)) {
+        Etheta += an * (-I * cn * Pn1 * sqrt(mu_n) + bn * dPn1 / sqrt(mu_n));
+        Ephi  += an * (  I * cn * dPn1 * sqrt(mu_n)  - bn * Pn1 / sqrt(mu_n));}
+      else {
+        Etheta += an * (-I * cn * Pn1 * I * sqrt(-mu_n) -I * bn * dPn1 / sqrt(-mu_n));
+        Ephi  += an * (  I * cn * dPn1 * I * sqrt(-mu_n)  + I * bn * Pn1 / sqrt(-mu_n));
+      }
+
     }
 
-    }
-
-  Etheta *=  cos(phi)/stheta;
-  Ephi *=  sin(phi) /stheta;
-  
-}
-
+    Etheta *=  cos(phi)/stheta;
+    Ephi *=  sin(phi) /stheta;
+  }
 
   Etheta *=  -I / k;
   Ephi *=  -I / k;
@@ -1002,12 +940,6 @@ void F_CurrentPerfectlyConductingSphereMwt(F_ARG)
   double theta =  atan2(sqrt(x * x + y * y), z);
   double phi = atan2(y, x);
 
-  // warning: approximation
- //if (theta == 0. ) theta += 1e-7;
- // if (theta == M_PI || theta == -M_PI) theta -= 1e-7;
-
-
-
   double k  = Fct->Para[0] ;
   double a  = Fct->Para[1] ;
   double Z0 = Fct->Para[2] ;
@@ -1024,74 +956,63 @@ void F_CurrentPerfectlyConductingSphereMwt(F_ARG)
   double ctheta = cos(theta);
   double stheta = sin(theta);
 
-
-
   std::complex<double> Er(0.,0), Etheta(0.,0), Ephi(0.,0), I(0, 1.);
 
+  if( theta == 0.) {
+    for (int n = 1 ; n < ns ; n++){
+      std::complex<double> an = pow(-I, n) * (2. * n + 1.) / (n * (n + 1.));
+
+      double A1 = n * (n + 1.0) / 2.;
+
+      std::complex<double> dHnka = - Hnka[n + 1] + (n + 1.) * Hnka[n] / ka;
+      std::complex<double> bn = - dHnka.real() / dHnka;
+      std::complex<double> cn = - Hnka[n].real() / Hnka[n];
 
 
- if( theta == 0.) { 
-  for (int n = 1 ; n < ns ; n++){
-    std::complex<double> an = pow(-I, n) * (2. * n + 1.) / (n * (n + 1.));
-
-    double A1 = n * (n + 1.0) / 2.;
-
-    std::complex<double> dHnka = - Hnka[n + 1] + (n + 1.) * Hnka[n] / ka;   
-    std::complex<double> bn = - dHnka.real() / dHnka;
-    std::complex<double> cn = - Hnka[n].real() / Hnka[n];
-
-
-    Etheta += an * (I * cn * dHnka * A1 + bn * Hnka[n] * A1);
-    Ephi   += an * (I * cn * dHnka * A1  + bn * Hnka[n] * A1);
-  }
-
-  Etheta *=  (-1. / (Z0*ka)) * (sin(phi));
-  Ephi *= (-1. / (Z0*ka)) * (cos(phi));
-  }
-
-  else if( theta == M_PI) { 
-  for (int n = 1 ; n < ns ; n++){
-    std::complex<double> an = std::pow(-I, n) * (2. * n + 1.) / (n * (n + 1.));
-    double A2 = pow(-1.0, n + 1.0) * n * (n + 1.) / 2.;
-    double A3 = pow(-1.0, n + 0.0) * n * (n + 1.) / 2.;
-
-    std::complex<double> dHnka = - Hnka[n + 1] + (n + 1.) * Hnka[n] / ka;  
-    std::complex<double> bn = - dHnka.real() / dHnka;
-    std::complex<double> cn = - Hnka[n].real() / Hnka[n];
-
-
-    Etheta += an * (I * cn * dHnka * A3 + bn * Hnka[n] * A2);
-    Ephi   += an * (I * cn * dHnka * A2 + bn * Hnka[n] * A3);
-  }
-
-  Etheta *=  (-1.0 / (Z0*ka)) * sin(phi);
-  Ephi *=   (-1.0 / (Z0*ka)) * cos(phi);
-  }
-
-  else{
-  for (int n = 1 ; n < ns ; n++){
-    std::complex<double> an = std::pow(-I, n) * (2. * n + 1.) / (n * (n + 1.));
-
-    std::complex<double> dHnka = - Hnka[n + 1] + (n + 1.) * Hnka[n] / ka;  
-    std::complex<double> bn = - dHnka.real() / dHnka;
-    std::complex<double> cn = - Hnka[n].real() / Hnka[n];
-
-
-    double Pn1 = Legendre(n, 1, ctheta);
-    double Pn11 = Legendre(n+1, 1, ctheta);
-    double dPn1 =  n * Pn11   - (n + 1) * ctheta * Pn1 ;
-
-
-    Etheta += an * (I * cn * dHnka *  dPn1 + bn * Hnka[n] * Pn1 );
-    Ephi  += an * (I * cn * dHnka * Pn1  + bn * Hnka[n]  * dPn1);
-
+      Etheta += an * (I * cn * dHnka * A1 + bn * Hnka[n] * A1);
+      Ephi   += an * (I * cn * dHnka * A1  + bn * Hnka[n] * A1);
     }
 
-  Etheta *=   (-1. / (Z0*ka)) * (sin(phi)/stheta);
-  Ephi *=  (-1. / (Z0*ka)) * (cos(phi) /stheta);
-  
-}
+    Etheta *=  (-1. / (Z0*ka)) * (sin(phi));
+    Ephi *= (-1. / (Z0*ka)) * (cos(phi));
+  }
+  else if( theta == M_PI) {
+    for (int n = 1 ; n < ns ; n++){
+      std::complex<double> an = std::pow(-I, n) * (2. * n + 1.) / (n * (n + 1.));
+      double A2 = pow(-1.0, n + 1.0) * n * (n + 1.) / 2.;
+      double A3 = pow(-1.0, n + 0.0) * n * (n + 1.) / 2.;
 
+      std::complex<double> dHnka = - Hnka[n + 1] + (n + 1.) * Hnka[n] / ka;
+      std::complex<double> bn = - dHnka.real() / dHnka;
+      std::complex<double> cn = - Hnka[n].real() / Hnka[n];
+
+
+      Etheta += an * (I * cn * dHnka * A3 + bn * Hnka[n] * A2);
+      Ephi   += an * (I * cn * dHnka * A2 + bn * Hnka[n] * A3);
+    }
+
+    Etheta *=  (-1.0 / (Z0*ka)) * sin(phi);
+    Ephi *=   (-1.0 / (Z0*ka)) * cos(phi);
+  }
+  else{
+    for (int n = 1 ; n < ns ; n++){
+      std::complex<double> an = std::pow(-I, n) * (2. * n + 1.) / (n * (n + 1.));
+
+      std::complex<double> dHnka = - Hnka[n + 1] + (n + 1.) * Hnka[n] / ka;
+      std::complex<double> bn = - dHnka.real() / dHnka;
+      std::complex<double> cn = - Hnka[n].real() / Hnka[n];
+
+      double Pn1 = Legendre(n, 1, ctheta);
+      double Pn11 = Legendre(n+1, 1, ctheta);
+      double dPn1 =  n * Pn11   - (n + 1) * ctheta * Pn1 ;
+
+      Etheta += an * (I * cn * dHnka *  dPn1 + bn * Hnka[n] * Pn1 );
+      Ephi  += an * (I * cn * dHnka * Pn1  + bn * Hnka[n]  * dPn1);
+    }
+
+    Etheta *=   (-1. / (Z0*ka)) * (sin(phi)/stheta);
+    Ephi *=  (-1. / (Z0*ka)) * (cos(phi) /stheta);
+  }
 
   // r, theta, phi components
   std::complex<double> rtp[3] = {Er, -Ephi, Etheta};
