@@ -256,6 +256,8 @@ SystemCommand                return tSystemCommand;
 GmshRead                     return tGmshRead;
 GmshClearAll                 return tGmshClearAll;
 DeleteFile                   return tDeleteFile;
+CreateDir                    return tCreateDir;
+CreateDirectory              return tCreateDir;
 Break                        return tBreak;
 SolveJac_AdaptRelax          return tSolveJac_AdaptRelax;
 TensorProductSolve           return tTensorProductSolve;

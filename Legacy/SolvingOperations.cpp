@@ -1390,14 +1390,14 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  ------------------------------------------  */
 
     case OPERATION_INIT_MOVINGBAND2D :
-      Message::Info("Init_MovingBand2D") ;
+      Message::Info("InitMovingBand2D") ;
       Init_MovingBand2D( (struct Group *)
 			 List_Pointer(Problem_S.Group,
 				      Operation_P->Case.Init_MovingBand2D.GroupIndex)) ;
       break ;
 
     case OPERATION_MESH_MOVINGBAND2D :
-      Message::Info("====> Mesh_MovingBand2D") ;
+      Message::Info("MeshMovingBand2D") ;
       Mesh_MovingBand2D( (struct Group *)
 			 List_Pointer(Problem_S.Group,
 				      Operation_P->Case.Mesh_MovingBand2D.GroupIndex)) ;
@@ -2436,8 +2436,16 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  ------------------------- */
 
     case OPERATION_DELETEFILE :
-      Message::Info("DeleteFile") ;
+      Message::Info("DeleteFile[%s]", Operation_P->Case.DeleteFile.FileName) ;
       RemoveFile(Operation_P->Case.DeleteFile.FileName);
+      break ;
+
+      /*  -->  C r e a t e D i r   */
+      /*  ------------------------ */
+
+    case OPERATION_CREATEDIR :
+      Message::Info("CreateDir[%s]", Operation_P->Case.CreateDir.DirName) ;
+      CreateDir(Operation_P->Case.CreateDir.DirName);
       break ;
 
       /*  -->  T i m e L o o p A d a p t i v e  */
@@ -2547,9 +2555,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
     case OPERATION_BARRIER :
 #if defined(HAVE_PETSC)
-	  Message::Info("Barrier: waiting");
+      Message::Info("Barrier: waiting");
       MPI_Barrier(PETSC_COMM_WORLD);
-	  Message::Info("Barrier: let's continue");
+      Message::Info("Barrier: let's continue");
 #endif
       break ;
 

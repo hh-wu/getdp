@@ -237,7 +237,7 @@ struct doubleXstring{
 %token        tSetCommSelf tSetCommWorld tBarrier
 %token      tDivisionCoefficient tChangeOfState
 %token      tChangeOfCoordinates tChangeOfCoordinates2 tSystemCommand
-%token        tGmshRead tGmshClearAll tDeleteFile
+%token        tGmshRead tGmshClearAll tDeleteFile tCreateDir
 %token      tGenerateOnly
 %token      tGenerateOnlyJac
 %token      tSolveJac_AdaptRelax  tTensorProductSolve
@@ -4562,6 +4562,15 @@ OperationTerm :
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_DELETEFILE;
       Operation_P->Case.DeleteFile.FileName = strSave(Get_AbsolutePath($3).c_str());
+      Free($3);
+    }
+
+  | tCreateDir '[' CharExpr ']' tEND
+    {
+      Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_CREATEDIR;
+      Operation_P->Case.CreateDir.DirName = strSave(Get_AbsolutePath($3).c_str());
       Free($3);
     }
 

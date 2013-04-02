@@ -878,6 +878,9 @@ struct Operation {
       char *FileName;
     } DeleteFile;
     struct {
+      char *DirName;
+    } CreateDir;
+    struct {
       int     ExpressionIndex;
     } SetTime;
     struct {
@@ -1165,6 +1168,7 @@ struct IterativeLoopSystem {
 #define OPERATION_GMSHREAD                 61
 #define OPERATION_GMSHCLEARALL             62
 #define OPERATION_DELETEFILE               71
+#define OPERATION_CREATEDIR                72
 
 #define OPERATION_SETCOMMSELF              63
 #define OPERATION_SETCOMMWORLD             64

@@ -12,5 +12,6 @@ void GetResources(double *s, long *mem);
 void IncreaseStackSize();
 int BlockingSystemCall(const char *command);
 int RemoveFile(const std::string &fileName);
+int CreateDir(const std::string &dirName);
 
 #endif

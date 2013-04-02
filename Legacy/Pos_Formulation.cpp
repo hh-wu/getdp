@@ -350,7 +350,7 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
     }
     else {
       if((PostStream = fopen(FileName, Flag_BIN ? "ab" : "a")))
-	Message::Direct(2, "         >> '%s'", FileName) ;
+	Message::Direct(2, "          >> '%s'", FileName) ;
       else{
 	Message::Error("Unable to open file '%s'", FileName) ;
         PostStream = stdout ;
