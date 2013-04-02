@@ -4205,6 +4205,16 @@ retrieve the given field with the built-in @code{Field[]},
 @code{ScalarField[]}, @code{VectorField[]}, etc., functions
 (@pxref{Miscellaneous functions}).
 
+@item DeleteFile
+@code{[@var{expression-char}]}
+
+Delete a file.
+
+@item CreateDir | CreateDirectory
+@code{[@var{expression-char}]}
+
+Create a directory.
+
 @c todo:
 
 @c @item Perturbation 
