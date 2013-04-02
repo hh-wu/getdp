@@ -1271,9 +1271,6 @@ struct PostSubOperation {
   double LegendPosition[3];
   double Target;
   char   *ValueName, *Label;
-  List_T *HeaderChar_L, *HeaderTag_L;
-  List_T *FormatChar_L, *FormatTag_L;
-  List_T *FooterChar_L, *FooterTag_L;
   char   *FileOut;
   List_T *TimeStep_L, *Value_L, *Iso_L, *Frequency_L;
   List_T *ChangeOfValues;

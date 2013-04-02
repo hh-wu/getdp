@@ -161,8 +161,8 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   MPI_Comm ILSComm = PETSC_COMM_WORLD; //by default, KSP is launch in total parallel
   char *LinearSystemType;
   Field MyField, AllField;
-  double time_total = 0.;
 #if defined(TIMER)
+  double time_total = 0.;
   double time_start = MPI_Wtime();
 #endif
   /*-------------
@@ -317,7 +317,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
 	ierr = KSPSetPreconditionerSide(ksp, PC_RIGHT); CHKERRQ(ierr);
 #endif
       }
-    }    
+    }
     ierr = KSPSetType(ksp, ksp_choice); CHKERRQ(ierr);
     if(Restart>0 && (!strcmp(ksp_choice,"gmres") || !strcmp(ksp_choice,"dgmres") || !strcmp(ksp_choice,"lgmres") ||!strcmp(ksp_choice,"fgmres") ))
       ierr = KSPGMRESSetRestart(ksp, Restart); CHKERRQ(ierr);

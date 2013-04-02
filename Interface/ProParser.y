@@ -3970,7 +3970,7 @@ OperationTerm :
          Operation_P->Type == OPERATION_GENERATEJAC ||
          Operation_P->Type == OPERATION_GENERATESEPARATE)
 	Operation_P->Case.Generate.GroupIndex = -1;
-      
+
       if($4 >= -1) Operation_P->Rank = $4;
       else {
 	Message::Warning("Negative MPI Rank");
@@ -5772,7 +5772,7 @@ PostSubOperations :
     PostSubOperation
     {
       if(PostSubOperation_S.Type != POP_NONE) {
-	if(PostSubOperation_S.Format<0)
+	if(PostSubOperation_S.Format < 0)
 	  PostSubOperation_S.Format = PostOperation_S.Format;
 	List_Add($$ = $1, &PostSubOperation_S);
       }
@@ -6186,38 +6186,6 @@ PrintOption :
       }
       Free($3);
     }
-  | ',' tHeader ParsedStrings
-    {
-      PostSubOperation_S.HeaderChar_L = List_Copy(ListOfChar_L);
-      PostSubOperation_S.HeaderTag_L  = List_Copy(ListOfInt_L);
-    }
-  | ',' tFooter ParsedStrings
-    {
-      PostSubOperation_S.FooterChar_L = List_Copy(ListOfChar_L);
-      PostSubOperation_S.FooterTag_L  = List_Copy(ListOfInt_L);
-    }
-  | ',' tFormat ParsedStrings
-    {
-      PostSubOperation_S.FormatChar_L = List_Copy(ListOfChar_L);
-      PostSubOperation_S.FormatTag_L  = List_Copy(ListOfInt_L);
-
-      printf("--> string: \"");
-      for(int i = 0; i < List_Nbr(PostSubOperation_S.FormatChar_L); i++){
-	char tmpstr[256];
-	List_Read(PostSubOperation_S.FormatChar_L, i, &tmpstr[0]);
-	printf("%c", tmpstr[0]);
-      }
-      printf("\"\n");
-
-      printf("--> tags: ");
-      for(int i = 0; i < List_Nbr(PostSubOperation_S.FormatTag_L); i += 2){
-	int j, k;
-	List_Read(PostSubOperation_S.FormatTag_L, i, &j);
-	List_Read(PostSubOperation_S.FormatTag_L, i+1, &k);
-	printf("%d:%d ", j, k);
-      }
-      printf("\n");
-    }
   | ',' tComma
     {
       PostSubOperation_S.Comma = 1;
@@ -6400,6 +6368,10 @@ PrintOption :
     {
       PostSubOperation_S.AppendTimeStepToFileName = 1;
     }
+  | ',' tAppendTimeStepToFileName FExpr
+    {
+      PostSubOperation_S.AppendTimeStepToFileName = $3;
+    }
   | ',' tOverrideTimeStepValue FExpr
     {
       PostSubOperation_S.OverrideTimeStepValue = $3;
@@ -6422,59 +6394,6 @@ PrintOption :
       PostSubOperation_S.NewCoordinatesFile = $3;
     }
  ;
-
-
-
-ParsedStrings :
-    /* */
-    {
-      List_Reset(ListOfChar_L);
-      List_Reset(ListOfInt_L);
-    }
-
-  | ParsedStrings tBIGSTR
-    {
-      int i = 0, j;
-      do{
-	if($2[i] == '%'){
-	  i++; j = i;
-	  do{
-	    if($2[i] == '+'  || $2[i] == '-'  || $2[i] == '*'  || $2[i] == '%'  ||
-	       $2[i] == '>'  || $2[i] == '<'  || $2[i] == '|'  || $2[i] == '&'  ||
-	       $2[i] == '$'  || $2[i] == '\'' || $2[i] == '\\' || $2[i] == '/'  ||
-	       $2[i] == '{'  ||	$2[i] == '}'  || $2[i] == '('  || $2[i] == ')'  ||
-	       $2[i] == '['  || $2[i] == ']'  || $2[i] == '!'  || $2[i] == ','  ||
-	       $2[i] == '^'  || $2[i] == '.'  || $2[i] == ';'  || $2[i] == '~'  ||
-	       $2[i] == ' '  || $2[i] == '\n' || $2[i] == '\t' || $2[i] == '#'  ||
-               $2[i] == '`'  || $2[i] == ':' ){
-              break;
-            }
-	    i++;
-	  } while(i<(int)strlen($2));
-	  char tmpstr[256];
-	  strncpy(tmpstr, &$2[j], i-j);
-	  tmpstr[i-j] = '\0';
-	  int k = Get_DefineForString(PostSubOperation_FormatTag, tmpstr, &FlagError);
-	  if(FlagError){
-	    vyyerror("Unknown Tag in Format: %s", tmpstr);
-	    Get_Valid_SXD(PostSubOperation_FormatTag);
-	  }
-	  else {
-	    int l = List_Nbr(ListOfChar_L);
-	    List_Add(ListOfInt_L, &l);
-	    List_Add(ListOfInt_L, &k);
-	  }
-        }
-	else{
-	  List_Add(ListOfChar_L, &$2[i]);
-	  i++;
-	}
-      } while(i<(int)strlen($2));
-      Free($2);
-    }
- ;
-
-
 
 
 /* ------------------------------------------------------------------------ */
