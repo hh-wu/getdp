@@ -4508,6 +4508,33 @@ Outputs results for the specified time steps only.
 Outputs results for the last time step only (useful when calling a
 @code{PostOperation} directly in a @code{Resolution}, for example).
 
+@item AppendTimeStepToFileName
+< @var{expression-cst} >
+
+Appends the time step to the output file; only makes sense with @code{LastTimeStepOnly}.
+
+@item OverrideTimeStepValue 
+@var{expression-cst}
+
+Overrides the value of the current time step with the given value.
+
+@item NoMesh
+
+Prevents the mesh from being written in the output file (useful with new
+mesh-based solution formats).
+
+@item SendToServer 
+@var{expression-char}
+
+Send the value to the Onelab server, using @var{expression-char} as the
+paramater name.
+
+@item Color
+@var{expression-char}
+
+Used with @code{SendToServer}, sets the color of the parameter in the
+Onelab server.
+
 @item Frequency
 @code{@var{expression-cst-list-item} | @{ @var{expression-cst-list} @}}
 
