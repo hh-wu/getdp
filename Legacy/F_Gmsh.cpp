@@ -67,14 +67,14 @@ void F_Field(F_ARG)
       for(int j = 0; j < 3; j++)
         V->Val[j] += val[j];
       if(Current.NbrHar == 2 && data->getNumTimeSteps() > 1){
-      for(int j = 0; j < 3; j++)
-        V->Val[MAX_DIM + j] += val[3 + j];
+        for(int j = 0; j < 3; j++)
+          V->Val[MAX_DIM + j] += val[3 + j];
       }
       V->Type = VECTOR;
     }
     else if(data->searchTensor(x, y, z, &val[0])){
       for(int j = 0; j < 9; j++)
-        V->Val[j] = val[j];
+        V->Val[j] += val[j];
       if(Current.NbrHar == 2 && data->getNumTimeSteps() > 1){
         for(int j = 0; j < 9; j++)
           V->Val[MAX_DIM + j] += val[9 + j];
@@ -172,7 +172,7 @@ static void F_X_Field(F_ARG, int type, bool complex)
       if(data->searchTensor(x, y, z, &val[0])){
         for(int j = 0; j < 9; j++)
           V->Val[j] += val[9 * TimeStep + j];
-        if(Current.NbrHar == 2 && data->getNumTimeSteps() > 1){
+        if(complex && Current.NbrHar == 2 && data->getNumTimeSteps() > TimeStep + 1){
           for(int j = 0; j < 9; j++)
             V->Val[MAX_DIM + j] += val[9 * (TimeStep + 1) + j];
         }
