@@ -100,6 +100,7 @@ class Message {
   static void ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt);
   static void ExchangeOnelabParameter(Group *p, fmap &fopt, cmap &copt);
   static void ExchangeOnelabParameter(Expression *p, fmap &fopt, cmap &copt);
+  static void UndefineOnelabParameter(const std::string &name);
 };
 
 #endif

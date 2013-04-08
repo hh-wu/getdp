@@ -93,6 +93,7 @@ DeformeMesh                  return tDeformeMesh;
 DefineFunction               return tDefineFunction;
 DefineVariable               return tDefineConstant;
 DefineConstant               return tDefineConstant;
+UndefineConstant             return tUndefineConstant;
 
 List                         return tList;
 ListAlt                      return tListAlt;

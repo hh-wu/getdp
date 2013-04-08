@@ -172,7 +172,7 @@ struct doubleXstring{
 %token  tInclude
 %token  tConstant tList tListAlt tLinSpace tLogSpace tListFromFile
 %token  tChangeCurrentPosition
-%token  tDefineConstant tPi tMPI_Rank tMPI_Size t0D t1D t2D t3D
+%token  tDefineConstant tUndefineConstant tPi tMPI_Rank tMPI_Size t0D t1D t2D t3D
 %token  tExp tLog tLog10 tSqrt tSin tAsin tCos tAcos tTan
 %token    tAtan tAtan2 tSinh tCosh tTanh tFabs tFloor tCeil tSign
 %token    tFmod tModulo tHypot tRand
@@ -6548,6 +6548,8 @@ Affectation :
 
    tDefineConstant '[' DefineConstants ']' tEND
 
+  | tUndefineConstant '[' UndefineConstants ']' tEND
+
   | String__Index tDEF ListOfFExpr tEND
     {
       Constant_S.Name = $1;
@@ -6970,6 +6972,17 @@ DefineConstants :
       }
     }
  ;
+
+UndefineConstants :
+
+    /* none */
+  | UndefineConstants Comma CharExpr
+    {
+      std::string name($3);
+      Message::UndefineOnelabParameter(name);
+      Free($3);
+    }
+
 
 /* Ce bricolage affreux (?) est necessaire pour permettre la meme
    syntaxe dans les expressions constantes et dans les whole_expressions */

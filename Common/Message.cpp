@@ -863,6 +863,13 @@ void Message::ExchangeOnelabParameter(Expression *e, fmap &fopt, cmap &copt)
   printf("exchanging function %s with OneLab!\n", name.c_str());
 }
 
+void Message::UndefineOnelabParameter(const std::string &name)
+{
+  if(!_onelabClient) return;
+
+  _onelabClient->clear(name);
+}
+
 void Message::FinalizeOnelab()
 {
   if(_onelabClient){
