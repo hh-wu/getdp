@@ -83,7 +83,7 @@ class Message {
   static void InitializeSocket(std::string sockname);
   static void FinalizeSocket();
   static bool UseSocket(){ return _client ? true : false; }
-  static void SendFileOnSocket(std::string filename);
+  static void SendMergeFileRequest(const std::string &filename);
   static void SendOptionOnSocket(int num, std::string option);
   static void TestSocket();
   static void InitializeOnelab(std::string name, std::string sockname);

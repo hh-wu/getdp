@@ -36,6 +36,8 @@
 
 #if defined(HAVE_GMSH)
 #include <gmsh/GmshConfig.h>
+#include <gmsh/Gmsh.h>
+#include <gmsh/GmshMessage.h>
 #endif
 
 int Message::_commRank = 0;
@@ -159,7 +161,7 @@ void Message::Fatal(const char *fmt, ...)
   if(_client){
     _client->Error(str);
   }
-  else if(_onelabClient && _onelabClient->isNetworkClient()){
+  else if(_onelabClient && _onelabClient->getName() != "GetDPServer"){
     _onelabClient->sendError(str);
   }
   else{
@@ -190,7 +192,7 @@ void Message::Error(const char *fmt, ...)
   if(_client){
     _client->Error(str);
   }
-  else if(_onelabClient && _onelabClient->isNetworkClient()){
+  else if(_onelabClient && _onelabClient->getName() != "GetDPServer"){
     _onelabClient->sendError(str);
   }
   else{
@@ -223,7 +225,7 @@ void Message::Warning(const char *fmt, ...)
   if(_client){
     _client->Warning(str);
   }
-  else if(_onelabClient && _onelabClient->isNetworkClient()){
+  else if(_onelabClient && _onelabClient->getName() != "GetDPServer"){
     _onelabClient->sendWarning(str);
   }
   else{
@@ -263,7 +265,7 @@ void Message::Info(int level, const char *fmt, ...)
   if(_client){
     _client->Info(str);
   }
-  else if(_onelabClient && _onelabClient->isNetworkClient()){
+  else if(_onelabClient && _onelabClient->getName() != "GetDPServer"){
     _onelabClient->sendInfo(str);
   }
   else{
@@ -299,7 +301,7 @@ void Message::Direct(int level, const char *fmt, ...)
   if(_client){
     _client->Info(str);
   }
-  else if(_onelabClient && _onelabClient->isNetworkClient()){
+  else if(_onelabClient && _onelabClient->getName() != "GetDPServer"){
     _onelabClient->sendInfo(str);
   }
   else{
@@ -327,7 +329,7 @@ void Message::Check(const char *fmt, ...)
   if(_client){
     _client->Info(str);
   }
-  else if(_onelabClient && _onelabClient->isNetworkClient()){
+  else if(_onelabClient && _onelabClient->getName() != "GetDPServer"){
     _onelabClient->sendInfo(str);
   }
   else{
@@ -348,7 +350,7 @@ void Message::Debug(const char *fmt, ...)
   if(_client){
     _client->Info(str);
   }
-  else if(_onelabClient && _onelabClient->isNetworkClient()){
+  else if(_onelabClient && _onelabClient->getName() != "GetDPServer"){
     _onelabClient->sendInfo(str);
   }
   else{
@@ -382,7 +384,7 @@ void Message::Cpu(const char *fmt, ...)
   if(_client){
     _client->Info(str);
   }
-  else if(_onelabClient && _onelabClient->isNetworkClient()){
+  else if(_onelabClient && _onelabClient->getName() != "GetDPServer"){
     _onelabClient->sendInfo(str);
   }
   else{
@@ -411,7 +413,7 @@ void Message::ProgressMeter(int n, int N, const char *fmt, ...)
     sprintf(str2, "%3d%%    : %s", _progressMeterCurrent, str);
 
     if(N <= 0){
-      if(_onelabClient && _onelabClient->isNetworkClient()){
+      if(_onelabClient && _onelabClient->getName() != "GetDPServer"){
         onelab::number o(_onelabClient->getName() + "/Progress", n);
         o.setLabel(std::string("GetDP ") + str);
         o.setMin(0);
@@ -426,7 +428,7 @@ void Message::ProgressMeter(int n, int N, const char *fmt, ...)
     if(_client){
       _client->Progress(str2);
     }
-    else if(_onelabClient && _onelabClient->isNetworkClient()){
+    else if(_onelabClient && _onelabClient->getName() != "GetDPServer"){
       onelab::number o(_onelabClient->getName() + "/Progress",
                        (n > N - 1) ? 0 : n);
       o.setLabel(std::string("GetDP ") + str);
@@ -462,7 +464,7 @@ void Message::PrintTimers()
   if(_client){
     _client->Info((char*)str.c_str());
   }
-  else if(_onelabClient && _onelabClient->isNetworkClient()){
+  else if(_onelabClient && _onelabClient->getName() != "GetDPServer"){
     _onelabClient->sendInfo(str);
   }
   else{
@@ -497,12 +499,12 @@ void Message::InitializeSocket(std::string sockname)
   }
 }
 
-void Message::SendFileOnSocket(std::string filename)
+void Message::SendMergeFileRequest(const std::string &filename)
 {
   if(_client){
     _client->MergeFile((char*)filename.c_str());
   }
-  else if(_onelabClient && _onelabClient->isNetworkClient()){
+  else if(_onelabClient && _onelabClient->getName() != "GetDPServer"){
     _onelabClient->sendMergeFileRequest(filename);
   }
 }
@@ -535,6 +537,20 @@ void Message::FinalizeSocket()
   }
 }
 
+#if defined(HAVE_GMSH)
+class localGetDP : public onelab::localClient {
+public:
+  localGetDP() : onelab::localClient("GetDP") {}
+  void sendMergeFileRequest(const std::string &name)
+  {
+    GmshMergePostProcessingFile(name);
+  }
+  void sendInfo(const std::string &msg){ Msg::Info("%s", msg.c_str()); }
+  void sendWarning(const std::string &msg){ Msg::Warning("%s", msg.c_str()); }
+  void sendError(const std::string &msg){ Msg::Error("%s", msg.c_str()); }
+};
+#endif
+
 void Message::InitializeOnelab(std::string name, std::string sockname)
 {
   if(sockname.size()){
@@ -566,10 +582,15 @@ void Message::InitializeOnelab(std::string name, std::string sockname)
     }
   }
   else{
-    // getdp is called without onelab server, but with the name of a onelab
-    // database file
-    _onelabClient = new onelab::localClient("GetDP");
-    if(name != "GetDP"){
+    if(name == "GetDP"){
+      // getdp is called within Gmsh (sharing the same memory space)
+      _onelabClient = new localGetDP();
+    }
+    else{
+      // getdp is called without a connection to a onelab server, but with the
+      // name of a onelab database file; GetDP in this case becomes the onelab
+      // server
+      _onelabClient = new onelab::localClient("GetDPServer");
       Message::Info("Reading OneLab database '%s'", name.c_str());
       _onelabClient->fromFile(name);
     }

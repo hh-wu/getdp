@@ -439,7 +439,7 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
       if(PostSubOperation_P->Format == FORMAT_GMSH_PARSED ||
          PostSubOperation_P->Format == FORMAT_GMSH){
         // send merge request
-        Message::SendFileOnSocket(FileName);
+        Message::SendMergeFileRequest(FileName);
       }
       // Add link to file
       Message::AddOnelabStringChoice(Message::GetOnelabClientName() + "/9Output files",
