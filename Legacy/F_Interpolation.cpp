@@ -342,8 +342,8 @@ void F_InterpolationBilinear(F_ARG)
 void F_dInterpolationBilinear(F_ARG)
 {
 /*
-    It performs a bilinear interpolation at point (xp,yp) based
-    on a two-dimensional table (sorted grid).
+    It delivers the derivative of the bilinear interpolation at point (xp, yp)
+    based on a two-dimensional table (sorted grid).
 
     Input parameters:
     NL  Number of lines
