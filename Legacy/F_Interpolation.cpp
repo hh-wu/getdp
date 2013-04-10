@@ -258,6 +258,41 @@ bool Fi_InterpolationBilinear(double *x, double *y, double *M, int NL, int NC,
 }
 
 
+bool Fi_dInterpolationBilinear(double *x, double *y, double *M, int NL, int NC,
+                               double xp, double yp, double *dzp_dx, double *dzp_dy)
+{
+  double a11, a12, a21, a22;
+  int i, j;
+
+  // When (xp,yp) lays outside the boundaries of the table:
+  // the nearest border is taken
+  if (xp < x[0]) xp = x[0];
+  else if (xp > x[NL-1]) xp = x[NL-1];
+  for (i=0 ; i<NL-1 ; ++i) if (x[i+1] >= xp  &&  xp >= x[i]) break;
+  i = (i >= NL) ? NL-1 : i;
+
+  if (yp < y[0]) yp = y[0];
+  else if (yp > y[NC-1]) yp = y[NC-1];
+  for (j=0 ; j<NC-1 ; ++j) if (y[j+1] >= yp  &&  yp >= y[j]) break;
+  j = (j >= NC) ? NC-1 : j;
+
+
+  a11 = M[   i  + NL * j    ];
+  a21 = M[(i+1) + NL * j    ];
+  a12 = M[   i  + NL * (j+1)];
+  a22 = M[(i+1) + NL * (j+1)];
+
+  *dzp_dx = 1/((x[i+1]-x[i])*(y[j+1]-y[j])) *
+    ( (a21-a11) * ( y[j+1]-yp) +
+      (a22-a12) * (-y[j  ]+yp) );
+
+  *dzp_dy = 1/((x[i+1]-x[i])*(y[j+1]-y[j])) *
+      ( (a12-a11) * ( x[i+1]-xp) +
+        (a22-a21) * (-x[i  ]+xp) );
+
+  return true ;
+}
+
 void F_InterpolationBilinear(F_ARG)
 {
 /*
@@ -303,6 +338,54 @@ void F_InterpolationBilinear(F_ARG)
   V->Type = SCALAR ;
   V->Val[0] = zp ;
 }
+
+void F_dInterpolationBilinear(F_ARG)
+{
+/*
+    It delivers the derivative of the bilinear interpolation at point (xp,yp)
+    based on a two-dimensional table (sorted grid).
+
+    Input parameters:
+    NL  Number of lines
+    NC  Number of columns
+    x   values (ascending order) linked to the NL lines of the table
+    y   values (ascending order) linked to the NC columns of the table
+    M   Matrix M(x,y) = M[x+NL*y]
+
+    xp  x coordinate of interpolation point
+    yp  y coordinate of interpolation point
+
+*/
+
+  int     NL, NC;
+  double  xp, yp, dzp_dx = 0., dzp_dy = 0., *x, *y, *M;
+  struct FunctionActive  * D;
+
+  if( (A+0)->Type != SCALAR || (A+1)->Type != SCALAR)
+    Message::Error("Two Scalar arguments required!");
+
+  if (!Fct->Active)  Fi_InitListMatrix (Fct, A, V) ;
+
+  D = Fct->Active ;
+  NL = D->Case.ListMatrix.NbrLines ;
+  NC = D->Case.ListMatrix.NbrColumns ;
+
+  x = D->Case.ListMatrix.x ;
+  y = D->Case.ListMatrix.y ;
+  M = D->Case.ListMatrix.data ;
+
+  xp = (A+0)->Val[0] ;
+  yp = (A+1)->Val[0] ;
+
+  bool IsInGrid = Fi_dInterpolationBilinear (x, y, M, NL, NC, xp, yp, &dzp_dx, &dzp_dy);
+  if (!IsInGrid) Message::Error("Extrapolation not allowed (xp=%g ; yp=%g)", xp, yp) ;
+
+  V->Type = VECTOR ;
+  V->Val[0] = dzp_dx ;
+  V->Val[1] = dzp_dy ;
+  V->Val[2] = 0. ;
+}
+
 
 void Fi_InitListMatrix(F_ARG)
 {

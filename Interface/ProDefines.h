@@ -977,6 +977,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"InterpolationAkima"    , (CAST)F_InterpolationAkima    ,  -2,   1 },
   {"dInterpolationAkima"   , (CAST)F_dInterpolationAkima   ,  -2,   1 },
   {"InterpolationBilinear" , (CAST)F_InterpolationBilinear ,  -1,   2 },
+  {"dInterpolationBilinear", (CAST)F_dInterpolationBilinear,  -1,   2 },
   {"ValueFromIndex"        , (CAST)F_ValueFromIndex        ,  -1,   0 },
   {"VectorFromIndex"       , (CAST)F_VectorFromIndex       ,  -1,   0 },
 
