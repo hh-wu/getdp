@@ -537,10 +537,10 @@ void Message::FinalizeSocket()
   }
 }
 
-#if defined(HAVE_GMSH)
 class localGetDP : public onelab::localClient {
 public:
   localGetDP() : onelab::localClient("GetDP") {}
+#if defined(HAVE_GMSH)
   void sendMergeFileRequest(const std::string &name)
   {
     GmshMergePostProcessingFile(name);
@@ -548,8 +548,8 @@ public:
   void sendInfo(const std::string &msg){ Msg::Info("%s", msg.c_str()); }
   void sendWarning(const std::string &msg){ Msg::Warning("%s", msg.c_str()); }
   void sendError(const std::string &msg){ Msg::Error("%s", msg.c_str()); }
-};
 #endif
+};
 
 void Message::InitializeOnelab(std::string name, std::string sockname)
 {
@@ -583,7 +583,7 @@ void Message::InitializeOnelab(std::string name, std::string sockname)
   }
   else{
     if(name == "GetDP"){
-      // getdp is called within Gmsh (sharing the same memory space)
+      // getdp is called within the same memory space as the server
       _onelabClient = new localGetDP();
     }
     else{
