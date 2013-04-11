@@ -634,11 +634,20 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
   strcpy(FileIm, Name_File) ; strcat(FileIm, "_Im.txt") ;
 
   FILE *fp   = fopen(FileCplx, "w");
-  FILE *fpRe = fopen(FileRe, "w");
-  FILE *fpIm = fopen(FileIm, "w");
-
   if(!fp){
-    Message::Error("Unable to open file '%s'", Name_File) ;
+    Message::Error("Unable to open file '%s'", FileCplx) ;
+    return;
+  }
+
+  FILE *fpRe = fopen(FileRe, "w");
+  if(!fpRe){
+    Message::Error("Unable to open file '%s'", FileRe) ;
+    return;
+  }
+
+  FILE *fpIm = fopen(FileIm, "w");
+  if(!fpIm){
+    Message::Error("Unable to open file '%s'", FileIm) ;
     return;
   }
 

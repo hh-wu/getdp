@@ -1816,8 +1816,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       if(Operation_P->Case.SaveMesh.FileName[0] == '/' ||
 	 Operation_P->Case.SaveMesh.FileName[0] == '\\'){
-	strcpy(FileName,Operation_P->Case.SaveMesh.FileName);
-      } else {
+	strcpy(FileName, Operation_P->Case.SaveMesh.FileName);
+      }
+      else {
 	strcpy(FileName, Name_Path);
 	strcat(FileName, Operation_P->Case.SaveMesh.FileName);
       }
@@ -1825,7 +1826,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       if (Operation_P->Case.SaveMesh.ExprIndex >= 0) {
 	Get_ValueOfExpressionByIndex(Operation_P->Case.SaveMesh.ExprIndex,
 				     NULL, 0., 0., 0., &Value) ;
-	sprintf(FileName, FileName, Value.Val[0]);
+        char fmt[256]; strcpy(fmt, FileName);
+	sprintf(FileName, fmt, Value.Val[0]);
       }
 
       Geo_SaveMesh(Current.GeoData,

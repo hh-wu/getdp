@@ -25,125 +25,6 @@
   Vol. 23, No. 3, pp. 685-693, 2004.
  */
 
-void F_dhdb_Jiles(F_ARG)
-{
-  // input : h, b ,dh
-  // dhdb_Jiles[{h}, {d a}, {h}-{h}[1] ]{List[hyst_FeSi]}
-  // Material parameters: e.g. hyst_FeSi = { Msat, a, k, c, alpha};==> struct FunctionActive *D
-
-  double H[3], B[3], dH[3], dHdB[6] ;
-  struct FunctionActive  * D ;
-
-  void Vector_dHdB (double H[3], double B[3], double dH[3], struct FunctionActive *D, double dHdB[6]) ;
-
-  if( (A+0)->Type != VECTOR || (A+1)->Type != VECTOR || (A+2)->Type != VECTOR )
-    Message::Error("Three vector arguments required");
-
-  if (!Fct->Active)  Fi_InitListX (Fct, A, V) ;
-  D = Fct->Active ;
-
-  for (int k=0 ; k<3 ; k++){
-    H[k]  = (A+0)->Val[k] ;
-    B[k]  = (A+1)->Val[k] ;
-    dH[k] = (A+2)->Val[k] ;
-  }
-
-  Vector_dHdB (H, B, dH, D, dHdB) ;
-
-  V->Type = TENSOR_SYM ;// xx, xy, xz, yy, yz, zz
-  for (int k=0 ; k<6 ; k++)  V->Val[k] = dHdB[k] ;
-}
-
-void F_dbdh_Jiles(F_ARG)
-{
-  // input : h, b, dh
-  // dbdh_Jiles[{h}, {d a}, {h}-{h}[1] ]{List[hyst_FeSi]}
-  // Material parameters: e.g. hyst_FeSi = { Msat, a, k, c, alpha};==> struct FunctionActive *D
-
-  double H[3], B[3], dH[3], dBdH[6] ;
-  struct FunctionActive *D;
-
- void Vector_dBdH (double H[3], double B[3], double dH[3],
-                    struct FunctionActive *D, double dBdH[6]) ;
-
-  if( (A+0)->Type != VECTOR || (A+1)->Type != VECTOR || (A+2)->Type != VECTOR )
-    Message::Error("dbdh_Jiles requires three vector: {h} at t_i, {b} at t_i and ({h}-{h}[1]), i.e {h} at t_i - {h} at t_{i-1}");
-
-  if (!Fct->Active)  Fi_InitListX (Fct, A, V) ;
-  D = Fct->Active ;
-
-  for (int k=0 ; k<3 ; k++){
-    H[k]  = (A+0)->Val[k] ;
-    B[k]  = (A+1)->Val[k] ;
-    dH[k] = (A+2)->Val[k] ;
-  }
-
-  Vector_dBdH (H, B, dH, D, dBdH) ;
-
-  V->Type = TENSOR_SYM ;
-  for (int k=0 ; k<6 ; k++)  V->Val[k] = dBdH[k] ;
-}
-
-void F_h_Jiles(F_ARG)
-{
-  // input : h1, b1, b2
-  // h_Jiles[ {h}[1], {b}[1], {b} ]{List[hyst_FeSi]}
-  // Material parameters: e.g. hyst_FeSi = { Msat, a, k, c, alpha};
-
-  double Hone[3], Bone[3], Btwo[3], Htwo[3] ;
-  struct FunctionActive *D;
-
-  void Vector_H2 (double Hone[3], double Bone[3], double Btwo[3], int n,
-                  struct FunctionActive *D, double Htwo[3]) ;
-
-  if( (A+0)->Type != VECTOR || (A+1)->Type != VECTOR || (A+2)->Type != VECTOR )
-    Message::Error("h_Jiles requires three vector arguments: {h} at t_{i-1}, {b} at t_{i-1} and {b} at t_i");
-
-  if (!Fct->Active)  Fi_InitListX (Fct, A, V) ;
-  D = Fct->Active ;
-
-  for (int k=0 ; k<3 ; k++) {
-    Hone[k] = (A+0)->Val[k] ;
-    Bone[k] = (A+1)->Val[k] ;
-    Btwo[k] = (A+2)->Val[k] ;
-  }
-
-  Vector_H2 (Hone, Bone, Btwo, 10, D, Htwo) ;
-
-  V->Type = VECTOR ;
-  for (int k=0 ; k<3 ; k++)  V->Val[k] = Htwo[k] ;
-}
-
-void F_b_Jiles(F_ARG)
-{
-  // input : b1, h1, h2
-  // b_Jiles[ {b}[1], {h}[1], {h} ]{List[hyst_FeSi]}
-  // Material parameters: e.g. hyst_FeSi = { Msat, a, k, c, alpha};
-
-  double Bone[3], Hone[3], Btwo[3], Htwo[3] ;
-  struct FunctionActive  * D ;
-
-  void Vector_B2 (double Bone[3], double Hone[3], double Htwo[3], int n,
-                  struct FunctionActive *D, double Btwo[3]) ;
-
-  if( (A+0)->Type != VECTOR || (A+1)->Type != VECTOR || (A+2)->Type != VECTOR )
-    Message::Error("b_Jiles requires three vector arguments: {b} at t_{i-1}, "
-                   "{h} at t_{i-1} and {h} at t_i");
-
-  if (!Fct->Active)  Fi_InitListX (Fct, A, V) ;
-  D = Fct->Active ;
-
-  for (int k = 0; k < 3 ; k++){
-    Bone[k] = (A+0)->Val[k] ;
-    Hone[k] = (A+1)->Val[k] ;
-    Htwo[k] = (A+2)->Val[k] ;
-  }
-  Vector_B2 (Bone, Hone, Htwo, 10, D, Btwo) ;
-
-  V->Type = VECTOR ;
-  for (int k = 0; k < 3 ; k++) V->Val[k] = Btwo[k] ;
-}
-
 double F_Man (double He, double Ms, double a)
 {
   // Anhysteretic magnetisation
@@ -209,68 +90,6 @@ void FV_dMidHe(double He[3], double Man[3],
     dMidHe[2] = (Man[0]-Mi[0])*(Man[2]-Mi[2]) / kdM ;
     dMidHe[4] = (Man[1]-Mi[1])*(Man[2]-Mi[2]) / kdM ;
   }
-}
-
-void Vector_H2 (double Hone[3], double Bone[3], double Btwo[3], int n,
-                  struct FunctionActive *D, double Htwo[3])
-{
-  double H[3], dH[3], B[3], dB[3] ;
-  double dHdB[6] ;
-  void Vector_dHdB (double H[3], double B[3], double dH[3],
-                    struct FunctionActive *D, double dHdB[6]) ;
-
-  for (int k=0 ; k<3 ; k++) {
-    H[k]  = Hone[k];
-    dB[k] = (Btwo[k] - Bone[k])/(double)n ;
-  }
-
-  for (int i=0 ; i<n ; i++) {
-    for (int k=0 ; k<3 ; k++)
-      B[k] = (double)(n-i)/(double)n * Bone[k] + (double)i/(double)n * Btwo[k] ;
-    if (!i) {
-      for (int k=0; k<3; k++) dH[k] = dB[k] ;
-      Vector_dHdB (H, B, dH, D, dHdB) ;
-
-      dH[0] = dHdB[0] * dB[0] + dHdB[1] * dB[1] + dHdB[2] * dB[2] ;
-      dH[1] = dHdB[1] * dB[0] + dHdB[3] * dB[1] + dHdB[4] * dB[2] ;
-      dH[2] = dHdB[2] * dB[0] + dHdB[4] * dB[1] + dHdB[5] * dB[2] ;
-    }
-    Vector_dHdB (H, B, dH, D, dHdB) ;
-    dH[0] = dHdB[0] * dB[0] + dHdB[1] * dB[1] + dHdB[2] * dB[2] ;
-    dH[1] = dHdB[1] * dB[0] + dHdB[3] * dB[1] + dHdB[4] * dB[2] ;
-    dH[2] = dHdB[2] * dB[0] + dHdB[4] * dB[1] + dHdB[5] * dB[2] ;
-
-    for (int k=0 ; k<3 ; k++)  H[k] += dH[k] ;
-  }
-
-  for (int k=0 ; k<3 ; k++) Htwo[k] = H[k] ;
-}
-
-void Vector_B2(double Bone[3], double Hone[3], double Htwo[3], int n,
-               struct FunctionActive *D, double Btwo[3])
-{
-  double H[3], dH[3], B[3] ;
-  double dBdH[6] ;
-  void Vector_dBdH (double H[3], double B[3], double dH[3],
-                    struct FunctionActive *D, double dBdH[3]) ;
-
-  for (int k=0 ; k<3 ; k++) {
-    B[k]  = Bone[k];
-    dH[k] = (Htwo[k] - Hone[k])/(double)n ;
-  }
-
-  for (int i=0 ; i<n ; i++) {
-    for (int k=0 ; k<3 ; k++)
-      H[k] = (double)(n-i)/(double)n * Hone[k] + (double)i/(double)n * Htwo[k] ;
-
-    Vector_dBdH (H, B, dH, D, dBdH) ;
-
-    B[0] += dBdH[0] * dH[0] + dBdH[1] * dH[1] + dBdH[2] * dH[2] ;
-    B[1] += dBdH[1] * dH[0] + dBdH[3] * dH[1] + dBdH[4] * dH[2] ;
-    B[2] += dBdH[2] * dH[0] + dBdH[4] * dH[1] + dBdH[5] * dH[2] ;
-  }
-
-  for (int k=0 ; k<3 ; k++) Btwo[k] = B[k] ;
 }
 
 void Vector_dBdH(double H[3], double B[3], double dH[3],
@@ -360,7 +179,178 @@ void Vector_dHdB(double H[3], double B[3], double dH[3],
   dHdB[5] =  (dBdH[0]*dBdH[3]-dBdH[1]*dBdH[1])/det ;
 }
 
+void F_dhdb_Jiles(F_ARG)
+{
+  // input : h, b ,dh
+  // dhdb_Jiles[{h}, {d a}, {h}-{h}[1] ]{List[hyst_FeSi]}
+  // Material parameters: e.g. hyst_FeSi = { Msat, a, k, c, alpha};==> struct FunctionActive *D
 
+  double H[3], B[3], dH[3], dHdB[6] ;
+  struct FunctionActive  * D ;
+
+  if( (A+0)->Type != VECTOR || (A+1)->Type != VECTOR || (A+2)->Type != VECTOR )
+    Message::Error("Three vector arguments required");
+
+  if (!Fct->Active)  Fi_InitListX (Fct, A, V) ;
+  D = Fct->Active ;
+
+  for (int k=0 ; k<3 ; k++){
+    H[k]  = (A+0)->Val[k] ;
+    B[k]  = (A+1)->Val[k] ;
+    dH[k] = (A+2)->Val[k] ;
+  }
+
+  Vector_dHdB (H, B, dH, D, dHdB) ;
+
+  V->Type = TENSOR_SYM ;// xx, xy, xz, yy, yz, zz
+  for (int k=0 ; k<6 ; k++)  V->Val[k] = dHdB[k] ;
+}
+
+void F_dbdh_Jiles(F_ARG)
+{
+  // input : h, b, dh
+  // dbdh_Jiles[{h}, {d a}, {h}-{h}[1] ]{List[hyst_FeSi]}
+  // Material parameters: e.g. hyst_FeSi = { Msat, a, k, c, alpha};==> struct FunctionActive *D
+
+  double H[3], B[3], dH[3], dBdH[6] ;
+  struct FunctionActive *D;
+
+  if( (A+0)->Type != VECTOR || (A+1)->Type != VECTOR || (A+2)->Type != VECTOR )
+    Message::Error("dbdh_Jiles requires three vector: {h} at t_i, {b} at t_i and ({h}-{h}[1]), i.e {h} at t_i - {h} at t_{i-1}");
+
+  if (!Fct->Active)  Fi_InitListX (Fct, A, V) ;
+  D = Fct->Active ;
+
+  for (int k=0 ; k<3 ; k++){
+    H[k]  = (A+0)->Val[k] ;
+    B[k]  = (A+1)->Val[k] ;
+    dH[k] = (A+2)->Val[k] ;
+  }
+
+  Vector_dBdH (H, B, dH, D, dBdH) ;
+
+  V->Type = TENSOR_SYM ;
+  for (int k=0 ; k<6 ; k++)  V->Val[k] = dBdH[k] ;
+}
+
+void F_h_Jiles(F_ARG)
+{
+  // input : h1, b1, b2
+  // h_Jiles[ {h}[1], {b}[1], {b} ]{List[hyst_FeSi]}
+  // Material parameters: e.g. hyst_FeSi = { Msat, a, k, c, alpha};
+
+  double Hone[3], Bone[3], Btwo[3], Htwo[3] ;
+  struct FunctionActive *D;
+
+  void Vector_H2 (double Hone[3], double Bone[3], double Btwo[3], int n,
+                  struct FunctionActive *D, double Htwo[3]) ;
+
+  if( (A+0)->Type != VECTOR || (A+1)->Type != VECTOR || (A+2)->Type != VECTOR )
+    Message::Error("h_Jiles requires three vector arguments: {h} at t_{i-1}, {b} at t_{i-1} and {b} at t_i");
+
+  if (!Fct->Active)  Fi_InitListX (Fct, A, V) ;
+  D = Fct->Active ;
+
+  for (int k=0 ; k<3 ; k++) {
+    Hone[k] = (A+0)->Val[k] ;
+    Bone[k] = (A+1)->Val[k] ;
+    Btwo[k] = (A+2)->Val[k] ;
+  }
+
+  Vector_H2 (Hone, Bone, Btwo, 10, D, Htwo) ;
+
+  V->Type = VECTOR ;
+  for (int k=0 ; k<3 ; k++)  V->Val[k] = Htwo[k] ;
+}
+
+void F_b_Jiles(F_ARG)
+{
+  // input : b1, h1, h2
+  // b_Jiles[ {b}[1], {h}[1], {h} ]{List[hyst_FeSi]}
+  // Material parameters: e.g. hyst_FeSi = { Msat, a, k, c, alpha};
+
+  double Bone[3], Hone[3], Btwo[3], Htwo[3] ;
+  struct FunctionActive  * D ;
+
+  void Vector_B2 (double Bone[3], double Hone[3], double Htwo[3], int n,
+                  struct FunctionActive *D, double Btwo[3]) ;
+
+  if( (A+0)->Type != VECTOR || (A+1)->Type != VECTOR || (A+2)->Type != VECTOR )
+    Message::Error("b_Jiles requires three vector arguments: {b} at t_{i-1}, "
+                   "{h} at t_{i-1} and {h} at t_i");
+
+  if (!Fct->Active)  Fi_InitListX (Fct, A, V) ;
+  D = Fct->Active ;
+
+  for (int k = 0; k < 3 ; k++){
+    Bone[k] = (A+0)->Val[k] ;
+    Hone[k] = (A+1)->Val[k] ;
+    Htwo[k] = (A+2)->Val[k] ;
+  }
+  Vector_B2 (Bone, Hone, Htwo, 10, D, Btwo) ;
+
+  V->Type = VECTOR ;
+  for (int k = 0; k < 3 ; k++) V->Val[k] = Btwo[k] ;
+}
+
+
+void Vector_H2 (double Hone[3], double Bone[3], double Btwo[3], int n,
+                  struct FunctionActive *D, double Htwo[3])
+{
+  double H[3], dH[3], B[3], dB[3] ;
+  double dHdB[6] ;
+
+  for (int k=0 ; k<3 ; k++) {
+    H[k]  = Hone[k];
+    dB[k] = (Btwo[k] - Bone[k])/(double)n ;
+  }
+
+  for (int i=0 ; i<n ; i++) {
+    for (int k=0 ; k<3 ; k++)
+      B[k] = (double)(n-i)/(double)n * Bone[k] + (double)i/(double)n * Btwo[k] ;
+    if (!i) {
+      for (int k=0; k<3; k++) dH[k] = dB[k] ;
+      Vector_dHdB (H, B, dH, D, dHdB) ;
+
+      dH[0] = dHdB[0] * dB[0] + dHdB[1] * dB[1] + dHdB[2] * dB[2] ;
+      dH[1] = dHdB[1] * dB[0] + dHdB[3] * dB[1] + dHdB[4] * dB[2] ;
+      dH[2] = dHdB[2] * dB[0] + dHdB[4] * dB[1] + dHdB[5] * dB[2] ;
+    }
+    Vector_dHdB (H, B, dH, D, dHdB) ;
+    dH[0] = dHdB[0] * dB[0] + dHdB[1] * dB[1] + dHdB[2] * dB[2] ;
+    dH[1] = dHdB[1] * dB[0] + dHdB[3] * dB[1] + dHdB[4] * dB[2] ;
+    dH[2] = dHdB[2] * dB[0] + dHdB[4] * dB[1] + dHdB[5] * dB[2] ;
+
+    for (int k=0 ; k<3 ; k++)  H[k] += dH[k] ;
+  }
+
+  for (int k=0 ; k<3 ; k++) Htwo[k] = H[k] ;
+}
+
+void Vector_B2(double Bone[3], double Hone[3], double Htwo[3], int n,
+               struct FunctionActive *D, double Btwo[3])
+{
+  double H[3], dH[3], B[3] ;
+  double dBdH[6] ;
+
+  for (int k=0 ; k<3 ; k++) {
+    B[k]  = Bone[k];
+    dH[k] = (Htwo[k] - Hone[k])/(double)n ;
+  }
+
+  for (int i=0 ; i<n ; i++) {
+    for (int k=0 ; k<3 ; k++)
+      H[k] = (double)(n-i)/(double)n * Hone[k] + (double)i/(double)n * Htwo[k] ;
+
+    Vector_dBdH (H, B, dH, D, dBdH) ;
+
+    B[0] += dBdH[0] * dH[0] + dBdH[1] * dH[1] + dBdH[2] * dH[2] ;
+    B[1] += dBdH[1] * dH[0] + dBdH[3] * dH[1] + dBdH[4] * dH[2] ;
+    B[2] += dBdH[2] * dH[0] + dBdH[4] * dH[1] + dBdH[5] * dH[2] ;
+  }
+
+  for (int k=0 ; k<3 ; k++) Btwo[k] = B[k] ;
+}
 
 /* ------------------------------------------------------------------------ */
 /*
