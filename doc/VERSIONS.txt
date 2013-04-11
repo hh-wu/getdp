@@ -1,3 +1,5 @@
+2.3.1: updated onelab; small bug fixes.
+
 2.3.0: moved build system from autoconf to cmake; new family of Field functions
 to use data imported from Gmsh; improved list handling; general code cleanup.
 
