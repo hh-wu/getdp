@@ -387,6 +387,9 @@ public:
 
 void Free_GlobalVariables()
 {
+  Flag_PRE = 0; Flag_CAL = 0; Flag_POS = 0; Flag_RESTART = 0;
+  Flag_XDATA = 0; Flag_BIN = 0; Flag_SPLIT = 0; Flag_GMSH_VERSION = 1;
+  Flag_ORDER = -1.;
   Free(Name_Generic); Name_Generic = 0;
   Free(Name_Path); Name_Path = 0;
   Free(Name_Resolution); Name_Resolution = 0;
