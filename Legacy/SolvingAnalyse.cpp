@@ -146,7 +146,7 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
   struct PostSubOperation  * PostSubOperation_P ;
   struct Formulation       * Formulation_P ;
   struct DefineSystem      * DefineSystem_P ;
-  struct List_T            * SaveSolutions_L=NULL;
+  List_T                   * SaveSolutions_L=NULL;
   struct Solution          * SaveCurrentSolution_P=NULL;
 
   int    Nbr_PostSubOperation, i_POP, i ;
