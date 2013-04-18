@@ -10,7 +10,7 @@ DefineConstant[ l = {0.14, Min 0.05, Max 0.2, Step 0.01,
 
 DefineConstant[ d = {0.03, Min 0.01, Max 0.05, Step 0.002,
                      Path "Parameters/Geometry",
-                     Label "Core tickness (m)"} ] ;
+                     Label "Core thickness (m)"} ] ;
 
 DefineConstant[ e = {5e-3, Min 5e-4, Max d, Step 1e-3,
                      Path "Parameters/Geometry",

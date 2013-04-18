@@ -1,8 +1,9 @@
-/* A Bison parser, made by GNU Bison 2.7.  */
+/* A Bison parser, made by GNU Bison 2.4.3.  */
 
-/* Bison interface for Yacc-like parsers in C
+/* Skeleton interface for Bison's Yacc-like parsers in C
    
-      Copyright (C) 1984, 1989-1990, 2000-2012 Free Software Foundation, Inc.
+      Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006,
+   2009, 2010 Free Software Foundation, Inc.
    
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -30,15 +31,6 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-#ifndef YY_GETDP_YY_PROPARSER_TAB_HPP_INCLUDED
-# define YY_GETDP_YY_PROPARSER_TAB_HPP_INCLUDED
-/* Enabling traces.  */
-#ifndef YYDEBUG
-# define YYDEBUG 0
-#endif
-#if YYDEBUG
-extern int getdp_yydebug;
-#endif
 
 /* Tokens.  */
 #ifndef YYTOKENTYPE
@@ -325,11 +317,13 @@ extern int getdp_yydebug;
 #endif
 
 
+
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
 {
-/* Line 2058 of yacc.c  */
-#line 130 "ProParser.y"
+
+/* Line 1685 of yacc.c  */
+#line 135 "ProParser.y"
 
   char    *c;
   int     i;
@@ -338,8 +332,9 @@ typedef union YYSTYPE
   struct TwoInt t;
 
 
-/* Line 2058 of yacc.c  */
-#line 343 "ProParser.tab.hpp"
+
+/* Line 1685 of yacc.c  */
+#line 338 "ProParser.tab.hpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -348,18 +343,4 @@ typedef union YYSTYPE
 
 extern YYSTYPE getdp_yylval;
 
-#ifdef YYPARSE_PARAM
-#if defined __STDC__ || defined __cplusplus
-int getdp_yyparse (void *YYPARSE_PARAM);
-#else
-int getdp_yyparse ();
-#endif
-#else /* ! YYPARSE_PARAM */
-#if defined __STDC__ || defined __cplusplus
-int getdp_yyparse (void);
-#else
-int getdp_yyparse ();
-#endif
-#endif /* ! YYPARSE_PARAM */
 
-#endif /* !YY_GETDP_YY_PROPARSER_TAB_HPP_INCLUDED  */

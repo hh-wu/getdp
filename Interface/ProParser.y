@@ -37,21 +37,25 @@ int getdp_yyincludenum = 0;
 int getdp_yyerrorlevel = 0;
 
 // Static parser variables (accessible only in this file)
-static List_T *ConstantTable_L, *ListDummy_L;
-static List_T *ListOfInt_L;
-static List_T *ListOfPointer_L, *ListOfPointer2_L, *ListOfChar_L;
-static List_T *Current_BasisFunction_L, *Current_SubSpace_L, *Current_GlobalQuantity_L;
-static List_T *Current_WholeQuantity_L, *Current_System_L, *Operation_L;
-static List_T *ListOfFormulation, *ListOfBasisFunction, *ListOfEntityIndex;
-static int Num_BasisFunction = 1, YaccLevel = 0;
-static int FlagError;
-static int Type_TermOperator, Type_Function, Type_SuppList;
-static int Quantity_TypeOperator, Quantity_Index;
-static int Current_DofIndexInWholeQuantity, Last_DofIndexInWholeQuantity;
-static int Current_NoDofIndexInWholeQuantity;
-static int Current_System, Constraint_Index;
-static int TypeOperatorDofInTrace, DefineQuantityIndexDofInTrace;
+static List_T *ConstantTable_L = 0;
+static List_T *ListOfInt_L = 0;
+static List_T *ListOfPointer_L = 0, *ListOfPointer2_L = 0, *ListOfChar_L = 0;
+static List_T *ListOfFormulation = 0, *ListOfBasisFunction = 0, *ListOfEntityIndex = 0;
+
+static List_T *Operation_L = 0;
+static List_T *Current_BasisFunction_L = 0, *Current_SubSpace_L = 0;
+static List_T *Current_GlobalQuantity_L = 0, *Current_WholeQuantity_L = 0;
+static List_T *Current_System_L = 0;
+static int Num_BasisFunction = 1;
+static int FlagError = 0;
+static int Type_TermOperator = 0, Type_Function = 0, Type_SuppList = 0;
+static int Quantity_TypeOperator = 0, Quantity_Index = 0;
+static int Current_DofIndexInWholeQuantity = 0, Last_DofIndexInWholeQuantity = 0;
+static int Current_NoDofIndexInWholeQuantity = 0;
+static int Current_System = 0, Constraint_Index = 0;
+static int TypeOperatorDofInTrace = 0, DefineQuantityIndexDofInTrace = 0;
 static int ImbricatedLoop = 0;
+
 #define MAX_RECUR_LOOPS 100
 static fpos_t FposImbricatedLoopsTab[MAX_RECUR_LOOPS];
 static int LinenoImbricatedLoopsTab[MAX_RECUR_LOOPS];
@@ -103,6 +107,7 @@ void hack_fsetpos_printf();
 int  getdp_yylex();
 
 // Forward function declarations
+void Alloc_ParserVariables();
 void Check_NameOfStructNotExist(const char *Struct, List_T *List_L, void *data,
 				int (*fcmp)(const void *a, const void *b));
 int  Add_Group(struct Group *Group_P, char *Name, bool Flag_Add,
@@ -294,30 +299,8 @@ struct doubleXstring{
 %%
 
 Stats :
-    { if(++YaccLevel == 1) {
-	ConstantTable_L = List_Create(20, 10, sizeof(struct Constant));
-	ListDummy_L     = List_Create(1, 1, sizeof(int)); /* Do not delete */
-	ListOfInt_L     = List_Create(20, 10, sizeof(int));
-	ListOfPointer_L = List_Create(10, 10, sizeof(void *));
-	ListOfPointer2_L= List_Create(10, 10, sizeof(void *));
-	ListOfChar_L    = List_Create(128, 128, sizeof(char));
-
-	ListOfFormulation   = List_Create(5,5, sizeof(int));
-	ListOfBasisFunction = List_Create(5,5, sizeof(List_T *));
-	ListOfEntityIndex   = List_Create(5,5, sizeof(int));
-      }
-    }
+    { Alloc_ParserVariables(); }
     ProblemDefinitions
-    { if(--YaccLevel == 0) {
-	List_Delete(ListOfInt_L);
-	List_Delete(ListOfPointer_L); List_Delete(ListOfPointer2_L);
-	List_Delete(ListOfChar_L);
-
-	List_Delete(ListOfFormulation);
-	List_Delete(ListOfBasisFunction);
-	List_Delete(ListOfEntityIndex);
-      }
-    }
  ;
 
 
@@ -7661,6 +7644,32 @@ NbrRegions :
 #ifdef const
 #undef const
 #endif
+
+void Alloc_ParserVariables()
+{
+  if(!ConstantTable_L) {
+    ConstantTable_L = List_Create(20, 10, sizeof(struct Constant));
+    ListOfInt_L     = List_Create(20, 10, sizeof(int));
+    ListOfPointer_L = List_Create(10, 10, sizeof(void *));
+    ListOfPointer2_L= List_Create(10, 10, sizeof(void *));
+    ListOfChar_L    = List_Create(128, 128, sizeof(char));
+    ListOfFormulation   = List_Create(5,5, sizeof(int));
+    ListOfBasisFunction = List_Create(5,5, sizeof(List_T *));
+    ListOfEntityIndex   = List_Create(5,5, sizeof(int));
+  }
+}
+
+void Free_ParserVariables()
+{
+  List_Delete(ConstantTable_L); ConstantTable_L = 0;
+  List_Delete(ListOfInt_L); ListOfInt_L = 0;
+  List_Delete(ListOfPointer_L); ListOfPointer_L = 0;
+  List_Delete(ListOfPointer2_L); ListOfPointer2_L = 0;
+  List_Delete(ListOfChar_L); ListOfChar_L = 0;
+  List_Delete(ListOfFormulation); ListOfFormulation = 0;
+  List_Delete(ListOfBasisFunction); ListOfBasisFunction = 0;
+  List_Delete(ListOfEntityIndex); ListOfEntityIndex = 0;
+}
 
 /*  A d d _ G r o u p   &   C o .  */
 

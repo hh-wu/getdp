@@ -32,7 +32,7 @@ char   *Name_Resolution = 0;
 char   *Name_PostOperation[NBR_MAX_POS] = {0};
 char   *Name_MshFile = 0, *Name_ResFile[NBR_MAX_RES] = {0}, *Name_AdaptFile = 0;
 
-void Info(int level, char *arg0)
+static void Info(int level, char *arg0)
 {
   switch(level){
   case 0 :
@@ -107,8 +107,8 @@ void Info(int level, char *arg0)
 /*  G e t _ O p t i o n s                                                   */
 /* ------------------------------------------------------------------------ */
 
-void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
-		 int *lres, int *lpos, int *check)
+static void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
+                        int *lres, int *lpos, int *check)
 {
   strcpy(pro, "");
 
@@ -385,7 +385,7 @@ public:
 };
 #endif
 
-void Free_GlobalVariables()
+static void Free_GlobalVariables()
 {
   Flag_PRE = 0; Flag_CAL = 0; Flag_POS = 0; Flag_RESTART = 0;
   Flag_XDATA = 0; Flag_BIN = 0; Flag_SPLIT = 0; Flag_GMSH_VERSION = 1;
@@ -404,6 +404,7 @@ void Free_GlobalVariables()
   }
   Free(Name_AdaptFile); Name_AdaptFile = 0;
   Free_ProblemStructure();
+  Free_ParserVariables();
 }
 
 int MainLegacy(int argc, char *argv[])

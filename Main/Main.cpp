@@ -24,6 +24,11 @@ int main(int argc, char **argv)
   std::vector<std::string> args;
   args.push_back("getdp");
   args.push_back("demos/magnet");
+  GetDP(args);
+
+  args.clear();
+  args.push_back("getdp");
+  args.push_back("demos/magnet");
   args.push_back("-solve");
   args.push_back("MagSta_a");
   args.push_back("-pos");
