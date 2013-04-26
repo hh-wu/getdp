@@ -7,6 +7,7 @@
 #define _PRO_DATA_H_
 
 #include <string>
+#include <map>
 #include "GetDPConfig.h"
 #include "ListUtils.h"
 
@@ -80,7 +81,7 @@ struct Group {
   int     Num,  Type, FunctionType, SuppListType;
   List_T *InitialList, *InitialSuppList;
   List_T *ExtendedList, *ExtendedSuppList;
-  bool    IsExtendedListMultiValued;
+  std::multimap<int, TwoInt> ExtendedListForSearch;
   struct  MovingBand2D *MovingBand2D;
 };
 

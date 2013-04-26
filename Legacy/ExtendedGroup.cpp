@@ -130,24 +130,12 @@ void Generate_ExtendedGroup(struct Group * Group_P)
     break;
   }
 
-  // Check if ExtendedList only contains single entries with identical
-  // first keys (in absolute value): this allows to dramatically
-  // speed-up Get_DofOfElement() for large global basis functions
-  if(List_Nbr(Group_P->ExtendedList) && (Group_P->FunctionType == GROUPSOFNODESOF ||
-                                         Group_P->FunctionType == GROUPSOFEDGESOF ||
-                                         Group_P->FunctionType == GROUPSOFFACETSOF)) {
-    Group_P->IsExtendedListMultiValued = false;
-    std::set<int> s;
-    for(int i = 0; i < List_Nbr(Group_P->ExtendedList); i++){
-      TwoInt k;
-      List_Read(Group_P->ExtendedList, i, &k);
-      std::pair<std::set<int>::iterator, bool> ret = s.insert(abs(k.Int1));
-      if(ret.second){
-        Group_P->IsExtendedListMultiValued = true;
-        Message::Info("  Extended group is multivalued (search will be slow...)");
-        break;
-      }
-    }
+  // create multimap for fast searches in the extended group, even when
+  // multi-valued
+  for(int i = 0; i < List_Nbr(Group_P->ExtendedList); i++){
+    TwoInt k;
+    List_Read(Group_P->ExtendedList, i, &k);
+    Group_P->ExtendedListForSearch.insert(std::make_pair(abs(k.Int1), k));
   }
 }
 

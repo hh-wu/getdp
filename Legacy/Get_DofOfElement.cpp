@@ -229,7 +229,7 @@ void  Get_GroupsOfElementaryEntitiesOfElement
   /* external input/output :  GroupEntity_P     : In  */
 
   int            i, j, Num_Entity, Nbr_SubFunction, i_SF ;
-  struct TwoInt  * Key_P, Key ;
+  struct TwoInt  * Key_P ;
 
   if (Element->NumLastElementForGroupsOfEntities != Element->Num) {
     Element->NumLastElementForGroupsOfEntities = Element->Num ;
@@ -243,23 +243,11 @@ void  Get_GroupsOfElementaryEntitiesOfElement
   for (i = 0 ; i < Nbr_ElementaryEntities ; i++) {
     Num_Entity = abs(Num_ElementaryEntities[i]) ;
 
-    int iFirst = 1;
-    while(1){
-      if(!GroupEntity_P->IsExtendedListMultiValued){ // fast search
-        Key.Int1 = Num_Entity;
-        Key_P = (struct TwoInt*)List_PQuery(GroupEntity_P->ExtendedList,
-                                            &Key, fcmp_absint);
-        if(!Key_P) break;
-      }
-      else{
-        // general case (e.g. allowing multiple cuts to be considered
-        // for one element)
-        Key.Int1 = Num_Entity;
-        Key_P = &Key;
-        if(!List_LQuery(GroupEntity_P->ExtendedList, &Key, fcmp_absint, iFirst))
-          break;
-        iFirst = 0;
-      }
+    for (std::multimap<int, TwoInt>::iterator it =
+           GroupEntity_P->ExtendedListForSearch.lower_bound(Num_Entity);
+         it != GroupEntity_P->ExtendedListForSearch.upper_bound(Num_Entity); ++it) {
+
+      Key_P = &it->second;
 
       j = *StartingIndex ;
       while ((j < Element->NbrGroupsOfEntities) &&
@@ -295,8 +283,8 @@ void  Get_GroupsOfElementaryEntitiesOfElement
 	    (Key_P->Int1 > 0)?  (i+1) : -(i+1) ;
       }
 
-      if(!GroupEntity_P->IsExtendedListMultiValued) break;
     }
+
   }
 }
 
