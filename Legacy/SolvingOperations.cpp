@@ -464,12 +464,16 @@ void  UpdateConstraint_System(struct DefineSystem * DefineSystem_P,
   // Recreating the matrices will lead to much faster assembly (and reduced memory)
   // with petsc-based solvers
 
-  LinAlg_DestroyMatrix(&DofData_P->A);
+  // FIXME
+
+  if(DofData_P->Flag_Init[0] == 1 || DofData_P->Flag_Init[0] == 2)
+    LinAlg_DestroyMatrix(&DofData_P->A);
   LinAlg_CreateMatrix(&DofData_P->A, &DofData_P->Solver,
                       DofData_P->NbrDof, DofData_P->NbrDof);
 
   if(Flag_Jac){ // Only when JacNL term appears in formulation
-    LinAlg_DestroyMatrix(&DofData_P->Jac);
+    if(DofData_P->Flag_Init[0] == 2)
+      LinAlg_DestroyMatrix(&DofData_P->Jac);
     LinAlg_CreateMatrix(&DofData_P->Jac, &DofData_P->Solver,
                         DofData_P->NbrDof, DofData_P->NbrDof);
   }
@@ -954,7 +958,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	LinAlg_Solve(&DofData_P->A, &DofData_P->b, &DofData_P->Solver,
 		     &DofData_P->CurrentSolution->x,
                      (Operation_P->Rank < 0) ? (-Operation_P->Rank-1) : 0) ;
-    }
+      }
 	// By default, Operation_P->Rank = -1.
 	// If Operation_P->Rank >= 0 then OPERATION_SOLVE is achieved sequentially on processus
 	// Operation_P->Rank only.
