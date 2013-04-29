@@ -231,6 +231,7 @@ SelectCorrection             return tSelectCorrection ;
 AddCorrection                return tAddCorrection ;
 MultiplySolution             return tMultiplySolution ;
 AddOppositeFullSolution      return tAddOppositeFullSolution ;
+SolveAgainWithOther          return tSolveAgainWithOther;
 Test                         return tIf;
 TimeLoopTheta                return tTimeLoopTheta;
 TimeLoopNewmark              return tTimeLoopNewmark;

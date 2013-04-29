@@ -552,7 +552,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   int     i, j, k, l ;
   double  d, d1, d2, *Scales ;
   int     Nbr_Operation, Nbr_Sol, i_Operation, Num_Iteration ;
-  int     Flag_Jac, Flag_CPU, Flag_Binary = 0, Flag_SolveAgain = 0 ;
+  int     Flag_Jac, Flag_CPU, Flag_Binary = 0 ;
   int     Save_TypeTime ;
   double  Save_Time, Save_DTime ;
   double  Save_Iteration ;
@@ -925,64 +925,71 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       /*  -->  S o l v e                              */
       /*  ------------------------------------------  */
-    case OPERATION_SOLVEAGAIN : Flag_SolveAgain = 1 ;
+    case OPERATION_SOLVEAGAINWITHOTHER :
+    case OPERATION_SOLVEAGAIN :
     case OPERATION_SOLVE :
+      {
+        int again = (Operation_P->Type == OPERATION_SOLVEAGAINWITHOTHER) ? 2 :
+          (Operation_P->Type == OPERATION_SOLVEAGAIN) ? 1 : 0;
+
 #ifdef TIMER
-      {double tstart = MPI_Wtime();
+        double tstart = MPI_Wtime();
 #endif
-      /*  Solve : A x = b  */
-      Init_OperationOnSystem(Flag_SolveAgain ? "SolveAgain" : "Solve",
-			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
-                             &DefineSystem_P, &DofData_P, Resolution2_P) ;
+        /*  Solve : A x = b  */
+        Init_OperationOnSystem((again == 2) ? "SolveAgainWithOther" :
+                               (again == 1) ? "SolveAgain" : "Solve",
+                               Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+                               &DefineSystem_P, &DofData_P, Resolution2_P) ;
 
-      if (DofData_P->Flag_Only){
-	if(DofData_P->Flag_InitOnly[0]){
-	  LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A1, &DofData_P->A);
-	  LinAlg_AddVectorVector(&DofData_P->b, &DofData_P->b1, &DofData_P->b) ;
-	}
+        if (DofData_P->Flag_Only){
+          if(DofData_P->Flag_InitOnly[0]){
+            LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A1, &DofData_P->A);
+            LinAlg_AddVectorVector(&DofData_P->b, &DofData_P->b1, &DofData_P->b) ;
+          }
 
-	if(DofData_P->Flag_InitOnly[1]){
-	  LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A2, &DofData_P->A) ;
-	  LinAlg_AddVectorVector(&DofData_P->b, &DofData_P->b2, &DofData_P->b) ;
-	}
-	if(DofData_P->Flag_InitOnly[2]){
-	  LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A3, &DofData_P->A) ;
-	  LinAlg_AddVectorVector(&DofData_P->b, &DofData_P->b3, &DofData_P->b) ;
-	}
+          if(DofData_P->Flag_InitOnly[1]){
+            LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A2, &DofData_P->A) ;
+            LinAlg_AddVectorVector(&DofData_P->b, &DofData_P->b2, &DofData_P->b) ;
+          }
+          if(DofData_P->Flag_InitOnly[2]){
+            LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A3, &DofData_P->A) ;
+            LinAlg_AddVectorVector(&DofData_P->b, &DofData_P->b3, &DofData_P->b) ;
+          }
 
-	LinAlg_AssembleMatrix(&DofData_P->A) ;
-	LinAlg_AssembleVector(&DofData_P->b) ;
-      }
+          LinAlg_AssembleMatrix(&DofData_P->A) ;
+          LinAlg_AssembleVector(&DofData_P->b) ;
+        }
 
-      if(!Flag_SolveAgain){
-	LinAlg_Solve(&DofData_P->A, &DofData_P->b, &DofData_P->Solver,
-		     &DofData_P->CurrentSolution->x,
-                     (Operation_P->Rank < 0) ? (-Operation_P->Rank-1) : 0) ;
-      }
-	// By default, Operation_P->Rank = -1.
-	// If Operation_P->Rank >= 0 then OPERATION_SOLVE is achieved sequentially on processus
-	// Operation_P->Rank only.
-	// If Operation_P->Rank < 0 then OPERATION_SOLVE is launched "classically" in parallel
-	// with a choice of the solver.
-	// The last argument of function "_solve" called by LinAlg_Solve defines which solver
-	// to use, from 0 to 9 (0=default, 1,2,... see "_solve" function)
-	// Thus, if Operation_P->Rank < 0, then we have to substitute Operation_P->Rank
-	// to (-Operation_P->Rank-1) in the last argument to recover the solver number (0,1,2, ...)
-	// This modification permits to do numerical simulations of Domain Decomposition Method
-	// The same applies for LinAlg_SolveAgain, bellow
-      else
-	LinAlg_SolveAgain(&DofData_P->A, &DofData_P->b, &DofData_P->Solver,
-                          &DofData_P->CurrentSolution->x,
-                          (Operation_P->Rank < 0) ? (-Operation_P->Rank-1) : 0) ;
-      Flag_CPU = 1 ;
+        // By default, Operation_P->Rank = -1.
+        // If Operation_P->Rank >= 0 then OPERATION_SOLVE is achieved sequentially on processus
+        // Operation_P->Rank only.
+        // If Operation_P->Rank < 0 then OPERATION_SOLVE is launched "classically" in parallel
+        // with a choice of the solver.
+        // The last argument of function "_solve" called by LinAlg_Solve defines which solver
+        // to use, from 0 to 9 (0=default, 1,2,... see "_solve" function)
+        // Thus, if Operation_P->Rank < 0, then we have to substitute Operation_P->Rank
+        // to (-Operation_P->Rank-1) in the last argument to recover the solver number (0,1,2, ...)
+        // This modification permits to do numerical simulations of Domain Decomposition Method
+        // The same applies for LinAlg_SolveAgain, bellow
+        if(!again){
+          LinAlg_Solve(&DofData_P->A, &DofData_P->b, &DofData_P->Solver,
+                       &DofData_P->CurrentSolution->x,
+                       (Operation_P->Rank < 0) ? (-Operation_P->Rank-1) : 0) ;
+        }
+        else{
+          DofData *d = (again == 1) ? DofData_P :
+            DofData_P0 + Operation_P->Case.SolveAgainWithOther.DefineSystemIndex;
+          LinAlg_SolveAgain(&d->A, &DofData_P->b, &d->Solver,
+                            &DofData_P->CurrentSolution->x,
+                            (Operation_P->Rank < 0) ? (-Operation_P->Rank-1) : 0) ;
+        }
+        Flag_CPU = 1 ;
 #ifdef TIMER
-      double timer = MPI_Wtime() - tstart;
-      if(!Flag_SolveAgain)
-	printf("Proc %d, time spent in Solve %.16g\n", Message::GetCommRank(), timer);
-      else
-	printf("Proc %d, time spent in SolveAgain %.16g\n", Message::GetCommRank(), timer);
-    }
+        double timer = MPI_Wtime() - tstart;
+        printf("Proc %d, time spent in %s %.16g\n", again ? "SolveAgain" : "Solve",
+               Message::GetCommRank(), timer);
 #endif
+      }
       break ;
 
     // Using PETSC nonlinear solvers - SNES, nonlinear loop internal to PETSC
@@ -1019,85 +1026,88 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  -->  S o l v e J a c                        */
       /*  ------------------------------------------  */
 
-    case OPERATION_SOLVEJACAGAIN : Flag_SolveAgain = 1 ;
+    case OPERATION_SOLVEJACAGAIN :
     case OPERATION_SOLVEJAC :
-      /*  SolveJac : J(xn) dx = b(xn) - A(xn) xn ;  x = xn + dx  */
+      {
+        /*  SolveJac : J(xn) dx = b(xn) - A(xn) xn ;  x = xn + dx  */
 
-      Flag_Jac = 1 ;
-      Init_OperationOnSystem(Flag_SolveAgain ? "SolveJacAgain" : "SolveJac",
-			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
-                             &DefineSystem_P, &DofData_P, Resolution2_P) ;
+        int again = (Operation_P->Type == OPERATION_SOLVEJACAGAIN) ? 1 : 0;
 
-      if(DofData_P->Flag_Init[0] < 2){
-	Message::Error("Jacobian system not initialized (missing GenerateJac?)");
-        break;
-      }
+        Flag_Jac = 1 ;
+        Init_OperationOnSystem(again ? "SolveJacAgain" : "SolveJac",
+                               Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+                               &DefineSystem_P, &DofData_P, Resolution2_P) ;
 
-      if (DofData_P->Flag_Only){
-	if(DofData_P->Flag_InitOnly[0]){
-	  LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A1, &DofData_P->A);
-	  LinAlg_AddVectorVector(&DofData_P->b, &DofData_P->b1, &DofData_P->b) ;
-	}
-
-	if(DofData_P->Flag_InitOnly[1]){
-	  LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A2, &DofData_P->A) ;
-	  LinAlg_AddVectorVector(&DofData_P->b, &DofData_P->b2, &DofData_P->b) ;
-	}
-	if(DofData_P->Flag_InitOnly[2]){
-	  LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A3, &DofData_P->A) ;
-	  LinAlg_AddVectorVector(&DofData_P->b, &DofData_P->b3, &DofData_P->b) ;
-	}
-	LinAlg_AssembleMatrix(&DofData_P->A) ;
-	LinAlg_AssembleVector(&DofData_P->b) ;
-      }
-
-      // Store sum in A (not in Jac) for performance reasons (the
-      // sparsity pattern of Jac is a subset of the sparsity pattern
-      // of A)
-
-      LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x, &DofData_P->res) ;
-      LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->Jac, &DofData_P->A) ; // Problem with PETSc 3.3
-      // res = b(xn)-A(xn)*xn
-      LinAlg_SubVectorVector(&DofData_P->b, &DofData_P->res, &DofData_P->res) ;
-      LinAlg_DummyVector(&DofData_P->res) ;
-
-      if(!Flag_SolveAgain)
-        LinAlg_Solve(&DofData_P->A, &DofData_P->res, &DofData_P->Solver, &DofData_P->dx) ;
-      else
-        LinAlg_SolveAgain(&DofData_P->A, &DofData_P->res, &DofData_P->Solver, &DofData_P->dx) ;
-
-      Cal_SolutionError(&DofData_P->dx, &DofData_P->CurrentSolution->x, 0, &MeanError) ;
-      //LinAlg_VectorNorm2(&DofData_P->dx, &MeanError);
-      if(!Flag_IterativeLoopN){
-        Message::Info("%3ld Nonlinear Residual norm %14.12e",
-                      (int)Current.Iteration, MeanError);
-        if(Message::GetProgressMeterStep() > 0 && Message::GetProgressMeterStep() < 100)
-          Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Residual",
-                                         MeanError);
-      }
-
-      Current.RelativeDifference += MeanError ;
-
-      if (!Flag_IterativeLoop) {
-        LinAlg_ProdVectorDouble(&DofData_P->dx, Current.RelaxationFactor, &DofData_P->dx) ;
-      }
-      else {  // Attention: phase test ... Technique bricolee ... provisoire
-        if (Current.Iteration == 1. || MeanError < Current.RelativeDifferenceOld)
-          LinAlg_ProdVectorDouble(&DofData_P->dx, Current.RelaxationFactor, &DofData_P->dx) ;
-        else {
-          RelFactor_Modified = Current.RelaxationFactor /
-            (MeanError / Current.RelativeDifferenceOld) ;
-	  Message::Info("RelFactor modified = %g", RelFactor_Modified) ;
-          LinAlg_ProdVectorDouble(&DofData_P->dx, RelFactor_Modified, &DofData_P->dx) ;
-          Cal_SolutionError(&DofData_P->dx, &DofData_P->CurrentSolution->x, 0, &MeanError) ;
-          //LinAlg_VectorNorm2(&DofData_P->dx, &MeanError);
-	  Message::Info("Mean error: %.3e", MeanError) ;
+        if(DofData_P->Flag_Init[0] < 2){
+          Message::Error("Jacobian system not initialized (missing GenerateJac?)");
+          break;
         }
-      }
 
-      LinAlg_AddVectorVector(&DofData_P->CurrentSolution->x, &DofData_P->dx,
-			     &DofData_P->CurrentSolution->x) ;
-      Flag_CPU = 1 ;
+        if (DofData_P->Flag_Only){
+          if(DofData_P->Flag_InitOnly[0]){
+            LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A1, &DofData_P->A);
+            LinAlg_AddVectorVector(&DofData_P->b, &DofData_P->b1, &DofData_P->b) ;
+          }
+
+          if(DofData_P->Flag_InitOnly[1]){
+            LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A2, &DofData_P->A) ;
+            LinAlg_AddVectorVector(&DofData_P->b, &DofData_P->b2, &DofData_P->b) ;
+          }
+          if(DofData_P->Flag_InitOnly[2]){
+            LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A3, &DofData_P->A) ;
+            LinAlg_AddVectorVector(&DofData_P->b, &DofData_P->b3, &DofData_P->b) ;
+          }
+          LinAlg_AssembleMatrix(&DofData_P->A) ;
+          LinAlg_AssembleVector(&DofData_P->b) ;
+        }
+
+        // Store sum in A (not in Jac) for performance reasons (the sparsity
+        // pattern of Jac is a subset of the sparsity pattern of A)
+
+        LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x, &DofData_P->res) ;
+        LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->Jac, &DofData_P->A) ; // Problem with PETSc 3.3
+        // res = b(xn)-A(xn)*xn
+        LinAlg_SubVectorVector(&DofData_P->b, &DofData_P->res, &DofData_P->res) ;
+        LinAlg_DummyVector(&DofData_P->res) ;
+
+        if(!again)
+          LinAlg_Solve(&DofData_P->A, &DofData_P->res, &DofData_P->Solver, &DofData_P->dx) ;
+        else
+          LinAlg_SolveAgain(&DofData_P->A, &DofData_P->res, &DofData_P->Solver, &DofData_P->dx) ;
+
+        Cal_SolutionError(&DofData_P->dx, &DofData_P->CurrentSolution->x, 0, &MeanError) ;
+        //LinAlg_VectorNorm2(&DofData_P->dx, &MeanError);
+        if(!Flag_IterativeLoopN){
+          Message::Info("%3ld Nonlinear Residual norm %14.12e",
+                        (int)Current.Iteration, MeanError);
+          if(Message::GetProgressMeterStep() > 0 && Message::GetProgressMeterStep() < 100)
+            Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Residual",
+                                           MeanError);
+        }
+
+        Current.RelativeDifference += MeanError ;
+
+        if (!Flag_IterativeLoop) {
+          LinAlg_ProdVectorDouble(&DofData_P->dx, Current.RelaxationFactor, &DofData_P->dx) ;
+        }
+        else {  // Attention: phase test ... Technique bricolee ... provisoire
+          if (Current.Iteration == 1. || MeanError < Current.RelativeDifferenceOld)
+            LinAlg_ProdVectorDouble(&DofData_P->dx, Current.RelaxationFactor, &DofData_P->dx) ;
+          else {
+            RelFactor_Modified = Current.RelaxationFactor /
+              (MeanError / Current.RelativeDifferenceOld) ;
+            Message::Info("RelFactor modified = %g", RelFactor_Modified) ;
+            LinAlg_ProdVectorDouble(&DofData_P->dx, RelFactor_Modified, &DofData_P->dx) ;
+            Cal_SolutionError(&DofData_P->dx, &DofData_P->CurrentSolution->x, 0, &MeanError) ;
+            //LinAlg_VectorNorm2(&DofData_P->dx, &MeanError);
+            Message::Info("Mean error: %.3e", MeanError) ;
+          }
+        }
+
+        LinAlg_AddVectorVector(&DofData_P->CurrentSolution->x, &DofData_P->dx,
+                               &DofData_P->CurrentSolution->x) ;
+        Flag_CPU = 1 ;
+      }
       break ;
 
       /*  -->  S o l v e J a c _ A d a p t R e l a x  */

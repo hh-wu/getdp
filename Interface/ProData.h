@@ -869,6 +869,9 @@ struct Operation {
       List_T *MatrixIndex_L;
     } GenerateOnly;
     struct {
+      int DefineSystemIndex;
+    } SolveAgainWithOther;
+    struct {
       char *String;
     } SystemCommand;
     struct {
@@ -1098,6 +1101,7 @@ struct IterativeLoopSystem {
 #define OPERATION_GENERATE                  1
 #define OPERATION_SOLVE                     2
 #define OPERATION_SOLVEAGAIN              223
+#define OPERATION_SOLVEAGAINWITHOTHER     225
 #define OPERATION_SOLVENL                 233
 #define OPERATION_GENERATEJAC               3
 #define OPERATION_GENERATERHS             100

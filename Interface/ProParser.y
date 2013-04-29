@@ -231,7 +231,7 @@ struct doubleXstring{
 %token      tLanczos tEigenSolve tEigenSolveJac tPerturbation
 %token      tUpdate tUpdateConstraint tBreak
 %token      tEvaluate tSelectCorrection tAddCorrection tMultiplySolution
-%token      tAddOppositeFullSolution
+%token      tAddOppositeFullSolution tSolveAgainWithOther
 
 %token      tTimeLoopTheta tTimeLoopNewmark tTimeLoopRungeKutta tTimeLoopAdaptive
 %token        tTime0 tTimeMax tTheta
@@ -4428,7 +4428,8 @@ OperationTerm :
       Operation_P->Case.IterativeLoop.Operation = $12;
     }
 
-  | tIterativeLinearSolver '[' CharExpr ',' CharExpr ',' FExpr ',' FExpr ',' FExpr',' ListOfFExpr',' ListOfFExpr',' ListOfFExpr ']'
+  | tIterativeLinearSolver '[' CharExpr ',' CharExpr ',' FExpr ',' FExpr ',' FExpr','
+                               ListOfFExpr',' ListOfFExpr',' ListOfFExpr ']'
                            '{' Operation '}'
                            '{' Operation '}'
     { List_Pop(Operation_L);
@@ -4835,6 +4836,28 @@ OperationTerm :
       Free($5);
       Operation_P->Type = OPERATION_GENERATERHS;
       Operation_P->Case.Generate.GroupIndex = i;
+      if($6 >= -1) Operation_P->Rank = $6;
+      else {
+	Message::Warning("Negative MPI Rank");
+	Operation_P->Rank = -1;
+      }
+    }
+
+  | tSolveAgainWithOther '[' String__Index ',' String__Index CommaFExprOrNothing ']'  tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_SOLVEAGAINWITHOTHER;
+      int i;
+      if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+                              fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $3);
+      Free($3);
+      Operation_P->DefineSystemIndex = i;
+      if((i = List_ISearchSeq(Resolution_S.DefineSystem, $5,
+                              fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $5);
+      Free($5);
+      Operation_P->Case.SolveAgainWithOther.DefineSystemIndex = i;
       if($6 >= -1) Operation_P->Rank = $6;
       else {
 	Message::Warning("Negative MPI Rank");
