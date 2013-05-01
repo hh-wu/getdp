@@ -1,0 +1,85 @@
+//Merge "pmsm.geo";
+
+
+NbrPoles = 1 ;
+NbrPolesTot = 8 ;
+
+Merge "res/a.pos";
+// Dummy operation for getting maps that we can combine...
+Plugin(MathEval).View = PostProcessing.NbViews-1;
+Plugin(MathEval).Expression0 = 'v0' ;
+Plugin(MathEval).Run ;
+Delete View[PostProcessing.NbViews-2] ;
+va = PostProcessing.NbViews-1 ;
+
+For k In {1:NbrPolesTot/NbrPoles-1}
+  Alias View[va];
+
+  //Plugin(ModifyComponent).View = k ;
+  //Plugin(ModifyComponent).Expression = Sprintf('(-1)^(%g*%g) * v0', k, NbrPoles) ;
+  //Plugin(ModifyComponent).Run ;
+
+  Plugin(MathEval).View = PostProcessing.NbViews-1 ;
+  Plugin(MathEval).Expression0 = Sprintf('(-1)^(%g*%g) * v0', k, NbrPoles) ;
+  Plugin(MathEval).Run ;
+
+  theta = k*NbrPoles*2*Pi/NbrPolesTot ;
+  Plugin(Transform).View = PostProcessing.NbViews-1 ;
+  Plugin(Transform).A11 = Cos(theta) ;
+  Plugin(Transform).A12 = Sin(theta) ;
+  Plugin(Transform).A21 =-Sin(theta) ;
+  Plugin(Transform).A22 = Cos(theta) ;
+  Plugin(Transform).Run ;
+Delete View[PostProcessing.NbViews-2] ;
+EndFor
+
+Combine Views ;
+View[PostProcessing.NbViews-1].Light = 0;
+View[PostProcessing.NbViews-1].NbIso = 20 ;
+View[PostProcessing.NbViews-1].IntervalsType = 2 ;
+View[PostProcessing.NbViews-1].Name = 'Flux lines';
+View[PostProcessing.NbViews-1].LineWidth = 1;
+
+View[PostProcessing.NbViews-1].ColormapNumber = 2; // Default colormap number
+View[PostProcessing.NbViews-1].Visible = 0; // Default colormap number
+
+/*
+Plugin(Scal2Vec).ViewZ = PostProcessing.NbViews-1 ;
+Plugin(Scal2Vec).Run ;
+
+Plugin(Curl).View = PostProcessing.NbViews-1 ;
+Plugin(Curl).Run ;
+View[PostProcessing.NbViews-1].Name = 'Induction';
+
+Delete View[PostProcessing.NbViews-2] ;
+*/
+
+Merge "res/b.pos";
+Plugin(MathEval).View = PostProcessing.NbViews-1;
+Plugin(MathEval).Expression0 = 'v0' ;
+Plugin(MathEval).Expression1 = 'v1' ;
+Plugin(MathEval).Run ;
+Delete View[PostProcessing.NbViews-2] ;
+vb = PostProcessing.NbViews-1 ;
+
+For k In {1:NbrPolesTot/NbrPoles}
+  Alias View[vb] ;
+  theta = k*NbrPoles*2*Pi/NbrPolesTot + Fmod(k,2)*Pi ;
+  Plugin(MathEval).View = PostProcessing.NbViews-1 ;
+  Plugin(MathEval).Expression0 = Sprintf(' v0*Cos(%g) + v1*Sin(%g)', theta, theta) ;
+  Plugin(MathEval).Expression1 = Sprintf('-v0*Sin(%g) + v1*Cos(%g)', theta, theta) ;
+  Plugin(MathEval).Run ;
+
+  theta = k*NbrPoles*2*Pi/NbrPolesTot ;
+  Plugin(Transform).View = PostProcessing.NbViews-1 ;
+  Plugin(Transform).A11 = Cos(theta) ;
+  Plugin(Transform).A12 = Sin(theta) ;
+  Plugin(Transform).A21 =-Sin(theta) ;
+  Plugin(Transform).A22 = Cos(theta) ;
+  Plugin(Transform).Run ;
+  Delete View[PostProcessing.NbViews-2] ;
+EndFor
+
+Combine ElementsFromVisibleViews ;
+View[PostProcessing.NbViews-1].Name = 'Induction';
+
