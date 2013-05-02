@@ -5,11 +5,13 @@
 
 #include <stdio.h>
 #include "MainLegacy.h"
+#include "Message.h"
 #include "GetDP.h"
 
 int main(int argc, char **argv)
 {
 #if 1
+  Message::SetExitOnError(true);
   MainLegacy(argc, argv);
 #endif
 
@@ -23,25 +25,12 @@ int main(int argc, char **argv)
 #if 0 // test simple standalone interface
   std::vector<std::string> args;
   args.push_back("getdp");
-  args.push_back("demos/magnet");
-  GetDP(args);
-
-  args.clear();
-  args.push_back("getdp");
-  args.push_back("demos/magnet");
+  args.push_back("benchmarks/machines/pmsm.pro");
   args.push_back("-solve");
-  args.push_back("MagSta_a");
+  args.push_back("TimeDomain");
   args.push_back("-pos");
-  args.push_back("a");
-  GetDP(args);
-
-  args.clear();
-  args.push_back("getdp");
-  args.push_back("demos/magnet");
-  args.push_back("-solve");
-  args.push_back("MagSta_phi");
-  args.push_back("-pos");
-  args.push_back("phi");
+  args.push_back("Get_LocalFields");
+  for(int i = 1; i < 10; i++)
   GetDP(args);
 #endif
 }

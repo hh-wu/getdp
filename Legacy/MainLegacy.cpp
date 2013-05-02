@@ -423,7 +423,6 @@ int MainLegacy(int argc, char *argv[])
   }
 
   Message::Initialize(argc, argv);
-  Message::SetExitOnError(true);
 
   char pro[256];
   char **sargv = (char**)Malloc(256 * sizeof(char*));
