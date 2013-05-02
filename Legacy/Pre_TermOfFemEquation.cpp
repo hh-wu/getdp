@@ -198,7 +198,7 @@ void Pre_TermOfFemEquation(struct Element          * Element,
       (QuantityStorageDof_P->NumLastElementForDofDefinition != Element->Num)) {
     QuantityStorageDof_P->NumLastElementForDofDefinition = Element->Num ;
 
-    for (i = 0 ; i < QuantityStorageDof_P->NbrElementaryBasisFunction ; i++)
+    for (i = 0 ; i < QuantityStorageDof_P->NbrElementaryBasisFunction ; i++) {
 
       NonLocal = (QuantityStorageDof_P->TypeQuantity == INTEGRALQUANTITY) ||
 	IsEquationNonLocal(QuantityStorageDof_P->BasisFunction[i].BasisFunction);
@@ -244,6 +244,7 @@ void Pre_TermOfFemEquation(struct Element          * Element,
 	   QuantityStorageDof_P->BasisFunction[i].CodeEntity_Link) ;
 	break;
       }
+    }
   }
 }
 
