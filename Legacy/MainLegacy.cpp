@@ -18,6 +18,8 @@
 #include "MallocUtils.h"
 #include "Message.h"
 
+#include "onelab.h"
+
 #if defined(HAVE_GMSH)
 #include <gmsh/Gmsh.h>
 #include <gmsh/GmshVersion.h>
@@ -518,8 +520,10 @@ int MainLegacy(int argc, char *argv[])
   return Message::GetErrorCount();
 }
 
-int GetDP(std::vector<std::string> &args)
+int GetDP(std::vector<std::string> &args, void * ptr)
 {
+  onelab::server *onelabServer = (onelab::server*) ptr;
+  if(onelabServer != NULL) onelab::server::setInstance(onelabServer);
   int argc = args.size();
   std::vector<char*> argv(argc + 1, (char*)0);
   for(int i = 0; i < argc; i++) argv[i] = (char*)args[i].c_str();

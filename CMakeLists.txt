@@ -23,6 +23,7 @@ option(ENABLE_ARPACK "Enable Arpack eigensolvers" ${DEFAULT})
 option(ENABLE_BLAS_LAPACK "Enable BLAS and Lapack functions" ${DEFAULT})
 option(ENABLE_BUILD_LIB "Build static GetDP library" OFF)
 option(ENABLE_BUILD_SHARED "Build shared GetDP library" OFF)
+option(ENABLE_BUILD_ANDROID "Build shared GetDP library for Android" OFF)
 option(ENABLE_FORTRAN "Enable Fortran components" ${DEFAULT})
 option(ENABLE_GMSH "Enable Gmsh functions" ${DEFAULT})
 option(ENABLE_GSL "Enable GSL functions" ${DEFAULT})
@@ -578,6 +579,19 @@ if(ENABLE_BUILD_SHARED)
   target_link_libraries(shared ${LINK_LIBRARIES})
 endif(ENABLE_BUILD_SHARED)
 
+if(ENABLE_BUILD_ANDROID)
+  set(CMAKE_BUILD_TYPE Release)
+  set(LIBRARY_OUTPUT_PATH_ROOT ${CMAKE_CURRENT_BINARY_DIR})
+  set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/libs/)
+  #add_definitions(-DBUILD_ANDROID)
+  #add_subdirectory(Mobile/Android/)
+  #add_library(androidGetdp SHARED Mobile/Android/androidGetDP.cpp ${GETDP_SRC})
+  add_library(androidGetdp SHARED ${GETDP_SRC})
+  #set( LIBRARY_DEPS log)
+  set_target_properties(androidGetdp PROPERTIES OUTPUT_NAME GetDP)
+  target_link_libraries(androidGetdp ${LINK_LIBRARIES} ${LIBRARY_DEPS})
+endif(ENABLE_BUILD_ANDROID)
+
 # static binary target
 add_executable(getdp Main/Main.cpp ${GETDP_SRC})
 target_link_libraries(getdp ${LINK_LIBRARIES})
@@ -686,6 +700,16 @@ install(FILES ${DEMO_FILES} DESTINATION ${GETDP_DOC}/demos)
 if(UNIX AND NOT CYGWIN)
   install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/doc/getdp.1 DESTINATION ${GETDP_MAN})
 endif(UNIX AND NOT CYGWIN)
+
+add_custom_target(getHeaders
+  COMMAND ${CMAKE_COMMAND} -E remove_directory Headers
+  COMMAND ${CMAKE_COMMAND} -E make_directory Headers/getdp
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+  foreach(FILE ${GETDP_API})
+    add_custom_command(TARGET getHeaders POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy
+        ${FILE} ${CMAKE_CURRENT_BINARY_DIR}/Headers/getdp/
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+  endforeach(FILE)
 
 add_custom_target(clean_demos COMMAND ${CMAKE_COMMAND} -E remove ${DEMO_FILES_TMP})
 

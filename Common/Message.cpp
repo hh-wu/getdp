@@ -35,8 +35,8 @@
 #endif
 
 #if defined(HAVE_GMSH)
-#include <gmsh/GmshConfig.h>
 #include <gmsh/Gmsh.h>
+#include <gmsh/GmshConfig.h>
 #include <gmsh/GmshMessage.h>
 #endif
 
@@ -411,6 +411,10 @@ void Message::ProgressMeter(int n, int N, const char *fmt, ...)
     vsnprintf(str, sizeof(str), fmt, args);
     va_end(args);
     sprintf(str2, "%3d%%    : %s", _progressMeterCurrent, str);
+    if(_onelabClient && _onelabClient->getName() == "GetDP")
+    {
+	_onelabClient->sendProgress(str);
+    }
 
     if(N <= 0){
       if(_onelabClient && _onelabClient->getName() != "GetDPServer"){
@@ -544,10 +548,12 @@ public:
   void sendMergeFileRequest(const std::string &name)
   {
     GmshMergePostProcessingFile(name);
+    Msg::RequestRender();
   }
   void sendInfo(const std::string &msg){ Msg::Info("%s", msg.c_str()); }
   void sendWarning(const std::string &msg){ Msg::Warning("%s", msg.c_str()); }
   void sendError(const std::string &msg){ Msg::Error("%s", msg.c_str()); }
+  void sendProgress(const std::string &msg){ Msg::ProgressMeter(0, 0, true, msg.c_str()); }
 #endif
 };
 

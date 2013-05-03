@@ -9,6 +9,6 @@
 #include <string>
 #include <vector>
 
-int GetDP(std::vector<std::string> &args);
+int GetDP(std::vector<std::string> &args, void *ptr=NULL);
 
 #endif
