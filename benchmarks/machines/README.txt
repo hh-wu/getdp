@@ -1,5 +1,5 @@
 
-This example contains several 2D models of electrical machines (permanent magnet and wound field synchronous machines, induction machine). Open '''pmsm.pro''' to start.
+2D models of electrical machines: permanent magnet and wound field synchronous machines, induction machines.
 
 [[Category:GetDP]]
 [[Category:Electromagnetism]]
