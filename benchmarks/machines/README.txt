@@ -1,8 +1,8 @@
 
 This example contains several 2D models of electrical machines (permanent magnet and wound field synchronous machines, induction machine). Open '''pmsm.pro''' to start.
 
-[[Category:Tutorial]]
 [[Category:GetDP]]
+[[Category:Electromagnetism]]
 
 <!--
 
