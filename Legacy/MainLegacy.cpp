@@ -10,6 +10,7 @@
 #include <time.h>
 #include "GetDPConfig.h"
 #include "GetDPVersion.h"
+#include "onelab.h"
 #include "ProData.h"
 #include "ProParser.h"
 #include "SolvingAnalyse.h"
@@ -17,8 +18,6 @@
 #include "OS.h"
 #include "MallocUtils.h"
 #include "Message.h"
-
-#include "onelab.h"
 
 #if defined(HAVE_GMSH)
 #include <gmsh/Gmsh.h>
@@ -520,7 +519,7 @@ int MainLegacy(int argc, char *argv[])
   return Message::GetErrorCount();
 }
 
-int GetDP(std::vector<std::string> &args, void * ptr)
+int GetDP(std::vector<std::string> &args, void *ptr)
 {
   onelab::server *onelabServer = (onelab::server*) ptr;
   if(onelabServer != NULL) onelab::server::setInstance(onelabServer);
