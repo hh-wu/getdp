@@ -1,5 +1,5 @@
 
-2D models of electrical machines: permanent magnet and wound field synchronous machines, induction machines.
+2D models of electric machines: permanent magnet and wound field synchronous machines, induction machines.
 
 [[Category:GetDP]]
 [[Category:Electromagnetism]]
