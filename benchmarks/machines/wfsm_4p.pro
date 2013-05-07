@@ -206,7 +206,7 @@ If(Flag_Cir)
 EndIf
 Include "machine_magstadyn_a.pro" ;
 
-DefineConstant[ ResolutionChoices    = {"TimeDomain_Loop", Path "GetDP/1"} ];
+DefineConstant[ ResolutionChoices    = {"TimeDomain", Path "GetDP/1"} ];
 DefineConstant[ PostOperationChoices = {"Map_LocalFields", Path "GetDP/2"} ];
 DefineConstant[ ComputeCommand       = {"-solve -v 1 -v2", Path "GetDP/9"} ];
 

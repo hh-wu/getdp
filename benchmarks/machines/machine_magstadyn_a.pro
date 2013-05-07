@@ -515,7 +515,7 @@ Formulation {
 
 Resolution {
 
-  { Name TimeDomain ;
+  { Name Static ;
     System {
       { Name A ; NameOfFormulation MagDyn_a_2D ; }
     }
@@ -537,11 +537,11 @@ Resolution {
         Generate[A] ; Solve[A] ;
       }
       Else{
-        //IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]
-        // { GenerateJac[A] ; SolveJac[A] ; }
-        IterativeLoopN[ Nb_max_iter, relaxation_factor,
-                        System { {A, reltol, abstol, Solution MeanL2Norm}} ]
-          { GenerateJac[A] ; SolveJac[A] ; }
+        IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]
+         { GenerateJac[A] ; SolveJac[A] ; }
+        //IterativeLoopN[ Nb_max_iter, relaxation_factor,
+        //                System { {A, reltol, abstol, Solution MeanL2Norm}} ]
+        //  { GenerateJac[A] ; SolveJac[A] ; }
       }
       SaveSolution[A] ;
       PostOperation[Get_LocalFields] ;
@@ -549,7 +549,7 @@ Resolution {
     }
   }
 
-  { Name TimeDomain_Loop ;
+  { Name TimeDomain ;
     System {
       { Name A ; NameOfFormulation MagDyn_a_2D ; }
     }
@@ -572,11 +572,11 @@ Resolution {
 	  Generate[A]; Solve[A];
         }
         Else{
-          // IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor] {
-            //  GenerateJac[A] ; SolveJac[A] ; }
-          IterativeLoopN[
-            Nb_max_iter, relaxation_factor, System { {A, reltol, abstol, Solution MeanL2Norm}} ]{
-            GenerateJac[A] ; SolveJac[A] ; }
+          IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor] {
+             GenerateJac[A] ; SolveJac[A] ; }
+           //IterativeLoopN[
+           // Nb_max_iter, relaxation_factor, System { {A, reltol, abstol, Solution MeanL2Norm}} ]{
+           // GenerateJac[A] ; SolveJac[A] ; }
         }
         SaveSolution[A];
 
@@ -604,8 +604,8 @@ Resolution {
       InitMovingBand2D[MB] ;
       MeshMovingBand2D[MB] ;
       Generate[A] ; Solve[A] ; SaveSolution[A];
-      PostOperation[Map_LocalFields] ;
-      PostOperation[Torque_Emf_Flux] ;
+      PostOperation[Get_LocalFields] ;
+      PostOperation[Get_GlobalQuantities] ;
     }
   }
 

@@ -97,7 +97,7 @@ Function {
 
 Include "machine_magstadyn_a.pro" ;
 
-DefineConstant[ ResolutionChoices    = {"TimeDomain_Loop", Path "GetDP/1"} ];
+DefineConstant[ ResolutionChoices    = {"FrequencyDomain", Path "GetDP/1"} ];
 DefineConstant[ PostOperationChoices = {"Get_LocalFields, Get_GlobalQuantities", Path "GetDP/2"} ];
 DefineConstant[ ComputeCommand       = {"-solve -v 1 -v2", Path "GetDP/9"} ];
 
