@@ -60,6 +60,22 @@ static std::vector<char> T2C;
 static char CurrentName[256] = "";
 static int CurrentPartitionNumber = 0;
 
+static void Gmsh_ResetStaticLists()
+{
+  NbSP = NbVP = NbTP = NbSL = NbVL = NbTL = 0;
+  NbST = NbVT = NbTT = NbSQ = NbVQ = NbTQ = 0;
+  NbSS = NbVS = NbTS = NbSH = NbVH = NbTH = 0;
+  NbSI = NbVI = NbTI = NbSY = NbVY = NbTY = 0;
+  NbT2 = 0;
+  SP.clear(); VP.clear(); TP.clear(); SL.clear(); VL.clear(); TL.clear();
+  ST.clear(); VT.clear(); TT.clear(); SQ.clear(); VQ.clear(); TQ.clear();
+  SS.clear(); VS.clear(); TS1.clear(); SH.clear(); VH.clear(); TH.clear();
+  SI.clear(); VI.clear(); TI.clear(); SY.clear(); VY.clear(); TY.clear();
+  T2D.clear(); T2C.clear();
+  if(!TimeValue_L) TimeValue_L = List_Create(100,1000000,sizeof(double));
+  else List_Reset(TimeValue_L);
+}
+
 static void Gmsh_StringStart(int Format, double x, double y, double style)
 {
   if(Flag_BIN){ /* bricolage: should use Format instead */
@@ -183,8 +199,7 @@ static void GmshParsed_PrintElement(double Time, int TimeStep, int NbTimeStep, i
 
   if(Gmsh_StartNewView){
     Gmsh_StartNewView = 0 ;
-    if(!TimeValue_L) TimeValue_L = List_Create(100,1000,sizeof(double));
-    else List_Reset(TimeValue_L);
+    Gmsh_ResetStaticLists();
   }
 
   if (HarmonicToTime == 1){
@@ -402,18 +417,7 @@ static void Gmsh_PrintElement(double Time, int TimeStep, int NbTimeStep, int NbH
 
   if(Gmsh_StartNewView){
     Gmsh_StartNewView = 0 ;
-    NbSP = NbVP = NbTP = NbSL = NbVL = NbTL = 0;
-    NbST = NbVT = NbTT = NbSQ = NbVQ = NbTQ = 0;
-    NbSS = NbVS = NbTS = NbSH = NbVH = NbTH = 0;
-    NbSI = NbVI = NbTI = NbSY = NbVY = NbTY = 0;
-    NbT2 = 0;
-    SP.clear(); VP.clear(); TP.clear(); SL.clear(); VL.clear(); TL.clear();
-    ST.clear(); VT.clear(); TT.clear(); SQ.clear(); VQ.clear(); TQ.clear();
-    SS.clear(); VS.clear(); TS1.clear(); SH.clear(); VH.clear(); TH.clear();
-    SI.clear(); VI.clear(); TI.clear(); SY.clear(); VY.clear(); TY.clear();
-    T2D.clear(); T2C.clear();
-    if(!TimeValue_L) TimeValue_L = List_Create(100,1000000,sizeof(double));
-    else List_Reset(TimeValue_L);
+    Gmsh_ResetStaticLists();
   }
 
   switch (Value[0].Type) {
@@ -1208,6 +1212,7 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
     fprintf(PostStream, "};\n") ;
     break ;
   case FORMAT_GMSH :
+    if(Gmsh_StartNewView) Gmsh_ResetStaticLists(); // nothing to print!
     if(PSO_P->StoreInField >= 0){
 #if defined(HAVE_GMSH)
       Message::Info("Storing data in field %d", PSO_P->StoreInField);
