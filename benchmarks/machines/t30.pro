@@ -5,15 +5,15 @@ ExtGmsh     = ".pos";
 ExtGnuplot  = ".dat";
 
 Flag_SrcType_Stator = 1 ; // Imposed current
-
+Flag_ComputeLosses = 1 ;
 
 //ExtGmsh     = Str[Sprintf("%g.pos", NbPhases) ];
 //ExtGnuplot  = Str[Sprintf("%g.dat", NbPhases) ];
 
 Group {
   Stator_Fe = #STATOR_FE ;
-  Stator_Cu = #{} ;
-  Stator_Al = #{} ;
+  Stator_Cu = #{};
+  Stator_Al = #{};
 
   Stator_Air = #STATOR_AIR ;
   Stator_Airgap = #STATOR_AIRGAP ; // Note: air split in two for easing torque computation
@@ -61,17 +61,17 @@ Function {
 
   DefineConstant[ Term_vxb = { 1, Choices {0,1},
                                Label "Term Velocity x Induction",
-                               Path "Input", Visible 0 } ] ;
+                               Path "Input", Visible 1 } ] ;
 
   SurfCoil[] = SurfaceArea[]{STATOR_INDA} ;
   NbWires[]  = NbWiresInd ;
 
   // phases lag 120 degrees
   pA =  0 ;
-  pB = -2*Pi/3 ;
-  pC = -4*Pi/3 ;
+  pB = -4*Pi/3 ;
+  pC = -2*Pi/3 ;
 
-  DefineConstant[ II = { 1, Path "Input/3", Label "Stator current", Highlight "AliceBlue"} ] ;
+  DefineConstant[ II = { IA, Path "Input/3", Label "Stator current", Highlight "AliceBlue"} ] ;
 
   wr_max  = (NbPhases==3) ? 1200 : 358.1416  ;
   wr_step = (NbPhases==3) ? 200  :  39.79351 ;
@@ -98,6 +98,6 @@ Function {
 Include "machine_magstadyn_a.pro" ;
 
 DefineConstant[ ResolutionChoices    = {"FrequencyDomain", Path "GetDP/1"} ];
-DefineConstant[ PostOperationChoices = {"Get_LocalFields, Get_GlobalQuantities", Path "GetDP/2"} ];
+//DefineConstant[ PostOperationChoices = {"Get_LocalFields, Get_GlobalQuantities", Path "GetDP/2"} ];
 DefineConstant[ ComputeCommand       = {"-solve -v 1 -v2", Path "GetDP/9"} ];
 
