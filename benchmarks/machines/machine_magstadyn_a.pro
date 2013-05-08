@@ -8,8 +8,9 @@ Group {
 
 Function{
 
-  DefineConstant[ Flag_Cir, Flag_NL, Flag_ParkTransformation ];
-  DefineConstant[ Term_vxb ];
+  DefineConstant[ Flag_Cir, Flag_NL, Flag_ParkTransformation, Flag_ComputeLosses ];
+  DefineConstant[ Term_vxb = {0, Visible 0},
+                  NbPhases = {3, Visible 0}];
   DefineConstant[ AxialLength        = {1, Visible 0},
                   FillFactor_Winding = {1, Visible 0},
                   Factor_R_3DEffects = {1, Visible 0},
@@ -137,11 +138,11 @@ Function {
     js[PhaseC] = II * NbWires[]/SurfCoil[] * IC[] * Idir[] * Vector[0, 0, 1] ;
   EndIf
 
-  Velocity[] = wr*XYZ[]/\Vector[0,0,1] ;
+  Velocity[] = wr*XYZ[]/\Vector[0,0,-1] ;
 
   // Maxwell stress tensor
   T_max[] = ( SquDyadicProduct[$1] - SquNorm[$1] * TensorDiag[0.5, 0.5, 0.5] ) / mu0 ;
-  T_max_cplx[] = ( TensorV[CompX[$1]*Conj[$1],CompY[$1]*Conj[$1],CompZ[$1]*Conj[$1]] - $1*Conj[$1] * TensorDiag[0.5, 0.5, 0.5] ) / mu0 ; // Check if valid
+  T_max_cplx[] = (TensorV[CompX[$1]*Conj[$1], CompY[$1]*Conj[$1], CompZ[$1]*Conj[$1]] - $1*Conj[$1] * TensorDiag[0.5, 0.5, 0.5] ) / mu0 ; // Check if valid also in real case
 
 
   AngularPosition[] = (Atan2[$Y,$X]#7 >= 0.)? #7 : #7+2*Pi ;
@@ -539,9 +540,9 @@ Resolution {
       Else{
         IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]
          { GenerateJac[A] ; SolveJac[A] ; }
-        //IterativeLoopN[ Nb_max_iter, relaxation_factor,
-        //                System { {A, reltol, abstol, Solution MeanL2Norm}} ]
-        //  { GenerateJac[A] ; SolveJac[A] ; }
+         //IterativeLoopN[ Nb_max_iter, relaxation_factor,
+         //              System { {A, reltol, abstol, Solution MeanL2Norm}} ]
+         //{ GenerateJac[A] ; SolveJac[A] ; }
       }
       SaveSolution[A] ;
       PostOperation[Get_LocalFields] ;
@@ -576,7 +577,7 @@ Resolution {
              GenerateJac[A] ; SolveJac[A] ; }
            //IterativeLoopN[
            // Nb_max_iter, relaxation_factor, System { {A, reltol, abstol, Solution MeanL2Norm}} ]{
-           // GenerateJac[A] ; SolveJac[A] ; }
+           //GenerateJac[A] ; SolveJac[A] ; }
         }
         SaveSolution[A];
 
@@ -599,6 +600,8 @@ Resolution {
         DeleteFile["res/Tr.dat"]; DeleteFile["res/Ts.dat"]; DeleteFile["res/Tmb.dat"];
         DeleteFile["res/Ua.dat"]; DeleteFile["res/Ub.dat"]; DeleteFile["res/Uc.dat"];
         DeleteFile["res/Ia.dat"]; DeleteFile["res/Ib.dat"]; DeleteFile["res/Ic.dat"];
+        DeleteFile["res/Flux_a.dat"]; DeleteFile["res/Flux_b.dat"]; DeleteFile["res/Flux_c.dat"];
+        DeleteFile["res/P.dat"]; DeleteFile["res/P_Fe.dat"];
       }
       SetTime[wr];
       InitMovingBand2D[MB] ;
@@ -720,7 +723,7 @@ PostProcessing {
 
      { Name JouleLosses ;
        Value {
-         Integral { [ sigma[] * SquNorm[ Dt[{a}]+{ur}-Velocity[]*^{d a} ] ]   ; In Region[{DomainC,-DomainV}] ; Jacobian Vol ; Integration I1 ; }
+         Integral { [ sigma[] * SquNorm[ Dt[{a}]+{ur} ] ]   ; In Region[{DomainC,-DomainV}] ; Jacobian Vol ; Integration I1 ; }
          Integral { [ sigma[] * SquNorm[ Dt[{a}]+{ur}-Velocity[]*^{d a} ] ]   ; In DomainV ; Jacobian Vol ; Integration I1 ; }
          Integral { [ 1./sigma[]*SquNorm[ IA[]*{ir} ] ] ; In PhaseA  ; Jacobian Vol ; Integration I1 ; }
          Integral { [ 1./sigma[]*SquNorm[ IB[]*{ir} ] ] ; In PhaseB  ; Jacobian Vol ; Integration I1 ; }
@@ -745,7 +748,6 @@ PostProcessing {
            In ElementsOf[Rotor_Airgap, OnOneSideOf Rotor_Bnd_MB]; Jacobian Vol ; Integration I1 ; }
        }
      }
-
 
      { Name Torque_Maxwell ; // Torque computation via Maxwell stress tensor
        Value {
@@ -843,21 +845,25 @@ PostOperation Get_LocalFields UsingPost MagDyn_a_2D {
 
 PostOperation Get_GlobalQuantities UsingPost MagDyn_a_2D {
   If(!Flag_Cir)
-  If(!Flag_ParkTransformation)
-    Print[ I, OnRegion PhaseA_pos, Format Table,
-           File > StrCat[Dir, StrCat["Ia",ExtGnuplot]], LastTimeStepOnly, SendToServer "Output/2IA", Color "Pink" ];
-    Print[ I, OnRegion PhaseB_pos, Format Table,
-           File > StrCat[Dir, StrCat["Ib",ExtGnuplot]], LastTimeStepOnly, SendToServer "Output/2IB", Color "Yellow" ];
-    Print[ I, OnRegion PhaseC_pos, Format Table,
-           File > StrCat[Dir, StrCat["Ic",ExtGnuplot]], LastTimeStepOnly, SendToServer "Output/2IC", Color "LightGreen" ];
-  EndIf
+    If(!Flag_ParkTransformation)
+      Print[ I, OnRegion PhaseA_pos, Format Table,
+        File > StrCat[Dir, StrCat["Ia",ExtGnuplot]], LastTimeStepOnly, SendToServer "Output/2IA", Color "Pink" ];
+      If(NbPhases==3)
+        Print[ I, OnRegion PhaseB_pos, Format Table,
+          File > StrCat[Dir, StrCat["Ib",ExtGnuplot]], LastTimeStepOnly, SendToServer "Output/2IB", Color "Yellow" ];
+        Print[ I, OnRegion PhaseC_pos, Format Table,
+          File > StrCat[Dir, StrCat["Ic",ExtGnuplot]], LastTimeStepOnly, SendToServer "Output/2IC", Color "LightGreen" ];
+      EndIf
+    EndIf
 
-  Print[ U, OnRegion PhaseA_pos, Format Table,
-         File > StrCat[Dir, StrCat["Ua",ExtGnuplot]], LastTimeStepOnly, SendToServer "Output/30UA", Color "Pink" ];
-  Print[ U, OnRegion PhaseB_pos, Format Table,
-         File > StrCat[Dir, StrCat["Ub",ExtGnuplot]], LastTimeStepOnly, SendToServer "Output/31UB", Color "Yellow" ];
-  Print[ U, OnRegion PhaseC_pos, Format Table,
-         File > StrCat[Dir, StrCat["Uc",ExtGnuplot]], LastTimeStepOnly, SendToServer "Output/32UC", Color "LightGreen" ];
+    Print[ U, OnRegion PhaseA_pos, Format Table,
+      File > StrCat[Dir, StrCat["Ua",ExtGnuplot]], LastTimeStepOnly, SendToServer "Output/30UA", Color "Pink" ];
+    If(NbPhases==3)
+      Print[ U, OnRegion PhaseB_pos, Format Table,
+        File > StrCat[Dir, StrCat["Ub",ExtGnuplot]], LastTimeStepOnly, SendToServer "Output/31UB", Color "Yellow" ];
+      Print[ U, OnRegion PhaseC_pos, Format Table,
+        File > StrCat[Dir, StrCat["Uc",ExtGnuplot]], LastTimeStepOnly, SendToServer "Output/32UC", Color "LightGreen" ];
+    EndIf
   EndIf
   If(Flag_Cir && Flag_SrcType_Stator==2)
     Print[ I, OnRegion Input1, Format Table,
@@ -888,44 +894,51 @@ PostOperation Get_GlobalQuantities UsingPost MagDyn_a_2D {
            File > StrCat[Dir, StrCat["Uc",ExtGnuplot]], LastTimeStepOnly, SendToServer "Output/32UC", Color "LightGreen" ];
   EndIf
 
-
   Print[ I, OnRegion RotorC, Format Table,
          File > StrCat[Dir, StrCat["Irotor",ExtGnuplot]], LastTimeStepOnly, SendToServer "Output/2Ir", Color "LightYellow" ];
-
+       /*
   Print[ Torque_Maxwell[Rotor_Airgap], OnGlobal, Format TimeTable,
          File > StrCat[Dir, StrCat["Tr",ExtGnuplot]], LastTimeStepOnly, Store 54, SendToServer my_output, Color "LightYellow" ];
   Print[ Torque_Maxwell[Stator_Airgap], OnGlobal, Format TimeTable,
          File > StrCat[Dir, StrCat["Ts",ExtGnuplot]], LastTimeStepOnly, Store 55, SendToServer "Output/41T_stator", Color "LightYellow" ];
   Print[ Torque_Maxwell[MB], OnGlobal, Format TimeTable,
          File > StrCat[Dir, StrCat["Tmb",ExtGnuplot]], LastTimeStepOnly, Store 56, SendToServer "Output/42T_mb", Color "LightYellow" ];
-  //Print[ Torque_vw, OnRegion NodesOf[Rotor_Bnd_MB], Format RegionValue,
+         */
+  Print[ Torque_Maxwell_cplx[Rotor_Airgap], OnGlobal, Format TimeTable,
+         File > StrCat[Dir, StrCat["Tr",ExtGnuplot]], LastTimeStepOnly, Store 54, SendToServer my_output, Color "LightYellow" ];
+  Print[ Torque_Maxwell_cplx[Stator_Airgap], OnGlobal, Format TimeTable,
+         File > StrCat[Dir, StrCat["Ts",ExtGnuplot]], LastTimeStepOnly, Store 55, SendToServer "Output/41T_stator", Color "LightYellow" ];
+  Print[ Torque_Maxwell_cplx[MB], OnGlobal, Format TimeTable,
+         File > StrCat[Dir, StrCat["Tmb",ExtGnuplot]], LastTimeStepOnly, Store 56, SendToServer "Output/42T_mb", Color "LightYellow" ];
+
+ //Print[ Torque_vw, OnRegion NodesOf[Rotor_Bnd_MB], Format RegionValue,
   //       File > StrCat[Dir, StrCat["Tr_vw",ExtGnuplot]], LastTimeStepOnly, Store 54, SendToServer "Output/1T_rotor_vw" ];
 
   If(Flag_SrcType_Stator)
-  Print[ Flux[PhaseA], OnGlobal, Format TimeTable,
-         File > StrCat[Dir, StrCat["Flux_a",ExtGnuplot]], LastTimeStepOnly, Store 11, SendToServer "Output/50Flux_a",  Color "Pink" ];
-  Print[ Flux[PhaseB], OnGlobal, Format TimeTable,
-         File > StrCat[Dir, StrCat["Flux_b",ExtGnuplot]], LastTimeStepOnly, Store 22, SendToServer "Output/51Flux_b",  Color "Yellow" ];
-  Print[ Flux[PhaseC], OnGlobal, Format TimeTable,
-         File > StrCat[Dir, StrCat["Flux_c",ExtGnuplot]], LastTimeStepOnly, Store 33, SendToServer "Output/52Flux_c", Color "LightGreen"];
-
-  If(Flag_ParkTransformation && Flag_SrcType_Stator)
-    Print[ Flux_d, OnRegion DomainDummy, Format TimeTable,
-           File > StrCat[Dir, StrCat["Flux_d",ExtGnuplot]], LastTimeStepOnly, SendToServer "Output/60Flux_d", Color "LightYellow" ];
-    Print[ Flux_q, OnRegion DomainDummy, Format TimeTable,
-           File > StrCat[Dir, StrCat["Flux_q",ExtGnuplot]], LastTimeStepOnly, SendToServer "Output/61Flux_q", Color "LightYellow" ];
-    Print[ Flux_0, OnRegion DomainDummy, Format TimeTable,
-           File > StrCat[Dir, StrCat["Flux_0",ExtGnuplot]], LastTimeStepOnly, SendToServer "Output/62Flux_0", Color "LightYellow" ];
+    Print[ Flux[PhaseA], OnGlobal, Format TimeTable,
+      File > StrCat[Dir, StrCat["Flux_a",ExtGnuplot]], LastTimeStepOnly, Store 11, SendToServer "Output/50Flux_a",  Color "Pink" ];
+    If(NbPhases==3)
+      Print[ Flux[PhaseB], OnGlobal, Format TimeTable,
+        File > StrCat[Dir, StrCat["Flux_b",ExtGnuplot]], LastTimeStepOnly, Store 22, SendToServer "Output/51Flux_b",  Color "Yellow" ];
+      Print[ Flux[PhaseC], OnGlobal, Format TimeTable,
+        File > StrCat[Dir, StrCat["Flux_c",ExtGnuplot]], LastTimeStepOnly, Store 33, SendToServer "Output/52Flux_c", Color "LightGreen"];
+    EndIf
+    If(Flag_ParkTransformation && Flag_SrcType_Stator)
+      Print[ Flux_d, OnRegion DomainDummy, Format TimeTable,
+        File > StrCat[Dir, StrCat["Flux_d",ExtGnuplot]], LastTimeStepOnly, SendToServer "Output/60Flux_d", Color "LightYellow" ];
+      Print[ Flux_q, OnRegion DomainDummy, Format TimeTable,
+        File > StrCat[Dir, StrCat["Flux_q",ExtGnuplot]], LastTimeStepOnly, SendToServer "Output/61Flux_q", Color "LightYellow" ];
+      Print[ Flux_0, OnRegion DomainDummy, Format TimeTable,
+        File > StrCat[Dir, StrCat["Flux_0",ExtGnuplot]], LastTimeStepOnly, SendToServer "Output/62Flux_0", Color "LightYellow" ];
+    EndIf
   EndIf
+
+  If(Flag_ComputeLosses)
+    Print[ JouleLosses[Rotor], OnGlobal, Format TimeTable,
+           File > StrCat[Dir, StrCat["P",ExtGnuplot]], LastTimeStepOnly, SendToServer "Output/70P_rotor", Color "LightYellow" ];
+    Print[ JouleLosses[Rotor_Fe], OnGlobal, Format TimeTable,
+           File > StrCat[Dir, StrCat["P_Fe",ExtGnuplot]], LastTimeStepOnly, SendToServer "Output/71P_rotor_fe", Color "LightYellow" ];
   EndIf
-}
-
-
-PostOperation Joule_Losses UsingPost MagDyn_a_2D {
-  Print[ JouleLosses[Rotor], OnGlobal, Format TimeTable,
-         File > StrCat[Dir, StrCat["P",ExtGnuplot]], LastTimeStepOnly, SendToServer "Output/3P_rotor" ];
-  Print[ JouleLosses[Rotor_Fe], OnGlobal, Format TimeTable,
-         File > StrCat[Dir, StrCat["P_Fe",ExtGnuplot]], LastTimeStepOnly, SendToServer "Output/3P_rotor_fe" ];
 }
 
 /*
