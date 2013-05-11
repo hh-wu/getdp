@@ -5,6 +5,9 @@
 
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 
+# do not warn about non-definition of WIN32 on cygwin
+set(CMAKE_LEGACY_CYGWIN_WIN32 0) 
+
 # if CMAKE_BUILD_TYPE is specified use it; otherwise set the default
 # build type to "RelWithDebInfo" ("-O2 -g" with gcc) prior to calling
 # project()
@@ -668,6 +671,7 @@ endmacro(unix2dos)
 
 if(WIN32 OR CYGWIN)
   set(GETDP_BIN .)
+  set(GETDP_LIB .)
   set(GETDP_DOC .)
   set(GETDP_MAN .)
   if(CYGWIN)
@@ -679,6 +683,7 @@ if(WIN32 OR CYGWIN)
   endif(CYGWIN)
 else(WIN32 OR CYGWIN)
   set(GETDP_BIN bin)
+  set(GETDP_LIB lib)
   set(GETDP_DOC share/doc/getdp)
   set(GETDP_MAN share/man/man1)
 endif(WIN32 OR CYGWIN)
@@ -687,10 +692,10 @@ endif(WIN32 OR CYGWIN)
 # (e.g. "make lib" or "make shared" followed by "make install/fast")
 install(TARGETS getdp DESTINATION ${GETDP_BIN} OPTIONAL)
 if(ENABLE_BUILD_LIB)
-  install(TARGETS lib DESTINATION lib OPTIONAL)
+  install(TARGETS lib DESTINATION ${GMSH_LIB} OPTIONAL)
 endif(ENABLE_BUILD_LIB)
 if(ENABLE_BUILD_SHARED)
-  install(TARGETS shared DESTINATION lib OPTIONAL)
+  install(TARGETS shared DESTINATION ${GMSH_LIB} OPTIONAL)
 endif(ENABLE_BUILD_SHARED)
 install(FILES ${GETDP_API} DESTINATION include/getdp)
 install(FILES ${WELCOME_FILE} DESTINATION ${GETDP_DOC} RENAME README.txt)
