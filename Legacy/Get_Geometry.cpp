@@ -17,7 +17,7 @@
 #include "Message.h"
 
 #define THESIGN(a) ((a)>=0 ? 1 : -1)
-#define SQU(a)     ((a)*(a)) 
+#define SQU(a)     ((a)*(a))
 #define HYPOT(a,b) (sqrt((a)*(a)+(b)*(b)))
 
 /* ------------------------------------------------------------------------ */
@@ -61,24 +61,24 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
 
     switch (Type_Element) {
 
-    case POINT       : 
+    case POINT       :
       *Type_Dimension = _0D ; return((void *)JacobianVol0D) ;
 
-    case LINE        : case LINE_2 : 
+    case LINE        : case LINE_2 :
       *Type_Dimension = _1D ; return((void *)JacobianVol1D) ;
 
     case TRIANGLE    : case TRIANGLE_2   :
     case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
       *Type_Dimension = _2D ; return((void *)JacobianVol2D) ;
 
-    case TETRAHEDRON : case TETRAHEDRON_2 : 
+    case TETRAHEDRON : case TETRAHEDRON_2 :
     case HEXAHEDRON  : case HEXAHEDRON_2  :
     case PRISM       : case PRISM_2       :
     case PYRAMID     : case PYRAMID_2     :
       *Type_Dimension = _3D ; return((void *)JacobianVol3D) ;
 
-    default : 
-      Message::Error("Unknown Jacobian Vol for Element Type (%s)", 
+    default :
+      Message::Error("Unknown Jacobian Vol for Element Type (%s)",
                      Get_StringForDefine(Element_Type, Type_Element));
     }
 
@@ -86,18 +86,18 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
 
     switch (Type_Element) {
 
-    case TRIANGLE    : case TRIANGLE_2   :  
+    case TRIANGLE    : case TRIANGLE_2   :
     case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
       *Type_Dimension = _2D ; return((void *)JacobianVolSphShell2D) ;
 
-    case TETRAHEDRON : case TETRAHEDRON_2 :  
-    case HEXAHEDRON  : case HEXAHEDRON_2  :  
-    case PRISM       : case PRISM_2       : 
-    case PYRAMID     : case PYRAMID_2     : 
+    case TETRAHEDRON : case TETRAHEDRON_2 :
+    case HEXAHEDRON  : case HEXAHEDRON_2  :
+    case PRISM       : case PRISM_2       :
+    case PYRAMID     : case PYRAMID_2     :
       *Type_Dimension = _3D ; return((void *)JacobianVolSphShell3D) ;
 
-    default : 
-      Message::Error("Unknown Jacobian VolSphShell for Element Type (%s)", 
+    default :
+      Message::Error("Unknown Jacobian VolSphShell for Element Type (%s)",
                      Get_StringForDefine(Element_Type, Type_Element));
     }
 
@@ -105,18 +105,18 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
 
     switch (Type_Element) {
 
-    case TRIANGLE    : case TRIANGLE_2   :  
+    case TRIANGLE    : case TRIANGLE_2   :
     case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
       *Type_Dimension = _2D ; return((void *)JacobianVolRectShell2D) ;
 
-    case TETRAHEDRON : case TETRAHEDRON_2 :  
-    case HEXAHEDRON  : case HEXAHEDRON_2  :  
-    case PRISM       : case PRISM_2       : 
-    case PYRAMID     : case PYRAMID_2     : 
+    case TETRAHEDRON : case TETRAHEDRON_2 :
+    case HEXAHEDRON  : case HEXAHEDRON_2  :
+    case PRISM       : case PRISM_2       :
+    case PYRAMID     : case PYRAMID_2     :
       *Type_Dimension = _3D ; return((void *)JacobianVolRectShell3D) ;
 
-    default : 
-      Message::Error("Unknown Jacobian VolRectShell for Element Type (%s)", 
+    default :
+      Message::Error("Unknown Jacobian VolRectShell for Element Type (%s)",
                      Get_StringForDefine(Element_Type, Type_Element));
     }
 
@@ -124,11 +124,11 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
 
     switch (Type_Element) {
 
-    case TRIANGLE    : case TRIANGLE_2   :  
+    case TRIANGLE    : case TRIANGLE_2   :
     case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
       *Type_Dimension = _2D ; return((void *)JacobianVolPlpdX2D) ;
 
-    default : 
+    default :
       Message::Error("Unknown Jacobian VolPlpdX for Element Type (%s)",
                      Get_StringForDefine(Element_Type, Type_Element));
     }
@@ -137,24 +137,24 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
 
     switch (Type_Element) {
 
-    case TRIANGLE    : case TRIANGLE_2   :  
+    case TRIANGLE    : case TRIANGLE_2   :
     case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
       *Type_Dimension = _2D ; return((void *)JacobianVolAxi2D) ;
 
-    default : 
+    default :
       Message::Error("Unknown Jacobian VolAxi for Element Type (%s)",
-                     Get_StringForDefine(Element_Type, Type_Element)); 
+                     Get_StringForDefine(Element_Type, Type_Element));
     }
-    
+
   case JACOBIAN_VOL_AXI_SPH_SHELL :
 
     switch (Type_Element) {
 
-    case TRIANGLE    : case TRIANGLE_2   :  
+    case TRIANGLE    : case TRIANGLE_2   :
     case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
       *Type_Dimension = _2D ; return((void *)JacobianVolAxiSphShell2D) ;
 
-    default : 
+    default :
       Message::Error("Unknown Jacobian VolAxiSphShell for Element Type (%s)",
                      Get_StringForDefine(Element_Type, Type_Element));
     }
@@ -163,11 +163,11 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
 
     switch (Type_Element) {
 
-    case TRIANGLE    : case TRIANGLE_2   :  
+    case TRIANGLE    : case TRIANGLE_2   :
     case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
       *Type_Dimension = _2D ; return((void *)JacobianVolAxiRectShell2D) ;
 
-    default : 
+    default :
       Message::Error("Unknown Jacobian VolAxiRectShell for Element Type (%s)",
                      Get_StringForDefine(Element_Type, Type_Element));
     }
@@ -176,11 +176,11 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
 
     switch (Type_Element) {
 
-    case TRIANGLE    : case TRIANGLE_2   :  
+    case TRIANGLE    : case TRIANGLE_2   :
     case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
       *Type_Dimension = _2D ; return((void *)JacobianVolAxiPlpdX2D) ;
 
-    default : 
+    default :
       Message::Error("Unknown Jacobian VolAxiPlpdX for Element Type (%s)",
                      Get_StringForDefine(Element_Type, Type_Element));
     }
@@ -190,11 +190,11 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
 
     switch (Type_Element) {
 
-    case TRIANGLE    : case TRIANGLE_2   :  
+    case TRIANGLE    : case TRIANGLE_2   :
     case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
       *Type_Dimension = _2D ; return((void *)JacobianVolAxiSqu2D) ;
 
-    default : 
+    default :
       Message::Error("Unknown Jacobian VolAxiSqu for Element Type (%s)",
                      Get_StringForDefine(Element_Type, Type_Element));
     }
@@ -203,11 +203,11 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
 
     switch (Type_Element) {
 
-    case TRIANGLE    : case TRIANGLE_2   :  
+    case TRIANGLE    : case TRIANGLE_2   :
     case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
       *Type_Dimension = _2D ; return((void *)JacobianVolAxiSquSphShell2D) ;
 
-    default : 
+    default :
       Message::Error("Unknown Jacobian VolAxiSquSphShell for Element Type (%s)",
                      Get_StringForDefine(Element_Type, Type_Element));
     }
@@ -216,11 +216,11 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
 
     switch (Type_Element) {
 
-    case TRIANGLE    : case TRIANGLE_2   :  
+    case TRIANGLE    : case TRIANGLE_2   :
     case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
       *Type_Dimension = _2D ; return((void *)JacobianVolAxiSquRectShell2D) ;
 
-    default : 
+    default :
       Message::Error("Unknown Jacobian VolAxiSquRectShell for Element Type (%s)",
                      Get_StringForDefine(Element_Type, Type_Element));
     }
@@ -232,14 +232,14 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
     case POINT :
       *Type_Dimension = _1D ; return((void *)JacobianVol0D) ;
 
-    case LINE        : case LINE_2 : 
+    case LINE        : case LINE_2 :
       *Type_Dimension = _2D ; return((void *)JacobianSur2D) ;
 
-    case TRIANGLE    : case TRIANGLE_2   :  
+    case TRIANGLE    : case TRIANGLE_2   :
     case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
       *Type_Dimension = _3D ; return((void *)JacobianSur3D) ;
 
-    default : 
+    default :
       Message::Error("Unknown Jacobian Sur for element Type (%s)",
                      Get_StringForDefine(Element_Type, Type_Element));
     }
@@ -248,10 +248,10 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
 
     switch (Type_Element) {
 
-    case LINE        : case LINE_2 : 
+    case LINE        : case LINE_2 :
       *Type_Dimension = _2D ; return((void *)JacobianSurSphShell2D) ;
 
-    default : 
+    default :
       Message::Error("Unknown Jacobian SurSphShell for element Type (%s)",
                      Get_StringForDefine(Element_Type, Type_Element));
     }
@@ -260,10 +260,10 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
 
     switch (Type_Element) {
 
-    case LINE        : case LINE_2 : 
+    case LINE        : case LINE_2 :
       *Type_Dimension = _2D ; return((void *)JacobianSurAxi2D) ;
 
-    default : 
+    default :
       Message::Error("Unknown Jacobian SurAxi for Element Type (%s)",
                      Get_StringForDefine(Element_Type, Type_Element));
     }
@@ -278,7 +278,7 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
     case LINE        : case LINE_2 :
       *Type_Dimension = _3D ; return((void *)JacobianLin3D) ;
 
-    default : 
+    default :
       Message::Error("Unknown Jacobian Lin for Element Type (%s)",
                      Get_StringForDefine(Element_Type, Type_Element));
     }
@@ -363,7 +363,7 @@ double  Transformation (int Dim, int Type, struct Element * Element, MATRIX3x3 *
   }
 
   if(Element->JacobianCase->NbrParameters >= 2){
-    A = Element->JacobianCase->Para[0] ;  
+    A = Element->JacobianCase->Para[0] ;
     B = Element->JacobianCase->Para[1] ;
   }
   else
@@ -371,10 +371,10 @@ double  Transformation (int Dim, int Type, struct Element * Element, MATRIX3x3 *
 
   if(Type == JACOBIAN_RECT){
     if(Element->JacobianCase->NbrParameters >= 3)
-      Axis = (int)Element->JacobianCase->Para[2] ; 
+      Axis = (int)Element->JacobianCase->Para[2] ;
     if(Element->JacobianCase->NbrParameters >= 6){
-      Cx = Element->JacobianCase->Para[3] ;  
-      Cy = Element->JacobianCase->Para[4] ; 
+      Cx = Element->JacobianCase->Para[3] ;
+      Cy = Element->JacobianCase->Para[4] ;
       Cz = Element->JacobianCase->Para[5] ;
     }
     if(Element->JacobianCase->NbrParameters >= 7)
@@ -388,8 +388,8 @@ double  Transformation (int Dim, int Type, struct Element * Element, MATRIX3x3 *
   }
   else if(Type == JACOBIAN_SPH){
     if(Element->JacobianCase->NbrParameters >= 5){
-      Cx = Element->JacobianCase->Para[2] ;  
-      Cy = Element->JacobianCase->Para[3] ; 
+      Cx = Element->JacobianCase->Para[2] ;
+      Cy = Element->JacobianCase->Para[3] ;
       Cz = Element->JacobianCase->Para[4] ;
     }
     if(Element->JacobianCase->NbrParameters >= 6)
@@ -408,8 +408,8 @@ double  Transformation (int Dim, int Type, struct Element * Element, MATRIX3x3 *
 
   if(Type == JACOBIAN_SPH){
     R    = sqrt( SQU(X-Cx) + SQU(Y-Cy) + SQU(Z-Cz) ) ;
-    dRdx = (X-Cx)/R ; 
-    dRdy = (Y-Cy)/R ; 
+    dRdx = (X-Cx)/R ;
+    dRdy = (Y-Cy)/R ;
     dRdz = (Z-Cz)/R ;
   }
   else{
@@ -421,7 +421,7 @@ double  Transformation (int Dim, int Type, struct Element * Element, MATRIX3x3 *
     }
   }
 
-  if ( (fabs(R) > fabs(B) + 1.e-2*fabs(B)) || 
+  if ( (fabs(R) > fabs(B) + 1.e-2*fabs(B)) ||
        (fabs(R) < fabs(A) - 1.e-2*fabs(A)) )
     Message::Error("Bad parameters for transformation Jacobian: %g not in [%g,%g]", R, A, B) ;
 
@@ -438,7 +438,7 @@ double  Transformation (int Dim, int Type, struct Element * Element, MATRIX3x3 *
   YR    = (Y-Cy)/R ;
   ZR    = (Z-Cz)/R ;
 
-  Jac->c11  = f * (1.0 - theta * XR * dRdx) ; 
+  Jac->c11  = f * (1.0 - theta * XR * dRdx) ;
   Jac->c12  = f * (    - theta * XR * dRdy) ;
   Jac->c13  = f * (    - theta * XR * dRdz) ;
   Jac->c21  = f * (    - theta * YR * dRdx) ;
@@ -453,7 +453,7 @@ double  Transformation (int Dim, int Type, struct Element * Element, MATRIX3x3 *
     Jac->c33  = 1. ;
     DetJac = f * f * (1.0 - theta) ;
     /*
-      DetJac =  Jac->c11 * Jac->c22 - Jac->c12 * Jac->c21; 
+      DetJac =  Jac->c11 * Jac->c22 - Jac->c12 * Jac->c21;
     */
     break;
   case _AXI :
@@ -469,7 +469,7 @@ double  Transformation (int Dim, int Type, struct Element * Element, MATRIX3x3 *
     */
     break ;
   }
-  
+
   return(DetJac) ;
 }
 
@@ -596,7 +596,7 @@ double  JacobianVolAxi2D (struct Element * Element, MATRIX3x3 * Jac)
 
   /* Warning! For evaluations on the symmetry axis */
   if (s==0.0) {
-    for (i = 0 ; i < Element->GeoElement->NbrNodes ; i++) 
+    for (i = 0 ; i < Element->GeoElement->NbrNodes ; i++)
       s += Element->x[i] ;
     s /= (double)Element->GeoElement->NbrNodes  ;
   }
@@ -674,7 +674,7 @@ double  JacobianVolAxiSqu2D (struct Element * Element, MATRIX3x3 * Jac)
 
   /* Warning! For evaluations on the symmetry axis */
   if (s==0.0) {
-    for (i = 0 ; i < Element->GeoElement->NbrNodes ; i++) 
+    for (i = 0 ; i < Element->GeoElement->NbrNodes ; i++)
       s += Element->x[i] * Element->x[i] ;
     s /= (double)Element->GeoElement->NbrNodes  ;
   }
@@ -920,12 +920,12 @@ double  JacobianSur3D (struct Element * Element, MATRIX3x3 * Jac)
 
   // make sure DetJac > 0: this is not necessary in theory, but it is
   // required here because we use DetJac when we invert the matrix
-  double realDetJac = 
+  double realDetJac =
     Jac->c11 * Jac->c22 * Jac->c33 + Jac->c13 * Jac->c21 * Jac->c32 +
     Jac->c12 * Jac->c23 * Jac->c31 - Jac->c13 * Jac->c22 * Jac->c31 -
     Jac->c11 * Jac->c23 * Jac->c32 - Jac->c12 * Jac->c21 * Jac->c33;
   if(realDetJac < 0.){
-    Jac->c31 = - Jac->c31; Jac->c32 = - Jac->c32; Jac->c33 = - Jac->c33;    
+    Jac->c31 = - Jac->c31; Jac->c32 = - Jac->c32; Jac->c33 = - Jac->c33;
   }
 
   return(DetJac) ;
@@ -971,12 +971,12 @@ double  JacobianLin3D (struct Element * Element, MATRIX3x3 * Jac)
 
   // make sure DetJac > 0: this is not necessary in theory, but it is
   // required here because we use DetJac when we invert the matrix
-  double realDetJac = 
+  double realDetJac =
     Jac->c11 * Jac->c22 * Jac->c33 + Jac->c13 * Jac->c21 * Jac->c32 +
     Jac->c12 * Jac->c23 * Jac->c31 - Jac->c13 * Jac->c22 * Jac->c31 -
     Jac->c11 * Jac->c23 * Jac->c32 - Jac->c12 * Jac->c21 * Jac->c33;
   if(realDetJac < 0.){
-    Jac->c31 = - Jac->c31; Jac->c32 = - Jac->c32; Jac->c33 = - Jac->c33;    
+    Jac->c31 = - Jac->c31; Jac->c32 = - Jac->c32; Jac->c33 = - Jac->c33;
   }
 
   return(DetJac) ;
@@ -1008,7 +1008,8 @@ void  Get_InverseMatrix(int Type_Dimension, int Type_Element, double DetMat,
     break ;
 
   case _2D :
-    if(!DetMat) Message::Error("Null determinant in 'Get_InverseMatrix'");
+    if(!DetMat) Message::Error("Null determinant in 'Get_InverseMatrix' (%d)",
+                               Type_Dimension);
     InvMat->c11 =   Mat->c22 * Mat->c33 / DetMat ;
     InvMat->c21 = - Mat->c21 * Mat->c33 / DetMat ;
     InvMat->c12 = - Mat->c12 * Mat->c33 / DetMat ;
@@ -1018,7 +1019,8 @@ void  Get_InverseMatrix(int Type_Dimension, int Type_Element, double DetMat,
     break;
 
   case _3D :
-    if(!DetMat) Message::Error("Null determinant in 'Get_InverseMatrix'");
+    if(!DetMat) Message::Error("Null determinant in 'Get_InverseMatrix' (%d)",
+                               Type_Dimension);
     InvMat->c11 =  ( Mat->c22 * Mat->c33 - Mat->c23 * Mat->c32 ) / DetMat ;
     InvMat->c21 = -( Mat->c21 * Mat->c33 - Mat->c23 * Mat->c31 ) / DetMat ;
     InvMat->c31 =  ( Mat->c21 * Mat->c32 - Mat->c22 * Mat->c31 ) / DetMat ;
@@ -1075,9 +1077,9 @@ void  Get_ProductMatrix(int Type_Dimension,
 void *Get_ChangeOfCoordinates(int Flag_ChangeCoord, int Type_Form)
 {
   switch (Type_Form) {
-    
+
   case SCALAR :
-  case FORM0  :  
+  case FORM0  :
     return((void *)ChangeOfCoord_No1) ;
 
   case FORM1 :
@@ -1087,11 +1089,11 @@ void *Get_ChangeOfCoordinates(int Flag_ChangeCoord, int Type_Form)
   case FORM2 :
     return((Flag_ChangeCoord) ? (void *)ChangeOfCoord_Form2 :
 		 (void *)ChangeOfCoord_No123) ;
-    
+
   case FORM3 :  case FORM3P :
     return((Flag_ChangeCoord) ? (void *)ChangeOfCoord_Form3 :
 		 (void *)ChangeOfCoord_No1) ;
-    
+
   case FORM1P :
     return((Flag_ChangeCoord) ? (void *)ChangeOfCoord_Form1P :
 		 (void *)ChangeOfCoord_No123) ;
@@ -1099,7 +1101,7 @@ void *Get_ChangeOfCoordinates(int Flag_ChangeCoord, int Type_Form)
   case FORM2P :
     return((Flag_ChangeCoord) ? (void *)ChangeOfCoord_Form2P :
 		 (void *)ChangeOfCoord_No123) ;
-    
+
   case VECTOR :
     return((void *)ChangeOfCoord_No123) ;
 
@@ -1109,7 +1111,7 @@ void *Get_ChangeOfCoordinates(int Flag_ChangeCoord, int Type_Form)
 
   default :
     Message::Error("Unknown type of field (%s)",
-                   Get_StringForDefine(Field_Type, Type_Form)) ; 
+                   Get_StringForDefine(Field_Type, Type_Form)) ;
     return(NULL) ;
   }
 }
@@ -1167,7 +1169,7 @@ void  ChangeOfCoord_Form3(struct Element * Element,
 void  ChangeOfCoord_Form1P(struct Element * Element,
 			   double vBFu[], double vBFx[])
 {
-  vBFx[0] = 0. ;  
+  vBFx[0] = 0. ;
   vBFx[1] = 0. ;
   vBFx[2] = vBFu[2] / Element->Jac.c33 ;  /* ... * Element->InvJac.c33 */
 }
@@ -1189,7 +1191,7 @@ void  ChangeOfCoord_Form1S(struct Element * Element,
 {
   if(!Element->DetJac) Message::Error("Null determinant in 'ChangeOfCoord_Form1S'");
 
-  vBFx[0] = 0. ;  
+  vBFx[0] = 0. ;
   vBFx[1] = 0. ;
   vBFx[2] = vBFu[0] / Element->DetJac ;
 }
