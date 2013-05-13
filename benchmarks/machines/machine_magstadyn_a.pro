@@ -142,7 +142,7 @@ Function {
 
   // Maxwell stress tensor
   T_max[] = ( SquDyadicProduct[$1] - SquNorm[$1] * TensorDiag[0.5, 0.5, 0.5] ) / mu0 ;
-  T_max_cplx[] = (TensorV[CompX[$1]*Conj[$1], CompY[$1]*Conj[$1], CompZ[$1]*Conj[$1]] - $1*Conj[$1] * TensorDiag[0.5, 0.5, 0.5] ) / mu0 ; // Check if valid also in real case
+  T_max_cplx[] = 0.5*(TensorV[CompX[$1]*Conj[$1], CompY[$1]*Conj[$1], CompZ[$1]*Conj[$1]] - $1*Conj[$1] * TensorDiag[0.5, 0.5, 0.5] ) / mu0 ; // Check if valid also in real case
 
 
   AngularPosition[] = (Atan2[$Y,$X]#7 >= 0.)? #7 : #7+2*Pi ;
@@ -584,6 +584,7 @@ Resolution {
         PostOperation[Get_LocalFields] ;
         If[ $TimeStep > 1 ]{
           PostOperation[Get_GlobalQuantities] ;
+          PostOperation[Get_Torque] ;
         }
         ChangeOfCoordinates[ NodesOf[Rotor_Moving], RotatePZ[delta_theta]] ;
         MeshMovingBand2D[MB] ;
@@ -609,6 +610,7 @@ Resolution {
       Generate[A] ; Solve[A] ; SaveSolution[A];
       PostOperation[Get_LocalFields] ;
       PostOperation[Get_GlobalQuantities] ;
+      PostOperation[Get_Torque_cplx] ;
     }
   }
 
@@ -896,23 +898,6 @@ PostOperation Get_GlobalQuantities UsingPost MagDyn_a_2D {
 
   Print[ I, OnRegion RotorC, Format Table,
          File > StrCat[Dir, StrCat["Irotor",ExtGnuplot]], LastTimeStepOnly, SendToServer "Output/2Ir", Color "LightYellow" ];
-       /*
-  Print[ Torque_Maxwell[Rotor_Airgap], OnGlobal, Format TimeTable,
-         File > StrCat[Dir, StrCat["Tr",ExtGnuplot]], LastTimeStepOnly, Store 54, SendToServer my_output, Color "LightYellow" ];
-  Print[ Torque_Maxwell[Stator_Airgap], OnGlobal, Format TimeTable,
-         File > StrCat[Dir, StrCat["Ts",ExtGnuplot]], LastTimeStepOnly, Store 55, SendToServer "Output/41T_stator", Color "LightYellow" ];
-  Print[ Torque_Maxwell[MB], OnGlobal, Format TimeTable,
-         File > StrCat[Dir, StrCat["Tmb",ExtGnuplot]], LastTimeStepOnly, Store 56, SendToServer "Output/42T_mb", Color "LightYellow" ];
-         */
-  Print[ Torque_Maxwell_cplx[Rotor_Airgap], OnGlobal, Format TimeTable,
-         File > StrCat[Dir, StrCat["Tr",ExtGnuplot]], LastTimeStepOnly, Store 54, SendToServer my_output, Color "LightYellow" ];
-  Print[ Torque_Maxwell_cplx[Stator_Airgap], OnGlobal, Format TimeTable,
-         File > StrCat[Dir, StrCat["Ts",ExtGnuplot]], LastTimeStepOnly, Store 55, SendToServer "Output/41T_stator", Color "LightYellow" ];
-  Print[ Torque_Maxwell_cplx[MB], OnGlobal, Format TimeTable,
-         File > StrCat[Dir, StrCat["Tmb",ExtGnuplot]], LastTimeStepOnly, Store 56, SendToServer "Output/42T_mb", Color "LightYellow" ];
-
- //Print[ Torque_vw, OnRegion NodesOf[Rotor_Bnd_MB], Format RegionValue,
-  //       File > StrCat[Dir, StrCat["Tr_vw",ExtGnuplot]], LastTimeStepOnly, Store 54, SendToServer "Output/1T_rotor_vw" ];
 
   If(Flag_SrcType_Stator)
     Print[ Flux[PhaseA], OnGlobal, Format TimeTable,
@@ -940,6 +925,27 @@ PostOperation Get_GlobalQuantities UsingPost MagDyn_a_2D {
            File > StrCat[Dir, StrCat["P_Fe",ExtGnuplot]], LastTimeStepOnly, SendToServer "Output/71P_rotor_fe", Color "LightYellow" ];
   EndIf
 }
+
+PostOperation Get_Torque UsingPost MagDyn_a_2D {
+  Print[ Torque_Maxwell[Rotor_Airgap], OnGlobal, Format TimeTable,
+         File > StrCat[Dir, StrCat["Tr",ExtGnuplot]], LastTimeStepOnly, Store 54, SendToServer my_output, Color "LightYellow" ];
+  Print[ Torque_Maxwell[Stator_Airgap], OnGlobal, Format TimeTable,
+         File > StrCat[Dir, StrCat["Ts",ExtGnuplot]], LastTimeStepOnly, Store 55, SendToServer "Output/41T_stator", Color "LightYellow" ];
+  Print[ Torque_Maxwell[MB], OnGlobal, Format TimeTable,
+         File > StrCat[Dir, StrCat["Tmb",ExtGnuplot]], LastTimeStepOnly, Store 56, SendToServer "Output/42T_mb", Color "LightYellow" ];
+ //Print[ Torque_vw, OnRegion NodesOf[Rotor_Bnd_MB], Format RegionValue,
+  //       File > StrCat[Dir, StrCat["Tr_vw",ExtGnuplot]], LastTimeStepOnly, Store 54, SendToServer "Output/1T_rotor_vw" ];
+}
+
+PostOperation Get_Torque_cplx UsingPost MagDyn_a_2D {
+  Print[ Torque_Maxwell_cplx[Rotor_Airgap], OnGlobal, Format TimeTable,
+         File > StrCat[Dir, StrCat["Tr",ExtGnuplot]], LastTimeStepOnly, Store 54, SendToServer my_output, Color "LightYellow" ];
+  Print[ Torque_Maxwell_cplx[Stator_Airgap], OnGlobal, Format TimeTable,
+         File > StrCat[Dir, StrCat["Ts",ExtGnuplot]], LastTimeStepOnly, Store 55, SendToServer "Output/41T_stator", Color "LightYellow" ];
+  Print[ Torque_Maxwell_cplx[MB], OnGlobal, Format TimeTable,
+         File > StrCat[Dir, StrCat["Tmb",ExtGnuplot]], LastTimeStepOnly, Store 56, SendToServer "Output/42T_mb", Color "LightYellow" ];
+}
+
 
 /*
 PostOperation Mechanical UsingPost Mechanical {

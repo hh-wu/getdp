@@ -25,3 +25,11 @@ Include "t30_rotor.geo";
 Include "t30_stator.geo";
 
 
+Hide { Point{ Point '*' }; }
+Hide { Line{ Line '*' }; }
+Show { Line{ nicepos_rotor[], nicepos_stator[] }; }
+
+//For post-processing...
+View[0].Light = 0;
+View[0].NbIso = 25; // Number of intervals
+View[0].IntervalsType = 1;

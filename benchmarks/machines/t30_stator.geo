@@ -95,3 +95,9 @@ Physical Line(STATOR_BND_MOVING_BAND) = cmb1[] ;
 Color Cyan { Surface{sstatorAir,surfnoind[]}; }
 Color NavyBlue { Surface{sstatorout}; }
 
+
+// For nice visualisation...
+linStator[] = Boundary{Surface{sstatorout,surfnoind[]};};
+linStator[] += Boundary{Surface{surfind[]};};
+
+nicepos_stator[] += {linStator[] };

@@ -38,3 +38,6 @@ Physical Line(ROTOR_BND_MOVING_BAND) = cmb0[];
 Color Cyan { Surface{srotorAir}; }
 Color NavyBlue { Surface{srotorFe}; }
 Color Orchid { Surface{srotorAl}; }
+
+linRotor[]  = Boundary{Surface{srotorFe,srotorAl};};
+nicepos_rotor[] += { linRotor[] };

@@ -12,11 +12,11 @@ Machine examples in this directory:
 1) Eight-pole permanent magnet synchronous machine - GRUCAD, Universidade
 Federal de Santa Catarina, Brazil
 
-Used in: 
+Used in:
 
 "Analysis of a Permanent Magnet Generator With Dual Formulations Using
 Periodicity Conditions and Moving Band", M. V. Ferreira da Luz, P. Dular,
-N. Sadowski, C. Geuzaine, and J. P. A. Bastos IEEE Trans. Mag., Vol 38, No. 2,
+  N. Sadowski, C. Geuzaine, and J. P. A. Bastos, IEEE Trans. Mag., Vol 38, No. 2,
 pp. 961-964.
 
 pmsm_data.geo

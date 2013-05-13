@@ -71,12 +71,13 @@ Function {
   pB = -4*Pi/3 ;
   pC = -2*Pi/3 ;
 
-  DefineConstant[ II = { IA, Path "Input/3", Label "Stator current", Highlight "AliceBlue"} ] ;
+  DefineConstant[ Irms = { IA, Path "Input/3", Label "Stator current (rms)", Highlight "AliceBlue"} ] ;
+  II = Irms *Sqrt[2] ;
 
   wr_max  = (NbPhases==3) ? 1200 : 358.1416  ;
   wr_step = (NbPhases==3) ? 200  :  39.79351 ;
 
-  DefineConstant[ wr = { 0., Min 0, Max wr_max, Step wr_step, Loop "1",
+  DefineConstant[ wr = { 39.79351, Min 0, Max wr_max, Step wr_step, Loop "0",
                          Label "Rotor speed in rad/s", Path "Input/4", Highlight "LightYellow",
                          ReadOnlyRange 1} ]; // ReadOnly
 

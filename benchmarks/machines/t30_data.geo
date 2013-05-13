@@ -37,7 +37,7 @@ sigma_fe = 1.6e6 ; // conductivity of rotor steel [S/m]
 // winding
 // Phase groups ABC are located on 60 degrees centers and lag each other in
 // phase by 120 degrees
-IA = 2045.175 ; // Sqrt[2] [A]    Current in windings
+IA = 2045.175 ; // [A] (rms value)   Current in windings
 JA = 310/cm^2 ; // [A/m2] Current density in windings mantained constant
 
 SurfInd    = Pi*(r4^2-r3^2)*45/360 ;
