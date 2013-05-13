@@ -167,6 +167,17 @@ void  Init_SystemData(struct DofData * DofData_P, int Flag_Jac)
 /*  G e n e r a t e _ S y s t e m                                           */
 /* ------------------------------------------------------------------------ */
 
+static void  ZeroMatrix(gMatrix *M, gSolver *S, int N)
+{
+  // We destroy and recreate the matrix to avoid filling-in the mask when
+  // generating systems on meshes with changing topologies (remeshing, moving
+  // band, ..., e.g. in time loops) or when constraints are updated. Using
+  // LinAlg_ZeroMatrix preserves the mask from iteration to iteration, which
+  // increases memory every time we reassemble.
+  LinAlg_DestroyMatrix(M);
+  LinAlg_CreateMatrix(M, S, N, N);
+}
+
 void  Generate_System(struct DefineSystem * DefineSystem_P,
 		      struct DofData * DofData_P,
 		      struct DofData * DofData_P0,
@@ -232,21 +243,26 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
       DofData_P->CurrentSolution->TimeFunctionValues[i] = 1. ;
     }
     if(Current.DofData->Flag_Init[1]){
-      LinAlg_ZeroMatrix(&Current.DofData->M1) ;
+      ZeroMatrix(&Current.DofData->M1, &Current.DofData->Solver,
+                 Current.DofData->NbrDof) ;
       LinAlg_ZeroVector(&Current.DofData->m1);
     }
     if(Current.DofData->Flag_Init[2]){
-      LinAlg_ZeroMatrix(&Current.DofData->M2) ;
+      ZeroMatrix(&Current.DofData->M2, &Current.DofData->Solver,
+                 Current.DofData->NbrDof) ;
       LinAlg_ZeroVector(&Current.DofData->m2);
     }
     if(Current.DofData->Flag_Init[3]){
-      LinAlg_ZeroMatrix(&Current.DofData->M3) ;
+      ZeroMatrix(&Current.DofData->M3, &Current.DofData->Solver,
+                 Current.DofData->NbrDof) ;
       LinAlg_ZeroVector(&Current.DofData->m3);
     }
   }
   else{
-    if(!Current.DofData->Flag_RHS)
-      LinAlg_ZeroMatrix(&Current.DofData->A) ;
+    if(!Current.DofData->Flag_RHS){
+      ZeroMatrix(&Current.DofData->A, &Current.DofData->Solver,
+                 Current.DofData->NbrDof);
+    }
     LinAlg_ZeroVector(&Current.DofData->b) ;
 
     if(DofData_P->Flag_Only){
@@ -256,15 +272,18 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
 	  // Message::Info("Setting System {A%d,b%d} to zero",iMat,iMat);
 	  switch(iMat){
 	  case 1 :
-	    LinAlg_ZeroMatrix(&Current.DofData->A1) ;
+	    ZeroMatrix(&Current.DofData->A1, &Current.DofData->Solver,
+                       Current.DofData->NbrDof) ;
 	    LinAlg_ZeroVector(&Current.DofData->b1) ;
 	    break;
 	  case 2 :
-	    LinAlg_ZeroMatrix(&Current.DofData->A2) ;
+	    ZeroMatrix(&Current.DofData->A2, &Current.DofData->Solver,
+                       Current.DofData->NbrDof) ;
 	    LinAlg_ZeroVector(&Current.DofData->b2) ;
 	    break;
 	  case 3 :
-	    LinAlg_ZeroMatrix(&Current.DofData->A3) ;
+	    ZeroMatrix(&Current.DofData->A3, &Current.DofData->Solver,
+                       Current.DofData->NbrDof) ;
 	    LinAlg_ZeroVector(&Current.DofData->b3) ;
 	    break;
 	  }
@@ -275,7 +294,8 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
   }
 
   if(Flag_Jac)
-    LinAlg_ZeroMatrix(&Current.DofData->Jac) ;
+    ZeroMatrix(&Current.DofData->Jac, &Current.DofData->Solver,
+               Current.DofData->NbrDof) ;
 
   Nbr_Formulation = List_Nbr(DefineSystem_P->FormulationIndex) ;
 
@@ -457,27 +477,6 @@ void  UpdateConstraint_System(struct DefineSystem * DefineSystem_P,
   }
 
   Dof_InitDofType(DofData_P) ; /* Attention: Init for only one DofData */
-
-
-#if defined(HAVE_PETSC)
-  // Updating the constraints has (most probably) changed the mask of the matrices.
-  // Recreating the matrices will lead to much faster assembly (and reduced memory)
-  // with petsc-based solvers
-
-  // FIXME
-
-  if(DofData_P->Flag_Init[0] == 1 || DofData_P->Flag_Init[0] == 2)
-    LinAlg_DestroyMatrix(&DofData_P->A);
-  LinAlg_CreateMatrix(&DofData_P->A, &DofData_P->Solver,
-                      DofData_P->NbrDof, DofData_P->NbrDof);
-
-  if(Flag_Jac){ // Only when JacNL term appears in formulation
-    if(DofData_P->Flag_Init[0] == 2)
-      LinAlg_DestroyMatrix(&DofData_P->Jac);
-    LinAlg_CreateMatrix(&DofData_P->Jac, &DofData_P->Solver,
-                        DofData_P->NbrDof, DofData_P->NbrDof);
-  }
-#endif
 
   TreatmentStatus = Save_TreatmentStatus ;
 }
