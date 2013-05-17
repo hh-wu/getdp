@@ -11,7 +11,7 @@ DefineConstant[ Flag_NL = { 0, Choices{0="Linear",
                             Path "Input/3",
                             Highlight "NavyBlue"} ] ;
 
-DefineConstant[ Flag_SrcType_Stator = {1, Choices{1="Current",
+DefineConstant[ Flag_SrcType_Stator = {2, Choices{1="Current",
                                            2="Voltage"},
                                 Label "Source Type in Stator",
                                 Path "Input/40",
@@ -99,12 +99,15 @@ Function{
   Freq = 60  ;
   T = 1/Freq ; // Fundamental period in s
 
+  DefineConstant[ Flag_ImposedSpeed = { 1, Choices{0,1},
+      Label "Imposed rotor speed", Path "Input/40", Visible 1} ];
+
   slip = 0; //0.02666 ;	           // slip
   wr = (1-slip)* 2*Pi*Freq/2 ;  // angular rotor speed in rad/s
   time0 = 0. ;                 // initial time in s
   timemax = 2.*T ;          // final time  in s
   delta_time = T/100 ;             // time step in s
-  delta_theta = wr*delta_time ;
+  delta_theta[] = wr*delta_time ;
 
   // relaxation of applied voltage, for reducing the transient
   Trelax = 6*T ;
@@ -115,10 +118,15 @@ Function{
   NbWires[] = Ns;
   SurfCoil[] = SurfaceArea[];
 
-  II = 1 ;
-  pA = 0 ;
-  pB = 2*Pi/3 ;
-  pC = 4*Pi/3 ;
+  pA =  0 ;
+  pB =  2*Pi/3 ;
+  pC =  4*Pi/3 ;
+
+  DefineConstant[ Irms = {  1, Path "Input/3", Label "Stator current (rms)", Highlight "AliceBlue", Visible (Flag_SrcType_Stator==1)} ] ;
+  DefineConstant[ Vrms = { VA, Path "Input/3", Label "Stator voltage (rms)", Highlight "AliceBlue", Visible (Flag_SrcType_Stator==2)} ] ;
+  VV = Vrms * Sqrt[2] ;
+  II = Irms * Sqrt[2] ;
+
 }
 
 // --------------------------------------------------------------------------
@@ -140,5 +148,4 @@ EndIf
 Include "machine_magstadyn_a.pro" ;
 
 DefineConstant[ ResolutionChoices    = {"TimeDomain", Path "GetDP/1"} ];
-DefineConstant[ PostOperationChoices = {"Map_LocalFields", Path "GetDP/2"} ];
 DefineConstant[ ComputeCommand       = {"-solve -v 1 -v2", Path "GetDP/9"} ];

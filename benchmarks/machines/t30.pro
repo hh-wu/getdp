@@ -59,9 +59,15 @@ Group {
 
 Function {
 
-  DefineConstant[ Term_vxb = { 1, Choices {0,1},
-                               Label "Term Velocity x Induction",
-                               Path "Input", Visible 1 } ] ;
+  DefineConstant[ Flag_ImposedSpeed = { 1, Choices{0,1},
+      Label "Imposed rotor speed", Path "Input/40", Visible 1} ];
+
+  DefineConstant[ Term_vxb = { 0, Choices {0,1},
+                               Label "Consider term Velocity x Induction",
+                               Path "Input/41", Visible Flag_ImposedSpeed } ] ;
+
+  DefineConstant[ Tmec = { 0, Label "Mechanical torque", Path "Input/42",
+      Highlight "LightYellow", Visible !Flag_ImposedSpeed} ];
 
   SurfCoil[] = SurfaceArea[]{STATOR_INDA} ;
   NbWires[]  = NbWiresInd ;
@@ -74,31 +80,39 @@ Function {
   DefineConstant[ Irms = { IA, Path "Input/3", Label "Stator current (rms)", Highlight "AliceBlue"} ] ;
   II = Irms *Sqrt[2] ;
 
-  wr_max  = (NbPhases==3) ? 1200 : 358.1416  ;
-  wr_step = (NbPhases==3) ? 200  :  39.79351 ;
-
-  DefineConstant[ wr = { 39.79351, Min 0, Max wr_max, Step wr_step, Loop "0",
-                         Label "Rotor speed in rad/s", Path "Input/4", Highlight "LightYellow",
-                         ReadOnlyRange 1} ]; // ReadOnly
+  wr_max  = (NbPhases==3) ? 1200 : 358.1416 ;
+  wr_step = (NbPhases==3) ? 200  :  39.79351;
+  DefineConstant[ wr = { wr_step, Min wr_step, Max wr_max, Step wr_step, Loop "0",
+                         Label "Rotor speed in rad/s", Path "Input/42", Highlight "LightYellow",
+                         ReadOnlyRange 1, Visible Flag_ImposedSpeed} ]; //ReadOnly
 
   ws = 2*Pi*Freq ;  // angular speed of stator field
   slip = (ws-wr)/ws ;
+
+  T = 1/Freq ;
+  NbSteps = 100/2; // 100 number of angles (imposed speed) or time steps
+  NbT = 50;
 
   // imposed movement with fixed speed wr
   rotorAngle0 = 0 ;
   theta0 = rotorAngle0*Pi/180 ; // fixed rotor position or inital position (in rad) in case of rotation
   theta1 = (rotorAngle0+180)*Pi/180 ; // end angle (in rad)
-  NbThetas = 100 ; // 100 number of angle and time steps
-  delta_theta = (theta1-theta0)/NbThetas ; // angle step (in rad)
-  delta_time = delta_theta/wr ; // time step
 
-  time0 = 0. ;  timemax = NbThetas * delta_theta ;
+  delta_theta[] = (Flag_ImposedSpeed) ? (theta1-theta0)/NbSteps : (#77-#66) ; // angle step (in rad)
+  delta_time = (Flag_ImposedSpeed) ? (theta1-theta0)/NbSteps/wr : T/NbSteps; // time step
+
+  time0 = 0.;
+  timemax = (Flag_ImposedSpeed) ? theta1/wr : NbT*T ;
+
+  Friction[] = 0. ;
+  Torque_mec[] = Tmec ;
+  Inertia = inertia_fe + inertia_al ;
+
 }
 
 
 Include "machine_magstadyn_a.pro" ;
 
 DefineConstant[ ResolutionChoices    = {"FrequencyDomain", Path "GetDP/1"} ];
-//DefineConstant[ PostOperationChoices = {"Get_LocalFields, Get_GlobalQuantities", Path "GetDP/2"} ];
 DefineConstant[ ComputeCommand       = {"-solve -v 1 -v2", Path "GetDP/9"} ];
-
+DefineConstant[ PostOperationChoices = {"", Path "GetDP/2", Visible 0} ]; // testing

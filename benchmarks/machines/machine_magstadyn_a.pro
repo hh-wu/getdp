@@ -9,6 +9,7 @@ Group {
 Function{
 
   DefineConstant[ Flag_Cir, Flag_NL, Flag_ParkTransformation, Flag_ComputeLosses ];
+  DefineConstant[ Flag_ImposedSpeed = {1, Visible 0} ];
   DefineConstant[ Term_vxb = {0, Visible 0},
                   NbPhases = {3, Visible 0}];
   DefineConstant[ AxialLength        = {1, Visible 0},
@@ -24,10 +25,21 @@ Function{
                   reltol             = {1e-7, Visible 0},
                   abstol             = {1e-5, Visible 0} ];
 
+  DefineConstant[ T = {1/Freq, Visible 0} ] ; // Fundamental period in s
+
+  DefineConstant[ time0      = {0, Visible 0},
+                  NbT        = {1, Visible 0},
+                  timemax    = {NbT*T, Visible 0},
+                  NbSteps    = {100, Visible 0},
+                  delta_time = {T/NbSteps, Visible 0}
+  ];
+
   DefineConstant[ II, VV, pA, pB, pC, Ie, ID, IQ, I0 ];
   DefineFunction[ br, js, Resistance, Inductance, Capacitance ];
   DefineFunction[ Theta_Park, Theta_Park_deg, RotorPosition, RotorPosition_deg ] ;
 
+  DefineConstant[ Inertia  ];
+  DefineFunction[ Friction, Torque_mec ];
 
   DefineConstant[ Flag_SrcType_Rotor = {0, Visible 0} ];
 
@@ -39,7 +51,6 @@ Function{
       Path "Input/0", Choices {0,1}} ];
 
   DefineConstant[ my_output={"Output/40T_rotor", Visible 0}];
-
 }
 
 Include "BH.pro"; // nonlinear BH caracteristic of magnetic material
@@ -104,8 +115,6 @@ Function {
   Rb[] = Factor_R_3DEffects*AxialLength*FillFactor_Winding*NbWires[]^2/SurfCoil[]/sigma[] ;
   Resistance[#{Stator_Inds, Rotor_Inds}] = Rb[] ;
 
-  T = 1/Freq ; // Fundamental period in s
-
   Idir[#{Stator_IndsP, Rotor_IndsP}] =  1 ;
   Idir[#{Stator_IndsN, Rotor_IndsN}] = -1 ;
 
@@ -142,18 +151,13 @@ Function {
 
   // Maxwell stress tensor
   T_max[] = ( SquDyadicProduct[$1] - SquNorm[$1] * TensorDiag[0.5, 0.5, 0.5] ) / mu0 ;
-  T_max_cplx[] = 0.5*(TensorV[CompX[$1]*Conj[$1], CompY[$1]*Conj[$1], CompZ[$1]*Conj[$1]] - $1*Conj[$1] * TensorDiag[0.5, 0.5, 0.5] ) / mu0 ; // Check if valid also in real case
-
+  T_max_cplx[] = 0.5*(TensorV[CompX[$1]*Conj[$1], CompY[$1]*Conj[$1], CompZ[$1]*Conj[$1]] - $1*Conj[$1] * TensorDiag[0.5, 0.5, 0.5] ) / mu0 ;
 
   AngularPosition[] = (Atan2[$Y,$X]#7 >= 0.)? #7 : #7+2*Pi ;
 
   RotatePZ[] = Rotate[ Vector[$X,$Y,$Z], 0, 0, $1 ] ;//Watch out: Do not use XYZ[]!
 
-  // Kinematics
-  Inertia = 8.3e-3 ; //87
-  Friction[] = 0 ;
-
-  Fmag[] = #55 ; // Computed in postprocessing
+  Torque_mag[] = #55 ; // Torque computed in postprocessing (Trotor in #54, Tstator in #55, Tmb in #56)
 }
 
 //-------------------------------------------------------------------------------------
@@ -257,7 +261,7 @@ Constraint {
 
   { Name CurrentVelocity ;
     Case {
-      { Region DomainKin ; Type Init ; Value wr ; } // wr in [0,1200] rad/s
+      { Region DomainKin ; Type Init ; Value 0. ; } // in rads/s
     }
   }
 
@@ -356,63 +360,7 @@ FunctionSpace {
 
 Formulation {
 
-  { Name MagSta_a_2D ; Type FemEquation ;
-    Quantity {
-      { Name a  ; Type Local  ; NameOfSpace Hcurl_a_2D ; }
-
-      { Name ir ; Type Local  ; NameOfSpace Hregion_i_Mag_2D ; }
-      { Name Ub ; Type Global ; NameOfSpace Hregion_i_Mag_2D [Ub] ; }
-      { Name Ib ; Type Global ; NameOfSpace Hregion_i_Mag_2D [Ib] ; }
-
-      { Name Uz ; Type Global ; NameOfSpace Hregion_Z [Uz] ; }
-      { Name Iz ; Type Global ; NameOfSpace Hregion_Z [Iz] ; }
-    }
-
-    Equation {
-      Galerkin { [ nu[{d a}] * Dof{d a}  , {d a} ] ;
-        In Domain ; Jacobian Vol ; Integration I1 ; }
-      Galerkin { JacNL [ dhdb_NL[{d a}] * Dof{d a} , {d a} ] ;
-        In DomainNL ; Jacobian Vol ; Integration I1 ; }
-
-      Galerkin {  [  0*Dof{d a} , {d a} ]  ; // DO NOT REMOVE!!! - Keeping track of Dofs in auxiliary line of MB if Symmetry=1
-        In Rotor_Bnd_MBaux; Jacobian Vol; Integration I1; }
-
-      Galerkin { [ -nu[] * br[] , {d a} ] ;
-        In DomainM ; Jacobian Vol ; Integration I1 ; }
-
-      Galerkin { [ -js[] , {a} ] ;
-        In DomainS ; Jacobian Vol ; Integration I1 ; }
-
-      Galerkin { [ -NbWires[]/SurfCoil[] * Dof{ir} , {a} ] ;
-        In DomainB ; Jacobian Vol ; Integration I1 ; }
-      Galerkin { DtDof [ AxialLength * NbWires[]/SurfCoil[] * Dof{a} , {ir} ] ;
-        In DomainB ; Jacobian Vol ; Integration I1 ; }
-      GlobalTerm { [ Dof{Ub}/SymmetryFactor, {Ib} ] ; In DomainB ; }
-      Galerkin { [ Rb[]/SurfCoil[]* Dof{ir} , {ir} ] ;
-        In DomainB ; Jacobian Vol ; Integration I1 ; }
-
-      // GlobalTerm { [ Resistance[]  * Dof{Ib} , {Ib} ] ; In DomainB ; }
-      // The above term can replace:
-      // Galerkin{ [ NbWires[]/SurfCoil[] / sigma[] * NbWires[]/SurfCoil[] * Dof{ir}, {ir} ]
-      // if we have an estimation of the resistance of DomainB, via e.g. measurements
-
-      If(Flag_Cir)
-	GlobalTerm { NeverDt[ Dof{Uz}                , {Iz} ] ; In Resistance_Cir ; }
-        GlobalTerm { NeverDt[ Resistance[] * Dof{Iz} , {Iz} ] ; In Resistance_Cir ; }
-
-	GlobalTerm { [ 0. * Dof{Iz} , {Iz} ] ; In DomainSource_Cir ; }
-        GlobalTerm { [ 0. * Dof{Uz} , {Iz} ] ; In DomainZt_Cir ; }
-
-        GlobalEquation {
-          Type Network ; NameOfConstraint ElectricalCircuit ;
-          { Node {Iz}; Loop {Uz}; Equation {Uz}; In DomainZt_Cir ; }
-          { Node {Ib}; Loop {Ub}; Equation {Ub}; In DomainB ; }
-         }
-      EndIf
-    }
-  }
-
-  { Name MagDyn_a_2D ; Type FemEquation ;
+  { Name MagStaDyn_a_2D ; Type FemEquation ;
     Quantity {
       { Name a  ; Type Local  ; NameOfSpace Hcurl_a_2D ; }
       { Name ur ; Type Local  ; NameOfSpace Hregion_u_Mag_2D ; }
@@ -432,7 +380,7 @@ Formulation {
       Galerkin { JacNL [ dhdb_NL[{d a}] * Dof{d a} , {d a} ] ;
         In DomainNL ; Jacobian Vol ; Integration I1 ; }
 
-      Galerkin {  [  0*Dof{d a} , {d a} ]  ; // DO NOT REMOVE!!! - Keeping track of Dofs in auxiliary line of MB if Symmetry=1
+      Galerkin {  [  0*Dof{d a} , {d a} ]  ; // DO NOT REMOVE!!! - Keeping track of Dofs in auxiliar line of MB if Symmetry=1
         In Rotor_Bnd_MBaux; Jacobian Vol; Integration I1; }
 
       Galerkin { [ -nu[] * br[] , {d a} ] ;
@@ -491,10 +439,10 @@ Formulation {
     }
   }
 
-
- //--------------------------------------------------------------------------
+  //-----------------------------------------------------------------------------------------------
   // Mechanics
-  //--------------------------------------------------------------------------
+  //-----------------------------------------------------------------------------------------------
+
   { Name Mechanical ; Type FemEquation ;
     Quantity {
       { Name V ; Type Global ; NameOfSpace Velocity [V] ; } // velocity
@@ -503,7 +451,8 @@ Formulation {
     Equation {
       GlobalTerm { DtDof [ Inertia * Dof{V} , {V} ] ; In DomainKin ; }
       GlobalTerm { [ Friction[] * Dof{V} , {V} ] ; In DomainKin ; }
-      GlobalTerm { [             -Fmag[] , {V} ] ; In DomainKin ; }
+      GlobalTerm { [        Torque_mec[] , {V} ] ; In DomainKin ; }
+      GlobalTerm { [       -Torque_mag[] , {V} ] ; In DomainKin ; }
 
       GlobalTerm { DtDof [ Dof{P} , {P} ] ; In DomainKin ; }
       GlobalTerm {       [-Dof{V} , {P} ] ; In DomainKin ; }
@@ -513,12 +462,13 @@ Formulation {
 }
 
 //-----------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------
 
 Resolution {
 
   { Name Static ;
     System {
-      { Name A ; NameOfFormulation MagDyn_a_2D ; }
+      { Name A ; NameOfFormulation MagStaDyn_a_2D ; }
     }
     Operation {
       CreateDir["res/"];
@@ -530,63 +480,86 @@ Resolution {
         DeleteFile["res/Flux_a.dat"]; DeleteFile["res/Flux_b.dat"]; DeleteFile["res/Flux_c.dat"];
         DeleteFile["res/Flux_d.dat"]; DeleteFile["res/Flux_q.dat"]; DeleteFile["res/Flux_0.dat"];
       }
+
       InitMovingBand2D[MB] ;
       MeshMovingBand2D[MB] ;
       InitSolution[A] ;
-      If[Flag_ParkTransformation && Flag_SrcType_Stator==1]{ PostOperation[ThetaPark_IABC] ; }
-      If[!Flag_NL]{
+
+      If(Flag_ParkTransformation && Flag_SrcType_Stator==1)
+        PostOperation[ThetaPark_IABC] ; EndIf
+      If(!Flag_NL)
         Generate[A] ; Solve[A] ;
-      }
-      Else{
-        IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]
-         { GenerateJac[A] ; SolveJac[A] ; }
-         //IterativeLoopN[ Nb_max_iter, relaxation_factor,
-         //              System { {A, reltol, abstol, Solution MeanL2Norm}} ]
-         //{ GenerateJac[A] ; SolveJac[A] ; }
-      }
+      EndIf
+      If(Flag_NL)
+        //IterativeLoopN[ Nb_max_iter, relaxation_factor, System { {A, reltol, abstol, Solution MeanL2Norm}}]{
+        IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
+          GenerateJac[A] ; SolveJac[A] ; }
+      EndIf
       SaveSolution[A] ;
+
       PostOperation[Get_LocalFields] ;
       PostOperation[Get_GlobalQuantities] ;
+      PostOperation[Get_Torque];
     }
   }
 
   { Name TimeDomain ;
     System {
-      { Name A ; NameOfFormulation MagDyn_a_2D ; }
+      { Name A ; NameOfFormulation MagStaDyn_a_2D ; }
+      If(!Flag_ImposedSpeed) // Full dynamics
+        { Name M ; NameOfFormulation Mechanical ; }
+      EndIf
     }
     Operation {
       CreateDir["res/"];
-      If[ Clean_Results==1 ]{
-        DeleteFile["res/temp.dat"];
-        DeleteFile["res/Tr.dat"]; DeleteFile["res/Ts.dat"]; DeleteFile["res/Tmb.dat"];
-        DeleteFile["res/Ua.dat"]; DeleteFile["res/Ub.dat"]; DeleteFile["res/Uc.dat"];
-        DeleteFile["res/Ia.dat"]; DeleteFile["res/Ib.dat"]; DeleteFile["res/Ic.dat"];
-        DeleteFile["res/Flux_a.dat"]; DeleteFile["res/Flux_b.dat"]; DeleteFile["res/Flux_c.dat"];
-        DeleteFile["res/Flux_d.dat"]; DeleteFile["res/Flux_q.dat"]; DeleteFile["res/Flux_0.dat"];
-      }
-      InitMovingBand2D[MB] ;
-      MeshMovingBand2D[MB] ;
-      InitSolution[A] ;
+      If(Clean_Results==1)
+          DeleteFile["res/temp.dat"];
+          DeleteFile["res/Tr.dat"]; DeleteFile["res/Ts.dat"]; DeleteFile["res/Tmb.dat"];
+          DeleteFile["res/Ua.dat"]; DeleteFile["res/Ub.dat"]; DeleteFile["res/Uc.dat"];
+          DeleteFile["res/Ia.dat"]; DeleteFile["res/Ib.dat"]; DeleteFile["res/Ic.dat"];
+          DeleteFile["res/Flux_a.dat"]; DeleteFile["res/Flux_b.dat"]; DeleteFile["res/Flux_c.dat"];
+          DeleteFile["res/Flux_d.dat"]; DeleteFile["res/Flux_q.dat"]; DeleteFile["res/Flux_0.dat"];
+          DeleteFile["res/JL.dat"]; DeleteFile["res/JL_Fe.dat"];
+          DeleteFile["res/P.dat"]; DeleteFile["res/V.dat"];
+      EndIf
+
+      InitMovingBand2D[MB];
+      MeshMovingBand2D[MB];
+      InitSolution[A];
+
+      If(!Flag_ImposedSpeed) // Full dynamics
+        InitSolution[M]; InitSolution[M]; // Twice for avoiding warning (a = d_t^2 x)
+      EndIf
+
       TimeLoopTheta[time0, timemax, delta_time, 1.]{ // Euler implicit (1) -- Crank-Nicolson (0.5)
-        If[Flag_ParkTransformation && Flag_SrcType_Stator==1]{ PostOperation[ThetaPark_IABC] ; }
-        If[!Flag_NL]{
-	  Generate[A]; Solve[A];
-        }
-        Else{
+        If(Flag_ParkTransformation && Flag_SrcType_Stator==1)
+          PostOperation[ThetaPark_IABC];
+        EndIf
+        If(!Flag_NL)
+            Generate[A]; Solve[A];
+        EndIf
+        If(Flag_NL)
+          //IterativeLoopN[ Nb_max_iter, relaxation_factor, System { {A, reltol, abstol, Solution MeanL2Norm}} ]{
           IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor] {
-             GenerateJac[A] ; SolveJac[A] ; }
-           //IterativeLoopN[
-           // Nb_max_iter, relaxation_factor, System { {A, reltol, abstol, Solution MeanL2Norm}} ]{
-           //GenerateJac[A] ; SolveJac[A] ; }
-        }
+            GenerateJac[A] ; SolveJac[A] ; }
+        EndIf
         SaveSolution[A];
 
         PostOperation[Get_LocalFields] ;
-        If[ $TimeStep > 1 ]{
-          PostOperation[Get_GlobalQuantities] ;
-          PostOperation[Get_Torque] ;
+        Test[ $TimeStep > 1 ]{
+            PostOperation[Get_GlobalQuantities];
+            PostOperation[Get_Torque];
         }
-        ChangeOfCoordinates[ NodesOf[Rotor_Moving], RotatePZ[delta_theta]] ;
+
+        If(!Flag_ImposedSpeed)
+          Generate[M]; Solve[M]; SaveSolution[M];
+          PostOperation[Mechanical] ;
+        EndIf
+
+        ChangeOfCoordinates[ NodesOf[Rotor_Moving], RotatePZ[delta_theta[]]];
+        If(!Flag_ImposedSpeed)
+          Evaluate[ #77#66 ]; //Keep track of previous angular position
+        EndIf
         MeshMovingBand2D[MB] ;
       }
     }
@@ -594,15 +567,16 @@ Resolution {
 
   { Name FrequencyDomain ;
     System {
-      { Name A ; NameOfFormulation MagDyn_a_2D ; Type ComplexValue ; Frequency Freq ; }
+      { Name A ; NameOfFormulation MagStaDyn_a_2D ; Type ComplexValue ; Frequency Freq ; }
     }
     Operation {
+      CreateDir["res/"];
       If[ Clean_Results==1 && wr == 0.]{
         DeleteFile["res/Tr.dat"]; DeleteFile["res/Ts.dat"]; DeleteFile["res/Tmb.dat"];
         DeleteFile["res/Ua.dat"]; DeleteFile["res/Ub.dat"]; DeleteFile["res/Uc.dat"];
         DeleteFile["res/Ia.dat"]; DeleteFile["res/Ib.dat"]; DeleteFile["res/Ic.dat"];
         DeleteFile["res/Flux_a.dat"]; DeleteFile["res/Flux_b.dat"]; DeleteFile["res/Flux_c.dat"];
-        DeleteFile["res/P.dat"]; DeleteFile["res/P_Fe.dat"];
+        DeleteFile["res/JL.dat"]; DeleteFile["res/JL_Fe.dat"];
       }
       SetTime[wr];
       InitMovingBand2D[MB] ;
@@ -614,86 +588,19 @@ Resolution {
     }
   }
 
-  /*
-  { Name  MagDyn_Kin ;
-    System {
-      { Name A ; NameOfFormulation MagDyn_a_2D ; }
-      { Name M ; NameOfFormulation Mechanical ; }
-    }
-    Operation {
-      ChangeOfCoordinates [ NodesOf[Rotor_Moving], RotatePZ[theta0] ] ; // Initial position (supposing initial mesh with angleR=0)
-      InitMovingBand2D[MB] ; MeshMovingBand2D[MB] ;
-
-      InitSolution[A] ; SaveSolution[A] ;
-      InitSolution[M] ; SaveSolution[M] ;
-
-      TimeLoopTheta[time0, timemax, delta_time, 1.]{
-	Generate[A] ; Solve[A] ;  SaveSolution[A] ;
-        PostOperation[MagDyn_a_2D] ;
-
-        Generate[M] ; Solve[M] ; SaveSolution[M] ;
-        PostOperation[Mechanical] ;
-
-        ChangeOfCoordinates [ NodesOf[Rotor_Moving], RotatePZ[#77-#66] ] ;
-        Evaluate[ #77#66 ] ; //Keep track of previous angular position
-        MeshMovingBand2D[MB] ;
-      }
-    }
-  }
-  */
-
 }
 
 //-----------------------------------------------------------------------------------------------
 
 PostProcessing {
 
- { Name MagSta_a_2D ; NameOfFormulation MagSta_a_2D ;
-   PostQuantity {
-     { Name a ; Value { Term { [  {a} ]   ; In Domain ; Jacobian Vol ; } } }
-     { Name az ; Value { Term { [  CompZ[{a}] ]   ; In Domain ; Jacobian Vol ; } } }
-     { Name b  ; Value { Term { [ {d a} ] ; In Domain ; Jacobian Vol ; } } }
-     { Name boundary  ; Value { Term { [ {d a} ] ; In Dummy ; Jacobian Vol ; } } }
-     { Name br  ; Value { Term { [ br[] ] ; In DomainM ; Jacobian Vol ; } } }
-
-     { Name Flux ; Value { Integral { [ SymmetryFactor*AxialLength*Idir[]*NbWires[]/SurfCoil[]* CompZ[{a}] ] ;
-           In Inds  ; Jacobian Vol ; Integration I1 ; } } }
-     { Name Force_vw ; Value {
-         Integral { Type Global ; [ 0.5 * nu[] * VirtualWork [{d a}] * AxialLength ];
-           In ElementsOf[Rotor_Airgap, OnOneSideOf Rotor_Bnd_MB];
-           Jacobian Vol ; Integration I1 ; } } }
-
-     { Name Torque_Maxwell ;  Value {
-         Integral {
-           [ CompZ [ XYZ[] /\ (T_max[{d a}] * XYZ[]) ]*2*Pi*AxialLength/SurfaceArea[]  ] ;
-           In Domain ; Jacobian Vol  ; Integration I1; } } }
-
-     { Name Torque_vw ; Value {
-         Integral { Type Global ;
-           [ CompZ[ 0.5 * nu[] * XYZ[] /\ VirtualWork[{d a}] ] * AxialLength ];
-           In ElementsOf[Rotor_Airgap, OnOneSideOf Rotor_Bnd_MB];
-           Jacobian Vol ; Integration I1 ; } } }
-
-     { Name U ; Value {
-         Term { [ {Ub} ]  ; In DomainB ; }
-         Term { [ {Uz} ]  ; In DomainZt_Cir ; }
-     } }
-
-     { Name I ; Value {
-         Term { [ {Ib} ]  ; In DomainB ; }
-         Term { [ {Iz} ]  ; In DomainZt_Cir ; }
-     } }
-
-   }
- }
-
- { Name MagDyn_a_2D ; NameOfFormulation MagDyn_a_2D ;
+  { Name MagStaDyn_a_2D ; NameOfFormulation MagStaDyn_a_2D ;
    PostQuantity {
      { Name a  ; Value { Term { [ {a} ] ; In Domain ; Jacobian Vol ; } } }
      { Name az ; Value { Term { [ CompZ[{a}] ] ; In Domain ; Jacobian Vol ; } } }
 
      { Name b  ; Value { Term { [ {d a} ] ; In Domain ; Jacobian Vol ; } } }
-     { Name boundary  ; Value { Term { [ 1 ] ; In Dummy ; Jacobian Vol ; } } } // Dummy quantity
+     { Name boundary  ; Value { Term { [ 1 ] ; In Dummy ; Jacobian Vol ; } } } // Dummy quantity - for visualization
      { Name b_radial  ; Value { Term { [ {d a}* Vector[  Cos[AngularPosition[]#4], Sin[#4], 0.] ] ; In Domain ; Jacobian Vol ; } } }
      { Name b_tangent ; Value { Term { [ {d a}* Vector[ -Sin[AngularPosition[]#4], Cos[#4], 0.] ] ; In Domain ; Jacobian Vol ; } } }
 
@@ -759,7 +666,7 @@ PostProcessing {
        }
      }
 
-     { Name Torque_Maxwell_cplx ; // Torque computation via Maxwell stress tensor
+     { Name Torque_Maxwell_cplx ; // Torque computation via Maxwell stress tensor - frequency domain
        Value {
          Integral {
            [ CompZ [ XYZ[] /\ (T_max_cplx[{d a}] * XYZ[]) ] * 2*Pi*AxialLength/SurfaceArea[] ] ;
@@ -826,7 +733,7 @@ PostProcessing {
 //-----------------------------------------------------------------------------------------------
 
 If (Flag_ParkTransformation)
-PostOperation ThetaPark_IABC UsingPost MagDyn_a_2D {
+PostOperation ThetaPark_IABC UsingPost MagStaDyn_a_2D {
   Print[ RotorPosition_deg, OnRegion DomainDummy, Format Table, LastTimeStepOnly, File StrCat[Dir, StrCat["temp",ExtGnuplot]],
          SendToServer "Output/1RotorPosition", Color "LightYellow" ];
   Print[ Theta_Park_deg, OnRegion DomainDummy, Format Table, LastTimeStepOnly, File StrCat[Dir, StrCat["temp",ExtGnuplot]],
@@ -836,7 +743,7 @@ PostOperation ThetaPark_IABC UsingPost MagDyn_a_2D {
   Print[ IC, OnRegion DomainDummy, Format Table, LastTimeStepOnly, File StrCat[Dir, StrCat["temp",ExtGnuplot]], SendToServer "Output/2IC", Color "LightGreen"  ];
 }
 EndIf
-PostOperation Get_LocalFields UsingPost MagDyn_a_2D {
+PostOperation Get_LocalFields UsingPost MagStaDyn_a_2D {
   Print[ ir, OnElementsOf Stator_Inds, File StrCat[Dir, StrCat["ir_stator",ExtGmsh]], LastTimeStepOnly, AppendTimeStepToFileName Flag_SaveAllSteps] ;
   Print[ ir, OnElementsOf Rotor_Inds,  File StrCat[Dir, StrCat["ir_rotor",ExtGmsh]], LastTimeStepOnly, AppendTimeStepToFileName Flag_SaveAllSteps] ;
   //Print[ br,  OnElementsOf #{DomainM}, File StrCat[Dir, StrCat["b",ExtGmsh]], LastTimeStepOnly, AppendTimeStepToFileName Flag_SaveAllSteps] ;
@@ -845,7 +752,7 @@ PostOperation Get_LocalFields UsingPost MagDyn_a_2D {
   Print[ az, OnElementsOf Domain, File StrCat[Dir, StrCat["a",ExtGmsh]], LastTimeStepOnly, AppendTimeStepToFileName Flag_SaveAllSteps ] ;
 }
 
-PostOperation Get_GlobalQuantities UsingPost MagDyn_a_2D {
+PostOperation Get_GlobalQuantities UsingPost MagStaDyn_a_2D {
   If(!Flag_Cir)
     If(!Flag_ParkTransformation)
       Print[ I, OnRegion PhaseA_pos, Format Table,
@@ -920,13 +827,13 @@ PostOperation Get_GlobalQuantities UsingPost MagDyn_a_2D {
 
   If(Flag_ComputeLosses)
     Print[ JouleLosses[Rotor], OnGlobal, Format TimeTable,
-           File > StrCat[Dir, StrCat["P",ExtGnuplot]], LastTimeStepOnly, SendToServer "Output/70P_rotor", Color "LightYellow" ];
+           File > StrCat[Dir, StrCat["JL",ExtGnuplot]], LastTimeStepOnly, SendToServer "Output/70JL_rotor", Color "LightYellow" ];
     Print[ JouleLosses[Rotor_Fe], OnGlobal, Format TimeTable,
-           File > StrCat[Dir, StrCat["P_Fe",ExtGnuplot]], LastTimeStepOnly, SendToServer "Output/71P_rotor_fe", Color "LightYellow" ];
+           File > StrCat[Dir, StrCat["JL_Fe",ExtGnuplot]], LastTimeStepOnly, SendToServer "Output/71JL_rotor_fe", Color "LightYellow" ];
   EndIf
 }
 
-PostOperation Get_Torque UsingPost MagDyn_a_2D {
+PostOperation Get_Torque UsingPost MagStaDyn_a_2D {
   Print[ Torque_Maxwell[Rotor_Airgap], OnGlobal, Format TimeTable,
          File > StrCat[Dir, StrCat["Tr",ExtGnuplot]], LastTimeStepOnly, Store 54, SendToServer my_output, Color "LightYellow" ];
   Print[ Torque_Maxwell[Stator_Airgap], OnGlobal, Format TimeTable,
@@ -937,7 +844,7 @@ PostOperation Get_Torque UsingPost MagDyn_a_2D {
   //       File > StrCat[Dir, StrCat["Tr_vw",ExtGnuplot]], LastTimeStepOnly, Store 54, SendToServer "Output/1T_rotor_vw" ];
 }
 
-PostOperation Get_Torque_cplx UsingPost MagDyn_a_2D {
+PostOperation Get_Torque_cplx UsingPost MagStaDyn_a_2D {
   Print[ Torque_Maxwell_cplx[Rotor_Airgap], OnGlobal, Format TimeTable,
          File > StrCat[Dir, StrCat["Tr",ExtGnuplot]], LastTimeStepOnly, Store 54, SendToServer my_output, Color "LightYellow" ];
   Print[ Torque_Maxwell_cplx[Stator_Airgap], OnGlobal, Format TimeTable,
@@ -946,12 +853,10 @@ PostOperation Get_Torque_cplx UsingPost MagDyn_a_2D {
          File > StrCat[Dir, StrCat["Tmb",ExtGnuplot]], LastTimeStepOnly, Store 56, SendToServer "Output/42T_mb", Color "LightYellow" ];
 }
 
-
-/*
 PostOperation Mechanical UsingPost Mechanical {
-  Print[ P, OnRegion DomainKin, File > StrCat[Dir, StrCat["P", ExtGnuplot]],
-         Format Table, Store 77, LastTimeStepOnly, SendToServer "Output/3Position"] ;
+  Print[ P, OnRegion DomainKin, File > StrCat[Dir, StrCat["Position", ExtGnuplot]],
+         Format Table, Store 77, LastTimeStepOnly, SendToServer "Output/90Position", Color "Cyan"] ;
   Print[ V, OnRegion DomainKin, File > StrCat[Dir, StrCat["V", ExtGnuplot]],
-         Format Table, LastTimeStepOnly, SendToServer "Output/4Velocity"] ;
+         Format Table, LastTimeStepOnly, SendToServer "Output/91Velocity", Color "Cyan"] ;
 }
-*/
+

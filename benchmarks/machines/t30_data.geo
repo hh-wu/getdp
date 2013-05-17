@@ -34,6 +34,22 @@ rmb1 = r3 - aaa*gap ; // radius moving band stator
 mur_fe = 30 ; // relative permeability for rotor and stator steel
 sigma_fe = 1.6e6 ; // conductivity of rotor steel [S/m]
 
+// Moment of inertia - height h along z, radius r along x
+// Solid cylinder
+// I_z = m*r^2/2; I_x = 1/12*m*(3*r^2+h^2);
+// Thick-walled cylindrical tube - inner radius ri, outer radius ro
+// I_z = m*(ri^2+ro^2)/2; I_x = 1/12*m*(3*(ri^2+ro^)+h^2);
+
+mass_density_al = 2.7*1e3; // Wikipedia
+mass_density_fe = 7.86*1e3;
+
+mass_fe = mass_density_fe*Pi*r1^2;
+mass_al = mass_density_al*Pi*(r2^2-r1^2);
+
+inertia_fe = mass_fe*r1^2/2 ;
+inertia_al = mass_al*(r1^2+r2^2)/2;
+Printf("inertia_fe %g + inertia_al %g = %g", inertia_fe, inertia_al, inertia_fe+inertia_al);
+
 // winding
 // Phase groups ABC are located on 60 degrees centers and lag each other in
 // phase by 120 degrees

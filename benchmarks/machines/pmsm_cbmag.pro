@@ -175,10 +175,10 @@ Function {
   DefineConstant[ delta_theta_deg = { 1., Label "step in degrees",
       Path "Input/22", Highlight "AliceBlue"} ];
 
-  delta_theta = delta_theta_deg * deg2rad ;
+  delta_theta[] = delta_theta_deg * deg2rad ;
 
   time0 = 0 ; // at initial rotor position
-  delta_time = delta_theta/wr;
+  delta_time = delta_theta_deg * deg2rad/wr;
   timemax = thetaMax/wr;
 
   DefineConstant[ NbSteps = { Ceil[(timemax-time0)/delta_time], Label "Number of steps",
@@ -225,7 +225,6 @@ EndIf
 Include "machine_magstadyn_a.pro" ;
 
 DefineConstant[ ResolutionChoices    = {"TimeDomain", Path "GetDP/1"} ];
-DefineConstant[ PostOperationChoices = {"Map_LocalFields", Path "GetDP/2"} ];
 DefineConstant[ ComputeCommand       = {"-solve -v 1 -v2", Path "GetDP/9"} ];
 
 

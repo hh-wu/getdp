@@ -35,9 +35,14 @@ View[0].IntervalsType = 1;
 
 
 DefineConstant[ Flag_AddInfo = {0, Choices{0,1},
-                               Label "Add info about phases & axis",
-                               Path "Input/1", Highlight "AliceBlue"} ] ;
+                               Label "Add info about phases and axis",
+                               Path "Input/1"} ];
 
+For i In {PostProcessing.NbViews-1 : 0 : -1}
+  If(StrFind(View[i].Attributes, "tmp"))
+    Delete View[i];
+  EndIf
+EndFor
 
 If(Flag_AddInfo)
   rr = 0.82 * rSext ;

@@ -157,12 +157,12 @@ Function {
   DefineConstant[ NbTurns  = { (thetaMax-theta0)/(2*Pi), Label "Number of revolutions", Path "Input/22", Highlight "LightGrey", ReadOnly 1 } ];
 
   NbSteps  = NbrPolesTot*90 ; // 1 degree per step
-  delta_theta = 2*Pi/NbSteps ;
+  delta_theta[] = 2*Pi/NbSteps ;
 
-  DefineConstant[ delta_theta_deg = { delta_theta/deg2rad, Label "step in degrees", Path "Input/23", Highlight "LightGrey", ReadOnly 1 } ];
+  DefineConstant[ delta_theta_deg = { 2*Pi/NbSteps/deg2rad, Label "step in degrees", Path "Input/23", Highlight "LightGrey", ReadOnly 1 } ];
 
   time0 = 0. ; // at initial rotor position
-  delta_time = delta_theta/wr;
+  delta_time = 2*Pi/NbSteps/wr;
   timemax = thetaMax/wr;
 
   RotorPosition[]     = theta0 + $Time * wr ;
@@ -207,7 +207,6 @@ EndIf
 Include "machine_magstadyn_a.pro" ;
 
 DefineConstant[ ResolutionChoices    = {"TimeDomain", Path "GetDP/1"} ];
-DefineConstant[ PostOperationChoices = {"Map_LocalFields", Path "GetDP/2"} ];
 DefineConstant[ ComputeCommand       = {"-solve -v 1 -v2", Path "GetDP/9"} ];
 
 

@@ -64,7 +64,7 @@ sigma_fe = 0 ;
 RendringSeg2 = 88; // resistance of two endring segments in series in ohm
 LendringSeg2 = 88; // inductance of two endring segments in series in H
 
-VV = 147*Sqrt[2] ; // amplitude of supply voltage in V (delta series)
+VA = 147 ; // amplitude of supply voltage in V (delta series)
 
 AxialLength = Lz ;
 
