@@ -470,8 +470,11 @@ int MainLegacy(int argc, char *argv[])
 #if defined(HAVE_GMSH)
   Message::Info("Initializing Gmsh");
   GmshInitialize();
-  GmshMsg c;
-  GmshSetMessageHandler(&c);
+  if(!GmshGetMessageHandler()){
+    // do not set msg handler if one is provided (e.g. on Android/iOS)
+    GmshMsg c;
+    GmshSetMessageHandler(&c);
+  }
 #endif
 
   IncreaseStackSize();
