@@ -1,1 +1,1 @@
-Ruth Sabariego, Johan Gyselinck, Christophe Geuzaine, Fernando Baneira
+Model developped by Ruth Sabariego, Johan Gyselinck, Christophe Geuzaine, Fernando Baneira in the framework of the [FEDO] project.
