@@ -1,1 +1,6 @@
-Model developped by Ruth Sabariego, Johan Gyselinck, Christophe Geuzaine, Fernando Baneira in the framework of the [FEDO] project.
+Models developped by R. Sabariego, J. Gyselinck, [[User:Geuzaine|C. Geuzaine]] and F. Baneira in the framework of the [[FEDO]] project. Copyright (c) 2013 ULg-ULB.
+<!--
+
+Include full license here
+
+-->
