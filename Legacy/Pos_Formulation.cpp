@@ -180,7 +180,12 @@ void Pos_InitAllSolutions(List_T * TimeStep_L, int Index_TimeStep)
 
   Current.Time = Current.DofData->CurrentSolution->Time ;
   Current.TimeImag = Current.DofData->CurrentSolution->TimeImag ;
-  Current.TimeStep = Num_TimeStep ;
+
+  // Warning: TimeStep_L actually contains step indices; the value below is only
+  // correct if we saved all the steps, including the initial solution (this is
+  // due to a limitation of the Solution struct, which does not keep track of the
+  // time step)
+  Current.TimeStep = Num_TimeStep;
 }
 
 /* ------------------------------------------------------------------------ */
