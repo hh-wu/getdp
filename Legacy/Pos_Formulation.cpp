@@ -168,24 +168,24 @@ int Pos_InitTimeSteps(struct PostSubOperation *PostSubOperation_P)
 
 void Pos_InitAllSolutions(List_T * TimeStep_L, int Index_TimeStep)
 {
-  int  Num_TimeStep, k, Num_Solution ;
+  int  TimeStepIndex, k, Num_Solution ;
 
-  List_Read(TimeStep_L, Index_TimeStep, &Num_TimeStep) ;
+  List_Read(TimeStep_L, Index_TimeStep, &TimeStepIndex) ;
 
   for(k = 0 ; k < Current.NbrSystem ; k++)
     if( (Num_Solution = std::min(List_Nbr((Current.DofData_P0+k)->Solutions)-1,
-				 Num_TimeStep)) >=0 )
+				 TimeStepIndex)) >=0 )
       (Current.DofData_P0+k)->CurrentSolution = (struct Solution*)
 	List_Pointer((Current.DofData_P0+k)->Solutions, Num_Solution) ;
 
   Current.Time = Current.DofData->CurrentSolution->Time ;
   Current.TimeImag = Current.DofData->CurrentSolution->TimeImag ;
 
-  // Warning: TimeStep_L actually contains step indices; the value below is only
-  // correct if we saved all the steps, including the initial solution (this is
-  // due to a limitation of the Solution struct, which does not keep track of the
-  // time step)
-  Current.TimeStep = Num_TimeStep;
+  if(List_Nbr(Current.DofData->Solutions) > TimeStepIndex)
+    Current.TimeStep = ((struct Solution*)List_Pointer
+                        (Current.DofData->Solutions, TimeStepIndex))->TimeStep ;
+  else // Warning: this can be wrong
+    Current.TimeStep = TimeStepIndex;
 }
 
 /* ------------------------------------------------------------------------ */
