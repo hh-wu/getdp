@@ -1802,7 +1802,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       if(Operation_P->Case.GmshRead.ViewTag >= 0)
         PView::setGlobalTag(Operation_P->Case.GmshRead.ViewTag);
       //GmshMergeFile(Operation_P->Case.GmshRead.FileName);
-      GmshOpenProject(Operation_P->Case.GmshRead.FileName);
+      //GmshOpenProject(Operation_P->Case.GmshRead.FileName);
+      GmshMergePostProcessingFile(Operation_P->Case.GmshRead.FileName);
       Operation_P->Rank = -1;
 #else
       Message::Error("You need to compile GetDP with Gmsh support to use 'GmshRead'");
