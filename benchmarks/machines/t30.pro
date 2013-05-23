@@ -82,7 +82,7 @@ Function {
 
   wr_max  = (NbPhases==3) ? 1200 : 358.1416 ;
   wr_step = (NbPhases==3) ? 200  :  39.79351;
-  DefineConstant[ wr = { wr_step, Min wr_step, Max wr_max, Step wr_step, Loop "0",
+  DefineConstant[ wr = { 0., Min wr_step, Max wr_max, Step wr_step, Loop "0",
                          Label "Rotor speed in rad/s", Path "Input/42", Highlight "LightYellow",
                          ReadOnlyRange 1, Visible Flag_ImposedSpeed} ]; //ReadOnly
 
@@ -90,7 +90,7 @@ Function {
   slip = (ws-wr)/ws ;
 
   T = 1/Freq ;
-  NbSteps = 100/2; // 100 number of angles (imposed speed) or time steps
+  NbSteps = 100; // number of angles (imposed speed) or time steps
   NbT = 50;
 
   // imposed movement with fixed speed wr
@@ -98,11 +98,11 @@ Function {
   theta0 = rotorAngle0*Pi/180 ; // fixed rotor position or inital position (in rad) in case of rotation
   theta1 = (rotorAngle0+180)*Pi/180 ; // end angle (in rad)
 
-  delta_theta[] = (Flag_ImposedSpeed) ? (theta1-theta0)/NbSteps : (#77-#66) ; // angle step (in rad)
-  delta_time = (Flag_ImposedSpeed) ? (theta1-theta0)/NbSteps/wr : T/NbSteps; // time step
+  delta_theta[] = (Flag_ImposedSpeed) ? ((wr>0)?(theta1-theta0)/NbSteps:0) : (#77-#66) ; // angle step (in rad)
+  delta_time = (Flag_ImposedSpeed && wr>0) ? (theta1-theta0)/NbSteps/wr : T/NbSteps; // time step
 
   time0 = 0.;
-  timemax = (Flag_ImposedSpeed) ? theta1/wr : NbT*T ;
+  timemax = (Flag_ImposedSpeed && wr>0) ? theta1/wr : NbT*T ;
 
   Friction[] = 0. ;
   Torque_mec[] = Tmec ;
