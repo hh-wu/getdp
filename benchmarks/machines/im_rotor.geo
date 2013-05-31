@@ -1,4 +1,3 @@
-
 Y1 = Sqrt(R2*R2-d1*d1/4) ;
 Y2 = Sqrt(Rsl*Rsl-d1*d1/4) ;
 Y3 = Sqrt(R1*R1-d1*d1/4) ;
@@ -114,7 +113,6 @@ Circle(dR+19) = {dP+4,cen,dP+18};
 Circle(dR+20) = {dP+18,cen,dP+16};
 Line(dR+21) = {dP+13,dP+17};
 
-
 // physical lines
 OuterShaft_[{2*i+j}] = dR+18;
 RotorBoundary_[{20*i+10*j:20*i+10*j+9}] = {dR+4,dR+5,dR+6,dR+9,dR+10,dR+11,dR+12,dR+18,dR+16,dR+17};
@@ -200,10 +198,10 @@ If (i < NbrSectTot)
     Circle(dR+20) = {dP+18, cen, dP+16};
 
     If (j==0)
-      InnerMB_[{4*i+2*j:4*i+2*j+1}] = {dR+19,dR+20};
+      InnerMB_[] += {dR+19,dR+20};
     EndIf
     If (j==1)
-      InnerMB_[{4*i+2*j:4*i+2*j+1}] = {-dR-19,-dR-20};
+      InnerMB_[] += {-dR-19,-dR-20};
     EndIf
   EndFor
 EndIf

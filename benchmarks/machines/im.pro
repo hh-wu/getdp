@@ -1,3 +1,4 @@
+// Copyright (C) 2013 - J. Gyselinck, R.V. Sabariego
 //
 // Induction motor
 //
@@ -85,12 +86,28 @@ Group{
 
 
   // Moving band:  with or without symmetry, these BND lines must be complete
-  Stator_Bnd_MB = #STATOR_BND_MOVING_BAND;
-  For k In {1:SymmetryFactor}
-    Rotor_Bnd_MB~{k} = Region[ (ROTOR_BND_MOVING_BAND+k-1) ];
-    Rotor_Bnd_MB += Region[ Rotor_Bnd_MB~{k} ];
+  For k In {1:NbrPoles}
+    Stator_Bnd_MB~{k} = Region[ (STATOR_BND_MOVING_BAND+k-1) ];
+    Stator_Bnd_MB    += Region[ Stator_Bnd_MB~{k} ];
   EndFor
-  Rotor_Bnd_MBaux = Region[ {Rotor_Bnd_MB, -Rotor_Bnd_MB~{1}}];
+
+  If(NbrPoles!=2) // 1 or 4
+    For k In {1:NbrPolesTot}
+      Rotor_Bnd_MB~{k} = Region[ (ROTOR_BND_MOVING_BAND+k-1) ];
+      Rotor_Bnd_MB += Region[ Rotor_Bnd_MB~{k} ];
+    EndFor
+    For k In {NbrPoles+1:NbrPolesTot}
+      Rotor_Bnd_MBaux  += Region[ (ROTOR_BND_MOVING_BAND+k-1) ] ;
+    EndFor
+  EndIf
+
+  If(NbrPoles==2)
+    For k In {0:NbrPoles-1}
+      Rotor_Bnd_MB~{k+1}  = Region[ {(ROTOR_BND_MOVING_BAND+2*k:ROTOR_BND_MOVING_BAND+2*k+1)} ] ;
+      Rotor_Bnd_MB       += Region[ { Rotor_Bnd_MB~{k+1}} ];
+    EndFor
+    Rotor_Bnd_MBaux += Region[ { Rotor_Bnd_MB~{2}} ];
+  EndIf
 
   Dummy = #NICEPOS;   // boundary between different materials, used for animation
 }
@@ -102,18 +119,20 @@ Function{
   DefineConstant[ Flag_ImposedSpeed = { 1, Choices{0,1},
       Label "Imposed rotor speed", Path "Input/40", Visible 1} ];
 
-  slip = 0; //0.02666 ;	           // slip
-  wr = (1-slip)* 2*Pi*Freq/2 ;  // angular rotor speed in rad/s
-  time0 = 0. ;                 // initial time in s
-  timemax = 2.*T ;          // final time  in s
-  delta_time = T/100 ;             // time step in s
-  delta_theta[] = wr*delta_time ;
 
   // relaxation of applied voltage, for reducing the transient
-  Trelax = 6*T ;
-  Frelax[] = ( $Time < Trelax ) ? 0.5 * (1. - Cos [Pi*$Time/Trelax] ) : 1. ; // smooth step function
+  Trelax = 0*6*T;
+  Frelax[] = ($Time<Trelax) ? 0.5*(1.-Cos[Pi*$Time/Trelax]) : 1.; // smooth step function
 
-  sigma[ Rotor_Bars ] = sigma_bars * Frelax[];
+  slip = 1; //0.02666 ;	       // slip
+  wr = (1-slip)* 2*Pi*Freq/2 ; // angular rotor speed in rad/s
+  time0 = 0. ;                 // initial time in s
+  timemax = 2.*(Trelax>0) ? Trelax : T ;        // final time  in s
+  delta_time = T/100 ;         // time step in s
+
+  delta_theta[] = wr*delta_time ;
+
+  sigma[ Rotor_Bars ] = 0*sigma_bars * Frelax[];
 
   NbWires[] = Ns;
   SurfCoil[] = SurfaceArea[];
@@ -148,4 +167,5 @@ EndIf
 Include "machine_magstadyn_a.pro" ;
 
 DefineConstant[ ResolutionChoices    = {"TimeDomain", Path "GetDP/1"} ];
-DefineConstant[ ComputeCommand       = {"-solve -v 1 -v2", Path "GetDP/9"} ];
+DefineConstant[ ComputeCommand       = {"-solve -v 1 -v2", Path "GetDP/9", Visible 0} ];
+DefineConstant[ PostOperationChoices = {"", Path "GetDP/2", Visible 0} ]; // testing
