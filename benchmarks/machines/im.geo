@@ -1,3 +1,7 @@
+// Copyright (C) 2013 - J. Gyselinck, R.V. Sabariego
+
+// ------------------------------------------
+
 Include "im_data.geo";
 
 Geometry.AutoCoherence = 0 ;
@@ -39,7 +43,7 @@ View[0].IntervalsType = 1;
 
 DefineConstant[ Flag_AddInfo = {0, Choices{0,1},
                                Label "Add info about phases",
-                               Path "Input/1"} ] ;
+                                Path "Input/1", Visible 0} ] ;
 
 If(Flag_AddInfo)
 rr = 1.42 * R3s ;

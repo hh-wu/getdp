@@ -85,29 +85,15 @@ Group{
   RotorCC  = Region[{ Rotor_Fe   }] ;
 
 
-  // Moving band:  with or without symmetry, these BND lines must be complete
-  For k In {1:NbrPoles}
-    Stator_Bnd_MB~{k} = Region[ (STATOR_BND_MOVING_BAND+k-1) ];
-    Stator_Bnd_MB    += Region[ Stator_Bnd_MB~{k} ];
+  // Moving band:  with or without symmetry, the BND line of the rotor must be complete
+  Stator_Bnd_MB = #STATOR_BND_MOVING_BAND;
+  For k In {1:NbrPolesTot/NbrPoles}
+    Rotor_Bnd_MB~{k} = Region[ (ROTOR_BND_MOVING_BAND+k-1) ];
+    Rotor_Bnd_MB += Region[ Rotor_Bnd_MB~{k} ];
   EndFor
-
-  If(NbrPoles!=2) // 1 or 4
-    For k In {1:NbrPolesTot}
-      Rotor_Bnd_MB~{k} = Region[ (ROTOR_BND_MOVING_BAND+k-1) ];
-      Rotor_Bnd_MB += Region[ Rotor_Bnd_MB~{k} ];
-    EndFor
-    For k In {NbrPoles+1:NbrPolesTot}
-      Rotor_Bnd_MBaux  += Region[ (ROTOR_BND_MOVING_BAND+k-1) ] ;
-    EndFor
-  EndIf
-
-  If(NbrPoles==2)
-    For k In {0:NbrPoles-1}
-      Rotor_Bnd_MB~{k+1}  = Region[ {(ROTOR_BND_MOVING_BAND+2*k:ROTOR_BND_MOVING_BAND+2*k+1)} ] ;
-      Rotor_Bnd_MB       += Region[ { Rotor_Bnd_MB~{k+1}} ];
-    EndFor
-    Rotor_Bnd_MBaux += Region[ { Rotor_Bnd_MB~{2}} ];
-  EndIf
+  For k In {2:NbrPolesTot/NbrPoles}
+    Rotor_Bnd_MBaux  += Region[ Rotor_Bnd_MB~{k} ] ;
+  EndFor
 
   Dummy = #NICEPOS;   // boundary between different materials, used for animation
 }

@@ -1,3 +1,5 @@
+Geometry.AutoCoherence = 0 ;
+
 RR = (h2s-Rsls*(1+1/Sin(Pi/NbrSectStatorTot)))/(1-1/Sin(Pi/NbrSectStatorTot));
 Y1 = Sqrt(R2s*R2s-d1s*d1s/4) ;
 Y2 = Sqrt(RR*RR  -d1s*d1s/4) ;
@@ -43,6 +45,8 @@ o_y=0.120*Cos((0*(Pi/180.)));
 
 StatorPeriod_Reference_[]={};
 StatorPeriod_Dependent_[]={};
+OuterStator_[]={};
+StatorBoundary_[]={};
 OuterMB_[]={};
 
 For i In {0:NbrSectStator-1}
@@ -70,7 +74,7 @@ For i In {0:NbrSectStator-1}
 
     If (j==1)
       For t In {dP+1:dP+15}
-        Symmetry {Cos(StatorAngle_S+2*Pi*i/NbrSectStatorTot),Sin(StatorAngle_S+2*Pi*i/NbrSectStatorTot),0,0} { Point{t}; }
+        Symmetry {Cos(StatorAngle_S+2*Pi*i/NbrSectStatorTot),Sin(StatorAngle_S+2*Pi*i/NbrSectStatorTot),0,0} {Point{t};}
       EndFor
     EndIf
 
@@ -96,24 +100,18 @@ For i In {0:NbrSectStator-1}
     Line(dR+19) = {dP+9,dP+7};
 
     // physical lines
-    OuterStator_[{2*i+j}] = dR+13;
-    StatorBoundary_[{16*i+8*j:16*i+8*j+7}] = {dR+3,dR+4,dR+5,dR+6,dR+13,dR+14,dR+17,dR+12};
+    OuterStator_[] += dR+13;
+    StatorBoundary_[] += {dR+3,dR+4,dR+5,dR+6,dR+13,dR+14,dR+17,dR+12};
 
-    If (j==0)
-      OuterMB_[] += {dR+15,dR+16};
-    EndIf
-    If (j==1)
-      OuterMB_[] += {-dR-15,-dR-16};
-    EndIf
+    sgn = (j==0)?1:-1;
+    OuterMB_[] += {sgn*(dR+15),sgn*(dR+16)};
 
     If (NbrSectStatorTot != NbrSectStator)
       If (i==0 && j==0)
         StatorPeriod_Reference_[] += {dR+1,dR+19};
-        Physical Line(STATOR_BND_A0) = StatorPeriod_Reference_[];
       EndIf
-      If (i == NbrSectStator-1  && j==1)
+      If (i==NbrSectStator-1  && j==1)
         StatorPeriod_Dependent_[] += {dR+1,dR+19};
-        Physical Line(STATOR_BND_A1) = StatorPeriod_Dependent_[];
       EndIf
     EndIf
 
@@ -164,6 +162,16 @@ For f In {0:5}
 EndFor
 
 
+//Completing the moving band
+NN = #OuterMB_[] ;
+k1 = (NbrPoles==1)?NbrPoles:NbrPoles+1;
+For k In {k1:NbrPolesTot-1}
+  OuterMB_[] += Rotate {{0, 0, 1}, {0, 0, 0}, k*NbrSectStator*2*StatorAngle_} { Duplicata{ Line{OuterMB_[{0:NN-1}]};} };
+EndFor
+
+//----------------------------------------------------------------------------------------
+// Physical regions
+//----------------------------------------------------------------------------------------
 Physical Surface(STATOR_FE) = {StatorIron_[{0:NbrSectStator*2-1}]};
 Physical Surface(STATOR_SLOTOPENING) = {StatorSlotOpening_[{0:NbrSectStator*2-1}]};
 Physical Surface(STATOR_AIRGAP) = {StatorAirgapLayer_[{0:NbrSectStator*2-1}]};
@@ -172,22 +180,22 @@ Color SteelBlue { Surface{StatorIron_[{0:NbrSectStator*2-1}]}; }
 Color SkyBlue   { Surface{StatorSlotOpening_[{0:NbrSectStator*2-1}]};
   Surface{StatorAirgapLayer_[{0:NbrSectStator*2-1}]};}
 
+Physical Line(STATOR_BND_A0) = StatorPeriod_Reference_[];
+Physical Line(STATOR_BND_A1) = StatorPeriod_Dependent_[];
+
 Physical Line(SURF_EXT) = {OuterStator_[]};
 
-nicepos_stator[] += {StatorBoundary_[],StatorPeriod_Reference_[],StatorPeriod_Dependent_[]};
-
-
-//Completing the moving band
-
-NN = #OuterMB_[] ;
-k1 = (NbrPoles==1)?NbrPoles:NbrPoles+1;
-For k In {k1:NbrPolesTot-1}
-  OuterMB_[] += Rotate {{0, 0, 1}, {0, 0, 0}, k*NbrSectStator*2*StatorAngle_} { Duplicata{ Line{OuterMB_[{0:NN-1}]};} };
-EndFor
-
+/*
 For k In {0:NbrPolesTot-1}
   Physical Line(STATOR_BND_MOVING_BAND+k) = {OuterMB_[{k*4*NbrSectStator/NbrPoles:(k+1)*4*NbrSectStator/NbrPoles-1}]};
 EndFor
+*/
+
+For k In {0:NbrPolesTot/NbrPoles-1}
+  Physical Line(STATOR_BND_MOVING_BAND+k) = {OuterMB_[{k*NbrPoles*4*NbrSectStator/NbrPoles:(k+1)*NbrPoles*4*NbrSectStator/NbrPoles-1}]};
+EndFor
+
+nicepos_stator[] += {StatorBoundary_[],StatorPeriod_Reference_[],StatorPeriod_Dependent_[]};
 
 Coherence;
 
