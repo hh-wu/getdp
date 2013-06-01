@@ -134,18 +134,21 @@ Physical Surface(ROTOR_FE) = {RotorIron_[]};
 Physical Surface(ROTOR_SHAFT) = {RotorShaft_[]}; // To consider or not in the FE model
 Physical Surface(ROTOR_AIR)   = {RotorAir_[]};
 
-Printf("",RotorPeriod_Dependent_[]);
-Printf("",RotorPeriod_Reference_[]);
-
 Physical Line(ROTOR_PERIOD_REFERENCE) = RotorPeriod_Reference_[] ;
 Physical Line(ROTOR_PERIOD_DEPENDENT) = RotorPeriod_Dependent_[] ;
 
 Physical Line(SURF_INT) = {OuterShaft_[]};
 
+/*
 NN = #InnerMB_[]/NbrPolesTot ;
 For k In {0:NbrPolesTot-1}
   Physical Line(ROTOR_BND_MOVING_BAND+k) = InnerMB_[{k*NN:(k+1)*NN-1}];
 EndFor
+*/
+For k In {0:NbrPolesTot/NbrPoles-1}
+  Physical Line(ROTOR_BND_MOVING_BAND+k) = {InnerMB_[{k*4*NbrSect:(k+1)*4*NbrSect-1}]};
+EndFor
+
 
 // For visu
 Color SteelBlue {Surface{RotorIron_[]};}

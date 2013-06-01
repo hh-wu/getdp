@@ -185,7 +185,7 @@ Color SkyBlue {Surface{RotorAirgapLayer_[{0:NbrSect*2-1}]};}
 Physical Line(SURF_INT) = {OuterShaft_[]};
 
 For k In {0:NbrPolesTot/NbrPoles-1}
-  Physical Line(ROTOR_BND_MOVING_BAND+k) = {InnerMB_[{k*NbrPoles*4*NbrSect/NbrPoles:(k+1)*NbrPoles*4*NbrSect/NbrPoles-1}]};
+  Physical Line(ROTOR_BND_MOVING_BAND+k) = {InnerMB_[{k*4*NbrSect:(k+1)*4*NbrSect-1}]};
 EndFor
 
 nicepos_rotor[] = {RotorBoundary_[],RotorPeriod_Reference_[],RotorPeriod_Dependent_[]};

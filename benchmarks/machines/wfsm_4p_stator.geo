@@ -30,7 +30,7 @@ Point(dP+18)  = {(130-2.1/ll)*1e-3*Cos(Pi/60),-(130-2.1/ll)*1e-3*Sin(Pi/60),0,pM
 Point(dP+19)  = {(130-2.1/ll)*1e-3,0,0,pMB*2};
 Point(dP+20)  = {x3*1e-3,-a*1e-3,0,pMB*2};
 
-Rotate {{0,0,1},{0,0,0}, StatorAngle_} { Point{dP+1 : dP+20}; }
+Rotate {{0,0,1},{0,0,0}, StatorAngle_} { Point{dP+1:dP+20}; }
 
 dR=newl-1;
 Line(dR+1) = {dP+6,dP+16};
@@ -168,10 +168,16 @@ Physical Line(SURF_EXT) = {OuterStator_[]};
 Physical Line(STATOR_PERIOD_REFERENCE) = StatorPeriod_Reference_[] ;
 Physical Line(STATOR_PERIOD_DEPENDENT) = StatorPeriod_Dependent_[];
 
+/*
+// Before the moving band was always defined in sections equal to the number of total poles
 For k In {0:NbrPolesTot-1}
   Physical Line(STATOR_BND_MOVING_BAND+k) = {OuterMB_[{4*k*NbrSectStator/NbrPoles:4*(k+1)*NbrSectStator/NbrPoles-1}]};
 EndFor
+*/
 
+For k In {0:NbrPolesTot/NbrPoles-1}
+  Physical Line(STATOR_BND_MOVING_BAND+k) = {OuterMB_[{k*4*NbrSectStator:(k+1)*4*NbrSectStator-1}]};
+EndFor
 
 Color SteelBlue {Surface{StatorIron_[]};}
 Color SkyBlue {Surface{StatorSlotOpening_[]};}

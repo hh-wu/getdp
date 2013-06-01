@@ -92,31 +92,15 @@ Group {
   RotorC   = Region[{ }] ;
   RotorCC  = Region[{ Rotor_Fe }] ;
 
-  // Moving band:  with or without symmetry, these BND lines must be complete
-  For k In {1:NbrPoles}
-    Stator_Bnd_MB~{k} = Region[ (STATOR_BND_MOVING_BAND+k-1) ];
-    Stator_Bnd_MB    += Region[ Stator_Bnd_MB~{k} ];
+  // Moving band:  with or without symmetry, the BND line of the rotor must be complete
+  Stator_Bnd_MB = #STATOR_BND_MOVING_BAND;
+  For k In {1:NbrPolesTot/NbrPoles}
+    Rotor_Bnd_MB~{k} = Region[ (ROTOR_BND_MOVING_BAND+k-1) ];
+    Rotor_Bnd_MB += Region[ Rotor_Bnd_MB~{k} ];
   EndFor
-
-  If(NbrPoles!=2)
-    For k In {1:NbrPoles}
-      Rotor_Bnd_MB~{k}  = Region[ (ROTOR_BND_MOVING_BAND+k-1) ] ;
-      Rotor_Bnd_MB     += Region[ Rotor_Bnd_MB~{k} ];
-    EndFor
-    For k In {NbrPoles+1:NbrPolesTot}
-      Rotor_Bnd_MB~{k}  = Region[ (ROTOR_BND_MOVING_BAND+k-1) ] ;
-      Rotor_Bnd_MB     += Region[ Rotor_Bnd_MB~{k} ];
-      Rotor_Bnd_MBaux  += Region[ Rotor_Bnd_MB~{k} ];
-    EndFor
-  EndIf
-
-  If(NbrPoles==2)
-    For k In {0:NbrPoles-1}
-      Rotor_Bnd_MB~{k+1}  = Region[ {(ROTOR_BND_MOVING_BAND+2*k:ROTOR_BND_MOVING_BAND+2*k+1)} ] ;
-      Rotor_Bnd_MB   += Region[ { Rotor_Bnd_MB~{k+1}} ];
-    EndFor
-    Rotor_Bnd_MBaux = Region[ { Rotor_Bnd_MB~{2}} ];
-  EndIf
+  For k In {2:NbrPolesTot/NbrPoles}
+    Rotor_Bnd_MBaux  += Region[ Rotor_Bnd_MB~{k} ] ;
+  EndFor
 
   Dummy = #NICEPOS;
 }
@@ -129,8 +113,6 @@ Function {
   // Data for modeling a stranded inductor
   Stator_PhaseArea[]    = SurfaceArea[]{STATOR_UP} + SurfaceArea[]{STATOR_UM};
   Rotor_ConductorArea[] = SurfaceArea[]{ROTOR_COND1} + SurfaceArea[]{ROTOR_COND2};
-
-
 
   NbWires[#{Stator_Inds}]  = 160  * NbrPoles/NbrPolesTot; // Number of wires in series per phase
   NbWires[#{Rotor_Inds}]   = 1050 * NbrPoles/NbrPolesTot; // Number of wires in series per phase
