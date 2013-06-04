@@ -1188,7 +1188,7 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
     return;
   }
 
-  int view = (!Solver->ksp[kspIndex] && Message::GetVerbosity() > 2);
+  int view = !Solver->ksp[kspIndex];
 
   if(kspIndex != 0)
     Message::Info("Using solver index %d", kspIndex);
@@ -1233,12 +1233,13 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
 #endif
 #endif
 
-    // override the default options with the ones from the option
-    // database (if any)
+    // override the default options with the ones from the option database (if
+    // any)
     _try(KSPSetFromOptions(Solver->ksp[kspIndex]));
 
     if(view && (!Message::GetCommRank() || !Message::GetIsCommWorld())){
-    //either we are on parallel (!GetIsCommWorld) or in sequential with rank = 0(GetIsCommWorld)
+      // either we are on parallel (!GetIsCommWorld) or in sequential with rank
+      // = 0 (GetIsCommWorld)
       const KSPType ksptype;
       _try(KSPGetType(Solver->ksp[kspIndex], &ksptype));
       const PCType pctype;
@@ -1262,7 +1263,7 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
   // copy result on all procs
   _fillseq(X);
 
-  if(view && Message::GetVerbosity() > 4)
+  if(view && Message::GetVerbosity() > 3)
     _try(KSPView(Solver->ksp[kspIndex], MyPetscViewer));
 
   if(!Message::GetCommRank() || !Message::GetIsCommWorld()){
@@ -1375,9 +1376,10 @@ static void _solveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R, gSolver *So
     return;
   }
 
-  bool view = (!Solver->snes[solverIndex] && Message::GetVerbosity() > 2);
+  bool view = !Solver->snes[solverIndex];
 
-  //either we are on sequential (!GetIsCommWorld) or in parallel with rank = 0(GetIsCommWorld)
+  // either we are on sequential (!GetIsCommWorld) or in parallel with rank = 0
+  // (GetIsCommWorld)
   if(view && (!Message::GetCommRank() || !Message::GetIsCommWorld()))
     Message::Info("N: %ld", (long)n);
 
@@ -1420,7 +1422,7 @@ static void _solveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R, gSolver *So
   // copy result on all procs
   _fillseq(X);
 
-  if(view)
+  if(view && Message::GetVerbosity() > 3)
     _try(SNESView(Solver->snes[solverIndex], MyPetscViewer));
 
   if(!Message::GetCommRank() || !Message::GetIsCommWorld()){

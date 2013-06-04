@@ -67,7 +67,7 @@ static void Info(int level, char *arg0)
 	    "  -v2                       create mesh-based Gmsh output files when possible\n"
 	    "Other options:\n"
 	    "  -check                    interactive check of problem structure\n"
-	    "  -v num                    set verbosity level (default: 4)\n"
+	    "  -v num                    set verbosity level (default: 3)\n"
 	    "  -p num                    set progress indicator update (default: 10)\n"
 	    "  -onelab name [address]    communicate with OneLab (file or server address)\n"
 	    "  -version                  show version number\n"
