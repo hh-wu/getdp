@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <time.h>
 #include <algorithm>
 #include <sys/stat.h>
 #include "GetDPConfig.h"
@@ -375,10 +376,16 @@ void Message::Cpu(const char *fmt, ...)
   vsnprintf(str, sizeof(str), fmt, args);
   va_end(args);
   if(strlen(fmt)) strcat(str, " ");
+
+  time_t now;
+  time(&now);
+  std::string currtime(ctime(&now));
+  currtime.resize(currtime.size() - 1);
+
   if(mem)
-    sprintf(str2, "(CPU = %gs, Mem = %ldMb)", s, mem / 1024 / 1024);
+    sprintf(str2, "(%s, CPU = %gs, Mem = %ldMb)", currtime.c_str(), s, mem / 1024 / 1024);
   else
-    sprintf(str2, "(CPU = %gs)", s);
+    sprintf(str2, "(%s, CPU = %gs)", currtime.c_str(), s);
   strcat(str, str2);
 
   if(_client){
