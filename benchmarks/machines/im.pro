@@ -153,5 +153,5 @@ EndIf
 Include "machine_magstadyn_a.pro" ;
 
 DefineConstant[ ResolutionChoices    = {"TimeDomain", Path "GetDP/1"} ];
-DefineConstant[ ComputeCommand       = {"-solve -v 1 -v2", Path "GetDP/9", Visible 0} ];
+DefineConstant[ ComputeCommand       = {"-solve -v 3 -v2", Path "GetDP/9", Visible 0} ];
 DefineConstant[ PostOperationChoices = {"", Path "GetDP/2", Visible 0} ]; // testing

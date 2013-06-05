@@ -97,7 +97,7 @@ double CalcMaxErrorRatio(Resolution  *Resolution_P,
     else if (ErrorRatio > MaxErrorRatio)
       MaxErrorRatio = ErrorRatio;
 
-    if (Message::GetVerbosity() >= 5) {
+    if (Message::GetVerbosity() > 5) {
       Message::Info("IterativeLoopN: %s of %s error ratio from system %s:  %.3g",
           ILsystem.NormTypeString, ILsystem.NormOfString, DefineSystem_P->Name,
           ErrorRatio);
@@ -135,7 +135,7 @@ double CalcMaxErrorRatio(Resolution  *Resolution_P,
     else if (ErrorRatio > MaxErrorRatio)
       MaxErrorRatio = ErrorRatio;
 
-    if (Message::GetVerbosity() >= 5) {
+    if (Message::GetVerbosity() > 5) {
       Message::Info("IterativeLoopN: %s error ratio from PostOperation %s:  %.3g",
           ILPostOp.NormTypeString, ILPostOp.PostOperationName,
           ErrorRatio);

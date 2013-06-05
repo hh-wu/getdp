@@ -48,7 +48,7 @@ int Message::_errorCount = 0;
 int Message::_lastPETScError = 0;
 bool Message::_exitOnError = false;
 bool Message::_operatingInTimeLoopAdaptive = false;
-int Message::_verbosity = 3;
+int Message::_verbosity = 5;
 int Message::_progressMeterStep = 10;
 int Message::_progressMeterCurrent = 0;
 std::map<std::string, double> Message::_timers;
@@ -184,6 +184,8 @@ void Message::Error(const char *fmt, ...)
 {
   _errorCount++;
 
+  if(!_exitOnError && _verbosity < 1) return;
+
   char str[1024];
   va_list args;
   va_start(args, fmt);
@@ -216,7 +218,7 @@ void Message::Error(const char *fmt, ...)
 
 void Message::Warning(const char *fmt, ...)
 {
-  if((_commRank && _isCommWorld) || _verbosity < 1) return;
+  if((_commRank && _isCommWorld) || _verbosity < 2) return;
   char str[1024];
   va_list args;
   va_start(args, fmt);
@@ -244,14 +246,14 @@ void Message::Warning(const char *fmt, ...)
 
 void Message::Info(const char *fmt, ...)
 {
-  if((_commRank && _isCommWorld) || _verbosity < 2) return;
+  if((_commRank && _isCommWorld) || _verbosity < 4) return;
   char str[1024];
   va_list args;
   va_start(args, fmt);
   vsnprintf(str, sizeof(str), fmt, args);
   va_end(args);
 
-  Info(2, str);
+  Info(4, str);
 }
 
 void Message::Info(int level, const char *fmt, ...)
@@ -280,14 +282,14 @@ void Message::Info(int level, const char *fmt, ...)
 
 void Message::Direct(const char *fmt, ...)
 {
-  if((_commRank && _isCommWorld) || _verbosity < 1) return;
+  if((_commRank && _isCommWorld) || _verbosity < 3) return;
   va_list args;
   va_start(args, fmt);
   char str[1024];
   vsnprintf(str, sizeof(str), fmt, args);
   va_end(args);
 
-  Direct(1, str);
+  Direct(3, str);
 }
 
 void Message::Direct(int level, const char *fmt, ...)
@@ -307,7 +309,7 @@ void Message::Direct(int level, const char *fmt, ...)
   }
   else{
     const char *c0 = "", *c1 = "";
-    if(level == 1 && !streamIsFile(stdout) && streamIsVT100(stdout)){
+    if(level == 3 && !streamIsFile(stdout) && streamIsVT100(stdout)){
       c0 = "\33[34m"; c1 = "\33[0m";  // blue
     }
     if(_isCommWorld)
@@ -365,7 +367,7 @@ void Message::Debug(const char *fmt, ...)
 
 void Message::Cpu(const char *fmt, ...)
 {
-  if((_commRank && _isCommWorld) || _verbosity < 2) return;
+  if((_commRank && _isCommWorld) || _verbosity < 5) return;
   double s = 0.;
   long mem = 0;
   GetResources(&s, &mem);
@@ -405,7 +407,7 @@ void Message::Cpu(const char *fmt, ...)
 
 void Message::ProgressMeter(int n, int N, const char *fmt, ...)
 {
-  if((_commRank && _isCommWorld) || _verbosity < 2 ||
+  if((_commRank && _isCommWorld) || _verbosity < 4 ||
      _progressMeterStep <= 0 || _progressMeterStep >= 100) return;
 
   double percent = 100. * (double)n/(double)N;

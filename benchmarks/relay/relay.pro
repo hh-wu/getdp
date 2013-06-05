@@ -471,5 +471,5 @@ If(!Flag_Kinetics)
 DefineConstant[ ResolutionChoices = {"MagDyn_a_2D", Path "GetDP/1"} ];
 EndIf
 
-DefineConstant[ ComputeCommand = {"-solve -v 1 -v2", Path "GetDP/9"} ];
+DefineConstant[ ComputeCommand = {"-solve -v 3 -v2", Path "GetDP/9"} ];
 

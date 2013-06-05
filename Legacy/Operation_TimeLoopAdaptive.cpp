@@ -485,7 +485,7 @@ double CalcMaxLTEratio(Resolution  *Resolution_P,
     if (ErrorRatio > MaxErrorRatio)
       MaxErrorRatio = ErrorRatio;
 
-    if(Message::GetVerbosity() >= 5)
+    if(Message::GetVerbosity() > 5)
     {
       Message::Info("LTE %s of error ratio from system %s:  %.3g",
           TLAsystem.NormTypeString, DefineSystem_P->Name, ErrorRatio);
@@ -531,7 +531,7 @@ double CalcMaxLTEratio(Resolution  *Resolution_P,
     if (ErrorRatio > MaxErrorRatio)
       MaxErrorRatio = ErrorRatio;
 
-    if(Message::GetVerbosity() >= 5)
+    if(Message::GetVerbosity() > 5)
     {
       Message::Info("LTE %s of error ratio from PostOperation %s:  %.3g",
                     TLAPostOp.NormTypeString,
@@ -837,7 +837,7 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
                       "found (NaN or Inf)!", (int)Current.TimeStep, Try, Current.Time);
       }
       else {
-        if(Message::GetVerbosity() > 1)
+        if(Message::GetVerbosity() > 4)
           Message::AddOnelabNumberChoice(Message::GetOnelabClientName() +
                                        "/TimeLoopAdaptive/LTEmaxErrorRatio", maxLTEratio);
         if (maxLTEratio <= 1.0){
@@ -845,8 +845,7 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
           Message::Info("Time step %d  Try %d  Time = %.8g s  accepted (max. LTE ratio = %.3g)",
                         (int)Current.TimeStep, Try, Current.Time, maxLTEratio);
         }
-        else
-          {
+        else{
           TimeStepAccepted = false;
           Message::Info("Time step %d  Try %d  Time = %.8g s  rejected (max. LTE ratio = %.3g)",
                         (int)Current.TimeStep, Try, Current.Time, maxLTEratio);

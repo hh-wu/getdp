@@ -210,7 +210,7 @@ void Cal_SolidAngle(int Source, struct Element *Element,
 
       Stack[i][Index].Val[0] = (Atan >= 0) ? Atan : (Atan+2.*M_PI) ;
 
-      if(Message::GetVerbosity() == 3){
+      if(Message::GetVerbosity() > 5){
 	printf("Solid angle=%g node=%d, region=%s, elms=",
 	       Stack[i][Index].Val[0] * 180/M_PI, NumNode,
 	       ((struct Group*)List_Pointer(Problem_S.Group, In))->Name);

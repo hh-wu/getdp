@@ -1263,7 +1263,7 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
   // copy result on all procs
   _fillseq(X);
 
-  if(view && Message::GetVerbosity() > 3)
+  if(view && Message::GetVerbosity() > 5)
     _try(KSPView(Solver->ksp[kspIndex], MyPetscViewer));
 
   if(!Message::GetCommRank() || !Message::GetIsCommWorld()){
@@ -1422,7 +1422,7 @@ static void _solveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R, gSolver *So
   // copy result on all procs
   _fillseq(X);
 
-  if(view && Message::GetVerbosity() > 3)
+  if(view && Message::GetVerbosity() > 5)
     _try(SNESView(Solver->snes[solverIndex], MyPetscViewer));
 
   if(!Message::GetCommRank() || !Message::GetIsCommWorld()){
