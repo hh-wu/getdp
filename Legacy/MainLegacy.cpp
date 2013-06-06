@@ -7,7 +7,6 @@
 #include <vector>
 #include <string>
 #include <string.h>
-#include <time.h>
 #include "GetDPConfig.h"
 #include "GetDPVersion.h"
 #include "onelab.h"
