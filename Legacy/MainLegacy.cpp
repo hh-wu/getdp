@@ -412,11 +412,6 @@ int MainLegacy(int argc, char *argv[])
 {
   if(argc < 2) Info(0, argv[0]);
 
-  time_t now;
-  time(&now);
-  std::string currtime(ctime(&now));
-  currtime.resize(currtime.size() - 1);
-
   std::string cmdline("");
   for(int i = 0; i < argc; i++){
     if(i) cmdline += " ";
@@ -438,7 +433,7 @@ int MainLegacy(int argc, char *argv[])
   Message::Info("Running '%s' [GetDP %s, %d node%s]", cmdline.c_str(),
                 GETDP_VERSION, Message::GetCommSize(),
                 Message::GetCommSize() > 1 ? "s" : "");
-  Message::Info("Started on %s", currtime.c_str());
+  Message::Cpu("Started");
 
   if(sargc > 1){
     std::string solveropt("");
@@ -505,11 +500,7 @@ int MainLegacy(int argc, char *argv[])
   LinAlg_FinalizeSolver();
 
   Message::PrintErrorCounter("Run");
-
-  time(&now);
-  currtime = ctime(&now);
-  currtime[currtime.size() - 1] = '\0';
-  Message::Info("Stopped on %s", currtime.c_str());
+  Message::Cpu("Stopped");
 
 #if defined(HAVE_GMSH)
   GmshFinalize();
