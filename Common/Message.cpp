@@ -420,9 +420,8 @@ void Message::ProgressMeter(int n, int N, const char *fmt, ...)
     vsnprintf(str, sizeof(str), fmt, args);
     va_end(args);
     sprintf(str2, "%3d%%    : %s", _progressMeterCurrent, str);
-    if(_onelabClient && _onelabClient->getName() == "GetDP")
-    {
-	_onelabClient->sendProgress(str);
+    if(_onelabClient && _onelabClient->getName() == "GetDP"){
+      _onelabClient->sendProgress(str);
     }
 
     if(N <= 0){
