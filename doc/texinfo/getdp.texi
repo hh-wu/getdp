@@ -755,11 +755,6 @@ Selects binary format for output files.
 
 Creates mesh-based Gmsh output files when possible.
 
-@item -socket
-@var{string}
-
-Communicates through socket @var{string}.
-
 @item -check  
 
 Lets you check the problem structure interactively. 
@@ -777,6 +772,21 @@ displayed during the processing.
 
 Sets the progress update rate. This controls the refreshment rate of the
 counter indicating the progress of the current computation (in %).
+
+@item -onelab 
+@var{name} <@var{address}>
+
+Communicates with OneLab (file or server address)
+
+@item -setnumber
+@var{name} @var{value}
+
+Sets constant number @var{name} to @var{value}
+
+@item -setstring 
+@var{name} @var{value}
+
+Sets constant string  @var{name} to @var{value}
 
 @item -info
 

@@ -69,8 +69,8 @@ static void Info(int level, char *arg0)
 	    "  -v num                    set verbosity level (default: 3)\n"
 	    "  -p num                    set progress indicator update (default: 10)\n"
 	    "  -onelab name [address]    communicate with OneLab (file or server address)\n"
-            "  -setnumber name value     create constant number name=value\n"
-            "  -setstring name value     create constant string name=value\n"
+            "  -setnumber name value     set constant number name=value\n"
+            "  -setstring name value     set constant string name=value\n"
 	    "  -version                  show version number\n"
 	    "  -info                     show detailed version information\n"
 	    "  -help                     show this message\n", arg0);
