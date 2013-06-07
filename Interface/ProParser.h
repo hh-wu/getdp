@@ -8,6 +8,8 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <map>
+#include <string>
 #include "ListUtils.h"
 
 struct Constant {
@@ -31,6 +33,8 @@ extern long int getdp_yylinenum;
 extern int getdp_yycolnum;
 extern int getdp_yyincludenum;
 extern int getdp_yyerrorlevel;
+extern std::map<std::string, double> CommandLineNumbers;
+extern std::map<std::string, std::string> CommandLineStrings;
 
 int getdp_yyparse();
 void getdp_yyrestart(FILE*);

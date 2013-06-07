@@ -35,6 +35,8 @@ long int getdp_yylinenum = 0;
 int getdp_yycolnum = 0;
 int getdp_yyincludenum = 0;
 int getdp_yyerrorlevel = 0;
+std::map<std::string, double> CommandLineNumbers;
+std::map<std::string, std::string> CommandLineStrings;
 
 // Static parser variables (accessible only in this file)
 static List_T *ConstantTable_L = 0;
@@ -7672,6 +7674,22 @@ void Alloc_ParserVariables()
 {
   if(!ConstantTable_L) {
     ConstantTable_L = List_Create(20, 10, sizeof(struct Constant));
+    for(std::map<std::string, double>::iterator it = CommandLineNumbers.begin();
+        it != CommandLineNumbers.end(); it++){
+      Message::Info("Adding number %s = %g", it->first.c_str(), it->second);
+      Constant_S.Name = strdup(it->first.c_str());
+      Constant_S.Type = VAR_FLOAT;
+      Constant_S.Value.Float = it->second;
+      List_Add(ConstantTable_L, &Constant_S);
+    }
+    for(std::map<std::string, std::string>::iterator it = CommandLineStrings.begin();
+        it != CommandLineStrings.end(); it++){
+      Message::Info("Adding string %s = \"%s\"", it->first.c_str(), it->second.c_str());
+      Constant_S.Name = strdup(it->first.c_str());
+      Constant_S.Type = VAR_CHAR;
+      Constant_S.Value.Char = strdup(it->second.c_str());
+      List_Add(ConstantTable_L, &Constant_S);
+    }
     ListOfInt_L     = List_Create(20, 10, sizeof(int));
     ListOfPointer_L = List_Create(10, 10, sizeof(void *));
     ListOfPointer2_L= List_Create(10, 10, sizeof(void *));
