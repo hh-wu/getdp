@@ -808,7 +808,7 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
     if(noGraph && copt.count("Graph")) ps[0].setAttribute("Graph", copt["Graph"][0]);
     if(noClosed && copt.count("Closed")) // for backward compatibility
       ps[0].setAttribute("Closed", copt["Closed"][0]);
-    if(noClosed && fopt.count("Closed")) // for backward compatibility
+    if(noClosed && fopt.count("Closed"))
       ps[0].setAttribute("Closed", fopt["Closed"][0] ? "1" : "0");
     _setStandardOptions(&ps[0], fopt, copt);
     _onelabClient->set(ps[0]);
