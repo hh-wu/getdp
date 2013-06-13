@@ -246,16 +246,22 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
       ZeroMatrix(&Current.DofData->M1, &Current.DofData->Solver,
                  Current.DofData->NbrDof) ;
       LinAlg_ZeroVector(&Current.DofData->m1);
+      for(int i = 0; i < List_Nbr(DofData_P->m1s); i++)
+        LinAlg_ZeroVector((gVector*)List_Pointer(DofData_P->m1s, i));
     }
     if(Current.DofData->Flag_Init[2]){
       ZeroMatrix(&Current.DofData->M2, &Current.DofData->Solver,
                  Current.DofData->NbrDof) ;
       LinAlg_ZeroVector(&Current.DofData->m2);
+      for(int i = 0; i < List_Nbr(DofData_P->m2s); i++)
+        LinAlg_ZeroVector((gVector*)List_Pointer(DofData_P->m2s, i));
     }
     if(Current.DofData->Flag_Init[3]){
       ZeroMatrix(&Current.DofData->M3, &Current.DofData->Solver,
                  Current.DofData->NbrDof) ;
       LinAlg_ZeroVector(&Current.DofData->m3);
+      for(int i = 0; i < List_Nbr(DofData_P->m3s); i++)
+        LinAlg_ZeroVector((gVector*)List_Pointer(DofData_P->m3s, i));
     }
   }
   else{
@@ -313,14 +319,20 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
     if(DofData_P->Flag_Init[1]){
       LinAlg_AssembleMatrix(&DofData_P->M1) ;
       LinAlg_AssembleVector(&DofData_P->m1) ;
+      for(int i = 0; i < List_Nbr(DofData_P->m1s); i++)
+        LinAlg_AssembleVector((gVector*)List_Pointer(DofData_P->m1s, i));
     }
     if(DofData_P->Flag_Init[2]){
       LinAlg_AssembleMatrix(&DofData_P->M2) ;
       LinAlg_AssembleVector(&DofData_P->m2) ;
+      for(int i = 0; i < List_Nbr(DofData_P->m2s); i++)
+        LinAlg_AssembleVector((gVector*)List_Pointer(DofData_P->m2s, i));
     }
     if(DofData_P->Flag_Init[3]){
       LinAlg_AssembleMatrix(&DofData_P->M3) ;
       LinAlg_AssembleVector(&DofData_P->m3) ;
+      for(int i = 0; i < List_Nbr(DofData_P->m3s); i++)
+        LinAlg_AssembleVector((gVector*)List_Pointer(DofData_P->m3s, i));
     }
   }
   else{

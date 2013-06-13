@@ -3986,11 +3986,24 @@ Not documented yet.
 Not documented yet.
 
 @item Update
+@code{[@var{system-id}]}
+
+Update the system of equations @var{system-id} (built from iteration
+matrices generated separately with @code{GenerateSeparate}) with the
+@code{TimeFunction} provided in @code{Assign} constraints. This assumes
+that the problem is linear, that the matrix coefficients are independent
+of time, and that all sources are imposed using @code{Assign}
+constraints.
+
+@item Update
 @code{[@var{system-id}, @var{expression}]}
 
 Update the system of equations @var{system-id} (built from iteration
 matrices generated separately with @code{GenerateSeparate}) with
-@var{expression}
+@var{expression}. This assumes that the problem is linear, that the
+matrix coefficients are independent of time, and that the
+right-hand-side of the linear system can simply be multiplied by
+@var{expression} at each step.
 
 @item UpdateConstraint
 @code{[@var{system-id}, @var{group-id}, @var{constraint-type}]}

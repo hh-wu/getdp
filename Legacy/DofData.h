@@ -126,6 +126,7 @@ struct DofData {
   // Flag_Init[1,2,3] == 1
   gMatrix   M1, M2, M3 ;
   gVector   m1, m2, m3 ;
+  List_T   *m1s, *m2s, *m3s;
 
   // Flag_Only and Flag_InitOnly[0,1,2]
   gMatrix   A1, A2, A3 ;
@@ -197,7 +198,7 @@ void  Dof_UpdateAssignFixedDof(struct Dof *Dof_P, int NbrHar, double *Val) ;
 void  Dof_UpdateLinkDof(struct Dof *Dof_P, int NbrHar, double Value[], int D2_Link) ;
 
 void  Dof_AssembleInMat(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar, double * Val,
-			gMatrix * Mat, gVector * Vec) ;
+			gMatrix * Mat, gVector * Vec, List_T *Vecs=0) ;
 void  Dof_AssembleInVec(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar, double * Val,
 			struct Solution * OtherSolution, gVector * Vec0, gVector * Vec) ;
 

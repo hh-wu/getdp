@@ -37,10 +37,19 @@ void Cal_AssembleTerm_NoDt(struct Dof * Equ, struct Dof * Dof, double Val[])
 			  Current.DofData->NbrDof) ;
       LinAlg_ZeroMatrix(&Current.DofData->M1);
       LinAlg_ZeroVector(&Current.DofData->m1);
+      Current.DofData->m1s = List_Create(10, 10, sizeof(gVector));
+      for(int i = 0; i < List_Nbr(Current.DofData->TimeFunctionIndex); i++){
+        gVector m;
+        LinAlg_CreateVector(&m, &Current.DofData->Solver,
+                            Current.DofData->NbrDof) ;
+        LinAlg_ZeroVector(&m);
+        List_Add(Current.DofData->m1s, &m);
+      }
     }
     for (k = 0 ; k < Current.NbrHar ; k += 2)
       Dof_AssembleInMat(Equ+k, Dof+k, Current.NbrHar, &Val[k],
-			&Current.DofData->M1, &Current.DofData->m1) ;
+			&Current.DofData->M1, &Current.DofData->m1,
+                        Current.DofData->m1s) ;
   }
   else {
     if (Current.NbrHar == 1) {
@@ -106,10 +115,19 @@ void Cal_AssembleTerm_DtDof(struct Dof * Equ, struct Dof * Dof, double Val[])
 			  Current.DofData->NbrDof) ;
       LinAlg_ZeroMatrix(&Current.DofData->M2);
       LinAlg_ZeroVector(&Current.DofData->m2);
+      Current.DofData->m2s = List_Create(10, 10, sizeof(gVector));
+      for(int i = 0; i < List_Nbr(Current.DofData->TimeFunctionIndex); i++){
+        gVector m;
+        LinAlg_CreateVector(&m, &Current.DofData->Solver,
+                            Current.DofData->NbrDof) ;
+        LinAlg_ZeroVector(&m);
+        List_Add(Current.DofData->m2s, &m);
+      }
     }
     for (k = 0 ; k < Current.NbrHar ; k += 2)
       Dof_AssembleInMat(Equ+k, Dof+k, Current.NbrHar, &Val[k],
-			&Current.DofData->M2, &Current.DofData->m2) ;
+			&Current.DofData->M2, &Current.DofData->m2,
+                        Current.DofData->m2s) ;
   }
   else {
     if (Current.NbrHar == 1) {
@@ -244,10 +262,19 @@ void Cal_AssembleTerm_DtDtDof(struct Dof * Equ, struct Dof * Dof, double Val[])
 			  Current.DofData->NbrDof) ;
       LinAlg_ZeroMatrix(&Current.DofData->M3);
       LinAlg_ZeroVector(&Current.DofData->m3);
+      Current.DofData->m3s = List_Create(10, 10, sizeof(gVector));
+      for(int i = 0; i < List_Nbr(Current.DofData->TimeFunctionIndex); i++){
+        gVector m;
+        LinAlg_CreateVector(&m, &Current.DofData->Solver,
+                            Current.DofData->NbrDof) ;
+        LinAlg_ZeroVector(&m);
+        List_Add(Current.DofData->m3s, &m);
+      }
     }
     for (k = 0 ; k < Current.NbrHar ; k += 2) {
       Dof_AssembleInMat(Equ+k, Dof+k, Current.NbrHar, &Val[k],
-			&Current.DofData->M3, &Current.DofData->m3) ;
+			&Current.DofData->M3, &Current.DofData->m3,
+                        Current.DofData->m3s) ;
     }
   }
   else {

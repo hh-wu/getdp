@@ -34,20 +34,21 @@ void Cal_ThetaMatrix(int *init, double *coef,
 
   LinAlg_ZeroMatrix(A);
 
-  /* A = c0 * M2 + c1 * M1 */
+  // A = c0 * M2 + c1 * M1
   if(init[2] && coef[0]) LinAlg_AddMatrixProdMatrixDouble(A, M2, coef[0], A) ;
   if(init[1] && coef[1]) LinAlg_AddMatrixProdMatrixDouble(A, M1, coef[1], A) ;
 }
 
 void Cal_ThetaRHS(int *init, double *coef,
 		  gMatrix *M1, gMatrix *M2, gVector *m1, gVector *m2,
-		  gVector *tmp, gVector *b)
+                  List_T *m1s, List_T *m2s,
+		  gVector *tmp, gVector *b, bool explicitTimeFunction)
 {
   double tfval, val ;
 
   LinAlg_ZeroVector(b) ;
 
-  /* b = [-c2 * M2 - c3 * M1 ] * x(n-1) */
+  // b = [-c2 * M2 - c3 * M1 ] * x(n-1)
   if(init[2] && coef[2]){
     LinAlg_ProdMatrixVector(M2, &(Current.DofData->CurrentSolution-1)->x, tmp);
     LinAlg_AddVectorProdVectorDouble(b, tmp, -coef[2], b) ;
@@ -57,15 +58,20 @@ void Cal_ThetaRHS(int *init, double *coef,
     LinAlg_AddVectorProdVectorDouble(b, tmp, -coef[3], b) ;
   }
 
-  /*   + [ c0 * m2 + c1 * m1 ] * TimeFct(n)      */
-  tfval = Current.DofData->CurrentSolution->ExplicitTimeFunctionValue ;
-  if(init[2] && (val=coef[0]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m2, val, b) ;
-  if(init[1] && (val=coef[1]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m1, val, b) ;
+  if(explicitTimeFunction){
+    //   + [ c0 * m2 + c1 * m1 ] * TimeFct(n)
+    tfval = Current.DofData->CurrentSolution->ExplicitTimeFunctionValue ;
+    if(init[2] && (val=coef[0]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m2, val, b) ;
+    if(init[1] && (val=coef[1]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m1, val, b) ;
 
-  /*   + [ c2 * m2 + c3 * m1 ] * TimeFct(n-1)      */
-  tfval = (Current.DofData->CurrentSolution-1)->ExplicitTimeFunctionValue ;
-  if(init[2] && (val=coef[2]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m2, val, b) ;
-  if(init[1] && (val=coef[3]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m1, val, b) ;
+    //   + [ c2 * m2 + c3 * m1 ] * TimeFct(n-1)
+    tfval = (Current.DofData->CurrentSolution-1)->ExplicitTimeFunctionValue ;
+    if(init[2] && (val=coef[2]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m2, val, b) ;
+    if(init[1] && (val=coef[3]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m1, val, b) ;
+  }
+  else{
+    Message::Error("Multi-vec theta update not coded yet - just need to copy/paste Newmark code");
+  }
 }
 
 void Cal_NewmarkCoefficients(double *coef)
@@ -89,7 +95,7 @@ void Cal_NewmarkMatrix(int *init, double *coef,
 
   LinAlg_ZeroMatrix(A);
 
-  /* A = c0 * M3 + c1 * M2 + c2 * M3 */
+  // A = c0 * M3 + c1 * M2 + c2 * M3
   if(init[3] && coef[0]) LinAlg_AddMatrixProdMatrixDouble(A, M3, coef[0], A);
   if(init[2] && coef[1]) LinAlg_AddMatrixProdMatrixDouble(A, M2, coef[1], A) ;
   if(init[1] && coef[2]) LinAlg_AddMatrixProdMatrixDouble(A, M1, coef[2], A) ;
@@ -98,13 +104,14 @@ void Cal_NewmarkMatrix(int *init, double *coef,
 void Cal_NewmarkRHS(int *init, double *coef,
 		    gMatrix *M1, gMatrix *M2, gMatrix *M3,
 		    gVector *m1, gVector *m2, gVector *m3,
-		    gVector *tmp, gVector *b)
+                    List_T *m1s, List_T *m2s, List_T *m3s,
+		    gVector *tmp, gVector *b, bool explicitTimeFunction)
 {
   double tfval, val ;
 
   LinAlg_ZeroVector(b) ;
 
-  /* b = [-c3 * M3 - c4 * M2 - c5 * M1] * x(n-1) */
+  // b = [-c3 * M3 - c4 * M2 - c5 * M1] * x(n-1)
   if(init[3] && coef[3]){
     LinAlg_ProdMatrixVector(M3, &(Current.DofData->CurrentSolution-1)->x, tmp);
     LinAlg_AddVectorProdVectorDouble(b, tmp, -coef[3], b) ;
@@ -118,7 +125,7 @@ void Cal_NewmarkRHS(int *init, double *coef,
     LinAlg_AddVectorProdVectorDouble(b, tmp, -coef[5], b) ;
   }
 
-  /*   + [-c6 * M3 - c7 * M2 - c8 * M1] * x(n-2) */
+  //   + [-c6 * M3 - c7 * M2 - c8 * M1] * x(n-2)
   if(init[3] && coef[6]){
     LinAlg_ProdMatrixVector(M3, &(Current.DofData->CurrentSolution-2)->x, tmp);
     LinAlg_AddVectorProdVectorDouble(b, tmp, -coef[6], b) ;
@@ -132,23 +139,57 @@ void Cal_NewmarkRHS(int *init, double *coef,
     LinAlg_AddVectorProdVectorDouble(b, tmp, -coef[8], b) ;
   }
 
-  /*   + [ c0 * m3 + c1 * m2 + c2 * m1 ] * TimeFct(n)      */
-  tfval = Current.DofData->CurrentSolution->ExplicitTimeFunctionValue ;
-  if(init[3] && (val=coef[0]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m3, val, b) ;
-  if(init[2] && (val=coef[1]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m2, val, b) ;
-  if(init[1] && (val=coef[2]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m1, val, b) ;
+  if(explicitTimeFunction){
+    //   + [ c0 * m3 + c1 * m2 + c2 * m1 ] * TimeFct(n)
+    tfval = Current.DofData->CurrentSolution->ExplicitTimeFunctionValue ;
+    if(init[3] && (val=coef[0]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m3, val, b) ;
+    if(init[2] && (val=coef[1]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m2, val, b) ;
+    if(init[1] && (val=coef[2]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m1, val, b) ;
 
-  /*   + [ c3 * m3 + c4 * m2 + c5 * m1 ] * TimeFct(n-1)      */
-  tfval = (Current.DofData->CurrentSolution-1)->ExplicitTimeFunctionValue ;
-  if(init[3] && (val=coef[3]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m3, val, b) ;
-  if(init[2] && (val=coef[4]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m2, val, b) ;
-  if(init[1] && (val=coef[5]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m1, val, b) ;
+    //   + [ c3 * m3 + c4 * m2 + c5 * m1 ] * TimeFct(n-1)
+    tfval = (Current.DofData->CurrentSolution-1)->ExplicitTimeFunctionValue ;
+    if(init[3] && (val=coef[3]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m3, val, b) ;
+    if(init[2] && (val=coef[4]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m2, val, b) ;
+    if(init[1] && (val=coef[5]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m1, val, b) ;
 
-  /*   + [ c6 * m3 + c7 * m2 + c8 * m1 ] * TimeFct(n-2)    */
-  tfval = (Current.DofData->CurrentSolution-2)->ExplicitTimeFunctionValue ;
-  if(init[3] && (val=coef[6]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m3, val, b) ;
-  if(init[2] && (val=coef[7]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m2, val, b) ;
-  if(init[1] && (val=coef[8]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m1, val, b) ;
+    //   + [ c6 * m3 + c7 * m2 + c8 * m1 ] * TimeFct(n-2)
+    tfval = (Current.DofData->CurrentSolution-2)->ExplicitTimeFunctionValue ;
+    if(init[3] && (val=coef[6]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m3, val, b) ;
+    if(init[2] && (val=coef[7]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m2, val, b) ;
+    if(init[1] && (val=coef[8]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m1, val, b) ;
+  }
+  else{
+    for(int i = 0; i < List_Nbr(Current.DofData->TimeFunctionIndex); i++){
+      gVector *mm1, *mm2, *mm3;
+      if(init[1]) mm1 = (gVector*)List_Pointer(m1s, i);
+      if(init[2]) mm2 = (gVector*)List_Pointer(m2s, i);
+      if(init[3]) mm3 = (gVector*)List_Pointer(m3s, i);
+
+      int tfindex;
+      List_Read(Current.DofData->TimeFunctionIndex, i, &tfindex) ;
+
+      //   + [ c0 * m3 + c1 * m2 + c2 * m1 ] * TimeFct(n)
+      tfval = Current.DofData->CurrentSolution->TimeFunctionValues[tfindex] ;
+
+      if(init[3] && (val=coef[0]*tfval)) LinAlg_AddVectorProdVectorDouble(b, mm3, val, b) ;
+      if(init[2] && (val=coef[1]*tfval)) LinAlg_AddVectorProdVectorDouble(b, mm2, val, b) ;
+      if(init[1] && (val=coef[2]*tfval)) LinAlg_AddVectorProdVectorDouble(b, mm1, val, b) ;
+
+      //   + [ c3 * m3 + c4 * m2 + c5 * m1 ] * TimeFct(n-1)
+      tfval = (Current.DofData->CurrentSolution-1)->TimeFunctionValues[tfindex] ;
+
+      if(init[3] && (val=coef[3]*tfval)) LinAlg_AddVectorProdVectorDouble(b, mm3, val, b) ;
+      if(init[2] && (val=coef[4]*tfval)) LinAlg_AddVectorProdVectorDouble(b, mm2, val, b) ;
+      if(init[1] && (val=coef[5]*tfval)) LinAlg_AddVectorProdVectorDouble(b, mm1, val, b) ;
+
+      //   + [ c6 * m3 + c7 * m2 + c8 * m1 ] * TimeFct(n-2)
+      tfval = (Current.DofData->CurrentSolution-2)->TimeFunctionValues[tfindex] ;
+
+      if(init[3] && (val=coef[6]*tfval)) LinAlg_AddVectorProdVectorDouble(b, mm3, val, b) ;
+      if(init[2] && (val=coef[7]*tfval)) LinAlg_AddVectorProdVectorDouble(b, mm2, val, b) ;
+      if(init[1] && (val=coef[8]*tfval)) LinAlg_AddVectorProdVectorDouble(b, mm1, val, b) ;
+    }
+  }
 }
 
 void Operation_Update(struct DefineSystem * DefineSystem_P,
@@ -176,8 +217,10 @@ void Operation_Update(struct DefineSystem * DefineSystem_P,
     Solution_S.TimeImag = Current.TimeImag ;
     Solution_S.TimeFunctionValues = Get_TimeFunctionValues(DofData_P);
 
-    Get_ValueOfExpressionByIndex(TimeFunctionIndex, NULL, 0., 0., 0., &Value) ;
-    Solution_S.ExplicitTimeFunctionValue = Value.Val[0] ;
+    if(TimeFunctionIndex >= 0){
+      Get_ValueOfExpressionByIndex(TimeFunctionIndex, NULL, 0., 0., 0., &Value) ;
+      Solution_S.ExplicitTimeFunctionValue = Value.Val[0] ;
+    }
 
     Solution_S.SolutionExist = 1 ;
     LinAlg_CreateVector(&Solution_S.x, &DofData_P->Solver, DofData_P->NbrDof) ;
@@ -204,8 +247,10 @@ void Operation_Update(struct DefineSystem * DefineSystem_P,
          seront mieux traitees */
       Current.Time -= Current.DTime ;
       Current.TimeStep -= 1. ;
-      Get_ValueOfExpressionByIndex(TimeFunctionIndex, NULL, 0., 0., 0., &Value) ;
-      (DofData_P->CurrentSolution-1)->ExplicitTimeFunctionValue = Value.Val[0] ;
+      if(TimeFunctionIndex >= 0){
+        Get_ValueOfExpressionByIndex(TimeFunctionIndex, NULL, 0., 0., 0., &Value) ;
+        (DofData_P->CurrentSolution-1)->ExplicitTimeFunctionValue = Value.Val[0] ;
+      }
       Current.Time += Current.DTime ;
       Current.TimeStep += 1. ;
       /* */
@@ -235,7 +280,8 @@ void Operation_Update(struct DefineSystem * DefineSystem_P,
 
     Cal_ThetaRHS(DofData_P->Flag_Init, coef,
 		 &DofData_P->M1, &DofData_P->M2, &DofData_P->m1, &DofData_P->m2,
-		 &TmpVect, &DofData_P->b);
+                 DofData_P->m1s, DofData_P->m2s,
+		 &TmpVect, &DofData_P->b, (TimeFunctionIndex >= 0));
     LinAlg_AssembleVector(&DofData_P->b) ;
     break ;
 
@@ -251,9 +297,11 @@ void Operation_Update(struct DefineSystem * DefineSystem_P,
          seront mieux traitees */
       Current.Time -= Current.DTime ;
       Current.TimeStep -= 1. ;
-      Get_ValueOfExpressionByIndex(TimeFunctionIndex, NULL, 0., 0., 0., &Value) ;
-      (DofData_P->CurrentSolution-1)->ExplicitTimeFunctionValue = Value.Val[0] ;
-      (DofData_P->CurrentSolution-2)->ExplicitTimeFunctionValue = Value.Val[0] ;
+      if(TimeFunctionIndex >= 0){
+        Get_ValueOfExpressionByIndex(TimeFunctionIndex, NULL, 0., 0., 0., &Value) ;
+        (DofData_P->CurrentSolution-1)->ExplicitTimeFunctionValue = Value.Val[0] ;
+        (DofData_P->CurrentSolution-2)->ExplicitTimeFunctionValue = Value.Val[0] ;
+      }
       Current.Time += Current.DTime ;
       Current.TimeStep += 1. ;
       /* */
@@ -285,7 +333,8 @@ void Operation_Update(struct DefineSystem * DefineSystem_P,
     Cal_NewmarkRHS(DofData_P->Flag_Init, coef,
 		   &DofData_P->M1, &DofData_P->M2, &DofData_P->M3,
 		   &DofData_P->m1, &DofData_P->m2, &DofData_P->m3,
-		   &TmpVect, &DofData_P->b);
+                   DofData_P->m1s, DofData_P->m2s, DofData_P->m3s,
+		   &TmpVect, &DofData_P->b, (TimeFunctionIndex >= 0));
     LinAlg_AssembleVector(&DofData_P->b) ;
     break ;
 

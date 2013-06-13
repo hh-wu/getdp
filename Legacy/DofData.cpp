@@ -135,16 +135,25 @@ void Dof_FreeDofData(struct DofData * DofData_P)
   if(DofData_P->Flag_Init[1] == 1){
     LinAlg_DestroyMatrix(&DofData_P->M1);
     LinAlg_DestroyVector(&DofData_P->m1);
+    for(int i = 0; i < List_Nbr(DofData_P->m1s); i++)
+      LinAlg_DestroyVector((gVector*)List_Pointer(DofData_P->m1s, i));
+    List_Delete(DofData_P->m1s);
   }
 
   if(DofData_P->Flag_Init[2] == 1){
     LinAlg_DestroyMatrix(&DofData_P->M2);
     LinAlg_DestroyVector(&DofData_P->m2);
+    for(int i = 0; i < List_Nbr(DofData_P->m2s); i++)
+      LinAlg_DestroyVector((gVector*)List_Pointer(DofData_P->m2s, i));
+    List_Delete(DofData_P->m2s);
   }
 
   if(DofData_P->Flag_Init[3] == 1){
     LinAlg_DestroyMatrix(&DofData_P->M3);
     LinAlg_DestroyVector(&DofData_P->m3);
+    for(int i = 0; i < List_Nbr(DofData_P->m3s); i++)
+       LinAlg_DestroyVector((gVector*)List_Pointer(DofData_P->m3s, i));
+    List_Delete(DofData_P->m3s);
   }
 
   if(DofData_P->Flag_Only){
@@ -1247,7 +1256,8 @@ void Dof_UpdateLinkDof(struct Dof *Dof_P, int NbrHar, double Value[], int D2_Lin
 /* ------------------------------------------------------------------------ */
 
 void Dof_AssembleInMat(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
-		       double * Val, gMatrix * Mat, gVector * Vec)
+		       double * Val, gMatrix * Mat, gVector * Vec,
+                       List_T * Vecs)
 {
   gScalar tmp, tmp2 ;
   double  valtmp[2], d1, d2 ;
@@ -1284,7 +1294,19 @@ void Dof_AssembleInMat(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
 	       TimeFunctionValues[Dof_P->Case.FixedAssociate.TimeFunctionIndex],
 	       &tmp);
 	    LinAlg_ProdScalarDouble(&tmp, -Val[0], &tmp) ;
-	    LinAlg_AddScalarInVector(&tmp, Vec, Equ_P->Case.Unknown.NumDof-1) ;
+            LinAlg_AddScalarInVector(&tmp, Vec, Equ_P->Case.Unknown.NumDof-1) ;
+            if(Vecs){ // experimental
+              int index = List_ISearchSeq(Current.DofData->TimeFunctionIndex,
+                                          &Dof_P->Case.FixedAssociate.TimeFunctionIndex,
+                                          fcmp_int);
+              if(index >= 0 && index < List_Nbr(Vecs)){
+                gVector *v = (gVector*)List_Pointer(Vecs, index);
+                LinAlg_AddScalarInVector(&tmp, v, Equ_P->Case.Unknown.NumDof-1) ;
+              }
+              else{
+                Message::Error("Something wrong in multi-vec assembly");
+              }
+            }
 	  }
 	}
 	else{
@@ -1322,7 +1344,7 @@ void Dof_AssembleInMat(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
 	valtmp[0] = Val[0] * Dof_P->Case.Link.Coef ;
 	valtmp[1] = Val[1] * Dof_P->Case.Link.Coef ;
       }
-      Dof_AssembleInMat(Equ_P, Dof_P->Case.Link.Dof, NbrHar, valtmp, Mat, Vec) ;
+      Dof_AssembleInMat(Equ_P, Dof_P->Case.Link.Dof, NbrHar, valtmp, Mat, Vec, Vecs) ;
       break ;
 
     case DOF_LINKCPLX :
@@ -1332,7 +1354,7 @@ void Dof_AssembleInMat(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
 	valtmp[0] = Val[0] * Dof_P->Case.Link.Coef - Val[1] * Dof_P->Case.Link.Coef2 ;
 	valtmp[1] = Val[1] * Dof_P->Case.Link.Coef + Val[0] * Dof_P->Case.Link.Coef2 ;
       }
-      Dof_AssembleInMat(Equ_P, Dof_P->Case.Link.Dof, NbrHar, valtmp, Mat, Vec) ;
+      Dof_AssembleInMat(Equ_P, Dof_P->Case.Link.Dof, NbrHar, valtmp, Mat, Vec, Vecs) ;
       break ;
 
     case DOF_FIXED_SOLVE :  case DOF_FIXEDWITHASSOCIATE_SOLVE :
@@ -1355,7 +1377,7 @@ void Dof_AssembleInMat(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
       valtmp[0] = Val[0] * Equ_P->Case.Link.Coef ;
       valtmp[1] = Val[1] * Equ_P->Case.Link.Coef ;
     }
-    Dof_AssembleInMat(Equ_P->Case.Link.Dof, Dof_P, NbrHar, valtmp, Mat, Vec) ;
+    Dof_AssembleInMat(Equ_P->Case.Link.Dof, Dof_P, NbrHar, valtmp, Mat, Vec, Vecs) ;
     break ;
 
   case DOF_LINKCPLX :
@@ -1365,7 +1387,7 @@ void Dof_AssembleInMat(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
       valtmp[0] = Val[0] * Equ_P->Case.Link.Coef + Val[1] * Equ_P->Case.Link.Coef2 ;
       valtmp[1] = Val[1] * Equ_P->Case.Link.Coef - Val[0] * Equ_P->Case.Link.Coef2 ;
     }
-    Dof_AssembleInMat(Equ_P->Case.Link.Dof, Dof_P, NbrHar, valtmp, Mat, Vec) ;
+    Dof_AssembleInMat(Equ_P->Case.Link.Dof, Dof_P, NbrHar, valtmp, Mat, Vec, Vecs) ;
     break ;
 
   }

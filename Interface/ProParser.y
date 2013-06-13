@@ -4077,6 +4077,19 @@ OperationTerm :
       List_Delete($5);
     }
 
+  | tUpdate '[' String__Index  ']' tEND
+    { Operation_P = (struct Operation*)
+        List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_UPDATE;
+      int i;
+      if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+                               fcmp_DefineSystem_Name)) < 0)
+        vyyerror("Unknown System: %s", $3);
+      Free($3);
+      Operation_P->DefineSystemIndex = i;
+      Operation_P->Case.Update.ExpressionIndex = -1;
+    }
+
   | tUpdate '[' String__Index ',' Expression ']' tEND
     { Operation_P = (struct Operation*)
         List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
