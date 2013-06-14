@@ -70,7 +70,24 @@ void Cal_ThetaRHS(int *init, double *coef,
     if(init[1] && (val=coef[3]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m1, val, b) ;
   }
   else{
-    Message::Error("Multi-vec theta update not coded yet - just need to copy/paste Newmark code");
+    for(int i = 0; i < List_Nbr(Current.DofData->TimeFunctionIndex); i++){
+      gVector *mm1 = 0, *mm2 = 0;
+      if(init[1]) mm1 = (gVector*)List_Pointer(m1s, i);
+      if(init[2]) mm2 = (gVector*)List_Pointer(m2s, i);
+
+      int tfindex;
+      List_Read(Current.DofData->TimeFunctionIndex, i, &tfindex) ;
+
+      //   + [ c0 * m2 + c1 * m1 ] * TimeFct(n)
+      tfval = Current.DofData->CurrentSolution->TimeFunctionValues[tfindex] ;
+      if(init[2] && (val=coef[0]*tfval)) LinAlg_AddVectorProdVectorDouble(b, mm2, val, b) ;
+      if(init[1] && (val=coef[1]*tfval)) LinAlg_AddVectorProdVectorDouble(b, mm1, val, b) ;
+
+      //   + [ c2 * m2 + c3 * m1 ] * TimeFct(n-1)
+      tfval = (Current.DofData->CurrentSolution-1)->TimeFunctionValues[tfindex] ;
+      if(init[2] && (val=coef[2]*tfval)) LinAlg_AddVectorProdVectorDouble(b, mm2, val, b) ;
+      if(init[1] && (val=coef[3]*tfval)) LinAlg_AddVectorProdVectorDouble(b, mm1, val, b) ;
+    }
   }
 }
 
@@ -160,7 +177,7 @@ void Cal_NewmarkRHS(int *init, double *coef,
   }
   else{
     for(int i = 0; i < List_Nbr(Current.DofData->TimeFunctionIndex); i++){
-      gVector *mm1, *mm2, *mm3;
+      gVector *mm1 = 0, *mm2 = 0, *mm3 = 0;
       if(init[1]) mm1 = (gVector*)List_Pointer(m1s, i);
       if(init[2]) mm2 = (gVector*)List_Pointer(m2s, i);
       if(init[3]) mm3 = (gVector*)List_Pointer(m3s, i);
