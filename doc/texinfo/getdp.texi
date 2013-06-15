@@ -706,6 +706,13 @@ Reads the mesh (in @code{.msh} format) from @var{filename} (@pxref{File
 formats}) rather than from the default problem file name (with the
 @file{.msh} extension appended).
 
+@item -gmshread
+@var{filename} @dots{}
+
+Read gmsh data files (same as GmshRead in @code{Resolution}
+operations). Allows to use such datasets outside resolutions (e.g. in
+pre-processing).
+
 @item -split
 
 Saves processing results in separate files (one for each timestep).
@@ -3467,7 +3474,11 @@ Idem, but consider only complex-valued tensor fields.
 To assign a value (e.g., for boundary condition).
 
 @item Init
-To give an initial value (e.g., initial value in a time analysis).
+To give an initial value (e.g., initial value in a time domain
+analysis). If two values are provided (with @code{Value [
+@var{expression}, @var{expression} ]}), the first value can be used
+using the @code{InitSolution1} operation. This is mainly useful for the
+Newmark time-stepping scheme.
 
 @item AssignFromResolution
 To assign a value to be computed by a pre-resolution.
@@ -3969,11 +3980,11 @@ compute the relative error @var{dx}/@var{x}.
 @item GenerateSeparate
 @code{[@var{system-id}]}
 
-Generate iteration matrices separately for system @var{system-id}. It is
-destined to be used with @code{Update} in order to create more efficiently
-the actual system to solve (this is only useful in linear transient problems
-with one single excitation) or with @code{EigenSolve} in order to generate
-the matrices of a (generalized) eigenvalue problem.
+Generate matrices separately for @code{DtDtDof}, @code{DtDof} and
+@code{NoDt} terms in @var{system-id}. The separate matrices can be used
+with the @code{Update} operation (for efficient time domain analysis of
+linear PDEs with constant coefficients), or with the @code{EigenSolve}
+operation (for solving generalized eigenvalue problems).
 
 @item GenerateOnly
 @code{[@var{system-id}, @var{expression-cst-list}]}
@@ -3988,18 +3999,18 @@ Not documented yet.
 @item Update
 @code{[@var{system-id}]}
 
-Update the system of equations @var{system-id} (built from iteration
-matrices generated separately with @code{GenerateSeparate}) with the
-@code{TimeFunction} provided in @code{Assign} constraints. This assumes
-that the problem is linear, that the matrix coefficients are independent
-of time, and that all sources are imposed using @code{Assign}
-constraints.
+Update the system of equations @var{system-id} (built from sub-matrices
+generated separately with @code{GenerateSeparate}) with the
+@code{TimeFunction}(s) provided in @code{Assign} constraints. This
+assumes that the problem is linear, that the matrix coefficients are
+independent of time, and that all sources are imposed using
+@code{Assign} constraints.
 
 @item Update
 @code{[@var{system-id}, @var{expression}]}
 
-Update the system of equations @var{system-id} (built from iteration
-matrices generated separately with @code{GenerateSeparate}) with
+Update the system of equations @var{system-id} (built from sub-matrices
+generated separately with @code{GenerateSeparate}) with
 @var{expression}. This assumes that the problem is linear, that the
 matrix coefficients are independent of time, and that the
 right-hand-side of the linear system can simply be multiplied by
@@ -4008,15 +4019,21 @@ right-hand-side of the linear system can simply be multiplied by
 @item UpdateConstraint
 @code{[@var{system-id}, @var{group-id}, @var{constraint-type}]}
 
-Not documented yet.
-@c Update the constraint of type @var{constraint-type} acting on @var{group-id}
-@c during the processing.
+Recompute the constraint of type @var{constraint-type} acting on
+@var{group-id} during processing.
 
 @item InitSolution
 @code{[@var{system-id}]}
 
 Initialize the solution of @var{system-id} to zero (default) or to the
-values given in a @code{Constraint} of @code{Init} type.
+values given in a @code{Constraint} of @code{Init} type. If two values
+are given in @code{Init}, the second value is used.
+
+@item InitSolution1
+@code{[@var{system-id}]}
+
+Initialize the first of two time steps for a Newmark Scheme. Only works
+if two values are specified in @code{Init}.
 
 @item SaveSolution
 @code{[@var{system-id}]}
@@ -4066,13 +4083,13 @@ Change the frequency of system @var{system-id}.
 
 Execute the system command given by @var{expression-char}.
 
-@item If
+@item Test
 @code{[@var{expression}] @{ @var{resolution-op} @}} 
 
 If @var{expression} is true (nonzero), perform the operations in
 @var{resolution-op}.
 
-@item If
+@item Test
 @code{[@var{expression}] @{ @var{resolution-op} @}} 
 @itemx Else
 @code{@{ @var{resolution-op} @}} 
@@ -5761,9 +5778,9 @@ Function @{
 @end example
 
 @noindent
-the performed time analysis will be a Crank-Nicolson scheme (theta-scheme 
-with @code{Theta = 0.5}) with initial time 0 ms, end time 20 ms and 
-time step 1 ms.
+the performed time domain analysis will be a Crank-Nicolson scheme
+(theta-scheme with @code{Theta = 0.5}) with initial time 0 ms, end time
+20 ms and time step 1 ms.
 
 @c .........................................................................
 @c Nonlinear Time Domain Resolution (Magnetodynamic Problem)

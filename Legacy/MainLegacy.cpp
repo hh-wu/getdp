@@ -47,6 +47,7 @@ static void Info(int level, char *arg0)
 	    "  -cal                      processing\n"
 	    "  -pos 'PostOperation(s)'   post-processing\n"
 	    "  -msh file                 read mesh (in msh format) from file\n"
+            "  -gmshread file(s)         read gmsh data (same as GmshRead in resolution)\n"
 	    "  -restart                  resume processing from where it stopped\n"
 	    "  -solve 'Resolution'       same as -pre 'Resolution' -cal\n"
 	    "  -split                    save processing results in separate files\n"
@@ -54,7 +55,6 @@ static void Info(int level, char *arg0)
 	    "  -name string              use string as generic file name\n"
 	    "  -adapt file               read adaptation constraints from file\n"
 	    "  -order num                restrict maximum interpolation order\n"
-            "  -gmshread file(s)         read gmsh data (same as GmshRead in resolution)\n"
 	    "Linear solver options:\n"
 #if defined(HAVE_PETSC)
 	    "  -solver file              specify parameter file (default: .petscrc)\n"
