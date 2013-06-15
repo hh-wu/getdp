@@ -379,6 +379,8 @@ void Dof_WriteDofPRE(void * a, void * b)
   case DOF_UNKNOWN_INIT :
     fprintf(File_PRE, "%d ", Dof_P->Case.Unknown.NumDof) ;
     LinAlg_PrintScalar(File_PRE, &Dof_P->Val);
+    fprintf(File_PRE, " ") ;
+    LinAlg_PrintScalar(File_PRE, &Dof_P->Val2);
     fprintf(File_PRE, " %d\n", Dof_P->Case.Unknown.NonLocal ? -1 : 1) ;
     break ;
   case DOF_LINK :
@@ -467,6 +469,7 @@ void Dof_ReadFilePRE(struct DofData * DofData_P)
       case DOF_UNKNOWN_INIT :
 	fscanf(File_PRE, "%d", &Dof.Case.Unknown.NumDof) ;
 	LinAlg_ScanScalar(File_PRE, &Dof.Val) ;
+	LinAlg_ScanScalar(File_PRE, &Dof.Val2) ;
 	fscanf(File_PRE, "%d", &Dummy) ;
         Dof.Case.Unknown.NonLocal = (Dummy < 0) ? true : false;
         if(Dummy < 0)
@@ -992,7 +995,8 @@ void Dof_DefineAssignSolveDof(int D1, int D2, int NbrHar, int Index_TimeFunction
 /*  D o f _ D e f i n e I n i t F i x e d D o f                             */
 /* ------------------------------------------------------------------------ */
 
-void Dof_DefineInitFixedDof(int D1, int D2, int NbrHar, double *Val, bool NonLocal)
+void Dof_DefineInitFixedDof(int D1, int D2, int NbrHar, double *Val,
+                            double *Val2, bool NonLocal)
 {
   struct Dof  Dof ;
   int         k ;
@@ -1004,6 +1008,7 @@ void Dof_DefineInitFixedDof(int D1, int D2, int NbrHar, double *Val, bool NonLoc
     if (!Tree_PQuery(CurrentDofData->DofTree, &Dof)) {
       Dof.Type = DOF_UNKNOWN_INIT ;
       LinAlg_SetScalar(&Dof.Val, &Val[k]) ;
+      LinAlg_SetScalar(&Dof.Val2, &Val2[k]) ;
       Dof.Case.Unknown.NumDof = ++(CurrentDofData->NbrDof) ;
       Dof.Case.Unknown.NonLocal = NonLocal;
       Tree_Add(CurrentDofData->DofTree, &Dof) ;
@@ -1125,7 +1130,8 @@ void Dof_NumberUnknownDof(void)
 /*  D o f _ D e f i n e A s s o c i a t e D o f                             */
 /* ------------------------------------------------------------------------ */
 
-void Dof_DefineAssociateDof(int E1, int E2, int D1, int D2, int NbrHar, int init, double *Val)
+void Dof_DefineAssociateDof(int E1, int E2, int D1, int D2, int NbrHar,
+                            int init, double *Val)
 {
   struct Dof  Dof, Equ, * Equ_P ;
   int         k ;
@@ -1139,7 +1145,8 @@ void Dof_DefineAssociateDof(int E1, int E2, int D1, int D2, int NbrHar, int init
       case DOF_FIXED :
 	Equ_P->Type = DOF_FIXEDWITHASSOCIATE ;
 	Equ_P->Case.FixedAssociate.NumDof = ++(CurrentDofData->NbrDof) ;
-        /* To be modified (Patrick): strange to define a new NumDof for Equ if associate-Dof already exists */
+        /* To be modified (Patrick): strange to define a new NumDof for Equ if
+           associate-Dof already exists */
 	Dof.NumType = D1 ; Dof.Entity = D2 ; Dof.Harmonic = k ;
 	if (!Tree_PQuery(CurrentDofData->DofTree, &Dof)) {
           if (!init) {
@@ -1148,6 +1155,7 @@ void Dof_DefineAssociateDof(int E1, int E2, int D1, int D2, int NbrHar, int init
           else {
             Dof.Type = DOF_UNKNOWN_INIT ;
             LinAlg_SetScalar(&Dof.Val, &Val[k]) ;
+            LinAlg_ZeroScalar(&Dof.Val2) ;
           }
           Dof.Case.Unknown.NumDof = CurrentDofData->NbrDof ;
           Dof.Case.Unknown.NonLocal = true ;
@@ -1165,6 +1173,7 @@ void Dof_DefineAssociateDof(int E1, int E2, int D1, int D2, int NbrHar, int init
           else {
             Dof.Type = DOF_UNKNOWN_INIT ;
             LinAlg_SetScalar(&Dof.Val, &Val[k]) ;
+            LinAlg_ZeroScalar(&Dof.Val2) ;
           }
 	  Dof.Case.Unknown.NumDof = CurrentDofData->NbrDof ;
 	  Dof.Case.Unknown.NonLocal = true ;
@@ -1730,8 +1739,9 @@ void Dof_TransferDof(struct DofData  * DofData_P1,
 	break ;
       case DOF_UNKNOWN_INIT :
 	Dof_P->Val = Dof_GetDofValue(DofData_P1, &Dof) ;
+        // FIXME: should use value from previous timestep if available
+        LinAlg_ZeroScalar(&Dof.Val2);
 	break ;
-
 	/* Un DOF_UNKNOWN_INIT prendra toujours une valeur obtenue par
 	   pre-resolution, meme si on ne demande qu'une simple initialisation ...
 	   Pourquoi pas definir un type DOF_UNKNOWN_INIT_SOLVE,

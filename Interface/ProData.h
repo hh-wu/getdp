@@ -181,7 +181,7 @@ struct Constraint {
 struct ConstraintPerRegion {
   int  Type, RegionIndex, SubRegionIndex, TimeFunctionIndex;
   union {
-    struct { int  ExpressionIndex; } Fixed;
+    struct { int  ExpressionIndex, ExpressionIndex2; } Fixed;
     struct { char *ResolutionName; } Solve;
     struct { int  Node1, Node2;    } Network;
     struct {
@@ -538,6 +538,7 @@ struct QuantityStorage {
     int    CodeAssociateBasisFunction;
     int    Constraint;
     double Value[NBR_MAX_HARMONIC];
+    double Value2[NBR_MAX_HARMONIC]; // for two-step INIT
     int    TimeFunctionIndex;
     int    CodeEntity_Link;
     struct BasisFunction  *BasisFunction;
@@ -1142,6 +1143,7 @@ struct IterativeLoopSystem {
 #define OPERATION_READSOLUTION             12
 #define OPERATION_TRANSFERSOLUTION         13
 #define OPERATION_INITSOLUTION             15
+#define OPERATION_INITSOLUTION1           115
 #define OPERATION_SETCURRENTSYSTEM         70
 
 #define OPERATION_SETTIME                  20

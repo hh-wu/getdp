@@ -29,8 +29,10 @@ int     Flag_XDATA = 0, Flag_BIN = 0, Flag_SPLIT = 0, Flag_GMSH_VERSION = 1;
 double  Flag_ORDER = -1.;
 char   *Name_Generic = 0, *Name_Path = 0;
 char   *Name_Resolution = 0;
+char   *Name_MshFile = 0, *Name_AdaptFile = 0;
 char   *Name_PostOperation[NBR_MAX_POS] = {0};
-char   *Name_MshFile = 0, *Name_ResFile[NBR_MAX_RES] = {0}, *Name_AdaptFile = 0;
+char   *Name_ResFile[NBR_MAX_RES] = {0};
+char   *Name_GmshReadFile[NBR_MAX_RES] = {0};
 
 static void Info(int level, char *arg0)
 {
@@ -52,6 +54,7 @@ static void Info(int level, char *arg0)
 	    "  -name string              use string as generic file name\n"
 	    "  -adapt file               read adaptation constraints from file\n"
 	    "  -order num                restrict maximum interpolation order\n"
+            "  -gmshread file(s)         read gmsh data (same as GmshRead in resolution)\n"
 	    "Linear solver options:\n"
 #if defined(HAVE_PETSC)
 	    "  -solver file              specify parameter file (default: .petscrc)\n"
@@ -66,7 +69,7 @@ static void Info(int level, char *arg0)
 	    "  -v2                       create mesh-based Gmsh output files when possible\n"
 	    "Other options:\n"
 	    "  -check                    interactive check of problem structure\n"
-	    "  -v num                    set verbosity level (default: 3)\n"
+	    "  -v num                    set verbosity level (default: 5)\n"
 	    "  -p num                    set progress indicator update (default: 10)\n"
 	    "  -onelab name [address]    communicate with OneLab (file or server address)\n"
             "  -setnumber name value     set constant number name=value\n"
@@ -328,6 +331,22 @@ static void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *
 	}
       }
 
+      else if (!strcmp(argv[i]+1, "gmshread")) {
+	i++; j = 0;
+	while (i < argc && argv[i][0] != '-') {
+	  Name_GmshReadFile[j] = strSave(argv[i]); i++; j++;
+	  if(j == NBR_MAX_RES){
+	    Message::Error("Too many GmshRead files");
+            break;
+          }
+	}
+	if(!j)
+	  Message::Error("Missing file name");
+	else{
+	  Name_GmshReadFile[j] = NULL;
+	}
+      }
+
       else if (!strcmp(argv[i]+1, "name")) {
 	i++;
 	if (i < argc && argv[i][0] != '-') {
@@ -415,16 +434,20 @@ static void Free_GlobalVariables()
   Free(Name_Generic); Name_Generic = 0;
   Free(Name_Path); Name_Path = 0;
   Free(Name_Resolution); Name_Resolution = 0;
+  Free(Name_MshFile); Name_MshFile = 0;
+  Free(Name_AdaptFile); Name_AdaptFile = 0;
   int i = 0;
   while(Name_PostOperation[i]){
     Free(Name_PostOperation[i]); Name_PostOperation[i] = 0; i++;
   }
-  Free(Name_MshFile); Name_MshFile = 0;
   i = 0;
   while(Name_ResFile[i]){
     Free(Name_ResFile[i]); Name_ResFile[i] = 0; i++;
   }
-  Free(Name_AdaptFile); Name_AdaptFile = 0;
+  i = 0;
+  while(Name_GmshReadFile[i]){
+    Free(Name_GmshReadFile[i]); Name_GmshReadFile[i] = 0; i++;
+  }
   Free_ProblemStructure();
   Free_ParserVariables();
 }
@@ -490,6 +513,11 @@ int MainLegacy(int argc, char *argv[])
     // do not set msg handler if one is provided (e.g. on Android/iOS)
     GmshMsg c;
     GmshSetMessageHandler(&c);
+  }
+  int j = 0;
+  while(Name_GmshReadFile[j]){
+    GmshMergePostProcessingFile(Name_GmshReadFile[j]);
+    j++;
   }
 #endif
 

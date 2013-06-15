@@ -1272,6 +1272,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  ------------------------------------------  */
 
     case OPERATION_INITSOLUTION :
+    case OPERATION_INITSOLUTION1 :
       Init_OperationOnSystem("InitSolution",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
@@ -1324,9 +1325,15 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	for(i=0 ; i<DofData_P->NbrAnyDof ; i++){
 	  Dof_P = (struct Dof *)List_Pointer(DofData_P->DofList, i) ;
 	  if(Dof_P->Type == DOF_UNKNOWN_INIT){ /* Init values loaded */
-	    Dof_P->Type = DOF_UNKNOWN ;
-	    LinAlg_SetScalarInVector
-	      (&Dof_P->Val, &Solution_S.x, Dof_P->Case.Unknown.NumDof-1) ;
+            if(Operation_P->Type == OPERATION_INITSOLUTION){
+              Dof_P->Type = DOF_UNKNOWN ;
+              LinAlg_SetScalarInVector
+                (&Dof_P->Val, &Solution_S.x, Dof_P->Case.Unknown.NumDof-1) ;
+            }
+            else{
+              LinAlg_SetScalarInVector
+                (&Dof_P->Val2, &Solution_S.x, Dof_P->Case.Unknown.NumDof-1) ;
+            }
 	  }
 	}
         // FIXME: required by parallel version

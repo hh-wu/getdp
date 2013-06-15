@@ -17,7 +17,8 @@ void  Treatment_ConstraintForRegion(struct GlobalQuantity   * GlobalQuantity_P,
 				    struct FunctionSpace    * FunctionSpace_P,
 				    struct QuantityStorage  * QuantityStorage_P) ;
 
-void  Get_ValueForConstraint(struct ConstraintInFS * Constraint_P, double Value[],
+void  Get_ValueForConstraint(struct ConstraintInFS * Constraint_P,
+                             double Value[], double Value2[],
 			     int * Index_TimeFunction) ;
 void  Get_PreResolutionForConstraint(struct ConstraintInFS * Constraint_P,
 				     int * Index_TimeFunction) ;

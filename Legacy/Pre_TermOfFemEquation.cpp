@@ -162,6 +162,7 @@ void Pre_TermOfFemEquation(struct Element          * Element,
 	  (QuantityStorageEqu_P->BasisFunction[i].CodeBasisFunction,
 	   QuantityStorageEqu_P->BasisFunction[i].CodeEntity, Current.NbrHar,
 	   QuantityStorageEqu_P->BasisFunction[i].Value,
+	   QuantityStorageEqu_P->BasisFunction[i].Value2,
            NonLocal) ;
 	break;
       case ASSIGNFROMRESOLUTION:
@@ -216,6 +217,7 @@ void Pre_TermOfFemEquation(struct Element          * Element,
 	  (QuantityStorageDof_P->BasisFunction[i].CodeBasisFunction,
 	   QuantityStorageDof_P->BasisFunction[i].CodeEntity, Current.NbrHar,
 	   QuantityStorageDof_P->BasisFunction[i].Value,
+	   QuantityStorageDof_P->BasisFunction[i].Value2,
            NonLocal) ;
         break;
       case ASSIGNFROMRESOLUTION:
@@ -311,6 +313,7 @@ void Pre_GlobalTermOfFemEquation(int  Num_Region,
 	(QuantityStorageEqu_P->BasisFunction[0].CodeBasisFunction,
 	 QuantityStorageEqu_P->BasisFunction[0].CodeEntity, Current.NbrHar,
 	 QuantityStorageEqu_P->BasisFunction[0].Value,
+	 QuantityStorageEqu_P->BasisFunction[0].Value2,
          true) ;
       break;
     case ASSIGNFROMRESOLUTION:
@@ -373,6 +376,7 @@ void Pre_GlobalTermOfFemEquation(int  Num_Region,
 	  (QuantityStorageDof_P->BasisFunction[0].CodeBasisFunction,
 	   QuantityStorageDof_P->BasisFunction[0].CodeEntity, Current.NbrHar,
 	   QuantityStorageDof_P->BasisFunction[0].Value,
+	   QuantityStorageDof_P->BasisFunction[0].Value2,
            true);
           */
 	break;
@@ -505,6 +509,7 @@ void  Pre_FemGlobalEquation2(int Index_DefineQuantity, int Num_Region,
 	(QuaSto_S.BasisFunction[0].CodeBasisFunction,
 	 QuaSto_S.BasisFunction[0].CodeEntity, Current.NbrHar,
 	 QuaSto_S.BasisFunction[0].Value,
+	 QuaSto_S.BasisFunction[0].Value2,
          true);
       break;
     case ASSIGNFROMRESOLUTION:
@@ -672,7 +677,9 @@ void Cst_TermOfFemEquation(struct Element          * Element,
 	Dof_DefineInitFixedDof
 	  (QuantityStorageEqu_P->BasisFunction[i].CodeBasisFunction,
 	   QuantityStorageEqu_P->BasisFunction[i].CodeEntity, Current.NbrHar,
-	   QuantityStorageEqu_P->BasisFunction[i].Value) ;
+	   QuantityStorageEqu_P->BasisFunction[i].Value,
+	   QuantityStorageEqu_P->BasisFunction[i].Value2,
+           false) ;
 	break;
       case ASSIGNFROMRESOLUTION:
 	Dof_DefineAssignSolveDof
@@ -714,7 +721,8 @@ void Cst_TermOfFemEquation(struct Element          * Element,
 	Dof_DefineInitFixedDof
 	  (QuantityStorageDof_P->BasisFunction[i].CodeBasisFunction,
 	   QuantityStorageDof_P->BasisFunction[i].CodeEntity, Current.NbrHar,
-	   QuantityStorageDof_P->BasisFunction[i].Value) ;
+	   QuantityStorageDof_P->BasisFunction[i].Value,
+	   QuantityStorageDof_P->BasisFunction[i].Value2) ;
         break;
       case ASSIGNFROMRESOLUTION:
 	Dof_DefineAssignSolveDof

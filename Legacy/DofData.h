@@ -31,13 +31,12 @@ struct Dof {
 
   int       Type ;
 
-  struct Dof * MH_moving ;
-
-  /* Val must be out of the union (a member with constructor (gScalar
-     with PETSc) is not allowed in a union); Val holds the init value
-     for Type==Unknown, and the assigned value for
-     Type==FixedAssociate. Val is not used for Type==Link */
-  gScalar   Val ;
+  /* Val must be out of the union (a member with constructor (gScalar with
+     PETSc) is not allowed in a union); Val holds the init value for
+     Type==Unknown, and the assigned value for Type==FixedAssociate. Val is not
+     used for Type==Link. Val2 potentially holds a second init value for
+     Type==Unknown */
+  gScalar   Val, Val2 ;
 
   union {
     struct {
@@ -182,14 +181,17 @@ void  Dof_AddFunctionSpaceIndex(int Index_FunctionSpace) ;
 void  Dof_AddTimeFunctionIndex(int Index_TimeFunction) ;
 void  Dof_AddPulsation(struct DofData * DofData_P, double Val_Pulsation) ;
 
-void  Dof_DefineAssignFixedDof(int D1, int D2, int NbrHar, double * Val, int Index_TimeFunction) ;
-void  Dof_DefineInitFixedDof(int D1, int D2, int NbrHar, double * Val, bool NonLocal=false) ;
+void  Dof_DefineAssignFixedDof(int D1, int D2, int NbrHar, double * Val,
+                               int Index_TimeFunction) ;
+void  Dof_DefineInitFixedDof(int D1, int D2, int NbrHar, double * Val,
+                             double *Val2, bool NonLocal=false) ;
 void  Dof_DefineAssignSolveDof(int D1, int D2, int NbrHar, int Index_TimeFunction) ;
 void  Dof_DefineInitSolveDof(int D1, int D2, int NbrHar) ;
 void  Dof_DefineLinkDof(int D1, int D2, int NbrHar, double Value[], int D2_Link) ;
 void  Dof_DefineLinkCplxDof(int D1, int D2, int NbrHar, double Value[], int D2_Link) ;
 void  Dof_DefineUnknownDof(int D1, int D2, int NbrHar, bool NonLocal=false) ;
-void  Dof_DefineAssociateDof(int E1, int E2, int D1, int D2, int NbrHar, int init, double * Val) ;
+void  Dof_DefineAssociateDof(int E1, int E2, int D1, int D2, int NbrHar, int init,
+                             double * Val) ;
 void  Dof_DefineUnknownDofFromSolveOrInitDof(struct DofData ** DofData_P) ;
 
 void  Dof_NumberUnknownDof(void) ;

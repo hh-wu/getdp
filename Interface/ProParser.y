@@ -1936,8 +1936,20 @@ ConstraintCaseTerm :
   | tValue Expression tEND
     {
       if(ConstraintPerRegion_S.Type == ASSIGN ||
-	  ConstraintPerRegion_S.Type == INIT)
+         ConstraintPerRegion_S.Type == INIT){
 	ConstraintPerRegion_S.Case.Fixed.ExpressionIndex = $2;
+	ConstraintPerRegion_S.Case.Fixed.ExpressionIndex2 = -1;
+      }
+      else  vyyerror("Value incompatible with Type");
+    }
+
+  | tValue '[' Expression ',' Expression ']' tEND
+    {
+      if(ConstraintPerRegion_S.Type == ASSIGN ||
+         ConstraintPerRegion_S.Type == INIT){
+	ConstraintPerRegion_S.Case.Fixed.ExpressionIndex = $5;
+        ConstraintPerRegion_S.Case.Fixed.ExpressionIndex2 = $3;
+      }
       else  vyyerror("Value incompatible with Type");
     }
 

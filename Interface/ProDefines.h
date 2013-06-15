@@ -206,6 +206,7 @@ struct StringXDefine  Operation_Type[] = {
   {"SolveNL"                , OPERATION_SOLVENL},
   {"GenerateSeparate"       , OPERATION_GENERATESEPARATE},
   {"InitSolution"           , OPERATION_INITSOLUTION},
+  {"InitSolution1"          , OPERATION_INITSOLUTION1},
   {"SaveSolution"           , OPERATION_SAVESOLUTION},
   {"SaveSolutions"          , OPERATION_SAVESOLUTIONS},
   {"ReadSolution"           , OPERATION_READSOLUTION},

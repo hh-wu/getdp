@@ -101,6 +101,7 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 	      Get_ValueForConstraint
 		(Constraint_P,
 		 QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Value,
+		 QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Value2,
 		 &QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].
 		 TimeFunctionIndex) ;
 	    }
@@ -152,6 +153,7 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 	      Get_ValueForConstraint
 		(Constraint_P,
 		 QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Value,
+		 QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Value2,
 		 &QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].
 		 TimeFunctionIndex) ;
 	    }
@@ -218,10 +220,10 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 /* ------------------------------------------------------------------------ */
 
 void  Get_ValueForConstraint(struct ConstraintInFS * Constraint_P, double Value[],
-			     int * Index_TimeFunction)
+                             double Value2[], int * Index_TimeFunction)
 {
   int  k ;
-  struct Value  Val_Modulus, Val_TimeFunction ;
+  struct Value  Val_Modulus, Val_Modulus2, Val_TimeFunction ;
 
   // Warning: Current.{u,v,w} are not defined, so we cannot interpolate
   // expressions in the reference element. We thus set Current.Element=0 and
@@ -235,6 +237,16 @@ void  Get_ValueForConstraint(struct ConstraintInFS * Constraint_P, double Value[
 		  Constraint_P->ConstraintPerRegion->Case.Fixed.ExpressionIndex),
      NULL, 0., 0., 0., &Val_Modulus) ;
 
+  int idx2 = Constraint_P->ConstraintPerRegion->Case.Fixed.ExpressionIndex2;
+  if(idx2 >= 0){
+    Get_ValueOfExpression
+      ((struct Expression *)
+       List_Pointer(Problem_S.Expression, idx2), NULL, 0., 0., 0., &Val_Modulus2) ;
+  }
+  else{
+    Cal_ZeroValue(&Val_Modulus2);
+  }
+
   *Index_TimeFunction = Constraint_P->ConstraintPerRegion->TimeFunctionIndex ;
 
   if (Current.NbrHar > 1) {
@@ -244,18 +256,21 @@ void  Get_ValueForConstraint(struct ConstraintInFS * Constraint_P, double Value[
 	 List_Pointer(Problem_S.Expression,
 		      Constraint_P->ConstraintPerRegion->TimeFunctionIndex),
 	 NULL, 0., 0., 0., &Val_TimeFunction) ;
-
       Cal_ProductValue(&Val_Modulus, &Val_TimeFunction,  &Val_Modulus) ;
     }
-    for (k = 0 ; k < Current.NbrHar ; k++)
+    for (k = 0 ; k < Current.NbrHar ; k++){
       Value[k] = Val_Modulus.Val[MAX_DIM*k] ;
+      Value2[k] = Val_Modulus2.Val[MAX_DIM*k] ;
+    }
   }
   else{
     Value[0] = Val_Modulus.Val[0] ;
+    Value2[0] = Val_Modulus2.Val[0] ;
     // Set this to zero to avoid having an uninitialized imaginary
     // part if you use a complex arithmetic solver (on a real matrix)
     // -- cf. LinAlg_SetScalar() calls in DofData.cpp
     Value[1] = 0. ;
+    Value2[1] = 0. ;
   }
 
   Current.Element = old;
@@ -320,7 +335,9 @@ void  Treatment_ConstraintForRegion(struct GlobalQuantity   * GlobalQuantity_P,
 	    if (ConstraintPerRegion_P->Type == ASSIGN ||
 		ConstraintPerRegion_P->Type == INIT)
 	      Get_ValueForConstraint
-		(Constraint_P, QuantityStorage_P->BasisFunction[0].Value,
+		(Constraint_P,
+                 QuantityStorage_P->BasisFunction[0].Value,
+                 QuantityStorage_P->BasisFunction[0].Value2,
 		 &QuantityStorage_P->BasisFunction[0].TimeFunctionIndex) ;
 	    else if (ConstraintPerRegion_P->Type == CST_LINK ||
 		     ConstraintPerRegion_P->Type == CST_LINKCPLX) {
