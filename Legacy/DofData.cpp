@@ -1725,9 +1725,7 @@ void Dof_TransferDof(struct DofData  * DofData_P1,
 
   for(i = 0; i < Nbr_AnyDof; i++) {
     Dof = *(struct Dof *)List_Pointer(DofData_P1->DofList, i) ;
-
     if((Dof_P = (struct Dof*)Tree_PQuery((*DofData_P2)->DofTree, &Dof))){
-
       switch (Dof_P->Type) {
       case DOF_FIXED_SOLVE :
 	Dof_P->Type = DOF_FIXED ;
@@ -1738,15 +1736,19 @@ void Dof_TransferDof(struct DofData  * DofData_P1,
 	Dof_P->Val = Dof_GetDofValue(DofData_P1, &Dof) ;
 	break ;
       case DOF_UNKNOWN_INIT :
+	/* A DOF_UNKNOWN_INIT will always use the value obtained by
+	   pre-resolution even if a simple Init contraint is given; we should
+	   introduce DOF_UNKNOWN_INIT_SOLVE */
 	Dof_P->Val = Dof_GetDofValue(DofData_P1, &Dof) ;
-        // FIXME: should use value from previous timestep if available
-        LinAlg_ZeroScalar(&Dof.Val2);
+        if((DofData_P1->CurrentSolution - Solutions_P0) > 0){
+          DofData_P1->CurrentSolution -= 1 ;
+          Dof_P->Val2 = Dof_GetDofValue(DofData_P1, &Dof) ;
+          DofData_P1->CurrentSolution += 1 ;
+        }
+        else{
+          LinAlg_ZeroScalar(&Dof_P->Val2);
+        }
 	break ;
-	/* Un DOF_UNKNOWN_INIT prendra toujours une valeur obtenue par
-	   pre-resolution, meme si on ne demande qu'une simple initialisation ...
-	   Pourquoi pas definir un type DOF_UNKNOWN_INIT_SOLVE,
-	   propre a Dof_DefineInitSolveDof() ? ... */
-
       }
     }
   }
