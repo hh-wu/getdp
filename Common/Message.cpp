@@ -368,6 +368,18 @@ void Message::Debug(const char *fmt, ...)
 void Message::Cpu(const char *fmt, ...)
 {
   if((_commRank && _isCommWorld) || _verbosity < 5) return;
+  va_list args;
+  va_start(args, fmt);
+  char str[1024];
+  vsnprintf(str, sizeof(str), fmt, args);
+  va_end(args);
+
+  Cpu(5, str);
+}
+
+void Message::Cpu(int level, const char *fmt, ...)
+{
+  if((_commRank && _isCommWorld) || _verbosity < level) return;
   double s = 0.;
   long mem = 0;
   GetResources(&s, &mem);

@@ -477,7 +477,7 @@ int MainLegacy(int argc, char *argv[])
   Message::Info("Running '%s' [GetDP %s, %d node%s]", cmdline.c_str(),
                 GETDP_VERSION, Message::GetCommSize(),
                 Message::GetCommSize() > 1 ? "s" : "");
-  Message::Cpu("Started");
+  Message::Cpu(3, "Started");
 
   if(sargc > 1){
     std::string solveropt("");
@@ -549,7 +549,7 @@ int MainLegacy(int argc, char *argv[])
   LinAlg_FinalizeSolver();
 
   Message::PrintErrorCounter("Run");
-  Message::Cpu("Stopped");
+  Message::Cpu(3, "Stopped");
 
 #if defined(HAVE_GMSH)
   GmshFinalize();
