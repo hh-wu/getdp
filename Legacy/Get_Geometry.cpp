@@ -289,6 +289,32 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
 
 }
 
+void  * Get_JacobianFunctionAuto (int Type_Element, int Dimension)
+{
+  switch(Type_Element){
+  case POINT :
+    return((void *)JacobianVol0D) ;
+  case LINE : case LINE_2 :
+    switch(Dimension){
+    case _3D : return((void *)JacobianLin3D) ;
+    case _2D : return((void *)JacobianSur2D) ;
+    default : return((void *)JacobianVol1D) ;
+    }
+  case TRIANGLE : case TRIANGLE_2 :
+  case QUADRANGLE : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
+    switch(Dimension){
+    case _3D : return((void *)JacobianSur3D) ;
+    default :  return((void *)JacobianVol2D) ;
+    }
+  case TETRAHEDRON : case TETRAHEDRON_2 :
+  case HEXAHEDRON  : case HEXAHEDRON_2  :
+  case PRISM       : case PRISM_2       :
+  case PYRAMID     : case PYRAMID_2     :
+  default:
+    return((void *)JacobianVol3D) ;
+  }
+}
+
 /* ------------------------------------------------------------------------ */
 /*  G e o m e t r i c a l   T r a n s f o r m a t i o n s                   */
 /* ------------------------------------------------------------------------ */

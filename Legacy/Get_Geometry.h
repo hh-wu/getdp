@@ -18,6 +18,8 @@ void  Get_BFGeoElement(struct Element * Element, double u, double v, double w) ;
 void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
 			      int * Type_Dimension) ;
 
+void  * Get_JacobianFunctionAuto (int Type_Element, int Dimension) ;
+
 /* Jacobian */
 /* -------- */
 
