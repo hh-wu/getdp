@@ -12,6 +12,7 @@
 #include "ProParser.h"
 #include "Message.h"
 #include "MallocUtils.h"
+#include "OS.h"
 #if defined(HAVE_LEGACY)
 #include "Generate_Network.h"
 #endif
@@ -234,7 +235,7 @@ void Read_ProblemStructure(const char *name)
   // opening the file in text mode messes up the loops (they use
   // fsetpos/fgetpos) on Windows without Cygwin; not sure why, but
   // opening the file in binary mode fixes the problem
-  if(!(getdp_yyin = fopen(AbsPath, "rb"))){
+  if(!(getdp_yyin = FOpen(AbsPath, "rb"))){
     Message::Error("Unable to open file '%s'", AbsPath);
     return;
   }
@@ -248,7 +249,7 @@ void Read_ProblemStructure(const char *name)
 
   while(getdp_yyincludenum > 0){
     Read_ProblemStructure(getdp_yyincludename);
-    getdp_yyin = fopen(getdp_yyname, "rb"); // same comment as above
+    getdp_yyin = FOpen(getdp_yyname, "rb"); // same comment as above
     getdp_yyrestart(getdp_yyin);
     for(i = 0; i < getdp_yylinenum; i++) fgets(AbsPath, 2048, getdp_yyin);
     getdp_yylinenum++;

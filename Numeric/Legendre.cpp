@@ -188,24 +188,6 @@ double dLegendreFinDif (int l, int m, double x)
   return dpl;
 }
 
-void PrintLegendre(int l, int m, double x, char * FileName)
-{
-  double P ;
-  int i ;
-
-  FILE * file ;
-
-  Message::Info("Writing Legendre: '%s'", FileName);
-  file = fopen(FileName, "w");
-
-  for (i = 1 ; i <= l ; i++ ){
-    P = Legendre(i, m, x);
-    fprintf(file, "%f \n", P);
-  }
-
-  fclose(file);
-}
-
 void SphericalHarmonics(int l, int m, double Theta, double Phi, double Yl_m[])
 {
   int am ;

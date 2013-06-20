@@ -21,6 +21,7 @@
 #include "TreeUtils.h"
 #include "MallocUtils.h"
 #include "Message.h"
+#include "OS.h"
 
 #define TWO_PI             6.2831853071795865
 
@@ -217,7 +218,7 @@ void Dof_OpenFile(int Type, char * Name, const char * Mode)
 
   strcpy(FileName, Name) ; strcat(FileName, Extension) ;
 
-  if (!(File_X = fopen(FileName, Mode)))
+  if (!(File_X = FOpen(FileName, Mode)))
     Message::Error("Unable to open file '%s'", FileName) ;
 
   switch (Type) {
@@ -645,19 +646,19 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
   strcpy(FileRe, Name_File) ; strcat(FileRe, "_Re.txt") ;
   strcpy(FileIm, Name_File) ; strcat(FileIm, "_Im.txt") ;
 
-  FILE *fp   = fopen(FileCplx, "w");
+  FILE *fp   = FOpen(FileCplx, "w");
   if(!fp){
     Message::Error("Unable to open file '%s'", FileCplx) ;
     return;
   }
 
-  FILE *fpRe = fopen(FileRe, "w");
+  FILE *fpRe = FOpen(FileRe, "w");
   if(!fpRe){
     Message::Error("Unable to open file '%s'", FileRe) ;
     return;
   }
 
-  FILE *fpIm = fopen(FileIm, "w");
+  FILE *fpIm = FOpen(FileIm, "w");
   if(!fpIm){
     Message::Error("Unable to open file '%s'", FileIm) ;
     return;

@@ -2329,7 +2329,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  strcpy(FileName, Name_Path);
 	  strcat(FileName, Operation_P->Case.Print.FileOut);
 	}
-	if(!(fp = fopen(FileName, "ab"))){
+	if(!(fp = FOpen(FileName, "ab"))){
 	  Message::Error("Unable to open file '%s'", FileName) ;
           break;
         }

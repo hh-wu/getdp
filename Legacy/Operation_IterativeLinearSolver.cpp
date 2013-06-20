@@ -10,10 +10,10 @@
 #include "ProData.h"
 #include "SolvingOperations.h"
 #include "Message.h"
-
-#include<iostream>
-#include<fstream>
-#include<stdlib.h>
+#include "OS.h"
+#include <iostream>
+#include <fstream>
+#include <stdlib.h>
 
 // for performance tests
 #if !defined(WIN32)
@@ -377,7 +377,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   char filename[50];
   FILE *fid;
   sprintf(filename, "log_cpu_%d", mpi_comm_rank);
-  fid = fopen(filename, "w");
+  fid = FOpen(filename, "w");
   fprintf(fid, "Process rank %d\n", mpi_comm_rank);
   fprintf(fid, "it.  CPU Total \t ... Treatment \t ... Communication\n");
   for (unsigned int i = 0; i < MyField.TimeBcast.size() ; i ++){

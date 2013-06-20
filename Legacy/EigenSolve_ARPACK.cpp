@@ -18,6 +18,7 @@
 #include "ProData.h"
 #include "DofData.h"
 #include "MallocUtils.h"
+#include "OS.h"
 
 #define SQU(a)     ((a)*(a))
 #define TWO_PI     6.2831853071795865
@@ -83,7 +84,7 @@ void EigenPar(const char *filename, struct EigenPar *par)
   /* try to read parameters from file */
   strcpy(path, Name_Path);
   strcat(path, filename);
-  fp = fopen(path, "r");
+  fp = FOpen(path, "r");
   if(fp) {
     Message::Info("Loading eigenproblem parameter file '%s'", path);
     fscanf(fp, "%lf", &par->prec);
@@ -92,7 +93,7 @@ void EigenPar(const char *filename, struct EigenPar *par)
     fclose(fp);
   }
   else{
-    fp = fopen(path, "w");
+    fp = FOpen(path, "w");
     if(fp){
       /* get parameters from command line */
       EigenGetDouble("Precision", &par->prec);

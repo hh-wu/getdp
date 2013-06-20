@@ -13,6 +13,7 @@
 #include "Pos_Format.h"
 #include "ListUtils.h"
 #include "Message.h"
+#include "OS.h"
 #if defined(HAVE_GMSH)
 #include <gmsh/Gmsh.h>
 #include <gmsh/MVertex.h>
@@ -346,7 +347,7 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
     }
 
     if(!PostSubOperation_P->CatFile) {
-      if((PostStream = fopen(FileName, Flag_BIN ? "wb" : "w")))
+      if((PostStream = FOpen(FileName, Flag_BIN ? "wb" : "w")))
 	Message::Direct(4, "          > '%s'", FileName) ;
       else{
 	Message::Error("Unable to open file '%s'", FileName) ;
@@ -354,7 +355,7 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
       }
     }
     else {
-      if((PostStream = fopen(FileName, Flag_BIN ? "ab" : "a")))
+      if((PostStream = FOpen(FileName, Flag_BIN ? "ab" : "a")))
 	Message::Direct(4, "          >> '%s'", FileName) ;
       else{
 	Message::Error("Unable to open file '%s'", FileName) ;

@@ -24,6 +24,7 @@
 #include "ProParser.h"
 #include "MallocUtils.h"
 #include "Message.h"
+#include "OS.h"
 
 // Global problem structure filled by the parser
 extern struct Problem Problem_S;
@@ -6709,7 +6710,7 @@ Affectation :
       Constant_S.Name = $1; Constant_S.Type = VAR_LISTOFFLOAT;
       Message::Barrier();
       FILE *File;
-      if(!(File = fopen($5, "r"))){
+      if(!(File = FOpen($5, "r"))){
         Message::Warning("Could not open file '%s'", $5);
 	Constant_S.Value.ListOfFloat = NULL;
       }

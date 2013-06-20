@@ -617,7 +617,7 @@ void Message::InitializeOnelab(std::string name, std::string sockname)
       // name of a onelab database file; GetDP in this case becomes the onelab
       // server
       _onelabClient = new onelab::localClient("GetDPServer");
-      FILE *fp = fopen(name.c_str(), "rb");
+      FILE *fp = FOpen(name.c_str(), "rb");
       if(fp){
         Message::Info("Reading OneLab database '%s'", name.c_str());
         _onelabClient->fromFile(fp);

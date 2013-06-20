@@ -10,6 +10,7 @@
 #include "Pos_Search.h"
 #include "MallocUtils.h"
 #include "Message.h"
+#include "OS.h"
 
 #define SQU(a)     ((a)*(a))
 
@@ -154,7 +155,7 @@ void Geo_SetCurrentGeoData(struct GeoData * GeoData_P)
 
 void Geo_OpenFile(char * Name, const char * Mode)
 {
-  File_GEO = fopen(Name, Mode) ;
+  File_GEO = FOpen(Name, Mode) ;
 
   if (!File_GEO) Message::Error("Unable to open file '%s'", Name);
 }
@@ -282,7 +283,7 @@ void Geo_SaveMesh(struct GeoData * GeoData_P, List_T * InitialList, char * FileN
     }
   }
 
-  file = fopen(FileName,"w");
+  file = FOpen(FileName,"w");
   Message::Info("Saving mesh in file \"%s\" (%d nodes, %d elements)",
                 FileName, List_Nbr(GeoData.Nodes), List_Nbr(GeoData.Elements));
 
