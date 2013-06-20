@@ -7,7 +7,9 @@
 #define _OS_H_
 
 #include <string>
+#include <stdio.h>
 
+FILE *FOpen(const char *f, const char *mode);
 void GetResources(double *s, long *mem);
 void IncreaseStackSize();
 int BlockingSystemCall(const char *command);

@@ -1,4 +1,4 @@
-// OneLab - Copyright (C) 2011-2012 ULg-UCL
+// OneLab - Copyright (C) 2011-2013 ULg-UCL
 //
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
@@ -22,7 +22,8 @@
 // ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE
 // OF THIS SOFTWARE.
 //
-// Please report all bugs and problems to the public mailing list <gmsh@geuz.org>.
+// Please report all bugs and problems to the public mailing list
+// <gmsh@geuz.org>.
 
 #ifndef _ONELAB_H_
 #define _ONELAB_H_
@@ -232,11 +233,9 @@ namespace onelab{
       name = getNextToken(msg, first);
     }
     static bool fromFile(std::vector<std::string> &msg,
-                         const std::string &fileName)
+                         FILE *fp)
     {
       msg.clear();
-      FILE *fp = fopen(fileName.c_str(), "rb");
-      if(!fp) return false;
       char tmp[1000];
       if(!fgets(tmp, sizeof(tmp), fp)) return false; // first line is comment
       while(!feof(fp)){
@@ -248,15 +247,12 @@ namespace onelab{
           msg.back() += fgetc(fp);
         if(!fgets(tmp, sizeof(tmp), fp)) break; // end of line
       }
-      fclose(fp);
       return true;
     }
     static bool toFile(const std::vector<std::string> &msg,
-                       const std::string &fileName,
+                       FILE *fp,
                        const std::string &creator)
     {
-      FILE *fp = fopen(fileName.c_str(), "wb");
-      if(!fp) return false;
       time_t now;
       time(&now);
       fprintf(fp, "OneLab database created by %s on %s",
@@ -267,7 +263,6 @@ namespace onelab{
           fputc(msg[i][j], fp);
         fputc('\n', fp);
       }
-      fclose(fp);
       return true;
     }
   };
@@ -796,8 +791,10 @@ namespace onelab{
       _getAllParameters(ps);
       for(std::set<parameter*, parameterLessThan>::const_iterator it = ps.begin();
           it != ps.end(); it++)
-        if(client.empty() || (*it)->hasClient(client))
-          s.push_back((*it)->toChar());
+        if(client.empty() || (*it)->hasClient(client)){
+	  if((*it)->getAttribute("NotInDb") != "True")
+	    s.push_back((*it)->toChar());
+	}
       return s;
     }
     // unserialize the parameter space
@@ -900,14 +897,14 @@ namespace onelab{
       }
       return true;
     }
-    bool toFile(const std::string &fileName)
+    bool toFile(FILE *fp)
     {
-      return parameter::toFile(toChar(), fileName, getName());
+      return parameter::toFile(toChar(), fp, getName());
     }
-    bool fromFile(const std::string &fileName)
+    bool fromFile(FILE *fp)
     {
       std::vector<std::string> msg;
-      if(parameter::fromFile(msg, fileName)) return fromChar(msg);
+      if(parameter::fromFile(msg, fp)) return fromChar(msg);
       return false;
     }
   };
@@ -932,7 +929,7 @@ namespace onelab{
       if(!_server) _server = new server(address);
       return _server;
     }
-    static void setInstance(server *s) {_server = s;}
+    static void setInstance(server *s) { _server = s; }
     void clear(const std::string &name="", const std::string &client="")
     {
       _parameterSpace.clear(name, client);
@@ -974,14 +971,14 @@ namespace onelab{
     {
       return _parameterSpace.fromChar(msg, client);
     }
-    bool toFile(const std::string &fileName, const std::string &client="")
+    bool toFile(FILE *fp, const std::string &client="")
     {
-      return parameter::toFile(toChar(client), fileName, "onelab server");
+      return parameter::toFile(toChar(client), fp, "onelab server");
     }
-    bool fromFile(const std::string &fileName, const std::string &client="")
+    bool fromFile(FILE *fp, const std::string &client="")
     {
       std::vector<std::string> msg;
-      if(parameter::fromFile(msg, fileName)) return fromChar(msg, client);
+      if(parameter::fromFile(msg, fp)) return fromChar(msg, client);
       return false;
     }
   };
