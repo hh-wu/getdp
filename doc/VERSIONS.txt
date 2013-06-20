@@ -1,6 +1,6 @@
 2.3.2: new two-step Init constraints; improved Update operation; better
 cpu/memory reporting; new -setnumber, -setstring, -gmshread command line
-options; small bug fixes.
+options; accept non-ASCII file paths on Windows; small bug fixes.
 
 2.3.1: updated onelab; small bug fixes.
 
