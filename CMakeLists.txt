@@ -503,6 +503,13 @@ if(WALL)
   set_source_files_properties(${WALL_SRC} COMPILE_FLAGS "-Wall")
 endif(WALL)
 
+# don't issue warnings for contributed libraries
+check_cxx_compiler_flag("-w" NOWARN)
+if(NOWARN)
+  file(GLOB_RECURSE NOWARN_SRC contrib/*.cpp contrib/*.c contrib/*.f)
+  set_source_files_properties(${NOWARN_SRC} PROPERTIES COMPILE_FLAGS "-w")
+endif(NOWARN)
+
 list(SORT CONFIG_OPTIONS)
 set(GETDP_CONFIG_OPTIONS "")
 foreach(OPT ${CONFIG_OPTIONS})
