@@ -167,7 +167,8 @@ struct doubleXstring{
 %type <l>  ListOfFormulation RecursiveListOfFormulation
 %type <l>  ListOfSystem RecursiveListOfSystem
 %type <l>  PostQuantities SubPostQuantities PostSubOperations
-%type <c>  NameForMathFunction NameForFunction CharExpr StrCat StringIndex String__Index
+%type <c>  NameForMathFunction NameForFunction CharExpr CharExprNoVar
+%type <c>  StrCat StringIndex String__Index
 %type <l>  RecursiveListOfString__Index
 %type <t>  Quantity_Def
 %type <l>  TimeLoopAdaptiveSystems TimeLoopAdaptivePOs IterativeLoopSystems IterativeLoopPOs
@@ -6892,13 +6893,13 @@ FloatParameterOption :
       List_Delete($4);
     }
 
-  | ',' tSTRING tBIGSTR
+  | ',' tSTRING CharExprNoVar
     {
       std::string key($2);
       std::string val($3);
       CharOptions_S[key].push_back(val);
       Free($2);
-      Free($3);
+      //Free($3); FIXME
     }
  ;
 
@@ -6916,13 +6917,13 @@ CharParameterOption :
       Free($2);
     }
 
-  | ',' tSTRING tBIGSTR
+  | ',' tSTRING CharExprNoVar
     {
       std::string key($2);
       std::string val($3);
       CharOptions_S[key].push_back(val);
       Free($2);
-      Free($3);
+      //Free($3); FIXME
     }
 
   | ',' tSTRING '{' RecursiveListOfCharExpr '}'
@@ -7548,30 +7549,18 @@ RecursiveListOfString__Index :
     { List_Add($$, &($3)); }
  ;
 
-CharExpr :
-
+CharExprNoVar :
     tBIGSTR
     { $$ = $1; }
-
-  | String__Index
-    {
-      Constant_S.Name = $1;
-      if(!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant)) {
-	vyyerror("Unknown Constant: %s", $1);  $$ = NULL;
-      }
-      else  {
-	if(Constant_S.Type == VAR_CHAR)
-	  $$ = Constant_S.Value.Char;
-	else {
-	  vyyerror("String Constant needed: %s", $1);  $$ = NULL;
-	}
-      }
-      Free($1);
-    }
 
   | StrCat
     {
       $$ = $1;
+    }
+
+  | tStr '[' CharExpr ']'
+    {
+      $$ = $3;
     }
 
   // deprecated
@@ -7633,6 +7622,28 @@ CharExpr :
       $$ = (char *)Malloc((strlen(ctime(&date_info))+1)*sizeof(char));
       strcpy($$, ctime(&date_info));
       $$[strlen($$)-1] = 0;
+    }
+ ;
+
+CharExpr :
+
+    CharExprNoVar
+    { $$ = $1; }
+
+  | String__Index
+    {
+      Constant_S.Name = $1;
+      if(!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant)) {
+	vyyerror("Unknown Constant: %s", $1);  $$ = NULL;
+      }
+      else  {
+	if(Constant_S.Type == VAR_CHAR)
+	  $$ = Constant_S.Value.Char;
+	else {
+	  vyyerror("String Constant needed: %s", $1);  $$ = NULL;
+	}
+      }
+      Free($1);
     }
  ;
 
