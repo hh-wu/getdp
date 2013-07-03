@@ -6899,7 +6899,7 @@ FloatParameterOption :
       std::string val($3);
       CharOptions_S[key].push_back(val);
       Free($2);
-      //Free($3); FIXME
+      Free($3);
     }
  ;
 
@@ -6923,7 +6923,7 @@ CharParameterOption :
       std::string val($3);
       CharOptions_S[key].push_back(val);
       Free($2);
-      //Free($3); FIXME
+      Free($3);
     }
 
   | ',' tSTRING '{' RecursiveListOfCharExpr '}'
@@ -7558,9 +7558,21 @@ CharExprNoVar :
       $$ = $1;
     }
 
-  | tStr '[' CharExpr ']'
+  | tStr '[' RecursiveListOfCharExpr ']'
     {
-      $$ = $3;
+      int size = 0;
+      for(int i = 0; i < List_Nbr($3); i++)
+        size += strlen(*(char**)List_Pointer($3, i)) + 1;
+      $$ = (char*)Malloc(size * sizeof(char));
+      $$[0] = '\0';
+      for(int i = 0; i < List_Nbr($3); i++){
+        char *s;
+        List_Read($3, i, &s);
+        strcat($$, s);
+        //Free(s);//FIXME
+        if(i != List_Nbr($3) - 1) strcat($$, "\n");
+      }
+      List_Delete($3);
     }
 
   // deprecated

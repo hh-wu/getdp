@@ -1170,15 +1170,18 @@ Character expressions are defined as follows:
   "@var{string}" |
   @var{string-id} |
   StrCat[ @var{expression-char} , @var{expression-char} ] |
-  Sprintf[ @var{expression-char} ] |
+  Str[ @var{expression-char} <, @dots{}> ]
+  Sprintf [ @var{expression-char} ] |
   Sprintf[ @var{expression-char}, @var{expression-cst-list} ] |
   Date
 @end example
 
-@noindent The third case in this definition permits to concatenate two
-character expressions; the next two cases permit to print the value of
-variables using standard C formatting; the last case permits to access the
-current date.
+@noindent @code{StrCat} and @code{Str} permit to concatenate 
+character expressions (@code{Str} adds a newline character after each
+string except the last).  @code{Sprintf} is equivalent to the
+@code{sprintf} C function (where @var{char-expression} is a format
+string that can contain floating point formatting characters: @code{%e},
+@code{%g}, etc.). @code{Date} permits to access the current date.
 
 @c -------------------------------------------------------------------------
 @c Operators
