@@ -224,11 +224,20 @@ void Read_ProblemStructure(const char *name)
   int Last_yyincludenum = getdp_yyincludenum;
 
   char AbsPath[2048];
-  strcpy(AbsPath, getdp_yyname);
-  int i = strlen(getdp_yyname) - 1;
-  while(i >= 0 && getdp_yyname[i] != '/' && getdp_yyname[i] != '\\') i--;
-  AbsPath[i+1] = '\0';
-  strcat(AbsPath, name);
+  int i;
+
+  if((strlen(name) > 0 && (name[0] == '/' || name[0] == '\\')) ||
+     (strlen(name) > 3 && name[1] == ':' && (name[2] == '\\' || name[2] == '/'))){
+    // name is an absolute path
+    strcpy(AbsPath, name);
+  }
+  else{
+    strcpy(AbsPath, getdp_yyname);
+    i = strlen(getdp_yyname) - 1;
+    while(i >= 0 && getdp_yyname[i] != '/' && getdp_yyname[i] != '\\') i--;
+    AbsPath[i+1] = '\0';
+    strcat(AbsPath, name);
+  }
 
   Message::Info("Loading problem definition '%s'", AbsPath);
 

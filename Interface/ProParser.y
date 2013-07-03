@@ -7759,6 +7759,14 @@ void Free_ParserVariables()
   List_Delete(ListOfFormulation); ListOfFormulation = 0;
   List_Delete(ListOfBasisFunction); ListOfBasisFunction = 0;
   List_Delete(ListOfEntityIndex); ListOfEntityIndex = 0;
+  strcpy(getdp_yyname, "");
+  strcpy(getdp_yyincludename, "");
+  getdp_yylinenum = 0;
+  getdp_yycolnum = 0;
+  getdp_yyincludenum = 0;
+  getdp_yyerrorlevel = 0;
+  CommandLineNumbers.clear();
+  CommandLineStrings.clear();
 }
 
 /*  A d d _ G r o u p   &   C o .  */
