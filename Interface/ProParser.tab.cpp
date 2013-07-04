@@ -14309,7 +14309,7 @@ yyreturn:
 void Alloc_ParserVariables()
 {
   if(!ConstantTable_L) {
-    ConstantTable_L = List_Create(20, 10, sizeof(struct Constant));
+    ConstantTable_L = List_Create(20, 200, sizeof(struct Constant));
     for(std::map<std::string, double>::iterator it = CommandLineNumbers.begin();
         it != CommandLineNumbers.end(); it++){
       Message::Info("Adding number %s = %g", it->first.c_str(), it->second);
