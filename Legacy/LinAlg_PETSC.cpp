@@ -184,7 +184,17 @@ static void _fillseq(gVector *V)
 
 void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
 {
-  PetscInt prealloc = 100, prealloc_full = n;
+  PetscInt prealloc = 100;
+  PetscInt prealloc_full = n;
+  int nonloc = Current.DofData->NonLocalEquations.size();
+
+  // heuristic for preallocation of global rows: don't prelloc more than 1 Gb
+  int onegig = (int)(1024 * 1024 * 1024 / (gSCALAR_SIZE * sizeof(double)));
+  if(nonloc * n > onegig){
+    prealloc_full = (int)(onegig / nonloc);
+    Message::Debug("Heuristic -petsc_prealloc_full changed to %d", prealloc_full);
+  }
+
   PetscTruth set;
   PetscOptionsGetInt(PETSC_NULL, "-petsc_prealloc", &prealloc, &set);
   PetscOptionsGetInt(PETSC_NULL, "-petsc_prealloc_full", &prealloc_full, &set);
@@ -199,7 +209,7 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
   // optimal, but preallocating too few elements leads to horrible
   // assembly performance: petsc really sucks at dynamic reallocation
   // in the AIJ matrix format)
-  for(unsigned int i = 0; i < Current.DofData->NonLocalEquations.size(); i++)
+  for(int i = 0; i < nonloc; i++)
     nnz[Current.DofData->NonLocalEquations[i] - 1] = prealloc_full;
 
   if(Message::GetCommSize() > 1) // FIXME: alloc full lines...
