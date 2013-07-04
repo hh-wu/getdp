@@ -3,6 +3,7 @@
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@geuz.org>.
 
+#include <string.h>
 #include "ProData.h"
 #include "ListUtils.h"
 #include "MallocUtils.h"
