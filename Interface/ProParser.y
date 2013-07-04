@@ -23,6 +23,7 @@
 #include "ProDefines.h"
 #include "ProParser.h"
 #include "MallocUtils.h"
+#include "TreeUtils.h"
 #include "Message.h"
 #include "OS.h"
 
@@ -40,7 +41,8 @@ std::map<std::string, double> CommandLineNumbers;
 std::map<std::string, std::string> CommandLineStrings;
 
 // Static parser variables (accessible only in this file)
-static List_T *ConstantTable_L = 0;
+
+static Tree_T *ConstantTable_L = 0;
 static List_T *ListOfInt_L = 0;
 static List_T *ListOfPointer_L = 0, *ListOfPointer2_L = 0, *ListOfChar_L = 0;
 static List_T *ListOfFormulation = 0, *ListOfBasisFunction = 0, *ListOfEntityIndex = 0;
@@ -579,7 +581,7 @@ IRegion :
       if((i = List_ISearchSeq(Problem_S.Group, $1, fcmp_Group_Name)) < 0) {
 	// Si ce n'est pas un nom de groupe, est-ce un nom de constante ? :
 	Constant_S.Name = $1;
-	if(!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant)) {
+	if(!Tree_Query(ConstantTable_L, &Constant_S)) {
 	  vyyerror("Unknown Constant: %s", $1);
 	  i = 0;
 	  List_Reset(ListOfInt_L); List_Add($$ = ListOfInt_L, &i);
@@ -6489,7 +6491,7 @@ Loop :
       Constant_S.Name = $2;
       Constant_S.Type = VAR_FLOAT;
       Constant_S.Value.Float = $5;
-      List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant);
+      Tree_Replace(ConstantTable_L, &Constant_S);
       fgetpos(getdp_yyin, &FposImbricatedLoopsTab[ImbricatedLoop]);
       /* hack_fsetpos_printf(); */
       LinenoImbricatedLoopsTab[ImbricatedLoop] = getdp_yylinenum;
@@ -6511,7 +6513,7 @@ Loop :
       Constant_S.Name = $2;
       Constant_S.Type = VAR_FLOAT;
       Constant_S.Value.Float = $5;
-      List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant);
+      Tree_Replace(ConstantTable_L, &Constant_S);
       fgetpos(getdp_yyin, &FposImbricatedLoopsTab[ImbricatedLoop]);
       LinenoImbricatedLoopsTab[ImbricatedLoop] = getdp_yylinenum;
       if(($9 > 0. && $5 > $7) || ($9 < 0. && $5 < $7))
@@ -6541,10 +6543,9 @@ Loop :
 	    Constant_S.Name = LoopControlVariablesNameTab[ImbricatedLoop-1];
 	    Constant_S.Type = VAR_FLOAT;
 	    Constant_S.Value.Float = LoopControlVariablesTab[ImbricatedLoop-1][0];
-	    int i;
-	    if((i = List_ISearchSeq(ConstantTable_L, &Constant_S, fcmp_Constant)) < 0)
+	    if(!Tree_Search(ConstantTable_L, &Constant_S))
 	      vyyerror("Unknown For/EndFor loop control variable %s", Constant_S.Name);
-	    List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant);
+	    Tree_Replace(ConstantTable_L, &Constant_S);
 	  }
 	  fsetpos(getdp_yyin, &FposImbricatedLoopsTab[ImbricatedLoop-1]);
 	  /* fsetpos() seems to position the file just after the For
@@ -6597,13 +6598,13 @@ Affectation :
 	Constant_S.Type = VAR_LISTOFFLOAT;
 	Constant_S.Value.ListOfFloat = $3;
       }
-      List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant);
+      Tree_Replace(ConstantTable_L, &Constant_S);
     }
 
   | String__Index '(' RecursiveListOfFExpr ')' tDEF ListOfFExpr tEND
     {
       Constant_S.Name = $1;
-      Constant *c = (Constant*)List_PQuery(ConstantTable_L, &Constant_S, fcmp_Constant);
+      Constant *c = (Constant*)Tree_PQuery(ConstantTable_L, &Constant_S);
       if(c && (c->Type == VAR_LISTOFFLOAT)){
         if(List_Nbr($3) == List_Nbr($6)){
           for(int i = 0; i < List_Nbr($3); i++){
@@ -6631,7 +6632,7 @@ Affectation :
   | String__Index '+' tDEF ListOfFExpr tEND
     {
       Constant_S.Name = $1;
-      Constant *c = (Constant*)List_PQuery(ConstantTable_L, &Constant_S, fcmp_Constant);
+      Constant *c = (Constant*)Tree_PQuery(ConstantTable_L, &Constant_S);
       if(c){
         if(c->Type == VAR_FLOAT && List_Nbr($4) == 1){
           double d;
@@ -6653,7 +6654,7 @@ Affectation :
   | String__Index '-' tDEF ListOfFExpr tEND
     {
       Constant_S.Name = $1;
-      Constant *c = (Constant*)List_PQuery(ConstantTable_L, &Constant_S, fcmp_Constant);
+      Constant *c = (Constant*)Tree_PQuery(ConstantTable_L, &Constant_S);
       if(c){
         if(c->Type == VAR_FLOAT && List_Nbr($4) == 1){
           double d;
@@ -6689,21 +6690,21 @@ Affectation :
     {
       Constant_S.Name = $1; Constant_S.Type = VAR_CHAR;
       Constant_S.Value.Char = $3;
-      List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant);
+      Tree_Replace(ConstantTable_L, &Constant_S);
     }
 
   | String__Index tDEF tStr '[' CharExpr ']' tEND
     {
       Constant_S.Name = $1; Constant_S.Type = VAR_CHAR;
       Constant_S.Value.Char = $5;
-      List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant);
+      Tree_Replace(ConstantTable_L, &Constant_S);
     }
 
   | String__Index tDEF StrCat tEND
     {
       Constant_S.Name = $1; Constant_S.Type = VAR_CHAR;
       Constant_S.Value.Char = $3;
-      List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant);
+      Tree_Replace(ConstantTable_L, &Constant_S);
     }
 
   | String__Index tDEF tListFromFile '[' CharExpr ']' tEND
@@ -6723,7 +6724,7 @@ Affectation :
 	    List_Add(Constant_S.Value.ListOfFloat, &d);
 	fclose(File);
       }
-      List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant);
+      Tree_Replace(ConstantTable_L, &Constant_S);
     }
 
   // deprectated
@@ -6740,7 +6741,7 @@ Affectation :
   | tPrintf String__Index tEND
     {
       Constant_S.Name = $2;
-      if(!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant))
+      if(!Tree_Query(ConstantTable_L, &Constant_S))
 	vyyerror("Unknown Constant: %s", $2);
       else
 	if(Constant_S.Type != VAR_LISTOFFLOAT)
@@ -6795,7 +6796,7 @@ Affectation :
       Constant_S.Value.Float = atof(tmpstr);
       Constant_S.Name = $3;
       Constant_S.Type = VAR_FLOAT;
-      List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant);
+      Tree_Replace(ConstantTable_L, &Constant_S);
     }
 
   | tRead '[' String__Index ']' tEND
@@ -6806,7 +6807,7 @@ Affectation :
       Constant_S.Value.Float = atof(tmpstr);
       Constant_S.Name = $3;
       Constant_S.Type = VAR_FLOAT;
-      List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant);
+      Tree_Replace(ConstantTable_L, &Constant_S);
     }
 
   // deprectated
@@ -6822,7 +6823,7 @@ Affectation :
 	Constant_S.Value.Float = atof(tmpstr);
       Constant_S.Name = $3;
       Constant_S.Type = VAR_FLOAT;
-      List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant);
+      Tree_Replace(ConstantTable_L, &Constant_S);
     }
 
   | tRead '[' String__Index ',' FExpr '}' tEND
@@ -6837,7 +6838,7 @@ Affectation :
 	Constant_S.Value.Float = atof(tmpstr);
       Constant_S.Name = $3;
       Constant_S.Type = VAR_FLOAT;
-      List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant);
+      Tree_Replace(ConstantTable_L, &Constant_S);
     }
 
   | tPrintConstants tEND
@@ -6948,8 +6949,8 @@ DefineConstants :
     { Constant_S.Name = $3; Constant_S.Type = VAR_FLOAT;
       Constant_S.Value.Float = 0.;
       FloatOptions_S.clear(); CharOptions_S.clear();
-      if(!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant)){
-	List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant);
+      if(!Tree_Search(ConstantTable_L, &Constant_S)){
+	Tree_Replace(ConstantTable_L, &Constant_S);
       }
     }
   | DefineConstants Comma String__Index '{' FExpr '}'
@@ -6961,9 +6962,9 @@ DefineConstants :
 	char tmpstr[256];
 	sprintf(tmpstr, "%s_%d", $3, k+1) ;
 	Constant_S.Name = tmpstr ;
-	if (!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant)) {
+	if (!Tree_Search(ConstantTable_L, &Constant_S)) {
 	  Constant_S.Name = strSave(tmpstr);
-	  List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
+	  Tree_Replace(ConstantTable_L, &Constant_S) ;
 	}
       }
       Free($3) ;
@@ -6972,9 +6973,9 @@ DefineConstants :
     { Constant_S.Name = $3; Constant_S.Type = VAR_FLOAT;
       Constant_S.Value.Float = $5;
       FloatOptions_S.clear(); CharOptions_S.clear();
-      if(!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant)){
+      if(!Tree_Search(ConstantTable_L, &Constant_S)){
         Message::ExchangeOnelabParameter(&Constant_S, FloatOptions_S, CharOptions_S);
-	List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant);
+	Tree_Replace(ConstantTable_L, &Constant_S);
       }
     }
   | DefineConstants Comma String__Index tDEF '{' FExpr
@@ -6982,18 +6983,18 @@ DefineConstants :
     FloatParameterOptions '}'
     { Constant_S.Name = $3; Constant_S.Type = VAR_FLOAT;
       Constant_S.Value.Float = $6;
-      if(!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant)){
+      if(!Tree_Search(ConstantTable_L, &Constant_S)){
         Message::ExchangeOnelabParameter(&Constant_S, FloatOptions_S, CharOptions_S);
-	List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant);
+	Tree_Replace(ConstantTable_L, &Constant_S);
       }
     }
   | DefineConstants Comma String__Index tDEF tBIGSTR
     { Constant_S.Name = $3; Constant_S.Type = VAR_CHAR;
       Constant_S.Value.Char = $5;
       FloatOptions_S.clear(); CharOptions_S.clear();
-      if(!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant)){
+      if(!Tree_Search(ConstantTable_L, &Constant_S)){
         Message::ExchangeOnelabParameter(&Constant_S, FloatOptions_S, CharOptions_S);
-	List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant);
+	Tree_Replace(ConstantTable_L, &Constant_S);
       }
     }
   | DefineConstants Comma String__Index tDEF '{' tBIGSTR
@@ -7001,9 +7002,9 @@ DefineConstants :
     CharParameterOptions '}'
     { Constant_S.Name = $3; Constant_S.Type = VAR_CHAR;
       Constant_S.Value.Char = $6;
-      if(!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant)){
+      if(!Tree_Search(ConstantTable_L, &Constant_S)){
         Message::ExchangeOnelabParameter(&Constant_S, FloatOptions_S, CharOptions_S);
-	List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant);
+	Tree_Replace(ConstantTable_L, &Constant_S);
       }
     }
  ;
@@ -7118,7 +7119,7 @@ OneFExpr :
   | tMPI_Size { $$ = Message::GetCommSize(); }
   | String__Index
     { Constant_S.Name = $1;
-      if(!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant)) {
+      if(!Tree_Query(ConstantTable_L, &Constant_S)) {
 	vyyerror("Unknown Constant: %s", $1);  $$ = 0.;
       }
       else  {
@@ -7134,7 +7135,7 @@ OneFExpr :
     {
       Constant_S.Name = $2;
       int ret = 0;
-      if(!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant))
+      if(!Tree_Query(ConstantTable_L, &Constant_S))
 	vyyerror("Unknown Constant: %s", $2);
       else{
 	if(Constant_S.Type != VAR_LISTOFFLOAT)
@@ -7149,7 +7150,7 @@ OneFExpr :
     {
       Constant_S.Name = $1;
       double ret = 0.;
-      if(!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant))
+      if(!Tree_Query(ConstantTable_L, &Constant_S))
 	vyyerror("Unknown Constant: %s", $1);
       else{
 	if(Constant_S.Type != VAR_LISTOFFLOAT)
@@ -7368,7 +7369,7 @@ MultiFExpr :
     {
       $$ = List_Create(20,20,sizeof(double));
       Constant_S.Name = $1;
-      if(!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant))
+      if(!Tree_Query(ConstantTable_L, &Constant_S))
 	vyyerror("Unknown Constant: %s", $1);
       else
 	if(Constant_S.Type != VAR_LISTOFFLOAT)
@@ -7387,7 +7388,7 @@ MultiFExpr :
     {
       $$ = List_Create(20,20,sizeof(double));
       Constant_S.Name = $1;
-      if(!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant))
+      if(!Tree_Query(ConstantTable_L, &Constant_S))
 	vyyerror("Unknown Constant: %s", $1);
       else
 	if(Constant_S.Type != VAR_LISTOFFLOAT)
@@ -7405,7 +7406,7 @@ MultiFExpr :
     {
       $$ = List_Create(20,20,sizeof(double));
       Constant_S.Name = $1;
-      if(!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant))
+      if(!Tree_Query(ConstantTable_L, &Constant_S))
 	vyyerror("Unknown Constant: %s", $1);
       else
 	if(Constant_S.Type != VAR_LISTOFFLOAT)
@@ -7432,7 +7433,7 @@ MultiFExpr :
     {
       $$ = List_Create(20,20,sizeof(double));
       Constant_S.Name = $3;
-      if(!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant))
+      if(!Tree_Query(ConstantTable_L, &Constant_S))
 	vyyerror("Unknown Constant: %s", $3);
       else
 	if(Constant_S.Type != VAR_LISTOFFLOAT)
@@ -7449,7 +7450,7 @@ MultiFExpr :
     {
       $$ = List_Create(20,20,sizeof(double));
       Constant1_S.Name = $3; Constant2_S.Name = $5;
-      if(!List_Query(ConstantTable_L, &Constant1_S, fcmp_Constant)) {
+      if(!Tree_Query(ConstantTable_L, &Constant1_S)) {
 	vyyerror("Unknown Constant: %s", $3);
       }
       else
@@ -7457,7 +7458,7 @@ MultiFExpr :
 	  vyyerror("Multi value Constant needed: %s", $3);
 	}
 	else {
-	  if(!List_Query(ConstantTable_L, &Constant2_S, fcmp_Constant)) {
+	  if(!Tree_Query(ConstantTable_L, &Constant2_S)) {
 	    vyyerror("Unknown Constant: %s", $5);
 	  }
 	  else
@@ -7645,7 +7646,7 @@ CharExpr :
   | String__Index
     {
       Constant_S.Name = $1;
-      if(!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant)) {
+      if(!Tree_Query(ConstantTable_L, &Constant_S)) {
 	vyyerror("Unknown Constant: %s", $1);  $$ = NULL;
       }
       else  {
@@ -7722,14 +7723,14 @@ NbrRegions :
 void Alloc_ParserVariables()
 {
   if(!ConstantTable_L) {
-    ConstantTable_L = List_Create(20, 200, sizeof(struct Constant));
+    ConstantTable_L = Tree_Create(sizeof(struct Constant), fcmp_Constant);
     for(std::map<std::string, double>::iterator it = CommandLineNumbers.begin();
         it != CommandLineNumbers.end(); it++){
       Message::Info("Adding number %s = %g", it->first.c_str(), it->second);
       Constant_S.Name = strdup(it->first.c_str());
       Constant_S.Type = VAR_FLOAT;
       Constant_S.Value.Float = it->second;
-      List_Add(ConstantTable_L, &Constant_S);
+      Tree_Add(ConstantTable_L, &Constant_S);
     }
     for(std::map<std::string, std::string>::iterator it = CommandLineStrings.begin();
         it != CommandLineStrings.end(); it++){
@@ -7737,7 +7738,7 @@ void Alloc_ParserVariables()
       Constant_S.Name = strdup(it->first.c_str());
       Constant_S.Type = VAR_CHAR;
       Constant_S.Value.Char = strdup(it->second.c_str());
-      List_Add(ConstantTable_L, &Constant_S);
+      Tree_Add(ConstantTable_L, &Constant_S);
     }
     ListOfInt_L     = List_Create(20, 10, sizeof(int));
     ListOfPointer_L = List_Create(10, 10, sizeof(void *));
@@ -7751,7 +7752,7 @@ void Alloc_ParserVariables()
 
 void Free_ParserVariables()
 {
-  List_Delete(ConstantTable_L); ConstantTable_L = 0;
+  Tree_Delete(ConstantTable_L); ConstantTable_L = 0;
   List_Delete(ListOfInt_L); ListOfInt_L = 0;
   List_Delete(ListOfPointer_L); ListOfPointer_L = 0;
   List_Delete(ListOfPointer2_L); ListOfPointer2_L = 0;
@@ -7832,16 +7833,16 @@ void Fill_GroupInitialListFromString(List_T *list, const char *str)
   }
 
   // try to find a constant with name "str"
-  for(int i = 0; i < List_Nbr(ConstantTable_L); i++){
-    struct Constant *Constant_P = (struct Constant*)List_Pointer(ConstantTable_L, i);
-    if(!strcmp(str, Constant_P->Name)){
-      switch(Constant_P->Type){
-      case VAR_FLOAT:
-        {
-          int num = (int)Constant_P->Value.Float;
-          List_Add(list, &num);
-          found = true;
-        }
+  Constant_S.Name = (char*)str;
+  Constant *Constant_P = (Constant*)Tree_PQuery(ConstantTable_L, &Constant_S);
+  if(Constant_P){
+    switch(Constant_P->Type){
+    case VAR_FLOAT:
+      {
+        int num = (int)Constant_P->Value.Float;
+        List_Add(list, &num);
+      }
+      found = true;
       break;
     case VAR_LISTOFFLOAT:
       for(int j = 0; j < List_Nbr(Constant_P->Value.ListOfFloat); j++){
@@ -7852,9 +7853,7 @@ void Fill_GroupInitialListFromString(List_T *list, const char *str)
       }
       found = true;
       break;
-      }
     }
-    if(found) break;
   }
 
   // if not, try to convert "str" to an integer
@@ -8047,8 +8046,10 @@ void  Print_Constants()
 
   Message::Check("Constants:\n");
 
-  for(int i = 0; i < List_Nbr(ConstantTable_L); i++){
-    Constant_P = (struct Constant*)List_Pointer(ConstantTable_L, i);
+  List_T *tmp = Tree2List(ConstantTable_L);
+
+  for(int i = 0; i < List_Nbr(tmp); i++){
+    Constant_P = (struct Constant*)List_Pointer(tmp, i);
     switch(Constant_P->Type){
     case VAR_FLOAT:
       Message::Check("%s = %g;\n", Constant_P->Name, Constant_P->Value.Float);
@@ -8074,6 +8075,8 @@ void  Print_Constants()
       break;
     }
   }
+
+  List_Delete(tmp);
 }
 
 

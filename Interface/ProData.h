@@ -221,6 +221,8 @@ struct ConstraintActive {
 #define NETWORK               5
 #define CST_LINK              6
 #define CST_LINKCPLX          7
+#define ASSIGN_LOCALPROJ      8
+#define INIT_LOCALPROJ        9
 
 
 /* ------------------------------------------------------------------------ */
@@ -537,6 +539,7 @@ struct QuantityStorage {
     int    CodeBasisFunction, CodeEntity;
     int    CodeAssociateBasisFunction;
     int    Constraint;
+    int    Constraint_Index;
     double Value[NBR_MAX_HARMONIC];
     double Value2[NBR_MAX_HARMONIC]; // for two-step INIT
     int    TimeFunctionIndex;
