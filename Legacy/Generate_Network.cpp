@@ -8,13 +8,16 @@
 #include "MallocUtils.h"
 #include "Message.h"
 
+extern int Flag_NETWORK_CACHE;
+extern char *Name_Path ;
+
 /* ------------------------------------------------------------------------ */
 /*  G e n e r a t e _ N e t w o r k                                         */
 /* ------------------------------------------------------------------------ */
 
 /* Determination of the matrix 'Loop - Branch' from the matrix 'Node - Branch' */
 
-struct ConstraintActive * Generate_Network(List_T * ConstraintPerRegion_L)
+struct ConstraintActive * Generate_Network(char *Name, List_T * ConstraintPerRegion_L)
 {
   struct ConstraintActive * Active ;
   struct ConstraintPerRegion * CPR ;
@@ -43,10 +46,13 @@ struct ConstraintActive * Generate_Network(List_T * ConstraintPerRegion_L)
   n = List_Nbr(ListInt_L) - 1 ;  /* Nbr_Node - 1 */
   Nbr_Loop = Nbr_Branch - n ;    /* Nbr of independent loops */
 
+  Message::Info("Network has %d branch(es), %d node(s) and %d loop(s)",
+                Nbr_Branch, n + 1, Nbr_Loop);
+
   /* Active data */
 
   Active = (struct ConstraintActive *)Malloc(sizeof(struct ConstraintActive)) ;
-  
+
   Active->Case.Network.NbrNode = n ; Active->Case.Network.NbrBranch = Nbr_Branch ;
   Active->Case.Network.NbrLoop = Nbr_Loop ;
 
@@ -107,7 +113,7 @@ struct ConstraintActive * Generate_Network(List_T * ConstraintPerRegion_L)
       else  Message::Error("Bad network") ;
     }
   }
-  
+
   /*
   printf ("\nMatNode transformed:\n\n") ;
   for (i=0 ; i<n ; i++) {
@@ -121,14 +127,73 @@ struct ConstraintActive * Generate_Network(List_T * ConstraintPerRegion_L)
 
   /* Matrix Loop - Branch */
 
+  char FileName[256];
+  strcpy(FileName, Name_Path);
+  strcat(FileName, Name);
+  strcat(FileName, ".cache");
+
+  if(Flag_NETWORK_CACHE){
+    FILE *fp = fopen(FileName, "r");
+    if(fp){
+      Message::Info("Reading network cache '%s'", FileName);
+      int n;
+      fscanf(fp, "%d", &n);
+      for(int l = 0; l < n; l++){
+        int i, j, val;
+        fscanf(fp, "%d %d %d", &i, &j, &val);
+        if(i < Nbr_Loop && j < Nbr_Branch)
+          MatLoop[i][j] = val;
+        else
+          Message::Error("Invalid network cache entry");
+      }
+      fclose(fp);
+      return Active ;
+    }
+    else{
+      Message::Info("Did not find network cache '%s': generating it", FileName);
+    }
+  }
+
+  Message::ResetProgressMeter();
+
   for (i=0 ; i<Nbr_Loop ; i++) {
+    int ni = Num_col[n+i];
     for (j=0 ; j<n ; j++) {  /* rectangular part */
+      int nj = Num_col[j];
       vsum = 0 ;
-      for (k=0 ; k<n ; k++)  vsum += MatA[k][Num_col[n+i]] * MatA[k][Num_col[j]] ;
-      MatLoop[i][Num_col[j]] = - vsum ;
+      for (k=0 ; k<n ; k++){
+        int a = MatA[k][ni];
+        int b = MatA[k][nj];
+        if(a && b) vsum += a * b ;
+      }
+      MatLoop[i][nj] = - vsum ;
     }
     for (j=0 ; j<Nbr_Loop ; j++)  /* Unit matrix */
       MatLoop[i][Num_col[n+j]] = (j == i)? 1 : 0 ;
+
+    Message::ProgressMeter(i + 1, Nbr_Loop, "Processing (Generate Network)");
+  }
+
+  if(Flag_NETWORK_CACHE){
+    FILE *fp = fopen(FileName, "w");
+    if(fp){
+      int n = 0;
+      for(int i = 0; i < Nbr_Loop; i++){
+        for(int j = 0; j < Nbr_Branch; j++){
+          if(MatLoop[i][j]) n++;
+        }
+      }
+      fprintf(fp, "%d\n", n);
+      for(int i = 0; i < Nbr_Loop; i++){
+        for(int j = 0; j < Nbr_Branch; j++){
+          if(MatLoop[i][j]) fprintf(fp, "%d %d %d\n", i, j, MatLoop[i][j]);
+        }
+      }
+      fclose(fp);
+    }
+    else{
+      Message::Error("Could not create network cache '%s'", FileName);
+    }
   }
 
   return Active ;

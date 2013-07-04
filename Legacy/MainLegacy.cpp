@@ -26,6 +26,7 @@
 
 int     Flag_PRE = 0, Flag_CAL = 0, Flag_POS = 0, Flag_RESTART = 0;
 int     Flag_XDATA = 0, Flag_BIN = 0, Flag_SPLIT = 0, Flag_GMSH_VERSION = 1;
+int     Flag_NETWORK_CACHE = 0;
 double  Flag_ORDER = -1.;
 char   *Name_Generic = 0, *Name_Path = 0;
 char   *Name_Resolution = 0;
@@ -126,6 +127,7 @@ static void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *
       if      (!strcmp(argv[i]+1, "cal"))    { Flag_CAL     = 1; i++; }
       else if (!strcmp(argv[i]+1, "check"))  { *check       = 1; i++; }
       else if (!strcmp(argv[i]+1, "xdata"))  { Flag_XDATA   = 1; i++; }
+      else if (!strcmp(argv[i]+1, "cache"))  { Flag_NETWORK_CACHE = 1; i++; }
       else if (!strcmp(argv[i]+1, "bin"))    { Flag_BIN     = 1; i++; }
       else if (!strcmp(argv[i]+1, "v2"))     { Flag_GMSH_VERSION = 2; i++; }
       else if (!strcmp(argv[i]+1, "ascii"))  { Flag_BIN     = 0; i++; }
@@ -430,6 +432,7 @@ static void Free_GlobalVariables()
 {
   Flag_PRE = 0; Flag_CAL = 0; Flag_POS = 0; Flag_RESTART = 0;
   Flag_XDATA = 0; Flag_BIN = 0; Flag_SPLIT = 0; Flag_GMSH_VERSION = 1;
+  Flag_NETWORK_CACHE = 0;
   Flag_ORDER = -1.;
   Free(Name_Generic); Name_Generic = 0;
   Free(Name_Path); Name_Path = 0;

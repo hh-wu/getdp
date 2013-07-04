@@ -180,7 +180,7 @@ void  Cal_FemGlobalEquation(struct EquationTerm    * EquationTerm_P,
       List_Pointer(Constraint_P->MultiConstraintPerRegion, i_MCPR) ;
 
     if (!MCPR_P->Active)
-      MCPR_P->Active = Generate_Network(MCPR_P->ConstraintPerRegion) ;
+      MCPR_P->Active = Generate_Network(MCPR_P->Name, MCPR_P->ConstraintPerRegion) ;
 
     for (i_Node = 0 ; i_Node < MCPR_P->Active->Case.Network.NbrNode ; i_Node++) {
       for (j_Branch = 0 ;

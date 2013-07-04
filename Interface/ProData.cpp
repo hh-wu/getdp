@@ -612,7 +612,7 @@ void Print_Constraint()
 	}
 #if defined(HAVE_LEGACY)
 	if (!MCPR_S.Active)
-	  MCPR_S.Active = Generate_Network(MCPR_S.ConstraintPerRegion);
+	  MCPR_S.Active = Generate_Network(MCPR_S.Name, MCPR_S.ConstraintPerRegion);
 #endif
 	Print_Network(&MCPR_S);
       }
