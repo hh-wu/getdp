@@ -754,6 +754,10 @@ Reads adaptation constraints from file.
 
 Specifies the maximum interpolation order.
 
+@item -cache
+
+Caches network computations to disk.
+
 @item -bin 
 
 Selects binary format for output files.

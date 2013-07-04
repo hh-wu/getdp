@@ -56,6 +56,7 @@ static void Info(int level, char *arg0)
 	    "  -name string              use string as generic file name\n"
 	    "  -adapt file               read adaptation constraints from file\n"
 	    "  -order num                restrict maximum interpolation order\n"
+            "  -cache                    cache network computations to disk\n"
 	    "Linear solver options:\n"
 #if defined(HAVE_PETSC)
 	    "  -solver file              specify parameter file (default: .petscrc)\n"
