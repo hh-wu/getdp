@@ -38,6 +38,7 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
   struct Group                * GroupEntity_Pr ;
 
   QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Constraint = NONE ;
+  QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Constraint_Index = -1;
 
   Constraint_L = FunctionSpace_P->Constraint ;
   Nbr_Constraint = List_Nbr(Constraint_L) ;
@@ -68,36 +69,25 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 					   abs(Num_Entity[i_Entity]), 1)) {
 	    QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Constraint =
 	      ConstraintPerRegion_P->Type ;
+            QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Constraint_Index =
+              i_Constraint;
 
 	    if (ConstraintPerRegion_P->Type == ASSIGN ||
 		ConstraintPerRegion_P->Type == INIT) {
-
 	      switch (TypeConstraint) {
 	      case NODESOF :
 	      case GROUPSOFEDGESONNODESOF :
 		Current.NumEntity = abs(Num_Entity[i_Entity]) ;
+                // Note: Current.Element will be set to 0 in Get_ValueForConstraint
+                // so that Current.{x,y,z} will be used in CoordXYZ[] functions
 		Geo_GetNodesCoordinates(1, &Current.NumEntity,
                                         &Current.x, &Current.y, &Current.z) ;
-                /* We used to do the follwoing to get the correct u,v,w
-                   coordinates so we can use CoordXYZ[] functions in
-                   preprocessing for nodal constraints:
-                   int dummy;
-                   double *uvw = Geo_GetNodes_uvw(Current.Element->Type, &dummy) ;
-                   Current.u = uvw[3 * i_Entity] ;
-                   Current.v = uvw[3 * i_Entity + 1] ;
-                   Current.w = uvw[3 * i_Entity + 2] ;
-
-                   This is not necessary anymore: we now set Current.Element=0
-                   in Get_{Value,Link}ForConstraint, and thus use
-                   Current.{x,y,z} directly in CoordXYZ[].
-                */
 		break ;
 	      case EDGESOF :
 		Current.NumEntity = abs(Num_Entity[i_Entity]) ;
 		Current.NumEntityInElement = i_Entity ;
 		break ;
 	      }
-
 	      Get_ValueForConstraint
 		(Constraint_P,
 		 QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Value,
@@ -105,6 +95,11 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 		 &QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].
 		 TimeFunctionIndex) ;
 	    }
+            else if (ConstraintPerRegion_P->Type == ASSIGN_LOCALPROJ ||
+                     ConstraintPerRegion_P->Type == INIT_LOCALPROJ) {
+              // nothing to do now (per entity): we will do the projection
+              // later, per element
+            }
 	    else if (ConstraintPerRegion_P->Type == CST_LINK ||
 		     ConstraintPerRegion_P->Type == CST_LINKCPLX) {
 	      Get_LinkForConstraint
@@ -118,7 +113,7 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 		  QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].
 		  CodeEntity_Link)
 		QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Constraint =
-		  NONE ; /* Code linked with itself not allowed */
+		  NONE ; // Code linked with itself not allowed
 	    }
 	    else {
 	      Get_PreResolutionForConstraint
@@ -191,7 +186,8 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 
       }
 
-      break ;  /* ASSIGN || INIT || ASSIGNFROMRESOLUTION || INITFROMRESOLUTION */
+      break ;  /* ASSIGN || INIT || ASSIGN_LOCALPROJ || INIT_LOCALPROJ ||
+                  ASSIGNFROMRESOLUTION || INITFROMRESOLUTION */
 
     default :
       Message::Error("Unknown type of Constraint");
@@ -225,9 +221,9 @@ void  Get_ValueForConstraint(struct ConstraintInFS * Constraint_P, double Value[
   int  k ;
   struct Value  Val_Modulus, Val_Modulus2, Val_TimeFunction ;
 
-  // Warning: Current.{u,v,w} are not defined, so we cannot interpolate
-  // expressions in the reference element. We thus set Current.Element=0 and
-  // rely on Current.{x,y,z}.
+  // Note: Current.{u,v,w} is not defined, so we cannot interpolate expressions
+  // in the reference element. We thus set Current.Element=0 and rely on
+  // Current.{x,y,z}.
   struct Element *old = Current.Element;
   Current.Element = 0;
 
@@ -266,9 +262,9 @@ void  Get_ValueForConstraint(struct ConstraintInFS * Constraint_P, double Value[
   else{
     Value[0] = Val_Modulus.Val[0] ;
     Value2[0] = Val_Modulus2.Val[0] ;
-    // Set this to zero to avoid having an uninitialized imaginary
-    // part if you use a complex arithmetic solver (on a real matrix)
-    // -- cf. LinAlg_SetScalar() calls in DofData.cpp
+    // Set this to zero to avoid having an uninitialized imaginary part if you
+    // use a complex arithmetic solver (on a real matrix) --
+    // cf. LinAlg_SetScalar() calls in DofData.cpp
     Value[1] = 0. ;
     Value2[1] = 0. ;
   }
@@ -412,9 +408,9 @@ void  Get_LinkForConstraint(struct ConstraintInFS * Constraint_P,
 			    int Num_Entity,
 			    int * CodeEntity_Link, int Orient, double Value[])
 {
-  // Warning: Current.{u,v,w} are not defined, so we cannot interpolate
-  // expressions in the reference element. We thus set Current.Element=0 and
-  // rely on Current.{x,y,z}.
+  // Note: Current.{u,v,w} is not defined, so we cannot interpolate expressions
+  // in the reference element. We thus set Current.Element=0 and rely on
+  // Current.{x,y,z}.
   struct Element *old = Current.Element;
   Current.Element = 0;
 

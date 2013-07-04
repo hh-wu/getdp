@@ -38,6 +38,7 @@ set(SRC
       Treatment_Formulation.cpp
         Get_DofOfElement.cpp
         Get_ConstraintOfElement.cpp
+          Treatment_ConstraintByLocalProjection.cpp
           Get_FunctionValue.cpp
           Get_Geometry.cpp
           Get_ElementSource.cpp

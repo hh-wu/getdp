@@ -17,6 +17,10 @@ void  Treatment_ConstraintForRegion(struct GlobalQuantity   * GlobalQuantity_P,
 				    struct FunctionSpace    * FunctionSpace_P,
 				    struct QuantityStorage  * QuantityStorage_P) ;
 
+void Treatment_ConstraintByLocalProjection(struct Element *Element,
+                                           struct FunctionSpace *FunctionSpace_P,
+                                           struct QuantityStorage *QuantityStorage_P) ;
+
 void  Get_ValueForConstraint(struct ConstraintInFS * Constraint_P,
                              double Value[], double Value2[],
 			     int * Index_TimeFunction) ;

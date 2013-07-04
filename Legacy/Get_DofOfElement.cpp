@@ -115,8 +115,8 @@ void  Get_DofOfElement(struct Element          * Element,
       case NODESOF :
 	Get_CodesOfElement
 	  (FunctionSpace_P, QuantityStorage_P,
-	   Element->GeoElement->NbrNodes, Element->GeoElement->NumNodes,
-	   0,  i_BFunction, NODESOF, NULL) ;
+           Element->GeoElement->NbrNodes, Element->GeoElement->NumNodes,
+	   0, i_BFunction, NODESOF, NULL) ;
 	break ;
 
       case EDGESOF :  case EDGESOFTREEIN :
@@ -124,8 +124,8 @@ void  Get_DofOfElement(struct Element          * Element,
 	  Geo_CreateEdgesOfElement(Element->GeoElement) ;
 	Get_CodesOfElement
 	  (FunctionSpace_P, QuantityStorage_P,
-	   Element->GeoElement->NbrEdges, Element->GeoElement->NumEdges,
-	   0,  i_BFunction, EDGESOF, NULL) ;
+           Element->GeoElement->NbrEdges, Element->GeoElement->NumEdges,
+	   0, i_BFunction, EDGESOF, NULL) ;
 	break ;
 
       case FACETSOF :  case FACETSOFTREEIN :
@@ -135,14 +135,14 @@ void  Get_DofOfElement(struct Element          * Element,
 	  Geo_CreateFacetsOfElement(Element->GeoElement) ;
 	Get_CodesOfElement
 	  (FunctionSpace_P, QuantityStorage_P,
-	   Element->GeoElement->NbrFacets, Element->GeoElement->NumFacets,
-	   0,  i_BFunction, FACETSOF, NULL) ;
+           Element->GeoElement->NbrFacets, Element->GeoElement->NumFacets,
+	   0, i_BFunction, FACETSOF, NULL) ;
 	break ;
 
       case VOLUMESOF :
 	Get_CodesOfElement(FunctionSpace_P, QuantityStorage_P,
-			   1, &Element->GeoElement->Num,
-			   0,  i_BFunction, VOLUMESOF, NULL) ;
+                           1, &Element->GeoElement->Num,
+			   0, i_BFunction, VOLUMESOF, NULL) ;
 	break ;
 
       case GROUPSOFNODESOF :
@@ -153,7 +153,7 @@ void  Get_DofOfElement(struct Element          * Element,
 	Get_CodesOfElement
 	  (FunctionSpace_P, QuantityStorage_P,
 	   Element->NbrGroupsOfEntities, Element->NumGroupsOfEntities,
-	   StartingIndex,  i_BFunction, GROUPSOFNODESOF, Element->NumSubFunction[1]) ;
+	   StartingIndex, i_BFunction, GROUPSOFNODESOF, Element->NumSubFunction[1]) ;
 	break ;
 
       case GROUPSOFEDGESONNODESOF :
@@ -163,7 +163,7 @@ void  Get_DofOfElement(struct Element          * Element,
 	Get_CodesOfElement
 	  (FunctionSpace_P, QuantityStorage_P,
 	   Element->NbrGroupsOfEntities, Element->NumGroupsOfEntities,
-	   StartingIndex,  i_BFunction, GROUPSOFEDGESONNODESOF, NULL) ;
+	   StartingIndex, i_BFunction, GROUPSOFEDGESONNODESOF, NULL) ;
 	break ;
 
       case GROUPSOFEDGESOF :
@@ -176,7 +176,7 @@ void  Get_DofOfElement(struct Element          * Element,
 	Get_CodesOfElement
 	  (FunctionSpace_P, QuantityStorage_P,
 	   Element->NbrGroupsOfEntities, Element->NumGroupsOfEntities,
-	   StartingIndex,  i_BFunction, GROUPSOFEDGESOF, NULL) ;
+	   StartingIndex, i_BFunction, GROUPSOFEDGESOF, NULL) ;
 	break ;
 
       case GROUPSOFFACETSOF :
@@ -189,7 +189,7 @@ void  Get_DofOfElement(struct Element          * Element,
 	Get_CodesOfElement
 	  (FunctionSpace_P, QuantityStorage_P,
 	   Element->NbrGroupsOfEntities, Element->NumGroupsOfEntities,
-	   StartingIndex,  i_BFunction, GROUPSOFFACETSOF, NULL) ;
+	   StartingIndex, i_BFunction, GROUPSOFFACETSOF, NULL) ;
 	break ;
 
       case REGION :
@@ -197,7 +197,7 @@ void  Get_DofOfElement(struct Element          * Element,
 	Get_CodesOfElement
 	  (FunctionSpace_P, QuantityStorage_P,
 	   Element->NbrGroupsOfEntities, Element->NumGroupsOfEntities,
-	   StartingIndex,  i_BFunction, REGION, Element->NumSubFunction[1]) ;
+	   StartingIndex, i_BFunction, REGION, Element->NumSubFunction[1]) ;
 	break ;
 
       case GLOBAL :
@@ -205,7 +205,7 @@ void  Get_DofOfElement(struct Element          * Element,
 	Get_CodesOfElement
 	  (FunctionSpace_P, QuantityStorage_P,
 	   Element->NbrGroupsOfEntities, Element->NumGroupsOfEntities,
-	   StartingIndex,  i_BFunction, GLOBAL, NULL) ;
+	   StartingIndex, i_BFunction, GLOBAL, NULL) ;
 	break ;
       }
 
@@ -214,6 +214,10 @@ void  Get_DofOfElement(struct Element          * Element,
   }  /* for i ... */
 
   QuantityStorage_P->NbrElementaryBasisFunction = Nbr_ElementaryBF ;
+
+  if (TreatmentStatus == _PRE)
+    Treatment_ConstraintByLocalProjection(Element, FunctionSpace_P,
+                                          QuantityStorage_P);
 }
 
 /* ------------------------------------------------------------------------ */
