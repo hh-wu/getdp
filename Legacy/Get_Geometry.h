@@ -20,6 +20,8 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
 
 void  * Get_JacobianFunctionAuto (int Type_Element, int Dimension) ;
 
+void  * Get_IntegrationFunctionAuto (int Type_Element, int Order, int *NumPoints) ;
+
 /* Jacobian */
 /* -------- */
 
