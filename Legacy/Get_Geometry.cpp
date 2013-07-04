@@ -14,6 +14,7 @@
 #include "Get_Geometry.h"
 #include "GeoData.h"
 #include "BF.h"
+#include "Gauss.h"
 #include "Message.h"
 
 #define THESIGN(a) ((a)>=0 ? 1 : -1)
@@ -289,6 +290,10 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
 
 }
 
+/* ------------------------------------------------------------------------ */
+/*  G e t _ J a c o b i a n F u n c t i o n A u t o                         */
+/* ------------------------------------------------------------------------ */
+
 void  * Get_JacobianFunctionAuto (int Type_Element, int Dimension)
 {
   switch(Type_Element){
@@ -312,6 +317,45 @@ void  * Get_JacobianFunctionAuto (int Type_Element, int Dimension)
   case PYRAMID     : case PYRAMID_2     :
   default:
     return((void *)JacobianVol3D) ;
+  }
+}
+
+/* ------------------------------------------------------------------------ */
+/*  G e t _ I n t e g r a t i o n F u n c t i o n A u t o                   */
+/* ------------------------------------------------------------------------ */
+
+void  * Get_IntegrationFunctionAuto (int Type_Element, int Order, int *NumPoints)
+{
+  // TODO : compute correct number of points
+
+  switch(Type_Element){
+  case POINT :
+    *NumPoints = 1;
+    return ((void *)Gauss_Point) ;
+  case LINE : case LINE_2 :
+    *NumPoints = 3;
+    return ((void *)Gauss_Line) ;
+  case TRIANGLE : case TRIANGLE_2 :
+    *NumPoints = 6;
+    return ((void*)Gauss_Triangle) ;
+  case QUADRANGLE : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
+    *NumPoints = 7;
+    return ((void*)Gauss_Quadrangle) ;
+  case TETRAHEDRON : case TETRAHEDRON_2 :
+    *NumPoints = 15;
+    return ((void*)Gauss_Tetrahedron) ;
+  case HEXAHEDRON  : case HEXAHEDRON_2  :
+    *NumPoints = 34;
+    return ((void*)Gauss_Hexahedron) ;
+  case PRISM       : case PRISM_2       :
+    *NumPoints = 21;
+    return ((void*)Gauss_Prism) ;
+  case PYRAMID     : case PYRAMID_2     :
+    *NumPoints = 8;
+    return ((void*)Gauss_Pyramid) ;
+  default:
+    Message::Error("Unknown type of element for integration function");
+    return 0;
   }
 }
 
