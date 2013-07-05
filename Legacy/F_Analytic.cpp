@@ -1219,7 +1219,7 @@ cplx Dhn_Spherical(cplx *hntab, int n, double x)
 
 void  F_DrAcousticFieldSoftSphere(F_ARG)
 {
-  cplx I = {0.,1.}, hnkR, hnkr, tmp, *hnkrtab;
+  cplx I = {0.,1.}, hnkR, tmp, *hnkrtab;
   double k, R, r, kr, kR, theta, fact ;
   int n, ns ;
 
@@ -1246,9 +1246,6 @@ void  F_DrAcousticFieldSoftSphere(F_ARG)
   for (n = 0 ; n < ns ; n++){
     hnkR.r = Spherical_j_n(n, kR);
     hnkR.i = Spherical_y_n(n, kR);
-
-    hnkr.r = Spherical_j_n(n, kr);
-    hnkr.i = Spherical_y_n(n, kr);
 
     tmp = Cdiv( Cprod( Cpow(I,n) , Cprodr(hnkR.r * k, Dhn_Spherical(hnkrtab, n, kr)) ) ,
 		hnkR );
@@ -1930,7 +1927,7 @@ void F_DthetaAcousticFieldHardCylinder(F_ARG)
 void F_AcousticFieldHardCylinderABC(F_ARG)
 {
   cplx I = {0.,1.}, tmp, alpha1, alpha2, delta, am, bm, lambda, coef;
-  cplx H1nkR0, *H1nkR0tab, *H2nkR0tab, *H1nkR1tab, *H2nkR1tab, H1nkr, alphaBT, betaBT;
+  cplx *H1nkR0tab, *H2nkR0tab, *H1nkR1tab, *H2nkR1tab, H1nkr, alphaBT, betaBT;
 
   double k, R0, R1, r, kr, kR0, kR1, theta, cost, sint ;
   int n, ns, ABCtype, SingleMode ;
@@ -1994,9 +1991,6 @@ void F_AcousticFieldHardCylinderABC(F_ARG)
   for (n = 0 ; n < ns ; n++){
     if(SingleMode >= 0 && SingleMode != n) continue;
 
-    H1nkR0.r = jn(n, kR0);
-    H1nkR0.i = yn(n, kR0);
-
     H1nkr.r = jn(n,kr);
     H1nkr.i = yn(n,kr);
 
@@ -2054,7 +2048,7 @@ void F_AcousticFieldHardCylinderABC(F_ARG)
 void F_RCSHardCylinder(F_ARG)
 {
   cplx I = {0.,1.}, Hnkr, dHnkR, res, tmp, *HnkRtab;
-  double k, R, r, kr, kR, theta, cost, val ;
+  double k, R, r, kR, theta, cost, val ;
   int n, ns ;
 
   theta = atan2(A->Val[1], A->Val[0]) ;
@@ -2062,7 +2056,6 @@ void F_RCSHardCylinder(F_ARG)
 
   k = Fct->Para[0] ;
   R = Fct->Para[1] ;
-  kr = k*r;
   kR = k*R;
 
   res.r = 0.;
