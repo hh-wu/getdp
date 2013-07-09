@@ -30,7 +30,7 @@ Group{
 Function {
   // Open circuit - load - short circuit
   DefineConstant[ ZR = {200,
-      Choices{1e-8, 200, 1e8}, Label "Load resistance",  Path "Input/", Highlight "AliceBlue"} ];
+      Choices{1e-8, 200, 1e8}, Label "Load resistance",  Path "Input/8", Highlight "AliceBlue"} ];
   Resistance[#{R1, R2, R3}]  = ZR ;
 }
 

@@ -14,22 +14,20 @@
 mm = 1e-3 ;
 deg2rad = Pi/180 ;
 
-DefineConstant[ NbrPoles = {2, Choices { 1="1",
-                                         2="2",
-                                         4="4",
-                                         8="8"},
-                            Label "Number of poles in FE model",
-                            Path "Input/1", Highlight "Blue"} ] ;
+pp = "Input/Constructive parameters";
 
+DefineConstant[
+  NbrPoles = { 1, Choices {1="1", 2="2", 4="4", 8="8"},
+    Label "Number of poles in FE model",
+    Path "Input/20", Highlight "Blue", Visible 1},
+  InitialRotorAngle_deg = {0., Label "Start rotor angle [deg]",
+    Path "Input/21", Highlight "AliceBlue"}
+] ;
 
 //--------------------------------------------------------------------------------
 
-AxialLength = 40e-3 ;
-
 mur_fe = 1000 ;
 sigma_fe = 0 ;
-
-DefineConstant[ InitialRotorAngle_deg = {0, Label "Start rotor angle", Path "Input/20", Highlight "AliceBlue"} ];
 
 
 InitialRotorAngle = InitialRotorAngle_deg*deg2rad ;
@@ -75,7 +73,11 @@ rRext = 26*mm ;
 wrR3 = 14.35/2 *mm ;
 wrR2 = 14.1/2 *mm ;
 
-Gap = 0.55*mm ; //airgap
+DefineConstant[
+  AxialLength = {40*mm,  Label "Axial length [m]", Path Str[pp], Closed 1},
+  Gap = {0.55*mm, Label "Airgap width [m]", Path Str[pp], Closed 1}
+];
+
 
 // Moving band radius
 rB0 = rRext - Gap ;
@@ -96,6 +98,16 @@ ws3  = 1.861*mm ;
 wsS1 = 3.299/2*mm ;
 wsS3 = 2.583/2*mm ;
 
+
+
+sigma_fe = 0. ; // laminated steel
+DefineConstant[
+  mur_fe = {1000, Label "Relative permeability for linear case", Path Str[pp]},
+  b_remanent = { 1.03, Label "Remanent induction [T]", Path Str[pp] }
+];
+
+rpm_nominal = 1000 ;
+Inominal = 4 ;
 // ----------------------------------------------------
 // Numbers for physical regions in .geo and .pro files
 // ----------------------------------------------------

@@ -1,7 +1,19 @@
+// Authors - J. Gyselinck, R.V. Sabariego (May 2013)
+
+// ------------------------------------------
 // Induction machine -- TFE Suzanne Guerard
 // ------------------------------------------
-// Finite element modelling of an asynchronous motor with one broken rotor bar, comparison with the data
-// recorded on a prototype and material aspects
+
+// 4-pole IP55 three-phase motor from WEG Motores - 60Hz
+// rated power 18.5 kW
+// rated speed: 1760 rpm
+// rated voltage: 220 V
+// rated current: 64.3 A
+// 91% efficiency at rated power
+// weight: 125 kg
+
+// "Finite element modelling of an asynchronous motor with one broken rotor bar, comparison
+// with the data recorded on a prototype and material aspects"
 // S. Guérard, J. Gyselinck, and J. Lecomte-Beckers
 // Prix Melchior Salier 2004 du meilleur travail de fin d'études
 // section électromécanique-énergétique
@@ -9,23 +21,51 @@
 u = 1e-3 ; // unit = mm
 deg2rad = Pi/180 ;
 
-DefineConstant[ NbrPoles = { 1, Choices{ 1 = "1",
-                                         2 = "2",
-                                         4 = "4" },
-                                       Label "Number of poles in FE model",
-                                       Path "Input/1", Highlight "Blue", Visible 1} ] ;
+pp = "Input/Constructive parameters";
 
-DefineConstant[ InitialRotorAngle_deg = { 0, Path "Input/2", Highlight "AliceBlue"} ];
+DefineConstant[
+  NbrPoles = { 1, Choices{ 1 = "1", 2 = "2", 4 = "4" },
+    Label "Number of poles in FE model",
+    Path "Input/20", Highlight "Blue", Visible 1},
+  InitialRotorAngle_deg = { 10, Label "Initial rotor angle (deg)",
+    Path "Input/20", Highlight "AliceBlue"}
+];
+
+
+//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+// Rotor
+
+NbrPolesTot = 4;  // number of poles in complete cross-section
+NbrPolePairs = NbrPolesTot/2 ;
+
+SymmetryFactor = NbrPolesTot/NbrPoles;
+Flag_Symmetry = (SymmetryFactor==1)?0:1;
+
+NbrSectTot  = 40; // number of rotor teeth
+NbrSect = NbrSectTot*NbrPoles/NbrPolesTot; // number of rotor teeth in FE model
+
+//Stator
+NbrSectStatorTot = 48; // number of stator teeth
+NbrSectStator = NbrSectStatorTot*NbrPoles/NbrPolesTot; // number of stator teeth in FE model
+
+StatorAngle_  = Pi/NbrSectStatorTot-Pi/2; // initial stator angle (radians)
+StatorAngle_S = StatorAngle_;
 
 //--------------------------------------------------------------------------------
 
 InitialRotorAngle = InitialRotorAngle_deg*deg2rad ; // initial rotor angle, 0 if aligned
 
+RotorAngle_R = InitialRotorAngle + Pi/NbrSectTot-Pi/2; // initial rotor angle (radians)
+RotorAngle_S = RotorAngle_R;
 
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 // Rotor dimensions
-AG = u*0.47;       // airgap width
+DefineConstant[
+  AG = {u*0.47, Label "Airgap width [m]", Path Str[pp], Closed 1}
+];
+
 R2 = u*92/2 - AG;  // outer rotor radius
 R3 = u* 31.75/2;   // shaft radius
 R1 = R2 + AG/3;    // inner radius of moving band
@@ -53,44 +93,48 @@ ss   = 0.05;
 //-----------------------------------------------------------------------
 Freq = 60 ;
 
+sigma_fe = 0 ;
+DefineConstant[
+  sigma_bars = {28e6, Label "Conductivity of rotor bars [S/m]", Path Str[pp]},
+  // alloy in die-cast rotor cages: Si (0.2%) + Fe (0.25%) + Cu (0.01%) + Zn (0.04%) + Ti (0.02%)
+  mur_fe = {1000, Label "Relative permeability for linear case", Path Str[pp]}
+];
 
 Lz = 0.2 ;    // axial length of magnetic core in m
-Rs = 0.4992 ; // resistance of a stator phase in ohm
-Ls = 1.7036e-3 ; Xs = 2*Pi*Freq * Ls ; // endwinding inductance and reactance in H and ohm
-Ns = 8*16 ;   // number of series turns per stator phase (delta series connection)
-sigma_bars = 28e6 ; // conductivity of rotor bars in S/m
-sigma_fe = 0 ;
 
-RendringSeg2 = 88; // resistance of two endring segments in series in ohm
-LendringSeg2 = 88; // inductance of two endring segments in series in H
+DefineConstant[
+  R_endring_segment = {0.836e-6, Label "Resistance of two endring segments in series [Ohm]",
+    Path Str[pp]}, // 88 value taken from 3kW im
+  L_endring_segment = {4.8e-9, Label "Inductance of two endring segments in series [H]",
+    Path Str[pp]}, // 88 value taken from 3kW im
+  Rs = {0.4992, Label "Resistance per stator phase [Ohm]", Path Str[pp]},
+  Ls = {1.7036e-3, Label "Endwinding inductance per stator phase [H]", Path Str[pp]}
+];
 
-VA = 147 ; // amplitude of supply voltage in V (delta series)
+Xs = 2*Pi*Freq * Ls ; // endwinding inductance and reactance in H and ohm
+
+DefineConstant[
+  Ns ={ 8*16, Label "Total number of turns in series per phase", Path Str[pp]}
+] ;
+
+
 
 AxialLength = Lz ;
 
-mur_fe = 1000 ; // if linear
 
-//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-// Rotor
+VA = 150 ; // or 150 to 440 amplitude of supply voltage in V (delta series)
+IA = 64.3; // rated
 
-NbrPolesTot = 4;  // number of poles in complete cross-section
+rpm_syn = 60*Freq/NbrPolePairs ;
+rpm_nominal  = 1760 ;
+slip_nominal = (rpm_syn-rpm_nominal)/rpm_syn ;
 
-SymmetryFactor = NbrPolesTot/NbrPoles;
-Flag_Symmetry = (SymmetryFactor==1)?0:1;
+rpm_other = rpm_syn-48; // slip = 0.02666
 
-NbrSectTot  = 40; // number of rotor teeth
-NbrSect = NbrSectTot*NbrPoles/NbrPolesTot; // number of rotor teeth in FE model
+inertia_fe = 5.63*1e-3 ; //kg*m^2
 
-RotorAngle_R = InitialRotorAngle + Pi/NbrSectTot-Pi/2; // initial rotor angle (radians)
-RotorAngle_S = RotorAngle_R;
 
-//Stator
-NbrSectStatorTot = 48; // number of stator teeth
-NbrSectStator = NbrSectStatorTot*NbrPoles/NbrPolesTot; // number of stator teeth in FE model
 
-StatorAngle_  = Pi/NbrSectStatorTot-Pi/2; // initial stator angle (radians)
-StatorAngle_S = StatorAngle_;
 
 // ----------------------------------------------------
 // Numbers for physical regions in .geo and .pro files

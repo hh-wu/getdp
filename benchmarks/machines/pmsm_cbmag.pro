@@ -4,19 +4,23 @@
 
 Include "pmsm_cbmag_data.geo";
 
+DefineConstant[
+  Flag_AnalysisType = {1,  Choices{0="Static",  1="Time domain"},
+    Label "Type of analysis",  Path "Input/19", Highlight "Blue", Visible 1,
+    Help Str["- Use 'Static' to compute static fields created in the machine",
+      "- Use 'Time domain' to compute the dynamic response of the machine"]} ,
+  Flag_SrcType_Stator = { 0, Choices{0="None",1="Current"},
+    Label "Source type in stator", Path "Input/41", Highlight "Blue", Visible 1},
+  Flag_Cir = { !Flag_SrcType_Stator , Choices{0,1},
+    Label "Use circuit in stator", ReadOnly 1, Visible 0},
+  Flag_NL = { 1, Choices{0,1},
+    Label "Nonlinear BH-curve", Path "Input/60", ReadOnly 0, Visible 1},
+  Flag_NL_law_Type = { 0, Choices{
+      0="Analytical", 1="Interpolated",
+      2="Analytical VH800-65D", 3="Interpolated VH800-65D"},
+    Label "BH-curve", Path "Input/61", Highlight "Blue", Visible Flag_NL}
+];
 
-DefineConstant[ Flag_NL = {0, Choices{0="Linear",
-                                      1="Nonlinear BH curve"},
-                           Label "Fe magnetic law",
-                           Path "Input/3", Highlight "Blue"} ] ;
-
-DefineConstant[ Flag_SrcType_Stator = {1, Choices{0="None",
-                                           1="Current"},
-                                Label "Source Type in Stator",
-                                Path "Input/4", Highlight "Blue", Visible 1} ] ;
-
-DefineConstant[ Flag_Cir = {!Flag_SrcType_Stator, Choices{0,1},
-    Label "Use circuit in Stator", ReadOnly 1, Visible 0} ] ;
 
 Group {
   Stator_Fe     = #STATOR_FE ;
@@ -60,33 +64,6 @@ Group {
   nbInds = (Flag_Symmetry) ? NbrPoles*NbrSectTotStator/NbrPolesTot : NbrSectTot ;
   Printf("NbrPoles=%g, nbInds=%g SymmetryFactor=%g", NbrPoles, nbInds, SymmetryFactor);
 
-  /*
-  For k In {1:nbInds}
-    Stator_Ind~{k} = Region[ (STATOR_IND+k-1) ];
-    Stator_Inds += Region[ Stator_Ind~{k} ];
-  EndFor
-
-  For k In {1:nbInds:3}
-    PhaseA += Region[{ Stator_Ind~{k+0} }];
-    PhaseB += Region[{ Stator_Ind~{k+1} }];
-    PhaseC += Region[{ Stator_Ind~{k+2} }];
-  EndFor
-  For k In {1:nbInds:2}
-    Stator_IndsP += Region[{ Stator_Ind~{k} }];
-  EndFor
-  For k In {2:nbInds:2}
-    Stator_IndsN += Region[{ Stator_Ind~{k} }];
-  EndFor
-
-  // Alternative way of defining regions
-  PhaseA = Region[ @ STATOR_IND+0:STATOR_IND+nbInds-3:3 @ ];
-  PhaseB = Region[ @ STATOR_IND+1:STATOR_IND+nbInds-2:3 @ ];
-  PhaseC = Region[ @ STATOR_IND+2:STATOR_IND+nbInds-1:3 @ ];
-
-  Stator_IndsP = Region[ @ STATOR_IND+0:STATOR_IND+nbInds-1:2 @ ];
-  Stator_IndsN = Region[ @ STATOR_IND+1:STATOR_IND+nbInds-1:2 @ ];
-  */
-
   Stator_Ind_Ap = #{};              Stator_Ind_Am = #{STATOR_IND_AM};
   Stator_Ind_Bp = #{};              Stator_Ind_Bm = #{STATOR_IND_BM};
   Stator_Ind_Cp = #{STATOR_IND_CP}; Stator_Ind_Cm = #{};
@@ -100,7 +77,7 @@ Group {
   PhaseB = Region[{ Stator_Ind_Bp, Stator_Ind_Bm }];
   PhaseC = Region[{ Stator_Ind_Cp, Stator_Ind_Cm }];
 
-  // Provisional: Just one physical region for nice graph in Onelab
+  // FIXME: Just one physical region for nice graph in Onelab
   PhaseA_pos = Region[{ Stator_Ind_Am }];
   PhaseB_pos = Region[{ Stator_Ind_Bm }];
   PhaseC_pos = Region[{ Stator_Ind_Cp }];
@@ -135,8 +112,6 @@ Group {
 Function {
   NbrPhases = 3 ;
 
-  DefineConstant[ b_remanent = {1.03, Label "Remanent induction",
-      Path "Input/5", Highlight "AliceBlue"} ] ;
   // For a radial remanent b
   For k In {1:nbMagnets}
     br[ Rotor_Magnet~{k} ] = (-1)^(k-1) * b_remanent * Vector[ Cos[Atan2[Y[],X[]]], Sin[Atan2[Y[],X[]]], 0 ];
@@ -150,9 +125,9 @@ Function {
   R_StatorPhase = 2.1713 ; // estimation of resistance of stator phase (now included in machines_mag...pro)
 
   // supply at fixed position
-  DefineConstant[ rpm = {1000,
+  DefineConstant[ rpm = { rpm_nominal,
                          Label "speed in rpm",
-                         Path "Input", Highlight "AliceBlue"} ]; // speed in rpm
+                         Path "Input/7", Highlight "AliceBlue", Visible (Flag_AnalysisType==1)} ]; // speed in rpm
   wr = rpm/60*2*Pi ; // speed in rad_mec/s
   NbrPolePairs = NbrPolesTot/2 ;
 
@@ -163,17 +138,20 @@ Function {
   Omega = 2*Pi*Freq ;
   T = 1/Freq ;
 
-  DefineConstant[ thetaMax_deg = { 180, Label "End rotor angle (loop)",
-      Path "Input/21", Highlight "AliceBlue" } ];
+  DefineConstant[
+    thetaMax_deg = { 180, Label "End rotor angle (loop)",
+      Path "Input/21", Highlight "AliceBlue", Visible (Flag_AnalysisType==1)}
+  ];
 
   theta0   = InitialRotorAngle + 0. ;
   thetaMax = thetaMax_deg * deg2rad ; // end rotor angle (used in doing a loop)
 
-  DefineConstant[ NbTurns  = { (thetaMax-theta0)/(2*Pi), Label "Number of revolutions",
-      Path "Input/24", Highlight "LightGrey", ReadOnly 1} ];
-
-  DefineConstant[ delta_theta_deg = { 1., Label "step in degrees",
-      Path "Input/22", Highlight "AliceBlue"} ];
+  DefineConstant[
+    NbTurns  = { (thetaMax-theta0)/(2*Pi), Label "Number of revolutions",
+      Path "Input/24", Highlight "LightGrey", ReadOnly 1, Visible (Flag_AnalysisType==1)},
+    delta_theta_deg = { 1., Label "Step [deg]",
+      Path "Input/22", Highlight "AliceBlue", Visible (Flag_AnalysisType==1)}
+  ];
 
   delta_theta[] = delta_theta_deg * deg2rad ;
 
@@ -181,8 +159,11 @@ Function {
   delta_time = delta_theta_deg * deg2rad/wr;
   timemax = thetaMax/wr;
 
-  DefineConstant[ NbSteps = { Ceil[(timemax-time0)/delta_time], Label "Number of steps",
-      Path "Input/23", Highlight "LightGrey", ReadOnly 1} ];
+  DefineConstant[
+    NbSteps = { Ceil[(timemax-time0)/delta_time], Label "Number of steps",
+      Path "Input/23", Highlight "LightGrey", ReadOnly 1, Visible (Flag_AnalysisType==1)}
+  ];
+
 
   RotorPosition[] = InitialRotorAngle + $Time * wr ;
   RotorPosition_deg[] = RotorPosition[]*180/Pi;
@@ -191,14 +172,15 @@ Function {
   Theta_Park[] = ((RotorPosition[] + Pi/8) - Pi/6) * NbrPolePairs;
   Theta_Park_deg[] = Theta_Park[]*180/Pi;
 
-  DefineConstant[ ID = { 0, Path "Input/60", Label "Id stator current", Highlight "AliceBlue"},
-                  IQ = { 4, Path "Input/61", Label "Iq stator current", Highlight "AliceBlue"},
-                  I0 = { 0, Visible 0} ] ;
-
+  DefineConstant[
+    ID = { 0, Path "Input/50", Label "Id stator current", Highlight "AliceBlue", Visible (Flag_SrcType_Stator==1)},
+    IQ = { Inominal, Path "Input/51", Label "Iq stator current", Highlight "AliceBlue", Visible (Flag_SrcType_Stator==1)},
+    I0 = { 0, Visible 0}
+  ] ;
 
   If(Flag_SrcType_Stator==0)
-    UndefineConstant["Input/60ID"];
-    UndefineConstant["Input/61IQ"];
+    UndefineConstant["Input/50ID"];
+    UndefineConstant["Input/51IQ"];
   EndIf
 
 }
@@ -218,13 +200,10 @@ ExtGnuplot  = ".dat";
 If(Flag_SrcType_Stator==1)
     UndefineConstant["Input/ZR"];
 EndIf
-
 If(Flag_Cir)
   Include "pmsm_8p_circuit.pro" ;
 EndIf
 Include "machine_magstadyn_a.pro" ;
 
-DefineConstant[ ResolutionChoices    = {"TimeDomain", Path "GetDP/1"} ];
-DefineConstant[ ComputeCommand       = {"-solve -v 3 -v2", Path "GetDP/9"} ];
 
 

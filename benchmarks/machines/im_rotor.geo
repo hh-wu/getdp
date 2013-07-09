@@ -162,7 +162,7 @@ EndFor
 NN = #InnerMB_[] ;
 k1 = (NbrPoles==1)?NbrPoles:NbrPoles+1;
 For k In {k1:NbrPolesTot-1}
-  InnerMB_[] += Rotate {{0, 0, 1}, {0, 0, 0}, k*NbrSect*2*RotorAngle_S} { Duplicata{ Line{InnerMB_[{0:NN-1}]};} };
+  InnerMB_[] += Rotate {{0, 0, 1}, {0, 0, 0}, k*NbrSect*2*(Pi/NbrSectTot)} { Duplicata{ Line{InnerMB_[{0:NN-1}]};} };
 EndFor
 
 //----------------------------------------------------------------------------------------

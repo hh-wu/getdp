@@ -1,9 +1,9 @@
-// Authors - J. Gyselinck, R.V. Sabariego (May 2013)
+// Authors - J. Gyselinck, R.V. Sabariego (2013)
 //
 // Induction motor
 //
 
-Include "im_data.geo" ;
+Include "im_3kW_data.geo" ;
 
 DefineConstant[
   Flag_AnalysisType = {1,  Choices{0="Static",  1="Time domain",  2="Frequency domain"},
@@ -34,15 +34,16 @@ DefineConstant[
   Flag_NL = { (Flag_AnalysisType==2)?0:1, Choices{0,1},
     Label "Nonlinear BH-curve", Path "Input/60", ReadOnly (Flag_AnalysisType==2)?1:0, Visible 1},
     // FIXME: nonlinear law in frequency domain not yet implemented
-  Flag_NL_law_Type = { 0, Choices{
+  Flag_NL_law_Type = { 2, Choices{
       0="Analytical", 1="Interpolated",
       2="Analytical VH800-65D", 3="Interpolated VH800-65D"},
-    Label "BH-curve", Visible Flag_NL, Path "Input/61", Highlight "Blue"}
+    Label "BH-curve", Path "Input/61", Highlight "Blue", Visible Flag_NL}
 ] ;
 
 If(Flag_AnalysisType==2)
   UndefineConstant["Input/61Flag_NL_law"];
 EndIf
+
 
 Group{
   DefineGroup[ Stator_Al, Stator_Cu ];
@@ -57,7 +58,7 @@ Group{
   Stator_Bnd_A0 = #STATOR_BND_A0 ;
   Stator_Bnd_A1 = #STATOR_BND_A1 ;
 
-   If(Flag_OpenRotor)
+  If(Flag_OpenRotor)
     Rotor_Fe     = #{ROTOR_FE} ;
     Rotor_Air    = #{ROTOR_SLOTOPENING} ;
   EndIf
@@ -66,7 +67,6 @@ Group{
     Rotor_Air    = #{} ;
   EndIf
 
-  Rotor_Air    = #{} ;
   Rotor_Airgap = #ROTOR_AIRGAP ;
 
   nbRotorBars = (Flag_Symmetry) ? NbrPoles*NbrSectTot/NbrPolesTot : NbrSectTot ;
@@ -111,7 +111,7 @@ Group{
 
   StatorC  = Region[{ }] ;
   StatorCC = Region[{ Stator_Fe }] ;
-  RotorC   = Region[{ Rotor_Bars }] ;
+  RotorC = Region[{ Rotor_Bars }] ;
   RotorCC  = Region[{ Rotor_Fe   }] ;
 
 
@@ -129,7 +129,9 @@ Group{
 }
 
 Function{
-  Freq = 60  ;
+  NbrPolePairs = NbrPolesTot/2 ;
+
+  Freq = 50  ;
   T = 1/Freq ; // Fundamental period in s
 
   DefineConstant[
@@ -144,23 +146,25 @@ Function{
       Highlight "AliceBlue", Visible (!Flag_ImposedSpeed && Flag_AnalysisType!=2) },
     NbT = {10, Label "Total number of periods", Path "Input/40",
       Highlight "AliceBlue", Visible (Flag_AnalysisType==1)},
-    NbSteps = {200, Label "Number of time steps per period", Path "Input/41",
+    NbSteps = {100, Label "Number of time steps per period", Path "Input/41",
       Highlight "AliceBlue", Visible (Flag_AnalysisType==1)}
   ];
 
 
+  // relaxation of applied voltage, for reducing the transient
   NbTrelax = 2 ; // Number of periods while relaxation is applied
   Trelax = NbTrelax*T;
   Frelax[] = (!Flag_NL || Flag_AnalysisType==0 || $Time>Trelax) ? 1. :
              0.5*(1.-Cos[Pi*$Time/Trelax]) ; // smooth step function
 
   rpm_syn = 60*Freq/NbrPolePairs ;
+
   rpm = (Flag_ImposedSpeed==0) ? 0.:
         ((Flag_ImposedSpeed==1) ? rpm_syn : myrpm) ;
+
   //slip = (rpm_syn-rpm)/rpm_syn ; // slip = 1 ; ==> blocked rotor
 
   wr = (Flag_AnalysisType==2) ? (1-slip)*2*Pi*Freq/NbrPolePairs : rpm/60*2*Pi ; // angular rotor speed in rad_mec/s
-
 
   // imposed movement with fixed speed wr
   delta_time = T/NbSteps; // time step in s
@@ -184,13 +188,13 @@ Function{
     Vrms = { VA, Path "Input/50", Label "Stator voltage (rms)",
       Highlight "AliceBlue", Visible (Flag_SrcType_Stator==2)}
   ] ;
-
   VV = Vrms * Sqrt[2] ;
   II = Irms * Sqrt[2] ;
 
   Friction[] = Frict ;
   Torque_mec[] = Tmec ;
   Inertia = inertia_fe ;
+
 }
 
 // --------------------------------------------------------------------------
@@ -207,10 +211,8 @@ ExtGnuplot  = ".dat";
 
 
 If(Flag_Cir)
-  Include "im_circuit.pro" ;
+  Include "im_3kW_circuit.pro" ;
 EndIf
 Include "machine_magstadyn_a.pro" ;
 
-DefineConstant[ ResolutionChoices    = {"Analysis", Path "GetDP/1", Visible 0} ];
-DefineConstant[ ComputeCommand       = {"-solve -v 1 -v2", Path "GetDP/9", Visible 0} ];
-DefineConstant[ PostOperationChoices = {"", Path "GetDP/2", Visible 0} ]; // testing
+

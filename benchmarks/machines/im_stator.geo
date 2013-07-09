@@ -192,7 +192,7 @@ EndFor
 */
 
 For k In {0:NbrPolesTot/NbrPoles-1}
-  Physical Line(STATOR_BND_MOVING_BAND+k) = {OuterMB_[{k*NbrPoles*4*NbrSectStator/NbrPoles:(k+1)*NbrPoles*4*NbrSectStator/NbrPoles-1}]};
+  Physical Line(STATOR_BND_MOVING_BAND+k) = {OuterMB_[{k*4*NbrSectStator:(k+1)*4*NbrSectStator-1}]};
 EndFor
 
 nicepos_stator[] += {StatorBoundary_[],StatorPeriod_Reference_[],StatorPeriod_Dependent_[]};

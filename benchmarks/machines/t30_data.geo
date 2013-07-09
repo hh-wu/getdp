@@ -9,10 +9,12 @@
 cm = 1e-2 ;
 deg2rad = Pi/180;
 
-DefineConstant
-[
- NbPhases = {1, Label "Type", Choices {1="Single-phase", 3="Three-phase"}, Path "Input/2", Highlight "NavyBlue"}
- ];
+pp = "Input/Constructive parameters";
+
+DefineConstant[
+  NbPhases = {1, Choices {1="Single-phase", 3="Three-phase"}, Label "Type",
+    Path "Input/2", Highlight "Blue"}
+];
 
 thetas = 45 * deg2rad ;
 
@@ -20,19 +22,25 @@ thetas = 45 * deg2rad ;
 SymmetryFactor = 1 ;
 Flag_Symmetry  = 0 ;
 
+gap  = 0.2*cm ;
+DefineConstant[
+  AG = {gap, Label "Airgap width [m]", Path Str[pp], Closed 1}
+];
+
 r1 = 2.0*cm ; // rotor steel
 r2 = 3.0*cm ; // rotor aluminum
-r3 = 3.2*cm ; // inner stator winding
+r3 = r2 + gap ; // inner stator winding
 r4 = 5.2*cm ; // outer stator winding
 r5 = 5.7*cm ; // stator steel
 
-gap  = r3-r2 ;
 aaa = 1/3 ;
 rmb0 = r2 + aaa*gap ; // radius moving band rotor
 rmb1 = r3 - aaa*gap ; // radius moving band stator
 
-mur_fe = 30 ; // relative permeability for rotor and stator steel
-sigma_fe = 1.6e6 ; // conductivity of rotor steel [S/m]
+DefineConstant[
+  sigma_fe = {1.6e6, Label "Conductivity of rotor steel", Path Str[pp]},
+  mur_fe = {30, Label "Relative permeability for rotor and stator steel", Path Str[pp]}
+];
 
 // Moment of inertia - height h along z, radius r along x
 // Solid cylinder
@@ -59,18 +67,17 @@ JA = 310/cm^2 ; // [A/m2] Current density in windings mantained constant
 SurfInd    = Pi*(r4^2-r3^2)*45/360 ;
 NbWiresInd = Floor[JA*SurfInd/IA] ;
 
-Printf("Inductor area =%g", SurfInd);
-Printf("Nbwires of Inductor =%g", NbWiresInd);
+Printf("Inductor area =%g, Nbwires of Inductor =%g", SurfInd, NbWiresInd);
 
 Area_Rotor_Airgap  = Pi*(rmb0^2-r2^2) ;
 Area_Stator_Airgap = Pi*(r3^2-rmb1^2) ;
-Printf("Area rotor airgap =%g", Area_Rotor_Airgap);
-Printf("Area stator airgap =%g", Area_Stator_Airgap);
+Printf("Area rotor airgap =%g, Area stator airgap =%g", Area_Rotor_Airgap, Area_Stator_Airgap);
 
-//rotor speed ranging from 0 to 1200 rad/s, routhly 3 times faster than the
-//stator field speed of 377 rad/s
 Freq = 60 ; //Hz
-
+// rotor speed ranging from 0 to 1200 rad/s
+// routhly 3 times faster (3 phases) than the stator field speed of 377 rad/s
+wr_max  = (NbPhases==3) ? 1200 : 358.1416 ;
+wr_step = (NbPhases==3) ? 200  :  39.79351;
 
 // ----------------------------------------------------
 // Numbers for physical regions in .geo and .pro files
@@ -102,12 +109,4 @@ MOVING_BAND = 9999 ;
 SURF_INF = 3000 ; // outer boundary
 
 
-/*
-DefineConstant
-[
- rotor  = {1, Label "Rotor", Choices {1="Team 30",
-                                     2="Generic Winded"} },
- stator = {1, Label "Stator", Choices {1="Team 30",
-                                       2="Generic Winded"}}
-];
-*/
+

@@ -3,12 +3,21 @@ Include "t30_data.geo";
 Dir="res/";
 ExtGmsh     = ".pos";
 ExtGnuplot  = ".dat";
+//ExtGmsh     = Str[ Sprintf("%g.pos", NbPhases) ];
+//ExtGnuplot  = Str[ Sprintf("%g.dat", NbPhases) ];
 
-Flag_SrcType_Stator = 1 ; // Imposed current
-Flag_ComputeLosses = 1 ;
 
-//ExtGmsh     = Str[Sprintf("%g.pos", NbPhases) ];
-//ExtGnuplot  = Str[Sprintf("%g.dat", NbPhases) ];
+DefineConstant[
+  Flag_AnalysisType = {2,  Choices{0="Static",  1="Time domain",  2="Frequency domain"},
+    Label "Type of analysis",  Path "Input/20", Highlight "Blue", Visible 1,
+    Help Str["- Use 'Static' to compute static fields created in the machine",
+      "- Use 'Time domain' to compute the dynamic response of the machine",
+      "- Use 'Frequency domain' to compute steady-state phasors depending on the imposed speed"]} ,
+  Flag_SrcType_Stator = { 1, Choices{1="Current", 2="Voltage"},
+    Label "Source type in stator", Path "Input/41", Highlight "Blue", Visible 0},
+  Flag_ComputeLosses = { 1, Choices{0,1}, Label "Compute Joule Losses in Rotor",  Path "Input/70"}
+];
+
 
 Group {
   Stator_Fe = #STATOR_FE ;
@@ -39,7 +48,7 @@ Group {
   PhaseB = Region[ {Stator_IndB, Stator_IndBn} ];
   PhaseC = Region[ {Stator_IndC, Stator_IndCn} ];
 
-  // Provisional
+  // FIXME: Just one physical region for nice graph in Onelab
   PhaseA_pos = Region[ {Stator_IndA, Stator_IndAn} ];
   PhaseB_pos = Region[ {Stator_IndB, Stator_IndBn} ];
   PhaseC_pos = Region[ {Stator_IndC, Stator_IndCn} ];
@@ -58,16 +67,28 @@ Group {
 
 
 Function {
+  T = 1/Freq ;
 
-  DefineConstant[ Flag_ImposedSpeed = { 1, Choices{0,1},
-      Label "Imposed rotor speed", Path "Input/40", Visible 1} ];
+  DefineConstant[
+    Flag_ImposedSpeed = { 1, Choices{0="None",1="Choose speed"}, Label "Imposed rotor speed",
+      Path "Input/40",  Highlight "Blue", Visible Flag_AnalysisType!=2},
+    Term_vxb = { (Flag_ImposedSpeed==1 && Flag_AnalysisType==2), Choices {0,1}, Label "Consider term Velocity x Induction",
+      Path "Input/41", ReadOnly 1, Visible Flag_ImposedSpeed},
+    wr = { 0, Min 0, Max wr_max, Step wr_step, Loop 0, Label "Rotor speed [rad/s]",
+           Path "Input/42", Highlight "AliceBlue", ReadOnlyRange (Flag_AnalysisType==2), Visible Flag_ImposedSpeed },
+    Tmec = { 0, Label "Mechanical torque [Nm]", Path "Input/43",
+      Highlight "AliceBlue", Visible (!Flag_ImposedSpeed && Flag_AnalysisType!=2) },
+    Frict = { 0, Label "Friction torque [Nm]", Path "Input/44",
+      Highlight "AliceBlue", Visible (!Flag_ImposedSpeed && Flag_AnalysisType!=2) },
+    NbT = {50, Label "Total number of periods", Path "Input/50",
+      Highlight "AliceBlue", Visible (Flag_AnalysisType==1)},
+    NbSteps = {100, Label "Number of time steps per period", Path "Input/51",
+      Highlight "AliceBlue", Visible (Flag_AnalysisType==1)}
+  ];
 
-  DefineConstant[ Term_vxb = { 0, Choices {0,1},
-                               Label "Consider term Velocity x Induction",
-                               Path "Input/41", Visible Flag_ImposedSpeed } ] ;
-
-  DefineConstant[ Tmec = { 0, Label "Mechanical torque", Path "Input/42",
-      Highlight "LightYellow", Visible !Flag_ImposedSpeed} ];
+  If(Flag_ImposedSpeed==0)
+    UndefineConstant["Input/42wr"];
+  EndIf
 
   SurfCoil[] = SurfaceArea[]{STATOR_INDA} ;
   NbWires[]  = NbWiresInd ;
@@ -77,21 +98,14 @@ Function {
   pB = -4*Pi/3 ;
   pC = -2*Pi/3 ;
 
-  DefineConstant[ Irms = { IA, Path "Input/3", Label "Stator current (rms)", Highlight "AliceBlue"} ] ;
+  DefineConstant[
+    Irms = { IA, Path "Input/60", Label "Stator current (rms)",
+      Highlight "AliceBlue"}
+  ] ;
   II = Irms *Sqrt[2] ;
 
-  wr_max  = (NbPhases==3) ? 1200 : 358.1416 ;
-  wr_step = (NbPhases==3) ? 200  :  39.79351;
-  DefineConstant[ wr = { 0., Min wr_step, Max wr_max, Step wr_step, Loop "0",
-                         Label "Rotor speed in rad/s", Path "Input/42", Highlight "LightYellow",
-                         ReadOnlyRange 1, Visible Flag_ImposedSpeed} ]; //ReadOnly
-
-  ws = 2*Pi*Freq ;  // angular speed of stator field
-  slip = (ws-wr)/ws ;
-
-  T = 1/Freq ;
-  NbSteps = 100; // number of angles (imposed speed) or time steps
-  NbT = 50;
+  w_syn = 2*Pi*Freq ;  // angular speed of stator field
+  slip = (w_syn-wr)/w_syn ;
 
   // imposed movement with fixed speed wr
   rotorAngle0 = 0 ;
@@ -104,7 +118,7 @@ Function {
   time0 = 0.;
   timemax = (Flag_ImposedSpeed && wr>0) ? theta1/wr : NbT*T ;
 
-  Friction[] = 0. ;
+  Friction[] = Frict ;
   Torque_mec[] = Tmec ;
   Inertia = inertia_fe + inertia_al ;
 
@@ -113,6 +127,3 @@ Function {
 
 Include "machine_magstadyn_a.pro" ;
 
-DefineConstant[ ResolutionChoices    = {"FrequencyDomain", Path "GetDP/1"} ];
-DefineConstant[ ComputeCommand       = {"-solve -v 3 -v2", Path "GetDP/9"} ];
-DefineConstant[ PostOperationChoices = {"", Path "GetDP/2", Visible 0} ]; // testing

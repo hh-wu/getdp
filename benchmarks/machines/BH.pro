@@ -36,7 +36,7 @@ Function{
   dnudb2_1[] = dInterpolationLinear[SquNorm[$1]]{List[Mat1_nu_b2]} ;
   h_1[] = nu_1[$1] * $1 ;
   dhdb_1[] = TensorDiag[1,1,1] * nu_1[$1#1] + 2*dnudb2_1[#1] * SquDyadicProduct[#1]  ;
-  dhdb_NL_1[] = 2*dnudb2_1[$1#1] * SquDyadicProduct[#1] ;
+  dhdb_1_NL[] = 2*dnudb2_1[$1#1] * SquDyadicProduct[#1] ;
 
 
   // nu = 123. + 0.0596 * exp ( 3.504 * b * b )

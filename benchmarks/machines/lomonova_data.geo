@@ -7,6 +7,10 @@
 // Work presented at Ecologic Vehicles-Renewable Energies (EVRE),
 // Monaco, March 26-29, 2009
 
+u = 1e-3 ; // mm
+deg2rad = Pi/180 ;
+pp = "Input/Constructive parameters";
+
 DefineConstant[ Flag_Type = { 0, Choices{ 0="Concentrated",
                                           1="Distributed 1",
                                           2="Distributed 2",
@@ -17,20 +21,20 @@ DefineConstant[ Flag_Type = { 0, Choices{ 0="Concentrated",
 boolreadonly = (Flag_Type==0) ? 1 : 0 ;
 
 // No symmetry possible with concentrated type
-DefineConstant[ NbrPoles = { (Flag_Type==0) ? 8 : 1,
-                             Choices {1="1",
-                                      2="2",
-                                      4="4",
-                                      8="8"},
-                             Label "Number of poles in FE model",
-                             Path "Input/1", Highlight "Grey85", Visible 1, ReadOnly (Flag_Type==0) ? 1 : 0 } ] ;
 
-u = 1e-3 ; // mm
-deg2rad = Pi/180 ;
+DefineConstant[//Grey85
+  NbrPoles = { (Flag_Type==0) ? 8 : 1, Choices {1="1", 2="2", 4="4", 8="8"},
+    Label "Number of poles in FE model",
+    Path "Input/20", Visible 1, ReadOnly (Flag_Type==0) ? 1 : 0},
+  InitialRotorAngle_deg = { 0., Label "Start rotor angle [deg]",
+    Path "Input/21", Highlight "AliceBlue"}
+] ;
 
-DefineConstant[ InitialRotorAngle_deg = {0, Label "Start rotor angle", Path "Input/20", Highlight "AliceBlue"} ];
+//--------------------------------------------------------------------------------
 
 InitialRotorAngle = InitialRotorAngle_deg*deg2rad ; // initial rotor angle, 0 if aligned
+
+//--------------------------------------------------------------------------------
 
 // SPM rotor data with internal rotor and distribtuted winding
 // Dimensions in m
@@ -98,12 +102,22 @@ Pcul = 1458 ;   // Armature copper losses (W)
 kbs_tz = 0.45 ; // Slot width to slot pitch - ratio
 
 
-mur_fe = 1000 ;
-sigma_fe = 0 ;
+
+DefineConstant[
+  AxialLength = {l1,  Label "Axial length [m]", Path Str[pp], Closed 1}
+];
+
+
+sigma_fe = 0. ; // laminated steel
+DefineConstant[
+  mur_fe = {1000, Label "Relative permeability for linear case", Path Str[pp]},
+  b_remanent = { 1.175, Label "Remanent induction [T]", Path Str[pp] }
+];
 
 
 // ----------------------------------------------------
-AxialLength = l1 ;
+
+
 
 tz2 = 2*Pi*(D1/2+hs)/Z ; // slot pitch at the top of the coil area
 bs3 = (1-kbs_tz)*tz2 ; // slot width at the top of the coil area
@@ -146,6 +160,8 @@ rS3 = rS2 + hw ;
 rS4 = rS3 + hc ;
 rS5 = DOD/2 ;
 
+
+rpm_nominal = 800 ;
 
 // ----------------------------------------------------
 // Numbers for physical regions in .geo and .pro files

@@ -1,4 +1,5 @@
 // Copyright (C) 2013 - J. Gyselinck, R.V. Sabariego
+// Authors - J. Gyselinck, R.V. Sabariego (May 2013)
 
 // ------------------------------------------
 

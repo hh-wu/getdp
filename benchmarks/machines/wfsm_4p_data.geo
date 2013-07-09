@@ -5,19 +5,22 @@
 
 // wfsm = wound field synchronous machine
 
-DefineConstant[ NbrPoles = {1, Choices {1="1",
-                                        2="2",
-                                        4="4"},
-                            Label "Number of poles in FE model",
-                            Path "Input/1", Highlight "Blue", Visible 1} ] ;
 deg2rad = Pi/180 ;
 
-DefineConstant[ InitialRotorAngle_deg = {0., Label "Start rotor angle", Path "Input/20", Highlight "AliceBlue"} ] ; // initial rotor angle
+pp = "Input/Constructive parameters";
+
+DefineConstant[
+  NbrPoles = { 1, Choices {1="1", 2="2", 4="4"},
+    Label "Number of poles in FE model",
+    Path "Input/20", Highlight "Blue", Visible 1},
+  InitialRotorAngle_deg = { 0., Label "Start rotor angle [deg]",
+    Path "Input/21", Highlight "AliceBlue"}
+] ;
 
 InitialRotorAngle = InitialRotorAngle_deg*deg2rad ; // initial rotor angle, 0 if aligned
 
 DefineConstant[ PhaseBelt = { 120., Choices{60, 120},
-    Path "Input/21", Highlight "AliceBlue", Visible 0} ] ;
+    Path "Input/22", Highlight "AliceBlue", Visible 0} ] ;
 
 //--------------------------------------------------------------------------
 // Rotor
@@ -55,10 +58,12 @@ Rext = 195 * u ;
 
 AxialLength = 0.180 ;
 
-// Some
-mur_fe = 1000 ;
-sigma_fe = 0 ;
-//sigma_fe = 1.6e6 ; // conductivity of rotor steel [S/m]
+sigma_fe = 0. ; // laminated steel
+DefineConstant[
+  mur_fe = {1000, Label "Relative permeability for linear case", Path Str[pp], Closed 1}
+];
+
+rpm_nominal = 1500 ;
 
 //--------------------------------------------------------------------------
 // Physical numbers

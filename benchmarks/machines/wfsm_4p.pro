@@ -5,29 +5,24 @@
 
 Include "wfsm_4p_data.geo";
 
-DefineConstant[ Clean_Results = { 1, Choices {0,1},
-    Label "Remove previous result files",
-    Path "Input/1", Visible 1 } ] ;
 
-DefineConstant[ Flag_NL = {0, Choices{ 0="Linear",
-                                       1="Nonlinear BH curve"},
-                                     Label "Fe magnetic law",
-                                     Path "Input/3",
-                                     Highlight "Blue"} ] ;
-
-DefineConstant[ Flag_SrcType_Stator = { 1, Choices{ 0="None",
-                                                    1="Current"},
-                                                  Label "Source Type in stator",
-                                                  Path "Input/4",
-                                                  Highlight "Blue", Visible 1} ] ;
-
-DefineConstant[ Flag_SrcType_Rotor = {1, Visible 0} ] ;
-
-
-
-DefineConstant[ Flag_Cir = {!Flag_SrcType_Stator, Choices{0,1},
-                            Label "Use circuit in Stator",
-                            ReadOnly 1, Visible 0} ] ;
+DefineConstant[
+  Flag_AnalysisType = {1,  Choices{0="Static",  1="Time domain"},
+    Label "Type of analysis",  Path "Input/19", Highlight "Blue", Visible 1,
+    Help Str["- Use 'Static' to compute static fields created in the machine",
+      "- Use 'Time domain' to compute the dynamic response of the machine"]} ,
+  Flag_SrcType_Stator = { 0, Choices{0="None",1="Current"},
+    Label "Source type in stator", Path "Input/41", Highlight "Blue", Visible 1},
+  Flag_SrcType_Rotor = {1, Visible 0},
+  Flag_Cir = { !Flag_SrcType_Stator , Choices{0,1},
+    Label "Use circuit in stator", ReadOnly 1, Visible 0},
+  Flag_NL = { 1, Choices{0,1},
+    Label "Nonlinear BH-curve", Path "Input/60", ReadOnly 0, Visible 1},
+  Flag_NL_law_Type = { 1, Choices{
+      0="Analytical", 1="Interpolated",
+      2="Analytical VH800-65D", 3="Interpolated VH800-65D"},
+    Label "BH-curve", Path "Input/61", Highlight "Blue", Visible Flag_NL}
+];
 
 my_output = "No";
 
@@ -122,7 +117,7 @@ Function {
   FillFactor_Winding = 0.5 ; // percentage of Cu in the surface coil side, smaller than 1
   Factor_R_3DEffects = 1.5 ; // bigger than Adding 50% of resistance
 
-  DefineConstant[ rpm = {1500, Label "speed in rpm", Path "Input/8", Highlight "AliceBlue"}];
+  DefineConstant[ rpm = { rpm_nominal, Label "speed in rpm", Path "Input/7", Highlight "AliceBlue", Visible (Flag_AnalysisType==1)}];
   wr = rpm/60*2*Pi ; // speed in rad_mec/s
 
   NbrPolePairs = NbrPolesTot/2 ;
@@ -132,16 +127,26 @@ Function {
   Omega = 2*Pi*Freq ;
   T = 1/Freq ;
 
-  DefineConstant[ thetaMax_deg = { 180, Label "End rotor angle (loop)", Path "Input/21", Highlight "AliceBlue" } ];
+  DefineConstant[
+    thetaMax_deg = { 180, Label "End rotor angle (loop)",
+                     Path "Input/21", Highlight "AliceBlue", Visible (Flag_AnalysisType==1) }
+  ];
+
   theta0   = InitialRotorAngle + 0. ;
   thetaMax = thetaMax_deg * deg2rad ; // end rotor angle (used in doing a loop)
 
-  DefineConstant[ NbTurns  = { (thetaMax-theta0)/(2*Pi), Label "Number of revolutions", Path "Input/22", Highlight "LightGrey", ReadOnly 1 } ];
+  DefineConstant[
+    NbTurns  = { (thetaMax-theta0)/(2*Pi), Label "Number of revolutions",
+      Path "Input/22", Highlight "Grey85", ReadOnly 1, Visible (Flag_AnalysisType==1) }
+  ];
 
   NbSteps  = NbrPolesTot*90 ; // 1 degree per step
   delta_theta[] = 2*Pi/NbSteps ;
 
-  DefineConstant[ delta_theta_deg = { 2*Pi/NbSteps/deg2rad, Label "step in degrees", Path "Input/23", Highlight "LightGrey", ReadOnly 1 } ];
+  DefineConstant[
+    delta_theta_deg = { 2*Pi/NbSteps/deg2rad, Label "step in degrees",
+      Path "Input/23", Highlight "Grey85", ReadOnly 1, Visible (Flag_AnalysisType==1) }
+  ];
 
   time0 = 0. ; // at initial rotor position
   delta_time = 2*Pi/NbSteps/wr;
@@ -155,14 +160,14 @@ Function {
   Theta_Park_deg[] = Theta_Park[]*180/Pi;
 
   DefineConstant[
-    ID = { 0, Path "Input/60", Label "Id stator current", Highlight "AliceBlue"},
-    IQ = { 75, Path "Input/61", Label "Iq stator current", Highlight "AliceBlue"},
+    ID = { 0, Path "Input/50", Label "Id stator current", Highlight "AliceBlue", Visible (Flag_SrcType_Stator==1)},
+    IQ = { 75, Path "Input/51", Label "Iq stator current", Highlight "AliceBlue", Visible (Flag_SrcType_Stator==1)},
     I0 = { 0., Visible 0},
-    Ie = { 13.1, Path "Input/7", Label "Ie rotor excitation current", Highlight "AliceBlue" } ] ;
+    Ie = { 13.1, Path "Input/52", Label "Ie rotor excitation current", Highlight "AliceBlue" } ] ;
 
   If(Flag_SrcType_Stator==0)
-    UndefineConstant["Input/60ID"];
-    UndefineConstant["Input/61IQ"];
+    UndefineConstant["Input/50ID"];
+    UndefineConstant["Input/51IQ"];
   EndIf
 
 }
@@ -180,7 +185,7 @@ ExtGnuplot  = ".dat";
 // --------------------------------------------------------------------------
 
 If(Flag_SrcType_Stator==1)
-    UndefineConstant["Input/ZR"];
+    UndefineConstant["Input/8ZR"];
 EndIf
 
 If(Flag_Cir)
@@ -188,7 +193,5 @@ If(Flag_Cir)
 EndIf
 Include "machine_magstadyn_a.pro" ;
 
-DefineConstant[ ResolutionChoices    = {"TimeDomain", Path "GetDP/1"} ];
-DefineConstant[ ComputeCommand       = {"-solve -v 3 -v2", Path "GetDP/9"} ];
 
 
