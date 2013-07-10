@@ -29,13 +29,13 @@ DefineConstant[
 
 r1 = 2.0*cm ; // rotor steel
 r2 = 3.0*cm ; // rotor aluminum
-r3 = r2 + gap ; // inner stator winding
+r3 = r2 + AG ; // inner stator winding
 r4 = 5.2*cm ; // outer stator winding
 r5 = 5.7*cm ; // stator steel
 
 aaa = 1/3 ;
-rmb0 = r2 + aaa*gap ; // radius moving band rotor
-rmb1 = r3 - aaa*gap ; // radius moving band stator
+rmb0 = r2 + aaa*AG ; // radius moving band rotor
+rmb1 = r3 - aaa*AG ; // radius moving band stator
 
 DefineConstant[
   sigma_fe = {1.6e6, Label "Conductivity of rotor steel", Path Str[pp]},
