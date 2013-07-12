@@ -765,17 +765,19 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
       else
 	c->Value.Float = ps[0].getValue(); // use value from server
       // keep track of these attributes, which can be changed server-side
-      // (unless, for the range/choices, when explicitely setting these
-      // attributes as ReadOnly)
-      if(!(fopt.count("ReadOnlyRange") && fopt["ReadOnlyRange"][0])){
-        if(ps[0].getMin() != -onelab::parameter::maxNumber() ||
-           ps[0].getMax() != onelab::parameter::maxNumber() ||
-           ps[0].getStep() != 0.) noRange = false;
-        if(ps[0].getChoices().size()) noChoices = false;
+      // (unless they are not visible, or, for the range/choices, when
+      // explicitely setting these attributes as ReadOnly)
+      if(ps[0].getVisible()){
+        if(!(fopt.count("ReadOnlyRange") && fopt["ReadOnlyRange"][0])){
+          if(ps[0].getMin() != -onelab::parameter::maxNumber() ||
+             ps[0].getMax() != onelab::parameter::maxNumber() ||
+             ps[0].getStep() != 0.) noRange = false;
+          if(ps[0].getChoices().size()) noChoices = false;
+        }
+        if(ps[0].getAttribute("Loop").size()) noLoop = false;
+        if(ps[0].getAttribute("Graph").size()) noGraph = false;
+        if(ps[0].getAttribute("Closed").size()) noClosed = false;
       }
-      if(ps[0].getAttribute("Loop").size()) noLoop = false;
-      if(ps[0].getAttribute("Graph").size()) noGraph = false;
-      if(ps[0].getAttribute("Closed").size()) noClosed = false;
     }
     else{
       ps.resize(1);
@@ -846,8 +848,11 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
       else
 	c->Value.Char = strSave(ps[0].getValue().c_str()); // use value from server
       // keep track of these attributes, which can be changed server-side
-      if(ps[0].getAttribute("Closed").size()) noClosed = false;
-      if(ps[0].getAttribute("MultipleSelection").size()) noMultipleSelection = false;
+      // (unless they are not visible)
+      if(ps[0].getVisible()){
+        if(ps[0].getAttribute("Closed").size()) noClosed = false;
+        if(ps[0].getAttribute("MultipleSelection").size()) noMultipleSelection = false;
+      }
     }
     else{
       ps.resize(1);
@@ -892,8 +897,11 @@ void Message::ExchangeOnelabParameter(Group *g, fmap &fopt, cmap &copt)
       for(std::set<std::string>::iterator it = val.begin(); it != val.end(); it++)
         Fill_GroupInitialListFromString(g->InitialList, it->c_str());
     }
-    // keep track of these attributes, which can be changed server-side
-    if(ps[0].getAttribute("Closed").size()) noClosed = false;
+    // keep track of these attributes, which can be changed server-side (unless
+    // they are not visible)
+    if(ps[0].getVisible()){
+      if(ps[0].getAttribute("Closed").size()) noClosed = false;
+    }
   }
   else{
     ps.resize(1);
@@ -925,7 +933,33 @@ void Message::UndefineOnelabParameter(const std::string &name)
 {
   if(!_onelabClient) return;
 
-  _onelabClient->clear(name);
+  bool found = false;
+  {
+    // try to clear number with short name == name
+    std::vector<onelab::number> ps;
+    _onelabClient->get(ps);
+    for(unsigned int i = 0; i < ps.size(); i++){
+      if(ps[i].getShortName() == name){
+        found = true;
+        _onelabClient->clear(ps[i].getName());
+      }
+    }
+  }
+
+  if(!found){
+    // try to clear string with short name == name
+    std::vector<onelab::string> ps;
+    _onelabClient->get(ps);
+    for(unsigned int i = 0; i < ps.size(); i++){
+      if(ps[i].getShortName() == name){
+        found = true;
+        _onelabClient->clear(ps[i].getName());
+      }
+    }
+  }
+
+  if(!found)
+    _onelabClient->clear(name);
 }
 
 void Message::FinalizeOnelab()

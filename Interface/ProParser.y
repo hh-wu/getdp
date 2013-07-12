@@ -7012,10 +7012,21 @@ DefineConstants :
 UndefineConstants :
 
     /* none */
-  | UndefineConstants Comma CharExpr
+  | UndefineConstants Comma CharExprNoVar
     {
+      // undefine the onelab parameter
       std::string name($3);
       Message::UndefineOnelabParameter(name);
+      Free($3);
+    }
+
+  | UndefineConstants Comma String__Index
+    {
+      // undefine the onelab parameter and the getdp constant
+      std::string name($3);
+      Message::UndefineOnelabParameter(name);
+      Constant_S.Name = $3;
+      Tree_Suppress(ConstantTable_L, &Constant_S);
       Free($3);
     }
 
