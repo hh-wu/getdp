@@ -22,7 +22,7 @@ Function{
     FillFactor_Winding = {1, Visible 0},
     Factor_R_3DEffects = {1, Visible 0},
     SymmetryFactor     = {1, Visible 0},
-    Nb_max_iter        = {20, Visible 0},
+    Nb_max_iter        = {30, Visible 0},
     relaxation_factor  = {1, Visible 0},
     stop_criterion     = {1e-5, Visible 0},
     reltol             = {1e-7, Visible 0},
@@ -848,7 +848,7 @@ PostOperation Get_Torque UsingPost MagStaDyn_a_2D {
   Print[ Torque_Maxwell[Rotor_Airgap], OnGlobal, Format TimeTable,
     File > StrCat[Dir, StrCat["Tr",ExtGnuplot]], LastTimeStepOnly, Store 54, SendToServer my_output, Color "Orange1" ];
   Print[ Torque_Maxwell[Stator_Airgap], OnGlobal, Format TimeTable,
-    File > StrCat[Dir, StrCat["Ts",ExtGnuplot]], LastTimeStepOnly, Store 55, SendToServer StrCat[po_mec,"11T_stator"], Color "Orange1" ];
+    File > StrCat[Dir, StrCat["Ts",ExtGnuplot]], LastTimeStepOnly, Store 55, SendToServer StrCat[po_mec, "11T_stator"], Color "Orange1" ];
   Print[ Torque_Maxwell[MB], OnGlobal, Format TimeTable,
     File > StrCat[Dir, StrCat["Tmb",ExtGnuplot]], LastTimeStepOnly, Store 56, SendToServer StrCat[po_mec, "12T_mb"], Color "Orange1" ];
  //Print[ Torque_vw, OnRegion NodesOf[Rotor_Bnd_MB], Format RegionValue,

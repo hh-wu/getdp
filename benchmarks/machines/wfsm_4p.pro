@@ -14,8 +14,6 @@ DefineConstant[
   Flag_SrcType_Stator = { 0, Choices{0="None",1="Current"},
     Label "Source type in stator", Path "Input/41", Highlight "Blue", Visible 1},
   Flag_SrcType_Rotor = {1, Visible 0},
-  Flag_Cir = { !Flag_SrcType_Stator , Choices{0,1},
-    Label "Use circuit in stator", ReadOnly 1, Visible 0},
   Flag_NL = { 1, Choices{0,1},
     Label "Nonlinear BH-curve", Path "Input/60", ReadOnly 0, Visible 1},
   Flag_NL_law_Type = { 1, Choices{
@@ -24,6 +22,7 @@ DefineConstant[
     Label "BH-curve", Path "Input/61", Highlight "Blue", Visible Flag_NL}
 ];
 
+Flag_Cir = !Flag_SrcType_Stator;
 my_output = "No";
 
 Group {

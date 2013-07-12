@@ -13,8 +13,6 @@ DefineConstant[
       "- Use 'Frequency domain' to compute steady-state phasors depending on the slip"]} ,
   Flag_SrcType_Stator = { 2, Choices{1="Current", 2="Voltage"},
     Label "Source type in stator", Path "Input/41", Highlight "Blue", Visible 1},
-  Flag_Cir = { (Flag_SrcType_Stator==2) , Choices{0,1},
-    Label "Use circuit in stator", ReadOnly 1, Visible 0} ,
   Flag_Cir_RotorCage = { (Flag_SrcType_Stator==2), Choices{0,1},
     Label "Use circuit in rotor cage", Path "Input/40", ReadOnly (Flag_SrcType_Stator==1), Visible 1}
 
@@ -23,6 +21,8 @@ DefineConstant[
   slip = { 0, Min 0., Max 1, Step 0.02, Loop "1",
     Label "slip", Path "Input/30", Highlight "AliceBlue", Visible (Flag_AnalysisType == 2)}
 ];
+
+Flag_Cir = (Flag_SrcType_Stator==2);
 
 If(Flag_AnalysisType!=2)
   UndefineConstant["Input/30slip"];

@@ -13,29 +13,28 @@ DefineConstant[
       "- Use 'Frequency domain' to compute steady-state phasors depending on the slip"]} ,
   Flag_SrcType_Stator = { 2, Choices{1="Current", 2="Voltage"},
     Label "Source type in stator", Path "Input/41", Highlight "Blue", Visible 1},
-  Flag_Cir = { (Flag_SrcType_Stator==2) , Choices{0,1},
-    Label "Use circuit in stator", ReadOnly 1, Visible 0} ,
   Flag_Cir_RotorCage = { (Flag_SrcType_Stator==2), Choices{0,1},
     Label "Use circuit in rotor cage", Path "Input/40", ReadOnly (Flag_SrcType_Stator==1), Visible 1}
-
   Flag_OpenRotor = {1, Choices{0,1},
     Label "Open slots in rotor", Path "Input/39", Highlight "White", Visible 1},
-  slip = { 0, Min 0., Max 1, Step 0.02, Loop "1",
+  slip = { 0, Min 0., Max 1, Step 0.02, Loop (Flag_AnalysisType == 2),
     Label "slip", Path "Input/30", Highlight "AliceBlue", Visible (Flag_AnalysisType == 2)}
 ];
 
-If(Flag_AnalysisType!=2)
-  UndefineConstant["Input/30slip"];
-EndIf
+Flag_Cir = (Flag_SrcType_Stator==2);
 
+// FIXME: this not necessary anymore (thanks to the new behavior of Visibility);
+// to remove once we release GetDP 2.4.1
+If(Flag_AnalysisType!=2)
+  UndefineConstant[ "Input/30slip" ];
+EndIf
 variableFrequencyLoop = slip;
 
 DefineConstant[
   Flag_NL = { (Flag_AnalysisType==2)?0:1, Choices{0,1},
     Label "Nonlinear BH-curve", Path "Input/60", ReadOnly (Flag_AnalysisType==2)?1:0, Visible 1},
     // FIXME: nonlinear law in frequency domain not yet implemented
-  Flag_NL_law_Type = { 2, Choices{
-      0="Analytical", 1="Interpolated",
+  Flag_NL_law_Type = { 2, Choices{0="Analytical", 1="Interpolated",
       2="Analytical VH800-65D", 3="Interpolated VH800-65D"},
     Label "BH-curve", Path "Input/61", Highlight "Blue", Visible Flag_NL}
 ] ;
