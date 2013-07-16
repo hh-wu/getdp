@@ -1,4 +1,4 @@
-2.4.1: small improvements.
+2.4.1: minor improvements and bug fixes.
 
 2.4.0: new two-step Init constraints; faster network computation (with new
 -cache); improved Update operation; better cpu/memory reporting; new -setnumber,
