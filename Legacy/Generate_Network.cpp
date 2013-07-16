@@ -52,7 +52,10 @@ struct ConstraintActive * Generate_Network(char *Name, List_T * ConstraintPerReg
   Active->Case.Network.MatNode = MatNode = (int **)Malloc(n*sizeof(int *));
   for (int i=0 ; i<n ; i++)  MatNode[i] = (int *)Malloc(Nbr_Branch*sizeof(int)) ;
   Active->Case.Network.MatLoop = MatLoop = (int **)Malloc(Nbr_Loop*sizeof(int *));
-  for (int i=0 ; i<Nbr_Loop ; i++)  MatLoop[i] = (int *)Malloc(Nbr_Branch*sizeof(int)) ;
+  for (int i=0 ; i<Nbr_Loop ; i++){
+    MatLoop[i] = (int *)Malloc(Nbr_Branch*sizeof(int)) ;
+    for(int j = 0; j < Nbr_Branch; j++) MatLoop[i][j] = 0;
+  }
 
   /* Fill matrix MatNode */
 
@@ -131,10 +134,14 @@ struct ConstraintActive * Generate_Network(char *Name, List_T * ConstraintPerReg
     if(fp){
       Message::Info("Reading network cache '%s'", FileName);
       int n;
-      fscanf(fp, "%d", &n);
+      if(fscanf(fp, "%d", &n) != 1){
+        Message::Error("Bad cache file");
+      }
       for(int l = 0; l < n; l++){
         int i, j, val;
-        fscanf(fp, "%d %d %d", &i, &j, &val);
+        if(fscanf(fp, "%d %d %d", &i, &j, &val) != 3){
+          Message::Error("Bad cache file");
+        }
         if(i < Nbr_Loop && j < Nbr_Branch)
           MatLoop[i][j] = val;
         else
@@ -150,7 +157,7 @@ struct ConstraintActive * Generate_Network(char *Name, List_T * ConstraintPerReg
 
   Message::ResetProgressMeter();
   int idx = 0;
-#pragma omp parallel for
+  //#pragma omp parallel for
   for (int i=0 ; i<Nbr_Loop ; i++) {
     int ni = Num_col[n+i];
     for (int j=0 ; j<n ; j++) {  /* rectangular part */
