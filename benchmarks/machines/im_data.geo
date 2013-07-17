@@ -14,7 +14,7 @@
 
 // "Finite element modelling of an asynchronous motor with one broken rotor bar, comparison
 // with the data recorded on a prototype and material aspects"
-// S. Guérard, J. Gyselinck, and J. Lecomte-Beckers
+// S. Guerard, J. Gyselinck, and J. Lecomte-Beckers
 // Prix Melchior Salier 2004 du meilleur travail de fin d'études
 // section électromécanique-énergétique
 
@@ -28,7 +28,9 @@ DefineConstant[
     Label "Number of poles in FE model",
     Path "Input/20", Highlight "Blue", Visible 1},
   InitialRotorAngle_deg = { 10, Label "Initial rotor angle (deg)",
-    Path "Input/20", Highlight "AliceBlue"}
+                            Path "Input/20", Highlight "AliceBlue"},
+  Flag_OpenRotor = {1, Choices{0,1},
+    Label "Open slots in rotor", Path "Input/39", Highlight "White", Visible 1}
 ];
 
 

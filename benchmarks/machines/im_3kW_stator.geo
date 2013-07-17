@@ -181,19 +181,14 @@ Physical Line(SURF_EXT) = {OuterStator_[]};
 Physical Line(STATOR_BND_A0) = {StatorPeriod_Ref_[]};
 Physical Line(STATOR_BND_A1) = {StatorPeriod_Dep_[]};
 
-/*
-For i In {0:NbrPolesTot-1}
-  Physical Line(STATOR_BND_MOVING_BAND+i) = {OuterMB_[{i*4*NbrSectStator/NbrPoles:(i*4+4)*NbrSectStator/NbrPoles-1}]};
-EndFor
-*/
 For k In {0:NbrPolesTot/NbrPoles-1}
   Physical Line(STATOR_BND_MOVING_BAND+k) = {OuterMB_[{k*4*NbrSectStator:(k+1)*4*NbrSectStator-1}]};
 EndFor
 
+//nicepos_stator[] = {StatorBoundary_[],StatorPeriod_Ref_[],StatorPeriod_Dep_[]};
 
 Coherence;
 
-//nicepos_stator[] = {StatorBoundary_[],StatorPeriod_Ref_[],StatorPeriod_Dep_[]};
 nicepos_stator[] = CombinedBoundary{Surface{StatorIron_[]};};
 nicepos_stator[] += CombinedBoundary{Surface{StatorSlotOpening_[],StatorAirgapLayer_[]};};
 

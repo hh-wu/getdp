@@ -117,10 +117,10 @@ For i In {0:NbrSect-1}
     OuterShaft_[] += dR+18;
     RotorBoundary_[] += {dR+4,dR+5,dR+6,dR+9,dR+10,dR+11,dR+12,dR+18,dR+16,dR+17};
 
-    sgn = (j==0)?1.:-1.;
+    sgn = (j==0)?1.:-1.;// We need to change the sign only to constract the real MB
     InnerMB_[] += {sgn*(dR+19),sgn*(dR+20)};
 
-    allpntsInnerMB[]= Boundary{Line{InnerMB_[]};};
+    allpntsInnerMB[] = Boundary{ Line{InnerMB_[]}; };
     Characteristic Length{allpntsInnerMB[]}=pMB;
 
     If (NbrSectTot != NbrSect)
@@ -134,25 +134,25 @@ For i In {0:NbrSect-1}
       EndIf
     EndIf
 
-    dH=news;  // rotor conductor
+    // rotor conductor
     Line Loop(newll) = {-dR-12,-dR-11,-dR-10,-dR-9,-dR-6,-dR-5,-dR-4,dR+3,dR+8,-dR-13};
-    Plane Surface(dH) ={newll-1};
-    RotorConductor_[2*i+j] = dH;
+    Plane Surface(news) ={newll-1};
+    RotorConductor_[] += news-1;
 
-    dH=news;  // rotor iron
+    // rotor iron
     Line Loop(newll) = {dR+16,-dR-21,dR+5,dR+6,dR+9,dR+10,dR+11,dR+12,dR+14,-dR-18,-dR-15};
-    Plane Surface(dH) = {newll-1};
-    RotorIron_[2*i+j] = dH;
+    Plane Surface(news) = {newll-1};
+    RotorIron_[] += news-1;
 
-    dH=news;   // rotor slot opening
+    // rotor slot opening
     Line Loop(newll) = {dR+21,dR+17,dR+2,dR+4};
-    Plane Surface(dH) ={newll-1};
-    RotorSlotOpening_[2*i+j] = dH;
+    Plane Surface(news) ={newll-1};
+    RotorSlotOpening_[] += news-1;
 
-    dH=news;  // rotor airgap layer
+    // rotor airgap layer
     Line Loop(newll) = {-dR-1,-dR-20,-dR-19,dR+7,dR+16,dR+17};
-    Plane Surface(dH) = {newll-1};
-    RotorAirgapLayer_[2*i+j] = dH;
+    Plane Surface(news) = {newll-1};
+    RotorAirgapLayer_[] += news-1;
 
   EndFor
 EndFor
@@ -174,13 +174,18 @@ For k In {0:NbrSect-1}
   Color Orchid { Surface{ RotorConductor_[{2*k, 2*k+1}]};}
 EndFor
 
-Physical Surface(ROTOR_FE) = {RotorIron_[{0:NbrSect*2-1}]};
-Physical Surface(ROTOR_SLOTOPENING) = {RotorSlotOpening_[{0:NbrSect*2-1}]};
-Physical Surface(ROTOR_AIRGAP) = {RotorAirgapLayer_[{0:NbrSect*2-1}]};
+Physical Surface(ROTOR_FE) = {RotorIron_[]};
+Physical Surface(ROTOR_SLOTOPENING) = {RotorSlotOpening_[]};
+Physical Surface(ROTOR_AIRGAP) = {RotorAirgapLayer_[]};
 
-Color SteelBlue {Surface{RotorIron_[{0:NbrSect*2-1}]};}
-Color SkyBlue {Surface{RotorSlotOpening_[{0:NbrSect*2-1}]};}
-Color SkyBlue {Surface{RotorAirgapLayer_[{0:NbrSect*2-1}]};}
+Color SteelBlue {Surface{RotorIron_[]};}
+If(Flag_OpenRotor)
+  Color SkyBlue {Surface{RotorSlotOpening_[]};}
+EndIf
+If(!Flag_OpenRotor)
+  Color SteelBlue {Surface{RotorSlotOpening_[]};}
+EndIf
+Color SkyBlue {Surface{RotorAirgapLayer_[]};}
 
 Physical Line(SURF_INT) = {OuterShaft_[]};
 
@@ -188,9 +193,20 @@ For k In {0:NbrPolesTot/NbrPoles-1}
   Physical Line(ROTOR_BND_MOVING_BAND+k) = {InnerMB_[{k*4*NbrSect:(k+1)*4*NbrSect-1}]};
 EndFor
 
-nicepos_rotor[] = {RotorBoundary_[],RotorPeriod_Reference_[],RotorPeriod_Dependent_[]};
-
 Coherence;
+
+//nicepos_rotor[] = {RotorBoundary_[],RotorPeriod_Reference_[],RotorPeriod_Dependent_[]};
+If(Flag_OpenRotor)
+  nicepos_rotor[] = CombinedBoundary{Surface{RotorIron_[]};};
+  nicepos_rotor[] += CombinedBoundary{Surface{RotorSlotOpening_[], RotorAirgapLayer_[]};};
+EndIf
+If(!Flag_OpenRotor)
+  nicepos_rotor[] = CombinedBoundary{Surface{RotorIron_[],RotorSlotOpening_[]};};
+  nicepos_rotor[] += CombinedBoundary{Surface{RotorAirgapLayer_[]};};
+EndIf
+
+
+
 
 
 

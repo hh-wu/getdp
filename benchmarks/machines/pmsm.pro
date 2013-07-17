@@ -12,14 +12,14 @@ DefineConstant[
   Flag_SrcType_Stator = { 0, Choices{0="None",1="Current"},
     Label "Source type in stator", Path "Input/41", Highlight "Blue", Visible 1},
   Flag_NL = { 1, Choices{0,1},
-    Label "Nonlinear BH-curve", Path "Input/60", ReadOnly 0, Visible 1},
+    Label "Nonlinear BH-curve", Path "Input/60", Visible 1},
   Flag_NL_law_Type = { 0, Choices{
       0="Analytical", 1="Interpolated",
       2="Analytical VH800-65D", 3="Interpolated VH800-65D"},
     Label "BH-curve", Path "Input/61", Highlight "Blue", Visible Flag_NL}
 ];
 
-Flag_Cir = !Flag_SrcType_Stator;
+Flag_Cir = !Flag_SrcType_Stator ;
 
 Group {
   Stator_Fe     = #STATOR_FE ;
@@ -171,14 +171,15 @@ Function {
 
   DefineConstant[
     ID = { 0, Path "Input/50", Label "Id stator current", Highlight "AliceBlue", Visible (Flag_SrcType_Stator==1)},
-    IQ = { Inominal, Path "Input/51", Label "Iq stator current", Highlight "AliceBlue", Visible (Flag_SrcType_Stator==1)},
-    I0 = { 0, Visible 0}
+    IQ = { Inominal, Path "Input/51", Label "Iq stator current", Highlight "AliceBlue", Visible (Flag_SrcType_Stator==1)}
   ] ;
 
-  If(Flag_SrcType_Stator==0)
+  /*
+  If(!Flag_SrcType_Stator)
     UndefineConstant["Input/50ID"];
     UndefineConstant["Input/51IQ"];
   EndIf
+  */
 }
 
 // --------------------------------------------------------------------------
@@ -193,8 +194,8 @@ ExtGnuplot  = ".dat";
 // --------------------------------------------------------------------------
 // --------------------------------------------------------------------------
 
-If(Flag_SrcType_Stator==1)
-    UndefineConstant["Input/ZR"];
+If(Flag_SrcType_Stator)
+  UndefineConstant["Input/8ZR"];
 EndIf
 
 If(Flag_Cir)

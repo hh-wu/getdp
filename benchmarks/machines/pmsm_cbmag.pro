@@ -197,7 +197,7 @@ ExtGnuplot  = ".dat";
 // --------------------------------------------------------------------------
 
 If(Flag_SrcType_Stator==1)
-    UndefineConstant["Input/ZR"];
+    UndefineConstant["Input/8ZR"];
 EndIf
 If(Flag_Cir)
   Include "pmsm_8p_circuit.pro" ;

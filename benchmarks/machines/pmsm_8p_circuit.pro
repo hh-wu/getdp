@@ -1,9 +1,8 @@
 //
-// Circuit for Permanent Magnet Synchronous Generator - cbmag
+// Circuit for Permanent Magnet Synchronous Generator
 //
 
 Group{
-  // Dummy numbers for circuit definition
   R1 = #55551 ;
   R2 = #55552 ;
   R3 = #55553 ;

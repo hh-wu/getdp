@@ -22,7 +22,9 @@ DefineConstant[
     Label "Number of poles in FE model",
     Path "Input/20", Highlight "Blue", Visible 1},
   InitialRotorAngle_deg = { 10, Label "Initial rotor angle [deg]",
-    Path "Input/20", Highlight "AliceBlue"}
+    Path "Input/20", Highlight "AliceBlue"},
+  Flag_OpenRotor = {1, Choices{0,1},
+    Label "Open slots in rotor", Path "Input/39", Highlight "White", Visible 1}
 ];
 
 NbrPolesTot = 4; // number of poles in complete cross-section

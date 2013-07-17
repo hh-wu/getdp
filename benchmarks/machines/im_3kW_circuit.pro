@@ -5,6 +5,11 @@
 
 Group{
   // Dummy numbers for circuit definition
+
+  Input1 = #10001 ;
+  Input2 = #10002 ;
+  Input3 = #10003 ;
+
   R1 = #55551 ;
   R2 = #55552 ;
   R3 = #55553 ;
@@ -12,10 +17,6 @@ Group{
   L1 = #55561 ;
   L2 = #55562 ;
   L3 = #55563 ;
-
-  Input1 = #10001 ;
-  Input2 = #10002 ;
-  Input3 = #10003 ;
 
   For k In {1:nbRotorBars}
     Rers~{k} = Region[{(60000+k)}]; // resistance per endring segment

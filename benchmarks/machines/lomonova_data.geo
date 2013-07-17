@@ -16,7 +16,7 @@ DefineConstant[ Flag_Type = { 0, Choices{ 0="Concentrated",
                                           2="Distributed 2",
                                           3="Distributed 3"},
                               Label "Type of windings",
-                              Path "Input/1", Highlight "NavyBlue"} ];
+                              Path "Input/1", Highlight "Blue"} ];
 
 boolreadonly = (Flag_Type==0) ? 1 : 0 ;
 
