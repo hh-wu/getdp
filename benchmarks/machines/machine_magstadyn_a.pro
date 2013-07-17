@@ -569,10 +569,10 @@ Resolution {
           SaveSolution[A];
 
           PostOperation[Get_LocalFields] ;
-          //Test[ $TimeStep > 1 ]{
+          Test[ $TimeStep > 1 ]{
             PostOperation[Get_GlobalQuantities];
             PostOperation[Get_Torque] ;
-            //}
+          }
 
           If(!Flag_ImposedSpeed)
             Generate[M]; Solve[M]; SaveSolution[M];
