@@ -23,8 +23,7 @@ DefineConstant[
 
 Flag_Cir = (Flag_SrcType_Stator==2);
 
-// FIXME: this not necessary anymore (thanks to the new behavior of Visibility);
-// to remove once we release GetDP 2.4.1
+// this not necessary anymore (thanks to the new behavior of Visibility)
 If(Flag_AnalysisType!=2)
   UndefineConstant[ "Input/30slip" ];
 EndIf
