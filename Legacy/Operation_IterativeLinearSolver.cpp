@@ -152,7 +152,11 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   ILSMat *ctx, *ctx_pc; // Matrix Shell context and PC context
   Mat A;
   KSP ksp;
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 4)
+  const char *ksp_choice = "";
+#else
   const KSPType ksp_choice;
+#endif
   int MaxIter, Restart;
   double Tol;
   std::vector<std::vector<std::vector<double> > > B_std; // right hand side (std version)
@@ -1327,7 +1331,12 @@ PetscErrorCode PrintVec(Vec b, const char* filename, const char* varname)
 //This function is copy/paste of function LinAlg_PrintMatrix function
 // located in Legacy/LinAlg_PETSC.cpp
   PetscErrorCode ierr;
+
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 4)
+  const char *type = "";
+#else
   const VecType type;
+#endif
   ierr = VecGetType(b, &type);CHKERRQ(ierr);
   if(!strcmp(type, "seq")){ // AND NUM_PROC > 1 !!!!!
     ierr = PrintVecSeq(b, filename, varname);CHKERRQ(ierr);

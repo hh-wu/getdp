@@ -275,7 +275,11 @@ static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
 #endif
 
   // print info
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 4)
+  const char *type = "";
+#else
   const EPSType type;
+#endif
   _try(EPSGetType(eps, &type));
   Message::Info("SLEPc solution method: %s", type);
   PetscInt nev;
@@ -349,7 +353,11 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
                              // QEP_SMALLEST_REAL, QEP_LARGEST_MAGNITUDE, ...
 
   // if we linearize we can set additional options
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 4)
+  const char *type = "";
+#else
   const QEPType type;
+#endif
   _try(QEPGetType(qep, &type));
   if(!strcmp(type, QEPLINEAR)){
     EPS eps;

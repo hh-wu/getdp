@@ -213,7 +213,7 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
     nnz[Current.DofData->NonLocalEquations[i] - 1] = prealloc_full;
 
   if(Message::GetCommSize() > 1) // FIXME: alloc full lines...
-#if ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 3))
+#if ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 3))
     _try(MatCreateAIJ(MyComm, PETSC_DECIDE, PETSC_DECIDE, n, m,
                       prealloc, PETSC_NULL, prealloc, PETSC_NULL, &M->M));
 #else
@@ -223,7 +223,7 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
   else
     _try(MatCreateSeqAIJ(PETSC_COMM_SELF, n, m, 0, &nnz[0], &M->M));
 
-#if ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 3))
+#if ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 3))
   // Preallocation routines automatically set now MAT_NEW_NONZERO_ALLOCATION_ERR,
   // what causes a problem when the mask of the matrix changes (e.g. moving band)
   // We must disable the error generation and allow new allocation (if needed)
@@ -1247,10 +1247,19 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
     if(view && (!Message::GetCommRank() || !Message::GetIsCommWorld())){
       // either we are on parallel (!GetIsCommWorld) or in sequential with rank
       // = 0 (GetIsCommWorld)
-      const KSPType ksptype;
+
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 4)
+      const char *ksptype = "";
+      _try(KSPGetType(Solver->ksp[kspIndex], &ksptype));
+      const char *pctype = "";
+      _try(PCGetType(pc, &pctype));
+#else
+ const KSPType ksptype;
       _try(KSPGetType(Solver->ksp[kspIndex], &ksptype));
       const PCType pctype;
       _try(PCGetType(pc, &pctype));
+#endif
+
 #if (PETSC_VERSION_MAJOR > 2)
       const MatSolverPackage stype;
       _try(PCFactorGetMatSolverPackage(pc, &stype));
@@ -1412,8 +1421,14 @@ static void _solveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R, gSolver *So
     PetscOptionsGetTruth(PETSC_NULL,"-snes_fd",&snes_fd,0);
     if (fd_jacobian || snes_fd) {
       Message::Error("Finite Difference Jacobian not yet implemented");
+
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 4)
+      _try(SNESSetJacobian(Solver->snes[solverIndex], J->M, J->M,
+                           SNESComputeJacobianDefault, PETSC_NULL));
+#else
       _try(SNESSetJacobian(Solver->snes[solverIndex], J->M, J->M,
                            SNESDefaultComputeJacobian, PETSC_NULL));
+#endif
     }
     else {
       Message::Info("Jacobian computed by GetDP");
