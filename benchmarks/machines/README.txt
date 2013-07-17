@@ -83,7 +83,7 @@ Used in:
 J. Gyselinck, L. Vandevelde, J. Melkebeek, W. Legros,
 "Steady-State Finite Element Analysis of a Salient-Pole Synchronous Machine in
 the Frequency Domain",
-Proceedings Electrimacs 2002, Montréal, Canada, August 18-21, 2002, 6 pages.
+Proceedings Electrimacs 2002, MontrÃ©al, Canada, August 18-21, 2002, 6 pages.
 http://hdl.handle.net/1854/LU-160736
 
 wfsm_4p_data.geo
@@ -96,29 +96,8 @@ wfsm_4p.pro
 wfsm_4p_circuit.pro
 
 --------------------------------------------------------------------
-5) Four-pole induction machine
 
-Used in:
-
-S. Guérard, J. Gyselinck, and J. Lecomte-Beckers,
-"Finite element modelling of an asynchronous motor with one broken rotor bar,
-comparison with the data recorded on a prototype and material aspects",
-Bulletin Scientifique de l'AIM, Vol.1, pp. 13-22, 2005.
-http://hdl.handle.net/2268/38463
-Prix Melchior Salier 2004 du meilleur travail de fin d'études section
-électromécanique-énergétique.
-
-im_data.geo
-
-im.geo
-im_rotor.geo
-im_stator.geo
-
-im.pro
-im_circuit.pro
-
---------------------------------------------------------------------
-6) TEAM workshop problem 30a - Induction motor analysis
+5) TEAM workshop problem 30a - Induction motor analysis
 http://www.compumag.org/jsite/team.html
 
 t30_data.geo
@@ -128,5 +107,52 @@ t30_rotor.geo
 t30_stator.geo
 
 t30.pro
+
+--------------------------------------------------------------------
+6) Four-pole 3kW-induction machine from Johan Gyselinck's PhD
+
+J. Gyselinck, "Twee Dimensionale Dynamische Eindige-Elementenmodellering van
+Statische en Roterende Elektromagnetische Energieomzetters",
+Doktoraatsthesis, Universiteit Gent, 2000.
+
+Some articles where it has been used:
+J. Gyselinck, L. Vandevelde, and J. Melkebeek,
+"Multi-slice modeling of electrical machines with skewed slots - The skew
+discretization error,â€ IEEE Trans. Magn., vol. 37, pp. 3233â€“3237, Sept. 2002.
+
+J. Gyselinck, L. Vandevelde, P. Dular, C. Geuzaine, W. Legros,
+"A General Method for the Frequency Domain FE Modeling of Rotating
+Electromagnetic Devices", IEEE Trans. Magn., Vol. 39, No. 3, May 2003.
+
+im_3kW_data.geo
+
+im_3kW.geo
+im_3kW_rotor.geo
+im_3kW_stator.geo
+
+im_3kW.pro
+im_3kW_circuit.pro
+
+--------------------------------------------------------------------
+7) Four-pole induction machine
+
+Used in:
+
+S. GuÃ©rard, J. Gyselinck, and J. Lecomte-Beckers,
+"Finite element modelling of an asynchronous motor with one broken rotor bar,
+comparison with the data recorded on a prototype and material aspects",
+Bulletin Scientifique de l'AIM, Vol.1, pp. 13-22, 2005.
+http://hdl.handle.net/2268/38463
+Prix Melchior Salier 2004 du meilleur travail de fin d'Ã©tudes section
+Ã©lectromÃ©canique-Ã©nergÃ©tique.
+
+im_data.geo
+
+im.geo
+im_rotor.geo
+im_stator.geo
+
+im.pro
+im_circuit.pro
 
 -->
