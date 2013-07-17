@@ -1730,7 +1730,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	break ;
       }
       else if (List_Nbr(DofData_P->Solutions) > 1) {
-	Message::Warning("Only last solution will be extended mult-harmonically and saved");
+	Message::Warning("Only last solution will be extended multi-harmonically and saved");
       }
 
       Init_OperationOnSystem("SaveSolutionExtendedMH",

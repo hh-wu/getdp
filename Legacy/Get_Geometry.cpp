@@ -36,7 +36,7 @@ void Get_NodesCoordinatesOfElement(struct Element * Element)
 }
 
 /* ------------------------------------------------------------------------ */
-/*  G e t _ G e o E l e m e n t                                             */
+/*  G e t _ B F G e o E l e m e n t                                             */
 /* ------------------------------------------------------------------------ */
 
 void Get_BFGeoElement(struct Element * Element, double u, double v, double w)
