@@ -4098,7 +4098,7 @@ If @var{expression} is true (nonzero), perform the operations in
 
 @item Test
 @code{[@var{expression}] @{ @var{resolution-op} @}} 
-@itemx Else
+@code{Else}
 @code{@{ @var{resolution-op} @}} 
 
 If @var{expression} is true (nonzero), perform the operations in the first
