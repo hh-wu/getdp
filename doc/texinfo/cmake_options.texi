@@ -6,7 +6,7 @@ Enable BLAS/Lapack for linear algebra (e.g. for Arpack) (default: ON)
 @item ENABLE_BUILD_LIB
 Enable 'lib' target for building static GetDP library (default: OFF)
 @item ENABLE_BUILD_SHARED
-Enable 'shared' target for Building shared GetDP library (default: OFF)
+Enable 'shared' target for building shared GetDP library (default: OFF)
 @item ENABLE_BUILD_ANDROID
 Enable Android NDK library target (experimental) (default: OFF)
 @item ENABLE_FORTRAN
