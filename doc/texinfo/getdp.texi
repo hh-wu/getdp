@@ -126,6 +126,7 @@ dimensions. This is the @cite{GetDP Reference Manual} for GetDP
 * Complete examples::           Some simple complete examples.
 * File formats::                Input and output file formats.
 * Gmsh examples::               Sample Gmsh input files.
+* Compiling the source code::   
 * Frequently asked questions::  The GetDP FAQ
 * Tips and tricks::             Some tips to make your life easier with GetDP.
 * Version history::             Changelog
@@ -6334,7 +6335,7 @@ the numbering of the equations given in the @file{.pre} file
 @c Gmsh Examples
 @c =========================================================================
 
-@node Gmsh examples, Frequently asked questions, File formats, Top
+@node Gmsh examples, Compiling the source code, File formats, Top
 @appendix Gmsh examples
 
 @cindex Gmsh, examples
@@ -6357,10 +6358,63 @@ the mesh files @file{mStrip.msh} and @file{Core.msh} used in the examples of
 @verbatiminclude Core.geo
 
 @c =========================================================================
+@c Compiling the source code
+@c =========================================================================
+
+@node Compiling the source code, Frequently asked questions, Gmsh examples, Top
+@appendix Compiling the source code
+
+Stable releases and nightly source snapshots are available from
+@uref{http://geuz.org/getdp/src/}. You can also access the subversion
+repository directly:
+
+@enumerate
+@item
+The first time you want to download the latest full source, type:
+
+@example
+svn co https://geuz.org/svn/getdp/trunk getdp
+@end example
+
+You will be asked to accept the security certificate and to provide your
+username and password. (Use getdp/getdp for read-only access.)
+
+@item
+To update your local version to the latest and greatest, go in the getdp
+directory and type:
+
+@example
+svn update
+@end example
+
+@item
+If you have write access, to commit your changes to the central
+repository, go in the getdp directory and type:
+
+@example
+svn commit
+@end example
+
+@end enumerate
+
+Once you have the source code, you need to run CMake to configure your
+build (see the @file{README.txt} file in the top-level source directory
+for detailed information on how to run CMake). 
+
+Each build can be configured using a series of options, to selectively
+enable optional modules or features. Here is the list of CMake options:
+
+@ftable @code
+
+@include cmake_options.texi
+
+@end ftable
+
+@c =========================================================================
 @c Frequently asked questions
 @c =========================================================================
 
-@node Frequently asked questions, Tips and tricks, Gmsh examples, Top
+@node Frequently asked questions, Tips and tricks, Compiling the source code, Top
 @appendix Frequently asked questions
 
 @cindex Frequently asked questions
@@ -6430,15 +6484,10 @@ or higher; freely available from @url{http://sources.redhat.com/gsl}).
 
 @item How do I compile GetDP?
 
-Just type 
-
-@example
-./configure; make; make install
-@end example
-
-If you change some configuration options (type @code{./configure --help}
-to get the list of all available choices), don't forget to do @code{make
-clean} before rebuilding GetDP.
+You need cmake (@url{http://www.cmake.org}) and a C++ compiler (and a
+Fortran compiler depending on the modules/solvers you want to
+compile). See @ref{Compiling the source code} and the @file{README.txt}
+file in the top-level source directory for more information.
 
 @item GetDP [from a binary distribution] complains about missing libraries.
 

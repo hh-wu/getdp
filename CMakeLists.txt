@@ -17,28 +17,33 @@ else(DEFINED CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING "Choose build type")
 endif(DEFINED CMAKE_BUILD_TYPE)
 
-# this variable controls the default value of the "ENABLE_XXX" options which are
-# normally set to ON (useful if you want to configure a minimal version of GetDP:
-# e.g. "cmake -DDEFAULT=0 -DENABLE_PETSC=1")
+# this variable controls the default value of the options which are normally set
+# to ON (useful if you want to configure a minimal version of GetDP: e.g. "cmake
+# -DDEFAULT=0 -DENABLE_PETSC=1")
 set(DEFAULT ON CACHE INTERNAL "Default value for enabled-by-default options")
 
-option(ENABLE_ARPACK "Enable Arpack eigensolvers" ${DEFAULT})
-option(ENABLE_BLAS_LAPACK "Enable BLAS and Lapack functions" ${DEFAULT})
-option(ENABLE_BUILD_LIB "Build static GetDP library" OFF)
-option(ENABLE_BUILD_SHARED "Build shared GetDP library" OFF)
-option(ENABLE_BUILD_ANDROID "Build shared GetDP library for Android" OFF)
-option(ENABLE_FORTRAN "Enable Fortran components" ${DEFAULT})
-option(ENABLE_GMSH "Enable Gmsh functions" ${DEFAULT})
-option(ENABLE_GSL "Enable GSL functions" ${DEFAULT})
-option(ENABLE_LEGACY "Use legacy assembler" ON)
-option(ENABLE_MPI "Enable MPI parallelization" OFF)
-option(ENABLE_NR "Enable NR functions (if GSL is unavailable)" ${DEFAULT})
-option(ENABLE_NX "Enable NX extensions" OFF)
-option(ENABLE_OPENMP "Enable OpenMP" OFF)
-option(ENABLE_PETSC "Enable PETSc solvers" ${DEFAULT})
-option(ENABLE_SLEPC "Enable SLEPc eigensolvers" ${DEFAULT})
-option(ENABLE_SPARSKIT "Enable Sparskit solvers (if PETSc is unavailable)" ${DEFAULT})
-option(ENABLE_ZITSOL "Enable Zitsol solvers" OFF)
+macro(opt OPTION HELP VALUE)
+  option(ENABLE_${OPTION} ${HELP} ${VALUE})
+  set(OPT_TEXI "${OPT_TEXI}\n@item ENABLE_${OPTION}\n${HELP} (default: ${VALUE})")
+endmacro(opt)
+
+opt(ARPACK "Enable Arpack eigensolver (requires Fortran)" ${DEFAULT})
+opt(BLAS_LAPACK "Enable BLAS and Lapack functions" ${DEFAULT})
+opt(BUILD_LIB "Build static GetDP library" OFF)
+opt(BUILD_SHARED "Build shared GetDP library" OFF)
+opt(BUILD_ANDROID "Build shared GetDP library for Android" OFF)
+opt(FORTRAN "Enable Fortran (needed for Sparskit, Arpack, Zitsol and Bessel)" ${DEFAULT})
+opt(GMSH "Enable Gmsh functions (for field interpolation)" ${DEFAULT})
+opt(GSL "Enable GSL functions" ${DEFAULT})
+opt(LEGACY "Use legacy assembler (required)" ON)
+opt(MPI "Enable MPI parallelization (with PETSc/SLEPc)" OFF)
+opt(NR "Enable NR functions (if GSL is unavailable)" ${DEFAULT})
+opt(NX "Enable NX extensions" OFF)
+opt(OPENMP "Enable OpenMP (experimental)" OFF)
+opt(PETSC "Enable PETSc linear solver" ${DEFAULT})
+opt(SLEPC "Enable SLEPc eigensolver" ${DEFAULT})
+opt(SPARSKIT "Enable Sparskit solver if PETSc is not (requires Fortran)" ${DEFAULT})
+opt(ZITSOL "Enable Zitsol solvers (requires Fortran)" OFF)
 
 if(ENABLE_FORTRAN)
   project(getdp CXX C Fortran)
@@ -774,6 +779,9 @@ if(TEXI2PDF)
   add_custom_target(pdf DEPENDS ${TEX_DIR}/getdp.pdf)
   install(FILES ${TEX_DIR}/getdp.pdf DESTINATION ${GETDP_DOC} OPTIONAL)
 endif(TEXI2PDF)
+
+execute_process(COMMAND ${CMAKE_COMMAND} -E echo "${OPT_TEXI}"
+                OUTPUT_FILE cmake_options.texi)
 
 if(MAKEINFO AND TEXI2PDF)
   add_custom_target(doc COMMAND ${CMAKE_COMMAND} -E tar zcf 
