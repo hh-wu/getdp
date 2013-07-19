@@ -2,13 +2,13 @@
 @item ENABLE_ARPACK
 Enable Arpack eigensolver (requires Fortran) (default: ON)
 @item ENABLE_BLAS_LAPACK
-Enable BLAS and Lapack functions (default: ON)
+Enable BLAS/Lapack for linear algebra (e.g. for Arpack) (default: ON)
 @item ENABLE_BUILD_LIB
 Build static GetDP library (default: OFF)
 @item ENABLE_BUILD_SHARED
 Build shared GetDP library (default: OFF)
 @item ENABLE_BUILD_ANDROID
-Build shared GetDP library for Android (default: OFF)
+Enable Android NDK library target (experimental) (default: OFF)
 @item ENABLE_FORTRAN
 Enable Fortran (needed for Sparskit, Arpack, Zitsol and Bessel) (default: ON)
 @item ENABLE_GMSH
@@ -22,7 +22,7 @@ Enable MPI parallelization (with PETSc/SLEPc) (default: OFF)
 @item ENABLE_NR
 Enable NR functions (if GSL is unavailable) (default: ON)
 @item ENABLE_NX
-Enable NX extensions (default: OFF)
+Enable proprietary NX extension (default: OFF)
 @item ENABLE_OPENMP
 Enable OpenMP (experimental) (default: OFF)
 @item ENABLE_PETSC
