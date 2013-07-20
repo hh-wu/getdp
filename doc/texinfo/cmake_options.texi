@@ -30,6 +30,6 @@ Enable PETSc linear solver (default: ON)
 @item ENABLE_SLEPC
 Enable SLEPc eigensolver (default: ON)
 @item ENABLE_SPARSKIT
-Enable Sparskit solver if PETSc is not (requires Fortran) (default: ON)
+Enable Sparskit solver instead of PETSc (requires Fortran) (default: ON)
 @item ENABLE_ZITSOL
 Enable Zitsol solvers (requires PETSc and Fortran) (default: OFF)

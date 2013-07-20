@@ -42,7 +42,7 @@ opt(NX "Enable proprietary NX extension" OFF)
 opt(OPENMP "Enable OpenMP parallelization of some functions (experimental)" OFF)
 opt(PETSC "Enable PETSc linear solver" ${DEFAULT})
 opt(SLEPC "Enable SLEPc eigensolver" ${DEFAULT})
-opt(SPARSKIT "Enable Sparskit solver if PETSc is not (requires Fortran)" ${DEFAULT})
+opt(SPARSKIT "Enable Sparskit solver instead of PETSc (requires Fortran)" ${DEFAULT})
 opt(ZITSOL "Enable Zitsol solvers (requires PETSc and Fortran)" OFF)
 
 if(ENABLE_FORTRAN)
