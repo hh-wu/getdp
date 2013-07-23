@@ -126,7 +126,7 @@ dimensions. This is the @cite{GetDP Reference Manual} for GetDP
 * Complete examples::           Some simple complete examples.
 * File formats::                Input and output file formats.
 * Gmsh examples::               Sample Gmsh input files.
-* Compiling the source code::   Information on how to comile Gmsh from source
+* Compiling the source code::   Information on how to comile GetDP from source
 * Frequently asked questions::  The GetDP FAQ
 * Tips and tricks::             Some tips to make your life easier with GetDP.
 * Version history::             Changelog
