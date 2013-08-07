@@ -677,7 +677,7 @@ void Cal_WholeQuantity(struct Element * Element,
 
           for (k = 0 ; k < Current.NbrSystem ; k++){
             Solution_P0 = (struct Solution*)List_Pointer((Current.DofData_P0+k)->Solutions, 0);
-            if(((Current.DofData_P0+k)->CurrentSolution - Solution_P0) >= n+1)
+            if(((Current.DofData_P0+k)->CurrentSolution - Solution_P0) > 0)
               ((Current.DofData_P0+k)->CurrentSolution) -= 1 ;
             else{
               Message::Error("Too few solutions for Dt with Gears method");
