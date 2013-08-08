@@ -77,7 +77,6 @@ Group {
 
   MB  = MovingBand2D[ MovingBand_PhysicalNb, Stator_Bnd_MB, Rotor_Bnd_MB, SymmetryFactor] ;
   Air = Region[{ Rotor_Air, Rotor_Airgap, Stator_Air, Stator_Airgap, MB } ] ;
-  Inds = Region[{ Rotor_Inds, Stator_Inds } ] ;
 
   DomainV = Region[{}]; // Speed considered either with term v/\b
   If(Term_vxb) // or not dynamics in time domain + mechanics
@@ -110,19 +109,19 @@ Function {
   EndIf
   If(Flag_NL)
     If(Flag_NL_law_Type==0)
-      nu [#{Stator_Fe, Rotor_Fe }] = nu_1a[$1] ;
+      nu [ DomainNL ] = nu_1a[$1] ;
       dhdb_NL [ DomainNL ] = dhdb_1a_NL[$1];
     EndIf
     If(Flag_NL_law_Type==1)
-      nu [#{Stator_Fe, Rotor_Fe }] = nu_1[$1] ;
+      nu [ DomainNL ] = nu_1[$1] ;
       dhdb_NL [ DomainNL ] = dhdb_1_NL[$1];
     EndIf
     If(Flag_NL_law_Type==2)
-       nu [#{Stator_Fe, Rotor_Fe }] = nu_3kWa[$1] ;
+       nu [ DomainNL ] = nu_3kWa[$1] ;
        dhdb_NL [ DomainNL ] = dhdb_3kWa_NL[$1];
     EndIf
     If(Flag_NL_law_Type==3)
-       nu [#{Stator_Fe, Rotor_Fe }] = nu_3kW[$1] ;
+       nu [ DomainNL ] = nu_3kW[$1] ;
        dhdb_NL [ DomainNL ] = dhdb_3kW_NL[$1];
     EndIf
   EndIf
