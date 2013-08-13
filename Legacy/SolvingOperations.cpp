@@ -2119,8 +2119,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
 	Flag_IterativeLoop = Operation_P->Case.IterativeLoop.Flag ; /* Attention: Test */
 
-	Treatment_Operation(Resolution_P, Operation_P->Case.IterativeLoop.Operation,
-			    DofData_P0, GeoData_P0, NULL, NULL) ;
+        // Resolution2_P and DofData2_P0 added as arguments for allowing TransferSolution of a nonlinear resolution
+ 	Treatment_Operation(Resolution_P, Operation_P->Case.IterativeLoop.Operation,
+			    DofData_P0, GeoData_P0, Resolution2_P, DofData2_P0) ;
 
 	if (Current.RelativeDifference <= Operation_P->Case.IterativeLoop.Criterion)
 	  break ;
