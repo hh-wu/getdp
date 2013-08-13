@@ -50,7 +50,6 @@ Point(26) = { e5,-h4, 0, pm0};
 Point(27) = {-e5,-h4, 0, pm0};
 Point(28) = {-e5, h4, 0, pm0};
 
-
 Point(29) = { e1+d, h1+d+pos_y, 0, pa};
 Point(30) = { e1+d,-h1-d+pos_y, 0, pa};
 Point(31) = {-e1-d,-h1-d+pos_y, 0, pa};
@@ -221,6 +220,8 @@ Color SteelBlue {Surface{surfIron,surfYoke};}
 Color Cyan {Surface{surfAirGapOut};}
 Color SkyBlue {Surface{surfal};}
 
+
+Reverse Surface {surfIron,surfYoke,surfAirGapOut}; // Changing the normals of some surfaces
 
 
 

@@ -1,12 +1,13 @@
 Function{
 
-  // nu = 100. + 10. * exp ( 1.8 * b * b )
+  // nu = aa + bb * exp ( cc * b * b )
   // analytical
-  nu_1a[] = 100. + 10. * Exp[1.8*SquNorm[$1]] ;
-  dnudb2_1a[] = 18. * Exp[1.8*SquNorm[$1]] ;
-  h_1a[] = nu_1a[$1]*$1 ;
-  dhdb_1a[] = TensorDiag[1,1,1] * nu_1a[$1#1] + 2*dnudb2_1a[#1] * SquDyadicProduct[#1]  ;
-  dhdb_1a_NL[] = 2*dnudb2_1a[$1#1] * SquDyadicProduct[#1]  ;
+  aa = 153; bb = .55;  cc = 5.02;
+  nu_26a[] = aa + bb * Exp[cc*SquNorm[$1]] ;
+  dnudb2_26a[] = bb * cc* Exp[cc*SquNorm[$1]] ;
+  h_26a[] = nu_26a[$1]*$1 ;
+  dhdb_26a[] = TensorDiag[1,1,1] * nu_26a[$1#1] + 2*dnudb2_26a[#1] * SquDyadicProduct[#1]  ;
+  dhdb_26a_NL[] = 2*dnudb2_26a[$1#1] * SquDyadicProduct[#1]  ;
 
   Mat26_b = {
     0.0000e+00, 5.0000e-01, 6.0000e-01, 7.0000e-01, 8.0000e-01, 9.0000e-01, 1.0000e+00,

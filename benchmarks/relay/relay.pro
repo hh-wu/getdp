@@ -30,6 +30,7 @@ Group {
 
   AirLayer = #AIRLAYER ;
   AirGapOut = #AIRGAPOUT ;
+  Dummy = #DUMMY;
 
 
   Magnets = Region[{MagnetLeft, MagnetRight}] ;
@@ -401,6 +402,9 @@ PostProcessing {
      { Name b  ; Value { Term { [ {d a} ] ; In Domain ; Jacobian Vol ; } } }
      { Name j  ; Value { Term { [ -sigma[] * Dt[{a}] ] ; In Domain ; Jacobian Vol ; } } }
      { Name jz  ; Value { Term { [ CompZ[-sigma[] * Dt[{a}]] ] ; In Domain ; Jacobian Vol ; } } }
+
+     { Name boundary  ; Value { Term { [ 1 ] ; In Dummy ; Jacobian Vol ; } } } // Dummy quantity - for visualization
+
      { Name Flux ; Value { Integral { [ AxialLength*Idir[]*NbWires[]/SurfCoil[]* CompZ[{a}] ] ;
            In Coils  ; Jacobian Vol ; Integration I1 ; } } }
      { Name W  ; Value { Integral { [ AxialLength * nu[]/2*SquNorm[{d a}] ] ;
@@ -443,6 +447,7 @@ ExtGmsh     = ".pos" ;
 ExtGnuplot  = ".dat" ;
 
 PostOperation MapMag UsingPost MagDyn_a_2D {
+  Print[ boundary,  OnElementsOf Dummy, File StrCat["bnd",ExtGmsh], Format Gmsh, OverrideTimeStepValue step, LastTimeStepOnly ] ;
   Print[ b, OnElementsOf Domain,  File StrCat["b", ExtGmsh], Format Gmsh, OverrideTimeStepValue step, LastTimeStepOnly ] ;
   Print[ az, OnElementsOf Domain, File StrCat["az", ExtGmsh], Format Gmsh, OverrideTimeStepValue step, LastTimeStepOnly] ;
 
