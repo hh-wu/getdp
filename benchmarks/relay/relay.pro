@@ -1,33 +1,43 @@
 Include "relay_data.pro";
 
 DefineConstant[
+  time_min = { 0, Visible (Flag_AnalysisType == 1), Path "Input/30"},
+  time_max = { 1, Min time_min, Visible (Flag_AnalysisType == 1), Path "Input/31"},
+  delta_time = { 0.8e-3, Min time_max/5000, Visible (Flag_AnalysisType == 1), Path "Input/32"},
+  NbSteps = { (time_max - time_min)/delta_time, Visible 0, Path "Input/33"},
+  step = {0, Min 0, Max NbSteps, Step 1,
+    Loop  (Flag_AnalysisType == 1), Path "Input/34", Visible (Flag_AnalysisType == 1)},
+
+  Flag_Cir = { 1, Visible 0},
   Flag_NL = { 0, Choices{0,1}, Label "Nonlinear BH-curve", Path "Input/60", Visible 1}
 ];
 
+
 Group {
-  MovingIron     = #1000 ;
-  SkinMovingIron = #1100 ;
+  MovingIron     = #MOVINGIRON ;
+  SkinMovingIron = #SKINMOVINGIRON ;
 
-  Yoke        = #2000 ;
-  SkinYokeOut = #2200 ;
+  Yoke        = #YOKE ;
+  SkinYokeOut = #SKINYOKEOUT ;
 
-  MagnetRight = #3000 ;
-  MagnetLeft  = #3001 ;
+  MagnetRight = #MAGNETRIGHT ;
+  MagnetLeft  = #MAGNETLEFT ;
+
+  CoilR_up   = #COILR_UP ;
+  CoilR_down = #COILR_DOWN  ;
+  CoilL_up   = #COILL_UP ;
+  CoilL_down = #COILL_DOWN ;
+
+  AirLayer = #AIRLAYER ;
+  AirGapOut = #AIRGAPOUT ;
+
+
   Magnets = Region[{MagnetLeft, MagnetRight}] ;
+  Coils_up = Region[{CoilR_up, CoilL_up}];
+  Coils_down = Region[{CoilR_down, CoilL_down}];
+  Coils = Region[{Coils_up, Coils_down}];
 
-  CoilR_up   = #4000 ;
-  CoilR_down = #4001 ;
-  CoilL_up   = #4002 ;
-  CoilL_down = #4003 ;
-
-  Coils_up = Region[{CoilR_up,CoilL_up}];
-  Coils_down = Region[{CoilR_down,CoilL_down}];
-  Coils = Region[{Coils_up,Coils_down}];
-
-  AirLayer = #10000 ;
-  AirGapOut = #5000 ;
   AirGap = Region[{ AirGapOut, AirLayer }] ;
-  Dummy  = #111111 ; // lines of the geometry for nice visualisation
 
   DomainS = Region[{}];
   DomainB = Region[{CoilR_down, CoilL_down}];
@@ -80,10 +90,9 @@ Function {
   sigma[#{MovingIron,Yoke}] = 0 ;
 
   NbWires[] = nwires;
-  SurfCoil[] = Scoil ;
-  Idir[#{CoilR_down, CoilR_up}] = 1 ;
-  Idir[#{CoilL_down, CoilL_up}] = -1 ;
-
+  SurfCoil[] = SurfaceArea[]{COILR_UP}; // All of them have the same surface
+  Idir[#{CoilR_down, CoilR_up}] =  1.;
+  Idir[#{CoilL_down, CoilL_up}] = -1.;
 
   // Permanent magnets
   Br = .8*1.06;
@@ -94,7 +103,11 @@ Function {
   hc[#MagnetLeft ] = Vector[+Hc,0,0] ;
   hc[#MagnetRight] = Vector[-Hc,0,0] ;
 
-  DefineConstant[ velocityY = {0., Path "Output/3", Visible (Flag_AnalysisType == 1)} ];
+  DefineConstant[ velocityY = { 0., Label "Vertical velocity",
+      Path "Output/3", Visible (Flag_AnalysisType == 1)} ];
+
+  // Artificial control of the geometrical limits for avoiding crashes...
+  velocityY = (displacementY >=-15e-3 && displacementY <= 0) ? velocityY :0.;
 
   time0 = time_min + step * delta_time;
 
@@ -103,11 +116,11 @@ Function {
   a_previousstep[] = Vector[0, 0, Field[XYZ[]-displacement[]]] ;
 
   // Normal for computing Force with Maxwell stress tensor
-  p = p_init + displacementY ; // Current position
+  p_current = p_init + displacementY ; // Current position
 
   N[#{AirLayer}] = 1/d *
-    ( (Y[] >= h1+p) ? Vector[ 0.,  1.,0.] :
-      (Y[] <=-h1+p) ? Vector[ 0., -1.,0.] :
+    ( (Y[] >= h1+p_current) ? Vector[ 0.,  1.,0.] :
+      (Y[] <=-h1+p_current) ? Vector[ 0., -1.,0.] :
       (X[] >= e1)   ? Vector[ 1.,  0.,0.] : Vector[ -1., 0.,0.] ) ;
 
   // Maxwell tensor
@@ -125,9 +138,9 @@ Function {
   p2 =  p_mid  ; f2 = -F_mid  ;
   p3 =  p_init ; f3 = -F_init ;
 
-  Fspring[] = (p < p1) ? (f0 + (f1-f0)/(p1-p0)*(p-p0)):
-              (p < p2) ? 0.:
-                         (f2 + (f3-f2)/(p3-p2)*(p-p2));
+  Fspring[] = (p_current < p1) ? (f0 + (f1-f0)/(p1-p0)*(p_current-p0)):
+              (p_current < p2) ? 0.:
+                         (f2 + (f3-f2)/(p3-p2)*(p_current-p2));
   Fmag[] = CompY[#55] ; // Computed in postprocessing
 }
 

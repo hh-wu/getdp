@@ -1,55 +1,19 @@
 Include "relay_data.pro";
 
 pos_y = p_init + displacementY ; //-0.014; // 1mm-15mm Vertical displacement relay
+
 //pos_y = -7.7e-3;  // 1mm-15mm Vertical displacement relay
 
-pm0 = 0.01 ;
-pm = pm0 ;
 
-p = 0.005 ;
+// Characteristic lengths
+pm0 = 0.01 ;
+
+p = 5e-3 ;
 pa = p/3 ;
 pa2 = pa ;
 pa2h = 4*pa ;
 pa2w = 4*pa ;
 
-e2 = 3.55e-2;
-h2 = 8.8e-2 ;
-
-e3 = 4.5e-2 ;
-h3 = 5e-2 ;
-
-e4 = 5.5e-2  ;
-h4 = 12.2e-2 ;
-
-e5 = 9.e-2 ;
-
-
-// Physical regions
-MovingIron = 1000 ;
-SkinMovingIron = 1100 ;
-
-Yoke = 2000 ;
-SkinYokeOut = 2200 ;
-SkinYokeIn =  2300 ;
-
-MagnetRight = 3000 ;
-MagnetLeft  = 3001 ;
-
-CoilR_up   = 4000 ;
-CoilR_down = 4001 ;
-CoilL_up   = 4002 ;
-CoilL_down = 4003 ;
-
-AirGapOut = 5000 ;
-
-AirLayer = 10000;
-/*
-AirLayerU = 10000;
-AirLayerR = 10001;
-AirLayerD = 10002;
-AirLayerL = 10003;
-*/
-Dummy = 111111 ;
 
 Point(1) = { e1, h1+pos_y, 0, pa};
 Point(2) = { e1,-h1+pos_y, 0, pa};
@@ -96,10 +60,10 @@ Point(32) = {-e1-d, h1+d+pos_y, 0, pa};
 Point(33) = { 0, h2, 0, p};
 Point(34) = { 0,-h2, 0, p};
 
-Point(37) = {e5,  0, 0, pm} ;
-Point(38) = { 0,-h4, 0, pm} ;
-Point(39) = {-e5, 0, 0, pm} ;
-Point(40) = { 0, h4, 0, pm} ;
+Point(37) = {e5,  0, 0, pm0} ;
+Point(38) = { 0,-h4, 0, pm0} ;
+Point(39) = {-e5, 0, 0, pm0} ;
+Point(40) = { 0, h4, 0, pm0} ;
 
 Point(41) = { e1, pos_y, 0., pa2w};
 Point(42) = { 0.,-h1+pos_y, 0., pa2h};
@@ -221,44 +185,41 @@ surfal[] += news ; Plane Surface(surfal[3]) = {40218};
 
 Line Loop(40228) = {12,121,5,6,7,8,81,9,10,11};
 Line Loop(40229) = {4020,40201,-40061,-4006,-40141,-4014,4018,40181};
-Plane Surface(40230) = {40228,40229};
+surfAirGapOut=news; Plane Surface(surfAirGapOut) = {40228,40229};
 
 
 lingapout[] = {12,121,5,6,7,8,81,9,10,11};
 viewLines[] = Boundary{Surface{surfIron, surfCoils[], surfMagnets[], surfYoke};};
-Physical Line(111111) = {viewLines[],lingapout[]} ;
+
 
 // Physical regions
-Physical Surface(MovingIron) = {surfIron};// Moving Iron part
-Physical Line(SkinMovingIron) = {Boundary{Surface{surfIron};}};//SkinMoving
+Physical Surface(MOVINGIRON) = surfIron;
+Physical Line(SKINMOVINGIRON) = Boundary{Surface{surfIron};};
 
-Physical Surface(Yoke) =  {surfYoke};// Iron
-Physical Line(SkinYokeOut) = {31,32,33,34,310,320,330,340};
+Physical Surface(YOKE) =  surfYoke; //Iron
+linesSkinYoke[] = Boundary{Surface{surfYoke};};
 
-Physical Surface(CoilR_up)   = {surfCoils[0]};
-Physical Surface(CoilR_down) = {surfCoils[1]};
-Physical Surface(CoilL_up)   = {surfCoils[3]};
-Physical Surface(CoilL_down) = {surfCoils[2]};
+Physical Line(SKINYOKEOUT) = linesSkinYoke[{0:7}];
 
-Physical Surface(MagnetRight) = {surfMagnets[0]};
-Physical Surface(MagnetLeft ) = {surfMagnets[1]};
+Physical Surface(COILR_UP)   = surfCoils[0];
+Physical Surface(COILR_DOWN) = surfCoils[1];
+Physical Surface(COILL_UP)   = surfCoils[3];
+Physical Surface(COILL_DOWN) = surfCoils[2];
 
-Physical Surface(AirGapOut) = {40230};
+Physical Surface(MAGNETRIGHT) = surfMagnets[0];
+Physical Surface(MAGNETLEFT)  = surfMagnets[1];
 
+Physical Surface(AIRGAPOUT) = surfAirGapOut;
+Physical Surface(AIRLAYER) = surfal[] ;
 
-Physical Surface(AirLayer) = {surfal[]} ;
-/*
-Physical Surface(AirLayerU) = {40213} ;
-Physical Surface(AirLayerR) = {40215} ;
-Physical Surface(AirLayerD) = {40217} ;
-Physical Surface(AirLayerL) = {40219} ;
-*/
+Physical Line(DUMMY) = {viewLines[],lingapout[]} ;
+
 // Some colors ...
-Color Red {Surface{surfMagnets[]};}
-Color Cyan {Surface{surfCoils[]};}
-Color Gold {Surface{surfIron,surfYoke};}
-Color White{Surface{40230};}
-Color Violet {Surface{surfal};}
+Color Gold {Surface{surfMagnets[]};}
+Color Red {Surface{surfCoils[]};}
+Color SteelBlue {Surface{surfIron,surfYoke};}
+Color Cyan {Surface{surfAirGapOut};}
+Color SkyBlue {Surface{surfal};}
 
 
 

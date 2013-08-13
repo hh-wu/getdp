@@ -1,27 +1,38 @@
 // p_init = 7.7e-3 ; // initial position (this is our limit with airlayer)
 
-p_init = 7.5e-3 ; // initial position
-p_mid  = 3e-3 ;
 
+DefineConstant[ p_init = { 7.5e-3, Min -7.5e-3, Max 7.5e-3,
+    Label "Initial position", Path "Input/00"} ];
+
+p_mid = 3e-3;
+dmax  = 2*p_init;
+
+// Dimensions of the plunger
 d = 0.2e-3 ; // Width of air layer around plungerForce calculation
 
 e1 = 3.5e-2; // Half width  of plunger (Moving part)
 h1 = 8e-2 ;  // Half height of plunger (Moving part)
 
+e2 = 3.55e-2;
+h2 = 8.8e-2 ;
 
-dmin = 0;
-dmax = 2*p_init ; //15.4e-3;
+e3 = 4.5e-2 ;
+h3 = 5e-2 ;
 
-displacementX = 0;
-displacementZ = 0;
+e4 = 5.5e-2  ;
+h4 = 12.2e-2 ;
 
+e5 = 9e-2 ;
 
-AxialLength = 0.09 ;// 90 mm
-cw = 19.5e-3 ;
-cl = 38e-3 ;
-nwires = 30 ; //300 Number of turns in the coil
+cw = e4-e2; //19.5e-3 ;
+cl = h2-h3; //38e-3 ;
 Scoil = cw*cl ;
 
+nwires = 30 ; //300 Number of turns in the coil
+
+AxialLength = 0.09 ;// 90 mm
+displacementX = 0;
+displacementZ = 0;
 
 DefineConstant[
   Flag_AnalysisType = {1,  Choices{0="Static",  1="Time domain"},
@@ -30,28 +41,42 @@ DefineConstant[
       "- Use 'Time domain' to compute the dynamic response of the relay"]}
 ];
 
-Flag_Cir = 1;
-
-time_min = 0. ;
-time_max = 500e-3 ;
-delta_time = .5e-3 ;
-NbSteps = (time_max - time_min)/delta_time;
-
-DefineConstant[
-  step = {0, Min 0, Max NbSteps, Step 1, Loop  (Flag_AnalysisType == 1),
-    Path "Input/1", Visible (Flag_AnalysisType == 1)}
-];
-
 If(Flag_AnalysisType==0)
-  DefineConstant[
-    displacementY = { 0., Min -15e-3, Max 0, Path "Input/2"}
-  ];
+DefineConstant[ displacementY = { 0., Min -15e-3, Max 0, Label "Vertical displacement", Path "Input/2", Visible 0} ];
   UndefineConstant[ "Input/1step" ];
   UndefineConstant[ "Output/2displacementY" ];
 EndIf
 If(Flag_AnalysisType==1)
-  DefineConstant[
-    displacementY = { 0., Min -15e-3, Max 0, Path "Output/2"}
-  ];
+  DefineConstant[ displacementY = { 0., Min -15e-3, Max 0, Label "Vertical displacement", Path "Output/2", ReadOnlyRange 1} ];
   UndefineConstant[ "Input/2displacementY" ];
 EndIf
+
+// checking the geometrical limits for displacementY \in [-15e-3, 0.]
+// for avoiding crashes...
+displacementY =
+(displacementY >=-15e-3 && displacementY <= 0) ? displacementY :
+((displacementY < -15e-3) ? -15e-3: 0.) ;
+
+//----------------------------------------------------------------------------
+// Physical regions
+//----------------------------------------------------------------------------
+MOVINGIRON = 1000 ;
+SKINMOVINGIRON = 1100 ;
+
+YOKE = 2000 ;
+SKINYOKEOUT = 2200 ;
+SKINYOKEIN =  2300 ;
+
+MAGNETRIGHT = 3000 ;
+MAGNETLEFT  = 3001 ;
+
+COILR_UP   = 4000 ;
+COILR_DOWN = 4001 ;
+COILL_UP   = 4002 ;
+COILL_DOWN = 4003 ;
+
+AIRGAPOUT = 5000 ;
+
+AIRLAYER = 10000;
+
+DUMMY = 111111;
