@@ -2500,7 +2500,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_ITERATIVELOOPN :
       Message::Info("IterativeLoopN ...") ;
       Operation_IterativeLoopN(Resolution_P, Operation_P, DofData_P0, GeoData_P0,
-                               &Flag_Break) ;
+                               Resolution2_P, DofData2_P0, &Flag_Break) ;
       break;
 
       /*  -->  T i m e L o o p R u n g e K u t t a  */

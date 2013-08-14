@@ -154,6 +154,8 @@ void Operation_IterativeLoopN(Resolution  *Resolution_P,
                               Operation   *Operation_P,
                               DofData     *DofData_P0,
                               GeoData     *GeoData_P0,
+                              Resolution  *Resolution2_P,
+                              DofData     *DofData2_P0,
                               int         *Flag_Break)
 {
   int       NbrMaxIteration, RelaxationFactorIndex;
@@ -255,7 +257,7 @@ void Operation_IterativeLoopN(Resolution  *Resolution_P,
                   (int)Current.Iteration, Current.RelaxationFactor) ;
 
     Treatment_Operation(Resolution_P, Operation_P->Case.IterativeLoop.Operation,
-                        DofData_P0, GeoData_P0, NULL, NULL) ;
+                        DofData_P0, GeoData_P0, Resolution2_P, DofData2_P0) ;
     if(*Flag_Break) {
       *Flag_Break = 0;
       Message::Info("Flag Break detected. Aborting IterativeLoop");
