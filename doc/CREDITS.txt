@@ -13,7 +13,7 @@ Sabariego. Other code contributors include: Michael Asam, David Colignon, Tuan
 Ledinh, Patrick Lefevre, Andre Nicolet, Jean-Francois Remacle, Timo Tarhasaari,
 Christophe Trophime and Marc Ume. See the source code for more details.
 
-The AVL tree code (DataStr/avl.*) is copyright (C) 1988-1993, 1995 The Regents
+The AVL tree code (Common/avl.*) is copyright (C) 1988-1993, 1995 The Regents
 of the University of California. Permission to use, copy, modify, and distribute
 this software and its documentation for any purpose and without fee is hereby
 granted, provided that the above copyright notice appear in all copies and that
