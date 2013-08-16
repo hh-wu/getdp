@@ -2347,7 +2347,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  Get_ValueOfExpressionByIndex(j, NULL, 0., 0., 0., &Value) ;
 	  Print_Value(&Value) ;
 	}
-	fprintf(fp, "\n") ;
       }
       else if (Operation_P->Case.Print.DofNumber){
 	DofData_P = DofData_P0 + Operation_P->DefineSystemIndex ;

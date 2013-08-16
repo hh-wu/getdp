@@ -2530,7 +2530,6 @@ std::string Print_Value_ToString(struct Value *A)
 void Print_Value(struct Value *A)
 {
   Message::Direct("%s", Print_Value_ToString(A).c_str());
-  Message::Direct(" ");
 }
 
 /* ------------------------------------------------------------------------
