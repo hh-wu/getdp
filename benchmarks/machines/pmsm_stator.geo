@@ -107,7 +107,7 @@ sairgapS[0]=news; Plane Surface(sairgapS[0]) = {newll-1};
 linesslot0[] -= linesslot0[{4}];
 linesslot1[] -= linesslot1[{9}];
 linesslot2[] -= linesslot2[{9}];
-Line Loop(newll) = { cSlot[0], linesslot0[],
+Line Loop(newll) = -{ cSlot[0], linesslot0[],
                      cSlot[1], linesslot1[],
                      cSlot[2], linesslot2[],
                      cSlot[3], linS[3], -cirS[0], -linS[2]};
