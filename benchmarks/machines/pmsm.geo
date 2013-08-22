@@ -1,9 +1,9 @@
 Include "pmsm_data.geo";
 
-Mesh.Algorithm = 1;
+Mesh.Algorithm = 6;
 Geometry.CopyMeshingMethod = 1;
 
-Mesh.CharacteristicLengthFactor = 1.5 ;
+//Mesh.CharacteristicLengthFactor = 0.5 ;
 
 
 // Mesh characteristic lengths
@@ -39,7 +39,7 @@ Show { Line{ nicepos_rotor[], nicepos_stator[] }; }
 Physical Line(NICEPOS) = { nicepos_rotor[], nicepos_stator[] };
 
 //For post-processing...
-View[0].Light = 0;
+//View[0].Light = 0;
 View[0].NbIso = 25; // Number of intervals
 View[0].IntervalsType = 1;
 
