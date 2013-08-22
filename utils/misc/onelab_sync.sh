@@ -2,11 +2,17 @@
 
 SRC=../../benchmarks
 DST=/onelab_files
+MODELS='machines relay'
 
-sudo rsync -avz ${SRC}/machines ${DST} --delete --exclude .svn
-sudo zip -r ${DST}/machines.zip ${SRC}/machines -x \*.svn\*
+# sync files from local svn checkout
+for m in ${MODELS}; do
+  sudo rsync -avz ${SRC}/${m} ${DST} --delete --exclude .svn
+done
 
-sudo rsync -avz ${SRC}/relay ${DST} --delete --exclude .svn
-sudo zip -r ${DST}/relay.zip ${SRC}/relay -x \*.svn\*
+# create zip file
+for m in ${MODELS}; do
+  cd ${DST} && sudo zip -r ${DST}/${m}.zip ${m} -x \*.svn\*
+done
 
+# fix permissions
 sudo chown -R onelab:onelab ${DST}/
