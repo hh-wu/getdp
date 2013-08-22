@@ -56,18 +56,18 @@ dRs[]+=newl; Circle(newl) = {dPs[14],cen,dPs[15]};
 
 
 Line Loop(newll) = {dRs[{1,11}],-dRs[3],dRs[{5,0}]};
-StatorConductor_[0] = news; Plane Surface(news) ={newll-1};
+StatorConductor_[0] = news; Plane Surface(news) = {newll-1};
 
 Line Loop(newll) = {-dRs[{8,7}],dRs[{2,1,11}],-dRs[{3,4,10,9}],dRs[12]};
-StatorIron_[0] = news; Plane Surface(news) ={newll-1};
+StatorIron_[0] = news; Plane Surface(news) = -{newll-1};
 OuterStator_[] = {dRs[10]};
 StatorPeriodReference_[] = {dRs[{9,15}]};
 
 Line Loop(newll) = {-dRs[6],dRs[0],-dRs[2],dRs[{7,8,13}]};
-StatorSlotOpening_[0] = news; Plane Surface(news) ={newll-1};
+StatorSlotOpening_[0] = news; Plane Surface(news) = -{newll-1};
 
 Line Loop(newll) = {dRs[{12,13,14}],-dRs[{17,16}],dRs[15]};
-StatorAirgapLayer_[0] = news; Plane Surface(news) ={newll-1};
+StatorAirgapLayer_[0] = news; Plane Surface(news) = {newll-1};
 
 OuterMB_[] = {dRs[{16,17}]}; // for moving band
 
@@ -77,10 +77,15 @@ aux[] = Symmetry {Cos(StatorAngle_S),Sin(StatorAngle_S),0,0} { Duplicata{Line{Ou
 OuterMB_[] += -aux[{1,0}];
 StatorPeriodDependent_[] += Rotate {{0, 0, 1}, {0, 0, 0}, 2*Pi*NbrPoles/NbrPolesTot} { Duplicata{ Line{StatorPeriodReference_[{0,1}]};} };
 
-StatorConductor_[] += Symmetry {Cos(StatorAngle_S),Sin(StatorAngle_S),0,0} { Duplicata{Surface{StatorConductor_[0]};} };
-StatorIron_[] += Symmetry {Cos(StatorAngle_S),Sin(StatorAngle_S),0,0} { Duplicata{Surface{StatorIron_[0]};} };
-StatorSlotOpening_[] += Symmetry {Cos(StatorAngle_S),Sin(StatorAngle_S),0,0} { Duplicata{Surface{StatorSlotOpening_[0]};} };
-StatorAirgapLayer_[] += Symmetry {Cos(StatorAngle_S),Sin(StatorAngle_S),0,0} { Duplicata{Surface{StatorAirgapLayer_[0]};} };
+s1[] = Symmetry {Cos(StatorAngle_S),Sin(StatorAngle_S),0,0} { Duplicata{Surface{StatorConductor_[0]};} };
+StatorConductor_[] += s1[];
+s2[] = Symmetry {Cos(StatorAngle_S),Sin(StatorAngle_S),0,0} { Duplicata{Surface{StatorIron_[0]};} };
+StatorIron_[] += s2[];
+s3[] = Symmetry {Cos(StatorAngle_S),Sin(StatorAngle_S),0,0} { Duplicata{Surface{StatorSlotOpening_[0]};} };
+StatorSlotOpening_[] += s3[];
+s4[] = Symmetry {Cos(StatorAngle_S),Sin(StatorAngle_S),0,0} { Duplicata{Surface{StatorAirgapLayer_[0]};} };
+StatorAirgapLayer_[] += s4[];
+Reverse Surface { s1[], s2[], s3[], s4[]};
 
 For i In {1:NbrSectStator-1}
   OuterStator_[] += Rotate {{0, 0, 1}, {0, 0, 0}, i*Pi/12} { Duplicata{ Line{OuterStator_[{0,1}]};} };// for outer stator

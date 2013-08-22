@@ -67,9 +67,9 @@ smagnet[0]=news; Plane Surface(smagnet[0]) = {newll-1};
 
 nn = #cirR[]-1 ;
 Line Loop(newll) = {cirR[{nn-5}], linR2[1], -cirR[{nn-3}], -linR0[2]};
-sairrotor[]+=news; Plane Surface(news) = {newll-1};
+sairrotor[]+=news; Plane Surface(news) = -{newll-1};
 Line Loop(newll) = {cirR[{nn-4}], linR1[2], -cirR[{nn-1}], -linR3[1]};
-sairrotor[]+=news; Plane Surface(news) = {newll-1};
+sairrotor[]+=news; Plane Surface(news) = -{newll-1};
 
 Line Loop(newll) = {linR0[3], cirR[nn], -linR1[3], -cirR[{nn-1:nn-3:-1}]};
 sairrotormb[]+=news; Plane Surface(news) = {newll-1};

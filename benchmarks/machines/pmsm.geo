@@ -5,7 +5,6 @@ Geometry.CopyMeshingMethod = 1;
 
 //Mesh.CharacteristicLengthFactor = 0.5 ;
 
-
 // Mesh characteristic lengths
 s = 0.4 ;
 pR1=(rR2-rR1)/6.*s;
@@ -29,7 +28,7 @@ Include "pmsm_stator.geo";
 
 
 // For nice visualisation...
-Mesh.Light = 0 ;
+//Mesh.Light = 0 ;
 //Mesh.SurfaceFaces = 1; Mesh.SurfaceEdges=0;
 
 Hide { Point{ Point '*' }; }

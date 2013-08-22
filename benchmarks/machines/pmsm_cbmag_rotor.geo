@@ -56,7 +56,7 @@ Magnet_[] += news; Plane Surface(news) ={newll-1};
 
 // rotor iron
 Line Loop(newll) = {dRr[17], -dRr[{10,16,3}], dRr[{15,2,7}] };
-RotorIron_[] += news; Plane Surface(news) = {newll-1};
+RotorIron_[] += news; Plane Surface(news) = -{newll-1};
 
 // rotor shaft
 Line Loop(newll) = {dRr[{15,0,1}]};
@@ -69,7 +69,7 @@ RotorAir_[] += news; Plane Surface(news) = {newll-1};
 
 // rotor airgap layer
 Line Loop(newll) =  {dRr[9], -dRr[{14,13,5}], dRr[{12,11}]};
-RotorAirgapLayer_[] += news; Plane Surface(news) = {newll-1};
+RotorAirgapLayer_[] += news; Plane Surface(news) = -{newll-1};
 
 InnerMB_[] += {dRr[{13,14}]} ; // for moving band rotor side
 
@@ -81,11 +81,17 @@ OuterShaft_[] += Symmetry {Cos(RotorAngle_S),Sin(RotorAngle_S),0,0} { Duplicata{
 aux[] = Symmetry {Cos(RotorAngle_S),Sin(RotorAngle_S),0,0} { Duplicata{Line{InnerMB_[{0,1}]};} };
 InnerMB_[] += -aux[{1,0}];
 
-Magnet_[] += Symmetry {Cos(RotorAngle_S),Sin(RotorAngle_S),0,0} { Duplicata{Surface{Magnet_[0]};} };
-RotorIron_[] += Symmetry {Cos(RotorAngle_S),Sin(RotorAngle_S),0,0} { Duplicata{Surface{RotorIron_[0]};} };
-RotorShaft_[] += Symmetry {Cos(RotorAngle_S),Sin(RotorAngle_S),0,0} { Duplicata{Surface{RotorShaft_[0]};} };
-RotorAir_[] += Symmetry {Cos(RotorAngle_S),Sin(RotorAngle_S),0,0} { Duplicata{Surface{RotorAir_[0]};} };
-RotorAirgapLayer_[] += Symmetry {Cos(RotorAngle_S),Sin(RotorAngle_S),0,0} { Duplicata{Surface{RotorAirgapLayer_[0]};} };
+s1[] = Symmetry {Cos(RotorAngle_S),Sin(RotorAngle_S),0,0} { Duplicata{Surface{Magnet_[0]};} };
+Magnet_[] += s1[];
+s2[] = Symmetry {Cos(RotorAngle_S),Sin(RotorAngle_S),0,0} { Duplicata{Surface{RotorIron_[0]};} };
+RotorIron_[] += s2[];
+s3[] = Symmetry {Cos(RotorAngle_S),Sin(RotorAngle_S),0,0} { Duplicata{Surface{RotorShaft_[0]};} };
+RotorShaft_[] += s3[];
+s4[] = Symmetry {Cos(RotorAngle_S),Sin(RotorAngle_S),0,0} { Duplicata{Surface{RotorAir_[0]};} };
+RotorAir_[] += s4[];
+s5 = Symmetry {Cos(RotorAngle_S),Sin(RotorAngle_S),0,0} { Duplicata{Surface{RotorAirgapLayer_[0]};} };
+RotorAirgapLayer_[] += s5[];
+Reverse Surface {s1[],s2[],s3[],s4[],s5[]};
 
 Geometry.AutoCoherence = 1 ;
 Coherence;

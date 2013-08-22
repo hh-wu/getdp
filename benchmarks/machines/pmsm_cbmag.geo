@@ -19,7 +19,7 @@ Include "pmsm_cbmag_rotor.geo";
 Include "pmsm_cbmag_stator.geo";
 
 // For nice visualisation...
-Mesh.Light = 0 ;
+//Mesh.Light = 0 ;
 
 Hide { Point{ Point '*' }; }
 Hide { Line{ Line '*' }; }
@@ -29,7 +29,7 @@ Physical Line(NICEPOS) = { nicepos_rotor[], nicepos_stator[] };
 
 
 //For post-processing...
-View[0].Light = 0;
+//View[0].Light = 0;
 View[0].NbIso = 25; // Number of intervals
 View[0].IntervalsType = 1;
 
