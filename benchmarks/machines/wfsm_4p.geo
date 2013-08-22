@@ -1,6 +1,7 @@
 Include "wfsm_4p_data.geo";
 
 Mesh.Algorithm = 1;
+Geometry.CopyMeshingMethod = 1;
 
 // characteristic lengths
 uc = 1e-3*12*0.05;
@@ -36,7 +37,7 @@ Show { Line{ nicepos_rotor[], nicepos_stator[] }; }
 
 
 //For post-processing...
-View[0].Light = 0;
+//View[0].Light = 0;
 View[0].NbIso = 25; // Number of intervals
 View[0].IntervalsType = 1;
 

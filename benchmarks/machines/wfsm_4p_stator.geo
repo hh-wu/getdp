@@ -65,10 +65,10 @@ OuterMB_[] += {dR+23,dR+24};
 StatorPeriod_Reference_[] += {dR+10,dR+11,dR+21};
 
 Line Loop(newll) = {dR+19,dR+2,dR+20,dR+18};
-dH=news; Plane Surface(dH) ={newll-1};
+dH=news; Plane Surface(dH) = -{newll-1};
 StatorConductor1_[] += dH;
 Line Loop(newll) = {dR+1,-dR-18,dR+3,dR+4};
-dH=news; Plane Surface(dH) ={newll-1};
+dH=news; Plane Surface(dH) = -{newll-1};
 StatorConductor2_[] += dH;
 
 Line Loop(newll) = {dR+11,-dR-12,-dR-7,dR+2,dR+20,dR+3,dR+8,dR+9,-dR-6,dR+14};
@@ -80,10 +80,10 @@ dH=news; Plane Surface(dH) ={newll-1};
 StatorSlotOpening_[] += dH;
 
 Line Loop(newll) = {-dR-10,-dR-16,-dR-15,dR+17,dR+13,dR+14};
-dH=news; Plane Surface(dH) = {newll-1};
+dH=news; Plane Surface(dH) = -{newll-1};
 StatorAirgapLayer_[] += dH;
 Line Loop(newll) = {dR+15,dR+16,-dR-21,dR+23,dR+24,dR+22};
-dH=news; Plane Surface(dH) = {newll-1};
+dH=news; Plane Surface(dH) = -{newll-1};
 StatorAirgapLayer_[] += dH;
 
 Geometry.AutoCoherence = 0;
@@ -94,11 +94,17 @@ b = 1;
 OuterStator_[] += Symmetry {a,b,0,0} { Duplicata{Line{OuterStator_[{0}]};} };
 OuterMB_[] += Symmetry {a,b,0,0} { Duplicata{Line{OuterMB_[{0,1}]};} };
 
-StatorConductor1_[] += Symmetry {a,b,0,0} { Duplicata{ Surface{StatorConductor1_[{0}]};} };
-StatorConductor2_[] += Symmetry {a,b,0,0} { Duplicata{ Surface{StatorConductor2_[{0}]};} };
-StatorIron_[] += Symmetry {a,b,0,0} { Duplicata{ Surface{StatorIron_[{0}]};} };
-StatorSlotOpening_[] += Symmetry {a,b,0,0} { Duplicata{ Surface{StatorSlotOpening_[0]};} };
-StatorAirgapLayer_[] += Symmetry {a,b,0,0} { Duplicata{ Surface{StatorAirgapLayer_[{0,1}]};} };
+s1[] = Symmetry {a,b,0,0} { Duplicata{ Surface{StatorConductor1_[{0}]};} };
+StatorConductor1_[] += s1[];
+s2[] = Symmetry {a,b,0,0} { Duplicata{ Surface{StatorConductor2_[{0}]};} };
+StatorConductor2_[] += s2[];
+s3[] = Symmetry {a,b,0,0} { Duplicata{ Surface{StatorIron_[{0}]};} };
+StatorIron_[] += s3[];
+s4[] = Symmetry {a,b,0,0} { Duplicata{ Surface{StatorSlotOpening_[0]};} };
+StatorSlotOpening_[] += s4[];
+s5[] = Symmetry {a,b,0,0} { Duplicata{ Surface{StatorAirgapLayer_[{0,1}]};} };
+StatorAirgapLayer_[] += s5[];
+Reverse Surface {s1[], s2[], s3[], s4[], s5[]};
 
 StatorPeriod_Dependent_[] = Rotate{{0, 0, 1}, {0, 0, 0}, NbrSectStator*2*StatorAngle_}
 {Duplicata{Line{StatorPeriod_Reference_[{0:2}]};} };

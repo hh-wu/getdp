@@ -109,20 +109,22 @@ For i In {0:NbrSectStator-1}
       EndIf
     EndIf
 
+    rev = (j ? -1 : 1);
+
     Line Loop(newll) = {dR+12,-dR-6,-dR-3,dR+4};
-    dH = news; Plane Surface(news) ={newll-1};
+    dH = news; Plane Surface(news) = -rev*{newll-1};
     StatorConductor_[] += dH;
 
     Line Loop(newll) = {dR+1,dR+5,dR+2,dR+3,dR+6,dR+13,-dR-10,-dR-14,dR+8};
-    dH = news; Plane Surface(news) ={newll-1};
+    dH = news; Plane Surface(news) = -rev*{newll-1};
     StatorIron_[] += dH;
 
     Line Loop(newll) = {dR+11,-dR-4,-dR-2,-dR-5,-dR-1,dR+9};
-    dH = news; Plane Surface(news) ={newll-1};
+    dH = news; Plane Surface(news) = -rev*{newll-1};
     StatorSlotOpening_[] += dH;
 
     Line Loop(newll) = {-dR-16,dR+7,-dR-17,dR+15,dR+8,dR+9};
-    dH = news; Plane Surface(news) ={newll-1};
+    dH = news; Plane Surface(news) = rev*{newll-1};
     StatorAirgapLayer_[] += dH;
   EndFor
 EndFor

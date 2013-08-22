@@ -39,16 +39,16 @@ linR0[] += lr[{5,12}];
 linR1[] += lr[{1,6}];
 
 llrotor = newll ; Line Loop(newll) = {lr[{0:5}]};
-srotor[]+=news  ; Plane Surface(news) = llrotor ;
+srotor[]+=news  ; Plane Surface(news) = -llrotor ;
 
 llair[] += newll ; Line Loop(newll) = {-lr[2],lr[{6:8}]};
-sairrotor[]+=news  ; Plane Surface(news) = llair[0] ;
+sairrotor[]+=news  ; Plane Surface(news) = -llair[0] ;
 
 llmagnet[] += newll ; Line Loop(newll) = {-lr[8],lr[{9,10}],-lr[3]};
-smagnet[]+=news  ; Plane Surface(news) = llmagnet[0] ;
+smagnet[]+=news  ; Plane Surface(news) = -llmagnet[0] ;
 
 llair[] += newll ; Line Loop(newll) = {-lr[10],lr[{11:12}],-lr[4]};
-sairrotor[]+=news  ; Plane Surface(news) = llair[1] ;
+sairrotor[]+=news  ; Plane Surface(news) = -llair[1] ;
 
 // Moving band
 pmbr[]+=newp ; Point(newp) = {rB1*Cos(Pi/8),  rB1*Sin(Pi/8), 0., pB1};

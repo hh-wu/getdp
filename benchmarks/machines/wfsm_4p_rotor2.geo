@@ -52,7 +52,7 @@ RotorConductor_[] += dH;
 
 // rotor iron
 Line Loop(newll) = {dR+7,dR+8,-dR-11,-dR-1,dR+13,dR+3,-dR-12,dR+5,dR+6};
-dH=news; Plane Surface(dH) = {newll-1};
+dH=news; Plane Surface(dH) = -{newll-1};
 RotorIron_[] += dH;
 
 // rotor shaft
@@ -73,10 +73,15 @@ RotorPeriod_Reference_[] = Rotate{{0, 0, 1}, {0, 0, 0}, -2*Pi/NbrPolesTot}
 {Duplicata{Line{RotorPeriod_Dependent_[]};} };
 
 NN = #RotorIron_[]-1;
-RotorIron_[] += Symmetry {0,1,0,0} { Duplicata{ Surface{RotorIron_[{0:NN}]};} };
-RotorShaft_[] += Symmetry {0,1,0,0} { Duplicata{ Surface{RotorShaft_[{0}]};} };
-RotorAir_[] += Symmetry {0,1,0,0} { Duplicata{ Surface{RotorAir_[{0}]};} };
-RotorConductor_[] += Symmetry {0,1,0,0} { Duplicata{ Surface{RotorConductor_[{0}]};} };
+s1[] = Symmetry {0,1,0,0} { Duplicata{ Surface{RotorIron_[{0:NN}]};} };
+RotorIron_[] += s1[];
+s2[] = Symmetry {0,1,0,0} { Duplicata{ Surface{RotorShaft_[{0}]};} };
+RotorShaft_[] += s2[];
+s3[] = Symmetry {0,1,0,0} { Duplicata{ Surface{RotorAir_[{0}]};} };
+RotorAir_[] += s3[];
+s4[] = Symmetry {0,1,0,0} { Duplicata{ Surface{RotorConductor_[{0}]};} };
+RotorConductor_[] += s4[];
+Reverse Surface {s1[], s2[], s3[], s4[]};
 
 If(NbrPoles!=NbrPolesTot && NbrPoles>1)
   RotorPeriod_Dependent_[] = Rotate{{0, 0, 1}, {0, 0, 0}, NbrPoles*2*Pi/NbrPolesTot}

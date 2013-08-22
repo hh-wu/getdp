@@ -27,7 +27,7 @@ Include "im_stator.geo" ;
 Coherence;
 
 // For nice visualisation...
-Mesh.Light = 0 ;
+//Mesh.Light = 0 ;
 //Mesh.SurfaceFaces = 1; Mesh.SurfaceEdges=0;
 
 Hide { Point{ Point '*' }; }
@@ -37,7 +37,7 @@ Show { Line{ nicepos_rotor[], nicepos_stator[] }; }
 Physical Line(NICEPOS) = { nicepos_rotor[], nicepos_stator[] };
 
 //For post-processing...
-View[0].Light = 0;
+//View[0].Light = 0;
 View[0].NbIso = 25; // Number of intervals
 View[0].IntervalsType = 1;
 

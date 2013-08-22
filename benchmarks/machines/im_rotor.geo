@@ -134,24 +134,26 @@ For i In {0:NbrSect-1}
       EndIf
     EndIf
 
+    rev = (j ? -1 : 1);
+
     // rotor conductor
     Line Loop(newll) = {-dR-12,-dR-11,-dR-10,-dR-9,-dR-6,-dR-5,-dR-4,dR+3,dR+8,-dR-13};
-    Plane Surface(news) ={newll-1};
+    Plane Surface(news) = rev*{newll-1};
     RotorConductor_[] += news-1;
 
     // rotor iron
     Line Loop(newll) = {dR+16,-dR-21,dR+5,dR+6,dR+9,dR+10,dR+11,dR+12,dR+14,-dR-18,-dR-15};
-    Plane Surface(news) = {newll-1};
+    Plane Surface(news) = rev*{newll-1};
     RotorIron_[] += news-1;
 
     // rotor slot opening
     Line Loop(newll) = {dR+21,dR+17,dR+2,dR+4};
-    Plane Surface(news) ={newll-1};
+    Plane Surface(news) = rev*{newll-1};
     RotorSlotOpening_[] += news-1;
 
     // rotor airgap layer
     Line Loop(newll) = {-dR-1,-dR-20,-dR-19,dR+7,dR+16,dR+17};
-    Plane Surface(news) = {newll-1};
+    Plane Surface(news) = -rev*{newll-1};
     RotorAirgapLayer_[] += news-1;
 
   EndFor

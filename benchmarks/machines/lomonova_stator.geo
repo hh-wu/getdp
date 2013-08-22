@@ -56,9 +56,13 @@ lineInnerMBstator[] += -aux[{1,0}];
 
 surfout[] += Symmetry {0,1,0,0} { Duplicata{ Line{surfout[{0}]};} };
 
-sslotair[] += Symmetry {0,1,0,0} { Duplicata{ Surface{sslotair[{0}]};} };
-scoil[]    += Symmetry {0,1,0,0} { Duplicata{ Surface{scoil[{0}]};} };
-sstatoriron[] += Symmetry {0,1,0,0} { Duplicata{ Surface{sstatoriron[{0}]};} };
+s1[] = Symmetry {0,1,0,0} { Duplicata{ Surface{sslotair[{0}]};} };
+sslotair[] += s1[];
+s2[] = Symmetry {0,1,0,0} { Duplicata{ Surface{scoil[{0}]};} };
+scoil[] += s2[];
+s3[] = Symmetry {0,1,0,0} { Duplicata{ Surface{sstatoriron[{0}]};} };
+sstatoriron[] += s3[];
+Reverse Surface{s1[], s2[], s3[]};
 
 laux[] = Boundary{Surface{sstatoriron[1]};};
 paux[] = Boundary{Line{laux[0]};};
