@@ -13,7 +13,7 @@ DefineConstant[
   NbrPoles = { 1, Choices {1="1", 2="2", 4="4"},
     Label "Number of poles in FE model",
     Path "Input/20", Highlight "Blue", Visible 1},
-  InitialRotorAngle_deg = { 0., Label "Start rotor angle [deg]",
+  InitialRotorAngle_deg = { 0., Range{0,90}, Label "Start rotor angle [deg]",
     Path "Input/21", Highlight "AliceBlue"}
 ] ;
 
