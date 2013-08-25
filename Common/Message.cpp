@@ -171,7 +171,7 @@ void Message::Fatal(const char *fmt, ...)
       c0 = "\33[1m\33[31m"; c1 = "\33[0m";  // bold red
     }
     if(_commSize > 1)
-      fprintf(stderr, "%sFatal   : [On processor %d] %s%s\n", c0, _commRank, str, c1);
+      fprintf(stderr, "%sFatal   : [rank %3d] %s%s\n", c0, _commRank, str, c1);
     else
       fprintf(stderr, "%sFatal   : %s%s\n", c0, str, c1);
     fflush(stderr);
@@ -204,7 +204,7 @@ void Message::Error(const char *fmt, ...)
       c0 = "\33[1m\33[31m"; c1 = "\33[0m";  // bold red
     }
     if(_commSize > 1)
-      fprintf(stderr, "%sError   : [On processor %d] %s%s\n", c0, _commRank, str, c1);
+      fprintf(stderr, "%sError   : [rank %3d] %s%s\n", c0, _commRank, str, c1);
     else
       fprintf(stderr, "%sError   : %s%s\n", c0, str, c1);
     fflush(stderr);
@@ -237,9 +237,9 @@ void Message::Warning(const char *fmt, ...)
       c0 = "\33[35m"; c1 = "\33[0m";  // magenta
     }
     if(_isCommWorld)
-    	fprintf(stdout, "%sWarning : %s%s\n", c0, str, c1);
+      fprintf(stdout, "%sWarning : %s%s\n", c0, str, c1);
     else
-    	fprintf(stdout, "%sWarning : %s%s (on Processus %d)\n", c0, str, c1, _commRank);
+      fprintf(stdout, "%sWarning : [rank %3d] %s%s\n", c0, _commRank, str, c1);
     fflush(stdout);
   }
 }
@@ -275,7 +275,7 @@ void Message::Info(int level, const char *fmt, ...)
     if(_isCommWorld)
       fprintf(stdout, "Info    : %s\n", str);
     else
-      fprintf(stdout, "Info    : %s (only on Processus %d)\n", str, _commRank);
+      fprintf(stdout, "Info    : [rank %3d] %s\n", _commRank, str);
     fflush(stdout);
   }
 }
@@ -315,7 +315,7 @@ void Message::Direct(int level, const char *fmt, ...)
     if(_isCommWorld)
       fprintf(stdout, "%s%s%s\n", c0, str, c1);
     else
-      fprintf(stdout, "%s%s%s (only on Processus %d)\n", c0, str, c1, _commRank);
+      fprintf(stdout, "%s [rank %3d] %s%s\n", c0, _commRank, str, c1);
     fflush(stdout);
   }
 }
@@ -358,7 +358,7 @@ void Message::Debug(const char *fmt, ...)
   }
   else{
     if(_commSize > 1)
-      fprintf(stdout, "Debug   : [On Processus %d] %s\n", _commRank, str);
+      fprintf(stdout, "Debug   : [rank %3d] %s\n", _commRank, str);
     else
       fprintf(stdout, "Debug   : %s\n", str);
     fflush(stdout);
@@ -412,7 +412,7 @@ void Message::Cpu(int level, const char *fmt, ...)
     if(_isCommWorld)
       fprintf(stdout, "Info    : %s\n", str);
     else
-      fprintf(stdout, "Info    : %s (only on Processus %d)\n", str, _commRank);
+      fprintf(stdout, "Info    : [rank %3d] %s\n", _commRank, str);
     fflush(stdout);
   }
 }
@@ -493,7 +493,7 @@ void Message::PrintTimers()
   }
   else{
     if(_commSize > 1)
-      fprintf(stdout, "Timers  : [On processor %d] %s\n", _commRank, str.c_str());
+      fprintf(stdout, "Timers  : [rank %3d] %s\n", _commRank, str.c_str());
     else
       fprintf(stdout, "Timers  : %s\n", str.c_str());
     fflush(stdout);
