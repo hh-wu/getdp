@@ -27,23 +27,15 @@ Group {
   Stator_Cu     = #{};
   Stator_Air    = #STATOR_AIR ;
   Stator_Airgap = #STATOR_AIRGAP ;
-
   Stator_Bnd_A0 = #STATOR_BND_A0 ;
   Stator_Bnd_A1 = #STATOR_BND_A1 ;
 
   Rotor_Fe     = #ROTOR_FE ;
   Rotor_Al     = #{};
   Rotor_Cu     = #{};
-  Stator_Air    = #STATOR_AIR ;
-  Stator_Airgap = #STATOR_AIRGAP ;
-  Stator_Bnd_MB = #STATOR_BND_MOVING_BAND ;
-  Stator_Bnd_A0 = #STATOR_BND_A0 ;
-  Stator_Bnd_A1 = #STATOR_BND_A1 ;
-
   Rotor_Fe     = #ROTOR_FE ;
   Rotor_Air    = #ROTOR_AIR ;
   Rotor_Airgap = #ROTOR_AIRGAP ;
-
   Rotor_Bnd_A0 = #ROTOR_BND_A0 ;
   Rotor_Bnd_A1 = #ROTOR_BND_A1 ;
 
