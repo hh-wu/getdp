@@ -992,8 +992,11 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"dhdb_Ducharne"         , (CAST)F_dhdb_Ducharne         ,  -1,   3 },
   {"h_Ducharne"            , (CAST)F_h_Ducharne            ,  -1,   3 },
   {"nu_Ducharne"           , (CAST)F_nu_Ducharne           ,  -1,   3 },
+  {"mu_Vinch"              , (CAST)F_mu_Vinch              ,  -1,   3 },
   {"nu_Vinch"              , (CAST)F_nu_Vinch              ,  -1,   3 },
-  {"dnudb2_Vinch"          , (CAST)F_dnudb2_Vinch          ,  -1,   3 },
+  {"h_Vinch"               , (CAST)F_h_Vinch               ,  -1,   4 },
+  {"dhdb_Vinch"            , (CAST)F_dhdb_Vinch            ,  -1,   3 },
+  {"dbdh_Vinch"            , (CAST)F_dbdh_Vinch            ,  -1,   3 },
   {"Update_Jk"             , (CAST)F_Update_Jk             ,  -1,   6 },
   {"Update_Jk_sd"          , (CAST)F_Update_Jk_sd          ,  -1,   6 },
 

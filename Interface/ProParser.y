@@ -6700,6 +6700,13 @@ Affectation :
       Tree_Replace(ConstantTable_L, &Constant_S);
     }
 
+  | String__Index tDEF tStr '(' CharExpr ')' tEND
+    {
+      Constant_S.Name = $1; Constant_S.Type = VAR_CHAR;
+      Constant_S.Value.Char = $5;
+      Tree_Replace(ConstantTable_L, &Constant_S);
+    }
+
   | String__Index tDEF StrCat tEND
     {
       Constant_S.Name = $1; Constant_S.Type = VAR_CHAR;
@@ -7685,6 +7692,16 @@ RecursiveListOfCharExpr :
 StrCat :
 
     tStrCat '[' CharExpr ',' CharExpr ']'
+    {
+      if($3 != NULL && $5 != NULL) {
+	$$ = (char *)Malloc((strlen($3)+strlen($5)+1)*sizeof(char));
+	strcpy($$, $3);  strcat($$, $5);
+      }
+      else {
+	vyyerror("Undefined argument for StrCat function");  $$ = NULL;
+      }
+    }
+  | tStrCat '(' CharExpr ',' CharExpr ')'
     {
       if($3 != NULL && $5 != NULL) {
 	$$ = (char *)Malloc((strlen($3)+strlen($5)+1)*sizeof(char));
