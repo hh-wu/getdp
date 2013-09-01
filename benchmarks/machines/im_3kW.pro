@@ -6,7 +6,7 @@
 Include "im_3kW_data.geo" ;
 
 DefineConstant[
-  Flag_AnalysisType = {1,  Choices{0="Static",  1="Time domain",  2="Frequency domain"},
+  Flag_AnalysisType = {2,  Choices{0="Static",  1="Time domain",  2="Frequency domain"},
     Label "Type of analysis",  Path "Input/29", Highlight "Blue", Visible 1,
     Help Str["- Use 'Static' to compute static fields created in the machine",
       "- Use 'Time domain' to compute the dynamic response of the machine",
@@ -15,7 +15,7 @@ DefineConstant[
     Label "Source type in stator", Path "Input/41", Highlight "Blue", Visible 1},
   Flag_Cir_RotorCage = { (Flag_SrcType_Stator==2), Choices{0,1},
     Label "Use circuit in rotor cage", Path "Input/40", ReadOnly (Flag_SrcType_Stator==1), Visible 1}
-  slip = { 0, Min 0., Max 1, Step 0.02, Loop (Flag_AnalysisType == 2),
+  slip = { 0, Min 0., Max 1, Step 0.05, Loop (Flag_AnalysisType == 2),
     Label "slip", Path "Input/30", Highlight "AliceBlue", Visible (Flag_AnalysisType == 2)}
 ];
 

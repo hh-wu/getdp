@@ -422,9 +422,11 @@ PostProcessing {
 
  PostOperation Get_GlobalQuantities UsingPost MagStaDyn_a_3D {
    Print[ I, OnRegion DomainB, Format Table,
-     File > StrCat[Dir, StrCat["I",ExtGnuplot]], LastTimeStepOnly, SendToServer StrCat[po,"20I [A]"], Color "LightYellow" ];
+     File > StrCat[Dir, StrCat["I",ExtGnuplot]], LastTimeStepOnly,
+     SendToServer StrCat[po,"20I [A]"], Color "LightYellow" ];
    Print[ U, OnRegion DomainB, Format Table,
-     File > StrCat[Dir, StrCat["U",ExtGnuplot]], LastTimeStepOnly, SendToServer StrCat[po,"30U [V]"], Color "LightYellow" ];
+     File > StrCat[Dir, StrCat["U",ExtGnuplot]], LastTimeStepOnly,
+     SendToServer StrCat[po,"30U [V]"], Color "LightYellow" ];
 
    Print[ Flux[DomainB], OnGlobal, Format TimeTable,
      File > StrCat[Dir, StrCat["Flux",ExtGnuplot]], LastTimeStepOnly, Store 11,

@@ -6,7 +6,7 @@
 Include "im_data.geo" ;
 
 DefineConstant[
-  Flag_AnalysisType = {1,  Choices{0="Static",  1="Time domain",  2="Frequency domain"},
+  Flag_AnalysisType = {2,  Choices{0="Static",  1="Time domain",  2="Frequency domain"},
     Label "Type of analysis",  Path "Input/29", Highlight "Blue", Visible 1,
     Help Str["- Use 'Static' to compute static fields created in the machine",
       "- Use 'Time domain' to compute the dynamic response of the machine",
