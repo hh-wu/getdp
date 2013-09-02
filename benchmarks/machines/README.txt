@@ -1,5 +1,6 @@
 
-2D models of electric machines: permanent magnet and wound field synchronous machines, induction machines.
+2D models of electric machines: permanent magnet and wound field synchronous
+machines, induction machines, switched reluctance machine.
 
 [[Category:GetDP]]
 [[Category:Electromagnetism]]
@@ -154,5 +155,17 @@ im_stator.geo
 
 im.pro
 im_circuit.pro
+
+--------------------------------------------------------------------
+8) Switched reluctance machine
+
+srm_data.geo
+
+srm.geo
+srm_rotor.geo
+srm_stator.geo
+
+srm.pro
+srm_circuit.pro
 
 -->
