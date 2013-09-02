@@ -506,6 +506,35 @@ double norm(double a[3])
   return sqrt(a[0]*a[0] + a[1]*a[1] + a[2]*a[2]);
 }
 
+double chi_mag_Vinch(double b_rev, double Js0, double alpha)
+{
+  double h = 0.;
+  double chi_mag ;
+
+  if(!b_rev)
+    chi_mag = Js0/alpha/MU0 ; // value at the limit
+  else { // Newton iteration to find h
+    double TOL=1e-7;
+    double r, drdh, dh;
+    int MAX_ITER=50, iter=0;
+    do {
+      iter++;
+      r    = MU0 * h + Js0 * tanh(h/alpha) - b_rev ;
+      drdh = MU0     + Js0/alpha/SQU(cosh(h/alpha)) ;
+      dh   = -r/drdh ;
+      h   += dh ;
+    }  while( (fabs(dh) > TOL) && (iter < MAX_ITER) );
+    //Message::Info("%d %.2f %.2f NR iterations in chi_mag_Vinch", iter, b_rev, h);
+
+    if(iter>=MAX_ITER)
+      Message::Error("Newton did not converge: h = %lf \n", h);
+    chi_mag = Js0/MU0* ((fabs(h)<1e-4) ? 1/alpha : tanh(h/alpha)/h ) ;
+  }
+
+  return chi_mag ;
+
+}
+
 void F_nu_Vinch(F_ARG)
 {
   // input  :
@@ -522,41 +551,97 @@ void F_nu_Vinch(F_ARG)
   //double b_rev  = (A+0)->Val[1]; // I am taking just the Y-component, so I keep track of the sign..
   double Js0    = (A+1)->Val[0];
   double alpha  = (A+2)->Val[0];
-  double h = 0.;
-  double  chi_mag ;
 
-  if(!b_rev)
-    chi_mag = Js0/alpha/MU0 ;
-  else { // Newton iteration to find h
-    double TOL=1e-7;
-    double r, drdh, dh;
-    int MAX_ITER=50, iter=0;
-    do {
-      iter++;
-      r    = MU0 * h + Js0 * tanh(h/alpha) - b_rev ;
-      drdh = MU0     + Js0/alpha/SQU(cosh(h/alpha)) ;
-      dh   = -r/drdh ;
-      h   += dh ;
-    }  while( (fabs(dh) > TOL) && (iter < MAX_ITER) );
-    //Message::Info("%d %.2f %.2f NR iterations in Nu_Vinch", iter, b_rev, h);
-
-    if(iter>=MAX_ITER)
-      Message::Error("Newton did not converge: h = %lf \n", h);
-    chi_mag = Js0/MU0* ((fabs(h)<1e-4) ? 1/alpha : tanh(h/alpha)/h ) ;
-  }
+  double  chi_mag = chi_mag_Vinch(b_rev, Js0, alpha);
 
   //printf("chi_mag %.3f h %.3f nu_vinch %.3f \n", chi_mag, h, 1/MU0/(1+chi_mag) );
   //V->Type = SCALAR;
   //V->Val[0] = 1/MU0/(1+chi_mag); // reluctivity
 
   V->Type = TENSOR_SYM ; // For extension to vectorial case ... Now it does not make any difference, of course.
-  V->Val[0] = 1/MU0/(1+chi_mag)  ;  V->Val[1] = 0.0  ;  V->Val[2] = 0 ;
-  V->Val[3] = 1/MU0/(1+chi_mag)  ;  V->Val[4] = 0 ;
+  V->Val[0] = 1/MU0/(1+chi_mag)  ;  V->Val[1] = 0.0  ;  V->Val[2] = 0.0 ;
+  V->Val[3] = 1/MU0/(1+chi_mag)  ;  V->Val[4] = 0.0 ;
   V->Val[5] = 1/MU0/(1+chi_mag)  ;
 }
 
+void F_mu_Vinch(F_ARG)
+{
+  // input  :
+  // (A+0)->Val[0] = norm of the reversible inductance
+  //       -- norm(b_rev) = norm(b_tot-sum(\Js_k))
+  // (A+1)->Val[0] = saturation magnetisation of the reversible case
+  //       -- Js_0
+  // (A+2)->Val[0] = characteristic magnetic field inversely proportional to the
+  //       slope of the curve at origin -- alpha
+  // output : nu
 
-void F_dnudb2_Vinch(F_ARG)
+  double vb_rev[3]  = {(A+0)->Val[0], (A+0)->Val[1], (A+0)->Val[2]};
+  double b_rev  = norm(vb_rev);
+  //double b_rev  = (A+0)->Val[1]; // I am taking just the Y-component, so I keep track of the sign..
+  double Js0    = (A+1)->Val[0];
+  double alpha  = (A+2)->Val[0];
+
+  double  chi_mag = chi_mag_Vinch(b_rev, Js0, alpha);
+
+  //printf("chi_mag %.3f h %.3f nu_vinch %.3f \n", chi_mag, h, 1/MU0/(1+chi_mag) );
+  //V->Type = SCALAR;
+  //V->Val[0] = 1/MU0/(1+chi_mag); // reluctivity
+
+  V->Type = TENSOR_SYM ; // For extension to vectorial case ... Now it does not make any difference, of course.
+  V->Val[0] = MU0*(1+chi_mag)  ;  V->Val[1] = 0.0  ;  V->Val[2] = 0 ;
+  V->Val[3] = MU0*(1+chi_mag)  ;  V->Val[4] = 0 ;
+  V->Val[5] = MU0*(1+chi_mag)  ;
+}
+
+double F_Man_Vinch (double h, double Js0, double alpha)
+{
+  // Anhysteretic magnetisation
+  double chi_mag = Js0/MU0* ((fabs(h)<1e-4) ? 1/alpha : tanh(h/alpha)/h ) ;
+  return chi_mag ;
+}
+
+double F_dMandH_Vinch (double h, double Js0, double alpha)
+{
+  double dmdh =  Js0/MU0 * ( (fabs(h)<1e-4) ? 0. : 1/alpha/SQU(cosh(h/alpha))/h - tanh(h/alpha)/h/h) ;
+  return dmdh ;
+}
+
+void FV_Man_Vinch (double H[3], double Js0, double alpha, double Man[3])
+{
+  double nH = sqrt(H[0]*H[0]+H[1]*H[1]+H[2]*H[2]) ;
+  if ( !nH ) {
+    Man[0] = Man[1] = Man[2]= 0. ;
+  }
+  else {
+    double auxMan = F_Man_Vinch(nH, Js0, alpha) ;
+    Man[0] = auxMan * H[0]/nH ;
+    Man[1] = auxMan * H[1]/nH ;
+    Man[2] = auxMan * H[2]/nH ;
+  }
+}
+
+void FV_dMandH_Vinch(double H[3], double Js0, double alpha, double dMandH[6])
+{
+  double nH2 = H[0]*H[0]+H[1]*H[1]+H[2]*H[2] ;
+  double nH = sqrt(nH2) ;
+  double Man = F_Man_Vinch(nH, Js0, alpha) ;
+  double ndMandH = F_dMandH_Vinch(nH,Js0,alpha) ;
+
+  if ( !nH ) {
+    dMandH[0] = dMandH[3] = dMandH[5] = ndMandH ;
+    dMandH[1] = dMandH[2] = dMandH[4] = 0 ;
+  }
+  else {
+    dMandH[0] = Man/nH + (ndMandH - Man/nH)*H[0]*H[0]/nH2 ;
+    dMandH[3] = Man/nH + (ndMandH - Man/nH)*H[1]*H[1]/nH2 ;
+    dMandH[5] = Man/nH + (ndMandH - Man/nH)*H[2]*H[2]/nH2 ;
+    dMandH[1] =          (ndMandH - Man/nH)*H[0]*H[1]/nH2 ;
+    dMandH[2] =          (ndMandH - Man/nH)*H[0]*H[2]/nH2 ;
+    dMandH[4] =          (ndMandH - Man/nH)*H[1]*H[2]/nH2 ;
+  }
+}
+
+void F_dbdh_Vinch(F_ARG)
 {
   // input  :
   // (A+0)->Val = magnetic field
@@ -566,23 +651,93 @@ void F_dnudb2_Vinch(F_ARG)
   //       slope of the curve at origin -- alpha
   // output : dnudb2
 
-  double vh[3]  = {(A+0)->Val[0], (A+0)->Val[1], (A+0)->Val[2]};
-  double h  = norm(vh);
+  double H[3]  = {(A+0)->Val[0], (A+0)->Val[1], (A+0)->Val[2]};
   double Js0    = (A+1)->Val[0];
   double alpha  = (A+2)->Val[0];
+  double dMdH[6] ;
 
+  // differential susceptibility db/dh  = MU0 (1 + dm/dh)
+  // m = chi = Js0*tanh(h/alpha)/(MU0*h);
 
-  if (h < 1) h = 1 ;
+  FV_dMandH_Vinch(H, Js0, alpha, dMdH) ;
 
-  double dnudb2 =
-    Js0 * (tanh(h/alpha) - (h/alpha)/SQU(cosh(h/alpha))) / SQU(MU0 * h + Js0 * tanh(h/alpha)) ;
-
-  V->Type = TENSOR_SYM ; // For extension to vectorial case ... Now it does not make any difference, of course.
-  V->Val[0] = dnudb2  ;  V->Val[1] = 0.0  ;  V->Val[2] = 0 ;
-  V->Val[3] = dnudb2  ;  V->Val[4] = 0 ;
-  V->Val[5] = dnudb2 ;
+  V->Type = TENSOR_SYM ; // Vectorial extension or not does not make any difference for the time being...
+  V->Val[0] = MU0 * (1 + dMdH[0]) ;  V->Val[1] = MU0 *dMdH[1]  ;  V->Val[2] = MU0 *dMdH[2] ;
+  V->Val[3] = MU0 * (1 + dMdH[3]) ;  V->Val[4] = MU0 *dMdH[3] ;
+  V->Val[5] = MU0 * (1 + dMdH[5]) ;
 }
 
+void F_h_Vinch(F_ARG)
+{
+  // input  :
+  // (A+0)->Val =  Curl a
+  // (A+1)->Val = \sum J_k
+  // (A+2)->Val[0] = saturation magnetisation of the reversible case
+  //       -- Js_0
+  // (A+3)->Val[0] = characteristic magnetic field inversely proportional to the
+  //       slope of the curve at origin -- alpha
+
+  double B[3]  = {(A+0)->Val[0], (A+0)->Val[1], (A+0)->Val[2]};
+  double Jk[3] = {(A+1)->Val[0], (A+1)->Val[1], (A+1)->Val[2]};
+  double Js0    = (A+2)->Val[0];
+  double alpha  = (A+3)->Val[0];
+
+
+  double Brev[3]  = {B[0]-Jk[0], B[1]-Jk[1], B[2]-Jk[2]};
+  double nBrev  = norm(Brev);
+
+  double chi_mag = chi_mag_Vinch(nBrev, Js0, alpha);
+
+  V->Type = VECTOR ;
+  for (int k=0 ; k<3 ; k++)  V->Val[k] = 1/MU0/(1+chi_mag) * (B[k]-Jk[k]) ;
+}
+
+
+void F_dhdb_Vinch(F_ARG)
+{
+  // input  :
+  // (A+0)->Val = magnetic field
+  // (A+1)->Val[0] = saturation magnetisation of the reversible case
+  //       -- Js_0
+  // (A+2)->Val[0] = characteristic magnetic field inversely proportional to the
+  //       slope of the curve at origin -- alpha
+  // output : dnudb2
+
+  double H[3]  = {(A+0)->Val[0], (A+0)->Val[1], (A+0)->Val[2]};
+  double Js0    = (A+1)->Val[0];
+  double alpha  = (A+2)->Val[0];
+  double dMdH[6], dBdH[6], dHdB[6] ;
+
+  // differential susceptibility db/dh  = MU0 (1 + dm/dh)
+  // m = chi = Js0*tanh(h/alpha)/(MU0*h);
+
+  FV_dMandH_Vinch(H, Js0, alpha, dMdH) ;
+
+  dBdH[0] = MU0 * (1 + dMdH[0]) ;
+  dBdH[3] = MU0 * (1 + dMdH[3]) ;
+  dBdH[5] = MU0 * (1 + dMdH[5]) ;
+  dBdH[1] = MU0 * dMdH[1]  ;
+  dBdH[2] = MU0 * dMdH[2]  ;
+  dBdH[4] = MU0 * dMdH[4]  ;
+
+  double det =  dBdH[0] * (dBdH[3] *dBdH[5] - dBdH[4] *dBdH[4])
+              - dBdH[1] * (dBdH[1] *dBdH[5] - dBdH[4] *dBdH[2])
+              + dBdH[2] * (dBdH[1] *dBdH[4] - dBdH[3] *dBdH[2]);
+
+  if (!det)
+    Message::Error("Null determinant of db/dh!");
+
+  dHdB[0] =  (dBdH[3]*dBdH[5]-dBdH[4]*dBdH[4])/det ;
+  dHdB[1] = -(dBdH[1]*dBdH[5]-dBdH[2]*dBdH[4])/det ;
+  dHdB[2] =  (dBdH[1]*dBdH[4]-dBdH[2]*dBdH[3])/det ;
+  dHdB[3] =  (dBdH[0]*dBdH[5]-dBdH[2]*dBdH[2])/det ;
+  dHdB[4] = -(dBdH[0]*dBdH[4]-dBdH[1]*dBdH[2])/det ;
+  dHdB[5] =  (dBdH[0]*dBdH[3]-dBdH[1]*dBdH[1])/det ;
+
+  V->Type = TENSOR_SYM ; // Watch out!: extension to vectorial case not yet done... Now it does not make any difference, of course.
+  for (int i=0 ; i<6 ; i++)
+    V->Val[i] = dHdB[i] ;
+}
 
 bool limiter(const double max, double v[3])
 {

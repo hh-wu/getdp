@@ -209,7 +209,12 @@ double Fi_h_Ducharne (double *hi, double *bi, double *M, int NL,
                       int NC, double h0, double b0, double b);
 
 void  F_nu_Vinch (F_ARG) ;
-void  F_dnudb2_Vinch (F_ARG) ;
+void  F_mu_Vinch (F_ARG) ;
+
+void  F_h_Vinch (F_ARG) ;
+void  F_dhdb_Vinch(F_ARG) ;
+void  F_dbdh_Vinch(F_ARG) ;
+
 void  F_Update_Jk (F_ARG) ;
 void  F_Update_Jk_sd (F_ARG) ;
 
