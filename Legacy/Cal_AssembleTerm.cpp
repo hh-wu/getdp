@@ -134,7 +134,7 @@ void Cal_AssembleTerm_DtDof(struct Dof * Equ, struct Dof * Dof, double Val[])
       switch (Current.TypeTime) {
       case TIME_STATIC :
 	if(!Warning_DtStatic){
-	  Message::Warning("Discarded DtDof term in static analysis");
+	  Message::Info(3, "Discarded DtDof term in static analysis");
 	  Warning_DtStatic = 1 ;
 	}
 	break;
@@ -209,7 +209,7 @@ void Cal_AssembleTerm_DtNL(struct Dof * Equ, struct Dof * Dof, double Val[])
       switch (Current.TypeTime) {
       case TIME_STATIC :
 	if(!Warning_DtStatic){
-	  Message::Warning("Discarded DtDof term in static analysis");
+	  Message::Info(3, "Discarded DtDof term in static analysis");
 	  Warning_DtStatic = 1 ;
 	}
 	break;
@@ -282,13 +282,13 @@ void Cal_AssembleTerm_DtDtDof(struct Dof * Equ, struct Dof * Dof, double Val[])
       switch (Current.TypeTime) {
       case TIME_STATIC :
 	if(!Warning_DtDtStatic){
-	  Message::Warning("Discarded DtDtDof term in static analysis");
+	  Message::Info(3, "Discarded DtDtDof term in static analysis");
 	  Warning_DtDtStatic = 1 ;
 	}
 	break;
       case TIME_THETA :
 	if(!Warning_DtDtFirstOrder){
-	  Message::Warning("Discarded DtDtDof term in Theta time scheme");
+	  Message::Info(3, "Discarded DtDtDof term in Theta time scheme");
 	  Warning_DtDtFirstOrder = 1 ;
 	}
 	break;
@@ -379,7 +379,7 @@ void Cal_AssembleTerm_DtDofJacNL(struct Dof * Equ, struct Dof * Dof, double Val[
       switch (Current.TypeTime) {
       case TIME_STATIC :
         if(!Warning_DtStatic){
-	  Message::Warning("Discarded DtDof term in static analysis");
+	  Message::Info(3, "Discarded DtDof term in static analysis");
           Warning_DtStatic = 1 ;
         }
         break;
