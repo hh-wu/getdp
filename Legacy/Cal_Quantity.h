@@ -12,7 +12,8 @@
 void  Get_ValueOfExpression(struct Expression * Expression_P, 
 			    struct QuantityStorage * QuantityStorage_P0, 
 			    double u, double v, double w, 
-			    struct Value * Value) ;
+			    struct Value * Value,
+			    int NbrArguments=0) ;
 
 void  Get_ValueOfExpressionByIndex(int Index_Expression,
 				   struct QuantityStorage * QuantityStorage_P0, 
@@ -23,7 +24,8 @@ void  Cal_WholeQuantity(struct Element * Element,
 			struct QuantityStorage * QuantityStorage_P0,
 			List_T * WholeQuantity_L,
 			double u, double v, double w, 
-			int Index_Dof, int Nbr_Dof, struct Value DofValue[]) ;
+			int Index_Dof, int Nbr_Dof, struct Value DofValue[],
+			int NbrArguments=0, char *ExpressionName=NULL) ;
 
 void Cal_StoreInRegister(struct Value  *Value, int RegisterIndex) ;
 

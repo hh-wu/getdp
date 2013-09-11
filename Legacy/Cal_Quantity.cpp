@@ -29,7 +29,8 @@ extern int TreatmentStatus ;
 void  Get_ValueOfExpression(struct Expression * Expression_P,
 			    struct QuantityStorage * QuantityStorage_P0,
 			    double u, double v, double w,
-			    struct Value * Value)
+			    struct Value * Value,
+			    int NbrArguments)
 {
   int k ;
   struct ExpressionPerRegion  * ExpressionPerRegion_P ;
@@ -53,7 +54,8 @@ void  Get_ValueOfExpression(struct Expression * Expression_P,
   case WHOLEQUANTITY :
     Cal_WholeQuantity(Current.Element, QuantityStorage_P0,
 		      Expression_P->Case.WholeQuantity,
-		      u,v,w, -1, 0, Value) ;
+		      u,v,w, -1, 0, Value, NbrArguments,
+		      Expression_P->Name) ;
     break ;
 
   case PIECEWISEFUNCTION :
@@ -77,7 +79,7 @@ void  Get_ValueOfExpression(struct Expression * Expression_P,
     }
     Get_ValueOfExpression
       (Expression_P->Case.PieceWiseFunction.ExpressionForLastRegion,
-       QuantityStorage_P0, u, v, w, Value) ;
+       QuantityStorage_P0, u, v, w, Value, NbrArguments) ;
     break ;
 
   case UNDEFINED_EXP :
@@ -258,7 +260,8 @@ void Cal_WholeQuantity(struct Element * Element,
 		       List_T * WholeQuantity_L,
 		       double u, double v, double w,
 		       int DofIndexInWholeQuantity,
-		       int Nbr_Dof, struct Value DofValue[]) {
+		       int Nbr_Dof, struct Value DofValue[],
+		       int NbrArguments, char *ExpressionName) {
 
   static int Flag_WarningMissSolForDt = 0 ;
   static int Flag_WarningMissSolForTime_ntime = 0 ;
@@ -494,7 +497,7 @@ void Cal_WholeQuantity(struct Element * Element,
 			  WholeQuantity_P->Case.Trace.WholeQuantity,
 			  Current.ut, Current.vt, Current.wt,
 			  WholeQuantity_P->Case.Trace.DofIndexInWholeQuantity,
-			  Nbr_Dof, DofValue) ;
+			  Nbr_Dof, DofValue, NbrArguments, ExpressionName) ;
 	DofIndexInWholeQuantity = DofIndex = Index ;
       }
       else{
@@ -506,10 +509,16 @@ void Cal_WholeQuantity(struct Element * Element,
 	}
 	xyz2uvwInAnElement(Element->ElementTrace, Current.x, Current.y, Current.z,
 			   &Current.ut, &Current.vt, &Current.wt) ;
+	for (j=0; j<NbrArguments; j++) {
+          Cal_CopyValue(DofValue + j, &Stack[0][Index]) ;
+          Multi[Index] = 0 ;
+          Index++ ;
+        }
+        Index -= NbrArguments ;
 	Cal_WholeQuantity(Element->ElementTrace, QuantityStorage_P0,
 			  WholeQuantity_P->Case.Trace.WholeQuantity,
 			  Current.ut, Current.vt, Current.wt,
-			  -1, 0, &Stack[0][Index]) ;
+			  -1, 0, &Stack[0][Index], NbrArguments, ExpressionName) ;
       }
 
       Current.Region = Save_Region ;
@@ -584,10 +593,16 @@ void Cal_WholeQuantity(struct Element * Element,
 
     case WQ_TEST :
       Flag_True = (Stack[0][Index-1].Val[0] != 0.) ;
+      for (j=0; j<NbrArguments; j++) {
+        Cal_CopyValue(DofValue + j, &Stack[0][Index-1]) ;
+        Multi[Index-1] = 0 ;
+        Index++ ;
+      }
+      Index -= NbrArguments ;
       Cal_WholeQuantity(Element, QuantityStorage_P0,
 			(Flag_True) ? WholeQuantity_P->Case.Test.WholeQuantity_True :
 		 	              WholeQuantity_P->Case.Test.WholeQuantity_False,
-			u, v, w, -1, 0, &Stack[0][Index-1]) ;
+			u, v, w, -1, 0, &Stack[0][Index-1], NbrArguments, ExpressionName) ;
       break ;
 
     case WQ_EXPRESSION :
@@ -595,7 +610,8 @@ void Cal_WholeQuantity(struct Element * Element,
       Get_ValueOfExpression
 	((struct Expression*)List_Pointer
 	 (Problem_S.Expression, WholeQuantity_P->Case.Expression.Index),
-	 QuantityStorage_P0, u, v, w, &Stack[0][Index]) ;
+	 QuantityStorage_P0, u, v, w, &Stack[0][Index],
+	 WholeQuantity_P->Case.Expression.NbrArguments) ;
       Multi[Index] = 0 ;
       Index++ ;
       break ;
@@ -655,6 +671,9 @@ void Cal_WholeQuantity(struct Element * Element,
       break ;
 
     case WQ_ARGUMENT :
+      if (WholeQuantity_P->Case.Argument.Index > NbrArguments){
+        Message::Error("Function %s called with too few arguments", ExpressionName);
+      }
       Cal_CopyValue(DofValue + WholeQuantity_P->Case.Argument.Index - 1,
 		    &Stack[0][Index]) ;
       Multi[Index] = 0 ;
@@ -663,9 +682,15 @@ void Cal_WholeQuantity(struct Element * Element,
 
     case WQ_TIMEDERIVATIVE :
       if (Current.TypeTime == TIME_GEAR) {
+        for (j=0; j<NbrArguments; j++) {
+          Cal_CopyValue(DofValue + j, &Stack[0][Index]) ;
+          Multi[Index] = 0 ;
+          Index++ ;
+        }
+        Index -= NbrArguments ;
         Cal_WholeQuantity(Element, QuantityStorage_P0,
                           WholeQuantity_P->Case.TimeDerivative.WholeQuantity,
-                          u, v, w, -1, 0, &Stack[0][Index]);
+                          u, v, w, -1, 0, &Stack[0][Index], NbrArguments, ExpressionName);
 
         for (k = 0 ; k < Current.NbrSystem ; k++)
           (Current.DofData_P0+k)->Save_CurrentSolution = (Current.DofData_P0+k)->CurrentSolution;
@@ -680,7 +705,7 @@ void Cal_WholeQuantity(struct Element * Element,
             if(((Current.DofData_P0+k)->CurrentSolution - Solution_P0) > 0)
               ((Current.DofData_P0+k)->CurrentSolution) -= 1 ;
             else{
-              Message::Error("Too few solutions for Dt with Gears method");
+              Message::Error("Too few solutions for Dt with Gear's method");
               break;
             }
           }
@@ -689,9 +714,15 @@ void Cal_WholeQuantity(struct Element * Element,
           Current.Time = Current.DofData->CurrentSolution->Time ;
           Current.TimeImag = Current.DofData->CurrentSolution->TimeImag ;
 
+          for (j=0; j<NbrArguments; j++) {
+            Cal_CopyValue(DofValue + j, &Stack[0][Index+1]) ;
+            Multi[Index+1] = 0 ;
+            Index++ ;
+          }
+          Index -= NbrArguments ;
           Cal_WholeQuantity(Element, QuantityStorage_P0,
                             WholeQuantity_P->Case.TimeDerivative.WholeQuantity,
-                            u, v, w, -1, 0, &Stack[0][Index+1]);
+                            u, v, w, -1, 0, &Stack[0][Index+1], NbrArguments, ExpressionName);
           Cal_AddMultValue(&Stack[0][Index], &Stack[0][Index+1],
                            -Current.aCorrCoeff[n], &Stack[0][Index]);
 
@@ -709,9 +740,15 @@ void Cal_WholeQuantity(struct Element * Element,
 
       }
       else if (Current.NbrHar == 1) {
+        for (j=0; j<NbrArguments; j++) {
+          Cal_CopyValue(DofValue + j, &Stack[0][Index]) ;
+          Multi[Index] = 0 ;
+          Index++ ;
+        }
+        Index -= NbrArguments ;
 	Cal_WholeQuantity(Element, QuantityStorage_P0,
 			  WholeQuantity_P->Case.TimeDerivative.WholeQuantity,
-			  u, v, w, -1, 0, &Stack[0][Index]) ;
+			  u, v, w, -1, 0, &Stack[0][Index], NbrArguments, ExpressionName) ;
 
 	for (k = 0 ; k < Current.NbrSystem ; k++){
 	  (Current.DofData_P0+k)->Save_CurrentSolution =
@@ -734,9 +771,15 @@ void Cal_WholeQuantity(struct Element * Element,
 	Save_Time = Current.Time ;
 	Current.Time = Current.DofData->CurrentSolution->Time ;
 
+	for (j=0; j<NbrArguments; j++) {
+          Cal_CopyValue(DofValue + j, &Stack[0][Index+1]) ;
+          Multi[Index+1] = 0 ;
+          Index++ ;
+        }
+        Index -= NbrArguments ;
 	Cal_WholeQuantity(Element, QuantityStorage_P0,
 			  WholeQuantity_P->Case.TimeDerivative.WholeQuantity,
-			  u, v, w, -1, 0, &Stack[0][Index+1]) ;
+			  u, v, w, -1, 0, &Stack[0][Index+1], NbrArguments, ExpressionName) ;
 	Cal_SubstractValue(&Stack[0][Index], &Stack[0][Index+1], &Stack[0][Index]) ;
 	Stack[0][Index+1].Val[0] = Save_Time - Current.Time ;
 	Stack[0][Index+1].Type = SCALAR ;
@@ -752,9 +795,15 @@ void Cal_WholeQuantity(struct Element * Element,
 	Current.Time = Save_Time ;
       }
       else {
+        for (j=0; j<NbrArguments; j++) {
+          Cal_CopyValue(DofValue + j, &Stack[0][Index]) ;
+          Multi[Index] = 0 ;
+          Index++ ;
+        }
+        Index -= NbrArguments ;
 	Cal_WholeQuantity(Element, QuantityStorage_P0,
 			  WholeQuantity_P->Case.TimeDerivative.WholeQuantity,
-			  u, v, w, -1, 0, &Stack[0][Index]) ;
+			  u, v, w, -1, 0, &Stack[0][Index], NbrArguments, ExpressionName) ;
 	for (k = 0 ; k < Current.NbrHar ; k += 2) {
 	  Stack[0][Index+1].Val[MAX_DIM* k   ] = 0. ;
 	  Stack[0][Index+1].Val[MAX_DIM*(k+1)] = Current.DofData->Val_Pulsation[k/2] ;
@@ -799,9 +848,15 @@ void Cal_WholeQuantity(struct Element * Element,
       Current.Time = Current.DofData->CurrentSolution->Time ;
       Current.TimeImag = Current.DofData->CurrentSolution->TimeImag ;
 
+      for (j=0; j<NbrArguments; j++) {
+        Cal_CopyValue(DofValue + j, &Stack[0][Index]) ;
+        Multi[Index] = 0 ;
+        Index++ ;
+      }
+      Index -= NbrArguments ;
       Cal_WholeQuantity(Element, QuantityStorage_P0,
 			WholeQuantity_P->Case.AtAnteriorTimeStep.WholeQuantity,
-			u, v, w, -1, 0, &Stack[0][Index]) ;
+			u, v, w, -1, 0, &Stack[0][Index], NbrArguments, ExpressionName) ;
 
       Current.TimeStep = Save_TimeStep ;
       Current.Time = Save_Time ;
@@ -825,9 +880,15 @@ void Cal_WholeQuantity(struct Element * Element,
         break;
       }
 
+      for (j=0; j<NbrArguments; j++) {
+        Cal_CopyValue(DofValue + j, &Stack[0][Index]) ;
+        Multi[Index] = 0 ;
+        Index++ ;
+      }
+      Index -= NbrArguments ;
       Cal_WholeQuantity(Element, QuantityStorage_P0,
 			WholeQuantity_P->Case.MHTransform.WholeQuantity,
-			u, v, w, -1, 0, &Stack[0][Index]) ;
+			u, v, w, -1, 0, &Stack[0][Index], NbrArguments, ExpressionName) ;
 
       MHTransform(Element, QuantityStorage_P0, u, v, w, &Stack[0][Index],
 		  (struct Expression *)List_Pointer(Problem_S.Expression,
@@ -855,9 +916,15 @@ void Cal_WholeQuantity(struct Element * Element,
 	Current.NbrHar = WholeQuantity_P->Case.Cast.NbrHar ;
       }
 
+      for (j=0; j<NbrArguments; j++) {
+        Cal_CopyValue(DofValue + j, &Stack[0][Index]) ;
+        Multi[Index] = 0 ;
+        Index++ ;
+      }
+      Index -= NbrArguments ;
       Cal_WholeQuantity(Element, QuantityStorage_P0,
 			WholeQuantity_P->Case.Cast.WholeQuantity,
-			u, v, w, -1, 0, &Stack[0][Index]) ;
+			u, v, w, -1, 0, &Stack[0][Index], NbrArguments, ExpressionName) ;
 
       if (Current.NbrHar < Save_NbrHar)  /* ne plus a completer ...?? */
       	Cal_SetZeroHarmonicValue(&Stack[0][Index], Save_NbrHar) ;
@@ -875,9 +942,15 @@ void Cal_WholeQuantity(struct Element * Element,
       Current.y = Stack[0][Index-1].Val[1] ;
       Current.z = Stack[0][Index-1].Val[2] ;
 
+      for (j=0; j<NbrArguments; j++) {
+        Cal_CopyValue(DofValue + j, &Stack[0][Index-1]) ;
+        Multi[Index-1] = 0 ;
+        Index++ ;
+      }
+      Index -= NbrArguments ;
       Cal_WholeQuantity(Element, QuantityStorage_P0,
 			WholeQuantity_P->Case.ChangeCurrentPosition.WholeQuantity,
-			u, v, w, -1, 0, &Stack[0][Index-1]) ;
+			u, v, w, -1, 0, &Stack[0][Index-1], NbrArguments, ExpressionName) ;
 
       Current.x = Save_x ; Current.y = Save_y ; Current.z = Save_z ;
       break ;
