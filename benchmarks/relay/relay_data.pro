@@ -1,7 +1,7 @@
 // p_init = 7.7e-3 ; // initial position (this is our limit with airlayer)
 
 
-DefineConstant[ p_init = { 7.5e-3, Min -7.5e-3, Max 7.5e-3,
+DefineConstant[ p_init = { 7.5e-3, Min -7.5e-3, Max 7.5e-3, Step 1e-4,
     Label "Initial position", Path "Input/00"} ];
 
 p_mid = 3e-3;
