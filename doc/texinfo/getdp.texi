@@ -3516,7 +3516,7 @@ coeficient @code{-1}, one could write:
 @end example
 
 In this example, @code{Function} defines the mapping that translates the
-geometrical elements in the region @code{Left} by 1 along the X-axis, so
+geometrical elements in the region @code{Left} by Pi units along the X-axis, so
 that they correspond with the elements in the region @code{Right}. For this
 mapping to work, the meshes of @code{Left} and @code{Right} must be
 identical.
