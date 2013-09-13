@@ -191,6 +191,9 @@ void F_ElementVol(F_ARG)
   case PRISM:
     Vol = JacobianVol3D(Current.Element,&Jac) ;
     break;
+  case PYRAMID:
+      Vol = 4./3. * JacobianVol3D(Current.Element,&Jac) ;
+      break;
   default :
     Message::Error("F_ElementVol not implemented for %s",
                    Get_StringForDefine(Element_Type, Current.Element->Type));
