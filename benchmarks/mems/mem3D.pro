@@ -141,16 +141,14 @@ Constraint {
 
 Include "ElectroMechanical3D.pro"
 
-ax = bc/2+Lb+bb ;
-ay = Ls/2-t-bb/2 ;
-az = d/2 ;
-
 ExtGmsh = ".pos" ;
 ExtGnuplot = ".dat" ;
 
 PostOperation Post_elec UsingPost Electrostatics_vf {
   Print[ v, OnElementsOf DomainCC_Ele, File "v.pos" ] ;
   Print[ e, OnElementsOf DomainCC_Ele, File "e.pos" ] ;
+
+  // Print [ Force, OnRegion NodesOf[Domain_Force_Sur], File "Force.pos" ] ; // MUCH TOO SLOW!!
 
   // Print[ v, OnSection {{-bc/2, -Lc/2, -gap/2}{-bc/2, Lc/2, -gap/2}{bc/2, Lc/2, -gap/2}}, File "v_xy.pos" ] ;
   // Print[ v, OnSection {{0, -Lc/2, R1}{0, Lc/2, R1}{0, Lc/2, -R1}}, File "v_yz.pos" ] ;

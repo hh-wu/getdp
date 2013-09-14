@@ -7,7 +7,8 @@ Function {
 Group {
   DefineGroup[Domain_Disp, Domain_Force, Domain_Force_Sur, Domain_Force_Lin, Domain_Force_Vol] ;
 
-  Layer_out = ElementsOf[ DomainCC_Ele, OnOneSideOf Domain_Force_Sur] ;
+  //Layer_out = ElementsOf[ DomainCC_Ele, OnOneSideOf Domain_Force_Sur] ;
+  Layer_out = ElementsOf[ AirLayer, OnOneSideOf Domain_Force_Sur] ;
   DomainTot = Region[{Domain_Disp, Domain_Force}];
 }
 
@@ -332,6 +333,9 @@ PostProcessing {
       { Name Q ; Value { Term { [ {Q} ] ; In SkinDomainC_Ele ; Jacobian JVol ;} } }
       { Name V ; Value { Term { [ {V} ] ; In SkinDomainC_Ele ; Jacobian JVol ;} } }
       { Name C ; Value { Term { [ {Q}/(Vmax-Vmin) ] ; In SkinDomainC_Ele; Jacobian JVol ;} } }
+
+      { Name Force ; Value { Integral {Type Global ; [ 0.5*eps[]*VirtualWork[{d v} ] ];
+            In Layer_out; Jacobian JVol ; Integration I1 ;}}}
     }
   }
 
@@ -341,13 +345,13 @@ PostProcessing {
       { Name epsI ; Value { Term { [ {D1 u} ]   ; In Domain_Disp ; Jacobian JVol ;} } }
       { Name epsII ; Value { Term { [ {D2 u} ]   ; In Domain_Disp ; Jacobian JVol ;} } }
 
-      { Name epsx ; Value { Term { [Vector [CompX[{D1 u}],0,0 ] ]    ; In Domain_Disp ; Jacobian JVol ;} } }
-      { Name epsy ; Value { Term { [Vector [0, CompY[{D1 u}],0 ] ]    ; In Domain_Disp ; Jacobian JVol ;} } }
-      { Name epsz ; Value { Term { [Vector [0, 0, CompZ[{D1 u}] ] ]    ; In Domain_Disp ; Jacobian JVol ;} } }
+      { Name epsx ; Value { Term { [Vector [CompX[{D1 u}],0,0 ] ]   ; In Domain_Disp ; Jacobian JVol ;} } }
+      { Name epsy ; Value { Term { [Vector [0, CompY[{D1 u}],0 ] ]  ; In Domain_Disp ; Jacobian JVol ;} } }
+      { Name epsz ; Value { Term { [Vector [0, 0, CompZ[{D1 u}] ] ] ; In Domain_Disp ; Jacobian JVol ;} } }
 
-      { Name epsxy ; Value { Term { [Vector [CompX[{D2 u}],0,0 ] ]    ; In Domain_Disp ; Jacobian JVol ;} } }
-      { Name epsyz ; Value { Term { [Vector [0, CompY[{D2 u}],0 ] ]    ; In Domain_Disp ; Jacobian JVol ;} } }
-      { Name epszx ; Value { Term { [Vector [0, 0, CompZ[{D2 u}] ] ]    ; In Domain_Disp ; Jacobian JVol ;} } }
+      { Name epsxy ; Value { Term { [Vector [CompX[{D2 u}],0,0 ] ]  ; In Domain_Disp ; Jacobian JVol ;} } }
+      { Name epsyz ; Value { Term { [Vector [0, CompY[{D2 u}],0 ] ] ; In Domain_Disp ; Jacobian JVol ;} } }
+      { Name epszx ; Value { Term { [Vector [0, 0, CompZ[{D2 u}] ] ]; In Domain_Disp ; Jacobian JVol ;} } }
 
       //{ Name F ; Value { Term { [F[]]   ; In Domain_Force ; } } }
       { Name Vm ; Value { Term {
