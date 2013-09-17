@@ -5,7 +5,9 @@ pntG[]+=newp; Point(newp) = {rB2, 0., 0., pS1}; // aligned with the stator
 circ[] = Extrude {{0, 0, 1}, {0, 0, 0}, A0} { Point{pntG[0]}; };
 pntG[]+=circ[0];
 lineMBstator[]=circ[1];
+
 Transfinite Line{lineMBstator[0]} = NbrDivMB+1 ;
+
 
 //Filling the gap for the whole 2*Pi
 For k In {1:NbrPolesTot-1}

@@ -14,10 +14,11 @@ For k In {0:#pntR[]-2}
  linR0[]+=newl; Line(newl) = {pntR[k], pntR[k+1]};
 EndFor
 
-Transfinite Line{linR0[0]} = Ceil[(rR2-rR1)/pR1] ;
-Transfinite Line{linR0[1]} = Ceil[(rR4-rR2)/pR1] ;
-Transfinite Line{linR0[2]} = Ceil[(rR5-rR4)/pR1] ;
-Transfinite Line{linR0[3]} = Ceil[(rB1-rR5)/pR1] ;
+Transfinite Line{linR0[0]} = Ceil[(rR2-rR1)/pR1/fact_trans] ;
+Transfinite Line{linR0[1]} = Ceil[(rR4-rR2)/pR1/fact_trans] ;
+Transfinite Line{linR0[2]} = Ceil[(rR5-rR4)/pR1/fact_trans] ;
+Transfinite Line{linR0[3]} = Ceil[(rB1-rR5)/pR1/fact_trans] ;
+
 
 For k In {0:#linR0[]-1}
  linR1[] += Rotate {{0, 0, 1}, {0, 0, 0}, A0+A1} { Duplicata{Line{linR0[k]};} };
