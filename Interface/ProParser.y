@@ -185,7 +185,7 @@ struct doubleXstring{
 %token  tChangeCurrentPosition
 %token  tDefineConstant tUndefineConstant tPi tMPI_Rank tMPI_Size t0D t1D t2D t3D
 %token  tExp tLog tLog10 tSqrt tSin tAsin tCos tAcos tTan
-%token    tAtan tAtan2 tSinh tCosh tTanh tFabs tFloor tCeil tSign
+%token    tAtan tAtan2 tSinh tCosh tTanh tFabs tFloor tCeil tRound tSign
 %token    tFmod tModulo tHypot tRand
 %token    tSolidAngle tTrace tOrder tCrossProduct tDofValue
 %token    tMHTransform tMHJacNL
@@ -7059,6 +7059,7 @@ NameForMathFunction :
   | tFabs    { $$ = (char*)"Fabs";   }
   | tFloor   { $$ = (char*)"Floor";  }
   | tCeil    { $$ = (char*)"Ceil";   }
+  | tRound   { $$ = (char*)"Round";  }
   | tSign    { $$ = (char*)"Sign";   }
   | tFmod    { $$ = (char*)"Fmod";   }
   | tModulo  { $$ = (char*)"Modulo"; }
@@ -7109,6 +7110,7 @@ FExpr :
   | tFabs   '[' FExpr ']'            { $$ = fabs($3);     }
   | tFloor  '[' FExpr ']'            { $$ = floor($3);    }
   | tCeil   '[' FExpr ']'            { $$ = ceil($3);     }
+  | tRound  '[' FExpr ']'            { $$ = round($3);    }
   | tSign   '[' FExpr ']'            { $$ = (($3 > 0.) ? 1. : ($3 < 0.) ? -1. : 0.); }
   | tFmod   '[' FExpr ',' FExpr ']'  { $$ = fmod($3,$5);  }
   | tModulo '[' FExpr ',' FExpr ']'  { $$ = fmod($3,$5);  }

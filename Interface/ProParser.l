@@ -118,6 +118,7 @@ Tanh                         return tTanh;
 Fabs                         return tFabs;
 Floor                        return tFloor;
 Ceil                         return tCeil;
+Round                        return tRound;
 Sign                         return tSign;
 Fmod                         return tFmod;
 Modulo                       return tModulo;
