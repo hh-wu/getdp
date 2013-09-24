@@ -4853,7 +4853,7 @@ OperationTerm :
       }
     }
 
-  | tGenerateRHSGroup  '[' String__Index ',' String__Index CommaFExprOrNothing ']'  tEND
+  | tGenerateRHSGroup  '[' String__Index ',' GroupRHS CommaFExprOrNothing ']'  tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       int i;
@@ -4862,11 +4862,8 @@ OperationTerm :
 	vyyerror("Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
-      if((i = List_ISearchSeq(Problem_S.Group, $5, fcmp_Group_Name)) < 0)
-	vyyerror("Unknown Group: %s", $5);
-      Free($5);
       Operation_P->Type = OPERATION_GENERATERHS;
-      Operation_P->Case.Generate.GroupIndex = i;
+      Operation_P->Case.Generate.GroupIndex = $5;
       if($6 >= -1) Operation_P->Rank = $6;
       else {
 	Message::Warning("Negative MPI Rank");
