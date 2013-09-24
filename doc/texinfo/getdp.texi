@@ -4004,6 +4004,14 @@ Not documented yet.
 
 Not documented yet.
 
+@item GenerateGroup
+
+Not documented yet.
+
+@item GenerateRHSGroup
+
+Not documented yet.
+
 @item Update
 @code{[@var{system-id}]}
 
