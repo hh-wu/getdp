@@ -86,13 +86,27 @@ PmlDelta_ext = PmlDelta ;
 // Postprocessing via Gmsh Plugin
 
 DefineConstant[
-  EViewNb = {0, Label "Electric field view number", Path "Postprocessing/1Fields", Highlight "AliceBlue", AutoCheck 0},
-  HViewNb = {1, Label "Magnetic field view number", Path "Postprocessing/1Fields", Highlight "AliceBlue", AutoCheck 0},
-  nptsU = { 40, Label "along X", Path "Postprocessing/2Number of grid points", Highlight "AliceBlue", AutoCheck 0},
-  nptsV = { 20, Label "along Y", Path "Postprocessing/2Number of grid points", Highlight "AliceBlue", AutoCheck 0},
-  nptsW = { 10, Label "along Z", Path "Postprocessing/2Number of grid points", Highlight "AliceBlue", AutoCheck 0},
-  m1 = {"mstrip_NTFF_script.geo", Label "Radiation pattern", Macro "Gmsh",
-    Path "Postprocessing/3", AutoCheck 0, Highlight "Orchid"}
+  EViewNb = {0, Label "Electric", Path "Postprocessing/1Field views", Highlight "AliceBlue", AutoCheck 0},
+  HViewNb = {1, Label "Magnetic", Path "Postprocessing/1Field views", Highlight "AliceBlue", AutoCheck 0},
+
+  nptsU = { 40, Label "X", Help "number of points along X",
+    Path "Postprocessing/2Discretisation/1Near field box",
+    Highlight "AliceBlue", AutoCheck 0},
+  nptsV = { 20, Label "Y", Help "number of points along Y",
+    Path "Postprocessing/2Discretisation/1Near field box",
+    Highlight "AliceBlue", AutoCheck 0},
+  nptsW = { 10, Label "Z", Help "number of points along Z",
+    Path "Postprocessing/2Discretisation/1Near field box", Highlight "AliceBlue", AutoCheck 0},
+
+  nptsPhi = { 50, Label "azimuth",  Help "number of azimuth angles",
+    Path "Postprocessing/2Discretisation/2Far field sphere", Highlight "AliceBlue", AutoCheck 0},
+  nptsTheta = { 25, Label "elevation", Help "number of elevation angles",
+    Path "Postprocessing/2Discretisation/2Far field sphere", Highlight "AliceBlue", AutoCheck 0},
+
+  m1 = {"mstrip_NTFF_script.geo", Label "Compute radiation pattern", Macro "Gmsh",
+    Help Str["1) Use CutBox Plugin to determine the near fields on a box enclosing the antenna",
+      "2) Apply NearToFarField Plugin to those near fields and compute the radiation pattern"],
+    Path "Postprocessing/0", AutoCheck 0, Highlight "Orchid"}
 ];
 
 //=======================================================================

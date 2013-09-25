@@ -1,19 +1,3 @@
-
-/*
-DefineConstant[
-  EViewNb = {0, Label "Electric field PostView number", Path "Postprocessing/1Fields", Highlight "AliceBlue", AutoCheck 1},
-  HViewNb = {1, Label "Magnetic field PostView number", Path "Postprocessing/1Fields", Highlight "AliceBlue", AutoCheck 1},
-  nptsU = { 40, Label "along X", Path "Postprocessing/2Number of grid points", Highlight "AliceBlue", AutoCheck 1},
-  nptsV = { 20, Label "along Y", Path "Postprocessing/2Number of grid points", Highlight "AliceBlue", AutoCheck 1},
-  nptsW = { 10, Label "along Z", Path "Postprocessing/2Number of grid points", Highlight "AliceBlue", AutoCheck 1}
-];
-*/
-
-
-Printf("",L3);
-Printf("",L5);
-Printf("",nptsU);
-
 Plugin(CutBox).NumPointsU = nptsU;
 Plugin(CutBox).NumPointsV = nptsV;
 Plugin(CutBox).NumPointsW = nptsW;
@@ -41,8 +25,8 @@ Save View[PostProcessing.NbViews-1] "res3d/h_box.msh";
 
 Plugin(NearToFarField).Wavenumber = k0 ;
 Plugin(NearToFarField).RFar = 1 ;
-Plugin(NearToFarField).NumPointsPhi = 50 ;
-Plugin(NearToFarField).NumPointsTheta = 25 ;
+Plugin(NearToFarField).NumPointsPhi = nptsPhi ;
+Plugin(NearToFarField).NumPointsTheta = nptsTheta ;
 Plugin(NearToFarField).EView = PostProcessing.NbViews-2 ;
 Plugin(NearToFarField).HView = PostProcessing.NbViews-1 ;
 Plugin(NearToFarField).Normalize = 1 ;
@@ -50,4 +34,4 @@ Plugin(NearToFarField).dB = 1 ;
 
 Plugin(NearToFarField).Run ;
 
-Save View[PostProcessing.NbViews-1] "ntf.msh";
+Save View[PostProcessing.NbViews-1] "res3d/ntf.msh";
