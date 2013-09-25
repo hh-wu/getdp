@@ -142,8 +142,3 @@ Constraint {
 }
 
 Include "Microwave.pro";
-
-DefineConstant[
-  m1 = {"mstrip_NTFF_script.geo", Label "Radiation pattern", Macro "Gmsh",
-    Path "Postprocessing/3", AutoCheck 0, Highlight "Orchid"}
-];

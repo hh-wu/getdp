@@ -1,4 +1,5 @@
 
+/*
 DefineConstant[
   EViewNb = {0, Label "Electric field PostView number", Path "Postprocessing/1Fields", Highlight "AliceBlue", AutoCheck 1},
   HViewNb = {1, Label "Magnetic field PostView number", Path "Postprocessing/1Fields", Highlight "AliceBlue", AutoCheck 1},
@@ -6,6 +7,12 @@ DefineConstant[
   nptsV = { 20, Label "along Y", Path "Postprocessing/2Number of grid points", Highlight "AliceBlue", AutoCheck 1},
   nptsW = { 10, Label "along Z", Path "Postprocessing/2Number of grid points", Highlight "AliceBlue", AutoCheck 1}
 ];
+*/
+
+
+Printf("",L3);
+Printf("",L5);
+Printf("",nptsU);
 
 Plugin(CutBox).NumPointsU = nptsU;
 Plugin(CutBox).NumPointsV = nptsV;

@@ -81,6 +81,19 @@ zb = 6 * (depth1+depth2) ;
 PmlDelta = zb/2 * 4 ;
 PmlDelta_ext = PmlDelta ;
 
+//=======================================================================
+
+// Postprocessing via Gmsh Plugin
+
+DefineConstant[
+  EViewNb = {0, Label "Electric field view number", Path "Postprocessing/1Fields", Highlight "AliceBlue", AutoCheck 0},
+  HViewNb = {1, Label "Magnetic field view number", Path "Postprocessing/1Fields", Highlight "AliceBlue", AutoCheck 0},
+  nptsU = { 40, Label "along X", Path "Postprocessing/2Number of grid points", Highlight "AliceBlue", AutoCheck 0},
+  nptsV = { 20, Label "along Y", Path "Postprocessing/2Number of grid points", Highlight "AliceBlue", AutoCheck 0},
+  nptsW = { 10, Label "along Z", Path "Postprocessing/2Number of grid points", Highlight "AliceBlue", AutoCheck 0},
+  m1 = {"mstrip_NTFF_script.geo", Label "Radiation pattern", Macro "Gmsh",
+    Path "Postprocessing/3", AutoCheck 0, Highlight "Orchid"}
+];
 
 //=======================================================================
 //=======================================================================
