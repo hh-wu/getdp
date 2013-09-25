@@ -1,11 +1,10 @@
 Include "dipole_data.geo";
 
-If(Flag_3Dmodel==0)
+If(Flag_model==0)
   Include "dipole2d.geo";
 EndIf
-If(Flag_3Dmodel>0)
-  //Include "dipole3d.geo"; // only one fourth
-  Include "dipole3d_.geo"; // one eight or one fourth
+If(Flag_model==1)
+  Include "dipole3d.geo"; // one eight or one fourth
 EndIf
 
 // Value scale type (1=linear, 2=logarithmic, 3=double logarithmic)

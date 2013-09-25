@@ -11,7 +11,7 @@ DefineConstant[
 ];
 
 Flag_SilverMuller = (Flag_BC_Type==0) ; // 0 if PML
-Flag_Axisymmetry  = (Flag_3Dmodel==0) ;
+Flag_Axisymmetry  = (Flag_model==0) ;
 
 Freq = FREQ ;
 
@@ -19,11 +19,11 @@ Group {
   Feed   = Region[{}] ;
   Dipole = Region[{}] ;
 
-  SkinFeed   = Region[{ SKINFEED }] ;
+  SkinFeed = Region[{ SKINFEED }] ;
 
   SkinDipoleDwn = Region[{ SKINDIPOLEDWN }];
   SkinDipoleUp  = Region[{ SKINDIPOLEUP }];
-  SkinDipole =    Region[{ SkinDipoleUp, SkinDipoleDwn }];
+  SkinDipole    = Region[{ SkinDipoleUp, SkinDipoleDwn }];
 
   If(!Flag_SilverMuller)
     Air  = Region[{ AIR }] ;
@@ -51,57 +51,68 @@ Function {
   sigmaCu = 5.9e7 ;
 
   epsilon [ #{Air, Dipole, Feed, SkinFeed, SigmaInf} ] = ep0 ;
-  nu[ #{Air, Dipole, Feed, SkinFeed, SigmaInf} ]       = nu0 ;
+  nu [ #{Air, Dipole, Feed, SkinFeed, SigmaInf} ] = nu0 ;
   sigma[] = sigmaCu ;
 
   I[] = Complex[0,1] ; // imaginary number
 
-  // Pml*min/max coordinates min/max of Domain
-  // PmlDelta : thickness of PML
+  If(!(Flag_model==0 && Flag_2Ddomain==1))
 
-  If(Flag_3Dmodel!=3)
-    PmlXmax = xb ; PmlXmin =  0  ;
-    PmlYmax = yb ; PmlYmin = -yb ;
-    PmlZmax =  0 ; PmlZmin = -zb ;
+    xLoc[] = Fabs[X[]]-xb;
+    yLoc[] = Fabs[Y[]]-yb;
+    zLoc[] = Fabs[Z[]]-zb;
+
+    DampingProfileX[] = (xLoc[]>=0) ? 1 / (PmlDelta-xLoc[]) : 0 ;
+    DampingProfileY[] = (yLoc[]>=0) ? 1 / (PmlDelta-yLoc[]) : 0 ;
+    DampingProfileZ[] = (zLoc[]>=0) ? 1 / (PmlDelta-zLoc[]) : 0 ;
+
+    cX[] = Complex[1,-DampingProfileX[]/k0] ;
+    cY[] = Complex[1,-DampingProfileY[]/k0] ;
+    cZ[] = ((Flag_model==1 && Flag_3Ddomain==2) ? Complex[1,-DampingProfileZ[]/k0] : 1.) ;
+
+    tens[] = TensorDiag[cY[]*cZ[]/cX[],cX[]*cZ[]/cY[],cX[]*cY[]/cZ[]] ;
+
   EndIf
-  If(Flag_3Dmodel==3) // full 3D model
-     PmlXmax = xb ; PmlXmin = -xb ;
-     PmlYmax = yb ; PmlYmin = -yb ;
-     PmlZmax = zb ; PmlZmin = -zb ;
+  
+  If(Flag_model==0 && Flag_2Ddomain==1)
+
+    Ysph[] = (Y[]>0) ? Y[]-Ldipole/2 : Y[]+Ldipole/2;
+    R[] = Sqrt[X[]*X[] + Ysph[]*Ysph[]];
+    cosT[] = X[]/R[];
+    sinT[] = Ysph[]/R[];
+
+    DampingProfileR[] = 1/(PmlDelta-(R[]-rb)) ;
+    DampingProfileInt[] = -Log[(PmlDelta-(R[]-rb))/PmlDelta] ;
+    cR[] = Complex[1,-DampingProfileR[]/k0] ;
+    cStretch[] = Complex[1,-(1/R[])*DampingProfileInt[]/k0] ;
+
+    xLoc[] = X[]-rb;
+    DampingProfileX[] = (xLoc[]>=0) ? 1 / (PmlDelta-xLoc[]) : 0 ;
+    cX[] = Complex[1,-DampingProfileX[]/k0] ;
+
+    t11[] = (Fabs[Y[]]>=Ldipole/2) ? (cStretch[]/cR[] * cosT[]*cosT[] + cR[]/cStretch[] * sinT[]*sinT[]) : 1/cX[] ;
+    t12[] = (Fabs[Y[]]>=Ldipole/2) ? (cStretch[]/cR[] * cosT[]*sinT[] - cR[]/cStretch[] * cosT[]*sinT[]) : 0 ;
+    t22[] = (Fabs[Y[]]>=Ldipole/2) ? (cStretch[]/cR[] * sinT[]*sinT[] + cR[]/cStretch[] * cosT[]*cosT[]) : cX[] ;
+
+    tens[] = TensorSym[ t11[], t12[], 0., t22[], 0., 1. ] ;
+
   EndIf
 
-  DampingProfileX[] =
-    ( (X[]>=PmlXmax) || (X[]<=PmlXmin) ) ?
-    ( (X[]>=PmlXmax) ? 1 / (PmlDelta-(X[]-PmlXmax)) : 1 / (PmlDelta-(PmlXmin-X[])) ) : 0 ;
-
-  DampingProfileY[] =
-    ( (Y[]>=PmlYmax) || (Y[]<=PmlYmin) ) ?
-    ( (Y[]>=PmlYmax) ? 1 / (PmlDelta-(Y[]-PmlYmax)) : 1 / (PmlDelta-(PmlYmin-Y[])) ) : 0 ;
-
-  DampingProfileZ[] =
-    ( (Z[]>=PmlZmax) || (Z[]<=PmlZmin) ) ?
-    ( (Z[]>=PmlZmax) ? 1 / (PmlDelta-(Z[]-PmlZmax)) : 1 / (PmlDelta-(PmlZmin-Z[])) ): 0 ;
-
-  cX[] = Complex[1,-DampingProfileX[]/k0] ;
-  cY[] = Complex[1,-DampingProfileY[]/k0] ;
-  cZ[] = ((Flag_3Dmodel) ? Complex[1,-DampingProfileZ[]/k0] : 1.) ;
-
-
-  tens[] = TensorDiag[cY[]*cZ[]/cX[],cX[]*cZ[]/cY[],cX[]*cY[]/cZ[]] ;
-
-  epsilon [ Pml ] = ep0 * tens[] ;
+  epsilon[ Pml ] = ep0 * tens[] ;
   nu[ Pml ] = nu0 / tens[] ;
 
   eta0 = 120*Pi ; // eta0 = Sqrt(mu0/eps0)
 
-  dR[] = (Flag_3Dmodel) ? Unit[ Vector[Sin[Atan2[Z[],X[]]#1], Y[], -Cos[#1]] ]:Vector[0,0,-1] ;
+  dR[] = (Flag_model) ? Unit[ Vector[Sin[Atan2[Z[],X[]]#1], Y[], -Cos[#1]] ] : Vector[0,0,-1] ;
 
-  CoefGeo = (Flag_Axisymmetry) ? 2*Pi :((Flag_3Dmodel==1) ? 8 :((Flag_3Dmodel==2) ? 4 : 1.)) ; // axisymmetry in 2D, 1/8 or 1/4 of the 3D model
+  CoefGeo = (Flag_Axisymmetry) ? 2*Pi :
+            ((Flag_3Ddomain==0) ? 8 :
+             ((Flag_3Ddomain==1) ? 4 : 1.)) ; // axisymmetry in 2D, 1/8 or 1/4 of the 3D model
 
-  Printf("Flag_3Dmodel %g Flag_Axisymmetry %g CoefGeo %g", Flag_3Dmodel, Flag_Axisymmetry, CoefGeo);
+  Printf("Flag_model %g Flag_2Ddomain %g Flag_3Ddomain %g Flag_Axisymmetry %g CoefGeo %g", Flag_model, Flag_2Ddomain, Flag_3Ddomain, Flag_Axisymmetry, CoefGeo);
 
   V0 = 1. ;
-  BC_Fct_e[] =  V0/delta_gap * Vector[0, 1, 0] ;
+  BC_Fct_e[] = V0/delta_gap * Vector[0, 1, 0] ;
   ZL = 50 ;
 }
 
