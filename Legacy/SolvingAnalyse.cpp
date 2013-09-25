@@ -382,7 +382,7 @@ void SolvingAnalyse()
   struct DofData        * DofData_P0       , * DofData2_P0 ;
   List_T                * DofData_L        , * DofData2_L ;
 
-  int                     Num_Resolution   ,   Num_Resolution2 ;
+  int                     Num_Resolution = 0,   Num_Resolution2 ;
   int                     Nbr_DefineSystem ,   Nbr_DefineSystem2 ;
   int                     Nbr_Solution     ;
 

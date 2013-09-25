@@ -36,7 +36,7 @@ void F_InterpolationLinear(F_ARG)
     yp =  y[N-1] + ( xp - x[N-1] ) * a ;
   }
   else {
-    up = 0 ;  while (x[++up] < xp) ;  lo = up - 1 ;
+    up = 0 ;  while (x[++up] < xp){} ;  lo = up - 1 ;
     a = (y[up] - y[lo]) / (x[up] - x[lo]) ;
     yp =  y[up] + ( xp - x[up] ) * a ;
   }
@@ -73,7 +73,7 @@ void F_dInterpolationLinear(F_ARG)
     dyp = (y[N-1] - y[N-2]) / (x[N-1] - x[N-2]) ;
   }
   else {
-    up = 0 ;  while (x[++up] < xp) ;  lo = up - 1 ;
+    up = 0 ;  while (x[++up] < xp){} ;  lo = up - 1 ;
     dyp = (y[up] - y[lo]) / (x[up] - x[lo]) ;
   }
 
@@ -113,7 +113,7 @@ void F_dInterpolationLinear2(F_ARG)
     yp =  y[N-1] + ( xp - x[N-1] ) * a ;
   }
   else {
-    up = 0 ;  while (x[++up] < xp) ;  lo = up - 1 ;
+    up = 0 ;  while (x[++up] < xp){} ;  lo = up - 1 ;
     a = (y[up] - y[lo]) / (x[up] - x[lo]) ;
     yp =  y[up] + ( xp - x[up] ) * a ;
   }
@@ -155,7 +155,7 @@ void F_InterpolationAkima(F_ARG)
     yp =  y[N-1] + ( xp - x[N-1] ) * a ;
   }
   else {
-    up = 0 ;  while (x[++up] < xp) ;  lo = up - 1 ;
+    up = 0 ;  while (x[++up] < xp){} ;  lo = up - 1 ;
     a = xp - x[lo] ; a2 = a*a ; a3 = a2*a ;
     yp =  y[lo]
       + D->Case.Interpolation.bi[lo] * a
@@ -198,7 +198,7 @@ void F_dInterpolationAkima(F_ARG)
     dyp = (y[N-1] - y[N-2]) / (x[N-1] - x[N-2]) ;
   }
   else {
-    up = 0 ;  while (x[++up] < xp) ;  lo = up - 1 ;
+    up = 0 ;  while (x[++up] < xp){} ;  lo = up - 1 ;
     a = xp - x[lo] ; a2 = a*a ;
     dyp = D->Case.Interpolation.bi[lo]
       + D->Case.Interpolation.ci[lo] * 2. * a
