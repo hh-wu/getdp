@@ -15,12 +15,12 @@ nn = 20;
 mm = 1e-3;
 
 DefineConstant[
-  Flag_model = {0, Choices{0="2D axisymetric", 1="3D"},
+  Flag_model = {0, Choices{0="2D axisymmetric", 1="3D"},
     Label "FE model", Path "Input/00", Highlight "Blue"},
   Flag_2Ddomain = {0, Choices{0="Rectangle", 1="Pill"},
-    Label "Computational domain", Path "Input/01", Highlight "Blue", Visible !Flag_model},
+    Label "Computational domain", Path "Input/01", Highlight "Blue", Visible Flag_model==0},
   Flag_3Ddomain = {0, Choices{0="3D 1/8", 1="3D 1/4", 2="3D full"},
-    Label "Computational domain", Path "Input/01", Highlight "Blue", Visible Flag_model},
+    Label "Computational domain", Path "Input/01", Highlight "Blue", Visible Flag_model==1},
 
   Ldipole = { 0.5, Label "Length of dipole [m]",
     Path StrCat(pp,"0"), Highlight Str[colorpp], Closed close_menu},
