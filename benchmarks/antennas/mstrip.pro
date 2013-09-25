@@ -50,11 +50,11 @@ Function {
   ep0 = 8.854187817e-12 ;
   epr  = EPSILONR ;//Dielectric constant for FR4 is 4.5
 
-  epsilon [ #{Air,SkinFeed} ] = ep0 ;
+  epsilon [ #{Air,SkinFeed, SigmaInf} ] = ep0 ;
   epsilon [ Substrate ]    = epr*ep0 ;
 
-  nu      [ #{Air,Substrate,SkinFeed} ]   = nu0 ;
-  mu      [ #{Air,Substrate,SkinFeed} ]   = mu0 ;
+  nu      [ #{Air,Substrate,SkinFeed, SigmaInf} ]   = nu0 ;
+  mu      [ #{Air,Substrate,SkinFeed, SigmaInf} ]   = mu0 ;
 
   sigma[] = 6e7 ; // Cu
   I[] = Complex[0,1] ; // imaginary number

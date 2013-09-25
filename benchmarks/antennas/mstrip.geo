@@ -4,10 +4,9 @@ TRANS = 1 ;
 
 Mesh.Algorithm3D = 4; // 3D mesh algorithm (1=Delaunay, 4=Frontal)
 Mesh.Optimize = 1; // Optimize the mesh to improve the quality of tetrahedral elements
-//Mesh.Smoothing = 2;
+Mesh.Smoothing = 5;
 
-
-Mesh.CharacteristicLengthFactor = 2 ;
+//Mesh.CharacteristicLengthFactor = 2 ;
 
 lc   = W2/2;
 lcb   = lc;
