@@ -53,8 +53,10 @@ Function {
 
   I[] = Complex[0,1] ; // imaginary number
 
-  If(Flag_InfShape==0) // Rectangular domain
-    // Rectangular transformation
+  Printf("===> Flag_PML_Cyl %g Flag_3Dmodel %g Flag_InfShape %g", Flag_PML_Cyl, Flag_3Dmodel, Flag_InfShape);
+
+  If(Flag_PML_Cyl==0 && (!(Flag_3Dmodel==0 && Flag_InfShape==1)))
+    // Rectangular transformation (default)
     xLoc[] = Fabs[X[]]-xb;
     yLoc[] = Fabs[Y[]]-yb;
     zLoc[] = Fabs[Z[]]-zb;
@@ -66,17 +68,24 @@ Function {
     cY[] = Complex[1,-DampingProfileY[]/k0] ;
     cZ[] = (Flag_3Dmodel==1) ? Complex[1,-DampingProfileZ[]/k0] : 1. ;
 
+    t11[] = cY[]*cZ[]/cX[];
+    t22[] = cX[]*cZ[]/cY[];
+    t33[] = cX[]*cY[]/cZ[] ;
+    t12[] = 0 ; t13[] = 0 ;t23[] = 0 ;
+  EndIf
 
-    If(Flag_PML_Cyl==0)
-      tens[] = TensorDiag[cY[]*cZ[]/cX[],cX[]*cZ[]/cY[],cX[]*cY[]/cZ[]] ;
-    EndIf
+  If(Flag_3Dmodel==1 && Flag_PML_Cyl==1)
+    // Y is the rotation axis
+    yLoc[] = Fabs[Y[]]-yb;
+    DampingProfileY[] = (yLoc[]>=0) ? 1 / (PmlDelta-yLoc[]) : 0 ;
+    cY[] = Complex[1,-DampingProfileY[]/k0] ;
 
     //Cylindrical transformation
     R[] = Sqrt[X[]*X[]+Z[]*Z[]];
     cosT[] = X[]/R[];
     sinT[] = Z[]/R[];
 
-    DampingProfileR[] = (R[]>xb) ? 1/(PmlDelta-(R[]-xb)) : 0.;
+    DampingProfileR[]   = (R[]>xb) ? 1/(PmlDelta-(R[]-xb)) : 0.;
     DampingProfileInt[] = (R[]>xb) ? -Log[(PmlDelta-(R[]-xb))/PmlDelta]: 0.;
 
     cR[] = Complex[1,-DampingProfileR[]/k0] ;
@@ -88,10 +97,6 @@ Function {
     t22[] = 1/(R[]*cY[]) ;
     t23[] = 0 ;
     t33[] = cY[]*(cStretch[]/cR[] * sinT[]*sinT[] + cR[]/cStretch[] * cosT[]*cosT[]) ;
-
-    If(Flag_3Dmodel==1 && Flag_PML_Cyl==1)
-      tens[] = TensorSym[ t11[], t12[], t13[], t22[], t23[], t33[] ] ;
-    EndIf
   EndIf
 
   If(Flag_3Dmodel==0 && Flag_InfShape==1) // Capsular domain
@@ -111,10 +116,14 @@ Function {
 
     t11[] = (Fabs[Y[]]>=Ldipole/2) ? (cStretch[]/cR[] * cosT[]*cosT[] + cR[]/cStretch[] * sinT[]*sinT[]) : 1/cX[] ;
     t12[] = (Fabs[Y[]]>=Ldipole/2) ? (cStretch[]/cR[] * cosT[]*sinT[] - cR[]/cStretch[] * cosT[]*sinT[]) : 0 ;
+    t13[] = 0 ;
     t22[] = (Fabs[Y[]]>=Ldipole/2) ? (cStretch[]/cR[] * sinT[]*sinT[] + cR[]/cStretch[] * cosT[]*cosT[]) : cX[] ;
-
-    tens[] = TensorSym[ t11[], t12[], 0., t22[], 0., 1. ] ;
+    t23[] = 0 ;
+    t33[] = 1 ;
   EndIf
+
+  tens[] = (Flag_PML_Cyl==0) ? TensorDiag[ t11[], t22[], t33[] ] :
+                               TensorSym[ t11[], t12[], t13[], t22[], t23[], t33[] ] ;
 
   epsilon[ Pml ] = ep0 * tens[] ;
   nu[ Pml ] = nu0 / tens[] ;

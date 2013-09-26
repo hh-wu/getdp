@@ -21,16 +21,13 @@ DefineConstant[
     Label "FE model", Path "Input/01", Highlight "Blue"},
   Flag_BC_Type = {1, Choices{0="Silver Muller", 1="PML"},
     Label "Boundary condition at infinity", Path "Input/20", Highlight "Blue", Visible 1},
-  Flag_InfShape = {0, Choices{0="Rectangular", 1="Capsular"},
-    Label "Shape of truncation boundary", Path "Input/01", Highlight "Blue", Visible Flag_3Dmodel==0},
+  Flag_InfShape = {0, Choices{0="Rectangular", 1="Capsular"}, ReadOnly (Flag_3Dmodel==1),
+    Label "Shape of truncation boundary", Path "Input/01", Highlight "Blue", Visible (Flag_3Dmodel==0)},
+  Flag_PML_Cyl = {0, Choices{0="Rectangular PML", 1="Cylindrical PML"}, ReadOnly (Flag_3Dmodel==0),
+    Label "type of PML", Path "Input/20", Highlight "Blue", Visible (Flag_3Dmodel==1 && Flag_BC_Type==1)}
+] ;
 
-  Flag_PML_Cyl = {Flag_3Dmodel, Choices{0="Rectangular PML", 1="Cylindrical PML"}, ReadOnly 1,
-    Label "type of PML", Path "Input/20", Highlight "Blue", Visible (Flag_3Dmodel==1 && Flag_BC_Type==1)},
-  AngleWedge_deg = { 45, Choices{45, 90, 360}, Label "Wedge angle [deg]", Path "Input/02",
-    Highlight "Ivory", Visible (Flag_3Dmodel==1 && Flag_PML_Cyl==0)},
-  AngleWedgeCyl_deg = { 30, Label "Wedge angle [deg]", Help Str["-Use angle smaller than 90 or modify geo file"],
-    Path "Input/02", Highlight "Ivory", Visible (Flag_3Dmodel==1 && Flag_PML_Cyl==1)},
-
+DefineConstant[
   Ldipole = { 0.5, Label "Length of dipole [m]",
     Path StrCat(pp,"0"), Highlight Str[colorpp], Closed close_menu},
   rdipole = { 3.3242, Label "Radius of dipole [mm]",
@@ -57,13 +54,15 @@ DefineConstant[
   rb = { Ldipole/2, Label "R at inner boundary [m]",
     Path StrCat(pp2,"3"), Highlight Str[colorpp], Visible (Flag_3Dmodel==0 && Flag_InfShape==1)},
 
-
   nbla     = { 10,   Label "Points per wavelength", Path StrCat(pp2,"4"), Highlight Str[colorpp] },
   PmlDelta = { (xb/3 < 4*lambda/nbla) ? xb/3:4*lambda/nbla,
     Label "PML thickness [m]", ReadOnly 1, Path StrCat(pp2,"4"), Highlight "LightGrey",
     Visible (Flag_BC_Type == 1) }
 
-  //PmlDelta = { xb/3, Label "PML thickness [m]", Path StrCat(pp2,"4"), Highlight Str[colorpp]}
+  AngleWedge_deg = { 45, Choices{45, 90, 360}, Label "Wedge angle [deg]", Path "Input/02",
+    Highlight "Ivory", Visible (Flag_3Dmodel==1 && Flag_PML_Cyl==0)},
+  AngleWedgeCyl_deg = { 30, Label "Wedge angle [deg]", Help Str["-Use angle smaller than 90 or modify geo file"],
+    Path "Input/02", Highlight "Ivory", Visible (Flag_3Dmodel==1 && Flag_PML_Cyl==1)}
 ] ;
 
 rdipole = rdipole*mm; // in [m]
