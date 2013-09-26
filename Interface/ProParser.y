@@ -7107,7 +7107,7 @@ FExpr :
   | tFabs   '[' FExpr ']'            { $$ = fabs($3);     }
   | tFloor  '[' FExpr ']'            { $$ = floor($3);    }
   | tCeil   '[' FExpr ']'            { $$ = ceil($3);     }
-  | tRound  '[' FExpr ']'            { $$ = round($3);    }
+  | tRound  '[' FExpr ']'            { $$ = floor($3 + 0.5);    }
   | tSign   '[' FExpr ']'            { $$ = (($3 > 0.) ? 1. : ($3 < 0.) ? -1. : 0.); }
   | tFmod   '[' FExpr ',' FExpr ']'  { $$ = fmod($3,$5);  }
   | tModulo '[' FExpr ',' FExpr ']'  { $$ = fmod($3,$5);  }

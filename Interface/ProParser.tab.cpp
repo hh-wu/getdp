@@ -13338,7 +13338,7 @@ yyreduce:
 
   case 763:
 #line 7110 "ProParser.y"
-    { (yyval.d) = round((yyvsp[(3) - (4)].d));    ;}
+    { (yyval.d) = floor((yyvsp[(3) - (4)].d) + 0.5);    ;}
     break;
 
   case 764:
