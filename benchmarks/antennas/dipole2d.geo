@@ -2,20 +2,18 @@ fac = 1 ;
 Mesh.CharacteristicLengthFactor = fac ;
 
 // characteristic lengths & some transfinite number of divisions
-lc  = lambda/10 ; // rule of thumb (min 10 divisions)
-lcd = delta_gap/4 ;
-lcair  = PmlDelta/5 ; // PML
+lc  = lambda/nbla ; // rule of thumb (min 10 divisions)
+lcd = (lc < delta_gap/4) ? lc : delta_gap/4 ;
+lcair = PmlDelta/4 ; // PML
 
 flag = 1 ; // if 0, extruded mesh becomes free
 nbrdivDelta = flag*Ceil[3/fac] ;
 nbrdivHalfDipole = flag*Ceil[Ldipole/2/delta_gap*nbrdivDelta/2/fac] ;
 nbrdivDipoleSection = flag*Ceil[4/fac] ; // 1/4 circle
 
-
 //=================================================
 // Dipole
 //=================================================
-
 p0 = newp ; Point(p0) = {0,       -Ldipole/2, 0, lcd};
 p1 = newp ; Point(p1) = {rdipole, -Ldipole/2, 0, lcd};
 
@@ -48,7 +46,7 @@ bnddipole[] -= axisdipole[];
 // Air and Pml
 //=================================================
 
-If(Flag_2Ddomain==0)  // Domain 'Rectangle'
+If(Flag_InfShape==0) // Rectangular truncation boundary
 
   pp[]+=p0;
   pp[]+=newp; Point(newp) = {  0, -yb, 0, lcair};
@@ -74,7 +72,7 @@ If(Flag_2Ddomain==0)  // Domain 'Rectangle'
 
 EndIf
 
-If(Flag_2Ddomain==1)  // Domain 'Pill'
+If(Flag_InfShape==1)  // Capsular trunction boundary
 
   pp[]+=newp; Point(newp) = {  0, -Ldipole/2-rb, 0, lcair};
   pp[]+=newp; Point(newp) = { rb, -Ldipole/2   , 0, lcair};
@@ -128,4 +126,3 @@ bndfeed[] = Boundary{ Surface{surfdipole[2]};};
 Physical Line(SKINFEED)= {bndfeed[1]};
 
 Physical Line(AXIS) = {lbox[{3,4}],axisdipole[],lpml[{3,4}]}; // not used
-

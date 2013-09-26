@@ -2,16 +2,13 @@ Include "dipole_data.geo";
 
 DefineConstant[
   Flag_AnalysisType = { 0,  Choices{0="e-formulation",  1="av-formulation"},
-    Label "Type of analysis",  Path "Input/20", Highlight "Blue", Visible 1,
+    Label "Type of analysis",  Path "Input/21", Highlight "Blue", Visible 1,
     Help Str["- Use 'electric field formulation' to compute the EM fields created by the dipole",
-      "- Use 'av-potential formulation' to compute the EM fields created by the dipole"]},
-  Flag_BC_Type = {1, Choices{0="Silver Muller",1="PML"},
-    Label "Boundary condition at infinity",
-    Path "Input/20", Highlight "Blue", Visible 1}
+      "- Use 'av-potential formulation' to compute the EM fields created by the dipole"]}
 ];
 
 Flag_SilverMuller = (Flag_BC_Type==0) ; // 0 if PML
-Flag_Axisymmetry  = (Flag_model==0) ;
+Flag_Axisymmetry  = (Flag_3Dmodel==0) ;
 
 Freq = FREQ ;
 
@@ -56,26 +53,48 @@ Function {
 
   I[] = Complex[0,1] ; // imaginary number
 
-  If(!(Flag_model==0 && Flag_2Ddomain==1))
-
+  If(Flag_InfShape==0) // Rectangular domain
+    // Rectangular transformation
     xLoc[] = Fabs[X[]]-xb;
     yLoc[] = Fabs[Y[]]-yb;
     zLoc[] = Fabs[Z[]]-zb;
-
     DampingProfileX[] = (xLoc[]>=0) ? 1 / (PmlDelta-xLoc[]) : 0 ;
     DampingProfileY[] = (yLoc[]>=0) ? 1 / (PmlDelta-yLoc[]) : 0 ;
     DampingProfileZ[] = (zLoc[]>=0) ? 1 / (PmlDelta-zLoc[]) : 0 ;
 
     cX[] = Complex[1,-DampingProfileX[]/k0] ;
     cY[] = Complex[1,-DampingProfileY[]/k0] ;
-    cZ[] = ((Flag_model==1 && Flag_3Ddomain==2) ? Complex[1,-DampingProfileZ[]/k0] : 1.) ;
+    cZ[] = (Flag_3Dmodel==1) ? Complex[1,-DampingProfileZ[]/k0] : 1. ;
 
-    tens[] = TensorDiag[cY[]*cZ[]/cX[],cX[]*cZ[]/cY[],cX[]*cY[]/cZ[]] ;
 
+    If(Flag_PML_Cyl==0)
+      tens[] = TensorDiag[cY[]*cZ[]/cX[],cX[]*cZ[]/cY[],cX[]*cY[]/cZ[]] ;
+    EndIf
+
+    //Cylindrical transformation
+    R[] = Sqrt[X[]*X[]+Z[]*Z[]];
+    cosT[] = X[]/R[];
+    sinT[] = Z[]/R[];
+
+    DampingProfileR[] = (R[]>xb) ? 1/(PmlDelta-(R[]-xb)) : 0.;
+    DampingProfileInt[] = (R[]>xb) ? -Log[(PmlDelta-(R[]-xb))/PmlDelta]: 0.;
+
+    cR[] = Complex[1,-DampingProfileR[]/k0] ;
+    cStretch[] = Complex[1,-1/R[]*DampingProfileInt[]/k0] ;
+
+    t11[] = cY[]*(cStretch[]/cR[] * cosT[]*cosT[] + cR[]/cStretch[] * sinT[]*sinT[]) ;
+    t12[] = 0 ;
+    t13[] = cY[]*(cStretch[]/cR[] * cosT[]*sinT[] - cR[]/cStretch[] * cosT[]*sinT[]) ;
+    t22[] = 1/(R[]*cY[]) ;
+    t23[] = 0 ;
+    t33[] = cY[]*(cStretch[]/cR[] * sinT[]*sinT[] + cR[]/cStretch[] * cosT[]*cosT[]) ;
+
+    If(Flag_3Dmodel==1 && Flag_PML_Cyl==1)
+      tens[] = TensorSym[ t11[], t12[], t13[], t22[], t23[], t33[] ] ;
+    EndIf
   EndIf
-  
-  If(Flag_model==0 && Flag_2Ddomain==1)
 
+  If(Flag_3Dmodel==0 && Flag_InfShape==1) // Capsular domain
     Ysph[] = (Y[]>0) ? Y[]-Ldipole/2 : Y[]+Ldipole/2;
     R[] = Sqrt[X[]*X[] + Ysph[]*Ysph[]];
     cosT[] = X[]/R[];
@@ -95,7 +114,6 @@ Function {
     t22[] = (Fabs[Y[]]>=Ldipole/2) ? (cStretch[]/cR[] * sinT[]*sinT[] + cR[]/cStretch[] * cosT[]*cosT[]) : cX[] ;
 
     tens[] = TensorSym[ t11[], t12[], 0., t22[], 0., 1. ] ;
-
   EndIf
 
   epsilon[ Pml ] = ep0 * tens[] ;
@@ -103,13 +121,8 @@ Function {
 
   eta0 = 120*Pi ; // eta0 = Sqrt(mu0/eps0)
 
-  dR[] = (Flag_model) ? Unit[ Vector[Sin[Atan2[Z[],X[]]#1], Y[], -Cos[#1]] ] : Vector[0,0,-1] ;
+  dR[] = (Flag_3Dmodel) ? Unit[ Vector[Sin[Atan2[Z[],X[]]#1], Y[], -Cos[#1]] ] : Vector[0,0,-1] ;
 
-  CoefGeo = (Flag_Axisymmetry) ? 2*Pi :
-            ((Flag_3Ddomain==0) ? 8 :
-             ((Flag_3Ddomain==1) ? 4 : 1.)) ; // axisymmetry in 2D, 1/8 or 1/4 of the 3D model
-
-  Printf("Flag_model %g Flag_2Ddomain %g Flag_3Ddomain %g Flag_Axisymmetry %g CoefGeo %g", Flag_model, Flag_2Ddomain, Flag_3Ddomain, Flag_Axisymmetry, CoefGeo);
 
   V0 = 1. ;
   BC_Fct_e[] = V0/delta_gap * Vector[0, 1, 0] ;
@@ -151,5 +164,3 @@ Constraint {
 
 
 Include "Microwave.pro"
-
-

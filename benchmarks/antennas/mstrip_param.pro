@@ -85,29 +85,29 @@ PmlDelta_ext = PmlDelta ;
 
 // Postprocessing via Gmsh Plugin
 
-Flag_Post = (PostProcessing.NbViews>1);
+Flag_Post = 1;
 DefineConstant[
-  EViewNb = {0, Label "Electric", Path "Postprocessing/1Field views", Highlight "AliceBlue", AutoCheck 1, Visible Flag_Post},
+  EViewNb = {0, Label "Electric", Path "Postprocessing/1Field views", Highlight "AliceBlue", AutoCheck 0, Visible Flag_Post},
   HViewNb = {1, Label "Magnetic", Path "Postprocessing/1Field views", Highlight "AliceBlue", AutoCheck 0, Visible Flag_Post},
 
   nptsU = { 40, Label "X", Help "number of points along X",
     Path "Postprocessing/2Discretisation/1Near field box",
-            Highlight "AliceBlue", AutoCheck 0, Visible Flag_Post},
+    Highlight "AliceBlue", AutoCheck 0, Visible Flag_Post},
   nptsV = { 20, Label "Y", Help "number of points along Y",
     Path "Postprocessing/2Discretisation/1Near field box",
-            Highlight "AliceBlue", AutoCheck 0, Visible Flag_Post},
+    Highlight "AliceBlue", AutoCheck 0, Visible Flag_Post},
   nptsW = { 10, Label "Z", Help "number of points along Z",
-            Path "Postprocessing/2Discretisation/1Near field box", Highlight "AliceBlue", AutoCheck 0, Visible Flag_Post},
+    Path "Postprocessing/2Discretisation/1Near field box", Highlight "AliceBlue", AutoCheck 0, Visible Flag_Post},
 
   nptsPhi = { 50, Label "azimuth",  Help "number of azimuth angles",
-              Path "Postprocessing/2Discretisation/2Far field sphere", Highlight "AliceBlue", AutoCheck 0, Visible Flag_Post},
+    Path "Postprocessing/2Discretisation/2Far field sphere", Highlight "AliceBlue", AutoCheck 0, Visible Flag_Post},
   nptsTheta = { 25, Label "elevation", Help "number of elevation angles",
-                Path "Postprocessing/2Discretisation/2Far field sphere", Highlight "AliceBlue", AutoCheck 0, Visible Flag_Post},
+    Path "Postprocessing/2Discretisation/2Far field sphere", Highlight "AliceBlue", AutoCheck 0, Visible Flag_Post},
 
   m1 = {"mstrip_NTFF_script.geo", Label "Compute radiation pattern", Macro "Gmsh",
     Help Str["1) Use CutBox Plugin to determine the near fields on a box enclosing the antenna",
       "2) Apply NearToFarField Plugin to those near fields and compute the radiation pattern"],
-        Path "Postprocessing/0", AutoCheck 0, Highlight "Orchid", Visible Flag_Post}
+    Path "Postprocessing/0", AutoCheck 0, Highlight "Orchid", Visible Flag_Post}
 ];
 
 //=======================================================================

@@ -1,10 +1,12 @@
 Include "dipole_data.geo";
 
-If(Flag_model==0)
+If(Flag_3Dmodel==0)
   Include "dipole2d.geo";
 EndIf
-If(Flag_model==1)
-  Include "dipole3d.geo"; // one eight or one fourth
+If(Flag_3Dmodel==1)
+  Include "dipole3d.geo";
+  // Rectangular PML --> 1:one eight, 2:one fourth, 3:full
+  // Cylindrical PML --> more freedom for choosing the wedge angle
 EndIf
 
 // Value scale type (1=linear, 2=logarithmic, 3=double logarithmic)

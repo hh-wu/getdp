@@ -11,12 +11,10 @@ Function{
   DefineFunction[ ks0, js0, nxh, BC_Fct_e, dR ];
   DefineFunction[ epsilon, sigma, nu, eta];
   DefineConstant[ ZL ];
-  DefineConstant[ Flag_model, Flag_Axisymmetry, Flag_SilverMuller ]; // PML or Silver Muller BC
+  DefineConstant[ Flag_3Dmodel, Flag_Axisymmetry, Flag_SilverMuller ]; // PML or Silver Muller BC
 }
 
-Printf("Flag_model %g", Flag_model);
-
-If(Flag_model==1)
+If(Flag_3Dmodel==1)
   myDir = "res3d/";
   ppe = "Output-e/Three-dimensional/";
   ppa = "Output-av/Three-dimensional/";
@@ -155,10 +153,10 @@ Formulation {
   { Name Microwave_e ; Type FemEquation;
     Quantity {
       { Name e; Type Local;  NameOfSpace Hcurl_e; }
-      If(Flag_model)
+      If(Flag_3Dmodel)
         { Name h; Type Local ; NameOfSpace Hcurl_h; }
       EndIf
-      If(!Flag_model)
+      If(!Flag_3Dmodel)
         { Name h; Type Local ; NameOfSpace Hcurl_hp; }
       EndIf
      }
@@ -196,10 +194,10 @@ Formulation {
       { Name a  ; Type Local ; NameOfSpace Hcurl_a ; }
       { Name v  ; Type Local ; NameOfSpace Hgrad_v ; }
 
-      If(Flag_model)
+      If(Flag_3Dmodel)
         { Name h; Type Local ; NameOfSpace Hcurl_h; }
       EndIf
-      If(!Flag_model)
+      If(!Flag_3Dmodel)
         { Name h; Type Local ; NameOfSpace Hcurl_hp; }
       EndIf
     }
