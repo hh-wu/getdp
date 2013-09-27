@@ -1,3 +1,5 @@
+2.4.2: fixed function arguments in nested expressions; minor improvements.
+
 2.4.1: minor improvements and bug fixes.
 
 2.4.0: new two-step Init constraints; faster network computation (with new
