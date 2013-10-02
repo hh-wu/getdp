@@ -274,6 +274,9 @@ struct doubleXstring{
 %token        tTarget tSort tIso tNoNewLine tNoTitle tDecomposeInSimplex tChangeOfValues
 %token        tTimeLegend tFrequencyLegend tEigenvalueLegend
 %token        tEvaluationPoints tStoreInRegister tStoreInField
+%token        tStoreMaxInRegister tStoreMaxXinRegister tStoreMaxYinRegister
+%token        tStoreMaxZinRegister tStoreMinInRegister tStoreMinXinRegister 
+%token        tStoreMinYinRegister tStoreMinZinRegister
 %token        tLastTimeStepOnly tAppendTimeStepToFileName
 %token        tOverrideTimeStepValue tNoMesh tSendToServer tColor tStr tDate
 %token        tNewCoordinates
@@ -6146,6 +6149,14 @@ PrintOptions :
       PostSubOperation_S.LegendPosition[2] = 0.;
       PostSubOperation_S.EvaluationPoints = NULL;
       PostSubOperation_S.StoreInRegister = -1;
+      PostSubOperation_S.StoreMinInRegister = -1;
+      PostSubOperation_S.StoreMinXinRegister = -1;
+      PostSubOperation_S.StoreMinYinRegister = -1;
+      PostSubOperation_S.StoreMinZinRegister = -1;
+      PostSubOperation_S.StoreMaxInRegister = -1;
+      PostSubOperation_S.StoreMaxXinRegister = -1;
+      PostSubOperation_S.StoreMaxYinRegister = -1;
+      PostSubOperation_S.StoreMaxZinRegister = -1;
       PostSubOperation_S.StoreInField = -1;
       PostSubOperation_S.LastTimeStepOnly = 0;
       PostSubOperation_S.AppendTimeStepToFileName = 0;
@@ -6398,6 +6409,38 @@ PrintOption :
   | ',' tStoreInRegister tINT
     {
       PostSubOperation_S.StoreInRegister = $3 - 1;
+    }
+  | ',' tStoreMinInRegister tINT
+    {
+      PostSubOperation_S.StoreMinInRegister = $3 - 1;
+    }
+  | ',' tStoreMinXinRegister tINT
+    {
+      PostSubOperation_S.StoreMinXinRegister = $3 - 1;
+    }
+  | ',' tStoreMinYinRegister tINT
+    {
+      PostSubOperation_S.StoreMinYinRegister = $3 - 1;
+    }
+  | ',' tStoreMinZinRegister tINT
+    {
+      PostSubOperation_S.StoreMinZinRegister = $3 - 1;
+    }
+  | ',' tStoreMaxInRegister tINT
+    {
+      PostSubOperation_S.StoreMaxInRegister = $3 - 1;
+    }
+  | ',' tStoreMaxXinRegister tINT
+    {
+      PostSubOperation_S.StoreMaxXinRegister = $3 - 1;
+    }
+  | ',' tStoreMaxYinRegister tINT
+    {
+      PostSubOperation_S.StoreMaxYinRegister = $3 - 1;
+    }
+  | ',' tStoreMaxZinRegister tINT
+    {
+      PostSubOperation_S.StoreMaxZinRegister = $3 - 1;
     }
   | ',' tStoreInField FExpr
     {

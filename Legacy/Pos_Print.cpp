@@ -79,12 +79,82 @@ struct CutEdge {
   struct  Value  *Value ;
 } ;
 
-struct xyzv{
+struct xyzv {
   double x,y,z;
   struct Value v;
   /*int nbvals; for time domain -> malloc Value *v... */
   int nboccurences;
 };
+
+struct ValMinMax {
+  struct Value Val, ValX, ValY, ValZ;
+};
+
+int CompareValue(const Value * valA_P, const Value * valB_P)
+{
+  double cmp=0, VecLengthSquA, VecLengthSquB;
+
+  if (Current.NbrHar != 1)
+    Message::Error("Cannot compare multi-harmonic values");
+
+  switch (valA_P->Type) {
+  case SCALAR:
+    cmp = valA_P->Val[0] - valB_P->Val[0];
+    break;
+  case VECTOR:
+    VecLengthSquA = valA_P->Val[0] * valA_P->Val[0] +
+                    valA_P->Val[1] * valA_P->Val[1] +
+                    valA_P->Val[2] * valA_P->Val[2];
+    VecLengthSquB = valB_P->Val[0] * valB_P->Val[0] +
+                    valB_P->Val[1] * valB_P->Val[1] +
+                    valB_P->Val[2] * valB_P->Val[2];
+    cmp = VecLengthSquA - VecLengthSquB;
+    break;
+  default:
+    Message::Error("Cannot compare values other than SCALAR and VECTOR");
+  }
+  if(cmp > 1.e-16)
+    return 1;
+  else if(cmp < -1.e-16)
+    return -1;
+  else
+    return 0;
+}
+
+void SetValMinMax(struct PostElement *PE_P,
+                  int    iNode,
+                  struct ValMinMax   *ValueMinMax_P)
+{
+  Cal_CopyValue(&PE_P->Value[iNode], &ValueMinMax_P->Val);
+  ValueMinMax_P->ValX.Val[0] = PE_P->x[iNode];
+  ValueMinMax_P->ValY.Val[0] = PE_P->y[iNode];
+  ValueMinMax_P->ValZ.Val[0] = PE_P->z[iNode];
+}
+
+void InitValMinMax(struct ValMinMax   *ValueMinMax_P,
+                   struct PostElement *PE_P)
+{
+  // Init ValueMin and ValueMax
+  ValueMinMax_P->ValX.Type = SCALAR;
+  ValueMinMax_P->ValY.Type = SCALAR;
+  ValueMinMax_P->ValZ.Type = SCALAR;
+  Cal_ZeroValue(&ValueMinMax_P->ValX);
+  Cal_ZeroValue(&ValueMinMax_P->ValY);
+  Cal_ZeroValue(&ValueMinMax_P->ValZ);
+  SetValMinMax(PE_P, 0, ValueMinMax_P);
+}
+
+void EvalMinMax(struct PostElement *PE_P,
+                struct ValMinMax   *ValueMin_P,
+                struct ValMinMax   *ValueMax_P)
+{
+  for(int iNode = 0 ; iNode < PE_P->NbrNodes ; iNode++) {
+    if (CompareValue(&PE_P->Value[iNode], &ValueMin_P->Val) < 0)
+      SetValMinMax(PE_P, iNode, ValueMin_P);
+    if (CompareValue(&PE_P->Value[iNode], &ValueMax_P->Val) > 0)
+      SetValMinMax(PE_P, iNode, ValueMax_P);
+  }
+}
 
 static int fcmp_xyzv(const void * a, const void * b)
 {
@@ -151,11 +221,23 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
   struct PostElement  * PE ;
   struct Value        * CumulativeValues ;
   struct xyzv           xyzv, *xyzv_P ;
+  struct ValMinMax      ValueMin, ValueMax ;
   Tree_T              * xyzv_T ;
   double  * Error=NULL, Dummy[5], d, x1, x2 ;
   int       jj, NbrGeo, iGeo, incGeo, NbrPost=0, iPost ;
   int       NbrTimeStep, iTime, iNode ;
   int       Store = 0, DecomposeInSimplex = 0, Depth ;
+  bool      StoreMinMax, ValueMinMaxInitialized;
+
+  /* Do we have to store min. and max. values? */
+  if (PSO_P->StoreMinInRegister  >= 0 || PSO_P->StoreMaxInRegister >= 0 ||
+      PSO_P->StoreMinXinRegister >= 0 || PSO_P->StoreMaxXinRegister >= 0 ||
+      PSO_P->StoreMinYinRegister >= 0 || PSO_P->StoreMaxYinRegister >= 0 ||
+      PSO_P->StoreMinZinRegister >= 0 || PSO_P->StoreMaxZinRegister >= 0) {
+    StoreMinMax = true;
+  }
+  else
+    StoreMinMax = false;
 
   /* Select the TimeSteps */
 
@@ -305,6 +387,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
   /* Loop on GeoElements */
 
   Message::ResetProgressMeter();
+  ValueMinMaxInitialized = false;
   for(iGeo = 0 ; iGeo < NbrGeo ; iGeo += incGeo) {
 
     if(Store){
@@ -361,6 +444,16 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 		Combine_PostQuantity(PSO_P->CombinationType, Order,
 				     &PE->Value[iNode], &CumulativeValues[iNode]) ;
 	    }
+	    if (StoreMinMax) {
+	      if (!ValueMinMaxInitialized){
+	        // Init ValueMin and ValueMax
+                InitValMinMax(&ValueMin, PE);
+                InitValMinMax(&ValueMax, PE);
+                ValueMinMaxInitialized = true;
+	      }
+	      EvalMinMax(PE, &ValueMin, &ValueMax);
+	    }
+
 	    if(!Store)
 	      Format_PostElement(PSO_P, PSO_P->Iso, 0,
 				 Current.Time, iTime, NbrTimeStep,
@@ -386,10 +479,19 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 	      Cal_PostQuantity(NCPQ_P, DefineQuantity_P0, QuantityStorage_P0,
 			       NULL, &Element,
 			       PE->u[iNode], PE->v[iNode], PE->w[iNode], &PE->Value[iNode]);
-	    if(CPQ_P)
-	      Combine_PostQuantity(PSO_P->CombinationType, Order,
-				   &PE->Value[iNode], &CumulativeValues[iTime]) ;
+              if(CPQ_P)
+                Combine_PostQuantity(PSO_P->CombinationType, Order,
+                                     &PE->Value[iNode], &CumulativeValues[iTime]) ;
 	    }
+	    if (StoreMinMax) {
+              if (!ValueMinMaxInitialized){
+                // Init ValueMin and ValueMax
+                InitValMinMax(&ValueMin, PE);
+                InitValMinMax(&ValueMax, PE);
+                ValueMinMaxInitialized = true;
+              }
+              EvalMinMax(PE, &ValueMin, &ValueMax);
+            }
 
 	    if(!Store)
 	      Format_PostElement(PSO_P, PSO_P->Iso, 0,
@@ -406,6 +508,26 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
     Message::ProgressMeter(iGeo + 1, NbrGeo, "Post-processing (Compute)");
     if(Message::GetErrorCount()) break;
   } /* for iGeo */
+
+  /* Store minimum or maximum value in register */
+  if (StoreMinMax) {
+    if (PSO_P->StoreMinInRegister >= 0)
+      Cal_StoreInRegister(&ValueMin.Val,  PSO_P->StoreMinInRegister) ;
+    if (PSO_P->StoreMinXinRegister >= 0)
+      Cal_StoreInRegister(&ValueMin.ValX, PSO_P->StoreMinXinRegister) ;
+    if (PSO_P->StoreMinYinRegister >= 0)
+      Cal_StoreInRegister(&ValueMin.ValY, PSO_P->StoreMinYinRegister) ;
+    if (PSO_P->StoreMinZinRegister >= 0)
+      Cal_StoreInRegister(&ValueMin.ValZ, PSO_P->StoreMinZinRegister) ;
+    if (PSO_P->StoreMaxInRegister >= 0)
+      Cal_StoreInRegister(&ValueMax.Val, PSO_P->StoreMaxInRegister) ;
+    if (PSO_P->StoreMaxXinRegister >= 0)
+      Cal_StoreInRegister(&ValueMax.Val, PSO_P->StoreMaxXinRegister) ;
+    if (PSO_P->StoreMaxYinRegister >= 0)
+      Cal_StoreInRegister(&ValueMax.Val, PSO_P->StoreMaxYinRegister) ;
+    if (PSO_P->StoreMaxZinRegister >= 0)
+      Cal_StoreInRegister(&ValueMax.Val, PSO_P->StoreMaxZinRegister) ;
+  }
 
   /* Perform Smoothing */
 

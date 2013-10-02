@@ -4699,6 +4699,25 @@ tetrahedra).
 Stores the result of an @code{OnRegion} post-processing operation in the
 register @var{expression-cst}.
 
+@item StoreMinInRegister
+@item StoreMaxInRegister
+@code{@var{expression-cst}}
+
+Stores the minimum or maximum value of an @code{OnElementsOf} post-processing
+operation in the register @var{expression-cst}.
+
+@item StoreMinXinRegister
+@item StoreMinYinRegister
+@item StoreMinZinRegister
+@item StoreMaxXinRegister
+@item StoreMaxYinRegister
+@item StoreMaxZinRegister
+@code{@var{expression-cst}}
+
+Stores the X, Y or Z coordinate of the location, where the minimum or maximum
+of an @code{OnElementsOf} post-processing operation occurs, in the register
+@var{expression-cst}.
+
 @item StoreInField
 @code{@var{expression-cst}}
 
