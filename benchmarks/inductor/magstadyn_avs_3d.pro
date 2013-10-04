@@ -302,7 +302,6 @@ Resolution {
       CreateDir["res3d/"] ;
 
       InitSolution[Sys] ;
-      PostOperation[Get_Analytical] ; // Values from magnetic circuit
 
       If(Flag_AnalysisType==0 || Flag_AnalysisType==2)
         If(!Flag_NL)
@@ -391,11 +390,6 @@ PostProcessing {
           Term { [ {I} ]   ; In Surf_elec ; }
           Term { [ {Ib} ]  ; In DomainB ; } } }
 
-      For k In {0:NbAvailableMagCircuits-1}
-        { Name Reluctance~{k} ; Value { Term { Type Global; [ Reluctance~{k}[] ] ; In DomainDummy ; } } }
-        { Name Inductance~{k} ; Value { Term { Type Global; [ Inductance~{k}[] ] ; In DomainDummy ; } } }
-      EndFor
-
     { Name Inductance_from_Flux ; Value { Term { Type Global; [ #11*1e3/II ] ; In DomainDummy ; } } } // Flux stored in register #11
     { Name Inductance_from_MagEnergy ; Value { Term { Type Global; [ 2*#22*1e3/(II*II) ] ; In DomainDummy ; } } } // MagEnergy stored in register #22
 
@@ -408,16 +402,6 @@ PostProcessing {
    Print[ js, OnElementsOf DomainB, File StrCat[Dir, StrCat["js",ExtGmsh]], LastTimeStepOnly ] ;
    //Print[ hs, OnElementsOf DomainB, File StrCat[Dir, StrCat["hs",ExtGmsh]], LastTimeStepOnly ] ;
    Print[ b, OnElementsOf Domain, File StrCat[Dir, StrCat["b",ExtGmsh]], LastTimeStepOnly ] ;
- }
-
- PostOperation Get_Analytical UsingPost MagStaDyn_a_3D {
-   For k In {0:NbAvailableMagCircuits-1}
-     Print[ Reluctance~{k}, OnRegion DomainDummy, Format Table, LastTimeStepOnly,
-       File StrCat[Dir, StrCat[Sprintf("Reluctance%g",k),ExtGnuplot]] ];
-     Print[ Inductance~{k}, OnRegion DomainDummy, Format Table, LastTimeStepOnly,
-       File StrCat[Dir, StrCat[Sprintf("Inductance%g",k),ExtGnuplot]],
-       SendToServer StrCat[po,Sprintf("6%gInductance Magnetic Circuit %g [mH]", k, k)], Color "LightYellow" ];
-   EndFor
  }
 
  PostOperation Get_GlobalQuantities UsingPost MagStaDyn_a_3D {

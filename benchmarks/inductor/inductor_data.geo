@@ -73,50 +73,6 @@ sigma_al = 3.72e7 ; // conductivity of aluminum [S/m]
 sigma_cu = 5.77e7  ; // conductivity of copper [S/m]
 
 
-//-------------------------------------------------------------------------
-// Reluctance computation - magnetic circuit values obtained from geo
-//-------------------------------------------------------------------------
-mu0 = 4.e-7 * Pi ;
-
-// Simplified magnetic circuit taking only air gap reluctances into account
-
-ff = 2.; // fringing factor \in [1,2]: core cross section increased by a fraction of the air gap on each side
-//Rm_c_ref= 4.381e5; // just for checking
-//Printf("fringing factor = %g",(ag/(Rm_c_ref*mu0*Lz)-wcoreE_centralleg)/ag);
-
-Rm_c = ag/(mu0*(wcoreE_centralleg+ff*ag)*Lz) ; // center leg
-Rm_s = ag/(mu0*(wcoreE+ff*ag)*Lz) ; // side legs
-Rm_0 = Rm_c + Rm_s/2 ;
-L_0 = Nw^2*1e3/Rm_0;
-Printf("Rm1 = %.4e [H^-1]; Rm2 = %.4e [H^-1]; Rm = %.4e [H^-1];", Rm_c, Rm_s, Rm_0);
-Printf("L0 = %g [mH];", L_0);
-
-// Improved magnetic circuit of the inductor taking leakage flux into account
-Rm_lf =  3*wcoreE/(mu0*hcoil*Lz) ; // leakage flux
-iRm_1 = 1/Rm_0 + 1/(Rm_lf/2) ;
-Rm_1 = 1/iRm_1 ;
-L_1 = Nw^2*1e3/Rm_1;
-Printf("Rm3 = %.4e [H^-1]; Rm = %.4e [H^-1];", Rm_lf, Rm_1);
-Printf("L1 = %g [mH];", L_1);
-
-// Fringing effect based on the Carter factor
-
-beta = wcoil/(2*ag);
-lambda = 3*wcoil ; // slot pitch
-alpha = 4/Pi*(beta*Atan[beta]-Log[Sqrt[1+beta^2]]);
-
-kc = lambda/(lambda-alpha*ag) ; // Carter factor
-kf = beta-alpha/2; // Correction factor of the cross-section of the airgap
-Printf("kc=%g kf=%g", kc, kf);
-
-Rmc_c = ag/(mu0*(wcoreE_centralleg+kf*ag)*Lz) ; // center leg
-Rmc_s = ag/(mu0*(wcoreE+kf*ag)*Lz) ; // side legs
-Rmc_0 = Rmc_c + Rmc_s/2 ;
-
-iRm_2 = 1/Rmc_0 + 1/(Rm_lf/2) ;
-Rm_2 = 1/iRm_2 ;
-
-NbAvailableMagCircuits = 3;
 // ----------------------------------------------------
 // Numbers for physical regions in .geo and .pro files
 // ----------------------------------------------------
@@ -144,8 +100,3 @@ SURF_AIROUT = 3333;
 AXIS_Y = 10000;
 CUT_YZ = 11000;
 CUT_XY = 12000;
-
-
-
-
-
