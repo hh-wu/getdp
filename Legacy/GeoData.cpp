@@ -194,12 +194,12 @@ int Geo_GetElementType(int Format, int Type)
     case 13 : return(PRISM_2) ;
     case 14 : return(PYRAMID_2) ;
     case 16 : return(QUADRANGLE_2_8N) ;
-    default : Message::Error("Unkown type of Element in Gmsh format (%d)",
+    default : Message::Error("Unknown type of Element in Gmsh format (%d)",
                              FORMAT_GMSH) ; return(-1) ;
     }
     break ;
   default :
-    Message::Error("Unkown mesh format (%d)", Format) ;
+    Message::Error("Unknown mesh format (%d)", Format) ;
     return(-1) ;
   }
 }
@@ -225,11 +225,11 @@ int Geo_GetElementTypeInv(int Format, int Type)
     case PRISM_2       : return(13) ;
     case PYRAMID_2     : return(14) ;
     case QUADRANGLE_2_8N: return(16) ;
-    default : Message::Error("Unkown type of Element in Gmsh format") ; return(-1) ;
+    default : Message::Error("Unknown type of Element in Gmsh format") ; return(-1) ;
     }
     break ;
   default :
-    Message::Error("Unkown mesh format") ;
+    Message::Error("Unknown mesh format") ;
     return(-1) ;
   }
 
@@ -254,7 +254,7 @@ int Geo_GetNbNodesPerElement(int Type)
   case PRISM_2       : return(15) ;
   case PYRAMID_2     : return(13) ;
   case QUADRANGLE_2_8N: return(8) ;
-  default : Message::Error("Unkown type of Element") ; return(-1) ;
+  default : Message::Error("Unknown type of Element") ; return(-1) ;
   }
 }
 
@@ -534,7 +534,7 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
 
     do {
       fgets(String, sizeof(String), File_GEO) ;
-      if (feof(File_GEO)){ Message::Error("Prematured end of file"); return; }
+      if (feof(File_GEO)){ Message::Error("Premature end of file"); return; }
     } while (String[0] != '$') ;
 
   }   /* while 1 ... */
@@ -586,7 +586,7 @@ void Geo_ReadFileAdapt(struct GeoData * GeoData_P)
 
     do {
       fgets(String, sizeof(String), File_GEO) ;
-      if (feof(File_GEO)){ Message::Error("Prematured end of file"); break; }
+      if (feof(File_GEO)){ Message::Error("Premature end of file"); break; }
     } while (String[0] != '$') ;
 
   }   /* while 1 ... */
