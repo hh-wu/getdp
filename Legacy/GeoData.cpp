@@ -51,7 +51,7 @@ int Geo_AddGeoData(List_T * GeoData_L,
     Message::Info("Loading Geometric data '%s'", Name_MshFile) ;
     i = List_Nbr(GeoData_L) ;
     Geo_InitGeoData(&GeoData_S, i, Name_MshFile) ;
-    Geo_OpenFile(Name_MshFile, "r") ;
+    Geo_OpenFile(Name_MshFile, "rb") ;
     Geo_ReadFile(&GeoData_S) ;
     Geo_CloseFile() ;
 
