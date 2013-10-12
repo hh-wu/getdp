@@ -94,8 +94,9 @@ int CompareValue(const Value * valA_P, const Value * valB_P)
 {
   double cmp=0, VecLengthSquA, VecLengthSquB;
 
-  if (Current.NbrHar != 1)
-    Message::Error("Cannot compare multi-harmonic values");
+  //if (Current.NbrHar != 1)
+  //  Message::Error("Cannot compare multi-harmonic values");
+  // -> we compare the real part in this case
 
   switch (valA_P->Type) {
   case SCALAR:
@@ -1102,6 +1103,17 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
     Current.z = PSO_P->Case.OnGrid.z[0] ;
     Normal[0] = Normal[1] = Normal[2] = 0.0 ;
     LETS_PRINT_THE_RESULT ;
+
+    if (PSO_P->StoreInRegister >= 0)
+      Cal_StoreInRegister(&PE->Value[0], PSO_P->StoreInRegister) ;
+    if (PSO_P->SendToServer &&
+        strcmp(PSO_P->SendToServer, "No")){
+      if(PE->Value[0].Type == SCALAR)
+        Message::AddOnelabNumberChoice(PSO_P->SendToServer,
+                                       PE->Value[0].Val[0], PSO_P->Color);
+      else if(Message::UseOnelab())
+        Message::Warning("Cannot send non-scalar values to server (yet)");
+    }
     break;
 
   case PRINT_ONGRID_1D :
