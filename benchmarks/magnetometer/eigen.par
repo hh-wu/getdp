@@ -1,0 +1,14 @@
+0.0001
+0
+50
+/*
+   The numbers above are the parameters for the numerical
+   eigenvalue problem:
+
+   prec = aimed accuracy for eigenvectors (default=1.e-4)
+   reortho = reorthogonalisation of Krylov basis: yes=1, no=0 (default=0) 
+   size = size of the Krylov basis
+
+   The shift is given in the .pro file because its choice relies
+   on physical considerations.
+*/
