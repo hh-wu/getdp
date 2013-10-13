@@ -95,10 +95,12 @@ void EigenPar(const char *filename, struct EigenPar *par)
   else{
     fp = FOpen(path, "w");
     if(fp){
-      /* get parameters from command line */
-      EigenGetDouble("Precision", &par->prec);
-      EigenGetInt("Reorthogonalization", &par->reortho);
-      EigenGetInt("Krylov basis size", &par->size);
+      if(!Message::UseOnelab()){
+        /* get parameters from command line */
+        EigenGetDouble("Precision", &par->prec);
+        EigenGetInt("Reorthogonalization", &par->reortho);
+        EigenGetInt("Krylov basis size", &par->size);
+      }
       /* write file */
       fprintf(fp, "%.16g\n", par->prec);
       fprintf(fp, "%d\n", par->reortho);
