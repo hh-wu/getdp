@@ -116,6 +116,7 @@ PostProcessing {
       { Name b   ; Value { Local { [ - mu[] * {d phi} ] ; In Domain ; Jacobian JVol ; }
                            Local { [ - mu[] * hc[] ]    ; In Domain_M ; Jacobian JVol ; } } }
       { Name h   ; Value { Local { [ - {d phi} ]        ; In Domain ; Jacobian JVol ; } } }
+      { Name hc  ; Value { Local { [ hc[] ]             ; In Domain_M ; Jacobian JVol ; } } }
       { Name phi ; Value { Local { [ {phi} ]            ; In Domain ; Jacobian JVol ; } } }
     }
   }
@@ -126,6 +127,7 @@ PostOperation {
     Operation {
       Print[ b, OnElementsOf Domain, File "MagSta_phi_b.pos" ] ;
       Print[ h, OnElementsOf Domain, File "MagSta_phi_h.pos" ] ;
+      Print[ hc, OnElementsOf Domain, File "MagSta_a_hc.pos" ] ;
       Print[ phi, OnElementsOf Domain, File "MagSta_phi_phi.pos" ] ;
     }
   }
@@ -189,11 +191,12 @@ Resolution {
 PostProcessing {
   { Name MagSta_a ; NameOfFormulation MagSta_a ;
     Quantity {
-      { Name a ; Value { Local { [ CompZ[{a}] ]   ; In Domain ; Jacobian JVol ; } } }
+      { Name az ; Value { Local { [ CompZ[{a}] ]   ; In Domain ; Jacobian JVol ; } } }
       { Name b ; Value { Local { [ {d a} ]        ; In Domain ; Jacobian JVol ; } } }
       { Name a ; Value { Local { [ {a} ]          ; In Domain ; Jacobian JVol ; } } }
       { Name h ; Value { Local { [ nu[] * {d a} ] ; In Domain ; Jacobian JVol ; }
                          Local { [ hc[] ]         ; In Domain_M ; Jacobian JVol ; } } }
+      { Name hc  ; Value { Local { [ hc[] ]       ; In Domain_M ; Jacobian JVol ; } } }
     }
   }
 }
@@ -203,6 +206,7 @@ PostOperation {
     Operation {
       Print[ b, OnElementsOf Domain, File "MagSta_a_b.pos" ] ;
       Print[ h, OnElementsOf Domain, File "MagSta_a_h.pos" ] ;
+      Print[ hc, OnElementsOf Domain, File "MagSta_a_hc.pos" ] ;
       Print[ a, OnElementsOf Domain, File "MagSta_a_a.pos" ] ;
     }
   }

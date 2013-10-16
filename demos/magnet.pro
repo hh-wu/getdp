@@ -41,7 +41,7 @@ Function {
 
   DefineConstant[ Hc = {920000, Label "Magnet coercive field (A/m)",
                         Path "Parameters/Materials"} ];
-  hc [ Magnet ] = Vector[0., Hc, 0.] ;
+  hc [ Magnet ] = Rotate[ Vector[Hc, 0, 0.], 0, 0, Pi/2] ;
 }
 
 Include "Magnetostatics.pro"
@@ -52,6 +52,7 @@ PostOperation {
   { Name phi ; NameOfPostProcessing MagSta_phi;
     Operation {
       Print[ phi, OnElementsOf Domain, File "phi.pos" ] ;
+      Print[ hc, OnElementsOf Domain, File "hc.pos" ] ;
       Print[ b, OnElementsOf Domain, File "b_phi.pos" ] ;
       Print[ b, OnLine {{-0.07,eps,0}{0.09,eps,0}} {500}, File "b_phi.txt", Format Table ] ;
     }
