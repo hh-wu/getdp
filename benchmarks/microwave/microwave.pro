@@ -147,7 +147,6 @@ PostProcessing {
   }
 }
 
-
 PostOperation {
   { Name Microwave_e ; NameOfPostProcessing Microwave_e ;
     Operation {
@@ -158,6 +157,18 @@ PostOperation {
     }
   }
 }
+
+/*
+PostOperation Get_ShieldingEffectiveness UsingPost Microwave_e {
+  Print[ SE, OnPoint {0,0,0}, File StrCat[myDir, "SE.pos"] ] ;
+}
+
+PostOperation Get_Fields UsingPost Microwave_e {
+  Print[ eScatt, OnElementsOf Region[{Domain}], File StrCat[myDir, "eScatt.pos"] ] ;
+  Print[ eTot, OnElementsOf Region[{Domain}], File StrCat[myDir, "eTot.pos"] ] ;
+  Print[ eInc, OnElementsOf Region[{Domain}], File StrCat[myDir, "eInc.pos"] ] ;
+}
+*/
 
 DefineConstant[
   ResolutionChoices    = {"Analysis", Path "GetDP/1", Visible 0},
