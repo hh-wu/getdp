@@ -157,7 +157,7 @@ struct doubleXstring{
 %type <l>  IRegion RecursiveListOfRegion Enumeration
 %type <i>  StrCmp NbrRegions CommaFExprOrNothing
 %type <d>  FExpr OneFExpr
-%type <l>  MultiFExpr ListOfFExpr RecursiveListOfFExpr RecursiveListOfListOfFExpr
+%type <l>  MultiFExpr ListOfFExpr RecursiveListOfFExpr
 %type <l>  RecursiveListOfCharExpr ParametersForFunction
 %type <l>  ListOfRegion ListOfRegionOrAll SuppListOfRegion
 %type <l>  ConstraintCases IntegrationCases QuadratureCases JacobianCases
@@ -171,7 +171,6 @@ struct doubleXstring{
 %type <l>  PostQuantities SubPostQuantities PostSubOperations
 %type <c>  NameForMathFunction NameForFunction CharExpr CharExprNoVar
 %type <c>  StrCat StringIndex String__Index
-%type <l>  RecursiveListOfString__Index
 %type <t>  Quantity_Def
 %type <l>  TimeLoopAdaptiveSystems TimeLoopAdaptivePOs IterativeLoopSystems IterativeLoopPOs
 
@@ -275,7 +274,7 @@ struct doubleXstring{
 %token        tTimeLegend tFrequencyLegend tEigenvalueLegend
 %token        tEvaluationPoints tStoreInRegister tStoreInField
 %token        tStoreMaxInRegister tStoreMaxXinRegister tStoreMaxYinRegister
-%token        tStoreMaxZinRegister tStoreMinInRegister tStoreMinXinRegister 
+%token        tStoreMaxZinRegister tStoreMinInRegister tStoreMinXinRegister
 %token        tStoreMinYinRegister tStoreMinZinRegister
 %token        tLastTimeStepOnly tAppendTimeStepToFileName
 %token        tOverrideTimeStepValue tNoMesh tSendToServer tColor tStr tDate
@@ -4896,44 +4895,6 @@ OperationTerm :
       }
     }
 
-    // FIXME: Roman
-  | tTensorProductSolve '[' '{' RecursiveListOfString__Index '}' ','
-                            '{' RecursiveListOfString__Index '}' ','
-                            ListOfFExpr ','
-                            '{' RecursiveListOfListOfFExpr '}' ']'  tEND
-    {
-      Operation_P = (struct Operation*)
-	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
-
-      Operation_P->Case.TensorProductSolve.SystemIndex = List_Create(4, 4, sizeof(int));
-      for(int j = 0; j < List_Nbr($4); j++){
-	char *sys;
-	List_Read($4, j, &sys);
-	int i;
-	if((i = List_ISearchSeq(Resolution_S.DefineSystem, sys,
-				fcmp_DefineSystem_Name)) < 0)
-	  vyyerror("Unknown System: %s", sys);
-	Free(sys);
-	List_Add(Operation_P->Case.TensorProductSolve.SystemIndex, &i);
-      }
-      List_Delete($4);
-      Operation_P->Case.TensorProductSolve.ExpectationIndex = List_Create(4, 4, sizeof(int));
-      for(int j = 0; j < List_Nbr($8); j++){
-	char *sys;
-	List_Read($8, j, &sys);
-	int i;
-	if((i = List_ISearchSeq(Resolution_S.DefineSystem, sys,
-				fcmp_DefineSystem_Name)) < 0)
-	  vyyerror("Unknown System: %s", sys);
-	Free(sys);
-	List_Add(Operation_P->Case.TensorProductSolve.ExpectationIndex, &i);
-      }
-      List_Delete($8);
-      Operation_P->Case.TensorProductSolve.LocalMatrixIndex = $11;
-      Operation_P->Case.TensorProductSolve.ExpansionCoef = $14;
-      Operation_P->Type = OPERATION_TENSORPRODUCTSOLVE;
-    }
-
   | Loop
     {
       Operation_P = (struct Operation*)
@@ -7275,20 +7236,6 @@ RecursiveListOfFExpr :
     }
  ;
 
-RecursiveListOfListOfFExpr :
-
-    ListOfFExpr
-    {
-      $$ = List_Create(2, 1, sizeof(List_T*));
-      List_Add($$, &($1));
-    }
-
-  | RecursiveListOfListOfFExpr ',' ListOfFExpr
-    {
-      List_Add($$, &($3));
-    }
-;
-
 MultiFExpr :
 
     '-' MultiFExpr %prec UNARYPREC
@@ -7596,18 +7543,6 @@ String__Index :
   | StringIndex
     { $$ = $1; }
 
- ;
-
-RecursiveListOfString__Index :
-
-    String__Index
-    {
-      $$ = List_Create(20,20,sizeof(char*));
-      List_Add($$, &($1));
-    }
-
-  | RecursiveListOfString__Index ',' String__Index
-    { List_Add($$, &($3)); }
  ;
 
 CharExprNoVar :

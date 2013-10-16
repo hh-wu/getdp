@@ -1127,7 +1127,7 @@ struct IterativeLoopSystem {
 #define OPERATION_INITCORRECTION           82
 #define OPERATION_MULTIPLYSOLUTION         83
 #define OPERATION_ADDOPPOSITEFULLSOLUTION  84
-#define OPERATION_TENSORPRODUCTSOLVE       85
+#define OPERATION_APPLY                    85
 
 #define OPERATION_SAVESOLUTION             10
 #define OPERATION_SAVESOLUTIONS            11

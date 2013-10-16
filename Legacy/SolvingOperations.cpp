@@ -934,6 +934,20 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	 &DofData_P->CurrentSolution->x) ;
       break ;
 
+      /*  -->  A p p l y                              */
+      /*  ------------------------------------------  */
+    case OPERATION_APPLY :
+      {
+        /*  Compute : x <- A x  */
+        Init_OperationOnSystem("Apply",
+                               Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+                               &DefineSystem_P, &DofData_P, Resolution2_P) ;
+        LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x,
+                                &DofData_P->CurrentSolution->x);
+        Flag_CPU = 1 ;
+      }
+      break ;
+
       /*  -->  S o l v e                              */
       /*  ------------------------------------------  */
     case OPERATION_SOLVEAGAINWITHOTHER :
