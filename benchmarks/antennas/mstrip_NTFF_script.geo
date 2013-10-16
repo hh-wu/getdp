@@ -20,7 +20,7 @@ Plugin(CutBox).Run ;
 Plugin(CutBox).View = HViewNb ;
 Plugin(CutBox).Run ;
 
-Save View[PostProcessing.NbViews-1] "res3d/e_box.msh";
+Save View[PostProcessing.NbViews-2] "res3d/e_box.msh";
 Save View[PostProcessing.NbViews-1] "res3d/h_box.msh";
 
 Plugin(NearToFarField).Wavenumber = k0 ;
