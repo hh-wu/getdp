@@ -104,7 +104,7 @@ Formulation {
         In DomCond; Integration I1; Jacobian JVol;  }
       Galerkin { DtDtDof [ epsilon[] * Dof{e} , {e} ];
         In Domain; Integration I1; Jacobian JVol;  }
-      
+
       If(Flag_SilverMuller)
         Galerkin { [ I[] * k0 * nu[] * ( Normal[] /\ Dof{e} ) /\ Normal[] , {e} ];
           In SurSM; Integration I1; Jacobian JSur;  }
@@ -172,6 +172,6 @@ PostOperation Get_Fields UsingPost Microwave_e {
 
 DefineConstant[
   ResolutionChoices    = {"Analysis", Path "GetDP/1", Visible 0},
-  ComputeCommand       = {"-solve -v 3 -v2", Path "GetDP/9", Visible 0},
+  ComputeCommand       = {"-solve -v2", Path "GetDP/9", Visible 0},
   PostOperationChoices = {"", Path "GetDP/2", Visible 0}
 ];
