@@ -8,23 +8,23 @@ Group {
     DomAir = Region[{ CAVITY_VOL, LAYER1 }];
     DomPml = Region[{ }];
     DomCond = Region[{ }];
-    SurBC = Region[{ CAVITY_BORDER }] ;
-    SurPEC = Region[{ }] ;
-    SurSM = Region[{ BORDER }] ;
+    BndBC = Region[{ CAVITY_BORDER }] ;
+    BndPEC = Region[{ }] ;
+    BndSM = Region[{ BORDER }] ;
   EndIf
   
   If(Flag_PML)
     DomAir = Region[{ CAVITY_VOL }];
     DomPml = Region[{ LAYER1 }];
     DomCond = Region[{ }];
-    SurBC = Region[{ CAVITY_BORDER }] ;
-    SurPEC = Region[{ BORDER }] ;
-    SurSM = Region[{ }] ;
+    BndBC = Region[{ CAVITY_BORDER }] ;
+    BndPEC = Region[{ BORDER }] ;
+    BndSM = Region[{ }] ;
   EndIf
   
-  Surface   = Region[{ SurBC, SurPEC, SurSM }] ;
+  Boundary  = Region[{ BndBC, BndPEC, BndSM }] ;
   Domain    = Region[{ DomAir, DomPml, DomCond }] ;
-  DomainTot = Region[{ Domain, Surface }] ;
+  DomainTot = Region[{ Domain, Boundary }] ;
 }
 
 Function {
@@ -32,8 +32,8 @@ Function {
   nu0 = 1/mu0 ;
   ep0 = 8.854187817e-12 ;
   
-  epsilon [ #{DomAir, DomCond, Surface} ] = ep0 ;
-  nu [ #{DomAir, DomCond, Surface} ] = nu0 ;
+  epsilon [ #{DomAir, DomCond, Boundary} ] = ep0 ;
+  nu [ #{DomAir, DomCond, Boundary} ] = nu0 ;
   sigma[ DomCond ] = 0. ;
   
   I[] = Complex[0,1] ;
@@ -43,9 +43,9 @@ Function {
     yLoc[] = Fabs[Y[]]-Ly/2;
     zLoc[] = Fabs[Z[]]-Lz/2;
     PmlDelta = Llayer1;
-    DampingProfileX[] = (xLoc[]>=0) ? 1 / (PmlDelta-xLoc[]) : 0 ;
-    DampingProfileY[] = (yLoc[]>=0) ? 1 / (PmlDelta-yLoc[]) : 0 ;
-    DampingProfileZ[] = (zLoc[]>=0) ? 1 / (PmlDelta-zLoc[]) : 0 ;
+    DampingProfileX[] = (xLoc[]>0) ? 1 / (PmlDelta-xLoc[]) : 0 ;
+    DampingProfileY[] = (yLoc[]>0) ? 1 / (PmlDelta-yLoc[]) : 0 ;
+    DampingProfileZ[] = (zLoc[]>0) ? 1 / (PmlDelta-zLoc[]) : 0 ;
 
     cX[] = Complex[1,-DampingProfileX[]/k0] ;
     cY[] = Complex[1,-DampingProfileY[]/k0] ;
@@ -60,7 +60,12 @@ Function {
     nu[ DomPml ] = nu0 / tens[] ;
   EndIf
 
-  eInc[] = Vector[0,Complex[Cos[k0*Z[]],Sin[k0*Z[]]],0];
+  If(Flag_Model==2)
+    eInc[] = Vector[0,0,Complex[Cos[k0*X[]],Sin[k0*X[]]]];
+  EndIf
+  If(Flag_Model==3)
+    eInc[] = Vector[0,Complex[Cos[k0*Z[]],Sin[k0*Z[]]],0];
+  EndIf
 }
 
-Include "Microwave.pro"
+Include "microwave.pro"

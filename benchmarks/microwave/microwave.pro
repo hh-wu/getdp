@@ -1,11 +1,19 @@
 ExtGnuplot = ".dat";
 ExtGmsh = ".pos";
 myDir = "output/";
+po = "Output/";
+
+
+/*
+DefineConstant[
+  SE_output = { "", Label "Shielding Effectiveness", Path StrCat(po,"0"), Highlight Str[colorpp]}
+];
+*/
 
 
 Group{
   DefineGroup[ Domain, DomAir, DomCond, DomPml, DomainTot ] ;
-  DefineGroup[ Surface, SurBC, SurPEC, SurSM ] ;
+  DefineGroup[ Boundary, BndBC, BndPEC, BndSM ] ;
 }
 
 Function{
@@ -60,17 +68,29 @@ Integration {
 Constraint {
   { Name ElectricField ;
     Case {
-      { Region SurBC ; Type AssignFromResolution ; NameOfResolution Microwave_e_BC ; }
-      { Region SurPEC ; Type Assign ; Value 0. ; }
+      If(Flag_Model==2)
+        { Region BndBC ; Type Assign ; Value -CompZ[eInc[]] ; }
+      EndIf
+      If(Flag_Model==3)
+        { Region BndBC ; Type AssignFromResolution ; NameOfResolution Microwave_e_BC ; }
+      EndIf
+      { Region BndPEC ; Type Assign ; Value 0. ; }
     }
   }
 }
 
 FunctionSpace {
-  { Name Hcurl_e; Type Form1;
+  { Name Hcurl_e_2D; Type Form1P;
     BasisFunction {
-      { Name se; NameOfCoef ee; Function BF_Edge;
-        Support DomainTot ; Entity EdgesOf[All]; }
+      { Name sn; NameOfCoef en; Function BF_PerpendicularEdge; Support DomainTot; Entity NodesOf[All]; }
+    }
+    Constraint {
+      { NameOfCoef en; EntityType EdgesOf ; NameOfConstraint ElectricField; }
+    }
+  }
+  { Name Hcurl_e_3D; Type Form1;
+    BasisFunction {
+      { Name se; NameOfCoef ee; Function BF_Edge; Support DomainTot ; Entity EdgesOf[All]; }
     }
     Constraint {
       { NameOfCoef ee; EntityType EdgesOf ; NameOfConstraint ElectricField; }
@@ -82,33 +102,35 @@ Formulation {
   // Imposing the source: circulation of e on edges
   { Name Microwave_e_BC ;
     Quantity {
-      { Name e; Type Local; NameOfSpace Hcurl_e; }
+      { Name e; Type Local; NameOfSpace Hcurl_e_3D; }
     }
     Equation {
       Galerkin { [ Dof{e} , {e} ];
-        In SurBC; Integration I2; Jacobian JSur;  }
+        In BndBC; Integration I2; Jacobian JSur;  }
       Galerkin { [ eInc[] , {e} ];
-        In SurBC; Integration I2; Jacobian JSur;  }
+        In BndBC; Integration I2; Jacobian JSur;  }
     }
   }
 
   // Electric field formulation
   { Name Microwave_e ; Type FemEquation;
     Quantity {
-      { Name e; Type Local; NameOfSpace Hcurl_e; }
+      If(Flag_Model==2)
+        { Name e; Type Local; NameOfSpace Hcurl_e_2D; }
+      EndIf
+      If(Flag_Model==3)
+        { Name e; Type Local; NameOfSpace Hcurl_e_3D; }
+      EndIf
     }
     Equation {
       Galerkin { [ nu[] * Dof{d e} , {d e} ];
-        In Domain; Integration I1; Jacobian JVol;  }
+        In Domain; Integration I1; Jacobian JVol; }
       Galerkin { DtDof [ sigma[] * Dof{e} , {e} ];
-        In DomCond; Integration I1; Jacobian JVol;  }
+        In DomCond; Integration I1; Jacobian JVol; }
       Galerkin { DtDtDof [ epsilon[] * Dof{e} , {e} ];
-        In Domain; Integration I1; Jacobian JVol;  }
-
-      If(Flag_SilverMuller)
-        Galerkin { [ I[] * k0 * nu[] * ( Normal[] /\ Dof{e} ) /\ Normal[] , {e} ];
-          In SurSM; Integration I1; Jacobian JSur;  }
-      EndIf
+        In Domain; Integration I1; Jacobian JVol; }
+      Galerkin { [ I[] * k0 * nu[] * ( Normal[] /\ Dof{e} ) /\ Normal[] , {e} ];
+        In BndSM; Integration I1; Jacobian JSur; }
     }
   }
 }
@@ -150,10 +172,11 @@ PostProcessing {
 PostOperation {
   { Name Microwave_e ; NameOfPostProcessing Microwave_e ;
     Operation {
-      Print[ eScatt, OnElementsOf Region[{Domain}], File StrCat[myDir, "eScatt.pos"] ] ;
+      Print[ eScatt, OnElementsOf Region[{BndBC}], File StrCat[myDir, "eScatt.pos"] ] ;
       Print[ eTot, OnElementsOf Region[{Domain}], File StrCat[myDir, "eTot.pos"] ] ;
       Print[ eInc, OnElementsOf Region[{Domain}], File StrCat[myDir, "eInc.pos"] ] ;
       Print[ SE, OnPoint {0,0,0}, File StrCat[myDir, "SE.pos"] ] ;
+      //Print[ SE, OnPoint {0,0,0}, Format Table, File StrCat[myDir, StrCat["temp",ExtGnuplot]], SendToServer StrCat(po,"0")];
     }
   }
 }

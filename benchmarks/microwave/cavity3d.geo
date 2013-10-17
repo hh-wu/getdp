@@ -1,5 +1,5 @@
 Mesh.Optimize = 1;
-Mesh.CharacteristicLengthMax = 0.01 ;
+Mesh.CharacteristicLengthMax = 0.02 ;
 
 /*
 Lx = 0.3;
