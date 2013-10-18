@@ -39,7 +39,10 @@ NbrSectTotStator  = 24; // number of stator teeth
 NbrSectStator   = NbrSectTotStator*NbrPoles/NbrPolesTot; // number of stator teeth in FE model
 //--------------------------------------------------------------------------------
 
-lm = 2.352*mm ; // magnet height
+DefineConstant[
+  lm = {2.352*mm , Label "Magnet height [m]", Path Str[pp], Closed 1}
+];
+
 Th_magnet = 32.67 *deg2rad ;  // angle in degrees 0 < Th_magnet < 45
 
 //--------------------------------------------------------------------------------
