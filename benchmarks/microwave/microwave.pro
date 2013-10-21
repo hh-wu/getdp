@@ -152,7 +152,7 @@ Resolution {
     Operation {
       CreateDir[Str[myDir]];
       Generate A; Solve A; SaveSolution A;
-      PostOperation[Microwave_e];
+      //PostOperation[Microwave_e];
     }
   }
 }
@@ -170,11 +170,15 @@ PostProcessing {
 }
 
 PostOperation {
-  { Name Microwave_e ; NameOfPostProcessing Microwave_e ;
+  { Name Get_Fields ; NameOfPostProcessing Microwave_e ;
     Operation {
       Print[ eScatt, OnElementsOf Region[{BndBC}], File StrCat[myDir, "eScatt.pos"] ] ;
       Print[ eTot, OnElementsOf Region[{Domain}], File StrCat[myDir, "eTot.pos"] ] ;
       Print[ eInc, OnElementsOf Region[{Domain}], File StrCat[myDir, "eInc.pos"] ] ;
+    }
+  }
+  { Name Get_ShieldingEffectiveness ; NameOfPostProcessing Microwave_e ;
+    Operation {
       //Print[ SE, OnPoint {0,0,0}, File StrCat[myDir, "SE.pos"] ] ;
       Print[ SE, OnPoint {0,0,0}, Format Table, File StrCat[myDir, StrCat["temp",ExtGnuplot]],
         SendToServer StrCat(po,"0Shielding effectiveness [dB]")];
@@ -182,20 +186,10 @@ PostOperation {
   }
 }
 
-/*
-PostOperation Get_ShieldingEffectiveness UsingPost Microwave_e {
-  Print[ SE, OnPoint {0,0,0}, File StrCat[myDir, "SE.pos"] ] ;
-}
-
-PostOperation Get_Fields UsingPost Microwave_e {
-  Print[ eScatt, OnElementsOf Region[{Domain}], File StrCat[myDir, "eScatt.pos"] ] ;
-  Print[ eTot, OnElementsOf Region[{Domain}], File StrCat[myDir, "eTot.pos"] ] ;
-  Print[ eInc, OnElementsOf Region[{Domain}], File StrCat[myDir, "eInc.pos"] ] ;
-}
-*/
-
 DefineConstant[
   ResolutionChoices    = {"Analysis", Path "GetDP/1", Visible 0},
-  ComputeCommand       = {"-solve -v2", Path "GetDP/9", Visible 0},
-  PostOperationChoices = {"", Path "GetDP/2", Visible 0}
+  ComputeCommand       = {"-solve -pos -v2", Path "GetDP/9", Visible 0},
+  mypostop = {"Get_Fields,Get_ShieldingEffectiveness",
+    Choices{"Get_Fields", "Get_ShieldingEffectiveness"}, MultipleSelection "11", Path "Input/Mes choix"},
+  PostOperationChoices = { Str[mypostop], Path "GetDP/2", Visible 0, ReadOnly 1}
 ];
