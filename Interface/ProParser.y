@@ -6996,7 +6996,7 @@ DefineConstants :
 	Tree_Replace(ConstantTable_L, &Constant_S);
       }
     }
-  | DefineConstants Comma String__Index tDEF tBIGSTR
+  | DefineConstants Comma String__Index tDEF CharExprNoVar
     { Constant_S.Name = $3; Constant_S.Type = VAR_CHAR;
       Constant_S.Value.Char = $5;
       FloatOptions_S.clear(); CharOptions_S.clear();
@@ -7005,7 +7005,7 @@ DefineConstants :
 	Tree_Replace(ConstantTable_L, &Constant_S);
       }
     }
-  | DefineConstants Comma String__Index tDEF '{' tBIGSTR
+  | DefineConstants Comma String__Index tDEF '{' CharExprNoVar
     { FloatOptions_S.clear(); CharOptions_S.clear(); }
     CharParameterOptions '}'
     { Constant_S.Name = $3; Constant_S.Type = VAR_CHAR;
