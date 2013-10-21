@@ -85,7 +85,7 @@ FunctionSpace {
       { Name sn; NameOfCoef en; Function BF_PerpendicularEdge; Support DomainTot; Entity NodesOf[All]; }
     }
     Constraint {
-      { NameOfCoef en; EntityType EdgesOf ; NameOfConstraint ElectricField; }
+      { NameOfCoef en; EntityType NodesOf ; NameOfConstraint ElectricField; }
     }
   }
   { Name Hcurl_e_3D; Type Form1;
@@ -175,8 +175,9 @@ PostOperation {
       Print[ eScatt, OnElementsOf Region[{BndBC}], File StrCat[myDir, "eScatt.pos"] ] ;
       Print[ eTot, OnElementsOf Region[{Domain}], File StrCat[myDir, "eTot.pos"] ] ;
       Print[ eInc, OnElementsOf Region[{Domain}], File StrCat[myDir, "eInc.pos"] ] ;
-      Print[ SE, OnPoint {0,0,0}, File StrCat[myDir, "SE.pos"] ] ;
-      //Print[ SE, OnPoint {0,0,0}, Format Table, File StrCat[myDir, StrCat["temp",ExtGnuplot]], SendToServer StrCat(po,"0")];
+      //Print[ SE, OnPoint {0,0,0}, File StrCat[myDir, "SE.pos"] ] ;
+      Print[ SE, OnPoint {0,0,0}, Format Table, File StrCat[myDir, StrCat["temp",ExtGnuplot]],
+        SendToServer StrCat(po,"0Shielding effectiveness [dB]")];
     }
   }
 }
