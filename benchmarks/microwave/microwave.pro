@@ -4,19 +4,18 @@ myDir = "output/";
 po = "Output/";
 
 
-/*
-DefineConstant[
-  SE_output = { "", Label "Shielding Effectiveness", Path StrCat(po,"0"), Highlight Str[colorpp]}
-];
-*/
+// -------------------------------------------------------------------------
+//   Microwave formulations
+//   2D and 3D
+//--------------------------------------------------------------------------
 
 
-Group{
+Group {
   DefineGroup[ Domain, DomAir, DomCond, DomPml, DomainTot ] ;
   DefineGroup[ Boundary, BndBC, BndPEC, BndSM ] ;
 }
 
-Function{
+Function {
   DefineFunction[ epsilon, sigma, nu ];
 }
 
@@ -58,13 +57,6 @@ Integration {
   }
 }
 
-
-// -------------------------------------------------------------------------
-//   Microwave formulations
-//   2D and 3D
-//--------------------------------------------------------------------------
-
-
 Constraint {
   { Name ElectricField ;
     Case {
@@ -72,7 +64,7 @@ Constraint {
         { Region BndBC ; Type Assign ; Value -CompZ[eInc[]] ; }
       EndIf
       If(Flag_Model==3)
-        { Region BndBC ; Type AssignFromResolution ; NameOfResolution Microwave_e_BC ; }
+        { Region BndBC ; Type AssignFromResolution ; NameOfResolution Resol_BC ; }
       EndIf
       { Region BndPEC ; Type Assign ; Value 0. ; }
     }
@@ -100,7 +92,7 @@ FunctionSpace {
 
 Formulation {
   // Imposing the source: circulation of e on edges
-  { Name Microwave_e_BC ;
+  { Name Form_BC ;
     Quantity {
       { Name e; Type Local; NameOfSpace Hcurl_e_3D; }
     }
@@ -111,7 +103,6 @@ Formulation {
         In BndBC; Integration I2; Jacobian JSur;  }
     }
   }
-
   // Electric field formulation
   { Name Microwave_e ; Type FemEquation;
     Quantity {
@@ -137,9 +128,9 @@ Formulation {
 
 
 Resolution {
-  { Name Microwave_e_BC;
+  { Name Resol_BC;
     System {
-      { Name B; NameOfFormulation Microwave_e_BC; DestinationSystem A; }
+      { Name B; NameOfFormulation Form_BC; DestinationSystem A; }
     }
     Operation {
       Generate B; Solve B; TransferSolution B;
@@ -152,11 +143,9 @@ Resolution {
     Operation {
       CreateDir[Str[myDir]];
       Generate A; Solve A; SaveSolution A;
-      //PostOperation[Microwave_e];
     }
   }
 }
-
 
 PostProcessing {
   { Name Microwave_e ; NameOfFormulation Microwave_e ;
@@ -164,7 +153,7 @@ PostProcessing {
       { Name eScatt; Value{ Local{ [{e}]; In DomainTot; Jacobian JVol;} } }
       { Name eTot; Value{ Local{ [{e}+eInc[]]; In DomainTot; Jacobian JVol;} } }
       { Name eInc; Value{ Local{ [eInc[]]; In DomainTot; Jacobian JVol;} } }
-      { Name SE; Value{ Local{ [20*Log10[Norm[eInc[]]/Norm[{e}+eInc[]]]]; In DomainTot; Jacobian JVol;} } }
+      { Name SE; Value{ Local{ [20*Log10[ Norm[eInc[]] / Norm[{e}+eInc[]] ]]; In DomainTot; Jacobian JVol;} } }
     }
   }
 }
@@ -172,14 +161,13 @@ PostProcessing {
 PostOperation {
   { Name Get_Fields ; NameOfPostProcessing Microwave_e ;
     Operation {
-      Print[ eScatt, OnElementsOf Region[{BndBC}], File StrCat[myDir, "eScatt.pos"] ] ;
+      Print[ eScatt, OnElementsOf Region[{Domain}], File StrCat[myDir, "eScatt.pos"] ] ;
       Print[ eTot, OnElementsOf Region[{Domain}], File StrCat[myDir, "eTot.pos"] ] ;
       Print[ eInc, OnElementsOf Region[{Domain}], File StrCat[myDir, "eInc.pos"] ] ;
     }
   }
   { Name Get_ShieldingEffectiveness ; NameOfPostProcessing Microwave_e ;
     Operation {
-      //Print[ SE, OnPoint {0,0,0}, File StrCat[myDir, "SE.pos"] ] ;
       Print[ SE, OnPoint {0,0,0}, Format Table, File StrCat[myDir, StrCat["temp",ExtGnuplot]],
         SendToServer StrCat(po,"0Shielding effectiveness [dB]")];
     }
@@ -187,9 +175,10 @@ PostOperation {
 }
 
 DefineConstant[
-  ResolutionChoices    = {"Analysis", Path "GetDP/1", Visible 0},
-  ComputeCommand       = {"-solve -pos -v2", Path "GetDP/9", Visible 0},
-  mypostop = {"Get_Fields,Get_ShieldingEffectiveness",
-    Choices{"Get_Fields", "Get_ShieldingEffectiveness"}, MultipleSelection "11", Path "Input/Mes choix"},
-  PostOperationChoices = { Str[mypostop], Path "GetDP/2", Visible 0, ReadOnly 1}
+  ResolutionChoices = {"Analysis", Path "GetDP/1", Visible 0},
+  ComputeCommand = {"-solve -pos -v2", Path "GetDP/9", Visible 0},
+  MyPostOp = {"Get_ShieldingEffectiveness", Path "Input/1", Label "Post-processing",
+      Choices{"Get_Fields", "Get_ShieldingEffectiveness", "Get_E_Aperture", "Get_E_Center"},
+      MultipleSelection "0100"},
+  PostOperationChoices = { Str[MyPostOp], Path "GetDP/2", Visible 0, ReadOnly 1}
 ];

@@ -1,5 +1,5 @@
 Mesh.Optimize = 1;
-Mesh.CharacteristicLengthMax = 0.005 ;
+Mesh.CharacteristicLengthMax = lc ;
 
 
 // CAVITY

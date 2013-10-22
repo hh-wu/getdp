@@ -1,12 +1,6 @@
 Mesh.Optimize = 1;
-Mesh.CharacteristicLengthMax = 0.02 ;
+Mesh.CharacteristicLengthMax = lc ;
 
-/*
-Lx = 0.3;
-Ly = 0.12;
-Lz = 0.3;
-Llayer1 = 0.05;
-*/
 
 // generateBox (for cavity and layers)
 
