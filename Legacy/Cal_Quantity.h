@@ -13,7 +13,8 @@ void  Get_ValueOfExpression(struct Expression * Expression_P,
 			    struct QuantityStorage * QuantityStorage_P0, 
 			    double u, double v, double w, 
 			    struct Value * Value,
-			    int NbrArguments=0) ;
+			    int    NbrArguments=0,
+			    char   *CallingExpressionName=NULL) ;
 
 void  Get_ValueOfExpressionByIndex(int Index_Expression,
 				   struct QuantityStorage * QuantityStorage_P0, 

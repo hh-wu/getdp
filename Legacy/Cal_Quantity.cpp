@@ -30,7 +30,8 @@ void  Get_ValueOfExpression(struct Expression * Expression_P,
 			    struct QuantityStorage * QuantityStorage_P0,
 			    double u, double v, double w,
 			    struct Value * Value,
-			    int NbrArguments)
+			    int    NbrArguments,
+			    char   *CallingExpressionName)
 {
   int k ;
   struct ExpressionPerRegion  * ExpressionPerRegion_P ;
@@ -55,7 +56,8 @@ void  Get_ValueOfExpression(struct Expression * Expression_P,
     Cal_WholeQuantity(Current.Element, QuantityStorage_P0,
 		      Expression_P->Case.WholeQuantity,
 		      u,v,w, -1, 0, Value, NbrArguments,
-		      Expression_P->Name) ;
+		      CallingExpressionName ?
+		          CallingExpressionName : Expression_P->Name) ;
     break ;
 
   case PIECEWISEFUNCTION :
@@ -79,7 +81,7 @@ void  Get_ValueOfExpression(struct Expression * Expression_P,
     }
     Get_ValueOfExpression
       (Expression_P->Case.PieceWiseFunction.ExpressionForLastRegion,
-       QuantityStorage_P0, u, v, w, Value, NbrArguments) ;
+       QuantityStorage_P0, u, v, w, Value, NbrArguments, Expression_P->Name) ;
     break ;
 
   case UNDEFINED_EXP :
