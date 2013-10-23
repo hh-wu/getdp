@@ -10,7 +10,7 @@ colorpq = "AliceBlue";
 c0 = 3e8; // speed of light in vacuum
 
 DefineConstant[
-  Flag_Geometry = {0, Choices{0="2D cavity", 1="2D cavity with wall", 2="3D cavity"}, Label "Model",
+  Flag_Geometry = {0, Choices{0="2D cavity", 1="2D cavity with wall", 2="3D cavity"}, Label "Cavity model",
     Path "Input/0", Highlight "Black"}
 ];
 
