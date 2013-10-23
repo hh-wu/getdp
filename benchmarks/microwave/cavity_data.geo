@@ -53,9 +53,9 @@ DefineConstant[
   k0 = {2*Pi/lambda, Label "Wave number",
     Path StrCat(catParam3,"2"), ReadOnly 1, Highlight Str[colorro]},
 
-  Flag_SizeMeshCell = {1, Choices{0="Constant length", 1="Linked to the wavelength"}, Label "Choice of the cell length (Lc)",
+  Flag_SizeMeshCell = {0, Choices{0="Constant length", 1="Linked to the wavelength"}, Label "Choice of the cell length (Lc)",
     Path StrCat(catParam4,"0"), Highlight "Black"},
-  lcValue = { 0.16, Label "Value of Lc [m]",
+  lcValue = { 0.01, Min 0.001, Max 1, Step 0.001, Label "Value of Lc [m]",
     Path StrCat(catParam4,"1"), Highlight Str[colorpp], Visible (Flag_SizeMeshCell==0)},
   lambdaOnlc = { 10, Min 1, Max 100, Step 1, Label "Ratio ''wavelength / Lc''",
     Path StrCat(catParam4,"2"), Highlight Str[colorpp], Visible (Flag_SizeMeshCell==1)},
