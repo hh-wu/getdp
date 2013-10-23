@@ -10,9 +10,12 @@ If(Flag_SizeMeshCell==1)
   EndIf
 EndIf
 
-If(Flag_Model==2)
+If(Flag_Geometry==0)
   Include "cavity2d.geo";
 EndIf
-If(Flag_Model==3)
+If(Flag_Geometry==1)
+  Include "cavity2dwall.geo";
+EndIf
+If(Flag_Geometry==2)
   Include "cavity3d.geo";
 EndIf
