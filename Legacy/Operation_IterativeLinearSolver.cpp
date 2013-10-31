@@ -15,6 +15,8 @@
 #include <fstream>
 #include <stdlib.h>
 
+extern struct CurrentData Current ;
+
 // for performance tests
 //#define TIMER
 
@@ -120,6 +122,13 @@ typedef struct{
   struct GeoData *GeoData_P0;
 } ILSMat;
 
+static PView *GetViewByTag(int tag)
+{
+  PView *view = PView::getViewByTag(tag);
+  if(!view) Message::Error("View %d does not exist");
+  return view;
+}
+
 // Reads and reassembles vectors from GMSH View/Field
 static PetscErrorCode ReadFields
    (int nb_field, int nth_vect, struct Operation *Operation_P,
@@ -147,7 +156,7 @@ static PetscErrorCode ReadFields
                 shift + cpt_view, &d);
     }
     (*tagFields_loc)[cpt_view] = (int)d;
-    PView *view = PView::getViewByTag((int)d);
+    PView *view = GetViewByTag((int)d);
     view->getData()->toVector((*vector_field)[cpt_view]);
     loc_size = (int)(*vector_field)[cpt_view][0].size();
     (*sizes_field)[cpt_view] = loc_size; // how many components ?
@@ -212,11 +221,8 @@ static PetscErrorCode InitData(Field *MyField, Field *AllField,
   for(int iField = 0; iField < MyField->nb_field; iField ++) {
     (*B_std)[iField].resize(2);
     int d;
-    PView *view = PView::getViewByTag(MyField->GmshTag[iField]);
-    if(view)
-      view->getData()->toVector((*B_std)[iField]);
-    else
-      Message::Error("View %d does not exist", MyField->GmshTag[iField]);
+    PView *view = GetViewByTag(MyField->GmshTag[iField]);
+    view->getData()->toVector((*B_std)[iField]);
     d = (*B_std)[iField][0].size();
     MyField->size[iField] = d;
     MyField->n_elem += d;
@@ -364,7 +370,7 @@ static PetscErrorCode InitData(Field *MyField, Field *AllField,
       MyField->myN[mfield].resize(24);
       MyField->mySizeV[mfield].resize(24);
       int GmshTag = MyField->GmshTag[mfield];
-      PView *view = PView::getViewByTag(GmshTag);
+      PView *view = GetViewByTag(GmshTag);
       if(view)
         view->getData()->getListPointers(&(MyField->myN[mfield][0]), &V[0]);
       else
@@ -417,10 +423,11 @@ static PetscErrorCode InitData(Field *MyField, Field *AllField,
   PetscFunctionReturn(0);
 }
 
-// BCast of all PViews
+// Communicate PViews
 static PetscErrorCode PViewBCast(Field MyField, Field AllField)
 {
-  if(!(Field::areNeighbor)){ // broadcast all views
+  if(!(Field::areNeighbor)){
+    // broadcast all views
     for (int iField = 0 ; iField < AllField.nb_field ; iField++){
       int GmshTag = AllField.GmshTag[iField];
       int fieldRank = AllField.rank[iField];
@@ -431,7 +438,7 @@ static PetscErrorCode PViewBCast(Field MyField, Field AllField)
       MPI_Comm fieldcomm = MPI_COMM_WORLD;
       int mpi_fieldcomm_rank = Message::GetCommRank();
       if(mpi_fieldcomm_rank == fieldRank){
-        PView *view = PView::getViewByTag(GmshTag);
+        PView *view = GetViewByTag(GmshTag);
         view->getData()->getListPointers(&N[0], &V[0]);
         for(int j = 0 ; j < 24 ; j++)
           sizeV[j] = (*(V[j])).size();
@@ -463,12 +470,12 @@ static PetscErrorCode PViewBCast(Field MyField, Field AllField)
     // send my PView to my neighbors
     for (int ifield = 0 ; ifield < MyField.nb_field ; ifield ++){
       int GmshTag = MyField.GmshTag[ifield];
-      PView *view = PView::getViewByTag(GmshTag);
+      PView *view = GetViewByTag(GmshTag);
       std::vector< std::vector<double>* > V_send(24);
       std::vector<int> N(24);
       view->getData()->getListPointers(&N[0], &V_send[0]);
       for (int j = 0 ; j < 24 ; j ++){
-        int tag = 100*GmshTag + j;
+        int tag = 100 * GmshTag + j;
         int n_data = MyField.mySizeV[ifield][j];
         if(n_data > 0){
           //Loop on the receiver
@@ -524,30 +531,53 @@ static PetscErrorCode STD_vector_to_PETSc_Vec
   (std::vector<std::vector<std::vector<double> > > std_vec,
    Vec petsc_vec, Field *Local)
 {
-  PetscInt        cpt = 0, nb_view = Local->nb_field;
+  PetscInt        nb_view = Local->nb_field;
   PetscErrorCode  ierr;
 
   for (int cpt_view = 0; cpt_view < nb_view; cpt_view++){
-    std::vector<PetscScalar> val;
     int nb_element = Local->size[cpt_view];
-    std::vector<PetscInt> ix(nb_element);
-    for (int i = 0 ; i < nb_element ; i++){
-      ix[i] = Local->iStart[cpt_view] + i;
+    std::vector<PetscScalar> val;
+    std::vector<PetscInt> ix;
+    if(Current.NbrHar == 2){
 #if defined(PETSC_USE_COMPLEX)
       val.resize(nb_element);
-      val[i] = std_vec[cpt_view][0][i] + PETSC_i*std_vec[cpt_view][1][i];
+      ix.resize(nb_element);
 #else
       val.resize(2*nb_element);
-      val[2*i] = std_vec[cpt_view][0][i];
-      val[2*i+1] = std_vec[cpt_view][1][i];
+      ix.resize(2*nb_element);
 #endif
     }
+    else{
+      val.resize(nb_element);
+      ix.resize(nb_element);
+    }
+    for (int i = 0 ; i < nb_element ; i++){
+      if(Current.NbrHar == 2){
 #if defined(PETSC_USE_COMPLEX)
-    ierr = VecSetValues(petsc_vec, nb_element, &ix[0], &val[0], INSERT_VALUES);
+        ix[i] = Local->iStart[cpt_view] + i;
+        val[i] = std_vec[cpt_view][0][i] + PETSC_i*std_vec[cpt_view][1][i];
 #else
-    ierr = VecSetValues(petsc_vec, 2*nb_element, &ix[0], &val[0], INSERT_VALUES);
+        ix[2*i] = Local->iStart[cpt_view] + 2*i;
+        ix[2*i+1] = Local->iStart[cpt_view] + 2*i+1;
+        val[2*i] = std_vec[cpt_view][0][i];
+        val[2*i+1] = std_vec[cpt_view][1][i];
 #endif
-    cpt += nb_element;
+      }
+      else{
+        ix[i] = Local->iStart[cpt_view] + i;
+        val[i] = std_vec[cpt_view][0][i];
+      }
+    }
+    if(Current.NbrHar == 2){
+#if defined(PETSC_USE_COMPLEX)
+      ierr = VecSetValues(petsc_vec, nb_element, &ix[0], &val[0], INSERT_VALUES);
+#else
+      ierr = VecSetValues(petsc_vec, 2*nb_element, &ix[0], &val[0], INSERT_VALUES);
+#endif
+    }
+    else{
+      ierr = VecSetValues(petsc_vec, nb_element, &ix[0], &val[0], INSERT_VALUES);
+    }
   }
   ierr = VecAssemblyBegin(petsc_vec);CHKERRQ(ierr);
   ierr = VecAssemblyEnd(petsc_vec);CHKERRQ(ierr);
@@ -569,9 +599,15 @@ static PetscErrorCode PETSc_Vec_to_STD_Vec
   (*std_vec).resize(Local->nb_field);
   for (int cpt_view = 0 ; cpt_view < nb_view ; cpt_view++){
     int nb_elem = Local->size[cpt_view];
-    (*std_vec)[cpt_view].resize(2);
-    (*std_vec)[cpt_view][0].resize(nb_elem);
-    (*std_vec)[cpt_view][1].resize(nb_elem);
+    if(Current.NbrHar == 2){
+      (*std_vec)[cpt_view].resize(2);
+      (*std_vec)[cpt_view][0].resize(nb_elem);
+      (*std_vec)[cpt_view][1].resize(nb_elem);
+    }
+    else{
+      (*std_vec)[cpt_view].resize(1);
+      (*std_vec)[cpt_view][0].resize(nb_elem);
+    }
   }
 
   for (int cpt_view = 0 ; cpt_view < nb_view ; cpt_view++){
@@ -579,17 +615,22 @@ static PetscErrorCode PETSc_Vec_to_STD_Vec
     int iStart = Local->iStart[cpt_view];
     for (int j = 0 ; j < nb_element ; j++) {
       int cpt = iStart + j;
+      if(Current.NbrHar == 2){
 #if defined(PETSC_USE_COMPLEX)
-      ierr = VecGetValues(petsc_vec, 1, &cpt, &val); CHKERRQ(ierr);
-      (*std_vec)[cpt_view][0][j] = (double)PetscRealPart(val);
-      (*std_vec)[cpt_view][1][j] = (double)PetscImaginaryPart(val);
+        ierr = VecGetValues(petsc_vec, 1, &cpt, &val); CHKERRQ(ierr);
+        (*std_vec)[cpt_view][0][j] = (double)PetscRealPart(val);
+        (*std_vec)[cpt_view][1][j] = (double)PetscImaginaryPart(val);
 #else
-
-      ierr = VecGetValues(petsc_vec, 1, &cpt, &val); CHKERRQ(ierr);
-      (*std_vec)[cpt_view][0][j] = (double)(val);
-      ierr = VecGetValues(petsc_vec, 1, &cpt, &val);CHKERRQ(ierr);
-      (*std_vec)[cpt_view][1][j] = (double)(val);
+        ierr = VecGetValues(petsc_vec, 1, &cpt, &val); CHKERRQ(ierr);
+        (*std_vec)[cpt_view][0][2*j] = (double)(val);
+        ierr = VecGetValues(petsc_vec, 1, &cpt, &val);CHKERRQ(ierr);
+        (*std_vec)[cpt_view][1][2*j+1] = (double)(val);
 #endif
+      }
+      else{
+        ierr = VecGetValues(petsc_vec, 1, &cpt, &val); CHKERRQ(ierr);
+        (*std_vec)[cpt_view][0][j] = (double)PetscRealPart(val);
+      }
     }
   }
   PetscFunctionReturn(0);
@@ -656,7 +697,7 @@ static PetscErrorCode MatMultILSMat(Mat A, Vec X, Vec Y)
 
   // Update PViews
   for (int cpt_view = 0; cpt_view < ctx->MyField->nb_field; cpt_view++){
-    PView *view = PView::getViewByTag(ctx->MyField->GmshTag[cpt_view]);
+    PView *view = GetViewByTag(ctx->MyField->GmshTag[cpt_view]);
     view->getData()->fromVector(std_vec[cpt_view]);
   }
 
@@ -686,7 +727,7 @@ static PetscErrorCode MatMultILSMat(Mat A, Vec X, Vec Y)
   // Extract the (std) vector from the (new) .pos files
   // This assumes that every process reads every .pos files
   for(int cpt_view = 0; cpt_view < ctx->MyField->nb_field; cpt_view++) {
-    PView *view = PView::getViewByTag(ctx->MyField->GmshTag[cpt_view]);
+    PView *view = GetViewByTag(ctx->MyField->GmshTag[cpt_view]);
     view->getData()->toVector(std_vec[cpt_view]);
   }
 
@@ -1079,7 +1120,7 @@ static PetscErrorCode MatMultPC(PC pc, Vec X, Vec Y)
 
   // Update PViews
   for (int cpt_view = 0; cpt_view < ctx->MyField->nb_field; cpt_view++){
-    PView *view = PView::getViewByTag(ctx->MyField->GmshTag[cpt_view]);
+    PView *view = GetViewByTag(ctx->MyField->GmshTag[cpt_view]);
     view->getData()->fromVector(std_vec[cpt_view]);
   }
 
@@ -1094,7 +1135,7 @@ static PetscErrorCode MatMultPC(PC pc, Vec X, Vec Y)
   // Extract the (std) vector from the (new) .pos files
   // This assumes that every process reads every .pos files
   for(int cpt_view = 0; cpt_view < ctx->MyField->nb_field; cpt_view++) {
-    PView *view = PView::getViewByTag(ctx->MyField->GmshTag[cpt_view]);
+    PView *view = GetViewByTag(ctx->MyField->GmshTag[cpt_view]);
     view->getData()->toVector(std_vec[cpt_view]);
   }
 
@@ -1110,12 +1151,6 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
                                     struct DofData     *DofData_P0,
                                     struct GeoData     *GeoData_P0)
 {
-  extern struct CurrentData Current ;
-  if(Current.NbrHar != 2){
-    Message::Error("IterativeLinearSolver is currently only available for NbrHar=2");
-    return 0;
-  }
-
   PetscErrorCode ierr;
   int mpi_comm_size = Message::GetCommSize();
   int mpi_comm_rank = Message::GetCommRank();
@@ -1354,7 +1389,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   ierr = PETSc_Vec_to_STD_Vec(X, &MyField, &B_std); CHKERRQ(ierr);
   // update views
   for (int cpt_view = 0 ; cpt_view < MyField.nb_field; cpt_view++){
-    PView *view = PView::getViewByTag(MyField.GmshTag[cpt_view]);
+    PView *view = GetViewByTag(MyField.GmshTag[cpt_view]);
     view->getData()->fromVector(B_std[cpt_view]);
   }
   // Transfer PView
