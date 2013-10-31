@@ -1185,7 +1185,6 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
   PetscOptionsGetTruth(PETSC_NULL, "-zitsol", &zitsol, &set);
   if(zitsol){ _zitsol(A, B, X); return; }
 #endif
-//printf("INDEX SOLVER : %d\n", kspIndex);
   if(kspIndex < 0 || kspIndex > 9){
     Message::Error("Linear Solver index out of range (%d)", kspIndex);
     return;
@@ -1202,8 +1201,6 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
 
   if(kspIndex != 0)
     Message::Info("Using solver index %d", kspIndex);
-
-//printf("kspIndex = %d\n",kspIndex);
 
   if(!Solver->ksp[kspIndex]) {
     _try(KSPCreate(MyComm, &Solver->ksp[kspIndex]));
@@ -1292,7 +1289,6 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
 void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
                   int solverIndex)
 {
-//	printf("solverIndex = %d\n", solverIndex);
   _solve(A, B, Solver, X, 1, solverIndex);
 }
 
@@ -1300,6 +1296,11 @@ void LinAlg_SolveAgain(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
                        int solverIndex)
 {
   _solve(A, B, Solver, X, 0, solverIndex);
+}
+
+void LinAlg_SetGlobalSolverOptions(const std::string &opt)
+{
+  _try(PetscOptionsInsertString(opt.c_str()));
 }
 
 extern void Generate_Residual (gVector *x, gVector *f) ;

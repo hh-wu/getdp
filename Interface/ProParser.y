@@ -236,7 +236,7 @@ struct doubleXstring{
 %token      tLanczos tEigenSolve tEigenSolveJac tPerturbation
 %token      tUpdate tUpdateConstraint tBreak
 %token      tEvaluate tSelectCorrection tAddCorrection tMultiplySolution
-%token      tAddOppositeFullSolution tSolveAgainWithOther
+%token      tAddOppositeFullSolution tSolveAgainWithOther tSetGlobalSolverOptions
 
 %token      tTimeLoopTheta tTimeLoopNewmark tTimeLoopRungeKutta tTimeLoopAdaptive
 %token        tTime0 tTimeMax tTheta
@@ -3960,25 +3960,18 @@ OperationTerm :
 	Get_Valid_SXD(Operation_Type);
       }
       Free($1);
-
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
 	vyyerror("Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
-
       if(Operation_P->Type == OPERATION_GENERATE ||
          Operation_P->Type == OPERATION_GENERATERHS ||
          Operation_P->Type == OPERATION_GENERATEJAC ||
          Operation_P->Type == OPERATION_GENERATESEPARATE)
 	Operation_P->Case.Generate.GroupIndex = -1;
-
-      if($4 >= -1) Operation_P->Rank = $4;
-      else {
-	Message::Warning("Negative MPI Rank");
-	Operation_P->Rank = -1;
-      }
+      Operation_P->Rank = $4;
     }
 
   | tSetTime '[' Expression ']' tEND
@@ -4252,11 +4245,7 @@ OperationTerm :
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_EVALUATE;
       Operation_P->Case.Evaluate.ExpressionIndex = (int)$3;
-      if($4 >= -1) Operation_P->Rank = $4;
-      else {
-	Message::Warning("Negative MPI Rank");
-	Operation_P->Rank = -1;
-      }
+      Operation_P->Rank = $4;
     }
 
   | tSelectCorrection '[' String__Index ',' FExpr ']' tEND
@@ -4530,12 +4519,7 @@ OperationTerm :
       Operation_P->Case.PostOperation.PostOperations =
 	List_Create(1,1,sizeof(char*));
       List_Add(Operation_P->Case.PostOperation.PostOperations, &$3);
-
-      if($4 >= -1) Operation_P->Rank = $4;
-      else {
-	Message::Warning("Negative MPI Rank");
-	Operation_P->Rank = -1;
-      }
+      Operation_P->Rank = $4;
     }
 
   | tSystemCommand '[' CharExpr ']' tEND
@@ -4827,11 +4811,7 @@ OperationTerm :
       Free($5);
       Operation_P->Type = OPERATION_GENERATE;
       Operation_P->Case.Generate.GroupIndex = i;
-      if($6 >= -1) Operation_P->Rank = $6;
-      else {
-	Message::Warning("Negative MPI Rank");
-	Operation_P->Rank = -1;
-      }
+      Operation_P->Rank = $6;
     }
 
   | tGenerateJacGroup  '[' String__Index ',' String__Index CommaFExprOrNothing ']'  tEND
@@ -4848,11 +4828,7 @@ OperationTerm :
       Free($5);
       Operation_P->Type = OPERATION_GENERATEJAC;
       Operation_P->Case.Generate.GroupIndex = i;
-      if($6 >= -1) Operation_P->Rank = $6;
-      else {
-	Message::Warning("Negative MPI Rank");
-	Operation_P->Rank = -1;
-      }
+      Operation_P->Rank = $6;
     }
 
   | tGenerateRHSGroup  '[' String__Index ',' GroupRHS CommaFExprOrNothing ']'  tEND
@@ -4866,11 +4842,7 @@ OperationTerm :
       Operation_P->DefineSystemIndex = i;
       Operation_P->Type = OPERATION_GENERATERHS;
       Operation_P->Case.Generate.GroupIndex = $5;
-      if($6 >= -1) Operation_P->Rank = $6;
-      else {
-	Message::Warning("Negative MPI Rank");
-	Operation_P->Rank = -1;
-      }
+      Operation_P->Rank = $6;
     }
 
   | tSolveAgainWithOther '[' String__Index ',' String__Index CommaFExprOrNothing ']'  tEND
@@ -4888,11 +4860,14 @@ OperationTerm :
 	vyyerror("Unknown System: %s", $5);
       Free($5);
       Operation_P->Case.SolveAgainWithOther.DefineSystemIndex = i;
-      if($6 >= -1) Operation_P->Rank = $6;
-      else {
-	Message::Warning("Negative MPI Rank");
-	Operation_P->Rank = -1;
-      }
+      Operation_P->Rank = $6;
+    }
+
+  | tSetGlobalSolverOptions '[' CharExpr ']'  tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_SETGLOBALSOLVEROPTIONS;
+      Operation_P->Case.SetGlobalSolverOptions.String = $3;
     }
 
   | Loop

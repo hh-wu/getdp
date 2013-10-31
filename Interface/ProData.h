@@ -1051,12 +1051,9 @@ struct Operation {
       int     GeoDataIndex;
       double  Factor;
     } DeformeMesh;
-    // FIXME: Roman
     struct {
-      List_T *SystemIndex, *ExpectationIndex;
-      List_T *LocalMatrixIndex;
-      List_T *ExpansionCoef;
-    } TensorProductSolve;
+      char    *String;
+    } SetGlobalSolverOptions;
 
   } Case;
 
@@ -1106,6 +1103,7 @@ struct IterativeLoopSystem {
 #define OPERATION_SOLVE                     2
 #define OPERATION_SOLVEAGAIN              223
 #define OPERATION_SOLVEAGAINWITHOTHER     225
+#define OPERATION_SETGLOBALSOLVEROPTIONS  226
 #define OPERATION_SOLVENL                 233
 #define OPERATION_GENERATEJAC               3
 #define OPERATION_GENERATERHS             100
@@ -1128,6 +1126,8 @@ struct IterativeLoopSystem {
 #define OPERATION_MULTIPLYSOLUTION         83
 #define OPERATION_ADDOPPOSITEFULLSOLUTION  84
 #define OPERATION_APPLY                    85
+#define OPERATION_SETRHSASSOLUTION         86
+#define OPERATION_SETSOLUTIONASRHS         87
 
 #define OPERATION_SAVESOLUTION             10
 #define OPERATION_SAVESOLUTIONS            11

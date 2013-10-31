@@ -934,6 +934,32 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	 &DofData_P->CurrentSolution->x) ;
       break ;
 
+      /*  -->  S e t R H S A s S o l u t i o n      */
+      /*  ----------------------------------------  */
+    case OPERATION_SETRHSASSOLUTION :
+      {
+        /*  Compute : x <- b  */
+        Init_OperationOnSystem("SetRHSAsSolution",
+                               Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+                               &DefineSystem_P, &DofData_P, Resolution2_P) ;
+        LinAlg_CopyVector(&DofData_P->b, &DofData_P->CurrentSolution->x);
+        Flag_CPU = 1 ;
+      }
+      break ;
+
+      /*  -->  S e t S o l u t i o n A s R H S      */
+      /*  ----------------------------------------  */
+    case OPERATION_SETSOLUTIONASRHS :
+      {
+        /*  Compute : b <- x  */
+        Init_OperationOnSystem("SetSolutionAsRHS",
+                               Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+                               &DefineSystem_P, &DofData_P, Resolution2_P) ;
+        LinAlg_CopyVector(&DofData_P->CurrentSolution->x, &DofData_P->b);
+        Flag_CPU = 1 ;
+      }
+      break ;
+
       /*  -->  A p p l y                              */
       /*  ------------------------------------------  */
     case OPERATION_APPLY :
@@ -942,9 +968,19 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         Init_OperationOnSystem("Apply",
                                Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                                &DefineSystem_P, &DofData_P, Resolution2_P) ;
+        LinAlg_CreateVector(&DofData_P->res, &DofData_P->Solver, DofData_P->NbrDof) ;
         LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x,
-                                &DofData_P->CurrentSolution->x);
+                                &DofData_P->res);
+        LinAlg_CopyVector(&DofData_P->res, &DofData_P->CurrentSolution->x);
         Flag_CPU = 1 ;
+      }
+      break ;
+
+      /*  -->  S e t S o l v e r O p t i o n s        */
+      /*  ------------------------------------------  */
+    case OPERATION_SETGLOBALSOLVEROPTIONS :
+      {
+        LinAlg_SetGlobalSolverOptions(Operation_P->Case.SetGlobalSolverOptions.String);
       }
       break ;
 
@@ -1934,7 +1970,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	      }
 	    }
 	    else{
-	      Message::Warning("Trying to transfer a non symmetrical Dof");
+              //  Message::Warning("Trying to transfer a non symmetrical Dof (type %d)",
+              //               Dof.Type);
 	    }
 	  }
           // FIXME: required by parallel version

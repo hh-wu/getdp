@@ -3970,6 +3970,12 @@ Generate the system of equations @var{system-id}.
 
 Solve the system of equations @var{system-id}.
 
+@item SolveAgain
+@code{[@var{system-id}]}
+
+Save as @code{Solve}, but reuses the preconditionner when called
+multiple times.
+
 @item GenerateJac
 @code{[@var{system-id}]}
 

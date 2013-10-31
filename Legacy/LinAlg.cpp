@@ -18,6 +18,7 @@ void LinAlg_FinalizeSolver(){}
 void LinAlg_SetCommSelf(){}
 void LinAlg_SetCommWorld(){}
 void LinAlg_CreateSolver(gSolver *Solver, const char * SolverDataFileName){ err; }
+void LinAlg_SetGlobalSolverOptions(const std::string &opt){ err; }
 void LinAlg_CreateVector(gVector *V, gSolver *Solver, int n){ err; }
 void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m){ err; }
 void LinAlg_DestroySolver(gSolver *Solver){ err; }

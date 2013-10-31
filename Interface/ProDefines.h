@@ -217,6 +217,9 @@ struct StringXDefine  Operation_Type[] = {
   {"SaveSolutionExtendedMH" , OPERATION_SAVESOLUTIONEXTENDEDMH},
   {"DummyDofs"              , OPERATION_DUMMYDOFS},
   {"InitCorrection"         , OPERATION_INITCORRECTION},
+  {"Apply"                  , OPERATION_APPLY},
+  {"SetRHSAsSolution"       , OPERATION_SETRHSASSOLUTION},
+  {"SetSolutionAsRHS"       , OPERATION_SETSOLUTIONASRHS},
   {NULL                     , OPERATION_NONE}
 } ;
 

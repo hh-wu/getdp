@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 #include <map>
+#include <string>
 #include "GetDPConfig.h"
 
 // GetDP only uses a predefined set of acces routines to scalars
@@ -45,7 +46,7 @@ typedef struct { Solver_Params Params ; } gSolver ;
 typedef struct { PetscScalar s ; } gScalar ;
 typedef struct { Mat M ; }         gMatrix ;
 typedef struct { Vec V, Vseq ; }   gVector ;
-typedef struct { KSP ksp[10] ;  SNES snes[10] ; }   gSolver ;
+typedef struct { KSP ksp[10] ; SNES snes[10] ; }  gSolver ;
 
 #else
 
@@ -65,6 +66,7 @@ void LinAlg_SetCommSelf();
 void LinAlg_SetCommWorld();
 
 void LinAlg_CreateSolver(gSolver *Solver, const char * SolverDataFileName);
+void LinAlg_SetGlobalSolverOptions(const std::string &opt);
 void LinAlg_CreateVector(gVector *V, gSolver *Solver, int n);
 void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m);
 
