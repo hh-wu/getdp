@@ -269,6 +269,7 @@ static PetscErrorCode InitData(Field *MyField, Field *AllField,
   // and changed !)
   int nNeighbor_aux = 0;
   nNeighbor_aux = List_Nbr(Operation_P->Case.IterativeLinearSolver.NeighborFieldTag);
+
   // make every process agreed on whether there is neighbor or not
   if(mpi_comm_size < 2){
     Field::areNeighbor = false;
@@ -286,6 +287,7 @@ static PetscErrorCode InitData(Field *MyField, Field *AllField,
         // if one process has no neighbord AND is charge of some fields (=is a worker)
         Field::areNeighbor = false;
   }
+
   if(Field::areNeighbor){
     int cpt_neigh = 0; // counter in list IterativeLinearSolver.NeighborFieldTag
     // for every field, RankToSend contain the rank of the process in need of
@@ -371,10 +373,7 @@ static PetscErrorCode InitData(Field *MyField, Field *AllField,
       MyField->mySizeV[mfield].resize(24);
       int GmshTag = MyField->GmshTag[mfield];
       PView *view = GetViewByTag(GmshTag);
-      if(view)
-        view->getData()->getListPointers(&(MyField->myN[mfield][0]), &V[0]);
-      else
-        Message::Error("View %d does not exist", GmshTag);
+      view->getData()->getListPointers(&(MyField->myN[mfield][0]), &V[0]);
       for(int j = 0 ; j < 24 ; j++)
         MyField->mySizeV[mfield][j] = (*(V[j])).size();
       // Exchange information about the sizes (mySizeV and myN)
@@ -426,6 +425,9 @@ static PetscErrorCode InitData(Field *MyField, Field *AllField,
 // Communicate PViews
 static PetscErrorCode PViewBCast(Field MyField, Field AllField)
 {
+  if(Message::GetCommSize() == 1) // serial: all views are available to everyone
+    PetscFunctionReturn(0);
+
   if(!(Field::areNeighbor)){
     // broadcast all views
     for (int iField = 0 ; iField < AllField.nb_field ; iField++){
