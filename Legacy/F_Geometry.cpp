@@ -365,7 +365,7 @@ void F_GetVolume(F_ARG)
           }
 	}
 	else {
-	  Message::Error("Function 'GetVolume' only valid for %s",
+	  Message::Error("Function 'GetVolume' not valid for %s",
                          Get_StringForDefine(Element_Type, Element.Type));
 	}
       }
