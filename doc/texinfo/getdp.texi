@@ -3024,18 +3024,62 @@ Hyperbolic cosine of @var{expression}.
 @item Tanh 
 @code{[@var{expression}]}
 
-Hyperbolic tangent of @var{expression}.
+Hyperbolic tangent of the real valued @var{expression}.
+
+@item TanhC2 
+@code{[@var{expression}]}
+
+Hyperbolic tangent of a complex valued @var{expression}.
 
 @item Fabs 
 @code{[@var{expression}]}
 
 Absolute value of @var{expression}.
 
+@item Floor 
+@code{[@var{expression}]}
+
+Rounds downwards to the nearest integer that is not greater than @var{expression}.
+
+@item Ceil 
+@code{[@var{expression}]}
+
+Rounds upwards to the nearest integer that is not less than @var{expression}.
+
 @item Fmod
 @code{[@var{expression},@var{expression}]}
 
 Remainder of the division of the first @var{expression} by the second, with
 the sign of the first.
+
+@item Sign 
+@code{[@var{expression}]}
+
+-1 for @var{expression} less than zero and 1 otherwise.
+
+@item Jn 
+@code{[@var{expression}]}
+
+Returns the Bessel function of the first kind of order given by the first
+@var{expression} for the value of the second @var{expression}.
+
+@item dJn 
+@code{[@var{expression}]}
+
+Returns the derivative of the Bessel function of the first kind of order
+given by the first @var{expression} for the value of the second @var{expression}.
+
+@item Yn 
+@code{[@var{expression}]}
+
+Returns the Bessel function of the second kind of order given by the first
+@var{expression} for the value of the second @var{expression}.
+
+@item dYn 
+@code{[@var{expression}]}
+
+Returns the derivative of the Bessel function of the second kind of order
+given by the first @var{expression} for the value of the second @var{expression}.
 
 @end ftable
 
@@ -3084,6 +3128,23 @@ smaller than 1.e-30.
 
 Transposition; @var{expression} must be a tensor.
 
+@item Inv
+@code{[@var{expression}]}
+
+Inverse of the tensor @var{expression}.
+
+@item Det
+@code{[@var{expression}]}
+
+Determinant of the tensor @var{expression}.
+
+@item Rotate
+@code{[@var{expression},@var{expression},@var{expression},@var{expression}]}
+
+Rotation of a vector or tensor given by the first @var{expression} by the
+angles in radians given by the last three @var{expression} values around the x-, y- and
+z-axis.
+
 @item TTrace
 @code{[@var{expression}]}
 
@@ -3114,6 +3175,12 @@ type of the current system is @code{Complex}, it is identical to
 @code{+}
 @code{(@var{expression}<0 ? @var{expression-cst} : 0)};
 the result is always in [0,@var{expression-cst}[.
+
+@item Interval
+@code{[@var{expression},@var{expression},@var{expression}]@{@var{expression-cst},
+@var{expression-cst},@var{expression-cst}@}}
+
+Not documented yet.
 
 @end ftable
 
@@ -3189,6 +3256,11 @@ Creates a (multi-harmonic) complex expression from an number of
 real-valued expressions. The number of expressions in @var{expression-list}
 must be even.
 
+@item Complex_MH
+@code{[@var{expression-list}]@{@var{expression-cst-list}@}}
+
+Not documented yet.
+
 @item Re
 @code{[@var{expression}]}
 
@@ -3198,6 +3270,17 @@ Takes the real part of a complex-valued expression.
 @code{[@var{expression}]}
 
 Takes the imaginary part of a complex-valued expression.
+
+@item Conj
+@code{[@var{expression}]}
+
+Computes the conjugate of a complex-valued expression.
+
+@item Cart2Pol
+@code{[@var{expression}]}
+
+Converts the cartesian form (reale, imaginary) of a complex-valued expression
+into polar form (amplitude, phase [radians]).
 
 @item Vector
 @code{[@var{expression},@var{expression},@var{expression}]}
@@ -3225,6 +3308,11 @@ Creates a symmetrical second-rank tensor of order 3 from 6 scalars.
 @code{[@var{expression},@var{expression},@var{expression}]}
 
 Creates a diagonal second-rank tensor of order 3 from 3 scalars.
+
+@item SquDyadicProduct
+@code{[@var{expression}]}
+
+Dyadic product of the vector given by @var{expression} with itself.
 
 @item CompX
 @code{[@var{expression}]}
@@ -3285,6 +3373,33 @@ Gets the ZY component of a tensor.
 @code{[@var{expression}]}
 
 Gets the ZZ component of a tensor.
+
+@item Cart2Sph
+@code{[@var{expression}]}
+
+Gets the tensor for transformation of vector from cartesian to spherical coordinates.
+
+@item Cart2Cyl
+@code{[@var{expression}]}
+
+Gets the tensor for transformation of vector from cartesian to cylindric coordinates.
+E.g. to convert a vector with (x,y,z)-components to one with (radial, tangential, axial)-components:
+Cart2Cyl[XYZ[]] * vector
+
+@item UnitVectorX
+@code{[]}
+
+Creates a unit vector in x-direction.
+
+@item UnitVectorY
+@code{[]}
+
+Creates a unit vector in y-direction.
+
+@item UnitVectorZ
+@code{[]}
+
+Creates a unit vector in z-direction.
 
 @end ftable
 
@@ -3368,6 +3483,32 @@ Computes the normal to the element.
 Computes the normal to the source element (only valid in a quantity of
 Integral type).
 
+@item Tangent
+@code{[]}
+
+Computes the tangent to the element (only valid for line elements).
+
+@item TangentSource
+@code{[]}
+
+Computes the tangent to the source element (only valid in a quantity of
+Integral type and only for line elements).
+
+@item ElementVol
+@code{[]}
+
+Computes the element's volume.
+
+@item SurfaceArea
+@code{[]}
+
+Computes the area of the actual surface.
+
+@item GetVolume
+@code{[]}
+
+Computes the volume of the actual physical group.
+
 @item F_CompElementNum
 @code{[]}
 
@@ -3375,38 +3516,38 @@ Returns 0 if the current element and the current source element are
 identical.
 
 @item InterpolationLinear
-@code{[]@{@var{expression-cst-list}@}}
+@code{[@var{expression}]@{@var{expression-cst-list}@}}
 
 Linear interpolation of points. The number of constant expressions in
 @var{expression-cst-list} must be even.
 
 @item dInterpolationLinear
-@code{[]@{@var{expression-cst-list}@}}
+@code{[@var{expression}]@{@var{expression-cst-list}@}}
 
 Derivative of linear interpolation of points. The number of constant
 expressions in @var{expression-cst-list} must be even.
 
 @item InterpolationBilinear
-@code{[]@{@var{expression-cst-list}@}}
+@code{[@var{expression},@var{expression}]@{@var{expression-cst-list}@}}
 
 Bilinear interpolation of a table based on two variables. See
 @url{https://geuz.org/trac/getdp/wiki/UsageOfTables} for an example.
 
 @item dInterpolationBilinear
-@code{[]@{@var{expression-cst-list}@}}
+@code{[@var{expression},@var{expression}]@{@var{expression-cst-list}@}}
 
 Derivative of bilinear interpolation of a table based on two variables.
 The result is a vector. 
 See @url{https://geuz.org/trac/getdp/wiki/UsageOfTables} for an example.
 
 @item InterpolationAkima
-@code{[]@{@var{expression-cst-list}@}}
+@code{[@var{expression}]@{@var{expression-cst-list}@}}
 
 Akima interpolation of points. The number of constant expressions in
 @var{expression-cst-list} must be even.
 
 @item dInterpolationAkima
-@code{[]@{@var{expression-cst-list}@}}
+@code{[@var{expression}]@{@var{expression-cst-list}@}}
 
 Derivative of Akima interpolation of points. The number of constant
 expressions in @var{expression-cst-list} must be even.
