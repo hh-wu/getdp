@@ -4563,6 +4563,12 @@ are concatenated in the file @var{expression-char}.
 
 Appends the result to a file named @var{expression-char}.
 
+@item Name
+@code{@var{expression-char}}
+
+For formats that support it, sets the label of the output field to
+@var{expression-char}.
+
 @item Depth
 @var{expression-cst}
 
