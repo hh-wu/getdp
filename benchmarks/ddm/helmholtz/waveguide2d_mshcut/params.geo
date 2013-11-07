@@ -1,0 +1,12 @@
+N_DOM = 10 ;
+WAVENUMBER = 20.00000*Pi ;
+LAMBDA = 2*Pi/WAVENUMBER ;
+N_LAMBDA = 20.000000 ;
+LC = 0.005000;
+PRECOND_SWEEP = 1 ;
+MAXIT = 300 ;
+m = 2 ;
+D = 4.000000 ;
+d = 1.000000 ;
+TOL = 1.000000e-06 ;
+Include "params_part2.geo";

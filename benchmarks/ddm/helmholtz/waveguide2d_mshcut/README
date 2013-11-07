@@ -1,0 +1,7 @@
+2D waveguide DDM test case
+
+- generate the full mesh: gmsh waveguide.geo -
+- set the number of domains N_DOM in params.geo
+- partition the mesh: gmsh part.geo -
+- split the mesh into submeshes: gmsh split.geo -
+- run getdp: getdp waveguide2d_mshcut.pro -sol DDM -v 0 -bin -ksp_monitor
