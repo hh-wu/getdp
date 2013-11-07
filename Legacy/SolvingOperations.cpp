@@ -980,6 +980,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  ------------------------------------------  */
     case OPERATION_SETGLOBALSOLVEROPTIONS :
       {
+        Message::Info("SetGlobalSolverOptions[\"%s\"]",
+                      Operation_P->Case.SetGlobalSolverOptions.String);
         LinAlg_SetGlobalSolverOptions(Operation_P->Case.SetGlobalSolverOptions.String);
       }
       break ;
