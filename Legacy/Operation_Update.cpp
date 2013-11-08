@@ -32,6 +32,7 @@ void Cal_ThetaMatrix(int *init, double *coef,
   Message::Info("Generate Theta Iteration Matrix (Theta=%g, DTime=%g)",
                 Current.Theta, Current.DTime) ;
 
+  LinAlg_AssembleMatrix(A) ;
   LinAlg_ZeroMatrix(A);
 
   // A = c0 * M2 + c1 * M1
@@ -110,6 +111,7 @@ void Cal_NewmarkMatrix(int *init, double *coef,
   Message::Info("Generate Newmark Iteration Matrix (Beta=%g, Gamma=%g, DTime=%g)",
                 Current.Beta, Current.Gamma, Current.DTime) ;
 
+  LinAlg_AssembleMatrix(A) ;
   LinAlg_ZeroMatrix(A);
 
   // A = c0 * M3 + c1 * M2 + c2 * M3
