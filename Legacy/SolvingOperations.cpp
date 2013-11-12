@@ -2452,12 +2452,43 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
           std::string path(Name_Path), file("file_"), mat("mat_"), vec("vec_");
           std::string name(Operation_P->Case.Print.FileOut ? Operation_P->Case.Print.FileOut :
                            DefineSystem_P->Name);
-	  LinAlg_PrintMatrix(fp, &DofData_P->A, true,
-                             (path + file + mat + name + ".m").c_str(),
-                             (mat + name).c_str()) ;
-	  LinAlg_PrintVector(fp, &DofData_P->b, true,
-                             (path + file + vec + name + ".m").c_str(),
-                             (vec + name).c_str()) ;
+          if(DofData_P->Flag_Init[1] || DofData_P->Flag_Init[2] || DofData_P->Flag_Init[3]){
+            if(DofData_P->Flag_Init[1]){
+              std::string name1 = name + "1";
+              LinAlg_PrintMatrix(fp, &DofData_P->M1, true,
+                                 (path + file + mat + name1 + ".m").c_str(),
+                                 (mat + name).c_str()) ;
+              LinAlg_PrintVector(fp, &DofData_P->m1, true,
+                                 (path + file + vec + name1 + ".m").c_str(),
+                                 (vec + name1).c_str()) ;
+            }
+            if(DofData_P->Flag_Init[2]){
+              std::string name1 = name + "2";
+              LinAlg_PrintMatrix(fp, &DofData_P->M2, true,
+                                 (path + file + mat + name1 + ".m").c_str(),
+                                 (mat + name1).c_str()) ;
+              LinAlg_PrintVector(fp, &DofData_P->m2, true,
+                                 (path + file + vec + name1 + ".m").c_str(),
+                                 (vec + name1).c_str()) ;
+            }
+            if(DofData_P->Flag_Init[3]){
+              std::string name1 = name + "3";
+              LinAlg_PrintMatrix(fp, &DofData_P->M3, true,
+                                 (path + file + mat + name1 + ".m").c_str(),
+                                 (mat + name1).c_str()) ;
+              LinAlg_PrintVector(fp, &DofData_P->m3, true,
+                                 (path + file + vec + name1 + ".m").c_str(),
+                                 (vec + name1).c_str()) ;
+            }
+          }
+          else{
+            LinAlg_PrintMatrix(fp, &DofData_P->A, true,
+                               (path + file + mat + name + ".m").c_str(),
+                               (mat + name).c_str()) ;
+            LinAlg_PrintVector(fp, &DofData_P->b, true,
+                               (path + file + vec + name + ".m").c_str(),
+                               (vec + name).c_str()) ;
+          }
 	}
       }
 
