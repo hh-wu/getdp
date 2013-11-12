@@ -1,10 +1,10 @@
-Domain decomposition solver for the Helmholtz equation
+Domain decomposition solver for HF Maxwell's equations
 ------------------------------------------------------
 
 The core DDM code is contained in the 'main' directory.  The two
-files: 'Helmholtz.pro' and 'DDM_sweep.pro' respectively address the
+files: 'Maxwell.pro' and 'DDM_sweep.pro' respectively address the
 classical and DDM formulations. The user should simply include
-'../main/Helmholtz.pro' (using the getdp command: Include
+'../main/Maxwell.pro' (using the getdp command: Include
 "pathTo/myFile.pro") at the end of the main '.pro' file of the
 problem.
 
@@ -15,8 +15,12 @@ included in the main problem file. These regions are:
 
  * Omega~{i}: the interior of the i-th subdomain;
  * GammaInf~{i}: the portion of its boundary with Sommerfeld condition;
- * GammaD~{i}: the portion of its boundary with Dirichlet condition;
+ * GammaScat~{i}: the portion of its boundary with Dirichlet condition;
  * GammaN~{i}: the portion of its boundary with Neumann condition;
+ * GammaC: the portion of the boundary where the tangential component
+   of the field is forced to 0 (via a constraint in the function
+   space). Useful for conducting parts when *total field* computations
+   are performed.
  * Sigma~{i}~{j}: the artificial interfaces (j = 0,1 for left,right);
  * Sigma~{i}: the union of Sigma~{i}~{0} and Sigma~{i}~{1}.
 
@@ -28,11 +32,14 @@ boundaries where a condition involving a normal derivative is
 imposed. TODO: rule for mesh names !!
 
 Different transmission conditions are available in the DDM
-formulation. One of them must be selected among EMDA, OSRC or OO2 by
-setting the corresponding flag in the configuration file to 1 and all
-others to 0. Each of them has parameters; default values are specified
-in the file 'tcDefaults.pro' that can be included at the beginning of
-the problem file for simplicity.
+formulation. One of them must be selected among Silver-Müller (SM),
+OSRC or JFLEE by setting the corresponding flag in the configuration
+file to 1 and all others to 0. Two version of the OSRC operators are
+availbale in the Maxwell code; to use the second version, select the
+OSRC2 flag *and* the OSRC flag. Each of them has parameters; default
+values are specified in the file 'tcDefaults.pro' that can be included
+at the beginning of the problem file for simplicity.
+		    !! TODO: do it for Maxwell !!
 
 The PRECOND_SWEEP flag must be set/unset to enable/disable the double
 sweep preconditioner, that can significantly improve the convergence
@@ -43,9 +50,8 @@ Some additional functions must be specified by the user. They are:
 
  * k[]: the wavenumber (a constant in homogeneous media);
  * kInf[]: the wavenumber to be used in the Sommerfeld condition;
- * kDtn[]: the wavenumber to be used in the transmission conditions;
- * uInc[]: the Dirichlet data to be imposed on GammaD;
- * F_SOURCE[]: the volumic source function.
+ * kDtN[]: the wavenumber to be used in the transmission conditions;
+ * einc[]: the Dirichlet data to be imposed on GammaScat;
 
 With the exception of some particular problems (namely waveguide
 problems), they can simply be set to the wavenumber of the problem.
@@ -58,7 +64,11 @@ The DDM solver is called by the following command line:
 speeds up the writing of the solution.) A full solution can be
 computed by calling:
 
-  getdp myProblem.pro -sol Full -bin
+  getdp myProblem.pro -sol -pos -bin
 
-The solutions are written as 'u%d.pos' on each subdomain or 'u.pos'
-for the full solution.
+and selecting the 'Maxwell_Lagrange' formulations.
+
+The solutions (scattered fields) are written as 'e_vol_%d.pos' on each
+subdomain or 'e_lag_vol.pos' for the full solution. Total field
+solutions are also saved, as 'e_vol_tot%d.pos' on each subdomain or
+'e_lag_vol_tot.pos'.

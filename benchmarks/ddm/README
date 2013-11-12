@@ -1,1 +1,5 @@
-will contain DDM stuff
+Non-overlapping Domain Decomposition (DDM) formulations and test cases
+for the Helmholtz and HF Maxwell equations.
+
+Contributed to by M. El Bouajaji, C. Geuzaine, B. Thierry, S. Tournier
+and A. Vion.
