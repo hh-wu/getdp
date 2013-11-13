@@ -32,6 +32,7 @@
 
 #include <sstream>
 #include <string>
+#include <cstring>
 #include <complex>
 #include "ProData.h"
 #include "DofData.h"
