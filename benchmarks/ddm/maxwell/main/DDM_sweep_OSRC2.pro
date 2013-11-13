@@ -391,8 +391,6 @@ Resolution {
       If(JFLee)
 	Printf[" ***** Using JFLee as transmission condition *****"];
       EndIf
-	// Printf[" ***** mySign = %g", mySign];
-
 	Printf(" ** Relative tolerance: %g", TOL);
 
       If(SM_sign != 1)

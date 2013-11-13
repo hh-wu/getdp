@@ -6,7 +6,8 @@ files: 'Maxwell.pro' and 'DDM_sweep.pro' respectively address the
 classical and DDM formulations. The user should simply include
 '../main/Maxwell.pro' (using the getdp command: Include
 "pathTo/myFile.pro") at the end of the main '.pro' file of the
-problem.
+problem. The main_original folder contains an outdated version of the
+files that do not allow sweeping and is kept as a reference.
 
 Several regions are defined in these files that must be properly
 referenced (even if they are empty) by the user and match the physical
@@ -39,7 +40,6 @@ availbale in the Maxwell code; to use the second version, select the
 OSRC2 flag *and* the OSRC flag. Each of them has parameters; default
 values are specified in the file 'tcDefaults.pro' that can be included
 at the beginning of the problem file for simplicity.
-		    !! TODO: do it for Maxwell !!
 
 The PRECOND_SWEEP flag must be set/unset to enable/disable the double
 sweep preconditioner, that can significantly improve the convergence

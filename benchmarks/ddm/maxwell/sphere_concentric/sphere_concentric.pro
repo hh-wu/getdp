@@ -16,30 +16,13 @@ Function {
   I[] = Complex[0, 1];
   einc[] = Vector[1,0,0] * Complex[ Cos[-k*Z[]], Sin[-k*Z[]] ];
   hinc[] = 1/Z0 * Vector[0,1,0] * Complex[ Cos[-k*Z[]], Sin[-k*Z[]] ];
-  
-  // Parameters for OSRC
-  NP_OSRC = 2;
-  THETA_BRANCH_OSRC = 0.785398;
-  theta_branch = THETA_BRANCH_OSRC;
+
   k[] = k;
   kDtN[] = k;
   kInf[] = k;
-  // kappa[] =  Norm[XYZ[]];// 1/R_INT; // curvature
-  // keps[] = Complex[ k, 0.4 * k^(1/3) * kappa[]^(-2/3) ];
-  kappa[] =  1;//Norm[XYZ[]];// 1/R_INT; // curvature
-  kepsI = 0.;//Complex[ k, 0.4 * k^(1/3) * kappa[]^(-2/3) ];
-  keps[] = k*(1+kepsI*I[]);
-  keps2[] =  keps[]^2;
-
-
-  //Parameters for JFLee
-  // kmax[] = Pi/LC ;//Norm[XYZ[]]*Pi/LC ;
-  kmax[] = Norm[XYZ[]]*Pi/LC ;
-  delt[] = Sqrt[kmax[]^2-k^2]/Sqrt[k^2];
-  Coef_Lee1[] = 1/(1 + I[]*delt[]);
-  Coef_Lee2[] = -Coef_Lee1[];
-
 }
+
+Include "../main/tcDefaults.pro";
 
 Function{
   //Parallel

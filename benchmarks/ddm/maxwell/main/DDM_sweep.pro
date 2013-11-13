@@ -101,8 +101,6 @@ FunctionSpace {
   EndFor    
 }
 
-SM_sign = 1;
-
 Formulation {
   //DDM with Lagrange Multipliers  
   For ii In {0: #ListOfDom()-1}
@@ -133,7 +131,7 @@ Formulation {
 	  In Omega~{idom}; Integration I1; Jacobian JVol; }
 	Galerkin { [ -k^2 * Dof{e~{idom}} , {e~{idom}} ]; 
 	  In Omega~{idom}; Integration I1; Jacobian JVol; }
-	Galerkin { [ SM_sign*I[] * kInf[] * (N[]) /\ ( N[] /\ Dof{e~{idom}} ) , {e~{idom}} ];
+	Galerkin { [ I[] * kInf[] * (N[]) /\ ( N[] /\ Dof{e~{idom}} ) , {e~{idom}} ];
 	  In GammaInf~{idom}; Integration I1; Jacobian JSur; }
 	
 	//boundary condition
@@ -152,7 +150,7 @@ Formulation {
 	    In Sigma~{idom}~{0}; Integration I1; Jacobian JSur; }
 	Galerkin { [ (#12 > 0. ? g_in~{idom}~{1}[] : Vector[0,0,0]) , {e~{idom}} ];
 	    In Sigma~{idom}~{1}; Integration I1; Jacobian JSur; }
-	  Galerkin { [ SM_sign*I[] * kDtN[] * N[] /\ ( N[] /\ Dof{e~{idom}} ), {e~{idom}} ];
+	  Galerkin { [ I[] * kDtN[] * N[] /\ ( N[] /\ Dof{e~{idom}} ), {e~{idom}} ];
 	    In Sigma~{idom}; Integration I1; Jacobian JSur; } 
 	EndIf
 
@@ -249,7 +247,7 @@ Formulation {
 	  If(SILVER_MULLER)
   	    Galerkin { [ (#10 > 0. ? Vector[0,0,0] : g_in~{idom}~{iSide}[]) , {g_out~{idom}~{iSide}} ];
 	      In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
-	    Galerkin { [ SM_sign*2*I[] * kDtN[] * N[] /\ ( N[] /\ {e~{idom}} ) , {g_out~{idom}~{iSide}} ];
+	    Galerkin { [ 2*I[] * kDtN[] * N[] /\ ( N[] /\ {e~{idom}} ) , {g_out~{idom}~{iSide}} ];
 	      In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; } 
 	  EndIf
 
@@ -302,7 +300,7 @@ Formulation {
     	  If(SILVER_MULLER)
 	    Galerkin{[ -ComplexVectorField[XYZ[]]{2*idom+iSide-1}, {g_out~{idom}~{iSide}}] ;
 	      In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
-    	    Galerkin { [ SM_sign*2*I[] * kDtN[] * N[] /\ ( N[] /\ {e~{idom}} ) , {g_out~{idom}~{iSide}} ];
+    	    Galerkin { [ 2*I[] * kDtN[] * N[] /\ ( N[] /\ {e~{idom}} ) , {g_out~{idom}~{iSide}} ];
     	      In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; } 
 	  EndIf
     	  If(OSRC)
@@ -363,13 +361,7 @@ Resolution {
       If(JFLee)
 	Printf[" ***** Using JFLee as transmission condition *****"];
       EndIf
-	// Printf[" ***** mySign = %g", mySign];
-
 	Printf(" ** Relative tolerance: %g", TOL);
-
-      If(SM_sign != 1)
-	Printf(" ***** SM sign is reversed *****");
-      EndIf
 
       //DDM
       SetCommSelf;

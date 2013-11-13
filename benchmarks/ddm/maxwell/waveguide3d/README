@@ -1,0 +1,14 @@
+3d waveguide test case for DDM Maxwell
+--------------------------------------
+
+* Generate full mesh (-> 'waveguide3d.msh'): gmsh waveguide3d.geo
+
+* Partition the mesh (-> 'waveguide3d_mshcut.msh'): gmsh part.geo
+
+* Generate the split meshes (-> 'waveguide3d_mshcut%d.msh'): gmsh split.geo
+
+* Run the DDM solution: getdp waveguide3d.pro -sol DDM -v 0 -bin -ksp_monitor
+
+* View solution: gmsh combine.geo
+
+FIXME: main file still needs some cleanup and testing for TE mode

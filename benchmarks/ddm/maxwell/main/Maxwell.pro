@@ -140,7 +140,6 @@ Formulation {
 	In Omega; Integration I1; Jacobian JVol;  }
       Galerkin { [ -k[]^2 * Dof{e_lag} , {e_lag} ]; 
 	In Omega; Integration I1; Jacobian JVol;  }
-      // Galerkin { [ I[] * kInf[] * ( N[] /\ Dof{e_lag} ) /\ N[] , {e_lag} ];
       Galerkin { [ I[] * kInf[] * (N[]) /\ ( N[] /\ Dof{e_lag} ) , {e_lag} ];
 	In GammaInf; Integration I1; Jacobian JSur;  }
       //boundary condition
@@ -195,7 +194,7 @@ PostProcessing {
       { Name e ; Value { Local { [ {e} ] ; In GammaScat; Jacobian JSur ; } } }
       { Name h ; Value { Local { [ {h} ] ; In GammaScat; Jacobian JSur ; } } }
       { Name j ; Value { Local { [ N[] /\ ({h} + hinc[]) ] ; In GammaScat; Jacobian JSur ; } } }
-      { Name j_exact ; Value { Local { [ CurrentPerfectlyConductingSphere[XYZ[]]{k, R_INT, Z0} ] ; In GammaScat; Jacobian JSur ; } } }
+      // { Name j_exact ; Value { Local { [ CurrentPerfectlyConductingSphere[XYZ[]]{k, R_INT, Z0} ] ; In GammaScat; Jacobian JSur ; } } }
       { Name e_vol ; Value { Local { [ {e} ] ; In Omega; Jacobian JVol ; } } }
     }
   }
@@ -221,7 +220,7 @@ PostOperation {
       Print[ e, OnElementsOf GammaScat, File "e.pos"] ;
       Print[ h, OnElementsOf GammaScat, File "h.pos"] ;
       Print[ j, OnElementsOf GammaScat, File "j.pos"] ;
-      Print[ j_exact, OnElementsOf GammaScat, File "j_exact.pos"] ;
+      // Print[ j_exact, OnElementsOf GammaScat, File "j_exact.pos"] ;
       Print[ e_vol, OnElementsOf Omega, File "e_vol.pos"] ;
     }
   }
