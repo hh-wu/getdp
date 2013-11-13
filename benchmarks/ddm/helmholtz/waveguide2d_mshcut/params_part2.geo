@@ -27,11 +27,10 @@ EMDA = 1;
 // BETA_EMDA[] = k[]/4.; // moved to waveguide2d_mshcut.pro
 // OSRC parameters (nb of Padé approx and angle of branch cut)
 NP_OSRC = 2;
-THETA_BRANCH_OSRC = 0.785398;
 
 // For mixed formulations (pressure/velocity)
-MIXED_NODAL = 1; //NODAL(=1) of Form3(=0) ? (Mixed only)
-DDM_MIXED_NODAL = 1; //NODAL(=1) of Form3(=0) ? (Mixed only)
+MIXED_NODAL = 0; //NODAL(=1) of Form3(=0) ? (Mixed only)
+DDM_MIXED_NODAL = 0; //NODAL(=1) of Form3(=0) ? (Mixed only)
 
 //Compute Full solution (one-domain) ? Exact/analytic solution ?
 FULL_SOLUTION = 0;

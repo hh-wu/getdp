@@ -13,5 +13,6 @@ Function {
   // OSRC
   N = NP_OSRC;
   keps[] = Complex[ kDtn[], kDtn[]/4. ];
+  THETA_BRANCH_OSRC = 0.785398;
   theta_branch = THETA_BRANCH_OSRC;
 }

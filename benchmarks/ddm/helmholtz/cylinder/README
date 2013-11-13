@@ -1,0 +1,9 @@
+ * Generate the meshes: choose between
+    gmsh cylinderRectShell.geo -
+    gmsh cylinderRoundShell.geo -
+
+ * Run the DDM code:
+    getdp cylinder.pro -sol DDM -v 0 -bin -ksp_monitor
+
+ * View solution:
+    gmsh combine.geo

@@ -425,8 +425,8 @@ Resolution {
       	  EndIf
       	  EndIf
       	EndFor
-      	EndIf
       	SetCommWorld;
+      	EndIf
       // EndIf
       }
       // //Now the solution G is stored in the PView of index ListOfDom()
