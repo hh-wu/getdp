@@ -83,6 +83,7 @@ Volume(1) = {100};
 lCyl[] += {100:103};
 lShell[] += {30:34};
 lInterf[] += {21};
+lInterfBound[] += Boundary{Surface{lInterf[(#lInterf[]-1)]};};
 lVol[] += {1};
 
 
@@ -95,6 +96,7 @@ For i In{2:NDOM-1}
   lCyl[] += {extr[{2:5}]};
   lShell[] += {extr[{6:9}]};
   lInterf[] += {extr[0]};
+  lInterfBound[] += Boundary{Surface{lInterf[(#lInterf[]-1)]};};
   lVol[] += {extr[1]};
 EndFor
 
@@ -166,13 +168,23 @@ lVol[] += {NDOM};
 Mesh.Optimize = 1;
 Mesh 3;
 
+nBound1 = 0; // set to 4 to ignore inner boundary, 0 otherwise
+nBound2 = 7; // set to 3 to ignore outer boundary, 7 otherwise
+If (IGNORE_INNER_BOUNDARY)
+nBound1 = 4;
+EndIf
+If (IGNORE_OUTER_BOUNDARY)
+nBound2 = 3;
+EndIf
+
 For i In{1:NDOM}
 Delete Physicals;
 If (i==1)
-Physical Surface(1001) = {lCyl[{0:3}]}; // first end cap
-Physical Surface(2001) = lShell[{0:4}]; // first end outer shell
-Physical Volume(4001)=lVol[0];
-Physical Surface(4000) = lInterf[0]; // first interface
+  Physical Surface(1001) = {lCyl[{0:3}]}; // first end cap
+  Physical Surface(2001) = lShell[{0:4}]; // first end outer shell
+  Physical Volume(4001)=lVol[0];
+  Physical Surface(4000) = lInterf[0]; // first interface
+  Physical Line(40000) = lInterfBound[{nBound1:nBound2:1}];
 EndIf
 
 If (i!=1 && i!=NDOM)
@@ -181,6 +193,8 @@ If (i!=1 && i!=NDOM)
   Physical Volume(4000+i) = lVol[i-1];
   Physical Surface((-(2+i)*1000)) = lInterf[i-2]; // first interface
   Physical Surface(((3+i)*1000)) = lInterf[i-1]; // 2nd interface
+  Physical Line((-(2+i)*10000)) = lInterfBound[{(i-2)*8+nBound1:(i-2)*8+nBound2:1}];
+  Physical Line(((3+i)*10000)) = lInterfBound[{(i-1)*8+nBound1:(i-1)*8+nBound2:1}];
 EndIf
 
 If (i==NDOM)
@@ -188,6 +202,7 @@ If (i==NDOM)
   Physical Surface(2000+i) = lShell[{5+4*(i-2):9+4*(i-2)}]; // 2nd end outer shell
   Physical Volume(4000+i)= lVol[i-1];
   Physical Surface((-(2+i)*1000)) = lInterf[i-2]; // 2nd interface
+  Physical Line((-(2+i)*10000)) = lInterfBound[{(i-2)*8+nBound1:(i-2)*8+nBound2:1}];
 EndIf
 
 Save Sprintf("cylinder_mshcut%g.msh", i-1);

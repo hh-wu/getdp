@@ -20,6 +20,9 @@ Group{
 //DDM
   For idom In {0:N_DOM-1}
     Omega~{idom} = Region[(6001 + idom)];
+    BndSigma~{idom}~{0} = Region[{}];
+    BndSigma~{idom}~{1} = Region[{}];
+
 
     If(idom == 0)
       Sigma~{idom}~{0} = Region[{}];

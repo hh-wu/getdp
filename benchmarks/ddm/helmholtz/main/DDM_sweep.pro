@@ -68,7 +68,7 @@ Constraint{
     { Name Dirichlet~{idom} ; Case { { Region GammaScat~{idom} ; Value f_diri[];} } }
     For jdom In {0:1}
       For j In {1:N}
-        { Name Dirichlet_phi~{j}~{idom}~{jdom} ; Case { { Region GammaScat~{idom} ; Value f_diri[];} } }
+        { Name Dirichlet_phi~{j}~{idom}~{jdom} ; Case { { Region GammaScat~{idom} ; Value 0*f_diri[];} } }  // 20131029: DO NOT remove this constraint !! Seems faster with 0*f_diri[] ??
       EndFor
     EndFor
   EndFor
@@ -80,7 +80,7 @@ FunctionSpace {
   { Name Hgrad_u~{idom} ; Type Form0 ;
     BasisFunction {
       { Name sn ; NameOfCoef un ; Function BF_Node ;
-        Support Region[ {Omega~{idom}, GammaInf~{idom}, Sigma~{idom}, GammaScat~{idom}, BndGammaInf~{idom}} ] ; Entity NodesOf[ Omega~{idom} ] ; }
+        Support Region[ {Omega~{idom}, GammaInf~{idom}, BndGammaInf~{idom}, Sigma~{idom}, GammaScat~{idom}} ] ; Entity NodesOf[ All/*Omega~{idom}*/ ] ; }
     }
     Constraint { { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet~{idom} ; } }
   }
@@ -89,17 +89,17 @@ FunctionSpace {
     { Name Hgrad_g_out~{idom}~{jdom}; Type Form0 ;
       BasisFunction {
         { Name sn ; NameOfCoef un ; Function BF_Node ;
-          Support Sigma~{idom}~{jdom} ; Entity NodesOf[All];}
+          Support Region[ {Sigma~{idom}~{jdom}} ] ; Entity NodesOf[All, Not GammaScat/**/];}
       }
     }
 
     For j In {1:N}
-      { Name Hgrad_phi~{j}~{idom}~{jdom} ; Type Form0 ;
+    { Name Hgrad_phi~{j}~{idom}~{jdom} ; Type Form0 ; // EXPERIMENTAL
         BasisFunction {
           { Name sn ; NameOfCoef un ; Function BF_Node ;
-            Support Sigma~{idom}~{jdom} ; Entity NodesOf[All] ; }
+            Support Region[ {Sigma~{idom}~{jdom}, BndSigma~{idom}~{jdom}} ] ; Entity NodesOf[All, Not GammaScat/**/] ; } // exclude GammaScat in case part of BndSigma intersects GammaScat
         }
-	Constraint { { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet_phi~{j}~{idom}~{jdom} ; } } // 20130418: Alex added this to help convergence for the waveguide
+	Constraint { { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet_phi~{j}~{idom}~{jdom} ; } } // 20130418: Alex added this to help convergence for the waveguide ; UPDATE 20131029: this constraint MUST be there !! Even if GammaScat is excluded !
       }
     EndFor
    EndFor
@@ -138,8 +138,8 @@ Formulation {
       Galerkin { [ - (#10 > 0. ? g_in~{idom}~{0}[] : 0), {u~{idom}} ] ;
 	  In Sigma~{idom}~{0}; Jacobian JSur ; Integration I1 ; }
       // g_in RIGHT (#11 > 0) or 0 (#11 == 0) 
-	Galerkin { [ - (#11 > 0. ? g_in~{idom}~{1}[] : 0), {u~{idom}} ] ;
-	  In Sigma~{idom}~{1}; Jacobian JSur ; Integration I1 ; }
+      Galerkin { [ - (#11 > 0. ? g_in~{idom}~{1}[] : 0), {u~{idom}} ] ;
+	In Sigma~{idom}~{1}; Jacobian JSur ; Integration I1 ; }
       //Transmission condition
       If(EMDA)
 	Galerkin { [ - I[] * kDtn[] * Dof{u~{idom}} , {u~{idom}} ] ;
@@ -160,8 +160,12 @@ Formulation {
           For j In{1:N}
             Galerkin { [   I[] * kDtn[] * OSRC_Aj[]{j,N,theta_branch} / keps[]^2 * Dof{d phi~{j}~{idom}~{jdom}} , {d u~{idom}} ] ;
 	      In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
+            Galerkin { [ - I[] * kDtn[] * OSRC_Aj[]{j,N,theta_branch} / keps[]^2 * ( I[] * kInf[] * Dof{phi~{j}~{idom}~{jdom}}) , {u~{idom}} ] ; // EXPERIMENTAL
+	      In BndSigma~{idom}~{jdom}; Jacobian JLin ; Integration I1 ; }
 	    Galerkin { [ - OSRC_Bj[]{j,N,theta_branch} / keps[]^2 * Dof{d phi~{j}~{idom}~{jdom}} , {d phi~{j}~{idom}~{jdom}} ] ;
 	      In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
+            Galerkin { [ OSRC_Bj[]{j,N,theta_branch} / keps[]^2 * ( I[] * kInf[] * Dof{phi~{j}~{idom}~{jdom}}) , {phi~{j}~{idom}~{jdom}} ] ; // EXPERIMENTAL
+	      In BndSigma~{idom}~{jdom}; Jacobian JLin ; Integration I1 ; }
 	    Galerkin { [ Dof{phi~{j}~{idom}~{jdom}} , {phi~{j}~{idom}~{jdom}} ] ;
 	      In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
 	    Galerkin { [  - Dof{u~{idom}} , {phi~{j}~{idom}~{jdom}} ] ;
@@ -226,11 +230,13 @@ EndIf
 	EndIf
 
 	If(OSRC)
-	  Galerkin { [  -2 * (- I[] * kDtn[] * OSRC_C0[]{N,theta_branch} * {u~{idom}}) , {g_out~{idom}~{jdom}} ] ;
+	  Galerkin { [ 2 * ( I[] * kDtn[] * OSRC_C0[]{N,theta_branch} * {u~{idom}} ) , {g_out~{idom}~{jdom}} ] ;
 	    In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
           For j In{1:N}
             Galerkin { [  -2 * ( I[] * kDtn[] * OSRC_Aj[]{j,N,theta_branch} / keps[]^2 * {d phi~{j}~{idom}~{jdom}}) , {d g_out~{idom}~{jdom}} ] ;
 	      In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
+            // Galerkin { [ 2 * I[] * k[] * OSRC_Aj[]{j,N,theta_branch} / keps[]^2 * ( I[] * kInf[] * {phi~{j}~{idom}~{jdom}}) , {g_out~{idom}~{jdom}} ] ; // EXPERIMENTAL
+	    //   In BndSigma~{idom}~{jdom}; Jacobian JLin ; Integration I1 ; } // Do not add boundary contribution as phi is no longer dof here !?
           EndFor
         EndIf
       }
@@ -268,11 +274,13 @@ EndIf
 	EndIf
 
 	If(OSRC)
-	  Galerkin { [  -2 * (- I[] * kDtn[] * OSRC_C0[]{N,theta_branch} * {u~{idom}}) , {g_out~{idom}~{jdom}} ] ;
+	  Galerkin { [ 2 * ( I[] * kDtn[] * OSRC_C0[]{N,theta_branch} * {u~{idom}} ) , {g_out~{idom}~{jdom}} ] ;
 	    In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
           For j In{1:N}
-            Galerkin { [  -2 * ( I[] * kDtn[] * OSRC_Aj[]{j,N,theta_branch} / keps[]^2 * {d phi~{j}~{idom}~{jdom}}) , {d g_out~{idom}~{jdom}} ] ;
+            Galerkin { [  -2 * ( I[] * kDtn[] * OSRC_Aj[]{j,N,theta_branch} / keps[]^2 * {d phi~{j}~{idom}~{jdom}} ) , {d g_out~{idom}~{jdom}} ] ;
 	      In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
+            // Galerkin { [ 2 * I[] * k[] * OSRC_Aj[]{j,N,theta_branch} / keps[]^2 * ( I[] * kInf[] * {phi~{j}~{idom}~{jdom}}) , {g_out~{idom}~{jdom}} ] ; // EXPERIMENTAL
+	    //   In BndSigma~{idom}~{jdom}; Jacobian JLin ; Integration I1 ; } // Do not add boundary contribution as phi is no longer dof here !?
           EndFor
         EndIf
       }
@@ -330,6 +338,10 @@ Resolution {
 	For jdom In {0:1}
 	  Generate[ComputeG~{idom}~{jdom}] ;
           Solve[ComputeG~{idom}~{jdom}] ;
+	  // If (PRECOND_SWEEP)
+	  //   Generate[ComputeGPrecond~{idom}~{0}] ;
+	  //   Generate[ComputeGPrecond~{idom}~{1}] ;
+	  // EndIf
 	EndFor
 	//print u_init either in Memory (STORE_U_INIT == 1) and/or on disk (WRITE_U_INIT == 1)
 	PostOperation[u_init~{idom}] ;
@@ -351,6 +363,16 @@ Resolution {
       EndFor
       // Launching iterative solver
       SetCommWorld;
+
+      If (PRECOND_SWEEP) // Generate the systems now, and generate RHS only during iterations (EXPERIMENTAL)
+	For ii In {0: #ListOfDom()-1}
+          idom = ListOfDom(ii);
+	  For jdom In {0:1}
+	    Generate[ComputeGPrecond~{idom}~{0}] ;
+	    Generate[ComputeGPrecond~{idom}~{1}] ;
+	  EndFor
+        EndFor
+      EndIf
 
       IterativeLinearSolver["I-A", SOLVER, TOL, MAXIT, RESTART, {ListOfField()}, {ListOfNeighborField()}, {}]
       {
@@ -398,7 +420,8 @@ Resolution {
       	    GenerateRHSGroup[Helmholtz~{idom}, Sigma~{idom}] ;
       	    SolveAgain[Helmholtz~{idom}] ; 
       	    //Compute the new g_out (fast way)
-      	    Generate[ComputeGPrecond~{idom}~{1}] ;
+      	    // Generate[ComputeGPrecond~{idom}~{1}] ;
+      	    GenerateRHSGroup[ComputeGPrecond~{idom}~{1}, Sigma~{idom}~{1}] ; // EXPERIMENTAL
       	    SolveAgain[ComputeGPrecond~{idom}~{1}] ;
       	    PostOperation[g_out~{idom}~{1}] ;
       	  EndIf
@@ -419,7 +442,8 @@ Resolution {
       	    GenerateRHSGroup[Helmholtz~{idom}, Sigma~{idom}] ;
       	    SolveAgain[Helmholtz~{idom}] ;
       	    //Compute the new g_out (fast way)
-      	    Generate[ComputeGPrecond~{idom}~{0}] ;
+      	    // Generate[ComputeGPrecond~{idom}~{0}] ;
+      	    GenerateRHSGroup[ComputeGPrecond~{idom}~{0}, Sigma~{idom}~{0}] ; // EXPERIMENTAL
       	    SolveAgain[ComputeGPrecond~{idom}~{0}] ;
       	    PostOperation[g_out~{idom}~{0}] ;
       	  EndIf

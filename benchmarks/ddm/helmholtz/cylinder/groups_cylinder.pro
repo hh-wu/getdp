@@ -28,19 +28,28 @@ Group{
 
     BndGammaInf~{idom} = Region[{}];
     BndSigma~{idom} = Region[{}];
+    BndSigma~{idom}~{0} = Region[{}];
+    BndSigma~{idom}~{1} = Region[{}];
 
     If(idom == 0)
       Sigma~{idom}~{0} = Region[{}];
       Sigma~{idom}~{1} = Region[((4+idom)*1000)];
+      BndSigma~{idom}~{0} += Region[{}];
+      BndSigma~{idom}~{1} += Region[((4+idom)*10000)];
     EndIf
     If(idom == N_DOM-1)
       Sigma~{idom}~{0} = Region[((3+idom)*1000)];
       Sigma~{idom}~{1} = Region[{}];
+      BndSigma~{idom}~{0} += Region[((3+idom)*10000)];
+      BndSigma~{idom}~{1} += Region[{}];
     EndIf
     If(idom > 0  && idom < N_DOM-1)
       Sigma~{idom}~{0} = Region[{((3+idom)*1000)}];
       Sigma~{idom}~{1} = Region[{((4+idom)*1000)}];
+      BndSigma~{idom}~{0} += Region[((3+idom)*10000)];
+      BndSigma~{idom}~{1} += Region[((4+idom)*10000)];
     EndIf
     Sigma~{idom} = Region[{Sigma~{idom}~{0}, Sigma~{idom}~{1}}] ;
+    BndSigma~{idom} = Region[{BndSigma~{idom}~{0}, BndSigma~{idom}~{1}}] ;
   EndFor
 }

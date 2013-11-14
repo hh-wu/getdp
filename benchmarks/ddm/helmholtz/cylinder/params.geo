@@ -1,6 +1,6 @@
 lc = .075; // surface
 LC = lc * 2; // volume
-NUM_SLICES = 2;
+NUM_SLICES = 10;
 
 //Number of subdomains, frequency, element size
 N_DOM = NUM_SLICES;
@@ -9,7 +9,10 @@ LAMBDA = 2*Pi/WAVENUMBER;
 // LC = LAMBDA/40;
 LC = 2*Pi/40;
 
-PRECOND_SWEEP = 0;
+PRECOND_SWEEP = 1;
+
+IGNORE_INNER_BOUNDARY = 0; // whether or not to declare the boundary of the interfaces as physicals in the .geo file -- impacts convergence !!
+IGNORE_OUTER_BOUNDARY = 0;
 
 //Geometry
 R_INT = 1.0;
