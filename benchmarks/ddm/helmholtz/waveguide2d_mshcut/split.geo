@@ -13,6 +13,8 @@ sur_top[] = {};     idx_sur_top[] = {};
 sigma_left[] = {};  idx_sigma_left[] = {};
 sigma_right[] = {}; idx_sigma_right[] = {};
 
+CreateTopology ;
+
 For i In {1:N_DOM}
   idx_vol[] += #vol[];                 vol[] += Physical Surface{6000 + i};
   idx_sur_bot[] += #sur_bot[];         sur_bot[] += Physical Line{1000 + i};
@@ -56,11 +58,23 @@ For i In {1:N_DOM}
   Physical Line(1000+i) = sur_bot[{idx_sur_bot[i-1]:idx_sur_bot[i]-1:1}];
   Physical Line(3000+i) = sur_top[{idx_sur_top[i-1]:idx_sur_top[i]-1:1}];
 
+  
+
   // Physical Surface(1000+i) = sur_scat[{idx_sur_scat[i-1]:idx_sur_scat[i]-1:1}];
   // Physical Surface(2000+i) = sur_inf[{idx_sur_inf[i-1]:idx_sur_inf[i]-1:1}];
   // Physical Surface(3000+i) = sur_sym[{idx_sur_sym[i-1]:idx_sur_sym[i]-1:1}];
   Physical Line(-(5000 + 1000 * (i-2))) = sigma_left[{idx_sigma_left[i-1]:idx_sigma_left[i]-1:1}];
   Physical Line(5000 + 1000 * (i-1)) = sigma_right[{idx_sigma_right[i-1]:idx_sigma_right[i]-1:1}];
+
+
+bnd[] = Boundary{Line{sigma_left[{idx_sigma_left[i-1]:idx_sigma_left[i]-1:1}]};};
+  Physical Point(10000+i) = bnd[] ;
+  Printf("[left]  idom=%g #bnd=%g ", idom , #bnd[] );
+
+bnd[] = Boundary{Line{sigma_right[{idx_sigma_right[i-1]:idx_sigma_right[i]-1:1}]};};
+  Physical Point(20000+i) = bnd[] ;
+Printf("[right] idom=%g #bnd=%g ", idom , #bnd[] );
+  
   Save Sprintf("waveguide2d_mshcut%g.msh", idom);
 EndFor
 
