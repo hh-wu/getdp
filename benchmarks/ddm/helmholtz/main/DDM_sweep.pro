@@ -42,6 +42,17 @@ Function{
   EndIf
 }
 
+Group{ // definition of some subsets of the regions defined by the user
+  For idom In {0:N_DOM-1}
+    GammaScat~{idom} = Region[GammaD~{idom}];
+    For iSide In {0:1}
+      BndSigmaD~{idom}~{iSide} = Region[BndSigma~{idom}~{iSide}, Not {GammaN~{idom}, GammaInf~{idom}}];
+      BndSigmaN~{idom}~{iSide} = Region[BndSigma~{idom}~{iSide}, Not {GammaScat~{idom}, GammaInf~{idom}}];
+      BndSigmaInf~{idom}~{iSide} = Region[BndSigma~{idom}~{iSide}, Not {GammaN~{idom}, GammaD~{idom}}];
+    EndFor
+  EndFor
+}
+
 // What follows is used to manage Dirichlet Boundary condition
 Function{
   //Register #10 is reserved. Value inside is 0 if the boundary condition is homogeneous and equal to 1 if not homogeneous.
@@ -56,9 +67,7 @@ Function{
 }
 
 Function{
-
   F_SOURCE[] = V_SOURCE[]*#9;
-
 }
 
 //Dirichlet boundary condition (either homogeneous or inhomogeneous, depending on register #10)
@@ -80,7 +89,7 @@ FunctionSpace {
   { Name Hgrad_u~{idom} ; Type Form0 ;
     BasisFunction {
       { Name sn ; NameOfCoef un ; Function BF_Node ;
-        Support Region[ {Omega~{idom}, GammaInf~{idom}, BndGammaInf~{idom}, Sigma~{idom}, GammaScat~{idom}} ] ; Entity NodesOf[ All/*Omega~{idom}*/ ] ; }
+        Support Region[ {Omega~{idom}, GammaInf~{idom}, BndGammaInf~{idom}, Sigma~{idom}, BndSigma~{idom}, GammaScat~{idom}} ] ; Entity NodesOf[ All/*Omega~{idom}/**/ ] ; }
     }
     Constraint { { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet~{idom} ; } }
   }
@@ -89,17 +98,17 @@ FunctionSpace {
     { Name Hgrad_g_out~{idom}~{jdom}; Type Form0 ;
       BasisFunction {
         { Name sn ; NameOfCoef un ; Function BF_Node ;
-          Support Region[ {Sigma~{idom}~{jdom}} ] ; Entity NodesOf[All, Not GammaScat/**/];}
+          Support Region[ {Sigma~{idom}~{jdom}} ] ; Entity NodesOf[All, Not GammaScat/**/];} // FIXME: check this, test on waveguide.
       }
     }
 
     For j In {1:N}
-    { Name Hgrad_phi~{j}~{idom}~{jdom} ; Type Form0 ; // EXPERIMENTAL
+      { Name Hgrad_phi~{j}~{idom}~{jdom} ; Type Form0 ; // EXPERIMENTAL
         BasisFunction {
           { Name sn ; NameOfCoef un ; Function BF_Node ;
-            Support Region[ {Sigma~{idom}~{jdom}, BndSigma~{idom}~{jdom}} ] ; Entity NodesOf[All, Not GammaScat/**/] ; } // exclude GammaScat in case part of BndSigma intersects GammaScat
+            Support Region[ {Sigma~{idom}~{jdom}, BndSigmaInf~{idom}~{jdom}, BndSigmaN~{idom}~{jdom}} ] ; Entity NodesOf[All, Not GammaScat/**/] ; } // exclude GammaScat in case part of BndSigma intersects GammaScat
         }
-	Constraint { { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet_phi~{j}~{idom}~{jdom} ; } } // 20130418: Alex added this to help convergence for the waveguide ; UPDATE 20131029: this constraint MUST be there !! Even if GammaScat is excluded !
+	Constraint { { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet_phi~{j}~{idom}~{jdom} ; } } // 20130418: Alex added this to help convergence for the waveguide ; UPDATE 20131029: this constraint MUST be there !! Even if GammaScat is excluded ! -> HMMM, NOT SO SURE... -> in the cylinder test case, it makes a difference (a few more iterations, solution is correct)...
       }
     EndFor
    EndFor
@@ -161,11 +170,11 @@ Formulation {
             Galerkin { [   I[] * kDtn[] * OSRC_Aj[]{j,N,theta_branch} / keps[]^2 * Dof{d phi~{j}~{idom}~{jdom}} , {d u~{idom}} ] ;
 	      In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
             Galerkin { [ - I[] * kDtn[] * OSRC_Aj[]{j,N,theta_branch} / keps[]^2 * ( I[] * kInf[] * Dof{phi~{j}~{idom}~{jdom}}) , {u~{idom}} ] ; // EXPERIMENTAL
-	      In BndSigma~{idom}~{jdom}; Jacobian JLin ; Integration I1 ; }
+	      In BndSigmaInf~{idom}~{jdom}; Jacobian JLin ; Integration I1 ; }
 	    Galerkin { [ - OSRC_Bj[]{j,N,theta_branch} / keps[]^2 * Dof{d phi~{j}~{idom}~{jdom}} , {d phi~{j}~{idom}~{jdom}} ] ;
 	      In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
             Galerkin { [ OSRC_Bj[]{j,N,theta_branch} / keps[]^2 * ( I[] * kInf[] * Dof{phi~{j}~{idom}~{jdom}}) , {phi~{j}~{idom}~{jdom}} ] ; // EXPERIMENTAL
-	      In BndSigma~{idom}~{jdom}; Jacobian JLin ; Integration I1 ; }
+	      In BndSigmaInf~{idom}~{jdom}; Jacobian JLin ; Integration I1 ; }
 	    Galerkin { [ Dof{phi~{j}~{idom}~{jdom}} , {phi~{j}~{idom}~{jdom}} ] ;
 	      In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
 	    Galerkin { [  - Dof{u~{idom}} , {phi~{j}~{idom}~{jdom}} ] ;
@@ -232,12 +241,20 @@ EndIf
 	If(OSRC)
 	  Galerkin { [ 2 * ( I[] * kDtn[] * OSRC_C0[]{N,theta_branch} * {u~{idom}} ) , {g_out~{idom}~{jdom}} ] ;
 	    In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
+	/*
           For j In{1:N}
             Galerkin { [  -2 * ( I[] * kDtn[] * OSRC_Aj[]{j,N,theta_branch} / keps[]^2 * {d phi~{j}~{idom}~{jdom}}) , {d g_out~{idom}~{jdom}} ] ;
 	      In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
-            // Galerkin { [ 2 * I[] * k[] * OSRC_Aj[]{j,N,theta_branch} / keps[]^2 * ( I[] * kInf[] * {phi~{j}~{idom}~{jdom}}) , {g_out~{idom}~{jdom}} ] ; // EXPERIMENTAL
-	    //   In BndSigma~{idom}~{jdom}; Jacobian JLin ; Integration I1 ; } // Do not add boundary contribution as phi is no longer dof here !?
+            Galerkin { [ 2 * I[] * k[] * OSRC_Aj[]{j,N,theta_branch} / keps[]^2 * ( I[] * kInf[] * {phi~{j}~{idom}~{jdom}}) , {g_out~{idom}~{jdom}} ] ; // EXPERIMENTAL
+	      In BndSigmaInf~{idom}~{jdom}; Jacobian JLin ; Integration I1 ; } // Do not add boundary contribution as phi is no longer dof here !?
           EndFor
+	/**/
+	//*
+	  For j In{1:N} // NEW VERSION -- EXPERIMENTAL: replace the div-grad term by its value in terms of u and phi (eq. (59) of the paper)
+	    Galerkin { [  2 * ( I[] * kDtn[] * OSRC_Aj[]{j,N,theta_branch} / OSRC_Bj[]{j,N,theta_branch} * ({u~{idom}} - {phi~{j}~{idom}~{jdom}})) , {g_out~{idom}~{jdom}} ] ;
+	      In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; } // no integration by parts in this case, => no boundary term
+          EndFor
+	/**/
         EndIf
       }
     }
@@ -276,12 +293,20 @@ EndIf
 	If(OSRC)
 	  Galerkin { [ 2 * ( I[] * kDtn[] * OSRC_C0[]{N,theta_branch} * {u~{idom}} ) , {g_out~{idom}~{jdom}} ] ;
 	    In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
+	/*
           For j In{1:N}
             Galerkin { [  -2 * ( I[] * kDtn[] * OSRC_Aj[]{j,N,theta_branch} / keps[]^2 * {d phi~{j}~{idom}~{jdom}} ) , {d g_out~{idom}~{jdom}} ] ;
 	      In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
-            // Galerkin { [ 2 * I[] * k[] * OSRC_Aj[]{j,N,theta_branch} / keps[]^2 * ( I[] * kInf[] * {phi~{j}~{idom}~{jdom}}) , {g_out~{idom}~{jdom}} ] ; // EXPERIMENTAL
-	    //   In BndSigma~{idom}~{jdom}; Jacobian JLin ; Integration I1 ; } // Do not add boundary contribution as phi is no longer dof here !?
+            Galerkin { [ 2 * I[] * k[] * OSRC_Aj[]{j,N,theta_branch} / keps[]^2 * ( I[] * kInf[] * {phi~{j}~{idom}~{jdom}}) , {g_out~{idom}~{jdom}} ] ; // EXPERIMENTAL
+	      In BndSigmaInf~{idom}~{jdom}; Jacobian JLin ; Integration I1 ; } // Do not add boundary contribution as phi is no longer dof here !?
           EndFor
+	/**/
+	//*
+	  For j In{1:N} // NEW VERSION -- EXPERIMENTAL
+	  Galerkin { [  2 * ( I[] * kDtn[] * OSRC_Aj[]{j,N,theta_branch} / OSRC_Bj[]{j,N,theta_branch} * ({u~{idom}} - {phi~{j}~{idom}~{jdom}})) , {g_out~{idom}~{jdom}} ] ;
+	      In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
+          EndFor
+	/**/
         EndIf
       }
     }

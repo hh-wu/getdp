@@ -36,7 +36,7 @@ Circle(20) = {10,5,8};
 Circle(21) = {10,5,7};
 Circle(22) = {10,5,9};
 
-Circle(25) = {16,5,17}; // support of the first cap
+Circle(25) = {16,5,17}; // support of cap of outer shell
 Circle(26) = {17,5,18};
 Circle(27) = {18,5,19};
 Circle(28) = {19,5,16};
@@ -73,6 +73,7 @@ Volume(1) = {100};
 lCyl[] += {100:103};
 lShell[] += {200:203};
 lInterf[] += {21};
+lInterfBound[] += Boundary{Surface{lInterf[(#lInterf[]-1)]};};
 lVol[] += {1};
 
 
@@ -85,6 +86,7 @@ For i In{2:NDOM-1}
   lCyl[] += {extr[{2:5}]};
   lShell[] += {extr[{6:9}]};
   lInterf[] += {extr[0]};
+  lInterfBound[] += Boundary{Surface{lInterf[(#lInterf[]-1)]};};
   lVol[] += {extr[1]};
 EndFor
 
@@ -92,12 +94,17 @@ EndFor
 // second end
 // recover indices of the elementary entities of current top face
 // myList[] = Boundary{Surface{extr[0]};};// list of 4 lines that support the second cap + 4 lines that support the top face of the shell
-myList[] = Boundary{Surface{lInterf[(#lInterf[]-1)]};};// list of 4 lines that support the second cap + 4 lines that support the top face of the shell
+myList[] = Boundary{Surface{lInterf[(#lInterf[]-1)]};};
 
 Printf("%g", #myList[]);
 
 For ii In{0:#myList[]-1}
 Printf("%g %g", ii, myList[ii]);
+EndFor
+
+
+For ii In{0:#lInterfBound[]-1}
+Printf("%g %g", ii, lInterfBound[ii]);
 EndFor
 
 
@@ -160,10 +167,11 @@ Mesh 3;
 For i In{1:NDOM}
 Delete Physicals;
 If (i==1)
-Physical Surface(1001) = {lCyl[{0:3}]}; // first end cap
-Physical Surface(2001) = lShell[{0:3}]; // first end outer shell
-Physical Volume(4001)=lVol[0];
-Physical Surface(4000) = lInterf[0]; // first interface
+  Physical Surface(1001) = {lCyl[{0:3}]}; // first end cap
+  Physical Surface(2001) = lShell[{0:3}]; // first end outer shell
+  Physical Volume(4001)=lVol[0];
+  Physical Surface(4000) = lInterf[0]; // first interface
+  Physical Line(40000) = lInterfBound[{0:7}];
 EndIf
 
 If (i!=1 && i!=NDOM)
@@ -172,6 +180,8 @@ If (i!=1 && i!=NDOM)
   Physical Volume(4000+i) = lVol[i-1];
   Physical Surface((-(2+i)*1000)) = lInterf[i-2]; // first interface
   Physical Surface(((3+i)*1000)) = lInterf[i-1]; // 2nd interface
+  Physical Line((-(2+i)*10000)) = lInterfBound[{(i-2)*8:(i-2)*8+7}];
+  Physical Line(((3+i)*10000)) = lInterfBound[{(i-1)*8:(i-1)*8+7}];
 EndIf
 
 If (i==NDOM)
@@ -179,6 +189,7 @@ If (i==NDOM)
   Physical Surface(2000+i) = lShell[{4+4*(i-2):7+4*(i-2)}]; // 2nd end outer shell
   Physical Volume(4000+i)= lVol[i-1];
   Physical Surface((-(2+i)*1000)) = lInterf[i-2]; // 2nd interface
+  Physical Line((-(2+i)*10000)) = lInterfBound[{(i-2)*8:(i-2)*8+7}];
 EndIf
 
 Save Sprintf("cylinder_mshcut%g.msh", i-1);

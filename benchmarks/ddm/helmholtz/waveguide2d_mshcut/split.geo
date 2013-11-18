@@ -1,4 +1,5 @@
 Merge "waveguide2d_mshcut.msh";
+CreateTopology;
 
 Include "params.geo";
 
@@ -63,6 +64,7 @@ For i In {1:N_DOM}
   // Physical Surface(1000+i) = sur_scat[{idx_sur_scat[i-1]:idx_sur_scat[i]-1:1}];
   // Physical Surface(2000+i) = sur_inf[{idx_sur_inf[i-1]:idx_sur_inf[i]-1:1}];
   // Physical Surface(3000+i) = sur_sym[{idx_sur_sym[i-1]:idx_sur_sym[i]-1:1}];
+
   Physical Line(-(5000 + 1000 * (i-2))) = sigma_left[{idx_sigma_left[i-1]:idx_sigma_left[i]-1:1}];
   Physical Line(5000 + 1000 * (i-1)) = sigma_right[{idx_sigma_right[i-1]:idx_sigma_right[i]-1:1}];
 

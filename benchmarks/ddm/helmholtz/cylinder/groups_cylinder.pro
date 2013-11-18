@@ -22,9 +22,9 @@ Group{
   // GammaTang = Region[{}];
   For idom In {0:N_DOM-1}
     Omega~{idom} = Region[(4001 + idom)];
-    GammaScat~{idom} = Region[(1001 + idom)];	
+    GammaD~{idom} = Region[(1001 + idom)];	
+    GammaN~{idom} = Region[{}];
     GammaInf~{idom} = Region[(2001 + idom)];
-    // GammaSym~{idom} = Region[(3001 + idom)];
 
     BndGammaInf~{idom} = Region[{}];
     BndSigma~{idom} = Region[{}];

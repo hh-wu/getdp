@@ -21,7 +21,13 @@ Function {
   // N[] = Normal[];
   I[] = Complex[0, 1];
   // einc[] = Vector[0,0,1] * Complex[ Cos[-k*X[]], Sin[-k*X[]] ]; // Mohamed's
-  uinc[] = Complex[ Cos[-k*Z[]], Sin[-k*Z[]] ]; // Mohamed's
+  // uinc[] = Complex[ Cos[-k*Z[]], Sin[-k*Z[]] ]; // Mohamed's
+
+  kx = 0*Sqrt[2.]/2.; // wavevector
+  ky = 0;
+  kz = 1;//Sqrt[2.]/2.;
+
+  uinc[] = Complex[ Cos[-(kx*X[]+ky*Y[]+kz*Z[])], Sin[-k*(kx*X[]+ky*Y[]+kz*Z[])] ]; // Mohamed's
   // einc[] = Vector[1,0,0] * Complex[ Cos[-k*Z[]], -Sin[-k*Z[]] ]; // Alex's
   hinc[] = 1/Z0 * Vector[0,1,0] * Complex[ Cos[-k*Z[]], Sin[-k*Z[]] ];
   

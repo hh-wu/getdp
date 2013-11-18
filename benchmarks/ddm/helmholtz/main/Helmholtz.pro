@@ -163,6 +163,7 @@ PostProcessing {
   { Name Full ; NameOfFormulation Full ;
     PostQuantity {
       { Name u ; Value { Term { [ {u} ] ; In Region[ {Omega} ]; Jacobian JVol ; } } }
+      { Name uTot ; Value { Term { [ {u} + uinc[] ] ; In Region[ {Omega} ]; Jacobian JVol ; } } }
       { Name ugamma ; Value { Term { [ {u} ] ; In Region[ {GammaInf} ]; Jacobian JSur ; } } }
     If(DIM == 2)
 	{ Name u_exact ; Value { Local { [ uExact_Dirichlet[] ] ; In Omega; Jacobian JVol ; } } }
@@ -190,6 +191,7 @@ PostOperation {
   { Name Full ; NameOfPostProcessing Full;
     Operation {
       Print[ u, OnElementsOf Omega, File "u.pos"] ;
+      Print[ uTot, OnElementsOf Omega, File "uTot.pos"] ;
       Print[ ugamma, OnElementsOf GammaInf, File "u_inf.pos"] ;
     }
   }

@@ -67,6 +67,7 @@ Function {
   kInf[] = BETA_M[];
 }
 
+Include "../main/tcDefaults.pro";
 
 // G_IN
 Function{
