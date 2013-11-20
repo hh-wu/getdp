@@ -566,7 +566,7 @@ PostOperation {
       Operation {
         Print[ u~{idom}, OnElementsOf Omega~{idom}, File Sprintf("u%g.pos",idom)] ;
       }
-    }  
+    }
     // g_out
     For jdom In {0:1}
       { Name g_out~{idom}~{jdom} ; NameOfPostProcessing g_out~{idom}~{jdom};
