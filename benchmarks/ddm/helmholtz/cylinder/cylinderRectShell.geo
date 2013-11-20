@@ -105,7 +105,7 @@ EndFor
 // myList[] = Boundary{Surface{extr[0]};};// list of 4 lines that support the second cap + 4 lines that support the top face of the shell
 myList[] = Boundary{Surface{lInterf[(#lInterf[]-1)]};};// list of 4 lines that support the second cap + 4 lines that support the top face of the shell
 For ii In{0:(#myList[]-1)/2}
-  myListTempInner[] = Boundary{Line{myList[ii]};}; 
+  myListTempInner[] = Boundary{Line{myList[ii]};};
   myListTempOuter[] = Boundary{Line{myList[ii+4]};};
 
   myListIn[] += myListTempInner[0]; // list with the four 'corners' of the circle

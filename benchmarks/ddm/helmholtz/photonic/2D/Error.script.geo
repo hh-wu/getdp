@@ -1,4 +1,4 @@
-// 
+//
 // Error = View[0] - View[1] / View[NN]
 //
 // NN = 0 | 1

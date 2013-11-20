@@ -26,7 +26,7 @@ square[] = {} ;
 Lx = (nx-1/2)*dx ;
 Lyp = nyp * dy + r - delta;
 Lym = nym * dy + r -delta ;
-Lzm = 0; 
+Lzm = 0;
 p1=newp+OFFSET; Point(p1) = {-Lx,Lyp,-Lzm,lc};
 p2=newp; Point(p2) = {Lx,Lyp,-Lzm,lc};
 p3=newp; Point(p3) = {Lx,-Lym,-Lzm,lc};
@@ -73,7 +73,7 @@ For iy In {1:nyp}
   c30=newl; Circle(c30) = {p40,p10,p50}; circles[icircle++] = c30 ;
   c40=newl; Circle(c40) = {p50,p10,p20}; circles[icircle++] = c40 ;
   ll=newll; Line Loop(ll) = {c10,c20,c30,c40}; circloops[is++] = ll ;
-  sc=news; Plane Surface(sc)={ll} ; circsurfs[is] = sc ;  
+  sc=news; Plane Surface(sc)={ll} ; circsurfs[is] = sc ;
 EndFor
 // row toward y>0
 For iy In {1:nym}
@@ -92,7 +92,7 @@ For iy In {1:nym}
   c30=newl; Circle(c30) = {p40,p10,p50}; circles[icircle++] = c30 ;
   c40=newl; Circle(c40) = {p50,p10,p20}; circles[icircle++] = c40 ;
   ll0=newll; Line Loop(ll0) = {c10,c20,c30,c40}; circloops[is++] = ll0 ;
-  sc=news; Plane Surface(sc)={ll0} ; circsurfs[is] = sc ;  
+  sc=news; Plane Surface(sc)={ll0} ; circsurfs[is] = sc ;
 EndFor
 EndFor
 If(DEBUG)
@@ -101,14 +101,14 @@ EndIf
 
 If ( ni >= 1e6)
   surf=news;
-  Plane Surface(surf) = {L1,circloops[]} ;  
+  Plane Surface(surf) = {L1,circloops[]} ;
   Physical Surface(17) = {surf} ;
   Physical Line(16) = {circles[]} ;
 EndIf
 If ( ni < 1e6)
   Plane Surface(1) = {L1,circloops[]} ;
   Physical Surface(17) = {1} ;
-  Physical Surface(27) = {circsurfs[]} ;   
+  Physical Surface(27) = {circsurfs[]} ;
 EndIf
 
 Mesh 2;

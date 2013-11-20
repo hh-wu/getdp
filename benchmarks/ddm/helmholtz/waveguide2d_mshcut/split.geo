@@ -4,8 +4,8 @@ CreateTopology;
 Include "params.geo";
 
 vol[] = {};         idx_vol[] = {};
-sur_bot[] = {};     idx_sur_bot[] = {}; 
-sur_top[] = {};     idx_sur_top[] = {}; 
+sur_bot[] = {};     idx_sur_bot[] = {};
+sur_top[] = {};     idx_sur_top[] = {};
 
 
 // sur_scat[] = {};    idx_sur_scat[] = {};
@@ -59,7 +59,7 @@ For i In {1:N_DOM}
   Physical Line(1000+i) = sur_bot[{idx_sur_bot[i-1]:idx_sur_bot[i]-1:1}];
   Physical Line(3000+i) = sur_top[{idx_sur_top[i-1]:idx_sur_top[i]-1:1}];
 
-  
+
 
   // Physical Surface(1000+i) = sur_scat[{idx_sur_scat[i-1]:idx_sur_scat[i]-1:1}];
   // Physical Surface(2000+i) = sur_inf[{idx_sur_inf[i-1]:idx_sur_inf[i]-1:1}];
@@ -76,7 +76,7 @@ bnd[] = Boundary{Line{sigma_left[{idx_sigma_left[i-1]:idx_sigma_left[i]-1:1}]};}
 bnd[] = Boundary{Line{sigma_right[{idx_sigma_right[i-1]:idx_sigma_right[i]-1:1}]};};
   Physical Point(20000+i) = bnd[] ;
 Printf("[right] idom=%g #bnd=%g ", idom , #bnd[] );
-  
+
   Save Sprintf("waveguide2d_mshcut%g.msh", idom);
 EndFor
 

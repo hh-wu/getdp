@@ -17,7 +17,7 @@ IGNORE_OUTER_BOUNDARY = 0;
 //Geometry
 R_INT = 1.0;
 R_EXT = 2;
-Z = 3; 
+Z = 3;
 
 //Transmission boundary condition
 OSRC = 1;
@@ -41,7 +41,7 @@ DDM_MIXED_NODAL = 0; //NODAL(=1) of Form3(=0) ? (Mixed only)
 
 //STORE/WRITE the initial u (0th iteration)
 STORE_U_INIT = 1; // if stored (in ram) then the "real" scattered field is computed at the end in u*.pos files
-WRITE_U_INIT = 0; // if written (on disk), then u_init*.pos files are created 
+WRITE_U_INIT = 0; // if written (on disk), then u_init*.pos files are created
 
 // Dimension of the problem (a priori, do not change)
 DIM = 3;
@@ -51,7 +51,7 @@ N = N_DOM;
 
 //STORE/WRITE the initial u (0th iteration) ; UPDATE Alex: no longer useful as final solution is computed by incoporating both physical and interface sources
 STORE_E_VOL_INIT = 0; // if stored (in ram) then the "real" scattered field is computed at the end in u*.pos files
-WRITE_E_VOL_INIT = 0; // if written (on disk), then u_init*.pos files are created 
+WRITE_E_VOL_INIT = 0; // if written (on disk), then u_init*.pos files are created
 
 //Iterative solver
 LinSystType = "I-A";

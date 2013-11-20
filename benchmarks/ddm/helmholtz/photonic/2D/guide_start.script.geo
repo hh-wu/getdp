@@ -14,7 +14,7 @@ square[] = {} ;
 Lx = (nx-1/2)*dx ;
 Lyp = nyp * dy + r - delta;
 Lym = nym * dy + r -delta ;
-Lzm = 0; 
+Lzm = 0;
 p1=newp; Point(p1) = {-Lx,Lyp,-Lzm,lc};
 p2=newp; Point(p2) = {Lx,Lyp,-Lzm,lc};
 p3=newp; Point(p3) = {Lx,-Lym,-Lzm,lc};
@@ -31,7 +31,7 @@ Transfinite Line{l2} = 1/lc ;
 
 If ( ni >= 1e6)
   surf=news;
-  Plane Surface(surf) = {L1,circloops[]} ;  
+  Plane Surface(surf) = {L1,circloops[]} ;
   Physical Surface(17) = {surf} ;
   Physical Line(16) = {circles[]} ;
 EndIf
@@ -42,4 +42,3 @@ EndIf
 
 Mesh 2;
 Save Sprintf(StrCat(Problem,"_Start.msh"));
-

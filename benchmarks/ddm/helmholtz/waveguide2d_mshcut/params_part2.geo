@@ -37,7 +37,7 @@ FULL_SOLUTION = 0;
 EXACT_SOLUTION = 0; // NO EXACT SOLUTION FOR SUBMARINE
 //STORE/WRITE the initial u (0th iteration)
 STORE_U_INIT = 1; // if stored (in ram) then the "real" scattered field is computed at the end in u*.pos files
-WRITE_U_INIT = 0; // if written (on disk), then u_init*.pos files are created 
+WRITE_U_INIT = 0; // if written (on disk), then u_init*.pos files are created
 
 //One different mesh file per subdomain ?
 NON_CONFORM = 0;

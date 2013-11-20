@@ -39,7 +39,7 @@ If(FULL_SOLUTION)
   	  Merge Sprintf("err_full%g.pos", idom);
 	EndFor
 	Combine ElementsFromVisibleViews;
-        cpt_view ++;
+	cpt_view ++;
 	View[cpt_view].Name = "Error with full sol";
 	View[cpt_view].Visible = 0;
 
@@ -47,7 +47,7 @@ If(FULL_SOLUTION)
   	  Merge Sprintf("err_full_abs%g.pos", idom);
 	EndFor
 	Combine ElementsFromVisibleViews;
-        cpt_view ++;
+	cpt_view ++;
 	View[cpt_view].Name = "Error with full sol (absolute value)";
 	View[cpt_view].Visible = 0;
 	View[0].Visible = 1;
@@ -55,9 +55,9 @@ EndIf
 If(EXACT_SOLUTION)
 	View[0].Visible = 0;
 	For idom In {0:N_DOM-1}
-          Merge Sprintf("u_exact%g.pos", idom);
-        EndFor
-        Combine ElementsFromVisibleViews;
+	  Merge Sprintf("u_exact%g.pos", idom);
+	EndFor
+	Combine ElementsFromVisibleViews;
 	cpt_view ++;
 	View[cpt_view].Name = "u_exact";
 	View[cpt_view].Visible = 0;
@@ -66,7 +66,7 @@ If(EXACT_SOLUTION)
   	  Merge Sprintf("err_exact%g.pos", idom);
 	EndFor
 	Combine ElementsFromVisibleViews;
-        cpt_view ++;
+	cpt_view ++;
 	View[cpt_view].Name = "Error with exact sol";
 	View[cpt_view].Visible = 0;
 
@@ -74,7 +74,7 @@ If(EXACT_SOLUTION)
   	  Merge Sprintf("err_exact_abs%g.pos", idom);
 	EndFor
 	Combine ElementsFromVisibleViews;
-        cpt_view ++;
+	cpt_view ++;
 	View[cpt_view].Name = "Error with exact sol (absolute value)";
 	View[cpt_view].Visible = 0;
 	View[0].Visible = 1;

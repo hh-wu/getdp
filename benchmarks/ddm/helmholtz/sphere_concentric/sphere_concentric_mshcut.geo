@@ -73,7 +73,7 @@ For cpt In {0:N_DOM}
   surf_ulb[cpt] = news; Ruled Surface(surf_ulb[cpt]) = {ll_ulb};
   surf_dlb[cpt] = news; Ruled Surface(surf_dlb[cpt]) = {ll_dlb};
 
-  surf_loop[cpt] = newsl; Surface Loop(surf_loop[cpt]) = {surf_drf[cpt], surf_urf[cpt], surf_ulf[cpt], 
+  surf_loop[cpt] = newsl; Surface Loop(surf_loop[cpt]) = {surf_drf[cpt], surf_urf[cpt], surf_ulf[cpt],
 							 surf_dlf[cpt], surf_drb[cpt], surf_urb[cpt], surf_ulb[cpt], surf_dlb[cpt]};
 
   If (cpt > 0)

@@ -77,6 +77,3 @@ Merge Sprintf(StrCat(Problem,tempnum));
 EndFor
 Coherence Mesh;
 Save Sprintf(StrCat(Problem,"_Full_merged.msh"));
-
-
-
