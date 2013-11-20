@@ -28,15 +28,15 @@ Function{
 }
 
 Constraint{
-  // { Name Dirichlet_uinc ; Case { { Region GammaScat ; Value -uinc[]; } } }
-  { Name Dirichlet_uinc ; Case { { Region GammaScat ; Value uinc[]; } } }
+  // { Name Dirichlet_uinc ; Case { { Region GammaD ; Value -uinc[]; } } }
+  { Name Dirichlet_uinc ; Case { { Region GammaD ; Value uinc[]; } } }
 }
 
 FunctionSpace {
 //FULL VERSION (NODAL/STANDARD)
 { Name Hgrad_u; Type Form0 ;
   BasisFunction { { Name sn ; NameOfCoef un ; Function BF_Node ;
-      Support Region[ {Omega, GammaInf, Sigma, GammaScat, BndGammaInf} ] ; Entity NodesOf[ All ] ; } }
+      Support Region[ {Omega, GammaInf, Sigma, GammaD, BndGammaInf} ] ; Entity NodesOf[ All ] ; } }
   Constraint { { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet_uinc ; } }
  }
 
@@ -44,19 +44,19 @@ FunctionSpace {
  If(MIXED_NODAL)
    { Name L2_u_2D; Type Form0 ;
      BasisFunction { { Name sn ; NameOfCoef un ; Function BF_Node ;
-         Support Region[ {Omega, GammaInf, GammaScat, Sigma} ] ; Entity NodesOf[ Omega ] ; } }
+         Support Region[ {Omega, GammaInf, GammaD, Sigma} ] ; Entity NodesOf[ Omega ] ; } }
    }
  EndIf
  If(!MIXED_NODAL)
    { Name L2_u_2D; Type Form3 ;
      BasisFunction { { Name sn ; NameOfCoef un ; Function BF_Volume ;
-         Support Region[ {Omega, GammaInf, GammaScat, Sigma} ] ; Entity VolumesOf[ All ] ; } }
+         Support Region[ {Omega, GammaInf, GammaD, Sigma} ] ; Entity VolumesOf[ All ] ; } }
    }
  EndIf
 
  { Name Hdiv_v_2D; Type Form2P ;
    BasisFunction { { Name sf ; NameOfCoef vf ; Function BF_PerpendicularFacet ;
-       Support Region[ {Omega, GammaInf, GammaScat, Sigma} ] ; Entity EdgesOf[ All ] ; } }
+       Support Region[ {Omega, GammaInf, GammaD, Sigma} ] ; Entity EdgesOf[ All ] ; } }
  }
  { Name Hdiv_q_2D; Type Form1P ;
    BasisFunction { { Name sqe ; NameOfCoef vqe ; Function BF_PerpendicularEdge ;
@@ -107,9 +107,9 @@ Formulation {
 	In Omega; Jacobian JVol ; Integration I1 ; }
       Galerkin { [ I[] * k[] * Dof{v} , {v} ] ;
 	In Omega; Jacobian JVol ; Integration I1 ; }
-      //Normal[] sur GammaScat est dirigée dans Omega !
+      //Normal[] sur GammaD est dirigée dans Omega !
       Galerkin { [ Normal[] * uinc[] , {v} ] ;
-	In GammaScat; Jacobian JSur ; Integration I1 ; }
+	In GammaD; Jacobian JSur ; Integration I1 ; }
 /*      // Sommerfeld
       Galerkin { [ -Dof{v} , {v} ] ;
         In GammaInf; Jacobian JSur ; Integration I1 ; }*/
@@ -180,7 +180,7 @@ PostProcessing {
     PostQuantity {
       { Name u ;  Value { Local { [ {u} ] ; In Region[ {Omega} ]; Jacobian JVol ; } } }
       { Name v ; Value { Local { [ {v} ] ; In Region[ {Omega} ]; Jacobian JVol ; } } }
-      { Name vn ;  Value { Local { [ -I[] * k[] * Normal[] * {v} ] ; In Region[ {GammaInf, GammaScat} ]; Jacobian JSur ; } } }
+      { Name vn ;  Value { Local { [ -I[] * k[] * Normal[] * {v} ] ; In Region[ {GammaInf, GammaD} ]; Jacobian JSur ; } } }
       { Name du ;  Value { Local { [ {d u} ] ; In Region[ {GammaInf} ]; Jacobian JSur ; } } }
       { Name q ;  Value { Local { [ {q} ] ; In Region[ {GammaInf} ]; Jacobian JSur ; } } }
     }

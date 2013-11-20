@@ -10,9 +10,9 @@ Group{
   Gamma_D = Region[ {(1001:1000+N_DOM),(3001:3000+N_DOM)} ]; 
   BndGamma1 = Region[{}];
   Omega = Region[(6001:6000+N_DOM)];
-  // GammaScat = Region[{Gamma_l, Gamma_D}];
+  // GammaD = Region[{Gamma_l, Gamma_D}];
   // GammaInf = Region[{Gamma_r}];
-  GammaScat = Region[{Gamma_D, Gamma_l}];
+  GammaD = Region[{Gamma_D, Gamma_l}];
   GammaInf = Region[{Gamma_r}];
   BndGammaInf = Region[{}];
   BndSigma = Region[{}];
@@ -27,11 +27,11 @@ Group{
     If(idom == 0)
       Sigma~{idom}~{0} = Region[{}];
       Sigma~{idom}~{1} = Region[(5000 + 1000*idom)];
-      GammaScat~{idom} = Region[{(1001 + idom), (3001 + idom), 4001}];
+      GammaD~{idom} = Region[{(1001 + idom), (3001 + idom), 4001}];
       GammaInf~{idom} = Region[{}];
-      // GammaScat~{idom} = Region[{(1001 + idom), (3001 + idom)}];
+      // GammaD~{idom} = Region[{(1001 + idom), (3001 + idom)}];
       // GammaInf~{idom} = Region[{4001}];
-      // GammaScat~{idom} = Region[{}];
+      // GammaD~{idom} = Region[{}];
       // GammaInf~{idom} = Region[{4001, (1001 + idom), (3001 + idom)}];
       BndGammaInf~{idom} = Region[{}];
       BndSigma~{idom} = Region[{}];
@@ -39,9 +39,9 @@ Group{
     If(idom == N_DOM-1)
       Sigma~{idom}~{0} = Region[(5000 + 1000*(idom-1))];
       Sigma~{idom}~{1} = Region[{}];
-      GammaScat~{idom} = Region[{(1001 + idom), (3001 + idom)}];
+      GammaD~{idom} = Region[{(1001 + idom), (3001 + idom)}];
       GammaInf~{idom} = Region[{(2001+idom)}];
-      // GammaScat~{idom} = Region[{}];
+      // GammaD~{idom} = Region[{}];
       // GammaInf~{idom} = Region[{(2001+idom), (1001 + idom), (3001 + idom)}];
       BndGammaInf~{idom} = Region[{}];
       BndSigma~{idom} = Region[{}];
@@ -49,9 +49,9 @@ Group{
     If(idom > 0  && idom < N_DOM-1)
       Sigma~{idom}~{0} = Region[{(5000 + 1000*(idom-1))}];
       Sigma~{idom}~{1} = Region[{(5000 + 1000*idom)}];
-      GammaScat~{idom} = Region[{(1001 + idom), (3001 + idom)}];
+      GammaD~{idom} = Region[{(1001 + idom), (3001 + idom)}];
       GammaInf~{idom} = Region[{}];
-      // GammaScat~{idom} = Region[{}];
+      // GammaD~{idom} = Region[{}];
       // GammaInf~{idom} = Region[{(1001 + idom), (3001 + idom)}];
       BndGammaInf~{idom} = Region[{}];
       BndSigma~{idom} = Region[{}];

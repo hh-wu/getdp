@@ -9,10 +9,10 @@ Group{
   Gamma3 = Region[ {} ]; 
   BndGamma1 = Region[{}];
   // Omega = Region[(4001:4001+N_DOM-1)];
-  // GammaScat = Region[(1001:1001+N_DOM-1)];
+  // GammaD = Region[(1001:1001+N_DOM-1)];
   // GammaInf = Region[(2001:2001+N_DOM-1)];
   Omega = Region[(4)];
-  GammaScat = Region[(1)];
+  GammaD = Region[(1)];
   GammaInf = Region[(2)];
   BndGammaInf = Region[{}];
   BndSigma = Region[{}];

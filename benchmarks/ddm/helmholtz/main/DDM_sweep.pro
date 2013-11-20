@@ -44,10 +44,10 @@ Function{
 
 Group{ // definition of some subsets of the regions defined by the user
   For idom In {0:N_DOM-1}
-    GammaScat~{idom} = Region[GammaD~{idom}];
+    GammaD~{idom} = Region[GammaD~{idom}];
     For iSide In {0:1}
       BndSigmaD~{idom}~{iSide} = Region[BndSigma~{idom}~{iSide}, Not {GammaN~{idom}, GammaInf~{idom}}];
-      BndSigmaN~{idom}~{iSide} = Region[BndSigma~{idom}~{iSide}, Not {GammaScat~{idom}, GammaInf~{idom}}];
+      BndSigmaN~{idom}~{iSide} = Region[BndSigma~{idom}~{iSide}, Not {GammaD~{idom}, GammaInf~{idom}}];
       BndSigmaInf~{idom}~{iSide} = Region[BndSigma~{idom}~{iSide}, Not {GammaN~{idom}, GammaD~{idom}}];
     EndFor
   EndFor
@@ -74,10 +74,10 @@ Function{
 Constraint{
   For ii In {0: #ListOfDom()-1}
   idom = ListOfDom(ii);
-    { Name Dirichlet~{idom} ; Case { { Region GammaScat~{idom} ; Value f_diri[];} } }
+    { Name Dirichlet~{idom} ; Case { { Region GammaD~{idom} ; Value f_diri[];} } }
     For jdom In {0:1}
       For j In {1:N}
-        { Name Dirichlet_phi~{j}~{idom}~{jdom} ; Case { { Region GammaScat~{idom} ; Value 0*f_diri[];} } }  // 20131029: DO NOT remove this constraint !! Seems faster with 0*f_diri[] ??
+        { Name Dirichlet_phi~{j}~{idom}~{jdom} ; Case { { Region GammaD~{idom} ; Value 0*f_diri[];} } }  // 20131029: DO NOT remove this constraint !! Seems faster with 0*f_diri[] ??
       EndFor
     EndFor
   EndFor
@@ -89,7 +89,7 @@ FunctionSpace {
   { Name Hgrad_u~{idom} ; Type Form0 ;
     BasisFunction {
       { Name sn ; NameOfCoef un ; Function BF_Node ;
-        Support Region[ {Omega~{idom}, GammaInf~{idom}, BndGammaInf~{idom}, Sigma~{idom}, BndSigma~{idom}, GammaScat~{idom}} ] ; Entity NodesOf[ All/*Omega~{idom}/**/ ] ; }
+        Support Region[ {Omega~{idom}, GammaInf~{idom}, BndGammaInf~{idom}, Sigma~{idom}, BndSigma~{idom}, GammaD~{idom}} ] ; Entity NodesOf[ All/*Omega~{idom}/**/ ] ; }
     }
     Constraint { { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet~{idom} ; } }
   }
@@ -98,7 +98,7 @@ FunctionSpace {
     { Name Hgrad_g_out~{idom}~{jdom}; Type Form0 ;
       BasisFunction {
         { Name sn ; NameOfCoef un ; Function BF_Node ;
-          Support Region[ {Sigma~{idom}~{jdom}} ] ; Entity NodesOf[All, Not GammaScat/**/];} // FIXME: check this, test on waveguide.
+          Support Region[ {Sigma~{idom}~{jdom}} ] ; Entity NodesOf[All, Not GammaD/**/];} // FIXME: check this, test on waveguide.
       }
     }
 
@@ -106,9 +106,9 @@ FunctionSpace {
       { Name Hgrad_phi~{j}~{idom}~{jdom} ; Type Form0 ; // EXPERIMENTAL
         BasisFunction {
           { Name sn ; NameOfCoef un ; Function BF_Node ;
-            Support Region[ {Sigma~{idom}~{jdom}, BndSigmaInf~{idom}~{jdom}, BndSigmaN~{idom}~{jdom}} ] ; Entity NodesOf[All, Not GammaScat/**/] ; } // exclude GammaScat in case part of BndSigma intersects GammaScat
+            Support Region[ {Sigma~{idom}~{jdom}, BndSigmaInf~{idom}~{jdom}, BndSigmaN~{idom}~{jdom}} ] ; Entity NodesOf[All, Not GammaD/**/] ; } // exclude GammaD in case part of BndSigma intersects GammaD
         }
-	Constraint { { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet_phi~{j}~{idom}~{jdom} ; } } // 20130418: Alex added this to help convergence for the waveguide ; UPDATE 20131029: this constraint MUST be there !! Even if GammaScat is excluded ! -> HMMM, NOT SO SURE... -> in the cylinder test case, it makes a difference (a few more iterations, solution is correct)...
+	Constraint { { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet_phi~{j}~{idom}~{jdom} ; } } // 20130418: Alex added this to help convergence for the waveguide ; UPDATE 20131029: this constraint MUST be there !! Even if GammaD is excluded ! -> HMMM, NOT SO SURE... -> in the cylinder test case, it makes a difference (a few more iterations, solution is correct)...
       }
     EndFor
    EndFor
@@ -351,13 +351,13 @@ Resolution {
       SetCommSelf;
       //setting homogeneous BC on transmission boundaries
       Evaluate[0. #10]; Evaluate[0. #11];
-      //Setting the non homogeneous Dirichlet BC on GammaScat (part 1/2)
+      //Setting the non homogeneous Dirichlet BC on GammaD (part 1/2)
       Evaluate[1. #9];
       //Initialization (compute the right hand side)
       For ii In {0: #ListOfDom()-1}
         idom = ListOfDom(ii);
-        //Setting the non homogeneous Dirichlet BC on GammaScat (part 2/2)
-        UpdateConstraint[Helmholtz~{idom}, GammaScat~{idom}, Assign];
+        //Setting the non homogeneous Dirichlet BC on GammaD (part 2/2)
+        UpdateConstraint[Helmholtz~{idom}, GammaD~{idom}, Assign];
 	Generate[Helmholtz~{idom}] ;
         Solve[Helmholtz~{idom}] ;
 	For jdom In {0:1}
@@ -380,11 +380,11 @@ Resolution {
       EndFor
       // A Barrier is mandatory to ensure that every process has finish the initialization
       Barrier;
-      //Setting homogeneous Dirichlet BC on every GammaScat~{idom}
+      //Setting homogeneous Dirichlet BC on every GammaD~{idom}
       Evaluate[0. #9];
       For ii In {0: #ListOfDom()-1}
         idom = ListOfDom(ii);
-        UpdateConstraint[Helmholtz~{idom}, GammaScat~{idom}, Assign];
+        UpdateConstraint[Helmholtz~{idom}, GammaD~{idom}, Assign];
       EndFor
       // Launching iterative solver
       SetCommWorld;
