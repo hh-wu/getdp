@@ -44,7 +44,6 @@ Function{
 
 Group{ // definition of some subsets of the regions defined by the user
   For idom In {0:N_DOM-1}
-    GammaD~{idom} = Region[GammaD~{idom}];
     For iSide In {0:1}
       BndSigmaD~{idom}~{iSide} = Region[BndSigma~{idom}~{iSide}, Not {GammaN~{idom}, GammaInf~{idom}}];
       BndSigmaN~{idom}~{iSide} = Region[BndSigma~{idom}~{iSide}, Not {GammaD~{idom}, GammaInf~{idom}}];
