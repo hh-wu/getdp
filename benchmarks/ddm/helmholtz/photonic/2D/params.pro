@@ -1,8 +1,8 @@
 
 Problem = "test" ;
 //
-PRECOND_SWEEP = 1;
-N_DOM = 10;
+PRECOND_SWEEP = 0;
+N_DOM = 5;
 
 CELERITY = 3e8 ;
 
@@ -10,7 +10,7 @@ CELERITY = 3e8 ;
 FREQ = 3e9 ;
 WAVENUMBER = 2*Pi*FREQ / CELERITY ;
 
-WAVENUMBER = 20.0*Pi;
+WAVENUMBER = 4.0*Pi;
 N_LAMBDA = 20 ;
 
 LAMBDA = 2*Pi/WAVENUMBER;

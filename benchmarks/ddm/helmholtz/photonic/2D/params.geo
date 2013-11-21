@@ -10,7 +10,7 @@ nyp = 3 ;
 nym = 4 ;
 nx = 6 ; // 2*nx-1 wires
 
-nempty = 3;
+nempty = 0;
 
 // Elemnetary cell
 // pitch
