@@ -14060,7 +14060,7 @@ yyreduce:
       }
       else  {
 	if(Constant_S.Type == VAR_CHAR)
-	  (yyval.c) = Constant_S.Value.Char;
+	  (yyval.c) = strSave(Constant_S.Value.Char);
 	else {
 	  vyyerror("String Constant needed: %s", (yyvsp[(1) - (1)].c));  (yyval.c) = NULL;
 	}
@@ -14087,7 +14087,7 @@ yyreduce:
     {
       if((yyvsp[(3) - (6)].c) != NULL && (yyvsp[(5) - (6)].c) != NULL) {
 	(yyval.c) = (char *)Malloc((strlen((yyvsp[(3) - (6)].c))+strlen((yyvsp[(5) - (6)].c))+1)*sizeof(char));
-	strcpy((yyval.c), (yyvsp[(3) - (6)].c));  strcat((yyval.c), (yyvsp[(5) - (6)].c));
+	strcpy((yyval.c), (yyvsp[(3) - (6)].c)); strcat((yyval.c), (yyvsp[(5) - (6)].c));
       }
       else {
 	vyyerror("Undefined argument for StrCat function");  (yyval.c) = NULL;
@@ -14100,7 +14100,7 @@ yyreduce:
     {
       if((yyvsp[(3) - (6)].c) != NULL && (yyvsp[(5) - (6)].c) != NULL) {
 	(yyval.c) = (char *)Malloc((strlen((yyvsp[(3) - (6)].c))+strlen((yyvsp[(5) - (6)].c))+1)*sizeof(char));
-	strcpy((yyval.c), (yyvsp[(3) - (6)].c));  strcat((yyval.c), (yyvsp[(5) - (6)].c));
+	strcpy((yyval.c), (yyvsp[(3) - (6)].c)); strcat((yyval.c), (yyvsp[(5) - (6)].c));
       }
       else {
 	vyyerror("Undefined argument for StrCat function");  (yyval.c) = NULL;

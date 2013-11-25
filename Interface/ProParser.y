@@ -7621,7 +7621,7 @@ CharExpr :
       }
       else  {
 	if(Constant_S.Type == VAR_CHAR)
-	  $$ = Constant_S.Value.Char;
+	  $$ = strSave(Constant_S.Value.Char);
 	else {
 	  vyyerror("String Constant needed: %s", $1);  $$ = NULL;
 	}
@@ -7647,7 +7647,7 @@ StrCat :
     {
       if($3 != NULL && $5 != NULL) {
 	$$ = (char *)Malloc((strlen($3)+strlen($5)+1)*sizeof(char));
-	strcpy($$, $3);  strcat($$, $5);
+	strcpy($$, $3); strcat($$, $5);
       }
       else {
 	vyyerror("Undefined argument for StrCat function");  $$ = NULL;
@@ -7657,7 +7657,7 @@ StrCat :
     {
       if($3 != NULL && $5 != NULL) {
 	$$ = (char *)Malloc((strlen($3)+strlen($5)+1)*sizeof(char));
-	strcpy($$, $3);  strcat($$, $5);
+	strcpy($$, $3); strcat($$, $5);
       }
       else {
 	vyyerror("Undefined argument for StrCat function");  $$ = NULL;
