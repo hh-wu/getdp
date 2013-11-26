@@ -36,9 +36,18 @@ Function{
   If(FULL_SOLUTION || EXACT_SOLUTION)
     STORE_U_INIT = 1;
   EndIf
-    //full solution cannot be computed without the whole mesh
-  If(FULL_SOLUTION && MSH_SPLIT)
-        // FULL_SOLUTION = 0;
+
+  If (OSRC && EMDA)
+    OSRC = 1 ;
+    EMDA = 0;
+  EndIf
+  If (OSRC && OO2)
+    OSRC = 1 ;
+    OO2 = 0;
+  EndIf
+  If (OO2 && EMDA)
+    OOO2 = 1 ;
+    EMDA = 0;
   EndIf
 }
 
