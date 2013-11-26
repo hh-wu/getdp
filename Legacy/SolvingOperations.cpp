@@ -2204,6 +2204,12 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	(Resolution_P, Operation_P, DofData_P0, GeoData_P0) ;
       break;
 
+    case OPERATION_BROADCASTFIELDS :
+      Message::Info("BroadCastFields ...") ;
+      Operation_BroadcastFields
+	(Resolution_P, Operation_P, DofData_P0, GeoData_P0) ;
+      break;
+
       /*  -->  I t e r a t i v e T i m e R e d u c t i o n  */
       /*  ------------------------------------------------  */
 

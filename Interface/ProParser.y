@@ -244,7 +244,7 @@ struct doubleXstring{
 %token      tIterativeLoop tIterativeLoopN tIterativeLinearSolver
 %token      tNbrMaxIteration tRelaxationFactor
 %token      tIterativeTimeReduction
-%token        tSetCommSelf tSetCommWorld tBarrier
+%token        tSetCommSelf tSetCommWorld tBarrier tBroadcastFields
 %token      tDivisionCoefficient tChangeOfState
 %token      tChangeOfCoordinates tChangeOfCoordinates2 tSystemCommand
 %token        tGmshRead tGmshClearAll tDeleteFile tCreateDir
@@ -3999,6 +3999,13 @@ OperationTerm :
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_BARRIER;
+      Operation_P->Rank = -1;
+    }
+
+  | tBroadcastFields tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_BROADCASTFIELDS;
       Operation_P->Rank = -1;
     }
 

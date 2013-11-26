@@ -276,9 +276,10 @@ Add_MH_Moving                return tAdd_MH_Moving;
 GenerateGroup                return tGenerateGroup;
 GenerateJacGroup             return tGenerateJacGroup;
 GenerateRHSGroup             return tGenerateRHSGroup;
-SetCommSelf					 return tSetCommSelf;
-SetCommWorld				 return tSetCommWorld;
-Barrier					 	 return tBarrier;
+SetCommSelf                  return tSetCommSelf;
+SetCommWorld                 return tSetCommWorld;
+Barrier			     return tBarrier;
+BroadcastFields              return tBroadcastFields;
 
 PostProcessing               return tPostProcessing;
 NameOfSystem                 return tNameOfSystem;

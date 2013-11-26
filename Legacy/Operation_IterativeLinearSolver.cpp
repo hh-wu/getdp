@@ -111,6 +111,11 @@ class Field{
 
 bool Field::areNeighbor = false;
 
+// pointers to MyField and AllField, valid while Operation_LinearIterativeSolver
+// is running; This is used by Operation_BroadcastFields to explicitely
+// braodcast the fields in the middle of a ILSMatVec call.
+static Field *MyStaticField = 0, *AllStaticField = 0;
+
 // Matrix Free structure (Matrix Shell)
 typedef struct{
   char *LinearSystemType;
@@ -418,6 +423,10 @@ static PetscErrorCode InitData(Field *MyField, Field *AllField,
     std::vector< MPI_Status > tab_status;
     MPI_Waitall(tab_request.size(), &tab_request[0], &tab_status[0]);
   }
+
+  // keep track of fields for external use
+  MyStaticField = MyField;
+  AllStaticField = AllField;
 
   PetscFunctionReturn(0);
 }
@@ -1180,7 +1189,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   // Initializing
 
   MPI_Barrier(PETSC_COMM_WORLD);
-  Message::Info("Initalizing Iterative Linear Solver");
+  Message::Info("Initializing Iterative Linear Solver");
   InitData(&MyField, &AllField, Operation_P, &B_std);
 
   // Print Information
@@ -1314,7 +1323,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   else if(!strcmp(ksp_choice,"jacobi")){
     ierr = Jacobi_Solver(A, X, B, Tol, MaxIter);
   }
-  else{ // RYLOV SUBSPACE SOLVER
+  else{ // KRYLOV SUBSPACE SOLVER
     ierr = KSPCreate(ILSComm,&ksp);CHKERRQ(ierr);
     ierr = KSPSetOperators(ksp,A,A,DIFFERENT_NONZERO_PATTERN);CHKERRQ(ierr);
     //tol etc.
@@ -1341,7 +1350,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
 #endif
       }
     }
-    else{ //PETSc Krylov solver
+    else{ // PETSc Krylov solver
       // check if a preconditioner is specified
       int nb_pc = List_Nbr(Operation_P->Case.IterativeLinearSolver.Operations_Mx);
       if(nb_pc == 0) {
@@ -1441,8 +1450,24 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   printf("Processus %d : Average iteration time %g with %g for communication (%g%%).\n",
          mpi_comm_rank, aver_it, aver_com, aver_com/aver_it*100);
 #endif
+
+  // reset pointers to static fields
+  MyStaticField = AllStaticField = 0;
+
   PetscBarrier((PetscObject)PETSC_NULL);CHKERRQ(ierr);
   PetscFunctionReturn(0);
+}
+
+int Operation_BroadcastFields(struct Resolution  *Resolution_P,
+                              struct Operation   *Operation_P,
+                              struct DofData     *DofData_P0,
+                              struct GeoData     *GeoData_P0)
+{
+  printf("coucou!\n");
+
+  PViewBCast(*MyStaticField, *AllStaticField);
+
+  return 0;
 }
 
 #else
@@ -1453,6 +1478,15 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
                                     struct GeoData     *GeoData_P0)
 {
   Message::Error("IterativeLinearSolver requires PETSc and Gmsh");
+  return 0;
+}
+
+int Operation_BroadcastFields(struct Resolution  *Resolution_P,
+                              struct Operation   *Operation_P,
+                              struct DofData     *DofData_P0,
+                              struct GeoData     *GeoData_P0)
+{
+  Message::Error("BroadcastFields requires PETSc and Gmsh");
   return 0;
 }
 
