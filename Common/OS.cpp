@@ -234,6 +234,7 @@ int RemoveFile(const std::string &fileName)
 
 int CreateDir(const std::string &dirName)
 {
+  if(dirName.empty()) return 1;
 #if defined(WIN32) && !defined(__CYGWIN__)
   setwbuf(0, dirName.c_str());
   if(_wmkdir(wbuf[0])) return 0;
