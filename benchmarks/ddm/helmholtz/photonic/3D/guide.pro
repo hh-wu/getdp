@@ -29,7 +29,7 @@ Function {
   //TAKEN FROM CIRCLE_PIE !!
   xsimin = 0;
   xsimax = Pi / LC;
-  deltak[] = Pi / Norm[XYZ[]];
+  deltak[] = Pi ; /// Norm[XYZ[]];
   alphastar[] = I[] * ((k^2 - xsimin^2) * (k^2 - (k-deltak[])^2))^(1/4);
   betastar[] = ((xsimax^2 - k^2) * ((k+deltak[])^2 - k^2))^(1/4);
   a[] = - (alphastar[] * betastar[] - k^2) / (alphastar[] + betastar[]);

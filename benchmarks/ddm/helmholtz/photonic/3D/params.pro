@@ -34,7 +34,7 @@ EMDA = 0;
 // EMDA parameter
 BETA_EMDA = 1.5708;
 // OSRC parameters (nb of Padé approx and angle of branch cut)
-NP_OSRC = 4;
+NP_OSRC = 2;
 THETA_BRANCH_OSRC = 0.785398;
 
 // For mixed formulations (pressure/velocity)

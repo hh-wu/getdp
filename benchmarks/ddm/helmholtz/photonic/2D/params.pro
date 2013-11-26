@@ -25,9 +25,9 @@ Z = 3;
 THETA_INC = Pi/4;
 
 // Which transmission condition ? (only one must be equal to 1)
-OSRC = 0;
+OSRC = 1;
 OO2 = 1;
-EMDA = 0;
+EMDA = 1;
 
 // Constant DDM parameters (other parameters are located in the .pro file)
 // EMDA parameter
@@ -55,7 +55,7 @@ MSH_SPLIT = 1;  // NameOfMesh = MeshName_idom.msh
 // TODO,FIXME: -msh stronger than NameOfMesh
 
 // Dimension of the problem (a priori, do not change)
-DIM = 2;
+DIM = 1;
 
 // Iterative Solver parameters
 LinSystType = "I-A";
