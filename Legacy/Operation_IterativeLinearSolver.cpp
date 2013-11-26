@@ -1463,10 +1463,7 @@ int Operation_BroadcastFields(struct Resolution  *Resolution_P,
                               struct DofData     *DofData_P0,
                               struct GeoData     *GeoData_P0)
 {
-  printf("coucou!\n");
-
   PViewBCast(*MyStaticField, *AllStaticField);
-
   return 0;
 }
 
