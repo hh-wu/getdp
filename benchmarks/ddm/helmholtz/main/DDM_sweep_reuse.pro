@@ -30,9 +30,6 @@ Remarks:
 Resolution {
     { Name DDM_reuse ;
     System {
-      If(FULL_SOLUTION)
-        { Name Full ; NameOfFormulation Full ; Type Complex; }
-      EndIf
       For ii In {0: #ListOfDom()-1}
         idom = ListOfDom(ii);
         { Name Helmholtz~{idom} ; NameOfFormulation DDM~{idom} ; Type Complex; If(MSH_SPLIT) NameOfMesh Sprintf(StrCat[MshName, "%g.msh"],idom) ;EndIf}
@@ -43,10 +40,6 @@ Resolution {
       EndFor
     }
     Operation { 
-      If(FULL_SOLUTION)
-	Generate[Full]; Solve[Full]; PostOperation[Full];
-      EndIf
-
       If(EMDA)
 	Printf["Using EMDA transmission condition"];
       EndIf
@@ -246,10 +239,6 @@ Resolution {
 	EndIf
 
         PostOperation[u_ddm~{idom}] ;
-      	//Error with Full/Exact solution
-        If(FULL_SOLUTION || EXACT_SOLUTION)
-      	  PostOperation[u_ddm_error~{idom}] ;
-        EndIf
       EndFor
       SetCommWorld;
 
