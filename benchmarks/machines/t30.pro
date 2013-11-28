@@ -1,8 +1,5 @@
 Include "t30_data.geo";
 
-Dir="res/";
-ExtGmsh     = ".pos";
-ExtGnuplot  = ".dat";
 //ExtGmsh     = Str[ Sprintf("%g.pos", NbPhases) ];
 //ExtGnuplot  = Str[ Sprintf("%g.dat", NbPhases) ];
 
@@ -67,7 +64,7 @@ Group {
 
 
 Function {
-  T = 1/Freq ;
+  Period = 1/Freq ;
 
   DefineConstant[
     Flag_ImposedSpeed = { 1, Choices{0="None",1="Choose speed"}, Label "Imposed rotor speed",
@@ -80,7 +77,7 @@ Function {
       Highlight "AliceBlue", Visible (!Flag_ImposedSpeed && Flag_AnalysisType!=2) },
     Frict = { 0, Label "Friction torque [Nm]", Path "Input/44",
       Highlight "AliceBlue", Visible (!Flag_ImposedSpeed && Flag_AnalysisType!=2) },
-    NbT = {50, Label "Total number of periods", Path "Input/50",
+    NbrPeriod = {50, Label "Total number of periods", Path "Input/50",
       Highlight "AliceBlue", Visible (Flag_AnalysisType==1)},
     NbSteps = {100, Label "Number of time steps per period", Path "Input/51",
       Highlight "AliceBlue", Visible (Flag_AnalysisType==1)}
@@ -113,10 +110,10 @@ Function {
   theta1 = (rotorAngle0+180)*Pi/180 ; // end angle (in rad)
 
   delta_theta[] = (Flag_ImposedSpeed) ? ((wr>0)?(theta1-theta0)/NbSteps:0) : (#77-#66) ; // angle step (in rad)
-  delta_time = (Flag_ImposedSpeed && wr>0) ? (theta1-theta0)/NbSteps/wr : T/NbSteps; // time step
+  delta_time = (Flag_ImposedSpeed && wr>0) ? (theta1-theta0)/NbSteps/wr : NbrPeriod/NbSteps; // time step
 
   time0 = 0.;
-  timemax = (Flag_ImposedSpeed && wr>0) ? theta1/wr : NbT*T ;
+  timemax = (Flag_ImposedSpeed && wr>0) ? theta1/wr : NbrPeriod*Period ;
 
   Friction[] = Frict ;
   Torque_mec[] = Tmec ;

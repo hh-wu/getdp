@@ -54,7 +54,7 @@ EndFor
 
 If(Flag_AddInfo)
   rr = .88*Rext ;
-  For k In {0:NbrPoles-1}
+  For k In {0:NbrPolesInModel-1}
     xa[] += rr*Cos(1*Pi/12+k*Pi/2) ; ya[] += rr*Sin(1*Pi/12+k*Pi/2) ;
     xb[] += rr*Cos(3*Pi/12+k*Pi/2) ; yb[] += rr*Sin(3*Pi/12+k*Pi/2) ;
     xc[] += rr*Cos(5*Pi/12+k*Pi/2) ; yc[] += rr*Sin(5*Pi/12+k*Pi/2) ;
@@ -85,7 +85,7 @@ If(Flag_AddInfo)
 
   // Creating the view
 
-  If(NbrPoles==1)
+  If(NbrPolesInModel==1)
     View "Info 1 pole" {
       T3(xa[0], ya[0], 0, attr){"B-, A+"};
       T3(xb[0], yb[0], 0, attr){"A+, C-"};
@@ -103,7 +103,7 @@ If(Flag_AddInfo)
       T3(xcc[1], ycc[1], 0, attr_abc){ "c axis" };
     };
   EndIf
-  If(NbrPoles==2)
+  If(NbrPolesInModel==2)
     View "Info 2 pole" {
       T3(xa[0], ya[0], 0, attr){"B-, A+"};
       T3(xb[0], yb[0], 0, attr){"A+, C-"};
@@ -124,7 +124,7 @@ If(Flag_AddInfo)
       T3(xcc[1], ycc[1], 0, attr_abc){ "c axis" };
     };
   EndIf
-  If(NbrPoles==4)
+  If(NbrPolesInModel==4)
     View "Info 4 pole" {
       T3(xa[0], ya[0], 0, attr){"B-, A+"};
       T3(xb[0], yb[0], 0, attr){"A+, C-"};

@@ -53,13 +53,13 @@ Group {
 
   Rotor_Magnets = Region[ {} ];
 
-  nbInds = NbrPoles*NbrSectStatorTot/NbrPolesTot ;
+  nbInds = NbrPolesInModel*NbrSectStatorTot/NbrPolesTot ;
 
   Stator_Ind_Ap = #STATOR_UP; Stator_Ind_Am = #{};
   Stator_Ind_Bp = #STATOR_VP; Stator_Ind_Bm = #STATOR_VM;
   Stator_Ind_Cp = #{};        Stator_Ind_Cm = #STATOR_WM;
 
-  If(NbrPoles>1)
+  If(NbrPolesInModel>1)
     Stator_Ind_Am = #{STATOR_UM};
     Stator_Ind_Cp = #{STATOR_WP};
   EndIf
@@ -88,11 +88,11 @@ Group {
 
   // Moving band:  with or without symmetry, the BND line of the rotor must be complete
   Stator_Bnd_MB = #STATOR_BND_MOVING_BAND;
-  For k In {1:NbrPolesTot/NbrPoles}
+  For k In {1:NbrPolesTot/NbrPolesInModel}
     Rotor_Bnd_MB~{k} = Region[ (ROTOR_BND_MOVING_BAND+k-1) ];
     Rotor_Bnd_MB += Region[ Rotor_Bnd_MB~{k} ];
   EndFor
-  For k In {2:NbrPolesTot/NbrPoles}
+  For k In {2:NbrPolesTot/NbrPolesInModel}
     Rotor_Bnd_MBaux  += Region[ Rotor_Bnd_MB~{k} ] ;
   EndFor
 
@@ -108,8 +108,8 @@ Function {
   Stator_PhaseArea[]    = SurfaceArea[]{STATOR_UP} + SurfaceArea[]{STATOR_UM};
   Rotor_ConductorArea[] = SurfaceArea[]{ROTOR_COND1} + SurfaceArea[]{ROTOR_COND2};
 
-  NbWires[#{Stator_Inds}]  = 160  * NbrPoles/NbrPolesTot; // Number of wires in series per phase
-  NbWires[#{Rotor_Inds}]   = 1050 * NbrPoles/NbrPolesTot; // Number of wires in series per phase
+  NbWires[#{Stator_Inds}]  = 160  * NbrPolesInModel/NbrPolesTot; // Number of wires in series per phase
+  NbWires[#{Rotor_Inds}]   = 1050 * NbrPolesInModel/NbrPolesTot; // Number of wires in series per phase
   SurfCoil[#{Stator_Inds}] = Stator_PhaseArea[];
   SurfCoil[#{Rotor_Inds}]  = Rotor_ConductorArea[];
 
@@ -171,13 +171,6 @@ Function {
 
 }
 
-// --------------------------------------------------------------------------
-// --------------------------------------------------------------------------
-// --------------------------------------------------------------------------
-
-Dir="res/";
-ExtGmsh     = ".pos";
-ExtGnuplot  = ".dat";
 
 // --------------------------------------------------------------------------
 // --------------------------------------------------------------------------

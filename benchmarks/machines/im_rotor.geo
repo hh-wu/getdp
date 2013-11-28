@@ -162,7 +162,7 @@ EndFor
 
 //Completing the moving band
 NN = #InnerMB_[] ;
-k1 = (NbrPoles==1)?NbrPoles:NbrPoles+1;
+k1 = (NbrPolesInModel==1)?NbrPolesInModel:NbrPolesInModel+1;
 For k In {k1:NbrPolesTot-1}
   InnerMB_[] += Rotate {{0, 0, 1}, {0, 0, 0}, k*NbrSect*2*(Pi/NbrSectTot)} { Duplicata{ Line{InnerMB_[{0:NN-1}]};} };
 EndFor
@@ -191,7 +191,7 @@ Color SkyBlue {Surface{RotorAirgapLayer_[]};}
 
 Physical Line(SURF_INT) = {OuterShaft_[]};
 
-For k In {0:NbrPolesTot/NbrPoles-1}
+For k In {0:NbrPolesTot/NbrPolesInModel-1}
   Physical Line(ROTOR_BND_MOVING_BAND+k) = {InnerMB_[{k*4*NbrSect:(k+1)*4*NbrSect-1}]};
 EndFor
 

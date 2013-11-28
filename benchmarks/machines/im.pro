@@ -64,7 +64,7 @@ Group{
 
   Rotor_Airgap = #ROTOR_AIRGAP ;
 
-  nbRotorBars = (Flag_Symmetry) ? NbrPoles*NbrSectTot/NbrPolesTot : NbrSectTot ;
+  nbRotorBars = (Flag_Symmetry) ? NbrPolesInModel*NbrSectTot/NbrPolesTot : NbrSectTot ;
   For k In {1:nbRotorBars}
     Rotor_Bar~{k} = Region[ (ROTOR_BAR+k) ];
     Rotor_Bars += Region[ Rotor_Bar~{k} ];
@@ -83,7 +83,7 @@ Group{
   Stator_Ind_Ap = #{STATOR_IND_AP}; Stator_Ind_Am = #{};
   Stator_Ind_Bp = #{STATOR_IND_BP}; Stator_Ind_Bm = #{};
   Stator_Ind_Cp = #{}             ; Stator_Ind_Cm = #{STATOR_IND_CM};
-  If(NbrPoles > 1)
+  If(NbrPolesInModel > 1)
     Stator_Ind_Am += #STATOR_IND_AM;
     Stator_Ind_Bm += #STATOR_IND_BM;
     Stator_Ind_Cp += #STATOR_IND_CP;
@@ -112,11 +112,11 @@ Group{
 
   // Moving band:  with or without symmetry, the BND line of the rotor must be complete
   Stator_Bnd_MB = #STATOR_BND_MOVING_BAND;
-  For k In {1:NbrPolesTot/NbrPoles}
+  For k In {1:NbrPolesTot/NbrPolesInModel}
     Rotor_Bnd_MB~{k} = Region[ (ROTOR_BND_MOVING_BAND+k-1) ];
     Rotor_Bnd_MB += Region[ Rotor_Bnd_MB~{k} ];
   EndFor
-  For k In {2:NbrPolesTot/NbrPoles}
+  For k In {2:NbrPolesTot/NbrPolesInModel}
     Rotor_Bnd_MBaux  += Region[ Rotor_Bnd_MB~{k} ] ;
   EndFor
 
@@ -127,7 +127,7 @@ Function{
   NbrPolePairs = NbrPolesTot/2 ;
 
   Freq = 60  ;
-  T = 1/Freq ; // Fundamental period in s
+  Period = 1/Freq ; // Fundamental period in s
 
   DefineConstant[
     Flag_ImposedSpeed = { 0, Choices{0="None", 1="Synchronous speed (no load)",
@@ -139,7 +139,7 @@ Function{
       Highlight "AliceBlue", Visible (!Flag_ImposedSpeed && Flag_AnalysisType!=2) },
     Frict = { 0, Label "Friction torque [Nm]", Path "Input/33",
       Highlight "AliceBlue", Visible (!Flag_ImposedSpeed && Flag_AnalysisType!=2) },
-    NbT = {10, Label "Total number of periods", Path "Input/40",
+    NbrPeriod = {10, Label "Total number of periods", Path "Input/40",
       Highlight "AliceBlue", Visible (Flag_AnalysisType==1)},
     NbSteps = {100, Label "Number of time steps per period", Path "Input/41",
       Highlight "AliceBlue", Visible (Flag_AnalysisType==1)}
@@ -147,7 +147,7 @@ Function{
 
 
   NbTrelax = 2 ; // Number of periods while relaxation is applied
-  Trelax = NbTrelax*T;
+  Trelax = NbTrelax*Period;
   Frelax[] = (!Flag_NL || Flag_AnalysisType==0 || $Time>Trelax) ? 1. :
              0.5*(1.-Cos[Pi*$Time/Trelax]) ; // smooth step function
 
@@ -160,15 +160,15 @@ Function{
 
 
   // imposed movement with fixed speed wr
-  delta_time = T/NbSteps; // time step in s
+  delta_time = Period/NbSteps; // time step in s
   delta_theta[] = (Flag_ImposedSpeed) ? (delta_time*wr) : (#77-#66); // angle step (in rad)
   time0 = 0.;                 // initial time in s
-  timemax = NbT*T;  // final time  in s
+  timemax = NbrPeriod*Period;  // final time  in s
 
   sigma[ Rotor_Bars ] = (Flag_AnalysisType==2 ? slip : 1.)*sigma_bars ;
 
   Stator_PhaseArea[] = SurfaceArea[]{STATOR_IND_AP} + SurfaceArea[]{STATOR_IND_AM};
-  NbWires[]  = 2*Ns*NbrPoles/NbrPolesTot; // Number of wires in series per phase
+  NbWires[]  = 2*Ns*NbrPolesInModel/NbrPolesTot; // Number of wires in series per phase
   SurfCoil[] = Stator_PhaseArea[];
 
   pA =  0 ;
@@ -190,13 +190,6 @@ Function{
   Inertia = inertia_fe ;
 }
 
-// --------------------------------------------------------------------------
-// --------------------------------------------------------------------------
-// --------------------------------------------------------------------------
-
-Dir="res/";
-ExtGmsh     = ".pos";
-ExtGnuplot  = ".dat";
 
 // --------------------------------------------------------------------------
 // --------------------------------------------------------------------------

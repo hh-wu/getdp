@@ -51,8 +51,8 @@ Group {
     Rotor_Magnets += Region[ Rotor_Magnet~{k} ];
   EndFor
 
-  nbInds = (Flag_Symmetry) ? NbrPoles*NbrSectTotStator/NbrPolesTot : NbrSectTotStator ;
-  Printf("NbrPoles %g, nbInds=%g", NbrPoles, nbInds);
+  nbInds = (Flag_Symmetry) ? NbrPolesInModel*NbrSectTotStator/NbrPolesTot : NbrSectTotStator ;
+  Printf("NbrPoleInModels %g, nbInds=%g", NbrPolesInModel, nbInds);
 
   For k In {1:nbInds}
     Stator_Ind~{k} = Region[ (STATOR_IND+k-1) ];
@@ -195,13 +195,6 @@ Function {
   EndIf
 }
 
-// --------------------------------------------------------------------------
-// --------------------------------------------------------------------------
-// --------------------------------------------------------------------------
-
-Dir="res/";
-ExtGmsh     = ".pos";
-ExtGnuplot  = ".dat";
 
 // --------------------------------------------------------------------------
 // --------------------------------------------------------------------------

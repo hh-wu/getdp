@@ -23,7 +23,7 @@ boolreadonly = (Flag_Type==0) ? 1 : 0 ;
 // No symmetry possible with concentrated type
 
 DefineConstant[//Grey85
-  NbrPoles = { (Flag_Type==0) ? 8 : 1, Choices {1="1", 2="2", 4="4", 8="8"},
+  NbrPolesInModel = { (Flag_Type==0) ? 8 : 1, Choices {1="1", 2="2", 4="4", 8="8"},
     Label "Number of poles in FE model",
     Path "Input/20", Visible 1, ReadOnly (Flag_Type==0) ? 1 : 0},
   InitialRotorAngle_deg = { 0., Label "Start rotor angle [deg]",
@@ -134,15 +134,15 @@ thm = 2/3*Pi/8 ; // angle in rad 0 < thm < Pi/4
 // ----------------------------------------------------
 
 NbrPolesTot = 2*p ; // number of poles in complete cross-section
-SymmetryFactor = NbrPolesTot/NbrPoles ;
+SymmetryFactor = NbrPolesTot/NbrPolesInModel ;
 Flag_Symmetry = (SymmetryFactor==1)?0:1 ;
 
-NbrPoles = NbrPolesTot/SymmetryFactor ; // number of rotor poles in FE model
+NbrPolesInModel = NbrPolesTot/SymmetryFactor ; // number of rotor poles in FE model
 NbrSectTot = NbrPolesTot ; // number of "rotor teeth"
-NbrSect = NbrSectTot*NbrPoles/NbrPolesTot ; // number of "rotor teeth" in FE model
+NbrSect = NbrSectTot*NbrPolesInModel/NbrPolesTot ; // number of "rotor teeth" in FE model
 
 NbrSectTotStator  = (Flag_Type==0) ? 2*Z : Z ; // number of stator teeth
-NbrSectStator   = NbrSectTotStator*NbrPoles/NbrPolesTot; // number of stator teeth in FE model
+NbrSectStator   = NbrSectTotStator*NbrPolesInModel/NbrPolesTot; // number of stator teeth in FE model
 
 // ----------------------------------------------------
 // ----------------------------------------------------

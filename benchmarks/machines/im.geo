@@ -48,7 +48,7 @@ DefineConstant[ Flag_AddInfo = {0, Choices{0,1},
 
 If(Flag_AddInfo)
 rr = 1.42 * R3s ;
-For k In {0:NbrPoles-1}
+For k In {0:NbrPolesInModel-1}
   xa[] += rr*Cos(1*Pi/12+k*Pi/2) ; ya[] += rr*Sin(1*Pi/12+k*Pi/2) ;
   xb[] += rr*Cos(3*Pi/12+k*Pi/2) ; yb[] += rr*Sin(3*Pi/12+k*Pi/2) ;
   xc[] += rr*Cos(5*Pi/12+k*Pi/2) ; yc[] += rr*Sin(5*Pi/12+k*Pi/2) ;
@@ -63,25 +63,25 @@ exists = {0,0,0};
 For k In {0:2}
   np = 2^k ; //Possible number of poles
   For i In {0:PostProcessing.NbViews-1}
-    If( StrFind(View[i].Attributes, Sprintf("NbrPoles=%g", np)))
-      View[i].Visible = (NbrPoles==np);
+    If( StrFind(View[i].Attributes, Sprintf("NbrPolesInModel=%g", np)))
+      View[i].Visible = (NbrPolesInModel==np);
       exists[k] = 1;
     EndIf
   EndFor
 EndFor
 
-If(NbrPoles==1 && !exists[0])
+If(NbrPolesInModel==1 && !exists[0])
   View "Info 1 pole" {
       T3(xa[0], ya[0], 0, attr){"A+"}; T3(xb[0], yb[0], 0, attr){"C-"}; T3(xc[0], yc[0], 0, attr){"B+"};
     };
 EndIf
-If(NbrPoles==2 && !exists[1])
+If(NbrPolesInModel==2 && !exists[1])
   View "Info 2 pole" {
       T3(xa[0], ya[0], 0, attr){"A+"}; T3(xb[0], yb[0], 0, attr){"C-"}; T3(xc[0], yc[0], 0, attr){"B+"};
       T3(xa[1], ya[1], 0, attr){"A-"}; T3(xb[1], yb[1], 0, attr){"C+"}; T3(xc[1], yc[1], 0, attr){"B-"};
     };
 EndIf
-If(NbrPoles==4 && !exists[2])
+If(NbrPolesInModel==4 && !exists[2])
   View "Info 4 pole" {
       T3(xa[0], ya[0], 0, attr){"A+"}; T3(xb[0], yb[0], 0, attr){"C-"}; T3(xc[0], yc[0], 0, attr){"B+"};
       T3(xa[1], ya[1], 0, attr){"A-"}; T3(xb[1], yb[1], 0, attr){"C+"}; T3(xc[1], yc[1], 0, attr){"B-"};
@@ -90,11 +90,11 @@ If(NbrPoles==4 && !exists[2])
     };
 EndIf
 
-If((NbrPoles==1 && !exists[0]) ||
-   (NbrPoles==2 && !exists[1]) ||
-   (NbrPoles==4 && !exists[2]) )
-View[PostProcessing.NbViews-1].Attributes = Sprintf("NbrPoles=%g",NbrPoles);
-View[PostProcessing.NbViews-1].Name = Sprintf("Info %g poles", NbrPoles);
+If((NbrPolesInModel==1 && !exists[0]) ||
+   (NbrPolesInModel==2 && !exists[1]) ||
+   (NbrPolesInModel==4 && !exists[2]) )
+View[PostProcessing.NbViews-1].Attributes = Sprintf("NbrPolesInModel=%g",NbrPolesInModel);
+View[PostProcessing.NbViews-1].Name = Sprintf("Info %g poles", NbrPolesInModel);
 EndIf
 
 

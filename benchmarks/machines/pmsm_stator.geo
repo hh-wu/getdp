@@ -131,10 +131,10 @@ If(SymmetryFactor<8)
     auxlink[] = auxlink_[];
   EndIf
 
-  For k In {1:NbrPoles-1}
+  For k In {1:NbrPolesInModel-1}
     cirS[] += Rotate {{0, 0, 1}, {0, 0, 0}, k*Pi/4} { Duplicata{ Line{cirS[{0}]};} };
   EndFor
-  For k In {1:NbrPoles-1}
+  For k In {1:NbrPolesInModel-1}
     sstator[]+= Rotate {{0, 0, 1}, {0, 0, 0}, k*Pi/4} { Duplicata{ Surface{sstator[0]};} };
     sairgapS[]+= Rotate {{0, 0, 1}, {0, 0, 0}, k*Pi/4} { Duplicata{ Surface{sairgapS[0]};} };
     sairslot[]+= Rotate {{0, 0, 1}, {0, 0, 0}, k*Pi/4} { Duplicata{ Surface{sairslot[{0:2}]};} };

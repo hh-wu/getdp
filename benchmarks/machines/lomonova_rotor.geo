@@ -74,7 +74,7 @@ For k In {1:NbrPolesTot-1} // This line must be always complete
  lineMBrotor[]+= Rotate {{0, 0, 1}, {0, 0, 0}, k*Pi/4} { Duplicata{ Line{lineMBrotor[0]};} };
 EndFor
 
-// FULL MODEL ==> Rotation of NbrPolesT*Pi/4
+// FULL MODEL ==> Rotation of NbrPolesInModel * Pi/4
 If(SymmetryFactor<8)
   If (SymmetryFactor>1)
     For k In {0:#linR1[]-1}
@@ -83,7 +83,7 @@ If(SymmetryFactor<8)
     linR1[] = linR1_[];
   EndIf
 
-  For k In {1:NbrPoles-1}
+  For k In {1:NbrPolesInModel-1}
     surfint[] += Rotate {{0, 0, 1}, {0, 0, 0}, k*Pi/4} { Duplicata{ Line{surfint[0]};} }; //For simplicity
     srotor[] += Rotate {{0, 0, 1}, {0, 0, 0}, k*Pi/4} { Duplicata{ Surface{srotor[0]};} };
     smagnet[]+= Rotate {{0, 0, 1}, {0, 0, 0}, k*Pi/4} { Duplicata{ Surface{smagnet[0]};} };
@@ -103,7 +103,7 @@ Physical Surface(ROTOR_FE)     = {srotor[]};
 Physical Surface(ROTOR_AIR)    = {sairrotor[]};
 Physical Surface(ROTOR_AIRGAP) = {sairrotormb[]};// For torque computation with Maxwell stress tensor
 
-NN = (Flag_Symmetry)?NbrPoles:NbrPolesTot;
+NN = (Flag_Symmetry)?NbrPolesInModel:NbrPolesTot;
 For k In {0:NN-1}
   Physical Surface(ROTOR_MAGNET+k) = {smagnet[k]}; // Magnets
 EndFor

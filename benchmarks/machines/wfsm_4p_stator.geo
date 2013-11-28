@@ -177,11 +177,11 @@ Physical Line(STATOR_PERIOD_DEPENDENT) = StatorPeriod_Dependent_[];
 /*
 // Before the moving band was always defined in sections equal to the number of total poles
 For k In {0:NbrPolesTot-1}
-  Physical Line(STATOR_BND_MOVING_BAND+k) = {OuterMB_[{4*k*NbrSectStator/NbrPoles:4*(k+1)*NbrSectStator/NbrPoles-1}]};
+  Physical Line(STATOR_BND_MOVING_BAND+k) = {OuterMB_[{4*k*NbrSectStator/NbrPolesInModel:4*(k+1)*NbrSectStator/NbrPolesInModel-1}]};
 EndFor
 */
 
-For k In {0:NbrPolesTot/NbrPoles-1}
+For k In {0:NbrPolesTot/NbrPolesInModel-1}
   Physical Line(STATOR_BND_MOVING_BAND+k) = {OuterMB_[{k*4*NbrSectStator:(k+1)*4*NbrSectStator-1}]};
 EndFor
 

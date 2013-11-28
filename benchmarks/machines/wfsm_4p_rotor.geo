@@ -117,8 +117,8 @@ RotorShaft_[] += Symmetry {0,1,0,0} { Duplicata{ Surface{RotorShaft_[{0}]};} };
 RotorAir_[] += Symmetry {0,1,0,0} { Duplicata{ Surface{RotorAir_[{0}]};} };
 RotorConductor_[] += Symmetry {0,1,0,0} { Duplicata{ Surface{RotorConductor_[{0}]};} };
 
-If(NbrPoles!=NbrPolesTot && NbrPoles>1)
-  RotorPeriod_Dependent_[] = Rotate{{0, 0, 1}, {0, 0, 0}, NbrPoles*2*Pi/NbrPolesTot}
+If(NbrPolesInModel != NbrPolesTot && NbrPolesInModel>1)
+  RotorPeriod_Dependent_[] = Rotate{{0, 0, 1}, {0, 0, 0}, NbrPolesInModel*2*Pi/NbrPolesTot}
   { Duplicata{Line{RotorPeriod_Reference_[]};} };
 EndIf
 
@@ -148,19 +148,19 @@ EndFor
 //---------------------------------------------------------
 // Physical Regions
 //---------------------------------------------------------
-If(NbrPoles==1)
+If(NbrPolesInModel==1)
   C1[] = {0} ;
   C2[] = {1};
 EndIf
-If(NbrPoles==2)
+If(NbrPolesInModel==2)
   C1[] = {0,3} ;
   C2[] = {1,2};
 EndIf
-If(NbrPoles==3)
+If(NbrPolesInModel==3)
   C1[] = {0,3,4} ;
   C2[] = {1,2,5};
 EndIf
-If(NbrPoles==4)
+If(NbrPolesInModel==4)
   C1[] = {0,3,4,7} ;
   C2[] = {1,2,5,6};
 EndIf
@@ -186,7 +186,7 @@ For k In {0:NbrPolesTot-1}
   Physical Line(ROTOR_BND_MOVING_BAND+k) = InnerMB_[{k*NN:(k+1)*NN-1}];
 EndFor
 */
-For k In {0:NbrPolesTot/NbrPoles-1}
+For k In {0:NbrPolesTot/NbrPolesInModel-1}
   Physical Line(ROTOR_BND_MOVING_BAND+k) = {InnerMB_[{k*4*NbrSect:(k+1)*4*NbrSect-1}]};
 EndFor
 

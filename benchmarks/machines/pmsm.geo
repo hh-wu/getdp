@@ -57,7 +57,7 @@ EndFor
 
 If(Flag_AddInfo)
   rr = 1.25 * rS3 ;
-  For k In {0:NbrPoles-1}
+  For k In {0:NbrPolesInModel-1}
     xa[] += rr*Cos(1*Pi/24+k*Pi/4) ; ya[] += rr*Sin(1*Pi/24+k*Pi/4) ;
     xb[] += rr*Cos(3*Pi/24+k*Pi/4) ; yb[] += rr*Sin(3*Pi/24+k*Pi/4) ;
     xc[] += rr*Cos(5*Pi/24+k*Pi/4) ; yc[] += rr*Sin(5*Pi/24+k*Pi/4) ;

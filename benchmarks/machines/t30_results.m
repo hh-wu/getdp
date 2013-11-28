@@ -7,7 +7,7 @@ set(0,'defaultlinelinewidth', 2)
 
 set(0,'DefaultAxesColorOrder',distinguishable_colors(20))
 
-Dir = 'res/';
+ResDir = 'res/';
 
 NbPhases = 1;
 if(NbPhases==1)
@@ -16,9 +16,9 @@ else
     ref = load('ref_results_t30a_3p.txt');
 end
 
-Tr  = load([Dir,'Tr.dat']);
-Ts  = load([Dir,'Ts.dat']);
-Tmb  = load([Dir,'Tmb.dat']);
+Tr  = load([ResDir,'Tr.dat']);
+Ts  = load([ResDir,'Ts.dat']);
+Tmb  = load([ResDir,'Tmb.dat']);
 
 wr = ref(:,1);
 wr_ = Tr(:,1) ;
@@ -37,8 +37,8 @@ ylabel('torque (N/m)')
 
 
 % Joule losses
-P  = load([Dir,'P.dat']);
-P_fe  = load([Dir,'P_fe.dat']);
+P  = load([ResDir,'P.dat']);
+P_fe  = load([ResDir,'P_fe.dat']);
 
 figure, hold on, grid on
 plot(wr,ref(:,4),'*-','color',rgb('steelblue'), 'DisplayName','reference'),
@@ -56,9 +56,9 @@ ylabel('steel loss (W/m)')
 xlabel('rotor speed (rad/s)')
 
 % Voltage
-a  = load([Dir,'Ua.dat']);
-%b  = load([Dir,'Ub.dat']);
-%c  = load([Dir,'Uc.dat']);
+a  = load([ResDir,'Ua.dat']);
+%b  = load([ResDir,'Ub.dat']);
+%c  = load([ResDir,'Uc.dat']);
 
 Ua  = a(:,2) + i*a(:,3);
 Ua_ = a(:,4) + i*a(:,5);

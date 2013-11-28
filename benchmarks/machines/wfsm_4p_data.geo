@@ -10,7 +10,7 @@ deg2rad = Pi/180 ;
 pp = "Input/Constructive parameters";
 
 DefineConstant[
-  NbrPoles = { 1, Choices {1="1", 2="2", 4="4"},
+  NbrPolesInModel = { 1, Choices {1="1", 2="2", 4="4"},
     Label "Number of poles in FE model",
     Path "Input/20", Highlight "Blue", Visible 1},
   InitialRotorAngle_deg = { 0., Range{0,90}, Label "Start rotor angle [deg]",
@@ -27,18 +27,18 @@ DefineConstant[ PhaseBelt = { 120., Choices{60, 120},
 //--------------------------------------------------------------------------
 NbrPolesTot = 4; // number of poles in complete cross-section
 NbrSectTot = NbrPolesTot; // number of "rotor teeth"
-NbrSect = NbrSectTot*NbrPoles/NbrPolesTot; // number of "rotor teeth" in FE model
+NbrSect = NbrSectTot*NbrPolesInModel/NbrPolesTot; // number of "rotor teeth" in FE model
 
 RotorAngle_R = InitialRotorAngle + Pi/4;
 
-SymmetryFactor = NbrPolesTot/NbrPoles ;
+SymmetryFactor = NbrPolesTot/NbrPolesInModel ;
 Flag_Symmetry = (SymmetryFactor==1)?0:1 ;
 
 //--------------------------------------------------------------------------
 // Stator
 //--------------------------------------------------------------------------
 NbrSectStatorTot = 60 ; // number of stator teeth
-NbrSectStator = NbrSectStatorTot*NbrPoles/NbrPolesTot; // number of stator teeth in FE model
+NbrSectStator = NbrSectStatorTot*NbrPolesInModel/NbrPolesTot; // number of stator teeth in FE model
 
 StatorAngle_ = Pi/NbrSectStatorTot; // initial stator angle (radians)
 StatorAngle_S = StatorAngle_ +Pi/2-Pi/6;

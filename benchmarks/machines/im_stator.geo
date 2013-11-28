@@ -166,7 +166,7 @@ EndFor
 
 //Completing the moving band
 NN = #OuterMB_[] ;
-k1 = (NbrPoles==1)?NbrPoles:NbrPoles+1;
+k1 = (NbrPolesInModel==1)?NbrPolesInModel:NbrPolesInModel+1;
 For k In {k1:NbrPolesTot-1}
   OuterMB_[] += Rotate {{0, 0, 1}, {0, 0, 0}, k*NbrSectStator*2*StatorAngle_} { Duplicata{ Line{OuterMB_[{0:NN-1}]};} };
 EndFor
@@ -189,11 +189,11 @@ Physical Line(SURF_EXT) = {OuterStator_[]};
 
 /*
 For k In {0:NbrPolesTot-1}
-  Physical Line(STATOR_BND_MOVING_BAND+k) = {OuterMB_[{k*4*NbrSectStator/NbrPoles:(k+1)*4*NbrSectStator/NbrPoles-1}]};
+  Physical Line(STATOR_BND_MOVING_BAND+k) = {OuterMB_[{k*4*NbrSectStator/NbrPolesInModel:(k+1)*4*NbrSectStator/NbrPolesInModel-1}]};
 EndFor
 */
 
-For k In {0:NbrPolesTot/NbrPoles-1}
+For k In {0:NbrPolesTot/NbrPolesInModel-1}
   Physical Line(STATOR_BND_MOVING_BAND+k) = {OuterMB_[{k*4*NbrSectStator:(k+1)*4*NbrSectStator-1}]};
 EndFor
 

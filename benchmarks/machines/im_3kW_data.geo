@@ -18,7 +18,7 @@ deg2rad = Pi/180 ;
 pp = "Input/Constructive parameters";
 
 DefineConstant[
-  NbrPoles = { 1, Choices{ 1 = "1", 2 = "2", 4 = "4" },
+  NbrPolesInModel = { 1, Choices{ 1 = "1", 2 = "2", 4 = "4" },
     Label "Number of poles in FE model",
     Path "Input/20", Highlight "Blue", Visible 1},
   InitialRotorAngle_deg = { 10, Label "Initial rotor angle [deg]",
@@ -29,16 +29,16 @@ DefineConstant[
 
 NbrPolesTot = 4; // number of poles in complete cross-section
 
-SymmetryFactor = NbrPolesTot/NbrPoles;
+SymmetryFactor = NbrPolesTot/NbrPolesInModel;
 Flag_Symmetry = (SymmetryFactor==1)?0:1;
 
 // Rotor
 NbrSectTot = 32; // number of rotor teeth
-NbrSect = NbrSectTot*NbrPoles/NbrPolesTot; // number of rotor teeth in FE model
+NbrSect = NbrSectTot*NbrPolesInModel/NbrPolesTot; // number of rotor teeth in FE model
 
 //Stator
 NbrSectStatorTot = 36; // number of stator teeth
-NbrSectStator = NbrSectStatorTot*NbrPoles/NbrPolesTot; // number of stator teeth in FE model
+NbrSectStator = NbrSectStatorTot*NbrPolesInModel/NbrPolesTot; // number of stator teeth in FE model
 
 //--------------------------------------------------------------------------------
 
