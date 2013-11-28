@@ -231,6 +231,18 @@ void F_SurfaceArea(F_ARG)
 		       List_Pointer(Problem_S.Group, Index_Region))->InitialList ;
       */
     }
+    else if (Fct->NbrParameters > 1) {
+      InitialList_L = List_Create(Fct->NbrParameters,1,sizeof(int));
+      List_Reset(InitialList_L);
+      for (i=0; i<Fct->NbrParameters; i++) {
+        Index_Region = (int)(Fct->Para[i]) ;
+        List_Add(InitialList_L,&Index_Region);
+      }
+      /*
+      InitialList_L = ((struct Group *)
+		       List_Pointer(Problem_S.Group, Index_Region))->InitialList ;
+      */
+    }
     else {
       Index_Region = -1 ;
       InitialList_L = NULL ;
