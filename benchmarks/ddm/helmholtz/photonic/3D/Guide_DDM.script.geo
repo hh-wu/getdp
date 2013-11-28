@@ -1,6 +1,9 @@
 Include "params.pro";
 Include "params.geo";
 
+// fix the output format to binary
+Mesh.Binary=1 ;
+
 Lx = (nx-0.5) * dx ; // fix in several places
 //// ==> ugly les bons tuyaux !! (or just Huggy Bear ;)
 

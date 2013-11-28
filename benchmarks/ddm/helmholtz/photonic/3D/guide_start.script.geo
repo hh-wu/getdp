@@ -1,5 +1,12 @@
 Include "params.geo" ;
 
+// // the output format is plain-text
+// // to have a binary output format:
+// //// * option 1/ add -bin to the command line
+// ////   $ gmsh guide_start.script.geo -bin -
+// //// * option 2/ add Mesh.Binary=1; in this file
+// Mesh.Binary=1;
+
 // source=newp;Point(source)={0,0,0} ;
 // Physical Point("SOURCE") = {source};
 

@@ -24,5 +24,8 @@ Plugin(CutPlane).Run  ;
 
 View[2].Name = "u_cut_xz";
 
+// fix the output format to binary
+PostProcessing.Format=1;
+
 Save View[1] Sprintf("u_cut_xy.pos");
 Save View[2] Sprintf("u_cut_xz.pos");
