@@ -1508,7 +1508,7 @@ See @ref{Function}, and @ref{Function examples}, for more details.
 @vindex @var{register-value-set}
 @vindex @var{register-value-get}
 
-@tindex #@var{integer}
+@tindex #@var{expression-cst}
 
 In many situations, identical parts of expressions are used more than
 once. If this is not a problem with constant expressions (since
@@ -1524,10 +1524,10 @@ partial expression.
 Registers have the following syntax: 
 @example
 @var{register-value-set}:
-  @var{expression}#@var{integer}
+  @var{expression}#@var{expression-cst}
 
 @var{register-value-get}:
-  #@var{integer}
+  #@var{expression-cst}
 @end example
 
 @noindent Thus, to store any part of an expression in the register 5, one
@@ -2121,8 +2121,9 @@ FunctionSpace @{
      @{ Name @var{basis-function-id}; NameOfCoef @var{coef-id}; 
        Function @var{basis-function-type}
          < @{ Quantity @var{quantity-id};
-             Formulation @var{formulation-id} @{#@var{integer}@}; 
-             Group @var{group-def}; Resolution @var{resolution-id} @{@} @} >;
+             Formulation @var{formulation-id} @{ @var{expression-cst} @}; 
+             Group @var{group-def}; 
+             Resolution @var{resolution-id} @{ @var{expression-cst} @} @} >;
        Support @var{group-def}; Entity @var{group-def}; @} @dots{}
     @}
   < SubSpace @{ 
