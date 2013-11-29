@@ -63,6 +63,8 @@ void  F_TangentSource   (F_ARG) ;
 void  F_ElementVol      (F_ARG) ;
 void  F_SurfaceArea     (F_ARG) ;
 void  F_GetVolume       (F_ARG) ;
+void  F_CellSize        (F_ARG) ;
+void  F_SquNormEdgeValues(F_ARG) ;
 
 /* F_Raytracing */
 

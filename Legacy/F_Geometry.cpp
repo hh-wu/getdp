@@ -7,6 +7,7 @@
 #include "ProData.h"
 #include "ProDefine.h"
 #include "GeoData.h"
+#include "DofData.h"
 #include "Get_Geometry.h"
 #include "F.h"
 #include "NumericUtils.h"
@@ -395,6 +396,159 @@ void F_GetVolume(F_ARG)
   }
 
 }
+
+
+void F_CellSize(F_ARG)
+{
+  double cellSize, Vol;
+  MATRIX3x3 Jac;
+  double  c11, c21, c12, c22, DetJac;
+  int     i, k ;
+
+  if(!Current.Element || Current.Element->Num == NO_ELEMENT)
+    Message::Error("No element on which to compute 'CellSize'");
+
+  Get_NodesCoordinatesOfElement(Current.Element) ;
+  Get_BFGeoElement(Current.Element, 0., 0., 0.) ;
+
+  switch(Current.Element->Type){
+  case LINE:
+    cellSize = 2. * JacobianLin3D(Current.Element,&Jac);
+    break;
+  case TRIANGLE:
+    c11 = c21 = c12 = c22 = 0. ;
+
+    for ( i = 0 ; i < Current.Element->GeoElement->NbrNodes ; i++ ) {
+      c11 += Current.Element->x[i] * Current.Element->dndu[i][0] ;
+      c21 += Current.Element->x[i] * Current.Element->dndu[i][1] ;
+      c12 += Current.Element->y[i] * Current.Element->dndu[i][0] ;
+      c22 += Current.Element->y[i] * Current.Element->dndu[i][1] ;
+    }
+    DetJac = c11 * c22 - c12 * c21 ;
+    cellSize =
+      sqrt(SQU(Current.Element->x[1]-Current.Element->x[0])
+           +SQU(Current.Element->y[1]-Current.Element->y[0])
+           +SQU(Current.Element->z[1]-Current.Element->z[0]))
+      *
+      sqrt(SQU(Current.Element->x[2]-Current.Element->x[1])
+           +SQU(Current.Element->y[2]-Current.Element->y[1])
+           +SQU(Current.Element->z[2]-Current.Element->z[1]))
+      *
+      sqrt(SQU(Current.Element->x[0]-Current.Element->x[2])
+           +SQU(Current.Element->y[0]-Current.Element->y[2])
+           +SQU(Current.Element->z[0]-Current.Element->z[2]))
+      / fabs(DetJac) ;
+    break;
+  case QUADRANGLE:
+    //    Message::Warning("Function CellSize not ready for QUADRANGLE") ;
+    Vol = 4. * JacobianSur3D(Current.Element,&Jac) ;
+    cellSize = sqrt(Vol);
+    break;
+  case TETRAHEDRON:
+    cellSize = 0.;
+    Message::Warning("Function CellSize not ready for TETRAHEDRON") ;
+    break;
+  case HEXAHEDRON:
+    cellSize = 0.;
+    Message::Warning("Function CellSize not ready for HEXAHEDRON") ;
+    break;
+  case PRISM:
+    cellSize = 0.;
+    Message::Warning("Function CellSize not ready for PRISM") ;
+    break;
+  default :
+    cellSize = 0.;
+    Message::Error("Function 'CellSize' not valid for %s",
+                   Get_StringForDefine(Element_Type, Current.Element->Type));
+  }
+
+  V->Type = SCALAR ;
+  V->Val[0] = cellSize ;
+
+  if (Current.NbrHar != 1) {
+    V->Val[MAX_DIM] = 0. ;
+    for (k = 2 ; k < Current.NbrHar ; k += 2)
+      V->Val[MAX_DIM* k] = V->Val[0] ;
+      V->Val[MAX_DIM* k +1] = 0. ;
+  }
+}
+
+
+void F_SquNormEdgeValues(F_ARG)
+{
+  struct Geo_Element  *GeoElement;
+  int                  i, *NumNodes;
+  double               x [NBR_MAX_NODES_IN_ELEMENT] ;
+  double               y [NBR_MAX_NODES_IN_ELEMENT] ;
+  double               z [NBR_MAX_NODES_IN_ELEMENT] ;
+  double               xe[2], ye[2], ze[2];
+
+  int                  numDofData, Code_BasisFunction, CodeExist = 0;
+  struct Dof  * Dof_P = NULL;
+  double               Val_Dof, Val_Dof_i, valSum, sizeEdge ;
+  int k;
+
+  if(!Current.Element || Current.Element->Num == NO_ELEMENT)
+    Message::Error("No element on which to compute 'SquNormEdgeValues'");
+
+  numDofData = (int)Fct->Para[0];
+  Code_BasisFunction = (int)Fct->Para[1];
+
+  GeoElement = Current.Element->GeoElement;
+  Geo_GetNodesCoordinates
+    (GeoElement->NbrNodes, GeoElement->NumNodes, x, y, z) ;
+
+  valSum = 0.;
+
+  if(!GeoElement->NbrEdges) Geo_CreateEdgesOfElement(GeoElement) ;
+  for(i=0 ; i<GeoElement->NbrEdges ; i++){
+    NumNodes = Geo_GetNodesOfEdgeInElement(GeoElement, i) ;
+    xe[0] = x[abs(NumNodes[0])-1]; xe[1] = x[abs(NumNodes[1])-1];
+    ye[0] = y[abs(NumNodes[0])-1]; ye[1] = y[abs(NumNodes[1])-1];
+    ze[0] = z[abs(NumNodes[0])-1]; ze[1] = z[abs(NumNodes[1])-1];
+
+    CodeExist =
+      ((Dof_P =
+        Dof_GetDofStruct(Current.DofData_P0+ numDofData,
+                         Code_BasisFunction, abs(GeoElement->NumEdges[i]), 0))
+       != NULL) ;
+
+    if (CodeExist) {
+      sizeEdge = sqrt( SQU(xe[1]-xe[0]) + SQU(ye[1]-ye[0]) + SQU(ze[1]-ze[0]) );
+
+      if(Current.NbrHar==1){
+        Dof_GetRealDofValue(Current.DofData_P0+ numDofData, Dof_P, &Val_Dof) ;
+        Val_Dof = Val_Dof/sizeEdge;
+        valSum += SQU(Val_Dof) * sizeEdge;
+      }
+      else{
+        for (k = 0 ; k < Current.NbrHar ; k+=2) {
+          Dof_GetComplexDofValue
+            (Current.DofData_P0+ numDofData,
+             Dof_P + k/2*gCOMPLEX_INCREMENT,
+             &Val_Dof, &Val_Dof_i) ;
+          Val_Dof   = Val_Dof  /sizeEdge;
+          Val_Dof_i = Val_Dof_i/sizeEdge;
+          valSum += (SQU(Val_Dof)+SQU(Val_Dof_i)) * sizeEdge;
+        }
+      }
+    }
+
+  }
+
+  V->Type = SCALAR ;
+  V->Val[0] = valSum ;
+
+  if (Current.NbrHar != 1) {
+    V->Val[MAX_DIM] = 0. ;
+    for (k = 2 ; k < Current.NbrHar ; k += 2)
+      V->Val[MAX_DIM* k] = 0. ;
+      V->Val[MAX_DIM* k +1] = 0. ;
+  }
+}
+
+
+
 
 static double POINT_TO_PROJECT[3], ELLIPSE_PARAMETERS[2];
 
