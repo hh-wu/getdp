@@ -5,6 +5,7 @@
 
 #include <string.h>
 #include <math.h>
+#include <map>
 #include "ProData.h"
 #include "GeoData.h"
 #include "DofData.h"
@@ -236,8 +237,6 @@ void Cal_SolidAngle(int Source, struct Element *Element,
 /*  C a l _ W h o l e Q u a n t i t y                                       */
 /* ------------------------------------------------------------------------ */
 
-#define MAX_REGISTER_SIZE   100
-
 #define CAST3V    void(*)(struct Value*, struct Value*, struct Value*)
 #define CAST1V    void(*)(struct Value*)
 #define CASTF2V   void(*)(struct Function*, struct Value*, struct Value*)
@@ -255,7 +254,7 @@ void Cal_SolidAngle(int Source, struct Element *Element,
    stacks), where a Value could be multiple. But this requires to
    change the way we deal with function arguments. */
 
-static struct Value ValueSaved[MAX_REGISTER_SIZE] ;
+static std::map<int, Value> ValueSaved ;
 
 void Cal_WholeQuantity(struct Element * Element,
 		       struct QuantityStorage * QuantityStorage_P0,
@@ -958,21 +957,12 @@ void Cal_WholeQuantity(struct Element * Element,
       break ;
 
     case WQ_SAVEVALUE :
-      if(WholeQuantity_P->Case.SaveValue.Index > MAX_REGISTER_SIZE-1){
-	Message::Error("Register Size Exceeded (%d)", MAX_REGISTER_SIZE);
-        break;
-      }
-      /* if (WholeQuantity_P->Case.SaveValue.Index >= 0) */
       Cal_CopyValue(&Stack[0][Index-1],
-		    ValueSaved + WholeQuantity_P->Case.SaveValue.Index) ;
+		    &ValueSaved[WholeQuantity_P->Case.SaveValue.Index]) ;
       break ;
 
     case WQ_VALUESAVED :
-      if(WholeQuantity_P->Case.ValueSaved.Index > MAX_REGISTER_SIZE-1){
-	Message::Error("Register size exceeded (%d)", MAX_REGISTER_SIZE);
-        break;
-      }
-      Cal_CopyValue(ValueSaved + WholeQuantity_P->Case.ValueSaved.Index,
+      Cal_CopyValue(&ValueSaved[WholeQuantity_P->Case.ValueSaved.Index],
 		    &Stack[0][Index]) ;
       Multi[Index] = 0 ;
       Index++ ;
@@ -1023,5 +1013,5 @@ List_T * Purify_WholeQuantity(List_T * WQ_L)
 
 void Cal_StoreInRegister(struct  Value  *Value, int RegisterIndex)
 {
-  Cal_CopyValue(Value, ValueSaved + RegisterIndex) ;
+  Cal_CopyValue(Value, &ValueSaved[RegisterIndex]) ;
 }
