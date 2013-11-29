@@ -8,6 +8,7 @@
 #include <math.h>
 #include "ProData.h"
 #include "GeoData.h"
+#include "DofData.h"
 #include "Cal_PostQuantity.h"
 #include "Get_Geometry.h"
 #include "Get_DofOfElement.h"
@@ -1616,6 +1617,10 @@ void  Pos_PrintGroup(struct PostSubOperation *PSO_P)
   double               y [NBR_MAX_NODES_IN_ELEMENT] ;
   double               z [NBR_MAX_NODES_IN_ELEMENT] ;
 
+  int                  numDofData, Code_BasisFunction, CodeExist = 0, k;
+  struct Dof  * Dof_P = NULL;
+  double               sizeEdge, Val_Dof, Val_Dof_i ;
+
   NbrGeo = Geo_GetNbrGeoElements() ;
 
   Format_PostHeader(PSO_P, 1, 0, PSO_P->Label, NULL);
@@ -1659,6 +1664,64 @@ void  Pos_PrintGroup(struct PostSubOperation *PSO_P)
 			       0, 0, 1, 1, 1,
 			       NULL, SL);
 	  }
+	}
+	break ;
+
+      case EDGESOF :
+	if(!GeoElement->NbrEdges) Geo_CreateEdgesOfElement(GeoElement) ;
+	for(i=0 ; i<GeoElement->NbrEdges ; i++){
+          NumNodes = Geo_GetNodesOfEdgeInElement(GeoElement, i) ;
+          SL->Index = iGeo;
+          SL->x[0] = x[abs(NumNodes[0])-1]; SL->x[1] = x[abs(NumNodes[1])-1];
+          SL->y[0] = y[abs(NumNodes[0])-1]; SL->y[1] = y[abs(NumNodes[1])-1];
+          SL->z[0] = z[abs(NumNodes[0])-1]; SL->z[1] = z[abs(NumNodes[1])-1];
+          SL->Value[0].Type = SL->Value[1].Type = SCALAR ;
+
+          //          SL->Value[0].Val[0] = SL->Value[1].Val[0] = fabs(GeoElement->NumEdges[i]);
+
+          // Dof : type, num, 0
+          if (List_Nbr(PSO_P->Value_L)<2)
+            Message::Error("Number of Values needed: 2");
+
+          numDofData         = int(*(double*)List_Pointer(PSO_P->Value_L, 0));
+          Code_BasisFunction = int(*(double*)List_Pointer(PSO_P->Value_L, 1));
+          
+          CodeExist =
+            ((Dof_P =
+              Dof_GetDofStruct(Current.DofData_P0+ numDofData,
+                               Code_BasisFunction, abs(GeoElement->NumEdges[i]), 0))
+             != NULL) ;
+
+          if (CodeExist) {
+            sizeEdge = sqrt( SQU(SL->x[1]-SL->x[0]) + SQU(SL->y[1]-SL->y[0]) + SQU(SL->z[1]-SL->z[0]) );
+            if(Current.NbrHar==1){
+              Dof_GetRealDofValue(Current.DofData_P0+ numDofData, Dof_P, &Val_Dof) ;
+
+              Val_Dof = Val_Dof / sizeEdge ;
+
+              SL->Value[0].Val[0] = SL->Value[1].Val[0] = Val_Dof;
+            }
+            else{
+              for (k = 0 ; k < Current.NbrHar ; k+=2) {
+		Dof_GetComplexDofValue
+		  (Current.DofData_P0+ numDofData,
+                   Dof_P + k/2*gCOMPLEX_INCREMENT,
+		   &Val_Dof, &Val_Dof_i) ;
+
+              Val_Dof   = Val_Dof / sizeEdge ;
+              Val_Dof_i = Val_Dof_i / sizeEdge ;
+
+              SL->Value[0].Val[MAX_DIM*k    ] = SL->Value[1].Val[MAX_DIM*k    ] = Val_Dof;
+              SL->Value[0].Val[MAX_DIM*(k+1)] = SL->Value[1].Val[MAX_DIM*(k+1)] = Val_Dof_i;
+              }
+            }
+
+            Format_PostElement(PSO_P, PSO_P->Iso, 0,
+                               0, 0, 1,
+                               Current.NbrHar, PSO_P->HarmonicToTime,
+                               NULL, SL);
+          }
+
 	}
 	break ;
 
