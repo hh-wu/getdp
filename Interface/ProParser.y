@@ -1451,17 +1451,17 @@ WholeQuantity_Single :
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
 
-  | WholeQuantity_Single '#' tINT
+  | WholeQuantity_Single '#' FExpr
     {
       WholeQuantity_S.Type = WQ_SAVEVALUE;
-      WholeQuantity_S.Case.SaveValue.Index = $3 - 1;
+      WholeQuantity_S.Case.SaveValue.Index = (int)$3 - 1;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
 
-  | '#' tINT
+  | '#' FExpr
     {
       WholeQuantity_S.Type = WQ_VALUESAVED;
-      WholeQuantity_S.Case.ValueSaved.Index = $2 - 1;
+      WholeQuantity_S.Case.ValueSaved.Index = (int)$2 - 1;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
 
@@ -6349,41 +6349,41 @@ PrintOption :
 	PostSubOperation_S.EvaluationPoints = $4;
       }
     }
-  | ',' tStoreInRegister tINT
+  | ',' tStoreInRegister FExpr
     {
-      PostSubOperation_S.StoreInRegister = $3 - 1;
+      PostSubOperation_S.StoreInRegister = (int)$3 - 1;
     }
-  | ',' tStoreMinInRegister tINT
+  | ',' tStoreMinInRegister FExpr
     {
-      PostSubOperation_S.StoreMinInRegister = $3 - 1;
+      PostSubOperation_S.StoreMinInRegister = (int)$3 - 1;
     }
-  | ',' tStoreMinXinRegister tINT
+  | ',' tStoreMinXinRegister FExpr
     {
-      PostSubOperation_S.StoreMinXinRegister = $3 - 1;
+      PostSubOperation_S.StoreMinXinRegister = (int)$3 - 1;
     }
-  | ',' tStoreMinYinRegister tINT
+  | ',' tStoreMinYinRegister FExpr
     {
-      PostSubOperation_S.StoreMinYinRegister = $3 - 1;
+      PostSubOperation_S.StoreMinYinRegister = (int)$3 - 1;
     }
-  | ',' tStoreMinZinRegister tINT
+  | ',' tStoreMinZinRegister FExpr
     {
-      PostSubOperation_S.StoreMinZinRegister = $3 - 1;
+      PostSubOperation_S.StoreMinZinRegister = (int)$3 - 1;
     }
-  | ',' tStoreMaxInRegister tINT
+  | ',' tStoreMaxInRegister FExpr
     {
-      PostSubOperation_S.StoreMaxInRegister = $3 - 1;
+      PostSubOperation_S.StoreMaxInRegister = (int)$3 - 1;
     }
-  | ',' tStoreMaxXinRegister tINT
+  | ',' tStoreMaxXinRegister FExpr
     {
-      PostSubOperation_S.StoreMaxXinRegister = $3 - 1;
+      PostSubOperation_S.StoreMaxXinRegister = (int)$3 - 1;
     }
-  | ',' tStoreMaxYinRegister tINT
+  | ',' tStoreMaxYinRegister FExpr
     {
-      PostSubOperation_S.StoreMaxYinRegister = $3 - 1;
+      PostSubOperation_S.StoreMaxYinRegister = (int)$3 - 1;
     }
-  | ',' tStoreMaxZinRegister tINT
+  | ',' tStoreMaxZinRegister FExpr
     {
-      PostSubOperation_S.StoreMaxZinRegister = $3 - 1;
+      PostSubOperation_S.StoreMaxZinRegister = (int)$3 - 1;
     }
   | ',' tStoreInField FExpr
     {
