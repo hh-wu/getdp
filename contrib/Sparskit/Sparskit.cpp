@@ -1907,6 +1907,10 @@ void init_solver (Solver_Params *p , const char *name){
 
   if(!(file = fopen(name,"r"))){
     file = fopen(name,"w");
+    if(!file){
+      Message::Warning("Could not open solver parameter file");
+      return;
+    }
     fprintf(file,"/*\n");
     Commentaires(file);
     fprintf(file,"*/\n\n");
@@ -1917,7 +1921,7 @@ void init_solver (Solver_Params *p , const char *name){
       switch(pI->typeinfo){
       case REEL :
       getfloat :
-	if(Message::UseSocket())
+	if(Message::UseSocket() || Message::UseOnelab())
 	  strcpy(buff, "\n");
 	else{
 	  printf("%25s (Real)    [<h>=help, <return>=%g]: ",pI->str,pI->defaultfloat);
@@ -1939,8 +1943,9 @@ void init_solver (Solver_Params *p , const char *name){
 	break;
       case ENTIER :
       getint :
-	if(Message::UseSocket())
+	if(Message::UseSocket() || Message::UseOnelab()){
 	  strcpy(buff, "\n");
+        }
 	else{
 	  printf("%25s (Integer) [<h>=help, <return>=%d]: ",pI->str,pI->defaultint);
 	  fgets(buff, 128, stdin);
@@ -1961,7 +1966,6 @@ void init_solver (Solver_Params *p , const char *name){
 	break;
       }
     }
-    fclose(file);
   }
   else {
     qsort(Tab_Params, NbInfosSolver, sizeof(InfoSolver), compInfoSolver);
