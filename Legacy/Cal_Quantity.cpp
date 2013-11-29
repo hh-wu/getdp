@@ -241,18 +241,8 @@ void Cal_SolidAngle(int Source, struct Element *Element,
 #define CAST1V    void(*)(struct Value*)
 #define CASTF2V   void(*)(struct Function*, struct Value*, struct Value*)
 
-/* There can be at max one "Dof{op qty}" per WholeQuantity, but as
-   many {op qty} as you want.
-
-   Note that Stack[8][MAX_STACK_SIZE] should actually be
-   Stack[NBR_MAX_BASISFUNCTION][MAX_STACK_SIZE]. But this tends to
-   overflow the stack when we don't use USE_GLOBAL_STACK. Also, 8 is
-   OK since the 'multi' feature is only used for SolidAngle
-   computations at the moment.
-
-   A better solution would be to build a single stack (instead of 8
-   stacks), where a Value could be multiple. But this requires to
-   change the way we deal with function arguments. */
+// There can be at max one "Dof{op qty}" per WholeQuantity, but as
+// many {op qty} as you want.
 
 static std::map<int, Value> ValueSaved ;
 
@@ -278,68 +268,7 @@ void Cal_WholeQuantity(struct Element * Element,
   struct Solution        *Solution_P0, *Solution_PN ;
 
   struct Element* Save_CurrentElement ;
-
-//#define USE_GLOBAL_STACK
-
-#if defined(USE_GLOBAL_STACK)
-
-  /* Use a single global (static) stack for all quantity evaluations.
-
-     Stack size
-       = MAX_RECURSION * MAX_STACK_SIZE * 8 * sizeof(struct Value)
-       = 50 * 40 * 8 * (MAX_DIM * NBR_MAX_HARMONIC * sizeof(double))
-       = 50 * 40 * 8 * (9 * 2 * 8)
-      ~= 2 Mb
-
-     Beware that for NBR_MAX_HARMONIC=40, the size would grow to
-     40Mb... So let's define MAX_RECURSION as follows : */
-
-#if NBR_MAX_HARMONIC <= 10
-#define MAX_RECURSION 50
-#else
-#define MAX_RECURSION 10
-#endif
-
-  /* We need MAX_RECURSION sufficiently large for expressions like
-     (a?b:(c?d:(e?...))) with all n<MAX_RECURSION first tests
-     evaluating to false. This case happens quite often when
-     specifying piecewise defined physical characteristics.
-
-     If this poses problem in the future, we could still think about
-     reallocating ths stack as it grows. The same holds for
-     MAX_STACK_SIZE, of course. */
-
-  static struct Value ***StaticStack;
-  static int RecursionIndex = -1, first = 1;
-  struct Value **Stack;
-
-#else
-
-  /* Use a local stack: this can quickly overflow the stack on Windows
-     and Mac OS X */
   struct Value Stack[8][MAX_STACK_SIZE] ;
-
-#endif
-
-#if defined(USE_GLOBAL_STACK)
-  if(first){
-    StaticStack = (struct Value***)Malloc(MAX_RECURSION*sizeof(struct Value**));
-    for(j = 0; j < MAX_RECURSION; j++){
-      StaticStack[j] = (struct Value**)Malloc(8*sizeof(struct Value*));
-      for(k = 0; k < 8; k++){
-	StaticStack[j][k] = (struct Value*)Malloc(MAX_STACK_SIZE*sizeof(struct Value));
-      }
-    }
-    first = 0;
-  }
-  RecursionIndex++;
-  if(RecursionIndex < 0 || RecursionIndex >= MAX_RECURSION){
-    Message::Error("Recursion problem in Cal_WholeQuantity (%d outside [0,%d])",
-                   RecursionIndex, MAX_RECURSION);
-    return;
-  }
-  Stack = StaticStack[RecursionIndex];
-#endif
 
   WholeQuantity_P0 = (struct WholeQuantity*)List_Pointer(WholeQuantity_L, 0) ;
 
@@ -988,23 +917,6 @@ void Cal_WholeQuantity(struct Element * Element,
   }
 
   if (DofIndexInWholeQuantity < 0) Cal_CopyValue(&Stack[0][0], &DofValue[0]) ;
-
-#if defined(USE_GLOBAL_STACK)
-  RecursionIndex--;
-#endif
-}
-
-/* ------------------------------------------------------------------------ */
-/*  P u r i f y _ W h o l e Q u a n t i t y                                 */
-/* ------------------------------------------------------------------------ */
-
-List_T * Purify_WholeQuantity(List_T * WQ_L)
-{
-  /* It would be nice to pre-compute all trivial sequences in a list
-     of WholeQuantities. For example, when all the quantties are
-     constants, it is pretty stupid to recompute everything
-     everytime using the stack... */
-  return NULL ;
 }
 
 /* ------------------------------------------------------------------------ */
