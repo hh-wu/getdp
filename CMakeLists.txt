@@ -896,7 +896,6 @@ endif(WIN32 OR CYGWIN)
 include(CPack)
 
 include(CTest)
-# we will need some common testing framwork to make actual tests
 file(GLOB_RECURSE TESTFILES demos/magnet.pro)
 foreach(TESTFILE ${TESTFILES})
   add_test(${TESTFILE} ../../gmsh/bin/gmsh ${TESTFILE} - )
