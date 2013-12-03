@@ -2,7 +2,7 @@
 Problem = "test" ;
 //
 PRECOND_SWEEP = 0;
-N_DOM = 3;
+N_DOM = 10;
 
 WAVENUMBER = 4.0*Pi;
 
@@ -40,7 +40,7 @@ THETA_BRANCH_OSRC = 0.785398;
 FULL_SOLUTION = 0; // NameOfMesh = MeshName_Full_merged.msh
 EXACT_SOLUTION = 0; // NO EXACT SOLUTION FOR SUBMARINE
 //STORE/WRITE the initial u (0th iteration)
-STORE_E_VOL_INIT = 0; // if stored (in ram) then the "real" scattered field is computed at the end in u*.pos files
+STORE_E_VOL_INIT = 1; // if stored (in ram) then the "real" scattered field is computed at the end in u*.pos files
 WRITE_E_VOL_INIT = 0; // if written (on disk), then u_init*.pos files are created 
 
 
@@ -57,6 +57,6 @@ DIM = 3;
 // Iterative Solver parameters
 LinSystType = "I-A";
 SOLVER = "gmres";
-TOL = 1e-04;
+TOL = 1e-07;
 MAXIT = 200;
 RESTART = MAXIT;
