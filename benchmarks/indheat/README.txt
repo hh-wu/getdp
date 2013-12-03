@@ -1,5 +1,5 @@
 
-Magneto-thermal model of an induction heating device using cohomology conditions.
+Magneto-thermal model of an induction heating device.
 
 [[Category:GetDP]]
 [[Category:Electromagnetism]]
