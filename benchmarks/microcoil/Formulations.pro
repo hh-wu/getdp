@@ -27,7 +27,7 @@ Function {
   DefineFunction[ nu, sigma, js0, epsr ] ;
   DefineConstant[ Freq ] ;
   DefineConstant[ Flag_PostInResolution = { 1, Choices{0,1},
-      Label "Perform PostOperation in Resolution", Path "Input/0"} ] ;
+      Name "Input/0Perform PostOperation in Resolution"} ] ;
 }
 
 /* --------------------------------------------------------------------------*/
@@ -594,7 +594,7 @@ PostProcessing {
 
 
 DefineConstant[
-  ResolutionChoices    = {"Analysis", Path "GetDP/1", Visible 0},
-  ComputeCommand       = {"-solve -v 3 -v2", Path "GetDP/9", Visible 0},
-  PostOperationChoices = {"", Path "GetDP/2", Visible !Flag_PostInResolution}
+  R_ = {"Analysis", Name "GetDP/1ResolutionChoices", Visible 0},
+  C_ = {"-solve -v 3 -v2", Name "GetDP/9ComputeCommand", Visible 0},
+  P_ = {"", Name "GetDP/2PostOperationChoices", Visible !Flag_PostInResolution}
 ];

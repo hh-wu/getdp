@@ -21,16 +21,15 @@
 u = 1e-3 ; // unit = mm
 deg2rad = Pi/180 ;
 
-pp = "Input/Constructive parameters";
+pp = "Input/Constructive parameters/";
 
 DefineConstant[
   NbrPolesInModel = { 1, Choices{ 1 = "1", 2 = "2", 4 = "4" },
-    Label "Number of poles in FE model",
-    Path "Input/20", Highlight "Blue", Visible 1},
-  InitialRotorAngle_deg = { 10, Label "Initial rotor angle (deg)",
-                            Path "Input/20", Highlight "AliceBlue"},
+    Name "Input/20Number of poles in FE model", Highlight "Blue"},
+  InitialRotorAngle_deg = { 10,
+    Name "Input/20Initial rotor angle (deg)", Highlight "AliceBlue"},
   Flag_OpenRotor = {1, Choices{0,1},
-    Label "Open slots in rotor", Path "Input/39", Highlight "White", Visible 1}
+    Name "Input/39Open slots in rotor", Highlight "White"}
 ];
 
 
@@ -65,7 +64,7 @@ RotorAngle_S = RotorAngle_R;
 //-----------------------------------------------------------------------
 // Rotor dimensions
 DefineConstant[
-  AG = {u*0.47, Label "Airgap width [m]", Path Str[pp], Closed 1}
+  AG = {u*0.47, Name StrCat[pp, "Airgap width [m]"], Closed 1}
 ];
 
 R2 = u*92/2 - AG;  // outer rotor radius
@@ -97,28 +96,30 @@ Freq = 60 ;
 
 sigma_fe = 0 ;
 DefineConstant[
-  sigma_bars = {28e6, Label "Conductivity of rotor bars [S/m]", Path Str[pp]},
-  // alloy in die-cast rotor cages: Si (0.2%) + Fe (0.25%) + Cu (0.01%) + Zn (0.04%) + Ti (0.02%)
-  mur_fe = {1000, Label "Relative permeability for linear case", Path Str[pp]}
+  sigma_bars = {28e6, Name StrCat[pp, "ss"], Label "Conductivity of rotor bars [S/m]"},
+  // alloy in die-cast rotor cages: Si (0.2%) + Fe (0.25%) + Cu (0.01%) + Zn
+  // (0.04%) + Ti (0.02%)
+  mur_fe = {1000, Name StrCat[pp, "Relative permeability for linear case"]}
 ];
 
 Lz = 0.2 ;    // axial length of magnetic core in m
 
 DefineConstant[
-  R_endring_segment = {0.836e-6, Label "Resistance of two endring segments in series [Ohm]",
-    Path Str[pp]}, // 88 value taken from 3kW im
-  L_endring_segment = {4.8e-9, Label "Inductance of two endring segments in series [H]",
-    Path Str[pp]}, // 88 value taken from 3kW im
-  Rs = {0.4992, Label "Resistance per stator phase [Ohm]", Path Str[pp]},
-  Ls = {1.7036e-3, Label "Endwinding inductance per stator phase [H]", Path Str[pp]}
+  R_endring_segment = {0.836e-6,  // 88 value taken from 3kW im
+    Name StrCat[pp, "Resistance of two endring segments in series [Ohm]"]},
+  L_endring_segment = {4.8e-9,  // 88 value taken from 3kW im
+    Name StrCat[pp, "Inductance of two endring segments in series [H]"]},
+  Rs = {0.4992,
+    Name StrCat[pp, "Resistance per stator phase [Ohm]"]},
+  Ls = {1.7036e-3,
+    Name StrCat[pp, "Endwinding inductance per stator phase [H]"]}
 ];
 
 Xs = 2*Pi*Freq * Ls ; // endwinding inductance and reactance in H and ohm
 
 DefineConstant[
-  Ns ={ 8*16, Label "Total number of turns in series per phase", Path Str[pp]}
+  Ns ={ 8*16, Name StrCat[pp, "Total number of turns in series per phase"]}
 ] ;
-
 
 
 AxialLength = Lz ;

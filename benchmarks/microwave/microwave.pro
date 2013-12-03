@@ -175,9 +175,9 @@ PostOperation {
 }
 
 DefineConstant[
-  ResolutionChoices = {"Analysis", Path "GetDP/1", Visible 0},
-  ComputeCommand = {"-solve -pos -v2", Path "GetDP/9", Visible 0},
-  MyPostOp = {"Get_ShieldingEffectiveness", Path "Input/1", Label "Post-processing",
-      Choices{"Get_Fields", "Get_ShieldingEffectiveness"}, MultipleSelection "01"},
-  PostOperationChoices = { Str[MyPostOp], Path "GetDP/2", Visible 0, ReadOnly 1}
+  R_ = {"Analysis", Name "GetDP/1ResolutionChoices", Visible 0},
+  C_ = {"-solve -pos -v2", Name "GetDP/9ComputeCommand", Visible 0},
+  MyPostOp = {"Get_ShieldingEffectiveness", Name "Input/1Post-processing",
+    Choices{"Get_Fields", "Get_ShieldingEffectiveness"}, MultipleSelection "01"},
+  P_ = { Str[MyPostOp], Name "GetDP/2PostOperationChoices", Visible 0, ReadOnly 1}
 ];

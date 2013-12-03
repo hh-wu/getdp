@@ -752,7 +752,17 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
 {
   if(!_onelabClient) return;
 
-  std::string name = _getParameterName(c->Name, copt);
+  std::string name;
+  if(copt.count("Name"))
+    name = copt["Name"][0];
+
+  if(name.empty()){
+    if(copt.size() || fopt.size())
+      Msg::Error("From now on you need to use the `Name' attribute to create a "
+                 "Onelab parameter: `Name \"%s\"'",
+                 _getParameterName(c->Name, copt).c_str());
+    return;
+  }
 
   if(c->Type == VAR_FLOAT){
     std::vector<onelab::number> ps;
@@ -879,7 +889,17 @@ void Message::ExchangeOnelabParameter(Group *g, fmap &fopt, cmap &copt)
 {
   if(!_onelabClient) return;
 
-  std::string name = _getParameterName(g->Name, copt);
+  std::string name;
+  if(copt.count("Name"))
+    name = copt["Name"][0];
+
+  if(name.empty()){
+    if(copt.size() || fopt.size())
+      Msg::Error("From now on you need to use the `Name' attribute to create a "
+                 "Onelab parameter: `Name \"%s\"'",
+                 _getParameterName(g->Name, copt).c_str());
+    return;
+  }
 
   std::vector<onelab::region> ps;
   _onelabClient->get(ps, name);
@@ -924,9 +944,7 @@ void Message::ExchangeOnelabParameter(Expression *e, fmap &fopt, cmap &copt)
 {
   if(!_onelabClient) return;
 
-  std::string name = _getParameterName(e->Name, copt);
-
-  printf("exchanging function %s with OneLab!\n", name.c_str());
+  Msg::Error("Exchanging functions with OneLab in not implemented yet");
 }
 
 void Message::UndefineOnelabParameter(const std::string &name)

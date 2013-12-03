@@ -9,11 +9,11 @@
 cm = 1e-2 ;
 deg2rad = Pi/180;
 
-pp = "Input/Constructive parameters";
+pp = "Input/Constructive parameters/";
 
 DefineConstant[
-  NbPhases = {1, Choices {1="Single-phase", 3="Three-phase"}, Label "Type",
-    Path "Input/2", Highlight "Blue"}
+  NbPhases = {1, Choices {1="Single-phase", 3="Three-phase"},
+    Name "Input/2Type", Highlight "Blue"}
 ];
 
 thetas = 45 * deg2rad ;
@@ -24,7 +24,7 @@ Flag_Symmetry  = 0 ;
 
 gap  = 0.2*cm ;
 DefineConstant[
-  AG = {gap, Label "Airgap width [m]", Path Str[pp], Closed 1}
+  AG = {gap, Name StrCat[pp, "Airgap width [m]"], Closed 1}
 ];
 
 r1 = 2.0*cm ; // rotor steel
@@ -38,8 +38,8 @@ rmb0 = r2 + aaa*AG ; // radius moving band rotor
 rmb1 = r3 - aaa*AG ; // radius moving band stator
 
 DefineConstant[
-  sigma_fe = {1.6e6, Label "Conductivity of rotor steel", Path Str[pp]},
-  mur_fe = {30, Label "Relative permeability for rotor and stator steel", Path Str[pp]}
+  sigma_fe = {1.6e6, Name StrCat[pp, "Conductivity of rotor steel"]},
+  mur_fe = {30, Name StrCat[pp, "Relative permeability for rotor and stator steel"]}
 ];
 
 // Moment of inertia - height h along z, radius r along x
@@ -107,6 +107,3 @@ STATOR_INDC = 2300 ; STATOR_INDCN = 2301 ;
 MOVING_BAND = 9999 ;
 
 SURF_INF = 3000 ; // outer boundary
-
-
-

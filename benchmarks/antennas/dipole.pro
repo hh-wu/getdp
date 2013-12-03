@@ -2,7 +2,7 @@ Include "dipole_data.geo";
 
 DefineConstant[
   Flag_AnalysisType = { 0,  Choices{0="e-formulation",  1="av-formulation"},
-    Label "Type of analysis",  Path "Input/21", Highlight "Blue", Visible 1,
+    Name "Input/21Type of analysis", Highlight "Blue",
     Help Str["- Use 'electric field formulation' to compute the EM fields created by the dipole",
       "- Use 'av-potential formulation' to compute the EM fields created by the dipole"]}
 ];

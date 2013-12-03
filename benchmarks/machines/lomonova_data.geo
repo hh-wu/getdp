@@ -9,25 +9,25 @@
 
 u = 1e-3 ; // mm
 deg2rad = Pi/180 ;
-pp = "Input/Constructive parameters";
+pp = "Input/Constructive parameters/";
 
 DefineConstant[ Flag_Type = { 0, Choices{ 0="Concentrated",
                                           1="Distributed 1",
                                           2="Distributed 2",
                                           3="Distributed 3"},
-                              Label "Type of windings",
-                              Path "Input/1", Highlight "Blue"} ];
+                              Name "Input/1Type of windings",
+                              Highlight "Blue"} ];
 
 boolreadonly = (Flag_Type==0) ? 1 : 0 ;
 
 // No symmetry possible with concentrated type
 
-DefineConstant[//Grey85
+DefineConstant[
   NbrPolesInModel = { (Flag_Type==0) ? 8 : 1, Choices {1="1", 2="2", 4="4", 8="8"},
-    Label "Number of poles in FE model",
-    Path "Input/20", Visible 1, ReadOnly (Flag_Type==0) ? 1 : 0},
-  InitialRotorAngle_deg = { 0., Label "Start rotor angle [deg]",
-    Path "Input/21", Highlight "AliceBlue"}
+    Name "Input/20Number of poles in FE model",
+    ReadOnly (Flag_Type==0) ? 1 : 0},
+  InitialRotorAngle_deg = { 0., Name "Input/21Start rotor angle [deg]",
+    Highlight "AliceBlue"}
 ] ;
 
 //--------------------------------------------------------------------------------
@@ -104,14 +104,14 @@ kbs_tz = 0.45 ; // Slot width to slot pitch - ratio
 
 
 DefineConstant[
-  AxialLength = {l1,  Label "Axial length [m]", Path Str[pp], Closed 1}
+  AxialLength = {l1,  Name StrCat[pp, "Axial length [m]"], Closed 1}
 ];
 
 
 sigma_fe = 0. ; // laminated steel
 DefineConstant[
-  mur_fe = {1000, Label "Relative permeability for linear case", Path Str[pp]},
-  b_remanent = { 1.175, Label "Remanent induction [T]", Path Str[pp] }
+  mur_fe = {1000, Name StrCat[pp, "Relative permeability for linear case"]},
+  b_remanent = { 1.175, Name StrCat[pp, "Remanent induction [T]"] }
 ];
 
 

@@ -76,7 +76,7 @@ InnerMB_[] += {dRr[{13,14}]} ; // for moving band rotor side
 // For simplicity: rotating the lines before the surfaces.
 // Otherwise, you may loose them when surface boundaries coincide.
 // You could, of course, recover them after from the surfaces but it is a bit trickier... :-)
-RotorPeriod_Dependent_[] += Rotate {{0, 0, 1}, {0, 0, 0}, 2*Pi*NbrPoles/NbrPolesTot} { Duplicata{ Line{RotorPeriod_Reference_[]};} };
+RotorPeriod_Dependent_[] += Rotate {{0, 0, 1}, {0, 0, 0}, 2*Pi*NbrPolesInModel/NbrPolesTot} { Duplicata{ Line{RotorPeriod_Reference_[]};} };
 OuterShaft_[] += Symmetry {Cos(RotorAngle_S),Sin(RotorAngle_S),0,0} { Duplicata{Line{OuterShaft_[0]};} };
 aux[] = Symmetry {Cos(RotorAngle_S),Sin(RotorAngle_S),0,0} { Duplicata{Line{InnerMB_[{0,1}]};} };
 InnerMB_[] += -aux[{1,0}];
@@ -135,7 +135,7 @@ For i In {1:Ceil[NbrPolesTot/NbrSect]}
   Physical Line(ROTOR_BND_MOVING_BAND+i-1) = {InnerMB_[{(i-1)*nnp:ii}]};
 EndFor
 
-If(NbrPoles!=NbrPolesTot)
+If(NbrPolesInModel!=NbrPolesTot)
 Physical Line(ROTOR_BND_A0) = {RotorPeriod_Reference_[]};
 Physical Line(ROTOR_BND_A1) = {RotorPeriod_Dependent_[]};
 EndIf

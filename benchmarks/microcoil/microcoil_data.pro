@@ -12,16 +12,16 @@ eps0 = 8.854187818e-12 ;
 c0   = Sqrt[nu0/eps0];
 
 DefineConstant[
-  nTurns = {2, Label "Number of turns", Path StrCat(pp,"0"),  Highlight Str[colorpp], Closed close_menu},
-  wWire =  {5, Label "Width of wire [microns]",  Path StrCat(pp,"1"),  Highlight Str[colorpp]},
-  hWire =  {5, Label "Height of wire [microns]", Path StrCat(pp,"2"),  Highlight Str[colorpp]},
-  gWire =  {5, Label "Gap between wire [microns]", Path StrCat(pp,"3"),  Highlight Str[colorpp]},
+  nTurns = {2, Name StrCat[pp, "0Number of turns"], Highlight Str[colorpp], Closed close_menu},
+  wWire = {5, Name StrCat[pp, "1Width of wire [microns]"], Highlight Str[colorpp]},
+  hWire = {5, Name StrCat[pp, "2Height of wire [microns]"],  Highlight Str[colorpp]},
+  gWire = {5, Name StrCat[pp, "3Gap between wire [microns]"], Highlight Str[colorpp]},
 
-  Freq  = {1e8, Label "Working Frequency [Hz]", Path StrCat(ppEM,"0"),  Highlight Str[colorpp] },
-  epsilon_r  = {5, Label "Relative permittivity of medium" , Path StrCat(ppEM,"1"),  Highlight Str[colorpp] },
-  c_medium  = {c0/Sqrt[epsilon_r], Label "Speed of light in medium", ReadOnly 1, Path StrCat(ppEM,"5"),  Highlight Str[colorro] },
-  k_medium  = {2*Pi*Freq/c_medium, Label "Wave number in medium", ReadOnly 1, Path StrCat(ppEM,"4"),  Highlight Str[colorro] },
-  lambda_medium = {c_medium/Freq, Label "Wavelength in medium", ReadOnly 1, Path StrCat(ppEM,"3"),  Highlight Str[colorro] }
+  Freq  = {1e8, Name StrCat[ppEM, "0Working Frequency [Hz]"],  Highlight Str[colorpp] },
+  epsilon_r = {5, Name StrCat[ppEM, "1Relative permittivity of medium"], Highlight Str[colorpp] },
+  c_medium = {c0/Sqrt[epsilon_r], Name StrCat[ppEM, "5Speed of light in medium"], ReadOnly 1,  Highlight Str[colorro] },
+  k_medium = {2*Pi*Freq/c_medium, Name StrCat[ppEM, "4Wave number in medium"], ReadOnly 1, Highlight Str[colorro] },
+  lambda_medium = {c_medium/Freq, Name StrCat[ppEM, "3Wavelength in medium"], ReadOnly 1, Highlight Str[colorro] }
 ];
 
 um = 1e-6; // micron

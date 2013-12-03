@@ -1,14 +1,14 @@
 Include "magnetometer_data.geo";
 
 DefineConstant[
-  Flag_AnalysisType = {0, Label "Type of analysis", Path "Input/0",
+  Flag_AnalysisType = {0, Name "Input/0Type of analysis",
     Choices{0="Eigenmodes",
       1="Electrokinetics",
       2="Electro-mechanical (static)",
       3="Electro-mechanical (dynamic)",
       4="Electro-thermal"}}
   DEGRE2 = {1, Choices{0="First order", 1="Second order"},
-            Label "FE scheme", Path "Input/1"}
+    Name "Input/1FE scheme"}
 ];
 
 Group {
@@ -30,19 +30,20 @@ Group {
 Function {
   // electrical
   DefineConstant[
-    sigm = {37e6, Label "Electric conductivity [S/m]", Path "Input/Materials/3"},
-    b_y = {-1e-6, Label "B field (y comp.) [T]", Path "Input/91"}
-    V_imposed = {0.00181, Label "Voltage [V]", Path "Input/92"}
+    sigm = {37e6, Name "Input/Materials/3Electric conductivity",
+      Label "Electric conductivity [S/m]"},
+    b_y = {-1e-6, Name "Input/91B field (y comp.) [T]"},
+    V_imposed = {0.00181, Name "Input/92Voltage [V]"}
   ];
   sigma[DomainC_Ele] = sigm ;
   bext[] = Vector[0, b_y, 0];
 
   // mechanical
   DefineConstant[
-    young = {150e9, Label "Young modulus [Pa]", Path "Input/Materials/0"},
-    nu = {0.17, Label "Poisson coeficient", Path "Input/Materials/1"},
-    rh = {4400, Label "Mass density [kg/m^3]", Path "Input/Materials/2"},
-    Freq = {100e3, Label "Frequency [Hz]", Min 90e3, Max 120e3, Step 2.5e3, Path "Input/93"}
+    young = {150e9, Name "Input/Materials/0Young modulus [Pa]"},
+    nu = {0.17, Name "Input/Materials/1Poisson coeficient"},
+    rh = {4400, Name "Input/Materials/2Mass density", Label "Mass density [kg/m^3]"},
+    Freq = {100e3, Name "Input/93Frequency [Hz]", Min 90e3, Max 120e3, Step 2.5e3}
   ];
 
   //F[] = Vector[0, 0, 10];
@@ -207,7 +208,7 @@ PostOperation {
 }
 
 DefineConstant[
-  ResolutionChoices    = {"Analysis", Path "GetDP/1", Visible 0},
-  ComputeCommand       = {"-solve -petsc_prealloc 400", Path "GetDP/9", Visible 0},
-  PostOperationChoices = {"", Path "GetDP/2", Visible 0}
+  R_ = {"Analysis", Name "GetDP/1ResolutionChoices", Visible 0},
+  C_ = {"-solve -petsc_prealloc 400", Name "GetDP/9ComputeCommand", Visible 0},
+  P_ = {"", Name "GetDP/2PostOperationChoices", Visible 0}
 ];

@@ -30,8 +30,7 @@ Function {
   // DefineConstant is used to define a default value for murCore; this value
   // can be changed interactively by the ONELAB server
   DefineConstant[ murCore = {200., Min 1, Max 1000, Step 10,
-                             Label "Core relative permeability",
-                             Path "Parameters/Materials"} ];
+      Name "Parameters/Materials/Core relative permeability"} ];
 
   nu [ Region[{Air, AirInf, AirGap, Magnet}] ] = 1. / mu0 ;
   nu [ Core ]  = 1. / (murCore * mu0) ;
@@ -39,8 +38,8 @@ Function {
   mu [ Region[{Air, AirInf, AirGap, Magnet}] ] = mu0 ;
   mu [ Core ]  = murCore * mu0;
 
-  DefineConstant[ Hc = {920000, Label "Magnet coercive field (A/m)",
-                        Path "Parameters/Materials"} ];
+  DefineConstant[ Hc = {920000,
+      Name "Parameters/Materials/hc", Label "Magnet coercive field (A/m)"} ];
   hc [ Magnet ] = Rotate[ Vector[Hc, 0, 0.], 0, 0, Pi/2] ;
 }
 

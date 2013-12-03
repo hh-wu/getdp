@@ -6893,6 +6893,14 @@ FloatParameterOption :
       Free($2);
       Free($3);
     }
+
+  | ',' tName CharExprNoVar
+    {
+      std::string key("Name");
+      std::string val($3);
+      CharOptions_S[key].push_back(val);
+      Free($3);
+    }
  ;
 
 CharParameterOptions :
@@ -6915,6 +6923,14 @@ CharParameterOption :
       std::string val($3);
       CharOptions_S[key].push_back(val);
       Free($2);
+      Free($3);
+    }
+
+  | ',' tName CharExprNoVar
+    {
+      std::string key("Name");
+      std::string val($3);
+      CharOptions_S[key].push_back(val);
       Free($3);
     }
 
@@ -6963,9 +6979,7 @@ DefineConstants :
   | DefineConstants Comma String__Index tDEF FExpr
     { Constant_S.Name = $3; Constant_S.Type = VAR_FLOAT;
       Constant_S.Value.Float = $5;
-      FloatOptions_S.clear(); CharOptions_S.clear();
       if(!Tree_Search(ConstantTable_L, &Constant_S)){
-        Message::ExchangeOnelabParameter(&Constant_S, FloatOptions_S, CharOptions_S);
 	Tree_Replace(ConstantTable_L, &Constant_S);
       }
     }
@@ -6982,9 +6996,7 @@ DefineConstants :
   | DefineConstants Comma String__Index tDEF CharExprNoVar
     { Constant_S.Name = $3; Constant_S.Type = VAR_CHAR;
       Constant_S.Value.Char = $5;
-      FloatOptions_S.clear(); CharOptions_S.clear();
       if(!Tree_Search(ConstantTable_L, &Constant_S)){
-        Message::ExchangeOnelabParameter(&Constant_S, FloatOptions_S, CharOptions_S);
 	Tree_Replace(ConstantTable_L, &Constant_S);
       }
     }

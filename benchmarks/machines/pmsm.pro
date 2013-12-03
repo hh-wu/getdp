@@ -6,17 +6,17 @@ Include "pmsm_data.geo";
 
 DefineConstant[
   Flag_AnalysisType = {1,  Choices{0="Static",  1="Time domain"},
-    Label "Type of analysis",  Path "Input/19", Highlight "Blue", Visible 1,
+    Name "Input/19Type of analysis", Highlight "Blue",
     Help Str["- Use 'Static' to compute static fields created in the machine",
       "- Use 'Time domain' to compute the dynamic response of the machine"]} ,
   Flag_SrcType_Stator = { 0, Choices{0="None",1="Current"},
-    Label "Source type in stator", Path "Input/41", Highlight "Blue", Visible 1},
+    Name "Input/41Source type in stator", Highlight "Blue"},
   Flag_NL = { 1, Choices{0,1},
-    Label "Nonlinear BH-curve", Path "Input/60", Visible 1},
+    Name "Input/60Nonlinear BH-curve"},
   Flag_NL_law_Type = { 0, Choices{
       0="Analytical", 1="Interpolated",
       2="Analytical VH800-65D", 3="Interpolated VH800-65D"},
-    Label "BH-curve", Path "Input/61", Highlight "Blue", Visible Flag_NL}
+    Name "Input/61BH-curve", Highlight "Blue", Visible Flag_NL}
 ];
 
 Flag_Cir = !Flag_SrcType_Stator ;
@@ -54,7 +54,7 @@ Group {
   EndFor
 
   nbInds = (Flag_Symmetry) ? NbrPolesInModel*NbrSectTotStator/NbrPolesTot : NbrSectTotStator ;
-  Printf("NbrPolesInModel=%g, nbInds=%g SymmetryFactor=%g", 
+  Printf("NbrPolesInModel=%g, nbInds=%g SymmetryFactor=%g",
 	 NbrPolesInModel, nbInds, SymmetryFactor);
 
   Stator_Ind_Ap = #{};              Stator_Ind_Am = #{STATOR_IND_AM};
@@ -119,29 +119,29 @@ Function {
   Factor_R_3DEffects = 1.5 ; // bigger than Adding 50% of resistance
 
   DefineConstant[ rpm = { rpm_nominal,
-                          Label "speed in rpm",
-                          Path "Input/7", Highlight "AliceBlue", Visible (Flag_AnalysisType==1)} ]; // speed in rpm
+      Name "Input/7speed in rpm",
+      Highlight "AliceBlue", Visible (Flag_AnalysisType==1)} ]; // speed in rpm
   wr = rpm/60*2*Pi ; // speed in rad_mec/s
 
   // supply at fixed position
   DefineConstant[ Freq = { wr*NbrPolePairs/(2*Pi), ReadOnly 1,
-                          Path "Output/1", Highlight "LightYellow" } ];
+      Name "Output/1Freq", Highlight "LightYellow" } ];
   Omega = 2*Pi*Freq ;
   T = 1/Freq ;
 
   DefineConstant[
-    thetaMax_deg = { 180, Label "End rotor angle (loop)",
-                     Path "Input/21", Highlight "AliceBlue", Visible (Flag_AnalysisType==1) }
+    thetaMax_deg = { 180, Name "Input/21End rotor angle (loop)",
+      Highlight "AliceBlue", Visible (Flag_AnalysisType==1) }
   ];
 
   theta0   = InitialRotorAngle + 0. ;
   thetaMax = thetaMax_deg * deg2rad ; // end rotor angle (used in doing a loop)
 
   DefineConstant[
-    NbTurns  = { (thetaMax-theta0)/(2*Pi), Label "Number of revolutions",
-      Path "Input/24", Highlight "LightGrey", ReadOnly 1, Visible (Flag_AnalysisType==1)},
-    delta_theta_deg = { 1., Label "Step [deg]",
-      Path "Input/22", Highlight "AliceBlue", Visible (Flag_AnalysisType==1)}
+    NbTurns  = { (thetaMax-theta0)/(2*Pi), Name "Input/24Number of revolutions",
+      Highlight "LightGrey", ReadOnly 1, Visible (Flag_AnalysisType==1)},
+    delta_theta_deg = { 1., Name "Input/22Step [deg]",
+      Highlight "AliceBlue", Visible (Flag_AnalysisType==1)}
   ];
 
   delta_theta[] = delta_theta_deg * deg2rad ;
@@ -151,8 +151,8 @@ Function {
   timemax = thetaMax/wr;
 
   DefineConstant[
-    NbSteps = { Ceil[(timemax-time0)/delta_time], Label "Number of steps",
-      Path "Input/23", Highlight "LightGrey", ReadOnly 1, Visible (Flag_AnalysisType==1)}
+    NbSteps = { Ceil[(timemax-time0)/delta_time], Name "Input/23Number of steps",
+      Highlight "LightGrey", ReadOnly 1, Visible (Flag_AnalysisType==1)}
   ];
 
   RotorPosition[] = InitialRotorAngle + $Time * wr ;
@@ -163,16 +163,11 @@ Function {
   Theta_Park_deg[] = Theta_Park[]*180/Pi;
 
   DefineConstant[
-    ID = { 0, Path "Input/50", Label "Id stator current", Highlight "AliceBlue", Visible (Flag_SrcType_Stator==1)},
-    IQ = { Inominal, Path "Input/51", Label "Iq stator current", Highlight "AliceBlue", Visible (Flag_SrcType_Stator==1)}
+    ID = { 0, Name "Input/50Id stator current",
+      Highlight "AliceBlue", Visible (Flag_SrcType_Stator==1)},
+    IQ = { Inominal, Name "Input/51Iq stator current",
+      Highlight "AliceBlue", Visible (Flag_SrcType_Stator==1)}
   ] ;
-
-  /*
-  If(!Flag_SrcType_Stator)
-    UndefineConstant["Input/50ID"];
-    UndefineConstant["Input/51IQ"];
-  EndIf
-  */
 }
 
 // --------------------------------------------------------------------------
@@ -180,7 +175,7 @@ Function {
 // --------------------------------------------------------------------------
 
 If(Flag_SrcType_Stator)
-  UndefineConstant["Input/8ZR"];
+  UndefineConstant["Input/8Load resistance"];
 EndIf
 
 If(Flag_Cir)

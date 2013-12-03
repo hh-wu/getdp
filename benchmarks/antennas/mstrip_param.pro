@@ -19,15 +19,15 @@ micro = 1e-6 ;
 gg = 1e9 ;
 
 DefineConstant[
-  FREQ = { 1, Min fmin, Max fmax, Step (fmax-fmin)/nn, Label "Frequency [GHz]", Loop 0,
-    Path StrCat(ppEM,"0"), Highlight Str[colorpp],
+  FREQ = { 1, Min fmin, Max fmax, Step (fmax-fmin)/nn,
+    Name StrCat[ppEM, "0Frequency [GHz]"], Loop 0, Highlight Str[colorpp],
     Help Str["- Resonance frequency is 2.45 GHz'"]},
-  lambda = { c0/(FREQ*gg), Label "Wavelength [m]",
-    Path StrCat(ppEM,"1"), ReadOnly 1, Highlight Str[colorro]},
-  k0 = {2*Pi/lambda, Label "Wave number",
-    Path StrCat(ppEM,"2"), ReadOnly 1, Highlight Str[colorro]},
-  EPSILONR = {4.5, Label "Relative permittivity of dielectric layer",
-    Path StrCat(ppEM,"3"), Highlight Str[colorpp]}
+  lambda = { c0/(FREQ*gg),
+    Name StrCat[ppEM, "1Wavelength [m]"], ReadOnly 1, Highlight Str[colorro]},
+  k0 = {2*Pi/lambda,
+    Name StrCat[ppEM, "2Wave number"], ReadOnly 1, Highlight Str[colorro]},
+  EPSILONR = {4.5,
+    Name StrCat[ppEM, "3Relative permittivity of dielectric layer"], Highlight Str[colorpp]}
 ] ;
 
 FREQ = FREQ*gg; // from GHz to Hz
@@ -87,27 +87,33 @@ PmlDelta_ext = PmlDelta ;
 
 Flag_Post = 1;
 DefineConstant[
-  EViewNb = {0, Label "Electric", Path "Postprocessing/1Field views", Highlight "AliceBlue", AutoCheck 0, Visible Flag_Post},
-  HViewNb = {1, Label "Magnetic", Path "Postprocessing/1Field views", Highlight "AliceBlue", AutoCheck 0, Visible Flag_Post},
-
-  nptsU = { 40, Label "X", Help "number of points along X",
-    Path "Postprocessing/2Discretisation/1Near field box",
+  EViewNb = {0, Name "Postprocessing/1Field views/Electric",
     Highlight "AliceBlue", AutoCheck 0, Visible Flag_Post},
-  nptsV = { 20, Label "Y", Help "number of points along Y",
-    Path "Postprocessing/2Discretisation/1Near field box",
+  HViewNb = {1, Name "Postprocessing/1Field views/Magnetic",
     Highlight "AliceBlue", AutoCheck 0, Visible Flag_Post},
-  nptsW = { 10, Label "Z", Help "number of points along Z",
-    Path "Postprocessing/2Discretisation/1Near field box", Highlight "AliceBlue", AutoCheck 0, Visible Flag_Post},
 
-  nptsPhi = { 50, Label "azimuth",  Help "number of azimuth angles",
-    Path "Postprocessing/2Discretisation/2Far field sphere", Highlight "AliceBlue", AutoCheck 0, Visible Flag_Post},
-  nptsTheta = { 25, Label "elevation", Help "number of elevation angles",
-    Path "Postprocessing/2Discretisation/2Far field sphere", Highlight "AliceBlue", AutoCheck 0, Visible Flag_Post},
+  nptsU = { 40, Help "number of points along X",
+    Name "Postprocessing/2Discretisation/1Near field box/X",
+    Highlight "AliceBlue", AutoCheck 0, Visible Flag_Post},
+  nptsV = { 20, Help "number of points along Y",
+    Name "Postprocessing/2Discretisation/1Near field box/Y",
+    Highlight "AliceBlue", AutoCheck 0, Visible Flag_Post},
+  nptsW = { 10, Help "number of points along Z",
+    Name "Postprocessing/2Discretisation/1Near field box/Z",
+    Highlight "AliceBlue", AutoCheck 0, Visible Flag_Post},
 
-  m1 = {"mstrip_NTFF_script.geo", Label "Compute radiation pattern", Macro "Gmsh",
+  nptsPhi = { 50, Help "number of azimuth angles",
+    Name "Postprocessing/2Discretisation/2Far field sphere/azimuth",
+    Highlight "AliceBlue", AutoCheck 0, Visible Flag_Post},
+  nptsTheta = { 25, Help "number of elevation angles",
+    Name "Postprocessing/2Discretisation/2Far field sphere/elevation",
+    Highlight "AliceBlue", AutoCheck 0, Visible Flag_Post},
+
+  m1 = {"mstrip_NTFF_script.geo",
+    Name "Postprocessing/0Compute radiation pattern", Macro "Gmsh",
     Help Str["1) Use CutBox Plugin to determine the near fields on a box enclosing the antenna",
       "2) Apply NearToFarField Plugin to those near fields and compute the radiation pattern"],
-    Path "Postprocessing/0", AutoCheck 0, Highlight "Orchid", Visible Flag_Post}
+    AutoCheck 0, Highlight "Orchid", Visible Flag_Post}
 ];
 
 //=======================================================================

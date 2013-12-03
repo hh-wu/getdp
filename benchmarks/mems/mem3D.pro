@@ -2,12 +2,12 @@
 Include "mem3D_data.geo" ;
 
 DefineConstant[
-  Flag_AnalysisType = { 2,  Choices{0="Electrostatics",  1="Elasticity", 2="Electrostatics+Elasticity" },
-    Label "Type of analysis",  Path "Input/20", Highlight "Blue", Visible 1,
+  Flag_AnalysisType = { 2,  Choices{0="Electrostatics", 1="Elasticity",
+      2="Electrostatics+Elasticity" },
+    Name "Input/20Type of analysis", Highlight "Blue",
     Help Str["- Use 'Elasticity' to compute the displacement of the upper electrode with an imposed force",
       "- Use 'Coupled' to compute the displacement of upper electrode under the computed electric force"]}
 ] ;
-
 
 Group {
   PlateINT = #PLATEINT ;

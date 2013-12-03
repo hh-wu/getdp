@@ -393,7 +393,7 @@ PostOperation {
 }
 
 DefineConstant[
-  ResolutionChoices    = {"Analysis", Path "GetDP/1", Visible 0},
-  ComputeCommand       = {"-solve -v 3 -v2", Path "GetDP/9", Visible 0},
-  PostOperationChoices = {"", Path "GetDP/2", Visible 0}
+  R_ = {"Analysis", Name "GetDP/1ResolutionChoices", Visible 0},
+  C_ = {"-solve -v 3 -v2", Name "GetDP/9ComputeCommand", Visible 0},
+  P_ = {"", Name "GetDP/2PostOperationChoices", Visible 0}
 ];

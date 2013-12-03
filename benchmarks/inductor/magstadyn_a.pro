@@ -9,28 +9,27 @@ Group {
 Function{
  DefineConstant[
     Val_Rint, Val_Rext,
-    Lz        = {1, Visible 0},
-    SymmetryFactor     = {1, Visible 0},
-    Nb_max_iter        = {30, Visible 0},
-    relaxation_factor  = {1, Visible 0},
-    stop_criterion     = {1e-5, Visible 0},
-    reltol             = {1e-7, Visible 0},
-    abstol             = {1e-5, Visible 0},
-    T = {1/Freq, Visible 0}, // Fundamental period in s
-    time0      = {0, Visible 0},
-    NbT        = {1, Visible 0},
-    timemax    = {NbT*T, Visible 0},
-    NbSteps    = {100, Visible 0},
-    delta_time = {T/NbSteps, Visible 0},
-    FillFactor_Winding = {1, Label "Fill factor",
-      Path "Input/4Coil Parameters/3", Highlight "AliceBlue", Visible 1},
-    Factor_R_3DEffects = {1, Label "3D factor",
-      Path "Input/4Coil Parameters/9", Highlight "AliceBlue", Visible 1},
+    Lz = 1,
+    SymmetryFactor = 1,
+    Nb_max_iter = 30,
+    relaxation_factor = 1,
+    stop_criterion = 1e-5,
+    reltol = 1e-7,
+    abstol = 1e-5,
+    T = 1/Freq, // Fundamental period in s
+    time0 = 0,
+    NbT = 1,
+    timemax = NbT*T,
+    NbSteps = 100,
+    delta_time = T/NbSteps,
+    FillFactor_Winding = {1, Name "Input/4Coil Parameters/3Fill factor",
+      Highlight "AliceBlue", Visible 1},
+    Factor_R_3DEffects = {1, Name "Input/4Coil Parameters/9 3D factor",
+      Highlight "AliceBlue", Visible 1},
     // Increasing the resistance by 50% == 1.5
     II, VV,
-    Flag_NL_law_Type   = {0, Visible 0},
-
-    po       = {"Output/", Visible 0}
+    Flag_NL_law_Type = 0,
+    po = "Output/"
   ];
 
   DefineFunction[
@@ -407,7 +406,7 @@ PostOperation Get_GlobalQuantities UsingPost MagStaDyn_a_2D {
 
 
 DefineConstant[
-  ResolutionChoices    = {"Analysis", Path "GetDP/1", Visible 0},
-  ComputeCommand       = {"-solve -v 3 -v2", Path "GetDP/9", Visible 0},
-  PostOperationChoices = {"", Path "GetDP/2", Visible 0}
+  R_ = {"Analysis", Name "GetDP/1ResolutionChoices", Visible 0},
+  C_ = {"-solve -v 3 -v2", Name "GetDP/9ComputeCommand", Visible 0},
+  P_ = {"", Name "GetDP/2PostOperationChoices", Visible 0}
 ];

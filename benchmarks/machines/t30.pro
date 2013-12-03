@@ -3,16 +3,15 @@ Include "t30_data.geo";
 //ExtGmsh     = Str[ Sprintf("%g.pos", NbPhases) ];
 //ExtGnuplot  = Str[ Sprintf("%g.dat", NbPhases) ];
 
-
 DefineConstant[
   Flag_AnalysisType = {2,  Choices{0="Static",  1="Time domain",  2="Frequency domain"},
-    Label "Type of analysis",  Path "Input/20", Highlight "Blue", Visible 1,
+    Name "Input/20Type of analysis", Highlight "Blue",
     Help Str["- Use 'Static' to compute static fields created in the machine",
       "- Use 'Time domain' to compute the dynamic response of the machine",
       "- Use 'Frequency domain' to compute steady-state phasors depending on the imposed speed"]} ,
   Flag_SrcType_Stator = { 1, Choices{1="Current", 2="Voltage"},
-    Label "Source type in stator", Path "Input/41", Highlight "Blue", Visible 0},
-  Flag_ComputeLosses = { 1, Choices{0,1}, Label "Compute Joule Losses in Rotor",  Path "Input/70"}
+    Name "Input/41Source type in stator", Highlight "Blue", Visible 0},
+  Flag_ComputeLosses = { 1, Choices{0,1}, Name "Input/70Compute Joule Losses in Rotor"}
 ];
 
 
@@ -67,24 +66,26 @@ Function {
   Period = 1/Freq ;
 
   DefineConstant[
-    Flag_ImposedSpeed = { 1, Choices{0="None",1="Choose speed"}, Label "Imposed rotor speed",
-      Path "Input/40",  Highlight "Blue", Visible Flag_AnalysisType!=2},
-    Term_vxb = { (Flag_ImposedSpeed==1 && Flag_AnalysisType==2), Choices {0,1}, Label "Consider term Velocity x Induction",
-      Path "Input/41", ReadOnly 1, Visible Flag_ImposedSpeed},
-    wr = { 0, Min 0, Max wr_max, Step wr_step, Loop 0, Label "Rotor speed [rad/s]",
-           Path "Input/42", Highlight "AliceBlue", ReadOnlyRange (Flag_AnalysisType==2), Visible Flag_ImposedSpeed },
-    Tmec = { 0, Label "Mechanical torque [Nm]", Path "Input/43",
+    Flag_ImposedSpeed = { 1, Choices{0="None",1="Choose speed"},
+      Name "Input/40Imposed rotor speed", Highlight "Blue", Visible Flag_AnalysisType!=2},
+    Term_vxb = { (Flag_ImposedSpeed==1 && Flag_AnalysisType==2), Choices {0,1},
+      Name "Input/41Consider term Velocity x Induction",
+      ReadOnly 1, Visible Flag_ImposedSpeed},
+    wr = { 0, Min 0, Max wr_max, Step wr_step, Loop 0,
+      Name "Input/42Rotor speed", Label "Rotor speed [rad/s]",
+      Highlight "AliceBlue", ReadOnlyRange (Flag_AnalysisType==2), Visible Flag_ImposedSpeed },
+    Tmec = { 0, Name "Input/43Mechanical torque [Nm]",
       Highlight "AliceBlue", Visible (!Flag_ImposedSpeed && Flag_AnalysisType!=2) },
-    Frict = { 0, Label "Friction torque [Nm]", Path "Input/44",
+    Frict = { 0, Name "Input/44Friction torque [Nm]",
       Highlight "AliceBlue", Visible (!Flag_ImposedSpeed && Flag_AnalysisType!=2) },
-    NbrPeriod = {50, Label "Total number of periods", Path "Input/50",
+    NbrPeriod = {50, Name "Input/50Total number of periods",
       Highlight "AliceBlue", Visible (Flag_AnalysisType==1)},
-    NbSteps = {100, Label "Number of time steps per period", Path "Input/51",
+    NbSteps = {100, Name "Input/51Number of time steps per period",
       Highlight "AliceBlue", Visible (Flag_AnalysisType==1)}
   ];
 
   If(Flag_ImposedSpeed==0)
-    UndefineConstant["Input/42wr"];
+    UndefineConstant["Input/42Rotor speed"];
   EndIf
 
   SurfCoil[] = SurfaceArea[]{STATOR_INDA} ;
@@ -96,8 +97,7 @@ Function {
   pC = -2*Pi/3 ;
 
   DefineConstant[
-    Irms = { IA, Path "Input/60", Label "Stator current (rms)",
-      Highlight "AliceBlue"}
+    Irms = { IA, Name "Input/60Stator current (rms)", Highlight "AliceBlue"}
   ] ;
   II = Irms *Sqrt[2] ;
 

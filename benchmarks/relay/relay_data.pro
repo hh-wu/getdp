@@ -2,7 +2,7 @@
 
 
 DefineConstant[ p_init = { 7.5e-3, Min -7.5e-3, Max 7.5e-3, Step 1e-4,
-    Label "Initial position", Path "Input/00"} ];
+    Name "Input/00Initial position"} ];
 
 p_mid = 3e-3;
 dmax  = 2*p_init;
@@ -36,19 +36,21 @@ displacementZ = 0;
 
 DefineConstant[
   Flag_AnalysisType = {1,  Choices{0="Static",  1="Time domain"},
-    Label "Type of analysis",  Path "Input/00", Highlight "Blue", Visible 1,
+    Name "Input/00Type of analysis", Highlight "Blue",
     Help Str["- Use 'Static' to compute static fields created by the magnets in the relay",
       "- Use 'Time domain' to compute the dynamic response of the relay"]}
 ];
 
 If(Flag_AnalysisType==0)
-DefineConstant[ displacementY = { 0., Min -15e-3, Max 0, Label "Vertical displacement", Path "Input/2", Visible 0} ];
-  UndefineConstant[ "Input/1step" ];
-  UndefineConstant[ "Output/2displacementY" ];
+  DefineConstant[ displacementY = { 0., Min -15e-3, Max 0,
+      Name "Input/2Vertical displacement", Visible 0} ];
+  UndefineConstant[ "Input/1Step" ];
+  UndefineConstant[ "Output/2Vertical displacement" ];
 EndIf
 If(Flag_AnalysisType==1)
-  DefineConstant[ displacementY = { 0., Min -15e-3, Max 0, Label "Vertical displacement", Path "Output/2", ReadOnlyRange 1} ];
-  UndefineConstant[ "Input/2displacementY" ];
+  DefineConstant[ displacementY = { 0., Min -15e-3, Max 0,
+      Name "Output/2Vertical displacement", ReadOnlyRange 1} ];
+  UndefineConstant[ "Input/2Vertical displacement" ];
 EndIf
 
 // checking the geometrical limits for displacementY \in [-15e-3, 0.]

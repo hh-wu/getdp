@@ -1,11 +1,16 @@
 //Flag_3Dmodel = 1;
 
 DefineConstant[
-  md = { 1.,  Path Str[ppm2,"0"], Label "Mesh density", Highlight Str[colorpp], Closed close_menu},
-  nn_wcore   = { Ceil[md*2],  Path Str[ppm2,"0"], Label "core width", ReadOnly 1, Highlight Str[colorro], Closed close_menu},
-  nn_airgap  = { Ceil[md*1], Path Str[ppm2,"1"], Label "air gap width", ReadOnly 1, Highlight Str[colorro]},
-  nn_ri = { Ceil[md*6], Path Str[ppm2,"2"], Label "1/4 shell in", ReadOnly 1, Visible (Flag_Infinity==1), Highlight Str[colorro]},
-  nn_ro = { Ceil[md*6], Path Str[ppm2,"3"], Label "1/4 shell out", ReadOnly 1, Highlight Str[colorro]}
+  md = { 1.,  Name StrCat[ppm2, "0Mesh density"],
+    Highlight Str[colorpp], Closed close_menu},
+  nn_wcore   = { Ceil[md*2], Name StrCat[ppm2, "0Core width"], ReadOnly 1,
+    Highlight Str[colorro], Closed close_menu},
+  nn_airgap  = { Ceil[md*1], Name StrCat[ppm2, "1Air gap width"], ReadOnly 1,
+    Highlight Str[colorro]},
+  nn_ri = { Ceil[md*6], Name StrCat[ppm2, "2One fourth shell in"], ReadOnly 1,
+    Visible (Flag_Infinity==1), Highlight Str[colorro]},
+  nn_ro = { Ceil[md*6], Name StrCat[ppm2, "3One fourth shell out"], ReadOnly 1,
+    Highlight Str[colorro]}
 ];
 
 // characteristic lengths

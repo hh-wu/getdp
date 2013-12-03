@@ -43,8 +43,7 @@ View[0].IntervalsType = 1;
 
 
 DefineConstant[ Flag_AddInfo = {0, Choices{0,1},
-                               Label "Add info about phases",
-                                Path "Input/1", Visible 0} ] ;
+    Name "Input/1Add info about phases", Visible 0} ] ;
 
 If(Flag_AddInfo)
 rr = 1.42 * R3s ;

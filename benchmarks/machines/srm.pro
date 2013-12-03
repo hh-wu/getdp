@@ -5,20 +5,18 @@
 
 Include "srm_data.geo";
 
-
 DefineConstant[
   Flag_AnalysisType = {1,  Choices{0="Static",  1="Time domain"},
-    Label "Type of analysis",  Path "Input/19", Highlight "Blue", Visible 1,
+    Name "Input/19Type of analysis", Highlight "Blue",
     Help Str["- Use 'Static' to compute static fields created in the machine",
       "- Use 'Time domain' to compute the dynamic response of the machine"]} ,
   Flag_SrcType_Stator = { 2, Choices{1="Current", 2="Voltage"},
-    Label "Source type in stator", Path "Input/41", Highlight "Blue", Visible 1},
+    Name "Input/41Source type in stator", Highlight "Blue"},
   Flag_NL = { 0, Choices{0,1},
-    Label "Nonlinear BH-curve", Path "Input/60", ReadOnly 0, Visible 1},
-  Flag_NL_law_Type = { 0, Choices{
-      0="Analytical", 1="Interpolated",
+    Name "Input/60Nonlinear BH-curve", ReadOnly 0},
+  Flag_NL_law_Type = { 0, Choices{0="Analytical", 1="Interpolated",
       2="Analytical VH800-65D", 3="Interpolated VH800-65D"},
-    Label "BH-curve", Path "Input/61", Highlight "Blue", Visible Flag_NL}
+    Name "Input/61BH-curve", Highlight "Blue", Visible Flag_NL}
 ];
 
 Flag_Cir = (Flag_SrcType_Stator==2);
@@ -103,20 +101,21 @@ Function {
 
   DefineConstant[
     Flag_ImposedSpeed = { !Flag_AnalysisType, Choices{0="None", 1="Choose speed"},
-      Label "Imposed rotor speed [rpm]", Highlight "Blue", Path "Input/30"},
-    myrpm = { 5000, Label "Speed [rpm]", Path "Input/31",
+      Name "Input/30Imposed rotor speed [rpm]", Highlight "Blue"},
+    myrpm = { 5000, Name "Input/31Speed [rpm]",
       Highlight "AliceBlue", ReadOnlyRange 1, Visible (Flag_ImposedSpeed==1)},
-    Tmec = { 0, Label "Mechanical torque [Nm]", Path "Input/32",
+    Tmec = { 0, Name "Input/32Mechanical torque [Nm]",
       Highlight "AliceBlue", Visible (!Flag_ImposedSpeed && Flag_AnalysisType==1) },
-    Frict = { 0, Label "Friction torque [Nm]", Path "Input/33",
+    Frict = { 0, Name "Input/33Friction torque [Nm]",
       Highlight "AliceBlue", Visible (!Flag_ImposedSpeed && Flag_AnalysisType==1) },
-    EndRotorAngle_deg = {InitialRotorAngle+180, Range {0,180}, Step 10, Label "End rotor angle [deg]",
-      Path "Input/04", Highlight "AliceBlue", Visible (Flag_ImposedSpeed && Flag_AnalysisType==0)},
+    EndRotorAngle_deg = {InitialRotorAngle+180, Range {0,180}, Step 10,
+      Name "Input/04End rotor angle [deg]",
+      Highlight "AliceBlue", Visible (Flag_ImposedSpeed && Flag_AnalysisType==0)},
     NbSteps = {(Flag_ImposedSpeed==1)?90:1000,
-      Label "Number of time steps", Path "Input/Time loop",
+      Name "Input/Time loop/Number of time steps",
       Help Str["- If the speed is imposed, it corresponds to the number of angular divisions",
-      "- If the speed is calculated, it is just a limit to stop the time loop"] ,
-    Highlight "AliceBlue", Visible (Flag_AnalysisType==1)}
+        "- If the speed is calculated, it is just a limit to stop the time loop"] ,
+      Highlight "AliceBlue", Visible (Flag_AnalysisType==1)}
   ];
 
   rpm = (Flag_ImposedSpeed==0) ? 0.: myrpm ;
@@ -137,11 +136,11 @@ Function {
   timemax = NbSteps * delta_time ;  // final time  in s
 
   DefineConstant[
-    Vrms = { VA, Path "Input/4Coil Parameters/1", Label "Voltage (rms) [V]",
+    Vrms = { VA, Name "Input/4Coil Parameters/1Voltage (rms) [V]",
       Highlight "AliceBlue", Visible (Flag_SrcType_Stator==2)},
-    Irms = { IA, Path "Input/4Coil Parameters/1", Label "Current (rms) [A]",
+    Irms = { IA, Name "Input/4Coil Parameters/1Current (rms) [A]",
       Highlight "AliceBlue", Visible (Flag_SrcType_Stator==1)},
-    Nw = { 226, Path "Input/4Coil Parameters/2", Label "Number of turns",
+    Nw = { 226, Name "Input/4Coil Parameters/2Number of turns",
       Highlight "AliceBlue"}
   ];
   VV = Vrms * Sqrt[2] ;

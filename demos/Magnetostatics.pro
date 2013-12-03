@@ -1,20 +1,22 @@
 Group {
   // Input groups:
-  DefineGroup[ Domain_M = {{}, Label "Permanent magnets",
-                           Path "Regions/0Sources"},
-               Domain_S = {{}, Label "Inductor (imposed j_s)",
-                           Path "Regions/0Sources"},
-               Domain_Inf = {{}, Label "Infinite domain (spherical shell)",
-                             Path "Regions/0Special regions", Closed "1"},
-               Domain_Mag = {{}, Label "Passive magnetic regions",
-                             Path "Regions/Other regions"},
-               Dirichlet_phi_0 = {{}, Label "h_t = 0", Closed "1",
-                                  Path "Regions/0Boundary conditions"},
-               Dirichlet_a_0 = {{}, Label "b_n = 0",
-                                Path "Regions/0Boundary conditions"} ];
+  DefineGroup[
+    Domain_M = {{},
+      Name "Regions/0Sources/Permanent magnets"},
+    Domain_S = {{},
+      Name "Regions/0Sources/Inductor (imposed j_s)"},
+    Domain_Inf = {{},
+      Name "Regions/0Special regions/Infinite domain (spherical shell)",
+      Closed "1"},
+    Domain_Mag = {{},
+      Name "Regions/Other regions/Passive magnetic regions"},
+    Dirichlet_phi_0 = {{},
+      Name "Regions/0Boundary conditions/h_t = 0", Closed "1"},
+    Dirichlet_a_0 = {{},
+      Name "Regions/0Boundary conditions/b_n = 0"} ];
 
   DefineGroup[ Domain = {{Domain_Mag, Domain_M, Domain_S, Domain_Inf},
-                         Label "Computational domain", Path "Regions", Visible 0} ];
+      Name "Regions/Computational domain", Visible 0} ];
 }
 
 Function{

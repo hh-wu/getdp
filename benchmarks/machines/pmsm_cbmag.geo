@@ -35,8 +35,7 @@ View[0].IntervalsType = 1;
 
 
 DefineConstant[ Flag_AddInfo = {0, Choices{0,1},
-                               Label "Add info about phases and axis",
-                               Path "Input/02"} ];
+    Name "Input/02Add info about phases and axis"} ];
 
 For i In {PostProcessing.NbViews-1 : 0 : -1}
   If(StrFind(View[i].Attributes, "tmp"))

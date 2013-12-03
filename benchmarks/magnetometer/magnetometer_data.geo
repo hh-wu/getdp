@@ -1,12 +1,12 @@
 
 u = 1.e-6;
 DefineConstant[
- l = {500 *u, Label "Beam length [m]", Path "Input/Geometry/0"},
- a = {50 *u, Label "Beam width [m]", Path "Input/Geometry/1"},
- b = {3 *u, Label "Beam thickness [m]", Path "Input/Geometry/2"},
- f = {15 *u, Label "Support length [m]", Path "Input/Geometry/3"},
- e2 = {2 *u, Label "Support width [m]", Path "Input/Geometry/4"},
- d = {0.224 * l - 0.5 * e2, Label "Support position [m]", Path "Input/Geometry/5"}
+ l = {500 *u, Name "Input/Geometry/0Beam length [m]"},
+ a = {50 *u, Name "Input/Geometry/1Beam width [m]"},
+ b = {3 *u, Name "Input/Geometry/2Beam thickness [m]"},
+ f = {15 *u, Name "Input/Geometry/3Support length [m]"},
+ e2 = {2 *u, Name "Input/Geometry/4Support width [m]"},
+ d = {0.224 * l - 0.5 * e2, Name "Input/Geometry/5Support position [m]"}
 ];
 
 BEAM=1;

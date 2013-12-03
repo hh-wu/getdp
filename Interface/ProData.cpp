@@ -1666,8 +1666,8 @@ void Print_ListResolution(int choose, int Flag_LRES, char **name)
         std::map<std::string, std::vector<double> > floatOptions;
         std::map<std::string, std::vector<std::string> > charOptions;
         charOptions["Choices"] = choices;
+        charOptions["Name"].push_back(Message::GetOnelabClientName() + "/1ResolutionChoices");
         charOptions["Label"].push_back("Resolution");
-        charOptions["Path"].push_back(Message::GetOnelabClientName() + "/1");
         Message::ExchangeOnelabParameter(&c, floatOptions, charOptions);
         if(choose){
           *name = c.Value.Char;
@@ -1730,8 +1730,8 @@ void Print_ListPostOperation(int choose, int Flag_LPOS, char *name[NBR_MAX_POS])
         std::map<std::string, std::vector<double> > floatOptions;
         std::map<std::string, std::vector<std::string> > charOptions;
         charOptions["Choices"] = choices;
+        charOptions["Name"].push_back(Message::GetOnelabClientName() + "/2PostOperationChoices");
         charOptions["Label"].push_back("Post-processing");
-        charOptions["Path"].push_back(Message::GetOnelabClientName() + "/2");
         charOptions["MultipleSelection"].push_back("1");
         Message::ExchangeOnelabParameter(&c, floatOptions, charOptions);
         if(choose){

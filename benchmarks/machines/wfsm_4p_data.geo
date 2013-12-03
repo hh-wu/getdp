@@ -7,20 +7,19 @@
 
 deg2rad = Pi/180 ;
 
-pp = "Input/Constructive parameters";
+pp = "Input/Constructive parameters/";
 
 DefineConstant[
   NbrPolesInModel = { 1, Choices {1="1", 2="2", 4="4"},
-    Label "Number of poles in FE model",
-    Path "Input/20", Highlight "Blue", Visible 1},
-  InitialRotorAngle_deg = { 0., Range{0,90}, Label "Start rotor angle [deg]",
-    Path "Input/21", Highlight "AliceBlue"}
+    Name "Input/20Number of poles in FE model", Highlight "Blue"},
+  InitialRotorAngle_deg = { 0., Range{0,90},
+    Name "Input/21Start rotor angle [deg]", Highlight "AliceBlue"}
 ] ;
 
 InitialRotorAngle = InitialRotorAngle_deg*deg2rad ; // initial rotor angle, 0 if aligned
 
 DefineConstant[ PhaseBelt = { 120., Choices{60, 120},
-    Path "Input/22", Highlight "AliceBlue", Visible 0} ] ;
+    Name "Input/22Phase belt", Highlight "AliceBlue", Visible 0} ] ;
 
 //--------------------------------------------------------------------------
 // Rotor
@@ -60,7 +59,7 @@ AxialLength = 0.180 ;
 
 sigma_fe = 0. ; // laminated steel
 DefineConstant[
-  mur_fe = {1000, Label "Relative permeability for linear case", Path Str[pp], Closed 1}
+  mur_fe = {1000, Name StrCat[pp, "Relative permeability for linear case"], Closed 1}
 ];
 
 rpm_nominal = 1500 ;

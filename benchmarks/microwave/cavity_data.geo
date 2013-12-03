@@ -10,8 +10,8 @@ colorpq = "AliceBlue";
 c0 = 3e8; // speed of light in vacuum
 
 DefineConstant[
-  Flag_Geometry = {0, Choices{0="2D cavity", 1="2D cavity with wall", 2="3D cavity"}, Label "Cavity model",
-    Path "Input/0", Highlight "Black"}
+  Flag_Geometry = {0, Choices{0="2D cavity", 1="2D cavity with wall", 2="3D cavity"},
+    Name "Input/0Cavity model", Highlight "Black"}
 ];
 
 If(Flag_Geometry==0)
@@ -25,44 +25,46 @@ If(Flag_Geometry==2)
 EndIf
 
 DefineConstant[
-  Lx = { 0.6,  Min 0.01, Max 1, Step 0.01, Label "Length X of the cavity [m]",
-    Path StrCat(catParam1,"0"), Highlight Str[colorpp]},
-  Ly = { 0.4, Min 0.01, Max 1, Step 0.01, Label "Length Y of the cavity [m]",
-    Path StrCat(catParam1,"1"), Highlight Str[colorpp]},
-  Lz = { 0.4,  Min 0.01, Max 1, Step 0.01, Label "Length Z of the cavity [m]",
-    Path StrCat(catParam1,"2"), Highlight Str[colorpp], Visible (Flag_Model==3)},
-  
-  Flag_Aperture = {0, Choices{0="Rectanglar", 1="Elliptical"}, Label "Shape of the aperture",
-    Path StrCat(catParam1,"3"), Highlight "Black", Visible (Flag_Model==3)},
-  Appx = { 0.2,  Min 0.01, Max 1, Step 0.01, Label "Length X of the aperture [m]",
-    Path StrCat(catParam1,"4"), Highlight Str[colorpp], Visible (Flag_Model==3)},
-  Appy = { 0.03, Min 0.01, Max 1, Step 0.01, Label "Length Y of the aperture [m]",
-    Path StrCat(catParam1,"5"), Highlight Str[colorpp], Visible (Flag_Model==3)},
-  App = { 0.16,  Min 0.01, Max 1, Step 0.01, Label "Length of the aperture [m]",
-    Path StrCat(catParam1,"4"), Highlight Str[colorpp], Visible (Flag_Model==2)},
-  
-  Flag_BC_Type = {1, Choices{0="Silver-Muller", 1="PML"}, Label "Technique",
-    Path StrCat(catParam2,"0"), Highlight "Black"},
-  Llayer1 = { 0.05, Min 0.01, Max 1, Step 0.01,  Label "Length of the layer [m]",
-    Path StrCat(catParam2,"1"), Highlight Str[colorpp]},
-  
-  Freq = { 500e6, Min 400e6, Max 1e9, Step 20e6, Label "Frequency [Hz]", Loop 1,
-    Path StrCat(catParam3,"0"), Highlight Str[colorpp]},
-  lambda = { c0/(Freq), Label "Wavelength [m]",
-    Path StrCat(catParam3,"1"), ReadOnly 1, Highlight Str[colorro]},
-  k0 = {2*Pi/lambda, Label "Wave number",
-    Path StrCat(catParam3,"2"), ReadOnly 1, Highlight Str[colorro]},
+  Lx = { 0.6,  Min 0.01, Max 1, Step 0.01,
+    Name StrCat[catParam1, "0Length X of the cavity [m]"],
+    Highlight Str[colorpp]},
+  Ly = { 0.4, Min 0.01, Max 1, Step 0.01,
+    Name StrCat[catParam1,"1Length Y of the cavity [m]"],
+    Highlight Str[colorpp]},
+  Lz = { 0.4,  Min 0.01, Max 1, Step 0.01,
+    Name StrCat[catParam1,"2Length Z of the cavity [m]"],
+    Highlight Str[colorpp], Visible (Flag_Model==3)},
 
-  Flag_SizeMeshCell = {0, Choices{0="Constant length", 1="Linked to the wavelength"}, Label "Choice of the cell length (Lc)",
-    Path StrCat(catParam4,"0"), Highlight "Black"},
-  lcValue = { 0.01, Min 0.001, Max 1, Step 0.001, Label "Value of Lc [m]",
-    Path StrCat(catParam4,"1"), Highlight Str[colorpp], Visible (Flag_SizeMeshCell==0)},
-  lambdaOnlc = { 10, Min 1, Max 100, Step 1, Label "Ratio ''wavelength / Lc''",
-    Path StrCat(catParam4,"2"), Highlight Str[colorpp], Visible (Flag_SizeMeshCell==1)},
-  lcMax = { 0.03, Min 0.001, Max 1, Step 0.001, Label "Maximum value of Lc [m]",
-    Path StrCat(catParam4,"3"), Highlight Str[colorpp], Visible (Flag_SizeMeshCell==1)}
+  Flag_Aperture = {0, Choices{0="Rectanglar", 1="Elliptical"},
+    Name StrCat[catParam1,"3Shape of the aperture"],
+    Highlight "Black", Visible (Flag_Model==3)},
+  Appx = { 0.2,  Min 0.01, Max 1, Step 0.01,
+    Name StrCat[catParam1,"4Length X of the aperture [m]"],
+    Highlight Str[colorpp], Visible (Flag_Model==3)},
+  Appy = { 0.03, Min 0.01, Max 1, Step 0.01,
+    Name StrCat[catParam1,"5Length Y of the aperture [m]"],
+    Highlight Str[colorpp], Visible (Flag_Model==3)},
+  App = { 0.16,  Min 0.01, Max 1, Step 0.01,
+    Name StrCat[catParam1,"4Length of the aperture [m]"],
+    Highlight Str[colorpp], Visible (Flag_Model==2)},
+
+  Flag_BC_Type = {1, Choices{0="Silver-Muller", 1="PML"},
+    Name StrCat[catParam2,"0Technique"], Highlight "Black"},
+  Llayer1 = { 0.05, Min 0.01, Max 1, Step 0.01,
+    Name StrCat[catParam2,"1Length of the layer [m]"], Highlight Str[colorpp]},
+
+  Flag_SizeMeshCell = {0, Choices{0="Constant length", 1="Linked to the wavelength"},
+    Name StrCat[catParam4,"0Choice of the cell length (Lc)"], Highlight "Black"},
+  lcValue = { 0.01, Min 0.001, Max 1, Step 0.001,
+    Name StrCat[catParam4,"1Value of Lc [m]"],
+    Highlight Str[colorpp], Visible (Flag_SizeMeshCell==0)},
+  lambdaOnlc = { 10, Min 1, Max 100, Step 1,
+    Name StrCat[catParam4,"2Ratio ''wavelength over Lc''"],
+    Highlight Str[colorpp], Visible (Flag_SizeMeshCell==1)},
+  lcMax = { 0.03, Min 0.001, Max 1, Step 0.001,
+    Name StrCat[catParam4,"3Maximum value of Lc [m]"],
+    Highlight Str[colorpp], Visible (Flag_SizeMeshCell==1)}
 ];
-
 
 //========================================================
 

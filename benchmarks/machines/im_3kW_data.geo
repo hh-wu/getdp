@@ -15,16 +15,15 @@ Electromagnetic Devices", IEEE Trans. Magn., Vol. 39, No. 3, May 2003.
 u = 1e-3 ; // unit = mm
 deg2rad = Pi/180 ;
 
-pp = "Input/Constructive parameters";
+pp = "Input/Constructive parameters/";
 
 DefineConstant[
   NbrPolesInModel = { 1, Choices{ 1 = "1", 2 = "2", 4 = "4" },
-    Label "Number of poles in FE model",
-    Path "Input/20", Highlight "Blue", Visible 1},
-  InitialRotorAngle_deg = { 10, Label "Initial rotor angle [deg]",
-    Path "Input/20", Highlight "AliceBlue"},
-  Flag_OpenRotor = {1, Choices{0,1},
-    Label "Open slots in rotor", Path "Input/39", Highlight "White", Visible 1}
+    Name "Input/20Number of poles in FE model", Highlight "Blue"},
+  InitialRotorAngle_deg = { 10, Name "Input/20Initial rotor angle [deg]",
+    Highlight "AliceBlue"},
+  Flag_OpenRotor = {1, Choices{0,1}, Name "Input/39Open slots in rotor",
+    Highlight "White"}
 ];
 
 NbrPolesTot = 4; // number of poles in complete cross-section
@@ -48,7 +47,7 @@ InitialRotorAngle = InitialRotorAngle_deg*deg2rad ; // initial rotor angle, 0 if
 Freq = 50 ;
 
 DefineConstant[
-  AG = {u*0.47, Label "Airgap width [m]", Path Str[pp], Closed 1}
+  AG = {u*0.47, Name StrCat[pp, "Airgap width [m]"], Closed 1}
 ];
 
 Lz = u*127;
@@ -71,8 +70,10 @@ sigma_fe   = 0 ;
 //----------------------------------------------------------
 
 DefineConstant[
-  sigma_bars = {26.7e6, Label "Conductivity of rotor bars [S/m]", Path Str[pp]}, // AlSi
-  mur_fe = {1500, Label "Relative permeability for linear case", Path Str[pp]}
+  sigma_bars = {26.7e6,
+    Name StrCat[pp, "ss"], Label "Conductivity of rotor bars [S/m]"}, // AlSi
+  mur_fe = {1500,
+    Name StrCat[pp, "Relative permeability for linear case"]}
 ];
 
 dIron = 0.65e-3; // thickness electrical steel, in m
@@ -82,18 +83,21 @@ dIron = 0.65e-3; // thickness electrical steel, in m
 
 //FIXME: I think those parameters shouldn't be changed from interface, as they are calculated analytically
 DefineConstant[
-  R_endring_segment = {0.836e-6, Label "Resistance of two endring segments in series [Ohm]",
-    Path Str[pp]}, // (JG's PhD)
-  L_endring_segment = {4.8e-9, Label "Inductance of two endring segments in series [H]",
-    Path Str[pp]},
-  Rs = {2.2, Label "Resistance per stator phase [Ohm]", Path Str[pp]},
-  Ls = {0.87e-3, Label "Endwinding inductance per stator phase [H]", Path Str[pp]}
+  R_endring_segment = {0.836e-6,
+    Name StrCat[pp, "Resistance of two endring segments in series [Ohm]"]}, // (JG's PhD)
+  L_endring_segment = {4.8e-9,
+    Name StrCat[pp, "Inductance of two endring segments in series [H]"]},
+  Rs = {2.2,
+    Name StrCat[pp, "Resistance per stator phase [Ohm]"]},
+  Ls = {0.87e-3,
+    Name StrCat[pp, "Endwinding inductance per stator phase [H]"]}
 ];
 
 Xs = 2*Pi*Freq * Ls ;
 
 DefineConstant[
-  Ns ={ 6*34, Label "Total number of turns in series per phase", Path Str[pp]}
+  Ns ={ 6*34,
+    Name StrCat[pp, "Total number of turns in series per phase"]}
 ] ;
 
 rpm_nominal = 1420 ; // turns/min

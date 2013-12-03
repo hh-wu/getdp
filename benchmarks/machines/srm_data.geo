@@ -9,16 +9,13 @@ pp  = "Input/10Geometric dimensions/";
 
 DefineConstant[
   Flag_Symmetry = {1, Choices {0="Full", 1="Half"},
-    Label "Type of FE model",
-    Path "Input/00", Highlight "Blue", Visible 1},
+    Name "Input/00Type of FE model", Highlight "Blue"},
   NbrStatorPoles = { Flag_Symmetry ? 3:6, Choices {3="3", 6="6"},
-    Label "Number of stator poles", ReadOnly 1,
-    Path "Input/01", Highlight "Black", Visible 1},
+    Name "Input/01Number of stator poles", ReadOnly 1, Highlight "Black"},
   NbrRotorPoles = { Flag_Symmetry ? 2:4, Choices {2="2", 4="4"},
-    Label "Number of rotor poles", ReadOnly 1,
-    Path "Input/02", Highlight "Black", Visible 1},
-  InitialRotorAngle_deg = {-30, Range {0,180}, Step 10, Label "Start rotor angle [deg]",
-    Path "Input/03", Highlight "AliceBlue"}
+    Name "Input/02Number of rotor poles", ReadOnly 1, Highlight "Black"},
+  InitialRotorAngle_deg = {-30, Range {0,180}, Step 10,
+    Name "Input/03Start rotor angle [deg]", Highlight "AliceBlue"}
 ] ;
 
 //--------------------------------------------------------------------------------
@@ -45,18 +42,18 @@ colorpp = "Ivory";
 
 //------------------------------------------------------------------------------
 DefineConstant[
-  ag     = {0.29*mm,  Label "Air gap width [m]", Path StrCat(pp,"0"), Highlight Str[colorpp], Closed close_menu},
-  AxialLength = {60*mm, Label "Axial length [m]", Path StrCat(pp,"0"), Highlight Str[colorpp]},
+  ag     = {0.29*mm, Name StrCat[pp, "0Air gap width [m]"], Highlight Str[colorpp], Closed close_menu},
+  AxialLength = {60*mm, Name StrCat[pp, "0Axial length [m]"], Highlight Str[colorpp]},
 
-  Betas_deg = {32, Label "Pole opening angle [deg]", Path StrCat(pp,"1Stator"), Highlight Str[colorpp]},
-  Rsout  = {60*mm, Label "Outer radius [m]", Path StrCat(pp,"1Stator"), Highlight Str[colorpp]},
-  Rsin   = {30*mm, Label "Inner radius [m]", Path StrCat(pp,"1Stator"), Highlight Str[colorpp]},
-  YWs    = {12*mm, Label "Yoke width [m]", Path StrCat(pp,"1Stator"), Highlight Str[colorpp]},
+  Betas_deg = {32, Name StrCat[pp, "1Stator/Pole opening angle [deg]"], Highlight Str[colorpp]},
+  Rsout  = {60*mm, Name StrCat[pp, "1Stator/Outer radius [m]"], Highlight Str[colorpp]},
+  Rsin   = {30*mm, Name StrCat[pp, "1Stator/Inner radius [m]"], Highlight Str[colorpp]},
+  YWs    = {12*mm, Name StrCat[pp, "1Stator/Yoke width [m]"], Highlight Str[colorpp]},
 
-  Betar_deg = {32, Label "Pole opening angle [deg]", Path StrCat(pp,"2Rotor"), Highlight Str[colorpp]},
-  Rrout  = {Rsin-ag, Label "Outer radius [m]", ReadOnly 1, Path StrCat(pp,"2Rotor"), Highlight Str[colorro]},
-  Rrin  = {20*mm, Label "Inner radius [m]", Path StrCat(pp,"2Rotor"), Highlight Str[colorpp]},
-  Rshaft  = {6*mm, Label "Shaft radius [m]", Path StrCat(pp,"2Rotor"), Highlight Str[colorpp]}
+  Betar_deg = {32, Name StrCat[pp, "2Rotor/Pole opening angle [deg]"], Highlight Str[colorpp]},
+  Rrout  = {Rsin-ag, Name StrCat[pp, "2Rotor/Outer radius [m]"], ReadOnly 1, Highlight Str[colorro]},
+  Rrin  = {20*mm, Name StrCat[pp, "2Rotor/Inner radius [m]"], Highlight Str[colorpp]},
+  Rshaft  = {6*mm, Name StrCat[pp, "2Rotor/Shaft radius [m]"], Highlight Str[colorpp]}
 ];
 
 Betas = Betas_deg * deg2rad ;
@@ -69,7 +66,7 @@ Ragr = Rrout + frac_ag*ag ; // radious from outer rotor radious
 
 sigma_fe = 0 ; // laminated steel
 DefineConstant[
-  mur_fe = {1000, Label "Relative permeability for linear case", Path Str[pp]}
+  mur_fe = {1000, Name StrCat[pp, "Relative permeability for linear case"]}
 ];
 
 VA = 220 ; // rms values
@@ -115,10 +112,3 @@ SURF_EXT = 3000 ; // outer boundary
 MOVING_BAND = 9999 ;
 
 NICEPOS = 111111 ;
-
-
-
-
-
-
-

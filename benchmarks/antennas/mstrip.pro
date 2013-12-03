@@ -2,12 +2,11 @@ Include "mstrip_param.pro";
 
 DefineConstant[
   Flag_AnalysisType = { 0,  Choices{0="e-formulation",  1="av-formulation"},
-    Label "Type of analysis",  Path "Input/20", Highlight "Blue", Visible 1,
+    Name "Input/20Type of analysis",  Highlight "Blue",
     Help Str["- Use 'electric field formulation' to compute the EM fields created by the microstrip antenna",
       "- Use 'av-potential formulation' to compute the EM fields created by the microstrip antenna"]},
   Flag_BC_Type = { 1, Choices{0="Silver Muller",1="PML"},
-    Label "BC at infinity",
-    Path "Input/20", Highlight "Blue", Visible 1}
+    Name "Input/20BC at infinity", Highlight "Blue"}
 ];
 
 Flag_SilverMuller = (Flag_BC_Type==0) ; // 0 if PML

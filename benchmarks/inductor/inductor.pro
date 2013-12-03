@@ -14,16 +14,16 @@ ExtGnuplot  = ".dat";
 
 DefineConstant[
   Flag_AnalysisType = { 0,  Choices{0="Static",  1="Time domain"},
-    Label "Type of analysis",  Path "Input/20", Highlight "Blue", Visible 1,
+    Name "Input/20Type of analysis",  Highlight "Blue",
     Help Str["- Use 'Static' to compute static fields created in the inductor",
       "- Use 'Time domain' to compute the dynamic response of the inductor"]},
 
   Flag_BC_Type = {1, Choices{0="Neumann",1="Dirichlet"}, ReadOnly (Flag_Infinity==1),
-    Label "Boundary condition at infinity",
-    Path "Input/20", Highlight "Blue", Visible 1},
+    Name "Input/20Boundary condition at infinity",
+    Highlight "Blue"},
 
   Flag_NL = { 1, Choices{0,1},
-    Label "Nonlinear BH-curve", Path "Input/40", Visible 1}
+    Name "Input/40Nonlinear BH-curve"}
 ];
 
 Group {
@@ -75,10 +75,10 @@ Function {
   Freq = 50. ;
 
   DefineConstant[
-    Irms = { IA, Min 1, Max 4*IA, Step 2, Label "Current (rms) [A]",
-      Path "Input/4Coil Parameters/0", Highlight "AliceBlue"},
-    NbWires = { Nw, Path "Input/4Coil Parameters/1", Label "Number of turns",
-      Highlight "AliceBlue"}
+    Irms = { IA, Min 1, Max 4*IA, Step 2,
+      Name "Input/4Coil Parameters/0Current (rms) [A]", Highlight "AliceBlue"},
+    NbWires = { Nw,
+      Name "Input/4Coil Parameters/1Number of turns", Highlight "AliceBlue"}
   ];
   II = Irms *Sqrt[2] ;
 
@@ -114,10 +114,10 @@ Function {
 
   // Use if linear problem
   DefineConstant[
-    sigma_coil = { sigma_cu,
-      Label "Conductivity [S/m]", Path "Input/4Coil Parameters/5", Highlight "AliceBlue"},
+    sigma_coil = { sigma_cu, Label "Conductivity [S/m]",
+      Name "Input/4Coil Parameters/5Conductivity", Highlight "AliceBlue"},
     mur_fe = { 2000., Min 100, Max 2000, Step 100,
-      Label "Core relative permeability", Path "Input/42", Highlight "AliceBlue",
+      Name "Input/42Core relative permeability", Highlight "AliceBlue",
       Visible (!Flag_NL)}
   ];
 

@@ -1,6 +1,8 @@
 // Shunt capacitive MEM switch
 
 pp  = "1Geometric dimensions/0";
+pp1 = StrCat[pp, "1Upper electrode (with holes)/"];
+pp2 = StrCat[pp, "2Lower electrode/"];
 ppEM = "2Electromagnetic parameters/0";
 ppMec = "3Mechanical parameters/0";
 
@@ -13,44 +15,44 @@ colorpp    = "Ivory";
 u  = 1.e-6 ; // dimensions in micros
 
 DefineConstant[
-  Lc = { 475, Label "length [micron]",
-    Path StrCat(pp,"1Upper electrode (with holes)/0"), Highlight Str[colorpp], Closed close_menu},
-  bc = { 275, Label "width [micron]",
-    Path StrCat(pp,"1Upper electrode (with holes)/1"), Highlight Str[colorpp], Closed close_menu},
-  d = { 4, Label "thickness [micron]",
-    Path StrCat(pp,"1Upper electrode (with holes)/2"), Highlight Str[colorpp] },
-  w = { 25, Label "side of square holes [micron]",
-    Path StrCat(pp,"1Upper electrode (with holes)/2"), Highlight Str[colorpp] },
-  pitch = { 2*w, Label "pitch of holes [micron]", ReadOnly 1,
-    Path StrCat(pp,"1Upper electrode (with holes)/3"), Highlight Str[colorro] },
-  Lb = { 205, Label "length of beams [micron]",
-    Path StrCat(pp,"1Upper electrode (with holes)/4"), Highlight Str[colorpp] },
-  bb = { 20, Label "width of beams [micron]",
-    Path StrCat(pp,"1Upper electrode (with holes)/5"), Highlight Str[colorpp] },
-  da = { 80, Label "distance between beams [micron]",
-    Path StrCat(pp,"1Upper electrode (with holes)/6"), Highlight Str[colorpp] },
-  Ls = { 625, Label "length of supporting beams [microns]",
-    Path StrCat(pp,"1Upper electrode (with holes)/7"), Highlight Str[colorpp], Visible 0 },
+  Lc = { 475, Name StrCat[pp1, "0Length [micron]"],
+    Highlight Str[colorpp], Closed close_menu},
+  bc = { 275, Name StrCat[pp1, "1Width [micron]"],
+    Highlight Str[colorpp], Closed close_menu},
+  d = { 4, Name StrCat[pp1, "2Thickness [micron]"],
+    Highlight Str[colorpp] },
+  w = { 25, Name StrCat[pp1, "2Side of square holes [micron]"],
+    Highlight Str[colorpp] },
+  pitch = { 2*w, Name StrCat[pp1, "3Pitch of holes [micron]"], ReadOnly 1,
+    Highlight Str[colorro] },
+  Lb = { 205, Name StrCat[pp1, "4Length of beams [micron]"],
+    Highlight Str[colorpp] },
+  bb = { 20, Name StrCat[pp1, "5Width of beams [micron]"],
+    Highlight Str[colorpp] },
+  da = { 80, Name StrCat[pp1, "6Distance between beams [micron]"],
+    Highlight Str[colorpp] },
+  Ls = { 625, Name StrCat[pp1, "7Length of supporting beams [microns]"],
+    Highlight Str[colorpp], Visible 0 },
 
-  Lin = { 485, Label "length [micron]",
-    Path StrCat(pp,"2Lower electrode/0"), Highlight Str[colorpp], Closed close_menu},
-  bin = { 285, Label "width [micron]",
-    Path StrCat(pp,"2Lower electrode/1"), Highlight Str[colorpp] },
-  tin = { 0.5, Label "thickness [micron]",
-    Path StrCat(pp,"2Lower electrode/2"), Highlight Str[colorpp] },
-  t = { 150, Label "length of teeth [micron]",
-    Path StrCat(pp,"2Lower electrode/3"), Highlight Str[colorpp] },
-  win = { bin/3, Label "width of teeth [micron]", ReadOnly 1,
-    Path StrCat(pp,"2Lower electrode/4"), Highlight Str[colorro] },
-  td = { 0.2, Label "thickness of dielectric [micron]",
-    Path StrCat(pp,"2Lower electrode/5"), Highlight Str[colorpp] },
-  gap = { 3, Label "air gap between electrodes [micron]",
-    Path StrCat(pp,"3"), Highlight Str[colorpp] },
+  Lin = { 485, Name StrCat[pp2, "0Length [micron]"],
+    Highlight Str[colorpp], Closed close_menu},
+  bin = { 285, Name StrCat[pp2, "1Width [micron]"],
+    Highlight Str[colorpp] },
+  tin = { 0.5, Name StrCat[pp2, "2Thickness [micron]"],
+    Highlight Str[colorpp] },
+  t = { 150, Name StrCat[pp2, "3Length of teeth [micron]"],
+    Highlight Str[colorpp] },
+  win = { bin/3, Name StrCat[pp2, "4Width of teeth [micron]"], ReadOnly 1,
+    Highlight Str[colorro] },
+  td = { 0.2, Name StrCat[pp2, "5Thickness of dielectric [micron]"],
+    Highlight Str[colorpp] },
+  gap = { 3, Name StrCat[pp, "3Air gap between electrodes [micron]"],
+    Highlight Str[colorpp] },
 
-  R1 = { 700, Label "Inner radius of shell [micron]",
-    Path StrCat(pp,"4"), Highlight Str[colorpp] },
-  R2 = {1000, Label  "Outer radius of shell [micron]",
-    Path StrCat(pp,"5"), Highlight Str[colorpp] }
+  R1 = { 700, Name StrCat[pp, "4Inner radius of shell [micron]"],
+    Highlight Str[colorpp] },
+  R2 = {1000, Name StrCat[pp, "5Outer radius of shell [micron]"],
+    Highlight Str[colorpp] }
 ] ;
 
 // Scaling for getting correct units ...
@@ -82,16 +84,16 @@ R2 = R2 * u ;
 dal = gap/4 ; // easing the mesh task...
 
 DefineConstant[ //maximum voltage 10-15 V
-  Vmax = { 15, Min 0, Max 15, Label "Voltage [V] - upper electrode",
-    Path StrCat(ppEM,"0"), Highlight Str[colorpp]},
-  Vmin = { 0., Label "Voltage [V] - lower electrode",
-    Path StrCat(ppEM,"1"), Highlight Str[colorpp]},
-  epsr_diel = { 7, Label "Relative permittivity of dielectric layer",
-    Path StrCat(ppEM,"2"), Highlight Str[colorpp]}
-  E_val = { 70e9, Label "Young's modulus [Pa]",
-    Path StrCat(ppMec,"0"), Highlight Str[colorpp]},
-  nu_val = { 0.3, Label "Poisson's value",
-    Path StrCat(ppMec,"1"), Highlight Str[colorpp]}
+  Vmax = { 15, Min 0, Max 15, Name StrCat[ppEM, "0Voltage [V] - upper electrode"],
+    Highlight Str[colorpp]},
+  Vmin = { 0., Name StrCat[ppEM, "1Voltage [V] - lower electrode"],
+    Highlight Str[colorpp]},
+  epsr_diel = { 7, Name StrCat[ppEM, "2Relative permittivity of dielectric layer"],
+    Highlight Str[colorpp]}
+  E_val = { 70e9, Name StrCat[ppMec, "0Young's modulus [Pa]"],
+    Highlight Str[colorpp]},
+  nu_val = { 0.3, Name StrCat[ppMec, "1Poisson's value"],
+    Highlight Str[colorpp]}
 ];
 
 
@@ -124,4 +126,3 @@ SUR_BEAM1d = 2001 ;
 SUR_BEAM2d = 2002 ;
 SUR_BEAM3d = 2003 ;
 SUR_BEAM4d = 2004 ;
-

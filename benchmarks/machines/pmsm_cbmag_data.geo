@@ -14,14 +14,14 @@
 mm = 1e-3 ;
 deg2rad = Pi/180 ;
 
-pp = "Input/Constructive parameters";
+pp = "Input/Constructive parameters/";
 
 DefineConstant[
   NbrPolesInModel = { 1, Choices {1="1", 2="2", 4="4", 8="8"},
-    Label "Number of poles in FE model",
-    Path "Input/20", Highlight "Blue", Visible 1},
-  InitialRotorAngle_deg = {0., Label "Start rotor angle [deg]",
-    Path "Input/21", Highlight "AliceBlue"}
+    Name "Input/20Number of poles in FE model",
+    Highlight "Blue"},
+  InitialRotorAngle_deg = {0., Name "Input/21Start rotor angle [deg]",
+    Highlight "AliceBlue"}
 ] ;
 
 //--------------------------------------------------------------------------------
@@ -74,8 +74,8 @@ wrR3 = 14.35/2 *mm ;
 wrR2 = 14.1/2 *mm ;
 
 DefineConstant[
-  AxialLength = {40*mm,  Label "Axial length [m]", Path Str[pp], Closed 1},
-  Gap = {0.55*mm, Label "Airgap width [m]", Path Str[pp], Closed 1}
+  AxialLength = {40*mm, Name StrCat[pp, "Axial length [m]"], Closed 1},
+  Gap = {0.55*mm, Name StrCat[pp, "Airgap width [m]"], Closed 1}
 ];
 
 
@@ -102,8 +102,8 @@ wsS3 = 2.583/2*mm ;
 
 sigma_fe = 0. ; // laminated steel
 DefineConstant[
-  mur_fe = {1000, Label "Relative permeability for linear case", Path Str[pp]},
-  b_remanent = { 1.03, Label "Remanent induction [T]", Path Str[pp] }
+  mur_fe = {1000, Name StrCat[pp, "Relative permeability for linear case"]},
+  b_remanent = { 1.03, Name StrCat[pp, "Remanent induction [T]"] }
 ];
 
 rpm_nominal = 1000 ;

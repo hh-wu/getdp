@@ -1,15 +1,17 @@
 Include "relay_data.pro";
 
 DefineConstant[
-  time_min = { 0, Visible (Flag_AnalysisType == 1), Path "Input/30"},
-  time_max = { 1, Min time_min, Visible (Flag_AnalysisType == 1), Path "Input/31"},
-  delta_time = { 0.8e-3, Min time_max/5000, Visible (Flag_AnalysisType == 1), Path "Input/32"},
-  NbSteps = { (time_max - time_min)/delta_time, Visible 0, Path "Input/33"},
-  step = {0, Min 0, Max NbSteps, Step 1,
-    Loop  (Flag_AnalysisType == 1), Path "Input/34", Visible (Flag_AnalysisType == 1)},
-
-  Flag_Cir = { 1, Visible 0},
-  Flag_NL = { 0, Choices{0,1}, Label "Nonlinear BH-curve", Path "Input/60", Visible 1}
+  time_min = { 0, Visible (Flag_AnalysisType == 1),
+    Name "Input/30Time min."},
+  time_max = { 1, Min time_min, Visible (Flag_AnalysisType == 1),
+    Name "Input/31Time max."},
+  delta_time = { 0.8e-3, Min time_max/5000, Visible (Flag_AnalysisType == 1),
+    Name "Input/32Time"},
+  NbSteps = (time_max - time_min)/delta_time,
+  step = {0, Min 0, Max NbSteps, Step 1, Loop  (Flag_AnalysisType == 1),
+    Name "Input/34Step", Visible (Flag_AnalysisType == 1)},
+  Flag_Cir = 1,
+  Flag_NL = { 0, Choices{0,1}, Name "Input/60Nonlinear BH-curve"}
 ];
 
 
@@ -104,8 +106,8 @@ Function {
   hc[#MagnetLeft ] = Vector[+Hc,0,0] ;
   hc[#MagnetRight] = Vector[-Hc,0,0] ;
 
-  DefineConstant[ velocityY = { 0., Label "Vertical velocity",
-      Path "Output/3", Visible (Flag_AnalysisType == 1)} ];
+  DefineConstant[ velocityY = { 0., Name "Output/3Vertical velocity",
+      Visible (Flag_AnalysisType == 1)} ];
 
   // Artificial control of the geometrical limits for avoiding crashes...
   velocityY = (displacementY >=-15e-3 && displacementY <= 0) ? velocityY :0.;
@@ -458,9 +460,9 @@ PostOperation MapMag UsingPost MagDyn_a_2D {
 
 PostOperation MapMec UsingPost Mechanical {
   Print[ U, OnRegion DomainKin, File StrCat["disp", ExtGnuplot], Format Table,
-         LastTimeStepOnly, SendToServer "Output/2displacementY"] ;
+         LastTimeStepOnly, SendToServer "Output/2Vertical displacement"] ;
   Print[ V, OnRegion DomainKin, File StrCat["velocity", ExtGnuplot], Format Table,
-         LastTimeStepOnly, SendToServer "Output/3velocityY"] ;
+         LastTimeStepOnly, SendToServer "Output/3Vertical velocity"] ;
 
   Print[ Fmag, OnRegion DomainKin, Format Table, File  > StrCat["Fmag", ExtGnuplot],
          LastTimeStepOnly,SendToServer "Output/4forceY"] ;
@@ -472,7 +474,7 @@ PostOperation MapMec UsingPost Mechanical {
 
 
 DefineConstant[
-  ResolutionChoices    = {"Analysis", Path "GetDP/1", Visible 0},
-  ComputeCommand       = {"-solve -v 3 -v2", Path "GetDP/9", Visible 0},
-  PostOperationChoices = {"", Path "GetDP/2", Visible 0}
+  R_ = {"Analysis", Name "GetDP/1ResolutionChoices", Visible 0},
+  C_ = {"-solve -v 3 -v2", Name "GetDP/9ComputeCommand", Visible 0},
+  P_ = {"", Name "GetDP/2PostOperationChoices", Visible 0}
 ];

@@ -6,14 +6,15 @@
 mm = 1e-3 ;
 deg2rad = Pi/180 ;
 
-pp = "Input/Constructive parameters";
+pp = "Input/Constructive parameters/";
 
 DefineConstant[
   NbrPolesInModel = { 1, Choices {1="1", 2="2", 4="4", 8="8"},
-    Label "Number of poles in FE model",
-    Path "Input/20", Highlight "Blue", Visible 1},
-  InitialRotorAngle_deg = {7.5, Label "Start rotor angle [deg]",
-    Path "Input/21", Highlight "AliceBlue"}
+    Name "Input/20Number of poles in FE model",
+    Highlight "Blue", Visible 1},
+  InitialRotorAngle_deg = {7.5,
+    Name "Input/21Start rotor angle [deg]",
+    Highlight "AliceBlue"}
 ] ;
 
 //--------------------------------------------------------------------------------
@@ -40,7 +41,7 @@ NbrSectStator   = NbrSectTotStator*NbrPolesInModel/NbrPolesTot; // number of sta
 //--------------------------------------------------------------------------------
 
 DefineConstant[
-  lm = {2.352*mm , Label "Magnet height [m]", Path Str[pp], Closed 1}
+  lm = {2.352*mm , Name StrCat[pp, "Magnet height [m]"], Closed 0}
 ];
 
 Th_magnet = 32.67 *deg2rad ;  // angle in degrees 0 < Th_magnet < 45
@@ -56,8 +57,8 @@ rR5 = rRext; //25.6e-03;
 
 //Gap = rS1-rR5;
 DefineConstant[
-  AxialLength = {35*mm,  Label "Axial length [m]", Path Str[pp], Closed 1},
-  Gap = {(26.02-25.6)*mm, Label "Airgap width [m]", Path Str[pp], Closed 1}
+  AxialLength = {35*mm,  Name StrCat[pp, "Axial length [m]"], Closed 1},
+  Gap = {(26.02-25.6)*mm, Name StrCat[pp, "Airgap width [m]"], Closed 0}
 ];
 
 rS1 = rR5 + Gap;     //rS1 = 26.02*mm;
@@ -78,8 +79,8 @@ A1 =   0 * deg2rad ; // Rotor initial aligned position, current position in angR
 
 sigma_fe = 0. ; // laminated steel
 DefineConstant[
-  mur_fe = {1000, Label "Relative permeability for linear case", Path Str[pp]},
-  b_remanent = { 1.2, Label "Remanent induction [T]", Path Str[pp] }
+  mur_fe = {1000, Name StrCat[pp, "Relative permeability for linear case"]},
+  b_remanent = {1.2, Name StrCat[pp, "Remanent induction [T]"] }
 ];
 
 rpm_nominal = 500 ;

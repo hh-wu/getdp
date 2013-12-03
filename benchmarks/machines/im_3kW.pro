@@ -7,37 +7,37 @@ Include "im_3kW_data.geo" ;
 
 DefineConstant[
   Flag_AnalysisType = {2,  Choices{0="Static",  1="Time domain",  2="Frequency domain"},
-    Label "Type of analysis",  Path "Input/29", Highlight "Blue", Visible 1,
+    Name "Input/29Type of analysis", Highlight "Blue",
     Help Str["- Use 'Static' to compute static fields created in the machine",
       "- Use 'Time domain' to compute the dynamic response of the machine",
       "- Use 'Frequency domain' to compute steady-state phasors depending on the slip"]} ,
   Flag_SrcType_Stator = { 2, Choices{1="Current", 2="Voltage"},
-    Label "Source type in stator", Path "Input/41", Highlight "Blue", Visible 1},
+    Name "Input/41Source type in stator", Highlight "Blue"},
   Flag_Cir_RotorCage = { (Flag_SrcType_Stator==2), Choices{0,1},
-    Label "Use circuit in rotor cage", Path "Input/40", ReadOnly (Flag_SrcType_Stator==1), Visible 1}
+    Name "Input/40Use circuit in rotor cage", ReadOnly (Flag_SrcType_Stator==1)}
   slip = { 0, Min 0., Max 1, Step 0.05, Loop (Flag_AnalysisType == 2),
-    Label "slip", Path "Input/30", Highlight "AliceBlue", Visible (Flag_AnalysisType == 2)}
+    Name "Input/30Slip", Highlight "AliceBlue", Visible (Flag_AnalysisType == 2)}
 ];
 
 Flag_Cir = (Flag_SrcType_Stator==2);
 
 // this not necessary anymore (thanks to the new behavior of Visibility)
 If(Flag_AnalysisType!=2)
-  UndefineConstant[ "Input/30slip" ];
+  UndefineConstant[ "Input/30Slip" ];
 EndIf
 variableFrequencyLoop = slip;
 
 DefineConstant[
   Flag_NL = { (Flag_AnalysisType==2)?0:1, Choices{0,1},
-    Label "Nonlinear BH-curve", Path "Input/60", ReadOnly (Flag_AnalysisType==2)?1:0, Visible 1},
-    // FIXME: nonlinear law in frequency domain not yet implemented
+    Name "Input/60Nonlinear BH-curve", ReadOnly (Flag_AnalysisType==2)?1:0},
+  // FIXME: nonlinear law in frequency domain not yet implemented
   Flag_NL_law_Type = { 2, Choices{0="Analytical", 1="Interpolated",
       2="Analytical VH800-65D", 3="Interpolated VH800-65D"},
-    Label "BH-curve", Path "Input/61", Highlight "Blue", Visible Flag_NL}
+    Name "Input/61BH-curve", Highlight "Blue", Visible Flag_NL}
 ] ;
 
 If(Flag_AnalysisType==2)
-  UndefineConstant["Input/61Flag_NL_law"];
+  UndefineConstant["Input/61BH-curve"];
 EndIf
 
 
@@ -132,17 +132,17 @@ Function{
 
   DefineConstant[
     Flag_ImposedSpeed = { 0, Choices{0="None", 1="Synchronous speed (no load)",
-        2="Choose speed"}, Label "Imposed rotor speed [rpm]", Highlight "Blue",
-      Path "Input/30", Visible Flag_AnalysisType!=2},
-    myrpm = { rpm_nominal, Label "Speed [rpm]", Path "Input/31",
-      Highlight "AliceBlue", ReadOnlyRange 1, Visible (Flag_ImposedSpeed==2 && Flag_AnalysisType!=2)},
-    Tmec = { 0, Label "Mechanical torque [Nm]", Path "Input/32",
+        2="Choose speed"}, Name "Input/30Imposed rotor speed [rpm]",
+      Highlight "Blue", Visible Flag_AnalysisType!=2},
+    myrpm = { rpm_nominal, Name "Input/31Speed [rpm]", Highlight "AliceBlue",
+      ReadOnlyRange 1, Visible (Flag_ImposedSpeed==2 && Flag_AnalysisType!=2)},
+    Tmec = { 0, Name "Input/32Mechanical torque [Nm]",
       Highlight "AliceBlue", Visible (!Flag_ImposedSpeed && Flag_AnalysisType!=2) },
-    Frict = { 0, Label "Friction torque [Nm]", Path "Input/33",
+    Frict = { 0, Name "Input/33Friction torque [Nm]",
       Highlight "AliceBlue", Visible (!Flag_ImposedSpeed && Flag_AnalysisType!=2) },
-    NbrPeriod = {10, Label "Total number of periods", Path "Input/40",
+    NbrPeriod = {10, Name "Input/40Total number of periods",
       Highlight "AliceBlue", Visible (Flag_AnalysisType==1)},
-    NbSteps = {100, Label "Number of time steps per period", Path "Input/41",
+    NbSteps = {100, Name "Input/41Number of time steps per period",
       Highlight "AliceBlue", Visible (Flag_AnalysisType==1)}
   ];
 
@@ -179,9 +179,9 @@ Function{
   pC =  2*Pi/3 ;
 
   DefineConstant[
-    Irms = { IA, Path "Input/50", Label "Stator current (rms)",
+    Irms = { IA, Name "Input/50Stator current (rms)",
       Highlight "AliceBlue", Visible (Flag_SrcType_Stator==1)},
-    Vrms = { VA, Path "Input/50", Label "Stator voltage (rms)",
+    Vrms = { VA, Name "Input/50Stator voltage (rms)",
       Highlight "AliceBlue", Visible (Flag_SrcType_Stator==2)}
   ] ;
   VV = Vrms * Sqrt[2] ;
@@ -202,5 +202,4 @@ If(Flag_Cir)
   Include "im_3kW_circuit.pro" ;
 EndIf
 Include "machine_magstadyn_a.pro" ;
-
 

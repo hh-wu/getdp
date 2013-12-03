@@ -75,7 +75,7 @@ OuterMB_[] = {dRs[{16,17}]}; // for moving band
 OuterStator_[] += Symmetry {Cos(StatorAngle_S),Sin(StatorAngle_S),0,0} { Duplicata{Line{OuterStator_[{0}]};} };
 aux[] = Symmetry {Cos(StatorAngle_S),Sin(StatorAngle_S),0,0} { Duplicata{Line{OuterMB_[{0,1}]};} }; // for MB
 OuterMB_[] += -aux[{1,0}];
-StatorPeriodDependent_[] += Rotate {{0, 0, 1}, {0, 0, 0}, 2*Pi*NbrPoles/NbrPolesTot} { Duplicata{ Line{StatorPeriodReference_[{0,1}]};} };
+StatorPeriodDependent_[] += Rotate {{0, 0, 1}, {0, 0, 0}, 2*Pi*NbrPolesInModel/NbrPolesTot} { Duplicata{ Line{StatorPeriodReference_[{0,1}]};} };
 
 s1[] = Symmetry {Cos(StatorAngle_S),Sin(StatorAngle_S),0,0} { Duplicata{Surface{StatorConductor_[0]};} };
 StatorConductor_[] += s1[];
@@ -150,7 +150,7 @@ For k In {1:NbrPolesTot-1}
   Physical Line(STATOR_BND_MOVING_BAND+k-1) = { OuterMB_[{(k-1)*nnp:kk}] };
 EndFor
 
-If(NbrPoles!=NbrPolesTot)
+If(NbrPolesInModel!=NbrPolesTot)
   Physical Line(STATOR_BND_A0) = {StatorPeriodReference_[]};
   Physical Line(STATOR_BND_A1) = {StatorPeriodDependent_[]};
 EndIf
