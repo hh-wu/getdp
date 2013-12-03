@@ -199,6 +199,7 @@ static PetscErrorCode InitData(Field *MyField, Field *AllField,
   MyField->GmshTag.resize(MyField->nb_field);
   MyField->ILSTag.resize(MyField->nb_field);
   MyField->rank.resize(MyField->nb_field);
+
   for(int iField = 0; iField < MyField->nb_field; iField++) {
     double d;
     List_Read(Operation_P->Case.IterativeLinearSolver.MyFieldTag, iField, &d);
@@ -1470,10 +1471,10 @@ int Operation_BroadcastFields(struct Resolution  *Resolution_P,
 {
   std::set<int> fieldsToSkip;
   for(int i = 0; i < List_Nbr(Operation_P->Case.BroadcastFields.FieldsToSkip); i++){
-    int j;
+    double j;
     List_Read(Operation_P->Case.BroadcastFields.FieldsToSkip, i, &j);
-    fieldsToSkip.insert(j);
-    printf("WILL SKIP field %d\n", j);
+    fieldsToSkip.insert((int) j);
+    // printf("%d WILL SKIP field %g\n", Message::GetCommRank(), j);
   }
 
   PViewBCast(*MyStaticField, *AllStaticField, fieldsToSkip);

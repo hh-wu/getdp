@@ -4002,11 +4002,12 @@ OperationTerm :
       Operation_P->Rank = -1;
     }
 
-  | tBroadcastFields tEND
+  | tBroadcastFields '[' ListOfFExpr ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_BROADCASTFIELDS;
       Operation_P->Rank = -1;
+      Operation_P->Case.BroadcastFields.FieldsToSkip = $3;
     }
 
   | tBreak tEND
