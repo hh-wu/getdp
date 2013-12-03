@@ -432,7 +432,7 @@ static PetscErrorCode InitData(Field *MyField, Field *AllField,
 }
 
 // Communicate PViews
-static PetscErrorCode PViewBCast(Field MyField, Field AllField)
+static PetscErrorCode PViewBCast(Field MyField, Field AllField, const std::set<int> &fieldsToSkip=std::set<int>())
 {
   if(Message::GetCommSize() == 1) // serial: all views are available to everyone
     PetscFunctionReturn(0);
@@ -481,6 +481,8 @@ static PetscErrorCode PViewBCast(Field MyField, Field AllField)
     // send my PView to my neighbors
     for (int ifield = 0 ; ifield < MyField.nb_field ; ifield ++){
       int GmshTag = MyField.GmshTag[ifield];
+      // don't send field if explicitely asked to skip it
+      if(fieldsToSkip.find(GmshTag) != fieldsToSkip.end()) continue;
       PView *view = GetViewByTag(GmshTag);
       std::vector< std::vector<double>* > V_send(24);
       std::vector<int> N(24);
@@ -505,6 +507,8 @@ static PetscErrorCode PViewBCast(Field MyField, Field AllField)
     std::vector< std::vector< std::vector<double>* > > V_recv(MyField.nb_field_to_receive);
     for (int ifield = 0 ; ifield < MyField.nb_field_to_receive ; ifield ++){
       int GmshTag = MyField.FieldToReceive[ifield];
+      // don't receive field if explicitely asked to skip it
+      if(fieldsToSkip.find(GmshTag) != fieldsToSkip.end()) continue;
       int sender = AllField.GetRankFromGmshTag(GmshTag);
       V_recv[ifield].resize(24);
       std::vector<int> N(24);
@@ -529,6 +533,7 @@ static PetscErrorCode PViewBCast(Field MyField, Field AllField)
     MPI_Waitall(tab_request.size(), &tab_request[0], &tab_status[0]);
     for (int ifield = 0 ; ifield < MyField.nb_field_to_receive ; ifield ++){
       int GmshTag = MyField.FieldToReceive[ifield];
+      if(fieldsToSkip.find(GmshTag) != fieldsToSkip.end()) continue;
       PView *view = new PView(GmshTag);
       view->getData()->importLists(&MyField.theirN[ifield][0], &V_recv[ifield][0]);
     }
@@ -1463,7 +1468,15 @@ int Operation_BroadcastFields(struct Resolution  *Resolution_P,
                               struct DofData     *DofData_P0,
                               struct GeoData     *GeoData_P0)
 {
-  PViewBCast(*MyStaticField, *AllStaticField);
+  std::set<int> fieldsToSkip;
+  for(int i = 0; i < List_Nbr(Operation_P->Case.BroadcastFields.FieldsToSkip); i++){
+    int j;
+    List_Read(Operation_P->Case.BroadcastFields.FieldsToSkip, i, &j);
+    fieldsToSkip.insert(j);
+    printf("WILL SKIP field %d\n", j);
+  }
+
+  PViewBCast(*MyStaticField, *AllStaticField, fieldsToSkip);
   return 0;
 }
 

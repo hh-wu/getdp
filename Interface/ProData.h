@@ -1054,7 +1054,9 @@ struct Operation {
     struct {
       char    *String;
     } SetGlobalSolverOptions;
-
+    struct {
+      List_T  *FieldsToSkip;
+    } BroadcastFields;
   } Case;
 
 };
