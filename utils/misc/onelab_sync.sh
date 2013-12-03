@@ -2,7 +2,7 @@
 
 SRC=../../benchmarks
 DST=/onelab_files
-MODELS='machines relay inductor'
+MODELS='machines relay inductor indheat'
 
 # sync files from local svn checkout
 for m in ${MODELS}; do
