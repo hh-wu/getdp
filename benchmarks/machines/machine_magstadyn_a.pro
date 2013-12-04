@@ -510,6 +510,8 @@ Formulation {
     Equation {
       Galerkin { [ nu[{d a}] * Dof{d a}  , {d a} ] ;
         In Domain ; Jacobian Vol ; Integration I1 ; }
+      Galerkin { JacNL [ dhdb_NL[{d a}] * Dof{d a} , {d a} ] ;
+        In DomainNL ; Jacobian Vol ; Integration I1 ; }
 
       // DO NOT REMOVE!!!
       // Keeping track of Dofs in auxiliar line of MB if Symmetry==1
