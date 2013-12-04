@@ -67,7 +67,6 @@ Group {
   Domain = Region[ {DomainL, DomainNL} ] ;
 }
 
-Include "ElectricCircuit.pro"
 Include "BH.pro"
 
 Function {
@@ -101,7 +100,11 @@ Function {
   Br = .8*1.06;
   mu_Magnet = 1.03 * mu0 ;
 
-  Hc = Br/mu_Magnet;
+  DefineConstant[
+    Hc = { Br/mu_Magnet, Name "Input/50Coercive field", Highlight "AliceBlue"},
+    VV = { 15,  Name "Input/51Voltage", Highlight "AliceBlue"},
+    velocityY = { 0., Name "Output/3Vertical velocity", Visible (Flag_AnalysisType == 1)}
+  ];
 
   hc[#MagnetLeft ] = Vector[+Hc,0,0] ;
   hc[#MagnetRight] = Vector[-Hc,0,0] ;
@@ -160,6 +163,9 @@ Integration {
     }
   }
 }
+
+Include "ElectricCircuit.pro"
+
 
 Constraint {
   { Name MVP_2D ;
