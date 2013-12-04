@@ -150,14 +150,15 @@ Group {
   //   DomainNL   : with nonlinear permeability (jacobian matrix)
   //   DomainV    : with additional vxb term
   //   DomainKin  : region number for mechanical equation
-  //   Dummy      : region number for postpro with functions
+  //   DomainDummy : region number for postpro with functions
+  //   DomainPlotMovingGeo : region with boundary lines of geo for visualisation of moving rotor
 
   Inds = Region[ {Stator_Inds, Rotor_Inds} ] ;
 
   DomainB = Region[ {Inds} ] ;
   DomainM = Region[ {Stator_Magnets, Rotor_Magnets} ] ;
   DomainS = Region[{}];
-  Dummy = Region[{}];
+  DomainPlotMovingGeo = Region[{Dummy}];
 
   Stator  = Region[{ StatorC, StatorCC }] ;
   Rotor   = Region[{ RotorC,  RotorCC }] ;
@@ -727,7 +728,7 @@ PostProcessing {
      { Name az ; Value { Term { [ CompZ[{a}] ] ; In Domain ; Jacobian Vol ; } } }
 
      { Name b  ; Value { Term { [ {d a} ] ; In Domain ; Jacobian Vol ; } } }
-     { Name boundary  ; Value { Term { [ 1 ] ; In Dummy ; Jacobian Vol ; } } } // Dummy quantity - for visualization
+     { Name boundary  ; Value { Term { [ 1 ] ; In DomainPlotMovingGeo ; Jacobian Vol ; } } } // Dummy value - for visualization
      { Name b_radial ;
        Value { Term { [ {d a}* Vector[  Cos[AngularPosition[]#4], Sin[#4], 0.] ] ;
 	   In Domain ; Jacobian Vol ; } } }
@@ -917,7 +918,7 @@ PostOperation Get_LocalFields UsingPost MagStaDyn_a_2D {
   Print[ b,  OnElementsOf Domain,
 	 File StrCat[ResDir, StrCat["b",ExtGmsh]], LastTimeStepOnly,
 	 AppendTimeStepToFileName Flag_SaveAllSteps] ;
-  Print[ boundary, OnElementsOf Dummy,
+  Print[ boundary, OnElementsOf DomainPlotMovingGeo,
 	 File StrCat[ResDir, StrCat["bnd",ExtGmsh]], LastTimeStepOnly,
 	 AppendTimeStepToFileName Flag_SaveAllSteps] ;
   Print[ az, OnElementsOf Domain,
