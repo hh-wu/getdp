@@ -86,7 +86,7 @@ DefineConstant[
   Flag_ParkTransformation = 0,
   Flag_ConstantSource = 0,
   Flag_SrcType_Stator = 0,
-  Flag_SrcType_Rotor = 0, Flag_Cir_RotorCage = 0,
+  Flag_SrcType_Rotor = 0, Flag_Cir_RotorCage = 0, Flag_Cir_StatorRings=0,
   II = 0, VV = 0, wr = 0,
   Ia = II,
   Ib = II,
@@ -263,7 +263,7 @@ Function {
       IA[] = 1. ;
       IB[] = 1. ;
       IC[] = 1. ;
-      Frelax[] =1;
+      Frelax[] = 1;
     EndIf
 
     js[PhaseA] = II * NbWires[]/SurfCoil[] * IA[] * Idir[] * Vector[0, 0, 1] ;
@@ -357,7 +357,9 @@ Constraint {
       If(!Flag_Cir_RotorCage)
         { Region RotorC  ; Value 0. ; }
       EndIf
-      { Region StatorC ; Value 0. ; }
+      If(!Flag_Cir_StatorRings)
+        { Region StatorC ; Value 0. ; }
+      EndIf
     }
   }
 
@@ -508,8 +510,6 @@ Formulation {
     Equation {
       Galerkin { [ nu[{d a}] * Dof{d a}  , {d a} ] ;
         In Domain ; Jacobian Vol ; Integration I1 ; }
-      Galerkin { JacNL [ dhdb_NL[{d a}] * Dof{d a} , {d a} ] ;
-        In DomainNL ; Jacobian Vol ; Integration I1 ; }
 
       // DO NOT REMOVE!!!
       // Keeping track of Dofs in auxiliar line of MB if Symmetry==1
