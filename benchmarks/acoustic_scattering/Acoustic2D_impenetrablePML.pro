@@ -81,19 +81,29 @@ Function {
   
   If(Type_SHAPE == DOM_CIRCULAR)
     R[] = Sqrt[X[]*X[] + Y[]*Y[]];
-    cosT[] = X[]/R[] ;
-    sinT[] = Y[]/R[] ;
-    WPml = SizePMLX;
     //internal radius:
-    R0 = Xmax;
-
+    If(Xmax == Ymax)
+      WPml[] = SizePMLX;
+      R0[] = Xmax;
+      cosT[] = X[]/R[] ;
+      sinT[] = Y[]/R[] ;
+    EndIf
+    If(Xmax != Ymax)
+      //compute internal radius by hand...
+      R_internal[] = Xmax*Ymax*R[]/(Sqrt[X[]^2*Xmax^2 + Y[]^2*Ymax^2]);
+      R_external[] = (Xmax+SizePMLX)*(Ymax+SizePMLY)*R[]/(Sqrt[X[]^2*(Xmax+SizePMLX)^2 + Y[]^2*(Ymax+SizePMLY)^2]);
+      R0[] = R_internal[];
+      WPml[] = R_external[] - R_internal[];
+      cosT[] = R_internal[]/Xmax;
+      sinT[] = R_internal[]/Ymax;
+    EndIf
     If(PML_TYPE == PML_LINEAR)
-      DampingProfileR[] = (R[]-R0)/WPml*SigmaMax ;
-      DampingProfileInt[] = SigmaMax/WPml*((R[]-R0)^2/2) ;
+      DampingProfileR[] = (R[]-R0[])/WPml[]*SigmaMax ;
+      DampingProfileInt[] = SigmaMax/WPml[]*((R[]-R0[])^2/2) ;
     EndIf
     If(PML_TYPE == PML_BERMUDEZ)
-      DampingProfileR[] = 1/(WPml-(R[]-R0)) ;
-      DampingProfileInt[] = -Log[(WPml-(R[]-R0))/WPml] ;
+      DampingProfileR[] = 1/(WPml[]-(R[]-R0[])) ;
+      DampingProfileInt[] = -Log[(WPml[]-(R[]-R0[]))/WPml[]] ;
     EndIf
     cR[] = Complex[1,DampingProfileR[]/k] ;
     cStretch[] = Complex[1,(1/R[])*DampingProfileInt[]/k] ;
