@@ -17,7 +17,7 @@ mm = 1e-3;
 deg2rad = Pi/180;
 
 DefineConstant[
-  Flag_3Dmodel = {1, Choices{0="2D axisymmetric",1="3D"},
+  Flag_3Dmodel = {0, Choices{0="2D axisymmetric",1="3D"},
     Name "Input/01FE model", Highlight "Blue"},
   Flag_BC_Type = {1, Choices{0="Silver Muller", 1="PML"},
     Name "Input/20Boundary condition at infinity", Highlight "Blue"},

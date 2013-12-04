@@ -1,3 +1,6 @@
+2.4.3: new mandatory 'Name' attribute to define onelab variables in
+DefineConstant[] & co; minor bug fixes.
+
 2.4.2: fixed function arguments in nested expressions; minor improvements.
 
 2.4.1: minor improvements and bug fixes.

@@ -432,6 +432,6 @@ PostProcessing {
 
 DefineConstant[
   R_ = {"Analysis", Name "GetDP/1ResolutionChoices", Visible 0},
-  C_ = {"-solve -v 3 -v2", Name "GetDP/9ComputeCommand", Visible 0},
+  C_ = {"-solve -v2", Name "GetDP/9ComputeCommand", Visible 0},
   P_ = {"", Name "GetDP/2PostOperationChoices", Visible 0}
 ];
