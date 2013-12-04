@@ -9,6 +9,7 @@ po = "Output/";
 //   2D and 3D
 //--------------------------------------------------------------------------
 
+DefineConstant[ Flag_Model = 2, k0, Freq ];
 
 Group {
   DefineGroup[ Domain, DomAir, DomCond, DomPml, DomainTot ] ;
@@ -16,7 +17,7 @@ Group {
 }
 
 Function {
-  DefineFunction[ epsilon, sigma, nu ];
+  DefineFunction[ epsilon, sigma, nu, eInc, I ];
 }
 
 Jacobian {
