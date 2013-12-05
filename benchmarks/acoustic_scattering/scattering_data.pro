@@ -26,43 +26,37 @@ DefineConstant[
 MENU_DOM = "Truncation at Infinity/1Computational Domain/";
 DOM_SQUARE = 0;
 DOM_CIRCULAR = 1;
-If(Type_Truncation == PML)
 DefineConstant[
-  Type_SHAPE = {DOM_SQUARE, Choices{ DOM_SQUARE ="Rectangular", DOM_CIRCULAR="Circular"}, Label "Shape", Name Str[MENU_DOM, "00"], Visible (Type_Truncation == PML)}
+  Type_SHAPE_PML = {DOM_SQUARE, Choices{DOM_SQUARE ="Rectangular", DOM_CIRCULAR="Circular"}, Label "Shape", Name Str[MENU_DOM, "000"], Visible (Type_Truncation == PML)}
+  Type_SHAPE_ABC = {DOM_CIRCULAR, Choices{DOM_CIRCULAR="Ellipsoidal"}, Label "Shape", Name Str[MENU_DOM, "0001"], Visible (Type_Truncation == ABC)}
 ];
+If(Type_Truncation == PML)
+  Type_SHAPE = Type_SHAPE_PML;
 EndIf
 If(Type_Truncation == ABC)
-DefineConstant[
-  Type_SHAPE = {DOM_CIRCULAR, Choices{DOM_CIRCULAR="Ellipsoidal"}, Label "Shape", Name Str[MENU_DOM, "00"], Visible 0}
-];
+  Type_SHAPE = Type_SHAPE_ABC;
 EndIf
 
 //Size
-
-If(Type_SHAPE == DOM_SQUARE)
-  DefineConstant[
-    Xmax = {10., Min 0.1, Step 0.1, Max 10000, Name Str[MENU_DOM, "00Xmax"], Label "Semi-length in x-direction"}
-    //  XBoundmin = {-10, Min -0.1, Step -0.1, Max -10000, Name "Truncation at Infinity/0Size/1", Label "Min X value (<0)"}
-    Ymax = {10., Min 0.1, Step 0.1, Max 10000, Name Str[MENU_DOM, "00Ymax"], Label "Semi-length in y-direction"}
-    //  YBoundmin = {-10, Min -0.1, Step -0.1, Max -10000, Name "Truncation at Infinity/0Size/3", Label "Min Y value (<0)"}
-  ];
+If(Type_Truncation == ABC)
+  Axis_string_x = "Semi-axis in x-direction";
+  Axis_string_y = "Semi-axis in y-direction";
 EndIf
-If(Type_SHAPE == DOM_CIRCULAR)
-  If(Type_Truncation == ABC)
-    Axis_string = "Semi-axis in x-direction";
-  EndIf
-  If(Type_Truncation == PML)
-    Axis_string = "Radius";
-  EndIf
-  DefineConstant[
-    Xmax = {10, Min 0.1, Step 0.1, Max 10000, Name Str[MENU_DOM, "00Xmax"], Label Str[Axis_string]}
-    //  XBoundmin = {-10, Min -0.1, Step -0.1, Max -10000, Name "Truncation at Infinity/0Size/1", Label "Min X value (<0)"}
-    Ymax = {10, Min 0.1, Step 0.1, Max 10000, Name Str[MENU_DOM, "00Ymax"], Label "Semi-axis in y-direction", Visible (Type_Truncation == ABC)}
-    //  YBoundmin = {-10, Min -0.1, Step -0.1, Max -10000, Name "Truncation at Infinity/0Size/3", Label "Min Y value (<0)"}
-  ];
+If(Type_Truncation == PML && Type_SHAPE == DOM_CIRCULAR)
+  Axis_string_x = "Radius";
 EndIf
-
-If(Type_Truncation == PML)
+If(Type_Truncation == PML && Type_SHAPE == DOM_CIRCULAR)
+  Axis_string_x = "Semi-length in x-direction";
+  Axis_string_y = "Semi-length in y-direction";
+EndIf
+DefineConstant[
+  Xmax = {10., Min 0.1, Step 0.1, Max 10000, Name Str[MENU_DOM, "00Xmax"], Label "Semi-length in x-direction"}
+  //  XBoundmin = {-10, Min -0.1, Step -0.1, Max -10000, Name "Truncation at Infinity/0Size/1", Label "Min X value (<0)"}
+  Ymax = {10., Min 0.1, Step 0.1, Max 10000, Name Str[MENU_DOM, "00Ymax"], Label "Semi-length in y-direction", Visible (!(Type_Truncation == PML && Type_SHAPE == DOM_CIRCULAR))}
+  //  YBoundmin = {-10, Min -0.1, Step -0.1, Max -10000, Name "Truncation at Infinity/0Size/3", Label "Min Y value (<0)"}
+];
+//force ellipsoidal PML to be circular (to fix)
+If(Type_Truncation == PML && Type_SHAPE == DOM_CIRCULAR)
   Ymax = Xmax;
 EndIf
 
