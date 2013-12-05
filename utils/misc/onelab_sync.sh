@@ -2,7 +2,7 @@
 
 SRC=../../benchmarks
 DST=/onelab_files
-MODELS='machines relay inductor indheat magnetometer antennas'
+MODELS='machines relay inductor indheat magnetometer antennas acoustic_scattering'
 
 # sync files from local svn checkout
 for m in ${MODELS}; do
