@@ -129,7 +129,7 @@ Ind_Scat_Bound = 4;
 Ind_PML_Bound = 5;
 
 DefineConstant[
-  ComputeCommand = {"-solve -pos -bin", Name "GetDP/9"}
+  C_ = {"-solve -pos -bin", Name "GetDP/9ComputeCommand"}
 ];
 
 //chose whether the incident wave is plane of emitted by a point source (green function)
