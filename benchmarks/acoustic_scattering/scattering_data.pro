@@ -44,7 +44,7 @@ If(Type_SHAPE == DOM_SQUARE)
     Xmax = {10., Min 0.1, Step 0.1, Max 10000, Name Str[MENU_DOM, "00Xmax"], Label "Semi-length in x-direction"}
     //  XBoundmin = {-10, Min -0.1, Step -0.1, Max -10000, Name "Truncation at Infinity/0Size/1", Label "Min X value (<0)"}
     Ymax = {10., Min 0.1, Step 0.1, Max 10000, Name Str[MENU_DOM, "00Ymax"], Label "Semi-length in y-direction"}
-    //  YBoundmin = {-10, Min -0.1, Step -0.1, Max -10000, Name "Truncation at Infinity/0Size/3", Label "Min Y value (<0)"}  
+    //  YBoundmin = {-10, Min -0.1, Step -0.1, Max -10000, Name "Truncation at Infinity/0Size/3", Label "Min Y value (<0)"}
   ];
 EndIf
 If(Type_SHAPE == DOM_CIRCULAR)
@@ -58,7 +58,7 @@ If(Type_SHAPE == DOM_CIRCULAR)
     Xmax = {10, Min 0.1, Step 0.1, Max 10000, Name Str[MENU_DOM, "00Xmax"], Label Str[Axis_string]}
     //  XBoundmin = {-10, Min -0.1, Step -0.1, Max -10000, Name "Truncation at Infinity/0Size/1", Label "Min X value (<0)"}
     Ymax = {10, Min 0.1, Step 0.1, Max 10000, Name Str[MENU_DOM, "00Ymax"], Label "Semi-axis in y-direction", Visible (Type_Truncation == ABC)}
-    //  YBoundmin = {-10, Min -0.1, Step -0.1, Max -10000, Name "Truncation at Infinity/0Size/3", Label "Min Y value (<0)"}  
+    //  YBoundmin = {-10, Min -0.1, Step -0.1, Max -10000, Name "Truncation at Infinity/0Size/3", Label "Min Y value (<0)"}
   ];
 EndIf
 
@@ -96,10 +96,10 @@ PML_QUADRATIC = 1;
 PML_BERMUDEZ = 2;
 PML_BERMUDEZ_QUAD = 3;
 DefineConstant[
-  PML_TYPE_SQUARE = {PML_LINEAR,
+  PML_TYPE_SQUARE = {PML_BERMUDEZ,
     Choices{ PML_LINEAR ="Linear", PML_BERMUDEZ="Bermudez", PML_BERMUDEZ_QUAD="Bermudez Squared"},
     Label "Damping functions", Name Str[MENU_PML,"10"], Visible (Type_Truncation == PML && Type_SHAPE == DOM_SQUARE)}
-  PML_TYPE_CIRCULAR = {PML_LINEAR,
+  PML_TYPE_CIRCULAR = {PML_BERMUDEZ,
     Choices{ PML_LINEAR ="Linear", PML_BERMUDEZ="Bermudez"},
     Label "Damping functions", Name Str[MENU_PML,"11"], Visible (Type_Truncation == PML && Type_SHAPE == DOM_CIRCULAR)}
 ];
@@ -142,5 +142,5 @@ DefineConstant[
     beta_inc_aux = {1., Min -1., Max 1., Step 0.01 , Label "Angle (in Pi)", Name Str[MENU_UINC,"/Plane wave/0"], Visible (INCIDENT_WAVE == PLANEWAVE)}
     r_source = {Xmax+1., Min Xmax + 0.1, Max Xmax + 1000., Step 0.1, Label "Distance from origin", Name Str[MENU_UINC,"/Source coord/r"], Visible (INCIDENT_WAVE == POINTSOURCE)}
     theta_source = {0., Min 0., Max 2*Pi, Step 0.01 , Label "Angle (rad)", Name Str[MENU_UINC,"/Source coord/theta"], Visible (INCIDENT_WAVE == POINTSOURCE)}
-];  
-  
+];
+
