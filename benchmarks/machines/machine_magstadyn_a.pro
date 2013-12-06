@@ -35,7 +35,8 @@ Group {
     Stator_Bnd_MB, Rotor_Bnd_MBaux, Rotor_Bnd_MB,
     Surf_bn0, Surf_Inf, Point_ref,
     PhaseA, PhaseB, PhaseC, PhaseA_pos, PhaseB_pos, PhaseC_pos,
-    Resistance_Cir, Inductance_Cir, Capacitance_Cir, DomainZt_Cir, DomainSource_Cir
+    Resistance_Cir, Inductance_Cir, Capacitance_Cir, DomainZt_Cir, DomainSource_Cir,
+    Dummy
   ];
   // Exception: the group 'MovingBand_PhysicalNb' needs contain exactly one region
   // to pass a test done by the parser. It is declared with a dummy region "0".
