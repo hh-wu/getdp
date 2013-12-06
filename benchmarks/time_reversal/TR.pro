@@ -5,6 +5,7 @@ Free space
 Perfectly Matched Layer
 */
 Include "TR_data.pro";
+Include "TR_getdp_data.pro";
 
 Group{
 // Time Reversal Mirror (TRM)
