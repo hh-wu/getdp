@@ -4,10 +4,7 @@ Helmholtz equation.
 Free space
 Perfectly Matched Layer
 */
-Include "data_REALFREQUENCY.geo";
-Include "data_Artificial_Frequencies.geo";
-Include "data_geometry.geo";
-Include "data_gmsh_getdp.geo";
+Include "TR_data.pro";
 
 Group{
 // Time Reversal Mirror (TRM)

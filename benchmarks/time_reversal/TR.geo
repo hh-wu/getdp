@@ -4,11 +4,7 @@ The simulation is achieved in 2D, with a thick Time Reversal Miror (TRM).
 The domain is free of any obstacle.
 */
 
-Include "data_REALFREQUENCY.geo";
-Include "data_Artificial_Frequencies.geo";
-Include "data_geometry.geo";
-Include "data_gmsh_getdp.geo";
-Printf('=================New Test=================');
+Include "TR_data.pro";
 
 // Point source :
 PS = newp; Point(PS) = {XS,YS,ZS,lcSourceInt};

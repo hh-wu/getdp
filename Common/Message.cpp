@@ -758,9 +758,11 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
 
   if(name.empty()){
     if(copt.size() || fopt.size())
+#if defined(HAVE_GMSH)
       Msg::Error("From now on you need to use the `Name' attribute to create a "
                  "Onelab parameter: `Name \"%s\"'",
                  _getParameterName(c->Name, copt).c_str());
+#endif
     return;
   }
 
@@ -895,9 +897,11 @@ void Message::ExchangeOnelabParameter(Group *g, fmap &fopt, cmap &copt)
 
   if(name.empty()){
     if(copt.size() || fopt.size())
+#if defined(HAVE_GMSH)
       Msg::Error("From now on you need to use the `Name' attribute to create a "
                  "Onelab parameter: `Name \"%s\"'",
                  _getParameterName(g->Name, copt).c_str());
+#endif
     return;
   }
 
@@ -944,7 +948,9 @@ void Message::ExchangeOnelabParameter(Expression *e, fmap &fopt, cmap &copt)
 {
   if(!_onelabClient) return;
 
+#if defined(HAVE_GMSH)
   Msg::Error("Exchanging functions with OneLab in not implemented yet");
+#endif
 }
 
 void Message::UndefineOnelabParameter(const std::string &name)
