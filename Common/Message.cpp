@@ -504,8 +504,8 @@ void Message::PrintErrorCounter(const char *title)
 {
   if(!_errorCount || _commRank || _verbosity < 1) return;
 
-  Error("%s encountered %d error%s - check the log for details",
-        title, _errorCount, (_errorCount > 1) ? "s" : "");
+  Message::Error("%s encountered %d error%s - check the log for details",
+                 title, _errorCount, (_errorCount > 1) ? "s" : "");
 }
 
 void Message::InitializeSocket(std::string sockname)
@@ -583,7 +583,7 @@ void Message::InitializeOnelab(std::string name, std::string sockname)
     // getdp is called by a distant onelab server
     onelab::remoteNetworkClient *c = new onelab::remoteNetworkClient(name, sockname);
     if(!c->getGmshClient()){
-      Error("Could not connect to OneLab server");
+      Message::Error("Could not connect to OneLab server");
       delete c;
     }
     else{
@@ -758,11 +758,9 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
 
   if(name.empty()){
     if(copt.size() || fopt.size())
-#if defined(HAVE_GMSH)
-      Msg::Error("From now on you need to use the `Name' attribute to create a "
-                 "Onelab parameter: `Name \"%s\"'",
-                 _getParameterName(c->Name, copt).c_str());
-#endif
+      Message::Error("From now on you need to use the `Name' attribute to create a "
+                     "Onelab parameter: `Name \"%s\"'",
+                     _getParameterName(c->Name, copt).c_str());
     return;
   }
 
@@ -897,11 +895,9 @@ void Message::ExchangeOnelabParameter(Group *g, fmap &fopt, cmap &copt)
 
   if(name.empty()){
     if(copt.size() || fopt.size())
-#if defined(HAVE_GMSH)
-      Msg::Error("From now on you need to use the `Name' attribute to create a "
-                 "Onelab parameter: `Name \"%s\"'",
-                 _getParameterName(g->Name, copt).c_str());
-#endif
+      Message::Error("From now on you need to use the `Name' attribute to create a "
+                     "Onelab parameter: `Name \"%s\"'",
+                     _getParameterName(g->Name, copt).c_str());
     return;
   }
 
@@ -948,9 +944,7 @@ void Message::ExchangeOnelabParameter(Expression *e, fmap &fopt, cmap &copt)
 {
   if(!_onelabClient) return;
 
-#if defined(HAVE_GMSH)
-  Msg::Error("Exchanging functions with OneLab in not implemented yet");
-#endif
+  Message::Error("Exchanging functions with OneLab in not implemented yet");
 }
 
 void Message::UndefineOnelabParameter(const std::string &name)
