@@ -1224,6 +1224,10 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
                                      &SI, &VI, &TI,  &SY, &VY, &TY};
       PView *v = new PView(PSO_P->StoreInField);
       v->getData()->importLists(NS, LS);
+      // FIXME implement storing in new-type mesh-based fields
+
+      // Gmsh_ImportElementNodeData(PSO_P, NbTimeStep, 1, NS, LS);
+
 #else
       Message::Error("GetDP must be compiled with Gmsh support to store data as field");
 #endif

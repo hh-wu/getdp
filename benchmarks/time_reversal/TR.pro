@@ -35,8 +35,13 @@ Function {
 
   // Green2D[] = i/4*Hankel_0^{(1)}(kR[])
   Green2D[] = 0.25*Complex[-Yn[0,KR[]],Jn[0,KR[]]];
-  // Green2D[] conjugated: 
+  // Green2D[] conjugated:
   GreenConjug[] = -0.25*Complex[Yn[0,KR[]],Jn[0,KR[]]];
 }
 
 Include "TimeReversal.pro";
+
+DefineConstant[
+  C_ = {"-solve -pos -bin", Name "GetDP/9ComputeCommand"}
+];
+
