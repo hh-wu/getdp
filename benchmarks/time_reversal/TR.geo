@@ -79,6 +79,10 @@ LExtBoundL = newreg; Line(LExtBoundL) = {PExtBoundUL,PExtBoundDL};
 
 LLExtBound = newreg; Line Loop(LLExtBound) = {LExtBoundD,LExtBoundR,LExtBoundU,LExtBoundL};
 
+If(HidePML)
+  Hide{Line{LExtBoundD,LExtBoundR,LExtBoundU,LExtBoundL}; Point{PExtBoundDL, PExtBoundDR, PExtBoundUR, PExtBoundUL};}
+EndIf
+
 //==========================
 //  Creation of the surfaces
 //==========================

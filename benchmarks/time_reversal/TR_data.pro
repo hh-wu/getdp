@@ -30,9 +30,9 @@ Dz : Size in the z-direction
 MENU_TRM = "/2TRM (in lambda_geo)/";
 
 DefineConstant[
-  nL = {20., Min 1., Max 100., Step 0.1, Label "Distance to source", Name Str[Str[MENU_GEO, MENU_TRM], "0"]}
-  nDx = {0.2, Min 0.1, Max 10., Step 0.01, Label "Thickness", Name Str[Str[MENU_GEO, MENU_TRM], "1"]}
-  nDy = {15., Min 0.1, Max 100., Step 0.1, Label "Aperture", Name Str[Str[MENU_GEO, MENU_TRM], "2"]}
+  nDy = {15., Min 0.1, Max 100., Step 0.1, Label "Aperture", Name Str[Str[MENU_GEO, MENU_TRM], "1"]}
+  nDx = {0.2, Min 0.1, Max 10., Step 0.01, Label "Thickness", Name Str[Str[MENU_GEO, MENU_TRM], "2"]}
+  nL = {20., Min 1., Max 100., Step 0.1, Label "Distance to source", Name Str[Str[MENU_GEO, MENU_TRM], "3"]}
 ];
 
 L = lambda_geo*nL;
@@ -43,7 +43,7 @@ Dz = lambda_geo*0;
 MENU_SOURCE = "/1Source/";
 DefineConstant[
   //Coordinate of the source :
-  YS = {0., Min -Dy/2, Max Dy/2, Step 0.1, Label "YS", Name Str[MENU_GEO, Str[MENU_SOURCE, "0"]]}
+  YS = {0., Min -Dy/2, Max Dy/2, Step 0.1, Label "Y coordinate", Name Str[MENU_GEO, Str[MENU_SOURCE, "0"]]}
 ];
 XS = 0;
 ZS = 0;
@@ -110,7 +110,8 @@ ZF = ZS;
 // Width and Height of the absorbing layer
 MENU_PML = "/PML size (in nb. element)/";
 DefineConstant[
-  nSizePMLX = {10., Min 1., Max 30., Step 0.1, Label "x-size", Name Str[MENU_ADV, Str[MENU_PML, "0"]], Closed 1}
+  HidePML = {1, Choices{0,1}, Label "Hide PML", Name Str[MENU_ADV, Str[MENU_PML, "0"]], Closed 1}
+  nSizePMLX = {10., Min 1., Max 30., Step 0.1, Label "x-size", Name Str[MENU_ADV, Str[MENU_PML, "00"]], Closed 1}
   nSizePMLY = {10., Min 1., Max 30., Step 0.1, Label "y-size", Name Str[MENU_ADV, Str[MENU_PML, "1"]]}
 ];
 SizePMLX = nSizePMLX*lcIntern_Bound;
