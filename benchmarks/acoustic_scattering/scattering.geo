@@ -3,7 +3,7 @@
 Printf('=================New Geometry=================');
 
 Include "scattering_data.pro";
-Include "Create_Bound_N_scatDisks.geo"; // function which constructs automatically the boundary of the scatterers (=ellipses)
+Include "CreateEllipses.geo"; // function which constructs automatically the boundary of the scatterers (=ellipses)
 
 //Center point
 PF = newp; Point(PF)={0, 0, 0, lcScat};
@@ -41,13 +41,18 @@ EndFor
 // Initialization of the list of "Line Loop" (LL_scat) and of "Line" (Line_Scat)
 LL_scat[] = {};
 Line_Scat[] = {};
+S_scat[] = {};
 CentreX[] = {}; CentreY[] = {};
 RadiusX[] = {}; RadiusY[] = {};
 
 //Creation of the circular scatterers
 
 
-Call Create_Bound_N_scatDisks ;
+Call CreateEllipses;
+
+/*If(Type_PROBLEM == PENETRABLE)
+  Physical Surface(Ind_Scat) = {S_scat[]};
+EndIf*/
 
 // Fictitious Boundary
 //====================
@@ -76,9 +81,9 @@ If(Type_Truncation == ABC)
   
   // Boundaries
   Physical Line(Ind_Scat_Bound) = {Line_Scat[]};
-  Physical Line(Ind_Fictitious_Bound) = {LineABC1, LineABC2, LineABC3, LineABC4};
-  
+  Physical Line(Ind_GammaInf) = {LineABC1, LineABC2, LineABC3, LineABC4};  
 EndIf
+
 // Fictitious Boundary
 //====================
 If(Type_Truncation == PML)

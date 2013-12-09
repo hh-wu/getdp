@@ -31,7 +31,7 @@ No modification are operated on the involved variables except on LL_scat[] and L
 If(radius ==0) then obstacle is not created (for onelab)
 */
 
-Function Create_Bound_N_scatDisks
+Function CreateEllipses
 
 N_scat = 0;
 
@@ -95,11 +95,16 @@ For pCreate In {0:(N_scat_to_create-1)}
     lineloopaux = newreg;
     Line Loop(lineloopaux) = {L1aux,L2aux,L3aux,L4aux};
     
+    
     Line_Scat[] = {Line_Scat[], L1aux,L2aux,L3aux,L4aux};
     
     //Storing the indexes of the "Line Loop" in the list "LL_scat"
     LL_scat[] = {LL_scat[],lineloopaux};
-    
+    /*    If(Type_PROBLEM == PENETRABLE)
+      saux = news; Plane Surface(saux) = {lineloopaux};
+      S_scat[] = {S_scat[], saux};
+    EndIf
+    */
     //End For-Loop
   EndIf
 EndFor

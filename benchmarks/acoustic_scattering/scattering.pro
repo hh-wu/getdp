@@ -1,14 +1,22 @@
-// Time harmonic multiple (or single) acoustic scattering problem
+// Time harmonic acoustic scattering problem
 
 // data contains some usefull values (e.g. the wavenumber)
 Include "scattering_data.pro";
-
 
 // ========
 // Functions
 Function {
   I[] = Complex[0., 1.] ; // sqrt(-1)
-      
+  DefineConstant[
+    //Type of Problem
+    Type_PROBLEM = {DIRICHLET, Choices{DIRICHLET = "Dirichlet", NEUMANN = "Neumann"}, Name Str[MENU_INPUT, "/00"], Label "Type of problem"}
+    beta_inc_aux = {1., Min -1., Max 1., Step 0.01 , Label "Angle (in Pi)", Name Str[MENU_INPUT, Str[MENU_UINC,"/Plane wave/0"]], Visible (INCIDENT_WAVE == PLANEWAVE)}
+  ];
+  //chose whether the incident wave is plane of emitted by a point source (green function)
+  MENU_UINC = "Incident wave";
+  PLANEWAVE = 0;
+  POINTSOURCE = 1;
+
   // Selecting the incident wave :	
   If(INCIDENT_WAVE == PLANEWAVE)
     beta_inc = beta_inc_aux*Pi;
@@ -44,8 +52,8 @@ Function {
   EndIf
 }
 
+// functions used to compute the far field and the RCS
 Function{
-  // functions used to compute the far field and the RCS
   R_inf = 1000;
   // can use this to compute approx. RCS at finite (but large) distance
   Coef_u_inf[] = -I[]*Complex[ Cos[-Pi/4] , Sin[-Pi/4] ] / Sqrt[8*Pi*k] ;
@@ -53,11 +61,12 @@ Function{
   Coef_RCS_finite[] = 2*Pi*R_inf; 
   EikXinfDotS[] = Complex[ Cos[-k * Unit[XYZ[]] * XYZS[]] , Sin[-k * Unit[XYZ[]] * XYZS[]] ] ;
 }
-
+/*
 If(Type_Truncation == ABC)
   Include "Acoustic2D_impenetrableABC.pro";
 EndIf
 If(Type_Truncation == PML)
   Include "Acoustic2D_impenetrablePML.pro";
 EndIf
-
+*/
+Include "Acoustic2D.pro";
