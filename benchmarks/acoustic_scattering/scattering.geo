@@ -156,8 +156,10 @@ If(Type_Truncation == PML)
 EndIf
 
 //Just to plot the point source
-If(INCIDENT_WAVE == POINTSOURCE)
+If(INCIDENT_WAVE == POINTSOURCE && PLOT_POINT_SOURCE)
+  Include "scattering_data_opt.pro";
   X_source = r_source*Cos[theta_source];
   Y_source = r_source*Sin[theta_source];
   ps = newp; Point(ps) = {X_source, Y_source, 0, lc};
 EndIf
+

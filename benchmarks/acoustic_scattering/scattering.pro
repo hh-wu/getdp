@@ -2,17 +2,19 @@
 
 // data contains some usefull values (e.g. the wavenumber)
 Include "scattering_data.pro";
+Include "scattering_data_opt.pro";
 
 // ========
 // Functions
 Function {
   I[] = Complex[0., 1.] ; // sqrt(-1)
+  //chose whether the incident wave is plane of emitted by a point source (green function)
   DefineConstant[
     //Type of Problem
     Type_PROBLEM = {DIRICHLET, Choices{DIRICHLET = "Dirichlet", NEUMANN = "Neumann"}, Name Str[MENU_INPUT, "/00"], Label "Type of problem"}
+    //angle of incident plane wave
     beta_inc_aux = {1., Min -1., Max 1., Step 0.01 , Label "Angle (in Pi)", Name Str[MENU_INPUT, Str[MENU_UINC,"/Plane wave/0"]], Visible (INCIDENT_WAVE == PLANEWAVE)}
   ];
-  //chose whether the incident wave is plane of emitted by a point source (green function)
   MENU_UINC = "Incident wave";
   PLANEWAVE = 0;
   POINTSOURCE = 1;

@@ -130,8 +130,7 @@ POINTSOURCE = 1;
 
 DefineConstant[
   INCIDENT_WAVE = {PLANEWAVE, Choices{ PLANEWAVE ="Plane Wave",  POINTSOURCE="Point source"}, Label "Type", Name Str[MENU_INPUT, Str[MENU_UINC,"/0"]]}
-  r_source = {Xmax+1., Min Xmax + 0.1, Max Xmax + 1000., Step 0.1, Label "Distance from origin", Name Str[MENU_INPUT, Str[MENU_UINC,"/Source coordinate/r"]], Visible (INCIDENT_WAVE == POINTSOURCE)}
-    theta_source = {0., Min 0., Max 2*Pi, Step 0.01 , Label "Angle (rad)", Name Str[MENU_INPUT, Str[MENU_UINC,"/Source coordinate/theta"]], Visible (INCIDENT_WAVE == POINTSOURCE)}
+  PLOT_POINT_SOURCE = {0, Choices{0,1}, Label "Plot point source (remesh)", Name Str[MENU_INPUT, Str[MENU_UINC,"/1Plot"]], Visible (INCIDENT_WAVE == POINTSOURCE)}
 ];
 
 
