@@ -759,7 +759,7 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
   if(name.empty()){
     if(copt.size() || fopt.size())
       Message::Error("From now on you need to use the `Name' attribute to create a "
-                     "Onelab parameter: `Name \"%s\"'",
+                     "OneLab parameter: `Name \"%s\"'",
                      _getParameterName(c->Name, copt).c_str());
     return;
   }
@@ -896,7 +896,7 @@ void Message::ExchangeOnelabParameter(Group *g, fmap &fopt, cmap &copt)
   if(name.empty()){
     if(copt.size() || fopt.size())
       Message::Error("From now on you need to use the `Name' attribute to create a "
-                     "Onelab parameter: `Name \"%s\"'",
+                     "OneLab parameter: `Name \"%s\"'",
                      _getParameterName(g->Name, copt).c_str());
     return;
   }
