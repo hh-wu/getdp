@@ -7,7 +7,7 @@ geo2d = 0;
 geo3d = 1;
 
 L_CUB = .5; //size of the small cube
-WAVENUMBER = 4*Pi;///L_CUB;
+WAVENUMBER = 1*Pi;///L_CUB;
 k = WAVENUMBER;
 LAMBDA = 2*Pi/WAVENUMBER;
 // LC = 100;//LAMBDA/15;
@@ -21,8 +21,8 @@ Z = 3;
 THETA_INC = 0;
 
 // Which transmission condition ? (*only one* must be equal to 1)
-SILVER_MULLER = 0;
-OSRC = 1;
+SILVER_MULLER = 1;
+OSRC = 0;
 JFLee = 0;
 
 OSRC2 = 1*OSRC;

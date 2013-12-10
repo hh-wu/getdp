@@ -6,11 +6,12 @@ If(FULL_SOLUTION || EXACT_SOLUTION)
 EndIf
 
 For idom In {0:N_DOM-1}
-  Merge Sprintf("u%g.pos", idom);
+  Merge Sprintf("e_vol_%g.pos", idom);
 EndFor
 Combine ElementsFromVisibleViews;
 
-Merge "u.pos";
+View[0].Name = "e_DDM";
+Save View[0] Sprintf("e_DDM_vol.pos") ;
 
 If(geo3d)
   General.Clip0A = 0;
