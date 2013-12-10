@@ -50,10 +50,10 @@ LLTRM = newreg; Line Loop(LLTRM) = {LTRM1,LTRM2,LTRM3,LTRM4};
 //    |            |
 //   DL------------DR
 
-PIntBoundDL = newp; Point(PIntBoundDL) = {X_Omega_min, Y_Omega_min, ZF, lcIntern_Bound};
-PIntBoundDR = newp; Point(PIntBoundDR) = {X_Omega_max, Y_Omega_min, ZF, lcIntern_Bound};
-PIntBoundUR = newp; Point(PIntBoundUR) = {X_Omega_max, Y_Omega_max, ZF, lcIntern_Bound};
-PIntBoundUL = newp; Point(PIntBoundUL) = {X_Omega_min, Y_Omega_max, ZF, lcIntern_Bound};
+PIntBoundDL = newp; Point(PIntBoundDL) = {Xmin, Ymin, ZF, lcIntern_Bound};
+PIntBoundDR = newp; Point(PIntBoundDR) = {Xmax, Ymin, ZF, lcIntern_Bound};
+PIntBoundUR = newp; Point(PIntBoundUR) = {Xmax, Ymax, ZF, lcIntern_Bound};
+PIntBoundUL = newp; Point(PIntBoundUL) = {Xmin, Ymax, ZF, lcIntern_Bound};
 
 LIntBoundD = newreg; Line(LIntBoundD) = {PIntBoundDL,PIntBoundDR};
 LIntBoundR = newreg; Line(LIntBoundR) = {PIntBoundDR,PIntBoundUR};
@@ -67,10 +67,10 @@ LLIntBound = newreg; Line Loop(LLIntBound) = {LIntBoundD,LIntBoundR,LIntBoundU,L
 //Rectangle centered on (XF,YF,ZF) with sides (SizeInteriorDomainX + SizeAbsorbingDomainX) and (SizeInteriorDomainY + SizeAbsorbingDomainY)
 //In the X direction, the PML have a thickness of "SizeAbsorbingDomainX" (same for "Y direction" and "SizeAbsorbingDomainY")
 
-PExtBoundDL = newp; Point(PExtBoundDL) = {X_Omega_min - SizePMLX, Y_Omega_min - SizePMLY, ZF, lcExtern_Bound};
-PExtBoundDR = newp; Point(PExtBoundDR) = {X_Omega_max + SizePMLX, Y_Omega_min - SizePMLY, ZF, lcExtern_Bound};
-PExtBoundUR = newp; Point(PExtBoundUR) = {X_Omega_max + SizePMLX, Y_Omega_max + SizePMLY, ZF, lcExtern_Bound};
-PExtBoundUL = newp; Point(PExtBoundUL) = {X_Omega_min - SizePMLX, Y_Omega_max + SizePMLY, ZF, lcExtern_Bound};
+PExtBoundDL = newp; Point(PExtBoundDL) = {Xmin - SizePMLX, Ymin - SizePMLY, ZF, lcExtern_Bound};
+PExtBoundDR = newp; Point(PExtBoundDR) = {Xmax + SizePMLX, Ymin - SizePMLY, ZF, lcExtern_Bound};
+PExtBoundUR = newp; Point(PExtBoundUR) = {Xmax + SizePMLX, Ymax + SizePMLY, ZF, lcExtern_Bound};
+PExtBoundUL = newp; Point(PExtBoundUL) = {Xmin - SizePMLX, Ymax + SizePMLY, ZF, lcExtern_Bound};
 
 LExtBoundD = newreg; Line(LExtBoundD) = {PExtBoundDL,PExtBoundDR};
 LExtBoundR = newreg; Line(LExtBoundR) = {PExtBoundDR,PExtBoundUR};

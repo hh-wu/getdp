@@ -25,22 +25,13 @@ Propagation_Bnd = Region[{Exterior_Bnd, TRM_Bnd}];
 }
 
 // =======================================================================================
-// Functions
-Function {
-  I[] = Complex[0., 1.] ;
 
-  // Distance between a point (X,Y,Z) and the source (XS,YS,ZS):
-  R[]= Sqrt[(X[] - XS)^2 + (Y[] - YS)^2 + (Z[] - ZS)^2];
-  KR[] = k*R[];
-
-  // Green2D[] = i/4*Hankel_0^{(1)}(kR[])
-  Green2D[] = 0.25*Complex[-Yn[0,KR[]],Jn[0,KR[]]];
-  // Green2D[] conjugated:
-  GreenConjug[] = -0.25*Complex[Yn[0,KR[]],Jn[0,KR[]]];
-}
-
-Include "TimeReversal.pro";
-
+If(!MultiFreq)
+  Include "TimeReversal.pro";
+EndIf
+If(MultiFreq)
+  Include "TimeReversal_Broadband.pro";
+EndIf
 DefineConstant[
   C_ = {"-solve -pos -bin", Name "GetDP/9ComputeCommand"}
 ];

@@ -5,23 +5,10 @@ AllDomains_Bnd = Region[{Propagation_Bnd, PML_Bnd}];
 
 // Functions
 // ==========
-// Functions
-Function {
-  I[] = Complex[0., 1.] ;
-
-  // Distance between a point (X,Y,Z) and the source (XS,YS,ZS):
-  R[]= Sqrt[(X[] - XS)^2 + (Y[] - YS)^2 + (Z[] - ZS)^2];
-  KR[] = k*R[];
-
-  // Green2D[] = i/4*Hankel_0^{(1)}(kR[])
-  Green2D[] = 0.25*Complex[-Yn[0,KR[]],Jn[0,KR[]]];
-  // Green2D[] conjugated:
-  GreenConjug[] = -0.25*Complex[Yn[0,KR[]],Jn[0,KR[]]];
-}
-
 //PML function
 Function{
-  
+  k[] = #10; // registre number 10 is booked !
+
   Dist_XF_Boundary = Sqrt[(XF - Xmax)^2];
   Dist_YF_Boundary = Sqrt[(YF - Ymax)^2];
   // Distance between a point (X,Y,Z) and the centre of the domain (XF,YF,ZF)
@@ -34,10 +21,24 @@ Function{
   SigmaX[] = 0.5*(DampingProfileX[] + Fabs[DampingProfileX[]]);
   SigmaY[] = 0.5*(DampingProfileY[] + Fabs[DampingProfileY[]]);
   
-  Kx[] = Complex[1, SigmaX[]/k];
-  Ky[] = Complex[1, SigmaY[]/k];
+  Kx[] = Complex[1, SigmaX[]/k[]];
+  Ky[] = Complex[1, SigmaY[]/k[]];
   D[] = TensorDiag[Ky[]/Kx[], Kx[]/Ky[], 0.];
   S_PML[] = Kx[]*Ky[];
+  
+}
+
+Function {
+  I[] = Complex[0., 1.] ;
+
+  // Distance between a point (X,Y,Z) and the source (XS,YS,ZS):
+  R[]= Sqrt[(X[] - XS)^2 + (Y[] - YS)^2 + (Z[] - ZS)^2];
+  KR[] = k[]*R[];
+
+  // Green2D[] = i/4*Hankel_0^{(1)}(kR[])
+  Green2D[] = 0.25*Complex[-Yn[0,KR[]],Jn[0,KR[]]];
+  // Green2D[] conjugated:
+  GreenConjug[] = -0.25*Complex[Yn[0,KR[]],Jn[0,KR[]]];
 }
 
 /*====================
@@ -48,7 +49,7 @@ Jacobian {
   { Name JSur ; Case { { Region All ; Jacobian Sur ; } } }
 }
 /*======================
-Paramètres d'intégration
+ParamÃ¨tres d'intÃ©gration
 ======================*/
 Integration {
   { Name I1 ;
@@ -67,12 +68,10 @@ Integration {
   }
 }
 
-
 Constraint{
-//Dirichlet nul sur le bord extérieur du domaine (= frontière de la PML tronquée)
+//Dirichlet nul sur le bord extÃ©rieur du domaine (= frontiÃ¨re de la PML tronquÃ©e)
   {Name BoundExt; Type Assign; Case{ {Region PML_Bnd;  Value 0.; } } }
 }
-
 
 // Function Space
 // ==============
@@ -99,7 +98,7 @@ Formulation {
     Equation{
       Galerkin{[D[]*Dof{Grad Uback}, {Grad Uback}];
 	In AllDomains; Jacobian JVol; Integration I1;}
-      Galerkin{[-k^2*Kx[]*Ky[]*Dof{Uback}, {Uback}];
+      Galerkin{[-k[]^2*Kx[]*Ky[]*Dof{Uback}, {Uback}];
 	In AllDomains; Jacobian JVol; Integration I1;}
       // Source (conjugated)
       Galerkin{[-GreenConjug[], {Uback}];
@@ -116,7 +115,17 @@ Resolution{
       {Name BackProp; NameOfFormulation BackProp; Type Complex; }
     }
     Operation{
-      Generate[BackProp]; Solve[BackProp]; 
+      For ik In {0:nk-1}
+	Evaluate[(k_min+ik*stepK) #10];
+	Generate[BackProp]; Solve[BackProp]; 
+	If(ik == 0)
+	  PostOperation[InitField];
+	EndIf
+	If(ik>0)
+	  PostOperation[SaveUback];
+	  PostOperation[StackUback];
+	EndIf
+      EndFor
     }
   }
   // Empty resolution (to display functions for example).
@@ -133,13 +142,31 @@ Resolution{
 //Postprocessing
 // =============
 PostProcessing{
-  // Scatterers : only URE 
-  {Name Uback; NameOfFormulation BackProp;
+  {Name InitField; NameOfFormulation BackProp;
     Quantity {
-      {Name Uback; Value {Local { [{Uback}] ; In AllDomains; Jacobian JVol; }}}
-      {Name Uback_abs; Value {Local { [Norm[{Uback}]] ; In AllDomains; Jacobian JVol; }}}
+      {Name Uback; Value {Local { [{Uback}] ; In Propagation_Domain; Jacobian JVol; }}}
     }
   }
+
+  {Name SaveUback; NameOfFormulation BackProp;
+    Quantity {
+      {Name OldUback; Value {Local { [ComplexScalarField[XYZ[]]{0}] ; In Propagation_Domain; Jacobian JVol; }}}
+    }
+  }
+
+  {Name StackUback; NameOfFormulation BackProp;
+    Quantity {
+      {Name Uback; Value {Local { [{Uback} + ComplexScalarField[XYZ[]]{1}] ; In Propagation_Domain; Jacobian JVol; }}}
+    }
+  }
+  
+  {Name Uback; NameOfFormulation BackProp;
+    Quantity {
+      {Name Uback; Value {Local { [ComplexScalarField[XYZ[]]{0}] ; In Propagation_Domain; Jacobian JVol; }}}
+      {Name Uback_abs; Value {Local { [Norm[ComplexScalarField[XYZ[]]{0}]] ; In Propagation_Domain; Jacobian JVol; }}}
+    }
+  }
+
   // Functions (associated with Empty resolution)
   {Name Functions; NameOfFormulation BackProp;
     Quantity {
@@ -154,13 +181,31 @@ PostProcessing{
 // Post operation
 // ===============
 PostOperation{
+  {Name InitField; NameOfPostProcessing InitField ;
+    Operation {
+      Print [Uback, OnElementsOf Propagation_Domain, StoreInField 0];
+    }
+  }
+
+  {Name SaveUback; NameOfPostProcessing SaveUback ;
+    Operation {
+      Print [OldUback, OnElementsOf Propagation_Domain, StoreInField 1];
+    }
+  }
+
+  {Name StackUback; NameOfPostProcessing StackUback ;
+    Operation {
+      Print [Uback, OnElementsOf Propagation_Domain, StoreInField 0];
+    }
+  }
+
   {Name Uback; NameOfPostProcessing Uback ;
     Operation {
       Print [Uback, OnElementsOf Propagation_Domain, File "Uback.pos"];
       Print [Uback_abs, OnElementsOf Propagation_Domain, File "Uback_abs.pos"];
     }
   }
-  
+
   // Display functions.
   {Name Functions; NameOfPostProcessing Functions ;
     Operation {
@@ -168,14 +213,6 @@ PostOperation{
       Print [Green2DNorm, OnElementsOf Propagation_Domain, File "fun_Green2DNorm.pos"];
       Print [SigmaX, OnElementsOf AllDomains, File "fun_SigmaX.pos"];
       Print [SigmaY, OnElementsOf AllDomains, File "fun_SigmaY.pos"];
-    }
-  }
-  
-  // Display field in PML.
-  {Name PML; NameOfPostProcessing Uback ;
-    Operation {
-      Print [Uback, OnElementsOf PML, File "PML_Uback.pos"];
-      Print [Uback_abs, OnElementsOf PML, File "PML_Uback_abs.pos"];
     }
   }
   

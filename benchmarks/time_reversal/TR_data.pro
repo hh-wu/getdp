@@ -1,5 +1,4 @@
 MENU_WAVENUMBER = "/0Reference wavenumbers/";
-MENU_INPUT = "1Input/";
 MENU_GEO = "3Geometry";
 MENU_ADV = "9Advanced";
 
@@ -60,7 +59,7 @@ MENU_PROP = "/7Propagation domain (in lambda_geo)/";
 // Domaine d'etude
 //=========
 DefineConstant[
-  linkLS = {1, Choices {0,1},  Label "Link with distance TRM-Source", Name Str[Str[MENU_GEO, MENU_PROP], "0"]}
+  linkLS = {1, Choices {0,1},  Label "Set distances TRM-Source = Source-Xmin", Name Str[Str[MENU_GEO, MENU_PROP], "0"]}
   n_LS = {nL + nDx, Min 1., Max 30., Step 0.1, Label "Distance behind the source", Name Str[Str[MENU_GEO, MENU_PROP], "00"], ReadOnly linkLS}
   n_LTRM = {Dy/4, Min Dy/10, Max 100., Step 0.1, Label "Distance behind the TRM", Name Str[Str[MENU_GEO, MENU_PROP], "1"]}
   n_LY = {Dy/5, Min Dy/10, Max 100., Step 0.1, Label "Distance on top/bottom of the TRM", Name Str[Str[MENU_GEO, MENU_PROP], "2"]}
@@ -69,10 +68,10 @@ LbehindS = n_LS*lambda_geo;
 LbehindTRM = n_LTRM*lambda_geo;
 LUpDownTRM = n_LY*lambda_geo;
 
-X_Omega_min = XS - LbehindS;
-X_Omega_max = X_TRM_max + Dy/4;
-Y_Omega_min = Y_TRM_min - LUpDownTRM;
-Y_Omega_max = Y_TRM_max + LUpDownTRM;
+Xmin = XS - LbehindS;
+Xmax = X_TRM_max + Dy/4;
+Ymin = Y_TRM_min - LUpDownTRM;
+Ymax = Y_TRM_max + LUpDownTRM;
   
 MENU_LC = "/Step discretization in nb of points per lambda_dis/";
 DefineConstant[
@@ -96,15 +95,11 @@ lcSourceInt = lcIntern_Bound;
 
 // PML
 //====
-
-SizeInteriorDomainX = X_Omega_max - X_Omega_min;
-SizeInteriorDomainY = Y_Omega_max - Y_Omega_min;
-
-// Coordinate of the center of the domainA
-
-//XF = (XS + 1.15*L)/2;
-XF = (X_Omega_max + X_Omega_min)/2;
-YF = (Y_Omega_max + Y_Omega_min)/2;
+SizeInteriorDomainX = Xmax - Xmin;
+SizeInteriorDomainY = Ymax - Ymin;
+// Coordinate of the center of the domain (it's possibily not the source !)
+XF = (Xmax + Xmin)/2;
+YF = (Ymax + Ymin)/2;
 ZF = ZS;
 
 // Width and Height of the absorbing layer
@@ -116,7 +111,6 @@ DefineConstant[
 ];
 SizePMLX = nSizePMLX*lcIntern_Bound;
 SizePMLY = nSizePMLY*lcIntern_Bound;
-
 
 
 
