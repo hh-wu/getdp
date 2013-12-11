@@ -23,7 +23,7 @@ Function {
   Scat_Neumann = {};
   For j In {0:N_scat_to_create}
     DefineConstant[
-      BCond~{j} = {(Type_PROBLEM == MIXED?DIRICHLET:Type_PROBLEM), Choices{DIRICHLET = "Dirichlet", NEUMANN = "Neumann"}, Name Str[MENU_OBST, Sprintf("/Obst. %g/0cond", j+1)], Label "Boundary condition", Visible (j < N_scat_to_create && Type_PROBLEM == MIXED)}
+      BCond~{j} = {(Type_PROBLEM == MIXED?DIRICHLET:Type_PROBLEM), Choices{DIRICHLET = "Dirichlet", NEUMANN = "Neumann"}, Name Str[MENU_OBST, Sprintf("/Obst. %g/0cond", j+1)], Label "Boundary condition", Visible (j < N_scat_to_create), ReadOnly (Type_PROBLEM != MIXED)}
     ];
     If(BCond~{j} == DIRICHLET)
       Scat_Dirichlet += 100 + j;
