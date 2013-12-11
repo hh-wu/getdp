@@ -32,8 +32,9 @@ dn_uinc_S[] = NormalSource[] * I[] * k * Vect_inc[] * uinc_S[];
 // GROUPS
 // =======
 Group{
-  // boundary of the scatterers
-  GammaScat = Region[{Ind_Scat_Bound}];
+  GammaD = Region[Scat_Dirichlet];
+  GammaN = Region[Scat_Neumann];
+  GammaScat = Region[{GammaD, GammaN}];
   //propagation domain
   Omega = Region[{Ind_Propagation_Domain}];
   //PML (if ABC, otherwise empty)
@@ -136,7 +137,7 @@ Constraint{
   {Name PMLCondition; Type Assign; Case{ {Region SigmaPML;  Value 0.; } } }
   //Dirichlet boundary condition on Gama, boundary of the scatterers.
   // function f[] should be defined in the main .pro file
-  {Name SoundSoftCondition; Type Assign; Case{ {Region GammaScat;   Value -uinc[]; } } }
+  {Name SoundSoftCondition; Type Assign; Case{ {Region GammaD;   Value -uinc[]; } } }
 }
 
 
@@ -179,11 +180,9 @@ FunctionSpace{
 	Support Region[{OmegaTotal, GammaScat, SigmaPML, GammaInf}]; Entity NodesOf[All];}
     }
     Constraint{
-      If(Type_PROBLEM == DIRICHLET)
-	//Dirichlet boundary condition (sound-soft)
-	{NameOfCoef ui; EntityType NodesOf;
-	  NameOfConstraint SoundSoftCondition;}
-      EndIf
+      //Dirichlet boundary condition (sound-soft)
+      {NameOfCoef ui; EntityType NodesOf;
+	NameOfConstraint SoundSoftCondition;}
       If(Type_Truncation == PML)
 	//PML Constraint
 	{NameOfCoef ui; EntityType NodesOf;
@@ -209,17 +208,17 @@ Formulation {
     Quantity{
       {Name u ; Type Local; NameOfSpace H_grad;}
       // let us define also the normal derivative trace of u ("dn_u") and the far field ("u_inf").
-      If(Type_PROBLEM == DIRICHLET)
       { Name dn_u; Type Local ; NameOfSpace L2_Gamma; }
+      //      If(Type_PROBLEM == DIRICHLET)
 	{ Name u_inf; Type Integral ;
 	  [ Coef_u_inf[] * ({dn_u} + I[] * k * (-uinc_S[]) * Unit[XYZ[]] * NormalSource[]) * EikXinfDotS[] ] ; 
-	  In GammaScat; Integration I1; Jacobian JSur; }
-      EndIf
-      If(Type_PROBLEM == NEUMANN)
+	  In GammaD; Integration I1; Jacobian JSur; }
+	//EndIf
+	//If(Type_PROBLEM == NEUMANN)
 	{ Name u_inf; Type Integral ;
 	  [ Coef_u_inf[] *  ((-dn_uinc_S[]) + I[] * k * {u} * Unit[XYZ[]] * NormalSource[]) *EikXinfDotS[] ] ; 
-	  In GammaScat; Integration I1; Jacobian JSur; }
-      EndIf
+	  In GammaN; Integration I1; Jacobian JSur; }
+	//EndIf
     }
     Equation{
       //Helmholt equation
@@ -227,12 +226,11 @@ Formulation {
 	In Omega; Jacobian JVol; Integration I1;}
       Galerkin{[-k^2*Dof{u}, {u}];
 	In Omega; Jacobian JVol; Integration I1;}
-      If(Type_PROBLEM == NEUMANN)
-	//Neumann boundary condition
-	Galerkin{[-dn_uinc[], {u}];
-	  In GammaScat; Jacobian JSur; Integration I1;}
-      EndIf
-      
+
+      //Neumann boundary condition
+      Galerkin{[-dn_uinc[], {u}];
+	In GammaN; Jacobian JSur; Integration I1;}
+	
       If(Type_Truncation == PML)
 	//Modified Helmholtz ins the PML
 	Galerkin{[D[]* Dof{Grad u}, {Grad u}];
@@ -258,12 +256,10 @@ Formulation {
 
       // Compute the normal derivative trace of u on Gamma.
       // Used to build the far field, for instance.
-      If(Type_PROBLEM == DIRICHLET)
-	Galerkin { [ Dof{dn_u} , {dn_u} ] ;  
-	  In GammaScat; Jacobian JSur ; Integration I1 ; }
-	Galerkin { [ - Normal[] * Trace[ Dof{d u} , TrGr ] , {dn_u} ] ;  
-	  In GammaScat; Jacobian JSur ; Integration I1 ; }
-      EndIf
+      Galerkin { [ Dof{dn_u} , {dn_u} ] ;  
+	In GammaD; Jacobian JSur ; Integration I1 ; }
+      Galerkin { [ - Normal[] * Trace[ Dof{d u} , TrGr ] , {dn_u} ] ;  
+	In GammaD; Jacobian JSur ; Integration I1 ; }
     }
   }  
 }//End Formulation
@@ -296,8 +292,8 @@ PostProcessing{
       //first and second trace on gamma
       { Name ugama ; Value { Local { [ {u} ] ; In GammaScat; Jacobian JSur ; } } }
       If(Type_PROBLEM == DIRICHLET)
-	{Name dn_u ; Value { Local { [ {dn_u} ] ; In GammaScat; Jacobian JSur ; } } }
-	{Name dn_uAbs ; Value { Local { [ Norm[{dn_u}] ] ; In GammaScat; Jacobian JSur ; } } }
+	{Name dn_u ; Value { Local { [ {dn_u} ] ; In GammaD; Jacobian JSur ; } } }
+	{Name dn_uAbs ; Value { Local { [ Norm[{dn_u}] ] ; In GammaD; Jacobian JSur ; } } }
       EndIf
       //far field and rcs
       { Name far_field; Value { Local { [ {u_inf} ] ; In GammaScat; Jacobian JSur ; } } }

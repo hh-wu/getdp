@@ -1,7 +1,10 @@
-//data for the single - or multiple - scattering
-DIRICHLET = 0;
-NEUMANN = 1;
-PENETRABLE = 2;
+
+//Number of obstacles (wanted by the user)
+NMAX = 100;
+MENU_OBST = "Obstacles";
+DefineConstant[
+  N_scat_to_create = {1, Min 1, Max NMAX, Step 1, Label "Nb. of wanted obstacles", Name Str[MENU_OBST,"/0"]}
+];
 
 //Frequency
 MENU_INPUT = "Input";
@@ -112,15 +115,6 @@ DefineConstant[
 ];
 SigmaXmax = SigmaMax;
 SigmaYmax = SigmaMax;
-//Quadratic
-// To Do...
-
-//Bermudez
-// To do ?
-
-DefineConstant[
-  C_ = {"-solve -pos -bin", Name "GetDP/9ComputeCommand"}
-];
 
 //chose whether the incident wave is plane of emitted by a point source (green function)
 //should be optimized (avoiding remesh ...)
@@ -130,9 +124,15 @@ POINTSOURCE = 1;
 
 DefineConstant[
   INCIDENT_WAVE = {PLANEWAVE, Choices{ PLANEWAVE ="Plane Wave",  POINTSOURCE="Point source"}, Label "Type", Name Str[MENU_INPUT, Str[MENU_UINC,"/0"]]}
-  PLOT_POINT_SOURCE = {0, Choices{0,1}, Label "Plot point source (remesh)", Name Str[MENU_INPUT, Str[MENU_UINC,"/1Plot"]], Visible (INCIDENT_WAVE == POINTSOURCE)}
+  PLOT_POINT_SOURCE = {0, Choices{0,1}, Label "Plot point source (remesh at every change)", Name Str[MENU_INPUT, Str[MENU_UINC,"/1Plot"]], Visible (INCIDENT_WAVE == POINTSOURCE)}
 ];
 
+//GetDP parameters (hiddent)
+DefineConstant[
+  C_ = {"-solve -v 2 -pos -bin", Name "GetDP/9ComputeCommand", Visible 0}
+  R_ = {"Scattering", Name "GetDP/1ResolutionChoices", Visible 0},
+  P_ = {"Wave", Name "GetDP/2PostOperationChoices", Visible 0}
+];
 
 // indexes of physical entities
 // surface :

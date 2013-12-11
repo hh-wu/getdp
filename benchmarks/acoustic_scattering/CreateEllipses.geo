@@ -32,9 +32,7 @@ If(radius ==0) then obstacle is not created (for onelab)
 */
 
 Function CreateEllipses
-
-N_scat = 0;
-
+ 
 //For each Obstacle
 For pCreate In {0:(N_scat_to_create-1)}
   ItsOK = 1;
@@ -61,6 +59,7 @@ For pCreate In {0:(N_scat_to_create-1)}
       Error("Obstacle number %g cannot be placed ! (intersection with other ellipse)", pCreate);
     EndIf
   EndIf
+  _ItsOK~{pCreate} = ItsOK;
   
   If(ItsOK)  
     //update variables

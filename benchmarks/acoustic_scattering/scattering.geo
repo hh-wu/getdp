@@ -19,18 +19,12 @@ PF = newp; Point(PF)={0, 0, 0, lcScat};
 CentreX_pre[] = {}; CentreY_pre[] = {};
 RadiusX_pre[] = {}; RadiusY_pre[] = {};
 
-NMAX=100;
-MENU_OBST = "Obstacles";
-DefineConstant[
-  N_scat_to_create = {1, Min 1, Max NMAX, Step 1, Label "Nb. of obstacles", Name Str[MENU_OBST,"/0"]}
-];
-
 For ns In {0:NMAX-1}
   DefineConstant[
-    rx~{ns}={1., Min 0.1, Max Xmax, Step 0.1, Label "X-radius", Name Str[MENU_OBST, Sprintf("/Obst. %g/2", ns+1)], Visible (ns < N_scat_to_create)}
-    ry~{ns}={1., Min 0.1, Max Ymax, Step 0.1, Label "Y-radius", Name Str[MENU_OBST, Sprintf("/Obst. %g/3", ns+1)], Visible (ns < N_scat_to_create)}
-    x~{ns}={0., Min -10000, Max 10000, Step 0.1, Label "X-coord", Name Str[MENU_OBST, Sprintf("/Obst. %g/0", ns+1)], Visible (ns < N_scat_to_create)}
-    y~{ns}={0., Min -10000, Max 10000, Step 0.1, Label "Y-coord", Name Str[MENU_OBST, Sprintf("/Obst. %g/1", ns+1)], Visible (ns < N_scat_to_create)}
+    x~{ns}={0., Min -10000, Max 10000, Step 0.1, Label "X-coord", Name Str[MENU_OBST, Sprintf("/Obst. %g/1x", ns+1)], Visible (ns < N_scat_to_create)}
+    y~{ns}={0., Min -10000, Max 10000, Step 0.1, Label "Y-coord", Name Str[MENU_OBST, Sprintf("/Obst. %g/1y", ns+1)], Visible (ns < N_scat_to_create)}
+    rx~{ns}={1., Min 0.1, Max Xmax, Step 0.1, Label "X-radius", Name Str[MENU_OBST, Sprintf("/Obst. %g/2rx", ns+1)], Visible (ns < N_scat_to_create)}
+    ry~{ns}={1., Min 0.1, Max Ymax, Step 0.1, Label "Y-radius", Name Str[MENU_OBST, Sprintf("/Obst. %g/2ry", ns+1)], Visible (ns < N_scat_to_create)}
   ];
   CentreX_pre[] += x~{ns};
   CentreY_pre[] += y~{ns};
@@ -46,9 +40,17 @@ CentreX[] = {}; CentreY[] = {};
 RadiusX[] = {}; RadiusY[] = {};
 
 //Creation of the circular scatterers
-
-
+N_scat = 0;
 Call CreateEllipses;
+DefineConstant[
+  N_scat2 = {N_scat, Name Str[MENU_OBST,"/0Nscat"], Label "Nb. of placed obstacles", ReadOnly 1 }
+];
+For pCreate In {0:(N_scat_to_create-1)}
+  //plot result for user
+  DefineConstant[
+    _NotFit~{pCreate} = {1, Choices{0, 1}, Name Str[MENU_OBST, Sprintf("/Obst. %g/00OK", pCreate+1)], Label "Cannot be placed", Visible (pCreate < N_scat_to_create && !(_ItsOK~{pCreate})), ReadOnly 1, Highlight "Red"}
+  ];
+EndFor
 
 /*If(Type_PROBLEM == PENETRABLE)
   Physical Surface(Ind_Scat) = {S_scat[]};
@@ -74,13 +76,6 @@ If(Type_Truncation == ABC)
   
   SurfPropagation_Domain = news; Plane Surface(SurfPropagation_Domain) = {LL_scat[],LLABC};
   
-  //  Physical entities
-  //===================
-  
-  Physical Surface(Ind_Propagation_Domain) = {SurfPropagation_Domain};
-  
-  // Boundaries
-  Physical Line(Ind_Scat_Bound) = {Line_Scat[]};
   Physical Line(Ind_GammaInf) = {LineABC1, LineABC2, LineABC3, LineABC4};  
 EndIf
 
@@ -146,14 +141,19 @@ If(Type_Truncation == PML)
   SurfPropagation_Domain = news; Plane Surface(SurfPropagation_Domain) = {LL_scat[],LL_int};
   SurfPML = news; Plane Surface(SurfPML) = {LL_int,LL_ext};
   
-  //  Physical entities
-  //===================
-  Physical Surface(Ind_Propagation_Domain) = {SurfPropagation_Domain};
   Physical Surface(Ind_PML) = {SurfPML};
   
-  // Boundaries
-  Physical Line(Ind_Scat_Bound) = {Line_Scat[]};
 EndIf
+
+//  Physical entities
+//===================
+Physical Surface(Ind_Propagation_Domain) = {SurfPropagation_Domain};  
+// Boundaries
+//Physical Line(Ind_Scat_Bound) = {Line_Scat[]};
+
+For j In {0:N_scat-1}
+  Physical Line(100+j) = {Line_Scat[4*j], Line_Scat[4*j+1], Line_Scat[4*j+2], Line_Scat[4*j+3]};
+EndFor
 
 //Just to plot the point source
 If(INCIDENT_WAVE == POINTSOURCE && PLOT_POINT_SOURCE)

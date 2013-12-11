@@ -2,24 +2,48 @@
 
 // data contains some usefull values (e.g. the wavenumber)
 Include "scattering_data.pro";
-Include "scattering_data_opt.pro";
 
 // ========
 // Functions
 Function {
   I[] = Complex[0., 1.] ; // sqrt(-1)
-  //chose whether the incident wave is plane of emitted by a point source (green function)
+
+  //data for the single - or multiple - scattering
+  DIRICHLET = 0;
+  NEUMANN = 1;
+  PENETRABLE = 2;
+  MIXED = 3;
   DefineConstant[
+    N_scat = {0, Name Str[MENU_OBST,"/0Nscat"]}
     //Type of Problem
-    Type_PROBLEM = {DIRICHLET, Choices{DIRICHLET = "Dirichlet", NEUMANN = "Neumann"}, Name Str[MENU_INPUT, "/00"], Label "Type of problem"}
-    //angle of incident plane wave
-    beta_inc_aux = {1., Min -1., Max 1., Step 0.01 , Label "Angle (in Pi)", Name Str[MENU_INPUT, Str[MENU_UINC,"/Plane wave/0"]], Visible (INCIDENT_WAVE == PLANEWAVE)}
+    Type_PROBLEM = {DIRICHLET, Choices{DIRICHLET = "Dirichlet", NEUMANN = "Neumann", MIXED = "Mixed Dirichlet/Neumann"}, Name Str[MENU_INPUT, "/00TypeProblem"], Label "Type of problem"}
   ];
-  MENU_UINC = "Incident wave";
+  //If mixed condition
+  Scat_Dirichlet = {};
+  Scat_Neumann = {};
+  For j In {0:N_scat_to_create}
+    DefineConstant[
+      BCond~{j} = {(Type_PROBLEM == MIXED?DIRICHLET:Type_PROBLEM), Choices{DIRICHLET = "Dirichlet", NEUMANN = "Neumann"}, Name Str[MENU_OBST, Sprintf("/Obst. %g/0cond", j+1)], Label "Boundary condition", Visible (j < N_scat_to_create && Type_PROBLEM == MIXED)}
+    ];
+    If(BCond~{j} == DIRICHLET)
+      Scat_Dirichlet += 100 + j;
+    EndIf
+    If(BCond~{j} == NEUMANN)
+      Scat_Neumann += 100 + j;
+    EndIf
+  EndFor
+
+  
+  // Selecting the incident wave :	
   PLANEWAVE = 0;
   POINTSOURCE = 1;
-
-  // Selecting the incident wave :	
+  //angle of incident plane wave
+  DefineConstant[
+    beta_inc_aux = {1., Min -1., Max 1., Step 0.01 , Label "Angle (in Pi)", Name Str[MENU_INPUT, Str[MENU_UINC,"/Plane wave/0"]], Visible (INCIDENT_WAVE == PLANEWAVE)}
+    r_source = {Xmax+1., Min Xmax + 0.1, Max Xmax + 1000., Step 0.1, Label "Distance from origin", Name Str[MENU_INPUT, Str[MENU_UINC,"/Source coordinate/r"]], Visible (INCIDENT_WAVE == POINTSOURCE)}
+    theta_source = {0., Min 0., Max 2*Pi, Step 0.01 , Label "Angle (rad)", Name Str[MENU_INPUT, Str[MENU_UINC,"/Source coordinate/theta"]], Visible (INCIDENT_WAVE == POINTSOURCE)}
+  ];
+  
   If(INCIDENT_WAVE == PLANEWAVE)
     beta_inc = beta_inc_aux*Pi;
     beta_vect[] = Vector[Cos[beta_inc], Sin[beta_inc],0];
