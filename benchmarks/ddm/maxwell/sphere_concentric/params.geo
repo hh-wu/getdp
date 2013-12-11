@@ -16,7 +16,6 @@ Z = 3;
 OSRC = 1;
 SILVER_MULLER = 0;
 JFLee =  0;
-OSRC2 = 0;
 
 // Compute the full solution (to check error, ...)
 FULL_SOLUTION = 0;

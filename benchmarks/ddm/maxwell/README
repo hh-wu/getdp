@@ -35,9 +35,7 @@ imposed. TODO: rule for mesh names !!
 Different transmission conditions are available in the DDM
 formulation. One of them must be selected among Silver-Müller (SM),
 OSRC or JFLEE by setting the corresponding flag in the configuration
-file to 1 and all others to 0. Two version of the OSRC operators are
-availbale in the Maxwell code; to use the second version, select the
-OSRC2 flag *and* the OSRC flag. Each of them has parameters; default
+file to 1 and all others to 0. Each of them has parameters; default
 values are specified in the file 'tcDefaults.pro' that can be included
 at the beginning of the problem file for simplicity.
 

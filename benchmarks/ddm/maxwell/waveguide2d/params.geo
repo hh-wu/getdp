@@ -14,8 +14,6 @@ OSRC = 0 ;
 SILVER_MULLER = 1 ;
 JFLee =  0 ;
 
-OSRC2 = 1;
-
 //Compute Full solution (one-domain) ? Exact/analytic solution ?
 FULL_SOLUTION = 0;
 EXACT_SOLUTION = 0; // NO EXACT SOLUTION FOR SUBMARINE

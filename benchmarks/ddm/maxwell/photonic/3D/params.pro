@@ -22,7 +22,6 @@ THETA_INC = Pi/4;
 OSRC = 0;
 SILVER_MULLER = 1;
 JFLee =  0;
-OSRC2 = 0;
 
 
 // Constant DDM parameters (other parameters are located in the .pro file)

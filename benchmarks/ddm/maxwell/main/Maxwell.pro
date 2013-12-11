@@ -238,9 +238,5 @@ PostOperation {
   }
 }
 
-If(OSRC2)
-  Include "DDM_sweep_OSRC2.pro";
-EndIf
-If(!OSRC2)
-  Include "DDM_sweep.pro";
-EndIf
+
+Include "DDM_sweep.pro";

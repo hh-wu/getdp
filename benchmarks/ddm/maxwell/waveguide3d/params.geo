@@ -27,8 +27,6 @@ SILVER_MULLER = 0 ;
 OSRC = 1 ;
 JFLee = 0 ;
 
-OSRC2 = 1*OSRC;
-
 // Compute the full solution (to check error, ...)
 FULL_SOLUTION = 0;
 EXACT_SOLUTION = 0;

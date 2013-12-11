@@ -25,7 +25,6 @@ SILVER_MULLER = 1;
 OSRC = 0;
 JFLee = 0;
 
-OSRC2 = 1*OSRC;
 
 BETA_EMDA = k;//1.5708;
 
