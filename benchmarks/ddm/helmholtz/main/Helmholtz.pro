@@ -8,7 +8,7 @@ Jacobian {
 
 Integration {
   { Name I1 ;
-    Case { { Type Gauss ; Case { 
+    Case { { Type Gauss ; Case {
           { GeoElement Point ; NumberOfPoints  1 ; }
           { GeoElement Line ; NumberOfPoints  2 ; }
           { GeoElement Triangle ; NumberOfPoints  6 ; }
@@ -68,14 +68,14 @@ FunctionSpace {
 Formulation {
 //FULL
   { Name Full ; Type FemEquation ;
-    Quantity { 
+    Quantity {
       { Name u ; Type Local ; NameOfSpace Hgrad_u; }
     }
     Equation {
-      Galerkin { [ Dof{Grad u} , {Grad u} ] ;  
+      Galerkin { [ Dof{Grad u} , {Grad u} ] ;
 	In Omega; Jacobian JVol ; Integration I1 ; }
-      Galerkin { [ -k[]^2 * Dof{u} , {u} ] ;  
-	In Omega; Jacobian JVol ; Integration I1 ; }      
+      Galerkin { [ -k[]^2 * Dof{u} , {u} ] ;
+	In Omega; Jacobian JVol ; Integration I1 ; }
       // Bayliss-Turkel
       Galerkin { [ - I[] * k[] * Dof{u} , {u} ] ;
 	In GammaInf; Jacobian JSur ; Integration I1 ; }
@@ -84,7 +84,7 @@ Formulation {
       If(DIM > 1)
 	// FIXME: this assumes that GammaInf is closed; we need to add the
 	// boundary terms if it is open!
-	Galerkin { [ betaBT[] * Dof{d u} , {d u} ] ;  
+	Galerkin { [ betaBT[] * Dof{d u} , {d u} ] ;
 	  In GammaInf; Jacobian JSur ; Integration I1 ; }
       EndIf
     }
@@ -92,17 +92,17 @@ Formulation {
 
 // FULL + MIXED
   { Name Mixed_2D ; Type FemEquation ;
-    Quantity { 
+    Quantity {
       { Name u ; Type Local ; NameOfSpace L2_u_2D; }
       { Name v ; Type Local ; NameOfSpace Hdiv_v_2D; }
       { Name q ; Type Local ; NameOfSpace Hdiv_q_2D; }
     }
     Equation {
-      Galerkin { [ Dof{d v} , {u} ] ;  
+      Galerkin { [ Dof{d v} , {u} ] ;
 	In Omega; Jacobian JVol ; Integration I1 ; }
-      Galerkin { [ I[] * k[] * Dof{u} , {u} ] ;  
+      Galerkin { [ I[] * k[] * Dof{u} , {u} ] ;
 	In Omega; Jacobian JVol ; Integration I1 ; }
-      
+
       Galerkin { [ - Dof{u} , {d v} ] ;
 	In Omega; Jacobian JVol ; Integration I1 ; }
       Galerkin { [ I[] * k[] * Dof{v} , {v} ] ;
@@ -117,7 +117,7 @@ Formulation {
       // Bayliss-Turkel
       Galerkin { [ (I[]*k[])/(-I[]*k + alphaBT[])*Dof{v} , {v} ] ;
 	In GammaInf; Jacobian JSur ; Integration I1 ; }
-      Galerkin { [ -(I[]*k[]*betaBT[]/(-I[]*k[] + alphaBT[]))*Normal[]*Dof{d v} , {v} ] ;  
+      Galerkin { [ -(I[]*k[]*betaBT[]/(-I[]*k[] + alphaBT[]))*Normal[]*Dof{d v} , {v} ] ;
 	In GammaInf; Jacobian JSur ; Integration I1 ; }
 
       /*
@@ -140,8 +140,8 @@ Formulation {
 Resolution {
   {Name Full;
     System { { Name Helmholtz ; NameOfFormulation Full ; Type Complex; } }
-    Operation { 
-      Generate[Helmholtz] ; 
+    Operation {
+      Generate[Helmholtz] ;
       Solve[Helmholtz] ;
       PostOperation[Full] ;
     }
@@ -151,7 +151,7 @@ Resolution {
     System {
       { Name A ; NameOfFormulation Mixed_2D ; Type Complex; }
     }
-    Operation { 
+    Operation {
       Generate[A] ;
       Solve[A] ;
       PostOperation[u_Mixed_2D];
@@ -211,4 +211,4 @@ PostOperation {
 
 //Standard DDM
 Include "DDM_sweep.pro";
-Include "DDM_sweep_reuse.pro"
+//Include "DDM_sweep_reuse.pro"

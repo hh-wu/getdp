@@ -3,8 +3,8 @@ Include "param.geo";
 PRECOND_SWEEP = 0;
 N_DOM = NUM_SLICES;
 
-geo2d = 0;
-geo3d = 1;
+geo2d = 1;
+geo3d = 0;
 
 L_CUB = .5; //size of the small cube
 WAVENUMBER = 4*Pi;///L_CUB;
@@ -50,7 +50,7 @@ EXACT_SOLUTION = 0; // NO EXACT SOLUTION FOR SUBMARINE
 
 //STORE/WRITE the initial u (0th iteration)
 STORE_U_INIT = 1; // if stored (in ram) then the "real" scattered field is computed at the end in u*.pos files
-WRITE_U_INIT = 0; // if written (on disk), then u_init*.pos files are created 
+WRITE_U_INIT = 0; // if written (on disk), then u_init*.pos files are created
 
 //One different mesh file per subdomain ?
 NON_CONFORM = 0;
