@@ -11,23 +11,22 @@ If(N_DOM < 1)
   Exit;
 EndIf
 
-lcRatio = 3.; // ratio between lc's of the outer and inner spheres
-lc = LC/lcRatio; // LC is for the outer sphere ; lc is for the inner sphere
-
 Point(1) = {0,0,0,LC}; // center of the spheres
+
+myLc = LC;
 
 //average volume
 vol_tot = 4/3*Pi*(R_EXT^3 - R_INT^3);
 vol = vol_tot/N_DOM;
+
 //Radius of sphere
 R[0] = R_INT;
 
 For cpt In {0:N_DOM}
   // r = (cpt+1)*R_INT; // constant subdomain radius -- problem size will depend on N_DOM
-  // myLc = (LC-lc)/N_DOM*(cpt)+lc;
 
   r = R[cpt]; // constant subdomain volume
-  myLc = (LC-lc)*(R[cpt]-R_INT)/(R_EXT-R_INT)+lc; // use linear growth of the caracteristic length
+
   R += (3./4./Pi*vol+R[cpt]^3.)^(1./3.); // compute next radius -- will be used at next step
 
   //scatterer (intern sphere)
@@ -73,7 +72,7 @@ For cpt In {0:N_DOM}
   surf_ulb[cpt] = news; Ruled Surface(surf_ulb[cpt]) = {ll_ulb};
   surf_dlb[cpt] = news; Ruled Surface(surf_dlb[cpt]) = {ll_dlb};
 
-  surf_loop[cpt] = newsl; Surface Loop(surf_loop[cpt]) = {surf_drf[cpt], surf_urf[cpt], surf_ulf[cpt], 
+  surf_loop[cpt] = newsl; Surface Loop(surf_loop[cpt]) = {surf_drf[cpt], surf_urf[cpt], surf_ulf[cpt],
 							 surf_dlf[cpt], surf_drb[cpt], surf_urb[cpt], surf_ulb[cpt], surf_dlb[cpt]};
 
   If (cpt > 0)

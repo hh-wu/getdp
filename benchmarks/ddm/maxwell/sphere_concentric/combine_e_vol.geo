@@ -8,4 +8,5 @@ Combine ElementsFromVisibleViews;
 View[0].Name = "e_vol_ddm";
 
 // View[0].Visible = 0;
-Merge "e_lag_vol.pos";
+//Merge "e_lag_vol.pos";
+Save View[0] "e_vol_ddm.pos";
