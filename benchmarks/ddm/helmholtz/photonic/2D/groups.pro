@@ -6,11 +6,11 @@ MshName=StrCat[Dir,Problemm];
 Group{
 //FULL
   Sigma = Region[ {} ];
-  
+
   Omega = Region[ 17 ];
   GammaD = Region[ {16}  ];
   GammaInf = Region[ {13}];
-  
+
   BndGammaInf = Region[{}];
   BndSigma = Region[{}];
 
@@ -25,7 +25,7 @@ Group{
     BndSigma~{idom}~{0} = Region[{}];
     BndSigma~{idom}~{1} = Region[{}];
 
-    
+
     If(idom == 0)
       Sigma~{idom}~{0} = Region[{}];
       Sigma~{idom}~{1} = Region[{141}];

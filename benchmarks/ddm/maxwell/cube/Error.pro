@@ -7,9 +7,9 @@ Jacobian {
 
 Integration {
   { Name I1 ;
-    Case { 
+    Case {
       { Type Gauss ;
-        Case { 
+        Case {
           { GeoElement Point ; NumberOfPoints  1 ; }
           { GeoElement Line ; NumberOfPoints  4 ; }
           { GeoElement Triangle ; NumberOfPoints 12 ; }
@@ -26,19 +26,19 @@ Integration {
 FunctionSpace {
   { Name Herror; Type Form1;
     BasisFunction {
-      { Name se; NameOfCoef ee; Function BF_Edge; 
-	Support Region[{Omega}] ; Entity EdgesOf[All]; }
+      { Name se; NameOfCoef ee; Function BF_Edge;
+        Support Region[{Omega}] ; Entity EdgesOf[All]; }
     }
   }
 }
 Formulation {
   { Name error;
-    Quantity { 
+    Quantity {
       { Name e; Type Local; NameOfSpace Herror; }
     }
     Equation {
-      Galerkin { [ Dof{e} , {e} ]; 
-	In Omega; Integration I1; Jacobian JVol;  }
+      Galerkin { [ Dof{e} , {e} ];
+        In Omega; Integration I1; Jacobian JVol;  }
     }
   }
 }
@@ -49,7 +49,7 @@ Resolution {
       { Name A ; NameOfFormulation error ; Type Complex; }
     }
     Operation {
-      Generate[A];     
+      Generate[A];
       GmshRead[Sprintf[PosRef]];
       GmshRead[Sprintf[PosCheck]];
       PostOperation[Error];

@@ -63,4 +63,3 @@ SOLVER = "gmres";
 TOL = 1e-05;
 MAXIT = 1000;
 RESTART = MAXIT;
-

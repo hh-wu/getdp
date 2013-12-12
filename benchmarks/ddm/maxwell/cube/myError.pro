@@ -2,7 +2,7 @@ PosRef="e_lag_vol.pos";
 PosCheck="e_DDM_vol.pos";
 
 Group{
-  Sigma = Region[ {} ]; 
+  Sigma = Region[ {} ];
   Omega = Region[{6}];
   GammaD = Region[(1)];
   GammaInf = Region[(2)];

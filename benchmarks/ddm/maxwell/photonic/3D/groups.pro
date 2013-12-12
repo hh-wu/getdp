@@ -26,8 +26,8 @@ Group{
     GammaN~{idom} = Region[{}];
     BndGammaInf~{idom} = Region[{}];
     BndSigma~{idom}~{0} = Region[{}];
-    BndSigma~{idom}~{1} = Region[{}];   
-    
+    BndSigma~{idom}~{1} = Region[{}];
+
     If(idom == 0)
       Sigma~{idom}~{0} = Region[{}];
       Sigma~{idom}~{1} = Region[{141}];

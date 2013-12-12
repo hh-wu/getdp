@@ -10,7 +10,7 @@ Function {
   k = WAVENUMBER;
   kDtn[] = k[] ;
   kInf[] = k[] ;
-  
+
   V_SOURCE[] = 0.;
 
   eps0 = 8.854e-12;
@@ -24,7 +24,7 @@ Function {
   // EMDA
    beta[] = -I[] * k + BETA_EMDA;
 
-  
+
   // OO2
   //TAKEN FROM CIRCLE_PIE !!
   xsimin = 0;
@@ -49,11 +49,11 @@ Function {
 
   theta = THETA_INC;
   alpha[] = -Vector[Cos[theta], Sin[theta], 0];
-  
+
   uinc[] = Complex[ Cos[k*alpha[]*XYZ[]], Sin[k*alpha[]*XYZ[]] ];
   //uinc[] = 1;
   //uinc[] = -Complex[ Sin[Pi*MODE/d*Y[]] , 0. ] ; // minus sign (u=-uinc)
-  
+
   BETA_M[] = k[] ;// Sqrt[k^2 - (MODE*Pi/d)^2] ;
 
   // EXACT
@@ -102,10 +102,10 @@ Function{
       ListOfNeighborField += list_voisin{};
       ListOfNeighborField += nb_voisin;
     EndIf
-    
+
     // reuse factorisation of the same meshes
     If (idom == 0 || idom == 1 || idom == N_DOM-1)
-      ListOfFacto += idom ;        
+      ListOfFacto += idom ;
     EndIf
     If(idom > 1 && idom < N_DOM-1)
       ListOfFacto += 1 ;
