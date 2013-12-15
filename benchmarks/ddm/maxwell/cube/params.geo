@@ -21,8 +21,8 @@ Z = 3;
 THETA_INC = 0;
 
 // Which transmission condition ? (*only one* must be equal to 1)
-SILVER_MULLER = 0;
-OSRC = 1;
+SILVER_MULLER = 1;
+OSRC = 0;
 JFLee = 0;
 
 
@@ -61,6 +61,6 @@ GEOM2D = 3;
 // Iterative Solver parameters
 LinSystType = "I-A";
 SOLVER = "gmres";
-TOL = 1e-6;
+TOL = 1e-4;
 MAXIT = 100;
 RESTART = MAXIT;

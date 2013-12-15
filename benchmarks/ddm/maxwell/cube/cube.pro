@@ -165,37 +165,3 @@ Function{
 
 Include "../main/Maxwell.pro";
 
-Resolution {
-  { Name error ;
-    System {
-      { Name A ; NameOfFormulation Maxwell_Lagrange ; Type Complex; }
-    }
-    Operation {
-      GmshRead["e_DDM.pos"];
-      GmshRead["e_lag_vol.pos"];
-      PostOperation[myerror];
-    }
-  }
-}
-
-PostProcessing {
-  {Name error ; NameOfFormulation Maxwell_Lagrange ;
-    Quantity{
-      { Name error ; Value {
-          Integral { [ Norm[Field[XYZ[]]{0} - Field[XYZ[]]{1}] / #1 ] ;
-            In Omega; Jacobian JVol ; Integration I1; } } }
-      { Name errorDenom ; Value {
-          Integral { [ Norm[Field[XYZ[]]{0}] ] ;
-            In Omega; Jacobian JVol ; Integration I1; } } }
-    }
-  }
-}
-
-PostOperation {
-  { Name myerror ; NameOfPostProcessing error;
-    Operation {
-      Print[ errorDenom[Omega], OnGlobal, Store 1 ] ;
-      Print[ error[Omega], OnGlobal ] ;
-    }
-  }
-}
