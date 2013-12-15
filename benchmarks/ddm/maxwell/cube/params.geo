@@ -21,8 +21,8 @@ Z = 3;
 THETA_INC = 0;
 
 // Which transmission condition ? (*only one* must be equal to 1)
-SILVER_MULLER = 1;
-OSRC = 0;
+SILVER_MULLER = 0;
+OSRC = 1;
 JFLee = 0;
 
 
@@ -48,7 +48,7 @@ EXACT_SOLUTION = 0; // NO EXACT SOLUTION FOR SUBMARINE
 
 //STORE/WRITE the initial u (0th iteration)
 STORE_U_INIT = 1; // if stored (in ram) then the "real" scattered field is computed at the end in u*.pos files
-WRITE_U_INIT = 0; // if written (on disk), then u_init*.pos files are created 
+WRITE_U_INIT = 0; // if written (on disk), then u_init*.pos files are created
 
 //One different mesh file per subdomain ?
 NON_CONFORM = 0;
@@ -61,6 +61,6 @@ GEOM2D = 3;
 // Iterative Solver parameters
 LinSystType = "I-A";
 SOLVER = "gmres";
-TOL = 1e-4;
+TOL = 1e-6;
 MAXIT = 100;
 RESTART = MAXIT;

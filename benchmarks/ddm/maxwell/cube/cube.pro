@@ -25,7 +25,7 @@ Function {
   // uinc[] = Complex[ Cos[-k*(X[]-.17)], Sin[-k*(X[]-.17)] ]; // Mohamed's
   // einc[] = Vector[1,0,0] * Complex[ Cos[-k*Z[]], -Sin[-k*Z[]] ]; // Alex's
   hinc[] = 1/Z0 * Vector[0,1,0] * Complex[ Cos[-k*Z[]], Sin[-k*Z[]] ];
-  
+
   // Parameters for EMDA (Silver-Muller)
   k_SM[] = k[]*(1);
   // k_SM[] = k[]*(1+.25*I[]);
@@ -59,7 +59,7 @@ Function {
   betaBT[] = 0;
 
   theta = Pi/8;
-  alpha[] = -Vector[Cos[theta], 0, Sin[theta]]; 
+  alpha[] = -Vector[Cos[theta], 0, Sin[theta]];
 
   N = NP_OSRC;
 
@@ -164,3 +164,38 @@ Function{
 }
 
 Include "../main/Maxwell.pro";
+
+Resolution {
+  { Name error ;
+    System {
+      { Name A ; NameOfFormulation Maxwell_Lagrange ; Type Complex; }
+    }
+    Operation {
+      GmshRead["e_DDM.pos"];
+      GmshRead["e_lag_vol.pos"];
+      PostOperation[myerror];
+    }
+  }
+}
+
+PostProcessing {
+  {Name error ; NameOfFormulation Maxwell_Lagrange ;
+    Quantity{
+      { Name error ; Value {
+          Integral { [ Norm[Field[XYZ[]]{0} - Field[XYZ[]]{1}] / #1 ] ;
+            In Omega; Jacobian JVol ; Integration I1; } } }
+      { Name errorDenom ; Value {
+          Integral { [ Norm[Field[XYZ[]]{0}] ] ;
+            In Omega; Jacobian JVol ; Integration I1; } } }
+    }
+  }
+}
+
+PostOperation {
+  { Name myerror ; NameOfPostProcessing error;
+    Operation {
+      Print[ errorDenom[Omega], OnGlobal, Store 1 ] ;
+      Print[ error[Omega], OnGlobal ] ;
+    }
+  }
+}

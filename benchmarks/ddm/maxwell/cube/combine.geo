@@ -13,6 +13,7 @@ Combine ElementsFromVisibleViews;
 View[0].Name = "e_DDM";
 Save View[0] Sprintf("e_DDM_vol.pos") ;
 
+/*
 If(geo3d)
   General.Clip0A = 0;
   General.Clip0B = 0;
@@ -30,3 +31,4 @@ If(geo3d)
   General.RotationX = 45;
   General.RotationZ = -15;
 EndIf
+*/
