@@ -3,12 +3,12 @@ Lagrange Multiplyers
 
 some params:
   - FULL_SOLUTION: 1=>compute full solution + error, 0: don't
-  
+
   - MSH_SPLIT: If == 1 then use of one different mesh per subdomain, allowing also non conform mesh. A root name of the mesh must be provided through variable MeshName, which is the relative path to the root-name.
 Example : for mesh named circle_pie0.msh, circle_pie1.msh, ... in the directory of relative path ../circle_pie, the variable MeshName must be
   - MeshName = "../circle_pie/circle_pie"
 
-Remarks: 
+Remarks:
 - Register,  #10 #11 #12 are reserved !
 - if FULL_SOLUTION && MSH_SPLIT then FULL_SOLUTION is set to 0 (impossible to compute a full solution without the whole mesh)
 */
@@ -44,15 +44,15 @@ FunctionSpace {
         { NameOfCoef ee; EntityType EdgesOf ; NameOfConstraint Dirichlet_e_homog; }
       }
     }
-    
+
     { Name Hcurl_h~{idom}; Type Form1;
-      BasisFunction { { Name sh; NameOfCoef he; Function BF_Edge; 
+      BasisFunction { { Name sh; NameOfCoef he; Function BF_Edge;
 	  Support Region[{Omega~{idom},GammaScat~{idom},GammaInf~{idom}, Sigma~{idom}}] ; Entity EdgesOf[All]; } }
       Constraint { { NameOfCoef he; EntityType EdgesOf ; NameOfConstraint Dirichlet_h~{idom}; } }
     }
-    
+
     { Name Hcurl_lambda~{idom}; Type Form1;
-      BasisFunction { { Name se; NameOfCoef ee; Function BF_Edge; 
+      BasisFunction { { Name se; NameOfCoef ee; Function BF_Edge;
 	  Support Region[{GammaScat~{idom}}] ; Entity EdgesOf[All]; } }
       Constraint {
         { NameOfCoef ee; EntityType EdgesOf ; NameOfConstraint Dirichlet_e_homog; }
@@ -61,24 +61,24 @@ FunctionSpace {
 
     For iSide In {0:1}
     { Name Hcurl_g_out~{idom}~{iSide}; Type Form1;
-      BasisFunction { { Name se; NameOfCoef ee; Function BF_Edge; 
+      BasisFunction { { Name se; NameOfCoef ee; Function BF_Edge;
 	  Support Region[{Sigma~{idom}~{iSide}}] ; Entity EdgesOf[Sigma~{idom}~{iSide}, Not {GammaScat~{idom}, GammaC, GammaInf/*, GammaSym~{idom}/**/}]; } } //!!!
     }
     EndFor
-    
+
     If(OSRC)
       For iSide In {0:1}
         { Name Hcurl_r~{idom}~{iSide}; Type Form1;
-          BasisFunction { { Name ser1; NameOfCoef eer1; Function BF_Edge; 
+          BasisFunction { { Name ser1; NameOfCoef eer1; Function BF_Edge;
 	      Support Region[{Sigma~{idom}~{iSide}}] ; Entity EdgesOf[Sigma~{idom}~{iSide}/*, Not {GammaScat~{idom}, GammaC, GammaInf/*, GammaSym~{idom}}*/]; } }
-        } 
+        }
         For j In {1:NP_OSRC}
 	  { Name Hgrad_rho~{j}~{idom}~{iSide} ; Type Form0 ;
-	    BasisFunction { { Name srh1; NameOfCoef erh1; Function BF_Node; 
+	    BasisFunction { { Name srh1; NameOfCoef erh1; Function BF_Node;
 	        Support Region[{Sigma~{idom}~{iSide}}] ; Entity NodesOf[Sigma~{idom}~{iSide}, Not {GammaScat~{idom}, GammaC/*, GammaInf, GammaSym~{idom}/**/}]; } }
 	  }
 	  { Name Hcurl_phi~{j}~{idom}~{iSide}; Type Form1;
-	    BasisFunction { { Name sph1; NameOfCoef eph1; Function BF_Edge; 
+	    BasisFunction { { Name sph1; NameOfCoef eph1; Function BF_Edge;
 		Support Region[{Sigma~{idom}~{iSide}}] ; Entity EdgesOf[Sigma~{idom}~{iSide}, Not {GammaScat~{idom}, GammaC, GammaInf/*, GammaSym~{idom}/**/}]; } }
 	  }
         EndFor
@@ -88,25 +88,25 @@ FunctionSpace {
     If(JFLee)
       For iSide In {0:1}
 	{ Name Hgrad_rho~{idom}~{iSide} ; Type Form0 ;
-	  BasisFunction { { Name srh1; NameOfCoef erh1; Function BF_Node; 
+	  BasisFunction { { Name srh1; NameOfCoef erh1; Function BF_Node;
 	      Support Region[{Sigma~{idom}~{iSide}}] ; Entity NodesOf[Sigma~{idom}~{iSide}, Not {GammaScat~{idom}, GammaC/*, GammaInf, GammaSym~{idom}/**/}]; } }
 	}
 	{ Name Hcurl_phi~{idom}~{iSide}; Type Form1;
-	  BasisFunction { { Name sph1; NameOfCoef eph1; Function BF_Edge; 
+	  BasisFunction { { Name sph1; NameOfCoef eph1; Function BF_Edge;
 	      Support Region[{Sigma~{idom}~{iSide}}] ; Entity EdgesOf[Sigma~{idom}~{iSide}, Not {GammaScat~{idom}, GammaC/*, GammaInf, GammaSym~{idom}/**/}]; } }
 	}
       EndFor
     EndIf
 
-  EndFor    
+  EndFor
 }
 
 Formulation {
-  //DDM with Lagrange Multipliers  
+  //DDM with Lagrange Multipliers
   For ii In {0: #ListOfDom()-1}
     idom = ListOfDom(ii);
-    { Name DDM_Maxwell~{idom}; Type FemEquation; 
-      Quantity { 
+    { Name DDM_Maxwell~{idom}; Type FemEquation;
+      Quantity {
 	{ Name e~{idom}; Type Local; NameOfSpace Hcurl_e~{idom}; }
 	{ Name h~{idom}; Type Local; NameOfSpace Hcurl_h~{idom}; }
 	{ Name lambda~{idom}; Type Local; NameOfSpace Hcurl_lambda~{idom}; }
@@ -127,13 +127,13 @@ Formulation {
 	EndIf
       }
       Equation {
-	Galerkin { [ Dof{d e~{idom}} , {d e~{idom}} ]; 
+	Galerkin { [ Dof{d e~{idom}} , {d e~{idom}} ];
 	  In Omega~{idom}; Integration I1; Jacobian JVol; }
-	Galerkin { [ -k^2 * Dof{e~{idom}} , {e~{idom}} ]; 
+        Galerkin { [ -k[]^2 * Dof{e~{idom}} , {e~{idom}} ];
 	  In Omega~{idom}; Integration I1; Jacobian JVol; }
 	Galerkin { [ I[] * kInf[] * (N[]) /\ ( N[] /\ Dof{e~{idom}} ) , {e~{idom}} ];
 	  In GammaInf~{idom}; Integration I1; Jacobian JSur; }
-	
+
 	//boundary condition
 	Galerkin { [ Dof{lambda~{idom}} , {e~{idom}} ] ;
 	  In GammaScat~{idom}; Jacobian JSur ; Integration I1 ; }
@@ -143,7 +143,7 @@ Formulation {
 	  In GammaScat~{idom}; Jacobian JSur ; Integration I1 ; }
 	Galerkin { [ (#10 > 0. ? einc[]: Vector[0,0,0]), {lambda~{idom}} ] ; // FIXME: sign of einc ?? -> use - for waveguide, + for scattering ?
 	  In GammaScat~{idom}; Jacobian JSur ; Integration I1 ; }
-	
+
 	//transmission condition
 	If(SILVER_MULLER)
 	  Galerkin { [ (#11 > 0. ? g_in~{idom}~{0}[] : Vector[0,0,0]) , {e~{idom}} ];
@@ -151,7 +151,7 @@ Formulation {
 	Galerkin { [ (#12 > 0. ? g_in~{idom}~{1}[] : Vector[0,0,0]) , {e~{idom}} ];
 	    In Sigma~{idom}~{1}; Integration I1; Jacobian JSur; }
 	  Galerkin { [ I[] * kDtN[] * N[] /\ ( N[] /\ Dof{e~{idom}} ), {e~{idom}} ];
-	    In Sigma~{idom}; Integration I1; Jacobian JSur; } 
+	    In Sigma~{idom}; Integration I1; Jacobian JSur; }
 	EndIf
 
 	If(OSRC)
@@ -164,7 +164,7 @@ Formulation {
 	    In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
 	  Galerkin { [ (Dof{e~{idom}}), {r~{idom}~{iSide}} ];
 	    In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
-	  Galerkin { [ al[]*Dof{d e~{idom}} , {d r~{idom}~{iSide}} ]; 
+	  Galerkin { [ al[]*Dof{d e~{idom}} , {d r~{idom}~{iSide}} ];
 	    In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
 	  Galerkin { [(I[] / k[])*OSRC_C0[]{NP_OSRC,theta_branch}*Dof{r~{idom}~{iSide}} , {r~{idom}~{iSide}} ] ;
 	    In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
@@ -181,9 +181,9 @@ Formulation {
 		In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
 	      Galerkin { [ -  Dof{r~{idom}~{iSide}} , {phi~{j}~{idom}~{iSide}} ] ;
 		In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
-	      Galerkin { [ Dof{rho~{j}~{idom}~{iSide}} , {rho~{j}~{idom}~{iSide}} ]; 
+	      Galerkin { [ Dof{rho~{j}~{idom}~{iSide}} , {rho~{j}~{idom}~{iSide}} ];
 		In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
-	      Galerkin { [ Dof{phi~{j}~{idom}~{iSide}} , {d rho~{j}~{idom}~{iSide}} ]; 
+	      Galerkin { [ Dof{phi~{j}~{idom}~{iSide}} , {d rho~{j}~{idom}~{iSide}} ];
 		In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
 	    EndFor
 	  EndFor
@@ -196,33 +196,33 @@ Formulation {
 	  For iSide In {0:1}
 	    Galerkin { [ -I[]*k[]*Dof{phi~{idom}~{iSide}} , {e~{idom}} ] ;
 	      In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
-      
+
 	    Galerkin { [ -Coef_Lee2[]*Dof{d rho~{idom}~{iSide}} , {phi~{idom}~{iSide}} ] ;
 	      In Sigma~{idom}~{iSide}; Integration I1; Jacobian  JSur; }
-	    Galerkin { [(k^2)*Dof{phi~{idom}~{iSide}} , {phi~{idom}~{iSide}} ] ;
+            Galerkin { [(k[]^2)*Dof{phi~{idom}~{iSide}} , {phi~{idom}~{iSide}} ] ;
 	      In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
-	    Galerkin { [-(k^2)*Dof{e~{idom}} , {phi~{idom}~{iSide}} ] ;
+            Galerkin { [-(k[]^2)*Dof{e~{idom}} , {phi~{idom}~{iSide}} ] ;
 	      In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
 	    Galerkin { [ Coef_Lee1[]*Dof{d e~{idom}} , {d phi~{idom}~{iSide}} ] ;
 	      In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
-    
-	    Galerkin { [ Dof{rho~{idom}~{iSide}} , {rho~{idom}~{iSide}} ]; 
+
+	    Galerkin { [ Dof{rho~{idom}~{iSide}} , {rho~{idom}~{iSide}} ];
 	      In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
-	    Galerkin { [ Dof{phi~{idom}~{iSide}} , {d rho~{idom}~{iSide}} ]; 
+	    Galerkin { [ Dof{phi~{idom}~{iSide}} , {d rho~{idom}~{iSide}} ];
 	      In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
 	  EndFor
         EndIf
 
 	// store magnetic field
-	Galerkin { [ Dof{h~{idom}} , {h~{idom}} ] ;  
+	Galerkin { [ Dof{h~{idom}} , {h~{idom}} ] ;
 	  In TrGr~{idom}; Jacobian JVol ; Integration I1 ; }
-	Galerkin { [ 1/(I[]*omega[]*mu[]) * Dof{d e~{idom}}, {h~{idom}} ] ; 
+	Galerkin { [ 1/(I[]*omega[]*mu[]) * Dof{d e~{idom}}, {h~{idom}} ] ;
 	  In TrGr~{idom}; Jacobian JVol ; Integration I1 ; }
       }
     }
 
     For iSide In{0:1}
-      { Name ComputeIterationData~{idom}~{iSide}; Type FemEquation; 
+      { Name ComputeIterationData~{idom}~{iSide}; Type FemEquation;
         Quantity {
   	  { Name g_out~{idom}~{iSide}; Type Local;  NameOfSpace Hcurl_g_out~{idom}~{iSide}; }
 	  If(SILVER_MULLER)
@@ -248,7 +248,7 @@ Formulation {
   	    Galerkin { [ (#10 > 0. ? Vector[0,0,0] : g_in~{idom}~{iSide}[]) , {g_out~{idom}~{iSide}} ];
 	      In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
 	    Galerkin { [ 2*I[] * kDtN[] * N[] /\ ( N[] /\ {e~{idom}} ) , {g_out~{idom}~{iSide}} ];
-	      In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; } 
+	      In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
 	  EndIf
 
 	  If(OSRC)
@@ -301,19 +301,19 @@ Formulation {
 	    Galerkin{[ -ComplexVectorField[XYZ[]]{2*idom+iSide-1}, {g_out~{idom}~{iSide}}] ;
 	      In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
     	    Galerkin { [ 2*I[] * kDtN[] * N[] /\ ( N[] /\ {e~{idom}} ) , {g_out~{idom}~{iSide}} ];
-    	      In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; } 
+    	      In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
 	  EndIf
     	  If(OSRC)
-	    Galerkin{[ ComplexVectorField[XYZ[]]{2*idom+iSide-1}, {g_out~{idom}~{iSide}}] ;
+	    Galerkin{[ -ComplexVectorField[XYZ[]]{2*idom+iSide-1}, {g_out~{idom}~{iSide}}] ;
 	      In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
-    	    Galerkin { [(2 * I[] / k)*OSRC_C0[]{NP_OSRC,theta_branch}*{r~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ] ;
+            Galerkin { [(2 * I[] / k[])*OSRC_C0[]{NP_OSRC,theta_branch}*{r~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ] ;
     	      In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
     	    For j In{1:NP_OSRC}
-    	      Galerkin { [ (2 * I[] / k )*OSRC_Aj[]{j,NP_OSRC,theta_branch}*al[]*{d phi~{j}~{idom}~{iSide}} , {d g_out~{idom}~{iSide}} ] ;
+              Galerkin { [ (2 * I[] / k[] )*OSRC_Aj[]{j,NP_OSRC,theta_branch}*al[]*{d phi~{j}~{idom}~{iSide}} , {d g_out~{idom}~{iSide}} ] ;
     	        In Sigma~{idom}~{iSide}; Jacobian JSur; Integration I1; }
-    	      Galerkin { [ (2 * I[] / k)*OSRC_Aj[]{j,NP_OSRC,theta_branch}*be[]*{d rho~{j}~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ] ;
+              Galerkin { [ (2 * I[] / k[])*OSRC_Aj[]{j,NP_OSRC,theta_branch}*be[]*{d rho~{j}~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ] ;
     	        In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
-    	    EndFor 
+    	    EndFor
     	  EndIf
 	  If(JFLee)
 	    Galerkin { [ -ComplexVectorField[XYZ[]]{2*idom+iSide-1} , {g_out~{idom}~{iSide}} ];
@@ -348,7 +348,7 @@ Resolution {
 
       //FULL
       If(FULL_SOLUTION)
-	Generate[Lag] ; Solve[Lag] ; 
+	Generate[Lag] ; Solve[Lag] ;
 	PostOperation[Maxwell_Lagrange];
       EndIf
 
@@ -477,7 +477,7 @@ Resolution {
       	      If(jj==MPI_Rank && idom%MPI_Size == MPI_Rank)//(idom%MPI_Size == MPI_Rank)
       	        //Compute u on Omega_i (fast way)
       	        GenerateRHSGroup[Maxw~{idom}, Sigma~{idom}] ;
-      	        SolveAgain[Maxw~{idom}] ; 
+      	        SolveAgain[Maxw~{idom}] ;
       	        //Compute the new g_out (fast way)
       	        GenerateRHSGroup[ComputeGPrecond~{idom}~{1}, Sigma~{idom}~{1}] ;
       	        SolveAgain[ComputeGPrecond~{idom}~{1}] ;
@@ -513,7 +513,7 @@ Resolution {
       Evaluate[1. #10];
       Evaluate[1. #11]; Evaluate[1. #12];
       // Evaluate[0. #11]; Evaluate[0. #12];
-      SetCommSelf;	
+      SetCommSelf;
       For ii In {0: #ListOfDom()-1}
       	idom = ListOfDom(ii);
       	// If(MPI_Rank == idom%MPI_Size)
@@ -540,7 +540,7 @@ PostProcessing {
 	{ Name n~{idom} ; Value { Local { [ N[] ] ; In Region[{GammaScat~{idom}, GammaInf~{idom}, GammaC, Sigma~{idom}}]; Jacobian JSur ; } } }
       }
     }
-    
+
     { Name DDM_Maxwell~{idom} ; NameOfFormulation DDM_Maxwell~{idom} ;
       Quantity {
 	// { Name e~{idom} ; Value { Local { [ {e~{idom}} ] ; In GammaScat~{idom}; Jacobian JSur ; } } }
@@ -557,7 +557,7 @@ PostProcessing {
         Quantity {
 	  { Name g_out~{idom}~{iSide} ; Value { Local { [ {g_out~{idom}~{iSide}} ] ; In Sigma~{idom}~{iSide}; Jacobian JSur ; } } }
       }
-    }			
+    }
     EndFor
     For iSide In{0:1}
       { Name g_out_pc~{idom}~{iSide} ; NameOfFormulation ComputeIterationDataPrecond~{idom}~{iSide} ;
@@ -572,7 +572,7 @@ PostProcessing {
 PostOperation {
   For ii In {0: #ListOfDom()-1}
     idom = ListOfDom(ii);
-    { Name DDM_INIT~{idom} ; NameOfPostProcessing DDM_Maxwell_INIT~{idom}; 
+    { Name DDM_INIT~{idom} ; NameOfPostProcessing DDM_Maxwell_INIT~{idom};
       Operation{
 	// Print[ e~{idom}, OnElementsOf GammaScat~{idom}, File Sprintf("e_init_%g.pos",idom)] ;
 	// Print[ h~{idom}, OnElementsOf GammaScat~{idom}, File Sprintf("h_init_%g.pos",idom)] ;
@@ -585,7 +585,7 @@ PostOperation {
       }
     }
 
-    { Name DDM~{idom} ; NameOfPostProcessing DDM_Maxwell~{idom}; 
+    { Name DDM~{idom} ; NameOfPostProcessing DDM_Maxwell~{idom};
       Operation{
 	Print[ e_vol~{idom}, OnElementsOf Omega~{idom}, File Sprintf("e_vol_%g.pos",idom)] ;
 	Print[ e_vol_tot~{idom}, OnElementsOf Omega~{idom}, File Sprintf("e_vol_tot%g.pos",idom)] ;
@@ -619,5 +619,5 @@ PostOperation {
       }
     }
     EndFor
-  EndFor  
+  EndFor
 }
