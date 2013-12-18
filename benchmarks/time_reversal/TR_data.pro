@@ -69,7 +69,7 @@ LbehindTRM = n_LTRM*lambda_geo;
 LUpDownTRM = n_LY*lambda_geo;
 
 Xmin = XS - LbehindS;
-Xmax = X_TRM_max + Dy/4;
+Xmax = X_TRM_max + LbehindTRM;
 Ymin = Y_TRM_min - LUpDownTRM;
 Ymax = Y_TRM_max + LUpDownTRM;
   
