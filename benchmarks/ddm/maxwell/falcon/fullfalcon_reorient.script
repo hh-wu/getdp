@@ -1,0 +1,24 @@
+Include "params.geo";
+
+If(TWO_PLANES)
+  Printf("Oups REORIENT NOT READY for 2 planes");
+  Exit;
+EndIf
+
+Merge "SurfaceMeshUniform.msh";
+
+Delete Physicals;
+
+all[] = {1000:1028};
+revert[] = {1028, 1021, 1022, 1023, 1024, 1027, 1012, 1011, 1007, 1010,
+          1020, 1006, 1019, 1016, 1017, 1004, 1018};
+all[] -= {revert[]};
+
+Physical Surface(1) = all[];
+Physical Surface(2) = -revert[];
+
+Save "SurfaceMeshUniform.msh";
+
+Delete All;
+Merge "SurfaceMeshUniform.msh";
+Save "SurfaceMeshUniform.stl";
