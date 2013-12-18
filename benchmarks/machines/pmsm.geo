@@ -90,7 +90,3 @@ If(Flag_AddInfo)
   Include "info_view.geo";
 
 EndIf
-
-
-
-

@@ -5,7 +5,7 @@
 Include "pmsm_data.geo";
 
 DefineConstant[
-  Flag_AnalysisType = {1,  Choices{0="Static",  1="Time domain"},
+  Flag_AnalysisType = {0,  Choices{0="Static",  1="Time domain"},
     Name "Input/19Type of analysis", Highlight "Blue",
     Help Str["- Use 'Static' to compute static fields created in the machine",
       "- Use 'Time domain' to compute the dynamic response of the machine"]} ,
@@ -114,6 +114,15 @@ Function {
   // STATOR_IND_AM comprises all the slots in that phase, we need thus to divide by the number of slots
   nbSlots[] = Ceil[nbInds/NbrPhases/2] ;
   SurfCoil[] = SurfaceArea[]{STATOR_IND_AM}/nbSlots[] ;//All inductors have the same surface
+  //--------------------------------------------------  
+/*
+  Surface_PM[] = SurfaceArea[]{ROTOR_MAGNET};
+
+  DefineConstant[ SurfPM = {Surface_PM[ROTOR_MAGNET], ReadOnly 1,
+                          Path "Output/2", Highlight "LightYellow" } ];		
+*/ 
+  //--------------------------------------------------
+
 
   FillFactor_Winding = 0.5 ; // percentage of Cu in the surface coil side, smaller than 1
   Factor_R_3DEffects = 1.5 ; // bigger than Adding 50% of resistance
@@ -158,7 +167,8 @@ Function {
   RotorPosition[] = InitialRotorAngle + $Time * wr ;
   RotorPosition_deg[] = RotorPosition[]*180/Pi;
 
-  Flag_ParkTransformation = 1 ;
+//+++
+  Flag_ParkTransformation = 1*0 ;
   Theta_Park[] = ((RotorPosition[] + Pi/8) - Pi/6) * NbrPolePairs; // electrical degrees
   Theta_Park_deg[] = Theta_Park[]*180/Pi;
 

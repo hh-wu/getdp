@@ -85,7 +85,6 @@ lineMBrotor[]=cirR[{nn}];
 For k In {1:NbrPolesTot-1}
   lineMBrotoraux[]+=Rotate {{0, 0, 1}, {0, 0, 0}, k*A0} { Duplicata{Line{lineMBrotor[]};} };
 EndFor
-
 // -------------------------------------------------------------------------------
 // -------------------------------------------------------------------------------
 If(SymmetryFactor<8)
