@@ -21,10 +21,14 @@ Function {
   //If mixed condition
   Scat_Dirichlet = {};
   Scat_Neumann = {};
-  For j In {0:N_scat_to_create}
+  //until NMAX to hide some menu if the number of obstacles decrease
+  For j In {0:NMAX-1}
     DefineConstant[
       BCond~{j} = {(Type_PROBLEM == MIXED?DIRICHLET:Type_PROBLEM), Choices{DIRICHLET = "Dirichlet", NEUMANN = "Neumann"}, Name Str[MENU_OBST, Sprintf("/Obst. %g/0cond", j+1)], Label "Boundary condition", Visible (j < N_scat_to_create), ReadOnly (Type_PROBLEM != MIXED)}
     ];
+  EndFor
+  //Now we can set the right boundaries
+  For j In {0:N_scat-1}
     If(BCond~{j} == DIRICHLET)
       Scat_Dirichlet += 100 + j;
     EndIf
@@ -40,7 +44,7 @@ Function {
   //angle of incident plane wave
   DefineConstant[
     beta_inc_aux = {1., Min -1., Max 1., Step 0.01 , Label "Angle (in Pi)", Name Str[MENU_INPUT, Str[MENU_UINC,"/Plane wave/0"]], Visible (INCIDENT_WAVE == PLANEWAVE)}
-    r_source = {Xmax+1., Min Xmax + 0.1, Max Xmax + 1000., Step 0.1, Label "Distance from origin", Name Str[MENU_INPUT, Str[MENU_UINC,"/Source coordinate/r"]], Visible (INCIDENT_WAVE == POINTSOURCE)}
+    r_source = {Xmax, Min 0., Max Xmax + 1000., Step 0.1, Label "Distance from origin", Name Str[MENU_INPUT, Str[MENU_UINC,"/Source coordinate/r"]], Visible (INCIDENT_WAVE == POINTSOURCE)}
     theta_source = {0., Min 0., Max 2*Pi, Step 0.01 , Label "Angle (rad)", Name Str[MENU_INPUT, Str[MENU_UINC,"/Source coordinate/theta"]], Visible (INCIDENT_WAVE == POINTSOURCE)}
   ];
   

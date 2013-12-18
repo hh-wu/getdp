@@ -20,6 +20,8 @@ CentreX_pre[] = {}; CentreY_pre[] = {};
 RadiusX_pre[] = {}; RadiusY_pre[] = {};
 
 For ns In {0:NMAX-1}
+  //init this constant
+  _ItsOK~{ns} = 1;
   DefineConstant[
     x~{ns}={0., Min -10000, Max 10000, Step 0.1, Label "X-coord", Name Str[MENU_OBST, Sprintf("/Obst. %g/1x", ns+1)], Visible (ns < N_scat_to_create)}
     y~{ns}={0., Min -10000, Max 10000, Step 0.1, Label "Y-coord", Name Str[MENU_OBST, Sprintf("/Obst. %g/1y", ns+1)], Visible (ns < N_scat_to_create)}
@@ -45,7 +47,7 @@ Call CreateEllipses;
 DefineConstant[
   N_scat2 = {N_scat, Name Str[MENU_OBST,"/0Nscat"], Label "Nb. of placed obstacles", ReadOnly 1 }
 ];
-For pCreate In {0:(N_scat_to_create-1)}
+For pCreate In {0:NMAX-1}
   //plot result for user
   DefineConstant[
     _NotFit~{pCreate} = {1, Choices{0, 1}, Name Str[MENU_OBST, Sprintf("/Obst. %g/00OK", pCreate+1)], Label "Cannot be placed", Visible (pCreate < N_scat_to_create && !(_ItsOK~{pCreate})), ReadOnly 1, Highlight "Red"}
@@ -157,7 +159,10 @@ EndFor
 
 //Just to plot the point source
 If(INCIDENT_WAVE == POINTSOURCE && PLOT_POINT_SOURCE)
-  Include "scattering_data_opt.pro";
+  DefineConstant[
+    r_source = {Xmax, Name Str[MENU_INPUT, Str[MENU_UINC,"/Source coordinate/r"]]}
+    theta_source = {0., Name Str[MENU_INPUT, Str[MENU_UINC,"/Source coordinate/theta"]]}
+  ];
   X_source = r_source*Cos[theta_source];
   Y_source = r_source*Sin[theta_source];
   ps = newp; Point(ps) = {X_source, Y_source, 0, lc};
