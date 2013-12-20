@@ -40,7 +40,7 @@ Plugin(MathEval).Run;
 n = n + 1 ;
 ndel = n ;
 
-View[n].Name = " diff-scalar" ;
+View[n].Name = " diff2-scalar" ;
 Save View[n] "diff_Sca.pos";
 
 Plugin(MathEval).Expression0= "v0*v0 + w0*w0";
@@ -60,7 +60,7 @@ Plugin(Integrate).Dimension=-1;
 Plugin(Integrate).Run;
 n = n + 1 ;
 int_diff = n  ;
-View[int_diff].Name = "int_diff" ;
+View[int_diff].Name = "int_diff2" ;
 
 Save View[int_diff] "Diff_fine_coarse.txt" ;
 
