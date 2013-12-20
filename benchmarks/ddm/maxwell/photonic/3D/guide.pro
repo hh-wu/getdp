@@ -31,6 +31,7 @@ Function{
   ListOfField = {}; //My fields
   ListOfNeighborField = {}; //My neighbors
   ListOfDom = {} ;
+  ListOfFacto = {} ;
 
   For idom In {0:N_DOM-1}
     If(idom ==0)
@@ -82,6 +83,14 @@ Function{
       g_in~{idom}~{0}[Sigma~{idom}~{0}] = ComplexVectorField[XYZ[]]{exchangeFieldLeft{}};
       g_in~{idom}~{1}[Sigma~{idom}~{1}] = ComplexVectorField[XYZ[]]{exchangeFieldRight{}};
 
+    EndIf
+
+    // reuse factorisation of the same meshes
+    If (idom == 0 || idom == 1 || idom == N_DOM-1)
+      ListOfFacto += idom ;
+    EndIf
+    If(idom > 1 && idom < N_DOM-1)
+      ListOfFacto += 1 ;
     EndIf
 
   EndFor

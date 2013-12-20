@@ -1,8 +1,8 @@
 
 Problem = "test" ;
 //
-PRECOND_SWEEP = 0;
-N_DOM = 10;
+PRECOND_SWEEP = 1;
+N_DOM = 3;
 
 WAVENUMBER = 4.0*Pi;
 

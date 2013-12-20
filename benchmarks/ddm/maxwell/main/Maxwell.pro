@@ -6,9 +6,9 @@ Jacobian {
 
 Integration {
   { Name I1 ;
-    Case { 
+    Case {
       { Type Gauss ;
-        Case { 
+        Case {
           { GeoElement Point ; NumberOfPoints  1 ; }
           { GeoElement Line ; NumberOfPoints  4 ; }
           { GeoElement Triangle ; NumberOfPoints 12 ; }
@@ -23,21 +23,21 @@ Integration {
 
 Constraint {
   { Name Dirichlet_e;
-    Case { { Region GammaScat ; Type AssignFromResolution; NameOfResolution Maxwell_e_Dirichlet ; } } 
+    Case { { Region GammaScat ; Type AssignFromResolution; NameOfResolution Maxwell_e_Dirichlet ; } }
   }
   { Name Dirichlet_e_homog ;
     // For idom In {0:N_DOM-1}
-    //   Case { { Region GammaC~{idom} ; Type AssignFromResolution; NameOfResolution Maxwell_e_Dirichlet ; } } 
+    //   Case { { Region GammaC~{idom} ; Type AssignFromResolution; NameOfResolution Maxwell_e_Dirichlet ; } }
     // EndFor
-    Case { { Region GammaC ; Type Assign ; Value 0. ; } } 
+    Case { { Region GammaC ; Type Assign ; Value 0. ; } }
   }
 }
 
 FunctionSpace {
   { Name Hcurl_e; Type Form1;
     BasisFunction {
-      { Name se; NameOfCoef ee; Function BF_Edge; 
-	Support Region[{Omega, GammaScat, GammaInf, GammaC}] ; Entity EdgesOf[All]; }
+      { Name se; NameOfCoef ee; Function BF_Edge;
+        Support Region[{Omega, GammaScat, GammaInf, GammaC}] ; Entity EdgesOf[All]; }
     }
     Constraint {
       { NameOfCoef ee; EntityType EdgesOf ; NameOfConstraint Dirichlet_e; }
@@ -46,19 +46,19 @@ FunctionSpace {
   }
   { Name Hcurl_h; Type Form1;
     BasisFunction {
-      { Name sh; NameOfCoef he; Function BF_Edge; 
-	Support Region[{Omega, GammaScat, GammaInf}] ; Entity EdgesOf[All]; }
+      { Name sh; NameOfCoef he; Function BF_Edge;
+        Support Region[{Omega, GammaScat, GammaInf}] ; Entity EdgesOf[All]; }
     }
     Constraint {
       { NameOfCoef he; EntityType EdgesOf ; NameOfConstraint Dirichlet_h; }
     }
   }
-  
+
   //With Lagrange Multipliers
   { Name Hcurl_lagrange_e; Type Form1;
     BasisFunction {
       { Name se; NameOfCoef ee; Function BF_Edge;
-	Support Region[{Omega, GammaScat, GammaInf, GammaC}] ; Entity EdgesOf[All]; }
+        Support Region[{Omega, GammaScat, GammaInf, GammaC}] ; Entity EdgesOf[All]; }
     }
     Constraint {
       { NameOfCoef ee; EntityType EdgesOf ; NameOfConstraint Dirichlet_e_homog; }
@@ -67,7 +67,7 @@ FunctionSpace {
   { Name Hcurl_lagrange_h; Type Form1;
     BasisFunction {
       { Name sh; NameOfCoef he; Function BF_Edge;
-	Support Region[{Omega, GammaScat, GammaInf}] ; Entity EdgesOf[All]; }
+        Support Region[{Omega, GammaScat, GammaInf}] ; Entity EdgesOf[All]; }
     }
     Constraint {
       { NameOfCoef he; EntityType EdgesOf ; NameOfConstraint Dirichlet_h; }
@@ -77,14 +77,14 @@ FunctionSpace {
   { Name Hcurl_r; Type Form1;
     BasisFunction {
       { Name ser1; NameOfCoef eer1; Function BF_Edge;
-	Support Region[{GammaInf}] ; Entity EdgesOf[All]; }
+        Support Region[{GammaInf}] ; Entity EdgesOf[All]; }
     }
   }
-  
+
   { Name Hcurl_lagrange_lambda; Type Form1;
     BasisFunction {
       { Name se; NameOfCoef ee; Function BF_Edge;
-	Support Region[{GammaScat}] ; Entity EdgesOf[All]; }
+        Support Region[{GammaScat}] ; Entity EdgesOf[All]; }
     }
     Constraint {
       { NameOfCoef ee; EntityType EdgesOf ; NameOfConstraint Dirichlet_e_homog; }
@@ -98,63 +98,63 @@ Group{
 
 Formulation {
   { Name Maxwell_e_Dirichlet; // For imposing the source on edges
-    Quantity { 
+    Quantity {
       { Name e; Type Local; NameOfSpace Hcurl_e; }
     }
     Equation {
-      Galerkin { [ Dof{e} , {e} ]; 
-	In GammaScat; Integration I1; Jacobian JSur;  }
-      Galerkin { [ einc[] , {e} ]; 
-	In GammaScat; Integration I1; Jacobian JSur;  }
+      Galerkin { [ Dof{e} , {e} ];
+        In GammaScat; Integration I1; Jacobian JSur;  }
+      Galerkin { [ einc[] , {e} ];
+        In GammaScat; Integration I1; Jacobian JSur;  }
     }
   }
-  { Name Maxwell_e; Type FemEquation; 
-    Quantity { 
+  { Name Maxwell_e; Type FemEquation;
+    Quantity {
       { Name e; Type Local;  NameOfSpace Hcurl_e; }
       { Name h; Type Local;  NameOfSpace Hcurl_h; }
     }
     Equation {
-      Galerkin { [ Dof{d e} , {d e} ]; 
-	In Omega; Integration I1; Jacobian JVol;  }
-      Galerkin { [ -k[]^2 * Dof{e} , {e} ]; 
-	In Omega; Integration I1; Jacobian JVol;  }
+      Galerkin { [ Dof{d e} , {d e} ];
+        In Omega; Integration I1; Jacobian JVol;  }
+      Galerkin { [ -k[]^2 * Dof{e} , {e} ];
+        In Omega; Integration I1; Jacobian JVol;  }
       Galerkin { [ I[] * kDtN[] * ( N[] /\ Dof{e} ) /\ N[] , {e} ];
-	In GammaInf; Integration I1; Jacobian JSur;  }
+        In GammaInf; Integration I1; Jacobian JSur;  }
       // store magnetic field
-      Galerkin { [ Dof{h} , {h} ] ;  
+      Galerkin { [ Dof{h} , {h} ] ;
                  In TrGr; Jacobian JVol ; Integration I1 ; }
-      Galerkin { [ 1/(I[]*omega[]*mu[]) * Dof{d e}, {h} ] ; 
+      Galerkin { [ 1/(I[]*omega[]*mu[]) * Dof{d e}, {h} ] ;
                  In TrGr; Jacobian JVol ; Integration I1 ; }
     }
   }
-  
+
   //LAGRANGE MULTIPLYER
-  { Name Maxwell_Lagrange; Type FemEquation; 
-    Quantity { 
+  { Name Maxwell_Lagrange; Type FemEquation;
+    Quantity {
       { Name e_lag; Type Local;  NameOfSpace Hcurl_lagrange_e; }
       { Name h_lag; Type Local;  NameOfSpace Hcurl_lagrange_h; }
       { Name lambda; Type Local;  NameOfSpace Hcurl_lagrange_lambda; }
     }
     Equation {
-      Galerkin { [ Dof{d e_lag} , {d e_lag} ]; 
-	In Omega; Integration I1; Jacobian JVol;  }
-      Galerkin { [ -k[]^2 * Dof{e_lag} , {e_lag} ]; 
-	In Omega; Integration I1; Jacobian JVol;  }
+      Galerkin { [ Dof{d e_lag} , {d e_lag} ];
+        In Omega; Integration I1; Jacobian JVol;  }
+      Galerkin { [ -k[]^2 * Dof{e_lag} , {e_lag} ];
+        In Omega; Integration I1; Jacobian JVol;  }
       Galerkin { [ I[] * kInf[] * (N[]) /\ ( N[] /\ Dof{e_lag} ) , {e_lag} ];
-	In GammaInf; Integration I1; Jacobian JSur;  }
+        In GammaInf; Integration I1; Jacobian JSur;  }
       //boundary condition
-      Galerkin { [ Dof{lambda} , {e_lag} ] ;  
-	In GammaScat; Jacobian JSur ; Integration I1 ; }
-      Galerkin { [ Dof{e_lag} , {lambda} ] ;  
-	In GammaScat; Jacobian JSur ; Integration I1 ; }
-      Galerkin { [ einc[], {lambda} ] ; 
-	In GammaScat; Jacobian JSur ; Integration I1 ; }      
+      Galerkin { [ Dof{lambda} , {e_lag} ] ;
+        In GammaScat; Jacobian JSur ; Integration I1 ; }
+      Galerkin { [ Dof{e_lag} , {lambda} ] ;
+        In GammaScat; Jacobian JSur ; Integration I1 ; }
+      Galerkin { [ einc[], {lambda} ] ;
+        In GammaScat; Jacobian JSur ; Integration I1 ; }
 
       // store magnetic field
-      Galerkin { [ Dof{h_lag} , {h_lag} ] ;  
-	In TrGr; Jacobian JVol ; Integration I1 ; }
-      Galerkin { [ 1/(I[]*omega[]*mu[]) * Dof{d e_lag}, {h_lag} ] ; 
-	In TrGr; Jacobian JVol ; Integration I1 ; }
+      Galerkin { [ Dof{h_lag} , {h_lag} ] ;
+        In TrGr; Jacobian JVol ; Integration I1 ; }
+      Galerkin { [ 1/(I[]*omega[]*mu[]) * Dof{d e_lag}, {h_lag} ] ;
+        In TrGr; Jacobian JVol ; Integration I1 ; }
     }
   }
 }
@@ -164,7 +164,7 @@ Resolution {
     System {
       { Name A ; NameOfFormulation Maxwell_e ; Type Complex; }
     }
-    Operation { 
+    Operation {
       Generate[A] ; Solve[A] ;
     }
   }
@@ -172,8 +172,8 @@ Resolution {
     System {
       { Name B; NameOfFormulation Maxwell_e_Dirichlet; DestinationSystem A; Type Complex; }
     }
-    Operation { 
-      Generate B; Solve B; TransferSolution B; 
+    Operation {
+      Generate B; Solve B; TransferSolution B;
     }
   }
 
@@ -181,7 +181,7 @@ Resolution {
     System {
       { Name A; NameOfFormulation Maxwell_Lagrange; Type Complex; }
     }
-    Operation { 
+    Operation {
       Generate[A]; Solve[A];
     }
   }
@@ -215,7 +215,7 @@ PostProcessing {
 }
 
 PostOperation {
-  { Name Maxwell_e ; NameOfPostProcessing Maxwell_e; 
+  { Name Maxwell_e ; NameOfPostProcessing Maxwell_e;
     Operation {
       Print[ e, OnElementsOf GammaScat, File "e.pos"] ;
       Print[ h, OnElementsOf GammaScat, File "h.pos"] ;
@@ -225,7 +225,7 @@ PostOperation {
     }
   }
 
-  { Name Maxwell_Lagrange ; NameOfPostProcessing Maxwell_Lagrange; 
+  { Name Maxwell_Lagrange ; NameOfPostProcessing Maxwell_Lagrange;
     Operation {
       Print[ e_lag, OnElementsOf GammaScat, File "e_lag.pos"] ;
       Print[ h_lag, OnElementsOf GammaScat, File "h_lag.pos"] ;
@@ -240,3 +240,4 @@ PostOperation {
 
 
 Include "DDM_sweep.pro";
+Include "DDM_sweep_reuse.pro";

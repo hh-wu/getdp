@@ -166,23 +166,23 @@ Resolution {
           ifact = ListOfFacto(ii);
 
           If( idom % MPI_Size == MPI_Rank ) // Alex
-          If(idom > 0 && idom < N_DOM-1)
-            //Compute u on Omega_i (fast way)
-            GenerateRHSGroup[Helmholtz~{idom}, Sigma~{idom}] ;
+            If(idom > 0 && idom < N_DOM-1)
+              //Compute u on Omega_i (fast way)
+              GenerateRHSGroup[Helmholtz~{idom}, Sigma~{idom}] ;
 
-            If (idom == ifact)
-              SolveAgain[Helmholtz~{idom}] ;
-            EndIf
-            If (idom != ifact)
-              SolveAgainWithOther[Helmholtz~{idom},Helmholtz~{ifact}] ;
-            EndIf
+              If (idom == ifact)
+                SolveAgain[Helmholtz~{idom}] ;
+              EndIf
+              If (idom != ifact)
+                SolveAgainWithOther[Helmholtz~{idom},Helmholtz~{ifact}] ;
+              EndIf
 
-            //Compute the new g_out (fast way)
-            // Generate[ComputeGPrecond~{idom}~{1}] ;
-            GenerateRHSGroup[ComputeGPrecond~{idom}~{1}, Sigma~{idom}~{1}] ; // EXPERIMENTAL
-            SolveAgain[ComputeGPrecond~{idom}~{1}] ;
-            PostOperation[g_out~{idom}~{1}] ;
-          EndIf
+              //Compute the new g_out (fast way)
+              // Generate[ComputeGPrecond~{idom}~{1}] ;
+              GenerateRHSGroup[ComputeGPrecond~{idom}~{1}, Sigma~{idom}~{1}] ; // EXPERIMENTAL
+              SolveAgain[ComputeGPrecond~{idom}~{1}] ;
+              PostOperation[g_out~{idom}~{1}] ;
+            EndIf
           EndIf
         EndFor
         // EndIf
@@ -198,27 +198,27 @@ Resolution {
           ifact = ListOfFacto(#ListOfFacto()-1 - ii) ;
 
           If( idom % MPI_Size == MPI_Rank ) // Alex
-          If(idom > 0 && idom < N_DOM-1)
-            //Compute u on Omega_i (fast way)
-            GenerateRHSGroup[Helmholtz~{idom}, Sigma~{idom}] ;
+            If(idom > 0 && idom < N_DOM-1)
+              //Compute u on Omega_i (fast way)
+              GenerateRHSGroup[Helmholtz~{idom}, Sigma~{idom}] ;
 
-            If (idom == ifact)
-              SolveAgain[Helmholtz~{idom}] ;
-            EndIf
-            If (idom != ifact)
-              SolveAgainWithOther[Helmholtz~{idom},Helmholtz~{ifact}] ;
-            EndIf
+              If (idom == ifact)
+                SolveAgain[Helmholtz~{idom}] ;
+              EndIf
+              If (idom != ifact)
+                SolveAgainWithOther[Helmholtz~{idom},Helmholtz~{ifact}] ;
+              EndIf
 
-            //Compute the new g_out (fast way)
-            // Generate[ComputeGPrecond~{idom}~{0}] ;
-            GenerateRHSGroup[ComputeGPrecond~{idom}~{0}, Sigma~{idom}~{0}] ; // EXPERIMENTAL
-            SolveAgain[ComputeGPrecond~{idom}~{0}] ;
-            PostOperation[g_out~{idom}~{0}] ;
-          EndIf
+              //Compute the new g_out (fast way)
+              // Generate[ComputeGPrecond~{idom}~{0}] ;
+              GenerateRHSGroup[ComputeGPrecond~{idom}~{0}, Sigma~{idom}~{0}] ; // EXPERIMENTAL
+              SolveAgain[ComputeGPrecond~{idom}~{0}] ;
+              PostOperation[g_out~{idom}~{0}] ;
+            EndIf
           EndIf
         EndFor
         SetCommWorld;
-        EndIf
+      EndIf
       // EndIf
       }
       // //Now the solution G is stored in the PView of index ListOfDom()
