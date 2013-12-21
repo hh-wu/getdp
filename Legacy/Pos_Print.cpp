@@ -272,11 +272,6 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 			       QuantityStorage_P0, &CumulativeValues);
   }
 
-  /* Init a search grid if we plot a NonCumulative quantity with OnGrid */
-
-  if(NCPQ_P && PSO_P->SubType == PRINT_ONGRID)
-    Init_SearchGrid(&Current.GeoData->Grid) ;
-
   /* If we compute a skin, apply smoothing, sort the results, or
      perform adaption, we'll need to store all the PostElements */
 
@@ -431,7 +426,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 	  for (iTime = 0 ; iTime < NbrTimeStep ; iTime++) {
 	    Pos_InitAllSolutions(PSO_P->TimeStep_L, iTime) ;
 	    for(iNode = 0 ; iNode < PE->NbrNodes ; iNode++){
-	      InWhichElement(Current.GeoData->Grid, Region_L, &Element,
+	      InWhichElement(&Current.GeoData->Grid, Region_L, &Element,
 			     PSO_P->Dimension,
 			     PE->x[iNode], PE->y[iNode], PE->z[iNode],
 			     &PE->u[iNode], &PE->v[iNode], &PE->w[iNode]) ;
@@ -1005,7 +1000,7 @@ void  Pos_PrintOnSection(struct PostQuantity     *NCPQ_P,
    }                                                                    \
  }                                                                      \
  else{                                                                  \
-   InWhichElement(Current.GeoData->Grid, NULL, &Element, PSO_P->Dimension, \
+   InWhichElement(&Current.GeoData->Grid, NULL, &Element, PSO_P->Dimension, \
                   Current.x, Current.y, Current.z, &u, &v, &w) ;        \
    Current.Region = Element.Region ;                                    \
    if(Element.Num != NO_ELEMENT)                                        \
@@ -1042,7 +1037,7 @@ void  Pos_PrintOnSection(struct PostQuantity     *NCPQ_P,
          ARRAY(i1,i2,k,ts) = (float)CumulativeValues[ts].Val[MAX_DIM*k] ; \
  }                                                                      \
  else{                                                                  \
-   InWhichElement(Current.GeoData->Grid, NULL, &Element, PSO_P->Dimension, \
+   InWhichElement(&Current.GeoData->Grid, NULL, &Element, PSO_P->Dimension, \
                   Current.x, Current.y, Current.z, &u, &v, &w) ;        \
    Current.Region = Element.Region ;                                    \
    for (ts = 0 ; ts < NbTimeStep ; ts++) {                              \
@@ -1085,8 +1080,6 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
 			       CPQ_P, DefineQuantity_P0,
 			       QuantityStorage_P0, &CumulativeValues);
   }
-
-  Init_SearchGrid(&Current.GeoData->Grid) ;
 
   Format_PostHeader(PSO_P, NbTimeStep, Order,
                     PSO_P->Label ? PSO_P->Label :
@@ -1410,9 +1403,6 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
   else
     Nbr_Region = 1 ;
 
-  if (Type_Evaluation == LOCAL)
-    Init_SearchGrid(&Current.GeoData->Grid) ;
-
   for (iTime = 0 ; iTime < NbrTimeStep ; iTime++) {
 
     Pos_InitAllSolutions(PSO_P->TimeStep_L, iTime) ;
@@ -1448,7 +1438,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 	if (Group_FunctionType == NODESOF)
 	  Geo_GetNodesCoordinates(1, &Num_Region,
 				  &Current.x, &Current.y, &Current.z) ;
-	InWhichElement(Current.GeoData->Grid, NULL, &Element,
+	InWhichElement(&Current.GeoData->Grid, NULL, &Element,
 		       PSO_P->Dimension,
 		       Current.x, Current.y, Current.z, &u, &v, &w) ;
 
@@ -1685,7 +1675,7 @@ void  Pos_PrintGroup(struct PostSubOperation *PSO_P)
 
           numDofData         = int(*(double*)List_Pointer(PSO_P->Value_L, 0));
           Code_BasisFunction = int(*(double*)List_Pointer(PSO_P->Value_L, 1));
-          
+
           CodeExist =
             ((Dof_P =
               Dof_GetDofStruct(Current.DofData_P0+ numDofData,

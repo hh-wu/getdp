@@ -103,8 +103,7 @@ void Pos_FemInterpolation(struct Element * Element,
 	  z += Element->z[i] * Element->n[i] ;
 	}
       }
-      Init_SearchGrid(&Current.GeoData->Grid);
-      InWhichElement(Current.GeoData->Grid, NULL, &TheElement,
+      InWhichElement(&Current.GeoData->Grid, NULL, &TheElement,
 		     (Type_Dimension >= 0) ? Type_Dimension : _ALL,
 		     x, y, z, &u, &v, &w) ;
       TheElement_P = &TheElement ;

@@ -6,7 +6,7 @@ N_DOM = 3;
 
 WAVENUMBER = 4.0*Pi;
 
-N_LAMBDA = 10 ;
+N_LAMBDA = 40 ;
 LAMBDA = 2*Pi/WAVENUMBER;
 LC = LAMBDA/ N_LAMBDA ;
 
@@ -19,8 +19,8 @@ LC = LAMBDA/ N_LAMBDA ;
 THETA_INC = Pi/4;
 
 //Transmission boundary condition
-OSRC = 0;
-SILVER_MULLER = 1;
+OSRC = 1;
+SILVER_MULLER = 0;
 JFLee =  0;
 
 

@@ -24,8 +24,8 @@ static struct Geo_Element  * LastGeoElement;
 /*  C o m p u t e E l e m e n t B o x                                       */
 /* ------------------------------------------------------------------------ */
 
-void ComputeElementBox(struct Element * Element,
-		       struct ElementBox * ElementBox)
+static void ComputeElementBox(struct Element * Element,
+                              struct ElementBox * ElementBox)
 {
   int i;
 
@@ -47,8 +47,8 @@ void ComputeElementBox(struct Element * Element,
 /*  P o i n t I n X X X                                                     */
 /* ------------------------------------------------------------------------ */
 
-int PointInElementBox(struct ElementBox ElementBox, double x, double y, double z,
-		      double tol)
+static int PointInElementBox(struct ElementBox ElementBox, double x, double y, double z,
+                             double tol)
 {
   if (x > ElementBox.Xmax + tol || x < ElementBox.Xmin - tol ||
       y > ElementBox.Ymax + tol || y < ElementBox.Ymin - tol ||
@@ -60,7 +60,7 @@ int PointInElementBox(struct ElementBox ElementBox, double x, double y, double z
   }
 }
 
-int PointInRefElement (struct Element * Element, double u, double v, double w)
+static int PointInRefElement (struct Element * Element, double u, double v, double w)
 {
   double ONE = 1. + 1.e-12;
   double ZERO = 1.e-12;
@@ -106,11 +106,11 @@ int PointInRefElement (struct Element * Element, double u, double v, double w)
   }
 }
 
-int PointInElement (struct Element * Element,
-		    List_T *ExcludeRegion_L,
-		    double  x, double  y, double  z,
-		    double *u, double *v, double *w,
-		    double tol)
+static int PointInElement (struct Element * Element,
+                           List_T *ExcludeRegion_L,
+                           double  x, double  y, double  z,
+                           double *u, double *v, double *w,
+                           double tol)
 {
   struct ElementBox ElementBox ;
 
@@ -144,7 +144,7 @@ int PointInElement (struct Element * Element,
 /*  I n i t _ S e a r c h G r i d                                           */
 /* ------------------------------------------------------------------------ */
 
-void Init_SearchGrid(struct Grid * Grid)
+static void Init_SearchGrid(struct Grid * Grid)
 {
   struct Element      Element;
   struct ElementBox   ElementBox;
@@ -331,7 +331,7 @@ void Free_SearchGrid(struct Grid * Grid)
 /*  I n W h i c h   X X X                                                   */
 /* ------------------------------------------------------------------------ */
 
-int InWhichBrick (struct Grid *pGrid, double X, double Y, double Z)
+static int InWhichBrick (struct Grid *pGrid, double X, double Y, double Z)
 {
   int    Ix, Iy, Iz;
 
@@ -354,7 +354,7 @@ int InWhichBrick (struct Grid *pGrid, double X, double Y, double Z)
   return(Ix + Iy * pGrid->Nx + Iz * pGrid->Nx * pGrid->Ny) ;
 }
 
-void InWhichElement (struct Grid Grid, List_T *ExcludeRegion_L,
+void InWhichElement (struct Grid * Grid, List_T *ExcludeRegion_L,
 		     struct Element * Element, int Dim,
 		     double  x, double  y, double  z,
 		     double *u, double *v, double *w)
@@ -365,6 +365,8 @@ void InWhichElement (struct Grid Grid, List_T *ExcludeRegion_L,
   struct Brick        * Brick_P ;
   int                   i, dim, lowdim = 0, highdim = 0;
   double                tol;
+
+  if(!Grid->Init) Init_SearchGrid(Grid);
 
   /* Allow for some extra matches by increasing the size of the
      bounding box, and even more if we search for elements of
@@ -383,13 +385,13 @@ void InWhichElement (struct Grid Grid, List_T *ExcludeRegion_L,
     }
   }
 
-  if ((i = InWhichBrick(&Grid, x, y, z)) == NO_BRICK) {
+  if ((i = InWhichBrick(Grid, x, y, z)) == NO_BRICK) {
     Element->Num = NO_ELEMENT ;
     Element->Region = NO_REGION ;
     return;
   }
 
-  if (!(Brick_P = (struct Brick *)List_Pointer(Grid.Bricks, i))){
+  if (!(Brick_P = (struct Brick *)List_Pointer(Grid->Bricks, i))){
     Message::Error("Brick %d not found in Grid", i) ;
     Element->Num = NO_ELEMENT ;
     Element->Region = NO_REGION ;

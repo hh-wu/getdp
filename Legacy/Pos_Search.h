@@ -7,6 +7,7 @@
 #define _POS_SEARCH_H_
 
 #include "ProData.h"
+#include "GeoData.h"
 #include "ListUtils.h"
 
 struct Brick {
@@ -25,18 +26,17 @@ struct PointElement {
   int ElementIndex;
 } ;
 
-void Init_SearchGrid(struct Grid * Grid);
 void Free_SearchGrid(struct Grid * Grid);
 
-void InWhichElement(struct Grid Grid, 
+void InWhichElement(struct Grid *Grid,
 		    List_T *ExcludeRegion,
-		    struct Element * Element, 
-		    int Flag, 
-		    double  x, double  y, double  z, 
+		    struct Element * Element,
+		    int Flag,
+		    double  x, double  y, double  z,
 		    double *u, double *v, double *w);
 
 void xyz2uvwInAnElement(struct Element *Element,
-			double  x, double  y, double  z, 
+			double  x, double  y, double  z,
 			double *u, double *v, double *w);
 
 #endif
