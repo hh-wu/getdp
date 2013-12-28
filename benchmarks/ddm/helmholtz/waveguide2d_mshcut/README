@@ -1,7 +1,11 @@
-2D waveguide DDM test case
+# DDM (additive Schwarz with overlap + GMRes) for the electrostatic
+# problem. Parameters are in 'params.geo'.
+# Generate the mesh with:
+gmsh square_overlap.geo -
 
-- generate the full mesh: gmsh waveguide.geo -
-- set the number of domains N_DOM in params.geo
-- partition the mesh: gmsh part.geo -
-- split the mesh into submeshes: gmsh split.geo -
-- run getdp: getdp waveguide2d_mshcut.pro -sol DDM -v 0 -bin -ksp_monitor
+# Run the code for either DDM or full solution:
+getdp square_overlap.pro -sol DDM -bin -v 0 -ksp_monitor
+getdp square_overlap.pro -sol Full -bin
+
+# Compare solutions:
+gmsh combine.geo
