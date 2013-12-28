@@ -1,0 +1,11 @@
+# DDM (additive Schwarz with overlap + GMRes) for the electrostatic
+# problem. Parameters are in 'params.geo'.
+# Generate the mesh with:
+gmsh square_overlap.geo -
+
+# Run the code for either DDM or full solution:
+getdp square_overlap.pro -sol DDM -bin -v 0 -ksp_monitor
+getdp square_overlap.pro -sol Full -bin
+
+# Compare solutions:
+gmsh combine.geo
