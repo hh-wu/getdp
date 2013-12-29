@@ -66,12 +66,14 @@ static void _try(int ierr)
 {
   CHKERRCONTINUE(ierr);
   if(PetscUnlikely(ierr)){
-    // Do not produce an error in case of a PETSc-crash
-    // when we are in TimeLoopAdaptive loop
+    const char *text;
+    PetscErrorMessage(ierr, &text, 0);
+    // Do not produce an error in case of a PETSc-crash when we are in
+    // TimeLoopAdaptive loop
     if (Message::GetOperatingInTimeLoopAdaptive())
-      Message::Warning("PETSc error %d", ierr);
+      Message::Warning("PETSc error: %s", text);
     else
-      Message::Error("PETSc error %d", ierr);
+      Message::Error("PETSc error: %s", text);
     Message::SetLastPETScError(ierr);
   }
 }
