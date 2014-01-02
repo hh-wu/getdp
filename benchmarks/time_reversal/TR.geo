@@ -5,25 +5,37 @@ The domain is free of any obstacle.
 */
 
 Include "TR_data.pro";
-
 // Point source :
-PS = newp; Point(PS) = {XS,YS,ZS,lcSourceInt};
+PS = newp; Point(PS) = {XS, YS, ZS, lcSourceInt};
+
+//Initialization
+N_scat = 0;
+LL_scat[] = {};
+Line_scat[] = {};
+S_scat[] = {};
+CentreX[] = {}; CentreY[] = {};
+RadiusX[] = {}; RadiusY[] = {};
+
+If(CLUTTER)
+  Include "TR_scat.geo";
+EndIf
+
 
 //===================
 //Creation of the TRM
 //===================
 
-P1 = newp; Point(P1) = {X_TRM_min,Y_TRM_min,ZS,lcTRM};
-P2 = newp; Point(P2) = {X_TRM_max,Y_TRM_min,ZS,lcTRM};
-P3 = newp; Point(P3) = {X_TRM_max,Y_TRM_max,ZS,lcTRM};
-P4 = newp; Point(P4) = {X_TRM_min,Y_TRM_max,ZS,lcTRM};
+P1 = newp; Point(P1) = {X_TRM_min, Y_TRM_min, ZS, lcTRM};
+P2 = newp; Point(P2) = {X_TRM_max, Y_TRM_min, ZS, lcTRM};
+P3 = newp; Point(P3) = {X_TRM_max, Y_TRM_max, ZS, lcTRM};
+P4 = newp; Point(P4) = {X_TRM_min, Y_TRM_max, ZS, lcTRM};
 
-LTRM1 = newreg; Line(LTRM1) = {P1,P2};
-LTRM2 = newreg; Line(LTRM2) = {P2,P3};
-LTRM3 = newreg; Line(LTRM3) = {P3,P4};
-LTRM4 = newreg; Line(LTRM4) = {P4,P1};
+LTRM1 = newreg; Line(LTRM1) = {P1, P2};
+LTRM2 = newreg; Line(LTRM2) = {P2, P3};
+LTRM3 = newreg; Line(LTRM3) = {P3, P4};
+LTRM4 = newreg; Line(LTRM4) = {P4, P1};
 
-LLTRM = newreg; Line Loop(LLTRM) = {LTRM1,LTRM2,LTRM3,LTRM4};
+LLTRM = newreg; Line Loop(LLTRM) = {LTRM1, LTRM2, LTRM3, LTRM4};
 
 //==============================
 // Perfectly Matched Layer (PML)
@@ -55,13 +67,13 @@ PIntBoundDR = newp; Point(PIntBoundDR) = {Xmax, Ymin, ZF, lcIntern_Bound};
 PIntBoundUR = newp; Point(PIntBoundUR) = {Xmax, Ymax, ZF, lcIntern_Bound};
 PIntBoundUL = newp; Point(PIntBoundUL) = {Xmin, Ymax, ZF, lcIntern_Bound};
 
-LIntBoundD = newreg; Line(LIntBoundD) = {PIntBoundDL,PIntBoundDR};
-LIntBoundR = newreg; Line(LIntBoundR) = {PIntBoundDR,PIntBoundUR};
-LIntBoundU = newreg; Line(LIntBoundU) = {PIntBoundUR,PIntBoundUL};
-LIntBoundL = newreg; Line(LIntBoundL) = {PIntBoundUL,PIntBoundDL};
+LIntBoundD = newreg; Line(LIntBoundD) = {PIntBoundDL, PIntBoundDR};
+LIntBoundR = newreg; Line(LIntBoundR) = {PIntBoundDR, PIntBoundUR};
+LIntBoundU = newreg; Line(LIntBoundU) = {PIntBoundUR, PIntBoundUL};
+LIntBoundL = newreg; Line(LIntBoundL) = {PIntBoundUL, PIntBoundDL};
 
 // Boundary of the interior domain (= propagation domain)
-LLIntBound = newreg; Line Loop(LLIntBound) = {LIntBoundD,LIntBoundR,LIntBoundU,LIntBoundL};
+LLIntBound = newreg; Line Loop(LLIntBound) = {LIntBoundD, LIntBoundR, LIntBoundU, LIntBoundL};
 
 // Absorbing domain (PML) :
 //Rectangle centered on (XF,YF,ZF) with sides (SizeInteriorDomainX + SizeAbsorbingDomainX) and (SizeInteriorDomainY + SizeAbsorbingDomainY)
@@ -72,12 +84,12 @@ PExtBoundDR = newp; Point(PExtBoundDR) = {Xmax + SizePMLX, Ymin - SizePMLY, ZF, 
 PExtBoundUR = newp; Point(PExtBoundUR) = {Xmax + SizePMLX, Ymax + SizePMLY, ZF, lcExtern_Bound};
 PExtBoundUL = newp; Point(PExtBoundUL) = {Xmin - SizePMLX, Ymax + SizePMLY, ZF, lcExtern_Bound};
 
-LExtBoundD = newreg; Line(LExtBoundD) = {PExtBoundDL,PExtBoundDR};
-LExtBoundR = newreg; Line(LExtBoundR) = {PExtBoundDR,PExtBoundUR};
-LExtBoundU = newreg; Line(LExtBoundU) = {PExtBoundUR,PExtBoundUL};
-LExtBoundL = newreg; Line(LExtBoundL) = {PExtBoundUL,PExtBoundDL};
+LExtBoundD = newreg; Line(LExtBoundD) = {PExtBoundDL, PExtBoundDR};
+LExtBoundR = newreg; Line(LExtBoundR) = {PExtBoundDR, PExtBoundUR};
+LExtBoundU = newreg; Line(LExtBoundU) = {PExtBoundUR, PExtBoundUL};
+LExtBoundL = newreg; Line(LExtBoundL) = {PExtBoundUL, PExtBoundDL};
 
-LLExtBound = newreg; Line Loop(LLExtBound) = {LExtBoundD,LExtBoundR,LExtBoundU,LExtBoundL};
+LLExtBound = newreg; Line Loop(LLExtBound) = {LExtBoundD, LExtBoundR, LExtBoundU, LExtBoundL};
 
 If(HidePML)
   Hide{Line{LExtBoundD,LExtBoundR,LExtBoundU,LExtBoundL}; Point{PExtBoundDL, PExtBoundDR, PExtBoundUR, PExtBoundUL};}
@@ -89,10 +101,13 @@ EndIf
 
 // Miror :
 SurfTRM = newreg; Plane Surface(SurfTRM) = {LLTRM};
-
 // Exterior_Domain is the domain of interest without the Miror
-SurfExteriorDomain = newreg; Plane Surface(SurfExteriorDomain) = {LLTRM,LLIntBound};
-
+If(!CLUTTER)
+  SurfExteriorDomain = newreg; Plane Surface(SurfExteriorDomain) = {LLTRM, LLIntBound};
+EndIf
+If(CLUTTER)
+  SurfExteriorDomain = newreg; Plane Surface(SurfExteriorDomain) = {LLTRM, LLIntBound, LL_scat(), LLSourceExt};
+EndIf
 // PML
 SurfPML = newreg; Plane Surface(SurfPML) = {LLExtBound,LLIntBound};
 
@@ -109,3 +124,13 @@ Physical Surface(3) = {SurfPML};
 Physical Line(11) = {LTRM1, LTRM2, LTRM3, LTRM4};
 Physical Line(12) = {LIntBoundL,LIntBoundD,LIntBoundR,LIntBoundU};
 Physical Line(13) = {LExtBoundD, LExtBoundR, LExtBoundU, LExtBoundL};
+
+If(CLUTTER)
+  Physical Surface(5) = {SSourceInt};
+  Physical Surface(6) = {SSourceExt};
+EndIf
+
+//Scatterers (empty if no one)
+For ii In {0:N_scat-1}
+  Physical Surface(100 + ii) = {S_scat[ii]};
+EndFor

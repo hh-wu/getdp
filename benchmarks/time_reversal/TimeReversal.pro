@@ -7,6 +7,7 @@ AllDomains_Bnd = Region[{Propagation_Bnd, PML_Bnd}];
 // ==========
 // Functions
 Function {
+  k = k0;
   I[] = Complex[0., 1.] ;
 
   // Distance between a point (X,Y,Z) and the source (XS,YS,ZS):

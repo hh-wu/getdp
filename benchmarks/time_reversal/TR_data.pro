@@ -1,6 +1,15 @@
 MENU_WAVENUMBER = "/0Reference wavenumbers/";
 MENU_GEO = "3Geometry";
 MENU_ADV = "9Advanced";
+MENU_INPUT = "1Input";
+MENU_OBSTACLES = "/81Obstacles";
+MENU_BOX_OBST = "/9Box (in lambda_geo)/";
+//----------------
+// (some) inputs
+//---------------
+DefineConstant[
+  CLUTTER = {0, Choices{0,1}, Label "Obstacles ?", Name Str[MENU_GEO, "/80Obstacles"]}
+];
 
 //-------------
 // Frequencies
@@ -17,7 +26,6 @@ DefineConstant[
 ];
 lambda_geo = 2*Pi/k_geo;
 lambda_dis = 2*Pi/k_dis;
-
 
 /*======================================================
 Parameters of the TRM
@@ -76,20 +84,24 @@ Ymax = Y_TRM_max + LUpDownTRM;
 MENU_LC = "/Step discretization in nb of points per lambda_dis/";
 DefineConstant[
   //TRM
-  nlcTRM = {15., Min 1., Max 30., Step 0.1, Label "TRM", Name Str[MENU_ADV,Str[MENU_LC, "0"]]}
-  //Source (small open subset surrounding the source)
-  nlcSourceExt = {15., Min 1., Max 30., Step 0.1, Label "Around the source", Name  Str[MENU_ADV,Str[MENU_LC, "1"]], Closed 1}
+  nlcTRM = {15., Min 1., Max 30., Step 0.1, Label "TRM", Name Str[MENU_ADV,Str[MENU_LC, "2lcTRM"]], Closed 1}
   //Interne boundary separating propagation and absorbing domains
-  nlcIntern_Bound = {10., Min 1., Max 30., Step 0.1, Label "Boundary with PML", Name  Str[MENU_ADV,Str[MENU_LC, "2"]]}
+  nlcIntern_Bound = {10., Min 1., Max 30., Step 0.1, Label "Boundary with PML", Name  Str[MENU_ADV,Str[MENU_LC, "2lcIntBound"]], Closed 1}
   //Extern boundary of the PML (truncation)
-  nlcExtern_Bound = {10., Min 1., Max 30., Step 0.1, Label "End of PML", Name  Str[MENU_ADV,Str[MENU_LC, "2"]]}
+  nlcExtern_Bound = {10., Min 1., Max 30., Step 0.1, Label "End of PML", Name  Str[MENU_ADV,Str[MENU_LC, "2lcExtBound"]], Closed 1}
+  //Source (small open subset surrounding the source)
+  nlcSourceExt = {15., Min 1., Max 30., Step 0.1, Label "Around the source", Name  Str[MENU_ADV,Str[MENU_LC, "2lcSourceExt"]], Closed 1}
   //source
+  nlcSourceInt = {10., Min 1., Max 30., Step 0.1, Label "Near the source", Name  Str[MENU_ADV,Str[MENU_LC, "2lcSourceInt"]], Visible CLUTTER, Closed 1}
+  //Scat
+  nlcScat = {10., Min 1., Max 30., Step 0.1, Label "Scatterers", Name  Str[MENU_ADV,Str[MENU_LC, "2lcScat"]], Visible CLUTTER, Closed 1}
 ];
 lcTRM = lambda_dis/nlcTRM;
-lcSourceExt = lambda_dis/nlcSourceExt;
 lcIntern_Bound = lambda_dis/nlcIntern_Bound;
 lcExtern_Bound = lambda_dis/nlcExtern_Bound;
-lcSourceInt = lcIntern_Bound;
+lcSourceExt = lambda_dis/nlcSourceExt;
+lcSourceInt = lambda_dis/nlcSourceInt;
+lcScat = lambda_dis/nlcScat;
 
 //constant parameters
 
@@ -113,4 +125,46 @@ SizePMLX = nSizePMLX*lcIntern_Bound;
 SizePMLY = nSizePMLY*lcIntern_Bound;
 
 
+
+//-----------
+// Obstacles
+//------------
+
+d_secure = 1/5; //"security distance"
+
+nconst_Xboxmin = d_secure;
+nconst_Xboxmax = nL - d_secure;
+nconst_Yboxmin = -n_LY - nDy/2 + d_secure;
+nconst_Yboxmax = n_LY + nDy/2 - d_secure;
+
+const_Xboxmin = nconst_Xboxmin*lambda_geo;
+const_Xboxmax = nconst_Xboxmax*lambda_geo;
+const_Yboxmin = nconst_Yboxmin*lambda_geo;
+const_Yboxmax = nconst_Yboxmax*lambda_geo;
+
+DefineConstant[
+  N_scat_to_create = {40, Min 1, Max 1000, Step 1, Label "Nb. of obstacles", Name Str[MENU_GEO, Str[MENU_OBSTACLES, "/1NSCAT"]], Visible CLUTTER}
+  linkn_maxmin = {0, Choices {0,1},  Label "Set n_max = n_min", Name Str[MENU_GEO, Str[MENU_OBSTACLES, "/2linkn"]], Visible CLUTTER}
+  n_max = {1.3, Min 0.1, Max 10., Step 0.05, Label "Maximum contrast", Name Str[MENU_GEO, Str[MENU_OBSTACLES, "/2nmax"]], Visible CLUTTER}
+  n_min = {linkn_maxmin?n_max:0.7, Min 0.1, Max n_max, Step 0.05, Label "Minimum contrast", Name Str[MENU_GEO, Str[MENU_OBSTACLES, "/2nmin"]], Visible CLUTTER, ReadOnly linkn_maxmin}
+  linkr_maxmin = {0, Choices {0,1},  Label "Set radius_max = radius_min", Name Str[MENU_GEO, Str[MENU_OBSTACLES, "/3linkr"]], Visible CLUTTER}  
+  ir_max = {5., Min 0.1, Max 5., Step 0.1, Label "Maximum radius (in lambda_geo/X)", Name Str[MENU_GEO, Str[MENU_OBSTACLES, "/3radiusmax"]], Visible CLUTTER}
+  ir_min = {5., Min 0.1, Max 5., Step 0.1, Label "Minimum radius (in lambda_geo/XS)", Name Str[MENU_GEO, Str[MENU_OBSTACLES, "/3radiusmin"]], Visible CLUTTER}
+  nXboxmin = {nconst_Xboxmin, Min nconst_Xboxmin, Max nconst_Xboxmax, Step 0.1, Label "x-min", Name Str[Str[MENU_GEO, Str[MENU_OBSTACLES, MENU_BOX_OBST]], "40xboxmin"], Visible CLUTTER, Closed 1}
+  nXboxmax = {nconst_Xboxmax, Min nconst_Xboxmin, Max nconst_Xboxmax, Step 0.1, Label "x-max", Name Str[MENU_GEO, Str[MENU_OBSTACLES, Str[MENU_BOX_OBST,"41xboxmax"]]], Visible CLUTTER, Closed 1}
+  nYboxmin = {nconst_Yboxmin, Min nconst_Yboxmin, Max nconst_Yboxmax, Step 0.1, Label "y-min", Name Str[MENU_GEO, Str[MENU_OBSTACLES, Str[MENU_BOX_OBST,"42yboxmin"]]], Visible CLUTTER, Closed 1}
+  nYboxmax = {nconst_Yboxmax, Min nconst_Yboxmin, Max nconst_Yboxmax, Step 0.1, Label "y-max", Name Str[MENU_GEO, Str[MENU_OBSTACLES, Str[MENU_BOX_OBST,"43yboxmax"]]], Visible CLUTTER, Closed 1}
+];
+
+Xboxmin = nXboxmin * lambda_geo;
+Xboxmax = nXboxmax * lambda_geo;
+Yboxmin = nYboxmin * lambda_geo;
+Yboxmax = nYboxmax * lambda_geo;
+
+r_max = lambda_geo/ir_max;
+r_min = lambda_geo/ir_min;
+
+If(n_max < n_min)
+  n_max = n_min;  
+EndIf
 

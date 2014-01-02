@@ -51,8 +51,8 @@ For pCreate In {0:(N_scat_to_create-1)}
     For q In {0:N_scat-1}
       cpX = CentreXp; cpY = CentreYp;
       rpX = RadiusXp; rpY = RadiusYp;
-      cqX = CentreX[q]; cqY = CentreY_pre[q];
-      rqX = RadiusX[q]; rqY = RadiusY_pre[q];
+      cqX = CentreX[q]; cqY = CentreY[q];
+      rqX = RadiusX[q]; rqY = RadiusY[q];
       Call DoesTheseEllipsesIntersect;
     EndFor
     If(!ItsOK)
