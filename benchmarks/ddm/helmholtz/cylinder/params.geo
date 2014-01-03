@@ -1,6 +1,6 @@
 lc = .075*3; // surface
 LC = lc * 2; // volume
-NUM_SLICES = 20;
+NUM_SLICES = 60;
 
 //Number of subdomains, frequency, element size
 N_DOM = NUM_SLICES;

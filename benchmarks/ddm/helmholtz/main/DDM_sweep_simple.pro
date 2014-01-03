@@ -2,6 +2,12 @@
 Nodal formulation
 Sweep preconditioner (Alex's)
 
+############################################
+This file contains an early, simple, version of the preconditioner
+that does not enable parallelism. As from January 2014, it
+will no longer be maintained.
+############################################
+
 Same Params as DDM_standard.pro:
 FULL_SOLUTION: If == 1 then compute full solution + error, 0: don't
 EXACT_SOLTUION: If == 1 then compute exact solution + error (for circle only), 0: don't
@@ -43,7 +49,7 @@ Function{
     OO2 = 0;
   EndIf
   If (OO2 && EMDA)
-    OO2 = 1 ;
+    OOO2 = 1 ;
     EMDA = 0;
   EndIf
 }
@@ -69,7 +75,9 @@ Function{
   idom = ListOfDom(ii);
     u_init~{idom}[] = ComplexScalarField[XYZ[]]{2*N_DOM+idom};
   EndFor
+}
 
+Function{
   F_SOURCE[] = V_SOURCE[]*#9;
 }
 
@@ -83,10 +91,10 @@ Constraint{
       For j In {1:N}
 	{ Name Dirichlet_phi~{j}~{idom}~{jdom} ;
 	  Case {
-	    { Region GammaD~{idom} ; Value 0*f_diri[];} // seems faster with 0*f_diri[] ??
-	    { Region GammaD0~{idom} ; Value 0;} 
+	    { Region GammaD~{idom} ; Value 0*f_diri[];} 
+	    { Region GammaD0~{idom} ; Value 0*f_diri[];} 
 	  }
-	}
+	}  // 20131029: DO NOT remove this constraint !! Seems faster with 0*f_diri[] ??
       EndFor
     EndFor
   EndFor
@@ -154,7 +162,7 @@ Formulation {
 
       // g_in LEFT (#10 > 0) or 0 (#10 == 0)
       Galerkin { [ - (#10 > 0. ? g_in~{idom}~{0}[] : 0), {u~{idom}} ] ;
-	In Sigma~{idom}~{0}; Jacobian JSur ; Integration I1 ; }
+	  In Sigma~{idom}~{0}; Jacobian JSur ; Integration I1 ; }
       // g_in RIGHT (#11 > 0) or 0 (#11 == 0)
       Galerkin { [ - (#11 > 0. ? g_in~{idom}~{1}[] : 0), {u~{idom}} ] ;
 	In Sigma~{idom}~{1}; Jacobian JSur ; Integration I1 ; }
@@ -282,7 +290,8 @@ EndIf
 	Galerkin { [ Dof{g_out~{idom}~{jdom}} , {g_out~{idom}~{jdom}} ] ;
 	  In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
 
-	Galerkin{[ - ComplexScalarField[XYZ[]]{(2*(idom+N_DOM)+(jdom-1))%(2*N_DOM)}, {g_out~{idom}~{jdom}}] ;
+	// ComplexScalarField[XYZ[]]{2*idom+jdom-1} is equal to g_out~{idom}{jdom}
+	Galerkin{[ - ComplexScalarField[XYZ[]]{2*idom+jdom-1}, {g_out~{idom}~{jdom}}] ;
 	  In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
 
 	// Transmission condition (2.Su)
@@ -322,6 +331,7 @@ EndIf
   EndFor // loop on idom
 }
 
+
 Resolution {
     { Name DDM ;
     System {
@@ -335,222 +345,149 @@ Resolution {
       EndFor
     }
     Operation {
-      If (MPI_Rank == 0)
-        Printf["N_DOM: %g; #procs: %g", N_DOM, MPI_Size];
-        If(EMDA)
-	  Printf["Using EMDA transmission condition"];
-        EndIf
-        If(OSRC)
-	  Printf["Using OSRC (Np = %g) transmission condition", N];
-        EndIf
-        If(OO2)
-	  Printf["Using OO2 transmission condition"];
-        EndIf
 
-        Printf["PRECOND_SWEEP: %g", PRECOND_SWEEP];
-        If (PRECOND_SWEEP)
-	  Printf["Number of cuts in preconditioner: %g", #ListOfCuts()-2];
-          If (MPI_Rank == 0)
-	    Printf[" -- List of cuts --"];
-	    For iCut In{0:#ListOfCuts()-1}
-	      Printf["%g", ListOfCuts(iCut)];
-	    EndFor
-	    Printf[" -- List of cuts --"];
-	  EndIf
-        EndIf
-	SystemCommand["rm time*.txt"];
+      If(EMDA)
+	Printf["Using EMDA transmission condition"];
       EndIf
-      Barrier;
+      If(OSRC)
+	Printf["Using OSRC transmission condition"];
+      EndIf
+      If(OO2)
+	Printf["Using OO2 transmission condition"];
+      EndIf
 
+      Printf["PRECOND_SWEEP: %g", PRECOND_SWEEP];
+
+      //Let the DDM game begin!
       SetCommSelf;
       //setting homogeneous BC on transmission boundaries
       Evaluate[0. #10]; Evaluate[0. #11];
       //Setting the non homogeneous Dirichlet BC on GammaD (part 1/2)
       Evaluate[1. #9];
       //Initialization (compute the right hand side)
-      If (EXT_TIME) SystemCommand[Sprintf["./../main/ddmProcTime.py %g factor", MPI_Rank]]; EndIf
       For ii In {0: #ListOfDom()-1}
-        idom = ListOfDom(ii);
-        //Setting the non homogeneous Dirichlet BC on GammaD (part 2/2)
-        UpdateConstraint[Helmholtz~{idom}, GammaD~{idom}, Assign];
+	idom = ListOfDom(ii);
+	//Setting the non homogeneous Dirichlet BC on GammaD (part 2/2)
+	UpdateConstraint[Helmholtz~{idom}, GammaD~{idom}, Assign];
 	Generate[Helmholtz~{idom}] ;
-        Solve[Helmholtz~{idom}] ;
-	If (EXT_TIME) SystemCommand[Sprintf["./../main/ddmProcTime.py %g factor", MPI_Rank]]; EndIf
+	Solve[Helmholtz~{idom}] ;
 	For jdom In {0:1}
 	  Generate[ComputeG~{idom}~{jdom}] ;
-          Solve[ComputeG~{idom}~{jdom}] ;
+	  Solve[ComputeG~{idom}~{jdom}] ;
+	  // If (PRECOND_SWEEP)
+	  //   Generate[ComputeGPrecond~{idom}~{0}] ;
+	  //   Generate[ComputeGPrecond~{idom}~{1}] ;
+	  // EndIf
 	EndFor
-	If (EXT_TIME) SystemCommand[Sprintf["./../main/ddmProcTime.py %g factor", MPI_Rank]]; EndIf
 	//print u_init either in Memory (STORE_U_INIT == 1) and/or on disk (WRITE_U_INIT == 1)
 	PostOperation[u_init~{idom}] ;
       EndFor
       // Compute the g_out in the RAM (right hand side of iterative solver)
       For ii In {0: #ListOfDom()-1}
-        idom = ListOfDom(ii);
+	idom = ListOfDom(ii);
 	For jdom In {0:1}
-	  PostOperation[g_out~{idom}~{jdom}] ; 
+	  PostOperation[g_out~{idom}~{jdom}] ;
 	EndFor
       EndFor
-      // A Barrier is mandatory to ensure that every process has finished the initialization
+      // A Barrier is mandatory to ensure that every process has finish the initialization
       Barrier;
       //Setting homogeneous Dirichlet BC on every GammaD~{idom}
       Evaluate[0. #9];
       For ii In {0: #ListOfDom()-1}
-        idom = ListOfDom(ii);
-        UpdateConstraint[Helmholtz~{idom}, GammaD~{idom}, Assign];
+	idom = ListOfDom(ii);
+	UpdateConstraint[Helmholtz~{idom}, GammaD~{idom}, Assign];
       EndFor
-
-      If (PRECOND_SWEEP) // Generate the systems now, and generate RHS only during iterations (EXPERIMENTAL)
-      	For ii In {0: #ListOfDom()-1}
-          idom = ListOfDom(ii);
-      	  For jdom In {0:1}
-      	    Generate[ComputeGPrecond~{idom}~{jdom}] ;
-      	    Solve[ComputeGPrecond~{idom}~{jdom}] ;
-      	  EndFor
-	  If (EXT_TIME) SystemCommand[Sprintf["./../main/ddmProcTime.py %g factor", MPI_Rank]]; EndIf
-        EndFor
-      EndIf
+      // Launching iterative solver
       SetCommWorld;
 
-      // Launching iterative solver
+      If (PRECOND_SWEEP) // Generate the systems now, and generate RHS only during iterations (EXPERIMENTAL)
+	For ii In {0: #ListOfDom()-1}
+	  idom = ListOfDom(ii);
+	  For jdom In {0:1}
+	    Generate[ComputeGPrecond~{idom}~{0}] ;
+	    Generate[ComputeGPrecond~{idom}~{1}] ;
+	  EndFor
+	EndFor
+      EndIf
+
       IterativeLinearSolver["I-A", SOLVER, TOL, MAXIT, RESTART, {ListOfField()}, {ListOfNeighborField()}, {}]
       {
       	SetCommSelf;
       	//setting non homogeneous BC on transmission boundaries
       	Evaluate[1. #10]; Evaluate[1. #11];
       	// Solve Helmholtz on each of my subdomain
-        For ii In {0: #ListOfDom()-1}
-          idom = ListOfDom(ii);
+	For ii In {0: #ListOfDom()-1}
+	  idom = ListOfDom(ii);
       	  //Compute u on Omega_i (fast way)
       	  GenerateRHSGroup[Helmholtz~{idom}, Sigma~{idom}] ;
-      	  SolveAgain[Helmholtz~{idom}] ; 
+      	  SolveAgain[Helmholtz~{idom}] ;
       	  //Compute the new g_out (fast way)
       	  For jdom In {0:1}
-      	    GenerateRHSGroup[ComputeG~{idom}~{jdom}, Sigma~{idom}~{jdom}] ; 
+      	    GenerateRHSGroup[ComputeG~{idom}~{jdom}, Sigma~{idom}~{jdom}] ;
       	    SolveAgain[ComputeG~{idom}~{jdom}] ;
       	  EndFor
       	EndFor
       	//Update my PView/Field
-        For ii In {0: #ListOfDom()-1}
-          idom = ListOfDom(ii);
+	For ii In {0: #ListOfDom()-1}
+	  idom = ListOfDom(ii);
       	  For jdom In {0:1}
       	    PostOperation[g_out~{idom}~{jdom}] ;
       	  EndFor
-	  If (EXT_TIME) SystemCommand[Sprintf["./../main/ddmProcTime.py %g operator", MPI_Rank]]; EndIf
       	EndFor
       	SetCommWorld;
-      	//End of iteration: every process will exchange their PView/Field
+      	//End of iteration: every process will echange their PView/Field
       }
       {
       //--------------------
-      // DOUBLE SWEEP PRECONDITIONER
+      //SWEEP PRECONDITIONER
       //--------------------
       If(PRECOND_SWEEP)
-	VERBOSE = 0; // Developer's best friend ;)
-	If (VERBOSE)
-	  SystemCommand[Sprintf["echo 'Proc %g: ************** ready to start preconditioner *******************'", MPI_Rank]];
-	  Barrier;
-	EndIf
       	SetCommSelf;
-
-	// Init the sweeps (first/last of each segment) with a broadcast -- not strictly necessary but makes the following of the code more symmetric
-	// First init all first domains of the cuts, otherwise the pending backward bcast will block the start of the next cut
-        For iCut In{0:nCuts-1} 
-	  For proc In {0:MPI_Size-1}
-      	    If (1 && proc == MPI_Rank && ProcOwnsDomain(ListOfCuts(iCut))) // first of cut
-      	      idom = ListOfCuts(iCut);
-      	      skipList = {(2*(idom + N_DOM)-1)%(2*N_DOM), (2*(idom + N_DOM)-2)%(2*N_DOM)}; // left
-	      If (VERBOSE) SystemCommand[Sprintf["echo 'Proc %g: >> Broadcasting domain %g -- first, in cut %g -- INIT -- skipListSize %g >> '", MPI_Rank, idom, iCut, #skipList()]]; EndIf
-      	      BroadcastFields[skipList()];
-      	    EndIf
-	  EndFor
-	EndFor
-
-	// Then init the backward sweeps -- this order gives priority to the forward sweeps in case of 'conflict'
-        For iCut In{0:nCuts-1}
-	  For proc In {0:MPI_Size-1}
-      	    If ( 1 && proc == MPI_Rank && ProcOwnsDomain( ListOfCuts(iCut+1)%N_DOM ) ) // last of cut
-      	      idom = ListOfCuts(iCut+1)%N_DOM;
-	      skipList = {2*idom%(2*N_DOM), (2*(idom + N_DOM)+1)%(2*N_DOM)};  // right
-	      If (VERBOSE) SystemCommand[Sprintf["echo 'Proc %g: << Broadcasting domain %g -- last, in cut %g -- INIT -- skipListSize %g <<' ", MPI_Rank, idom, iCut, #skipList()]]; EndIf
-      	      BroadcastFields[skipList()];
-      	    EndIf
-	  EndFor
-	EndFor
-
-	// Do the sweeps concurrently
-        For iCut In{0:nCuts-1}
-	  For ii In {ListOfCuts(iCut)+1: ListOfCuts(iCut+1)-1:1} // inner domains
-	    For proc In {0:MPI_Size-1}
-      	      idom_f = ii%N_DOM; // index for the forward sweep
-      	      idom_b = (ListOfCuts(iCut) + ListOfCuts(iCut+1) - ii)%N_DOM; // index for the backward sweep
-      	      If( 1 && proc == MPI_Rank && ProcOwnsDomain(idom_f) ) // FORWARD
-      	    	idom = idom_f;
-	        skipList = {2*idom, (2*(idom + N_DOM)+1)%(2*N_DOM)}; // right
-	        If (VERBOSE) SystemCommand[Sprintf["echo 'Proc %g: >> Broadcasting domain %g -- pre, forward -- skipListSize %g >>' ", MPI_Rank, idom, #skipList()]]; EndIf
-      	        BroadcastFields[skipList()];
-
-      		Evaluate[1. #10]; Evaluate[0. #11];
-      	        //Compute u on Omega_i (fast way)
-      	        GenerateRHSGroup[Helmholtz~{idom_f}, Sigma~{idom_f}] ;
-      	        SolveAgain[Helmholtz~{idom_f}] ;
-      	        //Compute the new g_out (fast way)
-      	        GenerateRHSGroup[ComputeGPrecond~{idom_f}~{1}, Sigma~{idom_f}~{1}] ;
-      	        SolveAgain[ComputeGPrecond~{idom_f}~{1}] ;
-      	        PostOperation[g_out~{idom_f}~{1}] ;
-      		If (EXT_TIME) SystemCommand[Sprintf["./../main/ddmProcTime.py %g forward", MPI_Rank]]; EndIf
-	        If (VERBOSE) SystemCommand[Sprintf["echo 'Proc %g: >> SOLVING problem %g forward -- skipListSize %g >>' ", MPI_Rank, idom_f, #skipList()]]; EndIf
-
-      		skipList = {(2*(idom + N_DOM)-1)%(2*N_DOM), (2*(idom + N_DOM)-2)%(2*N_DOM)}; // left
-		If (VERBOSE) SystemCommand[Sprintf["echo 'Proc %g: >> Broadcasting domain %g -- post, forward -- skipListSize %g >>' ", MPI_Rank, idom, #skipList()]]; EndIf
-      	        BroadcastFields[skipList()];
-      	      EndIf
-
-      	      If( 1 && proc == MPI_Rank && ProcOwnsDomain(idom_b) ) // BACKWARD
-      	    	idom = idom_b;
-      		skipList = {(2*(idom + N_DOM)-1)%(2*N_DOM), (2*(idom + N_DOM)-2)%(2*N_DOM)}; // left
-	        If (VERBOSE) SystemCommand[Sprintf["echo 'Proc %g: << Broadcasting domain %g -- pre, backward -- skipListSize %g <<' ", MPI_Rank, idom, #skipList()]]; EndIf
-      	        BroadcastFields[skipList()];
-
-      		Evaluate[0. #10]; Evaluate[1. #11];
-      	        //Compute u on Omega_i (fast way)
-      	        GenerateRHSGroup[Helmholtz~{idom_b}, Sigma~{idom_b}] ;
-      	        SolveAgain[Helmholtz~{idom_b}] ;
-      	        //Compute the new g_out (fast way)
-      	        GenerateRHSGroup[ComputeGPrecond~{idom_b}~{0}, Sigma~{idom_b}~{0}] ;
-      	        SolveAgain[ComputeGPrecond~{idom_b}~{0}] ;
-      	        PostOperation[g_out~{idom_b}~{0}] ;
-      		If (EXT_TIME) SystemCommand[Sprintf["./../main/ddmProcTime.py %g backward", MPI_Rank]]; EndIf
-		If (VERBOSE) SystemCommand[Sprintf["echo 'Proc %g: << SOLVING problem %g backward -- skipListSize %g <<' ", MPI_Rank, idom_b, #skipList()]]; EndIf
-
-      		skipList = {2*idom, (2*(idom + N_DOM)+1)%(2*N_DOM)}; // right
-		If (VERBOSE) SystemCommand[Sprintf["echo 'Proc %g: << Broadcasting domain %g -- post, backward -- skipListSize %g <<' ", MPI_Rank, idom, #skipList()]]; EndIf
-      	        BroadcastFields[skipList()];
-      	      EndIf
-	    EndFor
-      	  EndFor
+	// If((MPI_Size > 1 && MPI_Rank == 0) || MPI_Size < 2)
+	// FORWARD SWEEP
+      	// Transmission condition on Left and Zero condition on Right
+      	Evaluate[1. #10]; Evaluate[0. #11];
+      	// Solve Helmholtz on each of my subdomain
+	For ii In {0: #ListOfDom()-1}
+	  idom = ListOfDom(ii);
+	  If( idom % MPI_Size == MPI_Rank ) // Alex
+	  If(idom > 0 && idom < N_DOM-1)
+      	    //Compute u on Omega_i (fast way)
+      	    GenerateRHSGroup[Helmholtz~{idom}, Sigma~{idom}] ;
+      	    SolveAgain[Helmholtz~{idom}] ;
+      	    //Compute the new g_out (fast way)
+      	    // Generate[ComputeGPrecond~{idom}~{1}] ;
+      	    GenerateRHSGroup[ComputeGPrecond~{idom}~{1}, Sigma~{idom}~{1}] ; // EXPERIMENTAL
+      	    SolveAgain[ComputeGPrecond~{idom}~{1}] ;
+      	    PostOperation[g_out~{idom}~{1}] ;
+      	  EndIf
+      	  EndIf
       	EndFor
+      	// EndIf
 
-	// Finalize communication (last/first domain of each segment)
-        For iCut In{0:nCuts-1}
-	  For proc In {0:MPI_Size-1}
-      	    If (1 && proc == MPI_Rank && ProcOwnsDomain(ListOfCuts(iCut))) // first of cut
-      	      idom = ListOfCuts(iCut);
-	      skipList = {(2*(idom + N_DOM)-1)%(2*N_DOM), (2*(idom + N_DOM)-2)%(2*N_DOM)}; // left
-	      If (VERBOSE) SystemCommand[Sprintf["echo ' << Proc %g: Broadcasting domain %g -- first, in cut %g -- FINALIZE -- skipListSize %g <<' ", MPI_Rank, idom, iCut, #skipList()]]; EndIf
-      	      BroadcastFields[skipList()];
-      	    EndIf
-
-      	    If ( 1 && proc == MPI_Rank && ProcOwnsDomain( ListOfCuts(iCut+1)%N_DOM ) ) // last of cut
-      	      idom = ListOfCuts(iCut+1)%N_DOM;
-      	      skipList = {2*idom, (2*(idom + N_DOM)+1)%(2*N_DOM)};  // right
-	      If (VERBOSE) SystemCommand[Sprintf["echo ' >> Proc %g: Broadcasting domain %g -- last, in cut %g -- FINALIZE -- skipListSize %g >>' ", MPI_Rank, idom, iCut, #skipList()]]; EndIf
-      	      BroadcastFields[skipList()];
-      	    EndIf
-	  EndFor
-	EndFor
+	// If((MPI_Size > 1 && MPI_Rank == 1) || MPI_Size < 2)
+	// BACKWARD SWEEP
+      	// Zero condition on Left and Transmission condition on Right
+      	Evaluate[0. #10]; Evaluate[1. #11];
+      	// Solve Helmholtz on each of my subdomain
+	For ii In {0: #ListOfDom()-1}
+	  idom = ListOfDom(#ListOfDom()-1 - ii) ;
+	  If( idom % MPI_Size == MPI_Rank ) // Alex
+      	  If(idom > 0 && idom < N_DOM-1)
+      	    //Compute u on Omega_i (fast way)
+      	    GenerateRHSGroup[Helmholtz~{idom}, Sigma~{idom}] ;
+      	    SolveAgain[Helmholtz~{idom}] ;
+      	    //Compute the new g_out (fast way)
+      	    // Generate[ComputeGPrecond~{idom}~{0}] ;
+      	    GenerateRHSGroup[ComputeGPrecond~{idom}~{0}, Sigma~{idom}~{0}] ; // EXPERIMENTAL
+      	    SolveAgain[ComputeGPrecond~{idom}~{0}] ;
+      	    PostOperation[g_out~{idom}~{0}] ;
+      	  EndIf
+      	  EndIf
+      	EndFor
       	SetCommWorld;
-      EndIf
+      	EndIf
+      // EndIf
       }
       // //Now the solution G is stored in the PView of index ListOfDom()
       SetCommSelf;
@@ -558,16 +495,13 @@ Resolution {
       //setting non homogeneous BC on transmission boundaries
       Evaluate[1. #10]; Evaluate[1. #11];
       For ii In {0: #ListOfDom()-1}
-        idom = ListOfDom(ii);
-        GenerateRHSGroup[Helmholtz~{idom}, Sigma~{idom}] ; 
-        SolveAgain[Helmholtz~{idom}] ;
-        PostOperation[u_ddm~{idom}] ;
-      	//Error with Full/Exact solution
-        If(FULL_SOLUTION || EXACT_SOLUTION)
-      	  PostOperation[u_ddm_error~{idom}] ;
-        EndIf
+	idom = ListOfDom(ii);
+	GenerateRHSGroup[Helmholtz~{idom}, Sigma~{idom}] ;
+	SolveAgain[Helmholtz~{idom}] ;
+	PostOperation[u_ddm~{idom}] ;
       EndFor
       SetCommWorld;
+
     }
   }
 }
@@ -632,10 +566,9 @@ PostOperation {
     For jdom In {0:1}
       { Name g_out~{idom}~{jdom} ; NameOfPostProcessing g_out~{idom}~{jdom};
 	Operation {
-	  // If(!((idom == 0 && jdom == 0) || (idom == N_DOM-1 && jdom == 1)))
-	  //   Print[ g_out~{idom}~{jdom}, OnElementsOf Sigma~{idom}~{jdom}, StoreInField 2*idom+jdom-1/*, File Sprintf("gg%g_%g.pos",idom, jdom)*/] ;
-	  // EndIf
-	  Print[ g_out~{idom}~{jdom}, OnElementsOf Sigma~{idom}~{jdom}, StoreInField (2*(idom+N_DOM)+(jdom-1))%(2*N_DOM)/*, File Sprintf("gg%g_%g.pos",idom, jdom)*/] ;
+	  If(!((idom == 0 && jdom == 0) || (idom == N_DOM-1 && jdom == 1)))
+	    Print[ g_out~{idom}~{jdom}, OnElementsOf Sigma~{idom}~{jdom}, StoreInField 2*idom+jdom-1/*, File Sprintf("gg%g_%g.pos",idom, jdom)*/] ;
+	  EndIf
 	}
       }
     EndFor

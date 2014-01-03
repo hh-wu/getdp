@@ -1,4 +1,4 @@
-Problem = Str["cylinder_sweep"];
+Problem = Str["cylinder"];
 // Dir= StrCat["../",StrCat[Problem,"/"]];
 // MshName=StrCat[Dir,"zeppelin_mshcut"];
 MshName="cylinder_mshcut";
@@ -13,6 +13,7 @@ Group{
   // GammaInf = Region[(2001:2001+N_DOM-1)];
   Omega = Region[(4)];
   GammaD = Region[(1)];
+  GammaD0 = Region[{}];
   GammaInf = Region[(2)];
   BndGammaInf = Region[{}];
   BndSigma = Region[{}];
@@ -24,6 +25,7 @@ Group{
     Omega~{idom} = Region[(4001 + idom)];
     GammaD~{idom} = Region[(1001 + idom)];	
     GammaN~{idom} = Region[{}];
+    GammaD0~{idom} = Region[{}];
     GammaInf~{idom} = Region[(2001 + idom)];
 
     BndGammaInf~{idom} = Region[{}];

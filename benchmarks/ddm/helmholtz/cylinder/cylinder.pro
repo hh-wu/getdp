@@ -23,9 +23,9 @@ Function {
   // einc[] = Vector[0,0,1] * Complex[ Cos[-k*X[]], Sin[-k*X[]] ]; // Mohamed's
   // uinc[] = Complex[ Cos[-k*Z[]], Sin[-k*Z[]] ]; // Mohamed's
 
-  kx = 0*Sqrt[2.]/2.; // wavevector
+  kx = Sqrt[2.]/2.; // wavevector
   ky = 0;
-  kz = 1;//Sqrt[2.]/2.;
+  kz = Sqrt[2.]/2.;
 
   uinc[] = Complex[ Cos[-(kx*X[]+ky*Y[]+kz*Z[])], Sin[-k*(kx*X[]+ky*Y[]+kz*Z[])] ]; // Mohamed's
   // einc[] = Vector[1,0,0] * Complex[ Cos[-k*Z[]], -Sin[-k*Z[]] ]; // Alex's
@@ -50,52 +50,8 @@ Function{
   kDtn[] = k;
 }
 
-  Include "../main/tcDefaults.pro";
+Include "../main/tcDefaults.pro";
 
-  // // Parameters for OSRC
-  // theta_branch = THETA_BRANCH_OSRC;
-  // kappa[] =  1;//Norm[XYZ[]];// 1/R_INT; // curvature
-  // kepsI = 0.5;//Complex[ k, 0.4 * k^(1/3) * kappa[]^(-2/3) ];
-  // keps[] = k*(1+kepsI*I[]);
-  // keps2[] =  keps[]^2;
-
-  // //Parameters for JFLee
-  // kmax[] = Pi/lc ;//Norm[XYZ[]]*Pi/LC ;
-  // delt[] = Sqrt[kmax[]^2-k^2]/Sqrt[k^2];
-  // Coef_Lee1[] = 1/(1 + I[]*delt[]);
-  // Coef_Lee2[] = -Coef_Lee1[];
-
-
-// // G_IN
-// Function{
-//   //Parallel
-//   ListOfField = {}; //My fields
-//   ListOfNeighborField = {}; //My neighbors
-//   For idom In {0:N_DOM-1}
-//     If(idom ==0)
-//       list_voisin = {1};
-//       n_voisin = 1;
-//     EndIf
-//     If(idom == N_DOM-1)
-//       list_voisin = {N_DOM-2};
-//       n_voisin = 1;
-//     EndIf
-//     If(idom > 0 && idom < N_DOM-1)
-//       list_voisin = {idom-1, idom+1};
-//       n_voisin = 2;
-//     EndIf
-//     g_in~{idom}[Sigma~{idom}] = ComplexVectorField[XYZ[]]{list_voisin{}};
-//     If (idom % MPI_Size == MPI_Rank)
-//       ListOfField += idom;
-//       //who are my neighbor ?
-//       ListOfNeighborField += n_voisin;
-//       ListOfNeighborField += list_voisin{};
-//     EndIf
-//   EndFor
-//   If(MPI_Size <2) // No neighbors specified
-//     ListOfNeighborField = {};
-//   EndIf
-// }
 Function{
   //Parallel
   ListOfField = {}; //My fields
@@ -131,30 +87,71 @@ Function{
     EndIf
 
     If (idom % MPI_Size == MPI_Rank) // FIXME: This way of dispatching the domains is not necessarily optimal for the double sweep strategy !?
-      ListOfDom += {idom};
-      ListOfField += {myFieldLeft{}, myFieldRight{}};
+      // ListOfDom += idom;
+      // ListOfField += {myFieldLeft{}, myFieldRight{}};
+
       //who are my neighbor ?
       // // ListOfNeighborField += n_neighb;
       // // ListOfNeighborField += exchangeFieldLeft{};
       // // ListOfNeighborField += exchangeFieldRight{};
 
-      If(hasNeighbLeft) // FIXME: replace this by evaluating the list size
-        ListOfNeighborField += 1;
-        ListOfNeighborField += exchangeFieldLeft{};
-      EndIf
+      // If(hasNeighbLeft) // FIXME: replace this by evaluating the list size
+      //   ListOfNeighborField += 1;
+      //   ListOfNeighborField += exchangeFieldLeft{};
+      // EndIf
 
-      If(hasNeighbRight)
-        ListOfNeighborField += 1;
-        ListOfNeighborField += exchangeFieldRight{};
-      EndIf
+      // If(hasNeighbRight)
+      //   ListOfNeighborField += 1;
+      //   ListOfNeighborField += exchangeFieldRight{};
+      // EndIf
+
+      ListOfField += myFieldLeft{};
+      ListOfField += myFieldRight{};
+      ListOfDom += idom;
+      //who are my neighbor ?
+      // ListOfNeighborField += nb_voisin;
+      // ListOfNeighborField += list_voisin{};
+      // ListOfNeighborField += nb_voisin;
+      ListOfNeighborField += 1;
+      ListOfNeighborField += exchangeFieldLeft{};
+      ListOfNeighborField += 1;
+      ListOfNeighborField += exchangeFieldRight{};
 
       // g_in~{idom}~{0}[Sigma~{idom}~{0}] = ComplexVectorField[XYZ[]]{exchangeFieldLeft{}}; // FOR MAXWELL ONLY !!
       // g_in~{idom}~{1}[Sigma~{idom}~{1}] = ComplexVectorField[XYZ[]]{exchangeFieldRight{}};
-	g_in~{idom}~{0}[Sigma~{idom}~{0}] = ComplexScalarField[XYZ[]]{exchangeFieldLeft{}}; // FOR HELMHOLTZ ONLY !!
+      g_in~{idom}~{0}[Sigma~{idom}~{0}] = ComplexScalarField[XYZ[]]{exchangeFieldLeft{}}; // FOR HELMHOLTZ ONLY !!
       g_in~{idom}~{1}[Sigma~{idom}~{1}] = ComplexScalarField[XYZ[]]{exchangeFieldRight{}};
 
     EndIf
   EndFor
 }
 
-Include "../main/Helmholtz.pro";
+
+If (PRECOND_SWEEP)
+// ListOfCuts = {0, 5, 10, 15, N_DOM-1};
+ListOfCuts = {0:N_DOM-1:5, N_DOM-1};
+// ListOfCuts = {0, N_DOM-1};
+
+  // Hack to build a 'list of lists': generate variables with 'indexed names'
+  nCuts = 0;
+  For iCut In {0:#ListOfCuts()-2}
+    nProcsInCut~{iCut} = 0;
+  EndFor
+  For iCut In {0:#ListOfCuts()-2}
+    For iDom In {ListOfCuts(iCut):ListOfCuts(iCut+1):1}
+      ListOfProcsInCut~{iCut}~{nProcsInCut~{iCut}} = iDom;
+      nProcsInCut~{iCut} += 1;
+    EndFor
+    nCuts += 1;
+  EndFor
+
+  // what domains am I in charge of ? Implemented with a list
+  ProcOwnsDomain = {};
+  For idom In{0:N_DOM-1}
+    ProcOwnsDomain += {(idom%MPI_Size == MPI_Rank)}; // define your rule here -- must match listOfDom()
+  EndFor
+EndIf
+
+
+// Include "../main/Helmholtz.pro";
+Include "../main/Helmholtz_experimental.pro";

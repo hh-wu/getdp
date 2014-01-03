@@ -77,7 +77,7 @@ lInterfBound[] += Boundary{Surface{lInterf[(#lInterf[]-1)]};};
 lVol[] += {1};
 
 
-extDist = d/6;
+extDist = d/8;
 // extDist = d/NDOM;
 
 // middle part

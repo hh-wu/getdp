@@ -30,14 +30,16 @@ Function{
 Constraint{
   // { Name Dirichlet_uinc ; Case { { Region GammaD ; Value -uinc[]; } } }
   { Name Dirichlet_uinc ; Case { { Region GammaD ; Value uinc[]; } } }
+  { Name Dirichlet0 ; Case { { Region GammaD0 ; Value 0.; } } }
 }
 
 FunctionSpace {
 //FULL VERSION (NODAL/STANDARD)
 { Name Hgrad_u; Type Form0 ;
   BasisFunction { { Name sn ; NameOfCoef un ; Function BF_Node ;
-      Support Region[ {Omega, GammaInf, Sigma, GammaD, BndGammaInf} ] ; Entity NodesOf[ All ] ; } }
-  Constraint { { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet_uinc ; } }
+      Support Region[ {Omega, GammaInf, Sigma, GammaD, GammaD0, BndGammaInf} ] ; Entity NodesOf[ All ] ; } }
+  Constraint { { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet_uinc ; }
+{ NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet0 ; } }
  }
 
 //FULL + MIXTE

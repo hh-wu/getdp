@@ -107,9 +107,9 @@ Function{
       ListOfField += myfield_right{};
       ListOfDom += idom;
       //who are my neighbor ?
-      // ListOfNeighborField += nb_voisin;
-      // ListOfNeighborField += list_voisin{};
-      // ListOfNeighborField += nb_voisin;
+      ListOfNeighborField += nb_voisin;
+      ListOfNeighborField += list_voisin{};
+      ListOfNeighborField += nb_voisin;
 
       g_in~{idom}~{0}[Sigma~{idom}~{0}] = ComplexScalarField[XYZ[]]{voisin_left{}};
       g_in~{idom}~{1}[Sigma~{idom}~{1}] = ComplexScalarField[XYZ[]]{voisin_right{}};
@@ -122,4 +122,30 @@ Function{
 }
 
 
-Include "../main/Helmholtz.pro";
+ListOfCuts = {0, N_DOM-1};
+
+// Hack to build a 'list of lists': generate variables with 'indexed names'
+nCuts = 0;
+For iCut In {0:#ListOfCuts()-2}
+  nProcsInCut~{iCut} = 0;
+EndFor
+For iCut In {0:#ListOfCuts()-2}
+  For iDom In {ListOfCuts(iCut):ListOfCuts(iCut+1):1}
+    ListOfProcsInCut~{iCut}~{nProcsInCut~{iCut}} = iDom;
+    nProcsInCut~{iCut} += 1;
+  EndFor
+  nCuts += 1;
+EndFor
+
+
+If (PRECOND_SWEEP)
+  // what domains am I in charge of ? Implemented with a list
+  ProcOwnsDomain = {};
+  For idom In{0:N_DOM-1}
+    ProcOwnsDomain += {(idom%MPI_Size == MPI_Rank)}; // define your rule here -- must match listOfDom()
+  EndFor
+EndIf
+
+
+// Include "../main/Helmholtz.pro";
+Include "../main/Helmholtz_experimental.pro";
