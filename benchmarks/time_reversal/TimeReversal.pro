@@ -1,8 +1,3 @@
-Group{
-AllDomains = Region[{Propagation_Domain, PML}];
-AllDomains_Bnd = Region[{Propagation_Bnd, PML_Bnd}];
-}
-
 // Functions
 // ==========
 // Functions
@@ -41,70 +36,50 @@ Function{
   S_PML[] = Kx[]*Ky[];
 }
 
-/*====================
-	Jacobian
-====================*/
-Jacobian {
-  { Name JVol ; Case { { Region All ; Jacobian Vol ; } } }
-  { Name JSur ; Case { { Region All ; Jacobian Sur ; } } }
-}
-/*======================
-Paramètres d'intégration
-======================*/
-Integration {
-  { Name I1 ;
-    Case { 
-      { Type Gauss ;
-        Case { 
-          { GeoElement Point ; NumberOfPoints  1 ; }
-          { GeoElement Line ; NumberOfPoints  4 ; }
-          { GeoElement Triangle ; NumberOfPoints  6 ; }
-          { GeoElement Quadrangle ; NumberOfPoints 7 ; }
-          { GeoElement Tetrahedron ; NumberOfPoints 15 ; }
-          { GeoElement Hexahedron ; NumberOfPoints 34 ; }
-        }
-      }
-    }
-  }
-}
-
-
-Constraint{
-//Dirichlet nul sur le bord extérieur du domaine (= frontière de la PML tronquée)
-  {Name BoundExt; Type Assign; Case{ {Region PML_Bnd;  Value 0.; } } }
-}
-
-
-// Function Space
-// ==============
-FunctionSpace{
-  // One space for backpropagation	
-  {Name EspUback; Type Form0;
-    BasisFunction{
-      {Name Ure; NameOfCoef Uren; Function BF_Node;
-	Support Region[{AllDomains, AllDomains_Bnd}]; Entity NodesOf[All];}
-    }
-    //PML constraint
-    Constraint{ {NameOfCoef  Uren; EntityType NodesOf; NameOfConstraint BoundExt;} }
-  }
-}//End FunctionSpace
 
 // FORMULATION
 // ============
 Formulation {
+  //Emission (if approx. Green)
+  If(CLUTTER)
+    { Name Emission; Type FemEquation;
+      Quantity{
+	{Name Ue ; Type Local; NameOfSpace EspUforw;}
+      }
+      Equation{
+	Galerkin{[D[]*Dof{Grad Ue}, {Grad Ue}];
+	  In AllDomains; Jacobian JVol; Integration I1;}
+	Galerkin{[-k^2*n[]^2*Kx[]*Ky[]*Dof{Ue}, {Ue}];
+	  In AllDomains; Jacobian JVol; Integration I1;}
+	// Approx. Dirac
+	Galerkin{[-Dirac[], {Ue}];
+	  In SourceInt; Jacobian JVol; Integration I1;}
+      }
+    }
+  EndIf
+
   //Back propagation
   { Name BackProp; Type FemEquation;
     Quantity{
+      If(CLUTTER)
+	{Name Ue ; Type Local; NameOfSpace EspUforw;}
+      EndIf
       {Name Uback ; Type Local; NameOfSpace EspUback;}
     }
     Equation{
       Galerkin{[D[]*Dof{Grad Uback}, {Grad Uback}];
 	In AllDomains; Jacobian JVol; Integration I1;}
-      Galerkin{[-k^2*Kx[]*Ky[]*Dof{Uback}, {Uback}];
+      Galerkin{[-k^2*n[]^2*Kx[]*Ky[]*Dof{Uback}, {Uback}];
 	In AllDomains; Jacobian JVol; Integration I1;}
       // Source (conjugated)
-      Galerkin{[-GreenConjug[], {Uback}];
-	In TRM; Jacobian JVol; Integration I1;}
+      If(!CLUTTER)
+	Galerkin{[-GreenConjug[], {Uback}];
+	  In TRM; Jacobian JVol; Integration I1;}
+      EndIf
+      If(CLUTTER)
+	Galerkin{[-Conj[{Ue}], {Uback}];
+	  In TRM; Jacobian JVol; Integration I1;}	
+      EndIf
     }
   }
 }//End Formulation
@@ -112,11 +87,17 @@ Formulation {
 // Resolution
 // ==========
 Resolution{
-  {Name TR_Free_Space;
+  {Name TR;
     System{
+      If(CLUTTER)
+	{Name Emission; NameOfFormulation Emission; Type Complex; }	
+      EndIf
       {Name BackProp; NameOfFormulation BackProp; Type Complex; }
     }
     Operation{
+      If(CLUTTER)
+	Generate[Emission]; Solve[Emission]; 
+      EndIf
       Generate[BackProp]; Solve[BackProp]; 
     }
   }
