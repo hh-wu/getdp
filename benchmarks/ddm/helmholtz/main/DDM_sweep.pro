@@ -453,6 +453,8 @@ Resolution {
 	EndIf
       	SetCommSelf;
 
+	nCuts = #ListOfCuts()-1;
+
 	// Init the sweeps (first/last of each segment) with a broadcast -- not strictly necessary but makes the following of the code more symmetric
 	// First init all first domains of the cuts, otherwise the pending backward bcast will block the start of the next cut
         For iCut In{0:nCuts-1} 

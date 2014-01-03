@@ -102,32 +102,6 @@ If (#ListOfCuts() == 1)
   ListOfCuts += ListOfCuts(0)+N_DOM;
 EndIf
 
-// Hack to build a 'list of lists': generate variables with 'indexed names'
-nCuts = 0;
-For iCut In {0:#ListOfCuts()-2}
-  nProcsInCut~{iCut} = 0;
-EndFor
-For iCut In {0:#ListOfCuts()-2}
-  For iDom In {ListOfCuts(iCut):ListOfCuts(iCut+1):1}
-    ListOfProcsInCut~{iCut}~{nProcsInCut~{iCut}} = iDom;
-    nProcsInCut~{iCut} += 1;
-  EndFor
-  nCuts += 1;
-EndFor
-
-// If (MPI_Rank==0)
-//   Printf("nCuts: %g", nCuts);
-//   For iCut In {0:nCuts-1}
-//     Printf("cut %g:", iCut);
-//     For iDom In {0:nProcsInCut~{iCut}-1}
-//       d = ListOfProcsInCut~{iCut}~{iDom};
-//       Printf("%g", d);
-//     EndFor
-//   EndFor
-// EndIf
-
-
-
 If (PRECOND_SWEEP)
   // what domains am I in charge of ? Implemented with a list
   ProcOwnsDomain = {};

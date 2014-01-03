@@ -1,5 +1,5 @@
 Include "params.geo";
-
+Include "../main/ddmDefines.pro";
 Include "groups_cube.pro";
 
 Function {

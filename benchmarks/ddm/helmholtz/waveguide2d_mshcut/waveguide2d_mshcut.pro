@@ -1,4 +1,5 @@
 Include "params.geo";
+Include "../main/ddmDefines.pro";
 Include "groups_waveguide2d_mshcut.pro";
 
 Function {
@@ -68,75 +69,10 @@ Function {
 }
 
 Include "../main/tcDefaults.pro";
-
-// G_IN
-Function{
-  //Parallel
-  ListOfField = {}; //My fields
-  ListOfNeighborField = {}; //My neighbors
-  ListOfDom = {} ;// My domains that I'm in charge of
-  For idom In {0:N_DOM-1}
-    //Index of the field (used in the DDM.pro file)
-    If(idom ==0)
-      myfield_left = {};
-      myfield_right = {0}; // my data
-      voisin_right = {1}; // data to exchange with
-      voisin_left = {};
-      nb_voisin = 1 ;
-    EndIf
-    If(idom == N_DOM-1)
-      myfield_left = {2*idom-1};
-      myfield_right = {};
-      voisin_right = {};
-      voisin_left = {2*(idom-1)};
-      nb_voisin = 1 ;
-    EndIf
-    If(idom > 0 && idom < N_DOM-1)
-      myfield_left = {2*idom-1};
-      myfield_right = {2*idom};
-      voisin_left = {2*(idom-1)};
-      voisin_right = {2*idom+1};
-      nb_voisin = 2 ;
-    EndIf
-
-    // list_voisin = {voisin_right{}, voisin_left{}};
-    If (idom % MPI_Size == MPI_Rank)
-      list_voisin = {voisin_left{}, voisin_right{}};
-
-      ListOfField += myfield_left{};
-      ListOfField += myfield_right{};
-      ListOfDom += idom;
-      //who are my neighbor ?
-      ListOfNeighborField += nb_voisin;
-      ListOfNeighborField += list_voisin{};
-      ListOfNeighborField += nb_voisin;
-
-      g_in~{idom}~{0}[Sigma~{idom}~{0}] = ComplexScalarField[XYZ[]]{voisin_left{}};
-      g_in~{idom}~{1}[Sigma~{idom}~{1}] = ComplexScalarField[XYZ[]]{voisin_right{}};
-
-    EndIf
-  EndFor
-  If(MPI_Size <2) // No neighbors
-    NeighborField = {};
-  EndIf
-}
+Include "../main/topology/inline.pro";
 
 
 ListOfCuts = {0, N_DOM-1};
-
-// Hack to build a 'list of lists': generate variables with 'indexed names'
-nCuts = 0;
-For iCut In {0:#ListOfCuts()-2}
-  nProcsInCut~{iCut} = 0;
-EndFor
-For iCut In {0:#ListOfCuts()-2}
-  For iDom In {ListOfCuts(iCut):ListOfCuts(iCut+1):1}
-    ListOfProcsInCut~{iCut}~{nProcsInCut~{iCut}} = iDom;
-    nProcsInCut~{iCut} += 1;
-  EndFor
-  nCuts += 1;
-EndFor
-
 
 If (PRECOND_SWEEP)
   // what domains am I in charge of ? Implemented with a list
@@ -146,6 +82,4 @@ If (PRECOND_SWEEP)
   EndFor
 EndIf
 
-
-// Include "../main/Helmholtz.pro";
-Include "../main/Helmholtz_experimental.pro";
+Include "../main/Helmholtz.pro";
