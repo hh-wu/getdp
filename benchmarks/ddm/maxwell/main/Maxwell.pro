@@ -192,6 +192,7 @@ PostProcessing {
   { Name Maxwell_e ; NameOfFormulation Maxwell_e ;
     Quantity {
       { Name e ; Value { Local { [ {e} ] ; In GammaScat; Jacobian JSur ; } } }
+      // { Name lambda ; Value { Local { [ {lambda} ] ; In GammaScat; Jacobian JSur ; } } }
       { Name h ; Value { Local { [ {h} ] ; In GammaScat; Jacobian JSur ; } } }
       { Name j ; Value { Local { [ N[] /\ ({h} + hinc[]) ] ; In GammaScat; Jacobian JSur ; } } }
       // { Name j_exact ; Value { Local { [ CurrentPerfectlyConductingSphere[XYZ[]]{k, R_INT, Z0} ] ; In GammaScat; Jacobian JSur ; } } }
@@ -203,6 +204,7 @@ PostProcessing {
   {Name Maxwell_Lagrange ; NameOfFormulation Maxwell_Lagrange ;
     Quantity{
       { Name e_lag ; Value { Local { [ {e_lag} ] ; In GammaScat; Jacobian JSur ; } } }
+      { Name lambda ; Value { Local { [ {lambda} ] ; In GammaScat; Jacobian JSur ; } } }
       { Name h_lag ; Value { Local { [ {h_lag} ] ; In GammaScat; Jacobian JSur ; } } }
       { Name e_lag_vol ; Value { Local { [ {e_lag} ] ; In Omega; Jacobian JVol ; } } }
       { Name e_lag_vol_tot ; Value { Local { [ {e_lag} + einc[] ] ; In Omega; Jacobian JVol ; } } }
@@ -228,6 +230,7 @@ PostOperation {
   { Name Maxwell_Lagrange ; NameOfPostProcessing Maxwell_Lagrange;
     Operation {
       Print[ e_lag, OnElementsOf GammaScat, File "e_lag.pos"] ;
+      Print[ lambda, OnElementsOf GammaScat, File "lambda.pos"] ;
       Print[ h_lag, OnElementsOf GammaScat, File "h_lag.pos"] ;
       Print[ e_lag_vol, OnElementsOf Omega, File "e_lag_vol.pos"] ;
       Print[ e_lag_vol_tot, OnElementsOf Omega, File "e_lag_vol_tot.pos"] ;
@@ -240,4 +243,6 @@ PostOperation {
 
 
 Include "DDM_sweep.pro";
-Include "DDM_sweep_reuse.pro";
+If (REUSE)
+  Include "DDM_sweep_reuse.pro";
+EndIf

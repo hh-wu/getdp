@@ -39,7 +39,7 @@ Function{
 
   myExp[] = Complex[Cos[beta[]*X[]], -Sin[beta[]*X[]]] ; // Replaces Exp[-I[]*beta*X[]], because getdp does not support complex exponentials
   If (TM)
-    kDtN[] = k[];//(k[]^2)/beta[] ; // used in S-M transmission condition (NOT for domain truncation)
+    kDtN[] = (k[]^2)/beta[] ; // used in S-M transmission condition (NOT for domain truncation)
     kInf[] = (k[]^2)/beta[] ;
     If (WAVENUMBER >= kc) // propagative
       eRef[] = Vector[ Sin[kc*Y[]], -I[]*beta[]/kc*Cos[kc*Y[]], 0 ] * myExp[] ; // TM
@@ -73,77 +73,78 @@ Function{
 
 Include "groups_waveguide3d.pro";
 
-Function{
-  //Parallel
-  ListOfField = {}; //My fields
-  ListOfNeighborField = {}; //My neighbors
-  ListOfDom = {} ;
-  For idom In {0:N_DOM-1}
-    If(idom ==0)
-      myFieldLeft = {};
-    hasNeighbLeft = 0;
-      myFieldRight = {0};
-    hasNeighbRight = 1;
-      exchangeFieldLeft = {};
-      exchangeFieldRight = {1};
-      n_neighb = 1;
-    EndIf
-    If(idom == N_DOM-1)
-      myFieldLeft = {2*idom-1};
-    hasNeighbLeft = 1;
-      myFieldRight = {};
-    hasNeighbRight = 0;
-      exchangeFieldLeft = {2*(idom-1)};
-      exchangeFieldRight = {};
-      n_neighb = 1;
-    EndIf
-    If(idom > 0 && idom < N_DOM-1)
-      myFieldLeft = {2*idom-1};
-    hasNeighbLeft = 1;
-      myFieldRight = {2*idom};
-    hasNeighbRight = 1;
-      exchangeFieldLeft = {2*(idom-1)};
-      exchangeFieldRight = {2*idom+1};
-      n_neighb = 2;
-    EndIf
+// Function{
+//   //Parallel
+//   ListOfField = {}; //My fields
+//   ListOfNeighborField = {}; //My neighbors
+//   ListOfDom = {} ;
+//   For idom In {0:N_DOM-1}
+//     If(idom ==0)
+//       myFieldLeft = {};
+//     hasNeighbLeft = 0;
+//       myFieldRight = {0};
+//     hasNeighbRight = 1;
+//       exchangeFieldLeft = {};
+//       exchangeFieldRight = {1};
+//       n_neighb = 1;
+//     EndIf
+//     If(idom == N_DOM-1)
+//       myFieldLeft = {2*idom-1};
+//     hasNeighbLeft = 1;
+//       myFieldRight = {};
+//     hasNeighbRight = 0;
+//       exchangeFieldLeft = {2*(idom-1)};
+//       exchangeFieldRight = {};
+//       n_neighb = 1;
+//     EndIf
+//     If(idom > 0 && idom < N_DOM-1)
+//       myFieldLeft = {2*idom-1};
+//     hasNeighbLeft = 1;
+//       myFieldRight = {2*idom};
+//     hasNeighbRight = 1;
+//       exchangeFieldLeft = {2*(idom-1)};
+//       exchangeFieldRight = {2*idom+1};
+//       n_neighb = 2;
+//     EndIf
 
-    If (idom % MPI_Size == MPI_Rank) // FIXME: This way of dispatching the domains is not necessarily optimal for the double sweep strategy !?
-      ListOfDom += {idom};
-      ListOfField += {myFieldLeft{}, myFieldRight{}};
-      //who are my neighbor ?
-      // // ListOfNeighborField += n_neighb;
-      // // ListOfNeighborField += exchangeFieldLeft{};
-      // // ListOfNeighborField += exchangeFieldRight{};
+//     If (idom % MPI_Size == MPI_Rank) // FIXME: This way of dispatching the domains is not necessarily optimal for the double sweep strategy !?
+//       ListOfDom += {idom};
+//       ListOfField += {myFieldLeft{}, myFieldRight{}};
+//       //who are my neighbor ?
+//       // // ListOfNeighborField += n_neighb;
+//       // // ListOfNeighborField += exchangeFieldLeft{};
+//       // // ListOfNeighborField += exchangeFieldRight{};
 
-      If(hasNeighbLeft) // FIXME: replace this by evaluating the list size
-        ListOfNeighborField += 1;
-        ListOfNeighborField += exchangeFieldLeft{};
-      EndIf
+//       // If(hasNeighbLeft) // FIXME: replace this by evaluating the list size
+//         ListOfNeighborField += 1;
+//         ListOfNeighborField += exchangeFieldLeft{};
+//       // EndIf
 
-      If(hasNeighbRight)
-        ListOfNeighborField += 1;
-        ListOfNeighborField += exchangeFieldRight{};
-      EndIf
+//       // If(hasNeighbRight)
+//         ListOfNeighborField += 1;
+//         ListOfNeighborField += exchangeFieldRight{};
+//       // EndIf
 
-      g_in~{idom}~{0}[Sigma~{idom}~{0}] = ComplexVectorField[XYZ[]]{exchangeFieldLeft{}};
-      g_in~{idom}~{1}[Sigma~{idom}~{1}] = ComplexVectorField[XYZ[]]{exchangeFieldRight{}};
+//       g_in~{idom}~{0}[Sigma~{idom}~{0}] = ComplexVectorField[XYZ[]]{exchangeFieldLeft{}};
+//       g_in~{idom}~{1}[Sigma~{idom}~{1}] = ComplexVectorField[XYZ[]]{exchangeFieldRight{}};
 
-    EndIf
-
-
+//     EndIf
 
 
-  EndFor
 
-      // For i In {0:N_DOM-2}
-      // // attempt to define exchange fields for the double sweep
-      // commonFieldForward = {3*N_DOM+i+1};
-      // commonFieldBackward = {4*N_DOM+i};
 
-      // g_common~{i}~{0}[Sigma~{i+1}~{0}] = ComplexVectorField[XYZ[]]{commonFieldForward};
-      // g_common~{i}~{1}[Sigma~{i}~{1}] = ComplexVectorField[XYZ[]]{commonFieldBackward};
+//   EndFor
 
-      // EndFor
-}
+//       // For i In {0:N_DOM-2}
+//       // // attempt to define exchange fields for the double sweep
+//       // commonFieldForward = {3*N_DOM+i+1};
+//       // commonFieldBackward = {4*N_DOM+i};
 
+//       // g_common~{i}~{0}[Sigma~{i+1}~{0}] = ComplexVectorField[XYZ[]]{commonFieldForward};
+//       // g_common~{i}~{1}[Sigma~{i}~{1}] = ComplexVectorField[XYZ[]]{commonFieldBackward};
+
+//       // EndFor
+// }
+
+Include "../main/topology/inline.pro";
 Include "../main/Maxwell.pro" ;

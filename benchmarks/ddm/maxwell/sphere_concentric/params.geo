@@ -1,8 +1,11 @@
-//Number of subdomains, frequency, element size
-N_DOM = 8;
-WAVENUMBER = 2*Pi;
-LAMBDA = 2*Pi/WAVENUMBER;
-LC = LAMBDA/20;
+
+Include "runParams.geo";
+
+//Transmission boundary condition
+OSRC = 1;
+SILVER_MULLER = 0;
+JFLee =  0;
+
 
 PRECOND_SWEEP = 0;
 
@@ -11,10 +14,6 @@ R_INT = 1.0;
 R_EXT = 2;
 Z = 3;
 
-//Transmission boundary condition
-OSRC = 1;
-SILVER_MULLER = 0;
-JFLee =  0;
 
 // Compute the full solution (to check error, ...)
 FULL_SOLUTION = 0;

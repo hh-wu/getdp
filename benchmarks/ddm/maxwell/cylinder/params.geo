@@ -1,14 +1,15 @@
-lc = .075; // surface
+lc = .075*2.; // surface
 LC = lc * 2; // volume
-NUM_SLICES = 2;
+NUM_SLICES = 20;
 
 //Number of subdomains, frequency, element size
 N_DOM = NUM_SLICES;
-WAVENUMBER = 2*Pi*1;
+WAVENUMBER = Pi*1.137;
 LAMBDA = 2*Pi/WAVENUMBER;
 // LC = LAMBDA/40;
-LC = 2*Pi/40;
-
+// LC = 2*Pi/40;
+lc = LAMBDA/10;
+LC = LAMBDA/10;
 PRECOND_SWEEP = 0;
 
 //Geometry

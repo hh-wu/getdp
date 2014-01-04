@@ -23,8 +23,8 @@ R_EXT = 2;
 Z = 3; 
 
 //Transmission boundary condition
-SILVER_MULLER = 0 ;
-OSRC = 1 ;
+SILVER_MULLER = 1 ;
+OSRC = 0 ;
 JFLee = 0 ;
 
 // Compute the full solution (to check error, ...)

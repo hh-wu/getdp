@@ -1,6 +1,8 @@
-NP_OSRC = 2;
-THETA_BRANCH_OSRC = 0.785398;
-theta_branch = THETA_BRANCH_OSRC;
+DefineConstant[
+	       NP_OSRC = 2,
+	       THETA_BRANCH_OSRC = 0.785398,
+	       theta_branch = THETA_BRANCH_OSRC
+	       ];
 
 Function{
   // Parameters for OSRC

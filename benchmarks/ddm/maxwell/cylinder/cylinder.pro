@@ -14,8 +14,8 @@ Function {
 
   N[] = Normal[];
   I[] = Complex[0, 1];
-  einc[] = Vector[1,0,0] * Complex[ Cos[-k*Z[]], Sin[-k*Z[]] ];
-  hinc[] = 1/Z0 * Vector[0,1,0] * Complex[ Cos[-k*Z[]], Sin[-k*Z[]] ];
+  einc[] = Vector[0,1,0] * Complex[ Cos[-k*Z[]], Sin[-k*Z[]] ];
+  hinc[] = 1/Z0 * Vector[0,0,1] * Complex[ Cos[-k*Z[]], Sin[-k*Z[]] ];
 
   k[] = k;
   kDtN[] = k;

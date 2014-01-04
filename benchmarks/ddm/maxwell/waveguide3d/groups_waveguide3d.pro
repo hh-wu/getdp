@@ -23,7 +23,7 @@ Group{
   BndGammaInf = Region[{}];
   //DDM
   // GammaC = Region[{}];
-  myList = {};
+  // myList = {};
   For idom In {0:N_DOM-1}
     Omega~{idom} = Region[( 6000 + idom + 1 )];
     // If (TEM) // TEM mode does not exist in rectangular waveguide
@@ -31,14 +31,7 @@ Group{
     //   GammaC += Region[{(40000 + idom + 1)}];
     // EndIf
     If (TM)
-
-      If(SOURCE_ON_LEFT)
-        GammaScat~{idom} = Region[{(1000 + idom + 1)}];//, (40000 + idom + 1)}];
-      EndIf
-      If(!SOURCE_ON_LEFT)
-        GammaScat~{idom} = Region[{(2000 + idom + 1)}];//, (40000 + idom + 1)}];
-      EndIf
-      GammaC += Region[{(3000 + idom + 1)}];
+	GammaC~{idom} = Region[{(3000 + idom + 1)}];
     EndIf
     If (TE)
       GammaScat~{idom} = Region[{(3000 + idom + 1)}];
@@ -48,9 +41,11 @@ Group{
     If (idom == 0)
       If(SOURCE_ON_LEFT)
         GammaInf~{idom} = Region[{}];
+        GammaScat~{idom} = Region[{(1000 + idom + 1)}];
       EndIf
       If(!SOURCE_ON_LEFT)
 	GammaInf~{idom} = Region[{(1000 + idom + 1)}];
+        GammaScat~{idom} = Region[{}];
       EndIf
       Sigma~{idom}~{0} = Region[{}];
       Sigma~{idom}~{1} = Region[{(1000*(idom+5))}];
@@ -60,15 +55,18 @@ Group{
       Sigma~{idom}~{1} = Region[{}];
       If(SOURCE_ON_LEFT)
         GammaInf~{idom} = Region[{(2000 + idom +1)}];
+        GammaScat~{idom} = Region[{}];
       EndIf
       If(!SOURCE_ON_LEFT)
 	GammaInf~{idom} = Region[{}];
+        GammaScat~{idom} = Region[{(2000 + idom + 1)}];
       EndIf
     EndIf
     If (idom >=1 && idom < N_DOM-1)
       Sigma~{idom}~{0} = Region[{(1000*(idom+4))}];
       Sigma~{idom}~{1} = Region[{(1000*(idom+5))}];
       GammaInf~{idom} = Region[{}];
+      GammaScat~{idom} = Region[{}];
     EndIf
 
     // If (!PRECOND_SWEEP)

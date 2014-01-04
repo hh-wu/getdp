@@ -499,7 +499,8 @@ Resolution {
       	        //Compute the new g_out (fast way)
       	        GenerateRHSGroup[ComputeGPrecond~{idom_f}~{1}, Sigma~{idom_f}~{1}] ;
       	        SolveAgain[ComputeGPrecond~{idom_f}~{1}] ;
-      	        PostOperation[g_out~{idom_f}~{1}] ;
+      	        // PostOperation[g_out~{idom_f}~{1}] ;
+      	        PostOperation[g_out_pc~{idom_f}~{1}] ;
       		If (EXT_TIME) SystemCommand[Sprintf["./../main/ddmProcTime.py %g forward", MPI_Rank]]; EndIf
 	        If (VERBOSE) SystemCommand[Sprintf["echo 'Proc %g: >> SOLVING problem %g forward -- skipListSize %g >>' ", MPI_Rank, idom_f, #skipList()]]; EndIf
 
@@ -521,7 +522,8 @@ Resolution {
       	        //Compute the new g_out (fast way)
       	        GenerateRHSGroup[ComputeGPrecond~{idom_b}~{0}, Sigma~{idom_b}~{0}] ;
       	        SolveAgain[ComputeGPrecond~{idom_b}~{0}] ;
-      	        PostOperation[g_out~{idom_b}~{0}] ;
+      	        // PostOperation[g_out~{idom_b}~{0}] ;
+      	        PostOperation[g_out_pc~{idom_b}~{0}] ;
       		If (EXT_TIME) SystemCommand[Sprintf["./../main/ddmProcTime.py %g backward", MPI_Rank]]; EndIf
 		If (VERBOSE) SystemCommand[Sprintf["echo 'Proc %g: << SOLVING problem %g backward -- skipListSize %g <<' ", MPI_Rank, idom_b, #skipList()]]; EndIf
 
@@ -596,6 +598,13 @@ PostProcessing {
 	}
       }
     EndFor
+    For jdom In {0:1}
+      { Name g_out_pc~{idom}~{jdom} ; NameOfFormulation ComputeGPrecond~{idom}~{jdom} ;
+	PostQuantity {
+	  { Name g_out~{idom}~{jdom} ; Value { Local { [ {g_out~{idom}~{jdom}} ] ; In Sigma~{idom}~{jdom}; Jacobian JSur ; } } }
+	}
+      }
+    EndFor
 
     //Save on disk or in RAM field u at initialization (needed to obtain the scattered field)
     { Name u_init~{idom} ; NameOfFormulation DDM~{idom} ;
@@ -633,6 +642,16 @@ PostOperation {
     // g_out
     For jdom In {0:1}
       { Name g_out~{idom}~{jdom} ; NameOfPostProcessing g_out~{idom}~{jdom};
+	Operation {
+	  // If(!((idom == 0 && jdom == 0) || (idom == N_DOM-1 && jdom == 1)))
+	  //   Print[ g_out~{idom}~{jdom}, OnElementsOf Sigma~{idom}~{jdom}, StoreInField 2*idom+jdom-1/*, File Sprintf("gg%g_%g.pos",idom, jdom)*/] ;
+	  // EndIf
+	  Print[ g_out~{idom}~{jdom}, OnElementsOf Sigma~{idom}~{jdom}, StoreInField (2*(idom+N_DOM)+(jdom-1))%(2*N_DOM)/*, File Sprintf("gg%g_%g.pos",idom, jdom)*/] ;
+	}
+      }
+    EndFor
+    For jdom In {0:1}
+      { Name g_out_pc~{idom}~{jdom} ; NameOfPostProcessing g_out_pc~{idom}~{jdom};
 	Operation {
 	  // If(!((idom == 0 && jdom == 0) || (idom == N_DOM-1 && jdom == 1)))
 	  //   Print[ g_out~{idom}~{jdom}, OnElementsOf Sigma~{idom}~{jdom}, StoreInField 2*idom+jdom-1/*, File Sprintf("gg%g_%g.pos",idom, jdom)*/] ;

@@ -1,13 +1,21 @@
-Include "params.geo";
+Include "params_JINA1998.geo";
 
-For i In {0:(N_DOM-1)}
-  Merge Sprintf("e_vol_%g.pos", i);
+N_DOM = 0;
+For i In {0:4}
+N_DOM += nDomList[i];
 EndFor
 
-Combine ElementsFromVisibleViews;
-View[0].Name = "e_vol_ddm";
+//to compare to the full or exact solution, getdp needs to store u_init
+If(FULL_SOLUTION || EXACT_SOLUTION)
+  STORE_U_INIT = 1;
+EndIf
 
-// View[0].Visible = 0;
+For idom In {0:N_DOM-1}
+  Merge Sprintf("e_vol_%g.pos", idom);
+EndFor
+Combine ElementsFromVisibleViews;
+
+
 Merge "e_lag_vol.pos";
 
 Plugin(MathEval).Expression0= "v0-w0";

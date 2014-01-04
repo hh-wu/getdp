@@ -34,14 +34,24 @@ Group{
   EndFor
 }
 
+Constraint{
+  For ii In {0: #ListOfDom()-1}
+    idom = ListOfDom(ii);
+    { Name Dirichlet_e_homog~{idom} ;
+      Case { { Region GammaC~{idom} ; Type Assign ; Value 0. ; } }
+    }
+  EndFor
+}
+
+
 FunctionSpace {
   For ii In {0: #ListOfDom()-1}
     idom = ListOfDom(ii);
     { Name Hcurl_e~{idom}; Type Form1;
       BasisFunction { { Name se; NameOfCoef ee; Function BF_Edge;
-	  Support Region[{Omega~{idom}, GammaScat~{idom}, GammaInf~{idom}, Sigma~{idom}, GammaC}] ; Entity EdgesOf[All]; } }
+	  Support Region[{Omega~{idom}, GammaScat~{idom}, GammaInf~{idom}, Sigma~{idom}, GammaC~{idom}}] ; Entity EdgesOf[All]; } }
       Constraint {
-        { NameOfCoef ee; EntityType EdgesOf ; NameOfConstraint Dirichlet_e_homog; }
+        { NameOfCoef ee; EntityType EdgesOf ; NameOfConstraint Dirichlet_e_homog~{idom}; }
       }
     }
 
@@ -55,14 +65,14 @@ FunctionSpace {
       BasisFunction { { Name se; NameOfCoef ee; Function BF_Edge;
 	  Support Region[{GammaScat~{idom}}] ; Entity EdgesOf[All]; } }
       Constraint {
-        { NameOfCoef ee; EntityType EdgesOf ; NameOfConstraint Dirichlet_e_homog; }
+        { NameOfCoef ee; EntityType EdgesOf ; NameOfConstraint Dirichlet_e_homog~{idom}; }
       }
     }
 
     For iSide In {0:1}
     { Name Hcurl_g_out~{idom}~{iSide}; Type Form1;
       BasisFunction { { Name se; NameOfCoef ee; Function BF_Edge;
-	  Support Region[{Sigma~{idom}~{iSide}}] ; Entity EdgesOf[Sigma~{idom}~{iSide}, Not {GammaScat~{idom}, GammaC, GammaInf/*, GammaSym~{idom}/**/}]; } } //!!!
+	  Support Region[{Sigma~{idom}~{iSide}}] ; Entity EdgesOf[Sigma~{idom}~{iSide}, Not {GammaScat~{idom}, GammaC~{idom}, GammaInf~{idom}/*, GammaSym~{idom}/**/}]; } } //!!!
     }
     EndFor
 
@@ -70,16 +80,16 @@ FunctionSpace {
       For iSide In {0:1}
         { Name Hcurl_r~{idom}~{iSide}; Type Form1;
           BasisFunction { { Name ser1; NameOfCoef eer1; Function BF_Edge;
-	      Support Region[{Sigma~{idom}~{iSide}}] ; Entity EdgesOf[Sigma~{idom}~{iSide}/*, Not {GammaScat~{idom}, GammaC, GammaInf/*, GammaSym~{idom}}*/]; } }
+	      Support Region[{Sigma~{idom}~{iSide}}] ; Entity EdgesOf[Sigma~{idom}~{iSide}, Not {GammaScat~{idom}, GammaC~{idom}, GammaInf~{idom}/*, GammaSym~{idom}/**/}]; } }
         }
         For j In {1:NP_OSRC}
 	  { Name Hgrad_rho~{j}~{idom}~{iSide} ; Type Form0 ;
 	    BasisFunction { { Name srh1; NameOfCoef erh1; Function BF_Node;
-	        Support Region[{Sigma~{idom}~{iSide}}] ; Entity NodesOf[Sigma~{idom}~{iSide}, Not {GammaScat~{idom}, GammaC/*, GammaInf, GammaSym~{idom}/**/}]; } }
+	        Support Region[{Sigma~{idom}~{iSide}}] ; Entity NodesOf[Sigma~{idom}~{iSide}, Not {GammaScat~{idom}, GammaC~{idom}, GammaInf~{idom}/*, GammaSym~{idom}/**/}]; } }
 	  }
 	  { Name Hcurl_phi~{j}~{idom}~{iSide}; Type Form1;
 	    BasisFunction { { Name sph1; NameOfCoef eph1; Function BF_Edge;
-		Support Region[{Sigma~{idom}~{iSide}}] ; Entity EdgesOf[Sigma~{idom}~{iSide}, Not {GammaScat~{idom}, GammaC, GammaInf/*, GammaSym~{idom}/**/}]; } }
+		Support Region[{Sigma~{idom}~{iSide}}] ; Entity EdgesOf[Sigma~{idom}~{iSide}, Not {GammaScat~{idom}, GammaC~{idom}, GammaInf~{idom}/*, GammaSym~{idom}/**/}]; } }
 	  }
         EndFor
       EndFor
@@ -89,11 +99,11 @@ FunctionSpace {
       For iSide In {0:1}
 	{ Name Hgrad_rho~{idom}~{iSide} ; Type Form0 ;
 	  BasisFunction { { Name srh1; NameOfCoef erh1; Function BF_Node;
-	      Support Region[{Sigma~{idom}~{iSide}}] ; Entity NodesOf[Sigma~{idom}~{iSide}, Not {GammaScat~{idom}, GammaC/*, GammaInf, GammaSym~{idom}/**/}]; } }
+	      Support Region[{Sigma~{idom}~{iSide}}] ; Entity NodesOf[Sigma~{idom}~{iSide}, Not {GammaScat~{idom}, GammaC~{idom}/*, GammaInf~{idom}, GammaSym~{idom}/**/}]; } }
 	}
 	{ Name Hcurl_phi~{idom}~{iSide}; Type Form1;
 	  BasisFunction { { Name sph1; NameOfCoef eph1; Function BF_Edge;
-	      Support Region[{Sigma~{idom}~{iSide}}] ; Entity EdgesOf[Sigma~{idom}~{iSide}, Not {GammaScat~{idom}, GammaC/*, GammaInf, GammaSym~{idom}/**/}]; } }
+	      Support Region[{Sigma~{idom}~{iSide}}] ; Entity EdgesOf[Sigma~{idom}~{iSide}, Not {GammaScat~{idom}, GammaC~{idom}/*, GammaInf~{idom}, GammaSym~{idom}/**/}]; } }
 	}
       EndFor
     EndIf
@@ -134,7 +144,7 @@ Formulation {
 	Galerkin { [ I[] * kInf[] * (N[]) /\ ( N[] /\ Dof{e~{idom}} ) , {e~{idom}} ];
 	  In GammaInf~{idom}; Integration I1; Jacobian JSur; }
 
-	//boundary condition
+	// // //boundary condition
 	Galerkin { [ Dof{lambda~{idom}} , {e~{idom}} ] ;
 	  In GammaScat~{idom}; Jacobian JSur ; Integration I1 ; }
 	Galerkin { [ 0*Dof{lambda~{idom}} , {lambda~{idom}} ] ; // !!! DO NOT REMOVE UNLESS YOU KNOW WHAT YOU'RE DOING !!!
@@ -346,61 +356,86 @@ Resolution {
     }
     Operation {
 
-      //FULL
-      If(FULL_SOLUTION)
-	Generate[Lag] ; Solve[Lag] ;
-	PostOperation[Maxwell_Lagrange];
+      If (MPI_Rank == 0)
+	Printf["N_DOM: %g; #procs: %g", N_DOM, MPI_Size];
+        If(SILVER_MULLER)
+	  Printf["  Using SM as transmission condition "];
+        EndIf
+        If(OSRC)
+	  Printf["  Using OSRC (Np = %g) as transmission condition ", NP_OSRC];
+        EndIf
+        If(JFLee)
+	  Printf["  Using JFLee as transmission condition "];
+        EndIf
+	Printf("  Relative tolerance: %g", TOL);
+	Printf("  PRECOND_SWEEP: %g", PRECOND_SWEEP);
+        If (PRECOND_SWEEP)
+	  Printf["Number of cuts in preconditioner: %g", #ListOfCuts()-2];
+          If (MPI_Rank == 0)
+	    Printf[" -- List of cuts --"];
+	    For iCut In{0:#ListOfCuts()-1}
+	      Printf["%g", ListOfCuts(iCut)];
+	    EndFor
+	    Printf[" -- List of cuts --"];
+	  EndIf
+        EndIf
+	SystemCommand["rm time*.txt"];
       EndIf
-
-      If(SILVER_MULLER)
-	Printf[" ***** Using SM as transmission condition *****"];
-      EndIf
-      If(OSRC)
-	Printf[" ***** Using OSRC (Np = %g) as transmission condition *****", NP_OSRC];
-      EndIf
-      If(JFLee)
-	Printf[" ***** Using JFLee as transmission condition *****"];
-      EndIf
-	Printf(" ** Relative tolerance: %g", TOL);
+      Barrier;
 
       //DDM
       SetCommSelf;
       // Compute rhs for Krylov -- physical sources only
       Evaluate[1. #10];
       Evaluate[0. #11]; Evaluate[0. #12];
+      If (EXT_TIME) SystemCommand[Sprintf["./../main/ddmProcTime.py %g factor", MPI_Rank]]; EndIf
+
       For ii In {0: #ListOfDom()-1}
 	idom = ListOfDom(ii);
 	If(MPI_Rank == idom%MPI_Size)
 	  Generate[Maxw~{idom}];
 	  Solve[Maxw~{idom}];
+	  If (EXT_TIME) SystemCommand[Sprintf["./../main/ddmProcTime.py %g factor", MPI_Rank]]; EndIf
 	  For iSide In{0:1}
 	    Generate[ComputeG~{idom}~{iSide}];
 	    Solve[ComputeG~{idom}~{iSide}];
-	    PostOperation[g_out~{idom}~{iSide}]; // Compute g_in for next iteration
 	  EndFor
 	  // PostOperation[DDM_INIT~{idom}];
+	  If (EXT_TIME) SystemCommand[Sprintf["./../main/ddmProcTime.py %g factor", MPI_Rank]]; EndIf
 	EndIf
+      EndFor
+
+      For ii In {0: #ListOfDom()-1}
+      	idom = ListOfDom(ii);
+      	If(MPI_Rank == idom%MPI_Size)
+	  For iSide In{0:1}
+      	    PostOperation[g_out~{idom}~{iSide}]; // Compute g_in for next iteration
+	  EndFor
+      	EndIf
       EndFor
 
       //Update "Dirichlet" Boundary condition (homogenous now) -- FIXME Alex: ALL physical sources should be canceled, not only Dirichlet BCs
       Evaluate[0. #10];
       For ii In {0: #ListOfDom()-1}
       	idom = ListOfDom(ii) ;
-      	If(MPI_Rank == idom%MPI_Size)
+      	// If(MPI_Rank == idom%MPI_Size)
       	  GenerateRHSGroup[Maxw~{idom}, GammaScat~{idom}] ;
-      	EndIf
+      	// EndIf
       EndFor
 
-      // Generate now, and use GenerateRHSGroup in sweep loop
-      Evaluate[1. #11]; Evaluate[1. #12];
-      For ii In {0: #ListOfDom()-1}
-      	idom = ListOfDom(ii);
-      	If(MPI_Rank == idom%MPI_Size)
-      	For iSide In{0:1}
-      	  Generate[ComputeGPrecond~{idom}~{iSide}];
+      If (PRECOND_SWEEP) // Generate now, and use GenerateRHSGroup in sweep loop
+        Evaluate[1. #11]; Evaluate[1. #12];
+        For ii In {0: #ListOfDom()-1}
+      	  idom = ListOfDom(ii);
+	  // If(MPI_Rank == idom%MPI_Size)
+      	  For iSide In{0:1}
+      	    Generate[ComputeGPrecond~{idom}~{iSide}];
+      	    Solve[ComputeGPrecond~{idom}~{iSide}];
+          EndFor
+      	  // EndIf
+	  If (EXT_TIME) SystemCommand[Sprintf["./../main/ddmProcTime.py %g factor", MPI_Rank]]; EndIf
         EndFor
-      	EndIf
-      EndFor
+      EndIf											
       SetCommWorld;
 
       //krylov
@@ -409,111 +444,144 @@ Resolution {
       	Evaluate[1. #11]; Evaluate[1. #12];
       	For ii In {0: #ListOfDom()-1}
       	  idom = ListOfDom(ii);
-      	If(MPI_Rank == idom%MPI_Size)
+      	// If(MPI_Rank == idom%MPI_Size)
       	  GenerateRHSGroup[Maxw~{idom}, Sigma~{idom}];
       	  SolveAgain[Maxw~{idom}];
       	  For iSide In{0:1}
       	    GenerateRHSGroup[ComputeG~{idom}~{iSide}, Sigma~{idom}~{iSide}];
       	    SolveAgain[ComputeG~{idom}~{iSide}];
       	  EndFor
-      	  EndIf
+      	  // EndIf
       	EndFor
-      	//Update view (must be done after all resolution)
+      	//Update view (must be done after all resolutions)
       	For ii In {0: #ListOfDom()-1}
       	  idom = ListOfDom(ii) ;
-      	If(MPI_Rank == idom%MPI_Size)
-      	  For iSide In{0:1}
-      	    PostOperation[g_out~{idom}~{iSide}] ;
-      	  EndFor
-      	  EndIf
-      	EndFor
-
-      	/********* PARALLEL-SEQUENTIAL version -- proof of concept *******
-      	Evaluate[1. #11]; Evaluate[1. #12];
-      	For ii In {0: N_DOM-1}
-      	  SetCommSelf;
-      	idom = ii;//ListOfDom(ii);
-
-      	  For jj In {0:MPI_Size-1}
-      	If(jj == MPI_Rank && MPI_Rank == idom%MPI_Size)
-      	  GenerateRHSGroup[Maxw~{idom}, Sigma~{idom}];
-      	  SolveAgain[Maxw~{idom}];
-      	  For iSide In{0:1}
-      	    GenerateRHSGroup[ComputeG~{idom}~{iSide}, Sigma~{idom}~{iSide}];
-      	    SolveAgain[ComputeG~{idom}~{iSide}];
-      	  EndFor
-      	  EndIf
+      	  // If(MPI_Rank == idom%MPI_Size)
+      	    For iSide In{0:1}
+      	      PostOperation[g_out~{idom}~{iSide}] ;
       	    EndFor
-      	    Barrier;
-      	    SetCommWorld;
+	    If (EXT_TIME) SystemCommand[Sprintf["./../main/ddmProcTime.py %g operator", MPI_Rank]]; EndIf
+      	  // EndIf
       	EndFor
-
-      	//Update view (must be done after all resolution) -- !!! can be done immediately if parallel, because information is not exchanged
-      	For ii In {0: N_DOM-1}
-      	  SetCommSelf;
-      	  idom = ii ;
-      	  For jj In {0:MPI_Size-1}
-      	If(jj == MPI_Rank && MPI_Rank == idom%MPI_Size)
-      	  For iSide In{0:1}
-      	    PostOperation[g_out~{idom}~{iSide}] ;
-      	  EndFor
-      	  EndIf
-      	    EndFor
-      	    Barrier;
-      	    SetCommWorld;
-      	EndFor
-      	//************* end PARALLEL-SEQUENTIAL ***************/
       	SetCommWorld;
       }
       {
       	If (PRECOND_SWEEP)
-      	  SetCommSelf;
-          // FORWARD SWEEP
-      	  // Transmission condition on Left and Zero condition on Right
-      	  For ii In {1:N_DOM-2}
-      	    Evaluate[1. #11]; Evaluate[0. #12];
-      	    idom = ii;//ListOfDom(ii);
-      	    For jj In {0: MPI_Size-1}
-      	      If(jj==MPI_Rank && idom%MPI_Size == MPI_Rank)//(idom%MPI_Size == MPI_Rank)
-      	        //Compute u on Omega_i (fast way)
-      	        GenerateRHSGroup[Maxw~{idom}, Sigma~{idom}] ;
-      	        SolveAgain[Maxw~{idom}] ;
-      	        //Compute the new g_out (fast way)
-      	        GenerateRHSGroup[ComputeGPrecond~{idom}~{1}, Sigma~{idom}~{1}] ;
-      	        SolveAgain[ComputeGPrecond~{idom}~{1}] ;
-      	        PostOperation[g_out_pc~{idom}~{1}] ;
-      	      EndIf
-      	    EndFor
-      	  EndFor
-      	  Barrier;
+	VERBOSE = 0; // Developer's best friend ;)
+	If (VERBOSE)
+	  SystemCommand[Sprintf["echo 'Proc %g: ************** ready to start preconditioner *******************'", MPI_Rank]];
+	  Barrier;
+	EndIf
+      	SetCommSelf;
 
-      	  // BACKWARD SWEEP
-      	  // Zero condition on Left and Transmission condition on Right
-      	  For ii In {1:N_DOM-2}
-      	    Evaluate[0. #11]; Evaluate[1. #12];
-      	    idom = N_DOM-1-ii;//ListOfField(#ListOfDom()-1 - ii) ;
-      	    For jj In {0:MPI_Size-1}
-      	      If(jj==MPI_Rank && idom%MPI_Size == MPI_Rank)//(idom%MPI_Size == MPI_Rank)
+	nCuts = #ListOfCuts()-1;
+
+	// Init the sweeps (first/last of each segment) with a broadcast -- not strictly necessary but makes the following of the code more symmetric
+	// First init all first domains of the cuts, otherwise the pending backward bcast will block the start of the next cut
+        For iCut In{0:nCuts-1} 
+	  For proc In {0:MPI_Size-1}
+      	    If (1 && proc == MPI_Rank && ProcOwnsDomain(ListOfCuts(iCut))) // first of cut
+      	      idom = ListOfCuts(iCut);
+      	      skipList = {(2*(idom + N_DOM)-1)%(2*N_DOM), (2*(idom + N_DOM)-2)%(2*N_DOM)}; // left
+	      If (VERBOSE) SystemCommand[Sprintf["echo 'Proc %g: >> Broadcasting domain %g -- first, in cut %g -- INIT -- skipListSize %g >> '", MPI_Rank, idom, iCut, #skipList()]]; EndIf
+      	      BroadcastFields[skipList()];
+      	    EndIf
+	  EndFor
+	EndFor
+
+	// Then init the backward sweeps -- this order gives priority to the forward sweeps in case of 'conflict'
+        For iCut In{0:nCuts-1}
+	  For proc In {0:MPI_Size-1}
+      	    If ( 1 && proc == MPI_Rank && ProcOwnsDomain( ListOfCuts(iCut+1)%N_DOM ) ) // last of cut
+      	      idom = ListOfCuts(iCut+1)%N_DOM;
+	      skipList = {2*idom%(2*N_DOM), (2*(idom + N_DOM)+1)%(2*N_DOM)};  // right
+	      If (VERBOSE) SystemCommand[Sprintf["echo 'Proc %g: << Broadcasting domain %g -- last, in cut %g -- INIT -- skipListSize %g <<' ", MPI_Rank, idom, iCut, #skipList()]]; EndIf
+      	      BroadcastFields[skipList()];
+      	    EndIf
+	  EndFor
+	EndFor
+
+	// Do the sweeps concurrently
+        For iCut In{0:nCuts-1}
+	  For ii In {ListOfCuts(iCut)+1: ListOfCuts(iCut+1)-1:1} // inner domains
+	    For proc In {0:MPI_Size-1}
+      	      idom_f = ii%N_DOM; // index for the forward sweep
+      	      idom_b = (ListOfCuts(iCut) + ListOfCuts(iCut+1) - ii)%N_DOM; // index for the backward sweep
+      	      If( 1 && proc == MPI_Rank && ProcOwnsDomain(idom_f) ) // FORWARD
+      	    	idom = idom_f;
+	        skipList = {2*idom, (2*(idom + N_DOM)+1)%(2*N_DOM)}; // right
+	        If (VERBOSE) SystemCommand[Sprintf["echo 'Proc %g: >> Broadcasting domain %g -- pre, forward -- skipListSize %g >>' ", MPI_Rank, idom, #skipList()]]; EndIf
+      	        BroadcastFields[skipList()];
+
+      		Evaluate[1. #11]; Evaluate[0. #12];
       	        //Compute u on Omega_i (fast way)
-      	        GenerateRHSGroup[Maxw~{idom}, Sigma~{idom}] ;
-      	        SolveAgain[Maxw~{idom}] ;
+      	        GenerateRHSGroup[Maxw~{idom_f}, Sigma~{idom_f}] ;
+      	        SolveAgain[Maxw~{idom_f}] ;
       	        //Compute the new g_out (fast way)
-      	        GenerateRHSGroup[ComputeGPrecond~{idom}~{0}, Sigma~{idom}~{0}] ;
-      	        SolveAgain[ComputeGPrecond~{idom}~{0}] ;
-      	        PostOperation[g_out_pc~{idom}~{0}] ;
+      	        GenerateRHSGroup[ComputeGPrecond~{idom_f}~{1}, Sigma~{idom_f}~{1}] ;
+      	        SolveAgain[ComputeGPrecond~{idom_f}~{1}] ;
+      	        // PostOperation[g_out~{idom_f}~{1}] ;
+      	        PostOperation[g_out_pc~{idom_f}~{1}] ;
+      		If (EXT_TIME) SystemCommand[Sprintf["./../main/ddmProcTime.py %g forward", MPI_Rank]]; EndIf
+	        If (VERBOSE) SystemCommand[Sprintf["echo 'Proc %g: >> SOLVING problem %g forward -- skipListSize %g >>' ", MPI_Rank, idom_f, #skipList()]]; EndIf
+
+      		skipList = {(2*(idom + N_DOM)-1)%(2*N_DOM), (2*(idom + N_DOM)-2)%(2*N_DOM)}; // left
+		If (VERBOSE) SystemCommand[Sprintf["echo 'Proc %g: >> Broadcasting domain %g -- post, forward -- skipListSize %g >>' ", MPI_Rank, idom, #skipList()]]; EndIf
+      	        BroadcastFields[skipList()];
       	      EndIf
-      	    EndFor
+
+      	      If( 1 && proc == MPI_Rank && ProcOwnsDomain(idom_b) ) // BACKWARD
+      	    	idom = idom_b;
+      		skipList = {(2*(idom + N_DOM)-1)%(2*N_DOM), (2*(idom + N_DOM)-2)%(2*N_DOM)}; // left
+	        If (VERBOSE) SystemCommand[Sprintf["echo 'Proc %g: << Broadcasting domain %g -- pre, backward -- skipListSize %g <<' ", MPI_Rank, idom, #skipList()]]; EndIf
+      	        BroadcastFields[skipList()];
+
+      		Evaluate[0. #11]; Evaluate[1. #12];
+      	        //Compute u on Omega_i (fast way)
+      	        GenerateRHSGroup[Maxw~{idom_b}, Sigma~{idom_b}] ;
+      	        SolveAgain[Maxw~{idom_b}] ;
+      	        //Compute the new g_out (fast way)
+      	        GenerateRHSGroup[ComputeGPrecond~{idom_b}~{0}, Sigma~{idom_b}~{0}] ;
+      	        SolveAgain[ComputeGPrecond~{idom_b}~{0}] ;
+      	        // PostOperation[g_out~{idom_b}~{0}] ;
+      	        PostOperation[g_out_pc~{idom_b}~{0}] ;
+      		If (EXT_TIME) SystemCommand[Sprintf["./../main/ddmProcTime.py %g backward", MPI_Rank]]; EndIf
+		If (VERBOSE) SystemCommand[Sprintf["echo 'Proc %g: << SOLVING problem %g backward -- skipListSize %g <<' ", MPI_Rank, idom_b, #skipList()]]; EndIf
+
+      		skipList = {2*idom, (2*(idom + N_DOM)+1)%(2*N_DOM)}; // right
+		If (VERBOSE) SystemCommand[Sprintf["echo 'Proc %g: << Broadcasting domain %g -- post, backward -- skipListSize %g <<' ", MPI_Rank, idom, #skipList()]]; EndIf
+      	        BroadcastFields[skipList()];
+      	      EndIf
+	    EndFor
       	  EndFor
-      	  Barrier ;
-      	  SetCommWorld;
+      	EndFor
+
+	// Finalize communication (last/first domain of each segment)
+        For iCut In{0:nCuts-1}
+	  For proc In {0:MPI_Size-1}
+      	    If (1 && proc == MPI_Rank && ProcOwnsDomain(ListOfCuts(iCut))) // first of cut
+      	      idom = ListOfCuts(iCut);
+	      skipList = {(2*(idom + N_DOM)-1)%(2*N_DOM), (2*(idom + N_DOM)-2)%(2*N_DOM)}; // left
+	      If (VERBOSE) SystemCommand[Sprintf["echo ' << Proc %g: Broadcasting domain %g -- first, in cut %g -- FINALIZE -- skipListSize %g <<' ", MPI_Rank, idom, iCut, #skipList()]]; EndIf
+      	      BroadcastFields[skipList()];
+      	    EndIf
+
+      	    If ( 1 && proc == MPI_Rank && ProcOwnsDomain( ListOfCuts(iCut+1)%N_DOM ) ) // last of cut
+      	      idom = ListOfCuts(iCut+1)%N_DOM;
+      	      skipList = {2*idom, (2*(idom + N_DOM)+1)%(2*N_DOM)};  // right
+	      If (VERBOSE) SystemCommand[Sprintf["echo ' >> Proc %g: Broadcasting domain %g -- last, in cut %g -- FINALIZE -- skipListSize %g >>' ", MPI_Rank, idom, iCut, #skipList()]]; EndIf
+      	      BroadcastFields[skipList()];
+      	    EndIf
+	  EndFor
+	EndFor
+      	SetCommWorld;
       	EndIf
       }
+      SetCommSelf;
 
-      //building solution in volume after convergence ; use both physical and artificial sources => no need to sum afterwards
+      //building solution in volume after convergence; using both physical and artificial sources => no need to sum afterwards
       Evaluate[1. #10];
       Evaluate[1. #11]; Evaluate[1. #12];
-      // Evaluate[0. #11]; Evaluate[0. #12];
-      SetCommSelf;
       For ii In {0: #ListOfDom()-1}
       	idom = ListOfDom(ii);
       	// If(MPI_Rank == idom%MPI_Size)
@@ -598,24 +666,14 @@ PostOperation {
     For iSide In{0:1}
     { Name g_out~{idom}~{iSide} ; NameOfPostProcessing g_out~{idom}~{iSide};
       Operation{
-	If(!((idom == 0 && iSide == 0) || (idom == N_DOM-1 && iSide == 1)))
-	  Print[ g_out~{idom}~{iSide}, OnElementsOf Sigma~{idom}~{iSide}, StoreInField 2*idom+iSide-1]; // FIXME: is this ok in case of 'pie' decomposition ??
-	EndIf
+	  Print[ g_out~{idom}~{iSide}, OnElementsOf Sigma~{idom}~{iSide}, StoreInField (2*(idom+N_DOM)+(iSide-1))%(2*N_DOM)/*, File Sprintf("gg%g_%g.pos",idom, jdom)*/] ;
       }
     }
     EndFor
     For iSide In{0:1}
     { Name g_out_pc~{idom}~{iSide} ; NameOfPostProcessing g_out_pc~{idom}~{iSide};
       Operation{
-
-    	  If(!((idom == 0 && iSide == 0) || (idom == N_DOM-1 && iSide == 1)))
-    	    Print[ g_out~{idom}~{iSide}, OnElementsOf Sigma~{idom}~{iSide}, StoreInField 2*idom+iSide-1];
-
-    	  // // If (MPI_Size > 1)
-    	  // Print[ g_out~{idom}~{iSide}, OnElementsOf Sigma~{idom}~{iSide}, StoreInField (4-iSide)*N_DOM+idom+1-2*(1-iSide)];
-    	  // // EndIf
-
-    	  EndIf
+	  Print[ g_out~{idom}~{iSide}, OnElementsOf Sigma~{idom}~{iSide}, StoreInField (2*(idom+N_DOM)+(iSide-1))%(2*N_DOM)/*, File Sprintf("gg%g_%g.pos",idom, jdom)*/] ;
       }
     }
     EndFor
