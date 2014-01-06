@@ -1872,12 +1872,32 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 #if defined(HAVE_GMSH)
       if(Operation_P->Case.GmshRead.ViewTag >= 0)
         PView::setGlobalTag(Operation_P->Case.GmshRead.ViewTag);
-      //GmshMergeFile(Operation_P->Case.GmshRead.FileName);
-      //GmshOpenProject(Operation_P->Case.GmshRead.FileName);
       GmshMergePostProcessingFile(Operation_P->Case.GmshRead.FileName);
       Operation_P->Rank = -1;
 #else
       Message::Error("You need to compile GetDP with Gmsh support to use 'GmshRead'");
+#endif
+      break ;
+
+    case OPERATION_GMSHMERGE :
+#if defined(HAVE_GMSH)
+      if(Operation_P->Case.GmshRead.ViewTag >= 0)
+        PView::setGlobalTag(Operation_P->Case.GmshRead.ViewTag);
+      GmshMergeFile(Operation_P->Case.GmshRead.FileName);
+      Operation_P->Rank = -1;
+#else
+      Message::Error("You need to compile GetDP with Gmsh support to use 'GmshMerge'");
+#endif
+      break ;
+
+    case OPERATION_GMSHOPEN :
+#if defined(HAVE_GMSH)
+      if(Operation_P->Case.GmshRead.ViewTag >= 0)
+        PView::setGlobalTag(Operation_P->Case.GmshRead.ViewTag);
+      GmshOpenProject(Operation_P->Case.GmshRead.FileName);
+      Operation_P->Rank = -1;
+#else
+      Message::Error("You need to compile GetDP with Gmsh support to use 'GmshOpen'");
 #endif
       break ;
 
@@ -1887,7 +1907,22 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       PView::setGlobalTag(0);
       Operation_P->Rank = -1;
 #else
-      Message::Error("You need to compile GetDP with Gmsh support to use 'GmshRead'");
+      Message::Error("You need to compile GetDP with Gmsh support to use 'GmshClearAll'");
+#endif
+      break ;
+
+    case OPERATION_GMSHWRITE :
+#if defined(HAVE_GMSH)
+      {
+        PView *view = PView::getViewByTag(Operation_P->Case.GmshRead.ViewTag);
+        if(view)
+          view->write(Operation_P->Case.GmshRead.FileName, 10);
+        else
+          Message::Error("View %d does not exist");
+        Operation_P->Rank = -1;
+      }
+#else
+      Message::Error("You need to compile GetDP with Gmsh support to use 'GmshWrite'");
 #endif
       break ;
 

@@ -1180,6 +1180,9 @@ struct IterativeLoopSystem {
 #define OPERATION_POSTOPERATION            60
 #define OPERATION_GMSHREAD                 61
 #define OPERATION_GMSHCLEARALL             62
+#define OPERATION_GMSHWRITE                66
+#define OPERATION_GMSHMERGE                67
+#define OPERATION_GMSHOPEN                 68
 #define OPERATION_DELETEFILE               71
 #define OPERATION_CREATEDIR                72
 
@@ -1285,7 +1288,7 @@ struct PostSubOperation {
   int    StoreMinYinRegister, StoreMinZinRegister, StoreMaxInRegister;
   int    StoreMaxXinRegister, StoreMaxYinRegister, StoreMaxZinRegister;
   char  *SendToServer, *Color;
-  int    StoreInField;
+  int    StoreInField, StoreInMeshBasedField;
   int    Legend, FrozenTimeStepList;
   double LegendPosition[3];
   double Target;

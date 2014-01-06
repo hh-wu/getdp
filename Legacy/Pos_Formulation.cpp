@@ -379,6 +379,13 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
      PostSubOperation_P->Format != FORMAT_GMSH)
     Message::Warning("StoreInField only available with Gmsh output format");
 
+  if(PostSubOperation_P->StoreInMeshBasedField >= 0){
+    Flag_GMSH_VERSION = 2;
+    if(PostSubOperation_P->SubType != PRINT_ONELEMENTSOF ||
+       PostSubOperation_P->Depth != 1)
+      Message::Error("StoreInMeshBasedField not compatible with selected options");
+  }
+
   if(PostSubOperation_P->CatFile == 2)  fprintf(PostStream, "\n\n") ;
   /*  two blanks lines for -index in gnuplot  */
 

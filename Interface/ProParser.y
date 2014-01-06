@@ -156,6 +156,7 @@ struct doubleXstring{
 %type <i>  PostQuantitySupport
 %type <l>  IRegion RecursiveListOfRegion Enumeration
 %type <i>  StrCmp NbrRegions CommaFExprOrNothing
+%type <i>  GmshOperation
 %type <d>  FExpr OneFExpr
 %type <l>  MultiFExpr ListOfFExpr RecursiveListOfFExpr
 %type <l>  RecursiveListOfCharExpr ParametersForFunction
@@ -247,7 +248,8 @@ struct doubleXstring{
 %token        tSetCommSelf tSetCommWorld tBarrier tBroadcastFields
 %token      tDivisionCoefficient tChangeOfState
 %token      tChangeOfCoordinates tChangeOfCoordinates2 tSystemCommand
-%token        tGmshRead tGmshClearAll tDeleteFile tCreateDir
+%token        tGmshRead tGmshMerge tGmshOpen tGmshWrite tGmshClearAll
+%token        tDeleteFile tCreateDir
 %token      tGenerateOnly
 %token      tGenerateOnlyJac
 %token      tSolveJac_AdaptRelax  tTensorProductSolve
@@ -272,7 +274,7 @@ struct doubleXstring{
 %token        tFormat tHeader tFooter tSkin tSmoothing
 %token        tTarget tSort tIso tNoNewLine tNoTitle tDecomposeInSimplex tChangeOfValues
 %token        tTimeLegend tFrequencyLegend tEigenvalueLegend
-%token        tEvaluationPoints tStoreInRegister tStoreInField
+%token        tEvaluationPoints tStoreInRegister tStoreInField tStoreInMeshBasedField
 %token        tStoreMaxInRegister tStoreMaxXinRegister tStoreMaxYinRegister
 %token        tStoreMaxZinRegister tStoreMinInRegister tStoreMinXinRegister
 %token        tStoreMinYinRegister tStoreMinZinRegister
@@ -3890,6 +3892,12 @@ CommaFExprOrNothing :
     { $$ = (int)$2; }
  ;
 
+GmshOperation :
+    tGmshRead { $$ = OPERATION_GMSHREAD; }
+  | tGmshOpen { $$ = OPERATION_GMSHOPEN; }
+  | tGmshMerge { $$ = OPERATION_GMSHMERGE; }
+  | tGmshWrite { $$ = OPERATION_GMSHWRITE; }
+
 OperationTerm :
 
   /* OLD syntax */
@@ -4538,21 +4546,21 @@ OperationTerm :
       Operation_P->Case.SystemCommand.String = $3;
     }
 
-  | tGmshRead '[' CharExpr ']' tEND
+  | GmshOperation '[' CharExpr ']' tEND
     {
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
-      Operation_P->Type = OPERATION_GMSHREAD;
+      Operation_P->Type = $1;
       Operation_P->Case.GmshRead.FileName = strSave(Get_AbsolutePath($3).c_str());
       Operation_P->Case.GmshRead.ViewTag = -1;
       Free($3);
     }
 
-  | tGmshRead '[' CharExpr ',' FExpr ']' tEND
+  | GmshOperation '[' CharExpr ',' FExpr ']' tEND
     {
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
-      Operation_P->Type = OPERATION_GMSHREAD;
+      Operation_P->Type = $1;
       Operation_P->Case.GmshRead.FileName = strSave(Get_AbsolutePath($3).c_str());
       Operation_P->Case.GmshRead.ViewTag = (int)$5;
       Free($3);
@@ -6102,6 +6110,7 @@ PrintOptions :
       PostSubOperation_S.StoreMaxYinRegister = -1;
       PostSubOperation_S.StoreMaxZinRegister = -1;
       PostSubOperation_S.StoreInField = -1;
+      PostSubOperation_S.StoreInMeshBasedField = -1;
       PostSubOperation_S.LastTimeStepOnly = 0;
       PostSubOperation_S.AppendTimeStepToFileName = 0;
       PostSubOperation_S.OverrideTimeStepValue = -1;
@@ -6389,6 +6398,10 @@ PrintOption :
   | ',' tStoreInField FExpr
     {
       PostSubOperation_S.StoreInField = $3;
+    }
+  | ',' tStoreInMeshBasedField FExpr
+    {
+      PostSubOperation_S.StoreInMeshBasedField = $3;
     }
   | ',' tLastTimeStepOnly
     {

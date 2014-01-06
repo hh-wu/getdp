@@ -4420,6 +4420,12 @@ or multiple post-processing fields, these fields will be evaluated using
 the built-in @code{Field[]}, @code{ScalarField[]}, @code{VectorField[]},
 etc., functions (@pxref{Miscellaneous functions}).
 
+(Note that @code{GmshOpen} and @code{GmshMerge} can be used instead of
+@code{GmshRead} to force Gmsh to do classical ``open'' and ``merge''
+operations, instead of trying to ``be intelligent'' when reading
+post-processing datasets, i.e., creating new models on the fly if
+necessary.)
+
 @item GmshRead
 @code{[@var{expression-char}, @var{expression-cst}]}
 
@@ -4428,6 +4434,11 @@ is forced to be stored with the given tag. The tag can be used to
 retrieve the given field with the built-in @code{Field[]},
 @code{ScalarField[]}, @code{VectorField[]}, etc., functions
 (@pxref{Miscellaneous functions}).
+
+@item GmshWrite
+@code{[@var{expression-char}, @var{expression-cst}]}
+
+Writes the a Gmsh field to disk. (The format is guessed from the file extension.)
 
 @item DeleteFile
 @code{[@var{expression-char}]}
@@ -4876,7 +4887,13 @@ of an @code{OnElementsOf} post-processing operation occurs, in the register
 @code{@var{expression-cst}}
 
 Stores the result of a post-processing operation in the field (Gmsh
-view) with tag @var{expression-cst}.
+list-based post-processing view) with tag @var{expression-cst}.
+
+@item StoreInMeshBasedField
+@code{@var{expression-cst}}
+
+Stores the result of a post-processing operation in the mesh-based field
+(Gmsh mesh-based post-processing view) with tag @var{expression-cst}.
 
 @item TimeLegend
 @code{< @{ @var{expression}, @var{expression}, @var{expression} @} >}

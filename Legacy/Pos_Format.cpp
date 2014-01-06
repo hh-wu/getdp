@@ -25,7 +25,8 @@
 
 #if defined(HAVE_GMSH)
 #include <gmsh/PView.h>
-#include <gmsh/PViewData.h>
+#include <gmsh/PViewDataList.h>
+#include <gmsh/PViewDataGModel.h>
 #endif
 
 #define TWO_PI             6.2831853071795865
@@ -930,7 +931,8 @@ void  Format_PostFormat(struct PostSubOperation *PSO_P)
 
   switch(Format){
   case FORMAT_GMSH :
-    if(PSO_P->StoreInField >= 0 && !PSO_P->FileOut) break;
+    if((PSO_P->StoreInField >= 0 || PSO_P->StoreInMeshBasedField >= 0) &&
+       !PSO_P->FileOut) break;
     if(Flag_GMSH_VERSION == 2){
       fprintf(PostStream, "$MeshFormat\n") ;
       fprintf(PostStream, "2.2 %d %d\n", Flag_BIN, (int)sizeof(double)) ;
@@ -1040,7 +1042,8 @@ void  Format_PostHeader(struct PostSubOperation *PSO_P, int NbTimeStep,
     break ;
   case FORMAT_GMSH :
     Gmsh_StartNewView = 1 ;
-    if(PSO_P->StoreInField >= 0 && !PSO_P->FileOut) break;
+    if((PSO_P->StoreInField >= 0 || PSO_P->StoreInMeshBasedField >= 0) &&
+       !PSO_P->FileOut) break;
     if(Flag_GMSH_VERSION != 2){
       if(Flag_BIN){ /* bricolage */
         fprintf(PostStream, "$View /* %s */\n", name);
@@ -1213,21 +1216,25 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
     break ;
   case FORMAT_GMSH :
     if(Gmsh_StartNewView) Gmsh_ResetStaticLists(); // nothing to print!
-    if(PSO_P->StoreInField >= 0){
+    if(PSO_P->StoreInField >= 0 || PSO_P->StoreInMeshBasedField >= 0){
+      int field = (PSO_P->StoreInField >= 0) ? PSO_P->StoreInField :
+        PSO_P->StoreInMeshBasedField;
 #if defined(HAVE_GMSH)
-      Message::Info("Storing data in field %d", PSO_P->StoreInField);
+      Message::Info("Storing data in field %d (%s)", field,
+                    PSO_P->StoreInField >= 0 ? "list-based" : "mesh-based");
       int NS[24] = {NbSP, NbVP, NbTP,  NbSL, NbVL, NbTL,  NbST, NbVT, NbTT,
                     NbSQ, NbVQ, NbTQ,  NbSS, NbVS, NbTS,  NbSH, NbVH, NbTH,
                     NbSI, NbVI, NbTI,  NbSY, NbVY, NbTY};
       std::vector<double> *LS[24] = {&SP, &VP, &TP,  &SL, &VL, &TL,  &ST, &VT, &TT,
                                      &SQ, &VQ, &TQ,  &SS, &VS, &TS1,  &SH, &VH, &TH,
                                      &SI, &VI, &TI,  &SY, &VY, &TY};
-      PView *v = new PView(PSO_P->StoreInField);
-      v->getData()->importLists(NS, LS);
-      // FIXME implement storing in new-type mesh-based fields
-
-      // Gmsh_ImportElementNodeData(PSO_P, NbTimeStep, 1, NS, LS);
-
+      PViewData *data;
+      if(PSO_P->StoreInField >= 0)
+        data = new PViewDataList();
+      else
+        data = new PViewDataGModel(PViewDataGModel::ElementNodeData);
+      data->importLists(NS, LS);
+      new PView(data, field);
 #else
       Message::Error("GetDP must be compiled with Gmsh support to store data as field");
 #endif
@@ -1421,7 +1428,7 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
     Unv_PrintElement(PostStream, Num_Element, PE->NbrNodes, PE->Value) ;
     break ;
   case FORMAT_GMSH :
-    if(PSO_P->StoreInField >= 0){
+    if(PSO_P->StoreInField >= 0 || PSO_P->StoreInMeshBasedField >= 0){
       Gmsh_PrintElement(Time, TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
                         PE->Type, Num_Element, PE->NbrNodes, PE->x, PE->y, PE->z,
                         PE->Value, PSO_P, Store) ;
