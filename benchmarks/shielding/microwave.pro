@@ -127,7 +127,6 @@ Formulation {
   }
 }
 
-
 Resolution {
   { Name Resol_BC;
     System {
