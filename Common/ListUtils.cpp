@@ -127,6 +127,22 @@ void List_Write(List_T * liste, int index, void *data)
   }
 }
 
+void List_Put(List_T * liste, int index, void *data)
+{
+  if(index < 0)
+    Message::Error("Wrong list index (put)");
+  else {
+    if(index >= liste->n) {
+      liste->n = index + 1;
+      List_Realloc(liste, liste->n);
+      List_Write(liste, index, data);
+    }
+    else {
+      List_Write(liste, index, data);
+    }
+  }
+}
+
 void List_Pop(List_T * liste)
 {
   if(liste->n > 0)
@@ -463,18 +479,3 @@ int List_LQuery(List_T *liste, void *data,
   return (1);
 }
 
-void List_Put(List_T * liste, int index, void *data)
-{
-  if(index < 0)
-    Message::Error("Wrong list index (put)");
-  else {
-    if(index >= liste->n) {
-      liste->n = index + 1;
-      List_Realloc(liste, liste->n);
-      List_Write(liste, index, data);
-    }
-    else {
-      List_Write(liste, index, data);
-    }
-  }
-}
