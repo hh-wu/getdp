@@ -44,29 +44,29 @@ Transfinite Line {6, 8} = d/lc+1 Using Progression 1 ;
 Transfinite Line {5, 7} = (D/2.-H_ol/2.)/lc+1 Using Progression 1 ;
 Transfinite Surface {21} ; Recombine Surface {21} ;
 
-Transfinite Line {16, 18} = d/lc+1 Using Progression 1 ;
+Transfinite Line {2, 8} = d/lc+1 Using Progression 1 ;
 Transfinite Line {15, 17} = H_ol/lc+1 Using Progression 1 ;
 Transfinite Surface {210} ; Recombine Surface {210} ;
 
-// Mesh 2;
+Mesh 2;
 
-// Physical Line(1) = {4, 6};
-// Physical Line(2) = {1, 15, 5, 7, 17, 3};
-// Physical Surface(6) = {11, 21, 210};
-// Save "square.msh";
+Physical Line(1) = {4, 6};
+Physical Line(2) = {1, 15, 5, 7, 17, 3};
+Physical Surface(6) = {11, 21, 210};
+Save "square.msh";
 
-// Delete Physicals;
-// Physical Line(1001) = {4};
-// Physical Line(2001) = {1,15,3,17};
-// Physical Line(5000) = {8}; // artificial interface, edge of domain
-// Physical Line(5100) = {2}; // artificial interface, inside domain (inner edge of the overlap)
-// Physical Surface(6001) = {11, 210};
-// Save "square0.msh";
+Delete Physicals;
+Physical Line(1001) = {4};
+Physical Line(2001) = {1,15,3,17};
+Physical Line(5000) = {8}; // artificial interface, edge of domain
+Physical Line(5100) = {2}; // artificial interface, inside domain (inner edge of the overlap)
+Physical Surface(6001) = {11, 210};
+Save "square0.msh";
 
-// Delete Physicals;
-// Physical Line(1002) = {6};
-// Physical Line(2002) = {15, 5, 7, 17};
-// Physical Line(5000) = {2};
-// Physical Line(5100) = {8};
-// Physical Surface(6002) = {21, 210};
-// Save "square1.msh";
+Delete Physicals;
+Physical Line(1002) = {6};
+Physical Line(2002) = {15, 5, 7, 17};
+Physical Line(5000) = {2};
+Physical Line(5100) = {8};
+Physical Surface(6002) = {21, 210};
+Save "square1.msh";
