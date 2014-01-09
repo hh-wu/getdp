@@ -2,13 +2,18 @@
 Nodal formulation
 */
 
+LAGRANGE = 0; // whether or not to use a Lagrangian formulation to impose Dirichlet conditions on the artificial interfaces
+
 Group{ // definition of some subsets of the regions defined by the user
   For idom In {0:N_DOM-1}
     For iSide In {0:1}
       BndSigmaD~{idom}~{iSide} = Region[BndSigma~{idom}~{iSide}, Not {GammaN~{idom}}];
       BndSigmaN~{idom}~{iSide} = Region[BndSigma~{idom}~{iSide}, Not {GammaD~{idom}}];
       BndSigmaInf~{idom}~{iSide} = Region[BndSigma~{idom}~{iSide}, Not {GammaN~{idom}, GammaD~{idom}}];
+
+      TrGr~{idom}~{iSide} = ElementsOf[ Omega~{idom}, OnOneSideOf Sigma~{idom}~{iSide} ];
     EndFor
+    TrGr~{idom} = Region[{TrGr~{idom}~{0}, TrGr~{idom}~{1}}];
   EndFor
 }
 
@@ -17,23 +22,30 @@ Function{
   //Register #10 is reserved. Value inside is 0 if the boundary condition is homogeneous and equal to 1 if not homogeneous.
   //Value inside register #10 is changed during the Resolution process
   flag_homogen[] = #9;
-  f_diri[] = uinc[]*flag_homogen[];
+
+  flag_dummy[] = #7; // useless, part of the trick below
+  f_diri[] = uinc[]*flag_homogen[]*(flag_homogen[]-flag_dummy[]); // the parenthesis is an horrible trick to avoid a problem with non-zero data in uinc[]
+
   //u_init is the value of u at initialization (needed to compute the scattered field at the end)
   For ii In {0: #ListOfDom()-1}
-  idom = ListOfDom(ii);
+    idom = ListOfDom(ii);
     u_init~{idom}[] = ComplexScalarField[XYZ[]]{2*N_DOM+idom};
   EndFor
 }
 
 Function{
-  F_SOURCE[] = V_SOURCE[]*#9;
+  F_SOURCE[] = V_SOURCE[]*flag_homogen[];
 }
 
 //Dirichlet boundary condition (either homogeneous or inhomogeneous, depending on register #10)
 Constraint{
   For ii In {0: #ListOfDom()-1}
-  idom = ListOfDom(ii);
+    idom = ListOfDom(ii);
     { Name Dirichlet~{idom} ; Case { { Region GammaD~{idom} ; Value f_diri[];} } }
+    If (!LAGRANGE)
+      { Name DirichletSigma~{idom}~{0} ; Case { { Region Sigma~{idom}~{0} ; Value (#10 > 0 ? g_in~{idom}~{0}[] : 0. );} } }
+      { Name DirichletSigma~{idom}~{1} ; Case { { Region Sigma~{idom}~{1} ; Value (#11 > 0 ? g_in~{idom}~{1}[] : 0. );} } }
+    EndIf
   EndFor
 }
 
@@ -43,22 +55,29 @@ FunctionSpace {
   { Name Hgrad_u~{idom} ; Type Form0 ;
     BasisFunction {
       { Name sn ; NameOfCoef un ; Function BF_Node ;
-	Support Region[ {Omega~{idom}, Sigma~{idom}, SigmaIn~{idom}, BndSigma~{idom}, GammaD~{idom}, GammaN~{idom}} ] ; Entity NodesOf[ All/*Omega~{idom}/**/ ] ; }
+	Support Region[ {Omega~{idom}, Sigma~{idom}, SigmaIn~{idom}, BndSigma~{idom}, GammaD~{idom}, GammaN~{idom}} ] ; Entity NodesOf[ All ] ; }
     }
     Constraint {
       { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet~{idom} ; }
+      If (!LAGRANGE)
+        For j In {0:1}
+          { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint DirichletSigma~{idom}~{j} ; }
+        EndFor
+      EndIf
     }
   }
 
-  { Name Hgrad_lambda~{idom} ; Type Form0 ;
-    BasisFunction {
-      { Name sn ; NameOfCoef un ; Function BF_Node ;
-	Support Region[ {Sigma~{idom}, BndSigma~{idom}} ] ; Entity NodesOf[ All, Not GammaD ] ; }
+  If (LAGRANGE)
+    { Name Hgrad_lambda~{idom} ; Type Form0 ;
+      BasisFunction {
+        { Name sn ; NameOfCoef un ; Function BF_Node ;
+	  Support Region[ {Sigma~{idom}, BndSigma~{idom}} ] ; Entity NodesOf[ All, Not GammaD ] ; }
+      }
+      Constraint {
+        { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet~{idom} ; }
+      }
     }
-    Constraint {
-      { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet~{idom} ; }
-    }
-  }
+  EndIf
 
   For jdom In {0:1}
     { Name Hgrad_g_out~{idom}~{jdom}; Type Form0 ;
@@ -78,7 +97,7 @@ Formulation {
     { Name DDM~{idom} ; Type FemEquation ;
       Quantity {
         { Name u~{idom} ; Type Local ; NameOfSpace Hgrad_u~{idom}; }
-        { Name lambda~{idom} ; Type Local ; NameOfSpace Hgrad_lambda~{idom}; }
+        If (LAGRANGE) { Name lambda~{idom} ; Type Local ; NameOfSpace Hgrad_lambda~{idom}; } EndIf
         For jdom In {0:1}
 	  { Name g_out~{idom}~{jdom} ; Type Local ; NameOfSpace Hgrad_g_out~{idom}~{jdom}; }
         EndFor
@@ -89,18 +108,19 @@ Formulation {
         Galerkin { [ -F_SOURCE[], {u~{idom}}] ;
 	  In Omega~{idom}; Jacobian JVol ; Integration I1 ; }
 
-	// Lagrange multiplier for the Dirichlet BC on Sigma
-        Galerkin { [ Dof{lambda~{idom}}, {u~{idom}}] ;
-	  In Sigma~{idom}; Jacobian JSur ; Integration I1 ; }
-        Galerkin { [ Dof{u~{idom}}, {lambda~{idom}}] ;
-	  In Sigma~{idom}; Jacobian JSur ; Integration I1 ; }
-        Galerkin { [ #10 > 0. ? -g_in~{idom}~{0}[] : 0., {lambda~{idom}}] ;
-	  In Sigma~{idom}~{0}; Jacobian JSur ; Integration I1 ; }
-        Galerkin { [ #11 > 0. ? -g_in~{idom}~{1}[] : 0., {lambda~{idom}}] ;
-	  In Sigma~{idom}~{1}; Jacobian JSur ; Integration I1 ; }
+	If (LAGRANGE)
+	  // Lagrange multiplier for the Dirichlet BC on Sigma
+          Galerkin { [ Dof{lambda~{idom}}, {u~{idom}}] ;
+	    In Sigma~{idom}; Jacobian JSur ; Integration I1 ; }
+          Galerkin { [ Dof{u~{idom}}, {lambda~{idom}}] ;
+	    In Sigma~{idom}; Jacobian JSur ; Integration I1 ; }
+          Galerkin { [ #10 > 0. ? -g_in~{idom}~{0}[] : 0., {lambda~{idom}}] ;
+	    In Sigma~{idom}~{0}; Jacobian JSur ; Integration I1 ; }
+          Galerkin { [ #11 > 0. ? -g_in~{idom}~{1}[] : 0., {lambda~{idom}}] ;
+	    In Sigma~{idom}~{1}; Jacobian JSur ; Integration I1 ; }
+	EndIf
       }
     }
-
     For jdom In {0:1}
       { Name ComputeG~{idom}~{jdom} ; Type FemEquation ;
         Quantity {
@@ -118,7 +138,6 @@ Formulation {
   EndFor // loop on idom
 }
 
-
 Resolution {
     { Name DDM ;
     System {
@@ -131,13 +150,19 @@ Resolution {
       EndFor
     }
     Operation {
+      Evaluate[0. #7]; // Useless, but part of the trick at line 27 ;)
+
+      If (MPI_Rank == 0)
+        If (LAGRANGE) Printf[" ** Imposing constraint on Sigma with Lagrange **"]; EndIf
+        If (!LAGRANGE) Printf[" ** Imposing constraint on Sigma with constraint **"]; EndIf
+      EndIf
 
       //Let the DDM game begin!
       SetCommSelf;
-      //setting homogeneous BC on transmission boundaries
-      Evaluate[0. #10]; Evaluate[0. #11];
       //Setting the non homogeneous Dirichlet BC on GammaD (part 1/2)
       Evaluate[1. #9];
+      //setting homogeneous BC on transmission boundaries
+      Evaluate[0. #10]; Evaluate[0. #11];
 
       //Initialization (compute the right hand side)
       For ii In {0: #ListOfDom()-1}
@@ -153,6 +178,7 @@ Resolution {
 	//print u_init either in Memory (STORE_U_INIT == 1) and/or on disk (WRITE_U_INIT == 1)
 	PostOperation[u_init~{idom}] ;
       EndFor
+
       // Compute the g_out in the RAM (right hand side of iterative solver)
       For ii In {0: #ListOfDom()-1}
       	idom = ListOfDom(ii);
@@ -171,7 +197,6 @@ Resolution {
       // Launching iterative solver
       SetCommWorld;
 
-
       IterativeLinearSolver["I-A", SOLVER, TOL, MAXIT, RESTART, {ListOfField()}, {ListOfNeighborField()}, {}]
       {
       	SetCommSelf;
@@ -181,8 +206,15 @@ Resolution {
       	For ii In {0: #ListOfDom()-1}
       	  idom = ListOfDom(ii);
       	  //Compute u on Omega_i (fast way)
-      	  GenerateRHSGroup[Helmholtz~{idom}, Sigma~{idom}] ;
-      	  SolveAgain[Helmholtz~{idom}] ;
+	  If (LAGRANGE)
+      	    GenerateRHSGroup[Helmholtz~{idom}, Sigma~{idom}] ;
+      	    SolveAgain[Helmholtz~{idom}] ;
+	  EndIf
+	  If (!LAGRANGE)
+	    UpdateConstraint[Helmholtz~{idom}, Region[Sigma~{idom}, Not GammaD~{idom}], Assign]; // The 'Region' argument seems ineffective ?? + slow ?
+      	    GenerateRHSGroup[Helmholtz~{idom}, TrGr~{idom}] ;
+	    SolveAgain[Helmholtz~{idom}] ;
+	  EndIf
       	  //Compute the new g_out (fast way)
       	  For jdom In {0:1}
       	    GenerateRHSGroup[ComputeG~{idom}~{jdom}, SigmaIn~{idom}~{jdom}] ;
@@ -197,7 +229,7 @@ Resolution {
       	  EndFor
       	EndFor
       	SetCommWorld;
-      	//End of iteration: every process will echange their PView/Field
+      	//End of iteration: every process will exchange their PView/Field
       }{ /*Preconditioner code here*/ }
 
       // //Now the solution G is stored in the PView of index ListOfDom()
@@ -207,12 +239,17 @@ Resolution {
       Evaluate[1. #10]; Evaluate[1. #11];
       For ii In {0: #ListOfDom()-1}
       	idom = ListOfDom(ii);
-      	GenerateRHSGroup[Helmholtz~{idom}, Sigma~{idom}] ;
+	If (LAGRANGE)
+      	  GenerateRHSGroup[Helmholtz~{idom}, Sigma~{idom}] ;
+	EndIf
+	If (!LAGRANGE)
+	  UpdateConstraint[Helmholtz~{idom}, Region[Sigma~{idom}, Not GammaD~{idom}], Assign];
+	  GenerateRHSGroup[Helmholtz~{idom}, TrGr~{idom}] ;
+	EndIf
       	SolveAgain[Helmholtz~{idom}] ;
       	PostOperation[u_ddm~{idom}] ;
       EndFor
       SetCommWorld;
-
     }
   }
 }
@@ -250,7 +287,7 @@ PostProcessing {
     //Save on disk or in RAM field u at initialization (needed to obtain the scattered field)
     { Name u_init~{idom} ; NameOfFormulation DDM~{idom} ;
       PostQuantity {
-	{ Name u_init~{idom} ; Value { Local { [ {u~{idom}} ] ; In Region[{Omega~{idom}, SigmaIn~{idom}}]; Jacobian JVol ; } } }
+	{ Name u_init~{idom} ; Value { Local { [ {u~{idom}} ] ; In Region[{Omega~{idom}}]; Jacobian JVol ; } } }
       }
     }
   EndFor
@@ -282,7 +319,7 @@ PostOperation {
       { Name g_out~{idom}~{jdom} ; NameOfPostProcessing g_out~{idom}~{jdom};
 	Operation {
 	  If(!((idom == 0 && jdom == 0) || (idom == N_DOM-1 && jdom == 1)))
-	    Print[ g_out~{idom}~{jdom}, OnElementsOf SigmaIn~{idom}~{jdom}, StoreInField 2*idom+jdom-1] ;
+	    Print[ g_out~{idom}~{jdom}, OnElementsOf Region[SigmaIn~{idom}~{jdom}, Not GammaD], StoreInField 2*idom+jdom-1] ;
 	  EndIf
 	}
       }

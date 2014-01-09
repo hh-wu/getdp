@@ -3,7 +3,7 @@ Include "groups_square_overlap.pro";
 
 Function {
   V_SOURCE[] = 10*X[] ;
-  uinc[] = 1.-X[];
+  uinc[] = (1.-X[])*1;
 }
 
 // G_IN
@@ -48,8 +48,10 @@ Function{
       // ListOfNeighborField += list_voisin{};
       // ListOfNeighborField += nb_voisin;
 
-      g_in~{idom}~{0}[Sigma~{idom}~{0}] = ComplexScalarField[XYZ[]]{voisin_left{}};
-      g_in~{idom}~{1}[Sigma~{idom}~{1}] = ComplexScalarField[XYZ[]]{voisin_right{}};
+      // g_in~{idom}~{0}[Sigma~{idom}~{0}] = ComplexScalarField[XYZ[]]{voisin_left{}};
+      // g_in~{idom}~{1}[Sigma~{idom}~{1}] = ComplexScalarField[XYZ[]]{voisin_right{}};
+      g_in~{idom}~{0}[] = ComplexScalarField[XYZ[]]{voisin_left{}};
+      g_in~{idom}~{1}[] = ComplexScalarField[XYZ[]]{voisin_right{}};
 
     EndIf
   EndFor
