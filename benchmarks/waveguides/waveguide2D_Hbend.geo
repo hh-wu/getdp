@@ -1,7 +1,9 @@
 //========================================================
 // Benchmark "EM waveguide 2D - H-bend"
 // File: GMSH geometry
-// Contributors: L. Rindorf (2008), C. Geuzaine, A. Modave
+// Contributors:
+//   L. Rindorf (original version, 2008)
+//   C. Geuzaine, A. Modave (modifications)
 //========================================================
 
 Include "waveguide2D_Hbend.dat" ;

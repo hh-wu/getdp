@@ -2,7 +2,7 @@
 // GetDP code for simulation of EM WAVEGUIDES
 //   - Time-harmonic e-formulation (2D/3D)
 //   - Edge finite-elements (Form1 for e)
-// Contributors: C. Geuzaine, A. Modave
+// Contributors: C. Geuzaine, A. Modave, L. Rindorf
 //========================================================
 
 Group{
