@@ -1,0 +1,42 @@
+//========================================================
+// Benchmark "EM waveguide 3D - Rectangular"
+// File: Parameters
+// Contributors: C. Geuzaine, A. Modave
+//========================================================
+
+ExtGnuplot = ".dat";
+ExtGmsh = ".pos";
+myDir = "output/";
+catParam1 = "Input/2Geometry/";
+catParam2 = "Input/3Signal/";
+catParam3 = "Input/4Discretization/";
+catOutput = "Output/";
+
+//---------------------------
+// Parameters of the geometry
+//---------------------------
+
+DIM = 3;
+
+DefineConstant[
+  L = { 0.2, Min 0.01, Max 1, Step 0.01,
+    Name StrCat[catParam1,"1Length of Domain [m]"]},
+  Wx = { 0.05, Min 0.01, Max 1, Step 0.01,
+    Name StrCat[catParam1,"2X-width of Domain [m]"]}
+  Wy = { 0.05, Min 0.01, Max 1, Step 0.01,
+    Name StrCat[catParam1,"2Y-width of Domain [m]"]}
+];
+
+DefineConstant[
+  res = { 5e-3, Min 1e-4, Max 50e-3, Step 1e-4,
+    Name StrCat[catParam3,"1Resolution of grid [m]"]}
+];
+
+//--------------
+// Physical TAGs
+//--------------
+
+DOM = 1000;
+BND_PEC = 2000;
+BND_PORT1 = 2001;
+BND_PORT2 = 2002;
