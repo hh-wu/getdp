@@ -26,9 +26,9 @@ DefineConstant[
 ] ;
 
 DefineConstant[
-  FREQ = { 1e8, Min 1e8, Max 1e10, Step 1e8,
+  FREQ = { 4e9, Min 4e9, Max 6e9, Step 1e8,
     Name StrCat[catParam2,"0Frequency [Hz]"]},
-  m = { 0, Min 0, Max 10, Step 1,
+  m = { 1, Min 1, Max 10, Step 1,
     Name StrCat[catParam2,"1Excitation mode number"]},
   LAMB = { c0/FREQ, ReadOnly 1, Highlight "LightGrey",
     Name StrCat[catParam2,"2Wavelength [m]"]}

@@ -75,9 +75,9 @@ Formulation {
       Galerkin { [ -k0^2*Dof{e} , {e} ] ;
                  In Domain ; Integration I1 ; Jacobian Jac ; }
       
-      Galerkin { [ 2*I[]*k0 * Normal[] /\ ( Normal[] /\ eInc[] ) , {e} ] ;
+      Galerkin { [ -2*I[]*k0 * Normal[] /\ ( Normal[] /\ eInc[] ) , {e} ] ;
                  In Ports ; Integration I1 ; Jacobian Jac ; }
-      Galerkin { [ -I[]*k0 * Normal[] /\ ( Normal[] /\ Dof{e} ) , {e} ] ;
+      Galerkin { [ I[]*k0 * Normal[] /\ ( Normal[] /\ Dof{e} ) , {e} ] ;
                  In Ports ; Integration I1 ; Jacobian Jac ; }
       
     }

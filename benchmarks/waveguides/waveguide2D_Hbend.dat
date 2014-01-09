@@ -19,16 +19,16 @@ catOutput = "Output/";
 DIM = 2;
 
 DefineConstant[
-  L = { 0.6, Min 0.01, Max 1, Step 0.01,
+  L = { 0.1, Min 0.01, Max 1, Step 0.01,
     Name StrCat[catParam1,"1Length of Domain [m]"]},
-  W = { 0.2, Min 0.01, Max 1, Step 0.01,
+  W = { 0.04, Min 0.01, Max 1, Step 0.01,
     Name StrCat[catParam1,"2Width of Domain [m]"]},
-  R = { 0.25, Min 0.01, Max 1, Step 0.01,
+  R = { 0.06, Min 0.01, Max 1, Step 0.01,
     Name StrCat[catParam1,"3Radius at bend [m]"]}
 ];
 
 DefineConstant[
-  res = { 5e-3, Min 1e-3, Max 50e-3, Step 1e-3,
+  res = { 1e-3, Min 1e-3, Max 50e-3, Step 1e-3,
     Name StrCat[catParam3,"1Resolution of grid [m]"]}
 ];
 
