@@ -22,9 +22,7 @@ Function{
   //Register #10 is reserved. Value inside is 0 if the boundary condition is homogeneous and equal to 1 if not homogeneous.
   //Value inside register #10 is changed during the Resolution process
   flag_homogen[] = #9;
-
-  flag_dummy[] = #7; // useless, part of the trick below
-  f_diri[] = uinc[]*flag_homogen[]*(flag_homogen[]-flag_dummy[]); // the parenthesis is an horrible trick to avoid a problem with non-zero data in uinc[]
+  f_diri[] = uinc[]*flag_homogen[];
 
   //u_init is the value of u at initialization (needed to compute the scattered field at the end)
   For ii In {0: #ListOfDom()-1}
@@ -150,8 +148,6 @@ Resolution {
       EndFor
     }
     Operation {
-      Evaluate[0. #7]; // Useless, but part of the trick at line 27 ;)
-
       If (MPI_Rank == 0)
         If (LAGRANGE) Printf[" ** Imposing constraint on Sigma with Lagrange **"]; EndIf
         If (!LAGRANGE) Printf[" ** Imposing constraint on Sigma with constraint **"]; EndIf
