@@ -1,0 +1,22 @@
+//========================================================
+// Benchmark "Academic eigenvalues problems"
+// File: Parameters
+//========================================================
+
+DefineConstant[
+  FLAG_GEOM = {1, Choices{1="Line [1D]", 2="Square [2D]", 3="Cuboid [3D]"},
+    Name "Input/01Geometry", Highlight "Black"}
+] ;
+
+If (FLAG_GEOM==1)
+  DIM = 1 ;
+EndIf
+If (FLAG_GEOM==2)
+  DIM = 2 ;
+EndIf
+If (FLAG_GEOM==3)
+  DIM = 3 ;
+EndIf
+
+BND = 1000;
+DOM = 2000;
