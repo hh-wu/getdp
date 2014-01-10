@@ -894,8 +894,10 @@ void Cal_WholeQuantity(struct Element * Element,
       if(ValueSaved.count(WholeQuantity_P->Case.ValueSaved.Index))
         Cal_CopyValue(&ValueSaved[WholeQuantity_P->Case.ValueSaved.Index],
                       &Stack[0][Index]) ;
-      else
+      else{
         Cal_ZeroValue(&Stack[0][Index]);
+        Stack[0][Index].Type = SCALAR ;
+      }
       Multi[Index] = 0 ;
       Index++ ;
       break ;
