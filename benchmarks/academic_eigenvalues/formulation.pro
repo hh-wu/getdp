@@ -7,14 +7,14 @@
 //========================================================
 
 Group {
-  DefineGroup[ Domain, Boundary, Tot ] ;
+  DefineGroup[ Dom, Bnd, Tot ] ;
 }
 
 Jacobian {
   { Name Jac ;
     Case {
-      { Region Boundary ; Jacobian Sur ; }
-      { Region Domain ; Jacobian Vol ; }
+      { Region Bnd ; Jacobian Sur ; }
+      { Region Dom ; Jacobian Vol ; }
     }
   }
 }
@@ -37,51 +37,57 @@ Integration {
   }
 }
 
+Constraint {
+  { Name uConstraint ; Type Assign ;
+    Case {
+      { Region Bnd ; Value 0. ; }
+    }
+  }
+}
+
 FunctionSpace {
-  { Name uSpaceForm0 ; Type Form0 ;
-    BasisFunction {
-      { Name sn ; NameOfCoef en ; Function BF_Node ; Support Tot ; Entity NodesOf[All] ; }
+  If (FLAG_FORM==0)
+    { Name uSpace ; Type Form0 ;
+      BasisFunction {
+        { Name sn ; NameOfCoef en ; Function BF_Node ; Support Tot ; Entity NodesOf[All] ; }
+      }
+      Constraint {
+        { NameOfCoef en ; EntityType NodesOf ; NameOfConstraint uConstraint ; }
+      }
     }
-    Constraint {
-      { NameOfCoef en ; EntityType NodesOf ; NameOfConstraint uConstraint ; }
+  EndIf
+  If (FLAG_FORM==1)
+    { Name uSpace ; Type Form1 ;
+      BasisFunction {
+        { Name sn ; NameOfCoef en ; Function BF_Edge ; Support Tot ; Entity EdgesOf[All] ; }
+      }
+      Constraint {
+          { NameOfCoef en ; EntityType EdgesOf ; NameOfConstraint uConstraint ; }
+      }
     }
-  }
-  { Name uSpaceForm1 ; Type Form1 ;
-    BasisFunction {
-      { Name sn ; NameOfCoef en ; Function BF_Edge ; Support Tot ; Entity EdgesOf[All] ; }
+  EndIf
+  If (FLAG_FORM==10)
+    { Name uSpace ; Type Form1P ;
+      BasisFunction {
+        { Name sn ; NameOfCoef en ; Function BF_PerpendicularEdge ; Support Tot ; Entity NodesOf[All] ; }
+      }
+      Constraint {
+        { NameOfCoef en ; EntityType NodesOf ; NameOfConstraint uConstraint ; }
+      }
     }
-    Constraint {
-      { NameOfCoef en ; EntityType EdgesOf ; NameOfConstraint uConstraint ; }
-    }
-  }
-  { Name uSpaceForm1P ; Type Form1P ;
-    BasisFunction {
-      { Name sn ; NameOfCoef en ; Function BF_PerpendicularEdge ; Support Tot ; Entity NodesOf[All] ; }
-    }
-    Constraint {
-      { NameOfCoef en ; EntityType NodesOf ; NameOfConstraint uConstraint ; }
-    }
-  }
+  EndIf
 }
 
 Formulation {
   { Name Form ; Type FemEquation ;
     Quantity {
-      If (FLAG_FORM==0)
-        { Name u ; Type Local ; NameOfSpace uSpaceForm0 ; }
-      EndIf
-      If (FLAG_FORM==1)
-        { Name u ; Type Local ; NameOfSpace uSpaceForm1 ; }
-      EndIf
-      If (FLAG_FORM==10)
-        { Name u ; Type Local ; NameOfSpace uSpaceForm1P ; }
-      EndIf
+      { Name u ; Type Local ; NameOfSpace uSpace ; }
     }
     Equation {
       Galerkin { DtDtDof[ Dof{u} , {u} ] ;
-                 In Domain ; Integration I1 ; Jacobian Jac ; }
+                 In Dom ; Integration I1 ; Jacobian Jac ; }
       Galerkin { [ Dof{d u} , {d u} ] ;
-                 In Domain ; Integration I1 ; Jacobian Jac ; }
+                 In Dom ; Integration I1 ; Jacobian Jac ; }
     }
   }
 }
@@ -103,7 +109,7 @@ Resolution {
 PostProcessing {
   { Name PostPro ; NameOfFormulation Form ;
     Quantity {
-      { Name u ; Value{ Local{ [{u}] ; In Domain ; Jacobian Jac ; } } }
+      { Name u ; Value{ Local{ [{u}] ; In Dom ; Jacobian Jac ; } } }
     }
   }
 }
@@ -111,16 +117,16 @@ PostProcessing {
 PostOperation {
   { Name PostOp ; NameOfPostProcessing PostPro ;
     Operation {
-      Print [ u, OnElementsOf Domain, TimeStep{0}, File "output/eigenvector0.pos"];
-      Print [ u, OnElementsOf Domain, TimeStep{1}, File "output/eigenvector1.pos"];
-      Print [ u, OnElementsOf Domain, TimeStep{2}, File "output/eigenvector2.pos"];
-      Print [ u, OnElementsOf Domain, TimeStep{3}, File "output/eigenvector3.pos"];
-      Print [ u, OnElementsOf Domain, TimeStep{4}, File "output/eigenvector4.pos"];
-      Print [ u, OnElementsOf Domain, TimeStep{5}, File "output/eigenvector5.pos"];
-      Print [ u, OnElementsOf Domain, TimeStep{6}, File "output/eigenvector6.pos"];
-      Print [ u, OnElementsOf Domain, TimeStep{7}, File "output/eigenvector7.pos"];
-      Print [ u, OnElementsOf Domain, TimeStep{8}, File "output/eigenvector8.pos"];
-      Print [ u, OnElementsOf Domain, TimeStep{9}, File "output/eigenvector9.pos"];
+      Print [ u, OnElementsOf Dom, TimeStep{0}, File "output/eigenvector0.pos"];
+      Print [ u, OnElementsOf Dom, TimeStep{1}, File "output/eigenvector1.pos"];
+      Print [ u, OnElementsOf Dom, TimeStep{2}, File "output/eigenvector2.pos"];
+      Print [ u, OnElementsOf Dom, TimeStep{3}, File "output/eigenvector3.pos"];
+      Print [ u, OnElementsOf Dom, TimeStep{4}, File "output/eigenvector4.pos"];
+      Print [ u, OnElementsOf Dom, TimeStep{5}, File "output/eigenvector5.pos"];
+      Print [ u, OnElementsOf Dom, TimeStep{6}, File "output/eigenvector6.pos"];
+      Print [ u, OnElementsOf Dom, TimeStep{7}, File "output/eigenvector7.pos"];
+      Print [ u, OnElementsOf Dom, TimeStep{8}, File "output/eigenvector8.pos"];
+      Print [ u, OnElementsOf Dom, TimeStep{9}, File "output/eigenvector9.pos"];
     }
   }
 }

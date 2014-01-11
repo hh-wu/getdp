@@ -4,17 +4,24 @@
 //========================================================
 
 DefineConstant[
-  FLAG_GEOM = {1, Choices{1="Line [1D]", 2="Square [2D]", 3="Cuboid [3D]"},
+  FLAG_GEOM = {1, Choices {1="Line [1D]", 2="Square [2D]", 3="Disk [2D]", 4="Cuboid [3D]"},
     Name "Input/01Geometry", Highlight "Black"}
 ] ;
 
 If (FLAG_GEOM==1)
+  LinkGeo = "geomLine.geo" ;
   DIM = 1 ;
 EndIf
 If (FLAG_GEOM==2)
+  LinkGeo = "geomSquare.geo" ;
   DIM = 2 ;
 EndIf
 If (FLAG_GEOM==3)
+  LinkGeo = "geomDisk.geo" ;
+  DIM = 2 ;
+EndIf
+If (FLAG_GEOM==4)
+  LinkGeo = "geomCuboid.geo" ;
   DIM = 3 ;
 EndIf
 
