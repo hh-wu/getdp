@@ -3,6 +3,6 @@
 // File: GMSH geometry (choice of the cavity)
 //========================================================
 
-Include "eigenvalues.dat" ;
+Include "main.dat" ;
 
 Include Str[LinkGeo] ;

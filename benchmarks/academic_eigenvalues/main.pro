@@ -3,7 +3,7 @@
 // File: GetDP simulation (choice of the problem)
 //========================================================
 
-Include "eigenvalues.dat" ;
+Include "main.dat" ;
 
 DefineConstant[
   FLAG_EQN = {1, Choices {1="Scalar Helmholtz equation", 2="Vector Helmholtz equation"},
