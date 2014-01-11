@@ -1,5 +1,5 @@
 
-2D and 3D models of microwave cavity.
+2D and 3D models of cavities for electromagnetic shielding.
 
 [[Category:GetDP]]
 [[Category:Electromagnetism]]
