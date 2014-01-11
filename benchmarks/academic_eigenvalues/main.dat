@@ -4,8 +4,11 @@
 //========================================================
 
 DefineConstant[
-  FLAG_GEOM = {1, Choices {1="Line [1D]", 2="Square [2D]", 3="Disk [2D]", 4="Cuboid [3D]"},
-    Name "Input/01Geometry", Highlight "Black"}
+  FLAG_GEOM = {1, Name "Input/01Geometry", Highlight "Black",
+    Choices {1="Linear cavity [1D]",
+             2="Squared cavity [2D]",
+             3="Circular cavity [2D]",
+             4="Cuboidal cavity [3D]"} }
 ] ;
 
 If (FLAG_GEOM==1)

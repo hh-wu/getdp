@@ -5,10 +5,10 @@
 
 DefineConstant[
   FLAG_PBM = {1, Name "Input/00Problem", Highlight "Black",
-    Choices {1="Straight [2D]",
-             2="Straight with dielectric [2D]",
-             3="H-bend [2D]",
-             4="Straight [3D]"} }
+    Choices {1="Straight waveguide [2D]",
+             2="Straight waveguide with dielectric [2D]",
+             3="H-bend waveguide [2D]",
+             4="Straight waveguide [3D]"} }
 ] ;
 
 If (FLAG_PBM==1)
