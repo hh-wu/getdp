@@ -1,5 +1,5 @@
 Include "params.geo";
-
+Include "../main/ddmDefines.pro";
 eps0 = 8.854e-12;
 mu0 = 4*Pi*1e-7;
 Z0 = 1;//Sqrt[mu0/eps0];

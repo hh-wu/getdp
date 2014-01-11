@@ -48,7 +48,10 @@ Include "../main/tcDefaults.pro";
 Include "../main/topology/inline.pro";
 
 If (PRECOND_SWEEP)
-  ListOfCuts = {0, 5, 12, N_DOM-1};
+  // ListOfCuts = {0, 5, 12, N_DOM-1};
+  // ListOfCuts = {0, 5, 10, 15, N_DOM-1};
+  // ListOfCuts = {0, 9, N_DOM-1};
+  // ListOfCuts = {0, 3, 6, 9, 12, 15, N_DOM-1};
 
   // Hack to build a 'list of lists': generate variables with 'indexed names'
   nCuts = 0;
@@ -56,10 +59,10 @@ If (PRECOND_SWEEP)
     nProcsInCut~{iCut} = 0;
   EndFor
   For iCut In {0:#ListOfCuts()-2}
-    For iDom In {ListOfCuts(iCut):ListOfCuts(iCut+1):1}
-      ListOfProcsInCut~{iCut}~{nProcsInCut~{iCut}} = iDom;
-      nProcsInCut~{iCut} += 1;
-    EndFor
+    // For iDom In {ListOfCuts(iCut):ListOfCuts(iCut+1):1}
+    //   ListOfProcsInCut~{iCut}~{nProcsInCut~{iCut}} = iDom;
+    //   nProcsInCut~{iCut} += 1;
+    // EndFor
     nCuts += 1;
   EndFor
 

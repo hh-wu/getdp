@@ -204,13 +204,12 @@ Resolution {
       	  //Compute u on Omega_i (fast way)
 	  If (LAGRANGE)
       	    GenerateRHSGroup[Helmholtz~{idom}, Sigma~{idom}] ;
-      	    SolveAgain[Helmholtz~{idom}] ;
 	  EndIf
 	  If (!LAGRANGE)
 	    UpdateConstraint[Helmholtz~{idom}, Region[Sigma~{idom}, Not GammaD~{idom}], Assign]; // The 'Region' argument seems ineffective ?? + slow ?
       	    GenerateRHSGroup[Helmholtz~{idom}, TrGr~{idom}] ;
-	    SolveAgain[Helmholtz~{idom}] ;
 	  EndIf
+	  SolveAgain[Helmholtz~{idom}] ;
       	  //Compute the new g_out (fast way)
       	  For jdom In {0:1}
       	    GenerateRHSGroup[ComputeG~{idom}~{jdom}, SigmaIn~{idom}~{jdom}] ;

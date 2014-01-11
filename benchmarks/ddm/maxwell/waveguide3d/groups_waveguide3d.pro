@@ -4,14 +4,14 @@ MeshName = StrCat[Dir,Problem];
 
 Group{
   //FULL
-  Omega = Region[ (100) ];
-  GammaScat = Region[{11}];
-  GammaInf = Region[{12}];
+  Omega = Region[ (6) ];
+  GammaScat = Region[{1}];
+  GammaInf = Region[{2}];
   Sigma = Region[ {} ];
   GammaC = Region[ {} ]; // Conducting region -- 0 tangential component
   GammaTang = Region[{}]; // GammaTang is the part of the boundary with natural boundary condition (=> does not appear in the formulation if homogeneous)
   If (TM)
-    GammaC += Region[ {40} ];
+    GammaC += Region[ {3} ];
     // GammaTang += Region[ {40} ];
   EndIf
 

@@ -9,7 +9,7 @@ n = 2 ; // 'horizontal'
 TOL = 1.000000e-04 ;
 Include "params_part2.geo";
 
-nDomList = {4,5,3,5,1}; // number of domains in the different parts of the domain, starting from inner straigt part
+nDomList = {3,5,2,5,1}; // number of domains in the different parts of the domain, starting from inner straigt part
 
 D1 = .1; // inner straight part length
 D2 = .08; // middle straight part length

@@ -37,7 +37,7 @@ EndFor
 
 n = nDomList[0];
 For i In {n:n+nDomList[1]-1} // first bend
-  ext[] = Extrude{{0,0,1}, {shiftX+D1,R+shiftY,0}, alpha/nDomList[1]}{ Surface{ls[i]}; Layers{R*alpha/nDomList[1]/lc}; Recombine; };
+  ext[] = Extrude{{0,0,1}, {shiftX+D1,R+d1+shiftY,0}, alpha/nDomList[1]}{ Surface{ls[i]}; Layers{R*alpha/nDomList[1]/lc}; Recombine; };
   ls[] += ext[0];
   lv[] += ext[1];
   lSides[] += ext[{2:5}];
@@ -46,7 +46,7 @@ EndFor
 If (D2 > 0)
 n += nDomList[1];
 For i In {n:n+nDomList[2]-1} // straight part in the middle
-  ext[] = Extrude{D2/nDomList[2]*Cos(alpha), D2/nDomList[2]*Sin(alpha), 0}{ Surface{ls[i]}; Layers{D2/nDomList[2]/lc}; Recombine; };
+  ext[] = Extrude{D2/nDomList[2]*Cos(alpha), D2/nDomList[2]*Sin(alpha), 0}{ Surface{ls[i]}; Layers{D2/nDomList[2]/lc-1}; Recombine; }; // reduce the #layers by 1 for a more balanced mesh ?
   ls[] += ext[0];
   lv[] += ext[1];
   lSides[] += ext[{2:5}];
@@ -55,7 +55,7 @@ EndIf
 
 n += nDomList[2];
 For i In {n:n+nDomList[3]-1} // second bend
-  ext[] = Extrude{{0,0,1}, {2*R*Sin[alpha]+shiftX+D2*Cos(alpha)+D1, R-2*R*Cos[alpha]+shiftY+D2*Sin(alpha), 0}, -alpha/nDomList[3]}{ Surface{ls[i]}; Layers{R*alpha/nDomList[3]/lc}; Recombine; };
+  ext[] = Extrude{{0,0,1}, {shiftX+D1+(R+d1)*Sin[alpha]+D2*Cos(alpha)+R*Sin[alpha], shiftY+(R+d1)*(1-Cos[alpha])+D2*Sin[alpha]+R*(1-Cos[alpha])-R, 0}, -alpha/nDomList[3]}{ Surface{ls[i]}; Layers{R*alpha/nDomList[3]/lc}; Recombine; };
   ls[] += ext[0];
   lv[] += ext[1];
   lSides[] += ext[{2:5}];
