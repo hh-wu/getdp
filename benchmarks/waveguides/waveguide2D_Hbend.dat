@@ -3,7 +3,7 @@
 // File: Parameters
 // Contributors:
 //   L. Rindorf (original version, 2008)
-//   C. Geuzaine, A. Modave (modifications)
+//   A. Modave (modifications)
 //========================================================
 
 ExtGnuplot = ".dat";
@@ -21,18 +21,19 @@ catOutput = "Output/";
 DIM = 2;
 
 DefineConstant[
-  L = { 0.1, Min 0.01, Max 1, Step 0.01,
-    Name StrCat[catParam1,"1Length of Domain [m]"]},
-  W = { 0.04, Min 0.01, Max 1, Step 0.01,
-    Name StrCat[catParam1,"2Width of Domain [m]"]},
-  R = { 0.06, Min 0.01, Max 1, Step 0.01,
-    Name StrCat[catParam1,"3Radius at bend [m]"]}
+  L = { 10, Min 1, Max 100, Step 1,
+    Name StrCat[catParam1,"1Length of Domain [cm]"]},
+  W = { 4, Min 1, Max 100, Step 1,
+    Name StrCat[catParam1,"2Width of Domain [cm]"]},
+  R = { 6, Min 1, Max 100, Step 1,
+    Name StrCat[catParam1,"3Radius at bend [cm]"]},
+  res = { 0.1, Min 0.1, Max 5, Step 0.1,
+    Name StrCat[catParam3,"1Resolution of grid [cm]"]}
 ];
-
-DefineConstant[
-  res = { 1e-3, Min 1e-3, Max 50e-3, Step 1e-3,
-    Name StrCat[catParam3,"1Resolution of grid [m]"]}
-];
+L = L/100;
+W = W/100;
+R = R/100;
+res = res/100;
 
 //--------------
 // Physical TAGs

@@ -1,5 +1,5 @@
 //========================================================
-// Benchmark "EM waveguide 2D - Straight"
+// Benchmark "EM waveguide 2D - Straight with a rectangular dielectric"
 // File: Parameters
 // Contributor: A. Modave
 //========================================================
@@ -23,19 +23,26 @@ DefineConstant[
     Name StrCat[catParam1,"1Length of Domain [cm]"]},
   W = { 3.5, Min 0.1, Max 10, Step 0.1,
     Name StrCat[catParam1,"2Height of Domain [cm]"]},
+  Lx = { 5, Min 0.1, Max L, Step 0.1,
+    Name StrCat[catParam1,"3Length of Dielectric [cm]"]},
+  Ly = { 1.75, Min 0.01, Max W, Step 0.01,
+    Name StrCat[catParam1,"4Height of Dielectric [cm]"]},
   res = { 0.2, Min 0.001, Max 1, Step 0.001,
     Name StrCat[catParam3,"1Resolution of grid [cm]"]}
 ];
 
 L = L/100;
 W = W/100;
+Lx = Lx/100;
+Ly = Ly/100;
 res = res/100;
 
 //--------------
 // Physical TAGs
 //--------------
 
-DOM = 1000;
+DOM_AIR = 1000;
+DOM_DIEL = 1001;
 BND_PEC = 2000;
 BND_PORT1 = 2001;
 BND_PORT2 = 2002;

@@ -1,0 +1,33 @@
+//========================================================
+// Benchmarks "Waveguides"
+// File: Parameters
+//========================================================
+
+DefineConstant[
+  FLAG_PBM = {1, Name "Input/00Problem", Highlight "Black",
+    Choices {1="Straight [2D]",
+             2="Straight with dielectric [2D]",
+             3="H-bend [2D]",
+             4="Straight [3D]"} }
+] ;
+
+If (FLAG_PBM==1)
+  LinkGeo = "waveguide2D_straight.geo" ;
+  LinkPro = "waveguide2D_straight.pro" ;
+  DIM = 2 ;
+EndIf
+If (FLAG_PBM==2)
+  LinkGeo = "waveguide2D_straightWithDielectric.geo" ;
+  LinkPro = "waveguide2D_straightWithDielectric.pro" ;
+  DIM = 2 ;
+EndIf
+If (FLAG_PBM==3)
+  LinkGeo = "waveguide2D_Hbend.geo" ;
+  LinkPro = "waveguide2D_Hbend.pro" ;
+  DIM = 2 ;
+EndIf
+If (FLAG_PBM==4)
+  LinkGeo = "waveguide3D_straight.geo" ;
+  LinkPro = "waveguide3D_straight.pro" ;
+  DIM = 3 ;
+EndIf

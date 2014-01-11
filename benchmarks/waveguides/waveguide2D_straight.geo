@@ -1,7 +1,7 @@
 //========================================================
 // Benchmark "EM waveguide 2D - Straight"
 // File: GMSH geometry
-// Contributors: C. Geuzaine, A. Modave
+// Contributor: A. Modave
 //========================================================
 
 Include "waveguide2D_straight.dat" ;

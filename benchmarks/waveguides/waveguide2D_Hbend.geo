@@ -3,7 +3,7 @@
 // File: GMSH geometry
 // Contributors:
 //   L. Rindorf (original version, 2008)
-//   C. Geuzaine, A. Modave (modifications)
+//   A. Modave (modifications)
 //========================================================
 
 Include "waveguide2D_Hbend.dat" ;

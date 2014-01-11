@@ -1,17 +1,19 @@
 //========================================================
-// Benchmark "EM waveguide 2D - Straight"
+// Benchmark "EM waveguide 2D - Straight with a rectangular dielectric"
 // File: GetDP simulation
-// Contributor: A. Modave
+// Contributors: A. Modave
 //========================================================
 
-Include "waveguide2D_straight.dat" ;
+Include "waveguide2D_straightWithDielectric.dat" ;
 
 Group {
   Port1  = Region[{BND_PORT1}] ;
   Port2  = Region[{BND_PORT2}] ;
   BndABC = Region[{Port1, Port2}] ;
   BndPEC = Region[{BND_PEC}] ;
-  Domain = Region[{DOM}] ;
+  DomainAir = Region[{DOM_AIR}] ;
+  DomainDiel = Region[{DOM_DIEL}] ;
+  Domain = Region[{DomainAir, DomainDiel}] ;
 }
 
 eps0 = 8.8541878176e-12 ;
@@ -23,50 +25,51 @@ c0 = 1/Sqrt[eps0*mu0] ;
 DefineConstant[
   FREQ = { 1e9, Min 1e8, Max 1e10, Step 1e8,
     Name StrCat[catParam2,"1Frequency [Hz]"]},
-  m = { 1, Min 1, Max 10, Step 1,
-    Name StrCat[catParam2,"2Excitation mode number"]},
   LAMB = { c0/FREQ*100, ReadOnly 1, Highlight "LightGrey",
-    Name StrCat[catParam2,"3Wavelength [cm]"]}
-] ;
-LAMB = LAMB/100 ;
+    Name StrCat[catParam2,"2Wavelength [cm]"]}
+];
+LAMB = LAMB/100;
+
 
 Function {
   I[] = Complex[0.,1.] ;
-  epsR[] = 1 ;
+  
+  epsR[BndABC] = 1. ;
+  epsR[DomainAir] = 1. ;
+  epsR[DomainDiel] = Complex[4.,1.] ;
   muR[] = 1 ;
   
-  k0 = 2*Pi/LAMB ; // Free space wavevector
-  ky = m*Pi/W ;    // Transverse wavevector
+  k0 = 2*Pi/LAMB; // Free space wavevector
   
-  ePort1[] = Vector[ 0., 0., Sin[ky*Y[]] ] ;
-  ePort2[] = Vector[ 0., 0., Sin[ky*Y[]] ] ;
-  intPort1 = W/2 ; // square of electric field "ePort1" integrated at port 1
-  intPort2 = W/2 ; // square of electric field "ePort2" integrated at port 2
-  eInc[Port1] = ePort1[] ;
-  eInc[Port2] = Vector[ 0., 0., 0. ] ;
+  hPort1[] = Vector[ 0., 0., 1. ] ;
+  hPort2[] = Vector[ 0., 0., 1. ] ;
+  intPort1 = W ; // square of electric field "ePort1" integrated at port 1
+  intPort2 = W ; // square of electric field "ePort2" integrated at port 2
+  hInc[Port1] = hPort1[] ;
+  hInc[Port2] = Vector[ 0., 0., 0. ] ;
 }
 
 Include "formulations.pro";
 
 PostProcessing {
-  { Name postPro_Field ; NameOfFormulation eFormulation ;
+  { Name postPro_Field ; NameOfFormulation hFormulation ;
     Quantity {
-      { Name eZ ; Value { Local{ [ CompZ[{e}] ] ; In Domain ; Jacobian Jac ; } } }
+      { Name hZ ; Value { Local{ [ CompZ[{h}] ] ; In Domain ; Jacobian Jac ; } } }
     }
   }
-  { Name postPro_FieldsBnd ; NameOfFormulation eFormulation ;
+  { Name postPro_FieldsBnd ; NameOfFormulation hFormulation ;
     Quantity {
-      { Name eBnd ; Value { Local{ [ {e} ] ; In SurAll ; Jacobian Jac ; } } }
-      { Name ePort1 ; Value { Local{ [ ePort1[] ] ; In Port1 ; Jacobian Jac ; } } }
-      { Name ePort2 ; Value { Local{ [ ePort2[] ] ; In Port2 ; Jacobian Jac ; } } }
-      { Name eInc ; Value { Local{ [ eInc[] ] ; In BndABC ; Jacobian Jac ; } } }
+      { Name hBnd ; Value { Local{ [ {h} ] ; In SurAll ; Jacobian Jac ; } } }
+      { Name hPort1 ; Value { Local{ [ hPort1[] ] ; In Port1 ; Jacobian Jac ; } } }
+      { Name hPort2 ; Value { Local{ [ hPort2[] ] ; In Port2 ; Jacobian Jac ; } } }
+      { Name hInc ; Value { Local{ [ hInc[] ] ; In BndABC ; Jacobian Jac ; } } }
       { Name normal ; Value { Local{ [ Normal[] ] ; In SurAll ; Jacobian Jac ; } } }
     }
   }
-  { Name postPro_SParameters ; NameOfFormulation eFormulation ;
+  { Name postPro_SParameters ; NameOfFormulation hFormulation ;
     Quantity {
-      { Name R ; Value { Integral{ [ ({e}-ePort1[])*Conj[ePort1[]] / intPort1 ] ; In Port1 ; Jacobian Jac ; Integration I1 ; } } }
-      { Name T ; Value { Integral{ [ ({e})         *Conj[ePort2[]] / intPort2 ] ; In Port2 ; Jacobian Jac ; Integration I1 ; } } }
+      { Name R ; Value { Integral{ [ ({h}-hPort1[])*Conj[hPort1[]] / intPort1 ] ; In Port1 ; Jacobian Jac ; Integration I1 ; } } }
+      { Name T ; Value { Integral{ [ ({h})         *Conj[hPort2[]] / intPort2 ] ; In Port2 ; Jacobian Jac ; Integration I1 ; } } }
       { Name NormR ; Value { Local{ [ Norm[#1] ] ; In Port1 ; Jacobian Jac ; } } }
       { Name NormT ; Value { Local{ [ Norm[#2] ] ; In Port2 ; Jacobian Jac ; } } }
       { Name NormR_2 ; Value { Local{ [ Norm[#1]^2 ] ; In Port1 ; Jacobian Jac ; } } }
@@ -80,15 +83,15 @@ PostProcessing {
 PostOperation {
   { Name Get_Field ; NameOfPostProcessing postPro_Field ;
     Operation {
-      Print [ eZ, OnElementsOf Domain, File StrCat[myDir, "eZ.pos"]] ;
+      Print [ hZ, OnElementsOf Domain, File StrCat[myDir, "hZ.pos"]] ;
     }
   }
   { Name Get_FieldsBnd ; NameOfPostProcessing postPro_FieldsBnd ;
     Operation {
-      Print [ eBnd, OnElementsOf SurAll, File StrCat[myDir, "eBnd.pos"]] ;
-      Print [ ePort1, OnElementsOf Port1, File StrCat[myDir, "ePort1.pos"]] ;
-      Print [ ePort2, OnElementsOf Port2, File StrCat[myDir, "ePort2.pos"]] ;
-      Print [ eInc, OnElementsOf BndABC, File StrCat[myDir, "eInc.pos"]] ;
+      Print [ hBnd, OnElementsOf SurAll, File StrCat[myDir, "hBnd.pos"]] ;
+      Print [ hPort1, OnElementsOf Port1, File StrCat[myDir, "hPort1.pos"]] ;
+      Print [ hPort2, OnElementsOf Port2, File StrCat[myDir, "hPort2.pos"]] ;
+      Print [ hInc, OnElementsOf BndABC, File StrCat[myDir, "hInc.pos"]] ;
       Print [ normal, OnElementsOf SurAll, File StrCat[myDir, "normal.pos"]] ;
     }
   }
@@ -120,7 +123,7 @@ DefineConstant[
 ] ;
 
 DefineConstant[
-  R_ = {"eFormulation", Name "GetDP/1ResolutionChoices", Visible 0},
+  R_ = {"hFormulation", Name "GetDP/1ResolutionChoices", Visible 0},
   C_ = {"-solve -pos -v2", Name "GetDP/9ComputeCommand", Visible 0},
   P_ = { Str[MyPostOp], Name "GetDP/2PostOperationChoices", Visible 0, ReadOnly 1}
 ] ;
