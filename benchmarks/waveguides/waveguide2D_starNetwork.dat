@@ -1,0 +1,47 @@
+//========================================================
+// Benchmark "EM waveguide 2D - star-shaped network"
+// File: Parameters
+// Contributor: C. Geuzaine, A. Modave
+//========================================================
+
+ExtGnuplot = ".dat";
+ExtGmsh = ".pos";
+myDir = "output/";
+catParam1 = "Input/2Geometry/";
+catParam2 = "Input/3Signal/";
+catParam3 = "Input/4Discretization/";
+catOutput = "Output/";
+
+//---------------------------
+// Parameters of the geometry
+//---------------------------
+
+DIM = 2;
+
+DefineConstant[
+  NbPorts = { 3, Min 2, Max 9, Step 1,
+    Name StrCat[catParam1,"1Number of ports"]},
+  R = { 5, Min 1, Max 100, Step 1,
+    Name StrCat[catParam1,"2Radius of the center [cm]"]},
+  L = { 50, Min 1, Max 100, Step 1,
+    Name StrCat[catParam1,"3Length of each port [cm]"]},
+  angleInter = { 70, Min 0, Max 180, Step 1,
+    Name StrCat[catParam1,"4Angle between two ports [degree]"]},
+  res = { 0.5, Min 0.1, Max 5, Step 0.1,
+    Name StrCat[catParam3,"1Resolution of grid [cm]"]}
+];
+R = R/100;
+L = L/100;
+angleInter = angleInter*Pi/180;
+W = 2*R*Sin[(2*Pi/NbPorts-angleInter)/2];
+res = res/100;
+
+//--------------
+// Physical TAGs
+//--------------
+
+DOM = 1000;
+BND_LAT = 2000;
+For n In {1:NbPorts}
+  BND_PORT~{n} = 2000+n;
+EndFor
