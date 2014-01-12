@@ -1,7 +1,7 @@
 //========================================================
 // Benchmark "EM waveguide 2D - star-shaped network"
 // File: GMSH geometry
-// Contributor: C. Geuzaine, A. Modave
+// Contributors: C. Geuzaine, A. Modave
 //========================================================
 
 Include "waveguide2D_starNetwork.dat" ;

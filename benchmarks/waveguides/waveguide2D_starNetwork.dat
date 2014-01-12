@@ -1,7 +1,7 @@
 //========================================================
 // Benchmark "EM waveguide 2D - star-shaped network"
 // File: Parameters
-// Contributor: C. Geuzaine, A. Modave
+// Contributors: C. Geuzaine, A. Modave
 //========================================================
 
 ExtGnuplot = ".dat";
