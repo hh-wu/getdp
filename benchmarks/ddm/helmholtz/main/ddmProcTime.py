@@ -1,6 +1,6 @@
 #!/usr/bin/python
-from os import system
 from sys import argv
+from time import localtime, strftime
 
-fname = 'time_%s_%s.txt'%(argv[1], argv[2])
-system('gdate +%H.%M.%S.%N >> '+ fname)
+with open('time_%s_%s.txt'%(argv[1], argv[2]),'a') as myfile:
+    myfile.write(strftime("%H.%M.%S\n",localtime()))
