@@ -373,8 +373,25 @@ Resolution {
 	idom = ListOfDom(ii);
 	//Setting the non homogeneous Dirichlet BC on GammaD (part 2/2)
 	UpdateConstraint[Helmholtz~{idom}, GammaD~{idom}, Assign];
-	Generate[Helmholtz~{idom}] ;
-	Solve[Helmholtz~{idom}] ;
+
+	If (REUSE == 0)
+	  Generate[Helmholtz~{idom}] ;
+	  Solve[Helmholtz~{idom}] ;
+	EndIf
+	If (REUSE)
+	  ifact = ListOfFacto(ii);
+	  If (idom == ifact)
+	    Printf("  True  factorization: %g (%g)",idom,ifact);
+	    Generate[Helmholtz~{idom}] ;
+	    Solve[Helmholtz~{idom}] ;
+	  EndIf
+	  If (idom != ifact)
+	    Printf("  Reuse factorization: %g (%g)",idom,ifact) ;
+	    GenerateRHS[Helmholtz~{idom}] ;
+	    SolveAgainWithOther[Helmholtz~{idom},Helmholtz~{ifact}] ;
+	  EndIf
+	EndIf
+
 	If (EXT_TIME) SystemCommand[Sprintf["./../main/ddmProcTime.py %g factor", MPI_Rank]]; EndIf
 	For jdom In {0:1}
 	  Generate[ComputeG~{idom}~{jdom}] ;
@@ -423,7 +440,20 @@ Resolution {
 	  idom = ListOfDom(ii);
 	  //Compute u on Omega_i (fast way)
 	  GenerateRHSGroup[Helmholtz~{idom}, Sigma~{idom}] ;
-	  SolveAgain[Helmholtz~{idom}] ;
+
+	  If (REUSE == 0)
+	    SolveAgain[Helmholtz~{idom}] ;
+	  EndIf
+	  If(REUSE)
+	    ifact = ListOfFacto(ii);
+	    If (idom == ifact)
+	      SolveAgain[Helmholtz~{idom}] ;
+	    EndIf
+	    If (idom != ifact)
+	      SolveAgainWithOther[Helmholtz~{idom},Helmholtz~{ifact}] ;
+	    EndIf
+	  EndIf
+
 	  //Compute the new g_out (fast way)
 	  For jdom In {0:1}
 	    GenerateRHSGroup[ComputeG~{idom}~{jdom}, Sigma~{idom}~{jdom}] ;
@@ -495,7 +525,20 @@ Resolution {
 		Evaluate[1. #10]; Evaluate[0. #11];
 		//Compute u on Omega_i (fast way)
 		GenerateRHSGroup[Helmholtz~{idom_f}, Sigma~{idom_f}] ;
-		SolveAgain[Helmholtz~{idom_f}] ;
+
+		If (REUSE == 0)
+		  SolveAgain[Helmholtz~{idom_f}] ;
+		EndIf
+		If(REUSE)
+		  ifact = ListOfFacto(idom_f);
+		  If (idom_f == ifact)
+		    SolveAgain[Helmholtz~{idom_f}] ;
+		  EndIf
+		  If (idom_f != ifact)
+		    SolveAgainWithOther[Helmholtz~{idom_f},Helmholtz~{ifact}] ;
+		  EndIf
+		EndIf
+
 		//Compute the new g_out (fast way)
 		GenerateRHSGroup[ComputeGPrecond~{idom_f}~{1}, Sigma~{idom_f}~{1}] ;
 		SolveAgain[ComputeGPrecond~{idom_f}~{1}] ;
@@ -518,7 +561,20 @@ Resolution {
 		Evaluate[0. #10]; Evaluate[1. #11];
 		//Compute u on Omega_i (fast way)
 		GenerateRHSGroup[Helmholtz~{idom_b}, Sigma~{idom_b}] ;
-		SolveAgain[Helmholtz~{idom_b}] ;
+
+		If (REUSE == 0)
+		  SolveAgain[Helmholtz~{idom_b}] ;
+		EndIf
+		If(REUSE)
+		  ifact = ListOfFacto(idom_b);
+		  If (idom_b == ifact)
+		    SolveAgain[Helmholtz~{idom_b}] ;
+		  EndIf
+		  If (idom_b != ifact)
+		    SolveAgainWithOther[Helmholtz~{idom_b},Helmholtz~{ifact}] ;
+		  EndIf
+		EndIf
+
 		//Compute the new g_out (fast way)
 		GenerateRHSGroup[ComputeGPrecond~{idom_b}~{0}, Sigma~{idom_b}~{0}] ;
 		SolveAgain[ComputeGPrecond~{idom_b}~{0}] ;
@@ -564,7 +620,20 @@ Resolution {
     For ii In {0: #ListOfDom()-1}
       idom = ListOfDom(ii);
       GenerateRHSGroup[Helmholtz~{idom}, Sigma~{idom}] ;
-      SolveAgain[Helmholtz~{idom}] ;
+
+      If (REUSE == 0)
+	SolveAgain[Helmholtz~{idom}] ;
+      EndIf
+      If(REUSE)
+	ifact = ListOfFacto(ii);
+	If (idom == ifact)
+	  SolveAgain[Helmholtz~{idom}] ;
+	EndIf
+	If (idom != ifact)
+	  SolveAgainWithOther[Helmholtz~{idom},Helmholtz~{ifact}] ;
+	EndIf
+      EndIf
+
       PostOperation[u_ddm~{idom}] ;
       //Error with Full/Exact solution
       If(FULL_SOLUTION || EXACT_SOLUTION)
