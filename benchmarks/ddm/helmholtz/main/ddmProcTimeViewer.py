@@ -33,7 +33,9 @@ def getProcTime(fList):
         tNumList = list()
         tNumList.append(int(fname.split('_')[1]))
         for s in tStr:
-            tNumList.append(float(s))
+            tHum = s.strip('\n').split('.')
+            tMach = 3600*int(tHum[0])+60*int(tHum[1])+int(tHum[2])+int(tHum[3])/1e9
+            tNumList.append(tMach)
         procTimeList.append(tNumList)
     return procTimeList
 
