@@ -54,4 +54,12 @@ Function{
   If(MPI_Size <2) // No neighbors
     NeighborField = {};
   EndIf
+
+  If (PRECOND_SWEEP)
+    ProcOwnsDomain = {} ;
+    // what domains am I in charge of ? Implemented with a list
+    For idom In{0:N_DOM-1}
+      ProcOwnsDomain += {(idom%MPI_Size == MPI_Rank)}; // define your rule here -- must match listOfDom()
+    EndFor
+  EndIf
 }
