@@ -39,7 +39,7 @@ N = 2;
 Include "../main/topology/inline.pro";
 
 If (PRECOND_SWEEP)
-  ListOfCuts = {0, 5, 10, 15, N_DOM-1};
+  ListOfCuts = {0, 5, 10, N_DOM-1};
 
   // Hack to build a 'list of lists': generate variables with 'indexed names'
   nCuts = 0;
