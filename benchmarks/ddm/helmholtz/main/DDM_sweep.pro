@@ -358,7 +358,7 @@ Resolution {
 	    Printf[" -- List of cuts --"];
 	  EndIf
         EndIf
-	SystemCommand["rm time*.txt"];
+	If (EXT_TIME)  SystemCommand["rm time*.txt"]; EndIf
       EndIf
       Barrier;
 
