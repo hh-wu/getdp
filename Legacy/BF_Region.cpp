@@ -145,6 +145,12 @@ void BF_One(struct Element * Element, int Num,
   s[0] = 1. ; s[1] = s[2] = 0. ;
 }
 
+void BF_OneZ(struct Element * Element, int Num,
+	    double u, double v, double w, double *s)
+{
+  s[0] = s[1] = 0. ; s[2] = 1. ;
+}
+
 /* ------------------------------------------------------------------------ */
 /*  B F _ I n i t G l o b a l                                               */
 /* ------------------------------------------------------------------------ */

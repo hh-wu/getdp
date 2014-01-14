@@ -274,6 +274,7 @@ void  BF_GroupOfNodesZ_D12(BF_ARG) ;
 
 void  BF_Zero(BF_ARG) ;
 void  BF_One(BF_ARG) ;
+void  BF_OneZ(BF_ARG) ;
 
 void  BF_Region(BF_ARG) ;
 void  BF_RegionX(BF_ARG) ;
