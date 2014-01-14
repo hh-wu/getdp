@@ -842,7 +842,8 @@ struct StringX3Function3Nbr  BF_Function[] = {
   // Special basis Functions
 
   {"BF_Zero", (CAST)BF_Zero, (CAST)BF_Zero, (CAST)BF_Zero, 0., ALL, 0 },
-  {"BF_One",  (CAST)BF_One,  (CAST)BF_One,  (CAST)BF_One,  0., ALL, 0 },
+  {"BF_One",  (CAST)BF_One,  (CAST)BF_Zero, (CAST)BF_One,  0., ALL, 0 },
+  {"BF_OneZ", (CAST)BF_OneZ, (CAST)BF_Zero, (CAST)BF_One,  0., ALL, 0 },
 
   {"BF_Region"  , (CAST)BF_Region   , (CAST)BF_dRegion  , (CAST)BF_Zero , 0. , ALL, 0 },
   {"BF_RegionX" , (CAST)BF_RegionX  , (CAST)BF_dRegionX , (CAST)BF_Zero , 0. , ALL, 0 },
