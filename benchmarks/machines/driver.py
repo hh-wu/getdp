@@ -25,10 +25,11 @@ for angle in [0, 10, 20]:
    c.setNumber('Input/21Start rotor angle [deg]', value=angle)
    
    # run gmsh as a subclient
-   c.run('Gmsh', 'gmsh ' + machine + '.geo -2 -v 2')
+   c.runSubClient('Gmsh', 'gmsh ' + machine + '.geo -2 -v 2')
    
    # run getdp as a subclient
-   c.run('GetDP', 'getdp ' + machine + ' -msh ' + machine + '.msh' + ' -solve Analysis -v 2')
+   c.runSubClient('GetDP', 'getdp ' + machine + ' -msh ' + machine + '.msh' 
+                  + ' -solve Analysis -v 2')
    
    # retrieve the torque
    torque = c.getNumber('Output - Mechanics/0Torque [Nm]/rotor')
