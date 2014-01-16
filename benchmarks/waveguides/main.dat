@@ -9,7 +9,8 @@ DefineConstant[
              2="Straight waveguide with dielectric [2D]",
              3="H-bend waveguide [2D]",
              4="Star-shaped network [2D]",
-             5="Straight waveguide [3D]"} }
+             5="Straight waveguide [3D]",
+             6="Star-shaped network [3D]"} }
 ] ;
 
 If (FLAG_PBM==1)
@@ -35,5 +36,10 @@ EndIf
 If (FLAG_PBM==5)
   LinkGeo = "waveguide3D_straight.geo" ;
   LinkPro = "waveguide3D_straight.pro" ;
+  DIM = 3 ;
+EndIf
+If (FLAG_PBM==6)
+  LinkGeo = "waveguide3D_starNetwork.geo" ;
+  LinkPro = "waveguide3D_starNetwork.pro" ;
   DIM = 3 ;
 EndIf
