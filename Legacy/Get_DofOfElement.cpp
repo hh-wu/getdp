@@ -402,16 +402,18 @@ void  Get_GlobalForElement(struct Element * Element, int * StartingIndex,
   Nbr_Global = List_Nbr(GroupEntity_P->InitialList) ;
   Num_Global = (Nbr_Global)? (int*)List_Pointer(GroupEntity_P->InitialList, 0) : NULL ;
 
-  for (i = 0 ; i < Nbr_Global ; i++) {
-    Element->GlobalBasisFunction[Element->NbrGroupsOfEntities  ] =
-      (struct GlobalBasisFunction *)
-      List_Pointer(BasisFunction_P->GlobalBasisFunction, i) ;
-    /* Attention: correspondance i-i si liste triee ! fait dans yacc */
-    Element->NumGroupsOfEntities[Element->NbrGroupsOfEntities++] = Num_Global[i] ;
-  }
+  if (BasisFunction_P->GlobalBasisFunction) {
+    for (i = 0 ; i < Nbr_Global ; i++) {
+      Element->GlobalBasisFunction[Element->NbrGroupsOfEntities  ] =
+        (struct GlobalBasisFunction *)
+        List_Pointer(BasisFunction_P->GlobalBasisFunction, i) ;
+      /* Attention: correspondance i-i si liste triee ! fait dans yacc */
+      Element->NumGroupsOfEntities[Element->NbrGroupsOfEntities++] = Num_Global[i] ;
+    }
 
-  if (TreatmentStatus == _PRE)
-    Get_PreResolutionForGlobalBasisFunction(Nbr_Global, *StartingIndex, Element) ;
+    if (TreatmentStatus == _PRE)
+      Get_PreResolutionForGlobalBasisFunction(Nbr_Global, *StartingIndex, Element) ;
+  }
 }
 
 /* ------------------------------------------------------------------------ */
