@@ -11,6 +11,7 @@
 #cmakedefine HAVE_GSL
 #cmakedefine HAVE_LEGACY
 #cmakedefine HAVE_MPI
+#cmakedefine HAVE_MULTIHARMONIC
 #cmakedefine HAVE_NO_FORTRAN
 #cmakedefine HAVE_NO_INTPTR_T
 #cmakedefine HAVE_NO_SOCKLEN_T
