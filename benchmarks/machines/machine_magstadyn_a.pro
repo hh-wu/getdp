@@ -808,6 +808,8 @@ PostProcessing {
        // Torque computation via Maxwell stress tensor
        Value {
          Integral {
+           // \int_S (\vec{r} \times (T_max \vec{n}) ) / ep
+           // with ep = |S| / (2\pi r_avg)
            [ CompZ [ XYZ[] /\ (T_max[{d a}] * XYZ[]) ] * 2*Pi*AxialLength/SurfaceArea[] ] ;
            In Domain ; Jacobian Vol  ; Integration I1; }
        }
