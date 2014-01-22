@@ -1641,6 +1641,39 @@ Curl: applied to a vector field, gives a vector.
 @item Div
 Divergence (div): applied to a vector field, gives a scalar.
 
+@item D1
+Special operator: used with BF_NodeX, BF_NodeY and BF_NodeZ form functions, applies the operator specified in the first argument of "dFunction {Operator1, Operator2}".
+More specifically: When operator1 is set to D12 (e.g. with "dFunction {BF_NodeX_D12, BF_Zero}", for component X and Y, in "FunctionSpace"), then D1 applied to a vector [ux, uy] gives:
+@tex
+$$ \left[\frac{\partial u_x}{\partial x}, \frac{\partial u_y}{\partial y}, \frac{\partial u_y}{\partial x} + \frac{\partial u_x}{\partial y}\right] $$
+@end tex
+@ifnottex
+[partial derivative du_x/dx, partial derivative du_y/dy, partial derivative du_y/dx + partial derivative du_x/dy]
+@end ifnottex
+
+@noindent
+When operator1 is set to D1, which is the default option, then D1 applied to a vector [ux, uy, uz] gives: 
+
+@tex
+$$ \left[\frac{\partial u_x}{\partial x}, \frac{\partial u_y}{\partial y}, \frac{\partial u_z}{\partial z}\right] $$
+@end tex
+@ifnottex
+[partial derivative du_x/dx, partial derivative du_y/dy, partial derivative du_z/dz]
+@end ifnottex
+
+@noindent
+@item D2
+Special operator: used with BF_NodeX, BF_NodeY and BF_NodeZ form functions, applies the operator specified in the second argument of "dFunction {Operator1, Operator2}".
+More specifically: When operator2 is set to D2, which is the default option, then D2 applied to a vector [ux, uy, uz] gives: 
+
+@tex
+$$ \left[\frac{\partial u_y}{\partial x} + \frac{\partial u_x}{\partial y}, \frac{\partial u_z}{\partial y} + \frac{\partial u_y}{\partial z}, \frac{\partial u_x}{\partial z} + \frac{\partial u_z}{\partial x}\right] $$
+@end tex
+@ifnottex
+[partial derivative du_y/dx + partial derivative du_x/dy, partial derivative du_z/dy + partial derivative du_y/dz, partial derivative du_x/dz + partial derivative du_z/dx]
+@end ifnottex
+
+@noindent
 @item dInv
 d^(-1): applied to a p-form, gives a (p-1)-form.
 
