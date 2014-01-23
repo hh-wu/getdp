@@ -125,12 +125,12 @@ void F_TangentSource(F_ARG)
     Message::Error("No element on which to compute 'F_TangentSource'");
 
   switch (Current.ElementSource->Type) {
-   
+
   case LINE :
     tx = Current.ElementSource->x[1] - Current.ElementSource->x[0] ;
     ty = Current.ElementSource->y[1] - Current.ElementSource->y[0] ;
     tz = Current.ElementSource->z[1] - Current.ElementSource->z[0] ;
-    norm = sqrt(SQU(tx)+SQU(ty)+SQU(tz)) ;      
+    norm = sqrt(SQU(tx)+SQU(ty)+SQU(tz)) ;
     V->Val[0] = tx/norm ;
     V->Val[1] = ty/norm ;
     V->Val[2] = tz/norm ;
@@ -464,12 +464,10 @@ void F_CellSize(F_ARG)
 
   V->Type = SCALAR ;
   V->Val[0] = cellSize ;
-
-  if (Current.NbrHar != 1) {
-    V->Val[MAX_DIM] = 0. ;
-    for (k = 2 ; k < Current.NbrHar ; k += 2)
-      V->Val[MAX_DIM* k] = V->Val[0] ;
-      V->Val[MAX_DIM* k +1] = 0. ;
+  V->Val[MAX_DIM] = 0. ;
+  for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2) {
+    V->Val[MAX_DIM* k] = V->Val[0] ;
+    V->Val[MAX_DIM* (k+1)] = 0 ;
   }
 }
 
@@ -538,17 +536,13 @@ void F_SquNormEdgeValues(F_ARG)
 
   V->Type = SCALAR ;
   V->Val[0] = valSum ;
+  V->Val[MAX_DIM] = 0. ;
 
-  if (Current.NbrHar != 1) {
-    V->Val[MAX_DIM] = 0. ;
-    for (k = 2 ; k < Current.NbrHar ; k += 2)
-      V->Val[MAX_DIM* k] = 0. ;
-      V->Val[MAX_DIM* k +1] = 0. ;
+  for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2) {
+    V->Val[MAX_DIM* k] = V->Val[0] ;
+    V->Val[MAX_DIM* (k+1)] = 0 ;
   }
 }
-
-
-
 
 static double POINT_TO_PROJECT[3], ELLIPSE_PARAMETERS[2];
 
