@@ -500,6 +500,7 @@ static PetscErrorCode PViewBCast(Field MyField, Field AllField, const std::set<i
             MPI_Isend(&(*(V_send[j]))[0], n_data, MPI_DOUBLE, receiver, tag,
                       MPI_COMM_WORLD, &sendV);
             tab_request.push_back(sendV);
+	    // printf("Rank %d has sent %d\n", Message::GetCommRank(), GmshTag);
           }
         }
       }
@@ -526,6 +527,7 @@ static PetscErrorCode PViewBCast(Field MyField, Field AllField, const std::set<i
           MPI_Irecv(&(*(V_recv[ifield][j]))[0], n_data, MPI_DOUBLE, sender, tag,
                     MPI_COMM_WORLD, &recvV);
           tab_request.push_back(recvV);
+	  // printf("Rank %d has received %d\n", Message::GetCommRank(), GmshTag);
         }
       }
     }
@@ -537,6 +539,9 @@ static PetscErrorCode PViewBCast(Field MyField, Field AllField, const std::set<i
       if(fieldsToSkip.find(GmshTag) != fieldsToSkip.end()) continue;
       PView *view = new PView(GmshTag);
       view->getData()->importLists(&MyField.theirN[ifield][0], &V_recv[ifield][0]);
+      for (int j = 0 ; j < 24 ; j ++){
+	delete V_recv[ifield][j];
+      }
     }
   }
   PetscFunctionReturn(0);
