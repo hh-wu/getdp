@@ -44,6 +44,7 @@ struct StringXDefine  FunctionForGroup_Type[] = {
   {"GroupsOfEdgesOnNodesOf"   , GROUPSOFEDGESONNODESOF},
   {"GroupsOfEdgesOf"          , GROUPSOFEDGESOF},
   {"GroupsOfFacetsOf"         , GROUPSOFFACETSOF},
+  {"GroupOfRegionsOf"         , GROUPOFREGIONSOF},
   {"EdgesOfTreeIn"            , EDGESOFTREEIN},
   {"FacetsOfTreeIn"           , FACETSOFTREEIN},
   {"DualNodesOf"              , DUALNODESOF},

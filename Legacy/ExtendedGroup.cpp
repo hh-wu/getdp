@@ -38,7 +38,6 @@ int Check_IsEntityInExtendedGroup(struct Group * Group_P, int Entity, int Flag)
   switch (Group_P->FunctionType) {
 
   case NODESOF :  case EDGESOF :  case FACETSOF :  case VOLUMESOF :
-
     if ((Group_P->InitialList && !Group_P->ExtendedList)  ||
 	(Group_P->InitialSuppList && !Group_P->ExtendedSuppList))
       Generate_ExtendedGroup(Group_P) ;
@@ -52,7 +51,7 @@ int Check_IsEntityInExtendedGroup(struct Group * Group_P, int Entity, int Flag)
     return( List_Search(Group_P->ExtendedList, &Entity, fcmp_int) ) ;
 
   case GROUPSOFNODESOF :  case GROUPSOFEDGESOF : case GROUPSOFFACETSOF :
-  case REGION :  case GLOBAL :
+  case REGION :  case GROUPOFREGIONSOF :  case GLOBAL :
     return( (Flag)? List_Search(Group_P->InitialList, &Entity, fcmp_int) : 1 ) ;
 
   case GROUPSOFEDGESONNODESOF :
@@ -80,6 +79,7 @@ void Generate_ExtendedGroup(struct Group * Group_P)
   switch (Group_P->FunctionType) {
 
   case NODESOF :  case EDGESOF :  case FACETSOF :  case VOLUMESOF :
+  case GROUPOFREGIONSOF :
     Generate_ElementaryEntities(Group_P->InitialList,
 				&Group_P->ExtendedList, Group_P->FunctionType) ;
     Generate_ElementaryEntities(Group_P->InitialSuppList,
@@ -174,6 +174,7 @@ void  Generate_ElementaryEntities(List_T * InitialList, List_T ** ExtendedList,
 	  Nbr_Entity = GeoElement->NbrFacets ; Num_Entities = GeoElement->NumFacets ;
 	  break ;
 	case VOLUMESOF :
+	case GROUPOFREGIONSOF :
 	  Nbr_Entity = 1                     ; Num_Entities = &GeoElement->Num ;
 	  break ;
 	}

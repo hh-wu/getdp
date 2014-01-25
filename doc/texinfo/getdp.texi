@@ -2930,6 +2930,10 @@ Groups of edges incident to nodes of elements of @var{R1}
 
 < @code{Not}: but not those of @var{R2}) >.
 
+@item GroupOfRegionsOf
+Single group of elements of regions in @var{R1} 
+(with basis function BF_Region just one DOF is created for all elements of @var{R1}).
+
 @item EdgesOfTreeIn
 Edges of a tree of edges of @var{R1}
 
@@ -3815,7 +3819,7 @@ Div of 2-form (90 degree rotation of @code{BF_Edge})
 (on @code{EdgesOf}, value @code{Form3}).
 
 @item BF_Region
-Unit value 1 (on @code{Region}, value @code{Scalar}).
+Unit value 1 (on @code{Region} or @code{GroupOfRegionsOf}, value @code{Scalar}).
 
 @item BF_RegionX
 Unit vector (1, 0, 0) (on @code{Region}, value @code{Vector}).

@@ -115,6 +115,7 @@ struct MovingBand2D {
 #define GROUPSOFEDGESOF           12
 #define GROUPSOFFACETSOF          13
 #define GROUPSOFEDGESONNODESOF    14
+#define GROUPOFREGIONSOF          15
 
 #define EDGESOFTREEIN             21
 #define FACETSOFTREEIN            22

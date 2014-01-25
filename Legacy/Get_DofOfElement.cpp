@@ -200,6 +200,14 @@ void  Get_DofOfElement(struct Element          * Element,
 	   StartingIndex, i_BFunction, REGION, Element->NumSubFunction[1]) ;
 	break ;
 
+      case GROUPOFREGIONSOF :
+        Get_GroupOfRegionsForElement(Element, &StartingIndex, BasisFunction_P) ;
+        Get_CodesOfElement
+          (FunctionSpace_P, QuantityStorage_P,
+           Element->NbrGroupsOfEntities, Element->NumGroupsOfEntities,
+           StartingIndex, i_BFunction, GROUPOFREGIONSOF, Element->NumSubFunction[1]) ;
+        break ;
+
       case GLOBAL :
 	Get_GlobalForElement(Element, &StartingIndex, BasisFunction_P) ;
 	Get_CodesOfElement
@@ -384,6 +392,42 @@ void  Get_RegionForElement(struct Element * Element, int * StartingIndex,
 }
 
 /* ------------------------------------------------------------------------ */
+/*  G e t _ G r o u p O f R e g i o n s F o r E l e m e n t                 */
+/* ------------------------------------------------------------------------ */
+
+void  Get_GroupOfRegionsForElement(struct Element * Element, int * StartingIndex,
+                                   struct BasisFunction * BasisFunction_P)
+{
+  int Nbr_SubFunction, i_SF ;
+
+  if (Element->NumLastElementForGroupsOfEntities != Element->Num) {
+    Element->NumLastElementForGroupsOfEntities = Element->Num ;
+    Element->NbrGroupsOfEntities = 0 ;
+  }
+
+  *StartingIndex = Element->NbrGroupsOfEntities ;
+
+  if (!BasisFunction_P->SubFunction) {
+    Element->NumSubFunction[1][Element->NbrGroupsOfEntities] = 0 ;
+    Element->NumSubFunction[0][Element->NbrGroupsOfEntities] = -1 ;
+    Element->NumGroupsOfEntities[Element->NbrGroupsOfEntities++] = GroupEntity_P->Num ;
+  }
+  else { /* For SubFunctions (basis functions for a global function) */
+    Nbr_SubFunction = List_Nbr(BasisFunction_P->SubFunction) ;
+
+    for (i_SF = 0 ; i_SF < Nbr_SubFunction ; i_SF++) {
+      Element->NumSubFunction[1][Element->NbrGroupsOfEntities] = i_SF ; /* Index SF */
+      Element->NumSubFunction[0][Element->NbrGroupsOfEntities] =
+        *((int *)List_Pointer(BasisFunction_P->SubFunction, i_SF)) ; /* Index Expression */
+      if (BasisFunction_P->SubdFunction)
+        Element->NumSubFunction[2][Element->NbrGroupsOfEntities] =
+          *((int *)List_Pointer(BasisFunction_P->SubdFunction, i_SF)) ; /* Index Expression */
+      Element->NumGroupsOfEntities[Element->NbrGroupsOfEntities++] = GroupEntity_P->Num ;
+    }
+  }
+}
+
+/* ------------------------------------------------------------------------ */
 /*  G e t _ G l o b a l F o r E l e m e n t                                 */
 /* ------------------------------------------------------------------------ */
 
@@ -512,6 +556,7 @@ void  Get_DofOfRegion(int  Num_Region,
 		      struct QuantityStorage  * QuantityStorage_P)
 {
   int  CodeExist = 0, Num_BasisFunction, Num_AssociateBasisFunction ;
+  int  Num_Entity = -1;
   struct Dof  * Dof_P = NULL;
 
   Nbr_ElementaryBF = 0 ;
@@ -534,6 +579,11 @@ void  Get_DofOfRegion(int  Num_Region,
       Num_AssociateBasisFunction = BasisFunction_P->Num ;
     }
 
+    if (GroupEntity_P->FunctionType == GROUPOFREGIONSOF)
+      Num_Entity = GroupEntity_P->Num;
+    else
+      Num_Entity = Num_Region;
+
     switch (TreatmentStatus) {
     case _CAL :
     case _POS :
@@ -546,7 +596,7 @@ void  Get_DofOfRegion(int  Num_Region,
 
       CodeExist =
 	((Dof_P = Dof_GetDofStruct(FunctionSpace_P->DofData,
-				   Num_BasisFunction, Num_Region, 0)) != NULL) ;
+				   Num_BasisFunction, Num_Entity, 0)) != NULL) ;
       break ;
     case _PRE :
       CodeExist = 1 ;
@@ -558,7 +608,7 @@ void  Get_DofOfRegion(int  Num_Region,
       QuantityStorage_P->BasisFunction[0].Dof = Dof_P ;
 
       QuantityStorage_P->BasisFunction[0].CodeBasisFunction = Num_BasisFunction ;
-      QuantityStorage_P->BasisFunction[0].CodeEntity        = Num_Region ;
+      QuantityStorage_P->BasisFunction[0].CodeEntity        = Num_Entity ;
 
       QuantityStorage_P->BasisFunction[0].CodeAssociateBasisFunction =
 	Num_AssociateBasisFunction ;

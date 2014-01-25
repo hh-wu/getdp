@@ -23,6 +23,10 @@ void  Get_GroupsOfEdgesOnNodesOfElement    (struct Element * Element,
 					    int * StartingIndex) ;
 void  Get_RegionForElement(struct Element * Element, int * StartingIndex,
 			   struct BasisFunction * BasisFunction_P) ;
+
+void  Get_GroupOfRegionsForElement(struct Element * Element, int * StartingIndex,
+                                   struct BasisFunction * BasisFunction_P);
+
 void  Get_GlobalForElement(struct Element * Element, int * StartingIndex,
 			   struct BasisFunction * BasisFunction_P) ;
 
