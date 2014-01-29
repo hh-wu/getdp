@@ -154,7 +154,7 @@ void  Init_MovingBand2D (struct Group * Group_P)
 
   if (Different_Sense_MB2D(MB->NbrNodes1, MB->NbrNodes2, MB->ntr1, MB->ntr2,
                            MB->Closed1, MB->Closed2, MB->x1, MB->y1, MB->x2, MB->y2) ) {
-    Message::Debug("Contours have a different sense: invertinggggggggggggggggggggggggggggggggggg!");
+    Message::Debug("Contours have a different sense: inverting!");
     for (i=0 ; i<MB->NbrNodes2/2 ; i++) {
       int dummy = MB->NumNodes2[i];
       MB->NumNodes2[i] = MB->NumNodes2[MB->NbrNodes2-1-i];
