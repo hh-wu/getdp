@@ -287,8 +287,8 @@ Frequently asked questions
 @cindex Internet address
 @cindex Download
 
-The source code and various pre-compiled versions of GetDP (for Unix,
-Windows and Mac OS) can be downloaded from @uref{http://geuz.org/getdp}.
+The source code and various pre-compiled versions of GetDP (for Windows,
+Linux and MacOS) can be downloaded from @uref{http://geuz.org/getdp}.
 
 If you use GetDP, we would appreciate that you mention it in your
 work. References and the latest news about GetDP are always available on
@@ -1646,36 +1646,36 @@ Applies the operator specified in the first argument of @code{dFunction
 @{ @var{basis-function-type}, @var{basis-function-type} @}}
 (@pxref{FunctionSpace}).  This is currently only used for
 nodal-interpolated vector fields (interpolated with @code{BF_Node_X},
-@code{BF_Node_Y}, @code{BF_Node_Z}, @code{BF_GroupOfNodes_X},
-etc.)
+@code{BF_Node_Y}, @code{BF_Node_Z})
 
 When the first @var{basis-function-type} in @code{dFunction} is set to
 @code{BF_NodeX_D1} for component X, @code{BF_NodeY_D1} for component Y
 and @code{BF_NodeZ_D1} for component Z, then @code{D1} applied to a
-vector [ux, uy, uz] gives:
+vector [u_x, u_y, u_z] gives:
 @tex
 $$ \left[{{\partial u_x} \over {\partial x}}, {{\partial u_y} \over
 {\partial y}}, {{\partial u_z} \over {\partial z}}\right] $$
 @end tex
 @ifnottex
-[partial derivative du_x/dx, partial derivative du_y/dy, partial derivative du_z/dz]
+[du_x/dx, du_y/dy, du_z/dz]
 @end ifnottex
 Note that in this case specifying explicitely @code{dFunction} is not
 necessary, as @code{BF_NodeX_D1}, @code{BF_NodeY_D1} and
 @code{BF_NodeZ_D1} are assigned by default as the ``@code{D1}
 derivatives'' of @code{BF_NodeX}, @code{BF_NodeY} and @code{BF_NodeZ}.
+This also holds for @code{BF_GroupOfNodes_X},  @code{BF_GroupOfNodes_Y}
+and  @code{BF_GroupOfNodes_Z}.
 
 When the first @var{basis-function-type} in @code{dFunction} is set to
 @code{BF_NodeX_D12} for component X and @code{BF_NodeY_D12} for
-component Y, then @code{D1} applied to a vector [ux, uy] gives:
+component Y, then @code{D1} applied to a vector [u_x, u_y] gives:
 @tex
 $$ \left[{{\partial u_x} \over {\partial x}}, {{\partial u_y} \over
 {\partial y}}, {{\partial u_y} \over {\partial x}} + {{\partial u_x}
 \over {\partial y}}\right] $$
 @end tex
 @ifnottex
-[partial derivative du_x/dx, partial derivative du_y/dy, partial
-derivative du_y/dx + partial derivative du_x/dy]
+[du_x/dx, du_y/dy, du_y/dx + du_x/dy]
 @end ifnottex
 
 @noindent
@@ -1686,13 +1686,12 @@ Applies the operator specified in the second argument of @code{dFunction
 @{ @var{basis-function-type}, @var{basis-function-type} @}}
 (@pxref{FunctionSpace}).  This is currently only used for
 nodal-interpolated vector fields (interpolated with @code{BF_Node_X},
-@code{BF_Node_Y}, @code{BF_Node_Z}, @code{BF_GroupOfNodes_X},
-etc.)
+@code{BF_Node_Y}, @code{BF_Node_Z})
 
 More specifically, when the second @var{basis-function-type} is to
 @code{BF_NodeX_D2} for component X, @code{BF_NodeY_D2} for component Y
 and @code{BF_NodeZ_D2} for component Z, then @code{D2} applied to a
-vector [ux, uy, uz] gives:
+vector [u_x, u_y, u_z] gives:
 @tex
 $$ \left[{{\partial u_y} \over {\partial x}} + {{\partial u_x} \over
 {\partial y}}, {{\partial u_z} \over {\partial y}} + {{\partial u_y}
@@ -1700,14 +1699,14 @@ $$ \left[{{\partial u_y} \over {\partial x}} + {{\partial u_x} \over
 u_z} \over {\partial x}}\right] $$
 @end tex
 @ifnottex
-[partial derivative du_y/dx + partial derivative du_x/dy, partial
- derivative du_z/dy + partial derivative du_y/dz, partial derivative
- du_x/dz + partial derivative du_z/dx]
+[du_y/dx + du_x/dy, du_z/dy + du_y/dz, du_x/dz + du_z/dx]
 @end ifnottex
 Note that in this case specifying explicitely @code{dFunction} is not
 necessary, as @code{BF_NodeX_D2}, @code{BF_NodeY_D2} and
 @code{BF_NodeZ_D2} are assigned by default as the ``@code{D2}
 derivatives'' of @code{BF_NodeX}, @code{BF_NodeY} and @code{BF_NodeZ}.
+This also holds for @code{BF_GroupOfNodes_X}, @code{BF_GroupOfNodes_Y}
+and @code{BF_GroupOfNodes_Z}.
 
 @c This is very specific, and very rarely used
 
@@ -6754,11 +6753,11 @@ guide as well as a searchable archive of the GetDP mailing list
 @enumerate
 @item Which OSes does GetDP run on?
 
-Gmsh runs on Windows XP/Vista, Mac OS X, Linux and most Unix variants.
+Gmsh runs on Windows, MacOS X, Linux and most Unix variants.
 
 @item What do I need to compile GetDP from the sources?
 
-You need a C++ and a Fortran 77 compiler as well as the GSL (version 1.2
+You need a C++ and a Fortran compiler as well as the GSL (version 1.2
 or higher; freely available from @url{http://sources.redhat.com/gsl}).
 
 @item How do I compile GetDP?
@@ -6770,7 +6769,7 @@ file in the top-level source directory for more information.
 
 @item GetDP [from a binary distribution] complains about missing libraries.
 
-Try @code{ldd getdp} (or @code{otool -L getdp} on Mac OS X) to check if
+Try @code{ldd getdp} (or @code{otool -L getdp} on MacOS X) to check if
 all the required shared libraries are installed on your system. If not,
 install them. If it still doesn't work, recompile GetDP from the
 sources.
