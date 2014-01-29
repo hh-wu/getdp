@@ -12,7 +12,7 @@
 #include "Get_Geometry.h"
 #include "Message.h"
 
-#define SQU(a)     ((a)*(a)) 
+#define SQU(a)     ((a)*(a))
 
 extern struct Problem Problem_S ;
 extern struct CurrentData Current ;
@@ -24,12 +24,12 @@ extern struct CurrentData Current ;
 int Get_ValueFromForm(int Form)
 {
   switch (Form) {
-  case FORM0  :  
-  case FORM3  : case FORM3P :  
+  case FORM0  :
+  case FORM3  : case FORM3P :
   case SCALAR :
     return(SCALAR) ;
-    
-  case FORM1  : case FORM1P  : case FORM1S : 
+
+  case FORM1  : case FORM1P  : case FORM1S :
   case FORM2  : case FORM2P  : case FORM2S :
   case VECTOR : case VECTORP :
     return(VECTOR) ;
@@ -44,18 +44,18 @@ int Get_ValueFromForm(int Form)
 /*  G e t _ I n t e g r a t i o n C a s e                                   */
 /* ------------------------------------------------------------------------ */
 
-/* 
-   Il faudrait reorganiser les 'Current.XXX' 
+/*
+   Il faudrait reorganiser les 'Current.XXX'
    Ca devient un peu le bordel.
    */
 
-struct IntegrationCase * Get_IntegrationCase (struct Element * Element, 
-					      List_T *IntegrationCase_L, 
+struct IntegrationCase * Get_IntegrationCase (struct Element * Element,
+					      List_T *IntegrationCase_L,
 					      int     CriterionIndex)
 {
   struct Value Criterion ;
 
-  if (CriterionIndex >= 0){    
+  if (CriterionIndex >= 0){
     Current.Element = Element ;
     Current.ElementSource = Element->ElementSource ;
     Get_ValueOfExpression
@@ -120,6 +120,10 @@ void  Get_FunctionValue(int Nbr_Function,
     else if (QuantityStorage_P->TypeQuantity == SCALAR) {
       *Type_Form = VECTOR ;
     }
+    else{
+      Message::Error("Cannot apply Grad operator to quantity type %d",
+                     QuantityStorage_P->TypeQuantity);
+    }
     break ;
 
   case CURL :
@@ -136,6 +140,10 @@ void  Get_FunctionValue(int Nbr_Function,
 	xFunctionBF[i] =
 	  QuantityStorage_P->BasisFunction[i].BasisFunction->dFunction ;
     }
+    else{
+      Message::Error("Cannot apply Curl operator to quantity type %d",
+                     QuantityStorage_P->TypeQuantity);
+    }
     break ;
 
   case DIV :
@@ -151,6 +159,10 @@ void  Get_FunctionValue(int Nbr_Function,
 	xFunctionBF[i] =
 	  QuantityStorage_P->BasisFunction[i].BasisFunction->dInvFunction ;
     }
+    else{
+      Message::Error("Cannot apply Div operator to quantity type %d",
+                     QuantityStorage_P->TypeQuantity);
+    }
     break ;
 
   case GRADINV :
@@ -163,6 +175,10 @@ void  Get_FunctionValue(int Nbr_Function,
     else if (QuantityStorage_P->TypeQuantity == VECTOR) {
       *Type_Form = SCALAR ;
     }
+    else{
+      Message::Error("Cannot apply GradInv operator to quantity type %d",
+                     QuantityStorage_P->TypeQuantity);
+    }
     break ;
 
   case CURLINV :
@@ -174,7 +190,10 @@ void  Get_FunctionValue(int Nbr_Function,
     }
     else if (QuantityStorage_P->TypeQuantity == VECTOR) {
       *Type_Form = VECTOR ;
-
+    }
+    else{
+      Message::Error("Cannot apply CurlInv operator to quantity type %d",
+                     QuantityStorage_P->TypeQuantity);
     }
     break ;
 
@@ -189,14 +208,22 @@ void  Get_FunctionValue(int Nbr_Function,
     else if (QuantityStorage_P->TypeQuantity == SCALAR) {
       *Type_Form = VECTOR ;
     }
+    else{
+      Message::Error("Cannot apply DivInv operator to quantity type %d",
+                     QuantityStorage_P->TypeQuantity);
+    }
     break ;
 
   case _D1 :
     if (QuantityStorage_P->TypeQuantity == VECTOR) {
       *Type_Form = VECTOR ;
       for (i = 0 ; i < Nbr_Function ; i++)
-	xFunctionBF[i] =
-	  QuantityStorage_P->BasisFunction[i].BasisFunction->dFunction ;
+        xFunctionBF[i] =
+          QuantityStorage_P->BasisFunction[i].BasisFunction->dFunction ;
+    }
+    else{
+      Message::Error("Cannot apply D1 operator to quantity type %d",
+                     QuantityStorage_P->TypeQuantity);
     }
     break ;
 
@@ -204,8 +231,12 @@ void  Get_FunctionValue(int Nbr_Function,
     if (QuantityStorage_P->TypeQuantity == VECTOR) {
       *Type_Form = VECTOR ;
       for (i = 0 ; i < Nbr_Function ; i++)
-	xFunctionBF[i] =
-	  QuantityStorage_P->BasisFunction[i].BasisFunction->dInvFunction ;
+        xFunctionBF[i] =
+          QuantityStorage_P->BasisFunction[i].BasisFunction->dInvFunction ;
+    }
+    else{
+      Message::Error("Cannot apply D2 operator to quantity type %d",
+                     QuantityStorage_P->TypeQuantity);
     }
     break ;
 
@@ -256,13 +287,13 @@ void  Get_InitFunctionValue(int Type_Operator,
     break ;
 
   case GRADINV :
-    if (QuantityStorage_P->TypeQuantity == FORM1) 
+    if (QuantityStorage_P->TypeQuantity == FORM1)
       *Type_Form = QuantityStorage_P->TypeQuantity - 1 ;
     else if (QuantityStorage_P->TypeQuantity == VECTOR)  *Type_Form = SCALAR ;
     break ;
 
   case CURLINV :
-    if (QuantityStorage_P->TypeQuantity == FORM2) 
+    if (QuantityStorage_P->TypeQuantity == FORM2)
       *Type_Form = QuantityStorage_P->TypeQuantity - 1 ;
     else if (QuantityStorage_P->TypeQuantity == VECTOR)  *Type_Form = VECTOR ;
     break ;
@@ -313,7 +344,7 @@ double Cal_MaxEdgeLength(struct Element * Element)
 {
   int    i, *IM, *N, NbrEdges ;
   double l, lmax = 0.0 ;
-  
+
   IM = Geo_GetIM_Den(Element->Type, &NbrEdges) ;
   for(i = 0 ; i < NbrEdges ; i++){
     N = IM + i * NBR_MAX_SUBENTITIES_IN_ELEMENT ;
