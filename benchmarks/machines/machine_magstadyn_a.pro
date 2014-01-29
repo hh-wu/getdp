@@ -614,7 +614,7 @@ Resolution {
       EndIf
     }
     Operation {
-      CreateDir["res/"];
+      CreateDir[ResDir];
       If(Clean_Results==1 && variableFrequencyLoop == initialFrequencyLoop)
 	// FIXME == > variable controlling loop in Onelab
 
