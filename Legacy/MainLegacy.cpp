@@ -62,6 +62,9 @@ static void Info(int level, char *arg0)
 	    "  -solver file              specify parameter file (default: .petscrc)\n"
 	    "  [PETsc options]           PETSc options (must be listed after [file])\n"
 #endif
+#if defined(HAVE_SLEPC)
+	    "  -slepc                    use SLEPc instead of Arpack as eigensolver\n"
+#endif
 #if defined(HAVE_SPARSKIT)
 	    "  -solver file              specify parameter file (default: solver.par)\n"
 	    "  -'Parameter' num          override value of solver parameter 'Parameter'\n"

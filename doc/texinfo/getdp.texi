@@ -745,6 +745,10 @@ Same as @code{-pre @var{resolution-id} -cal}.
 Specifies a solver option file (whose format varies depending on the
 linear algebra toolkit used).
 
+@item -slepc
+
+Uses SLEPc instead of Arpack as eigensolver.
+
 @item -adapt
 @var{file}
 
@@ -4363,10 +4367,11 @@ time steps.
 @item EigenSolve
 @code{[@var{system-id}, @var{expression-cst}, @var{expression-cst}, @var{expression-cst}]}
 
-Eigenvalue/eigenvector computation using Arpack. The parameters are: the
-system (which has to be generated with @code{GenerateSeparate[]}), the
-number of eigenvalues/eigenvectors to compute and the real and imaginary
-spectral shift (around which to look for eigenvalues).
+Eigenvalue/eigenvector computation using Arpack or SLEPc (). The parameters
+are: the system (which has to be generated with
+@code{GenerateSeparate[]}), the number of eigenvalues/eigenvectors to
+compute and the real and imaginary spectral shift (around which to look
+for eigenvalues).
 
 @item Lanczos
 @code{[@var{system-id}, @var{expression-cst}, @{ @var{expression-cst-list} @} , @var{expression-cst}]}
@@ -6803,15 +6808,18 @@ by Gmsh.
 @item How do I change the linear solver used by GetDP?
 
 It depends on which linear solver toolkit was enabled when GetDP was
-compiled.
+compiled (PETSc or Sparskit).
 
-With PETSc-based linear solvers you can either specify options on the
-command line, or in the @file{.petscrc} file located in your home
-directly.
+With PETSc-based linear solvers you can either specify options directly
+on the command line (e.g. with @code{-ksp_type gmres -pc_type ilu}),
+through a specific option file (with @code{-solver file}), or through
+the @file{.petscrc} file located in your home directly.
 
-With Sparskit-based linear solvers you should edit the @file{solver.par}
-file in the current working directory. You can also remove the file:
-GetDP will give you the opportunity to create it dynamically next time
+With Sparskit-based linear solvers can either specify options directly
+on command line (e.g. with @code{-Nb_Fill 200}), specify an option file
+explicitly (with @code{-solver file}), or edit the @file{solver.par}
+file in the current working directory. If no @file{solver.par} file
+exists in the current directory, GetDP will give create it the next time
 you perform a linear system solution.
 @end enumerate
 
