@@ -107,7 +107,8 @@ DefineConstant[
   // Simulation parameters
   Flag_SaveAllSteps = {0, Name "Input/00Save all time steps", Choices {0,1}},
   Clean_Results = {1, Name "Input/01Remove previous result files", Choices {0,1}},
-  ResDir = "res/",
+  ResId = "", // e.g. "cpu0/", ""cpu1/", ...
+  ResDir = StrCat["res/", ResId],
   ExtGmsh = ".pos",
   ExtGnuplot = ".dat"
   R_ = {"Analysis", Name "GetDP/1ResolutionChoices", Visible 0},
@@ -898,12 +899,12 @@ PostProcessing {
 
 //-------------------------------------------------------------------------------------------
 
-po      = "Output - Electromagnetics/";
+po      = StrCat["Output - Electromagnetics/", ResId];
 poI     = StrCat[po,"0Current [A]/"];
 poV     = StrCat[po,"1Voltage [V]/"];
 poF     = StrCat[po,"2Flux linkage [Vs]/"];
 poJL    = StrCat[po,"3Joule Losses [W]/"];
-po_mec  = "Output - Mechanics/";
+po_mec  = StrCat["Output - Mechanics/", ResId];
 po_mecT = StrCat[po_mec,"0Torque [Nm]/"];
 
 //-------------------------------------------------------------------------------------------
