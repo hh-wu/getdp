@@ -1642,50 +1642,88 @@ Curl: applied to a vector field, gives a vector.
 Divergence (div): applied to a vector field, gives a scalar.
 
 @item D1
-Special operator: used with BF_NodeX, BF_NodeY and BF_NodeZ form functions, applies the operator specified in the first argument of "dFunction {Operator1, Operator2}".
-More specifically: When operator1 is set to D12 (e.g. with "dFunction {BF_NodeX_D12, BF_Zero}", for component X and Y, in "FunctionSpace"), then D1 applied to a vector [ux, uy] gives:
-@tex
-$$ \left[{{\partial u_x} \over {\partial x}}, {{\partial u_y} \over {\partial y}}, {{\partial u_y} \over {\partial x}} + {{\partial u_x} \over {\partial y}}\right] $$
-@end tex
-@ifnottex
-[partial derivative du_x/dx, partial derivative du_y/dy, partial derivative du_y/dx + partial derivative du_x/dy]
-@end ifnottex
+Applies the operator specified in the first argument of @code{dFunction
+@{ @var{basis-function-type}, @var{basis-function-type} @}}
+(@pxref{FunctionSpace}).  This is currently only used for
+nodal-interpolated vector fields (interpolated with @code{BF_Node_X},
+@code{BF_Node_Y}, @code{BF_Node_Z}, @code{BF_GroupOfNodes_X},
+etc.)
 
-@noindent
-When operator1 is set to D1, which is the default option, then D1 applied to a vector [ux, uy, uz] gives: 
-
+When the first @var{basis-function-type} in @code{dFunction} is set to
+@code{BF_NodeX_D1} for component X, @code{BF_NodeY_D1} for component Y
+and @code{BF_NodeZ_D1} for component Z, then @code{D1} applied to a
+vector [ux, uy, uz] gives:
 @tex
-$$ \left[{{\partial u_x} \over {\partial x}}, {{\partial u_y} \over {\partial y}}, {{\partial u_z} \over {\partial z}}\right] $$
+$$ \left[{{\partial u_x} \over {\partial x}}, {{\partial u_y} \over
+{\partial y}}, {{\partial u_z} \over {\partial z}}\right] $$
 @end tex
 @ifnottex
 [partial derivative du_x/dx, partial derivative du_y/dy, partial derivative du_z/dz]
 @end ifnottex
+Note that in this case specifying explicitely @code{dFunction} is not
+necessary, as @code{BF_NodeX_D1}, @code{BF_NodeY_D1} and
+@code{BF_NodeZ_D1} are assigned by default as the ``@code{D1}
+derivatives'' of @code{BF_NodeX}, @code{BF_NodeY} and @code{BF_NodeZ}.
 
-@noindent
-@item D2
-Special operator: used with BF_NodeX, BF_NodeY and BF_NodeZ form functions, applies the operator specified in the second argument of "dFunction {Operator1, Operator2}".
-More specifically: When operator2 is set to D2, which is the default option, then D2 applied to a vector [ux, uy, uz] gives: 
-
+When the first @var{basis-function-type} in @code{dFunction} is set to
+@code{BF_NodeX_D12} for component X and @code{BF_NodeY_D12} for
+component Y, then @code{D1} applied to a vector [ux, uy] gives:
 @tex
-$$ \left[{{\partial u_y} \over {\partial x}} + {{\partial u_x} \over {\partial y}}, {{\partial u_z} \over {\partial y}} + {{\partial u_y} \over {\partial z}}, {{\partial u_x} \over {\partial z}} + {{\partial u_z} \over {\partial x}}\right] $$
+$$ \left[{{\partial u_x} \over {\partial x}}, {{\partial u_y} \over
+{\partial y}}, {{\partial u_y} \over {\partial x}} + {{\partial u_x}
+\over {\partial y}}\right] $$
 @end tex
 @ifnottex
-[partial derivative du_y/dx + partial derivative du_x/dy, partial derivative du_z/dy + partial derivative du_y/dz, partial derivative du_x/dz + partial derivative du_z/dx]
+[partial derivative du_x/dx, partial derivative du_y/dy, partial
+derivative du_y/dx + partial derivative du_x/dy]
 @end ifnottex
 
 @noindent
-@item dInv
-d^(-1): applied to a p-form, gives a (p-1)-form.
 
-@item GradInv
-Inverse grad: applied to a gradient field, gives a scalar.
+@noindent
+@item D2
+Applies the operator specified in the second argument of @code{dFunction
+@{ @var{basis-function-type}, @var{basis-function-type} @}}
+(@pxref{FunctionSpace}).  This is currently only used for
+nodal-interpolated vector fields (interpolated with @code{BF_Node_X},
+@code{BF_Node_Y}, @code{BF_Node_Z}, @code{BF_GroupOfNodes_X},
+etc.)
 
-@item CurlInv
-@itemx RotInv
-Inverse curl: applied to a curl field, gives a vector.
+More specifically, when the second @var{basis-function-type} is to
+@code{BF_NodeX_D2} for component X, @code{BF_NodeY_D2} for component Y
+and @code{BF_NodeZ_D2} for component Z, then @code{D2} applied to a
+vector [ux, uy, uz] gives:
+@tex
+$$ \left[{{\partial u_y} \over {\partial x}} + {{\partial u_x} \over
+{\partial y}}, {{\partial u_z} \over {\partial y}} + {{\partial u_y}
+\over {\partial z}}, {{\partial u_x} \over {\partial z}} + {{\partial
+u_z} \over {\partial x}}\right] $$
+@end tex
+@ifnottex
+[partial derivative du_y/dx + partial derivative du_x/dy, partial
+ derivative du_z/dy + partial derivative du_y/dz, partial derivative
+ du_x/dz + partial derivative du_z/dx]
+@end ifnottex
+Note that in this case specifying explicitely @code{dFunction} is not
+necessary, as @code{BF_NodeX_D2}, @code{BF_NodeY_D2} and
+@code{BF_NodeZ_D2} are assigned by default as the ``@code{D2}
+derivatives'' of @code{BF_NodeX}, @code{BF_NodeY} and @code{BF_NodeZ}.
 
-@item DivInv
-Inverse div: applied to a divergence field.
+@c This is very specific, and very rarely used
+
+@c @noindent
+@c @item dInv
+@c d^(-1): applied to a p-form, gives a (p-1)-form.
+
+@c @item GradInv
+@c Inverse grad: applied to a gradient field, gives a scalar.
+
+@c @item CurlInv
+@c @itemx RotInv
+@c Inverse curl: applied to a curl field, gives a vector.
+
+@c @item DivInv
+@c Inverse div: applied to a divergence field.
 
 @end ftable
 
@@ -2103,6 +2141,7 @@ See @ref{Types for Constraint}, for the complete list of options and
 @tindex BasisFunction
 @tindex NameOfCoef
 @tindex Function
+@tindex dFunction
 @tindex Quantity
 @tindex Formulation
 @tindex Group
@@ -2157,6 +2196,7 @@ FunctionSpace @{
              Formulation @var{formulation-id} @{ @var{expression-cst} @}; 
              Group @var{group-def}; 
              Resolution @var{resolution-id} @{ @var{expression-cst} @} @} >;
+       < dFunction @{ @var{basis-function-type}, @var{basis-function-type} @} ; >
        Support @var{group-def}; Entity @var{group-def}; @} @dots{}
     @}
   < SubSpace @{ 
@@ -2216,20 +2256,24 @@ it is replaced by @code{All} for more efficient treatments during the
 computation process (this prevents the construction and the analysis of a list 
 of geometrical entities).
 @item
-Piecewise defined basis functions: the same @code{Name} for several 
-@code{BasisFunction} fields permits to define piecewise basis functions;
-separate @code{NameOfCoef}s must be defined for those fields.
+The same @code{Name} for several @code{BasisFunction} fields permits to
+define piecewise basis functions; separate @code{NameOfCoef}s must be
+defined for those fields.
 @item
-Constraint: a constraint is associated with geometrical entities defined by 
-an automatically created @code{Group} of type @var{group-type}, 
-using the @code{Region} defined in a @code{Constraint} object as its main 
-argument, and the optional @code{SubRegion} in the same object as a 
+A constraint is associated with geometrical entities defined by an
+automatically created @code{Group} of type @var{group-type}, using the
+@code{Region} defined in a @code{Constraint} object as its main
+argument, and the optional @code{SubRegion} in the same object as a
 @var{group-sub-type} argument.
 @item
-Function: a global basis function (@code{BF_Global} or
-@code{BF_dGlobal}) needs parameters, i.e., it is given by the quantity
-(@var{quantity-id}) pre-computed from multiresolutions performed on
-multiformulations.
+A global basis function (@code{BF_Global} or @code{BF_dGlobal}) needs
+parameters, i.e., it is given by the quantity (@var{quantity-id})
+pre-computed from multiresolutions performed on multiformulations.
+@item
+Explicit derivatives of the basis functions can be specified using
+@code{dFunction @{ @var{basis-function-type} , @var{basis-function-type}
+@}}. These derivates can be accessed using the special @code{D1} and
+@code{D2} operators (@pxref{Fields}).
 @end enumerate
 
 See @ref{Types for FunctionSpace}, for the complete list of options and
