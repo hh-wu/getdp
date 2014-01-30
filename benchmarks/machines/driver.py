@@ -29,8 +29,9 @@ for angle in angles:
    c.runSubClient('Gmsh', 'gmsh ' + machine + '.geo -2 -v 2')
    
    # run getdp as a subclient
-   c.runSubClient('GetDP', 'getdp ' + machine + ' -msh ' + machine + '.msh' 
-                  + ' -solve Analysis -v 2')
+   c.runSubClient('GetDP', 'getdp ' + machine + ' -msh ' + machine + '.msh ' +
+                  '-setnumber Flag_PrintFields 0 ' +
+                  '-solve Analysis -v 2')
    
    # retrieve the torque
    torque = c.getNumber('Output - Mechanics/0Torque [Nm]/rotor')

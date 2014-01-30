@@ -54,6 +54,8 @@ Group {
 DefineConstant[
   // Analysis type
   Flag_AnalysisType = 0,
+  // Should we output the local fields (a, b, j, ...)
+  Flag_PrintFields = 1,
   // Symmetry
   AxialLength = 1,
   SymmetryFactor = 1,
@@ -663,7 +665,9 @@ Resolution {
         EndIf
         SaveSolution[A] ;
 
-        PostOperation[Get_LocalFields] ;
+        If(Flag_PrintFields)
+          PostOperation[Get_LocalFields] ;
+        EndIf
         PostOperation[Get_GlobalQuantities] ;
         If(Flag_AnalysisType==0)
           PostOperation[Get_Torque];
@@ -698,7 +702,9 @@ Resolution {
           EndIf
           SaveSolution[A];
 
-          PostOperation[Get_LocalFields] ;
+          If(Flag_PrintFields)
+            PostOperation[Get_LocalFields] ;
+          EndIf
           Test[ $TimeStep > 1 ]{
             PostOperation[Get_GlobalQuantities];
             PostOperation[Get_Torque] ;
