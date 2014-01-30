@@ -9,11 +9,12 @@ deg2rad = Pi/180 ;
 pp = "Input/Constructive parameters/";
 
 DefineConstant[
+  ResId = "",
   NbrPolesInModel = { 1, Choices {1="1", 2="2", 4="4", 8="8"},
     Name "Input/20Number of poles in FE model",
     Highlight "Blue", Visible 1},
   InitialRotorAngle_deg = {7.5,
-    Name "Input/21Start rotor angle [deg]",
+    Name StrCat[ResId, "Input/21Start rotor angle [deg]"],
     Highlight "AliceBlue"}
 ] ;
 
