@@ -21,7 +21,8 @@ if c.action == 'check' :
    exit(0)
 
 # change the angle of the rotor and compute the torque for each one
-for angle in [0, 10, 20]:
+angles = [0, 10, 20, 30]
+for angle in angles:
    c.setNumber('Input/21Start rotor angle [deg]', value=angle)
    
    # run gmsh as a subclient
