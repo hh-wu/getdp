@@ -243,3 +243,15 @@ int CreateDir(const std::string &dirName)
 #endif
   return 1;
 }
+
+int CreateDirs(const std::string &dirName)
+{
+  size_t cur = 0;
+  int ret = 1;
+  do {
+    cur = dirName.find("/", cur + 1);
+    if(!CreateDir(dirName.substr(0, cur))) ret = 0;
+  } while(cur != std::string::npos);
+
+  return ret;
+}

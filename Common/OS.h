@@ -15,5 +15,6 @@ void IncreaseStackSize();
 int BlockingSystemCall(const char *command);
 int RemoveFile(const std::string &fileName);
 int CreateDir(const std::string &dirName);
+int CreateDirs(const std::string &dirName);
 
 #endif

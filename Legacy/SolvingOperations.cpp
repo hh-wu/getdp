@@ -2606,7 +2606,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
     case OPERATION_CREATEDIR :
       Message::Info("CreateDir[%s]", Operation_P->Case.CreateDir.DirName) ;
-      CreateDir(Operation_P->Case.CreateDir.DirName);
+      CreateDirs(Operation_P->Case.CreateDir.DirName);
       break ;
 
       /*  -->  T i m e L o o p A d a p t i v e  */
