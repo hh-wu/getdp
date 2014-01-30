@@ -59,7 +59,7 @@ int main(int argc, char **argv)
   }
 
   // change the angle of the rotor and compute the torque for each one
-  for(double angle = 0; angle <= 20; angle += 10){
+  for(double angle = 0; angle <= 30; angle += 10){
     onelab::number n("Input/21Start rotor angle [deg]", angle);
     c->set(n);
 
