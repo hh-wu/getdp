@@ -34,5 +34,5 @@ s = news ; Plane Surface(news) = {ll} ;
 
 Physical Surface(DOM) = {s} ;
 Physical Line(BND_PEC) = {l[0],l[1],l[2],l[4],l[5],l[6]} ;
-Physical Line(BND_PORT1) = {l[7]} ;
-Physical Line(BND_PORT2) = {l[3]} ;
+Physical Line(BND_PORT_1) = {l[7]} ;
+Physical Line(BND_PORT_2) = {l[3]} ;

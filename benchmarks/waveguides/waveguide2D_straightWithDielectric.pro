@@ -7,9 +7,9 @@
 Include "waveguide2D_straightWithDielectric.dat" ;
 
 Group {
-  Port1  = Region[{BND_PORT1}] ;
-  Port2  = Region[{BND_PORT2}] ;
-  BndABC = Region[{Port1, Port2}] ;
+  Port_1 = Region[{BND_PORT1}] ;
+  Port_2 = Region[{BND_PORT2}] ;
+  BndABC = Region[{Port_1, Port_2}] ;
   BndPEC = Region[{BND_PEC}] ;
   DomainAir = Region[{DOM_AIR}] ;
   DomainDiel = Region[{DOM_DIEL}] ;
@@ -36,15 +36,15 @@ Function {
   
   epsR[BndABC] = 1. ;
   epsR[DomainAir] = 1. ;
-  epsR[DomainDiel] = Complex[4.,1.] ;
+  epsR[DomainDiel] = 4. ; //Complex[4.,1.] ;
   muR[] = 1 ;
   
   k0 = 2*Pi/LAMB; // Free space wavevector
   
   hPort1[] = Vector[ 0., 0., 1. ] ;
   hPort2[] = Vector[ 0., 0., 1. ] ;
-  intPort1 = W ; // square of electric field "ePort1" integrated at port 1
-  intPort2 = W ; // square of electric field "ePort2" integrated at port 2
+  intPort1 = W/2 ; // square of electric field "ePort1" integrated at port 1
+  intPort2 = W/2 ; // square of electric field "ePort2" integrated at port 2
   hInc[Port1] = hPort1[] ;
   hInc[Port2] = Vector[ 0., 0., 0. ] ;
 }
@@ -118,7 +118,7 @@ PostOperation {
 }
 
 DefineConstant[
-  MyPostOp = {"Get_Field, Get_SParameters", Choices{"Get_Field", "Get_FieldsBnd", "Get_SParameters"},
+  MyPostOp = {" Get_Field, Get_SParameters", Choices{"Get_Field", "Get_FieldsBnd", "Get_SParameters"},
     Name "Input/1Post-processing", MultipleSelection "101"}
 ] ;
 

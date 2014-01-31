@@ -5,4 +5,6 @@
 
 Include "main.dat" ;
 
-Include Str[LinkGeo] ;
+If (FLAG_PBM!=0)
+  Include Str[LinkGeo] ;
+EndIf

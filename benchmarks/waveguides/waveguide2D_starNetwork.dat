@@ -21,19 +21,21 @@ DIM = 2;
 DefineConstant[
   NbPorts = { 3, Min 2, Max 9, Step 1,
     Name StrCat[catParam1,"1Number of ports"]},
-  R = { 5, Min 1, Max 100, Step 1,
-    Name StrCat[catParam1,"2Radius of the center [cm]"]},
-  L = { 50, Min 1, Max 100, Step 1,
-    Name StrCat[catParam1,"3Length of each port [cm]"]},
   angleInter = { 70, Min 0, Max 180, Step 1,
-    Name StrCat[catParam1,"4Angle between two ports [degree]"]},
+    Name StrCat[catParam1,"2Angle between two ports [degree]"]},
+  R = { 5, Min 1, Max 100, Step 1,
+    Name StrCat[catParam1,"3Radius of the center [cm]"]},
+  L = { 50, Min 1, Max 100, Step 1,
+    Name StrCat[catParam1,"4Length of each port [cm]"]},
+  W = { 2*R*Sin[(2*Pi/NbPorts-angleInter*Pi/180)/2], ReadOnly 1, Highlight "LightGrey",
+    Name StrCat[catParam2,"5Width of each port [cm]"]},
   res = { 0.5, Min 0.1, Max 5, Step 0.1,
-    Name StrCat[catParam3,"1Resolution of grid [cm]"]}
+    Name StrCat[catParam3,"6Resolution of grid [cm]"]}
 ];
 R = R/100;
 L = L/100;
+W = W/100;
 angleInter = angleInter*Pi/180;
-W = 2*R*Sin[(2*Pi/NbPorts-angleInter)/2];
 res = res/100;
 
 //--------------

@@ -19,18 +19,20 @@ catOutput = "Output/";
 DIM = 3;
 
 DefineConstant[
-  L = { 0.2, Min 0.01, Max 1, Step 0.01,
-    Name StrCat[catParam1,"1Length of Domain [m]"]},
-  Wx = { 0.05, Min 0.01, Max 1, Step 0.01,
-    Name StrCat[catParam1,"2X-width of Domain [m]"]}
-  Wy = { 0.05, Min 0.01, Max 1, Step 0.01,
-    Name StrCat[catParam1,"2Y-width of Domain [m]"]}
+  L = { 20, Min 1, Max 100, Step 1,
+    Name StrCat[catParam1,"1Length of Domain [cm]"]},
+  Wx = { 5, Min 1, Max 100, Step 1,
+    Name StrCat[catParam1,"2X-width of Domain [cm]"]},
+  Wy = { 5, Min 1, Max 100, Step 1,
+    Name StrCat[catParam1,"2Y-width of Domain [cm]"]},
+  res = { 5e-1, Min 1e-2, Max 50e-1, Step 1e-2,
+    Name StrCat[catParam3,"1Resolution of grid [cm]"]}
 ];
 
-DefineConstant[
-  res = { 5e-3, Min 1e-4, Max 50e-3, Step 1e-4,
-    Name StrCat[catParam3,"1Resolution of grid [m]"]}
-];
+L = L/100;
+Wx = Wx/100;
+Wy = Wy/100;
+res = res/100;
 
 //--------------
 // Physical TAGs
@@ -38,5 +40,5 @@ DefineConstant[
 
 DOM = 1000;
 BND_PEC = 2000;
-BND_PORT1 = 2001;
-BND_PORT2 = 2002;
+BND_PORT_1 = 2001;
+BND_PORT_2 = 2002;

@@ -22,6 +22,6 @@ ll = newll ; Line Loop(newll) = {l[]} ;
 s = news ; Plane Surface(news) = {ll} ;
 
 Physical Line(BND_PEC) = {l[0], l[2]} ;
-Physical Line(BND_PORT1) = {l[3]} ;
-Physical Line(BND_PORT2) = {l[1]} ;
+Physical Line(BND_PORT_1) = {l[3]} ;
+Physical Line(BND_PORT_2) = {l[1]} ;
 Physical Surface(DOM) = {s} ;

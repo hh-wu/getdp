@@ -5,4 +5,6 @@
 
 Include "main.dat" ;
 
-Include Str[LinkPro] ;
+If (FLAG_PBM!=0)
+  Include Str[LinkPro] ;
+EndIf

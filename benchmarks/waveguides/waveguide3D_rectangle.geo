@@ -48,6 +48,6 @@ sl = newsl ; Surface Loop(newsl) = {s1, s2, sL[]} ;
 v = newv ; Volume(newv) = {sl} ;
 
 Physical Surface(BND_PEC) = {sL[]} ;
-Physical Surface(BND_PORT1) = {s1} ;
-Physical Surface(BND_PORT2) = {s2} ;
+Physical Surface(BND_PORT_1) = {s1} ;
+Physical Surface(BND_PORT_2) = {s2} ;
 Physical Volume(DOM) = {v} ;

@@ -40,9 +40,9 @@ Function {
   epsR[] = 1 ;
   muR[] = 1 ;
   
-  k0 = 2*Pi/LAMB ; // Free space wavevector
-  ky = mMode*Pi/W ;    // Transverse wavevector (horizontal)
-  kz = nMode*Pi/Wz ;   // Transverse wavevector (vertical)
+  k0 = 2*Pi/LAMB ;   // Free space wavevector
+  ky = mMode*Pi/W ;  // Transverse wavevector (horizontal)
+  kz = nMode*Pi/Wz ; // Transverse wavevector (vertical)
   
   For n In {1:NbPorts}
     phi = 2*Pi*(n-0.5)/NbPorts ;
@@ -57,80 +57,8 @@ Function {
                           nMode/Wz * Sin[ky*yLoc~{n}[]] * Cos[kz*zLoc~{n}[]] ] ;
     */
     eInc[Port~{n}] = (n == ActivePort) ? ePort~{n}[] : Vector[ 0., 0., 0. ] ;
-    EndIf
+    intPort~{n} = W*Wz/4 ; // square of electric field integrated at a port
   EndFor
-  intPort = 1. ; // square of electric field integrated at a port
 }
 
 Include "formulations.pro";
-
-PostProcessing {
-  { Name postPro_Field ; NameOfFormulation eFormulation ;
-    Quantity {
-      { Name e ; Value { Local{ [{e}] ; In Domain ; Jacobian Jac ; } } }
-    }
-  }
-  { Name postPro_FieldsBnd ; NameOfFormulation eFormulation ;
-    Quantity {
-      { Name eBnd ; Value { Local{ [ {e} ] ; In SurAll ; Jacobian Jac ; } } }
-      For n In {1:NbPorts}
-        { Name ePort~{n} ; Value { Local{ [ ePort~{n}[] ] ; In Port~{n} ; Jacobian Jac ; } } }
-      EndFor
-      { Name eInc ; Value { Local{ [ eInc[] ] ; In BndABC ; Jacobian Jac ; } } }
-      { Name normal ; Value { Local{ [ Normal[] ] ; In SurAll ; Jacobian Jac ; } } }
-    }
-  }
-  { Name postPro_SParameters ; NameOfFormulation eFormulation ;
-    Quantity {
-      For n In {1:NbPorts}
-        If ( n == ActivePort )
-          { Name xS~{(n*10+ActivePort)} ; Value { Integral { [ ({e}-ePort~{n}[])*Conj[ePort~{n}[]] / intPort ] ; In Port~{n} ; Jacobian Jac ; Integration I1 ; } } }
-        EndIf
-        If ( n != ActivePort )
-          { Name xS~{(n*10+ActivePort)} ; Value { Integral { [ {e}*Conj[ePort~{n}[]] / intPort ] ; In Port~{n} ; Jacobian Jac ; Integration I1 ; } } }
-        EndIf
-        { Name S~{(n*10+ActivePort)} ; Value { Local { [ -20*Log10[Norm[#(n*10+ActivePort)]] ] ; In Port~{n} ; Jacobian Jac ; Integration I1 ; } } }
-      EndFor
-    }
-  }
-}
-
-PostOperation {
-  { Name Get_Field ; NameOfPostProcessing postPro_Field ;
-    Operation {
-      Print [ e, OnElementsOf Domain, File StrCat[myDir, "e.pos"]] ;
-    }
-  }
-  { Name Get_FieldsBnd ; NameOfPostProcessing postPro_FieldsBnd ;
-    Operation {
-      Print [ normal, OnElementsOf SurAll, File StrCat[myDir, "normal.pos"]] ;
-      Print [ eBnd, OnElementsOf SurAll, File StrCat[myDir, "eBnd.pos"]] ;
-      Print [ eInc, OnElementsOf BndABC, File StrCat[myDir, "eInc.pos"]] ;
-      For n In {1:NbPorts}
-        Print [ ePort~{n}, OnElementsOf Port~{n}, File StrCat[myDir,StrCat["ePort",StrCat[Sprintf("%g",n),".pos"]]]] ;
-      EndFor
-    }
-  }
-  { Name Get_SParameters ; NameOfPostProcessing postPro_SParameters ;
-    Operation {
-      For n In {1:NbPorts}
-        Print [ xS~{(n*10+ActivePort)}[Port~{n}], OnRegion Port~{n}, StoreInRegister (n*10+ActivePort),
-          Format Table, File StrCat[myDir, StrCat["temp~{(n*10+ActivePort)}",ExtGnuplot]] ] ;
-        Print [ S~{(n*10+ActivePort)}[Port~{n}], OnRegion Port~{n}, SendToServer StrCat(catOutput,StrCat("0S",Sprintf("%g",n*10+ActivePort))),
-          Format Table, File StrCat[myDir, StrCat["temp",Sprintf("%g",n*10+ActivePort)]] ] ;
-      EndFor
-    }
-  }
-}
-
-DefineConstant[
-  MyPostOp = {"Get_Field, Get_SParameters", Choices{"Get_Field", "Get_FieldsBnd", "Get_SParameters"},
-    Name "Input/1Post-processing", MultipleSelection "101"}
-] ;
-
-DefineConstant[
-  R_ = {"eFormulation", Name "GetDP/1ResolutionChoices", Visible 0},
-  C_ = {"-solve -pos -v2", Name "GetDP/9ComputeCommand", Visible 0},
-  P_ = { Str[MyPostOp], Name "GetDP/2PostOperationChoices", Visible 0, ReadOnly 1}
-] ;
-

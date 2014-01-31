@@ -3,42 +3,50 @@
 // File: Parameters
 //========================================================
 
+PBM_STR2D = 1 ;
+PBM_STR2D_DIEL = 2 ;
+PBM_HBEND2D = 3 ;
+PBM_REC3D = 4 ;
+PBM_STAR2D = 5 ;
+PBM_STAR3D = 6 ;
+
 DefineConstant[
-  FLAG_PBM = {1, Name "Input/00Problem", Highlight "Black",
-    Choices {1="Straight waveguide [2D]",
-             2="Straight waveguide with dielectric [2D]",
-             3="H-bend waveguide [2D]",
-             4="Star-shaped network [2D]",
-             5="Straight waveguide [3D]",
-             6="Star-shaped network [3D]"} }
+  FLAG_PBM = {0, Name "Input/00Problem", Highlight "Black",
+    Choices {0 = "...",
+             PBM_STR2D = "Straight waveguide [2D]",
+             PBM_STR2D_DIEL = "Straight waveguide with dielectric [2D]",
+             PBM_HBEND2D = "H-bend waveguide [2D]",
+             PBM_REC3D = "Rectangular waveguide [3D]",
+             PBM_STAR2D = "Star-shaped network [2D]",
+             PBM_STAR3D = "Star-shaped network [3D]"} }
 ] ;
 
-If (FLAG_PBM==1)
+If (FLAG_PBM==PBM_STR2D)
   LinkGeo = "waveguide2D_straight.geo" ;
   LinkPro = "waveguide2D_straight.pro" ;
   DIM = 2 ;
 EndIf
-If (FLAG_PBM==2)
+If (FLAG_PBM==PBM_STR2D_DIEL)
   LinkGeo = "waveguide2D_straightWithDielectric.geo" ;
   LinkPro = "waveguide2D_straightWithDielectric.pro" ;
   DIM = 2 ;
 EndIf
-If (FLAG_PBM==3)
+If (FLAG_PBM==PBM_HBEND2D)
   LinkGeo = "waveguide2D_Hbend.geo" ;
   LinkPro = "waveguide2D_Hbend.pro" ;
   DIM = 2 ;
 EndIf
-If (FLAG_PBM==4)
+If (FLAG_PBM==PBM_REC3D)
+  LinkGeo = "waveguide3D_rectangle.geo" ;
+  LinkPro = "waveguide3D_rectangle.pro" ;
+  DIM = 3 ;
+EndIf
+If (FLAG_PBM==PBM_STAR2D)
   LinkGeo = "waveguide2D_starNetwork.geo" ;
   LinkPro = "waveguide2D_starNetwork.pro" ;
   DIM = 2 ;
 EndIf
-If (FLAG_PBM==5)
-  LinkGeo = "waveguide3D_straight.geo" ;
-  LinkPro = "waveguide3D_straight.pro" ;
-  DIM = 3 ;
-EndIf
-If (FLAG_PBM==6)
+If (FLAG_PBM==PBM_STAR3D)
   LinkGeo = "waveguide3D_starNetwork.geo" ;
   LinkPro = "waveguide3D_starNetwork.pro" ;
   DIM = 3 ;
