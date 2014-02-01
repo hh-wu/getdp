@@ -57,7 +57,6 @@ Function {
                           nMode/Wz * Sin[ky*yLoc~{n}[]] * Cos[kz*zLoc~{n}[]] ] ;
     */
     eInc[Port~{n}] = (n == ActivePort) ? ePort~{n}[] : Vector[ 0., 0., 0. ] ;
-    intPort~{n} = W*Wz/4 ; // square of electric field integrated at a port
   EndFor
 }
 

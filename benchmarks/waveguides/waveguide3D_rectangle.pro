@@ -24,7 +24,7 @@ NbPorts = 2 ;
 DefineConstant[
   ActivePort = {1, Choices{1="Port 1 [z=0]", 2="Port 2 [z=L]"},
     Name StrCat[catParam2,"0Active port"]},
-  FREQ = { 4.225e9, Min 1e8, Max 1e10, Step 1e8,
+  FREQ = { 6e9, Min 1e8, Max 1e10, Step 1e8,
     Name StrCat[catParam2,"1Frequency [Hz]"]},
   LAMB = { c0/FREQ*100, ReadOnly 1, Highlight "LightGrey",
     Name StrCat[catParam2,"2Wavelength [cm]"]},
@@ -40,14 +40,17 @@ Function {
   epsR[] = 1 ;
   muR[] = 1 ;
   
-  k0 = 2*Pi/LAMB; // Free space wavevector
-  kx = m*Pi/Wx;   // Transverse wavevector (x)
-  ky = n*Pi/Wy;   // Transverse wavevector (y)
+  omega = 2*Pi*FREQ ;
+  k0 = 2*Pi/LAMB ; // Free space wavevector
+  kx = m*Pi/Wx ;   // Transverse wavevector (x)
+  ky = n*Pi/Wy ;   // Transverse wavevector (y)
+  gamma2 = Pi^2 * (m^2/Wx^2 + n^2/Wy^2) ;
   
+  H0[] = I[]*mu0*omega/gamma2 ;
   For n In {1:NbPorts}
-    ePort~{n}[] = Vector[ Sin[kx*X[]], Sin[ky*Y[]], 0. ] ;
+    ePort~{n}[] = Vector[ - H0[]*ky * Cos[kx*X[]]*Sin[ky*Y[]],
+                          + H0[]*kx * Sin[kx*X[]]*Cos[ky*Y[]], 0. ] ;
     eInc[Port~{n}] = (n == ActivePort) ? ePort~{n}[] : Vector[ 0., 0., 0. ] ;
-    intPort~{n} = Wx*Wy/4 ; // square of electric field integrated at a port
   EndFor
 }
 

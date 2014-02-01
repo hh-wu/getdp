@@ -184,11 +184,12 @@ PostProcessing {
   { Name postPro_SParameters ; NameOfFormulation eFormulation ;
     Quantity {
       For n In {1:NbPorts}
+        { Name intPort~{n} ; Value { Integral { [ ePort~{n}[]*Conj[ePort~{n}[]] ] ; In Port~{n} ; Jacobian Jac ; Integration I1 ; } } }
         If ( n == ActivePort )
-          { Name xS~{(n*10+ActivePort)} ; Value { Integral { [ ({e}-ePort~{n}[])*Conj[ePort~{n}[]] / intPort~{n} ] ; In Port~{n} ; Jacobian Jac ; Integration I1 ; } } }
+          { Name xS~{(n*10+ActivePort)} ; Value { Integral { [ ({e}-ePort~{n}[])*Conj[ePort~{n}[]] / #(n) ] ; In Port~{n} ; Jacobian Jac ; Integration I1 ; } } }
         EndIf
         If ( n != ActivePort )
-          { Name xS~{(n*10+ActivePort)} ; Value { Integral { [ {e}*Conj[ePort~{n}[]] / intPort~{n} ] ; In Port~{n} ; Jacobian Jac ; Integration I1 ; } } }
+          { Name xS~{(n*10+ActivePort)} ; Value { Integral { [ {e}*Conj[ePort~{n}[]] / #(n) ] ; In Port~{n} ; Jacobian Jac ; Integration I1 ; } } }
         EndIf
         If ( SParameters_Format == 1 )
           { Name S~{(n*10+ActivePort)} ; Value { Local { [ Norm[#(n*10+ActivePort)] ] ; In Port~{n} ; Jacobian Jac ; Integration I1 ; } } }
@@ -228,6 +229,8 @@ PostOperation {
   { Name Get_SParameters ; NameOfPostProcessing postPro_SParameters ;
     Operation {
       For n In {1:NbPorts}
+        Print [ intPort~{n}[Port~{n}], OnRegion Port~{n}, StoreInRegister (n),
+          Format Table, File StrCat[myDir, StrCat["temp~{n}",ExtGnuplot]] ] ;
         Print [ xS~{(n*10+ActivePort)}[Port~{n}], OnRegion Port~{n}, StoreInRegister (n*10+ActivePort),
           Format Table, File StrCat[myDir, StrCat["temp~{(n*10+ActivePort)}",ExtGnuplot]] ] ;
         Print [ S~{(n*10+ActivePort)}[Port~{n}], OnRegion Port~{n}, SendToServer StrCat(catOutput,StrCat("0S",Sprintf("%g",n*10+ActivePort))),

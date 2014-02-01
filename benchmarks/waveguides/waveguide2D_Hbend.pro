@@ -45,10 +45,8 @@ Function {
    
   ePort_1[] = Vector[ 0., 0., Sin[kt*(Y[]+W/2)] ] ;
   ePort_2[] = Vector[ 0., 0., Sin[kt*(X[]+W/2-R)] ] ;
-  
   For n In {1:NbPorts}
     eInc[Port~{n}] = (n == ActivePort) ? ePort~{n}[] : Vector[ 0., 0., 0. ] ;
-    intPort~{n} = W/2 ; // square of electric field integrated at a port
   EndFor
 }
 

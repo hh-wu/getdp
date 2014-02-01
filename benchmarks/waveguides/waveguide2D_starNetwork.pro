@@ -46,7 +46,6 @@ Function {
     yLoc~{n}[] = (-Sin[phi]*X[] + Cos[phi]*Y[]) + 0.5*W ;
     ePort~{n}[] = Vector[ 0., 0., Sin[kt*yLoc~{n}[]] ] ;
     eInc[Port~{n}] = (n == ActivePort) ? ePort~{n}[] : Vector[ 0., 0., 0. ] ;
-    intPort~{n} = W/2 ; // square of electric field integrated at a port
   EndFor
 }
 
