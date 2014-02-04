@@ -64,10 +64,10 @@ int main(int argc, char **argv)
     c->set(n);
 
     // run gmsh as a subclient
-    c->runSubClient("Gmsh", std::string("gmsh ") + machine + ".geo -2 -v 2");
+    c->runSubClient("myGmsh", std::string("gmsh ") + machine + ".geo -2 -v 2");
 
     // run getdp as a subclient
-    c->runSubClient("GetDP", std::string("getdp ") + machine +
+    c->runSubClient("myGetDP", std::string("getdp ") + machine +
                     " -setnumber Flag_PrintFields 0 -msh " +
                     machine + ".msh" + " -solve Analysis -v 2");
 

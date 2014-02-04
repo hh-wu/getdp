@@ -26,10 +26,10 @@ for angle in angles:
    c.setNumber('Input/21Start rotor angle [deg]', value=angle)
    
    # run gmsh as a subclient
-   c.runSubClient('Gmsh', 'gmsh ' + machine + '.geo -2 -v 2')
+   c.runSubClient('myGmsh', 'gmsh ' + machine + '.geo -2 -v 2')
    
    # run getdp as a subclient
-   c.runSubClient('GetDP', 'getdp ' + machine + ' -msh ' + machine + '.msh ' +
+   c.runSubClient('myGetDP', 'getdp ' + machine + ' -msh ' + machine + '.msh ' +
                   '-setnumber Flag_PrintFields 0 ' +
                   '-solve Analysis -v 2')
    

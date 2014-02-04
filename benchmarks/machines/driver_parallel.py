@@ -5,7 +5,7 @@
 # optimizer driving onelab clients.)
 
 # You should run the script by opening it with Gmsh: either interactively (with
-# 'File->Open') or in batch mode (with 'gmsh driver.py -')
+# 'File->Open') or in batch mode (with 'gmsh driver_parallel.py -')
 
 # import the onelab python module
 import onelab
@@ -28,7 +28,7 @@ for angle in angles:
    msh = machine + '_' + tag + '.msh'
    c.setNumber(tag + '/Input/21Start rotor angle [deg]', value=angle)
    # run gmsh as a non-blocking subclient
-   c.runNonBlockingSubClient('Gmsh', 'gmsh -setstring ResId ' + tag + '/ ' + 
+   c.runNonBlockingSubClient('myGmsh', 'gmsh -setstring ResId ' + tag + '/ ' + 
                              machine + '.geo -2 -v 2 -o ' + msh)
    
 c.waitOnSubClients()
@@ -38,7 +38,7 @@ for angle in angles:
    tag = 'angle' + str(angle)
    msh = machine + '_' + tag + '.msh'
    # run getdp as a non-blocking subclient
-   c.runNonBlockingSubClient('GetDP', 'getdp -setstring ResId ' + tag + '/ ' + 
+   c.runNonBlockingSubClient('myGetDP', 'getdp -setstring ResId ' + tag + '/ ' + 
                              '-setnumber Flag_PrintFields 0 ' +
                              machine + ' -msh ' + msh + ' -solve Analysis -v 2')
 
