@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2014 P. Dular, C. Geuzaine
+// GetDP - Copyright (C) 1997-2013 P. Dular, C. Geuzaine
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@geuz.org>.
@@ -485,3 +485,266 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
 	     * dont on prend la trace n'intervient qu'une seule fois dans le terme.
 	     * du a - manque de generalite du code au niveau de la gestion des
 	     *        espaces fonctionnels des fcts tests  pour 'Trace de Dof'
+	     *      - et Christophe fatigue
+	     */
+
+	    if (QuantityStorage_P->NumLastElementForFunctionSpace != Element.Num ||
+		TraceGroupIndex_DefineQuantity >= 0 ) {
+
+	      QuantityStorage_P->NumLastElementForFunctionSpace = Element.Num ;
+
+	      switch (DefineQuantity_P->Type) {
+	      case LOCALQUANTITY :
+		if(TraceGroupIndex_DefineQuantity >= 0){
+		  Get_ElementTrace(&Element, TraceGroupIndex_DefineQuantity) ;
+		  QuantityStorage_P->NumLastElementForFunctionSpace = Element.ElementTrace->Num ;
+		  Get_DofOfElement
+		    (Element.ElementTrace, QuantityStorage_P->FunctionSpace, QuantityStorage_P,
+		     DefineQuantity_P->IndexInFunctionSpace) ;
+		}
+                else{
+		  Get_DofOfElement
+		    (&Element, QuantityStorage_P->FunctionSpace, QuantityStorage_P,
+		     DefineQuantity_P->IndexInFunctionSpace) ;
+		}
+		break ;
+	      case INTEGRALQUANTITY :
+		QuantityStorage_P->NbrElementaryBasisFunction = 0 ;
+		break ;
+	      default :
+		Message::Error("Bad kind of Quantity in Formulation '%s'",
+                               Formulation_P->Name);
+		break;
+	      }
+	    }
+	  }  /* for i = 0, 1 ... */
+
+	  /* -------------------------------------- */
+	  /* 2.1.2.  Treatment of the equation term */
+	  /* -------------------------------------- */
+
+	  switch (TreatmentStatus) {
+	  case _PRE :
+	    Pre_TermOfFemEquation(&Element, EquationTerm_P, QuantityStorage_P0) ;
+	    break ;
+	  case _CAL :
+	    Flag_Only = 0 ;
+
+	    if (Current.DofData->Flag_Only){
+	      A = Current.DofData->A ;
+	      b = Current.DofData->b ;
+
+	      if (EquationTerm_P->Case.LocalTerm.MatrixIndex == -1)
+		EquationTerm_P->Case.LocalTerm.MatrixIndex = 0 ;
+
+	      j = List_ISearch(Current.DofData->OnlyTheseMatrices,
+			       &EquationTerm_P->Case.LocalTerm.MatrixIndex, fcmp_int) ;
+	      if(j!=-1){
+		Flag_Only = 1 ;
+		switch(EquationTerm_P->Case.LocalTerm.MatrixIndex){
+		case 1 :
+		  Current.DofData->A = Current.DofData->A1 ;
+		  Current.DofData->b = Current.DofData->b1 ;
+		  break;
+		case 2 :
+		  Current.DofData->A = Current.DofData->A2 ;
+		  Current.DofData->b = Current.DofData->b2 ;
+		  break;
+		case 3 :
+		  Current.DofData->A = Current.DofData->A3 ;
+		  Current.DofData->b = Current.DofData->b3 ;
+		  break;
+		}
+	      }
+	    }/* Only the matrices that vary are recalculated */
+
+	    if (!Current.DofData->Flag_Only || (Current.DofData->Flag_Only && Flag_Only) ){
+	      QuantityStorage_P = QuantityStorage_P0 +
+		EquationTerm_P->Case.LocalTerm.Term.DefineQuantityIndexEqu ;
+
+	      if(EquationTerm_P->Type == GALERKIN)
+                Cal_GalerkinTermOfFemEquation(&Element, EquationTerm_P, QuantityStorage_P0) ;
+
+	      if (Current.DofData->Flag_Only && Flag_Only){
+		Current.DofData->A = A ;
+		Current.DofData->b = b ;
+	      }
+
+	    }/* Flag_Only */
+	    break ;
+
+	    case _CST :
+	      Cst_TermOfFemEquation(&Element, EquationTerm_P, QuantityStorage_P0) ;
+	      break ;
+
+	  }
+
+	}/* if Support ... */
+
+      } /* if GALERKIN ... */
+
+    }  /* for i_EquTerm ... */
+
+    Message::ProgressMeter(i_Element + 1, Nbr_Element, (TreatmentStatus == _PRE) ?
+                           "Pre-processing" : "Processing (Generate)");
+    if(Message::GetErrorCount()) break;
+  }  /* for i_Element ... */
+
+
+  if (MH_Moving_Matrix) {
+    List_Delete(FemLocalTermActive_L) ;  List_Delete(QuantityStorage_L) ;
+    return;
+  }
+
+  /* ------------------------------------------------------ */
+  /* 3.  Loop on equation terms :                           */
+  /*     Treatment of eventual GLOBAL terms                 */
+  /* ------------------------------------------------------ */
+
+  for (i_EquTerm = 0 ; i_EquTerm < Nbr_EquationTerm ; i_EquTerm++) {
+
+    EquationTerm_P = EquationTerm_P0 + i_EquTerm ;
+
+    if (EquationTerm_P->Type == GLOBALTERM) {
+
+      InitialListInIndex_L =
+	((struct Group *)List_Pointer(Problem_S.Group,
+				      EquationTerm_P->Case.GlobalTerm.InIndex))
+	->InitialList ;
+      List_Sort(InitialListInIndex_L, fcmp_int) ;
+      Nbr_Region = List_Nbr(InitialListInIndex_L) ;
+
+      /* ---------------------------------------------- */
+      /* 3.1.  Loop on Regions belonging to the support */
+      /* ---------------------------------------------- */
+
+      for (i_Region = 0 ; i_Region < Nbr_Region ; i_Region++) {
+	List_Read(InitialListInIndex_L, i_Region, &Num_Region) ;
+	Current.Region = Num_Region ;
+
+	/* ---------------------------------------------------------------- */
+	/* 3.1.1.   Loop on Quantities (test functions and shape functions) */
+	/* ---------------------------------------------------------------- */
+
+	for (i = 0 ; i < EquationTerm_P->Case.GlobalTerm.Term.NbrQuantityIndex ; i++) {
+
+	  Index_DefineQuantity =
+	    EquationTerm_P->Case.GlobalTerm.Term.QuantityIndexTable[i] ;
+	  DefineQuantity_P  = DefineQuantity_P0  + Index_DefineQuantity ;
+	  QuantityStorage_P = QuantityStorage_P0 + Index_DefineQuantity ;
+
+	  GlobalQuantity_P = (struct GlobalQuantity*)
+	    List_Pointer(QuantityStorage_P->FunctionSpace->GlobalQuantity,
+			 *(int*)List_Pointer(DefineQuantity_P->IndexInFunctionSpace, 0)) ;
+
+	  /* Only one Function space analysis */
+	  /* -------------------------------- */
+
+	  if (QuantityStorage_P->NumLastElementForFunctionSpace != Num_Region) {
+	    QuantityStorage_P->NumLastElementForFunctionSpace = Num_Region ;
+
+	    switch (DefineQuantity_P->Type) {
+	    case GLOBALQUANTITY :
+	      Get_DofOfRegion
+		(Num_Region, GlobalQuantity_P,
+		 QuantityStorage_P->FunctionSpace, QuantityStorage_P) ;
+	      break ;
+	    default :
+	      Message::Error("Bad kind of Quantity in Formulation '%s'",
+                             Formulation_P->Name);
+	      break;
+	    }
+	  }
+	}  /* for i = 0, 1 ... */
+
+	/* ------------------------------ */
+	/* 3.1.2.  Treatment of the term  */
+	/* ------------------------------ */
+
+	switch (TreatmentStatus) {
+	case _PRE :
+	  Pre_GlobalTermOfFemEquation(Num_Region, EquationTerm_P,
+				      QuantityStorage_P0) ;
+	  break ;
+	case _CAL :
+	  Cal_GlobalTermOfFemEquation(Num_Region, EquationTerm_P,
+				      QuantityStorage_P0,
+				      &QuantityStorage_S, DofForNoDof_P) ;
+	  break ;
+	case _CST :
+	  Cst_GlobalTermOfFemEquation(Num_Region, EquationTerm_P,
+				      QuantityStorage_P0) ;
+	  break ;
+	}
+
+      }
+
+    }  /* if GLOBALTERM ... */
+  }  /* for i_EquTerm ... */
+
+
+  /* --------------------------------------------------------- */
+  /* 4.  Loop on equation terms :                              */
+  /*     Treatment of eventual GLOBAL EQUATION terms           */
+  /* --------------------------------------------------------- */
+
+  for (i_EquTerm = 0 ; i_EquTerm < Nbr_EquationTerm ; i_EquTerm++) {
+    EquationTerm_P = EquationTerm_P0 + i_EquTerm ;
+
+    if (EquationTerm_P->Type == GLOBALEQUATION) {
+
+      if (EquationTerm_P->Case.GlobalEquation.ConstraintIndex >= 0)
+
+	  switch (TreatmentStatus) {
+	  case _PRE :
+	    Pre_FemGlobalEquation(EquationTerm_P,
+				  DefineQuantity_P0, QuantityStorage_P0) ;
+	    break ;
+	  case _CAL :
+	    Cal_FemGlobalEquation(EquationTerm_P,
+				  DefineQuantity_P0, QuantityStorage_P0) ;
+	    break ;
+	  }
+
+    }  /* if GLOBALEQUATION ... */
+  }  /* for i_EquTerm ... */
+
+
+  /* -------------------------- */
+  /* 5.   End of FEM treatment  */
+  /* -------------------------- */
+
+  List_Delete(FemLocalTermActive_L) ;  List_Delete(QuantityStorage_L) ;
+}
+
+/* ------------------------------------------------------------------------ */
+/*  T r e a t m e n t _ G l o b a l F o r m u l a t i o n                   */
+/* ------------------------------------------------------------------------ */
+
+void  Treatment_GlobalFormulation(struct Formulation * Formulation_P)
+{
+  Message::Error("You should not be here!") ;
+}
+
+/* ------------------------------------------------------------------------ */
+/*  T r e a t m e n t _ F o r m u l a t i o n                               */
+/* ------------------------------------------------------------------------ */
+
+void  Treatment_Formulation(struct Formulation * Formulation_P)
+{
+  switch (Formulation_P->Type) {
+
+  case FEMEQUATION :
+    Treatment_FemFormulation(Formulation_P) ;
+    break ;
+
+  case GLOBALEQUATION :
+    Treatment_GlobalFormulation(Formulation_P) ;
+    break ;
+
+  default :
+    Message::Error("Unknown type for Formulation '%s'", Formulation_P->Name) ;
+    break ;
+  }
+}
+
