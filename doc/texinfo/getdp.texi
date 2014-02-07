@@ -4209,6 +4209,8 @@ Generate the system of equations @var{system-id} using a jacobian matrix (of
 which the unknowns are corrections @var{dx} of the current solution
 @var{x}).
 
+@c FIXME: explain this better
+
 @item SolveJac
 @code{[@var{system-id}]}
 
@@ -4216,6 +4218,9 @@ Solve the system of equations @var{system-id} using a jacobian matrix (of
 which the unknowns are corrections @var{dx} of the current solution
 @var{x}). Then, Increment the solution (@var{x}=@var{x}+@var{dx}) and
 compute the relative error @var{dx}/@var{x}.
+
+@c FIXME: explain this better, using equations. Write out explicitly the
+@c formulas when there is a JacNL term, and when there isn't
 
 @item GenerateSeparate
 @code{[@var{system-id}]}
