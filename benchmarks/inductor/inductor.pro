@@ -121,6 +121,11 @@ Function {
       Visible (!Flag_NL)}
   ];
 
+  // Reluctance of the simplified magnetic circuit (neglecting leakage and frindging)
+  For k In {0:2}
+    Reluctance~{k}[] = Rm~{k};// [A/Wb]
+    Inductance~{k}[] = NbWires[]*NbWires[]/Reluctance~{k}[]*1e3;// [mH]
+  EndFor
  }
 
  If(Flag_3Dmodel==0)
