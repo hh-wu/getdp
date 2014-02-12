@@ -2,7 +2,7 @@
 
 SRC=../../benchmarks
 DST=/onelab_files
-MODELS='machines relay inductor indheat magnetometer antennas acoustic_scattering time_reversal'
+MODELS='machines relay inductor indheat magnetometer antennas acoustic_scattering time_reversal shielding'
 
 # sync files from local svn checkout
 for m in ${MODELS}; do
@@ -11,6 +11,7 @@ done
 
 # create zip file
 for m in ${MODELS}; do
+  sudo rm -f ${DST}/${m}.zip
   cd ${DST} && sudo zip -r ${DST}/${m}.zip ${m} -x \*.svn\*
 done
 
