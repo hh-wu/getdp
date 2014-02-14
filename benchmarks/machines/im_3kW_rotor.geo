@@ -171,6 +171,7 @@ For k In {0:NbrPolesTot/NbrPolesInModel-1}
 EndFor
 
 Coherence;
+Geometry.AutoCoherence = 1;
 
 //nicepos_rotor[] = {RotorBoundary_[], RotorPeriod_Ref_[], RotorPeriod_Dep_[]};
 If(Flag_OpenRotor)

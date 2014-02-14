@@ -196,6 +196,7 @@ For k In {0:NbrPolesTot/NbrPolesInModel-1}
 EndFor
 
 Coherence;
+Geometry.AutoCoherence = 1 ;
 
 //nicepos_rotor[] = {RotorBoundary_[],RotorPeriod_Reference_[],RotorPeriod_Dependent_[]};
 If(Flag_OpenRotor)
@@ -206,16 +207,3 @@ If(!Flag_OpenRotor)
   nicepos_rotor[] = CombinedBoundary{Surface{RotorIron_[],RotorSlotOpening_[]};};
   nicepos_rotor[] += CombinedBoundary{Surface{RotorAirgapLayer_[]};};
 EndIf
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -12,7 +12,7 @@ DefineConstant[
   Flag_SrcType_Stator = { 0, Choices{0="None",1="Current"},
     Name "Input/41Source type in stator", Highlight "Blue"},
   Flag_NL = { 1, Choices{0,1},
-    Name "input/60Nonlinear BH-curve", ReadOnly 0},
+    Name "Input/60Nonlinear BH-curve", ReadOnly 0},
   Flag_NL_law_Type = { 0, Choices{0="Analytical", 1="Interpolated",
       2="Analytical VH800-65D", 3="Interpolated VH800-65D"},
     Name "Input/61BH-curve", Highlight "Blue", Visible Flag_NL}

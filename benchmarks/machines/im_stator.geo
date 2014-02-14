@@ -200,13 +200,7 @@ EndFor
 //nicepos_stator[] += {StatorBoundary_[],StatorPeriod_Reference_[],StatorPeriod_Dependent_[]};
 
 Coherence;
+Geometry.AutoCoherence = 1 ;
+
 nicepos_stator[] = CombinedBoundary{Surface{StatorIron_[]};};
 nicepos_stator[] += CombinedBoundary{Surface{StatorSlotOpening_[],StatorAirgapLayer_[]};};
-
-
-
-
-
-
-
-

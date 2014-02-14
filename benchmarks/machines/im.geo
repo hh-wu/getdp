@@ -5,7 +5,6 @@
 
 Include "im_data.geo";
 
-Geometry.AutoCoherence = 0 ;
 Mesh.Algorithm = 1 ;
 
 // characteristic lengths
@@ -23,8 +22,6 @@ cen = newp; Point(cen)  = {0.,0.,0.,p};
 
 Include "im_rotor.geo" ;
 Include "im_stator.geo" ;
-
-Coherence;
 
 // For nice visualisation...
 //Mesh.Light = 0 ;
@@ -99,3 +96,4 @@ EndIf
 
 
 EndIf
+
