@@ -1,0 +1,61 @@
+PBM_PMSM = 1 ;
+PBM_PMSM_CBMAG = 2 ;
+PBM_LOMONOVA = 3 ;
+PBM_WFSM_4P = 4 ;
+PBM_T30 = 5 ;
+PBM_IM_3KW = 6 ;
+PBM_IM = 7 ;
+PBM_SRM = 8 ;
+PBM_SHADED = 9 ;
+
+DefineConstant[
+    FLAG_PBM = {0, Name "Input/00Problem", Highlight "Black",
+                GmshOption "ResetDatabase", Autocheck 0,
+                Choices {0 = "...",
+                         PBM_PMSM = "Permanent Magnet",
+                         PBM_PMSM_CBMAG = "Permanent Magnet (cbmag)",
+                         PBM_LOMONOVA = "Permanent Magnet (Lomonova)",
+                         PBM_WFSM_4P = "Wound Field",
+                         PBM_T30 = "Team 30",
+                         PBM_IM_3KW = "Induction 3kW",
+                         PBM_IM = "Induction",
+                         PBM_SRM = "Switched Reluctance",
+                         PBM_SHADED = "Shaded Pole"} }
+] ;
+
+If (FLAG_PBM==PBM_PMSM)
+  LinkGeo = "pmsm.geo" ;
+  LinkPro = "pmsm.pro" ;
+EndIf
+If (FLAG_PBM==PBM_PMSM_CBMAG)
+  LinkGeo = "pmsm_cbmag.geo" ;
+  LinkPro = "pmsm_cbmag.pro" ;
+EndIf
+If (FLAG_PBM==PBM_LOMONOVA)
+  LinkGeo = "lomonova.geo" ;
+  LinkPro = "lomonova.pro" ;
+EndIf
+If (FLAG_PBM==PBM_WFSM_4P)
+  LinkGeo = "wfsm_4p.geo" ;
+  LinkPro = "wfsm_4p.pro" ;
+EndIf
+If (FLAG_PBM==PBM_T30)
+  LinkGeo = "t30.geo" ;
+  LinkPro = "t30.pro" ;
+EndIf
+If (FLAG_PBM==PBM_IM_3KW)
+  LinkGeo = "im_3kw.geo" ;
+  LinkPro = "im_3kw.pro" ;
+EndIf
+If (FLAG_PBM==PBM_IM)
+  LinkGeo = "im.geo" ;
+  LinkPro = "im.pro" ;
+EndIf
+If (FLAG_PBM==PBM_SRM)
+  LinkGeo = "srm.geo" ;
+  LinkPro = "srm.pro" ;
+EndIf
+If (FLAG_PBM==PBM_SHADED)
+  LinkGeo = "shaded.geo" ;
+  LinkPro = "shaded.pro" ;
+EndIf
