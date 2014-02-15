@@ -11,7 +11,8 @@ PBM_STAR2D = 5 ;
 PBM_STAR3D = 6 ;
 
 DefineConstant[
-    FLAG_PBM = {0, Name "Input/00Problem", Highlight "Black", GmshOption "ResetDatabase",
+    FLAG_PBM = {0, Name "Input/00Problem", Highlight "Blue",
+                GmshOption "ResetDatabase", Autocheck 0,
     Choices {0 = "...",
              PBM_STR2D = "Straight waveguide [2D]",
              PBM_STR2D_DIEL = "Straight waveguide with dielectric [2D]",
