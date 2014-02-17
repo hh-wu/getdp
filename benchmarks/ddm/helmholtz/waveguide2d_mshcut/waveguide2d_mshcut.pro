@@ -72,7 +72,9 @@ Include "../main/tcDefaults.pro";
 Include "../main/topology/inline.pro";
 
 
-ListOfCuts = {0, N_DOM-1};
+// ListOfCuts = {0, N_DOM-1};
+ListOfCuts = {0, 5, 10, N_DOM-1};
+// ListOfCuts = {0, 7, N_DOM-1};
 
 If (PRECOND_SWEEP)
   // what domains am I in charge of ? Implemented with a list

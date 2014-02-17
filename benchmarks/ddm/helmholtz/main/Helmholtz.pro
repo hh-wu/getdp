@@ -29,7 +29,7 @@ Function{
 
 Constraint{
   // { Name Dirichlet_uinc ; Case { { Region GammaD ; Value -uinc[]; } } }
-  { Name Dirichlet_uinc ; Case { { Region GammaD ; Value uinc[]; } } }
+  { Name Dirichlet_uinc ; Case { { Region GammaD ; Value uinc[]##0; } } }
   { Name Dirichlet0 ; Case { { Region GammaD0 ; Value 0.; } } }
 }
 
@@ -212,5 +212,14 @@ PostOperation {
 
 
 //Standard DDM
-Include "DDM_sweep.pro";
+
+If (!COMBINED_SWEEP)
+  Include "DDM_sweep.pro";
+EndIf
+If (COMBINED_SWEEP)
+  // Include "DDM_sweep.pro";
+  // Include "DDM_sweep_simple_combined.pro";
+  Include "DDM_sweep_combined.pro";
+EndIf
+
 //Include "DDM_sweep_reuse.pro"

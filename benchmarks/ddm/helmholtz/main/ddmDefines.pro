@@ -2,7 +2,7 @@
 // required to run the DDM code. These variables or functions should
 // be defined or overwritten by the user whenever relevant.
 
-DefineConstant[geo3d = 1, TOL = 1e-4, MAXIT = 300, PRECOND_SWEEP = 0, EXT_TIME = 0];
+DefineConstant[geo3d = 1, TOL = 1e-4, MAXIT = 300, PRECOND_SWEEP = 0, EXT_TIME = 0, COMBINED_SWEEP = 0];
 DefineConstant[ListOfCuts];
 
 Group{
@@ -19,8 +19,6 @@ Function{
   DefineFunction[k, kInf, kDtn, eInc];
   DefineFunction[alphaBT, betaBT]; // Bayliss-Turkel ABC
 }
-
-ListOfCuts = {0, N_DOM-1}; // By default, ListOfCuts contains only the first and last domains, which is the configuration without cut
 
 DefineConstant[REUSE = 0];
 DefineConstant[ListOfFacto];

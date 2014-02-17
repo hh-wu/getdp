@@ -93,7 +93,7 @@ Include "../main/topology/loop.pro";
   // // // ListOfCuts += {2,5};
   // // ListOfCuts += {3};
   // ListOfCuts = {0, ListOfCuts{}, N_DOM-1}; // build extended list of cuts
-      ListOfCuts += {0,4,8};
+      ListOfCuts += {0,4,9};
 
 
 // If only one cut is given, we suppose that there is a loop in the decomposition, which is cut only once. We then add an additional fictitious cut so the code can work properly

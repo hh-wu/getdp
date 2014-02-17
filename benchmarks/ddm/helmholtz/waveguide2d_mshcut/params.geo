@@ -1,5 +1,5 @@
 N_DOM = 16 ;
-WAVENUMBER = 20.00000*Pi ;
+WAVENUMBER = 5.00000*Pi ;
 LAMBDA = 2*Pi/WAVENUMBER ;
 N_LAMBDA = 20.000000 ;
 LC = 0.01000;
@@ -10,3 +10,5 @@ D = 4.000000 ;
 d = 1.000000 ;
 TOL = 1.000000e-06 ;
 Include "params_part2.geo";
+
+COMBINED_SWEEP = 1;
