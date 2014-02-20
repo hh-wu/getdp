@@ -928,6 +928,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"TensorSym"         , (CAST)F_TensorSym        ,   0,   6 },
   {"TensorDiag"        , (CAST)F_TensorDiag       ,   0,   3 },
   {"SquDyadicProduct"  , (CAST)F_SquDyadicProduct ,   0,   1 },
+  {"Comp"              , (CAST)F_Comp             ,   1,   1 },
   {"CompX"             , (CAST)F_CompX            ,   0,   1 },
   {"CompY"             , (CAST)F_CompY            ,   0,   1 },
   {"CompZ"             , (CAST)F_CompZ            ,   0,   1 },

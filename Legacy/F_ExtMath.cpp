@@ -988,6 +988,15 @@ void F_CompX(F_ARG){ get_comp_vector(0, "CompX") }
 void F_CompY(F_ARG){ get_comp_vector(1, "CompY") }
 void F_CompZ(F_ARG){ get_comp_vector(2, "CompZ") }
 
+void F_Comp(F_ARG){
+  if (Fct->NbrParameters != 1)
+    Message::Error("Function 'Comp': one parameter needed to define component index");
+  if ((int)(Fct->Para[0]) < 0 || (int)(Fct->Para[0]) > 2)
+    Message::Error("Function 'Comp': parameter (%g) out of range (must be 0, 1 or 2)", Fct->Para[0]);
+
+  get_comp_vector((int)(Fct->Para[0]), "Comp")
+}
+
 #undef get_comp_vector
 
 /* ------------------------------------------------------------------------ */

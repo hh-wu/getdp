@@ -126,6 +126,7 @@ void  F_TensorV         (F_ARG) ;
 void  F_TensorSym       (F_ARG) ;
 void  F_TensorDiag      (F_ARG) ;
 void  F_SquDyadicProduct(F_ARG) ;
+void  F_Comp            (F_ARG) ;
 void  F_CompX           (F_ARG) ;
 void  F_CompY           (F_ARG) ;
 void  F_CompZ           (F_ARG) ;
