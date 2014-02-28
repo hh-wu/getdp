@@ -119,7 +119,10 @@ void F_AssDiag(F_ARG)
 {
   int  k ;
 
-  Current.flagAssDiag = 2; /*+++prov*/
+  if (Fct->NbrParameters == 1)
+    Current.flagAssDiag = Fct->Para[0];
+  else
+    Current.flagAssDiag = 2; /*+++prov*/
 
   V->Val[0] = 1.;
 

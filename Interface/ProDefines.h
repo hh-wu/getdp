@@ -980,7 +980,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"Rand"              , (CAST)F_Rand             ,   0,   1 },
   {"CompElementNum"    , (CAST)F_CompElementNum   ,   0,   0 },
   {"VirtualWork"       , (CAST)F_VirtualWork      ,   0,   1 },
-  {"AssDiag"           , (CAST)F_AssDiag          ,   0,   0 },
+  {"AssDiag"           , (CAST)F_AssDiag          ,  -1,   0 },
 
   // F_Interpolation
   {"InterpolationLinear"   , (CAST)F_InterpolationLinear   ,  -2,   1 },
