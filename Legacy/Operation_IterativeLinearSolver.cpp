@@ -1438,24 +1438,26 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
 #ifdef TIMER
   time_total = MPI_Wtime() - time_start;
 #endif
-  // CPU Times
-  double aver_it = 0, aver_com = 0;
-  char filename[50];
-  FILE *fid;
-  sprintf(filename, "log_cpu_%d", mpi_comm_rank);
-  fid = FOpen(filename, "w");
-  fprintf(fid, "Process rank %d\n", mpi_comm_rank);
-  fprintf(fid, "it.  CPU Total \t ... Treatment \t ... Communication\n");
-  for (unsigned int i = 0; i < MyField.TimeBcast.size() ; i ++){
-    fprintf(fid, "%d \t%g\t %g\t %g\t (%g%%)\n", i+1,  MyField.TimeIt[i],
-            MyField.TimeTreatment[i], MyField.TimeBcast[i],
-            MyField.TimeBcast[i]/MyField.TimeIt[i]*100);
-    aver_com += MyField.TimeBcast[i]/MyField.TimeBcast.size();
-    aver_it += MyField.TimeIt[i]/MyField.TimeIt.size();
+  if(MyField.TimeBcast.size()){
+    // CPU Times
+    double aver_it = 0, aver_com = 0;
+    char filename[50];
+    FILE *fid;
+    sprintf(filename, "log_cpu_%d", mpi_comm_rank);
+    fid = FOpen(filename, "w");
+    fprintf(fid, "Process rank %d\n", mpi_comm_rank);
+    fprintf(fid, "it.  CPU Total \t ... Treatment \t ... Communication\n");
+    for (unsigned int i = 0; i < MyField.TimeBcast.size() ; i ++){
+      fprintf(fid, "%d \t%g\t %g\t %g\t (%g%%)\n", i+1,  MyField.TimeIt[i],
+              MyField.TimeTreatment[i], MyField.TimeBcast[i],
+              MyField.TimeBcast[i]/MyField.TimeIt[i]*100);
+      aver_com += MyField.TimeBcast[i]/MyField.TimeBcast.size();
+      aver_it += MyField.TimeIt[i]/MyField.TimeIt.size();
+    }
+    fprintf(fid, "Average: %g %g\n", aver_it, aver_com);
+    fprintf(fid, "Percent of communication in average: %g%%\n", aver_com/aver_it*100);
+    fclose(fid);
   }
-  fprintf(fid, "Average: %g %g\n", aver_it, aver_com);
-  fprintf(fid, "Percent of communication in average: %g%%\n", aver_com/aver_it*100);
-  fclose(fid);
 #ifdef TIMER
   printf("Processus %d : ended in %g. \n", mpi_comm_rank, time_total);
   printf("Processus %d : Average iteration time %g with %g for communication (%g%%).\n",
