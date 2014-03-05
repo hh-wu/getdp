@@ -83,6 +83,10 @@ If(Flag_AddInfo)
 
   // Creating the view
 
+  attr = TextAttributes("Font", "Helvetica", "FontSize", "18", "Align", "CenterCenter");
+  attr_abc = TextAttributes("Font", "Helvetica", "FontSize", "18", "Align", "Left");
+  attr_dq  = TextAttributes("Font", "Helvetica", "FontSize", "18", "Align", "Right");
+
   If(NbrPolesInModel==1)
     View "Info 1 pole" {
       T3(xa[0], ya[0], 0, attr){"B-, A+"};
