@@ -162,7 +162,7 @@ void _fillseq(Vec &V, Vec &Vseq)
   // collect all the values from the parallel petsc vector into a sequential
   // vector on each processor
   VecScatter ctx;
-  VecScatterCreateToAll(V, &ctx, &Vseq);
+  VecScatterCreateToAll(V, &ctx, NULL);
 #if (PETSC_VERSION_MAJOR == 2) && (PETSC_VERSION_MINOR == 3) && (PETSC_VERSION_SUBMINOR < 3)
   VecScatterBegin(V, Vseq, INSERT_VALUES, SCATTER_FORWARD, ctx);
   VecScatterEnd(V, Vseq, INSERT_VALUES, SCATTER_FORWARD, ctx);
