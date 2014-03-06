@@ -48,9 +48,10 @@ Include "../main/tcDefaults.pro";
 Include "../main/topology/inline.pro";
 
 If (PRECOND_SWEEP)
-  // ListOfCuts = {0, 5, 12, N_DOM-1};
+  ListOfCuts = {0, 5, 10, N_DOM-1};
+  // ListOfCuts = {0, 7, N_DOM-1};
   // ListOfCuts = {0, 5, 10, 15, N_DOM-1};
-  // ListOfCuts = {0, 9, N_DOM-1};
+// ListOfCuts = {0, 3, 4, N_DOM-1};
   // ListOfCuts = {0, 3, 6, 9, 12, 15, N_DOM-1};
 
   // Hack to build a 'list of lists': generate variables with 'indexed names'

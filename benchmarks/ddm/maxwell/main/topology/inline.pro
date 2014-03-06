@@ -52,3 +52,5 @@ Function{
     EndIf
   EndFor
 }
+
+ListOfCuts = {0, N_DOM-1}; // By default, ListOfCuts contains only the first and last domains, which is the configuration without cut

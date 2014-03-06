@@ -55,8 +55,8 @@ Function{
   // auxiliary variables for the combined operator
   For idom In {0:N_DOM-1}
     If (idom % MPI_Size == MPI_Rank)
-      g_in_c~{idom}~{0}[Sigma~{idom}~{0}] = (#12 == 1. ? ComplexScalarField[XYZ[]]{4*N_DOM+2*(idom-1)} : g_in~{idom}~{0}[]);
-      g_in_c~{idom}~{1}[Sigma~{idom}~{1}] = (#12 == 1. ? ComplexScalarField[XYZ[]]{4*N_DOM+2*idom+1} : g_in~{idom}~{1}[]);
+      g_in_c~{idom}~{0}[Sigma~{idom}~{0}] = (#12 ? ComplexScalarField[XYZ[]]{4*N_DOM+2*(idom-1)} : g_in~{idom}~{0}[]);
+      g_in_c~{idom}~{1}[Sigma~{idom}~{1}] = (#12 ? ComplexScalarField[XYZ[]]{4*N_DOM+2*idom+1} : g_in~{idom}~{1}[]);
     EndIf
   EndFor
 }
@@ -298,7 +298,7 @@ EndIf
 	  In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
 
 	// Galerkin{[ - ComplexScalarField[XYZ[]]{(2*(idom+N_DOM)+(jdom-1))%(2*N_DOM)}, {g_out~{idom}~{jdom}}] ;
-	Galerkin{[ - ( #12 == 1. ? ComplexScalarField[XYZ[]]{4*N_DOM+2*idom+jdom-1} : ComplexScalarField[XYZ[]]{2*idom+jdom-1}), {g_out~{idom}~{jdom}}] ;
+	Galerkin{[ - ( #12 ? ComplexScalarField[XYZ[]]{4*N_DOM+2*idom+jdom-1} : ComplexScalarField[XYZ[]]{2*idom+jdom-1}), {g_out~{idom}~{jdom}}] ;
 	  In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
 
 	// Transmission condition (2.Su)

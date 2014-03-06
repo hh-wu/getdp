@@ -437,6 +437,7 @@ Resolution {
         EndFor
       EndIf											
       SetCommWorld;
+      Barrier;
 
       //krylov
       IterativeLinearSolver["I-A", SOLVER, TOL, MAXIT, RESTART, {ListOfField()}, {ListOfNeighborField()},{}] {
@@ -460,10 +461,11 @@ Resolution {
       	    For iSide In{0:1}
       	      PostOperation[g_out~{idom}~{iSide}] ;
       	    EndFor
-	    If (EXT_TIME) SystemCommand[Sprintf["./../main/ddmProcTime.py %g operator", MPI_Rank]]; EndIf
+	    If (EXT_TIME) Barrier; SystemCommand[Sprintf["./../main/ddmProcTime.py %g operator", MPI_Rank]]; EndIf
       	  // EndIf
       	EndFor
       	SetCommWorld;
+	Barrier;
       }
       {
       	If (PRECOND_SWEEP)
@@ -574,7 +576,9 @@ Resolution {
       	    EndIf
 	  EndFor
 	EndFor
+	Barrier;
       	SetCommWorld;
+	Barrier;
       	EndIf
       }
       SetCommSelf;
