@@ -433,7 +433,8 @@ static PetscErrorCode InitData(Field *MyField, Field *AllField,
 }
 
 // Communicate PViews
-static PetscErrorCode PViewBCast(Field MyField, Field AllField, const std::set<int> &fieldsToSkip=std::set<int>())
+static PetscErrorCode PViewBCast(Field MyField, Field AllField,
+                                 const std::set<int> &fieldsToSkip=std::set<int>())
 {
   if(Message::GetCommSize() == 1) // serial: all views are available to everyone
     PetscFunctionReturn(0);

@@ -76,7 +76,7 @@ static void Info(int level, char *arg0)
 	    "  -check                    interactive check of problem structure\n"
 	    "  -v num                    set verbosity level (default: 5)\n"
 	    "  -p num                    set progress indicator update (default: 10)\n"
-	    "  -onelab name [address]    communicate with OneLab (file or server address)\n"
+	    "  -onelab name [address]    communicate with ONELAB (file or server address)\n"
             "  -setnumber name value     set constant number name=value\n"
             "  -setstring name value     set constant string name=value\n"
 	    "  -version                  show version number\n"
@@ -158,7 +158,7 @@ static void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *
           i += 1;
 	}
 	else {
-	  Message::Error("Missing client name and/or address of OneLab server");
+	  Message::Error("Missing client name and/or address of ONELAB server");
 	}
       }
 
