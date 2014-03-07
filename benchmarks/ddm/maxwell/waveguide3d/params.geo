@@ -3,7 +3,7 @@ WAVENUMBER = Pi*3.19 ; //Sqrt[2.0]*Pi ;
 LAMBDA = 2*Pi/WAVENUMBER ;
 N_LAMBDA = 20.000000 ;
 LC = 0.05;
-PRECOND_SWEEP = 0 ;
+PRECOND_SWEEP = 1 ;
 
 // waveguide dimensions
 dx = 4. ;

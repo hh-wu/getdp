@@ -49,9 +49,9 @@ FunctionSpace {
       { Name sh; NameOfCoef he; Function BF_Edge;
         Support Region[{Omega, GammaScat, GammaInf}] ; Entity EdgesOf[All]; }
     }
-    Constraint {
-      { NameOfCoef he; EntityType EdgesOf ; NameOfConstraint Dirichlet_h; }
-    }
+    // Constraint {
+    //   { NameOfCoef he; EntityType EdgesOf ; NameOfConstraint Dirichlet_h; }
+    // }
   }
 
   //With Lagrange Multipliers
@@ -69,9 +69,9 @@ FunctionSpace {
       { Name sh; NameOfCoef he; Function BF_Edge;
         Support Region[{Omega, GammaScat, GammaInf}] ; Entity EdgesOf[All]; }
     }
-    Constraint {
-      { NameOfCoef he; EntityType EdgesOf ; NameOfConstraint Dirichlet_h; }
-    }
+    // Constraint {
+    //   { NameOfCoef he; EntityType EdgesOf ; NameOfConstraint Dirichlet_h; }
+    // }
   }
 
   { Name Hcurl_r; Type Form1;

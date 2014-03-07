@@ -433,8 +433,10 @@ Resolution {
 
 	If (EXT_TIME) SystemCommand[Sprintf["./../main/ddmProcTime.py %g factor", MPI_Rank]]; EndIf
 	For jdom In {0:1}
-	  Generate[ComputeG~{idom}~{jdom}] ;
-	  Solve[ComputeG~{idom}~{jdom}] ;
+	  If( NbrRegions[Sigma~{idom}~{jdom}] )
+	    Generate[ComputeG~{idom}~{jdom}] ;
+	    Solve[ComputeG~{idom}~{jdom}] ;
+	  EndIf
 	EndFor
 	If (EXT_TIME) SystemCommand[Sprintf["./../main/ddmProcTime.py %g factor", MPI_Rank]]; EndIf
 	//print u_init either in Memory (STORE_U_INIT == 1) and/or on disk (WRITE_U_INIT == 1)
@@ -460,17 +462,21 @@ Resolution {
       For ii In {0:#ListOfDom()-1}
         idom = ListOfDom(ii);
 	For j In {0:1}
-	  Generate[CopyG~{idom}~{j}];
-	  Solve[CopyG~{idom}~{j}];
-	  PostOperation[g_copy~{idom}~{j}];
+	  If( NbrRegions[Sigma~{idom}~{j}] )
+	    Generate[CopyG~{idom}~{j}];
+	    Solve[CopyG~{idom}~{j}];
+	    PostOperation[g_copy~{idom}~{j}];
+	  EndIf
 	EndFor
       EndFor
 
       For ii In {0: #ListOfDom()-1}
 	idom = ListOfDom(ii);
 	For jdom In {0:1}
-	  Generate[ComputeGPrecond~{idom}~{jdom}] ;
-	  Solve[ComputeGPrecond~{idom}~{jdom}] ;
+	  If( NbrRegions[Sigma~{idom}~{jdom}] )
+	    Generate[ComputeGPrecond~{idom}~{jdom}] ;
+	    Solve[ComputeGPrecond~{idom}~{jdom}] ;
+	  EndIf
 	EndFor
 	If (EXT_TIME) SystemCommand[Sprintf["./../main/ddmProcTime.py %g factor", MPI_Rank]]; EndIf
       EndFor
@@ -495,9 +501,11 @@ Resolution {
 	For ii In {0:#ListOfDom()-1}
       	  idom = ListOfDom(ii);
 	  For j In {0:1}
-	    GenerateRHSGroup[CopyG~{idom}~{j}, Sigma~{idom}] ;
-	    SolveAgain[CopyG~{idom}~{j}];
-	    PostOperation[g_copy~{idom}~{j}];
+	    If( NbrRegions[Sigma~{idom}~{j}] )
+	      GenerateRHSGroup[CopyG~{idom}~{j}, Sigma~{idom}] ;
+	      SolveAgain[CopyG~{idom}~{j}];
+	      PostOperation[g_copy~{idom}~{j}];
+	    EndIf
 	  EndFor
 	EndFor
 
@@ -556,12 +564,16 @@ Resolution {
 		EndIf
 
 		//Compute the new g_out (fast way)
-		GenerateRHSGroup[ComputeGPrecond~{idom_f}~{1}, Sigma~{idom_f}~{1}] ;
-		SolveAgain[ComputeGPrecond~{idom_f}~{1}] ;
-		PostOperation[g_out_pc~{idom_f}~{1}] ;
-		GenerateRHSGroup[ComputeG~{idom_f}~{0}, Sigma~{idom_f}~{0}] ; // EXPERIMENTAL
-		SolveAgain[ComputeG~{idom_f}~{0}] ;
-		PostOperation[g_out~{idom_f}~{0}] ;
+		If( NbrRegions[Sigma~{idom_f}~{1}] )
+		  GenerateRHSGroup[ComputeGPrecond~{idom_f}~{1}, Sigma~{idom_f}~{1}] ;
+		  SolveAgain[ComputeGPrecond~{idom_f}~{1}] ;
+		  PostOperation[g_out_pc~{idom_f}~{1}] ;
+		EndIf
+		If( NbrRegions[Sigma~{idom_f}~{0}] )		
+		  GenerateRHSGroup[ComputeG~{idom_f}~{0}, Sigma~{idom_f}~{0}] ; // EXPERIMENTAL
+		  SolveAgain[ComputeG~{idom_f}~{0}] ;
+		  PostOperation[g_out~{idom_f}~{0}] ;
+		EndIf
 		If (EXT_TIME) SystemCommand[Sprintf["./../main/ddmProcTime.py %g forward", MPI_Rank]]; EndIf
 		If (VERBOSE) SystemCommand[Sprintf["echo 'Proc %g: >> SOLVING problem %g forward -- skipListSize %g >>' ", MPI_Rank, idom_f, #skipList()]]; EndIf
 
@@ -605,12 +617,16 @@ EndIf
 		EndIf
 
 		//Compute the new g_out (fast way)
-		GenerateRHSGroup[ComputeGPrecond~{idom_b}~{0}, Sigma~{idom_b}~{0}] ;
-		SolveAgain[ComputeGPrecond~{idom_b}~{0}] ;
-		PostOperation[g_out_pc~{idom_b}~{0}] ;
-		GenerateRHSGroup[ComputeG~{idom_b}~{1}, Sigma~{idom_b}~{1}] ; // EXPERIMENTAL
-		SolveAgain[ComputeG~{idom_b}~{1}] ;
-		PostOperation[g_out~{idom_b}~{1}] ;
+		If( NbrRegions[Sigma~{idom_b}~{0}] )
+		  GenerateRHSGroup[ComputeGPrecond~{idom_b}~{0}, Sigma~{idom_b}~{0}] ;
+		  SolveAgain[ComputeGPrecond~{idom_b}~{0}] ;
+		  PostOperation[g_out_pc~{idom_b}~{0}] ;
+		EndIf
+		If( NbrRegions[Sigma~{idom_b}~{1}] )
+		  GenerateRHSGroup[ComputeG~{idom_b}~{1}, Sigma~{idom_b}~{1}] ; // EXPERIMENTAL
+		  SolveAgain[ComputeG~{idom_b}~{1}] ;
+		  PostOperation[g_out~{idom_b}~{1}] ;
+		EndIf
 		If (EXT_TIME) SystemCommand[Sprintf["./../main/ddmProcTime.py %g backward", MPI_Rank]]; EndIf
 		If (VERBOSE) SystemCommand[Sprintf["echo 'Proc %g: << SOLVING problem %g backward -- skipListSize %g <<' ", MPI_Rank, idom_b, #skipList()]]; EndIf
 
@@ -661,12 +677,16 @@ EndIf
 	        EndIf
 	      EndIf
 
-	      GenerateRHSGroup[ComputeG~{idom}~{0}, Sigma~{idom}~{0}] ; // EXPERIMENTAL
-	      SolveAgain[ComputeG~{idom}~{0}] ;
-	      PostOperation[g_out~{idom}~{0}] ;
-	      GenerateRHSGroup[ComputeG~{idom}~{1}, Sigma~{idom}~{1}] ; // EXPERIMENTAL
-	      SolveAgain[ComputeG~{idom}~{1}] ;
-	      PostOperation[g_out~{idom}~{1}] ;
+	      If( NbrRegions[Sigma~{idom}~{0}] )
+	        GenerateRHSGroup[ComputeG~{idom}~{0}, Sigma~{idom}~{0}] ; // EXPERIMENTAL
+	        SolveAgain[ComputeG~{idom}~{0}] ;
+	        PostOperation[g_out~{idom}~{0}] ;
+	      EndIf
+	      If( NbrRegions[Sigma~{idom}~{1}] )
+	        GenerateRHSGroup[ComputeG~{idom}~{1}, Sigma~{idom}~{1}] ; // EXPERIMENTAL
+	        SolveAgain[ComputeG~{idom}~{1}] ;
+	        PostOperation[g_out~{idom}~{1}] ;
+	      EndIf
 	    EndIf
 	  EndFor
 	EndFor
@@ -743,9 +763,11 @@ EndIf
 		EndIf
 
 		//Compute the new g_out (fast way)
-		GenerateRHSGroup[ComputeGPrecond~{idom_f}~{1}, Sigma~{idom_f}~{1}] ;
-		SolveAgain[ComputeGPrecond~{idom_f}~{1}] ;
-		PostOperation[g_out~{idom_f}~{1}] ;
+		If( NbrRegions[Sigma~{idom_f}~{1}] )
+		  GenerateRHSGroup[ComputeGPrecond~{idom_f}~{1}, Sigma~{idom_f}~{1}] ;
+		  SolveAgain[ComputeGPrecond~{idom_f}~{1}] ;
+		  PostOperation[g_out~{idom_f}~{1}] ;
+		EndIf
 		If (EXT_TIME) SystemCommand[Sprintf["./../main/ddmProcTime.py %g forward", MPI_Rank]]; EndIf
 		If (VERBOSE) SystemCommand[Sprintf["echo 'Proc %g: >> SOLVING problem %g forward -- skipListSize %g >>' ", MPI_Rank, idom_f, #skipList()]]; EndIf
 
@@ -778,9 +800,11 @@ EndIf
 		EndIf
 
 		//Compute the new g_out (fast way)
-		GenerateRHSGroup[ComputeGPrecond~{idom_b}~{0}, Sigma~{idom_b}~{0}] ;
-		SolveAgain[ComputeGPrecond~{idom_b}~{0}] ;
-		PostOperation[g_out~{idom_b}~{0}] ;
+		If( NbrRegions[Sigma~{idom_b}~{0}] )
+		  GenerateRHSGroup[ComputeGPrecond~{idom_b}~{0}, Sigma~{idom_b}~{0}] ;
+		  SolveAgain[ComputeGPrecond~{idom_b}~{0}] ;
+		  PostOperation[g_out~{idom_b}~{0}] ;
+		EndIf
 		If (EXT_TIME) SystemCommand[Sprintf["./../main/ddmProcTime.py %g backward", MPI_Rank]]; EndIf
 		If (VERBOSE) SystemCommand[Sprintf["echo 'Proc %g: << SOLVING problem %g backward -- skipListSize %g <<' ", MPI_Rank, idom_b, #skipList()]]; EndIf
 

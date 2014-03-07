@@ -51,6 +51,14 @@ Function{
 
     EndIf
   EndFor
+
+  If (PRECOND_SWEEP)
+    ProcOwnsDomain = {} ;
+    // what domains am I in charge of ? Implemented with a list
+    For idom In{0:N_DOM-1}
+      ProcOwnsDomain += {(idom%MPI_Size == MPI_Rank)}; // define your rule here -- must match listOfDom()
+    EndFor
+  EndIf
 }
 
 ListOfCuts = {0, N_DOM-1}; // By default, ListOfCuts contains only the first and last domains, which is the configuration without cut

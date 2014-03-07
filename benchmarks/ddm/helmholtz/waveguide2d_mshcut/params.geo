@@ -11,4 +11,4 @@ d = 1.000000 ;
 TOL = 1.000000e-06 ;
 Include "params_part2.geo";
 
-COMBINED_SWEEP = 1;
+COMBINED_SWEEP = 0;
