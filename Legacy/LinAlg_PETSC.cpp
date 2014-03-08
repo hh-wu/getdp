@@ -142,12 +142,6 @@ void LinAlg_CreateSolver(gSolver *Solver, const char *SolverDataFileName)
   }
 }
 
-static bool isDistributed()
-{
-  return (Message::GetCommSize() > 1);
-  //return (Message::GetCommSize() > 1 && MyComm != PETSC_COMM_SELF);
-}
-
 void LinAlg_CreateVector(gVector *V, gSolver *Solver, int n)
 {
   _try(VecCreate(MyComm, &V->V));
@@ -159,7 +153,13 @@ void LinAlg_CreateVector(gVector *V, gSolver *Solver, int n)
 
   // create sequential vector that will contain all the values on all
   // the procs
-  if(isDistributed()) _try(VecCreateSeq(PETSC_COMM_SELF, n, &V->Vseq));
+  if(Message::GetCommSize() > 1 && MyComm != PETSC_COMM_SELF){
+    _try(VecCreateSeq(PETSC_COMM_SELF, n, &V->Vseq));
+    V->haveSeq = 1;
+  }
+  else{
+    V->haveSeq = 0;
+  }
 }
 
 void _fillseq(Vec &V, Vec &Vseq)
@@ -185,7 +185,7 @@ void _fillseq(Vec &V, Vec &Vseq)
 
 static void _fillseq(gVector *V)
 {
-  if(isDistributed()) _fillseq(V->V, V->Vseq);
+  if(V->haveSeq) _fillseq(V->V, V->Vseq);
 }
 
 void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
@@ -218,7 +218,7 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
   for(int i = 0; i < nonloc; i++)
     nnz[Current.DofData->NonLocalEquations[i] - 1] = prealloc_full;
 
-  if(isDistributed()){ // FIXME: alloc full lines...
+  if(Message::GetCommSize() > 1){ // FIXME: alloc full lines...
 #if ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 3))
     _try(MatCreateAIJ(MyComm, PETSC_DECIDE, PETSC_DECIDE, n, m,
                       prealloc, PETSC_NULL, prealloc, PETSC_NULL, &M->M));
@@ -259,10 +259,10 @@ void LinAlg_DestroyVector(gVector *V)
 {
 #if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
   _try(VecDestroy(&V->V));
-  if(isDistributed()) _try(VecDestroy(&V->Vseq));
+  if(V->haveSeq) _try(VecDestroy(&V->Vseq));
 #else
   _try(VecDestroy(V->V));
-  if(isDistributed()) _try(VecDestroy(V->Vseq));
+  if(V->haveSeq) _try(VecDestroy(V->Vseq));
 #endif
 }
 
@@ -283,7 +283,7 @@ void LinAlg_CopyScalar(gScalar *S1, gScalar *S2)
 void LinAlg_CopyVector(gVector *V1, gVector *V2)
 {
   _try(VecCopy(V1->V, V2->V));
-  if(isDistributed()) _try(VecCopy(V1->Vseq, V2->Vseq));
+  if(V1->haveSeq) _try(VecCopy(V1->Vseq, V2->Vseq));
 }
 
 void LinAlg_CopyMatrix(gMatrix *M1, gMatrix *M2)
@@ -301,7 +301,7 @@ void LinAlg_ZeroVector(gVector *V)
   PetscScalar zero = 0.0;
 
   _try(VecSet(V->V, zero));
-  if(isDistributed()) _try(VecSet(V->Vseq, zero));
+  if(V->haveSeq) _try(VecSet(V->Vseq, zero));
 }
 
 void LinAlg_ZeroMatrix(gMatrix *M)
@@ -382,7 +382,7 @@ void LinAlg_PrintVector(FILE *file, gVector *V, bool matlab,
   if(!matlab){
     PetscInt n;
     _try(VecGetSize(V->V, &n));
-    Vec VV = isDistributed() ? V->Vseq : V->V;
+    Vec VV = V->haveSeq ? V->Vseq : V->V;
     PetscScalar *tmp;
     _try(VecGetArray(VV, &tmp));
     for (int i = 0; i < n; i++){
@@ -464,7 +464,7 @@ void LinAlg_WriteVector(FILE *file, gVector *V)
 {
   PetscInt n;
   _try(VecGetSize(V->V, &n));
-  Vec VV = isDistributed() ? V->Vseq : V->V;
+  Vec VV = V->haveSeq ? V->Vseq : V->V;
   PetscScalar *tmp;
   _try(VecGetArray(VV, &tmp));
   fwrite(tmp, sizeof(PetscScalar), n, file);
@@ -496,7 +496,7 @@ void LinAlg_GetLocalVectorRange(gVector *V, int *low, int *high)
 
 static bool _isInLocalRange(gVector *V, int i)
 {
-  if(!isDistributed()) return true;
+  if(Message::GetCommSize() == 1) return true;
   int imin, imax;
   LinAlg_GetLocalVectorRange(V, &imin, &imax);
   return (i >= imin && i < imax);
@@ -522,7 +522,7 @@ void LinAlg_GetLocalMatrixRange(gMatrix *M, int *low, int *high)
 
 static bool _isInLocalRange(gMatrix *M, int i)
 {
-  if(!isDistributed()) return true;
+  if(Message::GetCommSize() == 1) return true;
   int imin, imax;
   LinAlg_GetLocalMatrixRange(M, &imin, &imax);
   return (i >= imin && i < imax);
@@ -549,7 +549,7 @@ void LinAlg_GetComplexInScalar(double *d1, double *d2, gScalar *S)
 
 void LinAlg_GetScalarInVector(gScalar *S, gVector *V, int i)
 {
-  Vec VV = isDistributed() ? V->Vseq : V->V;
+  Vec VV = V->haveSeq ? V->Vseq : V->V;
   PetscScalar *tmp;
   _try(VecGetArray(VV, &tmp));
   S->s = tmp[i];
@@ -558,7 +558,7 @@ void LinAlg_GetScalarInVector(gScalar *S, gVector *V, int i)
 
 void LinAlg_GetDoubleInVector(double *d, gVector *V, int i)
 {
-  Vec VV = isDistributed() ? V->Vseq : V->V;
+  Vec VV = V->haveSeq ? V->Vseq : V->V;
   PetscScalar *tmp;
   _try(VecGetArray(VV, &tmp));
 #if defined(PETSC_USE_COMPLEX)
@@ -571,7 +571,7 @@ void LinAlg_GetDoubleInVector(double *d, gVector *V, int i)
 
 void LinAlg_GetAbsDoubleInVector(double *d, gVector *V, int i)
 {
-  Vec VV = isDistributed() ? V->Vseq : V->V;
+  Vec VV = V->haveSeq ? V->Vseq : V->V;
   PetscScalar *tmp;
   _try(VecGetArray(VV, &tmp));
 #if defined(PETSC_USE_COMPLEX)
@@ -584,7 +584,7 @@ void LinAlg_GetAbsDoubleInVector(double *d, gVector *V, int i)
 
 void LinAlg_GetComplexInVector(double *d1, double *d2, gVector *V, int i, int j)
 {
-  Vec VV = isDistributed() ? V->Vseq : V->V;
+  Vec VV = V->haveSeq ? V->Vseq : V->V;
   PetscScalar *tmp;
   _try(VecGetArray(VV, &tmp));
 #if defined(PETSC_USE_COMPLEX)
@@ -649,7 +649,7 @@ void LinAlg_SetVector(gVector *V, double *v)
 {
   PetscScalar tmp = *v;
   _try(VecSet(V->V, tmp));
-  if(isDistributed()) _try(VecSet(V->Vseq, tmp));
+  if(V->haveSeq) _try(VecSet(V->Vseq, tmp));
 }
 
 void LinAlg_SetScalarInVector(gScalar *S, gVector *V, int i)

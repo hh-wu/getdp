@@ -45,7 +45,7 @@ typedef struct { Solver_Params Params ; } gSolver ;
 #endif
 typedef struct { PetscScalar s ; } gScalar ;
 typedef struct { Mat M ; }         gMatrix ;
-typedef struct { Vec V, Vseq ; }   gVector ;
+typedef struct { Vec V, Vseq ; int haveSeq ; }   gVector ;
 typedef struct { KSP ksp[10] ; SNES snes[10] ; }  gSolver ;
 
 #else
