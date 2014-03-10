@@ -2,7 +2,7 @@ Include "params.geo";
 Include "../main/ddmDefines.pro";
 Include "groups_circle_pie.pro";
 
-EXT_TIME = 1;
+//EXT_TIME = 1;
 
 Function {
   I[] = Complex[0, 1];

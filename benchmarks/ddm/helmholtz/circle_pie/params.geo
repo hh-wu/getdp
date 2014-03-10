@@ -2,10 +2,10 @@
 N_DOM = 9;
 
 //Frequency
-WAVENUMBER = 2*Pi*4;
+WAVENUMBER = Pi;
 LAMBDA = 2*Pi/WAVENUMBER;
 
-PRECOND_SWEEP = 1;
+PRECOND_SWEEP = 0;
 
 // Mesh refinement
 lc = LAMBDA/20.;
@@ -38,7 +38,7 @@ FULL_SOLUTION = 0;
 EXACT_SOLUTION = 0; //cost quite a lot
 //STORE/WRITE the initial u (0th iteration)
 STORE_U_INIT = 1; // if stored (in ram) then the "real" scattered field is computed at the end in u*.pos files
-WRITE_U_INIT = 0; // if written (on disk), then u_init*.pos files are created 
+WRITE_U_INIT = 0; // if written (on disk), then u_init*.pos files are created
 
 //Non conforming mesh at interface ?
 // Carreful, if non conforming then FULL_SOLUTION must be set to zero

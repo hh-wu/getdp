@@ -422,6 +422,11 @@ void Generate_Residual(gVector *x, gVector *f)
   DofData_P0 = Current.DofData_P0;
   DefineSystem_P = Current.DefineSystem_P ;
 
+  if(!DofData_P->CurrentSolution){
+    Message::Error("No current solution available");
+    return;
+  }
+
   // new trial solution
   LinAlg_CopyVector(x, &DofData_P->dx);
   LinAlg_AddVectorProdVectorDouble(&DofData_P->CurrentSolution->x, &DofData_P->dx,
@@ -449,6 +454,11 @@ void Generate_FullJacobian(gVector *x, gMatrix *Jac)
   Message::Debug("Generating Full Jacobian = A(x) + DofData_P->Jac");
 
   DofData_P  = Current.DofData ;
+
+  if(!DofData_P->CurrentSolution){
+    Message::Error("No current solution available");
+    return;
+  }
 
   LinAlg_CopyVector(x, &DofData_P->dx);
   LinAlg_AddVectorVector(&DofData_P->CurrentSolution->x, &DofData_P->dx,
@@ -942,7 +952,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         Init_OperationOnSystem("SetRHSAsSolution",
                                Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                                &DefineSystem_P, &DofData_P, Resolution2_P) ;
-        LinAlg_CopyVector(&DofData_P->b, &DofData_P->CurrentSolution->x);
+        if(DofData_P->CurrentSolution)
+          LinAlg_CopyVector(&DofData_P->b, &DofData_P->CurrentSolution->x);
+        else
+          Message::Error("No current solution available");
         Flag_CPU = 1 ;
       }
       break ;
@@ -955,7 +968,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         Init_OperationOnSystem("SetSolutionAsRHS",
                                Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                                &DefineSystem_P, &DofData_P, Resolution2_P) ;
-        LinAlg_CopyVector(&DofData_P->CurrentSolution->x, &DofData_P->b);
+        if(DofData_P->CurrentSolution)
+          LinAlg_CopyVector(&DofData_P->CurrentSolution->x, &DofData_P->b);
+        else
+          Message::Error("No current solution available");
         Flag_CPU = 1 ;
       }
       break ;
@@ -968,10 +984,14 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         Init_OperationOnSystem("Apply",
                                Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                                &DefineSystem_P, &DofData_P, Resolution2_P) ;
-        LinAlg_CreateVector(&DofData_P->res, &DofData_P->Solver, DofData_P->NbrDof) ;
-        LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x,
-                                &DofData_P->res);
-        LinAlg_CopyVector(&DofData_P->res, &DofData_P->CurrentSolution->x);
+        if(DofData_P->CurrentSolution){
+          LinAlg_CreateVector(&DofData_P->res, &DofData_P->Solver, DofData_P->NbrDof) ;
+          LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x,
+                                  &DofData_P->res);
+          LinAlg_CopyVector(&DofData_P->res, &DofData_P->CurrentSolution->x);
+        }
+        else
+          Message::Error("No current solution available");
         Flag_CPU = 1 ;
       }
       break ;
@@ -1003,6 +1023,11 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                                (again == 1) ? "SolveAgain" : "Solve",
                                Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                                &DefineSystem_P, &DofData_P, Resolution2_P) ;
+
+        if(!DofData_P->CurrentSolution){
+          Message::Error("No current solution available");
+          break;
+        }
 
         if (DofData_P->Flag_Only){
           if(DofData_P->Flag_InitOnly[0]){
@@ -1106,6 +1131,11 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
           break;
         }
 
+        if(!DofData_P->CurrentSolution){
+          Message::Error("No current solution available");
+          break;
+        }
+
         if (DofData_P->Flag_Only){
           if(DofData_P->Flag_InitOnly[0]){
             LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A1, &DofData_P->A);
@@ -1185,6 +1215,11 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       if(DofData_P->Flag_Init[0] < 2){
 	Message::Error("Jacobian system not initialized (missing GenerateJac?)");
+        break;
+      }
+
+      if(!DofData_P->CurrentSolution){
+        Message::Error("No current solution available");
         break;
       }
 
