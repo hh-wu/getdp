@@ -30,7 +30,7 @@ void Cal_SolutionErrorX(int Nbr, double * xNew, double * x, double * MeanError)
   int i;
   double errsqr = 0., xmoy = 0., dxmoy = 0., tol ;
 
-  if(gSCALAR_SIZE == 2)
+  if(0 && gSCALAR_SIZE == 2)
     Message::Error("FIXME: Cal_SolutionErrorX might return strange results"
                    " in complex arithmetic");
 
@@ -82,7 +82,7 @@ void  Cal_CompareGlobalQuantity(struct Operation * Operation_P,
   double  Val1_E, Val0_E, Val_S, Val0_Ref, Val1_Ref, v_fz, v_k, v_ke, v_sat ;
   double  Save_Time ;
 
-  if(gSCALAR_SIZE == 2)
+  if(0 && gSCALAR_SIZE == 2)
     Message::Error("FIXME: Cal_CompareGlobalQuantity might return strange results"
                    " in complex arithmetic");
 
