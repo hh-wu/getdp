@@ -3,12 +3,20 @@
 // File: Parameters
 //========================================================
 
+ExtGnuplot = ".dat";
+ExtGmsh = ".pos";
+DirOutput = "output/";
+OnelabParam1 = "Input/1Mesh parameter(s)/";
+
 DefineConstant[
   FLAG_GEOM = {1, Name "Input/01Geometry", Highlight "Black",
-    Choices {1="Linear cavity [1D]",
-             2="Squared cavity [2D]",
-             3="Circular cavity [2D]",
-             4="Cuboidal cavity [3D]"} }
+    GmshOption "ResetDatabase", Autocheck 0,
+    Choices {1="Linear domain [1D]",
+             2="Squared domain [2D]",
+             3="Circular domain [2D]",
+             4="Cuboidal domain [3D]"} },
+  NbEigenvalues = { 5, Min 1, Max 100, Step 1,
+    Name "Input/03Number of eigenvalues to compute"}
 ] ;
 
 If (FLAG_GEOM==1)

@@ -3,7 +3,12 @@
 // File: GMSH geometry (disk)
 //========================================================
 
-Mesh.CharacteristicLengthMax = 0.01 ;
+DefineConstant[
+  res = { 0.05, Min 0.001, Max 1, Step 0.001,
+    Name StrCat[OnelabParam1,"2Characteristic length of cells (radius of domain = 1)"]}
+];
+
+Mesh.CharacteristicLengthMax = res ;
 
 p[] += newp ; Point(newp) = { 0  , 0  , 0} ;
 p[] += newp ; Point(newp) = { 0.5, 0  , 0} ;

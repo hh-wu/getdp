@@ -3,11 +3,16 @@
 // File: GMSH geometry (line)
 //========================================================
 
-Mesh.CharacteristicLengthMax = 0.01 ;
+DefineConstant[
+  res = { 200, Min 1, Max 10000, Step 1,
+    Name StrCat[OnelabParam1,"1Number of cells"]}
+];
 
-p[] += newp ; Point(newp) = {0, 0, 0} ;
-p[] += newp ; Point(newp) = {1, 0, 0} ;
+p[] += newp ; Point(newp) = {-0.5, 0, 0} ;
+p[] += newp ; Point(newp) = { 0.5, 0, 0} ;
 l = newl ; Line(newl) = {p[0],p[1]} ;
 
 Physical Point(BND) = {p[]} ;
 Physical Line(DOM) = {l} ;
+
+Transfinite Line {l} = res+1 ;

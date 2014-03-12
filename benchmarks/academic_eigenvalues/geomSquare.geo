@@ -3,12 +3,22 @@
 // File: GMSH geometry (square)
 //========================================================
 
-Mesh.CharacteristicLengthMax = 0.01 ;
+DefineConstant[
+  FLAG_MESH = {2, Highlight "Black",
+    Name StrCat[OnelabParam1,"1Shape of cells"],
+    Choices {1="Triangles", 2="Rectangles"} },
+  res = { 0.05, Min 0.001, Max 1, Step 0.001, Visible (FLAG_MESH==1),
+    Name StrCat[OnelabParam1,"2Characteristic length of cells (length of borders = 1)"]},
+  resX = { 200, Min 1, Max 1000, Step 1, Visible (FLAG_MESH==2),
+    Name StrCat[OnelabParam1,"3Number of cells along x-borders"]},
+  resY = { 200, Min 1, Max 1000, Step 1, Visible (FLAG_MESH==2),
+    Name StrCat[OnelabParam1,"4Number of cells along y-borders"]}
+];
 
-p[] += newp ; Point(newp) = {0, 0, 0} ;
-p[] += newp ; Point(newp) = {1, 0, 0} ;
-p[] += newp ; Point(newp) = {1, 1, 0} ;
-p[] += newp ; Point(newp) = {0, 1, 0} ;
+p[] += newp ; Point(newp) = {-0.5, -0.5, 0} ;
+p[] += newp ; Point(newp) = { 0.5, -0.5, 0} ;
+p[] += newp ; Point(newp) = { 0.5,  0.5, 0} ;
+p[] += newp ; Point(newp) = {-0.5,  0.5, 0} ;
 
 l[] += newl ; Line(newl) = {p[0], p[1]} ;
 l[] += newl ; Line(newl) = {p[1], p[2]} ;
@@ -20,3 +30,14 @@ s = news ; Plane Surface(news) = {ll} ;
 
 Physical Line(BND) = {l[]} ;
 Physical Surface(DOM) = {s} ;
+
+If (FLAG_MESH==1)
+  Mesh.CharacteristicLengthMax = res ;
+EndIf
+
+If (FLAG_MESH==2)
+  Transfinite Line {l[0], l[2]} = resX+1 ;
+  Transfinite Line {l[1], l[3]} = resY+1 ;
+  Transfinite Surface {s} ;
+  Recombine Surface {s} ;
+EndIf

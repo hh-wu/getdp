@@ -100,7 +100,7 @@ Resolution {
     Operation {
       CreateDir["output/"] ;
       GenerateSeparate[A] ; 
-      EigenSolve[A,10,1,0] ;  // solve for the first 10 eigenvalues
+      EigenSolve[A,NbEigenvalues,1,0] ;  // solve for the first "NbEigenvalues" eigenvalues
       SaveSolutions[A] ;
     }
   }
@@ -117,16 +117,9 @@ PostProcessing {
 PostOperation {
   { Name PostOp ; NameOfPostProcessing PostPro ;
     Operation {
-      Print [ u, OnElementsOf Dom, TimeStep{0}, File "output/eigenvector0.pos"];
-      Print [ u, OnElementsOf Dom, TimeStep{1}, File "output/eigenvector1.pos"];
-      Print [ u, OnElementsOf Dom, TimeStep{2}, File "output/eigenvector2.pos"];
-      Print [ u, OnElementsOf Dom, TimeStep{3}, File "output/eigenvector3.pos"];
-      Print [ u, OnElementsOf Dom, TimeStep{4}, File "output/eigenvector4.pos"];
-      Print [ u, OnElementsOf Dom, TimeStep{5}, File "output/eigenvector5.pos"];
-      Print [ u, OnElementsOf Dom, TimeStep{6}, File "output/eigenvector6.pos"];
-      Print [ u, OnElementsOf Dom, TimeStep{7}, File "output/eigenvector7.pos"];
-      Print [ u, OnElementsOf Dom, TimeStep{8}, File "output/eigenvector8.pos"];
-      Print [ u, OnElementsOf Dom, TimeStep{9}, File "output/eigenvector9.pos"];
+      For n In {0:(NbEigenvalues-1)}
+        Print [ u, OnElementsOf Dom, TimeStep{n}, File StrCat["output/eigenvector",StrCat[Sprintf("%g",n),".pos"]]];
+      EndFor
     }
   }
 }
