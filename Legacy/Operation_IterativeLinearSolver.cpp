@@ -134,42 +134,6 @@ static PView *GetViewByTag(int tag)
   return view;
 }
 
-// Reads and reassembles vectors from GMSH View/Field
-static PetscErrorCode ReadFields
-   (int nb_field, int nth_vect, struct Operation *Operation_P,
-    std::vector<std::vector<std::vector<double> > > *vector_field,
-    std::vector<PetscInt> *tagFields_loc, std::vector<PetscInt> *sizes_field,
-    int *n)
-{
-  int loc_size;
-  (*vector_field).resize(nb_field);
-  (*sizes_field).resize(nb_field);
-  (*tagFields_loc).resize(nb_field);
-  *n = 0;
-  for(int cpt_view = 0; cpt_view < nb_field; cpt_view++) {
-    double d;
-    if(nth_vect == 0){
-      // we are creating the vector from the first argument of
-      // IterativeLinearSolver
-      List_Read(Operation_P->Case.IterativeLinearSolver.MyFieldTag, cpt_view, &d);
-    }
-    else{
-      // Here is the (nth_vect+1) vector from the last argument of
-      // IterativeLinearSolver (deflation !)
-      int shift = (nth_vect-1)*nb_field; // one vector contains nb_field views
-      List_Read(Operation_P->Case.IterativeLinearSolver.DeflationIndices,
-                shift + cpt_view, &d);
-    }
-    (*tagFields_loc)[cpt_view] = (int)d;
-    PView *view = GetViewByTag((int)d);
-    view->getData()->toVector((*vector_field)[cpt_view]);
-    loc_size = (int)(*vector_field)[cpt_view][0].size();
-    (*sizes_field)[cpt_view] = loc_size; // how many components ?
-    *n += loc_size;
-  }
-  PetscFunctionReturn(0);
-}
-
 static PetscErrorCode InitData(Field *MyField, Field *AllField,
                                struct Operation *Operation_P,
                                std::vector<std::vector<std::vector<double> > > *B_std)
@@ -782,153 +746,6 @@ static PetscErrorCode MatMultILSMat(Mat A, Vec X, Vec Y)
   PetscFunctionReturn(0);
 }
 
-// Orthonormalizer (modified gram-schmidt algormith); Used to orthonormalize
-// initial deflated data (with DGMRES)
-static PetscErrorCode Orthonormalizer(std::vector<Vec> X, int SizeX)
-{
-  PetscErrorCode	ierr;
-  PetscScalar		alpha;
-  PetscReal		modul;
-
-  // modified Gram-Schmidt
-  // normalize first vector
-  ierr = VecNormalize(X[0], &modul);
-  for (int j = 1; j<SizeX; j++) {
-    for (int i=0; i<j; i++) {
-      ierr = VecDot (X[j], X[i], &alpha); CHKERRQ (ierr);
-      ierr = VecAXPY (X[j], -alpha, X[i]); CHKERRQ (ierr);
-    }
-    ierr = VecNormalize(X[j], &modul);
-  }
-
-  PetscFunctionReturn(0);
-}
-
-static PetscErrorCode DgmresDDM_Build(Mat A, int nb_field, int nb_deflation, Mat *M)
-{
-  // Right Preconditionner for "Deflated GMRES" with pre-given vectors. This is
-  // used for, e.g., DDM.
-  // We follow the paper Burrage, Kevin and Erhel, Jocelyne: On the performance
-  // of various adaptive preconditioned {GMRES} strategies Numer. Linear Algebra
-  // Appl., 1998
-  PetscErrorCode ierr;
-  PetscInt m, n;
-  ILSMat *ctx;
-
-  ierr = MatShellGetContext(A, (void**)&ctx);CHKERRQ(ierr);
-
-  ierr = MatGetSize(A, &m, &n);
-  int n_aux = 0;
-  std::vector<PetscInt> ix(n);
-  for(PetscInt i = 0; i<n; i++)
-    ix[i] = i;
-
-  std::vector<Vec> DeflationVec(nb_deflation);
-  Mat U, Ut, AU; //Matrix U, its transpose and A*U
-  Mat UtAU; //Ut*A*U
-  Mat invUtAU; //inverte of UtAU
-  Mat Id_def; //identity matrix (size nb_deflation) and inverste of UtAU
-  Mat Id_defUt; //Id_def*Ut
-  Mat UId_defUt; //U*Id_defUt
-
-  // ierr = MatCreate(PETSC_COMM_WORLD, &U);CHKERRQ(ierr);
-  // ierr = MatSetSizes(U, PETSC_DECIDE, PETSC_DECIDE, n, nb_deflation);CHKERRQ(ierr);
-  // ierr = MatSetFromOptions(U);CHKERRQ(ierr);
-  ierr = MatCreateSeqDense(PETSC_COMM_SELF, n, nb_deflation, PETSC_NULL, &U); CHKERRQ(ierr);
-  // next two variables are useless but necessary to run ReadFields
-  std::vector<PetscInt> indices_deflation, sizes_deflation;
-  for(int cpt_deflation = 0; cpt_deflation < nb_deflation; cpt_deflation ++){
-    std::vector<std::vector<std::vector<double> > > new_field;
-    ierr = ReadFields(nb_field, cpt_deflation+1, (ctx->Operation_P), &new_field,
-                      &indices_deflation, &sizes_deflation, &n_aux);CHKERRQ(ierr);
-    //create a Vec from the std::vec
-    ierr = VecCreateSeq(PETSC_COMM_SELF, n, &DeflationVec[cpt_deflation]);CHKERRQ(ierr);
-    // ierr = VecCreate(PETSC_COMM_WORLD, &DeflationVec[cpt_deflation]);CHKERRQ(ierr);
-    // ierr = VecSetSizes(DeflationVec[cpt_deflation], PETSC_DECIDE, n);CHKERRQ(ierr);
-    // ierr = VecSetFromOptions(DeflationVec[cpt_deflation]);CHKERRQ(ierr);
-    // COMMENTED BELOW BUT TO BE CHANGED !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // ierr = STD_vector_to_PETSc_Vec(new_field, DeflationVec[cpt_deflation]);CHKERRQ(ierr);
-  }
-  ierr = Orthonormalizer(DeflationVec, nb_deflation); CHKERRQ(ierr);
-  // Storing into matrix U
-  for(int cpt_deflation = 0; cpt_deflation < nb_deflation; cpt_deflation ++){
-    std::vector<PetscScalar> vec_temp(n);
-    ierr = VecGetValues(DeflationVec[cpt_deflation], n, &ix[0], &vec_temp[0]);CHKERRQ(ierr);
-    ierr = MatSetValues(U, n, &ix[0], 1, &cpt_deflation, &vec_temp[0],
-                        INSERT_VALUES); CHKERRQ(ierr);
-  }
-  ierr = MatAssemblyBegin(U, MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
-  ierr = MatAssemblyEnd(U, MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
-  // transpose U
-  ierr = MatHermitianTranspose(U, MAT_INITIAL_MATRIX, &Ut);CHKERRQ(ierr);
-
-  // Now compute AU
-  ierr = MatCreateSeqDense(PETSC_COMM_SELF, n, nb_deflation, PETSC_NULL , &AU); CHKERRQ(ierr);
-  // ierr = MatCreate(PETSC_COMM_WORLD, &AU);CHKERRQ(ierr);
-  // ierr = MatSetSizes(AU, PETSC_DECIDE, PETSC_DECIDE, n, nb_deflation);CHKERRQ(ierr);
-  // ierr = MatSetFromOptions(AU);
-  for (int cpt_deflation =0; cpt_deflation <nb_deflation; cpt_deflation ++){
-    Vec Y;
-    std::vector<PetscScalar> vec_temp(n);
-    ierr = VecDuplicate(DeflationVec[0],&Y);CHKERRQ(ierr);
-    MatMultILSMat(A, DeflationVec[cpt_deflation], Y);
-    //plug Y into matrix AU
-    ierr = VecGetValues(Y, n, &ix[0], &vec_temp[0]);CHKERRQ(ierr);
-    ierr = MatSetValues(AU, n, &ix[0], 1, &cpt_deflation, &vec_temp[0],
-                        INSERT_VALUES); CHKERRQ(ierr);
-  }
-  ierr = MatAssemblyBegin(AU, MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
-  ierr = MatAssemblyEnd(AU, MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
-  // Multiply Ut and AU
-  ierr = MatMatMult(Ut, AU, MAT_INITIAL_MATRIX, PETSC_DEFAULT, &UtAU);CHKERRQ(ierr);
-  // invert UtAU (= T)
-  ierr = MatDuplicate(UtAU, MAT_DO_NOT_COPY_VALUES, &Id_def);CHKERRQ(ierr);
-  PetscScalar one = 1.;
-  for(int cpt =0; cpt <nb_deflation; cpt++)
-    ierr = MatSetValues(Id_def, 1, &cpt, 1, &cpt, &one, INSERT_VALUES);CHKERRQ(ierr);
-  ierr = MatAssemblyBegin(Id_def, MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
-  ierr = MatAssemblyEnd(Id_def, MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
-  ierr = MatDuplicate(UtAU, MAT_DO_NOT_COPY_VALUES, &invUtAU);
-  ierr = MatLUFactor(UtAU, 0, 0, 0); CHKERRQ(ierr);
-  ierr = MatMatSolve(UtAU, Id_def, invUtAU);CHKERRQ(ierr);
-  // Compute the preconditioner (Matrix M);
-  // M = Id_n +U*(lambda*inv(UtAU) - Id_def)*Ut
-  ierr = MatCreateSeqDense(PETSC_COMM_SELF, n, n, PETSC_NULL, M); CHKERRQ(ierr);
-  // ierr = MatCreate(PETSC_COMM_WORLD, &Id_n);CHKERRQ(ierr);
-  // ierr = MatSetSizes(Id_n, PETSC_DECIDE, PETSC_DECIDE, n, n);CHKERRQ(ierr);
-  for(int cpt =0; cpt <n; cpt++)
-    ierr = MatSetValues((*M), 1, &cpt, 1, &cpt, &one, INSERT_VALUES);CHKERRQ(ierr);
-  ierr = MatAssemblyBegin((*M), MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
-  ierr = MatAssemblyEnd((*M), MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
-  // Id_def <- inv(UtAU) - Id
-  ierr = MatAYPX(Id_def, -1., invUtAU, SAME_NONZERO_PATTERN);CHKERRQ(ierr);
-  // Id_def*Ut
-  ierr = MatMatMult(Id_def, Ut, MAT_INITIAL_MATRIX, PETSC_DEFAULT, &Id_defUt);CHKERRQ(ierr);
-  // U*Id_defUt
-  ierr = MatMatMult(U, Id_defUt, MAT_INITIAL_MATRIX, PETSC_DEFAULT, &UId_defUt);CHKERRQ(ierr);
-  // Id_n (=M) + UId_defUt
-  ierr = MatAXPY((*M), 1., UId_defUt, SAME_NONZERO_PATTERN);CHKERRQ(ierr);
-  // free matrices
-#if (PETSC_VERSION_RELEASE == 0  || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
-  ierr = MatDestroy(&U);CHKERRQ(ierr);
-  ierr = MatDestroy(&Ut);CHKERRQ(ierr);
-  ierr = MatDestroy(&AU);CHKERRQ(ierr);
-  ierr = MatDestroy(&UtAU);CHKERRQ(ierr);
-  ierr = MatDestroy(&invUtAU);CHKERRQ(ierr);
-  ierr = MatDestroy(&Id_def);CHKERRQ(ierr);
-  ierr = MatDestroy(&UId_defUt);CHKERRQ(ierr);
-#else
-  ierr = MatDestroy(U);CHKERRQ(ierr);
-  ierr = MatDestroy(Ut);CHKERRQ(ierr);
-  ierr = MatDestroy(AU);CHKERRQ(ierr);
-  ierr = MatDestroy(UtAU);CHKERRQ(ierr);
-  ierr = MatDestroy(invUtAU);CHKERRQ(ierr);
-  ierr = MatDestroy(Id_def);CHKERRQ(ierr);
-  ierr = MatDestroy(UId_defUt);CHKERRQ(ierr);
-#endif
-  PetscFunctionReturn(0);
-}
-
 // Build the iteration matrix of the Matrix-free vector-product.
 // Used to, e.g., study eigenvalues of the operators
 static PetscErrorCode BuildIterationMatrix(Mat A, Mat *IterationMatrix)
@@ -1033,7 +850,7 @@ static PetscErrorCode PrintMatrix(Mat A, const char* filename, const char* varna
   PetscFunctionReturn(0);
 }
 
-//Print a SEQUENTIAL Petsc Vec into a Matlab File
+// Print a SEQUENTIAL Petsc Vec into a Matlab File
 static PetscErrorCode PrintVecSeq(Vec b, const char* filename, const char* varname)
 {
   PetscErrorCode ierr;
@@ -1119,7 +936,7 @@ static PetscErrorCode Jacobi_Solver(Mat A, Vec X, Vec B, double Tol, int MaxIter
     //convergence test
     ierr = VecWAXPY(W, -1.,X_old, X); //W = X-X_old
     ierr = VecNorm(W, NORM_2, &residu);
-    printf("jacobi iteration %d residu %g\n", j, residu);
+    printf("Jacobi iteration %d residu %g\n", j, residu);
     if(residu < Tol){
       break;
     }
@@ -1305,10 +1122,10 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
 
   // Creation of the iterative solver + solving
 
-  if(!strcmp(ksp_choice,"print")){
+  if(!strcmp(ksp_choice, "print")){
+    // Print the iteration matrix
     ierr = PetscPrintf(PETSC_COMM_WORLD, "Launching Print mode (no resolution):\n");
     CHKERRQ(ierr);
-    // Print ITERATION MATRIX
     Mat IterationMatrix;
     ierr = PetscPrintf(PETSC_COMM_WORLD, "Print mode: computing Iteration Matrix...");
     CHKERRQ(ierr);
@@ -1332,58 +1149,44 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
 #endif
     PetscFunctionReturn(0);
   }
-  else if(!strcmp(ksp_choice,"jacobi")){
+  else if(!strcmp(ksp_choice, "jacobi")){
     ierr = Jacobi_Solver(A, X, B, Tol, MaxIter);
   }
-  else{ // KRYLOV SUBSPACE SOLVER
+  else{
+    // Krylov subspace solver
     ierr = KSPCreate(ILSComm,&ksp);CHKERRQ(ierr);
     ierr = KSPSetOperators(ksp,A,A,DIFFERENT_NONZERO_PATTERN);CHKERRQ(ierr);
     //tol etc.
     ierr = KSPSetTolerances(ksp, Tol, PETSC_DEFAULT, PETSC_DEFAULT, MaxIter); CHKERRQ(ierr);
     //Preconditioning
     ierr = KSPGetPC(ksp,&pc);CHKERRQ(ierr);
-    if(!strcmp(ksp_choice,"dgmres_ddm")){
-      // Special Deflated GMRES for the DDM (creation of a deflated vector space
-      // before the first iteration)
-      ksp_choice = "gmres";
-      Mat M; //deflation preconditioner
-      int nb_deflation = List_Nbr(Operation_P->Case.IterativeLinearSolver.DeflationIndices);
-      nb_deflation /= AllField.nb_field; // number of effective vectors
-      if(nb_deflation >0){
-	ierr = PetscPrintf(PETSC_COMM_WORLD, "DGMRES for DDM: adding %d vectors "
-                           "to the deflation...\n", nb_deflation); CHKERRQ(ierr);
-	ierr = DgmresDDM_Build(A, AllField.nb_field, nb_deflation, &M); CHKERRQ(ierr);
-	ierr = PCSetType(pc,PCMAT);CHKERRQ(ierr);
-	ierr = PCSetOperators(pc, A, M, SAME_PRECONDITIONER);CHKERRQ(ierr);
-#if (PETSC_VERSION_RELEASE == 0  || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
-	ierr = KSPSetPCSide(ksp, PC_RIGHT);CHKERRQ(ierr);
-#else
-	ierr = KSPSetPreconditionerSide(ksp, PC_RIGHT); CHKERRQ(ierr);
-#endif
-      }
+    // check if a preconditioner is specified
+    int nb_pc = List_Nbr(Operation_P->Case.IterativeLinearSolver.Operations_Mx);
+    if(nb_pc == 0) {
+      ierr = PCSetType(pc,PCNONE); CHKERRQ(ierr);
     }
-    else{ // PETSc Krylov solver
-      // check if a preconditioner is specified
-      int nb_pc = List_Nbr(Operation_P->Case.IterativeLinearSolver.Operations_Mx);
-      if(nb_pc == 0) {
-        ierr = PCSetType(pc,PCNONE); CHKERRQ(ierr);
+    else{
+      bool pcright = true;
+      if(strstr(ksp_choice, "left")){
+        pcright = false;
+        printf("Left preconditioner detected\n");
       }
-      else{
-	printf("Right Preconditioner detected\n");
-	// context of the shell PC
-	ierr = CreateILSMat(&ctx_pc); CHKERRQ(ierr);
-	ierr = SetILSMat(&ctx_pc, LinearSystemType, &MyField, &AllField, Resolution_P,
-                         Operation_P, DofData_P0, GeoData_P0); CHKERRQ(ierr);
-	// Shell PC
-	ierr = PCSetType(pc,PCSHELL);CHKERRQ(ierr);
-	ierr = PCShellSetContext(pc, ctx_pc); CHKERRQ(ierr);
-	ierr = PCShellSetApply(pc, MatMultPC); CHKERRQ(ierr);
+      else
+        printf("Right preconditioner detected\n");
+
+      // context of the shell PC
+      ierr = CreateILSMat(&ctx_pc); CHKERRQ(ierr);
+      ierr = SetILSMat(&ctx_pc, LinearSystemType, &MyField, &AllField, Resolution_P,
+                       Operation_P, DofData_P0, GeoData_P0); CHKERRQ(ierr);
+      // Shell PC
+      ierr = PCSetType(pc,PCSHELL);CHKERRQ(ierr);
+      ierr = PCShellSetContext(pc, ctx_pc); CHKERRQ(ierr);
+      ierr = PCShellSetApply(pc, MatMultPC); CHKERRQ(ierr);
 #if (PETSC_VERSION_RELEASE == 0  || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
-	ierr = KSPSetPCSide(ksp, PC_RIGHT);CHKERRQ(ierr);
+      ierr = KSPSetPCSide(ksp, pcright ? PC_RIGHT : PC_LEFT);CHKERRQ(ierr);
 #else
-	ierr = KSPSetPreconditionerSide(ksp, PC_RIGHT); CHKERRQ(ierr);
+      ierr = KSPSetPreconditionerSide(ksp, pcright ? PC_RIGHT : PC_LEFT); CHKERRQ(ierr);
 #endif
-      }
     }
     ierr = KSPSetType(ksp, ksp_choice); CHKERRQ(ierr);
     if(Restart > 0 && (!strcmp(ksp_choice,"gmres") ||
