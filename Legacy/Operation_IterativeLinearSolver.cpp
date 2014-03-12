@@ -997,11 +997,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   ILSMat *ctx, *ctx_pc; // Matrix Shell context and PC context
   Mat A;
   KSP ksp;
-#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 4)
-  const char *ksp_choice = "";
-#else
-  const KSPType ksp_choice;
-#endif
+  std::string Solver;
   int MaxIter, Restart;
   double Tol;
   std::vector<std::vector<std::vector<double> > > B_std; // rhs (std version)
@@ -1025,7 +1021,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   Tol = Operation_P->Case.IterativeLinearSolver.Tolerance;
   MaxIter = Operation_P->Case.IterativeLinearSolver.MaxIter;
   Restart = Operation_P->Case.IterativeLinearSolver.Restart;
-  ksp_choice = Operation_P->Case.IterativeLinearSolver.Type;
+  Solver = Operation_P->Case.IterativeLinearSolver.Type;
   LinearSystemType = Operation_P->Case.IterativeLinearSolver.OpMatMult;
   if(strcmp(LinearSystemType, "I-A") &&
      strcmp(LinearSystemType, "I+A") &&
@@ -1045,7 +1041,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
                        mpi_comm_size);CHKERRQ(ierr);
   }
   ierr = PetscPrintf(PETSC_COMM_WORLD, "Iterative solver\t: %s\n",
-                     ksp_choice);CHKERRQ(ierr);
+                     Solver.c_str()); CHKERRQ(ierr);
   ierr = PetscPrintf(PETSC_COMM_WORLD, "Tolerance\t\t: %g\n", Tol);CHKERRQ(ierr);
   ierr = PetscPrintf(PETSC_COMM_WORLD, "Max. numb. of iterations: %i\n",
                      MaxIter);CHKERRQ(ierr);
@@ -1056,7 +1052,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
     ierr = PetscPrintf(PETSC_COMM_WORLD, "Restart\t\t\t: No Restart\n");CHKERRQ(ierr);
   }
   // if jacobi then MatMult(A,X) = A*X for linear system (I-A)*X=B
-  if(!strcmp(ksp_choice, "jacobi")){
+  if(Solver == "jacobi"){
     if(strcmp(LinearSystemType, "I-A"))
       Message::Error("Jacobi method implemented only for linear system of type \"I-A\"");
     LinearSystemType = (char *)"A";
@@ -1122,7 +1118,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
 
   // Creation of the iterative solver + solving
 
-  if(!strcmp(ksp_choice, "print")){
+  if(Solver == "print"){
     // Print the iteration matrix
     ierr = PetscPrintf(PETSC_COMM_WORLD, "Launching Print mode (no resolution):\n");
     CHKERRQ(ierr);
@@ -1149,7 +1145,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
 #endif
     PetscFunctionReturn(0);
   }
-  else if(!strcmp(ksp_choice, "jacobi")){
+  else if(Solver == "jacobi"){
     ierr = Jacobi_Solver(A, X, B, Tol, MaxIter);
   }
   else{
@@ -1159,21 +1155,21 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
     //tol etc.
     ierr = KSPSetTolerances(ksp, Tol, PETSC_DEFAULT, PETSC_DEFAULT, MaxIter); CHKERRQ(ierr);
     //Preconditioning
-    ierr = KSPGetPC(ksp,&pc);CHKERRQ(ierr);
+    bool pcright = true;
+    std::string match = "_pcleft";
+    int pos = (int)Solver.find(match.c_str());
+    if(pos != (int)std::string::npos){
+      Solver.replace(pos, match.size(), "");
+      pcright = false;
+    }
+    ierr = KSPGetPC(ksp, &pc);CHKERRQ(ierr);
     // check if a preconditioner is specified
     int nb_pc = List_Nbr(Operation_P->Case.IterativeLinearSolver.Operations_Mx);
     if(nb_pc == 0) {
-      ierr = PCSetType(pc,PCNONE); CHKERRQ(ierr);
+      ierr = PCSetType(pc, PCNONE); CHKERRQ(ierr);
     }
     else{
-      bool pcright = true;
-      if(strstr(ksp_choice, "left")){
-        pcright = false;
-        printf("Left preconditioner detected\n");
-      }
-      else
-        printf("Right preconditioner detected\n");
-
+      printf("%s preconditioner detected\n", pcright ? "Right" : "Left");
       // context of the shell PC
       ierr = CreateILSMat(&ctx_pc); CHKERRQ(ierr);
       ierr = SetILSMat(&ctx_pc, LinearSystemType, &MyField, &AllField, Resolution_P,
@@ -1188,12 +1184,10 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
       ierr = KSPSetPreconditionerSide(ksp, pcright ? PC_RIGHT : PC_LEFT); CHKERRQ(ierr);
 #endif
     }
-    ierr = KSPSetType(ksp, ksp_choice); CHKERRQ(ierr);
-    if(Restart > 0 && (!strcmp(ksp_choice,"gmres") ||
-                       !strcmp(ksp_choice,"dgmres") ||
-                       !strcmp(ksp_choice,"lgmres") ||
-                       !strcmp(ksp_choice,"fgmres") ))
+    ierr = KSPSetType(ksp, Solver.c_str()); CHKERRQ(ierr);
+    if(Restart > 0 && Solver.find("gmres") != std::string::npos){
       ierr = KSPGMRESSetRestart(ksp, Restart); CHKERRQ(ierr);
+    }
     // set ksp
     ierr = KSPSetFromOptions(ksp);CHKERRQ(ierr);
     // Solve
