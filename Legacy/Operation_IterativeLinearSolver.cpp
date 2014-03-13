@@ -27,6 +27,17 @@ extern struct CurrentData Current ;
 #include <gmsh/PView.h>
 #include <gmsh/PViewData.h>
 
+static void _try(int ierr)
+{
+  CHKERRCONTINUE(ierr);
+  if(PetscUnlikely(ierr)){
+    const char *text;
+    PetscErrorMessage(ierr, &text, 0);
+    Message::Error("PETSc error: %s", text);
+    Message::SetLastPETScError(ierr);
+  }
+}
+
 class ILS{
   // A new communicator can be created. If some processes have no work they must
   // be excluded from the communicator to avoir dead-lock
@@ -465,7 +476,7 @@ static PetscErrorCode PViewBCast(Field MyField, Field AllField,
             MPI_Isend(&(*(V_send[j]))[0], n_data, MPI_DOUBLE, receiver, tag,
                       MPI_COMM_WORLD, &sendV);
             tab_request.push_back(sendV);
-	    // printf("Rank %d has sent %d\n", Message::GetCommRank(), GmshTag);
+            Message::Debug("Rank %d has sent %d", Message::GetCommRank(), GmshTag);
           }
         }
       }
@@ -492,7 +503,7 @@ static PetscErrorCode PViewBCast(Field MyField, Field AllField,
           MPI_Irecv(&(*(V_recv[ifield][j]))[0], n_data, MPI_DOUBLE, sender, tag,
                     MPI_COMM_WORLD, &recvV);
           tab_request.push_back(recvV);
-	  // printf("Rank %d has received %d\n", Message::GetCommRank(), GmshTag);
+          Message::Debug("Rank %d has received %d", Message::GetCommRank(), GmshTag);
         }
       }
     }
@@ -519,7 +530,6 @@ static PetscErrorCode STD_vector_to_PETSc_Vec
    Vec petsc_vec, Field *Local)
 {
   PetscInt        nb_view = Local->nb_field;
-  PetscErrorCode  ierr;
 
   for (int cpt_view = 0; cpt_view < nb_view; cpt_view++){
     int nb_element = Local->size[cpt_view];
@@ -557,17 +567,17 @@ static PetscErrorCode STD_vector_to_PETSc_Vec
     }
     if(Current.NbrHar == 2){
 #if defined(PETSC_USE_COMPLEX)
-      ierr = VecSetValues(petsc_vec, nb_element, &ix[0], &val[0], INSERT_VALUES);
+      _try(VecSetValues(petsc_vec, nb_element, &ix[0], &val[0], INSERT_VALUES));
 #else
-      ierr = VecSetValues(petsc_vec, 2*nb_element, &ix[0], &val[0], INSERT_VALUES);
+      _try(VecSetValues(petsc_vec, 2*nb_element, &ix[0], &val[0], INSERT_VALUES));
 #endif
     }
     else{
-      ierr = VecSetValues(petsc_vec, nb_element, &ix[0], &val[0], INSERT_VALUES);
+      _try(VecSetValues(petsc_vec, nb_element, &ix[0], &val[0], INSERT_VALUES));
     }
   }
-  ierr = VecAssemblyBegin(petsc_vec);CHKERRQ(ierr);
-  ierr = VecAssemblyEnd(petsc_vec);CHKERRQ(ierr);
+  _try(VecAssemblyBegin(petsc_vec));
+  _try(VecAssemblyEnd(petsc_vec));
   PetscBarrier((PetscObject)petsc_vec);
   PetscFunctionReturn(0);
 }
@@ -578,8 +588,7 @@ static PetscErrorCode PETSc_Vec_to_STD_Vec
   (Vec petsc_vec, Field *Local,
    std::vector<std::vector<std::vector<double> > > *std_vec)
 {
-  PetscErrorCode ierr;
-  PetscScalar    val;
+  PetscScalar val;
   int nb_view = Local->nb_field;
 
   // initializing std_vec
@@ -604,18 +613,18 @@ static PetscErrorCode PETSc_Vec_to_STD_Vec
       int cpt = iStart + j;
       if(Current.NbrHar == 2){
 #if defined(PETSC_USE_COMPLEX)
-        ierr = VecGetValues(petsc_vec, 1, &cpt, &val); CHKERRQ(ierr);
+        _try(VecGetValues(petsc_vec, 1, &cpt, &val));
         (*std_vec)[cpt_view][0][j] = (double)PetscRealPart(val);
         (*std_vec)[cpt_view][1][j] = (double)PetscImaginaryPart(val);
 #else
-        ierr = VecGetValues(petsc_vec, 1, &cpt, &val); CHKERRQ(ierr);
+        _try(VecGetValues(petsc_vec, 1, &cpt, &val));
         (*std_vec)[cpt_view][0][2*j] = (double)(val);
-        ierr = VecGetValues(petsc_vec, 1, &cpt, &val);CHKERRQ(ierr);
+        _try(VecGetValues(petsc_vec, 1, &cpt, &val));
         (*std_vec)[cpt_view][1][2*j+1] = (double)(val);
 #endif
       }
       else{
-        ierr = VecGetValues(petsc_vec, 1, &cpt, &val); CHKERRQ(ierr);
+        _try(VecGetValues(petsc_vec, 1, &cpt, &val));
         (*std_vec)[cpt_view][0][j] = (double)PetscRealPart(val);
       }
     }
@@ -629,9 +638,8 @@ static PetscErrorCode CreateILSMat(ILSMat **shell)
 {
   ILSMat *newctx;
   std::vector<PetscInt> vec_indice, vec_size;
-  PetscErrorCode ierr;
 
-  ierr = PetscNew(ILSMat,&newctx);CHKERRQ(ierr);
+  _try(PetscNew(ILSMat,&newctx));
   newctx->MyField = NULL;
   newctx->AllField = NULL;
   newctx->LinearSystemType = NULL;
@@ -664,7 +672,6 @@ static PetscErrorCode SetILSMat(ILSMat **shell, char *LinearSystemType,
 // User Matrix-vector product
 static PetscErrorCode MatMultILSMat(Mat A, Vec X, Vec Y)
 {
-  PetscErrorCode ierr;
   std::vector<std::vector<std::vector<double> > > std_vec;
   Field MyField, AllField;
   ILSMat *ctx;
@@ -676,11 +683,11 @@ static PetscErrorCode MatMultILSMat(Mat A, Vec X, Vec Y)
   double t_start = MPI_Wtime(), t_end;
 #endif
 
-  ierr = MatShellGetContext(A, (void**)&ctx);CHKERRQ(ierr);
+  _try(MatShellGetContext(A, (void**)&ctx));
   LinearSystemType = ctx->LinearSystemType;
 
   // convert X to a std vector
-  ierr = PETSc_Vec_to_STD_Vec(X, ctx->MyField, &std_vec);CHKERRQ(ierr);
+  _try(PETSc_Vec_to_STD_Vec(X, ctx->MyField, &std_vec));
 
   // Update PViews
   for (int cpt_view = 0; cpt_view < ctx->MyField->nb_field; cpt_view++){
@@ -719,15 +726,13 @@ static PetscErrorCode MatMultILSMat(Mat A, Vec X, Vec Y)
   }
 
   // Convert the obtained vector to a Petsc Vec
-  ierr = STD_vector_to_PETSc_Vec(std_vec, Y, ctx->MyField);CHKERRQ(ierr);
+  _try(STD_vector_to_PETSc_Vec(std_vec, Y, ctx->MyField));
 
   // Set Y = X - Y
-  if(!strcmp(LinearSystemType,"I-A")){
-    ierr = VecAYPX(Y, -1.,X); CHKERRQ(ierr);
-  }
-  else if(!strcmp(LinearSystemType,"I+A")){
-    ierr = VecAYPX(Y, 1.,X); CHKERRQ(ierr);
-  }
+  if(!strcmp(LinearSystemType,"I-A"))
+    _try(VecAYPX(Y, -1.,X));
+  else if(!strcmp(LinearSystemType,"I+A"))
+    _try(VecAYPX(Y, 1.,X));
 
 #ifdef TIMER
   // time computation
@@ -739,10 +744,10 @@ static PetscErrorCode MatMultILSMat(Mat A, Vec X, Vec Y)
   ctx->MyField->TimeTreatment.push_back(t_Treatment);
   ctx->MyField->TimeBcast.push_back(t_Bcast);
   ctx->MyField->TimeIt.push_back(t_MatMult);
-  printf("Processus %d ended iteration in %g seconds with %g for communication\n",
-         Message::GetCommRank(), t_MatMult, t_Bcast);
+  Message::Info(3, "Processus %d ended iteration in %g seconds with %g for communication",
+                Message::GetCommRank(), t_MatMult, t_Bcast);
 #endif
-  ierr = PetscBarrier((PetscObject)PETSC_NULL);CHKERRQ(ierr);
+  _try(PetscBarrier((PetscObject)PETSC_NULL));
   PetscFunctionReturn(0);
 }
 
@@ -751,54 +756,49 @@ static PetscErrorCode MatMultILSMat(Mat A, Vec X, Vec Y)
 static PetscErrorCode BuildIterationMatrix(Mat A, Mat *IterationMatrix)
 {
   const PetscScalar one = 1., zero = 0.;
-  PetscErrorCode ierr;
   PetscInt n_proc, m,n, m_loc, n_loc;
   PetscInt m_start, m_end, vec_m_start, vec_m_end;
 
-  ierr = MPI_Comm_size(PETSC_COMM_WORLD, &n_proc); CHKERRQ(ierr);
-  ierr = MatGetSize(A, &m, &n);
-  ierr = MatCreate(PETSC_COMM_WORLD, IterationMatrix);CHKERRQ(ierr);
-  ierr = MatSetSizes((*IterationMatrix), PETSC_DECIDE, PETSC_DECIDE, m, n);CHKERRQ(ierr);
-  ierr = MatSetType((*IterationMatrix), MATMPIAIJ);CHKERRQ(ierr);
-  ierr = MatSetFromOptions((*IterationMatrix));CHKERRQ(ierr);
-  //  ierr = MatMPIAIJSetPreallocation((*IterationMatrix), n/n_proc+1, PETSC_NULL,
-  //                                   n-n/n_proc+1, PETSC_NULL);CHKERRQ(ierr);
-  ierr = MatSetUp((*IterationMatrix));
-  ierr = MatGetOwnershipRange((*IterationMatrix), &m_start, &m_end); CHKERRQ(ierr);
-  ierr = MatGetLocalSize((*IterationMatrix), &m_loc, &n_loc); CHKERRQ(ierr);
-  ierr = MatMPIAIJSetPreallocation((*IterationMatrix), m_loc, PETSC_NULL,
-                                   n-m_loc, PETSC_NULL);CHKERRQ(ierr);
+  _try(MPI_Comm_size(PETSC_COMM_WORLD, &n_proc));
+  _try(MatGetSize(A, &m, &n));
+  _try(MatCreate(PETSC_COMM_WORLD, IterationMatrix));
+  _try(MatSetSizes((*IterationMatrix), PETSC_DECIDE, PETSC_DECIDE, m, n));
+  _try(MatSetType((*IterationMatrix), MATMPIAIJ));
+  _try(MatSetFromOptions((*IterationMatrix)));
+  _try(MatSetUp((*IterationMatrix)));
+  _try(MatGetOwnershipRange((*IterationMatrix), &m_start, &m_end));
+  _try(MatGetLocalSize((*IterationMatrix), &m_loc, &n_loc));
+  _try(MatMPIAIJSetPreallocation((*IterationMatrix), m_loc, PETSC_NULL,
+                                 n-m_loc, PETSC_NULL));
   std::vector<PetscInt> ix(m);
   for(PetscInt i = 0; i<m; i++)
     ix[i] = m_start + i;
 
   Vec ej, Aej;
-  ierr = VecCreateSeq(PETSC_COMM_SELF, m, &ej);CHKERRQ(ierr);
-  // ierr = VecCreate(PETSC_COMM_WORLD, &ej);CHKERRQ(ierr);
-  // ierr = VecSetSizes(ej, m_loc, m);CHKERRQ(ierr);
-  // ierr = VecSetFromOptions(ej);CHKERRQ(ierr);
-  ierr = VecDuplicate(ej, &Aej);CHKERRQ(ierr);
-  ierr = VecGetOwnershipRange(ej, &vec_m_start, &vec_m_end);CHKERRQ(ierr);
+  _try(VecCreateSeq(PETSC_COMM_SELF, m, &ej));
+  _try(VecDuplicate(ej, &Aej));
+  _try(VecGetOwnershipRange(ej, &vec_m_start, &vec_m_end));
 
   for(int cpt=0;cpt<n;cpt++){
-    ierr = PetscPrintf(PETSC_COMM_WORLD, "Column number %d over %d\n", cpt, n-1);
+    Message::Info(3, "Column number %d over %d", cpt, n-1);
     std::vector<PetscScalar> vec_temp(n);
-    VecSet(ej, zero);CHKERRQ(ierr);
+    _try(VecSet(ej, zero));
     if(cpt >= vec_m_start && cpt<vec_m_end)
-      ierr = VecSetValues(ej, 1., &cpt, &one, INSERT_VALUES) ;CHKERRQ(ierr);
-    ierr = VecAssemblyBegin(ej);CHKERRQ(ierr);
-    ierr = VecAssemblyEnd(ej);CHKERRQ(ierr);
-    ierr = MatMultILSMat(A, ej, Aej);CHKERRQ(ierr);
+      _try(VecSetValues(ej, 1., &cpt, &one, INSERT_VALUES));
+    _try(VecAssemblyBegin(ej));
+    _try(VecAssemblyEnd(ej));
+    _try(MatMultILSMat(A, ej, Aej));
     // storing it in a Matrix
-    ierr = VecGetValues(Aej, m_loc, &ix[0], &vec_temp[0]);CHKERRQ(ierr);
-    ierr = MatSetValues((*IterationMatrix), m_loc, &ix[0], 1, &cpt, &vec_temp[0],
-                        INSERT_VALUES);CHKERRQ(ierr);
+    _try(VecGetValues(Aej, m_loc, &ix[0], &vec_temp[0]));
+    _try(MatSetValues((*IterationMatrix), m_loc, &ix[0], 1, &cpt, &vec_temp[0],
+                      INSERT_VALUES));
     if(cpt%100 == 0){ // flushing
-      ierr = MatAssemblyBegin((*IterationMatrix), MAT_FLUSH_ASSEMBLY);CHKERRQ(ierr);
-      ierr = MatAssemblyEnd((*IterationMatrix), MAT_FLUSH_ASSEMBLY);CHKERRQ(ierr);}
+      _try(MatAssemblyBegin((*IterationMatrix), MAT_FLUSH_ASSEMBLY));
+      _try(MatAssemblyEnd((*IterationMatrix), MAT_FLUSH_ASSEMBLY));
+    }
   }
-  ierr = MatAssemblyBegin((*IterationMatrix), MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
-  ierr = MatAssemblyEnd((*IterationMatrix), MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
+  _try(MatAssemblyBegin((*IterationMatrix), MAT_FINAL_ASSEMBLY));
+  _try(MatAssemblyEnd((*IterationMatrix), MAT_FINAL_ASSEMBLY));
   PetscFunctionReturn(0);
 }
 
@@ -807,28 +807,26 @@ static PetscErrorCode PrintMatrix(Mat A, const char* filename, const char* varna
 {
   // This function is copy/paste of function LinAlg_PrintMatrix function located
   // in Legacy/LinAlg_PETSC.cpp
-  PetscErrorCode ierr;
+
   std::string tmp(filename);
   PetscInt m,n, m_max = 600;
 
-  ierr = PetscObjectSetName((PetscObject)A, varname);
+  _try(PetscObjectSetName((PetscObject)A, varname));
   // ASCII (if the matrix is not too large)
-  ierr = MatGetSize(A, &m, &n);
+  _try(MatGetSize(A, &m, &n));
   if(m < m_max){
     PetscViewer viewer;
-    ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD, filename, &viewer);CHKERRQ(ierr);
-    ierr = PetscViewerSetFormat(viewer, PETSC_VIEWER_ASCII_MATLAB);CHKERRQ(ierr);
-    ierr = MatView(A, viewer);CHKERRQ(ierr);
+    _try(PetscViewerASCIIOpen(PETSC_COMM_WORLD, filename, &viewer));
+    _try(PetscViewerSetFormat(viewer, PETSC_VIEWER_ASCII_MATLAB));
+    _try(MatView(A, viewer));
 #if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
-    ierr = PetscViewerDestroy(&viewer);CHKERRQ(ierr);
+    _try(PetscViewerDestroy(&viewer));
 #else
-      ierr = PetscViewerDestroy(viewer);CHKERRQ(ierr);
+    _try(PetscViewerDestroy(viewer));
 #endif
   }
   else{
-    ierr = PetscPrintf(PETSC_COMM_WORLD, "Warning: Matrix is too large, "
-                       "no ASCII Output (m=%d>%d)\n", m,m_max);
-    CHKERRQ(ierr);
+    Message::Warning("Matrix is too large, no ASCII Output (m=%d>%d)", m, m_max);
   }
   // BINARY
   // Add the petscfolder/bin/matlab path to your matlab paths and
@@ -837,14 +835,14 @@ static PetscErrorCode PrintMatrix(Mat A, const char* filename, const char* varna
   // and for complex arithmetic :
   // A = PetscBinaryRead(filename , 'complex', true) ;
   PetscViewer viewer_bin;
-  ierr = PetscViewerBinaryOpen(PETSC_COMM_WORLD, (tmp + ".bin").c_str(),
-                               FILE_MODE_WRITE, &viewer_bin);CHKERRQ(ierr);
-  ierr = PetscViewerSetFormat(viewer_bin, PETSC_VIEWER_DEFAULT);CHKERRQ(ierr);
-  ierr = MatView(A, viewer_bin);CHKERRQ(ierr);
+  _try(PetscViewerBinaryOpen(PETSC_COMM_WORLD, (tmp + ".bin").c_str(),
+                             FILE_MODE_WRITE, &viewer_bin));
+  _try(PetscViewerSetFormat(viewer_bin, PETSC_VIEWER_DEFAULT));
+  _try(MatView(A, viewer_bin));
 #if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
-  ierr = PetscViewerDestroy(&viewer_bin);CHKERRQ(ierr);
+  _try(PetscViewerDestroy(&viewer_bin));
 #else
-  ierr = PetscViewerDestroy(viewer_bin);CHKERRQ(ierr);
+  _try(PetscViewerDestroy(viewer_bin));
 #endif
 
   PetscFunctionReturn(0);
@@ -853,93 +851,87 @@ static PetscErrorCode PrintMatrix(Mat A, const char* filename, const char* varna
 // Print a SEQUENTIAL Petsc Vec into a Matlab File
 static PetscErrorCode PrintVecSeq(Vec b, const char* filename, const char* varname)
 {
-  PetscErrorCode ierr;
   std::string tmp(filename);
   PetscViewer viewer, viewer_bin;
 
-  ierr = PetscObjectSetName((PetscObject)b, varname);CHKERRQ(ierr);
-  ierr = PetscViewerASCIIOpen(PETSC_COMM_SELF, filename, &viewer);CHKERRQ(ierr);
-  ierr = PetscViewerSetFormat(viewer, PETSC_VIEWER_ASCII_MATLAB);CHKERRQ(ierr);
+  _try(PetscObjectSetName((PetscObject)b, varname));
+  _try(PetscViewerASCIIOpen(PETSC_COMM_SELF, filename, &viewer));
+  _try(PetscViewerSetFormat(viewer, PETSC_VIEWER_ASCII_MATLAB));
   // see PrintMat function for the how-to use it
-  ierr = PetscViewerBinaryOpen(PETSC_COMM_SELF, (tmp + ".bin").c_str(),
-                               FILE_MODE_WRITE, &viewer_bin);CHKERRQ(ierr);
-  ierr = PetscViewerSetFormat(viewer_bin, PETSC_VIEWER_DEFAULT);CHKERRQ(ierr);
-  VecView(b,viewer);
-  VecView(b,viewer_bin);
+  _try(PetscViewerBinaryOpen(PETSC_COMM_SELF, (tmp + ".bin").c_str(),
+                             FILE_MODE_WRITE, &viewer_bin));
+  _try(PetscViewerSetFormat(viewer_bin, PETSC_VIEWER_DEFAULT));
+  VecView(b, viewer);
+  VecView(b, viewer_bin);
 #if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
-  ierr = PetscViewerDestroy(&viewer);CHKERRQ(ierr);
-  ierr = PetscViewerDestroy(&viewer_bin);CHKERRQ(ierr);
+  _try(PetscViewerDestroy(&viewer));
+  _try(PetscViewerDestroy(&viewer_bin));
 #else
-  ierr = PetscViewerDestroy(viewer);CHKERRQ(ierr);
-  ierr = PetscViewerDestroy(viewer_bin);CHKERRQ(ierr);
+  _try(PetscViewerDestroy(viewer));
+  _try(PetscViewerDestroy(viewer_bin));
 #endif
 
   PetscFunctionReturn(0);
 }
 
-// Print a Petsc Vec into a Matlab File
-// TO BE CHANGED !
+// Print a Petsc Vec into a Matlab File - FIXME: to be changed!
 static PetscErrorCode PrintVec(Vec b, const char* filename, const char* varname)
 {
   // This function is copy/paste of function LinAlg_PrintMatrix function
   // located in Legacy/LinAlg_PETSC.cpp
-  PetscErrorCode ierr;
 
 #if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 4)
   const char *type = "";
 #else
   const VecType type;
 #endif
-  ierr = VecGetType(b, &type);CHKERRQ(ierr);
-  if(!strcmp(type, "seq")){ // AND NUM_PROC > 1 !!!!!
-    ierr = PrintVecSeq(b, filename, varname);CHKERRQ(ierr);
+  _try(VecGetType(b, &type));
+  if(!strcmp(type, "seq")){ // AND NUM_PROC > 1 !
+    _try(PrintVecSeq(b, filename, varname));
     PetscFunctionReturn(0);
   }
 
   PetscViewer viewer, viewer_bin;
   std::string tmp(filename);
-  ierr = PetscObjectSetName((PetscObject)b, varname);CHKERRQ(ierr);
+  _try(PetscObjectSetName((PetscObject)b, varname));
   // ASCII
-  ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD, filename, &viewer);CHKERRQ(ierr);
-  ierr = PetscViewerSetFormat(viewer, PETSC_VIEWER_ASCII_MATLAB);CHKERRQ(ierr);
-  //see PrintMat function for the how-to use it
-  ierr = PetscViewerBinaryOpen(PETSC_COMM_WORLD, (tmp + ".bin").c_str(), FILE_MODE_WRITE, &viewer_bin);CHKERRQ(ierr);
-  ierr = PetscViewerSetFormat(viewer_bin, PETSC_VIEWER_DEFAULT);CHKERRQ(ierr);
-  VecView(b,viewer);
-  VecView(b,viewer_bin);
+  _try(PetscViewerASCIIOpen(PETSC_COMM_WORLD, filename, &viewer));
+  _try(PetscViewerSetFormat(viewer, PETSC_VIEWER_ASCII_MATLAB));
+  // see PrintMat function for the how-to use it
+  _try(PetscViewerBinaryOpen(PETSC_COMM_WORLD, (tmp + ".bin").c_str(),
+                             FILE_MODE_WRITE, &viewer_bin));
+  _try(PetscViewerSetFormat(viewer_bin, PETSC_VIEWER_DEFAULT));
+  VecView(b, viewer);
+  VecView(b, viewer_bin);
 #if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
-  ierr = PetscViewerDestroy(&viewer);CHKERRQ(ierr);
-  ierr = PetscViewerDestroy(&viewer_bin);CHKERRQ(ierr);
+  _try(PetscViewerDestroy(&viewer));
+  _try(PetscViewerDestroy(&viewer_bin));
 #else
-  ierr = PetscViewerDestroy(viewer);CHKERRQ(ierr);
-  ierr = PetscViewerDestroy(viewer_bin);CHKERRQ(ierr);
+  _try(PetscViewerDestroy(viewer));
+  _try(PetscViewerDestroy(viewer_bin));
 #endif
   PetscFunctionReturn(0);
 }
 
 static PetscErrorCode Jacobi_Solver(Mat A, Vec X, Vec B, double Tol, int MaxIter)
 {
-  PetscErrorCode ierr;
   Vec X_old, W;
   double residu;
 
-  ierr = VecSet(X, 0.);
-  ierr = VecDuplicate(X, &X_old);CHKERRQ(ierr);
-  ierr = VecDuplicate(X, &W);CHKERRQ(ierr);
-
-  ierr = VecCopy(X, W);
+  _try(VecSet(X, 0.));
+  _try(VecDuplicate(X, &X_old));
+  _try(VecDuplicate(X, &W));
+  _try(VecCopy(X, W));
 
   for (int j=1; j < MaxIter; j++){
-    ierr = VecCopy(X, X_old);
-    ierr = MatMultILSMat(A, X_old, X);
-    ierr = VecAYPX(X, 1.,B); // X = X + B
+    _try(VecCopy(X, X_old));
+    _try(MatMultILSMat(A, X_old, X));
+    _try(VecAYPX(X, 1.,B)); // X = X + B
     //convergence test
-    ierr = VecWAXPY(W, -1.,X_old, X); //W = X-X_old
-    ierr = VecNorm(W, NORM_2, &residu);
-    printf("Jacobi iteration %d residu %g\n", j, residu);
-    if(residu < Tol){
-      break;
-    }
+    _try(VecWAXPY(W, -1.,X_old, X)); //W = X-X_old
+    _try(VecNorm(W, NORM_2, &residu));
+    Message::Info(3, "Jacobi iteration %d residual %g", j, residu);
+    if(residu < Tol) break;
   }
   PetscFunctionReturn(0);
 }
@@ -948,15 +940,14 @@ static PetscErrorCode Jacobi_Solver(Mat A, Vec X, Vec B, double Tol, int MaxIter
 // Matrix-vector product for the preconditioning. Quite a copy/past of MatMultILSMat
 static PetscErrorCode MatMultPC(PC pc, Vec X, Vec Y)
 {
-  PetscErrorCode ierr;
   std::vector<std::vector<std::vector<double> > > std_vec;
   Field MyField, AllField;
   ILSMat *ctx;
 
-  ierr = PCShellGetContext(pc, (void**)&ctx);CHKERRQ(ierr);
+  _try(PCShellGetContext(pc, (void**)&ctx));
 
   //convert X to a std vector
-  ierr = PETSc_Vec_to_STD_Vec(X, ctx->MyField, &std_vec);CHKERRQ(ierr);
+  _try(PETSc_Vec_to_STD_Vec(X, ctx->MyField, &std_vec));
 
   // Update PViews
   for (int cpt_view = 0; cpt_view < ctx->MyField->nb_field; cpt_view++){
@@ -980,10 +971,16 @@ static PetscErrorCode MatMultPC(PC pc, Vec X, Vec Y)
   }
 
   //Convert the obtained vector to a Petsc Vec
-  ierr = STD_vector_to_PETSc_Vec(std_vec, Y, ctx->MyField);CHKERRQ(ierr);
+  _try(STD_vector_to_PETSc_Vec(std_vec, Y, ctx->MyField));
 
-  ierr = PetscBarrier((PetscObject)PETSC_NULL);CHKERRQ(ierr);
+  _try(PetscBarrier((PetscObject)PETSC_NULL));
   PetscFunctionReturn(0);
+}
+
+static int KspMonitor(KSP ksp, PetscInt it, PetscReal rnorm, void *mctx)
+{
+  Message::Info(3, "%3ld KSP Residual norm %14.12e", (long)it, rnorm);
+  return 0;
 }
 
 int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
@@ -991,7 +988,6 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
                                     struct DofData     *DofData_P0,
                                     struct GeoData     *GeoData_P0)
 {
-  PetscErrorCode ierr;
   int mpi_comm_size = Message::GetCommSize();
   int mpi_comm_rank = Message::GetCommRank();
   ILSMat *ctx, *ctx_pc; // Matrix Shell context and PC context
@@ -1029,28 +1025,13 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
     Message::Error("Linear system type \"%s\" unknown. Try \"A\", \"I-A\" or \"I+A\".",
                    LinearSystemType);
   }
-  if(!strcmp(LinearSystemType, "A"))
-    ierr = PetscPrintf(PETSC_COMM_WORLD, "Linear system type\t: %sX = B\n",
-                       LinearSystemType);
-  else
-    ierr = PetscPrintf(PETSC_COMM_WORLD, "Linear system type\t: (%s)X = B\n",
-                       LinearSystemType);
-  CHKERRQ(ierr);
-  if(mpi_comm_size > 1){
-    ierr = PetscPrintf(PETSC_COMM_WORLD, "Number of Processes\t: %d\n",
-                       mpi_comm_size);CHKERRQ(ierr);
-  }
-  ierr = PetscPrintf(PETSC_COMM_WORLD, "Iterative solver\t: %s\n",
-                     Solver.c_str()); CHKERRQ(ierr);
-  ierr = PetscPrintf(PETSC_COMM_WORLD, "Tolerance\t\t: %g\n", Tol);CHKERRQ(ierr);
-  ierr = PetscPrintf(PETSC_COMM_WORLD, "Max. numb. of iterations: %i\n",
-                     MaxIter);CHKERRQ(ierr);
-  if(Restart >0){
-    ierr = PetscPrintf(PETSC_COMM_WORLD, "Restart\t\t\t: %i\n", Restart);CHKERRQ(ierr);
-  }
-  else{
-    ierr = PetscPrintf(PETSC_COMM_WORLD, "Restart\t\t\t: No Restart\n");CHKERRQ(ierr);
-  }
+  Message::Info(3, "Linear system type: (%s)X = B", LinearSystemType);
+  Message::Info(3, "Number of Processes: %d", mpi_comm_size);
+  Message::Info(3, "Iterative solver: %s", Solver.c_str());
+  Message::Info(3, "Tolerance: %g", Tol);
+  Message::Info(3, "Max. numb. of iterations: %i", MaxIter);
+  Message::Info(3, "Restart: %i", Restart);
+
   // if jacobi then MatMult(A,X) = A*X for linear system (I-A)*X=B
   if(Solver == "jacobi"){
     if(strcmp(LinearSystemType, "I-A"))
@@ -1058,102 +1039,75 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
     LinearSystemType = (char *)"A";
   }
 
-  ierr = PetscPrintf(PETSC_COMM_WORLD, "Number of Fields\t: %d\n",
-                     AllField.nb_field);CHKERRQ(ierr);
-
-  if(Field::areNeighbor){
-    ierr = PetscPrintf(PETSC_COMM_WORLD, "Neighbors are specified\t: "
-                       "Fast exchange between process\n");CHKERRQ(ierr);
-  }
-
+  Message::Info(3, "Number of Fields: %d", AllField.nb_field);
+  if(Field::areNeighbor)
+    Message::Info(3, "Neighbors are specified: Fast exchange between process");
   for(int iField = 0; iField < AllField.nb_field; iField++)
-    if(mpi_comm_size>1)
-      if(AllField.GmshTag[iField] < 10)
-	ierr = PetscPrintf(PETSC_COMM_WORLD, "Size of Field %d\t\t: %d (on CPU %d)\n",
-                           AllField.GmshTag[iField], AllField.size[iField],
-                           AllField.rank[iField]);
-      else
-	ierr = PetscPrintf(PETSC_COMM_WORLD, "Size of Field %d\t: %d (on CPU %d)\n",
-                           AllField.GmshTag[iField], AllField.size[iField],
-                           AllField.rank[iField]);
-    else
-      if(AllField.GmshTag[iField] < 10)
-	ierr = PetscPrintf(PETSC_COMM_WORLD, "Size of Field %d\t\t: %d\n",
-                           AllField.GmshTag[iField], AllField.size[iField]);
-      else
-	ierr = PetscPrintf(PETSC_COMM_WORLD, "Size of Field %d\t: %d\n",
-                           AllField.GmshTag[iField], AllField.size[iField]);
-  CHKERRQ(ierr);
-  ierr = PetscPrintf(PETSC_COMM_WORLD, "Total system size\t: %d\n",
-                     AllField.n_elem); CHKERRQ(ierr);
+    Message::Info(3, "Size of Field %d: %d (on CPU %d)", AllField.GmshTag[iField],
+                  AllField.size[iField], AllField.rank[iField]);
+  Message::Info(3, "Total system size: %d", AllField.n_elem);
 
 #if !defined(PETSC_USE_COMPLEX)
   AllField.n_elem *= 2;
   MyField.n_elem *= 2;
-  ierr = PetscPrintf(PETSC_COMM_WORLD, "PETSc REAL arithmetic -> system size is "
-                     "doubled: n=%d\n", AllField.n_elem); CHKERRQ(ierr);
+  Message::Info(3, "PETSc REAL arithmetic: system size is doubled: n=%d", AllField.n_elem);
 #endif
 
   // Creating the vector/matrix
 
   // Petsc Vec of unknown
-  ierr = VecCreate(ILSComm, &X);CHKERRQ(ierr);
-  ierr = VecSetSizes(X, MyField.n_elem, AllField.n_elem);CHKERRQ(ierr);
-  ierr = VecSetFromOptions(X);CHKERRQ(ierr);
+  _try(VecCreate(ILSComm, &X));
+  _try(VecSetSizes(X, MyField.n_elem, AllField.n_elem));
+  _try(VecSetFromOptions(X));
   // Petsc Vec Right Hand Side
-  ierr = VecDuplicate(X,&B);CHKERRQ(ierr);
+  _try(VecDuplicate(X,&B));
   STD_vector_to_PETSc_Vec(B_std, B, &MyField);
 
   // context of the shell matrix
-  ierr = CreateILSMat(&ctx); CHKERRQ(ierr);
-  ierr = SetILSMat(&ctx, LinearSystemType, &MyField, &AllField, Resolution_P,
-                   Operation_P, DofData_P0, GeoData_P0); CHKERRQ(ierr);
+  _try(CreateILSMat(&ctx));
+  _try(SetILSMat(&ctx, LinearSystemType, &MyField, &AllField, Resolution_P,
+                 Operation_P, DofData_P0, GeoData_P0));
   // Shell matrix containg the indices of the unknown field (on which the
   // iterative solver works)
-  ierr = MatCreateShell(ILSComm, MyField.n_elem, MyField.n_elem, AllField.n_elem,
-                        AllField.n_elem, ctx, &A); CHKERRQ(ierr);
-  ierr = MatShellSetContext(A, ctx); CHKERRQ(ierr);
-  ierr = MatShellSetOperation(A, MATOP_MULT, (void(*)(void))MatMultILSMat); CHKERRQ(ierr);
-  ierr = PetscBarrier((PetscObject)PETSC_NULL); CHKERRQ(ierr);
+  _try(MatCreateShell(ILSComm, MyField.n_elem, MyField.n_elem, AllField.n_elem,
+                      AllField.n_elem, ctx, &A));
+  _try(MatShellSetContext(A, ctx));
+  _try(MatShellSetOperation(A, MATOP_MULT, (void(*)(void))MatMultILSMat));
+  _try(PetscBarrier((PetscObject)PETSC_NULL));
 
   // Creation of the iterative solver + solving
 
   if(Solver == "print"){
     // Print the iteration matrix
-    ierr = PetscPrintf(PETSC_COMM_WORLD, "Launching Print mode (no resolution):\n");
-    CHKERRQ(ierr);
+    Message::Info(3, "Launching Print mode (no resolution):");
+    Message::Info(3, "Building Iteration Matrix...");
     Mat IterationMatrix;
-    ierr = PetscPrintf(PETSC_COMM_WORLD, "Print mode: computing Iteration Matrix...");
-    CHKERRQ(ierr);
-    ierr = BuildIterationMatrix(A, &IterationMatrix);CHKERRQ(ierr);
-    ierr = PetscPrintf(PETSC_COMM_WORLD, "done\nPrint mode: printing Iteration Matrix...");
-    CHKERRQ(ierr);
-    ierr = PrintMatrix(IterationMatrix, "file_mat_itmat.m", "IterationMatrix");
-    CHKERRQ(ierr);
-    ierr = PetscPrintf(PETSC_COMM_WORLD, "done\nPrint mode: printing Right Hand Side...");
-    CHKERRQ(ierr);
-    ierr = PrintVec(B, "file_vec_rhs.m", "RightHandSide");CHKERRQ(ierr);
-    ierr = PetscPrintf(PETSC_COMM_WORLD, "done\n");CHKERRQ(ierr);
+    _try(BuildIterationMatrix(A, &IterationMatrix));
+    Message::Info(3, "Printing Iteration Matrix...");
+    _try(PrintMatrix(IterationMatrix, "file_mat_itmat.m", "IterationMatrix"));
+    Message::Info(3, "Printing Right Hand Side...");
+    _try(PrintVec(B, "file_vec_rhs.m", "RightHandSide"));
+    Message::Info(3, "done");
 #if (PETSC_VERSION_RELEASE == 0  || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
-    ierr = VecDestroy(&X);CHKERRQ(ierr);
-    ierr = VecDestroy(&B);CHKERRQ(ierr);
-    ierr = MatDestroy(&A);CHKERRQ(ierr);
+    _try(VecDestroy(&X));
+    _try(VecDestroy(&B));
+    _try(MatDestroy(&A));
 #else
-    ierr = VecDestroy(X);CHKERRQ(ierr);
-    ierr = VecDestroy(B);CHKERRQ(ierr);
-    ierr = MatDestroy(A);CHKERRQ(ierr);
+    _try(VecDestroy(X));
+    _try(VecDestroy(B));
+    _try(MatDestroy(A));
 #endif
     PetscFunctionReturn(0);
   }
   else if(Solver == "jacobi"){
-    ierr = Jacobi_Solver(A, X, B, Tol, MaxIter);
+    _try(Jacobi_Solver(A, X, B, Tol, MaxIter));
   }
   else{
     // Krylov subspace solver
-    ierr = KSPCreate(ILSComm,&ksp);CHKERRQ(ierr);
-    ierr = KSPSetOperators(ksp,A,A,DIFFERENT_NONZERO_PATTERN);CHKERRQ(ierr);
-    //tol etc.
-    ierr = KSPSetTolerances(ksp, Tol, PETSC_DEFAULT, PETSC_DEFAULT, MaxIter); CHKERRQ(ierr);
+    _try(KSPCreate(ILSComm,&ksp));
+    _try(KSPSetOperators(ksp,A,A,DIFFERENT_NONZERO_PATTERN));
+    _try(KSPSetTolerances(ksp, Tol, PETSC_DEFAULT, PETSC_DEFAULT, MaxIter));
+    _try(KSPMonitorSet(ksp, KspMonitor, PETSC_NULL, PETSC_NULL));
     //Preconditioning
     bool pcright = true;
     std::string match = "_pcleft";
@@ -1162,51 +1116,50 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
       Solver.replace(pos, match.size(), "");
       pcright = false;
     }
-    ierr = KSPGetPC(ksp, &pc);CHKERRQ(ierr);
+    _try(KSPGetPC(ksp, &pc));
     // check if a preconditioner is specified
     int nb_pc = List_Nbr(Operation_P->Case.IterativeLinearSolver.Operations_Mx);
     if(nb_pc == 0) {
-      ierr = PCSetType(pc, PCNONE); CHKERRQ(ierr);
+      _try(PCSetType(pc, PCNONE));
     }
     else{
-      printf("%s preconditioner detected\n", pcright ? "Right" : "Left");
+      Message::Info(3, "%s preconditioner detected", pcright ? "Right" : "Left");
       // context of the shell PC
-      ierr = CreateILSMat(&ctx_pc); CHKERRQ(ierr);
-      ierr = SetILSMat(&ctx_pc, LinearSystemType, &MyField, &AllField, Resolution_P,
-                       Operation_P, DofData_P0, GeoData_P0); CHKERRQ(ierr);
+      _try(CreateILSMat(&ctx_pc));
+      _try(SetILSMat(&ctx_pc, LinearSystemType, &MyField, &AllField, Resolution_P,
+                     Operation_P, DofData_P0, GeoData_P0));
       // Shell PC
-      ierr = PCSetType(pc,PCSHELL);CHKERRQ(ierr);
-      ierr = PCShellSetContext(pc, ctx_pc); CHKERRQ(ierr);
-      ierr = PCShellSetApply(pc, MatMultPC); CHKERRQ(ierr);
+      _try(PCSetType(pc,PCSHELL));
+      _try(PCShellSetContext(pc, ctx_pc));
+      _try(PCShellSetApply(pc, MatMultPC));
 #if (PETSC_VERSION_RELEASE == 0  || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
-      ierr = KSPSetPCSide(ksp, pcright ? PC_RIGHT : PC_LEFT);CHKERRQ(ierr);
+      _try(KSPSetPCSide(ksp, pcright ? PC_RIGHT : PC_LEFT));
 #else
-      ierr = KSPSetPreconditionerSide(ksp, pcright ? PC_RIGHT : PC_LEFT); CHKERRQ(ierr);
+      _try(KSPSetPreconditionerSide(ksp, pcright ? PC_RIGHT : PC_LEFT));
 #endif
     }
-    ierr = KSPSetType(ksp, Solver.c_str()); CHKERRQ(ierr);
-    if(Restart > 0 && Solver.find("gmres") != std::string::npos){
-      ierr = KSPGMRESSetRestart(ksp, Restart); CHKERRQ(ierr);
-    }
+    _try(KSPSetType(ksp, Solver.c_str()));
+    if(Restart > 0 && Solver.find("gmres") != std::string::npos)
+      _try(KSPGMRESSetRestart(ksp, Restart));
     // set ksp
-    ierr = KSPSetFromOptions(ksp);CHKERRQ(ierr);
+    _try(KSPSetFromOptions(ksp));
     // Solve
-    ierr = KSPSolve(ksp,B,X);CHKERRQ(ierr);
-    ierr = KSPView(ksp,PETSC_VIEWER_STDOUT_WORLD);CHKERRQ(ierr);
+    _try(KSPSolve(ksp, B, X));
+    _try(KSPView(ksp,PETSC_VIEWER_STDOUT_WORLD));
 #if (PETSC_VERSION_RELEASE == 0  || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
-    ierr = KSPDestroy(&ksp);CHKERRQ(ierr);
+    _try(KSPDestroy(&ksp));
     // if(nb_pc > 0)
-    //   ierr = PCDestroy(&pc); CHKERRQ(ierr);
+    //   _try(PCDestroy(&pc));
 #else
-    ierr = KSPDestroy(ksp);CHKERRQ(ierr);
+    _try(KSPDestroy(ksp));
     // if(nb_pc > 0)
-    //   ierr = PCDestroy(pc); CHKERRQ(ierr);
+    //   _try(PCDestroy(pc));
 #endif
   }
 
   // computing solution
   // we reuse B_std to avoid the creation of a new std::vector ...
-  ierr = PETSc_Vec_to_STD_Vec(X, &MyField, &B_std); CHKERRQ(ierr);
+  _try(PETSc_Vec_to_STD_Vec(X, &MyField, &B_std));
   // update views
   for (int cpt_view = 0 ; cpt_view < MyField.nb_field; cpt_view++){
     PView *view = GetViewByTag(MyField.GmshTag[cpt_view]);
@@ -1220,18 +1173,18 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
 #ifdef TIMER
   double tbcast_end = MPI_Wtime();
   double t_bcast = tbcast_end - tbcast_start;
-  printf("Process %d: tbcast = %g\n", mpi_comm_rank, t_bcast);
+  Message::Info(3, "Process %d: tbcast = %g", mpi_comm_rank, t_bcast);
 #endif
 
   // cleaning
 #if (PETSC_VERSION_RELEASE == 0  || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
-  ierr = VecDestroy(&X);CHKERRQ(ierr);
-  ierr = VecDestroy(&B);CHKERRQ(ierr);
-  ierr = MatDestroy(&A);CHKERRQ(ierr);
+  _try(VecDestroy(&X));
+  _try(VecDestroy(&B));
+  _try(MatDestroy(&A));
 #else
-  ierr = VecDestroy(X);CHKERRQ(ierr);
-  ierr = VecDestroy(B);CHKERRQ(ierr);
-  ierr = MatDestroy(A);CHKERRQ(ierr);
+  _try(VecDestroy(X));
+  _try(VecDestroy(B));
+  _try(MatDestroy(A));
 #endif
 #ifdef TIMER
   time_total = MPI_Wtime() - time_start;
@@ -1255,17 +1208,17 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
     fprintf(fid, "Average: %g %g\n", aver_it, aver_com);
     fprintf(fid, "Percent of communication in average: %g%%\n", aver_com/aver_it*100);
     fclose(fid);
-  }
 #ifdef TIMER
-  printf("Processus %d : ended in %g. \n", mpi_comm_rank, time_total);
-  printf("Processus %d : Average iteration time %g with %g for communication (%g%%).\n",
-         mpi_comm_rank, aver_it, aver_com, aver_com/aver_it*100);
+    Message::Info(3, "Processus %d: ended in %g", mpi_comm_rank, time_total);
+    Message::Info(3, "Processus %d: Average iteration time %g with %g for communication (%g%%)",
+                  mpi_comm_rank, aver_it, aver_com, aver_com/aver_it*100);
 #endif
+  }
 
   // reset pointers to static fields
   MyStaticField = AllStaticField = 0;
 
-  PetscBarrier((PetscObject)PETSC_NULL);CHKERRQ(ierr);
+  _try(PetscBarrier((PetscObject)PETSC_NULL));
   PetscFunctionReturn(0);
 }
 
@@ -1279,7 +1232,6 @@ int Operation_BroadcastFields(struct Resolution  *Resolution_P,
     double j;
     List_Read(Operation_P->Case.BroadcastFields.FieldsToSkip, i, &j);
     fieldsToSkip.insert((int) j);
-    // printf("%d WILL SKIP field %g\n", Message::GetCommRank(), j);
   }
 
   PViewBCast(*MyStaticField, *AllStaticField, fieldsToSkip);
