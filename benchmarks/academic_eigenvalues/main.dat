@@ -6,8 +6,8 @@
 ExtGnuplot = ".dat";
 ExtGmsh = ".pos";
 DirOutput = "output/";
-OnelabParamSolver = "Input/1Resolution parameters/";
-OnelabParamMesh = "Input/2Mesh parameter(s)/";
+OnelabParamMesh = "Input/1Mesh parameter(s)/";
+OnelabParamSolver = "Input/2Resolution parameters/";
 
 DefineConstant[
   FLAG_GEOM = {1, Name "Input/01Geometry", Highlight "Black",
