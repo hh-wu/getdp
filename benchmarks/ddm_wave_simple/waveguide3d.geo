@@ -13,29 +13,23 @@ EndIf
 
 For idom In {start:end}
 
-  Printf("Meshing waveguide subdomain %g...", idom);
-
   dx = (DX / N_DOM);
   x = idom * dx;
 
   Delete Model;
-  Point(1) = {x, 0., 0., LC} ;
-  myExtrudedLine[] = Extrude {0, DY, 0} {Point{1} ; } ;
-  myExtrudedSurface[] = Extrude {0, 0, DZ} {Line{myExtrudedLine[1]} ; } ;
-  myExtrudedVolume[] = Extrude {dx, 0, 0} {Surface{myExtrudedSurface[1]} ; };
+  Point(1) = {x, 0., 0., LC};
+  myExtrudedLine[] = Extrude {0, DY, 0} { Point{1}; };
+  myExtrudedSurface[] = Extrude {0, 0, DZ} { Line{myExtrudedLine[1]}; };
+  myExtrudedVolume[] = Extrude {dx, 0, 0} { Surface{myExtrudedSurface[1]}; };
 
-  Transfinite Surface "*" ;
-  Recombine Surface "*" ;
-  Transfinite Volume "*" ;
+  Transfinite Surface "*";
+  Recombine Surface "*";
+  Transfinite Volume "*";
 
-  If(StrCmp(OnelabAction, "check")) // only mesh if not in onelab check mode
-    Mesh 3 ;
-  EndIf
-
-  left[] = myExtrudedSurface[1] ;
-  right[] = myExtrudedVolume[0] ;
-  lateral[] = myExtrudedVolume[{2:5}] ;
-  volume[] = myExtrudedVolume[1] ;
+  left[] = myExtrudedSurface[1];
+  right[] = myExtrudedVolume[0];
+  lateral[] = myExtrudedVolume[{2:5}];
+  volume[] = myExtrudedVolume[1];
 
   Physical Volume ( 6000 + idom + 1 ) = volume[]; // omega
   Physical Surface (3000 + idom + 1) = lateral[]; // gammad0
@@ -53,10 +47,13 @@ For idom In {start:end}
     Physical Surface (1000*(idom+5)) = right[]; //sigma1
   EndIf
 
-  CreateDir Str(DIR);
-  Save StrCat(MSH_NAME, Sprintf("%g.msh", idom)) ;
-
-  Printf("Done.");
+  If(StrCmp(OnelabAction, "check")) // only mesh if not in onelab check mode
+    Printf("Meshing waveguide subdomain %g...", idom);
+    Mesh 3 ;
+    CreateDir Str(DIR);
+    Save StrCat(MSH_NAME, Sprintf("%g.msh", idom));
+    Printf("Done.");
+  EndIf
 
 EndFor
 
