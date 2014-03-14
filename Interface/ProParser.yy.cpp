@@ -2133,12 +2133,12 @@ return tSaveMesh;
 case 46:
 YY_RULE_SETUP
 #line 90 "ProParser.l"
-return tDeformeMesh;
+return tDeformMesh;
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
 #line 91 "ProParser.l"
-return tDeformeMesh;
+return tDeformMesh;
 	YY_BREAK
 case 48:
 YY_RULE_SETUP

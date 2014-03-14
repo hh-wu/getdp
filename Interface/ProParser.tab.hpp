@@ -248,7 +248,7 @@
      tGenerateJacGroup = 464,
      tGenerateRHSGroup = 465,
      tSaveMesh = 466,
-     tDeformeMesh = 467,
+     tDeformMesh = 467,
      tDummyFrequency = 468,
      tPostProcessing = 469,
      tNameOfSystem = 470,
@@ -542,7 +542,7 @@
 #define tGenerateJacGroup 464
 #define tGenerateRHSGroup 465
 #define tSaveMesh 466
-#define tDeformeMesh 467
+#define tDeformMesh 467
 #define tDummyFrequency 468
 #define tPostProcessing 469
 #define tNameOfSystem 470

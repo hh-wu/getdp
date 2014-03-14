@@ -258,7 +258,7 @@ struct doubleXstring{
 %token      tGenerate_MH_Moving tGenerate_MH_Moving_Separate tAdd_MH_Moving
 %token      tGenerateGroup tGenerateJacGroup tGenerateRHSGroup
 %token      tSaveMesh
-%token      tDeformeMesh
+%token      tDeformMesh
 %token      tDummyFrequency
 %token  tPostProcessing
 %token      tNameOfSystem
@@ -4765,7 +4765,7 @@ OperationTerm :
       Operation_P->Case.Add_MH_Moving.dummy = $5;
     }
 
-  | tDeformeMesh  '[' tSTRING ',' tSTRING ',' tNameOfMesh CharExpr ',' FExpr ']' tEND
+  | tDeformMesh  '[' String__Index ',' String__Index ',' tNameOfMesh CharExpr ',' FExpr ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       int i;
@@ -4781,7 +4781,7 @@ OperationTerm :
       Operation_P->Type = OPERATION_DEFORMEMESH;
     }
 
-  | tDeformeMesh  '[' tSTRING ',' tSTRING ',' tNameOfMesh CharExpr ']' tEND
+  | tDeformMesh  '[' String__Index ',' String__Index ',' tNameOfMesh CharExpr ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       int i;
@@ -4797,7 +4797,7 @@ OperationTerm :
       Operation_P->Type = OPERATION_DEFORMEMESH;
     }
 
-  | tDeformeMesh  '[' tSTRING ',' tSTRING ']' tEND
+  | tDeformMesh  '[' String__Index ',' String__Index ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       int i;

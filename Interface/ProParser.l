@@ -87,8 +87,8 @@ All                          return tAll;
 InSupport                    return tInSupport;
 MovingBand2D                 return tMovingBand2D;
 SaveMesh                     return tSaveMesh;
-DeformMesh                   return tDeformeMesh;
-DeformeMesh                  return tDeformeMesh;
+DeformMesh                   return tDeformMesh;
+DeformeMesh                  return tDeformMesh;
 
 DefineFunction               return tDefineFunction;
 DefineVariable               return tDefineConstant;
