@@ -100,7 +100,7 @@ Resolution {
     Operation {
       CreateDir["output/"] ;
       GenerateSeparate[A] ; 
-      EigenSolve[A,NbEigenvalues,1,0] ;  // solve for the first "NbEigenvalues" eigenvalues
+      EigenSolve[A,NbEigenvalues,EigenvalShiftRe,EigenvalShiftIm] ;
       SaveSolutions[A] ;
     }
   }
@@ -123,3 +123,11 @@ PostOperation {
     }
   }
 }
+
+
+DefineConstant[
+  R_ = {"Reso", Name "GetDP/1ResolutionChoices", Visible 0},
+  P_ = {"PostOp", Name "GetDP/2PostOperationChoices", Visible 0, ReadOnly 1},
+  C_ = {"-solve -pos -v2", Name "GetDP/9ComputeCommand", Visible 0}
+] ;
+

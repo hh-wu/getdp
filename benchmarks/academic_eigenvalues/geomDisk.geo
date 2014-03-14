@@ -4,8 +4,8 @@
 //========================================================
 
 DefineConstant[
-  res = { 0.05, Min 0.001, Max 1, Step 0.001,
-    Name StrCat[OnelabParam1,"2Characteristic length of cells (radius of domain = 1)"]}
+  res = { 0.01, Min 0.001, Max 1, Step 0.001,
+    Name StrCat[OnelabParamMesh,"2Characteristic length of cells (radius of domain = 1)"]}
 ];
 
 Mesh.CharacteristicLengthMax = res ;

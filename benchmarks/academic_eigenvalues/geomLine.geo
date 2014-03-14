@@ -5,7 +5,7 @@
 
 DefineConstant[
   res = { 200, Min 1, Max 10000, Step 1,
-    Name StrCat[OnelabParam1,"1Number of cells"]}
+    Name StrCat[OnelabParamMesh,"1Number of cells"]}
 ];
 
 p[] += newp ; Point(newp) = {-0.5, 0, 0} ;

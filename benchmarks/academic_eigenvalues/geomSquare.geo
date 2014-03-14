@@ -5,14 +5,12 @@
 
 DefineConstant[
   FLAG_MESH = {2, Highlight "Black",
-    Name StrCat[OnelabParam1,"1Shape of cells"],
+    Name StrCat[OnelabParamMesh,"1Shape of cells"],
     Choices {1="Triangles", 2="Rectangles"} },
   res = { 0.05, Min 0.001, Max 1, Step 0.001, Visible (FLAG_MESH==1),
-    Name StrCat[OnelabParam1,"2Characteristic length of cells (length of borders = 1)"]},
-  resX = { 200, Min 1, Max 1000, Step 1, Visible (FLAG_MESH==2),
-    Name StrCat[OnelabParam1,"3Number of cells along x-borders"]},
-  resY = { 200, Min 1, Max 1000, Step 1, Visible (FLAG_MESH==2),
-    Name StrCat[OnelabParam1,"4Number of cells along y-borders"]}
+    Name StrCat[OnelabParamMesh,"2Characteristic length of cells (length of borders = 1)"]},
+  resRect = { 200, Min 1, Max 1000, Step 1, Visible (FLAG_MESH==2),
+    Name StrCat[OnelabParamMesh,"3Number of cells along each border"]}
 ];
 
 p[] += newp ; Point(newp) = {-0.5, -0.5, 0} ;
@@ -36,8 +34,8 @@ If (FLAG_MESH==1)
 EndIf
 
 If (FLAG_MESH==2)
-  Transfinite Line {l[0], l[2]} = resX+1 ;
-  Transfinite Line {l[1], l[3]} = resY+1 ;
+  Transfinite Line {l[0], l[2]} = resRect+1 ;
+  Transfinite Line {l[1], l[3]} = resRect+1 ;
   Transfinite Surface {s} ;
   Recombine Surface {s} ;
 EndIf
