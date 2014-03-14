@@ -3767,7 +3767,7 @@ DefineSystemTerm :
 
   | tNameOfMesh CharExpr tEND
     {
-      DefineSystem_S.MeshName = strSave(Get_AbsolutePath($2).c_str());
+      DefineSystem_S.MeshName = strSave(Fix_RelativePath($2).c_str());
       Free($2);
     }
 
@@ -4552,7 +4552,7 @@ OperationTerm :
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = $1;
-      Operation_P->Case.GmshRead.FileName = strSave(Get_AbsolutePath($3).c_str());
+      Operation_P->Case.GmshRead.FileName = strSave(Fix_RelativePath($3).c_str());
       Operation_P->Case.GmshRead.ViewTag = -1;
       Free($3);
     }
@@ -4562,7 +4562,7 @@ OperationTerm :
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = $1;
-      Operation_P->Case.GmshRead.FileName = strSave(Get_AbsolutePath($3).c_str());
+      Operation_P->Case.GmshRead.FileName = strSave(Fix_RelativePath($3).c_str());
       Operation_P->Case.GmshRead.ViewTag = (int)$5;
       Free($3);
     }
@@ -4579,7 +4579,7 @@ OperationTerm :
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_DELETEFILE;
-      Operation_P->Case.DeleteFile.FileName = strSave(Get_AbsolutePath($3).c_str());
+      Operation_P->Case.DeleteFile.FileName = strSave(Fix_RelativePath($3).c_str());
       Free($3);
     }
 
@@ -4588,7 +4588,7 @@ OperationTerm :
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_CREATEDIR;
-      Operation_P->Case.CreateDir.DirName = strSave(Get_AbsolutePath($3).c_str());
+      Operation_P->Case.CreateDir.DirName = strSave(Fix_RelativePath($3).c_str());
       Free($3);
     }
 

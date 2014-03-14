@@ -205,15 +205,25 @@ void Free_ProblemStructure()
   Init_ProblemStructure();
 }
 
-std::string Get_AbsolutePath(const char *name)
+std::string Fix_RelativePath(const char *name)
 {
-  char AbsPath[2048];
-  strcpy(AbsPath, getdp_yyname);
-  int i = strlen(getdp_yyname) - 1;
-  while(i >= 0 && getdp_yyname[i] != '/' && getdp_yyname[i] != '\\') i--;
-  AbsPath[i+1] = '\0';
-  strcat(AbsPath, name);
-  return std::string(AbsPath);
+  if(!name || !strlen(name)) return "";
+
+  std::string in(name);
+
+  if(in[0] == '/' || in[0] == '\\' ||
+     (in.size() > 3 && in[1] == ':' && (in[2] == '/' || in[2] == '\\'))){
+    // do nothing: 'in' is an absolute path
+    return in;
+  }
+  else{
+    char AbsPath[2048];
+    strcpy(AbsPath, getdp_yyname);
+    int i = strlen(getdp_yyname) - 1;
+    while(i >= 0 && getdp_yyname[i] != '/' && getdp_yyname[i] != '\\') i--;
+    AbsPath[i+1] = '\0';
+    return std::string(AbsPath) + in;
+  }
 }
 
 void Read_ProblemStructure(const char *name)
