@@ -6,14 +6,12 @@
 // Contributed by Bertrand Thierry
 
 #include <stdio.h>
+#include <stdlib.h>
 #include "GetDPConfig.h"
 #include "ProData.h"
 #include "SolvingOperations.h"
 #include "Message.h"
 #include "OS.h"
-#include <iostream>
-#include <fstream>
-#include <stdlib.h>
 
 extern struct CurrentData Current ;
 
