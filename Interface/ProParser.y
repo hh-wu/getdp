@@ -3767,7 +3767,8 @@ DefineSystemTerm :
 
   | tNameOfMesh CharExpr tEND
     {
-      DefineSystem_S.MeshName = $2;
+      DefineSystem_S.MeshName = strSave(Get_AbsolutePath($2).c_str());
+      Free($2);
     }
 
   | tOriginSystem ListOfSystem tEND
