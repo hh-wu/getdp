@@ -6,7 +6,7 @@
 ExtGnuplot = ".dat";
 ExtGmsh = ".pos";
 DirOutput = "output/";
-OnelabParamSolver = "Input/1Solver parameters/";
+OnelabParamSolver = "Input/1Resolution parameters/";
 OnelabParamMesh = "Input/2Mesh parameter(s)/";
 
 DefineConstant[
