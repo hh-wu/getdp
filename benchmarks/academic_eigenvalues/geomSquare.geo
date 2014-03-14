@@ -6,7 +6,7 @@
 DefineConstant[
   FLAG_MESH = {2, Highlight "Black",
     Name StrCat[OnelabParamMesh,"1Shape of cells"],
-    Choices {1="Triangles", 2="Rectangles"} },
+    Choices {1="Triangular cells", 2="Rectangular cells"} },
   res = { 0.05, Min 0.001, Max 1, Step 0.001, Visible (FLAG_MESH==1),
     Name StrCat[OnelabParamMesh,"2Characteristic length of cells (length of borders = 1)"]},
   resRect = { 200, Min 1, Max 1000, Step 1, Visible (FLAG_MESH==2),
