@@ -54,7 +54,7 @@ int Message::_progressMeterCurrent = 0;
 std::map<std::string, double> Message::_timers;
 GmshClient* Message::_client = 0;
 onelab::client* Message::_onelabClient = 0;
-#if !defined(HAVE_ONELAB) // if Gmsh is compiled without onelab
+#if !defined(HAVE_ONELAB) && !defined(HAVE_GMSH) // if Gmsh is compiled without onelab
 onelab::server *onelab::server::_server = 0;
 #endif
 
