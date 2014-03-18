@@ -570,6 +570,12 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
   List_T  * ExtendedListRef_L, * ExtendedSuppListRef_L ;
   struct Value  Value ;
 
+  //Peter: added possibility to change the Tolerance for the LINK constraint
+  char *magnetics_link_tol_factor;
+  magnetics_link_tol_factor = getenv("UGII_MAGNETICS_LINK_TOL_FACTOR");
+  if (magnetics_link_tol_factor != NULL)
+  TOL = TOL * atof(magnetics_link_tol_factor) ;
+	
   /* Nodes with Constraint */
 
   Nbr_Entity = List_Nbr(ExtendedList_L) ;

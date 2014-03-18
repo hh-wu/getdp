@@ -39,6 +39,8 @@ extern char   *Name_Path ;
 
 FILE *PostStream = stdout;
 
+char FileNameDimi[256]; //Peter, Dimitri: use public formulation to change file mode in format_unv.cpp
+
 /* ------------------------------------------------------------------------ */
 /*  P o s _ F e m F o r m u l a t i o n                                     */
 /* ------------------------------------------------------------------------ */
@@ -346,6 +348,8 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
       strcat(FileName, AddExt);
     }
 
+	strcpy(FileNameDimi, FileName); //Peter,Dimitri: get Name for Unv File
+	
     if(!PostSubOperation_P->CatFile) {
       if((PostStream = FOpen(FileName, Flag_BIN ? "wb" : "w")))
 	Message::Direct(4, "          > '%s'", FileName) ;
