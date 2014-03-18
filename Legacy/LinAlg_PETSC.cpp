@@ -1202,18 +1202,21 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
     PC pc;
     _try(KSPGetPC(Solver->ksp[kspIndex], &pc));
 
-    // set some default options: use direct solver
+    // set some default options: use direct solver (MUMPS if available,
+    // otherwise UMFPACK, otherwise native PETSc)
     _try(KSPSetType(Solver->ksp[kspIndex], "preonly"));
     _try(PCSetType(pc, PCLU));
-
 #if (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
-    // use MUMPS by default if available
     _try(PCFactorSetMatSolverPackage(pc, "mumps"));
 #elif (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_UMFPACK)
-    // otherwise use UMFPACK if available
     _try(PCFactorSetMatSolverPackage(pc, "umfpack"));
 #else
-    _try(PetscOptionsSetValue("-pc_factor_nonzeros_along_diagonal", "1"));
+    _try(PetscOptionsSetValue("-pc_factor_nonzeros_along_diagonal", "1e-12"));
+#if (PETSC_VERSION_MAJOR == 2) && (PETSC_VERSION_MINOR == 3) && (PETSC_VERSION_SUBMINOR < 3)
+    _try(PCFactorSetMatOrdering(pc, MATORDERING_RCM));
+#else
+    _try(PCFactorSetMatOrderingType(pc, MATORDERINGRCM));
+#endif
 #endif
 
     // override the default options with the ones from the option database (if
