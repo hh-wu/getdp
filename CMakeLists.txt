@@ -6,7 +6,7 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 
 # do not warn about non-definition of WIN32 on cygwin
-set(CMAKE_LEGACY_CYGWIN_WIN32 0) 
+set(CMAKE_LEGACY_CYGWIN_WIN32 0)
 
 # if CMAKE_BUILD_TYPE is specified use it; otherwise set the default
 # build type to "RelWithDebInfo" ("-O2 -g" with gcc) prior to calling
@@ -63,16 +63,16 @@ set(GETDP_VERSION "${GETDP_VERSION}.${GETDP_PATCH_VERSION}${GETDP_EXTRA_VERSION}
 set(GETDP_SHORT_LICENSE "GNU General Public License")
 
 set(GETDP_API
-  ${CMAKE_CURRENT_BINARY_DIR}/Common/GetDPConfig.h 
+  ${CMAKE_CURRENT_BINARY_DIR}/Common/GetDPConfig.h
   ${CMAKE_CURRENT_BINARY_DIR}/Common/GetDPVersion.h
   Legacy/GetDP.h
 )
 
-execute_process(COMMAND date "+%Y%m%d" OUTPUT_VARIABLE DATE 
+execute_process(COMMAND date "+%Y%m%d" OUTPUT_VARIABLE DATE
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process(COMMAND hostname OUTPUT_VARIABLE HOSTNAME 
+execute_process(COMMAND hostname OUTPUT_VARIABLE HOSTNAME
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process(COMMAND whoami OUTPUT_VARIABLE PACKAGER 
+execute_process(COMMAND whoami OUTPUT_VARIABLE PACKAGER
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 if(NOT DATE)
@@ -257,7 +257,7 @@ if(ENABLE_BLAS_LAPACK)
         if(GFORTRAN_LIB)
           list(APPEND LAPACK_LIBRARIES ${GFORTRAN_LIB})
         endif(GFORTRAN_LIB)
-      endif(LAPACK_LIBRARIES)  
+      endif(LAPACK_LIBRARIES)
     endif(NOT HAVE_BLAS OR NOT HAVE_LAPACK)
 
     if(NOT HAVE_BLAS OR NOT HAVE_LAPACK)
@@ -328,7 +328,7 @@ if(ENABLE_PETSC)
     message(STATUS "Using PETSc dir: ${ENV_PETSC_DIR}")
     message(STATUS "Using PETSc arch: ${ENV_PETSC_ARCH}")
     # find includes by parsing the petscvariables file
-    file(STRINGS ${ENV_PETSC_DIR}/${ENV_PETSC_ARCH}/conf/petscvariables 
+    file(STRINGS ${ENV_PETSC_DIR}/${ENV_PETSC_ARCH}/conf/petscvariables
          PETSC_VARIABLES NEWLINE_CONSUME)
     # try to find PETSC_CC_INCLUDES for PETSc >= 3.4
     string(REGEX MATCH "PETSC_CC_INCLUDES = [^\n\r]*" PETSC_PACKAGES_INCLUDES
@@ -356,7 +356,7 @@ if(ENABLE_PETSC)
     endif(PETSC_PACKAGES_INCLUDES)
     # find libraries (<= 3.0)
     set(PETSC_LIBS_REQUIRED petscksp petscdm petscmat petscvec petsc)
-    find_all_libraries(PETSC_LIBS PETSC_LIBS_REQUIRED 
+    find_all_libraries(PETSC_LIBS PETSC_LIBS_REQUIRED
                        ${ENV_PETSC_DIR}/${ENV_PETSC_ARCH}/lib "")
     # petsc 3.1 creates only one library (libpetsc)
     if(NOT PETSC_LIBS)
@@ -374,17 +374,17 @@ if(ENABLE_PETSC)
       endif(SLEPC_DIR)
       find_library(SLEPC_LIB slepc PATHS ${ENV_SLEPC_DIR}/${ENV_PETSC_ARCH}/lib)
       if(SLEPC_LIB)
-        find_path(SLEPC_INC "slepc.h" PATHS ${ENV_SLEPC_DIR} PATH_SUFFIXES include 
+        find_path(SLEPC_INC "slepc.h" PATHS ${ENV_SLEPC_DIR} PATH_SUFFIXES include
                   ${ENV_PETSC_ARCH}/include include/slepc)
         if(SLEPC_INC)
           message(STATUS "Using SLEPc dir: ${ENV_SLEPC_DIR}")
           set_config_option(HAVE_SLEPC "SLEPc")
           list(APPEND EXTERNAL_LIBRARIES ${SLEPC_LIB})
-          list(APPEND EXTERNAL_INCLUDES ${SLEPC_INC}) 
-          find_path(SLEPC_INC2 "slepcconf.h" PATHS ${ENV_SLEPC_DIR} 
+          list(APPEND EXTERNAL_INCLUDES ${SLEPC_INC})
+          find_path(SLEPC_INC2 "slepcconf.h" PATHS ${ENV_SLEPC_DIR}
                     PATH_SUFFIXES ${ENV_PETSC_ARCH}/include)
           if(SLEPC_INC2)
-            list(APPEND EXTERNAL_INCLUDES ${SLEPC_INC2}) 
+            list(APPEND EXTERNAL_INCLUDES ${SLEPC_INC2})
           endif(SLEPC_INC2)
         endif(SLEPC_INC)
       endif(SLEPC_LIB)
@@ -421,11 +421,11 @@ if(ENABLE_PETSC)
         if(SLEPC_LIB AND SLEPC_INC)
           set_config_option(HAVE_SLEPC "SLEPc")
           list(APPEND EXTERNAL_LIBRARIES ${SLEPC_LIB})
-          list(APPEND EXTERNAL_INCLUDES ${SLEPC_INC}) 
+          list(APPEND EXTERNAL_INCLUDES ${SLEPC_INC})
         endif(SLEPC_LIB AND SLEPC_INC)
       endif(ENABLE_SLEPC)
       list(APPEND EXTERNAL_LIBRARIES ${PETSC_LIBS})
-      list(APPEND EXTERNAL_INCLUDES ${PETSC_INC}) 
+      list(APPEND EXTERNAL_INCLUDES ${PETSC_INC})
     endif(PETSC_LIBS AND PETSC_INC)
   endif(EXISTS ${ENV_PETSC_DIR}/${ENV_PETSC_ARCH}/conf/petscvariables)
 endif(ENABLE_PETSC)
@@ -518,7 +518,7 @@ if(ENABLE_NR AND NOT HAVE_GSL)
 endif(ENABLE_NR AND NOT HAVE_GSL)
 
 if(ENABLE_MULTIHARMONIC)
-  message(STATUS "Warning: building with multi-harmonic support (untested!)")
+  message(STATUS "Warning: building with multi-harmonic support (tested and working with a real version of Petsc!)")
   set_config_option(HAVE_MULTIHARMONIC "Multi-Harmonic")
 endif(ENABLE_MULTIHARMONIC)
 
@@ -550,7 +550,7 @@ if(NOT INTPTR_T_SIZE)
 endif(NOT INTPTR_T_SIZE)
 
 if(MSVC)
-  add_definitions(-D_USE_MATH_DEFINES -DNOMINMAX 
+  add_definitions(-D_USE_MATH_DEFINES -DNOMINMAX
                   -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE)
 endif(MSVC)
 
@@ -586,7 +586,7 @@ foreach(OPT ${CONFIG_OPTIONS})
   set(GETDP_CONFIG_OPTIONS "${GETDP_CONFIG_OPTIONS} ${OPT}")
 endforeach(OPT)
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Common/GetDPConfig.h.in 
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Common/GetDPConfig.h.in
                ${CMAKE_CURRENT_BINARY_DIR}/Common/GetDPConfig.h)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Common/GetDPVersion.h.in
                ${CMAKE_CURRENT_BINARY_DIR}/Common/GetDPVersion.h)
@@ -618,13 +618,13 @@ endif(EXTERNAL_INCLUDES)
 set(LINK_LIBRARIES ${EXTERNAL_LIBRARIES} ${LAPACK_LIBRARIES})
 
 # we could specify include dirs more selectively, but this is simpler
-include_directories(Common Interface Legacy Numeric ${EXTERNAL_INCLUDES} 
+include_directories(Common Interface Legacy Numeric ${EXTERNAL_INCLUDES}
                     ${CMAKE_CURRENT_BINARY_DIR}/Common)
 
 # set this for external codes that might include this CMakeList file
-set(GETDP_EXTERNAL_INCLUDE_DIRS ${EXTERNAL_INCLUDES} CACHE 
+set(GETDP_EXTERNAL_INCLUDE_DIRS ${EXTERNAL_INCLUDES} CACHE
     STRING "External include directories" FORCE)
-set(GETDP_EXTERNAL_LIBRARIES ${EXTERNAL_LIBRARIES} CACHE 
+set(GETDP_EXTERNAL_LIBRARIES ${EXTERNAL_LIBRARIES} CACHE
     STRING "External libraries" FORCE)
 
 # group sources for easier navigation in IDEs
@@ -638,7 +638,7 @@ if(ENABLE_BUILD_LIB)
   add_library(lib STATIC ${GETDP_SRC})
   set_target_properties(lib PROPERTIES OUTPUT_NAME GetDP)
   if(MSVC)
-    set_target_properties(lib PROPERTIES DEBUG_POSTFIX d) 
+    set_target_properties(lib PROPERTIES DEBUG_POSTFIX d)
     if(ENABLE_MSVC_STATIC_RUNTIME)
       set_target_properties(lib PROPERTIES LINK_FLAGS_RELEASE "/nodefaultlib:LIBCMT")
     endif(ENABLE_MSVC_STATIC_RUNTIME)
@@ -655,7 +655,7 @@ if(ENABLE_BUILD_SHARED)
   if(MSVC AND ENABLE_MSVC_STATIC_RUNTIME)
     message(STATUS "Note: By enabling ENABLE_MSVC_STATIC_RUNTIME, shared library "
             "won't link. In MSVC change /MT to /MD in the shared project properties")
-  endif(MSVC AND ENABLE_MSVC_STATIC_RUNTIME)          
+  endif(MSVC AND ENABLE_MSVC_STATIC_RUNTIME)
   target_link_libraries(shared ${LINK_LIBRARIES})
 endif(ENABLE_BUILD_SHARED)
 
@@ -692,7 +692,7 @@ target_link_libraries(getdp_dynamic shared)
 find_program(BISON bison)
 find_program(FLEX flex)
 if(BISON AND FLEX)
-  add_custom_target(parser 
+  add_custom_target(parser
                     COMMAND ${BISON} -p getdp_yy --output ProParser.tab.cpp -d ProParser.y
                     COMMAND ${FLEX} -P getdp_yy -o ProParser.yy.cpp ProParser.l
                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Interface)
@@ -702,10 +702,10 @@ endif(BISON AND FLEX)
 if(UNIX)
   # cannot use cmake's file search functions here (they would only
   # find files existing at configuration time)
-  add_custom_target(purge 
+  add_custom_target(purge
                     COMMAND rm -f `find . -name *~ -o -name *~~`
                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-  add_custom_target(etags 
+  add_custom_target(etags
                     COMMAND etags `find . -name *.cpp -o -name *.h -o -name *.y`
                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 endif(UNIX)
@@ -724,8 +724,8 @@ file(GLOB DEMO_FILES_TMP ${CMAKE_CURRENT_SOURCE_DIR}/demos/*.pre
 set(TEX_DIR ${CMAKE_CURRENT_SOURCE_DIR}/doc/texinfo)
 file(GLOB TEX_SRC ${TEX_DIR}/*.texi)
 set(TEX_OBJ ${TEX_DIR}/getdp.aux ${TEX_DIR}/getdp.cp ${TEX_DIR}/getdp.cps
-    ${TEX_DIR}/getdp.fn ${TEX_DIR}/getdp.html ${TEX_DIR}/getdp.info ${TEX_DIR}/getdp.ky 
-    ${TEX_DIR}/getdp.log ${TEX_DIR}/getdp.pdf ${TEX_DIR}/getdp.pg ${TEX_DIR}/getdp.toc 
+    ${TEX_DIR}/getdp.fn ${TEX_DIR}/getdp.html ${TEX_DIR}/getdp.info ${TEX_DIR}/getdp.ky
+    ${TEX_DIR}/getdp.log ${TEX_DIR}/getdp.pdf ${TEX_DIR}/getdp.pg ${TEX_DIR}/getdp.toc
     ${TEX_DIR}/getdp.tp ${TEX_DIR}/getdp.tps ${TEX_DIR}/getdp.txt ${TEX_DIR}/getdp.vr
     ${TEX_DIR}/getdp.vrs)
 
@@ -799,15 +799,15 @@ add_custom_target(clean_demos COMMAND ${CMAKE_COMMAND} -E remove ${DEMO_FILES_TM
 
 find_program(MAKEINFO makeinfo)
 if(MAKEINFO)
-  add_custom_command(OUTPUT ${TEX_DIR}/getdp.info DEPENDS ${TEX_SRC} 
+  add_custom_command(OUTPUT ${TEX_DIR}/getdp.info DEPENDS ${TEX_SRC}
                      COMMAND ${MAKEINFO} --split-size 1000000
                      ARGS ${TEX_DIR}/getdp.texi WORKING_DIRECTORY ${TEX_DIR})
   add_custom_target(info DEPENDS ${TEX_DIR}/getdp.info)
-  add_custom_command(OUTPUT ${TEX_DIR}/getdp.txt DEPENDS ${TEX_SRC} 
+  add_custom_command(OUTPUT ${TEX_DIR}/getdp.txt DEPENDS ${TEX_SRC}
                      COMMAND ${MAKEINFO} --plaintext -o getdp.txt
                      ARGS ${TEX_DIR}/getdp.texi WORKING_DIRECTORY ${TEX_DIR})
   add_custom_target(txt DEPENDS ${TEX_DIR}/getdp.txt)
-  add_custom_command(OUTPUT ${TEX_DIR}/getdp.html DEPENDS ${TEX_SRC} 
+  add_custom_command(OUTPUT ${TEX_DIR}/getdp.html DEPENDS ${TEX_SRC}
                      COMMAND ${MAKEINFO} --html --css-ref=http://geuz.org/geuz.css --no-split
                      ARGS ${TEX_DIR}/getdp.texi WORKING_DIRECTORY ${TEX_DIR})
   add_custom_target(html DEPENDS ${TEX_DIR}/getdp.html)
@@ -816,8 +816,8 @@ endif(MAKEINFO)
 
 find_program(TEXI2PDF texi2pdf)
 if(TEXI2PDF)
-  add_custom_command(OUTPUT ${TEX_DIR}/getdp.pdf DEPENDS ${TEX_SRC} 
-                     COMMAND ${TEXI2PDF} ARGS ${TEX_DIR}/getdp.texi 
+  add_custom_command(OUTPUT ${TEX_DIR}/getdp.pdf DEPENDS ${TEX_SRC}
+                     COMMAND ${TEXI2PDF} ARGS ${TEX_DIR}/getdp.texi
                      WORKING_DIRECTORY ${TEX_DIR})
   add_custom_target(pdf DEPENDS ${TEX_DIR}/getdp.pdf)
   install(FILES ${TEX_DIR}/getdp.pdf DESTINATION ${GETDP_DOC} OPTIONAL)
@@ -827,13 +827,13 @@ execute_process(COMMAND ${CMAKE_COMMAND} -E echo "${OPT_TEXI}"
                 OUTPUT_FILE cmake_options.texi)
 
 if(MAKEINFO AND TEXI2PDF)
-  add_custom_target(doc COMMAND ${CMAKE_COMMAND} -E tar zcf 
+  add_custom_target(doc COMMAND ${CMAKE_COMMAND} -E tar zcf
                     ${CMAKE_CURRENT_BINARY_DIR}/getdp-${GETDP_VERSION}-doc.tgz
                     doc/CREDITS.txt doc/LICENSE.txt doc/VERSIONS.txt
                     doc/getdp.1 doc/getdp.bib doc/texinfo/getdp.html
                     doc/texinfo/getdp.info doc/texinfo/getdp.pdf doc/texinfo/getdp.txt
                     COMMAND ${CMAKE_COMMAND} -E remove ${TEX_OBJ}
-                    DEPENDS ${TEX_DIR}/getdp.info ${TEX_DIR}/getdp.txt 
+                    DEPENDS ${TEX_DIR}/getdp.info ${TEX_DIR}/getdp.txt
                     ${TEX_DIR}/getdp.html ${TEX_DIR}/getdp.pdf
                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 endif(MAKEINFO AND TEXI2PDF)
@@ -852,15 +852,15 @@ if(APPLE AND ENABLE_BUILD_LIB)
     COMMAND ${CMAKE_COMMAND} -E make_directory GetDP.framework/Versions/A/Headers
     COMMAND ${CMAKE_COMMAND} -E make_directory GetDP.framework/Versions/A/Resources
     COMMAND ${CMAKE_COMMAND} -E copy ${LIBNAME} GetDP.framework/Versions/A/GetDP
-    COMMAND ${CMAKE_COMMAND} -E copy Info_framework.plist 
+    COMMAND ${CMAKE_COMMAND} -E copy Info_framework.plist
                                      GetDP.framework/Versions/A/Resources/Info.plist
     COMMAND ${CMAKE_COMMAND} -E create_symlink A GetDP.framework/Versions/Current
-    COMMAND ${CMAKE_COMMAND} -E create_symlink Versions/Current/GetDP 
+    COMMAND ${CMAKE_COMMAND} -E create_symlink Versions/Current/GetDP
                                                GetDP.framework/GetDP
     COMMAND ${CMAKE_COMMAND} -E create_symlink Versions/Current/Headers
                                                GetDP.framework/Headers
     COMMAND ${CMAKE_COMMAND} -E create_symlink Versions/Current/Resources
-                                               GetDP.framework/Resources 
+                                               GetDP.framework/Resources
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
   foreach(FILE ${GETDP_API})
     add_custom_command(TARGET framework POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy
@@ -874,7 +874,7 @@ set(CPACK_PACKAGE_VERSION_MAJOR ${GETDP_MAJOR_VERSION})
 set(CPACK_PACKAGE_VERSION_MINOR ${GETDP_MINOR_VERSION})
 set(CPACK_PACKAGE_VERSION_PATCH ${GETDP_PATCH_VERSION})
 set(CPACK_PACKAGE_DESCRIPTION_FILE ${WELCOME_FILE})
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY 
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
     "General Environment for the Treatment of Discrete Problems")
 set(CPACK_PACKAGE_FILE_NAME getdp-${GETDP_VERSION}-${GETDP_OS})
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "GetDP")
@@ -885,9 +885,9 @@ set(CPACK_PACKAGE_EXECUTABLE "getdp;GetDP")
 set(CPACK_STRIP_FILES TRUE)
 set(CPACK_SOURCE_PACKAGE_FILE_NAME getdp-${GETDP_VERSION}-source)
 set(CPACK_SOURCE_GENERATOR TGZ)
-set(CPACK_SOURCE_IGNORE_FILES "${CMAKE_CURRENT_BINARY_DIR}" "/CVS/" "/.svn" "~$" 
-    "DS_Store$" "GetDPConfig.h$" "GetDPVersion.h$" "/benchmarks/" "/tmp/" 
-    "/bin/" "/lib/" "/nightly/" "GPATH" "GRTAGS" "GSYMS" "GTAGS" "/HTML/" 
+set(CPACK_SOURCE_IGNORE_FILES "${CMAKE_CURRENT_BINARY_DIR}" "/CVS/" "/.svn" "~$"
+    "DS_Store$" "GetDPConfig.h$" "GetDPVersion.h$" "/benchmarks/" "/tmp/"
+    "/bin/" "/lib/" "/nightly/" "GPATH" "GRTAGS" "GSYMS" "GTAGS" "/HTML/"
     "/contrib/NR/" "/contrib/NX/" "/contrib/ZITSOL_1/")
 
 if(UNIX)
@@ -925,8 +925,8 @@ message(STATUS "")
 message(STATUS "Run 'ccmake ${CMAKE_CURRENT_SOURCE_DIR}' to fine-tune the configuration.")
 message(STATUS "")
 
-mark_as_advanced(GETDP_EXTRA_VERSION 
+mark_as_advanced(GETDP_EXTRA_VERSION
                  ARPACK_LIB GMSH_INC GMSH_LIB GSLCBLAS_LIB GSL_INC GSL_LIB
                  PETSC_LIBS SLEPC_INC SLEPC_INC2 SLEPC_LIB
-                 BISON FLEX MAKEINFO TEXI2PDF 
+                 BISON FLEX MAKEINFO TEXI2PDF
                  GETDP_EXTERNAL_INCLUDE_DIRS GETDP_EXTERNAL_LIBRARIES)
