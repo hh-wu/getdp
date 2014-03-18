@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<models>
+	<model>
+		<title>Eight-pole permanent magnet synchronous machine</title>
+		<summary></summary>
+		<file type="geo">pmsm.geo</file>
+		<preview type="png">screenshot1_512.png</preview>
+		<url>http://onelab.info/wiki/Electric_Machines</url>
+	</model>
+	<model>
+		<title>Eight-pole permanent magnet machine</title>
+		<summary></summary>
+		<file type="geo">lomonova.geo</file>
+		<preview type="png">screenshot2_512.png</preview>
+		<url>http://onelab.info/wiki/Electric_Machines</url>
+	</model>
+	<model>
+		<title>Four-pole wound field synchronous machine</title>
+		<file type="geo">wfsm_4p.geo</file>
+		<url>http://onelab.info/wiki/Electric_Machines</url>
+	</model>
+	<model>
+		<title>Simple induction motor with solid rotor</title>
+		<file type="pro">t30.pro</file>
+		<url>http://onelab.info/wiki/Electric_Machines</url>
+	</model>
+	<model>
+		<title>Four-pole deep-bar induction machine</title>
+		<file type="pro">im.pro</file>
+		<url>http://onelab.info/wiki/Electric_Machines</url>
+	</model>
+</models>
