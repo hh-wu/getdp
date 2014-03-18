@@ -26,7 +26,7 @@
 
 int     Flag_PRE = 0, Flag_CAL = 0, Flag_POS = 0, Flag_RESTART = 0;
 int     Flag_XDATA = 0, Flag_BIN = 0, Flag_SPLIT = 0, Flag_GMSH_VERSION = 1;
-int     Flag_NETWORK_CACHE = 0;
+int     Flag_NETWORK_CACHE = 0, Flag_CALLED_WITH_ONELAB_SERVER = 0;
 double  Flag_ORDER = -1.;
 char   *Name_Generic = 0, *Name_Path = 0;
 char   *Name_Resolution = 0;
@@ -516,7 +516,7 @@ int MainLegacy(int argc, char *argv[])
 #if defined(HAVE_GMSH)
   Message::Info("Initializing Gmsh");
   GmshInitialize();
-  if(!GmshGetMessageHandler()){
+  if(!GmshGetMessageHandler() && !Flag_CALLED_WITH_ONELAB_SERVER){
     // do not set msg handler if one is provided (e.g. on Android/iOS)
     GmshMsg c;
     GmshSetMessageHandler(&c);
@@ -572,7 +572,10 @@ int MainLegacy(int argc, char *argv[])
 int GetDP(std::vector<std::string> &args, void *ptr)
 {
   onelab::server *onelabServer = (onelab::server*) ptr;
-  if(onelabServer != NULL) onelab::server::setInstance(onelabServer);
+  if(onelabServer != NULL){
+    onelab::server::setInstance(onelabServer);
+    Flag_CALLED_WITH_ONELAB_SERVER = 1;
+  }
   int argc = args.size();
   std::vector<char*> argv(argc + 1, (char*)0);
   for(int i = 0; i < argc; i++) argv[i] = (char*)args[i].c_str();
