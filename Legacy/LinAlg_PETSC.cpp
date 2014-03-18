@@ -1212,6 +1212,8 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
 #elif (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_UMFPACK)
     // otherwise use UMFPACK if available
     _try(PCFactorSetMatSolverPackage(pc, "umfpack"));
+#else
+    _try(PetscOptionsSetValue("-pc_factor_nonzeros_along_diagonal", "1"));
 #endif
 
     // override the default options with the ones from the option database (if
