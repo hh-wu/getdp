@@ -377,11 +377,14 @@ void  ReGenerate_System(struct DefineSystem * DefineSystem_P,
   int    i, Nbr_Formulation, Index_Formulation ;
   struct Formulation     * Formulation_P ;
 
-  LinAlg_ZeroMatrix(&Current.DofData->A) ;
+
+  ZeroMatrix(&Current.DofData->A, &Current.DofData->Solver,
+             Current.DofData->NbrDof) ;
   LinAlg_ZeroVector(&Current.DofData->b) ;
 
   if(Flag_Jac)
-    LinAlg_ZeroMatrix(&Current.DofData->Jac) ;
+    ZeroMatrix(&Current.DofData->Jac, &Current.DofData->Solver,
+               Current.DofData->NbrDof) ;
 
   Nbr_Formulation = List_Nbr(DefineSystem_P->FormulationIndex) ;
 
@@ -1223,13 +1226,15 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         break;
       }
 
-      LinAlg_AddMatrixMatrix(&DofData_P->Jac, &DofData_P->A, &DofData_P->Jac) ;
+      // Store sum in A (not in Jac) for performance reasons with PetSc (the sparsity
+      // pattern of Jac is a subset of the sparsity pattern of A)
+
       LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x, &DofData_P->res) ;
+      LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->Jac, &DofData_P->A) ;
+      // res = b(xn)-A(xn)*xn
       LinAlg_SubVectorVector(&DofData_P->b, &DofData_P->res, &DofData_P->res) ;
-
       LinAlg_DummyVector(&DofData_P->res) ;
-
-      LinAlg_Solve(&DofData_P->Jac, &DofData_P->res, &DofData_P->Solver, &DofData_P->dx) ;
+      LinAlg_Solve(&DofData_P->A, &DofData_P->res, &DofData_P->Solver, &DofData_P->dx) ;
 
       Message::Cpu("");
 
@@ -1238,7 +1243,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       LinAlg_CopyVector(&DofData_P->CurrentSolution->x, &x_Save);
 
       Flag_RHS = 1;
-      /* MHJacNL-terms don't contribute to the RHS and residu, and are thus disregarded */
+      /* MHJacNL-terms do not contribute to the RHS and residu, and are thus disregarded */
 
       Error_Prev = 1e99 ;  Frelax_Opt = 1. ;
 
@@ -1260,12 +1265,14 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	/* LinAlg_PrintVector(stdout, &DofData_P->CurrentSolution->x); */
 
 	/* calculate residual with trial solution */
+
 	ReGenerate_System(DefineSystem_P, DofData_P, DofData_P0) ;
 	LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x,
                                 &DofData_P->res) ;
 	LinAlg_SubVectorVector(&DofData_P->b, &DofData_P->res, &DofData_P->res) ;
 
 	/* check whether norm of residual is smaller than previous ones */
+
 	LinAlg_VectorNorm2(&DofData_P->res, &Norm);
 	LinAlg_GetVectorSize(&DofData_P->res, &N);
 	Norm /= (double)N;

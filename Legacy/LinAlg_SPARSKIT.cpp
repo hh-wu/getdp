@@ -307,7 +307,7 @@ void LinAlg_GetDoubleInMatrix(double *d, gMatrix *M, int i, int j)
 
 void LinAlg_GetComplexInMatrix(double *d1, double *d2, gMatrix *M, int i, int j, int k, int l)
 {
-  Message::Error("'LinAlg_GetScalarInMatrix' not yet implemented");
+  Message::Error("'LinAlg_GetComplexInMatrix' not yet implemented");
 }
 
 void LinAlg_GetColumnInMatrix(gMatrix *M, int col, gVector *V1)
@@ -350,12 +350,12 @@ void LinAlg_SetScalarInMatrix(gScalar *S, gMatrix *M, int i, int j)
 
 void LinAlg_SetDoubleInMatrix(double d, gMatrix *M, int i, int j)
 {
-  Message::Error("'LinAlg_SetScalarInMatrix' not yet implemented");
+  Message::Error("'LinAlg_SetDoubleInMatrix' not yet implemented");
 }
 
 void LinAlg_SetComplexInMatrix(double d1, double d2, gMatrix *M, int i, int j, int k, int l)
 {
-  Message::Error("'LinAlg_SetScalarInMatrix' not yet implemented");
+  Message::Error("'LinAlg_SetComplexInMatrix' not yet implemented");
 }
 
 void LinAlg_AddScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3)

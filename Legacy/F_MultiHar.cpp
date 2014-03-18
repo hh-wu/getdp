@@ -8,8 +8,8 @@
 //
 
 #include <math.h>
-#include "ProData.h" 
-#include "ProDefine.h" 
+#include "ProData.h"
+#include "ProDefine.h"
 #include "DofData.h"
 #include "F.h"
 #include "Get_Geometry.h"
@@ -42,7 +42,7 @@ int fcmp_MH_InitData(const void * a, const void * b)
     return Result ;
   if (((struct MH_InitData *)a)->Case != 3)
     return ((struct MH_InitData *)a)->NbrPoints  - ((struct MH_InitData *)b)->NbrPoints ;
-  else 
+  else
     return ((struct MH_InitData *)a)->NbrPointsX - ((struct MH_InitData *)b)->NbrPointsX ;
 }
 
@@ -50,7 +50,7 @@ int NbrValues_Type (int Type)
 {
   switch (Type){
   case SCALAR : return 1 ;
-  case VECTOR : case TENSOR_DIAG : return 3 ; 
+  case VECTOR : case TENSOR_DIAG : return 3 ;
   case TENSOR_SYM : return 6 ;
   case TENSOR : return 9 ;
   default :
@@ -61,14 +61,14 @@ int NbrValues_Type (int Type)
 
 double Product_SCALARxSCALARxSCALAR (double *V1, double *V2, double *V3)
 {
-  return V1[0] * V2[0] * V3[0] ; 
+  return V1[0] * V2[0] * V3[0] ;
 }
 
 double Product_VECTORxTENSOR_SYMxVECTOR (double *V1, double *V2, double *V3)
 {
-  return V3[0] * (V1[0] * V2[0] + V1[1] * V2[1] + V1[2] * V2[2]) + 
-         V3[1] * (V1[0] * V2[1] + V1[1] * V2[3] + V1[2] * V2[4]) + 
-         V3[2] * (V1[0] * V2[2] + V1[1] * V2[4] + V1[2] * V2[5]) ; 
+  return V3[0] * (V1[0] * V2[0] + V1[1] * V2[1] + V1[2] * V2[2]) +
+         V3[1] * (V1[0] * V2[1] + V1[1] * V2[3] + V1[2] * V2[4]) +
+         V3[2] * (V1[0] * V2[2] + V1[1] * V2[4] + V1[2] * V2[5]) ;
 }
 
 double Product_VECTORxTENSOR_DIAGxVECTOR (double *V1, double *V2, double *V3)
@@ -85,7 +85,7 @@ void  *Get_RealProductFunction_Type1xType2xType1 (int Type1, int Type2)
 {
   if (Type1 == SCALAR && Type2 == SCALAR) {
     return (void *)Product_SCALARxSCALARxSCALAR;
-  } 
+  }
   else if (Type1 == VECTOR && Type2 == TENSOR_SYM) {
     return (void *)Product_VECTORxTENSOR_SYMxVECTOR;
   }
@@ -106,7 +106,7 @@ void  *Get_RealProductFunction_Type1xType2xType1 (int Type1, int Type2)
 /* ------------------------------------------------------------------------ */
 
 /*
-  Case = 1 : MHTransform       NbrPoints (samples per smallest period) is given, 
+  Case = 1 : MHTransform       NbrPoints (samples per smallest period) is given,
                                NbrPointsX (samples per fundamental period) is derived
   Case = 2 : MHJacNL           NbrPoints given,  NbrPointsX derived
   Case = 3 : HarmonicToTime    NbrPointsX given,  NbrPoints derived
@@ -119,17 +119,17 @@ void MH_Get_InitData(int Case, int NbrPoints, int *NbrPointsX_P,
   double *Val_Pulsation, MaxPuls, MinPuls ;
   double **H, ***HH = 0, *t, *w ;
   struct MH_InitData MH_InitData_S, *MH_InitData_P ;
-  
+
   MH_InitData_S.Case       = Case;
-  MH_InitData_S.DofData    = Current.DofData; 
+  MH_InitData_S.DofData    = Current.DofData;
   MH_InitData_S.NbrPoints  = NbrPoints;
   MH_InitData_S.NbrPointsX = NbrPointsX = *NbrPointsX_P;
 
   if (MH_InitData_L == NULL)
-    MH_InitData_L = List_Create(1, 1, sizeof(struct MH_InitData)) ; 
+    MH_InitData_L = List_Create(1, 1, sizeof(struct MH_InitData)) ;
 
   if ((MH_InitData_P = (struct MH_InitData *)
-      List_PQuery(MH_InitData_L, &MH_InitData_S, fcmp_MH_InitData))){
+       List_PQuery(MH_InitData_L, &MH_InitData_S, fcmp_MH_InitData))){
     *H_P  = MH_InitData_P->H;
     *HH_P = MH_InitData_P->HH;
     *t_P  = MH_InitData_P->t;
@@ -137,8 +137,9 @@ void MH_Get_InitData(int Case, int NbrPoints, int *NbrPointsX_P,
     *NbrPointsX_P = MH_InitData_P->NbrPointsX;
     return;
   }
-  
+
   NbrHar = Current.NbrHar;
+
   Val_Pulsation = Current.DofData->Val_Pulsation;
   MaxPuls = 0. ; MinPuls = 1.e99 ;
   for (iPul = 0 ; iPul < NbrHar/2 ; iPul++) {
@@ -156,29 +157,26 @@ void MH_Get_InitData(int Case, int NbrPoints, int *NbrPointsX_P,
   Message::Info("MH_Get_InitData => NbrHar = %d  NbrPoints = %d|%d  Case = %d",
                 NbrHar, NbrPoints, NbrPointsX, Case);
 
+
   t = (double *)Malloc(sizeof(double)*NbrPointsX) ;
-  if (Case != 3) 
-    for (iTime = 0 ; iTime < NbrPointsX ; iTime++) 
+
+  if (Case != 3)
+    for (iTime = 0 ; iTime < NbrPointsX ; iTime++)
       t[iTime] = (double)iTime/(double)NbrPointsX/(MinPuls/TWO_PI) ;
   else
-    for (iTime = 0 ; iTime < NbrPointsX ; iTime++) 
+    for (iTime = 0 ; iTime < NbrPointsX ; iTime++)
       t[iTime] = (double)iTime/((double)NbrPointsX-1.)/(MinPuls/TWO_PI) ;
-
-  /*   
-     w = (double *)Malloc(sizeof(double)*NbrPointsX) ;
-       for (iTime = 0 ; iTime < NbrPointsX ; iTime++)
-         w[iTime] = 2. / (double)NbrPointsX ;
-  */
 
   w = (double *)Malloc(sizeof(double)*NbrHar) ;
   for (iPul = 0 ; iPul < NbrHar/2 ; iPul++)
     if (Val_Pulsation[iPul]){
       w[2*iPul  ] = 2. / (double)NbrPointsX ;
       w[2*iPul+1] = 2. / (double)NbrPointsX ;
-    }else{
+    }
+    else{
       w[2*iPul  ] = 1. / (double)NbrPointsX ;
       w[2*iPul+1] = 1. / (double)NbrPointsX ;
-    }  
+    }
 
   H = (double **)Malloc(sizeof(double *)*NbrPointsX) ;
   for (iTime = 0 ; iTime < NbrPointsX ; iTime++){
@@ -189,7 +187,7 @@ void MH_Get_InitData(int Case, int NbrPoints, int *NbrPointsX_P,
 	H[iTime][2*iPul+1] = - sin(Val_Pulsation[iPul] * t[iTime]) ;
     }
     /*
-      } 
+      }
       else {
         H[iTime][2*iPul    ] = 0.5 ;
         H[iTime][2*iPul + 1] = 0 ;
@@ -205,9 +203,9 @@ void MH_Get_InitData(int Case, int NbrPoints, int *NbrPointsX_P,
   	 sum += w[iTime] * H[iTime][iHar] * H[iTime][jHar] ;
          sum -= (iHar==jHar)? 1. : 0. ;
          printf("iHar %d jHar %d sum %e\n", iHar, jHar, sum);
-     } 
+     }
  */
-  
+
 
   if (Case == 2) {
     HH = (double ***)Malloc(sizeof(double **)*NbrPointsX) ;
@@ -224,7 +222,7 @@ void MH_Get_InitData(int Case, int NbrPoints, int *NbrPointsX_P,
       }
     }
   }
-     
+
   *H_P  = MH_InitData_S.H  = H;
   *t_P  = MH_InitData_S.t  = t;
   *w_P  = MH_InitData_S.w  = w;
@@ -237,7 +235,7 @@ void MH_Get_InitData(int Case, int NbrPoints, int *NbrPointsX_P,
 /*  F_MHToTime0    (HarmonicToTime in PostOperation)                        */
 /* ------------------------------------------------------------------------ */
 
-void F_MHToTime0(int init, struct Value * A, struct Value * V, 
+void F_MHToTime0(int init, struct Value * A, struct Value * V,
 		 int iTime, int NbrPointsX, double * TimeMH)
 {
   static double **H, ***HH, *t, *weight;
@@ -252,10 +250,10 @@ void F_MHToTime0(int init, struct Value * A, struct Value * V,
   nVal = NbrValues_Type (A->Type) ;
 
   for (iVal = 0 ; iVal < nVal ; iVal++){
-    V->Val[iVal] = 0; 
+    V->Val[iVal] = 0;
     for (iHar = 0 ; iHar < Current.NbrHar ; iHar++)
       V->Val[iVal] += H[iTime][iHar] * A->Val[iHar*MAX_DIM+iVal] ;
-  }      
+  }
 
 }
 
@@ -271,8 +269,8 @@ void  F_MHToTime (struct Function * Fct, struct Value * A, struct Value * V) {
   struct Value Vtemp;
 
   if (Current.NbrHar == 1) Message::Error("'F_MHToTime' only for Multi-Harmonic stuff") ;
-  if((A+1)->Type != SCALAR)			
-    Message::Error("'F_MHToTime' requires second scalar argument (time)");	
+  if((A+1)->Type != SCALAR)
+    Message::Error("'F_MHToTime' requires second scalar argument (time)");
   time = (A+1)->Val[0] ;
 
   for (iHar = 0 ; iHar < Current.NbrHar/2 ; iHar++) {
@@ -293,11 +291,11 @@ void  F_MHToTime (struct Function * Fct, struct Value * A, struct Value * V) {
   for (iVal = 0 ; iVal < MAX_DIM ; iVal++)
     for (iHar = 0 ; iHar < Current.NbrHar ; iHar++)
       Vtemp.Val[iHar*MAX_DIM+iVal] = 0.;
-  
+
   for (iVal = 0 ; iVal < nVal ; iVal++)
     for (iHar = 0 ; iHar < Current.NbrHar ; iHar++)
       Vtemp.Val[iVal] += H[iHar] * A->Val[iHar*MAX_DIM+iVal] ;
-  
+
   V->Type = A->Type ;
   for (iVal = 0 ; iVal < MAX_DIM ; iVal++)
     for (iHar = 0 ; iHar < Current.NbrHar ; iHar++)
@@ -307,7 +305,7 @@ void  F_MHToTime (struct Function * Fct, struct Value * A, struct Value * V) {
 /* ------------------------------------------------------------------------ */
 /*  MHTransform                                                             */
 /* ------------------------------------------------------------------------ */
-		
+
 void MHTransform(struct Element * Element, struct QuantityStorage * QuantityStorage_P0,
 		 double u, double v, double w, struct Value *MH_Value,
 		 struct Expression * Expression_P, int NbrPoints)
@@ -326,34 +324,35 @@ void MHTransform(struct Element * Element, struct QuantityStorage * QuantityStor
   Current.NbrHar = 1;        /* evaluation in time domain ! */
 
   for (iVal = 0 ; iVal < MAX_DIM ; iVal++)  for (iHar = 0 ; iHar < NbrHar ; iHar++)
-    MH_Value_Tr.Val[iHar*MAX_DIM+iVal] = 0. ; 
-    
+    MH_Value_Tr.Val[iHar*MAX_DIM+iVal] = 0. ;
+
   for (iTime = 0 ; iTime < NbrPointsX ; iTime++) {
 
     for (iVal = 0 ; iVal < nVal1 ; iVal++){ /* evaluation of MH_Value at iTime-th time point */
-      t_Value.Val[iVal] = 0; 
+      t_Value.Val[iVal] = 0;
       for (iHar = 0 ; iHar < NbrHar ; iHar++)
 	t_Value.Val[iVal] += H[iTime][iHar] * MH_Value->Val[iHar*MAX_DIM+iVal] ;
-    }      
+    }
 
     /* evaluation of the function */
-    Get_ValueOfExpression(Expression_P, QuantityStorage_P0, u, v, w, &t_Value);
+    Get_ValueOfExpression(Expression_P, QuantityStorage_P0, u, v, w, &t_Value, 1); //To generalize: Function in MHTransform (e.g. h[{d a}]) has 1 argument
 
     if (!iTime) nVal2 = NbrValues_Type (t_Value.Type) ;
 
-    for (iVal = 0 ; iVal < nVal2 ; iVal++)  for (iHar = 0 ; iHar < NbrHar ; iHar++)
-      MH_Value_Tr.Val[iHar*MAX_DIM+iVal] += 
-	weight[iHar] * H[iTime][iHar] * t_Value.Val[iVal] ;
+    for (iVal = 0 ; iVal < nVal2 ; iVal++)
+      for (iHar = 0 ; iHar < NbrHar ; iHar++)
+        MH_Value_Tr.Val[iHar*MAX_DIM+iVal] +=
+          weight[iHar] * H[iTime][iHar] * t_Value.Val[iVal] ;
     /* weight[iTime] * H[iTime][iHar] * t_Value.Val[iVal] ; */
 
   } /*  for iTime  */
 
   for (iVal = 0 ; iVal < nVal2 ; iVal++)  for (iHar = 0 ; iHar < NbrHar ; iHar++)
-    MH_Value->Val[iHar*MAX_DIM+iVal] = MH_Value_Tr.Val[iHar*MAX_DIM+iVal] ; 
+    MH_Value->Val[iHar*MAX_DIM+iVal] = MH_Value_Tr.Val[iHar*MAX_DIM+iVal] ;
   MH_Value->Type = t_Value.Type ;
 
   Current.NbrHar = NbrHar ;
-} 
+}
 
 /* ----------------------------------------------------------------------------------- */
 /*  C a l _ I n i t G a l e r k i n T e r m O f F e m E q u a t i o n _ M H J a c N L  */
@@ -369,54 +368,56 @@ void Cal_InitGalerkinTermOfFemEquation_MHJacNL(struct EquationTerm  * EquationTe
   FI = EquationTerm_P->Case.LocalTerm.Active ;
   FI->MHJacNL = 0 ;
 
-  /* search for MHJacNL-term(s) */ 
-  WholeQuantity_L = EquationTerm_P->Case.LocalTerm.Term.WholeQuantity ;
+  /* search for MHJacNL-term(s) */
+  WholeQuantity_L  = EquationTerm_P->Case.LocalTerm.Term.WholeQuantity ;
   WholeQuantity_P0 = (struct WholeQuantity*)List_Pointer(WholeQuantity_L, 0) ;
   i_WQ = 0 ; while ( i_WQ < List_Nbr(WholeQuantity_L) &&
 		     (WholeQuantity_P0 + i_WQ)->Type != WQ_MHJACNL) i_WQ++ ;
 
-  if (i_WQ == List_Nbr(WholeQuantity_L) ) 
+  if (i_WQ == List_Nbr(WholeQuantity_L) )
     return;   /* no MHJacNL stuff, let's get the hell out of here ! */
 
 
   /* check if Galerkin term produces symmetrical contribution to system matrix */
-  if (!FI->SymmetricalMatrix) 
+  if (!FI->SymmetricalMatrix)
      Message::Error("Galerkin term with MHJacNL must be symmetrical");
-  
-  if (List_Nbr(WholeQuantity_L) == 3){
-    if (i_WQ != 0 || 
-	EquationTerm_P->Case.LocalTerm.Term.DofIndexInWholeQuantity != 1 ||
-	(WholeQuantity_P0 + 2)->Type != WQ_BINARYOPERATOR ||
-	(WholeQuantity_P0 + 2)->Case.Operator.TypeOperator != OP_TIME)
+
+  if (List_Nbr(WholeQuantity_L) == 4){
+    if (i_WQ != 1 ||
+	EquationTerm_P->Case.LocalTerm.Term.DofIndexInWholeQuantity != 2 ||
+	(WholeQuantity_P0 + 3)->Type != WQ_BINARYOPERATOR ||
+	(WholeQuantity_P0 + 3)->Case.Operator.TypeOperator != OP_TIME)
       Message::Error("Not allowed expression in Galerkin term with MHJacNL");
-    FI->MHJacNL_Factor = 1.; 
-  } else if (List_Nbr(WholeQuantity_L) == 5){
+    FI->MHJacNL_Factor = 1.;
+  } else if (List_Nbr(WholeQuantity_L) == 6){
     if ((WholeQuantity_P0 + 0)->Type != WQ_CONSTANT ||
-	i_WQ != 1 || 
-	(WholeQuantity_P0 + 2)->Type != WQ_BINARYOPERATOR ||
-	(WholeQuantity_P0 + 2)->Case.Operator.TypeOperator != OP_TIME ||
+	i_WQ != 2 ||
+	(WholeQuantity_P0 + 3)->Type != WQ_BINARYOPERATOR ||
+	(WholeQuantity_P0 + 3)->Case.Operator.TypeOperator != OP_TIME ||
 	EquationTerm_P->Case.LocalTerm.Term.DofIndexInWholeQuantity != 3 ||
-	(WholeQuantity_P0 + 4)->Type != WQ_BINARYOPERATOR ||
-	(WholeQuantity_P0 + 4)->Case.Operator.TypeOperator != OP_TIME)
+	(WholeQuantity_P0 + 5)->Type != WQ_BINARYOPERATOR ||
+	(WholeQuantity_P0 + 5)->Case.Operator.TypeOperator != OP_TIME)
       Message::Error("Not allowed expression in Galerkin term with MHJacNL");
     FI->MHJacNL_Factor = WholeQuantity_P0->Case.Constant ;
     /* printf(" Factor = %e \n" , FI->MHJacNL_Factor); */
   } else {
-    Message::Error("Not allowed expression in Galerkin term with MHJacNL (%d terms) ", 
+    Message::Error("Not allowed expression in Galerkin term with MHJacNL (%d terms) ",
                    List_Nbr(WholeQuantity_L));
   }
 
-  if(EquationTerm_P->Case.LocalTerm.Term.CanonicalWholeQuantity_Equ != CWQ_NONE) 
+  if(EquationTerm_P->Case.LocalTerm.Term.CanonicalWholeQuantity_Equ != CWQ_NONE)
     Message::Error("Not allowed expression in Galerkin term with MHJacNL");
-    
+
   if (EquationTerm_P->Case.LocalTerm.Term.TypeTimeDerivative != JACNL_)
     Message::Error("MHJacNL can only be used with JACNL") ;
 
   FI->MHJacNL = 1 ;
-  FI->MHJacNL_Index  = (WholeQuantity_P0 + i_WQ)->Case.MHJacNL.Index ;
+  FI->MHJacNL_Index  = (WholeQuantity_P0 + i_WQ)->Case.MHJacNL.Index ; /* index of function for jacobian, e.g. dhdb[{d a}]*/
 
-  FI->MHJacNL_HarOffSet = 2 * (WholeQuantity_P0 + i_WQ)->Case.MHJacNL.FreqOffSet ;  
-  if (FI->MHJacNL_HarOffSet > Current.NbrHar-2){ 
+  //Message::Info("FreqOffSet in 'MHJacNL' == %d ", (WholeQuantity_P0 + i_WQ)->Case.MHJacNL.FreqOffSet) ;
+
+  FI->MHJacNL_HarOffSet = 2 * (WholeQuantity_P0 + i_WQ)->Case.MHJacNL.FreqOffSet ;
+  if (FI->MHJacNL_HarOffSet > Current.NbrHar-2){
     Message::Warning("FreqOffSet in 'MHJacNL' cannot exceed %d => set to %d ",
                      Current.NbrHar/2-1, Current.NbrHar/2-1) ;
     FI->MHJacNL_HarOffSet = Current.NbrHar-2 ;
@@ -436,7 +437,7 @@ void Cal_InitGalerkinTermOfFemEquation_MHJacNL(struct EquationTerm  * EquationTe
 void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
 					    struct EquationTerm     * EquationTerm_P,
 					    struct QuantityStorage  * QuantityStorage_P0) {
-  
+
   struct FemLocalTermActive * FI ;
   struct QuantityStorage    * QuantityStorage_P;
   struct IntegrationCase    * IntegrationCase_P ;
@@ -464,14 +465,14 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
   double E_D[NBR_MAX_HARMONIC][NBR_MAX_HARMONIC][MAX_DIM];
 
   void (*xFunctionBFDof[NBR_MAX_BASISFUNCTIONS])
-    (struct Element * Element, int NumEntity, 
+    (struct Element * Element, int NumEntity,
      double u, double v, double w, double Value[] ) ;
   double (*Get_Jacobian)(struct Element*, MATRIX3x3*) ;
   void (*Get_IntPoint)(int,int,double*,double*,double*,double*);
   double (*Get_Product)(double*,double*,double*) = 0;
 
   /* static double eps; */
- 
+
   FI = EquationTerm_P->Case.LocalTerm.Active ;
   QuantityStorage_P = FI->QuantityStorageDof_P ;
 
@@ -479,19 +480,22 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
   /*  G e t   F u n c t i o n V a l u e  f o r  t e s t  f u n c t i o n s    */
   /*  ----------------------------------------------------------------------  */
 
-  if (!(Nbr_Dof = QuantityStorage_P->NbrElementaryBasisFunction)) return;
+  if (!(Nbr_Dof = QuantityStorage_P->NbrElementaryBasisFunction)){
+    return;
+  }
 
   Get_FunctionValue(Nbr_Dof, (void (**)())xFunctionBFDof,
 		    EquationTerm_P->Case.LocalTerm.Term.TypeOperatorDof,
 		    QuantityStorage_P, &FI->Type_FormDof) ;
 
+
   for (j = 0 ; j < Nbr_Dof ; j++)
-    for (k = 0 ; k < Current.NbrHar ; k+=2) 
+    for (k = 0 ; k < Current.NbrHar ; k+=2)
       Dof_GetComplexDofValue
 	(QuantityStorage_P->FunctionSpace->DofData,
 	 QuantityStorage_P->BasisFunction[j].Dof + k/2*gCOMPLEX_INCREMENT,
 	 &Val_Dof[j][k], &Val_Dof[j][k+1]) ;
-  
+
   /* printf("Type1 = %d\n",  FI->Type_FormDof); */
   nVal1 = NbrValues_Type (Type1 = Get_ValueFromForm(FI->Type_FormDof)) ;
 
@@ -500,7 +504,7 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
   /*  -------------------------------------------------------------------  */
   /*  G e t   J a c o b i a n   M e t h o d                                */
   /*  -------------------------------------------------------------------  */
-  
+
   i = 0 ; while ((i < FI->NbrJacobianCase) &&
 		 ((j = (FI->JacobianCase_P0 + i)->RegionIndex) >= 0) &&
 		 !List_Search
@@ -518,28 +522,28 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
 
   if (FI->Flag_ChangeCoord) Get_NodesCoordinatesOfElement(Element) ;
 
- 
+
 
   /*  integration in space  */
 
   IntegrationCase_P =
     Get_IntegrationCase(Element, FI->IntegrationCase_L, FI->CriterionIndex);
 
-  switch (IntegrationCase_P->Type) {    
+  switch (IntegrationCase_P->Type) {
   case ANALYTIC :
     Message::Error("Analytical integration not implemented for MHJacNL");
-  }  
+  }
 
   Quadrature_P = (struct Quadrature*)
     List_PQuery(IntegrationCase_P->Case, &Element->Type, fcmp_int);
-  
+
   if(!Quadrature_P)
     Message::Error("Unknown type of Element (%s) for Integration method (%s)",
                    Get_StringForDefine(Element_Type, Element->Type),
                    ((struct IntegrationMethod *)
                     List_Pointer(Problem_S.IntegrationMethod,
                                  EquationTerm_P->Case.LocalTerm.IntegrationMethodIndex))->Name);
-  
+
   Nbr_IntPoints = Quadrature_P->NumberOfPoints ;
   Get_IntPoint  = (void(*)(int,int,double*,double*,double*,double*))
     Quadrature_P->Function ;
@@ -566,7 +570,7 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
   /* special treatment of DC-term and associated dummy sinus-term */
   DcHarmonic = NbrHar;
   ZeroHarmonic = 0;
-  for (iPul = 0 ; iPul < NbrHar/2 ; iPul++) 
+  for (iPul = 0 ; iPul < NbrHar/2 ; iPul++)
     if (!Current.DofData->Val_Pulsation[iPul]){
       DcHarmonic = 2*iPul ;
       ZeroHarmonic = 2*iPul+1 ;
@@ -579,26 +583,26 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
       for (iHar = 0 ; iHar < NbrHar ; iHar++)
 	for (jHar = OFFSET ; jHar <= iHar ; jHar++)
 	  E_MH[iDof][jDof][iHar][jHar] = 0. ;
-  
-  /* volume integration over element */ 
+
+  /* volume integration over element */
   for (i_IntPoint = 0 ; i_IntPoint < Nbr_IntPoints ; i_IntPoint++) {
-    
-    Get_IntPoint(Nbr_IntPoints, i_IntPoint, 
+
+    Get_IntPoint(Nbr_IntPoints, i_IntPoint,
 		 &Current.u, &Current.v, &Current.w, &weightIntPoint) ;
-    
+
     if (FI->Flag_ChangeCoord) {
       Get_BFGeoElement(Element, Current.u, Current.v, Current.w) ;
-      
+
       Element->DetJac = Get_Jacobian(Element, &Element->Jac) ;
       weightIntPoint *= fabs(Element->DetJac) ;
-      
+
       if (FI->Flag_InvJac)
 	Get_InverseMatrix(Type_Dimension, Element->Type, Element->DetJac,
 			  &Element->Jac, &Element->InvJac) ;
     }
-	
+
     /* Test and shape Functions (are the same) */
-	
+
     for (i = 0 ; i < Nbr_Dof ; i++) {
       xFunctionBFDof[i]
 	(Element,
@@ -606,11 +610,11 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
 	 Current.u, Current.v, Current.w, vBFuDof[i]) ;
       ((void (*)(struct Element*, double*, double*))
        FI->xChangeOfCoordinatesEqu) (Element, vBFuDof[i], vBFxDof[i]) ;
-    } 
-	
-    switch (Type1) {        
+    }
+
+    switch (Type1) {
     case SCALAR :
-      for (k = 0 ; k < NbrHar ; k++){ 
+      for (k = 0 ; k < NbrHar ; k++){
 	Val[k] = 0.;
 	for (j = 0 ; j < Nbr_Dof ; j++)
 	  Val[k] += vBFxDof[j][0] * Val_Dof[j][k] ;
@@ -628,25 +632,25 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
       break ;
     }
 
-   
+
     Current.NbrHar = 1;  /* evaluation in time domain */
 
     /* time integration over fundamental period */
-    for (iTime = 0 ; iTime < NbrPointsX ; iTime++) {  
+    for (iTime = 0 ; iTime < NbrPointsX ; iTime++) {
 
       t_Value.Type = Type1 ;
       for (iVal1 = 0 ; iVal1 < nVal1 ; iVal1++){
-	t_Value.Val[iVal1] = 0; 
+	t_Value.Val[iVal1] = 0;
 	for (iHar = 0 ; iHar < NbrHar ; iHar++)
 	  t_Value.Val[iVal1] += H[iTime][iHar] * Val[iHar*nVal1+iVal1] ;
-      }      
-      
-      Get_ValueOfExpression(Expression_P, QuantityStorage_P0, 
-			    Current.u, Current.v, Current.w, &t_Value);
-      
+      }
+
+      Get_ValueOfExpression(Expression_P, QuantityStorage_P0,
+			    Current.u, Current.v, Current.w, &t_Value, 1); //To generalize: Function in MHJacNL has 1 argument (e.g. dhdb[{d a}])
+
       if (!iTime){
 	if (!i_IntPoint){
-	  nVal2 = NbrValues_Type (t_Value.Type) ; 
+	  nVal2 = NbrValues_Type (t_Value.Type) ;
 	  Get_Product = (double(*)(double*,double*,double*))
 	    Get_RealProductFunction_Type1xType2xType1 (Type1, t_Value.Type) ;
 	}
@@ -675,7 +679,7 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
     for (iHar = 0 ; iHar < NbrHar ; iHar++)
       for (jHar = OFFSET  ; jHar <= iHar ; jHar++){
 	for (iVal2 = 0 ; iVal2 < nVal2 ; iVal2++)
-	  if ( E_D[iHar][jHar][iVal2] * E_D[iHar][jHar][iVal2] < 
+	  if ( E_D[iHar][jHar][iVal2] * E_D[iHar][jHar][iVal2] <
 	      eps * eps * fabs(E_D[iHar][iHar][iVal2] * E_D[jHar][jHar][iVal2]) )
 	    E_D[iHar][jHar][iVal2]=0 ;
       }
@@ -686,7 +690,7 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
       for (jDof = 0 ; jDof <= iDof ; jDof++)
 	for (iHar = 0 ; iHar < NbrHar ; iHar++)
 	  for (jHar = OFFSET  ; jHar <= iHar ; jHar++){
-	    E_MH[iDof][jDof][iHar][jHar] += weightIntPoint * 
+	    E_MH[iDof][jDof][iHar][jHar] += weightIntPoint *
 	      Get_Product(vBFxDof[iDof], E_D[iHar][jHar], vBFxDof[jDof]) ;
 
 	    /*  printf("%d %d %d %d  %e\n", iDof, jDof, iHar, jHar,
@@ -694,8 +698,8 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
 	  }
 
     Current.NbrHar = NbrHar ;
- 
-  }  /* for i_IntPoint ... */            
+
+  }  /* for i_IntPoint ... */
 
 
   /*  --------------------------------------------------------------------  */
@@ -706,7 +710,7 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
   Jac = &Current.DofData->Jac;
 
   for (iDof = 0 ; iDof < Nbr_Dof ; iDof++){
-    Dofi = QuantityStorage_P->BasisFunction[iDof].Dof ;    
+    Dofi = QuantityStorage_P->BasisFunction[iDof].Dof ;
     for (jDof = 0 ; jDof <= iDof ; jDof++){
       Dofj = QuantityStorage_P->BasisFunction[jDof].Dof ;
 

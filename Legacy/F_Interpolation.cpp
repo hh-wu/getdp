@@ -50,6 +50,7 @@ void F_InterpolationLinear(F_ARG)
   else {
     Message::Error("Function 'Interpolation' not valid for Complex");
   }
+
   V->Type = SCALAR ;
 }
 
@@ -170,7 +171,7 @@ void F_InterpolationAkima(F_ARG)
     V->Val[1] = 0. ;
   }
   else {
-    Message::Error("Function 'Interpolation' not valid for Complex");
+    Message::Error("Function 'InterpolationAkima' not valid for Complex");
   }
   V->Type = SCALAR ;
 }
@@ -212,7 +213,7 @@ void F_dInterpolationAkima(F_ARG)
     V->Val[1] = 0. ;
   }
   else {
-    Message::Error("Function 'dInterpolation' not valid for Complex");
+    Message::Error("Function 'dInterpolationAkima' not valid for Complex");
   }
   V->Type = SCALAR ;
 }

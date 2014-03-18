@@ -139,11 +139,15 @@ void  Cal_GlobalTermOfFemEquation(int  Num_Region,
     Expression_P = (struct Expression *)List_Pointer
       (Problem_S.Expression, (WholeQuantity_P0 + i_WQ)->Case.MHJacNL.Index) ;
 
+
+    printf("=====> hola idiota \n");
     MH_Get_InitData(2, (WholeQuantity_P0 + i_WQ)->Case.MHJacNL.NbrPoints,
 		    &NbrPointsX, &H, &HH,
 		    &time, &weight) ;
 
     NbrHar = Current.NbrHar ;
+    printf("hola idiota \n");
+
 
     /* special treatment of DC-term and associated dummy sinus-term */
     DcHarmonic = NbrHar;

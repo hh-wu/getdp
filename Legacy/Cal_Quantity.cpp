@@ -268,7 +268,11 @@ void Cal_WholeQuantity(struct Element * Element,
   struct Solution        *Solution_P0, *Solution_PN ;
 
   struct Element* Save_CurrentElement ;
+#if defined(HAVE_MULTIHARMONIC) //++++ Ruth
+  struct Value Stack[NBR_MAX_BASISFUNCTIONS][MAX_STACK_SIZE] ;
+#else
   struct Value Stack[8][MAX_STACK_SIZE] ;
+#endif
 
   WholeQuantity_P0 = (struct WholeQuantity*)List_Pointer(WholeQuantity_L, 0) ;
 
@@ -602,7 +606,7 @@ void Cal_WholeQuantity(struct Element * Element,
 
     case WQ_ARGUMENT :
       if (WholeQuantity_P->Case.Argument.Index > NbrArguments){
-        Message::Error("Function %s called with too few arguments", ExpressionName);
+        Message::Error("Function %s called with too few arguments.", ExpressionName);
       }
       Cal_CopyValue(DofValue + WholeQuantity_P->Case.Argument.Index - 1,
 		    &Stack[0][Index]) ;
@@ -815,6 +819,7 @@ void Cal_WholeQuantity(struct Element * Element,
         Multi[Index] = 0 ;
         Index++ ;
       }
+
       Index -= NbrArguments ;
       Cal_WholeQuantity(Element, QuantityStorage_P0,
 			WholeQuantity_P->Case.MHTransform.WholeQuantity,

@@ -895,4 +895,5 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
   }  /* while (1) ... */
 
   Current.flagAssDiag = 0; /*+++prov*/
+
 }

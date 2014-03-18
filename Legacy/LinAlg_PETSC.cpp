@@ -1205,6 +1205,7 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
     // set some default options: use direct solver
     _try(KSPSetType(Solver->ksp[kspIndex], "preonly"));
     _try(PCSetType(pc, PCLU));
+
 #if (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
     // use MUMPS by default if available
     _try(PCFactorSetMatSolverPackage(pc, "mumps"));
@@ -1227,7 +1228,7 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
       const char *pctype = "";
       _try(PCGetType(pc, &pctype));
 #else
- const KSPType ksptype;
+      const KSPType ksptype;
       _try(KSPGetType(Solver->ksp[kspIndex], &ksptype));
       const PCType pctype;
       _try(PCGetType(pc, &pctype));
