@@ -1322,12 +1322,11 @@ WholeQuantity_Single :
 	vyyerror("Dof{} definition out of context");
     }
 
-  | tMHTransform '[' tSTRING '['
-    { Last_DofIndexInWholeQuantity = Current_DofIndexInWholeQuantity; }
-     WholeQuantityExpression ']' ']' '{' FExpr '}'
+  | tMHTransform
+    '[' NameForFunction { Last_DofIndexInWholeQuantity = Current_DofIndexInWholeQuantity; } '[' WholeQuantityExpression ']' ']' '{' FExpr '}'
     {
       int i;
-      if((i = List_ISearchSeq(Problem_S.Expression, $3,fcmp_Expression_Name)) < 0)
+      if((i = List_ISearchSeq(Problem_S.Expression, $3, fcmp_Expression_Name)) < 0)
 	vyyerror("Undefined function '%s' used in MHTransform", $3);
       if(Current_DofIndexInWholeQuantity != Last_DofIndexInWholeQuantity)
 	vyyerror("Dof{} definition cannot be used in MHTransform");
@@ -1339,19 +1338,38 @@ WholeQuantity_Single :
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
 
-  | tMHJacNL '[' tSTRING ']' '{' FExpr ',' FExpr '}'
+  | tMHJacNL
+    '[' NameForFunction ArgumentsForFunction ']' '{' FExpr ',' FExpr '}'
     {
       int i;
       if((i = List_ISearchSeq(Problem_S.Expression, $3,fcmp_Expression_Name)) < 0)
 	vyyerror("Undefined function '%s' used in MHJacNL", $3);
       WholeQuantity_S.Type = WQ_MHJACNL;
       WholeQuantity_S.Case.MHJacNL.Index = i;
-      WholeQuantity_S.Case.MHJacNL.NbrPoints = (int)$6;
-      WholeQuantity_S.Case.MHJacNL.FreqOffSet = (int)$8;
+      WholeQuantity_S.Case.MHJacNL.NbrArguments = $4;
+      if($4 != 1)  vyyerror("Uncompatible argument %d for Function: %s", $4, $3);
+      WholeQuantity_S.Case.MHJacNL.NbrPoints  = (int)$7;
+      WholeQuantity_S.Case.MHJacNL.FreqOffSet = (int)$9;
       List_Read(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1, &Current_WholeQuantity_L);
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
 
+/*
+  | tMHJacNL
+    '[' NameForFunction { Last_DofIndexInWholeQuantity = Current_DofIndexInWholeQuantity; } '[' WholeQuantityExpression ']' ']' '{' FExpr ',' FExpr '}'
+    {
+      int i;
+      if((i = List_ISearchSeq(Problem_S.Expression, $3,fcmp_Expression_Name)) < 0)
+	vyyerror("Undefined function '%s' used in MHJacNL", $3);
+      WholeQuantity_S.Type = WQ_MHJACNL;
+      WholeQuantity_S.Case.MHJacNL.Index = i;
+      WholeQuantity_S.Case.MHJacNL.WholeQuantity = $6;
+      WholeQuantity_S.Case.MHJacNL.NbrPoints = (int)$10;
+      WholeQuantity_S.Case.MHJacNL.FreqOffSet = (int)$12;
+      List_Read(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1, &Current_WholeQuantity_L);
+      List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
+    }
+*/
   | tSolidAngle '[' Quantity_Def ']'
     { WholeQuantity_S.Type = WQ_SOLIDANGLE;
       WholeQuantity_S.Case.OperatorAndQuantity.Index = $3.Int2;

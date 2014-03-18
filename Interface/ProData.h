@@ -47,12 +47,12 @@
 */
 
 #if defined(HAVE_MULTIHARMONIC)
-#define NBR_MAX_HARMONIC    40
+#define NBR_MAX_HARMONIC   20 /* originally 40, if I keep this value, it crashes in Cal_GalerkinTermOfFemEquation_MHJacNL */
 #else
 #define NBR_MAX_HARMONIC    2
 #endif
 
-#define MAX_STACK_SIZE      40
+#define MAX_STACK_SIZE     40
 
 struct Value {
   int     Type;
@@ -780,7 +780,8 @@ struct WholeQuantity {
              int DofNumber; }                                    DofValue;
     struct { List_T *WholeQuantity;
              int Index, NbrPoints; }                             MHTransform;
-    struct { int Index, NbrPoints, FreqOffSet; }                 MHJacNL;
+    struct { List_T *WholeQuantity;
+             int Index, NbrArguments, NbrPoints, FreqOffSet; }   MHJacNL;
   } Case;
 
 };
