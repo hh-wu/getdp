@@ -527,7 +527,7 @@ static PetscErrorCode STD_vector_to_PETSc_Vec
   (std::vector<std::vector<std::vector<double> > > std_vec,
    Vec petsc_vec, Field *Local)
 {
-  PetscInt        nb_view = Local->nb_field;
+  PetscInt nb_view = Local->nb_field;
 
   for (int cpt_view = 0; cpt_view < nb_view; cpt_view++){
     int nb_element = Local->size[cpt_view];
@@ -552,6 +552,9 @@ static PetscErrorCode STD_vector_to_PETSc_Vec
         ix[i] = Local->iStart[cpt_view] + i;
         val[i] = std_vec[cpt_view][0][i] + PETSC_i*std_vec[cpt_view][1][i];
 #else
+        // FIXME: check this
+        Message::Error("Complex IterativeLinearSolver requires complex PETSc");
+
         ix[2*i] = Local->iStart[cpt_view] + 2*i;
         ix[2*i+1] = Local->iStart[cpt_view] + 2*i+1;
         val[2*i] = std_vec[cpt_view][0][i];
@@ -615,10 +618,15 @@ static PetscErrorCode PETSc_Vec_to_STD_Vec
         (*std_vec)[cpt_view][0][j] = (double)PetscRealPart(val);
         (*std_vec)[cpt_view][1][j] = (double)PetscImaginaryPart(val);
 #else
-        _try(VecGetValues(petsc_vec, 1, &cpt, &val));
-        (*std_vec)[cpt_view][0][2*j] = (double)(val);
-        _try(VecGetValues(petsc_vec, 1, &cpt, &val));
-        (*std_vec)[cpt_view][1][2*j+1] = (double)(val);
+        // FIXME: check this
+        Message::Error("Complex IterativeLinearSolver requires complex PETSc");
+
+        int cpt2 = iStart + 2*j;
+        _try(VecGetValues(petsc_vec, 1, &cpt2, &val));
+        (*std_vec)[cpt_view][0][j] = (double)(val);
+        int cpt3 = iStart + 2*j+1;
+        _try(VecGetValues(petsc_vec, 1, &cpt3, &val));
+        (*std_vec)[cpt_view][1][j] = (double)(val);
 #endif
       }
       else{
