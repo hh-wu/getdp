@@ -5,7 +5,7 @@
 		<title>Electromechanical Relay</title>
 		<summary>2D model of an electro-mechanical relay</summary>
 		<file type="pro">relay.pro</file>
-		<preview type="png">screenshot1_512.png</preview>
+		<preview type="png">screenshot_relay.png</preview>
 		<url>http://onelab.info/wiki/Electromechanical_Relay</url>
 	</model>
 </models>
