@@ -141,6 +141,7 @@ Region                       return tRegion;
 SubRegion                    return tSubRegion;
 RegionRef                    return tRegionRef;
 SubRegionRef                 return tSubRegionRef;
+ToleranceFactor              return tToleranceFactor;
 Coefficient                  return tCoefficient;
 Filter                       return tFilter;
 Value                        return tValue;

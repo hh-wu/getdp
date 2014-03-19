@@ -189,6 +189,7 @@ struct ConstraintPerRegion {
       int  RegionRefIndex, SubRegionRefIndex;
       int  FilterIndex, CoefIndex, FunctionIndex;
       int  FilterIndex2, CoefIndex2, FunctionIndex2;
+      double ToleranceFactor;
     } Link;
   } Case;
 };

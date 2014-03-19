@@ -196,7 +196,7 @@ struct doubleXstring{
 
 %token  tConstraint
 %token    tRegion tSubRegion tRegionRef tSubRegionRef
-%token    tFilter tCoefficient tValue tTimeFunction
+%token    tFilter tToleranceFactor tCoefficient tValue tTimeFunction
 %token    tBranch tNameOfResolution
 
 %token  tJacobian
@@ -2010,6 +2010,7 @@ ConstraintCaseTerm :
 	ConstraintPerRegion_S.Case.Link.FilterIndex2 = -1;
 	ConstraintPerRegion_S.Case.Link.FunctionIndex2 = -1;
 	ConstraintPerRegion_S.Case.Link.CoefIndex2 = -1;
+	ConstraintPerRegion_S.Case.Link.ToleranceFactor = 1.e-8;
       }
       else  vyyerror("RegionRef incompatible with Type");
     }
@@ -2057,6 +2058,15 @@ ConstraintCaseTerm :
 	ConstraintPerRegion_S.Case.Link.FunctionIndex2 = $5;
       }
       else  vyyerror("Function incompatible with Type");
+    }
+
+  | tToleranceFactor FExpr tEND
+    {
+      if(ConstraintPerRegion_S.Type == CST_LINK ||
+	  ConstraintPerRegion_S.Type == CST_LINKCPLX) {
+	ConstraintPerRegion_S.Case.Link.ToleranceFactor  = $2;
+      }
+      else  vyyerror("ToleranceFactor incompatible with Type");
     }
 
   | tCoefficient '[' Expression ',' Expression ']' tEND

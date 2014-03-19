@@ -606,7 +606,7 @@ void Print_Network(struct MultiConstraintPerRegion *MCPR_P)
 
 void Print_Constraint()
 {
-  int    i, Nbr, j, Nbrj, k, Nbrk;
+  int    i, Nbr, j, Nbrj, k, Nbrk, index, index2;
   struct Constraint *CO;
   struct ConstraintPerRegion *CPR;
   struct MultiConstraintPerRegion MCPR_S;
@@ -670,6 +670,41 @@ void Print_Constraint()
 	case ASSIGNFROMRESOLUTION :
 	case INITFROMRESOLUTION :
 	  Message::Check(" NameOfResolution %s;", CPR->Case.Solve.ResolutionName);
+	  break;
+	case CST_LINK :
+	case CST_LINKCPLX :
+          if ( (index = CPR->Case.Link.RegionRefIndex) >= 0)
+            Message::Check(" RegionRef %s;",
+                           ((struct Group *)
+                            List_Pointer(Problem_S.Group, index))->Name);
+          if ( (index = CPR->Case.Link.SubRegionRefIndex) >= 0)
+            Message::Check(" SubRegionRef %s;",
+                           ((struct Group *)
+                            List_Pointer(Problem_S.Group, index))->Name);
+
+          if ( (index = CPR->Case.Link.FilterIndex) >= 0) {
+            if ( (index2 = CPR->Case.Link.FilterIndex2) < 0)
+              Message::Check(" Filter Exp[%s];", Get_ExpressionName(index));
+            else
+              Message::Check(" Filter [ Exp[%s], Exp[%s] ];",
+                             Get_ExpressionName(index), Get_ExpressionName(index2));
+          }
+          if ( (index = CPR->Case.Link.FunctionIndex) >= 0) {
+            if ( (index2 = CPR->Case.Link.FunctionIndex2) < 0)
+              Message::Check(" Function Exp[%s];", Get_ExpressionName(index));
+            else
+              Message::Check(" Function [ Exp[%s], Exp[%s] ];",
+                             Get_ExpressionName(index), Get_ExpressionName(index2));
+          }
+          if ( (index = CPR->Case.Link.CoefIndex) >= 0) {
+            if ( (index2 = CPR->Case.Link.CoefIndex2) < 0)
+              Message::Check(" Coefficient Exp[%s];", Get_ExpressionName(index));
+            else
+              Message::Check(" Coefficient [ Exp[%s], Exp[%s] ];",
+                             Get_ExpressionName(index), Get_ExpressionName(index2));
+            }
+          Message::Check(" ToleranceFactor %g;",
+                         CPR->Case.Link.ToleranceFactor);
 	  break;
 	}
 
