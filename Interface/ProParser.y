@@ -6735,7 +6735,7 @@ Affectation :
       Constant_S.Name = $1; Constant_S.Type = VAR_LISTOFFLOAT;
       Message::Barrier();
       FILE *File;
-      if(!(File = FOpen($5, "r"))){
+      if(!(File = FOpen($5, "rb"))){
         Message::Warning("Could not open file '%s'", $5);
 	Constant_S.Value.ListOfFloat = NULL;
       }
