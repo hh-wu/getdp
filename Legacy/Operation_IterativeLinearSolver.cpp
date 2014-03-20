@@ -552,11 +552,8 @@ static PetscErrorCode STD_vector_to_PETSc_Vec
         ix[i] = Local->iStart[cpt_view] + i;
         val[i] = std_vec[cpt_view][0][i] + PETSC_i*std_vec[cpt_view][1][i];
 #else
-        // FIXME: check this
-        Message::Error("Complex IterativeLinearSolver requires complex PETSc");
-
-        ix[2*i] = Local->iStart[cpt_view] + 2*i;
-        ix[2*i+1] = Local->iStart[cpt_view] + 2*i+1;
+        ix[2*i] = 2*Local->iStart[cpt_view] + 2*i;
+        ix[2*i+1] = 2*Local->iStart[cpt_view] + 2*i+1;
         val[2*i] = std_vec[cpt_view][0][i];
         val[2*i+1] = std_vec[cpt_view][1][i];
 #endif
@@ -618,13 +615,10 @@ static PetscErrorCode PETSc_Vec_to_STD_Vec
         (*std_vec)[cpt_view][0][j] = (double)PetscRealPart(val);
         (*std_vec)[cpt_view][1][j] = (double)PetscImaginaryPart(val);
 #else
-        // FIXME: check this
-        Message::Error("Complex IterativeLinearSolver requires complex PETSc");
-
-        int cpt2 = iStart + 2*j;
+        int cpt2 = 2*iStart + 2*j;
         _try(VecGetValues(petsc_vec, 1, &cpt2, &val));
         (*std_vec)[cpt_view][0][j] = (double)(val);
-        int cpt3 = iStart + 2*j+1;
+        int cpt3 = 2*iStart + 2*j+1;
         _try(VecGetValues(petsc_vec, 1, &cpt3, &val));
         (*std_vec)[cpt_view][1][j] = (double)(val);
 #endif
@@ -1054,9 +1048,12 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   Message::Info(3, "Total system size: %d", AllField.n_elem);
 
 #if !defined(PETSC_USE_COMPLEX)
-  AllField.n_elem *= 2;
-  MyField.n_elem *= 2;
-  Message::Info(3, "PETSc REAL arithmetic: system size is doubled: n=%d", AllField.n_elem);
+  if(Current.NbrHar == 2){
+    AllField.n_elem *= 2;
+    MyField.n_elem *= 2;
+    Message::Info(3, "PETSc REAL arithmetic: system size is doubled: n=%d",
+                  AllField.n_elem);
+  }
 #endif
 
   // Creating the vector/matrix
@@ -1066,7 +1063,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   _try(VecSetSizes(X, MyField.n_elem, AllField.n_elem));
   _try(VecSetFromOptions(X));
   // Petsc Vec Right Hand Side
-  _try(VecDuplicate(X,&B));
+  _try(VecDuplicate(X, &B));
   STD_vector_to_PETSc_Vec(B_std, B, &MyField);
 
   // context of the shell matrix
@@ -1154,12 +1151,8 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
     _try(KSPView(ksp,PETSC_VIEWER_STDOUT_WORLD));
 #if (PETSC_VERSION_RELEASE == 0  || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
     _try(KSPDestroy(&ksp));
-    // if(nb_pc > 0)
-    //   _try(PCDestroy(&pc));
 #else
     _try(KSPDestroy(ksp));
-    // if(nb_pc > 0)
-    //   _try(PCDestroy(pc));
 #endif
   }
 
