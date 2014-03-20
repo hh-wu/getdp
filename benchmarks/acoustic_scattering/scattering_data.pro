@@ -9,7 +9,7 @@ DefineConstant[
 //Frequency
 MENU_INPUT = "Input";
 DefineConstant[
-  k = {2, Min 0.1, Step 0.1, Max 500, Name Str[MENU_INPUT, "/2"], Label "Wavenumber"}
+  k = {1, Min 0.1, Step 0.1, Max 500, Name Str[MENU_INPUT, "/2"], Label "Wavenumber"}
   n_lc = {10, Min 1, Step 0.1, Max 100, Name Str[MENU_INPUT,"/3"], Label "Number of points per wavelength"}
 ];
 lambda = 2*Pi/k;
