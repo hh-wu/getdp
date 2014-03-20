@@ -16,6 +16,16 @@ extern struct CurrentData Current ;
 #include <gmsh/PView.h>
 #include <gmsh/PViewData.h>
 
+// FIXME: we should define a new API to pass "tol" and "match_elements" (hard
+// with current API, as number of arguments is variable (xyz & timestep) and
+// number of parameters is also variable (tags)
+//
+// * if tol is provided, call search{Scalar,Vector,Tensor}WithTol
+//
+// * if match_elements is provided, use Current.Element->GeoElement to compute
+//   number and coordinates of nodes (qn, qx, qy, qz) and pass them to the
+//   search functions
+
 void F_Field(F_ARG)
 {
   if(A->Type != VECTOR){
