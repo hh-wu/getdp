@@ -943,39 +943,62 @@ void  Format_PostFormat(struct PostSubOperation *PSO_P)
       }
       fprintf(PostStream, "$EndMeshFormat\n") ;
       if(!NoMesh){
-        fprintf(PostStream, "$Nodes\n%d\n", List_Nbr(Current.GeoData->Nodes));
-        for (int i = 0 ; i < List_Nbr(Current.GeoData->Nodes) ; i++) {
-          struct Geo_Node Geo_Node ;
-          List_Read(Current.GeoData->Nodes, i, &Geo_Node) ;
-          if(Flag_BIN){
-            fwrite(&Geo_Node.Num, sizeof(int), 1, PostStream);
-            double data[3] = {Geo_Node.x, Geo_Node.y, Geo_Node.z};
-            fwrite(data, sizeof(double), 3, PostStream);
-          }
-          else{
-            fprintf(PostStream, "%d %.16g %.16g %.16g\n",
-                    Geo_Node.Num, Geo_Node.x, Geo_Node.y, Geo_Node.z) ;
+        std::vector<Geo_Element*> elements;
+        std::set<int> nodes;
+        if(PSO_P->SubType == PRINT_ONELEMENTSOF){
+          List_T *Region_L =
+            ((struct Group *)List_Pointer(Problem_S.Group,
+                                          PSO_P->Case.OnRegion.RegionIndex))->InitialList ;
+          for(int i = 0 ; i < Geo_GetNbrGeoElements() ; i++) {
+            Geo_Element *Geo_Element = Geo_GetGeoElement(i) ;
+            if(List_Search(Region_L, &Geo_Element->Region, fcmp_int)){
+              elements.push_back(Geo_Element);
+              for (int j = 0 ; j < Geo_Element->NbrNodes ; j++)
+                nodes.insert(Geo_Element->NumNodes[j]) ;
+            }
           }
         }
-        fprintf(PostStream, "$EndNodes\n$Elements\n%d\n", List_Nbr(Current.GeoData->Elements));
-        for (int i = 0 ; i < List_Nbr(Current.GeoData->Elements) ; i++) {
-          struct Geo_Element  Geo_Element ;
-          List_Read(Current.GeoData->Elements, i, &Geo_Element) ;
-          int Type = Geo_GetElementTypeInv(FORMAT_GMSH, Geo_Element.Type) ;
+        else{
+          for(int i = 0 ; i < Geo_GetNbrGeoElements() ; i++) {
+            Geo_Element *Geo_Element = Geo_GetGeoElement(i) ;
+            elements.push_back(Geo_Element);
+            for (int j = 0 ; j < Geo_Element->NbrNodes ; j++)
+              nodes.insert(Geo_Element->NumNodes[j]) ;
+          }
+        }
+        fprintf(PostStream, "$Nodes\n%d\n", (int)nodes.size());
+        for (int i = 0 ; i < Geo_GetNbrGeoNodes() ; i++) {
+          Geo_Node *Geo_Node = Geo_GetGeoNode(i);
+          if(nodes.find(Geo_Node->Num) != nodes.end()){
+            if(Flag_BIN){
+              fwrite(&Geo_Node->Num, sizeof(int), 1, PostStream);
+              double data[3] = {Geo_Node->x, Geo_Node->y, Geo_Node->z};
+              fwrite(data, sizeof(double), 3, PostStream);
+            }
+            else{
+              fprintf(PostStream, "%d %.16g %.16g %.16g\n",
+                      Geo_Node->Num, Geo_Node->x, Geo_Node->y, Geo_Node->z) ;
+            }
+          }
+        }
+        fprintf(PostStream, "$EndNodes\n$Elements\n%d\n", (int)elements.size());
+        for (unsigned int i = 0 ; i < elements.size() ; i++) {
+          Geo_Element *Geo_Element = elements[i];
+          int Type = Geo_GetElementTypeInv(FORMAT_GMSH, Geo_Element->Type) ;
           if(Flag_BIN){
-            int blob[6] = {Type, 1, 2, Geo_Element.Num, Geo_Element.Region,
-                           Geo_Element.ElementaryRegion};
+            int blob[6] = {Type, 1, 2, Geo_Element->Num, Geo_Element->Region,
+                           Geo_Element->ElementaryRegion};
             fwrite(blob, sizeof(int), 6, PostStream);
-            std::vector<int> verts(Geo_Element.NbrNodes);
-            for (int j = 0 ; j < Geo_Element.NbrNodes ; j++)
-              verts[j] = Geo_Element.NumNodes[j] ;
-            fwrite(&verts[0], sizeof(int), Geo_Element.NbrNodes, PostStream);
+            std::vector<int> verts(Geo_Element->NbrNodes);
+            for (int j = 0 ; j < Geo_Element->NbrNodes ; j++)
+              verts[j] = Geo_Element->NumNodes[j] ;
+            fwrite(&verts[0], sizeof(int), Geo_Element->NbrNodes, PostStream);
           }
           else{
-            fprintf(PostStream, "%d %d 2 %d %d ",
-                    Geo_Element.Num, Type, Geo_Element.Region, Geo_Element.ElementaryRegion) ;
-            for (int j = 0 ; j < Geo_Element.NbrNodes ; j++)
-              fprintf(PostStream, "%d ", Geo_Element.NumNodes[j]) ;
+            fprintf(PostStream, "%d %d 2 %d %d ", Geo_Element->Num,
+                    Type, Geo_Element->Region, Geo_Element->ElementaryRegion) ;
+            for (int j = 0 ; j < Geo_Element->NbrNodes ; j++)
+              fprintf(PostStream, "%d ", Geo_Element->NumNodes[j]) ;
             fprintf(PostStream, "\n") ;
           }
         }
@@ -1596,4 +1619,3 @@ void Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
     }
   }
 }
-
