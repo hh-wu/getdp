@@ -2,9 +2,12 @@
 
 #PBS -q main
 #PBS -l model=ivybridge
-#PBS -l walltime=1:00:00
+#PBS -l walltime=4:00:00
 #PBS -l select=800:ncpus=1:vmem=2500mb:mpiprocs=1:ompthreads=1
 #PBS -l pvmem=2500mb
+#PBS -m "abe"
+#PBS -M cgeuzaine@ulg.ac.be
+#PBS -N GetDP_DDM
 
 #  #PBS -r y
 
