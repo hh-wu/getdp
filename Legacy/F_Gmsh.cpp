@@ -40,6 +40,12 @@ void F_Field(F_ARG)
   double y = A->Val[1];
   double z = A->Val[2];
 
+  if(Fct->NbrArguments > 1){
+    Message::Error("Time and additional arguments not supported in Field: "
+                   "use {Scalar,Vector,Tensor}Field instead");
+    return;
+  }
+
   for (int k = 0; k < Current.NbrHar; k++)
     for (int j = 0; j < 9; j++)
       V->Val[MAX_DIM * k + j] = 0. ;
@@ -115,13 +121,20 @@ static void F_X_Field(F_ARG, int type, bool complex)
   int numComp = (type == SCALAR) ? 1 : (type == VECTOR) ? 3 : 9;
 
   int NbrArg = Fct->NbrArguments ;
-  int TimeStep = 0;
-  if(NbrArg == 2){
+  int TimeStep = 0, MatchElement = 0;
+  if(NbrArg >= 2){
     if((A+1)->Type != SCALAR){
-      Message::Error("Expected scalar second argument");
+      Message::Error("Expected scalar second argument (time step)");
       return;
     }
     TimeStep = (int)(A+1)->Val[0];
+  }
+  if(NbrArg >= 3){
+    if((A+2)->Type != SCALAR){
+      Message::Error("Expected scalar second argument (match element)");
+      return;
+    }
+    MatchElement = (int)(A+2)->Val[0];
   }
 
   // Complex{Scalar,Vector,Tensor}Field assume that the Gmsh view contains real
@@ -143,6 +156,12 @@ static void F_X_Field(F_ARG, int type, bool complex)
       iview.push_back(Fct->Para[i]);
   }
 
+  int qn = MatchElement ? Current.Element->GeoElement->NbrNodes : 0;
+
+  double *qx = Current.Element->x;
+  double *qy = Current.Element->y;
+  double *qz = Current.Element->z;
+
   // add the values from all specified views
   for(unsigned int i = 0; i < iview.size(); i++){
 
@@ -162,14 +181,14 @@ static void F_X_Field(F_ARG, int type, bool complex)
     std::vector<double> val(numComp * data->getNumTimeSteps());
     switch(type){
     case SCALAR :
-      if(data->searchScalar(x, y, z, &val[0])){
+      if(data->searchScalar(x, y, z, &val[0], -1, 0, qn, qx, qy, qz)){
         V->Val[0] += val[TimeStep];
         if(complex && Current.NbrHar == 2 && data->getNumTimeSteps() > TimeStep + 1)
           V->Val[MAX_DIM] += val[TimeStep + 1];
       }
       break;
     case VECTOR :
-      if(data->searchVector(x, y, z, &val[0])){
+      if(data->searchVector(x, y, z, &val[0], -1, 0, qn, qx, qy, qz)){
         for(int j = 0; j < 3; j++)
           V->Val[j] += val[3 * TimeStep + j];
         if(complex && Current.NbrHar == 2 && data->getNumTimeSteps() > TimeStep + 1){
@@ -179,7 +198,7 @@ static void F_X_Field(F_ARG, int type, bool complex)
       }
       break;
     case TENSOR :
-      if(data->searchTensor(x, y, z, &val[0])){
+      if(data->searchTensor(x, y, z, &val[0], -1, 0, qn, qx, qy, qz)){
         for(int j = 0; j < 9; j++)
           V->Val[j] += val[9 * TimeStep + j];
         if(complex && Current.NbrHar == 2 && data->getNumTimeSteps() > TimeStep + 1){

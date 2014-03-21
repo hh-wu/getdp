@@ -3659,32 +3659,40 @@ does not produce an error: its contribution to the sum is simply zero.
 @item ScalarField
 @code{[@var{expression}]@{@var{expression-cst-list}@}}
 
-Idem, but consider only real-valued scalar fields.
+Idem, but consider only real-valued scalar fields. A second optional
+argument is the value of the time step. A third optional argument is a
+boolean flag to indicate that the interpolation should be performed (if
+possible) in the same element as the current element.
 
 @item VectorField
 @code{[@var{expression}]@{@var{expression-cst-list}@}}
 
-Idem, but consider only real-valued vector fields.
+Idem, but consider only real-valued vector fields. Optional arguments
+are treated in the same way as for @code{ScalarField}.
 
 @item TensorField
 @code{[@var{expression}]@{@var{expression-cst-list}@}}
 
-Idem, but consider only real-valued tensor fields.
+Idem, but consider only real-valued tensor fields. Optional arguments
+are treated in the same way as for @code{ScalarField}.
 
 @item ComplexScalarField
 @code{[@var{expression}]@{@var{expression-cst-list}@}}
 
-Idem, but consider only complex-valued scalar fields.
+Idem, but consider only complex-valued scalar fields. Optional arguments
+are treated in the same way as for @code{ScalarField}.
 
 @item ComplexVectorField
 @code{[@var{expression}]@{@var{expression-cst-list}@}}
 
-Idem, but consider only complex-valued vector fields.
+Idem, but consider only complex-valued vector fields. Optional arguments
+are treated in the same way as for @code{ScalarField}.
 
 @item ComplexTensorField
 @code{[@var{expression}]@{@var{expression-cst-list}@}}
 
-Idem, but consider only complex-valued tensor fields.
+Idem, but consider only complex-valued tensor fields. Optional arguments
+are treated in the same way as for @code{ScalarField}.
 
 @end ftable
 
