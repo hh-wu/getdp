@@ -8,6 +8,7 @@
 #include <vector>
 #include <string.h>
 #include <math.h>
+#include <set>
 #include "GetDPVersion.h"
 #include "ProData.h"
 #include "ProDefine.h"
