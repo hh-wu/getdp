@@ -16,16 +16,6 @@ extern struct CurrentData Current ;
 #include <gmsh/PView.h>
 #include <gmsh/PViewData.h>
 
-// FIXME: we should define a new API to pass "tol" and "match_elements" (hard
-// with current API, as number of arguments is variable (xyz & timestep) and
-// number of parameters is also variable (tags)
-//
-// * if tol is provided, call search{Scalar,Vector,Tensor}WithTol
-//
-// * if match_elements is provided, use Current.Element->GeoElement to compute
-//   number and coordinates of nodes (qn, qx, qy, qz) and pass them to the
-//   search functions
-
 void F_Field(F_ARG)
 {
   if(A->Type != VECTOR){
@@ -41,7 +31,7 @@ void F_Field(F_ARG)
   double z = A->Val[2];
 
   if(Fct->NbrArguments > 1){
-    Message::Error("Time and additional arguments not supported in Field: "
+    Message::Error("Time and additional arguments are not supported in Field: "
                    "use {Scalar,Vector,Tensor}Field instead");
     return;
   }
@@ -131,11 +121,14 @@ static void F_X_Field(F_ARG, int type, bool complex)
   }
   if(NbrArg >= 3){
     if((A+2)->Type != SCALAR){
-      Message::Error("Expected scalar second argument (match element)");
+      Message::Error("Expected scalar second argument (element matching flag)");
       return;
     }
     MatchElement = (int)(A+2)->Val[0];
   }
+
+  // Todo: we could treat the third arguement as a tolerance (and call
+  // searchScalarWithTol & friends)
 
   // Complex{Scalar,Vector,Tensor}Field assume that the Gmsh view contains real
   // and imaginary parts for each step
@@ -157,7 +150,6 @@ static void F_X_Field(F_ARG, int type, bool complex)
   }
 
   int qn = MatchElement ? Current.Element->GeoElement->NbrNodes : 0;
-
   double *qx = Current.Element->x;
   double *qy = Current.Element->y;
   double *qz = Current.Element->z;
