@@ -51,6 +51,8 @@ void F_Field(F_ARG)
       iview.push_back(Fct->Para[i]);
   }
 
+  double N = 0.;
+
   // add the values from all specified views
   for(unsigned int i = 0; i < iview.size(); i++){
 
@@ -68,6 +70,7 @@ void F_Field(F_ARG)
       if(Current.NbrHar == 2 && data->getNumTimeSteps() > 1)
         V->Val[MAX_DIM] += val[1];
       V->Type = SCALAR;
+      N += 1.;
     }
     else if(data->searchVector(x, y, z, &val[0])){
       for(int j = 0; j < 3; j++)
@@ -77,6 +80,7 @@ void F_Field(F_ARG)
           V->Val[MAX_DIM + j] += val[3 + j];
       }
       V->Type = VECTOR;
+      N += 1.;
     }
     else if(data->searchTensor(x, y, z, &val[0])){
       for(int j = 0; j < 9; j++)
@@ -86,11 +90,19 @@ void F_Field(F_ARG)
           V->Val[MAX_DIM + j] += val[9 + j];
       }
       V->Type = TENSOR;
+      N += 1.;
     }
     else{
       Message::Error("Did not find data at point (%g,%g,%g) in View with tag %d",
                      x, y, z, iview[i]);
     }
+  }
+
+  if(N > 1.){
+    Message::Debug("Averaging data %g times on vertex (%g,%g,%g)", N, x, y, z);
+    for (int k = 0; k < Current.NbrHar; k++)
+      for (int j = 0; j < 9; j++)
+        V->Val[MAX_DIM * k + j] = 0. ;
   }
 }
 
@@ -207,8 +219,8 @@ static void F_X_Field(F_ARG, int type, bool complex)
     }
   }
 
-  if(N > 1){
-    Message::Debug("Averaging data %g times on vertex %g %g %g\n", N, x, y, z);
+  if(N > 1.){
+    Message::Debug("Averaging data %g times on vertex (%g,%g,%g)", N, x, y, z);
     for (int k = 0; k < Current.NbrHar; k++)
       for (int j = 0; j < numComp; j++)
         V->Val[MAX_DIM * k + j] /= N ;
