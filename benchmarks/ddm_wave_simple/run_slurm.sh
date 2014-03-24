@@ -3,17 +3,20 @@
 #SBATCH --job-name=GetDP_DDM
 #SBATCH --output=res_%j.txt
 #SBATCH --time=1000
-#SBATCH --ntasks=20
+#SBATCH --ntasks=300
 #SBATCH --cpus-per-task=1
 # #SBATCH --ntasks-per-node=16
 #SBATCH --mem-per-cpu=4000
 #SBATCH --mail-user=cgeuzaine@ulg.ac.be
 #SBATCH --mail-type=ALL
 
-OPT="-setnumber ANALYSIS 0
+cat $0
+
+OPT="-setnumber ANALYSIS 1
      -setnumber N_DOM $SLURM_NTASKS
-     -setnumber N_LAMBDA 40
-     -setnumber DX 4
+     -setnumber N_LAMBDA 100
+     -setnumber DX 10
+     -setstring SOLVER bcgs
      -setstring DIR $GLOBALSCRATCH/out_$SLURM_JOB_ID/"
 
 MPIRUN="mpirun --bind-to-core"
