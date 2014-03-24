@@ -1,6 +1,7 @@
 #!/bin/sh
 
-#PBS -q main
+# #PBS -q main
+#PBS -q large
 #PBS -l model=ivybridge
 #PBS -l walltime=4:00:00
 #PBS -l select=800:ncpus=1:vmem=2500mb:mpiprocs=1:ompthreads=1
@@ -9,7 +10,7 @@
 #PBS -M cgeuzaine@ulg.ac.be
 #PBS -N GetDP_DDM
 
-#  #PBS -r y
+# #PBS -r y
 
 OPT="-setnumber ANALYSIS 0
      -setnumber N_DOM 800
