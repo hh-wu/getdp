@@ -154,6 +154,8 @@ static void F_X_Field(F_ARG, int type, bool complex)
   double *qy = Current.Element->y;
   double *qz = Current.Element->z;
 
+  double N = 0.;
+
   // add the values from all specified views
   for(unsigned int i = 0; i < iview.size(); i++){
 
@@ -177,6 +179,7 @@ static void F_X_Field(F_ARG, int type, bool complex)
         V->Val[0] += val[TimeStep];
         if(complex && Current.NbrHar == 2 && data->getNumTimeSteps() > TimeStep + 1)
           V->Val[MAX_DIM] += val[TimeStep + 1];
+        N += 1.;
       }
       break;
     case VECTOR :
@@ -187,6 +190,7 @@ static void F_X_Field(F_ARG, int type, bool complex)
           for(int j = 0; j < 3; j++)
             V->Val[MAX_DIM + j] += val[3 * (TimeStep + 1) + j];
         }
+        N += 1.;
       }
       break;
     case TENSOR :
@@ -197,9 +201,17 @@ static void F_X_Field(F_ARG, int type, bool complex)
           for(int j = 0; j < 9; j++)
             V->Val[MAX_DIM + j] += val[9 * (TimeStep + 1) + j];
         }
+        N += 1.;
       }
       break;
     }
+  }
+
+  if(N > 1){
+    Message::Debug("Averaging data %g times on vertex %g %g %g\n", N, x, y, z);
+    for (int k = 0; k < Current.NbrHar; k++)
+      for (int j = 0; j < numComp; j++)
+        V->Val[MAX_DIM * k + j] /= N ;
   }
 }
 
