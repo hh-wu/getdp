@@ -97,7 +97,7 @@ FunctionSpace{
 	  Support Region[{AllDomains, AllDomains_Bnd}]; Entity NodesOf[All];}
       }
       //PML constraint
-      Constraint{ {NameOfCoef  Uen; EntityType NodesOf; NameOfConstraint BoundExt;} }
+      Constraint{ {NameOfCoef Uen; EntityType NodesOf; NameOfConstraint BoundExt;} }
     }    
   EndIf
   

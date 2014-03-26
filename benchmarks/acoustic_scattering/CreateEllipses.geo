@@ -93,18 +93,13 @@ For pCreate In {0:(N_scat_to_create-1)}
     // Creation of the "Line Loop" of the new disc
     lineloopaux = newreg;
     Line Loop(lineloopaux) = {L1aux,L2aux,L3aux,L4aux};
-    
-    
     Line_Scat[] = {Line_Scat[], L1aux,L2aux,L3aux,L4aux};
     
     //Storing the indexes of the "Line Loop" in the list "LL_scat"
     LL_scat[] = {LL_scat[],lineloopaux};
-    /*    If(Type_PROBLEM == PENETRABLE)
-      saux = news; Plane Surface(saux) = {lineloopaux};
-      S_scat[] = {S_scat[], saux};
-    EndIf
-    */
-    //End For-Loop
+    
+    saux = news; Plane Surface(saux) = {lineloopaux};
+    S_scat[] = {S_scat[], saux};
   EndIf
 EndFor
 

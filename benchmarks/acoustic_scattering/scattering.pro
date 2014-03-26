@@ -11,12 +11,14 @@ Function {
   //data for the single - or multiple - scattering
   DIRICHLET = 0;
   NEUMANN = 1;
-  PENETRABLE = 2;
-  MIXED = 3;
+  MIXED = 2;
   DefineConstant[
     N_scat = {0, Name Str[MENU_OBST,"/0Nscat"]}
     //Type of Problem
-    Type_PROBLEM = {DIRICHLET, Choices{DIRICHLET = "Dirichlet", NEUMANN = "Neumann", MIXED = "Mixed Dirichlet/Neumann"}, Name Str[MENU_INPUT, "/00TypeProblem"], Label "Type of problem"}
+    BoundaryCondition = {DIRICHLET, Choices{DIRICHLET = "Dirichlet", NEUMANN = "Neumann", MIXED = "Mixed (Dirichlet/Neumann)"}, Name Str[MENU_INPUT, "/01TypeCondition"], Label "Boundary condition", Visible (Type_PROBLEM == IMPENETRABLE)}
+
+    linkContrast = {1, Choices {0,1},  Label "Set a unique contrast", Name Str[MENU_INPUT, "/010ContrastLinker"], Visible (Type_PROBLEM == PENETRABLE)}
+    Contrast_Global = {1.2, Min 0., Max 100., Step 0.1 , Label "Contrast", Name Str[MENU_INPUT, "/011Contrast"], Visible (Type_PROBLEM == PENETRABLE && linkContrast)}
   ];
   //If mixed condition
   Scat_Dirichlet = {};
@@ -24,28 +26,27 @@ Function {
   //until NMAX to hide some menu if the number of obstacles decrease
   For j In {0:NMAX-1}
     DefineConstant[
-      BCond~{j} = {(Type_PROBLEM == MIXED?DIRICHLET:Type_PROBLEM), Choices{DIRICHLET = "Dirichlet", NEUMANN = "Neumann"}, Name Str[MENU_OBST, Sprintf("/Obst. %g/0cond", j+1)], Label "Boundary condition", Visible (j < N_scat_to_create), ReadOnly (Type_PROBLEM != MIXED)}
+      BCond~{j} = {(BoundaryCondition == MIXED?DIRICHLET:BoundaryCondition), Choices{DIRICHLET = "Dirichlet", NEUMANN = "Neumann"}, Name Str[MENU_OBST, Sprintf("/Obst. %g/0cond", j+1)], Label "Boundary condition", Visible (j < N_scat_to_create && Type_PROBLEM == IMPENETRABLE)}
+      Contrast~{j} = {Contrast_Global, Min 0., Max 100., Step 0.1 , Label "Contrast", Name Str[MENU_OBST, Sprintf("/Obst. %g/1cond", j+1)], Visible (j < N_scat_to_create && Type_PROBLEM == PENETRABLE), ReadOnly linkContrast}
     ];
   EndFor
   //Now we can set the right boundaries
-  For j In {0:N_scat-1}
-    If(BCond~{j} == DIRICHLET)
-      Scat_Dirichlet += 100 + j;
-    EndIf
-    If(BCond~{j} == NEUMANN)
-      Scat_Neumann += 100 + j;
-    EndIf
-  EndFor
+  If(Type_PROBLEM == IMPENETRABLE)
+    For j In {0:N_scat-1}
+      If(BCond~{j} == DIRICHLET)
+	Scat_Dirichlet += 100 + j;
+      EndIf
+      If(BCond~{j} == NEUMANN)
+	Scat_Neumann += 100 + j;
+      EndIf
+    EndFor
+  EndIf
 
-  
-  // Selecting the incident wave :	
-  PLANEWAVE = 0;
-  POINTSOURCE = 1;
   //angle of incident plane wave
   DefineConstant[
     beta_inc_aux = {1., Min -1., Max 1., Step 0.01 , Label "Angle (in Pi)", Name Str[MENU_INPUT, Str[MENU_UINC,"/Plane wave/0"]], Visible (INCIDENT_WAVE == PLANEWAVE)}
-    r_source = {Xmax, Min 0., Max Xmax + 1000., Step 0.1, Label "Distance from origin", Name Str[MENU_INPUT, Str[MENU_UINC,"/Source coordinate/r"]], Visible (INCIDENT_WAVE == POINTSOURCE)}
-    theta_source = {0., Min 0., Max 2*Pi, Step 0.01 , Label "Angle (rad)", Name Str[MENU_INPUT, Str[MENU_UINC,"/Source coordinate/theta"]], Visible (INCIDENT_WAVE == POINTSOURCE)}
+    //    r_source = {Xmax-rad_ext_s, Name Str[MENU_INPUT, Str[MENU_UINC,"/Source coordinate/r"]]}
+    //theta_source = {0., Name Str[MENU_INPUT, Str[MENU_UINC,"/Source coordinate/theta"]]}
   ];
   
   If(INCIDENT_WAVE == PLANEWAVE)
@@ -62,8 +63,6 @@ Function {
   If(INCIDENT_WAVE == POINTSOURCE)
     //point source case (modify the position of the source if desired). To avoid any singularity
     // put the source out of the computation domain.
-    X_source = r_source*Cos[theta_source];
-    Y_source = r_source*Sin[theta_source];
     
     XYZ_source[] = Vector[X_source, Y_source, 0];
     KR_source[] = k*Sqrt[(X[] - X_source)^2 + (Y[] - Y_source)^2 + Z[]^2];
@@ -99,4 +98,9 @@ If(Type_Truncation == PML)
   Include "Acoustic2D_impenetrablePML.pro";
 EndIf
 */
-Include "Acoustic2D.pro";
+If(Type_PROBLEM != PENETRABLE)
+  Include "Acoustic2D.pro";
+EndIf
+If(Type_PROBLEM == PENETRABLE)
+  Include "Acoustic2D_penetrable.pro";
+EndIf

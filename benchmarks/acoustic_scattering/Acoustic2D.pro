@@ -209,12 +209,12 @@ Formulation {
       {Name u ; Type Local; NameOfSpace H_grad;}
       // let us define also the normal derivative trace of u ("dn_u") and the far field ("u_inf").
       { Name dn_u; Type Local ; NameOfSpace L2_Gamma; }
-      //      If(Type_PROBLEM == DIRICHLET)
+      //      If(BoundaryCondition == DIRICHLET)
 	{ Name u_inf; Type Integral ;
 	  [ Coef_u_inf[] * ({dn_u} + I[] * k * (-uinc_S[]) * Unit[XYZ[]] * NormalSource[]) * EikXinfDotS[] ] ; 
 	  In GammaD; Integration I1; Jacobian JSur; }
 	//EndIf
-	//If(Type_PROBLEM == NEUMANN)
+	//If(BoundaryCondition == NEUMANN)
 	{ Name u_inf; Type Integral ;
 	  [ Coef_u_inf[] *  ((-dn_uinc_S[]) + I[] * k * {u} * Unit[XYZ[]] * NormalSource[]) *EikXinfDotS[] ] ; 
 	  In GammaN; Integration I1; Jacobian JSur; }
@@ -291,7 +291,7 @@ PostProcessing{
       {Name utNorm; Value {Local { [Norm[{u} + uinc[]]] ; In OmegaTotal; Jacobian JVol; }}}
       //first and second trace on gamma
       { Name ugama ; Value { Local { [ {u} ] ; In GammaScat; Jacobian JSur ; } } }
-      If(Type_PROBLEM == DIRICHLET)
+      If(BoundaryCondition == DIRICHLET)
 	{Name dn_u ; Value { Local { [ {dn_u} ] ; In GammaD; Jacobian JSur ; } } }
 	{Name dn_uAbs ; Value { Local { [ Norm[{dn_u}] ] ; In GammaD; Jacobian JSur ; } } }
       EndIf
@@ -328,7 +328,7 @@ PostOperation{
   {Name Traces; NameOfPostProcessing Wave ;
     Operation {
       Print [ugama, OnElementsOf GammaScat, File "u_gamma_u.pos"];
-      If(Type_PROBLEM == DIRICHLET)
+      If(BoundaryCondition == DIRICHLET)
 	Print [dn_u, OnElementsOf GammaScat, File "u_gamma_dnu.pos"];
 	Print [dn_uAbs, OnElementsOf GammaScat, File "u_gamma_dnuAbs.pos"];	
       EndIf

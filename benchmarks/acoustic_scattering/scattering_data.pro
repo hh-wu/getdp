@@ -1,4 +1,5 @@
 
+
 //Number of obstacles (wanted by the user)
 NMAX = 100;
 MENU_OBST = "Obstacles";
@@ -16,12 +17,17 @@ lambda = 2*Pi/k;
 lc = lambda/n_lc;
 lcScat = lc;
 
-//Truncation
-ABC = 0;
-PML = 1;
+//Type of problem: penetrable or not ?
+IMPENETRABLE = 0;
+PENETRABLE = 1;
+DefineConstant[
+  Type_PROBLEM = {IMPENETRABLE, Choices{IMPENETRABLE = "Impenetrable", PENETRABLE = "Penetrable"}, Label "Type of problem", Name Str[MENU_INPUT, "/00TypeProblem"]}
+];
 
 //Type of truncation (ABC or PML)
 //------------------------------------
+ABC = 0;
+PML = 1;
 MENU_TRUNC = "Truncation at infinity";
 DefineConstant[
   Type_Truncation = { PML, Choices{ ABC ="Absorbing Boundary Condition",  PML="Perfectly matched layer"},
@@ -121,10 +127,24 @@ SigmaYmax = SigmaMax;
 MENU_UINC = "/Incident wave";
 PLANEWAVE = 0;
 POINTSOURCE = 1;
+//To approximate the Dirac function (Type_PROBLEM == PENETRABLE)
+DefineConstant[
+  rad_int_s = {1/100., Name Str[MENU_INPUT, Str[MENU_UINC,"/Source coordinate/rad_int"]], Visible 0}
+  rad_ext_s = {10*rad_int_s, Name Str[MENU_INPUT, Str[MENU_UINC,"/Source coordinate/rad_ext"]], Visible 0}
+];
 
 DefineConstant[
-  INCIDENT_WAVE = {PLANEWAVE, Choices{ PLANEWAVE ="Plane Wave",  POINTSOURCE="Point source"}, Label "Type", Name Str[MENU_INPUT, Str[MENU_UINC,"/0"]]}
-  PLOT_POINT_SOURCE = {0, Choices{0,1}, Label "Plot point source (remesh at every change)", Name Str[MENU_INPUT, Str[MENU_UINC,"/1Plot"]], Visible (INCIDENT_WAVE == POINTSOURCE)}
+  INCIDENT_WAVE = {(Type_PROBLEM == PENETRABLE?POINTSOURCE:PLANEWAVE), Choices{PLANEWAVE ="Plane Wave", POINTSOURCE="Point source"}, Label "Type", Name Str[MENU_INPUT, Str[MENU_UINC,"/0"]], ReadOnly (Type_PROBLEM == PENETRABLE)}
+  PLOT_POINT_SOURCE = {Type_PROBLEM == PENETRABLE, Choices{0,1}, Label "Plot point source (remesh at every change)", Name Str[MENU_INPUT, Str[MENU_UINC,"/1Plot"]], Visible (INCIDENT_WAVE == POINTSOURCE || Type_PROBLEM == PENETRABLE), ReadOnly (Type_PROBLEM==PENETRABLE)}
+];
+
+
+//Just to plot the point source
+DefineConstant[
+  r_source = {(Type_PROBLEM == PENETRABLE?Xmax-rad_ext_s:Xmax), Name Str[MENU_INPUT, Str[MENU_UINC,"/Source coordinate/r"]], Label "Distance from origin", Visible (INCIDENT_WAVE == POINTSOURCE && PLOT_POINT_SOURCE), ReadOnly !PLOT_POINT_SOURCE}
+  theta_source = {0., Min -1., Max 1., Step 0.01, Name Str[MENU_INPUT, Str[MENU_UINC,"/Source coordinate/theta"]], Label "Angle (in pi-radian)", Visible (INCIDENT_WAVE == POINTSOURCE && PLOT_POINT_SOURCE), ReadOnly !PLOT_POINT_SOURCE}
+  X_source = {r_source*Cos[theta_source], Name Str[MENU_INPUT, Str[MENU_UINC,"/Source coordinate/x_source"]], ReadOnly 1, Visible 0}
+  Y_source = {r_source*Sin[theta_source], Name Str[MENU_INPUT, Str[MENU_UINC,"/Source coordinate/y_source"]], ReadOnly 1, Visible 0}
 ];
 
 //GetDP parameters (hiddent)
@@ -144,3 +164,5 @@ Ind_Scat_Bound = 4;
 Ind_PML_Bound = 5;
 Ind_Scat = 6;
 Ind_GammaInf = 7;
+Ind_SourceInt = 8;
+Ind_SourceExt = 9;

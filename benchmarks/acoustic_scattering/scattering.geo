@@ -8,6 +8,47 @@ Include "CreateEllipses.geo"; // function which constructs automatically the bou
 //Center point
 PF = newp; Point(PF)={0, 0, 0, lcScat};
 
+
+If((INCIDENT_WAVE == POINTSOURCE && PLOT_POINT_SOURCE) || (INCIDENT_WAVE == POINTSOURCE && Type_PROBLEM == PENETRABLE))
+  ps = newp; Point(ps) = {X_source, Y_source, 0, lc};
+
+  If(Type_PROBLEM == PENETRABLE)
+    ci1aux = newp; Point(ci1aux) = {X_source + rad_int_s, Y_source, 0, lc/100};
+    ci2aux = newp; Point(ci2aux) = {X_source, Y_source + rad_int_s, 0, lc/100};
+    ci3aux = newp; Point(ci3aux) = {X_source - rad_int_s, Y_source, 0, lc/100};
+    ci4aux = newp; Point(ci4aux) = {X_source, Y_source - rad_int_s, 0, lc/100};
+    
+    //Creation of the 4 circle-arcs
+    Li1aux = newreg; Ellipse(Li1aux) = {ci1aux, ps, ci2aux, ci2aux};
+    Li2aux = newreg; Ellipse(Li2aux) = {ci2aux, ps, ci3aux, ci3aux};
+    Li3aux = newreg; Ellipse(Li3aux) = {ci3aux, ps, ci4aux, ci4aux};
+    Li4aux = newreg; Ellipse(Li4aux) = {ci4aux, ps, ci1aux, ci1aux};
+    
+    // Creation of the "Line Loop" of the new disc
+    lineloopauxi = newreg; Line Loop(lineloopauxi) = {Li1aux,Li2aux,Li3aux,Li4aux};
+    siaux = news; Plane Surface(siaux) = {lineloopauxi};
+
+    ce1aux = newp; Point(ce1aux) = {X_source + rad_ext_s, Y_source, 0, lc};
+    ce2aux = newp; Point(ce2aux) = {X_source, Y_source + rad_ext_s, 0, lc};
+    ce3aux = newp; Point(ce3aux) = {X_source - rad_ext_s, Y_source, 0, lc};
+    ce4aux = newp; Point(ce4aux) = {X_source, Y_source - rad_ext_s, 0, lc};
+    
+    //Creation of the 4 circle-arcs
+    Le1aux = newreg; Ellipse(Le1aux) = {ce1aux, ps, ce2aux, ce2aux};
+    Le2aux = newreg; Ellipse(Le2aux) = {ce2aux, ps, ce3aux, ce3aux};
+    Le3aux = newreg; Ellipse(Le3aux) = {ce3aux, ps, ce4aux, ce4aux};
+    Le4aux = newreg; Ellipse(Le4aux) = {ce4aux, ps, ce1aux, ce1aux};
+    
+    // Creation of the "Line Loop" of the new disc
+    lineloopauxe = newreg; Line Loop(lineloopauxe) = {Le1aux,Le2aux,Le3aux,Le4aux};
+    seaux = news; Plane Surface(seaux) = {lineloopauxi, lineloopauxe};
+    
+    Physical Surface(Ind_SourceInt) = {siaux};
+    Physical Surface(Ind_SourceExt) = {seaux};
+  EndIf
+EndIf
+
+
 //Scatterers
 //==========
 //CentreX[]={0,0,2};
@@ -54,10 +95,6 @@ For pCreate In {0:NMAX-1}
   ];
 EndFor
 
-/*If(Type_PROBLEM == PENETRABLE)
-  Physical Surface(Ind_Scat) = {S_scat[]};
-EndIf*/
-
 // Fictitious Boundary
 //====================
 If(Type_Truncation == ABC)
@@ -75,8 +112,12 @@ If(Type_Truncation == ABC)
 
   // Surfaces
   //=========
-  
-  SurfPropagation_Domain = news; Plane Surface(SurfPropagation_Domain) = {LL_scat[],LLABC};
+  If(Type_PROBLEM != PENETRABLE)
+    SurfPropagation_Domain = news; Plane Surface(SurfPropagation_Domain) = {LL_scat[], LLABC};
+  EndIf
+  If(Type_PROBLEM == PENETRABLE)
+    SurfPropagation_Domain = news; Plane Surface(SurfPropagation_Domain) = {LL_scat[], LLABC, lineloopauxe};
+  EndIf  
   
   Physical Line(Ind_GammaInf) = {LineABC1, LineABC2, LineABC3, LineABC4};  
 EndIf
@@ -140,31 +181,24 @@ If(Type_Truncation == PML)
 
   // Surfaces
   //=========
-  SurfPropagation_Domain = news; Plane Surface(SurfPropagation_Domain) = {LL_scat[],LL_int};
   SurfPML = news; Plane Surface(SurfPML) = {LL_int,LL_ext};
-  
   Physical Surface(Ind_PML) = {SurfPML};
   
+  If(Type_PROBLEM != PENETRABLE)
+    SurfPropagation_Domain = news; Plane Surface(SurfPropagation_Domain) = {LL_scat[],LL_int};
+  EndIf
+  If(Type_PROBLEM == PENETRABLE)
+    SurfPropagation_Domain = news; Plane Surface(SurfPropagation_Domain) = {LL_scat[], LL_int, lineloopauxe};
+  EndIf  
 EndIf
 
 //  Physical entities
 //===================
 Physical Surface(Ind_Propagation_Domain) = {SurfPropagation_Domain};  
-// Boundaries
-//Physical Line(Ind_Scat_Bound) = {Line_Scat[]};
 
 For j In {0:N_scat-1}
   Physical Line(100+j) = {Line_Scat[4*j], Line_Scat[4*j+1], Line_Scat[4*j+2], Line_Scat[4*j+3]};
+  Physical Surface(10000+j) = {S_scat[j]};
 EndFor
 
-//Just to plot the point source
-If(INCIDENT_WAVE == POINTSOURCE && PLOT_POINT_SOURCE)
-  DefineConstant[
-    r_source = {Xmax, Name Str[MENU_INPUT, Str[MENU_UINC,"/Source coordinate/r"]]}
-    theta_source = {0., Name Str[MENU_INPUT, Str[MENU_UINC,"/Source coordinate/theta"]]}
-  ];
-  X_source = r_source*Cos[theta_source];
-  Y_source = r_source*Sin[theta_source];
-  ps = newp; Point(ps) = {X_source, Y_source, 0, lc};
-EndIf
 
