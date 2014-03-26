@@ -10,8 +10,6 @@
 #SBATCH --mail-user=cgeuzaine@ulg.ac.be
 #SBATCH --mail-type=ALL
 
-cat $0
-
 OPT="-setnumber ANALYSIS 1
      -setnumber N_DOM $SLURM_NTASKS
      -setnumber N_LAMBDA 100
@@ -25,5 +23,6 @@ GETDP="$HOME/src/getdp/bin/getdp $OPT -v 3 -bin"
 
 FILE="$HOME/src/getdp/benchmarks/ddm_wave_simple/waveguide3d"
 
+cat $0
 $MPIRUN $GMSH $FILE.geo -
 $MPIRUN $GETDP $FILE.pro -solve DDM
