@@ -5,6 +5,7 @@
 
 Include "im_data.geo";
 
+Solver.AutoShowLastStep = 1;
 Mesh.Algorithm = 1 ;
 
 // characteristic lengths

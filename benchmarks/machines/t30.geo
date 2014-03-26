@@ -1,6 +1,6 @@
 Include "t30_data.geo" ;
 
-
+Solver.AutoShowLastStep = 1;
 //Mesh.CharacteristicLengthFactor = 1. ;
 Mesh.Algorithm = 1 ;
 

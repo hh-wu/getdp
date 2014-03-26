@@ -2,6 +2,7 @@
 
 Include "srm_data.geo" ;
 
+Solver.AutoShowLastStep = 1;
 Mesh.Algorithm = 1 ;
 Mesh.CharacteristicLengthFactor = 1. ;
 

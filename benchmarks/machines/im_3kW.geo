@@ -1,5 +1,6 @@
 // May 2013 - Authors: J. Gyselinck, R.V. Sabariego
 
+Solver.AutoShowLastStep = 1;
 Mesh.Algorithm = 1;
 
 Include "im_3kW_data.geo" ;

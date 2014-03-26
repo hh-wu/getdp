@@ -1,5 +1,6 @@
 Include "wfsm_4p_data.geo";
 
+Solver.AutoShowLastStep = 1;
 Mesh.Algorithm = 1;
 Geometry.CopyMeshingMethod = 1;
 

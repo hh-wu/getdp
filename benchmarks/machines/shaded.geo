@@ -1,5 +1,6 @@
 Include "shaded_data.geo";
 
+Solver.AutoShowLastStep = 1;
 Mesh.Algorithm = 1;
 Mesh.Smoothing = 5;
 
