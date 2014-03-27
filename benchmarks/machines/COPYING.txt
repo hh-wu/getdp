@@ -1,4 +1,4 @@
-Models developped by [[User:Ruth V. Sabariego|R. Sabariego]], F. Baneira, J. Gyselinck and [[User:Geuzaine|C. Geuzaine]] in the framework of the [[FEDO]] project. Copyright (c) 2013 ULg-ULB.
+Models developed by [[User:Ruth V. Sabariego|R. Sabariego]], F. Baneira, J. Gyselinck and [[User:Geuzaine|C. Geuzaine]] in the framework of the [[FEDO]] project. Copyright (c) 2013 ULg-ULB.
 <!--
 
 Include full license here

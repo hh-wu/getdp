@@ -1,4 +1,4 @@
-Model developped by [[User:Bertrand Thierry|B. Thierry]].
+Model developed by [[User:Bertrand Thierry|B. Thierry]].
 <!--
 
 Include full license here
