@@ -5,7 +5,7 @@
 		<title>Simple Transformer</title>
 		<summary>2D model of simplified one-phase transformer</summary>
 		<file type="pro">transfo.pro</file>
-		<preview type="png">screenshot1_512.png</preview>
+		<preview type="png">screenshot_transfo.png</preview>
 		<url>http://onelab.info/wiki/Transfo_Simple</url>
 	</model>
 </models>

@@ -353,7 +353,7 @@ EndIf
 DefineConstant[
   R_ = {"MagDyn_av_2D", Name "GetDP/1ResolutionChoices", Visible 0},
   C_ = {"-solve -pos -v2", Name "GetDP/9ComputeCommand", Visible 0},
-  P_ = {"U_av_circuit, Map_a_j, Map_a_b", Name "GetDP/2PostOperationChoices", Visible 0}
+  P_ = {"U_av_circuit, Map_a_j, Map_a_b, Map_a_a", Name "GetDP/2PostOperationChoices", Visible 0}
 ];
 
 PostOperation Flux_av_pos UsingPost MagDyn_av_2D_pos {
