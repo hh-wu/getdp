@@ -6,16 +6,14 @@
 
 Include "waveguide2D_straightWithDielectric.dat" ;
 
-Mesh.CharacteristicLengthMax = res ;
-
-p[] += newp ; Point(newp) = { 0, 0, 0} ;
-p[] += newp ; Point(newp) = { L/2-Lx/2, 0, 0} ;
-p[] += newp ; Point(newp) = { L/2-Lx/2, Ly, 0} ;
-p[] += newp ; Point(newp) = { L/2+Lx/2, Ly, 0} ;
-p[] += newp ; Point(newp) = { L/2+Lx/2, 0, 0} ;
-p[] += newp ; Point(newp) = { L, 0, 0} ;
-p[] += newp ; Point(newp) = { L, W, 0} ;
-p[] += newp ; Point(newp) = { 0, W, 0} ;
+p[] += newp ; Point(newp) = { 0, 0, 0, res} ;
+p[] += newp ; Point(newp) = { L/2-Lx/2, 0, 0, res} ;
+p[] += newp ; Point(newp) = { L/2-Lx/2, Ly, 0, res} ;
+p[] += newp ; Point(newp) = { L/2+Lx/2, Ly, 0, res} ;
+p[] += newp ; Point(newp) = { L/2+Lx/2, 0, 0, res} ;
+p[] += newp ; Point(newp) = { L, 0, 0, res} ;
+p[] += newp ; Point(newp) = { L, W, 0, res} ;
+p[] += newp ; Point(newp) = { 0, W, 0, res} ;
 
 l[] += newl ; Line(newl) = {p[0],p[1]} ;
 l[] += newl ; Line(newl) = {p[1],p[2]} ;
@@ -28,10 +26,10 @@ l[] += newl ; Line(newl) = {p[7],p[0]} ;
 
 lDiel = newl ; Line(newl) = {p[1],p[4]} ;
 
-llAir = newll ; Line Loop(newll) = {l[]} ; 
+llAir = newll ; Line Loop(newll) = {l[]} ;
 sAir = news ; Plane Surface(news) = {llAir} ;
 
-llDiel = newll ; Line Loop(newll) = {lDiel,-l[3],-l[2],-l[1]} ; 
+llDiel = newll ; Line Loop(newll) = {lDiel,-l[3],-l[2],-l[1]} ;
 sDiel = news ; Plane Surface(news) = {llDiel} ;
 
 Physical Line(BND_PEC) = {l[0],l[4],l[6]} ;

@@ -6,16 +6,14 @@
 
 Include "waveguide3D_rectangle.dat" ;
 
-Mesh.CharacteristicLengthMax = res ;
-
-p1[] += newp ; Point(newp) = {  0,  0, 0} ;
-p1[] += newp ; Point(newp) = { Wx,  0, 0} ;
-p1[] += newp ; Point(newp) = { Wx, Wy, 0} ;
-p1[] += newp ; Point(newp) = {  0, Wy, 0} ;
-p2[] += newp ; Point(newp) = {  0,  0, L} ;
-p2[] += newp ; Point(newp) = { Wx,  0, L} ;
-p2[] += newp ; Point(newp) = { Wx, Wy, L} ;
-p2[] += newp ; Point(newp) = {  0, Wy, L} ;
+p1[] += newp ; Point(newp) = {  0,  0, 0, res} ;
+p1[] += newp ; Point(newp) = { Wx,  0, 0, res} ;
+p1[] += newp ; Point(newp) = { Wx, Wy, 0, res} ;
+p1[] += newp ; Point(newp) = {  0, Wy, 0, res} ;
+p2[] += newp ; Point(newp) = {  0,  0, L, res} ;
+p2[] += newp ; Point(newp) = { Wx,  0, L, res} ;
+p2[] += newp ; Point(newp) = { Wx, Wy, L, res} ;
+p2[] += newp ; Point(newp) = {  0, Wy, L, res} ;
 
 l1[] += newl ; Line(newl) = {p1[0], p1[1]} ;
 l1[] += newl ; Line(newl) = {p1[1], p1[2]} ;

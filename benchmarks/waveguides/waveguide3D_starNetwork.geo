@@ -6,19 +6,17 @@
 
 Include "waveguide3D_starNetwork.dat" ;
 
-Mesh.CharacteristicLengthMax = res ;
-
 If (angleInter == 0)
   For n In {0:(NbPorts-1)}
     phi1 = 2*Pi*(n-0.5)/NbPorts ;
     phi2 = 2*Pi*(n    )/NbPorts ;
     phi3 = 2*Pi*(n+0.5)/NbPorts ;
-    pM[] += newp ; Point(newp) = { R*Cos[phi2]+L*Cos[phi1], R*Sin[phi2]+L*Sin[phi1], -Wz/2} ;
-    pM[] += newp ; Point(newp) = { R*Cos[phi2]            , R*Sin[phi2]            , -Wz/2} ;
-    pM[] += newp ; Point(newp) = { R*Cos[phi2]+L*Cos[phi3], R*Sin[phi2]+L*Sin[phi3], -Wz/2} ;
-    pP[] += newp ; Point(newp) = { R*Cos[phi2]+L*Cos[phi1], R*Sin[phi2]+L*Sin[phi1],  Wz/2} ;
-    pP[] += newp ; Point(newp) = { R*Cos[phi2]            , R*Sin[phi2]            ,  Wz/2} ;
-    pP[] += newp ; Point(newp) = { R*Cos[phi2]+L*Cos[phi3], R*Sin[phi2]+L*Sin[phi3],  Wz/2} ;
+    pM[] += newp ; Point(newp) = { R*Cos[phi2]+L*Cos[phi1], R*Sin[phi2]+L*Sin[phi1], -Wz/2, res} ;
+    pM[] += newp ; Point(newp) = { R*Cos[phi2]            , R*Sin[phi2]            , -Wz/2, res} ;
+    pM[] += newp ; Point(newp) = { R*Cos[phi2]+L*Cos[phi3], R*Sin[phi2]+L*Sin[phi3], -Wz/2, res} ;
+    pP[] += newp ; Point(newp) = { R*Cos[phi2]+L*Cos[phi1], R*Sin[phi2]+L*Sin[phi1],  Wz/2, res} ;
+    pP[] += newp ; Point(newp) = { R*Cos[phi2]            , R*Sin[phi2]            ,  Wz/2, res} ;
+    pP[] += newp ; Point(newp) = { R*Cos[phi2]+L*Cos[phi3], R*Sin[phi2]+L*Sin[phi3],  Wz/2, res} ;
   EndFor
   For n In {0:(3*NbPorts-1)}
     lM[] += newl ; Line(newl) = { pM[n], pM[(n+1) % (3*NbPorts)] } ;
@@ -43,14 +41,14 @@ If (angleInter != 0)
     phi2 = 2*Pi*(n)/NbPorts - angleInter/2 ;
     phi3 = 2*Pi*(n)/NbPorts + angleInter/2 ;
     phi4 = 2*Pi*(n+0.5)/NbPorts ;
-    pM[] += newp ; Point(newp) = { R*Cos[phi2]+L*Cos[phi1], R*Sin[phi2]+L*Sin[phi1], -Wz/2} ;
-    pM[] += newp ; Point(newp) = { R*Cos[phi2]            , R*Sin[phi2]            , -Wz/2} ;
-    pM[] += newp ; Point(newp) = { R*Cos[phi3]            , R*Sin[phi3]            , -Wz/2} ;
-    pM[] += newp ; Point(newp) = { R*Cos[phi3]+L*Cos[phi4], R*Sin[phi3]+L*Sin[phi4], -Wz/2} ;
-    pP[] += newp ; Point(newp) = { R*Cos[phi2]+L*Cos[phi1], R*Sin[phi2]+L*Sin[phi1],  Wz/2} ;
-    pP[] += newp ; Point(newp) = { R*Cos[phi2]            , R*Sin[phi2]            ,  Wz/2} ;
-    pP[] += newp ; Point(newp) = { R*Cos[phi3]            , R*Sin[phi3]            ,  Wz/2} ;
-    pP[] += newp ; Point(newp) = { R*Cos[phi3]+L*Cos[phi4], R*Sin[phi3]+L*Sin[phi4],  Wz/2} ;
+    pM[] += newp ; Point(newp) = { R*Cos[phi2]+L*Cos[phi1], R*Sin[phi2]+L*Sin[phi1], -Wz/2, res} ;
+    pM[] += newp ; Point(newp) = { R*Cos[phi2]            , R*Sin[phi2]            , -Wz/2, res} ;
+    pM[] += newp ; Point(newp) = { R*Cos[phi3]            , R*Sin[phi3]            , -Wz/2, res} ;
+    pM[] += newp ; Point(newp) = { R*Cos[phi3]+L*Cos[phi4], R*Sin[phi3]+L*Sin[phi4], -Wz/2, res} ;
+    pP[] += newp ; Point(newp) = { R*Cos[phi2]+L*Cos[phi1], R*Sin[phi2]+L*Sin[phi1],  Wz/2, res} ;
+    pP[] += newp ; Point(newp) = { R*Cos[phi2]            , R*Sin[phi2]            ,  Wz/2, res} ;
+    pP[] += newp ; Point(newp) = { R*Cos[phi3]            , R*Sin[phi3]            ,  Wz/2, res} ;
+    pP[] += newp ; Point(newp) = { R*Cos[phi3]+L*Cos[phi4], R*Sin[phi3]+L*Sin[phi4],  Wz/2, res} ;
   EndFor
   For n In {0:(NbPorts-1)}
     lM[] += newl ; Line(newl) = {pM[4*n], pM[4*n+1]} ;
