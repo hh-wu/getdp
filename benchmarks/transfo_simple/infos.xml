@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<models>
+	<model>
+		<title>Simple Transformer</title>
+		<summary>2D model of simplified one-phase transformer</summary>
+		<file type="pro">transfo.pro</file>
+		<preview type="png">screenshot1_512.png</preview>
+		<url>http://onelab.info/wiki/Transfo_Simple</url>
+	</model>
+</models>

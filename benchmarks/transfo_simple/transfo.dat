@@ -1,0 +1,82 @@
+
+// This file will be included in both the .geo (gmsh) and .pro (getdp) files,
+// which allows to share useful common parameters:
+// - Flags: for selecting some kinds of behaviours
+// - Dimensions: obvious for .geo; for postoperations, shell radii, for .pro
+// - Mesh sizes: .geo
+// - Physical regions: defined in .geo and referred in .pro by names and not numbers
+
+// F l a g s
+
+// Transfinite & recombined meshes (for .geo)
+
+//Flag_Transfinite_Core = 1; Flag_Recombine_Core = 1;
+Flag_Transfinite_Inds = 0; Flag_Recombine_Inds = 1;
+
+// Physical behaviours (for .geo & .pro)
+Flag_Axisymmetry = 0; // 1 or 2 (Square Jacobian, better): Axisymmetry; 0: otherwise
+Flag_Symmetry_Y = 0;
+If (Flag_Axisymmetry) Flag_Symmetry_Y = 1;  EndIf
+
+DefineConstant
+[
+  Flag_InfiniteDomain = {1, Choices{0,1}, Name "Input/Infinite exterior domain",
+                         Help "1: infinite domain (with geometrical transformation),
+                               0: bounded domain (boundary condition at finite dist.)",
+                         Visible 0}
+];
+
+// D i m e n s i o n s   (convention: use of MKS units)
+
+mm = 1.e-3; // Factor for converting mm in m
+deg = Pi/180; // Factor for converting deg in rad
+
+xCoreInt = 4.e-2 ;  dxCore = 2.e-2 ;
+yCoreInt = 4.e-2 ;  dyCore = 2.e-2 ;
+
+dxInd1 = 5.e-3 ;  dyInd1 = 5.e-2 ;
+DefineConstant[ gapxInd1 = {5.e-3, Min 1e-3, Max 10e-3, Step 1e-3,
+                            Name "Input/gap (m)"}];
+dxInd2 = dxInd1 ;  dyInd2 = dyInd1 ;  gapxInd2 = gapxInd1 ;
+
+
+// Spherical shell dimensions (for the infinite exterior region)
+rShellInt = (xCoreInt+dxCore)*3;
+rShellExt = rShellInt*1.4;
+
+
+// M e s h   s i z e s
+
+s=0.7; // Factor to globally modify the characteristic lengths
+
+lc0 = 5.e-3 *s;
+lcCoreIntS = 2.*xCoreInt / 16. *s;  lcCoreIntM = 2.*xCoreInt / 10. *s;
+lcCoreExtS = lcCoreIntS ;  lcCoreExtM = lcCoreIntM ;
+
+lcInd = dxInd1 / 1. *s;
+
+lcShell = (rShellExt-rShellInt)/5. *s;
+
+// P h y s i c a l   r e g i o n s
+
+AIR = 1001;
+AIRINF = 1002;
+
+CORE = 1010;
+
+SKINCORE = 1011;
+
+IND1L = 2011; // Inductor 1, left part
+IND1R = 2012; // Inductor 1, right part
+IND2L = 2021; // Inductor 2, left part
+IND2R = 2022; // Inductor 2, right part
+
+SKININD1L = 2111; // Inductor 1, left part
+SKININD1R = 2112; // Inductor 1, right part
+SKININD2L = 2121; // Inductor 2, left part
+SKININD2R = 2122; // Inductor 2, right part
+
+SURINF = 1500; // For boundary condition
+
+SURAIREXT = 1501; // For boundary condition
+POINT_SURAIREXT = 1502; // Reference point for fixing the magnetic scalar potential
