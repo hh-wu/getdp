@@ -2,51 +2,56 @@
 
 <models>
 	<model>
-		<title>Eight-pole permanent magnet synchronous machine</title>
-		<summary></summary>
+		<title>Permanent magnet synchronous machine</title>
+		<summary>Eight-pole surface mounted PMSM</summary>
 		<file type="geo">pmsm.geo</file>
 		<preview type="png">screenshot_pmsm.png</preview>
 		<url>http://onelab.info/wiki/Electric_Machines</url>
 	</model>
-	<model>
-		<title>Eight-pole permanent magnet synchronous machine 2</title>
+	<!-- model>
+		<title>CBMAG Permanent magnet synchronous machine</title>
 		<file type="pro">pmsm_cbmag.pro</file>
 		<preview type="png">screenshot_pmsm_cbmag.png</preview>
 		<url>http://onelab.info/wiki/Electric_Machines</url>
-	</model>
-	<model>
-		<title>Eight-pole permanent magnet machine</title>
-		<summary></summary>
+	</model -->
+	<!-- model>
+		<title>Lomonova Permanent magnet synchronous machine</title>
+		<summary>Eight-pole </summary>
 		<file type="geo">lomonova.geo</file>
 		<preview type="png">screenshot_lomonova.png</preview>
 		<url>http://onelab.info/wiki/Electric_Machines</url>
-	</model>
+	</model -->
 	<model>
-		<title>Four-pole wound field synchronous machine</title>
+		<title>Wound field synchronous machine</title>
+		<summary>Four-pole WFSM</summary>
 		<file type="geo">wfsm_4p.geo</file>
 		<preview type="png">screenshot_wfsm_4p.png</preview>
 		<url>http://onelab.info/wiki/Electric_Machines</url>
 	</model>
 	<model>
-		<title>Simple induction motor with solid rotor</title>
+		<title>Simple induction motor</title>
+		<summary>Team30 benchmark induction machine with solid rotor</summary>
 		<file type="pro">t30.pro</file>
 		<preview type="png">screenshot_t30.png</preview>
 		<url>http://onelab.info/wiki/Electric_Machines</url>
 	</model>
 	<model>
-		<title>Four-pole deep-bar induction machine</title>
+		<title>Deep-bar induction machine</title>
+		<summary>Four-pole deep-bar induction machine</summary>
 		<file type="pro">im.pro</file>
 		<preview type="png">screenshot_im.png</preview>
 		<url>http://onelab.info/wiki/Electric_Machines</url>
 	</model>
 	<model>
-		<title>Four-pole 3kW-induction machine</title>
+		<title>Induction machine</title>
+		<summary>3kW Four-pole induction machine</summary>
 		<file type="pro">im_3kW.pro</file>
 		<preview type="png">screenshot_im_3kW.png</preview>
 		<url>http://onelab.info/wiki/Electric_Machines</url>
 	</model>
 	<model>
 		<title>Switched reluctance machine</title>
+		<summary>Simple SRM</summary>
 		<file type="pro">srm.pro</file>
 		<preview type="png">screenshot_srm.png</preview>
 		<url>http://onelab.info/wiki/Electric_Machines</url>
