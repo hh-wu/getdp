@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<models>
+	<!-- model>
+		<title>Straight waveguide</title>
+		<summary>2D model of a rectangular metallic waveguide</summary>
+		<file type="pro">waveguide2D_straight.pro</file>
+		<preview type="png">screenshot_waveguide2D_straight.png</preview>
+		<url>http://onelab.info/wiki/Waveguides</url>
+	</model -->
+	<model>
+		<title>H-bend waveguide</title>
+		<summary>2D model of a bended metallic waveguide</summary>
+		<file type="pro">waveguide2D_Hbend.pro</file>
+		<preview type="png">screenshot_waveguide2D_Hbend.png</preview>
+		<url>http://onelab.info/wiki/Waveguides</url>
+	</model>
+	<model>
+		<title>Star-shaped waveguide</title>
+		<summary>2D model of a star-shaped metallic waveguide</summary>
+		<file type="pro">waveguide2D_starNetwork.pro</file>
+		<preview type="png">screenshot_waveguide2D_starNetwork.png</preview>
+		<url>http://onelab.info/wiki/Waveguides</url>
+	</model>
+</models>
