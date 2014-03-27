@@ -8,17 +8,15 @@
 
 Include "waveguide2D_Hbend.dat" ;
 
-Mesh.CharacteristicLengthMax = res ;
-
-p[] += newp ; Point(newp) = {0, R, 0} ;
-p[] += newp ; Point(newp) = {-L,-W/2, 0} ;
-p[] += newp ; Point(newp) = { 0,-W/2, 0} ;
-p[] += newp ; Point(newp) = { 0, W/2, 0} ;
-p[] += newp ; Point(newp) = {-L, W/2, 0} ;
-p[] += newp ; Point(newp) = { W/2+R,   R, 0} ;
-p[] += newp ; Point(newp) = { W/2+R, L+R, 0} ;
-p[] += newp ; Point(newp) = {-W/2+R, L+R, 0} ;
-p[] += newp ; Point(newp) = {-W/2+R,   R, 0} ;
+p[] += newp ; Point(newp) = {0, R, 0, res} ;
+p[] += newp ; Point(newp) = {-L,-W/2, 0, res} ;
+p[] += newp ; Point(newp) = { 0,-W/2, 0, res} ;
+p[] += newp ; Point(newp) = { 0, W/2, 0, res} ;
+p[] += newp ; Point(newp) = {-L, W/2, 0, res} ;
+p[] += newp ; Point(newp) = { W/2+R,   R, 0, res} ;
+p[] += newp ; Point(newp) = { W/2+R, L+R, 0, res} ;
+p[] += newp ; Point(newp) = {-W/2+R, L+R, 0, res} ;
+p[] += newp ; Point(newp) = {-W/2+R,   R, 0, res} ;
 
 l[] += newl ; Line(newl) = {p[1],p[2]} ;
 l[] += newl ; Circle(newl) = {p[2],p[0],p[5]} ;
@@ -29,7 +27,7 @@ l[] += newl ; Circle(newl) = {p[8],p[0],p[3]} ;
 l[] += newl ; Line(newl) = {p[3],p[4]} ;
 l[] += newl ; Line(newl) = {p[4],p[1]} ;
 
-ll = newll ; Line Loop(newll) = {l[]} ; 
+ll = newll ; Line Loop(newll) = {l[]} ;
 s = news ; Plane Surface(news) = {ll} ;
 
 Physical Surface(DOM) = {s} ;
