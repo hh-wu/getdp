@@ -19,11 +19,11 @@ catOutput = "Output/";
 DIM = 2;
 
 DefineConstant[
-  L = { 50, Min 0.1, Max 200, Step 0.1,
+  L = { 10, Min 0.1, Max 200, Step 0.1,
     Name StrCat[catParam1,"1Length of Domain [cm]"]},
   W = { 3.5, Min 0.1, Max 10, Step 0.1,
     Name StrCat[catParam1,"2Height of Domain [cm]"]},
-  res = { 0.2, Min 0.001, Max 1, Step 0.001,
+  res = { 0.5, Min 0.001, Max 1, Step 0.001,
     Name StrCat[catParam3,"1Resolution of grid [cm]"]}
 ];
 

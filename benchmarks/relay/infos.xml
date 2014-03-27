@@ -2,7 +2,7 @@
 
 <models>
 	<model>
-		<title>Electromechanical Relay</title>
+		<title>Electromechanical relay</title>
 		<summary>2D model of an electro-mechanical relay</summary>
 		<file type="pro">relay.pro</file>
 		<preview type="png">screenshot_relay.png</preview>

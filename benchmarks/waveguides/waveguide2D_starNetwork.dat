@@ -25,7 +25,7 @@ DefineConstant[
     Name StrCat[catParam1,"2Angle between two ports [degree]"]},
   R = { 5, Min 1, Max 100, Step 1,
     Name StrCat[catParam1,"3Radius of the center [cm]"]},
-  L = { 50, Min 1, Max 100, Step 1,
+  L = { 10, Min 1, Max 100, Step 1,
     Name StrCat[catParam1,"4Length of each port [cm]"]},
   W = { 2*R*Sin[(2*Pi/NbPorts-angleInter*Pi/180)/2], ReadOnly 1, Highlight "LightGrey",
     Name StrCat[catParam2,"5Width of each port [cm]"]},

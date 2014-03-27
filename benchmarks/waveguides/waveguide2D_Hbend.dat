@@ -27,7 +27,7 @@ DefineConstant[
     Name StrCat[catParam1,"2Width of Domain [cm]"]},
   R = { 6, Min 1, Max 100, Step 1,
     Name StrCat[catParam1,"3Radius at bend [cm]"]},
-  res = { 0.1, Min 0.1, Max 5, Step 0.1,
+  res = { 0.5, Min 0.1, Max 5, Step 0.1,
     Name StrCat[catParam3,"1Resolution of grid [cm]"]}
 ];
 L = L/100;
