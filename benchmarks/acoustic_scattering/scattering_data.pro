@@ -21,7 +21,7 @@ lcScat = lc;
 IMPENETRABLE = 0;
 PENETRABLE = 1;
 DefineConstant[
-  Type_PROBLEM = {IMPENETRABLE, Choices{IMPENETRABLE = "Impenetrable", PENETRABLE = "Penetrable"}, Label "Type of problem", Name Str[MENU_INPUT, "/00TypeProblem"]}
+               Type_PROBLEM = {IMPENETRABLE, Visible 0, Choices{IMPENETRABLE = "Impenetrable", PENETRABLE = "Penetrable"}, Label "Type of problem", Name Str[MENU_INPUT, "/00TypeProblem"]}
 ];
 
 //Type of truncation (ABC or PML)

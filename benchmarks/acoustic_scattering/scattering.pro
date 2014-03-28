@@ -48,7 +48,7 @@ Function {
     //    r_source = {Xmax-rad_ext_s, Name Str[MENU_INPUT, Str[MENU_UINC,"/Source coordinate/r"]]}
     //theta_source = {0., Name Str[MENU_INPUT, Str[MENU_UINC,"/Source coordinate/theta"]]}
   ];
-  
+
   If(INCIDENT_WAVE == PLANEWAVE)
     beta_inc = beta_inc_aux*Pi;
     beta_vect[] = Vector[Cos[beta_inc], Sin[beta_inc],0];
@@ -59,11 +59,11 @@ Function {
     uinc_S[] = Complex[Cos[k*(XYZS[]*beta_vect[])], Sin[k*(XYZS[]*beta_vect[])]];
     dn_uinc_S[] = NormalSource[] * I[] * k * beta_vect[] * uinc_S[];
   EndIf
-  
+
   If(INCIDENT_WAVE == POINTSOURCE)
     //point source case (modify the position of the source if desired). To avoid any singularity
     // put the source out of the computation domain.
-    
+
     XYZ_source[] = Vector[X_source, Y_source, 0];
     KR_source[] = k*Sqrt[(X[] - X_source)^2 + (Y[] - Y_source)^2 + Z[]^2];
     Green2D[] = 0.25*I[]*Complex[Jn[0,KR_source[]],Yn[0,KR_source[]]]; //= i/4*Hankel_0^{(1)}(k*R[])
@@ -87,17 +87,10 @@ Function{
   // can use this to compute approx. RCS at finite (but large) distance
   Coef_u_inf[] = -I[]*Complex[ Cos[-Pi/4] , Sin[-Pi/4] ] / Sqrt[8*Pi*k] ;
   Coef_RCS[] = 2*Pi;
-  Coef_RCS_finite[] = 2*Pi*R_inf; 
+  Coef_RCS_finite[] = 2*Pi*R_inf;
   EikXinfDotS[] = Complex[ Cos[-k * Unit[XYZ[]] * XYZS[]] , Sin[-k * Unit[XYZ[]] * XYZS[]] ] ;
 }
-/*
-If(Type_Truncation == ABC)
-  Include "Acoustic2D_impenetrableABC.pro";
-EndIf
-If(Type_Truncation == PML)
-  Include "Acoustic2D_impenetrablePML.pro";
-EndIf
-*/
+
 If(Type_PROBLEM != PENETRABLE)
   Include "Acoustic2D.pro";
 EndIf
