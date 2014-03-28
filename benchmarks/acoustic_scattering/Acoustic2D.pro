@@ -1,29 +1,36 @@
-/* 
-Resolution of the Helmholtz scalar equation for the (multiple) scattering by impenetrable obstacles, 
-using a Perfectly Matched Layer (PML). 
-This code can solve either a Dirichlet boundary coundition or a Neumann boundary condition.
+/*
+Resolution of the Helmholtz scalar equation for the (multiple) scattering by
+impenetrable obstacles, using a Perfectly Matched Layer (PML).  This code can
+solve either a Dirichlet boundary coundition or a Neumann boundary condition.
 
 Groups needed :
 ----------------
  . Omega : propagation domain
  . PML : (truncated) Perflectly Matched Layer
-
- . GammaScat : boundary of the scatterers (note that the term Gamma is already used by GetDP)
+ . GammaScat : boundary of the scatterers (note that the term Gamma is already
+     used by GetDP)
  . Sigma : truncation of the PML
- 
+
  (no need of the boundary separating "Omega" and "PML")
 
 Functions needed
 ----------------
 For the weak formulation :
  . uinc[] : used for a Dirichlet  boundary condition
- . uinc_S[] : same function as uinc[] but instead of X[], this function should call XS[] (same for Y[], Z[] and XYZ[]). This function is needed in the integral that gives the far field of u.
- . dn_uinc[] : used for a Neumann boundary condition
- . dn_uinc_S[] : same function as dn_uinc[] but instead of X[], this function should call XS[] (see uinc_S[] for more explanations).
 
-Example for a plane wave of direction Vect_inc[] (which is unit vector)
-uinc_S[] = Complex[ Cos[k*Vect_inc[]*XYZS[]], Sin[k*Vect_inc[]*XYZS[]] ];
-dn_uinc_S[] = NormalSource[] * I[] * k * Vect_inc[] * uinc_S[];
+ . uinc_S[] : same function as uinc[] but instead of X[], this function should
+   call XS[] (same for Y[], Z[] and XYZ[]). This function is needed in the
+   integral that gives the far field of u.
+
+ . dn_uinc[] : used for a Neumann boundary condition
+
+ . dn_uinc_S[] : same function as dn_uinc[] but instead of X[], this function
+   should call XS[] (see uinc_S[] for more explanations).
+
+   Example for a plane wave of direction Vect_inc[] (which is unit vector):
+
+   uinc_S[] = Complex[ Cos[k*Vect_inc[]*XYZS[]], Sin[k*Vect_inc[]*XYZS[]] ];
+   dn_uinc_S[] = NormalSource[] * I[] * k * Vect_inc[] * uinc_S[];
 
  . SigmaX[] and SigmaY[] : damping functions of the PML
 */
@@ -56,20 +63,22 @@ Function{
   cost[] = X[]/Xmax;
   sint[] = Y[]/Ymax;
   curvature[] = (Xmax*Xmax*sint[]*sint[] + Ymax*Ymax*cost[]*cost[])^(3/2)/(Xmax*Ymax);
-  
+
   // Coefs for Bayliss-Turkel ABC (as a correction to the Sommerfeld ABC)
   alphaBT[] = 1/(2*curvature[]) - I[]/(8*k*curvature[]^2*(1+I[]/(k*curvature[])));
-  betaBT[] = - 1/(2*I[]*k*(1+I[]/(k*curvature[]))); 
+  betaBT[] = - 1/(2*I[]*k*(1+I[]/(k*curvature[])));
 }
 
 //PML function
 Function{
   If(Type_SHAPE == DOM_SQUARE)
-    // Distance between a point (X,Y,Z) and the center of the numerical domain (XF,YF,ZF)
+    // Distance between a point (X,Y,Z) and the center of the numerical domain
+    // (XF,YF,ZF)
     RF_X[] = Sqrt[X[]*X[]];
     RF_Y[] = Sqrt[Y[]*Y[]];
     // Damping functions of the PML: equal to 0 inside the propagation domain
-    // and on the intern boundary of the PML (Boundary in common with the Propagation domain).
+    // and on the intern boundary of the PML (Boundary in common with the
+    // Propagation domain).
     If(PML_TYPE == PML_LINEAR)
       DampingProfileX[] = SigmaXmax/SizePMLX*(RF_X[] - Xmax);
       DampingProfileY[] = SigmaYmax/SizePMLY*(RF_Y[] - Ymax);
@@ -85,13 +94,13 @@ Function{
     //Take Max(0, DampingProfile)
     SigmaX[] = 0.5*(DampingProfileX[] + Fabs[DampingProfileX[]]);
     SigmaY[] = 0.5*(DampingProfileY[] + Fabs[DampingProfileY[]]);
-    
+
     Kx[] = Complex[1, SigmaX[]/k];
     Ky[] = Complex[1, SigmaY[]/k];
     D[] = TensorDiag[Ky[]/Kx[], Kx[]/Ky[], 0.];
     S_PML[] = Kx[]*Ky[];
   EndIf
-  
+
   If(Type_SHAPE == DOM_CIRCULAR)
     R[] = Sqrt[X[]*X[] + Y[]*Y[]];
     //internal radius:
@@ -104,7 +113,8 @@ Function{
     If(Xmax != Ymax)
       //compute internal radius by hand...
       R_internal[] = Xmax*Ymax*R[]/(Sqrt[X[]^2*Xmax^2 + Y[]^2*Ymax^2]);
-      R_external[] = (Xmax+SizePMLX)*(Ymax+SizePMLY)*R[]/(Sqrt[X[]^2*(Xmax+SizePMLX)^2 + Y[]^2*(Ymax+SizePMLY)^2]);
+      R_external[] = (Xmax+SizePMLX)*(Ymax+SizePMLY)*R[]/
+        (Sqrt[X[]^2*(Xmax+SizePMLX)^2 + Y[]^2*(Ymax+SizePMLY)^2]);
       R0[] = R_internal[];
       WPml[] = R_external[] - R_internal[];
       cosT[] = R_internal[]/Xmax;
@@ -120,7 +130,7 @@ Function{
     EndIf
     cR[] = Complex[1,DampingProfileR[]/k] ;
     cStretch[] = Complex[1,(1/R[])*DampingProfileInt[]/k] ;
-      
+
     S_PML[] = cR[]*cStretch[];
     t11[] = cStretch[]/cR[] * cosT[]*cosT[] + cR[]/cStretch[] * sinT[]*sinT[] ;
     t12[] = cStretch[]/cR[] * cosT[]*sinT[] - cR[]/cStretch[] * cosT[]*sinT[] ;
@@ -133,11 +143,12 @@ Function{
 // CONSTRAINTS
 // ===========
 Constraint{
-  //Dirichlet boundary condition on the ficticious boundary (which truncate the PML)
-  {Name PMLCondition; Type Assign; Case{ {Region SigmaPML;  Value 0.; } } }
-  //Dirichlet boundary condition on Gama, boundary of the scatterers.
-  // function f[] should be defined in the main .pro file
-  {Name SoundSoftCondition; Type Assign; Case{ {Region GammaD;   Value -uinc[]; } } }
+  //Dirichlet boundary condition on the ficticious boundary (which truncate the
+  //PML)
+  { Name PMLCondition; Type Assign; Case{ {Region SigmaPML;  Value 0.; } } }
+  //Dirichlet boundary condition on Gama, boundary of the scatterers.  function
+  // f[] should be defined in the main .pro file
+  { Name SoundSoftCondition; Type Assign; Case{ {Region GammaD;   Value -uinc[]; } } }
 }
 
 
@@ -154,9 +165,9 @@ Jacobian {
 // ======================
 Integration {
   { Name I1 ;
-    Case { 
+    Case {
       { Type Gauss ;
-        Case { 
+        Case {
           { GeoElement Point ; NumberOfPoints  1 ; }
           { GeoElement Line ; NumberOfPoints  4 ; }
           { GeoElement Triangle ; NumberOfPoints  6 ; }
@@ -189,7 +200,7 @@ FunctionSpace{
 	  NameOfConstraint PMLCondition;}
       EndIf
       }
-  }  
+  }
   //For the normal derivative
   {Name L2_Gamma; Type Form0;
     BasisFunction{
@@ -206,22 +217,21 @@ Formulation {
   // Formulation for a Dirichlet boundary condition
   { Name Helmholtz; Type FemEquation;
     Quantity{
-      {Name u ; Type Local; NameOfSpace H_grad;}
-      // let us define also the normal derivative trace of u ("dn_u") and the far field ("u_inf").
+      { Name u ; Type Local; NameOfSpace H_grad;}
+      // let us define also the normal derivative trace of u ("dn_u") and the
+      // far field ("u_inf").
       { Name dn_u; Type Local ; NameOfSpace L2_Gamma; }
-      //      If(BoundaryCondition == DIRICHLET)
-	{ Name u_inf; Type Integral ;
-	  [ Coef_u_inf[] * ({dn_u} + I[] * k * (-uinc_S[]) * Unit[XYZ[]] * NormalSource[]) * EikXinfDotS[] ] ; 
-	  In GammaD; Integration I1; Jacobian JSur; }
-	//EndIf
-	//If(BoundaryCondition == NEUMANN)
-	{ Name u_inf; Type Integral ;
-	  [ Coef_u_inf[] *  ((-dn_uinc_S[]) + I[] * k * {u} * Unit[XYZ[]] * NormalSource[]) *EikXinfDotS[] ] ; 
-	  In GammaN; Integration I1; Jacobian JSur; }
-	//EndIf
+      { Name u_infD; Type Integral ;
+        [ Coef_u_inf[] * ({dn_u} + I[] * k * (-uinc_S[]) *
+            Unit[XYZ[]] * NormalSource[]) * EikXinfDotS[] ] ;
+        In GammaD; Integration I1; Jacobian JSur; }
+      { Name u_infN; Type Integral ;
+        [ Coef_u_inf[] *  ((-dn_uinc_S[]) + I[] * k * {u} *
+            Unit[XYZ[]] * NormalSource[]) *EikXinfDotS[] ] ;
+        In GammaN; Integration I1; Jacobian JSur; }
     }
     Equation{
-      //Helmholt equation
+      //Helmholtz equation
       Galerkin{[Dof{Grad u}, {Grad u}];
 	In Omega; Jacobian JVol; Integration I1;}
       Galerkin{[-k^2*Dof{u}, {u}];
@@ -230,7 +240,7 @@ Formulation {
       //Neumann boundary condition
       Galerkin{[-dn_uinc[], {u}];
 	In GammaN; Jacobian JSur; Integration I1;}
-	
+
       If(Type_Truncation == PML)
 	//Modified Helmholtz ins the PML
 	Galerkin{[D[]* Dof{Grad u}, {Grad u}];
@@ -249,25 +259,25 @@ Formulation {
 	    In GammaInf; Jacobian JSur ; Integration I1 ; }
 	  // FIXME: this assumes that GammaInf is closed; we need to add the
 	  // boundary terms if it is open!
-	  Galerkin { [ betaBT[] * Dof{d u} , {d u} ] ;  
+	  Galerkin { [ betaBT[] * Dof{d u} , {d u} ] ;
 	    In GammaInf; Jacobian JSur ; Integration I1 ; }
 	EndIf
       EndIf
 
       // Compute the normal derivative trace of u on Gamma.
       // Used to build the far field, for instance.
-      Galerkin { [ Dof{dn_u} , {dn_u} ] ;  
+      Galerkin { [ Dof{dn_u} , {dn_u} ] ;
 	In GammaD; Jacobian JSur ; Integration I1 ; }
-      Galerkin { [ - Normal[] * Trace[ Dof{d u} , TrGr ] , {dn_u} ] ;  
+      Galerkin { [ - Normal[] * Trace[ Dof{d u} , TrGr ] , {dn_u} ] ;
 	In GammaD; Jacobian JSur ; Integration I1 ; }
     }
-  }  
+  }
 }//End Formulation
 
 // ===========
 // RESOLUTIONS
 // ===========
-Resolution{  
+Resolution{
   {Name Scattering;
     System{ {Name A; NameOfFormulation Helmholtz; Type Complex; } }
     Operation{
@@ -291,14 +301,15 @@ PostProcessing{
       {Name utNorm; Value {Local { [Norm[{u} + uinc[]]] ; In OmegaTotal; Jacobian JVol; }}}
       //first and second trace on gamma
       { Name ugama ; Value { Local { [ {u} ] ; In GammaScat; Jacobian JSur ; } } }
-      If(BoundaryCondition == DIRICHLET)
-	{Name dn_u ; Value { Local { [ {dn_u} ] ; In GammaD; Jacobian JSur ; } } }
-	{Name dn_uAbs ; Value { Local { [ Norm[{dn_u}] ] ; In GammaD; Jacobian JSur ; } } }
-      EndIf
+      {Name dn_u ; Value { Local { [ {dn_u} ] ; In GammaD; Jacobian JSur ; } } }
+      {Name dn_uAbs ; Value { Local { [ Norm[{dn_u}] ] ; In GammaD; Jacobian JSur ; } } }
       //far field and rcs
-      { Name far_field; Value { Local { [ {u_inf} ] ; In GammaScat; Jacobian JSur ; } } }
-      { Name far_field_abs; Value { Local { [ Norm[{u_inf}] ] ; In GammaScat; Jacobian JSur ; } } }
-      { Name rcs ; Value { Local { [ 10 * Log10[Coef_RCS[]*SquNorm[{u_inf}]] ] ; In GammaScat; Jacobian JSur ; } } }
+      { Name far_field; Value { Local { [ {u_infD} ] ;
+            In GammaScat; Jacobian JSur ; } } }
+      { Name far_field_abs; Value { Local { [ Norm[{u_infD}] ] ;
+            In GammaScat; Jacobian JSur ; } } }
+      { Name rcs ; Value { Local { [ 10 * Log10[Coef_RCS[]*SquNorm[{u_infD}]] ] ;
+            In GammaScat; Jacobian JSur ; } } }
     }
   }
 } // End Postprocessing.
@@ -316,32 +327,33 @@ PostOperation{
       Print [utNorm, OnElementsOf Omega, File "u_TotalAbs.pos"];
     }
   }
-  
+
   {Name Farfield; NameOfPostProcessing Wave ;
     Operation {
-      Print[ rcs, OnGrid {R_inf * Cos[$A],  R_inf * Sin[$A], 0} {0:2*Pi:2*Pi/360, 0, 0},File "u_rcs.pos"];
-      Print[ far_field, OnGrid {R_inf * Cos[$A],  R_inf * Sin[$A], 0} {0:2*Pi:2*Pi/360, 0, 0},File "u_far_field.pos"];
-      Print[ far_field_abs, OnGrid {R_inf * Cos[$A],  R_inf * Sin[$A], 0} {0:2*Pi:2*Pi/360, 0, 0},File "u_FarFieldAbs.pos"];
+      Print[ rcs, OnGrid {R_inf * Cos[$A], R_inf * Sin[$A], 0}
+        {0:2*Pi:2*Pi/360, 0, 0},File "u_rcs.pos"];
+      Print[ far_field, OnGrid {R_inf * Cos[$A], R_inf * Sin[$A], 0}
+        {0:2*Pi:2*Pi/360, 0, 0},File "u_far_field.pos"];
+      Print[ far_field_abs, OnGrid {R_inf * Cos[$A], R_inf * Sin[$A], 0}
+        {0:2*Pi:2*Pi/360, 0, 0},File "u_FarFieldAbs.pos"];
     }
   }
-  
+
   {Name Traces; NameOfPostProcessing Wave ;
     Operation {
       Print [ugama, OnElementsOf GammaScat, File "u_gamma_u.pos"];
-      If(BoundaryCondition == DIRICHLET)
-	Print [dn_u, OnElementsOf GammaScat, File "u_gamma_dnu.pos"];
-	Print [dn_uAbs, OnElementsOf GammaScat, File "u_gamma_dnuAbs.pos"];	
-      EndIf
+      Print [dn_u, OnElementsOf GammaScat, File "u_gamma_dnu.pos"];
+      Print [dn_uAbs, OnElementsOf GammaScat, File "u_gamma_dnuAbs.pos"];
     }
   }
-  
+
   {Name PML; NameOfPostProcessing Wave ;
     Operation {
       Print [u, OnElementsOf PML, File "u_PML.pos"];
-      Print [uNorm, OnElementsOf PML, File "u_PMLAbs.pos"];	
+      Print [uNorm, OnElementsOf PML, File "u_PMLAbs.pos"];
     }
   }
-  
+
   {Name uinc; NameOfPostProcessing Wave ;
     Operation {
       Print [uinc, OnElementsOf Omega, File "uinc.pos"];

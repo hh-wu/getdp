@@ -14,11 +14,12 @@ Function {
   MIXED = 2;
   DefineConstant[
     N_scat = {0, Name Str[MENU_OBST,"/0Nscat"]}
-    //Type of Problem
-    BoundaryCondition = {DIRICHLET, Choices{DIRICHLET = "Dirichlet", NEUMANN = "Neumann", MIXED = "Mixed (Dirichlet/Neumann)"}, Name Str[MENU_INPUT, "/01TypeCondition"], Label "Boundary condition", Visible (Type_PROBLEM == IMPENETRABLE)}
-
-    linkContrast = {1, Choices {0,1},  Label "Set a unique contrast", Name Str[MENU_INPUT, "/010ContrastLinker"], Visible (Type_PROBLEM == PENETRABLE)}
-    Contrast_Global = {1.2, Min 0., Max 100., Step 0.1 , Label "Contrast", Name Str[MENU_INPUT, "/011Contrast"], Visible (Type_PROBLEM == PENETRABLE && linkContrast)}
+    linkContrast = {1, Choices {0,1},
+      Label "Set a unique contrast", Name Str[MENU_INPUT, "/010ContrastLinker"],
+      Visible (Type_PROBLEM == PENETRABLE)}
+    Contrast_Global = {1.2, Min 0., Max 100., Step 0.1 ,
+      Label "Contrast", Name Str[MENU_INPUT, "/011Contrast"],
+      Visible (Type_PROBLEM == PENETRABLE && linkContrast)}
   ];
   //If mixed condition
   Scat_Dirichlet = {};
@@ -26,8 +27,15 @@ Function {
   //until NMAX to hide some menu if the number of obstacles decrease
   For j In {0:NMAX-1}
     DefineConstant[
-      BCond~{j} = {(BoundaryCondition == MIXED?DIRICHLET:BoundaryCondition), Choices{DIRICHLET = "Dirichlet", NEUMANN = "Neumann"}, Name Str[MENU_OBST, Sprintf("/Obst. %g/0cond", j+1)], Label "Boundary condition", Visible (j < N_scat_to_create && Type_PROBLEM == IMPENETRABLE)}
-      Contrast~{j} = {Contrast_Global, Min 0., Max 100., Step 0.1 , Label "Contrast", Name Str[MENU_OBST, Sprintf("/Obst. %g/1cond", j+1)], Visible (j < N_scat_to_create && Type_PROBLEM == PENETRABLE), ReadOnly linkContrast}
+      BCond~{j} = {DIRICHLET,
+        Choices{DIRICHLET = "Dirichlet", NEUMANN = "Neumann"},
+        Name Str[MENU_OBST, Sprintf("/Obst. %g/0cond", j+1)],
+        Label "Boundary condition",
+        Visible (j < N_scat_to_create && Type_PROBLEM == IMPENETRABLE)}
+      Contrast~{j} = {Contrast_Global, Min 0., Max 100., Step 0.1 ,
+        Label "Contrast", Name Str[MENU_OBST, Sprintf("/Obst. %g/1cond", j+1)],
+        Visible (j < N_scat_to_create && Type_PROBLEM == PENETRABLE),
+        ReadOnly linkContrast}
     ];
   EndFor
   //Now we can set the right boundaries
@@ -44,9 +52,9 @@ Function {
 
   //angle of incident plane wave
   DefineConstant[
-    beta_inc_aux = {1., Min -1., Max 1., Step 0.01 , Label "Angle (in Pi)", Name Str[MENU_INPUT, Str[MENU_UINC,"/Plane wave/0"]], Visible (INCIDENT_WAVE == PLANEWAVE)}
-    //    r_source = {Xmax-rad_ext_s, Name Str[MENU_INPUT, Str[MENU_UINC,"/Source coordinate/r"]]}
-    //theta_source = {0., Name Str[MENU_INPUT, Str[MENU_UINC,"/Source coordinate/theta"]]}
+    beta_inc_aux = {1., Min -1., Max 1., Step 0.01 ,
+      Label "Angle (in Pi)", Name Str[MENU_INPUT, Str[MENU_UINC,"/Plane wave/0"]],
+      Visible (INCIDENT_WAVE == PLANEWAVE)}
   ];
 
   If(INCIDENT_WAVE == PLANEWAVE)
@@ -61,22 +69,25 @@ Function {
   EndIf
 
   If(INCIDENT_WAVE == POINTSOURCE)
-    //point source case (modify the position of the source if desired). To avoid any singularity
-    // put the source out of the computation domain.
+    //point source case (modify the position of the source if desired). To avoid
+    // any singularity put the source out of the computation domain.
 
     XYZ_source[] = Vector[X_source, Y_source, 0];
     KR_source[] = k*Sqrt[(X[] - X_source)^2 + (Y[] - Y_source)^2 + Z[]^2];
-    Green2D[] = 0.25*I[]*Complex[Jn[0,KR_source[]],Yn[0,KR_source[]]]; //= i/4*Hankel_0^{(1)}(k*R[])
+    Green2D[] = 0.25*I[]*Complex[Jn[0,KR_source[]],
+      Yn[0,KR_source[]]]; //= i/4*Hankel_0^{(1)}(k*R[])
     //"source" version (integrable, used to compute the RCS, far field, ...)
     KRS_source[] = k*Sqrt[(XS[] - X_source)^2 + (YS[] - Y_source)^2];
     Green2D_S[] = 0.25*I[]*Complex[Jn[0,KRS_source[]],Yn[0,KRS_source[]]];
     //u_inc
     uinc[] = Green2D[];
-    grad_uinc[] = -I[]/4 * k * Complex[Jn[1,KR_source[]], Yn[1,KR_source[]]] * (XYZ[] - XYZ_source[])/Norm[XYZ[] - XYZ_source[]]; //-ik/2*H_1^{(1)}(k|x-y|)*(x-y)
+    grad_uinc[] = -I[]/4 * k * Complex[Jn[1,KR_source[]], Yn[1,KR_source[]]] *
+      (XYZ[] - XYZ_source[])/Norm[XYZ[] - XYZ_source[]]; //-ik/2*H_1^{(1)}(k|x-y|)*(x-y)
     dn_uinc[] = Normal[] * grad_uinc[];
     //"source version" (for far field/rcs)
     uinc_S[] = Green2D_S[];
-    grad_uinc_S[] = -I[]/4 * k * Complex[Jn[1,KRS_source[]],Yn[1,KRS_source[]]] * (XYZS[] - XYZ_source[])/Norm[XYZS[] - XYZ_source[]]; //-ik/2*H_1^{(1)}(k|x-y|)*(x-y)
+    grad_uinc_S[] = -I[]/4 * k * Complex[Jn[1,KRS_source[]],Yn[1,KRS_source[]]] *
+      (XYZS[] - XYZ_source[])/Norm[XYZS[] - XYZ_source[]]; //-ik/2*H_1^{(1)}(k|x-y|)*(x-y)
     dn_uinc_S[] = NormalSource[] *  grad_uinc_S[];
   EndIf
 }
