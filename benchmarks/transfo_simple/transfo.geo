@@ -3,7 +3,6 @@ Include "transfo.dat";
 
 // Some gmsh parameters
 
-Solver.AutoShowLastStep = 0;
 Geometry.OldNewReg = 0;
 Geometry.AutoCoherence = 0;
 Mesh.Algorithm = 1;
