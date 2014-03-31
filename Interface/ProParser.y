@@ -6108,6 +6108,7 @@ PrintOptions :
       PostSubOperation_S.Adapt = 0;
       PostSubOperation_S.Target = -1.;
       PostSubOperation_S.HarmonicToTime = 1;
+      PostSubOperation_S.FourierTransform = 0;
       PostSubOperation_S.FrozenTimeStepList = 0;
       PostSubOperation_S.TimeStep_L = List_Create(10,10,sizeof(int));;
       PostSubOperation_S.Frequency_L = List_Create(10,10,sizeof(double));;
@@ -6211,6 +6212,10 @@ PrintOption :
   | ',' tHarmonicToTime FExpr
     {
       PostSubOperation_S.HarmonicToTime = (int)$3;
+    }
+  | ',' tFourierTransform
+    {
+      PostSubOperation_S.FourierTransform = 1;
     }
   | ',' tFormat tSTRING
     {

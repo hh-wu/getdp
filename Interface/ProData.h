@@ -1281,6 +1281,7 @@ struct PostSubOperation {
   int    PostQuantityIndex[2], PostQuantitySupport[2];
   int    Type, SubType, CombinationType;
   int    Depth, Skin, Smoothing, Dimension, Comma, HarmonicToTime, CatFile;
+  int    FourierTransform;
   int    Format, Adapt, Sort, Iso, NoNewLine, NoTitle, DecomposeInSimplex;
   int    NewCoordinates;
   char  *NewCoordinatesFile;

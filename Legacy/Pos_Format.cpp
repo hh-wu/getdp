@@ -34,6 +34,8 @@
 
 #define NBR_MAX_ISO  200
 
+#define SQU(a)     ((a)*(a))
+
 extern struct Problem Problem_S ;
 extern struct CurrentData Current ;
 
@@ -1501,20 +1503,30 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
 }
 
 
+void Pos_FourierTransform(int NbrTimeStep, int NbrRegion,
+                          double *Times, struct Value *TmpValues, int Size);
+
 /* ------------------------------------------------------------------------ */
 /*  F o r m a t _ P o s t V a l u e                                         */
 /* ------------------------------------------------------------------------ */
 
 void Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
-		      double Time, int iRegion, int numRegion, int NbrRegion,
-		      int NbrHarmonics, int HarmonicToTime, int Flag_NoNewLine,
+		      int iTime, double Time, int NbrTimeStep,
+                      int iRegion, int numRegion, int NbrRegion,
+		      int NbrHarmonics, int HarmonicToTime, int FourierTransform,
+                      int Flag_NoNewLine,
 		      struct Value * Value)
 {
   static int  Size ;
   int  j, k ;
   double TimeMH, Freq ;
   double x, y, z ;
+  int  flag_storeAllTimeResults, indexInTmpValues ;
   static struct Value  TmpValue, *TmpValues ;
+  static double *Times ;
+
+  flag_storeAllTimeResults = FourierTransform ;
+  indexInTmpValues = flag_storeAllTimeResults? iTime * NbrRegion : 0 ;
 
   if(iRegion == 0){
     switch(Value->Type){
@@ -1567,17 +1579,31 @@ void Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
   }
   else {
     if(iRegion == 0){
-      TmpValues = (struct Value*) Malloc(NbrRegion*sizeof(struct Value)) ;
+      if (!flag_storeAllTimeResults)
+        TmpValues = (struct Value*) Malloc(NbrRegion*sizeof(struct Value)) ;
+      else{
+        if (iTime == 0){
+          TmpValues = (struct Value*) Malloc(NbrTimeStep*NbrRegion*sizeof(struct Value)) ;
+          Times     = (double*) Malloc(NbrTimeStep*sizeof(double)) ;
+        }
+        Times[iTime] = Time ;
+      }
     }
 
-    Cal_CopyValue(Value, &TmpValues[iRegion]) ;
+    Cal_CopyValue(Value, &TmpValues[indexInTmpValues+iRegion]) ;
 
-    if (iRegion == NbrRegion-1) {
+    if (!flag_storeAllTimeResults && iRegion == NbrRegion-1) {
 
       if (HarmonicToTime == 1) {
 	switch (Format) {
 	case FORMAT_FREQUENCY_TABLE :
-	  if (NbrHarmonics == 1){
+          if (FourierTransform){
+	    Message::Error("FourierTransform to be done") ;
+
+
+            return;
+          }
+	  else if (NbrHarmonics == 1){
 	    Message::Error("FrequencyTable format not allowed (only one harmonic)") ;
             return;
           }
@@ -1596,7 +1622,8 @@ void Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
 	    }
 	    for(j = 0 ; j < Size ; j++)
               if (Format != FORMAT_REGION_VALUE)
-	      fprintf(PostStream, " %.16g", TmpValues[iRegion].Val[MAX_DIM*k+j]) ;
+	      fprintf(PostStream, " %.16g",
+                      TmpValues[indexInTmpValues+iRegion].Val[MAX_DIM*k+j]) ;
 	  }
 	if (Flag_NoNewLine || Format == FORMAT_REGION_VALUE)
 	  fprintf(PostStream, " ") ;
@@ -1606,7 +1633,7 @@ void Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
       else {
 	for(k = 0 ; k < HarmonicToTime ; k++) {
 	  for (iRegion = 0 ; iRegion < NbrRegion ; iRegion++) {
-	    F_MHToTime0(k+iRegion, &TmpValues[iRegion], &TmpValue,
+	    F_MHToTime0(k+iRegion, &TmpValues[indexInTmpValues+iRegion], &TmpValue,
 			k, HarmonicToTime, &TimeMH) ;
 	    if (iRegion == 0)  fprintf(PostStream, "%.16g ", TimeMH) ;
 	    for(j = 0 ; j < Size ; j++)
@@ -1616,7 +1643,119 @@ void Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
 	}
       }
 
+      if (flag_storeAllTimeResults) Free(Times) ;
       Free(TmpValues) ;
     }
+
+    else if (flag_storeAllTimeResults &&
+             iTime == NbrTimeStep-1 && iRegion == NbrRegion-1) {
+
+      Pos_FourierTransform(NbrTimeStep, NbrRegion, Times, TmpValues, Size);
+
+      Free(Times);
+      Free(TmpValues) ;
+    }
+
   }
+}
+
+
+
+/* ------------------------------------------------------------------------ */
+/*  P o s _ F o u r i e r T r a n s f o r m                                 */
+/* ------------------------------------------------------------------------ */
+
+void Pos_FourierTransform(int NbrTimeStep, int NbrRegion,
+                          double *Times, struct Value *TmpValues, int Size)
+{
+  int iTime, iRegion, k_fc, i_k, j, k;
+  int N, Nhalf, NbrFourierComps;
+  double *val_FourierComps;
+  double val, val_r, val_i, norm, Period, w, v_cos, v_sin;
+
+  N = NbrTimeStep-1;
+  Nhalf = N/2;
+  //  Nhalf = 2;
+  NbrFourierComps = Nhalf*2;
+
+  Period = Times[NbrTimeStep-1];
+  w = TWO_PI/Period;
+
+  val_FourierComps = (double*) Malloc(NbrFourierComps*MAX_DIM*2*sizeof(double)) ;
+
+  for (k_fc=-Nhalf; k_fc<Nhalf; k_fc++){
+    i_k = Nhalf+k_fc;
+    for (k=0; k<2; k++){
+      for (j = 0 ; j < Size ; j++){
+        val_FourierComps[(2*i_k+k)*MAX_DIM + j] = 0.;
+      }
+    }
+  }
+
+  for (iTime=0; iTime<N; iTime++){
+    iRegion = 0; // only for 1 region now!
+
+    for (k_fc=-Nhalf; k_fc<Nhalf; k_fc++){
+      i_k = Nhalf+k_fc;
+
+      v_cos = cos( k_fc*w*Times[iTime]);
+      v_sin = sin(-k_fc*w*Times[iTime]);
+
+      for (j = 0 ; j < Size ; j++){
+        val = TmpValues[iTime*NbrRegion+iRegion].Val[j];
+  
+        val_FourierComps[(2*i_k+0)*MAX_DIM + j] += val * v_cos;
+        val_FourierComps[(2*i_k+1)*MAX_DIM + j] += val * v_sin;
+      }
+    }
+
+  }
+
+  for (k_fc=-Nhalf; k_fc<Nhalf; k_fc++){
+    i_k = Nhalf+k_fc;
+    for (k=0; k<2; k++){
+      for (j = 0 ; j < Size ; j++){
+        val_FourierComps[(2*i_k+k)*MAX_DIM + j] /= N;
+      }
+    }
+  }
+
+  //  for (k_fc=-Nhalf; k_fc<Nhalf; k_fc++){
+  for (k_fc=0; k_fc<Nhalf; k_fc++){
+    i_k = Nhalf+k_fc;
+    //    fprintf(PostStream, "%d %.16g", k_fc, k_fc*w/TWO_PI) ;
+    fprintf(PostStream, "%.16g", k_fc*w/TWO_PI) ;
+    for (k=0; k<2; k++){
+      for(j = 0 ; j < Size ; j++){
+        /*
+        if (k_fc != 0)
+          val = ((k==0)?1:-1) * 2 * val_FourierComps[(2*i_k+k)*MAX_DIM + j];
+        else
+          val = val_FourierComps[(2*i_k+k)*MAX_DIM + j];
+        */
+
+        if (k_fc != 0) {
+          val_r =  2 * val_FourierComps[(2*i_k+0)*MAX_DIM + j];
+          val_i = -2 * val_FourierComps[(2*i_k+1)*MAX_DIM + j];
+          norm = sqrt(SQU(val_r) + SQU(val_i));
+          if (k==0)
+            val = norm;
+          else
+            val = -asin(val_i/norm);
+        }
+        else {
+          if (k==0)
+            val = val_FourierComps[(2*i_k+k)*MAX_DIM + j];
+          else
+            val = 0.;
+        }
+
+        fprintf(PostStream, " %.16g", val);
+      }
+    }
+    fprintf(PostStream, "\n") ;
+  }
+
+  Free(val_FourierComps);
+
 }

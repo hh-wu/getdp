@@ -22,8 +22,10 @@ void  Format_PostElement(struct PostSubOperation * PSO_P, int Contour, int Store
 			 double *Dummy, struct PostElement *PE);
 
 void  Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
-		       double Time, int iRegion, int numRegion, int NbrRegion,
-		       int NbrHarmonics, int HarmonicToTime, int Flag_NoNewLine,
+		       int iTime, double Time, int NbrTimeStep,
+                       int iRegion, int numRegion, int NbrRegion,
+		       int NbrHarmonics, int HarmonicToTime, int FourierTransform,
+                       int Flag_NoNewLine,
 		       struct Value * Value) ;
 
 #endif

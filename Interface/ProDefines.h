@@ -221,6 +221,7 @@ struct StringXDefine  Operation_Type[] = {
   {"Apply"                  , OPERATION_APPLY},
   {"SetRHSAsSolution"       , OPERATION_SETRHSASSOLUTION},
   {"SetSolutionAsRHS"       , OPERATION_SETSOLUTIONASRHS},
+  {"SetCurrentSystem"       , OPERATION_SETCURRENTSYSTEM},
   {NULL                     , OPERATION_NONE}
 } ;
 
