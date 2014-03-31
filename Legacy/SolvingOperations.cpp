@@ -67,7 +67,7 @@ int  Flag_NextThetaFixed = 0 ;
 // For Update
 int  Init_Update = 0 ;
 
-// For Johan's multi-harmonic stiff (even uglier :-)
+// For Johan's multi-harmonic stuff (even uglier :-)
 int Flag_RHS = 0, *DummyDof ;
 double **MH_Moving_Matrix = NULL ;
 int MH_Moving_Matrix_simple = 0 ;
@@ -1236,6 +1236,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       LinAlg_DummyVector(&DofData_P->res) ;
       LinAlg_Solve(&DofData_P->A, &DofData_P->res, &DofData_P->Solver, &DofData_P->dx) ;
 
+
       Message::Cpu("");
 
       /* save CurrentSolution */
@@ -1269,15 +1270,21 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	ReGenerate_System(DefineSystem_P, DofData_P, DofData_P0) ;
 	LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x,
                                 &DofData_P->res) ;
+
+
+
 	LinAlg_SubVectorVector(&DofData_P->b, &DofData_P->res, &DofData_P->res) ;
 
 	/* check whether norm of residual is smaller than previous ones */
 
+
 	LinAlg_VectorNorm2(&DofData_P->res, &Norm);
 	LinAlg_GetVectorSize(&DofData_P->res, &N);
 	Norm /= (double)N;
-	Message::Info(" adaptive relaxation : factor = %8f   Norm residual = %10.4e",
-                      Frelax, Norm) ;
+        if(Message::GetVerbosity() == 10)
+          Message::Info(" adaptive relaxation factor = %8f Residual norm = %10.4e",
+                        Frelax, Norm) ;
+
 
 	if (Norm < Error_Prev) {
 	  Error_Prev = Norm;
@@ -1286,7 +1293,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       }
 
-      Message::Info(" => optimal relaxation factor = %f", Frelax_Opt) ;
+      //Message::Info(" => optimal relaxation factor = %f", Frelax_Opt) ;
 
       /*  solution = x + Frelax_Opt * dx */
       LinAlg_CopyVector(&x_Save, &DofData_P->CurrentSolution->x);
@@ -1294,8 +1301,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 				       Frelax_Opt, &DofData_P->CurrentSolution->x);
 
       MeanError = Error_Prev ;
-      Message::Info("Mean error: %.3e  (after %d iteration%s)",
-                    MeanError, (int)Current.Iteration, ((int)Current.Iteration==1)?"":"s") ;
+      Message::Info("%3ld Nonlinear Residual norm %14.12e (optimal relaxation factor = %f)",
+                    (int)Current.Iteration, MeanError, Frelax_Opt);
+
       if(Message::GetProgressMeterStep() > 0 && Message::GetProgressMeterStep() < 100)
         Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Residual",
                                        MeanError);
