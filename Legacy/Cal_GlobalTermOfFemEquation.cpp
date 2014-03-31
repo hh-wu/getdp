@@ -92,38 +92,37 @@ void  Cal_GlobalTermOfFemEquation(int  Num_Region,
 		     (WholeQuantity_P0 + i_WQ)->Type != WQ_MHJACNL) i_WQ++ ;
 
   if (i_WQ < List_Nbr(WholeQuantity_L) ) {
-
-    Message::Info("MHJacNL term");
+    if(Message::GetVerbosity() == 10)
+      Message::Info("MHJacNL in Global term");
     if (QuantityStorageEqu_P != QuantityStorageDof_P){
-      Message::Error("Global term with MHJacNL is not symmtric ?!");
+      Message::Error("Global term with MHJacNL is not symmetric ?!");
       return;
     }
 
     QuantityStorage_P = QuantityStorageEqu_P ;
 
-    if (List_Nbr(WholeQuantity_L) == 3){
-      if (i_WQ != 0 ||
-	  EquationTerm_P->Case.GlobalTerm.Term.DofIndexInWholeQuantity != 1 ||
-	  (WholeQuantity_P0 + 2)->Type != WQ_BINARYOPERATOR ||
-	  (WholeQuantity_P0 + 2)->Case.Operator.TypeOperator != OP_TIME){
+    if (List_Nbr(WholeQuantity_L) == 4){
+      if (i_WQ != 1 ||
+	  EquationTerm_P->Case.GlobalTerm.Term.DofIndexInWholeQuantity != 2 ||
+	  (WholeQuantity_P0 + 3)->Type != WQ_BINARYOPERATOR ||
+	  (WholeQuantity_P0 + 3)->Case.Operator.TypeOperator != OP_TIME){
 	Message::Error("Not allowed expression in Global term with MHJacNL (case 1)");
         return;
       }
       Factor = 1.;
     }
-    else if (List_Nbr(WholeQuantity_L) == 5){
+    else if (List_Nbr(WholeQuantity_L) == 6){
       if ((WholeQuantity_P0 + 0)->Type != WQ_CONSTANT ||
-	  i_WQ != 1 ||
-	  (WholeQuantity_P0 + 2)->Type != WQ_BINARYOPERATOR ||
-	  (WholeQuantity_P0 + 2)->Case.Operator.TypeOperator != OP_TIME ||
+	  i_WQ != 2 ||
+	  (WholeQuantity_P0 + 3)->Type != WQ_BINARYOPERATOR ||
+	  (WholeQuantity_P0 + 3)->Case.Operator.TypeOperator != OP_TIME ||
 	  EquationTerm_P->Case.GlobalTerm.Term.DofIndexInWholeQuantity != 3 ||
-	  (WholeQuantity_P0 + 4)->Type != WQ_BINARYOPERATOR ||
-	  (WholeQuantity_P0 + 4)->Case.Operator.TypeOperator != OP_TIME){
+	  (WholeQuantity_P0 + 5)->Type != WQ_BINARYOPERATOR ||
+	  (WholeQuantity_P0 + 5)->Case.Operator.TypeOperator != OP_TIME){
 	Message::Error("Not allowed expression in Global term with MHJacNL (case 2)");
         return;
       }
       Factor = WholeQuantity_P0->Case.Constant ;
-      /* printf(" Factor = %e \n" , FI->MHJacNL_Factor); */
     }
     else {
       Message::Error("Not allowed expression in Global term with MHJacNL (%d terms) ",
@@ -139,15 +138,11 @@ void  Cal_GlobalTermOfFemEquation(int  Num_Region,
     Expression_P = (struct Expression *)List_Pointer
       (Problem_S.Expression, (WholeQuantity_P0 + i_WQ)->Case.MHJacNL.Index) ;
 
-
-    printf("=====> hola idiota \n");
     MH_Get_InitData(2, (WholeQuantity_P0 + i_WQ)->Case.MHJacNL.NbrPoints,
 		    &NbrPointsX, &H, &HH,
 		    &time, &weight) ;
 
     NbrHar = Current.NbrHar ;
-    printf("hola idiota \n");
-
 
     /* special treatment of DC-term and associated dummy sinus-term */
     DcHarmonic = NbrHar;
@@ -180,7 +175,7 @@ void  Cal_GlobalTermOfFemEquation(int  Num_Region,
 	t_Value.Val[0] += H[iTime][iHar] * Val_Dof[iHar] ;
 
       Get_ValueOfExpression(Expression_P, QuantityStorage_P0,
-			    Current.u, Current.v, Current.w, &t_Value);
+			    Current.u, Current.v, Current.w, &t_Value, 1); //To generalize: Function in MHJacNL has 1 argument (e.g. Resistance[{Iz}])
 
       for (iHar = 0 ; iHar < NbrHar ; iHar++)
 	for (jHar = OFFSET  ; jHar <= iHar ; jHar++)
