@@ -1739,7 +1739,7 @@ void Print_ListResolution(int choose, int Flag_LRES, char **name)
         charOptions["Label"].push_back("Resolution");
         Message::ExchangeOnelabParameter(&c, floatOptions, charOptions);
         if(choose){
-          *name = c.Value.Char;
+          *name = strSave(c.Value.Char);
           return;
         }
       }
@@ -1752,7 +1752,7 @@ void Print_ListResolution(int choose, int Flag_LRES, char **name)
     }
     if(ichoice > 0 && ichoice < Nbr+1){
       RE = (struct Resolution*)List_Pointer(Problem_S.Resolution, ichoice-1);
-      *name = RE->Name;
+      *name = strSave(RE->Name);
       return;
     }
     else if(choose)
@@ -1828,7 +1828,7 @@ void Print_ListPostOperation(int choose, int Flag_LPOS, char *name[NBR_MAX_POS])
     }
     if(ichoice > 0 && ichoice < Nbr+1){
       PO = (struct PostOperation*)List_Pointer(Problem_S.PostOperation, ichoice-1);
-      name[0] = PO->Name;
+      name[0] = strSave(PO->Name);
       name[1] = NULL;
       return;
     }
