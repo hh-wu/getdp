@@ -80,6 +80,7 @@ void LinAlg_InitializeSolver(int* argc, char*** argv)
 {
   // This function detects if MPI is initialized
   PetscInitialize(argc, argv, PETSC_NULL, PETSC_NULL);
+  PetscPopSignalHandler();
   MyPetscViewer = PETSC_VIEWER_STDOUT_SELF;
   MyComm = PETSC_COMM_WORLD;
 #if defined(HAVE_SLEPC)
