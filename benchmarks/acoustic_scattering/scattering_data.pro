@@ -181,12 +181,12 @@ DefineConstant[
   r_source = {(Type_PROBLEM == PENETRABLE?Xmax-rad_ext_s:Xmax),
     Name Str[MENU_INPUT, Str[MENU_UINC,"/Source coordinate/r"]],
     Label "Distance from origin",
-    Visible (INCIDENT_WAVE == POINTSOURCE && PLOT_POINT_SOURCE),
+    Visible (INCIDENT_WAVE == POINTSOURCE),
     ReadOnly !PLOT_POINT_SOURCE}
   theta_source = {0., Min -1., Max 1., Step 0.01,
     Name Str[MENU_INPUT, Str[MENU_UINC,"/Source coordinate/theta"]],
     Label "Angle (in pi-radian)",
-    Visible (INCIDENT_WAVE == POINTSOURCE && PLOT_POINT_SOURCE),
+    Visible (INCIDENT_WAVE == POINTSOURCE),
     ReadOnly !PLOT_POINT_SOURCE}
   X_source = {r_source*Cos[theta_source],
     Name Str[MENU_INPUT, Str[MENU_UINC,"/Source coordinate/x_source"]],
