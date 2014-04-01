@@ -5,7 +5,7 @@
 //   L. Rindorf (original version, 2008)
 //   A. Modave (modifications)
 //========================================================
-   
+
 Include "waveguide2D_Hbend.dat" ;
 
 Group {
@@ -26,7 +26,7 @@ NbPorts = 2 ;
 DefineConstant[
   ActivePort = {1, Choices{1="Port 1 [z=0]", 2="Port 2 [z=L]"},
     Name StrCat[catParam2,"0Number of active port"]},
-  FREQ = { 4e9, Min 4e9, Max 6e9, Step 1e8,
+  FREQ = { 4e9, Min 1e8, Max 5e10, Step 1e8,
     Name StrCat[catParam2,"1Frequency [Hz]"]},
   LAMB = { c0/FREQ*100, ReadOnly 1, Highlight "LightGrey",
     Name StrCat[catParam2,"2Wavelength [cm]"]},
@@ -39,10 +39,10 @@ Function {
   I[] = Complex[0.,1.] ;
   epsR[] = 1 ;
   muR[] = 1 ;
-  
+
   k0 = 2*Pi/LAMB ; // Free space wavevector
   kt = m*Pi/W ;    // Transverse wavevector
-   
+
   ePort_1[] = Vector[ 0., 0., Sin[kt*(Y[]+W/2)] ] ;
   ePort_2[] = Vector[ 0., 0., Sin[kt*(X[]+W/2-R)] ] ;
   For n In {1:NbPorts}

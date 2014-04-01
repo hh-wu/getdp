@@ -24,7 +24,7 @@ c0 = 1/Sqrt[eps0*mu0] ;
 DefineConstant[
   ActivePort = { 1, Min 1, Max NbPorts, Step 1,
     Name StrCat[catParam2,"0Number of active port"]},
-  FREQ = { 4e9, Min 1e8, Max 1e10, Step 1e8,
+  FREQ = { 4e9, Min 1e8, Max 5e10, Step 1e8,
     Name StrCat[catParam2,"1Frequency [Hz]"]},
   LAMB = { c0/FREQ*100, ReadOnly 1, Highlight "LightGrey",
     Name StrCat[catParam2,"2Wavelength [cm]"]},
@@ -37,10 +37,10 @@ Function {
   I[] = Complex[0.,1.] ;
   epsR[] = 1 ;
   muR[] = 1 ;
-  
+
   k0 = 2*Pi/LAMB ; // Free space wavevector
   kt = m*Pi/W ;    // Transverse wavevector
-  
+
   For n In {1:NbPorts}
     phi = 2*Pi*(n-0.5)/NbPorts ;
     yLoc~{n}[] = (-Sin[phi]*X[] + Cos[phi]*Y[]) + 0.5*W ;
