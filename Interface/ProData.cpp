@@ -1739,7 +1739,7 @@ void Print_ListResolution(int choose, int Flag_LRES, char **name)
         charOptions["Label"].push_back("Resolution");
         Message::ExchangeOnelabParameter(&c, floatOptions, charOptions);
         if(choose){
-          *name = strSave(c.Value.Char);
+          *name = c.Value.Char;
           return;
         }
       }
