@@ -66,10 +66,14 @@ For ns In {0:NMAX-1}
   //init this constant
   _ItsOK~{ns} = 1;
   DefineConstant[
-    x~{ns}={0., Min -Xmax, Max Xmax, Step 0.1, Label "X-coord", Name Str[MENU_OBST, Sprintf("/Obst. %g/1x", ns+1)], Visible (ns < N_scat_to_create)}
-    y~{ns}={0., Min -Ymax, Max Ymax, Step 0.1, Label "Y-coord", Name Str[MENU_OBST, Sprintf("/Obst. %g/1y", ns+1)], Visible (ns < N_scat_to_create)}
-    rx~{ns}={1., Min 0.1, Max Xmax, Step 0.1, Label "X-radius", Name Str[MENU_OBST, Sprintf("/Obst. %g/2rx", ns+1)], Visible (ns < N_scat_to_create)}
-    ry~{ns}={1., Min 0.1, Max Ymax, Step 0.1, Label "Y-radius", Name Str[MENU_OBST, Sprintf("/Obst. %g/2ry", ns+1)], Visible (ns < N_scat_to_create)}
+    rx~{ns}={1., Min 0.1, Max Xmax, Step 0.1, Label "X-radius",
+      Name Str[MENU_OBST, Sprintf("/Obst. %g/2rx", ns+1)], Visible (ns < N_scat_to_create)}
+    ry~{ns}={1., Min 0.1, Max Ymax, Step 0.1, Label "Y-radius",
+      Name Str[MENU_OBST, Sprintf("/Obst. %g/2ry", ns+1)], Visible (ns < N_scat_to_create)}
+    x~{ns}={ns * 2.2*ry~{ns}, Min -Xmax, Max Xmax, Step 0.1, Label "X-coord",
+      Name Str[MENU_OBST, Sprintf("/Obst. %g/1x", ns+1)], Visible (ns < N_scat_to_create)}
+    y~{ns}={ns * 2.2*ry~{ns}, Min -Ymax, Max Ymax, Step 0.1, Label "Y-coord",
+      Name Str[MENU_OBST, Sprintf("/Obst. %g/1y", ns+1)], Visible (ns < N_scat_to_create)}
   ];
   CentreX_pre[] += x~{ns};
   CentreY_pre[] += y~{ns};
