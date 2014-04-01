@@ -321,6 +321,7 @@ Comma                        return tComma;
 ValueIndex                   return tValueIndex;
 ValueName                    return tValueName;
 HarmonicToTime               return tHarmonicToTime;
+CosineTransform              return tCosineTransform;
 TimeStep                     return tTimeStep;
 Target                       return tTarget;
 File                         return tFile;

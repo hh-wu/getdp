@@ -270,6 +270,7 @@ struct doubleXstring{
 %token        tOnGrid tOnSection tOnPoint tOnLine tOnPlane tOnBox
 %token        tWithArgument
 %token        tFile tDepth tDimension tComma tTimeStep tHarmonicToTime
+%token        tCosineTransform
 %token        tValueIndex tValueName
 %token        tFormat tHeader tFooter tSkin tSmoothing
 %token        tTarget tSort tIso tNoNewLine tNoTitle tDecomposeInSimplex tChangeOfValues
@@ -6212,6 +6213,10 @@ PrintOption :
   | ',' tHarmonicToTime FExpr
     {
       PostSubOperation_S.HarmonicToTime = (int)$3;
+    }
+  | ',' tCosineTransform
+    {
+      PostSubOperation_S.FourierTransform = 2;
     }
   | ',' tFourierTransform
     {

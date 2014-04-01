@@ -280,57 +280,58 @@
      tComma = 496,
      tTimeStep = 497,
      tHarmonicToTime = 498,
-     tValueIndex = 499,
-     tValueName = 500,
-     tFormat = 501,
-     tHeader = 502,
-     tFooter = 503,
-     tSkin = 504,
-     tSmoothing = 505,
-     tTarget = 506,
-     tSort = 507,
-     tIso = 508,
-     tNoNewLine = 509,
-     tNoTitle = 510,
-     tDecomposeInSimplex = 511,
-     tChangeOfValues = 512,
-     tTimeLegend = 513,
-     tFrequencyLegend = 514,
-     tEigenvalueLegend = 515,
-     tEvaluationPoints = 516,
-     tStoreInRegister = 517,
-     tStoreInField = 518,
-     tStoreInMeshBasedField = 519,
-     tStoreMaxInRegister = 520,
-     tStoreMaxXinRegister = 521,
-     tStoreMaxYinRegister = 522,
-     tStoreMaxZinRegister = 523,
-     tStoreMinInRegister = 524,
-     tStoreMinXinRegister = 525,
-     tStoreMinYinRegister = 526,
-     tStoreMinZinRegister = 527,
-     tLastTimeStepOnly = 528,
-     tAppendTimeStepToFileName = 529,
-     tOverrideTimeStepValue = 530,
-     tNoMesh = 531,
-     tSendToServer = 532,
-     tColor = 533,
-     tStr = 534,
-     tDate = 535,
-     tNewCoordinates = 536,
-     tDEF = 537,
-     tOR = 538,
-     tAND = 539,
-     tAPPROXEQUAL = 540,
-     tNOTEQUAL = 541,
-     tEQUAL = 542,
-     tGREATERGREATER = 543,
-     tLESSLESS = 544,
-     tGREATEROREQUAL = 545,
-     tLESSOREQUAL = 546,
-     tCROSSPRODUCT = 547,
-     UNARYPREC = 548,
-     tSHOW = 549
+     tCosineTransform = 499,
+     tValueIndex = 500,
+     tValueName = 501,
+     tFormat = 502,
+     tHeader = 503,
+     tFooter = 504,
+     tSkin = 505,
+     tSmoothing = 506,
+     tTarget = 507,
+     tSort = 508,
+     tIso = 509,
+     tNoNewLine = 510,
+     tNoTitle = 511,
+     tDecomposeInSimplex = 512,
+     tChangeOfValues = 513,
+     tTimeLegend = 514,
+     tFrequencyLegend = 515,
+     tEigenvalueLegend = 516,
+     tEvaluationPoints = 517,
+     tStoreInRegister = 518,
+     tStoreInField = 519,
+     tStoreInMeshBasedField = 520,
+     tStoreMaxInRegister = 521,
+     tStoreMaxXinRegister = 522,
+     tStoreMaxYinRegister = 523,
+     tStoreMaxZinRegister = 524,
+     tStoreMinInRegister = 525,
+     tStoreMinXinRegister = 526,
+     tStoreMinYinRegister = 527,
+     tStoreMinZinRegister = 528,
+     tLastTimeStepOnly = 529,
+     tAppendTimeStepToFileName = 530,
+     tOverrideTimeStepValue = 531,
+     tNoMesh = 532,
+     tSendToServer = 533,
+     tColor = 534,
+     tStr = 535,
+     tDate = 536,
+     tNewCoordinates = 537,
+     tDEF = 538,
+     tOR = 539,
+     tAND = 540,
+     tAPPROXEQUAL = 541,
+     tNOTEQUAL = 542,
+     tEQUAL = 543,
+     tGREATERGREATER = 544,
+     tLESSLESS = 545,
+     tGREATEROREQUAL = 546,
+     tLESSOREQUAL = 547,
+     tCROSSPRODUCT = 548,
+     UNARYPREC = 549,
+     tSHOW = 550
    };
 #endif
 /* Tokens.  */
@@ -575,57 +576,58 @@
 #define tComma 496
 #define tTimeStep 497
 #define tHarmonicToTime 498
-#define tValueIndex 499
-#define tValueName 500
-#define tFormat 501
-#define tHeader 502
-#define tFooter 503
-#define tSkin 504
-#define tSmoothing 505
-#define tTarget 506
-#define tSort 507
-#define tIso 508
-#define tNoNewLine 509
-#define tNoTitle 510
-#define tDecomposeInSimplex 511
-#define tChangeOfValues 512
-#define tTimeLegend 513
-#define tFrequencyLegend 514
-#define tEigenvalueLegend 515
-#define tEvaluationPoints 516
-#define tStoreInRegister 517
-#define tStoreInField 518
-#define tStoreInMeshBasedField 519
-#define tStoreMaxInRegister 520
-#define tStoreMaxXinRegister 521
-#define tStoreMaxYinRegister 522
-#define tStoreMaxZinRegister 523
-#define tStoreMinInRegister 524
-#define tStoreMinXinRegister 525
-#define tStoreMinYinRegister 526
-#define tStoreMinZinRegister 527
-#define tLastTimeStepOnly 528
-#define tAppendTimeStepToFileName 529
-#define tOverrideTimeStepValue 530
-#define tNoMesh 531
-#define tSendToServer 532
-#define tColor 533
-#define tStr 534
-#define tDate 535
-#define tNewCoordinates 536
-#define tDEF 537
-#define tOR 538
-#define tAND 539
-#define tAPPROXEQUAL 540
-#define tNOTEQUAL 541
-#define tEQUAL 542
-#define tGREATERGREATER 543
-#define tLESSLESS 544
-#define tGREATEROREQUAL 545
-#define tLESSOREQUAL 546
-#define tCROSSPRODUCT 547
-#define UNARYPREC 548
-#define tSHOW 549
+#define tCosineTransform 499
+#define tValueIndex 500
+#define tValueName 501
+#define tFormat 502
+#define tHeader 503
+#define tFooter 504
+#define tSkin 505
+#define tSmoothing 506
+#define tTarget 507
+#define tSort 508
+#define tIso 509
+#define tNoNewLine 510
+#define tNoTitle 511
+#define tDecomposeInSimplex 512
+#define tChangeOfValues 513
+#define tTimeLegend 514
+#define tFrequencyLegend 515
+#define tEigenvalueLegend 516
+#define tEvaluationPoints 517
+#define tStoreInRegister 518
+#define tStoreInField 519
+#define tStoreInMeshBasedField 520
+#define tStoreMaxInRegister 521
+#define tStoreMaxXinRegister 522
+#define tStoreMaxYinRegister 523
+#define tStoreMaxZinRegister 524
+#define tStoreMinInRegister 525
+#define tStoreMinXinRegister 526
+#define tStoreMinYinRegister 527
+#define tStoreMinZinRegister 528
+#define tLastTimeStepOnly 529
+#define tAppendTimeStepToFileName 530
+#define tOverrideTimeStepValue 531
+#define tNoMesh 532
+#define tSendToServer 533
+#define tColor 534
+#define tStr 535
+#define tDate 536
+#define tNewCoordinates 537
+#define tDEF 538
+#define tOR 539
+#define tAND 540
+#define tAPPROXEQUAL 541
+#define tNOTEQUAL 542
+#define tEQUAL 543
+#define tGREATERGREATER 544
+#define tLESSLESS 545
+#define tGREATEROREQUAL 546
+#define tLESSOREQUAL 547
+#define tCROSSPRODUCT 548
+#define UNARYPREC 549
+#define tSHOW 550
 
 
 
@@ -641,7 +643,7 @@ typedef union YYSTYPE
   struct TwoInt t;
 }
 /* Line 1529 of yacc.c.  */
-#line 645 "ProParser.tab.hpp"
+#line 647 "ProParser.tab.hpp"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

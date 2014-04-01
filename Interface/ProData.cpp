@@ -1616,8 +1616,10 @@ void Print_PostOperation()
       if(PSO->HarmonicToTime > 1)
 	Message::Check(", HarmonicToTime %d", PSO->HarmonicToTime);
 
-      if(PSO->FourierTransform)
+      if(PSO->FourierTransform == 1)
 	Message::Check(", FourierTransform");
+      if(PSO->FourierTransform == 2)
+	Message::Check(", CosineTransform");
 
       if(PSO->Sort)
 	Message::Check(", Sort %s",

@@ -1597,13 +1597,7 @@ void Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
       if (HarmonicToTime == 1) {
 	switch (Format) {
 	case FORMAT_FREQUENCY_TABLE :
-          if (FourierTransform){
-	    Message::Error("FourierTransform to be done") ;
-
-
-            return;
-          }
-	  else if (NbrHarmonics == 1){
+	  if (NbrHarmonics == 1){
 	    Message::Error("FrequencyTable format not allowed (only one harmonic)") ;
             return;
           }
@@ -1720,6 +1714,8 @@ void Pos_FourierTransform(int NbrTimeStep, int NbrRegion,
     }
   }
 
+  // Limited to cosine transform now
+
   //  for (k_fc=-Nhalf; k_fc<Nhalf; k_fc++){
   for (k_fc=0; k_fc<Nhalf; k_fc++){
     i_k = Nhalf+k_fc;
@@ -1738,16 +1734,10 @@ void Pos_FourierTransform(int NbrTimeStep, int NbrRegion,
           val_r =  2 * val_FourierComps[(2*i_k+0)*MAX_DIM + j];
           val_i = -2 * val_FourierComps[(2*i_k+1)*MAX_DIM + j];
           norm = sqrt(SQU(val_r) + SQU(val_i));
-          if (k==0)
-            val = norm;
-          else
-            val = -asin(val_i/norm);
+          val = (k==0)? norm : -asin(val_i/norm);
         }
         else {
-          if (k==0)
-            val = val_FourierComps[(2*i_k+k)*MAX_DIM + j];
-          else
-            val = 0.;
+          val = (k==0)? val_FourierComps[(2*i_k+k)*MAX_DIM + j] : 0.;
         }
 
         fprintf(PostStream, " %.16g", val);
