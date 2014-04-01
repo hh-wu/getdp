@@ -24,7 +24,7 @@ lcScat = lc;
 IMPENETRABLE = 0;
 PENETRABLE = 1;
 DefineConstant[
-  Type_PROBLEM = {IMPENETRABLE, Visible 0,
+  Type_PROBLEM = {IMPENETRABLE,
     Choices{IMPENETRABLE = "Impenetrable", PENETRABLE = "Penetrable"},
     Name Str[MENU_INPUT, "/00TypeProblem"], Label "Type of problem"}
 ];
@@ -178,7 +178,7 @@ DefineConstant[
 
 //Just to plot the point source
 DefineConstant[
-  r_source = {(Type_PROBLEM == PENETRABLE?Xmax-rad_ext_s:Xmax),
+  r_source = {(Type_PROBLEM == PENETRABLE?Xmax/2-rad_ext_s:Xmax/2),
     Name Str[MENU_INPUT, Str[MENU_UINC,"/r"]],
     Label "Distance from origin",
     Visible (INCIDENT_WAVE == POINTSOURCE && PLOT_POINT_SOURCE),
