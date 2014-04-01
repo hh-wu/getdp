@@ -11,7 +11,7 @@ Include "CreateEllipses.geo"; // function which constructs automatically the bou
 PF = newp; Point(PF)={0, 0, 0, lcScat};
 
 
-If((INCIDENT_WAVE == POINTSOURCE && PLOT_POINT_SOURCE) || (INCIDENT_WAVE == POINTSOURCE && Type_PROBLEM == PENETRABLE))
+If(INCIDENT_WAVE == POINTSOURCE && (PLOT_POINT_SOURCE || Type_PROBLEM == PENETRABLE))
   ps = newp; Point(ps) = {X_source, Y_source, 0, lc};
 
   If(Type_PROBLEM == PENETRABLE)

@@ -157,21 +157,21 @@ POINTSOURCE = 1;
 //To approximate the Dirac function (Type_PROBLEM == PENETRABLE)
 DefineConstant[
   rad_int_s = {1/100.,
-    Name Str[MENU_INPUT, Str[MENU_UINC,"/Source coordinate/rad_int"]],
+    Name Str[MENU_INPUT, Str[MENU_UINC,"/rad_int"]],
     Visible 0}
   rad_ext_s = {10*rad_int_s,
-    Name Str[MENU_INPUT, Str[MENU_UINC,"/Source coordinate/rad_ext"]],
+    Name Str[MENU_INPUT, Str[MENU_UINC,"/rad_ext"]],
     Visible 0}
 ];
 
 DefineConstant[
   INCIDENT_WAVE = {(Type_PROBLEM == PENETRABLE?POINTSOURCE:PLANEWAVE),
     Choices{PLANEWAVE ="Plane Wave", POINTSOURCE="Point source"},
-    Label "Type", Name Str[MENU_INPUT, Str[MENU_UINC,"/0"]],
+    Label "Type", Name Str[MENU_INPUT, Str[MENU_UINC,"/0type"]],
     ReadOnly (Type_PROBLEM == PENETRABLE)}
   PLOT_POINT_SOURCE = {Type_PROBLEM == PENETRABLE, Choices{0,1},
     Label "Plot point source (remesh at every change)",
-    Name Str[MENU_INPUT, Str[MENU_UINC,"/1Plot"]],
+    Name Str[MENU_INPUT, Str[MENU_UINC,"/1plot"]],
     Visible (INCIDENT_WAVE == POINTSOURCE || Type_PROBLEM == PENETRABLE),
     ReadOnly (Type_PROBLEM==PENETRABLE)}
 ];
@@ -179,20 +179,20 @@ DefineConstant[
 //Just to plot the point source
 DefineConstant[
   r_source = {(Type_PROBLEM == PENETRABLE?Xmax-rad_ext_s:Xmax),
-    Name Str[MENU_INPUT, Str[MENU_UINC,"/Source coordinate/r"]],
+    Name Str[MENU_INPUT, Str[MENU_UINC,"/r"]],
     Label "Distance from origin",
-    Visible (INCIDENT_WAVE == POINTSOURCE),
+    Visible (INCIDENT_WAVE == POINTSOURCE && PLOT_POINT_SOURCE),
     ReadOnly !PLOT_POINT_SOURCE}
   theta_source = {0., Min -1., Max 1., Step 0.01,
-    Name Str[MENU_INPUT, Str[MENU_UINC,"/Source coordinate/theta"]],
+    Name Str[MENU_INPUT, Str[MENU_UINC,"/theta"]],
     Label "Angle (in pi-radian)",
-    Visible (INCIDENT_WAVE == POINTSOURCE),
+    Visible (INCIDENT_WAVE == POINTSOURCE && PLOT_POINT_SOURCE),
     ReadOnly !PLOT_POINT_SOURCE}
   X_source = {r_source*Cos[theta_source],
-    Name Str[MENU_INPUT, Str[MENU_UINC,"/Source coordinate/x_source"]],
+    Name Str[MENU_INPUT, Str[MENU_UINC,"/x_source"]],
     ReadOnly 1, Visible 0}
   Y_source = {r_source*Sin[theta_source],
-    Name Str[MENU_INPUT, Str[MENU_UINC,"/Source coordinate/y_source"]],
+    Name Str[MENU_INPUT, Str[MENU_UINC,"/y_source"]],
     ReadOnly 1, Visible 0}
 ];
 

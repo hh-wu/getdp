@@ -53,7 +53,7 @@ Function {
   //angle of incident plane wave
   DefineConstant[
     beta_inc_aux = {1., Min -1., Max 1., Step 0.01 ,
-      Label "Angle (in Pi)", Name Str[MENU_INPUT, Str[MENU_UINC,"/Plane wave/0"]],
+      Label "Angle (in Pi)", Name Str[MENU_INPUT, Str[MENU_UINC,"/angle"]],
       Visible (INCIDENT_WAVE == PLANEWAVE)}
   ];
 
