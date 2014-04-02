@@ -40,19 +40,20 @@
 
 #define MAX_DIM  9   /* second-rank tensor of order 3 : 3^2 = 9  */
 
-/* Please set NBR_MAX_HARMONIC to the lowest possible value for common
-   getdp versions, until we do dynamic allocation. Otherwise, some
-   postprocessing operations become almost impossible to perform in
-   3D.
-*/
+// - NBR_MAX_HARMONIC controls the size of a 'Value' ; keep this small by
+// default for efficient operations in recursive expression evaluation and
+// post-processing
+//
+// - MAX_STACK_SIZE controls the size of the stack used in the evaluation of
+// expressions ; keep this latge by default to allow for complex expressions
 
-#if defined(HAVE_MULTIHARMONIC)
-#define NBR_MAX_HARMONIC   20 /* originally 40, if I keep this value, it crashes in Cal_GalerkinTermOfFemEquation_MHJacNL */
-#else
+#if !defined(HAVE_MULTIHARMONIC)
 #define NBR_MAX_HARMONIC    2
-#endif
-
 #define MAX_STACK_SIZE     40
+#else
+#define NBR_MAX_HARMONIC   40
+#define MAX_STACK_SIZE     10
+#endif
 
 struct Value {
   int     Type;
