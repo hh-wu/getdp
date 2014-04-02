@@ -487,13 +487,13 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
   }
 
   // test!
-  std::vector<std::vector<std::vector<std::vector<double> > > > E_MH(NBR_MAX_BASISFUNCTIONS);
+  std::vector<std::vector<std::vector<std::vector<double> > > > E_MH(Nbr_Dof);
   for(unsigned int i = 0; i < E_MH.size(); i++){
-    E_MH[i].resize(NBR_MAX_BASISFUNCTIONS);
+    E_MH[i].resize(Nbr_Dof);
     for(unsigned int j = 0; j < E_MH[i].size(); j++){
-      E_MH[i][j].resize(NBR_MAX_HARMONIC);
+      E_MH[i][j].resize(Current.NbrHar);
       for(unsigned int k = 0; k < E_MH[i][j].size(); k++){
-        E_MH[i][j][k].resize(NBR_MAX_HARMONIC, 0.);
+        E_MH[i][j][k].resize(Current.NbrHar, 0.);
       }
     }
   }
