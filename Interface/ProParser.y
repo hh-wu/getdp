@@ -4646,6 +4646,7 @@ OperationTerm :
       Free($3);
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.SaveSolutionWithEntityNum.GroupIndex = -1;
+      Operation_P->Case.SaveSolutionWithEntityNum.SaveFixed = -1;
     }
 
   | tSaveSolutionWithEntityNum '[' String__Index ',' GroupRHS CommaFExprOrNothing ']' tEND
