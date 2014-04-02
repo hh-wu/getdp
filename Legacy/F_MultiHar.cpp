@@ -461,7 +461,8 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
   double one=1.0 ;
   int iPul, ZeroHarmonic, DcHarmonic;
 
-  double E_MH[NBR_MAX_BASISFUNCTIONS][NBR_MAX_BASISFUNCTIONS][NBR_MAX_HARMONIC][NBR_MAX_HARMONIC];
+  // test!
+  //double E_MH[NBR_MAX_BASISFUNCTIONS][NBR_MAX_BASISFUNCTIONS][NBR_MAX_HARMONIC][NBR_MAX_HARMONIC];
   double E_D[NBR_MAX_HARMONIC][NBR_MAX_HARMONIC][MAX_DIM];
 
   void (*xFunctionBFDof[NBR_MAX_BASISFUNCTIONS])
@@ -483,6 +484,15 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
   if (!(Nbr_Dof = QuantityStorage_P->NbrElementaryBasisFunction)){
     return;
   }
+
+  // test!
+  std::vector<std::vector<std::vector<std::vector<double> > > > E_MH(NBR_MAX_BASISFUNCTIONS);
+  for(unsigned int i = 0; i < E_MH.size(); i++)
+    E_MH[i].resize(NBR_MAX_BASISFUNCTIONS);
+      for(unsigned int j = 0; j < E_MH[i].size(); j++)
+        E_MH[i][j].resize(NBR_MAX_HARMONIC);
+          for(unsigned int k = 0; k < E_MH[i][j].size(); k++)
+            E_MH[i][j][k].resize(NBR_MAX_HARMONIC);
 
   Get_FunctionValue(Nbr_Dof, (void (**)())xFunctionBFDof,
 		    EquationTerm_P->Case.LocalTerm.Term.TypeOperatorDof,
