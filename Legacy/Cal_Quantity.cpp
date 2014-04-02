@@ -268,11 +268,7 @@ void Cal_WholeQuantity(struct Element * Element,
   struct Solution        *Solution_P0, *Solution_PN ;
 
   struct Element* Save_CurrentElement ;
-#if defined(HAVE_MULTIHARMONIC) //++++ Ruth
-  struct Value Stack[NBR_MAX_BASISFUNCTIONS][MAX_STACK_SIZE] ;
-#else
   struct Value Stack[8][MAX_STACK_SIZE] ;
-#endif
 
   WholeQuantity_P0 = (struct WholeQuantity*)List_Pointer(WholeQuantity_L, 0) ;
 
