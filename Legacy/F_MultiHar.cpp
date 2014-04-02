@@ -155,7 +155,7 @@ void MH_Get_InitData(int Case, int NbrPoints, int *NbrPointsX_P,
     NbrPoints  = (int)((MinPuls/MaxPuls*(double)NbrPointsX));
 
   Message::Info("MH_Get_InitData => NbrHar = %d  NbrPoints = %d|%d  Case = %d",
-                NbrHar, NbrPoints, NbrPointsX, Case);
+                NbrHar/2, NbrPoints, NbrPointsX, Case);
 
 
   t = (double *)Malloc(sizeof(double)*NbrPointsX) ;
@@ -414,7 +414,8 @@ void Cal_InitGalerkinTermOfFemEquation_MHJacNL(struct EquationTerm  * EquationTe
   FI->MHJacNL = 1 ;
   FI->MHJacNL_Index  = (WholeQuantity_P0 + i_WQ)->Case.MHJacNL.Index ; /* index of function for jacobian, e.g. dhdb[{d a}]*/
 
-  //Message::Info("FreqOffSet in 'MHJacNL' == %d ", (WholeQuantity_P0 + i_WQ)->Case.MHJacNL.FreqOffSet) ;
+  if(Message::GetVerbosity() == 10)
+    Message::Info("FreqOffSet in 'MHJacNL' == %d ", (WholeQuantity_P0 + i_WQ)->Case.MHJacNL.FreqOffSet) ;
 
   FI->MHJacNL_HarOffSet = 2 * (WholeQuantity_P0 + i_WQ)->Case.MHJacNL.FreqOffSet ;
   if (FI->MHJacNL_HarOffSet > Current.NbrHar-2){
@@ -487,12 +488,15 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
 
   // test!
   std::vector<std::vector<std::vector<std::vector<double> > > > E_MH(NBR_MAX_BASISFUNCTIONS);
-  for(unsigned int i = 0; i < E_MH.size(); i++)
+  for(unsigned int i = 0; i < E_MH.size(); i++){
     E_MH[i].resize(NBR_MAX_BASISFUNCTIONS);
-      for(unsigned int j = 0; j < E_MH[i].size(); j++)
-        E_MH[i][j].resize(NBR_MAX_HARMONIC);
-          for(unsigned int k = 0; k < E_MH[i][j].size(); k++)
-            E_MH[i][j][k].resize(NBR_MAX_HARMONIC);
+    for(unsigned int j = 0; j < E_MH[i].size(); j++){
+      E_MH[i][j].resize(NBR_MAX_HARMONIC);
+      for(unsigned int k = 0; k < E_MH[i][j].size(); k++){
+        E_MH[i][j][k].resize(NBR_MAX_HARMONIC, 0.);
+      }
+    }
+  }
 
   Get_FunctionValue(Nbr_Dof, (void (**)())xFunctionBFDof,
 		    EquationTerm_P->Case.LocalTerm.Term.TypeOperatorDof,
@@ -586,13 +590,6 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
       ZeroHarmonic = 2*iPul+1 ;
       break;
     }
-
-  /* resetting elementary matrix */
-  for (iDof = 0 ; iDof < Nbr_Dof ; iDof++)
-    for (jDof = 0 ; jDof <= iDof ; jDof++)
-      for (iHar = 0 ; iHar < NbrHar ; iHar++)
-	for (jHar = OFFSET ; jHar <= iHar ; jHar++)
-	  E_MH[iDof][jDof][iHar][jHar] = 0. ;
 
   /* volume integration over element */
   for (i_IntPoint = 0 ; i_IntPoint < Nbr_IntPoints ; i_IntPoint++) {
