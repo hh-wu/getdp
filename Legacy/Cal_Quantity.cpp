@@ -268,6 +268,9 @@ void Cal_WholeQuantity(struct Element * Element,
   struct Solution        *Solution_P0, *Solution_PN ;
 
   struct Element* Save_CurrentElement ;
+
+  // we could make this dynamic (with std::vector) to reduce stack usage, but
+  // the performance hit is important
   struct Value Stack[8][MAX_STACK_SIZE] ;
 
   WholeQuantity_P0 = (struct WholeQuantity*)List_Pointer(WholeQuantity_L, 0) ;
