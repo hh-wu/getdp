@@ -12,6 +12,9 @@ DefineConstant[ // allows to set these from outside
   DX = 4,
   DY = 0.5,
   DZ = 1,
+  // type of walls
+  WALLS = {1, Name "Input/Walls",
+    Choices {0="Transparent", 1="Metallic"}},
   // excitation mode
   MODE_M = {1, Name "Input/m"}, // y
   MODE_N = {1, Name "Input/n"}, // z

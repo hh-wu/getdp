@@ -59,25 +59,30 @@ Function {
 Group{
   For idom In {0:N_DOM-1}
     Omega~{idom} = Region[( 6000 + idom + 1 )];
-    GammaD0~{idom} = Region[{(3000 + idom + 1)}];
+    GammaD0~{idom} = Region[{}];
+    If(WALLS == 1)
+      GammaD0~{idom} += Region[{(3000 + idom + 1)}];
+    EndIf
+    GammaInf~{idom} = Region[{}];
+    If(WALLS == 0)
+      GammaInf~{idom} += Region[{(3000 + idom + 1)}];
+    EndIf
     GammaN~{idom} = Region[{}];
 
     If (idom == 0)
       Sigma~{idom}~{0} = Region[{}];
       Sigma~{idom}~{1} = Region[{(1000*(idom+5))}];
-      GammaInf~{idom} = Region[{}];
       GammaD~{idom} = Region[{(1000 + idom + 1)}];
     EndIf
     If (idom == N_DOM-1)
       Sigma~{idom}~{0} = Region[{(1000*(idom+4))}];
       Sigma~{idom}~{1} = Region[{}];
-      GammaInf~{idom} = Region[{(2000 + idom +1)}];
+      GammaInf~{idom} += Region[{(2000 + idom +1)}];
       GammaD~{idom} = Region[{}];
     EndIf
     If (idom >= 1 && idom < N_DOM-1)
       Sigma~{idom}~{0} = Region[{(1000*(idom+4))}];
       Sigma~{idom}~{1} = Region[{(1000*(idom+5))}];
-      GammaInf~{idom} = Region[{}];
       GammaD~{idom} = Region[{}];
     EndIf
 

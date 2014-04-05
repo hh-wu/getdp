@@ -1,7 +1,8 @@
 #!/bin/sh
 
 OPT="-setnumber ANALYSIS 0
-     -setnumber N_DOM 4
+     -setnumber WALLS 0
+     -setnumber N_DOM 10
      -setnumber N_LAMBDA 10
      -setnumber DX 4"
 
