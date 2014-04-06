@@ -61,7 +61,8 @@ FunctionSpace {
   If ((DIM==1) || (DIM==2))
     { Name eSpace ; Type Form1P ;
       BasisFunction {
-        { Name sn ; NameOfCoef en ; Function BF_PerpendicularEdge ; Support TotAll ; Entity NodesOf[All] ; }
+        { Name sn ; NameOfCoef en ; Function BF_PerpendicularEdge ;
+          Support TotAll ; Entity NodesOf[All] ; }
       }
       Constraint {
         { NameOfCoef en ; EntityType NodesOf ; NameOfConstraint eConstraint ; }
@@ -69,7 +70,8 @@ FunctionSpace {
     }
     { Name hSpace ; Type Form1P ;
       BasisFunction {
-        { Name sn ; NameOfCoef en ; Function BF_PerpendicularEdge ; Support TotAll ; Entity NodesOf[All] ; }
+        { Name sn ; NameOfCoef en ; Function BF_PerpendicularEdge ;
+          Support TotAll ; Entity NodesOf[All] ; }
       }
       Constraint {
         { NameOfCoef en ; EntityType NodesOf ; NameOfConstraint hConstraint ; }
@@ -79,7 +81,8 @@ FunctionSpace {
   If (DIM==3)
     { Name eSpace ; Type Form1 ;
       BasisFunction {
-        { Name sn ; NameOfCoef en ; Function BF_Edge ; Support TotAll ; Entity EdgesOf[All] ; }
+        { Name sn ; NameOfCoef en ; Function BF_Edge ;
+          Support TotAll ; Entity EdgesOf[All] ; }
       }
       Constraint {
         { NameOfCoef en ; EntityType EdgesOf ; NameOfConstraint eConstraint ; }
@@ -87,7 +90,8 @@ FunctionSpace {
     }
     { Name hSpace ; Type Form1 ;
       BasisFunction {
-        { Name sn ; NameOfCoef en ; Function BF_Edge ; Support TotAll ; Entity EdgesOf[All] ; }
+        { Name sn ; NameOfCoef en ; Function BF_Edge ;
+          Support TotAll ; Entity EdgesOf[All] ; }
       }
       Constraint {
         { NameOfCoef en ; EntityType EdgesOf ; NameOfConstraint hConstraint ; }
@@ -156,7 +160,8 @@ Resolution {
 }
 
 DefineConstant[
-  SParameters_Format = {1, Choices{1="Norm in [dec]", 2="Norm in [dB]", 3="Square of the norm [dec]"},
+  SParameters_Format = {1,
+    Choices{1="Norm in [dec]", 2="Norm in [dB]", 3="Square of the norm [dec]"},
     Name "Input/2Format of S-parameters (if any)", Highlight "Black"}
 ] ;
 
@@ -169,8 +174,9 @@ PostProcessing {
       If (DIM==3)
         { Name e ; Value { Local{ [ {e} ] ; In Domain ; Jacobian Jac ; } } }
       EndIf
-      { Name h ; Value{ Local{ [ I[]/(mu0*muR[])*{d e}/(2*Pi*FREQ) ] ; In Domain; Jacobian Jac; } } }
-      { Name s ; Value{ Local{ [ CrossProduct[ {e}, Conj[ I[]/(mu0*muR[])*{d e}/(2*Pi*FREQ)]] ] ;
+      { Name h ; Value{ Local{ [ I[]/(mu0*muR[])*{d e}/(2*Pi*FREQ) ] ;
+            In Domain; Jacobian Jac; } } }
+      { Name s ; Value{ Local{ [ {e} /\ Conj[ I[]/(mu0*muR[])*{d e}/(2*Pi*FREQ)]] ;
             In Domain ;  Jacobian Jac; } } }
     }
   }
@@ -178,7 +184,8 @@ PostProcessing {
     Quantity {
       { Name eBnd ; Value { Local{ [ {e} ] ; In SurAll ; Jacobian Jac ; } } }
       For n In {1:NbPorts}
-        { Name ePort~{n} ; Value { Local{ [ ePort~{n}[] ] ; In Port~{n} ; Jacobian Jac ; } } }
+        { Name ePort~{n} ; Value { Local{ [ ePort~{n}[] ] ;
+              In Port~{n} ; Jacobian Jac ; } } }
       EndFor
       { Name eInc ; Value { Local{ [ eInc[] ] ; In BndABC ; Jacobian Jac ; } } }
       { Name normal ; Value { Local{ [ Normal[] ] ; In SurAll ; Jacobian Jac ; } } }
@@ -187,21 +194,27 @@ PostProcessing {
   { Name postPro_SParameters ; NameOfFormulation eFormulation ;
     Quantity {
       For n In {1:NbPorts}
-        { Name intPort~{n} ; Value { Integral { [ ePort~{n}[]*Conj[ePort~{n}[]] ] ; In Port~{n} ; Jacobian Jac ; Integration I1 ; } } }
+        { Name intPort~{n} ; Value { Integral { [ ePort~{n}[]*Conj[ePort~{n}[]] ] ;
+              In Port~{n} ; Jacobian Jac ; Integration I1 ; } } }
         If ( n == ActivePort )
-          { Name xS~{(n*10+ActivePort)} ; Value { Integral { [ ({e}-ePort~{n}[])*Conj[ePort~{n}[]] / #(n) ] ; In Port~{n} ; Jacobian Jac ; Integration I1 ; } } }
+          { Name xS~{(n*10+ActivePort)} ; Value { Integral { [ ({e}-ePort~{n}[])*Conj[ePort~{n}[]] / #(n) ] ;
+                In Port~{n} ; Jacobian Jac ; Integration I1 ; } } }
         EndIf
         If ( n != ActivePort )
-          { Name xS~{(n*10+ActivePort)} ; Value { Integral { [ {e}*Conj[ePort~{n}[]] / #(n) ] ; In Port~{n} ; Jacobian Jac ; Integration I1 ; } } }
+          { Name xS~{(n*10+ActivePort)} ; Value { Integral { [ {e}*Conj[ePort~{n}[]] / #(n) ] ;
+                In Port~{n} ; Jacobian Jac ; Integration I1 ; } } }
         EndIf
         If ( SParameters_Format == 1 )
-          { Name S~{(n*10+ActivePort)} ; Value { Local { [ Norm[#(n*10+ActivePort)] ] ; In Port~{n} ; Jacobian Jac ; Integration I1 ; } } }
+          { Name S~{(n*10+ActivePort)} ; Value { Local { [ Norm[#(n*10+ActivePort)] ] ;
+                In Port~{n} ; Jacobian Jac ; Integration I1 ; } } }
         EndIf
         If ( SParameters_Format == 2 )
-          { Name S~{(n*10+ActivePort)} ; Value { Local { [ -20*Log10[Norm[#(n*10+ActivePort)]] ] ; In Port~{n} ; Jacobian Jac ; Integration I1 ; } } }
+          { Name S~{(n*10+ActivePort)} ; Value { Local { [ -20*Log10[Norm[#(n*10+ActivePort)]] ] ;
+                In Port~{n} ; Jacobian Jac ; Integration I1 ; } } }
         EndIf
         If ( SParameters_Format == 3 )
-          { Name S~{(n*10+ActivePort)} ; Value { Local { [ Norm[#(n*10+ActivePort)]^2 ] ; In Port~{n} ; Jacobian Jac ; Integration I1 ; } } }
+          { Name S~{(n*10+ActivePort)} ; Value { Local { [ Norm[#(n*10+ActivePort)]^2 ] ;
+                In Port~{n} ; Jacobian Jac ; Integration I1 ; } } }
         EndIf
       EndFor
     }
@@ -227,16 +240,19 @@ PostOperation {
       Print [ eBnd, OnElementsOf SurAll, File StrCat[myDir, "eBnd.pos"]] ;
       Print [ eInc, OnElementsOf BndABC, File StrCat[myDir, "eInc.pos"]] ;
       For n In {1:NbPorts}
-        Print [ ePort~{n}, OnElementsOf Port~{n}, File StrCat[myDir,StrCat["ePort",StrCat[Sprintf("%g",n),".pos"]]]] ;
+        Print [ ePort~{n}, OnElementsOf Port~{n},
+          File StrCat[myDir,StrCat["ePort",StrCat[Sprintf("%g",n),".pos"]]]] ;
       EndFor
     }
   }
   { Name Get_SParameters ; NameOfPostProcessing postPro_SParameters ;
     Operation {
       For n In {1:NbPorts}
-        Print [ intPort~{n}[Port~{n}], OnRegion Port~{n}, StoreInRegister (n) ,
+        Print [ intPort~{n}[Port~{n}], OnRegion Port~{n},
+          StoreInRegister (n) ,
           Format Table , File StrCat[myDir, "tmp.dat"]] ;
-        Print [ xS~{(n*10+ActivePort)}[Port~{n}], OnRegion Port~{n}, StoreInRegister (n*10+ActivePort),
+        Print [ xS~{(n*10+ActivePort)}[Port~{n}], OnRegion Port~{n},
+          StoreInRegister (n*10+ActivePort),
           Format Table , File StrCat[myDir, "tmp.dat"]] ;
         Print [ S~{(n*10+ActivePort)}[Port~{n}], OnRegion Port~{n},
           SendToServer StrCat(catOutput,StrCat("0S",Sprintf("%g",n*10+ActivePort))),
@@ -247,7 +263,8 @@ PostOperation {
 }
 
 DefineConstant[
-  MyPostOp = {" Get_Field, Get_SParameters", Choices{"Get_Field", "Get_FieldsBnd", "Get_SParameters"},
+  MyPostOp = {" Get_Field, Get_SParameters",
+    Choices{"Get_Field", "Get_FieldsBnd", "Get_SParameters"},
     Name "Input/1Post-processing", MultipleSelection "101"}
 ] ;
 
