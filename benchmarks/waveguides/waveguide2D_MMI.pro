@@ -22,7 +22,7 @@ DefineConstant[
     Name StrCat[catParam2,"1Wavelength in vacuum [nm]"]},
   RINDEX = { 2, Min 1, Max 10,
     Name StrCat[catParam2,"2Refractive index"]},
-  FREQ = { c0/(LAMB0*1e-9), ReadOnly 1,
+  FREQ = { c0/(LAMB0*1e-9), ReadOnly 1, Highlight "LightGrey",
     Name StrCat[catParam2,"2Frequency [Hz]"]},
   m = { 1, Min 1, Max 10, Step 1,
     Name StrCat[catParam2,"3Excitation mode number"]}
@@ -35,10 +35,10 @@ Function {
   I[] = Complex[0.,1.] ;
   epsR[] = EPSR ;
   muR[] = MUR ;
-  
+
   k0 = 2*Pi/LAMB0 ; // Free space wavevector
   kt = m*Pi/Wwg ;    // Transverse wavevector
-  
+
   For n In {1:NbPorts}
     yLoc~{n}[] = Y[] - yBot~{n} ;
     ePort~{n}[] = Vector[ 0., 0., Sin[kt*yLoc~{n}[]] ] ;

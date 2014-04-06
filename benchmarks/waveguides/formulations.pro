@@ -106,10 +106,10 @@ Formulation {
                  In Domain ; Integration I1 ; Jacobian Jac ; }
       Galerkin { [ -k0^2 * epsR[] * Dof{e} , {e} ] ;
                  In Domain ; Integration I1 ; Jacobian Jac ; }
-      
+
 //      Galerkin { [ Normal[] /\ ( (1/muR[]) * Dof{d e} ) , {e} ] ;
 //                 In BndABC ; Integration I1 ; Jacobian Jac ; }
-      
+
       Galerkin { [ -2*I[]*k0 * (1/muR[]) * Normal[] /\ ( Normal[] /\ eInc[] ) , {e} ] ;
                  In BndABC ; Integration I1 ; Jacobian Jac ; }
       Galerkin { [ I[]*k0 * (1/muR[]) * Normal[] /\ ( Normal[] /\ Dof{e} ) , {e} ] ;
@@ -125,7 +125,7 @@ Formulation {
                  In Domain ; Integration I1 ; Jacobian Jac ; }
       Galerkin { [ -k0^2 * muR[] * Dof{h} , {h} ] ;
                  In Domain ; Integration I1 ; Jacobian Jac ; }
-      
+
       Galerkin { [ -2*I[]*k0 * (1/epsR[]) * Normal[] /\ ( Normal[] /\ hInc[] ) , {h} ] ;
                  In BndABC ; Integration I1 ; Jacobian Jac ; }
       Galerkin { [ I[]*k0 * (1/epsR[]) * Normal[] /\ ( Normal[] /\ Dof{h} ) , {h} ] ;
@@ -169,6 +169,9 @@ PostProcessing {
       If (DIM==3)
         { Name e ; Value { Local{ [ {e} ] ; In Domain ; Jacobian Jac ; } } }
       EndIf
+      { Name h ; Value{ Local{ [ I[]/(mu0*muR[])*{d e}/(2*Pi*FREQ) ] ; In Domain; Jacobian Jac; } } }
+      { Name s ; Value{ Local{ [ CrossProduct[ {e}, Conj[ I[]/(mu0*muR[])*{d e}/(2*Pi*FREQ)]] ] ;
+            In Domain ;  Jacobian Jac; } } }
     }
   }
   { Name postPro_FieldsBnd ; NameOfFormulation eFormulation ;
@@ -214,6 +217,8 @@ PostOperation {
       If (DIM==3)
         Print [ e, OnElementsOf Domain, File StrCat[myDir, "e.pos"]] ;
       EndIf
+      //Print [ h, OnElementsOf Domain, File StrCat[myDir, "h.pos"]] ;
+      //Print [ s, OnElementsOf Domain, File StrCat[myDir, "s.pos"]] ;
     }
   }
   { Name Get_FieldsBnd ; NameOfPostProcessing postPro_FieldsBnd ;
@@ -229,12 +234,13 @@ PostOperation {
   { Name Get_SParameters ; NameOfPostProcessing postPro_SParameters ;
     Operation {
       For n In {1:NbPorts}
-        Print [ intPort~{n}[Port~{n}], OnRegion Port~{n}, StoreInRegister (n),
-          Format Table, File StrCat[myDir, StrCat["temp~{n}",ExtGnuplot]] ] ;
+        Print [ intPort~{n}[Port~{n}], OnRegion Port~{n}, StoreInRegister (n) ,
+          Format Table , File StrCat[myDir, "tmp.dat"]] ;
         Print [ xS~{(n*10+ActivePort)}[Port~{n}], OnRegion Port~{n}, StoreInRegister (n*10+ActivePort),
-          Format Table, File StrCat[myDir, StrCat["temp~{(n*10+ActivePort)}",ExtGnuplot]] ] ;
-        Print [ S~{(n*10+ActivePort)}[Port~{n}], OnRegion Port~{n}, SendToServer StrCat(catOutput,StrCat("0S",Sprintf("%g",n*10+ActivePort))),
-          Format Table, File StrCat[myDir, StrCat["temp",Sprintf("%g",n*10+ActivePort)]] ] ;
+          Format Table , File StrCat[myDir, "tmp.dat"]] ;
+        Print [ S~{(n*10+ActivePort)}[Port~{n}], OnRegion Port~{n},
+          SendToServer StrCat(catOutput,StrCat("0S",Sprintf("%g",n*10+ActivePort))),
+          Format Table , File StrCat[myDir, "tmp.dat"]] ;
       EndFor
     }
   }
@@ -247,6 +253,6 @@ DefineConstant[
 
 DefineConstant[
   R_ = {"eFormulation", Name "GetDP/1ResolutionChoices", Visible 0},
-  C_ = {"-solve -pos -v2", Name "GetDP/9ComputeCommand", Visible 0},
+  C_ = {"-solve -pos -bin -v2", Name "GetDP/9ComputeCommand", Visible 0},
   P_ = { Str[MyPostOp], Name "GetDP/2PostOperationChoices", Visible 0, ReadOnly 1}
 ] ;
