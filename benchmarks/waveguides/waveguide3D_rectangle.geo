@@ -5,6 +5,7 @@
 //========================================================
 
 Include "waveguide3D_rectangle.dat" ;
+Mesh.Optimize = 1;
 
 p1[] += newp ; Point(newp) = {  0,  0, 0, res} ;
 p1[] += newp ; Point(newp) = { Wx,  0, 0, res} ;

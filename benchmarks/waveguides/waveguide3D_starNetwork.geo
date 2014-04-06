@@ -5,6 +5,7 @@
 //========================================================
 
 Include "waveguide3D_starNetwork.dat" ;
+Mesh.Optimize = 1;
 
 If (angleInter == 0)
   For n In {0:(NbPorts-1)}
