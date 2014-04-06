@@ -20,6 +20,7 @@ Group{
   //DDM
   For idom In {0:N_DOM-1}
     Omega~{idom} = Region[( 4001 + idom )];
+    GammaC~{idom} = Region[{}];
     BndGammaInf~{idom} = Region[{}];
     BndGammaScat~{idom} = Region[{}];
 

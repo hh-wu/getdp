@@ -3,7 +3,8 @@ lc2 = lc * 5; // volume
 dd = 2;
 TWO_PLANES = 0;
 NUM_SLICES = 4;
-
+EXT_TIME=0;
+REUSE=0;
 N_DOM = NUM_SLICES;
 
 //Size of the falcon
