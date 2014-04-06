@@ -1,0 +1,54 @@
+
+ExtGnuplot = ".dat";
+ExtGmsh = ".pos";
+myDir = "output/";
+catParam1 = "Input/2Geometry/";
+catParam2 = "Input/3Signal/";
+catParam3 = "Input/4Discretization/";
+catOutput = "Output/";
+
+//---------------------------
+// Parameters of the geometry
+//---------------------------
+
+DIM = 2;
+
+DefineConstant[
+  L = { 4, Min 1, Max 100, Step 1,
+    Name StrCat[catParam1,"0Length of box [um]"]},
+  W = { 3, Min 1, Max 100, Step 1,
+    Name StrCat[catParam1, "1Width of box [um]"]},
+  Lwg = { 2, Min 1, Max 100, Step 0.1,
+    Name StrCat[catParam1,"2Length of waveguides [um]"]},
+  Wwg = { 0.6, Min 0.1, Max W, Step 0.1,
+    Name StrCat[catParam1, "3Width of waveguides [um]"]},
+  D = { 0.3, Min 0.15, Max 100, Step 0.1,
+    Name StrCat[catParam1, "4Distance [um]"]},
+  NbPorts = { 3, Min 2, Max 9, Step 1,
+    Name StrCat[catParam1,"5Number of ports"]},
+  res = { 0.05, Min 0.02, Max 5, Step 0.1,
+    Name StrCat[catParam3,"6Resolution of grid [um]"]}
+];
+
+L = L/1e6;
+W = W/1e6;
+Lwg = Lwg/1e6;
+Wwg = Wwg/1e6;
+D = D/1e6;
+res = res/1e6;
+
+a = -((NbPorts-1)*Wwg+(NbPorts-2)*D)/2;
+yBot_1 = -Wwg/2;
+For n In {2:NbPorts}
+  yBot~{n} = a+(n-2)*(Wwg+D);
+EndFor
+
+//--------------
+// Physical TAGs
+//--------------
+
+DOM = 1000;
+BND_LAT = 2000;
+For n In {1:NbPorts}
+  BND_PORT~{n} = 2000+n;
+EndFor
