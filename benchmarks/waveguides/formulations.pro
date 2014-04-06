@@ -14,6 +14,8 @@ Group {
 }
 
 Function {
+  DefineConstant[ FE_ORDER = {1, Name "Input/4Discretization/Finite element scheme",
+      Choices {1="First order", 2="Second order"}}];
   DefineFunction[ epsR, muR, eInc, hInc ] ;
 }
 
@@ -32,10 +34,10 @@ Integration {
       { Type Gauss ;
         Case {
           { GeoElement Point ; NumberOfPoints  1 ; }
-          { GeoElement Line ; NumberOfPoints 4 ; }
-          { GeoElement Triangle ; NumberOfPoints 4 ; }
+          { GeoElement Line ; NumberOfPoints 8 ; }
+          { GeoElement Triangle ; NumberOfPoints 6 ; }
           { GeoElement Quadrangle ; NumberOfPoints 4 ; }
-          { GeoElement Tetrahedron ; NumberOfPoints 4 ; }
+          { GeoElement Tetrahedron ; NumberOfPoints 15 ; }
           { GeoElement Hexahedron ; NumberOfPoints 6 ; }
           { GeoElement Prism ; NumberOfPoints 9 ; }
         }
@@ -63,18 +65,32 @@ FunctionSpace {
       BasisFunction {
         { Name sn ; NameOfCoef en ; Function BF_PerpendicularEdge ;
           Support TotAll ; Entity NodesOf[All] ; }
+        If (FE_ORDER == 2)
+          { Name sn2 ; NameOfCoef en2 ; Function BF_PerpendicularEdge_2E ;
+            Support TotAll ; Entity EdgesOf[All] ; }
+        EndIf
       }
       Constraint {
         { NameOfCoef en ; EntityType NodesOf ; NameOfConstraint eConstraint ; }
+        If (FE_ORDER == 2)
+          { NameOfCoef en2 ; EntityType EdgesOf ; NameOfConstraint eConstraint ; }
+        EndIf
       }
     }
     { Name hSpace ; Type Form1P ;
       BasisFunction {
         { Name sn ; NameOfCoef en ; Function BF_PerpendicularEdge ;
           Support TotAll ; Entity NodesOf[All] ; }
+        If (FE_ORDER == 2)
+          { Name sn2 ; NameOfCoef en2 ; Function BF_PerpendicularEdge_2E ;
+            Support TotAll ; Entity EdgesOf[All] ; }
+        EndIf
       }
       Constraint {
         { NameOfCoef en ; EntityType NodesOf ; NameOfConstraint hConstraint ; }
+        If (FE_ORDER == 2)
+          { NameOfCoef en2 ; EntityType EdgesOf ; NameOfConstraint hConstraint ; }
+        EndIf
       }
     }
   EndIf
@@ -83,18 +99,32 @@ FunctionSpace {
       BasisFunction {
         { Name sn ; NameOfCoef en ; Function BF_Edge ;
           Support TotAll ; Entity EdgesOf[All] ; }
+        If (FE_ORDER == 2)
+          { Name sn2 ; NameOfCoef en2 ; Function BF_Edge_2E ;
+            Support TotAll ; Entity EdgesOf[All] ; }
+        EndIf
       }
       Constraint {
         { NameOfCoef en ; EntityType EdgesOf ; NameOfConstraint eConstraint ; }
+        If (FE_ORDER == 2)
+          { NameOfCoef en2 ; EntityType EdgesOf ; NameOfConstraint eConstraint ; }
+        EndIf
       }
     }
     { Name hSpace ; Type Form1 ;
       BasisFunction {
         { Name sn ; NameOfCoef en ; Function BF_Edge ;
           Support TotAll ; Entity EdgesOf[All] ; }
+        If (FE_ORDER == 2)
+          { Name sn2 ; NameOfCoef en2 ; Function BF_Edge_2E ;
+            Support TotAll ; Entity EdgesOf[All] ; }
+        EndIf
       }
       Constraint {
         { NameOfCoef en ; EntityType EdgesOf ; NameOfConstraint hConstraint ; }
+        If (FE_ORDER == 2)
+          { NameOfCoef en2 ; EntityType EdgesOf ; NameOfConstraint hConstraint ; }
+        EndIf
       }
     }
   EndIf
@@ -194,26 +224,32 @@ PostProcessing {
   { Name postPro_SParameters ; NameOfFormulation eFormulation ;
     Quantity {
       For n In {1:NbPorts}
-        { Name intPort~{n} ; Value { Integral { [ ePort~{n}[]*Conj[ePort~{n}[]] ] ;
+        { Name intPort~{n} ;
+          Value { Integral { [ ePort~{n}[]*Conj[ePort~{n}[]] ] ;
               In Port~{n} ; Jacobian Jac ; Integration I1 ; } } }
         If ( n == ActivePort )
-          { Name xS~{(n*10+ActivePort)} ; Value { Integral { [ ({e}-ePort~{n}[])*Conj[ePort~{n}[]] / #(n) ] ;
+          { Name xS~{(n*10+ActivePort)} ;
+            Value { Integral { [ ({e}-ePort~{n}[])*Conj[ePort~{n}[]] / #(n) ] ;
                 In Port~{n} ; Jacobian Jac ; Integration I1 ; } } }
         EndIf
         If ( n != ActivePort )
-          { Name xS~{(n*10+ActivePort)} ; Value { Integral { [ {e}*Conj[ePort~{n}[]] / #(n) ] ;
+          { Name xS~{(n*10+ActivePort)} ;
+            Value { Integral { [ {e}*Conj[ePort~{n}[]] / #(n) ] ;
                 In Port~{n} ; Jacobian Jac ; Integration I1 ; } } }
         EndIf
         If ( SParameters_Format == 1 )
-          { Name S~{(n*10+ActivePort)} ; Value { Local { [ Norm[#(n*10+ActivePort)] ] ;
+          { Name S~{(n*10+ActivePort)} ;
+            Value { Local { [ Norm[#(n*10+ActivePort)] ] ;
                 In Port~{n} ; Jacobian Jac ; Integration I1 ; } } }
         EndIf
         If ( SParameters_Format == 2 )
-          { Name S~{(n*10+ActivePort)} ; Value { Local { [ -20*Log10[Norm[#(n*10+ActivePort)]] ] ;
+          { Name S~{(n*10+ActivePort)} ;
+            Value { Local { [ -20*Log10[Norm[#(n*10+ActivePort)]] ] ;
                 In Port~{n} ; Jacobian Jac ; Integration I1 ; } } }
         EndIf
         If ( SParameters_Format == 3 )
-          { Name S~{(n*10+ActivePort)} ; Value { Local { [ Norm[#(n*10+ActivePort)]^2 ] ;
+          { Name S~{(n*10+ActivePort)} ;
+            Value { Local { [ Norm[#(n*10+ActivePort)]^2 ] ;
                 In Port~{n} ; Jacobian Jac ; Integration I1 ; } } }
         EndIf
       EndFor

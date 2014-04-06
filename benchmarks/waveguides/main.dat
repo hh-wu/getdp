@@ -9,6 +9,7 @@ PBM_HBEND2D = 3 ;
 PBM_REC3D = 4 ;
 PBM_STAR2D = 5 ;
 PBM_STAR3D = 6 ;
+PBM_MMI2D = 7 ;
 
 DefineConstant[
     FLAG_PBM = {0, Name "Input/00Problem", Highlight "Blue",
@@ -19,7 +20,8 @@ DefineConstant[
              PBM_HBEND2D = "H-bend waveguide [2D]",
              PBM_REC3D = "Rectangular waveguide [3D]",
              PBM_STAR2D = "Star-shaped network [2D]",
-             PBM_STAR3D = "Star-shaped network [3D]"} }
+             PBM_STAR3D = "Star-shaped network [3D]",
+             PBM_MMI2D = "Multi-mode interference coupler [2D]"} }
 ] ;
 
 If (FLAG_PBM==PBM_STR2D)
@@ -51,4 +53,9 @@ If (FLAG_PBM==PBM_STAR3D)
   LinkGeo = "waveguide3D_starNetwork.geo" ;
   LinkPro = "waveguide3D_starNetwork.pro" ;
   DIM = 3 ;
+EndIf
+If (FLAG_PBM==PBM_MMI2D)
+  LinkGeo = "waveguide2D_MMI.geo" ;
+  LinkPro = "waveguide2D_MMI.pro" ;
+  DIM = 2 ;
 EndIf
