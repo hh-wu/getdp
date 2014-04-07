@@ -1,5 +1,4 @@
 
-
 //Number of obstacles (wanted by the user)
 NMAX = 100;
 MENU_OBST = "Obstacles";
@@ -194,13 +193,6 @@ DefineConstant[
   Y_source = {r_source*Sin[theta_source],
     Name Str[MENU_INPUT, Str[MENU_UINC,"/y_source"]],
     ReadOnly 1, Visible 0}
-];
-
-//GetDP parameters (hiddent)
-DefineConstant[
-  C_ = {"-solve -v 2 -pos -bin", Name "GetDP/9ComputeCommand", Visible 0}
-  R_ = {"Scattering", Name "GetDP/1ResolutionChoices", Visible 0},
-  P_ = {"Wave", Name "GetDP/2PostOperationChoices", Visible 0}
 ];
 
 // indexes of physical entities
