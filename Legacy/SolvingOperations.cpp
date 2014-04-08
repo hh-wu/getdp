@@ -181,7 +181,8 @@ static void  ZeroMatrix(gMatrix *M, gSolver *S, int N)
 void  Generate_System(struct DefineSystem * DefineSystem_P,
 		      struct DofData * DofData_P,
 		      struct DofData * DofData_P0,
-		      int Flag_Jac, int Flag_Separate)
+		      int Flag_Jac, int Flag_Separate,
+                      int Flag_Cumulative = 0)
 {
   int    i, Nbr_Formulation, Index_Formulation, i_TimeStep, iMat ;
   struct Solution        * Solution_P, Solution_S ;
@@ -242,21 +243,21 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
     for(i=0 ; i<List_Nbr(Problem_S.Expression) ; i++){
       DofData_P->CurrentSolution->TimeFunctionValues[i] = 1. ;
     }
-    if(Current.DofData->Flag_Init[1]){
+    if(Current.DofData->Flag_Init[1] && !Flag_Cumulative){
       ZeroMatrix(&Current.DofData->M1, &Current.DofData->Solver,
                  Current.DofData->NbrDof) ;
       LinAlg_ZeroVector(&Current.DofData->m1);
       for(int i = 0; i < List_Nbr(DofData_P->m1s); i++)
         LinAlg_ZeroVector((gVector*)List_Pointer(DofData_P->m1s, i));
     }
-    if(Current.DofData->Flag_Init[2]){
+    if(Current.DofData->Flag_Init[2] && !Flag_Cumulative){
       ZeroMatrix(&Current.DofData->M2, &Current.DofData->Solver,
                  Current.DofData->NbrDof) ;
       LinAlg_ZeroVector(&Current.DofData->m2);
       for(int i = 0; i < List_Nbr(DofData_P->m2s); i++)
         LinAlg_ZeroVector((gVector*)List_Pointer(DofData_P->m2s, i));
     }
-    if(Current.DofData->Flag_Init[3]){
+    if(Current.DofData->Flag_Init[3] && !Flag_Cumulative){
       ZeroMatrix(&Current.DofData->M3, &Current.DofData->Solver,
                  Current.DofData->NbrDof) ;
       LinAlg_ZeroVector(&Current.DofData->m3);
@@ -265,17 +266,17 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
     }
   }
   else{
-    if(!Current.DofData->Flag_RHS){
+    if(!Current.DofData->Flag_RHS && !Flag_Cumulative){
       ZeroMatrix(&Current.DofData->A, &Current.DofData->Solver,
                  Current.DofData->NbrDof);
     }
-    LinAlg_ZeroVector(&Current.DofData->b) ;
+    if(!Flag_Cumulative)
+      LinAlg_ZeroVector(&Current.DofData->b) ;
 
     if(DofData_P->Flag_Only){
       for(i = 0 ; i < List_Nbr( DofData_P->OnlyTheseMatrices ); i++){
 	List_Read(DofData_P->OnlyTheseMatrices, i, &iMat);
-	if(iMat){
-	  // Message::Info("Setting System {A%d,b%d} to zero",iMat,iMat);
+	if(iMat && !Flag_Cumulative){
 	  switch(iMat){
 	  case 1 :
 	    ZeroMatrix(&Current.DofData->A1, &Current.DofData->Solver,
@@ -299,7 +300,7 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
 
   }
 
-  if(Flag_Jac)
+  if(Flag_Jac && !Flag_Cumulative)
     ZeroMatrix(&Current.DofData->Jac, &Current.DofData->Solver,
                Current.DofData->NbrDof) ;
 

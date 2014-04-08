@@ -156,7 +156,7 @@ struct doubleXstring{
 %type <i>  PostQuantitySupport
 %type <l>  IRegion RecursiveListOfRegion Enumeration
 %type <i>  StrCmp NbrRegions CommaFExprOrNothing
-%type <i>  GmshOperation
+%type <i>  GmshOperation GenerateGroupOperation
 %type <d>  FExpr OneFExpr
 %type <l>  MultiFExpr ListOfFExpr RecursiveListOfFExpr
 %type <l>  RecursiveListOfCharExpr ParametersForFunction
@@ -250,13 +250,13 @@ struct doubleXstring{
 %token      tChangeOfCoordinates tChangeOfCoordinates2 tSystemCommand
 %token        tGmshRead tGmshMerge tGmshOpen tGmshWrite tGmshClearAll
 %token        tDeleteFile tCreateDir
-%token      tGenerateOnly
-%token      tGenerateOnlyJac
-%token      tSolveJac_AdaptRelax  tTensorProductSolve
+%token      tGenerateOnly tGenerateOnlyJac
+%token      tSolveJac_AdaptRelax
 %token      tSaveSolutionExtendedMH tSaveSolutionMHtoTime tSaveSolutionWithEntityNum
 %token      tInitMovingBand2D tMeshMovingBand2D
 %token      tGenerate_MH_Moving tGenerate_MH_Moving_Separate tAdd_MH_Moving
 %token      tGenerateGroup tGenerateJacGroup tGenerateRHSGroup
+%token      tGenerateGroupCumulative tGenerateJacGroupCumulative tGenerateRHSGroupCumulative
 %token      tSaveMesh
 %token      tDeformMesh
 %token      tDummyFrequency
@@ -3928,6 +3928,14 @@ GmshOperation :
   | tGmshMerge { $$ = OPERATION_GMSHMERGE; }
   | tGmshWrite { $$ = OPERATION_GMSHWRITE; }
 
+GenerateGroupOperation :
+    tGenerateGroup { $$ = OPERATION_GENERATE; }
+  | tGenerateJacGroup { $$ = OPERATION_GENERATEJAC; }
+  | tGenerateRHSGroup { $$ = OPERATION_GENERATERHS; }
+  | tGenerateGroupCumulative { $$ = OPERATION_GENERATE_CUMULATIVE; }
+  | tGenerateJacGroupCumulative { $$ = OPERATION_GENERATEJAC_CUMULATIVE; }
+  | tGenerateRHSGroupCumulative { $$ = OPERATION_GENERATERHS_CUMULATIVE; }
+
 OperationTerm :
 
   /* OLD syntax */
@@ -4796,7 +4804,8 @@ OperationTerm :
       Operation_P->Case.Add_MH_Moving.dummy = $5;
     }
 
-  | tDeformMesh  '[' String__Index ',' String__Index ',' tNameOfMesh CharExpr ',' FExpr ']' tEND
+  | tDeformMesh  '[' String__Index ',' String__Index ',' tNameOfMesh CharExpr ','
+                     FExpr ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       int i;
@@ -4844,24 +4853,23 @@ OperationTerm :
       Operation_P->Type = OPERATION_DEFORMEMESH;
     }
 
-  | tGenerateGroup  '[' String__Index ',' String__Index CommaFExprOrNothing ']'  tEND
+  | tDeformMesh  '[' String__Index ',' String__Index ',' FExpr ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
-                              fcmp_DefineSystem_Name)) < 0)
+			       fcmp_DefineSystem_Name)) < 0)
 	vyyerror("Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
-      if((i = List_ISearchSeq(Problem_S.Group, $5, fcmp_Group_Name)) < 0)
-	vyyerror("Unknown Group: %s", $5);
-      Free($5);
-      Operation_P->Type = OPERATION_GENERATE;
-      Operation_P->Case.Generate.GroupIndex = i;
-      Operation_P->Rank = $6;
+      Operation_P->Case.DeformeMesh.Quantity = $5;
+      Operation_P->Case.DeformeMesh.Name_MshFile = NULL;
+      Operation_P->Case.DeformeMesh.GeoDataIndex = -1;
+      Operation_P->Case.DeformeMesh.Factor = $7;
+      Operation_P->Type = OPERATION_DEFORMEMESH;
     }
 
-  | tGenerateJacGroup  '[' String__Index ',' String__Index CommaFExprOrNothing ']'  tEND
+  | GenerateGroupOperation  '[' String__Index ',' GroupRHS CommaFExprOrNothing ']'  tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       int i;
@@ -4870,24 +4878,7 @@ OperationTerm :
 	vyyerror("Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
-      if((i = List_ISearchSeq(Problem_S.Group, $5, fcmp_Group_Name)) < 0)
-	vyyerror("Unknown Group: %s", $5);
-      Free($5);
-      Operation_P->Type = OPERATION_GENERATEJAC;
-      Operation_P->Case.Generate.GroupIndex = i;
-      Operation_P->Rank = $6;
-    }
-
-  | tGenerateRHSGroup  '[' String__Index ',' GroupRHS CommaFExprOrNothing ']'  tEND
-    { Operation_P = (struct Operation*)
-	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
-      int i;
-      if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
-                              fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3);
-      Free($3);
-      Operation_P->DefineSystemIndex = i;
-      Operation_P->Type = OPERATION_GENERATERHS;
+      Operation_P->Type = $1;
       Operation_P->Case.Generate.GroupIndex = $5;
       Operation_P->Rank = $6;
     }

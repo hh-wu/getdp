@@ -107,19 +107,19 @@ struct StringXDefine  Integration_SubType[] = {
 } ;
 
 struct StringXDefine  Element_Type[] = {
-  {"Point"       , POINT},
-  {"Line"        , LINE},
-  {"Triangle"    , TRIANGLE},
-  {"Quadrangle"  , QUADRANGLE},
-  {"Tetrahedron" , TETRAHEDRON},
-  {"Hexahedron"  , HEXAHEDRON},
-  {"Prism"       , PRISM},
-  {"Pyramid"     , PYRAMID},
-  {"Line2"       , LINE_2},
-  {"Triangle2"   , TRIANGLE_2},
-  {"Quadrangle2" , QUADRANGLE_2},
-  {"Quadrangle2_8N", QUADRANGLE_2_8N},
-  {NULL          , TRIANGLE}
+  {"Point"          , POINT},
+  {"Line"           , LINE},
+  {"Triangle"       , TRIANGLE},
+  {"Quadrangle"     , QUADRANGLE},
+  {"Tetrahedron"    , TETRAHEDRON},
+  {"Hexahedron"     , HEXAHEDRON},
+  {"Prism"          , PRISM},
+  {"Pyramid"        , PYRAMID},
+  {"Line2"          , LINE_2},
+  {"Triangle2"      , TRIANGLE_2},
+  {"Quadrangle2"    , QUADRANGLE_2},
+  {"Quadrangle2_8N" , QUADRANGLE_2_8N},
+  {NULL             , TRIANGLE}
  } ;
 
 struct StringXDefine  GlobalQuantity_Type[] = {
@@ -196,32 +196,35 @@ struct StringXDefine  DefineSystem_Type[] = {
 } ;
 
 struct StringXDefine  Operation_Type[] = {
+  {"Apply"                  , OPERATION_APPLY},
+  {"DummyDofs"              , OPERATION_DUMMYDOFS},
   {"Generate"               , OPERATION_GENERATE},
+  {"GenerateCumulative"     , OPERATION_GENERATE_CUMULATIVE},
+  {"GenerateJac"            , OPERATION_GENERATEJAC},
+  {"GenerateJacCumulative"  , OPERATION_GENERATEJAC_CUMULATIVE},
   {"GenerateOnly"           , OPERATION_GENERATEONLY},
   {"GenerateOnlyJac"        , OPERATION_GENERATEONLYJAC},
-  {"Update"                 , OPERATION_UPDATE},
-  {"Solve"                  , OPERATION_SOLVE},
-  {"SolveAgain"             , OPERATION_SOLVEAGAIN},
-  {"GenerateJac"            , OPERATION_GENERATEJAC},
-  {"SolveJac"               , OPERATION_SOLVEJAC},
-  {"SolveJacAgain"          , OPERATION_SOLVEJACAGAIN},
   {"GenerateRHS"            , OPERATION_GENERATERHS},
-  {"SolveNL"                , OPERATION_SOLVENL},
+  {"GenerateRHSCumulative"  , OPERATION_GENERATERHS_CUMULATIVE},
   {"GenerateSeparate"       , OPERATION_GENERATESEPARATE},
+  {"InitCorrection"         , OPERATION_INITCORRECTION},
   {"InitSolution"           , OPERATION_INITSOLUTION},
   {"InitSolution1"          , OPERATION_INITSOLUTION1},
-  {"SaveSolution"           , OPERATION_SAVESOLUTION},
-  {"SaveSolutions"          , OPERATION_SAVESOLUTIONS},
   {"ReadSolution"           , OPERATION_READSOLUTION},
-  {"TransferSolution"       , OPERATION_TRANSFERSOLUTION},
-  {"SolveJac_AdaptRelax"    , OPERATION_SOLVEJACADAPTRELAX},
+  {"SaveSolution"           , OPERATION_SAVESOLUTION},
   {"SaveSolutionExtendedMH" , OPERATION_SAVESOLUTIONEXTENDEDMH},
-  {"DummyDofs"              , OPERATION_DUMMYDOFS},
-  {"InitCorrection"         , OPERATION_INITCORRECTION},
-  {"Apply"                  , OPERATION_APPLY},
+  {"SaveSolutions"          , OPERATION_SAVESOLUTIONS},
+  {"SetCurrentSystem"       , OPERATION_SETCURRENTSYSTEM},
   {"SetRHSAsSolution"       , OPERATION_SETRHSASSOLUTION},
   {"SetSolutionAsRHS"       , OPERATION_SETSOLUTIONASRHS},
-  {"SetCurrentSystem"       , OPERATION_SETCURRENTSYSTEM},
+  {"Solve"                  , OPERATION_SOLVE},
+  {"SolveAgain"             , OPERATION_SOLVEAGAIN},
+  {"SolveJac"               , OPERATION_SOLVEJAC},
+  {"SolveJacAgain"          , OPERATION_SOLVEJACAGAIN},
+  {"SolveJac_AdaptRelax"    , OPERATION_SOLVEJACADAPTRELAX},
+  {"SolveNL"                , OPERATION_SOLVENL},
+  {"TransferSolution"       , OPERATION_TRANSFERSOLUTION},
+  {"Update"                 , OPERATION_UPDATE},
   {NULL                     , OPERATION_NONE}
 } ;
 

@@ -268,7 +268,6 @@ CreateDir                    return tCreateDir;
 CreateDirectory              return tCreateDir;
 Break                        return tBreak;
 SolveJac_AdaptRelax          return tSolveJac_AdaptRelax;
-TensorProductSolve           return tTensorProductSolve;
 SaveSolutionWithEntityNum    return tSaveSolutionWithEntityNum;
 SaveSolutionExtendedMH       return tSaveSolutionExtendedMH;
 SaveSolutionMHtoTime         return tSaveSolutionMHtoTime;
