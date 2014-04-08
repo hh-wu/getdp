@@ -7,11 +7,11 @@ DefineConstant[ // allows to set these from outside
   // wavenumber
   WAVENUMBER = {Pi*3.19, Name "Input/Wavenumber"},
   // number of points per wavelength
-  N_LAMBDA = 10,
+  N_LAMBDA = {10, Name "Input/Points per wavelength"},
   // dimensions of the waveguide
-  DX = 4,
-  DY = 0.5,
-  DZ = 1,
+  DX = {4, Name "Input/X dimension"},
+  DY = {0.5, Name "Input/Y dimension"},
+  DZ = {1, Name "Input/Z dimension"},
   // type of walls
   WALLS = {1, Name "Input/Walls",
     Choices {0="Transparent", 1="Metallic"}},
