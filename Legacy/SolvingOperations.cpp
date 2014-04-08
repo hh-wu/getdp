@@ -417,8 +417,6 @@ void Generate_Residual(gVector *x, gVector *f)
   struct DofData * DofData_P ;
   struct DofData * DofData_P0 ;
 
-  int Flag_Jac = 1 ;
-
   if(Message::GetVerbosity() == 10)
     Message::Info("Generating Residual = b(xn)-A(xn)*xn");
 
@@ -436,7 +434,7 @@ void Generate_Residual(gVector *x, gVector *f)
   LinAlg_AddVectorProdVectorDouble(&DofData_P->CurrentSolution->x, &DofData_P->dx,
                                    -1., &DofData_P->CurrentSolution->x);
   // calculate residual with new solution
-  ReGenerate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac) ;
+  ReGenerate_System(DefineSystem_P, DofData_P, DofData_P0, 1) ;
   // calculate residual with new solution
   LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x, &DofData_P->res) ;
   // res = b(xn)-A(xn)*xn
@@ -655,37 +653,47 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  ------------------------------------------  */
 
     case OPERATION_GENERATEJAC :  Flag_Jac = 1 ;
+    case OPERATION_GENERATEJAC_CUMULATIVE :  Flag_Jac = 1 ;
     case OPERATION_GENERATERHS :
+    case OPERATION_GENERATERHS_CUMULATIVE :
     case OPERATION_GENERATE :
+    case OPERATION_GENERATE_CUMULATIVE :
+      {
 #ifdef TIMER
-      {double tstart = MPI_Wtime();
+        double tstart = MPI_Wtime();
 #endif
-      Init_OperationOnSystem(Get_StringForDefine(Operation_Type, Operation_P->Type),
-			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
-			     &DefineSystem_P, &DofData_P, Resolution2_P) ;
+        int cumulative = (Operation_P->Type == OPERATION_GENERATEJAC_CUMULATIVE ||
+                          Operation_P->Type == OPERATION_GENERATERHS_CUMULATIVE ||
+                          Operation_P->Type == OPERATION_GENERATE_CUMULATIVE);
 
-      if(Operation_P->Type == OPERATION_GENERATERHS) DofData_P->Flag_RHS = 1;
+        Init_OperationOnSystem(Get_StringForDefine(Operation_Type, Operation_P->Type),
+                               Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+                               &DefineSystem_P, &DofData_P, Resolution2_P) ;
 
-      Current.TypeAssembly = ASSEMBLY_AGGREGATE ;
+        if(Operation_P->Type == OPERATION_GENERATERHS) DofData_P->Flag_RHS = 1;
 
-      Init_SystemData(DofData_P, Flag_Jac) ;
-      if (Operation_P->Case.Generate.GroupIndex >= 0)
-	Generate_Group = (struct Group *) List_Pointer(Problem_S.Group,
-						       Operation_P->Case.Generate.GroupIndex) ;
-      Generate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac, 0) ;
+        Current.TypeAssembly = ASSEMBLY_AGGREGATE ;
 
-      if (Operation_P->Case.Generate.GroupIndex >= 0) Generate_Group = NULL ;
+        Init_SystemData(DofData_P, Flag_Jac) ;
+        if (Operation_P->Case.Generate.GroupIndex >= 0)
+          Generate_Group = (struct Group *)
+            List_Pointer(Problem_S.Group,
+                         Operation_P->Case.Generate.GroupIndex) ;
+        Generate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac, 0,
+                        cumulative) ;
 
-      DofData_P->Flag_RHS = 0;
-      if(!Flag_Jac) Flag_CPU = 1 ;
+        if (Operation_P->Case.Generate.GroupIndex >= 0) Generate_Group = NULL ;
+
+        DofData_P->Flag_RHS = 0;
+        if(!Flag_Jac) Flag_CPU = 1 ;
 #ifdef TIMER
-      double timer = MPI_Wtime() - tstart;
-      if(Operation_P->Type == OPERATION_GENERATERHS)
-	printf("Proc %d, time spent in Generate_RHS %.16g\n", Message::GetCommRank(), timer);
-      else
-	printf("Proc %d, time spent in Generate %.16g\n", Message::GetCommRank(), timer);
+        double timer = MPI_Wtime() - tstart;
+        if(Operation_P->Type == OPERATION_GENERATERHS)
+          printf("Proc %d, time spent in Generate_RHS %.16g\n", Message::GetCommRank(), timer);
+        else
+          printf("Proc %d, time spent in Generate %.16g\n", Message::GetCommRank(), timer);
+#endif
       }
-#endif
       break ;
 
       /*  -->  G e n e r a t e S e p a r a t e        */
