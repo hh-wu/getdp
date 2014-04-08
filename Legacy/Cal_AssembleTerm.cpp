@@ -379,7 +379,7 @@ void Cal_AssembleTerm_DtDofJacNL(struct Dof * Equ, struct Dof * Dof, double Val[
       switch (Current.TypeTime) {
       case TIME_STATIC :
         if(!Warning_DtStatic){
-	  Message::Info(3, "Discarded DtDof term in static analysis");
+	  Message::Info(3, "Discarded DtDofJacNL term in static analysis");
           Warning_DtStatic = 1 ;
         }
         break;
