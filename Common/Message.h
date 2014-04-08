@@ -22,6 +22,8 @@ class Message {
  private:
   // current cpu number and total number of cpus
   static int _commRank, _commSize, _isCommWorld;
+  // maximum resident memory over the duration of the computation
+  static long _maxMemory;
   // error count
   static int _warningCount, _errorCount;
   // last PETSc error code

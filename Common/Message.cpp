@@ -44,6 +44,7 @@
 int Message::_commRank = 0;
 int Message::_commSize = 1;
 int Message::_isCommWorld = 1; // is the communicator set to WORLD (==1) or SELF (!=1)
+long Message::_maxMemory = 0;
 int Message::_errorCount = 0;
 int Message::_lastPETScError = 0;
 bool Message::_exitOnError = false;
@@ -85,6 +86,7 @@ static void gslErrorHandler(const char *reason, const char *file, int line,
 void Message::Initialize(int argc, char **argv)
 {
   _errorCount = 0;
+  _maxMemory = 0;
 #if defined(HAVE_PETSC)
   MPI_Init(&argc, &argv);
   MPI_Comm_rank(MPI_COMM_WORLD, &_commRank);
@@ -367,7 +369,6 @@ void Message::Debug(const char *fmt, ...)
 
 void Message::Cpu(const char *fmt, ...)
 {
-  if((_commRank && _isCommWorld) || _verbosity < 5) return;
   va_list args;
   va_start(args, fmt);
   char str[1024];
@@ -379,10 +380,13 @@ void Message::Cpu(const char *fmt, ...)
 
 void Message::Cpu(int level, const char *fmt, ...)
 {
-  if((_commRank && _isCommWorld) || _verbosity < level) return;
+  // keep track of max memory even if we don't display it
   double s = 0.;
   long mem = 0;
   GetResources(&s, &mem);
+  _maxMemory = std::max(_maxMemory, mem);
+
+  if((_commRank && _isCommWorld) || _verbosity < level) return;
 
   char str[1024], str2[256];
   va_list args;
@@ -396,7 +400,10 @@ void Message::Cpu(int level, const char *fmt, ...)
   std::string currtime(ctime(&now));
   currtime.resize(currtime.size() - 1);
 
-  if(mem)
+  if(mem && _maxMemory)
+    sprintf(str2, "(%s, CPU = %gs, Mem = %ldMb, MaxMem = %ldMb)", currtime.c_str(),
+            s, mem / 1024 / 1024, _maxMemory / 1024 / 1024);
+  else if(mem)
     sprintf(str2, "(%s, CPU = %gs, Mem = %ldMb)", currtime.c_str(), s, mem / 1024 / 1024);
   else
     sprintf(str2, "(%s, CPU = %gs)", currtime.c_str(), s);
