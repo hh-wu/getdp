@@ -197,7 +197,7 @@ struct StringXDefine  DefineSystem_Type[] = {
 
 struct StringXDefine  Operation_Type[] = {
   {"Apply"                  , OPERATION_APPLY},
-  {"DummyDofs"              , OPERATION_DUMMYDOFS},
+  {"DofsFrequencySpectrum"  , OPERATION_DOFSFREQUENCYSPECTRUM},
   {"Generate"               , OPERATION_GENERATE},
   {"GenerateCumulative"     , OPERATION_GENERATE_CUMULATIVE},
   {"GenerateJac"            , OPERATION_GENERATEJAC},

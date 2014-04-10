@@ -239,7 +239,7 @@ void Mesh_MB2D(int nth1, int nth2, int ntr1, int ntr2, int closed1, int closed2,
   double dist2 = SQU(x1[2]-x2[itry4]) + SQU(y1[2]-y2[itry4]);
   int d2 = (dist1 < dist2) ? 1 : -1 ;
 
-  Message::Debug("+++++++++++++++++++++++++++++++++++++++++++++++++ %d \n",d2);
+  Message::Debug("+++++++++++++++++++++++++++++++++++++++++++++++++ %d",d2);
 
   *area_moving_band =
         fabs( (x2[imindist]-x1[0])*(y1[1]-y1[0])-(x1[1]-x1[0])*(y2[imindist]-y1[0]) )/2. ;
@@ -339,7 +339,7 @@ void  Mesh_MovingBand2D (struct Group * Group_P)
       n[0] = NumNodes2[b2_p1[i]] ; n[1] = NumNodes2[b2_p2[i]] ; n[2] = NumNodes1[b2_p3[i]] ;
       List_Put(GeoData->Elements, index, &Geo_Element) ;
     }
-    Message::Debug("Tr2 %d : %d %d %d \n",MB->StartNumTr+MB->ntr1+i, n[0], n[1], n[2]);
+    Message::Debug("Tr2 %d : %d %d %d",MB->StartNumTr+MB->ntr1+i, n[0], n[1], n[2]);
   }
 
   Message::Debug("Moving band meshed (area = %e)", MB->Area);

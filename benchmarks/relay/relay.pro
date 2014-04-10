@@ -148,6 +148,7 @@ Function {
               (p_current < p2) ? 0.:
                          (f2 + (f3-f2)/(p3-p2)*(p_current-p2));
   Fmag[] = CompY[#55] ; // Computed in postprocessing
+  Fmag_vw[] = CompY[#56] ; // Computed in postprocessing
 }
 
 Jacobian {
@@ -443,6 +444,7 @@ PostProcessing {
      { Name U  ; Value { Term { [ {U} ]  ; In DomainKin ; } } } //Position
      { Name V  ; Value { Term { [ {V} ]  ; In DomainKin ; } } } //Velocity
      { Name Fmag     ; Value { Term {  Type Global; [ Fmag[] ] ; In DomainKin ; } } }
+     { Name Fmag_vw  ; Value { Term {  Type Global; [ Fmag_vw[] ] ; In DomainKin ; } } }
      { Name Ftot     ; Value { Term {  Type Global; [ Fmag[] + Fspring[{U}] ] ; In DomainKin ; } } }
      { Name Fspr     ; Value { Term {  Type Global; [ Fspring[{U}] ]        ; In DomainKin ; } } }
      { Name Friction ; Value { Term {  Type Global; [ Friction[{U}] * {V} ] ; In DomainKin ; } } }
@@ -460,8 +462,8 @@ PostOperation MapMag UsingPost MagDyn_a_2D {
   Print[ az, OnElementsOf Domain, File StrCat["az", ExtGmsh], Format Gmsh, OverrideTimeStepValue step, LastTimeStepOnly] ;
 
   Print[ F[AirLayer], OnGlobal, Format Table, File "Fmag.dat", Store 55, LastTimeStepOnly] ;
-  //Print[ F_vw, OnRegion NodesOf[SkinDomainC_Moving], Format RegionValue, File  StrCat["Fvw", ExtGnuplot], Store  55,
-  //       LastTimeStepOnly] ;
+  Print[ F_vw, OnRegion NodesOf[SkinDomainC_Moving], Format RegionValue, File  StrCat["Fvw", ExtGnuplot], Store 56,
+         LastTimeStepOnly] ;
 }
 
 PostOperation MapMec UsingPost Mechanical {
@@ -472,6 +474,9 @@ PostOperation MapMec UsingPost Mechanical {
 
   Print[ Fmag, OnRegion DomainKin, Format Table, File  > StrCat["Fmag", ExtGnuplot],
          LastTimeStepOnly,SendToServer "Output/4forceY"] ;
+  Print[ Fmag_vw, OnRegion DomainKin, Format Table, File  > StrCat["Fmag_vw", ExtGnuplot],
+         LastTimeStepOnly,SendToServer "Output/4force_vwY"] ;
+
   Print[ Ftot, OnRegion DomainKin, Format Table, File  > StrCat["Ftot", ExtGnuplot],
          LastTimeStepOnly,SendToServer "Output/5ftotY"] ;
   Print[ Fspr, OnRegion DomainKin, Format Table, File  > StrCat["Fspr", ExtGnuplot],

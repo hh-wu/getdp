@@ -90,9 +90,20 @@ void Cal_AssembleTerm_NoDt(struct Dof * Equ, struct Dof * Dof, double Val[])
       }
     }
     else {
+      /*
       for (k = 0 ; k < Current.NbrHar ; k += 2)
 	Dof_AssembleInMat(Equ+k, Dof+k, Current.NbrHar, &Val[k],
-			  &Current.DofData->A, &Current.DofData->b) ;
+			  &Current.DofData->A, &Current.DofData->b) ; // Ruth -> Current.NbrHar
+      */
+      for (k = 0 ; k < Current.NbrHar ; k += 2) {
+        tmp[0] = Val[k] ;
+        tmp[1] = Val[k+1] ;
+        //printf("Val[%d]= %g Val[%d]=%g\n",k, Val[k], k+1, Val[k+1]); // Ruth
+        Dof_AssembleInMat(Equ+k, Dof+k, 2, tmp,
+                          &Current.DofData->A, &Current.DofData->b) ;
+        /* If the Current.NbrHar > 2 we must indicate just the size of tmp for assembling, i.e. 2 instead of  Current.NbrHar*/
+      }
+
     }
   }
 }
@@ -178,10 +189,11 @@ void Cal_AssembleTerm_DtDof(struct Dof * Equ, struct Dof * Dof, double Val[])
     }
     else {
       for (k = 0 ; k < Current.NbrHar ; k += 2) {
-	tmp[0] = -Val[k+1] * Current.DofData->Val_Pulsation[k/2] ;
-	tmp[1] =  Val[k] * Current.DofData->Val_Pulsation[k/2] ;
-	Dof_AssembleInMat(Equ+k, Dof+k, Current.NbrHar, tmp,
-			  &Current.DofData->A, &Current.DofData->b) ;
+        tmp[0] = -Val[k+1] * Current.DofData->Val_Pulsation[k/2] ;
+        tmp[1] =  Val[k] * Current.DofData->Val_Pulsation[k/2] ;
+        Dof_AssembleInMat(Equ+k, Dof+k, 2, tmp,
+                          &Current.DofData->A, &Current.DofData->b) ;
+        /* If the Current.NbrHar > 2 we must indicate just the size of tmp for assembling, i.e. 2 instead of  Current.NbrHar*/
       }
     }
   }
@@ -316,8 +328,8 @@ void Cal_AssembleTerm_DtDtDof(struct Dof * Equ, struct Dof * Dof, double Val[])
       for (k = 0 ; k < Current.NbrHar ; k += 2) {
 	tmp[0] = - Val[k]   * SQU(Current.DofData->Val_Pulsation[k/2]) ;
 	tmp[1] = - Val[k+1] * SQU(Current.DofData->Val_Pulsation[k/2]) ;
-	Dof_AssembleInMat(Equ+k, Dof+k, Current.NbrHar, tmp,
-			  &Current.DofData->A, &Current.DofData->b) ;
+	Dof_AssembleInMat(Equ+k, Dof+k, 2, tmp,
+			  &Current.DofData->A, &Current.DofData->b) ; // Current.NbrHar->2
       }
     }
   }
@@ -441,9 +453,53 @@ void Cal_AssembleTerm_NeverDt(struct Dof * Equ, struct Dof * Dof, double Val[])
 }
 
 /* ------------------------------------------------------------------------ */
-/*  Multi-Harmonic                                                          */
+/*  Multi-Harmonic with movement                                            */
 /* ------------------------------------------------------------------------ */
 
+void Cal_AssembleTerm_MHMoving(struct Dof * Equ, struct Dof * Dof, double Val[])
+{
+  // MHMoving_assemblyType = 1 => Use current system A,b
+  // MHMoving_assemblyType = 2 => Use dedicated system A_MH_Moving, b_MH_Moving
+  // MHMoving_assemblyType = 3 => Look for unknowns and constraints in Moving Group
+
+  extern int MHMoving_assemblyType ;
+  extern double ** MH_Moving_Matrix ;
+  extern Tree_T  * DofTree_MH_moving ;
+
+  if(MHMoving_assemblyType==1){
+    for (unsigned int k = 0 ; k < Current.NbrHar ; k++)
+      for (unsigned int l = 0 ; l < Current.NbrHar ; l++) {
+        double tmp = Val[0] * MH_Moving_Matrix[k][l] ;
+        /* if (k==l) */
+        Dof_AssembleInMat(Equ+k, Dof+l, 1, &tmp,
+                          &Current.DofData->A, &Current.DofData->b) ;
+      }
+  }
+
+  if(MHMoving_assemblyType==2){
+    for (unsigned int k = 0 ; k < Current.NbrHar ; k++)
+      for (unsigned int l = 0 ; l < Current.NbrHar ; l++) {
+        double tmp = Val[0] * MH_Moving_Matrix[k][l] ;
+        // if (k==l)
+        Dof_AssembleInMat(Equ+k, Dof+l, 1, &tmp,
+                          &Current.DofData->A_MH_moving, &Current.DofData->b_MH_moving) ;
+      }
+  }
+
+  if(MHMoving_assemblyType==3){
+    if (Dof->Type == DOF_UNKNOWN && !Tree_PQuery(DofTree_MH_moving, Dof))
+      Tree_Add(DofTree_MH_moving,Dof) ;
+    else if (Dof->Type == DOF_LINK && !Tree_PQuery(DofTree_MH_moving, Dof->Case.Link.Dof))
+      Tree_Add(DofTree_MH_moving,Dof->Case.Link.Dof) ;
+
+    if (Equ->Type == DOF_UNKNOWN && !Tree_PQuery(DofTree_MH_moving, Equ))
+      Tree_Add(DofTree_MH_moving,Equ) ;
+    else if (Equ->Type == DOF_LINK && !Tree_PQuery(DofTree_MH_moving, Equ->Case.Link.Dof))
+      Tree_Add(DofTree_MH_moving,Equ->Case.Link.Dof) ;
+  }
+}
+
+/*
 void Cal_AssembleTerm_MH_Moving_simple(struct Dof * Equ, struct Dof * Dof, double Val[])
 {
   int     k, l ;
@@ -453,7 +509,7 @@ void Cal_AssembleTerm_MH_Moving_simple(struct Dof * Equ, struct Dof * Dof, doubl
   for (k = 0 ; k < Current.NbrHar ; k++)
     for (l = 0 ; l < Current.NbrHar ; l++) {
       tmp = Val[0] * MH_Moving_Matrix[k][l] ;
-      /* if (k==l) */
+      // if (k==l)
       Dof_AssembleInMat(Equ+k, Dof+l, 1, &tmp,
 			&Current.DofData->A, &Current.DofData->b) ;
     }
@@ -468,7 +524,7 @@ void Cal_AssembleTerm_MH_Moving_separate(struct Dof * Equ, struct Dof * Dof, dou
   for (k = 0 ; k < Current.NbrHar ; k++)
     for (l = 0 ; l < Current.NbrHar ; l++) {
       tmp = Val[0] * MH_Moving_Matrix[k][l] ;
-      /* if (k==l) */
+      // if (k==l)
       Dof_AssembleInMat(Equ+k, Dof+l, 1, &tmp,
 			&Current.DofData->A_MH_moving, &Current.DofData->b_MH_moving) ;
     }
@@ -489,3 +545,4 @@ void Cal_AssembleTerm_MH_Moving_probe(struct Dof * Equ, struct Dof * Dof, double
       Tree_Add(DofTree_MH_moving,Equ->Case.Link.Dof) ;
 
 }
+*/

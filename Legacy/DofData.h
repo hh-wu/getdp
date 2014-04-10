@@ -131,9 +131,8 @@ struct DofData {
   gMatrix   A1, A2, A3 ;
   gVector   b1, b2, b3 ;
 
-  gMatrix   A_MH_moving, A_MH_moving2 ;
-  gVector   b_MH_moving, b_MH_moving2 ;
-  gSolver   Solver_MH_moving ;
+  gMatrix   A_MH_moving ;
+  gVector   b_MH_moving ;
 
   std::vector<int> NonLocalEquations;
 } ;

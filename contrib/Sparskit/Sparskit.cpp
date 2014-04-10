@@ -1590,7 +1590,7 @@ void get_column_in_matrix (Matrix *M, int col, double *V){
 	 }
        }
       if (!found) V[i]=0;
-    printf(" V[%d] = %g \n",i, V[i]);
+      /* printf(" V[%d] = %g \n",i, V[i]); */
     }
     break;
   case DENSE :
@@ -1639,7 +1639,7 @@ void get_element_in_matrix (Matrix *M, int row, int col, double *V){
 	 }
        }
       if (!found) V[i]=0;
-    printf(" V[%d] = %g \n",i, V[i]);
+      /* printf(" V[%d] = %g \n",i, V[i]); */
     }
     break;
   case DENSE :

@@ -414,6 +414,13 @@ void LinAlg_AddComplexInVector(double d1, double d2, gVector *V, int i, int j)
 
 void LinAlg_AddScalarInMatrix(gScalar *S, gMatrix *M, int i, int j)
 {
+
+  int * DummyDof;
+
+  if ((DummyDof = Current.DofData->DummyDof))
+    if ( (DummyDof[i] == 1 || DummyDof[j] == 1) && (i != j) )
+      return ;
+
   add_matrix_double(&M->M, i+1, j+1, S->s) ;
 }
 

@@ -154,8 +154,15 @@ void MH_Get_InitData(int Case, int NbrPoints, int *NbrPointsX_P,
   else
     NbrPoints  = (int)((MinPuls/MaxPuls*(double)NbrPointsX));
 
-  Message::Info("MH_Get_InitData => NbrHar = %d  NbrPoints = %d|%d  Case = %d",
-                NbrHar/2, NbrPoints, NbrPointsX, Case);
+  if(Case==1)
+    Message::Info("MH_Get_InitData (MHTransform) => NbrHar = %d  NbrPoints = %d|%d",
+                  NbrHar, NbrPoints, NbrPointsX);
+  if(Case==2)
+    Message::Info("MH_Get_InitData (MHJacNL) => NbrHar = %d  NbrPoints = %d|%d",
+                  NbrHar, NbrPoints, NbrPointsX);
+  if(Case==3)
+    Message::Info("MH_Get_InitData (HarmonicToTime) => NbrHar = %d  NbrPoints = %d|%d",
+                  NbrHar, NbrPoints, NbrPointsX);
 
 
   t = (double *)Malloc(sizeof(double)*NbrPointsX) ;
@@ -182,17 +189,9 @@ void MH_Get_InitData(int Case, int NbrPoints, int *NbrPointsX_P,
   for (iTime = 0 ; iTime < NbrPointsX ; iTime++){
     H[iTime] = (double *)Malloc(sizeof(double)*NbrHar) ;
     for (iPul = 0 ; iPul < NbrHar/2 ; iPul++) {
-      /* if (Val_Pulsation [iPul]){ */
 	H[iTime][2*iPul  ] =   cos(Val_Pulsation[iPul] * t[iTime]) ;
 	H[iTime][2*iPul+1] = - sin(Val_Pulsation[iPul] * t[iTime]) ;
     }
-    /*
-      }
-      else {
-        H[iTime][2*iPul    ] = 0.5 ;
-        H[iTime][2*iPul + 1] = 0 ;
-      }
-    */
   }
 
  /*
@@ -208,6 +207,9 @@ void MH_Get_InitData(int Case, int NbrPoints, int *NbrPointsX_P,
 
 
   if (Case == 2) {
+    if(Current.DofData->Flag_Init[0] < 2)
+      Message::Error("Jacobian system not initialized (missing GenerateJac?)");
+
     HH = (double ***)Malloc(sizeof(double **)*NbrPointsX) ;
     for (iTime = 0 ; iTime < NbrPointsX ; iTime++){
       HH[iTime] = (double **)Malloc(sizeof(double *)*NbrHar) ;
@@ -377,10 +379,14 @@ void Cal_InitGalerkinTermOfFemEquation_MHJacNL(struct EquationTerm  * EquationTe
   if (i_WQ == List_Nbr(WholeQuantity_L) )
     return;   /* no MHJacNL stuff, let's get the hell out of here ! */
 
-
   /* check if Galerkin term produces symmetrical contribution to system matrix */
   if (!FI->SymmetricalMatrix)
      Message::Error("Galerkin term with MHJacNL must be symmetrical");
+
+  if(EquationTerm_P->Case.LocalTerm.Term.CanonicalWholeQuantity_Equ != CWQ_NONE)
+    Message::Error("Not allowed expression in Galerkin term with MHJacNL");
+  if(EquationTerm_P->Case.LocalTerm.Term.TypeTimeDerivative != JACNL_)
+    Message::Error("MHJacNL can only be used with JACNL") ;
 
   if (List_Nbr(WholeQuantity_L) == 4){
     if (i_WQ != 1 ||
@@ -404,12 +410,14 @@ void Cal_InitGalerkinTermOfFemEquation_MHJacNL(struct EquationTerm  * EquationTe
     Message::Error("Not allowed expression in Galerkin term with MHJacNL (%d terms) ",
                    List_Nbr(WholeQuantity_L));
   }
-
+  /*
+  // Moving this check up...
   if(EquationTerm_P->Case.LocalTerm.Term.CanonicalWholeQuantity_Equ != CWQ_NONE)
     Message::Error("Not allowed expression in Galerkin term with MHJacNL");
 
   if (EquationTerm_P->Case.LocalTerm.Term.TypeTimeDerivative != JACNL_)
     Message::Error("MHJacNL can only be used with JACNL") ;
+  */
 
   FI->MHJacNL = 1 ;
   FI->MHJacNL_Index  = (WholeQuantity_P0 + i_WQ)->Case.MHJacNL.Index ; /* index of function for jacobian, e.g. dhdb[{d a}]*/
@@ -472,8 +480,6 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
   double (*Get_Jacobian)(struct Element*, MATRIX3x3*) ;
   void (*Get_IntPoint)(int,int,double*,double*,double*,double*);
   double (*Get_Product)(double*,double*,double*) = 0;
-
-  /* static double eps; */
 
   FI = EquationTerm_P->Case.LocalTerm.Active ;
   QuantityStorage_P = FI->QuantityStorageDof_P ;
@@ -586,7 +592,7 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
   ZeroHarmonic = 0;
   for (iPul = 0 ; iPul < NbrHar/2 ; iPul++)
     if (!Current.DofData->Val_Pulsation[iPul]){
-      DcHarmonic = 2*iPul ;
+      DcHarmonic   = 2*iPul ;
       ZeroHarmonic = 2*iPul+1 ;
       break;
     }
@@ -675,33 +681,14 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
 
     } /* for iTime ... */
 
-    /*
-    if (!eps) {
-      printf("enter value for eps\n");
-      scanf("%lf",&eps);
-      printf("eps = %f\n",eps);
-    }
-
-
-    for (iHar = 0 ; iHar < NbrHar ; iHar++)
-      for (jHar = OFFSET  ; jHar <= iHar ; jHar++){
-	for (iVal2 = 0 ; iVal2 < nVal2 ; iVal2++)
-	  if ( E_D[iHar][jHar][iVal2] * E_D[iHar][jHar][iVal2] <
-	      eps * eps * fabs(E_D[iHar][iHar][iVal2] * E_D[jHar][jHar][iVal2]) )
-	    E_D[iHar][jHar][iVal2]=0 ;
-      }
-
-    */
-
     for (iDof = 0 ; iDof < Nbr_Dof ; iDof++)
       for (jDof = 0 ; jDof <= iDof ; jDof++)
 	for (iHar = 0 ; iHar < NbrHar ; iHar++)
 	  for (jHar = OFFSET  ; jHar <= iHar ; jHar++){
 	    E_MH[iDof][jDof][iHar][jHar] += weightIntPoint *
 	      Get_Product(vBFxDof[iDof], E_D[iHar][jHar], vBFxDof[jDof]) ;
-
-	    /*  printf("%d %d %d %d  %e\n", iDof, jDof, iHar, jHar,
-	        E_MH[iDof][jDof][iHar][jHar]) ; */
+            Message::Debug("E_MH[%d][%d][%d][%d] = %e",
+                           iDof, jDof, iHar, jHar, E_MH[iDof][jDof][iHar][jHar]) ;
 	  }
 
     Current.NbrHar = NbrHar ;
@@ -713,7 +700,6 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
   /*  A d d   c o n t r i b u t i o n   t o  J a c o b i a n   M a t r i x  */
   /*  --------------------------------------------------------------------  */
 
-
   Jac = &Current.DofData->Jac;
 
   for (iDof = 0 ; iDof < Nbr_Dof ; iDof++){
@@ -723,7 +709,7 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
 
       for (iHar = 0 ; iHar < NbrHar ; iHar++)
 	for (jHar = OFFSET ; jHar <= iHar ; jHar++){
-	  plus = plus0 = Factor * E_MH [iDof][jDof] [iHar][jHar] ;
+	  plus = plus0 = Factor * E_MH[iDof][jDof][iHar][jHar] ;
 	  if(jHar==DcHarmonic && iHar!=DcHarmonic) { plus0 *= 1. ; plus *= 2. ;}
 	  Dof_AssembleInMat(Dofi+iHar, Dofj+jHar, 1, &plus, Jac, NULL) ;
 	  if(iHar != jHar)

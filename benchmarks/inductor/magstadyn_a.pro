@@ -382,7 +382,7 @@ PostProcessing {
 //-----------------------------------------------------------------------------------------------
 
 PostOperation Get_LocalFields UsingPost MagStaDyn_a_2D {
-  //Print[ ir, OnElementsOf Inds,   File StrCat[Dir, StrCat["ir",ExtGmsh]], LastTimeStepOnly ] ;
+  Print[ ir, OnElementsOf Inds,   File StrCat[Dir, StrCat["ir",ExtGmsh]], LastTimeStepOnly ] ;
   Print[ b,  OnElementsOf Domain, File StrCat[Dir, StrCat["b",ExtGmsh]], LastTimeStepOnly ] ;
   Print[ nb,  OnElementsOf Domain, File StrCat[Dir, StrCat["nb",ExtGmsh]], LastTimeStepOnly ] ;
   Print[ az, OnElementsOf Domain, File StrCat[Dir, StrCat["a",ExtGmsh]], LastTimeStepOnly ];

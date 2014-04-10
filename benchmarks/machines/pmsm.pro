@@ -11,8 +11,8 @@ DefineConstant[
       "- Use 'Time domain' to compute the dynamic response of the machine"]} ,
   Flag_SrcType_Stator = { 0, Choices{0="None",1="Current"},
     Name "Input/41Source type in stator", Highlight "Blue"},
-  Flag_NL = { 1, Choices{0,1},
-    Name "Input/60Nonlinear BH-curve"},
+  Flag_NL = { 1, Choices{0,1}, Name "Input/60Nonlinear BH-curve"},
+
   Flag_NL_law_Type = { 0, Choices{
       0="Analytical", 1="Interpolated",
       2="Analytical VH800-65D", 3="Interpolated VH800-65D"},
@@ -45,7 +45,7 @@ Group {
   Surf_cutA0 = #{STATOR_BND_A0, ROTOR_BND_A0};
   Surf_cutA1 = #{STATOR_BND_A1, ROTOR_BND_A1};
 
-  Dummy = #NICEPOS;
+  Dummy = #NICEPOS; // For getting the movement of the rotor
 
   nbMagnets = NbrPolesTot/SymmetryFactor ;
   For k In {1:nbMagnets}
@@ -192,4 +192,3 @@ If(Flag_Cir)
   Include "pmsm_8p_circuit.pro" ;
 EndIf
 Include "machine_magstadyn_a.pro" ;
-

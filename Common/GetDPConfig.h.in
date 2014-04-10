@@ -23,6 +23,7 @@
 #cmakedefine HAVE_SLEPC
 #cmakedefine HAVE_SPARSKIT
 #cmakedefine HAVE_ZITSOL
+#cmakedefine HAVE_MULTIHARMONIC
 
 #define GETDP_CONFIG_OPTIONS "${GETDP_CONFIG_OPTIONS}"
 

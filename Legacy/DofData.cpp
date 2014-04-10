@@ -1286,6 +1286,7 @@ void Dof_AssembleInMat(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
            Equ_P->Case.Unknown.NumDof-1, Dof_P->Case.Unknown.NumDof-1) ;
       }
       else
+        //printf("bbbbbbbbbbbbbbbbbbb gSCALAR_SIZE %d Val[0]= %g , Val[1]=%g \n", gSCALAR_SIZE, Val[0], Val[1]);
 	LinAlg_AddComplexInMatrix
 	  (Val[0], Val[1], Mat,
 	   Equ_P->Case.Unknown.NumDof-1, Dof_P->Case.Unknown.NumDof-1,
@@ -1339,6 +1340,8 @@ void Dof_AssembleInMat(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
 	    valtmp[0] = -d1*Val[0] + d2*Val[1] ;
 	    valtmp[1] = -d1*Val[1] - d2*Val[0] ;
 	  }
+          //printf("ccc NbrHar %d gSCALAR_SIZE %d valtmp[0]= %g , valtmp[1]=%g \n",
+          //       Current.NbrHar, gSCALAR_SIZE, valtmp[0], valtmp[1]);
 	  LinAlg_AddComplexInVector
 	    (valtmp[0], valtmp[1], Vec,
 	     Equ_P->Case.Unknown.NumDof-1,
@@ -1814,10 +1817,10 @@ void Dof_GetDummies(struct DefineSystem * DefineSystem_P, struct DofData * DofDa
   struct GlobalQuantity   * GlobalQuantity_P ;
   struct Dof              * Dof_P ;
 
-  int i, j, k, l, iDof, ii,iit, iNum, iHar;
+  int i, j, k, l, iDof, ii, iit, iNum, iHar;
   int Nbr_Formulation, Index_Formulation ;
-  int * DummyDof;
-  double DummyFrequency, * Val_Pulsation;
+  int *DummyDof;
+  double FrequencySpectrum, *Val_Pulsation;
 
   if (!(Val_Pulsation = Current.DofData->Val_Pulsation)){
     Message::Error("Dof_GetDummies can only be used for harmonic problems");
@@ -1836,12 +1839,12 @@ void Dof_GetDummies(struct DefineSystem * DefineSystem_P, struct DofData * DofDa
     for (j = 0 ; j < List_Nbr(Formulation_P->DefineQuantity) ; j++) {
       DefineQuantity_P = (struct DefineQuantity*)
 	List_Pointer(Formulation_P->DefineQuantity, j) ;
-      for (l = 0 ; l < List_Nbr(DefineQuantity_P->DummyFrequency) ; l++) {
-	DummyFrequency = *(double *)List_Pointer(DefineQuantity_P->DummyFrequency, l) ;
+      for (l = 0 ; l < List_Nbr(DefineQuantity_P->FrequencySpectrum) ; l++) {
+	FrequencySpectrum = *(double *)List_Pointer(DefineQuantity_P->FrequencySpectrum, l) ;
 
 	iHar=-1;
 	for (k = 0 ; k < Current.NbrHar/2 ; k++)
-	  if (fabs (Val_Pulsation[k]-TWO_PI*DummyFrequency) <= 1e-10 * Val_Pulsation[k]) {
+	  if (fabs(Val_Pulsation[k]-TWO_PI*FrequencySpectrum) <= 1e-10*Val_Pulsation[k]) {
 	    iHar = 2*k; break;
 	  }
 	if(iHar>=0) {
@@ -1862,9 +1865,11 @@ void Dof_GetDummies(struct DefineSystem * DefineSystem_P, struct DofData * DofDa
 		}
 	      }
 	    }
-	    Message::Info("Freq %e (%d/%d) Form %d  Quant %d  Basis %d  #dummies %d/%d",
-                          Val_Pulsation[iHar/2]/TWO_PI, iHar/2, Current.NbrHar/2,
-                          i, j, ((struct BasisFunction *)BasisFunction_P)->Num, ii, iit) ;
+            if(ii)
+              Message::Info("Freq %4lg (%d/%d) Formulation %s Quantity %s (BF %d)  #DofsFreqSpectrum %d/%d",
+                            Val_Pulsation[iHar/2]/TWO_PI, iHar/2, Current.NbrHar/2,
+                            Formulation_P->Name, DefineQuantity_P->Name,
+                            ((struct BasisFunction *)BasisFunction_P)->Num, ii, iit) ;
 	  }
 
 	  for (k = 0 ; k < List_Nbr(FunctionSpace_P->GlobalQuantity) ; k++) {
@@ -1881,25 +1886,28 @@ void Dof_GetDummies(struct DefineSystem * DefineSystem_P, struct DofData * DofDa
 		}
 	      }
 	    }
-	    Message::Info("Freq %e (%d/%d) Form %d  Quant %d  Global %d  #dummies %d/%d",
+            if(ii)
+	    Message::Info("Freq %4lg (%d/%d) Formulation %s  GlobalQuantity %s  (BF %d)  #DofsWithSpectrum %d/%d",
                           Val_Pulsation[iHar/2]/TWO_PI, iHar/2, Current.NbrHar/2,
-                          i, j, ((struct GlobalQuantity *)GlobalQuantity_P)->Num, ii, iit) ;
+                          Formulation_P->Name, GlobalQuantity_P->Name,
+                          ((struct GlobalQuantity *)GlobalQuantity_P)->Num, ii, iit) ;
 	  }
 
-	}   /*  end DummyFrequency in DofData */
-      }   /* end DummyFrequency in Quantity */
+	}   /*  end FrequencySpectrum in DofData */
+      }   /* end FrequencySpectrum in Quantity */
     }   /* end Quantity */
   }   /* end Formulation */
 
   i=0;
   for (iDof = 0 ; iDof < DofData_P->NbrDof ; iDof++) {
     if(DummyDof[iDof]) i++;
-    /*
-    Dof_P = (struct Dof *)List_Pointer(DofData_P->DofList, iDof) ;
-    Message::Info("Dof Num iHar, Entity %d %d %d",
-	          iDof, Dof_P->NumType, Dof_P->Harmonic, Dof_P->Entity);
-    */
+
+    if(Message::GetVerbosity() == 99){
+      Dof_P = (struct Dof *)List_Pointer(DofData_P->DofList, iDof) ;
+      Message::Debug("Dof Num iHar, Entity %d %d %d",
+                     iDof, Dof_P->NumType, Dof_P->Harmonic, Dof_P->Entity);
+     }
   }
 
-  Message::Info("Total %d Dummies %d", DofData_P->NbrDof,i) ;
+  Message::Info("N: %d - N with FrequencySpectrum: %d", DofData_P->NbrDof, i) ;
 }

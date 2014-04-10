@@ -253,8 +253,8 @@ Physical Line (CUTCOILLINE) = {linBndSurfCoil[{1:11:2,14}]} ;
 
 Physical Point (POINTREFPOT) = {p1} ;
 
-Color NavyBlue { Volume{volair[],volaircut[]}; }
-Color NavyBlue { Surface{ Boundary{Volume{volair[],volaircut[]};} }; }
+Color Red { Volume{volair[],volaircut[]}; }
+Color Red { Surface{ Boundary{Volume{volair[],volaircut[]};} }; }
 Color Gold { Volume{volcoil[]}; }
 Color Gold { Surface{skincoil[]}; }
 Color Red { Surface{surfelecin}; }

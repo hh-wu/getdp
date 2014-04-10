@@ -1340,6 +1340,34 @@ void Print_Operation(struct Resolution *RE, List_T *Operation_L)
                       List_Pointer(Problem_S.Group,
                                    OPE->Case.Mesh_MovingBand2D.GroupIndex))->Name);
       break;
+    case OPERATION_GENERATE_MH_MOVING :
+      for (i=0; i<2*NbrBlk; i++) Message::Check(" ");
+      Message::Check("      GenerateMHMoving [ %s, %s, %g, %d ];\n",
+                     ((struct DefineSystem *)
+                      List_Pointer(RE->DefineSystem, OPE->DefineSystemIndex))->Name,
+                     ((struct Group *)
+                      List_Pointer(Problem_S.Group,
+                                   OPE->Case.Generate_MH_Moving.GroupIndex))->Name,
+                     OPE->Case.Generate_MH_Moving.Period,
+                     OPE->Case.Generate_MH_Moving.NbrStep);
+      break;
+    case OPERATION_GENERATE_MH_MOVING_S :
+      for (i=0; i<2*NbrBlk; i++) Message::Check(" ");
+      Message::Check("      GenerateMHMovingSeparate [ %s, %s, %g, %d ];\n",
+                     ((struct DefineSystem *)
+                      List_Pointer(RE->DefineSystem, OPE->DefineSystemIndex))->Name,
+                     ((struct Group *)
+                      List_Pointer(Problem_S.Group,
+                                   OPE->Case.Generate_MH_Moving_S.GroupIndex))->Name,
+                     OPE->Case.Generate_MH_Moving_S.Period,
+                     OPE->Case.Generate_MH_Moving_S.NbrStep);
+      break;
+    case OPERATION_ADDMHMOVING :
+      for (i=0; i<2*NbrBlk; i++) Message::Check(" ");
+      Message::Check("      AddMHMoving [%s];\n",
+                     ((struct DefineSystem *)
+                      List_Pointer(RE->DefineSystem, OPE->DefineSystemIndex))->Name);
+      break;
 
     case OPERATION_DEFORMEMESH :
       Message::Check("      DeformeMesh [%s, %s,  '%s']; \n",

@@ -77,9 +77,9 @@ void  Operation_ChangeOfCoordinates(struct Resolution  * Resolution_P,
 	Get_ValueOfExpressionByIndex
 	  (Operation_P->Case.ChangeOfCoordinates.ExpressionIndex2,
 	   NULL, 0., 0., 0., &Value2) ;
-	printf("before x %e  y %e  z %e  ||| after x %e  y %e  z %e\n",
+	Message::Debug("before x %e  y %e  z %e  ||| after x %e  y %e  z %e\n",
 	       x, y, z, Value.Val[0], Value.Val[1], Value.Val[2]);
-	Message::Info("  before %e  after %e", Value1.Val[0], Value2.Val[0]) ;
+	Message::Debug("  before %e  after %e", Value1.Val[0], Value2.Val[0]) ;
       }
 
       Geo_SetNodesCoordinates(1, &Num_Node,

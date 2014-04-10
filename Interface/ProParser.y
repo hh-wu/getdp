@@ -254,12 +254,12 @@ struct doubleXstring{
 %token      tSolveJac_AdaptRelax
 %token      tSaveSolutionExtendedMH tSaveSolutionMHtoTime tSaveSolutionWithEntityNum
 %token      tInitMovingBand2D tMeshMovingBand2D
-%token      tGenerate_MH_Moving tGenerate_MH_Moving_Separate tAdd_MH_Moving
+%token      tGenerateMHMoving tGenerateMHMovingSeparate tAddMHMoving
 %token      tGenerateGroup tGenerateJacGroup tGenerateRHSGroup
 %token      tGenerateGroupCumulative tGenerateJacGroupCumulative tGenerateRHSGroupCumulative
 %token      tSaveMesh
 %token      tDeformMesh
-%token      tDummyFrequency
+%token      tFrequencySpectrum
 %token  tPostProcessing
 %token      tNameOfSystem
 
@@ -2763,7 +2763,7 @@ DefineQuantity :
       DefineQuantity_S.FunctionSpaceIndex = -1;
       DefineQuantity_S.DofDataIndex = -1;
       DefineQuantity_S.DofData = NULL;
-      DefineQuantity_S.DummyFrequency = NULL;
+      DefineQuantity_S.FrequencySpectrum = NULL;
 
       DefineQuantity_S.IntegralQuantity.InIndex = -1;
       DefineQuantity_S.IntegralQuantity.IntegrationMethodIndex = -1;
@@ -2798,8 +2798,8 @@ DefineQuantityTerm :
       Free($2);
     }
 
-  | tDummyFrequency ListOfFExpr tEND
-    { DefineQuantity_S.DummyFrequency = $2;
+  | tFrequencySpectrum ListOfFExpr tEND
+    { DefineQuantity_S.FrequencySpectrum = $2;
     }
 
   | tNameOfSpace String__Index
@@ -4752,8 +4752,8 @@ OperationTerm :
       Operation_P->Type = OPERATION_SAVEMESH;
     }
 
-  | tGenerate_MH_Moving  '[' String__Index ',' String__Index ',' FExpr ',' FExpr ']'
-                         '{' Operation '}'  tEND
+  | tGenerateMHMoving  '[' String__Index ',' String__Index ',' FExpr ',' FExpr ']'
+                         '{' Operation '}'
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       int i;
@@ -4772,8 +4772,8 @@ OperationTerm :
       Operation_P->Case.Generate_MH_Moving.Operation = $12;
     }
 
-  | tGenerate_MH_Moving_Separate  '[' String__Index ',' String__Index ',' FExpr ',' FExpr ']'
-                                  '{' Operation '}'  tEND
+  | tGenerateMHMovingSeparate  '[' String__Index ',' String__Index ',' FExpr ',' FExpr ']'
+                                  '{' Operation '}'
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       int i;
@@ -4792,7 +4792,7 @@ OperationTerm :
       Operation_P->Case.Generate_MH_Moving_S.Operation = $12;
     }
 
-  | tAdd_MH_Moving  '[' String__Index ',' FExpr ']'  tEND
+   | tAddMHMoving  '[' String__Index ']'  tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       int i;
@@ -4800,8 +4800,8 @@ OperationTerm :
 			       fcmp_DefineSystem_Name)) < 0)
 	vyyerror("Unknown System: %s", $3);
       Free($3);
-      Operation_P->Type = OPERATION_ADD_MH_MOVING;
-      Operation_P->Case.Add_MH_Moving.dummy = $5;
+      Operation_P->DefineSystemIndex = i;
+      Operation_P->Type = OPERATION_ADDMHMOVING;
     }
 
   | tDeformMesh  '[' String__Index ',' String__Index ',' tNameOfMesh CharExpr ','

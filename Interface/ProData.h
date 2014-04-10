@@ -45,15 +45,15 @@
 // post-processing
 //
 // - MAX_STACK_SIZE controls the size of the stack used in the evaluation of
-// expressions ; keep this latge by default to allow for complex expressions
+// expressions ; keep this large enough by default to allow for complex expressions
 
 #if !defined(HAVE_MULTIHARMONIC)
 #define NBR_MAX_HARMONIC    2
-#define MAX_STACK_SIZE     40
 #else
-#define NBR_MAX_HARMONIC   40
-#define MAX_STACK_SIZE     10
+#define NBR_MAX_HARMONIC  100
 #endif
+
+#define MAX_STACK_SIZE     40
 
 struct Value {
   int     Type;
@@ -510,8 +510,8 @@ struct DefineQuantity {
   /* for subspaces */
   List_T  *IndexInFunctionSpace;
 
-  /* for MH calculation */
-  List_T  *DummyFrequency;
+  /* for MH calculation - possibly reduced frequency spectrum for some quantities*/
+  List_T  *FrequencySpectrum;
 
   /* for multiple DofData vs. one FunctionSpace */
   int      DofDataIndex;
@@ -1039,9 +1039,6 @@ struct Operation {
       List_T  *Operation;
     } Generate_MH_Moving_S;
     struct {
-      double  dummy;
-    } Add_MH_Moving;
-    struct {
       int     GroupIndex;
     } Generate;
     struct {
@@ -1107,7 +1104,7 @@ struct IterativeLoopSystem {
 
 #define OPERATION_ADDCORRECTION             1
 #define OPERATION_ADDOPPOSITEFULLSOLUTION   2
-#define OPERATION_ADD_MH_MOVING             3
+#define OPERATION_ADDMHMOVING               3
 #define OPERATION_APPLY                     4
 #define OPERATION_BARRIER                   5
 #define OPERATION_BREAK                     6
@@ -1117,7 +1114,7 @@ struct IterativeLoopSystem {
 #define OPERATION_CREATEDIR                10
 #define OPERATION_DEFORMEMESH              11
 #define OPERATION_DELETEFILE               12
-#define OPERATION_DUMMYDOFS                13
+#define OPERATION_DOFSFREQUENCYSPECTRUM    13
 #define OPERATION_EIGENSOLVE               14
 #define OPERATION_EIGENSOLVEJAC            15
 #define OPERATION_EVALUATE                 16

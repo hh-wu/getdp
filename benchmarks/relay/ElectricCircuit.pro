@@ -32,7 +32,7 @@ Constraint {
   }
   { Name Voltage_Cir ;
     Case {
-      { Region E1 ; Value 15 ; TimeFunction  Voltage[] ;}
+      { Region E1 ; Value VV ; TimeFunction  Voltage[] ;}
     }
   }
 

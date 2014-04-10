@@ -734,14 +734,24 @@ void LinAlg_AddScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3)
 
 void LinAlg_DummyVector(gVector *V)
 {
-  if(Current.DofData->DummyDof)
-    Message::Error("DummyVector not yet implemented");
-  return;
+  PetscInt n;
+  PetscScalar zero = 0.0;
+
+  if (Current.DofData->DummyDof == NULL) return ;
+
+  _try(VecGetSize(V->V, &n));
+  for(PetscInt i = 0; i < n; i++)
+    if (Current.DofData->DummyDof[i]==1)
+      _try(VecSetValues(V->V, 1, &i, &zero, INSERT_VALUES));
 }
 
 void LinAlg_AddScalarInVector(gScalar *S, gVector *V, int i)
 {
   if(!_isInLocalRange(V, i)) return;
+
+  if(Current.DofData->DummyDof)
+    if(Current.DofData->DummyDof[i]==1) return ;
+
   PetscInt ti = i;
   _try(VecSetValues(V->V, 1, &ti, &S->s, ADD_VALUES));
 }
@@ -749,6 +759,10 @@ void LinAlg_AddScalarInVector(gScalar *S, gVector *V, int i)
 void LinAlg_AddDoubleInVector(double d, gVector *V, int i)
 {
   if(!_isInLocalRange(V, i)) return;
+
+  if(Current.DofData->DummyDof)
+    if(Current.DofData->DummyDof[i]==1) return ;
+
   PetscScalar tmp = d;
   PetscInt ti = i;
   _try(VecSetValues(V->V, 1, &ti, &tmp, ADD_VALUES));
@@ -757,19 +771,26 @@ void LinAlg_AddDoubleInVector(double d, gVector *V, int i)
 void LinAlg_AddComplexInVector(double d1, double d2, gVector *V, int i, int j)
 {
   PetscScalar tmp;
+  int iok=1, jok=1;
+
+  if(Current.DofData->DummyDof){
+    if(Current.DofData->DummyDof[i]==1) iok=0;
+    if(Current.DofData->DummyDof[j]==1) jok=0;
+  }
+
 #if defined(PETSC_USE_COMPLEX)
-  if(_isInLocalRange(V, i)){
+  if(_isInLocalRange(V, i) && iok && jok){
     PetscInt ti = i;
     tmp = d1 + PETSC_i * d2;
     _try(VecSetValues(V->V, 1, &ti, &tmp, ADD_VALUES));
   }
 #else
   PetscInt ti = i, tj = j;
-  if(_isInLocalRange(V, i)){
+  if(_isInLocalRange(V, i) && iok){
     tmp = d1;
     _try(VecSetValues(V->V, 1, &ti, &tmp, ADD_VALUES));
   }
-  if(_isInLocalRange(V, j)){
+  if(_isInLocalRange(V, j) && jok){
     tmp = d2;
     _try(VecSetValues(V->V, 1, &tj, &tmp, ADD_VALUES));
   }
@@ -779,6 +800,11 @@ void LinAlg_AddComplexInVector(double d1, double d2, gVector *V, int i, int j)
 void LinAlg_AddScalarInMatrix(gScalar *S, gMatrix *M, int i, int j)
 {
   if(!_isInLocalRange(M, i)) return;
+
+  if (Current.DofData->DummyDof)
+    if ( (Current.DofData->DummyDof[i]==1 || Current.DofData->DummyDof[j]==1) && (i!=j) )
+      return;
+
   PetscInt ti = i, tj = j;
   _try(MatSetValues(M->M, 1, &ti, 1, &tj, &S->s, ADD_VALUES));
 }
@@ -786,6 +812,11 @@ void LinAlg_AddScalarInMatrix(gScalar *S, gMatrix *M, int i, int j)
 void LinAlg_AddDoubleInMatrix(double d, gMatrix *M, int i, int j)
 {
   if(!_isInLocalRange(M, i)) return;
+
+  if (Current.DofData->DummyDof)
+    if ( (Current.DofData->DummyDof[i]==1 || Current.DofData->DummyDof[j]==1) && (i!=j) )
+      return;
+
   PetscScalar tmp = d;
   PetscInt ti = i, tj = j;
   _try(MatSetValues(M->M, 1, &ti, 1, &tj, &tmp, ADD_VALUES));
@@ -1285,6 +1316,7 @@ void LinAlg_SetGlobalSolverOptions(const std::string &opt)
 {
   _try(PetscOptionsInsertString(opt.c_str()));
 }
+
 
 extern void Generate_Residual (gVector *x, gVector *f) ;
 extern void Generate_FullJacobian (gVector *x, gMatrix *Jac) ;

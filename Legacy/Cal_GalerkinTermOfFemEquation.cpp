@@ -39,7 +39,8 @@ void Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
 				       struct Dof              * DofForNoDof_P)
 {
   struct FemLocalTermActive  * FI ;
-  extern int MH_Moving_Matrix_simple, MH_Moving_Matrix_probe, MH_Moving_Matrix_separate;
+  //extern int MH_Moving_Matrix_simple, MH_Moving_Matrix_probe, MH_Moving_Matrix_separate;
+  extern int MHMoving_assemblyType ;
 
   FI = EquationTerm_P->Case.LocalTerm.Active ;
 
@@ -232,18 +233,20 @@ void Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
   }
 
 
+  if(MHMoving_assemblyType)
+    FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_MHMoving;
+
+  /*
   if (MH_Moving_Matrix_simple) {
-    /* Message::Info("AssembleTerm_MH_Moving") ; */
     FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_MH_Moving_simple ;
   }
   if (MH_Moving_Matrix_probe) {
-    /* Message::Info("AssembleTerm_MH_Moving") ; */
     FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_MH_Moving_probe ;
   }
   if (MH_Moving_Matrix_separate) {
-    /* Message::Info("AssembleTerm_MH_Moving") ; */
     FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_MH_Moving_separate ;
   }
+*/
 
   /*  initialisation of MHJacNL-term (nonlinear multi-harmonics) if necessary */
   Cal_InitGalerkinTermOfFemEquation_MHJacNL(EquationTerm_P);

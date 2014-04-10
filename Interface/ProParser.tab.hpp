@@ -241,9 +241,9 @@
      tSaveSolutionWithEntityNum = 457,
      tInitMovingBand2D = 458,
      tMeshMovingBand2D = 459,
-     tGenerate_MH_Moving = 460,
-     tGenerate_MH_Moving_Separate = 461,
-     tAdd_MH_Moving = 462,
+     tGenerateMHMoving = 460,
+     tGenerateMHMovingSeparate = 461,
+     tAddMHMoving = 462,
      tGenerateGroup = 463,
      tGenerateJacGroup = 464,
      tGenerateRHSGroup = 465,
@@ -252,7 +252,7 @@
      tGenerateRHSGroupCumulative = 468,
      tSaveMesh = 469,
      tDeformMesh = 470,
-     tDummyFrequency = 471,
+     tFrequencySpectrum = 471,
      tPostProcessing = 472,
      tNameOfSystem = 473,
      tPostOperation = 474,
@@ -539,9 +539,9 @@
 #define tSaveSolutionWithEntityNum 457
 #define tInitMovingBand2D 458
 #define tMeshMovingBand2D 459
-#define tGenerate_MH_Moving 460
-#define tGenerate_MH_Moving_Separate 461
-#define tAdd_MH_Moving 462
+#define tGenerateMHMoving 460
+#define tGenerateMHMovingSeparate 461
+#define tAddMHMoving 462
 #define tGenerateGroup 463
 #define tGenerateJacGroup 464
 #define tGenerateRHSGroup 465
@@ -550,7 +550,7 @@
 #define tGenerateRHSGroupCumulative 468
 #define tSaveMesh 469
 #define tDeformMesh 470
-#define tDummyFrequency 471
+#define tFrequencySpectrum 471
 #define tPostProcessing 472
 #define tNameOfSystem 473
 #define tPostOperation 474

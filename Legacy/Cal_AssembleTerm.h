@@ -17,8 +17,11 @@ void Cal_AssembleTerm_DtDt(struct Dof * Equ, struct Dof * Dof, double Val[]);
 void Cal_AssembleTerm_JacNL(struct Dof * Equ, struct Dof * Dof, double Val[]);
 void Cal_AssembleTerm_DtDofJacNL(struct Dof * Equ, struct Dof * Dof, double Val[]);
 void Cal_AssembleTerm_NeverDt(struct Dof * Equ, struct Dof * Dof, double Val[]);
-void Cal_AssembleTerm_MH_Moving_simple(struct Dof * Equ, struct Dof * Dof, double Val[]);
-void Cal_AssembleTerm_MH_Moving_separate(struct Dof * Equ, struct Dof * Dof, double Val[]);
-void Cal_AssembleTerm_MH_Moving_probe(struct Dof * Equ, struct Dof * Dof, double Val[]);
+
+void Cal_AssembleTerm_MHMoving(struct Dof * Equ, struct Dof * Dof, double Val[]);
+
+//void Cal_AssembleTerm_MH_Moving_simple(struct Dof * Equ, struct Dof * Dof, double Val[]);
+//void Cal_AssembleTerm_MH_Moving_separate(struct Dof * Equ, struct Dof * Dof, double Val[]);
+//void Cal_AssembleTerm_MH_Moving_probe(struct Dof * Equ, struct Dof * Dof, double Val[]);
 
 #endif

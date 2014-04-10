@@ -70,9 +70,9 @@ int  Init_Update = 0 ;
 // For Johan's multi-harmonic stuff (even uglier :-)
 int Flag_RHS = 0, *DummyDof ;
 double **MH_Moving_Matrix = NULL ;
-int MH_Moving_Matrix_simple = 0 ;
-int MH_Moving_Matrix_probe = 0 ;
-int MH_Moving_Matrix_separate = 0;
+
+int MHMoving_assemblyType = 0 ;
+
 Tree_T  * DofTree_MH_moving ;
 
 /* ------------------------------------------------------------------------ */
@@ -522,7 +522,7 @@ void  Init_OperationOnSystem(const char          * Name,
 
   *DefineSystem_P = (struct DefineSystem*)
     List_Pointer(Resolution_P->DefineSystem,Operation_P->DefineSystemIndex) ;
-  Current.DefineSystem_P = *DefineSystem_P ; //+++
+  Current.DefineSystem_P = *DefineSystem_P ;
 
   *DofData_P = DofData_P0 + Operation_P->DefineSystemIndex ;
   Dof_SetCurrentDofData(Current.DofData = *DofData_P) ;
@@ -621,10 +621,13 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   double aii, ajj;
   int nnz__;
 
-  List_T  * DofList_MH_moving ;
-  static int NbrDof_MH_moving;
-  static int *NumDof_MH_moving ;
-  static struct Dof ** Dof_MH_moving ;
+  List_T  *DofList_MH_moving;
+  static int  NbrDof_MH_moving;
+  static int *NumDof_MH_moving;
+  static struct Dof ** Dof_MH_moving;
+  gMatrix A_MH_moving_tmp ;
+  //gVector b_MH_moving_tmp ;
+
 
   Nbr_Operation = List_Nbr(Operation_L) ;
 
@@ -1540,20 +1543,24 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       break ;
 
     case OPERATION_MESH_MOVINGBAND2D :
-      Message::Info("MeshMovingBand2D") ;
+      if(Message::GetVerbosity() == 10) // +++
+        Message::Info("MeshMovingBand2D") ;
       Mesh_MovingBand2D( (struct Group *)
 			 List_Pointer(Problem_S.Group,
 				      Operation_P->Case.Mesh_MovingBand2D.GroupIndex)) ;
       break ;
 
-
     case OPERATION_GENERATE_MH_MOVING :
-      Init_OperationOnSystem("Generate_MH_Moving",
+      Init_OperationOnSystem("GenerateMHMoving",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
 
       if(gSCALAR_SIZE == 2){
-	Message::Error("FIXME: Generate_MH_Moving will not work in complex arithmetic");
+	Message::Error("FIXME: GenerateMHMoving will not work in complex arithmetic");
+        break;
+      }
+      if (!(Val_Pulsation = Current.DofData->Val_Pulsation)){
+	Message::Error("GenerateMHMoving can only be used for harmonic problems");
         break;
       }
 
@@ -1566,17 +1573,14 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       for (k = 0 ; k < Current.NbrHar ; k++)
 	MH_Moving_Matrix[k] = (double *) Malloc(Current.NbrHar*sizeof(double)) ;
 
-      if (! (Val_Pulsation = Current.DofData->Val_Pulsation)){
-	Message::Error("Generate_MH_moving can only be used for harmonic problems");
-        break;
-      }
-
       for (k = 0 ; k < Current.NbrHar ; k++)
 	for (l = 0 ; l < Current.NbrHar ; l++)
 	  hop[k][l] = 0.;
 
-      MH_Moving_Matrix_simple = 1;
+      Save_Time  = Current.Time;
+      Save_DTime = Current.DTime;
 
+      MHMoving_assemblyType = 1; // Assembly done in current system: A, b
       for (iTime = 0 ; iTime < Operation_P->Case.Generate_MH_Moving.NbrStep ; iTime++) {
 
 	Current.Time = (double)iTime/(double)Operation_P->Case.Generate_MH_Moving.NbrStep *
@@ -1584,10 +1588,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	Current.DTime = 1./(double)Operation_P->Case.Generate_MH_Moving.NbrStep *
 	  Operation_P->Case.Generate_MH_Moving.Period ;
 	Current.TimeStep = iTime;
-
-	Message::Info("Generate_MH_Moving : Step %d/%d (Time = %e  DTime %e)",
-                      (int)(Current.TimeStep+1), Operation_P->Case.Generate_MH_Moving.NbrStep,
-                      Current.Time, Current.DTime) ;
+        if(Message::GetVerbosity() == 10)
+          Message::Info("GenerateMHMoving: Step %d/%d (Time = %e  DTime %e)",
+                        (int)(Current.TimeStep+1), Operation_P->Case.Generate_MH_Moving.NbrStep,
+                        Current.Time, Current.DTime) ;
 
 	Treatment_Operation(Resolution_P, Operation_P->Case.Generate_MH_Moving.Operation,
 			    DofData_P0, GeoData_P0, NULL, NULL) ;
@@ -1613,26 +1617,38 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	    List_Pointer(Problem_S.Formulation, Index_Formulation) ;
 	  Treatment_Formulation(Formulation_P) ;
 	}
-
       }
 
-      Current.TimeStep = 0;
-      Current.Time = 0.;
+      Current.Time = Save_Time;
+      Current.DTime = Save_DTime;
 
-      for (k = 0 ; k < Current.NbrHar ; k++) Free (MH_Moving_Matrix[k]) ;
-      Free (MH_Moving_Matrix) ;
+      for (k = 0 ; k < Current.NbrHar ; k++) Free(MH_Moving_Matrix[k]) ;
+      Free(MH_Moving_Matrix) ;
       MH_Moving_Matrix = NULL ;
-      MH_Moving_Matrix_simple = 0 ;
 
       Generate_Group = NULL;
 
-      Message::Cpu("");
+      LinAlg_AssembleMatrix(&DofData_P->A) ;
+      LinAlg_AssembleVector(&DofData_P->b) ;
+      LinAlg_AssembleMatrix(&DofData_P->Jac) ;
+
+      MHMoving_assemblyType = 0;
+      Message::Cpu("GenerateMHMoving (%d steps)", Operation_P->Case.Generate_MH_Moving.NbrStep);
       break ;
 
     case OPERATION_GENERATE_MH_MOVING_S :
-      Init_OperationOnSystem("Generate_MH_Moving_Separate",
+      Init_OperationOnSystem("GenerateMHMovingSeparate",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
+
+      if(gSCALAR_SIZE == 2){
+	Message::Error("FIXME: GenerateMHMovingSeparate will not work in complex arithmetic");
+        break;
+      }
+      if (!(Val_Pulsation = Current.DofData->Val_Pulsation)){
+	Message::Error("GenerateMHMovingSeparate can only be used for harmonic problems");
+        break;
+      }
 
       Nbr_Formulation = List_Nbr(DefineSystem_P->FormulationIndex) ;
 
@@ -1643,11 +1659,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       for (k = 0 ; k < Current.NbrHar ; k++)
 	MH_Moving_Matrix[k] = (double *) Malloc(Current.NbrHar*sizeof(double)) ;
 
-      if (! (Val_Pulsation = Current.DofData->Val_Pulsation)){
-	Message::Error("Generate_MH_moving can only be used for harmonic problems");
-        break;
-      }
-
       for (k = 0 ; k < Current.NbrHar ; k++)
 	for (l = 0 ; l < Current.NbrHar ; l++)
 	  hop[k][l] = 0.;
@@ -1655,8 +1666,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       DummyDof = DofData_P->DummyDof ;
       DofData_P->DummyDof = NULL ;
 
-      for (iTime = 0 ; iTime < Operation_P->Case.Generate_MH_Moving_S.NbrStep ; iTime++) {
+      Save_Time  = Current.Time;
+      Save_DTime = Current.DTime;
 
+      for (iTime = 0 ; iTime < Operation_P->Case.Generate_MH_Moving_S.NbrStep ; iTime++) {
 	Current.Time = (double)iTime/(double)Operation_P->Case.Generate_MH_Moving_S.NbrStep *
 	  Operation_P->Case.Generate_MH_Moving_S.Period ;
 	Current.DTime = 1./(double)Operation_P->Case.Generate_MH_Moving_S.NbrStep *
@@ -1664,24 +1677,23 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	Current.TimeStep = iTime;
 
 	if (!iTime) {
-	  Message::Info("Generate_MH_Moving_Separate : probing for any degrees of freedom");
+	  //Message::Info("GenerateMHMovingSeparate: probing for any degrees of freedom");
 	  DofTree_MH_moving = Tree_Create(sizeof(struct Dof), fcmp_Dof) ;
 
-	  /* probing assembly */
-	  MH_Moving_Matrix_probe = 1;
+	  // probing assembly
+	  MHMoving_assemblyType = 3; // Constraints -  Dofs: Unknown or Link
 	  for (i = 0 ; i < Nbr_Formulation ; i++) {
 	    List_Read(DefineSystem_P->FormulationIndex, i, &Index_Formulation) ;
 	    Formulation_P = (struct Formulation*)
 	      List_Pointer(Problem_S.Formulation, Index_Formulation) ;
 	    Treatment_Formulation(Formulation_P) ;
 	  }
-	  MH_Moving_Matrix_probe = 0;
 
 	  DofList_MH_moving = Tree2List(DofTree_MH_moving) ;
 	  Tree_Delete(DofTree_MH_moving) ;
 
 	  NbrDof_MH_moving = List_Nbr(DofList_MH_moving) ;
-	  Message::Info("Generate_MH_Moving :  NbrDof = %d", NbrDof_MH_moving);
+	  Message::Info("GenerateMHMovingSeparate: NbrDof_MHMoving = %d", NbrDof_MH_moving);
 
 	  Dof_MH_moving = (struct Dof **)Malloc(NbrDof_MH_moving * sizeof(struct Dof *)) ;
 	  NumDof_MH_moving = (int *)Malloc(NbrDof_MH_moving * sizeof(int)) ;
@@ -1692,11 +1704,12 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
               Message::Error("Dof_MH_moving not of type unknown !?");
               break;
             }
-	    NumDof_MH_moving[i] =  Dof_P->Case.Unknown.NumDof;
+	    NumDof_MH_moving[i] = Dof_P->Case.Unknown.NumDof;
 
 	    if(!(Dof_MH_moving[i] = (struct Dof *)List_PQuery(Current.DofData->DofList,
 							      Dof_P, fcmp_Dof))){
-	      Message::Error("Troubles") ;
+	      Message::Error("GenerateMHMovingSeparate: Dof_MH_moving[%d]=%d not in Current.DofData->DofList!!!",
+                             i, Dof_MH_moving[i]) ;
               break;
             }
 	    for (k = 0 ; k < Current.NbrHar ; k++) {
@@ -1704,24 +1717,22 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	    }
 	  } /* if (!iTime) */
 
-	  Message::Cpu("");
-	  LinAlg_CreateSolver(&DofData_P->Solver_MH_moving, "MH_moving.par") ;
-	  LinAlg_CreateMatrix(&DofData_P->A_MH_moving, &DofData_P->Solver_MH_moving,
+	  LinAlg_CreateMatrix(&DofData_P->A_MH_moving, &DofData_P->Solver,
 			      NbrDof_MH_moving*Current.NbrHar,
                               NbrDof_MH_moving*Current.NbrHar) ;
-	  LinAlg_CreateVector(&DofData_P->b_MH_moving, &DofData_P->Solver_MH_moving,
-			      NbrDof_MH_moving*Current.NbrHar) ;
-	  LinAlg_ZeroMatrix(&DofData_P->A_MH_moving) ;
-	  LinAlg_ZeroVector(&DofData_P->b_MH_moving) ;
+          //  LinAlg_CreateVector(&DofData_P->b_MH_moving, &DofData_P->Solver,
+          //			      NbrDof_MH_moving*Current.NbrHar) ;
+          LinAlg_ZeroMatrix(&DofData_P->A_MH_moving) ;
+	  //LinAlg_ZeroVector(&DofData_P->b_MH_moving) ;
 	}
-
-	Message::Info("Generate_MH_Moving_Separate : Step %d/%d (Time = %e  DTime %e)",
-                      (int)(Current.TimeStep+1),
-                      Operation_P->Case.Generate_MH_Moving_S.NbrStep,
-                      Current.Time, Current.DTime) ;
+        if(Message::GetVerbosity() == 10)
+          Message::Info("GenerateMHMovingSeparate : Step %d/%d (Time = %e  DTime %e)",
+                        (int)(Current.TimeStep+1),
+                        Operation_P->Case.Generate_MH_Moving_S.NbrStep,
+                        Current.Time, Current.DTime) ;
 
 	Treatment_Operation(Resolution_P, Operation_P->Case.Generate_MH_Moving.Operation,
-			    DofData_P0, GeoData_P0, NULL, NULL) ;
+        			    DofData_P0, GeoData_P0, NULL, NULL) ;
 
 	for (k = 0 ; k < Current.NbrHar ; k++)
 	  for (l = 0 ; l < Current.NbrHar ; l++) {
@@ -1739,22 +1750,26 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  if (!Val_Pulsation[k]) MH_Moving_Matrix[2*k+1][2*k+1] = 1. ;
 
 	/* separate assembly */
-	MH_Moving_Matrix_separate = 1 ;
+
+        // Assembly in dedicated system: A_MH_Moving, b_MH_moving
+        MHMoving_assemblyType = 2;
 	for (i = 0 ; i < Nbr_Formulation ; i++) {
 	  List_Read(DefineSystem_P->FormulationIndex, i, &Index_Formulation) ;
 	  Formulation_P = (struct Formulation*)
 	    List_Pointer(Problem_S.Formulation, Index_Formulation) ;
 	  Treatment_Formulation(Formulation_P) ;
 	}
-	MH_Moving_Matrix_separate = 0 ;
 
+      } /* for iTime */
 
-      } /*  for iTime */
+      LinAlg_AssembleMatrix(&DofData_P->A_MH_moving) ;
+      //LinAlg_AssembleVector(&DofData_P->b_MH_moving) ;
 
-      Message::Cpu("Full matrix assembly done");
+      Message::Cpu("GenerateMHMovingSeparate (%d steps): Full matrix assembled",
+                   Operation_P->Case.Generate_MH_Moving.NbrStep);
 
-      for (k = 0 ; k < Current.NbrHar ; k++) Free (MH_Moving_Matrix[k]) ;
-      Free (MH_Moving_Matrix) ;
+      for (k = 0 ; k < Current.NbrHar ; k++) Free(MH_Moving_Matrix[k]) ;
+      Free(MH_Moving_Matrix) ;
       MH_Moving_Matrix = NULL ;
 
       Generate_Group = NULL;
@@ -1764,68 +1779,77 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  (Dof_MH_moving[i]+k)->Case.Unknown.NumDof = NumDof_MH_moving[i] + k ;
       }
 
-      LinAlg_CreateMatrix(&DofData_P->A_MH_moving2, &DofData_P->Solver,
-			  DofData_P->NbrDof, DofData_P->NbrDof) ;
-      LinAlg_CreateVector(&DofData_P->b_MH_moving2, &DofData_P->Solver,
-                          Current.DofData->NbrDof) ;
-      LinAlg_ZeroMatrix(&DofData_P->A_MH_moving2) ;
-      LinAlg_ZeroVector(&DofData_P->b_MH_moving2) ;
+      LinAlg_CreateMatrix(&A_MH_moving_tmp, &DofData_P->Solver,
+      			  DofData_P->NbrDof, DofData_P->NbrDof) ;
+      //LinAlg_CreateVector(&b_MH_moving_tmp, &DofData_P->Solver,
+      //                    Current.DofData->NbrDof) ;
+      LinAlg_ZeroMatrix(&A_MH_moving_tmp) ;
+      //LinAlg_ZeroVector(&b_MH_moving_tmp) ;
 
-      Message::Cpu("");
 
       nnz__=0;
       for (i = 0 ; i < NbrDof_MH_moving ; i++) {
 	for (k = 0 ; k < Current.NbrHar ; k++) {
 	  row_old = Current.NbrHar*i+k ;
 	  row_new = NumDof_MH_moving[i]+k-1 ;
-	  LinAlg_GetDoubleInVector(&d, &DofData_P->b_MH_moving,  row_old) ;
-	  LinAlg_SetDoubleInVector( d, &DofData_P->b_MH_moving2, row_new) ;
+	  //LinAlg_GetDoubleInVector(&d, &DofData_P->b_MH_moving,  row_old) ;
+          //LinAlg_SetDoubleInVector( d, &b_MH_moving_tmp, row_new) ;
 	  for (j = 0 ; j < NbrDof_MH_moving ; j++) {
 	    for (l = 0 ; l < Current.NbrHar ; l++) {
 	      col_old = Current.NbrHar*j+l ;
 	      col_new = NumDof_MH_moving[j]+l-1 ;
 
-	      /* LinAlg_GetDoubleInMatrix(&d, &DofData_P->A_MH_moving, i, j) ; */
-#if defined(HAVE_SPARSKIT)
-	      d = DofData_P->A_MH_moving.M.F.a[NbrDof_MH_moving*Current.NbrHar*col_old+row_old];
-	      aii = DofData_P->A_MH_moving.M.F.a[NbrDof_MH_moving*Current.NbrHar*row_old+row_old];
-	      ajj = DofData_P->A_MH_moving.M.F.a[NbrDof_MH_moving*Current.NbrHar*col_old+col_old];
-#else
-	      aii = ajj = 0.;
-	      Message::Error("FIXME: Generate_MH_Moving works only with Sparskit");
-              break;
-#endif
-	      if(d*d > 1e-12 * aii*ajj  &&
-		 ( (DummyDof[row_new]==0 && DummyDof[col_new] == 0) || (row_new == col_new) ) ){
-		LinAlg_AddDoubleInMatrix(d, &DofData_P->A_MH_moving2, col_new, row_new) ;
-		nnz__++;
-	      }
+              LinAlg_GetDoubleInMatrix(&d,   &DofData_P->A_MH_moving, col_old, row_old) ;
+              LinAlg_GetDoubleInMatrix(&aii, &DofData_P->A_MH_moving, row_old, row_old) ;
+              LinAlg_GetDoubleInMatrix(&ajj, &DofData_P->A_MH_moving, col_old, col_old) ;
+
+              if(DummyDof==NULL){
+                if(d*d > 1e-12*aii*ajj){
+                  LinAlg_AddDoubleInMatrix(d, &A_MH_moving_tmp, col_new, row_new) ;
+                  nnz__++;
+                }
+              }
+              else{
+                if(d*d > 1e-12*aii*ajj &&
+                   ( (DummyDof[row_new]==0 && DummyDof[col_new] == 0) || (row_new == col_new) ) ){
+                  LinAlg_AddDoubleInMatrix(d, &A_MH_moving_tmp, col_new, row_new) ;
+                  nnz__++;
+                }
+              }
 	    }
 	  }
 	}
       }
-      printf("Matrix converted : nnz in MH_moving %d \n", nnz__);
-#if defined(HAVE_SPARSKIT)
-      Free(DofData_P->A_MH_moving.M.F.a);
-#endif
-      Current.DTime = 0.;
-      Message::Cpu("");
+
+      LinAlg_DestroyMatrix(&DofData_P->A_MH_moving);
+      //LinAlg_DestroyVector(&DofData_P->b_MH_moving);
+      DofData_P->A_MH_moving = A_MH_moving_tmp;
+      //DofData_P->b_MH_moving = b_MH_moving_tmp;
+
+      LinAlg_AssembleMatrix(&DofData_P->A_MH_moving);
+      //LinAlg_AssembleVector(&DofData_P->b_MH_moving);
+
+      Current.Time = Save_Time;
+      Current.DTime = Save_DTime;
+      Current.TimeStep = 0; // Inner time iteration for integral, no solution in time
+
       DofData_P->DummyDof = DummyDof ;
+
+      MHMoving_assemblyType = 0;
+
+      Message::Cpu("GenerateMHMovingSeparate: MH Matrix in MHMovingGroup converted (%d nnz)", nnz__);
       break;
 
-    case OPERATION_DUMMYDOFS :
-      Init_OperationOnSystem("DummyDofs",
-			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
-                             &DefineSystem_P, &DofData_P, Resolution2_P) ;
-      Message::Cpu("");
+    case OPERATION_DOFSFREQUENCYSPECTRUM :
       Dof_GetDummies(DefineSystem_P, DofData_P);
-      Message::Cpu("");
+      Message::Info("DofsFrequencySpectrum");
+      //Message::Cpu("DofsFrequencySpectrum");
       break ;
 
-    case OPERATION_ADD_MH_MOVING :
-      LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A_MH_moving2,&DofData_P->A) ;
-      /* LinAlg_AddVectorVector(&DofData_P->b, &DofData_P->b_MH_moving2,&DofData_P->b) ; */
-      Message::Cpu("");
+    case OPERATION_ADDMHMOVING :
+      LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A_MH_moving, &DofData_P->A) ;
+      Message::Info("AddMHMoving");
+      //Message::Cpu("AddMHMoving");
       break ;
 
       /*  -->  S a v e S o l u t i o n E x t e n d e d M H             */
@@ -2261,7 +2285,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	   NULL, 0., 0., 0., &Value) ;
         if(Current.RelaxationFactor != Value.Val[0] || Num_Iteration == 1){
            Current.RelaxationFactor = Value.Val[0] ;
-           Message::Info("Non Linear Iteration Relaxation %g", Current.RelaxationFactor) ;
+           Message::Info("Nonlinear Iteration Relaxation %g", Current.RelaxationFactor) ;
         }
 
 	Flag_IterativeLoop = Operation_P->Case.IterativeLoop.Flag ; /* Attention: Test */
@@ -2608,7 +2632,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  ------------------------------------------ */
 
     case OPERATION_CHANGEOFCOORDINATES :
-      Message::Info("ChangeOfCoordinates") ;
+      if(Message::GetVerbosity() == 10) // +++
+        Message::Info("ChangeOfCoordinates") ;
       /* Geo_SetCurrentGeoData(Current.GeoData = GeoData_P0) ; */
       Operation_ChangeOfCoordinates
 	(Resolution_P, Operation_P, DofData_P0, GeoData_P0) ;
