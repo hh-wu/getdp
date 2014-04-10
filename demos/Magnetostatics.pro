@@ -26,8 +26,8 @@ Function{
     Nb_max_iter        = 30,
     relaxation_factor  = 1,
     stop_criterion     = 1e-5,
-    R_ = {"MagSta_phi", Name "GetDP/1ResolutionChoices", Visible 0},
-    C_ = {"-solve -v 3 -v2", Name "GetDP/9ComputeCommand", Visible 0},
+    //R_ = {"MagSta_phi", Name "GetDP/1ResolutionChoices", Visible 0},
+    C_ = {"-solve -v2", Name "GetDP/9ComputeCommand", Visible 0},
     P_ = {"", Name "GetDP/2PostOperationChoices", Visible 0}
   ];
 
