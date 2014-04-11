@@ -1,4 +1,9 @@
-Include "cavity_data.geo";
+//========================================================
+// Benchmarks "Shielding effectiveness"
+// File: GetDP simulation (choice of the problem)
+//========================================================
+
+Include "main.dat";
 
 Flag_SilverMuller = (Flag_BC_Type==0);
 Flag_PML = (Flag_BC_Type==1);
@@ -77,4 +82,4 @@ Function {
   EndIf
 }
 
-Include "microwave.pro"
+Include "formulations.pro"
