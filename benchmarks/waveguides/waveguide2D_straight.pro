@@ -24,12 +24,14 @@ NbPorts = 2 ;
 DefineConstant[
   ActivePort = {1, Choices{1="Port 1 [z=0]", 2="Port 2 [z=L]"},
     Name StrCat[catParam2,"0Active port"]},
-  FREQ = { 5e9, Min 1e8, Max 5e10, Step 1e8,
-    Name StrCat[catParam2,"1Frequency [Hz]"]},
-  LAMB = { c0/FREQ*100, ReadOnly 1, Highlight "LightGrey",
-    Name StrCat[catParam2,"2Wavelength [cm]"]},
   m = { 1, Min 1, Max 10, Step 1,
-    Name StrCat[catParam2,"3Excitation mode number"]}
+    Name StrCat[catParam2,"1Excitation mode number"]},
+  FREQ = { 5e9, Min 1e8, Max 1e10, Step 1e8,
+    Name StrCat[catParam2,"2Frequency [Hz]"]},
+  FREQ_CUT = { 0.5*c0 * m/W, ReadOnly 1, Highlight "LightGrey",
+    Name StrCat[catParam2,"3Cutoff frequency [Hz]"]},
+  LAMB = { c0/FREQ*100, ReadOnly 1, Highlight "LightGrey",
+    Name StrCat[catParam2,"4Wavelength [cm]"]}
 ] ;
 LAMB = LAMB/100 ;
 

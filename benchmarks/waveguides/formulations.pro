@@ -14,7 +14,7 @@ Group {
 }
 
 Function {
-  DefineConstant[ FE_ORDER = {1, Name "Input/4Discretization/Finite element scheme",
+  DefineConstant[ FE_ORDER = {1, Name "Input/4Discretization/Order of elements",
       Choices {1="First order", 2="Second order"}}];
   DefineFunction[ epsR, muR, eInc, hInc ] ;
 }
@@ -203,6 +203,7 @@ PostProcessing {
       EndIf
       If (DIM==3)
         { Name e ; Value { Local{ [ {e} ] ; In Domain ; Jacobian Jac ; } } }
+        { Name eNorm ; Value { Local{ [ Norm[{e}] ] ; In Domain ; Jacobian Jac ; } } }
       EndIf
       { Name h ; Value{ Local{ [ I[]/(mu0*muR[])*{d e}/(2*Pi*FREQ) ] ;
             In Domain; Jacobian Jac; } } }
@@ -265,6 +266,7 @@ PostOperation {
       EndIf
       If (DIM==3)
         Print [ e, OnElementsOf Domain, File StrCat[myDir, "e.pos"]] ;
+        Print [ eNorm, OnElementsOf Domain, File StrCat[myDir, "eNorm.pos"]] ;
       EndIf
       //Print [ h, OnElementsOf Domain, File StrCat[myDir, "h.pos"]] ;
       //Print [ s, OnElementsOf Domain, File StrCat[myDir, "s.pos"]] ;

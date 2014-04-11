@@ -28,7 +28,7 @@ DefineConstant[
   L = { 10, Min 1, Max 100, Step 1,
     Name StrCat[catParam1,"4Length of each port [cm]"]},
   W = { 2*R*Sin[(2*Pi/NbPorts-angleInter*Pi/180)/2], ReadOnly 1, Highlight "LightGrey",
-    Name StrCat[catParam2,"5Width of each port [cm]"]},
+    Name StrCat[catParam1,"5Width of each port [cm]"]},
   res = { 0.5, Min 0.1, Max 5, Step 0.1,
     Name StrCat[catParam3,"6Resolution of grid [cm]"]}
 ];
