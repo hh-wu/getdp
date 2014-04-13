@@ -1,0 +1,57 @@
+//========================================================
+// Benchmark "acoustic wave produced by a loudspeaker"
+// File: parameters
+//========================================================
+
+
+//---------------------
+// Model choices
+//---------------------
+
+DefineConstant[
+  Flag_ModelEquations = {1, Choices{1="Wave equation (p)", 2="Wave system (p and u)"},
+    Name "Input/01Model equations", Highlight "Black"}
+];
+
+
+//---------------------
+// Physical parameters
+//---------------------
+
+// Geometry
+
+feed = 0.1;
+app = 0.5;
+a = 0.1;
+b = 0.3;
+thick = 0.03;
+x0 = thick-(a+b+thick)/2;
+Ro = 1;
+
+// Incident signal
+
+k = 20;
+lambda = 2*Pi/k;
+nlambda = 10;
+theta = 0;
+
+
+//---------------------
+// Numerical parameters
+//---------------------
+
+lc0 = 0.02;
+lc1 = 0.02;
+
+ORDER = 1;
+
+
+//---------------------
+// Geometrical tags
+//---------------------
+
+GAMMA_DOM  = 201;
+GAMMA_SOURCE = 202;
+GAMMA_WALL = 203;
+
+DOMAIN = 301;

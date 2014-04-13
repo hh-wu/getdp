@@ -1,0 +1,86 @@
+//========================================================
+// Benchmark "scattering of a scalar wave by plates"
+// File: parameters
+//========================================================
+
+
+//---------------------
+// Model choices
+//---------------------
+
+DefineConstant[
+  Flag_ModelEquations = {1, Choices{1="Wave equation (p)", 2="Wave system (p and u)"},
+    Name "Input/01Model equations", Highlight "Black"}
+  Flag_DomTruncShape = {1, Choices{1="Circular domain", 2="Squared domain"},
+    Name "Input/1Domain truncation/01Shape of the domain", Highlight "Black"},
+  Flag_DomTruncMethod_Shape1 = {1, Choices{1="Sommerfeld BC", 2="Bayliss-Turkel BC"},
+    Name "Input/1Domain truncation/02Truncation technique", Highlight "Black", Visible (Flag_DomTruncShape==1)},
+  Flag_DomTruncMethod_Shape2 = {1, Choices{1="Sommerfeld BC", 9="PML"},
+    Name "Input/1Domain truncation/03Truncation technique", Highlight "Black", Visible (Flag_DomTruncShape==2)}
+];
+If (Flag_DomTruncShape==1)
+  Flag_DomTruncMethod = Flag_DomTruncMethod_Shape1;
+EndIf
+If (Flag_DomTruncShape==2)
+  Flag_DomTruncMethod = Flag_DomTruncMethod_Shape2;
+EndIf
+
+
+//---------------------
+// Physical parameters
+//---------------------
+
+// Incident signal
+
+DefineConstant[
+  k = { 20, Min 1, Max 200, Step 1,
+    Name "Input/2Incident signal/10Wavenumber", Highlight "Yellow"},
+  lambda = { 2*Pi/k, ReadOnly 1,
+    Name "Input/2Incident signal/11Wavelength", Highlight "Gray"},
+  theta = { Pi/4, Min 0., Max 2*Pi, Step 0.01,
+    Name "Input/2Incident signal/12Theta", Highlight "Yellow"}
+];
+
+// Geometry
+
+R0 = 1;
+dx = R0;
+dy = R0/40;
+dist = R0/10;
+
+DefineConstant[
+  Rdom = { 1.0, Min 0.6, Max 5, Step 0.1,
+    Name "Input/1Domain truncation/10Radius of the domain", Highlight "Yellow", Visible (Flag_DomTruncShape==1)},
+  Ldom = { 2.0, Min 1.1, Max 10, Step 0.1,
+    Name "Input/1Domain truncation/11Length of the domain", Highlight "Yellow", Visible (Flag_DomTruncShape==2)},
+  Lpml = { 0.2, Min 0.01, Max 5, Step 0.01,
+    Name "Input/1Domain truncation/12Thickness of the layer", Highlight "Yellow", Visible (Flag_DomTruncMethod==9)}
+];
+
+
+//---------------------
+// Numerical parameters
+//---------------------
+
+DefineConstant[
+  lc = { 0.01, Min 0.001, Max 1, Step 0.001,
+    Name "Input/2Numerical parameters/10Size of a mesh cell", Highlight "Yellow"}
+];
+lc0 = lc;
+lc1 = lc;
+
+Flag_SecondOrder = 0;
+
+
+//---------------------
+// Geometrical tags
+//---------------------
+
+GAMMA_DOM  = 101;
+GAMMA_LAY  = 102;
+GAMMA_OBS1 = 201;
+GAMMA_OBS2 = 202;
+
+DOMAIN = 301;
+LAYER  = 302;
+

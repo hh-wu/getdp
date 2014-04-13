@@ -1,0 +1,56 @@
+//========================================================
+// Benchmark "scattering of an EM wave by a sphere"
+// File: parameters
+//========================================================
+
+
+//---------------------
+// Physical parameters
+//---------------------
+
+// Geometry
+
+R0 = 1.;
+ax = 2.;
+ay = 2.;
+az = 2.;
+lpml = 1.;
+
+// Physical constants
+
+ep0 = 8.854187817e-12;
+mu0 = 4.e-7 * Pi;
+nu0 = 1/mu0;
+c0 = Sqrt[1/(ep0*mu0)];
+z0 = Sqrt[mu0/ep0];
+
+// Incident field
+
+Freq = 1e8;
+k = 2*Pi*Freq/c0;
+
+// Domain truncation
+
+Flag_DomTruncMethod = 9;
+   // 1: Sommerfeld
+   // 9: PML
+
+
+//---------------------
+// Numerical parameters
+//---------------------
+
+lc = 0.3;
+
+
+//---------------------
+// Geometrical tags
+//---------------------
+
+SCATTERER = 3001;
+BOUNDARY_X = 3002;
+BOUNDARY_Y = 3003;
+BOUNDARY_Z = 3004;
+
+DOMAIN = 4001;
+LAYERS = 4002;
