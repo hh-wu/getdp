@@ -28,7 +28,7 @@ DefineConstant[
   volfrac = {0.4, Name "OptParam/volfrac",Label "Initial density distribution", Visible (Flag_topopt && Flag_initOpt)},
 
   // -- SO --
-  Flag_Spline = { 1, Name StrCat[pInOpt,"Flag_Spline"],Label "PM_Spline_Interface",Choices {0,1}, Visible (!Flag_topopt)},
+  Flag_Spline = { 1, Name StrCat[pInOpt,"Flag_Spline"],Label "PM_Spline_Interface",Choices {0,1}, Visible 0},
 
   r_PtSpline_0 = {0, Name StrCat[pInOpt,"x_0"], Label "radius Spline Point 0 [m]", Visible (!Flag_topopt)},
 
