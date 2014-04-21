@@ -5,6 +5,9 @@
 Include "pmsm_data.geo";
 
 DefineConstant[
+  //!!! impose current density directly, instead of voltage or current
+  Flag_ImposedCurrentDensity = 1,
+
   Flag_AnalysisType = {0,Name "Input/Type of analysis",Choices{0="Static",  1="Time domain"}, Highlight "Blue", Visible 1,
                        Help Str["- Use 'Static' to compute static fields created in the machine",
                        "- Use 'Time domain' to compute the dynamic response of the machine"]} ,
@@ -12,7 +15,9 @@ DefineConstant[
   Flag_NL = { 0, Choices{0,1}, Name "Input/Nonlinear BH-curve", Visible 1},
   Flag_NL_law_Type = { 0, Name "Input/BH-curve",Choices{0="Analytical", 1="Interpolated",
                                                         2="Analytical VH800-65D", 3="Interpolated VH800-65D"},
-                       Highlight "Blue", Visible Flag_NL}
+                       Highlight "Blue", Visible Flag_NL},
+    // impose current density directly, instead of voltage or current
+  Flag_ImposedCurrentDensity = 1
 ];
 
 Flag_Cir = !Flag_SrcType_Stator ;
@@ -181,8 +186,9 @@ Function {
   Theta_Park_deg[] = Theta_Park[]*180/Pi;
 
   DefineConstant[
-    ID = { 0, Name "Input/Id stator current", Highlight "AliceBlue", Visible (Flag_SrcType_Stator==1)},
-    IQ = { Inominal, Name "Input/Iq stator current",  Highlight "AliceBlue", Visible (Flag_SrcType_Stator==1)}
+    ID = { 0, Name "Input/Id stator current", Highlight "AliceBlue", Visible (Flag_SrcType_Stator==1 && !Flag_ImposedCurrentDensity)},
+    IQ = { Inominal, Name "Input/Iq stator current",  Highlight "AliceBlue", Visible (Flag_SrcType_Stator==1 && !Flag_ImposedCurrentDensity )}
+    //II = Inominal
   ] ;
 
   /*
@@ -202,19 +208,19 @@ ResDir = "res/";
 ExtGmsh = ".pos";
 ExtGnuplot = ".dat";
 
-// Onelab parameter tree structure
-// po      = "Output - Electromagnetics/";
-po      = StrCat["Output - Electromagnetics/", ResId];
-poI     = StrCat[po,"0Current [A]/"];
-poV     = StrCat[po,"1Voltage [V]/"];
-poF     = StrCat[po,"2Flux linkage [Vs]/"];
-poJL    = StrCat[po,"3Joule Losses [W]/"];
-//po_mec  = "Output - Mechanics/";
-po_mec  = StrCat["Output - Mechanics/", ResId];
-po_mecT = StrCat[po_mec,"0Torque [Nm]/"];
-//po_opt  = "Output - Optimization/";
-po_opt  = StrCat["Output - Optimization/", ResId];
-po_min  = StrCat["Output/", ResId];
+/*// Onelab parameter tree structure*/
+/*// po      = "Output - Electromagnetics/";*/
+/*po      = StrCat["Output - Electromagnetics/", ResId];*/
+/*poI     = StrCat[po,"0Current [A]/"];*/
+/*poV     = StrCat[po,"1Voltage [V]/"];*/
+/*poF     = StrCat[po,"2Flux linkage [Vs]/"];*/
+/*poJL    = StrCat[po,"3Joule Losses [W]/"];*/
+/*//po_mec  = "Output - Mechanics/";*/
+/*po_mec  = StrCat["Output - Mechanics/", ResId];*/
+/*po_mecT = StrCat[po_mec,"0Torque [Nm]/"];*/
+/*//po_opt  = "Output - Optimization/";*/
+/*po_opt  = StrCat["Output - Optimization/", ResId];*/
+/*po_min  = StrCat["Output/", ResId];*/
 
 // --------------------------------------------------------------------------
 // --------------------------------------------------------------------------

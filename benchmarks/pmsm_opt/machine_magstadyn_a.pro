@@ -108,16 +108,19 @@ Function{
 
 }
 
-po       = "Output - Electromagnetics/";
-poI      = StrCat(po,"0Current [A]/");
-poV      = StrCat(po,"1Voltage [V]/");
-poF      = StrCat(po,"2Flux linkage [Vs]/");
-poJL     = StrCat(po,"3Joule Losses [W]/");
+// Onelab parameter tree structure
+po      = StrCat["Output - Electromagnetics/", ResId];
+poI     = StrCat[po,"0Current [A]/"];
+poV     = StrCat[po,"1Voltage [V]/"];
+poF     = StrCat[po,"2Flux linkage [Vs]/"];
+poJL    = StrCat[po,"3Joule Losses [W]/"];
 
-po_mec   = "Output - Mechanics/";
-po_mecT  = StrCat(po_mec,"0Torque [Nm]/");
+po_mec  = StrCat["Output - Mechanics/", ResId];
+po_mecT = StrCat[po_mec,"0Torque [Nm]/"];
 po_mecP  = StrCat(po_mec,"1Autres/");
-po_opt = "Output - Opt/";
+po_opt  = StrCat["Output - Optimization/", ResId];
+po_min  = StrCat["Output/", ResId];
+
 
 Include "BH.pro"; // nonlinear BH caracteristic of magnetic material
 
@@ -125,8 +128,17 @@ Group {
 
   Inds = Region[ {Stator_Inds, Rotor_Inds} ] ;
 
-  DomainB = Region[ {Inds} ] ;
+//  DomainB = Region[ {Inds} ] ;
   DomainM = Region[ {Rotor_Magnets} ] ;
+
+  If(!Flag_ImposedCurrentDensity)
+    DomainB = Region[ {Inds} ] ;
+    DomainS = Region[{}];
+  EndIf
+  If(Flag_ImposedCurrentDensity)
+    DomainB = Region[ {} ] ;
+    DomainS = Region[{Inds}];
+  EndIf
 
   Stator  = Region[{ StatorC, StatorCC }] ;
   Rotor   = Region[{ RotorC,  RotorCC }] ;
@@ -301,10 +313,11 @@ Function {
       IC[] = 1. ;
       Frelax[] =1;
     EndIf
-
-    js[PhaseA] = II * NbWires[]/SurfCoil[] * IA[] * Idir[] * Vector[0, 0, 1] ;
-    js[PhaseB] = II * NbWires[]/SurfCoil[] * IB[] * Idir[] * Vector[0, 0, 1] ;
-    js[PhaseC] = II * NbWires[]/SurfCoil[] * IC[] * Idir[] * Vector[0, 0, 1] ;
+    If(Flag_ImposedCurrentDensity)
+      js[PhaseA] = II * NbWires[]/SurfCoil[] * IA[] * Idir[] * Vector[0, 0, 1] ;
+      js[PhaseB] = II * NbWires[]/SurfCoil[] * IB[] * Idir[] * Vector[0, 0, 1] ;
+      js[PhaseC] = II * NbWires[]/SurfCoil[] * IC[] * Idir[] * Vector[0, 0, 1] ;
+    EndIf
   EndIf
 
   Velocity[] = wr*XYZ[]/\Vector[0,0,-1] ;
@@ -332,12 +345,12 @@ Function {
 
   If(Flag_filterSensitivity)
     rmin2[] = Rmin*Rmin;
-    sensitivityMap[] = ScalarField[RotateZ_desVar[],0,1]{2}; 
+    sensitivityMap[] = ScalarField[RotatePZ[RotorPosition[]],0,1]{2}; 
     prod_x_dC[] = designVar[] * sensitivityMap[];
   EndIf
 
   If(Flag_AdjointVariable || Flag_SemiAnalyticSens)
-    bField[] = VectorField[RotateZ_desVar[],0,1]{3};//????
+    bField[] = VectorField[RotatePZ[RotorPosition[]],0,1]{3};//????
     pseudoLoad[] = #59; 
   EndIf
 
@@ -871,8 +884,12 @@ Resolution {
      //-------------------------------------------------------------------
       If(Flag_AdjointVariable) // Solve Adjoint system for performance function: Int_gap[ (Br-Bref)^2 ] ?
         Printf["---------Flag_AdjointVariable---------"];
-        GmshRead["res/b.pos", 3]; //read the post containing the A solution!!
-        Generate[B]; Solve[B]; SaveSolution[B]; Print[B,File "adjVar"];
+        //GmshRead["res/b.pos", 3]; //read the post containing the A solution!!
+        ChangeOfCoordinates[ NodesOf[Rotor_Moving], RotatePZ[RotorPosition[] ]];
+        InitMovingBand2D[MB];
+        MeshMovingBand2D[MB];
+        InitSolution[B] ;Generate[B]; Solve[B]; SaveSolution[B];
+        Print[B,File "adjVar"];
         PostOperation[Get_PostOptim_AdjointMethod];
       EndIf
 

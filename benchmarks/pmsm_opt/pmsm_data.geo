@@ -12,6 +12,8 @@ ppp = "Input/OptParam/";
 DefineConstant[
   InputId = "",
   ResId = "",
+  mshName = "pmsm.msh",
+  mshParamName="pmsmParams.msh",
   pInOpt = StrCat[InputId,ppp],
   NbrPoles = { 1, Choices {0,1}, Name "Number of poles in FE model",Visible 0},
   /*
