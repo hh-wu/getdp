@@ -884,12 +884,7 @@ Resolution {
      //-------------------------------------------------------------------
       If(Flag_AdjointVariable) // Solve Adjoint system for performance function: Int_gap[ (Br-Bref)^2 ] ?
         Printf["---------Flag_AdjointVariable---------"];
-        //GmshRead["res/b.pos", 3]; //read the post containing the A solution!!
-        ChangeOfCoordinates[ NodesOf[Rotor_Moving], RotatePZ[RotorPosition[] ]];
-        InitMovingBand2D[MB];
-        MeshMovingBand2D[MB];
-        InitSolution[B] ;Generate[B]; Solve[B]; SaveSolution[B];
-        Print[B,File "adjVar"];
+        Generate[B]; Solve[B]; SaveSolution[B];Print[B,File "adjVar"];
         PostOperation[Get_PostOptim_AdjointMethod];
       EndIf
 
