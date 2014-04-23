@@ -2,7 +2,7 @@
 
 <models>
 	<model>
-		<title>Acoutic wave scattering</title>
+		<title>Acoustic wave scattering</title>
 		<summary>2D models of multiple acoustic scattering</summary>
 		<file type="pro">scattering.pro</file>
 		<preview type="png">screenshot_scattering.png</preview>
