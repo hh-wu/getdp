@@ -1,6 +1,5 @@
 Function{
-  // nu = 100. + 10. * exp ( 1.8 * b * b )
-  // analytical
+  // analytical: nu = 100. + 10. * exp ( 1.8 * b * b )
   nu_1a[] = 100. + 10. * Exp[1.8*SquNorm[$1]] ;
   dnudb2_1a[] = 18. * Exp[1.8*SquNorm[$1]] ;
   h_1a[] = nu_1a[$1]*$1 ;
@@ -50,11 +49,4 @@ Function{
   b_1[] = mu_1[$1] * $1 ; // $1 = -{d phi}
   dbdh_1[]    = TensorDiag[1,1,1] * mu_1[$1] + 2*dmudh2_1[$1] * SquDyadicProduct[$1] ;
   dbdh_1_NL[] = 2*dmudh2_1[$1] * SquDyadicProduct[$1] ;
-
 }
-
-
-
-
-
-

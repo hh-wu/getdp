@@ -5,10 +5,6 @@
 */
 
 Include "magnet_data.pro";
-
-DefineConstant[
-  Flag_NL = { 1, Choices{0,1}, Name "Parameters/Materials/Nonlinear BH-curve"}
-];
 Include "BH.pro";
 
 Group {
@@ -23,8 +19,14 @@ Group {
   // These are the generic group names that are used in "Magnetostatics.pro"
   Domain_S = Region[ {} ] ;
   Domain_Inf = Region[ AirInf ] ;
-  //Domain_Inf = Region[{}] ;
   Domain_M   = Region[ Magnet ] ;
+
+  // This defines a constant ('Flag_NL') with a default value (0), and a way to
+  // change it from outside getdp with ONELAB, using the given parameter name
+  // and possible binary values 0 or 1.
+  DefineConstant[
+    Flag_NL = { 0, Choices{0,1}, Name "Parameters/Materials/Nonlinear BH-curve"}
+  ];
 
   Domain_NL = Region[ {} ] ;
   If(Flag_NL)
@@ -33,16 +35,15 @@ Group {
 
   Domain_Mag = Region[ {Air, AirInf, Core, AirGap} ] ;
   Dirichlet_a_0   = Region[ LINE_INF ] ;
-  //Dirichlet_a_0   = Region[ {}] ;
   Dirichlet_phi_0 = Region[ {LINE_X, LINE_INF} ] ;
 }
 
 Function {
   mu0 = 4.e-7 * Pi ;
 
-  // DefineConstant is used to define a default value for murCore; this value
-  // can be changed interactively by the ONELAB server
-  DefineConstant[ murCore = {200., Min 1, Max 1000, Step 10,
+  // Another parameter that can be changed interactively; but is only visible
+  // when it makes sense (if we don't perform a nonlinear analysis)
+  DefineConstant[ murCore = {200., Min 1, Max 1000, Step 10, Visible !Flag_NL,
       Name "Parameters/Materials/Core relative permeability"} ];
 
   nu [ Region[{Air, AirInf, AirGap, Magnet}] ] = 1. / mu0 ;
@@ -54,12 +55,9 @@ Function {
   If(Flag_NL)
     nu [ Core ] = nu_1[$1] ;
     dhdb_NL [ Core ] = dhdb_1_NL[$1];
-
     mu [ Core ] = mu_1[$1] ;
     dbdh_NL [ Core ] = dbdh_1_NL[$1];
   EndIf
-
-
 
   mu [ Region[{Air, AirInf, AirGap, Magnet}] ] = mu0 ;
 
