@@ -458,6 +458,12 @@ void  Get_GlobalForElement(struct Element * Element, int * StartingIndex,
     if (TreatmentStatus == _PRE)
       Get_PreResolutionForGlobalBasisFunction(Nbr_Global, *StartingIndex, Element) ;
   }
+  else {
+    for (i = 0 ; i < Nbr_Global ; i++) {
+      Element->NumGroupsOfEntities[Element->NbrGroupsOfEntities++] = Num_Global[i] ;
+    }
+  }
+
 }
 
 /* ------------------------------------------------------------------------ */
