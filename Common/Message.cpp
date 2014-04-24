@@ -367,7 +367,7 @@ void Message::Debug(const char *fmt, ...)
 
 void Message::Cpu(const char *fmt, ...)
 {
-  if((_commRank && _isCommWorld) || _verbosity < 5) return;
+  if(_verbosity < 5) return;
 
   va_list args;
   va_start(args, fmt);
@@ -380,11 +380,20 @@ void Message::Cpu(const char *fmt, ...)
 
 void Message::Cpu(int level, const char *fmt, ...)
 {
-  if((_commRank && _isCommWorld) || _verbosity < level) return;
+  if(_verbosity < level) return;
 
   double s = 0.;
   long mem = 0;
   GetResources(&s, &mem);
+  double val[2] = {s, (double)mem / 1024. / 1024.};
+  double min[2] = {val[0], val[1]}, max[2] = {val[0], val[1]};
+
+  if(_commSize > 1){
+    MPI_Reduce(val, min, 2, MPI_DOUBLE, MPI_MIN, 0, MPI_COMM_WORLD);
+    MPI_Reduce(val, max, 2, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+  }
+
+  if(_commRank && _isCommWorld) return;
 
   char str[1024], str2[256];
   va_list args;
@@ -398,10 +407,15 @@ void Message::Cpu(int level, const char *fmt, ...)
   std::string currtime(ctime(&now));
   currtime.resize(currtime.size() - 1);
 
-  if(mem)
-    sprintf(str2, "(%s, CPU = %gs, Mem = %ldMb)", currtime.c_str(), s, mem / 1024 / 1024);
+  if(mem){
+    if(_commSize > 1)
+      sprintf(str2, "(%s, %gs <= CPU <= %gs, %gMb <= Mem <= %gMb)", currtime.c_str(),
+              min[0], max[0], min[1], max[1]);
+    else
+      sprintf(str2, "(%s, CPU = %gs, Mem = %gMb)", currtime.c_str(), max[0], max[1]);
+  }
   else
-    sprintf(str2, "(%s, CPU = %gs)", currtime.c_str(), s);
+    sprintf(str2, "(%s, CPU = %gs)", currtime.c_str(), max[0]);
   strcat(str, str2);
 
   if(_client){
@@ -508,18 +522,6 @@ void Message::PrintErrorCounter(const char *title)
 
   Message::Error("%s encountered %d error%s - check the log for details",
                  title, _errorCount, (_errorCount > 1) ? "s" : "");
-}
-
-void Message::PrintMaxMemory()
-{
-  if(_commSize > 1){
-    double s = 0.;
-    long mem = 0;
-    GetResources(&s, &mem);
-    double memInMb = mem / 1024 / 1024, maxMemInMb = 0.;
-    MPI_Reduce(&memInMb, &maxMemInMb, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
-    Info(3, "Maximum memory used by MPI processes: %gMb", maxMemInMb);
-  }
 }
 
 void Message::InitializeSocket(std::string sockname)
