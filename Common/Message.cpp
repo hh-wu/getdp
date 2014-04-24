@@ -388,7 +388,7 @@ void Message::Cpu(int level, const char *fmt, ...)
   double val[2] = {s, (double)mem / 1024. / 1024.};
   double min[2] = {val[0], val[1]}, max[2] = {val[0], val[1]};
 
-  if(_commSize > 1){
+  if(_commSize > 1 && _isCommWorld){
     MPI_Reduce(val, min, 2, MPI_DOUBLE, MPI_MIN, 0, MPI_COMM_WORLD);
     MPI_Reduce(val, max, 2, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
   }
@@ -408,14 +408,14 @@ void Message::Cpu(int level, const char *fmt, ...)
   currtime.resize(currtime.size() - 1);
 
   if(mem){
-    if(_commSize > 1)
+    if(_commSize > 1 && _isCommWorld)
       sprintf(str2, "(%s, CPU in [%gs,%gs], Mem in [%gMb,%gMb])", currtime.c_str(),
               min[0], max[0], min[1], max[1]);
     else
       sprintf(str2, "(%s, CPU = %gs, Mem = %gMb)", currtime.c_str(), max[0], max[1]);
   }
   else{
-    if(_commSize > 1)
+    if(_commSize > 1 && _isCommWorld)
       sprintf(str2, "(%s, CPU in [%gs,%gs])", currtime.c_str(), min[0], max[0]);
     else
       sprintf(str2, "(%s, CPU = %gs)", currtime.c_str(), max[0]);
