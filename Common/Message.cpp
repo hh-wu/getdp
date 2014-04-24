@@ -409,14 +409,14 @@ void Message::Cpu(int level, const char *fmt, ...)
 
   if(mem){
     if(_commSize > 1)
-      sprintf(str2, "(%s, CPU [%gs,%gs], Mem [%gMb,%gMb])", currtime.c_str(),
+      sprintf(str2, "(%s, CPU in [%gs,%gs], Mem in [%gMb,%gMb])", currtime.c_str(),
               min[0], max[0], min[1], max[1]);
     else
       sprintf(str2, "(%s, CPU = %gs, Mem = %gMb)", currtime.c_str(), max[0], max[1]);
   }
   else{
     if(_commSize > 1)
-      sprintf(str2, "(%s, CPU [%gs,%gs])", currtime.c_str(), min[0], max[0]);
+      sprintf(str2, "(%s, CPU in [%gs,%gs])", currtime.c_str(), min[0], max[0]);
     else
       sprintf(str2, "(%s, CPU = %gs)", currtime.c_str(), max[0]);
   }
