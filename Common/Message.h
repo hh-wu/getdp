@@ -72,7 +72,8 @@ class Message {
   static void Check(const char *fmt, ...);
   static void Debug(const char *fmt, ...);
   static void Cpu(const char *fmt, ...);
-  static void Cpu(int level, const char *fmt, ...);
+  static void Cpu(int level, bool printTime, bool printCpu, bool printMem,
+                  const char *fmt, ...);
   static void ProgressMeter(int n, int N, const char *fmt, ...);
   static void ProgressMeter(int n, int N){ ProgressMeter(n, N, ""); }
   static void SetProgressMeterStep(int step){ _progressMeterStep = step; }

@@ -375,10 +375,11 @@ void Message::Cpu(const char *fmt, ...)
   vsnprintf(str, sizeof(str), fmt, args);
   va_end(args);
 
-  Cpu(5, str);
+  Cpu(5, true, true, true, str);
 }
 
-void Message::Cpu(int level, const char *fmt, ...)
+void Message::Cpu(int level, bool printTime, bool printCpu, bool printMem,
+                  const char *fmt, ...)
 {
   if(_verbosity < level) return;
 
@@ -395,31 +396,47 @@ void Message::Cpu(int level, const char *fmt, ...)
 
   if(_commRank && _isCommWorld) return;
 
-  char str[1024], str2[256];
+  char str[1024];
   va_list args;
   va_start(args, fmt);
   vsnprintf(str, sizeof(str), fmt, args);
   va_end(args);
   if(strlen(fmt)) strcat(str, " ");
 
-  time_t now;
-  time(&now);
-  std::string currtime(ctime(&now));
-  currtime.resize(currtime.size() - 1);
+  std::string ptime = "";
+  if(printTime){
+    time_t now;
+    time(&now);
+    ptime = ctime(&now);
+    ptime.resize(ptime.size() - 1);
+    if(printCpu || (mem && printMem))
+      ptime += ", ";
+  }
 
-  if(mem){
+  std::string pcpu = "";
+  if(printCpu){
+    char tmp[128];
     if(_commSize > 1 && _isCommWorld)
-      sprintf(str2, "(%s, CPU in [%gs,%gs], Mem in [%gMb,%gMb])", currtime.c_str(),
-              min[0], max[0], min[1], max[1]);
+      sprintf(tmp, "CPU in [%gs,%gs]", min[0], max[0]);
     else
-      sprintf(str2, "(%s, CPU = %gs, Mem = %gMb)", currtime.c_str(), max[0], max[1]);
+      sprintf(tmp, "CPU = %gs", max[0]);
+    pcpu = tmp;
+    if(mem) pcpu += ", ";
   }
-  else{
+
+  std::string pmem = "";
+  if(mem && printMem){
+    char tmp[128];
     if(_commSize > 1 && _isCommWorld)
-      sprintf(str2, "(%s, CPU in [%gs,%gs])", currtime.c_str(), min[0], max[0]);
+      sprintf(tmp, "Mem in [%gMb,%gMb]", min[1], max[1]);
     else
-      sprintf(str2, "(%s, CPU = %gs)", currtime.c_str(), max[0]);
+      sprintf(tmp, "Mem = %gMb", max[1]);
+    pmem = tmp;
   }
+
+  char str2[256] = "";
+  if(ptime.size() || pcpu.size() || pmem.size())
+    sprintf(str2, "(%s%s%s)", ptime.c_str(), pcpu.c_str(), pmem.c_str());
   strcat(str, str2);
 
   if(_client){
