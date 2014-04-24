@@ -556,6 +556,7 @@ int MainLegacy(int argc, char *argv[])
   LinAlg_FinalizeSolver();
 
   Message::PrintErrorCounter("Run");
+  Message::PrintMaxMemory();
   Message::Cpu(3, "Stopped");
 
 #if defined(HAVE_GMSH)

@@ -510,6 +510,18 @@ void Message::PrintErrorCounter(const char *title)
                  title, _errorCount, (_errorCount > 1) ? "s" : "");
 }
 
+void Message::PrintMaxMemory()
+{
+  if(_commSize > 1){
+    double s = 0.;
+    long mem = 0;
+    GetResources(&s, &mem);
+    double memInMb = mem / 1024 / 1024, maxMemInMb = 0.;
+    MPI_Reduce(&memInMb, &maxMemInMb, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+    Info(3, "Maximum memory used by MPI processes: %gMb", maxMemInMb);
+  }
+}
+
 void Message::InitializeSocket(std::string sockname)
 {
   if(sockname.size()){

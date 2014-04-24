@@ -79,6 +79,7 @@ class Message {
   static int GetProgressMeterStep(){ return _progressMeterStep; }
   static void ResetProgressMeter(){ if(!_commRank) _progressMeterCurrent = 0; }
   static void PrintErrorCounter(const char *title);
+  static void PrintMaxMemory();
   static void SetLastPETScError(int ierr){ _lastPETScError = ierr; }
   static int GetLastPETScError(){ return _lastPETScError; }
   static double &Timer(std::string str){ return _timers[str]; }
