@@ -979,7 +979,7 @@ static PetscErrorCode MatMultPC(PC pc, Vec X, Vec Y)
 
 static int KspMonitor(KSP ksp, PetscInt it, PetscReal rnorm, void *mctx)
 {
-  Message::Info(3, "%3ld KSP Residual norm %14.12e", (long)it, rnorm);
+  Message::Cpu(3, "%3ld KSP Residual norm %14.12e", (long)it, rnorm);
   return 0;
 }
 
