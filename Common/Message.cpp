@@ -389,10 +389,12 @@ void Message::Cpu(int level, bool printTime, bool printCpu, bool printMem,
   double val[2] = {s, (double)mem / 1024. / 1024.};
   double min[2] = {val[0], val[1]}, max[2] = {val[0], val[1]};
 
+#if defined(HAVE_PETSC)
   if(_commSize > 1 && _isCommWorld){
     MPI_Reduce(val, min, 2, MPI_DOUBLE, MPI_MIN, 0, MPI_COMM_WORLD);
     MPI_Reduce(val, max, 2, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
   }
+#endif
 
   if(_commRank && _isCommWorld) return;
 
