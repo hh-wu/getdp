@@ -38,6 +38,12 @@ void  Operation_ChangeOfCoordinates(struct Resolution  * Resolution_P,
   struct Value  Value, Value1, Value2 ;
   struct Group  * Group_P ;
 
+  // Note: Current.{u,v,w} is not defined, so we cannot interpolate expressions
+  // in the reference element. We thus set Current.Element=0 and rely on
+  // Current.{x,y,z}.
+  struct Element *old = Current.Element;
+  Current.Element = 0;
+
   Group_P = (struct Group *)
     List_Pointer(Problem_S.Group,
 		 Operation_P->Case.ChangeOfCoordinates.GroupIndex) ;
@@ -87,6 +93,8 @@ void  Operation_ChangeOfCoordinates(struct Resolution  * Resolution_P,
     }
 
   }
+
+  Current.Element = old;
 
   Free_SearchGrid(&Current.GeoData->Grid);
 }
