@@ -288,6 +288,8 @@ Function {
   AngularPosition[] = (Atan2[$Y,$X]#7 >= 0.)? #7 : #7+2*Pi ;
 
   RotatePZ[] = Rotate[ Vector[$X,$Y,$Z], 0, 0, $1 ] ; //Watch out: Do not use XYZ[]!
+  // This has been fixed in getdp 25/04/2014 -- we could now remove all $X,$Y,$Z
+  // calls
 
   // Torque computed in postprocessing (Trotor in #54, Tstator in #55, Tmb in #56)
   Torque_mag[] = #55 ;
