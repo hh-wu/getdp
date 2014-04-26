@@ -1099,13 +1099,13 @@ for the definition of constants is:
 @example
 @var{affectation}:
   DefineConstant [ @var{constant-id} < = @var{expression-cst} > <,@dots{}> ]; |
-  DefineConstant [ @var{constant-id} = @{ @var{expression-cst} 
-                             <, @var{string} @var{string} > @} <,@dots{}> ]; |
+  DefineConstant [ @var{constant-id} = @{ @var{expression-cst} , @var{onelab-options} @} <,@dots{}> ]; |
   DefineConstant [ @var{string-id} < = @var{string-def} >  <,@dots{}> ]; |
-  DefineConstant [ @var{string-id} = @{ @var{string-def} 
-                             <, @var{string} @var{string} > @} <,@dots{}> ]; |
+  DefineConstant [ @var{string-id} = @{ @var{string-def} , @var{onelab-options} @} <,@dots{}> ]; |
   @var{constant-id} = @var{constant-def}; |
+  @var{constant-id} = DefineNumber[ @var{constant-def}, @var{onelab-options} ];
   @var{string-id} = @var{string-def}; |
+  @var{string-id} = DefineString[ @var{string-def}, @var{onelab-options} ]; |
   Printf [ "@var{string}" ]; |
   Printf [ "@var{string}", @var{expression-cst-list} ]; |
   Read [ @var{constant-id} ] ; |
@@ -1167,6 +1167,14 @@ problem definition structure, the default definition mechanism allows to
 define the quantities of interest only, the others being assigned a default
 value (that will not be used during the processing but that avoids the error
 messages produced when references to undefined quantities are made).
+
+When @var{onelab-options} are provided, the parameter is exchanged with
+the ONELAB server. See
+@uref{http://onelab.info/wiki/ONELAB_Syntax_for_Gmsh_and_GetDP} for more
+information.
+@item
+@code{DefineNumber} and @code{DefineString} allow to define a ONELAB
+parameter. In this case the affectation always takes place.
 @end enumerate
 
 See @ref{Constant expression examples}, as well as @ref{Function examples}, for

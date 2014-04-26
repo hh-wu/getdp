@@ -183,7 +183,8 @@ struct doubleXstring{
 %token  tInclude
 %token  tConstant tList tListAlt tLinSpace tLogSpace tListFromFile
 %token  tChangeCurrentPosition
-%token  tDefineConstant tUndefineConstant tPi tMPI_Rank tMPI_Size t0D t1D t2D t3D
+%token  tDefineConstant tUndefineConstant tDefineNumber tDefineString
+%token  tPi tMPI_Rank tMPI_Size t0D t1D t2D t3D
 %token  tExp tLog tLog10 tSqrt tSin tAsin tCos tAcos tTan
 %token    tAtan tAtan2 tSinh tCosh tTanh tFabs tFloor tCeil tRound tSign
 %token    tFmod tModulo tHypot tRand
@@ -7177,8 +7178,18 @@ OneFExpr :
   | t3D       { $$ = (double)_3D; }
   | tMPI_Rank { $$ = Message::GetCommRank(); }
   | tMPI_Size { $$ = Message::GetCommSize(); }
+  | tDefineNumber '[' FExpr
+    { FloatOptions_S.clear(); CharOptions_S.clear(); }
+    FloatParameterOptions ']'
+    {
+      Constant_S.Name = (char*)""; Constant_S.Type = VAR_FLOAT;
+      Constant_S.Value.Float = $3;
+      Message::ExchangeOnelabParameter(&Constant_S, FloatOptions_S, CharOptions_S);
+      $$ = Constant_S.Value.Float;
+    }
   | String__Index
-    { Constant_S.Name = $1;
+    {
+      Constant_S.Name = $1;
       if(!Tree_Query(ConstantTable_L, &Constant_S)) {
 	vyyerror("Unknown Constant: %s", $1);  $$ = 0.;
       }
@@ -7670,6 +7681,17 @@ CharExprNoVar :
       strcpy($$, ctime(&date_info));
       $$[strlen($$)-1] = 0;
     }
+
+  | tDefineString '[' CharExprNoVar
+    { FloatOptions_S.clear(); CharOptions_S.clear(); }
+    CharParameterOptions ']'
+    {
+      Constant_S.Name = (char*)""; Constant_S.Type = VAR_CHAR;
+      Constant_S.Value.Char = $3;
+      Message::ExchangeOnelabParameter(&Constant_S, FloatOptions_S, CharOptions_S);
+      $$ = strSave(Constant_S.Value.Char);
+      Free($3);
+    }
  ;
 
 CharExpr :
@@ -7717,6 +7739,7 @@ StrCat :
 	vyyerror("Undefined argument for StrCat function");  $$ = NULL;
       }
     }
+  // deprecated
   | tStrCat '(' CharExpr ',' CharExpr ')'
     {
       if($3 != NULL && $5 != NULL) {

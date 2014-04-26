@@ -94,6 +94,8 @@ DefineFunction               return tDefineFunction;
 DefineVariable               return tDefineConstant;
 DefineConstant               return tDefineConstant;
 UndefineConstant             return tUndefineConstant;
+DefineNumber                 return tDefineNumber;
+DefineString                 return tDefineString;
 
 List                         return tList;
 ListAlt                      return tListAlt;
