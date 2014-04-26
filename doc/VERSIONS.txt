@@ -1,3 +1,6 @@
+2.4.4: small improvements and bug fixes (stability, new inline onelab
+definitions).
+
 2.4.3: new mandatory 'Name' attribute to define onelab variables in
 DefineConstant[] & co; minor bug fixes.
 
