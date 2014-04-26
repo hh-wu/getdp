@@ -181,14 +181,20 @@ void Pos_InitAllSolutions(List_T * TimeStep_L, int Index_TimeStep)
       (Current.DofData_P0+k)->CurrentSolution = (struct Solution*)
 	List_Pointer((Current.DofData_P0+k)->Solutions, Num_Solution) ;
 
-  Current.Time = Current.DofData->CurrentSolution->Time ;
-  Current.TimeImag = Current.DofData->CurrentSolution->TimeImag ;
-
-  if(List_Nbr(Current.DofData->Solutions) > TimeStepIndex)
-    Current.TimeStep = ((struct Solution*)List_Pointer
-                        (Current.DofData->Solutions, TimeStepIndex))->TimeStep ;
-  else // Warning: this can be wrong
+  if(TimeStepIndex >= 0 && TimeStepIndex < List_Nbr(Current.DofData->Solutions)){
+    Solution *Solution_P = ((struct Solution*)List_Pointer
+                            (Current.DofData->Solutions, TimeStepIndex));
+    Current.TimeStep = Solution_P->TimeStep ;
+    Current.Time = Solution_P->Time ;
+    Current.TimeImag = Solution_P->TimeImag ;
+  }
+  else{ // Warning: this can be wrong
     Current.TimeStep = TimeStepIndex;
+    if(Current.DofData->CurrentSolution){
+      Current.Time = Current.DofData->CurrentSolution->Time;
+      Current.TimeImag = Current.DofData->CurrentSolution->TimeImag;
+    }
+  }
 }
 
 /* ------------------------------------------------------------------------ */
@@ -349,7 +355,7 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
     }
 
 	strcpy(FileNameDimi, FileName); //Peter,Dimitri: get Name for Unv File
-	
+
     if(!PostSubOperation_P->CatFile) {
       if((PostStream = FOpen(FileName, Flag_BIN ? "wb" : "w")))
 	Message::Direct(4, "          > '%s'", FileName) ;
