@@ -52,6 +52,20 @@ include(getdp.ctest)
 upload_package(${WEB_BIN} Linux 64r .tar.gz .tgz)
 
 #################################################################################
+set(CTEST_BUILD_NAME "Linux64-PETScReal-MH")
+set(OPT "-DGETDP_EXTRA_VERSION=${EXTRA_VERSION}")
+set(OPT "${OPT} -DCMAKE_PREFIX_PATH=/usr/local")
+set(OPT "${OPT} -DENABLE_SPARSKIT=0")
+set(OPT "${OPT} -DENABLE_PETSC=1")
+set(OPT "${OPT} -DENABLE_MULTIHARMONIC=1")
+set(OPT "${OPT} -DPETSC_ARCH=linux_real_mumps_seq")
+set(OPT "${OPT} -DPETSC_DIR=$ENV{HOME}/src/petsc-3.1-p8")
+set(OPT "${OPT} -DSLEPC_DIR=$ENV{HOME}/src/slepc-3.1-p4")
+set(CTEST_BUILD_OPTIONS ${OPT})
+include(getdp.ctest)
+upload_package(${WEB_BIN} Linux 64r-MH .tar.gz .tgz)
+
+#################################################################################
 set(CTEST_BUILD_NAME "Linux64-Sparskit")
 set(OPT "-DGETDP_EXTRA_VERSION=${EXTRA_VERSION}")
 set(OPT "${OPT} -DCMAKE_PREFIX_PATH=/usr/local")
