@@ -1697,7 +1697,7 @@ void Pos_FourierTransform(int NbrTimeStep, int NbrRegion,
 
       for (j = 0 ; j < Size ; j++){
         val = TmpValues[iTime*NbrRegion+iRegion].Val[j];
-  
+
         val_FourierComps[(2*i_k+0)*MAX_DIM + j] += val * v_cos;
         val_FourierComps[(2*i_k+1)*MAX_DIM + j] += val * v_sin;
       }

@@ -31,7 +31,6 @@ Function{
     P_ = {"", Name "GetDP/2PostOperationChoices", Visible 0}
   ];
 
-
   // Input functions:
   DefineFunction[ mu, // magnetic permeability
                   nu, // magnetic reluctivity
@@ -123,9 +122,10 @@ Resolution {
       EndIf
       If(Flag_NL)
         //IterativeLoopN[ Nb_max_iter, relaxation_factor,
-        //                System { {A, reltol, abstol, Solution MeanL2Norm}}]{
+        //                System { {A, reltol, abstol, Solution MeanL2Norm} } ]{
         IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
-          GenerateJac[A] ; SolveJac[A] ; }
+          GenerateJac[A] ; SolveJac[A] ;
+        }
       EndIf
       SaveSolution[A] ;
       PostOperation[MagSta_phi] ;
@@ -212,9 +212,11 @@ Resolution {
         Generate[A] ; Solve[A] ;
       EndIf
       If(Flag_NL)
-        //IterativeLoopN[ Nb_max_iter, relaxation_factor, System { {A, reltol, abstol, Solution MeanL2Norm}}]{
+        //IterativeLoopN[ Nb_max_iter, relaxation_factor,
+        //                System { {A, reltol, abstol, Solution MeanL2Norm} } ]{
         IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
-          GenerateJac[A] ; SolveJac[A] ; }
+          GenerateJac[A] ; SolveJac[A] ;
+        }
       EndIf
       SaveSolution[A] ;
       PostOperation[MagSta_a];
