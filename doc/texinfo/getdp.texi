@@ -4304,6 +4304,26 @@ are given in @code{Init}, the second value is used.
 Initialize the first of two time steps for a Newmark Scheme. Only works
 if two values are specified in @code{Init}.
 
+@item Apply
+@code{[@var{system-id}]}
+
+@code{x <- Ax}
+
+@item SetSolutionAsRHS
+@code{[@var{system-id}]}
+
+@code{b <- x}
+
+@item SetRHSAsSolution
+@code{[@var{system-id}]}
+
+@code{x <- b}
+
+@item Residual
+@code{[@var{system-id}]}
+
+@code{x <- b - Ax}
+
 @item SaveSolution
 @code{[@var{system-id}]}
 

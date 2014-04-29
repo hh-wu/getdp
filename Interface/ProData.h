@@ -1185,6 +1185,7 @@ struct IterativeLoopSystem {
 #define OPERATION_UPDATE                   81
 #define OPERATION_UPDATECONSTRAINT         82
 #define OPERATION_WRITE                    83
+#define OPERATION_RESIDUAL                 84
 
 /* ChangeOfState.Type */
 #define CHANGEOFSTATE_NOCHANGE              0

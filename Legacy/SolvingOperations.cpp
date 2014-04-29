@@ -1011,6 +1011,27 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       }
       break ;
 
+      /*  -->  Residual                               */
+      /*  ------------------------------------------  */
+    case OPERATION_RESIDUAL :
+      {
+        /*  Compute : x <- b - A x  */
+        Init_OperationOnSystem("Residual",
+                               Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+                               &DefineSystem_P, &DofData_P, Resolution2_P) ;
+        if(DofData_P->CurrentSolution){
+          LinAlg_CreateVector(&DofData_P->res, &DofData_P->Solver, DofData_P->NbrDof) ;
+          LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x,
+                                  &DofData_P->res);
+          LinAlg_SubVectorVector(&DofData_P->b, &DofData_P->res, &DofData_P->res);
+          LinAlg_CopyVector(&DofData_P->res, &DofData_P->CurrentSolution->x);
+        }
+        else
+          Message::Error("No current solution available");
+        Flag_CPU = 1 ;
+      }
+      break ;
+
       /*  -->  S e t S o l v e r O p t i o n s        */
       /*  ------------------------------------------  */
     case OPERATION_SETGLOBALSOLVEROPTIONS :

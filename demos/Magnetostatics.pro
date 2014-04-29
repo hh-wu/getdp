@@ -122,7 +122,8 @@ Resolution {
         Generate[A] ; Solve[A] ;
       EndIf
       If(Flag_NL)
-        //IterativeLoopN[ Nb_max_iter, relaxation_factor, System { {A, reltol, abstol, Solution MeanL2Norm}}]{
+        //IterativeLoopN[ Nb_max_iter, relaxation_factor,
+        //                System { {A, reltol, abstol, Solution MeanL2Norm}}]{
         IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
           GenerateJac[A] ; SolveJac[A] ; }
       EndIf
