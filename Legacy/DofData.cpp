@@ -525,6 +525,11 @@ void Dof_WriteFileRES_ExtendMH(char * Name_File, struct DofData * DofData_P,
 {
   if(Message::GetIsCommWorld() && Message::GetCommRank()) return;
 
+  if(!DofData_P->CurrentSolution){
+    Message::Warning("No solution to save");
+    return;
+  }
+
   gVector x;
   double d;
   int i, inew;
@@ -559,6 +564,11 @@ void Dof_WriteFileRES_MHtoTime(char * Name_File, struct DofData * DofData_P,
 			       int Format, List_T * Time_L)
 {
   if(Message::GetIsCommWorld() && Message::GetCommRank()) return;
+
+  if(!DofData_P->CurrentSolution){
+    Message::Warning("No solution to save");
+    return;
+  }
 
   gVector x;
   double Time, d1, d2, d, *Pulsation;
@@ -613,6 +623,11 @@ void Dof_WriteFileRES(char * Name_File, struct DofData * DofData_P, int Format,
 {
   if(Message::GetIsCommWorld() && Message::GetCommRank()) return;
 
+  if(!DofData_P->CurrentSolution){
+    Message::Warning("No solution to save");
+    return;
+  }
+
   Dof_OpenFile(DOF_RES, Name_File, (char*)(Format ? "ab" : "a")) ;
 
   fprintf(File_RES, "$Solution  /* DofData #%d */\n", DofData_P->Num) ;
@@ -637,6 +652,11 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
                                     bool saveFixed)
 {
   if(Message::GetIsCommWorld() && Message::GetCommRank()) return;
+
+  if(!DofData_P->CurrentSolution){
+    Message::Warning("No solution to save");
+    return;
+  }
 
   char    FileCplx[256] ;
   char    FileRe[256] ;
@@ -1286,7 +1306,6 @@ void Dof_AssembleInMat(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
            Equ_P->Case.Unknown.NumDof-1, Dof_P->Case.Unknown.NumDof-1) ;
       }
       else
-        //printf("bbbbbbbbbbbbbbbbbbb gSCALAR_SIZE %d Val[0]= %g , Val[1]=%g \n", gSCALAR_SIZE, Val[0], Val[1]);
 	LinAlg_AddComplexInMatrix
 	  (Val[0], Val[1], Mat,
 	   Equ_P->Case.Unknown.NumDof-1, Dof_P->Case.Unknown.NumDof-1,

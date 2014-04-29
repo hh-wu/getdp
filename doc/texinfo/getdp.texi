@@ -4237,6 +4237,9 @@ compute the relative error @var{dx}/@var{x}.
 
 @c FIXME: explain this better, using equations. Write out explicitly the
 @c formulas when there is a JacNL term, and when there isn't
+@c
+@c (A(x) + JacNL(x)) dx = b(x) - A(x) x ;
+@c x <- x + dx 
 
 @item GenerateSeparate
 @code{[@var{system-id}]}
