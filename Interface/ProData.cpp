@@ -949,8 +949,9 @@ void Print_FunctionSpace()
                        ->Name );
 
 	switch(CO->ConstraintPerRegion->Type) {
-	case ASSIGN :
 	case INIT :
+	  Message::Check("      // Type Init;");
+	case ASSIGN :
 	  Message::Check("      // Value Exp[%s];", Get_ExpressionName
                          (CO->ConstraintPerRegion->Case.Fixed.ExpressionIndex));
 	  break;
