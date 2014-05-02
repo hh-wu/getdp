@@ -329,12 +329,13 @@ void  Treatment_ConstraintForRegion(struct GlobalQuantity   * GlobalQuantity_P,
 	      ConstraintPerRegion_P->Type ;
 
 	    if (ConstraintPerRegion_P->Type == ASSIGN ||
-		ConstraintPerRegion_P->Type == INIT)
+		ConstraintPerRegion_P->Type == INIT) {
 	      Get_ValueForConstraint
 		(Constraint_P,
                  QuantityStorage_P->BasisFunction[0].Value,
                  QuantityStorage_P->BasisFunction[0].Value2,
 		 &QuantityStorage_P->BasisFunction[0].TimeFunctionIndex) ;
+            }
 	    else if (ConstraintPerRegion_P->Type == CST_LINK ||
 		     ConstraintPerRegion_P->Type == CST_LINKCPLX) {
 	      Get_LinkForConstraint

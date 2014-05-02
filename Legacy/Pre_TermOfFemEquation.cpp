@@ -349,7 +349,12 @@ void Pre_GlobalTermOfFemEquation(int  Num_Region,
 
       switch(QuantityStorageDof_P->BasisFunction[0].Constraint) {
       case NONE:
-	if (QuantityStorageDof_P->BasisFunction[0].CodeAssociateBasisFunction > 0)
+	if (!QuantityStorageDof_P->BasisFunction[0].CodeAssociateBasisFunction)
+          Dof_DefineUnknownDof
+            (QuantityStorageDof_P->BasisFunction[0].CodeBasisFunction,
+             QuantityStorageDof_P->BasisFunction[0].CodeEntity, Current.NbrHar,
+             true) ;
+        else
 	  Dof_DefineAssociateDof
 	    (QuantityStorageDof_P->BasisFunction[0].CodeAssociateBasisFunction,
 	     QuantityStorageDof_P->BasisFunction[0].CodeEntity,
@@ -365,20 +370,20 @@ void Pre_GlobalTermOfFemEquation(int  Num_Region,
 	   QuantityStorageDof_P->BasisFunction[0].TimeFunctionIndex) ;
 	break ;
       case INIT:
+        /* This was used instead of what follows... Why!!!
 	  Dof_DefineAssociateDof
 	    (QuantityStorageDof_P->BasisFunction[0].CodeAssociateBasisFunction,
 	     QuantityStorageDof_P->BasisFunction[0].CodeEntity,
 	     QuantityStorageDof_P->BasisFunction[0].CodeBasisFunction,
 	     QuantityStorageDof_P->BasisFunction[0].CodeEntity, Current.NbrHar,
              1, QuantityStorageDof_P->BasisFunction[0].Value) ;
-          /*
+        */
 	Dof_DefineInitFixedDof
 	  (QuantityStorageDof_P->BasisFunction[0].CodeBasisFunction,
 	   QuantityStorageDof_P->BasisFunction[0].CodeEntity, Current.NbrHar,
 	   QuantityStorageDof_P->BasisFunction[0].Value,
 	   QuantityStorageDof_P->BasisFunction[0].Value2,
            true);
-          */
 	break;
       case ASSIGNFROMRESOLUTION:
 	Dof_DefineAssignSolveDof

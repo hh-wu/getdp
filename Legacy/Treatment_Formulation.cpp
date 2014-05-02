@@ -639,7 +639,6 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
 
 	  /* Only one Function space analysis */
 	  /* -------------------------------- */
-
 	  if (QuantityStorage_P->NumLastElementForFunctionSpace != Num_Region) {
 	    QuantityStorage_P->NumLastElementForFunctionSpace = Num_Region ;
 
