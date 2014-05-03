@@ -88,24 +88,26 @@ static void Info(int level, char *arg0)
     break;
   case 2:
     fprintf(stderr, "Version          : %s\n", GETDP_VERSION);
+    fprintf(stderr, "License          : %s\n", GETDP_SHORT_LICENSE);
+    fprintf(stderr, "Build OS         : %s\n", GETDP_OS);
+    fprintf(stderr, "Build date       : %s\n", GETDP_DATE);
+    fprintf(stderr, "Build host       : %s\n", GETDP_HOST);
+    fprintf(stderr, "Build options    :%s\n", GETDP_CONFIG_OPTIONS);
 #if defined(HAVE_PETSC)
+    fprintf(stderr, "PETSc version    : %d.%d.%d\n", PETSC_VERSION_MAJOR,
+            PETSC_VERSION_MINOR, PETSC_VERSION_SUBMINOR);
 #if defined(PETSC_USE_COMPLEX)
     fprintf(stderr, "PETSc arithmetic : Complex\n");
 #else
     fprintf(stderr, "PETSc arithmetic : Real\n");
 #endif
 #endif
-    fprintf(stderr, "License          : %s\n", GETDP_SHORT_LICENSE);
-    fprintf(stderr, "Build OS         : %s\n", GETDP_OS);
-    fprintf(stderr, "Build options    :%s\n", GETDP_CONFIG_OPTIONS);
-    fprintf(stderr, "Build date       : %s\n", GETDP_DATE);
-    fprintf(stderr, "Build host       : %s\n", GETDP_HOST);
 #if defined(HAVE_GMSH)
-    fprintf(stderr, "Gmsh version     : %s%s (%s)\n",
+    fprintf(stderr, "Gmsh lib version : %s%s (%s)\n",
             GMSH_VERSION, GMSH_EXTRA_VERSION, GMSH_DATE);
-    fprintf(stderr, "Gmsh options     :%s\n", GMSH_CONFIG_OPTIONS);
+    fprintf(stderr, "Gmsh lib options :%s\n", GMSH_CONFIG_OPTIONS);
 #endif
-    fprintf(stderr, "Packager         : %s\n", GETDP_PACKAGER);
+    fprintf(stderr, "Packaged by      : %s\n", GETDP_PACKAGER);
     fprintf(stderr, "Web site         : http://www.geuz.org/getdp/\n");
     fprintf(stderr, "Mailing list     : getdp@geuz.org\n");
     break;

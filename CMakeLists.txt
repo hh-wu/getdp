@@ -930,8 +930,6 @@ message(STATUS " * C++ compiler: " ${CMAKE_CXX_COMPILER})
 message(STATUS " * Fortran compiler: " ${CMAKE_Fortran_COMPILER})
 message(STATUS " * Install prefix: " ${CMAKE_INSTALL_PREFIX})
 message(STATUS "")
-message(STATUS "Run 'ccmake ${CMAKE_CURRENT_SOURCE_DIR}' to fine-tune the configuration.")
-message(STATUS "")
 
 mark_as_advanced(GETDP_EXTRA_VERSION
                  ARPACK_LIB GMSH_INC GMSH_LIB GSLCBLAS_LIB GSL_INC GSL_LIB
