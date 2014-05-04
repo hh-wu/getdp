@@ -1249,11 +1249,11 @@ struct Dof *Dof_GetDofStruct(struct DofData * DofData_P, int D1, int D2, int D3)
 
 void Dof_UpdateAssignFixedDof(struct Dof *Dof_P, int NbrHar, double *Val)
 {
-  int k ;
-
-  for(k=0 ; k<NbrHar ; k+=gSCALAR_SIZE){
-    LinAlg_SetScalar(&Dof_P->Val, &Val[k]) ;
+  if(Dof_P->Harmonic >= NbrHar){
+    Message::Error("Invalid harmonic in Dof_UpdateAssignFixedDof");
+    return;
   }
+  LinAlg_SetScalar(&Dof_P->Val, &Val[Dof_P->Harmonic]) ;
 }
 
 /* ------------------------------------------------------------------------ */
