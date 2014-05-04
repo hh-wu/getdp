@@ -25,10 +25,10 @@ Function{
     Val_Rint, Val_Rext // interior/exterior radius of Domain_Inf
     Nb_max_iter        = 30,
     relaxation_factor  = 1,
-    stop_criterion     = 1e-5,
+    stop_criterion     = 1e-5
     //R_ = {"MagSta_phi", Name "GetDP/1ResolutionChoices", Visible 0},
-    C_ = {"-solve -v2", Name "GetDP/9ComputeCommand", Visible 0},
-    P_ = {"", Name "GetDP/2PostOperationChoices", Visible 0}
+    //C_ = {"-solve -v2", Name "GetDP/9ComputeCommand", Visible 0}
+    //P_ = {"", Name "GetDP/2PostOperationChoices", Visible 0}
   ];
 
   // Input functions:
@@ -128,7 +128,7 @@ Resolution {
         }
       EndIf
       SaveSolution[A] ;
-      PostOperation[MagSta_phi] ;
+      //PostOperation[MagSta_phi] ;
     }
   }
 }
@@ -219,7 +219,7 @@ Resolution {
         }
       EndIf
       SaveSolution[A] ;
-      PostOperation[MagSta_a];
+      //PostOperation[MagSta_a];
     }
   }
 }
