@@ -1573,6 +1573,9 @@ void  Pos_PrintExpression(struct PostSubOperation *PSO_P)
   char *str2 = PSO_P->Case.Expression.String2;
   int expr = PSO_P->Case.Expression.ExpressionIndex;
 
+  if((!str || !strlen(str)) && (!str2 || !strlen(str2)) && expr < 0)
+    return; // nothing to print; useful to request merging an existing file
+
   NbrTimeStep = Pos_InitTimeSteps(PSO_P);
 
   for(iTime = 0; iTime < NbrTimeStep; iTime++){
@@ -1591,7 +1594,8 @@ void  Pos_PrintExpression(struct PostSubOperation *PSO_P)
     }
     if(PSO_P->NoNewLine)
       fprintf(PostStream, " ") ;
-    else fprintf(PostStream, "\n") ;
+    else
+      fprintf(PostStream, "\n") ;
   }
 }
 

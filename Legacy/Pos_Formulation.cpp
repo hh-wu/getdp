@@ -354,7 +354,7 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
       strcat(FileName, AddExt);
     }
 
-	strcpy(FileNameDimi, FileName); //Peter,Dimitri: get Name for Unv File
+    strcpy(FileNameDimi, FileName); //Peter,Dimitri: get Name for Unv File
 
     if(!PostSubOperation_P->CatFile) {
       if((PostStream = FOpen(FileName, Flag_BIN ? "wb" : "w")))

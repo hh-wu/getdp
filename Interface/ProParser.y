@@ -5831,7 +5831,7 @@ PostSubOperation :
       PostSubOperation_S.PostQuantityIndex[0] = -1;
     }
 
-  | tEcho '[' tBIGSTR PrintOptions ']' tEND
+  | tEcho '[' CharExpr PrintOptions ']' tEND
     {
       PostSubOperation_S.Type = POP_EXPRESSION;
       PostSubOperation_S.Case.Expression.String = $3;
@@ -5843,12 +5843,14 @@ PostSubOperation :
   | tPrintGroup '[' GroupRHS
     {
       PostSubOperation_S.Type = POP_GROUP;
-      PostSubOperation_S.Case.Group.ExtendedGroupIndex = Num_Group(&Group_S, (char*)"PO_Group", $3);
+      PostSubOperation_S.Case.Group.ExtendedGroupIndex =
+        Num_Group(&Group_S, (char*)"PO_Group", $3);
       PostSubOperation_S.PostQuantityIndex[0] = -1;
     }
     ',' tIn GroupRHS PrintOptions ']' tEND
     {
-      PostSubOperation_S.Case.Group.GroupIndex = Num_Group(&Group_S, (char*)"PO_Group", $7);
+      PostSubOperation_S.Case.Group.GroupIndex =
+        Num_Group(&Group_S, (char*)"PO_Group", $7);
     }
 
   | Loop
