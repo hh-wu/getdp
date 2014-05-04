@@ -25,15 +25,8 @@ void Cal_InitIntegralQuantity(struct Element                *Element,
 			      struct QuantityStorage        *QuantityStorage_P)
 {
   struct Quadrature  *Quadrature_P ;
-  struct Group       *Group_P ;
   int                 ElementSourceType ;
   int                 i,j ;
-
-  /* Get de Rham cells in the source element if necessary */
-
-  Group_P = (struct Group*)List_Pointer(Problem_S.Group,
-					QuantityStorage_P->DefineQuantity->
-					IntegralQuantity.InIndex) ;
 
   ElementSourceType = Element->ElementSource->Type ;
 

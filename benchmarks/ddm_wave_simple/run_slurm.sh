@@ -11,10 +11,11 @@
 #SBATCH --mail-type=ALL
 
 OPT="-setnumber ANALYSIS 1
+     -setnumber WALLS 0
      -setnumber N_DOM $SLURM_NTASKS
-     -setnumber N_LAMBDA 100
+     -setnumber N_LAMBDA 70
      -setnumber DX 10
-     -setstring SOLVER bcgs
+     -setstring SOLVER gmres
      -setstring DIR $GLOBALSCRATCH/out_$SLURM_JOB_ID/"
 
 MPIRUN="mpirun --bind-to-core"

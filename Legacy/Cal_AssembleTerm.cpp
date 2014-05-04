@@ -467,8 +467,8 @@ void Cal_AssembleTerm_MHMoving(struct Dof * Equ, struct Dof * Dof, double Val[])
   extern Tree_T  * DofTree_MH_moving ;
 
   if(MHMoving_assemblyType==1){
-    for (unsigned int k = 0 ; k < Current.NbrHar ; k++)
-      for (unsigned int l = 0 ; l < Current.NbrHar ; l++) {
+    for (int k = 0 ; k < Current.NbrHar ; k++)
+      for (int l = 0 ; l < Current.NbrHar ; l++) {
         double tmp = Val[0] * MH_Moving_Matrix[k][l] ;
         /* if (k==l) */
         Dof_AssembleInMat(Equ+k, Dof+l, 1, &tmp,
@@ -477,8 +477,8 @@ void Cal_AssembleTerm_MHMoving(struct Dof * Equ, struct Dof * Dof, double Val[])
   }
 
   if(MHMoving_assemblyType==2){
-    for (unsigned int k = 0 ; k < Current.NbrHar ; k++)
-      for (unsigned int l = 0 ; l < Current.NbrHar ; l++) {
+    for (int k = 0 ; k < Current.NbrHar ; k++)
+      for (int l = 0 ; l < Current.NbrHar ; l++) {
         double tmp = Val[0] * MH_Moving_Matrix[k][l] ;
         // if (k==l)
         Dof_AssembleInMat(Equ+k, Dof+l, 1, &tmp,

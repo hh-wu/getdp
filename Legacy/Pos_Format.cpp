@@ -1243,9 +1243,9 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
   case FORMAT_GMSH :
     if(Gmsh_StartNewView) Gmsh_ResetStaticLists(); // nothing to print!
     if(PSO_P->StoreInField >= 0 || PSO_P->StoreInMeshBasedField >= 0){
+#if defined(HAVE_GMSH)
       int field = (PSO_P->StoreInField >= 0) ? PSO_P->StoreInField :
         PSO_P->StoreInMeshBasedField;
-#if defined(HAVE_GMSH)
       Message::Info("Storing data in field %d (%s)", field,
                     PSO_P->StoreInField >= 0 ? "list-based" : "mesh-based");
       int NS[24] = {NbSP, NbVP, NbTP,  NbSL, NbVL, NbTL,  NbST, NbVT, NbTT,

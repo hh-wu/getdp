@@ -202,7 +202,7 @@ void  Cal_FemGlobalEquation(struct EquationTerm    * EquationTerm_P,
 	    (double)(MCPR_P->Active->Case.Network.MatNode[i_Node][j_Branch]) ;
 	  if (Current.NbrHar > 1) {
 	    Val[1] = 0. ;
-	    for (k = 2 ; k < Current.NbrHar ; k += 2) {
+            for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2) {
 	      Val[k] = Val[0] ;  Val[k+1] = 0. ;
 	    }
 	  }
@@ -241,7 +241,7 @@ void  Cal_FemGlobalEquation(struct EquationTerm    * EquationTerm_P,
 	    (double)(MCPR_P->Active->Case.Network.MatLoop[i_Loop][j_Branch]) ;
 	  if (Current.NbrHar > 1) {
 	    Val[1] = 0. ;
-	    for (k = 2 ; k < Current.NbrHar ; k += 2) {
+            for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2) {
 	      Val[k] = Val[0] ;  Val[k+1] = 0. ;
 	    }
 	  }
