@@ -328,6 +328,7 @@ Target                       return tTarget;
 File                         return tFile;
 Sort                         return tSort;
 Iso                          return tIso;
+SendMergeFileRequest         return tSendMergeFileRequest;
 NoNewLine                    return tNoNewLine;
 NoTitle                      return tNoTitle;
 TimeLegend                   return tTimeLegend;

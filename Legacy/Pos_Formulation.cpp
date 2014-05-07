@@ -336,6 +336,11 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
   int                    i, Order = 0 ;
   char                   FileName[256], AddExt[100] ;
 
+  if(PostSubOperation_P->Type == POP_MERGE){
+    Message::SendMergeFileRequest(PostSubOperation_P->FileOut);
+    return;
+  }
+
   if(PostSubOperation_P->FileOut){
     if(PostSubOperation_P->FileOut[0] == '/' ||
        PostSubOperation_P->FileOut[0] == '\\'){

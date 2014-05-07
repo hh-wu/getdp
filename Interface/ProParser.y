@@ -266,7 +266,7 @@ struct doubleXstring{
 
 %token  tPostOperation
 %token    tNameOfPostProcessing tUsingPost tAppend tResampleTime
-%token      tPlot tPrint tPrintGroup tEcho tWrite tAdapt
+%token      tPlot tPrint tPrintGroup tEcho tSendMergeFileRequest tWrite tAdapt
 %token        tOnGlobal tOnRegion tOnElementsOf
 %token        tOnGrid tOnSection tOnPoint tOnLine tOnPlane tOnBox
 %token        tWithArgument
@@ -5789,6 +5789,57 @@ PostSubOperations :
   | PostSubOperations
     {
       PostSubOperation_S.Format = -1;
+      PostSubOperation_S.FileOut = NULL;
+      PostSubOperation_S.Depth = 1;
+      PostSubOperation_S.Smoothing = 0;
+      PostSubOperation_S.Skin = 0;
+      PostSubOperation_S.Comma = 0;
+      PostSubOperation_S.Dimension = _ALL;
+      PostSubOperation_S.Adapt = 0;
+      PostSubOperation_S.Target = -1.;
+      PostSubOperation_S.HarmonicToTime = 1;
+      PostSubOperation_S.FourierTransform = 0;
+      PostSubOperation_S.FrozenTimeStepList = 0;
+      PostSubOperation_S.TimeStep_L = List_Create(10,10,sizeof(int));;
+      PostSubOperation_S.Frequency_L = List_Create(10,10,sizeof(double));;
+      PostSubOperation_S.Value_L = List_Create(10,10,sizeof(double));;
+      PostSubOperation_S.Iso = 0;
+      PostSubOperation_S.Iso_L = List_Create(10,10,sizeof(double));;
+      PostSubOperation_S.Sort = 0;
+      PostSubOperation_S.NoNewLine = 0;
+      PostSubOperation_S.NoTitle = 0;
+      PostSubOperation_S.DecomposeInSimplex = 0;
+      PostSubOperation_S.NewCoordinates = 0;
+      PostSubOperation_S.NewCoordinatesFile = NULL;
+      PostSubOperation_S.ChangeOfCoordinates[0] = -1;
+      PostSubOperation_S.ChangeOfCoordinates[1] = -1;
+      PostSubOperation_S.ChangeOfCoordinates[2] = -1;
+      PostSubOperation_S.ChangeOfValues = NULL;
+      PostSubOperation_S.Legend = LEGEND_NONE;
+      PostSubOperation_S.LegendPosition[0] = 0.;
+      PostSubOperation_S.LegendPosition[1] = 0.;
+      PostSubOperation_S.LegendPosition[2] = 0.;
+      PostSubOperation_S.EvaluationPoints = NULL;
+      PostSubOperation_S.StoreInRegister = -1;
+      PostSubOperation_S.StoreMinInRegister = -1;
+      PostSubOperation_S.StoreMinXinRegister = -1;
+      PostSubOperation_S.StoreMinYinRegister = -1;
+      PostSubOperation_S.StoreMinZinRegister = -1;
+      PostSubOperation_S.StoreMaxInRegister = -1;
+      PostSubOperation_S.StoreMaxXinRegister = -1;
+      PostSubOperation_S.StoreMaxYinRegister = -1;
+      PostSubOperation_S.StoreMaxZinRegister = -1;
+      PostSubOperation_S.StoreInField = -1;
+      PostSubOperation_S.StoreInMeshBasedField = -1;
+      PostSubOperation_S.LastTimeStepOnly = 0;
+      PostSubOperation_S.AppendTimeStepToFileName = 0;
+      PostSubOperation_S.OverrideTimeStepValue = -1;
+      PostSubOperation_S.NoMesh = 0;
+      PostSubOperation_S.SendToServer = NULL;
+      PostSubOperation_S.Color = NULL;
+      PostSubOperation_S.ValueIndex = 0;
+      PostSubOperation_S.ValueName = NULL;
+      PostSubOperation_S.Label = NULL;
     }
     PostSubOperation
     {
@@ -5851,6 +5902,12 @@ PostSubOperation :
     {
       PostSubOperation_S.Case.Group.GroupIndex =
         Num_Group(&Group_S, (char*)"PO_Group", $7);
+    }
+
+  | tSendMergeFileRequest '[' CharExpr ']' tEND
+    {
+      PostSubOperation_S.Type = POP_MERGE;
+      PostSubOperation_S.FileOut = $3;
     }
 
   | Loop
@@ -6095,57 +6152,6 @@ PrintSubType :
 PrintOptions :
     /* none */
     {
-      PostSubOperation_S.FileOut = NULL;
-      PostSubOperation_S.Depth = 1;
-      PostSubOperation_S.Smoothing = 0;
-      PostSubOperation_S.Skin = 0;
-      PostSubOperation_S.Comma = 0;
-      PostSubOperation_S.Dimension = _ALL;
-      PostSubOperation_S.Adapt = 0;
-      PostSubOperation_S.Target = -1.;
-      PostSubOperation_S.HarmonicToTime = 1;
-      PostSubOperation_S.FourierTransform = 0;
-      PostSubOperation_S.FrozenTimeStepList = 0;
-      PostSubOperation_S.TimeStep_L = List_Create(10,10,sizeof(int));;
-      PostSubOperation_S.Frequency_L = List_Create(10,10,sizeof(double));;
-      PostSubOperation_S.Value_L = List_Create(10,10,sizeof(double));;
-      PostSubOperation_S.Iso = 0;
-      PostSubOperation_S.Iso_L = List_Create(10,10,sizeof(double));;
-      PostSubOperation_S.Sort = 0;
-      PostSubOperation_S.NoNewLine = 0;
-      PostSubOperation_S.NoTitle = 0;
-      PostSubOperation_S.DecomposeInSimplex = 0;
-      PostSubOperation_S.NewCoordinates = 0;
-      PostSubOperation_S.NewCoordinatesFile = NULL;
-      PostSubOperation_S.ChangeOfCoordinates[0] = -1;
-      PostSubOperation_S.ChangeOfCoordinates[1] = -1;
-      PostSubOperation_S.ChangeOfCoordinates[2] = -1;
-      PostSubOperation_S.ChangeOfValues = NULL;
-      PostSubOperation_S.Legend = LEGEND_NONE;
-      PostSubOperation_S.LegendPosition[0] = 0.;
-      PostSubOperation_S.LegendPosition[1] = 0.;
-      PostSubOperation_S.LegendPosition[2] = 0.;
-      PostSubOperation_S.EvaluationPoints = NULL;
-      PostSubOperation_S.StoreInRegister = -1;
-      PostSubOperation_S.StoreMinInRegister = -1;
-      PostSubOperation_S.StoreMinXinRegister = -1;
-      PostSubOperation_S.StoreMinYinRegister = -1;
-      PostSubOperation_S.StoreMinZinRegister = -1;
-      PostSubOperation_S.StoreMaxInRegister = -1;
-      PostSubOperation_S.StoreMaxXinRegister = -1;
-      PostSubOperation_S.StoreMaxYinRegister = -1;
-      PostSubOperation_S.StoreMaxZinRegister = -1;
-      PostSubOperation_S.StoreInField = -1;
-      PostSubOperation_S.StoreInMeshBasedField = -1;
-      PostSubOperation_S.LastTimeStepOnly = 0;
-      PostSubOperation_S.AppendTimeStepToFileName = 0;
-      PostSubOperation_S.OverrideTimeStepValue = -1;
-      PostSubOperation_S.NoMesh = 0;
-      PostSubOperation_S.SendToServer = NULL;
-      PostSubOperation_S.Color = NULL;
-      PostSubOperation_S.ValueIndex = 0;
-      PostSubOperation_S.ValueName = NULL;
-      PostSubOperation_S.Label = NULL;
     }
   | PrintOptions PrintOption
  ;

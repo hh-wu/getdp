@@ -1316,6 +1316,7 @@ struct PostOpSolutions {
 #define POP_PRINT         1
 #define POP_GROUP         2
 #define POP_EXPRESSION    4
+#define POP_MERGE         5
 
 /* PostOperation.SubType */
 #define PRINT_ONREGION        1
