@@ -301,7 +301,7 @@
      tPrint = 482,
      tPrintGroup = 483,
      tEcho = 484,
-     tMerge = 485,
+     tSendMergeFileRequest = 485,
      tWrite = 486,
      tAdapt = 487,
      tOnGlobal = 488,
@@ -602,7 +602,7 @@
 #define tPrint 482
 #define tPrintGroup 483
 #define tEcho 484
-#define tMerge 485
+#define tSendMergeFileRequest 485
 #define tWrite 486
 #define tAdapt 487
 #define tOnGlobal 488
@@ -1773,34 +1773,35 @@ static const char *const yytname[] =
   "tSaveMesh", "tDeformMesh", "tFrequencySpectrum", "tPostProcessing",
   "tNameOfSystem", "tPostOperation", "tNameOfPostProcessing", "tUsingPost",
   "tAppend", "tResampleTime", "tPlot", "tPrint", "tPrintGroup", "tEcho",
-  "tMerge", "tWrite", "tAdapt", "tOnGlobal", "tOnRegion", "tOnElementsOf",
-  "tOnGrid", "tOnSection", "tOnPoint", "tOnLine", "tOnPlane", "tOnBox",
-  "tWithArgument", "tFile", "tDepth", "tDimension", "tComma", "tTimeStep",
-  "tHarmonicToTime", "tCosineTransform", "tValueIndex", "tValueName",
-  "tFormat", "tHeader", "tFooter", "tSkin", "tSmoothing", "tTarget",
-  "tSort", "tIso", "tNoNewLine", "tNoTitle", "tDecomposeInSimplex",
-  "tChangeOfValues", "tTimeLegend", "tFrequencyLegend",
-  "tEigenvalueLegend", "tEvaluationPoints", "tStoreInRegister",
-  "tStoreInField", "tStoreInMeshBasedField", "tStoreMaxInRegister",
-  "tStoreMaxXinRegister", "tStoreMaxYinRegister", "tStoreMaxZinRegister",
-  "tStoreMinInRegister", "tStoreMinXinRegister", "tStoreMinYinRegister",
-  "tStoreMinZinRegister", "tLastTimeStepOnly", "tAppendTimeStepToFileName",
-  "tOverrideTimeStepValue", "tNoMesh", "tSendToServer", "tColor", "tStr",
-  "tDate", "tNewCoordinates", "tDEF", "'?'", "tOR", "tAND", "tAPPROXEQUAL",
-  "tNOTEQUAL", "tEQUAL", "'<'", "'>'", "tGREATERGREATER", "tLESSLESS",
-  "tGREATEROREQUAL", "tLESSOREQUAL", "'+'", "'-'", "'*'", "'/'", "'%'",
-  "tCROSSPRODUCT", "'|'", "'&'", "'!'", "UNARYPREC", "'^'", "'('", "')'",
-  "'['", "']'", "'.'", "'#'", "'$'", "tSHOW", "'{'", "'}'", "','", "'@'",
-  "'~'", "$accept", "Stats", "@1", "ProblemDefinitions", "@2",
-  "ProblemDefinition", "Groups", "Group", "@3", "@4", "ReducedGroupRHS",
-  "@5", "GroupRHS", "FunctionForGroup", "ListOfRegionOrAll",
-  "SuppListOfRegion", "SuppListTypeForGroup", "ListOfRegion",
-  "RecursiveListOfRegion", "IRegion", "ListOfStringsForCharOptions",
-  "DefineGroups", "@6", "Comma", "Functions", "Function",
-  "DefineFunctions", "Expression", "@7", "ListOfExpression",
-  "RecursiveListOfExpression", "WholeQuantityExpression", "@8",
-  "WholeQuantity", "@9", "@10", "@11", "WholeQuantity_Single", "@12",
-  "@13", "@14", "@15", "ArgumentsForFunction", "RecursiveListOfQuantity",
+  "tSendMergeFileRequest", "tWrite", "tAdapt", "tOnGlobal", "tOnRegion",
+  "tOnElementsOf", "tOnGrid", "tOnSection", "tOnPoint", "tOnLine",
+  "tOnPlane", "tOnBox", "tWithArgument", "tFile", "tDepth", "tDimension",
+  "tComma", "tTimeStep", "tHarmonicToTime", "tCosineTransform",
+  "tValueIndex", "tValueName", "tFormat", "tHeader", "tFooter", "tSkin",
+  "tSmoothing", "tTarget", "tSort", "tIso", "tNoNewLine", "tNoTitle",
+  "tDecomposeInSimplex", "tChangeOfValues", "tTimeLegend",
+  "tFrequencyLegend", "tEigenvalueLegend", "tEvaluationPoints",
+  "tStoreInRegister", "tStoreInField", "tStoreInMeshBasedField",
+  "tStoreMaxInRegister", "tStoreMaxXinRegister", "tStoreMaxYinRegister",
+  "tStoreMaxZinRegister", "tStoreMinInRegister", "tStoreMinXinRegister",
+  "tStoreMinYinRegister", "tStoreMinZinRegister", "tLastTimeStepOnly",
+  "tAppendTimeStepToFileName", "tOverrideTimeStepValue", "tNoMesh",
+  "tSendToServer", "tColor", "tStr", "tDate", "tNewCoordinates", "tDEF",
+  "'?'", "tOR", "tAND", "tAPPROXEQUAL", "tNOTEQUAL", "tEQUAL", "'<'",
+  "'>'", "tGREATERGREATER", "tLESSLESS", "tGREATEROREQUAL", "tLESSOREQUAL",
+  "'+'", "'-'", "'*'", "'/'", "'%'", "tCROSSPRODUCT", "'|'", "'&'", "'!'",
+  "UNARYPREC", "'^'", "'('", "')'", "'['", "']'", "'.'", "'#'", "'$'",
+  "tSHOW", "'{'", "'}'", "','", "'@'", "'~'", "$accept", "Stats", "@1",
+  "ProblemDefinitions", "@2", "ProblemDefinition", "Groups", "Group", "@3",
+  "@4", "ReducedGroupRHS", "@5", "GroupRHS", "FunctionForGroup",
+  "ListOfRegionOrAll", "SuppListOfRegion", "SuppListTypeForGroup",
+  "ListOfRegion", "RecursiveListOfRegion", "IRegion",
+  "ListOfStringsForCharOptions", "DefineGroups", "@6", "Comma",
+  "Functions", "Function", "DefineFunctions", "Expression", "@7",
+  "ListOfExpression", "RecursiveListOfExpression",
+  "WholeQuantityExpression", "@8", "WholeQuantity", "@9", "@10", "@11",
+  "WholeQuantity_Single", "@12", "@13", "@14", "@15",
+  "ArgumentsForFunction", "RecursiveListOfQuantity",
   "ParametersForFunction", "JacobianMethods", "JacobianMethod",
   "JacobianMethodTerm", "JacobianCases", "JacobianCase",
   "JacobianCaseTerm", "IntegrationMethods", "IntegrationMethod",
@@ -14399,7 +14400,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 14403 "ProParser.tab.cpp"
+#line 14404 "ProParser.tab.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);

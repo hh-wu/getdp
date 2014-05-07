@@ -266,7 +266,7 @@
      tPrint = 482,
      tPrintGroup = 483,
      tEcho = 484,
-     tMerge = 485,
+     tSendMergeFileRequest = 485,
      tWrite = 486,
      tAdapt = 487,
      tOnGlobal = 488,
@@ -567,7 +567,7 @@
 #define tPrint 482
 #define tPrintGroup 483
 #define tEcho 484
-#define tMerge 485
+#define tSendMergeFileRequest 485
 #define tWrite 486
 #define tAdapt 487
 #define tOnGlobal 488
