@@ -678,10 +678,12 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         Current.TypeAssembly = ASSEMBLY_AGGREGATE ;
 
         Init_SystemData(DofData_P, Flag_Jac) ;
-        if (Operation_P->Case.Generate.GroupIndex >= 0)
+        if (Operation_P->Case.Generate.GroupIndex >= 0){
+printf("GroupIndex=%d\n", Operation_P->Case.Generate.GroupIndex);
           Generate_Group = (struct Group *)
             List_Pointer(Problem_S.Group,
                          Operation_P->Case.Generate.GroupIndex) ;
+}
         Generate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac, 0,
                         cumulative) ;
 

@@ -211,7 +211,6 @@ struct StringXDefine  Operation_Type[] = {
   {"InitSolution"           , OPERATION_INITSOLUTION},
   {"InitSolution1"          , OPERATION_INITSOLUTION1},
   {"ReadSolution"           , OPERATION_READSOLUTION},
-  {"Residual"               , OPERATION_RESIDUAL},
   {"SaveSolution"           , OPERATION_SAVESOLUTION},
   {"SaveSolutionExtendedMH" , OPERATION_SAVESOLUTIONEXTENDEDMH},
   {"SaveSolutions"          , OPERATION_SAVESOLUTIONS},
@@ -985,6 +984,9 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"Rand"              , (CAST)F_Rand             ,   0,   1 },
   {"CompElementNum"    , (CAST)F_CompElementNum   ,   0,   0 },
   {"VirtualWork"       , (CAST)F_VirtualWork      ,   0,   1 },
+  {"dWedu"	       , (CAST)F_dWedu      	  ,   0,   1 },
+  {"dWedudu"           , (CAST)F_dWedudu      	  ,   0,   1 },
+  {"dWedvdu"           , (CAST)F_dWedvdu      	  ,   0,   1 },
   {"AssDiag"           , (CAST)F_AssDiag          ,  -1,   0 },
 
   // F_Interpolation
