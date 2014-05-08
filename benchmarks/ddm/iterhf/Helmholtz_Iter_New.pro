@@ -776,7 +776,9 @@ Resolution {
       	    Generate[C~{iSub}] ; Solve[C~{iSub}] ; SaveSolution[C~{iSub}] ;
 	    Generate[D~{iSub}] ; Solve[D~{iSub}] ; SaveSolution[D~{iSub}] ;
 	  EndIf
-      	  Generate[E~{iSub}] ; Solve[E~{iSub}] ; SaveSolution[E~{iSub}] ;
+      	  // Generate[E~{iSub}] ; Solve[E~{iSub}] ; SaveSolution[E~{iSub}] ;
+	    GenerateRHSGroup[E~{iSub}, Gama~{iSub}];
+	    SolveAgain[E~{iSub}];
 	  // Generate[F~{iSub}] ; Solve[F~{iSub}] ; SaveSolution[F~{iSub}] ;
           PostOperation[u_trace_other_A2~{iSub}];
         EndFor
@@ -794,7 +796,10 @@ Resolution {
       	      Generate[C~{iSub}] ; Solve[C~{iSub}] ; SaveSolution[C~{iSub}] ;
 	      Generate[D~{iSub}] ; Solve[D~{iSub}] ; SaveSolution[D~{iSub}] ;
 	    EndIf
-	    Generate[E~{iSub}] ; Solve[E~{iSub}] ; SaveSolution[E~{iSub}] ;
+	    // Generate[E~{iSub}] ; Solve[E~{iSub}] ; SaveSolution[E~{iSub}] ;
+	    GenerateRHSGroup[E~{iSub}, Gama~{iSub}];
+	    SolveAgain[E~{iSub}];
+
             PostOperation[u_trace_other_A2~{iSub}];
 	
 	    For jSub In {iSub+1:Nbr_SubProblems}
@@ -812,7 +817,9 @@ Resolution {
       	      Generate[C~{iSub}] ; Solve[C~{iSub}] ; SaveSolution[C~{iSub}] ;
 	      Generate[D~{iSub}] ; Solve[D~{iSub}] ; SaveSolution[D~{iSub}] ;
 	    EndIf
-	    Generate[E~{iSub}] ; Solve[E~{iSub}] ; SaveSolution[E~{iSub}] ;
+	    // Generate[E~{iSub}] ; Solve[E~{iSub}] ; SaveSolution[E~{iSub}] ;
+	    GenerateRHSGroup[E~{iSub}, Gama~{iSub}];
+	    SolveAgain[E~{iSub}];
             PostOperation[u_trace_other_A2~{iSub}];
 	
 	    For jSub In {iSub-1:1:-1}
@@ -831,7 +838,9 @@ Resolution {
       	  Generate[C~{iSub}] ; Solve[C~{iSub}] ; SaveSolution[C~{iSub}] ;
 	  Generate[D~{iSub}] ; Solve[D~{iSub}] ; SaveSolution[D~{iSub}] ;
 	EndIf
-      	Generate[E~{iSub}] ; Solve[E~{iSub}] ; SaveSolution[E~{iSub}] ;
+      	// Generate[E~{iSub}] ; Solve[E~{iSub}] ; SaveSolution[E~{iSub}] ;
+	GenerateRHSGroup[E~{iSub}, Gama~{iSub}];
+	SolveAgain[E~{iSub}];
       	// Generate[F~{iSub}] ; Solve[F~{iSub}] ; SaveSolution[F~{iSub}] ;
         PostOperation[u_A2~{iSub}];
 	PostOperation[a~{iSub}];
