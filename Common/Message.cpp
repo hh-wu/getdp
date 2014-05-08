@@ -631,12 +631,15 @@ void Message::InitializeOnelab(std::string name, std::string sockname)
       // so that they are also sent e.g. when the database is reset
       onelab::string o(name + "/FileExtension", ".pro");
       o.setVisible(false);
+      o.setAttribute("Persistent", "1");
       _onelabClient->set(o);
       onelab::number o2(name + "/UseCommandLine", 1.);
       o2.setVisible(false);
+      o2.setAttribute("Persistent", "1");
       _onelabClient->set(o2);
       onelab::number o3(name + "/GuessModelName", 1.);
       o3.setVisible(false);
+      o3.setAttribute("Persistent", "1");
       _onelabClient->set(o3);
       std::vector<onelab::string> ps;
       _onelabClient->get(ps, name + "/Action");
