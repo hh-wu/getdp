@@ -9,6 +9,8 @@ RENEW_PHASE = 0;
 SWEEP_FORWARD = 0;
 SWEEP_BACKWARD = 0;
 
+SOLVER = "gmres_pcright" ;
+
 ratiolc1lc0 = 3 ;
 lcExp = 3 ;
 
@@ -21,9 +23,9 @@ If (!Flag_Quinconce)
 Nbr_SubProblems = Nh*Nv ;
 EndIf
 If (Flag_Quinconce)
-  Nbr_SubProblems = Nv%2 ? (Nh-1)*Nv/2 + Nh*Nv/2 : (Nh-1)*(Nv+1)/2 + Nh*(Nv-1)/2 ;
+  Nbr_SubProblems = Nv%2 ? (Nh-1)*(Nv+1)/2 + Nh*(Nv-1)/2 :(Nh-1)*Nv/2 + Nh*Nv/2 ;
 EndIf
-Printf("Nbr Subproblems: %g", Nbr_SubProblems)
+Printf("Nbr Subproblems: %g", Nbr_SubProblems);
 
 
 disty = R0;

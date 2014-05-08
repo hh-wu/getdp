@@ -48,6 +48,9 @@ For t1 In {1:Nh}
       ppEpsilon[] += pp[0];
       Line Loop(newll) = ll[];
       llScc[] += newll-1 ;
+
+Printf("%g %g", xaux, yaux);
+
     EndIf
   //EndIf
 EndFor

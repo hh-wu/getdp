@@ -1,22 +1,70 @@
 Include "circles_param.pro";
 
+// Function {
+//   // Phase Reduction formulation - For imposing phi_unwrap on a point as a source
+//   phi0 = Pi/4*0 ;
+//   xcen = (Nh-1)*(2*R0+distx)/2 ;
+//   ycen = (Nv-1)*(2*R0+disty)/2 ;
+//   ii = 1 ;
+//   For t1 In {1:Nh}
+//     For t2 In {1:Nv}
+//       xaux = (t1-1)*(2*R0+distx)-xcen ;
+//       yaux = (t2-1)*(2*R0+disty)-ycen ;
+//       cx~{ii} = xaux; cy~{ii} = yaux; cz~{ii} = 0.; // coordinates of center
+//       px~{ii} = xaux+R0*Cos[phi0]; py~{ii} = yaux+R0*Sin[phi0] ; pz~{ii} = 0.; // coordinates of an arbitrary boundary point
+//       Printf("bnd pnt %g %g %g", px~{ii},py~{ii},pz~{ii});
+//       Printf("center  %g %g %g", cx~{ii},cy~{ii},cz~{ii});
+//       ii=ii+1;
+//     EndFor
+//   EndFor
+//  //For problem with only one scatterer center at (0,0,0)
+//   cx~{0} = 0; cy~{0} = 0; cz~{0} = 0.; // coordinates of center
+// }
 Function {
+  If (Flag_Quinconce)
+    disty = disty*Sqrt[2]/2.;
+  EndIf
+
   // Phase Reduction formulation - For imposing phi_unwrap on a point as a source
   phi0 = Pi/4*0 ;
   xcen = (Nh-1)*(2*R0+distx)/2 ;
   ycen = (Nv-1)*(2*R0+disty)/2 ;
   ii = 1 ;
+  If (!Flag_Quinconce)
   For t1 In {1:Nh}
     For t2 In {1:Nv}
       xaux = (t1-1)*(2*R0+distx)-xcen ;
       yaux = (t2-1)*(2*R0+disty)-ycen ;
       cx~{ii} = xaux; cy~{ii} = yaux; cz~{ii} = 0.; // coordinates of center
       px~{ii} = xaux+R0*Cos[phi0]; py~{ii} = yaux+R0*Sin[phi0] ; pz~{ii} = 0.; // coordinates of an arbitrary boundary point
-      Printf("bnd pnt %g %g %g", px~{ii},py~{ii},pz~{ii});
-      Printf("center  %g %g %g", cx~{ii},cy~{ii},cz~{ii});
+      Printf("%g bnd pnt %g %g %g", ii, px~{ii},py~{ii},pz~{ii});
+      Printf("%g center  %g %g %g", ii, cx~{ii},cy~{ii},cz~{ii});
       ii=ii+1;
     EndFor
   EndFor
+  EndIf
+
+  If (Flag_Quinconce)
+For t1 In {1:Nh} 
+  For t2 In {1:Nv} 
+  //If(t1==t2 ||t1<t2 )
+    xaux = (t1-1)*(2*R0+distx)-xcen ;    
+    yaux = (t2-1)*(2*R0+disty)-ycen ;
+    If (Flag_Quinconce && (t2 % 2))
+      xaux += R0+distx/2;
+    EndIf
+    If(!(Flag_Quinconce && t2 % 2 && t1 == Nh))
+      cx~{ii} = xaux; cy~{ii} = yaux; cz~{ii} = 0.; // coordinates of center
+      px~{ii} = xaux+R0*Cos[phi0]; py~{ii} = yaux+R0*Sin[phi0] ; pz~{ii} = 0.; // coordinates of an arbitrary boundary point
+      Printf("%g bnd pnt %g %g %g", ii, px~{ii},py~{ii},pz~{ii});
+      Printf("%g center  %g %g %g", ii, cx~{ii},cy~{ii},cz~{ii});
+      ii=ii+1;
+    EndIf
+  //EndIf
+EndFor
+EndFor
+  EndIf
+
  //For problem with only one scatterer center at (0,0,0)
   cx~{0} = 0; cy~{0} = 0; cz~{0} = 0.; // coordinates of center
 }
