@@ -90,6 +90,12 @@ FunctionSpace {
         Support Region[ Gama~{iSub} ] ; Entity NodesOf[ All ] ; }
     }
   }
+  // { Name Hgrad_lambda_eps~{iSub} ; Type Form0 ;
+  //   BasisFunction {
+  //     { Name sn ; NameOfCoef un ; Function BF_Node ;
+  //       Support Region[ Epsilon~{iSub} ] ; Entity NodesOf[ All ] ; }
+  //   }
+  // }
 
   { Name Hgrad_u_DirichletBC~{iSub} ; Type Form0 ;
     BasisFunction {
@@ -97,25 +103,26 @@ FunctionSpace {
         Support #{Gama~{iSub},Epsilon~{iSub}} ; Entity NodesOf[ All ] ; }
     }
     Constraint {
-      { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet_u~{iSub} ; }
+      // { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet_u~{iSub} ; } // removed this constraint and use Lagrange multipliers in formulation
     }
   }
 
   { Name Hgrad_u_from_a~{iSub} ; Type Form0 ;
     BasisFunction {
       { Name sn ; NameOfCoef un ; Function BF_Node ;
-        Support Omega~{iSub} ; Entity NodesOf[ All ] ; }
+        Support #{Omega~{iSub}, Gama_0} ; Entity NodesOf[ All ] ; }
     }
-   Constraint {
-      { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet_u2~{iSub} ; }
-    }
+   // Constraint {
+   //    { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet_u2~{iSub} ; }
+   //  }
 
   }
 
   { Name Hgrad_a_Dirichlet~{iSub} ; Type Form0 ;
     BasisFunction {
       { Name sn ; NameOfCoef an ; Function BF_Node ;
-        Support Region[ {Omega~{iSub},Gama~{iSub},Sigma} ] ; Entity NodesOf[ All ] ; }
+        // Support Region[ {Omega~{iSub},Gama~{iSub},Sigma} ] ; Entity NodesOf[ All ] ; }
+        Support Region[ {Omega~{iSub},Gama_0,Sigma} ] ; Entity NodesOf[ All ] ; }
     }
     Constraint {
       { NameOfCoef an ; EntityType NodesOf ; NameOfConstraint Dirichlet_a~{iSub} ; }
@@ -125,7 +132,8 @@ FunctionSpace {
   { Name Hgrad_a_Proj~{iSub} ; Type Form0 ;
     BasisFunction {
       { Name sn ; NameOfCoef an ; Function BF_Node ;
-        Support Region[ {TrGr~{iSub},Gama~{iSub}} ] ; Entity NodesOf[ All, Not Gama~{iSub}] ; }
+        // Support Region[ {TrGr~{iSub},Gama~{iSub}} ] ; Entity NodesOf[ All, Not Gama~{iSub}] ; }
+        Support Region[ {TrGr~{iSub},Gama_0} ] ; Entity NodesOf[ All, Not Gama~{iSub}] ; }
       { Name snk ; NameOfCoef ank ; Function BF_Node ;
         Support Region[ {TrGr~{iSub},Gama~{iSub}} ] ; Entity NodesOf[ Gama~{iSub}] ; }
     }
@@ -164,7 +172,8 @@ FunctionSpace {
   { Name Hgrad_phi_extend~{iSub} ; Type Form0 ;
     BasisFunction {
       { Name sn ; NameOfCoef un ; Function BF_Node ;
-        Support Region[ {Omega~{iSub},Sigma,Gama~{iSub}} ] ; Entity NodesOf[ All] ; }
+        // Support Region[ {Omega~{iSub},Sigma,Gama~{iSub}} ] ; Entity NodesOf[ All ] ; }
+        Support Region[ {Omega~{iSub},Sigma,Gama_0} ] ; Entity NodesOf[ All ] ; }
     }
   }
 
@@ -172,7 +181,7 @@ FunctionSpace {
 }
 
 Formulation {
-  { Name Wave_Dirichlet~{iSub} ; Type FemEquation ;
+  { Name Wave_Dirichlet~{iSub} ; Type FemEquation ; 
     Quantity {
       { Name u ; Type Local ; NameOfSpace Hgrad_u~{iSub}; }
       { Name lambda ; Type Local ; NameOfSpace Hgrad_lambda~{iSub}; }
@@ -207,6 +216,26 @@ Formulation {
     }
   }
 
+  // Trivial formulation, added to copy the Field into function space (Q&D)
+  { Name u_BC~{iSub} ; Type FemEquation ;
+    Quantity {
+      { Name u  ; Type Local ; NameOfSpace Hgrad_u_DirichletBC~{iSub}; }
+    }
+    Equation {
+      Galerkin { [  Dof{u}, {u} ] ;
+        In #{Gama~{iSub}, Epsilon~{iSub}}; Jacobian JSur ; Integration I1 ; }
+      If (iSub == 0)
+	Galerkin { [ uinc[], {u} ] ;
+          In #{Gama~{iSub}, Epsilon~{iSub}}; Jacobian JSur ; Integration I1 ; }
+      EndIf
+      If (iSub != 0)
+	Galerkin { [ #10 > 0 ? uinc[] : ComplexScalarField[XYZ[]]{iSub}, {u} ] ;
+          In #{Gama~{iSub}, Epsilon~{iSub}}; Jacobian JSur ; Integration I1 ; }
+      EndIf
+    }
+  }
+
+
   { Name Projection_phi_src~{iSub} ; Type FemEquation ;
     Quantity {
       { Name u  ; Type Local ; NameOfSpace Hgrad_u_DirichletBC~{iSub}; }
@@ -215,8 +244,8 @@ Formulation {
     Equation {
       Galerkin { [  Dof{phi}, {phi} ] ;
         In Epsilon~{iSub}; Jacobian JLin ; Integration I1 ; }
-      Galerkin { [ 0*Dof{u}, {phi} ] ; //*****
-        In Epsilon~{iSub}; Jacobian JLin ; Integration I1 ; }
+      // Galerkin { [ 0*Dof{u}, {phi} ] ; //*****
+      //   In Epsilon~{iSub}; Jacobian JLin ; Integration I1 ; }
       Galerkin { [ ((-Atan2[Im[{u}],Re[{u}]]) / k), {phi} ] ;
         In Epsilon~{iSub}; Jacobian JLin ; Integration I1 ; }
     }
@@ -225,18 +254,19 @@ Formulation {
   // atan2 would produce a phase in [-pi,pi] with 2pi discontinuities)
   { Name Phase_Unwrap~{iSub} ; Type FemEquation ;
     Quantity {
-      { Name phi_unwrap; Type Local ; NameOfSpace Hgrad_phi_unwrap~{iSub}; }
       { Name u; Type Local ; NameOfSpace Hgrad_u_DirichletBC~{iSub}; }
+      { Name phi_unwrap; Type Local ; NameOfSpace Hgrad_phi_unwrap~{iSub}; }
       { Name phi ; Type Local ; NameOfSpace Hgrad_phi_trace~{iSub}[phi_pnt]; }
     }
     Equation {
       Galerkin { [  Dof{d phi_unwrap} , {d phi_unwrap} ] ;
                  In Gama~{iSub}; Jacobian JSur ; Integration I1 ; }
-      Galerkin { [ 0*Dof{u}, {phi_unwrap} ] ; //***** Functional space completely fixed!!!
-                 In Gama~{iSub}; Jacobian JSur ; Integration I1 ; }
+      // Galerkin { [ 0*Dof{u}, {phi_unwrap} ] ; //***** Functional space completely fixed!!!
+      //            In Gama~{iSub}; Jacobian JSur ; Integration I1 ; }
 
       Galerkin { [ -1/k * Im[Conj[{u}]*{d u}]/ SquNorm[{u}], {d phi_unwrap} ] ;
                  In Gama~{iSub}; Jacobian JSur ; Integration I1 ; }
+
        //===========
       Galerkin { [ {d phi}, {d phi_unwrap} ] ;
                  In Gama~{iSub}; Jacobian JSur ; Integration I1 ; }
@@ -251,17 +281,17 @@ Formulation {
     }
     Equation {
       Galerkin { [  Dof{phi_extend} , {phi_extend} ] ;
-                 In Omega~{iSub}; Jacobian JVol ; Integration I1 ; }
+	In #{Omega~{iSub}/*, Sigma*/}; Jacobian JVol ; Integration I1 ; }
       Galerkin { [ - normRminusR0~{iSub}[] , {phi_extend} ] ;
-                 In Omega~{iSub}; Jacobian JVol ; Integration I1 ; }
+	In #{Omega~{iSub}/*, Sigma*/}; Jacobian JVol ; Integration I1 ; }
 
       Galerkin { [ - {phi_unwrap}[ Project~{iSub}[], DIM-1],
 		   {phi_extend} ] ;
-                 In Omega~{iSub}; Jacobian JVol ; Integration I1 ; }
+	In #{Omega~{iSub}/*, Sigma*/}; Jacobian JVol ; Integration I1 ; }
 
       Galerkin { [ - {phi}[ Project~{iSub}[], DIM-1],
 		   {phi_extend} ] ;
-                 In Omega~{iSub}; Jacobian JVol ; Integration I1 ; }
+	In #{Omega~{iSub}/*, Sigma*/}; Jacobian JVol ; Integration I1 ; }
 
     }
   }
@@ -302,8 +332,8 @@ Formulation {
       Galerkin { [ betaBT[] * k^2 * SquNorm[{Grad phi_extend}] * Dof{a} , {a} ] ;
                  In Sigma; Jacobian JSur ; Integration I1 ; }
       //============
-      Galerkin { [ 0*Dof{u}, {a_proj} ] ;//***** Functional space completely fixed!!!
-                 In Gama~{iSub}; Jacobian JSur ; Integration I1 ; }
+      // Galerkin { [ 0*Dof{u}, {a_proj} ] ;//***** Functional space completely fixed!!!
+      //            In Gama~{iSub}; Jacobian JSur ; Integration I1 ; }
 
       Galerkin { [ Dof{a_proj} , {a_proj} ] ;
                  In Gama~{iSub}; Jacobian JSur ; Integration I1 ; }
@@ -344,7 +374,7 @@ Resolution {
  
   { Name Wave_Dirichlet~{iSub} ;
     System {
-      { Name A ; NameOfFormulation Wave_Dirichlet~{iSub} ; Type Complex; }
+      { Name A ; NameOfFormulation Wave_Dirichlet~{iSub} ; Type Complex;  NameOfMesh "circles_fine_for_Full.msh";}
     }
     Operation {
       If (iSub == 0)
@@ -353,7 +383,8 @@ Resolution {
 
 
       Generate[A] ; Solve[A] ; SaveSolution[A] ;
-      SaveSolutionWithEntityNum[A, NodesOf[Gama~{0}]];
+      // SaveSolutionWithEntityNum[A, NodesOf[Gama~{0}]];
+      PostOperation[u_0];
     }
   }
 
@@ -428,6 +459,80 @@ PostProcessing {
       }
     }
   }
+
+ { Name Wave_Dirichlet_A~{iSub} ; NameOfFormulation u_from_a~{iSub} ;
+    PostQuantity {
+      { Name u_A ;
+        Value { Term { [ {u} ] ; In Omega~{iSub}; Jacobian JVol ; } }
+      }
+      { Name u_trace_A ;
+        Value { Term { [ {u} ] ; In Gama~{0}; Jacobian JSur ; } }
+      }
+      { Name combine_A ;
+        Value { 
+          For jj In {1:Nbr_SubProblems}
+            If (jj != iSub)
+              Term { [ ComplexScalarField[XYZ[]]{100+jj} ] ; In Gama~{0}; Jacobian JSur ; }
+            EndIf
+          EndFor
+        }
+      }
+    }
+  }
+ { Name Wave_Transport~{iSub} ; NameOfFormulation Transport_Dirichlet_Numeric~{iSub} ;
+    PostQuantity {
+      { Name u_transp_A ;
+ 	Value{
+          // Term { [ {a} * Complex[ Cos[k*{phi_extend}], Sin[k*{phi_extend}] ] ] ; In Omega~{iSub}; Jacobian JVol ; }
+          // Term { [ -{a_proj} * Complex[ Cos[k*{phi_extend}], Sin[k*{phi_extend}] ] ] ; In TrGr~{iSub}; Jacobian JVol ; }
+          Term { [ {a} * Complex[ Cos[k*{phi_extend}], Sin[k*{phi_extend}] ] ] ; In #{Omega~{iSub}, Gama_0, Sigma}; Jacobian JVol ; }
+          Term { [ -{a_proj} * Complex[ Cos[k*{phi_extend}], Sin[k*{phi_extend}] ] ] ; In #{TrGr~{iSub}, Gama_0, Sigma}; Jacobian JVol ; }
+ 	}
+      }
+      // { Name u_trace_transp_A ;
+      // 	Value{
+      //     // Term { [ {a} * Complex[ Cos[k*{phi_extend}], Sin[k*{phi_extend}] ] ] ; In Gama_0; Jacobian JSur ; }
+      //     // Term { [ -{a_proj} * Complex[ Cos[k*{phi_extend}], Sin[k*{phi_extend}] ] ] ; In Gama_0; Jacobian JSur ; }
+      //     Term { [ {a} * Complex[ Cos[k*{phi_extend}], Sin[k*{phi_extend}] ] ] ; In #{Omega~{iSub}, Gama_0}; Jacobian JVol ; }
+      //     Term { [ -{a_proj} * Complex[ Cos[k*{phi_extend}], Sin[k*{phi_extend}] ] ] ; In #{TrGr~{iSub}, Gama_0}; Jacobian JVol ; }
+      // 	}
+      // }
+      { Name combine_A ;
+        Value { 
+          For jj In {1:Nbr_SubProblems}
+            If (jj != iSub)
+              // Term { [ ComplexScalarField[XYZ[]]{100+jj} ] ; In Gama~{0}; Jacobian JSur ; }
+              Term { [ ComplexScalarField[XYZ[]]{100+jj} ] ; In Gama~{iSub}; Jacobian JSur ; } // data will be used only on Gama~{iSub}
+            EndIf
+          EndFor
+        }
+      }
+    //   { Name combine_A_Fw ;
+    //     Value { 
+    // 	  Term { [ ComplexScalarField[XYZ[]]{iSub} ] ; In Gama~{iSub}; Jacobian JSur ; }
+    //       // For jj In {1:Nbr_SubProblems}
+    //       For jj In {1:iSub}
+    //         // If (jj != iSub)
+    //           Term { [ ComplexScalarField[XYZ[]]{100+jj} ] ; In Gama~{iSub}; Jacobian JSur ; } // data will be used only on Gama~{iSub}
+    //         // EndIf
+    //       EndFor
+    //     }
+    //   }
+    // }
+      For jSub In {1:Nbr_SubProblems}
+      { Name combine_A_Fw~{jSub} ;
+        Value { 
+	  Term { [ ComplexScalarField[XYZ[]]{iSub} ] ; In Gama~{iSub}; Jacobian JSur ; }
+            // If (jSub < iSub)
+              Term { [ ComplexScalarField[XYZ[]]{100+jSub} ] ; In Gama~{iSub}; Jacobian JSur ; } //data will be used only on Gama~{iSub}
+            // EndIf
+        }
+      }
+      EndFor
+    }
+  }
+
+
 }
 
 fileExt = Str[ Sprintf("%g", iSub) ]; // Total problem
@@ -438,9 +543,31 @@ PostOperation {
       Print[ u, OnElementsOf #{Omega~{iSub},-FilledHole~{iSub}}, File StrCat[ StrCat["u", fileExt], ".pos"] ] ;
     }
   }
+  { Name u_A~{iSub} ; NameOfPostProcessing Wave_Dirichlet_A~{iSub};
+    Operation {
+      Print[ u_A, OnElementsOf #{Omega~{iSub},-FilledHole~{iSub}}, File StrCat[ StrCat["u", fileExt], ".pos"] ] ;
+    }
+  }
+  { Name u_A2~{iSub} ; NameOfPostProcessing Wave_Transport~{iSub};
+    Operation {
+      Print[ u_transp_A, OnElementsOf #{Omega~{iSub},-FilledHole~{iSub}}, File StrCat[ StrCat["u", fileExt], ".pos"] ] ;
+    }
+  }
   { Name u_trace~{iSub} ; NameOfPostProcessing Wave_Dirichlet~{iSub};
     Operation {
-      Print[ u_trace, OnElementsOf Region[Gama~{iSub}], StoreInField iSub /*, File Sprintf["u_trace%g.pos", iSub]*/] ;
+      Print[ u_trace, OnElementsOf Region[Gama~{iSub}], StoreInField iSub/*, File Sprintf["u_trace%g.pos", iSub]*/] ;
+    }
+  }
+  { Name u_trace_A~{iSub} ; NameOfPostProcessing Wave_Dirichlet_A~{iSub};
+    Operation {
+      Print[ u_trace_A, OnElementsOf Region[Gama~{iSub}], StoreInField iSub/*, File Sprintf["u_trace%g.pos", iSub]*/] ;
+    }
+  }
+  { Name u_trace_A2~{iSub} ; NameOfPostProcessing Wave_Transport~{iSub};
+    Operation {
+      // Print[ u_trace_transp_A, OnElementsOf Region[Gama~{iSub}], StoreInField iSub/*, File Sprintf["u_trace_transp%g.pos", iSub]*/] ;
+      Print[ u_transp_A, OnElementsOf Region[Gama~{iSub}], StoreInField iSub/*, File Sprintf["u_trace_transp%g.pos", iSub]*/] ;
+      Print[ u_transp_A, OnElementsOf Region[Gama~{iSub}], StoreInField 100+iSub/*, File Sprintf["u_trace_transp%g.pos", iSub]*/] ; // For preconditioner -- TEST
     }
   }
   { Name u_trace_other~{iSub} ; NameOfPostProcessing Wave_Dirichlet~{iSub};
@@ -448,19 +575,50 @@ PostOperation {
       Print[ u_trace, OnElementsOf Region[{Gama~{0},-Gama~{iSub}}], StoreInField 100+iSub/*,  File Sprintf["u_trace_other%g.pos", iSub]*/ ] ;
     }
   }
+  { Name u_trace_other_A~{iSub} ; NameOfPostProcessing Wave_Dirichlet_A~{iSub};
+    Operation {
+      Print[ u_trace_A, OnElementsOf Region[{Gama~{0},-Gama~{iSub}}], StoreInField 100+iSub/*,  File Sprintf["u_trace_other%g.pos", iSub]*/ ] ;
+    }
+  }
+  { Name u_trace_other_A2~{iSub} ; NameOfPostProcessing Wave_Transport~{iSub};
+    Operation {
+      // Print[ u_trace_transp_A, OnElementsOf Region[{Gama~{0},-Gama~{iSub}}], StoreInField 100+iSub/*,  File Sprintf["u_trace_other%g.pos", iSub]*/ ] ;
+      Print[ u_transp_A, OnElementsOf Region[{Gama~{0},-Gama~{iSub}}], StoreInField 100+iSub/*,  File Sprintf["u_trace_other%g.pos", iSub]*/ ] ;
+    }
+  }
   { Name combine~{iSub} ; NameOfPostProcessing Wave_Dirichlet~{iSub};
     Operation {
       Print[ combine, OnElementsOf Region[Gama~{iSub}], StoreInField iSub/*,  File Sprintf["combine%g.pos", iSub]*/] ;
     }
   }
+  { Name combine_A~{iSub} ; NameOfPostProcessing Wave_Dirichlet_A~{iSub};
+    Operation {
+      Print[ combine_A, OnElementsOf Region[Gama~{iSub}], StoreInField iSub/*,  File Sprintf["combine%g.pos", iSub]*/] ;
+    }
+  }
+  { Name combine_A2~{iSub} ; NameOfPostProcessing Wave_Transport~{iSub};
+    Operation {
+      Print[ combine_A, OnElementsOf Region[Gama~{iSub}], StoreInField iSub/*,  File Sprintf["combine%g.pos", iSub]*/] ;
+    }
+  }
+
+  //////////////////////////////////////
+  For jSub In {1:Nbr_SubProblems}
+  { Name combine_A2_Forward~{iSub}~{jSub} ; NameOfPostProcessing Wave_Transport~{iSub};
+    Operation {
+      Print[ combine_A_Fw~{jSub}, OnElementsOf Region[Gama~{iSub}], StoreInField iSub/*,  File Sprintf["combine%g.pos", iSub]*/] ;
+    }
+  }
+  EndFor
+  //////////////////////////////////////
 
   { Name a~{iSub} ; NameOfPostProcessing Transport_Dirichlet_Numeric~{iSub};
     Operation {
-      Print[ a, OnElementsOf #{Omega~{iSub},-FilledHole~{iSub}},
+      Print[ a, OnElementsOf #{Omega~{iSub}, Sigma,-FilledHole~{iSub}},
              File StrCat[ StrCat["a", fileExt], ".pos"] ] ;
-      Print[ phi_extend, OnElementsOf #{Omega~{iSub},-FilledHole~{iSub}},
+      Print[ phi_extend, OnElementsOf #{Omega~{iSub}, Sigma, -FilledHole~{iSub}},
              File StrCat[ StrCat["phi_extend", fileExt], ".pos"], Depth 1] ;
-      Print[ u_from_a, OnElementsOf #{Omega~{iSub},-FilledHole~{iSub}},
+      Print[ u_from_a, OnElementsOf #{Omega~{iSub}, Sigma,-FilledHole~{iSub}},
              File StrCat[ StrCat["u_from_a", fileExt], ".pos"]] ;
       //   Print[ phi_unwrap, OnElementsOf #{Gama~{iSub}},
       //       File StrCat[ StrCat["phi_unwrap", fileExt], ".pos"], Depth 1] ;
@@ -476,7 +634,7 @@ EndFor
 
 Resolution {
  
-  { Name Wave_Dirichlet ;
+  { Name Iterhf_Wave_Dirichlet ;
     System {
      For iSub In {1:Nbr_SubProblems}
        { Name A~{iSub} ; NameOfFormulation Wave_Dirichlet~{iSub} ; Type Complex; }
@@ -488,21 +646,22 @@ Resolution {
       For iSub In {1:Nbr_SubProblems}
         Generate[A~{iSub}];
         Solve[A~{iSub}];
-        PostOperation[u_trace~{iSub}];
+        PostOperation[u_trace~{iSub}]; // N.B.: Quite costly to solve problems just to take the trace of the Dirichlet data...
+        // PostOperation[u~{iSub}];
       EndFor
 
       Evaluate[ 0 #10 ];
 
-      IterativeLinearSolver["I-A", "gmres", 1.e-4, 100, 100, {1:Nbr_SubProblems}, {}, {}]
+      IterativeLinearSolver["I-A", "gmres", solverTol, 100, 100, {1:Nbr_SubProblems}, {}, {}]
       {
         For iSub In {1:Nbr_SubProblems}
-	  GenerateRHSGroup[A~{iSub}, Gama~{iSub}];
+      	  GenerateRHSGroup[A~{iSub}, Gama~{iSub}];
           SolveAgain[A~{iSub}];
           PostOperation[u_trace_other~{iSub}];
         EndFor
         For iSub In {1:Nbr_SubProblems}
           PostOperation[combine~{iSub}];
-	EndFor
+      	EndFor
       }
       { /* This preconditioner does nothing */ }
 
@@ -510,6 +669,172 @@ Resolution {
         GenerateRHSGroup[A~{iSub}, Gama~{iSub}];
         SolveAgain[A~{iSub}];
         PostOperation[u~{iSub}];
+      EndFor
+
+    }
+  }
+
+  { Name Iterhf_Transport_Dirichlet_Numeric ;
+    System {
+     For iSub In {1:Nbr_SubProblems}
+       { Name A~{iSub} ; NameOfFormulation u_BC~{iSub} ; Type Complex; }
+       { Name B~{iSub} ; NameOfFormulation Projection_phi_src~{iSub} ; Type Complex; }
+       { Name C~{iSub} ; NameOfFormulation Phase_Unwrap~{iSub} ; Type Complex; }
+       { Name D~{iSub} ; NameOfFormulation Phase_Extend~{iSub} ; Type Complex; }
+       { Name E~{iSub} ; NameOfFormulation Transport_Dirichlet_Numeric~{iSub} ; Type Complex; }
+       { Name F~{iSub} ; NameOfFormulation u_from_a~{iSub} ; Type Complex; }
+     EndFor
+   }
+    Operation {
+
+      Evaluate[ 1 #10 ];
+      For iSub In {1:Nbr_SubProblems}
+        // Generate[A~{iSub}];
+        // Solve[A~{iSub}];
+        Generate[A~{iSub}] ; Solve[A~{iSub}] ; SaveSolution[A~{iSub}] ;
+        Generate[B~{iSub}] ; Solve[B~{iSub}] ; SaveSolution[B~{iSub}] ;
+	Generate[C~{iSub}] ; Solve[C~{iSub}] ; SaveSolution[C~{iSub}] ;
+	Generate[D~{iSub}] ; Solve[D~{iSub}] ; SaveSolution[D~{iSub}] ;
+	Generate[E~{iSub}] ; Solve[E~{iSub}] ; SaveSolution[E~{iSub}] ;
+	Generate[F~{iSub}] ; Solve[F~{iSub}] ; SaveSolution[F~{iSub}] ;
+        // PostOperation[u_trace_A~{iSub}];
+        PostOperation[u_trace_A~{iSub}];
+        // PostOperation[u_A~{iSub}];
+        // PostOperation[u_A2~{iSub}];
+      EndFor
+
+      Evaluate[ 0 #10 ];
+
+      IterativeLinearSolver["I-A", "gmres", solverTol, 100, 100, {1:Nbr_SubProblems}, {}, {}]
+      {
+        For iSub In {1:Nbr_SubProblems}
+      	  // GenerateRHSGroup[A~{iSub}, Gama~{iSub}];
+        Generate[A~{iSub}] ; Solve[A~{iSub}] ; SaveSolution[A~{iSub}] ;
+        Generate[B~{iSub}] ; Solve[B~{iSub}] ; SaveSolution[B~{iSub}] ;
+      	Generate[C~{iSub}] ; Solve[C~{iSub}] ; SaveSolution[C~{iSub}] ;
+      	Generate[D~{iSub}] ; Solve[D~{iSub}] ; SaveSolution[D~{iSub}] ;
+      	Generate[E~{iSub}] ; Solve[E~{iSub}] ; SaveSolution[E~{iSub}] ;
+      	Generate[F~{iSub}] ; Solve[F~{iSub}] ; SaveSolution[F~{iSub}] ;
+          PostOperation[u_trace_other_A~{iSub}];
+        EndFor
+        For iSub In {1:Nbr_SubProblems}
+          PostOperation[combine_A~{iSub}];
+      	EndFor
+      }
+      { /* This preconditioner does nothing */ }
+
+      For iSub In {1:Nbr_SubProblems}
+        // GenerateRHSGroup[A~{iSub}, Gama~{iSub}];
+        // SolveAgain[A~{iSub}];
+        Generate[A~{iSub}] ; Solve[A~{iSub}] ; SaveSolution[A~{iSub}] ;
+        Generate[B~{iSub}] ; Solve[B~{iSub}] ; SaveSolution[B~{iSub}] ;
+      	Generate[C~{iSub}] ; Solve[C~{iSub}] ; SaveSolution[C~{iSub}] ;
+      	Generate[D~{iSub}] ; Solve[D~{iSub}] ; SaveSolution[D~{iSub}] ;
+      	Generate[E~{iSub}] ; Solve[E~{iSub}] ; SaveSolution[E~{iSub}] ;
+      	Generate[F~{iSub}] ; Solve[F~{iSub}] ; SaveSolution[F~{iSub}] ;
+        PostOperation[u_A~{iSub}];
+      EndFor
+
+    }
+  }
+
+  { Name Iterhf_Transport_Dirichlet_Numeric_PP ;
+    System {
+     For iSub In {1:Nbr_SubProblems}
+       { Name A~{iSub} ; NameOfFormulation u_BC~{iSub} ; Type Complex; }
+       { Name B~{iSub} ; NameOfFormulation Projection_phi_src~{iSub} ; Type Complex; }
+       { Name C~{iSub} ; NameOfFormulation Phase_Unwrap~{iSub} ; Type Complex; }
+       { Name D~{iSub} ; NameOfFormulation Phase_Extend~{iSub} ; Type Complex; }
+       { Name E~{iSub} ; NameOfFormulation Transport_Dirichlet_Numeric~{iSub} ; Type Complex; }
+       { Name F~{iSub} ; NameOfFormulation u_from_a~{iSub} ; Type Complex; }
+     EndFor
+   }
+    Operation {
+
+      Evaluate[ 1 #10 ];
+      For iSub In {1:Nbr_SubProblems}
+        // Generate[A~{iSub}];
+        // Solve[A~{iSub}];
+        Generate[A~{iSub}] ; Solve[A~{iSub}] ; SaveSolution[A~{iSub}] ;
+        Generate[B~{iSub}] ; Solve[B~{iSub}] ; SaveSolution[B~{iSub}] ;
+	Generate[C~{iSub}] ; Solve[C~{iSub}] ; SaveSolution[C~{iSub}] ;
+	Generate[D~{iSub}] ; Solve[D~{iSub}] ; SaveSolution[D~{iSub}] ;
+	Generate[E~{iSub}] ; Solve[E~{iSub}] ; SaveSolution[E~{iSub}] ;
+	// Generate[F~{iSub}] ; Solve[F~{iSub}] ; SaveSolution[F~{iSub}] ;
+        PostOperation[u_trace_A2~{iSub}];
+      EndFor
+
+      Evaluate[ 0 #10 ];
+
+      IterativeLinearSolver["I-A", "gmres", solverTol, MAXIT, RESTART, {1:Nbr_SubProblems}, {}, {}]
+      {
+        For iSub In {1:Nbr_SubProblems}
+      	  // GenerateRHSGroup[A~{iSub}, Gama~{iSub}];
+          Generate[A~{iSub}] ; Solve[A~{iSub}] ; SaveSolution[A~{iSub}] ;
+	  If (RENEW_PHASE)
+	    Generate[B~{iSub}] ; Solve[B~{iSub}] ; SaveSolution[B~{iSub}] ;
+      	    Generate[C~{iSub}] ; Solve[C~{iSub}] ; SaveSolution[C~{iSub}] ;
+	    Generate[D~{iSub}] ; Solve[D~{iSub}] ; SaveSolution[D~{iSub}] ;
+	  EndIf
+      	  Generate[E~{iSub}] ; Solve[E~{iSub}] ; SaveSolution[E~{iSub}] ;
+	  // Generate[F~{iSub}] ; Solve[F~{iSub}] ; SaveSolution[F~{iSub}] ;
+          PostOperation[u_trace_other_A2~{iSub}];
+        EndFor
+        For iSub In {1:Nbr_SubProblems}
+          PostOperation[combine_A2~{iSub}];
+      	EndFor
+      }
+      {
+	If (SWEEP_FORWARD)
+	  // Gauss-Seidel preconditioner (forward sweep-like)
+	  For iSub In {1:Nbr_SubProblems-1}
+            Generate[A~{iSub}] ; Solve[A~{iSub}] ; SaveSolution[A~{iSub}] ;
+	    If (RENEW_PHASE)
+	      Generate[B~{iSub}] ; Solve[B~{iSub}] ; SaveSolution[B~{iSub}] ;
+      	      Generate[C~{iSub}] ; Solve[C~{iSub}] ; SaveSolution[C~{iSub}] ;
+	      Generate[D~{iSub}] ; Solve[D~{iSub}] ; SaveSolution[D~{iSub}] ;
+	    EndIf
+	    Generate[E~{iSub}] ; Solve[E~{iSub}] ; SaveSolution[E~{iSub}] ;
+            PostOperation[u_trace_other_A2~{iSub}];
+	
+	    For jSub In {iSub+1:Nbr_SubProblems}
+	    PostOperation[combine_A2_Forward~{jSub}~{iSub}];
+	    EndFor
+	  EndFor
+	EndIf
+
+	If (SWEEP_BACKWARD)
+	  // reversed Gauss-Seidel preconditioner (backward sweep-like)
+	  For iSub In {Nbr_SubProblems:2:-1}
+            Generate[A~{iSub}] ; Solve[A~{iSub}] ; SaveSolution[A~{iSub}] ;
+	    If (RENEW_PHASE)
+	      Generate[B~{iSub}] ; Solve[B~{iSub}] ; SaveSolution[B~{iSub}] ;
+      	      Generate[C~{iSub}] ; Solve[C~{iSub}] ; SaveSolution[C~{iSub}] ;
+	      Generate[D~{iSub}] ; Solve[D~{iSub}] ; SaveSolution[D~{iSub}] ;
+	    EndIf
+	    Generate[E~{iSub}] ; Solve[E~{iSub}] ; SaveSolution[E~{iSub}] ;
+            PostOperation[u_trace_other_A2~{iSub}];
+	
+	    For jSub In {iSub-1:1:-1}
+	      PostOperation[combine_A2_Forward~{jSub}~{iSub}];
+	    EndFor
+	  EndFor
+	EndIf
+      }
+
+      For iSub In {1:Nbr_SubProblems}
+        // GenerateRHSGroup[A~{iSub}, Gama~{iSub}];
+        // SolveAgain[A~{iSub}];
+        Generate[A~{iSub}] ; Solve[A~{iSub}] ; SaveSolution[A~{iSub}] ;
+	If (RENEW_PHASE)
+	  Generate[B~{iSub}] ; Solve[B~{iSub}] ; SaveSolution[B~{iSub}] ;
+      	  Generate[C~{iSub}] ; Solve[C~{iSub}] ; SaveSolution[C~{iSub}] ;
+	  Generate[D~{iSub}] ; Solve[D~{iSub}] ; SaveSolution[D~{iSub}] ;
+	EndIf
+      	Generate[E~{iSub}] ; Solve[E~{iSub}] ; SaveSolution[E~{iSub}] ;
+      	// Generate[F~{iSub}] ; Solve[F~{iSub}] ; SaveSolution[F~{iSub}] ;
+        PostOperation[u_A2~{iSub}];
+	PostOperation[a~{iSub}];
       EndFor
 
     }

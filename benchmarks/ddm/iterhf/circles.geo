@@ -92,7 +92,7 @@ Field[1].NNodesByEdge = 100;
 Field[1].EdgesList = {gamaTot[]};
 
 Field[2] = MathEval;
-Field[2].F = Sprintf("F1^1 + %g", lc0);
+Field[2].F = Sprintf("F1^%g + %g", lcExp, lc0);
 
 Field[3] = MathEval;
 Field[3].F = Sprintf("%g", lc1);

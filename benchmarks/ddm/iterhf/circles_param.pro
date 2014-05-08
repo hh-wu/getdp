@@ -1,12 +1,30 @@
 Include "freq.pro";
-Nh = 2 ; Nv = 2 ;
-Nbr_SubProblems = Nh*Nv ;
+Nh = 3 ; Nv = 3 ;
 
-ratiolc1lc0 = 1 ;
-Flag_Field = 0 ;
-Flag_Quinconce = 0;
+solverTol = 1e-4;
+MAXIT = 100;
+RESTART = MAXIT;
+RENEW_PHASE = 0;
+
+SWEEP_FORWARD = 0;
+SWEEP_BACKWARD = 0;
+
+ratiolc1lc0 = 3 ;
+lcExp = 3 ;
+
+Flag_Field = 1 ;
+Flag_Quinconce = 1;
 k = k0 ;
 R0 = 1;
+
+If (!Flag_Quinconce)
+Nbr_SubProblems = Nh*Nv ;
+EndIf
+If (Flag_Quinconce)
+  Nbr_SubProblems = Nv%2 ? (Nh-1)*Nv/2 + Nh*Nv/2 : (Nh-1)*(Nv+1)/2 + Nh*(Nv-1)/2 ;
+EndIf
+Printf("Nbr Subproblems: %g", Nbr_SubProblems)
+
 
 disty = R0;
 distx = R0;
@@ -19,7 +37,7 @@ Ro = 0.65*MaxN*(2*R0+dist) ;
 lambda = 2*Pi/k ;
 scalefactor = (k<2) ? 2./k : 1.;
 
-nlambda = 10 ;
+nlambda = 15 ;
 lc0 = lambda/nlambda/scalefactor ;
 lc1 = lambda/nlambda/scalefactor * ratiolc1lc0 ;
 
