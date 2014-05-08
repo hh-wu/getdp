@@ -177,7 +177,7 @@ struct doubleXstring{
 
 /* ------------------------------------------------------------------ */
 %token  tEND tDOTS
-%token  tStrCat tSprintf tPrintf tRead tPrintConstants tStrCmp tNbrRegions
+%token  tStrCat tSprintf tPrintf tRead tPrintConstants tStrCmp tNbrRegions tGetRegion
 %token  tFor tEndFor tIf tElse tEndIf
 %token  tFlag
 %token  tInclude
@@ -7781,6 +7781,29 @@ NbrRegions :
       if ( (i = List_ISearchSeq(Problem_S.Group, $3, fcmp_Group_Name)) >= 0 ) {
 	$$ = List_Nbr(((struct Group *)List_Pointer(Problem_S.Group, i))
 		      ->InitialList) ;
+      }
+      else {
+	vyyerror("Unknown Group: %s", $3) ;  $$ = 0 ;
+      }
+    }
+    | tGetRegion '[' String__Index ',' FExpr ']'
+    {
+      int i, j, indexInGroup;
+      indexInGroup = (int)$5;
+      if ( (i = List_ISearchSeq(Problem_S.Group, $3, fcmp_Group_Name)) >= 0 ) {
+        if (indexInGroup >= 1 &&
+            indexInGroup <= List_Nbr(((struct Group *)List_Pointer(Problem_S.Group, i))
+                                     ->InitialList)) {
+          List_Read(((struct Group *)List_Pointer(Problem_S.Group, i))->InitialList, 
+                    indexInGroup-1, &j) ;
+          $$ = j;
+        }
+        else {
+          vyyerror("GetRegion: Index out of range [1..%d]",
+                   List_Nbr(((struct Group *)List_Pointer(Problem_S.Group, i))
+                            ->InitialList)) ; 
+          $$ = 0 ;
+        }
       }
       else {
 	vyyerror("Unknown Group: %s", $3) ;  $$ = 0 ;

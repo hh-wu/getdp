@@ -66,6 +66,7 @@ Read                         return tRead;
 PrintConstants               return tPrintConstants;
 StrCmp                       return tStrCmp ;
 NbrRegions                   return tNbrRegions ;
+GetRegion                    return tGetRegion ;
 
 Pi                           return tPi;
 0D                           return t0D;
