@@ -669,8 +669,6 @@ void Cal_WholeQuantity(struct Element * Element,
         Current.TimeStep = Save_TimeStep ;
         Current.Time = Save_Time ;
         Current.TimeImag = Save_TimeImag ;
-
-
       }
       else if (Current.NbrHar == 1) {
         for (j=0; j<NbrArguments; j++) {
@@ -695,15 +693,19 @@ void Cal_WholeQuantity(struct Element * Element,
 	  else {
 	    if (!Flag_WarningMissSolForDt) {
 	      Message::Warning("Missing solution for time derivative computation (Sys#%d/%d)",
-                               k, Current.NbrSystem);
+                               k+1, Current.NbrSystem);
 	      Flag_WarningMissSolForDt = 1 ;
 	    }
 	  }
 	}
 
-	Save_Time = Current.Time ;
-	Current.Time = Current.DofData->CurrentSolution->Time ;
+        Save_TimeStep = Current.TimeStep ;
+        Save_Time = Current.Time ;
+        Save_TimeImag = Current.TimeImag ;
 
+        Current.TimeStep = Current.DofData->CurrentSolution->TimeStep ;
+        Current.Time = Current.DofData->CurrentSolution->Time ;
+        Current.TimeImag = Current.DofData->CurrentSolution->TimeImag ;
 	for (j=0; j<NbrArguments; j++) {
           Cal_CopyValue(DofValue + j, &Stack[0][Index+1]) ;
           Multi[Index+1] = 0 ;
@@ -724,8 +726,9 @@ void Cal_WholeQuantity(struct Element * Element,
 	for (k = 0 ; k < Current.NbrSystem ; k++)
 	  (Current.DofData_P0+k)->CurrentSolution =
 	    (Current.DofData_P0+k)->Save_CurrentSolution;
-
-	Current.Time = Save_Time ;
+        Current.TimeStep = Save_TimeStep ;
+        Current.Time = Save_Time ;
+        Current.TimeImag = Save_TimeImag ;
       }
       else {
         for (j=0; j<NbrArguments; j++) {
