@@ -87,9 +87,9 @@ Function {
   relaxation_factor  = 1;
   stop_criterion     = 1e-5;
 
-  sigma_iron = 0*2e6 ;
+  sigma_iron = 2e6 ;
   sigma_lam = 10e6 *.5e-3*.5e-3/12. ; // laminated iron
-  sigma[#{MovingIron,Yoke}] = 0 ;
+  sigma[#{MovingIron,Yoke}] = 0; //sigma_lam ;
 
   NbWires[] = nwires;
   SurfCoil[] = SurfaceArea[]{COILR_UP}; // All of them have the same surface
@@ -406,7 +406,7 @@ PostProcessing {
      { Name a ; Value { Term { [  {a} ]   ; In Domain ; Jacobian Vol ; } } }
      { Name az ; Value { Term { [  CompZ[{a}] ]   ; In Domain ; Jacobian Vol ; } } }
      { Name b  ; Value { Term { [ {d a} ] ; In Domain ; Jacobian Vol ; } } }
-     { Name j  ; Value { Term { [ -sigma[] * Dt[{a}] ] ; In Domain ; Jacobian Vol ; } } }
+     { Name j  ; Value { Term { [ -sigma[] * Dt[{a}] ] ; In DomainC ; Jacobian Vol ; } } }
      { Name jz  ; Value { Term { [ CompZ[-sigma[] * Dt[{a}]] ] ; In Domain ; Jacobian Vol ; } } }
 
      { Name boundary  ; Value { Term { [ 1 ] ; In Dummy ; Jacobian Vol ; } } } // Dummy quantity - for visualization
@@ -459,14 +459,16 @@ PostOperation MapMag UsingPost MagDyn_a_2D {
     OverrideTimeStepValue step, LastTimeStepOnly ] ;
   Print[ b, OnElementsOf Domain,  File StrCat["b", ExtGmsh], Format Gmsh,
     OverrideTimeStepValue step, LastTimeStepOnly ] ;
+  //Print[ j, OnElementsOf DomainC,  File StrCat["j", ExtGmsh], Format Gmsh,
+  //  OverrideTimeStepValue step, LastTimeStepOnly ] ;
   Print[ az, OnElementsOf Domain, File StrCat["az", ExtGmsh], Format Gmsh,
     OverrideTimeStepValue step, LastTimeStepOnly] ;
   Print[ az, OnElementsOf Domain, File StrCat["tmp", ExtGmsh], Format Gmsh,
     OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
-
-  Print[ F[AirLayer], OnGlobal, Format Table, File "Fmag.dat", Store 55, LastTimeStepOnly] ;
-  Print[ F_vw, OnRegion NodesOf[SkinDomainC_Moving], Format RegionValue, File  StrCat["Fvw", ExtGnuplot], Store 56,
-         LastTimeStepOnly] ;
+  Print[ F[AirLayer], OnGlobal, Format Table, File "Fmag.dat",
+    Store 55, LastTimeStepOnly] ;
+  Print[ F_vw, OnRegion NodesOf[SkinDomainC_Moving], Format RegionValue,
+    File StrCat["Fvw", ExtGnuplot], Store 56, LastTimeStepOnly] ;
 }
 
 PostOperation MapMec UsingPost Mechanical {
@@ -487,7 +489,6 @@ PostOperation MapMec UsingPost Mechanical {
   Print[ Fspr, OnRegion DomainKin, Format Table, File  > StrCat["Fspr", ExtGnuplot],
          LastTimeStepOnly, SendToServer "Output/6fspringY"] ;
 }
-
 
 DefineConstant[
   R_ = {"Analysis", Name "GetDP/1ResolutionChoices", Visible 0},
