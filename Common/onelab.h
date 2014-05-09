@@ -100,6 +100,7 @@ namespace onelab{
     {
       return (_clients.find(client) != _clients.end());
     }
+    int getNumClients() { return (int)_clients.size(); };
     virtual std::string getType() const = 0;
     const std::string &getName() const { return _name; }
     const std::string &getLabel() const { return _label; }
@@ -769,15 +770,18 @@ namespace onelab{
       }
       return false;
     }
-    // set the changed flag for all parameters (optionnally only affect those
-    // parameters that depend on a given client)
+    // if no client name is given, set the changed flag for all the parameters;
+    // if a client name is given and "changed" is false, affect only the
+    // parameters that are owned exclusively by the client; if "changed" is
+    // true, affect all parameters that depend on this client
     bool setChanged(bool changed, const std::string &client="")
     {
       std::set<parameter*, parameterLessThan> ps;
       _getAllParameters(ps);
       for(std::set<parameter*, parameterLessThan>::iterator it = ps.begin();
           it != ps.end(); it++)
-        if(client.empty() || (*it)->hasClient(client))
+        if(client.empty() || ((*it)->hasClient(client) &&
+                              (changed || (*it)->getNumClients() == 1)))
           (*it)->setChanged(changed);
       return true;
     }
@@ -849,6 +853,7 @@ namespace onelab{
     virtual void sendError(const std::string &msg){ std::cerr << msg << std::endl; }
     virtual void sendProgress(const std::string &msg){ std::cout << msg << std::endl; }
     virtual void sendMergeFileRequest(const std::string &msg){}
+    virtual void sendOpenProjectRequest(const std::string &msg){}
     virtual void sendParseStringRequest(const std::string &msg){}
     virtual void sendVertexArray(const std::string &msg){}
     virtual bool clear(const std::string &name) = 0;
@@ -1137,7 +1142,8 @@ namespace onelab{
       }
       return true;
     }
-    void _waitOnSubClients()
+  public:
+    void waitOnSubClients()
     {
       if(!_gmshClient) return;
       while(_numSubClients > 0){
@@ -1180,7 +1186,7 @@ namespace onelab{
     virtual ~remoteNetworkClient()
     {
       if(_gmshClient){
-        _waitOnSubClients();
+        waitOnSubClients();
         _gmshClient->Stop();
         _gmshClient->Disconnect();
         delete _gmshClient;
@@ -1229,11 +1235,15 @@ namespace onelab{
     {
       if(_gmshClient) _gmshClient->MergeFile(msg.c_str());
     }
+    void sendOpenProjectRequest(const std::string &msg)
+    {
+      if(_gmshClient) _gmshClient->OpenProject(msg.c_str());
+    }
     void sendParseStringRequest(const std::string &msg)
     {
       if(_gmshClient) _gmshClient->ParseString(msg.c_str());
     }
-    void runSubClient(const std::string &name, const std::string &command)
+    void runNonBlockingSubClient(const std::string &name, const std::string &command)
     {
       if(!_gmshClient){
         system(command.c_str());
@@ -1242,7 +1252,11 @@ namespace onelab{
       std::string msg = name + parameter::charSep() + command;
       _gmshClient->SendMessage(GmshSocket::GMSH_CONNECT, msg.size(), &msg[0]);
       _numSubClients += 1;
-      _waitOnSubClients();
+    }
+    void runSubClient(const std::string &name, const std::string &command)
+    {
+      runNonBlockingSubClient(name, command);
+      waitOnSubClients();
     }
   };
 
