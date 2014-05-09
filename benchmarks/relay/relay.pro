@@ -109,17 +109,14 @@ Function {
   hc[#MagnetLeft ] = Vector[+Hc,0,0] ;
   hc[#MagnetRight] = Vector[-Hc,0,0] ;
 
-  DefineConstant[ velocityY = { 0., Name "Output/3Vertical velocity",
-      Visible (Flag_AnalysisType == 1)} ];
-
   // Artificial control of the geometrical limits for avoiding crashes...
   velocityY = (displacementY >=-15e-3 && displacementY <= 0) ? velocityY :0.;
 
   time0 = time_min + step * delta_time;
 
-  displacement[#{DomainC_NonMoving, DomainB}] = Vector[0., 0., 0.];
-  displacement[#{DomainC_Moving}] = Vector[displacementX, displacementY, displacementZ];
-  a_previousstep[] = Vector[0, 0, Field[XYZ[]-displacement[]]] ;
+  dXYZ[#{DomainC_NonMoving, DomainB}] = Vector[0., 0., 0.];
+  dXYZ[#{DomainC_Moving}] = Vector[0, DefineNumber[0, Name "DeltaU", Visible 0], 0];
+  a_previousstep[] = Vector[0, 0, Field[XYZ[]-dXYZ[]]] ;
 
   // Normal for computing Force with Maxwell stress tensor
   p_current = p_init + displacementY ; // Current position
@@ -332,7 +329,7 @@ Resolution {
       { Name Pr ; NameOfFormulation Projection ; DestinationSystem A; }
     }
     Operation {
-      GmshRead["az.pos"]; Generate[Pr] ; Solve[Pr] ; TransferSolution[Pr] ;
+      GmshRead["tmp.pos"]; Generate[Pr] ; Solve[Pr] ; TransferSolution[Pr] ;
     }
   }
 
@@ -442,6 +439,7 @@ PostProcessing {
  { Name Mechanical ; NameOfFormulation Mechanical ;
    PostQuantity {
      { Name U  ; Value { Term { [ {U} ]  ; In DomainKin ; } } } //Position
+     { Name DeltaU  ; Value { Term { [ {U}-displacementY ]  ; In DomainKin ; } } } //Position change
      { Name V  ; Value { Term { [ {V} ]  ; In DomainKin ; } } } //Velocity
      { Name Fmag     ; Value { Term {  Type Global; [ Fmag[] ] ; In DomainKin ; } } }
      { Name Fmag_vw  ; Value { Term {  Type Global; [ Fmag_vw[] ] ; In DomainKin ; } } }
@@ -457,9 +455,14 @@ ExtGmsh     = ".pos" ;
 ExtGnuplot  = ".dat" ;
 
 PostOperation MapMag UsingPost MagDyn_a_2D {
-  Print[ boundary,  OnElementsOf Dummy, File StrCat["bnd",ExtGmsh], Format Gmsh, OverrideTimeStepValue step, LastTimeStepOnly ] ;
-  Print[ b, OnElementsOf Domain,  File StrCat["b", ExtGmsh], Format Gmsh, OverrideTimeStepValue step, LastTimeStepOnly ] ;
-  Print[ az, OnElementsOf Domain, File StrCat["az", ExtGmsh], Format Gmsh, OverrideTimeStepValue step, LastTimeStepOnly] ;
+  Print[ boundary,  OnElementsOf Dummy, File StrCat["bnd",ExtGmsh], Format Gmsh,
+    OverrideTimeStepValue step, LastTimeStepOnly ] ;
+  Print[ b, OnElementsOf Domain,  File StrCat["b", ExtGmsh], Format Gmsh,
+    OverrideTimeStepValue step, LastTimeStepOnly ] ;
+  Print[ az, OnElementsOf Domain, File StrCat["az", ExtGmsh], Format Gmsh,
+    OverrideTimeStepValue step, LastTimeStepOnly] ;
+  Print[ az, OnElementsOf Domain, File StrCat["tmp", ExtGmsh], Format Gmsh,
+    OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
 
   Print[ F[AirLayer], OnGlobal, Format Table, File "Fmag.dat", Store 55, LastTimeStepOnly] ;
   Print[ F_vw, OnRegion NodesOf[SkinDomainC_Moving], Format RegionValue, File  StrCat["Fvw", ExtGnuplot], Store 56,
@@ -469,6 +472,8 @@ PostOperation MapMag UsingPost MagDyn_a_2D {
 PostOperation MapMec UsingPost Mechanical {
   Print[ U, OnRegion DomainKin, File StrCat["disp", ExtGnuplot], Format Table,
          LastTimeStepOnly, SendToServer "Output/2Vertical displacement"] ;
+  Print[ DeltaU, OnRegion DomainKin, File StrCat["deltadisp", ExtGnuplot], Format Table,
+         LastTimeStepOnly, SendToServer "DeltaU"] ;
   Print[ V, OnRegion DomainKin, File StrCat["velocity", ExtGnuplot], Format Table,
          LastTimeStepOnly, SendToServer "Output/3Vertical velocity"] ;
 
