@@ -128,6 +128,8 @@ void Treatment_Preprocessing(int Nbr_DefineSystem,
     }
 
     Dof_NumberUnknownDof() ;
+
+    Message::Info(-3, "System %d/%d: %d Dofs", i+1, Nbr_DefineSystem, DofData_P->NbrDof);
   }
 }
 
