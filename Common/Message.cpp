@@ -258,7 +258,7 @@ void Message::Info(const char *fmt, ...)
 
 void Message::Info(int level, const char *fmt, ...)
 {
-  if((_commRank && _isCommWorld) || _verbosity < level) return;
+  if((_commRank && _isCommWorld && level > 0) || _verbosity < abs(level)) return;
   char str[1024];
   va_list args;
   va_start(args, fmt);
@@ -272,7 +272,7 @@ void Message::Info(int level, const char *fmt, ...)
     _onelabClient->sendInfo(str);
   }
   else{
-    if(_isCommWorld)
+    if(_isCommWorld && (_commSize == 1 || level > 0))
       fprintf(stdout, "Info    : %s\n", str);
     else
       fprintf(stdout, "Info    : [rank %3d] %s\n", _commRank, str);
@@ -294,7 +294,7 @@ void Message::Direct(const char *fmt, ...)
 
 void Message::Direct(int level, const char *fmt, ...)
 {
-  if((_commRank && _isCommWorld) || _verbosity < level) return;
+  if((_commRank && _isCommWorld) || _verbosity < abs(level)) return;
   va_list args;
   va_start(args, fmt);
   char str[1024];
@@ -309,10 +309,10 @@ void Message::Direct(int level, const char *fmt, ...)
   }
   else{
     const char *c0 = "", *c1 = "";
-    if(level == 3 && !streamIsFile(stdout) && streamIsVT100(stdout)){
+    if(abs(level) == 3 && !streamIsFile(stdout) && streamIsVT100(stdout)){
       c0 = "\33[34m"; c1 = "\33[0m";  // blue
     }
-    if(_isCommWorld)
+    if(_isCommWorld && (_commSize == 1 || level > 0))
       fprintf(stdout, "%s%s%s\n", c0, str, c1);
     else
       fprintf(stdout, "%s [rank %3d] %s%s\n", c0, _commRank, str, c1);
@@ -381,7 +381,7 @@ void Message::Cpu(const char *fmt, ...)
 void Message::Cpu(int level, bool printTime, bool printCpu, bool printMem,
                   const char *fmt, ...)
 {
-  if(_verbosity < level) return;
+  if(_verbosity < abs(level)) return;
 
   double s = 0.;
   long mem = 0;
@@ -396,7 +396,7 @@ void Message::Cpu(int level, bool printTime, bool printCpu, bool printMem,
   }
 #endif
 
-  if(_commRank && _isCommWorld) return;
+  if(_commRank && _isCommWorld && level > 0) return;
 
   char str[1024];
   va_list args;
@@ -448,7 +448,7 @@ void Message::Cpu(int level, bool printTime, bool printCpu, bool printMem,
     _onelabClient->sendInfo(str);
   }
   else{
-    if(_isCommWorld)
+    if(_isCommWorld && (_commSize == 1 || level > 0))
       fprintf(stdout, "Info    : %s\n", str);
     else
       fprintf(stdout, "Info    : [rank %3d] %s\n", _commRank, str);
