@@ -1,5 +1,26 @@
 Include "waveguide3d_data.geo";
 
+DefineConstant[ // allows to set these from outside
+  // Analysis type
+  ANALYSIS = {1, Name "Input/Type of analysis",
+    Choices {0="Helmholtz", 1="Maxwell"}},
+  // type of walls
+  WALLS = {0, Name "Input/Walls",
+    Choices {0="Transparent", 1="Metallic"}},
+  // excitation mode
+  MODE_M = {1, Name "Input/m"}, // y
+  MODE_N = {1, Name "Input/n"}, // z
+  // transmission boundary condition
+  TC_TYPE = {0, Name "Input/Transmission condition",
+    Choices {0="Order 0", 1="Order 2", 2="Pade (OSRC)"}},
+  NP_OSRC = 4,
+  // parameters for the DDM iterative solver
+  SOLVER = "gmres", // bcgs, gmsh_pcleft, ...
+  TOL = 1e-4,
+  MAXIT = 1000,
+  RESTART = MAXIT
+];
+
 Function {
   I[] = Complex[0, 1] ;
   N[] = Normal[] ;
@@ -163,3 +184,10 @@ EndIf
 If(ANALYSIS == 1)
   Include "Maxwell.pro" ;
 EndIf
+
+DefineConstant[
+  // default getdp parameters for onelab
+  R_ = {"DDM", Name "GetDP/1ResolutionChoices", Visible 0},
+  C_ = {"-solve -v 3 -bin -ksp_monitor", Name "GetDP/9ComputeCommand", Visible 0},
+  P_ = {"", Name "GetDP/2PostOperationChoices", Visible 0}
+];
