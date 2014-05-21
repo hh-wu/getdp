@@ -1,0 +1,7 @@
+Model developed by X. Antoine, Y. Boubendir, M. El Bouajaji, [[User:Christophe Geuzaine|C. Geuzaine]],
+B. Thierry.
+<!--
+
+Include full license here
+
+-->
