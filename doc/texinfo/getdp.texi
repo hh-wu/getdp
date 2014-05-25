@@ -3559,7 +3559,8 @@ Gets X, Y and Z in a vector.
 @item Printf
 @code{[@var{expression}]}
 
-Prints the value of @var{expression} when evaluated.
+Prints the value of @var{expression} when evaluated. (@code{MPI_Printf}
+can be use instead, to print the message for all MPI ranks.)
 
 @item Rand
 @code{[@var{expression}]}

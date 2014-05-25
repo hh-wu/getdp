@@ -62,6 +62,7 @@ string     {alpha}({alpha}|{digit})*
 StrCat                       return tStrCat;
 Sprintf                      return tSprintf;
 Printf                       return tPrintf;
+MPI_Printf                   return tMPI_Printf;
 Read                         return tRead;
 PrintConstants               return tPrintConstants;
 StrCmp                       return tStrCmp ;

@@ -294,7 +294,7 @@ void Message::Direct(const char *fmt, ...)
 
 void Message::Direct(int level, const char *fmt, ...)
 {
-  if((_commRank && _isCommWorld) || _verbosity < abs(level)) return;
+  if((_commRank && _isCommWorld && level > 0) || _verbosity < abs(level)) return;
   va_list args;
   va_start(args, fmt);
   char str[1024];

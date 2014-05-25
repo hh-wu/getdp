@@ -151,7 +151,7 @@ struct doubleXstring{
 
 %type <i>  GroupRHS ReducedGroupRHS
 %type <i>  FunctionForGroup SuppListTypeForGroup
-%type <i>  Expression
+%type <i>  Expression Printf
 %type <i>  ArgumentsForFunction RecursiveListOfQuantity
 %type <i>  PostQuantitySupport
 %type <l>  IRegion RecursiveListOfRegion Enumeration
@@ -177,7 +177,8 @@ struct doubleXstring{
 
 /* ------------------------------------------------------------------ */
 %token  tEND tDOTS
-%token  tStrCat tSprintf tPrintf tRead tPrintConstants tStrCmp tNbrRegions tGetRegion
+%token  tStrCat tSprintf tPrintf tMPI_Printf tRead tPrintConstants tStrCmp
+%token  tNbrRegions tGetRegion
 %token  tFor tEndFor tIf tElse tEndIf
 %token  tFlag
 %token  tInclude
@@ -6617,6 +6618,11 @@ Loop :
 /*  C o n s t a n t   E x p r e s s i o n s  (FExpr)                        */
 /* ------------------------------------------------------------------------ */
 
+Printf :
+   tPrintf { $$ = 3; }
+ | tMPI_Printf { $$ = -3; }
+;
+
 Affectation :
 
    tDefineConstant '[' DefineConstants ']' tEND
@@ -6772,40 +6778,40 @@ Affectation :
     }
 
   // deprectated
-  | tPrintf '(' tBIGSTR ')' tEND
+  | Printf '(' tBIGSTR ')' tEND
     {
-      Message::Direct($3);
+      Message::Direct($1, $3);
     }
 
-  | tPrintf '[' tBIGSTR ']' tEND
+  | Printf '[' tBIGSTR ']' tEND
     {
-      Message::Direct($3);
+      Message::Direct($1, $3);
     }
 
-  | tPrintf String__Index tEND
+  | Printf String__Index tEND
     {
       Constant_S.Name = $2;
       if(!Tree_Query(ConstantTable_L, &Constant_S))
 	vyyerror("Unknown Constant: %s", $2);
       else
 	if(Constant_S.Type != VAR_LISTOFFLOAT)
-          Message::Direct("%s: %g", $2, Constant_S.Value.Float);
+          Message::Direct($1, "%s: %g", $2, Constant_S.Value.Float);
 	else
-          Message::Direct("%s: Dimension %d", $2, List_Nbr(Constant_S.Value.ListOfFloat));
+          Message::Direct($1, "%s: Dimension %d", $2, List_Nbr(Constant_S.Value.ListOfFloat));
 	  for(int i = 0; i < List_Nbr(Constant_S.Value.ListOfFloat); i++) {
 	    double d;
 	    List_Read(Constant_S.Value.ListOfFloat, i, &d);
-            Message::Direct(" (%d) %g", i, d);
+            Message::Direct($1, " (%d) %g", i, d);
 	  }
     }
 
-  | tPrintf '#' tEND
+  | Printf '#' tEND
     {
-      Message::Direct("Line number: %d", getdp_yylinenum);
+      Message::Direct($1, "Line number: %d", getdp_yylinenum);
     }
 
   // deprectated
-  | tPrintf '(' tBIGSTR ',' RecursiveListOfFExpr ')' tEND
+  | Printf '(' tBIGSTR ',' RecursiveListOfFExpr ')' tEND
     {
       char tmpstr[256];
       int i = Print_ListOfDouble($3, $5, tmpstr);
@@ -6814,11 +6820,11 @@ Affectation :
       else if(i > 0)
 	vyyerror("Too many arguments (%d) in Printf", i);
       else
-	Message::Direct(tmpstr);
+	Message::Direct($1, tmpstr);
       List_Delete($5);
     }
 
-  | tPrintf '[' tBIGSTR ',' RecursiveListOfFExpr ']' tEND
+  | Printf '[' tBIGSTR ',' RecursiveListOfFExpr ']' tEND
     {
       char tmpstr[256];
       int i = Print_ListOfDouble($3, $5, tmpstr);
@@ -6827,7 +6833,7 @@ Affectation :
       else if(i > 0)
 	vyyerror("Too many arguments (%d) in Printf", i);
       else
-	Message::Direct(tmpstr);
+	Message::Direct($1, tmpstr);
       List_Delete($5);
     }
 
@@ -7794,14 +7800,14 @@ NbrRegions :
         if (indexInGroup >= 1 &&
             indexInGroup <= List_Nbr(((struct Group *)List_Pointer(Problem_S.Group, i))
                                      ->InitialList)) {
-          List_Read(((struct Group *)List_Pointer(Problem_S.Group, i))->InitialList, 
+          List_Read(((struct Group *)List_Pointer(Problem_S.Group, i))->InitialList,
                     indexInGroup-1, &j) ;
           $$ = j;
         }
         else {
           vyyerror("GetRegion: Index out of range [1..%d]",
                    List_Nbr(((struct Group *)List_Pointer(Problem_S.Group, i))
-                            ->InitialList)) ; 
+                            ->InitialList)) ;
           $$ = 0 ;
         }
       }
