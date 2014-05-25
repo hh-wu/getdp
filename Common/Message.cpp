@@ -315,7 +315,7 @@ void Message::Direct(int level, const char *fmt, ...)
     if(_isCommWorld && (_commSize == 1 || level > 0))
       fprintf(stdout, "%s%s%s\n", c0, str, c1);
     else
-      fprintf(stdout, "%s [rank %3d] %s%s\n", c0, _commRank, str, c1);
+      fprintf(stdout, "%s[rank %3d] %s%s\n", c0, _commRank, str, c1);
     fflush(stdout);
   }
 }

@@ -177,11 +177,11 @@ Function{
     EndIf
   EndFor
 
-  /*
+  
   MPI_Printf["ListOfDom = ", ListOfDom()];
   MPI_Printf["ListOfField = ", ListOfField()];
   MPI_Printf["ListOfNeighborField = ", ListOfNeighborField()];
-  */
+  
 }
 
 If(ANALYSIS == 0)
