@@ -8112,32 +8112,48 @@ void  Check_NameOfStructNotExist(const char *Struct, List_T *List_L, void *data,
 
 int Print_ListOfDouble(char *format, List_T *list, char *buffer)
 {
-  char tmp1[256], tmp2[256];
+  // if format does not contain formatting characters, dump the list (useful for
+  // quick debugging of lists)
+  int numFormats = 0;
+  for(unsigned int i = 0; i < strlen(format); i++)
+    if(format[i] == '%') numFormats++;
+  if(!numFormats){
+    strcpy(buffer, format);
+    for(int i = 0; i < List_Nbr(list); i++){
+      double d;
+      List_Read(list, i, &d);
+      char tmp[256];
+      sprintf(tmp, " [%d]%g", i, d);
+      strcat(buffer, tmp);
+    }
+    return 0;
+  }
 
-  int j = 0;
-  while(format[j] != '%') j++;
+  char tmp1[256], tmp2[256];
+  int j = 0, k = 0;
+  buffer[j] = '\0';
+
+  while(j < (int)strlen(format) && format[j] != '%') j++;
   strncpy(buffer, format, j);
   buffer[j] = '\0';
   for(int i = 0; i < List_Nbr(list); i++){
-    int k = j;
+    k = j;
     j++;
     if(j < (int)strlen(format)){
       if(format[j] == '%'){
 	strcat(buffer, "%");
 	j++;
       }
-      while(format[j] != '%' && j < (int)strlen(format)) j++;
+      while(j < (int)strlen(format) && format[j] != '%') j++;
       if(k != j){
-	strncpy(tmp1, &(format[k]),j-k);
+	strncpy(tmp1, &(format[k]), j-k);
 	tmp1[j-k] = '\0';
-	sprintf(tmp2, tmp1, *(double*)List_Pointer(list,i));
+	sprintf(tmp2, tmp1, *(double*)List_Pointer(list, i));
 	strcat(buffer, tmp2);
       }
     }
-    else{
+    else
       return List_Nbr(list) - i;
-      break;
-    }
   }
   if(j != (int)strlen(format))
     return -1;
