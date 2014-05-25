@@ -222,15 +222,15 @@ Formulation {
 	  Galerkin { [ (#12 > 0. ? -g_in~{idom}~{1}[] : Vector[0,0,0]) , {r~{idom}~{1}} ];
 	    In Sigma~{idom}~{1}; Integration I1; Jacobian JSur; }
 	  For iSide In {0:1}
-	  Galerkin { [ -Dof{r~{idom}~{iSide}} , {e~{idom}} ];
-	    In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
-	  Galerkin { [ (Dof{e~{idom}}), {r~{idom}~{iSide}} ];
-	    In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
-	  Galerkin { [ al[]*Dof{d e~{idom}} , {d r~{idom}~{iSide}} ];
-	    In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
-	  Galerkin { [(I[] / k[])*OSRC_C0[]{NP_OSRC,theta_branch} *
-              Dof{r~{idom}~{iSide}} , {r~{idom}~{iSide}} ] ;
-	    In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
+	    Galerkin { [ -Dof{r~{idom}~{iSide}} , {e~{idom}} ];
+	      In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
+	    Galerkin { [ (Dof{e~{idom}}), {r~{idom}~{iSide}} ];
+	      In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
+	    Galerkin { [ al[]*Dof{d e~{idom}} , {d r~{idom}~{iSide}} ];
+	      In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
+	    Galerkin { [(I[] / k[])*OSRC_C0[]{NP_OSRC,theta_branch} *
+                Dof{r~{idom}~{iSide}} , {r~{idom}~{iSide}} ] ;
+	      In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
 	    For j In{1:NP_OSRC}
 	      Galerkin { [ (I[] / k[] )*OSRC_Aj[]{j,NP_OSRC,theta_branch}*al[]*
                   Dof{d phi~{j}~{idom}~{iSide}} , {d r~{idom}~{iSide}} ] ;
