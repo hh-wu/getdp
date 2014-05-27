@@ -2,7 +2,7 @@
 // required to run the DDM code. These variables or functions should
 // be defined or overwritten by the user whenever relevant.
 
-DefineConstant[geo3d = 1, TOL = 1e-4, MAXIT = 300, PRECOND_SWEEP = 0, EXT_TIME = 0, COMBINED_SWEEP = 0];
+DefineConstant[geo3d = 1, TOL = 1e-4, MAXIT = 300, PRECOND_SWEEP = 0, EXT_TIME = 0, COMBINED_SWEEP = 0, ILU=0, DDM_PC=0, LEFTPC=1];
 DefineConstant[ListOfCuts];
 
 Group{
@@ -18,6 +18,7 @@ Group{
 Function{
   DefineFunction[k, kInf, kDtn, eInc];
   DefineFunction[alphaBT, betaBT]; // Bayliss-Turkel ABC
+  DefineFunction[uinc, V_SOURCE, fGrad]; // fGrad is for distributional sources (e.g. delta functions), that must be integrated by parts
 }
 
 DefineConstant[REUSE = 0];

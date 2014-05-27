@@ -153,6 +153,8 @@ Formulation {
 
       Galerkin { [ F_SOURCE[], {u~{idom}}] ;
 	In Omega~{idom}; Jacobian JVol ; Integration I1 ; }
+      Galerkin { [ fGrad[] , {Grad u~{idom}} ] ; // distributional sources
+	In Omega~{idom}; Jacobian JVol ; Integration I1 ; }
 
       // g_in LEFT (#10 > 0) or 0 (#10 == 0)
       Galerkin { [ - (#10 > 0. ? g_in~{idom}~{0}[] : 0), {u~{idom}} ] ;
@@ -337,6 +339,8 @@ Resolution {
       EndFor
     }
     Operation {
+      SetGlobalSolverOptions["-ksp_monitor"];
+
       If (MPI_Rank == 0)
 	Printf["N_DOM: %g; #procs: %g", N_DOM, MPI_Size];
 	If(EMDA)

@@ -21,16 +21,17 @@ Integration {
 
 Function{
   k = WAVENUMBER;
-  uExact_Dirichlet[] = AcousticFieldSoftCylinderABC[XYZ[]]{k, R_INT, R_EXT, 2, -1} ;
-  uExact_Neumann[] = AcousticFieldHardCylinderABC[XYZ[]]{k, R_INT, R_EXT, 2, -1};
-  uExact_Dirichlet3D[] = AcousticFieldSoftSphere[XYZ[]]{k, R_INT};
+  // uExact_Dirichlet[] = AcousticFieldSoftCylinderABC[XYZ[]]{k, R_INT, R_EXT, 2, -1} ;
+  // uExact_Neumann[] = AcousticFieldHardCylinderABC[XYZ[]]{k, R_INT, R_EXT, 2, -1};
+  // uExact_Dirichlet3D[] = AcousticFieldSoftSphere[XYZ[]]{k, R_INT};
   N[] = XYZ[]/Norm[XYZ[]];
 }
 
 Constraint{
   // { Name Dirichlet_uinc ; Case { { Region GammaD ; Value -uinc[]; } } }
-  { Name Dirichlet_uinc ; Case { { Region GammaD ; Value uinc[]##0; } } }
+  { Name Dirichlet ; Case { { Region GammaD ; Value (uinc[]*#9); } } }
   { Name Dirichlet0 ; Case { { Region GammaD0 ; Value 0.; } } }
+  { Name Dirichlet_r ; Case { { Region GammaD ; Value 0.; } } }
 }
 
 FunctionSpace {
@@ -38,8 +39,14 @@ FunctionSpace {
 { Name Hgrad_u; Type Form0 ;
   BasisFunction { { Name sn ; NameOfCoef un ; Function BF_Node ;
       Support Region[ {Omega, GammaInf, Sigma, GammaD, GammaD0, BndGammaInf} ] ; Entity NodesOf[ All ] ; } }
-  Constraint { { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet_uinc ; }
-{ NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet0 ; } }
+  Constraint { { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet ; }
+    { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet0 ; } }
+ }
+{ Name Hgrad_r; Type Form0 ;
+  BasisFunction { { Name sn ; NameOfCoef un ; Function BF_Node ;
+      Support Region[ {Omega, GammaInf, Sigma, GammaD, GammaD0, BndGammaInf} ] ; Entity NodesOf[ All ] ; } }
+  Constraint { { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet ; }
+    { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet0 ; } }
  }
 
 //FULL + MIXTE
@@ -78,6 +85,11 @@ Formulation {
 	In Omega; Jacobian JVol ; Integration I1 ; }
       Galerkin { [ -k[]^2 * Dof{u} , {u} ] ;
 	In Omega; Jacobian JVol ; Integration I1 ; }
+      Galerkin { [ V_SOURCE[] , {u} ] ;
+	In Omega; Jacobian JVol ; Integration I1 ; }
+      Galerkin { [ fGrad[] , {Grad u} ] ; // distributional sources
+	In Omega; Jacobian JVol ; Integration I1 ; }
+
       // Bayliss-Turkel
       Galerkin { [ - I[] * k[] * Dof{u} , {u} ] ;
 	In GammaInf; Jacobian JSur ; Integration I1 ; }
@@ -91,6 +103,32 @@ Formulation {
       EndIf
     }
   }
+
+  { Name Full_r ; Type FemEquation ;
+    Quantity {
+      { Name u ; Type Local ; NameOfSpace Hgrad_r; }
+    }
+    Equation {
+      Galerkin { [ Dof{Grad u} , {Grad u} ] ;
+	In Omega; Jacobian JVol ; Integration I1 ; }
+      Galerkin { [ -k[]^2 * Dof{u} , {u} ] ;
+	In Omega; Jacobian JVol ; Integration I1 ; }
+      // Bayliss-Turkel
+      Galerkin { [ - I[] * k[] * Dof{u} , {u} ] ;
+	In GammaInf; Jacobian JSur ; Integration I1 ; }
+      Galerkin { [ alphaBT[] * Dof{u} , {u} ] ;
+	In GammaInf; Jacobian JSur ; Integration I1 ; }
+      If(DIM > 1)
+	// FIXME: this assumes that GammaInf is closed; we need to add the
+	// boundary terms if it is open!
+	Galerkin { [ betaBT[] * Dof{d u} , {d u} ] ;
+	  In GammaInf; Jacobian JSur ; Integration I1 ; }
+      EndIf
+    }
+  }
+
+
+
 
 // FULL + MIXED
   { Name Mixed_2D ; Type FemEquation ;
@@ -143,6 +181,8 @@ Resolution {
   {Name Full;
     System { { Name Helmholtz ; NameOfFormulation Full ; Type Complex; } }
     Operation {
+      Evaluate[1. #9];
+      UpdateConstraint[Helmholtz, GammaD, Assign];
       Generate[Helmholtz] ;
       Solve[Helmholtz] ;
       PostOperation[Full] ;
@@ -167,14 +207,14 @@ PostProcessing {
       { Name u ; Value { Term { [ {u} ] ; In Region[ {Omega} ]; Jacobian JVol ; } } }
       { Name uTot ; Value { Term { [ {u} + uinc[] ] ; In Region[ {Omega} ]; Jacobian JVol ; } } }
       { Name ugamma ; Value { Term { [ {u} ] ; In Region[ {GammaInf} ]; Jacobian JSur ; } } }
-    If(DIM == 2)
-	{ Name u_exact ; Value { Local { [ uExact_Dirichlet[] ] ; In Omega; Jacobian JVol ; } } }
-        { Name error ; Value { Local { [ Norm[uExact_Dirichlet[] - {u}] ] ; In Omega; Jacobian JVol ; } } }
-    EndIf
-    If(DIM == 3)
-      { Name u_exact ; Value { Local { [ uExact_Dirichlet3D[] ] ; In Omega; Jacobian JVol ; } } }
-      { Name error ; Value { Local { [ Norm[uExact_Dirichlet[] - {u}] ] ; In Omega~{idom}; Jacobian JVol ; } } }
-    EndIf
+    // If(DIM == 2)
+    // 	{ Name u_exact ; Value { Local { [ uExact_Dirichlet[] ] ; In Omega; Jacobian JVol ; } } }
+    //     { Name error ; Value { Local { [ Norm[uExact_Dirichlet[] - {u}] ] ; In Omega; Jacobian JVol ; } } }
+    // EndIf
+    // If(DIM == 3)
+    //   { Name u_exact ; Value { Local { [ uExact_Dirichlet3D[] ] ; In Omega; Jacobian JVol ; } } }
+    //   { Name error ; Value { Local { [ Norm[uExact_Dirichlet[] - {u}] ] ; In Omega~{idom}; Jacobian JVol ; } } }
+    // EndIf
       }
   }
 
