@@ -231,7 +231,7 @@ Resolution {
     }
     Operation {
       If (MPI_Rank == 0)
-        Printf["Starting Helmholtz DDM with %g subdomains, on %g node(s)", N_DOM, MPI_Size];
+        Printf["Starting Helmholtz DDM with %g subdomains / %g processes", N_DOM, MPI_Size];
         If(TC_TYPE == 0)
           Printf["Using 0-th order (Sommerfeld/EMDA) transmission conditions"];
         EndIf
