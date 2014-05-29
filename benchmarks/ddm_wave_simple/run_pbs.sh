@@ -10,12 +10,17 @@
 # PBS -l pvmem=63000mb
 
 # 1 mpi process, each spawning 1 thread, on each of the 100 chunks (each chunk has 2.6Gb of RAM); each chunk on 1 core:
-#PBS -l select=100:ncpus=1:vmem=2625mb:mpiprocs=1:ompthreads=1
-#PBS -l pvmem=2625mb
+# PBS -l select=100:ncpus=1:vmem=2625mb:mpiprocs=1:ompthreads=1
+# PBS -l pvmem=2625mb
 
 # 12 mpi processes (each with 2 threads) on each of the 4 chunks, each chunk with 24 cores
 # PBS -l select=4:ncpus=24:vmem=63000mb:mpiprocs=12:ompthreads=2
 # PBS -l pvmem=63000mb
+
+
+#PBS -l select=80:ncpus=24:vmem=63000mb:mpiprocs=6:ompthreads=4
+#PBS -l pvmem=63000mb
+
 
 #PBS -m "abe"
 #PBS -M cgeuzaine@ulg.ac.be
@@ -29,7 +34,7 @@ OPT="-setnumber ANALYSIS 1
      -setnumber WAVENUMBER 10
      -setnumber WALLS 0
      -setnumber N_DOM $MPI_PROCESSES
-     -setnumber N_LAMBDA 18
+     -setnumber N_LAMBDA 25
      -setnumber DX $MPI_PROCESSES
      -setnumber DY 1
      -setnumber DZ 1
