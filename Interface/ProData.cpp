@@ -1788,7 +1788,7 @@ void Print_ListResolution(int choose, int Flag_LRES, char **name)
       Message::Error("Unknown Resolution");
   }
   else
-    Message::Warning("No Resolution available");
+    Message::Info("No Resolution available");
 }
 
 static std::string removeWhiteSpace(const std::string &s)
@@ -1865,5 +1865,5 @@ void Print_ListPostOperation(int choose, int Flag_LPOS, char *name[NBR_MAX_POS])
       Message::Error("Unknown PostOperation");
   }
   else
-    Message::Warning("No PostOperation available");
+    Message::Info("No PostOperation available");
 }
