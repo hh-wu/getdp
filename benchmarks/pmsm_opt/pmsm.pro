@@ -16,7 +16,7 @@ DefineConstant[
   Flag_NL_law_Type = { 0, Name "Input/BH-curve",Choices{0="Analytical", 1="Interpolated",
                                                         2="Analytical VH800-65D", 3="Interpolated VH800-65D"},
                        Highlight "Blue", Visible Flag_NL},
-    // impose current density directly, instead of voltage or current
+  // impose current density directly, instead of voltage or current
   Flag_ImposedCurrentDensity = 1
 ];
 
@@ -97,7 +97,7 @@ Group {
 }
 
 Function {
-  mur_fe = 1000;
+  //mur_fe = 1000;
   NbrPhases = 3 ;
 
   // For a radial remanent b
@@ -150,7 +150,8 @@ Function {
     delta_theta_deg = { 1., Name "Input/Step [deg]",
                         Highlight "AliceBlue", Visible (Flag_AnalysisType==1)}
 */  
-    delta_theta_deg = { 0, Name StrCat["Input/", StrCat[ResId,"Shift rotor position (no remesh) [mech. deg]"]], Highlight "AliceBlue", Min 0, Max 45, Step 0.5, Visible (Flag_AnalysisType==0)}
+    delta_theta_deg = { 0, Name StrCat["Input/", StrCat[ResId,"Shift rotor position (no remesh) [mech. deg]"]],
+                         Highlight "AliceBlue", Min 0, Max 45, Step 0.5, Visible (Flag_AnalysisType==0)}
 
 ];
 
@@ -207,20 +208,6 @@ Dir = "res/";
 ResDir = "res/";
 ExtGmsh = ".pos";
 ExtGnuplot = ".dat";
-
-/*// Onelab parameter tree structure*/
-/*// po      = "Output - Electromagnetics/";*/
-/*po      = StrCat["Output - Electromagnetics/", ResId];*/
-/*poI     = StrCat[po,"0Current [A]/"];*/
-/*poV     = StrCat[po,"1Voltage [V]/"];*/
-/*poF     = StrCat[po,"2Flux linkage [Vs]/"];*/
-/*poJL    = StrCat[po,"3Joule Losses [W]/"];*/
-/*//po_mec  = "Output - Mechanics/";*/
-/*po_mec  = StrCat["Output - Mechanics/", ResId];*/
-/*po_mecT = StrCat[po_mec,"0Torque [Nm]/"];*/
-/*//po_opt  = "Output - Optimization/";*/
-/*po_opt  = StrCat["Output - Optimization/", ResId];*/
-/*po_min  = StrCat["Output/", ResId];*/
 
 // --------------------------------------------------------------------------
 // --------------------------------------------------------------------------

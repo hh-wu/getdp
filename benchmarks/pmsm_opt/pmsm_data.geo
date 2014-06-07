@@ -10,6 +10,7 @@ pp = "Input/ConstructiveParameters/"; //pas pris en compte dans le scripte pytho
 ppp = "Input/OptParam/";
 
 DefineConstant[
+  CharacteristicLengthFactor = {1.0, Name "Geo/Mesh Characteristic Length Factor", Visible 1},
   InputId = "",
   ResId = "",
   mshName = "pmsm.msh",
@@ -128,3 +129,12 @@ SURF_EXT = 3000 ; // outer boundary
 MOVING_BAND = 9999 ;
 
 NICEPOS = 111111 ;
+
+// define performance function type
+NO_PERF = 0;
+BFIELD_ERROR = 1;
+TORQUE_VAR = 2;
+IRON_LOSSES = 3;
+COMPLIANCE = 4;
+VOLUME = 5;
+

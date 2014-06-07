@@ -3,12 +3,17 @@
     
     Check the computation of sensitivity 
     
+    analytic derivative = -0.0046 (see BradErrorInt_vs_rSpline_ang0.pdf)
+    
 """
 
 import numpy as np
 import pylab as pl
 import matplotlib.pyplot as plt
 
+import sys
+#sys.path[:0] = ['tool']
+sys.path.insert(0,'/Users/erinkuci/Desktop/src/getdp/benchmarks_kst/tool')
 from tool import *
     
 # *****************************************************************************
@@ -22,49 +27,41 @@ if __name__ == "__main__":
     parameters['pathGmsh'] = '/Applications/Gmsh.app/Contents/MacOS/gmsh '
     parameters['pathGetdp'] = '/Applications/getdp '
     parameters['modelName'] = 'pmsm'
-
+    
     #0(serial computation of objective and its derivative); 1 (otherwise)
+    parameters['AnalysisModelType']='FEM'
     parameters['flagParallel'] = 0
-    #'serialShape', 'serialTopology', 'parallelShape', 'parallelTopology'
-    parameters['flagOptType'] = 'serialShape'
+    parameters['flagOptType'] = 'Shape' #'Shape', 'Topology'
     parameters['modelType'] = 'machine'
     parameters['analysisType'] = 0.0 #if machine
     parameters['NLferro'] = 0.0      #if machine
     parameters['NLferroLaw'] = 1.0   #if machine
 
     # Design variables
-    parameters['paramName'] = 'rk'
-    paramNameDisp = 'rk'
-    x0 = np.array([0.00005])
-    parameters['nbDesignvar'] = len(x0)
+    parameters['paramName'] = 'lm_em_vm_xm_rma'
+    paramNameDisp = 'lm em vm xm rma'
+    x0 = np.array([0.0])
+    parameters['nbDesignVar'] = len(x0)
     n = len(x0)
-
-    # Objective function
-    # 'BradialErrorInt','TorqueRipple','TorqueVariance','IronLosses','Compliance'
-    parameters['flag_objType'] = 'BradialErrorInt'
-    parameters['nbAngularPositions'] = 1
-    parameters['rotorAngles'] = np.zeros(1)
-    parameters['PerformanceType'] = 1
     
-    # Constraints
-    constrName = '-'            #'TorqueMean'
+    # Performance function
+    parameters['performance'] = ['BradialErrorInt']#['TorqueVariance']
+    parameters['allowCentralFD'] = 0
+    
+    # Physical quantities computation
+    parameters['rotorAngles'] = np.zeros(1) #np.linspace(7.5,15.0,6)
     parameters['TorqueNominal'] = 30.0
-    parameters['m'] = 1                       # number of constraints
-    # 'MeanTorque', 'TorqueRipple','Unconstrained','Volume'
-    parameters['flag_constrType'] = ['Unconstrained']*parameters['m']
-    # -1:>=, 1:<=
-    parameters['sign'] = [-1.0]*parameters['m']
-
+    parameters['m'] = 0        # number of constraints
+    
     # --- Set Machine Model and Optimizer ---
     op = Machine(parameters)
-
-    # --- Impact of finite difference discretization step ---
-
+# ----------------------------------------------------------------------------- 
+# --- Impact of finite difference discretization step ---
+# -----------------------------------------------------------------------------
     # Parameter
-    #step = np.linspace(1.0e-16, 2.5e-03, 20)
-    #step = np.arange(1.0e-09, 2.5e-04, 1.5e-09)
-    #step = np.linspace(1.0e-12, 1.0e-07, 15)
-    step = [0.00001]
+    #step = [1e-15,1e-14,1e-13,1e-12,1e-11,1e-10,1e-09,1e-08,
+    #        1e-07,1e-06,1e-05,1e-04,1e-03]
+    step=[1.0e-06]
     print step
     
     # Init
@@ -80,106 +77,99 @@ if __name__ == "__main__":
     relErr3 = np.zeros(N)
     relErr4 = np.zeros(N)
     
+    perfLabel = 0 #consider first component of parameters['performance']
     
-    # 1. Compute f and iec                
-    resAnalysis = op.Analysis(x=x0,parameters=op.parameters)
-    print('obj:'+str(resAnalysis['f']))
+    # 1. Compute f and iec (serial pr parallel)
+    resAnalysis = op.Analysis(x0,parameters)
+    print('obj:'+str(resAnalysis[0]))
 
     # 2. Compute the derivative: Loop over Parameter value:
     for k in range(0,N):
+        print('-------------------------------------------------')
         print('iter '+str(k))
+        print('-------------------------------------------------')
+        
         op.parameters['step'] = step[k]
         print('step = '+str(step[k]))
 
-        # finite difference
         print('-- finite Dif. --')
-        resSens1 = op.FiniteDiffSerial(x=x0, f=resAnalysis['f'],
-                                       iec=resAnalysis['iec'],
-                                       parameters=op.parameters)
+        op.parameters['allowCentralFD'] = 0
+        resSens1 = op.FiniteDifference(x0, perfLabel,resAnalysis[0],parameters)
         print resSens1
 
         print('-- finite Dif. Central --')
-        resSens1c = op.FiniteDiffSerial(x=x0, f=resAnalysis['f'],
-                                       iec=resAnalysis['iec'],
-                                       parameters=op.parameters,central=1)
+        op.parameters['allowCentralFD'] = 1
+        resSens1c = op.FiniteDifference(x0, perfLabel,resAnalysis[0],parameters)
         print resSens1c
 
-        # semi-analytic adjoint variable method
         print('-- Semi-analytic AVM --')
-        resSens2 = op.SemiAnalytic(x=x0,parameters=op.parameters)
+        op.parameters['allowCentralFD'] = 0
+        resSens2 = op.SemiAnalytic(x0,perfLabel,parameters)
         print resSens2
 
-        # semi-analytic (central fd) adjoint variable method
-        print('-- Semi-analytic (central FD) AVM --')
-        resSens2c = op.SemiAnalytic(x=x0,parameters=op.parameters,central=1)
+        print('-- Semi-analytic central AVM --')
+        op.parameters['allowCentralFD'] = 1
+        resSens2c = op.SemiAnalytic(x0,perfLabel,parameters)
         print resSens2c
 
-        # save data
-        #        dKdx0[k] = resSens2['dKdx']
-        #dKdx0c[k] = resSens2c['dKdx']
-        dfdx_fd[k] = resSens1['dfdx']
-        dfdx_fdc[k] = resSens1c['dfdx']
-        dfdx_saavm[k] = resSens2['dfdx']
-        dfdx_saavmc[k] = resSens2c['dfdx']
+        # save data and relative error computation
+        dfdx_fd[k] = resSens1
+        dfdx_fdc[k] = resSens1c
+        dfdx_saavm[k] = resSens2
+        dfdx_saavmc[k] = resSens2c
+        relErr1[k] = (dfdx_saavmc[k] - dfdx_fdc[k])/dfdx_fdc[k]
+        relErr2[k] = (dfdx_saavm[k] - dfdx_fdc[k])/dfdx_fdc[k]
+        relErr3[k] = (dfdx_fd[k] - dfdx_fdc[k])/dfdx_fdc[k]
+        print('relErr(SAAVMC-FDC) = ' +str(relErr1[k]))
+        print('relErr(SAAVM-FDC) = ' +str(relErr2[k]))
+        print('relErr(FD-FDC) = ' +str(relErr3[k]))
 
-###        relErr1[k] = (dfdx_saavm[k] - dfdx_fd[k])/dfdx_fd[k]
-###        relErr2[k] = (dfdx_saavm[k] - dfdx_fdc[k])/dfdx_fdc[k]
-###        relErr3[k] = (dfdx_fd[k] - dfdx_fdc[k])/dfdx_fd[k]
-###        print relErr1[k]
-###        print relErr2[k]
-###        print relErr3[k]
-##
-#
-    np.save('PerturbStep.npy',step)
-    np.save('dfdx_fd.npy',dfdx_fd)
-    np.save('dfdx_fdc.npy',dfdx_fdc)
-    np.save('dfdx_saavm.npy',dfdx_saavm)
-    np.save('dfdx_saavmc.npy',dfdx_saavmc)
-##np.save('dKdx0_saavmc.npy',dKdx0c)
-##np.save('dKdx0_saavm.npy',dKdx0)
+#    np.save('PerturbStep.npy',step)
+#    np.save('dfdx_fd.npy',dfdx_fd)
+#    np.save('dfdx_fdc.npy',dfdx_fdc)
+#    np.save('dfdx_saavm.npy',dfdx_saavm)
+#    np.save('dfdx_saavmc.npy',dfdx_saavmc)
+#    np.save('dfdx_relErr1.npy',relErr1)
+#    np.save('dfdx_relErr2.npy',relErr2)
+#    np.save('dfdx_relErr3.npy',relErr3)
 #
 #    step = np.load('PerturbStep.npy')
 #    dfdx_fd = np.load('dfdx_fd.npy')
 #    dfdx_fdc = np.load('dfdx_fdc.npy')
 #    dfdx_saavm = np.load('dfdx_saavm.npy')
 #    dfdx_saavmc = np.load('dfdx_saavmc.npy')
-##dKdx0 = np.load('dKdx0_saavm.npy')
-##dKdx0c = np.load('dKdx0_saavmc.npy')
+#    relErr1 = np.load('dfdx_relErr1.npy')
+#    relErr2 = np.load('dfdx_relErr1.npy')
+#    relErr3 = np.load('dfdx_relErr1.npy')
+#    print step
+#    print dfdx_saavm
+#    print dfdx_saavmc
+#    print dfdx_fd
+#    print dfdx_fdc
 #
-    print step
-    print dfdx_saavm
-    print dfdx_saavmc
-    print dfdx_fd
-    print dfdx_fdc
-
-    # Plot the results
-    xlabel = 'discretization step [m]'
-    plt.figure
-    plt.semilogx(step,dfdx_fd,'*-',label='FD')
-    plt.semilogx(step,dfdx_fdc,'o-',label='FD-C')
-    plt.semilogx(step,dfdx_saavm,'-',label='SA-AVM')
-    plt.semilogx(step,dfdx_saavmc,'--',label='SA-C-AVM')
-    plt.xlabel(xlabel)
-    plt.ylabel("df/dx")
-    plt.legend(loc="upper right")
-    plt.grid(True)
-    plt.savefig('compare_FD_SAAVM_FDC.pdf')
-    plt.show()
-
-#    for k in range(0,N):
-#        relErr1[k] = (dfdx_saavm[k] - dfdx_fd[k])/dfdx_fd[k]
-#        relErr2[k] = (dfdx_saavm[k] - dfdx_fdc[k])/dfdx_fdc[k]
-#        relErr3[k] = (dfdx_fd[k] - dfdx_fdc[k])/dfdx_fdc[k]
-#        relErr4[k] = (dfdx_saavmc[k] - dfdx_fdc[k])/dfdx_fdc[k]
+#    # Plot the results
+#    xlabel = 'discretization step [m]'
+#    plt.figure
+#    #plt.semilogx(step,dfdx_fd,'*-',label='FD')
+#    plt.semilogx(step,dfdx_fdc,'o-',linewidth=2,label='FD-C')
+#    #plt.semilogx(step,dfdx_saavm,'-',label='SA-AVM')
+#    plt.semilogx(step,dfdx_saavmc,'--',linewidth=2,label='SA-C-AVM')
+#    plt.xlabel(xlabel)
+#    plt.ylabel("df/dx")
+#    plt.legend(loc="upper right")
+#    plt.grid(True)
+#    plt.savefig('compare_FD_SAAVM_FDC.pdf')
+#    plt.show()
 #
 #    plt.figure
-#    plt.plot(step,relErr1,label='relErr(SAAVM-FD)')
-#    #plt.plot(step,relErr2,'*-',label='relErr(SAAVM-FDC)')
-#    plt.plot(step,relErr3,'o-',label='relErr(FD-FDC)')
-#    plt.plot(step,relErr4,'-',label='relErr(SAAVMC-FDC)')
+#    plt.semilogx(step,relErr1,linewidth=2,label='relErr(SAAVMC-FDC)')
+#    #plt.semilogx(step,relErr2,'o-',linewidth=2,label='relErr(SAAVM-FDC)')
+#    #plt.semilogx(step,relErr3,'*-', linewidth=2,label='relErr(FD-FDC)')
 #    plt.xlabel(xlabel)
 #    plt.ylabel("relative error [-]")
 #    plt.legend(loc="upper right")
 #    plt.grid(True)
 #    plt.savefig('relError_FD_SAAVM_FDC.pdf')
 #    plt.show()
+
+
