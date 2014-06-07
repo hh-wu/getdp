@@ -66,14 +66,18 @@ For ns In {0:NMAX-1}
   //init this constant
   _ItsOK~{ns} = 1;
   DefineConstant[
-    rx~{ns}={1., Min 0.1, Max Xmax, Step 0.1, Label "X-radius",
-      Name Str[MENU_OBST, Sprintf("/Obst. %g/2rx", ns+1)], Visible (ns < N_scat_to_create)}
-    ry~{ns}={1., Min 0.1, Max Ymax, Step 0.1, Label "Y-radius",
-      Name Str[MENU_OBST, Sprintf("/Obst. %g/2ry", ns+1)], Visible (ns < N_scat_to_create)}
-    x~{ns}={ns * 2.2*ry~{ns}, Min -Xmax, Max Xmax, Step 0.1, Label "X-coord",
-      Name Str[MENU_OBST, Sprintf("/Obst. %g/1x", ns+1)], Visible (ns < N_scat_to_create)}
-    y~{ns}={ns * 2.2*ry~{ns}, Min -Ymax, Max Ymax, Step 0.1, Label "Y-coord",
-      Name Str[MENU_OBST, Sprintf("/Obst. %g/1y", ns+1)], Visible (ns < N_scat_to_create)}
+    rx~{ns}={1., Min 0.1, Max Xmax, Step 0.1,
+      Name StrCat[MENU_OBST, Sprintf("/Obst. %g/2X-radius", ns+1)],
+      Visible (ns < N_scat_to_create)}
+    ry~{ns}={1., Min 0.1, Max Ymax, Step 0.1,
+      Name StrCat[MENU_OBST, Sprintf("/Obst. %g/2Y-radius", ns+1)],
+      Visible (ns < N_scat_to_create)}
+    x~{ns}={ns * 2.2*ry~{ns}, Min -Xmax, Max Xmax, Step 0.1,
+      Name StrCat[MENU_OBST, Sprintf("/Obst. %g/1X-coord", ns+1)],
+      Visible (ns < N_scat_to_create)}
+    y~{ns}={ns * 2.2*ry~{ns}, Min -Ymax, Max Ymax, Step 0.1,
+      Name StrCat[MENU_OBST, Sprintf("/Obst. %g/1Y-coord", ns+1)],
+      Visible (ns < N_scat_to_create)}
   ];
   CentreX_pre[] += x~{ns};
   CentreY_pre[] += y~{ns};
@@ -92,12 +96,13 @@ RadiusX[] = {}; RadiusY[] = {};
 N_scat = 0;
 Call CreateEllipses;
 DefineConstant[
-  N_scat2 = {N_scat, Name Str[MENU_OBST,"/0Nscat"], Label "Nb. of placed obstacles", ReadOnly 1 }
+  N_scat2 = {N_scat, Name StrCat[MENU_OBST,"/0Nb. of placed obstacles"], ReadOnly 1 }
 ];
 For pCreate In {0:NMAX-1}
   //plot result for user
   DefineConstant[
-    _NotFit~{pCreate} = {1, Choices{0, 1}, Name Str[MENU_OBST, Sprintf("/Obst. %g/00OK", pCreate+1)], Label "Cannot be placed", Visible (pCreate < N_scat_to_create && !(_ItsOK~{pCreate})), ReadOnly 1, Highlight "Red"}
+    _NotFit~{pCreate} = {1, Choices{0, 1}, Name StrCat[MENU_OBST, Sprintf("/Obst. %g/00Cannot be placed", pCreate+1)],
+      Visible (pCreate < N_scat_to_create && !(_ItsOK~{pCreate})), ReadOnly 1, Highlight "Red"}
   ];
 EndFor
 

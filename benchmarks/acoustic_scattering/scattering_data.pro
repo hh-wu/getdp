@@ -4,16 +4,16 @@ NMAX = 100;
 MENU_OBST = "Obstacles";
 DefineConstant[
   N_scat_to_create = {1, Min 1, Max NMAX, Step 1,
-    Name Str[MENU_OBST,"/0"], Label "Nb. of wanted obstacles"}
+    Name StrCat[MENU_OBST,"/00Nb. of wanted obstacles"]}
 ];
 
 //Frequency
 MENU_INPUT = "Input";
 DefineConstant[
   k = {1, Min 0.1, Step 0.1, Max 50,
-    Name Str[MENU_INPUT, "/2"], Label "Wavenumber"}
+    Name StrCat[MENU_INPUT, "/2Wavenumber"]}
   n_lc = {10, Min 1, Step 0.1, Max 100,
-    Name Str[MENU_INPUT,"/3"], Label "Number of points per wavelength"}
+    Name StrCat[MENU_INPUT,"/3Number of points per wavelength"]}
 ];
 lambda = 2*Pi/k;
 lc = lambda/n_lc;
@@ -25,7 +25,7 @@ PENETRABLE = 1;
 DefineConstant[
   Type_PROBLEM = {IMPENETRABLE,
     Choices{IMPENETRABLE = "Impenetrable", PENETRABLE = "Penetrable"},
-    Name Str[MENU_INPUT, "/00TypeProblem"], Label "Type of problem"}
+    Name StrCat[MENU_INPUT, "/00Type of problem"]}
 ];
 
 //Type of truncation (ABC or PML)
@@ -36,7 +36,7 @@ MENU_TRUNC = "Truncation at infinity";
 DefineConstant[
   Type_Truncation = { PML,
     Choices{ ABC ="Absorbing Boundary Condition",  PML="Perfectly matched layer"},
-    Name Str[MENU_TRUNC, "/2"], Label "Type of truncation"}
+    Name StrCat[MENU_TRUNC, "/2Type of truncation"]}
 ];
 
 //Shape and domain
@@ -47,10 +47,10 @@ DOM_CIRCULAR = 1;
 DefineConstant[
   Type_SHAPE_PML = {DOM_SQUARE,
     Choices{DOM_SQUARE ="Rectangular", DOM_CIRCULAR="Circular"},
-    Label "Shape", Name Str[MENU_TRUNC, Str[MENU_DOM, "20"]],
+    Name StrCat[MENU_TRUNC, StrCat[MENU_DOM, "20Shape"]],
     Visible (Type_Truncation == PML)}
   Type_SHAPE_ABC = {DOM_CIRCULAR, Choices{DOM_CIRCULAR="Ellipsoidal"},
-    Label "Shape", Name Str[MENU_TRUNC, Str[MENU_DOM, "21"]],
+    Name StrCat[MENU_TRUNC, StrCat[MENU_DOM, "21Shape"]],
     Visible (Type_Truncation == ABC)}
 ];
 If(Type_Truncation == PML)
@@ -75,13 +75,12 @@ If(Type_Truncation == PML && Type_SHAPE == DOM_SQUARE)
 EndIf
 DefineConstant[
   linkLS = {(Type_Truncation == PML && Type_SHAPE == DOM_CIRCULAR),
-    Choices {0,1},  Label "Set Xmax=Ymax",
-    Name Str[Str[MENU_TRUNC, MENU_DOM], "4Link"],
+    Choices {0,1}, Name StrCat[StrCat[MENU_TRUNC, MENU_DOM], "4Set Xmax=Ymax"],
     ReadOnly (Type_Truncation == PML && Type_SHAPE == DOM_CIRCULAR)}
   Xmax = {10., Min 0.1, Step 0.1, Max 10000,
-    Name Str[MENU_TRUNC, Str[MENU_DOM, "4Xmax"]], Label Str[Axis_string_x]}
+    Name StrCat[MENU_TRUNC, StrCat[MENU_DOM, "4Xmax"]], Label Str[Axis_string_x]}
   Ymax = {Xmax, Min 0.1, Step 0.1, Max 10000,
-    Name Str[MENU_TRUNC, Str[MENU_DOM, "4Ymax"]], Label Str[Axis_string_y],
+    Name StrCat[MENU_TRUNC, StrCat[MENU_DOM, "4Ymax"]], Label Str[Axis_string_y],
     ReadOnly linkLS}
 ];
 
@@ -103,7 +102,7 @@ ABC_BAYLISS = 1;
 DefineConstant[
   Type_ABC = { ABC_BAYLISS,
     Choices{ ABC_SOMMERFELD ="Sommerfeld",  ABC_BAYLISS="Bayliss-Turkel-Gunzburger"},
-    Label "ABC", Name Str[MENU_TRUNC, Str[MENU_ABC, "2"]],
+    Name StrCat[MENU_TRUNC, StrCat[MENU_ABC, "2ABC"]],
     Visible (Type_Truncation == ABC)}
 ] ;
 
@@ -113,7 +112,7 @@ MENU_PML = "/PML parameters/";
 //size (in number of elements)
 DefineConstant[
   SizePML_LC = {10., Min 1., Max 1000., Step 0.1,
-    Label "Size (in nb. of elements)", Name Str[MENU_TRUNC, Str[MENU_PML, "2Size"]],
+    Name StrCat[MENU_TRUNC, StrCat[MENU_PML, "2Size (in nb. of elements)"]],
     Visible (Type_Truncation == PML)}
 ];
 SizePMLX = SizePML_LC*lc;
@@ -127,13 +126,11 @@ DefineConstant[
   PML_TYPE_SQUARE = {PML_BERMUDEZ,
     Choices{ PML_LINEAR ="Linear", PML_BERMUDEZ="Bermudez",
       PML_BERMUDEZ_QUAD="Bermudez Squared"},
-    Label "Damping functions",
-    Name Str[MENU_TRUNC, Str[MENU_PML,"30DampingFunctions"]],
+    Name StrCat[MENU_TRUNC, StrCat[MENU_PML,"30Damping functions"]],
     Visible (Type_Truncation == PML && Type_SHAPE == DOM_SQUARE)}
   PML_TYPE_CIRCULAR = {PML_BERMUDEZ,
     Choices{ PML_LINEAR ="Linear", PML_BERMUDEZ="Bermudez"},
-    Label "Damping functions",
-    Name Str[MENU_TRUNC, Str[MENU_PML,"31DampingFunctions"]],
+    Name StrCat[MENU_TRUNC, StrCat[MENU_PML,"31Damping functions"]],
     Visible (Type_Truncation == PML && Type_SHAPE == DOM_CIRCULAR)}
 ];
 
@@ -142,7 +139,7 @@ PML_TYPE = Type_SHAPE == DOM_SQUARE ? PML_TYPE_SQUARE:PML_TYPE_CIRCULAR;
 //Linear
 DefineConstant[
   SigmaMax = {100, Min 0, Max 10000, Step 1,
-    Label "Max value", Name Str[MENU_TRUNC, Str[MENU_PML,"51LinearFun"]],
+    Name StrCat[MENU_TRUNC, StrCat[MENU_PML,"51Max value"]],
     Visible (Type_Truncation == PML && PML_TYPE == PML_LINEAR)}
 ];
 SigmaXmax = SigmaMax;
@@ -156,21 +153,20 @@ POINTSOURCE = 1;
 //To approximate the Dirac function (Type_PROBLEM == PENETRABLE)
 DefineConstant[
   rad_int_s = {1/100.,
-    Name Str[MENU_INPUT, Str[MENU_UINC,"/rad_int"]],
+    Name StrCat[MENU_INPUT, StrCat[MENU_UINC,"/rad_int"]],
     Visible 0}
   rad_ext_s = {10*rad_int_s,
-    Name Str[MENU_INPUT, Str[MENU_UINC,"/rad_ext"]],
+    Name StrCat[MENU_INPUT, StrCat[MENU_UINC,"/rad_ext"]],
     Visible 0}
 ];
 
 DefineConstant[
   INCIDENT_WAVE = {(Type_PROBLEM == PENETRABLE?POINTSOURCE:PLANEWAVE),
     Choices{PLANEWAVE ="Plane Wave", POINTSOURCE="Point source"},
-    Label "Type", Name Str[MENU_INPUT, Str[MENU_UINC,"/0type"]],
+    Name StrCat[MENU_INPUT, StrCat[MENU_UINC,"/0Type"]],
     ReadOnly (Type_PROBLEM == PENETRABLE)}
   PLOT_POINT_SOURCE = {Type_PROBLEM == PENETRABLE, Choices{0,1},
-    Label "Plot point source (remesh at every change)",
-    Name Str[MENU_INPUT, Str[MENU_UINC,"/1plot"]],
+    Name StrCat[MENU_INPUT, StrCat[MENU_UINC,"/1Plot point source (remesh at every change)"]],
     Visible (INCIDENT_WAVE == POINTSOURCE || Type_PROBLEM == PENETRABLE),
     ReadOnly (Type_PROBLEM==PENETRABLE)}
 ];
@@ -178,20 +174,18 @@ DefineConstant[
 //Just to plot the point source
 DefineConstant[
   r_source = {(Type_PROBLEM == PENETRABLE?Xmax/2-rad_ext_s:Xmax/2),
-    Name Str[MENU_INPUT, Str[MENU_UINC,"/r"]],
-    Label "Distance from origin",
+    Name StrCat[MENU_INPUT, StrCat[MENU_UINC,"/Distance from origin"]],
     Visible (INCIDENT_WAVE == POINTSOURCE && PLOT_POINT_SOURCE),
     ReadOnly !PLOT_POINT_SOURCE}
   theta_source = {0., Min -1., Max 1., Step 0.01,
-    Name Str[MENU_INPUT, Str[MENU_UINC,"/theta"]],
-    Label "Angle (in pi-radian)",
+    Name StrCat[MENU_INPUT, StrCat[MENU_UINC,"/Angle (in pi-radian)"]],
     Visible (INCIDENT_WAVE == POINTSOURCE && PLOT_POINT_SOURCE),
     ReadOnly !PLOT_POINT_SOURCE}
   X_source = {r_source*Cos[theta_source],
-    Name Str[MENU_INPUT, Str[MENU_UINC,"/x_source"]],
+    Name StrCat[MENU_INPUT, StrCat[MENU_UINC,"/x_source"]],
     ReadOnly 1, Visible 0}
   Y_source = {r_source*Sin[theta_source],
-    Name Str[MENU_INPUT, Str[MENU_UINC,"/y_source"]],
+    Name StrCat[MENU_INPUT, StrCat[MENU_UINC,"/y_source"]],
     ReadOnly 1, Visible 0}
 ];
 

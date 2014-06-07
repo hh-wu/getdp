@@ -13,12 +13,12 @@ Function {
   NEUMANN = 1;
   MIXED = 2;
   DefineConstant[
-    N_scat = {0, Name Str[MENU_OBST,"/0Nscat"]}
+    N_scat = {0, Name StrCat[MENU_OBST,"/0Nb. of placed obstacles"]},
     linkContrast = {1, Choices {0,1},
-      Label "Set a unique contrast", Name Str[MENU_INPUT, "/010ContrastLinker"],
-      Visible (Type_PROBLEM == PENETRABLE)}
+      Name StrCat[MENU_INPUT, "/010Set a unique contrast"],
+      Visible (Type_PROBLEM == PENETRABLE)},
     Contrast_Global = {1.2, Min 0., Max 100., Step 0.1 ,
-      Label "Contrast", Name Str[MENU_INPUT, "/011Contrast"],
+      Name StrCat[MENU_INPUT, "/011Contrast"],
       Visible (Type_PROBLEM == PENETRABLE && linkContrast)}
   ];
   //If mixed condition
@@ -29,11 +29,10 @@ Function {
     DefineConstant[
       BCond~{j} = {DIRICHLET,
         Choices{DIRICHLET = "Dirichlet", NEUMANN = "Neumann"},
-        Name Str[MENU_OBST, Sprintf("/Obst. %g/0cond", j+1)],
-        Label "Boundary condition",
+        Name StrCat[MENU_OBST, Sprintf("/Obst. %g/0Boundary condition", j+1)],
         Visible (j < N_scat_to_create && Type_PROBLEM == IMPENETRABLE)}
       Contrast~{j} = {Contrast_Global, Min 0., Max 100., Step 0.1 ,
-        Label "Contrast", Name Str[MENU_OBST, Sprintf("/Obst. %g/1cond", j+1)],
+        Name StrCat[MENU_OBST, Sprintf("/Obst. %g/1Contrast", j+1)],
         Visible (j < N_scat_to_create && Type_PROBLEM == PENETRABLE),
         ReadOnly linkContrast}
     ];
@@ -53,7 +52,7 @@ Function {
   //angle of incident plane wave
   DefineConstant[
     beta_inc_aux = {1., Min -1., Max 1., Step 0.01 ,
-      Label "Angle (in Pi)", Name Str[MENU_INPUT, Str[MENU_UINC,"/angle"]],
+      Name StrCat[MENU_INPUT, StrCat[MENU_UINC,"/Angle (in Pi)"]],
       Visible (INCIDENT_WAVE == PLANEWAVE)}
   ];
 
