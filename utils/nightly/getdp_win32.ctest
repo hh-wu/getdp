@@ -4,7 +4,7 @@
 # bugs and problems to the public mailing list <getdp@geuz.org>.
 
 set(CTEST_CMAKE_COMMAND "cmake")
-
+set(CTEST_BINARY_DIRECTORY "$ENV{HOME}/src/getdp/bin")
 set(WEB_BIN "geuzaine@geuz.org:/home/www/geuz.org/getdp/bin/Windows")
 
 set(WITH_TEST TRUE)      # run the tests?
