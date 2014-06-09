@@ -925,6 +925,7 @@ file(GLOB_RECURSE PROFILES demos/magnet.pro
      benchmarks/machines/pmsm.pro
      benchmarks/magnetometer/magnetometer.pro
      benchmarks/waveguides/waveguide3D_rectangle.pro
+     benchmarks/acoustic_scattering/scattering.pro
      benchmarks/academic_eigenvalues/main.pro)
 foreach(PROFILE ${PROFILES})
   # use relative path for cygwin/mingw (the pure win exe built with the mingw 
