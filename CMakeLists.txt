@@ -921,9 +921,12 @@ endif(WIN32 OR CYGWIN)
 include(CPack)
 
 include(CTest)
-file(GLOB_RECURSE TESTFILES demos/magnet.pro)
-foreach(TESTFILE ${TESTFILES})
-  add_test(${TESTFILE} ../../gmsh/bin/gmsh ${TESTFILE} - )
+file(GLOB_RECURSE PROFILES demos/magnet.pro)
+foreach(PROFILE ${PROFILES})
+  # use relative path for cygwin/mingw (the pure win exe built with the mingw 
+  # compilers does not understand a full cygwin-style path)
+  FILE(RELATIVE_PATH PRO ${CMAKE_CURRENT_BINARY_DIR} ${PROFILE})
+  add_test(${PRO} ../../gmsh/bin/gmsh ${PRO} - )
 endforeach()
 
 message(STATUS "")
