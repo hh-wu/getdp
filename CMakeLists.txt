@@ -921,8 +921,11 @@ endif(WIN32 OR CYGWIN)
 include(CPack)
 
 include(CTest)
-file(GLOB_RECURSE PROFILES demos/magnet.pro benchmarks/machines/pmsm.pro
-      benchmarks/waveguides/waveguide3D_rectangle.pro)
+file(GLOB_RECURSE PROFILES demos/magnet.pro 
+     benchmarks/machines/pmsm.pro
+     benchmarks/magnetometer/magnetometer.pro
+     benchmarks/waveguides/waveguide3D_rectangle.pro
+     benchmarks/academic_eigenvalues/main.pro)
 foreach(PROFILE ${PROFILES})
   # use relative path for cygwin/mingw (the pure win exe built with the mingw 
   # compilers does not understand a full cygwin-style path)
