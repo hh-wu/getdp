@@ -923,7 +923,6 @@ include(CPack)
 include(CTest)
 file(GLOB_RECURSE TESTFILES demos/magnet.pro 
      benchmarks/machines/pmsm.pro
-     benchmarks/magnetometer/magnetometer.pro
      benchmarks/waveguides/waveguide3D_rectangle.pro
      benchmarks/acoustic_scattering/scattering.pro
      benchmarks/academic_eigenvalues/main.pro)
