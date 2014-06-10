@@ -922,10 +922,11 @@ include(CPack)
 
 include(CTest)
 file(GLOB_RECURSE TESTFILES demos/magnet.pro 
-     benchmarks/machines/pmsm.pro
-     benchmarks/waveguides/waveguide3D_rectangle.pro
+     benchmarks/academic_eigenvalues/main.pro
      benchmarks/acoustic_scattering/scattering.pro
-     benchmarks/academic_eigenvalues/main.pro)
+     benchmarks/machines/pmsm.pro
+     benchmarks/magnetometer/magnetometer.pro
+     benchmarks/waveguides/waveguide3D_rectangle.pro)
 foreach(TESTFILE ${TESTFILES})
   # use relative path for cygwin/mingw (the pure win exe built with the mingw 
   # compilers does not understand a full cygwin-style path)

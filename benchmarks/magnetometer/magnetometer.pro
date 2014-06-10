@@ -149,6 +149,10 @@ Resolution {
     Operation {
       CreateDir["res/"];
 
+      If(DEGRE2)
+        SetGlobalSolverOptions["-petsc_prealloc 400"];
+      EndIf
+
       If(Flag_AnalysisType == 0)
         GenerateSeparate[Sys_Mec]; EigenSolve[Sys_Mec, 5, 0, 0];
         SaveSolutions[Sys_Mec] ;
@@ -209,6 +213,6 @@ PostOperation {
 
 DefineConstant[
   R_ = {"Analysis", Name "GetDP/1ResolutionChoices", Visible 0},
-  C_ = {"-solve -petsc_prealloc 400", Name "GetDP/9ComputeCommand", Visible 0},
+  C_ = {"-solve", Name "GetDP/9ComputeCommand", Visible 0},
   P_ = {"", Name "GetDP/2PostOperationChoices", Visible 0}
 ];
