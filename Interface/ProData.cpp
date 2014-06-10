@@ -139,7 +139,14 @@ void Init_ProblemStructure()
 }
 
 // FIXME: TODO to remove parser memory leaks!
-void Free_Group(struct Group* a){}
+void Free_Group(struct Group* a)
+{
+  // we should convert all the structs into classes and add a default
+  // constructor with proper initializations ; cleanup the parser to make sure
+  // who owns what, so we can safely delete
+  //
+  // List_Delete(a->ExtendedList); List_Delete(a->ExtendedSuppList);
+}
 void Free_Expression(struct Expression* a){}
 void Free_FunctinSpace(struct FunctionSpace* a){}
 void Free_Constraint(struct Constraint* a){}
