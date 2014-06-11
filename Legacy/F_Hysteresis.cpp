@@ -181,6 +181,7 @@ void Vector_dHdB(double H[3], double B[3], double dH[3],
 
 void F_dhdb_Jiles(F_ARG)
 {
+  // #define F_ARG   struct Function * Fct, struct Value * A, struct Value * V
   // input : h, b ,dh
   // dhdb_Jiles[{h}, {d a}, {h}-{h}[1] ]{List[hyst_FeSi]}
   // Material parameters: e.g. hyst_FeSi = { Msat, a, k, c, alpha};==> struct FunctionActive *D
@@ -208,6 +209,7 @@ void F_dhdb_Jiles(F_ARG)
 
 void F_dbdh_Jiles(F_ARG)
 {
+  // #define F_ARG   struct Function * Fct, struct Value * A, struct Value * V
   // input : h, b, dh
   // dbdh_Jiles[{h}, {d a}, {h}-{h}[1] ]{List[hyst_FeSi]}
   // Material parameters: e.g. hyst_FeSi = { Msat, a, k, c, alpha};==> struct FunctionActive *D
@@ -235,6 +237,7 @@ void F_dbdh_Jiles(F_ARG)
 
 void F_h_Jiles(F_ARG)
 {
+  // #define F_ARG   struct Function * Fct, struct Value * A, struct Value * V
   // input : h1, b1, b2
   // h_Jiles[ {h}[1], {b}[1], {b} ]{List[hyst_FeSi]}
   // Material parameters: e.g. hyst_FeSi = { Msat, a, k, c, alpha};
@@ -265,6 +268,7 @@ void F_h_Jiles(F_ARG)
 
 void F_b_Jiles(F_ARG)
 {
+  // #define F_ARG   struct Function * Fct, struct Value * A, struct Value * V
   // input : b1, h1, h2
   // b_Jiles[ {b}[1], {h}[1], {h} ]{List[hyst_FeSi]}
   // Material parameters: e.g. hyst_FeSi = { Msat, a, k, c, alpha};

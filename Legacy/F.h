@@ -168,6 +168,7 @@ void  F_Printf          (F_ARG) ;
 void  F_Rand            (F_ARG) ;
 void  F_CompElementNum  (F_ARG) ;
 void  F_VirtualWork     (F_ARG) ;
+void  F_NodeForceDensity(F_ARG) ;
 void  F_dWedu		(F_ARG) ;
 void  F_dWedudu		(F_ARG) ;
 void  F_dWedvdu		(F_ARG) ;

@@ -66,7 +66,6 @@ void F_VirtualWork (F_ARG)
          Current.Element->GeoElement->NumNodes[i] != numNode)  i++;
 
   if (i < Current.Element->GeoElement->NbrNodes ) {
-
     for(int j = 0; j < 3; j++) {
       squF[j]   = A->Val[j] * A->Val[j] ;
       squF[j+3] = A->Val[j] * A->Val[(j<2)?j+1:0] ;
@@ -114,6 +113,68 @@ void F_VirtualWork (F_ARG)
   V->Val[1] = s[1] ;
   V->Val[2] = s[2] ;
 }
+
+void F_NodeForceDensity (F_ARG)
+{
+  MATRIX3x3 Jac ;
+  double DetJac ;
+  double Grad_n[3], s11, s12, s13, s21, s22, s23, s31, s32, s33 ;
+  double s[3] = {0.,0.,0.};
+
+  if(!Current.Element)
+    Message::Error("Uninitialized Element in 'F_NodeForceDensity'");
+
+  Current.flagAssDiag = 1; /*+++prov*/
+
+  int numNode = Current.NumEntity;
+
+  int i = 0 ;
+  while (i < Current.Element->GeoElement->NbrNodes &&
+         Current.Element->GeoElement->NumNodes[i] != numNode)  i++;
+
+  if (i < Current.Element->GeoElement->NbrNodes ) {
+    s11 = A->Val[0] ;
+    s12 = A->Val[1] ;
+    s13 = A->Val[2] ;
+    s21 = s12;
+    s22 = A->Val[3] ;
+    s23 = A->Val[4] ;
+    s31 = s13;
+    s32 = s23;
+    s33 = A->Val[5] ;
+
+    DetJac  = Current.Element->DetJac ;
+    Jac     = Current.Element->Jac ;
+
+    Grad_n[0] =
+      Current.Element->dndu[i][0] * Jac.c11 +
+      Current.Element->dndu[i][1] * Jac.c12 +
+      Current.Element->dndu[i][2] * Jac.c13 ;
+    Grad_n[1] =
+      Current.Element->dndu[i][0] * Jac.c21 +
+      Current.Element->dndu[i][1] * Jac.c22 +
+      Current.Element->dndu[i][2] * Jac.c23 ;
+    Grad_n[2] =
+      Current.Element->dndu[i][0] * Jac.c31 +
+      Current.Element->dndu[i][1] * Jac.c32 +
+      Current.Element->dndu[i][2] * Jac.c33 ;
+
+    if(DetJac != 0){
+      s[0] = ( Grad_n[0] * s11 + Grad_n[1] * s12 + Grad_n[2] * s13 ) / DetJac ;
+      s[1] = ( Grad_n[0] * s21 + Grad_n[1] * s22 + Grad_n[2] * s23 ) / DetJac ;
+      s[2] = ( Grad_n[0] * s31 + Grad_n[1] * s32 + Grad_n[2] * s33 ) / DetJac ;
+    }
+    else {
+      Message::Warning("Zero determinant in 'F_NodeForceDensity'") ;
+    }
+  }
+
+  V->Type = VECTOR ;
+  V->Val[0] = s[0] ;
+  V->Val[1] = s[1] ;
+  V->Val[2] = s[2] ;
+}
+
 
 // Blex added 25/04/14
 void F_dWedu (F_ARG)
