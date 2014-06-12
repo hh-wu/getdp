@@ -24,7 +24,7 @@ Function{
     delta_time = T/NbSteps,
     FillFactor_Winding = {1, Name "Input/4Coil Parameters/3Fill factor",
       Highlight "AliceBlue", Visible 1},
-    Factor_R_3DEffects = {1, Name "Input/4Coil Parameters/9 3D factor",
+    Factor_R_3DEffects = {1, Name "Input/4Coil Parameters/9fact", Label "3D factor",
       Highlight "AliceBlue", Visible 1},
     // Increasing the resistance by 50% == 1.5
     II, VV,
