@@ -1,4 +1,4 @@
-lc = 0.01; // Mesh characteristic length
+lc = 0.02; // Mesh characteristic length
 lc2 = lc;
 lc3 = 0;
 front3d = 0; // Set to 1 if Frontal 3D mesh algorithm is used
