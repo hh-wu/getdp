@@ -147,17 +147,19 @@ void F_NodeForceDensity (F_ARG)
     Jac     = Current.Element->Jac ;
 
     Grad_n[0] =
-      Current.Element->dndu[i][0] * Jac.c11 +
-      Current.Element->dndu[i][1] * Jac.c12 +
-      Current.Element->dndu[i][2] * Jac.c13 ;
+      Current.Element->dndu[i][0] * ( Jac.c22 * Jac.c33 - Jac.c23 * Jac.c32 )
+      - Current.Element->dndu[i][1] * ( Jac.c12 * Jac.c33 - Jac.c13 * Jac.c32 )
+      + Current.Element->dndu[i][2] * ( Jac.c12 * Jac.c23 - Jac.c22 * Jac.c13 );
+
     Grad_n[1] =
-      Current.Element->dndu[i][0] * Jac.c21 +
-      Current.Element->dndu[i][1] * Jac.c22 +
-      Current.Element->dndu[i][2] * Jac.c23 ;
+      - Current.Element->dndu[i][0] * ( Jac.c21 * Jac.c33 - Jac.c23 * Jac.c31 )
+      + Current.Element->dndu[i][1] * ( Jac.c11 * Jac.c33 - Jac.c13 * Jac.c31 )
+      - Current.Element->dndu[i][2] * ( Jac.c11 * Jac.c23 - Jac.c13 * Jac.c21 );
+
     Grad_n[2] =
-      Current.Element->dndu[i][0] * Jac.c31 +
-      Current.Element->dndu[i][1] * Jac.c32 +
-      Current.Element->dndu[i][2] * Jac.c33 ;
+      Current.Element->dndu[i][0] * ( Jac.c21 * Jac.c32 - Jac.c22 * Jac.c31 )
+      - Current.Element->dndu[i][1] * ( Jac.c11 * Jac.c32 - Jac.c12 * Jac.c31 )	
+      + Current.Element->dndu[i][2] * ( Jac.c11 * Jac.c22 - Jac.c12 * Jac.c21 );
 
     if(DetJac != 0){
       s[0] = ( Grad_n[0] * s11 + Grad_n[1] * s12 + Grad_n[2] * s13 ) / DetJac ;
