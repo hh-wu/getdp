@@ -13,7 +13,7 @@ DefineConstant[
   Flag_Symmetry2D = {1, Choices{0="Full",1="Half"},
     Name "Input/00Symmetry type", Highlight "Blue", Visible (Flag_3Dmodel==0)},
   Flag_Symmetry3D = {2, Choices{0="Full",1="Half",2="One fourth"},
-    Name "Input/00Symmetry type", Highlight "Blue", Visible (Flag_3Dmodel==1)},
+    Name "Input/01Symmetry type", Highlight "Blue", Visible (Flag_3Dmodel==1)},
   Flag_OpenCore = {1, Choices{0,1},
     Name "Input/02Core with air gap", Highlight "White"},
   Flag_Infinity = {1, Choices{0,1},
