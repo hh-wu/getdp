@@ -1,7 +1,6 @@
 Include "magnetometer_data.geo";
 
 Solver.AutoShowLastStep=0;
-//View.VectorType = 5; // displacement
 View.DisplacementFactor = 20 * b;
 
 n1_1 = 10;

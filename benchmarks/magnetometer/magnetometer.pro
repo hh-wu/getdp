@@ -197,11 +197,14 @@ PostOperation {
         Print[ u, OnElementsOf Domain_Disp, File "res/u.pos", EigenvalueLegend] ;
       EndIf
       If(Flag_AnalysisType != 0)
-        Print[ u, OnElementsOf Domain_Disp, File "res/u.pos"] ;
         Print[ um, OnPoint {l/2,a/2,b/2}, Format Table, File "res/um_middle.txt",
           SendToServer "Output/Middle diplacement [m]", Color "LightYellow" ];
+        Print[ u, OnElementsOf Domain_Disp, File "res/u.pos"] ;
+        Echo[ "View[PostProcessing.NbViews-1].DisplacementFactor = 1e10;",
+          File "res/u.pos.opt"] ;
       EndIf
-      Echo[ "View[PostProcessing.NbViews-1].VectorType=5;", File "res/u.pos.opt"] ;
+      Echo[ "View[PostProcessing.NbViews-1].VectorType=5;",
+        File "res/u.pos.opt"] ;
     }
   }
   { Name The ; NameOfPostProcessing Thermal;
