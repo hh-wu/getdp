@@ -264,6 +264,12 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
     case LINE        : case LINE_2 :
       *Type_Dimension = _2D ; return((void *)JacobianSurAxi2D) ;
 
+      // for integrals on surfaces in the study plane in axisymm. problems
+      // e.g. the computation of the area of a region
+    case TRIANGLE    : case TRIANGLE_2   :
+    case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
+      *Type_Dimension = _2D ; return((void *)JacobianVol2D) ;
+
     default :
       Message::Error("Unknown Jacobian SurAxi for Element Type (%s)",
                      Get_StringForDefine(Element_Type, Type_Element));
