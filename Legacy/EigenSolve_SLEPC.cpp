@@ -126,6 +126,11 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv,
                     (ore < 0) ? "" : " ", ore, (oim < 0) ? "" : " ", oim);
       Message::Info("          f = %s%.16e %s%.16e",
                     (fre < 0) ? "" : " ", fre, (fim < 0) ? "" : " ", fim);
+
+      Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/EigenvalueRe",
+                                     re);
+      Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/EigenvalueIm",
+                                     im);
     }
     else{
       ore = re;
@@ -135,6 +140,11 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv,
       double fre = re / 2. / M_PI, fim = im / 2. / M_PI;
       Message::Info("          f = %s%.16e %s%.16e",
                     (fre < 0) ? "" : " ", fre, (fim < 0) ? "" : " ", fim);
+
+      Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/EigenvalueRe",
+                                     ore);
+      Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/EigenvalueIm",
+                                     oim);
     }
 
     // create new solution vector if necessary

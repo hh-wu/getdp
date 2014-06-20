@@ -685,6 +685,11 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
     Message::Info("                  f = %.12e %s %.12e * i",
                   f.re, (f.im > 0) ? "+" : "-", (f.im > 0) ? f.im : -f.im);
 
+    Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/EigenvalueRe",
+                                   omega2.re);
+    Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/EigenvalueIm",
+                                   omega2.im);
+
     if(newsol) {
       /* Create new solution */
       Solution_S.TimeFunctionValues = NULL;
