@@ -799,17 +799,17 @@ if(UNIX AND NOT CYGWIN)
   install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/doc/getdp.1 DESTINATION ${GETDP_MAN})
 endif(UNIX AND NOT CYGWIN)
 
-add_custom_target(getHeaders
+add_custom_target(clean_demos COMMAND ${CMAKE_COMMAND} -E remove ${DEMO_FILES_TMP})
+
+add_custom_target(get_headers
   COMMAND ${CMAKE_COMMAND} -E remove_directory Headers
   COMMAND ${CMAKE_COMMAND} -E make_directory Headers/getdp
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-  foreach(FILE ${GETDP_API})
-    add_custom_command(TARGET getHeaders POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy
-        ${FILE} ${CMAKE_CURRENT_BINARY_DIR}/Headers/getdp/
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-  endforeach(FILE)
-
-add_custom_target(clean_demos COMMAND ${CMAKE_COMMAND} -E remove ${DEMO_FILES_TMP})
+foreach(FILE ${GETDP_API})
+  add_custom_command(TARGET get_headers POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy
+      ${FILE} ${CMAKE_CURRENT_BINARY_DIR}/Headers/getdp/
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+endforeach(FILE)
 
 find_program(MAKEINFO makeinfo)
 if(MAKEINFO)
@@ -863,22 +863,15 @@ if(APPLE AND ENABLE_BUILD_LIB)
   get_target_property(LIBNAME lib LOCATION)
   add_custom_target(framework DEPENDS lib
     COMMAND ${CMAKE_COMMAND} -E remove_directory GetDP.framework
-    COMMAND ${CMAKE_COMMAND} -E make_directory GetDP.framework/Versions/A/Headers
-    COMMAND ${CMAKE_COMMAND} -E make_directory GetDP.framework/Versions/A/Resources
-    COMMAND ${CMAKE_COMMAND} -E copy ${LIBNAME} GetDP.framework/Versions/A/GetDP
+    COMMAND ${CMAKE_COMMAND} -E make_directory GetDP.framework/Headers
+    COMMAND ${CMAKE_COMMAND} -E make_directory GetDP.framework/Resources
+    COMMAND ${CMAKE_COMMAND} -E copy ${LIBNAME} GetDP.framework/GetDP
     COMMAND ${CMAKE_COMMAND} -E copy Info_framework.plist
-                                     GetDP.framework/Versions/A/Resources/Info.plist
-    COMMAND ${CMAKE_COMMAND} -E create_symlink A GetDP.framework/Versions/Current
-    COMMAND ${CMAKE_COMMAND} -E create_symlink Versions/Current/GetDP
-                                               GetDP.framework/GetDP
-    COMMAND ${CMAKE_COMMAND} -E create_symlink Versions/Current/Headers
-                                               GetDP.framework/Headers
-    COMMAND ${CMAKE_COMMAND} -E create_symlink Versions/Current/Resources
-                                               GetDP.framework/Resources
+                                     GetDP.framework/Resources/Info.plist
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
   foreach(FILE ${GETDP_API})
     add_custom_command(TARGET framework POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy
-        ${FILE} ${CMAKE_CURRENT_BINARY_DIR}/GetDP.framework/Versions/A/Headers/
+        ${FILE} ${CMAKE_CURRENT_BINARY_DIR}/GetDP.framework/Headers/
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
   endforeach(FILE)
 endif(APPLE AND ENABLE_BUILD_LIB)
