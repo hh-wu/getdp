@@ -78,6 +78,9 @@ static int SolverInitialized = 0;
 
 void LinAlg_InitializeSolver(int* argc, char*** argv)
 {
+  if(SolverInitialized) return;
+  SolverInitialized = 1;
+
   // This function detects if MPI is initialized
   PetscInitialize(argc, argv, PETSC_NULL, PETSC_NULL);
   PetscPopSignalHandler();
@@ -86,7 +89,6 @@ void LinAlg_InitializeSolver(int* argc, char*** argv)
 #if defined(HAVE_SLEPC)
   SlepcInitialize(argc, argv, PETSC_NULL, PETSC_NULL);
 #endif
-  SolverInitialized = 1;
 
   // get additional petsc options from specified file (useful e.g. on
   // Windows where we don't know where to search for ~/.petscrc)
@@ -103,6 +105,11 @@ void LinAlg_InitializeSolver(int* argc, char*** argv)
 
 void LinAlg_FinalizeSolver()
 {
+  // this causes random crashes when doing several initialize/finalize calls
+  // (when using getdp as a library). Until we figure out what's happening,
+  // let's simply initialize petsc/slepc once, and never finalize.
+  return;
+
   if(SolverInitialized){
 #if defined(HAVE_SLEPC)
     SlepcFinalize();
