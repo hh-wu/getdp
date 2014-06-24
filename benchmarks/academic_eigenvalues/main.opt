@@ -1,0 +1,39 @@
+
+FLAG_GEOM = DefineNumber[0, Name "Input/01Geometry"];
+Mesh.SurfaceEdges=0; // do not display the mesh
+k = PostProcessing.NbViews - 1; 
+
+If (FLAG_GEOM == 1) 
+  General.TrackballQuaternion0 = 0;
+  General.TrackballQuaternion1 = 0;
+  General.TrackballQuaternion2 = 0;
+  General.TrackballQuaternion3 = 1;
+  General.ScaleX = 0.5;
+  General.ScaleY = 0.5;
+  General.ScaleZ = 0.5;
+  For k In {0 : PostProcessing.NbViews - 1}
+    View[k].Name = Sprintf("%g th mode", k);
+    View[k].Axes = 2;
+    View[k].Type = 2;
+    View[k].RaiseZ = 0;
+    View[k].Visible=1;
+  EndFor
+EndIf
+
+If (FLAG_GEOM == 2)
+  General.ScaleX = 0.5;
+  General.ScaleY = 0.5;
+  General.ScaleZ = 0.5;
+  General.TrackballQuaternion0 = 0.5237405039445426;
+  General.TrackballQuaternion1 = 0.08505041242690579;
+  General.TrackballQuaternion2 = 0.2061022875509479;
+  General.TrackballQuaternion3 = 0.8221825581585859;
+  For k In {0 : PostProcessing.NbViews - 1}
+    View[k].Name = Sprintf("%g th mode", k);
+    View[k].Axes = 0;
+    View[k].Type = 0;
+    View[k].RaiseZ = 1;
+    View[k].Visible=0;
+  EndFor
+  View[PostProcessing.NbViews - 1].Visible=1;
+EndIf

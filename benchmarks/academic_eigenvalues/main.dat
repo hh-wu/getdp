@@ -9,20 +9,22 @@ DirOutput = "output/";
 OnelabParamMesh = "Input/1Mesh parameter(s)/";
 OnelabParamSolver = "Input/2Resolution parameters/";
 
-DefineConstant[
-  FLAG_GEOM = {1, Name "Input/01Geometry", Highlight "Black",
-    GmshOption "ResetDatabase", Autocheck 0,
-    Choices {1="Linear domain [1D]",
-             2="Squared domain [2D]",
-             3="Circular domain [2D]",
-             4="Cuboidal domain [3D]"} },
-  NbEigenvalues = { 5, Min 1, Max 100, Step 1,
-    Name StrCat[OnelabParamSolver,"3Number of eigenvalues to compute"]},
-  EigenvalShiftRe = { 0, Min 0, Max 1000, Step 0.001,
-    Name StrCat[OnelabParamSolver,"4Spectral shift (real part)"]},
-  EigenvalShiftIm = { 0, Min 0, Max 1000, Step 0.001,
-    Name StrCat[OnelabParamSolver,"5Spectral shift (imaginary part)"]}
-] ;
+//    GmshOption "Reset", 
+
+
+FLAG_GEOM = DefineNumber[1, Name "Input/01Geometry", Highlight "Black",
+  	  GmshOption "Reset", 
+    	  Choices {1="Linear domain [1D]",
+          	   2="Squared domain [2D]",
+             	   3="Circular domain [2D]",
+             	   4="Cuboidal domain [3D]"}];
+NbEigenvalues = DefineNumber[ 4, Min 1, Max 100, Step 1,
+    Name StrCat[OnelabParamSolver,"3Number of eigenvalues to compute"] ] ;
+EigenvalShiftRe = DefineNumber[ 0, Min 0, Max 1000, Step 0.001,
+    Name StrCat[OnelabParamSolver,"4Spectral shift (real part)"] ] ;
+EigenvalShiftIm = DefineNumber[ 0, Min 0, Max 1000, Step 0.001,
+    Name StrCat[OnelabParamSolver,"5Spectral shift (imaginary part)"] ] ;
+
 
 If (FLAG_GEOM==1)
   LinkGeo = "geomLine.geo" ;
