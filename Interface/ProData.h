@@ -336,6 +336,7 @@ struct BasisFunction {
   void    (*Function)();
   void    (*dFunction)();
   void    (*dInvFunction)();
+  void    (*dPlusFunction)();
   List_T  *SubFunction, *SubdFunction;
   int     SupportIndex, EntityIndex;
   double  Order;
@@ -724,6 +725,7 @@ struct GlobalEquationTerm {
 
 #define _D1       21
 #define _D2       22
+#define _D3       23
 
 
 /* CanonicalWholeQuantity */

@@ -240,6 +240,19 @@ void  Get_FunctionValue(int Nbr_Function,
     }
     break ;
 
+  case _D3 :
+    if (QuantityStorage_P->TypeQuantity == VECTOR) {
+      *Type_Form = VECTOR ;
+      for (i = 0 ; i < Nbr_Function ; i++)
+        xFunctionBF[i] =
+          QuantityStorage_P->BasisFunction[i].BasisFunction->dPlusFunction ;
+    }
+    else{
+      Message::Error("Cannot apply D3 operator to quantity type %d",
+                     QuantityStorage_P->TypeQuantity);
+    }
+    break ;
+
   default :
     Message::Error("Unknown operator in 'Get_FunctionValue'");
     break;

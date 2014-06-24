@@ -2212,6 +2212,7 @@ BasisFunction :
       BasisFunction_S.Function = NULL;
       BasisFunction_S.dFunction = NULL;
       BasisFunction_S.dInvFunction = NULL;
+      BasisFunction_S.dPlusFunction = NULL;
       BasisFunction_S.SubFunction = NULL;
       BasisFunction_S.SubdFunction = NULL;
       BasisFunction_S.SupportIndex = -1;
@@ -2267,6 +2268,37 @@ BasisFunctionTerm :
 	Get_Valid_SX3F3N(BF_Function);
       }
       Free($5);
+    }
+
+  | tdFunction '{' tSTRING Comma tSTRING Comma tSTRING '}' tEND
+    {
+      void  (*FunctionDummy)();
+      int i, j;
+      double d;
+      Get_3Function3NbrForString
+	(BF_Function, $3, &FlagError,
+	 &BasisFunction_S.dFunction, &FunctionDummy, &FunctionDummy, &d, &i, &j);
+      if(FlagError){
+	vyyerror("Unknown dFunction (1) for BasisFunction: %s", $3);
+	Get_Valid_SX3F3N(BF_Function);
+      }
+      Free($3);
+      Get_3Function3NbrForString
+	(BF_Function, $5, &FlagError,
+	 &BasisFunction_S.dInvFunction, &FunctionDummy, &FunctionDummy, &d, &i, &j);
+      if(FlagError){
+	vyyerror("Unknown dFunction (2) for BasisFunction: %s", $5);
+	Get_Valid_SX3F3N(BF_Function);
+      }
+      Free($5);
+      Get_3Function3NbrForString
+	(BF_Function, $7, &FlagError,
+	 &BasisFunction_S.dPlusFunction, &FunctionDummy, &FunctionDummy, &d, &i, &j);
+      if(FlagError){
+	vyyerror("Unknown dFunction (3) for BasisFunction: %s", $7);
+	Get_Valid_SX3F3N(BF_Function);
+      }
+      Free($7);
     }
 
   | tSubFunction ListOfExpression tEND

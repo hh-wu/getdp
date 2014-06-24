@@ -176,6 +176,7 @@ struct StringXDefine  Operator_Type[] = {
 
   {"D1"      , _D1 } ,
   {"D2"      , _D2 } ,
+  {"D3"      , _D3 } ,
 
   {NULL      , NOOP }
 } ;
