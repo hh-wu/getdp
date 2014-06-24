@@ -802,13 +802,12 @@ endif(UNIX AND NOT CYGWIN)
 add_custom_target(clean_demos COMMAND ${CMAKE_COMMAND} -E remove ${DEMO_FILES_TMP})
 
 add_custom_target(get_headers
-  COMMAND ${CMAKE_COMMAND} -E remove_directory Headers
   COMMAND ${CMAKE_COMMAND} -E make_directory Headers/getdp
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 foreach(FILE ${GETDP_API})
-  add_custom_command(TARGET get_headers POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy
-      ${FILE} ${CMAKE_CURRENT_BINARY_DIR}/Headers/getdp/
-      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+  add_custom_command(TARGET get_headers POST_BUILD COMMAND ${CMAKE_COMMAND}
+    -E copy_if_different ${FILE} ${CMAKE_CURRENT_BINARY_DIR}/Headers/getdp/
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 endforeach(FILE)
 
 find_program(MAKEINFO makeinfo)
