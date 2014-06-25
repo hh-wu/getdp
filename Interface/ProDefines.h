@@ -985,10 +985,27 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"Rand"              , (CAST)F_Rand             ,   0,   1 },
   {"CompElementNum"    , (CAST)F_CompElementNum   ,   0,   0 },
   {"VirtualWork"       , (CAST)F_VirtualWork      ,   0,   1 },
+  {"Felec"	       , (CAST)F_Felec      	  ,   0,   1 },
+
+  {"dFxdux"	       , (CAST)F_dFxdux      	  ,   0,   1 },
+  {"dFydux"	       , (CAST)F_dFydux      	  ,   0,   1 },
+  {"dFzdux"	       , (CAST)F_dFzdux      	  ,   0,   1 },
+  {"dFxduy"	       , (CAST)F_dFxduy      	  ,   0,   1 },
+  {"dFyduy"	       , (CAST)F_dFyduy      	  ,   0,   1 },
+  {"dFzduy"	       , (CAST)F_dFzduy      	  ,   0,   1 },
+  {"dFxduz"	       , (CAST)F_dFxduz      	  ,   0,   1 },
+  {"dFyduz"	       , (CAST)F_dFyduz      	  ,   0,   1 },
+  {"dFzduz"	       , (CAST)F_dFzduz      	  ,   0,   1 },
+
+  {"dFxdv"             , (CAST)F_dFxdv      	  ,   0,   1 },
+  {"dFydv"             , (CAST)F_dFydv      	  ,   0,   1 },
+  {"dFzdv"             , (CAST)F_dFzdv      	  ,   0,   1 },
+
+  {"dWedxdv"	       , (CAST)F_dWedxdv      	  ,   0,   1 },
+  {"dWedydv"	       , (CAST)F_dWedydv      	  ,   0,   1 },
+  {"dWedzdv"	       , (CAST)F_dWedzdv      	  ,   0,   1 },
+
   {"NodeForceDensity"  , (CAST)F_NodeForceDensity ,   0,   1 },
-  {"dWedu"	       , (CAST)F_dWedu      	  ,   0,   1 },
-  {"dWedudu"           , (CAST)F_dWedudu      	  ,   0,   1 },
-  {"dWedvdu"           , (CAST)F_dWedvdu      	  ,   0,   1 },
   {"AssDiag"           , (CAST)F_AssDiag          ,  -1,   0 },
 
   // F_Interpolation
