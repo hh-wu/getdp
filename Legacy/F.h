@@ -168,10 +168,29 @@ void  F_Printf          (F_ARG) ;
 void  F_Rand            (F_ARG) ;
 void  F_CompElementNum  (F_ARG) ;
 void  F_VirtualWork     (F_ARG) ;
+
+void  F_Felec		(F_ARG) ;
+
+void  F_dFxdux		(F_ARG) ;
+void  F_dFydux		(F_ARG) ;
+void  F_dFzdux		(F_ARG) ;
+void  F_dFxduy		(F_ARG) ;
+void  F_dFyduy		(F_ARG) ;
+void  F_dFzduy		(F_ARG) ;
+void  F_dFxduz		(F_ARG) ;
+void  F_dFyduz		(F_ARG) ;
+void  F_dFzduz		(F_ARG) ;
+
+void  F_dFxdv		(F_ARG) ;
+void  F_dFydv		(F_ARG) ;
+void  F_dFzdv		(F_ARG) ;
+
+void  F_dWedxdv		(F_ARG) ;
+void  F_dWedydv		(F_ARG) ;
+void  F_dWedzdv		(F_ARG) ;
+
+
 void  F_NodeForceDensity(F_ARG) ;
-void  F_dWedu		(F_ARG) ;
-void  F_dWedudu		(F_ARG) ;
-void  F_dWedvdu		(F_ARG) ;
 void  F_AssDiag         (F_ARG) ;  /* pour Patrick */
 
 /* F_Interpolation */
