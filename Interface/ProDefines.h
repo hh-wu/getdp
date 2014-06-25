@@ -420,6 +420,8 @@ struct StringX3Function3Nbr  BF_Function[] = {
   {"BF_Node_3V", (CAST)BF_Node_3V,
                  (CAST)BF_GradNode_3V, (CAST)BF_Zero, 3., HEX|PRI|PYR, 0 },
 
+  {"BF_GradNodeRealCoord",    (CAST)BF_GradNodeRealCoord,
+                     (CAST)BF_Zero, (CAST)BF_Node,    0., ALL, 0 },
   {"BF_GradNode",    (CAST)BF_GradNode,
                      (CAST)BF_Zero, (CAST)BF_Node,    0., ALL, 0 },
   {"BF_GradNode_1N", (CAST)BF_GradNode,

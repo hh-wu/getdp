@@ -110,6 +110,15 @@ void BF_NodeZ_D12_2E(struct Element * Element, int NumEdge,
   s[0] = s[1] = s[2] = 0. ;
 }
 
+void BF_GradNodeRealCoord(struct Element * Element, int NumNode, 
+		  double u, double v, double w,  double s[])
+{
+  double su[3] ;
+
+  BF_GradNode(Element, NumNode, u, v, w, su) ;
+  ChangeOfCoord_Form1(Element, su, s) ;
+}
+
 /* ------------------------------------------------------------------------ */
 
 #define BF(BF_NodeX_D1_, BF_GradNode_, zero1_, zero2_)	\
