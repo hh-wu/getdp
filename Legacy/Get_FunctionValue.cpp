@@ -320,6 +320,7 @@ void  Get_InitFunctionValue(int Type_Operator,
 
   case _D1 :
   case _D2 :
+  case _D3 :
     if (QuantityStorage_P->TypeQuantity == VECTOR)
       *Type_Form = VECTOR ;
     else
