@@ -172,18 +172,18 @@ if(ENABLE_BLAS_LAPACK)
     set(LAPACK_LIBRARIES ${BLAS_LAPACK_LIBRARIES})
   else(BLAS_LAPACK_LIBRARIES)
     if(MSVC)
-      # on Windows with Visual C++ try really hard to find blas/lapack
-      # *without* requiring a Fortran compiler: 1) try to find the Intel
-      # MKL libs using the standard search path; if not found 2) try to
-      # get the reference blas/lapack libs (useful for users with no
-      # Fortran compiler and no MKL license, who can just download our
-      # precompiled "getdp-dep" package)
+      # on Windows with Visual C++ try really hard to find blas/lapack *without*
+      # requiring a Fortran compiler: 1) try to find the Intel MKL libs using
+      # the standard search path; if not found 2) try to get the reference
+      # blas/lapack libs (useful for users with no Fortran compiler and no MKL
+      # license, who can just download our precompiled "gmsh-dep" package)
       if(HAVE_64BIT_SIZE_T)
         set(MKL_PATH em64t/lib)
+        set(MKL_LIBS_REQUIRED libguide40 mkl_intel_lp64 mkl_intel_thread mkl_core)
       else(HAVE_64BIT_SIZE_T)
         set(MKL_PATH ia32/lib)
+        set(MKL_LIBS_REQUIRED libguide40 mkl_intel_c mkl_intel_thread mkl_core)
       endif(HAVE_64BIT_SIZE_T)
-      set(MKL_LIBS_REQUIRED libguide40 mkl_intel_c mkl_intel_thread mkl_core)
       find_all_libraries(LAPACK_LIBRARIES MKL_LIBS_REQUIRED "" ${MKL_PATH})
       if(LAPACK_LIBRARIES)
         set_config_option(HAVE_BLAS "Blas(IntelMKL)")
@@ -192,8 +192,8 @@ if(ENABLE_BLAS_LAPACK)
         set(REFLAPACK_LIBS_REQUIRED lapack blas g2c gcc)
         find_all_libraries(LAPACK_LIBRARIES REFLAPACK_LIBS_REQUIRED "" "")
         if(LAPACK_LIBRARIES)
-          set_config_option(HAVE_BLAS "Blas(Ref)")
-          set_config_option(HAVE_LAPACK "Lapack(Ref)")
+          set_config_option(HAVE_BLAS "Blas(Reference)")
+          set_config_option(HAVE_LAPACK "Lapack(Reference)")
         endif(LAPACK_LIBRARIES)
       endif(LAPACK_LIBRARIES)
     elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -238,7 +238,7 @@ if(ENABLE_BLAS_LAPACK)
     elseif(${CMAKE_SYSTEM_NAME} MATCHES "SunOS")
       # on SunOS we know blas and lapack are available in sunperf
       set(LAPACK_FLAGS -library=sunperf)
-      set_config_option(HAVE_BLAS "Blas(SubPerf)")
+      set_config_option(HAVE_BLAS "Blas(SunPerf)")
       set_config_option(HAVE_LAPACK "Lapack(SunPerf)")
     elseif(APPLE)
       # on Mac we also know that blas and lapack are available
@@ -258,7 +258,7 @@ if(ENABLE_BLAS_LAPACK)
         if(GFORTRAN_LIB)
           list(APPEND LAPACK_LIBRARIES ${GFORTRAN_LIB})
         endif(GFORTRAN_LIB)
-      endif(LAPACK_LIBRARIES)
+      endif(LAPACK_LIBRARIES)  
     endif(NOT HAVE_BLAS OR NOT HAVE_LAPACK)
 
     if(NOT HAVE_BLAS OR NOT HAVE_LAPACK)
@@ -276,7 +276,6 @@ if(ENABLE_BLAS_LAPACK)
         endif(LAPACK_FOUND)
       endif(BLAS_FOUND)
     endif(NOT HAVE_BLAS OR NOT HAVE_LAPACK)
-
   endif(BLAS_LAPACK_LIBRARIES)
 endif(ENABLE_BLAS_LAPACK)
 
@@ -480,11 +479,11 @@ if(ENABLE_FORTRAN)
 
   if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
     if(CMAKE_Fortran_COMPILER MATCHES "gfortran")
-      list(APPEND LAPACK_LIBRARIES gfortran)
+      list(APPEND LAPACK_LIBRARIES -lgfortran)
     elseif(CMAKE_Fortran_COMPILER MATCHES "f95")
-      list(APPEND LAPACK_LIBRARIES gfortran)
+      list(APPEND LAPACK_LIBRARIES -lgfortran)
     elseif(CMAKE_Fortran_COMPILER MATCHES "g77")
-      list(APPEND LAPACK_LIBRARIES g2c)
+      list(APPEND LAPACK_LIBRARIES -lg2c)
     endif(CMAKE_Fortran_COMPILER MATCHES "gfortran")
   endif(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
 else(ENABLE_FORTRAN)
@@ -623,6 +622,25 @@ if(EXTERNAL_INCLUDES)
 endif(EXTERNAL_INCLUDES)
 
 set(LINK_LIBRARIES ${EXTERNAL_LIBRARIES} ${LAPACK_LIBRARIES})
+
+# Linux-specific linking
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  # try to use static gfortran on static Linux builds
+  if(NOT ENABLE_BUILD_SHARED)
+    set(CMAKE_Fortran_IMPLICIT_LINK_LIBRARIES)
+    set(CMAKE_EXE_LINK_DYNAMIC_C_FLAGS)
+    set(CMAKE_EXE_LINK_DYNAMIC_CXX_FLAGS)
+    find_library(GFORTRAN_STATIC libgfortran.a)
+    if(GFORTRAN_STATIC)
+      message(STATUS "Using static libgfortran")
+      foreach(STR ${LINK_LIBRARIES})
+        string(REPLACE "-lgfortran" ${GFORTRAN_STATIC} STR2 ${STR})
+        list(APPEND LINK_LIBRARIES2 ${STR2})
+      endforeach(STR)
+      set(LINK_LIBRARIES ${LINK_LIBRARIES2})
+    endif(GFORTRAN_STATIC)
+  endif(NOT ENABLE_BUILD_SHARED)
+endif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 # we could specify include dirs more selectively, but this is simpler
 include_directories(Common Interface Legacy Numeric ${EXTERNAL_INCLUDES}
