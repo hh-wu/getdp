@@ -32,6 +32,7 @@ opt(CONTRIB_ARPACK "Enable Arpack eigensolver from GetDP's contrib folder (requi
 opt(BLAS_LAPACK "Enable BLAS/Lapack for linear algebra (e.g. for Arpack)" ${DEFAULT})
 opt(BUILD_LIB "Enable 'lib' target for building static GetDP library" OFF)
 opt(BUILD_SHARED "Enable 'shared' target for building shared GetDP library" OFF)
+opt(BUILD_DYNAMIC "Enable dynamic GetDP executable (linked with shared lib)" OFF)
 opt(BUILD_ANDROID "Enable Android NDK library target (experimental)" OFF)
 opt(BUILD_IOS "Enable iOS (ARM) library target (experimental)" OFF)
 opt(FORTRAN "Enable Fortran (needed for Arpack/Sparskit/Zitsol & Bessel)" ${DEFAULT})
@@ -626,7 +627,7 @@ set(LINK_LIBRARIES ${EXTERNAL_LIBRARIES} ${LAPACK_LIBRARIES})
 # Linux-specific linking
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   # try to use static gfortran on static Linux builds
-  if(NOT ENABLE_BUILD_SHARED)
+  if(NOT ENABLE_BUILD_DYNAMIC AND NOT ENABLE_BUILD_SHARED)
     set(CMAKE_Fortran_IMPLICIT_LINK_LIBRARIES)
     set(CMAKE_EXE_LINK_DYNAMIC_C_FLAGS)
     set(CMAKE_EXE_LINK_DYNAMIC_CXX_FLAGS)
@@ -639,7 +640,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
       endforeach(STR)
       set(LINK_LIBRARIES ${LINK_LIBRARIES2})
     endif(GFORTRAN_STATIC)
-  endif(NOT ENABLE_BUILD_SHARED)
+  endif(NOT ENABLE_BUILD_DYNAMIC AND NOT ENABLE_BUILD_SHARED)
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 # we could specify include dirs more selectively, but this is simpler
@@ -671,9 +672,12 @@ if(ENABLE_BUILD_LIB)
 endif(ENABLE_BUILD_LIB)
 
 # shared library target
-if(ENABLE_BUILD_SHARED)
+if(ENABLE_BUILD_SHARED OR ENABLE_BUILD_DYNAMIC)
   add_library(shared SHARED ${GETDP_SRC})
   set_target_properties(shared PROPERTIES OUTPUT_NAME GetDP)
+  set_target_properties(shared PROPERTIES 
+    VERSION ${GETDP_MAJOR_VERSION}.${GETDP_MINOR_VERSION}.${GETDP_PATCH_VERSION}
+    SOVERSION ${GETDP_MAJOR_VERSION}.${GETDP_MINOR_VERSION})
   if(HAVE_LAPACK AND LAPACK_FLAGS)
     set_target_properties(shared PROPERTIES LINK_FLAGS ${LAPACK_FLAGS})
   endif(HAVE_LAPACK AND LAPACK_FLAGS)
@@ -682,7 +686,7 @@ if(ENABLE_BUILD_SHARED)
             "won't link. In MSVC change /MT to /MD in the shared project properties")
   endif(MSVC AND ENABLE_MSVC_STATIC_RUNTIME)
   target_link_libraries(shared ${LINK_LIBRARIES})
-endif(ENABLE_BUILD_SHARED)
+endif(ENABLE_BUILD_SHARED OR ENABLE_BUILD_DYNAMIC)
 
 if(ENABLE_BUILD_IOS)
   find_file(CMAKE_TOOLCHAIN_FILE "ios.cmake")
@@ -704,21 +708,24 @@ if(ENABLE_BUILD_ANDROID)
   target_link_libraries(androidGetdp ${LINK_LIBRARIES} ${LIBRARY_DEPS})
 endif(ENABLE_BUILD_ANDROID)
 
-# static binary target
-add_executable(getdp Main/Main.cpp ${GETDP_SRC})
-target_link_libraries(getdp ${LINK_LIBRARIES})
+# binary target
+if(ENABLE_BUILD_DYNAMIC)
+  add_executable(getdp Main/Main.cpp)
+  target_link_libraries(getdp shared)
+else(ENABLE_BUILD_DYNAMIC)
+  add_executable(getdp Main/Main.cpp ${GETDP_SRC})
+  target_link_libraries(getdp ${LINK_LIBRARIES})
+endif(ENABLE_BUILD_DYNAMIC)
 
 # force static linking of system libraries with cygwin/mingw
 if(WIN32 AND NOT MSVC OR CYGWIN)
-  set_target_properties(getdp PROPERTIES LINK_FLAGS "-static")
-  # remove stupid -Wl,-Bdynamic flags
-  set(CMAKE_EXE_LINK_DYNAMIC_C_FLAGS)
-  set(CMAKE_EXE_LINK_DYNAMIC_CXX_FLAGS)
+  if(NOT ENABLE_BUILD_DYNAMIC)
+    set_target_properties(getdp PROPERTIES LINK_FLAGS "-static")
+    # remove stupid -Wl,-Bdynamic flags
+    set(CMAKE_EXE_LINK_DYNAMIC_C_FLAGS)
+    set(CMAKE_EXE_LINK_DYNAMIC_CXX_FLAGS)
+  endif(NOT ENABLE_BUILD_DYNAMIC)
 endif(WIN32 AND NOT MSVC OR CYGWIN)
-
-# dynamic binary target
-add_executable(getdp_dynamic EXCLUDE_FROM_ALL Main/Main.cpp)
-target_link_libraries(getdp_dynamic shared)
 
 # parser target
 find_program(BISON bison)
@@ -803,12 +810,12 @@ install(TARGETS getdp DESTINATION ${GETDP_BIN} OPTIONAL)
 if(ENABLE_BUILD_LIB)
   install(TARGETS lib DESTINATION ${GETDP_LIB} OPTIONAL)
 endif(ENABLE_BUILD_LIB)
-if(ENABLE_BUILD_SHARED)
+if(ENABLE_BUILD_SHARED OR ENABLE_BUILD_DYNAMIC)
   install(TARGETS shared DESTINATION ${GETDP_LIB} OPTIONAL)
-endif(ENABLE_BUILD_SHARED)
-if(ENABLE_BUILD_LIB OR ENABLE_BUILD_SHARED)
+endif(ENABLE_BUILD_SHARED OR ENABLE_BUILD_DYNAMIC)
+if(ENABLE_BUILD_LIB OR ENABLE_BUILD_SHARED OR ENABLE_BUILD_DYNAMIC)
   install(FILES ${GETDP_API} DESTINATION include/getdp)
-endif(ENABLE_BUILD_LIB OR ENABLE_BUILD_SHARED)
+endif(ENABLE_BUILD_LIB OR ENABLE_BUILD_SHARED OR ENABLE_BUILD_DYNAMIC)
 install(FILES ${WELCOME_FILE} DESTINATION ${GETDP_DOC} RENAME README.txt)
 install(FILES ${LICENSE_FILE} DESTINATION ${GETDP_DOC})
 install(FILES ${CREDITS_FILE} DESTINATION ${GETDP_DOC})
