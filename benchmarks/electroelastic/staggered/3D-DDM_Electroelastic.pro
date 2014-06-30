@@ -11,7 +11,6 @@ ny = 1;
 // There are two things left to mention: register 9 (#9) is used to select whether the physical sources should be set to 0 or not and register 10 (#10) does the same job for the artificial sources
 
 
-
 // Group
 //======
 
@@ -25,7 +24,7 @@ Group 	{
 			sigma_left~{x+nx*y+1} 			= Region[ (10001*nx*ny+4*x+4*nx*y+4) ];
 
 			// The electrode can either be the whole membrane surface or an area in the middle:
-			electrode~{x+nx*y+1}			= Region[ sigma_up~{x+nx*y+1} ]; // Choose (100000*nx*ny+3*x+3*nx*y+1) or sigma_up~{x+nx*y+1}
+			electrode~{x+nx*y+1}			= Region[ (100000*nx*ny+3*x+3*nx*y+1) ]; // Choose (100000*nx*ny+3*x+3*nx*y+1) or sigma_up~{x+nx*y+1}
 
 			// The air boundaries are the borders of the air gap under the membrane.
 			// It might be used in the code to solve a Laplacian formulation on the air region to smoothly deform it
@@ -34,21 +33,25 @@ Group 	{
 			// Define the region where an electrostatic force could possibly appear:
 			force_interface~{x+nx*y+1}		= Region[ {electrode~{x+nx*y+1}, air_boundaries~{x+nx*y+1}, sigma_down~{x+nx*y+1}} ];
 
-			solid~{x+nx*y+1}			= Region[ (1000*nx*ny+3*x+nx*3*y+2) ];
-			air~{x+nx*y+1}				= Region[ (1000*nx*ny+3*x+nx*3*y+3) ];
+			solid~{x+nx*y+1}			= Region[ (1000*nx*ny+5*x+nx*5*y+2) ];
+			// The following region is a copy of the "solid" region. It is needed by getdp for computing the force terms
+			// on the deformed mesh in the mechanic formulation:
+			solid_deformed~{x+nx*y+1}		= Region[ (1000*nx*ny+5*x+nx*5*y+5) ];
+			air~{x+nx*y+1}				= Region[ (1000*nx*ny+5*x+nx*5*y+3) ];
 
-			omega~{x+nx*y+1}			= Region[ {solid~{x+nx*y+1}, air~{x+nx*y+1}} ];
+			electric_domain~{x+nx*y+1}		= Region[ {solid_deformed~{x+nx*y+1}, air~{x+nx*y+1}} ];
+			omega~{x+nx*y+1}			= Region[ {solid~{x+nx*y+1}, solid_deformed~{x+nx*y+1}, air~{x+nx*y+1}} ];
 
 			//  The elec. forces have to be computed only on the following skin region: 
-			// !!!!!!!!!! NOT USED RIGHT NOW since right now getdp solves on the whole omega when given the skin region
-			skin_electric_force~{x+nx*y+1} 		= ElementsOf[ omega~{x+nx*y+1}, OnOneSideOf {force_interface~{x+nx*y+1}} ];
+			// !!!!!!!!!! NOT USED RIGHT NOW since right now getdp solves on the whole electric_domain when given the skin region
+			skin_electric_force~{x+nx*y+1} 		= ElementsOf[ electric_domain~{x+nx*y+1}, OnOneSideOf {force_interface~{x+nx*y+1}} ];
 		EndFor
 	EndFor
 }
  
 Function {
 
-	Velectrode = 300;
+	Velectrode = 650;
 
 
 	For x In {0:nx-1}
@@ -60,7 +63,7 @@ Function {
 			rho[solid~{x+nx*y+1}]			= 2330;
 
 			// Electric:
-			epsilon[solid~{x+nx*y+1}]		= 3.9* 8.854e-12;
+			epsilon[solid_deformed~{x+nx*y+1}]	= 3.9* 8.854e-12;
 			epsilon[air~{x+nx*y+1}]			= 1* 8.854e-12;
 
 		EndFor
@@ -302,8 +305,8 @@ FunctionSpace	{
 			{ Name electric_function_space~{x+nx*y+1}; Type Form0; 
 				BasisFunction{
 					{Name wn; NameOfCoef vn; Function BF_Node;
-						Support Region[ {omega~{x+nx*y+1}, sigma_up~{x+nx*(y-1)+1}, sigma_right~{(x-1)+nx*y+1}, sigma_down~{x+nx*(y+1)+1}, 
-								sigma_left~{(x+1)+nx*y+1}} ]; Entity NodesOf[omega~{x+nx*y+1}];}
+						Support Region[ {electric_domain~{x+nx*y+1}, sigma_up~{x+nx*(y-1)+1}, sigma_right~{(x-1)+nx*y+1}, 
+								sigma_down~{x+nx*(y+1)+1}, sigma_left~{(x+1)+nx*y+1}} ]; Entity NodesOf[electric_domain~{x+nx*y+1}];}
 				}
     				Constraint{
     					{NameOfCoef vn; EntityType NodesOf; NameOfConstraint electric_constraint~{x+nx*y+1};}
@@ -315,11 +318,11 @@ FunctionSpace	{
 				BasisFunction{
 					{Name wxn; NameOfCoef uxn; Function BF_NodeX; dFunction {BF_GradNode, BF_Zero}; 
 					// D1 is now equal to grad_node, trick needed else getdp will not know how to use component  X of grad on a bf_nodeX 
-						Support Region[omega~{x+nx*y+1}]; Entity NodesOf[omega~{x+nx*y+1}];}
+						Support Region[omega~{x+nx*y+1}]; Entity NodesOf[electric_domain~{x+nx*y+1}];}
 					{Name wyn; NameOfCoef uyn; Function BF_NodeY; dFunction {BF_GradNode, BF_Zero};
-						Support Region[omega~{x+nx*y+1}]; Entity NodesOf[omega~{x+nx*y+1}];}
+						Support Region[omega~{x+nx*y+1}]; Entity NodesOf[electric_domain~{x+nx*y+1}];}
 					{Name wzn; NameOfCoef uzn; Function BF_NodeZ; dFunction {BF_GradNode, BF_Zero};
-						Support Region[omega~{x+nx*y+1}]; Entity NodesOf[omega~{x+nx*y+1}];}
+						Support Region[omega~{x+nx*y+1}]; Entity NodesOf[electric_domain~{x+nx*y+1}];}
 				}
 				    SubSpace{
 				       { Name u_x ; NameOfBasisFunction wxn ; }
@@ -373,7 +376,9 @@ Formulation	{
 
 
 				       Galerkin {[ -epsilon[]* Felec[Dof{ud}*0 + {d v}], Unit[{u}] ] ;
-				         In omega~{x+nx*y+1} ; Jacobian JVol ; Integration I1;}
+				         In electric_domain~{x+nx*y+1} ; Jacobian JVol ; Integration I1;}
+
+
 				}
 			}
 
@@ -382,7 +387,7 @@ Formulation	{
 				}
 				Equation{
 					Galerkin { [ epsilon[] * Dof{d v} , {d v} ] ; 
-						In Region[omega~{x+nx*y+1}] ; Jacobian JVol ; Integration I1 ; }
+						In Region[electric_domain~{x+nx*y+1}] ; Jacobian JVol ; Integration I1 ; }
 				}
 			}
 
@@ -397,11 +402,11 @@ Formulation	{
 
 				Equation {
 					Galerkin { [ AssDiag[]{2} * Dof{f}, {f}] ;
-					  In Region[omega~{x+nx*y+1}] ; Jacobian JVol ; Integration I1 ;}
+					  In Region[electric_domain~{x+nx*y+1}] ; Jacobian JVol ; Integration I1 ;}
 
 					// A minus is missing for some reason...
 					Galerkin {[ epsilon[]* Felec[Dof{ud}*0 + {d v}], Unit[{f}] ] ;
-					  In omega~{x+nx*y+1} ; Jacobian JVol ; Integration I1;}
+					  In electric_domain~{x+nx*y+1} ; Jacobian JVol ; Integration I1;}
 				}
 			}
 
@@ -464,7 +469,7 @@ Resolution	{
 
 				For x In {0:nx-1}
 					For y In {0:ny-1}
-						// Init:
+						// Init vector for Newton iteration:
 						InitSolution[mechanic_res~{x+nx*y+1}];
 						InitSolution[electric_res~{x+nx*y+1}];
 
@@ -474,7 +479,7 @@ Resolution	{
 					EndFor
 				EndFor
 
-				// Activating all constraints:
+				// Activating all constraints - on init solution as well:
 				Evaluate[1. #9]; Evaluate[1. #10];
 
 				UpdateConstraint[mechanic_res~{x+nx*y+1}, Region[{sigma_up~{x+nx*y+1}, 
@@ -485,8 +490,12 @@ Resolution	{
 
 
 				///// NON LINEAR ITERATIVE LOOP:
-				IterativeLoop{NbrMaxIteration 100; Criterion 1e-6; RelaxationFactor 1; 
-				Operation {				
+				IterativeLoop{NbrMaxIteration 100; Criterion 1e-8; RelaxationFactor 1; 
+				Operation {	
+
+					// This is for the mechanic computation on the undeformed mesh - resets matrix A:
+      						GenerateJacGroup[mechanic_res~{x+nx*y+1}, solid~{x+nx*y+1}];	
+							
 
 					// We first deform the mesh:
 
@@ -502,11 +511,10 @@ Resolution	{
       						Generate[mesh_deform~{x+nx*y+1}];
 						Solve[mesh_deform~{x+nx*y+1}]; 
 
-
 						// Deform the solid body and/or the air accordingly:
 						DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform];
 
-						//SaveMesh[monolithic_res~{x+nx*y+1}, omega~{x+nx*y+1}, "Results/mesh%g.msh",x+nx*y+1];
+
 
 					// We now compute the electric resolution:
       						Generate[electric_res~{x+nx*y+1}];
@@ -515,25 +523,29 @@ Resolution	{
 					// We store the solution:
 						PostOperation[save_e~{x+nx*y+1}];
 
+
 					// We compute the electrostatic force for display:
       						Generate[force_Elec~{x+nx*y+1}];
 						Solve[force_Elec~{x+nx*y+1}]; 
 
 						PostOperation[save_f~{x+nx*y+1}];
 
-					// Deform the air and solid body back:
-						//DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, -1];
+					// This is for the mechanic computation on the undeformed mesh:
+      						GenerateJacGroupCumulative[mechanic_res~{x+nx*y+1}, electric_domain~{x+nx*y+1}];
 
-					// We now compute the monolithic resolution:
-      						GenerateJac[mechanic_res~{x+nx*y+1}];
+
+					// This is for the mechanic computation on the deformed mesh:
+      						//GenerateJac[mechanic_res~{x+nx*y+1}];
+
+
+						DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, -1];
+
+					// We now compute the mechanic resolution:
 						SolveJac[mechanic_res~{x+nx*y+1}]; 
-
 
 					// We store the solution:
 						PostOperation[save_u~{x+nx*y+1}];
 
-					// Deform the air and solid body back:
-						DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, -1];
 
 				}}
 				///// END NON LINEAR ITERATIVE LOOP
@@ -566,7 +578,7 @@ PostProcessing 	{
   				{ Name v~{x+nx*y+1}; NameOfFormulation electric_formulation~{x+nx*y+1};
     					Quantity {
       						{ Name e~{x+nx*y+1} ; Value { Local { [ -{d v} ]; 
-							In Region[omega~{x+nx*y+1}] ; Jacobian JVol ; } } }
+							In Region[electric_domain~{x+nx*y+1}] ; Jacobian JVol ; } } }
 						
 
       						{ Name g_electric~{x+nx*y+1} ; Value { Local { [ {v} ]; 
@@ -675,7 +687,7 @@ PostOperation	{
 
 				{ Name save_e~{x+nx*y+1} ; NameOfPostProcessing v~{x+nx*y+1}; 
 					Operation {
-						Print[ e~{x+nx*y+1}, OnElementsOf omega~{x+nx*y+1}, 
+						Print[ e~{x+nx*y+1}, OnElementsOf electric_domain~{x+nx*y+1}, 
 							File Sprintf("Results/e%g.pos",x+nx*y+1)] ;
 						Echo["View[PostProcessing.NbViews-1].RangeType=3; View[PostProcessing.NbViews-1].TimeStep=0;", 
 							File Sprintf("Results/e%g.pos",x+nx*y+1)];							

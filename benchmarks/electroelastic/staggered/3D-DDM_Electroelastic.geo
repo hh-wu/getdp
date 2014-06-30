@@ -335,6 +335,7 @@ For x In {0:nx-1}
 
 		omega~{x+nx*y+1} 				= 1000*nx*ny+3*x+nx*3*y+1;
 		solid~{x+nx*y+1}				= 1000*nx*ny+3*x+nx*3*y+2;
+		solid_deformed~{x+nx*y+1}			= 1000*nx*ny+5*x+nx*5*y+5;
 		air~{x+nx*y+1}					= 1000*nx*ny+3*x+nx*3*y+3;
 
 		electrode~{x+nx*y+1} 				= 100000*nx*ny+3*x+3*nx*y+1;
@@ -380,6 +381,9 @@ For x In {0:nx-1}
 
 		IDList[] = Translate {(x+2)*length, 2*length, 0} { Duplicata{ Surface{6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21}; } };
 		Physical Surface(solid~{x+nx*y+1}) = {IDList[]};
+
+		IDList[] = Translate {(x+2)*length, 2*length, 0} { Duplicata{ Surface{6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21}; } };
+		Physical Surface(solid_deformed~{x+nx*y+1}) = {IDList[]};
 
 	EndFor
 EndFor
