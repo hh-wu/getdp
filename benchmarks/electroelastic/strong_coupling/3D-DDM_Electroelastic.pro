@@ -319,11 +319,11 @@ FunctionSpace	{
 				BasisFunction{
 					{Name wxn; NameOfCoef uxn; Function BF_NodeX; dFunction {BF_GradNode, BF_Zero}; 
 					// D1 is now equal to grad_node, trick needed else getdp will not know how to use component  X of grad on a bf_nodeX 
-						Support Region[omega~{x+nx*y+1}]; Entity NodesOf[electric_domain~{x+nx*y+1}];}
+						Support Region[omega~{x+nx*y+1}]; Entity NodesOf[solid~{x+nx*y+1}];}
 					{Name wyn; NameOfCoef uyn; Function BF_NodeY; dFunction {BF_GradNode, BF_Zero};
-						Support Region[omega~{x+nx*y+1}]; Entity NodesOf[electric_domain~{x+nx*y+1}];}
+						Support Region[omega~{x+nx*y+1}]; Entity NodesOf[solid~{x+nx*y+1}];}
 					{Name wzn; NameOfCoef uzn; Function BF_NodeZ; dFunction {BF_GradNode, BF_Zero};
-						Support Region[omega~{x+nx*y+1}]; Entity NodesOf[electric_domain~{x+nx*y+1}];}
+						Support Region[omega~{x+nx*y+1}]; Entity NodesOf[solid~{x+nx*y+1}];}
 				}
 				    SubSpace{
 				       { Name u_x ; NameOfBasisFunction wxn ; }
