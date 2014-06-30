@@ -52,7 +52,7 @@ Group 	{
  
 Function {
 
-	Velectrode = 500;
+	Velectrode = 650;
 
 
 	For x In {0:nx-1}
@@ -524,13 +524,13 @@ Resolution	{
 
 
 				///// NON LINEAR ITERATIVE LOOP:
-				IterativeLoop{NbrMaxIteration 100; Criterion 1e-6; RelaxationFactor 1; 
+				IterativeLoop{NbrMaxIteration 100; Criterion 1e-8; RelaxationFactor 1; 
 				Operation {	
 					
 					// This is for the mechanic computation on the undeformed mesh - resets matrix A:
       						GenerateJacGroup[monolithic_res~{x+nx*y+1}, solid~{x+nx*y+1}];			
 
-					// We first deform the mesh:
+					// We deform the mesh:
 
 						// Save u on solid:
 						//PostOperation[save_u_field~{x+nx*y+1}];

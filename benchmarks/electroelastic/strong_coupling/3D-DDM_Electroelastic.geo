@@ -66,7 +66,6 @@ Point(41) 	= {length/2+esupport, -h, 0, tc};
 
 
 
-
 Line(1) = {34, 36};
 Line(2) = {2, 3};
 Line(3) = {38, 40};
@@ -334,11 +333,10 @@ For x In {0:nx-1}
 		sigma_down~{x+nx*y+1} 				= 10001*nx*ny+4*x+4*nx*y+3;
 		sigma_left~{x+nx*y+1} 				= 10001*nx*ny+4*x+4*nx*y+4;
 
-		omega~{x+nx*y+1} 				= 1000*nx*ny+5*x+nx*5*y+1;
-		mechanic_solid~{x+nx*y+1}			= 1000*nx*ny+5*x+nx*5*y+2;
-		air~{x+nx*y+1}					= 1000*nx*ny+5*x+nx*5*y+3;
-		electric_solid~{x+nx*y+1}			= 1000*nx*ny+5*x+nx*5*y+4;
-		mechanic_solid_deformed~{x+nx*y+1}		= 1000*nx*ny+5*x+nx*5*y+5;
+		omega~{x+nx*y+1} 				= 1000*nx*ny+3*x+nx*3*y+1;
+		solid~{x+nx*y+1}				= 1000*nx*ny+3*x+nx*3*y+2;
+		solid_deformed~{x+nx*y+1}			= 1000*nx*ny+5*x+nx*5*y+5;
+		air~{x+nx*y+1}					= 1000*nx*ny+3*x+nx*3*y+3;
 
 		electrode~{x+nx*y+1} 				= 100000*nx*ny+3*x+3*nx*y+1;
 		epsilon_variation_interfaces~{x+nx*y+1} 	= 100000*nx*ny+3*x+3*nx*y+2;
@@ -382,13 +380,10 @@ For x In {0:nx-1}
 		Physical Surface(air~{x+nx*y+1}) = {IDList[]};
 
 		IDList[] = Translate {(x+2)*length, 2*length, 0} { Duplicata{ Surface{6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21}; } };
-		Physical Surface(mechanic_solid~{x+nx*y+1}) = {IDList[]};
+		Physical Surface(solid~{x+nx*y+1}) = {IDList[]};
 
 		IDList[] = Translate {(x+2)*length, 2*length, 0} { Duplicata{ Surface{6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21}; } };
-		Physical Surface(mechanic_solid_deformed~{x+nx*y+1}) = {IDList[]};
-
-		IDList[] = Translate {(x+2)*length, 2*length, 0} { Duplicata{ Surface{6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21}; } };
-		Physical Surface(electric_solid~{x+nx*y+1}) = {IDList[]};
+		Physical Surface(solid_deformed~{x+nx*y+1}) = {IDList[]};
 
 	EndFor
 EndFor
