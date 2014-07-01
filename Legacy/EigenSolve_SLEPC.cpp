@@ -133,11 +133,12 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv,
                                      im);
     }
     else{
-      ore = re;
-      oim = im;
+      // lambda == iw
+      ore = im;
+      oim = -re;
       Message::Info("EIG %03d   w = %s%.16e %s%.16e  %3.6e",
                     i, (ore < 0) ? "" : " ", ore, (oim < 0) ? "" : " ", oim, error);
-      double fre = re / 2. / M_PI, fim = im / 2. / M_PI;
+      double fre = ore / 2. / M_PI, fim = oim / 2. / M_PI;
       Message::Info("          f = %s%.16e %s%.16e",
                     (fre < 0) ? "" : " ", fre, (fim < 0) ? "" : " ", fim);
 
@@ -346,8 +347,6 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
 
   // GetDP notation: -w^2 M3 x + iw M2 x + M1 x = 0
   // SLEPC notations for quadratic EVP: (\lambda^2 M + \lambda C + K) x = 0
-  LinAlg_ProdMatrixDouble(&DofData_P->M3, -1.0, &DofData_P->M3);
-  LinAlg_ProdMatrixComplex(&DofData_P->M2, 0.0, -1.0, &DofData_P->M2);
   Mat M = DofData_P->M3.M;
   Mat C = DofData_P->M2.M;
   Mat K = DofData_P->M1.M;
@@ -456,10 +455,6 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
 #else
   _try(QEPDestroy(qep));
 #endif
-
-  // restore operators
-  LinAlg_ProdMatrixDouble(&DofData_P->M3, -1.0, &DofData_P->M3);
-  LinAlg_ProdMatrixComplex(&DofData_P->M2, 0.0, -1.0, &DofData_P->M2);
 }
 
 void EigenSolve_SLEPC(struct DofData * DofData_P, int numEigenValues,
