@@ -200,6 +200,14 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv,
 
     LinAlg_AssembleVector(&DofData_P->CurrentSolution->x);
 
+    // SLEPc returns eigenvectors normalized in L-2 norm. Renormalize them in
+    // L-infty norm so that the absolute value of the largest element is 1
+    double norm = 0;
+    LinAlg_VectorNormInf(&DofData_P->CurrentSolution->x, &norm);
+    if(norm > 1.e-16)
+      LinAlg_ProdVectorDouble(&DofData_P->CurrentSolution->x, 1. / norm,
+			      &DofData_P->CurrentSolution->x);
+
     // increment the global timestep counter so that a future
     // GenerateSystem knows which solutions exist
     Current.TimeStep += 1.;
