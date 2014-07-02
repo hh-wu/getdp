@@ -685,9 +685,9 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
     Message::Info("                  f = %.12e %s %.12e * i",
                   f.re, (f.im > 0) ? "+" : "-", (f.im > 0) ? f.im : -f.im);
 
-    Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/OmegaRe",
+    Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Re(Omega)",
                                    omega.re);
-    Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/OmegaIm",
+    Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Im(Omega)",
                                    omega.im);
 
     if(newsol) {

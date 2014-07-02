@@ -127,9 +127,9 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv,
       Message::Info("          f = %s%.16e %s%.16e",
                     (fre < 0) ? "" : " ", fre, (fim < 0) ? "" : " ", fim);
 
-      Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/OmegaRe",
+      Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Re(Omega)",
                                      ore);
-      Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/OmegaIm",
+      Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Im(Omega)",
                                      oim);
     }
     else{
@@ -142,9 +142,9 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv,
       Message::Info("          f = %s%.16e %s%.16e",
                     (fre < 0) ? "" : " ", fre, (fim < 0) ? "" : " ", fim);
 
-      Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/OmegaRe",
+      Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Re(Omega)",
                                      ore);
-      Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/OmegaIm",
+      Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Im(Omega)",
                                      oim);
     }
 
