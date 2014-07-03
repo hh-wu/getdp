@@ -181,7 +181,7 @@ FunctionSpace {
 }
 
 Formulation {
-  { Name Wave_Dirichlet~{iSub} ; Type FemEquation ; 
+  { Name Wave_Dirichlet~{iSub} ; Type FemEquation ;
     Quantity {
       { Name u ; Type Local ; NameOfSpace Hgrad_u~{iSub}; }
       { Name lambda ; Type Local ; NameOfSpace Hgrad_lambda~{iSub}; }
@@ -371,7 +371,7 @@ Formulation {
 }
 
 Resolution {
- 
+
   { Name Wave_Dirichlet~{iSub} ;
     System {
       { Name A ; NameOfFormulation Wave_Dirichlet~{iSub} ; Type Complex;  NameOfMesh "circles_fine_for_Full.msh";}
@@ -449,7 +449,7 @@ PostProcessing {
         Value { Term { [ {u} ] ; In Gama~{0}; Jacobian JSur ; } }
       }
       { Name combine ;
-        Value { 
+        Value {
           For jj In {1:Nbr_SubProblems}
             If (jj != iSub)
               Term { [ ComplexScalarField[XYZ[]]{100+jj} ] ; In Gama~{0}; Jacobian JSur ; }
@@ -469,7 +469,7 @@ PostProcessing {
         Value { Term { [ {u} ] ; In Gama~{0}; Jacobian JSur ; } }
       }
       { Name combine_A ;
-        Value { 
+        Value {
           For jj In {1:Nbr_SubProblems}
             If (jj != iSub)
               Term { [ ComplexScalarField[XYZ[]]{100+jj} ] ; In Gama~{0}; Jacobian JSur ; }
@@ -498,7 +498,7 @@ PostProcessing {
       // 	}
       // }
       { Name combine_A ;
-        Value { 
+        Value {
           For jj In {1:Nbr_SubProblems}
             If (jj != iSub)
               // Term { [ ComplexScalarField[XYZ[]]{100+jj} ] ; In Gama~{0}; Jacobian JSur ; }
@@ -508,7 +508,7 @@ PostProcessing {
         }
       }
     //   { Name combine_A_Fw ;
-    //     Value { 
+    //     Value {
     // 	  Term { [ ComplexScalarField[XYZ[]]{iSub} ] ; In Gama~{iSub}; Jacobian JSur ; }
     //       // For jj In {1:Nbr_SubProblems}
     //       For jj In {1:iSub}
@@ -521,7 +521,7 @@ PostProcessing {
     // }
       For jSub In {1:Nbr_SubProblems}
       { Name combine_A_Fw~{jSub} ;
-        Value { 
+        Value {
 	  Term { [ ComplexScalarField[XYZ[]]{iSub} ] ; In Gama~{iSub}; Jacobian JSur ; }
             // If (jSub < iSub)
               Term { [ ComplexScalarField[XYZ[]]{100+jSub} ] ; In Gama~{iSub}; Jacobian JSur ; } //data will be used only on Gama~{iSub}
@@ -614,11 +614,11 @@ PostOperation {
 
   { Name a~{iSub} ; NameOfPostProcessing Transport_Dirichlet_Numeric~{iSub};
     Operation {
-      Print[ a, OnElementsOf #{Omega~{iSub}, Sigma,-FilledHole~{iSub}},
+      Print[ a, OnElementsOf #{Omega~{iSub}, -Sigma,-FilledHole~{iSub}},
              File StrCat[ StrCat["a", fileExt], ".pos"] ] ;
-      Print[ phi_extend, OnElementsOf #{Omega~{iSub}, Sigma, -FilledHole~{iSub}},
+      Print[ phi_extend, OnElementsOf #{Omega~{iSub}, -Sigma, -FilledHole~{iSub}},
              File StrCat[ StrCat["phi_extend", fileExt], ".pos"], Depth 1] ;
-      Print[ u_from_a, OnElementsOf #{Omega~{iSub}, Sigma,-FilledHole~{iSub}},
+      Print[ u_from_a, OnElementsOf #{Omega~{iSub}, -Sigma,-FilledHole~{iSub}},
              File StrCat[ StrCat["u_from_a", fileExt], ".pos"]] ;
       //   Print[ phi_unwrap, OnElementsOf #{Gama~{iSub}},
       //       File StrCat[ StrCat["phi_unwrap", fileExt], ".pos"], Depth 1] ;
@@ -633,7 +633,7 @@ EndFor
 //////
 
 Resolution {
- 
+
   { Name Iterhf_Wave_Dirichlet ;
     System {
      For iSub In {1:Nbr_SubProblems}
@@ -801,7 +801,7 @@ Resolution {
 	    SolveAgain[E~{iSub}];
 
             PostOperation[u_trace_other_A2~{iSub}];
-	
+
 	    For jSub In {iSub+1:Nbr_SubProblems}
 	    PostOperation[combine_A2_Forward~{jSub}~{iSub}];
 	    EndFor
@@ -821,7 +821,7 @@ Resolution {
 	    GenerateRHSGroup[E~{iSub}, Gama~{iSub}];
 	    SolveAgain[E~{iSub}];
             PostOperation[u_trace_other_A2~{iSub}];
-	
+
 	    For jSub In {iSub-1:1:-1}
 	      PostOperation[combine_A2_Forward~{jSub}~{iSub}];
 	    EndFor

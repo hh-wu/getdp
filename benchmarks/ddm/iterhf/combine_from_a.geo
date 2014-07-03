@@ -2,15 +2,11 @@ Include "circles_param.pro";
 
 Mesh.Triangles = 0;
 
-forceInterp = 1;
-// fineMesh = "circles_fine_k15_nLambda30.msh";
-
-
 Merge Sprintf("a%g.pos", 1);
 View[PostProcessing.NbViews-1].Visible = 0;
 Merge Sprintf("phi_extend%g.pos", 1);
 View[PostProcessing.NbViews-1].Visible = 0;
-Plugin(FieldFromAmplitudePhase).MeshFile = "circles_fine_k15_nLambda30.msh";
+Plugin(FieldFromAmplitudePhase).MeshFile = "circles_fine.msh";
 Plugin(FieldFromAmplitudePhase).Wavenumber = k0;
 Plugin(FieldFromAmplitudePhase).AmplitudeView = PostProcessing.NbViews-2;
 Plugin(FieldFromAmplitudePhase).PhaseView = PostProcessing.NbViews-1;
@@ -53,5 +49,8 @@ EndFor
 
 View[PostProcessing.NbViews-1].Visible = 1;
 View[PostProcessing.NbViews-1].Name = "u_Iter";
+
+Save View[PostProcessing.NbViews-1] "uiter.pos";
+
 Merge "u0.pos";
 View[PostProcessing.NbViews-1].Name = "u_Full";

@@ -27,11 +27,11 @@ xcen = (Nh-1)*(2*R0+distx)/2 ;
 ycen = (Nv-1)*(2*R0+disty)/2 ;
 
 surf[0] = cir0 ; Flag_00 = 0;
-Scc[] = {} ; llScc[]={}; ppEpsilon[] = {}; 
-For t1 In {1:Nh} 
-  For t2 In {1:Nv} 
+Scc[] = {} ; llScc[]={}; ppEpsilon[] = {};
+For t1 In {1:Nh}
+  For t2 In {1:Nv}
   //If(t1==t2 ||t1<t2 )
-    xaux = (t1-1)*(2*R0+distx)-xcen ;    
+    xaux = (t1-1)*(2*R0+distx)-xcen ;
     yaux = (t2-1)*(2*R0+disty)-ycen ;
     If (Flag_Quinconce && (t2 % 2))
       xaux += R0+distx/2;
@@ -82,7 +82,7 @@ For t In {0:#Scc[]-1}
   Physical Point(300+t)= {ppEpsilon[t]}; // boundary point
 
 //Physical Line(400+t) = gama[{0}] ; // split Gama
-//Physical Line(500+t) = gama[{1:3}] ; 
+//Physical Line(500+t) = gama[{1:3}] ;
 EndFor
 
 For t In {0:#Scc[]-1}
@@ -112,13 +112,13 @@ Mesh 2;
 
 Delete Physicals;
 
-Physical Line(2) = {co1:co4};//Sigma
 Physical Surface(1) = {surfOmega}; // Omega
 
-
+Mesh.Binary=1;
 // Mesh 2;
 Save "circles_fine.msh";
 
+Physical Line(2) = {co1:co4};//Sigma
 
 For t In {0:#Scc[]-1}
   gama[] = Boundary{ Surface{Scc[t]}; };
