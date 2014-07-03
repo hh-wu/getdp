@@ -540,7 +540,7 @@ fileExt = Str[ Sprintf("%g", iSub) ]; // Total problem
 PostOperation {
   { Name u~{iSub} ; NameOfPostProcessing Wave_Dirichlet~{iSub};
     Operation {
-      Print[ u, OnElementsOf #{Omega~{iSub},-FilledHole~{iSub}}, File StrCat[ StrCat["u", fileExt], ".pos"] ] ;
+      Print[ u, OnElementsOf #{Omega~{iSub},-FilledHole~{iSub}, -Sigma}, File StrCat[ StrCat["u", fileExt], ".pos"] ] ;
     }
   }
   { Name u_A~{iSub} ; NameOfPostProcessing Wave_Dirichlet_A~{iSub};

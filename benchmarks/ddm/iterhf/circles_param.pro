@@ -1,5 +1,5 @@
 Include "freq.pro";
-Nh = 3 ; Nv = 3 ;
+Nh = 2 ; Nv = 2 ;
 
 solverTol = 1e-4;
 MAXIT = 100;
@@ -11,11 +11,11 @@ SWEEP_BACKWARD = 0;
 
 SOLVER = "gmres_pcright" ;
 
-ratiolc1lc0 = 3 ;
+ratiolc1lc0 = 4 ;
 lcExp = 3 ;
 
 Flag_Field = 1 ;
-Flag_Quinconce = 1;
+Flag_Quinconce = 0;
 k = k0 ;
 R0 = 1;
 
@@ -39,7 +39,7 @@ Ro = 0.65*MaxN*(2*R0+dist) ;
 lambda = 2*Pi/k ;
 scalefactor = (k<2) ? 2./k : 1.;
 
-nlambda = 15 ;
+nlambda = 30 ;
 lc0 = lambda/nlambda/scalefactor ;
 lc1 = lambda/nlambda/scalefactor * ratiolc1lc0 ;
 
