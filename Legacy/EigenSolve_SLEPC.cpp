@@ -206,7 +206,7 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv,
     LinAlg_VectorNormInf(&DofData_P->CurrentSolution->x, &norm);
     if(norm > 1.e-16)
       LinAlg_ProdVectorDouble(&DofData_P->CurrentSolution->x, 1. / norm,
-			      &DofData_P->CurrentSolution->x);
+                              &DofData_P->CurrentSolution->x);
 
     // increment the global timestep counter so that a future
     // GenerateSystem knows which solutions exist
