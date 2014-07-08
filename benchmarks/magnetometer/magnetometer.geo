@@ -3,12 +3,14 @@ Include "magnetometer_data.geo";
 Solver.AutoShowLastStep=0;
 View.DisplacementFactor = 20 * b;
 
-n1_1 = 10;
-n1_2 = 3;
-n1_3 = 20;
-n2 = 3; // contacts
-n3 = 10; // beam
-n5 = 3; // along thickness
+DefineConstant[ s = {1, Name "Input/Geometry/00Mesh size factor",
+                     Min 0.1, Max 2, Step 0.1} ];
+n1_1 = (10*s >= 1) ? 10*s : 1;
+n1_2 = (3*s >= 1) ? 3*s : 1;
+n1_3 = (20*s >= 1) ? 20*s : 1;
+n2 = (3*s >= 1) ? 3*s : 1; // contacts
+n3 = (10*s >= 1) ? 10*s : 1; // beam
+n5 = (3*s >= 1) ? 3*s : 1; // along thickness
 
 Point(1) = {0, 0, 0};
 Point(2) = {d, 0, 0};
