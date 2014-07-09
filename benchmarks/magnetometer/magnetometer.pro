@@ -123,7 +123,9 @@ Resolution {
   { Name Analysis ;
     System {
       If(Flag_AnalysisType == 0)
-        { Name Sys_Mec; NameOfFormulation Elasticity3D_u_modal; Type Complex; }
+        { Name Sys_Mec; NameOfFormulation Elasticity3D_u_modal;
+          //Type Complex;
+        }
       EndIf
 
       If(Flag_AnalysisType == 1)
@@ -154,7 +156,7 @@ Resolution {
       EndIf
 
       If(Flag_AnalysisType == 0)
-        GenerateSeparate[Sys_Mec]; EigenSolve[Sys_Mec, 5, 0, 0];
+        GenerateSeparate[Sys_Mec]; EigenSolve[Sys_Mec, 10, 0, 0];
         SaveSolutions[Sys_Mec] ;
         PostOperation[Mec] ;
       EndIf

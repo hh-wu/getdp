@@ -178,7 +178,8 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv,
       _try(VecGetArray(xi_seq, &tmpi));
     }
 
-    for(int l = 0; l < DofData_P->NbrDof; l += gCOMPLEX_INCREMENT){
+    int incr = (Current.NbrHar == 2) ? gCOMPLEX_INCREMENT : 1;
+    for(int l = 0; l < DofData_P->NbrDof; l += incr){
 #if defined(PETSC_USE_COMPLEX)
       double var_r = (double)PetscRealPart(tmpr[l]);
       double var_i = (double)PetscImaginaryPart(tmpr[l]);
@@ -186,7 +187,10 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv,
       double var_r = (double)tmpr[l];
       double var_i = (double)tmpi[l];
 #endif
-      LinAlg_SetComplexInVector(var_r, var_i, &DofData_P->CurrentSolution->x, l, l+1);
+      if(Current.NbrHar == 2)
+        LinAlg_SetComplexInVector(var_r, var_i, &DofData_P->CurrentSolution->x, l, l+1);
+      else
+        LinAlg_SetDoubleInVector(var_r, &DofData_P->CurrentSolution->x, l);
     }
 
     if(Message::GetCommSize() == 1){
@@ -468,13 +472,18 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
 void EigenSolve_SLEPC(struct DofData * DofData_P, int numEigenValues,
                       double shift_r, double shift_i)
 {
-  // bail out if we are not in harmonic regime: it's much easier this
-  // way (since, for real, non-symmetric matrices we would get complex
-  // eigenvectors we could not easily store)
+  // Warn if we are not in harmonic regime (we won't be able to compute/store
+  // complex eigenvectors).
   if(Current.NbrHar != 2){
-    Message::Error("EigenSolve requires system defined with \"Type Complex\"");
-    return;
+    Message::Warning("EigenSolve will only store the real part of the eigenvectors; "
+                     "Define the system with \"Type Complex\" if this is an issue");
   }
+
+#if !defined(PETSC_USE_COMPLEX)
+  if(Current.NbrHar == 2){
+    Message::Warning("Using PETSc in real arithmetic for complex-simulated-real matrices");
+  }
+#endif
 
   // GenerateSeparate[] creates three matrices M3, M2, M1 such that
   // -w^2 M3 x + iw M2 x + M1 x = b; check Flag_Init[i] to see which

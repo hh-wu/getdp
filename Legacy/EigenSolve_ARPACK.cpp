@@ -138,11 +138,15 @@ static void Arpack2GetDP(int N, complex_16 *in, gVector *out)
 {
   int i, j;
   double re, im;
+  int incr = (Current.NbrHar == 2) ? gCOMPLEX_INCREMENT : 1;
   for(i = 0; i < N; i++){
     re = in[i].re;
     im = in[i].im;
-    j = i * gCOMPLEX_INCREMENT;
-    LinAlg_SetComplexInVector(re, im, out, j, j+1);
+    j = i * incr;
+    if(Current.NbrHar == 2)
+      LinAlg_SetComplexInVector(re, im, out, j, j+1);
+    else
+      LinAlg_SetDoubleInVector(re, out, j);
   }
   LinAlg_AssembleVector(out);
 }
@@ -151,14 +155,21 @@ static void Arpack2GetDPSplit(int N, complex_16 *in, gVector *out1, gVector *out
 {
   int i, j;
   double re, im;
+  int incr = (Current.NbrHar == 2) ? gCOMPLEX_INCREMENT : 1;
   for(i = 0; i < N/2; i++){
-    j = i * gCOMPLEX_INCREMENT;
+    j = i * incr;
     re = in[i].re;
     im = in[i].im;
-    LinAlg_SetComplexInVector(re, im, out1, j, j+1);
+    if(Current.NbrHar == 2)
+      LinAlg_SetComplexInVector(re, im, out1, j, j+1);
+    else
+      LinAlg_SetDoubleInVector(re, out1, j);
     re = in[N/2+i].re;
     im = in[N/2+i].im;
-    LinAlg_SetComplexInVector(re, im, out2, j, j+1);
+    if(Current.NbrHar == 2)
+      LinAlg_SetComplexInVector(re, im, out2, j, j+1);
+    else
+      LinAlg_SetDoubleInVector(re, out2, j);
   }
   LinAlg_AssembleVector(out1);
   LinAlg_AssembleVector(out2);
@@ -167,27 +178,38 @@ static void Arpack2GetDPSplit(int N, complex_16 *in, gVector *out1, gVector *out
 static void GetDP2Arpack(gVector *in, complex_16 *out)
 {
   int i, N;
-  double re, im;
+  double re, im = 0.;
+  int incr = (Current.NbrHar == 2) ? gCOMPLEX_INCREMENT : 1;
   LinAlg_GetVectorSize(in, &N);
-  for(i = 0; i < N; i += gCOMPLEX_INCREMENT){
-    LinAlg_GetComplexInVector(&re, &im, in, i, i+1);
-    out[i/gCOMPLEX_INCREMENT].re = re;
-    out[i/gCOMPLEX_INCREMENT].im = im;
+  for(i = 0; i < N; i += incr){
+    if(Current.NbrHar == 2)
+      LinAlg_GetComplexInVector(&re, &im, in, i, i+1);
+    else
+      LinAlg_GetDoubleInVector(&re, in, i);
+    out[i/incr].re = re;
+    out[i/incr].im = im;
   }
 }
 
 static void GetDP2ArpackMerge(gVector *in1, gVector *in2, complex_16 *out)
 {
   int i, N;
-  double re, im;
+  double re, im = 0.;
+  int incr = (Current.NbrHar == 2) ? gCOMPLEX_INCREMENT : 1;
   LinAlg_GetVectorSize(in1, &N);
-  for(i = 0; i < N; i += gCOMPLEX_INCREMENT){
-    LinAlg_GetComplexInVector(&re, &im, in1, i, i+1);
-    out[i/gCOMPLEX_INCREMENT].re = re;
-    out[i/gCOMPLEX_INCREMENT].im = im;
-    LinAlg_GetComplexInVector(&re, &im, in2, i, i+1);
-    out[N/gCOMPLEX_INCREMENT + i/gCOMPLEX_INCREMENT].re = re;
-    out[N/gCOMPLEX_INCREMENT + i/gCOMPLEX_INCREMENT].im = im;
+  for(i = 0; i < N; i += incr){
+    if(Current.NbrHar == 2)
+      LinAlg_GetComplexInVector(&re, &im, in1, i, i+1);
+    else
+      LinAlg_GetDoubleInVector(&re, in1, i);
+    out[i/incr].re = re;
+    out[i/incr].im = im;
+    if(Current.NbrHar == 2)
+      LinAlg_GetComplexInVector(&re, &im, in2, i, i+1);
+    else
+      LinAlg_GetDoubleInVector(&re, in2, i);
+    out[N/incr + i/incr].re = re;
+    out[N/incr + i/incr].im = im;
   }
 }
 
@@ -213,13 +235,18 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
   unsigned int rvec, *select;
   complex_16 *resid, *v, *workd, *workl, *d, *z, sigma, *workev;
 
-  /* Bail out if we are not in harmonic regime: it's much easier this
-     way (since, for real, non-symmetric matrices we would get complex
-     eigenvectors we could not easily store) */
+  /* Warn if we are not in harmonic regime (we won't be able to compute/store
+     complex eigenvectors) */
   if(Current.NbrHar != 2){
-    Message::Error("EigenSolve requires system defined with \"Type Complex\"");
-    return;
+    Message::Warning("EigenSolve will only store the real part of the eigenvectors; "
+                     "Define the system with \"Type Complex\" if this is an issue");
   }
+
+#if defined(HAVE_PETSC) && !defined(PETSC_USE_COMPLEX)
+  if(Current.NbrHar == 2){
+    Message::Warning("Using PETSc in real arithmetic for complex-simulated-real matrices");
+  }
+#endif
 
   /* Sanity checks */
   if(!DofData_P->Flag_Init[1] || !DofData_P->Flag_Init[3]){
@@ -234,7 +261,9 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
   /* Get eigenproblem parameters */
   EigenPar("eigen.par", &eigenpar);
 
-  n = DofData_P->NbrDof / gCOMPLEX_INCREMENT; /* size of the system */
+  /* size of the system */
+  int incr = (Current.NbrHar == 2) ? gCOMPLEX_INCREMENT : 1;
+  n = DofData_P->NbrDof / incr;
 
   if(quad_evp)
     n *= 2;
@@ -706,20 +735,34 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
     Free(DofData_P->CurrentSolution->TimeFunctionValues);
     DofData_P->CurrentSolution->TimeFunctionValues = NULL;
     DofData_P->CurrentSolution->SolutionExist = 1;
-    for(l = 0; l < DofData_P->NbrDof; l+=gCOMPLEX_INCREMENT){
-      j = l / gCOMPLEX_INCREMENT;
-      LinAlg_SetComplexInVector(z[k*n+j].re, z[k*n+j].im,
-				&DofData_P->CurrentSolution->x, l, l+1);
+    int incr = (Current.NbrHar == 2) ? gCOMPLEX_INCREMENT : 1;
+    for(l = 0; l < DofData_P->NbrDof; l += incr){
+      j = l / incr;
+      if(Current.NbrHar == 2){
+        LinAlg_SetComplexInVector(z[k*n+j].re, z[k*n+j].im,
+                                  &DofData_P->CurrentSolution->x, l, l+1);
+      }
+      else{
+        LinAlg_SetDoubleInVector(z[k*n+j].re,
+                                 &DofData_P->CurrentSolution->x, l);
+      }
     }
     LinAlg_AssembleVector(&DofData_P->CurrentSolution->x);
     /* Arpack returns eigenvectors normalized in L-2 norm. Renormalize
        them in L-infty norm so that the absolute value of the largest
        element is 1 */
     tmp = 0.;
-    for(l = 0; l < DofData_P->NbrDof; l+=gCOMPLEX_INCREMENT){
-      LinAlg_GetComplexInVector(&d1, &d2,
-				&DofData_P->CurrentSolution->x, l, l+1);
-      abs = sqrt(SQU(d1) + SQU(d2));
+    for(l = 0; l < DofData_P->NbrDof; l += incr){
+      if(Current.NbrHar == 2){
+        LinAlg_GetComplexInVector(&d1, &d2,
+                                  &DofData_P->CurrentSolution->x, l, l+1);
+        abs = sqrt(SQU(d1) + SQU(d2));
+      }
+      else{
+        LinAlg_GetDoubleInVector(&d1,
+                                 &DofData_P->CurrentSolution->x, l);
+        abs = sqrt(SQU(d1));
+      }
       if(abs > tmp) tmp = abs;
     }
     if(tmp > 1.e-16)
