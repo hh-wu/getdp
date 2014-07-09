@@ -1359,8 +1359,6 @@ void Dof_AssembleInMat(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
 	    valtmp[0] = -d1*Val[0] + d2*Val[1] ;
 	    valtmp[1] = -d1*Val[1] - d2*Val[0] ;
 	  }
-          //printf("ccc NbrHar %d gSCALAR_SIZE %d valtmp[0]= %g , valtmp[1]=%g \n",
-          //       Current.NbrHar, gSCALAR_SIZE, valtmp[0], valtmp[1]);
 	  LinAlg_AddComplexInVector
 	    (valtmp[0], valtmp[1], Vec,
 	     Equ_P->Case.Unknown.NumDof-1,
