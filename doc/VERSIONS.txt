@@ -1,5 +1,5 @@
 2.4.4: better stability, updated onelab API version and inline parameter
-definitions, fixed UpdateConstraint in harmonic case, improve performance of
+definitions, fixed UpdateConstraint in harmonic case, improved performance of
 multi-harmonic assembly, fixed memory leak in parallel MPI version, improved
 EigenSolve (quadratic EVP with SLEPC, EVP on real matrices), new
 CosineTransform, MPI_Printf, SendMergeFileRequest parser commands, small
