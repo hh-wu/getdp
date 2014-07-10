@@ -133,15 +133,31 @@ void F_NodeForceDensity (F_ARG)
          Current.Element->GeoElement->NumNodes[i] != numNode)  i++;
 
   if (i < Current.Element->GeoElement->NbrNodes ) {
-    s11 = A->Val[0] ;
-    s12 = A->Val[1] ;
-    s13 = A->Val[2] ;
-    s21 = s12;
-    s22 = A->Val[3] ;
-    s23 = A->Val[4] ;
-    s31 = s13;
-    s32 = s23;
-    s33 = A->Val[5] ;
+    if(A->Type == TENSOR_SYM){
+      s11 = A->Val[0] ;
+      s12 = A->Val[1] ;
+      s13 = A->Val[2] ;
+      s21 = s12;
+      s22 = A->Val[3] ;
+      s23 = A->Val[4] ;
+      s31 = s13;
+      s32 = s23;
+      s33 = A->Val[5] ;
+    }
+    else if(A->Type == TENSOR){
+      s11 = A->Val[0] ;
+      s12 = A->Val[1] ;
+      s13 = A->Val[2] ;
+      s21 = A->Val[3] ;
+      s22 = A->Val[4] ;
+      s23 = A->Val[5] ;
+      s31 = A->Val[6] ;
+      s32 = A->Val[7] ;
+      s33 = A->Val[8] ;
+    }
+    else{
+      Message::Error("Unknown tensor type in 'F_NodeForceDensity'") ;
+    }
 
     DetJac  = Current.Element->DetJac ;
     Jac     = Current.Element->Jac ;
