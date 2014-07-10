@@ -5,7 +5,7 @@
 //Mesh.Algorithm = 6; // Frontal
 
 //Mesh.Algorithm3D = 1; // Delaunay, Default
-Mesh.Algorithm3D = 4; // Frontal
+//Mesh.Algorithm3D = 4; // Frontal
 Mesh.Optimize = 1 ;
 Mesh.CharacteristicLengthFactor = 1.5 ; // 1. by default
 
