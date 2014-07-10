@@ -9,10 +9,14 @@ RENEW_PHASE = 0;
 SWEEP_FORWARD = 0;
 SWEEP_BACKWARD = 0;
 
-SOLVER = "gmres_pcright" ;
+// SOLVER = "gmres_pcright" ;
+SOLVER = "gmres" ;
 
-ratiolc1lc0 = 4 ;
-lcExp = 3 ;
+coarseMesh = 1; // set 0 for uniform (fine) mesh
+coarseSigma = 1; // set to 0 to finely mesh Sigma
+
+ratiolc1lc0 = coarseMesh ? 4 : 1 ;
+lcExp = 1 ;
 
 Flag_Field = 1 ;
 Flag_Quinconce = 0;
@@ -33,7 +37,7 @@ distx = R0;
 dist = (distx>disty)?distx:disty;
 
 MaxN = (Nh>Nv)?Nh:Nv;
-Ro = 0.65*MaxN*(2*R0+dist) ;
+Ro = 0.65*MaxN*(2*R0+dist) /.65;
 //Ro = MaxN*(R0+dist/2)-dist/2 + R0 ;
 
 lambda = 2*Pi/k ;

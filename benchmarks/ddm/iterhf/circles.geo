@@ -60,10 +60,10 @@ If(!Flag_00)
   Delete{Surface{cir0};Line{1,2,3,4};Point{2,3,4,5};}
 EndIf
 
-p1 = newp; Point(newp) = {Ro,0,0,lc1};
-p2 = newp; Point(newp) = {0,Ro,0,lc1};
-p3 = newp; Point(newp) = {-Ro,0,0,lc1};
-p4 = newp; Point(newp) = {0,-Ro,0,lc1};
+p1 = newp; Point(newp) = {Ro,0,0, coarseSigma ? lc1 : lc0};
+p2 = newp; Point(newp) = {0,Ro,0, coarseSigma ? lc1 : lc0};
+p3 = newp; Point(newp) = {-Ro,0,0, coarseSigma ? lc1 : lc0};
+p4 = newp; Point(newp) = {0,-Ro,0, coarseSigma ? lc1 : lc0};
 
 co1 = newl ; Circle(newl) = {p1,1,p2};
 co2 = newl ; Circle(newl) = {p2,1,p3};
@@ -71,6 +71,8 @@ co3 = newl ; Circle(newl) = {p3,1,p4};
 co4 = newl ; Circle(newl) = {p4,1,p1};
 Line Loop(newll) = {co1:co4};
 surfOmega = news ; Plane Surface (news) = {newll-1, llScc[]};
+
+SigmaList[] = {co1:co4};
 
 Physical Surface(1) = {surfOmega}; // Omega
 Physical Line(2) = {co1:co4};//Sigma
@@ -92,7 +94,14 @@ EndFor
 
 Field[1] = Attractor;
 Field[1].NNodesByEdge = 100;
+If (coarseSigma)
 Field[1].EdgesList = {gamaTot[]};
+EndIf
+If (!coarseSigma)
+Field[1].EdgesList = {gamaTot[], SigmaList[]};
+EndIf
+
+
 
 Field[2] = MathEval;
 Field[2].F = Sprintf("F1^%g + %g", lcExp, lc0);

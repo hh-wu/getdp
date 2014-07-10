@@ -388,6 +388,7 @@ Resolution {
     }
   }
 
+
   { Name Save_DirichletBC~{iSub} ;
     System {
       { Name A ; NameOfFormulation Wave_Dirichlet~{iSub} ; Type Complex; }
@@ -632,6 +633,7 @@ PostOperation {
 EndFor
 //////
 
+
 Resolution {
 
   { Name Iterhf_Wave_Dirichlet ;
@@ -746,7 +748,7 @@ Resolution {
        { Name C~{iSub} ; NameOfFormulation Phase_Unwrap~{iSub} ; Type Complex; }
        { Name D~{iSub} ; NameOfFormulation Phase_Extend~{iSub} ; Type Complex; }
        { Name E~{iSub} ; NameOfFormulation Transport_Dirichlet_Numeric~{iSub} ; Type Complex; }
-       { Name F~{iSub} ; NameOfFormulation u_from_a~{iSub} ; Type Complex; }
+       // { Name F~{iSub} ; NameOfFormulation u_from_a~{iSub} ; Type Complex; }
      EndFor
    }
     Operation {

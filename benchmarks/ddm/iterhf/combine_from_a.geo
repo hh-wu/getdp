@@ -50,7 +50,39 @@ EndFor
 View[PostProcessing.NbViews-1].Visible = 1;
 View[PostProcessing.NbViews-1].Name = "u_Iter";
 
-Save View[PostProcessing.NbViews-1] "uiter.pos";
+
+PostProcessing.Format=1;
+
+// Save View[PostProcessing.NbViews-1] "my_uiter.pos";
 
 Merge "u0.pos";
 View[PostProcessing.NbViews-1].Name = "u_Full";
+
+
+Plugin(MathEval).View = PostProcessing.NbViews-1; // new view
+Plugin(MathEval).OtherView = PostProcessing.NbViews-2;
+Plugin(MathEval).Expression0 = "(v0-w0)^2"; // |ucal - uref|^2
+Plugin(MathEval).Run;
+
+Plugin(ModifyComponent).View = PostProcessing.NbViews-2; // in place => in View[PostProcessing.NbViews-2]
+Plugin(ModifyComponent).Expression = "(v0)^2"; // |uref|^2
+Plugin(ModifyComponent).Run;
+
+Plugin(Integrate).View = PostProcessing.NbViews-1; // \int |ucal - uref|^2 dOmega
+Plugin(Integrate).Run;
+
+Plugin(Integrate).View = PostProcessing.NbViews-3; // \int |uref|^2 dOmega
+Plugin(Integrate).Run;
+
+num = View[PostProcessing.NbViews-2].Max;
+denom = View[PostProcessing.NbViews-1].Max;
+
+err = Sqrt(num/denom);
+
+Printf("%g",View[PostProcessing.NbViews-2].Max);
+Printf("%g",View[PostProcessing.NbViews-1].Max);
+
+Printf("%g",err);
+
+// Save View[PostProcessing.NbViews-1] "my_error.pos";
+
