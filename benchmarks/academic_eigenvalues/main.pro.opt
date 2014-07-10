@@ -3,7 +3,7 @@ FLAG_GEOM = DefineNumber[0, Name "Input/01Geometry"];
 Mesh.SurfaceEdges=0; // do not display the mesh
 k = PostProcessing.NbViews - 1; 
 
-If (FLAG_GEOM != 2) 
+If (FLAG_GEOM == 1) 
   For k In {0 : PostProcessing.NbViews - 1}
     View[k].Name = Sprintf("%g th mode", k);
     View[k].Axes = 2;
@@ -13,7 +13,7 @@ If (FLAG_GEOM != 2)
   EndFor
 EndIf
 
-If (FLAG_GEOM == 2)
+If (FLAG_GEOM != 1)
   General.ScaleX = 0.5;
   General.ScaleY = 0.5;
   General.ScaleZ = 0.5;
