@@ -13,7 +13,7 @@ If (FLAG_GEOM == 1)
   EndFor
 EndIf
 
-If (FLAG_GEOM != 1)
+If (FLAG_GEOM == 2 || FLAG_GEOM == 3)
   General.ScaleX = 0.5;
   General.ScaleY = 0.5;
   General.ScaleZ = 0.5;
