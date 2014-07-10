@@ -95,11 +95,13 @@ Formulation {
 Resolution {
    { Name Reso ;
     System {
-      { Name A ; NameOfFormulation Form ; Type ComplexValue ; }
+      { Name A ; NameOfFormulation Form ;
+        Type ComplexValue ;
+      }
     }
     Operation {
       CreateDir["output/"] ;
-      GenerateSeparate[A] ; 
+      GenerateSeparate[A] ;
       EigenSolve[A,NbEigenvalues,EigenvalShiftRe,EigenvalShiftIm] ;
       SaveSolutions[A] ;
     }
