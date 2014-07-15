@@ -61,12 +61,48 @@ View[PostProcessing.NbViews-1].Name = "u_Full";
 
 Plugin(MathEval).View = PostProcessing.NbViews-1; // new view
 Plugin(MathEval).OtherView = PostProcessing.NbViews-2;
-Plugin(MathEval).Expression0 = "(v0-w0)^2"; // |ucal - uref|^2
+// Plugin(MathEval).Expression0 = "(v0-w0)"; // |ucal - uref|^2
+Plugin(MathEval).Expression0 = "((v0-w0))"; // |ucal - uref|^2
+// Plugin(MathEval).TimeStep = 0; // |ucal - uref|^2
+// Plugin(MathEval).ForceInterpolation = 1;
 Plugin(MathEval).Run;
 
-Plugin(ModifyComponent).View = PostProcessing.NbViews-2; // in place => in View[PostProcessing.NbViews-2]
-Plugin(ModifyComponent).Expression = "(v0)^2"; // |uref|^2
-Plugin(ModifyComponent).Run;
+
+Plugin(ModulusPhase).View = PostProcessing.NbViews-2;
+Plugin(ModulusPhase).Run;
+
+Plugin(ModulusPhase).View = PostProcessing.NbViews-1;
+Plugin(ModulusPhase).Run;
+
+View[PostProcessing.NbViews-1].Name = "IeI";
+
+
+
+
+Plugin(MathEval).View = PostProcessing.NbViews-2; // new view
+// Plugin(MathEval).Expression0 = "(v0-w0)^2"; // |ucal - uref|^2
+Plugin(MathEval).Expression0 = "((v0))^2"; // |ucal - uref|^2
+Plugin(MathEval).TimeStep = 0; // |ucal - uref|^2
+// Plugin(MathEval).ForceInterpolation = 1;
+Plugin(MathEval).Run;
+
+View[PostProcessing.NbViews-1].Name = "IurefI^2";
+
+Plugin(MathEval).View = PostProcessing.NbViews-2; // new view
+// Plugin(MathEval).Expression0 = "(v0-w0)^2"; // |ucal - uref|^2
+Plugin(MathEval).Expression0 = "((v0))^2"; // |ucal - uref|^2
+Plugin(MathEval).TimeStep = 0; // |ucal - uref|^2
+// Plugin(MathEval).ForceInterpolation = 1;
+Plugin(MathEval).Run;
+
+View[PostProcessing.NbViews-1].Name = "IeI^2";
+
+
+
+// Plugin(ModifyComponent).View = PostProcessing.NbViews-2; // in place => in View[PostProcessing.NbViews-2]
+// // Plugin(ModifyComponent).Expression = "(v0)^2"; // |uref|^2
+// Plugin(ModifyComponent).Expression = "(Fabs(v0))^2"; // |uref|^2
+// Plugin(ModifyComponent).Run;
 
 Plugin(Integrate).View = PostProcessing.NbViews-1; // \int |ucal - uref|^2 dOmega
 Plugin(Integrate).Run;
@@ -79,10 +115,10 @@ denom = View[PostProcessing.NbViews-1].Max;
 
 err = Sqrt(num/denom);
 
-Printf("%g",View[PostProcessing.NbViews-2].Max);
-Printf("%g",View[PostProcessing.NbViews-1].Max);
+Printf("N: %g",View[PostProcessing.NbViews-2].Max);
+Printf("D: %g",View[PostProcessing.NbViews-1].Max);
 
-Printf("%g",err);
+Printf("R: %g",err);
 
-// Save View[PostProcessing.NbViews-1] "my_error.pos";
+// // Save View[PostProcessing.NbViews-1] "my_error.pos";
 
