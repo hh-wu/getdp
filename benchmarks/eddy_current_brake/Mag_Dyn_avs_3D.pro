@@ -342,7 +342,7 @@ Resolution {
       InitSolution[Sys] ;
       TimeLoopTheta[ timei, timei+dtime, dtime, thetaFactor]{
         Generate[Sys];  Solve[Sys]; SaveSolution[Sys] ;
-        PostOperation[ Map_local_StepByStep];
+        PostOperation[Map_local_StepByStep];
         //PostOperation[Force] ;
       }
     }

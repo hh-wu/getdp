@@ -25,7 +25,7 @@ Group {
   // change it from outside getdp with ONELAB, using the given parameter name
   // and possible binary values 0 or 1.
   DefineConstant[
-    Flag_NL = { 0, Choices{0,1}, Name "Parameters/Materials/Nonlinear BH-curve"}
+    Flag_NL = { 0, Choices{0,1}, Name "Parameters/Materials/1Nonlinear BH-curve"}
   ];
 
   Domain_NL = Region[ {} ] ;

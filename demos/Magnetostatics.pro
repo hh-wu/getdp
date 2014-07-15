@@ -23,9 +23,12 @@ Function{
   // Input constants:
   DefineConstant[
     Val_Rint, Val_Rext // interior/exterior radius of Domain_Inf
-    Nb_max_iter        = 30,
-    relaxation_factor  = 1,
-    stop_criterion     = 1e-5
+    Nb_max_iter = 30,
+    relaxation_factor = 1,
+    stop_criterion = 1e-5,
+    Flag_NL = 1,
+    Flag_NL_Newton_Raphson = {1, Choices{0,1}, Name "Parameters/Materials/2Newton-Raphson iteration",
+      Visible Flag_NL}
     //R_ = {"MagSta_phi", Name "GetDP/1ResolutionChoices", Visible 0},
     //C_ = {"-solve -v2", Name "GetDP/9ComputeCommand", Visible 0}
     //P_ = {"", Name "GetDP/2PostOperationChoices", Visible 0}

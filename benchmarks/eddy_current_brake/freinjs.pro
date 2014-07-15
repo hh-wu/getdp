@@ -145,9 +145,9 @@ PostOperation Map_local UsingPost MagDyn_a_3D {
 
 
 PostOperation Map_local_StepByStep UsingPost MagDyn_a_3D {
-  Print[ a, OnElementsOf Domain_Mag,  File "a_restart.pos", OverrideTimeStepValue step, LastTimeStepOnly ] ;
-  Print[ b, OnElementsOf Domain_Mag,  File "b.pos", LastTimeStepOnly ] ;
-  Print[ j, OnElementsOf DomainC_Mag, File "j.pos", LastTimeStepOnly ] ;
+  Print[ a, OnElementsOf DomainC_Mag,  File "a_restart.pos", OverrideTimeStepValue step, LastTimeStepOnly ] ;
+  Print[ b, OnElementsOf Domain_Mag,  File "b.pos", OverrideTimeStepValue step, LastTimeStepOnly ] ;
+  Print[ j, OnElementsOf DomainC_Mag, File "j.pos", OverrideTimeStepValue step, LastTimeStepOnly ] ;
 }
 
 PostOperation Force UsingPost MagDyn_a_3D {
