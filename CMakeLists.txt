@@ -944,11 +944,19 @@ file(GLOB_RECURSE TESTFILES demos/magnet.pro
      benchmarks/machines/pmsm.pro
      benchmarks/magnetometer/magnetometer.pro
      benchmarks/waveguides/waveguide3D_rectangle.pro)
+find_program(TEST_BIN ../../gmsh/bin/gmsh)
+if(TEST_BIN)
+  message(STATUS "Will test GetDP with Gmsh through ONELAB")
+else(TEST_BIN)
+  message(STATUS "Will test GetDP stand-alone")
+  set(TEST_BIN getdp)
+endif(TEST_BIN)
+
 foreach(TESTFILE ${TESTFILES})
   # use relative path for cygwin/mingw (the pure win exe built with the mingw 
   # compilers does not understand a full cygwin-style path)
   FILE(RELATIVE_PATH TEST ${CMAKE_CURRENT_BINARY_DIR} ${TESTFILE})
-  add_test(${TEST} ../../gmsh/bin/gmsh ${TEST} - )
+  add_test(${TEST} ${TEST_BIN} ${TEST} - )
 endforeach()
 
 message(STATUS "")
