@@ -31,6 +31,9 @@ Function {
     NbSteps = 100,
     delta_time = T/NbSteps,
     II, VV,
+    Flag_NL = 0,
+    Flag_NL_Newton_Raphson = {1, Choices{0,1}, Name "Input/41Newton-Raphson iteration",
+      Visible Flag_NL},
     po = "Output/"
   ] ;
 
@@ -255,9 +258,10 @@ Formulation {
     Equation {
       Galerkin { [ nu[{d a}] * Dof{d a} , {d a} ] ;
         In Domain ; Jacobian Vol ; Integration II ; }
+      If(Flag_NL_Newton_Raphson)
       Galerkin { JacNL [ dhdb_NL[{d a}] * Dof{d a} , {d a} ] ;
         In DomainNL ; Jacobian Vol ; Integration II ; }
-
+      EndIf
       Galerkin { DtDof[ sigma[] * Dof{a} , {a} ] ;
         In DomainC ; Jacobian Vol ; Integration II ; }
       Galerkin { [ sigma[] * Dof{d v}/SymmetryFactor , {a} ] ;//**** SymmetryFactor ?

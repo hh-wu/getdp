@@ -28,7 +28,9 @@ Function{
       Highlight "AliceBlue", Visible 1},
     // Increasing the resistance by 50% == 1.5
     II, VV,
-    Flag_NL_law_Type = 0,
+    Flag_NL = 0,
+    Flag_NL_Newton_Raphson = {1, Choices{0,1}, Name "Input/41Newton-Raphson iteration",
+      Visible Flag_NL},
     po = "Output/"
   ];
 
@@ -190,9 +192,10 @@ Formulation {
     Equation {
       Galerkin { [ nu[{d a}] * Dof{d a}  , {d a} ] ;
         In Domain ; Jacobian Vol ; Integration I1 ; }
+      If(Flag_NL_Newton_Raphson)
       Galerkin { JacNL [ dhdb_NL[{d a}] * Dof{d a} , {d a} ] ;
         In DomainNL ; Jacobian Vol ; Integration I1 ; }
-
+      EndIf
       Galerkin { [ -nu[] * br[] , {d a} ] ;
         In DomainM ; Jacobian Vol ; Integration I1 ; }
 
