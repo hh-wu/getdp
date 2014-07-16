@@ -2595,7 +2595,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
           // use matlab format if available
           DefineSystem_P = (struct DefineSystem*)
             List_Pointer(Resolution_P->DefineSystem, Operation_P->DefineSystemIndex) ;
-          std::string path(Name_Path), file("file_"), mat("mat_"), vec("vec_"), sol("sol_");
+          std::string path(Name_Path), file("file_");
+          std::string mat("mat_"), vec("vec_"), sol("sol_");
+          std::string jac("jac_"), res("res_"), dx("dx_");
           std::string name(Operation_P->Case.Print.FileOut ? Operation_P->Case.Print.FileOut :
                            DefineSystem_P->Name);
           if(DofData_P->Flag_Init[1] || DofData_P->Flag_Init[2] || DofData_P->Flag_Init[3]){
@@ -2634,6 +2636,17 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
             LinAlg_PrintVector(fp, &DofData_P->b, true,
                                (path + file + vec + name + ".m").c_str(),
                                (vec + name).c_str()) ;
+            if(DofData_P->Flag_Init[0] == 2){
+              LinAlg_PrintMatrix(fp, &DofData_P->Jac, true,
+                                 (path + file + jac + name + ".m").c_str(),
+                                 (jac + name).c_str()) ;
+              LinAlg_PrintVector(fp, &DofData_P->res, true,
+                                 (path + file + res + name + ".m").c_str(),
+                                 (res + name).c_str()) ;
+              LinAlg_PrintVector(fp, &DofData_P->dx, true,
+                                 (path + file + dx + name + ".m").c_str(),
+                                 (dx + name).c_str()) ;
+            }
           }
           if(DofData_P->CurrentSolution)
             LinAlg_PrintVector(fp, &DofData_P->CurrentSolution->x, true,
