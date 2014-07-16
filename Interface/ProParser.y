@@ -60,6 +60,7 @@ static int Current_NoDofIndexInWholeQuantity = 0;
 static int Current_System = 0, Constraint_Index = 0;
 static int TypeOperatorDofInTrace = 0, DefineQuantityIndexDofInTrace = 0;
 static int ImbricatedLoop = 0;
+static char *StringForParameter = 0;
 
 #define MAX_RECUR_LOOPS 100
 static fpos_t FposImbricatedLoopsTab[MAX_RECUR_LOOPS];
@@ -1211,6 +1212,8 @@ WholeQuantity_Single :
 	  }
 
 	  /* parameters */
+          WholeQuantity_S.Case.Function.Para = 0;
+          WholeQuantity_S.Case.Function.String = StringForParameter;
 	  if(WholeQuantity_S.Case.Function.NbrParameters >= 0 &&
 	      WholeQuantity_S.Case.Function.NbrParameters != List_Nbr($3)) {
 	    vyyerror("Wrong number of parameters for Function '%s' (%d instead of %d)",
@@ -1240,6 +1243,7 @@ WholeQuantity_Single :
 
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
       List_Delete($3);
+      StringForParameter = 0;
     }
 
   | tSTRING Quantity_Def
@@ -1537,6 +1541,10 @@ ParametersForFunction :
       double d = (double)Num_Group(&Group_S, (char*)"PA_Region", $4);
       List_Add($$, &d);
     }
+
+  | '{' CharExprNoVar '}'
+    { $$ = NULL; StringForParameter = $2; }
+
  ;
 
 /* ------------------------------------------------------------------------ */

@@ -421,6 +421,7 @@ struct Function {
 			same name as enclosing class */
   int     TypeOfValue, NbrArguments, NbrParameters;
   double *Para;
+  char   *String;
   struct FunctionActive *Active;
 };
 

@@ -41,6 +41,15 @@
 #include <gmsh/GmshMessage.h>
 #endif
 
+#if defined(HAVE_OCTAVE)
+#undef _D1
+#undef _D2
+#undef HAVE_ARPACK
+#include <octave/oct.h>
+#include <octave/octave.h>
+#include <octave/toplev.h>
+#endif
+
 int Message::_commRank = 0;
 int Message::_commSize = 1;
 int Message::_isCommWorld = 1; // is the communicator set to WORLD (==1) or SELF (!=1)
@@ -94,6 +103,12 @@ void Message::Initialize(int argc, char **argv)
 #if defined(HAVE_GSL)
   gsl_set_error_handler(&gslErrorHandler);
 #endif
+#if defined(HAVE_OCTAVE)
+  string_vector oargv(2);
+  oargv(0) = "embedded";
+  oargv(1) = "-q";
+  octave_main(2, oargv.c_str_vec(), 1);
+#endif
 }
 
 void Message::Finalize()
@@ -110,7 +125,11 @@ void Message::Finalize()
 void Message::Exit(int level)
 {
   Finalize();
+#if defined(HAVE_OCTAVE)
+  clean_up_and_exit(level);
+#else
   exit(level);
+#endif
 }
 
 static int streamIsFile(FILE* stream)

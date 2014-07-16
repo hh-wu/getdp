@@ -19,6 +19,7 @@
 #cmakedefine HAVE_NO_VSNPRINTF
 #cmakedefine HAVE_NR
 #cmakedefine HAVE_NX
+#cmakedefine HAVE_OCTAVE
 #cmakedefine HAVE_PETSC
 #cmakedefine HAVE_SLEPC
 #cmakedefine HAVE_SPARSKIT

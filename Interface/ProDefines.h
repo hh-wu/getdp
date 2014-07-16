@@ -1103,6 +1103,9 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"InvPullBack",        (CAST)F_InvPullBack       ,    1,   2 },
   {"InvPushForward",     (CAST)F_InvPushForward    ,    1,   2 },
 
+  // F_Octave
+  {"Octave",             (CAST)F_Octave            ,    -1,   -1 },
+
   // GF_XXX : Green Functions
   {"Laplace"           , (CAST)GF_Laplace          ,   1,   0 },
   {"GradLaplace"       , (CAST)GF_GradLaplace      ,   1,   0 },
