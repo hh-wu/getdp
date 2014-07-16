@@ -20,9 +20,9 @@ extern struct CurrentData Current ;
 //
 // * The Octave interpreter will be initialized when GetDP is started; you can
 //   then use the Octave[argument_list]{string} function in the same way as
-//   other GetDP function:
+//   other GetDP functions:
 //
-//   - argument_list contains standard getdp arguments, e.g. X[], Norm[{d a}], ...
+//   - argument_list contains standard GetDP arguments, e.g. X[], Norm[{d a}], ...
 //     These arguments will be stored in Octave as input{0}, input{1}, etc., which
 //     you can then access as normal Octave variables
 //
