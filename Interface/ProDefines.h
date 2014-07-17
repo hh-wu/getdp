@@ -1106,6 +1106,9 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   // F_Octave
   {"Octave",             (CAST)F_Octave            ,    -1,   -1 },
 
+  // F_Python
+  {"Python",             (CAST)F_Python            ,    -1,   -1 },
+
   // GF_XXX : Green Functions
   {"Laplace"           , (CAST)GF_Laplace          ,   1,   0 },
   {"GradLaplace"       , (CAST)GF_GradLaplace      ,   1,   0 },

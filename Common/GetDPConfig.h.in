@@ -21,6 +21,7 @@
 #cmakedefine HAVE_NX
 #cmakedefine HAVE_OCTAVE
 #cmakedefine HAVE_PETSC
+#cmakedefine HAVE_PYTHON
 #cmakedefine HAVE_SLEPC
 #cmakedefine HAVE_SPARSKIT
 #cmakedefine HAVE_ZITSOL

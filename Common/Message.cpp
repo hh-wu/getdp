@@ -50,6 +50,10 @@
 #include <octave/toplev.h>
 #endif
 
+#if defined(HAVE_PYTHON)
+#include <Python.h>
+#endif
+
 int Message::_commRank = 0;
 int Message::_commSize = 1;
 int Message::_isCommWorld = 1; // is the communicator set to WORLD (==1) or SELF (!=1)
@@ -109,6 +113,10 @@ void Message::Initialize(int argc, char **argv)
   oargv(1) = "-q";
   octave_main(2, oargv.c_str_vec(), 1);
 #endif
+#if defined(HAVE_PYTHON)
+  Py_SetProgramName(argv[0]);
+  Py_Initialize();
+#endif
 }
 
 void Message::Finalize()
@@ -120,6 +128,9 @@ void Message::Finalize()
 #endif
   FinalizeSocket();
   FinalizeOnelab();
+#if defined(HAVE_PYTHON)
+  Py_Finalize();
+#endif
 }
 
 void Message::Exit(int level)
