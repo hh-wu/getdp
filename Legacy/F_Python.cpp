@@ -9,6 +9,7 @@
 #include "Message.h"
 
 extern struct CurrentData Current ;
+extern char *Name_Path ;
 
 // This file defines a simple interface to Python.
 //
@@ -16,16 +17,17 @@ extern struct CurrentData Current ;
 //   then use the Python[argument_list]{string} function in the same way as
 //   other GetDP functions:
 //
-//   - argument_list contains standard GetDP arguments, e.g. X[], Norm[{d a}],
-//     ...  These arguments will be stored in Python as a variable named
-//     "input", which you can then access as normal Python variables
+//   - `argument_list' contains standard GetDP arguments, e.g. X[], Norm[{d a}],
+//     etc. These arguments will be stored in Python as a list variable named
+//     `input', which you can then access as normal Python list
 //
-//   - string contains the Python expression that you want to evaluate. Due to
+//   - `string' contains either the Python expression that you want to evaluate,
+//     or the name of a Python script file (if `string' ends with `.py'). Due to
 //     conflicts in the GetDP syntax, to use a string variable, you need to use
 //     Str[string_variable]
 //
-//   - you should save the value you want to return to GetDP in a variable named
-//     "output"
+//   - you should save the value you want to return to GetDP in a list named
+//     `output'
 //
 // * Since the Python interpreter lives for the whole duration of the GetDP run,
 //   you can make quite efficient Python calculations by precomputing things
@@ -57,10 +59,10 @@ void F_Python(F_ARG)
     char tmp[256];
     if((A + i)->Type == SCALAR){
       if(Current.NbrHar == 2)
-        sprintf(tmp, "%.16g+%.16gj;",
+        sprintf(tmp, "%.16g+%.16gj",
                 (A + i)->Val[0], (A + i)->Val[MAX_DIM]);
       else
-        sprintf(tmp, "%.16g;", (A + i)->Val[0]);
+        sprintf(tmp, "%.16g", (A + i)->Val[0]);
     }
     else{
       Message::Error("Non-scalar Python arguments not coded yet");
@@ -68,14 +70,30 @@ void F_Python(F_ARG)
     if(i) expr += ",";
     expr += tmp;
   }
-  expr += std::string("]; ") + Fct->String;
+  expr += std::string("];");
 
-  PyRun_SimpleString(expr.c_str());
+  std::string str(Fct->String);
+  if(str.size() > 3 && str.substr(str.size() - 3) == ".py"){
+    PyRun_SimpleString(expr.c_str());
+    std::string file = std::string(Name_Path) + str;
+    FILE *fp = fopen(file.c_str(), "r");
+    if(fp){
+      PyRun_SimpleFile(fp, file.c_str());
+      fclose(fp);
+    }
+    else{
+      Message::Error("Could not open file `%s'", file.c_str());
+    }
+  }
+  else{
+    expr += std::string(Fct->String);
+    PyRun_SimpleString(expr.c_str());
+  }
 
   for (int k = 0; k < Current.NbrHar; k++)
     for (int j = 0; j < 9; j++)
       V->Val[MAX_DIM * k + j] = 0. ;
-  
+
   PyObject* dict = PyModule_GetDict(PyImport_AddModule("__main__"));
   if(dict){
     PyObject* out = PyDict_GetItemString(dict, "output");
