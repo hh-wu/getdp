@@ -2,7 +2,7 @@ Include "waveguide3d_data.geo";
 
 DefineConstant[ // allows to set these from outside
   // Analysis type
-  ANALYSIS = {1, Name "Input/Type of analysis",
+  ANALYSIS = {0, Name "Input/Type of analysis",
     Choices {0="Helmholtz", 1="Maxwell"}},
   // type of walls
   WALLS = {0, Name "Input/Walls",
