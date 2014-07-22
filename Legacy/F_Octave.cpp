@@ -22,13 +22,13 @@ extern struct CurrentData Current ;
 //   then use the Octave[argument_list]{string} function in the same way as
 //   other GetDP functions:
 //
-//   - argument_list contains standard GetDP arguments, e.g. X[], Norm[{d a}],
-//     ...  These arguments will be stored in Octave as input{0}, input{1},
+//   - `argument_list' contains standard GetDP arguments, e.g. X[], Norm[{d a}],
+//     etc. These arguments will be stored in Octave as input{0}, input{1},
 //     etc., which you can then access as normal Octave variables
 //
-//   - string contains the Octave expression that you want to evaluate. Due to
-//     conflicts in the GetDP syntax, to use a string variable, you need to use
-//     Str[string_variable]
+//   - `string' contains either the Octave expression that you want to
+//     evaluate. Due to conflicts in the GetDP syntax, to use a string variable,
+//     you need to use Str[string_variable]
 //
 // * Since the Octave interpreter lives for the whole duration of the GetDP run,
 //   you can make quite efficient Octave calculations by precomputing things
