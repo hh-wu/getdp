@@ -1,15 +1,11 @@
 Group {
-
   c1    = Region[121] ;
   c2    = Region[122] ;
   c3    = Region[123] ;
   c4    = Region[124] ;
   //square     = Region[124];
-
   guide      = Region[101];
-
   diel       = Region[111];
-
   Tot        = Region[{guide, diel}];
 }
 
