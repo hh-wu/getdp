@@ -318,6 +318,7 @@ PostOperation {
 DefineConstant[
   R_ = {"Guide_h_2D_PVP", Name "GetDP/1ResolutionChoices", Visible 0},
   C_ = {"-solve -slepc", Name "GetDP/9ComputeCommand", Visible 0},
-  P_ = {"", Name "GetDP/2PostOperationChoices", Visible 0}
+  P_ = {"", Name "GetDP/2PostOperationChoices", Visible 0},
+  dummy_ = {0, Name "GetDP/Re(Omega)", ReadOnly 1, Graph "01"}
 ];
 

@@ -1,10 +1,3 @@
-/* -------------------------------------------------------------------
-   File "cercle.geo"
-
-   This file is the geometrical description used by GMSH to produce
-   the file "cercle.msh".
-   ------------------------------------------------------------------- */
-
 /* Definition of geometrical points */
 
 L=1.;
@@ -31,8 +24,6 @@ Point(10) = { 0       , -L*s, 0, t} ;
 Point(11) = { +r*c      , -(L-r)*s, 0, t2} ;
 Point(12) = { (L-r)*c   , -r*s, 0, t2} ;
 
-
-
 /* Definition of geometrical lines */
 
 Line(1) = {1,2};   Line(2) = {2,3};  Line(3) = {3,4};
@@ -41,15 +32,15 @@ Line(7) = {7,8};   Line(8) = {8,9};  Line(9) = {9,10};
 Line(10) = {10,11};   Line(11) = {11,12};  Line(12) = {12,1};
 
 Circle(13) = {12,1,2};  Circle(14) = {3,4,5};
-Circle(15) = {6,7,8};  Circle(16) = {9,10,11}; 
+Circle(15) = {6,7,8};  Circle(16) = {9,10,11};
 
 /* Definition of geometrical surfaces */
 
-Line Loop(20) = {12,1 ,-13};   
-Line Loop(21) = {3 ,4 ,-14};   
-Line Loop(22) = {6 ,7 ,-15};   
-Line Loop(23) = {9 ,10,-16};   
-Line Loop(24) = {13,2,14,5,15,8,16,11};   
+Line Loop(20) = {12,1 ,-13};
+Line Loop(21) = {3 ,4 ,-14};
+Line Loop(22) = {6 ,7 ,-15};
+Line Loop(23) = {9 ,10,-16};
+Line Loop(24) = {13,2,14,5,15,8,16,11};
 
 Plane Surface(30) = {20};
 Plane Surface(31) = {21};
@@ -57,17 +48,16 @@ Plane Surface(32) = {22};
 Plane Surface(33) = {23};
 Plane Surface(34) = {24};
 
-/* Definition of Physical entities (surfaces, lines). The Physical
-   entities tell GMSH the elements and their associated region numbers
-   to save in the file 'cercle.msh'. For example, the Region 
-   101 is made of elements of surface 14 (complementary of cercle in square),
-   while the Region 121 is made of element of line 2 (top of square). */
+/* Definition of Physical entities (surfaces, lines). The Physical entities tell
+   GMSH the elements and their associated region numbers to save in the mesh
+   file. */
 
 Physical Surface (101) = {34} ;   /* Silica */
 Physical Surface (111) = {30,31,32,33} ;   /* Diel1 */
 
-Physical Line (121) = {1,2,3} ;       
-Physical Line (122) = {4,5,6} ; 
-Physical Line (123) = {7,8,9} ;   
-Physical Line (124) = {10,11,12} ;   
-//Physical Line (124) = {-5,-6,-7,-8} ;   
+Physical Line (121) = {1,2,3} ;
+Physical Line (122) = {4,5,6} ;
+Physical Line (123) = {7,8,9} ;
+Physical Line (124) = {10,11,12} ;
+
+View.IntervalsType = 1;
