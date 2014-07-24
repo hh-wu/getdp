@@ -1,0 +1,6 @@
+Model developed by A. Nicolet, F. Zolla. Copyright (c) 2005-2014 Institut Fresnel.
+<!--
+
+Include full license here
+
+-->
