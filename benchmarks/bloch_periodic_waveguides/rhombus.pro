@@ -29,12 +29,12 @@ Function {
   ta=1./Sqrt[3.];
 
   If(ic < nn)
-     par2 = 0.025*ic;
-     par1=0.0;
+    par2 = 0.025*ic;
+    par1=0.0;
   EndIf
   If(ic>=nn && ic<2*nn)
-     par2=1.;
-     par1=0.025*ta*(ic-nn);
+    par2=1.;
+    par1=0.025*ta*(ic-nn);
   EndIf
   If (ic>=2*nn && ic<3*nn)
     par2=0.025*(3*nn-ic);
@@ -47,22 +47,23 @@ Function {
   //KY = 2. * Pi /Sqrt[3.] ; //2.07;
   //gam = 7.;
 
-  DefineConstant[ gam= {2., Choices{0, 1, 2, 4, 2*Pi}, Name "beta"} ];  // == \beta\Lambda p. 152
+  DefineConstant[ gam= {2., Choices{0, 1, 2, 4, 2*Pi}, Name "beta"} ];
+  // == \beta\Lambda p. 152
+
   dec=-0.01;
   If (gam==0)
-      dec=0.4;
-      If (ic<nn/2)
-        dec=-0.5;
-      EndIf
-      If (ic>3*nn-nn/2)
-        dec=-0.5;
-      EndIf
-      If (ic>=nn/2 && ic<nn)
-        dec=0.2;
-      EndIf
-      If (ic>=3*nn-nn && ic<=3*nn-nn/2)
-        dec=0.2;
-      EndIf
+    dec=0.4;
+    If (ic<nn/2)
+      dec=-0.5;
+    EndIf
+    If (ic>3*nn-nn/2)
+      dec=-0.5;
+    EndIf
+    If (ic>=nn/2 && ic<nn)
+      dec=0.2;
+    EndIf
+    If (ic>=3*nn-nn && ic<=3*nn-nn/2)
+      dec=0.2;
     EndIf
   EndIf
 
@@ -93,46 +94,33 @@ Function {
 }
 
 Constraint {
-
   { Name arete;
     Case {
-
       //{ Region square; Value 0.; }
-
       { Region c3 ; Type LinkCplx ; RegionRef c1;
         Coefficient  Complex[c13,s13];
 	Function Vector[$X+s,$Y+c,0] ;
       }
-
       { Region c4 ; Type LinkCplx ; RegionRef c2;
         Coefficient  Complex[c24,s24];
 	Function Vector[$X-s,$Y+c,0] ;
       }
-
-
     }
   }
-
   { Name nodal;
     Case {
-
       //{ Region square; Value 0.; }
-
       { Region c3 ; Type LinkCplx ; RegionRef c1;
         Coefficient  Complex[c13,s13];
 	Function Vector[$X+s,$Y+c,0] ;
       }
-
       { Region c4 ; Type LinkCplx ; RegionRef c2;
         Coefficient  Complex[c24,s24];
 	Function Vector[$X-s,$Y+c,0] ;
       }
-
     }
   }
-
 }
-
 
 FunctionSpace {
   { Name H_nodal; Type Form0;
@@ -167,7 +155,6 @@ FunctionSpace {
       { Name sn; NameOfCoef hn; Function BF_PerpendicularFacet; Support Tot; Entity EdgesOf[All]; }
     }
   }
-
 }
 
 Jacobian{
@@ -177,7 +164,6 @@ Jacobian{
     }
   }
 }
-
 
 Integration {
   { Name I1 ;
@@ -192,12 +178,9 @@ Integration {
 }
 
 Formulation {
-
   // formulation H en incidence conique
-
   { Name Guide_h_2D; Type FemEquation;
     Quantity {
-
       { Name Ht; Type Local; NameOfSpace H_arete; }
       { Name Hl; Type Local; NameOfSpace H_arete_perp; }
     }
@@ -235,7 +218,6 @@ Resolution {
   }
 }
 
-//*
 PostProcessing {
   { Name Guide_h_2D; NameOfFormulation Guide_h_2D; NameOfSystem A;
     Quantity {
@@ -251,12 +233,10 @@ PostProcessing {
       { Name htb1_2a;  Value{ Local{ [ {Ht}* Complex[c13, s13] * Complex[ca, sa]^2    ] ; In Tot; Jacobian JVol; } } }
       { Name ht2b ;    Value{ Local{ [ {Ht}* Complex[c13,-s13]^2                      ] ; In Tot; Jacobian JVol; } } }
       { Name ht2b1_2a; Value{ Local{ [ {Ht}* Complex[c13, s13]^2 * Complex[ca, sa]^2  ] ; In Tot; Jacobian JVol; } } }
-
-  //{ Name htp;  Value{ Local{ [ {Ht} * Complex[Cos[-KX*X[]-KY*Y[]],Sin[-KX*X[]-KY*Y[]]]]                 ; In Tot; Jacobian JVol; } } }
-  //{ Name htpx; Value{ Local{ [ {Ht} * Complex[Cos[-KX*(X[]+1)-KY*Y[]],Sin[-KX*(X[]+1)-KY*Y[]]]]         ; In Tot; Jacobian JVol; } } }
-  //{ Name htpy; Value{ Local{ [ {Ht} * Complex[Cos[-KX*X[]-KY*(Y[]-1)],Sin[-KX*X[]-KY*(Y[]-1)]]]         ; In Tot; Jacobian JVol; } } }
-  //{ Name htpxy;Value{ Local{ [ {Ht} * Complex[Cos[-KX*(X[]-1)-KY*(Y[]-1)],Sin[-KX*(X[]-1)-KY*(Y[]-1)]]] ; In Tot; Jacobian JVol; } } }
-
+      //{ Name htp;  Value{ Local{ [ {Ht} * Complex[Cos[-KX*X[]-KY*Y[]],Sin[-KX*X[]-KY*Y[]]]]                 ; In Tot; Jacobian JVol; } } }
+      //{ Name htpx; Value{ Local{ [ {Ht} * Complex[Cos[-KX*(X[]+1)-KY*Y[]],Sin[-KX*(X[]+1)-KY*Y[]]]]         ; In Tot; Jacobian JVol; } } }
+      //{ Name htpy; Value{ Local{ [ {Ht} * Complex[Cos[-KX*X[]-KY*(Y[]-1)],Sin[-KX*X[]-KY*(Y[]-1)]]]         ; In Tot; Jacobian JVol; } } }
+      //{ Name htpxy;Value{ Local{ [ {Ht} * Complex[Cos[-KX*(X[]-1)-KY*(Y[]-1)],Sin[-KX*(X[]-1)-KY*(Y[]-1)]]] ; In Tot; Jacobian JVol; } } }
       { Name hlz     ;  Value{ Local{ [ CompZ[{Hl}                                           ]] ; In Tot; Jacobian JVol; } } }
       { Name hlzb    ;  Value{ Local{ [ CompZ[{Hl}* Complex[c13,-s13]                        ]] ; In Tot; Jacobian JVol; } } }
       { Name hlza    ;  Value{ Local{ [ CompZ[{Hl}* Complex[ca , sa ]                        ]] ; In Tot; Jacobian JVol; } } }
@@ -266,17 +246,14 @@ PostProcessing {
       { Name hlzb1_2a;  Value{ Local{ [ CompZ[{Hl}* Complex[c13, s13] * Complex[ca, sa]^2    ]] ; In Tot; Jacobian JVol; } } }
       { Name hlz2b ;    Value{ Local{ [ CompZ[{Hl}* Complex[c13,-s13]^2                      ]] ; In Tot; Jacobian JVol; } } }
       { Name hlz2b1_2a; Value{ Local{ [ CompZ[{Hl}* Complex[c13, s13]^2 * Complex[ca, sa]^2  ]] ; In Tot; Jacobian JVol; } } }
-
-  //{ Name h;  Value{ Local{ [ {Ht}+{Hl} ] ; In Tot; Jacobian JVol; } } }
+      //{ Name h;  Value{ Local{ [ {Ht}+{Hl} ] ; In Tot; Jacobian JVol; } } }
     }
   }
 }
 
-
 PostOperation {
   { Name h; NameOfPostProcessing Guide_h_2D;
     Operation {
-
       //Print[ht,  OnElementsOf Tot , File   "DEDET.pos", Format Gmsh ] ;
       //Print[ht1, OnElementsOf Tot , File > "DEDET.pos", ChangeOfCoordinates {$X+s,$Y+c,$Z} ] ;
       //Print[htx, OnElementsOf Tot , File > "DEDET.pos", ChangeOfCoordinates {$X+1,$Y,$Z} ] ;
@@ -284,7 +261,6 @@ PostOperation {
       //Print[htxy,OnElementsOf Tot , File > "DEDET.pos", ChangeOfCoordinates {$X+1,$Y+1,$Z} ] ;
       //Print[htxx, OnElementsOf Tot , File > "DEDET.pos", ChangeOfCoordinates {$X+2,$Y,$Z} ] ;
       //Print[htxxy,OnElementsOf Tot , File > "DEDET.pos", ChangeOfCoordinates {$X+2,$Y+1,$Z} ] ;
-
 
       //Print[htp, OnElementsOf Tot , File   "DEDEP.pos" , Format Gmsh ] ;
       //Print[htp, OnElementsOf Tot , File > "DEDEP.pos" , ChangeOfCoordinates {$X+1,$Y,$Z}  ] ;
@@ -300,7 +276,6 @@ PostOperation {
       Print[ht2b, OnElementsOf Tot , File  "DEDET8.pos" , ChangeOfCoordinates {$X+2*s,$Y+2*c,$Z}, Depth -4 ] ;
       Print[ht2b1_2a, OnElementsOf Tot , File  "DEDET9.pos" , ChangeOfCoordinates {$X+2-2*s,$Y-2*c,$Z}, Depth -4 ] ;
 
-
       Print[hlz, OnElementsOf Tot , File "DEDEL1.pos" , Format Gmsh ] ;
       Print[hlzb, OnElementsOf Tot , File  "DEDEL2.pos" , ChangeOfCoordinates {$X+s,$Y+c,$Z} ] ;
       Print[hlza, OnElementsOf Tot , File  "DEDEL3.pos" , ChangeOfCoordinates {$X+1,$Y,$Z} ] ;
@@ -310,7 +285,6 @@ PostOperation {
       Print[hlzb1_2a, OnElementsOf Tot , File  "DEDEL7.pos" , ChangeOfCoordinates {$X+2-s,$Y-c,$Z} ] ;
       Print[hlz2b, OnElementsOf Tot , File  "DEDEL8.pos" , ChangeOfCoordinates {$X+2*s,$Y+2*c,$Z} ] ;
       Print[hlz2b1_2a, OnElementsOf Tot , File  "DEDEL9.pos" , ChangeOfCoordinates {$X+2-2*s,$Y-2*c,$Z} ] ;
-
     }
   }
 }
@@ -337,7 +311,6 @@ PostOperation {
       Print[hlzb1_2a, OnElementsOf Tot ,TimeStep mode, HarmonicToTime frames , File  "DEDEL7.pos" , ChangeOfCoordinates {$X+2-s,$Y-c,$Z} ] ;
       Print[hlz2b, OnElementsOf Tot ,TimeStep mode, HarmonicToTime frames , File  "DEDEL8.pos" , ChangeOfCoordinates {$X+2*s,$Y+2*c,$Z} ] ;
       Print[hlz2b1_2a, OnElementsOf Tot ,TimeStep mode, HarmonicToTime frames , File  "DEDEL9.pos" , ChangeOfCoordinates {$X+2-2*s,$Y-2*c,$Z} ] ;
-
     }
   }
 }
