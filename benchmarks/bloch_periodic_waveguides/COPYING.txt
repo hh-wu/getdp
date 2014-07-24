@@ -1,4 +1,6 @@
-Model developed by A. Nicolet, F. Zolla. Copyright (c) 2005-2014 Institut Fresnel.
+Model developed by A. Nicolet, F. Zolla and C. Geuzaine. Copyright (c) 2005-2014
+Institut Fresnel and Université de Liège.
+
 <!--
 
 Include full license here
