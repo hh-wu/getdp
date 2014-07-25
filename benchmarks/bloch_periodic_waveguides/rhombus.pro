@@ -18,10 +18,12 @@ Function {
 
   mode = 18;
   frames = 60;
+  nn = 40;
 
   DefineConstant[
-    nn = {40, Min 1, Max 100, Name "Number of points"},
-    ic = {0, Min 0, Max 3*nn-1, Step 1, Loop 1, Name "Step"}
+    ic = {0, Min 0, Max 3*nn-1, Step 1, Loop 1, Name "Input/Step"} ,
+    gam = {2., Choices{0, 1, 2, 4, 2*Pi}, Name "Input/Beta"} ,
+    nmodes = {20, Min 5, Max 100, Step 1, Name "Input/Modes"}
   ];
 
   /* tan pi/6 */
@@ -42,8 +44,6 @@ Function {
 
   KX = par1 * 2. * ta * Pi;
   KY = par2 * 2. * ta * Pi ;
-
-  DefineConstant[ gam = {2., Choices{0, 1, 2, 4, 2*Pi}, Name "beta"} ];
 
   dec = -0.01;
   If (gam == 0)
@@ -199,11 +199,11 @@ Formulation {
 Resolution {
   { Name Guide_h_2D_PVP;
     System {
-      { Name A; NameOfFormulation Guide_h_2D; Type Complex; Frequency 1.; }
+      { Name A; NameOfFormulation Guide_h_2D; Type Complex; }
     }
     Operation {
       CreateDir["res"] ;
-      GenerateSeparate[A];  EigenSolve[A, 20, decalage,0];
+      GenerateSeparate[A];  EigenSolve[A, nmodes, decalage, 0];
       SaveSolutions[A] ;
       PostOperation[plot] ;
     }
