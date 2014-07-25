@@ -1,5 +1,4 @@
 Model developed by A. Nicolet, F. Zolla and C. Geuzaine.
-
 <!--
 
 Include full license here
