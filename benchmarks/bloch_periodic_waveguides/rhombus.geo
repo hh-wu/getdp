@@ -60,4 +60,13 @@ Physical Line (122) = {4,5,6} ;
 Physical Line (123) = {7,8,9} ;
 Physical Line (124) = {10,11,12} ;
 
-View.IntervalsType = 1;
+// per timestep range
+View.RangeType = 3;
+
+// what to do when we double-click on a graph point
+PostProcessing.GraphPointCommand = "Merge Sprintf('res/h_%g.pos', PostProcessing.GraphPointX);
+l=PostProcessing.NbViews-1;
+If(l>1)
+  View[l-1].Visible=0;
+EndIf
+View[l].Time=PostProcessing.GraphPointY;";
