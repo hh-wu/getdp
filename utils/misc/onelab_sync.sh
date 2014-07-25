@@ -1,6 +1,6 @@
 #!/bin/sh
 
-SRC=../../benchmarks
+SRC=${HOME}/src/getdp/benchmarks
 DST=/onelab_files
 MODELS='machines relay inductor indheat magnetometer antennas acoustic_scattering time_reversal shielding waveguides transfo_simple ddm_wave_simple bloch_periodic_waveguides'
 
