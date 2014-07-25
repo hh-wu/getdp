@@ -29,18 +29,19 @@ Function {
 
   /* tan pi/6 */
   ta = 1./Sqrt[3.];
+  dk=1./nn;
 
   If(ic < nn)
-    par2 = 0.025*ic;
+    par2 = dk*ic;
     par1 = 0.0;
   EndIf
   If(ic >= nn && ic < 2 * nn)
     par2 = 1.;
-    par1 = 0.025 * ta * (ic - nn);
+    par1 = dk * ta * (ic - nn);
   EndIf
   If (ic >= 2 * nn && ic < 3 * nn)
-    par2 = 0.025 * (3 * nn - ic);
-    par1 = 0.025 * ta * (3 * nn - ic);
+    par2 = dk * (3 * nn - ic);
+    par1 = dk * ta * (3 * nn - ic);
   EndIf
 
   KX = par1 * 2. * ta * Pi;

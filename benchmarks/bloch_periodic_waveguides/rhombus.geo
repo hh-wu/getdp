@@ -3,7 +3,12 @@
 L=1.;
 //fill=0.45;
 //r=L*Sqrt(Sqrt(3.)*fill/(2*Pi));
-r=L*0.48;
+
+DefineConstant[
+  ratio = {0.48, Min 0.01, Max 0.499, Step 0.01, Name "Input/Circle relative size"}
+];
+//r=L*0.48;
+r=L*ratio;
 c=0.5; s=Sqrt(3.)*0.5;
 
 t=0.05;
