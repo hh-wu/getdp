@@ -1504,6 +1504,16 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
   default :
     Message::Error("Unknown format in Format_PostElement");
   }
+
+
+  if (PSO_P->SendToServer && strcmp(PSO_P->SendToServer, "No")){
+    if(PE->Value[0].Type == SCALAR)
+      Message::AddOnelabNumberChoice(PSO_P->SendToServer,
+                                     PE->Value[0].Val[0], PSO_P->Color);
+    else if(Message::UseOnelab())
+      Message::Warning("Cannot send non-scalar values to server (yet)");
+  }
+
 }
 
 

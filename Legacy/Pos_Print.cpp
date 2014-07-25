@@ -1100,14 +1100,6 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
 
     if (PSO_P->StoreInRegister >= 0)
       Cal_StoreInRegister(&PE->Value[0], PSO_P->StoreInRegister) ;
-    if (PSO_P->SendToServer &&
-        strcmp(PSO_P->SendToServer, "No")){
-      if(PE->Value[0].Type == SCALAR)
-        Message::AddOnelabNumberChoice(PSO_P->SendToServer,
-                                       PE->Value[0].Val[0], PSO_P->Color);
-      else if(Message::UseOnelab())
-        Message::Warning("Cannot send non-scalar values to server (yet)");
-    }
     break;
 
   case PRINT_ONGRID_1D :
