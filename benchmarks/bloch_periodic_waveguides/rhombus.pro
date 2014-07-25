@@ -15,6 +15,7 @@ Function {
   epsilonr[guide] = epsr;
   epsilonr[diel] = 1.0;
   mur[] = 1.0;
+  EZ[] = Vector[0,0,1] ;
 
   mode = 18;
   frames = 60;
@@ -69,12 +70,9 @@ Function {
   // shift for eigenvalue algorithm
   decalage = gam * gam / epsr + dec;
 
-  // vector for LinkCplx constraint
-  EZ[] = Vector[0,0,1] ;
-
+  // for LinkCplx constraint
   L = 1.;
   s = L/2.; c = Sqrt[3.] * L / 2.;
-
   c13 = Cos[- KX*s - KY*c];
   s13 = Sin[- KX*s - KY*c];
   c24 = Cos[  KX*s - KY*c];
