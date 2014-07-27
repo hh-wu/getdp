@@ -5,7 +5,7 @@ L=1.;
 //r=L*Sqrt(Sqrt(3.)*fill/(2*Pi));
 
 DefineConstant[
-  ratio = {0.48, Min 0.01, Max 0.499, Step 0.01, Name "Input/Circle relative size"}
+  ratio = {0.48, Min 0.01, Max 0.499, Step 0.01, Name "Input/Relative circle size"}
 ];
 //r=L*0.48;
 r=L*ratio;

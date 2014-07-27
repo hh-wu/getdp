@@ -19,12 +19,13 @@ Function {
 
   mode = 18;
   frames = 60;
-  nn = 40;
 
   DefineConstant[
-    ic = {0, Min 0, Max 3*nn-1, Step 1, Loop 1, Name "Input/Step"} ,
+    nn = {40, Min 1, Max 100, Step 1, Name "Input/Number of points (N)"},
+    ic = {0, Min 0, Max 3*nn-1, Step 1, Loop 1, ReadOnlyRange 1,
+          Name "Input/Sol. step (in [0,3N-1])"} ,
     gam = {2., Choices{0, 1, 2, 4, 2*Pi}, Name "Input/Beta"} ,
-    nmodes = {20, Min 5, Max 100, Step 1, Name "Input/Modes"}
+    nmodes = {20, Min 5, Max 100, Step 1, Name "Input/Number of modes"}
   ];
 
   /* tan pi/6 */
@@ -43,9 +44,6 @@ Function {
     par2 = dk * (3 * nn - ic);
     par1 = dk * ta * (3 * nn - ic);
   EndIf
-
-  KX = par1 * 2. * ta * Pi;
-  KY = par2 * 2. * ta * Pi ;
 
   dec = -0.01;
   If (gam == 0)
@@ -68,8 +66,11 @@ Function {
 
   gamma[] = gam;
 
-  // shift for eigenvalue algorithm
-  decalage = gam * gam / epsr + dec;
+  DefineConstant[
+    KX = {par1 * 2. * ta * Pi, ReadOnly 1, Name "Ouput/KX"},
+    KY = {par2 * 2. * ta * Pi, ReadOnly 1, Name "Ouput/KY"},
+    decalage = {gam * gam / epsr + dec, ReadOnly 1, Name "Ouput/Eigensolver shift"}
+  ];
 
   // for LinkCplx constraint
   L = 1.;
