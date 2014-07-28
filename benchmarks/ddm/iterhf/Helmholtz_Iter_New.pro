@@ -370,11 +370,12 @@ Formulation {
 
 }
 
+
 Resolution {
 
   { Name Wave_Dirichlet~{iSub} ;
     System {
-      { Name A ; NameOfFormulation Wave_Dirichlet~{iSub} ; Type Complex;  NameOfMesh "circles_fine_for_Full.msh";}
+      { Name A ; NameOfFormulation Wave_Dirichlet~{iSub} ; Type Complex;  NameOfMesh myMeshForFull;}
     }
     Operation {
       If (iSub == 0)
@@ -541,7 +542,13 @@ fileExt = Str[ Sprintf("%g", iSub) ]; // Total problem
 PostOperation {
   { Name u~{iSub} ; NameOfPostProcessing Wave_Dirichlet~{iSub};
     Operation {
-      Print[ u, OnElementsOf #{Omega~{iSub},-FilledHole~{iSub}, -Sigma}, File StrCat[ StrCat["u", fileExt], ".pos"] ] ;
+      // Print[ u, OnElementsOf #{Omega~{iSub},-FilledHole~{iSub}, -Sigma}, File StrCat[ StrCat["u", fileExt], ".pos"] ] ;
+      If (iSub > 0)
+	Print[ u, OnElementsOf #{Omega~{iSub},-FilledHole~{iSub}, -Sigma}, File StrCat[ StrCat["u", fileExt], ".pos"] ] ;
+      EndIf
+      If (iSub == 0)
+	Print[ u, OnElementsOf #{Omega~{iSub},-FilledHole~{iSub}, -Sigma}, File myFullSolFname ] ;
+      EndIf
     }
   }
   { Name u_A~{iSub} ; NameOfPostProcessing Wave_Dirichlet_A~{iSub};

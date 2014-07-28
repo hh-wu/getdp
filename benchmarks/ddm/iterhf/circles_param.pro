@@ -21,7 +21,16 @@ lcExp = 3 ;
 
 // nlambda = 30 ;
 // nlambda_ref = 60 ;
+theta = Pi/6; // rotation angle of the circles
 
+If (computeOnFine)
+myMeshForFull = "circles_fine_for_Full.msh";
+myFullSolFname = "u0_fine.pos";
+EndIf
+If (!computeOnFine)
+myMeshForFull = "circles_New.msh";
+myFullSolFname = "u0_coarse.pos";
+EndIf
 
 Flag_Field = 1 ;
 Flag_Quinconce = 0;

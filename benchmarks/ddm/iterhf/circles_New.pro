@@ -33,8 +33,10 @@ Function {
   If (!Flag_Quinconce)
   For t1 In {1:Nh}
     For t2 In {1:Nv}
-      xaux = (t1-1)*(2*R0+distx)-xcen ;
-      yaux = (t2-1)*(2*R0+disty)-ycen ;
+      // xaux = (t1-1)*(2*R0+distx)-xcen ;
+      // yaux = (t2-1)*(2*R0+disty)-ycen ;
+    xaux = ((t1-1)*(2*R0+distx)-xcen)*Cos[theta] + ((t2-1)*(2*R0+disty)-ycen)*Sin[theta];    
+yaux = ((t2-1)*(2*R0+disty)-ycen)*Cos[theta] - ((t1-1)*(2*R0+distx)-xcen)*Sin[theta] ;
       cx~{ii} = xaux; cy~{ii} = yaux; cz~{ii} = 0.; // coordinates of center
       px~{ii} = xaux+R0*Cos[phi0]; py~{ii} = yaux+R0*Sin[phi0] ; pz~{ii} = 0.; // coordinates of an arbitrary boundary point
       Printf("%g bnd pnt %g %g %g", ii, px~{ii},py~{ii},pz~{ii});

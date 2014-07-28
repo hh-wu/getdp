@@ -29,8 +29,8 @@ Scc[] = {} ; llScc[]={}; ppEpsilon[] = {};
 For t1 In {1:Nh} 
   For t2 In {1:Nv} 
   //If(t1==t2 ||t1<t2 )
-    xaux = (t1-1)*(2*R0+distx)-xcen ;    
-    yaux = (t2-1)*(2*R0+disty)-ycen ;
+xaux = ((t1-1)*(2*R0+distx)-xcen)*Cos(theta) + ((t2-1)*(2*R0+disty)-ycen)*Sin(theta);    
+yaux = ((t2-1)*(2*R0+disty)-ycen)*Cos(theta) - ((t1-1)*(2*R0+distx)-xcen)*Sin(theta) ;
     If (Flag_Quinconce && (t2 % 2))
       xaux += R0+distx/2;
     EndIf
