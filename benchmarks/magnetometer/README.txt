@@ -7,7 +7,15 @@ Xylophone bar magnetometer.
 [[Category:Thermics]]
 
 <!--
-3D model of a xylophone bar magnetometer.
 
+Quick start
+-----------
+
+Open `magnetometer.pro' with Gmsh.
+
+Additional info
+---------------
+
+See http://onelab.info/wiki/Magnetometer
 
 -->

@@ -6,5 +6,14 @@
 
 <!--
 
+Quick start
+-----------
+
+Open `scattering.pro' with Gmsh.
+
+Additional info
+---------------
+
+See http://onelab.info/wiki/Acoustic_Scattering
 
 -->

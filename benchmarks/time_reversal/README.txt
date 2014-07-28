@@ -6,5 +6,14 @@
 
 <!--
 
+Quick start
+-----------
+
+Open `TR.pro' with Gmsh.
+
+Additional info
+---------------
+
+See http://onelab.info/wiki/Time_reversal
 
 -->

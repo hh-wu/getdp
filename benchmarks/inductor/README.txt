@@ -6,8 +6,14 @@
 
 <!--
 
-Open inductor.pro
+Quick start
+-----------
 
-Link to FEMM model
+Open `inductor.pro' with Gmsh.
+
+Additional info
+---------------
+
+See http://onelab.info/wiki/Inductor
 
 -->
