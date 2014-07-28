@@ -21,11 +21,11 @@ Function {
   frames = 60;
 
   DefineConstant[
-    nn = {40, Min 1, Max 100, Step 1, Name "Input/Number of points (N)"},
+    nn = {40, Min 1, Max 100, Step 1, Name "Parameters/1Number of points (N)"},
     ic = {0, Min 0, Max 3*nn-1, Step 1, Loop 1, ReadOnlyRange 1,
-          Name "Input/Sol. step (in [0,3N-1])"} ,
-    gam = {2., Choices{0, 1, 2, 4, 2*Pi}, Name "Input/Beta"} ,
-    nmodes = {20, Min 5, Max 100, Step 1, Name "Input/Number of modes"}
+      Name "Parameters/1Sol. step (in [0,3N-1])"} ,
+    gam = {2., Choices{0, 1, 2, 4, 2*Pi}, Name "Parameters/1Beta"} ,
+    nmodes = {20, Min 5, Max 100, Step 1, Name "Parameters/1Number of modes"}
   ];
 
   /* tan pi/6 */
@@ -67,9 +67,12 @@ Function {
   gamma[] = gam;
 
   DefineConstant[
-    KX = {par1 * 2. * ta * Pi, ReadOnly 1, Name "Ouput/KX"},
-    KY = {par2 * 2. * ta * Pi, ReadOnly 1, Name "Ouput/KY"},
-    decalage = {gam * gam / epsr + dec, ReadOnly 1, Name "Ouput/Eigensolver shift"}
+    KX = {par1 * 2. * ta * Pi, ReadOnly 1, Name "Parameters/KX",
+      Highlight "AliceBlue"},
+    KY = {par2 * 2. * ta * Pi, ReadOnly 1, Name "Parameters/KY",
+      Highlight "AliceBlue"},
+    decalage = {gam * gam / epsr + dec, ReadOnly 1, Name "Parameters/Eigensolver shift",
+      Highlight "AliceBlue"}
   ];
 
   // for LinkCplx constraint
