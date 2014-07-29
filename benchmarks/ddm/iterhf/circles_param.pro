@@ -21,7 +21,7 @@ lcExp = 3 ;
 
 // nlambda = 30 ;
 // nlambda_ref = 60 ;
-theta = Pi/6; // rotation angle of the circles
+theta = 0*Pi/6; // rotation angle of the circles
 
 If (computeOnFine)
 myMeshForFull = "circles_fine_for_Full.msh";
@@ -51,7 +51,7 @@ distx = R0;
 dist = (distx>disty)?distx:disty;
 
 MaxN = (Nh>Nv)?Nh:Nv;
-Ro = 0.65*MaxN*(2*R0+dist) ;
+Ro = 0.65*MaxN*(2*R0+dist)/.65 ;
 //Ro = MaxN*(R0+dist/2)-dist/2 + R0 ;
 
 lambda = 2*Pi/k ;
