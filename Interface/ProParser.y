@@ -231,7 +231,7 @@ struct doubleXstring{
 %token        tIn
 %token        tFull_Matrix
 
-%token  tResolution
+%token  tResolution tHidden
 %token    tDefineSystem
 %token      tNameOfFormulation tNameOfMesh tFrequency tSolver
 %token      tOriginSystem tDestinationSystem
@@ -3743,7 +3743,9 @@ Resolution :
 
     /* none */
     {
-      Resolution_S.Name = NULL; Resolution_S.DefineSystem = NULL;
+      Resolution_S.Name = NULL;
+      Resolution_S.Hidden = false;
+      Resolution_S.DefineSystem = NULL;
       Resolution_S.Operation = NULL;
     }
 
@@ -3759,6 +3761,8 @@ ResolutionTerm :
 				 $2, fcmp_Resolution_Name);
       Resolution_S.Name = $2;
     }
+
+  | tHidden FExpr tEND { Resolution_S.Hidden = $2 ? true : false; }
 
   | tDefineSystem  '{' DefineSystems '}'
     { Resolution_S.DefineSystem = $3; }
@@ -5736,6 +5740,7 @@ PostOperation :
     /* none */
     {
       PostOperation_S.Name = NULL;
+      PostOperation_S.Hidden = false;
       PostOperation_S.AppendString = NULL;
       PostOperation_S.Format = FORMAT_GMSH;
       PostOperation_S.PostProcessingIndex = -1;
@@ -5752,6 +5757,8 @@ PostOperationTerm :
 				 $2, fcmp_PostOperation_Name);
       PostOperation_S.Name = $2;
     }
+
+  | tHidden FExpr tEND { PostOperation_S.Hidden = $2 ? true : false; }
 
   | tNameOfPostProcessing String__Index tEND
     {

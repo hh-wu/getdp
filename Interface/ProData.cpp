@@ -1745,24 +1745,26 @@ void  Print_ProblemStructure()
 void Print_ListResolution(int choose, int Flag_LRES, char **name)
 {
   struct Resolution *RE;
-  int    i, Nbr, ichoice = 0;
+  int    ichoice = 0;
   char   buff[128];
   bool   print = (!choose || (!Message::UseSocket() && !Message::UseOnelab()));
 
-  if((Nbr = List_Nbr(Problem_S.Resolution))){
+  std::vector<std::string> choices;
+  for (int i = 0; i < List_Nbr(Problem_S.Resolution); i++) {
+    RE = (struct Resolution*)List_Pointer(Problem_S.Resolution, i);
+    if(!RE->Hidden) choices.push_back(RE->Name);
+  }
+
+  if(choices.size()){
     if(Flag_LRES < 0){
       ichoice = - Flag_LRES;
     }
     else{
       if(print) Message::Info("Available Resolutions");
-      std::vector<std::string> choices;
-      for (i = 0; i < Nbr; i++) {
-	RE = (struct Resolution*)List_Pointer(Problem_S.Resolution, i);
-	if(print) Message::Direct("(%d) %s", i+1, RE->Name);
-	if(Message::UseSocket()) Message::SendOptionOnSocket(1, RE->Name);
-        choices.push_back(RE->Name);
+      for (unsigned i = 0; i < choices.size(); i++) {
+        if(print) Message::Direct("(%d) %s", i + 1, choices[i].c_str());
+        if(Message::UseSocket()) Message::SendOptionOnSocket(1, choices[i].c_str());
       }
-
       if(Message::UseOnelab() && choices.size()){
         Constant c;
         c.Name = (char*)"ResolutionChoices";
@@ -1779,16 +1781,14 @@ void Print_ListResolution(int choose, int Flag_LRES, char **name)
           return;
         }
       }
-
       if(choose){
 	Message::Check("Choice: ");
 	fgets(buff, 128, stdin);
 	ichoice = atoi(buff);
       }
     }
-    if(ichoice > 0 && ichoice < Nbr+1){
-      RE = (struct Resolution*)List_Pointer(Problem_S.Resolution, ichoice-1);
-      *name = strSave(RE->Name);
+    if(ichoice > 0 && ichoice < choices.size() + 1){
+      *name = strSave(choices[ichoice - 1].c_str());
       return;
     }
     else if(choose)
@@ -1809,22 +1809,25 @@ static std::string removeWhiteSpace(const std::string &s)
 void Print_ListPostOperation(int choose, int Flag_LPOS, char *name[NBR_MAX_POS])
 {
   struct PostOperation *PO;
-  int    i, Nbr, ichoice = 0;
+  int    ichoice = 0;
   char   buff[128];
   bool   print = (!choose || (!Message::UseSocket() && !Message::UseOnelab()));
 
-  if((Nbr = List_Nbr(Problem_S.PostOperation))){
+  std::vector<std::string> choices;
+  for (int i = 0; i < List_Nbr(Problem_S.PostOperation); i++) {
+    PO = (struct PostOperation*)List_Pointer(Problem_S.PostOperation, i);
+    if(!PO->Hidden) choices.push_back(PO->Name);
+  }
+
+  if(choices.size()){
     if(Flag_LPOS < 0){
       ichoice = - Flag_LPOS;
     }
     else{
       if(print) Message::Info("Available PostOperations");
-      std::vector<std::string> choices;
-      for (i = 0; i < Nbr; i++) {
-	PO = (struct PostOperation*)List_Pointer(Problem_S.PostOperation, i);
-	if(print) Message::Direct("(%d) %s", i+1, PO->Name);
-	if(Message::UseSocket()) Message::SendOptionOnSocket(2, PO->Name);
-        choices.push_back(PO->Name);
+      for (unsigned i = 0; i < choices.size(); i++) {
+	if(print) Message::Direct("(%d) %s", i + 1, choices[i].c_str());
+	if(Message::UseSocket()) Message::SendOptionOnSocket(2, choices[i].c_str());
       }
 
       if(Message::UseOnelab() && choices.size()){
@@ -1862,9 +1865,8 @@ void Print_ListPostOperation(int choose, int Flag_LPOS, char *name[NBR_MAX_POS])
 	ichoice = atoi(buff);
       }
     }
-    if(ichoice > 0 && ichoice < Nbr+1){
-      PO = (struct PostOperation*)List_Pointer(Problem_S.PostOperation, ichoice-1);
-      name[0] = strSave(PO->Name);
+    if(ichoice > 0 && ichoice < choices.size() + 1){
+      name[0] = strSave(choices[ichoice].c_str());
       name[1] = NULL;
       return;
     }

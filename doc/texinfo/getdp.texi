@@ -2620,7 +2620,7 @@ and a list of elementary operations:
 
 @example
 Resolution @{
-  @{ Name @var{resolution-id}; 
+  @{ Name @var{resolution-id}; < Hidden @var{expression-cst}; >
     System @{ 
       @{ Name @var{system-id}; NameOfFormulation @var{formulation-list}; 
         < Type @var{system-type}; >
@@ -2812,6 +2812,7 @@ user-defined plane, etc.), and outputs the results in several file formats.
 @example
 PostOperation @{
   @{ Name @var{post-operation-id}; NameOfPostProcessing @var{post-processing-id}; 
+    < Hidden @var{expression-cst}; >
     < Format @var{post-operation-fmt}; > < Append @var{expression-char}; >
     < ResampleTime[@var{expression-cst}, @var{expression-cst}, @var{expression-cst}]; >
     Operation @{ 

@@ -853,6 +853,7 @@ struct WholeQuantity {
 
 struct Resolution {
   char    *Name;
+  bool     Hidden;
   List_T  *DefineSystem, *Operation;
 };
 
@@ -1267,6 +1268,7 @@ struct PostQuantityTerm {
 
 struct PostOperation {
   char    *Name, *AppendString;
+  bool     Hidden;
   int      PostProcessingIndex, Format;
   List_T  *PostSubOperation;
   int      Rank;
