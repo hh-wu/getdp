@@ -1,14 +1,8 @@
-Include "waveguide3d_data.geo";
+Include "sphere_concentric_data.geo";
 
 DefineConstant[ // allows to set these from outside
-  // type of walls
-  WALLS = {0, Name "Input/05Walls",
-    Choices {0="Transparent", 1="Metallic"}},
-  // excitation mode
-  MODE_M = {1, Name "Input/05m"}, // y
-  MODE_N = {1, Name "Input/05n"}, // z
   // transmission boundary condition
-  TC_TYPE = {0, Name "Input/01Transmission condition",
+  TC_TYPE = {2, Name "Input/01Transmission condition",
     Choices {0="Order 0", 1="Order 2", 2="Pade (OSRC)"}},
   NP_OSRC = 4,
   // parameters for the DDM iterative solver
@@ -31,26 +25,19 @@ Function {
   omega[] = c*k[] ;
   mu[] = mu0 ;
 
-  ky = MODE_M*Pi/DY ;
-  kz = MODE_N*Pi/DZ ;
-  kc = Sqrt[ky^2+kz^2] ;
-  beta[] = ( -kc^2 + k[]^2 >=0 ? Sqrt[-kc^2 + k[]^2] : -I[]*Sqrt[kc^2 - k[]^2] ) ;
+  // for Helmholtz
+  uinc[] = Complex[ Cos[-k*Z[]], Sin[-k*Z[]] ];
 
-  // for TM mode
-  einc[] = Vector[ Sin[ky*Y[]]*Sin[kz*Z[]],
-                   I[]*beta[]*ky/kc^2*Cos[ky*Y[]]*Sin[kz*Z[]],
-                   I[]*beta[]*kz/kc^2*Cos[kz*Z[]]*Sin[ky*Y[]] ];
-
-  // for acoustic
-  uinc[] = Sin[ky*Y[]]*Sin[kz*Z[]];
+  // for Maxwell
+  einc[] = Vector[1,0,0] * Complex[ Cos[-k*Z[]], Sin[-k*Z[]] ];
 
   // parameter for ABC
   kInf[] = k;
-  alphaBT[] = 0; //1/(2*R_EXT) - I[]/(8*k*R_EXT^2*(1+I[]/(k*R_EXT)));
-  betaBT[] = 0; // -1/(2*I[]*k); //- 1/(2*I[]*k*(1+I[]/(k*R_EXT)));
+  alphaBT[] = 1/(2*R_EXT) - I[]/(8*k*R_EXT^2*(1+I[]/(k*R_EXT)));
+  betaBT[] = - 1/(2*I[]*k*(1+I[]/(k*R_EXT)));
 
   // parameter for 0th order TC
-  kDtN[] = k;
+  kDtN[] = k + (2*Pi /-I[]);
 
   // parameters for 2nd order TC
   // J.-F. Lee
@@ -75,35 +62,30 @@ Function {
 
 Group{
   For idom In {0:N_DOM-1}
-    Omega~{idom} = Region[( 6000 + idom + 1 )];
+    Omega~{idom} = Region[( 6001 + idom )];
     GammaD0~{idom} = Region[{}];
-    If(WALLS == 1)
-      GammaD0~{idom} += Region[{(3000 + idom + 1)}];
-    EndIf
-    GammaInf~{idom} = Region[{}];
-    If(WALLS == 0)
-      GammaInf~{idom} += Region[{(3000 + idom + 1)}];
-    EndIf
     GammaN~{idom} = Region[{}];
 
-    If (idom == 0)
+    If(idom == 0)
       Sigma~{idom}~{0} = Region[{}];
-      Sigma~{idom}~{1} = Region[{(1000*(idom+5))}];
-      GammaD~{idom} = Region[{(1000 + idom + 1)}];
+      Sigma~{idom}~{1} = Region[{5000}];
+      GammaD~{idom} = Region[{1001}];
+      GammaInf~{idom} = Region[{}];
     EndIf
-    If (idom == N_DOM-1)
-      Sigma~{idom}~{0} = Region[{(1000*(idom+4))}];
+    If(idom == N_DOM-1)
+      Sigma~{idom}~{0} = Region[{(1000*(4+idom))}];
       Sigma~{idom}~{1} = Region[{}];
-      GammaInf~{idom} += Region[{(2000 + idom +1)}];
       GammaD~{idom} = Region[{}];
+      GammaInf~{idom} = Region[{(2000+N_DOM)}];
     EndIf
-    If (idom >= 1 && idom < N_DOM-1)
-      Sigma~{idom}~{0} = Region[{(1000*(idom+4))}];
-      Sigma~{idom}~{1} = Region[{(1000*(idom+5))}];
+    If(idom > 0 && idom < N_DOM-1)
+      Sigma~{idom}~{0} = Region[{(1000*(4+idom))}];
+      Sigma~{idom}~{1} = Region[{(1000*(5+idom))}];
       GammaD~{idom} = Region[{}];
+      GammaInf~{idom} = Region[{}];
     EndIf
 
-    Sigma~{idom} = Region[{Sigma~{idom}~{0}, Sigma~{idom}~{1}}] ;
+    Sigma~{idom} = Region[{Sigma~{idom}~{0}, Sigma~{idom}~{1}}];
 
     BndSigma~{idom}~{0} = Region[{}];
     BndSigma~{idom}~{1} = Region[{}];

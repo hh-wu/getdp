@@ -1,9 +1,6 @@
 Include "circle_pie_data.geo";
 
 DefineConstant[ // allows to set these from outside
-  // Analysis type
-  ANALYSIS = {0, Name "Input/00Type of analysis", ReadOnly 1,
-    Choices {0="Helmholtz", 1="Maxwell"}},
   // transmission boundary condition
   TC_TYPE = {2, Name "Input/01Transmission condition",
     Choices {0="Order 0", 1="Order 2", 2="Pade (OSRC)"}},
@@ -14,32 +11,6 @@ DefineConstant[ // allows to set these from outside
   MAXIT = 1000,
   RESTART = MAXIT
 ];
-
-Group{
-  For idom In {0:N_DOM-1}
-    Omega~{idom} = Region[(idom)];
-    GammaD0~{idom} = Region[{}];
-    GammaD~{idom} = Region[{(1000 + idom)}];
-    GammaN~{idom} = Region[{}];
-    GammaInf~{idom} = Region[{(2000 + idom)}];
-
-    Sigma~{idom}~{0} = Region[{(3000 + idom)}]; // left boundary (if looking to the center from infinity)
-    Sigma~{idom}~{1} = Region[{(4000 + idom)}]; // right boundary
-    Sigma~{idom} = Region[{Sigma~{idom}~{0}, Sigma~{idom}~{1}}] ;
-
-    BndGammaD~{idom}~{0} = Region[{(5000 + idom)}];
-    BndGammaD~{idom}~{1} = Region[{}];
-    BndGammaD~{idom} = Region[{BndGammaD~{idom}~{0}, BndGammaD~{idom}~{1}}] ;
-
-    BndGammaInf~{idom}~{0} = Region[{(6000 + idom)}];
-    BndGammaInf~{idom}~{1} = Region[{}];
-    BndGammaInf~{idom} = Region[{BndGammaInf~{idom}~{0}, BndGammaInf~{idom}~{1}}] ;
-
-    BndSigma~{idom}~{0} = Region[{(7000 + idom)}];
-    BndSigma~{idom}~{1} = Region[{(8000 + idom)}];
-    BndSigma~{idom} = Region[{BndSigma~{idom}~{0}, BndSigma~{idom}~{1}}] ;
-  EndFor
-}
 
 Function {
   I[] = Complex[0, 1];
@@ -75,6 +46,32 @@ Function {
   kepsI = 0.;
   keps[] = k*(1+kepsI*I[]);
   theta_branch = Pi/4;
+}
+
+Group{
+  For idom In {0:N_DOM-1}
+    Omega~{idom} = Region[(idom)];
+    GammaD0~{idom} = Region[{}];
+    GammaD~{idom} = Region[{(1000 + idom)}];
+    GammaN~{idom} = Region[{}];
+    GammaInf~{idom} = Region[{(2000 + idom)}];
+
+    Sigma~{idom}~{0} = Region[{(3000 + idom)}]; // left boundary (if looking to the center from infinity)
+    Sigma~{idom}~{1} = Region[{(4000 + idom)}]; // right boundary
+    Sigma~{idom} = Region[{Sigma~{idom}~{0}, Sigma~{idom}~{1}}] ;
+
+    BndGammaD~{idom}~{0} = Region[{(5000 + idom)}];
+    BndGammaD~{idom}~{1} = Region[{}];
+    BndGammaD~{idom} = Region[{BndGammaD~{idom}~{0}, BndGammaD~{idom}~{1}}] ;
+
+    BndGammaInf~{idom}~{0} = Region[{(6000 + idom)}];
+    BndGammaInf~{idom}~{1} = Region[{}];
+    BndGammaInf~{idom} = Region[{BndGammaInf~{idom}~{0}, BndGammaInf~{idom}~{1}}] ;
+
+    BndSigma~{idom}~{0} = Region[{(7000 + idom)}];
+    BndSigma~{idom}~{1} = Region[{(8000 + idom)}];
+    BndSigma~{idom} = Region[{BndSigma~{idom}~{0}, BndSigma~{idom}~{1}}] ;
+  EndFor
 }
 
 Function{

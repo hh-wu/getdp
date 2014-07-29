@@ -1,27 +1,30 @@
-#!/bin/sh
+#!/bin/bash
 
 #PROBLEM="waveguide3D"
 #PROBLEM="circle_pie"
-PROBLEM="circle_concentric"
+#PROBLEM="circle_concentric"
+PROBLEM="sphere_concentric"
 
 OPT="-setnumber ANALYSIS 0
-     -setnumber N_DOM 10
+     -setnumber N_DOM 2
+     -setnumber WAVENUMBER 2
      -setnumber N_LAMBDA 10
      -setnumber TC_TYPE 2"
 
-# for waveguide
 OPT_waveguide3D="-setnumber WALLS 0
-                 -setnumber DX 4"
-
-# for circle domain with a "pie-type" decomposition
+                 -setnumber DX 4
+                 -setnumber DY 1
+                 -setnumber DZ 1"
 OPT_circle_pie="-setnumber R_INT 1
                 -setnumber R_EXT 5"
-
-# for circle domain with a concentric circles decomposition
 OPT_circle_concentric=$OPT_circle_pie
+OPT_sphere_concentric="-setnumber R_INT 1
+                       -setnumber R_EXT 2"
 
-GMSH="$HOME/src/gmsh/bin/gmsh $OPT $OPT_${PROBLEM} -v 3 -bin"
-GETDP="$HOME/src/getdp/bin/getdp $OPT $OPT_${PROBLEM} -v 3 -bin"
+OPT2=OPT_$PROBLEM
+
+GMSH="$HOME/src/gmsh/bin/gmsh $OPT ${!OPT2} -v 3 -bin"
+GETDP="$HOME/src/getdp/bin/getdp $OPT ${!OPT2} -v 3 -bin"
 
 FILE="$HOME/src/getdp/benchmarks/ddm_wave_simple/${PROBLEM}"
 
