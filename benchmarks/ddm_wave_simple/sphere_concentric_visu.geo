@@ -13,6 +13,13 @@ EndFor
 Combine ElementsFromVisibleViews;
 
 General.Trackball = 0;
-General.RotationX = 30 ;
-General.RotationY = 30 ;
+General.RotationX = 0 ;
+General.RotationY = 90 ;
 General.RotationZ = 0 ;
+View.IntervalsType = 1;
+View.Clip = 1;
+If(ANALYSIS == 1)
+  General.ClipOnlyDrawIntersectingVolume = 1;
+  General.ClipWholeElements = 1;
+EndIf
+

@@ -5,9 +5,9 @@
 #PROBLEM="circle_concentric"
 PROBLEM="sphere_concentric"
 
-OPT="-setnumber ANALYSIS 0
+OPT="-setnumber ANALYSIS 1
      -setnumber N_DOM 2
-     -setnumber WAVENUMBER 2
+     -setnumber WAVENUMBER 4
      -setnumber N_LAMBDA 10
      -setnumber TC_TYPE 2"
 
