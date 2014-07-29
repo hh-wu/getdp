@@ -245,7 +245,7 @@ Formulation {
 
 Resolution {
 
-  { Name Microwave_e_BC;
+  { Name Microwave_e_BC; Hidden 1;
     System {
       { Name B; NameOfFormulation Microwave_e_BC; DestinationSystem A; }
     }

@@ -1,10 +1,10 @@
 // Shunt capacitive MEM switch
 
-pp  = "1Geometric dimensions/0";
+pp  = "Input/1Geometric dimensions/0";
 pp1 = StrCat[pp, "1Upper electrode (with holes)/"];
 pp2 = StrCat[pp, "2Lower electrode/"];
-ppEM = "2Electromagnetic parameters/0";
-ppMec = "3Mechanical parameters/0";
+ppEM = "Input/2Electromagnetic parameters/0";
+ppMec = "Input/3Mechanical parameters/0";
 
 close_menu = 1;
 colorro    = "LightGrey";

@@ -1,5 +1,5 @@
-pp  = "1Geometric dimensions/0";
-ppEM  = "2Electromagnetic parameters/0";
+pp  = "Input/1Geometric dimensions/0";
+ppEM  = "Input/2Electromagnetic parameters/0";
 
 close_menu = 0;
 colorro  = "LightGrey";

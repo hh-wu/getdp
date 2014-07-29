@@ -10,7 +10,7 @@ DefineConstant[
       2="magnetodynamics + electrostatics",
       3="full wave"
     },
-    Name "Input/20Type of analysis", Highlight "Blue",
+    Name "Input/00Type of analysis", Highlight "Blue",
     Help Str["- Use 'electrikinetics + electrostatics' to compute C",
       "- Use 'magnetodynamics' to compute R \& L",
       "- Use 'magnetodynamics + electrostatics' to compute R, L \& C",
