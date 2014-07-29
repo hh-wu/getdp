@@ -6,17 +6,18 @@ PROBLEM="circle_concentric"
 
 OPT="-setnumber ANALYSIS 0
      -setnumber N_DOM 10
-     -setnumber N_LAMBDA 10"
+     -setnumber N_LAMBDA 10
+     -setnumber TC_TYPE 2"
 
-#for waveguide
-OPT_waveguide3D="
-     -setnumber WALLS 0
-     -setnumber DX 4"
-#for circle domain with a "pie-type" decomposition
-OPT_circle_pie="
-     -setnumber R_INT 1
-     -setnumber R_EXT 5"
-#for circle domain with a concentric circles decomposition
+# for waveguide
+OPT_waveguide3D="-setnumber WALLS 0
+                 -setnumber DX 4"
+
+# for circle domain with a "pie-type" decomposition
+OPT_circle_pie="-setnumber R_INT 1
+                -setnumber R_EXT 5"
+
+# for circle domain with a concentric circles decomposition
 OPT_circle_concentric=$OPT_circle_pie
 
 GMSH="$HOME/src/gmsh/bin/gmsh $OPT $OPT_${PROBLEM} -v 3 -bin"

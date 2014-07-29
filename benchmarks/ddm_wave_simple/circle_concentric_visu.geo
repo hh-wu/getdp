@@ -1,4 +1,4 @@
-Include "circle_pie_data.geo";
+Include "circle_concentric_data.geo";
 
 If(ANALYSIS == 0)
   name = "u";
