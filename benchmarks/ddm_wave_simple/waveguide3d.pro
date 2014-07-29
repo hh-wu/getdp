@@ -71,7 +71,6 @@ Function {
   b[] = - 1 / (alphastar[] + betastar[]);
 
   // parameters for Pade-type TC
-  kappa[] = 1;
   kepsI = 0.;
   keps[] = k*(1+kepsI*I[]);
   theta_branch = Pi/4;

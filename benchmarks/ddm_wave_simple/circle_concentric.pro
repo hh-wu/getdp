@@ -87,7 +87,6 @@ Function {
   b[] = - 1 / (alphastar[] + betastar[]);
 
   // parameters for Pade-type TC
-  kappa[] = 1;
   kepsI = 0.;
   keps[] = Complex[ k, 0.4 * k^(1/3) * Norm[XYZ[]]^(-2/3) ];
   theta_branch = Pi/4;
