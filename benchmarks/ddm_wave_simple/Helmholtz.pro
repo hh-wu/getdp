@@ -125,14 +125,14 @@ Formulation {
         EndIf
 
         If(TC_TYPE == 2)
-          Galerkin { [  - I[] * kDtN[] * OSRC_C0[]{NP_OSRC,theta_branch} * Dof{u~{idom}} , {u~{idom}} ] ;
+          Galerkin { [  - I[] * k[] * OSRC_C0[]{NP_OSRC,theta_branch} * Dof{u~{idom}} , {u~{idom}} ] ;
             In Sigma~{idom}; Jacobian JSur ; Integration I1 ; }
           For iSide In {0:1}
             For j In{1:NP_OSRC}
-              Galerkin { [   I[] * kDtN[] * OSRC_Aj[]{j,NP_OSRC,theta_branch} / keps[]^2 *
+              Galerkin { [   I[] * k[] * OSRC_Aj[]{j,NP_OSRC,theta_branch} / keps[]^2 *
                   Dof{d phi~{j}~{idom}~{iSide}} , {d u~{idom}} ] ;
                 In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
-              Galerkin { [ - I[] * kDtN[] * OSRC_Aj[]{j,NP_OSRC,theta_branch} / keps[]^2 *
+              Galerkin { [ - I[] * k[] * OSRC_Aj[]{j,NP_OSRC,theta_branch} / keps[]^2 *
                   ( I[] * kInf[] * Dof{phi~{j}~{idom}~{iSide}}) , {u~{idom}} ] ; // experimental
                 In BndSigmaInf~{idom}~{iSide}; Jacobian JLin ; Integration I1 ; }
               Galerkin { [ - OSRC_Bj[]{j,NP_OSRC,theta_branch} / keps[]^2 *
@@ -162,7 +162,7 @@ Formulation {
     }
 
 
-        // Compute the outgoing data
+    // Compute the outgoing data
     For iSide In {0:1}
       { Name ComputeG~{idom}~{iSide} ; Type FemEquation ;
         Quantity {
@@ -196,14 +196,14 @@ Formulation {
               In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
           EndIf
           If(TC_TYPE == 2)
-            Galerkin { [ 2 * ( I[] * kDtN[] * OSRC_C0[]{NP_OSRC,theta_branch} *
+            Galerkin { [ 2 * ( I[] * k[] * OSRC_C0[]{NP_OSRC,theta_branch} *
                   {u~{idom}} ) , {g_out~{idom}~{iSide}} ] ;
               In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
             For j In{1:NP_OSRC}
               // replace the div-grad term by its value in terms of u and phi
               // (eq. (59) of the paper); no integration by parts in this case,
               // hence no boundary term
-              Galerkin { [  2 * ( I[] * kDtN[] * OSRC_Aj[]{j,NP_OSRC,theta_branch} /
+              Galerkin { [  2 * ( I[] * k[] * OSRC_Aj[]{j,NP_OSRC,theta_branch} /
                     OSRC_Bj[]{j,NP_OSRC,theta_branch} *
                     ({u~{idom}} - {phi~{j}~{idom}~{iSide}})) , {g_out~{idom}~{iSide}} ] ;
                 In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }

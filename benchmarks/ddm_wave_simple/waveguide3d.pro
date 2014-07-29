@@ -2,16 +2,16 @@ Include "waveguide3d_data.geo";
 
 DefineConstant[ // allows to set these from outside
   // Analysis type
-  ANALYSIS = {0, Name "Input/Type of analysis",
+  ANALYSIS = {0, Name "Input/00Type of analysis",
     Choices {0="Helmholtz", 1="Maxwell"}},
   // type of walls
-  WALLS = {0, Name "Input/Walls",
+  WALLS = {0, Name "Input/02Walls",
     Choices {0="Transparent", 1="Metallic"}},
   // excitation mode
-  MODE_M = {1, Name "Input/m"}, // y
-  MODE_N = {1, Name "Input/n"}, // z
+  MODE_M = {1, Name "Input/02m"}, // y
+  MODE_N = {1, Name "Input/02n"}, // z
   // transmission boundary condition
-  TC_TYPE = {0, Name "Input/Transmission condition",
+  TC_TYPE = {0, Name "Input/01Transmission condition",
     Choices {0="Order 0", 1="Order 2", 2="Pade (OSRC)"}},
   NP_OSRC = 4,
   // parameters for the DDM iterative solver

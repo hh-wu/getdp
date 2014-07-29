@@ -1,11 +1,26 @@
 Include "circle_concentric_data.geo";
 
+DefineConstant[ // allows to set these from outside
+  // Analysis type
+  ANALYSIS = {0, Name "Input/00Type of analysis", ReadOnly 1,
+    Choices {0="Helmholtz", 1="Maxwell"}},
+  // transmission boundary condition
+  TC_TYPE = {2, Name "Input/01Transmission condition",
+    Choices {0="Order 0", 1="Order 2", 2="Pade (OSRC)"}},
+  NP_OSRC = 4,
+  // parameters for the DDM iterative solver
+  SOLVER = "gmres", // bcgs, gmsh_pcleft, ...
+  TOL = 1e-4,
+  MAXIT = 1000,
+  RESTART = MAXIT
+];
+
 Group{
   For idom In {0:N_DOM-1}
     Omega~{idom} = Region[(100 + idom)];
     GammaD0~{idom} = Region[{}];
     GammaN~{idom} = Region[{}];
-    
+
     If (idom == 0)
       Sigma~{idom}~{0} = Region[{}];
       Sigma~{idom}~{1} = Region[{(4000 + idom)}]; // right boundary
@@ -38,37 +53,13 @@ Group{
     BndSigma~{idom}~{0} = Region[{}];
     BndSigma~{idom}~{1} = Region[{}];
     BndSigma~{idom} = Region[{BndSigma~{idom}~{0}, BndSigma~{idom}~{1}}] ;
-EndFor
+  EndFor
 }
-
-DefineConstant[ // allows to set these from outside
-  // Analysis type
-  ANALYSIS = {1, Name "Input/Type of analysis",
-    Choices {0="Helmholtz", 1="Maxwell"}},
-  // type of walls
-  WALLS = {0, Name "Input/Walls",
-    Choices {0="Transparent", 1="Metallic"}},
-  // excitation mode
-  MODE_M = {1, Name "Input/m"}, // y
-  MODE_N = {1, Name "Input/n"}, // z
-  // transmission boundary condition
-  TC_TYPE = {2, Name "Input/Transmission condition",
-    Choices {0="Order 0", 1="Order 2", 2="Pade (OSRC)"}},
-  NP_OSRC = 4,
-  // parameters for the DDM iterative solver
-  SOLVER = "gmres", // bcgs, gmsh_pcleft, ...
-  TOL = 1e-4,
-  MAXIT = 1000,
-  RESTART = MAXIT
-];
-
 
 Function {
   I[] = Complex[0, 1];
   k = WAVENUMBER;
   k[] = k;
-  // EMDA
-  //  beta[] = -I[] * k + BETA_EMDA;
 
   // incidence angle
   theta_inc = THETA_INC;
@@ -83,14 +74,9 @@ Function {
   betaBT[] = - 1/(2*I[]*k*(1+I[]/(k*R_EXT)));
 
   // parameter for 0th order TC
-  kDtN[] = k;
+  kDtN[] = k + (2*Pi /-I[]);
 
   // parameters for 2nd order TC
-  // J.-F. Lee
-  kmax[] = Pi/LC ;
-  delt[] = Sqrt[kmax[]^2-k^2]/Sqrt[k^2];
-  Coef_Lee1[] = 1/(1 + I[]*delt[]);
-  Coef_Lee2[] = -Coef_Lee1[];
   // OO2 Gander 2002, pp. 46-47
   xsimin = 0;
   xsimax = Pi / LC;
@@ -172,12 +158,7 @@ Function{
   */
 }
 
-If(ANALYSIS == 0)
-  Include "Helmholtz.pro" ;
-EndIf
-If(ANALYSIS == 1)
-  Include "Maxwell.pro" ;
-EndIf
+Include "Helmholtz.pro" ;
 
 DefineConstant[
   // default getdp parameters for onelab
