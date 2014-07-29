@@ -9,7 +9,7 @@ DefineConstant[
   R_INT = {1, Name "Input/4Internal radius"},
   R_EXT = {5, Name "Input/5External radius"},
   // number of subdomains
-  N_DOM = {5, Min 1, Max 20, Step 1, Name "Input/4Number of subdomains"},
+  N_DOM = {5, Min 1, Max 20, Step 1, Name "Input/04Number of subdomains"},
   // base msh filename
   MSH_BASE_NAME = "mesh_",
   // directory for output files

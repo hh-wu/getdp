@@ -9,7 +9,7 @@ DefineConstant[ // allows to set these from outside
   DY = {1, Name "Input/Y dimension"},
   DZ = {1, Name "Input/Z dimension"},
   // number of subdmains in the DDM
-  N_DOM = {2, Name "Input/4Number of subdomains"},
+  N_DOM = {2, Name "Input/04Number of subdomains"},
   // base msh filename
   MSH_BASE_NAME = "mesh_",
   // directory for output files
