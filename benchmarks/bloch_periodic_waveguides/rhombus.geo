@@ -65,13 +65,28 @@ Physical Line (122) = {4,5,6} ;
 Physical Line (123) = {7,8,9} ;
 Physical Line (124) = {10,11,12} ;
 
+Physical Line(9998) = {1:12};
+Physical Line(9999) = {13:16};
+
 // per timestep range
 View.RangeType = 3;
 
 // what to do when we double-click on a graph point
-PostProcessing.GraphPointCommand = "Merge Sprintf('res/h_%g.pos', PostProcessing.GraphPointX);
-l=PostProcessing.NbViews-1;
-If(l>1)
-  View[l-1].Visible=0;
+PostProcessing.GraphPointCommand =
+"l = PostProcessing.NbViews;
+If(l > 0 && (!StrCmp(View[l-1].Name, 'h') || !StrCmp(View[l-1].Name, 'h_Combine')))
+  Delete View[l-1];
 EndIf
-View[l].Time=PostProcessing.GraphPointY;";
+n = 0;
+For i In {1:9}
+  file = Sprintf('res/h%g_%g.pos', i, PostProcessing.GraphPointX);
+  If(FileExists(Str(file)))
+    n++;
+    Merge Str(file);
+  EndIf
+EndFor
+If(n > 1)
+  Combine ElementsByViewName;
+EndIf
+View[PostProcessing.NbViews-1].Time=PostProcessing.GraphPointY;
+Draw;";
