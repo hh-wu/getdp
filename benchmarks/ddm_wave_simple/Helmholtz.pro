@@ -28,9 +28,12 @@ Group{
     idom = ListOfDom(ii);
     TrGr~{idom} = ElementsOf[ Omega~{idom}, OnOneSideOf GammaD~{idom} ];
     For iSide In {0:1}
-      BndSigmaD~{idom}~{iSide} = Region[BndSigma~{idom}~{iSide}, Not {GammaN~{idom}, GammaInf~{idom}}];
-      BndSigmaN~{idom}~{iSide} = Region[BndSigma~{idom}~{iSide}, Not {GammaD~{idom}, GammaInf~{idom}}];
-      BndSigmaInf~{idom}~{iSide} = Region[BndSigma~{idom}~{iSide}, Not {GammaN~{idom}, GammaD~{idom}}];
+      BndSigmaD~{idom}~{iSide} = Region[BndSigma~{idom}~{iSide},
+                                        Not {GammaN~{idom}, GammaInf~{idom}}];
+      BndSigmaN~{idom}~{iSide} = Region[BndSigma~{idom}~{iSide},
+                                        Not {GammaD~{idom}, GammaInf~{idom}}];
+      BndSigmaInf~{idom}~{iSide} = Region[BndSigma~{idom}~{iSide},
+                                          Not {GammaN~{idom}, GammaD~{idom}}];
     EndFor
   EndFor
 }

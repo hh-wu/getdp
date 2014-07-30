@@ -1,9 +1,6 @@
 Include "circle_concentric_data.geo";
 
 DefineConstant[ // allows to set these from outside
-  // Analysis type
-  ANALYSIS = {0, Name "Input/00Type of analysis", ReadOnly 1,
-    Choices {0="Helmholtz", 1="Maxwell"}},
   // transmission boundary condition
   TC_TYPE = {2, Name "Input/01Transmission condition",
     Choices {0="Order 0", 1="Order 2", 2="Pade (OSRC)"}},
