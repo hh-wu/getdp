@@ -73,20 +73,17 @@ View.RangeType = 3;
 
 // what to do when we double-click on a graph point
 PostProcessing.GraphPointCommand =
-"l = PostProcessing.NbViews;
-If(l > 0 && (!StrCmp(View[l-1].Name, 'h') || !StrCmp(View[l-1].Name, 'h_Combine')))
-  Delete View[l-1];
+"c = DefineString[Sprintf('-pos plot_h -bin -v 3 -name res_%g -setnumber ic %g',
+                  PostProcessing.GraphPointX, PostProcessing.GraphPointX),
+                  Name 'GetDP/9ComputeCommand', ReadOnly 1];
+l1 = PostProcessing.NbViews;
+If(l1 > 0 && (!StrCmp(View[l1-1].Name, 'h') || !StrCmp(View[l1-1].Name, 'h_Combine')))
+  Delete View[l1-1];
 EndIf
-n = 0;
-For i In {1:9}
-  file = Sprintf('res/h%g_%g.pos', i, PostProcessing.GraphPointX);
-  If(FileExists(Str(file)))
-    n++;
-    Merge Str(file);
-  EndIf
-EndFor
-If(n > 1)
+OnelabRun 'GetDP';
+l2 = PostProcessing.NbViews;
+If(l2 - l1 > 1)
   Combine ElementsByViewName;
 EndIf
-View[PostProcessing.NbViews-1].Time=PostProcessing.GraphPointY;
+View[PostProcessing.NbViews-1].Time = PostProcessing.GraphPointY;
 Draw;";

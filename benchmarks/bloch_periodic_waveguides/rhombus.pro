@@ -22,16 +22,13 @@ Function {
   mur[] = 1.0;
   EZ[] = Vector[0,0,1] ;
 
-  mode = 18;
-  frames = 60;
-
   DefineConstant[
     nn = {40, Min 1, Max 100, Step 1, Name "Parameters/1Number of points (N)"},
     ic = {0, Min 0, Max 3*nn-1, Step 1, Loop 1, ReadOnlyRange 1,
       Name "Parameters/1Sol. step (in [0,3N-1])"} ,
     gam = {2., Choices{0, 1, 2, 4, 2*Pi}, Name "Parameters/1Beta"} ,
     nmodes = {20, Min 5, Max 100, Step 1, Name "Parameters/1Number of modes"},
-    multiplot = {0, Choices{0,1}, Name "Parameters/Save and plot solution on 9 cells"}
+    multiplot = {0, Choices{0,1}, Name "Parameters/Plot solution on multiple cells"}
   ];
 
   /* tan pi/6 */
@@ -214,23 +211,17 @@ Resolution {
       { Name A; NameOfFormulation Guide_h_2D; Type Complex; }
     }
     Operation {
-      // clean up result directory
-      If(ic == 0)
-        CreateDir["res"] ;
-        For i In {1:9}
-          For j In {0:nmodes-1}
-            DeleteFile[Sprintf("res/h%g_%g.pos", i, j)];
-          EndFor
-        EndFor
-      EndIf
-      // solve eigenvalue problem
-      GenerateSeparate[A];  EigenSolve[A, nmodes, decalage, 0]; //SaveSolutions[A] ;
-      // plot multiple cells if requested
+      CreateDir["res"] ;
+      GenerateSeparate[A];
+      EigenSolve[A, nmodes, decalage, 0];
+      SaveSolutions[A] ;
+      RenameFile["rhombus.pre", Sprintf("res_%g.pre", ic)];
+      RenameFile["rhombus.res", Sprintf("res_%g.res", ic)];
       If(multiplot && ic == 0)
-        PostOperation[plotbnd] ;
+        PostOperation[plot_boundary] ;
       EndIf
-      // save eigenmodes
-      PostOperation[plot] ;
+      PostOperation[plot_step] ;
+      //PostOperation[plot_h] ;
     }
   }
 }
@@ -238,61 +229,66 @@ Resolution {
 PostProcessing {
   { Name Guide_h_2D; NameOfFormulation Guide_h_2D; NameOfSystem A;
     Quantity {
-      { Name step; Value{ Local { [ ic ]; In tot ; Jacobian JVol; } } }
-      { Name boundary  ; Value { Term { [ bndCol[] ] ; In bnd ; Jacobian JVol ; } } }
+      { Name step;     Value { Local { [ ic ]; In tot ; Jacobian JVol; } } }
+      { Name boundary; Value { Local { [ bndCol[] ] ; In bnd ; Jacobian JVol ; } } }
 
       { Name h; Value{ Local{ [ {Ht}+{Hl} ]; In tot; Jacobian JVol; } } }
-      { Name hb;      Value{ Local{ [ ({Ht}+{Hl})* Complex[c13,-s13]                      ]; In tot; Jacobian JVol; } } }
-      { Name ha;      Value{ Local{ [ ({Ht}+{Hl})* Complex[ca , sa ]                      ]; In tot; Jacobian JVol; } } }
-      { Name hb1_a;   Value{ Local{ [ ({Ht}+{Hl})* Complex[c13, s13] * Complex[ca, sa]    ]; In tot; Jacobian JVol; } } }
-      { Name hb_a;    Value{ Local{ [ ({Ht}+{Hl})* Complex[c13,-s13] * Complex[ca, sa]    ]; In tot; Jacobian JVol; } } }
-      { Name h2a;     Value{ Local{ [ ({Ht}+{Hl})* Complex[ca, sa]^2                      ]; In tot; Jacobian JVol; } } }
-      { Name hb1_2a;  Value{ Local{ [ ({Ht}+{Hl})* Complex[c13, s13] * Complex[ca, sa]^2  ]; In tot; Jacobian JVol; } } }
-      { Name h2b;     Value{ Local{ [ ({Ht}+{Hl})* Complex[c13,-s13]^2                    ]; In tot; Jacobian JVol; } } }
-      { Name h2b1_2a; Value{ Local{ [ ({Ht}+{Hl})* Complex[c13, s13]^2 * Complex[ca, sa]^2]; In tot; Jacobian JVol; } } }
+      { Name hb;      Value { Local { [ ({Ht}+{Hl})* Complex[c13,-s13]                      ]; In tot; Jacobian JVol; } } }
+      { Name ha;      Value { Local { [ ({Ht}+{Hl})* Complex[ca , sa ]                      ]; In tot; Jacobian JVol; } } }
+      { Name hb1_a;   Value { Local { [ ({Ht}+{Hl})* Complex[c13, s13] * Complex[ca, sa]    ]; In tot; Jacobian JVol; } } }
+      { Name hb_a;    Value { Local { [ ({Ht}+{Hl})* Complex[c13,-s13] * Complex[ca, sa]    ]; In tot; Jacobian JVol; } } }
+      { Name h2a;     Value { Local { [ ({Ht}+{Hl})* Complex[ca, sa]^2                      ]; In tot; Jacobian JVol; } } }
+      { Name hb1_2a;  Value { Local { [ ({Ht}+{Hl})* Complex[c13, s13] * Complex[ca, sa]^2  ]; In tot; Jacobian JVol; } } }
+      { Name h2b;     Value { Local { [ ({Ht}+{Hl})* Complex[c13,-s13]^2                    ]; In tot; Jacobian JVol; } } }
+      { Name h2b1_2a; Value { Local { [ ({Ht}+{Hl})* Complex[c13, s13]^2 * Complex[ca, sa]^2]; In tot; Jacobian JVol; } } }
 
-      { Name ht;       Value{ Local{ [ {Ht}                                         ]; In tot; Jacobian JVol; } } }
-      { Name htb;      Value{ Local{ [ {Ht}* Complex[c13,-s13]                      ]; In tot; Jacobian JVol; } } }
-      { Name hta;      Value{ Local{ [ {Ht}* Complex[ca , sa ]                      ]; In tot; Jacobian JVol; } } }
-      { Name htb1_a;   Value{ Local{ [ {Ht}* Complex[c13, s13] * Complex[ca, sa]    ]; In tot; Jacobian JVol; } } }
-      { Name htb_a;    Value{ Local{ [ {Ht}* Complex[c13,-s13] * Complex[ca, sa]    ]; In tot; Jacobian JVol; } } }
-      { Name ht2a;     Value{ Local{ [ {Ht}* Complex[ca, sa]^2                      ]; In tot; Jacobian JVol; } } }
-      { Name htb1_2a;  Value{ Local{ [ {Ht}* Complex[c13, s13] * Complex[ca, sa]^2  ]; In tot; Jacobian JVol; } } }
-      { Name ht2b;     Value{ Local{ [ {Ht}* Complex[c13,-s13]^2                    ]; In tot; Jacobian JVol; } } }
-      { Name ht2b1_2a; Value{ Local{ [ {Ht}* Complex[c13, s13]^2 * Complex[ca, sa]^2]; In tot; Jacobian JVol; } } }
+      { Name ht;       Value { Local { [ {Ht}                                         ]; In tot; Jacobian JVol; } } }
+      { Name htb;      Value { Local { [ {Ht}* Complex[c13,-s13]                      ]; In tot; Jacobian JVol; } } }
+      { Name hta;      Value { Local { [ {Ht}* Complex[ca , sa ]                      ]; In tot; Jacobian JVol; } } }
+      { Name htb1_a;   Value { Local { [ {Ht}* Complex[c13, s13] * Complex[ca, sa]    ]; In tot; Jacobian JVol; } } }
+      { Name htb_a;    Value { Local { [ {Ht}* Complex[c13,-s13] * Complex[ca, sa]    ]; In tot; Jacobian JVol; } } }
+      { Name ht2a;     Value { Local { [ {Ht}* Complex[ca, sa]^2                      ]; In tot; Jacobian JVol; } } }
+      { Name htb1_2a;  Value { Local { [ {Ht}* Complex[c13, s13] * Complex[ca, sa]^2  ]; In tot; Jacobian JVol; } } }
+      { Name ht2b;     Value { Local { [ {Ht}* Complex[c13,-s13]^2                    ]; In tot; Jacobian JVol; } } }
+      { Name ht2b1_2a; Value { Local { [ {Ht}* Complex[c13, s13]^2 * Complex[ca, sa]^2]; In tot; Jacobian JVol; } } }
 
-      { Name hlz;       Value{ Local{ [ CompZ[{Hl}                                         ]]; In tot; Jacobian JVol; } } }
-      { Name hlzb;      Value{ Local{ [ CompZ[{Hl}* Complex[c13,-s13]                      ]]; In tot; Jacobian JVol; } } }
-      { Name hlza;      Value{ Local{ [ CompZ[{Hl}* Complex[ca , sa ]                      ]]; In tot; Jacobian JVol; } } }
-      { Name hlzb1_a;   Value{ Local{ [ CompZ[{Hl}* Complex[c13, s13] * Complex[ca, sa]    ]]; In tot; Jacobian JVol; } } }
-      { Name hlzb_a;    Value{ Local{ [ CompZ[{Hl}* Complex[c13,-s13] * Complex[ca, sa]    ]]; In tot; Jacobian JVol; } } }
-      { Name hlz2a;     Value{ Local{ [ CompZ[{Hl}* Complex[ca, sa]^2                      ]]; In tot; Jacobian JVol; } } }
-      { Name hlzb1_2a;  Value{ Local{ [ CompZ[{Hl}* Complex[c13, s13] * Complex[ca, sa]^2  ]]; In tot; Jacobian JVol; } } }
-      { Name hlz2b;     Value{ Local{ [ CompZ[{Hl}* Complex[c13,-s13]^2                    ]]; In tot; Jacobian JVol; } } }
-      { Name hlz2b1_2a; Value{ Local{ [ CompZ[{Hl}* Complex[c13, s13]^2 * Complex[ca, sa]^2]]; In tot; Jacobian JVol; } } }
+      { Name hlz;       Value { Local { [ CompZ[{Hl}                                         ] ]; In tot; Jacobian JVol; } } }
+      { Name hlzb;      Value { Local { [ CompZ[{Hl}* Complex[c13,-s13]                      ] ]; In tot; Jacobian JVol; } } }
+      { Name hlza;      Value { Local { [ CompZ[{Hl}* Complex[ca , sa ]                      ] ]; In tot; Jacobian JVol; } } }
+      { Name hlzb1_a;   Value { Local { [ CompZ[{Hl}* Complex[c13, s13] * Complex[ca, sa]    ] ]; In tot; Jacobian JVol; } } }
+      { Name hlzb_a;    Value { Local { [ CompZ[{Hl}* Complex[c13,-s13] * Complex[ca, sa]    ] ]; In tot; Jacobian JVol; } } }
+      { Name hlz2a;     Value { Local { [ CompZ[{Hl}* Complex[ca, sa]^2                      ] ]; In tot; Jacobian JVol; } } }
+      { Name hlzb1_2a;  Value { Local { [ CompZ[{Hl}* Complex[c13, s13] * Complex[ca, sa]^2  ] ]; In tot; Jacobian JVol; } } }
+      { Name hlz2b;     Value { Local { [ CompZ[{Hl}* Complex[c13,-s13]^2                    ] ]; In tot; Jacobian JVol; } } }
+      { Name hlz2b1_2a; Value { Local { [ CompZ[{Hl}* Complex[c13, s13]^2 * Complex[ca, sa]^2] ]; In tot; Jacobian JVol; } } }
     }
   }
 }
 
 PostOperation {
-  { Name plot; NameOfPostProcessing Guide_h_2D;
+  { Name plot_step; NameOfPostProcessing Guide_h_2D;
     Operation {
       Print[ step, OnPoint{0,0,0}, Format Table, File "res/step.txt", SendToServer "GetDP/Step" ] ;
-      Print[ h,       OnElementsOf tot , File Sprintf("res/h1_%g.pos", ic), SendToServer "No" ] ;
+    }
+  }
+
+  { Name plot_h; NameOfPostProcessing Guide_h_2D;
+    Operation {
+      Print[ h,       OnElementsOf tot , File Sprintf("res/h1_%g.pos", ic) ] ;
       If(multiplot)
-        Print[ hb,      OnElementsOf tot , File Sprintf("res/h2_%g.pos", ic), ChangeOfCoordinates {$X+s,$Y+c,$Z} , Name "h", SendToServer "No" ] ;
-        Print[ ha,      OnElementsOf tot , File Sprintf("res/h3_%g.pos", ic), ChangeOfCoordinates {$X+1,$Y,$Z} , Name "h", SendToServer "No" ] ;
-        Print[ hb1_a,   OnElementsOf tot , File Sprintf("res/h4_%g.pos", ic), ChangeOfCoordinates {$X+1-s,$Y-c,$Z} , Name "h", SendToServer "No" ] ;
-        Print[ hb_a,    OnElementsOf tot , File Sprintf("res/h5_%g.pos", ic), ChangeOfCoordinates {$X+1+s,$Y+c,$Z} , Name "h", SendToServer "No" ] ;
-        Print[ h2a,     OnElementsOf tot , File Sprintf("res/h6_%g.pos", ic), ChangeOfCoordinates {$X+2,$Y,$Z} , Name "h", SendToServer "No" ] ;
-        Print[ hb1_2a,  OnElementsOf tot , File Sprintf("res/h7_%g.pos", ic), ChangeOfCoordinates {$X+2-s,$Y-c,$Z} , Name "h", SendToServer "No" ] ;
-        Print[ h2b,     OnElementsOf tot , File Sprintf("res/h8_%g.pos", ic), ChangeOfCoordinates {$X+2*s,$Y+2*c,$Z} , Name "h", SendToServer "No" ] ;
-        Print[ h2b1_2a, OnElementsOf tot , File Sprintf("res/h9_%g.pos", ic), ChangeOfCoordinates {$X+2-2*s,$Y-2*c,$Z} , Name "h", SendToServer "No" ] ;
+        Print[ hb,      OnElementsOf tot , File Sprintf("res/h2_%g.pos", ic), ChangeOfCoordinates {$X+s,$Y+c,$Z} , Name "h" ] ;
+        Print[ ha,      OnElementsOf tot , File Sprintf("res/h3_%g.pos", ic), ChangeOfCoordinates {$X+1,$Y,$Z} , Name "h" ] ;
+        Print[ hb1_a,   OnElementsOf tot , File Sprintf("res/h4_%g.pos", ic), ChangeOfCoordinates {$X+1-s,$Y-c,$Z} , Name "h" ] ;
+        Print[ hb_a,    OnElementsOf tot , File Sprintf("res/h5_%g.pos", ic), ChangeOfCoordinates {$X+1+s,$Y+c,$Z} , Name "h" ] ;
+        Print[ h2a,     OnElementsOf tot , File Sprintf("res/h6_%g.pos", ic), ChangeOfCoordinates {$X+2,$Y,$Z} , Name "h" ] ;
+        Print[ hb1_2a,  OnElementsOf tot , File Sprintf("res/h7_%g.pos", ic), ChangeOfCoordinates {$X+2-s,$Y-c,$Z} , Name "h" ] ;
+        Print[ h2b,     OnElementsOf tot , File Sprintf("res/h8_%g.pos", ic), ChangeOfCoordinates {$X+2*s,$Y+2*c,$Z} , Name "h" ] ;
+        Print[ h2b1_2a, OnElementsOf tot , File Sprintf("res/h9_%g.pos", ic), ChangeOfCoordinates {$X+2-2*s,$Y-2*c,$Z} , Name "h" ] ;
       EndIf
     }
   }
 
-  { Name plotbnd; NameOfPostProcessing Guide_h_2D;
+  { Name plot_boundary; NameOfPostProcessing Guide_h_2D;
     Operation {
       Print[ boundary, OnElementsOf bnd, File "res/boundary1.pos" , LastTimeStepOnly];
       Print[ boundary, OnElementsOf bnd , File "res/boundary2.pos" ,  ChangeOfCoordinates {$X+s,$Y+c,$Z} , LastTimeStepOnly] ;
@@ -308,43 +304,6 @@ PostOperation {
       SendMergeFileRequest[ "res/combine_bnd.geo" ];
     }
   }
-
-  { Name h; NameOfPostProcessing Guide_h_2D;
-    Operation {
-      Print[ht, OnElementsOf tot , File "ht1.pos" , Format Gmsh, Depth -4 ] ;
-      Print[htb, OnElementsOf tot , File  "ht2.pos" , ChangeOfCoordinates {$X+s,$Y+c,$Z}, Depth -4 ] ;
-      Print[hta, OnElementsOf tot , File  "ht3.pos" , ChangeOfCoordinates {$X+1,$Y,$Z}, Depth -4 ] ;
-      Print[htb1_a, OnElementsOf tot , File  "ht4.pos" , ChangeOfCoordinates {$X+1-s,$Y-c,$Z}, Depth -4 ] ;
-      Print[htb_a, OnElementsOf tot , File  "ht5.pos" , ChangeOfCoordinates {$X+1+s,$Y+c,$Z}, Depth -4 ] ;
-      Print[ht2a, OnElementsOf tot , File  "ht6.pos" , ChangeOfCoordinates {$X+2,$Y,$Z}, Depth -4 ] ;
-      Print[htb1_2a, OnElementsOf tot , File  "ht7.pos" , ChangeOfCoordinates {$X+2-s,$Y-c,$Z}, Depth -4 ] ;
-      Print[ht2b, OnElementsOf tot , File  "ht8.pos" , ChangeOfCoordinates {$X+2*s,$Y+2*c,$Z}, Depth -4 ] ;
-      Print[ht2b1_2a, OnElementsOf tot , File  "ht9.pos" , ChangeOfCoordinates {$X+2-2*s,$Y-2*c,$Z}, Depth -4 ] ;
-
-      Print[hlz, OnElementsOf tot , File "hl1.pos" , Format Gmsh ] ;
-      Print[hlzb, OnElementsOf tot , File  "hl2.pos" , ChangeOfCoordinates {$X+s,$Y+c,$Z} ] ;
-      Print[hlza, OnElementsOf tot , File  "hl3.pos" , ChangeOfCoordinates {$X+1,$Y,$Z} ] ;
-      Print[hlzb1_a, OnElementsOf tot , File  "hl4.pos" , ChangeOfCoordinates {$X+1-s,$Y-c,$Z} ] ;
-      Print[hlzb_a, OnElementsOf tot , File  "hl5.pos" , ChangeOfCoordinates {$X+1+s,$Y+c,$Z} ] ;
-      Print[hlz2a, OnElementsOf tot , File  "hl6.pos" , ChangeOfCoordinates {$X+2,$Y,$Z} ] ;
-      Print[hlzb1_2a, OnElementsOf tot , File  "hl7.pos" , ChangeOfCoordinates {$X+2-s,$Y-c,$Z} ] ;
-      Print[hlz2b, OnElementsOf tot , File  "hl8.pos" , ChangeOfCoordinates {$X+2*s,$Y+2*c,$Z} ] ;
-      Print[hlz2b1_2a, OnElementsOf tot , File  "hl9.pos" , ChangeOfCoordinates {$X+2-2*s,$Y-2*c,$Z} ] ;
-    }
-  }
-  { Name h_anim; NameOfPostProcessing Guide_h_2D;
-    Operation {
-      Print[hlz, OnElementsOf tot ,TimeStep mode, HarmonicToTime frames, File "hl1.pos" , Format Gmsh ] ;
-      Print[hlzb, OnElementsOf tot ,TimeStep mode, HarmonicToTime frames , File  "hl2.pos" , ChangeOfCoordinates {$X+s,$Y+c,$Z} ] ;
-      Print[hlza, OnElementsOf tot ,TimeStep mode, HarmonicToTime frames , File  "hl3.pos" , ChangeOfCoordinates {$X+1,$Y,$Z} ] ;
-      Print[hlzb1_a, OnElementsOf tot ,TimeStep mode, HarmonicToTime frames , File  "hl4.pos" , ChangeOfCoordinates {$X+1-s,$Y-c,$Z} ] ;
-      Print[hlzb_a, OnElementsOf tot ,TimeStep mode, HarmonicToTime frames , File  "hl5.pos" , ChangeOfCoordinates {$X+1+s,$Y+c,$Z} ] ;
-      Print[hlz2a, OnElementsOf tot ,TimeStep mode, HarmonicToTime frames , File  "hl6.pos" , ChangeOfCoordinates {$X+2,$Y,$Z} ] ;
-      Print[hlzb1_2a, OnElementsOf tot ,TimeStep mode, HarmonicToTime frames , File  "hl7.pos" , ChangeOfCoordinates {$X+2-s,$Y-c,$Z} ] ;
-      Print[hlz2b, OnElementsOf tot ,TimeStep mode, HarmonicToTime frames , File  "hl8.pos" , ChangeOfCoordinates {$X+2*s,$Y+2*c,$Z} ] ;
-      Print[hlz2b1_2a, OnElementsOf tot ,TimeStep mode, HarmonicToTime frames , File  "hl9.pos" , ChangeOfCoordinates {$X+2-2*s,$Y-2*c,$Z} ] ;
-    }
-  }
 }
 
 DefineConstant[
@@ -352,11 +311,7 @@ DefineConstant[
   R_ = {"Guide_h_2D_PVP", Name "GetDP/1ResolutionChoices", Visible 0},
 
   // set some command-line options for getdp
-  C_ = {"-solve -slepc -bin -v 3", Name "GetDP/9ComputeCommand", Visible 0},
-
-  // we could use this to store different .res files for each step:
-  //C_ = {StrCat("-solve -slepc -bin -name res_", Sprintf("%g", ic)),
-  //      Name "GetDP/9ComputeCommand", Visible 0, ReadOnly 1},
+  C_ = {"-solve -slepc -bin", Name "GetDP/9ComputeCommand", Visible 0},
 
   // don't do the post-processing pass
   P_ = {"", Name "GetDP/2PostOperationChoices", Visible 0},
