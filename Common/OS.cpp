@@ -232,6 +232,17 @@ int RemoveFile(const std::string &fileName)
 #endif
 }
 
+int RenameFile(const std::string &oldName, const std::string &newName)
+{
+#if defined(WIN32) && !defined(__CYGWIN__)
+  setwbuf(0, oldName.c_str());
+  setwbuf(1, newName.c_str());
+  return _wrename(wbuf[0], wbuf[1]);
+#else
+  return rename(oldName.c_str(), newName.c_str());
+#endif
+}
+
 int CreateDir(const std::string &dirName)
 {
   if(dirName.empty()) return 1;

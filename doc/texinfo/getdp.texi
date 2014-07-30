@@ -4577,6 +4577,11 @@ Writes the a Gmsh field to disk. (The format is guessed from the file extension.
 
 Delete a file.
 
+@item RenameFile
+@code{[@var{expression-char}, @var{expression-char}]}
+
+Rename a file.
+
 @item CreateDir | CreateDirectory
 @code{[@var{expression-char}]}
 

@@ -1866,7 +1866,7 @@ void Print_ListPostOperation(int choose, int Flag_LPOS, char *name[NBR_MAX_POS])
       }
     }
     if(ichoice > 0 && ichoice < choices.size() + 1){
-      name[0] = strSave(choices[ichoice].c_str());
+      name[0] = strSave(choices[ichoice - 1].c_str());
       name[1] = NULL;
       return;
     }

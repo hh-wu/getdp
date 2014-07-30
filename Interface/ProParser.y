@@ -252,7 +252,7 @@ struct doubleXstring{
 %token      tDivisionCoefficient tChangeOfState
 %token      tChangeOfCoordinates tChangeOfCoordinates2 tSystemCommand
 %token        tGmshRead tGmshMerge tGmshOpen tGmshWrite tGmshClearAll
-%token        tDeleteFile tCreateDir
+%token        tDeleteFile tRenameFile tCreateDir
 %token      tGenerateOnly tGenerateOnlyJac
 %token      tSolveJac_AdaptRelax
 %token      tSaveSolutionExtendedMH tSaveSolutionMHtoTime tSaveSolutionWithEntityNum
@@ -4664,6 +4664,17 @@ OperationTerm :
       Operation_P->Type = OPERATION_DELETEFILE;
       Operation_P->Case.DeleteFile.FileName = strSave(Fix_RelativePath($3).c_str());
       Free($3);
+    }
+
+  | tRenameFile '[' CharExpr ',' CharExpr ']' tEND
+    {
+      Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_RENAMEFILE;
+      Operation_P->Case.RenameFile.OldFileName = strSave(Fix_RelativePath($3).c_str());
+      Operation_P->Case.RenameFile.NewFileName = strSave(Fix_RelativePath($5).c_str());
+      Free($3);
+      Free($5);
     }
 
   | tCreateDir '[' CharExpr ']' tEND

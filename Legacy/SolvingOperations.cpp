@@ -2724,6 +2724,16 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       RemoveFile(Operation_P->Case.DeleteFile.FileName);
       break ;
 
+      /*  -->  R e n a m e F i l e  */
+      /*  ------------------------- */
+
+    case OPERATION_RENAMEFILE :
+      Message::Info("RenameFile[%s, %s]", Operation_P->Case.RenameFile.OldFileName,
+                    Operation_P->Case.RenameFile.NewFileName) ;
+      RenameFile(Operation_P->Case.RenameFile.OldFileName,
+                 Operation_P->Case.RenameFile.NewFileName);
+      break ;
+
       /*  -->  C r e a t e D i r   */
       /*  ------------------------ */
 

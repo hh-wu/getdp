@@ -894,6 +894,9 @@ struct Operation {
       char *FileName;
     } DeleteFile;
     struct {
+      char *OldFileName, *NewFileName;
+    } RenameFile;
+    struct {
       char *DirName;
     } CreateDir;
     struct {
@@ -1190,6 +1193,7 @@ struct IterativeLoopSystem {
 #define OPERATION_UPDATECONSTRAINT         82
 #define OPERATION_WRITE                    83
 #define OPERATION_RESIDUAL                 84
+#define OPERATION_RENAMEFILE               85
 
 /* ChangeOfState.Type */
 #define CHANGEOFSTATE_NOCHANGE              0

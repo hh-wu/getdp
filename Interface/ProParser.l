@@ -290,6 +290,7 @@ Read                         return tRead;
 Region                       return tRegion;
 RegionRef                    return tRegionRef;
 RelaxationFactor             return tRelaxationFactor;
+RenameFile                   return tRenameFile;
 ResampleTime                 return tResampleTime;
 Resolution                   return tResolution;
 Round                        return tRound;
