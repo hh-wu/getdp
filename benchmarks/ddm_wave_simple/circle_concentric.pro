@@ -99,11 +99,11 @@ Function{
   ListOfField = {}; // my fields
   ListOfNeighborField = {}; // my neighbors
 
-  // this describes a layered (1-d like) decomposition
-  //         +------+------+------+---...---+------+
-  //  field: |     0|1    2|3    4|5    2N-4|2N-3  |
-  //   idom: |   0  |   1  |   2  |         |  N-1 |
-  //         +------+------+------+---...---+------+
+  // this describes a layered (1-d like) decomposition (domain 0 and N-1 are adjacent)
+  //         +--------+------+------+---...---+------------+
+  //  field: |2N-1   0|1    2|3    4|5    2N-4|2N-3    2N-2|
+  //   idom: |    0   |   1  |   2  |         |    N-1     |
+  //         +--------+------+------+---...---+------------+
 
   For idom In {0:N_DOM-1}
     If (idom % MPI_Size == MPI_Rank)
