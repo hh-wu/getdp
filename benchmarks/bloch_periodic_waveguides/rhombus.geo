@@ -79,5 +79,6 @@ PostProcessing.GraphPointCommand =
                   PostProcessing.GraphPointX, PostProcessing.GraphPointX),
                   Name 'GetDP/9ComputeCommand', ReadOnly 1];
 OnelabRun 'GetDP';
+c = DefineString['-solve -slepc -bin', Name 'GetDP/9ComputeCommand', ReadOnly 1];
 View[PostProcessing.NbViews-1].Time = PostProcessing.GraphPointY;
 Draw;";

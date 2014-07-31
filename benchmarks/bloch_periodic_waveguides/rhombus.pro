@@ -90,6 +90,8 @@ Function {
 
   bndCol[bndGrey] = 0;
   bndCol[bndBlack] = Complex[1,1];
+
+  EigFilter[] = (Norm[$wr] > 1.e-12);
 }
 
 Constraint {
@@ -213,7 +215,7 @@ Resolution {
     Operation {
       CreateDir["res"] ;
       GenerateSeparate[A];
-      EigenSolve[A, nmodes, decalage, 0];
+      EigenSolve[A, nmodes, decalage, 0]; //, EigFilter[]];
       SaveSolutions[A] ;
       RenameFile["rhombus.pre", Sprintf("res_%g.pre", ic)];
       RenameFile["rhombus.res", Sprintf("res_%g.res", ic)];
