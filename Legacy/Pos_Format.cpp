@@ -929,6 +929,8 @@ void Unv_PrintRegion(FILE *PostStream, int Flag_Comma, int numRegion, int NbrHar
 
 void  Format_PostFormat(struct PostSubOperation *PSO_P)
 {
+  if(PSO_P->Type == POP_EXPRESSION) return;
+
   int Format = PSO_P->Format;
   int NoMesh = PSO_P->NoMesh;
 
