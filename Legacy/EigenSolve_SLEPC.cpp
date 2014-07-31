@@ -217,8 +217,8 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv,
     Current.TimeStep += 1.;
     // update the current value of Time and TimeImag so that
     // $EigenvalueReal and $EigenvalueImag are up-to-date
-    Current.Time = re;
-    Current.TimeImag = im;
+    Current.Time = ore;
+    Current.TimeImag = oim;
   }
 
 #if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
