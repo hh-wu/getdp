@@ -147,7 +147,7 @@ Function{
         exchangeFieldLeft = {2*(idom-1)};
         exchangeFieldRight = {};
         ListOfNeighborField += 1;
-        ListOfNeighborField += exchangeFieldLeft{};
+        ListOfNeighborField += exchangeFieldLeft();
       EndIf
       If(idom > 0 && idom < N_DOM-1)
         myFieldLeft = {2*idom-1};
@@ -156,9 +156,9 @@ Function{
         exchangeFieldRight = {2*idom+1};
         // 2 "blocks"
         ListOfNeighborField += 1;
-        ListOfNeighborField += exchangeFieldLeft{};
+        ListOfNeighborField += exchangeFieldLeft();
         ListOfNeighborField += 1;
-        ListOfNeighborField += exchangeFieldRight{};
+        ListOfNeighborField += exchangeFieldRight();
       EndIf
       ListOfDom += idom;
       ListOfField += {myFieldLeft(), myFieldRight()};
