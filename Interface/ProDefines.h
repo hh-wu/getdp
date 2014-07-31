@@ -255,11 +255,13 @@ struct StringXDefine  NormOf_Type[] = {
 
 struct StringXPointer  Current_Value[] = {
 #if defined(HAVE_LEGACY)
-  {"Time"     , &Current.Time},       {"DTime"    , &Current.DTime},
-  {"Theta"    , &Current.Theta},      {"TimeStep" , &Current.TimeStep},
-  {"Iteration", &Current.Iteration},  {"Iter"     , &Current.Iteration},
-  {"TimeImag" , &Current.TimeImag},   {"Eigenvalue" , &Current.Time},
+  {"Time"     , &Current.Time},       {"DTime"     , &Current.DTime},
+  {"Theta"    , &Current.Theta},      {"TimeStep"  , &Current.TimeStep},
+  {"Iteration", &Current.Iteration},  {"Iter"      , &Current.Iteration},
+  {"TimeImag" , &Current.TimeImag},   {"Eigenvalue", &Current.Time},
   {"EigenvalueReal" , &Current.Time}, {"EigenvalueImag" , &Current.TimeImag},
+  {"ReOmega"  , &Current.Time},       {"ImOmega"   , &Current.TimeImag},
+  {"wr"       , &Current.Time},       {"wi"        , &Current.TimeImag},
   {"Breakpoint" , &Current.Breakpoint},
 
   {"X"  , &Current.x}, {"Y"  , &Current.y},  {"Z"  , &Current.z},
