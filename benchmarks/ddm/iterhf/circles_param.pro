@@ -16,12 +16,12 @@ coarseMesh = 1; // set 0 for uniform (fine) mesh
 coarseSigma = 1; // set to 0 to finely mesh Sigma
 
 // ratiolc1lc0 = coarseMesh ? 3 : 1 ;
-lcExp = 3 ;
+lcExp = 15 ;
 
 
 // nlambda = 30 ;
 // nlambda_ref = 60 ;
-theta = 0*Pi/6; // rotation angle of the circles
+theta = 1*Pi/6; // rotation angle of the circles
 
 If (computeOnFine)
 myMeshForFull = "circles_fine_for_Full.msh";
@@ -46,13 +46,14 @@ EndIf
 Printf("Nbr Subproblems: %g", Nbr_SubProblems);
 
 
-disty = R0;
+//disty = R0;
 distx = R0;
 dist = (distx>disty)?distx:disty;
 
 MaxN = (Nh>Nv)?Nh:Nv;
-Ro = 0.65*MaxN*(2*R0+dist)/.65 ;
+//Ro = 0.65*MaxN*(2*R0+dist)/.65 ;
 //Ro = MaxN*(R0+dist/2)-dist/2 + R0 ;
+Ro = 6;
 
 lambda = 2*Pi/k ;
 scalefactor = (k<2) ? 2./k : 1.;
