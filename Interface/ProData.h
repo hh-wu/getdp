@@ -1595,7 +1595,7 @@ void Finalize_ProblemStructure();
 void Print_ProblemStructure();
 void Free_ProblemStructure();
 
-std::string Fix_RelativePath(const char *fileName);
+std::string Fix_RelativePath(const char *fileName, const char *reference=0);
 
 void Print_ListResolution(int choice, int flag_lres, char **name);
 void Print_ListPostOperation(int choice, int flag_lpos, char *name[NBR_MAX_POS]);

@@ -212,7 +212,7 @@ void Free_ProblemStructure()
   Init_ProblemStructure();
 }
 
-std::string Fix_RelativePath(const char *name)
+std::string Fix_RelativePath(const char *name, const char *reference)
 {
   if(!name || !strlen(name)) return "";
 
@@ -225,9 +225,9 @@ std::string Fix_RelativePath(const char *name)
   }
   else{
     char AbsPath[2048];
-    strcpy(AbsPath, getdp_yyname);
-    int i = strlen(getdp_yyname) - 1;
-    while(i >= 0 && getdp_yyname[i] != '/' && getdp_yyname[i] != '\\') i--;
+    strcpy(AbsPath, reference ? reference : getdp_yyname);
+    int i = strlen(AbsPath) - 1;
+    while(i >= 0 && AbsPath[i] != '/' && AbsPath[i] != '\\') i--;
     AbsPath[i+1] = '\0';
     return std::string(AbsPath) + in;
   }

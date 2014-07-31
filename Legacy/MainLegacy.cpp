@@ -358,8 +358,7 @@ static void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *
       else if (!strcmp(argv[i]+1, "name")) {
 	i++;
 	if (i < argc && argv[i][0] != '-') {
-	  Name_Generic = (char*)Malloc((strlen(argv[i]) + 1) * sizeof(char));
-	  strcpy(Name_Generic, argv[i]); i++;
+	  Name_Generic = strSave(argv[i]); i++;
 	}
 	else {
 	  Message::Error("Missing string");
@@ -391,26 +390,28 @@ static void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *
 
   if(!strlen(pro)){
     Message::Error("Missing input file name");
-    Name_Generic = (char*)Malloc(sizeof(char));
-    strcpy(Name_Generic, "");
+    Name_Generic = strSave("");
     *sargc = 0;
   }
   else{
     if(!Name_Generic){
-      Name_Generic = (char*)Malloc((strlen(pro) + 1) * sizeof(char));
-      strcpy(Name_Generic, pro);
+      Name_Generic = strSave(pro);
       if(strcmp(pro+(strlen(pro)-4), ".pro") &&
 	 strcmp(pro+(strlen(pro)-4), ".PRO"))
 	strcat(pro,".pro");
       else
 	Name_Generic[strlen(pro)-4] = '\0';
     }
-    else if(strcmp(pro+(strlen(pro)-4), ".pro") &&
-	    strcmp(pro+(strlen(pro)-4), ".PRO"))
-      strcat(pro,".pro");
+    else{
+      std::string fix = Fix_RelativePath(Name_Generic, pro);
+      Free(Name_Generic);
+      Name_Generic = strSave(fix.c_str());
+      if(strcmp(pro+(strlen(pro)-4), ".pro") &&
+         strcmp(pro+(strlen(pro)-4), ".PRO"))
+        strcat(pro,".pro");
+    }
 
-    Name_Path = (char*)Malloc((strlen(Name_Generic) + 1) * sizeof(char));
-    strcpy(Name_Path, Name_Generic);
+    Name_Path = strSave(Name_Generic);
     i = strlen(Name_Path)-1;
     while(i >= 0 && Name_Path[i] != '/' && Name_Path[i] != '\\') i--;
     Name_Path[i+1] = '\0';
