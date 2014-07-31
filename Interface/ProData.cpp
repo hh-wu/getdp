@@ -1787,7 +1787,7 @@ void Print_ListResolution(int choose, int Flag_LRES, char **name)
 	ichoice = atoi(buff);
       }
     }
-    if(ichoice > 0 && ichoice < choices.size() + 1){
+    if(ichoice > 0 && ichoice < (int)choices.size() + 1){
       *name = strSave(choices[ichoice - 1].c_str());
       return;
     }
@@ -1865,7 +1865,7 @@ void Print_ListPostOperation(int choose, int Flag_LPOS, char *name[NBR_MAX_POS])
 	ichoice = atoi(buff);
       }
     }
-    if(ichoice > 0 && ichoice < choices.size() + 1){
+    if(ichoice > 0 && ichoice < (int)choices.size() + 1){
       name[0] = strSave(choices[ichoice - 1].c_str());
       name[1] = NULL;
       return;
