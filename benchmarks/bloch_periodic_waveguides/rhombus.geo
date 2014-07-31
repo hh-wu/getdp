@@ -70,20 +70,14 @@ Physical Line(9999) = {13:16};
 
 // per timestep range
 View.RangeType = 3;
+// show all merged views
+Solver.AutoShowViews = 1;
 
 // what to do when we double-click on a graph point
 PostProcessing.GraphPointCommand =
-"c = DefineString[Sprintf('-pos plot_h -bin -v 3 -name res_%g -setnumber ic %g',
+"c = DefineString[Sprintf('-pos plot_boundary plot_h -bin -v 3 -name res_%g -setnumber ic %g',
                   PostProcessing.GraphPointX, PostProcessing.GraphPointX),
                   Name 'GetDP/9ComputeCommand', ReadOnly 1];
-l1 = PostProcessing.NbViews;
-If(l1 > 0 && (!StrCmp(View[l1-1].Name, 'h') || !StrCmp(View[l1-1].Name, 'h_Combine')))
-  Delete View[l1-1];
-EndIf
 OnelabRun 'GetDP';
-l2 = PostProcessing.NbViews;
-If(l2 - l1 > 1)
-  Combine ElementsByViewName;
-EndIf
 View[PostProcessing.NbViews-1].Time = PostProcessing.GraphPointY;
 Draw;";

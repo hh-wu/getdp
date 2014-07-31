@@ -217,11 +217,7 @@ Resolution {
       SaveSolutions[A] ;
       RenameFile["rhombus.pre", Sprintf("res_%g.pre", ic)];
       RenameFile["rhombus.res", Sprintf("res_%g.res", ic)];
-      If(multiplot && ic == 0)
-        PostOperation[plot_boundary] ;
-      EndIf
       PostOperation[plot_step] ;
-      //PostOperation[plot_h] ;
     }
   }
 }
@@ -230,6 +226,7 @@ PostProcessing {
   { Name Guide_h_2D; NameOfFormulation Guide_h_2D; NameOfSystem A;
     Quantity {
       { Name step;     Value { Local { [ ic ]; In tot ; Jacobian JVol; } } }
+
       { Name boundary; Value { Local { [ bndCol[] ] ; In bnd ; Jacobian JVol ; } } }
 
       { Name h; Value{ Local{ [ {Ht}+{Hl} ]; In tot; Jacobian JVol; } } }
@@ -274,6 +271,12 @@ PostOperation {
 
   { Name plot_h; NameOfPostProcessing Guide_h_2D;
     Operation {
+      Echo[ Str["For i In {PostProcessing.NbViews-1:0:-1}",
+                "   If(!StrCmp(View[i].Name, 'h') || !StrCmp(View[i].Name, 'h_Combine'))",
+                "     Delete View[i];",
+                "   EndIf",
+                "EndFor"], File  "res/tmp1.geo" , Format Table, LastTimeStepOnly] ;
+      SendMergeFileRequest[ "res/tmp1.geo" ];
       Print[ h,       OnElementsOf tot , File Sprintf("res/h1_%g.pos", ic) ] ;
       If(multiplot)
         Print[ hb,      OnElementsOf tot , File Sprintf("res/h2_%g.pos", ic), ChangeOfCoordinates {$X+s,$Y+c,$Z} , Name "h" ] ;
@@ -284,24 +287,36 @@ PostOperation {
         Print[ hb1_2a,  OnElementsOf tot , File Sprintf("res/h7_%g.pos", ic), ChangeOfCoordinates {$X+2-s,$Y-c,$Z} , Name "h" ] ;
         Print[ h2b,     OnElementsOf tot , File Sprintf("res/h8_%g.pos", ic), ChangeOfCoordinates {$X+2*s,$Y+2*c,$Z} , Name "h" ] ;
         Print[ h2b1_2a, OnElementsOf tot , File Sprintf("res/h9_%g.pos", ic), ChangeOfCoordinates {$X+2-2*s,$Y-2*c,$Z} , Name "h" ] ;
+        Echo[ "Combine ElementsByViewName;", File  "res/tmp2.geo" , Format Table, LastTimeStepOnly] ;
+        SendMergeFileRequest[ "res/tmp2.geo" ];
       EndIf
     }
   }
 
   { Name plot_boundary; NameOfPostProcessing Guide_h_2D;
     Operation {
+      Echo[ Str["For i In {PostProcessing.NbViews-1:0:-1}",
+                "  If(!StrCmp(View[i].Name, 'boundary') || !StrCmp(View[i].Name, 'boundary_Combine'))",
+                "    Delete View[i];",
+                "  EndIf",
+                "EndFor"], File  "res/tmp1.geo" , Format Table, LastTimeStepOnly] ;
+      SendMergeFileRequest[ "res/tmp1.geo" ];
       Print[ boundary, OnElementsOf bnd, File "res/boundary1.pos" , LastTimeStepOnly];
-      Print[ boundary, OnElementsOf bnd , File "res/boundary2.pos" ,  ChangeOfCoordinates {$X+s,$Y+c,$Z} , LastTimeStepOnly] ;
-      Print[ boundary, OnElementsOf bnd , File  "res/boundary3.pos" , ChangeOfCoordinates {$X+1,$Y,$Z} , LastTimeStepOnly] ;
-      Print[ boundary, OnElementsOf bnd , File  "res/boundary4.pos" , ChangeOfCoordinates {$X+1-s,$Y-c,$Z} , LastTimeStepOnly] ;
-      Print[ boundary, OnElementsOf bnd , File  "res/boundary5.pos" , ChangeOfCoordinates {$X+1+s,$Y+c,$Z} , LastTimeStepOnly] ;
-      Print[ boundary, OnElementsOf bnd , File  "res/boundary6.pos" , ChangeOfCoordinates {$X+2,$Y,$Z} , LastTimeStepOnly] ;
-      Print[ boundary, OnElementsOf bnd , File  "res/boundary7.pos" , ChangeOfCoordinates {$X+2-s,$Y-c,$Z} , LastTimeStepOnly] ;
-      Print[ boundary, OnElementsOf bnd , File  "res/boundary8.pos" , ChangeOfCoordinates {$X+2*s,$Y+2*c,$Z} , LastTimeStepOnly] ;
-      Print[ boundary, OnElementsOf bnd , File  "res/boundary9.pos" , ChangeOfCoordinates {$X+2-2*s,$Y-2*c,$Z} , LastTimeStepOnly];
-      Echo[ "Combine ElementsByViewName; l=PostProcessing.NbViews-1; View[l].ColorTable={Grey80,Black}; View[l].ShowScale=0; View[l].LineWidth=2;",
-        File  "res/combine_bnd.geo" , Format Table, LastTimeStepOnly] ;
-      SendMergeFileRequest[ "res/combine_bnd.geo" ];
+      If(multiplot)
+        Print[ boundary, OnElementsOf bnd , File "res/boundary2.pos" ,  ChangeOfCoordinates {$X+s,$Y+c,$Z} , LastTimeStepOnly] ;
+        Print[ boundary, OnElementsOf bnd , File  "res/boundary3.pos" , ChangeOfCoordinates {$X+1,$Y,$Z} , LastTimeStepOnly] ;
+        Print[ boundary, OnElementsOf bnd , File  "res/boundary4.pos" , ChangeOfCoordinates {$X+1-s,$Y-c,$Z} , LastTimeStepOnly] ;
+        Print[ boundary, OnElementsOf bnd , File  "res/boundary5.pos" , ChangeOfCoordinates {$X+1+s,$Y+c,$Z} , LastTimeStepOnly] ;
+        Print[ boundary, OnElementsOf bnd , File  "res/boundary6.pos" , ChangeOfCoordinates {$X+2,$Y,$Z} , LastTimeStepOnly] ;
+        Print[ boundary, OnElementsOf bnd , File  "res/boundary7.pos" , ChangeOfCoordinates {$X+2-s,$Y-c,$Z} , LastTimeStepOnly] ;
+        Print[ boundary, OnElementsOf bnd , File  "res/boundary8.pos" , ChangeOfCoordinates {$X+2*s,$Y+2*c,$Z} , LastTimeStepOnly] ;
+        Print[ boundary, OnElementsOf bnd , File  "res/boundary9.pos" , ChangeOfCoordinates {$X+2-2*s,$Y-2*c,$Z} , LastTimeStepOnly];
+        Echo[ "Combine ElementsByViewName;", File  "res/tmp2.geo" , Format Table, LastTimeStepOnly] ;
+        SendMergeFileRequest[ "res/tmp2.geo" ];
+      EndIf
+      Echo[ "l=PostProcessing.NbViews-1; View[l].ColorTable={Grey80,Black}; View[l].ShowScale=0; View[l].LineWidth=2; View[l].LineType=1;",
+            File  "res/tmp3.geo", Format Table, LastTimeStepOnly] ;
+      SendMergeFileRequest[ "res/tmp3.geo" ];
     }
   }
 }
