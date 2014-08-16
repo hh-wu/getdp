@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2014 P. Dular, C. Geuzaine
+// GetDP - Copyright (C) 1997-2014 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@geuz.org>.
@@ -814,6 +814,7 @@ static void _setStandardOptions(onelab::parameter *p, Message::fmap &fopt,
   // numbers
   if(fopt.count("Visible")) p->setVisible(fopt["Visible"][0] ? true : false);
   if(fopt.count("ReadOnly")) p->setReadOnly(fopt["ReadOnly"][0] ? true : false);
+  if(fopt.count("NeverChanged")) p->setNeverChanged(fopt["NeverChanged"][0] ? true : false);
   if(fopt.count("ReadOnlyRange"))
     p->setAttribute("ReadOnlyRange", fopt["ReadOnlyRange"][0] ? "1" : "0");
   if(fopt.count("AutoCheck"))
