@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2014 P. Dular, C. Geuzaine
+// GetDP - Copyright (C) 1997-2014 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@geuz.org>.
@@ -41,7 +41,7 @@ static void Info(int level, char *arg0)
   case 0 :
     fprintf(stderr,
 	    "GetDP, a General environment for the treatment of Discrete Problems\n"
-	    "Copyright (C) 1997-2014 P. Dular, C. Geuzaine\n"
+	    "Copyright (C) 1997-2014 P. Dular and C. Geuzaine, University of Liege\n"
 	    "Usage: %s [file] [options]\n"
 	    "Processing options:\n"
 	    "  -pre 'Resolution'         pre-processing\n"
