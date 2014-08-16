@@ -70,8 +70,9 @@ something like this:
     }
   }
 </pre>
-i.e., a direct transcription of the discrete function space and weak
-form of the problem. 
+i.e., a direct transcription of the discrete function space and 
+<a href="http://en.wikipedia.org/wiki/Weak_formulation">weak
+formulation</a> of the problem. 
 <p>
 See GetDP's reference manual for a more
 thorough <a href="doc/texinfo/getdp.html#Overview">overview of GetDP's
@@ -99,12 +100,11 @@ License (GPL)</a>:
     <p>
       <em>The binary versions are compiled
         with <a href="http://www.mcs.anl.gov/petsc/">PETSc</a>, with support for
-        sequential direct sparse linear solvers
-        using <a href="http://graal.ens-lyon.fr/MUMPS">MUMPS</a>. For large
-        problems you should consider compiling the parallel (MPI) version of
-        GetDP: check
-        the <a href="https://geuz.org/trac/getdp/wiki/PETScCompile">wiki</a>
-        (login: getdp, password: getdp) for sample build instructions.</em>
+        the multi-threaded direct sparse linear
+        solver <a href="http://graal.ens-lyon.fr/MUMPS">MUMPS</a>. Distributed
+        memory versions for computer clusters (using MPI) should be 
+        <a href="https://geuz.org/trac/getdp/wiki/PETScCompile">compiled from
+        source</a> (login: getdp, password: getdp).</em>
   <li>Development version:
     <ul><li>automated nightly builds
         (<a href="http://onelab.info/CDash/index.php?project=GetDP">dashboard</a>):
@@ -131,9 +131,9 @@ articles, reports, etc.).
 
 <h2><a name="Authors"></a>Authors and credits</h2>
 
-GetDP is developed by Patrick Dular and Christophe Geuzaine (both with
+GetDP is developed by Patrick Dular and Christophe Geuzaine at
 the <a href="http://www.ulg.ac.be">University of
-Li&egrave;ge</a>). The <a href="doc/CREDITS.txt">CREDITS</a> file has
+Li&egrave;ge</a>. The <a href="doc/CREDITS.txt">CREDITS</a> file has
 more information.
 <p>
 Please use the public mailing
@@ -152,8 +152,10 @@ getdp, password: getdp).
     <a href="doc/texinfo/getdp.txt">plain text</a>)
   <li><a href="doc/slides/getdp-01.html">Short presentation</a>
     (also available in <a href="doc/slides/getdp.pdf">pdf</a>)
-  <li><a href="https://geuz.org/trac/getdp">Wiki</a> with examples, a
-    <a href="https://geuz.org/trac/getdp/timeline">time line</a> of
+  <li><a href="http://onelab.info/wiki/GetDP">Various examples</a>
+    on the site of the ONELAB project
+  <li><a href="https://geuz.org/trac/getdp">Wiki</a> with user-contributed
+    examples, a <a href="https://geuz.org/trac/getdp/timeline">time line</a> of
     changes and the <a href="https://geuz.org/trac/getdp/report/3">bug
     tracking</a> database (username: getdp, password: getdp)
   <li><a href="doc/VERSIONS.txt">Version history</a>
@@ -184,10 +186,10 @@ getdp, password: getdp).
 
 <h2><a name="Licensing"></a>Licensing</h2>
 
-GetDP is copyright (C) 1997-2014 by P. Dular and C. Geuzaine and is
-distributed under the terms of
-the <a href="http://www.gnu.org/copyleft/gpl.html">GNU General Public
-License (GPL)</a>.
+GetDP is copyright (C) 1997-2014 by P. Dular and C. Geuzaine, University of
+Liege, and is distributed under the terms of
+the <a href="http://www.gnu.org/copyleft/gpl.html">GNU General Public License
+(GPL)</a>.
 <p>
 In short, this means that everyone is free to use GetDP and to
 redistribute it on a free basis. GetDP is not in the public domain; it
