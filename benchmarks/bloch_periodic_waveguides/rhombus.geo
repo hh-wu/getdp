@@ -77,8 +77,7 @@ Solver.AutoShowViews = 1;
 PostProcessing.GraphPointCommand =
 "c = DefineString[Sprintf('-pos plot_boundary plot_h -bin -v 3 -name res_%g -setnumber ic %g',
                   PostProcessing.GraphPointX, PostProcessing.GraphPointX),
-                  Name 'GetDP/9ComputeCommand', ReadOnly 1];
-OnelabRun 'GetDP';
-c = DefineString['-solve -slepc -bin', Name 'GetDP/9ComputeCommand', ReadOnly 1];
+                  Name 'GetDP_NoAutoRun/9ComputeCommand', ReadOnly 1, NeverChanged 1];
+OnelabRun('GetDP_NoAutoRun', StrCat(Solver.Executable0, StrCat(' ', StrPrefix(General.FileName))));
 View[PostProcessing.NbViews-1].Time = PostProcessing.GraphPointY;
 Draw;";
