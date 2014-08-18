@@ -4412,13 +4412,16 @@ If the @code{TimeStep} option is present, limit the printing to the selected
 time steps.
 
 @item EigenSolve
-@code{[@var{system-id}, @var{expression-cst}, @var{expression-cst}, @var{expression-cst}]}
+@code{[@var{system-id}, @var{expression-cst}, @var{expression-cst}, @var{expression-cst} < , @var{expression} > ]}
 
 Eigenvalue/eigenvector computation using Arpack or SLEPc (). The parameters
 are: the system (which has to be generated with
 @code{GenerateSeparate[]}), the number of eigenvalues/eigenvectors to
 compute and the real and imaginary spectral shift (around which to look
-for eigenvalues).
+for eigenvalues). The last optional argument allows to filter which
+eigenvalue/eigenvector pairs will be saved. For example,
+@code{($EigenvalueReal > 0)} would only keep pairs corresponding to eigenvalues with
+a striclty positive real part.
 
 @item Lanczos
 @code{[@var{system-id}, @var{expression-cst}, @{ @var{expression-cst-list} @} , @var{expression-cst}]}

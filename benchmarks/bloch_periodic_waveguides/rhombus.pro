@@ -92,7 +92,7 @@ Function {
   bndCol[bndBlack] = Complex[1,1];
 
   // only store eigenvalues with non-zero real part
-  EigFilter[] = (Norm[$wr] > 1.e-4);
+  EigFilter[] = (Norm[$EigenvalueReal] > 1.e-4);
 }
 
 Constraint {
