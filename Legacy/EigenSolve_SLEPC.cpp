@@ -36,6 +36,7 @@
 #include <complex>
 #include "ProData.h"
 #include "DofData.h"
+#include "Cal_Quantity.h"
 #include "Message.h"
 #include "MallocUtils.h"
 #include <slepceps.h>
@@ -78,7 +79,7 @@ static PetscErrorCode _myQepMonitor(QEP qep, int its, int nconv, PetscScalar *ei
 }
 
 static void _storeEigenVectors(struct DofData *DofData_P, int nconv,
-                               EPS eps, QEP qep)
+                               EPS eps, QEP qep, int filterExpressionIndex)
 {
   if (nconv <= 0) return;
 
@@ -126,11 +127,6 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv,
                     (ore < 0) ? "" : " ", ore, (oim < 0) ? "" : " ", oim);
       Message::Info("          f = %s%.16e %s%.16e",
                     (fre < 0) ? "" : " ", fre, (fim < 0) ? "" : " ", fim);
-
-      Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Re(Omega)",
-                                     ore);
-      Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Im(Omega)",
-                                     oim);
     }
     else{
       // lambda == iw
@@ -141,12 +137,27 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv,
       double fre = ore / 2. / M_PI, fim = oim / 2. / M_PI;
       Message::Info("          f = %s%.16e %s%.16e",
                     (fre < 0) ? "" : " ", fre, (fim < 0) ? "" : " ", fim);
-
-      Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Re(Omega)",
-                                     ore);
-      Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Im(Omega)",
-                                     oim);
     }
+
+    // update the current value of Time and TimeImag so that
+    // $EigenvalueReal and $EigenvalueImag are up-to-date
+    Current.Time = ore;
+    Current.TimeImag = oim;
+
+    // test filter expression and continue without storing if false
+    if(filterExpressionIndex >= 0){
+      struct Value val;
+      Get_ValueOfExpressionByIndex(filterExpressionIndex, NULL, 0., 0., 0., &val);
+      if(!val.Val[0]){
+        Message::Debug("Skipping eigenvalue %g + i * %g", ore, oim);
+        continue;
+      }
+    }
+
+    Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Re(Omega)",
+                                   ore);
+    Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Im(Omega)",
+                                   oim);
 
     // create new solution vector if necessary
     if(newsol) {
@@ -215,10 +226,6 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv,
     // increment the global timestep counter so that a future
     // GenerateSystem knows which solutions exist
     Current.TimeStep += 1.;
-    // update the current value of Time and TimeImag so that
-    // $EigenvalueReal and $EigenvalueImag are up-to-date
-    Current.Time = ore;
-    Current.TimeImag = oim;
   }
 
 #if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
@@ -239,7 +246,7 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv,
 }
 
 static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
-                       double shift_r, double shift_i)
+                       double shift_r, double shift_i, int filterExpressionIndex)
 {
   Message::Info("Solving linear eigenvalue problem");
 
@@ -343,7 +350,7 @@ static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
   if(nconv > nev) nconv = nev;
 
   // print eigenvalues and store eigenvectors in DofData
-  _storeEigenVectors(DofData_P, nconv, eps, PETSC_NULL);
+  _storeEigenVectors(DofData_P, nconv, eps, PETSC_NULL, filterExpressionIndex);
 
 #if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
   _try(EPSDestroy(&eps));
@@ -353,7 +360,7 @@ static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
 }
 
 static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
-                          double shift_r, double shift_i)
+                          double shift_r, double shift_i, int filterExpressionIndex)
 {
   Message::Info("Solving quadratic eigenvalue problem");
 
@@ -460,7 +467,7 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
   if(nconv > nev) nconv = nev;
 
   // print eigenvalues and store eigenvectors in DofData
-  _storeEigenVectors(DofData_P, nconv, PETSC_NULL, qep);
+  _storeEigenVectors(DofData_P, nconv, PETSC_NULL, qep, filterExpressionIndex);
 
 #if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
   _try(QEPDestroy(&qep));
@@ -470,7 +477,7 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
 }
 
 void EigenSolve_SLEPC(struct DofData * DofData_P, int numEigenValues,
-                      double shift_r, double shift_i)
+                      double shift_r, double shift_i, int FilterExpressionIndex)
 {
   // Warn if we are not in harmonic regime (we won't be able to compute/store
   // complex eigenvectors).
@@ -495,11 +502,11 @@ void EigenSolve_SLEPC(struct DofData * DofData_P, int numEigenValues,
 
   if(!DofData_P->Flag_Init[2]){
     // the shift refers to w^2
-    _linearEVP(DofData_P, numEigenValues, shift_r, shift_i);
+    _linearEVP(DofData_P, numEigenValues, shift_r, shift_i, FilterExpressionIndex);
   }
   else{
     // the shift refers to w
-    _quadraticEVP(DofData_P, numEigenValues, shift_r, shift_i);
+    _quadraticEVP(DofData_P, numEigenValues, shift_r, shift_i, FilterExpressionIndex);
   }
 }
 

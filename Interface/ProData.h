@@ -928,6 +928,7 @@ struct Operation {
     struct {
       int     NumEigenvalues;
       double  Shift_r, Shift_i;
+      int     FilterExpressionIndex;
     } EigenSolve;
     struct {
       int     ExpressionIndex;

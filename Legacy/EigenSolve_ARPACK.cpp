@@ -17,6 +17,7 @@
 #include "Message.h"
 #include "ProData.h"
 #include "DofData.h"
+#include "Cal_Quantity.h"
 #include "MallocUtils.h"
 #include "OS.h"
 
@@ -214,7 +215,7 @@ static void GetDP2ArpackMerge(gVector *in1, gVector *in2, complex_16 *out)
 }
 
 void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
-                       double shift_r, double shift_i)
+                       double shift_r, double shift_i, int FilterExpressionIndex)
 {
   struct EigenPar eigenpar;
   struct Solution Solution_S;
@@ -714,6 +715,21 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
     Message::Info("                  f = %.12e %s %.12e * i",
                   f.re, (f.im > 0) ? "+" : "-", (f.im > 0) ? f.im : -f.im);
 
+    /* Update the current value of Time and TimeImag so that
+       $EigenvalueReal and $EigenvalueImag are up-to-date */
+    Current.Time = omega.re;
+    Current.TimeImag = omega.im;
+
+    // test filter expression and continue without storing if false
+    if(FilterExpressionIndex >= 0){
+      struct Value val;
+      Get_ValueOfExpressionByIndex(FilterExpressionIndex, NULL, 0., 0., 0., &val);
+      if(!val.Val[0]){
+        Message::Debug("Skipping eigenvalue %g + i * %g", omega.re, omega.im);
+        continue;
+      }
+    }
+
     Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Re(Omega)",
                                    omega.re);
     Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Im(Omega)",
@@ -772,10 +788,6 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
     /* Increment the global timestep counter so that a future
        GenerateSystem knows which solutions exist */
     Current.TimeStep += 1.;
-    /* Update the current value of Time and TimeImag so that
-       $EigenvalueReal and $EigenvalueImag are up-to-date */
-    Current.Time = omega.re;
-    Current.TimeImag = omega.im;
   }
 
   /* Deallocate */

@@ -91,7 +91,8 @@ Function {
   bndCol[bndGrey] = 0;
   bndCol[bndBlack] = Complex[1,1];
 
-  EigFilter[] = (Norm[$wr] > 1.e-12);
+  // only store eigenvalues with non-zero real part
+  EigFilter[] = (Norm[$wr] > 1.e-4);
 }
 
 Constraint {
@@ -215,7 +216,7 @@ Resolution {
     Operation {
       CreateDir["res"] ;
       GenerateSeparate[A];
-      EigenSolve[A, nmodes, decalage, 0]; //, EigFilter[]];
+      EigenSolve[A, nmodes, decalage, 0, EigFilter[]];
       SaveSolutions[A] ;
       RenameFile["rhombus.pre", Sprintf("res_%g.pre", ic)];
       RenameFile["rhombus.res", Sprintf("res_%g.res", ic)];

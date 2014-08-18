@@ -1357,7 +1357,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
       EigenSolve(DofData_P, Operation_P->Case.EigenSolve.NumEigenvalues,
 		 Operation_P->Case.EigenSolve.Shift_r,
-		 Operation_P->Case.EigenSolve.Shift_i) ;
+		 Operation_P->Case.EigenSolve.Shift_i,
+                 Operation_P->Case.EigenSolve.FilterExpressionIndex) ;
       Flag_CPU = 1 ;
       break ;
 
@@ -1370,7 +1371,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
       EigenSolve(DofData_P, Operation_P->Case.EigenSolve.NumEigenvalues,
 		 Operation_P->Case.EigenSolve.Shift_r,
-		 Operation_P->Case.EigenSolve.Shift_i) ;
+		 Operation_P->Case.EigenSolve.Shift_i,
+                 Operation_P->Case.EigenSolve.FilterExpressionIndex) ;
       /* Insert intelligent convergence test here :-) */
       Current.RelativeDifference = 1.0 ;
       Flag_CPU = 1 ;

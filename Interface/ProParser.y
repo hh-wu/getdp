@@ -4323,6 +4323,24 @@ OperationTerm :
       Operation_P->Case.EigenSolve.NumEigenvalues = (int)$5;
       Operation_P->Case.EigenSolve.Shift_r = $7;
       Operation_P->Case.EigenSolve.Shift_i = $9;
+      Operation_P->Case.EigenSolve.FilterExpressionIndex = -1;
+    }
+
+  | tEigenSolve '[' String__Index ',' FExpr ',' FExpr ',' FExpr
+                ',' Expression  ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_EIGENSOLVE;
+      int i;
+      if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $3);
+      Free($3);
+      Operation_P->DefineSystemIndex = i;
+      Operation_P->Case.EigenSolve.NumEigenvalues = (int)$5;
+      Operation_P->Case.EigenSolve.Shift_r = $7;
+      Operation_P->Case.EigenSolve.Shift_i = $9;
+      Operation_P->Case.EigenSolve.FilterExpressionIndex = $11;
     }
 
   | tEigenSolveJac '[' String__Index ',' FExpr ',' FExpr ',' FExpr ']' tEND
@@ -4338,6 +4356,7 @@ OperationTerm :
       Operation_P->Case.EigenSolve.NumEigenvalues = (int)$5;
       Operation_P->Case.EigenSolve.Shift_r = $7;
       Operation_P->Case.EigenSolve.Shift_i = $9;
+      Operation_P->Case.EigenSolve.FilterExpressionIndex = -1;
     }
 
   | tEvaluate '[' Expression CommaFExprOrNothing ']' tEND
