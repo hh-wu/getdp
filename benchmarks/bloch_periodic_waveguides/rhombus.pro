@@ -75,7 +75,11 @@ Function {
     KY = {par2 * 2. * ta * Pi, ReadOnly 1, Name "Parameters/KY",
       Highlight "AliceBlue"},
     decalage = {gam * gam / epsr + dec, ReadOnly 1, Name "Parameters/Eigensolver shift",
-      Highlight "AliceBlue"}
+                Help "Target eigenvalue norm for the eigensolver (computed automatically)",
+                Highlight "AliceBlue"},
+    filter = {1e-4, Name "Parameters/Eigenvalue threshold",
+              Help Str["Only store eigenvalue/eigenvector pairs if the real part of the",
+                "eigenvalue is larger in absolute value than the given threshold"]}
   ];
 
   // for LinkCplx constraint
@@ -92,7 +96,7 @@ Function {
   bndCol[bndBlack] = Complex[1,1];
 
   // only store eigenvalues with non-zero real part
-  EigFilter[] = (Norm[$EigenvalueReal] > 1.e-4);
+  EigFilter[] = (Norm[$EigenvalueReal] > filter);
 }
 
 Constraint {
