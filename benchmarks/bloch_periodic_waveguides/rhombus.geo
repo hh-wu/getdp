@@ -72,12 +72,13 @@ Physical Line(9999) = {13:16};
 View.RangeType = 3;
 // show all merged views
 Solver.AutoShowViews = 1;
+// don't show last step
+Solver.AutoShowLastStep = 0;
 
 // what to do when we double-click on a graph point
 PostProcessing.GraphPointCommand =
-"c = DefineString[Sprintf('-pos plot_boundary plot_h -bin -v 3 -name res_%g -setnumber ic %g',
-                  PostProcessing.GraphPointX, PostProcessing.GraphPointX),
+"c = DefineString[Sprintf('-pos plot_boundary plot_h -bin -v 3 -name res_%g -setnumber ic %g -setnumber selectedEigenvalue %.16g',
+                  PostProcessing.GraphPointX, PostProcessing.GraphPointX, PostProcessing.GraphPointY),
                   Name 'GetDP_NoAutoRun/9ComputeCommand', ReadOnly 1, NeverChanged 1, Visible 0];
 OnelabRun('GetDP_NoAutoRun', StrCat(Solver.Executable0, StrCat(' ', StrPrefix(General.FileName))));
-View[PostProcessing.NbViews-1].Time = PostProcessing.GraphPointY;
 Draw;";

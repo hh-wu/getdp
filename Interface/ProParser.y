@@ -282,7 +282,7 @@ struct doubleXstring{
 %token        tStoreMaxInRegister tStoreMaxXinRegister tStoreMaxYinRegister
 %token        tStoreMaxZinRegister tStoreMinInRegister tStoreMinXinRegister
 %token        tStoreMinYinRegister tStoreMinZinRegister
-%token        tLastTimeStepOnly tAppendTimeStepToFileName
+%token        tLastTimeStepOnly tAppendTimeStepToFileName tTimeValue tTimeImagValue
 %token        tOverrideTimeStepValue tNoMesh tSendToServer tColor tStr tDate
 %token        tNewCoordinates
 
@@ -5775,6 +5775,9 @@ PostOperation :
       PostOperation_S.Format = FORMAT_GMSH;
       PostOperation_S.PostProcessingIndex = -1;
       PostOperation_S.ResampleTime = false;
+      PostOperation_S.TimeValue_L = NULL;
+      PostOperation_S.TimeImagValue_L = NULL;
+      PostOperation_S.LastTimeStepOnly = 0;
     }
 
   | PostOperation  PostOperationTerm
@@ -5814,6 +5817,21 @@ PostOperationTerm :
       Free($2);
     }
 
+  | tTimeValue ListOfFExpr tEND
+    {
+      PostOperation_S.TimeValue_L = $2;
+    }
+
+  | tTimeImagValue ListOfFExpr tEND
+    {
+      PostOperation_S.TimeImagValue_L = $2;
+    }
+
+  | tLastTimeStepOnly tEND
+    {
+      PostOperation_S.LastTimeStepOnly = 1;
+    }
+
   | tAppend CharExpr tEND
     {
       PostOperation_S.AppendString = $2;
@@ -5828,7 +5846,11 @@ PostOperationTerm :
     }
 
   | tOperation  '{' PostSubOperations '}'
-    { PostOperation_S.PostSubOperation = $3; }
+    {
+      PostOperation_S.PostSubOperation = $3;
+    }
+
+  | Loop
  ;
 
 
@@ -5918,12 +5940,21 @@ PostSubOperations :
       PostSubOperation_S.ValueIndex = 0;
       PostSubOperation_S.ValueName = NULL;
       PostSubOperation_S.Label = NULL;
+      PostSubOperation_S.TimeValue_L = NULL;
+      PostSubOperation_S.TimeImagValue_L = NULL;
     }
     PostSubOperation
     {
       if(PostSubOperation_S.Type != POP_NONE) {
 	if(PostSubOperation_S.Format < 0)
 	  PostSubOperation_S.Format = PostOperation_S.Format;
+	if(!PostSubOperation_S.TimeValue_L)
+          PostSubOperation_S.TimeValue_L = PostOperation_S.TimeValue_L;
+	if(!PostSubOperation_S.TimeImagValue_L)
+          PostSubOperation_S.TimeImagValue_L = PostOperation_S.TimeImagValue_L;
+	if(!PostSubOperation_S.LastTimeStepOnly)
+          PostSubOperation_S.LastTimeStepOnly = PostOperation_S.LastTimeStepOnly;
+
 	List_Add($$ = $1, &PostSubOperation_S);
       }
     }
@@ -6344,6 +6375,14 @@ PrintOption :
 	List_Add(PostSubOperation_S.TimeStep_L, &j);
       }
       List_Delete($3);
+    }
+  | ',' tTimeValue ListOfFExpr
+    {
+      PostSubOperation_S.TimeValue_L = $3;
+    }
+  | ',' tTimeImagValue ListOfFExpr
+    {
+      PostSubOperation_S.TimeImagValue_L = $3;
     }
   | ',' tAdapt tSTRING
     {

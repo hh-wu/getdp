@@ -146,13 +146,42 @@ int Pos_InitTimeSteps(struct PostSubOperation *PostSubOperation_P)
 {
   int iTime, NbTimeStep;
 
-  if(PostSubOperation_P->LastTimeStepOnly || PostSubOperation_P->AppendTimeStepToFileName){
+  // last time step only
+  if(PostSubOperation_P->LastTimeStepOnly ||
+     PostSubOperation_P->AppendTimeStepToFileName){
     iTime = List_Nbr(Current.DofData->Solutions) - 1;
     List_Reset(PostSubOperation_P->TimeStep_L);
     List_Add(PostSubOperation_P->TimeStep_L, &iTime);
     return 1;
   }
 
+  // specific time values
+  if(List_Nbr(PostSubOperation_P->TimeValue_L) ||
+     List_Nbr(PostSubOperation_P->TimeImagValue_L)){
+    List_Reset(PostSubOperation_P->TimeStep_L);
+    for(int i = 0; i < List_Nbr(Current.DofData->Solutions); i++){
+      Solution *s = (struct Solution*)List_Pointer(Current.DofData->Solutions, i);
+      int step = s->TimeStep;
+      double time = s->Time, timeImag = s->TimeImag;
+      for(int j = 0; j < List_Nbr(PostSubOperation_P->TimeValue_L); j++){
+        double t;
+        List_Read(PostSubOperation_P->TimeValue_L, j, &t);
+        if(fabs(t - time) < 1.e-15){
+          List_Insert(PostSubOperation_P->TimeStep_L, &step, fcmp_double);
+        }
+      }
+      for(int j = 0; j < List_Nbr(PostSubOperation_P->TimeImagValue_L); j++){
+        double t;
+        List_Read(PostSubOperation_P->TimeImagValue_L, j, &t);
+        if(fabs(t - timeImag) < 1.e-15)
+          List_Insert(PostSubOperation_P->TimeStep_L, &step, fcmp_double);
+      }
+    }
+    NbTimeStep = List_Nbr(PostSubOperation_P->TimeStep_L);
+    if(NbTimeStep) return NbTimeStep;
+  }
+
+  // specific time steps
   NbTimeStep = List_Nbr(PostSubOperation_P->TimeStep_L);
 
   if(!NbTimeStep || !PostSubOperation_P->FrozenTimeStepList){

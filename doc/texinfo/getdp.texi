@@ -2814,6 +2814,8 @@ PostOperation @{
   @{ Name @var{post-operation-id}; NameOfPostProcessing @var{post-processing-id}; 
     < Hidden @var{expression-cst}; >
     < Format @var{post-operation-fmt}; > < Append @var{expression-char}; >
+    < TimeValue @var{expression-cst-list}; > < TimeImagValue @var{expression-cst-list}; >
+    < LastTimeStepOnly; >
     < ResampleTime[@var{expression-cst}, @var{expression-cst}, @var{expression-cst}]; >
     Operation @{ 
       < @var{post-operation-op}; > @dots{} 
@@ -4893,6 +4895,16 @@ p-refinement).
 @code{@var{expression-cst-list-item} | @{ @var{expression-cst-list} @}}
 
 Outputs results for the specified time steps only.
+
+@item TimeValue
+@code{@var{expression-cst-list-item} | @{ @var{expression-cst-list} @}}
+
+Outputs results for the specified time value(s) only.
+
+@item TimeImagValue
+@code{@var{expression-cst-list-item} | @{ @var{expression-cst-list} @}}
+
+Outputs results for the specified imaginary time value(s) only.
 
 @item LastTimeStepOnly
 

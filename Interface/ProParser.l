@@ -360,6 +360,8 @@ TimeLoopRungeKutta           return tTimeLoopRungeKutta;
 TimeLoopTheta                return tTimeLoopTheta;
 TimeMax                      return tTimeMax;
 TimeStep                     return tTimeStep;
+TimeValue                    return tTimeValue;
+TimeImagValue                return tTimeImagValue;
 ToleranceFactor              return tToleranceFactor;
 Trace                        return tTrace;
 Type                         return tType;

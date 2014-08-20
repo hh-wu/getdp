@@ -1279,6 +1279,8 @@ struct PostOperation {
   int      Rank;
   double   ResampleTimeStart, ResampleTimeStop, ResampleTimeStep;
   bool     ResampleTime;
+  List_T  *TimeValue_L, *TimeImagValue_L;
+  int      LastTimeStepOnly;
 };
 
 struct PostSubOperation {
@@ -1303,6 +1305,7 @@ struct PostSubOperation {
   char   *ValueName, *Label;
   char   *FileOut;
   List_T *TimeStep_L, *Value_L, *Iso_L, *Frequency_L;
+  List_T *TimeValue_L, *TimeImagValue_L;
   List_T *ChangeOfValues;
   List_T *EvaluationPoints;
   union {

@@ -328,26 +328,28 @@ extern int getdp_yydebug;
      tStoreMinZinRegister = 537,
      tLastTimeStepOnly = 538,
      tAppendTimeStepToFileName = 539,
-     tOverrideTimeStepValue = 540,
-     tNoMesh = 541,
-     tSendToServer = 542,
-     tColor = 543,
-     tStr = 544,
-     tDate = 545,
-     tNewCoordinates = 546,
-     tDEF = 547,
-     tOR = 548,
-     tAND = 549,
-     tAPPROXEQUAL = 550,
-     tNOTEQUAL = 551,
-     tEQUAL = 552,
-     tGREATERGREATER = 553,
-     tLESSLESS = 554,
-     tGREATEROREQUAL = 555,
-     tLESSOREQUAL = 556,
-     tCROSSPRODUCT = 557,
-     UNARYPREC = 558,
-     tSHOW = 559
+     tTimeValue = 540,
+     tTimeImagValue = 541,
+     tOverrideTimeStepValue = 542,
+     tNoMesh = 543,
+     tSendToServer = 544,
+     tColor = 545,
+     tStr = 546,
+     tDate = 547,
+     tNewCoordinates = 548,
+     tDEF = 549,
+     tOR = 550,
+     tAND = 551,
+     tAPPROXEQUAL = 552,
+     tNOTEQUAL = 553,
+     tEQUAL = 554,
+     tGREATERGREATER = 555,
+     tLESSLESS = 556,
+     tGREATEROREQUAL = 557,
+     tLESSOREQUAL = 558,
+     tCROSSPRODUCT = 559,
+     UNARYPREC = 560,
+     tSHOW = 561
    };
 #endif
 
@@ -366,7 +368,7 @@ typedef union YYSTYPE
 
 
 /* Line 2053 of yacc.c  */
-#line 370 "ProParser.tab.hpp"
+#line 372 "ProParser.tab.hpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

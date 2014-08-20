@@ -79,7 +79,9 @@ Function {
                 Highlight "AliceBlue"},
     filter = {1e-4, Name "Parameters/Eigenvalue threshold",
               Help Str["Only store eigenvalue/eigenvector pairs if the real part of the",
-                "eigenvalue is larger in absolute value than the given threshold"]}
+                "eigenvalue is larger in absolute value than the given threshold"]},
+    // select a single eigenvalue (real part) for post-processing
+    selectedEigenvalue = {-1, Name "selectedEigenvalue", Visible 0}
   ];
 
   // for LinkCplx constraint
@@ -277,6 +279,9 @@ PostOperation {
   }
 
   { Name plot_h; NameOfPostProcessing Guide_h_2D;
+    If(selectedEigenvalue >= 0)
+      TimeValue selectedEigenvalue;
+    EndIf
     Operation {
       Echo[ Str["For i In {PostProcessing.NbViews-1:0:-1}",
                 "   If(!StrCmp(View[i].Name, 'h') || !StrCmp(View[i].Name, 'h_Combine'))",
@@ -298,28 +303,28 @@ PostOperation {
     }
   }
 
-  { Name plot_boundary; NameOfPostProcessing Guide_h_2D;
+  { Name plot_boundary; NameOfPostProcessing Guide_h_2D; LastTimeStepOnly;
     Operation {
       Echo[ Str["For i In {PostProcessing.NbViews-1:0:-1}",
                 "  If(!StrCmp(View[i].Name, 'boundary') || !StrCmp(View[i].Name, 'boundary_Combine'))",
                 "    Delete View[i];",
                 "  EndIf",
-                "EndFor"], File "res/tmp1.geo", LastTimeStepOnly] ;
-      Print[ boundary, OnElementsOf bnd, File "res/boundary1.pos" , LastTimeStepOnly];
+                "EndFor"], File "res/tmp1.geo"] ;
+      Print[ boundary, OnElementsOf bnd, File "res/boundary1.pos"];
       If(multiplot)
-        Print[ boundary, OnElementsOf bnd , File "res/boundary2.pos" ,  ChangeOfCoordinates {$X+s,$Y+c,$Z} , LastTimeStepOnly] ;
-        Print[ boundary, OnElementsOf bnd , File  "res/boundary3.pos" , ChangeOfCoordinates {$X+1,$Y,$Z} , LastTimeStepOnly] ;
-        Print[ boundary, OnElementsOf bnd , File  "res/boundary4.pos" , ChangeOfCoordinates {$X+1-s,$Y-c,$Z} , LastTimeStepOnly] ;
-        Print[ boundary, OnElementsOf bnd , File  "res/boundary5.pos" , ChangeOfCoordinates {$X+1+s,$Y+c,$Z} , LastTimeStepOnly] ;
-        Print[ boundary, OnElementsOf bnd , File  "res/boundary6.pos" , ChangeOfCoordinates {$X+2,$Y,$Z} , LastTimeStepOnly] ;
-        Print[ boundary, OnElementsOf bnd , File  "res/boundary7.pos" , ChangeOfCoordinates {$X+2-s,$Y-c,$Z} , LastTimeStepOnly] ;
-        Print[ boundary, OnElementsOf bnd , File  "res/boundary8.pos" , ChangeOfCoordinates {$X+2*s,$Y+2*c,$Z} , LastTimeStepOnly] ;
-        Print[ boundary, OnElementsOf bnd , File  "res/boundary9.pos" , ChangeOfCoordinates {$X+2-2*s,$Y-2*c,$Z} , LastTimeStepOnly];
-        Echo[ "Combine ElementsByViewName;", File  "res/tmp2.geo", LastTimeStepOnly] ;
+        Print[ boundary, OnElementsOf bnd , File "res/boundary2.pos" ,  ChangeOfCoordinates {$X+s,$Y+c,$Z} ] ;
+        Print[ boundary, OnElementsOf bnd , File  "res/boundary3.pos" , ChangeOfCoordinates {$X+1,$Y,$Z} ] ;
+        Print[ boundary, OnElementsOf bnd , File  "res/boundary4.pos" , ChangeOfCoordinates {$X+1-s,$Y-c,$Z} ] ;
+        Print[ boundary, OnElementsOf bnd , File  "res/boundary5.pos" , ChangeOfCoordinates {$X+1+s,$Y+c,$Z} ] ;
+        Print[ boundary, OnElementsOf bnd , File  "res/boundary6.pos" , ChangeOfCoordinates {$X+2,$Y,$Z} ] ;
+        Print[ boundary, OnElementsOf bnd , File  "res/boundary7.pos" , ChangeOfCoordinates {$X+2-s,$Y-c,$Z} ] ;
+        Print[ boundary, OnElementsOf bnd , File  "res/boundary8.pos" , ChangeOfCoordinates {$X+2*s,$Y+2*c,$Z} ] ;
+        Print[ boundary, OnElementsOf bnd , File  "res/boundary9.pos" , ChangeOfCoordinates {$X+2-2*s,$Y-2*c,$Z} ];
+        Echo[ "Combine ElementsByViewName;", File  "res/tmp2.geo" ] ;
       EndIf
       Echo[ Str["l=PostProcessing.NbViews-1; View[l].ColorTable={Grey80,Black}; ",
                 "View[l].ShowScale=0; View[l].LineWidth=2; View[l].LineType=1;"],
-            File "res/tmp3.geo", LastTimeStepOnly] ;
+            File "res/tmp3.geo" ] ;
     }
   }
 }
