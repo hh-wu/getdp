@@ -639,7 +639,7 @@ static PetscErrorCode CreateILSMat(ILSMat **shell)
   ILSMat *newctx;
   std::vector<PetscInt> vec_indice, vec_size;
 
-  _try(PetscNew(ILSMat,&newctx));
+  newctx = (ILSMat*)malloc(sizeof(ILSMat));
   newctx->MyField = NULL;
   newctx->AllField = NULL;
   newctx->LinearSystemType = NULL;
@@ -880,7 +880,7 @@ static PetscErrorCode PrintVec(Vec b, const char* filename, const char* varname)
   // This function is copy/paste of function LinAlg_PrintMatrix function
   // located in Legacy/LinAlg_PETSC.cpp
 
-#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 4)
+#if (PETSC_VERSION_MAJOR == 0) || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 4))
   const char *type = "";
 #else
   const VecType type;
@@ -1109,7 +1109,11 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   else{
     // Krylov subspace solver
     _try(KSPCreate(ILSComm,&ksp));
-    _try(KSPSetOperators(ksp,A,A,DIFFERENT_NONZERO_PATTERN));
+#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 5)))
+    _try(KSPSetOperators(ksp, A, A));
+#else
+    _try(KSPSetOperators(ksp, A, A, DIFFERENT_NONZERO_PATTERN));
+#endif
     _try(KSPSetTolerances(ksp, Tol, PETSC_DEFAULT, PETSC_DEFAULT, MaxIter));
     _try(KSPMonitorSet(ksp, KspMonitor, PETSC_NULL, PETSC_NULL));
     //Preconditioning
@@ -1136,7 +1140,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
       _try(PCSetType(pc,PCSHELL));
       _try(PCShellSetContext(pc, ctx_pc));
       _try(PCShellSetApply(pc, MatMultPC));
-#if (PETSC_VERSION_RELEASE == 0  || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
+#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
       _try(KSPSetPCSide(ksp, pcright ? PC_RIGHT : PC_LEFT));
 #else
       _try(KSPSetPreconditionerSide(ksp, pcright ? PC_RIGHT : PC_LEFT));
@@ -1150,7 +1154,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
     // Solve
     _try(KSPSolve(ksp, B, X));
     _try(KSPView(ksp,PETSC_VIEWER_STDOUT_WORLD));
-#if (PETSC_VERSION_RELEASE == 0  || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
+#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
     _try(KSPDestroy(&ksp));
 #else
     _try(KSPDestroy(ksp));
@@ -1177,7 +1181,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
 #endif
 
   // cleaning
-#if (PETSC_VERSION_RELEASE == 0  || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
+#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
   _try(VecDestroy(&X));
   _try(VecDestroy(&B));
   _try(MatDestroy(&A));

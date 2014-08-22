@@ -175,7 +175,7 @@ void _fillseq(Vec &V, Vec &Vseq)
   VecScatterEnd(ctx, V, Vseq, INSERT_VALUES, SCATTER_FORWARD);
 #endif
 
-#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)) )
+#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
   VecScatterDestroy(&ctx);
 #else
   VecScatterDestroy(ctx);
@@ -267,7 +267,7 @@ void LinAlg_DestroyVector(gVector *V)
 
 void LinAlg_DestroyMatrix(gMatrix *M)
 {
-#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)) )
+#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
   _try(MatDestroy(&M->M));
 #else
   _try(MatDestroy(M->M));
@@ -1236,7 +1236,11 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
 
   if(!Solver->ksp[kspIndex]) {
     _try(KSPCreate(MyComm, &Solver->ksp[kspIndex]));
+#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 5)))
+    _try(KSPSetOperators(Solver->ksp[kspIndex], A->M, A->M));
+#else
     _try(KSPSetOperators(Solver->ksp[kspIndex], A->M, A->M, DIFFERENT_NONZERO_PATTERN));
+#endif
     _try(KSPMonitorSet(Solver->ksp[kspIndex], _myKspMonitor, PETSC_NULL, PETSC_NULL));
     PC pc;
     _try(KSPGetPC(Solver->ksp[kspIndex], &pc));
@@ -1266,7 +1270,7 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
       // either we are on parallel (!GetIsCommWorld) or in sequential with rank
       // = 0 (GetIsCommWorld)
 
-#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 4)
+#if (PETSC_VERSION_RELEASE == 0) || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 4))
       const char *ksptype = "";
       _try(KSPGetType(Solver->ksp[kspIndex], &ksptype));
       const char *pctype = "";
@@ -1288,8 +1292,11 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
     }
   }
   else if(precond){
-    _try(KSPSetOperators(Solver->ksp[kspIndex], A->M, A->M,
-                         DIFFERENT_NONZERO_PATTERN));
+#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 5)))
+    _try(KSPSetOperators(Solver->ksp[kspIndex], A->M, A->M));
+#else
+    _try(KSPSetOperators(Solver->ksp[kspIndex], A->M, A->M, DIFFERENT_NONZERO_PATTERN));
+#endif
   }
 
   _try(KSPSolve(Solver->ksp[kspIndex], B->V, X->V));
@@ -1356,20 +1363,11 @@ static PetscErrorCode _NLFormFunction(SNES snes, Vec x, Vec f, void *mctx)
   return 0;
 }
 
+#if (PETSC_VERSION_MAJOR == 2) || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 5))
 static PetscErrorCode _NLFormJacobian(SNES snes, Vec x, Mat *J, Mat *PC,
-                                      MatStructure *flag, void *mctx)
+                                      MatStructure *flag,
+                                      void *mctx)
 {
-  /*
-    snes - the SNES context
-    x 	 - input vector
-    J    - Jacobian matrix
-    PC 	 - preconditioner matrix, usually the same as Jac
-    flag - flag indicating information about the preconditioner matrix structure
-           (same as flag in KSPSetOperators()), one of
-           SAME_NONZERO_PATTERN,DIFFERENT_NONZERO_PATTERN,SAME_PRECONDITIONER
-    mctx - [optional] user-defined Jacobian context
-  */
-
   gVector gx ;
   gx.V = x ;
 
@@ -1392,6 +1390,14 @@ static PetscErrorCode _NLFormJacobian(SNES snes, Vec x, Mat *J, Mat *PC,
 
   return 0;
 }
+#else
+static PetscErrorCode _NLFormJacobian(SNES snes, Vec x, Mat J, Mat PC,
+                                      void *mctx)
+{
+  Message::Error("NLFormJacobian not ready for PETSc >= 3.5");
+  return 0;
+}
+#endif
 
 static PetscErrorCode _mySnesMonitor(SNES snes, PetscInt it, PetscReal rnorm, void *mctx)
 {
@@ -1445,7 +1451,7 @@ static void _solveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R, gSolver *So
     if (fd_jacobian || snes_fd) {
       Message::Error("Finite Difference Jacobian not yet implemented");
 
-#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 4)
+#if (PETSC_VERSION_RELEASE == 0) || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 4))
       _try(SNESSetJacobian(Solver->snes[solverIndex], J->M, J->M,
                            SNESComputeJacobianDefault, PETSC_NULL));
 #else

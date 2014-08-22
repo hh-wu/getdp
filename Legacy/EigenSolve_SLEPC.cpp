@@ -71,15 +71,23 @@ static PetscErrorCode _myEpsMonitor(EPS eps, int its, int nconv, PetscScalar *ei
   return _myMonitor("EPS", its, nconv, eigr, eigi, errest);
 }
 
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 5)
 static PetscErrorCode _myQepMonitor(QEP qep, int its, int nconv, PetscScalar *eigr,
                                     PetscScalar *eigi, PetscReal* errest, int nest,
                                     void *mctx)
 {
   return _myMonitor("QEP", its, nconv, eigr, eigi, errest);
 }
+#endif
 
 static void _storeEigenVectors(struct DofData *DofData_P, int nconv,
-                               EPS eps, QEP qep, int filterExpressionIndex)
+                               EPS eps,
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 5)
+                               QEP qep,
+#else
+                               void *dummy,
+#endif
+                               int filterExpressionIndex)
 {
   if (nconv <= 0) return;
 
@@ -107,8 +115,10 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv,
       _try(EPSComputeRelativeError(eps, i, &error));
     }
     else{
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 5)
       _try(QEPGetEigenpair(qep, i, &kr, &ki, xr, xi));
       _try(QEPComputeRelativeError(qep, i, &error));
+#endif
     }
 #if defined(PETSC_USE_COMPLEX)
     PetscReal re = PetscRealPart(kr), im = PetscImaginaryPart(kr);
@@ -306,7 +316,7 @@ static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
 #endif
 
   // print info
-#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 4)
+#if (PETSC_VERSION_RELASE == 0) || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 4))
   const char *type = "";
 #else
   const EPSType type;
@@ -362,6 +372,7 @@ static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
 static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
                           double shift_r, double shift_i, int filterExpressionIndex)
 {
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 5)
   Message::Info("Solving quadratic eigenvalue problem");
 
   // GetDP notation: -w^2 M3 x + iw M2 x + M1 x = 0
@@ -473,6 +484,9 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
   _try(QEPDestroy(&qep));
 #else
   _try(QEPDestroy(qep));
+#endif
+#else
+  Message::Error("Quadratic EVP not coded for SLEPc >= 3.5");
 #endif
 }
 
