@@ -18,17 +18,18 @@
 //   -st_ksp_type preonly -st_pc_type lu
 //   -st_pc_factor_mat_solver_package mumps
 //
-// To solve a quadratic evp by linearization, using the first canonic
-// form, and building the operator explicitly so we can use a direct
+// With SLEPc < 3.5, to solve a quadratic evp by linearization, using the first
+// canonic form, and building the operator explicitly so we can use a direct
 // solver:
 //   -qep_type linear -qep_linear_cform 1 -qep_linear_explicitmatrix
 //   -qep_eps_type krylovschur
 //   -qep_st_ksp_type preonly -qep_st_pc_type lu
 //   -qep_st_pc_factor_mat_solver_package mumps
-//
-// To solve the quadratic evp directly using arnoldi iter:
+// Or to solve the quadratic evp directly using arnoldi iter:
 //   -qep_type qarnoldi -qep_eps_type krylovschur
 //   -qep_st_ksp_type gmres -qep_st_pc_type ilu
+//
+// SLEPc >= 3.5 options are similar, but with pep instead of qep
 
 #include <sstream>
 #include <string>
@@ -40,7 +41,11 @@
 #include "Message.h"
 #include "MallocUtils.h"
 #include <slepceps.h>
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 5)
 #include <slepcqep.h>
+#else
+#include <slepcpep.h>
+#endif
 
 extern struct CurrentData Current ;
 
@@ -72,20 +77,30 @@ static PetscErrorCode _myEpsMonitor(EPS eps, int its, int nconv, PetscScalar *ei
 }
 
 #if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 5)
+
 static PetscErrorCode _myQepMonitor(QEP qep, int its, int nconv, PetscScalar *eigr,
                                     PetscScalar *eigi, PetscReal* errest, int nest,
                                     void *mctx)
 {
   return _myMonitor("QEP", its, nconv, eigr, eigi, errest);
 }
+
+#else
+
+static PetscErrorCode _myPepMonitor(PEP pep, int its, int nconv, PetscScalar *eigr,
+                                    PetscScalar *eigi, PetscReal* errest, int nest,
+                                    void *mctx)
+{
+  return _myMonitor("PEP", its, nconv, eigr, eigi, errest);
+}
+
 #endif
 
-static void _storeEigenVectors(struct DofData *DofData_P, int nconv,
-                               EPS eps,
+static void _storeEigenVectors(struct DofData *DofData_P, int nconv, EPS eps,
 #if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 5)
                                QEP qep,
 #else
-                               void *dummy,
+                               PEP pep,
 #endif
                                int filterExpressionIndex)
 {
@@ -118,6 +133,9 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv,
 #if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 5)
       _try(QEPGetEigenpair(qep, i, &kr, &ki, xr, xi));
       _try(QEPComputeRelativeError(qep, i, &error));
+#else
+      _try(PEPGetEigenpair(pep, i, &kr, &ki, xr, xi));
+      _try(PEPComputeRelativeError(pep, i, &error));
 #endif
     }
 #if defined(PETSC_USE_COMPLEX)
@@ -273,10 +291,7 @@ static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
   _try(EPSSetDimensions(eps, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
   _try(EPSSetTolerances(eps, 1.e-6, 100));
   _try(EPSSetType(eps, EPSKRYLOVSCHUR));
-                  // EPSKRYLOVSCHUR, EPSARNOLDI, EPSARPACK or EPSPOWER
   _try(EPSSetWhichEigenpairs(eps, EPS_SMALLEST_MAGNITUDE));
-                             // EPS_SMALLEST_REAL, EPS_LARGEST_MAGNITUDE, ...
-
   _try(EPSMonitorSet(eps, _myEpsMonitor, PETSC_NULL, PETSC_NULL));
 
   // override these options at runtime, petsc-style
@@ -369,17 +384,20 @@ static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
 #endif
 }
 
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 5)
+// SLEPc < 3.5 interface using QEP
+
 static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
                           double shift_r, double shift_i, int filterExpressionIndex)
 {
-#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 5)
-  Message::Info("Solving quadratic eigenvalue problem");
+  Message::Info("Solving quadratic eigenvalue problem using QEP");
 
   // GetDP notation: -w^2 M3 x + iw M2 x + M1 x = 0
   // SLEPC notations for quadratic EVP: (\lambda^2 M + \lambda C + K) x = 0
   Mat M = DofData_P->M3.M;
   Mat C = DofData_P->M2.M;
   Mat K = DofData_P->M1.M;
+
   QEP qep;
   _try(QEPCreate(PETSC_COMM_WORLD, &qep));
   _try(QEPSetOperators(qep, M, C, K));
@@ -388,9 +406,9 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
   // set some default options
   _try(QEPSetDimensions(qep, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
   _try(QEPSetTolerances(qep, 1.e-6, 100));
-  _try(QEPSetType(qep, QEPLINEAR)); // QEPQARNOLDI
+  _try(QEPSetType(qep, QEPLINEAR));
   _try(QEPSetWhichEigenpairs(qep, QEP_SMALLEST_MAGNITUDE));
-                             // QEP_SMALLEST_REAL, QEP_LARGEST_MAGNITUDE, ...
+  _try(QEPMonitorSet(qep, _myQepMonitor, PETSC_NULL, PETSC_NULL));
 
   // if we linearize we can set additional options
 #if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 4)
@@ -415,7 +433,6 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
       if(shift_i)
         Message::Warning("Imaginary part of shift discarded: use PETSc with complex numbers");
 #endif
-      //_try(STSetShift(st, shift));
       _try(EPSSetTarget(eps, shift));
       _try(EPSSetWhichEigenpairs(eps, EPS_TARGET_MAGNITUDE));
     }
@@ -432,8 +449,6 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
     _try(PCFactorSetMatSolverPackage(pc, "mumps"));
 #endif
   }
-
-  _try(QEPMonitorSet(qep, _myQepMonitor, PETSC_NULL, PETSC_NULL));
 
   // override these options at runtime, if necessary
   _try(QEPSetFromOptions(qep));
@@ -485,10 +500,114 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
 #else
   _try(QEPDestroy(qep));
 #endif
-#else
-  Message::Error("Quadratic EVP not coded for SLEPc >= 3.5");
-#endif
 }
+
+#else // SLEPc >= 3.5 interface using PEP
+
+static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
+                          double shift_r, double shift_i, int filterExpressionIndex)
+{
+  Message::Info("Solving quadratic eigenvalue problem using PEP");
+
+  // GetDP notation: -w^2 M3 x + iw M2 x + M1 x = 0
+  // SLEPC notations for quadratic EVP: (\lambda^2 M + \lambda C + K) x = 0
+  Mat A[3] = {DofData_P->M1.M, DofData_P->M2.M, DofData_P->M3.M};
+
+  PEP pep;
+  _try(PEPCreate(PETSC_COMM_WORLD, &pep));
+  _try(PEPSetOperators(pep, 3, A));
+  _try(PEPSetProblemType(pep, PEP_GENERAL));
+
+  // set some default options
+  _try(PEPSetDimensions(pep, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
+  _try(PEPSetTolerances(pep, 1.e-6, 100));
+  _try(PEPSetType(pep, PEPLINEAR));
+  _try(PEPSetWhichEigenpairs(pep, PEP_SMALLEST_MAGNITUDE));
+  _try(PEPMonitorSet(pep, _myPepMonitor, PETSC_NULL, PETSC_NULL));
+
+  // if we linearize we can set additional options
+  const char *type = "";
+  _try(PEPGetType(pep, &type));
+  if(!strcmp(type, PEPLINEAR)){
+    EPS eps;
+    _try(PEPLinearGetEPS(pep, &eps));
+    _try(EPSSetType(eps, EPSKRYLOVSCHUR));
+    ST st;
+    _try(EPSGetST(eps, &st));
+    _try(STSetType(st, STSINVERT));
+    if(shift_r || shift_i){
+#if defined(PETSC_USE_COMPLEX)
+      PetscScalar shift = shift_r + PETSC_i * shift_i;
+#else
+      PetscScalar shift = shift_r;
+      if(shift_i)
+        Message::Warning("Imaginary part of shift discarded: use PETSc with complex numbers");
+#endif
+      _try(EPSSetTarget(eps, shift));
+      _try(EPSSetWhichEigenpairs(eps, EPS_TARGET_MAGNITUDE));
+    }
+    // use MUMPS by default if available
+#if (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
+    _try(PEPLinearSetExplicitMatrix(pep, PETSC_TRUE));
+    Message::Info("SLEPc forcing explicit construction of matrix");
+    KSP ksp;
+    _try(STGetKSP(st, &ksp));
+    _try(KSPSetType(ksp, "preonly"));
+    PC pc;
+    _try(KSPGetPC(ksp, &pc));
+    _try(PCSetType(pc, PCLU));
+    _try(PCFactorSetMatSolverPackage(pc, "mumps"));
+#endif
+  }
+
+  // override these options at runtime, petsc-style
+  _try(PEPSetFromOptions(pep));
+
+  // force options specified directly as arguments
+  if(numEigenValues){
+    _try(PEPSetDimensions(pep, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
+  }
+
+  // print info
+  Message::Info("SLEPc solution method: %s", type);
+  PetscInt nev;
+  _try(PEPGetDimensions(pep, &nev, PETSC_NULL, PETSC_NULL));
+  Message::Info("SLEPc number of requested eigenvalues: %d", nev);
+  PetscReal tol;
+  PetscInt maxit;
+  _try(PEPGetTolerances(pep, &tol, &maxit));
+  Message::Info("SLEPc stopping condition: tol=%g, maxit=%d", tol, maxit);
+
+  // solve
+  _try(PEPSolve(pep));
+
+  // check convergence
+  int its;
+  _try(PEPGetIterationNumber(pep, &its));
+  PEPConvergedReason reason;
+  _try(PEPGetConvergedReason(pep, &reason));
+  if(reason == PEP_CONVERGED_TOL)
+    Message::Info("SLEPc converged in %d iterations", its);
+  else if(reason == PEP_DIVERGED_ITS)
+    Message::Error("SLEPc diverged after %d iterations", its);
+  else if(reason == PEP_DIVERGED_BREAKDOWN)
+    Message::Error("SLEPc generic breakdown in method");
+
+  // get number of converged approximate eigenpairs
+  PetscInt nconv;
+  _try(PEPGetConverged(pep, &nconv));
+  Message::Info("SLEPc number of converged eigenpairs: %d", nconv);
+
+  // ignore additional eigenvalues if we get more than what we asked
+  if(nconv > nev) nconv = nev;
+
+  // print eigenvalues and store eigenvectors in DofData
+  _storeEigenVectors(DofData_P, nconv, PETSC_NULL, pep, filterExpressionIndex);
+
+  _try(PEPDestroy(&pep));
+}
+
+#endif
 
 void EigenSolve_SLEPC(struct DofData * DofData_P, int numEigenValues,
                       double shift_r, double shift_i, int FilterExpressionIndex)
