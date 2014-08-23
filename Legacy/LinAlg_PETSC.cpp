@@ -1298,6 +1298,11 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
     _try(KSPSetOperators(Solver->ksp[kspIndex], A->M, A->M, DIFFERENT_NONZERO_PATTERN));
 #endif
   }
+  else{
+#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 5)))
+    _try(KSPSetReusePreconditioner(Solver->ksp[kspIndex], PETSC_TRUE));
+#endif
+  }
 
   _try(KSPSolve(Solver->ksp[kspIndex], B->V, X->V));
 
