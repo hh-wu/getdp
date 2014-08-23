@@ -7,7 +7,7 @@ DefineConstant[ // allows to set these from outside
   NP_OSRC = 4,
   // parameters for the DDM iterative solver
   SOLVER = "gmres", // bcgs, gmsh_pcleft, ...
-  TOL = 1e-4,
+  TOL = 1e-6,
   MAXIT = 1000,
   RESTART = MAXIT
 ];
@@ -55,9 +55,10 @@ Function {
   b[] = - 1 / (alphastar[] + betastar[]);
 
   // parameters for Pade-type TC
-  kepsI = 0.;
-  keps[] = k*(1+kepsI*I[]);
-  theta_branch = Pi/4;
+  kappa[] =  1/R_INT;
+  keps[] = Complex[ k, 0.4 * k^(1/3) * kappa[]^(-2/3) ];
+
+  theta_branch = Pi/2;
 }
 
 Group{
