@@ -319,14 +319,13 @@ static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
     _try(EPSSetWhichEigenpairs(eps, EPS_TARGET_MAGNITUDE));
   }
 
-  // use MUMPS by default if available
-#if (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
   KSP ksp;
   _try(STGetKSP(st, &ksp));
   _try(KSPSetType(ksp, "preonly"));
   PC pc;
   _try(KSPGetPC(ksp, &pc));
   _try(PCSetType(pc, PCLU));
+#if (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
   _try(PCFactorSetMatSolverPackage(pc, "mumps"));
 #endif
 
@@ -436,8 +435,6 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
       _try(EPSSetTarget(eps, shift));
       _try(EPSSetWhichEigenpairs(eps, EPS_TARGET_MAGNITUDE));
     }
-    // use MUMPS by default if available
-#if (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
     _try(QEPLinearSetExplicitMatrix(qep, PETSC_TRUE));
     Message::Info("SLEPc forcing explicit construction of matrix");
     KSP ksp;
@@ -446,6 +443,7 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
     PC pc;
     _try(KSPGetPC(ksp, &pc));
     _try(PCSetType(pc, PCLU));
+#if (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
     _try(PCFactorSetMatSolverPackage(pc, "mumps"));
 #endif
   }
@@ -510,7 +508,7 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
   Message::Info("Solving quadratic eigenvalue problem using PEP");
 
   // GetDP notation: -w^2 M3 x + iw M2 x + M1 x = 0
-  // SLEPC notations for quadratic EVP: (\lambda^2 M + \lambda C + K) x = 0
+  // SLEPC notations for quadratic EVP: (\lambda^2 A[2] + \lambda A[1] + A[0]) x = 0
   Mat A[3] = {DofData_P->M1.M, DofData_P->M2.M, DofData_P->M3.M};
 
   PEP pep;
@@ -546,8 +544,6 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
       _try(EPSSetTarget(eps, shift));
       _try(EPSSetWhichEigenpairs(eps, EPS_TARGET_MAGNITUDE));
     }
-    // use MUMPS by default if available
-#if (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
     _try(PEPLinearSetExplicitMatrix(pep, PETSC_TRUE));
     Message::Info("SLEPc forcing explicit construction of matrix");
     KSP ksp;
@@ -556,6 +552,7 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
     PC pc;
     _try(KSPGetPC(ksp, &pc));
     _try(PCSetType(pc, PCLU));
+#if (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
     _try(PCFactorSetMatSolverPackage(pc, "mumps"));
 #endif
   }
