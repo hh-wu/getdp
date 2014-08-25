@@ -1342,29 +1342,17 @@ extern void Generate_FullJacobian (gVector *x, gMatrix *Jac) ;
 
 static PetscErrorCode _NLFormFunction(SNES snes, Vec x, Vec f, void *mctx)
 {
-  /*
-    snes - the SNES context
-    x 	 - input vector (solution at each NL iteration)
-    f    - vector to store function value (residual)
-    mctx - [optional] user-defined Jacobian context
-  */
-
   gVector gx, gf ;
   gx.V = x ;
   gf.V = f ;
-
   Generate_Residual(&gx, &gf) ;
-
   PetscScalar *ff ;
   _try(VecGetArray(gf.V, &ff)) ;
-
   PetscInt n;
   _try(VecGetSize(f, &n)) ;
   for(PetscInt i = 0; i < n; i++)
     _try(VecSetValues(f, 1, &i, &ff[i], INSERT_VALUES));
-
   _try(VecGetArray(f, &ff));
-
   return 0;
 }
 
@@ -1375,31 +1363,37 @@ static PetscErrorCode _NLFormJacobian(SNES snes, Vec x, Mat *J, Mat *PC,
 {
   gVector gx ;
   gx.V = x ;
-
   gMatrix gJ ;
   gJ.M = *J ;
-
   Generate_FullJacobian(&gx, &gJ);
-
   *J = gJ.M ;
   *flag = DIFFERENT_NONZERO_PATTERN ;
-
   Message::Barrier();
   _try(MatAssemblyBegin(*J, MAT_FINAL_ASSEMBLY));
   _try(MatAssemblyEnd(*J, MAT_FINAL_ASSEMBLY));
-
   if (*PC != *J){
     _try(MatAssemblyBegin(*PC, MAT_FINAL_ASSEMBLY));
     _try(MatAssemblyEnd(*PC, MAT_FINAL_ASSEMBLY));
   }
-
   return 0;
 }
 #else
 static PetscErrorCode _NLFormJacobian(SNES snes, Vec x, Mat J, Mat PC,
                                       void *mctx)
 {
-  Message::Error("NLFormJacobian not ready for PETSc >= 3.5");
+  gVector gx ;
+  gx.V = x ;
+  gMatrix gJ ;
+  gJ.M = J ;
+  Generate_FullJacobian(&gx, &gJ);
+  J = gJ.M ;
+  Message::Barrier();
+  _try(MatAssemblyBegin(J, MAT_FINAL_ASSEMBLY));
+  _try(MatAssemblyEnd(J, MAT_FINAL_ASSEMBLY));
+  if (PC != J){
+    _try(MatAssemblyBegin(PC, MAT_FINAL_ASSEMBLY));
+    _try(MatAssemblyEnd(PC, MAT_FINAL_ASSEMBLY));
+  }
   return 0;
 }
 #endif
@@ -1410,7 +1404,6 @@ static PetscErrorCode _mySnesMonitor(SNES snes, PetscInt it, PetscReal rnorm, vo
   return 0;
 }
 
-// SNES - PETSC nonlinear solvers
 static void _solveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R, gSolver *Solver,
                      gVector *X, int precond, int solverIndex)
 {
