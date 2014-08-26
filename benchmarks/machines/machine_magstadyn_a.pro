@@ -90,6 +90,7 @@ DefineConstant[
   Flag_ConstantSource = 0,
   Flag_SrcType_Stator = 0,
   Flag_SrcType_Rotor = 0, Flag_Cir_RotorCage = 0, Flag_Cir_StatorRings=0,
+  Flag_ImposedCurrentDensity = 0,
   II = 0, VV = 0, wr = 0,
   Ia = II,
   Ib = II,
@@ -97,7 +98,10 @@ DefineConstant[
   Va = VV,
   Vb = VV,
   Vc = VV,
-  pA = 0, pB = 0, pC = 0, Ie = 0, ID = 0, IQ = 0, I0 = 0,
+  pA = 0,
+  pB = -2*Pi/3,
+  pC = -4*Pi/3,
+  Ie = 0, ID = 0, IQ = 0, I0 = 0,
   variableFrequencyLoop = wr,
   initialFrequencyLoop = 0,
   Flag_SrcType_StatorA = Flag_SrcType_Stator,
@@ -159,9 +163,15 @@ Group {
 
   Inds = Region[ {Stator_Inds, Rotor_Inds} ] ;
 
-  DomainB = Region[ {Inds} ] ;
   DomainM = Region[ {Stator_Magnets, Rotor_Magnets} ] ;
-  DomainS = Region[{}];
+  If(!Flag_ImposedCurrentDensity)
+    DomainB = Region[ {Inds} ] ;
+    DomainS = Region[ {} ];
+  EndIf
+  If(Flag_ImposedCurrentDensity)
+    DomainB = Region[ {} ] ;
+    DomainS = Region[ {Inds} ];
+  EndIf
   DomainPlotMovingGeo = Region[{Dummy}];
 
   Stator  = Region[{ StatorC, StatorCC }] ;
@@ -270,7 +280,6 @@ Function {
       IC[] = 1. ;
       Frelax[] = 1;
     EndIf
-
     js[PhaseA] = II * NbWires[]/SurfCoil[] * IA[] * Idir[] * Vector[0, 0, 1] ;
     js[PhaseB] = II * NbWires[]/SurfCoil[] * IB[] * Idir[] * Vector[0, 0, 1] ;
     js[PhaseC] = II * NbWires[]/SurfCoil[] * IC[] * Idir[] * Vector[0, 0, 1] ;

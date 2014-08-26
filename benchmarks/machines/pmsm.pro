@@ -20,6 +20,7 @@ DefineConstant[
 ];
 
 Flag_Cir = !Flag_SrcType_Stator ;
+Flag_ImposedCurrentDensity = Flag_SrcType_Stator ;
 
 Group {
   Stator_Fe     = #STATOR_FE ;
@@ -114,13 +115,13 @@ Function {
   // STATOR_IND_AM comprises all the slots in that phase, we need thus to divide by the number of slots
   nbSlots[] = Ceil[nbInds/NbrPhases/2] ;
   SurfCoil[] = SurfaceArea[]{STATOR_IND_AM}/nbSlots[] ;//All inductors have the same surface
-  //--------------------------------------------------  
+  //--------------------------------------------------
 /*
   Surface_PM[] = SurfaceArea[]{ROTOR_MAGNET};
 
   DefineConstant[ SurfPM = {Surface_PM[ROTOR_MAGNET], ReadOnly 1,
-                          Path "Output/2", Highlight "LightYellow" } ];		
-*/ 
+                          Path "Output/2", Highlight "LightYellow" } ];
+*/
   //--------------------------------------------------
 
 
@@ -168,7 +169,7 @@ Function {
   RotorPosition_deg[] = RotorPosition[]*180/Pi;
 
 //+++
-  Flag_ParkTransformation = 1*0 ;
+  Flag_ParkTransformation = 0 ;
   Theta_Park[] = ((RotorPosition[] + Pi/8) - Pi/6) * NbrPolePairs; // electrical degrees
   Theta_Park_deg[] = Theta_Park[]*180/Pi;
 
@@ -178,6 +179,8 @@ Function {
     IQ = { Inominal, Name "Input/51Iq stator current",
       Highlight "AliceBlue", Visible (Flag_SrcType_Stator==1)}
   ] ;
+
+  II = Inominal;
 }
 
 // --------------------------------------------------------------------------
