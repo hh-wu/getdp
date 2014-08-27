@@ -448,11 +448,12 @@ double  Transformation (int Dim, int Type, struct Element * Element, MATRIX3x3 *
   if(Type == JACOBIAN_RECT){
     if(Element->JacobianCase->NbrParameters >= 3)
       Axis = (int)Element->JacobianCase->Para[2] ;
-    if(Element->JacobianCase->NbrParameters >= 6){
+    if(Element->JacobianCase->NbrParameters >= 4)
       Cx = Element->JacobianCase->Para[3] ;
+    if(Element->JacobianCase->NbrParameters >= 5)
       Cy = Element->JacobianCase->Para[4] ;
+    if(Element->JacobianCase->NbrParameters >= 6)
       Cz = Element->JacobianCase->Para[5] ;
-    }
     if(Element->JacobianCase->NbrParameters >= 7)
       p = Element->JacobianCase->Para[6] ;
     if(Element->JacobianCase->NbrParameters >= 8)
@@ -463,11 +464,12 @@ double  Transformation (int Dim, int Type, struct Element * Element, MATRIX3x3 *
     }
   }
   else if(Type == JACOBIAN_SPH){
-    if(Element->JacobianCase->NbrParameters >= 5){
+    if(Element->JacobianCase->NbrParameters >= 3)
       Cx = Element->JacobianCase->Para[2] ;
+    if(Element->JacobianCase->NbrParameters >= 4)
       Cy = Element->JacobianCase->Para[3] ;
+    if(Element->JacobianCase->NbrParameters >= 5)
       Cz = Element->JacobianCase->Para[4] ;
-    }
     if(Element->JacobianCase->NbrParameters >= 6)
       p = Element->JacobianCase->Para[5] ;
     if(Element->JacobianCase->NbrParameters >= 7)
