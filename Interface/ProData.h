@@ -1407,7 +1407,7 @@ struct PostOpSolutions {
 struct CurrentData {
   char   *Name;
 
-  int     NbrSystem, NbrCpu, RankCpu;
+  int     NbrSystem;
   struct DefineSystem   *DefineSystem_P ;
   struct DofData  *DofData_P0;
 
