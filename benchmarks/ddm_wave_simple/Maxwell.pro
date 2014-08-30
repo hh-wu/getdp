@@ -353,6 +353,8 @@ Resolution {
         Printf["Relative iterative solver tolerance = %g", TOL];
       EndIf
 
+      SetGlobalSolverOption["-petsc_prealloc 200"];
+
       // synchronize all mpi processes and start work on own cpu
       Barrier;
       SetCommSelf;
