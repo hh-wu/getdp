@@ -8,10 +8,10 @@ REUSE=0;
 N_DOM = NUM_SLICES;
 
 //Size of the falcon
-// x-direction : ~18
+// x-direction (length) : ~18 m  -> approx 20m
 // z-direction : ~9
 
-LAMBDA = 2;
+LAMBDA = 2; // f=150MHz
 WAVENUMBER = 2*Pi/LAMBDA;
 
 //Geometry (useless for submarine but avoid errors)
