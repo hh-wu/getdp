@@ -5,6 +5,8 @@
 
 Include "cylinder_concentric_data.geo";
 
+Mesh.Algorithm=6;
+
 //Compute average area for every subdomain
 area = Pi/N_DOM*(R_EXT^2-R_INT^2);
 //vector of radius

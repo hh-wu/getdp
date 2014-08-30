@@ -8,9 +8,10 @@ PROBLEM="cylinder_concentric"
 
 OPT="-setnumber ANALYSIS 1
      -setnumber N_DOM 5
-     -setnumber WAVENUMBER 1
+     -setnumber WAVENUMBER 10
      -setnumber N_LAMBDA 20
-     -setnumber TC_TYPE 0"
+     -setnumber TC_TYPE 2
+     -setnumber NP_OSRC 8"
 
 OPT_waveguide3D="-setnumber WALLS 0
                  -setnumber DX 4
@@ -32,11 +33,11 @@ OPT_sphere_concentric="-setnumber R_INT 1
 OPT_PB=OPT_$PROBLEM
 
 GMSH="$HOME/src/gmsh/bin/gmsh $OPT ${!OPT_PB} -v 3 -bin"
-GETDP="$HOME/src/getdp/bin/getdp $OPT ${!OPT_PB} -v 3 -bin"
+GETDP="$HOME/src/getdp/bin/getdp $OPT ${!OPT_PB} -v 5 -bin"
 
 FILE="$HOME/src/getdp/benchmarks/ddm_wave_simple/${PROBLEM}"
 
 $GMSH $FILE.geo -
-$GETDP $FILE.pro -solve DDM
+$GETDP $FILE.pro -solve DDM -petsc_prealloc 200
 $GMSH ${FILE}_visu.geo
 
