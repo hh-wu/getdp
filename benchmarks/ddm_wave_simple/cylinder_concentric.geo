@@ -1,9 +1,9 @@
-// Circle decomposition in N_DOM (> 1) different parts
-// Decomposition in concentric circles
+// Cylinder decomposition in N_DOM (> 1) different parts
+// Decomposition in concentric cylinders
 // Normals are all pointing outside subdomains and full domain (normal vector is
 // pointing inside the obstacle)
 
-Include "circle_concentric_data.geo";
+Include "cylinder_concentric_data.geo";
 
 //Compute average area for every subdomain
 area = Pi/N_DOM*(R_EXT^2-R_INT^2);
@@ -13,6 +13,7 @@ R[0] = R_INT;
 Point(1) = {0,0,0,LC};
 For i In {0:N_DOM}
   //  r = R_INT + i * (R_EXT - R_INT) / N_DOM;
+
   If(i == N_DOM)
     R[i] = R_EXT; //avoir numerical errors
   EndIf
@@ -20,6 +21,7 @@ For i In {0:N_DOM}
     R[i] = Sqrt[area/Pi +R[i-1]^2];
   EndIf
   r = R[i];
+
   p2 = newp; Point(p2) = {r,0,0,LC};
   p3 = newp; Point(p3) = {0,r,0,LC};
   p4 = newp; Point(p4) = {-r,0,0,LC};
@@ -38,31 +40,57 @@ For i In {0:N_DOM}
   EndIf
 EndFor
 
+ret[] = Extrude{0,0,1}{
+  Surface{ss[]}; Layers{1}; Recombine;
+};
+
+ii = 1;
+Printf("bot %g top %g vol %g   lat REXT %g %g %g %g  lat RINT  %g %g %g %g ",
+       -ss[ii],
+       ret[10*ii+0],
+       ret[10*ii+1],
+       ret[10*ii+2], ret[10*ii+3], ret[10*ii+4], ret[10*ii+5],
+       ret[10*ii+6], ret[10*ii+7], ret[10*ii+8], ret[10*ii+9]
+     );
+
 If(StrCmp(OnelabAction, "check")) // only mesh if not in onelab check mode
-  Mesh 2;
+  Mesh 3;
+  //Coherence Mesh; // circumvent duplicate geometrical entities
   CreateDir Str(DIR);
   For idom In {0:N_DOM-1}
     Delete Physicals;
-    Physical Surface(100 + idom) = ss[idom];
+
+    Physical Volume(100 + idom) = ret[10*idom + 1];
+
+    Physical Surface(200 + idom) = {-ss[idom], ret[10*idom + 0]};
+
     If(idom == 0)
-      Physical Line(1000) = -{l1[0], l2[0], l3[0], l4[0]}; // GammaScat (interior)
+      Physical Surface(1000) = {
+        ret[10*idom+6], ret[10*idom+7], ret[10*idom+8], ret[10*idom+9]
+      }; // GammaScat (interior)
     EndIf
     If(idom == N_DOM-1)
-      Physical Line(2000 + N_DOM-1) = {l1[N_DOM], l2[N_DOM],
-                                       l3[N_DOM], l4[N_DOM]}; // GammaInf (exterior)
+      Physical Surface(2000 + N_DOM-1) = {
+        ret[10*idom+2], ret[10*idom+3], ret[10*idom+4], ret[10*idom+5]
+      }; // GammaInf (exterior)
     EndIf
 
     If(idom > 0)
       //Sigma_ij on left (iside == 0)
       // "left" = "interior" boundary (toward the center)
-      Physical Line(3000 + idom) = {-l1[idom], -l2[idom], -l3[idom], -l4[idom]};
+      Physical Surface(3000 + idom) = {
+        ret[10*idom+6], ret[10*idom+7], ret[10*idom+8], ret[10*idom+9]
+      };
     EndIf
     If(idom < N_DOM-1)
       //Sigma_ij on right (iside == 1)
       // "left" = "exterior" boundary (toward infinity)
-      Physical Line(4000 + idom) = {l1[idom+1], l2[idom+1], l3[idom+1], l4[idom+1]};
+      Physical Surface(4000 + idom) = {
+        ret[10*idom+2], ret[10*idom+3], ret[10*idom+4], ret[10*idom+5]
+      };
     EndIf
-    Printf("Meshing circle_concentric subdomain %g...", idom);
+    Printf("Meshing cylinder_concentric subdomain %g...", idom);
     Save StrCat(MSH_NAME, Sprintf("%g.msh", idom));
   EndFor
 EndIf
+

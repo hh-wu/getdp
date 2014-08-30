@@ -1,5 +1,5 @@
 DefineConstant[
-  // Analysis type
+  // Analysis type - only Helmholtz
   ANALYSIS = {0, Name "Input/00Type of analysis", ReadOnly 1,
     Choices {0="Helmholtz", 1="Maxwell"}},
   // frequency

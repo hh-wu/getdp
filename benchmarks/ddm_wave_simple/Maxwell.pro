@@ -17,6 +17,7 @@ Integration {
           { GeoElement Quadrangle ; NumberOfPoints 4 ; }
           { GeoElement Tetrahedron ; NumberOfPoints 4 ; }
           { GeoElement Hexahedron ; NumberOfPoints 6 ; }
+          { GeoElement Prism ; NumberOfPoints 9 ; }
         }
       }
     }
@@ -172,7 +173,7 @@ Formulation {
 	  In GammaInf~{idom}; Integration I1; Jacobian JSur; }
 
         // boundary condition using Lagrange multiplier
-	Galerkin { [ Dof{lambda~{idom}} , {e~{idom}} ] ;
+        Galerkin { [ Dof{lambda~{idom}} , {e~{idom}} ] ;
 	  In GammaD~{idom}; Jacobian JSur ; Integration I1 ; }
         Galerkin { [ 0*Dof{lambda~{idom}} , {lambda~{idom}} ] ; // don't remove this
 	  In GammaD~{idom}; Jacobian JSur ; Integration I1 ; }

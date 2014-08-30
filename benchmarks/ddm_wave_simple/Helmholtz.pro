@@ -17,6 +17,7 @@ Integration {
           { GeoElement Quadrangle ; NumberOfPoints 4 ; }
           { GeoElement Tetrahedron ; NumberOfPoints 4 ; }
           { GeoElement Hexahedron ; NumberOfPoints 6 ; }
+          { GeoElement Prism ; NumberOfPoints 9 ; }
         }
       }
     }

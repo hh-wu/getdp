@@ -9,7 +9,9 @@ DefineConstant[ // allows to set these from outside
   SOLVER = "gmres", // bcgs, gmsh_pcleft, ...
   TOL = 1e-6,
   MAXIT = 1000,
-  RESTART = MAXIT
+  RESTART = MAXIT,
+  POLARISATION = {0, Name "Input/02Polarisation",
+    Choices {0="TE", 1="TM"}}
 ];
 
 Function {
@@ -26,10 +28,15 @@ Function {
   mu[] = mu0 ;
 
   // for Helmholtz
-  uinc[] = Complex[ Cos[-k*Z[]], Sin[-k*Z[]] ];
+  uinc[] = Complex[ Cos[-k*X[]], Sin[-k*X[]] ];
 
   // for Maxwell
-  einc[] = Vector[1,0,0] * Complex[ Cos[-k*Z[]], Sin[-k*Z[]] ];
+  If(POLARISATION)
+    einc[] = Vector[0,0,1] * Complex[ Cos[-k*X[]], Sin[-k*X[]] ];
+  EndIf
+  If(!POLARISATION)
+    einc[] = Vector[0,1,0] * Complex[ Cos[-k*X[]], Sin[-k*X[]] ];
+  EndIf
 
   // parameter for ABC
   kInf[] = k;
@@ -61,29 +68,42 @@ Function {
   kappa[] =  1/R_INT;
   keps[] = Complex[ k, 0.4 * k^(1/3) * kappa[]^(-2/3) ];
   theta_branch = Pi/2;
+
+  //UnSurKeps2[] = 1/(keps[]^2);
+  //CoefLeeSurK2[] = Coef_Lee1[]/k^2;
+
+  Printf("N_DOM %g WAVENUMBER %g N_LAMBDA %g TC_TYPE %g NP_OSRC %g POLARISATION %g",
+         N_DOM, WAVENUMBER, N_LAMBDA, TC_TYPE, NP_OSRC, POLARISATION);
 }
 
 Group{
   For idom In {0:N_DOM-1}
-    Omega~{idom} = Region[( 6001 + idom )];
-    GammaD0~{idom} = Region[{}];
-    GammaN~{idom} = Region[{}];
+    Omega~{idom} = Region[(100 + idom)];
+
+    If(POLARISATION)
+      GammaD0~{idom} = Region[(200 + idom)];
+      GammaN~{idom} = Region[{}];
+    EndIf
+    If(!POLARISATION)
+      GammaD0~{idom} = Region[{}];
+      GammaN~{idom} = Region[{(200 + idom)}];
+    EndIf
 
     If(idom == 0)
       Sigma~{idom}~{0} = Region[{}];
-      Sigma~{idom}~{1} = Region[{5000}];
-      GammaD~{idom} = Region[{1001}];
+      Sigma~{idom}~{1} = Region[{(4000 + idom)}];
+      GammaD~{idom} = Region[{(1000 + idom)}];
       GammaInf~{idom} = Region[{}];
     EndIf
     If(idom == N_DOM-1)
-      Sigma~{idom}~{0} = Region[{(1000*(4+idom))}];
+      Sigma~{idom}~{0} = Region[{(3000 + idom)}];
       Sigma~{idom}~{1} = Region[{}];
       GammaD~{idom} = Region[{}];
-      GammaInf~{idom} = Region[{(2000+N_DOM)}];
+      GammaInf~{idom} = Region[{(2000 + idom)}];
     EndIf
     If(idom > 0 && idom < N_DOM-1)
-      Sigma~{idom}~{0} = Region[{(1000*(4+idom))}];
-      Sigma~{idom}~{1} = Region[{(1000*(5+idom))}];
+      Sigma~{idom}~{0} = Region[{(3000 + idom)}];
+      Sigma~{idom}~{1} = Region[{(4000 + idom)}];
       GammaD~{idom} = Region[{}];
       GammaInf~{idom} = Region[{}];
     EndIf

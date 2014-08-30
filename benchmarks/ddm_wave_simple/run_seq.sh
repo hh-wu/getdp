@@ -3,13 +3,14 @@
 #PROBLEM="waveguide3D"
 #PROBLEM="circle_pie"
 #PROBLEM="circle_concentric"
-PROBLEM="sphere_concentric"
+PROBLEM="cylinder_concentric"
+#PROBLEM="sphere_concentric"
 
 OPT="-setnumber ANALYSIS 1
-     -setnumber N_DOM 2
-     -setnumber WAVENUMBER 10
-     -setnumber N_LAMBDA 10
-     -setnumber TC_TYPE 2"
+     -setnumber N_DOM 5
+     -setnumber WAVENUMBER 1
+     -setnumber N_LAMBDA 20
+     -setnumber TC_TYPE 0"
 
 OPT_waveguide3D="-setnumber WALLS 0
                  -setnumber DX 4
@@ -20,6 +21,10 @@ OPT_circle_pie="-setnumber R_INT 1
                 -setnumber R_EXT 5"
 
 OPT_circle_concentric=$OPT_circle_pie
+
+OPT_cylinder_concentric="-setnumber R_INT 1
+                         -setnumber R_EXT 5
+                         -setnumber POLARISATION 0"
 
 OPT_sphere_concentric="-setnumber R_INT 1
                        -setnumber R_EXT 2"
@@ -34,3 +39,4 @@ FILE="$HOME/src/getdp/benchmarks/ddm_wave_simple/${PROBLEM}"
 $GMSH $FILE.geo -
 $GETDP $FILE.pro -solve DDM
 $GMSH ${FILE}_visu.geo
+
