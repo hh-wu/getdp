@@ -1,5 +1,5 @@
 lc = 0.2; // surface  0.25 coarset for reactor
-lc2 = lc * 5; // volume
+lc2 = lc;// * 5; // volume
 dd = 2;
 TWO_PLANES = 0;
 NUM_SLICES = 4;
@@ -11,7 +11,7 @@ N_DOM = NUM_SLICES;
 // x-direction : ~18
 // z-direction : ~9
 
-LAMBDA = 7;
+LAMBDA = 2;
 WAVENUMBER = 2*Pi/LAMBDA;
 
 //Geometry (useless for submarine but avoid errors)
@@ -24,14 +24,14 @@ THETA_INC = 0;
 
 // Which transmission condition ? (only one must be equal to 1)
 SILVER_MULLER = 0;
-OSRC = 0;
-JFLee = 1;
+OSRC = 1;
+JFLee = 0;
 
 PRECOND_SWEEP = 0;
 
 // OSRC parameters (nb of Padé approx and angle of branch cut)
-NP_OSRC = 2;
-THETA_BRANCH_OSRC = 0.785398;
+NP_OSRC = 1;
+THETA_BRANCH_OSRC = Pi/2;
 
 // For mixed formulations (pressure/velocity)
 MIXED_NODAL = 1; //NODAL(=1) of Form3(=0) ? (Mixed only)
