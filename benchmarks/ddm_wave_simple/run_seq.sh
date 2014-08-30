@@ -33,11 +33,10 @@ OPT_sphere_concentric="-setnumber R_INT 1
 OPT_PB=OPT_$PROBLEM
 
 GMSH="$HOME/src/gmsh/bin/gmsh $OPT ${!OPT_PB} -v 3 -bin"
-GETDP="$HOME/src/getdp/bin/getdp $OPT ${!OPT_PB} -v 5 -bin"
+GETDP="$HOME/src/getdp/bin/getdp $OPT ${!OPT_PB} -v 3 -bin"
 
 FILE="$HOME/src/getdp/benchmarks/ddm_wave_simple/${PROBLEM}"
 
 $GMSH $FILE.geo -
-$GETDP $FILE.pro -solve DDM -petsc_prealloc 200
+$GETDP $FILE.pro -solve DDM
 $GMSH ${FILE}_visu.geo
-
