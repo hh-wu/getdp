@@ -21,11 +21,10 @@ Function {
 
   // Parameters for OSRC
   theta_branch = THETA_BRANCH_OSRC;
-  kappa[] =  1;//Norm[XYZ[]];// 1/R_INT; // curvature
   keps[] = Complex[ k[], 0.4  ];
 
-    //Parameters for JFLee
-  kmax[] = Pi/lc ;//Norm[XYZ[]]*Pi/LC ;
+  //Parameters for JFLee
+  kmax[] = Pi/lc ;
   delt[] = Sqrt[kmax[]^2-k[]^2]/Sqrt[k[]^2];
   Coef_Lee1[] = 1/(1 + I[]*delt[]);
   Coef_Lee2[] = -Coef_Lee1[];

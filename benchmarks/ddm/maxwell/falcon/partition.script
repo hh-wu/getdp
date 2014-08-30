@@ -3,7 +3,7 @@ Include "params.geo";
 Merge "falcon.msh";
 
 Plugin(SimplePartition).NumSlices = NUM_SLICES;
-Plugin(SimplePartition).Mapping = "t-0.02";
+Plugin(SimplePartition).Mapping = "t";
 Plugin(SimplePartition).Run;
 
 Mesh.Binary=1;
