@@ -1153,7 +1153,16 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
     _try(KSPSetFromOptions(ksp));
     // Solve
     _try(KSPSolve(ksp, B, X));
-    _try(KSPView(ksp,PETSC_VIEWER_STDOUT_WORLD));
+    _try(KSPView(ksp, PETSC_VIEWER_STDOUT_WORLD));
+
+    PetscInt its;
+    _try(KSPGetIterationNumber(ksp, &its));
+    FILE *fp = fopen("/tmp/kspiter.txt", "w");
+    if(fp){
+      fprintf(fp, "%d\n", its);
+      fclose(fp);
+    }
+
 #if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
     _try(KSPDestroy(&ksp));
 #else
