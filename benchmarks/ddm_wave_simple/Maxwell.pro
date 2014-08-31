@@ -417,6 +417,9 @@ Resolution {
       {
       }
 
+      DeleteFile[ "/tmp/kspiter.txt" ];
+      Print[ {$KSPIts} , File "/tmp/kspiter.txt"];
+
       // build final volume solution after convergence on own cpu; using both
       // physical and artificial sources
       SetCommSelf;
@@ -440,6 +443,8 @@ PostProcessing {
       Quantity {
 	{ Name e~{idom} ; Value { Local { [ {e~{idom}}] ; In Omega~{idom}; Jacobian JVol ; } } }
 	{ Name e_tot~{idom} ; Value { Local { [ {e~{idom}} + einc[]] ; In Omega~{idom}; Jacobian JVol ; } } }
+        { Name norm_e~{idom} ; Value { Local { [ Norm[{e~{idom}}] ] ; In Omega~{idom}; Jacobian JVol ; } } }
+        { Name norm_e_tot~{idom} ; Value { Local { [ Norm[{e~{idom}} + einc[]]] ; In Omega~{idom}; Jacobian JVol ; } } }
 	{ Name h~{idom} ; Value { Local { [ {h~{idom}} ] ; In GammaD~{idom}; Jacobian JSur ; } } }
         { Name j~{idom} ; Value { Local { [ N[] /\ ({h~{idom}}) ] ; In GammaD~{idom}; Jacobian JSur ; } } }
       }
@@ -461,7 +466,8 @@ PostOperation {
     { Name DDM~{idom} ; NameOfPostProcessing DDM_Maxwell~{idom};
       Operation{
          Print[ e~{idom}, OnElementsOf Omega~{idom}, File StrCat(DIR, Sprintf("e_%g.pos",idom))] ;
-        // Print[ e_tot~{idom}, OnElementsOf Omega~{idom}, File StrCat(DIR, Sprintf("e_tot_%g.pos",idom))] ;
+         Print[ e_tot~{idom}, OnElementsOf Omega~{idom}, File StrCat(DIR, Sprintf("e_tot_%g.pos",idom))] ;
+         Print[ norm_e_tot~{idom}, OnElementsOf Omega~{idom}, File StrCat(DIR, Sprintf("norm_e_tot_%g.pos",idom))] ;
         // Print[ h~{idom}, OnElementsOf GammaD~{idom}, File StrCat(DIR, Sprintf("h_%g.pos",idom))] ;
 	// Print[ j~{idom}, OnElementsOf GammaD~{idom}, File StrCat(DIR, Sprintf("j_%g.pos", idom))] ;
       }

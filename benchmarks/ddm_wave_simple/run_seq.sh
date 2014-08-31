@@ -8,7 +8,7 @@ PROBLEM="cylinder_concentric"
 
 OPT="-setnumber ANALYSIS 1
      -setnumber N_DOM 5
-     -setnumber WAVENUMBER 10
+     -setnumber WAVENUMBER 1
      -setnumber N_LAMBDA 20
      -setnumber TC_TYPE 2
      -setnumber NP_OSRC 8"
