@@ -1,5 +1,5 @@
 lc = 0.2; // surface  0.25 coarset for reactor
-lc2 = lc;// * 5; // volume
+lc2 = lc * 5; // volume
 dd = 2;
 TWO_PLANES = 0;
 NUM_SLICES = 4;
@@ -11,8 +11,12 @@ N_DOM = NUM_SLICES;
 // x-direction (length) : ~18 m  -> approx 20m
 // z-direction : ~9
 
-LAMBDA = 2; // f=150MHz
+LAMBDA = 10; // lambda=2 -> f=150MHz
 WAVENUMBER = 2*Pi/LAMBDA;
+
+// results:                      osrc1 osrc2 osrc4  jinfa ibc0
+//  with lc2=1 and lambda = 10:  22    17    16     28    99
+//  with lc2=0.2 and lambda =2:  22    20    19     24
 
 //Geometry (useless for submarine but avoid errors)
 R_INT = 1;
@@ -23,9 +27,9 @@ Z = 3;
 THETA_INC = 0;
 
 // Which transmission condition ? (only one must be equal to 1)
-SILVER_MULLER = 0;
-OSRC = 1;
+SILVER_MULLER = 1;
 JFLee = 0;
+OSRC = 0;
 
 PRECOND_SWEEP = 0;
 
