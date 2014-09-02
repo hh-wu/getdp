@@ -9,7 +9,7 @@ PBM_SRM = 8 ;
 PBM_SHADED = 9 ;
 
 DefineConstant[
-    FLAG_PBM = {0, Name "Input/00Problem", Highlight "Blue",
+    FLAG_PBM = {PBM_PMSM, Name "Input/00Problem", Highlight "Blue",
                 GmshOption "ResetDatabase", Autocheck 0,
                 Choices {0 = "...",
                          PBM_PMSM = "Permanent Magnet",
