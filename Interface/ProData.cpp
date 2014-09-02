@@ -200,6 +200,7 @@ void Init_ProblemStructure()
   Current.RelativeDifference = 0.0;
   Current.RelativeDifferenceOld = 0.0;
   Current.RelaxationFactor = 0.0;
+  Current.KSPIts = 0.0;
 }
 
 // FIXME: TODO to remove parser memory leaks!

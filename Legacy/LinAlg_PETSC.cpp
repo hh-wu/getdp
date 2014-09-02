@@ -1184,6 +1184,8 @@ static void _zitsol(gMatrix *A, gVector *B, gVector *X)
   else
     Message::Info("Converged in %d iterations", its);
 
+  Current.KSPIts = its;
+
   for(PetscInt i = 0; i < n; i++){
     PetscScalar d;
 #if defined(PETSC_USE_COMPLEX)
@@ -1314,11 +1316,12 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
   if(view && Message::GetVerbosity() > 5)
     _try(KSPView(Solver->ksp[kspIndex], MyPetscViewer));
 
+  PetscInt its;
+  _try(KSPGetIterationNumber(Solver->ksp[kspIndex], &its));
   if(!Message::GetCommRank() || !Message::GetIsCommWorld()){
-    PetscInt its;
-    _try(KSPGetIterationNumber(Solver->ksp[kspIndex], &its));
     if(its > 1) Message::Info("%d iterations", its);
   }
+  Current.KSPIts = its;
 }
 
 void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,

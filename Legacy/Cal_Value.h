@@ -53,7 +53,7 @@ void  Cal_ComplexInvert   (double V1[], double P[]);
 /* Debug */
 
 std::string Print_Value_ToString(struct Value *A);
-void  Print_Value (struct Value *A);
+void  Print_Value (struct Value *A, FILE *fp=0);
 void  Show_Value (struct Value *A);
 
 /* From struct Value to array of doubles */

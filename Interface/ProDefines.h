@@ -276,6 +276,8 @@ struct StringXPointer  Current_Value[] = {
   {"Val0" , &Current.Val[0]}, {"Val1" , &Current.Val[1]}, {"Val2" , &Current.Val[2]},
   {"Val3" , &Current.Val[3]}, {"Val4" , &Current.Val[4]}, {"Val5" , &Current.Val[5]},
   {"Val6" , &Current.Val[6]}, {"Val7" , &Current.Val[7]}, {"Val8" , &Current.Val[8]},
+
+  {"KSPIts", &Current.KSPIts},
 #endif
   {NULL       , NULL}
 } ;

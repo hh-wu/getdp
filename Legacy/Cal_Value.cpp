@@ -2468,8 +2468,8 @@ std::string Print_Value_ToString(struct Value *A)
 
   switch(A->Type){
 
-  case SCALAR ://***Ruth: Provisional: incompatibility with gnuplot
-    //if(Current.NbrHar>1) sstream << "(";
+  case SCALAR :
+    if(Current.NbrHar>1) sstream << "(";
     for (k = 0 ; k < Current.NbrHar ; k++) {
       if(k) sstream << ",";
       sstream << A->Val[MAX_DIM*k];
@@ -2477,18 +2477,18 @@ std::string Print_Value_ToString(struct Value *A)
     if(Current.NbrHar>1) sstream << ")";
     break;
 
-  case VECTOR ://***Ruth
-    //sstream << "[";
+  case VECTOR :
+    sstream << "[";
     for (i = 0 ; i < 3 ; i++) {
       if(i) sstream << " ";
-      //if(Current.NbrHar>1) sstream << "(";
+      if(Current.NbrHar>1) sstream << "(";
       for (k = 0 ; k < Current.NbrHar ; k++) {
 	if(k) sstream << ",";
 	sstream << A->Val[MAX_DIM*k+i];
       }
-      //if(Current.NbrHar>1) sstream << ")";
+      if(Current.NbrHar>1) sstream << ")";
     }
-    //sstream << "]";
+    sstream << "]";
     break;
 
   case TENSOR_DIAG :
@@ -2527,9 +2527,13 @@ std::string Print_Value_ToString(struct Value *A)
   return ret;
 }
 
-void Print_Value(struct Value *A)
+void Print_Value(struct Value *A, FILE *fp)
 {
-  Message::Direct("%s", Print_Value_ToString(A).c_str());
+  std::string s = Print_Value_ToString(A);
+  if(fp && fp != stdout && fp != stderr)
+    fprintf(fp, "%s\n", s.c_str());
+  else
+    Message::Direct("%s", s.c_str());
 }
 
 /* ------------------------------------------------------------------------

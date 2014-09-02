@@ -2546,7 +2546,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	for(i=0 ; i<List_Nbr(Operation_P->Case.Print.Expression) ; i++){
 	  j = *(int*)List_Pointer(Operation_P->Case.Print.Expression, i) ;
 	  Get_ValueOfExpressionByIndex(j, NULL, 0., 0., 0., &Value) ;
-	  Print_Value(&Value) ;
+	  Print_Value(&Value, fp) ;
 	}
       }
       else if (Operation_P->Case.Print.DofNumber){

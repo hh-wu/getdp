@@ -1461,6 +1461,9 @@ struct CurrentData {
   // For IterativeLoop
   double  Iteration, RelativeDifference, RelativeDifferenceOld;
   double  RelaxationFactor;
+
+  // Iterative linear system solvers
+  double  KSPIts;
 };
 
 /* ------------------------------------------------------------------------ */
