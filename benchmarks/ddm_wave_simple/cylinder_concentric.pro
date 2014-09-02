@@ -10,8 +10,8 @@ DefineConstant[ // allows to set these from outside
   TOL = 1e-6,
   MAXIT = 1000,
   RESTART = MAXIT,
-  POLARISATION = {0, Name "Input/02Polarisation",
-    Choices {0="TE", 1="TM"}}
+  POLARISATION = {1, Name "Input/02Polarisation",
+    Choices {0="TM", 1="TE"}}
 ];
 
 Function {
@@ -32,10 +32,10 @@ Function {
 
   // for Maxwell
   If(POLARISATION)
-    einc[] = Vector[0,0,1] * Complex[ Cos[-k*X[]], Sin[-k*X[]] ];
+    einc[] = Vector[0,0,1] * Complex[ Cos[-k*X[]], Sin[-k*X[]] ]; // TE
   EndIf
   If(!POLARISATION)
-    einc[] = Vector[0,1,0] * Complex[ Cos[-k*X[]], Sin[-k*X[]] ];
+    einc[] = Vector[0,1,0] * Complex[ Cos[-k*X[]], Sin[-k*X[]] ]; // TM
   EndIf
 
   // parameter for ABC

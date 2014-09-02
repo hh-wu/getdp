@@ -136,3 +136,5 @@ Physical Surface(2) = {surf_drf[N_DOM], surf_urf[N_DOM], surf_ulf[N_DOM],
 Physical Volume(6) = {vl[]};
 Save "sphere_concentric.msh";
 */
+
+BoundingBox {-R_EXT, R_EXT, -R_EXT, R_EXT, 0, 0};

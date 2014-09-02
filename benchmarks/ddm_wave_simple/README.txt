@@ -1,5 +1,5 @@
 
-Domain Decomposition Methods for 3D Wave Problems in the Frequency Domain
+Optimized Schwarz domain decomposition methods for time-harmonic wave problems
 
 [[Category:Numerical methods]]
 
@@ -8,7 +8,7 @@ Domain Decomposition Methods for 3D Wave Problems in the Frequency Domain
 Quick start
 -----------
 
-Open `waveguide3d.pro' with Gmsh.
+Open `main.pro' with Gmsh.
 
 Additional info
 ---------------

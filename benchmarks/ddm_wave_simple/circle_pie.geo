@@ -99,3 +99,5 @@ If(StrCmp(OnelabAction, "check")) // only mesh if not in onelab check mode
     Save StrCat(MSH_NAME, Sprintf("%g.msh", idom));
   EndFor
 EndIf
+
+BoundingBox {-R_EXT, R_EXT, -R_EXT, R_EXT, 0, 0};
