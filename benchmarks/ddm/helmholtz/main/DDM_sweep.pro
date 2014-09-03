@@ -71,6 +71,7 @@ Function{
   EndFor
 
   F_SOURCE[] = V_SOURCE[]*#9;
+  G_SOURCE[] = fGrad[]*#9;
 }
 
 //Dirichlet boundary condition (either homogeneous or inhomogeneous, depending on register #10)
@@ -152,9 +153,9 @@ Formulation {
 	In Omega~{idom}; Jacobian JVol ; Integration I1 ; }
 
       Galerkin { [ F_SOURCE[], {u~{idom}}] ;
-	In Omega~{idom}; Jacobian JVol ; Integration I1 ; }
-      Galerkin { [ fGrad[] , {Grad u~{idom}} ] ; // distributional sources
-	In Omega~{idom}; Jacobian JVol ; Integration I1 ; }
+      	In Omega~{idom}; Jacobian JVol ; Integration I1 ; }
+      // Galerkin { [ 0*G_SOURCE[], {Grad u~{idom}} ] ; // distributional sources -- THIS TERM CAUSES PROBLEMS (e.g. Marmousi), even when G_SOURCE=0
+      // 	In Omega~{idom}; Jacobian JVol ; Integration I1 ; }
 
       // g_in LEFT (#10 > 0) or 0 (#10 == 0)
       Galerkin { [ - (#10 > 0. ? g_in~{idom}~{0}[] : 0), {u~{idom}} ] ;
@@ -326,12 +327,15 @@ EndIf
   EndFor // loop on idom
 }
 
+
+
+
 Resolution {
     { Name DDM ;
     System {
       For ii In {0: #ListOfDom()-1}
 	idom = ListOfDom(ii);
-	{ Name Helmholtz~{idom} ; NameOfFormulation DDM~{idom} ; Type Complex; If(MSH_SPLIT) NameOfMesh Sprintf(StrCat[MshName, "%g.msh"],idom) ;EndIf}
+	{ Name Helmholtz~{idom} ; NameOfFormulation DDM~{idom} ; Type Complex; If(MSH_SPLIT) NameOfMesh Sprintf(StrCat[MshName, "%g.msh"],idom) ;EndIf }
 	For jdom In {0:1}
 	  { Name ComputeG~{idom}~{jdom} ; NameOfFormulation ComputeG~{idom}~{jdom} ; Type Complex; If(MSH_SPLIT) NameOfMesh Sprintf(StrCat[MshName, "%g.msh"],idom) ;EndIf}
 	  { Name ComputeGPrecond~{idom}~{jdom} ; NameOfFormulation ComputeGPrecond~{idom}~{jdom} ; Type Complex; If(MSH_SPLIT) NameOfMesh Sprintf(StrCat[MshName, "%g.msh"],idom) ;EndIf}
@@ -339,6 +343,10 @@ Resolution {
       EndFor
     }
     Operation {
+      If (EXTERNAL_VELOCITY_FIELD)
+	GmshRead[VELOCITY_FNAME, 999];
+      EndIf
+
       SetGlobalSolverOptions["-ksp_monitor"];
 
       If (MPI_Rank == 0)

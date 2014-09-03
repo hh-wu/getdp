@@ -85,22 +85,22 @@ Formulation {
 	In Omega; Jacobian JVol ; Integration I1 ; }
       Galerkin { [ -k[]^2 * Dof{u} , {u} ] ;
 	In Omega; Jacobian JVol ; Integration I1 ; }
-      Galerkin { [ V_SOURCE[] , {u} ] ;
-	In Omega; Jacobian JVol ; Integration I1 ; }
-      Galerkin { [ fGrad[] , {Grad u} ] ; // distributional sources
-	In Omega; Jacobian JVol ; Integration I1 ; }
+      // Galerkin { [ V_SOURCE[] , {u} ] ;
+      // 	In Omega; Jacobian JVol ; Integration I1 ; }
+      // Galerkin { [ fGrad[] , {Grad u} ] ; // distributional sources
+      // 	In Omega; Jacobian JVol ; Integration I1 ; }
 
-      // Bayliss-Turkel
+      // // Bayliss-Turkel
       Galerkin { [ - I[] * k[] * Dof{u} , {u} ] ;
-	In GammaInf; Jacobian JSur ; Integration I1 ; }
-      Galerkin { [ alphaBT[] * Dof{u} , {u} ] ;
-	In GammaInf; Jacobian JSur ; Integration I1 ; }
-      If(DIM > 1)
-	// FIXME: this assumes that GammaInf is closed; we need to add the
-	// boundary terms if it is open!
-	Galerkin { [ betaBT[] * Dof{d u} , {d u} ] ;
-	  In GammaInf; Jacobian JSur ; Integration I1 ; }
-      EndIf
+      	In GammaInf; Jacobian JSur ; Integration I1 ; }
+      // Galerkin { [ alphaBT[] * Dof{u} , {u} ] ;
+      // 	In GammaInf; Jacobian JSur ; Integration I1 ; }
+      // If(DIM > 1)
+      // 	// FIXME: this assumes that GammaInf is closed; we need to add the
+      // 	// boundary terms if it is open!
+      // 	Galerkin { [ betaBT[] * Dof{d u} , {d u} ] ;
+      // 	  In GammaInf; Jacobian JSur ; Integration I1 ; }
+      // EndIf
     }
   }
 
@@ -179,8 +179,11 @@ Formulation {
 
 Resolution {
   {Name Full;
-    System { { Name Helmholtz ; NameOfFormulation Full ; Type Complex; } }
+    System { { Name Helmholtz ; NameOfFormulation Full ; Type Complex; NameOfMesh "../marmousi/marmousi.msh";} }
     Operation {
+      If (EXTERNAL_VELOCITY_FIELD)
+	GmshRead[VELOCITY_FNAME, 999];
+      EndIf
       Evaluate[1. #9];
       UpdateConstraint[Helmholtz, GammaD, Assign];
       Generate[Helmholtz] ;

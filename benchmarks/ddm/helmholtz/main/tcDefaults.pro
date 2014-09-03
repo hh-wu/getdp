@@ -1,4 +1,8 @@
 Function {
+
+  // EMDA
+  BETA_EMDA = 0;
+  
   // OO2
   //TAKEN FROM CIRCLE_PIE !!
   xsimin = 0;
@@ -11,6 +15,7 @@ Function {
   b[] = - 1 / (alphastar[] + betastar[]);
 
   // OSRC
+  NP_OSRC = 2;
   N = NP_OSRC;
   keps[] = Complex[ kDtn[], kDtn[]/4. ];
   THETA_BRANCH_OSRC = 0.785398;

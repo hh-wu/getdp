@@ -15,6 +15,7 @@ Group{
   GammaD = Region[{Gamma_l}];
   GammaD0 = Region[{Gamma_D}];
   GammaN = Region[{}];
+  GammaN = Region[{}];
   GammaInf = Region[{Gamma_r}];
   BndGammaInf = Region[{}];
   BndSigma = Region[{}];
@@ -32,6 +33,7 @@ Group{
       GammaN~{idom} = Region[{}];
       GammaD~{idom} = Region[{4001}];
       GammaD0~{idom} = Region[{(1001 + idom), (3001 + idom)}];
+      GammaN~{idom} = Region[{}];
       GammaInf~{idom} = Region[{}];
       // GammaD~{idom} = Region[{(1001 + idom), (3001 + idom)}];
       // GammaInf~{idom} = Region[{4001}];
@@ -46,6 +48,7 @@ Group{
       GammaN~{idom} = Region[{}];
       GammaD~{idom} = Region[{}];
       GammaD0~{idom} = Region[{(1001 + idom), (3001 + idom)}];
+      GammaN~{idom} = Region[{}];
       GammaInf~{idom} = Region[{(2001+idom)}];
       // GammaD~{idom} = Region[{}];
       // GammaInf~{idom} = Region[{(2001+idom), (1001 + idom), (3001 + idom)}];
@@ -58,6 +61,7 @@ Group{
       GammaN~{idom} = Region[{}];
       GammaD~{idom} = Region[{}];
       GammaD0~{idom} = Region[{(1001 + idom), (3001 + idom)}];
+      GammaN~{idom} = Region[{}];
       GammaInf~{idom} = Region[{}];
       // GammaD~{idom} = Region[{}];
       // GammaInf~{idom} = Region[{(1001 + idom), (3001 + idom)}];

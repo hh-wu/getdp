@@ -16,11 +16,12 @@ Group{
 }
 
 Function{
-  DefineFunction[k, kInf, kDtn, eInc];
+  DefineFunction[k, kInf, kDtn, eInc, c];
   DefineFunction[alphaBT, betaBT]; // Bayliss-Turkel ABC
   DefineFunction[uinc, V_SOURCE, fGrad]; // fGrad is for distributional sources (e.g. delta functions), that must be integrated by parts
 }
 
+DefineConstant[EXTERNAL_VELOCITY_FIELD = 0]; //if set, the velocity profile filename must be provided as VELOCITY_FNAME="myName.pos"; c[] = ScalarField[XYZ[]]{999}; must be defined !! 
 DefineConstant[REUSE = 0];
 DefineConstant[ListOfFacto];
 ListOfFacto = {0:N_DOM-1};
