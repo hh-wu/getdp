@@ -1251,10 +1251,10 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
     // native PETSc LU)
     _try(KSPSetType(Solver->ksp[kspIndex], "preonly"));
     _try(PCSetType(pc, PCLU));
-#if (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MKL_PARDISO)
-    _try(PCFactorSetMatSolverPackage(pc, "mkl_pardiso"));
-#elif (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
+#if (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
     _try(PCFactorSetMatSolverPackage(pc, "mumps"));
+#elif (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MKL_PARDISO)
+    _try(PCFactorSetMatSolverPackage(pc, "mkl_pardiso"));
 #elif (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_UMFPACK)
     _try(PCFactorSetMatSolverPackage(pc, "umfpack"));
 #else
