@@ -1,26 +1,33 @@
 #!/bin/sh
 
-# #PBS -q main
+#  PBS -q main
 #PBS -q large
-#PBS -l model=ivybridge
+
 #PBS -l walltime=4:00:00
 
-# 2 mpi processes, each spawning 12 threads, on each of the 5 chunks (each chunk has 63Gb of RAM); each chunk on 24 cores:
-# PBS -l select=5:ncpus=24:vmem=63000mb:mpiprocs=2:ompthreads=12
-# PBS -l pvmem=63000mb
+#  2 mpi processes, each spawning 12 threads, on each of the 5 chunks (each chunk has 63Gb of RAM); each chunk on 24 cores:
+#  PBS -l select=5:ncpus=24:vmem=63000mb:mpiprocs=2:ompthreads=12
+#  PBS -l pvmem=63000mb
 
-# 1 mpi process, each spawning 1 thread, on each of the 100 chunks (each chunk has 2.6Gb of RAM); each chunk on 1 core:
-# PBS -l select=100:ncpus=1:vmem=2625mb:mpiprocs=1:ompthreads=1
-# PBS -l pvmem=2625mb
+#  1 mpi process, each spawning 1 thread, on each of the 100 chunks (each chunk has 2.6Gb of RAM); each chunk on 1 core:
+#  PBS -l select=100:ncpus=1:vmem=2625mb:mpiprocs=1:ompthreads=1
+#  PBS -l pvmem=2625mb
 
-# 12 mpi processes (each with 2 threads) on each of the 4 chunks, each chunk with 24 cores
-# PBS -l select=4:ncpus=24:vmem=63000mb:mpiprocs=12:ompthreads=2
-# PBS -l pvmem=63000mb
+#  1 mpi process, each spawning 2 threads, on each of the 100 chunks (each chunk has 2*2.6Gb=5.25Gb of RAM); each chunk on 2 cores:
+#  PBS -l select=100:ncpus=2:vmem=5250mb:mpiprocs=1:ompthreads=2
+#  PBS -l pvmem=5250mb
 
+#  1 mpi process, each spawning 8 threads, on each of the 100 chunks (each chunk has 8*2.6Gb=21Gb of RAM); each chunk on 8 cores:
+#  PBS -l select=100:ncpus=8:vmem=21000mb:mpiprocs=1:ompthreads=8
+#  PBS -l pvmem=21000mb
 
-#PBS -l select=80:ncpus=24:vmem=63000mb:mpiprocs=6:ompthreads=4
+#  1 mpi process, each spawning 24 threads, on each of the 100 chunks (each chunk has 24*2.6Gb=63Gb of RAM); each chunk on 24 cores:
+#PBS -l select=100:ncpus=24:vmem=63000mb:mpiprocs=1:ompthreads=24
 #PBS -l pvmem=63000mb
 
+#  12 mpi processes (each with 2 threads) on each of the 4 chunks, each chunk with 24 cores
+#  PBS -l select=4:ncpus=24:vmem=63000mb:mpiprocs=12:ompthreads=2
+#  PBS -l pvmem=63000mb
 
 #PBS -m "abe"
 #PBS -M cgeuzaine@ulg.ac.be
@@ -34,7 +41,7 @@ OPT="-setnumber ANALYSIS 1
      -setnumber WAVENUMBER 10
      -setnumber WALLS 0
      -setnumber N_DOM $MPI_PROCESSES
-     -setnumber N_LAMBDA 25
+     -setnumber N_LAMBDA 40
      -setnumber DX $MPI_PROCESSES
      -setnumber DY 1
      -setnumber DZ 1
@@ -46,11 +53,15 @@ OPT="-setnumber ANALYSIS 1
 MPIRUN="mpirun";
 GMSH="$HOME/src/gmsh/bin/gmsh $OPT -v 3 -bin";
 GETDP="$HOME/src/getdp/bin/getdp $OPT -v 3 -bin";
-FILE="$HOME/src/getdp/benchmarks/ddm_wave_simple/waveguide3d";
-LOG=${FILE}_${PBS_JOBID}.log;
+DIR="$HOME/src/getdp/benchmarks/ddm_wave_simple";
+FILE="$DIR/waveguide3d";
+LOG="$DIR/out_${PBS_JOBID}.log";
 
 cat $0 2>&1 >> $LOG;
 cat $PBS_NODEFILE 2>1 >> $LOG
-$MPIRUN $GMSH $FILE.geo - 2>&1 >> $LOG;
-$MPIRUN $GETDP $FILE.pro -solve DDM 2>&1 >> $LOG;
 
+$MPIRUN $GMSH $FILE.geo - 2>&1 >> $LOG;
+$MPIRUN $GETDP $FILE.pro -solve DDM -pc_factor_mat_solver_package mumps 2>&1 >> $LOG;
+
+#$MPIRUN -np 1 $GMSH $FILE.geo - 2>&1 >> $LOG;
+#$MPIRUN $GETDP $FILE.pro -solve DDM -pc_factor_mat_solver_package mkl_pardiso 2>&1 >> $LOG;

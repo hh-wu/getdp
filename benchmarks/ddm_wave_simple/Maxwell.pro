@@ -417,8 +417,8 @@ Resolution {
       {
       }
 
-      //DeleteFile[ "/tmp/kspiter.txt" ];
-      //Print[ {$KSPIts} , File "/tmp/kspiter.txt"];
+      DeleteFile[ "/tmp/kspiter.txt" ];
+      Print[ {$KSPIts} , File "/tmp/kspiter.txt"];
 
       // build final volume solution after convergence on own cpu; using both
       // physical and artificial sources
