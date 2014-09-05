@@ -238,7 +238,7 @@ Formulation {
 	In Omega; Jacobian JVol; Integration I1;}
 
       //Neumann boundary condition
-      Galerkin{[-dn_uinc[], {u}];
+      Galerkin{[dn_uinc[], {u}];
 	In GammaN; Jacobian JSur; Integration I1;}
 
       If(Type_Truncation == PML)
