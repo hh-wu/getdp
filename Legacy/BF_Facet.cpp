@@ -198,7 +198,7 @@ void BF_DivFacet(struct Element * Element, int NumFacet,
     break ;
 
   default :
-    Message::Error("Unkown type of Element in BF_DivFacet");
+    Message::Error("Unknown type of Element in BF_DivFacet");
     break ;
   }
 

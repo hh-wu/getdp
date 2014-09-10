@@ -98,7 +98,7 @@ void BF_Node_2E(struct Element * Element, int NumEntity,
     break ;
 
   default :
-    Message::Error("Unkown type of Element in BF_Node_2E");
+    Message::Error("Unknown type of Element in BF_Node_2E");
     break ;
   }
 }
@@ -161,7 +161,7 @@ void BF_Node_2F(struct Element * Element, int NumEntity,
     break ;
 
   default :
-    Message::Error("Unkown Element Type in BF_Node_2F");
+    Message::Error("Unknown Element Type in BF_Node_2F");
     break ;
   }
 
@@ -192,7 +192,7 @@ void BF_Node_2V(struct Element * Element, int NumEntity,
     break ;
 
   default :
-    Message::Error("Unkown type of Element in BF_Node_2V");
+    Message::Error("Unknown type of Element in BF_Node_2V");
     break ;
   }
  
@@ -362,7 +362,7 @@ void  BF_GradNode_2E(struct Element * Element, int NumEntity,
     break ;
 
   default :
-    Message::Error("Unkown type of Element in BF_GradNode_2E");
+    Message::Error("Unknown type of Element in BF_GradNode_2E");
     break ;
   }
 
@@ -484,7 +484,7 @@ void BF_GradNode_2V(struct Element * Element, int NumEntity,
     break ;
 
   default :
-    Message::Error("Unkown type of Element in BF_GradNode_2V");
+    Message::Error("Unknown type of Element in BF_GradNode_2V");
     break ;
   }
 

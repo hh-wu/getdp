@@ -176,7 +176,7 @@ void BF_Edge(struct Element * Element, int NumEdge,
     break ;
 
   default :
-    Message::Error("Unkown type of Element in BF_Edge");
+    Message::Error("Unknown type of Element in BF_Edge");
     break;
   }
 
@@ -304,7 +304,7 @@ void BF_CurlEdge(struct Element * Element, int NumEdge,
 
 
   default :
-    Message::Error("Unkown type of Element in BF_CurlEdge");
+    Message::Error("Unknown type of Element in BF_CurlEdge");
     break;
   }
 

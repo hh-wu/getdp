@@ -100,7 +100,7 @@ void BF_Edge_4E(struct Element * Element, int NumEntity,
     break ;
 
   default :
-    Message::Error("Unkown type of Element in BF_Edge_4E");
+    Message::Error("Unknown type of Element in BF_Edge_4E");
     break ;
   }
 
@@ -174,7 +174,7 @@ void BF_Edge_4F(struct Element * Element, int NumEntity,
     break ;
 
   default :
-    Message::Error("Unkown type of Element in BF_Edge_4F");
+    Message::Error("Unknown type of Element in BF_Edge_4F");
     break ;
 
   }

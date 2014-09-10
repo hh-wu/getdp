@@ -147,7 +147,7 @@ void BF_Edge_3F(struct Element * Element, int NumEntity, int Index,
     break ;
 
   default :
-    Message::Error("Unkown type of Element in BF_Edge_3F");
+    Message::Error("Unknown type of Element in BF_Edge_3F");
     break ;
 
   }
@@ -283,7 +283,7 @@ void BF_CurlEdge_3F(struct Element * Element, int NumEntity, int Index,
     break ;
 
   default :
-    Message::Error("Unkown type of Element in BF_CurlEdge_3F");
+    Message::Error("Unknown type of Element in BF_CurlEdge_3F");
     break ;
 
   }

@@ -267,7 +267,7 @@ void BF_GradNode_3E(struct Element * Element, int NumEntity,
     break ;
 
   default :
-    Message::Error("Unkown type of Element in BF_GradNode_3E");
+    Message::Error("Unknown type of Element in BF_GradNode_3E");
     break ;
   }
 
@@ -330,7 +330,7 @@ void BF_GradNode_3F(struct Element * Element, int NumEntity,
     break ;
 
   default :
-    Message::Error("Unkown type of Element in BF_GradNode_3F");
+    Message::Error("Unknown type of Element in BF_GradNode_3F");
     break ;
   }
 
@@ -367,7 +367,7 @@ void BF_GradNode_3V(struct Element * Element, int NumEntity,
     break ;
 
   default :
-    Message::Error("Unkown type of Element in BF_GradNode_3V");
+    Message::Error("Unknown type of Element in BF_GradNode_3V");
     break ;
   }
 }

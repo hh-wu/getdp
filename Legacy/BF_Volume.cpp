@@ -73,7 +73,7 @@ void BF_Volume(struct Element * Element, int NumVolume,
     break ;
 
   default :
-    Message::Error("Unkown type of Element in BF_Volume");
+    Message::Error("Unknown type of Element in BF_Volume");
     break ;
   }
 }

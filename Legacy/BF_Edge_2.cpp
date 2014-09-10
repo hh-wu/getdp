@@ -73,7 +73,7 @@ void BF_Edge_2E(struct Element * Element, int NumEntity,
     break ;
 
   default :
-    Message::Error("Unkown type of Element in BF_Edge_2E");
+    Message::Error("Unknown type of Element in BF_Edge_2E");
     break ;
   }
 }
