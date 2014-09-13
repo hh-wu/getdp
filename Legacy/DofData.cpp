@@ -1125,7 +1125,7 @@ void Dof_DefineUnknownDof(int D1, int D2, int NbrHar, bool NonLocal)
   }
 }
 
-void NumberUnknownDof (void *a, void *b)
+static void NumberUnknownDof (void *a, void *b)
 {
   struct Dof * Dof_P ;
 
@@ -1206,23 +1206,6 @@ void Dof_DefineAssociateDof(int E1, int E2, int D1, int D2, int NbrHar,
 	break ;
       }
     }
-  }
-}
-
-void Dof_GetDof_Four(struct DofData * DofData_P, struct DofData * DofData2_P)
-{
-  int NbrHar2, NbrDof2, i ;
-  struct Dof * Dof_P ;
-
-  NbrHar2 = DofData2_P->NbrHar ;
-  NbrDof2 = List_Nbr(DofData2_P->DofList) ;
-
-  for (i=0 ; i<NbrDof2 ; i+=NbrHar2) {
-
-    Dof_P = (struct Dof *) List_Pointer(DofData2_P->DofList, i) ;
-
-    printf("i %d, dof %d \n", i/NbrHar2, List_ISearch(DofData_P->DofList, Dof_P, fcmp_Dof)) ;
-
   }
 }
 
