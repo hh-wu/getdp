@@ -2,7 +2,7 @@
 // required to run the DDM code. These variables or functions should
 // be defined or overwritten by the user whenever relevant.
 
-DefineConstant[geo3d = 1, TOL = 1e-4, MAXIT = 300, PRECOND_SWEEP = 0, EXT_TIME = 0, COMBINED_SWEEP = 0, ILU=0, DDM_PC=0, LEFTPC=1];
+DefineConstant[geo3d = 1, TOL = 1e-4, MAXIT = 300, PRECOND_SWEEP = 0, EXT_TIME = 0, COMBINED_SWEEP = 0, ILU=0, DDM_PC=0, LEFTPC=1, SKIP_SAVE_SOLUTION=0];
 DefineConstant[ListOfCuts];
 
 Group{

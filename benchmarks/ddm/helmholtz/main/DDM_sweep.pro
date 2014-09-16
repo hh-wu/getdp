@@ -335,7 +335,7 @@ Resolution {
     System {
       For ii In {0: #ListOfDom()-1}
 	idom = ListOfDom(ii);
-	{ Name Helmholtz~{idom} ; NameOfFormulation DDM~{idom} ; Type Complex; If(MSH_SPLIT) NameOfMesh Sprintf(StrCat[MshName, "%g.msh"],idom) ;EndIf }
+ 	{ Name Helmholtz~{idom} ; NameOfFormulation DDM~{idom} ; Type Complex; If(MSH_SPLIT) NameOfMesh Sprintf(StrCat[MshName, "%g.msh"],idom) ;EndIf }
 	For jdom In {0:1}
 	  { Name ComputeG~{idom}~{jdom} ; NameOfFormulation ComputeG~{idom}~{jdom} ; Type Complex; If(MSH_SPLIT) NameOfMesh Sprintf(StrCat[MshName, "%g.msh"],idom) ;EndIf}
 	  { Name ComputeGPrecond~{idom}~{jdom} ; NameOfFormulation ComputeGPrecond~{idom}~{jdom} ; Type Complex; If(MSH_SPLIT) NameOfMesh Sprintf(StrCat[MshName, "%g.msh"],idom) ;EndIf}
@@ -371,6 +371,9 @@ Resolution {
 	    EndFor
 	    Printf[" -- List of cuts --"];
 	  EndIf
+	EndIf
+	If (SKIP_SAVE_SOLUTION)
+	  Printf["!!! Solution will not be saved on disk !!!"];
 	EndIf
 	If (EXT_TIME)  SystemCommand["rm time*.txt"]; EndIf
       EndIf
@@ -658,7 +661,9 @@ Resolution {
 	EndIf
       EndIf
 
-      PostOperation[u_ddm~{idom}] ;
+      If (!SKIP_SAVE_SOLUTION)
+        PostOperation[u_ddm~{idom}] ;
+      EndIf
       //Error with Full/Exact solution
       If(FULL_SOLUTION || EXACT_SOLUTION)
 	PostOperation[u_ddm_error~{idom}] ;
