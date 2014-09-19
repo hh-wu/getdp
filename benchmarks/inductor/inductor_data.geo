@@ -4,8 +4,7 @@ cm = 1e-2; // Unit
 
 pp  = "Input/10Geometric dimensions/0";
 pp2 = "Input/10Geometric dimensions/01Shell radius/";
-ppm = "Input/11Mesh control/0";
-ppm2 = "Input/11Mesh control/1Number of divisions/";
+ppm = "Input/11Mesh control (Nbr of divisions)/";
 
 DefineConstant[
   Flag_3Dmodel = {0, Choices{0="2D",1="3D"},
@@ -69,6 +68,23 @@ DefineConstant[
 
 Val_Rint = Rint;
 Val_Rext = Rext;
+
+//-------------------------------------------------------------------------
+// Some mesh control stuff
+DefineConstant[
+  md = { 1., Name StrCat[ppm, "0Mesh density"],
+    Highlight Str[colorpp], Closed close_menu},
+  nn_wcore   = { Ceil[md*2], Name StrCat[ppm, "0Core width"], ReadOnly 1,
+    Highlight Str[colorro], Closed close_menu},
+  nn_airgap  = { Ceil[md*1], Name StrCat[ppm, "1Air gap width"], ReadOnly 1,
+    Highlight Str[colorro]},
+  nn_ri = { Ceil[md*6], Name StrCat[ppm, "2One fourth shell in"], ReadOnly 1,
+    Visible (Flag_Infinity==1), Highlight Str[colorro]},
+  nn_ro = { Ceil[md*6], Name StrCat[ppm, "3One fourth shell out"], ReadOnly 1,
+    Highlight Str[colorro]}
+];
+
+//-------------------------------------------------------------------------
 
 IA = 10;
 Nw = 288;

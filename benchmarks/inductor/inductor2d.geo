@@ -1,18 +1,5 @@
 //Flag_3Dmodel = 0;
 
-DefineConstant[
-  md = { 1., Name StrCat[ppm2, "0Mesh density"],
-    Highlight Str[colorpp], Closed close_menu},
-  nn_wcore   = { Ceil[md*2], Name StrCat[ppm2, "0Core width"], ReadOnly 1,
-    Highlight Str[colorro], Closed close_menu},
-  nn_airgap  = { Ceil[md*1], Name StrCat[ppm2, "1Air gap width"], ReadOnly 1,
-    Highlight Str[colorro]},
-  nn_ri = { Ceil[md*6], Name StrCat[ppm2, "2One fourth shell in"], ReadOnly 1,
-    Visible (Flag_Infinity==1), Highlight Str[colorro]},
-  nn_ro = { Ceil[md*6], Name StrCat[ppm2, "3One fourth shell out"], ReadOnly 1,
-    Highlight Str[colorro]}
-];
-
 // characteristic lengths
 lc0  = wcoil/nn_wcore;
 lc1  = ag/nn_airgap;
@@ -174,6 +161,3 @@ If(Flag_Infinity==1)
 EndIf
 Physical Line(AXIS_Y) = ln_axis[] ; // BC if symmetry
 Physical Line(SURF_AIROUT) = ln_rout[];
-
-
-
