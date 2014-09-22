@@ -990,6 +990,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"Printf"            , (CAST)F_Printf           ,   0,   1 },
   {"Rand"              , (CAST)F_Rand             ,   0,   1 },
   {"CompElementNum"    , (CAST)F_CompElementNum   ,   0,   0 },
+  {"ElementNum"        , (CAST)F_ElementNum       ,   0,   0 },
   {"VirtualWork"       , (CAST)F_VirtualWork      ,   0,   1 },
   {"Felec"	       , (CAST)F_Felec      	  ,   0,   1 },
 

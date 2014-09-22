@@ -47,6 +47,15 @@ void F_CompElementNum (F_ARG)
   V->Val[0] = (Current.Element->Num == Current.ElementSource->Num) ;
 }
 
+void F_ElementNum (F_ARG)
+{
+  if(!Current.Element)
+    Message::Error("Uninitialized Element in 'F_ElementNum'");
+
+  V->Type = SCALAR ;
+  V->Val[0] = Current.Element->Num ;
+}
+
 void F_VirtualWork (F_ARG)
 {
   MATRIX3x3 Jac ;

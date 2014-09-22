@@ -167,6 +167,7 @@ void  F_CoordXYZS       (F_ARG) ;
 void  F_Printf          (F_ARG) ;
 void  F_Rand            (F_ARG) ;
 void  F_CompElementNum  (F_ARG) ;
+void  F_ElementNum      (F_ARG) ;
 void  F_VirtualWork     (F_ARG) ;
 
 void  F_Felec		(F_ARG) ;
