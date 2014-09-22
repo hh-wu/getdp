@@ -1,0 +1,22 @@
+// // SHARED INFORMATION
+// //===================
+// mm        = 1e-3;
+// d_c       = 0.5 * mm; // lamination thickness
+// d_i       = 0.02 * mm; // lamination + isolation
+// r_c       = 0.05 * mm;
+// eps       = d_c + d_i;
+// num       = 10;
+// L_X       = (d_c+d_i) * num;
+// L_Y       = L_X;
+
+// SHARED INFORMATION
+//===================
+micron    = 1e-6;
+//mm        = 1e-3;
+d_c       = 45  * micron; // lamination thickness
+d_i       = 2.5 * micron; // lamination + isolation
+r_c       = 5 * micron;
+eps       = d_c + 2 * d_i;
+num       = 10;
+L_X       = (d_c + 2 * d_i) * num;
+L_Y       = L_X;

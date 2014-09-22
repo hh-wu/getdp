@@ -1,0 +1,40 @@
+//Include "mesoMeshes/gaussPointPosition.dat";
+Include "common.dat" ;
+
+// SHARED INFORMATION
+//===================
+c_x       = 0.0;
+c_y       = 0.0;
+
+r         = 1.5 * L_X;
+lc_ext    = L_X/200.0;
+lc_int    = L_X/200.0;
+//lc_ext    = L_X/25.0;
+//lc_int    = L_X/25.0;
+lc_Circ1  = L_X/10;
+l_Indu    = 0.0015;
+delta     = L_X/10;
+dx        = L_X/3;
+dy        = L_Y/6;
+NX        = 100;
+NY        = 100;
+nx        = 11;
+ny        = 6;
+
+n_1       = 21;
+n_2       = 3;
+
+GAMMA_MIDDLE_POINT  = 988;
+GAMMA_MIDDLE_POINT_U  = 989;
+GAMMA_CORNER1  = 990;
+GAMMA_CORNER2  = 991;
+GAMMA_CORNER3  = 992;
+GAMMA_CORNER4  = 993;
+
+GAMMA_LEFT    = 100;
+GAMMA_RIGHT   = 101;
+GAMMA_DOWN    = 102;
+GAMMA_UP      = 103;
+
+IRON          = 104;
+AIR           = 105;

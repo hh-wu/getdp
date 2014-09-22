@@ -22,7 +22,7 @@ DefineConstant[
     Name "Input/20Boundary condition at infinity",
     Highlight "Blue"},
 
-  Flag_NL = { 1, Choices{0,1},
+  Flag_NL = { 0, Choices{0,1},
     Name "Input/40Nonlinear BH-curve"}
 ];
 
