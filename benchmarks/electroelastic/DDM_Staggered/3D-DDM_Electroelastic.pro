@@ -507,8 +507,8 @@ Resolution	{
 						EndFor
 					EndFor	
 
-					For x In {0:0}
-						For y In {0:0}
+					For x In {0:nx-1}
+						For y In {0:ny-1}
 
 						// Deform the solid body and/or the air mesh:
 							DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, 1];
@@ -559,11 +559,17 @@ Resolution	{
 					For x In {0:nx-1}
 						For y In {0:ny-1}
 
+						// Deform the solid body and/or the air mesh:
+							DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, 1];
+
 						// We set the potential on the artificial interfaces:
 							PostOperation[update_g_up_electric~{x+nx*y+1}];
 							PostOperation[update_g_right_electric~{x+nx*y+1}];
 							PostOperation[update_g_down_electric~{x+nx*y+1}];
 							PostOperation[update_g_left_electric~{x+nx*y+1}];
+
+						// Bringing back the mesh:
+							DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, -1];
 
 						EndFor
 					EndFor	
@@ -604,11 +610,17 @@ Resolution	{
 						For x In {0:nx-1}
 							For y In {0:ny-1}
 
+								// Deform the solid body and/or the air mesh:
+									DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, 1];
+
 								// We set the potential on the artificial interfaces:
 									PostOperation[update_g_up_electric~{x+nx*y+1}];
 									PostOperation[update_g_right_electric~{x+nx*y+1}];
 									PostOperation[update_g_down_electric~{x+nx*y+1}];
 									PostOperation[update_g_left_electric~{x+nx*y+1}];
+
+								// Bringing back the mesh:
+									DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, -1];
 
 							EndFor
 						EndFor
