@@ -55,7 +55,7 @@ Group 	{
  
 Function {
 
-	Velectrode = 250;
+	Velectrode = 200;
 
 
 	For x In {0:nx-1}
