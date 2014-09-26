@@ -166,12 +166,13 @@ static void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *
 
       else if (!strcmp(argv[i]+1, "setnumber")) {
         i++;
-	if (i + 1 < argc && argv[i][0] != '-' && argv[i + 1][0] != '-') {
+	if (i + 1 < argc && argv[i][0] != '-') {
           CommandLineNumbers[argv[i]] = atof(argv[i + 1]);
           i += 2;
 	}
-        else
+        else{
           Message::Error("Missing name and/or value for number definition");
+        }
       }
 
       else if (!strcmp(argv[i]+1, "setstring")) {
@@ -180,8 +181,9 @@ static void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *
           CommandLineStrings[argv[i]] = argv[i + 1];
           i += 2;
 	}
-        else
+        else{
           Message::Error("Missing name and/or value for string definition");
+        }
       }
 
       else if (!strcmp(argv[i]+1, "restart")){
