@@ -32,7 +32,7 @@ Function {
 
   Nb_max_iter = 10;
   relaxation_factor = 1.;
-  stop_criterion = 1e-5;
+  stop_criterion = 1e-4;
 }
 
 Jacobian {
