@@ -15,6 +15,7 @@ void Gauss_Quadrangle (int Nbr_Points, int Num,
 		       double *u, double *v, double *w, double *wght)
 {
   switch (Nbr_Points) {
+  case  1 : *u= xq1 [Num] ; *v= yq1 [Num] ; *w= 0. ; *wght= pq1 [Num] ; break ;
   case  3 : *u= xq3 [Num] ; *v= yq3 [Num] ; *w= 0. ; *wght= pq3 [Num] ; break ;
   case  4 : *u= xq4 [Num] ; *v= yq4 [Num] ; *w= 0. ; *wght= pq4 [Num] ; break ;
   case  7 : *u= xq7 [Num] ; *v= yq7 [Num] ; *w= 0. ; *wght= pq7 [Num] ; break ;

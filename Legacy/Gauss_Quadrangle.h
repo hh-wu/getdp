@@ -3,6 +3,12 @@
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@geuz.org>.
 
+/* 1 integration point */
+
+static double xq1[1] = {0.};
+static double yq1[1] = {0.};
+static double pq1[1] = {4.};
+
 /* 3 integration points */
 
 static double xq3[3] = {0.816496580928,-0.408248290464,-0.408248290464};
@@ -24,14 +30,14 @@ static double yq7[7] = {0.0,-0.683130051064,0.683130051064,-0.374256642286,0.374
 static double pq7[7] = {1.142857142857,0.595238095238,0.595238095238,
 			0.416666666666,0.416666666666,0.416666666666,0.416666666666};
 
-/* 
+/*
    GAUSS QUADRANGLE WITH 1/R SINGULARITY OVER NODE (-1,-1,0)
-   
-   ref.: H. L. G. Pina, J. L. M. Fernandes, C. A. Brebbia, 
-         Some numerical integration formulae over triangles and 
-	 squares with a 1/R singularity, 
-	 Appl. Math. Modelling, Vol 5, June 1981, pp 209--211 
-*/ 
+
+   ref.: H. L. G. Pina, J. L. M. Fernandes, C. A. Brebbia,
+         Some numerical integration formulae over triangles and
+	 squares with a 1/R singularity,
+	 Appl. Math. Modelling, Vol 5, June 1981, pp 209--211
+*/
 
 /* 1 integration point */
 
