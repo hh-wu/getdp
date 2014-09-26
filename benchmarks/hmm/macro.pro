@@ -119,7 +119,8 @@ Formulation {
     Equation {
       Galerkin { [ Dof{d a} , {d a} ] ;
         In Domain ; Jacobian JVol ; Integration I1 ; }
-      Galerkin { [ Python[ElementNum[], CompZ[{a}], CompX[{d a}], CompY[{d a} ] ]
+      Galerkin { [ Python[ElementNum[], QuadraturePointIndex[],
+                          CompZ[{a}], CompX[{d a}], CompY[{d a} ] ]
                          {"hmm_downscale_b.py"} * Dof{d a} , {d a} ] ;
         In Domain_NL ; Jacobian JVol ; Integration I1 ; }
     }
@@ -132,9 +133,11 @@ Formulation {
     Equation {
       Galerkin { [ nu[{d a}] * Dof{d a}, {d a} ] ;
         In Domain_L ; Jacobian JVol ; Integration I1 ; }
-      Galerkin { [ Python[ElementNum[]]{"hmm_upscale_h.py"} , {d a} ] ;
+      Galerkin { [ Python[ElementNum[], QuadraturePointIndex[]]
+                         {"hmm_upscale_h.py"} , {d a} ] ;
         In Domain_NL ; Jacobian JVol ; Integration I1 ; }
-      Galerkin { JacNL [ Python[ElementNum[]]{"hmm_upscale_dhdb.py"} * Dof{d a} , {d a} ] ;
+      Galerkin { JacNL [ Python[ElementNum[], QuadraturePointIndex[]]
+                               {"hmm_upscale_dhdb.py"} * Dof{d a} , {d a} ] ;
         In Domain_NL ; Jacobian JVol ; Integration I1 ; }
       Galerkin { [ -js[] , {a} ] ;
         In Domain_S ; Jacobian JVol ; Integration I1 ; }

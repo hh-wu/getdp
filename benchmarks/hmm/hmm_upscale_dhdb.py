@@ -1,5 +1,5 @@
-elenum = input[0];
+key = (input[0], input[1]) # element num, quadrature point index
 
-output = [ dhdbxx_table[elenum], dhdbxy_table[elenum], 0.,
-           dhdbyx_table[elenum], dhdbyy_table[elenum], 0.,
-           0.,                   0.,                   0.];
+output = [ dhdbxx_table[key], dhdbxy_table[key], 0.,
+           dhdbyx_table[key], dhdbyy_table[key], 0.,
+           0.,                0.,                0.]
