@@ -1059,6 +1059,7 @@ struct Operation {
       char    *Name_MshFile;
       int     GeoDataIndex;
       double  Factor;
+      int     GroupIndex;
     } DeformeMesh;
     struct {
       char    *String;

@@ -116,6 +116,13 @@ void  Operation_DeformeMesh(struct Resolution  * Resolution_P,
   struct DefineQuantity  * DQ_P ;
   struct FunctionSpace   * FunctionSpace_P ;
   struct DofData     * DofData_P ;
+  struct Group  * Group_P ;
+
+  Group_P = (Operation_P->Case.DeformeMesh.GroupIndex >=0)?
+    (struct Group *)List_Pointer(Problem_S.Group, Operation_P->Case.DeformeMesh.GroupIndex)
+    : NULL;
+  if (Group_P && Group_P->FunctionType != NODESOF)
+    Message::Error("DeformeMesh: Group must be of NodesOf function type") ;
 
   DS = (struct DefineSystem*)List_Pointer(Resolution_P->DefineSystem,
 					  Operation_P->DefineSystemIndex) ;
@@ -159,35 +166,37 @@ void  Operation_DeformeMesh(struct Resolution  * Resolution_P,
         ((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->NumType == NumBF_Y ||
         ((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->NumType == NumBF_Z ){
 
-      Dof_GetRealDofValue
-	(FunctionSpace_P->DofData,
-	 ((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i )) , &Value) ;
-
       Num_Node = ((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->Entity ;
 
-      /* Reference mesh */
-      Geo_SetCurrentGeoData(Current.GeoData =
-			    GeoData_P0 + Operation_P->Case.DeformeMesh.GeoDataIndex) ;
-      Geo_GetNodesCoordinates(1, &Num_Node, &un_x, &un_y, &un_z) ;
+      if (!Group_P || Check_IsEntityInExtendedGroup(Group_P, Num_Node, 0)) {
+        Dof_GetRealDofValue
+          (FunctionSpace_P->DofData,
+           ((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i )) , &Value) ;
 
-      /* Mesh associated to the electromechanical system */
-      if( GeoData_P0 + DofData_P->GeoDataIndex !=
-	  GeoData_P0 + Operation_P->Case.DeformeMesh.GeoDataIndex )
-	Geo_SetCurrentGeoData(Current.GeoData = GeoData_P0 + DofData_P->GeoDataIndex) ;
+        /* Reference mesh */
+        Geo_SetCurrentGeoData(Current.GeoData =
+                              GeoData_P0 + Operation_P->Case.DeformeMesh.GeoDataIndex) ;
+        Geo_GetNodesCoordinates(1, &Num_Node, &un_x, &un_y, &un_z) ;
 
-      if (((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i))->NumType == NumBF_X){
-	un_x +=  Operation_P->Case.DeformeMesh.Factor * Value ;
-	Geo_SetNodesCoordinatesX(1, &Num_Node, &un_x) ;
-      }
+        /* Mesh associated to the electromechanical system */
+        if( GeoData_P0 + DofData_P->GeoDataIndex !=
+            GeoData_P0 + Operation_P->Case.DeformeMesh.GeoDataIndex )
+          Geo_SetCurrentGeoData(Current.GeoData = GeoData_P0 + DofData_P->GeoDataIndex) ;
 
-      if (((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i))->NumType == NumBF_Y){
-	un_y +=  Operation_P->Case.DeformeMesh.Factor * Value ;
-	Geo_SetNodesCoordinatesY(1, &Num_Node, &un_y) ;
-      }
+        if (((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i))->NumType == NumBF_X){
+          un_x +=  Operation_P->Case.DeformeMesh.Factor * Value ;
+          Geo_SetNodesCoordinatesX(1, &Num_Node, &un_x) ;
+        }
 
-      if (((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i))->NumType == NumBF_Z){
-	un_z +=  Operation_P->Case.DeformeMesh.Factor * Value ;
-	Geo_SetNodesCoordinatesZ(1, &Num_Node, &un_z) ;
+        if (((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i))->NumType == NumBF_Y){
+          un_y +=  Operation_P->Case.DeformeMesh.Factor * Value ;
+          Geo_SetNodesCoordinatesY(1, &Num_Node, &un_y) ;
+        }
+
+        if (((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i))->NumType == NumBF_Z){
+          un_z +=  Operation_P->Case.DeformeMesh.Factor * Value ;
+          Geo_SetNodesCoordinatesZ(1, &Num_Node, &un_z) ;
+        }
       }
 
     }

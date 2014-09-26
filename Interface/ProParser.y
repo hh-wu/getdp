@@ -4881,6 +4881,24 @@ OperationTerm :
     }
 
   | tDeformMesh  '[' String__Index ',' String__Index ',' tNameOfMesh CharExpr ','
+                     FExpr ',' GroupRHS ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      int i;
+      if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $3);
+      Free($3);
+      Operation_P->DefineSystemIndex = i;
+      Operation_P->Case.DeformeMesh.Quantity = $5;
+      Operation_P->Case.DeformeMesh.Name_MshFile = $8;
+      Operation_P->Case.DeformeMesh.GeoDataIndex = -1;
+      Operation_P->Case.DeformeMesh.Factor = $10;
+      Operation_P->Case.DeformeMesh.GroupIndex = Num_Group(&Group_S, (char*)"OP_DeformMesh", $12);
+      Operation_P->Type = OPERATION_DEFORMEMESH;
+    }
+
+  | tDeformMesh  '[' String__Index ',' String__Index ',' tNameOfMesh CharExpr ','
                      FExpr ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
@@ -4894,6 +4912,7 @@ OperationTerm :
       Operation_P->Case.DeformeMesh.Name_MshFile = $8;
       Operation_P->Case.DeformeMesh.GeoDataIndex = -1;
       Operation_P->Case.DeformeMesh.Factor = $10;
+      Operation_P->Case.DeformeMesh.GroupIndex = -1;
       Operation_P->Type = OPERATION_DEFORMEMESH;
     }
 
@@ -4910,6 +4929,7 @@ OperationTerm :
       Operation_P->Case.DeformeMesh.Name_MshFile = $8;
       Operation_P->Case.DeformeMesh.GeoDataIndex = -1;
       Operation_P->Case.DeformeMesh.Factor = 1;
+      Operation_P->Case.DeformeMesh.GroupIndex = -1;
       Operation_P->Type = OPERATION_DEFORMEMESH;
     }
 
@@ -4926,6 +4946,7 @@ OperationTerm :
       Operation_P->Case.DeformeMesh.Name_MshFile = NULL;
       Operation_P->Case.DeformeMesh.GeoDataIndex = -1;
       Operation_P->Case.DeformeMesh.Factor = 1;
+      Operation_P->Case.DeformeMesh.GroupIndex = -1;
       Operation_P->Type = OPERATION_DEFORMEMESH;
     }
 
@@ -4942,6 +4963,24 @@ OperationTerm :
       Operation_P->Case.DeformeMesh.Name_MshFile = NULL;
       Operation_P->Case.DeformeMesh.GeoDataIndex = -1;
       Operation_P->Case.DeformeMesh.Factor = $7;
+      Operation_P->Case.DeformeMesh.GroupIndex = -1;
+      Operation_P->Type = OPERATION_DEFORMEMESH;
+    }
+
+  | tDeformMesh  '[' String__Index ',' String__Index ',' FExpr ',' GroupRHS ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      int i;
+      if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $3);
+      Free($3);
+      Operation_P->DefineSystemIndex = i;
+      Operation_P->Case.DeformeMesh.Quantity = $5;
+      Operation_P->Case.DeformeMesh.Name_MshFile = NULL;
+      Operation_P->Case.DeformeMesh.GeoDataIndex = -1;
+      Operation_P->Case.DeformeMesh.Factor = $7;
+      Operation_P->Case.DeformeMesh.GroupIndex = Num_Group(&Group_S, (char*)"OP_DeformMesh", $9);
       Operation_P->Type = OPERATION_DEFORMEMESH;
     }
 
