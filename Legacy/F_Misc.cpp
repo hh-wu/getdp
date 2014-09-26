@@ -56,6 +56,12 @@ void F_ElementNum (F_ARG)
   V->Val[0] = Current.Element->Num ;
 }
 
+void F_QuadraturePointIndex (F_ARG)
+{
+  V->Type = SCALAR ;
+  V->Val[0] = Current.QuadraturePointIndex ;
+}
+
 void F_VirtualWork (F_ARG)
 {
   MATRIX3x3 Jac ;

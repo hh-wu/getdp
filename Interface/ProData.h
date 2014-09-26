@@ -1450,6 +1450,8 @@ struct CurrentData {
 
   double  Val[NBR_MAX_HARMONIC * MAX_DIM];
 
+  double  QuadraturePointIndex;
+
   // For TimeLoopTheta and TimeLoopNewmark
   double  Time, TimeImag, TimeStep, DTime;
   double  Theta, Beta, Gamma;

@@ -181,6 +181,7 @@ void Init_ProblemStructure()
   Current.vt = 0.0;
   Current.wt = 0.0;
   Current.Val[0] = 0.0;
+  Current.QuadraturePointIndex = 0.0;
   Current.Time = 0.0;
   Current.TimeImag = 0.0;
   Current.TimeStep = 0.0;

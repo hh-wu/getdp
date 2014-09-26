@@ -277,6 +277,9 @@ struct StringXPointer  Current_Value[] = {
   {"Val3" , &Current.Val[3]}, {"Val4" , &Current.Val[4]}, {"Val5" , &Current.Val[5]},
   {"Val6" , &Current.Val[6]}, {"Val7" , &Current.Val[7]}, {"Val8" , &Current.Val[8]},
 
+  {"QuadraturePointIndex",  &Current.QuadraturePointIndex},
+  {"QP",                    &Current.QuadraturePointIndex},
+
   {"KSPIts", &Current.KSPIts},
 #endif
   {NULL       , NULL}
@@ -991,6 +994,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"Rand"              , (CAST)F_Rand             ,   0,   1 },
   {"CompElementNum"    , (CAST)F_CompElementNum   ,   0,   0 },
   {"ElementNum"        , (CAST)F_ElementNum       ,   0,   0 },
+  {"QuadraturePointIndex" , (CAST)F_QuadraturePointIndex ,   0,   0 },
   {"VirtualWork"       , (CAST)F_VirtualWork      ,   0,   1 },
   {"Felec"	       , (CAST)F_Felec      	  ,   0,   1 },
 

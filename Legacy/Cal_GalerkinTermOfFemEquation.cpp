@@ -679,6 +679,8 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 
       for (i_IntPoint = 0 ; i_IntPoint < Nbr_IntPoints ; i_IntPoint++) {
 
+        Current.QuadraturePointIndex = i_IntPoint;
+
 	Get_IntPoint(Nbr_IntPoints, i_IntPoint,
 		     &Current.u, &Current.v, &Current.w, &weight) ;
 
