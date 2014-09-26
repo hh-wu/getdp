@@ -52,7 +52,7 @@ void F_Python(F_ARG)
     return;
   }
 
-  // we could do this more efficiently by directly storing the values in octave
+  // we could do this more efficiently by directly storing the values in python
   // (instead of parsing)
   std::string expr = "input = [";
   for(int i = 0; i < Fct->NbrArguments; i++){
@@ -99,31 +99,35 @@ void F_Python(F_ARG)
     PyObject* out = PyDict_GetItemString(dict, "output");
     if(out){
       if(PyList_Check(out)){
-        Message::Error("Python output list handling not coded yet");
+        Py_ssize_t size = PyList_Size(out);
+        if(size == 3 || size == 9){
+          for(int i = 0; i < size; i++){
+            PyObject *item = PyList_GetItem(out, i);
+            if(PyNumber_Check(item)){
+              V->Val[i] = PyFloat_AsDouble(item);
+            }
+            else{
+              Message::Error("Unknown type of Python list item");
+              V->Val[i] = 0.;
+            }
+          }
+          V->Type = (size == 3) ? VECTOR : TENSOR;
+        }
+      }
+      else if(PyComplex_Check(out)){
+        double re = PyComplex_RealAsDouble(out);
+        double im = PyComplex_ImagAsDouble(out);
+        printf("GOT complex python number %g +i %g!\n", re, im);
       }
       else if(PyNumber_Check(out)){
         V->Val[0] = PyFloat_AsDouble(out);
         V->Type = SCALAR;
       }
+      else{
+        Message::Error("Unknown type of Python return value");
+      }
     }
   }
-
-  /*
-  if(out.is_real_scalar()){
-    V->Val[0] = out.double_value();
-    V->Type = SCALAR;
-  }
-  else if(out.is_complex_scalar()){
-    V->Val[0] = out.complex_value().real();
-    V->Val[MAX_DIM] = out.complex_value().imag();
-    V->Type = SCALAR;
-  }
-  else if(out.is_real_matrix() ||
-          out.is_complex_matrix()){
-    Message::Error("Octave matrix output not coded yet");
-    V->Type = VECTOR ;
-  }
-  */
 }
 
 #else

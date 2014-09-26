@@ -1,12 +1,7 @@
 
-elenum=input[0];
-bx=input[1];
-by=input[2];
+elenum = input[0];
+bx = input[1];
+by = input[2];
 
-print("elenum=" + str(elenum) + " bx=" + str(bx) + " by=" + str(by) )
-
-if elenum == 89:
-    bbx={};
-
-bbx[elenum] = bx;
-
+bx_table[elenum] = bx;
+by_table[elenum] = by;

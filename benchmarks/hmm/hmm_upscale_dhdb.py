@@ -1,6 +1,5 @@
 elenum = input[0];
 
-aa = bbx[elenum];
-
-print("hey " + str(elenum) + " = " + str(aa) );
-
+output = [ dhdbxx_table[elenum], dhdbxy_table[elenum], 0.,
+           dhdbyx_table[elenum], dhdbyy_table[elenum], 0.,
+           0.,                   0.,                   0.];

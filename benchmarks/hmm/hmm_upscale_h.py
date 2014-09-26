@@ -1,6 +1,4 @@
 elenum = input[0];
 
-aa = bbx[elenum];
-
-print("hey " + str(elenum) + " = " + str(aa) );
+output = [ hx_table[elenum], hy_table[elenum], 0. ];
 

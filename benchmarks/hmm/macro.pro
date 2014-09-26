@@ -131,7 +131,7 @@ Formulation {
         In Domain_L ; Jacobian JVol ; Integration I1 ; }
       Galerkin { [ Python[ElementNum[]]{"hmm_upscale_h.py"} , {d a} ] ;
         In Domain_NL ; Jacobian JVol ; Integration I1 ; }
-      Galerkin { JacNL [ Python[ElementNum[]]{"hmm_upscale_dhdb.py"} * Dof{d a} , {d a} ] ;
+      Galerkin { JacNL [ Python[ElementNum[]]{"hmm_upscale_dhdb.py"} ##11 * Dof{d a} , {d a} ] ;
         In Domain_NL ; Jacobian JVol ; Integration I1 ; }
       Galerkin { [ -js[] , {a} ] ;
         In Domain_S ; Jacobian JVol ; Integration I1 ; }
@@ -175,6 +175,7 @@ Resolution {
         Evaluate[ Python[]{"hmm_compute_meso.py"} ];
         GenerateJac[C] ; SolveJac[C] ;
       }
+      SaveSolution[C];
     }
   }
 }

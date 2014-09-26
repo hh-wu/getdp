@@ -21,7 +21,7 @@ void Gauss_Quadrangle (int Nbr_Points, int Num,
   case  7 : *u= xq7 [Num] ; *v= yq7 [Num] ; *w= 0. ; *wght= pq7 [Num] ; break ;
   default :
     Message::Error("Wrong number of Gauss points for Quadrangle: "
-                   "valid choices: 3, 4, 7");
+                   "valid choices: 1, 3, 4, 7");
     break;
   }
 }
