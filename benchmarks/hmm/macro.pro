@@ -30,7 +30,7 @@ Function {
   dhdb_NL[ Core ] = 2 * dnudb2[$1#1] * SquDyadicProduct[#1]  ;
   js[]            = Vector[0., 0., 50e8];
 
-  Nb_max_iter = 30;
+  Nb_max_iter = 10;
   relaxation_factor = 1.;
   stop_criterion = 1e-5;
 }
@@ -96,7 +96,7 @@ Formulation {
     }
   }
 
-  { Name MagSta_a_hmm_init ; Type FemEquation ;
+  { Name MagSta_a_hmm_init_field ; Type FemEquation ;
     Quantity {
       { Name a  ; Type Local ; NameOfSpace Hcurl_a ; }
     }
@@ -112,13 +112,15 @@ Formulation {
     }
   }
 
-  { Name MagSta_a_hmm_prepro ; Type FemEquation ;
+  { Name MagSta_a_hmm_init_downscaling ; Type FemEquation ;
     Quantity {
       { Name a  ; Type Local ; NameOfSpace Hcurl_a ; }
     }
     Equation {
-      Galerkin { [ Python[ElementNum[], CompX[{d a}], CompY[{d a} ] ]{"hmm_downscale_b.py"} * Dof{d a} , {d a} ] ;
+      Galerkin { [ Dof{d a} , {d a} ] ;
         In Domain ; Jacobian JVol ; Integration I1 ; }
+      Galerkin { [ Python[ElementNum[], CompZ[{a}], CompX[{d a}], CompY[{d a} ] ]{"hmm_downscale_b.py"} * Dof{d a} , {d a} ] ;
+        In Domain_NL ; Jacobian JVol ; Integration I1 ; }
     }
   }
 
@@ -131,7 +133,7 @@ Formulation {
         In Domain_L ; Jacobian JVol ; Integration I1 ; }
       Galerkin { [ Python[ElementNum[]]{"hmm_upscale_h.py"} , {d a} ] ;
         In Domain_NL ; Jacobian JVol ; Integration I1 ; }
-      Galerkin { JacNL [ Python[ElementNum[]]{"hmm_upscale_dhdb.py"} ##11 * Dof{d a} , {d a} ] ;
+      Galerkin { JacNL [ Python[ElementNum[]]{"hmm_upscale_dhdb.py"} * Dof{d a} , {d a} ] ;
         In Domain_NL ; Jacobian JVol ; Integration I1 ; }
       Galerkin { [ -js[] , {a} ] ;
         In Domain_S ; Jacobian JVol ; Integration I1 ; }
@@ -156,8 +158,8 @@ Resolution {
 
   { Name MagSta_a_hmm ;
     System {
-      { Name A ; NameOfFormulation MagSta_a_hmm_init ; DestinationSystem B; }
-      { Name B ; NameOfFormulation MagSta_a_hmm_prepro ; }
+      { Name A ; NameOfFormulation MagSta_a_hmm_init_field ; DestinationSystem B; }
+      { Name B ; NameOfFormulation MagSta_a_hmm_init_downscaling ; }
       { Name C ; NameOfFormulation MagSta_a_hmm ; }
     }
     Operation {
@@ -170,7 +172,7 @@ Resolution {
       }
       SaveSolution[A] ; TransferSolution[A];
 
-      IterativeLoop[1, stop_criterion, relaxation_factor]{
+      IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
         Generate[B] ;
         Evaluate[ Python[]{"hmm_compute_meso.py"} ];
         GenerateJac[C] ; SolveJac[C] ;

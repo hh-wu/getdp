@@ -1,5 +1,5 @@
 Include "meso.dat";
-Include "downscaled.dat";
+//Include "downscaled.dat";
 
 Group {
   GammaCornerFix = Region[ {GAMMA_MIDDLE_POINT } ];
@@ -23,9 +23,10 @@ Function {
   mu0            = 4.e-7 * Pi ;
   nu0            = 1/mu0 ;
 
-  aM[]           = Vector[0.0, 0.0, _func];
-  curl_aM[]      = Vector[_gradFunc_2, -_gradFunc_1, 0.0];
+  DefineConstant[ AZ=0, BX=0, BY=0, ELENUM=0, CURT=0 ];
 
+  aM[]           = Vector[0.0, 0.0, AZ];
+  curl_aM[]      = Vector[BX, BY, 0.0];
 
   NbrMaxIter     = 50;
   Eps            = 1e-4;
@@ -177,46 +178,46 @@ PostProcessing {
 
 
 
-nameDirRes = "";
+nameDirRes = "res_hmm/";
 
 PostOperation {
 For iP In {1:Nbr_SubProblems}
  { Name mean~{iP} ; NameOfPostProcessing a_Micro_NR~{iP};
    Operation{
      Print[ vol[Omega]       , OnGlobal, Format Table, Store 12, File StrCat[nameDirRes, "vol.txt"], LastTimeStepOnly ] ;
-     Print[ h_tot_mean[Omega], OnGlobal, Format Table, Store 22, File StrCat[nameDirRes, Sprintf("j%g_%g.txt",   iP, numEle) ], LastTimeStepOnly] ;
-     Print[ b_tot_mean[Omega], OnGlobal, Format Table, Store 21, File StrCat[nameDirRes, Sprintf("e%g_%g.txt",   iP, numEle) ], LastTimeStepOnly] ;
+     Print[ h_tot_mean[Omega], OnGlobal, Format Table, Store 22, File StrCat[nameDirRes, Sprintf("j%g_%g.txt",   iP, ELENUM) ], LastTimeStepOnly] ;
+     Print[ b_tot_mean[Omega], OnGlobal, Format Table, Store 21, File StrCat[nameDirRes, Sprintf("e%g_%g.txt",   iP, ELENUM) ], LastTimeStepOnly] ;
    }
  }
  { Name cuts_field~{iP} ; NameOfPostProcessing a_Micro_NR~{iP};
    Operation{
-     Print[ a_pert, OnElementsOf Omega, File StrCat[nameDirRes, Sprintf("a_pert%g_%g.pos", iP, numEle) ], LastTimeStepOnly];
-     Print[ a_proj, OnElementsOf Omega, File StrCat[nameDirRes, Sprintf("a_proj%g_%g.pos", iP, numEle) ], LastTimeStepOnly];
-     Print[ a_tot,  OnElementsOf Omega, File StrCat[nameDirRes, Sprintf("a_tot%g_%g.pos" , iP, numEle) ], LastTimeStepOnly];
-     Print[ b_pert, OnElementsOf Omega, File StrCat[nameDirRes, Sprintf("b_pert%g_%g.pos" , iP, numEle) ], LastTimeStepOnly];
-     Print[ b_proj, OnElementsOf Omega, File StrCat[nameDirRes, Sprintf("b_proj%g_%g.pos" , iP, numEle) ], LastTimeStepOnly];
-     Print[ b_tot,  OnElementsOf Omega, File StrCat[nameDirRes, Sprintf("b_tot%g_%g.pos" , iP, numEle) ], LastTimeStepOnly];
-     Print[ h_tot,  OnElementsOf Omega, File StrCat[nameDirRes, Sprintf("h_tot%g_%g.pos" , iP, numEle) ], LastTimeStepOnly];
+     Print[ a_pert, OnElementsOf Omega, File StrCat[nameDirRes, Sprintf("a_pert%g_%g.pos", iP, ELENUM) ], LastTimeStepOnly];
+     Print[ a_proj, OnElementsOf Omega, File StrCat[nameDirRes, Sprintf("a_proj%g_%g.pos", iP, ELENUM) ], LastTimeStepOnly];
+     Print[ a_tot,  OnElementsOf Omega, File StrCat[nameDirRes, Sprintf("a_tot%g_%g.pos" , iP, ELENUM) ], LastTimeStepOnly];
+     Print[ b_pert, OnElementsOf Omega, File StrCat[nameDirRes, Sprintf("b_pert%g_%g.pos" , iP, ELENUM) ], LastTimeStepOnly];
+     Print[ b_proj, OnElementsOf Omega, File StrCat[nameDirRes, Sprintf("b_proj%g_%g.pos" , iP, ELENUM) ], LastTimeStepOnly];
+     Print[ b_tot,  OnElementsOf Omega, File StrCat[nameDirRes, Sprintf("b_tot%g_%g.pos" , iP, ELENUM) ], LastTimeStepOnly];
+     Print[ h_tot,  OnElementsOf Omega, File StrCat[nameDirRes, Sprintf("h_tot%g_%g.pos" , iP, ELENUM) ], LastTimeStepOnly];
    }
  }
  { Name map_field~{iP} ; NameOfPostProcessing a_Micro_NR~{iP};
    Operation {
-     Print[ a_pert, OnElementsOf Omega, File StrCat[nameDirRes, Sprintf("a_pert_p%g_cs%g_gp%g.pos", iP, currentTimeStep, numEle) ], Format Gmsh, LastTimeStepOnly ];
-     Print[ a_proj, OnElementsOf Omega, File StrCat[nameDirRes, Sprintf("a_proj_p%g_cs%g_gp%g.pos", iP, currentTimeStep, numEle) ], Format Gmsh, LastTimeStepOnly ];
-     Print[ a_tot,  OnElementsOf Omega, File StrCat[nameDirRes, Sprintf("a_tot_p%g_cs%g_gp%g.pos" , iP, currentTimeStep, numEle) ], Format Gmsh, LastTimeStepOnly ];
+     Print[ a_pert, OnElementsOf Omega, File StrCat[nameDirRes, Sprintf("a_pert_p%g_cs%g_gp%g.pos", iP, CURT, ELENUM) ], Format Gmsh, LastTimeStepOnly ];
+     Print[ a_proj, OnElementsOf Omega, File StrCat[nameDirRes, Sprintf("a_proj_p%g_cs%g_gp%g.pos", iP, CURT, ELENUM) ], Format Gmsh, LastTimeStepOnly ];
+     Print[ a_tot,  OnElementsOf Omega, File StrCat[nameDirRes, Sprintf("a_tot_p%g_cs%g_gp%g.pos" , iP, CURT, ELENUM) ], Format Gmsh, LastTimeStepOnly ];
 
-     Print[ b_pert, OnElementsOf Omega, File StrCat[nameDirRes, Sprintf("b_pert_p%g_cs%g_gp%g.pos" , iP, currentTimeStep, numEle) ], Format Gmsh, LastTimeStepOnly ];
-     Print[ b_tot,  OnElementsOf Omega, File StrCat[nameDirRes, Sprintf("b_tot_p%g_cs%g_gp%g.pos" , iP, currentTimeStep, numEle) ], Format Gmsh, LastTimeStepOnly ];
-     Print[ b_proj,  OnElementsOf Omega, File StrCat[nameDirRes, Sprintf("b_proj_p%g_cs%g_gp%g.pos" , iP, currentTimeStep, numEle) ], Format Gmsh, LastTimeStepOnly ];
+     Print[ b_pert, OnElementsOf Omega, File StrCat[nameDirRes, Sprintf("b_pert_p%g_cs%g_gp%g.pos" , iP, CURT, ELENUM) ], Format Gmsh, LastTimeStepOnly ];
+     Print[ b_tot,  OnElementsOf Omega, File StrCat[nameDirRes, Sprintf("b_tot_p%g_cs%g_gp%g.pos" , iP, CURT, ELENUM) ], Format Gmsh, LastTimeStepOnly ];
+     Print[ b_proj,  OnElementsOf Omega, File StrCat[nameDirRes, Sprintf("b_proj_p%g_cs%g_gp%g.pos" , iP, CURT, ELENUM) ], Format Gmsh, LastTimeStepOnly ];
 
-     Print[ h_tot,  OnElementsOf Omega, File StrCat[nameDirRes, Sprintf("h_tot_p%g_cs%g_gp%g.pos" , iP, currentTimeStep, numEle) ], Format Gmsh, LastTimeStepOnly ];
+     Print[ h_tot,  OnElementsOf Omega, File StrCat[nameDirRes, Sprintf("h_tot_p%g_cs%g_gp%g.pos" , iP, CURT, ELENUM) ], Format Gmsh, LastTimeStepOnly ];
    }
  }
  { Name map_field_all~{iP} ; NameOfPostProcessing a_Micro_NR~{iP};
    Operation {
-     Print[ a_tot,  OnElementsOf Omega, File StrCat[nameDirRes, Sprintf("a_tot_p%g_s%g_%g.pos" , iP, currentTimeStep, numEle) ], Format Gmsh, LastTimeStepOnly ];
-     Print[ b_tot,  OnElementsOf Omega, File StrCat[nameDirRes, Sprintf("b_tot_p%g_s%g_%g.pos" , iP, currentTimeStep, numEle) ], Format Gmsh, LastTimeStepOnly ];
-     Print[ h_tot,  OnElementsOf Omega, File StrCat[nameDirRes, Sprintf("h_tot_p%g_s%g_%g.pos" , iP, currentTimeStep, numEle) ], Format Gmsh, LastTimeStepOnly ];
+     Print[ a_tot,  OnElementsOf Omega, File StrCat[nameDirRes, Sprintf("a_tot_p%g_s%g_%g.pos" , iP, CURT, ELENUM) ], Format Gmsh, LastTimeStepOnly ];
+     Print[ b_tot,  OnElementsOf Omega, File StrCat[nameDirRes, Sprintf("b_tot_p%g_s%g_%g.pos" , iP, CURT, ELENUM) ], Format Gmsh, LastTimeStepOnly ];
+     Print[ h_tot,  OnElementsOf Omega, File StrCat[nameDirRes, Sprintf("h_tot_p%g_s%g_%g.pos" , iP, CURT, ELENUM) ], Format Gmsh, LastTimeStepOnly ];
    }
  }
  EndFor

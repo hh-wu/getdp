@@ -1,11 +1,16 @@
 //Include "mesoMeshes/gaussPointPosition.dat";
 Include "common.dat" ;
 
+lx       = 50e-6; // size of the cell
+ly       = lx;
+
 // SHARED INFORMATION
 //===================
 c_x       = 0.0;
 c_y       = 0.0;
 
+L_X = 10 * e;
+L_Y = L_X;
 r         = 1.5 * L_X;
 lc_ext    = L_X/200.0;
 lc_int    = L_X/200.0;

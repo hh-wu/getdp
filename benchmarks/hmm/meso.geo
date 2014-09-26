@@ -1,5 +1,10 @@
 Include "meso.dat";
 
+r_c = 5e-6;
+d_i = r_c;
+eps = e;
+
+
 // Printf("Inno =============> x_gauss = %g, y_gauss = %g ", x_gauss, y_gauss);
 
 x_gauss = 0;

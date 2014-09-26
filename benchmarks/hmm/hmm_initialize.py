@@ -1,6 +1,7 @@
 
 print("Initializing HMM python");
 
+az_table = {};
 bx_table = {};
 by_table = {};
 hx_table = {};
