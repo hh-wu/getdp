@@ -1,22 +1,35 @@
-// // SHARED INFORMATION
-// //===================
-// mm        = 1e-3;
-// d_c       = 0.5 * mm; // lamination thickness
-// d_i       = 0.02 * mm; // lamination + isolation
-// r_c       = 0.05 * mm;
-// eps       = d_c + d_i;
-// num       = 10;
-// L_X       = (d_c+d_i) * num;
-// L_Y       = L_X;
+AxialLength = 1; // 1 m is the default value
 
-// SHARED INFORMATION
-//===================
-micron    = 1e-6;
-//mm        = 1e-3;
-d_c       = 45  * micron; // lamination thickness
-d_i       = 2.5 * micron; // lamination + isolation
-r_c       = 5 * micron;
-eps       = d_c + 2 * d_i;
-num       = 10;
-L_X       = (d_c + 2 * d_i) * num;
-L_Y       = L_X;
+micron   = 1e-6;
+d        = 45 * micron;   // lamination thickness
+e        = 50 * micron;   // lamination thickness + isolation
+lambda   = d/e ;
+n_smc    = 10;//10
+nlai     = 4 ;
+h        = n_smc * d + n_smc * (e-d); // width lamination stack
+hz       = h ; // extruding along z...
+
+// Dimensions without Al
+//======================
+w_ind    = 2 * e ;
+rla_ind  = 5 * e ; // minimum distance between lamination and inductor (radious)
+gap_ind  = e ;
+xlam     = h ; //w_lam/2 ;
+ylam     = h ;
+x_air    = 5 * (h + rla_ind + w_ind) ;
+y_air    = 5 * (h + rla_ind + w_ind) ;
+d_inf    = 2 * h ;
+Val_Rint = x_air ;
+Val_Rext = x_air + d_inf ;
+
+// Common characteristic lengths
+//==============================
+pind        = w_ind/2 ;
+plam        = d/8  ; // lc for the laminations
+lca         = pind * 5; // lc for air
+Lay1        = 16; 
+Lay2        = 16;    // 11  vertical divisions of one lamination
+Lay3        = 11;    // 11  vertical divisions of one lamination
+Pro1       = .95; // 14 horizontal divisions of the laminations
+n_thickness = 6;
+n_circle    = 6;

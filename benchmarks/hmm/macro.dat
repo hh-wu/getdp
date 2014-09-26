@@ -1,57 +1,9 @@
-SymmetryFactor = 2; // Symmetry, half model (ring2d.geo or ring2d_new.geo)
-AxialLength = 1; // 1 m is the default value
-
-micron = 1e-6;
-//mm = 1e-3;
-d = 45*micron;   // lamination thickness
-e = 50*micron;   // lamination thickness + isolation
-//d = 0.5 * mm;   // lamination thickness
-//e = 0.52 * mm;   // lamination thickness + isolation
-lambda = d/e ;
-nlam = SymmetryFactor*10;//10
-h = nlam * d + (nlam)*(e-d); // width lamination stack
-hz = h ; // extruding along z...
-
-// Dimensions without Al
-//======================
-w_ind   = 2 * e ;
-rla_ind = 3 * e ; // minimum distance between lamination and inductor (radious)
-gap_ind = e;
-xlam = h/2 ; //w_lam/2 ;
-ylam = h/2 ;
-x_air = 20*(h/2+rla_ind+w_ind);
-y_air = 20*(h/2+rla_ind+w_ind) ;
-//x_air = 2.0 * (h/2+rla_ind+w_ind);
-//y_air = 2.0 * (h/2+rla_ind+w_ind) ;
-
-nlai = 4 ;
-
-
-// Some common characteristic lengths
-//====================================
-pind = w_ind/2 ;
-plam = d/8  ; // lc for the laminations
-//lca = pind*40; // lc for air
-lca = pind*20; // lc for air
-Lay1 = 15; Pro1 = .9; // 14 horizontal divisions of the laminations
-//Lay1 = 11; Pro1 = 1.0; // 14 horizontal divisions of the laminations
-Lay3 = 11;    // 11  vertical divisions of one lamination
-//Lay3_tot = 11; // 22 vertical divisions of the stack ==> homogenised model
-Lay3_tot = 14; // 22 vertical divisions of the stack ==> homogenised model
-Lay1 = 7 ; // figure
-Lay3_tot = 8 ; // figure homog
-divInd_angle = 6 ;
-divInd_thick = w_ind/pind ;
-
-n_thickness = 4;
-n_circle    = 6;
+Include "common.dat";
 
 GAMMA_INF  = 1000;
 CONDUCTOR  = 1001;
 AIR        = 1002;
-INDUCTOR1  = 1003;
-INDUCTOR2  = 1004;
-INDUCTOR_R = 1005;
-INDUCTOR_L = 1006;
+INDUCTOR   = 1003;
+OMEGA_INF  = 1004;
 
 
