@@ -14,6 +14,17 @@ ny = 1;
 // There are two things left to mention: register 9 (#9) is used to select whether the physical sources should be set to 0 or not and register 10 (#10) does the same job for the artificial sources
 
 
+// Constant
+//======
+
+DefineConstant[
+
+	freq		= {500000, Name "freq"},
+	Velectrode 	= {600, Name "Velectrode"}
+
+];
+
+
 // Group
 //======
 
@@ -37,14 +48,23 @@ Group 	{
 			force_interface~{x+nx*y+1}		= Region[ {air_boundaries~{x+nx*y+1}, sigma_up~{x+nx*y+1}, sigma_right~{x+nx*y+1}, 
 										sigma_down~{x+nx*y+1}, sigma_left~{x+nx*y+1}} ];
 
-			solid~{x+nx*y+1}			= Region[ (1000*nx*ny+5*x+nx*5*y+2) ];
+			solid~{x+nx*y+1}			= Region[ (1000*nx*ny+20*x+nx*20*y+2) ];
 			// The following region is a copy of the "solid" region. It is needed by getdp for computing the force terms
 			// on the deformed mesh in the mechanic formulation:
-			solid_deformed~{x+nx*y+1}		= Region[ (1000*nx*ny+5*x+nx*5*y+5) ];
-			air~{x+nx*y+1}				= Region[ (1000*nx*ny+5*x+nx*5*y+3) ];
+			solid_deformed~{x+nx*y+1}		= Region[ (1000*nx*ny+20*x+nx*20*y+5) ];
+			air~{x+nx*y+1}				= Region[ (1000*nx*ny+20*x+nx*20*y+3) ];
 
 			electric_domain~{x+nx*y+1}		= Region[ {solid_deformed~{x+nx*y+1}, air~{x+nx*y+1}} ];
 			omega~{x+nx*y+1}			= Region[ {solid~{x+nx*y+1}, solid_deformed~{x+nx*y+1}, air~{x+nx*y+1}} ];
+
+			// The following regions are needed to deform the mesh:
+			solid_overlap_left~{x+nx*y+1}		= Region[ (1000*nx*ny+20*x+nx*20*y+6) ];
+			solid_overlap_right~{x+nx*y+1}		= Region[ (1000*nx*ny+20*x+nx*20*y+7) ];
+			solid_no_overlap~{x+nx*y+1}		= Region[ (1000*nx*ny+20*x+nx*20*y+8) ];
+			air_overlap_left~{x+nx*y+1}		= Region[ (1000*nx*ny+20*x+nx*20*y+9) ];
+			air_overlap_right~{x+nx*y+1}		= Region[ (1000*nx*ny+20*x+nx*20*y+10) ];
+			air_no_overlap~{x+nx*y+1}		= Region[ (1000*nx*ny+20*x+nx*20*y+11) ];
+
 
 			//  The elec. forces have to be computed only on the following skin region: 
 			// !!!!!!!!!! NOT USED RIGHT NOW since right now getdp solves on the whole electric_domain when given the skin region
@@ -54,9 +74,6 @@ Group 	{
 }
  
 Function {
-
-	Velectrode = 200;
-
 
 	For x In {0:nx-1}
 		For y In {0:ny-1}
@@ -89,12 +106,6 @@ Function {
 	C22[]					= E[]/(1+nu[])/(1-2*nu[])*Tensor[	(1-2*nu[])/2,	0,		0, 
 							   		   		0,		(1-2*nu[])/2,	0,
 							   		  		0,		0,		(1-2*nu[])/2];
-
-
-
-	freq					= 2500000;
-
-
 
 
 	// DDM specific:
@@ -321,11 +332,11 @@ FunctionSpace	{
 				BasisFunction{
 					{Name wxn; NameOfCoef uxn; Function BF_NodeX; dFunction {BF_GradNode, BF_Zero}; 
 					// D1 is now equal to grad_node, trick needed else getdp will not know how to use component  X of grad on a bf_nodeX 
-						Support Region[omega~{x+nx*y+1}]; Entity NodesOf[solid~{x+nx*y+1}];}
+						Support Region[omega~{x+nx*y+1}]; Entity NodesOf[{solid~{x+nx*y+1}, air~{x+nx*y+1}}];}
 					{Name wyn; NameOfCoef uyn; Function BF_NodeY; dFunction {BF_GradNode, BF_Zero};
-						Support Region[omega~{x+nx*y+1}]; Entity NodesOf[solid~{x+nx*y+1}];}
+						Support Region[omega~{x+nx*y+1}]; Entity NodesOf[{solid~{x+nx*y+1}, air~{x+nx*y+1}}];}
 					{Name wzn; NameOfCoef uzn; Function BF_NodeZ; dFunction {BF_GradNode, BF_Zero};
-						Support Region[omega~{x+nx*y+1}]; Entity NodesOf[solid~{x+nx*y+1}];}
+						Support Region[omega~{x+nx*y+1}]; Entity NodesOf[{solid~{x+nx*y+1}, air~{x+nx*y+1}}];}
 				}
 				    SubSpace{
 				       { Name u_x ; NameOfBasisFunction wxn ; }
@@ -334,9 +345,9 @@ FunctionSpace	{
 				     }
     				Constraint{
 					// Constraints deactivated since we do not want in our implementation to deform the air using a Laplacian formulation:
-    					//{NameOfCoef uxn; EntityType NodesOf; NameOfConstraint mesh_deform_comp_0~{x+nx*y+1};}
-    					//{NameOfCoef uyn; EntityType NodesOf; NameOfConstraint mesh_deform_comp_1~{x+nx*y+1};}
-    					//{NameOfCoef uzn; EntityType NodesOf; NameOfConstraint mesh_deform_comp_2~{x+nx*y+1};}
+    					{NameOfCoef uxn; EntityType NodesOf; NameOfConstraint mesh_deform_comp_0~{x+nx*y+1};}
+    					{NameOfCoef uyn; EntityType NodesOf; NameOfConstraint mesh_deform_comp_1~{x+nx*y+1};}
+    					{NameOfCoef uzn; EntityType NodesOf; NameOfConstraint mesh_deform_comp_2~{x+nx*y+1};}
      				}
 			}
 
@@ -424,24 +435,18 @@ Formulation	{
 				{Name u; Type Local; NameOfSpace mechanic_function_space~{x+nx*y+1};}
 				}
 				Equation{
-					       Galerkin { [ Dof{u_mesh_deform} , {u_mesh_deform} ] ;
-						 In Region[solid~{x+nx*y+1}] ; Jacobian JVol ; Integration I1 ; }
-					       Galerkin { [ -{u} , {u_mesh_deform} ] ;
-						 In Region[solid~{x+nx*y+1}] ; Jacobian JVol ; Integration I1 ; }
-
-					       // If you wish to deform the air mesh as well knowing that it makes a possible Newton iteration oscillate:
 
 					       // This is needed otherwise the constraints on solid will not be taken into account:
-					       //Galerkin { [ 0*Dof{u_mesh_deform} , {u_mesh_deform} ] ;
-						 //In Region[solid~{x+nx*y+1}] ; Jacobian JVol ; Integration I1 ; }
+					       Galerkin { [ 0*Dof{u_mesh_deform} , {u_mesh_deform} ] ;
+						 In Region[solid~{x+nx*y+1}] ; Jacobian JVol ; Integration I1 ; }
 
 					       // Laplacian formulation in the air:
-					       //Galerkin { [ Dof{D1 u_x} , {D1 u_x} ] ;
-						 //In Region[air~{x+nx*y+1}] ; Jacobian JVol ; Integration I1 ; }
-					       //Galerkin { [ Dof{D1 u_y} , {D1 u_y} ] ;
-						 //In Region[air~{x+nx*y+1}] ; Jacobian JVol ; Integration I1 ; }
-					       //Galerkin { [ Dof{D1 u_z} , {D1 u_z} ] ;
-						 //In Region[air~{x+nx*y+1}] ; Jacobian JVol ; Integration I1 ; }
+					       Galerkin { [ Dof{D1 u_x} , {D1 u_x} ] ;
+						 In Region[air~{x+nx*y+1}] ; Jacobian JVol ; Integration I1 ; }
+					       Galerkin { [ Dof{D1 u_y} , {D1 u_y} ] ;
+						 In Region[air~{x+nx*y+1}] ; Jacobian JVol ; Integration I1 ; }
+					       Galerkin { [ Dof{D1 u_z} , {D1 u_z} ] ;
+						 In Region[air~{x+nx*y+1}] ; Jacobian JVol ; Integration I1 ; }
 				}
 			}
 
@@ -485,7 +490,7 @@ Resolution	{
 
 
 			///// NON LINEAR ITERATIVE LOOP:
-				IterativeLoop[100, 1e-6, 1] 
+				IterativeLoop[50, 1e-6, 1] 
 					{	
 					For x In {0:nx-1}
 						For y In {0:ny-1}
@@ -493,25 +498,33 @@ Resolution	{
 						// We first deform the mesh:
 
 							// Save u on solid:
-							//PostOperation[save_u_field~{x+nx*y+1}];
+							PostOperation[save_u_field~{x+nx*y+1}];
 
 							// We use u as a constraint for the Laplacian formulation on the air:
-							// Evaluate[1. #11];
-	     						// UpdateConstraint[mesh_deform~{x+nx*y+1}, Region[solid~{x+nx*y+1}], Assign];
+							Evaluate[1. #11];
+	     						UpdateConstraint[mesh_deform~{x+nx*y+1}, Region[solid~{x+nx*y+1}], Assign];
 
 							// Compute the solid deformation and/or the air deformation based on the solid 
 							// deformation constraints with a Laplacian formulation:
-	      						Generate[mesh_deform~{x+nx*y+1}];
-							Solve[mesh_deform~{x+nx*y+1}]; 
+	      						Generate[mesh_deform~{x+nx*y+1}]; Solve[mesh_deform~{x+nx*y+1}]; 
+
+
+						// Deform the solid body and/or the air mesh:
+							If (x == 0)
+								// The first CMUT is treated differently - deformed on its whole domain at once:
+								DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, 1];
+							EndIf
+							If (x > 0)
+								DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, 1, NodesOf[{solid_no_overlap~{x+nx*y+1}, 
+									air_no_overlap~{x+nx*y+1}, solid_overlap_right~{x+nx*y+1}, air_overlap_right~{x+nx*y+1}}, 
+									Not sigma_right~{(x-1)+nx*y+1}]];
+							EndIf
 
 						EndFor
 					EndFor	
 
 					For x In {0:nx-1}
 						For y In {0:ny-1}
-
-						// Deform the solid body and/or the air mesh:
-							DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, 1];
 
 						////////// Step 1: Solving for the physical sources (to get the b in Fg = b) by forcing 0 on the artificial interfaces 
 						// and not 0 on the physical boundaries
@@ -521,23 +534,24 @@ Resolution	{
 								sigma_right~{x+nx*y+1},	sigma_down~{x+nx*y+1}, sigma_left~{x+nx*y+1}}], Assign];
 
 						// We now compute the electric resolution:
-	      						GenerateJac[electric_res~{x+nx*y+1}];
-							SolveJac[electric_res~{x+nx*y+1}]; 
-
-						// Bringing back the mesh:
-							DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, -1];
+							If (x < 1)
+		      						GenerateJac[electric_res~{x+nx*y+1}];
+								SolveJac[electric_res~{x+nx*y+1}]; 
+							EndIf
+							If (x > 0)
+		      						Generate[electric_res~{x+nx*y+1}];
+								Solve[electric_res~{x+nx*y+1}]; 
+							EndIf
 
 						EndFor
 					EndFor	
+
 
 
 			////////////////////// Let the DDM game begin for the ELECTRIC FORMULATION!
 
 					For x In {0:nx-1}
 						For y In {0:ny-1}
-
-						// Deform the solid body and/or the air mesh:
-							DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, 1];
 
 						////////// Step 1: Solving for the physical sources (to get the b in Fg = b) by forcing 0 on the artificial interfaces 
 						// and not 0 on the physical boundaries
@@ -550,26 +564,17 @@ Resolution	{
 	      						Generate[electric_res~{x+nx*y+1}];
 							Solve[electric_res~{x+nx*y+1}]; 
 
-						// Bringing back the mesh:
-							DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, -1];
-
 						EndFor
 					EndFor	
 
 					For x In {0:nx-1}
 						For y In {0:ny-1}
 
-						// Deform the solid body and/or the air mesh:
-							DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, 1];
-
 						// We set the potential on the artificial interfaces:
 							PostOperation[update_g_up_electric~{x+nx*y+1}];
 							PostOperation[update_g_right_electric~{x+nx*y+1}];
 							PostOperation[update_g_down_electric~{x+nx*y+1}];
 							PostOperation[update_g_left_electric~{x+nx*y+1}];
-
-						// Bringing back the mesh:
-							DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, -1];
 
 						EndFor
 					EndFor	
@@ -590,9 +595,6 @@ Resolution	{
 						For x In {0:nx-1}
 							For y In {0:ny-1}
 
-								// Deform the solid body and/or the air mesh:
-									DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, 1];
-
 									UpdateConstraint[electric_res~{x+nx*y+1}, Region[{electrode~{x+nx*y+1}, sigma_up~{x+nx*y+1}, 
 										sigma_right~{x+nx*y+1},	sigma_down~{x+nx*y+1}, sigma_left~{x+nx*y+1}}], Assign];
 			
@@ -601,26 +603,18 @@ Resolution	{
 										sigma_right~{x+nx*y+1},	sigma_down~{x+nx*y+1}, sigma_left~{x+nx*y+1}}]];
 								// We solve "again", i.e. without recomputing the LU decomposition in mumps
 									SolveAgain[electric_res~{x+nx*y+1}];			
-
-								// Bringing back the mesh:
-									DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, -1];					
+				
 							EndFor
 						EndFor
 
 						For x In {0:nx-1}
 							For y In {0:ny-1}
 
-								// Deform the solid body and/or the air mesh:
-									DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, 1];
-
 								// We set the potential on the artificial interfaces:
 									PostOperation[update_g_up_electric~{x+nx*y+1}];
 									PostOperation[update_g_right_electric~{x+nx*y+1}];
 									PostOperation[update_g_down_electric~{x+nx*y+1}];
 									PostOperation[update_g_left_electric~{x+nx*y+1}];
-
-								// Bringing back the mesh:
-									DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, -1];
 
 							EndFor
 						EndFor
@@ -637,9 +631,6 @@ Resolution	{
 					For x In {0:nx-1}
 						For y In {0:ny-1}
 
-							// Deform the solid body and/or the air mesh:
-								DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, 1];
-
 								UpdateConstraint[electric_res~{x+nx*y+1}, Region[{electrode~{x+nx*y+1}, sigma_up~{x+nx*y+1}, 
 									sigma_right~{x+nx*y+1},	sigma_down~{x+nx*y+1}, sigma_left~{x+nx*y+1}}], Assign];
 		
@@ -652,17 +643,11 @@ Resolution	{
 							// We store the solution:
 								PostOperation[save_e~{x+nx*y+1}];
 
-							// Bringing back the mesh:
-								DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, -1];	
-
 						EndFor
 					EndFor
 
 					For x In {0:nx-1}
 						For y In {0:ny-1}
-
-						// Deform the solid body and/or the air mesh:
-							DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, 1];
 
 						// We compute the electrostatic force for display:
 	      						Generate[force_Elec~{x+nx*y+1}];
@@ -670,9 +655,23 @@ Resolution	{
 
 							PostOperation[save_f~{x+nx*y+1}];
 
-						// Bringing back the mesh:
-							DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, -1];	
+						EndFor
+					EndFor
 
+					// Bringing back the mesh:
+					For x In {0:nx-1}
+						For y In {0:ny-1}
+
+						// Deform the solid body and/or the air mesh:
+							If (x == 0)
+								// The first CMUT is treated differently - deformed on its whole domain at once:
+								DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, -1];
+							EndIf
+							If (x > 0)
+								DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, -1, NodesOf[{solid_no_overlap~{x+nx*y+1}, 
+									air_no_overlap~{x+nx*y+1}, solid_overlap_right~{x+nx*y+1}, air_overlap_right~{x+nx*y+1}}, 
+									Not sigma_right~{(x-1)+nx*y+1}]];
+							EndIf
 						EndFor
 					EndFor
 
@@ -827,7 +826,7 @@ PostProcessing 	{
 
   				{ Name v~{x+nx*y+1}; NameOfFormulation electric_formulation~{x+nx*y+1};
     					Quantity {
-      						{ Name e~{x+nx*y+1} ; Value { Local { [ {v} ]; 
+      						{ Name e~{x+nx*y+1} ; Value { Local { [ -{d v} ]; 
 							In Region[electric_domain~{x+nx*y+1}] ; Jacobian JVol ; } } }
 						
 
