@@ -130,13 +130,20 @@ void Generate_ExtendedGroup(struct Group * Group_P)
     break;
   }
 
-  // create multimap for fast searches in the extended group, even when
-  // multi-valued
-  for(int i = 0; i < List_Nbr(Group_P->ExtendedList); i++){
-    TwoInt k;
-    List_Read(Group_P->ExtendedList, i, &k);
-    Group_P->ExtendedListForSearch.insert(std::make_pair(abs(k.Int1), k));
+  switch (Group_P->FunctionType) {
+  case GROUPSOFNODESOF :
+  case GROUPSOFEDGESOF :
+  case GROUPSOFFACETSOF :
+    // create multimap for fast searches in the extended group, even when
+    // multi-valued
+    for(int i = 0; i < List_Nbr(Group_P->ExtendedList); i++){
+      TwoInt k;
+      List_Read(Group_P->ExtendedList, i, &k);
+      Group_P->ExtendedListForSearch.insert(std::make_pair(abs(k.Int1), k));
+    }
+    break;
   }
+
 }
 
 /* ------------------------------------------------------------------------ */
