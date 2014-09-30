@@ -347,9 +347,11 @@ For x In {0:nx-1}
 		air_overlap_right~{x+nx*y+1}			= 1000*nx*ny+20*x+nx*20*y+10;
 		air_no_overlap~{x+nx*y+1}			= 1000*nx*ny+20*x+nx*20*y+11;
 
-		electrode~{x+nx*y+1} 				= 100000*nx*ny+3*x+3*nx*y+1;
-		epsilon_variation_interfaces~{x+nx*y+1} 	= 100000*nx*ny+3*x+3*nx*y+2;
-		air_boundaries~{x+nx*y+1} 			= 100000*nx*ny+3*x+3*nx*y+3;
+		electrode~{x+nx*y+1} 				= 100000*nx*ny+5*x+5*nx*y+1;
+		force_interfaces_no_overlap~{x+nx*y+1} 		= 100000*nx*ny+5*x+5*nx*y+2;
+		force_interfaces_overlap_left~{x+nx*y+1} 	= 100000*nx*ny+5*x+5*nx*y+3;
+		force_interfaces_overlap_right~{x+nx*y+1} 	= 100000*nx*ny+5*x+5*nx*y+4;
+		air_boundaries~{x+nx*y+1} 			= 100000*nx*ny+5*x+5*nx*y+5;
 
 	EndFor
 EndFor
@@ -361,8 +363,14 @@ For x In {0:nx-1}
 		IDList[] = Translate {(x+2)*length, 2*length, 0} { Duplicata{ Line{2}; } };
 		Physical Line(electrode~{x+nx*y+1}) = {IDList[]};
 
-		IDList[] = Translate {(x+2)*length, 2*length, 0} { Duplicata{ Line{41,1,43,2,45,3,47,4,6,48,7,46,8,44,9,42,10,12,13,14,15,16,17,18,31,32,25,26,27,28,29,30}; } };
-		Physical Line(epsilon_variation_interfaces~{x+nx*y+1}) = {IDList[]};
+		IDList[] = Translate {(x+2)*length, 2*length, 0} { Duplicata{ Line{10,11,12,13,41,15,42,1,9,14,17,18,43,16,44}; } };
+		Physical Line(force_interfaces_overlap_left~{x+nx*y+1}) = {IDList[]};
+
+		IDList[] = Translate {(x+2)*length, 2*length, 0} { Duplicata{ Line{2,32,8,31}; } };
+		Physical Line(force_interfaces_no_overlap~{x+nx*y+1}) = {IDList[]};
+
+		IDList[] = Translate {(x+2)*length, 2*length, 0} { Duplicata{ Line{27,45,25,46,3,7,26,29,28,47,30,48,4,5,6}; } };
+		Physical Line(force_interfaces_overlap_right~{x+nx*y+1}) = {IDList[]};
 
 		IDList[] = Translate {(x+2)*length, 2*length, 0} { Duplicata{ Line{13,14,15,16,17,18,31,32,25,26,27,28,29,30}; } };
 		Physical Line(air_boundaries~{x+nx*y+1}) = {IDList[]};

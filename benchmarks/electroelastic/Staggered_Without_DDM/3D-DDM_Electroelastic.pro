@@ -41,15 +41,6 @@ Group 	{
 			force_interface~{x+nx*y+1}		= Region[ {air_boundaries~{x+nx*y+1}, sigma_up~{x+nx*y+1}, sigma_right~{x+nx*y+1}, 
 										sigma_down~{x+nx*y+1}, sigma_left~{x+nx*y+1}} ];
 
-			solid~{x+nx*y+1}			= Region[ (1000*nx*ny+20*x+nx*20*y+2) ];
-			// The following region is a copy of the "solid" region. It is needed by getdp for computing the force terms
-			// on the deformed mesh in the mechanic formulation:
-			solid_deformed~{x+nx*y+1}		= Region[ (1000*nx*ny+20*x+nx*20*y+5) ];
-			air~{x+nx*y+1}				= Region[ (1000*nx*ny+20*x+nx*20*y+3) ];
-
-			electric_domain~{x+nx*y+1}		= Region[ {solid_deformed~{x+nx*y+1}, air~{x+nx*y+1}} ];
-			omega~{x+nx*y+1}			= Region[ {solid~{x+nx*y+1}, solid_deformed~{x+nx*y+1}, air~{x+nx*y+1}} ];
-
 			// The following regions are needed to deform the mesh:
 			solid_overlap_left~{x+nx*y+1}		= Region[ (1000*nx*ny+20*x+nx*20*y+6) ];
 			solid_overlap_right~{x+nx*y+1}		= Region[ (1000*nx*ny+20*x+nx*20*y+7) ];
@@ -60,13 +51,13 @@ Group 	{
 
 			// The following is needed to compute the forces:
 			solid_deformed_no_overlap~{x+nx*y+1}	= Region[ (1000*nx*ny+20*x+nx*20*y+4) ];
-			no_overlap~{x+nx*y+1}			= Region[ {solid_deformed_no_overlap~{x+nx*y+1}, air_no_overlap~{x+nx*y+1}} ];
 			solid_deformed_overlap_left~{x+nx*y+1}	= Region[ (1000*nx*ny+20*x+nx*20*y+12) ];
 			solid_deformed_overlap_right~{x+nx*y+1}	= Region[ (1000*nx*ny+20*x+nx*20*y+13) ];
 
-			//  The elec. forces have to be computed only on the following skin region: 
-			// !!!!!!!!!! NOT USED RIGHT NOW since right now getdp solves on the whole electric_domain when given the skin region
-			skin_electric_force~{x+nx*y+1} 		= ElementsOf[ electric_domain~{x+nx*y+1}, OnOneSideOf {force_interface~{x+nx*y+1}} ];
+			no_overlap_deformed~{x+nx*y+1}		= Region[ {solid_deformed_no_overlap~{x+nx*y+1}, air_no_overlap~{x+nx*y+1}} ];
+			overlap_left_deformed~{x+nx*y+1}	= Region[ {solid_deformed_overlap_left~{x+nx*y+1}, air_overlap_left~{x+nx*y+1}} ];
+			overlap_right_deformed~{x+nx*y+1}	= Region[ {solid_deformed_overlap_right~{x+nx*y+1}, air_overlap_right~{x+nx*y+1}} ];
+
 		EndFor
 	EndFor
 
@@ -75,7 +66,6 @@ Group 	{
 	wholesoliddeformed = Region[{solid_deformed_overlap_left_1, solid_deformed_no_overlap_1, solid_deformed_overlap_right_1, solid_deformed_no_overlap_2,
 				solid_deformed_overlap_right_2}];
 	wholeair = Region[{air_overlap_left_1, air_no_overlap_1, air_overlap_right_1, air_no_overlap_2, air_overlap_right_2}];
-	wholeelectric = Region[{wholesoliddeformed, wholeair}];
 	wholesigmadown = Region[{sigma_down_1, sigma_down_2}];
 }
  
@@ -456,7 +446,7 @@ Resolution	{
 						PostOperation[save_f];
 
 					// This is for the mechanic computation on the undeformed mesh:
-						GenerateJacGroupCumulative[mechanic_res, wholeelectric];
+						GenerateJacGroupCumulative[mechanic_res, Region[{wholesoliddeformed, wholeair}]];
 
 
 						DeformMesh[mesh_deform, u_mesh_deform, -1];
