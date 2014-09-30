@@ -1,4 +1,4 @@
-// THE FOLLOWING CODE SOLVES A WEAKLY COUPLED (AKA. STAGGERED) ELECTROELASTIC FORMULATION ON THE DEFORMED OR UNDEFORMED MECHANIC DOMAIN.
+// THE FOLLOWING CODE SOLVES A WEAKLY COUPLED (AKA. STAGGERED) ELECTROELASTIC FORMULATION ON THE UNDEFORMED MECHANIC DOMAIN.
 // IT SOLVES THE NON-LINEAR COUPLING BY ALTERNATING BETWEEN THE ELASTIC AND THE ELECTROSTATIC FORMULATION UNTIL CONVERGENCE USING AN EXTERNAL 'ITERATIVELOOP' LOOP.
 // FOR EVERY ITERATION OF THE ITERATIVE LOOP THE ELECTROSTATIC FORMULATION IS FIRST SOLVED ON ALL DOMAINS USING DDM WITH OVERLAP AND GMRES, 
 // THEN THE ELECTROSTATIC FORCES ARE DEDUCED EVERYWHERE BEFORE FINALLY COMPUTING THE ELASTIC FORMULATION ON ALL DOMAINS USING DDM WITH OVERLAP AND GMRES.
@@ -40,13 +40,11 @@ Group 	{
 			// The electrode can either be the whole membrane surface or an area in the middle:
 			electrode~{x+nx*y+1}			= Region[ (100000*nx*ny+3*x+3*nx*y+1) ]; // Choose (100000*nx*ny+3*x+3*nx*y+1) or sigma_up~{x+nx*y+1}
 
-			// The air boundaries are the borders of the air gap under the membrane.
-			// It might be used in the code to solve a Laplacian formulation on the air region to smoothly deform it
-			air_boundaries~{x+nx*y+1} 		= Region[ (100000*nx*ny+3*x+3*nx*y+3) ];
+
+			epsilon_variation_interfaces~{x+nx*y+1} = Region[ (100000*nx*ny+3*x+3*nx*y+2) ];
 
 			// Define the region where an electrostatic force could possibly appear:
-			force_interface~{x+nx*y+1}		= Region[ {air_boundaries~{x+nx*y+1}, sigma_up~{x+nx*y+1}, sigma_right~{x+nx*y+1}, 
-										sigma_down~{x+nx*y+1}, sigma_left~{x+nx*y+1}} ];
+			force_interface~{x+nx*y+1}		= Region[ {epsilon_variation_interfaces~{x+nx*y+1}} ];
 
 			// The following regions are needed to deform the mesh:
 			solid_overlap_left~{x+nx*y+1}		= Region[ (1000*nx*ny+20*x+nx*20*y+6) ];
@@ -70,6 +68,9 @@ Group 	{
 									solid_deformed_overlap_right~{x+nx*y+1}} ];
 			air~{x+nx*y+1}				= Region[ {air_no_overlap~{x+nx*y+1}, air_overlap_left~{x+nx*y+1}, air_overlap_right~{x+nx*y+1}} ];
 
+			electric_domain~{x+nx*y+1}		= Region[ {solid_deformed~{x+nx*y+1}, air~{x+nx*y+1}} ];
+
+			omega~{x+nx*y+1}			= Region[ {solid~{x+nx*y+1}, solid_deformed~{x+nx*y+1}, air~{x+nx*y+1}} ];
 		EndFor
 	EndFor
 }
@@ -268,18 +269,15 @@ FunctionSpace	{
 					{ Name sxn ; NameOfCoef uxn ; Function BF_NodeX ;
 						Support Region[{solid_deformed~{x+nx*y+1}, air~{x+nx*y+1}, 
 							no_overlap_deformed~{(x-1)+nx*y+1}, no_overlap_deformed~{(x+1)+nx*y+1}}]; 
-						Entity NodesOf[{solid_deformed~{x+nx*y+1}, air~{x+nx*y+1},
-							no_overlap_deformed~{(x-1)+nx*y+1}, no_overlap_deformed~{(x+1)+nx*y+1}}]; }
+						Entity NodesOf[{solid_deformed~{x+nx*y+1}}]; }
 					{ Name syn ; NameOfCoef uyn ; Function BF_NodeY ;
 						Support Region[{solid_deformed~{x+nx*y+1}, air~{x+nx*y+1}, 
 							no_overlap_deformed~{(x-1)+nx*y+1}, no_overlap_deformed~{(x+1)+nx*y+1}}]; 
-						Entity NodesOf[{solid_deformed~{x+nx*y+1}, air~{x+nx*y+1},
-							no_overlap_deformed~{(x-1)+nx*y+1}, no_overlap_deformed~{(x+1)+nx*y+1}}]; }
+						Entity NodesOf[{solid_deformed~{x+nx*y+1}}]; }
 					{ Name szn ; NameOfCoef uzn ; Function BF_NodeZ ;
 						Support Region[{solid_deformed~{x+nx*y+1}, air~{x+nx*y+1}, 
 							no_overlap_deformed~{(x-1)+nx*y+1}, no_overlap_deformed~{(x+1)+nx*y+1}}]; 
-						Entity NodesOf[{solid_deformed~{x+nx*y+1}, air~{x+nx*y+1},
-							no_overlap_deformed~{(x-1)+nx*y+1}, no_overlap_deformed~{(x+1)+nx*y+1}}]; }
+						Entity NodesOf[{solid_deformed~{x+nx*y+1}}]; }
 				}
 				Constraint {
 					{ NameOfCoef uxn ; EntityType NodesOf ; NameOfConstraint Displacement_dum~{x+nx*y+1} ; }
@@ -324,13 +322,13 @@ FunctionSpace	{
 			  BasisFunction {
 				{ Name sxn ; NameOfCoef fxn ; Function BF_NodeX ;
 				 		Support Region[{solid_deformed~{x+nx*y+1}, air~{x+nx*y+1}, no_overlap_deformed~{(x-1)+nx*y+1}, 
-							no_overlap_deformed~{(x+1)+nx*y+1}}]; Entity NodesOf[{solid~{x+nx*y+1}, air~{x+nx*y+1}}] ; }
+							no_overlap_deformed~{(x+1)+nx*y+1}}]; Entity NodesOf[{solid~{x+nx*y+1}}] ; }
 				{ Name syn ; NameOfCoef fyn ; Function BF_NodeY ;
 				 		Support Region[{solid_deformed~{x+nx*y+1}, air~{x+nx*y+1}, no_overlap_deformed~{(x-1)+nx*y+1}, 
-							no_overlap_deformed~{(x+1)+nx*y+1}}]; Entity NodesOf[{solid~{x+nx*y+1}, air~{x+nx*y+1}}] ; }
+							no_overlap_deformed~{(x+1)+nx*y+1}}]; Entity NodesOf[{solid~{x+nx*y+1}}] ; }
 				{ Name szn ; NameOfCoef fzn ; Function BF_NodeZ ;
 				 		Support Region[{solid_deformed~{x+nx*y+1}, air~{x+nx*y+1}, no_overlap_deformed~{(x-1)+nx*y+1}, 
-							no_overlap_deformed~{(x+1)+nx*y+1}}]; Entity NodesOf[{solid~{x+nx*y+1}, air~{x+nx*y+1}}] ; }
+							no_overlap_deformed~{(x+1)+nx*y+1}}]; Entity NodesOf[{solid~{x+nx*y+1}}] ; }
 			 		}
 			}
 
@@ -723,7 +721,7 @@ Resolution	{
 								DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, -1];
 							EndIf
 							If (x > 0)
-								DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, 1, NodesOf[{no_overlap_deformed~{x+nx*y+1}, 
+								DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, -1, NodesOf[{no_overlap_deformed~{x+nx*y+1}, 
 									solid_overlap_right~{x+nx*y+1}, air_overlap_right~{x+nx*y+1}}, 
 									Not sigma_right~{(x-1)+nx*y+1}]];
 							EndIf
@@ -749,7 +747,7 @@ Resolution	{
 								DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, 1];
 
 							// Computing the force on the deformed mesh - resets matrix A:
-		      						GenerateGroup[mechanic_res~{x+nx*y+1}, Region[{solid_deformed~{x+nx*y+1}, air~{x+nx*y+1}}]];
+		      						GenerateGroup[mechanic_res~{x+nx*y+1}, electric_domain~{x+nx*y+1}];
 
 							// Bringing back the mesh:
 								DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, -1];	
@@ -834,7 +832,7 @@ Resolution	{
 								DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, 1];
 
 							// Computing the force on the deformed mesh - resets matrix A:
-		      						GenerateGroup[mechanic_res~{x+nx*y+1}, Region[{solid_deformed~{x+nx*y+1}, air~{x+nx*y+1}}]];
+		      						GenerateGroup[mechanic_res~{x+nx*y+1}, electric_domain~{x+nx*y+1}];
 
 							// Bringing back the mesh:
 								DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, -1];	
@@ -1000,7 +998,7 @@ PostOperation	{
 
 				{ Name save_f~{x+nx*y+1} ; NameOfPostProcessing f~{x+nx*y+1}; 
 					Operation {
-						Print[ f~{x+nx*y+1}, OnElementsOf Region[{solid_deformed~{x+nx*y+1}, air~{x+nx*y+1}}], 
+						Print[ f~{x+nx*y+1}, OnElementsOf Region[{solid_deformed~{x+nx*y+1}}], 
 							File Sprintf("Results/f%g.pos",x+nx*y+1)] ;
 						Echo["View[PostProcessing.NbViews-1].RangeType=3; View[PostProcessing.NbViews-1].TimeStep=0;", 
 							File Sprintf("Results/f%g.pos",x+nx*y+1)];							
