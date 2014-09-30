@@ -31,11 +31,11 @@ Group 	{
 			sigma_left~{x+nx*y+1} 			= Region[ (10001*nx*ny+4*x+4*nx*y+4) ];
 
 			// The electrode can either be the whole membrane surface or an area in the middle:
-			electrode~{x+nx*y+1}			= Region[ (100000*nx*ny+3*x+3*nx*y+1) ]; // Choose (100000*nx*ny+3*x+3*nx*y+1) or sigma_up~{x+nx*y+1}
+			electrode~{x+nx*y+1}			= Region[ (100000*nx*ny+5*x+5*nx*y+1) ]; // Choose (100000*nx*ny+5*x+5*nx*y+1) or sigma_up~{x+nx*y+1}
 
 			// The air boundaries are the borders of the air gap under the membrane.
 			// It might be used in the code to solve a Laplacian formulation on the air region to smoothly deform it
-			air_boundaries~{x+nx*y+1} 		= Region[ (100000*nx*ny+3*x+3*nx*y+3) ];
+			air_boundaries~{x+nx*y+1} 		= Region[ (100000*nx*ny+5*x+5*nx*y+5) ];
 
 			// Define the region where an electrostatic force could possibly appear:
 			force_interface~{x+nx*y+1}		= Region[ {air_boundaries~{x+nx*y+1}, sigma_up~{x+nx*y+1}, sigma_right~{x+nx*y+1}, 
@@ -67,6 +67,7 @@ Group 	{
 				solid_deformed_overlap_right_2}];
 	wholeair = Region[{air_overlap_left_1, air_no_overlap_1, air_overlap_right_1, air_no_overlap_2, air_overlap_right_2}];
 	wholesigmadown = Region[{sigma_down_1, sigma_down_2}];
+	wholeelectricdomain = Region[ {wholesoliddeformed, wholeair} ];
 }
  
 Function {
@@ -203,11 +204,11 @@ FunctionSpace	{
 	{ Name H_u_Mec3D_dummy ; Type Vector ;
 		BasisFunction {
 			{ Name sxn ; NameOfCoef uxn ; Function BF_NodeX ;
-				Support Region[{wholesoliddeformed, wholeair}]; Entity NodesOf[{wholesoliddeformed, wholeair}] ; }
+				Support Region[{wholesoliddeformed, wholeair}]; Entity NodesOf[{wholesoliddeformed}] ; }
 			{ Name syn ; NameOfCoef uyn ; Function BF_NodeY ;
-				Support Region[{wholesoliddeformed, wholeair}]; Entity NodesOf[{wholesoliddeformed, wholeair}] ; }
+				Support Region[{wholesoliddeformed, wholeair}]; Entity NodesOf[{wholesoliddeformed}] ; }
 			{ Name szn ; NameOfCoef uzn ; Function BF_NodeZ ;
-				Support Region[{wholesoliddeformed, wholeair}]; Entity NodesOf[{wholesoliddeformed, wholeair}] ; }
+				Support Region[{wholesoliddeformed, wholeair}]; Entity NodesOf[{wholesoliddeformed}] ; }
 		}
 		Constraint {
 			{ NameOfCoef uxn ; EntityType NodesOf ; NameOfConstraint Displacement_dum ; }
@@ -252,11 +253,11 @@ FunctionSpace	{
 	{ Name force_Elec ; Type Vector ;
 	  BasisFunction {
 		{ Name sxn ; NameOfCoef fxn ; Function BF_NodeX ;
-		 		Support Region[{wholesoliddeformed, wholeair}];	Entity NodesOf[{wholesoliddeformed, wholeair}] ; }
+		 		Support Region[{wholesoliddeformed, wholeair}];	Entity NodesOf[{wholesoliddeformed}] ; }
 		{ Name syn ; NameOfCoef fyn ; Function BF_NodeY ;
-		 		Support Region[{wholesoliddeformed, wholeair}];	Entity NodesOf[{wholesoliddeformed, wholeair}] ; }
+		 		Support Region[{wholesoliddeformed, wholeair}];	Entity NodesOf[{wholesoliddeformed}] ; }
 		{ Name szn ; NameOfCoef fzn ; Function BF_NodeZ ;
-		 		Support Region[{wholesoliddeformed, wholeair}];	Entity NodesOf[{wholesoliddeformed, wholeair}] ; }
+		 		Support Region[{wholesoliddeformed, wholeair}];	Entity NodesOf[{wholesoliddeformed}] ; }
 	 		}
 	}
 
@@ -446,7 +447,7 @@ Resolution	{
 						PostOperation[save_f];
 
 					// This is for the mechanic computation on the undeformed mesh:
-						GenerateJacGroupCumulative[mechanic_res, Region[{wholesoliddeformed, wholeair}]];
+						GenerateJacGroupCumulative[mechanic_res, wholeelectricdomain];
 
 
 						DeformMesh[mesh_deform, u_mesh_deform, -1];
