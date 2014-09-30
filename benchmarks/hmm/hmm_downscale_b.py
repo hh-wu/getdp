@@ -1,8 +1,5 @@
 key = (input[0], input[1]) # element num, quadrature point index
-az = input[2];
-bx = input[3];
-by = input[4];
 
-az_table[key] = az;
-bx_table[key] = bx;
-by_table[key] = by;
+az_table[key] = input[2]
+bx_table[key] = input[3]
+by_table[key] = input[4]

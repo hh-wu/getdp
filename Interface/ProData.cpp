@@ -1451,6 +1451,41 @@ void Print_Operation(struct Resolution *RE, List_T *Operation_L)
                      OPE->Case.DeformeMesh.Name_MshFile);
       break;
 
+    case OPERATION_GMSHREAD :
+      Message::Check("      GmshRead [%s]; \n", OPE->Case.GmshRead.FileName);
+      break;
+
+    case OPERATION_GMSHMERGE :
+      Message::Check("      GmshMerge [%s]; \n", OPE->Case.GmshRead.FileName);
+      break;
+
+    case OPERATION_GMSHOPEN :
+      Message::Check("      GmshOpen [%s]; \n", OPE->Case.GmshRead.FileName);
+      break;
+
+    case OPERATION_GMSHWRITE :
+      Message::Check("      GmshWrite [%s]; \n", OPE->Case.GmshRead.FileName);
+      break;
+
+    case OPERATION_GMSHCLEARALL :
+      Message::Check("      GmshClearAll; \n");
+      break;
+
+    case OPERATION_DELETEFILE:
+      Message::Check("      DeleteFile [%s]; \n", OPE->Case.DeleteFile.FileName);
+      break;
+
+    case OPERATION_RENAMEFILE:
+      Message::Check("      RenameFile [%s, %s]; \n",
+                     OPE->Case.RenameFile.OldFileName,
+                     OPE->Case.RenameFile.NewFileName);
+      break;
+
+    case OPERATION_CREATEDIR:
+      Message::Check("      CreateDir [%s]; \n",
+                     OPE->Case.CreateDir.DirName);
+      break;
+
     default :
       Message::Check("      ???;\n");
       break;
