@@ -11050,7 +11050,7 @@ yyreduce:
       Free((yyvsp[(3) - (8)].c));
       Operation_P->DefineSystemIndex = i;
       Operation_P->Type = (yyvsp[(1) - (8)].i);
-      Operation_P->Case.Generate.GroupIndex = (yyvsp[(5) - (8)].i);
+      Operation_P->Case.Generate.GroupIndex = Num_Group(&Group_S, (char*)"OP_GenerateGroup", (yyvsp[(5) - (8)].i));
       Operation_P->Rank = (yyvsp[(6) - (8)].i);
     ;}
     break;

@@ -4994,7 +4994,7 @@ OperationTerm :
       Free($3);
       Operation_P->DefineSystemIndex = i;
       Operation_P->Type = $1;
-      Operation_P->Case.Generate.GroupIndex = $5;
+      Operation_P->Case.Generate.GroupIndex = Num_Group(&Group_S, (char*)"OP_GenerateGroup", $5);
       Operation_P->Rank = $6;
     }
 
