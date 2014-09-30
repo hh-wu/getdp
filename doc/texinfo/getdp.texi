@@ -4577,6 +4577,10 @@ retrieve the given field with the built-in @code{Field[]},
 
 Writes the a Gmsh field to disk. (The format is guessed from the file extension.)
 
+@item GmshClearAll
+
+Clears all Gmsh data (loaded with @code{GmshRead} and friends).
+
 @item DeleteFile
 @code{[@var{expression-char}]}
 
