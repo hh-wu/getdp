@@ -335,7 +335,10 @@ For x In {0:nx-1}
 
 		omega~{x+nx*y+1} 				= 1000*nx*ny+20*x+nx*20*y+1;
 		solid~{x+nx*y+1}				= 1000*nx*ny+20*x+nx*20*y+2;
+		solid_deformed_no_overlap~{x+nx*y+1}		= 1000*nx*ny+20*x+nx*20*y+4;
 		solid_deformed~{x+nx*y+1}			= 1000*nx*ny+20*x+nx*20*y+5;
+		solid_deformed_overlap_left~{x+nx*y+1}		= 1000*nx*ny+20*x+nx*20*y+12;
+		solid_deformed_overlap_right~{x+nx*y+1}		= 1000*nx*ny+20*x+nx*20*y+13;
 		air~{x+nx*y+1}					= 1000*nx*ny+20*x+nx*20*y+3;
 		solid_overlap_left~{x+nx*y+1}			= 1000*nx*ny+20*x+nx*20*y+6;
 		solid_overlap_right~{x+nx*y+1}			= 1000*nx*ny+20*x+nx*20*y+7;
@@ -406,8 +409,17 @@ For x In {0:nx-1}
 		IDList[] = Translate {(x+2)*length, 2*length, 0} { Duplicata{ Surface{14,15}; } };
 		Physical Surface(solid_no_overlap~{x+nx*y+1}) = {IDList[]};
 
+		IDList[] = Translate {(x+2)*length, 2*length, 0} { Duplicata{ Surface{14,15}; } };
+		Physical Surface(solid_deformed_no_overlap~{x+nx*y+1}) = {IDList[]};
+
 		IDList[] = Translate {(x+2)*length, 2*length, 0} { Duplicata{ Surface{6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21}; } };
 		Physical Surface(solid_deformed~{x+nx*y+1}) = {IDList[]};
+
+		IDList[] = Translate {(x+2)*length, 2*length, 0} { Duplicata{ Surface{6,8,9,10,11,12,13}; } };
+		Physical Surface(solid_deformed_overlap_left~{x+nx*y+1}) = {IDList[]};
+
+		IDList[] = Translate {(x+2)*length, 2*length, 0} { Duplicata{ Surface{7,16,17,18,19,20,21}; } };
+		Physical Surface(solid_deformed_overlap_right~{x+nx*y+1}) = {IDList[]};
 
 	EndFor
 EndFor
