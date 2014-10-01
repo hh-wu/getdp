@@ -31,15 +31,13 @@ Group 	{
 			sigma_left~{x+nx*y+1} 			= Region[ (10001*nx*ny+4*x+4*nx*y+4) ];
 
 			// The electrode can either be the whole membrane surface or an area in the middle:
-			electrode~{x+nx*y+1}			= Region[ (100000*nx*ny+5*x+5*nx*y+1) ]; // Choose (100000*nx*ny+5*x+5*nx*y+1) or sigma_up~{x+nx*y+1}
+			electrode~{x+nx*y+1}			= Region[ (100000*nx*ny+3*x+3*nx*y+1) ]; // Choose (100000*nx*ny+5*x+5*nx*y+1) or sigma_up~{x+nx*y+1}
 
-			// The air boundaries are the borders of the air gap under the membrane.
-			// It might be used in the code to solve a Laplacian formulation on the air region to smoothly deform it
-			air_boundaries~{x+nx*y+1} 		= Region[ (100000*nx*ny+5*x+5*nx*y+5) ];
+
+			epsilon_variation_interfaces~{x+nx*y+1} = Region[ (100000*nx*ny+3*x+3*nx*y+2) ];
 
 			// Define the region where an electrostatic force could possibly appear:
-			force_interface~{x+nx*y+1}		= Region[ {air_boundaries~{x+nx*y+1}, sigma_up~{x+nx*y+1}, sigma_right~{x+nx*y+1}, 
-										sigma_down~{x+nx*y+1}, sigma_left~{x+nx*y+1}} ];
+			force_interface~{x+nx*y+1}		= Region[ {epsilon_variation_interfaces~{x+nx*y+1}} ];
 
 			// The following regions are needed to deform the mesh:
 			solid_overlap_left~{x+nx*y+1}		= Region[ (1000*nx*ny+20*x+nx*20*y+6) ];
