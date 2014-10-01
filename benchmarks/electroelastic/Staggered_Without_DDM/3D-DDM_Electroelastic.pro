@@ -264,11 +264,11 @@ FunctionSpace	{
 		BasisFunction{
 			{Name wxn; NameOfCoef uxn; Function BF_NodeX; dFunction {BF_GradNode, BF_Zero}; 
 			// D1 is now equal to grad_node, trick needed else getdp will not know how to use component  X of grad on a bf_nodeX 
-				Support Region[{wholesolid, wholeair}]; Entity NodesOf[{wholesolid, wholeair}];}
+				Support Region[{wholesolid}]; Entity NodesOf[{wholesolid}];}
 			{Name wyn; NameOfCoef uyn; Function BF_NodeY; dFunction {BF_GradNode, BF_Zero};
-				Support Region[{wholesolid, wholeair}]; Entity NodesOf[{wholesolid, wholeair}];}
+				Support Region[{wholesolid}]; Entity NodesOf[{wholesolid}];}
 			{Name wzn; NameOfCoef uzn; Function BF_NodeZ; dFunction {BF_GradNode, BF_Zero};
-				Support Region[{wholesolid, wholeair}]; Entity NodesOf[{wholesolid, wholeair}];}
+				Support Region[{wholesolid}]; Entity NodesOf[{wholesolid}];}
 		}
 		    SubSpace{
 		       { Name u_x ; NameOfBasisFunction wxn ; }
@@ -276,9 +276,9 @@ FunctionSpace	{
 		       { Name u_z ; NameOfBasisFunction wzn ; }
 		     }
 		Constraint{
-			{NameOfCoef uxn; EntityType NodesOf; NameOfConstraint mesh_deform_comp_0;}
-			{NameOfCoef uyn; EntityType NodesOf; NameOfConstraint mesh_deform_comp_1;}
-			{NameOfCoef uzn; EntityType NodesOf; NameOfConstraint mesh_deform_comp_2;}
+			//{NameOfCoef uxn; EntityType NodesOf; NameOfConstraint mesh_deform_comp_0;}
+			//{NameOfCoef uyn; EntityType NodesOf; NameOfConstraint mesh_deform_comp_1;}
+			//{NameOfCoef uzn; EntityType NodesOf; NameOfConstraint mesh_deform_comp_2;}
 		}
 	}
 
@@ -369,17 +369,11 @@ Formulation	{
 		}
 		Equation{
 
-			       // This is needed otherwise the constraints on solid will not be taken into account:
-			       Galerkin { [ 0*Dof{u_mesh_deform} , {u_mesh_deform} ] ;
-				 In Region[{wholesolid}] ; Jacobian JVol ; Integration I1 ; }
+		       Galerkin { [ Dof{u_mesh_deform} , {u_mesh_deform} ] ;
+			 In Region[wholesolid] ; Jacobian JVol ; Integration I1 ; }
+		       Galerkin { [ -{u} , {u_mesh_deform} ] ;
+			 In Region[wholesolid] ; Jacobian JVol ; Integration I1 ; }
 
-			       // Laplacian formulation in the air:
-			       Galerkin { [ Dof{D1 u_x} , {D1 u_x} ] ;
-				 In Region[{wholeair}] ; Jacobian JVol ; Integration I1 ; }
-			       Galerkin { [ Dof{D1 u_y} , {D1 u_y} ] ;
-				 In Region[{wholeair}] ; Jacobian JVol ; Integration I1 ; }
-			       Galerkin { [ Dof{D1 u_z} , {D1 u_z} ] ;
-				 In Region[{wholeair}] ; Jacobian JVol ; Integration I1 ; }
 		}
 	}
 
