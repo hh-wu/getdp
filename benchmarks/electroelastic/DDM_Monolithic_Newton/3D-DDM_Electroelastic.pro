@@ -11,6 +11,16 @@ ny = 1;
 // There are two things left to mention: register 9 (#9) is used to select whether the physical sources should be set to 0 or not and register 10 (#10) does the same job for the artificial sources
 
 
+// Constant
+//======
+
+DefineConstant[
+
+	freq		= {500000, Name "freq"},
+	Velectrode 	= {600, Name "Velectrode"}
+
+];
+
 
 // Group
 //======
@@ -27,32 +37,42 @@ Group 	{
 			// The electrode can either be the whole membrane surface or an area in the middle:
 			electrode~{x+nx*y+1}			= Region[ (100000*nx*ny+3*x+3*nx*y+1) ]; // Choose (100000*nx*ny+3*x+3*nx*y+1) or sigma_up~{x+nx*y+1}
 
-			// The air boundaries are the borders of the air gap under the membrane.
-			// It might be used in the code to solve a Laplacian formulation on the air region to smoothly deform it
-			air_boundaries~{x+nx*y+1} 		= Region[ (100000*nx*ny+3*x+3*nx*y+3) ];
+
+			epsilon_variation_interfaces~{x+nx*y+1} = Region[ (100000*nx*ny+3*x+3*nx*y+2) ];
 
 			// Define the region where an electrostatic force could possibly appear:
-			force_interface~{x+nx*y+1}		= Region[ {electrode~{x+nx*y+1}, air_boundaries~{x+nx*y+1}, sigma_down~{x+nx*y+1}} ];
+			force_interface~{x+nx*y+1}		= Region[ {epsilon_variation_interfaces~{x+nx*y+1}} ];
 
-			solid~{x+nx*y+1}			= Region[ (1000*nx*ny+5*x+nx*5*y+2) ];
-			// The following region is a copy of the "solid" region. It is needed by getdp for computing the force terms and linearization thereof
-			// on the deformed mesh in the monolithic formulation:
-			solid_deformed~{x+nx*y+1}		= Region[ (1000*nx*ny+5*x+nx*5*y+5) ];
-			air~{x+nx*y+1}				= Region[ (1000*nx*ny+5*x+nx*5*y+3) ];
+			// The following regions are needed to deform the mesh:
+			solid_overlap_left~{x+nx*y+1}		= Region[ (1000*nx*ny+20*x+nx*20*y+6) ];
+			solid_overlap_right~{x+nx*y+1}		= Region[ (1000*nx*ny+20*x+nx*20*y+7) ];
+			solid_no_overlap~{x+nx*y+1}		= Region[ (1000*nx*ny+20*x+nx*20*y+8) ];
+			air_overlap_left~{x+nx*y+1}		= Region[ (1000*nx*ny+20*x+nx*20*y+9) ];
+			air_overlap_right~{x+nx*y+1}		= Region[ (1000*nx*ny+20*x+nx*20*y+10) ];
+			air_no_overlap~{x+nx*y+1}		= Region[ (1000*nx*ny+20*x+nx*20*y+11) ];
+
+			// The following is needed to compute the forces:
+			solid_deformed_no_overlap~{x+nx*y+1}	= Region[ (1000*nx*ny+20*x+nx*20*y+4) ];
+			solid_deformed_overlap_left~{x+nx*y+1}	= Region[ (1000*nx*ny+20*x+nx*20*y+12) ];
+			solid_deformed_overlap_right~{x+nx*y+1}	= Region[ (1000*nx*ny+20*x+nx*20*y+13) ];
+
+			no_overlap_deformed~{x+nx*y+1}		= Region[ {solid_deformed_no_overlap~{x+nx*y+1}, air_no_overlap~{x+nx*y+1}} ];
+			overlap_left_deformed~{x+nx*y+1}	= Region[ {solid_deformed_overlap_left~{x+nx*y+1}, air_overlap_left~{x+nx*y+1}} ];
+			overlap_right_deformed~{x+nx*y+1}	= Region[ {solid_deformed_overlap_right~{x+nx*y+1}, air_overlap_right~{x+nx*y+1}} ];
+
+			solid~{x+nx*y+1}			= Region[ {solid_no_overlap~{x+nx*y+1}, solid_overlap_left~{x+nx*y+1}, solid_overlap_right~{x+nx*y+1}} ];
+			solid_deformed~{x+nx*y+1}		= Region[ {solid_deformed_no_overlap~{x+nx*y+1}, solid_deformed_overlap_left~{x+nx*y+1},
+									solid_deformed_overlap_right~{x+nx*y+1}} ];
+			air~{x+nx*y+1}				= Region[ {air_no_overlap~{x+nx*y+1}, air_overlap_left~{x+nx*y+1}, air_overlap_right~{x+nx*y+1}} ];
 
 			electric_domain~{x+nx*y+1}		= Region[ {solid_deformed~{x+nx*y+1}, air~{x+nx*y+1}} ];
-			omega~{x+nx*y+1}			= Region[ {solid~{x+nx*y+1}, solid_deformed~{x+nx*y+1}, air~{x+nx*y+1}} ];
 
-			//  The elec. forces have to be computed only on the following skin region: 
-			// !!!!!!!!!! NOT USED RIGHT NOW since right now getdp solves on the whole electric_domain when given the skin region
-			skin_electric_force~{x+nx*y+1} 		= ElementsOf[ electric_domain~{x+nx*y+1}, OnOneSideOf {force_interface~{x+nx*y+1}} ];
+			omega~{x+nx*y+1}			= Region[ {solid~{x+nx*y+1}, solid_deformed~{x+nx*y+1}, air~{x+nx*y+1}} ];
 		EndFor
 	EndFor
 }
  
 Function {
-
-	Velectrode = 200;
 
 
 	For x In {0:nx-1}
@@ -86,13 +106,6 @@ Function {
 	C22[]					= E[]/(1+nu[])/(1-2*nu[])*Tensor[	(1-2*nu[])/2,	0,		0, 
 							   		   		0,		(1-2*nu[])/2,	0,
 							   		  		0,		0,		(1-2*nu[])/2];
-
-
-
-	freq					= 2500000;
-
-
-
 
 	// DDM specific:
 	For x In {0:nx-1}
@@ -144,7 +157,7 @@ Integration {
 		  { GeoElement Point       ; NumberOfPoints  1 ; }
 		  { GeoElement Line        ; NumberOfPoints  4 ; }
 		  { GeoElement Triangle    ; NumberOfPoints  7 ; }
-		  { GeoElement Quadrangle  ; NumberOfPoints  4 ; }
+		  { GeoElement Quadrangle  ; NumberOfPoints  7 ; }
 		  { GeoElement Tetrahedron ; NumberOfPoints  16 ; }
 		  { GeoElement Hexahedron  ; NumberOfPoints  6 ; }
 		  { GeoElement Prism       ; NumberOfPoints  9 ; }
@@ -232,7 +245,7 @@ Constraint	{
 			// (set to 1 to keep the nodal forces untouched in the equations --> f_nodal = u_dummy_node_n * force_elec = 1 * force_elec):
 			  { Name Displacement_dum~{x+nx*y+1} ; Type Assign ;
 			    Case {
-			     { Region omega~{x+nx*y+1}; Value 1 ; }
+			     { Region NodesOf[{solid_deformed~{x+nx*y+1}, air~{x+nx*y+1}}]; Value 1 ; }
 			    }
 			  }
 			//
@@ -251,11 +264,17 @@ FunctionSpace	{
 			{ Name H_u_Mec3D_dummy~{x+nx*y+1} ; Type Vector ;
 				BasisFunction {
 					{ Name sxn ; NameOfCoef uxn ; Function BF_NodeX ;
-						Support Region[omega~{x+nx*y+1}]; Entity NodesOf[solid~{x+nx*y+1}] ; }
+						Support Region[{solid_deformed~{x+nx*y+1}, air~{x+nx*y+1}, 
+							no_overlap_deformed~{(x-1)+nx*y+1}, no_overlap_deformed~{(x+1)+nx*y+1}}]; 
+						Entity NodesOf[{solid_deformed~{x+nx*y+1}}]; }
 					{ Name syn ; NameOfCoef uyn ; Function BF_NodeY ;
-						Support Region[omega~{x+nx*y+1}]; Entity NodesOf[solid~{x+nx*y+1}] ; }
+						Support Region[{solid_deformed~{x+nx*y+1}, air~{x+nx*y+1}, 
+							no_overlap_deformed~{(x-1)+nx*y+1}, no_overlap_deformed~{(x+1)+nx*y+1}}]; 
+						Entity NodesOf[{solid_deformed~{x+nx*y+1}}]; }
 					{ Name szn ; NameOfCoef uzn ; Function BF_NodeZ ;
-						Support Region[omega~{x+nx*y+1}]; Entity NodesOf[solid~{x+nx*y+1}] ; }
+						Support Region[{solid_deformed~{x+nx*y+1}, air~{x+nx*y+1}, 
+							no_overlap_deformed~{(x-1)+nx*y+1}, no_overlap_deformed~{(x+1)+nx*y+1}}]; 
+						Entity NodesOf[{solid_deformed~{x+nx*y+1}}]; }
 				}
 				Constraint {
 					{ NameOfCoef uxn ; EntityType NodesOf ; NameOfConstraint Displacement_dum~{x+nx*y+1} ; }
@@ -268,11 +287,20 @@ FunctionSpace	{
 			{ Name mechanic_function_space~{x+nx*y+1}; Type Vector; 
 				BasisFunction{
 					{Name wxn; NameOfCoef uxn; Function BF_NodeX; dFunction {BF_NodeX_D1, BF_NodeX_D2, BF_GradNodeRealCoord};
-						Support Region[ {omega~{x+nx*y+1}, force_interface~{x+nx*y+1}, sigma_up~{x+nx*(y-1)+1}, sigma_right~{(x-1)+nx*y+1}, 								sigma_down~{x+nx*(y+1)+1}, sigma_left~{(x+1)+nx*y+1}} ]; Entity NodesOf[solid~{x+nx*y+1}];}
+						Support Region[ {solid~{x+nx*y+1}, solid_deformed~{x+nx*y+1}, air~{x+nx*y+1}, 
+							no_overlap_deformed~{(x-1)+nx*y+1}, no_overlap_deformed~{(x+1)+nx*y+1},
+							sigma_up~{x+nx*(y-1)+1}, sigma_right~{(x-1)+nx*y+1}, sigma_down~{x+nx*(y+1)+1}, sigma_left~{(x+1)+nx*y+1}}];
+ 						Entity NodesOf[solid~{x+nx*y+1}];}
 					{Name wyn; NameOfCoef uyn; Function BF_NodeY; dFunction {BF_NodeY_D1, BF_NodeY_D2, BF_GradNodeRealCoord};
-						Support Region[ {omega~{x+nx*y+1}, force_interface~{x+nx*y+1}, sigma_up~{x+nx*(y-1)+1}, sigma_right~{(x-1)+nx*y+1}, 								sigma_down~{x+nx*(y+1)+1}, sigma_left~{(x+1)+nx*y+1}} ]; Entity NodesOf[solid~{x+nx*y+1}];}
+						Support Region[ {solid~{x+nx*y+1}, solid_deformed~{x+nx*y+1}, air~{x+nx*y+1}, 
+							no_overlap_deformed~{(x-1)+nx*y+1}, no_overlap_deformed~{(x+1)+nx*y+1},
+							sigma_up~{x+nx*(y-1)+1}, sigma_right~{(x-1)+nx*y+1}, sigma_down~{x+nx*(y+1)+1}, sigma_left~{(x+1)+nx*y+1}}];
+ 						Entity NodesOf[solid~{x+nx*y+1}];}
 					{Name wzn; NameOfCoef uzn; Function BF_NodeZ; dFunction {BF_NodeZ_D1, BF_NodeZ_D2, BF_GradNodeRealCoord};
-						Support Region[ {omega~{x+nx*y+1}, force_interface~{x+nx*y+1}, sigma_up~{x+nx*(y-1)+1}, sigma_right~{(x-1)+nx*y+1}, 								sigma_down~{x+nx*(y+1)+1}, sigma_left~{(x+1)+nx*y+1}} ]; Entity NodesOf[solid~{x+nx*y+1}];}
+						Support Region[ {solid~{x+nx*y+1}, solid_deformed~{x+nx*y+1}, air~{x+nx*y+1}, 
+							no_overlap_deformed~{(x-1)+nx*y+1}, no_overlap_deformed~{(x+1)+nx*y+1},
+							sigma_up~{x+nx*(y-1)+1}, sigma_right~{(x-1)+nx*y+1}, sigma_down~{x+nx*(y+1)+1}, sigma_left~{(x+1)+nx*y+1}}];
+ 						Entity NodesOf[solid~{x+nx*y+1}];}
 				}
 				SubSpace{
 					{ Name u_x ; NameOfBasisFunction wxn ; }
@@ -290,14 +318,14 @@ FunctionSpace	{
 			{ Name force_Elec~{x+nx*y+1} ; Type Vector ;
 			  BasisFunction {
 				{ Name sxn ; NameOfCoef fxn ; Function BF_NodeX ;
-				 		Support Region[{omega~{x+nx*y+1}, sigma_up~{x+nx*(y-1)+1}, sigma_right~{(x-1)+nx*y+1}, sigma_down~{x+nx*(y+1)+1}, 
-							sigma_left~{(x+1)+nx*y+1}, force_interface~{x+nx*y+1}}]; Entity NodesOf[solid~{x+nx*y+1}] ; }
+				 		Support Region[{solid_deformed~{x+nx*y+1}, air~{x+nx*y+1}, no_overlap_deformed~{(x-1)+nx*y+1}, 
+							no_overlap_deformed~{(x+1)+nx*y+1}}]; Entity NodesOf[{solid~{x+nx*y+1}}] ; }
 				{ Name syn ; NameOfCoef fyn ; Function BF_NodeY ;
-				 		Support Region[{omega~{x+nx*y+1}, sigma_up~{x+nx*(y-1)+1}, sigma_right~{(x-1)+nx*y+1}, sigma_down~{x+nx*(y+1)+1}, 
-							sigma_left~{(x+1)+nx*y+1}, force_interface~{x+nx*y+1}}]; Entity NodesOf[solid~{x+nx*y+1}] ; }
+				 		Support Region[{solid_deformed~{x+nx*y+1}, air~{x+nx*y+1}, no_overlap_deformed~{(x-1)+nx*y+1}, 
+							no_overlap_deformed~{(x+1)+nx*y+1}}]; Entity NodesOf[{solid~{x+nx*y+1}}] ; }
 				{ Name szn ; NameOfCoef fzn ; Function BF_NodeZ ;
-				 		Support Region[{omega~{x+nx*y+1}, sigma_up~{x+nx*(y-1)+1}, sigma_right~{(x-1)+nx*y+1}, sigma_down~{x+nx*(y+1)+1}, 
-							sigma_left~{(x+1)+nx*y+1}, force_interface~{x+nx*y+1}}]; Entity NodesOf[solid~{x+nx*y+1}] ; }
+				 		Support Region[{solid_deformed~{x+nx*y+1}, air~{x+nx*y+1}, no_overlap_deformed~{(x-1)+nx*y+1}, 
+							no_overlap_deformed~{(x+1)+nx*y+1}}]; Entity NodesOf[{solid~{x+nx*y+1}}] ; }
 			 		}
 			}
 
@@ -305,8 +333,9 @@ FunctionSpace	{
 			{ Name electric_function_space~{x+nx*y+1}; Type Form0; 
 				BasisFunction{
 					{Name wn; NameOfCoef vn; Function BF_Node;
-						Support Region[ {electric_domain~{x+nx*y+1}, sigma_up~{x+nx*(y-1)+1}, sigma_right~{(x-1)+nx*y+1}, 
-								sigma_down~{x+nx*(y+1)+1}, sigma_left~{(x+1)+nx*y+1}} ]; Entity NodesOf[electric_domain~{x+nx*y+1}];}
+						Support Region[ {solid_deformed~{x+nx*y+1}, air~{x+nx*y+1},
+							sigma_up~{x+nx*(y-1)+1}, sigma_right~{(x-1)+nx*y+1}, sigma_down~{x+nx*(y+1)+1}, sigma_left~{(x+1)+nx*y+1}} ]; 
+						Entity NodesOf[ {solid_deformed~{x+nx*y+1}, air~{x+nx*y+1}} ];}
 				}
     				Constraint{
     					{NameOfCoef vn; EntityType NodesOf; NameOfConstraint electric_constraint~{x+nx*y+1};}
@@ -318,11 +347,11 @@ FunctionSpace	{
 				BasisFunction{
 					{Name wxn; NameOfCoef uxn; Function BF_NodeX; dFunction {BF_GradNode, BF_Zero}; 
 					// D1 is now equal to grad_node, trick needed else getdp will not know how to use component  X of grad on a bf_nodeX 
-						Support Region[omega~{x+nx*y+1}]; Entity NodesOf[solid~{x+nx*y+1}];}
+						Support Region[{solid~{x+nx*y+1}}]; Entity NodesOf[{solid~{x+nx*y+1}}];}
 					{Name wyn; NameOfCoef uyn; Function BF_NodeY; dFunction {BF_GradNode, BF_Zero};
-						Support Region[omega~{x+nx*y+1}]; Entity NodesOf[solid~{x+nx*y+1}];}
+						Support Region[{solid~{x+nx*y+1}}]; Entity NodesOf[{solid~{x+nx*y+1}}];}
 					{Name wzn; NameOfCoef uzn; Function BF_NodeZ; dFunction {BF_GradNode, BF_Zero};
-						Support Region[omega~{x+nx*y+1}]; Entity NodesOf[solid~{x+nx*y+1}];}
+						Support Region[{solid~{x+nx*y+1}}]; Entity NodesOf[{solid~{x+nx*y+1}}];}
 				}
 				    SubSpace{
 				       { Name u_x ; NameOfBasisFunction wxn ; }
@@ -353,10 +382,16 @@ Formulation	{
 				{Name u_y; Type Local; NameOfSpace mechanic_function_space~{x+nx*y+1}[u_y];}
 				{Name u_z; Type Local; NameOfSpace mechanic_function_space~{x+nx*y+1}[u_z];}
 
-				// U dummy needed for the force computaion:
-				{ Name ud ; Type Local ; NameOfSpace H_u_Mec3D_dummy~{x+nx*y+1} ; }
+				// U dummy needed for the force compuation:
+				{ Name ud~{x+nx*y+1} ; Type Local ; NameOfSpace H_u_Mec3D_dummy~{x+nx*y+1} ; }
 
 				{Name v; Type Local; NameOfSpace electric_function_space~{x+nx*y+1};}
+			        If (x > 0)
+					{Name v~{(x-1)+nx*y+1}; Type Local; NameOfSpace electric_function_space~{(x-1)+nx*y+1};}
+				EndIf
+				If (x < nx-1)
+					{Name v~{(x+1)+nx*y+1}; Type Local; NameOfSpace electric_function_space~{(x+1)+nx*y+1};}
+				EndIf
 				}
 				Equation{
 				       Galerkin { [ C11[] * Dof{D1 u} , {D1 u} ] ;
@@ -375,8 +410,21 @@ Formulation	{
 					 In Region[solid~{x+nx*y+1}] ; Jacobian JVol ; Integration I1 ; }
 
 
-				       Galerkin {[ -epsilon[]* Felec[Dof{ud}*0 + {d v}], Unit[{u}] ] ;
-				         In electric_domain~{x+nx*y+1} ; Jacobian JVol ; Integration I1;}
+				       // Do not forget to multiply the force term (physical source) by #9:
+				       Galerkin {[ #9 * -epsilon[]* Felec[Dof{ud~{x+nx*y+1}}*0 + {d v}], Unit[{u}] ] ;
+					  In electric_domain~{x+nx*y+1} ; 
+						Jacobian JVol ; Integration I1 ;}
+				       If (x > 0)
+					       Galerkin {[ #9 * -epsilon[]* Felec[Dof{ud~{x+nx*y+1}}*0 + {d v~{(x-1)+nx*y+1}}], Unit[{u}] ] ;
+						  In Region[{no_overlap_deformed~{(x-1)+nx*y+1}}] ; 
+							Jacobian JVol ; Integration I1 ;}
+				       EndIf
+				       If (x < nx-1)
+					       Galerkin {[ #9 * -epsilon[]* Felec[Dof{ud~{x+nx*y+1}}*0 + {d v~{(x+1)+nx*y+1}}], Unit[{u}] ] ;
+						  In Region[{no_overlap_deformed~{(x+1)+nx*y+1}}] ; 
+							Jacobian JVol ; Integration I1 ;}
+				       EndIf
+
 
 				       // JacNL section - Refer to thesis of Veronique Rochus for the monolithic resolution:
 
@@ -432,18 +480,37 @@ Formulation	{
 			{ Name force_Elec~{x+nx*y+1} ; Type FemEquation ; Quantity {
 				{ Name f ; Type Local ; NameOfSpace force_Elec~{x+nx*y+1} ; }
 
-				{ Name ud ; Type Local ; NameOfSpace H_u_Mec3D_dummy~{x+nx*y+1} ; }
+				{ Name ud~{x+nx*y+1} ; Type Local ; NameOfSpace H_u_Mec3D_dummy~{x+nx*y+1} ; }
 
-				{ Name v; Type Local; NameOfSpace electric_function_space~{x+nx*y+1};}
+				{Name v~{x+nx*y+1}; Type Local; NameOfSpace electric_function_space~{x+nx*y+1};}
+			        If (x > 0)
+					{Name v~{(x-1)+nx*y+1}; Type Local; NameOfSpace electric_function_space~{(x-1)+nx*y+1};}
+				EndIf
+				If (x < nx-1)
+					{Name v~{(x+1)+nx*y+1}; Type Local; NameOfSpace electric_function_space~{(x+1)+nx*y+1};}
+				EndIf
 				}
 
 				Equation {
 					Galerkin { [ AssDiag[]{2} * Dof{f}, {f}] ;
-					  In Region[electric_domain~{x+nx*y+1}] ; Jacobian JVol ; Integration I1 ;}
+					  In Region[{solid_deformed~{x+nx*y+1}, air~{x+nx*y+1}, 
+						no_overlap_deformed~{(x-1)+nx*y+1}, no_overlap_deformed~{(x+1)+nx*y+1}}] ; 
+						Jacobian JVol ; Integration I1 ;}
 
 					// A minus is missing for some reason...
-					Galerkin {[ epsilon[]* Felec[Dof{ud}*0 + {d v}], Unit[{f}] ] ;
-					  In electric_domain~{x+nx*y+1} ; Jacobian JVol ; Integration I1;}
+				       Galerkin {[ epsilon[]* Felec[Dof{ud~{x+nx*y+1}}*0 + {d v~{x+nx*y+1}}], Unit[{f}] ] ;
+					  In electric_domain~{x+nx*y+1} ; 
+						Jacobian JVol ; Integration I1 ;}
+				       If (x > 0)
+					       Galerkin {[ epsilon[]* Felec[Dof{ud~{x+nx*y+1}}*0 + {d v~{(x-1)+nx*y+1}}], Unit[{f}] ] ;
+						  In Region[{no_overlap_deformed~{(x-1)+nx*y+1}}] ; 
+							Jacobian JVol ; Integration I1 ;}
+				       EndIf
+				       If (x < nx-1)
+					       Galerkin {[ epsilon[]* Felec[Dof{ud~{x+nx*y+1}}*0 + {d v~{(x+1)+nx*y+1}}], Unit[{f}] ] ;
+						  In Region[{no_overlap_deformed~{(x+1)+nx*y+1}}] ; 
+							Jacobian JVol ; Integration I1 ;}
+				       EndIf
 				}
 			}
 
@@ -458,6 +525,7 @@ Formulation	{
 				{Name u; Type Local; NameOfSpace mechanic_function_space~{x+nx*y+1};}
 				}
 				Equation{
+
 					       Galerkin { [ Dof{u_mesh_deform} , {u_mesh_deform} ] ;
 						 In Region[solid~{x+nx*y+1}] ; Jacobian JVol ; Integration I1 ; }
 					       Galerkin { [ -{u} , {u_mesh_deform} ] ;
@@ -519,7 +587,7 @@ Resolution	{
 
 
 				///// NON LINEAR ITERATIVE LOOP:
-				IterativeLoop{NbrMaxIteration 100; Criterion 1e-6; RelaxationFactor 1; 
+				IterativeLoop{NbrMaxIteration 50; Criterion 1e-6; RelaxationFactor 1; 
 				Operation {
 
 					// Loop on all subdomains:
@@ -531,26 +599,40 @@ Resolution	{
 	
 					
 						// This is for the mechanic computation on the undeformed mesh - resets matrix A:
-	      						GenerateJacGroup[monolithic_res~{x+nx*y+1}, solid~{x+nx*y+1}];			
+	      						GenerateJacGroup[monolithic_res~{x+nx*y+1}, solid~{x+nx*y+1}];	
+		
 
-						// We deform the mesh:
+					xtemp = x; ytemp = y;
+					For x In {0:nx-1}
+						For y In {0:ny-1}
+
+						// We first deform the mesh:
 
 							// Save u on solid:
-							//PostOperation[save_u_field~{x+nx*y+1}];
+							PostOperation[save_u_field~{x+nx*y+1}];
 
 							// We use u as a constraint for the Laplacian formulation on the air:
-							// Evaluate[1. #11];
-	     						// UpdateConstraint[mesh_deform~{x+nx*y+1}, Region[solid~{x+nx*y+1}], Assign];
+							Evaluate[1. #11];
+	     						UpdateConstraint[mesh_deform~{x+nx*y+1}, Region[solid~{x+nx*y+1}], Assign];
 
 							// Compute the solid deformation and/or the air deformation based on the solid 
 							// deformation constraints with a Laplacian formulation:
-	      						Generate[mesh_deform~{x+nx*y+1}];
-							Solve[mesh_deform~{x+nx*y+1}]; 
+	      						Generate[mesh_deform~{x+nx*y+1}]; Solve[mesh_deform~{x+nx*y+1}]; 
 
-							// Deform the solid body and/or the air accordingly:
-							DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform];
 
-							//SaveMesh[monolithic_res~{x+nx*y+1}, omega~{x+nx*y+1}, "Results/mesh%g.msh",x+nx*y+1];
+						// Deform the solid body and/or the air mesh:
+							If (x == 0)
+								// The first CMUT is treated differently - deformed on its whole domain at once:
+								DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, 1];
+							EndIf
+							If (x > 0)
+								DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, 1, NodesOf[{solid_no_overlap~{x+nx*y+1}, 
+									solid_overlap_right~{x+nx*y+1}}, Not sigma_right~{(x-1)+nx*y+1}]];
+							EndIf
+
+						EndFor
+					EndFor	
+					x = xtemp; y = ytemp;
 
 
 						// We compute the electrostatic force for display:
@@ -571,9 +653,26 @@ Resolution	{
 
 							SolveJac[monolithic_res~{x+nx*y+1}]; 
 
-						// Bringin back the mesh for the next iteration:
-							DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, -1];
+							PostOperation[save_e~{x+nx*y+1}];
 
+
+					xtemp = x; ytemp = y;
+					// Bringing back the mesh:
+					For x In {0:nx-1}
+						For y In {0:ny-1}
+
+						// Deform the solid body and/or the air mesh:
+							If (x == 0)
+								// The first CMUT is treated differently - deformed on its whole domain at once:
+								DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, -1];
+							EndIf
+							If (x > 0)
+								DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, -1, NodesOf[{solid_no_overlap~{x+nx*y+1}, 
+									solid_overlap_right~{x+nx*y+1}}, Not sigma_right~{(x-1)+nx*y+1}]];
+							EndIf
+						EndFor
+					EndFor
+					x = xtemp; y = ytemp;
 
 						// We set the potential on the artificial interfaces:
 							PostOperation[update_g_up_electric~{x+nx*y+1}];
@@ -587,6 +686,8 @@ Resolution	{
 							PostOperation[update_g_down_mechanic~{x+nx*y+1}];
 							PostOperation[update_g_left_mechanic~{x+nx*y+1}];
 
+							PostOperation[save_u~{x+nx*y+1}];
+
 						EndFor
 					EndFor
 
@@ -595,17 +696,6 @@ Resolution	{
 				///// END NON LINEAR ITERATIVE LOOP
 
 
-				// Let us store e on the deformed mesh and u on the undeformed mesh:
-				For x In {0:nx-1}
-					For y In {0:ny-1}
-
-						DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform];
-						PostOperation[save_e~{x+nx*y+1}];
-						DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, -1];
-						PostOperation[save_u~{x+nx*y+1}];
-
-					EndFor
-				EndFor
 			}
 		}
 }
@@ -645,7 +735,7 @@ PostProcessing 	{
   				{ Name f~{x+nx*y+1}; NameOfFormulation force_Elec~{x+nx*y+1};
     					Quantity {
       						{ Name f~{x+nx*y+1} ; Value { Local { [ {f} ]; 
-							In Region[force_interface~{x+nx*y+1}] ; Jacobian JSur ; } } }
+							In Region[{solid_deformed~{x+nx*y+1}}] ; Jacobian JVol ; } } }
 						}
 				}
 
@@ -751,7 +841,7 @@ PostOperation	{
 
 				{ Name save_f~{x+nx*y+1} ; NameOfPostProcessing f~{x+nx*y+1}; 
 					Operation {
-						Print[ f~{x+nx*y+1}, OnElementsOf force_interface~{x+nx*y+1}, 
+						Print[ f~{x+nx*y+1}, OnElementsOf Region[{solid_deformed~{x+nx*y+1}}], 
 							File Sprintf("Results/f%g.pos",x+nx*y+1)] ;
 						Echo["View[PostProcessing.NbViews-1].RangeType=3; View[PostProcessing.NbViews-1].TimeStep=0;", 
 							File Sprintf("Results/f%g.pos",x+nx*y+1)];							
