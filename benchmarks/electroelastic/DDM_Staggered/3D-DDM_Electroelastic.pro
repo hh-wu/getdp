@@ -414,7 +414,7 @@ Formulation	{
 
 				       // Do not forget to multiply the force term (physical source) by #9:
 				       Galerkin {[ #9 * -epsilon[]* Felec[Dof{ud~{x+nx*y+1}}*0 + {d v~{x+nx*y+1}}], Unit[{u}] ] ;
-					  In Region[{solid_deformed~{x+nx*y+1}, air~{x+nx*y+1}}] ; 
+					  In electric_domain~{x+nx*y+1} ; 
 						Jacobian JVol ; Integration I1 ;}
 				       If (x > 0)
 					       Galerkin {[ #9 * -epsilon[]* Felec[Dof{ud~{x+nx*y+1}}*0 + {d v~{(x-1)+nx*y+1}}], Unit[{u}] ] ;
@@ -435,7 +435,7 @@ Formulation	{
 				}
 				Equation{
 					Galerkin { [ epsilon[] * Dof{d v} , {d v} ] ; 
-						In Region[{solid_deformed~{x+nx*y+1}, air~{x+nx*y+1}}] ; Jacobian JVol ; Integration I1 ; }
+						In electric_domain~{x+nx*y+1} ; Jacobian JVol ; Integration I1 ; }
 				}
 			}
 
@@ -462,7 +462,7 @@ Formulation	{
 
 					// A minus is missing for some reason...
 				       Galerkin {[ epsilon[]* Felec[Dof{ud~{x+nx*y+1}}*0 + {d v~{x+nx*y+1}}], Unit[{f}] ] ;
-					  In Region[{solid_deformed~{x+nx*y+1}, air~{x+nx*y+1}}] ; 
+					  In electric_domain~{x+nx*y+1} ; 
 						Jacobian JVol ; Integration I1 ;}
 				       If (x > 0)
 					       Galerkin {[ epsilon[]* Felec[Dof{ud~{x+nx*y+1}}*0 + {d v~{(x-1)+nx*y+1}}], Unit[{f}] ] ;
@@ -740,17 +740,57 @@ Resolution	{
 
 							UpdateConstraint[mechanic_res~{x+nx*y+1}, Region[{sigma_up~{x+nx*y+1}, 
 								sigma_right~{x+nx*y+1},	sigma_down~{x+nx*y+1}, sigma_left~{x+nx*y+1}}], Assign];
+						EndFor
+					EndFor
+
+
+					// Deforming the mesh:
+					For x In {0:nx-1}
+						For y In {0:ny-1}
+
+						// Deform the solid body and/or the air mesh:
+							If (x == 0)
+								// The first CMUT is treated differently - deformed on its whole domain at once:
+								DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, 1];
+							EndIf
+							If (x > 0)
+								DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, 1, NodesOf[{no_overlap_deformed~{x+nx*y+1}, 
+									solid_overlap_right~{x+nx*y+1}, air_overlap_right~{x+nx*y+1}}, 
+									Not sigma_right~{(x-1)+nx*y+1}]];
+							EndIf
+						EndFor
+					EndFor
+
+					For x In {0:nx-1}
+						For y In {0:ny-1}
 
 						// We now compute the mechanic resolution:
-
-							// Deform the solid body and/or the air mesh:
-								DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, 1];
 
 							// Computing the force on the deformed mesh - resets matrix A:
 		      						GenerateGroup[mechanic_res~{x+nx*y+1}, electric_domain~{x+nx*y+1}];
 
-							// Bringing back the mesh:
-								DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, -1];	
+						EndFor
+					EndFor
+
+					// Bringing back the mesh:
+					For x In {0:nx-1}
+						For y In {0:ny-1}
+
+						// Deform the solid body and/or the air mesh:
+							If (x == 0)
+								// The first CMUT is treated differently - deformed on its whole domain at once:
+								DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, -1];
+							EndIf
+							If (x > 0)
+								DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, -1, NodesOf[{no_overlap_deformed~{x+nx*y+1}, 
+									solid_overlap_right~{x+nx*y+1}, air_overlap_right~{x+nx*y+1}}, 
+									Not sigma_right~{(x-1)+nx*y+1}]];
+							EndIf
+						EndFor
+					EndFor
+
+					For x In {0:nx-1}
+						For y In {0:ny-1}
 
 							// Generating the remaining terms on the undeformed mesh:
 		      						GenerateGroupCumulative[mechanic_res~{x+nx*y+1}, solid~{x+nx*y+1}];
@@ -827,15 +867,55 @@ Resolution	{
 
 							UpdateConstraint[mechanic_res~{x+nx*y+1}, Region[{sigma_up~{x+nx*y+1}, 
 								sigma_right~{x+nx*y+1},	sigma_down~{x+nx*y+1}, sigma_left~{x+nx*y+1}}], Assign];
+						EndFor
+					EndFor
 
-							// Deform the solid body and/or the air mesh:
+
+					// Deforming the mesh:
+					For x In {0:nx-1}
+						For y In {0:ny-1}
+
+						// Deform the solid body and/or the air mesh:
+							If (x == 0)
+								// The first CMUT is treated differently - deformed on its whole domain at once:
 								DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, 1];
+							EndIf
+							If (x > 0)
+								DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, 1, NodesOf[{no_overlap_deformed~{x+nx*y+1}, 
+									solid_overlap_right~{x+nx*y+1}, air_overlap_right~{x+nx*y+1}}, 
+									Not sigma_right~{(x-1)+nx*y+1}]];
+							EndIf
+						EndFor
+					EndFor
+
+					For x In {0:nx-1}
+						For y In {0:ny-1}
 
 							// Computing the force on the deformed mesh - resets matrix A:
 		      						GenerateGroup[mechanic_res~{x+nx*y+1}, electric_domain~{x+nx*y+1}];
 
-							// Bringing back the mesh:
-								DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, -1];	
+						EndFor
+					EndFor
+
+					// Bringing back the mesh:
+					For x In {0:nx-1}
+						For y In {0:ny-1}
+
+						// Deform the solid body and/or the air mesh:
+							If (x == 0)
+								// The first CMUT is treated differently - deformed on its whole domain at once:
+								DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, -1];
+							EndIf
+							If (x > 0)
+								DeformMesh[mesh_deform~{x+nx*y+1}, u_mesh_deform, -1, NodesOf[{no_overlap_deformed~{x+nx*y+1}, 
+									solid_overlap_right~{x+nx*y+1}, air_overlap_right~{x+nx*y+1}}, 
+									Not sigma_right~{(x-1)+nx*y+1}]];
+							EndIf
+						EndFor
+					EndFor
+
+					For x In {0:nx-1}
+						For y In {0:ny-1}
 
 							// Generating the remaining terms on the undeformed mesh:
 		      						GenerateGroupCumulative[mechanic_res~{x+nx*y+1}, solid~{x+nx*y+1}];
@@ -880,7 +960,7 @@ PostProcessing 	{
   				{ Name v~{x+nx*y+1}; NameOfFormulation electric_formulation~{x+nx*y+1};
     					Quantity {
       						{ Name e~{x+nx*y+1} ; Value { Local { [ -{d v} ]; 
-							In Region[{solid_deformed~{x+nx*y+1}, air~{x+nx*y+1}}] ; Jacobian JVol ; } } }
+							In electric_domain~{x+nx*y+1} ; Jacobian JVol ; } } }
 						
 
       						{ Name g_electric~{x+nx*y+1} ; Value { Local { [ {v} ]; 
@@ -892,7 +972,7 @@ PostProcessing 	{
   				{ Name f~{x+nx*y+1}; NameOfFormulation force_Elec~{x+nx*y+1};
     					Quantity {
       						{ Name f~{x+nx*y+1} ; Value { Local { [ {f} ]; 
-							In Region[{solid_deformed~{x+nx*y+1}, air~{x+nx*y+1}}] ; Jacobian JVol ; } } }
+							In electric_domain~{x+nx*y+1} ; Jacobian JVol ; } } }
 						}
 				}
 
@@ -989,7 +1069,7 @@ PostOperation	{
 
 				{ Name save_e~{x+nx*y+1} ; NameOfPostProcessing v~{x+nx*y+1}; 
 					Operation {
-						Print[ e~{x+nx*y+1}, OnElementsOf Region[{solid_deformed~{x+nx*y+1}, air~{x+nx*y+1}}], 
+						Print[ e~{x+nx*y+1}, OnElementsOf electric_domain~{x+nx*y+1}, 
 							File Sprintf("Results/e%g.pos",x+nx*y+1)] ;
 						Echo["View[PostProcessing.NbViews-1].RangeType=3; View[PostProcessing.NbViews-1].TimeStep=0;", 
 							File Sprintf("Results/e%g.pos",x+nx*y+1)];							
