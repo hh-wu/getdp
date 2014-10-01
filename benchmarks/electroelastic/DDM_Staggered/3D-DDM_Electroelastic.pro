@@ -350,11 +350,11 @@ FunctionSpace	{
 				BasisFunction{
 					{Name wxn; NameOfCoef uxn; Function BF_NodeX; dFunction {BF_GradNode, BF_Zero}; 
 					// D1 is now equal to grad_node, trick needed else getdp will not know how to use component  X of grad on a bf_nodeX 
-						Support Region[{solid~{x+nx*y+1}, air~{x+nx*y+1}}]; Entity NodesOf[{solid~{x+nx*y+1}, air~{x+nx*y+1}}];}
+						Support Region[{solid~{x+nx*y+1}}]; Entity NodesOf[{solid~{x+nx*y+1}}];}
 					{Name wyn; NameOfCoef uyn; Function BF_NodeY; dFunction {BF_GradNode, BF_Zero};
-						Support Region[{solid~{x+nx*y+1}, air~{x+nx*y+1}}]; Entity NodesOf[{solid~{x+nx*y+1}, air~{x+nx*y+1}}];}
+						Support Region[{solid~{x+nx*y+1}}]; Entity NodesOf[{solid~{x+nx*y+1}}];}
 					{Name wzn; NameOfCoef uzn; Function BF_NodeZ; dFunction {BF_GradNode, BF_Zero};
-						Support Region[{solid~{x+nx*y+1}, air~{x+nx*y+1}}]; Entity NodesOf[{solid~{x+nx*y+1}, air~{x+nx*y+1}}];}
+						Support Region[{solid~{x+nx*y+1}}]; Entity NodesOf[{solid~{x+nx*y+1}}];}
 				}
 				    SubSpace{
 				       { Name u_x ; NameOfBasisFunction wxn ; }
@@ -363,9 +363,9 @@ FunctionSpace	{
 				     }
     				Constraint{
 					// Constraints deactivated since we do not want in our implementation to deform the air using a Laplacian formulation:
-    					{NameOfCoef uxn; EntityType NodesOf; NameOfConstraint mesh_deform_comp_0~{x+nx*y+1};}
-    					{NameOfCoef uyn; EntityType NodesOf; NameOfConstraint mesh_deform_comp_1~{x+nx*y+1};}
-    					{NameOfCoef uzn; EntityType NodesOf; NameOfConstraint mesh_deform_comp_2~{x+nx*y+1};}
+    					//{NameOfCoef uxn; EntityType NodesOf; NameOfConstraint mesh_deform_comp_0~{x+nx*y+1};}
+    					//{NameOfCoef uyn; EntityType NodesOf; NameOfConstraint mesh_deform_comp_1~{x+nx*y+1};}
+    					//{NameOfCoef uzn; EntityType NodesOf; NameOfConstraint mesh_deform_comp_2~{x+nx*y+1};}
      				}
 			}
 
@@ -489,17 +489,24 @@ Formulation	{
 				}
 				Equation{
 
-					       // This is needed otherwise the constraints on solid will not be taken into account:
-					       Galerkin { [ 0*Dof{u_mesh_deform} , {u_mesh_deform} ] ;
+					       Galerkin { [ Dof{u_mesh_deform} , {u_mesh_deform} ] ;
+						 In Region[solid~{x+nx*y+1}] ; Jacobian JVol ; Integration I1 ; }
+					       Galerkin { [ -{u} , {u_mesh_deform} ] ;
 						 In Region[solid~{x+nx*y+1}] ; Jacobian JVol ; Integration I1 ; }
 
+					       // If you wish to deform the air mesh as well knowing that it makes the Newton iteration oscillate:
+
+					       // This is needed otherwise the constraints on solid will not be taken into account:
+					       //Galerkin { [ 0*Dof{u_mesh_deform} , {u_mesh_deform} ] ;
+						 //In Region[solid~{x+nx*y+1}] ; Jacobian JVol ; Integration I1 ; }
+
 					       // Laplacian formulation in the air:
-					       Galerkin { [ Dof{D1 u_x} , {D1 u_x} ] ;
-						 In Region[air~{x+nx*y+1}] ; Jacobian JVol ; Integration I1 ; }
-					       Galerkin { [ Dof{D1 u_y} , {D1 u_y} ] ;
-						 In Region[air~{x+nx*y+1}] ; Jacobian JVol ; Integration I1 ; }
-					       Galerkin { [ Dof{D1 u_z} , {D1 u_z} ] ;
-						 In Region[air~{x+nx*y+1}] ; Jacobian JVol ; Integration I1 ; }
+					       //Galerkin { [ Dof{D1 u_x} , {D1 u_x} ] ;
+						 //In Region[air~{x+nx*y+1}] ; Jacobian JVol ; Integration I1 ; }
+					       //Galerkin { [ Dof{D1 u_y} , {D1 u_y} ] ;
+						 //In Region[air~{x+nx*y+1}] ; Jacobian JVol ; Integration I1 ; }
+					       //Galerkin { [ Dof{D1 u_z} , {D1 u_z} ] ;
+						 //In Region[air~{x+nx*y+1}] ; Jacobian JVol ; Integration I1 ; }
 				}
 			}
 
