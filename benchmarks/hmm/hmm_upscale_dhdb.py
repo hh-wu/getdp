@@ -10,6 +10,6 @@ output = [ dhdbxx_table[key], dhdbxy_table[key], 0.,
 #print "The homogenized tangent matrix for element " + str(input[0]) + " is :"
 #print output
 
-if (input[0] < 1590):
-    print "The homogenized magnetic field for element " + str(input[0]) + " is :"
-    print output
+#if (input[0] < 1590):
+#    print "The homogenized Tangent matrix for element " + str(input[0]) + " is :"
+#    print output

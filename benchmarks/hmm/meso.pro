@@ -53,17 +53,17 @@ Function {
 
   If(!Flag_NL)
     nu[Omega_L]    = nu0                    ;
-    nu[Omega_NL]   = nu0/2500               ;
+    nu[Omega_NL]   = nu0/1               ;
     dhdb[Omega_NL]    = (nu0 )* TensorDiag[0., 0., 0.] ;
   EndIf
   If(Flag_NL)
     gamma          = 388.;
     alpha          = 0.3774;
     beta           = 2.97;
-    nu[]           = gamma + alpha * Exp[beta*$1] ;
+    nu_ML[Omega_NL]           = gamma + alpha * Exp[beta*$1] ;
     dnudb2[]       = alpha * beta* Exp[beta*$1] ;
     nu[Omega_L]    = 1. * nu0               ;
-    nu[Omega_NL]   = nu[SquNorm[$1]]      ;
+    nu[Omega_NL]   = nu_ML[SquNorm[$1]]     ;
     dhdb[Omega_NL] = nu[SquNorm[$1]] * TensorDiag[1., 1., 1.] + 2 * dnudb2[SquNorm[$1]] * SquDyadicProduct[$1] ;
     dhdb_NL[Omega_NL] = 2 * dnudb2[SquNorm[$1]] * SquDyadicProduct[$1] ;
   EndIf

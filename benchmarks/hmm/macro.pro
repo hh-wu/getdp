@@ -25,7 +25,7 @@ Function {
   nu [ Domain_Inf]  = 1. / mu0 ;
 
   If(!Flag_NL)
-    nu [ Core]   = 1. / (2500 * mu0) ;
+    nu [ Core]   = 1. / (1 * mu0) ;
     h [ Core]    = nu[$1#1] * #1 ;
     dhdb[ Core ] = TensorDiag[1., 1., 1.] * nu[$1];
   EndIf
@@ -39,11 +39,11 @@ Function {
     dhdb[ Core ]      = TensorDiag[1., 1., 1.] * nu[$1#1] + 2 * dnudb2[#1] * SquDyadicProduct[#1]  ;
     dhdb_NL[ Core ]   = 2 * dnudb2[$1#1] * SquDyadicProduct[#1]  ;
   EndIf
-  js[]              = Vector[0., 0., 50e8];
+  js[]              = Vector[0., 0., 50e2];
 
-  Nb_max_iter       = 5;
+  Nb_max_iter       = 10;
   relaxation_factor = 1.;
-  stop_criterion    = 1e-4;
+  stop_criterion    = 1e-6;
 }
 
 Jacobian {
@@ -87,8 +87,7 @@ FunctionSpace {
       { NameOfCoef ae ; EntityType NodesOf ; NameOfConstraint a ; }
     }
   }
-  For iP In {1:number}
-  { Name Hcurl_a~{iP} ; Type Form1P ;
+  { Name Hcurl_a_dummy ; Type Form1P ;
     BasisFunction {
       { Name se ; NameOfCoef ae ; Function BF_PerpendicularEdge ;
         Support Domain ; Entity NodesOf[ All ] ; }
@@ -97,33 +96,9 @@ FunctionSpace {
       { NameOfCoef ae ; EntityType NodesOf ; NameOfConstraint a ; }
     }
   }
-  EndFor
-
 }
 
 Formulation {
-//   For iP In {1:number}
-//   { Name MagSta_a_hmm_init_meso_mesh~{iP} ; Type FemEquation ;
-//     Quantity {
-//       { Name a  ; Type Local ; NameOfSpace Hcurl_a~{iP} ; }
-//     }
-//     Equation {
-//       //Galerkin { [ Python[data_num~{iP}, Position_X~{iP}, Position_Y~{iP}]{"hmm_init_meso_mesh.py"}, {d a} ] ; 
-//       Galerkin { [ Python[]{"hmm_init_meso_mesh.py"}, {d a} ] ; 
-//       In Domain_NL ; Jacobian JVol ; Integration I1 ; }
-//     }
-//   }
-//   EndFor
-
-//   { Name MagSta_a_hmm_init_meso_mesh ; Type FemEquation ;
-//     Quantity {
-//       { Name a  ; Type Local ; NameOfSpace Hcurl_a; }
-//     }
-//     Equation {
-//       Galerkin { [ Python[]{"hmm_meso_init_exact.py"}, {d a} ] ; 
-//       In Domain_NL ; Jacobian JVol ; Integration I1 ; }
-//     }
-//   }
 
   { Name MagSta_a_ref ; Type FemEquation ;
     Quantity {
@@ -141,30 +116,15 @@ Formulation {
     }
   }
 
-  { Name MagSta_a_hmm_init_field ; Type FemEquation ;
-    Quantity {
-      { Name a  ; Type Local ; NameOfSpace Hcurl_a ; }
-    }
-    Equation {
-      Galerkin { [ nu[] * Dof{d a} , {d a} ] ;
-        In Domain_L ; Jacobian JVol ; Integration I1 ; }
-      Galerkin { [ h[{d a}], {d a} ] ;
-        In Domain_NL ; Jacobian JVol ; Integration I1 ; }
-      Galerkin { JacNL[ dhdb[{d a}] * Dof{d a} , {d a} ] ;
-        In Domain_NL ; Jacobian JVol ; Integration I1 ; }
-      Galerkin { [ -js[] , {a} ] ;
-        In Domain_S ; Jacobian JVol ; Integration I1 ; }
-    }
-  }
-
   { Name MagSta_a_hmm_init_downscaling ; Type FemEquation ;
     Quantity {
+      { Name a_dummy  ; Type Local ; NameOfSpace Hcurl_a_dummy ; }
       { Name a  ; Type Local ; NameOfSpace Hcurl_a ; }
     }
     Equation {
-      Galerkin { [ Dof{d a} , {d a} ] ;
+      Galerkin { [ Dof{d a_dummy} , {d a_dummy} ] ;
         In Domain ; Jacobian JVol ; Integration I1 ; }
-      Galerkin { [ Python[ElementNum[], QuadraturePointIndex[],CompZ[{a}], CompX[{d a}], CompY[{d a} ] ]{"hmm_downscale_b.py"} * Dof{d a} , {d a} ] ;
+      Galerkin { [ Python[ElementNum[], QuadraturePointIndex[], CompZ[{a}], CompX[{d a}], CompY[{d a} ] ]{"hmm_downscale_b.py"} * Dof{d a_dummy} , {d a_dummy} ] ;
         In Domain_NL ; Jacobian JVol ; Integration I1 ; }
     }
   }
@@ -176,10 +136,8 @@ Formulation {
     Equation {
       Galerkin { [ nu[] * Dof{d a}, {d a} ] ;
         In Domain_L ; Jacobian JVol ; Integration I1 ; }
-      Galerkin { [ Python[ElementNum[], QuadraturePointIndex[]]{"hmm_upscale_h.py"} , {d a} ] ;
+      Galerkin { [ Python[ElementNum[], QuadraturePointIndex[]]{"hmm_upscale_h.py"}, {d a} ] ;
         In Domain_NL ; Jacobian JVol ; Integration I1 ; }
-      //Galerkin { [ Python[ElementNum[], QuadraturePointIndex[]]{"hmm_upscale_dhdb.py"} * Dof{d a} , {d a} ] ;
-      //  In Domain_NL ; Jacobian JVol ; Integration I1 ; }
       Galerkin { JacNL [ Python[ElementNum[], QuadraturePointIndex[]]{"hmm_upscale_dhdb.py"} * Dof{d a} , {d a} ] ;
         In Domain_NL ; Jacobian JVol ; Integration I1 ; }
       Galerkin { [ -js[] , {a} ] ;
@@ -204,7 +162,6 @@ Resolution {
 
   { Name MagSta_a_hmm ;
     System {
-      { Name A ; NameOfFormulation MagSta_a_hmm_init_field ; DestinationSystem B; }
       { Name B ; NameOfFormulation MagSta_a_hmm_init_downscaling ; }
       { Name C ; NameOfFormulation MagSta_a_hmm ; }
     }
@@ -212,13 +169,9 @@ Resolution {
       CreateDirectory[Dir_Macro];
       CreateDirectory[Dir_Meso];
       Evaluate[ Python[]{"hmm_initialize.py"} ];
-      Evaluate[ Python[]{"hmm_meso_init_exact.py"} ];
+      InitSolution[C];
       IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
-        GenerateJac[A] ; SolveJac[A] ;
-      }
-      SaveSolution[A] ; TransferSolution[A];
-
-      IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
+      //IterativeLoopN[Nb_max_iter, relaxation_factor, System{ {C, 1e-6, 1e-6, Residual MeanL2Norm} } ]{
         Generate[B] ;
         Evaluate[ Python[]{"hmm_compute_meso.py"} ];
         GenerateJac[C] ; SolveJac[C] ;
