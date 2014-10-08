@@ -1,45 +1,24 @@
-//Include "mesoMeshes/gaussPointPosition.dat";
 Include "common.dat" ;
+Include "hmm_meso_geometry_exact.dat";
 
-lx       = 50e-6; // size of the cell
-ly       = lx;
+lx          = e;   // length of the cell
+ly          = lx;       //  
+lc_ext      = LX/200.0; // characteristic length for points in the insulator
+lc_int      = LX/200.0; // characteristic length for points in the conductor
+r_c         = 5.e-6;    // radius of the chamfer
+d_i         = 5.e-6;    // thickness of the insulator
+eps         = e;        // thickness of the SMC grain
+n_1         = 21;       // subdivisions along length of insulation layer
+n_2         = 3;        // subdivisions along thickness of insulation layer
 
-// SHARED INFORMATION
-//===================
-c_x       = 0.0;
-c_y       = 0.0;
+//================
+// Physical groups
+//================
 
-L_X = 10 * e;
-L_Y = L_X;
-r         = 1.5 * L_X;
-lc_ext    = L_X/200.0;
-lc_int    = L_X/200.0;
-//lc_ext    = L_X/25.0;
-//lc_int    = L_X/25.0;
-lc_Circ1  = L_X/10;
-l_Indu    = 0.0015;
-delta     = L_X/10;
-dx        = L_X/3;
-dy        = L_Y/6;
-NX        = 100;
-NY        = 100;
-nx        = 11;
-ny        = 6;
-
-n_1       = 21;
-n_2       = 3;
-
-GAMMA_MIDDLE_POINT  = 988;
-GAMMA_MIDDLE_POINT_U  = 989;
-GAMMA_CORNER1  = 990;
-GAMMA_CORNER2  = 991;
-GAMMA_CORNER3  = 992;
-GAMMA_CORNER4  = 993;
-
-GAMMA_LEFT    = 100;
-GAMMA_RIGHT   = 101;
-GAMMA_DOWN    = 102;
-GAMMA_UP      = 103;
-
-IRON          = 104;
-AIR           = 105;
+GAMMA_POINT = 1000; // point used for fixing the value of the 
+GAMMA_LEFT  = 1001; // left boundary
+GAMMA_RIGHT = 1002; // right boundary
+GAMMA_DOWN  = 1003; // lower boundary
+GAMMA_UP    = 1004; // upper boundary
+IRON        = 1005; // conductor
+INSULATION  = 1006; // insulation

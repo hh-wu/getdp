@@ -1,4 +1,8 @@
+// getdp macro.pro -msh macro.msh -sol MagSta_a_hmm -pos MagSta_a_hmm
+
 Include "macro.dat";
+Include "ListOfPoints.pro";
+
 
 Group {
   Air      = Region[ AIR ];
@@ -11,7 +15,7 @@ Group {
   Domain_NL  = Region[ {Core} ] ;
   Domain_L   = Region[ {Air, Domain_S, Domain_Inf} ] ;
   Domain = Region[ {Core, Air, Domain_S, Domain_Inf} ] ;
-  Dirichlet_a_0   = Region[ {GAMMA_INF} ] ;
+  Dirichlet_a_0     = Region[ {GAMMA_INF} ] ;
 }
 
 Function {
@@ -20,19 +24,26 @@ Function {
   nu [ Inductor ]   = 1. / mu0 ;
   nu [ Domain_Inf]  = 1. / mu0 ;
 
-  aa              = 388;
-  bb              = 0.3774;
-  cc              = 2.97;
-  nu[ Core ]      = aa + bb * Exp[cc*SquNorm[$1]] ;
-  dnudb2[ Core ]  = bb *cc* Exp[cc*SquNorm[$1]] ;
-  h[ Core ]       = nu[$1#1] * #1 ;
-  dhdb[ Core ]    = TensorDiag[1,1,1] * nu[$1#1] + 2 * dnudb2[#1] * SquDyadicProduct[#1]  ;
-  dhdb_NL[ Core ] = 2 * dnudb2[$1#1] * SquDyadicProduct[#1]  ;
-  js[]            = Vector[0., 0., 50e8];
+  If(!Flag_NL)
+    nu [ Core]   = 1. / (2500 * mu0) ;
+    h [ Core]    = nu[$1#1] * #1 ;
+    dhdb[ Core ] = TensorDiag[1., 1., 1.] * nu[$1];
+  EndIf
+  If (Flag_NL)
+    aa                = 388;
+    bb                = 0.3774;
+    cc                = 2.97;
+    nu[ Core ]        = aa + bb * Exp[cc*SquNorm[$1]] ;
+    dnudb2[ Core ]    = bb *cc* Exp[cc*SquNorm[$1]] ;
+    h[ Core ]         = nu[$1#1] * #1 ;
+    dhdb[ Core ]      = TensorDiag[1., 1., 1.] * nu[$1#1] + 2 * dnudb2[#1] * SquDyadicProduct[#1]  ;
+    dhdb_NL[ Core ]   = 2 * dnudb2[$1#1] * SquDyadicProduct[#1]  ;
+  EndIf
+  js[]              = Vector[0., 0., 50e8];
 
-  Nb_max_iter = 10;
+  Nb_max_iter       = 5;
   relaxation_factor = 1.;
-  stop_criterion = 1e-4;
+  stop_criterion    = 1e-4;
 }
 
 Jacobian {
@@ -76,10 +87,44 @@ FunctionSpace {
       { NameOfCoef ae ; EntityType NodesOf ; NameOfConstraint a ; }
     }
   }
+  For iP In {1:number}
+  { Name Hcurl_a~{iP} ; Type Form1P ;
+    BasisFunction {
+      { Name se ; NameOfCoef ae ; Function BF_PerpendicularEdge ;
+        Support Domain ; Entity NodesOf[ All ] ; }
+    }
+    Constraint {
+      { NameOfCoef ae ; EntityType NodesOf ; NameOfConstraint a ; }
+    }
+  }
+  EndFor
 
 }
 
 Formulation {
+//   For iP In {1:number}
+//   { Name MagSta_a_hmm_init_meso_mesh~{iP} ; Type FemEquation ;
+//     Quantity {
+//       { Name a  ; Type Local ; NameOfSpace Hcurl_a~{iP} ; }
+//     }
+//     Equation {
+//       //Galerkin { [ Python[data_num~{iP}, Position_X~{iP}, Position_Y~{iP}]{"hmm_init_meso_mesh.py"}, {d a} ] ; 
+//       Galerkin { [ Python[]{"hmm_init_meso_mesh.py"}, {d a} ] ; 
+//       In Domain_NL ; Jacobian JVol ; Integration I1 ; }
+//     }
+//   }
+//   EndFor
+
+//   { Name MagSta_a_hmm_init_meso_mesh ; Type FemEquation ;
+//     Quantity {
+//       { Name a  ; Type Local ; NameOfSpace Hcurl_a; }
+//     }
+//     Equation {
+//       Galerkin { [ Python[]{"hmm_meso_init_exact.py"}, {d a} ] ; 
+//       In Domain_NL ; Jacobian JVol ; Integration I1 ; }
+//     }
+//   }
+
   { Name MagSta_a_ref ; Type FemEquation ;
     Quantity {
       { Name a  ; Type Local ; NameOfSpace Hcurl_a ; }
@@ -101,7 +146,7 @@ Formulation {
       { Name a  ; Type Local ; NameOfSpace Hcurl_a ; }
     }
     Equation {
-      Galerkin { [ nu[{d a}] * Dof{d a} , {d a} ] ;
+      Galerkin { [ nu[] * Dof{d a} , {d a} ] ;
         In Domain_L ; Jacobian JVol ; Integration I1 ; }
       Galerkin { [ h[{d a}], {d a} ] ;
         In Domain_NL ; Jacobian JVol ; Integration I1 ; }
@@ -119,9 +164,7 @@ Formulation {
     Equation {
       Galerkin { [ Dof{d a} , {d a} ] ;
         In Domain ; Jacobian JVol ; Integration I1 ; }
-      Galerkin { [ Python[ElementNum[], QuadraturePointIndex[],
-                          CompZ[{a}], CompX[{d a}], CompY[{d a} ] ]
-                         {"hmm_downscale_b.py"} * Dof{d a} , {d a} ] ;
+      Galerkin { [ Python[ElementNum[], QuadraturePointIndex[],CompZ[{a}], CompX[{d a}], CompY[{d a} ] ]{"hmm_downscale_b.py"} * Dof{d a} , {d a} ] ;
         In Domain_NL ; Jacobian JVol ; Integration I1 ; }
     }
   }
@@ -131,13 +174,13 @@ Formulation {
       { Name a  ; Type Local ; NameOfSpace Hcurl_a ; }
     }
     Equation {
-      Galerkin { [ nu[{d a}] * Dof{d a}, {d a} ] ;
+      Galerkin { [ nu[] * Dof{d a}, {d a} ] ;
         In Domain_L ; Jacobian JVol ; Integration I1 ; }
-      Galerkin { [ Python[ElementNum[], QuadraturePointIndex[]]
-                         {"hmm_upscale_h.py"} , {d a} ] ;
+      Galerkin { [ Python[ElementNum[], QuadraturePointIndex[]]{"hmm_upscale_h.py"} , {d a} ] ;
         In Domain_NL ; Jacobian JVol ; Integration I1 ; }
-      Galerkin { JacNL [ Python[ElementNum[], QuadraturePointIndex[]]
-                               {"hmm_upscale_dhdb.py"} * Dof{d a} , {d a} ] ;
+      //Galerkin { [ Python[ElementNum[], QuadraturePointIndex[]]{"hmm_upscale_dhdb.py"} * Dof{d a} , {d a} ] ;
+      //  In Domain_NL ; Jacobian JVol ; Integration I1 ; }
+      Galerkin { JacNL [ Python[ElementNum[], QuadraturePointIndex[]]{"hmm_upscale_dhdb.py"} * Dof{d a} , {d a} ] ;
         In Domain_NL ; Jacobian JVol ; Integration I1 ; }
       Galerkin { [ -js[] , {a} ] ;
         In Domain_S ; Jacobian JVol ; Integration I1 ; }
@@ -151,12 +194,11 @@ Resolution {
       { Name A ; NameOfFormulation MagSta_a_ref ; }
     }
     Operation {
-      CreateDirectory["res_ref"];
+      CreateDirectory[Dir_Test];
       IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
         GenerateJac[A] ; SolveJac[A] ;
       }
       SaveSolution[A] ;
-      //PostOperation[MagSta_a];
     }
   }
 
@@ -167,10 +209,10 @@ Resolution {
       { Name C ; NameOfFormulation MagSta_a_hmm ; }
     }
     Operation {
-      CreateDirectory["res_hmm"];
-
+      CreateDirectory[Dir_Macro];
+      CreateDirectory[Dir_Meso];
       Evaluate[ Python[]{"hmm_initialize.py"} ];
-
+      Evaluate[ Python[]{"hmm_meso_init_exact.py"} ];
       IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
         GenerateJac[A] ; SolveJac[A] ;
       }
@@ -192,7 +234,7 @@ PostProcessing {
       { Name az ; Value { Local { [ CompZ[{a}] ]        ; In Domain   ; Jacobian JVol ; } } }
       { Name a  ; Value { Local { [ {a} ]               ; In Domain   ; Jacobian JVol ; } } }
       { Name b  ; Value { Local { [ {d a} ]             ; In Domain   ; Jacobian JVol ; } } }
-      { Name h  ; Value { Local { [ nu[{d a}] * {d a} ] ; In Domain_L ; Jacobian JVol ; }
+      { Name h  ; Value { Local { [ nu[] * {d a} ] ; In Domain_L ; Jacobian JVol ; }
                           Local { [ h[ {d a}] ]         ; In Domain_NL; Jacobian JVol ; } } }
     }
   }
@@ -201,27 +243,59 @@ PostProcessing {
       { Name az ; Value { Local { [ CompZ[{a}] ]        ; In Domain   ; Jacobian JVol ; } } }
       { Name a  ; Value { Local { [ {a} ]               ; In Domain   ; Jacobian JVol ; } } }
       { Name b  ; Value { Local { [ {d a} ]             ; In Domain   ; Jacobian JVol ; } } }
-      { Name h  ; Value { Local { [ nu[{d a}] * {d a} ] ; In Domain_L ; Jacobian JVol ; }
+      { Name h  ; Value { Local { [ nu[] * {d a} ] ; In Domain_L ; Jacobian JVol ; }
                           Local { [ h[ {d a}] ]         ; In Domain_NL; Jacobian JVol ; } } }
     }
   }
 }
 
+num_cuts = 50;
+dx       = (500e-6)/num_cuts;
+length   = 500e-6 + dx;
+
 PostOperation {
   { Name MagSta_a_ref ; NameOfPostProcessing MagSta_a_ref;
     Operation {
-      Print[ b,  OnElementsOf Domain, File "res_ref/b.pos" ] ;
-      Print[ h,  OnElementsOf Domain, File "res_ref/h.pos" ] ;
-      Print[ az, OnElementsOf Domain, File "res_ref/az.pos" ] ;
-      Print[ a , OnElementsOf Domain, File "res_ref/a.pos" ] ;
+      Print[ az, OnElementsOf Domain,  File StrCat[Dir_Test,StrCat["az",ExtGmsh] ] ];
+      Print[ b,  OnElementsOf Domain,  File StrCat[Dir_Test,StrCat["b" ,ExtGmsh] ] ];
+      Print[ h,  OnElementsOf Domain , File StrCat[Dir_Test,StrCat["h" ,ExtGmsh] ] ];
+
+      Print[ az, OnLine{ {25e-6 , 0., 0.}{25e-6 , 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Test, StrCat["az_hmm_cut_69999", ExtData ] ] ];
+      Print[ az, OnLine{ {175e-6, 0., 0.}{175e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Test, StrCat["az_hmm_cut_79999", ExtData ] ] ];
+      Print[ az, OnLine{ {325e-6, 0., 0.}{325e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Test, StrCat["az_hmm_cut_89999", ExtData ] ] ];
+      Print[ az, OnLine{ {475e-6, 0., 0.}{475e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Test, StrCat["az_hmm_cut_99999", ExtData ] ] ];
+
+      Print[ b, OnLine{ {25e-6 , 0., 0.}{25e-6 , 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Test, StrCat["b_hmm_cut_69999", ExtData ] ] ];
+      Print[ b, OnLine{ {175e-6, 0., 0.}{175e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Test, StrCat["b_hmm_cut_79999", ExtData ] ] ];
+      Print[ b, OnLine{ {325e-6, 0., 0.}{325e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Test, StrCat["b_hmm_cut_89999", ExtData ] ] ];
+      Print[ b, OnLine{ {475e-6, 0., 0.}{475e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Test, StrCat["b_hmm_cut_99999", ExtData ] ] ];
+
+      Print[ h, OnLine{ {25e-6 , 0., 0.}{25e-6 , 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Test, StrCat["h_hmm_cut_69999", ExtData ] ] ];
+      Print[ h, OnLine{ {175e-6, 0., 0.}{175e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Test, StrCat["h_hmm_cut_79999", ExtData ] ] ];
+      Print[ h, OnLine{ {325e-6, 0., 0.}{325e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Test, StrCat["h_hmm_cut_89999", ExtData ] ] ];
+      Print[ h, OnLine{ {475e-6, 0., 0.}{475e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Test, StrCat["h_hmm_cut_99999", ExtData ] ] ];
     }
   }
   { Name MagSta_a_hmm ; NameOfPostProcessing MagSta_a_hmm;
     Operation {
-      Print[ b,  OnElementsOf Domain, File "res_hmm/b.pos" ] ;
-      Print[ h,  OnElementsOf Domain, File "res_hmm/h.pos" ] ;
-      Print[ az, OnElementsOf Domain, File "res_hmm/az.pos" ] ;
-      Print[ a , OnElementsOf Domain, File "res_hmm/a.pos" ] ;
+      Print[ az, OnElementsOf Domain,  File StrCat[Dir_Macro,StrCat["az",ExtGmsh] ] ];
+      Print[ b,  OnElementsOf Domain,  File StrCat[Dir_Macro,StrCat["b" ,ExtGmsh] ] ];
+      Print[ h,  OnElementsOf Domain , File StrCat[Dir_Macro,StrCat["h" ,ExtGmsh] ] ];
+
+      Print[ az, OnLine{ {25e-6 , 0., 0.}{25e-6 , 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Macro, StrCat["az_hmm_cut_69999", ExtData ] ] ];
+      Print[ az, OnLine{ {175e-6, 0., 0.}{175e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Macro, StrCat["az_hmm_cut_79999", ExtData ] ] ];
+      Print[ az, OnLine{ {325e-6, 0., 0.}{325e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Macro, StrCat["az_hmm_cut_89999", ExtData ] ] ];
+      Print[ az, OnLine{ {475e-6, 0., 0.}{475e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Macro, StrCat["az_hmm_cut_99999", ExtData ] ] ];
+
+      Print[ b, OnLine{ {25e-6 , 0., 0.}{25e-6 , 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Macro, StrCat["b_hmm_cut_69999", ExtData ] ] ];
+      Print[ b, OnLine{ {175e-6, 0., 0.}{175e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Macro, StrCat["b_hmm_cut_79999", ExtData ] ] ];
+      Print[ b, OnLine{ {325e-6, 0., 0.}{325e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Macro, StrCat["b_hmm_cut_89999", ExtData ] ] ];
+      Print[ b, OnLine{ {475e-6, 0., 0.}{475e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Macro, StrCat["b_hmm_cut_99999", ExtData ] ] ];
+
+      Print[ h, OnLine{ {25e-6 , 0., 0.}{25e-6 , 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Macro, StrCat["h_hmm_cut_69999", ExtData ] ] ];
+      Print[ h, OnLine{ {175e-6, 0., 0.}{175e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Macro, StrCat["h_hmm_cut_79999", ExtData ] ] ];
+      Print[ h, OnLine{ {325e-6, 0., 0.}{325e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Macro, StrCat["h_hmm_cut_89999", ExtData ] ] ];
+      Print[ h, OnLine{ {475e-6, 0., 0.}{475e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Macro, StrCat["h_hmm_cut_99999", ExtData ] ] ];
     }
   }
 }

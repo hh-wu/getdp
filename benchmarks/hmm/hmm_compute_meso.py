@@ -7,11 +7,12 @@ parallel = True
 for key in keys:
     args = ["../../bin/getdp", "meso", "-v", "2", 
             "-solve", "a_NR", 
-            "-pos", "mean_1", "mean_2", "mean_3",
+            "-pos", "mean_1", "mean_2", "mean_3", "map_field_1",
             "-setnumber", "BX", str(bx_table[key]),
             "-setnumber", "BY", str(by_table[key]),
             "-setnumber", "ELENUM", str(key[0]),
             "-setnumber", "QPINDEX", str(key[1])]
+
     if parallel:
         proc[key] = subprocess.Popen(args)
     else:
@@ -21,23 +22,24 @@ if parallel:
     for key in keys:
         proc[key].wait()
 
+Dir_Meso = "hmm_meso_res/" 
 for key in keys:
-    f = open("res_hmm/j1_" + str(key[0]) + ".txt", "r")
+    f = open(Dir_Meso + "DualField1_" + str(key[0]) + ".txt", "r")
     h1 = map(float, f.readline().split())
     f.close()
-    f = open("res_hmm/j2_" + str(key[0]) + ".txt", "r")
+    f = open(Dir_Meso + "DualField2_" + str(key[0]) + ".txt", "r")
     h2 = map(float, f.readline().split())
     f.close()
-    f = open("res_hmm/j3_" + str(key[0]) + ".txt", "r")
+    f = open(Dir_Meso + "DualField3_" + str(key[0]) + ".txt", "r")
     h3 = map(float, f.readline().split())
     f.close()
-    f = open("res_hmm/e1_" + str(key[0]) + ".txt", "r")
+    f = open(Dir_Meso + "PrimalField1_" + str(key[0]) + ".txt", "r")
     b1 = map(float, f.readline().split())
     f.close()
-    f = open("res_hmm/e2_" + str(key[0]) + ".txt", "r")
+    f = open(Dir_Meso + "PrimalField2_" + str(key[0]) + ".txt", "r")
     b2 = map(float, f.readline().split())
     f.close()
-    f = open("res_hmm/e3_" + str(key[0]) + ".txt", "r")
+    f = open(Dir_Meso + "PrimalField3_" + str(key[0]) + ".txt", "r")
     b3 = map(float, f.readline().split())
     f.close()
     hx_table[key] = h1[1]
