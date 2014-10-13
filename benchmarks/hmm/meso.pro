@@ -1,4 +1,5 @@
 Include "meso.dat";
+Include "ListOfPoints.pro";
 
 Group {
   GammaCornerFix = Region[ {GAMMA_POINT } ];
@@ -203,5 +204,25 @@ For iP In {1:Nbr_SubProblems}
      Print[ h_tot , OnElementsOf Omega, File StrCat[Dir_Meso, Sprintf("h_tot_Prob%g_TS%g_Elenum%g.pos"  , iP, TS, ELENUM) ], Format Gmsh, LastTimeStepOnly ];
    }
  }
+ EndFor
+ For iP In {1:numPoints}
+ { Name local_cuts~{iP} ; NameOfPostProcessing a_Micro_NR_1;
+    Operation {
+      //Print[ a_pert, OnLine{ {Position_X~{iP}, (Position_Y~{iP} - 0.5 * e), 0.}{Position_X~{iP}, (Position_Y~{iP} + 0.5 * e), 0.} } {100}, 
+      //       Format Table, File StrCat[Dir_Meso, StrCat[Sprintf("az_pert_hmm_meso_cut_%g", iP), ExtData ] ] ];
+      //Print[ a_proj, OnLine{ {Position_X~{iP}, (Position_Y~{iP} - 0.5 * e), 0.}{Position_X~{iP}, (Position_Y~{iP} + 0.5 * e), 0.} } {100}, 
+      //       Format Table, File StrCat[Dir_Meso, StrCat[Sprintf("az_proj_hmm_meso_cut_%g", iP), ExtData ] ] ];
+      Print[ a_tot, OnLine{ {Position_X~{iP}, (Position_Y~{iP} - 0.5 * e), 0.}{Position_X~{iP}, (Position_Y~{iP} + 0.5 * e), 0.} } {100}, 
+             Format Table, File StrCat[Dir_Meso, StrCat[Sprintf("az_tot_hmm_meso_cut_%g", iP), ExtData ] ] ];
+      //Print[ b_pert, OnLine{ {Position_X~{iP}, (Position_Y~{iP} - 0.5 * e), 0.}{Position_X~{iP}, (Position_Y~{iP} + 0.5 * e), 0.} } {100}, 
+      //       Format Table, File StrCat[Dir_Meso, StrCat[Sprintf("b_pert_hmm_meso_cut_%g" , iP), ExtData ] ] ];
+      //Print[ b_proj, OnLine{ {Position_X~{iP}, (Position_Y~{iP} - 0.5 * e), 0.}{Position_X~{iP}, (Position_Y~{iP} + 0.5 * e), 0.} } {100}, 
+      //       Format Table, File StrCat[Dir_Meso, StrCat[Sprintf("b_proj_hmm_meso_cut_%g" , iP), ExtData ] ] ];
+      Print[ b_tot, OnLine{ {Position_X~{iP}, (Position_Y~{iP} - 0.5 * e), 0.}{Position_X~{iP}, (Position_Y~{iP} + 0.5 * e), 0.} } {100}, 
+             Format Table, File StrCat[Dir_Meso, StrCat[Sprintf("b_tot_hmm_meso_cut_%g" , iP), ExtData ] ] ];
+      Print[ h_tot, OnLine{ {Position_X~{iP}, (Position_Y~{iP} - 0.5 * e), 0.}{Position_X~{iP}, (Position_Y~{iP} + 0.5 * e), 0.} } {100}, 
+             Format Table, File StrCat[Dir_Meso, StrCat[Sprintf("h_tot_hmm_meso_cut_%g" , iP), ExtData ] ] ];
+    }
+  }
  EndFor
 }

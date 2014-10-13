@@ -1,0 +1,34 @@
+Include "common.dat";
+
+Flag_Fine   = 1 ;
+factor      = 1.;
+d_i         = 5e-6/factor ; // radius of the insulator.
+r_c         = 5e-6/factor ; // radius of the chamfer.
+eps         = e; //(d_c + 2 * d_i) ; // size of the periodic square. 
+L_X         = eps * n_smc ; // Total lenght of the SMC domain
+L_Y         = L_X ;
+lc_smc_iso  = d/10. ;
+lc_smc_cond = eps/20. ; 
+
+
+// adding the air around (the 2 spheres)
+//======================================
+lc_rint    = Val_Rint/10.0;
+lc_rext    = Val_Rext/10.0;
+
+//============================
+// Physical numbers
+//============================
+IRON        = 10000; // first lamination or  complete block (if homog)
+SKINIRON    = 20000; // skin of first lamination or of complete block (if homog)
+IND         = 30000;
+AIR         = 40000;
+ISOL        = 50000;
+OMEGA_INF   = 60000;
+OUTERBND    = 11111;
+MIDDLE      = 22222;
+MIDDLE_IND  = 33333;
+SYMMETRY_X0 = 44444;
+SYMMETRY_Y0 = 55555;
+BORDERLINE  = 66666;
+SECTION_IND = 77777;

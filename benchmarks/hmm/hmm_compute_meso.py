@@ -7,7 +7,7 @@ parallel = True
 for key in keys:
     args = ["../../bin/getdp", "meso", "-v", "2", 
             "-solve", "a_NR", 
-            "-pos", "mean_1", "mean_2", "mean_3", "map_field_1",
+            "-pos", "mean_1", "mean_2", "mean_3",
             "-setnumber", "BX", str(bx_table[key]),
             "-setnumber", "BY", str(by_table[key]),
             "-setnumber", "ELENUM", str(key[0]),

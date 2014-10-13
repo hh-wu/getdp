@@ -1,6 +1,6 @@
 AxialLength = 1; // 1 m is the default value
 
-Flag_NL = 0;
+Flag_NL = 1;
 
 Dir_Macro = "hmm_macro_res/";
 Dir_Meso  = "hmm_meso_res/";
@@ -8,13 +8,17 @@ Dir_Test  = "hmm_test_res/";
 ExtGmsh   = Str[ Sprintf("_nl%g.pos", Flag_NL) ];
 ExtData   = Str[ Sprintf("_nl%g.txt", Flag_NL) ];
 
-micron   = 1e-6;        // the micron
-d        = 45 * micron; // thickness of conductor
-e        = 50 * micron; // thickness of smc grain
-n_smc    = 10;          // number of SMC grains
-nlai     = 4 ;          // 
-LX       = e * 10;       // width of the entire SMC structure
-LY       = LX;
+micron    = 1e-6;        // the micron
+d         = 45 * micron; // thickness of conductor
+e         = 50 * micron; // thickness of smc grain
+n_smc     = 10;          // number of SMC grains
+nlai      = 4 ;          // 
+LX        = e * 10;       // width of the entire SMC structure
+LY        = LX;
+
+
+cellSize  = e;
+numPoints = 16;
 
 //======================
 // Dimensions without Al
