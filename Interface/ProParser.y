@@ -1904,7 +1904,11 @@ ConstraintTerm :
       List_Add(Constraint_S.MultiConstraintPerRegion,
 	       &MultiConstraintPerRegion_S);
     }
- ;
+
+   | ConstraintTerm Loop
+    {
+    }
+;
 
 
 ConstraintCases :
@@ -2003,6 +2007,15 @@ ConstraintCaseTerm :
       if(ConstraintPerRegion_S.Type == NETWORK) {
 	ConstraintPerRegion_S.Case.Network.Node1 = (int)$3;
 	ConstraintPerRegion_S.Case.Network.Node2 = (int)$5;
+      }
+      else  vyyerror("Branch incompatible with Type");
+    }
+
+  | tBranch '{' '(' FExpr ')' Comma '(' FExpr ')' '}' tEND
+    {
+      if(ConstraintPerRegion_S.Type == NETWORK) {
+	ConstraintPerRegion_S.Case.Network.Node1 = (int)$4;
+	ConstraintPerRegion_S.Case.Network.Node2 = (int)$8;
       }
       else  vyyerror("Branch incompatible with Type");
     }
