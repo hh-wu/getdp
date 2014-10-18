@@ -65,6 +65,26 @@ Plane Surface(s) = {1, hole[]};
 Physical Surface(100) = s;
 Physical Line(102) = {5,6,7,8};
 
+Function nice
+  p = newp;
+  Point(p+1) = {-50, 0, 0};
+  Point(p+2) = {50, 0, 0};
+  Point(p+3) = {0, h+3*dy, 0};
+  Point(p+4) = {-dx, h, 0};
+  Point(p+5) = {dx, h, 0};
+  Point(p+6) = {-dx, h+dy, 0};
+  Point(p+7) = {dx, h+dy, 0};
+  Point(p+8) = {-dx, h+2*dy, 0};
+  Point(p+9) = {dx, h+2*dy, 0};
+  l = newl;
+  Line(l) = {p+1, p+2};
+  Line(l+1) = {1, p+3};
+  Line(l+2) = {p+4, p+5};
+  Line(l+3) = {p+6, p+7};
+  Line(l+4) = {p+8, p+9};
+Return
+Call nice;
+
 Field[1] = Attractor;
 Field[1].NodesList = {attractors[]};
 Field[2] = Threshold;

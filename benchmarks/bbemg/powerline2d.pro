@@ -144,6 +144,10 @@ PostOperation{
       Echo[Str["View[PostProcessing.NbViews-1].RangeType = 3;" ,// per timestep
            "View[PostProcessing.NbViews-1].IntervalsType = 1;" // iso
          ], File "res/a.opt"];
+      Print[ b , OnPlane {{-40,0,0} {40,0,0} {-40,40,0} } {80,50} ,
+        Name "B(t) [T]", HarmonicToTime 20, File "res/b.pos"] ;
+      Echo[Str["View[PostProcessing.NbViews-1].ScaleType = 2;" // log
+        ], File "res/b.opt"];
       */
       Print[ bm , OnElementsOf Air , Name "|B| [T]", File "res/bm.pos"] ;
       Echo[Str["View[PostProcessing.NbViews-1].ScaleType = 2;", // log
@@ -185,7 +189,7 @@ PostOperation{
         Name "|E| at 1.5m above ground [V/m]", File "res/em_cut.pos"] ;
       Echo[Str["View[PostProcessing.NbViews-1].Type = 4;",
           "View[PostProcessing.NbViews-1].Axes = 3;",
-          "View[PostProcessing.NbViews-1].AutoPosition = 2;", // top right
+          "View[PostProcessing.NbViews-1].AutoPosition = 3;", // top right
           "View[PostProcessing.NbViews-1].ShowTime = 0;",
           "View[PostProcessing.NbViews-1].NbIso = 5;"
         ],
