@@ -239,8 +239,8 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
   /* Warn if we are not in harmonic regime (we won't be able to compute/store
      complex eigenvectors) */
   if(Current.NbrHar != 2){
-    Message::Warning("EigenSolve will only store the real part of the eigenvectors; "
-                     "Define the system with \"Type Complex\" if this is an issue");
+    Message::Info("EigenSolve will only store the real part of the eigenvectors; "
+                  "Define the system with \"Type Complex\" if this is an issue");
   }
 
 #if defined(HAVE_PETSC) && !defined(PETSC_USE_COMPLEX)
