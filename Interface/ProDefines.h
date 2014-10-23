@@ -1078,6 +1078,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"DthetaAcousticFieldHardCylinder", (CAST)F_DthetaAcousticFieldHardCylinder, 2, 1 },
   {"RCSHardCylinder",                 (CAST)F_RCSHardCylinder,  2, 1 },
   {"OSRC_C0",   (CAST)F_OSRC_C0, 2, 0},
+  {"OSRC_R0",   (CAST)F_OSRC_R0, 2, 0},
   {"OSRC_Aj",   (CAST)F_OSRC_Aj, 3, 0},
   {"OSRC_Bj",   (CAST)F_OSRC_Bj, 3, 0},
 

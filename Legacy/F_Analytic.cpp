@@ -2122,74 +2122,116 @@ static double bj(int j, int N)
   return SQU(cos((double)j * M_PI/(2.*N + 1.))) ;
 }
 
+static std::complex<double> padeC0(int N, double theta){
+  std::complex<double> sum = std::complex<double>(1, 0);
+  std::complex<double> one = std::complex<double>(1, 0);
+  std::complex<double> z   = std::complex<double>(cos(-theta) - 1, sin(-theta));
+
+  for(int j = 1; j <= N; j++)
+    sum += (z * aj(j, N)) / (one + z * bj(j, N));
+
+  z = std::complex<double>(cos(theta / 2.), sin(theta / 2.));
+
+  return sum * z;
+}
+
+static std::complex<double> padeA(int j, int N, double theta){
+  std::complex<double> one = std::complex<double>(1, 0);
+  std::complex<double> res;
+  std::complex<double> z;
+
+  z   = std::complex<double>(cos(-theta / 2.), sin(-theta / 2.));
+  res = z * aj(j, N);
+
+  z   = std::complex<double>(cos(-theta) - 1., sin(-theta));
+  res = res / ((one + z * bj(j, N)) * (one + z * bj(j, N)));
+
+  return res;
+}
+
+static std::complex<double> padeB(int j, int N, double theta){
+  std::complex<double> one = std::complex<double>(1, 0);
+  std::complex<double> res;
+  std::complex<double> z;
+
+  z   = std::complex<double>(cos(-theta), sin(-theta));
+  res = z * bj(j, N);
+
+  z   = std::complex<double>(cos(-theta) - 1., sin(-theta));
+  res = res / (one + z * bj(j, N));
+
+  return res;
+}
+
+static std::complex<double> padeR0(int N, double theta){
+  std::complex<double> sum = padeC0(N, theta);
+
+  for(int j = 1; j <= N; j++)
+    sum += padeA(j, N, theta) / padeB(j, N, theta);
+
+  return sum;
+}
+
 void  F_OSRC_C0(F_ARG)
 {
-  int j, N;
+  int N;
   double theta;
-  cplx sum = {1., 0.}, z, un = {1., 0.};
 
-  N = (int)Fct->Para[0] ;
-  theta = Fct->Para[1] ;
+  N     = (int)Fct->Para[0];
+  theta = Fct->Para[1];
 
-  z.r = cos(-theta) - 1. ;
-  z.i = sin(-theta) ;
-  for(j = 1; j <= N; j++){
-    sum = Csum( sum, Cdiv( Cprodr(aj(j,N), z) , Csum(un, Cprodr(bj(j,N), z)))) ;
-  }
+  std::complex<double> C0 = padeC0(N, theta);
 
-  z.r = cos(theta/2.) ;
-  z.i = sin(theta/2.) ;
-  sum = Cprod(sum, z);
+  V->Val[0]       = C0.real();
+  V->Val[MAX_DIM] = C0.imag();
+  V->Type         = SCALAR;
+}
 
-  V->Val[0] = sum.r;
-  V->Val[MAX_DIM] = sum.i;
-  V->Type = SCALAR ;
+void  F_OSRC_R0(F_ARG)
+{
+  int N;
+  double theta;
+
+  N     = (int)Fct->Para[0];
+  theta = Fct->Para[1];
+
+  std::complex<double> C0 = padeR0(N, theta);
+
+  V->Val[0]       = C0.real();
+  V->Val[MAX_DIM] = C0.imag();
+  V->Type         = SCALAR;
 }
 
 void F_OSRC_Aj(F_ARG)
 {
   int j, N;
   double theta;
-  cplx z, res, un = {1., 0.};
 
-  j = (int)Fct->Para[0] ;
-  N = (int)Fct->Para[1] ;
-  theta = Fct->Para[2] ;
+  j     = (int)Fct->Para[0];
+  N     = (int)Fct->Para[1];
+  theta = Fct->Para[2];
 
-  z.r = cos(-theta/2.) ;
-  z.i = sin(-theta/2.) ;
-  res = Cprodr(aj(j,N), z);
+  std::complex<double> Aj = padeA(j, N, theta);
 
-  z.r = cos(-theta) - 1. ;
-  z.i = sin(-theta) ;
-  res = Cdiv(res, Cpow( Csum(un, Cprodr(bj(j,N), z)), 2.));
-
-  V->Val[0] = res.r;
-  V->Val[MAX_DIM] = res.i;
-  V->Type = SCALAR ;
+  V->Val[0]       = Aj.real();
+  V->Val[MAX_DIM] = Aj.imag();
+  V->Type         = SCALAR;
 }
 
 void F_OSRC_Bj(F_ARG)
 {
   int j, N;
   double theta;
-  cplx z, res, un = {1., 0.};
 
-  j = (int)Fct->Para[0] ;
-  N = (int)Fct->Para[1] ;
-  theta = Fct->Para[2] ;
+  j     = (int)Fct->Para[0];
+  N     = (int)Fct->Para[1];
+  theta = Fct->Para[2];
 
-  z.r = cos(-theta) ;
-  z.i = sin(-theta) ;
-  res = Cprodr(bj(j,N), z);
+  std::complex<double> Bj = padeB(j, N, theta);
 
-  z.r = cos(-theta) - 1. ;
-  z.i = sin(-theta) ;
-  res = Cdiv(res, Csum(un, Cprodr(bj(j,N), z)));
-
-  V->Val[0] = res.r;
-  V->Val[MAX_DIM] = res.i;
-  V->Type = SCALAR ;
+  V->Val[0]       = Bj.real();
+  V->Val[MAX_DIM] = Bj.imag();
+  V->Type         = SCALAR;
 }
 
 #undef F_ARG
