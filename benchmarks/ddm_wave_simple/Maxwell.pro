@@ -53,7 +53,8 @@ FunctionSpace {
     { Name Hcurl_e~{idom}; Type Form1;
       BasisFunction {
         { Name se; NameOfCoef ee; Function BF_Edge;
-          Support Region[{Omega~{idom}, GammaD~{idom}, GammaInf~{idom}, Sigma~{idom}, GammaD0~{idom}}] ;
+          Support Region[{Omega~{idom}, GammaD~{idom}, GammaInf~{idom}, Sigma~{idom},
+                          GammaD0~{idom}}] ;
           Entity EdgesOf[All]; }
       }
       Constraint {
@@ -84,7 +85,8 @@ FunctionSpace {
       BasisFunction {
         { Name se; NameOfCoef ee; Function BF_Edge;
           Support Region[{Sigma~{idom}~{iSide}}] ;
-          Entity EdgesOf[Sigma~{idom}~{iSide}, Not {GammaD~{idom}, GammaD0~{idom}, GammaInf~{idom}}]; }
+          Entity EdgesOf[Sigma~{idom}~{iSide},
+                         Not {GammaD~{idom}, GammaD0~{idom}, GammaInf~{idom}}]; }
       }
     }
     EndFor
@@ -114,7 +116,8 @@ FunctionSpace {
           BasisFunction {
             { Name ser1; NameOfCoef eer1; Function BF_Edge;
               Support Region[{Sigma~{idom}~{iSide}}] ;
-              Entity EdgesOf[Sigma~{idom}~{iSide}, Not {GammaD~{idom}, GammaD0~{idom}, GammaInf~{idom}}]; }
+              Entity EdgesOf[Sigma~{idom}~{iSide},
+                             Not {GammaD~{idom}, GammaD0~{idom}, GammaInf~{idom}}]; }
           }
         }
         For j In {1:NP_OSRC}
@@ -122,14 +125,16 @@ FunctionSpace {
             BasisFunction {
               { Name srh1; NameOfCoef erh1; Function BF_Node;
                 Support Region[{Sigma~{idom}~{iSide}}] ;
-                Entity NodesOf[Sigma~{idom}~{iSide}, Not {GammaD~{idom}, GammaD0~{idom}, GammaInf~{idom}}]; }
+                Entity NodesOf[Sigma~{idom}~{iSide},
+                               Not {GammaD~{idom}, GammaD0~{idom}, GammaInf~{idom}}]; }
             }
           }
           { Name Hcurl_phi~{j}~{idom}~{iSide}; Type Form1;
             BasisFunction {
               { Name sph1; NameOfCoef eph1; Function BF_Edge;
                 Support Region[{Sigma~{idom}~{iSide}}] ;
-                Entity EdgesOf[Sigma~{idom}~{iSide}, Not {GammaD~{idom}, GammaD0~{idom}, GammaInf~{idom}}]; }
+                Entity EdgesOf[Sigma~{idom}~{iSide},
+                               Not {GammaD~{idom}, GammaD0~{idom}, GammaInf~{idom}}]; }
             }
           }
         EndFor

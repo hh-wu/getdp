@@ -78,7 +78,8 @@ FunctionSpace {
         { Name Hgrad_phi~{j}~{idom}~{iSide} ; Type Form0 ;
           BasisFunction {
             { Name sn ; NameOfCoef un ; Function BF_Node ;
-	      Support Region[ {Sigma~{idom}~{iSide}, BndSigmaInf~{idom}~{iSide}, BndSigmaN~{idom}~{iSide}} ] ;
+	      Support Region[ {Sigma~{idom}~{iSide},
+                               BndSigmaInf~{idom}~{iSide}, BndSigmaN~{idom}~{iSide}} ] ;
               Entity NodesOf[All, Not {GammaD~{idom}, GammaD0~{idom}}] ;
             }
 	  }
