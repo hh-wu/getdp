@@ -112,7 +112,7 @@ static void Info(int level, char *arg0)
     fprintf(stderr, "Mailing list     : getdp@geuz.org\n");
     break;
   }
-  exit(0);
+  Message::Exit(0);
 }
 
 /* ------------------------------------------------------------------------ */
