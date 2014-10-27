@@ -211,6 +211,8 @@ void Pos_LocalOrIntegralQuantity(struct PostQuantity    *PostQuantity_P,
 
     for (i_IntPoint = 0 ; i_IntPoint < Nbr_IntPoints ; i_IntPoint++) {
 
+      Current.QuadraturePointIndex = i_IntPoint;
+
       Get_IntPoint(Nbr_IntPoints, i_IntPoint, &ui, &vi, &wi, &weight) ;
 
       Get_BFGeoElement (Element, ui, vi, wi) ;
