@@ -17,3 +17,6 @@ Combine ElementsFromVisibleViews;
 
 
 Merge "u.pos";
+
+General.Trackball = 0;
+General.RotationY = -45;

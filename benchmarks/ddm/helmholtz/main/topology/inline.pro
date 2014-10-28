@@ -46,8 +46,18 @@ Function{
       ListOfNeighborField += 1;
       ListOfNeighborField += exchangeFieldRight{};
 
+    If (!PML)
       g_in~{idom}~{0}[Sigma~{idom}~{0}] = ComplexScalarField[XYZ[]]{exchangeFieldLeft{}};
       g_in~{idom}~{1}[Sigma~{idom}~{1}] = ComplexScalarField[XYZ[]]{exchangeFieldRight{}};
+    EndIf
+
+    If (PML)
+      // If (idom==0)
+      g_in~{idom}~{0}[] = ComplexScalarField[ Vector[xSigma~{idom}~{0},Y[],Z[]] ]{exchangeFieldLeft{}};
+      g_in~{idom}~{1}[] = ComplexScalarField[ Vector[xSigma~{idom}~{1},Y[],Z[]] ]{exchangeFieldRight{}};
+      // EndIf
+    EndIf
+
 
     EndIf
   EndFor

@@ -1,6 +1,12 @@
 Include "params.geo";
 Include "../main/ddmDefines.pro";
+
+If (!PML)
 Include "groups_waveguide2d_mshcut.pro";
+EndIf
+If (PML)
+Include "groups_waveguide2d_mshcut_PML.pro";
+EndIf
 
 Function {
   I[] = Complex[0, 1];
@@ -31,10 +37,17 @@ Function {
   // // 					    k6 : k7))))) ;
 
 
-  om = WAVENUMBER ;
-  c[] = 1.;//1.25*(1.-.4*Exp[-32*(Y[]-.5)^2]) ;
-  k[] = om/c[] ;
+  // om[] = WAVENUMBER ;
+  // c[] = 1.;//1.25*(1.-.4*Exp[-32*(Y[]-.5)^2]) ;
+  // // k[] = om/c[] ;
+  // k[] = Complex[om[]/c[], 0*.25*om[]/c[] ];
 
+  om[] = OM;
+  c[] = 1.25*(1.-.4*Exp[-32*(Y[]-.5)^2]) ;
+  k[] = om[]/c[] ;
+
+
+  // BETA_M[] = k[];//Sqrt[k[]^2-(m*Pi/d)^2];//X[] < 2.77 ? Sqrt[k[]^2-(m*Pi/d)^2] : Sqrt[k[]^2-(m*Pi/d)^2];//Sqrt[k[]^2-(m*Pi/d)^2] ;
   BETA_M[] = Sqrt[k[]^2-(m*Pi/d)^2];//X[] < 2.77 ? Sqrt[k[]^2-(m*Pi/d)^2] : Sqrt[k[]^2-(m*Pi/d)^2];//Sqrt[k[]^2-(m*Pi/d)^2] ;
 
 }
@@ -63,17 +76,36 @@ Function {
   alpha[] = -Vector[Cos[theta], 0, Sin[theta]]; 
 
   // uinc[] = Complex[ Cos[k*alpha[]*XYZ[]], Sin[k*alpha[]*XYZ[]] ];
-  uinc[] = Complex[ Sin[Pi*m/d*Y[]], 0. ];
+  uinc[] = Complex[ Sin[Pi*m/d*Y[]]+0*Sin[Pi*1/d*Y[]], 0. ];
   kDtn[] = k[];
-  kInf[] = BETA_M[];
+  kInf[] = k[];//BETA_M[];
 }
 
 Include "../main/tcDefaults.pro";
+
+If (PML)
+xSigmaList = {};
+For i In {0:nDoms}
+  xSigmaList += i*dDom;
+EndFor
+
+For ii In {0: N_DOM-1}
+idom = ii;
+// If (idom > 0)
+xSigma~{idom}~{0} = xSigmaList(idom);
+// EndIf
+// If (idom < N-1)
+xSigma~{idom}~{1} = xSigmaList(idom+1);
+// EndIf
+EndFor
+EndIf
+
+
 Include "../main/topology/inline.pro";
 
 
 // ListOfCuts = {0, N_DOM-1};
-ListOfCuts = {0, 5, 10, N_DOM-1};
+// ListOfCuts = {0, 5, 10, N_DOM-1};
 // ListOfCuts = {0, 7, N_DOM-1};
 
 If (PRECOND_SWEEP)
@@ -85,3 +117,5 @@ If (PRECOND_SWEEP)
 EndIf
 
 Include "../main/Helmholtz.pro";
+// Include "../main/ddmPrecond.pro";
+

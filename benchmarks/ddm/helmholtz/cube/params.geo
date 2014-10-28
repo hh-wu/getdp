@@ -21,14 +21,19 @@ Z = 3;
 THETA_INC = 0;
 
 // Which transmission condition ? (*only one* must be equal to 1)
-OSRC = 1;
+OSRC = 0;
 JFLee = 0;
 
-OSRC2 = 1*OSRC;
-EMDA = 0;
+OSRC2 = 0*OSRC;
+EMDA = 1;
 OO2 = 0;
 
 BETA_EMDA = k;//1.5708;
+
+// Preconditioner for full problem
+LEFTPC = 1;
+ILU = 0;
+DDM_PC = 1;
 
 
 // Constant DDM parameters (other parameters are located in the .pro file)

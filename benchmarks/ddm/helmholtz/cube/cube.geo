@@ -1,6 +1,6 @@
 Include "params.geo";
 
-lc = .05;
+lc = .025;
 LC = 2*lc;
 
 d = L_CUB;
