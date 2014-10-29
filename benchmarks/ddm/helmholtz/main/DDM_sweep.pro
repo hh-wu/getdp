@@ -78,304 +78,518 @@ Function{
 Constraint{
   For ii In {0: #ListOfDom()-1}
   idom = ListOfDom(ii);
-    { Name Dirichlet~{idom} ; Case { { Region GammaD~{idom} ; Value f_diri[];} } }
-    { Name Dirichlet0~{idom} ; Case { { Region GammaD0~{idom} ; Value 0.;} } }
-    For jdom In {0:1}
-      For j In {1:N}
-	{ Name Dirichlet_phi~{j}~{idom}~{jdom} ;
-	  Case {
-	    { Region GammaD~{idom} ; Value 0*f_diri[];} // seems faster with 0*f_diri[] ??
-	    { Region GammaD0~{idom} ; Value 0;}
+    If(!PML)
+      { Name Dirichlet~{idom} ; Case { { Region GammaD~{idom} ; Value f_diri[];} } }
+      { Name Dirichlet0~{idom} ; Case { { Region GammaD0~{idom} ; Value 0.;} } }
+      For jdom In {0:1}
+        For j In {1:N}
+	  { Name Dirichlet_phi~{j}~{idom}~{jdom} ;
+	    Case {
+	      { Region GammaD~{idom} ; Value 0*f_diri[];} // seems faster with 0*f_diri[] ??
+	      { Region GammaD0~{idom} ; Value 0;}
+	    }
 	  }
-	}
+	EndFor
       EndFor
-    EndFor
+    EndIf
+    If(PML)
+      { Name Dirichlet~{idom} ; Case { { Region Gama_D~{idom} ; Value f_diri[];} } }
+      { Name Dirichlet0~{idom} ; Case { { Region Gama_D0~{idom} ; Value 0.;} } }	    
+    EndIf
   EndFor
 }
 
+
+If (!PML)
 FunctionSpace {
   For ii In {0: #ListOfDom()-1}
-  idom = ListOfDom(ii);
-  { Name Hgrad_u~{idom} ; Type Form0 ;
-    BasisFunction {
-      { Name sn ; NameOfCoef un ; Function BF_Node ;
-	Support Region[ {Omega~{idom}, GammaInf~{idom}, BndGammaInf~{idom}, Sigma~{idom}, BndSigma~{idom}, GammaD~{idom}, GammaD0~{idom}} ] ; Entity NodesOf[ All/*Omega~{idom}/**/ ] ; }
-    }
-    Constraint {
-      { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet~{idom} ; }
-      { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet0~{idom} ; }
-    }
-  }
-
-  For jdom In {0:1}
-    { Name Hgrad_g_out~{idom}~{jdom}; Type Form0 ;
+    idom = ListOfDom(ii);
+    { Name Hgrad_u~{idom} ; Type Form0 ;
       BasisFunction {
 	{ Name sn ; NameOfCoef un ; Function BF_Node ;
-	  Support Region[ {Sigma~{idom}~{jdom}} ] ; Entity NodesOf[All, Not {GammaD, GammaD0}/**/];} // FIXME: check this, test on waveguide.
+	  Support Region[ {Omega~{idom}, GammaInf~{idom}, BndGammaInf~{idom}, Sigma~{idom}, BndSigma~{idom}, GammaD~{idom}, GammaD0~{idom}} ] ; Entity NodesOf[ All/*Omega~{idom}/**/ ] ; }
+      }
+      Constraint {
+	{ NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet~{idom} ; }
+	{ NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet0~{idom} ; }
       }
     }
 
-    If (OSRC)
-      For j In {1:N}
-        { Name Hgrad_phi~{j}~{idom}~{jdom} ; Type Form0 ; // EXPERIMENTAL
-	  BasisFunction {
-	    { Name sn ; NameOfCoef un ; Function BF_Node ;
-	      Support Region[ {Sigma~{idom}~{jdom}, BndSigmaInf~{idom}~{jdom}, BndSigmaN~{idom}~{jdom}} ] ; Entity NodesOf[All, Not {GammaD, GammaD0}/**/] ; } // exclude GammaD in case part of BndSigma intersects GammaD
-	  }
-	  Constraint { { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet_phi~{j}~{idom}~{jdom} ; } } // 20130418: Alex added this to help convergence for the waveguide ; UPDATE 20131029: this constraint MUST be there !! Even if GammaD is excluded ! -> HMMM, NOT SO SURE... -> in the cylinder test case, it makes a difference (a few more iterations, solution is correct)...
+    For jdom In {0:1}
+      { Name Hgrad_g_out~{idom}~{jdom}; Type Form0 ;
+	BasisFunction {
+	  { Name sn ; NameOfCoef un ; Function BF_Node ;
+	    Support Region[ {Sigma~{idom}~{jdom}} ] ; Entity NodesOf[All, Not {GammaD, GammaD0}/**/];} // FIXME: check this, test on waveguide.
 	}
-      EndFor
-    EndIf
-   EndFor
- EndFor // end loop idom
-}
+      }
 
+      If (OSRC)
+        For j In {1:N}
+          { Name Hgrad_phi~{j}~{idom}~{jdom} ; Type Form0 ; // EXPERIMENTAL
+	    BasisFunction {
+	      { Name sn ; NameOfCoef un ; Function BF_Node ;
+		Support Region[ {Sigma~{idom}~{jdom}, BndSigmaInf~{idom}~{jdom}, BndSigmaN~{idom}~{jdom}} ] ; Entity NodesOf[All, Not {GammaD, GammaD0}/**/] ; } // exclude GammaD in case part of BndSigma intersects GammaD
+	    }
+	    Constraint { { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet_phi~{j}~{idom}~{jdom} ; } } // 20130418: Alex added this to help convergence for the waveguide ; UPDATE 20131029: this constraint MUST be there !! Even if GammaD is excluded ! -> HMMM, NOT SO SURE... -> in the cylinder test case, it makes a difference (a few more iterations, solution is correct)...
+	  }
+        EndFor
+      EndIf
+    EndFor
+  EndFor // end loop idom
+}
+EndIf
+If (PML)
+FunctionSpace {
+  For ii In {0: #ListOfDom()-1}
+    idom = ListOfDom(ii);
+
+    { Name Hgrad_u_Dirichlet2D~{idom} ; Type Form0 ;
+      BasisFunction {
+	{ Name sn ; NameOfCoef un ; Function BF_Node ;
+	  Support Region[{OmegaAll~{idom}, GamaAll~{idom}, Sigma~{idom}}]; Entity NodesOf[All];
+	}
+      }
+      Constraint {
+	{ NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet~{idom} ; }
+	{ NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet0~{idom} ; }
+      }
+    }
+
+    For jdom In {0:1}
+    { Name Hgrad_u_Dirichlet2D_lm~{idom}~{jdom} ; Type Form0 ;
+      BasisFunction {
+	{ Name sn ; NameOfCoef un ; Function BF_Node ;
+	  Support Region[{OmegaPml~{idom}~{jdom},Sigma~{idom}~{jdom},Gama~{idom}~{jdom}}]; Entity NodesOf[All];
+	}
+      }
+      Constraint {
+	{ NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet0~{idom} ; }
+      }
+    }
+
+    { Name Hgrad_g_Dirichlet2D_lm~{idom}~{jdom} ; Type Form0 ;
+      BasisFunction {
+	{ Name sn ; NameOfCoef un ; Function BF_Node ;
+	  Support Region[{Sigma~{idom}~{jdom}}]; Entity NodesOf[All];
+	}
+      }
+      Constraint {
+	{ NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet0~{idom} ; } // FIXME: necessary ??
+      }
+    }
+    { Name Hgrad_gbb_Dirichlet2D_lm~{idom}~{jdom} ; Type Form0 ;
+      BasisFunction {
+	{ Name sn ; NameOfCoef un ; Function BF_Node ;
+	  Support Region[{Sigma~{idom}~{jdom}}]; Entity NodesOf[All];
+	}
+      }
+      Constraint {
+	{ NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet0~{idom} ; } // FIXME: necessary ??
+      }
+    }
+    EndFor
+  EndFor // end loop idom
+}
+EndIf
+
+
+If (!PML)
+Formulation {
+  For ii In {0: #ListOfDom()-1}
+    idom = ListOfDom(ii);
+    // DDM with homogeneous (#10 == 0) or not (#10 == 1) dirichlet BC
+    { Name DDM~{idom} ; Type FemEquation ;
+      Quantity {
+	{ Name u~{idom} ; Type Local ; NameOfSpace Hgrad_u~{idom}; }
+	For jdom In {0:1}
+	  { Name g_out~{idom}~{jdom} ; Type Local ; NameOfSpace Hgrad_g_out~{idom}~{jdom}; }
+	  If(OSRC)
+	    For j In{1:N}
+	      { Name phi~{j}~{idom}~{jdom}; Type Local ; NameOfSpace Hgrad_phi~{j}~{idom}~{jdom}; }
+	    EndFor
+	  EndIf
+	EndFor
+      }
+      Equation {
+	Galerkin { [ Dof{Grad u~{idom}} , {Grad u~{idom}} ] ;
+	  In Omega~{idom}; Jacobian JVol ; Integration I1 ; }
+	Galerkin { [ -k[]^2 * Dof{u~{idom}} , {u~{idom}} ] ;
+	  In Omega~{idom}; Jacobian JVol ; Integration I1 ; }
+
+	Galerkin { [ F_SOURCE[], {u~{idom}}] ;
+	  In Omega~{idom}; Jacobian JVol ; Integration I1 ; }
+	// Galerkin { [ 0*G_SOURCE[], {Grad u~{idom}} ] ; // distributional sources -- THIS TERM CAUSES PROBLEMS (e.g. Marmousi), even when G_SOURCE=0
+	// 	In Omega~{idom}; Jacobian JVol ; Integration I1 ; }
+
+	// g_in LEFT (#10 > 0) or 0 (#10 == 0)
+	Galerkin { [ - (#10 > 0. ? g_in~{idom}~{0}[] : 0), {u~{idom}} ] ;
+	  In Sigma~{idom}~{0}; Jacobian JSur ; Integration I1 ; }
+	// g_in RIGHT (#11 > 0) or 0 (#11 == 0)
+	Galerkin { [ - (#11 > 0. ? g_in~{idom}~{1}[] : 0), {u~{idom}} ] ;
+	  In Sigma~{idom}~{1}; Jacobian JSur ; Integration I1 ; }
+	//Transmission condition
+	If(EMDA)
+	  Galerkin { [ - I[] * kDtn[] * Dof{u~{idom}} , {u~{idom}} ] ;
+	    In Sigma~{idom}; Jacobian JSur ; Integration I1 ; }
+	EndIf
+
+        If(OO2)
+	  Galerkin { [ a[] * Dof{u~{idom}} , {u~{idom}} ] ;
+	    In Sigma~{idom}; Jacobian JSur ; Integration I1 ; }
+	  Galerkin { [ -b[] * Dof{d u~{idom}} , {d u~{idom}} ] ;
+	    In Sigma~{idom}; Jacobian JSur ; Integration I1 ; }
+	EndIf
+
+	If(OSRC)
+	  Galerkin { [  - I[] * kDtn[] * OSRC_C0[]{N,theta_branch} * Dof{u~{idom}} , {u~{idom}} ] ;
+	    In Sigma~{idom}; Jacobian JSur ; Integration I1 ; }
+	  For jdom In {0:1}
+	    For j In{1:N}
+	      Galerkin { [   I[] * kDtn[] * OSRC_Aj[]{j,N,theta_branch} / keps[]^2 * Dof{d phi~{j}~{idom}~{jdom}} , {d u~{idom}} ] ;
+	        In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
+	      Galerkin { [ - I[] * kDtn[] * OSRC_Aj[]{j,N,theta_branch} / keps[]^2 * ( I[] * kInf[] * Dof{phi~{j}~{idom}~{jdom}}) , {u~{idom}} ] ; // EXPERIMENTAL
+		In BndSigmaInf~{idom}~{jdom}; Jacobian JLin ; Integration I1 ; }
+	      Galerkin { [ - OSRC_Bj[]{j,N,theta_branch} / keps[]^2 * Dof{d phi~{j}~{idom}~{jdom}} , {d phi~{j}~{idom}~{jdom}} ] ;
+		In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
+	      Galerkin { [ OSRC_Bj[]{j,N,theta_branch} / keps[]^2 * ( I[] * kInf[] * Dof{phi~{j}~{idom}~{jdom}}) , {phi~{j}~{idom}~{jdom}} ] ; // EXPERIMENTAL
+		In BndSigmaInf~{idom}~{jdom}; Jacobian JLin ; Integration I1 ; }
+	      Galerkin { [ Dof{phi~{j}~{idom}~{jdom}} , {phi~{j}~{idom}~{jdom}} ] ;
+		In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
+	      Galerkin { [  - Dof{u~{idom}} , {phi~{j}~{idom}~{jdom}} ] ;
+		In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
+	    EndFor
+	  EndFor
+        EndIf
+
+        // Absorbing boundary condition
+        // Sommerfeld ...
+        // Galerkin { [ - I[] * k * Dof{u~{idom}} , {u~{idom}} ] ;
+	Galerkin { [ - I[] * kInf[] * Dof{u~{idom}} , {u~{idom}} ] ;
+	  In GammaInf~{idom}; Jacobian JSur ; Integration I1 ; }
+	If(DIM>1)
+	  //Baylis-Türkel:
+	  Galerkin { [ alphaBT[] * Dof{u~{idom}} , {u~{idom}} ] ;
+	    In GammaInf~{idom}; Jacobian JSur ; Integration I1 ; }
+	  // FIXME: this assumes that GammaInf is closed; we need to add the
+	  // boundary terms if it is open!
+	  Galerkin { [ betaBT[] * Dof{d u~{idom}} , {d u~{idom}} ] ;
+	    In GammaInf~{idom}; Jacobian JSur ; Integration I1 ; }
+	EndIf
+      }
+    }
+
+    // Compute the outgoing data
+    For jdom In {0:1}
+      { Name ComputeG~{idom}~{jdom} ; Type FemEquation ;
+	Quantity {
+	  { Name u~{idom} ; Type Local ; NameOfSpace Hgrad_u~{idom}; }
+	  { Name g_out~{idom}~{jdom} ; Type Local ; NameOfSpace Hgrad_g_out~{idom}~{jdom}; }
+	  If(OSRC)
+	    For j In{1:N}
+	      { Name phi~{j}~{idom}~{jdom}; Type Local ; NameOfSpace Hgrad_phi~{j}~{idom}~{jdom}; }
+	    EndFor
+	  EndIf
+	}
+	Equation {
+	  Galerkin { [ Dof{g_out~{idom}~{jdom}} , {g_out~{idom}~{jdom}} ] ;
+	    In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
+	  If(jdom == 0)
+	    // g_in LEFT (iterative solver) or 0 (initialization step)
+	    Galerkin { [ (#10 > 0. ? g_in~{idom}~{0}[]:0)  , {g_out~{idom}~{0}} ] ;
+	      In Sigma~{idom}~{0}; Jacobian JSur ; Integration I1 ; }
+	  EndIf
+	  If(jdom == 1)
+	    // g_in RIGHT (iterative solver) or 0 (initialization step)
+	    Galerkin { [ (#11 > 0. ? g_in~{idom}~{1}[]:0)  , {g_out~{idom}~{1}} ] ;
+	      In Sigma~{idom}~{1}; Jacobian JSur ; Integration I1 ; }
+	  EndIf
+	  // Transmission condition
+	  If(EMDA)
+	    Galerkin { [ 2 * I[] * kDtn[] * {u~{idom}} , {g_out~{idom}~{jdom}} ] ;
+	      In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
+	  EndIf
+
+	  If(OO2)
+	    Galerkin { [ - 2 * a[] * {u~{idom}} , {g_out~{idom}~{jdom}} ] ;
+	      In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
+	    Galerkin { [ 2 * b[] * {d u~{idom}} , {d g_out~{idom}~{jdom}} ] ;
+	      In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
+	  EndIf
+
+	  If(OSRC)
+	    Galerkin { [ 2 * ( I[] * kDtn[] * OSRC_C0[]{N,theta_branch} * {u~{idom}} ) , {g_out~{idom}~{jdom}} ] ;
+	      In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
+	    /*
+	    For j In{1:N}
+	      Galerkin { [  -2 * ( I[] * kDtn[] * OSRC_Aj[]{j,N,theta_branch} / keps[]^2 * {d phi~{j}~{idom}~{jdom}}) , {d g_out~{idom}~{jdom}} ] ;
+	        In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
+	      Galerkin { [ 2 * I[] * k[] * OSRC_Aj[]{j,N,theta_branch} / keps[]^2 * ( I[] * kInf[] * {phi~{j}~{idom}~{jdom}}) , {g_out~{idom}~{jdom}} ] ; // EXPERIMENTAL
+	        In BndSigmaInf~{idom}~{jdom}; Jacobian JLin ; Integration I1 ; } // Do not add boundary contribution as phi is no longer dof here !?
+	    EndFor
+	    /**/
+	    //*
+	    For j In{1:N} // NEW VERSION -- EXPERIMENTAL: replace the div-grad term by its value in terms of u and phi (eq. (59) of the paper)
+	      Galerkin { [  2 * ( I[] * kDtn[] * OSRC_Aj[]{j,N,theta_branch} / OSRC_Bj[]{j,N,theta_branch} * ({u~{idom}} - {phi~{j}~{idom}~{jdom}})) , {g_out~{idom}~{jdom}} ] ;
+		In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; } // no integration by parts in this case, => no boundary term
+	    EndFor
+	    /**/
+	  EndIf
+	}
+      }
+
+      { Name ComputeGPrecond~{idom}~{jdom} ; Type FemEquation ;
+	Quantity {
+	  { Name u~{idom} ; Type Local ; NameOfSpace Hgrad_u~{idom}; }
+	  { Name g_out~{idom}~{jdom} ; Type Local ; NameOfSpace Hgrad_g_out~{idom}~{jdom}; }
+	  If(OSRC)
+	    For j In{1:N}
+	      { Name phi~{j}~{idom}~{jdom}; Type Local ; NameOfSpace Hgrad_phi~{j}~{idom}~{jdom}; }
+	    EndFor
+	  EndIf
+	}
+	Equation {
+	  Galerkin { [ Dof{g_out~{idom}~{jdom}} , {g_out~{idom}~{jdom}} ] ;
+	    In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
+
+	  Galerkin{[ - ComplexScalarField[XYZ[]]{(2*(idom+N_DOM)+(jdom-1))%(2*N_DOM)}, {g_out~{idom}~{jdom}}] ;
+	    In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
+
+	  // Transmission condition (2.Su)
+	  If(EMDA)
+	    Galerkin { [ 2 * I[] * kDtn[] * {u~{idom}} , {g_out~{idom}~{jdom}} ] ;
+	      In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
+	  EndIf
+
+	  If(OO2)
+	    Galerkin { [  -2 * a[] * {u~{idom}} , {g_out~{idom}~{jdom}} ] ;
+	      In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
+	    Galerkin { [ 2 * b[] * {d u~{idom}} , {d g_out~{idom}~{jdom}} ] ;
+	      In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
+	  EndIf
+
+	  If(OSRC)
+	    Galerkin { [ 2 * ( I[] * kDtn[] * OSRC_C0[]{N,theta_branch} * {u~{idom}} ) , {g_out~{idom}~{jdom}} ] ;
+	      In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
+	    /*
+	    For j In{1:N}
+	      Galerkin { [  -2 * ( I[] * kDtn[] * OSRC_Aj[]{j,N,theta_branch} / keps[]^2 * {d phi~{j}~{idom}~{jdom}} ) , {d g_out~{idom}~{jdom}} ] ;
+	        In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
+	      Galerkin { [ 2 * I[] * k[] * OSRC_Aj[]{j,N,theta_branch} / keps[]^2 * ( I[] * kInf[] * {phi~{j}~{idom}~{jdom}}) , {g_out~{idom}~{jdom}} ] ; // EXPERIMENTAL
+	        In BndSigmaInf~{idom}~{jdom}; Jacobian JLin ; Integration I1 ; } // Do not add boundary contribution as phi is no longer dof here !?
+	    EndFor
+	    /**/
+	    //*
+	    For j In{1:N} // NEW VERSION -- EXPERIMENTAL
+	      Galerkin { [  2 * ( I[] * kDtn[] * OSRC_Aj[]{j,N,theta_branch} / OSRC_Bj[]{j,N,theta_branch} * ({u~{idom}} - {phi~{j}~{idom}~{jdom}})) , {g_out~{idom}~{jdom}} ] ;
+	        In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
+	    EndFor
+	    /**/
+	  EndIf
+	}
+      }
+    EndFor
+  EndFor // loop on idom
+}
+EndIf
+If (PML)
 Formulation {
   For ii In {0: #ListOfDom()-1}
   idom = ListOfDom(ii);
   // DDM with homogeneous (#10 == 0) or not (#10 == 1) dirichlet BC
   { Name DDM~{idom} ; Type FemEquation ;
     Quantity {
-      { Name u~{idom} ; Type Local ; NameOfSpace Hgrad_u~{idom}; }
-      For jdom In {0:1}
-	{ Name g_out~{idom}~{jdom} ; Type Local ; NameOfSpace Hgrad_g_out~{idom}~{jdom}; }
-	If(OSRC)
-	  For j In{1:N}
-	{ Name phi~{j}~{idom}~{jdom}; Type Local ; NameOfSpace Hgrad_phi~{j}~{idom}~{jdom}; }
-	  EndFor
-	EndIf
-      EndFor
+      { Name u~{idom} ; Type Local ; NameOfSpace Hgrad_u_Dirichlet2D~{idom} ;}
     }
     Equation {
-      Galerkin { [ Dof{Grad u~{idom}} , {Grad u~{idom}} ] ;
-	In Omega~{idom}; Jacobian JVol ; Integration I1 ; }
-      Galerkin { [ -k[]^2 * Dof{u~{idom}} , {u~{idom}} ] ;
-	In Omega~{idom}; Jacobian JVol ; Integration I1 ; }
 
-      Galerkin { [ F_SOURCE[], {u~{idom}}] ;
-      	In Omega~{idom}; Jacobian JVol ; Integration I1 ; }
-      // Galerkin { [ 0*G_SOURCE[], {Grad u~{idom}} ] ; // distributional sources -- THIS TERM CAUSES PROBLEMS (e.g. Marmousi), even when G_SOURCE=0
-      // 	In Omega~{idom}; Jacobian JVol ; Integration I1 ; }
+      Galerkin { [ Dof{Grad u~{idom}}, {Grad u~{idom}} ] ;
+      	In Omega~{idom} ; Jacobian JVol ; Integration I1 ; }
+      Galerkin { [ -k[]^2*Dof{u~{idom}}, {u~{idom}} ] ;
+      	In Omega~{idom} ; Jacobian JVol ; Integration I1 ; }
+      // Galerkin { [ -volSource[], {u} ] ;
+      // 	In Omega ; Jacobian JVol ; Integration I1 ; }      
 
-      // g_in LEFT (#10 > 0) or 0 (#10 == 0)
-      Galerkin { [ - (#10 > 0. ? g_in~{idom}~{0}[] : 0), {u~{idom}} ] ;
-	In Sigma~{idom}~{0}; Jacobian JSur ; Integration I1 ; }
-      // g_in RIGHT (#11 > 0) or 0 (#11 == 0)
-      Galerkin { [ - (#11 > 0. ? g_in~{idom}~{1}[] : 0), {u~{idom}} ] ;
-	In Sigma~{idom}~{1}; Jacobian JSur ; Integration I1 ; }
-      //Transmission condition
-      If(EMDA)
-	Galerkin { [ - I[] * kDtn[] * Dof{u~{idom}} , {u~{idom}} ] ;
-	  In Sigma~{idom}; Jacobian JSur ; Integration I1 ; }
-      EndIf
+      //modified Helmholtz equation
+      Galerkin{[D[]* Dof{Grad u~{idom}}, {Grad u~{idom}}];
+      	In OmegaPml~{idom}; Jacobian JVol; Integration I1;}
+      Galerkin{[-k[]^2*Kx[]*Ky[]*Dof{u~{idom}}, {u~{idom}}];
+      	In OmegaPml~{idom}; Jacobian JVol; Integration I1;}
 
-      If(OO2)
-	Galerkin { [ a[] * Dof{u~{idom}} , {u~{idom}} ] ;
-	  In Sigma~{idom}; Jacobian JSur ; Integration I1 ; }
-	Galerkin { [ -b[] * Dof{d u~{idom}} , {d u~{idom}} ] ;
-	  In Sigma~{idom}; Jacobian JSur ; Integration I1 ; }
-      EndIf
 
-      If(OSRC)
-	Galerkin { [  - I[] * kDtn[] * OSRC_C0[]{N,theta_branch} * Dof{u~{idom}} , {u~{idom}} ] ;
-	  In Sigma~{idom}; Jacobian JSur ; Integration I1 ; }
-	For jdom In {0:1}
-	  For j In{1:N}
-	    Galerkin { [   I[] * kDtn[] * OSRC_Aj[]{j,N,theta_branch} / keps[]^2 * Dof{d phi~{j}~{idom}~{jdom}} , {d u~{idom}} ] ;
-	      In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
-	    Galerkin { [ - I[] * kDtn[] * OSRC_Aj[]{j,N,theta_branch} / keps[]^2 * ( I[] * kInf[] * Dof{phi~{j}~{idom}~{jdom}}) , {u~{idom}} ] ; // EXPERIMENTAL
-	      In BndSigmaInf~{idom}~{jdom}; Jacobian JLin ; Integration I1 ; }
-	    Galerkin { [ - OSRC_Bj[]{j,N,theta_branch} / keps[]^2 * Dof{d phi~{j}~{idom}~{jdom}} , {d phi~{j}~{idom}~{jdom}} ] ;
-	      In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
-	    Galerkin { [ OSRC_Bj[]{j,N,theta_branch} / keps[]^2 * ( I[] * kInf[] * Dof{phi~{j}~{idom}~{jdom}}) , {phi~{j}~{idom}~{jdom}} ] ; // EXPERIMENTAL
-	      In BndSigmaInf~{idom}~{jdom}; Jacobian JLin ; Integration I1 ; }
-	    Galerkin { [ Dof{phi~{j}~{idom}~{jdom}} , {phi~{j}~{idom}~{jdom}} ] ;
-	      In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
-	    Galerkin { [  - Dof{u~{idom}} , {phi~{j}~{idom}~{jdom}} ] ;
-	      In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
-	  EndFor
-	EndFor
-      EndIf
+      Galerkin { [ -I[]*k[]*Dof{u~{idom}}, {u~{idom}} ] ;
+      	In Gama_S~{idom} ; Jacobian JSur ; Integration I1 ; }      
 
-      // Absorbing boundary condition
-      // Sommerfeld ...
-      // Galerkin { [ - I[] * k * Dof{u~{idom}} , {u~{idom}} ] ;
-      Galerkin { [ - I[] * kInf[] * Dof{u~{idom}} , {u~{idom}} ] ;
-	In GammaInf~{idom}; Jacobian JSur ; Integration I1 ; }
-If(DIM>1)
-      //Baylis-Türkel:
-      Galerkin { [ alphaBT[] * Dof{u~{idom}} , {u~{idom}} ] ;
-	In GammaInf~{idom}; Jacobian JSur ; Integration I1 ; }
-// FIXME: this assumes that GammaInf is closed; we need to add the
-// boundary terms if it is open!
-      Galerkin { [ betaBT[] * Dof{d u~{idom}} , {d u~{idom}} ] ;
-	In GammaInf~{idom}; Jacobian JSur ; Integration I1 ; }
-EndIf
+
+      // Delta functions
+      Galerkin { [ 0*Dof{d u~{idom}}, {d u~{idom}} ] ;
+      	In OmegaAll~{idom} ; Jacobian JVol ; Integration I1 ; }      
+
+      Galerkin { [ -(#10 > 0. ? H~{idom}~{0}[]*2.*g_in~{idom}~{0}[] : 0.), {d u~{idom}} ] ;
+      	In OmegaAll~{idom} ; Jacobian JVol ; Integration I1 ; }      
+      Galerkin { [ -(#10 > 0. ? H~{idom}~{0}[]*2.*g_in~{idom}~{0}[] : 0.), {u~{idom}} ] ;
+      	In Gama~{idom}~{0} ; Jacobian JSur ; Integration I1 ; }      
+      Galerkin { [ (#10 > 0. ? H~{idom}~{0}[]*2.*g_in~{idom}~{0}[] : 0.), {u~{idom}} ] ;
+      	In Gama~{idom}~{1} ; Jacobian JSur ; Integration I1 ; }      
+
+      Galerkin { [ -(#11 > 0. ? H~{idom}~{1}[]*2.*g_in~{idom}~{1}[] : 0.), {d u~{idom}} ] ;
+      	In OmegaAll~{idom} ; Jacobian JVol ; Integration I1 ; }      
+      Galerkin { [ -(#11 > 0. ? H~{idom}~{1}[]*2.*g_in~{idom}~{1}[] : 0.), {u~{idom}} ] ;
+      	In Gama~{idom}~{0} ; Jacobian JSur ; Integration I1 ; }      
+      Galerkin { [ (#11 > 0. ? H~{idom}~{1}[]*2.*g_in~{idom}~{1}[] : 0.), {u~{idom}} ] ;
+      	In Gama~{idom}~{1} ; Jacobian JSur ; Integration I1 ; }      
     }
   }
 
   // Compute the outgoing data
   For jdom In {0:1}
-    { Name ComputeG~{idom}~{jdom} ; Type FemEquation ;
+    { Name ComputeGbb~{idom}~{jdom} ; Type FemEquation ;
       Quantity {
-	{ Name u~{idom} ; Type Local ; NameOfSpace Hgrad_u~{idom}; }
-	{ Name g_out~{idom}~{jdom} ; Type Local ; NameOfSpace Hgrad_g_out~{idom}~{jdom}; }
-	If(OSRC)
-	  For j In{1:N}
-	    { Name phi~{j}~{idom}~{jdom}; Type Local ; NameOfSpace Hgrad_phi~{j}~{idom}~{jdom}; }
-	  EndFor
-	EndIf
+	{ Name u~{idom} ; Type Local ; NameOfSpace Hgrad_u_Dirichlet2D_lm~{idom}~{jdom} ;}
+	{ Name uD~{idom} ; Type Local ; NameOfSpace Hgrad_u_Dirichlet2D~{idom} ;}
+	{ Name g_bb~{idom}~{jdom} ; Type Local ; NameOfSpace Hgrad_gbb_Dirichlet2D_lm~{idom}~{jdom} ;} // lambda -> g_out
       }
       Equation {
+
+      // Galerkin { [ Dof{g_bb~{idom}~{jdom}}, {g_bb~{idom}~{jdom}} ] ;
+      // 	In GamaPml~{idom}~{jdom} ; Jacobian JSur ; Integration I1 ; }      
+      // Galerkin { [ -I[]*(BETA_M[])*{uD~{idom}}, {g_bb~{idom}~{jdom}} ] ;
+      // 	In GamaPml~{idom}~{jdom} ; Jacobian JSur ; Integration I1 ; }      
+	
+
+      //modified Helmholtz equation
+      Galerkin{[D[]* Dof{Grad u~{idom}}, {Grad u~{idom}}];
+      	In OmegaPml~{idom}~{jdom}; Jacobian JVol; Integration I1;}
+      Galerkin{[-k[]^2*Kx[]*Ky[]*Dof{u~{idom}}, {u~{idom}}];
+      	In OmegaPml~{idom}~{jdom}; Jacobian JVol; Integration I1;}
+
+
+      Galerkin { [ -I[]*k[]*Dof{u~{idom}}, {u~{idom}} ] ;
+      	In Gama~{idom}~{jdom} ; Jacobian JSur ; Integration I1 ; }      
+
+
+      Galerkin{[Dof{g_bb~{idom}~{jdom}}, {u~{idom}}];
+        In GamaPml~{idom}~{jdom}; Jacobian JSur; Integration I1;}
+
+      Galerkin{[Dof{u~{idom}}, {g_bb~{idom}~{jdom}}];
+        In GamaPml~{idom}~{jdom}; Jacobian JSur; Integration I1;}
+      Galerkin{[-{uD~{idom}}, {g_bb~{idom}~{jdom}}];
+        In GamaPml~{idom}~{jdom}; Jacobian JSur; Integration I1;}
+      }
+    }
+
+    { Name ComputeG~{idom}~{jdom} ; Type FemEquation ;
+      Quantity {
+	{ Name g_bb~{idom}~{jdom} ; Type Local ; NameOfSpace Hgrad_gbb_Dirichlet2D_lm~{idom}~{jdom} ;}
+	{ Name g_out~{idom}~{jdom} ; Type Local ; NameOfSpace Hgrad_g_Dirichlet2D_lm~{idom}~{jdom} ;}
+      }
+      Equation {
+
 	Galerkin { [ Dof{g_out~{idom}~{jdom}} , {g_out~{idom}~{jdom}} ] ;
 	  In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
 	If(jdom == 0)
 	  // g_in LEFT (iterative solver) or 0 (initialization step)
-	  Galerkin { [ (#10 > 0. ? g_in~{idom}~{0}[]:0)  , {g_out~{idom}~{0}} ] ;
+	  Galerkin { [ (#10 > 0. ? g_in~{idom}~{0}[] : 0)  , {g_out~{idom}~{0}} ] ;
 	    In Sigma~{idom}~{0}; Jacobian JSur ; Integration I1 ; }
 	EndIf
 	If(jdom == 1)
 	  // g_in RIGHT (iterative solver) or 0 (initialization step)
-	  Galerkin { [ (#11 > 0. ? g_in~{idom}~{1}[]:0)  , {g_out~{idom}~{1}} ] ;
+	  Galerkin { [ (#11 > 0. ? g_in~{idom}~{1}[] : 0)  , {g_out~{idom}~{1}} ] ;
 	    In Sigma~{idom}~{1}; Jacobian JSur ; Integration I1 ; }
 	EndIf
-	// Transmission condition
-	If(EMDA)
-	  Galerkin { [ 2 * I[] * kDtn[] * {u~{idom}} , {g_out~{idom}~{jdom}} ] ;
-	    In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
-	EndIf
-
-	If(OO2)
-	  Galerkin { [ - 2 * a[] * {u~{idom}} , {g_out~{idom}~{jdom}} ] ;
-	    In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
-	  Galerkin { [ 2 * b[] * {d u~{idom}} , {d g_out~{idom}~{jdom}} ] ;
-	    In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
-	EndIf
-
-	If(OSRC)
-	  Galerkin { [ 2 * ( I[] * kDtn[] * OSRC_C0[]{N,theta_branch} * {u~{idom}} ) , {g_out~{idom}~{jdom}} ] ;
-	    In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
-	/*
-	  For j In{1:N}
-	    Galerkin { [  -2 * ( I[] * kDtn[] * OSRC_Aj[]{j,N,theta_branch} / keps[]^2 * {d phi~{j}~{idom}~{jdom}}) , {d g_out~{idom}~{jdom}} ] ;
-	      In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
-	    Galerkin { [ 2 * I[] * k[] * OSRC_Aj[]{j,N,theta_branch} / keps[]^2 * ( I[] * kInf[] * {phi~{j}~{idom}~{jdom}}) , {g_out~{idom}~{jdom}} ] ; // EXPERIMENTAL
-	      In BndSigmaInf~{idom}~{jdom}; Jacobian JLin ; Integration I1 ; } // Do not add boundary contribution as phi is no longer dof here !?
-	  EndFor
-	/**/
-	//*
-	  For j In{1:N} // NEW VERSION -- EXPERIMENTAL: replace the div-grad term by its value in terms of u and phi (eq. (59) of the paper)
-	    Galerkin { [  2 * ( I[] * kDtn[] * OSRC_Aj[]{j,N,theta_branch} / OSRC_Bj[]{j,N,theta_branch} * ({u~{idom}} - {phi~{j}~{idom}~{jdom}})) , {g_out~{idom}~{jdom}} ] ;
-	      In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; } // no integration by parts in this case, => no boundary term
-	  EndFor
-	/**/
-	EndIf
+	Galerkin { [ -{g_bb~{idom}~{jdom}} , {g_out~{idom}~{jdom}} ] ;
+	  In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
       }
     }
 
     { Name ComputeGPrecond~{idom}~{jdom} ; Type FemEquation ;
       Quantity {
-	{ Name u~{idom} ; Type Local ; NameOfSpace Hgrad_u~{idom}; }
-	{ Name g_out~{idom}~{jdom} ; Type Local ; NameOfSpace Hgrad_g_out~{idom}~{jdom}; }
-	If(OSRC)
-	  For j In{1:N}
-	    { Name phi~{j}~{idom}~{jdom}; Type Local ; NameOfSpace Hgrad_phi~{j}~{idom}~{jdom}; }
-	  EndFor
-	EndIf
+	{ Name g_bb~{idom}~{jdom} ; Type Local ; NameOfSpace Hgrad_gbb_Dirichlet2D_lm~{idom}~{jdom} ;}
+	{ Name g_out~{idom}~{jdom} ; Type Local ; NameOfSpace Hgrad_g_Dirichlet2D_lm~{idom}~{jdom} ;}
       }
       Equation {
-	Galerkin { [ Dof{g_out~{idom}~{jdom}} , {g_out~{idom}~{jdom}} ] ;
-	  In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
+    	Galerkin { [ Dof{g_out~{idom}~{jdom}} , {g_out~{idom}~{jdom}} ] ;
+    	  In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
+    	Galerkin{[ - ComplexScalarField[XYZ[]]{2*idom+jdom-1}, {g_out~{idom}~{jdom}}] ;
+    	  In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
 
-	Galerkin{[ - ComplexScalarField[XYZ[]]{(2*(idom+N_DOM)+(jdom-1))%(2*N_DOM)}, {g_out~{idom}~{jdom}}] ;
-	  In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
-
-	// Transmission condition (2.Su)
-	If(EMDA)
-	  Galerkin { [ 2 * I[] * kDtn[] * {u~{idom}} , {g_out~{idom}~{jdom}} ] ;
-	    In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
-	EndIf
-
-	If(OO2)
-	  Galerkin { [  -2 * a[] * {u~{idom}} , {g_out~{idom}~{jdom}} ] ;
-	    In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
-	  Galerkin { [ 2 * b[] * {d u~{idom}} , {d g_out~{idom}~{jdom}} ] ;
-	    In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
-	EndIf
-
-	If(OSRC)
-	  Galerkin { [ 2 * ( I[] * kDtn[] * OSRC_C0[]{N,theta_branch} * {u~{idom}} ) , {g_out~{idom}~{jdom}} ] ;
-	    In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
-	/*
-	  For j In{1:N}
-	    Galerkin { [  -2 * ( I[] * kDtn[] * OSRC_Aj[]{j,N,theta_branch} / keps[]^2 * {d phi~{j}~{idom}~{jdom}} ) , {d g_out~{idom}~{jdom}} ] ;
-	      In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
-	    Galerkin { [ 2 * I[] * k[] * OSRC_Aj[]{j,N,theta_branch} / keps[]^2 * ( I[] * kInf[] * {phi~{j}~{idom}~{jdom}}) , {g_out~{idom}~{jdom}} ] ; // EXPERIMENTAL
-	      In BndSigmaInf~{idom}~{jdom}; Jacobian JLin ; Integration I1 ; } // Do not add boundary contribution as phi is no longer dof here !?
-	  EndFor
-	/**/
-	//*
-	  For j In{1:N} // NEW VERSION -- EXPERIMENTAL
-	  Galerkin { [  2 * ( I[] * kDtn[] * OSRC_Aj[]{j,N,theta_branch} / OSRC_Bj[]{j,N,theta_branch} * ({u~{idom}} - {phi~{j}~{idom}~{jdom}})) , {g_out~{idom}~{jdom}} ] ;
-	      In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
-	  EndFor
-	/**/
-	EndIf
+    	// Transmission condition (2.Su)
+	Galerkin { [ -{g_bb~{idom}~{jdom}} , {g_out~{idom}~{jdom}} ] ;
+    	    In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
       }
     }
     EndFor
   EndFor // loop on idom
 }
 
+EndIf
 
 
 
 Resolution {
     { Name DDM ;
     System {
+      If (!PML)
       For ii In {0: #ListOfDom()-1}
 	idom = ListOfDom(ii);
- 	{ Name Helmholtz~{idom} ; NameOfFormulation DDM~{idom} ; Type Complex; If(MSH_SPLIT) NameOfMesh Sprintf(StrCat[MshName, "%g.msh"],idom) ;EndIf }
+	{ Name Helmholtz~{idom} ; NameOfFormulation DDM~{idom} ; Type Complex; If(MSH_SPLIT) NameOfMesh Sprintf(StrCat[MshName, "%g.msh"],idom) ;EndIf }
 	For jdom In {0:1}
 	  { Name ComputeG~{idom}~{jdom} ; NameOfFormulation ComputeG~{idom}~{jdom} ; Type Complex; If(MSH_SPLIT) NameOfMesh Sprintf(StrCat[MshName, "%g.msh"],idom) ;EndIf}
+	  If (PML)
+      	    { Name ComputeGbb~{idom}~{jdom} ; NameOfFormulation ComputeGbb~{idom}~{jdom} ; Type Complex; If(MSH_SPLIT) NameOfMesh Sprintf(StrCat[MshName, "%g.msh"],idom) ;EndIf}
+	  EndIf
 	  { Name ComputeGPrecond~{idom}~{jdom} ; NameOfFormulation ComputeGPrecond~{idom}~{jdom} ; Type Complex; If(MSH_SPLIT) NameOfMesh Sprintf(StrCat[MshName, "%g.msh"],idom) ;EndIf}
 	EndFor
       EndFor
+      EndIf
+      If (PML)
+      For ii In {0: #ListOfDom()-1}
+      	idom = ListOfDom(ii);
+      	{ Name Helmholtz~{idom} ; NameOfFormulation DDM~{idom} ; Type Complex; If(MSH_SPLIT) NameOfMesh Sprintf(StrCat[MshName, "%g.msh"],idom) ;EndIf}
+      	For jdom In {0:1}
+      	  { Name ComputeG~{idom}~{jdom} ; NameOfFormulation ComputeG~{idom}~{jdom} ; Type Complex; If(MSH_SPLIT) NameOfMesh Sprintf(StrCat[MshName, "%g.msh"],idom) ;EndIf}
+      	  { Name ComputeGbb~{idom}~{jdom} ; NameOfFormulation ComputeGbb~{idom}~{jdom} ; Type Complex; If(MSH_SPLIT) NameOfMesh Sprintf(StrCat[MshName, "%g.msh"],idom) ;EndIf}
+      	  { Name ComputeGPrecond~{idom}~{jdom} ; NameOfFormulation ComputeGPrecond~{idom}~{jdom} ; Type Complex; If(MSH_SPLIT) NameOfMesh Sprintf(StrCat[MshName, "%g.msh"],idom) ;EndIf}
+      	EndFor
+      EndFor
+      EndIf
     }
     Operation {
       If (EXTERNAL_VELOCITY_FIELD)
-	GmshRead[VELOCITY_FNAME, 999];
+      	GmshRead[VELOCITY_FNAME, 999];
       EndIf
 
       SetGlobalSolverOptions["-ksp_monitor"];
 
       If (MPI_Rank == 0)
-	Printf["N_DOM: %g; #procs: %g", N_DOM, MPI_Size];
-	If(EMDA)
-	  Printf["Using EMDA transmission condition"];
-	EndIf
-	If(OSRC)
-	  Printf["Using OSRC (Np = %g) transmission condition", N];
-	EndIf
-	If(OO2)
-	  Printf["Using OO2 transmission condition"];
-	EndIf
+      	Printf["N_DOM: %g; #procs: %g", N_DOM, MPI_Size];
+      	If(EMDA)
+      	  Printf["Using EMDA transmission condition"];
+      	EndIf
+      	If(OSRC)
+      	  Printf["Using OSRC (Np = %g) transmission condition", N];
+      	EndIf
+      	If(OO2)
+      	  Printf["Using OO2 transmission condition"];
+      	EndIf
+      	If(PML)
+      	  Printf["Using PML transmission condition"];
+      	EndIf
 
-	Printf["PRECOND_SWEEP: %g", PRECOND_SWEEP];
-	If (PRECOND_SWEEP)
-	  Printf["Number of cuts in preconditioner: %g", #ListOfCuts()-2];
-	  If (MPI_Rank == 0)
-	    Printf[" -- List of cuts --"];
-	    For iCut In{0:#ListOfCuts()-1}
-	      Printf["%g", ListOfCuts(iCut)];
-	    EndFor
-	    Printf[" -- List of cuts --"];
-	  EndIf
-	EndIf
+      	Printf["PRECOND_SWEEP: %g", PRECOND_SWEEP];
+      	If (PRECOND_SWEEP)
+      	  Printf["Number of cuts in preconditioner: %g", #ListOfCuts()-2];
+      	  If (MPI_Rank == 0)
+      	    Printf[" -- List of cuts --"];
+      	    For iCut In{0:#ListOfCuts()-1}
+      	      Printf["%g", ListOfCuts(iCut)];
+      	    EndFor
+      	    Printf[" -- List of cuts --"];
+      	  EndIf
+      	EndIf
 	If (SKIP_SAVE_SOLUTION)
 	  Printf["!!! Solution will not be saved on disk !!!"];
 	EndIf
-	If (EXT_TIME)  SystemCommand["rm time*.txt"]; EndIf
+      	If (EXT_TIME)  SystemCommand["rm time*.txt"]; EndIf
       EndIf
       Barrier;
 
@@ -387,66 +601,70 @@ Resolution {
       //Initialization (compute the right hand side)
       If (EXT_TIME) SystemCommand[Sprintf["./../main/ddmProcTime.py %g factor", MPI_Rank]]; EndIf
       For ii In {0: #ListOfDom()-1}
-	idom = ListOfDom(ii);
-	//Setting the non homogeneous Dirichlet BC on GammaD (part 2/2)
-	UpdateConstraint[Helmholtz~{idom}, GammaD~{idom}, Assign];
+      	idom = ListOfDom(ii);
+      	//Setting the non homogeneous Dirichlet BC on GammaD (part 2/2)
+      	UpdateConstraint[Helmholtz~{idom}, GammaD~{idom}, Assign];
 
-	If (REUSE == 0)
-	  Generate[Helmholtz~{idom}] ;
-	  Solve[Helmholtz~{idom}] ;
-	EndIf
-	If (REUSE)
-	  ifact = ListOfFacto(ii);
-	  If (idom == ifact)
-	    Printf("  True  factorization: %g (%g)",idom,ifact);
-	    Generate[Helmholtz~{idom}] ;
-	    Solve[Helmholtz~{idom}] ;
-	  EndIf
-	  If (idom != ifact)
-	    Printf("  Reuse factorization: %g (%g)",idom,ifact) ;
-	    GenerateRHS[Helmholtz~{idom}] ;
-	    SolveAgainWithOther[Helmholtz~{idom},Helmholtz~{ifact}] ;
-	  EndIf
-	EndIf
+      	If (REUSE == 0)
+      	  Generate[Helmholtz~{idom}] ;
+      	  Solve[Helmholtz~{idom}] ;
+      	EndIf
+      	If (REUSE)
+      	  ifact = ListOfFacto(ii);
+      	  If (idom == ifact)
+      	    Printf("  True  factorization: %g (%g)",idom,ifact);
+      	    Generate[Helmholtz~{idom}] ;
+      	    Solve[Helmholtz~{idom}] ;
+      	  EndIf
+      	  If (idom != ifact)
+      	    Printf("  Reuse factorization: %g (%g)",idom,ifact) ;
+      	    GenerateRHS[Helmholtz~{idom}] ;
+      	    SolveAgainWithOther[Helmholtz~{idom},Helmholtz~{ifact}] ;
+      	  EndIf
+      	EndIf
 
-	If (EXT_TIME) SystemCommand[Sprintf["./../main/ddmProcTime.py %g factor", MPI_Rank]]; EndIf
-	For jdom In {0:1}
-	  If( NbrRegions[Sigma~{idom}~{jdom}] )
-	    Generate[ComputeG~{idom}~{jdom}] ;
-	    Solve[ComputeG~{idom}~{jdom}] ;
-	  EndIf
-	EndFor
-	If (EXT_TIME) SystemCommand[Sprintf["./../main/ddmProcTime.py %g factor", MPI_Rank]]; EndIf
-	//print u_init either in Memory (STORE_U_INIT == 1) and/or on disk (WRITE_U_INIT == 1)
-	PostOperation[u_init~{idom}] ;
+      	If (EXT_TIME) SystemCommand[Sprintf["./../main/ddmProcTime.py %g factor", MPI_Rank]]; EndIf
+      	For jdom In {0:1}
+      	  If( NbrRegions[Sigma~{idom}~{jdom}] )
+      	    If (PML)
+      	      Generate[ComputeGbb~{idom}~{jdom}] ;
+      	      Solve[ComputeGbb~{idom}~{jdom}] ;
+      	    EndIf
+      	    Generate[ComputeG~{idom}~{jdom}] ;
+      	    Solve[ComputeG~{idom}~{jdom}] ;
+      	  EndIf
+      	EndFor
+      	If (EXT_TIME) SystemCommand[Sprintf["./../main/ddmProcTime.py %g factor", MPI_Rank]]; EndIf
+      	//print u_init either in Memory (STORE_U_INIT == 1) and/or on disk (WRITE_U_INIT == 1)
+      	PostOperation[u_init~{idom}] ;
       EndFor
       // Compute the g_out in the RAM (right hand side of iterative solver)
       For ii In {0: #ListOfDom()-1}
-	idom = ListOfDom(ii);
-	For jdom In {0:1}
-	  PostOperation[g_out~{idom}~{jdom}] ;
-	EndFor
+      	idom = ListOfDom(ii);
+      	For jdom In {0:1}
+      	  PostOperation[g_out~{idom}~{jdom}] ;
+      	EndFor
       EndFor
       // A Barrier is mandatory to ensure that every process has finished the initialization
       Barrier;
       //Setting homogeneous Dirichlet BC on every GammaD~{idom}
       Evaluate[0. #9];
       For ii In {0: #ListOfDom()-1}
-	idom = ListOfDom(ii);
-	UpdateConstraint[Helmholtz~{idom}, GammaD~{idom}, Assign];
+      	idom = ListOfDom(ii);
+      	UpdateConstraint[Helmholtz~{idom}, GammaD~{idom}, Assign];
       EndFor
 
       If (PRECOND_SWEEP) // Generate the systems now, and generate RHS only during iterations (EXPERIMENTAL)
-	For ii In {0: #ListOfDom()-1}
-	  idom = ListOfDom(ii);
-	  For jdom In {0:1}
-	    If( NbrRegions[Sigma~{idom}~{jdom}] )
-	      Generate[ComputeGPrecond~{idom}~{jdom}] ;
-	      Solve[ComputeGPrecond~{idom}~{jdom}] ;
-	    EndIf
-	  EndFor
-	  If (EXT_TIME) SystemCommand[Sprintf["./../main/ddmProcTime.py %g factor", MPI_Rank]]; EndIf
-	EndFor
+      	For ii In {0: #ListOfDom()-1}
+      	  idom = ListOfDom(ii);
+      	  For jdom In {0:1}
+      	    If( NbrRegions[Sigma~{idom}~{jdom}] )
+      	      Generate[ComputeGPrecond~{idom}~{jdom}] ;
+      	      Solve[ComputeGPrecond~{idom}~{jdom}] ;
+      	    EndIf
+      	  EndFor
+      	  If (EXT_TIME) SystemCommand[Sprintf["./../main/ddmProcTime.py %g factor", MPI_Rank]]; EndIf
+      	EndFor
       EndIf
       SetCommWorld;
 
@@ -460,7 +678,8 @@ Resolution {
 	For ii In {0: #ListOfDom()-1}
 	  idom = ListOfDom(ii);
 	  //Compute u on Omega_i (fast way)
-	  GenerateRHSGroup[Helmholtz~{idom}, Sigma~{idom}] ;
+	  // GenerateRHSGroup[Helmholtz~{idom}, Sigma~{idom}] ;
+	  GenerateRHSGroup[Helmholtz~{idom}, #{Sigma~{idom}}] ; // FIXME: why do we need that sytax with PML ??
 
 	  If (REUSE == 0)
 	    SolveAgain[Helmholtz~{idom}] ;
@@ -478,7 +697,12 @@ Resolution {
 	  //Compute the new g_out (fast way)
 	  For jdom In {0:1}
 	    If( NbrRegions[Sigma~{idom}~{jdom}] )
-	      GenerateRHSGroup[ComputeG~{idom}~{jdom}, Sigma~{idom}~{jdom}] ;
+	      If(PML)
+	        GenerateRHSGroup[ComputeGbb~{idom}~{jdom}, #{Sigma~{idom}~{jdom}}] ;
+	        SolveAgain[ComputeGbb~{idom}~{jdom}] ;
+	      EndIf
+	      // GenerateRHSGroup[ComputeG~{idom}~{jdom}, Sigma~{idom}~{jdom}] ;
+	      GenerateRHSGroup[ComputeG~{idom}~{jdom}, #{Sigma~{idom}~{jdom}}] ;
 	      SolveAgain[ComputeG~{idom}~{jdom}] ;
 	    EndIf
 	  EndFor
@@ -492,7 +716,6 @@ Resolution {
 	    If (EXT_TIME) Barrier; SystemCommand[Sprintf["./../main/ddmProcTime.py %g operator", MPI_Rank]]; EndIf
 	EndFor
 	SetCommWorld;
-	//End of iteration: every process will exchange their PView/Field
       }
       {
 	//--------------------
@@ -547,7 +770,8 @@ Resolution {
 
 		Evaluate[1. #10]; Evaluate[0. #11];
 		//Compute u on Omega_i (fast way)
-		GenerateRHSGroup[Helmholtz~{idom_f}, Sigma~{idom_f}] ;
+		// GenerateRHSGroup[Helmholtz~{idom_f}, Sigma~{idom_f}] ;
+		GenerateRHSGroup[Helmholtz~{idom_f}, #{Sigma~{idom_f}}] ;
 
 		If (REUSE == 0)
 		  SolveAgain[Helmholtz~{idom_f}] ;
@@ -564,7 +788,12 @@ Resolution {
 
 		//Compute the new g_out (fast way)
 		If( NbrRegions[Sigma~{idom_f}~{1}] )
-		  GenerateRHSGroup[ComputeGPrecond~{idom_f}~{1}, Sigma~{idom_f}~{1}] ;
+		  If (PML)
+		    GenerateRHSGroup[ComputeGbb~{idom_f}~{1}, #{Sigma~{idom_f}~{1}}] ;
+		    SolveAgain[ComputeGbb~{idom_f}~{1}] ;
+		  EndIf
+		  // GenerateRHSGroup[ComputeGPrecond~{idom_f}~{1}, Sigma~{idom_f}~{1}] ;
+		  GenerateRHSGroup[ComputeGPrecond~{idom_f}~{1}, #{Sigma~{idom_f}~{1}}] ;
 		  SolveAgain[ComputeGPrecond~{idom_f}~{1}] ;
 		EndIf
 		// PostOperation[g_out~{idom_f}~{1}] ;
@@ -585,7 +814,8 @@ Resolution {
 
 		Evaluate[0. #10]; Evaluate[1. #11];
 		//Compute u on Omega_i (fast way)
-		GenerateRHSGroup[Helmholtz~{idom_b}, Sigma~{idom_b}] ;
+		// GenerateRHSGroup[Helmholtz~{idom_b}, Sigma~{idom_b}] ;
+		GenerateRHSGroup[Helmholtz~{idom_b}, #{Sigma~{idom_b}}] ;
 
 		If (REUSE == 0)
 		  SolveAgain[Helmholtz~{idom_b}] ;
@@ -602,7 +832,12 @@ Resolution {
 
 		//Compute the new g_out (fast way)
 		If( NbrRegions[Sigma~{idom_b}~{0}] )
-		  GenerateRHSGroup[ComputeGPrecond~{idom_b}~{0}, Sigma~{idom_b}~{0}] ;
+		  If (PML)
+		    GenerateRHSGroup[ComputeGbb~{idom_b}~{0}, #{Sigma~{idom_b}~{0}}] ;
+		    SolveAgain[ComputeGbb~{idom_b}~{0}] ;
+		  EndIf
+		  // GenerateRHSGroup[ComputeGPrecond~{idom_b}~{0}, Sigma~{idom_b}~{0}] ;
+		  GenerateRHSGroup[ComputeGPrecond~{idom_b}~{0}, #{Sigma~{idom_b}~{0}}] ;
 		  SolveAgain[ComputeGPrecond~{idom_b}~{0}] ;
 		EndIf
 		// PostOperation[g_out~{idom_b}~{0}] ;
@@ -646,7 +881,8 @@ Resolution {
     Evaluate[1. #10]; Evaluate[1. #11];
     For ii In {0: #ListOfDom()-1}
       idom = ListOfDom(ii);
-      GenerateRHSGroup[Helmholtz~{idom}, Sigma~{idom}] ;
+      // GenerateRHSGroup[Helmholtz~{idom}, Sigma~{idom}] ;
+      GenerateRHSGroup[Helmholtz~{idom}, #{Sigma~{idom}}] ;
 
       If (REUSE == 0)
 	SolveAgain[Helmholtz~{idom}] ;
@@ -674,6 +910,8 @@ Resolution {
 }
 }
 
+
+If (!PML)
 PostProcessing {
   For ii In {0: #ListOfDom()-1}
     idom = ListOfDom(ii);
@@ -695,8 +933,8 @@ PostProcessing {
 	  { Name g_out~{idom}~{jdom} ; Value { Local { [ {g_out~{idom}~{jdom}} ] ; In Sigma~{idom}~{jdom}; Jacobian JSur ; } } }
 	}
       }
-    EndFor
-    For jdom In {0:1}
+    // EndFor
+    // For jdom In {0:1}
       { Name g_out_pc~{idom}~{jdom} ; NameOfFormulation ComputeGPrecond~{idom}~{jdom} ;
 	PostQuantity {
 	  { Name g_out~{idom}~{jdom} ; Value { Local { [ {g_out~{idom}~{jdom}} ] ; In Sigma~{idom}~{jdom}; Jacobian JSur ; } } }
@@ -747,8 +985,8 @@ PostOperation {
 	  Print[ g_out~{idom}~{jdom}, OnElementsOf Sigma~{idom}~{jdom}, StoreInField (2*(idom+N_DOM)+(jdom-1))%(2*N_DOM)/*, File Sprintf("gg%g_%g.pos",idom, jdom)*/] ;
 	}
       }
-    EndFor
-    For jdom In {0:1}
+    // EndFor
+    // For jdom In {0:1}
       { Name g_out_pc~{idom}~{jdom} ; NameOfPostProcessing g_out_pc~{idom}~{jdom};
 	Operation {
 	  // If(!((idom == 0 && jdom == 0) || (idom == N_DOM-1 && jdom == 1)))
@@ -760,3 +998,98 @@ PostOperation {
     EndFor
   EndFor
 }
+EndIf
+
+If (PML)
+PostProcessing {
+  For ii In {0: #ListOfDom()-1}
+    idom = ListOfDom(ii);
+    { Name u_ddm~{idom} ; NameOfFormulation DDM~{idom} ;
+      PostQuantity {
+	If(STORE_U_INIT)
+	  { Name u~{idom} ; Value { Local { [ {u~{idom}} + u_init~{idom}[] ] ; In Omega~{idom}; Jacobian JVol ; } } }
+	EndIf
+	//If u_init is not stored then compute only the result of the DDM algorithm (not the "real" scattered field)
+	If(!STORE_U_INIT)
+	  { Name u~{idom} ; Value { Local { [ {u~{idom}}] ; In Omega~{idom}; Jacobian JVol ; } } }
+	EndIf
+      }
+    }
+
+    For jdom In {0:1}
+      { Name g_out~{idom}~{jdom} ; NameOfFormulation ComputeG~{idom}~{jdom} ;
+	PostQuantity {
+	  { Name g_out~{idom}~{jdom} ; Value { Local { [ {g_out~{idom}~{jdom}} ] ; In #{Sigma~{idom}~{jdom}}; Jacobian JSur ; } } }
+	}
+      }
+      { Name g_out_pc~{idom}~{jdom} ; NameOfFormulation ComputeGPrecond~{idom}~{jdom} ;
+	PostQuantity {
+	  { Name g_out~{idom}~{jdom} ; Value { Local { [ {g_out~{idom}~{jdom}} ] ; In Sigma~{idom}~{jdom}; Jacobian JSur ; } } }
+	}
+      }
+      { Name u_bb~{idom}~{jdom} ; NameOfFormulation ComputeGbb~{idom}~{jdom} ;
+	PostQuantity {
+	  { Name u_bb~{idom}~{jdom} ; Value { Local { [ {u~{idom}} ] ; In #{OmegaPml~{idom}~{jdom}}; Jacobian JSur ; } } }
+	}
+      }
+    EndFor
+
+    //Save on disk or in RAM field u at initialization (needed to obtain the scattered field)
+    { Name u_init~{idom} ; NameOfFormulation DDM~{idom} ;
+      PostQuantity {
+	{ Name u_init~{idom} ; Value { Local { [ {u~{idom}} ] ; In Omega~{idom}; Jacobian JVol ; } } }
+      }
+    }
+  EndFor
+}
+
+PostOperation {
+//DDM
+  For ii In {0: #ListOfDom()-1}
+    idom = ListOfDom(ii);
+    //initialization
+    { Name u_init~{idom} ; NameOfPostProcessing u_init~{idom};
+      Operation {
+	If(STORE_U_INIT && !WRITE_U_INIT)
+  	  Print[ u_init~{idom}, OnElementsOf Omega~{idom}, StoreInField 2*N_DOM+idom] ;
+	EndIf
+	If(!STORE_U_INIT && WRITE_U_INIT)
+	  Print[ u_init~{idom}, OnElementsOf Omega~{idom}, File Sprintf("u_init%g.pos",idom)] ;
+	EndIf
+	If(STORE_U_INIT && WRITE_U_INIT)
+	  Print[ u_init~{idom}, OnElementsOf Omega~{idom}, File Sprintf("u_init%g.pos",idom), StoreInField 2*N_DOM+idom] ;
+	EndIf
+      }
+    }
+    //volume solution
+    { Name u_ddm~{idom} ; NameOfPostProcessing u_ddm~{idom};
+      Operation {
+	Print[ u~{idom}, OnElementsOf Omega~{idom}, File Sprintf("u%g.pos",idom)] ;
+      }
+    }
+    // g_out
+    For jdom In {0:1}
+      { Name g_out~{idom}~{jdom} ; NameOfPostProcessing g_out~{idom}~{jdom};
+	Operation {
+	  If(!((idom == 0 && jdom == 0) || (idom == N_DOM-1 && jdom == 1)))
+	    Print[ g_out~{idom}~{jdom}, OnElementsOf Sigma~{idom}~{jdom}, StoreInField 2*idom+jdom-1/*, File Sprintf("gg%g_%g.pos",idom, jdom)/**/] ;
+	  EndIf
+	}
+      }
+      { Name g_out_pc~{idom}~{jdom} ; NameOfPostProcessing g_out_pc~{idom}~{jdom};
+	Operation {
+	  // If(!((idom == 0 && jdom == 0) || (idom == N_DOM-1 && jdom == 1)))
+	  //   Print[ g_out~{idom}~{jdom}, OnElementsOf Sigma~{idom}~{jdom}, StoreInField 2*idom+jdom-1/*, File Sprintf("gg%g_%g.pos",idom, jdom)*/] ;
+	  // EndIf
+	  Print[ g_out~{idom}~{jdom}, OnElementsOf Sigma~{idom}~{jdom}, StoreInField (2*(idom+N_DOM)+(jdom-1))%(2*N_DOM)/*, File Sprintf("gg%g_%g.pos",idom, jdom)*/] ;
+	}
+      }
+      { Name u_bb~{idom}~{jdom} ; NameOfPostProcessing u_bb~{idom}~{jdom};
+	Operation {
+	    Print[ u_bb~{idom}~{jdom}, OnElementsOf OmegaPml~{idom}~{jdom}, File Sprintf("u_bb%g_%g.pos",idom, jdom)] ;
+	}
+      }
+    EndFor
+  EndFor
+}
+EndIf

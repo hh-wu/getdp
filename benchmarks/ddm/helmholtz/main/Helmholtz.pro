@@ -256,7 +256,7 @@ PostOperation {
 
 //Standard DDM
 
-If (!PML)
+// If (!PML)
 If (!COMBINED_SWEEP)
   Include "DDM_sweep.pro";
 EndIf
@@ -265,9 +265,9 @@ If (COMBINED_SWEEP)
   // Include "DDM_sweep_simple_combined.pro";
   Include "DDM_sweep_combined.pro";
 EndIf
-EndIf
-If (PML)
-  Include "DDM_sweep_simple_PML.pro";
-EndIf
+// EndIf
+// If (PML)
+//   Include "DDM_sweep_simple_PML.pro";
+// EndIf
 
-//Include "DDM_sweep_reuse.pro";
+// // // //Include "DDM_sweep_reuse.pro";
