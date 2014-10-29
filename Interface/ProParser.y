@@ -5830,6 +5830,8 @@ PostOperation :
       PostOperation_S.TimeValue_L = NULL;
       PostOperation_S.TimeImagValue_L = NULL;
       PostOperation_S.LastTimeStepOnly = 0;
+      PostOperation_S.OverrideTimeStepValue = -1;
+      PostOperation_S.NoMesh = 0;
     }
 
   | PostOperation  PostOperationTerm
@@ -5887,6 +5889,21 @@ PostOperationTerm :
   | tAppend CharExpr tEND
     {
       PostOperation_S.AppendString = $2;
+    }
+
+  | ',' tAppendToExistingFile FExpr
+    {
+      PostOperation_S.CatFile = $3;
+    }
+
+  | ',' tNoMesh FExpr
+    {
+      PostOperation_S.NoMesh = $3;
+    }
+
+  | ',' tOverrideTimeStepValue FExpr
+    {
+      PostOperation_S.OverrideTimeStepValue = $3;
     }
 
   | tResampleTime '[' FExpr ',' FExpr ',' FExpr ']' tEND
@@ -6006,6 +6023,12 @@ PostSubOperations :
           PostSubOperation_S.TimeImagValue_L = PostOperation_S.TimeImagValue_L;
 	if(!PostSubOperation_S.LastTimeStepOnly)
           PostSubOperation_S.LastTimeStepOnly = PostOperation_S.LastTimeStepOnly;
+	if(!PostSubOperation_S.NoMesh)
+          PostSubOperation_S.NoMesh = PostOperation_S.NoMesh;
+	if(PostSubOperation_S.OverrideTimeStepValue < 0)
+          PostSubOperation_S.OverrideTimeStepValue = PostOperation_S.OverrideTimeStepValue;
+	if(!PostSubOperation_S.CatFile)
+          PostSubOperation_S.CatFile = PostOperation_S.CatFile;
 
 	List_Add($$ = $1, &PostSubOperation_S);
       }

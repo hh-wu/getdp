@@ -1281,7 +1281,7 @@ struct PostOperation {
   double   ResampleTimeStart, ResampleTimeStop, ResampleTimeStep;
   bool     ResampleTime;
   List_T  *TimeValue_L, *TimeImagValue_L;
-  int      LastTimeStepOnly;
+  int      LastTimeStepOnly, OverrideTimeStepValue, NoMesh, CatFile;
 };
 
 struct PostSubOperation {
