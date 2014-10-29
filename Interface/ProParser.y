@@ -284,7 +284,7 @@ struct doubleXstring{
 %token        tStoreMinYinRegister tStoreMinZinRegister
 %token        tLastTimeStepOnly tAppendTimeStepToFileName tTimeValue tTimeImagValue
 %token        tOverrideTimeStepValue tNoMesh tSendToServer tColor tStr tDate
-%token        tNewCoordinates
+%token        tNewCoordinates tAppendToExistingFile
 
 /* ------------------------------------------------------------------ */
 /* Operators (with ascending priority): cf. C language                */
@@ -6360,6 +6360,10 @@ PrintOption :
       }
       PostSubOperation_S.CatFile = 2;
     }
+  | ',' tAppendToExistingFile FExpr
+    {
+      PostSubOperation_S.CatFile = $3;
+    }
   | ',' tDepth FExpr
     {
       PostSubOperation_S.Depth = (int)$3;
@@ -6631,6 +6635,10 @@ PrintOption :
   | ',' tNoMesh
     {
       PostSubOperation_S.NoMesh = 1;
+    }
+  | ',' tNoMesh FExpr
+    {
+      PostSubOperation_S.NoMesh = $3;
     }
   | ',' tSendToServer CharExpr
     {

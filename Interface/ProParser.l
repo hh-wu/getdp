@@ -75,6 +75,7 @@ AddOppositeFullSolution      return tAddOppositeFullSolution ;
 All                          return tAll;
 Append                       return tAppend;
 AppendTimeStepToFileName     return tAppendTimeStepToFileName;
+AppendToExistingFile         return tAppendToExistingFile;
 Asin                         return tAsin;
 AtAnteriorTimeStep           return tAtAnteriorTimeStep;
 Atan                         return tAtan;

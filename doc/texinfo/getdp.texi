@@ -4862,6 +4862,13 @@ are concatenated in the file @var{expression-char}.
 
 Appends the result to a file named @var{expression-char}.
 
+@item AppendToExistingFile
+@var{expression-cst}
+
+Appends the result to the file specified with @code{File}. (Same
+behavior as @code{>} if @var{expression-cst} = 1; same behavior as
+@code{>>} if @var{expression-cst} = 2.)
+
 @item Name
 @code{@var{expression-char}}
 
@@ -4926,6 +4933,7 @@ Appends the time step to the output file; only makes sense with @code{LastTimeSt
 Overrides the value of the current time step with the given value.
 
 @item NoMesh
+< @var{expression-cst} >
 
 Prevents the mesh from being written in the output file (useful with new
 mesh-based solution formats).
