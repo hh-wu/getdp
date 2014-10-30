@@ -17,9 +17,10 @@ Z = 3;
 THETA_INC = 0;
 
 // Which transmission condition ? (only one must be equal to 1)
-OSRC = 1;
+OSRC = 0;
 OO2 = 0;
 EMDA = 0;
+PML = 1;
 
 // Constant DDM parameters (other parameters are located in the .pro file)
 // EMDA parameter

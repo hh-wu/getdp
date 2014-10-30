@@ -1,4 +1,4 @@
-N_DOM = 10 ;
+N_DOM = 16 ;
 OM = 2*Pi*3.69 ;
 WAVENUMBER = OM;
 LAMBDA = 2*Pi/WAVENUMBER ;
@@ -13,8 +13,6 @@ TOL = 1.000000e-06 ;
 Include "params_part2.geo";
 
 COMBINED_SWEEP = 0;
-
-
 
 nDoms = N_DOM;
 

@@ -159,7 +159,7 @@ FunctionSpace {
     { Name Hgrad_u_Dirichlet2D_lm~{idom}~{jdom} ; Type Form0 ;
       BasisFunction {
 	{ Name sn ; NameOfCoef un ; Function BF_Node ;
-	  Support Region[{OmegaPml~{idom}~{jdom},Sigma~{idom}~{jdom},Gama~{idom}~{jdom}}]; Entity NodesOf[All];
+	  Support Region[{OmegaPml~{idom}~{jdom},Sigma~{idom}~{jdom},Gama~{idom}~{jdom},Gama_N~{idom},Gama_S~{idom}}]; Entity NodesOf[All];
 	}
       }
       Constraint {
@@ -402,7 +402,7 @@ Formulation {
     }
     Equation {
 
-      Galerkin { [ Dof{Grad u~{idom}}, {Grad u~{idom}} ] ;
+      Galerkin { [ Dof{d u~{idom}}, {d u~{idom}} ] ;
       	In Omega~{idom} ; Jacobian JVol ; Integration I1 ; }
       Galerkin { [ -k[]^2*Dof{u~{idom}}, {u~{idom}} ] ;
       	In Omega~{idom} ; Jacobian JVol ; Integration I1 ; }
@@ -410,28 +410,30 @@ Formulation {
       // 	In Omega ; Jacobian JVol ; Integration I1 ; }      
 
       //modified Helmholtz equation
-      Galerkin{[D[]* Dof{Grad u~{idom}}, {Grad u~{idom}}];
+      Galerkin{[D[]* Dof{d u~{idom}}, {d u~{idom}}];
       	In OmegaPml~{idom}; Jacobian JVol; Integration I1;}
-      Galerkin{[-k[]^2*Kx[]*Ky[]*Dof{u~{idom}}, {u~{idom}}];
+      // Galerkin{[-k[]^2*Kx[]*Ky[]*Dof{u~{idom}}, {u~{idom}}];
+      Galerkin{[-kPml~{idom}~{jdom}[]^2*Kx[]*Ky[]*Dof{u~{idom}}, {u~{idom}}];
       	In OmegaPml~{idom}; Jacobian JVol; Integration I1;}
 
 
       Galerkin { [ -I[]*k[]*Dof{u~{idom}}, {u~{idom}} ] ;
       	In Gama_S~{idom} ; Jacobian JSur ; Integration I1 ; }      
+      Galerkin { [ -I[]*kPml~{idom}~{jdom}[]*Dof{u~{idom}}, {u~{idom}} ] ;
+      	In Gama~{idom}~{0} ; Jacobian JSur ; Integration I1 ; }      
+      Galerkin { [ -I[]*kPml~{idom}~{jdom}[]*Dof{u~{idom}}, {u~{idom}} ] ;
+      	In Gama~{idom}~{1} ; Jacobian JSur ; Integration I1 ; }      
 
 
       // Delta functions
-      Galerkin { [ 0*Dof{d u~{idom}}, {d u~{idom}} ] ;
-      	In OmegaAll~{idom} ; Jacobian JVol ; Integration I1 ; }      
-
-      Galerkin { [ -(#10 > 0. ? H~{idom}~{0}[]*2.*g_in~{idom}~{0}[] : 0.), {d u~{idom}} ] ;
+      Galerkin { [ Vector[-(#10 > 0. ? H~{idom}~{0}[]*2.*g_in~{idom}~{0}[] : 0.),0.,0.], {d u~{idom}} ] ;
       	In OmegaAll~{idom} ; Jacobian JVol ; Integration I1 ; }      
       Galerkin { [ -(#10 > 0. ? H~{idom}~{0}[]*2.*g_in~{idom}~{0}[] : 0.), {u~{idom}} ] ;
       	In Gama~{idom}~{0} ; Jacobian JSur ; Integration I1 ; }      
       Galerkin { [ (#10 > 0. ? H~{idom}~{0}[]*2.*g_in~{idom}~{0}[] : 0.), {u~{idom}} ] ;
       	In Gama~{idom}~{1} ; Jacobian JSur ; Integration I1 ; }      
-
-      Galerkin { [ -(#11 > 0. ? H~{idom}~{1}[]*2.*g_in~{idom}~{1}[] : 0.), {d u~{idom}} ] ;
+      
+      Galerkin { [ Vector[-(#11 > 0. ? H~{idom}~{1}[]*2.*g_in~{idom}~{1}[] : 0.),0.,0.], {d u~{idom}} ] ;
       	In OmegaAll~{idom} ; Jacobian JVol ; Integration I1 ; }      
       Galerkin { [ -(#11 > 0. ? H~{idom}~{1}[]*2.*g_in~{idom}~{1}[] : 0.), {u~{idom}} ] ;
       	In Gama~{idom}~{0} ; Jacobian JSur ; Integration I1 ; }      
@@ -459,11 +461,17 @@ Formulation {
       //modified Helmholtz equation
       Galerkin{[D[]* Dof{Grad u~{idom}}, {Grad u~{idom}}];
       	In OmegaPml~{idom}~{jdom}; Jacobian JVol; Integration I1;}
-      Galerkin{[-k[]^2*Kx[]*Ky[]*Dof{u~{idom}}, {u~{idom}}];
+      // Galerkin{[-k[]^2*Kx[]*Ky[]*Dof{u~{idom}}, {u~{idom}}];
+      // 	In OmegaPml~{idom}~{jdom}; Jacobian JVol; Integration I1;}
+      Galerkin{[-kPml~{idom}~{jdom}[]^2*Kx[]*Ky[]*Dof{u~{idom}}, {u~{idom}}];
       	In OmegaPml~{idom}~{jdom}; Jacobian JVol; Integration I1;}
 
 
-      Galerkin { [ -I[]*k[]*Dof{u~{idom}}, {u~{idom}} ] ;
+      // Galerkin { [ -I[]*k[]*Dof{u~{idom}}, {u~{idom}} ] ;
+      // 	In Gama~{idom}~{jdom} ; Jacobian JSur ; Integration I1 ; }      
+      Galerkin { [ -I[]*k[]*Dof{u~{idom}}, {u~{idom}} ] ; // FIXME: use correct value for PMLs
+      	In Gama_S~{idom} ; Jacobian JSur ; Integration I1 ; }      
+      Galerkin { [ -I[]*kPml~{idom}~{jdom}[]*Dof{u~{idom}}, {u~{idom}} ] ; // FIXME: use correct value for PMLs
       	In Gama~{idom}~{jdom} ; Jacobian JSur ; Integration I1 ; }      
 
 
@@ -1081,7 +1089,7 @@ PostOperation {
 	  // If(!((idom == 0 && jdom == 0) || (idom == N_DOM-1 && jdom == 1)))
 	  //   Print[ g_out~{idom}~{jdom}, OnElementsOf Sigma~{idom}~{jdom}, StoreInField 2*idom+jdom-1/*, File Sprintf("gg%g_%g.pos",idom, jdom)*/] ;
 	  // EndIf
-	  Print[ g_out~{idom}~{jdom}, OnElementsOf Sigma~{idom}~{jdom}, StoreInField (2*(idom+N_DOM)+(jdom-1))%(2*N_DOM)/*, File Sprintf("gg%g_%g.pos",idom, jdom)*/] ;
+	  Print[ g_out~{idom}~{jdom}, OnElementsOf Sigma~{idom}~{jdom}, StoreInField (2*(idom+N_DOM)+(jdom-1))%(2*N_DOM), File Sprintf("gg%g_%g.pos",idom, jdom)/**/] ;
 	}
       }
       { Name u_bb~{idom}~{jdom} ; NameOfPostProcessing u_bb~{idom}~{jdom};

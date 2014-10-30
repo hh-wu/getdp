@@ -43,7 +43,7 @@ Function {
   // k[] = Complex[om[]/c[], 0*.25*om[]/c[] ];
 
   om[] = OM;
-  c[] = 1.25*(1.-.4*Exp[-32*(Y[]-.5)^2]) ;
+  c[] = 1.;//1.25*(1.-.4*Exp[-32*(Y[]-.5)^2]) ;
   k[] = om[]/c[] ;
 
 
@@ -56,6 +56,7 @@ Function {
   V_SOURCE[] = 0.;//nv*Exp[-10*nv*((X[]-xv)^2+(Y[]-yv)^2)] ;
 
 }
+
 
 
 Function {
@@ -107,6 +108,11 @@ Include "../main/topology/inline.pro";
 // ListOfCuts = {0, N_DOM-1};
 // ListOfCuts = {0, 5, 10, N_DOM-1};
 // ListOfCuts = {0, 7, N_DOM-1};
+
+If (PML)
+Include "pmlFunctions.pro";
+EndIf
+
 
 If (PRECOND_SWEEP)
   // what domains am I in charge of ? Implemented with a list
