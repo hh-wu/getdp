@@ -369,8 +369,14 @@ void Cal_vBFxDof(struct EquationTerm       * EquationTerm_P,
     w = Current.w ;
   }
 
+  // initialize vBFxDof to zero; this allows to perform e.g. [0, {d u}] without
+  // having to explicitly use [Vector[0,0,0], {d u}] ; if this is too slow, we
+  // should check vBFxDof[j].Type against FI->Type_FormEqu before calling
+  // FI->Cal_Productx to report errors
+  for (j = 0 ; j < Nbr_Dof ; j++)
+    Cal_ZeroValue(&vBFxDof[j]);
 
-  /* shape functions, integral quantity or dummy */
+  // shape functions, integral quantity or dummy
 
   if (!FI->SymmetricalMatrix) {
 
@@ -404,9 +410,6 @@ void Cal_vBFxDof(struct EquationTerm       * EquationTerm_P,
 				       QuantityStorage_P0, QuantityStorageDof_P,
 				       FI->Type_DefineQuantityDof, Nbr_Dof,
 				       (void (**)())xFunctionBFDof, vBFxDof) ;
-
-
-
       FI->Type_ValueDof = FI->Type_FormDof = vBFxDof[0].Type; /* now this type is correct */
       break ;
     case NODOF :  /* Supprimer le DofForNoDof_P de la structure dans Data_Active.h */

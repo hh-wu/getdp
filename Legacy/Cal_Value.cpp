@@ -227,14 +227,15 @@ void Cal_AddValueArray2DoubleArray(struct Value *V1, double *R, int Nbr_Values)
    R <- 0
    ------------------------------------------------------------------------ */
 
-static double VALUE_ZERO [NBR_MAX_HARMONIC * MAX_DIM] =
-{0.,0.,0., 0.,0.,0.,
- 0.,0.,0., 0.,0.,0.,
- 0.,0.,0., 0.,0.,0.} ;
+//static double VALUE_ZERO [NBR_MAX_HARMONIC * MAX_DIM] =
+// {0.,0.,0., 0.,0.,0.,
+//  0.,0.,0., 0.,0.,0.,
+//  0.,0.,0., 0.,0.,0.} ;
 
 void Cal_ZeroValue(struct Value * R)
 {
-  memcpy(R->Val, VALUE_ZERO, Current.NbrHar*MAX_DIM*sizeof(double));
+  //memcpy(R->Val, VALUE_ZERO, Current.NbrHar*MAX_DIM*sizeof(double));
+  for(int i = 0; i < Current.NbrHar*MAX_DIM; i++) R->Val[i] = 0.;
 }
 
 /* ------------------------------------------------------------------------
