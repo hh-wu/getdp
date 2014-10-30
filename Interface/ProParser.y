@@ -5891,17 +5891,17 @@ PostOperationTerm :
       PostOperation_S.AppendString = $2;
     }
 
-  | ',' tAppendToExistingFile FExpr
+  | ',' tAppendToExistingFile FExpr tEND
     {
       PostOperation_S.CatFile = $3;
     }
 
-  | ',' tNoMesh FExpr
+  | ',' tNoMesh FExpr  tEND
     {
       PostOperation_S.NoMesh = $3;
     }
 
-  | ',' tOverrideTimeStepValue FExpr
+  | ',' tOverrideTimeStepValue FExpr tEND
     {
       PostOperation_S.OverrideTimeStepValue = $3;
     }

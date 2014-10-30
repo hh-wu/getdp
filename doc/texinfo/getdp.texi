@@ -2815,7 +2815,8 @@ PostOperation @{
     < Hidden @var{expression-cst}; >
     < Format @var{post-operation-fmt}; > < Append @var{expression-char}; >
     < TimeValue @var{expression-cst-list}; > < TimeImagValue @var{expression-cst-list}; >
-    < LastTimeStepOnly; >
+    < LastTimeStepOnly; > < OverrideTimeStepValue @var{expression-cst}; >
+    < NoMesh @var{expression-cst}; > < AppendToExistingFile @var{expression-cst}; >
     < ResampleTime[@var{expression-cst}, @var{expression-cst}, @var{expression-cst}]; >
     Operation @{ 
       < @var{post-operation-op}; > @dots{} 
