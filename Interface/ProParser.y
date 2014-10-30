@@ -5896,7 +5896,7 @@ PostOperationTerm :
       PostOperation_S.CatFile = $3;
     }
 
-  | ',' tNoMesh FExpr  tEND
+  | ',' tNoMesh FExpr tEND
     {
       PostOperation_S.NoMesh = $3;
     }
@@ -5926,9 +5926,16 @@ PostOperationTerm :
 SeparatePostOperation :
     tPostOperation String__Index tUsingPost String__Index
     {
-      PostOperation_S.PostProcessingIndex = -1;
+      PostOperation_S.Hidden = false;
       PostOperation_S.AppendString = NULL;
       PostOperation_S.Format = FORMAT_GMSH;
+      PostOperation_S.PostProcessingIndex = -1;
+      PostOperation_S.ResampleTime = false;
+      PostOperation_S.TimeValue_L = NULL;
+      PostOperation_S.TimeImagValue_L = NULL;
+      PostOperation_S.LastTimeStepOnly = 0;
+      PostOperation_S.OverrideTimeStepValue = -1;
+      PostOperation_S.NoMesh = 0;
       int i;
       if((i = List_ISearchSeq(Problem_S.PostProcessing, $4,
 			       fcmp_PostProcessing_Name)) < 0)
