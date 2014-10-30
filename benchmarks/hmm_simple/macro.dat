@@ -1,0 +1,7 @@
+Include "common.dat";
+
+GAMMA_INF = 10000;
+CONDUCTOR = 10001;
+AIR       = 10002;
+INDUCTOR  = 10003;
+OMEGA_INF = 10004;
