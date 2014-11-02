@@ -409,43 +409,43 @@ PostProcessing {
 
 //-----------------------------------------------------------------------------------------------
  PostOperation Get_LocalFields UsingPost MagStaDyn_a_3D {
-   Print[ js, OnElementsOf DomainB, File StrCat[Dir, StrCat["js",ExtGmsh]], LastTimeStepOnly ] ;
-   //Print[ hs, OnElementsOf DomainB, File StrCat[Dir, StrCat["hs",ExtGmsh]], LastTimeStepOnly ] ;
-   Print[ b, OnElementsOf Domain, File StrCat[Dir, StrCat["b",ExtGmsh]], LastTimeStepOnly ] ;
+   Print[ js, OnElementsOf DomainB, File StrCat[Dir,"js",ExtGmsh], LastTimeStepOnly ] ;
+   //Print[ hs, OnElementsOf DomainB, File StrCat[Dir,"hs",ExtGmsh], LastTimeStepOnly ] ;
+   Print[ b, OnElementsOf Domain, File StrCat[Dir,"b",ExtGmsh], LastTimeStepOnly ] ;
  }
 
  PostOperation Get_Analytical UsingPost MagStaDyn_a_3D {
    For k In {0:NbAvailableMagCircuits-1}
      Print[ Reluctance~{k}, OnRegion DomainDummy, Format Table, LastTimeStepOnly,
-       File StrCat[Dir, StrCat[Sprintf("Reluctance%g",k),ExtGnuplot]] ];
+       File StrCat[Dir,Sprintf("Reluctance%g",k),ExtGnuplot] ];
      Print[ Inductance~{k}, OnRegion DomainDummy, Format Table, LastTimeStepOnly,
-       File StrCat[Dir, StrCat[Sprintf("Inductance%g",k),ExtGnuplot]],
+       File StrCat[Dir,Sprintf("Inductance%g",k),ExtGnuplot],
        SendToServer StrCat[po,Sprintf("6%gInductance Magnetic Circuit %g [mH]", k, k)], Color "LightYellow" ];
    EndFor
  }
 
  PostOperation Get_GlobalQuantities UsingPost MagStaDyn_a_3D {
    Print[ I, OnRegion DomainB, Format Table,
-     File > StrCat[Dir, StrCat["I",ExtGnuplot]], LastTimeStepOnly,
+     File > StrCat[Dir,"I",ExtGnuplot], LastTimeStepOnly,
      SendToServer StrCat[po,"20I [A]"], Color "LightYellow" ];
    Print[ U, OnRegion DomainB, Format Table,
-     File > StrCat[Dir, StrCat["U",ExtGnuplot]], LastTimeStepOnly,
+     File > StrCat[Dir,"U",ExtGnuplot], LastTimeStepOnly,
      SendToServer StrCat[po,"30U [V]"], Color "LightYellow" ];
 
    Print[ Flux[DomainB], OnGlobal, Format TimeTable,
-     File > StrCat[Dir, StrCat["Flux",ExtGnuplot]], LastTimeStepOnly, Store 11,
+     File > StrCat[Dir,"Flux",ExtGnuplot], LastTimeStepOnly, Store 11,
      SendToServer StrCat[po,"40Flux [Wb]"],  Color "LightYellow" ];
 
    Print[ Inductance_from_Flux, OnRegion DomainDummy, Format Table, LastTimeStepOnly,
-    File StrCat[Dir, StrCat["InductanceF",ExtGnuplot]],
+    File StrCat[Dir,"InductanceF",ExtGnuplot],
     SendToServer StrCat[po,"50Inductance from Flux [mH]"], Color "LightYellow" ];
 
    Print[ MagEnergy[Domain], OnGlobal, Format TimeTable,
-     File > StrCat[Dir, StrCat["ME",ExtGnuplot]], LastTimeStepOnly, Store 22,
+     File > StrCat[Dir,"ME",ExtGnuplot], LastTimeStepOnly, Store 22,
      SendToServer StrCat[po,"41Magnetic Energy [W]"],  Color "LightYellow" ];
 
    Print[ Inductance_from_MagEnergy, OnRegion DomainDummy, Format Table, LastTimeStepOnly,
-     File StrCat[Dir, StrCat["InductanceE",ExtGnuplot]],
+     File StrCat[Dir,"InductanceE",ExtGnuplot],
      SendToServer StrCat[po,"51Inductance from Magnetic Energy [mH]"], Color "LightYellow" ];
 }
 

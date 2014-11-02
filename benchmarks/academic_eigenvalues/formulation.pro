@@ -120,7 +120,7 @@ PostOperation {
   { Name PostOp ; NameOfPostProcessing PostPro ;
     Operation {
       For n In {0:(NbEigenvalues-1)}
-        Print [ u, OnElementsOf Dom, TimeStep{n}, File StrCat["output/eigenvector",StrCat[Sprintf("%g",n),".pos"]]];
+        Print [ u, OnElementsOf Dom, TimeStep{n}, File StrCat["output/eigenvector",Sprintf("%g",n),".pos"]];
       EndFor
       SendMergeFileRequest[ "main.pro.opt" ] ;
     }

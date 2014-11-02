@@ -204,16 +204,16 @@ PostProcessing {
 PostOperation {
   { Name MagSta_a_ref ; NameOfPostProcessing MagSta_a_ref;
     Operation {
-      Print[ az, OnElementsOf Domain,  File StrCat[Dir_Test,StrCat["az",ExtGmsh] ] ];
-      Print[ b,  OnElementsOf Domain,  File StrCat[Dir_Test,StrCat["b" ,ExtGmsh] ] ];
-      Print[ h,  OnElementsOf Domain , File StrCat[Dir_Test,StrCat["h" ,ExtGmsh] ] ];
+      Print[ az, OnElementsOf Domain,  File StrCat[Dir_Test,"az",ExtGmsh] ];
+      Print[ b,  OnElementsOf Domain,  File StrCat[Dir_Test,"b" ,ExtGmsh] ];
+      Print[ h,  OnElementsOf Domain , File StrCat[Dir_Test,"h" ,ExtGmsh] ];
     }
   }
   { Name MagSta_a_hmm ; NameOfPostProcessing MagSta_a_hmm;
     Operation {
-      Print[ az, OnElementsOf Domain,  File StrCat[Dir_Macro,StrCat["az_hmm",ExtGmsh] ] ];
-      Print[ b,  OnElementsOf Domain,  File StrCat[Dir_Macro,StrCat["b_hmm" ,ExtGmsh] ] ];
-      Print[ h,  OnElementsOf Domain , File StrCat[Dir_Macro,StrCat["h_hmm" ,ExtGmsh] ] ];
+      Print[ az, OnElementsOf Domain,  File StrCat[Dir_Macro,"az_hmm",ExtGmsh] ];
+      Print[ b,  OnElementsOf Domain,  File StrCat[Dir_Macro,"b_hmm",ExtGmsh] ];
+      Print[ h,  OnElementsOf Domain , File StrCat[Dir_Macro,"h_hmm",ExtGmsh] ];
     }
   }
 }

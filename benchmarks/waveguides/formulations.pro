@@ -278,8 +278,7 @@ PostOperation {
       Print [ eBnd, OnElementsOf SurAll, File StrCat[myDir, "eBnd.pos"]] ;
       Print [ eInc, OnElementsOf BndABC, File StrCat[myDir, "eInc.pos"]] ;
       For n In {1:NbPorts}
-        Print [ ePort~{n}, OnElementsOf Port~{n},
-          File StrCat[myDir,StrCat["ePort",StrCat[Sprintf("%g",n),".pos"]]]] ;
+        Print [ ePort~{n}, OnElementsOf Port~{n}, File StrCat[myDir,"ePort",Sprintf("%g",n),".pos"] ] ;
       EndFor
     }
   }
@@ -293,7 +292,7 @@ PostOperation {
           StoreInRegister (n*10+ActivePort),
           Format Table , File StrCat[myDir, "tmp.dat"]] ;
         Print [ S~{(n*10+ActivePort)}[Port~{n}], OnRegion Port~{n},
-          SendToServer StrCat(catOutput,StrCat("0S",Sprintf("%g",n*10+ActivePort))),
+          SendToServer StrCat[catOutput,"0S",Sprintf("%g",n*10+ActivePort)],
           Format Table , File StrCat[myDir, "tmp.dat"]] ;
       EndFor
     }

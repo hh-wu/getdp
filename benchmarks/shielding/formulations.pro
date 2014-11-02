@@ -168,7 +168,7 @@ PostOperation {
   }
   { Name Get_ShieldingEffectiveness ; NameOfPostProcessing Microwave_e ;
     Operation {
-      Print[ SE, OnPoint {0,0,0}, Format Table, File StrCat[myDir, StrCat["temp",ExtGnuplot]],
+      Print[ SE, OnPoint {0,0,0}, Format Table, File StrCat[myDir,"temp",ExtGnuplot],
         SendToServer StrCat(po,"0Shielding effectiveness [dB]")];
     }
   }
