@@ -7826,16 +7826,19 @@ CharExprNoVar :
 
   | tStr '[' RecursiveListOfCharExpr ']'
     {
-      int size = 0;
-      for(int i = 0; i < List_Nbr($3); i++)
-        size += strlen(*(char**)List_Pointer($3, i)) + 1;
+      int size = 1;
+      for(int i = 0; i < List_Nbr($3); i++){
+        char *s;
+        List_Read($3, i, &s);
+        size += strlen(s) + 1;
+      }
       $$ = (char*)Malloc(size * sizeof(char));
       $$[0] = '\0';
       for(int i = 0; i < List_Nbr($3); i++){
         char *s;
         List_Read($3, i, &s);
         strcat($$, s);
-        //Free(s);//FIXME
+        Free(s);//FIXME
         if(i != List_Nbr($3) - 1) strcat($$, "\n");
       }
       List_Delete($3);
@@ -7949,26 +7952,42 @@ RecursiveListOfCharExpr :
 
 StrCat :
 
-    tStrCat '[' CharExpr ',' CharExpr ']'
+    tStrCat '[' RecursiveListOfCharExpr ']'
     {
-      if($3 != NULL && $5 != NULL) {
-	$$ = (char *)Malloc((strlen($3)+strlen($5)+1)*sizeof(char));
-	strcpy($$, $3); strcat($$, $5);
+      int size = 1;
+      for(int i = 0; i < List_Nbr($3); i++){
+        char *s;
+        List_Read($3, i, &s);
+        size += strlen(s) + 1;
       }
-      else {
-	vyyerror("Undefined argument for StrCat function");  $$ = NULL;
+      $$ = (char*)Malloc(size * sizeof(char));
+      $$[0] = '\0';
+      for(int i = 0; i < List_Nbr($3); i++){
+        char *s;
+        List_Read($3, i, &s);
+        strcat($$, s);
+        Free(s);
       }
+      List_Delete($3);
     }
   // deprecated
-  | tStrCat '(' CharExpr ',' CharExpr ')'
+  | tStrCat '(' RecursiveListOfCharExpr ')'
     {
-      if($3 != NULL && $5 != NULL) {
-	$$ = (char *)Malloc((strlen($3)+strlen($5)+1)*sizeof(char));
-	strcpy($$, $3); strcat($$, $5);
+      int size = 1;
+      for(int i = 0; i < List_Nbr($3); i++){
+        char *s;
+        List_Read($3, i, &s);
+        size += strlen(s) + 1;
       }
-      else {
-	vyyerror("Undefined argument for StrCat function");  $$ = NULL;
+      $$ = (char*)Malloc(size * sizeof(char));
+      $$[0] = '\0';
+      for(int i = 0; i < List_Nbr($3); i++){
+        char *s;
+        List_Read($3, i, &s);
+        strcat($$, s);
+        Free(s);
       }
+      List_Delete($3);
     }
  ;
 

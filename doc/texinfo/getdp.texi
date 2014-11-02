@@ -1131,8 +1131,8 @@ for the definition of constants is:
 
 @var{string-def}:
   "@var{string}" |
-  Str[ @var{expression-char} ] |
-  StrCat[ @var{expression-char}, @var{expression-char} ]
+  StrCat[ @var{expression-char} <,@dots{}> ] |
+  Str[ @var{expression-char} <,@dots{}> ]
 @end example
 
 @noindent Notes:
@@ -1186,8 +1186,8 @@ Character expressions are defined as follows:
 @var{expression-char}:
   "@var{string}" |
   @var{string-id} |
-  StrCat[ @var{expression-char} , @var{expression-char} ] |
-  Str[ @var{expression-char} <, @dots{}> ]
+  StrCat[ @var{expression-char} <,@dots{}> ] |
+  Str[ @var{expression-char} <,@dots{}> ]
   Sprintf [ @var{expression-char} ] |
   Sprintf[ @var{expression-char}, @var{expression-cst-list} ] |
   Date
