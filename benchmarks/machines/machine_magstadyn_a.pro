@@ -942,7 +942,11 @@ PostOperation Get_LocalFields UsingPost MagStaDyn_a_2D {
   Print[ boundary, OnElementsOf DomainPlotMovingGeo,
 	 File StrCat[ResDir,"bnd",ExtGmsh], LastTimeStepOnly,
 	 AppendTimeStepToFileName Flag_SaveAllSteps] ;
-  Echo[ Str["View[PostProcessing.NbViews-1].ShowElement=1;"], File "res/tmp.geo" ] ;
+  Echo[ Str["For i In {PostProcessing.NbViews-1:0:-1}",
+            "  If(!StrCmp(View[i].Name, 'boundary'))",
+            "    View[i].ShowElement=1;",
+            "   EndIf",
+            "EndFor"], File "res/tmp.geo", LastTimeStepOnly] ;
   Print[ az, OnElementsOf Domain,
 	 File StrCat[ResDir,"a",ExtGmsh], LastTimeStepOnly,
 	 AppendTimeStepToFileName Flag_SaveAllSteps ] ;
