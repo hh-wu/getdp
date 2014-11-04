@@ -4,7 +4,7 @@ WAVENUMBER = OM;
 LAMBDA = 2*Pi/WAVENUMBER ;
 N_LAMBDA = 20.000000 ;
 LC = 0.05000;
-PRECOND_SWEEP = 0 ;
+PRECOND_SWEEP = 1 ;
 MAXIT = 100 ;
 m = 2 ;
 D = 4.000000 ;
@@ -18,8 +18,8 @@ nDoms = N_DOM;
 
 meshFactor = 2;
 
-nLayersTr = 2;
-nLayersPml = 7*meshFactor;
+nLayersTr = 0;
+nLayersPml = 7;//*meshFactor;
 
 lc = .02/meshFactor;
 LC = lc; // overwrite

@@ -10,5 +10,10 @@ If (PML)
 EndIf
 EndIf
 If (SPLIT_H)
+If (PML)
   Include "marmousi_splitH.geo";
+EndIf
+If (PML)
+  Printf("PML mesh not implemented for splitH");
+EndIf
 EndIf
