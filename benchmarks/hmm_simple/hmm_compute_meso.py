@@ -1,25 +1,24 @@
 import subprocess
 
 keys = bx_table.keys()
-proc = {}
-parallel = True
+N = len(keys)
+ncpus = 8 # change this
+ns = N / ncpus
 
-for key in keys:
-    args = ["../../bin/getdp", "meso", "-v", "2", 
-            "-solve", "a_NR", 
-            "-pos", "mean_1", "mean_2", "mean_3",
-            "-setnumber", "BX", str(bx_table[key]),
-            "-setnumber", "BY", str(by_table[key]),
-            "-setnumber", "ELENUM", str(key[0]),
-            "-setnumber", "QPINDEX", str(key[1])]
-
-    if parallel:
+for s in range(0, ns):
+    start = N * s / ns
+    end = N * (s + 1) / ns;
+    proc = {}
+    for key in keys[start:end]:
+        args = ["../../bin/getdp", "meso", "-v", "2", 
+                "-solve", "a_NR", 
+                "-pos", "mean_1", "mean_2", "mean_3",
+                "-setnumber", "BX", str(bx_table[key]),
+                "-setnumber", "BY", str(by_table[key]),
+                "-setnumber", "ELENUM", str(key[0]),
+                "-setnumber", "QPINDEX", str(key[1])]
         proc[key] = subprocess.Popen(args)
-    else:
-        proc[key] = subprocess.call(args)
-        
-if parallel:
-    for key in keys:
+    for key in keys[start:end]:
         proc[key].wait()
 
 Dir_Meso = "res_meso/" 
