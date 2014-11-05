@@ -3,7 +3,7 @@
 #SBATCH --job-name=GetDP_HMM
 #SBATCH --output=res_%j.txt
 #SBATCH --time=100
-#SBATCH --ntasks=2
+#SBATCH --ntasks=40
 #SBATCH --cpus-per-task=1
 # #SBATCH --ntasks-per-node=16
 #SBATCH --mem-per-cpu=1000

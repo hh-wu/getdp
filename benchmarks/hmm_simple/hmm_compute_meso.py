@@ -2,39 +2,36 @@ import subprocess
 import os.path
 
 keys = bx_table.keys()
-N = len(keys)
-
-ncpus = 4 # number of cpus per node
+nkeys = len(keys)
 
 if os.path.isfile("nodes.txt"):
     f = open("nodes.txt")
     nodes = f.readlines()
     f.close()
-    nnodes = len(nodes)
-    ns = N / (ncpus * nnodes)
+    ncpus = len(nodes)
 else:
-    nnodes = 0
-    ns = N / ncpus
+    nodes = ["localhost"]
+    ncpus = 8
 
-if ns == 0:
-    ns = 1
+nslices = nkeys / ncpus + 1
 
-for s in range(ns):
-    start = N * s / ns
-    end = N * (s + 1) / ns
-    print start, end
+print("Python: running {0} meso calculations in {1} slices".format(nkeys, nslices))
+
+for s in range(nslices):
+    start = nkeys * s / nslices
+    end = nkeys * (s + 1) / nslices
+    print("Python: slice {0} = [{1}, {2}[".format(s, start, end))
     proc = {}
-    for key in keys[start:end]:
+    for idx, key in enumerate(keys[start:end]):
         args = [];
-        if nnodes:
-            node = nodes[s % nnodes].strip()
-            print node
-            args.extend(["ssh", node])
-        args.extend([#"/home/ulg/ace/geuzaine/src/getdp/bin_seq/getdp", 
-                     #"/home/ulg/ace/geuzaine/src/getdp/benchmarks/hmm_simple/meso", 
-                     "../../bin/getdp", 
-                     "meso", 
-                     "-v", "2", 
+        if nodes[0] == "localhost":
+            args.extend(["../../bin/getdp", "meso"])
+        else:
+            node = nodes[idx % ncpus].strip()
+            print("Python: ssh node {0}".format(node))
+            args.extend(["ssh", node, "/home/ulg/ace/geuzaine/src/getdp/bin_seq/getdp", 
+                         "/home/ulg/ace/geuzaine/src/getdp/benchmarks/hmm_simple/meso"])
+        args.extend(["-v", "2", 
                      "-solve", "a_NR", 
                      "-pos", "mean_1", "mean_2", "mean_3",
                      "-setnumber", "BX", str(bx_table[key]),

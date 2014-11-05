@@ -1,5 +1,5 @@
 
-print("Initializing HMM python");
+print("Python: initializing HMM tables");
 
 az_table = {}
 bx_table = {}
