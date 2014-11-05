@@ -1,14 +1,7 @@
 Include "meso.dat";
 
-If(Flag_Exact)
-  x_L = Position_X - 0.5 * eps; 
-  y_L = Position_Y - 0.5 * eps;
-  Printf("Position_X = %g, Position_Y = %g", Position_X, Position_Y);
-EndIf
-If(!Flag_Exact)
-  x_L = - 0.5 * eps; 
-  y_L = - 0.5 * eps;
-EndIf
+x_L = - 0.5 * eps;
+y_L = - 0.5 * eps;
 
 p1 = newp ;  Point(p1)  = {x_L + 0.5 * d_i        , y_L + 0.5 * d_i        , 0.0, lc_ext};
 p2 = newp ;  Point(p2)  = {x_L + eps - 0.5 * d_i  , y_L + 0.5 * d_i        , 0.0, lc_ext};

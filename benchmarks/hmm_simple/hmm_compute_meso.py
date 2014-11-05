@@ -1,22 +1,44 @@
 import subprocess
+import os.path
 
 keys = bx_table.keys()
 N = len(keys)
-ncpus = 8 # change this
-ns = N / ncpus
 
-for s in range(0, ns):
+ncpus = 4 # number of cpus per node
+
+if os.path.isfile("nodes.txt"):
+    f = open("nodes.txt")
+    nodes = f.readlines()
+    f.close()
+    nnodes = len(nodes)
+    ns = N / (ncpus * nnodes)
+else:
+    nnodes = 0
+    ns = N / ncpus
+
+if ns == 0:
+    ns = 1
+
+for s in range(ns):
     start = N * s / ns
-    end = N * (s + 1) / ns;
+    end = N * (s + 1) / ns
+    print start, end
     proc = {}
     for key in keys[start:end]:
-        args = ["../../bin/getdp", "meso", "-v", "2", 
-                "-solve", "a_NR", 
-                "-pos", "mean_1", "mean_2", "mean_3",
-                "-setnumber", "BX", str(bx_table[key]),
-                "-setnumber", "BY", str(by_table[key]),
-                "-setnumber", "ELENUM", str(key[0]),
-                "-setnumber", "QPINDEX", str(key[1])]
+        args = [];
+        if nnodes:
+            node = nodes[s % nnodes].strip()
+            print node
+            args.extend(["ssh", node])
+        args.extend(["/home/ulg/ace/geuzaine/src/getdp/bin_seq/getdp", 
+                     "/home/ulg/ace/geuzaine/src/getdp/benchmarks/hmm_simple/meso", 
+                     "-v", "2", 
+                     "-solve", "a_NR", 
+                     "-pos", "mean_1", "mean_2", "mean_3",
+                     "-setnumber", "BX", str(bx_table[key]),
+                     "-setnumber", "BY", str(by_table[key]),
+                     "-setnumber", "ELENUM", str(key[0]),
+                     "-setnumber", "QPINDEX", str(key[1])])
         proc[key] = subprocess.Popen(args)
     for key in keys[start:end]:
         proc[key].wait()
