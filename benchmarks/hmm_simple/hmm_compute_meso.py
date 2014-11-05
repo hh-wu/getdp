@@ -14,13 +14,13 @@ else:
     nodes = ["localhost"]
     ncpus = 16
 
-nslices = int(math.ceil(nkeys / ncpus))
+nslices = int(math.ceil(nkeys / float(ncpus)))
 
 print("Python: running {0} meso calculations in {1} slices".format(nkeys, nslices))
 
 for s in range(nslices):
-    start = nkeys * s / nslices
-    end = nkeys * (s + 1) / nslices
+    start = s * ncpus
+    end = (s + 1) * ncpus
     print("Python: slice {0} = [{1}, {2}[".format(s, start, end))
     proc = {}
     for idx, key in enumerate(keys[start:end]):
