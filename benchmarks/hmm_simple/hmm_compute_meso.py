@@ -1,5 +1,6 @@
 import subprocess
 import os.path
+import math
 
 keys = bx_table.keys()
 nkeys = len(keys)
@@ -11,9 +12,9 @@ if os.path.isfile("nodes.txt"):
     ncpus = len(nodes)
 else:
     nodes = ["localhost"]
-    ncpus = 8
+    ncpus = 16
 
-nslices = nkeys / ncpus + 1
+nslices = int(math.ceil(nkeys / ncpus))
 
 print("Python: running {0} meso calculations in {1} slices".format(nkeys, nslices))
 
