@@ -30,8 +30,10 @@ for s in range(ns):
             node = nodes[s % nnodes].strip()
             print node
             args.extend(["ssh", node])
-        args.extend(["/home/ulg/ace/geuzaine/src/getdp/bin_seq/getdp", 
-                     "/home/ulg/ace/geuzaine/src/getdp/benchmarks/hmm_simple/meso", 
+        args.extend([#"/home/ulg/ace/geuzaine/src/getdp/bin_seq/getdp", 
+                     #"/home/ulg/ace/geuzaine/src/getdp/benchmarks/hmm_simple/meso", 
+                     "../../bin/getdp", 
+                     "meso", 
                      "-v", "2", 
                      "-solve", "a_NR", 
                      "-pos", "mean_1", "mean_2", "mean_3",
