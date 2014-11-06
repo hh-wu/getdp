@@ -10,14 +10,14 @@
 #SBATCH --mail-user=cgeuzaine@ulg.ac.be
 #SBATCH --mail-type=ALL
 
-OPT="-setnumber ANALYSIS 1
-     -setstring DIR $GLOBALSCRATCH/out_$SLURM_JOB_ID/"
+OPT="-setnumber Lay1 5
+     -setnumber Lay3 5"
 
 GMSH="$HOME/src/gmsh/bin/gmsh $OPT -v 4 -bin"
 GETDP="$HOME/src/getdp/bin/getdp $OPT -v 4 -bin"
 
-FILEPATH="$HOME/src/getdp/benchmarks/hmm_simple/"
+DIR="$HOME/src/getdp/benchmarks/hmm_simple/"
 
 cat $0
-srun hostname > ${FILEPATH}/nodes.txt
-mpirun -np 1 $GETDP ${FILEPATH}/macro.pro -solve MagSta_a_hmm
+srun hostname > ${DIR}/nodes.txt
+mpirun -np 1 $GETDP ${DIR}/macro.pro -solve MagSta_a_hmm
