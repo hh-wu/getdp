@@ -5,8 +5,20 @@ import math
 keys = bx_table.keys()
 nkeys = len(keys)
 
-if os.path.isfile("nodes.txt"):
-    f = open("nodes.txt")
+# zenobe
+getdp_dir="/home/acad/ulg/ace/cgeuzain/src/getdp/bin_seq/"
+file_dir="/home/acad/ulg/ace/cgeuzain/src/getdp/benchmarks/hmm_simple/"
+
+# nic4
+#getdp_dir="/home/ulg/ace/geuzaine/src/getdp/bin_seq/"
+#file_dir="/home/ulg/ace/geuzaine/src/getdp/benchmarks/hmm_simple/"
+
+# local
+#getdp_dir="../../bin/"
+#file_dir=""
+
+if os.path.isfile(file_dir + "nodes.txt"):
+    f = open(file_dir + "nodes.txt")
     nodes = f.readlines()
     f.close()
     ncpus = len(nodes)
@@ -26,12 +38,11 @@ for s in range(nslices):
     for idx, key in enumerate(keys[start:end]):
         args = [];
         if nodes[0] == "localhost":
-            args.extend(["../../bin/getdp", "meso"])
+            args.extend([getdp_dir + "getdp", "meso"])
         else:
             node = nodes[idx % ncpus].strip()
             print("Python: ssh node {0}".format(node))
-            args.extend(["ssh", node, "/home/ulg/ace/geuzaine/src/getdp/bin_seq/getdp", 
-                         "/home/ulg/ace/geuzaine/src/getdp/benchmarks/hmm_simple/meso"])
+            args.extend(["ssh", node, getdp_dir + "getdp", file_dir + "meso"])
         args.extend(["-v", "2", 
                      "-solve", "a_NR", 
                      "-pos", "mean_1", "mean_2", "mean_3",
@@ -43,7 +54,7 @@ for s in range(nslices):
     for key in keys[start:end]:
         proc[key].wait()
 
-Dir_Meso = "res_meso/" 
+Dir_Meso = file_dir + "res_meso/"
 for key in keys:
     f = open(Dir_Meso + "DualField1_" + str(key[0]) + ".txt", "r")
     h1 = map(float, f.readline().split())
