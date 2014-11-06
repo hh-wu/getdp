@@ -247,6 +247,22 @@ void  F_dbdh_Vinch(F_ARG) ;
 void  F_Update_Jk (F_ARG) ;
 void  F_Update_Jk_sd (F_ARG) ;
 
+void Vector_Update_Jk_sd_K(double h[3], double Jk[3], double Jkp[3], 
+						   double chi, double Js, double alpha) ;
+void Vector_b_Vinch_K     (int N, double h[3], double alpha, double *Jk_all, 
+					       double *Jkp_all, double *chi_all, double *Js_all, double b[3] ) ;
+void Vector_h_Vinch_K	  (int N, double b[3], double bc[3], double alpha, double *Jk_all, 
+						   double *Jkp_all, double *chi_all, double *Js_all, double h[3] );
+void Tensor_dbdh_Vinch_K  (int N, double h[3], double alpha, double *Jk_all, 
+						   double *Jkp_all, double *chi_all, double *Js_all, double dbdh[9]);
+void Tensor_dJkdh_Vinch_K (double h[3], double Jk[3], double Jkp[3], 
+						   double chi, double Js, double alpha, double dJkdh[9]);
+void Inv_Tensor3x3_K (double T[9], double invT[9]);
+void F_b_Vinch_K(F_ARG);
+void F_h_Vinch_K(F_ARG);
+void F_nu_Vinch_K(F_ARG);
+void F_dhdb_Vinch_K(F_ARG);
+
 /* F_MultiHar */
 
 void  F_MHToTime           (F_ARG) ;
