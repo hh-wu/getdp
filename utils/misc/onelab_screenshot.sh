@@ -1,8 +1,12 @@
 #!/bin/sh
 
-# Run this once you have a nice view of the model to generate the wiki
-# screenshots
+# Run this once you have a nice view of the model to generate the screenshots
+# used in the ONELAB wiki, e.g.:
 #
+#  > gmsh main.pro
+#  ... get nice view ...
+#  > onelab_screenshot 1
+#  > onelab_screenshot 2
 
 if [ $# -lt 1 ]; then
   echo "Usage: $0 number" 1>&2;

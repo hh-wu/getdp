@@ -5,55 +5,55 @@
 		<title>Permanent magnet synchronous machine</title>
 		<summary>Eight-pole surface mounted PMSM</summary>
 		<file type="geo">pmsm.geo</file>
-		<preview type="png">screenshot_pmsm.png</preview>
+		<preview type="png">screenshot_pmsm_128.png</preview>
 		<url>http://onelab.info/wiki/Electric_Machines</url>
 	</model>
 	<!-- model>
 		<title>CBMAG Permanent magnet synchronous machine</title>
 		<file type="pro">pmsm_cbmag.pro</file>
-		<preview type="png">screenshot_pmsm_cbmag.png</preview>
+		<preview type="png">screenshot_pmsm_cbmag_128.png</preview>
 		<url>http://onelab.info/wiki/Electric_Machines</url>
 	</model -->
 	<!-- model>
 		<title>Lomonova Permanent magnet synchronous machine</title>
 		<summary>Eight-pole </summary>
 		<file type="geo">lomonova.geo</file>
-		<preview type="png">screenshot_lomonova.png</preview>
+		<preview type="png">screenshot_lomonova_128.png</preview>
 		<url>http://onelab.info/wiki/Electric_Machines</url>
 	</model -->
 	<model>
 		<title>Wound field synchronous machine</title>
 		<summary>Four-pole WFSM</summary>
 		<file type="geo">wfsm_4p.geo</file>
-		<preview type="png">screenshot_wfsm_4p.png</preview>
+		<preview type="png">screenshot_wfsm_4p_128.png</preview>
 		<url>http://onelab.info/wiki/Electric_Machines</url>
 	</model>
 	<model>
 		<title>Simple induction motor</title>
 		<summary>Team30 benchmark induction machine with solid rotor</summary>
 		<file type="pro">t30.pro</file>
-		<preview type="png">screenshot_t30.png</preview>
+		<preview type="png">screenshot_t30_128.png</preview>
 		<url>http://onelab.info/wiki/Electric_Machines</url>
 	</model>
 	<model>
 		<title>Deep-bar induction machine</title>
 		<summary>Four-pole deep-bar induction machine</summary>
 		<file type="pro">im.pro</file>
-		<preview type="png">screenshot_im.png</preview>
+		<preview type="png">screenshot_im_128.png</preview>
 		<url>http://onelab.info/wiki/Electric_Machines</url>
 	</model>
 	<model>
 		<title>Induction machine</title>
 		<summary>3kW Four-pole induction machine</summary>
 		<file type="pro">im_3kW.pro</file>
-		<preview type="png">screenshot_im_3kW.png</preview>
+		<preview type="png">screenshot_im_3kW_128.png</preview>
 		<url>http://onelab.info/wiki/Electric_Machines</url>
 	</model>
 	<model>
 		<title>Switched reluctance machine</title>
 		<summary>Simple SRM</summary>
 		<file type="pro">srm.pro</file>
-		<preview type="png">screenshot_srm.png</preview>
+		<preview type="png">screenshot_srm_128.png</preview>
 		<url>http://onelab.info/wiki/Electric_Machines</url>
 	</model>
 </models>

@@ -14,8 +14,8 @@ file_dir="/home/acad/ulg/ace/cgeuzain/src/getdp/benchmarks/hmm_simple/"
 #file_dir="/home/ulg/ace/geuzaine/src/getdp/benchmarks/hmm_simple/"
 
 # local
-#getdp_dir="../../bin/"
-#file_dir=""
+getdp_dir="../../bin/"
+file_dir=""
 
 if os.path.isfile(file_dir + "nodes.txt"):
     f = open(file_dir + "nodes.txt")

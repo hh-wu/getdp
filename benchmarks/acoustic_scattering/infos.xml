@@ -5,7 +5,7 @@
 		<title>Acoustic wave scattering</title>
 		<summary>2D models of multiple acoustic scattering</summary>
 		<file type="pro">scattering.pro</file>
-		<preview type="png">screenshot_scattering.png</preview>
+		<preview type="png">screenshot_scattering_128.png</preview>
 		<url>http://onelab.info/wiki/Acoustic_Scattering</url>
 	</model>
 </models>
