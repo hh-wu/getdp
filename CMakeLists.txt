@@ -907,6 +907,7 @@ if(APPLE AND ENABLE_BUILD_LIB)
   string(REPLACE GETDP_VERSION "${GETDP_VERSION}" F1 "${F0}")
   file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/Info_framework.plist "${F1}")
   get_target_property(LIBNAME lib LOCATION)
+  #set(LIBNAME $<TARGET_FILE:lib>) # FIXME: use this in the future
   add_custom_target(framework DEPENDS lib
     COMMAND ${CMAKE_COMMAND} -E remove_directory GetDP.framework
     COMMAND ${CMAKE_COMMAND} -E make_directory GetDP.framework/Headers
