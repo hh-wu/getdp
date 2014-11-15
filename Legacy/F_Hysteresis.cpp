@@ -1157,20 +1157,25 @@ void Tensor_dJkdh_Vinch_K(double h[3], double Jk[3], double Jkp[3], double chi, 
   }
   else{  // numerical Jacobian
     Message::Debug("Numerical Jacobian Js=%g, nJk=%g and ndJk=%g",Js,nJk, ndJk);
-    double TOL    = 1e-14;
-    double delta0 = 1e-4 ;
+    double EPSILON = 1e-16;
+    double delta0  = 1e-4 ;
 
-    /*
     // Different following the different directions ??? TO CHECK
-    double delta[3] = { (fabs(h[0])!=0.) ? fabs(h[0]) * delta0 : delta0,
-                        (fabs(h[1])!=0.) ? fabs(h[1]) * delta0 : delta0,
-                        (fabs(h[2])!=0.) ? fabs(h[2]) * delta0 : delta0 } ;
-    */
+    /*
+    double delta[3] = { (fabs(h[0])>EPSILON) ? fabs(h[0]) * delta0 : delta0,
+                        (fabs(h[1])>EPSILON) ? fabs(h[1]) * delta0 : delta0,
+                        (fabs(h[2])>EPSILON) ? fabs(h[2]) * delta0 : delta0 } ;
 
-    double delta = (norm(h)>TOL) ? norm(h) * delta0 : delta0;
-    double hxr[3] = {h[0]+delta, 0.         ,0.},         hxl[3]={h[0]-delta, 0.,         0.};
-    double hyr[3] = {0.,         h[1]+delta ,0.},         hyl[3]={0.,         h[1]-delta, 0.};
-    double hzr[3] = {0.,         0.         ,h[2]+delta}, hzl[3]={0.,         0.,         h[2]-delta};
+    */
+    double delta[3] = {((norm(h)>EPSILON) ? norm(h) * delta0 : delta0),
+                       ((norm(h)>EPSILON) ? norm(h) * delta0 : delta0),
+                       ((norm(h)>EPSILON) ? norm(h) * delta0 : delta0) } ;
+
+
+    double hxr[3]={h[0]+delta[0], h[1]          ,h[2]};          double hxl[3]={h[0]-delta[0], h[1],          h[2]};
+    double hyr[3]={h[0],          h[1]+delta[1] ,h[2]};          double hyl[3]={h[0],          h[1]-delta[1], h[2]};
+    double hzr[3]={h[0],          h[1]          ,h[2]+delta[2]}; double hzl[3]={h[0],          h[1],          h[2]-delta[2]};
+
     double Jkxr[3], Jkxl[3], Jkyr[3], Jkyl[3], Jkzr[3], Jkzl[3];
 
     Vector_Update_Jk_sd_K(hxr, Jkxr, Jkp, chi, Js, alpha);
@@ -1180,17 +1185,6 @@ void Tensor_dJkdh_Vinch_K(double h[3], double Jk[3], double Jkp[3], double chi, 
     Vector_Update_Jk_sd_K(hzr, Jkzr, Jkp, chi, Js, alpha);
     Vector_Update_Jk_sd_K(hzl, Jkzl, Jkp, chi, Js, alpha);
 
-    dJkdh[0]= (Jkxr[0]-Jkxl[0])/(2*delta);
-    dJkdh[1]= (Jkyr[0]-Jkyl[0])/(2*delta);
-    dJkdh[2]= (Jkzr[0]-Jkzl[0])/(2*delta);
-    dJkdh[3]= (Jkxr[1]-Jkxl[1])/(2*delta);
-    dJkdh[4]= (Jkyr[1]-Jkyl[1])/(2*delta);
-    dJkdh[5]= (Jkzr[1]-Jkzl[1])/(2*delta);
-    dJkdh[6]= (Jkxr[2]-Jkxl[2])/(2*delta);
-    dJkdh[7]= (Jkyr[2]-Jkyl[2])/(2*delta);
-    dJkdh[8]= (Jkzr[2]-Jkzl[2])/(2*delta);
-
-    /*
     dJkdh[0]= (Jkxr[0]-Jkxl[0])/(2*delta[0]);
     dJkdh[1]= (Jkyr[0]-Jkyl[0])/(2*delta[1]);
     dJkdh[2]= (Jkzr[0]-Jkzl[0])/(2*delta[2]);
@@ -1200,7 +1194,6 @@ void Tensor_dJkdh_Vinch_K(double h[3], double Jk[3], double Jkp[3], double chi, 
     dJkdh[6]= (Jkxr[2]-Jkxl[2])/(2*delta[0]);
     dJkdh[7]= (Jkyr[2]-Jkyl[2])/(2*delta[1]);
     dJkdh[8]= (Jkzr[2]-Jkzl[2])/(2*delta[2]);
-    */
   }
 }
 
@@ -1453,9 +1446,9 @@ void F_nu_Vinch_K(F_ARG)
 Vector_h_Vinch_K(N, b, bc, alpha, Jk_all, Jkp_all, chi_all, Js_all, h );
 
   V->Type = TENSOR_SYM ;
-  V->Val[0] = (b[0] == 0) ? (1/(1e3*MU0)): h[0]/b[0]  ;  V->Val[1] = 0.0  ;  V->Val[2] = 0.0 ;
-  V->Val[3] = (b[1] == 0) ? (1/(1e3*MU0)): h[1]/b[1]  ;  V->Val[4] = 0.0 ;
-  V->Val[5] = (b[2] == 0) ? (1/(1e3*MU0)): h[2]/b[2]  ;
+  V->Val[0] = (!b[0]) ? (1/(1e3*MU0)): h[0]/b[0]  ;  V->Val[1] = 0.0  ;  V->Val[2] = 0.0 ;
+  V->Val[3] = (!b[1]) ? (1/(1e3*MU0)): h[1]/b[1]  ;  V->Val[4] = 0.0 ;
+  V->Val[5] = (!b[2]) ? (1/(1e3*MU0)): h[2]/b[2]  ;
 }
 
 void F_dhdb_Vinch_K(F_ARG)
@@ -1498,16 +1491,16 @@ void F_dhdb_Vinch_K(F_ARG)
 
   else{  // numerical Jacobian (NEVER USED!)
     double b[3] ;
+    double hxr[3], hxl[3], hyr[3], hyl[3], hzr[3], hzl[3];
 
     Vector_b_Vinch_K(N, h, alpha, Jk_all, Jkp_all, chi_all, Js_all, b ) ;
 
     double TOL   = 1e-14;
     double delta0 = 1e-4 ;
     double delta = (norm(b)>TOL) ? norm(b) * delta0 : delta0;
-    double bxr[3]={b[0]+delta, 0.         ,0.},         bxl[3]={h[0]-delta, 0.,         0.};
-    double byr[3]={0.,         b[1]+delta ,0.},         byl[3]={0.,         b[1]-delta, 0.};
-    double bzr[3]={0.,         0.         ,b[2]+delta}, bzl[3]={0.,         0.,         b[2]-delta};
-    double hxr[3], hxl[3], hyr[3], hyl[3], hzr[3], hzl[3];
+    double bxr[3]={b[0]+delta, b[1]      , b[2]};       double bxl[3] = {b[0]-delta, b[1],       b[2]} ;
+    double byr[3]={b[0],       b[1]+delta, b[2]};       double byl[3] = {b[0],       b[1]-delta, b[2]} ;
+    double bzr[3]={b[0],       b[1]      , b[2]+delta}; double bzl[3] = {b[0],       b[1],       b[2]-delta};
 
     Vector_h_Vinch_K(N, bxr, b, alpha, Jk_all, Jkp_all, chi_all, Js_all, hxr );
     Vector_h_Vinch_K(N, bxl, b, alpha, Jk_all, Jkp_all, chi_all, Js_all, hxl );
@@ -1527,7 +1520,6 @@ void F_dhdb_Vinch_K(F_ARG)
     dhdb[8]= (hzr[2]-hzl[2])/(2*delta);
   }
 
-  V->Type = TENSOR ;// xx, xy, xz, yx, yy, yz, zx, zy, zz
+  V->Type = TENSOR ;
   for (int n=0 ; n<9 ; n++)  V->Val[n] = dhdb[n] ;
-
 }
