@@ -1161,20 +1161,27 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
 	Pos_InitAllSolutions(PSO_P->TimeStep_L, i) ;
 	valr = Current.DofData->CurrentSolution->Time ;
 	vali = Current.DofData->CurrentSolution->TimeImag ;
-	for (j = 0 ; j < Current.NbrHar ; j++) {
-          if(!(j % 2)){
-            sprintf(tmp, "Eigenvalue %d/%d: %g %s i * %g (Real Part)",
-                    i+1, NbTimeStep, valr, (vali > 0) ? "+" : "-",
-                    (vali > 0) ? vali : -vali);
-            Gmsh_StringAdd(PSO_P->Format, (!i && !j), tmp);
+        if(Current.NbrHar == 1){
+          sprintf(tmp, "Eigenvalue %d/%d: %g",
+                  i+1, NbTimeStep, valr);
+          Gmsh_StringAdd(PSO_P->Format, !i, tmp);
+        }
+        else{
+          for (j = 0 ; j < Current.NbrHar ; j++) {
+            if(!(j % 2)){
+              sprintf(tmp, "Eigenvalue %d/%d: %g %s i * %g (Real Part)",
+                      i+1, NbTimeStep, valr, (vali > 0) ? "+" : "-",
+                      (vali > 0) ? vali : -vali);
+              Gmsh_StringAdd(PSO_P->Format, (!i && !j), tmp);
+            }
+            else{
+              sprintf(tmp, "Eigenvalue %d/%d: %g %s i * %g (Imaginary Part)",
+                      i+1, NbTimeStep, valr, (vali > 0) ? "+" : "-",
+                      (vali > 0) ? vali : -vali);
+              Gmsh_StringAdd(PSO_P->Format, 0, tmp);
+            }
           }
-          else{
-            sprintf(tmp, "Eigenvalue %d/%d: %g %s i * %g (Imaginary Part)",
-                    i+1, NbTimeStep, valr, (vali > 0) ? "+" : "-",
-                    (vali > 0) ? vali : -vali);
-            Gmsh_StringAdd(PSO_P->Format, 0, tmp);
-          }
-	}
+        }
       }
       Gmsh_StringEnd(PSO_P->Format);
       break;
