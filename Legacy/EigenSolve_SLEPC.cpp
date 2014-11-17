@@ -556,7 +556,9 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
     _try(PCFactorSetMatSolverPackage(pc, "mumps"));
 #endif
   }
-	_try(PEPSetScale(pep,PEP_SCALE_SCALAR,PETSC_DECIDE,PETSC_DECIDE,PETSC_DECIDE));
+
+  _try(PEPSetScale(pep, PEP_SCALE_SCALAR, PETSC_DECIDE, PETSC_DECIDE, PETSC_DECIDE));
+
   // override these options at runtime, petsc-style
   _try(PEPSetFromOptions(pep));
 
