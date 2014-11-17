@@ -287,8 +287,8 @@ void Operation_IterativeLoopN(Resolution  *Resolution_P,
       Message::AddOnelabNumberChoice(Message::GetOnelabClientName() +
                                    "/IterativeLoop/ILmaxErrorRatio", MaxErrorRatio);
     if (MaxErrorRatio < 1.) {
-      Message::Info(3, "IterativeLoopN: Converged after %d iteration%s",
-                    (int)Current.Iteration, ((int)Current.Iteration==1)?"":"s");
+      Message::Info(3, "IterativeLoopN converged (%d iterations, error ratio %g)",
+                    (int)Current.Iteration, MaxErrorRatio);
       break;
     }
   }
@@ -296,7 +296,8 @@ void Operation_IterativeLoopN(Resolution  *Resolution_P,
   if (Num_Iteration > NbrMaxIteration) {
     Num_Iteration = NbrMaxIteration;
     Flag_IterativeLoopConverged = 0;
-    Message::Info(3, "IterativeLoopN: Max iteration count reached! No convergence!");
+    Message::Info(3, "IterativeLoopN did NOT converge (%d iterations, error ratio %g)",
+                  (int)Current.Iteration, MaxErrorRatio);
   }
   Current.Iteration = Save_Iteration ;
   Flag_IterativeLoopN = 0;
