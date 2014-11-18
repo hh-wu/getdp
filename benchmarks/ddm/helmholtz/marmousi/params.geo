@@ -2,12 +2,12 @@ N_DOM = 16 ;
 
 SPLIT_V = 1;
 SPLIT_H = (1-SPLIT_V);
-EXTERNAL_VELOCITY_FIELD = 0;
-PRECOND_SWEEP = 1 ;
+EXTERNAL_VELOCITY_FIELD = 1;
+PRECOND_SWEEP = 0 ;
 
 N_ON_TOP = 0;
 
-om = 2*Pi*15;
+om = 2*Pi*7;
 cMin = 1500.;
 cMax = 5500.;
 cAvg = 3500.;
@@ -31,7 +31,7 @@ Include "params_part2.geo";
 
 meshFactor = 2.;
 
-nLayersTr = 3;
+nLayersTr = 2;
 nLayersPml = 7*meshFactor;
 
 lc = 20./meshFactor;
@@ -43,14 +43,5 @@ nDoms = N_DOM;
 dTr = nLayersTr*lc;
 dPml = nLayersPml*lc;
 dBb = (nLayersPml+nLayersTr)*lc;
-
-sigmaPml = 1000;
-xPmlRight = D;
-xPmlLeft = 0.;
-m=2;
-
-xDelta = 0.;
-
-// DList = {0,2,4};
 
 dDom = D/nDoms;

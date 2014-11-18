@@ -1,11 +1,6 @@
 Include "params.geo";
 Include "../main/ddmDefines.pro";
-If (!PML)
-Include "groups_marmousi_mshcut.pro";
-EndIf
-If (PML)
-Include "groups_marmousi_mshcut_PML.pro";
-EndIf
+
 
 VELOCITY_FNAME = "../marmousi/marmousi.pos";
 LEFT_PC = 0;
@@ -22,6 +17,15 @@ If (PML)
     xSigma~{idom}~{0} = xSigmaList(idom);
     xSigma~{idom}~{1} = xSigmaList(idom+1);
   EndFor
+EndIf
+
+Include "../main/topology/inline.pro";
+
+If (!PML)
+Include "groups_marmousi_mshcut.pro";
+EndIf
+If (PML)
+Include "groups_marmousi_mshcut_PML.pro";
 EndIf
 
 
@@ -68,7 +72,6 @@ Function {
 }
 
 Include "../main/tcDefaults.pro";
-Include "../main/topology/inline.pro";
 
 If (PML)
 Include "pmlFunctions.pro";

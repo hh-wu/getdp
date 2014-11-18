@@ -39,7 +39,8 @@ FunctionSpace {
 { Name Hgrad_u; Type Form0 ;
   BasisFunction { { Name sn ; NameOfCoef un ; Function BF_Node ;
       Support Region[ {Omega, GammaInf, Sigma, GammaD, GammaD0, BndGammaInf} ] ; Entity NodesOf[ All ] ; } }
-  Constraint { { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet ; }
+  Constraint { 
+    { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet ; }
     { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet0 ; } }
  }
 { Name Hgrad_r; Type Form0 ;
@@ -179,7 +180,7 @@ Formulation {
 
 Resolution {
   {Name Full;
-    System { { Name Helmholtz ; NameOfFormulation Full ; Type Complex; NameOfMesh "../marmousi/marmousi.msh";} }
+    System { { Name Helmholtz ; NameOfFormulation Full ; Type Complex; NameOfMesh StrCat[MshName,".msh"];} }
     Operation {
       If (EXTERNAL_VELOCITY_FIELD)
 	GmshRead[VELOCITY_FNAME, 999];

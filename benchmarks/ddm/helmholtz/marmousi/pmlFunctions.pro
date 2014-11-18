@@ -38,13 +38,15 @@ Function {
       kPml~{idom}~{jdom}[#{OmegaPml~{idom}~{jdom}, GamaPmlAll~{idom}~{jdom}}] = om[]/(ScalarField[ Vector[xSigma~{idom}~{jdom},Y[],Z[]] ]{999});
     EndIf
     If (!EXTERNAL_VELOCITY_FIELD)
-      kPml~{idom}~{jdom}[] = om[]/c[ Vector[xSigma~{idom}~{jdom},Y[],Z[]] ] ;
+      kPml~{idom}~{jdom}[] = om[]/c[ Vector[xSigma~{idom}~{jdom},Y[],Z[]] ] ; // FIXME: the speed is still returned as c[XYZ[]]
     EndIf
     EndFor
 
   EndFor
   SigmaY[] = 0.;//Y[] <= yPml ? 0. : sigmaPml*((Y[]-yPml)/dPml)^2 ;
+  SigmaZ[] = 0.;//Y[] <= yPml ? 0. : sigmaPml*((Y[]-yPml)/dPml)^2 ;
   Kx[] = Complex[1, SigmaX[]/om[]];
   Ky[] = Complex[1, SigmaY[]/om[]];
-  D[] = TensorDiag[Ky[]/Kx[], Kx[]/Ky[], 0.];
+  Kz[] = Complex[1, SigmaZ[]/om[]];
+  D[] = TensorDiag[Ky[]*Kz[]/Kx[], Kx[]*Kz[]/Ky[], Kx[]*Ky[]/Kz[]]; 
 }

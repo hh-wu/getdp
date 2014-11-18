@@ -49,7 +49,8 @@ Function{
 }
 
 Group{ // definition of some subsets of the regions defined by the user
-  For idom In {0:N_DOM-1}
+  For ii In {0: #ListOfDom()-1}
+    idom = ListOfDom(ii);
     For iSide In {0:1}
       BndSigmaD~{idom}~{iSide} = Region[BndSigma~{idom}~{iSide}, Not {GammaN~{idom}, GammaInf~{idom}}];
       BndSigmaN~{idom}~{iSide} = Region[BndSigma~{idom}~{iSide}, Not {GammaD~{idom}, GammaInf~{idom}}];
@@ -93,8 +94,14 @@ Constraint{
       EndFor
     EndIf
     If(PML)
-      { Name Dirichlet~{idom} ; Case { { Region Gama_D~{idom} ; Value f_diri[];} } }
-      { Name Dirichlet0~{idom} ; Case { { Region Gama_D0~{idom} ; Value 0.;} } }	    
+      { Name Dirichlet~{idom} ; Case { { Region Gama_D~{idom} ; Type Assign; Value f_diri[];} } }
+      { Name Dirichlet0~{idom} ; 
+	Case {
+	  { Region Gama_D0~{idom} ; Type Assign; Value 0.;} 
+	  { Region GamaPml_D0~{idom}~{0} ; Type Assign; Value 0.; }
+	  { Region GamaPml_D0~{idom}~{1} ; Type Assign; Value 0.; }
+	}
+      }
     EndIf
   EndFor
 }
@@ -139,6 +146,59 @@ FunctionSpace {
 }
 EndIf
 If (PML)
+// FunctionSpace {
+//   For ii In {0: #ListOfDom()-1}
+//     idom = ListOfDom(ii);
+
+//     { Name Hgrad_u_Dirichlet2D~{idom} ; Type Form0 ;
+//       BasisFunction {
+// 	{ Name sn ; NameOfCoef un ; Function BF_Node ;
+// 	  Support Region[{OmegaAll~{idom}, GamaAll~{idom}, Sigma~{idom}, Gama_D~{idom}}]; Entity NodesOf[All];
+// 	  // Support Region[{OmegaAll~{idom}, GamaAll~{idom}, Gama_D~{idom}}]; Entity NodesOf[All];
+// 	}
+//       }
+//       Constraint {
+// 	{ NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet~{idom} ; }
+// 	{ NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet0~{idom} ; }
+//       }
+//     }
+
+//     For jdom In {0:1}
+//     { Name Hgrad_u_Dirichlet2D_lm~{idom}~{jdom} ; Type Form0 ;
+//       BasisFunction {
+// 	{ Name sn ; NameOfCoef un ; Function BF_Node ;
+// 	  // Support Region[{OmegaPml~{idom}~{jdom},Sigma~{idom}~{jdom},Gama~{idom}~{jdom},Gama_N~{idom},Gama_S~{idom}}]; Entity NodesOf[All];
+// 	  Support Region[{OmegaPml~{idom}~{jdom}, GamaPmlAll~{idom}~{jdom}, Sigma~{idom}~{jdom}}]; Entity NodesOf[All];
+// 	}
+//       }
+//       Constraint {
+// 	{ NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet0~{idom} ; }
+//       }
+//     }
+
+//     { Name Hgrad_g_Dirichlet2D_lm~{idom}~{jdom} ; Type Form0 ;
+//       BasisFunction {
+// 	{ Name sn ; NameOfCoef un ; Function BF_Node ;
+// 	  Support Region[{Sigma~{idom}~{jdom}}]; Entity NodesOf[All];
+// 	}
+//       }
+//       Constraint {
+// 	{ NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet0~{idom} ; } // FIXME: necessary ??
+//       }
+//     }
+//     { Name Hgrad_gbb_Dirichlet2D_lm~{idom}~{jdom} ; Type Form0 ;
+//       BasisFunction {
+// 	{ Name sn ; NameOfCoef un ; Function BF_Node ;
+// 	  Support Region[{Sigma~{idom}~{jdom}}]; Entity NodesOf[All];
+// 	}
+//       }
+//       Constraint {
+// 	{ NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet0~{idom} ; } // FIXME: necessary ??
+//       }
+//     }
+//     EndFor
+//   EndFor // end loop idom
+// }
 FunctionSpace {
   For ii In {0: #ListOfDom()-1}
     idom = ListOfDom(ii);
@@ -146,7 +206,8 @@ FunctionSpace {
     { Name Hgrad_u_Dirichlet2D~{idom} ; Type Form0 ;
       BasisFunction {
 	{ Name sn ; NameOfCoef un ; Function BF_Node ;
-	  Support Region[{OmegaAll~{idom}, GamaAll~{idom}, Sigma~{idom}, Gama_D~{idom}}]; Entity NodesOf[All];
+	  // Support Region[{OmegaAll~{idom}, GamaAll~{idom}, Sigma~{idom}, Gama_D~{idom}}]; Entity NodesOf[All];
+	  Support Region[{OmegaAll~{idom}, Gama_S~{idom}, Gama_N~{idom}, Gama_D~{idom}, Gama_D0~{idom}, Gama~{idom}, Sigma~{idom}, GamaPml_S~{idom}~{0}, GamaPml_N~{idom}~{0}, GamaPml_D0~{idom}~{0}, GamaPml_S~{idom}~{1}, GamaPml_N~{idom}~{1}, GamaPml_D0~{idom}~{1}}]; Entity NodesOf[All];
 	  // Support Region[{OmegaAll~{idom}, GamaAll~{idom}, Gama_D~{idom}}]; Entity NodesOf[All];
 	}
       }
@@ -161,7 +222,8 @@ FunctionSpace {
       BasisFunction {
 	{ Name sn ; NameOfCoef un ; Function BF_Node ;
 	  // Support Region[{OmegaPml~{idom}~{jdom},Sigma~{idom}~{jdom},Gama~{idom}~{jdom},Gama_N~{idom},Gama_S~{idom}}]; Entity NodesOf[All];
-	  Support Region[{OmegaPml~{idom}~{jdom}, GamaPmlAll~{idom}~{jdom}, Sigma~{idom}~{jdom}}]; Entity NodesOf[All];
+	  // Support Region[{OmegaPml~{idom}~{jdom}, GamaPmlAll~{idom}~{jdom}, Sigma~{idom}~{jdom}}]; Entity NodesOf[All];
+	  Support Region[{OmegaPml~{idom}~{jdom}, GamaPml_S~{idom}~{jdom}, GamaPml_N~{idom}~{jdom}, GamaPml_D0~{idom}~{jdom}, Sigma~{idom}~{jdom}}]; Entity NodesOf[All];
 	}
       }
       Constraint {
@@ -172,7 +234,7 @@ FunctionSpace {
     { Name Hgrad_g_Dirichlet2D_lm~{idom}~{jdom} ; Type Form0 ;
       BasisFunction {
 	{ Name sn ; NameOfCoef un ; Function BF_Node ;
-	  Support Region[{Sigma~{idom}~{jdom}}]; Entity NodesOf[All];
+	  Support Region[{Sigma~{idom}~{jdom}, GamaPml_D0~{idom}~{jdom}}]; Entity NodesOf[All];
 	}
       }
       Constraint {
@@ -182,7 +244,7 @@ FunctionSpace {
     { Name Hgrad_gbb_Dirichlet2D_lm~{idom}~{jdom} ; Type Form0 ;
       BasisFunction {
 	{ Name sn ; NameOfCoef un ; Function BF_Node ;
-	  Support Region[{Sigma~{idom}~{jdom}}]; Entity NodesOf[All];
+	  Support Region[{Sigma~{idom}~{jdom}, GamaPml_D0~{idom}~{jdom}}]; Entity NodesOf[All];
 	}
       }
       Constraint {
@@ -412,15 +474,14 @@ Formulation {
       // 	In Omega ; Jacobian JVol ; Integration I1 ; }      
 
       //modified Helmholtz equation
-      Galerkin{[D[]* Dof{d u~{idom}}, {d u~{idom}}];
+      // Galerkin{[D[]* Dof{d u~{idom}}, {d u~{idom}}];
+      Galerkin{[Rotate[D[],0.,0.,-theta]* Dof{d u~{idom}}, {d u~{idom}}];
       	In OmegaPml~{idom}; Jacobian JVol; Integration I1;}
-      // Galerkin{[-k[]^2*Kx[]*Ky[]*Dof{u~{idom}}, {u~{idom}}];
 
-      Galerkin{[-(kPml~{idom}~{0}[])^2*Kx[]*Ky[]*Dof{u~{idom}}, {u~{idom}}];
+      Galerkin{[-(kPml~{idom}~{0}[])^2*Kx[]*Ky[]*Kz[]*Dof{u~{idom}}, {u~{idom}}];
       	In OmegaPml~{idom}~{0}; Jacobian JVol; Integration I1;}
-      Galerkin{[-(kPml~{idom}~{1}[])^2*Kx[]*Ky[]*Dof{u~{idom}}, {u~{idom}}];
+      Galerkin{[-(kPml~{idom}~{1}[])^2*Kx[]*Ky[]*Kz[]*Dof{u~{idom}}, {u~{idom}}];
       	In OmegaPml~{idom}~{1}; Jacobian JVol; Integration I1;}
-
 
 
       // Galerkin{[-(om[]/c[ Vector[xSigma~{idom}~{jdom},Y[],Z[]] ])^2*Kx[]*Ky[]*Dof{u~{idom}}, {u~{idom}}];
@@ -440,14 +501,18 @@ Formulation {
 
 
       // Delta functions
-      Galerkin { [ Vector[-(#10 > 0. ? H~{idom}~{0}[]*2.*g_in~{idom}~{0}[] : 0.),0.,0.], {d u~{idom}} ] ;
+      // Galerkin { [ Vector[-(#10 > 0. ? H~{idom}~{0}[]*2.*g_in~{idom}~{0}[] : 0.),0.,0.], {d u~{idom}} ] ;
+      // 	In OmegaAll~{idom} ; Jacobian JVol ; Integration I1 ; }      
+      Galerkin { [ Vector[-(#10 > 0. ? Cos[theta~{idom}~{0}]*H~{idom}~{0}[]*2.*g_in~{idom}~{0}[] : 0.),-(#10 > 0. ? Sin[theta~{idom}~{0}]*H~{idom}~{0}[]*2.*g_in~{idom}~{0}[] : 0.),0.], {d u~{idom}} ] ;
       	In OmegaAll~{idom} ; Jacobian JVol ; Integration I1 ; }      
       Galerkin { [ -(#10 > 0. ? H~{idom}~{0}[]*2.*g_in~{idom}~{0}[] : 0.), {u~{idom}} ] ;
       	In Gama~{idom}~{0} ; Jacobian JSur ; Integration I1 ; }      
       Galerkin { [ (#10 > 0. ? H~{idom}~{0}[]*2.*g_in~{idom}~{0}[] : 0.), {u~{idom}} ] ;
       	In Gama~{idom}~{1} ; Jacobian JSur ; Integration I1 ; }      
       
-      Galerkin { [ Vector[-(#11 > 0. ? H~{idom}~{1}[]*2.*g_in~{idom}~{1}[] : 0.),0.,0.], {d u~{idom}} ] ;
+      // Galerkin { [ Vector[-(#11 > 0. ? H~{idom}~{1}[]*2.*g_in~{idom}~{1}[] : 0.),0.,0.], {d u~{idom}} ] ;
+      // 	In OmegaAll~{idom} ; Jacobian JVol ; Integration I1 ; }      
+      Galerkin { [ Vector[-(#11 > 0. ? Cos[theta~{idom}~{1}]*H~{idom}~{1}[]*2.*g_in~{idom}~{1}[] : 0.),-(#11 > 0. ? Sin[theta~{idom}~{1}]*H~{idom}~{1}[]*2.*g_in~{idom}~{1}[] : 0.),0.], {d u~{idom}} ] ;
       	In OmegaAll~{idom} ; Jacobian JVol ; Integration I1 ; }      
       Galerkin { [ -(#11 > 0. ? H~{idom}~{1}[]*2.*g_in~{idom}~{1}[] : 0.), {u~{idom}} ] ;
       	In Gama~{idom}~{0} ; Jacobian JSur ; Integration I1 ; }      
@@ -460,49 +525,35 @@ Formulation {
   For jdom In {0:1}
     { Name ComputeGbb~{idom}~{jdom} ; Type FemEquation ;
       Quantity {
-	{ Name u~{idom} ; Type Local ; NameOfSpace Hgrad_u_Dirichlet2D_lm~{idom}~{jdom} ;}
+	{ Name u~{idom}~{jdom} ; Type Local ; NameOfSpace Hgrad_u_Dirichlet2D_lm~{idom}~{jdom} ;}
 	{ Name uD~{idom} ; Type Local ; NameOfSpace Hgrad_u_Dirichlet2D~{idom} ;}
 	{ Name g_bb~{idom}~{jdom} ; Type Local ; NameOfSpace Hgrad_gbb_Dirichlet2D_lm~{idom}~{jdom} ;} // lambda -> g_out
       }
       Equation {
 
-      // Galerkin { [ Dof{g_bb~{idom}~{jdom}}, {g_bb~{idom}~{jdom}} ] ;
-      // 	In GamaPml~{idom}~{jdom} ; Jacobian JSur ; Integration I1 ; }      
-      // Galerkin { [ -I[]*(BETA_M[])*{uD~{idom}}, {g_bb~{idom}~{jdom}} ] ;
-      // 	In GamaPml~{idom}~{jdom} ; Jacobian JSur ; Integration I1 ; }      
-	
-
       //modified Helmholtz equation
-      Galerkin{[D[]* Dof{Grad u~{idom}}, {Grad u~{idom}}];
+      // Galerkin{[ D[]* Dof{Grad u~{idom}~{jdom}}, {Grad u~{idom}~{jdom}}];
+      Galerkin{[ Rotate[D[],0.,0.,-theta]* Dof{Grad u~{idom}~{jdom}}, {Grad u~{idom}~{jdom}}];
       	In OmegaPml~{idom}~{jdom}; Jacobian JVol; Integration I1;}
-      // Galerkin{[-k[]^2*Kx[]*Ky[]*Dof{u~{idom}}, {u~{idom}}];
-      // 	In OmegaPml~{idom}~{jdom}; Jacobian JVol; Integration I1;}
-      Galerkin{[-(kPml~{idom}~{jdom}[])^2*Kx[]*Ky[]*Dof{u~{idom}}, {u~{idom}}];
+      Galerkin{[-(kPml~{idom}~{jdom}[])^2*Kx[]*Ky[]*Kz[]*Dof{u~{idom}~{jdom}}, {u~{idom}~{jdom}}];
       	In OmegaPml~{idom}~{jdom}; Jacobian JVol; Integration I1;}
-      // Galerkin{[-(om[]/c[ Vector[xSigma~{idom}~{jdom},Y[],Z[]] ])^2*Kx[]*Ky[]*Dof{u~{idom}}, {u~{idom}}];
-      // 	In OmegaPml~{idom}~{jdom}; Jacobian JVol; Integration I1;}
 
 
-      // Galerkin { [ -I[]*k[]*Dof{u~{idom}}, {u~{idom}} ] ;
-      // 	In Gama~{idom}~{jdom} ; Jacobian JSur ; Integration I1 ; }      
-      // Galerkin { [ -I[]*k[]*Dof{u~{idom}}, {u~{idom}} ] ; // FIXME: use correct value for PMLs
-      // 	In Gama_S~{idom} ; Jacobian JSur ; Integration I1 ; }      
-      Galerkin { [ -I[]*kPml~{idom}~{jdom}[]*Dof{u~{idom}}, {u~{idom}} ] ; // FIXME: use correct value for PMLs
+      Galerkin { [ -I[]*kPml~{idom}~{jdom}[]*Dof{u~{idom}~{jdom}}, {u~{idom}~{jdom}} ] ;
       	In GamaPml_S~{idom}~{jdom} ; Jacobian JSur ; Integration I1 ; }      
-      // Galerkin { [ -I[]*(om[]/c[ Vector[xSigma~{idom}~{jdom},Y[],Z[]] ])*Dof{u~{idom}}, {u~{idom}} ] ; // FIXME: use correct value for PMLs
-      // 	In Gama~{idom}~{jdom} ; Jacobian JSur ; Integration I1 ; }      
 
-
-      Galerkin{[Dof{g_bb~{idom}~{jdom}}, {u~{idom}}];
-        // In GamaPml~{idom}~{jdom}; Jacobian JSur; Integration I1;}
+      Galerkin{[Dof{g_bb~{idom}~{jdom}}, {u~{idom}~{jdom}}];
         In Sigma~{idom}~{jdom}; Jacobian JSur; Integration I1;}
-
-      Galerkin{[Dof{u~{idom}}, {g_bb~{idom}~{jdom}}];
-        // In GamaPml~{idom}~{jdom}; Jacobian JSur; Integration I1;}
+      Galerkin{[Dof{u~{idom}~{jdom}}, {g_bb~{idom}~{jdom}}];
         In Sigma~{idom}~{jdom}; Jacobian JSur; Integration I1;}
       Galerkin{[-{uD~{idom}}, {g_bb~{idom}~{jdom}}];
-        // In GamaPml~{idom}~{jdom}; Jacobian JSur; Integration I1;}
         In Sigma~{idom}~{jdom}; Jacobian JSur; Integration I1;}
+
+
+      // Galerkin{[-I[]*k[]*Dof{u~{idom}~{jdom}}, {u~{idom}~{jdom}}]; // DELETE ME
+      //   In Sigma~{idom}~{jdom}; Jacobian JSur; Integration I1;}
+      // Galerkin{[I[]*k[]*{uD~{idom}}, {u~{idom}~{jdom}}];
+      //   In Sigma~{idom}~{jdom}; Jacobian JSur; Integration I1;}
       }
     }
 
@@ -588,6 +639,7 @@ Resolution {
       EndIf
 
       SetGlobalSolverOptions["-ksp_monitor"];
+      SetGlobalSolverOptions["-mat_mumps_icntl_14 50"];
 
       If (MPI_Rank == 0)
       	Printf["N_DOM: %g; #procs: %g", N_DOM, MPI_Size];
@@ -708,7 +760,7 @@ Resolution {
 	  idom = ListOfDom(ii);
 	  //Compute u on Omega_i (fast way)
 	  // GenerateRHSGroup[Helmholtz~{idom}, Sigma~{idom}] ;
-	  GenerateRHSGroup[Helmholtz~{idom}, #{Sigma~{idom}}] ; // FIXME: why do we need that sytax with PML ??
+	  GenerateRHSGroup[Helmholtz~{idom}, #{Sigma~{idom}}] ; // FIXME: why do we need that syntax with PML ??
 
 	  If (REUSE == 0)
 	    SolveAgain[Helmholtz~{idom}] ;
@@ -1058,7 +1110,7 @@ PostProcessing {
       }
       { Name u_bb~{idom}~{jdom} ; NameOfFormulation ComputeGbb~{idom}~{jdom} ;
 	PostQuantity {
-	  { Name u_bb~{idom}~{jdom} ; Value { Local { [ {u~{idom}} ] ; In #{OmegaPml~{idom}~{jdom}}; Jacobian JSur ; } } }
+	  { Name u_bb~{idom}~{jdom} ; Value { Local { [ {u~{idom}~{jdom}} ] ; In #{OmegaPml~{idom}~{jdom}}; Jacobian JSur ; } } }
 	}
       }
     EndFor
@@ -1101,7 +1153,7 @@ PostOperation {
       { Name g_out~{idom}~{jdom} ; NameOfPostProcessing g_out~{idom}~{jdom};
 	Operation {
 	  If(!((idom == 0 && jdom == 0) || (idom == N_DOM-1 && jdom == 1)))
-	    Print[ g_out~{idom}~{jdom}, OnElementsOf Sigma~{idom}~{jdom}, StoreInField 2*idom+jdom-1/*, File Sprintf("gg%g_%g.pos",idom, jdom)/**/] ;
+	    Print[ g_out~{idom}~{jdom}, OnElementsOf Sigma~{idom}~{jdom}, StoreInField 2*idom+jdom-1, File Sprintf("gg%g_%g.pos",idom, jdom)/**/] ;
 	  EndIf
 	}
       }

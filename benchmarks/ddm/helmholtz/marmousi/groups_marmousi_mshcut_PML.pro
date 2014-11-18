@@ -20,7 +20,9 @@ Group{
 
 
   // For idom In {1:nDoms}
-  For idom In {0:N_DOM-1}
+  // For idom In {0:N_DOM-1}
+  For ii In {0: #ListOfDom()-1}
+    idom = ListOfDom(ii);
 
     Gama_D~{idom} = Region[{1}];
 
