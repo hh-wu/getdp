@@ -5,7 +5,7 @@ import math
 
 keys = bx_table.keys()
 nkeys = len(keys)
-file_dir = os.path.dirname(__file__) + "/"
+file_dir = os.path.abspath(os.path.dirname(__file__)) + "/"
 
 if os.path.isfile(file_dir + "nodes.txt"):
     getdp = "/home/acad/ulg/ace/cgeuzain/src/getdp/bin_seq/getdp" # zenobe
