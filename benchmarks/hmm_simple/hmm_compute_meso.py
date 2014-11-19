@@ -1,28 +1,21 @@
 import subprocess
+import sys
 import os.path
 import math
 
 keys = bx_table.keys()
 nkeys = len(keys)
-
-# zenobe
-getdp_dir="/home/acad/ulg/ace/cgeuzain/src/getdp/bin_seq/"
-file_dir="/home/acad/ulg/ace/cgeuzain/src/getdp/benchmarks/hmm_simple/"
-
-# nic4
-#getdp_dir="/home/ulg/ace/geuzaine/src/getdp/bin_seq/"
-#file_dir="/home/ulg/ace/geuzaine/src/getdp/benchmarks/hmm_simple/"
-
-# local
-getdp_dir="../../bin/"
-file_dir=""
+file_dir = os.path.dirname(__file__)
 
 if os.path.isfile(file_dir + "nodes.txt"):
+    getdp = "/home/acad/ulg/ace/cgeuzain/src/getdp/bin_seq/getdp" # zenobe
+    #getdp = "/home/ulg/ace/geuzaine/src/getdp/bin_seq/getdp" # nic4
     f = open(file_dir + "nodes.txt")
     nodes = f.readlines()
     f.close()
     ncpus = len(nodes)
 else:
+    getdp = sys.argv[0] # same getdp as for macro computation
     nodes = ["localhost"]
     ncpus = 16
 
@@ -38,11 +31,11 @@ for s in range(nslices):
     for idx, key in enumerate(keys[start:end]):
         args = [];
         if nodes[0] == "localhost":
-            args.extend([getdp_dir + "getdp", "meso"])
+            args.extend([getdp, "meso"])
         else:
             node = nodes[idx % ncpus].strip()
             print("Python: ssh node {0}".format(node))
-            args.extend(["ssh", node, getdp_dir + "getdp", file_dir + "meso"])
+            args.extend(["ssh", node, getdp, file_dir + "meso"])
         args.extend(["-v", "2", 
                      "-solve", "a_NR", 
                      "-pos", "mean_1", "mean_2", "mean_3",
