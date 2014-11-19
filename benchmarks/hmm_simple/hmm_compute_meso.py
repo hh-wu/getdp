@@ -5,7 +5,7 @@ import math
 
 keys = bx_table.keys()
 nkeys = len(keys)
-file_dir = os.path.dirname(__file__)
+file_dir = os.path.dirname(__file__) + "/"
 
 if os.path.isfile(file_dir + "nodes.txt"):
     getdp = "/home/acad/ulg/ace/cgeuzain/src/getdp/bin_seq/getdp" # zenobe
@@ -30,14 +30,11 @@ for s in range(nslices):
     proc = {}
     for idx, key in enumerate(keys[start:end]):
         args = [];
-        if nodes[0] == "localhost":
-            args.extend([getdp, "meso"])
-        else:
+        if nodes[0] != "localhost":
             node = nodes[idx % ncpus].strip()
             print("Python: ssh node {0}".format(node))
-            args.extend(["ssh", node, getdp, file_dir + "meso"])
-        args.extend(["-v", "2", 
-                     "-solve", "a_NR", 
+            args.extend(["ssh", node])
+        args.extend([getdp, file_dir + "meso", "-v", "2", "-solve", "a_NR", 
                      "-pos", "mean_1", "mean_2", "mean_3",
                      "-setnumber", "BX", str(bx_table[key]),
                      "-setnumber", "BY", str(by_table[key]),
