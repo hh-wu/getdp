@@ -744,8 +744,9 @@ void F_dhdb_Vinch(F_ARG)
     V->Val[i] = dHdB[i] ;
 }
 
-bool limiter(const double max, double v[3])
+bool limiter(double Js, double v[3])
 {
+  double max = (1-1e-4)*Js ; //0.9999
   double mod = norm(v);
   if(mod >= max){
     for (int n=0; n<3; n++)
@@ -788,7 +789,7 @@ double omega_f(const gsl_vector *v, void *params)
   double alpha = p->alpha;
 
   for (int i=0; i<3; i++) J[i] = gsl_vector_get(v, i);
-  limiter(0.9999*Js, J) ;
+  limiter(Js, J) ;
 
   double nJ = norm(J);
   for (int i=0; i<3; i++) dJ[i] = J[i]-Jp[i]; // J-Jp
@@ -814,7 +815,7 @@ void omega_df (const gsl_vector *v, void *params, gsl_vector *df)
   double grad[3] = {0.,0.,0.};
 
   for (int i=0; i<3; i++) J[i] = gsl_vector_get(v, i);
-  limiter(0.9999*Js, J);
+  limiter(Js, J);
 
   double nJ = norm(J);
   for (int i=0; i<3; i++)  dJ[i] = J[i]-Jp[i]; // J-Jp
@@ -1029,11 +1030,11 @@ void Vector_Update_Jk_sd_K(double h[3], double Jk[3], double Jkp[3], double chi,
 
   double min_Jk[3] = {0.,0.,0.};
   double sdfactor  = 0.1; //suitable value of tol for most applications
-  double TOL = 1e-11;
+  double TOL = 1e-12;//11
   double d_omega[3]= {0.,0.,0.} ;
 
-  limiter(0.9999*Js, Jk ) ; // why do I need this ?
-  limiter(0.9999*Js, Jkp);  // ????????
+  limiter(Js, Jk ) ; // why do I need this ?
+  limiter(Js, Jkp);  // ????????
 
   fct_d_omega(h, Jk, Jkp, chi, Js, alpha, d_omega) ;     // updating the derivative of omega
   double omega = fct_omega(h, Jk, Jkp, chi, Js, alpha) ; // updating omega
@@ -1041,7 +1042,7 @@ void Vector_Update_Jk_sd_K(double h[3], double Jk[3], double Jkp[3], double chi,
   double min_omega = 1e+22 ;
 
   int iter = 0 ;
-  const int MAX_ITER = 700;
+  const int MAX_ITER = 1000;
   while( (iter<MAX_ITER) && (fabs(d_omega[0])/(1+fabs(omega))*sdfactor >TOL ||
           fabs(d_omega[1])/(1+fabs(omega))*sdfactor >TOL ||
           fabs(d_omega[2])/(1+fabs(omega))*sdfactor >TOL ))
@@ -1049,7 +1050,7 @@ void Vector_Update_Jk_sd_K(double h[3], double Jk[3], double Jkp[3], double chi,
       for (int n = 0; n < 3; n++)
         min_Jk[n] = Jk[n] - sdfactor * d_omega[n] ; // gradient descent algorithm
 
-      limiter(0.9999*Js, min_Jk);
+      limiter(Js, min_Jk);
       min_omega = fct_omega(h, min_Jk, Jkp, chi, Js, alpha); //updating omega
       if (iter>MAX_ITER)
         Message::Warning("iter %d : Too many iterations to find the minimum of omega: min_omega %g, omega-TOL/10 %g", iter, min_omega, omega-TOL/10);
@@ -1068,9 +1069,7 @@ void Vector_Update_Jk_sd_K(double h[3], double Jk[3], double Jkp[3], double chi,
     }
 
   for (int n=0 ; n<3 ; n++)
-  {
     Jk[n] = min_Jk[n];
-  }
 }
 
 void Vector_b_Vinch_K(int N, double h[3], double alpha, double *Jk_all, double *Jkp_all, double *chi_all, double *Js_all, double b[3])
@@ -1100,15 +1099,16 @@ void Vector_b_Vinch_K(int N, double h[3], double alpha, double *Jk_all, double *
   }
 }
 
-void Tensor_dbdh_Vinch_K(int N, double h[3], double alpha, double *Jk_all, double *Jkp_all, double *chi_all, double *Js_all, double dbdh[9])
+void Tensor_dbdh_Vinch_K(int N, double h[3], double alpha, double *Jk_all, double *Jkp_all, double *chi_all, double *Js_all, double dbdh[6])
 {
-  double dJkdh[9];
+  double dJkdh[6];
   double Jk[3], Jkp[3] ;
   double chi, Js;
 
-  dbdh[0] = 1e0*MU0 ; dbdh[1] = 0.      ; dbdh[2] = 0.;
-  dbdh[3] = 0.;       dbdh[4] = 1e0*MU0 ; dbdh[5] = 0.;
-  dbdh[6] = 0.;       dbdh[7] = 0.      ; dbdh[8] = 1e0*MU0;
+  dbdh[0] = 1e0*MU0 ; dbdh[1] = 0. ; dbdh[2] = 0.;
+  dbdh[3] = 1e0*MU0 ; dbdh[4] = 0. ;
+  dbdh[5] = 1e0*MU0 ;
+  //dbdh[6] = 0.;       dbdh[7] = 0.      ; dbdh[8] = 1e0*MU0;
 
   for (int k=0; k<N; k++) {
     chi  = chi_all[k];
@@ -1120,17 +1120,16 @@ void Tensor_dbdh_Vinch_K(int N, double h[3], double alpha, double *Jk_all, doubl
 
     Tensor_dJkdh_Vinch_K(h, Jk, Jkp, chi, Js, alpha, dJkdh);
 
-    for (int n=0; n<9; n++)
+    for (int n=0; n<6; n++)
       dbdh[n] += dJkdh[n];
   }
 
 }
 
-void Tensor_dJkdh_Vinch_K(double h[3], double Jk[3], double Jkp[3], double chi, double Js, double alpha, double dJkdh[9])
+void Tensor_dJkdh_Vinch_K(double h[3], double Jk[3], double Jkp[3], double chi, double Js, double alpha, double dJkdh[6])
 {
-  double idJkdh[9];
+  double idJkdh[6];
   double dJk[3];
-  //double a1,a2;
 
   for (int n=0; n<3; n++)
     dJk[n] = Jk[n]-Jkp[n];
@@ -1142,18 +1141,26 @@ void Tensor_dJkdh_Vinch_K(double h[3], double Jk[3], double Jkp[3], double chi, 
     Message::Debug("Analytical Jacobian Js=%g, nJk=%g and ndJk=%g",Js, nJk, ndJk);
     double a1 = alpha*(1/(1-SQU(nJk/Js)))*(1/Js)*(1/SQU(nJk));
     double a2 = alpha*atanh(nJk/Js);
+    /*
+    idJkdh[0]=a1 * (Jk[0]*Jk[0]) + a2 * ( (1/nJk) - (1/CUB(nJk))*(Jk[0]*Jk[0]) ) + chi * ( (1/ndJk) - (1/CUB(ndJk))*(dJk[0]*dJk[0])) ; //xx
+    idJkdh[1]=a1 * (Jk[1]*Jk[0]) + a2 * (         - (1/CUB(nJk))*(Jk[1]*Jk[0]) ) + chi * (          - (1/CUB(ndJk))*(dJk[1]*dJk[0])) ; //xy
+    idJkdh[2]=a1 * (Jk[2]*Jk[0]) + a2 * (         - (1/CUB(nJk))*(Jk[2]*Jk[0]) ) + chi * (          - (1/CUB(ndJk))*(dJk[2]*dJk[0])) ; //xz
+    idJkdh[3]=a1 * (Jk[0]*Jk[1]) + a2 * (         - (1/CUB(nJk))*(Jk[0]*Jk[1]) ) + chi * (          - (1/CUB(ndJk))*(dJk[0]*dJk[1])) ; //yx
+    idJkdh[4]=a1 * (Jk[1]*Jk[1]) + a2 * ( (1/nJk) - (1/CUB(nJk))*(Jk[1]*Jk[1]) ) + chi * ( (1/ndJk) - (1/CUB(ndJk))*(dJk[1]*dJk[1])) ; //yy
+    idJkdh[5]=a1 * (Jk[2]*Jk[1]) + a2 * (         - (1/CUB(nJk))*(Jk[2]*Jk[1]) ) + chi * (          - (1/CUB(ndJk))*(dJk[2]*dJk[1])) ; //yz
+    idJkdh[6]=a1 * (Jk[0]*Jk[2]) + a2 * (         - (1/CUB(nJk))*(Jk[0]*Jk[2]) ) + chi * (          - (1/CUB(ndJk))*(dJk[0]*dJk[2])) ; //zx
+    idJkdh[7]=a1 * (Jk[1]*Jk[2]) + a2 * (         - (1/CUB(nJk))*(Jk[1]*Jk[2]) ) + chi * (          - (1/CUB(ndJk))*(dJk[1]*dJk[2])) ; //zy
+    idJkdh[8]=a1 * (Jk[2]*Jk[2]) + a2 * ( (1/nJk) - (1/CUB(nJk))*(Jk[2]*Jk[2]) ) + chi * ( (1/ndJk) - (1/CUB(ndJk))*(dJk[2]*dJk[2])) ; //zz
+    */
 
     idJkdh[0]=a1 * (Jk[0]*Jk[0]) + a2 * ( (1/nJk) - (1/CUB(nJk))*(Jk[0]*Jk[0]) ) + chi * ( (1/ndJk) - (1/CUB(ndJk))*(dJk[0]*dJk[0])) ;
     idJkdh[1]=a1 * (Jk[1]*Jk[0]) + a2 * (         - (1/CUB(nJk))*(Jk[1]*Jk[0]) ) + chi * (          - (1/CUB(ndJk))*(dJk[1]*dJk[0])) ;
     idJkdh[2]=a1 * (Jk[2]*Jk[0]) + a2 * (         - (1/CUB(nJk))*(Jk[2]*Jk[0]) ) + chi * (          - (1/CUB(ndJk))*(dJk[2]*dJk[0])) ;
-    idJkdh[3]=a1 * (Jk[0]*Jk[1]) + a2 * (         - (1/CUB(nJk))*(Jk[0]*Jk[1]) ) + chi * (          - (1/CUB(ndJk))*(dJk[0]*dJk[1])) ;
-    idJkdh[4]=a1 * (Jk[1]*Jk[1]) + a2 * ( (1/nJk) - (1/CUB(nJk))*(Jk[1]*Jk[1]) ) + chi * ( (1/ndJk) - (1/CUB(ndJk))*(dJk[1]*dJk[1])) ;
-    idJkdh[5]=a1 * (Jk[2]*Jk[1]) + a2 * (         - (1/CUB(nJk))*(Jk[2]*Jk[1]) ) + chi * (          - (1/CUB(ndJk))*(dJk[2]*dJk[1])) ;
-    idJkdh[6]=a1 * (Jk[0]*Jk[2]) + a2 * (         - (1/CUB(nJk))*(Jk[0]*Jk[2]) ) + chi * (          - (1/CUB(ndJk))*(dJk[0]*dJk[2])) ;
-    idJkdh[7]=a1 * (Jk[1]*Jk[2]) + a2 * (         - (1/CUB(nJk))*(Jk[1]*Jk[2]) ) + chi * (          - (1/CUB(ndJk))*(dJk[1]*dJk[2])) ;
-    idJkdh[8]=a1 * (Jk[2]*Jk[2]) + a2 * ( (1/nJk) - (1/CUB(nJk))*(Jk[2]*Jk[2]) ) + chi * ( (1/ndJk) - (1/CUB(ndJk))*(dJk[2]*dJk[2])) ;
+    idJkdh[3]=a1 * (Jk[1]*Jk[1]) + a2 * ( (1/nJk) - (1/CUB(nJk))*(Jk[1]*Jk[1]) ) + chi * ( (1/ndJk) - (1/CUB(ndJk))*(dJk[1]*dJk[1])) ;
+    idJkdh[4]=a1 * (Jk[2]*Jk[1]) + a2 * (         - (1/CUB(nJk))*(Jk[2]*Jk[1]) ) + chi * (          - (1/CUB(ndJk))*(dJk[2]*dJk[1])) ;
+    idJkdh[5]=a1 * (Jk[2]*Jk[2]) + a2 * ( (1/nJk) - (1/CUB(nJk))*(Jk[2]*Jk[2]) ) + chi * ( (1/ndJk) - (1/CUB(ndJk))*(dJk[2]*dJk[2])) ;
 
-    Inv_Tensor3x3_K(idJkdh, dJkdh);
+    Inv_TensorSym3x3_K(idJkdh, dJkdh);
   }
   else{  // numerical Jacobian
     Message::Debug("Numerical Jacobian Js=%g, nJk=%g and ndJk=%g",Js,nJk, ndJk);
@@ -1161,16 +1168,17 @@ void Tensor_dJkdh_Vinch_K(double h[3], double Jk[3], double Jkp[3], double chi, 
     double delta0  = 1e-4 ;
 
     // Different following the different directions ??? TO CHECK
-    /*
+
     double delta[3] = { (fabs(h[0])>EPSILON) ? fabs(h[0]) * delta0 : delta0,
                         (fabs(h[1])>EPSILON) ? fabs(h[1]) * delta0 : delta0,
                         (fabs(h[2])>EPSILON) ? fabs(h[2]) * delta0 : delta0 } ;
 
-    */
+    /*
     double delta[3] = {((norm(h)>EPSILON) ? norm(h) * delta0 : delta0),
                        ((norm(h)>EPSILON) ? norm(h) * delta0 : delta0),
                        ((norm(h)>EPSILON) ? norm(h) * delta0 : delta0) } ;
 
+    */
 
     double hxr[3]={h[0]+delta[0], h[1]          ,h[2]};          double hxl[3]={h[0]-delta[0], h[1],          h[2]};
     double hyr[3]={h[0],          h[1]+delta[1] ,h[2]};          double hyl[3]={h[0],          h[1]-delta[1], h[2]};
@@ -1184,7 +1192,7 @@ void Tensor_dJkdh_Vinch_K(double h[3], double Jk[3], double Jkp[3], double chi, 
     Vector_Update_Jk_sd_K(hyl, Jkyl, Jkp, chi, Js, alpha);
     Vector_Update_Jk_sd_K(hzr, Jkzr, Jkp, chi, Js, alpha);
     Vector_Update_Jk_sd_K(hzl, Jkzl, Jkp, chi, Js, alpha);
-
+    /*
     dJkdh[0]= (Jkxr[0]-Jkxl[0])/(2*delta[0]);
     dJkdh[1]= (Jkyr[0]-Jkyl[0])/(2*delta[1]);
     dJkdh[2]= (Jkzr[0]-Jkzl[0])/(2*delta[2]);
@@ -1194,6 +1202,26 @@ void Tensor_dJkdh_Vinch_K(double h[3], double Jk[3], double Jkp[3], double chi, 
     dJkdh[6]= (Jkxr[2]-Jkxl[2])/(2*delta[0]);
     dJkdh[7]= (Jkyr[2]-Jkyl[2])/(2*delta[1]);
     dJkdh[8]= (Jkzr[2]-Jkzl[2])/(2*delta[2]);
+    */
+
+    dJkdh[0]= (Jkxr[0]-Jkxl[0])/(2*delta[0]);
+    dJkdh[1]= (Jkyr[0]-Jkyl[0])/(2*delta[1]);
+    dJkdh[2]= (Jkzr[0]-Jkzl[0])/(2*delta[2]);
+    dJkdh[3]= (Jkyr[1]-Jkyl[1])/(2*delta[1]);
+    dJkdh[4]= (Jkzr[1]-Jkzl[1])/(2*delta[2]);
+    dJkdh[5]= (Jkzr[2]-Jkzl[2])/(2*delta[2]);
+
+    /*
+    dJkdh[0]= (Jkxr[0]-Jkp[0])/delta[0];
+    dJkdh[1]= (Jkyr[0]-Jkp[0])/delta[1];
+    dJkdh[2]= (Jkzr[0]-Jkp[0])/delta[2];
+    dJkdh[3]= (Jkxr[1]-Jkp[1])/delta[0];
+    dJkdh[4]= (Jkyr[1]-Jkp[1])/delta[1];
+    dJkdh[5]= (Jkzr[1]-Jkp[1])/delta[2];
+    dJkdh[6]= (Jkxr[2]-Jkp[2])/delta[0];
+    dJkdh[7]= (Jkyr[2]-Jkp[2])/delta[1];
+    dJkdh[8]= (Jkzr[2]-Jkp[2])/delta[2];
+    */
   }
 }
 
@@ -1202,7 +1230,8 @@ void Inv_Tensor3x3_K(double T[9], double invT[9])
   double det= T[0]*T[4]*T[8]+T[1]*T[5]*T[6]+T[2]*T[3]*T[7]-T[2]*T[4]*T[6]-T[0]*T[5]*T[7]-T[1]*T[3]*T[8];
 
   if (!det)
-    Message::Error("Null determinant of db/dh! : dbdh=[%g,%g,%g;%g,%g,%g;%g,%g,%g]",T[0],T[1],T[2],T[3],T[4],T[5],T[6],T[7],T[8]);
+    Message::Error("Null determinant of db/dh! : dbdh=[%g,%g,%g;%g,%g,%g;%g,%g,%g]",
+                   T[0],T[1],T[2],T[3],T[4],T[5],T[6],T[7],T[8]);
 
   invT[0]=(T[4]*T[8]-T[5]*T[7])/det;
   invT[1]=(T[2]*T[7]-T[1]*T[8])/det;
@@ -1215,6 +1244,24 @@ void Inv_Tensor3x3_K(double T[9], double invT[9])
   invT[8]=(T[0]*T[4]-T[1]*T[3])/det;
 
 }
+
+void Inv_TensorSym3x3_K(double T[6], double invT[6])
+{
+  double det =  T[0] * (T[3] *T[5] - T[4] *T[4])
+              - T[1] * (T[1] *T[5] - T[4] *T[2])
+              + T[2] * (T[1] *T[4] - T[3] *T[2]);
+
+  if (!det)
+    Message::Error("Null determinant of invT!");
+
+  invT[0] =  (T[3]*T[5]-T[4]*T[4])/det ;
+  invT[1] = -(T[1]*T[5]-T[2]*T[4])/det ;
+  invT[2] =  (T[1]*T[4]-T[2]*T[3])/det ;
+  invT[3] =  (T[0]*T[5]-T[2]*T[2])/det ;
+  invT[4] = -(T[0]*T[4]-T[1]*T[2])/det ;
+  invT[5] =  (T[0]*T[3]-T[1]*T[1])/det ;
+}
+
 
 void F_b_Vinch_K(F_ARG)
 {
@@ -1264,9 +1311,9 @@ void Vector_h_Vinch_K(int N, double b[3], double bc[3], double alpha, double *Jk
 
   double tempbc[3], tempJk_all[3*N], bprev[3];
   double dh[3]   = {0,0,0};
-  double dbdh[9], dhdb[9];
+  double dbdh[6], dhdb[6];
 
-  double EPS = 1e-7;
+  double EPS = 1e-8;//-5
   double sumchi = 0.0;
 
   for (int n=0; n<3; n++)
@@ -1287,10 +1334,18 @@ void Vector_h_Vinch_K(int N, double b[3], double bc[3], double alpha, double *Jk
                              (fabs(tempbc[2]-b[2])/(1+fabs(b[2]))) >EPS  ))
   {
     Tensor_dbdh_Vinch_K(N, h, alpha, tempJk_all, Jkp_all, chi_all, Js_all, dbdh); // eval dbdh
-    Inv_Tensor3x3_K(dbdh, dhdb);                                              // eval (dbdh)^-1=dhdb
+    Inv_TensorSym3x3_K(dbdh, dhdb);                                              // eval (dbdh)^-1=dhdb
 
+    /*
     for (int n=0 ; n<3 ; n++)
-      dh[n]=dhdb[3*n]*(b[0]-tempbc[0])+dhdb[3*n+1]*(b[1]-tempbc[1])+dhdb[3*n+2]*(b[2]-tempbc[2]);  // dh=(dbdh)^-1 * (b-bc)
+      dh[n]= dhdb[3*n]  *(b[0]-tempbc[0])+
+             dhdb[3*n+1]*(b[1]-tempbc[1])+
+             dhdb[3*n+2]*(b[2]-tempbc[2]);  // dh=(dbdh)^-1 * (b-bc)
+    */
+
+    dh[0] = dhdb[0]*(b[0]-tempbc[0]) + dhdb[1]*(b[1]-tempbc[1]) + dhdb[2]*(b[2]-tempbc[2]);
+    dh[1] = dhdb[1]*(b[0]-tempbc[0]) + dhdb[3]*(b[1]-tempbc[1]) + dhdb[4]*(b[2]-tempbc[2]);
+    dh[2] = dhdb[2]*(b[0]-tempbc[0]) + dhdb[4]*(b[1]-tempbc[1]) + dhdb[5]*(b[2]-tempbc[2]);
 
 //--------------------------------------------------------
 //    Méthodes de relaxation envisagées :
@@ -1469,7 +1524,7 @@ void F_dhdb_Vinch_K(F_ARG)
   double alpha  = (A+2)->Val[0];
 
   double h[3], Jk_all[3*N], Jkp_all[3*N], chi_all[N], Js_all[N] ;
-  double dbdh[9], dhdb[9];
+  double dbdh[6], dhdb[6];
 
   for (int n=0; n<3; n++)
      h[n]  = (A+1)->Val[n];
@@ -1486,7 +1541,8 @@ void F_dhdb_Vinch_K(F_ARG)
   if (1) // Inverting the matrix representation of the db/dh we get dh/db
   {
     Tensor_dbdh_Vinch_K( N, h, alpha, Jk_all, Jkp_all, chi_all, Js_all, dbdh);
-    Inv_Tensor3x3_K(dbdh, dhdb);
+    //Inv_Tensor3x3_K(dbdh, dhdb);
+    Inv_TensorSym3x3_K(dbdh, dhdb);
   }
 
   else{  // numerical Jacobian (NEVER USED!)
@@ -1515,11 +1571,12 @@ void F_dhdb_Vinch_K(F_ARG)
     dhdb[3]= (hxr[1]-hxl[1])/(2*delta);
     dhdb[4]= (hyr[1]-hyl[1])/(2*delta);
     dhdb[5]= (hzr[1]-hzl[1])/(2*delta);
-    dhdb[6]= (hxr[2]-hxl[2])/(2*delta);
-    dhdb[7]= (hyr[2]-hyl[2])/(2*delta);
-    dhdb[8]= (hzr[2]-hzl[2])/(2*delta);
+    // dhdb[6]= (hxr[2]-hxl[2])/(2*delta);
+    // dhdb[7]= (hyr[2]-hyl[2])/(2*delta);
+    // dhdb[8]= (hzr[2]-hzl[2])/(2*delta);
   }
 
-  V->Type = TENSOR ;
-  for (int n=0 ; n<9 ; n++)  V->Val[n] = dhdb[n] ;
+  V->Type = TENSOR_SYM ; // WATCH OUT: change order!!!
+  for (int n=0 ; n<6 ; n++)
+    V->Val[n] = dhdb[n] ;
 }
