@@ -10,10 +10,10 @@ Include "LaplacianDirichlet.param";
 // We have 2 Groups : Omega and Gamma (boundary)
 Group{
 Omega = Region[{Omega}];
-Gamma = Region[{Gamma}];
+Gama = Region[{Gama}];
 }
 //Again note that "Gamma" is a syntaxic word of GetDP
-// That is why we write here "Gamma" and not "Gamma".
+// That is why we write here "Gama" and not "Gamma".
 // (not a mistake from the author :-))
 
 // Function
@@ -74,7 +74,7 @@ Integration {
 Constraint{
 	{Name DirichletBC; Type Assign;
 	Case{
-        {Region Gamma;  Value 0; }
+        {Region Gama;  Value 0; }
 		}
 	}
 }

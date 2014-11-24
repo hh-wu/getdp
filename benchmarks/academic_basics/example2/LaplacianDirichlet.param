@@ -2,7 +2,7 @@
 
 //Numbers that caracterise the interior of the square (Omega) and its boundary (Gama):
 Omega = 1000;
-Gamma = 1001;
+Gama = 1001;
 
 // Three remarks on these numbers :
 // - They are arbitrary choosen.

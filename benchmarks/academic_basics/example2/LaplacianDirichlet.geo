@@ -36,6 +36,6 @@ SurfaceOmega = newreg; Plane Surface(SurfaceOmega) = {Bound};
 // To conclude, we define the physical entities, that is "what GetDP could see/use".
 // Both "Omega" and "Gama" are imported from the file "param.geo".
 Physical Surface(Omega) = {SurfaceOmega};
-Physical Line(Gamma) = {L1,L2,L3,L4}; // the Physical Line Gama is composed of the four lines of te boundary (not of the Line Loop !)
+Physical Line(Gama) = {L1,L2,L3,L4}; // the Physical Line Gama is composed of the four lines of te boundary (not of the Line Loop !)
 // Do not forget to let a blank line at the end, this could make GMSH crash...
 
