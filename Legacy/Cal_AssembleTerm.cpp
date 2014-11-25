@@ -344,6 +344,108 @@ void Cal_AssembleTerm_DtDt(struct Dof * Equ, struct Dof * Dof, double Val[])
   Cal_AssembleTerm_DtDtDof(Equ, Dof, Val);
 }
 
+/* ------------------------------------------------- */
+/*  higher order Time Derivative for Polynomial EVP  */
+/* ------------------------------------------------- */
+void Cal_AssembleTerm_DtDtDtDof(struct Dof * Equ, struct Dof * Dof, double Val[]) 
+{
+  int k ;
+  if(Current.TypeAssembly == ASSEMBLY_SEPARATE){
+    if (!Current.DofData->Flag_Init[4]) {
+      Current.DofData->Flag_Init[4] = 1 ;
+      LinAlg_CreateMatrix(&Current.DofData->M4, &Current.DofData->Solver,
+			  Current.DofData->NbrDof, Current.DofData->NbrDof) ;
+      LinAlg_CreateVector(&Current.DofData->m4, &Current.DofData->Solver,
+			  Current.DofData->NbrDof) ;
+      LinAlg_ZeroMatrix(&Current.DofData->M4);
+      LinAlg_ZeroVector(&Current.DofData->m4);
+      Current.DofData->m4s = List_Create(10, 10, sizeof(gVector));
+      for(int i = 0; i < List_Nbr(Current.DofData->TimeFunctionIndex); i++){
+        gVector m;
+        LinAlg_CreateVector(&m, &Current.DofData->Solver,
+                            Current.DofData->NbrDof) ;
+        LinAlg_ZeroVector(&m);
+        List_Add(Current.DofData->m4s, &m);
+      }
+    }
+    for (k = 0 ; k < Current.NbrHar ; k += 2) {
+      Dof_AssembleInMat(Equ+k, Dof+k, Current.NbrHar, &Val[k],
+			&Current.DofData->M4, &Current.DofData->m4,
+                        Current.DofData->m4s) ;
+    }
+  }
+  else {
+        Message::Error("DtDtDtDof only available with GenerateSeparate");
+        return ;
+	}
+}
+
+void Cal_AssembleTerm_DtDtDtDtDof(struct Dof * Equ, struct Dof * Dof, double Val[])
+{
+  int k ;
+  if(Current.TypeAssembly == ASSEMBLY_SEPARATE){
+    if (!Current.DofData->Flag_Init[5]) {
+      Current.DofData->Flag_Init[5] = 1 ;
+      LinAlg_CreateMatrix(&Current.DofData->M5, &Current.DofData->Solver,
+			  Current.DofData->NbrDof, Current.DofData->NbrDof) ;
+      LinAlg_CreateVector(&Current.DofData->m5, &Current.DofData->Solver,
+			  Current.DofData->NbrDof) ;
+      LinAlg_ZeroMatrix(&Current.DofData->M5);
+      LinAlg_ZeroVector(&Current.DofData->m5);
+      Current.DofData->m5s = List_Create(10, 10, sizeof(gVector));
+      for(int i = 0; i < List_Nbr(Current.DofData->TimeFunctionIndex); i++){
+        gVector m;
+        LinAlg_CreateVector(&m, &Current.DofData->Solver,
+                            Current.DofData->NbrDof) ;
+        LinAlg_ZeroVector(&m);
+        List_Add(Current.DofData->m5s, &m);
+      }
+    }
+    for (k = 0 ; k < Current.NbrHar ; k += 2) {
+      Dof_AssembleInMat(Equ+k, Dof+k, Current.NbrHar, &Val[k],
+			&Current.DofData->M5, &Current.DofData->m5,
+                        Current.DofData->m5s) ;
+    }
+  }
+  else {
+        Message::Error("DtDtDtDtDof only available with GenerateSeparate");
+        return ;
+	}
+}
+
+void Cal_AssembleTerm_DtDtDtDtDtDof(struct Dof * Equ, struct Dof * Dof, double Val[])
+{
+  int k ;	
+  if(Current.TypeAssembly == ASSEMBLY_SEPARATE){
+		if (!Current.DofData->Flag_Init[6]) {
+			Current.DofData->Flag_Init[6] = 1 ;
+      LinAlg_CreateMatrix(&Current.DofData->M6, &Current.DofData->Solver,
+			  Current.DofData->NbrDof, Current.DofData->NbrDof) ;
+			LinAlg_CreateVector(&Current.DofData->m6, &Current.DofData->Solver,
+			  Current.DofData->NbrDof) ;
+      LinAlg_ZeroMatrix(&Current.DofData->M6);
+      LinAlg_ZeroVector(&Current.DofData->m6);
+      Current.DofData->m6s = List_Create(10, 10, sizeof(gVector));
+      for(int i = 0; i < List_Nbr(Current.DofData->TimeFunctionIndex); i++){
+        gVector m;
+        LinAlg_CreateVector(&m, &Current.DofData->Solver,
+                            Current.DofData->NbrDof) ;
+        LinAlg_ZeroVector(&m);
+        List_Add(Current.DofData->m6s, &m);
+      }
+    }
+    for (k = 0 ; k < Current.NbrHar ; k += 2) {
+      Dof_AssembleInMat(Equ+k, Dof+k, Current.NbrHar, &Val[k],
+			&Current.DofData->M6, &Current.DofData->m6,
+                        Current.DofData->m6s) ;
+    }
+  }
+  else {
+		Message::Error("DtDtDtDtDtDof only available with GenerateSeparate");
+		return ;
+	}
+}
+
 /* ------------------------------------------------------------------------ */
 /*  Jacobian NonLinear                                                      */
 /* ------------------------------------------------------------------------ */

@@ -264,6 +264,27 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
       for(int i = 0; i < List_Nbr(DofData_P->m3s); i++)
         LinAlg_ZeroVector((gVector*)List_Pointer(DofData_P->m3s, i));
     }
+    if(Current.DofData->Flag_Init[4] && !Flag_Cumulative){
+      ZeroMatrix(&Current.DofData->M4, &Current.DofData->Solver,
+                 Current.DofData->NbrDof) ;
+      LinAlg_ZeroVector(&Current.DofData->m4);
+      for(int i = 0; i < List_Nbr(DofData_P->m4s); i++)
+        LinAlg_ZeroVector((gVector*)List_Pointer(DofData_P->m4s, i));
+    }
+    if(Current.DofData->Flag_Init[5] && !Flag_Cumulative){
+      ZeroMatrix(&Current.DofData->M5, &Current.DofData->Solver,
+                 Current.DofData->NbrDof) ;
+      LinAlg_ZeroVector(&Current.DofData->m5);
+      for(int i = 0; i < List_Nbr(DofData_P->m5s); i++)
+        LinAlg_ZeroVector((gVector*)List_Pointer(DofData_P->m5s, i));
+    }
+    if(Current.DofData->Flag_Init[6] && !Flag_Cumulative){
+      ZeroMatrix(&Current.DofData->M6, &Current.DofData->Solver,
+                 Current.DofData->NbrDof) ;
+      LinAlg_ZeroVector(&Current.DofData->m6);
+      for(int i = 0; i < List_Nbr(DofData_P->m6s); i++)
+        LinAlg_ZeroVector((gVector*)List_Pointer(DofData_P->m6s, i));
+    }
   }
   else{
     if(!Current.DofData->Flag_RHS && !Flag_Cumulative){
@@ -334,6 +355,24 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
       LinAlg_AssembleVector(&DofData_P->m3) ;
       for(int i = 0; i < List_Nbr(DofData_P->m3s); i++)
         LinAlg_AssembleVector((gVector*)List_Pointer(DofData_P->m3s, i));
+    }
+    if(DofData_P->Flag_Init[4]){
+      LinAlg_AssembleMatrix(&DofData_P->M4) ;
+      LinAlg_AssembleVector(&DofData_P->m4) ;
+      for(int i = 0; i < List_Nbr(DofData_P->m4s); i++)
+        LinAlg_AssembleVector((gVector*)List_Pointer(DofData_P->m4s, i));
+    }
+    if(DofData_P->Flag_Init[5]){
+      LinAlg_AssembleMatrix(&DofData_P->M5) ;
+      LinAlg_AssembleVector(&DofData_P->m5) ;
+      for(int i = 0; i < List_Nbr(DofData_P->m5s); i++)
+        LinAlg_AssembleVector((gVector*)List_Pointer(DofData_P->m5s, i));
+    }
+    if(DofData_P->Flag_Init[6]){
+      LinAlg_AssembleMatrix(&DofData_P->M6) ;
+      LinAlg_AssembleVector(&DofData_P->m6) ;
+      for(int i = 0; i < List_Nbr(DofData_P->m6s); i++)
+        LinAlg_AssembleVector((gVector*)List_Pointer(DofData_P->m6s, i));
     }
   }
   else{
@@ -2602,7 +2641,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
           std::string jac("jac_"), res("res_"), dx("dx_");
           std::string name(Operation_P->Case.Print.FileOut ? Operation_P->Case.Print.FileOut :
                            DefineSystem_P->Name);
-          if(DofData_P->Flag_Init[1] || DofData_P->Flag_Init[2] || DofData_P->Flag_Init[3]){
+					if(DofData_P->Flag_Init[1] || DofData_P->Flag_Init[2] || DofData_P->Flag_Init[3] || DofData_P->Flag_Init[4] || DofData_P->Flag_Init[5] || DofData_P->Flag_Init[6]){
             if(DofData_P->Flag_Init[1]){
               std::string name1 = name + "1";
               LinAlg_PrintMatrix(fp, &DofData_P->M1, true,
@@ -2627,6 +2666,33 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                                  (path + file + mat + name1 + ".m").c_str(),
                                  (mat + name1).c_str()) ;
               LinAlg_PrintVector(fp, &DofData_P->m3, true,
+                                 (path + file + vec + name1 + ".m").c_str(),
+                                 (vec + name1).c_str()) ;
+            }
+            if(DofData_P->Flag_Init[4]){
+              std::string name1 = name + "4";
+              LinAlg_PrintMatrix(fp, &DofData_P->M4, true,
+                                 (path + file + mat + name1 + ".m").c_str(),
+                                 (mat + name1).c_str()) ;
+              LinAlg_PrintVector(fp, &DofData_P->m4, true,
+                                 (path + file + vec + name1 + ".m").c_str(),
+                                 (vec + name1).c_str()) ;
+            }
+            if(DofData_P->Flag_Init[5]){
+              std::string name1 = name + "5";
+              LinAlg_PrintMatrix(fp, &DofData_P->M5, true,
+                                 (path + file + mat + name1 + ".m").c_str(),
+                                 (mat + name1).c_str()) ;
+              LinAlg_PrintVector(fp, &DofData_P->m5, true,
+                                 (path + file + vec + name1 + ".m").c_str(),
+                                 (vec + name1).c_str()) ;
+            }
+            if(DofData_P->Flag_Init[6]){
+              std::string name1 = name + "6";
+              LinAlg_PrintMatrix(fp, &DofData_P->M6, true,
+                                 (path + file + mat + name1 + ".m").c_str(),
+                                 (mat + name1).c_str()) ;
+              LinAlg_PrintVector(fp, &DofData_P->m6, true,
                                  (path + file + vec + name1 + ".m").c_str(),
                                  (vec + name1).c_str()) ;
             }

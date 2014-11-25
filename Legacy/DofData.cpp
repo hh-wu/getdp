@@ -74,6 +74,9 @@ void Dof_InitDofData(struct DofData * DofData_P, int Num,
   DofData_P->Flag_Init[1] = 0 ;
   DofData_P->Flag_Init[2] = 0 ;
   DofData_P->Flag_Init[3] = 0 ;
+  DofData_P->Flag_Init[4] = 0 ;
+  DofData_P->Flag_Init[5] = 0 ;
+  DofData_P->Flag_Init[6] = 0 ;
 
   DofData_P->Flag_Only = 0 ;
   DofData_P->Flag_InitOnly[0] = 0 ;
@@ -155,6 +158,30 @@ void Dof_FreeDofData(struct DofData * DofData_P)
     for(int i = 0; i < List_Nbr(DofData_P->m3s); i++)
        LinAlg_DestroyVector((gVector*)List_Pointer(DofData_P->m3s, i));
     List_Delete(DofData_P->m3s);
+  }
+
+  if(DofData_P->Flag_Init[4] == 1){
+    LinAlg_DestroyMatrix(&DofData_P->M4);
+    LinAlg_DestroyVector(&DofData_P->m4);
+    for(int i = 0; i < List_Nbr(DofData_P->m4s); i++)
+       LinAlg_DestroyVector((gVector*)List_Pointer(DofData_P->m4s, i));
+    List_Delete(DofData_P->m4s);
+  }
+
+  if(DofData_P->Flag_Init[5] == 1){
+    LinAlg_DestroyMatrix(&DofData_P->M5);
+    LinAlg_DestroyVector(&DofData_P->m5);
+    for(int i = 0; i < List_Nbr(DofData_P->m5s); i++)
+       LinAlg_DestroyVector((gVector*)List_Pointer(DofData_P->m5s, i));
+    List_Delete(DofData_P->m5s);
+  }
+
+  if(DofData_P->Flag_Init[6] == 1){
+    LinAlg_DestroyMatrix(&DofData_P->M6);
+    LinAlg_DestroyVector(&DofData_P->m6);
+    for(int i = 0; i < List_Nbr(DofData_P->m6s); i++)
+       LinAlg_DestroyVector((gVector*)List_Pointer(DofData_P->m6s, i));
+    List_Delete(DofData_P->m6s);
   }
 
   if(DofData_P->Flag_Only){

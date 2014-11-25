@@ -606,6 +606,99 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
   _try(PEPDestroy(&pep));
 }
 
+static void _polynomialEVP(struct DofData * DofData_P, int numEigenValues,
+                          double shift_r, double shift_i, int filterExpressionIndex)
+{
+  Message::Info("Solving polynomial eigenvalue problem using PEP");
+  PEP pep;
+  _try(PEPCreate(PETSC_COMM_WORLD, &pep));
+	if(DofData_P->Flag_Init[6]){
+	  Message::Info("Solving polynomial  i*w^5 M6 x + w^4 M5 x + -iw^3 M4 x + -w^2 M3 x + iw M2 x + M1 x = 0   eigenvalue problem using PEP");
+	  Mat A[6] = {DofData_P->M1.M, DofData_P->M2.M, DofData_P->M3.M, DofData_P->M4.M, DofData_P->M5.M, DofData_P->M6.M};	
+	  _try(PEPSetOperators(pep, 6, A));
+	}
+	if(DofData_P->Flag_Init[5] && !DofData_P->Flag_Init[6]){
+	  Message::Info("Solving polynomial  w^4 M5 x + -iw^3 M4 x + -w^2 M3 x + iw M2 x + M1 x = 0   eigenvalue problem using PEP");
+	  Mat A[5] = {DofData_P->M1.M, DofData_P->M2.M, DofData_P->M3.M, DofData_P->M4.M, DofData_P->M5.M};	
+	  _try(PEPSetOperators(pep, 5, A));
+	}
+	if(!DofData_P->Flag_Init[5] && !DofData_P->Flag_Init[6]){
+	  Message::Info("Solving polynomial  -iw^3 M4 x + -w^2 M3 x + iw M2 x + M1 x = 0   eigenvalue problem using PEP");
+	  Mat A[4] = {DofData_P->M1.M, DofData_P->M2.M, DofData_P->M3.M, DofData_P->M4.M};	
+	  _try(PEPSetOperators(pep, 4, A));
+	}
+  _try(PEPSetProblemType(pep, PEP_GENERAL));
+
+  // set some default options
+  _try(PEPSetDimensions(pep, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
+  _try(PEPSetTolerances(pep, 1.e-6, 100));
+  _try(PEPSetType(pep, PEPTOAR));
+  _try(PEPSetWhichEigenpairs(pep, PEP_SMALLEST_MAGNITUDE));
+  _try(PEPMonitorSet(pep, _myPepMonitor, PETSC_NULL, PETSC_NULL));
+	PetscScalar shift = shift_r + PETSC_i * shift_i;
+	_try(PEPSetTarget(pep, shift));
+	// _try(PEPSetScale(pep,PEP_SCALE_BOTH,PETSC_DECIDE,PETSC_DECIDE,PETSC_DECIDE));
+  _try(PEPSetFromOptions(pep));
+
+// -pc_factor_shift_type NONZERO -pc_factor_shift_amount [amount]
+// 	 or
+// '-pc_factor_shift_type POSITIVE_DEFINITE'
+// '-[level]_pc_factor_shift_type NONZERO -pc_factor_shift_amount [amount]'
+// 	or
+// '-[level]_pc_factor_shift_type POSITIVE_DEFINITE'
+// 			 to prevent the zero pivot.
+// 							[level] is "sub" when lu, ilu, cholesky, or icc are employed in each individual block of the bjacobi or ASM preconditioner; and
+// 	 [level] is "mg_levels" or "mg_coarse" when lu, ilu, cholesky, or icc are used insi
+	
+  Message::Info("Polynomial eigenvalue problem solved using PEP using the following options:");
+	_try(PEPView(pep, PETSC_VIEWER_STDOUT_SELF));
+	
+  // force options specified directly as arguments
+  if(numEigenValues){
+    _try(PEPSetDimensions(pep, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
+  }
+
+  // print info
+  // Message::Info("SLEPc solution method: %s", type);
+  PetscInt nev;
+  _try(PEPGetDimensions(pep, &nev, PETSC_NULL, PETSC_NULL));
+  Message::Info("SLEPc number of requested eigenvalues: %d", nev);
+  PetscReal tol;
+  PetscInt maxit;
+  _try(PEPGetTolerances(pep, &tol, &maxit));
+  Message::Info("SLEPc stopping condition: tol=%g, maxit=%d", tol, maxit);
+	_try(PEPSetScale(pep,PEP_SCALE_SCALAR,PETSC_DECIDE,PETSC_DECIDE,PETSC_DECIDE));
+
+  // solve
+  _try(PEPSolve(pep));
+
+  // check convergence
+  int its;
+  _try(PEPGetIterationNumber(pep, &its));
+  PEPConvergedReason reason;
+  _try(PEPGetConvergedReason(pep, &reason));
+  if(reason == PEP_CONVERGED_TOL)
+    Message::Info("SLEPc converged in %d iterations", its);
+  else if(reason == PEP_DIVERGED_ITS)
+    Message::Error("SLEPc diverged after %d iterations", its);
+  else if(reason == PEP_DIVERGED_BREAKDOWN)
+    Message::Error("SLEPc generic breakdown in method");
+	_try(PEPView(pep, PETSC_VIEWER_STDOUT_SELF));
+
+  // get number of converged approximate eigenpairs
+  PetscInt nconv;
+  _try(PEPGetConverged(pep, &nconv));
+  Message::Info("SLEPc number of converged eigenpairs: %d", nconv);
+
+  // ignore additional eigenvalues if we get more than what we asked
+  if(nconv > nev) nconv = nev;
+
+  // print eigenvalues and store eigenvectors in DofData
+  _storeEigenVectors(DofData_P, nconv, PETSC_NULL, pep, filterExpressionIndex);
+
+  _try(PEPDestroy(&pep));
+}
+
 #endif
 
 void EigenSolve_SLEPC(struct DofData * DofData_P, int numEigenValues,
@@ -624,21 +717,32 @@ void EigenSolve_SLEPC(struct DofData * DofData_P, int numEigenValues,
   }
 #endif
 
-  // GenerateSeparate[] creates three matrices M3, M2, M1 such that
-  // -w^2 M3 x + iw M2 x + M1 x = b; check Flag_Init[i] to see which
-  // operators exist:
+  // GenerateSeparate[] can create up to six matrices M6, M5, M4, M3, M2, M1 such that
+  // i*w^5 M6 x + w^4 M5 x + -iw^3 M4 x + -w^2 M3 x + iw M2 x + M1 x = 0 
+	// check Flag_Init[i] to see which operators exist.
   if(!DofData_P->Flag_Init[1] || !DofData_P->Flag_Init[3]){
     Message::Error("No System available for EigenSolve: check 'DtDt' and 'GenerateSeparate'");
     return;
   }
-
-  if(!DofData_P->Flag_Init[2]){
-    // the shift refers to w^2
-    _linearEVP(DofData_P, numEigenValues, shift_r, shift_i, FilterExpressionIndex);
-  }
-  else{
+	
+  if(!DofData_P->Flag_Init[4]&& !DofData_P->Flag_Init[5]&& !DofData_P->Flag_Init[6]){
+		if(!DofData_P->Flag_Init[2]){
+    	// the shift refers to w^2
+    	_linearEVP(DofData_P, numEigenValues, shift_r, shift_i, FilterExpressionIndex);
+  	}
+  	else{
     // the shift refers to w
     _quadraticEVP(DofData_P, numEigenValues, shift_r, shift_i, FilterExpressionIndex);
+  	}
+	}
+  else{
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 5)
+    Message::Error("Please upgrade to slepc >= 3.5.1 for polynomial EVP support!");
+    return;
+#else
+    // the shift refers to w
+    _polynomialEVP(DofData_P, numEigenValues, shift_r, shift_i, FilterExpressionIndex);
+#endif
   }
 }
 

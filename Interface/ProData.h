@@ -684,15 +684,18 @@ struct GlobalEquationTerm {
 #define DERHAM          4
 
 /* Term.TypeOfTimeDerivative */
-#define NODT_        0
-#define DT_          1
-#define DTDOF_       2
-#define DTDT_        3
-#define DTDTDOF_     4
-#define JACNL_      10
-#define NEVERDT_    11
-#define DTNL_       12
-#define DTDOFJACNL_ 13
+#define NODT_           0
+#define DT_             1
+#define DTDOF_          2
+#define DTDT_           3
+#define DTDTDOF_        4
+#define DTDTDTDOF_      5
+#define DTDTDTDTDOF_    6
+#define DTDTDTDTDTDOF_  7
+#define JACNL_         10
+#define NEVERDT_       11
+#define DTNL_          12
+#define DTDOFJACNL_    13
 
 /* Term.TypeOperator */
 #define NOOP       0

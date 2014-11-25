@@ -106,7 +106,7 @@ struct DofData {
   } CorrectionSolutions ;
 
   int       Flag_RHS ; // only assemble RHS
-  int       Flag_Init[4] ;
+  int       Flag_Init[7] ;
   int       Flag_Only ;
   int       Flag_InitOnly[3] ;
 
@@ -122,10 +122,10 @@ struct DofData {
   gMatrix   Jac ;
   gVector   res, dx ;
 
-  // Flag_Init[1,2,3] == 1
-  gMatrix   M1, M2, M3 ;
-  gVector   m1, m2, m3 ;
-  List_T   *m1s, *m2s, *m3s;
+  // Flag_Init[1,2,3,4,5,6] == 1
+  gMatrix   M1, M2, M3, M4, M5, M6;
+  gVector   m1, m2, m3, m4, m5, m6;
+  List_T   *m1s, *m2s, *m3s, *m4s, *m5s, *m6s;
 
   // Flag_Only and Flag_InitOnly[0,1,2]
   gMatrix   A1, A2, A3 ;

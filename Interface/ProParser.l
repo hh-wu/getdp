@@ -133,6 +133,9 @@ DtDof                        return tDtDof;
 DtDofJacNL                   return tDtDofJacNL;
 DtDt                         return tDtDt;
 DtDtDof                      return tDtDtDof;
+DtDtDtDof                    return tDtDtDtDof;
+DtDtDtDtDof                  return tDtDtDtDtDof;
+DtDtDtDtDtDof                return tDtDtDtDtDtDof;
 DtNL                         return tDtNL;
 
 Echo                         return tEcho;

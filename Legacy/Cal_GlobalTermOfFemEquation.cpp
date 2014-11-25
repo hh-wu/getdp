@@ -61,15 +61,18 @@ void  Cal_GlobalTermOfFemEquation(int  Num_Region,
   Element.Num = NO_ELEMENT ;
 
   switch (EquationTerm_P->Case.GlobalTerm.Term.TypeTimeDerivative) {
-  case NODT_        : Function_AssembleTerm = Cal_AssembleTerm_NoDt      ; break ;
-  case DTDOF_       : Function_AssembleTerm = Cal_AssembleTerm_DtDof     ; break ;
-  case DT_          : Function_AssembleTerm = Cal_AssembleTerm_Dt        ; break ;
-  case DTDTDOF_     : Function_AssembleTerm = Cal_AssembleTerm_DtDtDof   ; break ;
-  case DTDT_        : Function_AssembleTerm = Cal_AssembleTerm_DtDt      ; break ;
-  case NEVERDT_     : Function_AssembleTerm = Cal_AssembleTerm_NeverDt   ; break ;
-  case JACNL_       : Function_AssembleTerm = Cal_AssembleTerm_JacNL     ; break ;
-  case DTDOFJACNL_  : Function_AssembleTerm = Cal_AssembleTerm_DtDofJacNL; break ;
-  default :  Message::Error("Unknown type of operator for Global term") ; return;
+  case NODT_          : Function_AssembleTerm = Cal_AssembleTerm_NoDt      			   ; break ;
+  case DTDOF_         : Function_AssembleTerm = Cal_AssembleTerm_DtDof     			   ; break ;
+  case DT_            : Function_AssembleTerm = Cal_AssembleTerm_Dt        			   ; break ;
+  case DTDTDOF_       : Function_AssembleTerm = Cal_AssembleTerm_DtDtDof   			   ; break ;
+  case DTDT_          : Function_AssembleTerm = Cal_AssembleTerm_DtDt      			   ; break ;
+  case DTDTDTDOF_     : Function_AssembleTerm = Cal_AssembleTerm_DtDtDtDof         ; break ;
+  case DTDTDTDTDOF_   : Function_AssembleTerm = Cal_AssembleTerm_DtDtDtDtDof       ; break ;
+  case DTDTDTDTDTDOF_ : Function_AssembleTerm = Cal_AssembleTerm_DtDtDtDtDtDof     ; break ;
+  case NEVERDT_       : Function_AssembleTerm = Cal_AssembleTerm_NeverDt   			   ; break ;
+  case JACNL_         : Function_AssembleTerm = Cal_AssembleTerm_JacNL     			   ; break ;
+  case DTDOFJACNL_    : Function_AssembleTerm = Cal_AssembleTerm_DtDofJacNL			   ; break ;
+  default 						:  Message::Error("Unknown type of operator for Global term"); return;
   }
 
   QuantityStorageEqu_P = QuantityStorage_P0 +
@@ -249,15 +252,18 @@ void  Cal_GlobalTermOfFemEquation_old(int  Num_Region,
   Element.Num = NO_ELEMENT ;
 
   switch (EquationTerm_P->Case.GlobalTerm.Term.TypeTimeDerivative) {
-  case NODT_   : Function_AssembleTerm = Cal_AssembleTerm_NoDt    ; break ;
-  case DTDOF_  : Function_AssembleTerm = Cal_AssembleTerm_DtDof   ; break ;
-  case DT_     : Function_AssembleTerm = Cal_AssembleTerm_Dt      ; break ;
-  case DTDTDOF_: Function_AssembleTerm = Cal_AssembleTerm_DtDtDof ; break ;
-  case DTDT_   : Function_AssembleTerm = Cal_AssembleTerm_DtDt    ; break ;
-  case NEVERDT_: Function_AssembleTerm = Cal_AssembleTerm_NeverDt ; break ;
-  case JACNL_  : Function_AssembleTerm = Cal_AssembleTerm_JacNL   ; break ;
-  case DTDOFJACNL_  : Function_AssembleTerm = Cal_AssembleTerm_DtDofJacNL; break ;
-  default : Message::Error("Unknown type of operator for Global term") ; return ;
+  case NODT_         : Function_AssembleTerm = Cal_AssembleTerm_NoDt          ; break ;
+  case DTDOF_        : Function_AssembleTerm = Cal_AssembleTerm_DtDof         ; break ;
+  case DT_           : Function_AssembleTerm = Cal_AssembleTerm_Dt            ; break ;
+  case DTDTDOF_      : Function_AssembleTerm = Cal_AssembleTerm_DtDtDof       ; break ;
+  case DTDT_         : Function_AssembleTerm = Cal_AssembleTerm_DtDt          ; break ;
+  case DTDTDTDOF_    : Function_AssembleTerm = Cal_AssembleTerm_DtDtDtDof     ; break ; 
+	case DTDTDTDTDOF_  : Function_AssembleTerm = Cal_AssembleTerm_DtDtDtDtDof   ; break ; 
+	case DTDTDTDTDTDOF_: Function_AssembleTerm = Cal_AssembleTerm_DtDtDtDtDtDof ; break ; 
+	case NEVERDT_      : Function_AssembleTerm = Cal_AssembleTerm_NeverDt       ; break ;
+  case JACNL_        : Function_AssembleTerm = Cal_AssembleTerm_JacNL         ; break ;
+  case DTDOFJACNL_   : Function_AssembleTerm = Cal_AssembleTerm_DtDofJacNL    ; break ;
+  default : Message::Error("Unknown type of operator for Global term")        ; return ;
   }
 
   QuantityStorageEqu_P = QuantityStorage_P0 +

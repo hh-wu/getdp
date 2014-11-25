@@ -227,7 +227,7 @@ struct doubleXstring{
 %token        tNameOfSpace tIndexOfSystem
 %token        tSymmetry
 %token    tGalerkin tdeRham tGlobalTerm tGlobalEquation
-%token        tDt tDtDof tDtDt tDtDtDof tJacNL tDtDofJacNL tNeverDt tDtNL tAtAnteriorTimeStep
+%token        tDt tDtDof tDtDt tDtDtDof tDtDtDtDof tDtDtDtDtDof tDtDtDtDtDtDof tJacNL tDtDofJacNL tNeverDt tDtNL tAtAnteriorTimeStep /*guillchange*/
 %token        tIn
 %token        tFull_Matrix
 
@@ -3674,15 +3674,18 @@ GlobalTermTerm :
 
 TermOperator :
 
-    /* none */     { Type_TermOperator = NODT_      ; }
-  | tDt            { Type_TermOperator = DT_        ; }
-  | tDtDof         { Type_TermOperator = DTDOF_     ; }
-  | tDtDt          { Type_TermOperator = DTDT_      ; }
-  | tDtDtDof       { Type_TermOperator = DTDTDOF_   ; }
-  | tJacNL         { Type_TermOperator = JACNL_     ; }
-  | tDtDofJacNL    { Type_TermOperator = DTDOFJACNL_; }
-  | tNeverDt       { Type_TermOperator = NEVERDT_   ; }
-  | tDtNL          { Type_TermOperator = DTNL_      ; }
+    /* none */     { Type_TermOperator = NODT_          ; }
+  | tDt            { Type_TermOperator = DT_            ; }
+  | tDtDof         { Type_TermOperator = DTDOF_         ; }
+  | tDtDt          { Type_TermOperator = DTDT_          ; }
+  | tDtDtDof       { Type_TermOperator = DTDTDOF_       ; }
+  | tDtDtDtDof     { Type_TermOperator = DTDTDTDOF_     ; }
+  | tDtDtDtDtDof   { Type_TermOperator = DTDTDTDTDOF_   ; }
+  | tDtDtDtDtDtDof { Type_TermOperator = DTDTDTDTDTDOF_ ; }
+  | tJacNL         { Type_TermOperator = JACNL_         ; }
+  | tDtDofJacNL    { Type_TermOperator = DTDOFJACNL_    ; }
+  | tNeverDt       { Type_TermOperator = NEVERDT_       ; }
+  | tDtNL          { Type_TermOperator = DTNL_          ; }
  ;
 
 
