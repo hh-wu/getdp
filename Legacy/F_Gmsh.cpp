@@ -161,10 +161,14 @@ static void F_X_Field(F_ARG, int type, bool complex)
       iview.push_back(Fct->Para[i]);
   }
 
-  int qn = MatchElement ? Current.Element->GeoElement->NbrNodes : 0;
-  double *qx = Current.Element->x;
-  double *qy = Current.Element->y;
-  double *qz = Current.Element->z;
+  int qn = 0;
+  double *qx = 0, *qy = 0, *qz = 0;
+  if(Current.Element){
+    qn = MatchElement ? Current.Element->GeoElement->NbrNodes : 0;
+    qx = Current.Element->x;
+    qy = Current.Element->y;
+    qz = Current.Element->z;
+  }
 
   double N = 0.;
 

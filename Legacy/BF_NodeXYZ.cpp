@@ -10,7 +10,7 @@
 
 #define ARGS					\
   struct Element * Element, int NumNode,	\
-  double u, double v, double w,  double s[] 
+  double u, double v, double w,  double s[]
 
 /* ------------------------------------------------------------------------ */
 /*  B F _ N o d e X ,  Y ,  Z                                               */
@@ -50,7 +50,7 @@ void BF_NodeZ_3V(ARGS) { BF("BF_NodeZ_3V", BF_Node_3V, 2, 0, 1) ; }
 /*  B F _ N o d e X ,  Y ,  Z _ D . . .                                     */
 /* ------------------------------------------------------------------------ */
 
-void BF_NodeX_D12(struct Element * Element, int NumNode, 
+void BF_NodeX_D12(struct Element * Element, int NumNode,
 		  double u, double v, double w,  double s[])
 {
   double su[3] ;
@@ -62,7 +62,7 @@ void BF_NodeX_D12(struct Element * Element, int NumNode,
   s[1] = 0. ;
 }
 
-void BF_NodeY_D12(struct Element * Element, int NumNode, 
+void BF_NodeY_D12(struct Element * Element, int NumNode,
 		  double u, double v, double w,  double s[])
 {
   double su[3] ;
@@ -74,13 +74,13 @@ void BF_NodeY_D12(struct Element * Element, int NumNode,
   s[0] = 0. ;
 }
 
-void BF_NodeZ_D12(struct Element * Element, int NumNode, 
+void BF_NodeZ_D12(struct Element * Element, int NumNode,
 		   double u, double v, double w,  double s[])
 {
   s[0] = s[1] = s[2] = 0. ;
 }
 
-void BF_NodeX_D12_2E(struct Element * Element, int NumEdge, 
+void BF_NodeX_D12_2E(struct Element * Element, int NumEdge,
 		     double u, double v, double w,  double s[])
 {
   double su[3] ;
@@ -92,7 +92,7 @@ void BF_NodeX_D12_2E(struct Element * Element, int NumEdge,
   s[1] = 0. ;
 }
 
-void BF_NodeY_D12_2E(struct Element * Element, int NumEdge, 
+void BF_NodeY_D12_2E(struct Element * Element, int NumEdge,
 		     double u, double v, double w,  double s[])
 {
   double su[3] ;
@@ -104,14 +104,14 @@ void BF_NodeY_D12_2E(struct Element * Element, int NumEdge,
   s[0] = 0. ;
 }
 
-void BF_NodeZ_D12_2E(struct Element * Element, int NumEdge, 
+void BF_NodeZ_D12_2E(struct Element * Element, int NumEdge,
 		     double u, double v, double w,  double s[])
 {
   s[0] = s[1] = s[2] = 0. ;
 }
 
-void BF_GradNodeRealCoord(struct Element * Element, int NumNode, 
-		  double u, double v, double w,  double s[])
+void BF_GradNodeRealCoord(struct Element * Element, int NumNode,
+                          double u, double v, double w,  double s[])
 {
   double su[3] ;
 
