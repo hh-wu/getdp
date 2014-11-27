@@ -439,6 +439,9 @@ struct FunctionActive {
       double  Value;
     } GetVolume;
     struct {
+      int  Value;
+    } GetNumElements;
+    struct {
       List_T *Table;
     } ValueFromIndex;
     struct {

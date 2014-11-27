@@ -212,7 +212,7 @@ void F_SurfaceArea(F_ARG)
   struct Element  Element ;
   List_T  * InitialList_L;
 
-  int     Index_Region, Nbr_Element, i_Element ;
+  int     Nbr_Element, i_Element ;
   double  Val_Surface ;
   double  c11, c21, c12, c22, DetJac ;
   int     i, k ;
@@ -221,31 +221,19 @@ void F_SurfaceArea(F_ARG)
     Fct->Active = (struct FunctionActive *)Malloc(sizeof(struct FunctionActive)) ;
 
     if (Fct->NbrParameters == 1) {
-      Index_Region = (int)(Fct->Para[0]) ;
-
+      int Index_Region = (int)(Fct->Para[0]) ;
       InitialList_L = List_Create(1,1,sizeof(int));
-      List_Reset(InitialList_L);
-      List_Add(InitialList_L,&Index_Region);
-
-      /*
-      InitialList_L = ((struct Group *)
-		       List_Pointer(Problem_S.Group, Index_Region))->InitialList ;
-      */
+      List_Add(InitialList_L, &Index_Region);
     }
     else if (Fct->NbrParameters > 1) {
       InitialList_L = List_Create(Fct->NbrParameters,1,sizeof(int));
       List_Reset(InitialList_L);
       for (i=0; i<Fct->NbrParameters; i++) {
-        Index_Region = (int)(Fct->Para[i]) ;
-        List_Add(InitialList_L,&Index_Region);
+        int Index_Region = (int)(Fct->Para[i]) ;
+        List_Add(InitialList_L, &Index_Region);
       }
-      /*
-      InitialList_L = ((struct Group *)
-		       List_Pointer(Problem_S.Group, Index_Region))->InitialList ;
-      */
     }
     else {
-      Index_Region = -1 ;
       InitialList_L = NULL ;
     }
 
@@ -303,7 +291,7 @@ void F_GetVolume(F_ARG)
   struct Element  Element ;
   List_T  * InitialList_L;
 
-  int     Index_Region, Nbr_Element, i_Element ;
+  int     Nbr_Element, i_Element ;
   double  Val_Volume ;
   double  c11, c21, c31, c12, c22, c32, c13, c23, c33 ;
   double  DetJac ;
@@ -313,19 +301,11 @@ void F_GetVolume(F_ARG)
     Fct->Active = (struct FunctionActive *)Malloc(sizeof(struct FunctionActive)) ;
 
     if (Fct->NbrParameters == 1) {
-      Index_Region = (int)(Fct->Para[0]) ;
-
-      InitialList_L = List_Create(1,1,sizeof(int));
-      List_Reset(InitialList_L);
+      int Index_Region = (int)(Fct->Para[0]) ;
+      InitialList_L = List_Create(1, 1, sizeof(int));
       List_Add(InitialList_L,&Index_Region);
-
-      /*
-      InitialList_L = ((struct Group *)
-		       List_Pointer(Problem_S.Group, Index_Region))->InitialList ;
-      */
     }
     else {
-      Index_Region = -1 ;
       InitialList_L = NULL ;
     }
 
@@ -397,6 +377,40 @@ void F_GetVolume(F_ARG)
 
 }
 
+void F_GetNumElements(F_ARG)
+{
+  struct Element  Element ;
+
+  if (!Fct->Active) {
+    Fct->Active = (struct FunctionActive *)Malloc(sizeof(struct FunctionActive)) ;
+    List_T  * InitialList_L = 0;
+    if (Fct->NbrParameters == 1) {
+      int Index_Region = (int)(Fct->Para[0]) ;
+      InitialList_L = List_Create(1, 1, sizeof(int));
+      List_Add(InitialList_L, &Index_Region);
+    }
+    int Count = 0. ;
+    int Nbr_Element = Geo_GetNbrGeoElements() ;
+    for (int i_Element = 0 ; i_Element < Nbr_Element; i_Element++) {
+      Element.GeoElement = Geo_GetGeoElement(i_Element) ;
+      if ((InitialList_L &&
+	   List_Search(InitialList_L, &(Element.GeoElement->Region), fcmp_int)) ||
+	  (!InitialList_L && Element.GeoElement->Region == Current.Region)) {
+	Count++;
+      }
+    }
+    Fct->Active->Case.GetNumElements.Value = Count ;
+  }
+
+  V->Type = SCALAR ;
+  V->Val[0] = Fct->Active->Case.GetNumElements.Value ;
+  V->Val[MAX_DIM] = 0;
+
+  for (int k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2) {
+    V->Val[MAX_DIM* k] = V->Val[0] ;
+    V->Val[MAX_DIM* (k+1)] = 0 ;
+  }
+}
 
 void F_CellSize(F_ARG)
 {
@@ -470,7 +484,6 @@ void F_CellSize(F_ARG)
     V->Val[MAX_DIM* (k+1)] = 0 ;
   }
 }
-
 
 void F_SquNormEdgeValues(F_ARG)
 {
