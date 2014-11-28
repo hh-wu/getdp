@@ -24,7 +24,11 @@ Group{
   For ii In {0: #ListOfDom()-1}
     idom = ListOfDom(ii);
 
-    Gama_D~{idom} = Region[{1}];
+    // Gama_D~{idom} = Region[{1}];
+    Gama_D~{idom} = Region[{}];
+    Gama_Point~{idom} = Region[{1}];
+
+
 
     Gama_N~{idom} = Region[{}] ;
     If (N_ON_TOP)
@@ -57,6 +61,9 @@ Group{
     GamaPml_N~{idom}~{0} = Region[{}] ;
     GamaPml_N~{idom}~{1} = Region[{}] ;
   EndIf
+
+    GamaPml_D0~{idom}~{0} = Region[{}] ;
+    GamaPml_D0~{idom}~{1} = Region[{}] ;
 
   GamaPml_S~{idom} = Region[{GamaPml_S~{idom}~{0},GamaPml_S~{idom}~{1}}] ;
   GamaPml_N~{idom} = Region[{GamaPml_N~{idom}~{0},GamaPml_N~{idom}~{1}}] ;
@@ -105,6 +112,10 @@ Group{
     GamaPml_N~{idom}~{1} = Region[{}] ;
   EndIf
 
+    GamaPml_D0~{idom}~{0} = Region[{}] ;
+    GamaPml_D0~{idom}~{1} = Region[{}] ;
+
+
   GamaPml_S~{idom} = Region[{GamaPml_S~{idom}~{0},GamaPml_S~{idom}~{1}}] ;
   GamaPml_N~{idom} = Region[{GamaPml_N~{idom}~{0},GamaPml_N~{idom}~{1}}] ;
 
@@ -150,6 +161,9 @@ Group{
     GamaPml_N~{idom}~{0} = Region[{}] ;
     GamaPml_N~{idom}~{1} = Region[{}] ;
   EndIf
+
+    GamaPml_D0~{idom}~{0} = Region[{}] ;
+    GamaPml_D0~{idom}~{1} = Region[{}] ;
 
   GamaPml_S~{idom} = Region[{GamaPml_S~{idom}~{0},GamaPml_S~{idom}~{1}}] ;
   GamaPml_N~{idom} = Region[{GamaPml_N~{idom}~{0},GamaPml_N~{idom}~{1}}] ;

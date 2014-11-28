@@ -207,7 +207,7 @@ FunctionSpace {
       BasisFunction {
 	{ Name sn ; NameOfCoef un ; Function BF_Node ;
 	  // Support Region[{OmegaAll~{idom}, GamaAll~{idom}, Sigma~{idom}, Gama_D~{idom}}]; Entity NodesOf[All];
-	  Support Region[{OmegaAll~{idom}, Gama_S~{idom}, Gama_N~{idom}, Gama_D~{idom}, Gama_D0~{idom}, Gama~{idom}, Sigma~{idom}, GamaPml_S~{idom}~{0}, GamaPml_N~{idom}~{0}, GamaPml_D0~{idom}~{0}, GamaPml_S~{idom}~{1}, GamaPml_N~{idom}~{1}, GamaPml_D0~{idom}~{1}}]; Entity NodesOf[All];
+	  Support Region[{OmegaAll~{idom}, Gama_S~{idom}, Gama_N~{idom}, Gama_D~{idom}, Gama_D0~{idom}, Gama~{idom}, Sigma~{idom}, GamaPml_S~{idom}~{0}, GamaPml_N~{idom}~{0}, GamaPml_D0~{idom}~{0}, GamaPml_S~{idom}~{1}, GamaPml_N~{idom}~{1}, GamaPml_D0~{idom}~{1}, Gama_Point~{idom}/*, GamaDelta~{idom}~{0}, GamaDelta~{idom}~{1}*/}]; Entity NodesOf[All];
 	  // Support Region[{OmegaAll~{idom}, GamaAll~{idom}, Gama_D~{idom}}]; Entity NodesOf[All];
 	}
       }
@@ -473,51 +473,51 @@ Formulation {
       // Galerkin { [ -volSource[], {u} ] ;
       // 	In Omega ; Jacobian JVol ; Integration I1 ; }      
 
-      //modified Helmholtz equation
-      // Galerkin{[D[]* Dof{d u~{idom}}, {d u~{idom}}];
-      Galerkin{[Rotate[D[],0.,0.,-theta]* Dof{d u~{idom}}, {d u~{idom}}];
-      	In OmegaPml~{idom}; Jacobian JVol; Integration I1;}
+      Galerkin { [ -1., {u~{idom}} ] ;
+      	In Gama_Point~{idom} ; Jacobian JLin ; Integration I1 ; }
+
+      Galerkin{[Rotate[D[],0.,0.,-thetaList(idom)]* Dof{d u~{idom}}, {d u~{idom}}];
+      	In OmegaPml~{idom}~{0}; Jacobian JVol; Integration I1;}
+      Galerkin{[Rotate[D[],0.,0.,-thetaList(idom+1)]* Dof{d u~{idom}}, {d u~{idom}}];
+      	In OmegaPml~{idom}~{1}; Jacobian JVol; Integration I1;}
 
       Galerkin{[-(kPml~{idom}~{0}[])^2*Kx[]*Ky[]*Kz[]*Dof{u~{idom}}, {u~{idom}}];
       	In OmegaPml~{idom}~{0}; Jacobian JVol; Integration I1;}
       Galerkin{[-(kPml~{idom}~{1}[])^2*Kx[]*Ky[]*Kz[]*Dof{u~{idom}}, {u~{idom}}];
       	In OmegaPml~{idom}~{1}; Jacobian JVol; Integration I1;}
 
-
-      // Galerkin{[-(om[]/c[ Vector[xSigma~{idom}~{jdom},Y[],Z[]] ])^2*Kx[]*Ky[]*Dof{u~{idom}}, {u~{idom}}];
-      // 	In OmegaPml~{idom}; Jacobian JVol; Integration I1;}
-
-
       Galerkin { [ -I[]*k[]*Dof{u~{idom}}, {u~{idom}} ] ;
       	In Gama_S~{idom} ; Jacobian JSur ; Integration I1 ; }      
       Galerkin { [ -I[]*(kPml~{idom}~{0}[])*Dof{u~{idom}}, {u~{idom}} ] ;
-      	In GamaPml_S~{idom}~{0} ; Jacobian JSur ; Integration I1 ; }      
+      	In GamaPml_S~{idom}~{0} ; Jacobian JSur ; Integration I1 ; } 
       Galerkin { [ -I[]*(kPml~{idom}~{1}[])*Dof{u~{idom}}, {u~{idom}} ] ;
       	In GamaPml_S~{idom}~{1} ; Jacobian JSur ; Integration I1 ; }      
-      // Galerkin { [ -I[]*(om[]/c[ Vector[xSigma~{idom}~{jdom},Y[],Z[]] ])*Dof{u~{idom}}, {u~{idom}} ] ;
-      // 	In Gama~{idom}~{0} ; Jacobian JSur ; Integration I1 ; }      
-      // Galerkin { [ -I[]*(om[]/c[ Vector[xSigma~{idom}~{jdom},Y[],Z[]] ])*Dof{u~{idom}}, {u~{idom}} ] ;
-      // 	In Gama~{idom}~{1} ; Jacobian JSur ; Integration I1 ; }      
 
-
-      // Delta functions
-      // Galerkin { [ Vector[-(#10 > 0. ? H~{idom}~{0}[]*2.*g_in~{idom}~{0}[] : 0.),0.,0.], {d u~{idom}} ] ;
-      // 	In OmegaAll~{idom} ; Jacobian JVol ; Integration I1 ; }      
-      Galerkin { [ Vector[-(#10 > 0. ? Cos[theta~{idom}~{0}]*H~{idom}~{0}[]*2.*g_in~{idom}~{0}[] : 0.),-(#10 > 0. ? Sin[theta~{idom}~{0}]*H~{idom}~{0}[]*2.*g_in~{idom}~{0}[] : 0.),0.], {d u~{idom}} ] ;
-      	In OmegaAll~{idom} ; Jacobian JVol ; Integration I1 ; }      
-      Galerkin { [ -(#10 > 0. ? H~{idom}~{0}[]*2.*g_in~{idom}~{0}[] : 0.), {u~{idom}} ] ;
-      	In Gama~{idom}~{0} ; Jacobian JSur ; Integration I1 ; }      
-      Galerkin { [ (#10 > 0. ? H~{idom}~{0}[]*2.*g_in~{idom}~{0}[] : 0.), {u~{idom}} ] ;
-      	In Gama~{idom}~{1} ; Jacobian JSur ; Integration I1 ; }      
+      // // // Delta functions -- integration by parts
+      // // // Galerkin { [ Vector[-(#10 > 0. ? H~{idom}~{0}[]*2.*g_in~{idom}~{0}[] : 0.),0.,0.], {d u~{idom}} ] ;
+      // // // 	In OmegaAll~{idom} ; Jacobian JVol ; Integration I1 ; }      
+      // // Galerkin { [ Vector[ -(#10 > 0. ? Cos[theta~{idom}[]]*H~{idom}~{0}[]*2.*g_in~{idom}~{0}[] : 0.), -(#10 > 0. ? Sin[theta~{idom}[]]*H~{idom}~{0}[]*2.*g_in~{idom}~{0}[] : 0.), 0.], {d u~{idom}} ] ;
+      // // // Galerkin { [ ( #10 > 0. ? Vector[ Cos[theta~{idom}[]]*H~{idom}~{0}[]*2.*g_in~{idom}~{0}[], Sin[theta~{idom}[]]*H~{idom}~{0}[]*2.*g_in~{idom}~{0}[], 0. ] : Vector[0.,0.,0.] ) ] } ;
+      // // 	In OmegaAll~{idom} ; Jacobian JVol ; Integration I1 ; }   
+      // // Galerkin { [ -(#10 > 0. ? H~{idom}~{0}[]*2.*g_in~{idom}~{0}[] : 0.), {u~{idom}} ] ;
+      // // 	In Gama~{idom}~{0} ; Jacobian JSur ; Integration I1 ; }      
+      // // Galerkin { [ (#10 > 0. ? H~{idom}~{0}[]*2.*g_in~{idom}~{0}[] : 0.), {u~{idom}} ] ;
+      // // 	In Gama~{idom}~{1} ; Jacobian JSur ; Integration I1 ; }      
       
-      // Galerkin { [ Vector[-(#11 > 0. ? H~{idom}~{1}[]*2.*g_in~{idom}~{1}[] : 0.),0.,0.], {d u~{idom}} ] ;
-      // 	In OmegaAll~{idom} ; Jacobian JVol ; Integration I1 ; }      
-      Galerkin { [ Vector[-(#11 > 0. ? Cos[theta~{idom}~{1}]*H~{idom}~{1}[]*2.*g_in~{idom}~{1}[] : 0.),-(#11 > 0. ? Sin[theta~{idom}~{1}]*H~{idom}~{1}[]*2.*g_in~{idom}~{1}[] : 0.),0.], {d u~{idom}} ] ;
-      	In OmegaAll~{idom} ; Jacobian JVol ; Integration I1 ; }      
-      Galerkin { [ -(#11 > 0. ? H~{idom}~{1}[]*2.*g_in~{idom}~{1}[] : 0.), {u~{idom}} ] ;
-      	In Gama~{idom}~{0} ; Jacobian JSur ; Integration I1 ; }      
-      Galerkin { [ (#11 > 0. ? H~{idom}~{1}[]*2.*g_in~{idom}~{1}[] : 0.), {u~{idom}} ] ;
-      	In Gama~{idom}~{1} ; Jacobian JSur ; Integration I1 ; }      
+      // // // Galerkin { [ Vector[-(#11 > 0. ? H~{idom}~{1}[]*2.*g_in~{idom}~{1}[] : 0.),0.,0.], {d u~{idom}} ] ;
+      // // // 	In OmegaAll~{idom} ; Jacobian JVol ; Integration I1 ; }      
+      // // Galerkin { [ Vector[ -(#11 > 0. ? Cos[theta~{idom}[]]*H~{idom}~{1}[]*2.*g_in~{idom}~{1}[] : 0.), -(#11 > 0. ? Sin[theta~{idom}[]]*H~{idom}~{1}[]*2.*g_in~{idom}~{1}[] : 0.), 0.], {d u~{idom}} ] ;
+      // // 	In OmegaAll~{idom} ; Jacobian JVol ; Integration I1 ; }      
+      // // Galerkin { [ -(#11 > 0. ? H~{idom}~{1}[]*2.*g_in~{idom}~{1}[] : 0.), {u~{idom}} ] ;
+      // // 	In Gama~{idom}~{0} ; Jacobian JSur ; Integration I1 ; }      
+      // // Galerkin { [ (#11 > 0. ? H~{idom}~{1}[]*2.*g_in~{idom}~{1}[] : 0.), {u~{idom}} ] ;
+      // // 	In Gama~{idom}~{1} ; Jacobian JSur ; Integration I1 ; }
+
+      Galerkin { [ ( #10 > 0. ? 2.*g_in~{idom}~{0}[] : 0. ), {u~{idom}} ] ; // delta function
+      	  In Sigma~{idom}~{0} ; Jacobian JSur ; Integration I1 ; }      
+
+      Galerkin { [ ( #11 > 0. ? 2.*g_in~{idom}~{1}[] : 0. ), {u~{idom}} ] ; // delta function
+      	  In Sigma~{idom}~{1} ; Jacobian JSur ; Integration I1 ; }
     }
   }
 
@@ -530,30 +530,21 @@ Formulation {
 	{ Name g_bb~{idom}~{jdom} ; Type Local ; NameOfSpace Hgrad_gbb_Dirichlet2D_lm~{idom}~{jdom} ;} // lambda -> g_out
       }
       Equation {
-
       //modified Helmholtz equation
-      // Galerkin{[ D[]* Dof{Grad u~{idom}~{jdom}}, {Grad u~{idom}~{jdom}}];
-      Galerkin{[ Rotate[D[],0.,0.,-theta]* Dof{Grad u~{idom}~{jdom}}, {Grad u~{idom}~{jdom}}];
-      	In OmegaPml~{idom}~{jdom}; Jacobian JVol; Integration I1;}
-      Galerkin{[-(kPml~{idom}~{jdom}[])^2*Kx[]*Ky[]*Kz[]*Dof{u~{idom}~{jdom}}, {u~{idom}~{jdom}}];
-      	In OmegaPml~{idom}~{jdom}; Jacobian JVol; Integration I1;}
+	Galerkin{[ Rotate[D[],0.,0.,-thetaList(idom+jdom)]* Dof{Grad u~{idom}~{jdom}}, {Grad u~{idom}~{jdom}}];
+	  In OmegaPml~{idom}~{jdom}; Jacobian JVol; Integration I1;}
+	Galerkin{[-(kPml~{idom}~{jdom}[])^2*Kx[]*Ky[]*Kz[]*Dof{u~{idom}~{jdom}}, {u~{idom}~{jdom}}];
+	  In OmegaPml~{idom}~{jdom}; Jacobian JVol; Integration I1;}
 
+	Galerkin { [ -I[]*kPml~{idom}~{jdom}[]*Dof{u~{idom}~{jdom}}, {u~{idom}~{jdom}} ] ;
+	  In GamaPml_S~{idom}~{jdom} ; Jacobian JSur ; Integration I1 ; }      
 
-      Galerkin { [ -I[]*kPml~{idom}~{jdom}[]*Dof{u~{idom}~{jdom}}, {u~{idom}~{jdom}} ] ;
-      	In GamaPml_S~{idom}~{jdom} ; Jacobian JSur ; Integration I1 ; }      
-
-      Galerkin{[Dof{g_bb~{idom}~{jdom}}, {u~{idom}~{jdom}}];
-        In Sigma~{idom}~{jdom}; Jacobian JSur; Integration I1;}
-      Galerkin{[Dof{u~{idom}~{jdom}}, {g_bb~{idom}~{jdom}}];
-        In Sigma~{idom}~{jdom}; Jacobian JSur; Integration I1;}
-      Galerkin{[-{uD~{idom}}, {g_bb~{idom}~{jdom}}];
-        In Sigma~{idom}~{jdom}; Jacobian JSur; Integration I1;}
-
-
-      // Galerkin{[-I[]*k[]*Dof{u~{idom}~{jdom}}, {u~{idom}~{jdom}}]; // DELETE ME
-      //   In Sigma~{idom}~{jdom}; Jacobian JSur; Integration I1;}
-      // Galerkin{[I[]*k[]*{uD~{idom}}, {u~{idom}~{jdom}}];
-      //   In Sigma~{idom}~{jdom}; Jacobian JSur; Integration I1;}
+	Galerkin{[Dof{g_bb~{idom}~{jdom}}, {u~{idom}~{jdom}}];
+	  In Sigma~{idom}~{jdom}; Jacobian JSur; Integration I1;}
+	Galerkin{[Dof{u~{idom}~{jdom}}, {g_bb~{idom}~{jdom}}];
+	  In Sigma~{idom}~{jdom}; Jacobian JSur; Integration I1;}
+	Galerkin{[-{uD~{idom}}, {g_bb~{idom}~{jdom}}];
+	  In Sigma~{idom}~{jdom}; Jacobian JSur; Integration I1;}
       }
     }
 
@@ -563,7 +554,6 @@ Formulation {
 	{ Name g_out~{idom}~{jdom} ; Type Local ; NameOfSpace Hgrad_g_Dirichlet2D_lm~{idom}~{jdom} ;}
       }
       Equation {
-
 	Galerkin { [ Dof{g_out~{idom}~{jdom}} , {g_out~{idom}~{jdom}} ] ;
 	  In Sigma~{idom}~{jdom}; Jacobian JSur ; Integration I1 ; }
 	If(jdom == 0)
@@ -602,7 +592,6 @@ Formulation {
 }
 
 EndIf
-
 
 
 Resolution {

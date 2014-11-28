@@ -20,11 +20,13 @@ Group{
       Sigma~{idom}~{0} = Region[{}];
       Sigma~{idom}~{1} = Region[(5000 + 1000*idom)];
       GammaD0~{idom} = Region[{(3001 + idom), (1001+idom)}];
+      GammaD~{idom} = Region[{(1001+idom)}];
     EndIf
     If(idom == N_DOM-1)
       Sigma~{idom}~{0} = Region[(5000 + 1000*(idom-1))];
       Sigma~{idom}~{1} = Region[{}];
-      GammaD~{idom} = Region[{(2001+idom)}];
+      // GammaD~{idom} = Region[{(2001+idom)}];
+      GammaInf~{idom} = Region[{(2001+idom)}];
       GammaD0~{idom} = Region[{(3001 + idom)}];
     EndIf
     If(idom > 0  && idom < N_DOM-1)

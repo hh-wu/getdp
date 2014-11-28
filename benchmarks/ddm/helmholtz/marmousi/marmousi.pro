@@ -8,8 +8,10 @@ MSH_SPLIT = 1;
 
 If (PML)
   xSigmaList = {};
+  thetaList = {};
   For i In {0:nDoms}
     xSigmaList += i*dDom;
+    thetaList += 0;
   EndFor
 
   For ii In {0: N_DOM-1}
@@ -78,6 +80,9 @@ Include "pmlFunctions.pro";
 EndIf
 
 If (PRECOND_SWEEP)
+  // ListOfCuts = {0, 7, N_DOM-1}; //16/1
+  ListOfCuts = {0, 5, 10, N_DOM-1}; //16/2
+
   // what domains am I in charge of ? Implemented with a list
   ProcOwnsDomain = {};
   For idom In{0:N_DOM-1}

@@ -5,7 +5,7 @@
 Include "params_JINA1998.geo";
 
 N_DOM = 0;
-For i In {0:4}
+For i In {0:PARTS-1}
 N_DOM += nDomList[i];
 EndFor
 
@@ -28,6 +28,8 @@ Transfinite Line{ll[{0,2}]} = d1/lc+1 Using Progression 1;
 Transfinite Line{ll[{1,3}]} = d2/lc+1 Using Progression 1;
 Transfinite Surface{s}; Recombine Surface{s};
 
+theta = 0; // theta is the cumulative angle
+
 For i In {0:nDomList[0]-1} // straight part on the left
 ext[] = Extrude{D1/nDomList[0],0,0}{ Surface{ls[i]}; Layers{D1/nDomList[0]/lc}; Recombine; };
   ls[] += ext[0];
@@ -35,14 +37,20 @@ ext[] = Extrude{D1/nDomList[0],0,0}{ Surface{ls[i]}; Layers{D1/nDomList[0]/lc}; 
   lSides[] += ext[{2:5}];
 EndFor
 
+If (PARTS > 1)
 n = nDomList[0];
 For i In {n:n+nDomList[1]-1} // first bend
   ext[] = Extrude{{0,0,1}, {shiftX+D1,R+d1+shiftY,0}, alpha/nDomList[1]}{ Surface{ls[i]}; Layers{R*alpha/nDomList[1]/lc}; Recombine; };
   ls[] += ext[0];
   lv[] += ext[1];
   lSides[] += ext[{2:5}];
-EndFor
 
+  theta += alpha/nDomList[1];
+
+EndFor
+EndIf
+
+If (PARTS > 2)
 If (D2 > 0)
 n += nDomList[1];
 For i In {n:n+nDomList[2]-1} // straight part in the middle
@@ -52,15 +60,22 @@ For i In {n:n+nDomList[2]-1} // straight part in the middle
   lSides[] += ext[{2:5}];
 EndFor
 EndIf
+EndIf
 
+If (PARTS > 3)
 n += nDomList[2];
 For i In {n:n+nDomList[3]-1} // second bend
   ext[] = Extrude{{0,0,1}, {shiftX+D1+(R+d1)*Sin[alpha]+D2*Cos(alpha)+R*Sin[alpha], shiftY+(R+d1)*(1-Cos[alpha])+D2*Sin[alpha]+R*(1-Cos[alpha])-R, 0}, -alpha/nDomList[3]}{ Surface{ls[i]}; Layers{R*alpha/nDomList[3]/lc}; Recombine; };
   ls[] += ext[0];
   lv[] += ext[1];
   lSides[] += ext[{2:5}];
-EndFor
 
+  theta -= alpha/nDomList[1];
+
+EndFor
+EndIf
+
+If (PARTS > 4)
 n += nDomList[3]; // straight part on the right
 For i In {n:n+nDomList[4]-1}
   ext[] = Extrude{D3/nDomList[4],0,0}{ Surface{ls[i]}; Layers{D3/nDomList[4]/lc}; Recombine; };
@@ -68,6 +83,7 @@ For i In {n:n+nDomList[4]-1}
   lv[] += ext[1];
   lSides[] += ext[{2:5}];
 EndFor
+EndIf
 
 Mesh 3;
 Physical Volume(6000) = {lv[]};

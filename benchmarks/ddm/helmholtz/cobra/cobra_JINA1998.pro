@@ -2,7 +2,7 @@ Include "params_JINA1998.geo";
 
 // Compute the number of domains as the sum of the domains in each part of the waveguide
 N_DOM = 0;
-For i In {0:4}
+For i In {0:PARTS-1}
 N_DOM += nDomList(i);
 EndFor
 
@@ -25,7 +25,7 @@ Function {
     uinc[] = Complex[ Sin[Pi*m/d*(Y[]-(shiftY-d/2.))], 0. ];
   EndIf
   If(geo3d)
-    uinc[] = Complex[ Sin[Pi*m/d1*(Y[])]*Sin[Pi*n/d2*(Z[])], 0. ];
+    uinc[] = Complex[ Sin[Pi*m/d1*(Y[]-shiftY)]*Sin[Pi*n/d2*(Z[])], 0. ];
   EndIf
 
   kDtn[] = k[];

@@ -40,6 +40,9 @@ Group{
 
   // For idom In {1:nDoms}
   For idom In {0:N_DOM-1}
+
+  Gama_Point~{idom} = Region[{}]; // point source (Dirac)
+
   If (idom == 0)
   Omega~{idom} = Region[{((idom+1)*1000+200)}] ;
   OmegaPml~{idom}~{0} = Region[{}] ;

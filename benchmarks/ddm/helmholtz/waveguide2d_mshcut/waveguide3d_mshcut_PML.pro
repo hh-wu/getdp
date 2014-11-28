@@ -80,13 +80,16 @@ Function {
 
   // uinc[] = Complex[ Sin[Pi*m/dy*Y[]]*Sin[Pi*m/dz*Z[]], 0. ];
 
+  // local interface coordinates for the delta functions
+  For idom In {0:N_DOM-1}
+    For jdom In {0:1}
+      P~{idom}~{jdom}[] = (-X[]*Sin[theta]+Y[]*Cos[theta]);
+      Q~{idom}~{jdom}[] = Z[];
+      // R_0~{idom}~{jdom}[] = X[]*Cos[theta]+Y[]*Sin[theta]+dBb;
+    EndFor
+  EndFor
 
-  P[] = (-X[]*Sin[theta]+Y[]*Cos[theta]);
-  Q[] = Z[];
-  R_0[] = X[]*Cos[theta]+Y[]*Sin[theta]+dBb;
-
-  uinc[] = Sin[2.*Pi/d*P[]]*Sin[2.*Pi/d*Q[]]; // mode in the rotated coordinates
-
+  uinc[] = Sin[2.*Pi/d*P~{0}~{0}[]]*Sin[1.*Pi/d*Q~{0}~{0}[]]; // mode in the rotated coordinates
 
   kDtn[] = k[];
   kInf[] = k[];//BETA_M[];
@@ -95,26 +98,25 @@ Function {
 Include "../main/tcDefaults.pro";
 
 If (PML)
-xSigmaList = {};
-thetaList = {};
-For i In {0:nDoms}
-  xSigmaList += i*dDom;
-  thetaList += theta;
-EndFor
+  xSigmaList = {};
+  thetaList = {};
+  For i In {0:nDoms}
+    xSigmaList += i*dDom;
+    thetaList += theta;
+  EndFor
 
-For ii In {0: N_DOM-1}
-idom = ii;
-// If (idom > 0)
-xSigma~{idom}~{0} = xSigmaList(idom);
-// EndIf
-// If (idom < N-1)
-xSigma~{idom}~{1} = xSigmaList(idom+1);
-// EndIf
+  Function{
+    For ii In {0: N_DOM-1}
+      idom = ii;
+      xSigma~{idom}~{0} = xSigmaList(idom);
+      xSigma~{idom}~{1} = xSigmaList(idom+1);
 
-theta~{idom}~{0} = thetaList(idom);
-theta~{idom}~{1} = thetaList(idom+1);
-
-EndFor
+      theta~{idom}[] = thetaList(idom);
+      
+      Xs~{idom}~{0}[] = Vector[ xSigma~{idom}~{0}*Cos[theta]-P~{idom}~{0}[]*Sin[theta], xSigma~{idom}~{0}*Sin[theta]+P~{idom}~{0}[]*Cos[theta], Z[]] ; // FIXME move this out of this file, since it is particular to each problem (and each subdomain)
+      Xs~{idom}~{1}[] = Vector[ xSigma~{idom}~{1}*Cos[theta]-P~{idom}~{1}[]*Sin[theta], xSigma~{idom}~{1}*Sin[theta]+P~{idom}~{1}[]*Cos[theta], Z[]] ;
+    EndFor
+  }
 EndIf
 
 

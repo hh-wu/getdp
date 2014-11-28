@@ -29,7 +29,7 @@ dBb = (nLayersPml+nLayersTr)*lc;
 // xPmlLeft = 0.;
 m=1;
 
-theta = 0.*Pi/12.;
+theta = .69*Pi/12.*1.;
 
 dDom = D/nDoms;
 
