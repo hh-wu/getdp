@@ -6,6 +6,9 @@ Perfectly Matched Layer
 Include "TR_data.pro";
 Include "TR_getdp_data.pro";
 
+Function{
+   DefineConstant[ N_scat = {0, Name StrCat[MENU_GEO, StrCat[MENU_OBSTACLES, "/01Nb. of placed obstacles"]]}];
+}
 Group{
 // Time Reversal Mirror (TRM)
 TRM = Region[{1}];

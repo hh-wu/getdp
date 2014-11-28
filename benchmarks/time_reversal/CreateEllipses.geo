@@ -1,16 +1,16 @@
 /*
-- This function constructs N_scat ellipses, which centers coordinate and semi axis are contained respectively in the lists 
-"CentreX", "CentreY", "RadiusX" and "RadiusY". Each list is of size N_scat.
+- This function constructs N_scatCreated ellipses, which centres coordinate and semi axis are contained respectively in the lists 
+"CentreX", "CentreY", "RadiusX" and "RadiusY". Each list is of size N_scatCreated.
 To make this function works, the lists "LL_scat[]" and "Line_scat[]" are assumed to exist. They contains respectively
 the indexes of the "Line Loop" and the "Line" of the scatterers already created (could be empty if no scatterer at the moment).
-The function "CreateN_scatDisks" add the Line Loop and the Plane Surface of the new discs created in the end of the lists mentionned above.
+The function "CreateEllipses" add the Line Loop and the Plane Surface of the new discs created in the end of the lists mentioned above.
 
 Warning: The point PF = (0,0,0) is assumed to be created !!
 
 - Global variables involved:
-N_scat: Number of obstacles to contruct (will never be incremented)
-CentreScat[] = List of size N_scat containing the indexes of the centres(=point) of the discs
-RadiusX[] = List of size N_scat containing the radii of the discs (reals)
+N_scatCreated: Number of obstacles to construct (will never be incremented)
+CentreScat[] = List of size N_scatCreated containing the indexes of the centres(=point) of the discs
+RadiusX[] = List of size N_scatCreated containing the radii of the discs (reals)
 LL_scat[] = List of the indexes containing the "Line Loop" of each scatterer already created (could be empty)
 Line_scat[] = Same but containing the indexes of the line of the boundary of the scatterers.
 
@@ -65,7 +65,7 @@ Function CreateEllipses
 	  If(ItsOK)
 	    cpX = CentreXp; cpY = CentreYp;
 	    rpX = RadiusXp; rpY = RadiusYp;
-	    For q In {0:N_scat-1}
+	    For q In {0:N_scatCreated-1}
 	      cqX = CentreX[q]; cqY = CentreY[q];
 	      rqX = RadiusX[q]; rqY = RadiusY[q];
 	      Call DoTheseEllipsesIntersect;
@@ -76,10 +76,10 @@ Function CreateEllipses
       //Stop now: impossible to place a new obstacle
       If(!ItsOK)
 	Abording = 1;
-	Error("Only %g disks can be placed instead of %g", N_scat, N_scat_to_create);
+	Error("Only %g disks can be placed instead of %g", N_scatCreated, N_scat_to_create);
       EndIf
       If(ItsOK)
-	N_scat ++;
+	N_scatCreated ++;
 	//update variables
 	CentreX[] += CentreXp;
 	CentreY[] += CentreYp;

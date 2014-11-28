@@ -143,7 +143,7 @@ const_Yboxmin = nconst_Yboxmin*lambda_geo;
 const_Yboxmax = nconst_Yboxmax*lambda_geo;
 
 DefineConstant[
-  N_scat_to_create = {40, Min 1, Max 1000, Step 1, Name StrCat[MENU_GEO, MENU_OBSTACLES, "/1Nb. of obstacles"], Visible CLUTTER}
+  N_scat_to_create = {40, Min 1, Max 1000, Step 1, Name StrCat[MENU_GEO, MENU_OBSTACLES, "/00Nb. of obstacles"], Visible CLUTTER}
   linkr_maxmin = {0, Choices {0,1}, Name StrCat[MENU_GEO, MENU_OBSTACLES, "/3Set radius_max = radius_min"], Visible CLUTTER}
   ir_max = {0.2, Min 0.01, Max 5., Step 0.01, Name StrCat[MENU_GEO, MENU_OBSTACLES, "/3Maximum radius (in lambda_geo)"], Visible CLUTTER}
   ir_min = {0.2, Min 0.01, Max 5., Step 0.01, Name StrCat[MENU_GEO, MENU_OBSTACLES, "/3Minimum radius (in lambda_geo)"], Visible CLUTTER}

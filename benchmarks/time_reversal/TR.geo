@@ -9,7 +9,7 @@ Include "TR_data.pro";
 PS = newp; Point(PS) = {XS, YS, ZS, lcSourceInt};
 
 //Initialization
-N_scat = 0;
+N_scatCreated = 0;
 LL_scat[] = {};
 Line_scat[] = {};
 S_scat[] = {};
@@ -20,6 +20,9 @@ If(CLUTTER)
   Include "TR_scat.geo";
 EndIf
 
+DefineConstant[
+N_scat2 = {N_scatCreated, Name StrCat[MENU_GEO, StrCat[MENU_OBSTACLES, "/01Nb. of placed obstacles"]], ReadOnly 1}
+];
 
 //===================
 //Creation of the TRM
@@ -45,12 +48,12 @@ LLTRM = newreg; Line Loop(LLTRM) = {LTRM1, LTRM2, LTRM3, LTRM4};
 //PF = newp; Point(PF) = {XF,YF,ZF,lcFictitious};
 
 //Interior boundary (propagating part of the domain)
-//Rectangle centered on (XF,YF,ZF) with sizes SizeInteriorDomainX (X direction)
+//Rectangle centred on (XF,YF,ZF) with sizes SizeInteriorDomainX (X direction)
 //and SizeInteriorDomainY (Y direction)
 
 // Remark on the different names:
-// Int = mean "interior" (Begining of the PML)
-// Ext = "exterior" (Troncation of the PML)
+// Int = mean "interior" (Beginning of the PML)
+// Ext = "exterior" (Truncation of the PML)
 //U = Up
 //R = Right
 //L = Left
@@ -76,7 +79,7 @@ LIntBoundL = newreg; Line(LIntBoundL) = {PIntBoundUL, PIntBoundDL};
 LLIntBound = newreg; Line Loop(LLIntBound) = {LIntBoundD, LIntBoundR, LIntBoundU, LIntBoundL};
 
 // Absorbing domain (PML) :
-//Rectangle centered on (XF,YF,ZF) with sides (SizeInteriorDomainX + SizeAbsorbingDomainX) and (SizeInteriorDomainY + SizeAbsorbingDomainY)
+//Rectangle centred on (XF,YF,ZF) with sides (SizeInteriorDomainX + SizeAbsorbingDomainX) and (SizeInteriorDomainY + SizeAbsorbingDomainY)
 //In the X direction, the PML have a thickness of "SizeAbsorbingDomainX" (same for "Y direction" and "SizeAbsorbingDomainY")
 
 PExtBoundDL = newp; Point(PExtBoundDL) = {Xmin - SizePMLX, Ymin - SizePMLY, ZF, lcExtern_Bound};
@@ -99,7 +102,7 @@ EndIf
 //  Creation of the surfaces
 //==========================
 
-// Miror :
+// Mirror :
 SurfTRM = newreg; Plane Surface(SurfTRM) = {LLTRM};
 // Exterior_Domain is the domain of interest without the Miror
 If(!CLUTTER)
@@ -131,6 +134,6 @@ If(CLUTTER)
 EndIf
 
 //Scatterers (empty if no one)
-For ii In {0:N_scat-1}
+For ii In {0:N_scat2-1}
   Physical Surface(100 + ii) = {S_scat[ii]};
 EndFor

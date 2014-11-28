@@ -19,7 +19,6 @@ DefineConstant[
 
 //Obstacles
 DefineConstant[
-  N_scat = {0, Name StrCat[MENU_GEO, MENU_OBSTACLES, "/1NSCATOK"]}
   linkn_maxmin = {0, Choices {0,1}, Name StrCat[MENU_GEO, MENU_OBSTACLES, "/2Set n_max = n_min"], Visible CLUTTER}
   n_max = {1.3, Min 0.1, Max 10., Step 0.05, Name StrCat[MENU_GEO, MENU_OBSTACLES, "/2Maximum contrast"], Visible CLUTTER, AutoCheck 0}
   n_min = {linkn_maxmin?n_max:0.7, Min 0.1, Max n_max, Step 0.05, Name StrCat[MENU_GEO, MENU_OBSTACLES, "/2Minimum contrast"], Visible CLUTTER, ReadOnly linkn_maxmin, AutoCheck 0}

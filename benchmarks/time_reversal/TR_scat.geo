@@ -1,7 +1,7 @@
 // This file is called when the medium contains obstacles.
 // Two mains actions are achieved :
 // 1) Creation of the obstacles
-// 2) The Green function must now be approximated: creation of a small disk arround the source to approximate Dirac function
+// 2) The Green function must now be approximated: creation of a small disk around the source to approximate Dirac function
 
 // 1- Obstacles
 // Plot the box of obstacles
@@ -15,17 +15,13 @@ lboxr = newl ; Line(lboxr) = {pboxdr, pboxur};
 lboxu = newl ; Line(lboxu) = {pboxur, pboxul};
   
 // Functions to place obstacles in the box
-Include "CreateObstacles.geo";
+Include "CreateEllipses.geo";
 Call CreateEllipses;
-
-DefineConstant[
-  N_scat2 = {N_scat, Label "Nb. of Obstacles actually placed", Name Str[MENU_GEO, Str[MENU_OBSTACLES, "/1NSCATOK"]], Visible CLUTTER, ReadOnly 1}
-];
 
 // 2- Point source
 
-// Two concentric disks centered on the point source are created. The first one to approximate the Diract function (very very small)
-// The second disk is here to avoid the mesh refinement to propagate throughou all the domain (very small)
+// Two concentric disks centred on the point source are created. The first one to approximate the Diract function (very very small)
+// The second disk is here to avoid the mesh refinement to propagate throughout all the domain (very small)
 // 1st disk (internal) :
 //Radii (epsilon is defined in TR_data.pro)
 RadiusSourceIntX = epsilon;
@@ -42,7 +38,7 @@ LSourceInt4 = newreg; Ellipse(LSourceInt4) = {PSourceInt4, PS, PSourceInt1, PSou
 
 LLSourceInt = newreg; Line Loop(LLSourceInt) = {LSourceInt1, LSourceInt2, LSourceInt3, LSourceInt4};
 
-// 2eme Disque (externe) :
+// 2nd Disk (external) :
 // ======================
 // Radii
 RadiusSourceExtX = 100*epsilon;
