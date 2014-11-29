@@ -2,15 +2,19 @@
 @item ENABLE_ARPACK
 Enable Arpack eigensolver (requires Fortran) (default: ON)
 @item ENABLE_CONTRIB_ARPACK
-Enable Arpack eigensolver from GetDP's contrib folder instead of system's Arpack (requires Fortran) (default: OFF)
+Enable Arpack eigensolver from GetDP's contrib folder (requires Fortran) (default: OFF)
 @item ENABLE_BLAS_LAPACK
 Enable BLAS/Lapack for linear algebra (e.g. for Arpack) (default: ON)
 @item ENABLE_BUILD_LIB
 Enable 'lib' target for building static GetDP library (default: OFF)
 @item ENABLE_BUILD_SHARED
 Enable 'shared' target for building shared GetDP library (default: OFF)
+@item ENABLE_BUILD_DYNAMIC
+Enable dynamic GetDP executable (linked with shared lib) (default: OFF)
 @item ENABLE_BUILD_ANDROID
 Enable Android NDK library target (experimental) (default: OFF)
+@item ENABLE_BUILD_IOS
+Enable iOS (ARM) library target (experimental) (default: OFF)
 @item ENABLE_FORTRAN
 Enable Fortran (needed for Arpack/Sparskit/Zitsol & Bessel) (default: ON)
 @item ENABLE_GMSH
@@ -21,14 +25,20 @@ Enable GSL functions (for some built-in functions) (default: ON)
 Use legacy assembler (required for actual computations) (default: ON)
 @item ENABLE_MPI
 Enable MPI parallelization (with PETSc/SLEPc) (default: OFF)
+@item ENABLE_MULTIHARMONIC
+Enable multi-harmonic support (default: OFF)
 @item ENABLE_NR
 Enable NR functions (if GSL is unavailable) (default: ON)
 @item ENABLE_NX
 Enable proprietary NX extension (default: OFF)
+@item ENABLE_OCTAVE
+Enable Octave functions (default: ON)
 @item ENABLE_OPENMP
 Enable OpenMP parallelization of some functions (experimental) (default: OFF)
 @item ENABLE_PETSC
 Enable PETSc linear solver (default: ON)
+@item ENABLE_PYTHON
+Enable Python functions (default: ON)
 @item ENABLE_SLEPC
 Enable SLEPc eigensolver (default: ON)
 @item ENABLE_SPARSKIT

@@ -190,7 +190,7 @@ Resolution {
 }
 
 DefineConstant[
-  SParameters_Format = {1,
+  SParameters_Format = {3,
     Choices{1="Norm in [dec]", 2="Norm in [dB]", 3="Square of the norm [dec]"},
     Name "Input/2Format of S-parameters (if any)", Highlight "Black"}
 ] ;
@@ -278,7 +278,8 @@ PostOperation {
       Print [ eBnd, OnElementsOf SurAll, File StrCat[myDir, "eBnd.pos"]] ;
       Print [ eInc, OnElementsOf BndABC, File StrCat[myDir, "eInc.pos"]] ;
       For n In {1:NbPorts}
-        Print [ ePort~{n}, OnElementsOf Port~{n}, File StrCat[myDir,"ePort",Sprintf("%g",n),".pos"] ] ;
+        Print [ ePort~{n}, OnElementsOf Port~{n},
+                File StrCat[myDir, "ePort", Sprintf("%g",n), ".pos"] ] ;
       EndFor
     }
   }

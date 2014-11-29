@@ -2838,7 +2838,7 @@ PostOperation @var{post-operation-id} UsingPost @var{post-processing-id} @{
   @var{string} ~ @{ @var{expression-cst} @}
 
 @var{post-operation-op}:
-  Print[ @var{post-quantity-term}, @var{print-support} <,@var{print-option}> @dots{} ] |
+  Print[ @var{post-quantity-id} <[@var{group-def}]>, @var{print-support} <,@var{print-option}> @dots{} ] |
   Print[ "@var{string}", @var{expression} <,@var{print-option}> @dots{} ] |
   Print[ "@var{string}", Str[ @var{expression-char} ] <,@var{print-option}> @dots{} ] |
   Echo[ "@var{string}" <,@var{print-option}> @dots{} ] |
@@ -2846,14 +2846,6 @@ PostOperation @var{post-operation-id} UsingPost @var{post-processing-id} @{
   SendMergeFileRequest[ @var{expression-char} ] |
   < @var{loop} > @dots{}
   @var{etc}
-
-@var{post-quantity-term}:
-  @var{post-quantity-id} <[@var{group-def}]> |
-  @var{post-quantity-id} @var{post-quantity-op} @var{post-quantity-id}[@var{group-def}] |
-  @var{post-quantity-id}[@var{group-def}] @var{post-quantity-op} @var{post-quantity-id}
-
-@var{post-quantity-op}:
-  + | - | * | /
 
 @var{print-support}:
   OnElementsOf @var{group-def} | OnRegion @var{group-def} | OnGlobal | @var{etc}
@@ -2883,10 +2875,6 @@ The optional argument @code{[@var{group-def}]} of the @var{post-quantity-id}
 can only be used when this quantity has been defined as an
 @var{integral-value} (@pxref{PostProcessing}). In this case, the sum of all
 elementary integrals is performed over the region @var{group-def}.
-@item
-The @var{post-quantity-op} allows the simple combination of space-dependent
-quantities (@var{post-quantity-id}) with global integral quantities
-(@code{@var{post-quantity-id}[@var{group-def}]}).
 @end enumerate
 
 See @ref{Types for PostOperation}, for the complete list of options and

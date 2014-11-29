@@ -6128,6 +6128,7 @@ PostQuantitiesToPrint :
 
  |  String__Index  PostQuantitySupport Combination tSTRING  PostQuantitySupport ','
     {
+      Message::Warning("Combined post-quantities are deprecated: use registers instead");
       int i;
       if((i = List_ISearchSeq(InteractivePostProcessing_S.PostQuantity, $1,
 			       fcmp_PostQuantity_Name)) < 0)
