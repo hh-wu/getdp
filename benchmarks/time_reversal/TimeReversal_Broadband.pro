@@ -68,7 +68,7 @@ Formulation {
     Equation{
       Galerkin{[D[]*Dof{Grad Uback}, {Grad Uback}];
 	In AllDomains; Jacobian JVol; Integration I1;}
-      Galerkin{[-k[]^2*Kx[]*Ky[]*Dof{Uback}, {Uback}];
+      Galerkin{[-k[]^2*n[]^2*Kx[]*Ky[]*Dof{Uback}, {Uback}];
 	In AllDomains; Jacobian JVol; Integration I1;}
       // Source (conjugated)
       If(!CLUTTER)
