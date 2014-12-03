@@ -2,6 +2,7 @@
 
 #  PBS -q main
 #PBS -q large
+#PBS -W group_list=getdphmm
 
 #PBS -l walltime=1:00:00
 
