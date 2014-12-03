@@ -8,7 +8,7 @@ nkeys = len(keys)
 file_dir = os.path.abspath(os.path.dirname(__file__)) + "/"
 
 if os.path.isfile(file_dir + "nodes.txt"):
-    getdp = "/home/acad/ulg/ace/cgeuzain/src/getdp/bin_seq/getdp" # zenobe
+    getdp = "/home/acad/ulg-ace/cgeuzain/src/getdp/bin_seq/getdp" # zenobe
     #getdp = "/home/ulg/ace/geuzaine/src/getdp/bin_seq/getdp" # nic4
     f = open(file_dir + "nodes.txt")
     nodes = f.readlines()
