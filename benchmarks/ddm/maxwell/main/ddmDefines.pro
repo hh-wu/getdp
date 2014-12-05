@@ -5,7 +5,7 @@
 DefineConstant[geo3d = 1, TOL = 1e-4, MAXIT = 300, PRECOND_SWEEP = 0, EXT_TIME = 0];
 DefineConstant[ListOfCuts];
 DefineConstant[SILVER_MULLER = 0, OSRC = 1, JFLee = 0];
-DefineConstant[REUSE = 0];
+DefineConstant[REUSE = 0, EXT_TIME=0];
 
 Group{
   DefineGroup[Omega, Sigma, GammaTang, GammaScat, GammaC, GammaInf, BndSigma, BndGammaInf];
@@ -22,3 +22,4 @@ Function{
 }
 
 ListOfFacto = {};
+ListOfCuts = {0, N_DOM-1};

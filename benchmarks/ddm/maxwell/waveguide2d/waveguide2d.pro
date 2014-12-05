@@ -17,8 +17,12 @@ Function{
   N[] = Normal[] ;
   k[] = WAVENUMBER ;
   omega[] = c*k[] ;
+
+  c[] = 1.; // FIXME
+  om[] = k[];
 }
 
+Include "../main/ddmDefines.pro"; // default values
 Include "../main/tcDefaults.pro"; // parameters for the transmission conditions
 
 Function{
@@ -43,7 +47,7 @@ Function{
   myExp[] = Complex[Cos[beta[]*X[]], -Sin[beta[]*X[]]] ; // Replaces Exp[-I[]*beta*X[]], because getdp does not support complex exponentials
   If (TM)
     kInf[] = (k[]^2)/beta[];
-    kDtN[] = kInf[] ;
+  kDtN[] = kInf[] ;
     If (WAVENUMBER >= kc) // propagative
       eRef[] = Vector[ Sin[kc*Y[]], -I[]*beta[]/kc*Cos[kc*Y[]], 0 ] * myExp[] ; // TM
     EndIf
@@ -77,48 +81,65 @@ Function{
   gOut[] = Vector[ 0, 0, 0 ] ;
 }
 
+If (!PML)
 Include "groups_waveguide2d.pro";
+EndIf
+If (PML)
+Include "groups_waveguide2d_PML.pro";
+EndIf
 
-Function{
-  //Parallel
-  ListOfField = {}; //My fields
-  ListOfNeighborField = {}; //My neighbors
-  ListOfDom = {} ;
-  For idom In {0:N_DOM-1}
-    If(idom ==0)
-      myFieldLeft = {};
-      myFieldRight = {0};
-      exchangeFieldLeft = {};
-      exchangeFieldRight = {1};
-      n_neighb = 1;
-    EndIf
-    If(idom == N_DOM-1)
-      myFieldLeft = {2*idom-1};
-      myFieldRight = {};
-      exchangeFieldLeft = {2*(idom-1)};
-      exchangeFieldRight = {};
-      n_neighb = 1;
-    EndIf
-    If(idom > 0 && idom < N_DOM-1)
-      myFieldLeft = {2*idom-1};
-      myFieldRight = {2*idom};
-      exchangeFieldLeft = {2*(idom-1)};
-      exchangeFieldRight = {2*idom+1};
-      n_neighb = 2;
-    EndIf
+If (PML)
+xSigmaList = {};
+thetaList = {};
+For i In {0:nDoms}
+  xSigmaList += i*dDom;
+  thetaList += 0;
+EndFor
 
-    If (idom % MPI_Size == MPI_Rank)
-      ListOfDom += {idom};
-      ListOfField += {myFieldLeft{}, myFieldRight{}};
-      //who are my neighbor ?
-      ListOfNeighborField += n_neighb;
-      ListOfNeighborField += exchangeFieldRight{};
-      ListOfNeighborField += exchangeFieldLeft{};
-      g_in~{idom}~{0}[Sigma~{idom}~{0}] = ComplexVectorField[XYZ[]]{exchangeFieldLeft{}};
-      g_in~{idom}~{1}[Sigma~{idom}~{1}] = ComplexVectorField[XYZ[]]{exchangeFieldRight{}};
+For ii In {0: N_DOM-1}
+idom = ii;
+// If (idom > 0)
+xSigma~{idom}~{0} = xSigmaList(idom);
+// EndIf
+// If (idom < N-1)
+xSigma~{idom}~{1} = xSigmaList(idom+1);
+// EndIf
+EndFor
+EndIf
 
-    EndIf
+
+Include "../main/topology/inline.pro";
+
+
+// ListOfCuts = {0, N_DOM-1};
+// ListOfCuts = {0, 5, 10, N_DOM-1};
+// ListOfCuts = {0, 7, N_DOM-1};
+
+If (PML)
+Include "pmlFunctions.pro";
+EndIf
+
+
+If (PRECOND_SWEEP)
+  // Hack to build a 'list of lists': generate variables with 'indexed names'
+  nCuts = 0;
+  For iCut In {0:#ListOfCuts()-2}
+    nProcsInCut~{iCut} = 0;
   EndFor
-}
+  For iCut In {0:#ListOfCuts()-2}
+    For iDom In {ListOfCuts(iCut):ListOfCuts(iCut+1):1}
+      ListOfProcsInCut~{iCut}~{nProcsInCut~{iCut}} = iDom;
+      nProcsInCut~{iCut} += 1;
+    EndFor
+    nCuts += 1;
+  EndFor
+
+  // what domains am I in charge of ? Implemented with a list
+  ProcOwnsDomain = {};
+  For idom In{0:N_DOM-1}
+    ProcOwnsDomain += {(idom%MPI_Size == MPI_Rank)}; // define your rule here -- must match listOfDom()
+  EndFor
+EndIf
+
 
 Include "../main/Maxwell.pro" ;

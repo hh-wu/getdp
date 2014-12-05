@@ -32,6 +32,11 @@ theta = 0; // theta is the cumulative angle
 
 For i In {0:nDomList[0]-1} // straight part on the left
 ext[] = Extrude{D1/nDomList[0],0,0}{ Surface{ls[i]}; Layers{D1/nDomList[0]/lc}; Recombine; };
+
+// Transfinite Surface{ext[0]};
+// Transfinite Surface{ext[2:5]};
+// Transfinite Volume{ext[1]};
+
   ls[] += ext[0];
   lv[] += ext[1];
   lSides[] += ext[{2:5}];

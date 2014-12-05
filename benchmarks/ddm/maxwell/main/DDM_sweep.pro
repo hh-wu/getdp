@@ -35,15 +35,30 @@ Group{
 }
 
 Constraint{
+  If (!PML)
   For ii In {0: #ListOfDom()-1}
     idom = ListOfDom(ii);
     { Name Dirichlet_e_homog~{idom} ;
       Case { { Region GammaC~{idom} ; Type Assign ; Value 0. ; } }
     }
   EndFor
+  EndIf
+  If (PML)
+  For ii In {0: #ListOfDom()-1}
+    idom = ListOfDom(ii);
+    { Name Dirichlet_e_homog~{idom} ;
+      Case {
+	{ Region GammaC~{idom} ; Type Assign ; Value 0. ; }
+	{ Region GammaC_Pml~{idom}~{0} ; Type Assign ; Value 0. ; } 
+	{ Region GammaC_Pml~{idom}~{1} ; Type Assign ; Value 0. ; }
+      }
+    }
+  EndFor
+  EndIf
 }
 
 
+If (!PML)
 FunctionSpace {
   For ii In {0: #ListOfDom()-1}
     idom = ListOfDom(ii);
@@ -110,7 +125,65 @@ FunctionSpace {
 
   EndFor
 }
+EndIf
 
+If (PML)
+FunctionSpace {
+  For ii In {0: #ListOfDom()-1}
+    idom = ListOfDom(ii);
+    { Name Hcurl_e~{idom}; Type Form1;
+      BasisFunction { { Name se; NameOfCoef ee; Function BF_Edge;
+	  Support Region[{OmegaAll~{idom}, GammaScat~{idom}, GammaInf~{idom}, Sigma~{idom}/*, GammaC~{idom},*/ GammaC_Pml~{idom}, GammaInf_Pml~{idom}}] ; Entity EdgesOf[All]; } } 
+      Constraint {
+        { NameOfCoef ee; EntityType EdgesOf ; NameOfConstraint Dirichlet_e_homog~{idom}; }
+      }
+    }
+
+    { Name Hcurl_h~{idom}; Type Form1;
+      BasisFunction { { Name sh; NameOfCoef he; Function BF_Edge;
+	  Support Region[{OmegaAll~{idom}, GammaScat~{idom}, GammaInf~{idom}, Sigma~{idom}, GammaC~{idom}, GammaC_Pml~{idom}, GammaInf_Pml~{idom}}] ; Entity EdgesOf[All]; } } 
+      Constraint { { NameOfCoef he; EntityType EdgesOf ; NameOfConstraint Dirichlet_h~{idom}; } }
+    }
+
+    { Name Hcurl_lambda~{idom}; Type Form1; // LM to enforce Dirichlet BC of the full problem
+      BasisFunction { { Name se; NameOfCoef ee; Function BF_Edge;
+	  Support Region[{GammaScat~{idom}}] ; Entity EdgesOf[All]; } }
+      Constraint {
+        { NameOfCoef ee; EntityType EdgesOf ; NameOfConstraint Dirichlet_e_homog~{idom}; }
+      }
+    }
+
+    For iSide In {0:1}
+    { Name Hcurl_e_bb~{idom}~{iSide}; Type Form1;
+      BasisFunction { { Name se; NameOfCoef ee; Function BF_Edge;
+	  Support Region[{OmegaPml~{idom}~{iSide}, GammaInf_Pml~{idom}, Sigma~{idom}, GammaC_Pml~{idom}}] ; Entity EdgesOf[All]; } }
+      Constraint {
+        { NameOfCoef ee; EntityType EdgesOf ; NameOfConstraint Dirichlet_e_homog~{idom}; }
+      }
+    }
+    { Name Hcurl_lambda_bb~{idom}~{iSide}; Type Form1;
+      BasisFunction { { Name se; NameOfCoef ee; Function BF_Edge;
+	  // Support Region[{Sigma~{idom}~{iSide}}] ; Entity EdgesOf[Sigma~{idom}~{iSide}, Not {GammaC_PML~{idom}, GammaInf_PML~{idom}/*, GammaSym~{idom}/**/}]; } } //!!!
+	  Support Region[{Sigma~{idom}~{iSide}}] ; Entity EdgesOf[All]; } } //!!!
+      Constraint {
+        { NameOfCoef ee; EntityType EdgesOf ; NameOfConstraint Dirichlet_e_homog~{idom}; }
+      }
+    }
+    { Name Hcurl_g_out~{idom}~{iSide}; Type Form1;
+      BasisFunction { { Name se; NameOfCoef ee; Function BF_Edge;
+	  // Support Region[{Sigma~{idom}~{iSide}}] ; Entity EdgesOf[Sigma~{idom}~{iSide}, Not {GammaC_PML~{idom}, GammaInf_PML~{idom}/*, GammaSym~{idom}/**/}]; } } //!!!
+	  Support Region[{Sigma~{idom}~{iSide}}] ; Entity EdgesOf[All]; } } //!!!
+      Constraint {
+        { NameOfCoef ee; EntityType EdgesOf ; NameOfConstraint Dirichlet_e_homog~{idom}; }
+      }
+    }
+    EndFor
+
+  EndFor
+}
+EndIf
+
+If (!PML)
 Formulation {
   //DDM with Lagrange Multipliers
   For ii In {0: #ListOfDom()-1}
@@ -338,6 +411,159 @@ Formulation {
     //////////////////////////// PRECOND_SWEEP //////////////////////////////////////
   EndFor
 }
+EndIf
+
+If (PML)
+Formulation {
+  //DDM with Lagrange Multipliers
+  For ii In {0: #ListOfDom()-1}
+    idom = ListOfDom(ii);
+    { Name DDM_Maxwell~{idom}; Type FemEquation;
+      Quantity {
+	{ Name e~{idom}; Type Local; NameOfSpace Hcurl_e~{idom}; }
+	{ Name h~{idom}; Type Local; NameOfSpace Hcurl_h~{idom}; }
+	{ Name lambda~{idom}; Type Local; NameOfSpace Hcurl_lambda~{idom}; }
+      }
+      Equation {
+	Galerkin { [ Dof{d e~{idom}} , {d e~{idom}} ];
+	  In Omega~{idom}; Integration I1; Jacobian JVol; }
+        Galerkin { [ -k[]^2 * Dof{e~{idom}} , {e~{idom}} ];
+	  In Omega~{idom}; Integration I1; Jacobian JVol; }
+
+	Galerkin { [ I[] * kInf[] * (N[]) /\ ( N[] /\ Dof{e~{idom}} ) , {e~{idom}} ];
+	  In GammaInf~{idom}; Integration I1; Jacobian JSur; }
+
+	// Galerkin { [ Rotate[D[],0.,0.,-thetaList(idom)]*Dof{d e~{idom}} , {d e~{idom}} ];
+	//   In OmegaPml~{idom}; Integration I1; Jacobian JVol; }
+
+	// // // // // // Galerkin { [ D[]*Dof{d e~{idom}} , {d e~{idom}} ];
+	// // // // // //   In OmegaPml~{idom}; Integration I1; Jacobian JVol; }
+
+        // // // // // // Galerkin { [ -(kPml~{idom}~{0}[])^2 *Kx[]*Ky[]*Kz[] * Dof{e~{idom}} , {e~{idom}} ];
+	// // // // // //   In OmegaPml~{idom}~{0}; Integration I1; Jacobian JVol; }
+        // // // // // // Galerkin { [ -(kPml~{idom}~{1}[])^2 *Kx[]*Ky[]*Kz[] * Dof{e~{idom}} , {e~{idom}} ];
+	// // // // // //   In OmegaPml~{idom}~{1}; Integration I1; Jacobian JVol; }
+
+
+	Galerkin { [ nu[]*Dof{d e~{idom}} , {d e~{idom}} ];
+	  In OmegaPml~{idom}; Integration I1; Jacobian JVol; }
+
+        Galerkin { [ -eps[]*(kPml~{idom}~{0}[])^2 * Dof{e~{idom}} , {e~{idom}} ];
+	  In OmegaPml~{idom}~{0}; Integration I1; Jacobian JVol; }
+        Galerkin { [ -eps[]*(kPml~{idom}~{1}[])^2 * Dof{e~{idom}} , {e~{idom}} ];
+	  In OmegaPml~{idom}~{1}; Integration I1; Jacobian JVol; }
+
+
+
+	// Galerkin { [ I[] * kDtN[] * (N[]) /\ ( N[] /\ Dof{e~{idom}} ) , {e~{idom}} ];
+	//   In GammaInf_Pml~{idom}; Integration I1; Jacobian JSur; }
+
+
+	// // //boundary condition
+	Galerkin { [ Dof{lambda~{idom}} , {e~{idom}} ] ;
+	  In GammaScat~{idom}; Jacobian JSur ; Integration I1 ; }
+	Galerkin { [ 0*Dof{lambda~{idom}} , {lambda~{idom}} ] ; // !!! DO NOT REMOVE UNLESS YOU KNOW WHAT YOU'RE DOING !!!
+	  In GammaScat~{idom}; Jacobian JSur ; Integration I1 ; }
+	Galerkin { [ Dof{e~{idom}} , {lambda~{idom}} ] ;
+	  In GammaScat~{idom}; Jacobian JSur ; Integration I1 ; }
+	Galerkin { [ (#10 > 0. ? einc[]: Vector[0,0,0]), {lambda~{idom}} ] ; // FIXME: sign of einc ?? -> use - for waveguide, + for scattering ?
+	  In GammaScat~{idom}; Jacobian JSur ; Integration I1 ; }
+
+	// delta functions
+	Galerkin { [ (#11 > 0. ? 2.*g_in~{idom}~{0}[] : Vector[0,0,0]) , {e~{idom}} ];
+	  In Sigma~{idom}~{0}; Integration I1; Jacobian JSur; }
+	Galerkin { [ (#12 > 0. ? 2.*g_in~{idom}~{1}[] : Vector[0,0,0]) , {e~{idom}} ];
+	  In Sigma~{idom}~{1}; Integration I1; Jacobian JSur; }
+
+	// store magnetic field
+	Galerkin { [ Dof{h~{idom}} , {h~{idom}} ] ;
+	  In TrGr~{idom}; Jacobian JVol ; Integration I1 ; }
+	Galerkin { [ 1/(I[]*omega[]*mu[]) * Dof{d e~{idom}}, {h~{idom}} ] ;
+	  In TrGr~{idom}; Jacobian JVol ; Integration I1 ; }
+      }
+    }
+
+    For iSide In{0:1}
+    { Name ComputeIterationDataBb~{idom}~{iSide}; Type FemEquation; // apply black box to Dirichlet data
+        Quantity {
+  	  { Name lambda_bb~{idom}~{iSide}; Type Local;  NameOfSpace Hcurl_lambda_bb~{idom}~{iSide}; }
+	  { Name e_bb~{idom}~{iSide}; Type Local;  NameOfSpace Hcurl_e_bb~{idom}~{iSide}; }
+	  { Name eD~{idom}; Type Local;  NameOfSpace Hcurl_e~{idom}; }
+        }
+	Equation {
+
+	  // // // // // Galerkin { [ Rotate[D[],0.,0.,-thetaList(idom)]*Dof{d e_bb~{idom}~{iSide}} , {d e_bb~{idom}~{iSide}} ]; // FIXME: modify equations in PMLs
+	  // // // // //   In OmegaPml~{idom}~{iSide}; Integration I1; Jacobian JVol; }
+	  // // // // // Galerkin { [ -(kPml~{idom}~{iSide}[])^2 *Kx[]*Ky[]*Kz[] * Dof{e_bb~{idom}~{iSide}} , {e_bb~{idom}~{iSide}} ];
+	  // // // // //   In OmegaPml~{idom}~{iSide}; Integration I1; Jacobian JVol; }
+	  // // Galerkin { [ Dof{d e_bb~{idom}~{iSide}} , {d e_bb~{idom}~{iSide}} ]; // FIXME: modify equations in PMLs
+	  // //   In OmegaPml~{idom}~{iSide}; Integration I1; Jacobian JVol; }
+	  // // Galerkin { [ -(k[])^2 * Dof{e_bb~{idom}~{iSide}} , {e_bb~{idom}~{iSide}} ];
+	  // //   In OmegaPml~{idom}~{iSide}; Integration I1; Jacobian JVol; }
+
+	Galerkin { [ nu[]*Dof{d e_bb~{idom}~{iSide}} , {d e_bb~{idom}~{iSide}} ];
+	  In OmegaPml~{idom}; Integration I1; Jacobian JVol; }
+
+        Galerkin { [ -eps[]*(kPml~{idom}~{0}[])^2 * Dof{e_bb~{idom}~{iSide}} , {e_bb~{idom}~{iSide}} ];
+	  In OmegaPml~{idom}~{0}; Integration I1; Jacobian JVol; }
+        Galerkin { [ -eps[]*(kPml~{idom}~{1}[])^2 * Dof{e_bb~{idom}~{iSide}} , {e_bb~{idom}~{iSide}} ];
+	  In OmegaPml~{idom}~{1}; Integration I1; Jacobian JVol; }
+
+
+	// Galerkin { [ I[] * kDtN[] * (N[]) /\ ( N[] /\ Dof{e_bb~{idom}~{iSide}} ) , {e_bb~{idom}~{iSide}} ];
+	//   In GammaInf_Pml~{idom}~{iSide}; Integration I1; Jacobian JSur; }
+
+	// // //boundary condition
+	Galerkin { [ Dof{lambda_bb~{idom}~{iSide}} , {e_bb~{idom}~{iSide}} ] ;
+	  In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
+	Galerkin { [ 0*Dof{lambda_bb~{idom}~{iSide}} , {lambda_bb~{idom}~{iSide}} ] ; // !!! DO NOT REMOVE UNLESS YOU KNOW WHAT YOU'RE DOING !!!
+	  In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
+	Galerkin { [ Dof{e_bb~{idom}~{iSide}} , {lambda_bb~{idom}~{iSide}} ] ;
+	  In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
+	Galerkin { [ -{eD~{idom}}, {lambda_bb~{idom}~{iSide}} ] ;
+	  In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
+
+        }
+      }
+      { Name ComputeIterationData~{idom}~{iSide}; Type FemEquation;
+        Quantity {
+  	  { Name g_out~{idom}~{iSide}; Type Local;  NameOfSpace Hcurl_g_out~{idom}~{iSide}; }
+  	  { Name lambda_bb~{idom}~{iSide}; Type Local;  NameOfSpace Hcurl_lambda_bb~{idom}~{iSide}; }
+        }
+	Equation {
+	  Galerkin { [ Dof{g_out~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ];
+	    In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
+	  Galerkin { [ (#10 > 0. ? Vector[0,0,0] : g_in~{idom}~{iSide}[]) , {g_out~{idom}~{iSide}} ];
+	    In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
+	  Galerkin { [ -{lambda_bb~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ];
+	    In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
+        }
+      }
+    EndFor
+
+    //////////////////////////// PRECOND_SWEEP //////////////////////////////////////
+      For iSide In{0:1}
+    { Name ComputeIterationDataPrecond~{idom}~{iSide}; Type FemEquation;
+        Quantity {
+    	  { Name g_out~{idom}~{iSide}; Type Local;  NameOfSpace Hcurl_g_out~{idom}~{iSide}; }
+  	  { Name lambda_bb~{idom}~{iSide}; Type Local;  NameOfSpace Hcurl_lambda_bb~{idom}~{iSide}; }
+        }
+        Equation {
+    	  Galerkin { [ Dof{g_out~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ];
+    	    In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
+	  Galerkin{[ -ComplexVectorField[XYZ[]]{2*idom+iSide-1}, {g_out~{idom}~{iSide}}] ;
+	    In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
+	  Galerkin { [ -{lambda_bb~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ];
+	    In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
+        }
+      }
+    EndFor
+    //////////////////////////// PRECOND_SWEEP //////////////////////////////////////
+  EndFor
+}
+EndIf
+
+
 
 Resolution {
   { Name DDM;
@@ -345,6 +571,7 @@ Resolution {
       If(FULL_SOLUTION)
 	{ Name Lag; NameOfFormulation Maxwell_Lagrange ; Type Complex; }
       EndIf
+      If (!PML)
       For ii In {0: #ListOfDom()-1}
 	idom = ListOfDom(ii);
 	{ Name Maxw~{idom}; NameOfFormulation DDM_Maxwell~{idom} ; Type Complex; If(MSH_SPLIT) NameOfMesh Sprintf(StrCat[MshName, "%g.msh"],idom) ; EndIf}
@@ -353,6 +580,18 @@ Resolution {
 	  { Name ComputeGPrecond~{idom}~{iSide}; NameOfFormulation ComputeIterationDataPrecond~{idom}~{iSide} ; Type Complex; If(MSH_SPLIT) NameOfMesh Sprintf(StrCat[MshName, "%g.msh"],idom) ; EndIf}
 	EndFor
       EndFor
+      EndIf
+      If (PML)
+      For ii In {0: #ListOfDom()-1}
+	idom = ListOfDom(ii);
+	{ Name Maxw~{idom}; NameOfFormulation DDM_Maxwell~{idom} ; Type Complex; If(MSH_SPLIT) NameOfMesh Sprintf(StrCat[MshName, "%g.msh"],idom) ; EndIf}
+	For iSide In{0:1}
+  	  { Name ComputeG~{idom}~{iSide}; NameOfFormulation ComputeIterationData~{idom}~{iSide} ; Type Complex; If(MSH_SPLIT) NameOfMesh Sprintf(StrCat[MshName, "%g.msh"],idom) ; EndIf}
+  	  { Name ComputeGbb~{idom}~{iSide}; NameOfFormulation ComputeIterationDataBb~{idom}~{iSide} ; Type Complex; If(MSH_SPLIT) NameOfMesh Sprintf(StrCat[MshName, "%g.msh"],idom) ; EndIf}
+	  { Name ComputeGPrecond~{idom}~{iSide}; NameOfFormulation ComputeIterationDataPrecond~{idom}~{iSide} ; Type Complex; If(MSH_SPLIT) NameOfMesh Sprintf(StrCat[MshName, "%g.msh"],idom) ; EndIf}
+	EndFor
+      EndFor
+      EndIf
     }
     Operation {
 
@@ -366,6 +605,9 @@ Resolution {
         EndIf
         If(JFLee)
 	  Printf["  Using JFLee as transmission condition "];
+        EndIf
+        If(PML)
+	  Printf["  Using PML as transmission condition "];
         EndIf
 	Printf("  Relative tolerance: %g", TOL);
 	Printf("  PRECOND_SWEEP: %g", PRECOND_SWEEP);
@@ -397,6 +639,10 @@ Resolution {
 	  Solve[Maxw~{idom}];
 	  If (EXT_TIME) SystemCommand[Sprintf["./../main/ddmProcTime.py %g factor", MPI_Rank]]; EndIf
 	  For iSide In{0:1}
+      	    If (PML)
+      	      Generate[ComputeGbb~{idom}~{iSide}] ;
+      	      Solve[ComputeGbb~{idom}~{iSide}] ;
+      	    EndIf
 	    Generate[ComputeG~{idom}~{iSide}];
 	    Solve[ComputeG~{idom}~{iSide}];
 	  EndFor
@@ -449,7 +695,11 @@ Resolution {
       	  GenerateRHSGroup[Maxw~{idom}, Sigma~{idom}];
       	  SolveAgain[Maxw~{idom}];
       	  For iSide In{0:1}
-      	    GenerateRHSGroup[ComputeG~{idom}~{iSide}, Sigma~{idom}~{iSide}];
+	      If(PML)
+	        GenerateRHSGroup[ComputeGbb~{idom}~{iSide}, #{Sigma~{idom}~{iSide}}] ;
+	        SolveAgain[ComputeGbb~{idom}~{iSide}] ;
+	      EndIf
+	    GenerateRHSGroup[ComputeG~{idom}~{iSide}, #{Sigma~{idom}~{iSide}}];
       	    SolveAgain[ComputeG~{idom}~{iSide}];
       	  EndFor
       	  // EndIf
@@ -520,6 +770,13 @@ Resolution {
       	        GenerateRHSGroup[Maxw~{idom_f}, Sigma~{idom_f}] ;
       	        SolveAgain[Maxw~{idom_f}] ;
       	        //Compute the new g_out (fast way)
+
+	      If(PML)
+	        GenerateRHSGroup[ComputeGbb~{idom_f}~{1}, #{Sigma~{idom_f}~{1}}] ;
+	        SolveAgain[ComputeGbb~{idom_f}~{1}] ;
+	      EndIf
+
+
       	        GenerateRHSGroup[ComputeGPrecond~{idom_f}~{1}, Sigma~{idom_f}~{1}] ;
       	        SolveAgain[ComputeGPrecond~{idom_f}~{1}] ;
       	        // PostOperation[g_out~{idom_f}~{1}] ;
@@ -543,6 +800,12 @@ Resolution {
       	        GenerateRHSGroup[Maxw~{idom_b}, Sigma~{idom_b}] ;
       	        SolveAgain[Maxw~{idom_b}] ;
       	        //Compute the new g_out (fast way)
+
+	      If(PML)
+	        GenerateRHSGroup[ComputeGbb~{idom_b}~{0}, #{Sigma~{idom_b}~{0}}] ;
+	        SolveAgain[ComputeGbb~{idom_b}~{0}] ;
+	      EndIf
+
       	        GenerateRHSGroup[ComputeGPrecond~{idom_b}~{0}, Sigma~{idom_b}~{0}] ;
       	        SolveAgain[ComputeGPrecond~{idom_b}~{0}] ;
       	        // PostOperation[g_out~{idom_b}~{0}] ;
@@ -599,6 +862,8 @@ Resolution {
   }
 }
 
+
+If (!PML)
 PostProcessing {
   For ii In {0: #ListOfDom()-1}
     idom = ListOfDom(ii);
@@ -683,3 +948,91 @@ PostOperation {
     EndFor
   EndFor
 }
+EndIf
+
+If (PML)
+PostProcessing {
+  For ii In {0: #ListOfDom()-1}
+    idom = ListOfDom(ii);
+    { Name DDM_Maxwell_INIT~{idom} ; NameOfFormulation DDM_Maxwell~{idom} ;
+      Quantity {
+	// { Name e~{idom} ; Value { Local { [ {e~{idom}} ] ; In GammaScat~{idom}; Jacobian JSur ; } } }
+	// { Name h~{idom} ; Value { Local { [ {h~{idom}} ] ; In GammaScat~{idom}; Jacobian JSur ; } } }
+	// { Name j~{idom} ; Value { Local { [ N[] /\ ({h~{idom}}) ] ; In GammaScat; Jacobian JSur ; } } }
+	// { Name h_vol~{idom} ; Value { Local { [ {h~{idom}} ] ; In Omega~{idom}; Jacobian JVol ; } } }
+	{ Name e_vol_init~{idom} ; Value { Local { [ {e~{idom}} ] ; In Omega~{idom}; Jacobian JVol ; } } }
+	{ Name n~{idom} ; Value { Local { [ N[] ] ; In Region[{GammaScat~{idom}, GammaInf~{idom}, GammaC, Sigma~{idom}}]; Jacobian JSur ; } } }
+      }
+    }
+
+    { Name DDM_Maxwell~{idom} ; NameOfFormulation DDM_Maxwell~{idom} ;
+      Quantity {
+	// { Name e~{idom} ; Value { Local { [ {e~{idom}} ] ; In GammaScat~{idom}; Jacobian JSur ; } } }
+	{ Name h~{idom} ; Value { Local { [ {h~{idom}} ] ; In GammaScat~{idom}; Jacobian JSur ; } } }
+	// { Name j~{idom} ; Value { Local { [ N[] /\ ({h~{idom}}) ] ; In GammaScat; Jacobian JSur ; } } }
+	// { Name h_vol~{idom} ; Value { Local { [ {h~{idom}} ] ; In Omega~{idom}; Jacobian JVol ; } } }
+	{ Name e_vol~{idom} ; Value { Local { [ {e~{idom}}] ; In OmegaAll~{idom}; Jacobian JVol ; } } }
+	{ Name e_vol_tot~{idom} ; Value { Local { [ {e~{idom}} + einc[]] ; In Omega~{idom}; Jacobian JVol ; } } }
+      }
+    }
+
+    For iSide In{0:1}
+      { Name g_out~{idom}~{iSide} ; NameOfFormulation ComputeIterationData~{idom}~{iSide} ;
+        Quantity {
+	  { Name g_out~{idom}~{iSide} ; Value { Local { [ {g_out~{idom}~{iSide}} ] ; In Sigma~{idom}~{iSide}; Jacobian JSur ; } } }
+      }
+    }
+    EndFor
+    For iSide In{0:1}
+      { Name g_out_pc~{idom}~{iSide} ; NameOfFormulation ComputeIterationDataPrecond~{idom}~{iSide} ;
+        Quantity {
+	  { Name g_out~{idom}~{iSide} ; Value { Local { [ {g_out~{idom}~{iSide}} ] ; In Sigma~{idom}~{iSide}; Jacobian JSur ; } } }
+      }
+    }
+    EndFor
+  EndFor
+}
+
+PostOperation {
+  For ii In {0: #ListOfDom()-1}
+    idom = ListOfDom(ii);
+    { Name DDM_INIT~{idom} ; NameOfPostProcessing DDM_Maxwell_INIT~{idom};
+      Operation{
+	// Print[ e~{idom}, OnElementsOf GammaScat~{idom}, File Sprintf("e_init_%g.pos",idom)] ;
+	// Print[ h~{idom}, OnElementsOf GammaScat~{idom}, File Sprintf("h_init_%g.pos",idom)] ;
+	// Print[ j~{idom}, OnElementsOf GammaScat, File Sprintf("j_init_%g.pos", idom)] ;
+	// Print[ h_vol~{idom}, OnElementsOf Omega~{idom}, File Sprintf("h_vol_init_%g.pos",idom)] ;
+	// Print[ n~{idom}, OnElementsOf Region[{GammaScat~{idom}, GammaInf~{idom}, GammaC, Sigma~{idom}}], File Sprintf("n_%g.pos",idom)] ;
+
+	Print[ e_vol_init~{idom}, OnElementsOf Omega~{idom}, File Sprintf("e_vol_init_%g.pos",idom)] ;
+
+      }
+    }
+
+    { Name DDM~{idom} ; NameOfPostProcessing DDM_Maxwell~{idom};
+      Operation{
+	Print[ e_vol~{idom}, OnElementsOf Omega~{idom}, File Sprintf("e_vol_%g.pos",idom)] ;
+	Print[ e_vol_tot~{idom}, OnElementsOf Omega~{idom}, File Sprintf("e_vol_tot%g.pos",idom)] ;
+	// Print[ e~{idom}, OnElementsOf GammaScat~{idom}, File Sprintf("e_%g.pos",idom)] ;
+	Print[ h~{idom}, OnElementsOf GammaScat~{idom}, File Sprintf("h_%g.pos",idom)] ;
+	// Print[ j~{idom}, OnElementsOf GammaScat, File Sprintf("j_%g.pos", idom)] ;
+	// Print[ h_vol~{idom}, OnElementsOf Omega~{idom}, File Sprintf("h_vol_%g.pos",idom)] ;
+      }
+    }
+    For iSide In{0:1}
+    { Name g_out~{idom}~{iSide} ; NameOfPostProcessing g_out~{idom}~{iSide};
+      Operation{
+	  Print[ g_out~{idom}~{iSide}, OnElementsOf Sigma~{idom}~{iSide}, StoreInField (2*(idom+N_DOM)+(iSide-1))%(2*N_DOM)/*, File Sprintf("gg%g_%g.pos",idom, jdom)*/] ;
+      }
+    }
+    EndFor
+    For iSide In{0:1}
+    { Name g_out_pc~{idom}~{iSide} ; NameOfPostProcessing g_out_pc~{idom}~{iSide};
+      Operation{
+	  Print[ g_out~{idom}~{iSide}, OnElementsOf Sigma~{idom}~{iSide}, StoreInField (2*(idom+N_DOM)+(iSide-1))%(2*N_DOM)/*, File Sprintf("gg%g_%g.pos",idom, jdom)*/] ;
+      }
+    }
+    EndFor
+  EndFor
+}
+EndIf

@@ -575,7 +575,7 @@ PostOperation {
     Operation {
       // Print[ u_trace_transp_A, OnElementsOf Region[Gama~{iSub}], StoreInField iSub/*, File Sprintf["u_trace_transp%g.pos", iSub]*/] ;
       Print[ u_transp_A, OnElementsOf Region[Gama~{iSub}], StoreInField iSub/*, File Sprintf["u_trace_transp%g.pos", iSub]*/] ;
-      Print[ u_transp_A, OnElementsOf Region[Gama~{iSub}], StoreInField 100+iSub/*, File Sprintf["u_trace_transp%g.pos", iSub]*/] ; // For preconditioner -- TEST
+      // Print[ u_transp_A, OnElementsOf Region[Gama~{iSub}], StoreInField 100+iSub/*, File Sprintf["u_trace_transp%g.pos", iSub]*/] ; // For preconditioner -- TEST
     }
   }
   { Name u_trace_other~{iSub} ; NameOfPostProcessing Wave_Dirichlet~{iSub};
@@ -760,15 +760,15 @@ Resolution {
    }
     Operation {
 
+      Printf["RENEW_PHASE = %g", RENEW_PHASE];
+
       Evaluate[ 1 #10 ];
       For iSub In {1:Nbr_SubProblems}
-        // Generate[A~{iSub}];
-        // Solve[A~{iSub}];
-        Generate[A~{iSub}] ; Solve[A~{iSub}] ; SaveSolution[A~{iSub}] ;
-        Generate[B~{iSub}] ; Solve[B~{iSub}] ; SaveSolution[B~{iSub}] ;
-	Generate[C~{iSub}] ; Solve[C~{iSub}] ; SaveSolution[C~{iSub}] ;
-	Generate[D~{iSub}] ; Solve[D~{iSub}] ; SaveSolution[D~{iSub}] ;
-	Generate[E~{iSub}] ; Solve[E~{iSub}] ; SaveSolution[E~{iSub}] ;
+        Generate[A~{iSub}] ; Solve[A~{iSub}] ; //SaveSolution[A~{iSub}] ;
+	Generate[B~{iSub}] ; Solve[B~{iSub}] ; //SaveSolution[B~{iSub}] ;
+	Generate[C~{iSub}] ; Solve[C~{iSub}] ; //SaveSolution[C~{iSub}] ;
+	Generate[D~{iSub}] ; Solve[D~{iSub}] ; // SaveSolution[D~{iSub}] ;
+	Generate[E~{iSub}] ; Solve[E~{iSub}] ; // SaveSolution[E~{iSub}] ;
 	// Generate[F~{iSub}] ; Solve[F~{iSub}] ; SaveSolution[F~{iSub}] ;
         PostOperation[u_trace_A2~{iSub}];
       EndFor
@@ -778,16 +778,18 @@ Resolution {
       IterativeLinearSolver["I-A", "gmres", solverTol, MAXIT, RESTART, {1:Nbr_SubProblems}, {}, {}]
       {
         For iSub In {1:Nbr_SubProblems}
-      	  // GenerateRHSGroup[A~{iSub}, Gama~{iSub}];
-          Generate[A~{iSub}] ; Solve[A~{iSub}] ; SaveSolution[A~{iSub}] ;
+      	  GenerateRHSGroup[A~{iSub}, Gama~{iSub}];SolveAgain[A~{iSub}];
+	  // Generate[A~{iSub}] ; Solve[A~{iSub}] ; //SaveSolution[A~{iSub}] ;
 	  If (RENEW_PHASE)
-	    Generate[B~{iSub}] ; Solve[B~{iSub}] ; SaveSolution[B~{iSub}] ;
-      	    Generate[C~{iSub}] ; Solve[C~{iSub}] ; SaveSolution[C~{iSub}] ;
-	    Generate[D~{iSub}] ; Solve[D~{iSub}] ; SaveSolution[D~{iSub}] ;
+	    Generate[B~{iSub}] ; Solve[B~{iSub}] ; //SaveSolution[B~{iSub}] ;
+	    Generate[C~{iSub}] ; Solve[C~{iSub}] ; //SaveSolution[C~{iSub}] ;
+	    Generate[D~{iSub}] ; Solve[D~{iSub}] ; // SaveSolution[D~{iSub}] ;
+	    Generate[E~{iSub}] ; Solve[E~{iSub}] ; // SaveSolution[E~{iSub}] ;
 	  EndIf
-      	  // Generate[E~{iSub}] ; Solve[E~{iSub}] ; SaveSolution[E~{iSub}] ;
+	  If (!RENEW_PHASE)
 	    GenerateRHSGroup[E~{iSub}, Gama~{iSub}];
 	    SolveAgain[E~{iSub}];
+	  EndIf
 	  // Generate[F~{iSub}] ; Solve[F~{iSub}] ; SaveSolution[F~{iSub}] ;
           PostOperation[u_trace_other_A2~{iSub}];
         EndFor
@@ -799,15 +801,17 @@ Resolution {
 	If (SWEEP_FORWARD)
 	  // Gauss-Seidel preconditioner (forward sweep-like)
 	  For iSub In {1:Nbr_SubProblems-1}
-            Generate[A~{iSub}] ; Solve[A~{iSub}] ; SaveSolution[A~{iSub}] ;
+	    Generate[A~{iSub}] ; Solve[A~{iSub}] ; //SaveSolution[A~{iSub}] ;
 	    If (RENEW_PHASE)
-	      Generate[B~{iSub}] ; Solve[B~{iSub}] ; SaveSolution[B~{iSub}] ;
-      	      Generate[C~{iSub}] ; Solve[C~{iSub}] ; SaveSolution[C~{iSub}] ;
-	      Generate[D~{iSub}] ; Solve[D~{iSub}] ; SaveSolution[D~{iSub}] ;
+	      Generate[B~{iSub}] ; Solve[B~{iSub}] ; //SaveSolution[B~{iSub}] ;
+	      Generate[C~{iSub}] ; Solve[C~{iSub}] ; //SaveSolution[C~{iSub}] ;
+	      Generate[D~{iSub}] ; Solve[D~{iSub}] ; // SaveSolution[D~{iSub}] ;
+	      Generate[E~{iSub}] ; Solve[E~{iSub}] ; // SaveSolution[E~{iSub}] ;
 	    EndIf
-	    // Generate[E~{iSub}] ; Solve[E~{iSub}] ; SaveSolution[E~{iSub}] ;
-	    GenerateRHSGroup[E~{iSub}, Gama~{iSub}];
-	    SolveAgain[E~{iSub}];
+	    If (!RENEW_PHASE)
+	      GenerateRHSGroup[E~{iSub}, Gama~{iSub}];
+	      SolveAgain[E~{iSub}];
+	    EndIf
 
             PostOperation[u_trace_other_A2~{iSub}];
 
@@ -820,15 +824,17 @@ Resolution {
 	If (SWEEP_BACKWARD)
 	  // reversed Gauss-Seidel preconditioner (backward sweep-like)
 	  For iSub In {Nbr_SubProblems:2:-1}
-            Generate[A~{iSub}] ; Solve[A~{iSub}] ; SaveSolution[A~{iSub}] ;
+            Generate[A~{iSub}] ; Solve[A~{iSub}] ; //SaveSolution[A~{iSub}] ;
 	    If (RENEW_PHASE)
-	      Generate[B~{iSub}] ; Solve[B~{iSub}] ; SaveSolution[B~{iSub}] ;
-      	      Generate[C~{iSub}] ; Solve[C~{iSub}] ; SaveSolution[C~{iSub}] ;
-	      Generate[D~{iSub}] ; Solve[D~{iSub}] ; SaveSolution[D~{iSub}] ;
+	      Generate[B~{iSub}] ; Solve[B~{iSub}] ; //SaveSolution[B~{iSub}] ;
+	      Generate[C~{iSub}] ; Solve[C~{iSub}] ; //SaveSolution[C~{iSub}] ;
+	      Generate[D~{iSub}] ; Solve[D~{iSub}] ; // SaveSolution[D~{iSub}] ;
+	      Generate[E~{iSub}] ; Solve[E~{iSub}] ; // SaveSolution[E~{iSub}] ;
 	    EndIf
-	    // Generate[E~{iSub}] ; Solve[E~{iSub}] ; SaveSolution[E~{iSub}] ;
-	    GenerateRHSGroup[E~{iSub}, Gama~{iSub}];
-	    SolveAgain[E~{iSub}];
+	    If (!RENEW_PHASE)
+	      GenerateRHSGroup[E~{iSub}, Gama~{iSub}];
+	      SolveAgain[E~{iSub}];
+	    EndIf
             PostOperation[u_trace_other_A2~{iSub}];
 
 	    For jSub In {iSub-1:1:-1}
@@ -839,20 +845,23 @@ Resolution {
       }
 
       For iSub In {1:Nbr_SubProblems}
-        // GenerateRHSGroup[A~{iSub}, Gama~{iSub}];
-        // SolveAgain[A~{iSub}];
-        Generate[A~{iSub}] ; Solve[A~{iSub}] ; SaveSolution[A~{iSub}] ;
+        // Generate[A~{iSub}] ; Solve[A~{iSub}] ; //SaveSolution[A~{iSub}] ;
+	GenerateRHSGroup[A~{iSub}, Gama~{iSub}];SolveAgain[A~{iSub}];
 	If (RENEW_PHASE)
-	  Generate[B~{iSub}] ; Solve[B~{iSub}] ; SaveSolution[B~{iSub}] ;
-      	  Generate[C~{iSub}] ; Solve[C~{iSub}] ; SaveSolution[C~{iSub}] ;
-	  Generate[D~{iSub}] ; Solve[D~{iSub}] ; SaveSolution[D~{iSub}] ;
+	  Generate[B~{iSub}] ; Solve[B~{iSub}] ; //SaveSolution[B~{iSub}] ;
+	  Generate[C~{iSub}] ; Solve[C~{iSub}] ; //SaveSolution[C~{iSub}] ;
+	  Generate[D~{iSub}] ; Solve[D~{iSub}] ; // SaveSolution[D~{iSub}] ;
+	  Generate[E~{iSub}] ; Solve[E~{iSub}] ; // SaveSolution[E~{iSub}] ;
 	EndIf
-      	// Generate[E~{iSub}] ; Solve[E~{iSub}] ; SaveSolution[E~{iSub}] ;
-	GenerateRHSGroup[E~{iSub}, Gama~{iSub}];
-	SolveAgain[E~{iSub}];
+	If (!RENEW_PHASE)
+	  GenerateRHSGroup[E~{iSub}, Gama~{iSub}];
+	  SolveAgain[E~{iSub}];
+	EndIf
       	// Generate[F~{iSub}] ; Solve[F~{iSub}] ; SaveSolution[F~{iSub}] ;
-        PostOperation[u_A2~{iSub}];
-	PostOperation[a~{iSub}];
+	If (SAVESOLUTION)
+	  PostOperation[u_A2~{iSub}];
+	  PostOperation[a~{iSub}];
+	EndIf
       EndFor
 
     }

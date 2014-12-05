@@ -20,7 +20,7 @@ n = 1 ; // z
 //Geometry
 R_INT = 1.0;
 R_EXT = 2;
-Z = 3;
+Z = 3; 
 
 //Transmission boundary condition
 SILVER_MULLER = 1 ;

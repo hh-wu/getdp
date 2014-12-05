@@ -1,6 +1,7 @@
 Problem = Str["waveguide2d"];
 Dir= StrCat["../",StrCat[Problem,"/"]];
-MeshName = StrCat[Dir,Problem];
+MshName = StrCat[Dir,"waveguide2d_mshcut"];
+// MshName = "waveguide2d_mshcut";
 
 Group{
   //FULL
@@ -18,11 +19,11 @@ Group{
     Omega~{idom} = Region[( 6000 + idom + 1 )];
     If (TEM)
       GammaScat~{idom} = Region[{(4000 + idom + 1)}];
-      GammaC += Region[{(1000 + idom + 1), (3000 + idom + 1)}];
+      GammaC~{idom} += Region[{(1000 + idom + 1), (3000 + idom + 1)}];
     EndIf
     If (TM)
       GammaScat~{idom} = Region[{(4000 + idom + 1)}];
-      GammaC += Region[{(1000 + idom + 1), (3000 + idom + 1)}];
+      GammaC~{idom} += Region[{(1000 + idom + 1), (3000 + idom + 1)}];
     EndIf
     If (TE)
       GammaScat~{idom} = Region[{(4000 + idom + 1)}];

@@ -95,7 +95,7 @@ Constraint{
     EndIf
     If(PML)
       { Name Dirichlet~{idom} ; Case { { Region Gama_D~{idom} ; Type Assign; Value f_diri[];} } }
-      { Name Dirichlet0~{idom} ; 
+      { Name Dirichlet0~{idom} ;
 	Case {
 	  { Region Gama_D0~{idom} ; Type Assign; Value 0.;} 
 	  { Region GamaPml_D0~{idom}~{0} ; Type Assign; Value 0.; }
@@ -145,60 +145,8 @@ FunctionSpace {
   EndFor // end loop idom
 }
 EndIf
+
 If (PML)
-// FunctionSpace {
-//   For ii In {0: #ListOfDom()-1}
-//     idom = ListOfDom(ii);
-
-//     { Name Hgrad_u_Dirichlet2D~{idom} ; Type Form0 ;
-//       BasisFunction {
-// 	{ Name sn ; NameOfCoef un ; Function BF_Node ;
-// 	  Support Region[{OmegaAll~{idom}, GamaAll~{idom}, Sigma~{idom}, Gama_D~{idom}}]; Entity NodesOf[All];
-// 	  // Support Region[{OmegaAll~{idom}, GamaAll~{idom}, Gama_D~{idom}}]; Entity NodesOf[All];
-// 	}
-//       }
-//       Constraint {
-// 	{ NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet~{idom} ; }
-// 	{ NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet0~{idom} ; }
-//       }
-//     }
-
-//     For jdom In {0:1}
-//     { Name Hgrad_u_Dirichlet2D_lm~{idom}~{jdom} ; Type Form0 ;
-//       BasisFunction {
-// 	{ Name sn ; NameOfCoef un ; Function BF_Node ;
-// 	  // Support Region[{OmegaPml~{idom}~{jdom},Sigma~{idom}~{jdom},Gama~{idom}~{jdom},Gama_N~{idom},Gama_S~{idom}}]; Entity NodesOf[All];
-// 	  Support Region[{OmegaPml~{idom}~{jdom}, GamaPmlAll~{idom}~{jdom}, Sigma~{idom}~{jdom}}]; Entity NodesOf[All];
-// 	}
-//       }
-//       Constraint {
-// 	{ NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet0~{idom} ; }
-//       }
-//     }
-
-//     { Name Hgrad_g_Dirichlet2D_lm~{idom}~{jdom} ; Type Form0 ;
-//       BasisFunction {
-// 	{ Name sn ; NameOfCoef un ; Function BF_Node ;
-// 	  Support Region[{Sigma~{idom}~{jdom}}]; Entity NodesOf[All];
-// 	}
-//       }
-//       Constraint {
-// 	{ NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet0~{idom} ; } // FIXME: necessary ??
-//       }
-//     }
-//     { Name Hgrad_gbb_Dirichlet2D_lm~{idom}~{jdom} ; Type Form0 ;
-//       BasisFunction {
-// 	{ Name sn ; NameOfCoef un ; Function BF_Node ;
-// 	  Support Region[{Sigma~{idom}~{jdom}}]; Entity NodesOf[All];
-// 	}
-//       }
-//       Constraint {
-// 	{ NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet0~{idom} ; } // FIXME: necessary ??
-//       }
-//     }
-//     EndFor
-//   EndFor // end loop idom
-// }
 FunctionSpace {
   For ii In {0: #ListOfDom()-1}
     idom = ListOfDom(ii);
@@ -573,8 +521,8 @@ Formulation {
 
     { Name ComputeGPrecond~{idom}~{jdom} ; Type FemEquation ;
       Quantity {
-	{ Name g_bb~{idom}~{jdom} ; Type Local ; NameOfSpace Hgrad_gbb_Dirichlet2D_lm~{idom}~{jdom} ;}
 	{ Name g_out~{idom}~{jdom} ; Type Local ; NameOfSpace Hgrad_g_Dirichlet2D_lm~{idom}~{jdom} ;}
+	{ Name g_bb~{idom}~{jdom} ; Type Local ; NameOfSpace Hgrad_gbb_Dirichlet2D_lm~{idom}~{jdom} ;}
       }
       Equation {
     	Galerkin { [ Dof{g_out~{idom}~{jdom}} , {g_out~{idom}~{jdom}} ] ;
@@ -603,9 +551,6 @@ Resolution {
 	{ Name Helmholtz~{idom} ; NameOfFormulation DDM~{idom} ; Type Complex; If(MSH_SPLIT) NameOfMesh Sprintf(StrCat[MshName, "%g.msh"],idom) ;EndIf }
 	For jdom In {0:1}
 	  { Name ComputeG~{idom}~{jdom} ; NameOfFormulation ComputeG~{idom}~{jdom} ; Type Complex; If(MSH_SPLIT) NameOfMesh Sprintf(StrCat[MshName, "%g.msh"],idom) ;EndIf}
-	  If (PML)
-      	    { Name ComputeGbb~{idom}~{jdom} ; NameOfFormulation ComputeGbb~{idom}~{jdom} ; Type Complex; If(MSH_SPLIT) NameOfMesh Sprintf(StrCat[MshName, "%g.msh"],idom) ;EndIf}
-	  EndIf
 	  { Name ComputeGPrecond~{idom}~{jdom} ; NameOfFormulation ComputeGPrecond~{idom}~{jdom} ; Type Complex; If(MSH_SPLIT) NameOfMesh Sprintf(StrCat[MshName, "%g.msh"],idom) ;EndIf}
 	EndFor
       EndFor

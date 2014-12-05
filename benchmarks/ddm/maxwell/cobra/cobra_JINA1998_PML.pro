@@ -1,5 +1,12 @@
 Include "params_JINA1998.geo";
 
+eps0 = 8.854e-12;
+mu0 = 4*Pi*1e-7;
+Z0 = 1;//Sqrt[mu0/eps0];
+c = 1/Sqrt[mu0*eps0];
+
+k = WAVENUMBER ;
+
 // Compute the number of domains as the sum of the domains in each part of the waveguide
 N_DOM = 0;
 For i In {0:PARTS-1}
@@ -13,25 +20,33 @@ EndIf
 Include "../main/ddmDefines.pro";
 Include "groups_cobra_PML.pro";
 
-EXT_TIME = 1;
+EXT_TIME = 0;
 
 Function {
   I[] = Complex[0, 1];
-  // k[] = WAVENUMBER ;
 
   V_SOURCE[] = 0.;
-
-  If (!geo3d)
-    uinc[] = Complex[ Sin[Pi*m/d*(Y[]-(shiftY-d/2.))], 0. ];
-  EndIf
 
   om[] = WAVENUMBER;
   c[] = 1.;//1.25*(1.-.4*Exp[-32*(Y[]-.5)^2]) ;
   k[] = om[]/c[] ;
+  omega[] = c*k[] ;
 
 
   kDtn[] = k[];
   kInf[] = k[];
+
+  ky = m*Pi/d1 ;
+  kz = n*Pi/d2 ;
+  kc = Sqrt[ky^2+kz^2] ;
+  beta[] = ( -kc^2 + k[]^2 >=0 ? Sqrt[-kc^2 + k[]^2] : -I[]*Sqrt[kc^2 - k[]^2] ) ;
+
+  einc[] = Vector[ Sin[ky*Y[]]*Sin[kz*Z[]], I[]*beta[]*ky/kc^2*Cos[ky*Y[]]*Sin[kz*Z[]], I[]*beta[]*kz/kc^2*Cos[kz*Z[]]*Sin[ky*Y[]] ]; // TM
+
+  N[] = Normal[];
+
+  mu[] = mu0 ;
+  hinc[] = 0 ;
 }
 
 Include "../main/tcDefaults.pro";
@@ -176,4 +191,4 @@ If (PRECOND_SWEEP)
   EndFor
 EndIf
 
-Include "../main/Helmholtz.pro";
+Include "../main/Maxwell.pro";
