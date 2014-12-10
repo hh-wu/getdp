@@ -149,9 +149,9 @@ void Vector_dBdH(double H[3], double B[3], double dH[3],
   dMdH[4] = e[1]*f[2]+e[3]*f[4]+e[4]*f[5] ;
   dMdH[5] = e[2]*f[2]+e[4]*f[4]+e[5]*f[5] ;
 
-  dBdH[0] =  MU0 * (100.0 + dMdH[0]) ; // 100 for better convergence, forcing a bit of slope in NR iterations
-  dBdH[3] =  MU0 * (100.0 + dMdH[3]) ;
-  dBdH[5] =  MU0 * (100.0 + dMdH[5]) ;
+  dBdH[0] =  MU0 * (1.0 + dMdH[0]) ; // 100 for better convergence, forcing a bit of slope in NR iterations
+  dBdH[3] =  MU0 * (1.0 + dMdH[3]) ;
+  dBdH[5] =  MU0 * (1.0 + dMdH[5]) ;
   dBdH[1] =  MU0 * dMdH[1] ;
   dBdH[2] =  MU0 * dMdH[2] ;
   dBdH[4] =  MU0 * dMdH[4] ;
@@ -746,13 +746,18 @@ void F_dhdb_Vinch(F_ARG)
 
 bool limiter(const double Js, double v[3])
 {
-  double max = 0.9999*Js ; //0.9999
+  
+  double max = 0.999*Js ; //0.9999 // SENSITIVE_PARAM
   double mod = norm(v);
   if(mod >= max){
+    
     for (int n=0; n<3; n++)
       v[n] *= max/mod;
     return true;
+    //Message::Warning("Js=%g, norm(J)=%g", Js, mod);
   }
+  return false;
+  
   return false;
 }
 
@@ -995,7 +1000,7 @@ void Vector_Update_Jk_sd_K(double h[3], double Jk[3], double Jkp[3], double chi,
   double min_Jk[3] ;
   double d_omega[3] ;
   double sdfactor  = 0.1; //suitable value of tol for most applications
-  double TOL = 1e-11; //11
+  double TOL = 1e-11; //11  SENSITIVE_PARAM
 
 
   limiter(Js, Jk ); // avoiding possible NaN with atanh
@@ -1007,7 +1012,7 @@ void Vector_Update_Jk_sd_K(double h[3], double Jk[3], double Jkp[3], double chi,
   double min_omega = 1e+22 ;
 
   int iter = 0 ;
-  const int MAX_ITER = 1000;
+  const int MAX_ITER = 700; // SENSITIVE_PARAM
   while( iter < MAX_ITER &&
          (fabs(d_omega[0])/(1+fabs(omega))*sdfactor > TOL ||
           fabs(d_omega[1])/(1+fabs(omega))*sdfactor > TOL ||
@@ -1148,20 +1153,27 @@ void Tensor_dJkdh_Vinch_K(int dim, double h[3], double Jk[3], double Jkp[3], dou
   }
   else{  // numerical Jacobian
     Message::Debug("Numerical Jacobian Js=%g, nJk=%g and ndJk=%g",Js,nJk, ndJk);
-    double EPSILON = 1e-8 ;//8
-    double delta0  = 1e-5 ;
+    double EPSILON = 1 ;//-8  // SENSITIVE_PARAM
+    double delta0  = 1e-4 ;  // SENSITIVE_PARAM
 
     // Different following the different directions ??? TO CHECK
+    double delta[3] = { (fabs(h[0])>EPSILON) ? (fabs(h[0])) * delta0 : delta0,
+                        (fabs(h[1])>EPSILON) ? (fabs(h[1])) * delta0 : delta0,
+                        (fabs(h[2])>EPSILON) ? (fabs(h[2])) * delta0 : delta0 } ;
+    
 
-    double delta[3] = { (fabs(h[0])>EPSILON) ? fabs(h[0]) * delta0 : delta0,
-                        (fabs(h[1])>EPSILON) ? fabs(h[1]) * delta0 : delta0,
-                        (fabs(h[2])>EPSILON) ? fabs(h[2]) * delta0 : delta0 } ;
+    /*
+    double delta[3] = {((norm(h)>EPSILON) ? (norm(h)+1) * delta0 : delta0),
+                       ((norm(h)>EPSILON) ? (norm(h)+1) * delta0 : delta0),
+                       ((norm(h)>EPSILON) ? (norm(h)+1) * delta0 : delta0) } ;
+    */
 
     /*
     double delta[3] = {((norm(h)>EPSILON) ? norm(h) * delta0 : delta0),
                        ((norm(h)>EPSILON) ? norm(h) * delta0 : delta0),
                        ((norm(h)>EPSILON) ? norm(h) * delta0 : delta0) } ;
     */
+    //double delta[3]={delta0,delta0,delta0};
 
     double hxr[3]={h[0]+delta[0], h[1]          ,h[2]};          double hxl[3]={h[0]-delta[0], h[1],          h[2]};
     double hyr[3]={h[0],          h[1]+delta[1] ,h[2]};          double hyl[3]={h[0],          h[1]-delta[1], h[2]};
@@ -1311,7 +1323,7 @@ void Vector_h_Vinch_K(int dim, int N, double b[3], double bc[3], double alpha,
   double dbdh[6];
   double dhdb[6];
 
-  double TOL = 1e-8; //-8,-5
+  double TOL = 1e-7; //-8,-5  // SENSITIVE_PARAM
   double sumchi = 0. ;
 
   for (int n=0; n<3; n++)
@@ -1325,7 +1337,7 @@ void Vector_h_Vinch_K(int dim, int N, double b[3], double bc[3], double alpha,
   }
 
   int iter = 0 ;
-  const int MAX_ITER = 1000;
+  const int MAX_ITER = 200;  // SENSITIVE_PARAM
   while( iter < MAX_ITER &&
          ((fabs(tempbc[0]-b[0])/(1+fabs(b[0]))) > TOL ||
           (fabs(tempbc[1]-b[1])/(1+fabs(b[1]))) > TOL ||
