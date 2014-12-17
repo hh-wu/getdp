@@ -136,6 +136,8 @@ class hmm_mesoscale_computations:
 
 
     def generateMeshForExactFields(self, verbosity):
+        args_ML = "gmsh -v " + str(verbosity) + " meso.geo -3 -o meso.msh"
+        os.system(args_ML)
         keys = self.DictOfPointsForLocalComputations.keys()
         keys.sort()
         print "Start meshing mesoscale domains used for local cuts..."
@@ -230,7 +232,7 @@ class hmm_mesoscale_computations:
                 print '... Start solving for the mesoscale problems numbered ' + str(key)                
                 print '... Lower bound is ' + str(lower_bound) + ' and upper bound is ' + str(upper_bound)                 
                 if (Flag_Exact):
-                    args = ["../../build/getdp", "meso_dyn", "-v", "2", 
+                    args = ["../../build/getdp", "meso", "-v", "2", 
                             "-msh", "hmm_meso_mesh/meso_" + str(key) + ".msh",
                             "-solve", "a_NR", 
                             "-pos", "map_field_1", "-v2",              
@@ -253,7 +255,7 @@ class hmm_mesoscale_computations:
                             "-setnumber", "Position_Y", str(self.getPosition_Y(key)),
                             "-setnumber", "Position_Z", str(self.getPosition_Z(key))]
                 else:
-                    args = ["../../build/getdp", "meso_dyn", "-v", "2",
+                    args = ["../../build/getdp", "meso", "-v", "2",
                             "-msh", "meso.msh",
                             "-solve", "a_NR",
                             "-pos", "mean_1", "mean_2", "mean_3", "-v2",
