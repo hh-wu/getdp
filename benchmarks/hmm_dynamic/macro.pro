@@ -69,11 +69,12 @@ Function {
   //============================================
   T                   = 1./Freq;
   Omega               = 2 * Pi * Freq;
-  NbT                 = 1./20.;
+  NbT                 = 1./2.;
   time0               = 0. ; 
   timemax             = T * NbT ; 
   dtime               = T/NbSteps ;
   theta_value         = 1;
+  verbosity_mesh      = 2;
   
   // Defining criteria for the convergence of the scheme
   //====================================================
@@ -162,7 +163,7 @@ Formulation {
     }
     Equation {
       Galerkin { [ Dof{d a_dummy} , {d a_dummy} ] ; In Domain ; Jacobian JVol ; Integration I1 ; }
-      Galerkin { [ Python[ElementNum[], QuadraturePointIndex[], CompZ[{a}], CompX[{d a}], CompY[{d a}], CompX[-Dt[{a}]], CompY[-Dt[{a}] ], CompX[Dt[{d a}] ], CompY[Dt[{d a}] ], $Time, $TimeStep ]{"hmm_downscale_b_dyn.py"} * Dof{d a_dummy} , {d a_dummy} ] ;
+      Galerkin { [ Python[ElementNum[], QuadraturePointIndex[], CompX[{a}], CompY[{a}], CompZ[{a}], CompX[{d a}], CompY[{d a}], CompZ[{d a}], CompX[-Dt[{a}]], CompY[-Dt[{a}]], CompZ[-Dt[{a}]], CompX[Dt[{d a}] ], CompY[Dt[{d a}] ], CompZ[Dt[{d a}]], $Time, $TimeStep ]{"hmm_downscale_b.py"} * Dof{d a_dummy} , {d a_dummy} ] ;
         In Domain_NL ; Jacobian JVol ; Integration I1 ; }
     }
   }
@@ -181,7 +182,6 @@ Formulation {
         In Domain_S ; Jacobian JVol ; Integration I1 ; }
     }
   }
-
 }
 
 Resolution {
@@ -209,43 +209,42 @@ Resolution {
     }
     Operation {
       CreateDirectory[Dir_Macro];
+      CreateDirectory[Dir_Meso_Mesh];
       CreateDirectory[Dir_Meso_Comp];
       CreateDirectory[Dir_Meso];
-      Evaluate[ Python[]{"hmm_initialize_dyn.py"} ];
+      Evaluate[ Python[]{"hmm_initialize.py"} ];
       //===================================================
       // Begin: part of the code for solving local solution
       //===================================================
-      Evaluate[ Python[cellSize, numPoints]{"hmm_initialize_exact_dyn.py"} ];
       For iP In {1:numPoints}
         proNum = data_num~{iP}; pointX = Position_X~{iP}; pointY = Position_Y~{iP}; pointZ = 0.0;
         Evaluate[ Python[proNum, pointX, pointY, pointZ]{"hmm_meso_addpoints.py"} ];
       EndFor  
-      Evaluate[ Python[]{"hmm_meso_mesh.py"} ];        
+      Evaluate[ Python[verbosity_mesh]{"hmm_meso_mesh.py"} ];        
       //===================================================
       // End: part of the code for solving local solution
       //===================================================
-      //InitSolution[B]; InitSolution[C];
       InitSolution[C];
       TimeLoopTheta[ time0, timemax, dtime, theta_value]{
-        Evaluate[ Python[$Time, $TimeStep]{"hmm_updateTime_dyn.py"} ];
+        Evaluate[ Python[$Time, $TimeStep]{"hmm_updateTime.py"} ];
         IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor[]]{
           GenerateJac[B] ;
-          Evaluate[ Python[]{"hmm_compute_meso_dyn.py"} ];
+          Evaluate[ Python[0]{"hmm_compute_meso.py"} ];
           GenerateJac[C] ; SolveJac[C] ;
         }
         SaveSolution[C];
       //===================================================
       // Begin: part of the code for solving local solution
       //===================================================
-      For iP In {1:numPoints}
-        thisNum = data_num~{iP};
-        PostOperation[MagDyn_a_proj_exact~{iP}];
-        Evaluate[ Python[thisNum]{"hmm_downscale_b_exact_dyn.py"} ];
-      EndFor                 
-      Evaluate[ Python[]{"hmm_compute_meso_exact_dyn.py"} ];
-      //===================================================
-      // End: part of the code for solving local solution
-      //===================================================
+        PostOperation[MagDyn_a_proj_exact];
+        For iP In {1:numPoints}
+          thisNum = data_num~{iP};
+          Evaluate[ Python[thisNum, -1]{"hmm_downscale_b.py"} ];
+        EndFor                 
+        Evaluate[ Python[1]{"hmm_compute_meso.py"} ];
+        //=================================================
+        // End: part of the code for solving local solution
+        //=================================================
       }
     }
   }
@@ -260,26 +259,21 @@ PostProcessing {
     PostQuantity {
       { Name a  ; Value { Local { [ {a} ]            ; In Domain ; Jacobian JVol; } } }
       { Name az ; Value { Local { [ CompZ[{a}] ]     ; In Domain ; Jacobian JVol; } } }
-
       { Name b ; Value { Local { [ {d a} ]           ; In Domain ; Jacobian JVol; } } }
       { Name h ; Value { Local { [ nu[{d a}]*{d a} ] ; In Domain  ; Jacobian JVol; } } }
-
-      { Name MagEnergy ; Value {
-          Integral { [ nu[{d a}] * {d a} * Dt[{d a}] ] ; In Domain ; Jacobian JVol ; Integration I1 ; } } }
+      { Name MagEnergy ; Value { Integral { [ nu[{d a}] * {d a} * Dt[{d a}] ] ; In Domain ; Jacobian JVol ; Integration I1 ; } } }
     }
   }
   { Name MagDyn_a_hmm ; NameOfFormulation MagDyn_a_hmm ;
     Quantity {
-      { Name az   ; Value { Local { [ CompZ[{a}] ]        ; In Domain   ; Jacobian JVol ; } } }
-      { Name a    ; Value { Local { [ {a} ]               ; In Domain   ; Jacobian JVol ; } } }
-
-      { Name b    ; Value { Local { [ {d a} ]             ; In Domain   ; Jacobian JVol ; } } }
-      { Name dt_b ; Value { Local { [ Dt[ {d a} ] ]       ; In Domain   ; Jacobian JVol ; } } }
-      { Name h    ; Value { Local { [ nu[] * {d a} ] ; In Domain_L ; Jacobian JVol ; }
-                          Local { [ h[ {d a}] ]         ; In Domain_NL; Jacobian JVol ; } } }
-
-      { Name MagEnergy ; Value {
-          Integral { [ nu[{d a}] * {d a} * Dt[{d a}] ] ; In Domain ; Jacobian JVol ; Integration I1 ; } } }
+      { Name a   ; Value { Local { [ {a} ]        ; In Domain   ; Jacobian JVol ; } } }
+      { Name az  ; Value { Local { [ CompZ[{a}] ] ; In Domain   ; Jacobian JVol ; } } }
+      { Name b   ; Value { Local { [ {d a} ]      ; In Domain   ; Jacobian JVol ; } } }
+      { Name dt_b; Value { Local { [ Dt[{d a}] ]; In Domain   ; Jacobian JVol ; } } }
+      { Name e   ; Value { Local { [ -Dt[{a}] ] ; In Domain   ; Jacobian JVol ; } } }
+      { Name h   ; Value { Local { [ nu[] * {d a} ] ; In Domain_L ; Jacobian JVol ; }
+                            Local { [ h[{d a}]]    ; In Domain_NL; Jacobian JVol ; } } }
+      { Name MagEnergy ; Value { Integral { [ nu[{d a}] * {d a} * Dt[{d a}] ] ; In Domain ; Jacobian JVol ; Integration I1 ; } } }
     }
   }
 }
@@ -302,16 +296,16 @@ PostOperation {
     }
   }
 
-  { Name MagDyn_a_hmm_GlobalQuantites ; NameOfPostProcessing MagDyn_a_hmm ;
+  { Name MagDyn_a_hmm_GlobalQquantities ; NameOfPostProcessing MagDyn_a_hmm ;
     Operation {
       Print[ MagEnergy[Domain], OnGlobal, Format TimeTable, File StrCat[Dir_Macro, Sprintf("MagEnergy_nl%g_f%g.dat", Flag_NL, Freq) ] ] ;
     }
   }
 
-  For iTS In {1:nTS}
-  TS = listOfTS~{iTS};
-  { Name MagDyn_a_hmm_LocalCuts~{iTS} ; NameOfPostProcessing MagDyn_a_hmm;
+  { Name MagDyn_a_hmm_LocalCuts; NameOfPostProcessing MagDyn_a_hmm;
     Operation {
+      For iTS In {1:nTS}
+      TS = listOfTS~{iTS};
       Print[ az, OnLine{ {25e-6 , 0., 0.}{25e-6 , 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Macro, StrCat[Sprintf["az_hmm_macro_cut1_TS%g", TS], ExtData ] ], TimeStep{TS} ];
       Print[ az, OnLine{ {175e-6, 0., 0.}{175e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Macro, StrCat[Sprintf["az_hmm_macro_cut2_TS%g", TS], ExtData ] ], TimeStep{TS} ];
       Print[ az, OnLine{ {325e-6, 0., 0.}{325e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Macro, StrCat[Sprintf["az_hmm_macro_cut3_TS%g", TS], ExtData ] ], TimeStep{TS} ];
@@ -326,17 +320,25 @@ PostOperation {
       Print[ h, OnLine{ {175e-6, 0., 0.}{175e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Macro, StrCat[Sprintf["h_hmm_macro_cut2_TS%g", TS], ExtData ] ], TimeStep{TS} ];
       Print[ h, OnLine{ {325e-6, 0., 0.}{325e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Macro, StrCat[Sprintf["h_hmm_macro_cut3_TS%g", TS], ExtData ] ], TimeStep{TS} ];
       Print[ h, OnLine{ {475e-6, 0., 0.}{475e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Macro, StrCat[Sprintf["h_hmm_macro_cut4_TS%g", TS], ExtData ] ], TimeStep{TS} ];
+      
+      Print[ e, OnLine{ {25e-6 , 0., 0.}{25e-6 , 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Macro, StrCat[Sprintf["e_hmm_macro_cut1_TS%g", TS], ExtData ] ], TimeStep{TS} ];
+      Print[ e, OnLine{ {175e-6, 0., 0.}{175e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Macro, StrCat[Sprintf["e_hmm_macro_cut2_TS%g", TS], ExtData ] ], TimeStep{TS} ];
+      Print[ e, OnLine{ {325e-6, 0., 0.}{325e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Macro, StrCat[Sprintf["e_hmm_macro_cut3_TS%g", TS], ExtData ] ], TimeStep{TS} ];
+      Print[ e, OnLine{ {475e-6, 0., 0.}{475e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Macro, StrCat[Sprintf["e_hmm_macro_cut4_TS%g", TS], ExtData ] ], TimeStep{TS} ];
+
+      EndFor
     }
   }
-  EndFor
-  For iP In {1:numPoints}
-  { Name MagDyn_a_proj_exact~{iP} ; NameOfPostProcessing MagDyn_a_hmm;
+
+  { Name MagDyn_a_proj_exact; NameOfPostProcessing MagDyn_a_hmm;
     Operation {
-      Print[ az, OnPoint {Position_X~{iP}, Position_Y~{iP}, 0.0}, Format Table, File StrCat[Dir_Meso_Comp, StrCat[Sprintf("az_hmm_macro_cut%g", data_num~{iP}), ".txt" ] ], LastTimeStepOnly ];
-      Print[ b , OnPoint {Position_X~{iP}, Position_Y~{iP}, 0.0}, Format Table, File StrCat[Dir_Meso_Comp, StrCat[Sprintf("b_hmm_macro_cut%g" , data_num~{iP}), ".txt" ] ], LastTimeStepOnly  ];
-      Print[ dt_b , OnPoint {Position_X~{iP}, Position_Y~{iP}, 0.0}, Format Table, File StrCat[Dir_Meso_Comp, StrCat[Sprintf("dt_b_hmm_macro_cut%g" , data_num~{iP}), ".txt" ] ], LastTimeStepOnly  ];
+      For iP In {1:numPoints}
+      Print[a   , OnPoint{Position_X~{iP}, Position_Y~{iP}, 0.0}, Format Table, File StrCat[Dir_Meso_Comp, StrCat[Sprintf("a_hmm_macro_cut%g", data_num~{iP}), ".txt"]], LastTimeStepOnly];
+      Print[b   , OnPoint{Position_X~{iP}, Position_Y~{iP}, 0.0}, Format Table, File StrCat[Dir_Meso_Comp, StrCat[Sprintf("b_hmm_macro_cut%g", data_num~{iP}), ".txt"]], LastTimeStepOnly];
+      Print[e   , OnPoint{Position_X~{iP}, Position_Y~{iP}, 0.0}, Format Table, File StrCat[Dir_Meso_Comp, StrCat[Sprintf("e_hmm_macro_cut%g", data_num~{iP}), ".txt"]], LastTimeStepOnly]; 
+      Print[dt_b, OnPoint{Position_X~{iP}, Position_Y~{iP}, 0.0}, Format Table, File StrCat[Dir_Meso_Comp, StrCat[Sprintf("dt_b_hmm_macro_cut%g", data_num~{iP}), ".txt"]], LastTimeStepOnly];
+      EndFor
     }
   }
-  EndFor
 }
 

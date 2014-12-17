@@ -2,13 +2,13 @@ Include "common.dat";
 
 Flag_Fine   = 1 ;
 factor      = 1.;
-d_i         = 5e-6/factor ; // radius of the insulator.
+d_i         = 2.5e-6/factor ; // radius of the insulator.
 r_c         = 5e-6/factor ; // radius of the chamfer.
 eps         = e; //(d_c + 2 * d_i) ; // size of the periodic square. 
 L_X         = eps * n_smc ; // Total lenght of the SMC domain
 L_Y         = L_X ;
-lc_smc_iso  = d/10. ;
-lc_smc_cond = eps/20. ; 
+lc_smc_iso  = d/20. ;
+lc_smc_cond = eps/30. ; 
 
 
 // adding the air around (the 2 spheres)

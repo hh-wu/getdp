@@ -20,13 +20,13 @@ Group {
 
 Function {
 
-  DefineConstant[ AZ=0, BX=0, BY=0, EX=0, EY=0, dt_BX=0, dt_BY=0, currentTime = 0, currentTimeStep = 0, ELENUM=0, TS=0, X_Gauss=0, Y_Gauss=0, Z_Gauss=0];
+  DefineConstant[ AX=0, AY=0, AZ=0, BX=0, BY=0, BZ=0, EX=0, EY=0, EZ=0, dt_BX=0, dt_BY=0, dt_BZ=0, currentTime = 0, currentTimeStep = 0, ELENUM=0, TS=0, X_Gauss=0, Y_Gauss=0, Z_Gauss=0];
 
-  aM[]            = Vector[0.0, 0.0, AZ];
-  curl_aM[]       = Vector[BX, BY, 0.0];
+  aM[]            = Vector[AX, AY, AZ];
+  bM[]            = Vector[BX, BY, BZ];
   eM[]            = Vector[0.0, 0.0, 0.0];
-  // eM[]            = Vector[EX, EY, 0.0];
-  dt_bM[]         = Vector[dt_BX, dt_BY, 0.0];
+  //eM[]            = Vector[EX, EY, EZ];
+  dt_bM[]         = Vector[dt_BX, dt_BY, dt_BZ];
   XYZ_Gauss[]     = Vector[X_Gauss, Y_Gauss, Z_Gauss];
 
   NbrMaxIter      = 10;
@@ -187,10 +187,10 @@ Formulation {
       { Name U  ; Type Global ; NameOfSpace Hregion_u_2D~{iP}[U] ; }
     }
     Equation {
-      Galerkin { [ nu[ {d a}+curl_aM[]+Pert~{iP}[] ] * Dof{d a} , {d a} ]   ;   In Omega; Jacobian Vol; Integration II; }
-      Galerkin { [ nu[ {d a}+curl_aM[]+Pert~{iP}[] ] * curl_aM[], {d a} ]      ;   In Omega; Jacobian Vol; Integration II; }
-      Galerkin { [ nu[ {d a}+curl_aM[]+Pert~{iP}[] ] * Pert~{iP}[] , {d a} ];   In Omega; Jacobian Vol; Integration II; }
-      Galerkin { JacNL[ dhdb_NL[{d a}+curl_aM[]+Pert~{iP}[] ] * Dof{d a}, {d a} ]; In Omega_NL; Jacobian Vol; Integration II; }
+      Galerkin { [ nu[ {d a} + bM[]+Pert~{iP}[] ] * Dof{d a} , {d a} ]   ;   In Omega; Jacobian Vol; Integration II; }
+      Galerkin { [ nu[ {d a} + bM[]+Pert~{iP}[] ] * bM[], {d a} ]      ;   In Omega; Jacobian Vol; Integration II; }
+      Galerkin { [ nu[ {d a} + bM[]+Pert~{iP}[] ] * Pert~{iP}[] , {d a} ];   In Omega; Jacobian Vol; Integration II; }
+      Galerkin { JacNL[ dhdb_NL[{d a} + bM[] + Pert~{iP}[] ] * Dof{d a}, {d a} ]; In Omega_NL; Jacobian Vol; Integration II; }
 
       Galerkin { DtDof[ sigma[] * Dof{a} , {a} ] ; In Omega_C; Jacobian Vol; Integration II; }
       Galerkin { [   sigma[] * Dof{ur}      , {a} ]  ; In Omega_C; Jacobian Vol; Integration II; }
@@ -244,10 +244,6 @@ Resolution {
       SaveSolution[Micro~{iP}];
       If(iP == 1)
         PostOperation[init_field_1];
-        //PostOperation[map_field_1];
-        //For iPt In {1:numPoints}
-        //PostOperation[local_cuts~{iPt}];
-        //EndFor
       EndIf
       EndFor
     }
@@ -262,23 +258,23 @@ PostProcessing {
        { Name a_pert      ; Value { Term { [ CompZ[ {a} ] ] ;  In Omega ; Jacobian Vol; } } }
        { Name a_proj      ; Value { 
            Term { [ CompZ[ ( aM[] ) ] ] ;                      In Omega ; Jacobian Vol;  }
-           Term { [ CompZ[ ( - factor * (XYZ[] - XYZ_Gauss[]) /\ curl_aM[] ) ] ] ;  In Omega ; Jacobian Vol;  } } }
+           Term { [ CompZ[ ( - factor * (XYZ[] - XYZ_Gauss[]) /\ bM[] ) ] ] ;  In Omega ; Jacobian Vol;  } } }
        { Name a_tot       ; Value { 
            Term { [ CompZ[ {a}] ] ;   In Omega ; Jacobian Vol; }
            Term { [ CompZ[ aM[] ] ] ; In Omega ; Jacobian Vol; }
-           Term { [ CompZ[ ( - factor * (XYZ[] - XYZ_Gauss[]) /\ curl_aM[] ) ] ] ; In Omega ; Jacobian Vol; } } }
+           Term { [ CompZ[ ( - factor * (XYZ[] - XYZ_Gauss[]) /\ bM[] ) ] ] ; In Omega ; Jacobian Vol; } } }
        { Name b_pert      ; Value { Term { [ {d a} ] ; In Omega ; Jacobian Vol;  } } }
-       { Name b_proj      ; Value { Term { [ curl_aM[] ] ; In Omega ; Jacobian Vol;  } } }
+       { Name b_proj      ; Value { Term { [ bM[] ] ; In Omega ; Jacobian Vol;  } } }
        { Name b_tot       ; Value { 
            Term { [ {d a}]    ; In Omega ; Jacobian Vol ; } 
-           Term { [ curl_aM[]  ] ; In Omega ; Jacobian Vol ; }
+           Term { [ bM[]  ] ; In Omega ; Jacobian Vol ; }
            Term { [ Pert~{iP}[]] ; In Omega ; Jacobian Vol ; } } }
-       { Name b_tot_mean  ; Value { Integral { [ ({d a} + curl_aM[] + Pert~{iP}[])/#12 ] ; In Omega ; Jacobian Vol ; Integration II ; } } }
+       { Name b_tot_mean  ; Value { Integral { [ ({d a} + bM[] + Pert~{iP}[])/#12 ] ; In Omega ; Jacobian Vol ; Integration II ; } } }
        { Name dt_bM       ; Value { Term { [ dt_bM[] ] ;     In Omega ; Jacobian Vol;  } } }
        { Name h_tot ; Value {
-           Term { [ nu[{d a} + curl_aM[] + Pert~{iP}[]] * ({d a} + curl_aM[] + Pert~{iP}[]) ]; In Omega; Jacobian Vol;} } }
+           Term { [ nu[{d a} + bM[] + Pert~{iP}[]] * ({d a} + bM[] + Pert~{iP}[]) ]; In Omega; Jacobian Vol;} } }
        { Name h_tot_mean ; Value {// stored in #22
-           Integral { [ nu[ {d a} + curl_aM[] + Pert~{iP}[]] * ({d a} + curl_aM[] + Pert~{iP}[])/#12 ] ; In Omega ; Jacobian Vol; Integration II ; } } }
+           Integral { [ nu[ {d a} + bM[] + Pert~{iP}[]] * ({d a} + bM[] + Pert~{iP}[])/#12 ] ; In Omega ; Jacobian Vol; Integration II ; } } }
        { Name e_pert      ; Value { 
            Term { [ -Dt[{a}] ]    ; In Omega_C ; Jacobian Vol;  } 
            Term { [ - {ur} ]      ; In Omega_C ; Jacobian Vol;  } } }
@@ -303,20 +299,20 @@ PostProcessing {
            Integral { [ ( sigma[] * SquNorm[ Dt[{a}] + {ur} - factor * ( (XYZ[] - XYZ_Gauss[]) /\ dt_bM[] ) ] )/#12 ] ; 
              In Omega_C ; Jacobian Vol; Integration II ; } } }
        { Name MagLosses_tot_mean  ; Value{ // stored in #27. Contribution of the current time step to the integral \oint (h db) 
-           Integral { [ ( 0.5 * ({d a} + curl_aM[] + Pert~{iP}[]) )/#12 ] ; 
+           Integral { [ ( 0.5 * ({d a} + bM[] + Pert~{iP}[]) )/#12 ] ; 
              In Omega_NL ; Jacobian Vol; Integration II ; } } }
        { Name MagEnergy_tot_mean  ; Value{ // stored in #27. Contribution of the current time step to the integral \oint (h db) 
-           Integral { [ ( nu[ {d a} + curl_aM[] + Pert~{iP}[]] * ({d a} + curl_aM[] + Pert~{iP}[] ) * (Dt[{d a}] + dt_bM[]) )/#12 ] ; 
+           Integral { [ ( nu[ {d a} + bM[] + Pert~{iP}[]] * ({d a} + bM[] + Pert~{iP}[] ) * (Dt[{d a}] + dt_bM[]) )/#12 ] ; 
              In Omega ; Jacobian Vol; Integration II ; } } }
        { Name TotalEnergy_tot_mean ; Value{ // stored in #27. Contribution of the current time step to the integral \oint (h db) 
            Integral { [ ( sigma[] * SquNorm[ Dt[{a}] + {ur} - eM[] - factor * ( (XYZ[] - XYZ_Gauss[]) /\ dt_bM[] ) ] )/#12 ] ; 
              In Omega_C ; Jacobian Vol; Integration II ; }
-           Integral { [ ( nu[ {d a} + curl_aM[] + Pert~{iP}[]] * ({d a} + curl_aM[] + Pert~{iP}[] ) * (Dt[{d a}] + dt_bM[]) )/#12 ] ; 
+           Integral { [ ( nu[ {d a} + bM[] + Pert~{iP}[]] * ({d a} + bM[] + Pert~{iP}[] ) * (Dt[{d a}] + dt_bM[]) )/#12 ] ; 
              In Omega ; Jacobian Vol; Integration II ; } } }
        { Name TotalEnergyDifference_tot_mean ; Value{ // stored in #27. Contribution of the current time step to the integral \oint (h db) 
            Integral { [ ( sigma[] * SquNorm[ Dt[{a}] + {ur} - eM[] - factor * ( (XYZ[] - XYZ_Gauss[]) /\ dt_bM[] ) ] )/#12 ] ; 
              In Omega_C ; Jacobian Vol; Integration II ; }
-           Integral { [ ( -nu[ {d a} + curl_aM[] + Pert~{iP}[]] * ({d a} + curl_aM[] + Pert~{iP}[] ) * (Dt[{d a}] + dt_bM[]) )/#12 ] ; 
+           Integral { [ ( -nu[ {d a} + bM[] + Pert~{iP}[]] * ({d a} + bM[] + Pert~{iP}[] ) * (Dt[{d a}] + dt_bM[]) )/#12 ] ; 
              In Omega ; Jacobian Vol; Integration II ; } } }
      }
   }
@@ -344,25 +340,7 @@ For iP In {1:Nbr_SubProblems}
 
  { Name map_field~{iP} ; NameOfPostProcessing a_Micro_NR~{iP};
    Operation {
-     //Print[ a_pert, OnElementsOf Omega, File StrCat[Dir_Meso, Sprintf("a_pert_Prob%g_TS%g_Elenum%g.pos", iP, currentTimeStep, ELENUM) ], Format Gmsh, LastTimeStepOnly ];
-     //Print[ a_proj, OnElementsOf Omega, File StrCat[Dir_Meso, Sprintf("a_proj_Prob%g_TS%g_Elenum%g.pos", iP, currentTimeStep, ELENUM) ], Format Gmsh, LastTimeStepOnly ];
-     //Print[ a_tot,  OnElementsOf Omega, File StrCat[Dir_Meso, Sprintf("a_tot_Prob%g_TS%g_Elenum%g.pos" , iP, currentTimeStep, ELENUM) ], Format Gmsh, LastTimeStepOnly ];
-
-     //Print[ b_pert, OnElementsOf Omega, File StrCat[Dir_Meso, Sprintf("b_pert_Prob%g_TS%g_Elenum%g.pos" , iP, currentTimeStep, ELENUM) ], Format Gmsh, LastTimeStepOnly ];
-     //Print[ b_proj,  OnElementsOf Omega, File StrCat[Dir_Meso, Sprintf("b_proj_Prob%g_TS%g_Elenum%g.pos" , iP, currentTimeStep, ELENUM) ], Format Gmsh, LastTimeStepOnly ];
-     //Print[ b_tot,  OnElementsOf Omega, File StrCat[Dir_Meso, Sprintf("b_tot_Prob%g_TS%g_Elenum%g.pos" , iP, currentTimeStep, ELENUM) ], Format Gmsh, LastTimeStepOnly ];
-
-     //Print[ e_pert,  OnElementsOf Omega, File StrCat[Dir_Meso, Sprintf("e_pert_Prob%g_TS%g_Elenum%g.pos" , iP, currentTimeStep, ELENUM) ], Format Gmsh, LastTimeStepOnly ];
-     //Print[ e_proj,  OnElementsOf Omega, File StrCat[Dir_Meso, Sprintf("e_proj_Prob%g_TS%g_Elenum%g.pos" , iP, currentTimeStep, ELENUM) ], Format Gmsh, LastTimeStepOnly ];
-     //Print[ e_tot ,  OnElementsOf Omega, File StrCat[Dir_Meso, Sprintf("e_tot_Prob%g_TS%g_Elenum%g.pos" , iP, currentTimeStep, ELENUM) ], Format Gmsh, LastTimeStepOnly ];
-
-     //Print[ j_pert,  OnElementsOf Omega, File StrCat[Dir_Meso, Sprintf("j_pert_Prob%g_TS%g_Elenum%g.pos" , iP, currentTimeStep, ELENUM) ], Format Gmsh, LastTimeStepOnly ];
-     //Print[ j_proj,  OnElementsOf Omega, File StrCat[Dir_Meso, Sprintf("j_proj_Prob%g_TS%g_Elenum%g.pos" , iP, currentTimeStep, ELENUM) ], Format Gmsh, LastTimeStepOnly ];
-     //Print[ j_tot ,  OnElementsOf Omega, File StrCat[Dir_Meso, Sprintf("j_tot_Prob%g_TS%g_Elenum%g.pos" , iP, currentTimeStep, ELENUM) ], Format Gmsh, LastTimeStepOnly ];
-
-     //Print[ h_tot,  OnElementsOf Omega, File StrCat[Dir_Meso, Sprintf("h_tot_Prob%g_TS%g_Elenum%g.pos" , iP, currentTimeStep, ELENUM) ], Format Gmsh, LastTimeStepOnly ];
-
-     Print[ a_pert,  OnElementsOf Omega, File StrCat[Dir_Meso, Sprintf("a_pert_Prob%g_Elenum%g.pos" , iP, ELENUM) ], Format Gmsh, 
+     Print[ a_pert,  OnElementsOf Omega, File StrCat[Dir_Meso, Sprintf("a_pert_Prob%g_Elenum%g.pos" , iP, ELENUM) ], Format Gmsh,
             AppendToExistingFile (currentTimeStep > 1 ? 1 : 0), NoMesh (currentTimeStep > 1 ? 1 : 0), OverrideTimeStepValue currentTimeStep, LastTimeStepOnly ];
      Print[ a_proj,  OnElementsOf Omega, File StrCat[Dir_Meso, Sprintf("a_proj_Prob%g_Elenum%g.pos" , iP, ELENUM) ], Format Gmsh, 
             AppendToExistingFile (currentTimeStep > 1 ? 1 : 0), NoMesh (currentTimeStep > 1 ? 1 : 0), OverrideTimeStepValue currentTimeStep, LastTimeStepOnly ];
@@ -401,20 +379,4 @@ For iP In {1:Nbr_SubProblems}
    }
  }
  EndFor
-   //For iP In {1:numPoints}
-//  { Name local_cuts ; NameOfPostProcessing a_Micro_NR_1;
-//     Operation {
-//       Print[ a_tot, OnLine{ {Position_X, (Position_Y - 0.5 * e), 0.}{Position_X, (Position_Y + 0.5 * e), 0.} } {100}, 
-//              Format Table, File StrCat[Dir_Meso, StrCat[Sprintf("az_tot_hmm_meso_cut%g_TS%g", ELENUM, currentTimeStep), ExtData ] ], LastTimeStepOnly];
-//       Print[ b_tot, OnLine{ {Position_X, (Position_Y - 0.5 * e), 0.}{Position_X, (Position_Y + 0.5 * e), 0.} } {100}, 
-//              Format Table, File StrCat[Dir_Meso, StrCat[Sprintf("b_tot_hmm_meso_cut%g_TS%g" , ELENUM, currentTimeStep), ExtData ] ], LastTimeStepOnly];
-//       Print[ h_tot, OnLine{ {Position_X, (Position_Y - 0.5 * e), 0.}{Position_X, (Position_Y + 0.5 * e), 0.} } {100}, 
-//              Format Table, File StrCat[Dir_Meso, StrCat[Sprintf("h_tot_hmm_meso_cut%g_TS%g" , ELENUM, currentTimeStep), ExtData ] ], LastTimeStepOnly];
-//       Print[ e_tot, OnLine{ {Position_X, (Position_Y - 0.5 * e), 0.}{Position_X, (Position_Y + 0.5 * e), 0.} } {100}, 
-//              Format Table, File StrCat[Dir_Meso, StrCat[Sprintf("e_tot_hmm_meso_cut%g_TS%g" , ELENUM, currentTimeStep), ExtData ] ], LastTimeStepOnly];
-//       Print[ j_tot, OnLine{ {Position_X, (Position_Y - 0.5 * e), 0.}{Position_X, (Position_Y + 0.5 * e), 0.} } {100}, 
-//              Format Table, File StrCat[Dir_Meso, StrCat[Sprintf("j_tot_hmm_meso_cut%g_TS%g" , ELENUM, currentTimeStep), ExtData ] ], LastTimeStepOnly];
-//     }
-//  }
- //EndFor
 }

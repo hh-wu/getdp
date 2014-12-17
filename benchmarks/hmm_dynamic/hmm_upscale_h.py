@@ -1,3 +1,5 @@
-key = (input[0], input[1]) # element num, quadrature point index
-
-output = [ hx_table[key], hy_table[key], 0. ];
+from hmm_initialize import thisMesoComp
+elenum = input[0]
+GP     = input[1]
+key    = (elenum, GP)
+output = thisMesoComp.upscale_h(elenum, GP)

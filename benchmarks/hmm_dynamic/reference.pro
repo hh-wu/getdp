@@ -1,7 +1,7 @@
 // getdp square2d_dyn_nlin.pro -msh square2d_.msh -sol MagDyn_a_t_NL -pos Dyn_NL -v 1
 // getdp square2d_dyn_nlin.pro -msh square2d_.msh -sol MagDyn_a_t_Hyst -pos Dyn_Hyst -v 1
 
-Include "reference_dyn.dat" ;
+Include "reference.dat" ;
 
 SymmetryFactor = 4 ;
 AxialLength    = 1; 
@@ -82,7 +82,7 @@ Function {
   //============================================
   T                   = 1./Freq ;
   Omega               = 2 * Pi * Freq ;
-  NbT                 = 1./20. ;
+  NbT                 = 1./2. ;
   time0               = 0. ; 
   timemax             = T * NbT ; 
   dtime               = T/NbSteps ;
@@ -230,22 +230,18 @@ PostProcessing {
   //=================================================
   { Name MagDyn_a_NL ; NameOfFormulation MagDyn_a_NL ;
     PostQuantity {
-      { Name a  ; Value { Local { [ {a} ] ; In Domain ; Jacobian JVol; } } }
-      { Name az ; Value { Local { [ CompZ[{a}] ] ; In Domain ; Jacobian JVol; } } }
-      { Name b ; Value { Local { [ {d a} ] ; In Domain ; Jacobian JVol; } } }
-      { Name h ; Value { Local { [ nu[{d a}]*{d a} ] ; In Domain  ; Jacobian JVol; } } }
-      { Name j  ; Value { Local { [ -sigma[]*(Dt[{a}]+{ur}) ] ; In DomainC ; Jacobian JVol; } } }
-      { Name jz ; Value { Local { [ CompZ[-sigma[]*(Dt[{a}]+{ur})] ] ; In DomainC ; Jacobian JVol; } } }
-      { Name js  ; Value { Local { [ js[] ] ; In DomainS0 ; Jacobian JVol; } } }
-      { Name U ; Value { Term { [ {U} ] ; In DomainC ; } } }
-      { Name I ; Value { Term { [ {I} ] ; In DomainC ; } } }
-
-      { Name JouleLossesMap ; Value { Local { [ sigma[] * SquNorm[Dt[{a}] + {ur} ] ] ; 
-            In DomainC ; Jacobian JVol ; } } }
-      { Name JouleLosses    ; Value { Integral { [ sigma[] * SquNorm[Dt[{a}] + {ur} ] ] ; 
-            In DomainC ; Jacobian JVol ; Integration I ; } } }
-      { Name MagEnergy ; Value { Integral { [ nu[{d a}]*{d a}*Dt[{d a}] ] ; 
-            In Domain ; Jacobian JVol ; Integration I ; } } } 
+      { Name a ; Value { Local { [ {a} ]; In Domain ; Jacobian JVol; } } }
+      { Name az; Value { Local { [ CompZ[{a}] ]; In Domain ; Jacobian JVol; } } }
+      { Name b ; Value { Local { [ {d a} ]; In Domain ; Jacobian JVol; } } }
+      { Name h ; Value { Local { [ nu[ {d a} ] * {d a} ]; In Domain  ; Jacobian JVol; } } }
+      { Name j ; Value { Local { [ -sigma[] * ( Dt[ {a} ] + {ur} ) ]; In DomainC ; Jacobian JVol; } } }
+      { Name jz; Value { Local { [ CompZ[ -sigma[] * ( Dt[ {a} ] + {ur} )] ]; In DomainC ; Jacobian JVol; } } }
+      { Name js; Value { Local { [ js[] ]; In DomainS0 ; Jacobian JVol; } } }
+      { Name U ; Value { Term { [ {U} ]; In DomainC ; } } }
+      { Name I ; Value { Term { [ {I} ]; In DomainC ; } } }
+      { Name JouleLossesMap ; Value { Local { [ sigma[] * SquNorm[Dt[ {a} ] + {ur} ] ]; In DomainC ; Jacobian JVol ; } } }
+      { Name JouleLosses    ; Value { Integral { [ sigma[] * SquNorm[Dt[{a}] + {ur} ] ]; In DomainC ; Jacobian JVol ; Integration I ; } } }
+      { Name MagEnergy      ; Value { Integral { [ nu[ {d a} ] * {d a} * Dt[ {d a} ] ]; In Domain ; Jacobian JVol ; Integration I ; } } } 
     }
   }
 }
@@ -267,10 +263,13 @@ PostOperation {
     }
   }
 
-  For iTS In {1:nTS}
-  TS = listOfTS~{iTS};
-  { Name MagDyn_a_NL_LocalCuts~{iTS} ; NameOfPostProcessing MagDyn_a_NL ;    
-    Operation { 
+  //For iTS In {1:nTS}
+  //TS = listOfTS~{iTS};
+  //{ Name MagDyn_a_NL_LocalCuts~{iTS} ; NameOfPostProcessing MagDyn_a_NL ;
+  { Name MagDyn_a_NL_LocalCuts; NameOfPostProcessing MagDyn_a_NL ;    
+    Operation {
+      For iTS In {1:nTS}
+      TS = listOfTS~{iTS};
       Print[ az, OnLine{ {25e-6 , 0., 0.}{25e-6 , 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Ref, StrCat[Sprintf["az_ref_cut1_TS%g", TS], ExtData ] ], TimeStep{TS} ];
       Print[ az, OnLine{ {175e-6, 0., 0.}{175e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Ref, StrCat[Sprintf["az_ref_cut2_TS%g", TS], ExtData ] ], TimeStep{TS} ];
       Print[ az, OnLine{ {325e-6, 0., 0.}{325e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Ref, StrCat[Sprintf["az_ref_cut3_TS%g", TS], ExtData ] ], TimeStep{TS} ];
@@ -285,8 +284,9 @@ PostOperation {
       Print[ h, OnLine{ {175e-6, 0., 0.}{175e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Ref, StrCat[Sprintf["h_ref_cut2_TS%g", TS], ExtData ] ], TimeStep{TS} ];
       Print[ h, OnLine{ {325e-6, 0., 0.}{325e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Ref, StrCat[Sprintf["h_ref_cut3_TS%g", TS], ExtData ] ], TimeStep{TS} ];
       Print[ h, OnLine{ {475e-6, 0., 0.}{475e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Ref, StrCat[Sprintf["h_ref_cut4_TS%g", TS], ExtData ] ], TimeStep{TS} ];
+      EndFor
     }
   }
-  EndFor
+  //EndFor
 }
 

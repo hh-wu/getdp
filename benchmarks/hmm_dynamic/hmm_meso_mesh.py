@@ -1,7 +1,5 @@
 print("Done meshing geometries for mesoscale problems");
 
-from hmm_initialize_exact_dyn import thisMesoComp
-
-#thisMesoComp.printDictOfPoints()
-thisMesoComp.generateMeshForExactFields()
-
+from hmm_initialize import thisMesoComp
+verbosity = input[0]
+thisMesoComp.generateMeshForExactFields(verbosity)

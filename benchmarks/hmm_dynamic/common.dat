@@ -1,9 +1,11 @@
 AxialLength = 1; // 1 m is the default value
 Flag_NL     = 1;
 Flag_Dyn    = 1;
-Source_Amplitude = 25e7;
+Source_Amplitude = 35e8;
 NbSteps     = 100;
 Dir_Ref     = "hmm_res_ref/";
+Dir_Meso_Mesh  = "hmm_meso_mesh/";
+
 If (Flag_Dyn == 0)
   Dir_Macro      = "hmm_sta_macro/";
   Dir_Meso_Comp  = "hmm_sta_meso_comp/";
@@ -27,7 +29,7 @@ nlai          = 4 ;          //
 LX            = e * 10;       // width of the entire SMC structure
 LY            = LX;
 cellSize      = e;
-numPoints     = 4;
+numPoints     = 16;
 
 //======================
 // Dimensions without Al
@@ -38,9 +40,9 @@ rla_ind  = 5 * e ; // minimum distance between lamination and inductor (radious)
 gap_ind  = e ;
 xlam     = LX ; //w_lam/2 ;
 ylam     = LX ;
-x_air    = 3 * (LX + rla_ind + w_ind) ;
+x_air    = 5 * (LX + rla_ind + w_ind) ;
 y_air    = x_air ;
-d_inf    = 0.75 * x_air ;
+d_inf    = 1.0 * x_air ;
 Val_Rint = x_air ;
 Val_Rext = x_air + d_inf ;
 
@@ -50,21 +52,27 @@ Val_Rext = x_air + d_inf ;
 
 pind          = w_ind/2 ;
 plam          = d/8  ;    // lc for the homogenized domain
-lca           = pind * 5; // lc for the inf transfo domain
-Layers_y_hom  = 4;
-Layers_x_hom  = 4;    // 11  vertical divisions of one lamination
+lca           = pind * 10; // lc for the inf transfo domain
+Layers_y_hom  = 7;
+Layers_x_hom  = 7;    // 11  vertical divisions of one lamination
 Layers_x_indu = 11;    // 11  vertical divisions of one lamination
 Layers_y_indu = 11;    // 11  vertical divisions of one lamination
 Layers_circle = 7;
-Pro1          = 0.95; // 14 horizontal divisions of the laminations
+Pro1          = 1.0; // 14 horizontal divisions of the laminations
 n_thickness   = 5;
 
 
 // List of TimeSteps used for making local cuts
 //=============================================
-nTS            = 5;
+nTS            = 11;
 listOfTS~{1}   = 1;
-listOfTS~{2}   = 2;
-listOfTS~{3}   = 3;
-listOfTS~{4}   = 4;
-listOfTS~{5}   = 5;
+listOfTS~{2}   = 5;
+listOfTS~{3}   = 10;
+listOfTS~{4}   = 15;
+listOfTS~{5}   = 20;
+listOfTS~{6}   = 25;
+listOfTS~{7}   = 30;
+listOfTS~{8}   = 35;
+listOfTS~{9}   = 40;
+listOfTS~{10}   = 45;
+listOfTS~{11}   = 50;

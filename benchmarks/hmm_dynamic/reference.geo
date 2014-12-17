@@ -1,4 +1,4 @@
-Include "reference_dyn.dat" ;
+Include "reference.dat" ;
 
 Mesh.Algorithm = 1; // 2D mesh algorithm (1=MeshAdapt, 2=Automatic, 5=Delaunay, 6=Frontal, 7=bamg, 8=delquad)
 Geometry.CopyMeshingMethod = 1; // Copy meshing method when duplicating geometrical entities?
