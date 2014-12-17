@@ -3,6 +3,7 @@
 #  PBS -q main
 #PBS -q large
 #PBS -W group_list=wavesddm
+
 #PBS -l walltime=4:00:00
 
 #  2 mpi processes, each spawning 12 threads, on each of the 5 chunks (each chunk has 63Gb of RAM); each chunk on 24 cores:
