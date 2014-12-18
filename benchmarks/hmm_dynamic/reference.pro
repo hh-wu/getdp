@@ -74,8 +74,8 @@ Function {
 
   // Imposing the source
   //====================
-    Freq                = 50000;
-  Source_Amplitude    = 50e8;
+  //Freq                = 50000;
+  //Source_Amplitude    = 50e8;
   Ns[#{Ind}]          = Source_Amplitude;
   js0[]               = Ns[] * Vector[0, 0, 1] ;
   js[]                = js0[] * F_Sin_wt_p[]{2 * Pi * Freq, 0.};
@@ -87,7 +87,7 @@ Function {
   NbT                 = 1./2. ;
   time0               = 0. ; 
   timemax             = T * NbT ; 
-  NbSteps             = 100;
+  //NbSteps             = 100;
   dtime               = T/NbSteps ;
   theta_value         = 1;
   
@@ -259,7 +259,7 @@ PostOperation {
       Print[ JouleLossesMap,OnElementsOf DomainC , File StrCat[Dir_Ref,StrCat["JLMap",ExtGmsh] ] ];
     }
   }
-  { Name MagDyn_a_NL_GlobalQuantites ; NameOfPostProcessing MagDyn_a_NL ;
+  { Name MagDyn_a_NL_GlobalQuantities ; NameOfPostProcessing MagDyn_a_NL ;
     Operation {
       Print[ MagEnergy[Domain], OnGlobal, Format TimeTable, File StrCat[Dir_Ref, Sprintf("MagEnergy_nl%g_f%g.dat", Flag_NL, Freq) ] ] ;
       Print[ JouleLosses[Iron], OnGlobal, Format TimeTable, File StrCat[Dir_Ref, Sprintf("JL_nl%g_f%g.dat"       , Flag_NL, Freq) ] ] ;

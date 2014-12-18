@@ -1,11 +1,11 @@
 Include "meso.dat";
 
-If(Flag_Exact)
+If(Flag_ComputeMaterialLaw)
   x_L = Position_X - 0.5 * eps; 
   y_L = Position_Y - 0.5 * eps;
   Printf("Position_X = %g, Position_Y = %g", Position_X, Position_Y);
 EndIf
-If(!Flag_Exact)
+If(!Flag_ComputeMaterialLaw)
   x_L = - 0.5 * eps; 
   y_L = - 0.5 * eps;
 EndIf

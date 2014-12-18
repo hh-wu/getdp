@@ -108,12 +108,12 @@ class hmm_mesoscale_computations:
 
     def upscale_h(self, elenum, GaussPoint):
         key = (elenum,GaussPoint)
-        print self.DictOfHomogenized_ML_GP_Field[key]
+        #print self.DictOfHomogenized_ML_GP_Field[key]
         return self.DictOfHomogenized_ML_GP_Field[key]
 
     def upscale_dhdb(self, elenum, GaussPoint):
         key = (elenum,GaussPoint)
-        print self.DictOfHomogenized_ML_GP_TgTMatrix[key]
+        #print self.DictOfHomogenized_ML_GP_TgTMatrix[key]
         return self.DictOfHomogenized_ML_GP_TgTMatrix[key]
                                                     
     def clearDictOfDownScaledFieldsForLocalComputations(self):
@@ -135,28 +135,29 @@ class hmm_mesoscale_computations:
         return self.NumberOfGP
 
 
-    def generateMeshForExactFields(self, verbosity):
-        keys = self.DictOfPointsForLocalComputations.keys()
-        keys.sort()
-        print "Start meshing mesoscale domains used for local cuts..."
-        for key in keys:
-            Position_X = self.DictOfPointsForLocalComputations[key][0]
-            Position_Y = self.DictOfPointsForLocalComputations[key][1]
-            Position_Z = self.DictOfPointsForLocalComputations[key][2]
-            s = ""
-            fp = open("hmm_meso_geometry_exact.dat", "w")
-            s += "Flag_Exact = " + str(1) + "; \n" 
-            s += "Elenum   = "  + str(key)             + "; \n" 
-            s += "Position_X = "  + str(Position_X)      + "; \n"
-            s += "Position_Y = "  + str(Position_Y)      + "; \n"
-            s += "Position_Z = "  + str(Position_Z)      + ";"
-            fp.write(s)
-            fp.close()
-            #args = "../../../gmsh/build/gmsh -v " +str(verbosity) " meso.geo -3 -o hmm_meso_mesh/meso_" + str(key) + ".msh"
-            args = "gmsh -v " + str(verbosity) + " meso.geo -3 -o hmm_meso_mesh/meso_" + str(key) + ".msh"
-            os.system(args)
-        fp = open("hmm_meso_geometry_exact.dat", "w")
-        s  = "Flag_Exact = "  + str(0) + "; \n" 
+    def generateMeshForExactFields(self, verbosity, Flag_ExactMesoMeshes = False):
+        if (Flag_ExactMesoMeshes):
+            keys = self.DictOfPointsForLocalComputations.keys()
+            keys.sort()
+            print "Start meshing mesoscale domains used for local cuts..."
+            for key in keys:
+                Position_X = self.DictOfPointsForLocalComputations[key][0]
+                Position_Y = self.DictOfPointsForLocalComputations[key][1]
+                Position_Z = self.DictOfPointsForLocalComputations[key][2]
+                s = ""
+                fp = open("hmm_meso_geometry.dat", "w")
+                s += "FlagComputeML = " + str(1) + "; \n" 
+                s += "Elenum   = "  + str(key)             + "; \n" 
+                s += "Position_X = "  + str(Position_X)      + "; \n"
+                s += "Position_Y = "  + str(Position_Y)      + "; \n"
+                s += "Position_Z = "  + str(Position_Z)      + ";"
+                fp.write(s)
+                fp.close()
+                args = "gmsh -v " + str(verbosity) + " meso.geo -3 -o hmm_meso_mesh/meso_" + str(key) + ".msh"
+                os.system(args)
+                
+        fp = open("hmm_meso_geometry.dat", "w")
+        s  = "FlagComputeML = "  + str(0) + "; \n" 
         fp.write(s)
         fp.close()
         args_ML = "gmsh -v " + str(verbosity) + " meso.geo -3 -o meso.msh"
@@ -203,17 +204,18 @@ class hmm_mesoscale_computations:
             if parallel:
                 for key in keys[lower_bound : upper_bound]:
                     proc[key].wait()
-        print "End doing exact mesoscale computations..." 
+        #print "End doing exact mesoscale computations..." 
 
-    def computeMesoscaleFields(self, Flag_Exact):
-        if (Flag_Exact != 0):
+    def computeMesoscaleFields(self, FlagComputeML):
+        print 'The argument of FlagComputeML in computeMesoscale Fields = ' + str(FlagComputeML) + ' ...'
+        if (FlagComputeML == 0):
             keys = self.DictOfDownScaledFieldsForLocalComputations.keys()
         else:
             keys = self.DictOfDownScaledFieldsForMLComputations.keys()
         keys.sort()
         proc = {}
         parallel = True
-        print "... Start doing exact mesoscale computations for the dynamic problem ..."
+        print "... Start doing exact mesoscale computations for the dynamic problem for timestep TS = " + str(self.CurrentTimeStep) + " ..."
         print '... Done solving for exact mesoscale problems. There are ' + str(self.getNumOfProcesses()) + ' threads running in parallel for mesoscale problems ...'
         integer   = (len(keys))//(self.numOfProcesses)
         remainder = (len(keys))%(self.numOfProcesses)        
@@ -229,11 +231,10 @@ class hmm_mesoscale_computations:
             else:
                 upper_bound = ( (iP+1) * self.numOfProcesses)
             for key in keys[lower_bound : upper_bound]:
-                print '... Start solving for the mesoscale problems numbered ' + str(key)                
-                print '... Lower bound is ' + str(lower_bound) + ' and upper bound is ' + str(upper_bound)                 
-                if (Flag_Exact != 0):
-                    args = ["../../build/getdp", "meso", "-v", "2", 
-                            "-msh", "hmm_meso_mesh/meso_" + str(key) + ".msh",
+                if (FlagComputeML == 0):
+                    args = ["../../build/getdp", "meso", "-v", "0", 
+                            #"-msh", "hmm_meso_mesh/meso_" + str(key) + ".msh",
+                            "-msh", "meso.msh",
                             "-solve", "a_NR", 
                             "-pos", "map_field_1", "-v2",              
                             "-setnumber", "AX", str(self.DictOfDownScaledFieldsForLocalComputations[key][0]),
@@ -251,14 +252,13 @@ class hmm_mesoscale_computations:
                             "-setnumber", "currentTime", str(self.CurrentTime),
                             "-setnumber", "currentTimeStep", str(self.CurrentTimeStep),
                             "-setnumber", "ELENUM", str(key),
-                            #"-setnumber", "Position_X", str(self.getPosition_X(key)),
-                            #"-setnumber", "Position_Y", str(self.getPosition_Y(key)),
-                            #"-setnumber", "Position_Z", str(self.getPosition_Z(key)),
-                            "-setnumber", "X_Gauss", str(self.getPosition_X(key)),
-                            "-setnumber", "Y_Gauss", str(self.getPosition_Y(key)),
-                            "-setnumber", "Z_Gauss", str(self.getPosition_Z(key))]
+                            #"-setnumber", "X_Gauss", str(self.getPosition_X(key)),
+                            #"-setnumber", "Y_Gauss", str(self.getPosition_Y(key)),
+                            #"-setnumber", "Z_Gauss", str(self.getPosition_Z(key)),
+                            "-setnumber", "CML", str(FlagComputeML)]
+                            
                 else:
-                    args = ["../../build/getdp", "meso", "-v", "2",
+                    args = ["../../build/getdp", "meso", "-v", "0",
                             "-msh", "meso.msh",
                             "-solve", "a_NR",
                             "-pos", "mean_1", "mean_2", "mean_3", "-v2",
@@ -276,17 +276,17 @@ class hmm_mesoscale_computations:
                             "-setnumber", "dt_BZ", str(self.DictOfDownScaledFieldsForMLComputations[key][11]),
                             "-setnumber", "currentTime", str(self.CurrentTime),
                             "-setnumber", "currentTimeStep", str(self.CurrentTimeStep),
+                            "-setnumber", "CML", str(FlagComputeML),
                             "-setnumber", "ELENUM", str(key[0]),
                             "-setnumber", "GAUSSPOINT", str(key[1])] 
                 if parallel:
                     proc[key] = subprocess.Popen(args)
                 else:
                     proc[key] = subprocess.call(args)
-                print '... End solving for the mesoscale problems numbered ' + str(key)                
             if parallel:
                 for key in keys[lower_bound : upper_bound]:
                     proc[key].wait()
-        if (Flag_Exact == 0):
+        if (FlagComputeML != 0):
             Dir_Meso_Comp = "hmm_dyn_meso_comp/"
             for key in keys:
                 f = open(Dir_Meso_Comp + "DualField1_" + str(key[0]) + ".txt", "r")
@@ -322,4 +322,4 @@ class hmm_mesoscale_computations:
                 Mat_zy = 0.0
                 Mat_zz = 0.0
                 self.addLine2DictOfHomogenized_ML_GP_TgTMatrix_Dyn(key[0], key[1], Mat_xx, Mat_xy, Mat_xz, Mat_yx, Mat_yy, Mat_yz, Mat_zx, Mat_zy, Mat_zz)
-        print "... End doing exact mesoscale computations..." 
+        print "... End doing exact mesoscale computations for timestep = "+ str(self.CurrentTimeStep) +"..." 

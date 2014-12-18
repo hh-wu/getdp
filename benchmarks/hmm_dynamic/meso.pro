@@ -20,7 +20,7 @@ Group {
 
 Function {
 
-  DefineConstant[ AX=0, AY=0, AZ=0, BX=0, BY=0, BZ=0, EX=0, EY=0, EZ=0, dt_BX=0, dt_BY=0, dt_BZ=0, currentTime = 0, currentTimeStep = 0, ELENUM=0, TS=0, X_Gauss=0, Y_Gauss=0, Z_Gauss=0];
+  DefineConstant[ AX=0, AY=0, AZ=0, BX=0, BY=0, BZ=0, EX=0, EY=0, EZ=0, dt_BX=0, dt_BY=0, dt_BZ=0, currentTime=0, currentTimeStep=0, ELENUM=0, X_Gauss=0, Y_Gauss=0, Z_Gauss=0, CML=0];
 
   aM[]            = Vector[AX, AY, AZ];
   bM[]            = Vector[BX, BY, BZ];
@@ -40,6 +40,9 @@ Function {
   Pert~{2}[]      = epsilon * Vector[1.0, 0.0, 0.0];
   Pert~{3}[]      = epsilon * Vector[0.0, 1.0, 0.0];
 
+  //Printf("AX = %g, AY = %g, AZ = %g, BX = %g, BY = %g, BZ = %g, EX = %g, EY = %g, EZ = %g, dt_BX = %g, dt_BY = %g, dt_BZ = %g, currentTime = %g, currentTimeStep = %g, Elenum = %g, X_Gauss = %g, Y_Gauss = %g, Z_Gauss = %G, CML = %g", AX, AY, AZ, BX, BY, BZ, EX, EY, EZ, dt_BX, dt_BY, dt_BZ, currentTime, currentTimeStep, ELENUM, X_Gauss, Y_Gauss, Z_Gauss, CML);
+    
+  
   T               = 1.0/Freq;
   t0              = 0.0;
   ti              = currentTime;
@@ -48,8 +51,14 @@ Function {
   theta_value     = 1;
   tf              = ti + dt;
   a_macro[]       = Vector[ 0., 0., ScalarField[XYZ[]]{1}] ;
-  a_tprevious[]   = (currentTimeStep==1) ? Vector[0.,0.,0.] : Vector[ 0., 0., ScalarField[XYZ[]]{0}] ;
 
+  //If (!CML) 
+  //  a_tprevious[]   = (currentTimeStep==1) ? Vector[0.,0.,0.] : Vector[ 0., 0., ScalarField[XYZ[]]{0}##98765] ;
+  //EndIf
+  //If (CML)
+  a_tprevious[]   = (currentTimeStep==1) ? Vector[0.,0.,0.] : Vector[ 0., 0., ScalarField[XYZ[]]{0}] ;
+  //EndIf 
+    
   // Parameters for the electric linear law
   //=======================================
   sigmaIron     = 5.e6;
@@ -88,6 +97,9 @@ Function {
 }
 
 Constraint {
+
+
+  
  { Name a_Micro ;
    Case {
      { Region GammaRight; Type Link; RegionRef GammaLeft;
@@ -200,8 +212,13 @@ Formulation {
       
       Galerkin { DtDof [ sigma[] * Dof{a} , {ur} ]; In Omega_C; Jacobian Vol; Integration II; }
       Galerkin { [   sigma[] * Dof{ur}    , {ur} ]; In Omega_C; Jacobian Vol; Integration II; }  
-      Galerkin { [ - sigma[] * eM[]       , {ur} ]; In Omega_C; Jacobian Vol; Integration II; }  
-      Galerkin { [   sigma[] * ( factor * dt_bM[] /\ (XYZ[] - XYZ_Gauss[]) ) , {ur} ]; In Omega_C; Jacobian Vol; Integration II; }  
+      Galerkin { [ - sigma[] * eM[]       , {ur} ]; In Omega_C; Jacobian Vol; Integration II; }
+      //If (!CML)
+      Galerkin { [   sigma[] * ( factor * dt_bM[] /\ ( (XYZ[]) - (XYZ_Gauss[]) )) , {ur} ]; In Omega_C; Jacobian Vol; Integration II; }
+      //EndIf
+      //If (CML)
+      //Galerkin { [   sigma[] * ( factor * dt_bM[] /\ (XYZ[] - XYZ_Gauss[]) ) , {ur} ]; In Omega_C; Jacobian Vol; Integration II; }
+      //EndIf
       GlobalTerm { [ Dof{I}               , {U}  ]; In Omega_C ; } 
     }
   }
@@ -221,6 +238,7 @@ Resolution {
          Generate[AH~{iP}]; Solve[AH~{iP}]; TransferSolution[AH~{iP}];
        EndIf
        If(currentTimeStep != 1)
+         Printf("Komeraaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa = %g", currentTimeStep);
          GmshRead[StrCat(Dir_Meso_Comp, Sprintf("a_pert_Prob1_TS%g_Elenum%g.pos", (currentTimeStep-1), ELENUM) ) ];
          Generate[AH~{iP}]; Solve[AH~{iP}]; TransferSolution[AH~{iP}];
        EndIf

@@ -8,4 +8,4 @@ pointY = input[2]
 pointZ = input[3]
 
 thisMesoComp.addLine2DictOfPointsForLocalComputations(proNum, pointX, pointY, pointZ)
-thisMesoComp.printDictOfPointsForLocalComputations()
+#thisMesoComp.printDictOfPointsForLocalComputations()

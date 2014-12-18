@@ -61,8 +61,8 @@ Function {
 
   // Imposing the source
   //====================
-    Freq                = 50000;
-  Source_Amplitude    = 50e8;
+  //Freq                = 50000;
+  //Source_Amplitude    = 50e8;
   Ns[Domain_S]        = Source_Amplitude;
   js0[]               = Ns[] * Vector[0., 0., 1.] ;
   js[]                = js0[] * F_Sin_wt_p[]{2 * Pi * Freq, 0.};
@@ -74,10 +74,10 @@ Function {
   NbT                 = 1./2.;
   time0               = 0. ; 
   timemax             = T * NbT ;
-  NbSteps             = 100;
+  //NbSteps             = 100;
   dtime               = T/NbSteps ;
   theta_value         = 1;
-  verbosity_mesh      = 2;
+  verbosity_mesh      = 0;
   
   // Defining criteria for the convergence of the scheme
   //====================================================
@@ -232,7 +232,7 @@ Resolution {
         Evaluate[ Python[$Time, $TimeStep]{"hmm_updateTime.py"} ];
         IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor[]]{
           GenerateJac[B] ;
-          Evaluate[ Python[0]{"hmm_compute_meso.py"} ];
+          Evaluate[ Python[1]{"hmm_compute_meso.py"} ];
           GenerateJac[C] ; SolveJac[C] ;
         }
         SaveSolution[C];
@@ -244,7 +244,7 @@ Resolution {
           thisNum = data_num~{iP};
           Evaluate[ Python[thisNum, -1]{"hmm_downscale_b.py"} ];
         EndFor                 
-        Evaluate[ Python[1]{"hmm_compute_meso.py"} ];
+        Evaluate[ Python[0]{"hmm_compute_meso.py"} ];
         //=================================================
         // End: part of the code for solving local solution
         //=================================================
@@ -299,7 +299,7 @@ PostOperation {
     }
   }
 
-  { Name MagDyn_a_hmm_GlobalQquantities ; NameOfPostProcessing MagDyn_a_hmm ;
+  { Name MagDyn_a_hmm_GlobalQuantities ; NameOfPostProcessing MagDyn_a_hmm ;
     Operation {
       Print[ MagEnergy[Domain], OnGlobal, Format TimeTable, File StrCat[Dir_Macro, Sprintf("MagEnergy_nl%g_f%g.dat", Flag_NL, Freq) ] ] ;
     }
