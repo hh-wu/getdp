@@ -12,12 +12,13 @@
 #include <stdarg.h>
 
 class GmshClient;
-namespace onelab{ class client; }
 struct Constant;
 struct Expression;
 struct Group;
 #ifdef HAVE_ONELAB2
 class OnelabNetworkClient;
+#else
+namespace onelab{ class client; }
 #endif
 
 // a class to manage messages
@@ -42,9 +43,10 @@ class Message {
   // communication with Gmsh
   static GmshClient *_client;
   // communication with onelab server
+#ifdef HAVE_ONELAB2
+  static OnelabNetworkClient *_onelabClient;
+#else
   static onelab::client *_onelabClient;
-#ifdef HAVE_ONELAB2 // TODO replace _onelabClient
-  static OnelabNetworkClient *_onelab2Client;
 #endif
  public:
   Message() {}
@@ -99,7 +101,7 @@ class Message {
   static void InitializeOnelab(std::string name, std::string sockname);
   static void FinalizeOnelab();
 #ifdef HAVE_ONELAB2
-  static bool UseOnelab(){ return true; }
+  static bool UseOnelab(){ return _onelabClient; }
 #else
   static bool UseOnelab(){ return _onelabClient ? true : false; }
 #endif
