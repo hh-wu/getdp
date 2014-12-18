@@ -17,6 +17,17 @@
 #include "ProData.h" // for onelab
 #include "ProParser.h" // for onelab
 
+#if defined(HAVE_ONELAB2)
+#include "NetworkUtils.h"
+#include "OnelabNetworkClient.h"
+#ifndef WIN32
+#include <pthread.h>
+#include <signal.h>
+#else
+#include <wspiapi.h>
+#endif
+#endif
+
 #if !defined(WIN32) || defined(__CYGWIN__)
 #include <sys/time.h>
 #include <sys/resource.h>
@@ -67,6 +78,9 @@ int Message::_progressMeterCurrent = 0;
 std::map<std::string, double> Message::_timers;
 GmshClient* Message::_client = 0;
 onelab::client* Message::_onelabClient = 0;
+#ifdef HAVE_ONELAB2
+OnelabNetworkClient* Message::_onelab2Client = 0;
+#endif
 #if !defined(HAVE_ONELAB) // if Gmsh is compiled without onelab
 onelab::server *onelab::server::_server = 0;
 #endif
@@ -193,8 +207,13 @@ void Message::Fatal(const char *fmt, ...)
   if(_client){
     _client->Error(str);
   }
+#ifdef HAVE_ONELAB2
+  else if(_onelab2Client && ((VirtualClient *)_onelab2Client)->getName() != "GetDPServer"){
+    _onelab2Client->sendError(str);
+#else
   else if(_onelabClient && _onelabClient->getName() != "GetDPServer"){
     _onelabClient->sendError(str);
+#endif
   }
   else{
     const char *c0 = "", *c1 = "";
@@ -226,8 +245,13 @@ void Message::Error(const char *fmt, ...)
   if(_client){
     _client->Error(str);
   }
+#ifdef HAVE_ONELAB2
+  else if(_onelab2Client && ((VirtualClient *)_onelab2Client)->getName() != "GetDPServer"){
+    _onelab2Client->sendError(str);
+#else
   else if(_onelabClient && _onelabClient->getName() != "GetDPServer"){
     _onelabClient->sendError(str);
+#endif
   }
   else{
     const char *c0 = "", *c1 = "";
@@ -259,8 +283,13 @@ void Message::Warning(const char *fmt, ...)
   if(_client){
     _client->Warning(str);
   }
+#ifdef HAVE_ONELAB2
+  else if(_onelab2Client && ((VirtualClient *)_onelab2Client)->getName() != "GetDPServer"){
+    _onelab2Client->sendWarning(str);
+#else
   else if(_onelabClient && _onelabClient->getName() != "GetDPServer"){
     _onelabClient->sendWarning(str);
+#endif
   }
   else{
     const char *c0 = "", *c1 = "";
@@ -299,8 +328,13 @@ void Message::Info(int level, const char *fmt, ...)
   if(_client){
     _client->Info(str);
   }
+#ifdef HAVE_ONELAB2
+  else if(_onelab2Client && ((VirtualClient *)_onelab2Client)->getName() != "GetDPServer"){
+    _onelab2Client->sendInfo(str);
+#else
   else if(_onelabClient && _onelabClient->getName() != "GetDPServer"){
     _onelabClient->sendInfo(str);
+#endif
   }
   else{
     if(_isCommWorld && (_commSize == 1 || level > 0))
@@ -335,8 +369,13 @@ void Message::Direct(int level, const char *fmt, ...)
   if(_client){
     _client->Info(str);
   }
+#ifdef HAVE_ONELAB2
+  else if(_onelab2Client && ((VirtualClient *)_onelab2Client)->getName() != "GetDPServer"){
+    _onelab2Client->sendInfo(str);
+#else
   else if(_onelabClient && _onelabClient->getName() != "GetDPServer"){
     _onelabClient->sendInfo(str);
+#endif
   }
   else{
     const char *c0 = "", *c1 = "";
@@ -363,8 +402,13 @@ void Message::Check(const char *fmt, ...)
   if(_client){
     _client->Info(str);
   }
+#ifdef HAVE_ONELAB2
+  else if(_onelab2Client && ((VirtualClient *)_onelab2Client)->getName() != "GetDPServer"){
+    _onelab2Client->sendInfo(str);
+#else
   else if(_onelabClient && _onelabClient->getName() != "GetDPServer"){
     _onelabClient->sendInfo(str);
+#endif
   }
   else{
     fprintf(stdout, "%s", str);
@@ -384,8 +428,13 @@ void Message::Debug(const char *fmt, ...)
   if(_client){
     _client->Info(str);
   }
+#ifdef HAVE_ONELAB2
+  else if(_onelab2Client && ((VirtualClient *)_onelab2Client)->getName() != "GetDPServer"){
+    _onelab2Client->sendInfo(str);
+#else
   else if(_onelabClient && _onelabClient->getName() != "GetDPServer"){
     _onelabClient->sendInfo(str);
+#endif
   }
   else{
     if(_commSize > 1)
@@ -475,8 +524,13 @@ void Message::Cpu(int level, bool printTime, bool printCpu, bool printMem,
   if(_client){
     _client->Info(str);
   }
+#ifdef HAVE_ONELAB2
+  else if(_onelab2Client && ((VirtualClient *)_onelab2Client)->getName() != "GetDPServer"){
+    _onelab2Client->sendInfo(str);
+#else
   else if(_onelabClient && _onelabClient->getName() != "GetDPServer"){
     _onelabClient->sendInfo(str);
+#endif
   }
   else{
     if(_isCommWorld && (_commSize == 1 || level > 0))
@@ -514,7 +568,11 @@ void Message::ProgressMeter(int n, int N, const char *fmt, ...)
         o.setMax(N);
         o.setVisible(false);
         o.setReadOnly(true);
+#ifdef HAVE_ONELAB2
+        _onelab2Client->set(o);
+#else
         _onelabClient->set(o);
+#endif
       }
       return;
     }
@@ -530,7 +588,11 @@ void Message::ProgressMeter(int n, int N, const char *fmt, ...)
       o.setMax(N);
       o.setVisible(false);
       o.setReadOnly(true);
+#ifdef HAVE_ONELAB2
+      _onelab2Client->set(o);
+#else
       _onelabClient->set(o);
+#endif
     }
     else if(!streamIsFile(stdout)){
       fprintf(stdout, "%s                                          \r",
@@ -557,9 +619,14 @@ void Message::PrintTimers()
 
   if(_client){
     _client->Info((char*)str.c_str());
-  }
+  } 
+#ifdef HAVE_ONELAB2
+  else if(_onelab2Client && ((VirtualClient *)_onelab2Client)->getName() != "GetDPServer"){
+    _onelab2Client->sendInfo(str);
+#else
   else if(_onelabClient && _onelabClient->getName() != "GetDPServer"){
     _onelabClient->sendInfo(str);
+#endif
   }
   else{
     if(_commSize > 1)
@@ -601,6 +668,9 @@ void Message::SendMergeFileRequest(const std::string &filename)
   else if(_onelabClient && _onelabClient->getName() != "GetDPServer"){
     _onelabClient->sendMergeFileRequest(filename);
   }
+#ifdef HAVE_ONELAB2
+  if(_onelab2Client) _onelab2Client->mergeFile(filename);
+#endif
 }
 
 void Message::TestSocket()
@@ -649,6 +719,47 @@ public:
 
 void Message::InitializeOnelab(std::string name, std::string sockname)
 {
+#ifdef HAVE_ONELAB2
+  if(sockname.size()){
+    UInt32 address = 0;
+    UInt16 port = 1148;
+    size_t colon = sockname.find(':');
+    if(colon != std::string::npos) {
+      address = ip4_inet_pton(sockname.substr(0,colon).c_str());
+      port = atoi(sockname.substr(colon+1).c_str());
+    }
+    OnelabNetworkClient *c = new OnelabNetworkClient(name, address, port);
+    if(!c->connect()) {
+        Error("Could not connect to ONELAB server");
+        delete c;
+    }
+    else {
+      _onelab2Client = c;
+
+      onelab::string o(name + "/FileExtension", ".pro");
+      o.setVisible(false);
+      o.setAttribute("Persistent", "1");
+      _onelab2Client->set(o);
+      onelab::number o2(name + "/UseCommandLine", 1.);
+      o2.setVisible(false);
+      o2.setAttribute("Persistent", "1");
+      _onelab2Client->set(o2);
+      onelab::number o3(name + "/GuessModelName", 1.);
+      o3.setVisible(false);
+      o3.setAttribute("Persistent", "1");
+      _onelab2Client->set(o3);
+      std::vector<onelab::string> ps;
+      _onelab2Client->get(ps, name + "/Action", true);
+      if(ps.size()){
+        Info("Performing ONELAB '%s'", ps[0].getValue().c_str());
+        if(ps[0].getValue() == "initialize") Exit(0);
+      }
+      else {
+        Warning("No action for GetDP in ONELAB database");
+      }
+    }
+  }
+#else
   if(sockname.size()){
     // getdp is called by a distant onelab server
     onelab::remoteNetworkClient *c = new onelab::remoteNetworkClient(name, sockname);
@@ -700,14 +811,24 @@ void Message::InitializeOnelab(std::string name, std::string sockname)
         Message::Error("Could not open file '%s'", name.c_str());
     }
   }
+#endif
 }
 
 void Message::AddOnelabNumberChoice(std::string name, double val, const char *color)
 {
+#ifdef HAVE_ONELAB2
+  if(_onelab2Client){
+#else
   if(_onelabClient){
+#endif
     std::vector<double> choices;
     std::vector<onelab::number> ps;
+#ifdef HAVE_ONELAB2
+    _onelab2Client->get(ps, name);
+    _onelab2Client->recvfrom();
+#else
     _onelabClient->get(ps, name);
+#endif
     if(ps.size()){
       choices = ps[0].getChoices();
     }
@@ -720,22 +841,39 @@ void Message::AddOnelabNumberChoice(std::string name, double val, const char *co
     ps[0].setValue(val);
     choices.push_back(val);
     ps[0].setChoices(choices);
+#ifdef HAVE_ONELAB2
+    _onelab2Client->set(ps[0]);
+#else
     _onelabClient->set(ps[0]);
+#endif
 
     // ask Gmsh to refresh
     onelab::string o("Gmsh/Action", "refresh");
     o.setVisible(false);
+#ifdef HAVE_ONELAB2
+    _onelab2Client->set(o);
+#else
     _onelabClient->set(o);
+#endif
   }
 }
 
 void Message::AddOnelabStringChoice(std::string name, std::string kind,
                                     std::string value)
 {
+#ifdef HAVE_ONELAB2
+  if(_onelab2Client){
+#else
   if(_onelabClient){
+#endif
     std::vector<std::string> choices;
     std::vector<onelab::string> ps;
+#ifdef HAVE_ONELAB2
+    _onelab2Client->get(ps, name);
+    _onelab2Client->recvfrom();
+#else
     _onelabClient->get(ps, name);
+#endif
     if(ps.size()){
       choices = ps[0].getChoices();
       if(std::find(choices.begin(), choices.end(), value) == choices.end())
@@ -749,15 +887,28 @@ void Message::AddOnelabStringChoice(std::string name, std::string kind,
     }
     ps[0].setValue(value);
     ps[0].setChoices(choices);
+#ifdef HAVE_ONELAB2
+    _onelab2Client->set(ps[0]);
+#else
     _onelabClient->set(ps[0]);
+#endif
   }
 }
 
 void Message::GetOnelabString(std::string name, char **val)
 {
+#ifdef HAVE_ONELAB2
+  if(_onelab2Client){
+#else
   if(_onelabClient){
+#endif
     std::vector<onelab::string> ps;
+#ifdef HAVE_ONELAB2
+    _onelab2Client->get(ps, name);
+    _onelab2Client->recvfrom();
+#else
     _onelabClient->get(ps, name);
+#endif
     if(ps.size() && ps[0].getValue().size()){
       *val = strSave(ps[0].getValue().c_str());
       return;
@@ -768,9 +919,18 @@ void Message::GetOnelabString(std::string name, char **val)
 
 std::string Message::GetOnelabAction()
 {
+#ifdef HAVE_ONELAB2
+  if(_onelab2Client){
+#else
   if(_onelabClient){
+#endif
     std::vector<onelab::string> ps;
+#ifdef HAVE_ONELAB2
+    _onelab2Client->get(ps, ((VirtualClient *)_onelab2Client)->getName() + "/Action");
+    _onelab2Client->recvfrom();
+#else
     _onelabClient->get(ps, _onelabClient->getName() + "/Action");
+#endif
     if(ps.size()) return ps[0].getValue();
   }
   return "";
@@ -778,7 +938,11 @@ std::string Message::GetOnelabAction()
 
 std::string Message::GetOnelabClientName()
 {
+#ifdef HAVE_ONELAB2
+  return (_onelab2Client)?((VirtualClient *)_onelab2Client)->getName():"";
+#else
   if(_onelabClient) return _onelabClient->getName();
+#endif
   return "";
 }
 
@@ -824,7 +988,11 @@ static void _setStandardOptions(onelab::parameter *p, Message::fmap &fopt,
 
 void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
 {
+#ifdef HAVE_ONELAB2
+  if(!_onelab2Client) return;
+#else
   if(!_onelabClient) return;
+#endif
 
   std::string name;
   if(copt.count("Name"))
@@ -840,14 +1008,18 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
 
   if(c->Type == VAR_FLOAT){
     std::vector<onelab::number> ps;
+#ifdef HAVE_ONELAB2
+    _onelab2Client->get(ps, name);
+#else
     _onelabClient->get(ps, name);
+#endif
     bool noRange = true, noChoices = true, noLoop = true;
     bool noGraph = true, noClosed = true;
     if(ps.size()){
       if(fopt.count("ReadOnly") && fopt["ReadOnly"][0])
         ps[0].setValue(c->Value.Float); // use local value
       else
-	c->Value.Float = ps[0].getValue(); // use value from server
+	      c->Value.Float = ps[0].getValue(); // use value from server
       // keep track of these attributes, which can be changed server-side
       // (unless they are not visible, or, for the range/choices, when
       // explicitely setting these attributes as ReadOnly)
@@ -920,11 +1092,19 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
     if(noClosed && fopt.count("Closed"))
       ps[0].setAttribute("Closed", fopt["Closed"][0] ? "1" : "0");
     _setStandardOptions(&ps[0], fopt, copt);
+#ifdef HAVE_ONELAB2
+    _onelab2Client->set(ps[0]);
+#else
     _onelabClient->set(ps[0]);
+#endif
   }
   else if(c->Type == VAR_CHAR){
     std::vector<onelab::string> ps;
+#ifdef HAVE_ONELAB2
+    _onelab2Client->get(ps, name);
+#else
     _onelabClient->get(ps, name);
+#endif
     bool noClosed = true, noMultipleSelection = true;
     if(ps.size()){
       if(fopt.count("ReadOnly") && fopt["ReadOnly"][0])
@@ -953,7 +1133,11 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
     if(noMultipleSelection && copt.count("MultipleSelection"))
       ps[0].setAttribute("MultipleSelection", copt["MultipleSelection"][0]);
     _setStandardOptions(&ps[0], fopt, copt);
+#ifdef HAVE_ONELAB2
+    _onelab2Client->set(ps[0]);
+#else
     _onelabClient->set(ps[0]);
+#endif
   }
 }
 
@@ -1056,6 +1240,35 @@ void Message::UndefineOnelabParameter(const std::string &name)
 
 void Message::FinalizeOnelab()
 {
+#ifdef HAVE_ONELAB2
+  if(_onelab2Client){
+    // add default computation modes
+    std::string name = ((VirtualClient *)_onelab2Client)->getName();
+    std::vector<onelab::string> ps;
+    _onelab2Client->get(ps, name + "/Action");
+    if(ps.size()){
+      if(ps[0].getValue() != "initialize"){
+        _onelab2Client->get(ps, name + "/9ComputeCommand");
+        if(ps.empty()){ // only change value if none exists
+          ps.resize(1);
+          ps[0].setName(name + "/9ComputeCommand");
+          ps[0].setValue("-solve -pos");
+        }
+        ps[0].setLabel("Compute command");
+        std::vector<std::string> choices;
+        choices.push_back("-pre");
+        choices.push_back("-cal");
+        choices.push_back("-pos");
+        choices.push_back("-solve");
+        choices.push_back("-solve -pos");
+        ps[0].setChoices(choices);
+        _onelab2Client->set(ps[0]);
+      }
+    }
+    _onelab2Client->disconnect(true);
+    delete _onelab2Client;
+    _onelab2Client = 0;
+#else
   if(_onelabClient){
     // add default computation modes
     std::string name = _onelabClient->getName();
@@ -1082,6 +1295,7 @@ void Message::FinalizeOnelab()
     }
     delete _onelabClient;
     _onelabClient = 0;
+#endif
   }
 }
 
@@ -1093,6 +1307,72 @@ void Message::Barrier()
   }
 #endif
 }
+/*
+#if defined(HAVE_ONELAB2)
+#ifndef WIN32
+void *onelabclient_listen(void *arg)
+#else
+DWORD WINAPI onelabclient_listen(LPVOID arg)
+#endif
+{
+  if(!arg) return NULL;
+
+  OnelabNetworkClient *cli = (OnelabNetworkClient *)arg;
+  OnelabProtocol msg(-1);
+  while(1) {
+    int recvlen = cli->recvfrom(msg);
+msg.showMsg();
+    if(recvlen <= 0) { // server probably quit (e.g. crash)
+      char *ret = (char *)malloc(sizeof(char));
+      *ret='s';
+      return ret;
+    }
+
+    switch(msg.msgType()) {
+      case OnelabProtocol::OnelabStop:
+      {
+        std::clog << "\033[0;35m" << "Client is going to stop" << "\033[0;0m" << std::endl;
+        char *ret = (char *)malloc(sizeof(char));
+        *ret='s';
+        return ret;
+      }
+      case OnelabProtocol::OnelabMessage:
+        //Msg::Info("Message from onelab"); // TODO
+        break;
+      case OnelabProtocol::OnelabResponse:
+      case OnelabProtocol::OnelabUpdate:
+        std::clog << "\033[0;35m" << "Update parameters on client (" << msg.attrs.size() << "):" << "\033[0;0m" << std::endl;
+        for(std::vector<OnelabAttr *>::iterator it = msg.attrs.begin() ; it != msg.attrs.end(); ++it) {
+          std::clog << "\033[0;35m" << "  - " << ((onelab::parameter *)(*it))->getName() << "\033[0;0m" << std::endl;
+          if((*it)->getAttributeType() == OnelabAttr::Number) {
+            onelab::number *attr = (onelab::number *)*it;
+            cli->set(*attr, false);
+          }
+          else if((*it)->getAttributeType() == OnelabAttr::String) {
+            onelab::string *attr = (onelab::string *)*it;
+            cli->set(*attr, false);
+          }
+          else if((*it)->getAttributeType() == OnelabAttr::Region) {
+            onelab::region *attr = (onelab::region *)*it;
+            cli->set(*attr, false);
+          }
+          else if((*it)->getAttributeType() == OnelabAttr::Function) {
+            onelab::function *attr = (onelab::function *)*it;
+            cli->set(*attr, false);
+          }
+        }
+        break;
+      case OnelabProtocol::OnelabAction:
+      {
+        std::clog << "\033[0;35m" << "Client have to perform an action" << "\033[0;0m" << std::endl;
+        return NULL;
+        break;
+      }
+
+    }
+  }
+}
+#endif*/
 
 #if defined(_OPENMP)
 

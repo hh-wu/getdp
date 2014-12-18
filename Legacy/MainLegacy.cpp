@@ -140,28 +140,28 @@ static void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *
       else if (!strcmp(argv[i]+1, "split"))  { Flag_SPLIT   = 1; i++; }
 
       else if (!strcmp(argv[i]+1, "socket")) {
-	i++;
-	if (i < argc && argv[i][0] != '-') {
-	  Message::InitializeSocket(argv[i]); i++;
-	}
-	else {
-	  Message::Error("Missing socket name");
-	}
+        i++;
+        if (i < argc && argv[i][0] != '-') {
+          Message::InitializeSocket(argv[i]); i++;
+        }
+        else {
+          Message::Error("Missing socket name");
+        }
       }
 
       else if (!strcmp(argv[i]+1, "onelab")) {
         i++;
-	if (i + 1 < argc && argv[i][0] != '-' && argv[i + 1][0] != '-') {
-	  Message::InitializeOnelab(argv[i], argv[i + 1]);
+        if (i + 1 < argc && argv[i][0] != '-' && argv[i + 1][0] != '-') {
+          Message::InitializeOnelab(argv[i], argv[i + 1]);
           i += 2;
-	}
-	else if (i < argc && argv[i][0] != '-') {
-	  Message::InitializeOnelab(argv[i], "");
+	      }
+        else if (i < argc && argv[i][0] != '-') {
+          Message::InitializeOnelab(argv[i], "");
           i += 1;
-	}
-	else {
-	  Message::Error("Missing client name and/or address of ONELAB server");
-	}
+	      }
+	      else {
+	        Message::Error("Missing client name and/or address of ONELAB server");
+	      }
       }
 
       else if (!strcmp(argv[i]+1, "setnumber")) {
@@ -485,7 +485,6 @@ int MainLegacy(int argc, char *argv[])
     Message::Finalize();
     return Message::GetErrorCount();
   }
-
   Message::Info("Running '%s' [GetDP %s, %d node%s]", cmdline.c_str(),
                 GETDP_VERSION, Message::GetCommSize(),
                 Message::GetCommSize() > 1 ? "s" : "");

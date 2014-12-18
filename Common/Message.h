@@ -16,6 +16,9 @@ namespace onelab{ class client; }
 struct Constant;
 struct Expression;
 struct Group;
+#ifdef HAVE_ONELAB2
+class OnelabNetworkClient;
+#endif
 
 // a class to manage messages
 class Message {
@@ -40,6 +43,9 @@ class Message {
   static GmshClient *_client;
   // communication with onelab server
   static onelab::client *_onelabClient;
+#ifdef HAVE_ONELAB2 // TODO replace _onelabClient
+  static OnelabNetworkClient *_onelab2Client;
+#endif
  public:
   Message() {}
   static void Initialize(int argc, char **argv);
@@ -92,7 +98,11 @@ class Message {
   static void TestSocket();
   static void InitializeOnelab(std::string name, std::string sockname);
   static void FinalizeOnelab();
+#ifdef HAVE_ONELAB2
+  static bool UseOnelab(){ return true; }
+#else
   static bool UseOnelab(){ return _onelabClient ? true : false; }
+#endif
   static std::string GetOnelabClientName();
   static void GetOnelabString(std::string name, char **val);
   static std::string GetOnelabAction();
