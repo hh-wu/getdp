@@ -7,7 +7,7 @@ mesoProFile    = "meso_dyn.pro"
 parallel       = True
 cellSize       = 50e-6
 numPoints      = 16
-numOfProcesses = 10
+numOfProcesses = 12
 
 # Create the object of type 'hmm_mesoscale_computations' 
 thisMesoComp = hmm_mesoscale_computations(cellSize, mesoMeshFile, mesoProFile, parallel, numOfProcesses)

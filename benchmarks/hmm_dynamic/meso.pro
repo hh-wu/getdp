@@ -24,8 +24,9 @@ Function {
 
   aM[]            = Vector[AX, AY, AZ];
   bM[]            = Vector[BX, BY, BZ];
-  eM[]            = Vector[0.0, 0.0, 0.0];
-  //eM[]            = Vector[EX, EY, EZ];
+  //eM[]            = Vector[0.0, 0.0, 0.0];
+  eM[]            = Vector[EX, EY, EZ];
+  //dt_bM[]         = Vector[0.0, 0.0, 0.0];
   dt_bM[]         = Vector[dt_BX, dt_BY, dt_BZ];
   XYZ_Gauss[]     = Vector[X_Gauss, Y_Gauss, Z_Gauss];
 
@@ -42,7 +43,7 @@ Function {
   T               = 1.0/Freq;
   t0              = 0.0;
   ti              = currentTime;
-  NbSteps         = 100;
+  //NbSteps         = 100;
   dt              = T/NbSteps ;
   theta_value     = 1;
   tf              = ti + dt;
@@ -80,7 +81,7 @@ Function {
     nu_ML[Omega_NL]   = gamma + alpha * Exp[beta*$1] ;
     dnudb2[]          = alpha * beta* Exp[beta*$1] ;
     nu[Omega_L]       = 1./mu0                ;
-    nu[Omega_NL]      = nu_ML[SquNorm[$1]]     ;
+    nu[Omega_NL]      = TensorDiag[1., 1., 1.] * nu_ML[SquNorm[$1]]     ;
     dhdb[Omega_NL]    = nu[SquNorm[$1]] * TensorDiag[1., 1., 1.] + 2 * dnudb2[SquNorm[$1]] * SquDyadicProduct[$1] ;
     dhdb_NL[Omega_NL] = 2 * dnudb2[SquNorm[$1]] * SquDyadicProduct[$1] ;
   EndIf
@@ -187,20 +188,20 @@ Formulation {
       { Name U  ; Type Global ; NameOfSpace Hregion_u_2D~{iP}[U] ; }
     }
     Equation {
-      Galerkin { [ nu[ {d a} + bM[]+Pert~{iP}[] ] * Dof{d a} , {d a} ]   ;   In Omega; Jacobian Vol; Integration II; }
-      Galerkin { [ nu[ {d a} + bM[]+Pert~{iP}[] ] * bM[], {d a} ]      ;   In Omega; Jacobian Vol; Integration II; }
-      Galerkin { [ nu[ {d a} + bM[]+Pert~{iP}[] ] * Pert~{iP}[] , {d a} ];   In Omega; Jacobian Vol; Integration II; }
-      Galerkin { JacNL[ dhdb_NL[{d a} + bM[] + Pert~{iP}[] ] * Dof{d a}, {d a} ]; In Omega_NL; Jacobian Vol; Integration II; }
+      Galerkin { [ nu[ {d a} + bM[] + Pert~{iP}[] ] * Dof{d a}    , {d a} ]; In Omega; Jacobian Vol; Integration II; }
+      Galerkin { [ nu[ {d a} + bM[] + Pert~{iP}[] ] * bM[]        , {d a} ]; In Omega; Jacobian Vol; Integration II; }
+      Galerkin { [ nu[ {d a} + bM[] + Pert~{iP}[] ] * Pert~{iP}[] , {d a} ]; In Omega; Jacobian Vol; Integration II; }
+      Galerkin { JacNL[ dhdb_NL[ {d a} + bM[] + Pert~{iP}[] ] * Dof{d a}, {d a} ]; In Omega_NL; Jacobian Vol; Integration II; }
 
-      Galerkin { DtDof[ sigma[] * Dof{a} , {a} ] ; In Omega_C; Jacobian Vol; Integration II; }
-      Galerkin { [   sigma[] * Dof{ur}      , {a} ]  ; In Omega_C; Jacobian Vol; Integration II; }
-      Galerkin { [ - sigma[] * eM[] , {a} ]; In Omega_C; Jacobian Vol; Integration II; }
+      Galerkin { DtDof[ sigma[] * Dof{a} , {a} ]; In Omega_C; Jacobian Vol; Integration II; }
+      Galerkin { [   sigma[] * Dof{ur}   , {a} ]; In Omega_C; Jacobian Vol; Integration II; }
+      Galerkin { [ - sigma[] * eM[]      , {a} ]; In Omega_C; Jacobian Vol; Integration II; }
       Galerkin { [   sigma[] * ( factor * dt_bM[] /\ (XYZ[] - XYZ_Gauss[]) ) , {a} ]; In Omega_C; Jacobian Vol; Integration II; }
       
-      Galerkin { DtDof [ sigma[] * Dof{a} , {ur} ]; In Omega_C ; Jacobian Vol; Integration II ; }
-      Galerkin { [   sigma[] * Dof{ur}      , {ur} ]; In Omega_C ; Jacobian Vol ; Integration II ; }  
-      Galerkin { [ - sigma[] * eM[] , {ur} ]; In Omega_C; Jacobian Vol; Integration II; }  
-      Galerkin { [   sigma[] * ( factor * dt_bM[] /\ (XYZ[]-XYZ_Gauss[]) ) , {ur} ]; In Omega_C; Jacobian Vol; Integration II; }  
+      Galerkin { DtDof [ sigma[] * Dof{a} , {ur} ]; In Omega_C; Jacobian Vol; Integration II; }
+      Galerkin { [   sigma[] * Dof{ur}    , {ur} ]; In Omega_C; Jacobian Vol; Integration II; }  
+      Galerkin { [ - sigma[] * eM[]       , {ur} ]; In Omega_C; Jacobian Vol; Integration II; }  
+      Galerkin { [   sigma[] * ( factor * dt_bM[] /\ (XYZ[] - XYZ_Gauss[]) ) , {ur} ]; In Omega_C; Jacobian Vol; Integration II; }  
       GlobalTerm { [ Dof{I}               , {U}  ]; In Omega_C ; } 
     }
   }

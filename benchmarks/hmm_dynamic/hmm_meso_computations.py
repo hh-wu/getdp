@@ -136,8 +136,6 @@ class hmm_mesoscale_computations:
 
 
     def generateMeshForExactFields(self, verbosity):
-        args_ML = "gmsh -v " + str(verbosity) + " meso.geo -3 -o meso.msh"
-        os.system(args_ML)
         keys = self.DictOfPointsForLocalComputations.keys()
         keys.sort()
         print "Start meshing mesoscale domains used for local cuts..."
@@ -158,9 +156,11 @@ class hmm_mesoscale_computations:
             args = "gmsh -v " + str(verbosity) + " meso.geo -3 -o hmm_meso_mesh/meso_" + str(key) + ".msh"
             os.system(args)
         fp = open("hmm_meso_geometry_exact.dat", "w")
-        S  = "Flag_Exact = "  + str(0) + "; \n" 
+        s  = "Flag_Exact = "  + str(0) + "; \n" 
         fp.write(s)
         fp.close()
+        args_ML = "gmsh -v " + str(verbosity) + " meso.geo -3 -o meso.msh"
+        os.system(args_ML) 
         print "End meshing mesoscale domains used for local cuts..." 
 
     def computeMesoFieldsForPointsOfDict_LocalComp_Sta(self):
@@ -231,7 +231,7 @@ class hmm_mesoscale_computations:
             for key in keys[lower_bound : upper_bound]:
                 print '... Start solving for the mesoscale problems numbered ' + str(key)                
                 print '... Lower bound is ' + str(lower_bound) + ' and upper bound is ' + str(upper_bound)                 
-                if (Flag_Exact):
+                if (Flag_Exact != 0):
                     args = ["../../build/getdp", "meso", "-v", "2", 
                             "-msh", "hmm_meso_mesh/meso_" + str(key) + ".msh",
                             "-solve", "a_NR", 
@@ -251,9 +251,12 @@ class hmm_mesoscale_computations:
                             "-setnumber", "currentTime", str(self.CurrentTime),
                             "-setnumber", "currentTimeStep", str(self.CurrentTimeStep),
                             "-setnumber", "ELENUM", str(key),
-                            "-setnumber", "Position_X", str(self.getPosition_X(key)),
-                            "-setnumber", "Position_Y", str(self.getPosition_Y(key)),
-                            "-setnumber", "Position_Z", str(self.getPosition_Z(key))]
+                            #"-setnumber", "Position_X", str(self.getPosition_X(key)),
+                            #"-setnumber", "Position_Y", str(self.getPosition_Y(key)),
+                            #"-setnumber", "Position_Z", str(self.getPosition_Z(key)),
+                            "-setnumber", "X_Gauss", str(self.getPosition_X(key)),
+                            "-setnumber", "Y_Gauss", str(self.getPosition_Y(key)),
+                            "-setnumber", "Z_Gauss", str(self.getPosition_Z(key))]
                 else:
                     args = ["../../build/getdp", "meso", "-v", "2",
                             "-msh", "meso.msh",

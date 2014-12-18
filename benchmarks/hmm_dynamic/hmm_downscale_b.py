@@ -80,3 +80,4 @@ else:
     currentTimeStep = thisMesoComp.getCurrentTimeStep()
     #thisMesoComp.addLine2DictOfDownScaledFields_Dyn_LocalComp_av_formulation(elenum, ax, ay, az, bx, by, bz, ex, ey, ez, dt_bx, dt_by, dt_bz)
     thisMesoComp.addLine2DictOfDownScaledFields_Dyn_av_LocalComputations(elenum, ax, ay, az, bx, by, bz, ex, ey, ez, dt_bx, dt_by, dt_bz)
+    thisMesoComp.printDictOfDownScaledFieldsForLocalComputations()

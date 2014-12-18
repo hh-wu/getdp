@@ -12,7 +12,7 @@ If (Flag_Dyn == 0)
   Dir_Meso       = "hmm_sta_meso/";
 EndIf
 If (Flag_Dyn != 0)
-  Freq           = 5e4;
+  Freq           = 50000;
 Dir_Macro      = "hmm_dyn_macro/";
 Dir_Meso_Comp  = "hmm_dyn_meso_comp/";
 Dir_Meso       = "hmm_dyn_meso/";

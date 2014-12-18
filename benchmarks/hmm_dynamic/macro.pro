@@ -61,7 +61,9 @@ Function {
 
   // Imposing the source
   //====================
-  Ns[Domain_S]        = -Source_Amplitude;
+    Freq                = 50000;
+  Source_Amplitude    = 50e8;
+  Ns[Domain_S]        = Source_Amplitude;
   js0[]               = Ns[] * Vector[0., 0., 1.] ;
   js[]                = js0[] * F_Sin_wt_p[]{2 * Pi * Freq, 0.};
 
@@ -71,7 +73,8 @@ Function {
   Omega               = 2 * Pi * Freq;
   NbT                 = 1./2.;
   time0               = 0. ; 
-  timemax             = T * NbT ; 
+  timemax             = T * NbT ;
+  NbSteps             = 100;
   dtime               = T/NbSteps ;
   theta_value         = 1;
   verbosity_mesh      = 2;

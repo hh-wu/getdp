@@ -4,7 +4,7 @@ Include "hmm_meso_geometry_exact.dat";
 lx          = e;   // length of the cell
 ly          = lx;       //  
 lc_ext      = LX/200.0; // characteristic length for points in the insulator
-lc_int      = LX/200.0; // characteristic length for points in the conductor
+lc_int      = LX/300.0; // characteristic length for points in the conductor
 r_c         = 5.e-6;    // radius of the chamfer
 d_i         = 2.5e-6;    // thickness of the insulator
 eps         = e;        // thickness of the SMC grain
