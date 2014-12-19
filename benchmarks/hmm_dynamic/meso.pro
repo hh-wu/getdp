@@ -53,12 +53,12 @@ Function {
   a_macro[]       = Vector[ 0., 0., ScalarField[XYZ[]]{1}] ;
 
   //If (!CML) 
-  //  a_tprevious[]   = (currentTimeStep==1) ? Vector[0.,0.,0.] : Vector[ 0., 0., ScalarField[XYZ[]]{0}##98765] ;
+  //a_tprevious[]   = (currentTimeStep==1) ? Vector[0.,0.,0.] : Vector[ 0., 0., ScalarField[XYZ[]]{0}##98765] ;
   //EndIf
-  //If (CML)
+  //If (!CML)
   a_tprevious[]   = (currentTimeStep==1) ? Vector[0.,0.,0.] : Vector[ 0., 0., ScalarField[XYZ[]]{0}] ;
   //EndIf 
-    
+  
   // Parameters for the electric linear law
   //=======================================
   sigmaIron     = 5.e6;
@@ -238,7 +238,6 @@ Resolution {
          Generate[AH~{iP}]; Solve[AH~{iP}]; TransferSolution[AH~{iP}];
        EndIf
        If(currentTimeStep != 1)
-         Printf("Komeraaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa = %g", currentTimeStep);
          GmshRead[StrCat(Dir_Meso_Comp, Sprintf("a_pert_Prob1_TS%g_Elenum%g.pos", (currentTimeStep-1), ELENUM) ) ];
          Generate[AH~{iP}]; Solve[AH~{iP}]; TransferSolution[AH~{iP}];
        EndIf
