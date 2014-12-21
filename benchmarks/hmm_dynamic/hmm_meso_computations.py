@@ -185,7 +185,7 @@ class hmm_mesoscale_computations:
             else:
                 upper_bound = (iP+1)*self.numOfProcesses
             for key in keys[lower_bound : upper_bound]:
-                args = ["../../build/getdp", "meso.pro", "-v", "0", 
+                args = ["../../bin/getdp", "meso.pro", 
                         "-msh", "hmm_meso_mesh/meso_" + str(key[0]) + ".msh",
                         "-solve", "a_NR", 
                         "-pos", "map_field_1", 

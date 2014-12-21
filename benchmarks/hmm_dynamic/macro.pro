@@ -4,7 +4,7 @@ Include "ListOfPoints.pro";
 //=================================================================
 
 SymmetryFactor  = 4 ;
-AxialLength     = 1; 
+AxialLength     = 1;
 N               = n_smc * n_smc;
 
 Group {
@@ -12,7 +12,7 @@ Group {
   Air           = Region[ AIR ];
   Inductor      = Region[ {INDUCTOR} ] ;
   Infinity      = Region[ {OMEGA_INF} ] ;
-  
+
   Domain_S      = Region[ {Inductor} ] ;
   Domain_Inf    = Region[ {Infinity} ] ;
   Domain_NL     = Region[ {Core} ] ;
@@ -37,22 +37,22 @@ Function {
 
   // Example of analytical nonlinear law
   //====================================
-  aa            = 388; 
-  bb            = 0.3774; 
+  aa            = 388;
+  bb            = 0.3774;
   cc            = 2.97;
   nu_1a[]       = aa + bb * Exp[cc*SquNorm[$1]] ;
   dnudb2_1a[]   = bb *cc* Exp[cc*SquNorm[$1]] ;
   h_1a[]        = nu_1a[$1#1] * #1 ;
   dhdb_1a[]     = TensorDiag[1., 1., 1.] * nu_1a[$1#1] + 2*dnudb2_1a[#1] * SquDyadicProduct[#1]  ;
   dhdb_1a_NL[]  = 2*dnudb2_1a[$1#1] * SquDyadicProduct[#1]  ;
-  
+
   If(Flag_NL == 0)
     nu[Domain_NL] = nuIron ;
     h[]           = nuIron * $1 ;
     dhdb[]        = TensorDiag[1., 1., 1.] * nuIron ;
     dhdb_NL[]     = TensorDiag[0., 0., 0.] ;
-  EndIf  
-  If (Flag_NL != 0) 
+  EndIf
+  If (Flag_NL != 0)
     h[Domain_NL]       = h_1a[$1];
     dhdb[Domain_NL]    = dhdb_1a[$1];
     nu[Domain_NL]      = nu_1a[$1];
@@ -67,7 +67,7 @@ Function {
   js0[]               = Ns[] * Vector[0., 0., 1.] ;
   js[]                = js0[] * F_Sin_wt_p[]{2 * Pi * Freq, 0.};
 
-  // Defining temporal parameters of the problem 
+  // Defining temporal parameters of the problem
   //============================================
   T                   = 1./Freq;
   Omega               = 2 * Pi * Freq;
@@ -78,7 +78,7 @@ Function {
   dtime               = T/NbSteps ;
   theta_value         = 1;
   verbosity_mesh      = 0;
-  
+
   // Defining criteria for the convergence of the scheme
   //====================================================
   Nb_max_iter         = 15;
@@ -166,7 +166,7 @@ Formulation {
     }
     Equation {
       Galerkin { [ Dof{d a_dummy} , {d a_dummy} ] ; In Domain ; Jacobian JVol ; Integration I1 ; }
-      Galerkin { [ Python[ElementNum[], QuadraturePointIndex[], CompX[{a}], CompY[{a}], CompZ[{a}], CompX[{d a}], CompY[{d a}], CompZ[{d a}], CompX[-Dt[{a}]], CompY[-Dt[{a}]], CompZ[-Dt[{a}]], CompX[Dt[{d a}] ], CompY[Dt[{d a}] ], CompZ[Dt[{d a}]], $Time, $TimeStep ]{"hmm_downscale_b.py"} * Dof{d a_dummy} , {d a_dummy} ] ;
+      Galerkin { [ Python[ElementNum[], QuadraturePointIndex[], CompX[{a}], CompY[{a}], CompZ[{a}], CompX[{d a}], CompY[{d a}], CompZ[{d a}], CompX[-Dt[{a}]], CompY[-Dt[{a}]], CompZ[-Dt[{a}]], CompX[Dt[{d a}]##12345 ], CompY[Dt[{d a}] ], CompZ[Dt[{d a}]], $Time, $TimeStep##123456 ]{"hmm_downscale_b.py"} * Dof{d a_dummy} , {d a_dummy} ] ;
         In Domain_NL ; Jacobian JVol ; Integration I1 ; }
     }
   }
@@ -222,8 +222,8 @@ Resolution {
       For iP In {1:numPoints}
         proNum = data_num~{iP}; pointX = Position_X~{iP}; pointY = Position_Y~{iP}; pointZ = 0.0;
         Evaluate[ Python[proNum, pointX, pointY, pointZ]{"hmm_meso_addpoints.py"} ];
-      EndFor  
-      Evaluate[ Python[verbosity_mesh]{"hmm_meso_mesh.py"} ];        
+      EndFor
+      Evaluate[ Python[verbosity_mesh]{"hmm_meso_mesh.py"} ];
       //===================================================
       // End: part of the code for solving local solution
       //===================================================
@@ -243,7 +243,7 @@ Resolution {
         For iP In {1:numPoints}
           thisNum = data_num~{iP};
           Evaluate[ Python[thisNum, -1]{"hmm_downscale_b.py"} ];
-        EndFor                 
+        EndFor
         Evaluate[ Python[0]{"hmm_compute_meso.py"} ];
         //=================================================
         // End: part of the code for solving local solution
@@ -323,7 +323,7 @@ PostOperation {
       Print[ h, OnLine{ {175e-6, 0., 0.}{175e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Macro, StrCat[Sprintf["h_hmm_macro_cut2_TS%g", TS], ExtData ] ], TimeStep{TS} ];
       Print[ h, OnLine{ {325e-6, 0., 0.}{325e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Macro, StrCat[Sprintf["h_hmm_macro_cut3_TS%g", TS], ExtData ] ], TimeStep{TS} ];
       Print[ h, OnLine{ {475e-6, 0., 0.}{475e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Macro, StrCat[Sprintf["h_hmm_macro_cut4_TS%g", TS], ExtData ] ], TimeStep{TS} ];
-      
+
       Print[ e, OnLine{ {25e-6 , 0., 0.}{25e-6 , 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Macro, StrCat[Sprintf["e_hmm_macro_cut1_TS%g", TS], ExtData ] ], TimeStep{TS} ];
       Print[ e, OnLine{ {175e-6, 0., 0.}{175e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Macro, StrCat[Sprintf["e_hmm_macro_cut2_TS%g", TS], ExtData ] ], TimeStep{TS} ];
       Print[ e, OnLine{ {325e-6, 0., 0.}{325e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Macro, StrCat[Sprintf["e_hmm_macro_cut3_TS%g", TS], ExtData ] ], TimeStep{TS} ];
@@ -338,7 +338,7 @@ PostOperation {
       For iP In {1:numPoints}
       Print[a   , OnPoint{Position_X~{iP}, Position_Y~{iP}, 0.0}, Format Table, File StrCat[Dir_Meso_Comp, StrCat[Sprintf("a_hmm_macro_cut%g", data_num~{iP}), ".txt"]], LastTimeStepOnly];
       Print[b   , OnPoint{Position_X~{iP}, Position_Y~{iP}, 0.0}, Format Table, File StrCat[Dir_Meso_Comp, StrCat[Sprintf("b_hmm_macro_cut%g", data_num~{iP}), ".txt"]], LastTimeStepOnly];
-      Print[e   , OnPoint{Position_X~{iP}, Position_Y~{iP}, 0.0}, Format Table, File StrCat[Dir_Meso_Comp, StrCat[Sprintf("e_hmm_macro_cut%g", data_num~{iP}), ".txt"]], LastTimeStepOnly]; 
+      Print[e   , OnPoint{Position_X~{iP}, Position_Y~{iP}, 0.0}, Format Table, File StrCat[Dir_Meso_Comp, StrCat[Sprintf("e_hmm_macro_cut%g", data_num~{iP}), ".txt"]], LastTimeStepOnly];
       Print[dt_b, OnPoint{Position_X~{iP}, Position_Y~{iP}, 0.0}, Format Table, File StrCat[Dir_Meso_Comp, StrCat[Sprintf("dt_b_hmm_macro_cut%g", data_num~{iP}), ".txt"]], LastTimeStepOnly];
       EndFor
     }
