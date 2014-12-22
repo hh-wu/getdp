@@ -263,8 +263,9 @@ void Inv_TensorSym3x3_K (int dim, double T[6], double invT[6]);
 
 void F_b_Vinch_K(F_ARG);
 void F_h_Vinch_K(F_ARG);
-void F_nu_Vinch_K(F_ARG);
+void F_dbdh_Vinch_K(F_ARG);
 void F_dhdb_Vinch_K(F_ARG);
+void F_nu_Vinch_K(F_ARG);
 
 /* F_MultiHar */
 

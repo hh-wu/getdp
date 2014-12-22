@@ -747,7 +747,7 @@ void F_dhdb_Vinch(F_ARG)
 bool limiter(const double Js, double v[3])
 {
   
-  double max = 0.999*Js ; //0.9999 // SENSITIVE_PARAM
+  double max = 0.999*Js ; //0.9999 // SENSITIVE_PARAM (0.999)
   double mod = norm(v);
   if(mod >= max){
     
@@ -1000,7 +1000,7 @@ void Vector_Update_Jk_sd_K(double h[3], double Jk[3], double Jkp[3], double chi,
   double min_Jk[3] ;
   double d_omega[3] ;
   double sdfactor  = 0.1; //suitable value of tol for most applications
-  double TOL = 1e-11; //11  SENSITIVE_PARAM
+  double TOL = 1e-11; //11  SENSITIVE_PARAM (1e-11)
 
 
   limiter(Js, Jk ); // avoiding possible NaN with atanh
@@ -1012,7 +1012,7 @@ void Vector_Update_Jk_sd_K(double h[3], double Jk[3], double Jkp[3], double chi,
   double min_omega = 1e+22 ;
 
   int iter = 0 ;
-  const int MAX_ITER = 700; // SENSITIVE_PARAM
+  const int MAX_ITER = 700; // SENSITIVE_PARAM (700)
   while( iter < MAX_ITER &&
          (fabs(d_omega[0])/(1+fabs(omega))*sdfactor > TOL ||
           fabs(d_omega[1])/(1+fabs(omega))*sdfactor > TOL ||
@@ -1153,8 +1153,8 @@ void Tensor_dJkdh_Vinch_K(int dim, double h[3], double Jk[3], double Jkp[3], dou
   }
   else{  // numerical Jacobian
     Message::Debug("Numerical Jacobian Js=%g, nJk=%g and ndJk=%g",Js,nJk, ndJk);
-    double EPSILON = 1 ;//-8  // SENSITIVE_PARAM
-    double delta0  = 1e-4 ;  // SENSITIVE_PARAM
+    double EPSILON = 1 ;//-8  // SENSITIVE_PARAM (1)
+    double delta0  = 1e-3 ;  // SENSITIVE_PARAM (1e-3)
 
     // Different following the different directions ??? TO CHECK
     double delta[3] = { (fabs(h[0])>EPSILON) ? (fabs(h[0])) * delta0 : delta0,
@@ -1271,50 +1271,6 @@ void Inv_TensorSym3x3_K(int dim, double T[6], double invT[6])
 
 }
 
-
-void F_b_Vinch_K(F_ARG)
-{
-  // #define F_ARG   struct Function * Fct, struct Value * A, struct Value * V
-  // input :
-  // (A+0)    ->Val = number of cells -- N
-  // (A+1)    ->Val = magnetic field  -- h
-  // (A+2)    ->Val = characteristic magnetic field inversely proportional to the slope at origin -- alpha
-  // (A+3+4*k)->Val = material magnetization -- Jk
-  // (A+4+4*k)->Val = material magnetization at previous time step -- Jkp
-  // (A+5+4*k)->Val = limit force related to the dissipation -- chi
-  // (A+6+4*k)->Val = saturation magnetization -- Js
-  // ---------------------------------------------
-  // output: magnetic induction -- b
-
-  double h[3], Jk[3], Jkp[3] ;
-  double b[3] ;
-  double chi, Js;
-
-  double N     = (A+0)->Val[0];
-  double alpha = (A+2)->Val[0];
-
-  for (int n=0; n<3; n++) {
-    h[n] = (A+1)->Val[n];
-    b[n] = MU0 * h[n];
-  }
-
-  for (int k=0; k<N; k++){
-    for (int n=0; n<3; n++)  {
-      Jk[n]  = (A+3+4*k)->Val[n];
-      Jkp[n] = (A+4+4*k)->Val[n];
-    }
-    chi  = (A+5+4*k)->Val[0];
-    Js   = (A+6+4*k)->Val[0];
-
-    Vector_Update_Jk_sd_K(h, Jk, Jkp, chi, Js, alpha);
-    for (int n=0; n<3; n++)
-      b[n] += Jk[n];
-  }
-
-  V->Type = VECTOR ;
-  for (int n=0 ; n<3 ; n++) V->Val[n] = b[n];
-}
-
 void Vector_h_Vinch_K(int dim, int N, double b[3], double bc[3], double alpha,
                       double *Jk_all, double *Jkp_all, double *chi_all, double *Js_all, double h[3] )
 {
@@ -1323,7 +1279,7 @@ void Vector_h_Vinch_K(int dim, int N, double b[3], double bc[3], double alpha,
   double dbdh[6];
   double dhdb[6];
 
-  double TOL = 1e-7; //-8,-5  // SENSITIVE_PARAM
+  double TOL = 1e-7; //-8,-5  // SENSITIVE_PARAM (1e-7)
   double sumchi = 0. ;
 
   for (int n=0; n<3; n++)
@@ -1337,7 +1293,7 @@ void Vector_h_Vinch_K(int dim, int N, double b[3], double bc[3], double alpha,
   }
 
   int iter = 0 ;
-  const int MAX_ITER = 200;  // SENSITIVE_PARAM
+  const int MAX_ITER = 200;  // SENSITIVE_PARAM (200)
   while( iter < MAX_ITER &&
          ((fabs(tempbc[0]-b[0])/(1+fabs(b[0]))) > TOL ||
           (fabs(tempbc[1]-b[1])/(1+fabs(b[1]))) > TOL ||
@@ -1420,7 +1376,6 @@ void Vector_h_Vinch_K(int dim, int N, double b[3], double bc[3], double alpha,
 
 }
 
-
 void F_h_Vinch_K(F_ARG)
 {
   // #define F_ARG   struct Function * Fct, struct Value * A, struct Value * V
@@ -1462,6 +1417,129 @@ void F_h_Vinch_K(F_ARG)
 
   V->Type = VECTOR ;
   for (int n=0 ; n<3 ; n++) V->Val[n] = h[n];
+}
+
+void F_b_Vinch_K(F_ARG)
+{
+  // #define F_ARG   struct Function * Fct, struct Value * A, struct Value * V
+  // input :
+  // (A+0)    ->Val = number of cells -- N
+  // (A+1)    ->Val = magnetic field  -- h
+  // (A+2)    ->Val = characteristic magnetic field inversely proportional to the slope at origin -- alpha
+  // (A+3+4*k)->Val = material magnetization -- Jk
+  // (A+4+4*k)->Val = material magnetization at previous time step -- Jkp
+  // (A+5+4*k)->Val = limit force related to the dissipation -- chi
+  // (A+6+4*k)->Val = saturation magnetization -- Js
+  // ---------------------------------------------
+  // output: magnetic induction -- b
+
+  double h[3], Jk[3], Jkp[3] ;
+  double b[3] ;
+
+  double N     = (A+0)->Val[0];
+  double alpha = (A+2)->Val[0];
+
+  for (int n=0; n<3; n++)
+    h[n] = (A+1)->Val[n];
+
+  for (int k=0; k<N; k++) {
+    chi_all[k]  =(A+5+4*k)->Val[0];
+    Js_all[k]   =(A+6+4*k)->Val[0];
+    for (int n=0; n<3; n++)  {
+      Jk_all[n+3*k]  = (A+3+4*k)->Val[n];
+      Jkp_all[n+3*k] = (A+4+4*k)->Val[n];
+    }
+  }
+
+  Vector_b_Vinch_K(N, h, alpha, Jk_all, Jkp_all, chi_all, Js_all, b)
+
+
+  V->Type = VECTOR ;
+  for (int n=0 ; n<3 ; n++) V->Val[n] = b[n];
+}
+
+
+void F_dbdh_Vinch_K(F_ARG)
+{
+  // #define F_ARG   struct Function * Fct, struct Value * A, struct Value * V
+  // input :
+  // Fct->Para[0] = 2=> 2D problem; 3=>3D problem
+  // (A+0)    ->Val = number of cells -- N
+  // (A+1)    ->Val = magnetic field -- h
+  // (A+2)    ->Val = characteristic magnetic field inversely proportional to the slope at origin -- alpha
+  // (A+3+4*k)->Val = material magnetization -- Jk
+  // (A+4+4*k)->Val = material magnetization at previous time step -- Jkp
+  // (A+5+4*k)->Val = limit force related to the dissipation -- chi
+  // (A+6+4*k)->Val = saturation magnetization -- Js
+  // ---------------------------------------------
+  // output: differential reluctivity -- dbdh
+
+  int dim = Fct->Para[0];
+  int N      = (A+0)->Val[0];
+  double alpha  = (A+2)->Val[0];
+
+  double h[3], Jk_all[3*N], Jkp_all[3*N], chi_all[N], Js_all[N] ;
+  double dbdh[6];
+
+  for (int n=0; n<3; n++)
+     h[n]  = (A+1)->Val[n];
+
+  for (int k=0; k<N; k++) {
+    chi_all[k]  =(A+5+4*k)->Val[0];
+    Js_all[k]   =(A+6+4*k)->Val[0];
+    for (int n=0; n<3; n++)  {
+      Jk_all[n+3*k]  = (A+3+4*k)->Val[n];
+      Jkp_all[n+3*k] = (A+4+4*k)->Val[n];
+    }
+  }
+
+  Tensor_dbdh_Vinch_K(dim, N, h, alpha, Jk_all, Jkp_all, chi_all, Js_all, dbdh);
+
+  V->Type = TENSOR_SYM ;
+  for (int k=0 ; k<6 ; k++)
+    V->Val[k] = dbdh[k] ;
+}
+
+void F_dhdb_Vinch_K(F_ARG)
+{
+  // #define F_ARG   struct Function * Fct, struct Value * A, struct Value * V
+  // input :
+  // Fct->Para[0] = 2=> 2D problem; 3=>3D problem
+  // (A+0)    ->Val = number of cells -- N
+  // (A+1)    ->Val = magnetic field -- h
+  // (A+2)    ->Val = characteristic magnetic field inversely proportional to the slope at origin -- alpha
+  // (A+3+4*k)->Val = material magnetization -- Jk
+  // (A+4+4*k)->Val = material magnetization at previous time step -- Jkp
+  // (A+5+4*k)->Val = limit force related to the dissipation -- chi
+  // (A+6+4*k)->Val = saturation magnetization -- Js
+  // ---------------------------------------------
+  // output: differential reluctivity -- dhdb
+
+  int dim = Fct->Para[0];
+  int N      = (A+0)->Val[0];
+  double alpha  = (A+2)->Val[0];
+
+  double h[3], Jk_all[3*N], Jkp_all[3*N], chi_all[N], Js_all[N] ;
+  double dbdh[6], dhdb[6];
+
+  for (int n=0; n<3; n++)
+     h[n]  = (A+1)->Val[n];
+
+  for (int k=0; k<N; k++) {
+    chi_all[k]  =(A+5+4*k)->Val[0];
+    Js_all[k]   =(A+6+4*k)->Val[0];
+    for (int n=0; n<3; n++)  {
+      Jk_all[n+3*k]  = (A+3+4*k)->Val[n];
+      Jkp_all[n+3*k] = (A+4+4*k)->Val[n];
+    }
+  }
+
+  Tensor_dbdh_Vinch_K(dim, N, h, alpha, Jk_all, Jkp_all, chi_all, Js_all, dbdh);
+  Inv_TensorSym3x3_K(dim, dbdh, dhdb); // dimension, T, invT
+
+  V->Type = TENSOR_SYM ;
+  for (int k=0 ; k<6 ; k++)
+    V->Val[k] = dhdb[k] ;
 }
 
 void F_nu_Vinch_K(F_ARG) // NOT USED
@@ -1508,46 +1586,4 @@ void F_nu_Vinch_K(F_ARG) // NOT USED
   V->Val[0] = (!b[0]) ? (1/(1e3*MU0)): h[0]/b[0]  ;  V->Val[1] = 0.0  ;  V->Val[2] = 0.0 ;
   V->Val[3] = (!b[1]) ? (1/(1e3*MU0)): h[1]/b[1]  ;  V->Val[4] = 0.0 ;
   V->Val[5] = (!b[2]) ? (1/(1e3*MU0)): h[2]/b[2]  ;
-}
-
-void F_dhdb_Vinch_K(F_ARG)
-{
-  // #define F_ARG   struct Function * Fct, struct Value * A, struct Value * V
-  // input :
-  // Fct->Para[0] = 2=> 2D problem; 3=>3D problem
-  // (A+0)    ->Val = number of cells -- N
-  // (A+1)    ->Val = magnetic field -- h
-  // (A+2)    ->Val = characteristic magnetic field inversely proportional to the slope at origin -- alpha
-  // (A+3+4*k)->Val = material magnetization -- Jk
-  // (A+4+4*k)->Val = material magnetization at previous time step -- Jkp
-  // (A+5+4*k)->Val = limit force related to the dissipation -- chi
-  // (A+6+4*k)->Val = saturation magnetization -- Js
-  // ---------------------------------------------
-  // output: differential reluctivity -- dhdb
-
-  int dim = Fct->Para[0];
-  int N      = (A+0)->Val[0];
-  double alpha  = (A+2)->Val[0];
-
-  double h[3], Jk_all[3*N], Jkp_all[3*N], chi_all[N], Js_all[N] ;
-  double dbdh[6], dhdb[6];
-
-  for (int n=0; n<3; n++)
-     h[n]  = (A+1)->Val[n];
-
-  for (int k=0; k<N; k++) {
-    chi_all[k]  =(A+5+4*k)->Val[0];
-    Js_all[k]   =(A+6+4*k)->Val[0];
-    for (int n=0; n<3; n++)  {
-      Jk_all[n+3*k]  = (A+3+4*k)->Val[n];
-      Jkp_all[n+3*k] = (A+4+4*k)->Val[n];
-    }
-  }
-
-  Tensor_dbdh_Vinch_K(dim, N, h, alpha, Jk_all, Jkp_all, chi_all, Js_all, dbdh);
-  Inv_TensorSym3x3_K(dim, dbdh, dhdb); // dimension, T, invT
-
-  V->Type = TENSOR_SYM ;
-  for (int k=0 ; k<6 ; k++)
-    V->Val[k] = dhdb[k] ;
 }
