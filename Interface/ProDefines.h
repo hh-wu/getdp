@@ -1046,9 +1046,9 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"dbdh_Vinch"            , (CAST)F_dbdh_Vinch            ,  -1,   3 },
   {"Update_Jk"             , (CAST)F_Update_Jk             ,  -1,   6 },
   {"Update_Jk_sd"          , (CAST)F_Update_Jk_sd          ,  -1,   6 },
-  {"b_Vinch_K"             , (CAST)F_h_Vinch_K             ,  -1,   15 },  // 3+3*4=15
+  {"b_Vinch_K"             , (CAST)F_b_Vinch_K             ,  -1,   15 },  // 3+3*4=15
   {"h_Vinch_K"             , (CAST)F_h_Vinch_K             ,   1,   17 },  // parameter is dimension {2},{3}, 5+3*4=17
-  {"dbdh_Vinch_K"          , (CAST)F_dhdb_Vinch_K          ,   1,   15 },  // parameter is dimension {2},{3}, 3+3*4=15
+  {"dbdh_Vinch_K"          , (CAST)F_dbdh_Vinch_K          ,   1,   15 },  // parameter is dimension {2},{3}, 3+3*4=15
   {"dhdb_Vinch_K"          , (CAST)F_dhdb_Vinch_K          ,   1,   15 },  // parameter is dimension {2},{3}, 3+3*4=15
   {"nu_Vinch_K"            , (CAST)F_nu_Vinch_K            ,   1,   17 },  // parameter is dimension {2},{3}, 5+3*4=17
 
