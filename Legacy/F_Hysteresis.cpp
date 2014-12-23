@@ -1433,10 +1433,10 @@ void F_b_Vinch_K(F_ARG)
   // ---------------------------------------------
   // output: magnetic induction -- b
 
-  double h[3], Jk[3], Jkp[3] ;
-  double b[3] ;
+  int N     = (A+0)->Val[0];
 
-  double N     = (A+0)->Val[0];
+  double h[3], b[3], Jk_all[3*N], Jkp_all[3*N], chi_all[N], Js_all[N] ;
+
   double alpha = (A+2)->Val[0];
 
   for (int n=0; n<3; n++)
@@ -1451,7 +1451,7 @@ void F_b_Vinch_K(F_ARG)
     }
   }
 
-  Vector_b_Vinch_K(N, h, alpha, Jk_all, Jkp_all, chi_all, Js_all, b)
+  Vector_b_Vinch_K(N, h, alpha, Jk_all, Jkp_all, chi_all, Js_all, b);
 
 
   V->Type = VECTOR ;
