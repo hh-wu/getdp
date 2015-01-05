@@ -41,8 +41,8 @@ Function {
   Pert~{3}[]      = epsilon * Vector[0.0, 1.0, 0.0];
 
   //Printf("AX = %g, AY = %g, AZ = %g, BX = %g, BY = %g, BZ = %g, EX = %g, EY = %g, EZ = %g, dt_BX = %g, dt_BY = %g, dt_BZ = %g, currentTime = %g, currentTimeStep = %g, Elenum = %g, X_Gauss = %g, Y_Gauss = %g, Z_Gauss = %G, CML = %g", AX, AY, AZ, BX, BY, BZ, EX, EY, EZ, dt_BX, dt_BY, dt_BZ, currentTime, currentTimeStep, ELENUM, X_Gauss, Y_Gauss, Z_Gauss, CML);
-    
-  
+
+
   T               = 1.0/Freq;
   t0              = 0.0;
   ti              = currentTime;
@@ -52,13 +52,13 @@ Function {
   tf              = ti + dt;
   a_macro[]       = Vector[ 0., 0., ScalarField[XYZ[]]{1}] ;
 
-  //If (!CML) 
-  //a_tprevious[]   = (currentTimeStep==1) ? Vector[0.,0.,0.] : Vector[ 0., 0., ScalarField[XYZ[]]{0}##98765] ;
+  //If (!CML)
+  //a_tprevious[]   = (currentTimeStep==1) ? Vector[0.,0.,0.] : Vector[ 0., 0., ScalarField[XYZ[]]{0}] ;
   //EndIf
   //If (!CML)
   a_tprevious[]   = (currentTimeStep==1) ? Vector[0.,0.,0.] : Vector[ 0., 0., ScalarField[XYZ[]]{0}] ;
-  //EndIf 
-  
+  //EndIf
+
   // Parameters for the electric linear law
   //=======================================
   sigmaIron     = 5.e6;
@@ -99,7 +99,7 @@ Function {
 Constraint {
 
 
-  
+
  { Name a_Micro ;
    Case {
      { Region GammaRight; Type Link; RegionRef GammaLeft;
@@ -211,7 +211,7 @@ Formulation {
       Galerkin { [   sigma[] * ( factor * dt_bM[] /\ (XYZ[] - XYZ_Gauss[]) ) , {a} ]; In Omega_C; Jacobian Vol; Integration II; }
 
       Galerkin { DtDof [ sigma[] * Dof{a} , {ur} ]; In Omega_C; Jacobian Vol; Integration II; }
-      Galerkin { [   sigma[] * Dof{ur}    , {ur} ]; In Omega_C; Jacobian Vol; Integration II; }  
+      Galerkin { [   sigma[] * Dof{ur}    , {ur} ]; In Omega_C; Jacobian Vol; Integration II; }
       Galerkin { [ - sigma[] * eM[]       , {ur} ]; In Omega_C; Jacobian Vol; Integration II; }
       //If (!CML)
       Galerkin { [   sigma[] * ( factor * dt_bM[] /\ ( (XYZ[]) - (XYZ_Gauss[]) )) , {ur} ]; In Omega_C; Jacobian Vol; Integration II; }
@@ -219,7 +219,7 @@ Formulation {
       //If (CML)
       //Galerkin { [   sigma[] * ( factor * dt_bM[] /\ (XYZ[] - XYZ_Gauss[]) ) , {ur} ]; In Omega_C; Jacobian Vol; Integration II; }
       //EndIf
-      GlobalTerm { [ Dof{I}               , {U}  ]; In Omega_C ; } 
+      GlobalTerm { [ Dof{I}               , {U}  ]; In Omega_C ; }
     }
   }
 EndFor
@@ -393,7 +393,8 @@ For iP In {1:Nbr_SubProblems}
  }
  { Name init_field~{iP} ; NameOfPostProcessing a_Micro_NR~{iP};
    Operation {
-     Print[ a_pert, OnElementsOf Omega, File StrCat[Dir_Meso_Comp, Sprintf("a_pert_Prob%g_TS%g_Elenum%g.pos", iP, currentTimeStep, ELENUM) ], Format Gmsh, LastTimeStepOnly ];
+     Print[ a_pert, OnElementsOf Omega, File StrCat[Dir_Meso_Comp, Sprintf("a_pert_Prob%g_TS%g_Elenum%g.pos", iP, currentTimeStep, ELENUM) ],
+            Format Gmsh, LastTimeStepOnly, OverrideTimeStepValue 0 ];
    }
  }
  EndFor

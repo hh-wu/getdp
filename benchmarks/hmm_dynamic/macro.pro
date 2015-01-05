@@ -72,7 +72,7 @@ Function {
   T                   = 1./Freq;
   Omega               = 2 * Pi * Freq;
   NbT                 = 1./2.;
-  time0               = 0. ; 
+  time0               = 0. ;
   timemax             = T * NbT ;
   //NbSteps             = 100;
   dtime               = T/NbSteps ;
@@ -166,7 +166,7 @@ Formulation {
     }
     Equation {
       Galerkin { [ Dof{d a_dummy} , {d a_dummy} ] ; In Domain ; Jacobian JVol ; Integration I1 ; }
-      Galerkin { [ Python[ElementNum[], QuadraturePointIndex[], CompX[{a}], CompY[{a}], CompZ[{a}], CompX[{d a}], CompY[{d a}], CompZ[{d a}], CompX[-Dt[{a}]], CompY[-Dt[{a}]], CompZ[-Dt[{a}]], CompX[Dt[{d a}]##12345 ], CompY[Dt[{d a}] ], CompZ[Dt[{d a}]], $Time, $TimeStep##123456 ]{"hmm_downscale_b.py"} * Dof{d a_dummy} , {d a_dummy} ] ;
+      Galerkin { [ Python[ElementNum[], QuadraturePointIndex[], CompX[{a}], CompY[{a}], CompZ[{a}], CompX[{d a}], CompY[{d a}], CompZ[{d a}], CompX[-Dt[{a}]], CompY[-Dt[{a}]], CompZ[-Dt[{a}]], CompX[Dt[{d a}] ], CompY[Dt[{d a}] ], CompZ[Dt[{d a}]], $Time, $TimeStep ]{"hmm_downscale_b.py"} * Dof{d a_dummy} , {d a_dummy} ] ;
         In Domain_NL ; Jacobian JVol ; Integration I1 ; }
     }
   }

@@ -4,6 +4,12 @@ import subprocess
 # class used for mesoscale computations
 #======================================
 
+GETDP="../../build/getdp"
+GMSH="gmsh"
+
+GETDP="../../bin/getdp"
+GMSH="/Applications/Gmsh.app/Contents/MacOS/gmsh"
+
 class hmm_mesoscale_computations:
     def __init__(self, cellSize = 0.0, mesoMeshFile = "", mesoProFile = "", isParallel = False, numOfProcesses = 1):
         self.CellSize                                   = cellSize
@@ -153,14 +159,14 @@ class hmm_mesoscale_computations:
                 s += "Position_Z = "  + str(Position_Z)      + ";"
                 fp.write(s)
                 fp.close()
-                args = "gmsh -v " + str(verbosity) + " meso.geo -3 -o hmm_meso_mesh/meso_" + str(key) + ".msh"
+                args = GMSH + " -v " + str(verbosity) + " meso.geo -3 -o hmm_meso_mesh/meso_" + str(key) + ".msh"
                 os.system(args)
                 
         fp = open("hmm_meso_geometry.dat", "w")
         s  = "FlagComputeML = "  + str(0) + "; \n" 
         fp.write(s)
         fp.close()
-        args_ML = "gmsh -v " + str(verbosity) + " meso.geo -3 -o meso.msh"
+        args_ML = GMSH + " -v " + str(verbosity) + " meso.geo -3 -o meso.msh"
         os.system(args_ML) 
         print "End meshing mesoscale domains used for local cuts..." 
 
@@ -185,7 +191,7 @@ class hmm_mesoscale_computations:
             else:
                 upper_bound = (iP+1)*self.numOfProcesses
             for key in keys[lower_bound : upper_bound]:
-                args = ["../../bin/getdp", "meso.pro", 
+                args = [GETDP, "meso.pro", 
                         "-msh", "hmm_meso_mesh/meso_" + str(key[0]) + ".msh",
                         "-solve", "a_NR", 
                         "-pos", "map_field_1", 
@@ -232,7 +238,7 @@ class hmm_mesoscale_computations:
                 upper_bound = ( (iP+1) * self.numOfProcesses)
             for key in keys[lower_bound : upper_bound]:
                 if (FlagComputeML == 0):
-                    args = ["../../build/getdp", "meso", "-v", "0", 
+                    args = [GETDP, "meso", "-v", "0", 
                             #"-msh", "hmm_meso_mesh/meso_" + str(key) + ".msh",
                             "-msh", "meso.msh",
                             "-solve", "a_NR", 
@@ -258,7 +264,7 @@ class hmm_mesoscale_computations:
                             "-setnumber", "CML", str(FlagComputeML)]
                             
                 else:
-                    args = ["../../build/getdp", "meso", "-v", "0",
+                    args = [GETDP, "meso", "-v", "0",
                             "-msh", "meso.msh",
                             "-solve", "a_NR",
                             "-pos", "mean_1", "mean_2", "mean_3", "-v2",

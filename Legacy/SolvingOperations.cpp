@@ -2016,8 +2016,14 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
     case OPERATION_GMSHREAD :
 #if defined(HAVE_GMSH)
-      if(Operation_P->Case.GmshRead.ViewTag >= 0)
+      if(Operation_P->Case.GmshRead.ViewTag >= 0){
         PView::setGlobalTag(Operation_P->Case.GmshRead.ViewTag);
+        Message::Info("GmshRead[%s] -> View[%d]", Operation_P->Case.GmshRead.FileName,
+                      Operation_P->Case.GmshRead.ViewTag);
+      }
+      else{
+        Message::Info("GmshRead[%s]", Operation_P->Case.GmshRead.FileName);
+      }
       GmshMergePostProcessingFile(Operation_P->Case.GmshRead.FileName);
       Operation_P->Rank = -1;
 #else
@@ -2027,8 +2033,14 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
     case OPERATION_GMSHMERGE :
 #if defined(HAVE_GMSH)
-      if(Operation_P->Case.GmshRead.ViewTag >= 0)
+      if(Operation_P->Case.GmshRead.ViewTag >= 0){
         PView::setGlobalTag(Operation_P->Case.GmshRead.ViewTag);
+        Message::Info("GmshMerge[%s] -> View[%d]", Operation_P->Case.GmshRead.FileName,
+                      Operation_P->Case.GmshRead.ViewTag);
+      }
+      else{
+        Message::Info("GmshMerge[%s]", Operation_P->Case.GmshRead.FileName);
+      }
       GmshMergeFile(Operation_P->Case.GmshRead.FileName);
       Operation_P->Rank = -1;
 #else
@@ -2038,8 +2050,14 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
     case OPERATION_GMSHOPEN :
 #if defined(HAVE_GMSH)
-      if(Operation_P->Case.GmshRead.ViewTag >= 0)
+      if(Operation_P->Case.GmshRead.ViewTag >= 0){
         PView::setGlobalTag(Operation_P->Case.GmshRead.ViewTag);
+        Message::Info("GmshOpen[%s] -> View[%d]", Operation_P->Case.GmshRead.FileName,
+                      Operation_P->Case.GmshRead.ViewTag);
+      }
+      else{
+        Message::Info("GmshOpen[%s]", Operation_P->Case.GmshRead.FileName);
+      }
       GmshOpenProject(Operation_P->Case.GmshRead.FileName);
       Operation_P->Rank = -1;
 #else
@@ -2049,6 +2067,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
     case OPERATION_GMSHCLEARALL :
 #if defined(HAVE_GMSH)
+      Message::Info("GmshClearAll[]");
       while(PView::list.size()) delete PView::list[0];
       PView::setGlobalTag(0);
       Operation_P->Rank = -1;
@@ -2060,6 +2079,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_GMSHWRITE :
 #if defined(HAVE_GMSH)
       {
+        Message::Info("GmshWrite[%s]", Operation_P->Case.GmshRead.FileName);
         PView *view = PView::getViewByTag(Operation_P->Case.GmshRead.ViewTag);
         if(view)
           view->write(Operation_P->Case.GmshRead.FileName, 10);
