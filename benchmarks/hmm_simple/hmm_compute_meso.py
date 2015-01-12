@@ -9,7 +9,9 @@ file_dir = os.path.abspath(os.path.dirname(__file__)) + "/"
 
 if os.path.isfile(file_dir + "nodes.txt"):
     getdp = "/home/acad/ulg-ace/cgeuzain/src/getdp/bin_seq/getdp" # zenobe
+    ssh = "/opt/pbs/default/bin/pbs_tmrsh"
     #getdp = "/home/ulg/ace/geuzaine/src/getdp/bin_seq/getdp" # nic4
+    #ssh = "ssh"
     f = open(file_dir + "nodes.txt")
     nodes = f.readlines()
     f.close()
@@ -33,7 +35,7 @@ for s in range(nslices):
         if nodes[0] != "localhost":
             node = nodes[idx % ncpus].strip()
             print("Python: ssh node {0}".format(node))
-            args.extend(["ssh", node])
+            args.extend([ssh, node])
         args.extend([getdp, file_dir + "meso", "-v", "2", "-solve", "a_NR", 
                      "-pos", "mean_1", "mean_2", "mean_3",
                      "-setnumber", "BX", str(bx_table[key]),
