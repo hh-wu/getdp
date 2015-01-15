@@ -227,7 +227,7 @@ struct doubleXstring{
 %token        tNameOfSpace tIndexOfSystem
 %token        tSymmetry
 %token    tGalerkin tdeRham tGlobalTerm tGlobalEquation
-%token        tDt tDtDof tDtDt tDtDtDof tDtDtDtDof tDtDtDtDtDof tDtDtDtDtDtDof tJacNL tDtDofJacNL tNeverDt tDtNL tAtAnteriorTimeStep /*guillchange*/
+%token        tDt tDtDof tDtDt tDtDtDof tDtDtDtDof tDtDtDtDtDof tDtDtDtDtDtDof tJacNL tDtDofJacNL tNeverDt tDtNL tAtAnteriorTimeStep tMaxOverTime tFourierSteinmetz /*guillchange*/
 %token        tIn
 %token        tFull_Matrix
 
@@ -1314,7 +1314,6 @@ WholeQuantity_Single :
 	vyyerror("Dof{} definition out of context");
     }
 
-
   | tAtAnteriorTimeStep
     { Last_DofIndexInWholeQuantity = Current_DofIndexInWholeQuantity; }
     '[' WholeQuantityExpression ',' tINT ']'
@@ -1328,6 +1327,62 @@ WholeQuantity_Single :
       if(Current_DofIndexInWholeQuantity != Last_DofIndexInWholeQuantity)
 	vyyerror("Dof{} definition out of context");
     }
+/*
+  | tMaxOnTime
+    { Last_DofIndexInWholeQuantity = Current_DofIndexInWholeQuantity; }
+    '[' WholeQuantityExpression ',' FExpr ',' FExpr ',' FExpr ']'
+    { WholeQuantity_S.Type = WQ_MAXONTIME;
+      WholeQuantity_S.Case.MaxOnTime.WholeQuantity = $4;
+      WholeQuantity_S.Case.MaxOnTime.NbrFrequency = (int)$6;
+      WholeQuantity_S.Case.MaxOnTime.Frequency = $8;
+      WholeQuantity_S.Case.MaxOnTime.TimeInit = $10;
+
+      List_Read(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1,
+		&Current_WholeQuantity_L);
+      List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
+
+      if(Current_DofIndexInWholeQuantity != Last_DofIndexInWholeQuantity)
+	vyyerror("Dof{} definition out of context");
+    }
+*/
+  | tMaxOverTime
+    { Last_DofIndexInWholeQuantity = Current_DofIndexInWholeQuantity; }
+'[' WholeQuantityExpression ',' FExpr ',' FExpr ',' FExpr ',' FExpr  ']'
+    { WholeQuantity_S.Type = WQ_MAXOVERTIME;
+      WholeQuantity_S.Case.MaxOverTime.WholeQuantity = $4;
+      WholeQuantity_S.Case.MaxOverTime.NbrFrequency = (int)$6;
+      WholeQuantity_S.Case.MaxOverTime.Frequency = $8;
+      WholeQuantity_S.Case.MaxOverTime.FrequencyReg = (int)$12;
+      WholeQuantity_S.Case.MaxOverTime.TimeInit = $10;
+
+      List_Read(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1,
+		&Current_WholeQuantity_L);
+      List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
+
+      if(Current_DofIndexInWholeQuantity != Last_DofIndexInWholeQuantity)
+	vyyerror("Dof{} definition out of context");
+    }
+
+  | tFourierSteinmetz
+    { Last_DofIndexInWholeQuantity = Current_DofIndexInWholeQuantity; }
+'[' WholeQuantityExpression ',' FExpr ',' FExpr ',' FExpr ',' FExpr ',' FExpr  ']'
+    { WholeQuantity_S.Type = WQ_FOURIERSTEINMETZ;
+      WholeQuantity_S.Case.FourierSteinmetz.WholeQuantity = $4;
+      WholeQuantity_S.Case.FourierSteinmetz.NbrFrequency = (int)$6;
+      WholeQuantity_S.Case.FourierSteinmetz.TimeInit = $8;
+      WholeQuantity_S.Case.FourierSteinmetz.TimeFinal = $10;
+      WholeQuantity_S.Case.FourierSteinmetz.Exponent_f = $12;
+      WholeQuantity_S.Case.FourierSteinmetz.Exponent_b = $14;
+
+      List_Read(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1,
+		&Current_WholeQuantity_L);
+      List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
+
+      if(Current_DofIndexInWholeQuantity != Last_DofIndexInWholeQuantity)
+	vyyerror("Dof{} definition out of context");
+    }
+
+
 
   | tMHTransform
     '[' NameForFunction { Last_DofIndexInWholeQuantity = Current_DofIndexInWholeQuantity; } '[' WholeQuantityExpression ']' ']' '{' FExpr '}'
@@ -8279,6 +8334,11 @@ void  Pro_DefineQuantityIndex_1(List_T *WholeQuantity_L, int TraceGroupIndex,
 	((WholeQuantity_P+i)->Case.TimeDerivative.WholeQuantity, TraceGroupIndex, pairs);
       break;
     case WQ_ATANTERIORTIMESTEP :
+      Pro_DefineQuantityIndex_1
+	((WholeQuantity_P+i)->Case.AtAnteriorTimeStep.WholeQuantity, TraceGroupIndex, pairs);
+      break;
+    case WQ_MAXOVERTIME :
+    case WQ_FOURIERSTEINMETZ :
       Pro_DefineQuantityIndex_1
 	((WholeQuantity_P+i)->Case.AtAnteriorTimeStep.WholeQuantity, TraceGroupIndex, pairs);
       break;

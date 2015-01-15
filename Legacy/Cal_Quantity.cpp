@@ -810,6 +810,173 @@ void Cal_WholeQuantity(struct Element * Element,
       Index++ ;
       break ;
 
+
+    case WQ_MAXOVERTIME :
+
+      if (Current.NbrHar == 1) {
+        double freq = WholeQuantity_P->Case.MaxOverTime.Frequency;
+        double time_init = WholeQuantity_P->Case.MaxOverTime.TimeInit;
+        double time_final = time_init + 1./freq;
+
+
+        /*
+	for (k = 0 ; k < Current.NbrSystem ; k++)
+	  (Current.DofData_P0+k)->Save_CurrentSolution =
+	   (Current.DofData_P0+k)->CurrentSolution;
+        */
+        Save_TimeStep = Current.TimeStep ;
+        Save_Time = Current.Time ;
+        Save_TimeImag = Current.TimeImag ;
+
+        for (j=0; j<NbrArguments; j++) {
+          Cal_CopyValue(DofValue + j, &Stack[0][Index]) ;
+          Multi[Index] = 0 ;
+          Index++ ;
+        }
+        Index -= NbrArguments ;
+
+        double val_maxInTime = -1.e99;
+
+        for (j=1; j<List_Nbr((Current.DofData)->Solutions); j++) {
+
+         Current.DofData->CurrentSolution =
+            (struct Solution*)List_Pointer((Current.DofData)->Solutions, j);
+
+          //++++ Add: also for other systems!
+
+          Current.TimeStep = Current.DofData->CurrentSolution->TimeStep ;
+          Current.Time = Current.DofData->CurrentSolution->Time ;
+          Current.TimeImag = Current.DofData->CurrentSolution->TimeImag ;
+
+
+          //++++ test to do more accurately!
+          if (Current.Time >= time_init && Current.Time <= time_final) {
+            Cal_WholeQuantity(Element, QuantityStorage_P0,
+                              WholeQuantity_P->Case.MaxOverTime.WholeQuantity,
+                              u, v, w, -1, 0, &Stack[0][Index], NbrArguments, ExpressionName) ;
+
+            if (Stack[0][Index].Type == SCALAR) {
+              if (Stack[0][Index].Val[0] > val_maxInTime){
+                val_maxInTime = Stack[0][Index].Val[0];
+              }
+            }
+            else {
+              Message::Error("MaxOverTime can only be applied on scalar values") ;
+            }
+          }
+        }
+        Stack[0][Index].Val[0] = val_maxInTime;
+        /*
+	for (k = 0 ; k < Current.NbrSystem ; k++)
+	  (Current.DofData_P0+k)->CurrentSolution =
+	    (Current.DofData_P0+k)->Save_CurrentSolution;
+        */
+        Current.TimeStep = Save_TimeStep ;
+        Current.Time = Save_Time ;
+        Current.TimeImag = Save_TimeImag ;
+
+        Multi[Index] = 0 ;
+        Index++ ;
+      }
+      else {
+        Message::Error("MaxOverTime can only be used in time domain") ;
+        break;
+      }
+
+      break ;
+
+    case WQ_FOURIERSTEINMETZ :
+
+      if (Current.NbrHar == 1) {
+        int nbrFrequency = WholeQuantity_P->Case.FourierSteinmetz.NbrFrequency;
+        double time_init = WholeQuantity_P->Case.FourierSteinmetz.TimeInit;
+        double time_final = WholeQuantity_P->Case.FourierSteinmetz.TimeFinal;
+        double exponent_f = WholeQuantity_P->Case.FourierSteinmetz.Exponent_f;
+        double exponent_b = WholeQuantity_P->Case.FourierSteinmetz.Exponent_b;
+
+        /*
+	for (k = 0 ; k < Current.NbrSystem ; k++)
+	  (Current.DofData_P0+k)->Save_CurrentSolution =
+	   (Current.DofData_P0+k)->CurrentSolution;
+        */
+        Save_TimeStep = Current.TimeStep ;
+        Save_Time = Current.Time ;
+        Save_TimeImag = Current.TimeImag ;
+
+        for (j=0; j<NbrArguments; j++) {
+          Cal_CopyValue(DofValue + j, &Stack[0][Index]) ;
+          Multi[Index] = 0 ;
+          Index++ ;
+        }
+        Index -= NbrArguments ;
+
+        // init some lists
+        double *times, *values;
+
+        for (j=1; j<List_Nbr((Current.DofData)->Solutions); j++) {
+
+         Current.DofData->CurrentSolution =
+            (struct Solution*)List_Pointer((Current.DofData)->Solutions, j);
+
+          //++++ Add: also for other systems!
+
+          Current.TimeStep = Current.DofData->CurrentSolution->TimeStep ;
+          Current.Time = Current.DofData->CurrentSolution->Time ;
+          Current.TimeImag = Current.DofData->CurrentSolution->TimeImag ;
+
+
+          //++++ test to do more accurately!
+          if (Current.Time >= time_init && Current.Time <= time_final) {
+            Cal_WholeQuantity(Element, QuantityStorage_P0,
+                              WholeQuantity_P->Case.MaxOverTime.WholeQuantity,
+                              u, v, w, -1, 0, &Stack[0][Index], NbrArguments, ExpressionName) ;
+
+            if (Stack[0][Index].Type == SCALAR) {
+
+              // add Current.Time in list times
+              // add calculated value (norm of b) in list values
+
+
+              // store value_i = Stack[0][Index].Val[0] and time_i = Current.Time
+
+              }
+            }
+            else {
+              Message::Error("MaxOverTime can only be applied on scalar values") ;
+            }
+        }
+
+      // FourierTransform
+      /*
+        Pos_FourierTransform(#times, 1, times, values, 1)
+
+        we have a list of frequency_i and b_i
+
+        we calculate the Sum for all frequencies of frequency_i^exponent_f * b_i^exponent_b
+
+       */
+
+        Stack[0][Index].Val[0] = 0.; // Sum here
+
+        /*
+	for (k = 0 ; k < Current.NbrSystem ; k++)
+	  (Current.DofData_P0+k)->CurrentSolution =
+	    (Current.DofData_P0+k)->Save_CurrentSolution;
+        */
+        Current.TimeStep = Save_TimeStep ;
+        Current.Time = Save_Time ;
+        Current.TimeImag = Save_TimeImag ;
+
+        Multi[Index] = 0 ;
+        Index++ ;
+      }
+      else {
+        Message::Error("MaxOverTime can only be used in time domain") ;
+        break;
+      }
+
+      break ;
+
     case WQ_MHTRANSFORM :
       if(Current.NbrHar == 1){
 	Message::Error("MHTransform can only be used in complex (multi-harmonic) calculations") ;

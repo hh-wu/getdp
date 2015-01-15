@@ -78,6 +78,8 @@ AppendTimeStepToFileName     return tAppendTimeStepToFileName;
 AppendToExistingFile         return tAppendToExistingFile;
 Asin                         return tAsin;
 AtAnteriorTimeStep           return tAtAnteriorTimeStep;
+MaxOverTime                  return tMaxOverTime;
+FourierSteinmetz             return tFourierSteinmetz;
 Atan                         return tAtan;
 Atan2                        return tAtan2;
 

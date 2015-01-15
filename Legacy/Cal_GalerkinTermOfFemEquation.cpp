@@ -29,6 +29,10 @@
 extern struct Problem Problem_S ;
 extern struct CurrentData Current ;
 
+
+int list_equ[100000];
+
+
 /* ------------------------------------------------------------------------ */
 /*  C a l _ I n i t G a l e r k i n T e r m O f F e m E q u a t i o n       */
 /* ------------------------------------------------------------------------ */
@@ -889,12 +893,21 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
       for (i = 0 ; i < Nbr_Equ ; i++) {
 	/*      for (j = 0 ; j < Nbr_Dof ; j++)*/
 	j = i;
-	Ek[i][j][0] = -1.;
-	for (k = 1 ; k < Current.NbrHar ; k++)  Ek[i][j][k] = 0. ;
-	((void (*)(struct Dof*, struct Dof*, double*))
-	 FI->Function_AssembleTerm)
-	  (QuantityStorageEqu_P->BasisFunction[i].Dof,
-	   QuantityStorageDof_P->BasisFunction[j].Dof,  Ek[i][j]) ;
+
+        int flag_ass = 0.;
+        if (QuantityStorageEqu_P->BasisFunction[i].Dof->Type == DOF_UNKNOWN) {
+          flag_ass = (list_equ[QuantityStorageEqu_P->BasisFunction[i].Dof->Case.Unknown.NumDof-1] == 0);
+          list_equ[QuantityStorageEqu_P->BasisFunction[i].Dof->Case.Unknown.NumDof-1] = 1;
+        }
+
+        if (flag_ass) {
+          Ek[i][j][0] = 1.;
+          for (k = 1 ; k < Current.NbrHar ; k++)  Ek[i][j][k] = 0. ;
+          ((void (*)(struct Dof*, struct Dof*, double*))
+           FI->Function_AssembleTerm)
+            (QuantityStorageEqu_P->BasisFunction[i].Dof,
+             QuantityStorageDof_P->BasisFunction[j].Dof,  Ek[i][j]) ;
+        }
       }
     }
 

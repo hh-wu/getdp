@@ -775,6 +775,12 @@ struct WholeQuantity {
     struct { int  Index, NbrArguments; }                         Expression;
     struct { List_T *WholeQuantity; }                            TimeDerivative;
     struct { List_T *WholeQuantity; int TimeStep; }              AtAnteriorTimeStep;
+    struct { List_T *WholeQuantity;
+             int NbrFrequency; double Frequency; int FrequencyReg;
+             double TimeInit; }                                  MaxOverTime;
+    struct { List_T *WholeQuantity;
+             int NbrFrequency; double TimeInit; double TimeFinal;
+             double Exponent_f; double Exponent_b; }             FourierSteinmetz;
     struct { double *Value; }                                    CurrentValue;
     struct { int  Index; }                                       Argument;
     struct { List_T *WholeQuantity_True, *WholeQuantity_False; } Test;
@@ -824,6 +830,8 @@ struct WholeQuantity {
 #define WQ_POSTSAVE                214
 #define WQ_ATANTERIORTIMESTEP      22
 #define WQ_CHANGECURRENTPOSITION   30
+#define WQ_MAXOVERTIME             40
+#define WQ_FOURIERSTEINMETZ        41
 
 /* TypeOperator */
 #define OP_PLUS           1
