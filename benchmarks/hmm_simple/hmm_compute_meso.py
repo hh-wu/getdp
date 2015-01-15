@@ -2,6 +2,7 @@ import subprocess
 import sys
 import os
 import math
+import time
 
 keys = bx_table.keys()
 nkeys = len(keys)
@@ -16,35 +17,49 @@ if os.path.isfile(file_dir + "nodes.txt"):
     nodes = f.readlines()
     f.close()
     ncpus = len(nodes)
+    #d = {x:nodes.count(x) for x in nodes}
+    #hosts = d.keys()
+    #ncpus = d.values()
 else:
     getdp = sys.argv[0] # same getdp as for macro computation
     nodes = ["localhost"]
-    ncpus = 16
+    ncpus = 8
 
-nslices = int(math.ceil(nkeys / float(ncpus)))
+print("Python: running {0} meso calculations on {1} CPUs".format(nkeys, ncpus))
 
-print("Python: running {0} meso calculations in {1} slices".format(nkeys, nslices))
-
-for s in range(nslices):
-    start = s * ncpus
-    end = (s + 1) * ncpus
-    print("Python: slice {0} = [{1}, {2}[".format(s, start, end))
-    proc = {}
-    for idx, key in enumerate(keys[start:end]):
-        args = [];
-        if nodes[0] != "localhost":
-            node = nodes[idx % ncpus].strip()
-            #print("Python: ssh node {0}".format(node))
-            args.extend([ssh, node])
-        args.extend([getdp, file_dir + "meso", "-bin", "-v", "2", "-solve", "a_NR", 
-                     "-pos", "mean_1", "mean_2", "mean_3",
-                     "-setnumber", "BX", str(bx_table[key]),
-                     "-setnumber", "BY", str(by_table[key]),
-                     "-setnumber", "ELENUM", str(key[0]),
-                     "-setnumber", "QPINDEX", str(key[1])])
-        proc[key] = subprocess.Popen(args)
-    for key in keys[start:end]:
-        proc[key].wait()
+# launch job on a cpu as soon as it becomes available
+queue = set(keys)
+cpus = ['' for cpu in range(ncpus)]
+while len(queue):
+    for i, cpu in enumerate(cpus):
+        # check if cpu is busy
+        if cpu:
+            cpus[i].poll()
+        # if not busy, launch new calculation
+        if not cpu or cpu.returncode != None:
+            key = queue.pop()
+            #print("running key {0} on cpu {1}".format(key, i))
+            args = [];
+            if nodes[0] != "localhost":
+                node = nodes[i].strip()
+                #print("Python: ssh node {0}".format(node))
+                args.extend([ssh, node])
+            args.extend([getdp, file_dir + "meso", "-bin", "-v", "2", "-solve", "a_NR", 
+                         "-pos", "mean_1", "mean_2", "mean_3",
+                         "-setnumber", "BX", str(bx_table[key]),
+                         "-setnumber", "BY", str(by_table[key]),
+                         "-setnumber", "ELENUM", str(key[0]),
+                         "-setnumber", "QPINDEX", str(key[1])])
+            cpus[i] = subprocess.Popen(args)
+        if len(queue) == 0:
+            break
+    # sleep a little so that we do not use 100% CPU polling
+    time.sleep(0.001)
+# wait for last jobs to finish
+for i, cpu in enumerate(cpus):
+    if cpu:
+        #print("waiting for cpu {0}".format(i))
+        cpu.wait()
 
 #Dir_Meso = file_dir + "res_meso/"
 Dir_Meso = "/tmp/res_meso/"

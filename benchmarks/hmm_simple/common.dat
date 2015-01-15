@@ -3,7 +3,7 @@ AxialLength = 1; // 1 m is the default value
 Flag_NL = 1;
 
 Dir_Macro = "res_macro/";
-Dir_Meso  = "res_meso/";
+Dir_Meso  = "/tmp/res_meso/";
 Dir_Test  = "res_ref/";
 ExtGmsh   = Str[ Sprintf("_nl%g.pos", Flag_NL) ];
 ExtData   = Str[ Sprintf("_nl%g.txt", Flag_NL) ];
