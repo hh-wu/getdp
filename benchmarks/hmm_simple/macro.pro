@@ -38,7 +38,7 @@ Function {
     dhdb[ Core ]      = TensorDiag[1., 1., 1.] * nu[$1#1] + 2 * dnudb2[#1] * SquDyadicProduct[#1]  ;
     dhdb_NL[ Core ]   = 2 * dnudb2[$1#1] * SquDyadicProduct[#1]  ;
   EndIf
-  js[]              = Vector[0., 0., 100e8];
+  js[]              = Vector[0., 0., 100e7];
 
   Nb_max_iter       = 10;
   relaxation_factor = 1.;
@@ -166,7 +166,6 @@ Resolution {
     }
     Operation {
       CreateDirectory[Dir_Macro];
-      CreateDirectory[Dir_Meso];
       Evaluate[ Python[]{"hmm_initialize.py"} ];
       InitSolution[C];
       IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{

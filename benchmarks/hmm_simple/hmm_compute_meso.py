@@ -1,6 +1,6 @@
 import subprocess
 import sys
-import os.path
+import os
 import math
 
 keys = bx_table.keys()
@@ -34,9 +34,9 @@ for s in range(nslices):
         args = [];
         if nodes[0] != "localhost":
             node = nodes[idx % ncpus].strip()
-            print("Python: ssh node {0}".format(node))
+            #print("Python: ssh node {0}".format(node))
             args.extend([ssh, node])
-        args.extend([getdp, file_dir + "meso", "-v", "2", "-solve", "a_NR", 
+        args.extend([getdp, file_dir + "meso", "-bin", "-v", "2", "-solve", "a_NR", 
                      "-pos", "mean_1", "mean_2", "mean_3",
                      "-setnumber", "BX", str(bx_table[key]),
                      "-setnumber", "BY", str(by_table[key]),
@@ -46,7 +46,8 @@ for s in range(nslices):
     for key in keys[start:end]:
         proc[key].wait()
 
-Dir_Meso = file_dir + "res_meso/"
+#Dir_Meso = file_dir + "res_meso/"
+Dir_Meso = "/tmp/res_meso/"
 for key in keys:
     f = open(Dir_Meso + "DualField1_" + str(key[0]) + ".txt", "r")
     h1 = map(float, f.readline().split())

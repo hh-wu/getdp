@@ -26,7 +26,7 @@ Function {
   aM[]           = Vector[0.0, 0.0, AZ];
   curl_aM[]      = Vector[BX, BY, 0.0];
 
-  NbrMaxIter     = 10;
+  NbrMaxIter     = 5;
   Eps            = 1e-4;
   Relax          = 1.0;
   factor         = 1.0;
@@ -136,14 +136,15 @@ Resolution {
       EndFor
     }
     Operation {
+      CreateDirectory[Dir_Meso];
       For iP In {1:Nbr_SubProblems}
       InitSolution[Micro~{iP} ];
         IterativeLoop[NbrMaxIter, Eps, Relax]{
           GenerateJac[Micro~{iP}]; SolveJac[Micro~{iP}] ;
       }
-      SaveSolution[Micro~{iP}];
+      // SaveSolution[Micro~{iP}]  ;
       If(iP == 1)
-        //  PostOperation[map_field_1];
+        // PostOperation[map_field_1];
       EndIf
       EndFor
     }
