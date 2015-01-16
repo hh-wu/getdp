@@ -949,14 +949,14 @@ void Cal_WholeQuantity(struct Element * Element,
           Cal_WholeQuantity(Element, QuantityStorage_P0,
                             WholeQuantity_P->Case.MaxOverTime.WholeQuantity,
                             u, v, w, -1, 0, &Stack[0][Index], NbrArguments, ExpressionName) ;
-          if (Stack[0][Index].Type == SCALAR) {
-            Times[j] = Current.Time ;              
-            Cal_CopyValue(&Stack[0][Index], &TmpValues[j]) ;
+          Times[j] = Current.Time ;              
+          Cal_CopyValue(&Stack[0][Index], &TmpValues[j]) ;
+          if (Stack[0][Index].Type == SCALAR)
             Size = 1;
-          }
-          else {
-            Message::Error("FourierSteinmetz can only be applied on scalar values") ;
-          }
+          else if (Stack[0][Index].Type == VECTOR)
+            Size = 3;
+          else
+            Message::Error("FourierSteinmetz can only be applied on scalar or vector values") ;
         }
 
         // FourierTransform
@@ -976,10 +976,21 @@ void Cal_WholeQuantity(struct Element * Element,
 
         double val=0.;
         for (j=0; j<nbrFrequencyInFormula; j++) {
-          //         Message::Info("FourierSteinmetz: %d %g %g", j+1, Frequencies[j+1], FourierValues[j+1].Val[0]) ;
-          val += pow(Frequencies[j+1], exponent_f) * 
-            pow(FourierValues[j+1].Val[0], exponent_b);
+          //         Message::Info("FourierSteinmetz: %d %g", j+1, Frequencies[j+1], FourierValues[j+1].Val[0])) ;
+          if (Size==1) {
+            val += pow(Frequencies[j+1], exponent_f) * 
+              pow(FourierValues[j+1].Val[0], exponent_b);
+          }
+          else {
+            val +=
+              pow(Frequencies[j+1], exponent_f) *
+              pow(sqrt(FourierValues[j+1].Val[0]*FourierValues[j+1].Val[0]
+                       + FourierValues[j+1].Val[1]*FourierValues[j+1].Val[1]
+                       + FourierValues[j+1].Val[2]*FourierValues[j+1].Val[2])
+                  , exponent_b);
+          }
         }
+        Stack[0][Index].Type = SCALAR;
         Stack[0][Index].Val[0] = val;
 
         Free(Frequencies);

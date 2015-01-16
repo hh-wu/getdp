@@ -776,10 +776,9 @@ struct WholeQuantity {
     struct { List_T *WholeQuantity; }                            TimeDerivative;
     struct { List_T *WholeQuantity; int TimeStep; }              AtAnteriorTimeStep;
     struct { List_T *WholeQuantity;
-             int NbrFrequency; double Frequency; int FrequencyReg;
-             double TimeInit; }                                  MaxOverTime;
+             double TimeInit; double TimeFinal; }                MaxOverTime;
     struct { List_T *WholeQuantity;
-             int NbrFrequency; double TimeInit; double TimeFinal;
+             double TimeInit; double TimeFinal; int NbrFrequency; 
              double Exponent_f; double Exponent_b; }             FourierSteinmetz;
     struct { double *Value; }                                    CurrentValue;
     struct { int  Index; }                                       Argument;

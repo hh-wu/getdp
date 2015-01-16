@@ -1327,33 +1327,14 @@ WholeQuantity_Single :
       if(Current_DofIndexInWholeQuantity != Last_DofIndexInWholeQuantity)
 	vyyerror("Dof{} definition out of context");
     }
-/*
-  | tMaxOnTime
-    { Last_DofIndexInWholeQuantity = Current_DofIndexInWholeQuantity; }
-    '[' WholeQuantityExpression ',' FExpr ',' FExpr ',' FExpr ']'
-    { WholeQuantity_S.Type = WQ_MAXONTIME;
-      WholeQuantity_S.Case.MaxOnTime.WholeQuantity = $4;
-      WholeQuantity_S.Case.MaxOnTime.NbrFrequency = (int)$6;
-      WholeQuantity_S.Case.MaxOnTime.Frequency = $8;
-      WholeQuantity_S.Case.MaxOnTime.TimeInit = $10;
 
-      List_Read(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1,
-		&Current_WholeQuantity_L);
-      List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
-
-      if(Current_DofIndexInWholeQuantity != Last_DofIndexInWholeQuantity)
-	vyyerror("Dof{} definition out of context");
-    }
-*/
   | tMaxOverTime
     { Last_DofIndexInWholeQuantity = Current_DofIndexInWholeQuantity; }
-'[' WholeQuantityExpression ',' FExpr ',' FExpr ',' FExpr ',' FExpr  ']'
+'[' WholeQuantityExpression ',' FExpr ',' FExpr ']'
     { WholeQuantity_S.Type = WQ_MAXOVERTIME;
       WholeQuantity_S.Case.MaxOverTime.WholeQuantity = $4;
-      WholeQuantity_S.Case.MaxOverTime.NbrFrequency = (int)$6;
-      WholeQuantity_S.Case.MaxOverTime.Frequency = $8;
-      WholeQuantity_S.Case.MaxOverTime.FrequencyReg = (int)$12;
-      WholeQuantity_S.Case.MaxOverTime.TimeInit = $10;
+      WholeQuantity_S.Case.FourierSteinmetz.TimeInit = $6;
+      WholeQuantity_S.Case.FourierSteinmetz.TimeFinal = $8;
 
       List_Read(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1,
 		&Current_WholeQuantity_L);
@@ -1368,9 +1349,9 @@ WholeQuantity_Single :
 '[' WholeQuantityExpression ',' FExpr ',' FExpr ',' FExpr ',' FExpr ',' FExpr  ']'
     { WholeQuantity_S.Type = WQ_FOURIERSTEINMETZ;
       WholeQuantity_S.Case.FourierSteinmetz.WholeQuantity = $4;
-      WholeQuantity_S.Case.FourierSteinmetz.NbrFrequency = (int)$6;
-      WholeQuantity_S.Case.FourierSteinmetz.TimeInit = $8;
-      WholeQuantity_S.Case.FourierSteinmetz.TimeFinal = $10;
+      WholeQuantity_S.Case.FourierSteinmetz.TimeInit = $6;
+      WholeQuantity_S.Case.FourierSteinmetz.TimeFinal = $8;
+      WholeQuantity_S.Case.FourierSteinmetz.NbrFrequency = (int)$10;
       WholeQuantity_S.Case.FourierSteinmetz.Exponent_f = $12;
       WholeQuantity_S.Case.FourierSteinmetz.Exponent_b = $14;
 
