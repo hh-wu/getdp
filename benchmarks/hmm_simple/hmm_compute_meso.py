@@ -9,10 +9,10 @@ nkeys = len(keys)
 file_dir = os.path.abspath(os.path.dirname(__file__)) + "/"
 
 if os.path.isfile(file_dir + "nodes.txt"):
-    getdp = "/home/acad/ulg-ace/cgeuzain/src/getdp/bin_seq/getdp" # zenobe
-    ssh = "/opt/pbs/default/bin/pbs_tmrsh"
-    #getdp = "/home/ulg/ace/geuzaine/src/getdp/bin_seq/getdp" # nic4
-    #ssh = "ssh"
+    #getdp = "/home/acad/ulg-ace/cgeuzain/src/getdp/bin_seq/getdp" # zenobe
+    #ssh = "/opt/pbs/default/bin/pbs_tmrsh"
+    getdp = "/home/ulg/ace/geuzaine/src/getdp/bin_seq/getdp" # nic4
+    ssh = "srun"
     f = open(file_dir + "nodes.txt")
     nodes = f.readlines()
     f.close()
@@ -37,8 +37,10 @@ while len(queue):
             key = queue.pop()
             args = [];
             if nodes[0] != "localhost":
-                node = nodes[i].strip()
-                args.extend([ssh, node])
+                args.extend([ssh])
+                if ssh == "srun":
+                    args.extend(["-Q", "-w"])
+                args.extend([nodes[i].strip()])
             args.extend([getdp, file_dir + "meso", "-bin", "-v", "2", "-solve", "a_NR", 
                          "-pos", "mean_1", "mean_2", "mean_3",
                          "-setnumber", "BX", str(bx_table[key]),
