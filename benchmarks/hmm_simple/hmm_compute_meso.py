@@ -24,6 +24,8 @@ else:
 
 print("Python: running {0} meso calculations on {1} CPUs".format(nkeys, ncpus))
 
+# FIXME: should reserve 1 or 2 CPUs for master process and ssh/srun/etc. overhead 
+
 # launch job on a cpu as soon as it becomes available
 queue = set(keys)
 cpus = ['' for cpu in range(ncpus)]
