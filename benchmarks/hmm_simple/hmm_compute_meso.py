@@ -17,9 +17,6 @@ if os.path.isfile(file_dir + "nodes.txt"):
     nodes = f.readlines()
     f.close()
     ncpus = len(nodes)
-    #d = {x:nodes.count(x) for x in nodes}
-    #hosts = d.keys()
-    #ncpus = d.values()
 else:
     getdp = sys.argv[0] # same getdp as for macro computation
     nodes = ["localhost"]
@@ -38,11 +35,9 @@ while len(queue):
         # if not busy, launch new calculation
         if not cpu or cpu.returncode != None:
             key = queue.pop()
-            #print("running key {0} on cpu {1}".format(key, i))
             args = [];
             if nodes[0] != "localhost":
                 node = nodes[i].strip()
-                #print("Python: ssh node {0}".format(node))
                 args.extend([ssh, node])
             args.extend([getdp, file_dir + "meso", "-bin", "-v", "2", "-solve", "a_NR", 
                          "-pos", "mean_1", "mean_2", "mean_3",
@@ -53,13 +48,12 @@ while len(queue):
             cpus[i] = subprocess.Popen(args)
         if len(queue) == 0:
             break
-    # sleep a little so that we do not use 100% CPU polling
-    time.sleep(0.001)
+    # little sleep so we do not use 100% CPU just for polling
+    time.sleep(0.01)
 # wait for last jobs to finish
 for i, cpu in enumerate(cpus):
     if cpu:
-        #print("waiting for cpu {0}".format(i))
-        cpu.wait()
+        cpus[i].wait()
 
 #Dir_Meso = file_dir + "res_meso/"
 Dir_Meso = "/tmp/res_meso/"
