@@ -1526,9 +1526,6 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
 }
 
 
-void Pos_FourierTransform(int NbrTimeStep, int NbrRegion,
-                          double *Times, struct Value *TmpValues, int Size);
-
 /* ------------------------------------------------------------------------ */
 /*  F o r m a t _ P o s t V a l u e                                         */
 /* ------------------------------------------------------------------------ */
@@ -1667,7 +1664,8 @@ void Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
     else if (flag_storeAllTimeResults &&
              iTime == NbrTimeStep-1 && iRegion == NbrRegion-1) {
 
-      Pos_FourierTransform(NbrTimeStep, NbrRegion, Times, TmpValues, Size);
+      Pos_FourierTransform(NbrTimeStep, NbrRegion, Times, TmpValues, Size,
+                           1, NULL, NULL, NULL);
 
       Free(Times);
       Free(TmpValues) ;
@@ -1683,7 +1681,9 @@ void Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
 /* ------------------------------------------------------------------------ */
 
 void Pos_FourierTransform(int NbrTimeStep, int NbrRegion,
-                          double *Times, struct Value *TmpValues, int Size)
+                          double *Times, struct Value *TmpValues, int Size,
+                          int TypeOutput,
+                          int *NbrFreq, double **Frequencies, struct Value **OutValues)
 {
   int iTime, iRegion, k_fc, i_k, j, k;
   int N, Nhalf, NbrFourierComps;
@@ -1695,7 +1695,7 @@ void Pos_FourierTransform(int NbrTimeStep, int NbrRegion,
   //  Nhalf = 2;
   NbrFourierComps = Nhalf*2;
 
-  Period = Times[NbrTimeStep-1];
+  Period = Times[NbrTimeStep-1] - Times[0];
   w = TWO_PI/Period;
 
   val_FourierComps = (double*) Malloc(NbrFourierComps*MAX_DIM*2*sizeof(double)) ;
@@ -1739,11 +1739,23 @@ void Pos_FourierTransform(int NbrTimeStep, int NbrRegion,
 
   // Limited to cosine transform now
 
+  *NbrFreq = Nhalf+1;
+  *Frequencies = (double *)Malloc(*NbrFreq*sizeof(double));
+  *OutValues = (struct Value *)Malloc(*NbrFreq*sizeof(struct Value));
+
   //  for (k_fc=-Nhalf; k_fc<Nhalf; k_fc++){
   for (k_fc=0; k_fc<Nhalf; k_fc++){
     i_k = Nhalf+k_fc;
     //    fprintf(PostStream, "%d %.16g", k_fc, k_fc*w/TWO_PI) ;
-    fprintf(PostStream, "%.16g", k_fc*w/TWO_PI) ;
+
+    if (TypeOutput == 1) {
+      fprintf(PostStream, "%.16g", k_fc*w/TWO_PI) ;
+    }
+    else if (TypeOutput == 2) {
+      (*Frequencies)[k_fc] = k_fc*w/TWO_PI;
+      (*OutValues)[k_fc].Type = TmpValues[0].Type;
+    }
+
     for (k=0; k<2; k++){
       for(j = 0 ; j < Size ; j++){
         /*
@@ -1763,10 +1775,18 @@ void Pos_FourierTransform(int NbrTimeStep, int NbrRegion,
           val = (k==0)? val_FourierComps[(2*i_k+k)*MAX_DIM + j] : 0.;
         }
 
-        fprintf(PostStream, " %.16g", val);
+        if (TypeOutput == 1) {
+          fprintf(PostStream, " %.16g", val);
+        }
+        if (k == 0 && TypeOutput == 2) {
+          (*OutValues)[k_fc].Val[j] = val;
+        }
+
       }
     }
-    fprintf(PostStream, "\n") ;
+    if (TypeOutput == 1) {
+      fprintf(PostStream, "\n") ;
+    }
   }
 
   Free(val_FourierComps);

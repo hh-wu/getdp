@@ -19,6 +19,8 @@
 #include "MallocUtils.h"
 #include "Message.h"
 
+#include "Pos_Format.h"
+
 extern struct Problem Problem_S ;
 extern struct CurrentData Current ;
 extern int TreatmentStatus ;
@@ -814,10 +816,8 @@ void Cal_WholeQuantity(struct Element * Element,
     case WQ_MAXOVERTIME :
 
       if (Current.NbrHar == 1) {
-        double freq = WholeQuantity_P->Case.MaxOverTime.Frequency;
         double time_init = WholeQuantity_P->Case.MaxOverTime.TimeInit;
-        double time_final = time_init + 1./freq;
-
+        double time_final = WholeQuantity_P->Case.MaxOverTime.TimeFinal;
 
         /*
 	for (k = 0 ; k < Current.NbrSystem ; k++)
@@ -888,9 +888,9 @@ void Cal_WholeQuantity(struct Element * Element,
     case WQ_FOURIERSTEINMETZ :
 
       if (Current.NbrHar == 1) {
-        int nbrFrequency = WholeQuantity_P->Case.FourierSteinmetz.NbrFrequency;
         double time_init = WholeQuantity_P->Case.FourierSteinmetz.TimeInit;
         double time_final = WholeQuantity_P->Case.FourierSteinmetz.TimeFinal;
+        int nbrFrequencyInFormula = WholeQuantity_P->Case.FourierSteinmetz.NbrFrequency;
         double exponent_f = WholeQuantity_P->Case.FourierSteinmetz.Exponent_f;
         double exponent_b = WholeQuantity_P->Case.FourierSteinmetz.Exponent_b;
 
@@ -910,13 +910,35 @@ void Cal_WholeQuantity(struct Element * Element,
         }
         Index -= NbrArguments ;
 
-        // init some lists
-        double *times, *values;
 
-        for (j=1; j<List_Nbr((Current.DofData)->Solutions); j++) {
+        int i_Solution_init = -1, i_Solution_final = -1;
+        int NbrTimeStep, Size=-1;
 
-         Current.DofData->CurrentSolution =
+        for (j=0; j<List_Nbr((Current.DofData)->Solutions); j++) {
+          Current.DofData->CurrentSolution =
             (struct Solution*)List_Pointer((Current.DofData)->Solutions, j);
+          Current.Time = Current.DofData->CurrentSolution->Time ;
+          if (Current.Time >= time_init && i_Solution_init < 0)
+            i_Solution_init = j;
+          if (Current.Time <= time_final) {
+            i_Solution_final = j;
+          }
+          if (Current.Time > time_final) {
+            break;
+          }
+        }
+        NbrTimeStep = i_Solution_final-i_Solution_init+1;
+        if (NbrTimeStep < 2)
+          Message::Error("Wrong time interval in Function FourierSteinmetz (%d,%d)",
+                         i_Solution_init, i_Solution_final) ;
+
+        double *Times = (double *)Malloc(NbrTimeStep*sizeof(double));
+        struct Value *TmpValues = (struct Value *)Malloc(NbrTimeStep*sizeof(struct Value));
+
+        for (j=0; j<NbrTimeStep; j++) {
+          Current.DofData->CurrentSolution =
+            (struct Solution*)List_Pointer((Current.DofData)->Solutions,
+                                           i_Solution_init+j);
 
           //++++ Add: also for other systems!
 
@@ -924,39 +946,46 @@ void Cal_WholeQuantity(struct Element * Element,
           Current.Time = Current.DofData->CurrentSolution->Time ;
           Current.TimeImag = Current.DofData->CurrentSolution->TimeImag ;
 
-
-          //++++ test to do more accurately!
-          if (Current.Time >= time_init && Current.Time <= time_final) {
-            Cal_WholeQuantity(Element, QuantityStorage_P0,
-                              WholeQuantity_P->Case.MaxOverTime.WholeQuantity,
-                              u, v, w, -1, 0, &Stack[0][Index], NbrArguments, ExpressionName) ;
-
-            if (Stack[0][Index].Type == SCALAR) {
-
-              // add Current.Time in list times
-              // add calculated value (norm of b) in list values
-
-
-              // store value_i = Stack[0][Index].Val[0] and time_i = Current.Time
-
-              }
-            }
-            else {
-              Message::Error("MaxOverTime can only be applied on scalar values") ;
-            }
+          Cal_WholeQuantity(Element, QuantityStorage_P0,
+                            WholeQuantity_P->Case.MaxOverTime.WholeQuantity,
+                            u, v, w, -1, 0, &Stack[0][Index], NbrArguments, ExpressionName) ;
+          if (Stack[0][Index].Type == SCALAR) {
+            Times[j] = Current.Time ;              
+            Cal_CopyValue(&Stack[0][Index], &TmpValues[j]) ;
+            Size = 1;
+          }
+          else {
+            Message::Error("FourierSteinmetz can only be applied on scalar values") ;
+          }
         }
 
-      // FourierTransform
+        // FourierTransform
+        int NbrFreq ;
+        double *Frequencies;
+        struct Value *FourierValues;
+
+        Pos_FourierTransform(NbrTimeStep, 1, Times, TmpValues, Size,
+                             2, &NbrFreq, &Frequencies, &FourierValues);
+
       /*
-        Pos_FourierTransform(#times, 1, times, values, 1)
-
-        we have a list of frequency_i and b_i
-
         we calculate the Sum for all frequencies of frequency_i^exponent_f * b_i^exponent_b
-
        */
 
-        Stack[0][Index].Val[0] = 0.; // Sum here
+        if (nbrFrequencyInFormula > NbrFreq-1)
+          Message::Error("FourierSteinmetz: too many frequencies asked (%d asked and only %d available)", nbrFrequencyInFormula, NbrFreq-1) ;
+
+        double val=0.;
+        for (j=0; j<nbrFrequencyInFormula; j++) {
+          //         Message::Info("FourierSteinmetz: %d %g %g", j+1, Frequencies[j+1], FourierValues[j+1].Val[0]) ;
+          val += pow(Frequencies[j+1], exponent_f) * 
+            pow(FourierValues[j+1].Val[0], exponent_b);
+        }
+        Stack[0][Index].Val[0] = val;
+
+        Free(Frequencies);
+        Free(FourierValues);
+
+        Free(Times); Free(TmpValues) ;
 
         /*
 	for (k = 0 ; k < Current.NbrSystem ; k++)
@@ -971,7 +1000,7 @@ void Cal_WholeQuantity(struct Element * Element,
         Index++ ;
       }
       else {
-        Message::Error("MaxOverTime can only be used in time domain") ;
+        Message::Error("FourierSteinmetz can only be used in time domain") ;
         break;
       }
 

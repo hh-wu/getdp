@@ -28,4 +28,9 @@ void  Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
                        int Flag_NoNewLine,
 		       struct Value * Value) ;
 
+void Pos_FourierTransform(int NbrTimeStep, int NbrRegion,
+                          double *Times, struct Value *TmpValues, int Size,
+                          int TypeOutput,
+                          int *NbrFreq, double **Frequencies, struct Value **OutValues);
+
 #endif
