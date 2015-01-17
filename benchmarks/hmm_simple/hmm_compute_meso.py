@@ -18,6 +18,8 @@ elif os.path.isfile(file_dir + "nodes_slurm.txt"):
     nodes = f.readlines()
     f.close()
     ssh = "srun"
+else:
+    ssh = None
 
 if ssh:
     getdp = file_dir + "getdp.sh"
