@@ -31,6 +31,8 @@ cat $PBS_NODEFILE > ${DIR}/nodes_pbs.txt
 cat $PBS_NODEFILE >> $LOG
 cat > ${DIR}/getdp.sh << EOF
 #!/bin/sh
+ulimit -n 4096
+ulimit -u 4096
 export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}
 ${HOME}/src/getdp/bin_seq/getdp \$*
 EOF
