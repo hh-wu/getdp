@@ -20,12 +20,12 @@ DIR="$HOME/src/getdp/benchmarks/hmm_simple/"
 
 cat $0
 srun hostname > ${DIR}/nodes_slurm.txt
-cat > ${DIR}/getdp_seq.sh <<EOF
+cat > ${DIR}/getdp.sh << EOF
 #!/bin/sh
 export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}
 /home/ulg/ace/geuzaine/src/getdp/bin_seq/getdp \$*
 EOF
-chmod 755 ${DIR}/getdp_seq.sh
+chmod 755 ${DIR}/getdp.sh
 
 mpirun -np 1 $GMSH ${DIR}/macro.geo -3
 mpirun -np 1 $GETDP ${DIR}/macro.pro -solve MagSta_a_hmm

@@ -20,7 +20,7 @@ elif os.path.isfile(file_dir + "nodes_slurm.txt"):
     ssh = "srun"
 
 if ssh:
-    getdp = file_dir + "getdp_seq.sh"
+    getdp = file_dir + "getdp.sh"
     ncpus = len(nodes)
 else:
     getdp = sys.argv[0] # same getdp as for macro computation
