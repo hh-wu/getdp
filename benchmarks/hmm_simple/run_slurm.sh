@@ -22,7 +22,6 @@ cat $0
 srun hostname > ${DIR}/nodes_slurm.txt
 cat > ${DIR}/getdp.sh << EOF
 #!/bin/sh
-export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}
 ${HOME}/src/getdp/bin_seq/getdp \$*
 EOF
 chmod 755 ${DIR}/getdp.sh
