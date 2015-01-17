@@ -3,7 +3,7 @@
 #SBATCH --job-name=GetDP_DDM
 #SBATCH --output=res_%j.txt
 #SBATCH --time=1000
-#SBATCH --ntasks=300
+#SBATCH --ntasks=100
 #SBATCH --cpus-per-task=1
 # #SBATCH --ntasks-per-node=16
 #SBATCH --mem-per-cpu=4000
@@ -13,7 +13,7 @@
 OPT="-setnumber ANALYSIS 1
      -setnumber WALLS 0
      -setnumber N_DOM $SLURM_NTASKS
-     -setnumber N_LAMBDA 70
+     -setnumber N_LAMBDA 30
      -setnumber DX 10
      -setstring SOLVER gmres
      -setstring DIR $GLOBALSCRATCH/out_$SLURM_JOB_ID/"

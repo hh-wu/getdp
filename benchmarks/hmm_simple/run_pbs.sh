@@ -32,7 +32,7 @@ cat $PBS_NODEFILE >> $LOG
 cat > ${DIR}/getdp.sh << EOF
 #!/bin/sh
 export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}
-/home/acad/ulg-ace/cgeuzain/src/getdp/bin_seq/getdp \$*
+${HOME}/src/getdp/bin_seq/getdp \$*
 EOF
 chmod 755 ${DIR}/getdp.sh
 

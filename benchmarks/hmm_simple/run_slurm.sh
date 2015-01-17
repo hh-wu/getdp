@@ -3,7 +3,7 @@
 #SBATCH --job-name=GetDP_HMM
 #SBATCH --output=res_%j.txt
 #SBATCH --time=100
-#SBATCH --ntasks=40
+#SBATCH --ntasks=8
 #SBATCH --cpus-per-task=1
 # #SBATCH --ntasks-per-node=16
 #SBATCH --mem-per-cpu=1000
@@ -23,7 +23,7 @@ srun hostname > ${DIR}/nodes_slurm.txt
 cat > ${DIR}/getdp.sh << EOF
 #!/bin/sh
 export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}
-/home/ulg/ace/geuzaine/src/getdp/bin_seq/getdp \$*
+${HOME}/src/getdp/bin_seq/getdp \$*
 EOF
 chmod 755 ${DIR}/getdp.sh
 
