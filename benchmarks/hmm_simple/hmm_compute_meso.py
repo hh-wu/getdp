@@ -8,23 +8,27 @@ keys = bx_table.keys()
 nkeys = len(keys)
 file_dir = os.path.abspath(os.path.dirname(__file__)) + "/"
 
-if os.path.isfile(file_dir + "nodes.txt"):
-    getdp = "/home/acad/ulg-ace/cgeuzain/src/getdp/bin_seq/getdp" # zenobe
-    ssh = "/opt/pbs/default/bin/pbs_tmrsh"
-    #getdp = "/home/ulg/ace/geuzaine/src/getdp/bin_seq/getdp" # nic4
-    #ssh = "srun"
-    f = open(file_dir + "nodes.txt")
+if os.path.isfile(file_dir + "nodes_pbs.txt"):
+    f = open(file_dir + "nodes_pbs.txt")
     nodes = f.readlines()
     f.close()
+    ssh = "/opt/pbs/default/bin/pbs_tmrsh"
+elif os.path.isfile(file_dir + "nodes_slurm.txt"):
+    f = open(file_dir + "nodes_slurm.txt")
+    nodes = f.readlines()
+    f.close()
+    ssh = "srun"
+
+if ssh:
+    getdp = file_dir + "getdp_seq.sh"
     ncpus = len(nodes)
 else:
     getdp = sys.argv[0] # same getdp as for macro computation
-    nodes = ["localhost"]
     ncpus = 8
 
 print("Python: running {0} meso calculations on {1} CPUs".format(nkeys, ncpus))
 
-# FIXME: should reserve 1 or 2 CPUs for master process and ssh/srun/etc. overhead 
+# FIXME: should reserve 1 or 2 CPUs for master process and ssh overhead 
 
 # launch job on a cpu as soon as it becomes available
 queue = set(keys)
@@ -38,14 +42,12 @@ while len(queue):
         if not cpu or cpu.returncode != None:
             key = queue.pop()
             args = [];
-            if nodes[0] != "localhost":
+            if ssh:
                 node = nodes[i].strip()
                 args.extend([ssh])
-                if "srun" in ssh: # slurm
+                if "srun" in ssh:
                     args.extend(["-Q", "-w", node])
-                elif "pbs_tmrsh" in ssh: # pbs
-                    args.extend([node, "LD_LIBRARY_PATH=" + os.getenv("LD_LIBRARY_PATH")])
-                else: # other
+                else:
                     args.extend([node])
             args.extend([getdp, file_dir + "meso", "-bin", "-v", "2", "-solve", "a_NR", 
                          "-pos", "mean_1", "mean_2", "mean_3",
@@ -63,8 +65,7 @@ for i, cpu in enumerate(cpus):
     if cpu:
         cpus[i].wait()
 
-#Dir_Meso = file_dir + "res_meso/"
-Dir_Meso = "/tmp/res_meso/"
+Dir_Meso = file_dir + "res_meso/"
 for key in keys:
     f = open(Dir_Meso + "DualField1_" + str(key[0]) + ".txt", "r")
     h1 = map(float, f.readline().split())
