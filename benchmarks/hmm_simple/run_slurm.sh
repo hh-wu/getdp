@@ -2,16 +2,16 @@
 
 #SBATCH --job-name=GetDP_HMM
 #SBATCH --output=res_%j.txt
-#SBATCH --time=100
-#SBATCH --ntasks=8
+#SBATCH --time=12:00:00
+#SBATCH --ntasks=256
 #SBATCH --cpus-per-task=1
 # #SBATCH --ntasks-per-node=16
 #SBATCH --mem-per-cpu=1000
 #SBATCH --mail-user=cgeuzaine@ulg.ac.be
 #SBATCH --mail-type=ALL
 
-OPT="-setnumber Lay1 5
-     -setnumber Lay3 5"
+OPT="-setnumber Lay1 129
+     -setnumber Lay3 129"
 
 GMSH="$HOME/src/gmsh/bin/gmsh $OPT -v 4 -bin"
 GETDP="$HOME/src/getdp/bin/getdp $OPT -v 4 -bin"
