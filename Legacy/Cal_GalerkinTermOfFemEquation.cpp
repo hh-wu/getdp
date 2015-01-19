@@ -8,6 +8,7 @@
 //   Ruth Sabariego
 //
 
+#include <map>
 #include <math.h>
 #include "ProData.h"
 #include "ProDefine.h"
@@ -29,8 +30,7 @@
 extern struct Problem Problem_S ;
 extern struct CurrentData Current ;
 
-
-int list_equ[100000];
+std::map<int, bool> assDiag_done;
 
 
 /* ------------------------------------------------------------------------ */
@@ -73,6 +73,8 @@ void Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
      EquationTerm_P->Case.LocalTerm.Term.DefineQuantityIndexDof) &&
     (EquationTerm_P->Case.LocalTerm.Term.TypeOperatorEqu ==
      EquationTerm_P->Case.LocalTerm.Term.TypeOperatorDof) ;
+
+  assDiag_done.clear();
 
   if(EquationTerm_P->Case.LocalTerm.Term.CanonicalWholeQuantity_Equ != CWQ_NONE)
     FI->SymmetricalMatrix = 0 ;
@@ -264,6 +266,17 @@ void Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
     FI->FirstElements = List_Create(20, 10, sizeof(struct FirstElement)) ;
   }
 }
+
+
+/* ------------------------------------------------------------------------ */
+/*  C a l _ E n d G a l e r k i n T e r m O f F e m E q u a t i o n         */
+/* ------------------------------------------------------------------------ */
+
+void Cal_EndGalerkinTermOfFemEquation()
+{
+  assDiag_done.clear();
+}
+
 
 /* ------------------------------------------------------------------------ */
 /*  C a l _ a p p l y M e t r i c T e n s o r                               */
@@ -893,14 +906,13 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
       for (i = 0 ; i < Nbr_Equ ; i++) {
 	/*      for (j = 0 ; j < Nbr_Dof ; j++)*/
 	j = i;
-
-        int flag_ass = 0.;
-        if (QuantityStorageEqu_P->BasisFunction[i].Dof->Type == DOF_UNKNOWN) {
-          flag_ass = (list_equ[QuantityStorageEqu_P->BasisFunction[i].Dof->Case.Unknown.NumDof-1] == 0);
-          list_equ[QuantityStorageEqu_P->BasisFunction[i].Dof->Case.Unknown.NumDof-1] = 1;
-        }
-
-        if (flag_ass) {
+        if (QuantityStorageEqu_P->BasisFunction[i].Dof->Type == DOF_UNKNOWN
+            &&
+            assDiag_done.find
+            (QuantityStorageEqu_P->BasisFunction[i].Dof->Case.Unknown.NumDof-1)
+            == assDiag_done.end()) {
+          assDiag_done
+            [QuantityStorageEqu_P->BasisFunction[i].Dof->Case.Unknown.NumDof-1] = true;
           Ek[i][j][0] = 1.;
           for (k = 1 ; k < Current.NbrHar ; k++)  Ek[i][j][k] = 0. ;
           ((void (*)(struct Dof*, struct Dof*, double*))

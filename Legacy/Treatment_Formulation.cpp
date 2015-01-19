@@ -714,6 +714,7 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
   /* -------------------------- */
 
   List_Delete(FemLocalTermActive_L) ;  List_Delete(QuantityStorage_L) ;
+  Cal_EndGalerkinTermOfFemEquation();
 }
 
 /* ------------------------------------------------------------------------ */

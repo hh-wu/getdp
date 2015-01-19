@@ -17,6 +17,8 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 				    struct EquationTerm     * EquationTerm_P,
 				    struct QuantityStorage  * QuantityStorage_P0);
 
+void Cal_EndGalerkinTermOfFemEquation();
+
 /* In F_MultiHar */
 void Cal_InitGalerkinTermOfFemEquation_MHJacNL(struct EquationTerm * EquationTerm_P);
 void Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element * Element,
