@@ -24,7 +24,7 @@ OPT="-setnumber Lay1 257
 GMSH="$HOME/src/gmsh/bin/gmsh $OPT -v 4 -bin";
 GETDP="$HOME/src/getdp/bin/getdp $OPT -v 4 -bin";
 
-DIR="${HOME}/scratch/hmm_simple2";
+DIR="${HOME}/scratch/hmm_simple";
 
 LOG="$DIR/out_${PBS_JOBID}.log";
 
