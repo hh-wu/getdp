@@ -1,13 +1,15 @@
 #!/bin/sh
 
-#  PBS -q main_ivy
+#  PBS -q main
+#  PBS -l model=ivybridge
 #PBS -q large
+
 #PBS -W group_list=getdphmm
 
-#PBS -l walltime=1:00:00
+#PBS -l walltime=12:00:00
 #PBS -r y
 
-#PBS -l select=96:ncpus=1:vmem=2625mb:mpiprocs=1:ompthreads=1
+#PBS -l select=480:ncpus=1:vmem=2625mb:mpiprocs=1:ompthreads=1
 #PBS -l pvmem=2625mb
 
 #PBS -m "abe"
@@ -16,13 +18,13 @@
 
 #  PBS -r y
 
-OPT="-setnumber Lay1 33
-     -setnumber Lay3 33"
+OPT="-setnumber Lay1 257
+     -setnumber Lay3 257"
 
 GMSH="$HOME/src/gmsh/bin/gmsh $OPT -v 4 -bin";
 GETDP="$HOME/src/getdp/bin/getdp $OPT -v 4 -bin";
 
-DIR="${HOME}/scratch/hmm_simple";
+DIR="${HOME}/scratch/hmm_simple2";
 
 LOG="$DIR/out_${PBS_JOBID}.log";
 

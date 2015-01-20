@@ -12,7 +12,7 @@ if os.path.isfile(file_dir + "nodes_pbs.txt"):
     f = open(file_dir + "nodes_pbs.txt")
     nodes = f.readlines()
     f.close()
-    ssh = "/opt/pbs/default/bin/pbs_tmrsh"
+    ssh = "pbsdsh"
 elif os.path.isfile(file_dir + "nodes_slurm.txt"):
     f = open(file_dir + "nodes_slurm.txt")
     nodes = f.readlines()
@@ -47,7 +47,9 @@ while len(queue):
             if ssh:
                 node = nodes[i].strip()
                 args.extend([ssh])
-                if "srun" in ssh:
+                if "pbsdsh" in ssh:
+                    args.extend(["-n", str(i), "--"])
+                elif "srun" in ssh:
                     args.extend(["-Q", "-w", node])
                 else:
                     args.extend([node])
