@@ -66,7 +66,7 @@ while len(queue):
     time.sleep(0.01)
 # wait for last jobs to finish
 for i, cpu in enumerate(cpus):
-    if cpu:
+    if cpu and cpu.returncode == None:
         cpus[i].wait()
 
 Dir_Meso = file_dir + "res_meso/"
