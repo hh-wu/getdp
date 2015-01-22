@@ -43,6 +43,7 @@ Function {
   Nb_max_iter       = 10;
   relaxation_factor = 1.;
   stop_criterion    = 1e-6;
+  DefineConstant[ Nb_pools = {1, Name "Number of pools for parallel load distribution"}];
 }
 
 Jacobian {
@@ -171,7 +172,7 @@ Resolution {
       IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
       //IterativeLoopN[Nb_max_iter, relaxation_factor, System{ {C, 1e-6, 1e-6, Residual MeanL2Norm} } ]{
         Generate[B] ;
-        Evaluate[ Python[]{"hmm_compute_meso.py"} ];
+        Evaluate[ Python[Nb_pools]{"hmm_compute_meso.py"} ];
         GenerateJac[C] ; SolveJac[C] ;
       }
       SaveSolution[C];
