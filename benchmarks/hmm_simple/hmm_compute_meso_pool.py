@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import subprocess
 import sys
 import os
@@ -11,10 +9,11 @@ file_dir = os.path.abspath(os.path.dirname(__file__)) + "/"
 exec(open(file_dir + "pool" + pool + ".py").read())
 
 ncpus = len(nodes)
+keys = bx_table.keys()
 nkeys = len(keys)
 
-print("Python: pool {0} running {1} meso calculations on {2} CPUs".
-      format(pool, nkeys, ncpus))
+#print("Python: pool {0} running {1} meso calculations on {2} CPUs".
+#      format(pool, nkeys, ncpus))
 
 # launch job on a cpu as soon as it becomes available
 queue = set(keys)
@@ -32,7 +31,7 @@ while len(queue):
                 node = nodes[i].strip()
                 args.extend([ssh])
                 if "pbsdsh" in ssh:
-                    args.extend(["-n", str(i), "--"])
+                    args.extend(["-n", str(node0 + i), "--"])
                 elif "srun" in ssh:
                     args.extend(["-Q", "-w", node])
                 else:
@@ -44,6 +43,7 @@ while len(queue):
                          "-setnumber", "BY", str(by_table[key]),
                          "-setnumber", "ELENUM", str(key[0]),
                          "-setnumber", "QPINDEX", str(key[1])])
+            #print(args)
             cpus[i] = subprocess.Popen(args)
         if len(queue) == 0:
             break

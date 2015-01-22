@@ -26,6 +26,10 @@ if filename:
 else:
     ncpus = 8
     nodes = ["localhost" for x in range(ncpus)]
+    f = open(file_dir + "python.sh", "w")
+    f.write("#!/bin/sh\n/usr/bin/env python $*\n")
+    f.close()
+    os.chmod(file_dir + "python.sh", 0755)
     f = open(file_dir + "getdp.sh", "w")
     f.write("#!/bin/sh\n{0} $*\n".format(sys.argv[0])) # same getdp as for macro computation
     f.close()
@@ -34,11 +38,13 @@ else:
 # split data in pools (a single pool can trigger system limits if ncpus is large)
 for p in range(npools):
     f = open(file_dir + "pool" + str(p) + ".py", "w")
-    f.write("ssh = " + str(ssh) + "\n")
-    pnodes = nodes[p*ncpus/npools:(p+1)*ncpus/npools]
+    if ssh:
+        f.write("ssh = \"" + ssh + "\"\n")
+    else:
+        f.write("ssh = None\n")
+    f.write("nodes = " + str(nodes[p*ncpus/npools:(p+1)*ncpus/npools]) + "\n")
+    f.write("node0 = " + str(p*ncpus/npools) + "\n")
     pkeys = keys[p*nkeys/npools:(p+1)*nkeys/npools]
-    f.write("nodes = " + str(pnodes) + "\n")
-    f.write("keys = " + str(pkeys) + "\n")
     f.write("bx_table = " + str({x:bx_table[x] for x in pkeys}) + "\n")
     f.write("by_table = " + str({x:by_table[x] for x in pkeys}) + "\n")
     f.close()
@@ -60,7 +66,7 @@ for p in range(npools):
             args.extend(["-Q", "-w", node])
         else:
             args.extend([node])
-    args.extend([file_dir + "hmm_compute_meso_pool.py", str(p)])
+    args.extend([file_dir + "python.sh", file_dir + "hmm_compute_meso_pool.py", str(p)])
     pools[p] = subprocess.Popen(args)
         
 # wait for pools to finish
