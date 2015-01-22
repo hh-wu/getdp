@@ -22,8 +22,17 @@ Function {
 
   For ii In {0: #ListOfDom()-1}
   idom = ListOfDom(ii);
-    SigmaX[OmegaPml~{idom}~{1}] = distSigma~{idom}~{1}[] > dTr ? c[]/(dBb-distSigma~{idom}~{1}[]) : 0;
+  // SigmaX[OmegaPml] = 1000*(distSigma[])^2*om[] ; // Quadratic
+
+
+    SigmaX[OmegaPml~{idom}~{1}] = distSigma~{idom}~{1}[] > dTr ? c[]/(dBb-distSigma~{idom}~{1}[]) : 0; // Bermudez
     SigmaX[OmegaPml~{idom}~{0}] = -distSigma~{idom}~{0}[] > dTr ? c[]/Fabs[(dBb+distSigma~{idom}~{0}[])] : 0 ;
+    // SigmaX[OmegaPml~{idom}~{1}] = distSigma~{idom}~{1}[] > dTr ? c[]/(dBb-distSigma~{idom}~{1}[])-c[]/(dBb-dTr) : 0; // Bermudez -- no jump
+    // SigmaX[OmegaPml~{idom}~{0}] = -distSigma~{idom}~{0}[] > dTr ? c[]/Fabs[(dBb+distSigma~{idom}~{0}[])]-c[]/Fabs[(dBb-dTr)] : 0 ;
+    // SigmaX[OmegaPml~{idom}~{1}] = distSigma~{idom}~{1}[] > dTr ? 7000*(distSigma~{idom}~{1}[]-dTr)^2*om[] : 0; // Quadratic
+    // SigmaX[OmegaPml~{idom}~{0}] = -distSigma~{idom}~{0}[] > dTr ? 7000*Fabs[(distSigma~{idom}~{0}[]+dTr)]^2*om[] : 0 ;
+    // SigmaX[OmegaPml~{idom}~{1}] = distSigma~{idom}~{1}[] > dTr ? c[]/dPml : 0; // Constant
+    // SigmaX[OmegaPml~{idom}~{0}] = -distSigma~{idom}~{0}[] > dTr ? c[]/dPml : 0 ;
   EndFor
   SigmaY[] = 0.;
   SigmaZ[] = 0.;

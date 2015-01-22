@@ -29,7 +29,9 @@ Constraint {
     // For idom In {0:N_DOM-1}
     //   Case { { Region GammaC~{idom} ; Type AssignFromResolution; NameOfResolution Maxwell_e_Dirichlet ; } }
     // EndFor
-    Case { { Region GammaC ; Type Assign ; Value 0. ; } }
+    Case {
+      { Region GammaC ; Type Assign ; Value 0. ; }
+    }
   }
 }
 
@@ -179,7 +181,7 @@ Resolution {
 
   { Name Maxwell_Lagrange;
     System {
-      { Name A; NameOfFormulation Maxwell_Lagrange; Type Complex; }
+      { Name A; NameOfFormulation Maxwell_Lagrange; Type Complex; NameOfMesh StrCat[Dir,MshNameFull];}
     }
     Operation {
       Generate[A]; Solve[A];

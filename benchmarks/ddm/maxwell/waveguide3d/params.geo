@@ -48,6 +48,7 @@ MAXIT = 100;
 RESTART = MAXIT;
 SOLVER = "gmres";
 
+MshNameFull = "waveguide_mshcut.msh" ;
 
 
 // Include "params_part2.geo";

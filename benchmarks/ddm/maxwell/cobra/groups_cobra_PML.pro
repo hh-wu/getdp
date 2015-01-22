@@ -21,13 +21,19 @@ Group{
   // BndSigma = Region[{}];
   Sigma = Region[ {} ]; 
   Gamma_l = Region[ {1000} ];
-  Gamma_r = Region[ {4000} ]; 
-  Gamma_D = Region[ {2000} ]; 
+  Gamma_r = Region[ {2000} ]; 
+  Gamma_D = Region[ {3000} ]; 
   BndGamma1 = Region[{}];
   Omega = Region[{6000}];
   GammaScat = Region[{Gamma_r}]; //////////////////////
-  GammaInf = Region[{Gamma_l}];
-  GammaC = Region[{Gamma_D}];
+  If (OPEN_ENDED)
+    GammaInf = Region[{Gamma_l}];
+    GammaC = Region[{Gamma_D}];
+  EndIf
+  If (!OPEN_ENDED)
+    GammaInf = Region[{}];
+    GammaC = Region[{Gamma_D, Gamma_l}];
+  EndIf
   BndGammaInf = Region[{}];
   BndSigma = Region[{}];
 
@@ -47,11 +53,17 @@ Group{
   OmegaAll~{idom} = Region[{Omega~{idom},OmegaPml~{idom}}];
 
   GammaScat~{idom} = Region[{}] ;
-  GammaC~{idom} = Region[{((idom+1)*1000+202),((idom+1)*1000+203)}] ;
-  GammaInf~{idom} = Region[{((idom+1)*1000+10)}] ;
 
+  If (OPEN_ENDED)
+    GammaC~{idom} = Region[{((idom+1)*1000+202)}] ;
+    GammaInf~{idom} = Region[{((idom+1)*1000+10)}] ;
+  EndIf
+  If (!OPEN_ENDED)
+    GammaC~{idom} = Region[{((idom+1)*1000+202), ((idom+1)*1000+10)}] ;
+    GammaInf~{idom} = Region[{}] ;
+  EndIf
   GammaC_Pml~{idom}~{0} = Region[{}];
-  GammaC_Pml~{idom}~{1} = Region[{((idom+1)*1000+302),((idom+1)*1000+303)}];
+  GammaC_Pml~{idom}~{1} = Region[{((idom+1)*1000+302)}];
   GammaC_Pml~{idom} = Region[{GammaC_Pml~{idom}~{0}, GammaC_Pml~{idom}~{1}}];
 
   GammaInf_Pml~{idom}~{0} = Region[{}] ;
@@ -72,11 +84,11 @@ Group{
   OmegaAll~{idom} = Region[{Omega~{idom},OmegaPml~{idom}}];
 
   GammaScat~{idom} = Region[{}] ;
-  GammaC~{idom} = Region[{((idom+1)*1000+202),((idom+1)*1000+203)}] ;
+  GammaC~{idom} = Region[{((idom+1)*1000+202)}] ;
   GammaInf~{idom} = Region[{}] ;
 
-  GammaC_Pml~{idom}~{0} = Region[{((idom+1)*1000+102),((idom+1)*1000+103)}];
-  GammaC_Pml~{idom}~{1} = Region[{((idom+1)*1000+302),((idom+1)*1000+303)}];
+  GammaC_Pml~{idom}~{0} = Region[{((idom+1)*1000+102)}];
+  GammaC_Pml~{idom}~{1} = Region[{((idom+1)*1000+302)}];
   GammaC_Pml~{idom} = Region[{GammaC_Pml~{idom}~{0}, GammaC_Pml~{idom}~{1}}];
 
   GammaInf_Pml~{idom}~{0} = Region[{((idom+1)*1000+1)}] ;
@@ -97,10 +109,10 @@ Group{
   OmegaAll~{idom} = Region[{Omega~{idom},OmegaPml~{idom}}];
 
   GammaScat~{idom} = Region[{((idom+1)*1000+20)}] ;
-  GammaC~{idom} = Region[{((idom+1)*1000+202),((idom+1)*1000+203)}] ;
+  GammaC~{idom} = Region[{((idom+1)*1000+202)}] ;
   GammaInf~{idom} = Region[{}] ;
 
-  GammaC_Pml~{idom}~{0} = Region[{((idom+1)*1000+102),((idom+1)*1000+103)}];
+  GammaC_Pml~{idom}~{0} = Region[{((idom+1)*1000+102)}];
   GammaC_Pml~{idom}~{1} = Region[{}];
   GammaC_Pml~{idom} = Region[{GammaC_Pml~{idom}~{0}, GammaC_Pml~{idom}~{1}}];
 

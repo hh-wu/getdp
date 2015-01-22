@@ -38,7 +38,12 @@ Function{
     einc[] = Vector[0,1,0] * Complex[ 1, 0] ; // TEM
   EndIf
   If (TM)
-    einc[] = X[] == 0 ? Vector[ Sin[kc*Y[]], -I[]*beta[]/kc*Cos[kc*Y[]], 0] : Vector[ Sin[kc*Y[]], -I[]*beta[]/kc*Cos[kc*Y[]], 0]; // TM
+    // einc[] = X[] == 0 ? Vector[ Sin[kc*Y[]], -I[]*beta[]/kc*Cos[kc*Y[]], 0] : Vector[ Sin[kc*Y[]], -I[]*beta[]/kc*Cos[kc*Y[]], 0]; // TM
+
+    P[] = -Sin[theta]*X[] + Cos[theta]*Y[];
+    // einc[] = Vector[ Sin[kc*P[]], -I[]*beta[]/kc*Cos[kc*P[]], 0]; // TM
+    RT[] = Tensor[Cos[theta], -Sin[theta], 0., Sin[theta], Cos[theta], 0., 0., 0., 1.]; // rotation tensor
+    einc[] = RT[]*Vector[ Sin[kc*P[]], -I[]*beta[]/kc*Cos[kc*P[]], 0 ] ; // TM
   EndIf
   If (TE)
     einc[] = Vector[ Cos[kc*Y[]], I[]*beta[]/kc*Sin[kc*Y[]], 0] ; // TE -- !! here e is the magnetic field !!

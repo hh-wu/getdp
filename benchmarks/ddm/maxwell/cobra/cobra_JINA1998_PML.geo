@@ -101,12 +101,12 @@ For i In {n:n+nDomList[4]-1}
 EndFor
 EndIf
 
-Mesh 3;
+Mesh 2;
 
 n += nDomList[4];
 For i In {0:n-1}
   Delete Physicals;
-  // Mesh 1; // hack to remove any existing 3d mesh (that otherwise causes an error)
+  Mesh 1; // hack to remove any existing 3d mesh (that otherwise causes an error)
   idom = i;
 
   Physical Volume(((idom+1)*1000+200)) = lv[i];
@@ -133,7 +133,7 @@ For i In {0:n-1}
   Physical Surface(((idom+1)*1000+102)) = {myList1[]};
   Physical Surface(((idom+1)*1000+302)) = {myList3[]};
 
-  // Mesh 3;
+  Mesh 3;
 
 
 // Plugin(MeshSubEntities).InputDimension = 2;

@@ -3,12 +3,12 @@ WAVENUMBER = 2.00000*Pi ;
 LAMBDA = 2*Pi/WAVENUMBER ;
 N_LAMBDA = 20.000000 ;
 LC = 0.012500*2.;
-PRECOND_SWEEP = 1 ;
+PRECOND_SWEEP = 0 ;
 m = 1 ;
 D = 4.000000 ;
 d = 1.000000 ;
 
-theta = 0;
+theta = Pi/12.;
 
 TOL = 1.000000e-6 ;
 
@@ -21,7 +21,7 @@ PML = 1;
 meshFactor = 1;
 
 nLayersTr = 1;
-nLayersPml = 3*meshFactor;
+nLayersPml = 5*meshFactor;
 
 lc = LC;//.05/meshFactor;
 
@@ -47,4 +47,5 @@ MAXIT = 100;
 RESTART = MAXIT;
 
 MshName = "waveguide2d_mshcut" ;
+MshNameFull = "waveguide2d.msh" ;
 

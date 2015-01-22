@@ -133,7 +133,7 @@ FunctionSpace {
     idom = ListOfDom(ii);
     { Name Hcurl_e~{idom}; Type Form1;
       BasisFunction { { Name se; NameOfCoef ee; Function BF_Edge;
-	  Support Region[{OmegaAll~{idom}, GammaScat~{idom}, GammaInf~{idom}, Sigma~{idom}/*, GammaC~{idom},*/ GammaC_Pml~{idom}, GammaInf_Pml~{idom}}] ; Entity EdgesOf[All]; } } 
+	  Support Region[{OmegaAll~{idom}, GammaScat~{idom}, GammaInf~{idom}, Sigma~{idom}, GammaC~{idom}, GammaC_Pml~{idom}, GammaInf_Pml~{idom}}] ; Entity EdgesOf[All]; } } 
       Constraint {
         { NameOfCoef ee; EntityType EdgesOf ; NameOfConstraint Dirichlet_e_homog~{idom}; }
       }
@@ -453,10 +453,9 @@ Formulation {
         Galerkin { [ -eps[]*(kPml~{idom}~{1}[])^2 * Dof{e~{idom}} , {e~{idom}} ];
 	  In OmegaPml~{idom}~{1}; Integration I1; Jacobian JVol; }
 
-
-
-	// Galerkin { [ I[] * kDtN[] * (N[]) /\ ( N[] /\ Dof{e~{idom}} ) , {e~{idom}} ];
-	//   In GammaInf_Pml~{idom}; Integration I1; Jacobian JSur; }
+	Galerkin { [ I[] * kDtN[] * (N[]) /\ ( N[] /\ Dof{e~{idom}} ) , {e~{idom}} ];
+	// Galerkin { [ I[] * kDtN[] * nu[] * (N[]) /\ ( N[] /\ Dof{e~{idom}} ) , {e~{idom}} ];
+	  In GammaInf_Pml~{idom}; Integration I1; Jacobian JSur; }
 
 
 	// // //boundary condition
@@ -510,8 +509,8 @@ Formulation {
 	  In OmegaPml~{idom}~{1}; Integration I1; Jacobian JVol; }
 
 
-	// Galerkin { [ I[] * kDtN[] * (N[]) /\ ( N[] /\ Dof{e_bb~{idom}~{iSide}} ) , {e_bb~{idom}~{iSide}} ];
-	//   In GammaInf_Pml~{idom}~{iSide}; Integration I1; Jacobian JSur; }
+	Galerkin { [ I[] * kDtN[] * (N[]) /\ ( N[] /\ Dof{e_bb~{idom}~{iSide}} ) , {e_bb~{idom}~{iSide}} ];
+	  In GammaInf_Pml~{idom}~{iSide}; Integration I1; Jacobian JSur; }
 
 	// // //boundary condition
 	Galerkin { [ Dof{lambda_bb~{idom}~{iSide}} , {e_bb~{idom}~{iSide}} ] ;
@@ -594,6 +593,9 @@ Resolution {
       EndIf
     }
     Operation {
+
+      SetGlobalSolverOptions["-ksp_monitor"];
+      SetGlobalSolverOptions["-mat_mumps_icntl_14 50"];
 
       If (MPI_Rank == 0)
 	Printf["N_DOM: %g; #procs: %g", N_DOM, MPI_Size];
@@ -972,7 +974,7 @@ PostProcessing {
 	// { Name j~{idom} ; Value { Local { [ N[] /\ ({h~{idom}}) ] ; In GammaScat; Jacobian JSur ; } } }
 	// { Name h_vol~{idom} ; Value { Local { [ {h~{idom}} ] ; In Omega~{idom}; Jacobian JVol ; } } }
 	{ Name e_vol~{idom} ; Value { Local { [ {e~{idom}}] ; In OmegaAll~{idom}; Jacobian JVol ; } } }
-	{ Name e_vol_tot~{idom} ; Value { Local { [ {e~{idom}} + einc[]] ; In Omega~{idom}; Jacobian JVol ; } } }
+	{ Name e_vol_tot~{idom} ; Value { Local { [ {e~{idom}} + einc[]] ; In OmegaAll~{idom}; Jacobian JVol ; } } }
       }
     }
 

@@ -33,7 +33,7 @@ Function {
   omega[] = c*k[] ;
 
 
-  kDtn[] = k[];
+  kDtN[] = k[];
   kInf[] = k[];
 
   ky = m*Pi/d1 ;

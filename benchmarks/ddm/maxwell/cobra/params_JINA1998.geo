@@ -1,15 +1,22 @@
-WAVENUMBER = 2*Pi*10. ;
+WAVENUMBER = 2*Pi*15. ;
 LAMBDA = 2*Pi/WAVENUMBER ;
 N_LAMBDA = 20.000000 ;
-LC = 0.005;//2500;
+// LC = LAMBDA/N_LAMBDA;//0.005-0*1e-9;//2500;
+LC = 0.005-1*1e-9;//2500;
+
+Printf("LC: %g",LC);
+
+// Geometry.Tolerance = 1e-12;
+
 PRECOND_SWEEP = 1 ;
-MAXIT = 300 ;
+MAXIT = 100 ;
 m = 1 ; // 'vertical'
 n = 1 ; // 'horizontal'
-TOL = 1.000000e-04 ;
+TOL = 1.000000e-06 ;
 Include "params_part2.geo";
 
 PARTS = 5;
+OPEN_ENDED = 1;
 
 // nDomList = {3,5,2,5,1}; // number of domains in the different parts of the domain, starting from inner straight part
 nDomList = {2,2,1,2,1}; // number of domains in the different parts of the domain, starting from inner straight part
@@ -28,7 +35,7 @@ shiftY = -( (R+d1)*(1-Cos[alpha]) + D2*Sin[alpha] + R*(1-Cos[alpha]) ) ;
 PML = 1;
 OSRC = 0;
 
-nLayersTr = 1;
+nLayersTr = 2;
 nLayersPml = 7;
 
 lc = LC;
@@ -36,6 +43,9 @@ lc = LC;
 dTr = nLayersTr*lc;
 dPml = nLayersPml*lc;
 dBb = (nLayersPml+nLayersTr)*lc;
+
+
+MshNameFull = "cobra_JINA1998.msh";
 
 // // WAVENUMBER = 2*Pi*25. ;
 // // LAMBDA = 2*Pi/WAVENUMBER ;
