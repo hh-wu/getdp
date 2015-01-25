@@ -9,10 +9,13 @@ file_dir = os.path.abspath(os.path.dirname(__file__)) + "/"
 
 if os.path.isfile(file_dir + "nodes_pbs.txt"):
     filename = file_dir + "nodes_pbs"
-    ssh = "pbsdsh"
+    #ssh = "/opt/pbs/default/bin/pbs_tmrsh"
+    #ssh = "pbsdsh"
+    ssh = "ssh"
 elif os.path.isfile(file_dir + "nodes_slurm.txt"):
     filename = file_dir + "nodes_slurm"
     ssh = "srun"
+    #ssh = "ssh"
 else:
     filename = None
     ssh = None
