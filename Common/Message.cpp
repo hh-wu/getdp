@@ -151,6 +151,12 @@ void Message::Finalize()
 
 void Message::Exit(int level)
 {
+#if defined(HAVE_PETSC)
+  if(level){
+    // need to abort and not finalize, in order to terminate the full job now
+    MPI_Abort(MPI_COMM_WORLD, level);
+  }
+#endif
   Finalize();
 #if defined(HAVE_OCTAVE)
   clean_up_and_exit(level);
@@ -574,7 +580,7 @@ void Message::PrintTimers()
 
   if(_client){
     _client->Info((char*)str.c_str());
-  } 
+  }
   else if(_onelabClient && _onelabClient->getName() != "GetDPServer"){
     _onelabClient->sendInfo(str);
   }
