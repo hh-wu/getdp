@@ -152,8 +152,8 @@ void Message::Finalize()
 void Message::Exit(int level)
 {
 #if defined(HAVE_PETSC)
-  if(level){
-    // need to abort and not finalize, in order to terminate the full job now
+  if(level && _commSize > 1){
+    // abort (and not finalize) in order to terminate the full job *now*
     MPI_Abort(MPI_COMM_WORLD, level);
   }
 #endif
