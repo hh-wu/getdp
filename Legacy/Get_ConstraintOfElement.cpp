@@ -56,6 +56,7 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 
     case ASSIGN :                case INIT :
     case ASSIGNFROMRESOLUTION :  case INITFROMRESOLUTION :
+    case ASSIGN_LOCALPROJ :      case INIT_LOCALPROJ :
     case CST_LINK : case CST_LINKCPLX :
 
       switch(Constraint_P->QuantityType) {
@@ -576,7 +577,7 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
 
   TOL = Current.GeoData->CharacteristicLength * ToleranceFactor ;
   // by default, ToleranceFactor is 1.e-8 (to be defined with ToleranceFactor value; in the Link constraint
-	
+
   /* Nodes with Constraint */
 
   Nbr_Entity = List_Nbr(ExtendedList_L) ;
