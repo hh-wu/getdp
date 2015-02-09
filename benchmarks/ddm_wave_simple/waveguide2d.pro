@@ -12,21 +12,13 @@ DefineConstant[ // allows to set these from outside
   NP_OSRC = 4,
   // parameters for the DDM iterative solver
   SOLVER = "gmres", // bcgs, gmsh_pcleft, ...
-  TOL = 1e-4,
+  TOL = 1e-6,
   MAXIT = 1000,
   RESTART = MAXIT
 ];
 
 Function {
   I[] = Complex[0, 1];
-
-  c0[] = 1;
-  c[] = 1.25*(1.-.4*Exp[-32*(Y[]-DY/2)^2]) ;
-  freq[] = c0[] / LAMBDA;
-  om[] = 2 * Pi * freq[];
-  k[] = om[] / c[] ;
-
-  BETA_M[] = Sqrt[k[]^2-(MODE*Pi/DY)^2];
 
   // local interface coordinates for the delta functions
   For idom In {0:N_DOM-1}
@@ -35,6 +27,15 @@ Function {
       Q~{idom}~{jdom}[] = Z[];
     EndFor
   EndFor
+  P[] = (-X[]*Sin[theta]+Y[]*Cos[theta]);
+
+  c0[] = 1;
+  c[] = 1.25*(1.-.4*Exp[-32*(P[]-DY/2)^2]) ;
+  freq[] = c0[] / LAMBDA;
+  om[] = 2 * Pi * freq[];
+  k[] = om[] / c[] ;
+
+  BETA_M[] = Sqrt[k[]^2-(MODE*Pi/DY)^2];
 
   uinc[] = Complex[ Sin[MODE * Pi / DY * P~{0}~{0}[]], 0];
 

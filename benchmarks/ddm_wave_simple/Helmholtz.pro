@@ -58,11 +58,20 @@ FunctionSpace {
     idom = ListOfDom(ii);
     { Name Hgrad_u~{idom} ; Type Form0 ;
       BasisFunction {
+	If (TC_TYPE != 3)
         { Name sn ; NameOfCoef un ; Function BF_Node ;
           Support Region[ {Omega~{idom}, GammaInf~{idom}, BndGammaInf~{idom},
               Sigma~{idom}, BndSigma~{idom}, GammaD~{idom}, GammaD0~{idom}} ] ;
           Entity NodesOf[ All ] ;
         }
+	EndIf
+	If (TC_TYPE == 3)
+        { Name sn ; NameOfCoef un ; Function BF_Node ;
+          Support Region[ {Omega~{idom}, Pml~{idom}~{0}, Pml~{idom}~{1}, GammaInf~{idom}, BndGammaInf~{idom}, PmlInf~{idom}~{0}, PmlInf~{idom}~{1},
+              Sigma~{idom}, BndSigma~{idom}, GammaD~{idom}, GammaD0~{idom}} ] ;
+          Entity NodesOf[ All ] ;
+        }
+	EndIf
       }
       Constraint {
         { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet~{idom} ; }
@@ -92,6 +101,30 @@ FunctionSpace {
         }
       EndFor
     EndIf
+    If (TC_TYPE == 3)
+      { Name Hgrad_ubb~{idom}~{iSide} ; Type Form0 ;
+	BasisFunction {
+	  { Name sn ; NameOfCoef un ; Function BF_Node ;
+	    Support Region[ {Sigma~{idom}~{iSide}, Pml~{idom}~{iSide}, PmlInf~{idom}~{iSide}} ] ;
+	    Entity NodesOf[All, Not {GammaD~{idom}, GammaD0~{idom}}] ;
+	  }
+	}
+	Constraint {
+	  { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet0~{idom} ; }
+	}
+      }
+      { Name Hgrad_glm~{idom}~{iSide} ; Type Form0 ;
+	BasisFunction {
+	  { Name sn ; NameOfCoef un ; Function BF_Node ;
+	    Support Region[ {Sigma~{idom}~{iSide}} ] ;
+	    Entity NodesOf[All, Not {GammaD~{idom}, GammaD0~{idom}}] ;
+	  }
+	}
+	Constraint {
+	  { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet0~{idom} ; }
+	}
+      }
+    EndIf
    EndFor
  EndFor
 }
@@ -117,10 +150,12 @@ Formulation {
         Galerkin { [ -k[]^2 * Dof{u~{idom}} , {u~{idom}} ] ;
           In Omega~{idom}; Jacobian JVol ; Integration I1 ; }
 
-        Galerkin { [ - (#11 > 0. ? g_in~{idom}~{0}[] : 0), {u~{idom}} ] ;
-          In Sigma~{idom}~{0}; Jacobian JSur ; Integration I1 ; }
-        Galerkin { [ - (#12 > 0. ? g_in~{idom}~{1}[] : 0), {u~{idom}} ] ;
-          In Sigma~{idom}~{1}; Jacobian JSur ; Integration I1 ; }
+	If (TC_TYPE != 3)
+	  Galerkin { [ - (#11 > 0. ? g_in~{idom}~{0}[] : 0), {u~{idom}} ] ;
+            In Sigma~{idom}~{0}; Jacobian JSur ; Integration I1 ; }
+          Galerkin { [ - (#12 > 0. ? g_in~{idom}~{1}[] : 0), {u~{idom}} ] ;
+            In Sigma~{idom}~{1}; Jacobian JSur ; Integration I1 ; }
+	EndIf
 
         // transmission condition
         If(TC_TYPE == 0)
@@ -160,6 +195,28 @@ Formulation {
           EndFor
         EndIf
 
+	If (TC_TYPE == 3)
+	  Galerkin{[Rotate[D[],0.,0.,-thetaList(idom)]* Dof{d u~{idom}}, {d u~{idom}}];
+	    In Pml~{idom}~{0}; Jacobian JVol; Integration I1;}
+	  Galerkin{[Rotate[D[],0.,0.,-thetaList(idom+1)]* Dof{d u~{idom}}, {d u~{idom}}];
+	    In Pml~{idom}~{1}; Jacobian JVol; Integration I1;}
+
+	  Galerkin{[-(kPml~{idom}~{0}[])^2*Kx[]*Ky[]*Kz[]*Dof{u~{idom}}, {u~{idom}}];
+	    In Pml~{idom}~{0}; Jacobian JVol; Integration I1;}
+	  Galerkin{[-(kPml~{idom}~{1}[])^2*Kx[]*Ky[]*Kz[]*Dof{u~{idom}}, {u~{idom}}];
+	    In Pml~{idom}~{1}; Jacobian JVol; Integration I1;}
+
+	  Galerkin { [ -I[]*(kPml~{idom}~{0}[])*Dof{u~{idom}}, {u~{idom}} ] ;
+	    In PmlInf~{idom}~{0} ; Jacobian JSur ; Integration I1 ; } 
+	  Galerkin { [ -I[]*(kPml~{idom}~{1}[])*Dof{u~{idom}}, {u~{idom}} ] ;
+	    In PmlInf~{idom}~{1} ; Jacobian JSur ; Integration I1 ; }      
+
+	  Galerkin { [ ( #11 > 0. ? 2.*g_in~{idom}~{0}[] : 0. ), {u~{idom}} ] ; // delta function
+	    In Sigma~{idom}~{0} ; Jacobian JSur ; Integration I1 ; }      
+	  Galerkin { [ ( #12 > 0. ? 2.*g_in~{idom}~{1}[] : 0. ), {u~{idom}} ] ; // delta function
+	    In Sigma~{idom}~{1} ; Jacobian JSur ; Integration I1 ; }
+	EndIf
+
         // Bayliss-Turkel absorbing boundary condition
 
         Galerkin { [ - I[] * kInf[] * Dof{u~{idom}} , {u~{idom}} ] ;
@@ -184,8 +241,13 @@ Formulation {
               { Name phi~{j}~{idom}~{iSide}; Type Local ; NameOfSpace Hgrad_phi~{j}~{idom}~{iSide}; }
             EndFor
           EndIf
+	  If(TC_TYPE == 3)
+	    { Name ubb~{idom}~{iSide} ; Type Local ; NameOfSpace Hgrad_ubb~{idom}~{iSide} ;}
+	    { Name glm~{idom}~{iSide} ; Type Local ; NameOfSpace Hgrad_glm~{idom}~{iSide} ;}
+	  EndIf
         }
         Equation {
+	  If (TC_TYPE != 3)
           Galerkin { [ Dof{g_out~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ] ;
             In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
           If(iSide == 0)
@@ -219,6 +281,43 @@ Formulation {
                     ({u~{idom}} - {phi~{j}~{idom}~{iSide}})) , {g_out~{idom}~{iSide}} ] ;
                 In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
             EndFor
+          EndIf
+          EndIf
+
+	  If (TC_TYPE == 3)
+
+	//modified Helmholtz equation
+	Galerkin{[ Rotate[D[],0.,0.,-thetaList(idom+iSide)]* Dof{Grad ubb~{idom}~{iSide}}, {Grad ubb~{idom}~{iSide}}];
+	  In Pml~{idom}~{iSide}; Jacobian JVol; Integration I1;}
+	Galerkin{[-(kPml~{idom}~{iSide}[])^2*Kx[]*Ky[]*Kz[]*Dof{ubb~{idom}~{iSide}}, {ubb~{idom}~{iSide}}];
+	  In Pml~{idom}~{iSide}; Jacobian JVol; Integration I1;}
+
+	Galerkin { [ -I[]*kPml~{idom}~{iSide}[]*Dof{ubb~{idom}~{iSide}}, {ubb~{idom}~{iSide}} ] ;
+	  In PmlInf~{idom}~{iSide} ; Jacobian JSur ; Integration I1 ; }      
+
+	Galerkin{[Dof{glm~{idom}~{iSide}}, {ubb~{idom}~{iSide}}];
+	  In Sigma~{idom}~{iSide}; Jacobian JSur; Integration I1;}
+	Galerkin{[Dof{ubb~{idom}~{iSide}}, {glm~{idom}~{iSide}}];
+	  In Sigma~{idom}~{iSide}; Jacobian JSur; Integration I1;}
+	Galerkin{[-{u~{idom}}, {glm~{idom}~{iSide}}];
+	  In Sigma~{idom}~{iSide}; Jacobian JSur; Integration I1;}
+
+
+	Galerkin { [ Dof{g_out~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ] ;
+	  In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
+	If(iSide == 0)
+	  // g_in LEFT (iterative solver) or 0 (initialization step)
+	  Galerkin { [ (#11 > 0. ? g_in~{idom}~{0}[] : 0)  , {g_out~{idom}~{0}} ] ;
+	    In Sigma~{idom}~{0}; Jacobian JSur ; Integration I1 ; }
+	EndIf
+	If(iSide == 1)
+	  // g_in RIGHT (iterative solver) or 0 (initialization step)
+	  Galerkin { [ (#12 > 0. ? g_in~{idom}~{1}[] : 0)  , {g_out~{idom}~{1}} ] ;
+	    In Sigma~{idom}~{1}; Jacobian JSur ; Integration I1 ; }
+	EndIf
+	Galerkin { [ -Dof{glm~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ] ;
+	  In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
+
           EndIf
         }
       }
