@@ -203,9 +203,13 @@ Formulation {
 	  Galerkin { [ -I[]*(kPml~{idom}~{1}[])*Dof{u~{idom}}, {u~{idom}} ] ;
 	    In PmlInf~{idom}~{1} ; Jacobian JSur ; Integration I1 ; }
 
-	  Galerkin { [ ( #11 > 0. ? 2.*g_in~{idom}~{0}[] : 0. ), {u~{idom}} ] ; // delta function
+	  // Galerkin { [ ( #11 > 0. ? 2.*g_in~{idom}~{0}[] : 0. ), {u~{idom}} ] ; // delta function
+	  //   In Sigma~{idom}~{0} ; Jacobian JSur ; Integration I1 ; }
+	  // Galerkin { [ ( #12 > 0. ? 2.*g_in~{idom}~{1}[] : 0. ), {u~{idom}} ] ; // delta function
+	  //   In Sigma~{idom}~{1} ; Jacobian JSur ; Integration I1 ; }
+	  Galerkin { [ -( #11 > 0. ? g_in~{idom}~{0}[] : 0. ), {u~{idom}} ] ; // delta function -- modified definition of g_in to make the formulation 'simpler'
 	    In Sigma~{idom}~{0} ; Jacobian JSur ; Integration I1 ; }
-	  Galerkin { [ ( #12 > 0. ? 2.*g_in~{idom}~{1}[] : 0. ), {u~{idom}} ] ; // delta function
+	  Galerkin { [ -( #12 > 0. ? g_in~{idom}~{1}[] : 0. ), {u~{idom}} ] ; // delta function
 	    In Sigma~{idom}~{1} ; Jacobian JSur ; Integration I1 ; }
 	EndIf
 
@@ -291,7 +295,7 @@ Formulation {
               In Sigma~{idom}~{iSide}; Jacobian JSur; Integration I1;}
             Galerkin{[Dof{ubb~{idom}~{iSide}}, {glm~{idom}~{iSide}}];
               In Sigma~{idom}~{iSide}; Jacobian JSur; Integration I1;}
-            Galerkin{[-{u~{idom}}, {glm~{idom}~{iSide}}];
+            Galerkin{[2*{u~{idom}}, {glm~{idom}~{iSide}}]; // factor -2 to make the formulation symmetric
               In Sigma~{idom}~{iSide}; Jacobian JSur; Integration I1;}
 
             Galerkin { [ -Dof{glm~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ] ; // the d_n u term
