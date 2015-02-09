@@ -1,35 +1,53 @@
-Include "def.dat";
+Include "def_data.geo";
 
 DefineConstant[
-  // Optimization type
-  Flag_topopt = {1, Name "Input/OptParam/optType",Label "Optimization Type",
-                 Choices {0="Structural Optimization",1="Topology Optimization"}, Visible 1},
-  Flag_InterpLaw = {0, Name "Input/OptParam/InterpLaw",Label "material interpolation law",
-                           Choices {0="SIMP",1="RAMP"},Visible (Flag_topopt==1)},
-  degree_SIMP = {3.0, Name "OptParam/DegreeSimp",Label "Degree SIMP", 
-                 Visible (Flag_topopt==1)},
-  volfrac = {0.5, Name "OptParam/volfrac",Label "Initial density distribution", 
-             Visible (Flag_topopt==1)},
-  Flag_initOpt = {0, Name "Input/OptParam/optInit", Label "Initialize design variable", 
-                  Choices {0, 1}, Visible (Flag_topopt==1)}, 
+  //-------------------------------------------------------------
+  // optimization stuff ...
+  //-------------------------------------------------------------
+  Flag_SolveStateVar = {0, Name "Input/OptParam/SolveStateVar",
+                           Label "Get State Variable", Choices {0,1}, Visible 1},
+
+  Flag_SolveAdjointVar = {0, Name "Input/OptParam/SolveAdjointVar",
+                             Label "Get Adjoint Variable",Choices {0,1}, Visible 1},
+
+  Flag_PerfType = {COMPLIANCE, Name "Input/OptParam/PerfType",
+                               Label "performance function type",
+                               Choices {NO_PERF="No performance function",
+                                        COMPLIANCE="compliance"},
+			       Visible Flag_SolveAdjointVar},
+
+  Flag_AvmFixedDomSens = {0, Name "Input/OptParam/AdjointMethodSensFixedDom",
+                             Label "fixed domain derivative (avm)", 
+                             Choices {0,1}, Visible 1},
+
+  // Filter
+  Flag_filterSensitivity = {0, Name "Input/OptParam/filterSens", 
+                               Label "Filter Derivatives?",
+                               Choices {0, 1}, Visible (Flag_topopt==1)}, 
+
+  Rmin = {0.001*10, Name "Input/OptParam/RadiusSensFilter",
+                    Label "Sensitivity Filter Radius", 
+                    Visible (Flag_filterSensitivity==1)},
+
+  Flag_InterpLaw = {0, Name "Input/OptParam/MaterialInterpLaw",
+                       Label "material interpolation law",
+                       Choices {0="SIMP",1="RAMP"},Visible (Flag_topopt==1)},
+
+  degree_SIMP = {3.0, Name "Input/OptParam/SimpPenalDegree",
+                      Label "Degree SIMP", Visible (Flag_topopt==1)}
+
   Flag_testBench = {1, Name "Geo/Test Case", 
                     Choices {0="Short Cantiler Beam", 1="MBB Beam",2="tst"}, Visible 1},
-  Flag_filterSensitivity = {0, Name "Input/OptParam/filterSens", 
-                            Label "Filter sensitivities?", Choices {0, 1}, 
-                            Visible (Flag_topopt==1)}, 
-  Rmin = {lc*10, Name "Input/OptParam/rmin",Label "Sensitivity Filter Radius", 
-          Visible (Flag_filterSensitivity==1)},
-  ExtGmsh = ".pos",
+
   E0 = 1,//210e09,//(Acier) N/m2
   nu = 0.3,
+
   R_ = {"OptimStep", Name "GetDP/1ResolutionChoices", 
 	Choices {"Analysis", "OptimStep"}, Visible 0},
   C_ = {"-solve -v 3 -v2", Name "GetDP/9ComputeCommand", Visible 0},
   P_ = {"", Name "GetDP/2PostOperationChoices", Visible 0}
 ];
 
-//po_opt  = "Output - Optimization/";
-po_opt  = "Output/";
 
 Group {
   Bloc = #BLOC;
@@ -45,21 +63,19 @@ Group {
   EndIf
   Domain_Disp = Region[{Bloc}];
   Domain_Force = Region[{BlocForce}]; 
-
+  Domain = Region[{Domain_Disp}];
+  DomainOpt = Region[{Domain_Disp}];
+  DomCompl = Region[{Domain_Disp}];
   SurfTot = Region[{SURF_BAS, SURF_HAUT, SURF_GAUCHE, SURF_DROITE}];
 }
 
 Function {
 
-  //E  = 7.7e10; 
-  //nu =  0.346;//Alu
   If(!Flag_topopt)
     E[] = E0;
   EndIf
   If(Flag_topopt)
-     //design variables (read from view of .pos)
-     //designVar[] = ScalarField[XYZ[]]{1};
-     designVar[] = ScalarField[XYZ[],0,1]{1};//0 = pas de temps;1 = "match elements"
+     designVar[] = ScalarField[XYZ[],0,1]{DES_VAR_FIELD};
      If(Flag_InterpLaw == 0.0) //SIMP
        E[] = (E0 - 1.0e-03)*designVar[]^degree_SIMP + 1.0e-03;
        E_prime[] = degree_SIMP*(E0 - 1.0e-03)*designVar[]^(degree_SIMP-1.0);
@@ -75,43 +91,30 @@ Function {
                        + 1.0/alpha)*E0 ;
      EndIf
   EndIf
-
   f[]  = E[]/(1-nu*nu);
-
   If(Flag_topopt) 
     f_prime[]  = E_prime[]/(1-nu*nu);
   EndIf
-
-  c11  = 1 ;
-  c12  = nu ;
-  c22  = 1  ;
-  c33  = (1-nu)/2 ; 
+  c11  = 1 ; c12  = nu ; c22  = 1  ; c33  = (1-nu)/2 ; 
   C[ Bloc ]  = f[]*TensorSym[ c11, c12, 0, c22, 0, c33 ];
 
   If(Flag_topopt)
     C_prime[ Bloc ]  = f_prime[]*TensorSym[ c11, c12, 0, c22, 0, c33 ];
   EndIf
   s_disp = 1;
-
   Flag_Disp = 2; // 1: point, 2: line
 
-//  u_fixed[] = Vector[dy/8, dy/8*2, 0] * s_disp;
+  //u_fixed[] = Vector[dy/8, dy/8*2, 0] * s_disp;
   u_fixed[] = Vector[0, 0, 0] * s_disp;
-
   u_fixed_line[] = u_fixed[]; // * Y[]/dy;
-
   force_node[] = Vector[0, -1.0e-02/*1e6*/, 1]; //???
   //force_density[] = Vector[0,-9.81,0]; //???
 
   If(Flag_filterSensitivity)
     rmin2[] = Rmin*Rmin;
-    //sensitivityMap[] = ScalarField[XYZ[]]{2}; 
-    sensitivityMap[] = ScalarField[XYZ[],0,1]{2};//0 = pas de temps;1 = "match elements"
-    prod_x_dC[] = designVar[] * sensitivityMap[];
+    prod_x_dC[] = ScalarField[XYZ[],0,1]{SENS_FIELD};
   EndIf
 
-  // densité [kg/m3]
-  volDensity[Bloc] = 7874; //acier
 }
 
 Group {
@@ -130,14 +133,6 @@ Constraint {
  // Dirichlet constraint for Elasticity problem
  { Name DisplacementX_Mec ; Type Assign ;
   Case {
-//   If (Flag_Disp == 1)
-//    { Region #POINT_3;  Value CompX[u_fixed[]]; }
-//   EndIf
-//    //    { Region #POINT_1;  Value 0.; }
-//   If (Flag_Disp == 2)
-//    { Region #SURF_DROITE;  Value CompX[u_fixed_line[]]; } //on impose déplacement sur surf_droite
-//   EndIf
-    //    { Region #POINT_1;  Value 0.; }
     If(Flag_testBench == 0)
       { Region #SURF_GAUCHE;  Value 0.; }
     EndIf
@@ -152,13 +147,6 @@ Constraint {
  }
  { Name DisplacementY_Mec; Type Assign ;
    Case {
-//    If (Flag_Disp == 1)
-//     { Region #POINT_3;  Value CompY[u_fixed[]]; }
-//    EndIf
-//    If (Flag_Disp == 2)
-//     { Region #SURF_DROITE;  Value CompY[u_fixed_line[]]; }
-//    EndIf
-    //    { Region #POINT_1;  Value 0.; }
     If(Flag_testBench == 0) //short beam
       { Region #SURF_GAUCHE;  Value 0.; } //bloquer déplacement selon y
     EndIf
@@ -188,7 +176,7 @@ Constraint {
 
 
 Integration {
-  { Name GradGrad ;
+  { Name I1 ;
     Case { {Type Gauss ;
             Case {
               { GeoElement Point        ; NumberOfPoints  2 ; }
@@ -218,16 +206,11 @@ Group {
   DefineGroup[Domain_Disp, Domain_Force];
 }
 Function {
-  DefineFunction[ C, force_density, force_node ] ;
-  DefineFunction[ rmin2, prod_x_dC, designVar ] ;
+  DefineFunction[ 
+    C,force_density,force_node,
+    rmin2, prod_x_dC, designVar 
+  ];
 }
-
-
-
-//Group {
-//  Domain_Disp_Tot = Region[{Domain_Disp, Domain_Force}];
-//}
-
 
 FunctionSpace{
   { Name H_psi ; Type Form0 ;
@@ -273,6 +256,27 @@ FunctionSpace{
        { NameOfCoef uyn2 ;
          EntityType EdgesOf ; NameOfConstraint DisplacementY_Mec_d2 ; }
       EndIf
+    }
+  }
+  //-----------------------------------------------------------------
+  { Name H_Mec2D_lambda; Type Vector ;
+    BasisFunction {
+      { Name sxn ; NameOfCoef lambdaxn ; Function BF_NodeX ; 
+             dFunction {BF_NodeX_D12, BF_Zero};
+        Support Domain_Disp_Tot ; Entity NodesOf[ All ] ; }
+      { Name syn ; NameOfCoef lambdayn ; Function BF_NodeY ; 
+             dFunction {BF_NodeY_D12, BF_Zero};
+        Support Domain_Disp_Tot ; Entity NodesOf[ All ] ; }
+    }
+      SubSpace {
+        { Name lambda_x ; NameOfBasisFunction { sxn } ; }
+        { Name lambda_y ; NameOfBasisFunction { syn } ; }
+      }
+    Constraint {
+      { NameOfCoef lambdaxn ;
+        EntityType NodesOf ; NameOfConstraint DisplacementX_Mec; }
+      { NameOfCoef lambdayn ;
+        EntityType NodesOf ; NameOfConstraint DisplacementY_Mec; }
     }
   }
 }
@@ -331,20 +335,20 @@ Formulation {
     Equation {
        // u formulation
       Galerkin { [ C[]*Dof{D1 u}, {D1 u}] ; //D1 --> grad ??
-                 In Domain_Disp; Jacobian Vol ; Integration GradGrad ; }
+                 In Domain_Disp; Jacobian Vol ; Integration I1 ; }
 
       // densite de force imposee
       If (0)
       Galerkin { [ force_density[], {u}] ;
-                 In Domain_Force ; Jacobian Vol ; Integration GradGrad; }
+                 In Domain_Force ; Jacobian Vol ; Integration I1; }
       EndIf
 
       // Pour forces nodales imposees
       If (1)
-        Galerkin { [ -AssDiag[]{1} * CompX[force_node[]] * Unit[Dof{u_dum_x}], Unit[{u_x}] ] ;
-                   In Domain_Force ; Jacobian Sur ; Integration GradGrad; }
-        Galerkin { [ -AssDiag[]{1} * CompY[force_node[]] * Unit[Dof{u_dum_y}], Unit[{u_y}] ] ;
-                   In Domain_Force ; Jacobian Sur ; Integration GradGrad; }
+        Galerkin { [ -AssDiag[]{1}*CompX[force_node[]]*Unit[Dof{u_dum_x}],Unit[{u_x}]];
+                   In Domain_Force ; Jacobian Sur ; Integration I1; }
+        Galerkin { [ -AssDiag[]{1}*CompY[force_node[]]*Unit[Dof{u_dum_y}],Unit[{u_y}]];
+                   In Domain_Force ; Jacobian Sur ; Integration I1; }
       EndIf
     }
    }
@@ -352,27 +356,38 @@ Formulation {
   { Name Filt_sens ; Type FemEquation ;
     Quantity {
        { Name psi ; Type Local ; NameOfSpace H_psi;}
-       //{ Name dummy  ; Type Local  ; NameOfSpace dummy ; }
       }
     Equation {
       Galerkin{ [rmin2[]*Dof{Grad psi}, {Grad psi}];
-        In Domain_Disp; Jacobian Vol; Integration GradGrad;}
+        In Domain_Disp; Jacobian Vol; Integration I1;}
  
       Galerkin{ [  Dof{psi}, {psi}];
-       In Domain_Disp; Jacobian Vol; Integration GradGrad;}
+       In Domain_Disp; Jacobian Vol; Integration I1;}
  
       Galerkin{ [-prod_x_dC[], {psi}];
-        In Domain_Disp; Jacobian Vol; Integration GradGrad;}
-/*
-       Galerkin { [ rmin2[] * Dof{d psi}, {d psi} ] ; 
-                   In Domain_Disp; Jacobian Vol ; Integration GradGrad ; }
-
-       Galerkin { [ Dof{psi}, {psi} ] ; 
-                   In Domain_Disp; Jacobian Vol; Integration GradGrad; }
-       Galerkin { [ -prod_x_dC[], {psi} ] ; 
-                   In Domain_Disp; Jacobian Vol; Integration GradGrad; }
-*/
+        In Domain_Disp; Jacobian Vol; Integration I1;}
       }
+  }
+  //-----------------------------------------------------------------
+  // Adjoint Formulation
+  //-----------------------------------------------------------------
+  { Name AdjointFormulation ; Type FemEquation ;
+    Quantity {
+      { Name u  ; Type Local  ; NameOfSpace H_Mec2D_u; }
+      { Name lambda ; Type Local  ; NameOfSpace H_Mec2D_lambda; }
+    }
+    Equation {
+      // bilinear(Lambda,Lambda')
+      Galerkin { [ C[]*Dof{D1 lambda}, {D1 lambda} ] ;
+        In Domain ; Jacobian Vol ; Integration I1 ; }
+
+      // Adjoint load
+      If(Flag_PerfType == COMPLIANCE) //Int(C*u^2)
+        Printf["-- Compliance Pseudoload --"];
+        Galerkin { [ -2.0*C[]*{D1 u}, {D1 lambda} ] ;
+         In Domain ; Jacobian Vol ; Integration I1 ; }
+      EndIf
+   }
   }
 
   // Direct method sensitivity formulation --> compute du/dx
@@ -384,9 +399,9 @@ Formulation {
     Equation {
      //écriture correcte??
      Galerkin { [ C[]*Dof{D1 u_prime}, {D1 u_prime}] ; 
-                 In Domain_Disp; Jacobian Vol ; Integration GradGrad ; }
+                 In Domain_Disp; Jacobian Vol ; Integration I1 ; }
      Galerkin { [ C_prime[]*{D1 u}, {D1 u_prime}] ; 
-                 In Domain_Disp; Jacobian Vol ; Integration GradGrad ; }
+                 In Domain_Disp; Jacobian Vol ; Integration I1 ; }
     }
   }
 }
@@ -394,185 +409,51 @@ Formulation {
 Resolution {
   { Name OptimStep ;
     System {
-      If(!Flag_filterSensitivity)
-        { Name Sys_Mec ; NameOfFormulation Mec2D_u ; }
-      EndIf
-      If(Flag_filterSensitivity)     
-        { Name Sys_Filt ; NameOfFormulation Filt_sens ; }
-      EndIf
+        { Name A ; NameOfFormulation Mec2D_u ; }
+        { Name B ; NameOfFormulation AdjointFormulation ; }
+        { Name C ; NameOfFormulation Filt_sens ; }
     }
     Operation { 
-      CreateDir["res"];
-      If(!Flag_filterSensitivity)
+      CreateDir[ResDir];
+      //-------------------------------------------------------------------
+      If(Flag_SolveStateVar) //Solve for u ?
+        Printf["-- Compute State Variable --"];
         If(Flag_topopt)
-	  // Load the Design Variables (.pos file)
-          // --> The view can be used in a dynamic way during the resolution step  
-          GmshRead["res/designVar.pos", 1]; //!!!!!!!!!!!!! Change to ResDir
+          GmshRead[StrCat[ResDir,"designVariable.pos"], DES_VAR_FIELD]; 
         EndIf
-        // Solve mechanical problem --> u & dc/dx (self-adjoint system)
-        Generate[Sys_Mec]; 
-        //Print[Sys_Mec,File "testStif3"];//pas besoin de résoudre tout le système!!!
-        Solve[Sys_Mec]; 
-        SaveSolution[Sys_Mec];
-        PostOperation[Map_u] ;
-        //PostOperation[Map_direct] ;
+        InitSolution[A];Generate[A];Solve[A];SaveSolution[A];
+        PostOperation[Get_PrimalSystem];
       EndIf
-
-      If(Flag_filterSensitivity)
-	// Load the sensitivity view (.pos file)
-        GmshRead["res/designVar.pos", 1]; 
-
-        // Load the density view
-        GmshRead["res/SensitivityPerf_AdjointMethod.pos", 2]; 
-
-        // Filter dc/dx 
-        Generate[Sys_Filt]; 
-        Solve[Sys_Filt]; 
-        SaveSolution[Sys_Filt];
-
-        // Plot filtered sensitivity
-        PostOperation[FilteredSens];
+      //-------------------------------------------------------------------
+      If(Flag_SolveAdjointVar) 
+        Printf["-- Compute Adjoint Variable --"];
+        ReadSolution[A]; //Load state variable (potential vector)
+        If(Flag_topopt)
+          GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD]; 
+        EndIf
+        InitSolution[B]; Generate[B]; Solve[B]; 
+        SaveSolution[A]; SaveSolution[B]; 
+        PostOperation[Get_AdjointSystem];
       EndIf
-    }
-  }
-}
-
-PostProcessing {
-
-  { Name Mec2D_u ; NameOfFormulation  Mec2D_u ;
-    Quantity {
-      { Name u ; Value { Term { [ {u} ] ; In Domain_Disp ; Jacobian Vol; } } }
-      { Name ux ; Value { Term { [ CompX[{u}] ] ; In Domain_Disp ; Jacobian Vol; } } }
-      { Name uy ; Value { Term { [ CompY[{u}] ] ; In Domain_Disp ; Jacobian Vol; } } }
-      { Name force ; Value { Term { [ force_node[] ] ; In Domain_Force ; Jacobian Vol; } } }
-      
-      If(Flag_topopt)
-           { Name DesignVar; Value { Term { [ designVar[] ] ; 
-              In Domain_Disp ; Jacobian Vol ; } } }
-           { Name E; Value { Term { [ E[] ] ; 
-              In Domain_Disp ; Jacobian Vol ; } } }
-           { Name Compliance2 ; Value { Integral { [force_node[]*{u}]; 
-              In Domain_Disp ; Jacobian Vol  ; Integration GradGrad; }}}
-           { Name Compliance ; Value { Integral { [(C[]*{u})*{u}]; 
-              In Domain_Disp ; Jacobian Vol  ; Integration GradGrad; }}}
-
-	   { Name Volume ; Value { Integral { [1.0/*designVar[]*/]; 
-              In Domain_Disp ; Jacobian Vol  ; Integration GradGrad; }}}
-
-	   { Name VolumeElem ; Value { Integral { [designVar[]]; 
-              In Domain_Disp ; Jacobian Vol  ; Integration GradGrad; }}}
-
-	   { Name massElem ; Value { Integral { [volDensity[]/ElementVol[]]; //[kg/m3]
-              In Domain_Disp ; Jacobian Vol  ; Integration GradGrad; }}}
-
-	   { Name Mass ; Value { Integral { [volDensity[]*designVar[]]; 
-              In Domain_Disp ; Jacobian Vol  ; Integration GradGrad; }}}
-
-           { Name SensitivityPerf_AdjointMethod ; Value { Integral { [(-1.0*C_prime[]*{D1 u})*{D1 u}]; 
-              In Domain_Disp ; Jacobian Vol  ; Integration GradGrad; }}}
-           { Name SensitivityConstr_AdjointMethod; Value { Term { [ 1. ] ; 
-              In Domain_Disp ; Jacobian Vol ; } } }
-     
+      //-------------------------------------------------------------------
+      If(Flag_AvmFixedDomSens) // adjoint method sens. - fixed mesh
+        Printf["-- Compute AVM sensitivity analysis (fixed domain) --"];
+        ReadSolution[A];ReadSolution[B];//A and Lambda   
+        GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD];
+        PostOperation[Get_AvmFixedDomSens];
       EndIf
-    }
-  }
-  { Name Map_u_direct ; NameOfFormulation DirectSystem ;
-    PostQuantity {
-      // Field quantities
-      { Name u_prime  ; Value { Term { [ {u_prime} ] ; In Domain_Disp ; Jacobian Vol ; }}}
-      { Name SensitivityObjective_DirectMethod ; Value { Integral { [(C[]*{u})*{u_prime}]; In Domain_Disp ; Jacobian Vol  ; Integration GradGrad; }}}
-    }
-  }
-  { Name FilteredSens; NameOfFormulation Filt_sens ;
-    PostQuantity {
-      // Field quantities
-      { Name psi0_moy; Value { Integral { [ prod_x_dC[]/ElementVol[] ] ; In Domain_Disp ; Jacobian Vol ; Integration GradGrad; }}}
-      { Name psi0; Value { Term { [ prod_x_dC[] ] ; In Domain_Disp ; Jacobian Vol ; }}}
-      { Name psi; Value { Term { [ {psi} ] ; In Domain_Disp ; Jacobian Vol ; }}}
-      { Name SensitivityFiltered_timesDesVar; Value { Term { [ {psi}/*/designVar[]*/ ] ; In Domain_Disp ; Jacobian Vol ; }}}
-      { Name dV; Value { Term { [ designVar[] ] ; In Domain_Disp ; Jacobian Vol ; }}}
-    }
-  }
-}
-
-PostOperation {
-  { Name Map_u; NameOfPostProcessing Mec2D_u;
-    Operation {
-      /*Print [ u, OnElementsOf Domain_Disp, File StrCat["res/u",".pos"] ];*/
-      /*Print [ force, OnElementsOf Domain_Force, File StrCat["res/force",".pos"] ];*/
-      //Print [ ux, OnElementsOf Domain_Disp, File StrCat["res/ux",".pos"] ];
-      //Print [ uy, OnElementsOf Domain_Disp, File StrCat["res/uy",".pos"] ];
-      If(Flag_topopt)
-         //Print[ DesignVar, OnElementsOf Domain_Disp, 
-         //        File StrCat["res/designVar",ExtGmsh], LastTimeStepOnly] ;
-
-         //Print[ DesignVar, OnElementsOf Domain_Disp, 
-         //        File "res/designVar.png", LastTimeStepOnly];
-
-          // Generate the map of nu
-	  /*
-          Print[ E,  OnElementsOf Domain_Disp, 
-                 File StrCat["res/E",ExtGmsh], LastTimeStepOnly] ;
-  	  */
-          // Compliance
-          Print[ Compliance[Domain_Disp],OnGlobal, Format TimeTable, 
-                 File StrCat["res/Compliance",ExtGmsh], LastTimeStepOnly, 
-                 SendToServer StrCat[po_opt,"Compliance"], Color "LightYellow" ] ;
-	  /*
-	  Print[ Compliance2[Domain_Disp],OnGlobal, Format TimeTable, 
-                 File StrCat["res/Compliance2",ExtGmsh], LastTimeStepOnly, 
-                 SendToServer StrCat[po_opt,"Compliance2"], Color "LightYellow" ] ;
-	  */
-
-	  // Volume
-          Print[ Volume[Domain_Disp], OnGlobal, Format TimeTable, 
-                 File StrCat["res/Volume",ExtGmsh], LastTimeStepOnly, 
-                 SendToServer StrCat[po_opt,"Volume"], Color "LightYellow"] ;
-
-          Print[ Volume, OnElementsOf Domain_Disp, 
-                 File StrCat["res/VolumeElem",ExtGmsh], LastTimeStepOnly] ;
-
-          Print[ massElem, OnElementsOf Domain_Disp, 
-                 File StrCat["res/MassElem",ExtGmsh], LastTimeStepOnly] ;
-
-	  Print[ Mass[Domain_Disp], OnGlobal, Format TimeTable, 
-                 File StrCat["res/Mass",ExtGmsh], LastTimeStepOnly,
-                 SendToServer StrCat[po_opt,"Mass"], Color "LightYellow"] ;
-
-	  // Generate the sensitivity of objective function map
-          Print[ SensitivityPerf_AdjointMethod,  OnElementsOf Domain_Disp, 
-                 File StrCat["res/SensitivityPerf_AdjointMethod",ExtGmsh], LastTimeStepOnly] ;
-
-          // Generate the sensitivity of volume constraint map
-          //Print[ SensitivityConstr_AdjointMethod,  OnElementsOf Domain_Disp, 
-          //       File StrCat["res/SensitivityConstr_AdjointMethod",ExtGmsh], LastTimeStepOnly] ;
-        
+      //-------------------------------------------------------------------
+      If(Flag_filterSensitivity) // Filter sensitivity (only if TO)
+        Printf["-- Filter Sensitivity --"];
+        GmshRead[StrCat[ResDir,"Sensitivity_DesVar.pos"], SENS_FIELD]; 
+        Generate[C]; Solve[C]; SaveSolution[C];
+        PostOperation[Get_FilteredSens];
       EndIf
     }
   }
 }
 
-PostOperation {
-  { Name Map_direct; NameOfPostProcessing Map_u_direct;
-    Operation {
-	  Print [ u_prime, OnElementsOf Domain_Disp, File StrCat["res/u_prime",".pos"] ];
-          // Generate the sensitivity of objective function map
-          Print[ SensitivityObjective_DirectMethod,  OnElementsOf Domain_Disp, 
-                 File StrCat["res/SensitivityObj_DirectMethod",ExtGmsh], LastTimeStepOnly] ;
-    }
-  }
-}
+Include "optim_post_elast.pro";
 
-PostOperation {
-  { Name FilteredSens; NameOfPostProcessing FilteredSens;
-    Operation {
-	  Print [ SensitivityFiltered_timesDesVar, OnElementsOf Domain_Disp, 
-		File StrCat["res/SensitivityFiltered_timesDesVar",".pos"] ];      
-          /*Print [ dV, OnElementsOf Domain_Disp, File StrCat["res/dV",".pos"] ];*/          
-	  /*Print [ psi0_moy, OnElementsOf Domain_Disp, File StrCat["res/psi0",".pos"] ];*/          
-	  /*Print [ psi, OnElementsOf Domain_Disp, File StrCat["res/psi",".pos"] ]; */         
-    }
-  }
-}
 
 

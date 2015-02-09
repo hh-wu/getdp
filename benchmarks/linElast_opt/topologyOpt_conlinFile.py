@@ -7,45 +7,41 @@
 
 import sys
 sys.path.insert(0,'/Users/erinkuci/Desktop/src/getdp/benchmarks_kst/tool')
-from tool4 import *
+from tool import *
 
 # ************************************************************************
 # ***** Create the parameters                                        *****
 # ************************************************************************
-parameters = Dictionnaire()
+parameters = Dictionnary()
 
 parameters['warmStart'] = 0
 parameters['plot'] = 1
 
 # Model
-parameters['modelName'] = 'def'
+parameters['fileName'] = 'def'
 parameters['AnalysisModelType']='FEM'
-parameters['flagParallel'] = 0
-parameters['flagOptType'] = 'Topology' #'Shape', 'Topology'
-parameters['simpPenal'] = 3.0
-parameters['modelType'] = 'beam'
-parameters['beamTestCase'] = 1 #0:short cantilever,1:mbb,2:mbb-center
+parameters['flagOptType'] = 1 #0:'Shape',1:'Topology'
+parameters['defautValue']={'MaterialInterpLaw':0,'SimpDegree':3.0,
+    'RecombineSurf':1,'lc':2.0}
 
 # Design variables
 parameters['paramNameDisp'] = 'E'
 parameters['VolFrac'] = 0.4
-parameters['elementOfDomainTopOptTAG'] = 1000
+parameters['elementOfDomainTopOptTAG'] = [1000]
+x0 = np.array([parameters['VolFrac']])
+xmax = np.array([1.0])
+xmin = np.array([0.001])
 
 # Performance function
 parameters['performance'] = ['Compliance', 'Volume']
-#parameters['performance'] = ['Compliance', 'Mass']
-parameters['unitElemVol'] = 0
-#parameters['mf'] = 450.0
 parameters['m'] = len(parameters['performance']) - 1 # number of constraint
-parameters['fiMax'] = np.array([40.0,0.0])#np.zeros(parameters['m']+1)
-parameters['normalizeObj'] = 1
 parameters['sign'] = [1.0,1.0]
 
 # Sensitivity analysis
 parameters['flag_computeGrad'] = 1
 parameters['SensitivityMethod'] = ['AnalyticAvmFixedDom','Analytic']
-parameters['FilterSensitivity'] = [1, 0]
-parameters['rmin'] = 0.007*2.0
+parameters['FilterSensitivity'] = [1,0]
+parameters['rmin'] = 0.007
 
 # Optimizer set-up
 parameters['optimizer']='conlinFile'
@@ -55,16 +51,13 @@ parameters['xtol'] = 1.0e-02
 # ************************************************************************
 # ***** Instantiate the Model and the Optimizer                      *****
 # ************************************************************************
-op = OPTIMIZATION(parameters)
+op = Optimization(parameters,xmin,xmax,x0)
 
 # ************************************************************************
 # ***** Optimization routine                                         *****
 # ************************************************************************
 # Preprocess
 op.preprocessing(op.parameters)
-
-# Create optimizer
-op.create(op.parameters)
 
 # Call optimizer
 dc = np.zeros(op.parameters['m']+1)
@@ -86,7 +79,7 @@ d2 = []
 #d2 = 0.000001*np.ones([(op.parameters['m']+1),op.parameters['n']])
 
 name='input'
-op.conlinForFile(name,op.x0,op.xmax,op.xmin,op.parameters['fiMax'],
+op.conlinForFile(name,op.x0,op.xmax,op.xmin,op.parameters['fjMax'],
                  dc,jt,op.parameters,d2)
 
 # Close optimizer

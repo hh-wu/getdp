@@ -11,47 +11,41 @@ from tool import *
 # ************************************************************************
 # ***** Create the parameters                                        *****
 # ************************************************************************
-parameters = Dictionnaire()
+parameters = Dictionnary()
+
 parameters['warmStart'] = 0
-parameters['hole'] = 0
-parameters['transfinite'] = 0
-parameters['holeWidth'] = 0.15
-parameters['holeLength']= 0.36
+parameters['plot'] = 1
 
 # Model
-parameters['modelName'] = 'def'
+parameters['fileName'] = 'def'
 parameters['AnalysisModelType']='FEM'
-parameters['flagParallel'] = 0
-parameters['flagOptType'] = 'Topology' #'Shape', 'Topology'
-parameters['defautValue']={'SimpPenal':3.0} #2.0->5.0 (3.0 ok)
+parameters['flagOptType'] = 1 #0:'Shape',1:'Topology'
+parameters['defautValue']={'MaterialInterpLaw':0,'SimpDegree':3.0,
+                           'RecombineSurf':1,'lc':2.0}
 
 # Design variables
 parameters['paramNameDisp'] = 'E'
 parameters['VolFrac'] = 0.4
-parameters['elementOfDomainTopOptTAG'] = 1000
-x0 = np.array([0.4])
+parameters['elementOfDomainTopOptTAG'] = [1000]
+x0 = np.array([parameters['VolFrac']])
 xmax = np.array([1.0])
 xmin = np.array([0.001])
 
 # Performance function
 parameters['performance'] = ['Compliance', 'Volume']
-parameters['unitElemVol'] = 0
 parameters['m'] = len(parameters['performance']) - 1 # number of constraint
-parameters['fjMax'] = []
 parameters['sign'] = [1.0,1.0]
 
 # Sensitivity analysis
 parameters['flag_computeGrad'] = 1
 parameters['SensitivityMethod'] = ['AnalyticAvmFixedDom','Analytic']
-parameters['FilterSensitivity'] = [1,0]#[0,0]
-parameters['rmin'] = 0.007*1.5
+parameters['FilterSensitivity'] = []#[1,0]
+parameters['rmin'] = 0.009
 
 # Optimizer set-up
 parameters['optimizer']='gcmma'
 parameters['solverName'] = 'GCMMA-SVANBERG'
 parameters['xtol'] = 1.0e-02
-parameters['plot'] = 1
-
 # ************************************************************************
 # ***** Instantiate the Model and the Optimizer                      *****
 # ************************************************************************
@@ -63,9 +57,6 @@ op = Optimization(parameters,xmin,xmax,x0)
 # Preprocess
 op.preprocessing(op.parameters)
 
-# Create optimizer
-op.create(op.parameters)
-
 # Call optimizer
 op.mmaSvanFor(op.x0,op.xmax,op.xmin,op.parameters['fjMax'][1:],op.parameters,2)
 
@@ -76,7 +67,7 @@ op.close()
 # ***** Optimization Post-Process                                    *****
 # ************************************************************************
 # Optimization history
-x,f = op.postprocessing(op.parameters)
+#x,f = op.postprocessing(op.parameters)
 
 
 
