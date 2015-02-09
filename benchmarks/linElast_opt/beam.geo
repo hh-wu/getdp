@@ -1,4 +1,4 @@
-Include "def_data.geo";
+Include "beam_data.geo";
 
 //unstructured or transfinite
 //Geometry.CopyMeshingMethod = 1;

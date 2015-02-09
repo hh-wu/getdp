@@ -1,10 +1,10 @@
-Include "def_data.geo";
+Include "beam_data.geo";
 
 DefineConstant[
   //-------------------------------------------------------------
   // optimization stuff ...
   //-------------------------------------------------------------
-  Flag_SolveStateVar = {0, Name "Input/OptParam/SolveStateVar",
+  Flag_SolveStateVar = {1, Name "Input/OptParam/SolveStateVar",
                            Label "Get State Variable", Choices {0,1}, Visible 1},
 
   Flag_SolveAdjointVar = {0, Name "Input/OptParam/SolveAdjointVar",
@@ -207,7 +207,7 @@ Group {
 }
 Function {
   DefineFunction[ 
-    C,force_density,force_node,
+    C,C_prime,force_density,force_node,
     rmin2, prod_x_dC, designVar 
   ];
 }

@@ -7,52 +7,52 @@
 """
 import sys
 sys.path.insert(0,'/Users/erinkuci/Desktop/src/getdp/benchmarks_kst/tool')
-from tool3 import *
+from tool import *
 
 # ************************************************************************
 # ***** Create the parameters                                        *****
 # ************************************************************************
-parameters = Dictionnaire()
-#print('keys')
-#print parameters.keys()
-#print('values')
-#print parameters.values()
+parameters = Dictionnary()
+
+parameters['warmStart'] = 0
+parameters['plot'] = 1
 
 # Model
-parameters['modelName'] = 'def'
+parameters['fileName'] = 'beam'
 parameters['AnalysisModelType']='FEM'
-parameters['flagParallel'] = 0
-parameters['flagOptType'] = 'Topology'
-parameters['modelType'] = 'beam'
+parameters['flagOptType'] = 1 #0:'Shape',1:'Topology'
+parameters['defautValue']={'MaterialInterpLaw':0,'SimpDegree':3.0,
+    'RecombineSurf':1,'lc':2.0}
 
 # Design variables
 parameters['paramNameDisp'] = 'E'
 parameters['VolFrac'] = 0.4
+parameters['elementOfDomainTopOptTAG'] = [1000]
+x0 = np.array([parameters['VolFrac']])
+xmax = np.array([1.0])
+xmin = np.array([0.001])
 
 # Performance function
 parameters['performance'] = ['Compliance', 'Volume']
-parameters['m'] = len(parameters['performance']) - 1
-parameters['fiMax'] = np.zeros(parameters['m']+1)
-parameters['sign'] = np.array([1.0,1.0])
-parameters['normalizeObj'] = 1
+parameters['m'] = len(parameters['performance']) - 1 # number of constraint
+parameters['sign'] = [1.0,1.0]
 
 # Sensitivity analysis
 parameters['flag_computeGrad'] = 1
 parameters['SensitivityMethod'] = ['AnalyticAvmFixedDom','Analytic']
-parameters['FilterSensitivity'] = [1, 0]
-parameters['rmin'] = 2.0*0.007 #3.5
-parameters['nelx'] = 59
-parameters['nely'] = 39
+parameters['FilterSensitivity'] = [1,0]
+parameters['rmin'] = 0.009
 
 # Optimizer set-up
+#'conlinFile','gcmma'
+parameters['optimizer']= 'gcmma'
+#'mmaMatlab','OC','CONLIN','GCMMA-SVANBERG'
+parameters['solverName'] = 'GCMMA-SVANBERG'
 parameters['xtol'] = 1.0e-02
-parameters['optimizer'] = 'gcmma-matlab'
-parameters['solverName'] = 'GCMMA-SAVNBERG'
-
 # ************************************************************************
 # ***** Instantiate the Model and the Optimizer                      *****
 # ************************************************************************
-op = OPTIMIZATION(parameters)
+op = Optimization(parameters,xmin,xmax,x0)
 
 # ************************************************************************
 # ***** Optimization routine                                         *****
@@ -61,13 +61,7 @@ op = OPTIMIZATION(parameters)
 op.preprocessing(op.parameters)
 
 # Call optimizer
-op.parameters['fiMax'][1] = op.parameters['VolFrac']*op.parameters['n']
-op.parameters['VolMax'] =  op.parameters['n']
-x0 = np.array([op.parameters['VolFrac']]*op.parameters['n'])
-xmax = np.array([1.0]*op.parameters['n'])
-xmin = np.array([0.001]*op.parameters['n'])
-
-op.mmaSvanMatlab(x0,xmax,xmin,op.parameters['fiMax'][1:],op.parameters)
+op.mmaSvanMatlab(op.x0,op.xmax,op.xmin,op.parameters['fjMax'][1:],op.parameters)
 
 # Close optimizer
 op.close()

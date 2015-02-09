@@ -17,7 +17,7 @@ parameters['warmStart'] = 0
 parameters['plot'] = 1
 
 # Model
-parameters['fileName'] = 'def'
+parameters['fileName'] = 'beam'
 parameters['AnalysisModelType']='FEM'
 parameters['flagOptType'] = 1 #0:'Shape',1:'Topology'
 parameters['defautValue']={'MaterialInterpLaw':0,'SimpDegree':3.0,
@@ -44,7 +44,7 @@ parameters['rmin'] = 0.009
 
 # Optimizer set-up
 parameters['optimizer']= 'conlinFile' #'conlinFile','gcmma'
-parameters['solverName'] = 'CONLIN' #'OC','CONLIN','GCMMA-SVANBERG'
+parameters['solverName'] = 'mmaMatlab' #'mmaMatlab','OC','CONLIN','GCMMA-SVANBERG'
 parameters['xtol'] = 1.0e-02
 # ************************************************************************
 # ***** Instantiate the Model and the Optimizer                      *****
