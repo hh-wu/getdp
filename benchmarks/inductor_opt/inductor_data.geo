@@ -1,6 +1,7 @@
 // Geometrical data for inductor model
 
 cm = 1e-2; // Unit
+mm = 1e-3;
 
 pp  = "Input/10Geometric dimensions/0";
 pp2 = "Input/10Geometric dimensions/01Shell radius/";
@@ -9,13 +10,13 @@ ppm = "Input/11Mesh control (Nbr of divisions)/";
 DefineConstant[
   Flag_3Dmodel = {0, Choices{0="2D",1="3D"},
     Name "Input/00FE model", Highlight "Blue"},
-  Flag_Symmetry2D = {1, Choices{0="Full",1="Half"},
+  Flag_Symmetry2D = {0, Choices{0="Full",1="Half"},
     Name "Input/00Symmetry type", Highlight "Blue", Visible (Flag_3Dmodel==0)},
   Flag_Symmetry3D = {2, Choices{0="Full",1="Half",2="One fourth"},
     Name "Input/01Symmetry type", Highlight "Blue", Visible (Flag_3Dmodel==1)},
   Flag_OpenCore = {1, Choices{0,1},
     Name "Input/02Core with air gap", Highlight "White"},
-  Flag_Infinity = {1, Choices{0,1},
+  Flag_Infinity = {0/*1*/, Choices{0,1},
     Name "Input/01Use shell transformation to infinity", Highlight "White"}
 ];
 
@@ -29,23 +30,29 @@ colorro  = "LightGrey";
 colorpp = "Ivory";
 
 DefineConstant[
-  wcoreE = {3*cm,  Name StrCat[pp, "1E-core width of side legs [m]"],
+  wcoreI = {6*mm/*4*cm*/,  Name StrCat[pp, "Width I core [m]"],
     Highlight Str[colorpp],Closed close_menu},
-  hcoil  = {9*cm,  Name StrCat[pp, "4Coil height [m]"],
+  stepAirBox = {10*mm/*15*cm*/,Name StrCat[pp, "Step air box [m]"],
+    Highlight Str[colorpp],Closed close_menu},
+  wcoreE = {24*mm/*20*cm*//*3*cm*/,  Name StrCat[pp, "1E-core width of side legs [m]"],
+    Highlight Str[colorpp],Closed close_menu},
+  hcoil  = {18/2*mm/*9*cm*/,  Name StrCat[pp, "4Coil height [m]"],
     Highlight Str[colorpp]},
-  wcoil  = {wcoreE, Name StrCat[pp, "3Coil width [m]"], ReadOnly 1,
+  wgapCoil = {6*mm/*3*cm*/,  Name StrCat[pp, "Gap between coil[m]"],
+    Highlight Str[colorpp],Closed close_menu},
+  wcoil  = {3*mm/*2*cm*//*wcoreE*/, Name StrCat[pp, "3Coil width [m]"], ReadOnly 1,
     Highlight Str[colorro]},
-  hcoreE = {hcoil+wcoreE, Name StrCat[pp, "2E-core height of legs [m]"], ReadOnly 1,
+  hcoreE = {0.5*(6+18+6)*mm/*hcoil+wcoreE*/, Name StrCat[pp, "2E-core height of legs [m]"], ReadOnly 1,
     Highlight Str[colorro]},
-  ag     = {0.33*cm, Min 0.1*cm, Max 4*cm, Step 0.2*cm, ReadOnlyRange 1, Visible (Flag_OpenCore==1),
+  ag     = {2*mm, Min 0.1*cm, Max 4*cm, Step 0.2*cm, ReadOnlyRange 1, Visible (Flag_OpenCore==1),
     Name StrCat[pp, "5Air gap width [m]"], Highlight Str[colorpp]},
-  Lz     = {9*cm, Name StrCat[pp, "0Length along z-axis [m]"], Highlight Str[colorpp]}
+  Lz = {9*cm, Name StrCat[pp, "0Length along z-axis [m]"], Highlight Str[colorpp]}//????
 ];
 
 // rest of EI-Core dimensions
 wcoreE_centralleg = 2*wcoreE;
 
-wcoreI = 2*wcoreE + wcoreE_centralleg + 2*wcoil;
+//wcoreI = 2*wcoreE + wcoreE_centralleg + 2*wcoil;
 hcoreI = wcoreE ;
 
 htot = hcoil + wcoreE + ag + wcoreE ; // Total height of EI-core, including gap
@@ -72,7 +79,9 @@ Val_Rext = Rext;
 //-------------------------------------------------------------------------
 // Some mesh control stuff
 DefineConstant[
-  md = { 1., Name "Geo/Mesh Characteristic Length Factor",Label "Mesh density", 
+  Flag_meshRecombine={0, Name "Geo/RecombineSurface",Label "Mesh recombine surface", 
+    Choices {0,1}, Highlight Str[colorpp], Closed close_menu},
+  md = { 2., Name "Geo/Mesh Characteristic Length Factor",Label "Mesh density", 
     /*Name StrCat[ppm, "0Mesh density"],*/
     Highlight Str[colorpp], Closed close_menu},
   nn_wcore   = { Ceil[md*2], Name StrCat[ppm, "0Core width"], ReadOnly 1,
@@ -84,6 +93,7 @@ DefineConstant[
   nn_ro = { Ceil[md*6], Name StrCat[ppm, "3One fourth shell out"], ReadOnly 1,
     Highlight Str[colorro]}
 ];
+//-------------------------------------------------------------------------
 // optimization stuff
 DefineConstant[
   Flag_topopt = {0, Name "Input/OptParam/optType",Label "Optimization Type",

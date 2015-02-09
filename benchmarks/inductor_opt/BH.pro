@@ -142,6 +142,14 @@ Function{
   h_EIcore[] = nu_EIcore[$1] * $1 ;
   dhdb_EIcore[] = TensorDiag[1,1,1]*nu_EIcore[$1#1] + 2*dnudb2_EIcore[#1] * SquDyadicProduct[#1] ;
   dhdb_EIcore_NL[] = 2*dnudb2_EIcore[$1] * SquDyadicProduct[$1] ;
+  //----------------------
+  // nu = 520. + 49.4 * exp ( 1.46 * b * b )
+  // analytical
+  nu_Park[] = 520.6 + 49.4 * Exp[1.46*SquNorm[$1]] ;
+  dnudb2_Park[] = 49.4*1.46*Exp[1.46*SquNorm[$1]] ;// d{nu}/d{b2}
+  h_Park[] = nu_Park[$1]*$1 ;
+  dhdb_Park[] = TensorDiag[1,1,1]*nu_Park[$1#1]+2*dnudb2_Park[#1]*SquDyadicProduct[#1];
+  dhdb_Park_NL[] = 2*dnudb2_Park[$1#1]*SquDyadicProduct[#1];
 }
 
 

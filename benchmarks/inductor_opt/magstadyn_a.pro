@@ -9,6 +9,7 @@ Group {
 DefineConstant[
   //-------------------------------------------------------------
   // optimization stuff ...
+  //-------------------------------------------------------------
   ResId = "",
   ResDir = StrCat["res/", ResId],
 
@@ -70,9 +71,9 @@ DefineConstant[
                                    Label "Filter mesh nodes coordinates?", 
                                    Choices {0, 1}, Visible 0}, 
 
-  regionVar = {ECORE, Name "Input/OptParam/regionVar",
+  regionVar = {0, Name "Input/OptParam/regionVar",
                      Label "Region of design variables", 
-                     Choices {ECORE="E-core",ICORE="I-core"},
+                     Choices {0="E-core",1="E+I-core"},
                      Visible (Flag_topopt)},
 
   Flag_InterpLaw = {0, Name "Input/OptParam/MaterialInterpLaw",
@@ -129,7 +130,7 @@ Group {
     DomainInf = Region[ {AirInf} ];
   EndIf
 
-  DomainCC = Region[ {Air, AirInf, Inds, Core} ];
+  DomainCC = Region[ {Air/*, AirInf*/, Inds, Core} ];
   DomainC  = Region[ { } ];
   Domain  = Region[ {DomainCC, DomainC} ];
 
@@ -141,7 +142,12 @@ Group {
   // ----------------------------------------------------------
   DomCompl = Region[{AIRGAP}];
   If(Flag_topopt)
-    DomainOpt = Region[{ECORE}];
+    If(regionVar == 0)
+      DomainOpt = Region[{ECORE}];
+    EndIf
+    If(regionVar == 1)
+      DomainOpt = Region[{ECORE,ICORE}];
+    EndIf
   EndIf
   If(!Flag_topopt)
     DomainOpt = Region[{}];
@@ -150,8 +156,10 @@ Group {
 }
 
 Function {
+ 
   nu0 = 1./mu0;
-  nu [#{Air, AirInf, Inds}]  = 1./mu0 ;
+  nu [#{DomainCC,-Core}]  = 1./mu0 ;
+  //nu [#{Air/*, AirInf*/, Inds}]  = 1./mu0 ;
 
   If(!Flag_topopt)
     If(!Flag_NL)
@@ -171,14 +179,22 @@ Function {
       nu_prime[#DomainOpt]  = p*(1 / (mur_fe * mu0) - nu0)*designVar[]^(p-1.0); 
     EndIf
     If(Flag_NL)
-      nu[#{Core,-DomainOpt}] = nu_EIcore[$1] ;
-      nu[DomainOpt] = nu0*(1.0 + (nu_EIcore[$1]/nu0 - 1.0)*designVar[]^p);
-      dhdb_NL[DomainOpt] = dhdb_EIcore_NL[$1]*designVar[]^p;
-      dhdb_NL[#{Core,-DomainOpt}] = dhdb_EIcore_NL[$1];
-      nu_prime[DomainOpt] = p*nu0*(nu_EIcore[$1]/nu0 - 1.0)*designVar[]^(p-1.0);
+      If(Flag_NL_Curve == 0) //EIcore
+        nu[#{Core,-DomainOpt}] = nu_EIcore[$1] ;
+        nu[DomainOpt] = nu0*(1.0 + (nu_EIcore[$1]/nu0 - 1.0)*designVar[]^p);
+        dhdb_NL[DomainOpt] = dhdb_EIcore_NL[$1]*designVar[]^p;
+        dhdb_NL[#{Core,-DomainOpt}] = dhdb_EIcore_NL[$1];
+        nu_prime[DomainOpt] = p*nu0*(nu_EIcore[$1]/nu0 - 1.0)*designVar[]^(p-1.0);
+      EndIf
+      If(Flag_NL_Curve == 1) //Park(article topology optimization)
+        nu[#{Core,-DomainOpt}] = nu_Park[$1]; //nu_EIcore[$1] ;
+        nu[DomainOpt] = nu0*(1.0 + (nu_Park[$1]/nu0 - 1.0)*designVar[]^p);
+        dhdb_NL[DomainOpt] = dhdb_Park_NL[$1]*designVar[]^p;
+        dhdb_NL[#{Core,-DomainOpt}] = dhdb_Park_NL[$1];
+        nu_prime[DomainOpt] = p*nu0*(nu_Park[$1]/nu0 - 1.0)*designVar[]^(p-1.0);
+      EndIf
     EndIf
   EndIf
-
 
   sigma[#{Inds}] = sigma_coil ;
   rho[] = 1/sigma[] ;
@@ -195,6 +211,8 @@ Function {
   volDensity[#{DomainOpt}] = 7874; //acier
   //volDensity[#{Rotor_Fe,Stator_Fe}] = 7874; //acier
   //volDensity[#{DomainM}] = 7400; //PM
+
+  T_max[] = ( SquDyadicProduct[$1] - SquNorm[$1] * TensorDiag[0.5, 0.5, 0.5] ) / mu0 ;
 }
 
 //-------------------------------------------------------------------------------------
@@ -228,7 +246,7 @@ Constraint {
   { Name MVP_2D ;
     Case {
       { Region Surf_Inf ; Type Assign ; Value 0. ; }
-      { Region Surf_bn0 ; Type Assign ; Value 0. ; }
+      //{ Region Surf_bn0 ; Type Assign ; Value 0. ; }
     }
   }
 
@@ -309,8 +327,7 @@ FunctionSpace {
     }
   }
 }
-
-//-----------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------
 
 Formulation {
 
@@ -370,16 +387,8 @@ Formulation {
   //-----------------------------------------------------------------
  { Name AdjointFormulation ; Type FemEquation ;
     Quantity {
-      { Name a  ; Type Local  ; NameOfSpace Hcurl_a_2D ; }
-      { Name ur ; Type Local  ; NameOfSpace Hregion_u_Mag_2D ; }
-      { Name I  ; Type Global ; NameOfSpace Hregion_u_Mag_2D [I] ; }
-      { Name U  ; Type Global ; NameOfSpace Hregion_u_Mag_2D [U] ; }
-
-      { Name ir ; Type Local  ; NameOfSpace Hregion_i_Mag_2D ; }
-      { Name Ub ; Type Global ; NameOfSpace Hregion_i_Mag_2D [Ub] ; }
-      { Name Ib ; Type Global ; NameOfSpace Hregion_i_Mag_2D [Ib] ; }
-
-      { Name lambda ; Type Local  ; NameOfSpace Hcurl_lambda_2D ; }
+      { Name a  ; Type Local  ; NameOfSpace Hcurl_a_2D; }
+      { Name lambda ; Type Local  ; NameOfSpace Hcurl_lambda_2D; }
     }
     Equation {
       // bilinear(Lambda,Lambda')
@@ -415,15 +424,13 @@ Formulation {
       }
  }
 }
-//-----------------------------------------------------------------------------------------------
-//-----------------------------------------------------------------------------------------------
-
+//--------------------------------------------------------------------------------------
 Resolution {
 
   { Name Analysis ;
     System {
       If(Flag_AnalysisType==2)
-        { Name A ; NameOfFormulation MagStaDyn_a_2D ; Type ComplexValue ; Frequency Freq ; }
+        { Name A;NameOfFormulation MagStaDyn_a_2D;Type ComplexValue;Frequency Freq; }
       EndIf
       If(Flag_AnalysisType<2)
         { Name A ; NameOfFormulation MagStaDyn_a_2D ; }
@@ -469,7 +476,7 @@ Resolution {
       EndIf // End Flag_AnalysisType==1 (Time domain)
     }
   }
-//===================================================================
+  //===================================================================
   // Optimization 
   //===================================================================
   { Name OptimStep ;
@@ -488,8 +495,16 @@ Resolution {
            GmshRead["res/designVariable.pos",DES_VAR_FIELD]; 
          EndIf
          InitSolution[A];
-         IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
-           GenerateJac[A] ; SolveJac[A] ; }
+         PostOperation[Get_Analytical2] ; // Values from magnetic circuit
+         If(!Flag_NL)
+	    Printf["-- Linear system --"];
+            Generate[A]; Solve[A];
+          EndIf
+         If(Flag_NL)
+           Printf["-- NL system --"];
+           IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
+             GenerateJac[A] ; SolveJac[A] ; }
+         EndIf
          SaveSolution[A];
          PostOperation[Get_PrimalSystem];
       EndIf
@@ -666,9 +681,9 @@ PostOperation Get_GlobalQuantities UsingPost MagStaDyn_a_2D {
 
 
 DefineConstant[
-  //R_ = {"Analysis", Name "GetDP/1ResolutionChoices", Visible 0},
-  //C_ = {"-solve -v2", Name "GetDP/9ComputeCommand", Visible 0},
-  //P_ = {"", Name "GetDP/2PostOperationChoices", Visible 0}
+//  R_ = {"Analysis", Name "GetDP/1ResolutionChoices", Visible 0},
+//  C_ = {"-solve -v2", Name "GetDP/9ComputeCommand", Visible 0},
+//  P_ = {"", Name "GetDP/2PostOperationChoices", Visible 0}
   R_ = {"OptimStep", Name "GetDP/1ResolutionChoices",
 	Choices {"Analysis", "OptimStep"}, Visible 0},
   C_ = {"-solve -v 5 -v2", Name "GetDP/9ComputeCommand", Visible 0},

@@ -22,7 +22,8 @@ DefineConstant[
     Name "Input/20Boundary condition at infinity",
     Highlight "Blue"},
 
-  Flag_NL = { 0, Choices{0,1},Name "Input/NonlinearSystem",Label "Nonlinear BH-curve"}
+  Flag_NL = {0, Choices{0,1},Name "Input/NonlinearSystem",Label "Nonlinear BH-curve"},
+  Flag_NL_Curve = {0,Choices{0="EIcore",1="park"},Name "Input/NonlinearCurve",Label "BH"}
 ];
 
 Group {
@@ -32,6 +33,7 @@ Group {
   If (Flag_3Dmodel==0)
     Ind_1_ = Region[{(COIL+1)}] ;
     Inds   = Region[ {Ind_1, Ind_1_} ];
+    //Inds   = Region[ {Ind_1} ];
   EndIf
   If (Flag_3Dmodel==1)
     SkinInd_1  = Region[{SKINCOIL}] ;
@@ -72,13 +74,16 @@ Group {
 
 Function {
   Freq = 50. ;
-
+  // remarque: 
+  //  -> Irms = 0.4 --> légère saturation => NL 
+  //                => diminuer le courant pour être lin
   DefineConstant[
-    Irms = { IA, Min 1, Max 4*IA, Step 2,
-      Name "Input/4Coil Parameters/0Current (rms) [A]", Highlight "AliceBlue"},
-    NbWires = { Nw,
+    Irms = { 3.0/*.005*//*IA*/, Min 1, Max 4*IA, Step 2,
+        Name "Input/4Coil Parameters/0Current (rms) [A]", Highlight "AliceBlue"},
+    NbWires = { 400/*Nw*/,
       Name "Input/4Coil Parameters/1Number of turns", Highlight "AliceBlue"}
   ];
+
   II = Irms *Sqrt[2] ;
 
   NbWires[]  = NbWires ;
@@ -96,17 +101,15 @@ Function {
       (Fabs[X[]]<=wcoreE && Z[]<=-Lz/2) ? Vector [ -1, 0, 0]:
       (Fabs[Z[]]<=Lz/2   && X[]>= wcoreE) ? Vector [ 0, 0, -1]:
       (Fabs[Z[]]<=Lz/2   && X[]<=-wcoreE) ? Vector [ 0, 0,  1]:
-      (X[]>wcoreE && Z[]>Lz/2)  ? Vector [Sin[Atan2[Z[]-Lz/2,X[]-wcoreE]#1], 0, -Cos[#1]]:
-      (X[]>wcoreE && Z[]<-Lz/2) ? Vector [Sin[Atan2[Z[]+Lz/2,X[]-wcoreE]#1], 0, -Cos[#1]]:
-      (X[]<-wcoreE && Z[]>Lz/2) ? Vector [Sin[Atan2[Z[]-Lz/2,X[]+wcoreE]#1], 0, -Cos[#1]]:
+      (X[]>wcoreE && Z[]>Lz/2)?Vector [Sin[Atan2[Z[]-Lz/2,X[]-wcoreE]#1], 0, -Cos[#1]]:
+      (X[]>wcoreE && Z[]<-Lz/2)?Vector [Sin[Atan2[Z[]+Lz/2,X[]-wcoreE]#1], 0, -Cos[#1]]:
+      (X[]<-wcoreE && Z[]>Lz/2)?Vector [Sin[Atan2[Z[]-Lz/2,X[]+wcoreE]#1], 0, -Cos[#1]]:
       Vector [Sin[Atan2[Z[]+Lz/2,X[]+wcoreE]#1], 0, -Cos[#1]] );
   EndIf
 
   pA = (Flag_AnalysisType==0) ? Pi/2: 0.;
   IA[] = F_Sin_wt_p[]{2*Pi*Freq, pA}; // DomainB
   js0[] = NbWires[]/SurfCoil[] * vDir[] ;
-
-
 
   // Material properties
   mu0 = 4.e-7 * Pi ;
