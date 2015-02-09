@@ -74,6 +74,8 @@ Group{
   For idom In {0:N_DOM-1}
     Omega~{idom} = Region[((idom+1)*1000+200)];
     GammaD0~{idom} = Region[{}];
+    Pml~{idom}~{0} = Region[{}];
+    Pml~{idom}~{1} = Region[{}];
     PmlD0~{idom}~{0} = Region[{}];
     PmlD0~{idom}~{1} = Region[{}];
     PmlInf~{idom}~{0} = Region[{}];
@@ -91,8 +93,7 @@ Group{
       Sigma~{idom}~{0} = Region[{}];
       Sigma~{idom}~{1} = Region[ ((idom+1)*1000+20) ];
       GammaD~{idom} = Region[ ((idom+1)*1000+10) ];
-      Pml~{idom}~{0} = Region[{}];
-      Pml~{idom}~{1} = Region[ ((idom+1)*1000+300) ];
+      Pml~{idom}~{1} += Region[ ((idom+1)*1000+300) ];
       If(WALLS == 1)
         PmlD0~{idom}~{1} += Region[ ((idom+1)*1000+302) ];
       EndIf
@@ -106,12 +107,7 @@ Group{
       Sigma~{idom}~{1} = Region[{}];
       GammaInf~{idom} += Region[ ((idom+1)*1000+20) ];
       GammaD~{idom} = Region[{}];
-      Pml~{idom}~{0} = Region[ ((idom+1)*1000+100) ];
-      Pml~{idom}~{1} = Region[{}];
-      PmlD0~{idom}~{0} += Region[ ((idom+1)*1000+102) ];
-      PmlD0~{idom}~{1} += Region[ ((idom+1)*1000+302) ];
-      PmlInf~{idom}~{0} += Region[ ((idom+1)*1000+102) ];
-      PmlInf~{idom}~{1} += Region[ ((idom+1)*1000+302) ];
+      Pml~{idom}~{0} += Region[ ((idom+1)*1000+100) ];
       If(WALLS == 1)
         PmlD0~{idom}~{0} += Region[ ((idom+1)*1000+102) ];
       EndIf
@@ -124,12 +120,8 @@ Group{
       Sigma~{idom}~{0} = Region[ ((idom+1)*1000+10) ];
       Sigma~{idom}~{1} = Region[ ((idom+1)*1000+20) ];
       GammaD~{idom} = Region[{}];
-      Pml~{idom}~{0} = Region[ ((idom+1)*1000+100) ];
-      Pml~{idom}~{1} = Region[ ((idom+1)*1000+300) ];
-      PmlD0~{idom}~{0} += Region[ ((idom+1)*1000+102) ];
-      PmlD0~{idom}~{1} += Region[ ((idom+1)*1000+302) ];
-      PmlInf~{idom}~{0} += Region[ ((idom+1)*1000+102) ];
-      PmlInf~{idom}~{1} += Region[ ((idom+1)*1000+302) ];
+      Pml~{idom}~{0} += Region[ ((idom+1)*1000+100) ];
+      Pml~{idom}~{1} += Region[ ((idom+1)*1000+300) ];
       If(WALLS == 1)
         PmlD0~{idom}~{0} += Region[ ((idom+1)*1000+102) ];
         PmlD0~{idom}~{1} += Region[ ((idom+1)*1000+302) ];
