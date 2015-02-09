@@ -43,9 +43,11 @@ parameters['FilterSensitivity'] = [1,0]
 parameters['rmin'] = 0.009
 
 # Optimizer set-up
-parameters['optimizer']= 'conlinFile' #'conlinFile','gcmma'
-parameters['solverName'] = 'mmaMatlab' #'mmaMatlab','OC','CONLIN','GCMMA-SVANBERG'
+parameters['optimizer']= 'gcmma'#'conlinFile','gcmma'
+#parameters['solverName'] ='MMA-SVANBERG'#'mmaMatlab','OC','CONLIN','MMA-SVANBERG'
+parameters['solverName'] ='MMA-SVANBERG'#'mmaMatlab','OC','CONLIN','MMA-SVANBERG'
 parameters['xtol'] = 1.0e-02
+parameters['iterMax'] = 1000
 # ************************************************************************
 # ***** Instantiate the Model and the Optimizer                      *****
 # ************************************************************************
