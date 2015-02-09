@@ -210,7 +210,6 @@ Formulation {
 	EndIf
 
         // Bayliss-Turkel absorbing boundary condition
-
         Galerkin { [ - I[] * kInf[] * Dof{u~{idom}} , {u~{idom}} ] ;
           In GammaInf~{idom}; Jacobian JSur ; Integration I1 ; }
         Galerkin { [ alphaBT[] * Dof{u~{idom}} , {u~{idom}} ] ;
@@ -239,7 +238,6 @@ Formulation {
 	  EndIf
         }
         Equation {
-	  If (TC_TYPE != 3)
           Galerkin { [ Dof{g_out~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ] ;
             In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
           If(iSide == 0)
@@ -250,16 +248,19 @@ Formulation {
             Galerkin { [ (#12 > 0. ? g_in~{idom}~{1}[]:0)  , {g_out~{idom}~{1}} ] ;
               In Sigma~{idom}~{1}; Jacobian JSur ; Integration I1 ; }
           EndIf
+
           If(TC_TYPE == 0)
             Galerkin { [ 2 * I[] * kDtN[] * {u~{idom}} , {g_out~{idom}~{iSide}} ] ;
               In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
           EndIf
+
           If(TC_TYPE == 1)
             Galerkin { [ - 2 * a[] * {u~{idom}} , {g_out~{idom}~{iSide}} ] ;
               In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
             Galerkin { [ 2 * b[] * {d u~{idom}} , {d g_out~{idom}~{iSide}} ] ;
               In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
           EndIf
+
           If(TC_TYPE == 2)
             Galerkin { [ 2 * ( I[] * k[] * OSRC_C0[]{NP_OSRC,theta_branch} *
                   {u~{idom}} ) , {g_out~{idom}~{iSide}} ] ;
@@ -274,7 +275,7 @@ Formulation {
                 In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
             EndFor
           EndIf
-          EndIf
+
 	  If (TC_TYPE == 3)
             //modified Helmholtz equation
             Galerkin{[ Rotate[D[],0.,0.,-thetaList(idom+iSide)]* Dof{Grad ubb~{idom}~{iSide}}, {Grad ubb~{idom}~{iSide}}];
@@ -285,6 +286,7 @@ Formulation {
             Galerkin { [ -I[]*kPml~{idom}~{iSide}[]*Dof{ubb~{idom}~{iSide}}, {ubb~{idom}~{iSide}} ] ;
               In PmlInf~{idom}~{iSide} ; Jacobian JSur ; Integration I1 ; }
 
+	    // impose Dirichlet data (u) by Lagrange multiplier; d_n u is given by the LM field
             Galerkin{[Dof{glm~{idom}~{iSide}}, {ubb~{idom}~{iSide}}];
               In Sigma~{idom}~{iSide}; Jacobian JSur; Integration I1;}
             Galerkin{[Dof{ubb~{idom}~{iSide}}, {glm~{idom}~{iSide}}];
@@ -292,19 +294,7 @@ Formulation {
             Galerkin{[-{u~{idom}}, {glm~{idom}~{iSide}}];
               In Sigma~{idom}~{iSide}; Jacobian JSur; Integration I1;}
 
-            Galerkin { [ Dof{g_out~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ] ;
-              In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
-            If(iSide == 0)
-              // g_in LEFT (iterative solver) or 0 (initialization step)
-              Galerkin { [ (#11 > 0. ? g_in~{idom}~{0}[] : 0)  , {g_out~{idom}~{0}} ] ;
-                In Sigma~{idom}~{0}; Jacobian JSur ; Integration I1 ; }
-            EndIf
-            If(iSide == 1)
-              // g_in RIGHT (iterative solver) or 0 (initialization step)
-              Galerkin { [ (#12 > 0. ? g_in~{idom}~{1}[] : 0)  , {g_out~{idom}~{1}} ] ;
-                In Sigma~{idom}~{1}; Jacobian JSur ; Integration I1 ; }
-            EndIf
-            Galerkin { [ -Dof{glm~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ] ;
+            Galerkin { [ -Dof{glm~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ] ; // the d_n u term
               In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
           EndIf
         }
