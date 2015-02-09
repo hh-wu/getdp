@@ -35,15 +35,21 @@ Group{
                                         Not {GammaD~{idom}, GammaInf~{idom}}];
       BndSigmaInf~{idom}~{iSide} = Region[BndSigma~{idom}~{iSide},
                                           Not {GammaN~{idom}, GammaD~{idom}}];
+      DefineGroup [ Pml~{idom}~{iSide}, PmlD0~{idom}~{iSide}, PmlInf~{idom}~{iSide} ] ;
     EndFor
   EndFor
 }
+
 
 Constraint{
   For ii In {0: #ListOfDom()-1}
     idom = ListOfDom(ii);
     { Name Dirichlet~{idom} ; Case { { Region GammaD~{idom} ; Value uinc[] * #10;} } }
-    { Name Dirichlet0~{idom} ; Case { { Region GammaD0~{idom} ; Value 0.;} } }
+    { Name Dirichlet0~{idom} ; Case {
+       { Region GammaD0~{idom} ; Value 0.;}
+       { Region PmlD0~{idom}~{0} ; Value 0.;}
+       { Region PmlD0~{idom}~{1} ; Value 0.;} }
+    }
   EndFor
 }
 
