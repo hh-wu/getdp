@@ -1,10 +1,10 @@
-N_DOM = 16 ;
+N_DOM = 8 ;
 OM = 2*Pi*3.69 ;
 WAVENUMBER = OM;
 LAMBDA = 2*Pi/WAVENUMBER ;
 N_LAMBDA = 20.000000 ;
-LC = 0.05000;
-PRECOND_SWEEP = 1 ;
+LC = LAMBDA/N_LAMBDA;//0.05000;
+PRECOND_SWEEP = 0 ;
 MAXIT = 100 ;
 m = 2 ;
 D = 4.000000 ;
@@ -16,18 +16,19 @@ COMBINED_SWEEP = 0;
 
 nDoms = N_DOM;
 
-meshFactor = 2;
+meshFactor = 1;
 
-nLayersTr = 0;
-nLayersPml = 7;//*meshFactor;
+nLayersTr = 1;
+nLayersPml = 5;//*meshFactor;
 
-lc = .02/meshFactor;
+lc = LC;//.05/meshFactor;
 LC = lc; // overwrite
-
 
 dTr = nLayersTr*lc;
 dPml = nLayersPml*lc;
 dBb = (nLayersPml+nLayersTr)*lc;
+
+theta = 0*Pi/12.;
 
 sigmaPml = 1000;
 xPmlRight = D;
@@ -39,3 +40,4 @@ xDelta = 0.;
 DList = {0,2,4};
 
 dDom = D/nDoms;
+
