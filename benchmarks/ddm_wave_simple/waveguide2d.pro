@@ -30,7 +30,8 @@ Function {
   P[] = (-X[]*Sin[theta]+Y[]*Cos[theta]);
 
   c0[] = 1;
-  c[] = 1.25*(1.-.4*Exp[-32*(P[]-DY/2)^2]) ;
+  c[] = 1.25*(1.-.4*Exp[-32*(P[]-DY/2)^2]) ; // gaussian
+  //c[] = 1; // constant
   freq[] = c0[] / LAMBDA;
   om[] = 2 * Pi * freq[];
   k[] = om[] / c[] ;

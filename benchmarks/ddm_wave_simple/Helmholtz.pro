@@ -148,10 +148,10 @@ Formulation {
         Galerkin { [ -k[]^2 * Dof{u~{idom}} , {u~{idom}} ] ;
           In Omega~{idom}; Jacobian JVol ; Integration I1 ; }
 
-	Galerkin { [ - (#11 > 0. ? g_in~{idom}~{0}[] : 0), {u~{idom}} ] ; // N.B.: in the case of PML TCs, this term comes from the delta function ; 
-	  In Sigma~{idom}~{0}; Jacobian JSur ; Integration I1 ; }         // a -2 factor should appear, but g_in is scaled for the sake of uniformity
-	Galerkin { [ - (#12 > 0. ? g_in~{idom}~{1}[] : 0), {u~{idom}} ] ; // and the amplitude is therefore corrected in the black box (see ComputeG).
-	  In Sigma~{idom}~{1}; Jacobian JSur ; Integration I1 ; }         // (This also scales the residuals by a factor of 2.)
+	Galerkin { [ - (#11 > 0. ? g_in~{idom}~{0}[] : 0), {u~{idom}} ] ;
+	  In Sigma~{idom}~{0}; Jacobian JSur ; Integration I1 ; }
+	Galerkin { [ - (#12 > 0. ? g_in~{idom}~{1}[] : 0), {u~{idom}} ] ;
+	  In Sigma~{idom}~{1}; Jacobian JSur ; Integration I1 ; }
 
         // transmission condition
         If(TC_TYPE == 0)
@@ -192,14 +192,14 @@ Formulation {
         EndIf
 
 	If (TC_TYPE == 3)
-	  Galerkin{[Rotate[D[],0.,0.,-thetaList(idom)]* Dof{d u~{idom}}, {d u~{idom}}];
+	  Galerkin { [Rotate[D[],0.,0.,-thetaList(idom)]* Dof{d u~{idom}}, {d u~{idom}}];
 	    In Pml~{idom}~{0}; Jacobian JVol; Integration I1;}
-	  Galerkin{[Rotate[D[],0.,0.,-thetaList(idom+1)]* Dof{d u~{idom}}, {d u~{idom}}];
+	  Galerkin { [Rotate[D[],0.,0.,-thetaList(idom+1)]* Dof{d u~{idom}}, {d u~{idom}}];
 	    In Pml~{idom}~{1}; Jacobian JVol; Integration I1;}
 
-	  Galerkin{[-(kPml~{idom}~{0}[])^2*Kx[]*Ky[]*Kz[]*Dof{u~{idom}}, {u~{idom}}];
+	  Galerkin { [-(kPml~{idom}~{0}[])^2*Kx[]*Ky[]*Kz[]*Dof{u~{idom}}, {u~{idom}}];
 	    In Pml~{idom}~{0}; Jacobian JVol; Integration I1;}
-	  Galerkin{[-(kPml~{idom}~{1}[])^2*Kx[]*Ky[]*Kz[]*Dof{u~{idom}}, {u~{idom}}];
+	  Galerkin { [-(kPml~{idom}~{1}[])^2*Kx[]*Ky[]*Kz[]*Dof{u~{idom}}, {u~{idom}}];
 	    In Pml~{idom}~{1}; Jacobian JVol; Integration I1;}
 
 	  Galerkin { [ -I[]*(kPml~{idom}~{0}[])*Dof{u~{idom}}, {u~{idom}} ] ;
@@ -218,7 +218,6 @@ Formulation {
           In GammaInf~{idom}; Jacobian JSur ; Integration I1 ; }
       }
     }
-
 
     // Compute the outgoing data
     For iSide In {0:1}
@@ -239,14 +238,8 @@ Formulation {
         Equation {
           Galerkin { [ Dof{g_out~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ] ;
             In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
-          If(iSide == 0)
-            Galerkin { [ (#11 > 0. ? g_in~{idom}~{0}[]:0)  , {g_out~{idom}~{0}} ] ;
-              In Sigma~{idom}~{0}; Jacobian JSur ; Integration I1 ; }
-          EndIf
-          If(iSide == 1)
-            Galerkin { [ (#12 > 0. ? g_in~{idom}~{1}[]:0)  , {g_out~{idom}~{1}} ] ;
-              In Sigma~{idom}~{1}; Jacobian JSur ; Integration I1 ; }
-          EndIf
+          Galerkin { [ ( (iSide ? #12 : #11) > 0. ? g_in~{idom}~{iSide}[] : 0) , {g_out~{idom}~{iSide}} ] ;
+            In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
 
           If(TC_TYPE == 0)
             Galerkin { [ 2 * I[] * kDtN[] * {u~{idom}} , {g_out~{idom}~{iSide}} ] ;
@@ -277,22 +270,23 @@ Formulation {
 
 	  If (TC_TYPE == 3)
             // apply the PML 'black box' to extract the derivative on Sigma
-            Galerkin{[ Rotate[D[],0.,0.,-thetaList(idom+iSide)]* Dof{Grad ubb~{idom}~{iSide}}, {Grad ubb~{idom}~{iSide}}];
+            Galerkin { [ Rotate[D[],0.,0.,-thetaList(idom+iSide)] * Dof{Grad ubb~{idom}~{iSide}}, {Grad ubb~{idom}~{iSide}}];
               In Pml~{idom}~{iSide}; Jacobian JVol; Integration I1;}
-            Galerkin{[-(kPml~{idom}~{iSide}[])^2*Kx[]*Ky[]*Kz[]*Dof{ubb~{idom}~{iSide}}, {ubb~{idom}~{iSide}}];
+            Galerkin { [-(kPml~{idom}~{iSide}[])^2*Kx[]*Ky[]*Kz[] * Dof{ubb~{idom}~{iSide}}, {ubb~{idom}~{iSide}}];
               In Pml~{idom}~{iSide}; Jacobian JVol; Integration I1;}
-
-            Galerkin { [ -I[]*kPml~{idom}~{iSide}[]*Dof{ubb~{idom}~{iSide}}, {ubb~{idom}~{iSide}} ] ;
+            Galerkin { [ -I[]*kPml~{idom}~{iSide}[] * Dof{ubb~{idom}~{iSide}}, {ubb~{idom}~{iSide}} ] ;
               In PmlInf~{idom}~{iSide} ; Jacobian JSur ; Integration I1 ; }
 
-	    // impose Dirichlet data (u) by Lagrange multiplier; d_n u is given by the LM field
-            Galerkin{[Dof{glm~{idom}~{iSide}}, {ubb~{idom}~{iSide}}];
+            // impose Dirichlet data (u) by Lagrange multiplier (which will
+            // compute d_n u) (NB: the third equation is multiplied by "-2" so g
+            // can be used as-is in the Helmholtz formulation; this also scales
+            // the residuals)
+            Galerkin { [Dof{glm~{idom}~{iSide}}, {ubb~{idom}~{iSide}}];
               In Sigma~{idom}~{iSide}; Jacobian JSur; Integration I1;}
-            Galerkin{[Dof{ubb~{idom}~{iSide}}, {glm~{idom}~{iSide}}];
+            Galerkin { [Dof{ubb~{idom}~{iSide}}, {glm~{idom}~{iSide}}];
               In Sigma~{idom}~{iSide}; Jacobian JSur; Integration I1;}
-            Galerkin{[2*{u~{idom}}, {glm~{idom}~{iSide}}];              // factor -2 added here to compensate for the scaling
-              In Sigma~{idom}~{iSide}; Jacobian JSur; Integration I1;}  // of g_in (cf. comment above)
-
+            Galerkin { [2*{u~{idom}}, {glm~{idom}~{iSide}}]; // factor -2!
+              In Sigma~{idom}~{iSide}; Jacobian JSur; Integration I1;}
             Galerkin { [ -Dof{glm~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ] ; // the d_n u term
               In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
           EndIf
@@ -359,8 +353,10 @@ Resolution {
 	EndFor
       EndFor
 
-      // update "Dirichlet" Boundary condition (homogenous now)
+      // update "Dirichlet" Boundary condition (now homogenous) (prepare non
+      // homogeneous BC on transmission boundaries)
       Evaluate[0. #10];
+      Evaluate[1. #11]; Evaluate[1. #12];
       For ii In {0: #ListOfDom()-1}
         idom = ListOfDom(ii);
         UpdateConstraint[Helmholtz~{idom}, GammaD~{idom}, Assign];
@@ -373,8 +369,6 @@ Resolution {
                             {ListOfField()}, {ListOfNeighborField()}, {}]
       {
 	SetCommSelf;
-        // setting non homogeneous BC on transmission boundaries
-	Evaluate[1. #11]; Evaluate[1. #12];
 	// Solve Helmholtz on each of my subdomain
 	For ii In {0: #ListOfDom()-1}
 	  idom = ListOfDom(ii);
