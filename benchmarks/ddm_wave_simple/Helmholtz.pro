@@ -40,7 +40,6 @@ Group{
   EndFor
 }
 
-
 Constraint{
   For ii In {0: #ListOfDom()-1}
     idom = ListOfDom(ii);
@@ -48,7 +47,6 @@ Constraint{
       Case {
         { Region GammaD~{idom} ; Value uinc[] * #10; }
       }
-
     }
     { Name Dirichlet0~{idom} ;
       Case {
