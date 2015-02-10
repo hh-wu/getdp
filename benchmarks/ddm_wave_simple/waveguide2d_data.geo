@@ -6,7 +6,7 @@ DefineConstant[ // allows to set these from outside
   WAVENUMBER = {30, Name "Input/0Wavenumber"},
   LAMBDA = {2*Pi/WAVENUMBER, Name "Input/1Wavelength", ReadOnly 1},
   // number of points per wavelength
-  N_LAMBDA = {10, Name "Input/2Points per wavelength"},
+  N_LAMBDA = {20, Name "Input/2Points per wavelength"},
   // dimensions of the waveguide
   DX = {2, Name "Input/X dimension"},
   DY = {1, Name "Input/Y dimension"},

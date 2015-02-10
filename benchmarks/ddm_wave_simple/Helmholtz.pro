@@ -148,12 +148,10 @@ Formulation {
         Galerkin { [ -k[]^2 * Dof{u~{idom}} , {u~{idom}} ] ;
           In Omega~{idom}; Jacobian JVol ; Integration I1 ; }
 
-	If (TC_TYPE != 3)
-	  Galerkin { [ - (#11 > 0. ? g_in~{idom}~{0}[] : 0), {u~{idom}} ] ;
-            In Sigma~{idom}~{0}; Jacobian JSur ; Integration I1 ; }
-          Galerkin { [ - (#12 > 0. ? g_in~{idom}~{1}[] : 0), {u~{idom}} ] ;
-            In Sigma~{idom}~{1}; Jacobian JSur ; Integration I1 ; }
-	EndIf
+	Galerkin { [ - (#11 > 0. ? g_in~{idom}~{0}[] : 0), {u~{idom}} ] ; // N.B.: in the case of PML TCs, this term comes from the delta function ; 
+	  In Sigma~{idom}~{0}; Jacobian JSur ; Integration I1 ; }         // a -2 factor should appear, but g_in is scaled for the sake of uniformity
+	Galerkin { [ - (#12 > 0. ? g_in~{idom}~{1}[] : 0), {u~{idom}} ] ; // and the amplitude is therefore corrected in the black box (see ComputeG).
+	  In Sigma~{idom}~{1}; Jacobian JSur ; Integration I1 ; }         // (This also scales the residuals by a factor of 2.)
 
         // transmission condition
         If(TC_TYPE == 0)
@@ -208,15 +206,6 @@ Formulation {
 	    In PmlInf~{idom}~{0} ; Jacobian JSur ; Integration I1 ; }
 	  Galerkin { [ -I[]*(kPml~{idom}~{1}[])*Dof{u~{idom}}, {u~{idom}} ] ;
 	    In PmlInf~{idom}~{1} ; Jacobian JSur ; Integration I1 ; }
-
-	  // Galerkin { [ ( #11 > 0. ? 2.*g_in~{idom}~{0}[] : 0. ), {u~{idom}} ] ; // delta function
-	  //   In Sigma~{idom}~{0} ; Jacobian JSur ; Integration I1 ; }
-	  // Galerkin { [ ( #12 > 0. ? 2.*g_in~{idom}~{1}[] : 0. ), {u~{idom}} ] ; // delta function
-	  //   In Sigma~{idom}~{1} ; Jacobian JSur ; Integration I1 ; }
-	  Galerkin { [ -( #11 > 0. ? g_in~{idom}~{0}[] : 0. ), {u~{idom}} ] ; // delta function -- modified definition of g_in to make the formulation 'simpler'
-	    In Sigma~{idom}~{0} ; Jacobian JSur ; Integration I1 ; }
-	  Galerkin { [ -( #12 > 0. ? g_in~{idom}~{1}[] : 0. ), {u~{idom}} ] ; // delta function
-	    In Sigma~{idom}~{1} ; Jacobian JSur ; Integration I1 ; }
 	EndIf
 
         // Bayliss-Turkel absorbing boundary condition
@@ -287,7 +276,7 @@ Formulation {
           EndIf
 
 	  If (TC_TYPE == 3)
-            //modified Helmholtz equation
+            // apply the PML 'black box' to extract the derivative on Sigma
             Galerkin{[ Rotate[D[],0.,0.,-thetaList(idom+iSide)]* Dof{Grad ubb~{idom}~{iSide}}, {Grad ubb~{idom}~{iSide}}];
               In Pml~{idom}~{iSide}; Jacobian JVol; Integration I1;}
             Galerkin{[-(kPml~{idom}~{iSide}[])^2*Kx[]*Ky[]*Kz[]*Dof{ubb~{idom}~{iSide}}, {ubb~{idom}~{iSide}}];
@@ -301,8 +290,8 @@ Formulation {
               In Sigma~{idom}~{iSide}; Jacobian JSur; Integration I1;}
             Galerkin{[Dof{ubb~{idom}~{iSide}}, {glm~{idom}~{iSide}}];
               In Sigma~{idom}~{iSide}; Jacobian JSur; Integration I1;}
-            Galerkin{[2*{u~{idom}}, {glm~{idom}~{iSide}}]; // factor -2 to make the formulation symmetric
-              In Sigma~{idom}~{iSide}; Jacobian JSur; Integration I1;}
+            Galerkin{[2*{u~{idom}}, {glm~{idom}~{iSide}}];              // factor -2 added here to compensate for the scaling
+              In Sigma~{idom}~{iSide}; Jacobian JSur; Integration I1;}  // of g_in (cf. comment above)
 
             Galerkin { [ -Dof{glm~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ] ; // the d_n u term
               In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
