@@ -11,7 +11,7 @@
 
 import sys
 sys.path.insert(0,'/Users/erinkuci/Desktop/src/getdp/benchmarks_kst/tool')
-from tool4 import *
+from tool import *
 #print help(OPTIMIZATION)
 #print dir(OPTIMIZATION)
 
@@ -38,7 +38,7 @@ parameters['TorqueNominal'] = 0.1 #3.9
 # Design variables
 parameters['paramNameDisp'] = ['x']*11
 if(not(parameters['warmStart'])):
-    x0 = np.array([-0.0015*0.5]*11)#-1.0e-04*np.ones(5)
+    x0 = np.array([0.0]*11)
     parameters['n'] = len(x0)
 else:
     x0 = []
@@ -53,15 +53,15 @@ parameters['normalizeDesVar'] = 1
 parameters['performance'] = ['BradialErrorInt'] #['TorqueVariance']
 #['TorqueVariance']
 #['BradialErrorInt']
-parameters['rotorAngles'] = np.array([15.0])
-#np.linspace(0.0,45.0,5)
+parameters['rotorAngles'] = np.linspace(0.1,44.5,10)
+#np.array([15.0])
 parameters['m'] = 0
 parameters['sign'] = [1.0] # -1:>=, 1:<=
 parameters['fiMax'] = [0.0]
 
 # Sensitivity analysis
 parameters['flag_computeGrad'] = 1
-parameters['SensitivityMethod'] = ['FiniteDifference']
+parameters['SensitivityMethod'] = ['SemiAnalyticAvm']
 parameters['allowCentralFD'] = 1
 parameters['step'] = 1.0e-06
 parameters['FilterSensitivity'] = []

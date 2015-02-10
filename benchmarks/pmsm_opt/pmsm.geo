@@ -2,13 +2,13 @@ Include "pmsm_data.geo";
 
 Mesh.Algorithm = 6; // 2D mesh algorithm (1=MeshAdapt, 2=Automatic, 5=Delaunay, 6=Frontal, 7=bamg, 8=delquad)
 Geometry.CopyMeshingMethod = 1;
-fact_trans = 1.0; //Mesh.CharacteristicLengthFactor ;
-Mesh.CharacteristicLengthFactor = CharacteristicLengthFactor;
+fact_trans = 1.0; 
+//Mesh.CharacteristicLengthFactor = lc;
 
 
 // Mesh characteristic lengths
 //s = 0.2 ;
-s = lcCoeff;
+s = lc;//lcCoeff;
 pR1=(rR2-rR1)/6.*s;
 pR2=(rR2-rR1)/6.*s;
 

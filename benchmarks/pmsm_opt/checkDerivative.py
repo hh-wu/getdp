@@ -5,15 +5,9 @@
     
 """
 
-import numpy as np
-import pylab as pl
-import matplotlib.pyplot as plt
-
 import sys
-#sys.path[:0] = ['tool']
 sys.path.insert(0,'/Users/erinkuci/Desktop/src/getdp/benchmarks_kst/tool')
-#from tool4 import *
-from tool5 import *
+from tool import *
 
 # ------------------------------------------------------------------------------
 # --- Set the parameters ---
@@ -27,7 +21,7 @@ parameters['modelName'] = 'pmsm'
 #0(serial computation of objective and its derivative); 1 (otherwise)
 parameters['AnalysisModelType']='FEM'
 parameters['flagParallel'] = 0
-parameters['flagOptType'] = 'Shape' #'Shape', 'Topology'
+parameters['flagOptType'] = 0 #0:'Shape', 1:'Topology'
 parameters['modelType'] = 'machine'
 parameters['analysisType'] = 0.0
 parameters['NLferro'] = 0.0
@@ -50,7 +44,7 @@ parameters['allowCentralFD'] = 1
 
 # Physical quantities computation
 parameters['rotorAngles'] = np.array([0.0])#np.linspace(7.5,15.0,5)
-parameters['TorqueNominal'] = -90.0
+parameters['defautValue'] = {'TorqueNominal':90.0}
 parameters['m'] = len(parameters['performance']) - 1 # number of constraints
 
 # ------------------------------------------------------------------------------
@@ -62,14 +56,15 @@ op = Sensitivity(parameters)
 # --- Compute sensitivity analysis ---
 # ------------------------------------------------------------------------------
 # Init
-execMode = 6
-lc = np.arange(0.15,1.0,(1.0-0.15)/30.0)
-print lc
+execMode = 2
+pathMeshCharLen = 'Geo/Mesh Characteristic Length Factor'
+lc = [0.7]#np.arange(0.15,1.0,(1.0-0.15)/30.0)
+#print lc
 step = [1.0e-10]
 #step = np.array([1.0e-016,1.0e-015,1.0e-014,1.0e-013,1.0e-012,1.0e-011,
 #                 1.0e-010,1.0e-09,1.0e-08,1.0e-07,1.0e-06,1.0e-05,
 #                 1.0e-04,1.0e-03])
-sensMeth = ['FiniteDifference','SemiAnalyticAvm']
+sensMeth = ['SemiAnalyticAvm','GlobalFiniteDifference','SemiAnalyticAvm']
 Nlc = len(lc)
 Nstep = len(step)
 nbMeth = len(sensMeth)
@@ -82,6 +77,7 @@ if ( execMode == 1 ):
     print('-------------------------------------------------------')
     print('-- Compute performance function                      --')
     print('-------------------------------------------------------')
+    op.setScalarParameter(pathMeshCharLen,lc[0])
     resAnalysis = op.Analysis(x,parameters)
     print('-------------------------------------------------------')
     print('-- d[f1, ..., fk]/dx with method [M1,...Mk]          --')
@@ -98,22 +94,25 @@ elif( execMode == 2 ):
     print('-------------------------------------------------------')
     f = np.zeros(Nlc)
     dfdx = np.zeros([Nlc,Nstep,nbMeth,n])
-    
+    op.setScalarParameter(pathMeshCharLen,lc[0])
+    resAnalysis = op.Analysis(x,parameters)
+    print('obj:{}'.format(resAnalysis))
+
     # Compute df/dx
     for j in range(Nlc): # loop over mesh quality (lc)
-        op.setMeshCharacterLength(lc[j])
+        op.setScalarParameter(pathMeshCharLen,lc[j])
         for k in range(Nstep): # loop over perturbation step (step)
             op.parameters['step'] = step[k]
             for l in range(nbMeth): # loop over sens. analysis methods
                 # compute f only if FD
-                if(sensMeth[l]=='FiniteDifference'):
+                if(sensMeth[l]=='GlobalFiniteDifference'):
                     resAnalysis = op.Analysis(x,op.parameters)
                     f[j] = np.copy(resAnalysis[0])
                 # compute df/dx
                 op.parameters['SensitivityMethod'] = [sensMeth[l]]
                 dfdx[j,k,l] = op.Sensitivity(x,resAnalysis,op.parameters)
                 # compute relative error wrt FD
-                if(sensMeth[l]=='FiniteDifference'):
+                if(sensMeth[l]=='GlobalFiniteDifference'):
                     valDfDx = np.copy(np.abs(dfdx[j,k,l]))
                     relError = 0.0
                 else:

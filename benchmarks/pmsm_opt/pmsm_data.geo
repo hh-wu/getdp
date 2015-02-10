@@ -1,6 +1,5 @@
 // Permanent magnet synchronous machine
-// Example of Prof. Dr. Mauricio Valencia Ferreira da Luz (Florianopolis, August 23, 2010)
-
+// Example of Prof. Dr. Mauricio Valencia Ferreira da Luz (Florianopolis,August 23,2010)
 // Modified and customised for Onelab by Ruth V. Sabariego (February, 2013)
 
 mm = 1e-3 ;
@@ -10,10 +9,10 @@ pp = "Input/ConstructiveParameters/";
 ppp = "Input/OptParam/";
 
 DefineConstant[
-  CharacteristicLengthFactor={1.0,Name "Geo/Mesh Characteristic Length Factor",Visible 1},
-  lcCoeff={1.0,Name "Input/OptParam/lc",Visible 1},
+  lc={.2,Name "Geo/Mesh Characteristic Length Factor",Visible 1},
   InputId = "",
   ResId = "",
+  ResDir = "res/",
   mshName = "pmsm.msh",
   mshParamName="pmsmParams.msh",
   pInOpt = StrCat[InputId,ppp],
@@ -27,13 +26,10 @@ DefineConstant[
   
   // Optimization parameters
   Flag_topopt = {0, Name "Input/OptParam/optType",Label "Optimization Type",
-                 Choices {0="Structural Optimization",1="Topology Optimization"}, Visible 1},
+             Choices {0="Structural Optimization",1="Topology Optimization"}, Visible 1}
   // -- SO --
-  Flag_Spline = { 1, Name StrCat[pInOpt,"Flag_Spline"],Label "PM_Spline_Interface",Choices {0,1}, Visible 0},
-//  For k In {1:4}
-//    r_PtSpline~{k} = {0, Name StrCat[pInOpt,"x_0"], Label "radius Spline Point[m]", Visible (!Flag_topopt)},
-//    Printf("SPLINE:", r_PtSpline~{k}),
-//  EndFor
+  Flag_Spline = { 0, Name StrCat[pInOpt,"Flag_Spline"],
+                     Label "PM_Spline_Interface",Choices {0,1}, Visible 0},
 
   r_PtSpline_0 = {0, Name StrCat[pInOpt,"x_0"], Label "radius Spline Point 0 [m]", Visible (!Flag_topopt)},
   r_PtSpline_1 = {0, Name StrCat[pInOpt,"x_1"], Label "radius Spline Point 1 [m]", Visible (!Flag_topopt)},
@@ -132,7 +128,9 @@ MOVING_BAND = 9999 ;
 
 NICEPOS = 111111 ;
 
-//define performance function type
+//--------------------------
+// define performance function type
+//--------------------------
 NO_PERF = 0;
 BFIELD_ERROR = 1;
 TORQUE_VAR = 2;
@@ -140,6 +138,24 @@ IRON_LOSSES = 3;
 COMPLIANCE = 4;
 VOLUME = 5;
 TORQUE = 6;
-TORQUE_VAR_FIELD = 7;
-
+//--------------------------
+// shape derivative views tag
+//--------------------------
+VELOCITY_FIELD = 7;//pour que ça marche avec -gmshread il faut mettre à 0
+MESH_VEL_FIELD = 8;
+NU_ROTA_ROTLAMBDA_VELOCITY_FIELD = 9;
+JS_LAMBDA_VELOCITY_FIELD = 10;
+FUNC_IND_VELOCITY_FIELD = 11;
+GRAD_LAMBDA_V_FIELD = 12;
+GRAD_A_V_FIELD = 13;
+ROT_A_FIELD = 14;
+M_ROTLAMBDA_VELOCITY_FIELD = 15;
+B_FIELD = 16;
+A_FIELD = 17;
+LAMBDA_FIELD = 18;
+CURL_LAMBDA_FIELD = 19;
+TORQUE_VAR_FIELD = 20;
+// top opt fields
+DES_VAR_FIELD = 21;
+SENS_FIELD = 22;
 

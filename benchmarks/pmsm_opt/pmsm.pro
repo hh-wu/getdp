@@ -8,15 +8,19 @@ DefineConstant[
   //!!! impose current density directly, instead of voltage or current
   //Flag_ImposedCurrentDensity = 1,
 
-  Flag_AnalysisType = {0,Name "Input/Type of analysis",Choices{0="Static",  1="Time domain"},
-                       Highlight "Blue", Visible 1,
-                       Help Str["- Use 'Static' to compute static fields created in the machine",
-                       "- Use 'Time domain' to compute the dynamic response of the machine"]} ,
-  Flag_SrcType_Stator = { 1, Name "Input/Source type in stator",Choices{0="None",1="Current"}, Highlight "Blue", Visible 1},
-  Flag_NL = { 0, Choices{0,1}, Name "Input/Nonlinear BH-curve", Visible 1},
-  Flag_NL_law_Type = { 0, Name "Input/BH-curve",Choices{0="Analytical", 1="Interpolated",
-                                                        2="Analytical VH800-65D", 3="Interpolated VH800-65D"},
-                       Highlight "Blue", Visible Flag_NL}
+  Flag_AnalysisType = {0,Name "Input/02Type of analysis",
+                         Label "Input/Type of analysis",
+                         Choices{0="Static",  1="Time domain"},
+                         Highlight "Blue", Visible 1},
+  Flag_SrcType_Stator = { 1, Name "Input/Source type in stator",
+                             Choices{0="None",1="Current"}, Highlight "Blue", Visible 1},
+  Flag_NL = { 1, Name "Input/NonlinearSystem",
+                 Label "Nonlinear BH-curve", Choices{0,1}},
+
+  Flag_NL_law_Type = { 1, Name "Input/NonlinearCurve", Label "BH-curve", 
+		       Choices{0="Analytical", 1="Interpolated",
+			       2="Analytical VH800-65D", 3="Interpolated VH800-65D"},
+		       Highlight "Blue", Visible Flag_NL}
 ];
 
 Flag_Cir = !Flag_SrcType_Stator ;
@@ -107,7 +111,7 @@ Function {
 
 
   //Data for modeling a stranded inductor
-  NbWires[]  = 104 ; // Number of wires per slot
+  NbrWires[]  = 104 ; // Number of wires per slot
   // STATOR_IND_AM comprises all the slots in that phase, we need thus to divide by the number of slots
   nbSlots[] = Ceil[nbInds/NbrPhases/2] ;
   SurfCoil[] = SurfaceArea[]{STATOR_IND_AM}/nbSlots[] ;//All inductors have the same surface
@@ -150,8 +154,10 @@ Function {
 //    delta_theta_deg = { 0., Name "Input/Step [deg]",
 //                        Highlight "AliceBlue", Visible (Flag_AnalysisType==1)}
   
-    delta_theta_deg = { 0, Name StrCat["Input/", StrCat[ResId,"Shift rotor position (no remesh) [mech. deg]"]],
-                         Highlight "AliceBlue", Min 0, Max 45, Step 0.5, Visible (Flag_AnalysisType==0)}
+    delta_theta_deg = { 0, Name StrCat["Input/", StrCat[ResId,"ShiftMeshRotorPosition"]],
+                         Label "Shift rotor position (no remesh) [mech. deg]",
+                         Highlight "AliceBlue", Min 0, Max 45, Step 0.5, 
+                         Visible (Flag_AnalysisType==0)}
 
 ];
 
@@ -226,7 +232,6 @@ If(Flag_Cir)
   Include "pmsm_8p_circuit.pro" ;
 EndIf
 Include "machine_magstadyn_a.pro" ;
-
 Include "optim_post.pro" ;
 
 

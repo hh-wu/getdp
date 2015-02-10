@@ -1,46 +1,79 @@
 
 DefineConstant[
-  // Optimization flag 
-/*
-  Flag_topopt = {0, Name "Input/OptParam/optType",Label "Optimization Type",
-                 Choices {0="Structural Optimization",1="Topology Optimization"}, Visible 1},
 
-*/
-  Flag_SolveA = {0, Name "Input/OptParam/SolveA",Label "Solve for A", Choices {0,1}, Visible 1},
+  // main fields
+  Flag_SolveStateVar = {0, Name "Input/OptParam/SolveStateVar",
+                           Label "Get State Variable", Choices {0,1}, Visible 1},
 
-  degree_SIMP = {3.0, Name "OptParam/DegreeSimp",Label "Degree SIMP", Visible (Flag_topopt==1)},
+  Flag_SolveAdjointVar = {0, Name "Input/OptParam/SolveAdjointVar",
+                             Label "Get Adjoint Variable",Choices {0,1}, Visible 1},
 
-  Flag_SemiAnalyticSens = {0, Name "Input/OptParam/SemiAnalyticSens",Label "Discretize weak formulation", 
-                           Choices {0,1}, Visible 1},
+  Flag_PerfType = {TORQUE_VAR, Name "Input/OptParam/PerfType",
+                               Label "performance function type",
+                               Choices {NO_PERF="No performance function",
+                                        BFIELD_ERROR="air gap B field error",
+                                        TORQUE_VAR="torque variance",
+				        IRON_LOSSES="losses",
+                                        COMPLIANCE="compliance",
+                                        TORQUE="torque"},Visible Flag_SolveAdjointVar},
+  // Sensitivity analysis method --> replace by 1 variable!!!
+  Flag_SemiAnalyticAvmSens = {0, Name "Input/OptParam/SemiAnalyticAvmSensQuantitys",
+                                 Label "Semi analytic quantitys (avm)",
+                                 Choices {0,1}, Visible 1},
 
-  // Il peut y avoir plus d'une fonction de perf (obj + contraintes)!!! Comment tenir compte de ça? 
-  Flag_AdjointVariable = {0, Name "Input/OptParam/AdjointVariable",Label "adjoint variable computation", 
-                           Choices {0,1}, Visible 1},
+//  Flag_SemiAnalyticDirSens = {0, Name "Input/OptParam/SemiAnalyticDirQuantitys",
+//                                 Label "Semi analytic quantitys (direct)", 
+//                                 Choices {0,1}, Visible 1},
 
-  Flag_PerfType = {TORQUE_VAR, Name "Input/OptParam/PerfType",Label "performance function type",
-                           Choices {NO_PERF="No performance function",
-                                    BFIELD_ERROR="air gap B field error",
-                                    TORQUE_VAR="torque variance",
-                                    IRON_LOSSES="losses",
-                                    COMPLIANCE="compliance",
-                                    TORQUE="torque"},Visible Flag_AdjointVariable},
+  Flag_AvmFixedDomSens = {0, Name "Input/OptParam/AdjointMethodSensFixedDom",
+                             Label "fixed domain derivative (avm)", 
+                             Choices {0,1}, Visible 1},
 
-  Flag_AdjointMethodSens_FixedDom = {0, Name "Input/OptParam/AdjointMethodSensFixedDom",
-                                     Label "sensitivity analysis computation on fixed mesh", 
-                                     Choices {0,1}, Visible 1},
+//  Flag_DirFixedDomSens = {0, Name "Input/OptParam/DirMethodSensFixedDom",
+//                            Label "fixed domain derivative (direct)", 
+//                            Choices {0,1}, Visible 1},
+
+//  Flag_AvmVarDomSens = {0, Name "Input/OptParam/AdjointMethodSensVarDom",
+//                           Label "continuum derivative (avm)",
+//                           Choices {0,1}, Visible 1},
+
+//  Flag_DirVarDomSens = {0, Name "Input/OptParam/DirectMethodSensVarDom",
+//                           Label "continuum derivative (direct)",
+//                           Choices {0,1}, Visible 1},
+  
+  NbSubDom = {2, Name "Input/OptParam/NbDomain", Label "Nbr of regions", Visible 0},
+
+  //Tnom = {90, Name "Input/OptParam/TorqueNominal", Visible 1},
+  Tnom = {90.0, Name "Input/OptParam/TorqueNominal",
+                Label "Nominal desired torque",
+                Visible (Flag_PerfType==TORQUE_VAR)},
+  // Filter
+  Flag_filterSensitivity = {0, Name "Input/OptParam/filterSens", 
+                               Label "Filter Derivatives?",
+                               Choices {0, 1}, Visible (Flag_topopt==1)}, 
+
+  Rmin = {0.001*10, Name "Input/OptParam/RadiusSensFilter",
+                    Label "Sensitivity Filter Radius", 
+                    Visible 1/*(Flag_filterSensitivity==1)*/},
+
+  Flag_filterMeshCoordinates = {0, Name "Input/OptParam/filterMeshCoord", 
+                                   Label "Filter mesh nodes coordinates?", 
+                                   Choices {0, 1}, Visible 1}, 
 
   regionVar = {ROTOR_FE, Name "Input/OptParam/regionVar",
-               Label "Region of design variables", 
-               Choices {STATOR_FE="Stator Fe",ROTOR_FE="Rotor Fe"},Visible (Flag_topopt)},
+                     Label "Region of design variables", 
+                     Choices {ROTOR_FE="Rotor Fe",STATOR_FE="Stator Fe"},
+                     Visible (Flag_topopt)},
 
-     
+  Flag_InterpLaw = {0, Name "Input/OptParam/MaterialInterpLaw",
+                       Label "material interpolation law",
+                       Choices {0="SIMP",1="RAMP"},Visible (Flag_topopt==1)},
 
-  Tnom = {90.0, Name "Input/OptParam/TorqueNominal",Label "Nominal desired torque", Visible (Flag_PerfType==2)},
+  degree_SIMP = {3.0, Name "Input/OptParam/SimpPenalDegree",
+                      Label "Degree SIMP", Visible (Flag_topopt==1)},
 
-  Flag_filterSensitivity = {0, Name "Input/OptParam/filterSens", Label "Filter sensitivities?", 
-                            Choices {0, 1}, Visible Flag_topopt}, 
-  
-  Rmin = {0.001, Name "OptParam/rmin",Label "Sensitivity Filter Radius", Visible (Flag_filterSensitivity==1)},
+  //--------------------------------------------------------------
+
 
   PhaseAngle=0
 
@@ -108,7 +141,7 @@ Function{
     Flag_SrcType_StatorB = Flag_SrcType_Stator, 
     Flag_SrcType_StatorC = Flag_SrcType_Stator,
     Flag_SrcType_Rotor, Flag_Cir_RotorCage,
-    Clean_Results = { 1, Choices {0,1}, Name "Input/Remove previous result files",Visible 1 },
+    Clean_Results={1,Choices {0,1},Name "Input/Remove previous result files",Visible 1},
     Flag_SaveAllSteps = {0, Name "Input/Save all time steps", Choices {0,1}},
 
     my_output= "Output - Mechanics/0Torque [Nm]/rotor",
@@ -117,28 +150,16 @@ Function{
 
   DefineFunction[
     Frelax,
-    dhdb_NL, br, js, Resistance, Inductance, Capacitance,nbWires,
+    dhdb_NL, br, js, Resistance, Inductance, Capacitance,nbrWires,
     Theta_Park, Theta_Park_deg, RotorPosition, RotorPosition_deg,
-    Friction, Torque_mec,volDensity,
-    rmin2, prod_x_dC, designVar, nu_r_inv, bField, pseudoLoad
+    Friction, Torque_mec,volDensity,IronLossDensity,
+    rmin2, prod_x_dC, designVar, nu_r_inv, bField, pseudoLoad,
+    velocityField_0,velocityField0,velocityField
   ];
 
   Flag_Symmetry = (SymmetryFactor==1) ? 0 : 1 ;
 
 }
-
-// Onelab parameter tree structure
-po      = StrCat["Output - Electromagnetics/", ResId];
-poI     = StrCat[po,"0Current [A]/"];
-poV     = StrCat[po,"1Voltage [V]/"];
-poF     = StrCat[po,"2Flux linkage [Vs]/"];
-poJL    = StrCat[po,"3Joule Losses [W]/"];
-
-po_mec  = StrCat["Output - Mechanics/", ResId];
-po_mecT = StrCat[po_mec,"0Torque [Nm]/"];
-po_mecP  = StrCat(po_mec,"1Autres/");
-po_opt  = StrCat["Output - Optimization/", ResId];
-po_min  = StrCat["Output/", ResId];
 
 
 Include "BH.pro"; // nonlinear BH caracteristic of magnetic material
@@ -162,7 +183,7 @@ Group {
   Stator  = Region[{ StatorC, StatorCC }] ;
   Rotor   = Region[{ RotorC,  RotorCC }] ;
 
-  Rotor_Moving = Region[{ Rotor, Rotor_Air, Rotor_Airgap, Rotor_Inds, Rotor_Bnd_MBaux} ] ; // Use in ChangeOfCoordinates
+  Rotor_Moving = Region[{ Rotor,Rotor_Air,Rotor_Airgap,Rotor_Inds,Rotor_Bnd_MBaux}]; 
 
   MB  = MovingBand2D[ MovingBand_PhysicalNb, Stator_Bnd_MB, Rotor_Bnd_MB, SymmetryFactor] ;
   Air = Region[{ Rotor_Air, Rotor_Airgap, Stator_Air, Stator_Airgap, MB } ] ;
@@ -197,6 +218,9 @@ Group {
       DomainOpt = Region[{Stator_Fe}];
     EndIf 
   EndIf
+  DomCompliance = Region[{Rotor_Airgap}];
+  DomBradError  = Region[{Rotor_Airgap}];
+  DomTorqueVar = Region[{Rotor_Airgap}];
 }
 
 Function {
@@ -223,14 +247,14 @@ Function {
       
       If(regionVar==ROTOR_FE)
         //design variables in rotor
-        designVar[#Rotor_Fe]  = ScalarField[RotateZ_desVar[],0,1]{1};   
+        designVar[#Rotor_Fe]  = ScalarField[RotateZ_desVar[],0,1]{DES_VAR_FIELD};   
         nu [#Stator_Fe]  = 1 / (mur_fe * mu0) ;
         nu [#Rotor_Fe]  = (1 / (mur_fe * mu0) - nu0)*designVar[]^p  +  nu0; //linear
         nu_prime [#Rotor_Fe]  = p*(1 / (mur_fe * mu0) - nu0)*designVar[]^(p-1.0); //linear
       EndIf
       If(regionVar==STATOR_FE)
         //design variables in stator
-	designVar[#Stator_Fe]  = ScalarField[XYZ[],0,1]{1};//stator est fixe!!!         
+	designVar[#Stator_Fe]  = ScalarField[XYZ[],0,1]{DES_VAR_FIELD};//stator 
         nu [#Stator_Fe]  = (1 / (mur_fe * mu0) - nu0)*designVar[]^p  +  nu0; //linear
 	nu [#Rotor_Fe]  = 1 / (mur_fe * mu0) ;        
         nu_prime [#Stator_Fe]  = p*(1 / (mur_fe * mu0) - nu0)*designVar[]^(p-1.0); //linear
@@ -255,7 +279,7 @@ Function {
 	
 	  // define rotor nu      		
 	  //RotateZ_desVar[] = Rotate[ XYZ[], 0, 0, -RotorPosition[] ] ; 
-      	  designVar[#Rotor_Fe]  = ScalarField[XYZ[],0,1]{1}; //design variables (read from view of .pos)  
+      	  designVar[#Rotor_Fe]  = ScalarField[XYZ[],0,1]{DES_VAR_FIELD}; //design variables (read from view of .pos)  
           nu [#Rotor_Fe] = (nu_1a[$1]-nu0)*designVar[]^p + nu0; //non-linear SIMP law 
 			
 	  // define derivartive of nu 
@@ -287,7 +311,7 @@ Function {
 
   rho[] = 1/sigma[] ;
 
-  Rb[] = Factor_R_3DEffects*AxialLength*FillFactor_Winding*NbWires[]^2/SurfCoil[]/sigma[] ;
+  Rb[] = Factor_R_3DEffects*AxialLength*FillFactor_Winding*NbrWires[]^2/SurfCoil[]/sigma[] ;
   Resistance[#{Stator_Inds, Rotor_Inds}] = Rb[] ;
 
   Idir[#{Stator_IndsP, Rotor_IndsP}] =  1 ;
@@ -332,9 +356,9 @@ Function {
 //    WaveFormB[] = IB[]; 
 //    WaveFormC[] = IC[];
 
-//    js[PhaseA] = II * NbWires[]/SurfCoil[] * IA[] * Idir[] * Vector[0, 0, 1] ;
-//    js[PhaseB] = II * NbWires[]/SurfCoil[] * IB[] * Idir[] * Vector[0, 0, 1] ;
-//    js[PhaseC] = II * NbWires[]/SurfCoil[] * IC[] * Idir[] * Vector[0, 0, 1] ;
+//    js[PhaseA] = II * NbrWires[]/SurfCoil[] * IA[] * Idir[] * Vector[0, 0, 1] ;
+//    js[PhaseB] = II * NbrWires[]/SurfCoil[] * IB[] * Idir[] * Vector[0, 0, 1] ;
+//    js[PhaseC] = II * NbrWires[]/SurfCoil[] * IC[] * Idir[] * Vector[0, 0, 1] ;
 //  EndIf
 
 // -------------------------------------------------
@@ -384,9 +408,9 @@ Function {
       Frelax[] = 1;
     EndIf
     Printf("source:4");
-    js[PhaseA] = 0.0*II * NbWires[]/SurfCoil[] * IA[] * Idir[] * Vector[0, 0, 1] ;
-    js[PhaseB] = 0.0*II * NbWires[]/SurfCoil[] * IB[] * Idir[] * Vector[0, 0, 1] ;
-    js[PhaseC] = 0.0*II * NbWires[]/SurfCoil[] * IC[] * Idir[] * Vector[0, 0, 1] ;
+    js[PhaseA] = 0.0*II * NbrWires[]/SurfCoil[] * IA[] * Idir[] * Vector[0, 0, 1] ;
+    js[PhaseB] = 0.0*II * NbrWires[]/SurfCoil[] * IB[] * Idir[] * Vector[0, 0, 1] ;
+    js[PhaseC] = 0.0*II * NbrWires[]/SurfCoil[] * IC[] * Idir[] * Vector[0, 0, 1] ;
   EndIf
 
 /*
@@ -416,9 +440,9 @@ Function {
   If(Flag_ImposedCurrentDensity)
     Printf["-- ImposedCurrentDensity --"];
     Printf["II=%g",II];
-    js[PhaseA] = II * NbWires[]/SurfCoil[] * WaveFormA[] * Idir[] * Vector[0, 0, 1] ;
-    js[PhaseB] = II * NbWires[]/SurfCoil[] * WaveFormB[] * Idir[] * Vector[0, 0, 1] ;
-    js[PhaseC] = II * NbWires[]/SurfCoil[] * WaveFormC[] * Idir[] * Vector[0, 0, 1] ;
+    js[PhaseA] = II * NbrWires[]/SurfCoil[] * WaveFormA[] * Idir[] * Vector[0, 0, 1] ;
+    js[PhaseB] = II * NbrWires[]/SurfCoil[] * WaveFormB[] * Idir[] * Vector[0, 0, 1] ;
+    js[PhaseC] = II * NbrWires[]/SurfCoil[] * WaveFormC[] * Idir[] * Vector[0, 0, 1] ;
   EndIf
 */
   Velocity[] = wr*XYZ[]/\Vector[0,0,-1] ;
@@ -448,19 +472,18 @@ Function {
 
   If(Flag_filterSensitivity)
     rmin2[] = Rmin*Rmin;
-    //sensitivityMap[] = ScalarField[RotatePZ[RotorPosition[]],0,1]{2}; 
-    sensitivityMap[] = ScalarField[XYZ[],0,1]{2}; 
-    prod_x_dC[] = designVar[] * sensitivityMap[];
+    prod_x_dC[] = ScalarField[RotateZ_desVar[],0,1]{SENS_FIELD};
   EndIf
-/*
-  If(Flag_AdjointVariable || Flag_SemiAnalyticSens)
-    bField[] = VectorField[RotatePZ[RotorPosition[]],0,1]{3};//????
-    pseudoLoad[] = #59; 
-  EndIf
-*/
+
 
   volDensity[#{Rotor_Fe,Stator_Fe}] = 7874; //acier
   volDensity[#{DomainM}] = 7400; //PM
+
+  // -- velocity field --
+  //velocityField0_0[] = VectorField[$1,0,1]{0};
+  velocityField_0[] = VectorField[RotateZ_desVar[],0,1]{0};
+  velocityField0[] = VectorField[$1,0,1]{VELOCITY_FIELD};
+  velocityField[] = VectorField[RotateZ_desVar[],0,1]{VELOCITY_FIELD};
 
 }
 
@@ -509,6 +532,25 @@ Constraint {
 
     }
   }
+  //-----------------------------------------------------------------
+//  { Name DirichletBCx; Type Assign;
+//      Case{
+//        {Region SkinDomain~{1};  Value CompX[velocityField_0[]]; }
+//        {Region Gama;  Value 0; }
+//      }
+//  }
+//  { Name DirichletBCy; Type Assign;
+//      Case{
+//        {Region SkinDomain~{1};  Value CompY[velocityField_0[]]; }
+//        {Region Gama;  Value 0; }
+//      }
+//  }
+//  { Name DirichletBCz; Type Assign;
+//      Case{
+//        {Region SkinDomain~{1};  Value CompZ[velocityField_0[]]; }
+//        {Region Gama;  Value 0; }
+//      }
+//  }
   //-----------------------------------------------------------------
   { Name Current_2D ;
     Case {
@@ -603,6 +645,40 @@ FunctionSpace {
         Support Domain ; Entity NodesOf[ All ] ; }
     }
   }
+  //-----------------------------------------------------------------
+//  { Name H_velocityX; Type Form0;
+//    BasisFunction{
+//      {Name wn; NameOfCoef vn; Function BF_Node;
+//       Support Domain; Entity NodesOf[All];}
+//    }
+//    // Contrary to Neumann case, we had here the constraint :
+//	Constraint{
+//	{NameOfCoef vn; EntityType NodesOf;
+//	 NameOfConstraint DirichletBCx;}
+//	}
+//  }
+//  { Name H_velocityY; Type Form0;
+//    BasisFunction{
+//      {Name wn; NameOfCoef vn; Function BF_Node;
+//    Support Domain; Entity NodesOf[All];}
+//    }
+//    // Contrary to Neumann case, we had here the constraint :
+//	Constraint{
+//	{NameOfCoef vn; EntityType NodesOf;
+//	 NameOfConstraint DirichletBCy;}
+//	}
+//  }
+//  { Name H_velocityZ; Type Form0;
+//    BasisFunction{
+//      {Name wn; NameOfCoef vn; Function BF_Node;
+//    Support Domain; Entity NodesOf[All];}
+//    }
+//    // Contrary to Neumann case, we had here the constraint :
+//	Constraint{
+//	{NameOfCoef vn; EntityType NodesOf;
+//	 NameOfConstraint DirichletBCz;}
+//	}
+//  }
   //-----------------------------------------------------------------
   // Gradient of Electric scalar potential (2D)
   //-----------------------------------------------------------------
@@ -729,9 +805,9 @@ Formulation {
         In DomainC ; Jacobian Vol ; Integration I1 ; }
       GlobalTerm { [ Dof{I} , {U} ] ; In DomainC ; }
 
-      Galerkin { [ -NbWires[]/SurfCoil[] * Dof{ir} , {a} ] ;
+      Galerkin { [ -NbrWires[]/SurfCoil[] * Dof{ir} , {a} ] ;
         In DomainB ; Jacobian Vol ; Integration I1 ; }
-      Galerkin { DtDof [ AxialLength * NbWires[]/SurfCoil[] * Dof{a} , {ir} ] ;
+      Galerkin { DtDof [ AxialLength * NbrWires[]/SurfCoil[] * Dof{a} , {ir} ] ;
         In DomainB ; Jacobian Vol ; Integration I1 ; }
       GlobalTerm { [ Dof{Ub}/SymmetryFactor , {Ib} ] ; In DomainB ; }
       Galerkin { [ Rb[]/SurfCoil[]* Dof{ir} , {ir} ] ;
@@ -806,21 +882,19 @@ Formulation {
       If(Flag_PerfType == BFIELD_ERROR) // F = Int((Br - Bref)^2)
         Printf["-- Radial Field Pseudoload --"];
         Galerkin { [ -2.0*({d a}*er[] - Btarget[])*er[], {d lambda}] ;
-                 In Rotor_Airgap ; Jacobian Vol ; Integration I1 ; }
+                 In DomBradError ; Jacobian Vol ; Integration I1 ; }
       EndIf
-      If(Flag_PerfType == TORQUE_VAR) // F = (T/Tref - 1)^2 --> faux: il manque une dérivée de nu!!!
+      If(Flag_PerfType == TORQUE_VAR) // F = (T/Tref - 1)^2
        Printf["-- TORQUE VAR Pseudoload --"];
-       Galerkin { [ -2.0*torqueVar[]*nu[{d a}]*torqueCoeff[]/Ttarget[]*( et[]*({d a}*er[]) ), {d lambda} ];
-         In Rotor_Airgap ; Jacobian Vol ; Integration I1 ; } 
+       Galerkin {[-2.0*torqueVar[]*nu[{d a}]*torqueCoeff[]/Ttarget[]*(et[]*({d a}*er[]) ), {d lambda} ];
+         In DomTorqueVar ; Jacobian Vol ; Integration I1 ; } 
        Galerkin { [ -2.0*torqueVar[]*nu[{d a}]*torqueCoeff[]/Ttarget[]*( er[]*({d a}*et[]) ), {d lambda} ];
-         In Rotor_Airgap ; Jacobian Vol ; Integration I1 ; } 
+         In DomTorqueVar ; Jacobian Vol ; Integration I1 ; } 
       EndIf
-      If(Flag_PerfType == TORQUE) // F = (T/Tref - 1)^2
-       Printf["-- TORQUE Pseudoload --"];
-       Galerkin { [ -nu[{d a}]*torqueCoeff[]/*/Ttarget[]*/*(et[]*({d a}*er[])), {d lambda} ];
-         In Rotor_Airgap ; Jacobian Vol ; Integration I1 ; } 
-       Galerkin { [ -nu[{d a}]*torqueCoeff[]/*/Ttarget[]*/*( er[]*({d a}*et[]) ), {d lambda} ];
-         In Rotor_Airgap ; Jacobian Vol ; Integration I1 ; } 
+      If(Flag_PerfType == COMPLIANCE) // F = Int_DO{nu*curl(A)^2}
+        Printf["-- Compliance Pseudoload --"];
+        Galerkin { [ -2.0*nu[{d a}]*{d a}, {d lambda} ] ;
+         In DomCompliance ; Jacobian Vol ; Integration I1 ; }
       EndIf
 
    }
@@ -843,7 +917,37 @@ Formulation {
                    In DomainOpt; Jacobian Vol; Integration I1; }
       }
   }
+  //-----------------------------------------------------------------
+  // Velocity field filtering 
+  //-----------------------------------------------------------------
+// { Name FiltLaplace_DeltaMeshCoord_x ; Type FemEquation ;
+//   Quantity {
+//       { Name uX ; Type Local ; NameOfSpace H_velocityX;}
+//   }
+//   Equation {
+//      Galerkin{ [Dof{Grad uX}, {Grad uX}];
+//        In Domain; Jacobian Vol; Integration I1;}
+//   }
+// }
+// { Name FiltLaplace_DeltaMeshCoord_y ; Type FemEquation ;
+//   Quantity {
+//       { Name uY ; Type Local ; NameOfSpace H_velocityY;}
+//   }
+//   Equation {
+//      Galerkin{ [Dof{Grad uY}, {Grad uY}];
+//        In Domain; Jacobian Vol; Integration I1;}
+//   }
+// }
 
+// { Name FiltLaplace_DeltaMeshCoord_z ; Type FemEquation ;
+//   Quantity {
+//       { Name uZ ; Type Local ; NameOfSpace H_velocityZ;}
+//   }
+//   Equation {
+//      Galerkin{ [Dof{Grad uZ}, {Grad uZ}];
+//        In Domain; Jacobian Vol; Integration I1;}
+//   }
+// }
 }
 //-----------------------------------------------------------------------------------------------
 Resolution {
@@ -967,16 +1071,21 @@ Resolution {
         { Name A ; NameOfFormulation MagStaDyn_a_2D ; } //solve for A
         { Name B ; NameOfFormulation AdjointFormulation ; } // solve for lambda
         { Name D ; NameOfFormulation Filt_sens ; }
+//        If(Flag_filterMeshCoordinates)
+//	  { Name I ; NameOfFormulation FiltLaplace_DeltaMeshCoord_x ; }
+//          { Name J ; NameOfFormulation FiltLaplace_DeltaMeshCoord_y ; }
+//          { Name K ; NameOfFormulation FiltLaplace_DeltaMeshCoord_z ; }
+//        EndIf
     }
     Operation {
      CreateDir["res/"];
      //-------------------------------------------------------------------
-     If(Flag_SolveA) //Solve for A ?
+     If(Flag_SolveStateVar) //Solve for A ?
        Printf["--------- Get state variable ---------"];
        If(Flag_AnalysisType==0) // --- stationnary ---
          ChangeOfCoordinates[ NodesOf[Rotor_Moving], RotatePZ[RotorPosition[] ]];
-         If(Flag_topopt /*&& !Flag_initOpt*/)
-           GmshRead["res/designVar.pos",1]; //!!!!!!!!!!!!! Change to ResDir
+         If(Flag_topopt)
+           GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD]; 
          EndIf
          InitMovingBand2D[MB];
          MeshMovingBand2D[MB];
@@ -990,487 +1099,67 @@ Resolution {
              GenerateJac[A] ; SolveJac[A] ; }
          EndIf 
          SaveSolution[A];
-         PostOperation[Get_PostOptim]; 
+         PostOperation[Get_PrimalSystem]; 
          ChangeOfCoordinates[ NodesOf[Rotor_Moving], RotatePZ[-RotorPosition[] ]];
        EndIf
      EndIf
      //-------------------------------------------------------------------
-     If(Flag_AdjointVariable) 
-       Printf["---------Flag_AdjointVariable---------"];
+     If(Flag_SolveAdjointVar) 
+       Printf["-- Compute Adjoint Variable --"];
        // Compute adjoint variable (independent of design variables) 
        // --> choose this method if #PerfFunc << #var 
        // --> Same system for shape and topology optimization
+       // --> 1 system per performance function
        ChangeOfCoordinates[ NodesOf[Rotor_Moving], RotatePZ[RotorPosition[] ]];
        InitMovingBand2D[MB];
        MeshMovingBand2D[MB];
-       ReadSolution[A];
-       GmshRead["res/Torque_var_allDom.pos", TORQUE_VAR_FIELD];
+       ReadSolution[A]; //Load state variable (potential vector)
+       If(Flag_topopt)
+         GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD]; 
+       EndIf
+       GmshRead[StrCat[ResDir,"TorqueVarianceAllDom.pos"], TORQUE_VAR_FIELD];
        InitSolution[B]; Generate[B]; Solve[B]; SaveSolution[A]; SaveSolution[B]; 
-       PostOperation[Get_PostOptim_AdjointMethod];
+       PostOperation[Get_AdjointSystem];
        ChangeOfCoordinates[ NodesOf[Rotor_Moving], RotatePZ[-RotorPosition[] ]];
      EndIf
      //-------------------------------------------------------------------
-     If(Flag_AdjointMethodSens_FixedDom) 
-       // Compute the sensitivity based on adjoint method, on fixed mesh?
+     If(Flag_AvmFixedDomSens) // adjoint method sens. - fixed mesh
+       Printf["-- Compute AVM sensitivity analysis (fixed domain) --"];
        ChangeOfCoordinates[ NodesOf[Rotor_Moving], RotatePZ[RotorPosition[] ]];
-       Printf["---------Flag_AdjointMethodSens---------"];
-       //PostOperation[Get_PostOptimSensitivity_AdjointMethod];
-       PostOperation[Get_PostOptim_AdjointMethodSens_FixedDom];
+       ReadSolution[A];ReadSolution[B];//A and Lambda   
+       GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD];
+       GmshRead[StrCat[ResDir,"TorqueVarianceAllDom.pos"], TORQUE_VAR_FIELD];
+       PostOperation[Get_AvmFixedDomSens];
        ChangeOfCoordinates[ NodesOf[Rotor_Moving], RotatePZ[-RotorPosition[] ]];
      EndIf
      //-------------------------------------------------------------------
-     If(Flag_SemiAnalyticSens)
-       Printf["---------Flag_SemiAnalyticSens---------"];
+     If(Flag_SemiAnalyticAvmSens)
+       Printf["-- Compute AVM Semi-Analytic quantitys --"];
        // grandeurs sauvées à la bonne position angulaire du rotor
        If(Flag_topopt)
-         GmshRead["res/designVar.pos",1]; //!!!!!!!!!!!!! Change to ResDir
+         GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD]; 
        EndIf
        ChangeOfCoordinates[ NodesOf[Rotor_Moving], RotatePZ[RotorPosition[] ]];
        InitMovingBand2D[MB];
        MeshMovingBand2D[MB];
-       ReadSolution[A];ReadSolution[B]; //load A and Lambda
-       PostOperation[Get_SemiAnalyticQuantitys];// Compute Lambda*K*A and Lambda*g
+       ReadSolution[A];ReadSolution[B]; // load A and Lambda
+       PostOperation[Get_SemiAnalyticAvmQuantitys]; // Compute Lambda*K*A and Lambda*g
        ChangeOfCoordinates[ NodesOf[Rotor_Moving], RotatePZ[-RotorPosition[] ]];
      EndIf
      //-------------------------------------------------------------------
      If(Flag_filterSensitivity) // Filter sensitivity (only if TO)
+       Printf["-- Filter Sensitivity --"];
        ChangeOfCoordinates[ NodesOf[Rotor_Moving], RotatePZ[RotorPosition[] ]];
-       // Load the density view
-       GmshRead["res/designVar.pos", 1]; 
-       // Load the sensitivity view (.pos file)
-       GmshRead["res/SensitivityPerf_AdjointMethod.pos", 2]; 
-       // Filter dF/dx
+       //GmshRead["res/designVariable.pos", DES_VAR_FIELD]; 
+       //GmshRead["res/SensPerfAvmFixedDom.pos", SENS_FIELD]; 
+       GmshRead[StrCat[ResDir,"Sensitivity_DesVar.pos"], SENS_FIELD]; 
        Generate[D]; Solve[D]; SaveSolution[D];
-       PostOperation[FilteredSens];
+       PostOperation[Get_FilteredSens];
        ChangeOfCoordinates[ NodesOf[Rotor_Moving], RotatePZ[-RotorPosition[] ]];
      EndIf
     }
   }
 }
-//-----------------------------------------------------------------------------------------------
-// Post-Processing
-//-----------------------------------------------------------------------------------------------
-PostProcessing {
-  { Name MagStaDyn_a_2D ; NameOfFormulation MagStaDyn_a_2D ;
-   PostQuantity {
-     { Name a  ; Value { Term { [ {a} ] ; In Domain ; Jacobian Vol ; } } }
-     { Name az ; Value { Term { [ CompZ[{a}] ] ; In Domain ; Jacobian Vol ; } } }
-
-     { Name b  ; Value { Term { [ {d a} ] ; In Domain ; Jacobian Vol ; } } }
-/*
-     { Name mur; Value { Term { [ 1./nu[{d a}]/mu0 ] ; In Domain ; Jacobian Vol ; } } }
-*/
-     { Name boundary  ; Value { Term { [ 1 ] ; In Dummy ; Jacobian Vol ; } } } // Dummy quantity - for visualization
-     { Name b_radial  ; Value { Term { [ {d a}* Vector[  Cos[AngularPosition[]#4], Sin[#4], 0.] ] ; In Domain ; Jacobian Vol ; } } }
-     { Name b_tangent ; Value { Term { [ {d a}* Vector[ -Sin[AngularPosition[]#4], Cos[#4], 0.] ] ; In Domain ; Jacobian Vol ; } } }
-
-//-----------------------------------------------------------------------------------------------------
-    { Name b_radial_airgap;
-	Value {
-        Term{ [ ({d a} * Vector[ Cos[AngularPosition[]#4], Sin[#4], 0.]) ];
-          In Domain; Jacobian Vol;
-        }
-        }
-    }
-
-/*
-    { Name b_radialFund_airgap;
-	Value {
-        Term{ [ (Sqrt[2]*#1*Sin[(AngularPosition[]-RotorPosition[]+Pi/8)*NbrPolesTot/2])  ];
-          In Domain; Jacobian Vol;
-        }
-        }
-    }
-*/
-// b_radial_rms is fixed for the initial layout
-    { Name b_radialFund_airgap;
-	Value {
-        Term{ [ (Sqrt[2]*0.502*Sin[(AngularPosition[]-RotorPosition[]+Pi/8)*NbrPolesTot/2])  ];
-          In Domain; Jacobian Vol;
-        }
-        }
-    }
-
-    { Name b_radialFund_airgap2;
-	Value {
-        Term{ [ Btarget[] ];
-          In Domain; Jacobian Vol;
-        }
-        }
-    }
-
-    { Name b_radial_rms;
-	Value {
-        Integral{ [ ({d a} * Vector[ Cos[AngularPosition[]#4], Sin[#4], 0.])^2 / SurfaceArea[]  ];
-          In Domain; Jacobian Vol; Integration I1;
-        }
-        }
-    }
-    { Name f_obj;
-	Value {
-	Integral{ [ ({d a}*er[] - Btarget[])^2.0  ];
-	          In Domain; Jacobian Vol; Integration I1; }
-        }
-    }
-
-/*
-    { Name f_obj;
-	Value {
-        Integral{ [ ({d a} * Vector[ Cos[AngularPosition[]#4], Sin[#4], 0.] - Sqrt[2]*#1*Sin[(AngularPosition[]-RotorPosition[]+Pi/8)*NbrPolesTot/2])^2  ];
-          In Domain; Jacobian Vol; Integration I1;
-        }
-        }
-    }
-*/
-// B_target est fixée une bonne fois pour toutes !!!!
-/*
-    { Name f_obj;
-	Value {
-        Integral{ [ ({d a} * Vector[ Cos[AngularPosition[]#4], Sin[#4], 0.] - Sqrt[2]*0.502*Sin[(AngularPosition[]-RotorPosition[]+Pi/8)*NbrPolesTot/2])^2  ];
-          In Domain; Jacobian Vol; Integration I1;
-        }
-        }
-    }
-*/
-   { Name surfacePM;
-	Value {
-        Integral{ [ 1 ];
-          In Domain; Jacobian Vol; Integration I1;
-        }
-        }
-    }	 
-//-----------------------------------------------------------------------------------------------------
-
-     { Name js ; Value { Term { [ js[] ] ; In DomainS ; Jacobian Vol ; } } }
-     { Name br ; Value { Term { [ br[] ] ; In DomainM ; Jacobian Vol ; } } }
-
-     { Name j  ; Value {
-         Term { [ -sigma[]*(Dt[{a}]+{ur}) ]        ; In DomainC ; Jacobian Vol ; }
-         Term { [  sigma[]*(Velocity[] *^ {d a}) ] ; In DomainV ; Jacobian Vol ; }
-       }
-     }
-     { Name ir ; Value { Term { [ {ir} ] ; In Inds ; Jacobian Vol ; } } }
-
-     { Name jz ; Value {
-         Term { [ CompZ[-sigma[]*(Dt[{a}]+{ur})] ]       ; In DomainC ; Jacobian Vol ; }
-         Term { [ CompZ[ sigma[]*(Velocity[]*^{d a}) ] ] ; In DomainV ; Jacobian Vol ; }
-       }
-     }
-
-     { Name rhoj2 ;
-       Value {
-         Term { [ sigma[]*SquNorm[ Dt[{a}]+{ur}] ] ; In Region[{DomainC,-DomainV}] ; Jacobian Vol ; }
-         Term { [ sigma[]*SquNorm[ Dt[{a}]+{ur}-Velocity[]*^{d a} ] ] ; In DomainV ; Jacobian Vol ; }
-         Term { [ 1./sigma[]*SquNorm[ WaveFormA[]*{ir} ] ] ; In PhaseA  ; Jacobian Vol ; }
-         Term { [ 1./sigma[]*SquNorm[ WaveFormB[]*{ir} ] ] ; In PhaseB  ; Jacobian Vol ; }
-         Term { [ 1./sigma[]*SquNorm[ WaveFormC[]*{ir} ] ] ; In PhaseC  ; Jacobian Vol ; }
-       }
-     }
-
-     { Name JouleLosses ;
-       Value {
-         Integral { [ sigma[] * SquNorm[ Dt[{a}]+{ur} ] ]   ; In Region[{DomainC,-DomainV}] ; Jacobian Vol ; Integration I1 ; }
-         Integral { [ sigma[] * SquNorm[ Dt[{a}]+{ur}-Velocity[]*^{d a} ] ]   ; In DomainV ; Jacobian Vol ; Integration I1 ; }
-         Integral { [ 1./sigma[]*SquNorm[ WaveFormA[]*{ir} ] ] ; In PhaseA  ; Jacobian Vol ; Integration I1 ; }
-         Integral { [ 1./sigma[]*SquNorm[ WaveFormB[]*{ir} ] ] ; In PhaseB  ; Jacobian Vol ; Integration I1 ; }
-         Integral { [ 1./sigma[]*SquNorm[ WaveFormC[]*{ir} ] ] ; In PhaseC  ; Jacobian Vol ; Integration I1 ; }
-       }
-     }
-
-     { Name Flux ; Value { Integral { [ SymmetryFactor*AxialLength*Idir[]*NbWires[]/SurfCoil[]* CompZ[{a}] ] ;
-           In Inds  ; Jacobian Vol ; Integration I1 ; } } }
-
-     { Name Force_vw ; // Force computation by Virtual Works
-       Value {
-         Integral {
-           Type Global ; [ 0.5 * nu[] * VirtualWork [{d a}] * AxialLength ];
-           In ElementsOf[Rotor_Airgap, OnOneSideOf Rotor_Bnd_MB]; Jacobian Vol ; Integration I1 ; }
-       }
-     }
-
-     { Name Position ; // Torque computation via Maxwell stress tensor
-       Value {
-         Term { Type Global ; [ RotorPosition_deg[] ]   ; In Domain ; }
-       }
-     }
-
-     { Name Torque_vw ; Value { // Torque computation via Virtual Works
-         Integral { Type Global ;
-           [ CompZ[ 0.5 * nu[] * XYZ[] /\ VirtualWork[{d a}] ] * AxialLength ];
-           In ElementsOf[Rotor_Airgap, OnOneSideOf Rotor_Bnd_MB]; Jacobian Vol ; Integration I1 ; }
-       }
-     }
-
-     { Name Torque_Maxwell ; // Torque computation via Maxwell stress tensor
-       Value {
-         Integral {
-           [ CompZ [ XYZ[] /\ (T_max[{d a}] * XYZ[]) ] * 2*Pi*AxialLength/SurfaceArea[] ] ;
-           In Domain ; Jacobian Vol  ; Integration I1; }
-       }
-     }
-
-     { Name Torque_Maxwell_cplx ; // Torque computation via Maxwell stress tensor - frequency domain
-       Value {
-         Integral {
-           [ CompZ [ XYZ[] /\ (T_max_cplx[{d a}] * XYZ[]) ] * 2*Pi*AxialLength/SurfaceArea[] ] ;
-           In Domain ; Jacobian Vol  ; Integration I1; }
-       }
-     }
-
-     { Name Torque_Maxwell_cplx_2f ; // Torque computation via Maxwell stress tensor, component at twice the frequency
-       Value {
-         Integral {
-           [ CompZ [ XYZ[] /\ (T_max_cplx_2f[{d a}] * XYZ[]) ] * 2*Pi*AxialLength/SurfaceArea[] ] ;
-           In Domain ; Jacobian Vol  ; Integration I1; }
-       }
-     }
-
-     { Name ComplexPower ; // S = P + i*Q
-       Value {
-         Integral { [ Complex[ sigma[]*SquNorm[Dt[{a}]+{ur}], nu[]*SquNorm[{d a}] ] ] ;
-           In Region[{DomainC,-DomainV}] ; Jacobian Vol ; Integration I1 ; }
-         Integral { [ Complex[ sigma[]*SquNorm[Dt[{a}]+{ur}-Velocity[]*^{d a}], nu[]*SquNorm[{d a}] ] ] ;
-           In DomainV ; Jacobian Vol ; Integration I1 ; }
-       }
-     }
-
-     { Name U ; Value {
-         Term { [ {U} ]   ; In DomainC ; }
-         Term { [ {Ub} ]  ; In DomainB ; }
-         Term { [ {Uz} ]  ; In DomainZt_Cir ; }
-     } }
-
-     { Name I ; Value {
-         Term { [ {I} ]   ; In DomainC ; }
-         Term { [ {Ib} ]  ; In DomainB ; }
-         Term { [ {Iz} ]  ; In DomainZt_Cir ; }
-     } }
-
-     { Name S ; Value {
-         Term { [ {U}*Conj[{I}] ]    ; In DomainC ; }
-         Term { [ {Ub}*Conj[{Ib}] ]  ; In DomainB ; }
-         Term { [ {Uz}*Conj[{Iz}] ]  ; In DomainZt_Cir ; }
-     } }
-
-     { Name Velocity  ; Value {
-         Term { [ Velocity[] ] ; In Domain ; Jacobian Vol ; }
-       }
-     }
-
-     // Getting the value of some functions
-     { Name RotorPosition_deg ; Value { Term { Type Global; [ RotorPosition_deg[] ] ; In DomainDummy ; } } }
-     { Name Theta_Park_deg    ; Value { Term { Type Global; [ Theta_Park_deg[] ] ; In DomainDummy ; } } }
-     { Name IA  ; Value { Term { Type Global; [ WaveFormA[] ] ; In DomainDummy ; } } }
-     { Name IB  ; Value { Term { Type Global; [ WaveFormB[] ] ; In DomainDummy ; } } }
-     { Name IC  ; Value { Term { Type Global; [ WaveFormC[] ] ; In DomainDummy ; } } }
-
-     { Name Flux_d  ; Value { Term { Type Global; [ CompX[Flux_dq0[]] ] ; In DomainDummy ; } } }
-     { Name Flux_q  ; Value { Term { Type Global; [ CompY[Flux_dq0[]] ] ; In DomainDummy ; } } }
-     { Name Flux_0  ; Value { Term { Type Global; [ CompZ[Flux_dq0[]] ] ; In DomainDummy ; } } }
-   }
- }
-
- { Name Mechanical ; NameOfFormulation Mechanical ;
-   PostQuantity {
-     { Name P ; Value { Term { [ {P} ]  ; In DomainKin ; } } } // Position [rad]
-     { Name Pdeg ; Value { Term { [ {P}*180/Pi ]  ; In DomainKin ; } } } // Position [deg]
-     { Name V ; Value { Term { [ {V} ]  ; In DomainKin ; } } } // Velocity [rad/s]
-     { Name Vrpm ; Value { Term { [ {V}*30/Pi ]  ; In DomainKin ; } } } // Velocity [rpm]
-   }
- }
-
-}
-
-//-----------------------------------------------------------------------------------------------
-// Post-Operations
-//-----------------------------------------------------------------------------------------------
-
-If (Flag_ParkTransformation)
-PostOperation ThetaPark_IABC UsingPost MagStaDyn_a_2D {
-  Print[ RotorPosition_deg, OnRegion DomainDummy, Format Table, LastTimeStepOnly, File StrCat[Dir, StrCat["temp",ExtGnuplot]],
-    SendToServer StrCat[po,"10Rotor position"], Color "LightYellow" ];
-  Print[ Theta_Park_deg, OnRegion DomainDummy, Format Table, LastTimeStepOnly, File StrCat[Dir, StrCat["temp",ExtGnuplot]],
-    SendToServer StrCat[po,"11Theta park"], Color "LightYellow" ];
-  Print[ IA, OnRegion DomainDummy, Format Table, LastTimeStepOnly, File StrCat[Dir, StrCat["temp",ExtGnuplot]], SendToServer StrCat[poI,"A"], Color "Pink" ];
-  Print[ IB, OnRegion DomainDummy, Format Table, LastTimeStepOnly, File StrCat[Dir, StrCat["temp",ExtGnuplot]], SendToServer StrCat[poI,"B"], Color "Yellow" ];
-  Print[ IC, OnRegion DomainDummy, Format Table, LastTimeStepOnly, File StrCat[Dir, StrCat["temp",ExtGnuplot]], SendToServer StrCat[poI,"C"], Color "LightGreen"  ];
-}
-EndIf
-
-PostOperation Get_LocalFields UsingPost MagStaDyn_a_2D {
-  Print[ ir, OnElementsOf Stator_Inds, File StrCat[Dir, StrCat["ir_stator",ExtGmsh]], LastTimeStepOnly, AppendTimeStepToFileName Flag_SaveAllSteps] ;
-  Print[ ir, OnElementsOf Rotor_Inds,  File StrCat[Dir, StrCat["ir_rotor",ExtGmsh]], LastTimeStepOnly, AppendTimeStepToFileName Flag_SaveAllSteps] ;
-  Print[ jz, OnElementsOf DomainC, File StrCat[Dir, StrCat["jz",ExtGmsh]], LastTimeStepOnly, AppendTimeStepToFileName Flag_SaveAllSteps ] ;
-  //Print[ br,  OnElementsOf #{DomainM}, File StrCat[Dir, StrCat["b",ExtGmsh]], LastTimeStepOnly, AppendTimeStepToFileName Flag_SaveAllSteps] ;
-  Print[ b,  OnElementsOf Domain, File StrCat[Dir, StrCat["b",ExtGmsh]], LastTimeStepOnly, AppendTimeStepToFileName Flag_SaveAllSteps, SendToServer my_output2] ;
-  //  Print[ b,  OnElementsOf MB, Depth 0, File StrCat[Dir, StrCat["b",ExtGmsh]], LastTimeStepOnly, AppendTimeStepToFileName Flag_SaveAllSteps] ;
-  Print[ boundary, OnElementsOf Dummy,  File StrCat[Dir, StrCat["bnd",ExtGmsh]], LastTimeStepOnly, AppendTimeStepToFileName Flag_SaveAllSteps] ;
-  Print[ az, OnElementsOf Domain, File StrCat[Dir, StrCat["a",ExtGmsh]], LastTimeStepOnly, AppendTimeStepToFileName Flag_SaveAllSteps ] ;
-/*  
-Print[ mur,  OnElementsOf Rotor_Fe, File StrCat[Dir, StrCat["mur",ExtGmsh]], LastTimeStepOnly, AppendTimeStepToFileName Flag_SaveAllSteps, SendToServer my_output2] ;
-*/
-}
-
-//----------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// Composante radiale du champ B dans l'entrefer
-//r_Bradial = rR5+Gap*5/6-; r_Bradial_fin = rR5+Gap*5/6-dr_Bradial; theta_Bradial = A0;
-
-r_Bradial = rR5+Gap/10; r_Bradial_end = rS1-Gap/10; dr_Bradial = (r_Bradial_end-r_Bradial)/3.; theta_Bradial = A0;//theta_Bradial = Pi;
-
-//nb_Bradial = 37;
-nb_Bradial = 101;
-
-PostOperation Get_Bradial UsingPost MagStaDyn_a_2D {
-  	Print[ b_radial, OnGrid {$A*Cos[$B], $A*Sin[$B], $C} { r_Bradial:r_Bradial_end:dr_Bradial , 0:theta_Bradial-0e-8:(theta_Bradial-0e-8)/nb_Bradial-0e-10, 0.}, File StrCat[Dir, StrCat["Bradial",ExtGnuplot]], LastTimeStepOnly, AppendTimeStepToFileName Flag_SaveAllSteps, Format Gnuplot, Store 2] ;
-
-	//Grandeurs d'intêrét
-	Print[ b_radial_rms[Stator_Airgap], OnGlobal, Format TimeTable,File > StrCat[Dir, StrCat["b_radial_rms",ExtGmsh]], LastTimeStepOnly, Store 1, SendToServer StrCat[po_opt, "1b_radial_rms"], Color "LightYellow" ];
-	Print[ f_obj[Stator_Airgap], OnGlobal, Format TimeTable, File > StrCat[Dir, StrCat["f_obj",ExtGmsh]], LastTimeStepOnly, SendToServer StrCat[po_opt, "2f_obj"], Color "LightYellow" ];
-	Print[ surfacePM[Rotor_Magnets], OnGlobal, Format TimeTable, File > StrCat[Dir, StrCat["surf_PM",ExtGmsh]], LastTimeStepOnly, SendToServer StrCat[po_opt, "3surf_PM"], Color "LightYellow" ];
-
-	Print[b_radial_airgap, OnGrid {$A*Cos[$B], $A*Sin[$B], $C} { r_Bradial:r_Bradial_end:dr_Bradial , 0:theta_Bradial-0e-8:(theta_Bradial-0e-8)/nb_Bradial-0e-10, 0.}, File StrCat[Dir, StrCat["b_radial_airgap",ExtGnuplot]], 	         LastTimeStepOnly, AppendTimeStepToFileName Flag_SaveAllSteps, Format Gnuplot] ;  
-
-	Print[ b_radialFund_airgap, OnGrid {$A*Cos[$B], $A*Sin[$B], $C} { r_Bradial:r_Bradial_end:dr_Bradial , 0:theta_Bradial-0e-8:(theta_Bradial-0e-8)/nb_Bradial-0e-10, 0.}, File StrCat[Dir, StrCat		      
-	     ["b_radialFund_airgap",ExtGnuplot]], LastTimeStepOnly, AppendTimeStepToFileName Flag_SaveAllSteps, Format Gnuplot] ;
-
-
-	Print[ b_radialFund_airgap, OnGrid {$A*Cos[$B], $A*Sin[$B], $C} { r_Bradial:r_Bradial_end:dr_Bradial , 0:theta_Bradial-0e-8:(theta_Bradial-0e-8)/nb_Bradial-0e-10, 0.}, File StrCat[Dir, StrCat		      
-	     ["b_radialFund_airgap",ExtGmsh]], LastTimeStepOnly, AppendTimeStepToFileName Flag_SaveAllSteps, Format Gmsh] ;
-
-	Print[b_radial_airgap, OnGrid {$A*Cos[$B], $A*Sin[$B], $C} { r_Bradial:r_Bradial_end:dr_Bradial , 0:theta_Bradial-0e-8:(theta_Bradial-0e-8)/nb_Bradial-0e-10, 0.}, File StrCat[Dir, StrCat["b_radial_airgap",ExtGmsh]], 	      LastTimeStepOnly, AppendTimeStepToFileName Flag_SaveAllSteps, Format Gmsh] ;  
-}
-//------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-PostOperation Get_GlobalQuantities UsingPost MagStaDyn_a_2D {
-  If(!Flag_Cir)
-    If(!Flag_ParkTransformation)
-      Print[ I, OnRegion PhaseA_pos, Format Table,
-        File > StrCat[Dir, StrCat["Ia",ExtGnuplot]], LastTimeStepOnly, SendToServer StrCat[poI,"A"], Color "Pink" ];
-      If(NbPhases==3)
-        Print[ I, OnRegion PhaseB_pos, Format Table,
-          File > StrCat[Dir, StrCat["Ib",ExtGnuplot]], LastTimeStepOnly, SendToServer StrCat[poI,"B"], Color "Yellow" ];
-        Print[ I, OnRegion PhaseC_pos, Format Table,
-          File > StrCat[Dir, StrCat["Ic",ExtGnuplot]], LastTimeStepOnly, SendToServer StrCat[poI,"C"], Color "LightGreen" ];
-      EndIf
-    EndIf
-
-    Print[ U, OnRegion PhaseA_pos, Format Table,
-      File > StrCat[Dir, StrCat["Ua",ExtGnuplot]], LastTimeStepOnly, SendToServer StrCat[poV,"A"], Color "Pink" ];
-    If(NbPhases==3)
-      Print[ U, OnRegion PhaseB_pos, Format Table,
-        File > StrCat[Dir, StrCat["Ub",ExtGnuplot]], LastTimeStepOnly, SendToServer StrCat[poV,"B"], Color "Yellow" ];
-      Print[ U, OnRegion PhaseC_pos, Format Table,
-        File > StrCat[Dir, StrCat["Uc",ExtGnuplot]], LastTimeStepOnly, SendToServer StrCat[poV,"C"], Color "LightGreen" ];
-    EndIf
-  EndIf
-  If(Flag_Cir && Flag_SrcType_StatorA==2)
-    Print[ I, OnRegion Input1, Format Table,
-      File > StrCat[Dir, StrCat["Ia",ExtGnuplot]], LastTimeStepOnly, SendToServer StrCat[poI,"A"], Color "Pink" ];
-    Print[ U, OnRegion Input1, Format Table,
-      File > StrCat[Dir, StrCat["Ua",ExtGnuplot]], LastTimeStepOnly, SendToServer StrCat[poV,"A"], Color "Pink" ];
-  EndIf
-  If(Flag_Cir && Flag_SrcType_StatorB==2)
-    Print[ I, OnRegion Input2, Format Table,
-      File > StrCat[Dir, StrCat["Ib",ExtGnuplot]], LastTimeStepOnly, SendToServer StrCat[poI,"B"], Color "Yellow" ];
-    Print[ U, OnRegion Input2, Format Table,
-      File > StrCat[Dir, StrCat["Ub",ExtGnuplot]], LastTimeStepOnly, SendToServer StrCat[poV,"B"], Color "Yellow" ];
-  EndIf
-  If(Flag_Cir && Flag_SrcType_StatorB==2)
-    Print[ I, OnRegion Input3, Format Table,
-      File > StrCat[Dir, StrCat["Ic",ExtGnuplot]], LastTimeStepOnly, SendToServer StrCat[poI,"C"], Color "LightGreen" ];
-    Print[ U, OnRegion Input3, Format Table,
-      File > StrCat[Dir, StrCat["Uc",ExtGnuplot]], LastTimeStepOnly, SendToServer StrCat[poV,"C"], Color "LightGreen" ];
-  EndIf
-  If(Flag_Cir && Flag_SrcType_StatorA==0)
-    Print[ I, OnRegion R1, Format Table,
-      File > StrCat[Dir, StrCat["Ia",ExtGnuplot]], LastTimeStepOnly, SendToServer StrCat[poI,"A"], Color "Pink" ];
-    Print[ U, OnRegion R1, Format Table,
-      File > StrCat[Dir, StrCat["Ua",ExtGnuplot]], LastTimeStepOnly, SendToServer StrCat[poV,"A"], Color "Pink" ];
-  EndIf
-  If(Flag_Cir && Flag_SrcType_StatorB==0)
-    Print[ I, OnRegion R2, Format Table,
-      File > StrCat[Dir, StrCat["Ib",ExtGnuplot]], LastTimeStepOnly, SendToServer StrCat[poI,"B"], Color "Yellow" ];
-    Print[ U, OnRegion R2, Format Table,
-      File > StrCat[Dir, StrCat["Ub",ExtGnuplot]], LastTimeStepOnly, SendToServer StrCat[poV,"B"], Color "Yellow" ];
-  EndIf
-  If(Flag_Cir && Flag_SrcType_StatorC==0)
-    Print[ I, OnRegion R3, Format Table,
-      File > StrCat[Dir, StrCat["Ic",ExtGnuplot]], LastTimeStepOnly, SendToServer StrCat[poI,"C"], Color "LightGreen" ];
-    Print[ U, OnRegion R3, Format Table,
-      File > StrCat[Dir, StrCat["Uc",ExtGnuplot]], LastTimeStepOnly, SendToServer StrCat[poV,"C"], Color "LightGreen" ];
-  EndIf
-
-  Print[ I, OnRegion RotorC, Format Table,
-    File > StrCat[Dir, StrCat["Irotor",ExtGnuplot]], LastTimeStepOnly, SendToServer StrCat[poI,"rotor"], Color "LightCyan" ];
-
-  If(Flag_SrcType_Stator)
-    Print[ Flux[PhaseA], OnGlobal, Format TimeTable,
-      File > StrCat[Dir, StrCat["Flux_a",ExtGnuplot]], LastTimeStepOnly, Store 11, SendToServer StrCat[poF,"A"],  Color "Pink" ];
-    If(NbPhases==3)
-      Print[ Flux[PhaseB], OnGlobal, Format TimeTable,
-        File > StrCat[Dir, StrCat["Flux_b",ExtGnuplot]], LastTimeStepOnly, Store 22, SendToServer StrCat[poF,"B"],  Color "Yellow" ];
-      Print[ Flux[PhaseC], OnGlobal, Format TimeTable,
-        File > StrCat[Dir, StrCat["Flux_c",ExtGnuplot]], LastTimeStepOnly, Store 33, SendToServer StrCat[poF,"C"], Color "LightGreen"];
-    EndIf
-    If(Flag_ParkTransformation && Flag_SrcType_Stator)
-      Print[ Flux_d, OnRegion DomainDummy, Format TimeTable,
-        File > StrCat[Dir, StrCat["Flux_d",ExtGnuplot]], LastTimeStepOnly, SendToServer StrCat[poF,"d"], Color "LightYellow" ];
-      Print[ Flux_q, OnRegion DomainDummy, Format TimeTable,
-        File > StrCat[Dir, StrCat["Flux_q",ExtGnuplot]], LastTimeStepOnly, SendToServer StrCat[poF,"q"], Color "LightYellow" ];
-      Print[ Flux_0, OnRegion DomainDummy, Format TimeTable,
-        File > StrCat[Dir, StrCat["Flux_0",ExtGnuplot]], LastTimeStepOnly, SendToServer StrCat[poF,"0"], Color "LightYellow" ];
-    EndIf
-  EndIf
-
-  If(Flag_ComputeLosses)
-    Print[ JouleLosses[Rotor], OnGlobal, Format TimeTable,
-      File > StrCat[Dir, StrCat["JL",ExtGnuplot]], LastTimeStepOnly, SendToServer StrCat[poJL,"rotor"], Color "LightYellow" ];
-    Print[ JouleLosses[Rotor_Fe], OnGlobal, Format TimeTable,
-      File > StrCat[Dir, StrCat["JL_Fe",ExtGnuplot]], LastTimeStepOnly, SendToServer StrCat[poJL,"rotor_fe"], Color "LightYellow" ];
-  EndIf
-}
-
-PostOperation Get_Torque UsingPost MagStaDyn_a_2D {
-  Print[ Torque_Maxwell[Rotor_Airgap], OnGlobal, Format TimeTable,
-    File > StrCat[Dir, StrCat["Tr",ExtGnuplot]], LastTimeStepOnly, Store 54, SendToServer my_output, Color "Ivory" ];
-  Print[ Torque_Maxwell[Stator_Airgap], OnGlobal, Format TimeTable,
-    File > StrCat[Dir, StrCat["Ts",ExtGnuplot]], LastTimeStepOnly, Store 55, SendToServer StrCat[po_mecT, "stator"], Color "Ivory" ];
-  Print[ Position, OnRegion Domain, Format TimeTable,
-    File > StrCat[Dir, StrCat["Position",ExtGnuplot]], LastTimeStepOnly, Store 59, SendToServer StrCat[po_mecP, "0Position [deg]"], Color "Ivory" ];
-  //Print[ Torque_Maxwell[MB], OnGlobal, Format TimeTable,
-  //  File > StrCat[Dir, StrCat["Tmb",ExtGnuplot]], LastTimeStepOnly, Store 56, SendToServer StrCat[po_mecT, "mb"], Color "Ivory" ];
- //Print[ Torque_vw, OnRegion NodesOf[Rotor_Bnd_MB], Format RegionValue,
- //       File > StrCat[Dir, StrCat["Tr_vw",ExtGnuplot]], LastTimeStepOnly, Store 54, SendToServer StrCat[po_mecT,"rotor_vw"] ];
-}
-
-PostOperation Get_Torque_cplx UsingPost MagStaDyn_a_2D {
-  Print[ Torque_Maxwell_cplx[Rotor_Airgap], OnGlobal, Format TimeTable,
-    File > StrCat[Dir, StrCat["Tr",ExtGnuplot]], Store 54, SendToServer my_output, Color "Ivory" ];
-  Print[ Torque_Maxwell_cplx[Stator_Airgap], OnGlobal, Format TimeTable,
-    File > StrCat[Dir, StrCat["Ts",ExtGnuplot]], Store 55, SendToServer StrCat[po_mecT,"stator"], Color "Ivory" ];
-  //Print[ Torque_Maxwell_cplx[MB], OnGlobal, Format TimeTable,
-  //  File > StrCat[Dir, StrCat["Tmb",ExtGnuplot]], Store 56, SendToServer StrCat[po_mecT,"mb"], Color "Ivory" ];
-
-  /* TESTING
-  Print[ Torque_Maxwell_cplx_2f[Rotor_Airgap], OnGlobal, Format TimeTable, HarmonicToTime 24,
-    File > StrCat[Dir, StrCat["Tr_2f_time",ExtGnuplot]], Color "Ivory" ];
-  Print[ Torque_Maxwell_cplx_2f[Rotor_Airgap], OnGlobal, Format TimeTable,
-  File > StrCat[Dir, StrCat["Tr_2f",ExtGnuplot]], SendToServer StrCat[po_mec,"44T2f_rotor"], Color "Ivory" ];
-  Print[ Torque_Maxwell_cplx_2f[Stator_Airgap], OnGlobal, Format TimeTable,
-  File > StrCat[Dir, StrCat["Ts_2f",ExtGnuplot]], SendToServer StrCat[po_mec,"45T2f_stator"], Color "Ivory" ];
-  */
-}
-
-PostOperation Mechanical UsingPost Mechanical {
-  Print[ P, OnRegion DomainKin, File > StrCat[Dir, StrCat["P", ExtGnuplot]],
-    Format Table, Store 77, LastTimeStepOnly, SendToServer StrCat[po_mec,"11Position [rad]"], Color "Ivory"] ;
-  Print[ Pdeg, OnRegion DomainKin, File > StrCat[Dir, StrCat["P_deg", ExtGnuplot]],
-    Format Table, LastTimeStepOnly, SendToServer StrCat[po_mec,"10Position [deg]"], Color "Ivory"] ;
-  Print[ V, OnRegion DomainKin, File > StrCat[Dir, StrCat["V", ExtGnuplot]],
-    Format Table, LastTimeStepOnly, SendToServer StrCat[po_mec,"21Velocity [rad\s]"], Color "Ivory"] ;//MediumPurple1
-  Print[ Vrpm, OnRegion DomainKin, File > StrCat[Dir, StrCat["Vrpm", ExtGnuplot]],
-    Format Table, LastTimeStepOnly, SendToServer StrCat[po_mec,"20Velocity [rpm]"], Color "Ivory"] ;//MediumPurple1
-}
-
 
 
 
