@@ -393,8 +393,10 @@ Resolution {
         EndFor
       EndFor
 
-      // no physical sources from now on
+      // no physical sources from now on; non homogeneous BC on transmission
+      // boundaries
       Evaluate[0. #10];
+      Evaluate[1. #11]; Evaluate[1. #12];
 
       // launch iterative Krylov solver on all cpus
       SetCommWorld;
@@ -403,8 +405,6 @@ Resolution {
       {
         // do matrix-vector product on own cpu
         SetCommSelf;
-        // setting non homogeneous BC on transmission boundaries
-        Evaluate[1. #11]; Evaluate[1. #12];
         For ii In {0: #ListOfDom()-1}
           idom = ListOfDom(ii);
           GenerateRHSGroup[Maxw~{idom}, Sigma~{idom}];
