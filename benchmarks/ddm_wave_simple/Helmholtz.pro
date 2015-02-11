@@ -285,9 +285,9 @@ Formulation {
               In Sigma~{idom}~{iSide}; Jacobian JSur; Integration I1;}
             Galerkin { [Dof{ubb~{idom}~{iSide}}, {glm~{idom}~{iSide}}];
               In Sigma~{idom}~{iSide}; Jacobian JSur; Integration I1;}
-            Galerkin { [2*{u~{idom}}, {glm~{idom}~{iSide}}]; // factor -2!
+            Galerkin { [-{u~{idom}}, {glm~{idom}~{iSide}}]; // factor -2!
               In Sigma~{idom}~{iSide}; Jacobian JSur; Integration I1;}
-            Galerkin { [ -Dof{glm~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ] ; // the d_n u term
+            Galerkin { [ 2*Dof{glm~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ] ; // the d_n u term
               In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
           EndIf
         }
