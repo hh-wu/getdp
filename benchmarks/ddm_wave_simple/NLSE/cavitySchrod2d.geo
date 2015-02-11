@@ -1,4 +1,4 @@
-Include "cavitySchro2d_data.geo";
+Include "cavitySchrod2d_data.geo";
 
 Solver.AutoMesh = 0;
 
