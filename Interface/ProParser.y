@@ -180,7 +180,7 @@ struct doubleXstring{
 %token  tEND tDOTS
 %token  tStrCat tSprintf tPrintf tMPI_Printf tRead tPrintConstants tStrCmp
 %token  tNbrRegions tGetRegion
-%token  tFor tEndFor tIf tElse tEndIf
+%token  tFor tEndFor tIf tElse tEndIf tWhile
 %token  tFlag
 %token  tInclude
 %token  tConstant tList tListAlt tLinSpace tLogSpace tListFromFile
@@ -4183,6 +4183,16 @@ OperationTerm :
       Operation_P->Case.Test.Operation_False = $10;
     }
 
+  | tWhile '[' Expression ']' '{' Operation '}'
+    {
+      List_Pop(Operation_L);
+      Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_WHILE;
+      Operation_P->Case.While.ExpressionIndex = $3;
+      Operation_P->Case.While.Operation = $6;
+    }
+
   | tSetFrequency '[' String__Index ',' Expression ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
@@ -4619,6 +4629,25 @@ OperationTerm :
       Operation_P->Case.IterativeLoop.RelaxationFactorIndex = $7;
       Operation_P->Case.IterativeLoop.Flag = (int)$9;
       Operation_P->Case.IterativeLoop.Operation = $12;
+    }
+
+  | tIterativeLinearSolver '[' CharExpr ',' CharExpr ',' FExpr ',' FExpr ',' FExpr','
+                               ListOfFExpr',' ListOfFExpr',' ListOfFExpr ']'
+                           '{' Operation '}'
+    { List_Pop(Operation_L);
+      Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_ITERATIVELINEARSOLVER;
+      Operation_P->Case.IterativeLinearSolver.OpMatMult = $3;
+      Operation_P->Case.IterativeLinearSolver.Type = $5;
+      Operation_P->Case.IterativeLinearSolver.Tolerance = $7;
+      Operation_P->Case.IterativeLinearSolver.MaxIter = (int)$9;
+      Operation_P->Case.IterativeLinearSolver.Restart = (int)$11;
+      Operation_P->Case.IterativeLinearSolver.MyFieldTag = $13;
+      Operation_P->Case.IterativeLinearSolver.NeighborFieldTag = $15;
+      Operation_P->Case.IterativeLinearSolver.DeflationIndices = $17;
+      Operation_P->Case.IterativeLinearSolver.Operations_Ax = $20;
+      Operation_P->Case.IterativeLinearSolver.Operations_Mx = NULL;
     }
 
   | tIterativeLinearSolver '[' CharExpr ',' CharExpr ',' FExpr ',' FExpr ',' FExpr','

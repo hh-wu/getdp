@@ -778,7 +778,7 @@ struct WholeQuantity {
     struct { List_T *WholeQuantity;
              double TimeInit; double TimeFinal; }                MaxOverTime;
     struct { List_T *WholeQuantity;
-             double TimeInit; double TimeFinal; int NbrFrequency; 
+             double TimeInit; double TimeFinal; int NbrFrequency;
              double Exponent_f; double Exponent_b; }             FourierSteinmetz;
     struct { double *Value; }                                    CurrentValue;
     struct { int  Index; }                                       Argument;
@@ -1015,6 +1015,10 @@ struct Operation {
       List_T  *Operation_True, *Operation_False;
     } Test;
     struct {
+      int     ExpressionIndex;
+      List_T  *Operation;
+    } While;
+    struct {
       List_T  *DofNumber, *TimeStep, *Expression;
       char    *FileOut;
     } Print;
@@ -1209,6 +1213,7 @@ struct IterativeLoopSystem {
 #define OPERATION_WRITE                    83
 #define OPERATION_RESIDUAL                 84
 #define OPERATION_RENAMEFILE               85
+#define OPERATION_WHILE                    86
 
 /* ChangeOfState.Type */
 #define CHANGEOFSTATE_NOCHANGE              0

@@ -382,6 +382,7 @@ ValueIndex                   return tValueIndex;
 ValueName                    return tValueName;
 
 WithArgument                 return tWithArgument;
+While                        return tWhile;
 Write                        return tWrite;
 
 {digit}+                     { getdp_yylval.i = atoi(yytext); return tINT; }

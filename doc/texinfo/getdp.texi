@@ -4384,9 +4384,15 @@ If @var{expression} is true (nonzero), perform the operations in the first
 @var{resolution-op}, else perform the operations in the second
 @var{resolution-op}.
 
+@item While
+@code{[@var{expression}] @{ @var{resolution-op} @}} 
+
+While @var{expression} is true (nonzero), perform the operations in
+@var{resolution-op}.
+
 @item Break
 
-Aborts an iterative loop or a time loop.
+Aborts an iterative loop, a time loop or a While loop.
 
 @item Print
 @code{[ @{ @var{expression-list} @}, < File @var{expression-char} > ]}
@@ -4531,6 +4537,10 @@ MeanL2Norm, LinfNorm}.@*
 @code{L2Norm} divided by the number of degrees of freedom, respectively.@*
 See @url{https://geuz.org/trac/getdp/wiki/IterativeLoopN} for more details 
 and an example.
+
+@item IterativeLinearSolver
+
+Generic iterative linear solver. To be documented.
 
 @item PostOperation
 @code{[@var{post-operation-id}]}

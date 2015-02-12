@@ -2439,6 +2439,21 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       }
       break ;
 
+      /*  -->  W h i l e                              */
+      /*  ------------------------------------------  */
+
+    case OPERATION_WHILE :
+      Message::Info("While...") ;
+      while(1){
+        Get_ValueOfExpressionByIndex(Operation_P->Case.While.ExpressionIndex,
+                                     NULL, 0., 0., 0., &Value) ;
+        if(!Value.Val[0]) break;
+	Treatment_Operation(Resolution_P, Operation_P->Case.While.Operation,
+			    DofData_P0, GeoData_P0, NULL, NULL) ;
+        if(Flag_Break){ Flag_Break = 0; break; }
+      }
+      break ;
+
       /*  -->  F o u r i e r T r a n s f o r m        */
       /*  ------------------------------------------  */
 

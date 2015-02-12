@@ -406,6 +406,7 @@ Resolution {
         PostOperation[DDM~{idom}] ;
       EndFor
       SetCommWorld;
+
     }
   }
 }
