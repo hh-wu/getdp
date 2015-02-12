@@ -2,12 +2,12 @@ import subprocess
 import sys
 import os
 import time
+import socket
 
 pool = sys.argv[1]
 file_dir = os.path.abspath(os.path.dirname(__file__)) + "/"
 
 exec(open(file_dir + "pool" + pool + ".py").read())
-
 ncpus = len(nodes)
 keys = bx_table.keys()
 nkeys = len(keys)
@@ -29,13 +29,14 @@ while len(queue):
             args = [];
             if ssh:
                 node = nodes[i].strip()
-                args.extend([ssh])
-                if "pbsdsh" in ssh:
-                    args.extend(["-n", str(node0 + i), "--"])
-                elif "srun" in ssh:
-                    args.extend(["-Q", "-w", node])
-                else:
-                    args.extend([node])
+                if(node != socket.gethostname()):
+                    args.extend([ssh])
+                    if "pbsdsh" in ssh:
+                        args.extend(["-n", str(node0 + i), "--"])
+                    elif "srun" in ssh:
+                        args.extend(["-Q", "-w", node])
+                    else:
+                        args.extend([node])
             args.extend([file_dir + "getdp.sh", file_dir + "meso", 
                          "-bin", "-v", "2", "-solve", "a_NR", 
                          "-pos", "mean_1", "mean_2", "mean_3",
