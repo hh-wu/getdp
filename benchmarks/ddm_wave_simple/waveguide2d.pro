@@ -246,12 +246,7 @@ Function{
   D[] = TensorDiag[Ky[]*Kz[]/Kx[], Kx[]*Kz[]/Ky[], Kx[]*Ky[]/Kz[]];
 }
 
-If(ANALYSIS == 0)
-  Include "Helmholtz.pro" ;
-EndIf
-If(ANALYSIS == 1)
-  Include "Maxwell.pro" ;
-EndIf
+Include "Helmholtz.pro" ;
 
 DefineConstant[
   // default getdp parameters for onelab

@@ -1,22 +1,25 @@
 #!/bin/bash
 
-#PROBLEM="waveguide3D"
+PROBLEM="waveguide2d"
+#PROBLEM="waveguide3d"
 #PROBLEM="circle_pie"
 #PROBLEM="circle_concentric"
-PROBLEM="cylinder_concentric"
+#PROBLEM="cylinder_concentric"
 #PROBLEM="sphere_concentric"
 
-OPT="-setnumber ANALYSIS 1
+OPT="-setnumber ANALYSIS 0
      -setnumber N_DOM 5
-     -setnumber WAVENUMBER 1
+     -setnumber WAVENUMBER 10
      -setnumber N_LAMBDA 20
-     -setnumber TC_TYPE 2
+     -setnumber TC_TYPE 3
      -setnumber NP_OSRC 8"
 
-OPT_waveguide3D="-setnumber WALLS 0
+OPT_waveguide3d="-setnumber WALLS 0
                  -setnumber DX 4
                  -setnumber DY 1
                  -setnumber DZ 1"
+
+OPT_waveguide2d=$OPT_waveguide3d
 
 OPT_circle_pie="-setnumber R_INT 1
                 -setnumber R_EXT 5"
