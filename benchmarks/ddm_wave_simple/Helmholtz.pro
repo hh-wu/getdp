@@ -27,7 +27,7 @@ Integration {
 Group{
   For ii In {0: #ListOfDom()-1}
     idom = ListOfDom(ii);
-    TrGr~{idom} = ElementsOf[ Omega~{idom}, OnOneSideOf GammaD~{idom} ];
+    TrOmegaGammaD~{idom} = ElementsOf[ Omega~{idom}, OnOneSideOf GammaD~{idom} ];
     For iSide In {0:1}
       BndSigmaD~{idom}~{iSide} = Region[BndSigma~{idom}~{iSide},
                                         Not {GammaN~{idom}, GammaInf~{idom}}];
@@ -76,55 +76,30 @@ FunctionSpace {
       }
     }
 
-  For iSide In {0:1}
-    { Name Hgrad_g_out~{idom}~{iSide}; Type Form0 ;
-      BasisFunction {
-	{ Name sn ; NameOfCoef un ; Function BF_Node ;
-	  Support Region[ {Sigma~{idom}~{iSide}} ] ;
-          Entity NodesOf[All, Not {GammaD~{idom}, GammaD0~{idom}}];
+    For iSide In {0:1}
+      { Name Hgrad_g_out~{idom}~{iSide}; Type Form0 ;
+        BasisFunction {
+          { Name sn ; NameOfCoef un ; Function BF_Node ;
+            Support Region[ {Sigma~{idom}~{iSide}, Pml~{idom}~{iSide}} ] ;
+            Entity NodesOf[ Sigma~{idom}~{iSide}, Not {GammaD~{idom}, GammaD0~{idom}}];
+          }
         }
       }
-    }
-    If (TC_TYPE == 2)
-      For j In {1:NP_OSRC}
-        { Name Hgrad_phi~{j}~{idom}~{iSide} ; Type Form0 ;
-          BasisFunction {
-            { Name sn ; NameOfCoef un ; Function BF_Node ;
-	      Support Region[ {Sigma~{idom}~{iSide},
-                               BndSigmaInf~{idom}~{iSide}, BndSigmaN~{idom}~{iSide}} ] ;
-              Entity NodesOf[All, Not {GammaD~{idom}, GammaD0~{idom}}] ;
+      If (TC_TYPE == 2)
+        For j In {1:NP_OSRC}
+          { Name Hgrad_phi~{j}~{idom}~{iSide} ; Type Form0 ;
+            BasisFunction {
+              { Name sn ; NameOfCoef un ; Function BF_Node ;
+                Support Region[ {Sigma~{idom}~{iSide},
+                    BndSigmaInf~{idom}~{iSide}, BndSigmaN~{idom}~{iSide}} ] ;
+                Entity NodesOf[All, Not {GammaD~{idom}, GammaD0~{idom}}] ;
+              }
             }
-	  }
-        }
-      EndFor
-    EndIf
-    If (TC_TYPE == 3)
-      { Name Hgrad_ubb~{idom}~{iSide} ; Type Form0 ;
-	BasisFunction {
-	  { Name sn ; NameOfCoef un ; Function BF_Node ;
-	    Support Region[ {Sigma~{idom}~{iSide}, Pml~{idom}~{iSide},
-                             PmlInf~{idom}~{iSide}} ] ;
-	    Entity NodesOf[All, Not {GammaD~{idom}, GammaD0~{idom}}] ;
-	  }
-	}
-	Constraint {
-	  { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet0~{idom} ; }
-	}
-      }
-      { Name Hgrad_glm~{idom}~{iSide} ; Type Form0 ;
-	BasisFunction {
-	  { Name sn ; NameOfCoef un ; Function BF_Node ;
-	    Support Region[ {Sigma~{idom}~{iSide}} ] ;
-	    Entity NodesOf[All, Not {GammaD~{idom}, GammaD0~{idom}}] ;
-	  }
-	}
-	Constraint {
-	  { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet0~{idom} ; }
-	}
-      }
-    EndIf
-   EndFor
- EndFor
+          }
+        EndFor
+      EndIf
+    EndFor
+  EndFor
 }
 
 Formulation {
@@ -134,7 +109,6 @@ Formulation {
       Quantity {
         { Name u~{idom} ; Type Local ; NameOfSpace Hgrad_u~{idom}; }
         For iSide In {0:1}
-          { Name g_out~{idom}~{iSide} ; Type Local ; NameOfSpace Hgrad_g_out~{idom}~{iSide}; }
           If(TC_TYPE == 2)
             For j In{1:NP_OSRC}
               { Name phi~{j}~{idom}~{iSide}; Type Local ; NameOfSpace Hgrad_phi~{j}~{idom}~{iSide}; }
@@ -230,10 +204,6 @@ Formulation {
               { Name phi~{j}~{idom}~{iSide}; Type Local ; NameOfSpace Hgrad_phi~{j}~{idom}~{iSide}; }
             EndFor
           EndIf
-	  If(TC_TYPE == 3)
-	    { Name ubb~{idom}~{iSide} ; Type Local ; NameOfSpace Hgrad_ubb~{idom}~{iSide} ;}
-	    { Name glm~{idom}~{iSide} ; Type Local ; NameOfSpace Hgrad_glm~{idom}~{iSide} ;}
-	  EndIf
         }
         Equation {
           Galerkin { [ Dof{g_out~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ] ;
@@ -269,26 +239,10 @@ Formulation {
           EndIf
 
 	  If (TC_TYPE == 3)
-            // apply the PML 'black box' to extract the derivative on Sigma
-            Galerkin { [ Rotate[D[],0.,0.,-thetaList(idom+iSide)] * Dof{Grad ubb~{idom}~{iSide}}, {Grad ubb~{idom}~{iSide}}];
+            Galerkin { [ -2 * Rotate[D[],0.,0.,-thetaList(idom+iSide)] * {d u~{idom}}, {d g_out~{idom}~{iSide}}];
               In Pml~{idom}~{iSide}; Jacobian JVol; Integration I1;}
-            Galerkin { [-(kPml~{idom}~{iSide}[])^2*Kx[]*Ky[]*Kz[] * Dof{ubb~{idom}~{iSide}}, {ubb~{idom}~{iSide}}];
+            Galerkin { [ 2 * (kPml~{idom}~{iSide}[])^2*Kx[]*Ky[]*Kz[] * {u~{idom}}, {g_out~{idom}~{iSide}}];
               In Pml~{idom}~{iSide}; Jacobian JVol; Integration I1;}
-            Galerkin { [ -I[]*kPml~{idom}~{iSide}[] * Dof{ubb~{idom}~{iSide}}, {ubb~{idom}~{iSide}} ] ;
-              In PmlInf~{idom}~{iSide} ; Jacobian JSur ; Integration I1 ; }
-
-            // impose Dirichlet data (u) by Lagrange multiplier (which will
-            // compute d_n u) (NB: the third equation is multiplied by "-2" so g
-            // can be used as-is in the Helmholtz formulation; this also scales
-            // the residuals)
-            Galerkin { [Dof{glm~{idom}~{iSide}}, {ubb~{idom}~{iSide}}];
-              In Sigma~{idom}~{iSide}; Jacobian JSur; Integration I1;}
-            Galerkin { [Dof{ubb~{idom}~{iSide}}, {glm~{idom}~{iSide}}];
-              In Sigma~{idom}~{iSide}; Jacobian JSur; Integration I1;}
-            Galerkin { [-{u~{idom}}, {glm~{idom}~{iSide}}]; // factor -2!
-              In Sigma~{idom}~{iSide}; Jacobian JSur; Integration I1;}
-            Galerkin { [ 2*Dof{glm~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ] ; // the d_n u term
-              In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
           EndIf
         }
       }
@@ -321,6 +275,9 @@ Resolution {
         EndIf
         If(TC_TYPE == 2)
           Printf["Using %g-th order Pade (OSRC) transmission conditions", NP_OSRC];
+        EndIf
+        If(TC_TYPE == 3)
+          Printf["Using PML transmission conditions"];
         EndIf
         Printf["Relative iterative solver tolerance = %g", TOL];
       EndIf
@@ -372,11 +329,11 @@ Resolution {
 	// Solve Helmholtz on each of my subdomain
 	For ii In {0: #ListOfDom()-1}
 	  idom = ListOfDom(ii);
-	  GenerateRHSGroup[Helmholtz~{idom}, Sigma~{idom}] ;
+          GenerateRHSGroup[Helmholtz~{idom}, Sigma~{idom}] ;
           SolveAgain[Helmholtz~{idom}] ;
 	  For iSide In {0:1}
 	    If( NbrRegions[Sigma~{idom}~{iSide}] )
-	      GenerateRHSGroup[ComputeG~{idom}~{iSide}, Sigma~{idom}~{iSide}] ;
+              GenerateRHSGroup[ComputeG~{idom}~{iSide}, Region[{Sigma~{idom}~{iSide}, Pml~{idom}~{iSide}}]] ;
 	      SolveAgain[ComputeG~{idom}~{iSide}] ;
 	    EndIf
 	  EndFor
@@ -401,7 +358,7 @@ Resolution {
       For ii In {0: #ListOfDom()-1}
         idom = ListOfDom(ii);
         UpdateConstraint[Helmholtz~{idom}, GammaD~{idom}, Assign];
-        GenerateRHSGroup[Helmholtz~{idom}, Region[{Sigma~{idom}, TrGr~{idom}}] ] ;
+        GenerateRHSGroup[Helmholtz~{idom}, Region[{Sigma~{idom}, TrOmegaGammaD~{idom}}] ] ;
         SolveAgain[Helmholtz~{idom}] ;
         PostOperation[DDM~{idom}] ;
       EndFor
