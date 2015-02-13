@@ -4369,13 +4369,13 @@ Change the frequency of system @var{system-id}.
 
 Execute the system command given by @var{expression-char}.
 
-@item Test
+@item Test | If
 @code{[@var{expression}] @{ @var{resolution-op} @}} 
 
 If @var{expression} is true (nonzero), perform the operations in
 @var{resolution-op}.
 
-@item Test
+@item Test | If
 @code{[@var{expression}] @{ @var{resolution-op} @}} 
 @code{Else}
 @code{@{ @var{resolution-op} @}} 
