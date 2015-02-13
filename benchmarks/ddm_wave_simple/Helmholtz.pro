@@ -36,6 +36,8 @@ Group{
       BndSigmaInf~{idom}~{iSide} = Region[BndSigma~{idom}~{iSide},
                                           Not {GammaN~{idom}, GammaD~{idom}}];
       DefineGroup [ Pml~{idom}~{iSide}, PmlD0~{idom}~{iSide}, PmlInf~{idom}~{iSide} ] ;
+      TrPmlSigma~{idom}~{iSide} = ElementsOf[ Pml~{idom}~{iSide},
+                                              OnOneSideOf Sigma~{idom}~{iSide} ];
     EndFor
   EndFor
 }
@@ -333,7 +335,8 @@ Resolution {
           SolveAgain[Helmholtz~{idom}] ;
 	  For iSide In {0:1}
 	    If( NbrRegions[Sigma~{idom}~{iSide}] )
-              GenerateRHSGroup[ComputeG~{idom}~{iSide}, Region[{Sigma~{idom}~{iSide}, Pml~{idom}~{iSide}}]] ;
+              GenerateRHSGroup[ComputeG~{idom}~{iSide}, Region[{Sigma~{idom}~{iSide},
+                                                                TrPmlSigma~{idom}~{iSide}}]] ;
 	      SolveAgain[ComputeG~{idom}~{iSide}] ;
 	    EndIf
 	  EndFor
