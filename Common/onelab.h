@@ -523,7 +523,7 @@ namespace onelab{
       dst = encode(dst, (UInt16)_choices.size());
       for(unsigned int i = 0; i < _choices.size(); i++)
         dst = encode(dst, _choices[i]);
-      
+
       dst = encode(dst, (UInt16)_valueLabels.size());
       for(std::map<double, std::string>::const_iterator it = _valueLabels.begin(); it != _valueLabels.end(); it++) {
         dst = encode(dst, it->first);
@@ -1048,6 +1048,16 @@ namespace onelab{
       }
       return true;
     }
+    template <class T> T* _getPtr(std::string name, const std::string client, std::set<T*, parameterLessThan> ps)
+    {
+      T tmp(name);
+      typename std::set<T*, parameterLessThan>::iterator it = ps.find(&tmp);
+      if(it != ps.end()){
+        if(client.size()) (*it)->addClient(client, true);
+        return *it;
+      }
+      return NULL;
+    }
     void _getAllParameters(std::set<parameter*, parameterLessThan> &ps) const
     {
       ps.insert(_numbers.begin(), _numbers.end());
@@ -1102,16 +1112,6 @@ namespace onelab{
       {*ptr = _getPtr(name, client, _regions);}
     void getPtr(function **ptr, const std::string name, const std::string client="")
       {*ptr = _getPtr(name, client, _functions);}
-    template <class T> T* _getPtr(std::string name, const std::string client, std::set<T*, parameterLessThan> ps)
-    {
-      T tmp(name);
-      typename std::set<T*, parameterLessThan>::iterator it = ps.find(&tmp);
-      if(it != ps.end()){
-        if(client.size()) (*it)->addClient(client, true);
-        return *it;
-      }
-      return NULL;
-    }
     void getAllParameters(std::set<parameter*, parameterLessThan> &ps) const
     {
       ps.insert(_numbers.begin(), _numbers.end());
@@ -1434,6 +1434,7 @@ namespace onelab{
     void setPid(int pid){ _pid = pid; }
     GmshServer *getGmshServer(){ return _gmshServer; }
     void setGmshServer(GmshServer *server){ _gmshServer = server; }
+    virtual std::string getExtraArguments(){ return ""; }
     virtual bool run() = 0;
     virtual bool kill() = 0;
   };

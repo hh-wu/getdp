@@ -35,7 +35,7 @@ Function{
   ];
 
   DefineFunction[
-    dhdb_NL, br, js0
+    dhdb_NL, dhdb, br, js0
   ];
 
 }
@@ -69,6 +69,7 @@ Function {
   If(Flag_NL)
     nu [ DomainNL ] = nu_EIcore[$1] ;
     dhdb_NL [ DomainNL ] = dhdb_EIcore_NL[$1];
+    dhdb [ DomainNL ] = dhdb_EIcore[$1];
   EndIf
 
   sigma[#{Inds}] = sigma_coil ;
@@ -316,6 +317,11 @@ PostProcessing {
         }
       }
 
+      { Name dhdb ; Value {
+          Term { [ dhdb[{d a}] ] ; In DomainNL ; Jacobian Vol ; }
+        }
+      }
+
       { Name rhoj2 ;
         Value {
           Term { [ sigma[]*SquNorm[ Dt[{a}]+{ur}] ] ; In Region[{DomainC}] ; Jacobian Vol ; }
@@ -388,6 +394,7 @@ PostOperation Get_LocalFields UsingPost MagStaDyn_a_2D {
   Print[ ir, OnElementsOf Inds,   File StrCat[Dir,"ir",ExtGmsh], LastTimeStepOnly ] ;
   Print[ b,  OnElementsOf Domain, File StrCat[Dir,"b",ExtGmsh], LastTimeStepOnly ] ;
   Print[ nb,  OnElementsOf Domain, File StrCat[Dir,"nb",ExtGmsh], LastTimeStepOnly ] ;
+  //Print[ dhdb, OnElementsOf DomainNL, File StrCat[Dir,"dhdb",ExtGmsh], LastTimeStepOnly ];
   Print[ az, OnElementsOf Domain, File StrCat[Dir,"a",ExtGmsh], LastTimeStepOnly ];
 }
 
