@@ -106,7 +106,7 @@ void F_Field(F_ARG)
   }
 }
 
-static void F_X_Field(F_ARG, int type, bool complex)
+static void F_X_Field(F_ARG, int type, bool complex, bool grad=false)
 {
   if(A->Type != VECTOR){
     Message::Error("Field[] expects XYZ coordinates as argument");
@@ -120,7 +120,8 @@ static void F_X_Field(F_ARG, int type, bool complex)
   double x = A->Val[0];
   double y = A->Val[1];
   double z = A->Val[2];
-  int numComp = (type == SCALAR) ? 1 : (type == VECTOR) ? 3 : 9;
+  int numComp = (type == SCALAR) ? (grad ? 3 : 1) :
+    (type == VECTOR) ? (grad ? 9 : 3) : 9; // TODO: grad of tensor
 
   int NbrArg = Fct->NbrArguments ;
   int TimeStep = 0, MatchElement = 0;
@@ -139,7 +140,7 @@ static void F_X_Field(F_ARG, int type, bool complex)
     MatchElement = (int)(A+2)->Val[0];
   }
 
-  // Todo: we could treat the third arguement as a tolerance (and call
+  // TODO: we could treat the third arguement as a tolerance (and call
   // searchScalarWithTol & friends)
 
   // Complex{Scalar,Vector,Tensor}Field assume that the Gmsh view contains real
@@ -149,7 +150,7 @@ static void F_X_Field(F_ARG, int type, bool complex)
   for (int k = 0; k < Current.NbrHar; k++)
     for (int j = 0; j < numComp; j++)
       V->Val[MAX_DIM * k + j] = 0. ;
-  V->Type = type;
+  V->Type = (numComp == 1) ? SCALAR : (numComp == 3) ? VECTOR : TENSOR;
 
   std::vector<int> iview;
   if(!Fct->NbrParameters){
@@ -174,52 +175,42 @@ static void F_X_Field(F_ARG, int type, bool complex)
 
   // add the values from all specified views
   for(unsigned int i = 0; i < iview.size(); i++){
-
     PView *v = PView::getViewByTag(iview[i]);
     if(!v){
       Message::Error("View with tag %d does not exist", iview[i]);
       return;
     }
-
     PViewData *data = v->getData();
-
     if(TimeStep < 0 || TimeStep >= data->getNumTimeSteps()){
       Message::Error("Invalid step %d in View with tag %d", TimeStep, iview[i]);
       continue;
     }
-
     std::vector<double> val(numComp * data->getNumTimeSteps());
+    bool found = false;
     switch(type){
     case SCALAR :
-      if(data->searchScalar(x, y, z, &val[0], -1, 0, qn, qx, qy, qz)){
-        V->Val[0] += val[TimeStep];
-        if(complex && Current.NbrHar == 2 && data->getNumTimeSteps() > TimeStep + 1)
-          V->Val[MAX_DIM] += val[TimeStep + 1];
-        N += 1.;
-      }
+      if(data->searchScalar(x, y, z, &val[0], -1, 0, qn, qx, qy, qz, grad))
+        found = true;
       break;
     case VECTOR :
-      if(data->searchVector(x, y, z, &val[0], -1, 0, qn, qx, qy, qz)){
-        for(int j = 0; j < 3; j++)
-          V->Val[j] += val[3 * TimeStep + j];
-        if(complex && Current.NbrHar == 2 && data->getNumTimeSteps() > TimeStep + 1){
-          for(int j = 0; j < 3; j++)
-            V->Val[MAX_DIM + j] += val[3 * (TimeStep + 1) + j];
-        }
-        N += 1.;
-      }
+      if(data->searchVector(x, y, z, &val[0], -1, 0, qn, qx, qy, qz, grad))
+        found = true;
       break;
     case TENSOR :
-      if(data->searchTensor(x, y, z, &val[0], -1, 0, qn, qx, qy, qz)){
-        for(int j = 0; j < 9; j++)
-          V->Val[j] += val[9 * TimeStep + j];
-        if(complex && Current.NbrHar == 2 && data->getNumTimeSteps() > TimeStep + 1){
-          for(int j = 0; j < 9; j++)
-            V->Val[MAX_DIM + j] += val[9 * (TimeStep + 1) + j];
-        }
-        N += 1.;
-      }
+      // TODO: grad of tensor not allowed yet - not sure how we should return
+      // the values; provide 3 routines that return 3 tensors, or add argumemt
+      // to select what to return?
+      if(data->searchTensor(x, y, z, &val[0], -1, 0, qn, qx, qy, qz, false))
+        found = true;
       break;
+    }
+    if(found){
+      for(int j = 0; j < numComp; j++)
+        V->Val[j] += val[numComp * TimeStep + j];
+      if(complex && Current.NbrHar == 2 && data->getNumTimeSteps() > TimeStep + 1)
+        for(int j = 0; j < numComp; j++)
+          V->Val[MAX_DIM + j] += val[numComp * (TimeStep + 1) + j];
+      N += 1.;
     }
   }
 
@@ -255,3 +246,8 @@ void F_TensorField(F_ARG){ F_X_Field(Fct, A, V, TENSOR, false); }
 void F_ComplexScalarField(F_ARG){ F_X_Field(Fct, A, V, SCALAR, true); }
 void F_ComplexVectorField(F_ARG){ F_X_Field(Fct, A, V, VECTOR, true); }
 void F_ComplexTensorField(F_ARG){ F_X_Field(Fct, A, V, TENSOR, true); }
+
+void F_GradScalarField(F_ARG){ F_X_Field(Fct, A, V, SCALAR, false, true); }
+void F_GradVectorField(F_ARG){ F_X_Field(Fct, A, V, VECTOR, false, true); }
+void F_GradComplexScalarField(F_ARG){ F_X_Field(Fct, A, V, SCALAR, true, true); }
+void F_GradComplexVectorField(F_ARG){ F_X_Field(Fct, A, V, VECTOR, true, true); }
