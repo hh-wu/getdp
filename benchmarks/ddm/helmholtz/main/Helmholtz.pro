@@ -180,7 +180,11 @@ Formulation {
 
 Resolution {
   {Name Full;
-    System { { Name Helmholtz ; NameOfFormulation Full ; Type Complex; NameOfMesh StrCat[MshName,".msh"];} }
+    System {
+	  { Name Helmholtz ; NameOfFormulation Full ; Type Complex;
+		NameOfMesh StrCat[MshName,".msh"];
+	  }
+	}
     Operation {
       If (EXTERNAL_VELOCITY_FIELD)
 	GmshRead[VELOCITY_FNAME, 999];

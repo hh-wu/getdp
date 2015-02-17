@@ -1,7 +1,10 @@
 Include "params.pro" ;
 Problemm = Str[Problem] ;
-Dir= Str["./"];
+Dir= Str["../photonic/2D/"];
 MshName=StrCat[Dir,Problemm];
+
+//Printf["MshName: %g", MshName];
+//Sprintf[MshName];
 
 Group{
 //FULL
