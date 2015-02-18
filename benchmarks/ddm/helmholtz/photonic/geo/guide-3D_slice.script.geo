@@ -199,4 +199,5 @@ Physical Volume(17) = {vol} ;
 
 
 Mesh 3;
-Save Sprintf(StrCat(Problem,"_Slice.msh"));
+str = StrCat("../",Problem);
+Save Sprintf(StrCat(str,"_Slice.msh"));
