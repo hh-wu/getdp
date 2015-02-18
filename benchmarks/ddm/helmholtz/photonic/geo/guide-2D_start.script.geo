@@ -41,4 +41,5 @@ EndIf
 
 
 Mesh 2;
-Save Sprintf(StrCat(Problem,"_Start.msh"));
+str = StrCat("../",Problem);
+Save Sprintf(StrCat(str,"_Start.msh"));

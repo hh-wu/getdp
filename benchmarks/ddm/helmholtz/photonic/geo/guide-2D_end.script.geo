@@ -8,7 +8,7 @@ is=-1;
 circsurfs[] = {} ;
 
 ////
-OFFSET = 1000; // trick
+OFFSET = 100; // trick
 //// to fix a confusion by gmsh
 //// between surf_elem & phys_group
 
@@ -29,10 +29,9 @@ l2=newl; Line(l2) = {p2,p3}; square[isquare++] = l2 ;
 l3=newl; Line(l3) = {p3,p4}; square[isquare++] = l3 ;
 l4=newl; Line(l4) = {p4,p1}; square[isquare++] = l4 ;
 L1=newll+OFFSET; Line Loop(L1) = {l1,l2,l3,l4};
-Physical Line(13) = {l3,l1} ; // ABC
+Physical Line(13) = {l3,l1,l2} ; // ABC
 Physical Line(140) = {l4} ; // Sigma left
-Physical Line(141) = {l2} ; // Sigma right
-Transfinite Line{l2,l4} = 1/lc ;
+Transfinite Line{l4} = 1/lc ;
 // end global square
 
 If ( ni >= 1e6)
@@ -47,4 +46,5 @@ EndIf
 
 
 Mesh 2;
-Save Sprintf(StrCat(Problem,"_Empty.msh"));
+str = StrCat("../",Problem);
+Save Sprintf(StrCat(str,"_End.msh"));

@@ -112,4 +112,5 @@ If ( ni < 1e6)
 EndIf
 
 Mesh 2;
-Save Sprintf(StrCat(Problem,"_Slice.msh"));
+str = StrCat("../",Problem);
+Save Sprintf(StrCat(str,"_Slice.msh"));
