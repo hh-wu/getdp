@@ -1,4 +1,4 @@
-Include "params.geo";
+Include "../params.geo";
 
 // // the output format is plain-text
 // // to have a binary output format:

@@ -1,4 +1,4 @@
-Include "params.geo" ;
+Include "../params.geo" ;
 
 // init
 icircle=-1;

@@ -1,4 +1,4 @@
-Include "params.geo";
+Include "../params.geo";
 
 // source=newp;Point(source)={0,0,0} ;
 // Physical Point("SOURCE") = {source};

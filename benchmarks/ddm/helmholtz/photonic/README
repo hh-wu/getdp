@@ -4,24 +4,26 @@
 ## == MESH ==
 # Generate the different cells
 ## 2D
-gmsh guide-2D_start.script.geo -
-gmsh guide-2D_empty.script.geo -
-gmsh guide-2D_slice.script.geo -
-gmsh guide-2D_end.script.geo -
+gmsh geo/guide-2D_start.script.geo -
+gmsh geo/guide-2D_empty.script.geo -
+gmsh geo/guide-2D_slice.script.geo -
+gmsh geo/guide-2D_end.script.geo -
 
 ##
 ## or
 ##
 
 ## 3D
-gmsh guide-3D_start.script.geo -
-gmsh guide-3D_empty.script.geo -
-gmsh guide-3D_slice.script.geo -
-gmsh guide-3D_end.script.geo -
+gmsh geo/guide-3D_start.script.geo -
+gmsh geo/guide-3D_empty.script.geo -
+gmsh geo/guide-3D_slice.script.geo -
+gmsh geo/guide-3D_end.script.geo -
 
-# Generate all [and Full] (2D and 3D)
+# Generate all [and Full]
 gmsh Guide_DDM.script.geo -
 
+# The lazy way (does everything)
+gmsh Mesh_Guide.script.geo -
 
 ## == SOLVE ==
 getdp guide.pro -solve DDM -bin -v 3 -ksp_monitor
