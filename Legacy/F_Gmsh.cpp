@@ -231,7 +231,7 @@ void F_Field(F_ARG)
   V->Type = SCALAR ;
 }
 
-static void F_X_Field(F_ARG, int type, bool complex)
+static void F_X_Field(F_ARG, int type, bool complex, bool grad=false)
 {
   Message::Error("You need to compile GetDP with Gmsh support to use 'Field'");
   V->Val[0] = 0. ;
