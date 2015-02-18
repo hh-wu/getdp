@@ -48,7 +48,8 @@ n=N_DOM-2-nempty+1;
 tempnum = Sprintf("%g.msh",i);
 Plugin(NewView).Run;
 If(i == N_DOM-2-nempty+1)
-  Plugin(Transform).Tx = (N_DOM-2-nempty)*2*Lx;
+  Plugin(Transform).Tx = (N_DOM-2-nempty)*2*Lx; 
+  //  Plugin(Transform).Tx = (N_DOM-2-nempty+1)*2*Lx; // 2D
 EndIf
 If(i > N_DOM-2-nempty+1)
   Plugin(Transform).Tx = 2*Lx;

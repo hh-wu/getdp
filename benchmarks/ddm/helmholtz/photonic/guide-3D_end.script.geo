@@ -18,7 +18,7 @@ is=-1;
 circsurfs[] = {} ;
 
 ////
-OFFSET = 100; // trick
+OFFSET = 10000; // trick
 //// to fix a confusion by gmsh
 //// between surf_elem & phys_group
 

@@ -32,3 +32,5 @@ EndIf
 
 // length of the wires
 valz = 20 * r ;
+
+Lx = (nx-0.5)*dx ;
