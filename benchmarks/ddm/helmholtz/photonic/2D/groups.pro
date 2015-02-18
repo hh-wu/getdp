@@ -11,7 +11,9 @@ Group{
   Omega = Region[ 17 ];
   GammaD = Region[ {16}  ];
   GammaInf = Region[ {13}];
-
+  
+  Sigma = Region[ {} ];
+  
   BndGammaInf = Region[{}];
   BndSigma = Region[{}];
 

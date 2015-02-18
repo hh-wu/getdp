@@ -84,6 +84,9 @@ Function{
       ProcOwnsDomain += {(idom%MPI_Size == MPI_Rank)}; // define your rule here -- must match listOfDom()
     EndFor
   EndIf
+  
+  //ListOfCuts = {0, 5, N_DOM-1};
+  
 }
 
 
