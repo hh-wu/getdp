@@ -3,14 +3,26 @@
 
 ## == MESH ==
 # Generate the different cells
-gmsh guide_start.script.geo -
-gmsh guide_empty.script.geo -
-gmsh guide_slice.script.geo -
-gmsh guide_end.script.geo -
-# Generate all [and Full]
+## 2D
+gmsh guide-2D_start.script.geo -
+gmsh guide-2D_empty.script.geo -
+gmsh guide-2D_slice.script.geo -
+gmsh guide-2D_end.script.geo -
+
+##
+## or
+##
+
+## 3D
+gmsh guide-3D_start.script.geo -
+gmsh guide-3D_empty.script.geo -
+gmsh guide-3D_slice.script.geo -
+gmsh guide-3D_end.script.geo -
+
+# Generate all [and Full] (2D and 3D)
 gmsh Guide_DDM.script.geo -
 
 
 ## == SOLVE ==
-getdp guide.pro -solve DDM -bin -v 1 -ksp_monitor
+getdp guide.pro -solve DDM -bin -v 3 -ksp_monitor
 getdp guide.pro -solve Full -bin -msh test_Full_merged.msh
