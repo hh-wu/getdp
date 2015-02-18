@@ -80,3 +80,9 @@ Merge Sprintf(StrCat(Problem,tempnum));
 EndFor
 Coherence Mesh;
 Save Sprintf(StrCat(Problem,"_Full_merged.msh"));
+
+// ugly hack to fix the problem in Full (incompatible with -msh)
+from = Sprintf(StrCat(Problem,"_Full_merged.msh "));
+to = Sprintf(StrCat(Problem,".msh"));
+temp = Sprintf(StrCat(from, to));
+SystemCall Sprintf(StrCat( "ln -s ", temp));

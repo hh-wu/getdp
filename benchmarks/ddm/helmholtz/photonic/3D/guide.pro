@@ -1,4 +1,6 @@
 Include "params.pro";
+Include "../../main/ddmDefines.pro";
+
 Include "groups.pro";
 
 
@@ -61,48 +63,12 @@ Function {
 
 }
 
+Include "../../main/topology/inline.pro";
+
 
 Function{
-  //Parallel
-  ListOfField = {}; //My fields
-  ListOfNeighborField = {}; //My neighbors
-  ListOfDom = {} ;// My domains that I'm in charge of
   ListOfFacto = {} ;
   For idom In {0:N_DOM-1}
-    //Index of the field (used in the DDM.pro file)
-    If(idom ==0)
-      myfield_left = {};
-      myfield_right = {0};
-      voisin_right = {1};
-      voisin_left = {};
-      nb_voisin = 1 ;
-    EndIf
-    If(idom == N_DOM-1)
-      myfield_left = {2*idom-1};
-      myfield_right = {};
-      voisin_right = {};
-      voisin_left = {2*(idom-1)};
-      nb_voisin = 1 ;
-    EndIf
-    If(idom > 0 && idom < N_DOM-1)
-      myfield_left = {2*idom-1};
-      myfield_right = {2*idom};
-      voisin_left = {2*(idom-1)};
-      voisin_right = {2*idom+1};
-      nb_voisin = 2 ;
-    EndIf
-    list_voisin = {voisin_right{}, voisin_left{}};
-    g_in~{idom}~{0}[Sigma~{idom}~{0}] = ComplexScalarField[XYZ[]]{voisin_left{}};
-    g_in~{idom}~{1}[Sigma~{idom}~{1}] = ComplexScalarField[XYZ[]]{voisin_right{}};
-    If (idom % MPI_Size == MPI_Rank)
-      ListOfField += myfield_left{};
-      ListOfField += myfield_right{};
-      ListOfDom += idom;
-      //who are my neighbor ?
-      ListOfNeighborField += list_voisin{};
-      ListOfNeighborField += nb_voisin;
-    EndIf
-
     // reuse factorisation of the same meshes
     If (idom == 0 || idom == 1 || idom == N_DOM-1)
       ListOfFacto += idom ;
@@ -110,10 +76,14 @@ Function{
     If(idom > 1 && idom < N_DOM-1)
       ListOfFacto += 1 ;
     EndIf
-
   EndFor
-  If(MPI_Size <2) // No neighbors
-    NeighborField = {};
+
+  If (PRECOND_SWEEP)
+    ProcOwnsDomain = {} ;
+    // what domains am I in charge of ? Implemented with a list
+    For idom In{0:N_DOM-1}
+      ProcOwnsDomain += {(idom%MPI_Size == MPI_Rank)}; // define your rule here -- must match listOfDom()
+    EndFor
   EndIf
 }
 

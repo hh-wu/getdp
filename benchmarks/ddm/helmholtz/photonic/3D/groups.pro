@@ -1,6 +1,6 @@
 Include "params.pro" ;
 Problemm = Str[Problem] ;
-Dir= Str["./"];
+Dir= Str["../photonic/3D/"];
 MshName=StrCat[Dir,Problemm];
 
 Group{
@@ -13,7 +13,6 @@ Group{
 
   BndGammaInf = Region[{}];
   BndSigma = Region[{}];
-
 
 //DDM
   For idom In {0:N_DOM-1}
