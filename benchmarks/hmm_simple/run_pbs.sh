@@ -9,7 +9,7 @@
 #PBS -l walltime=1:00:00
 #PBS -r y
 
-#PBS -l select=32:ncpus=1:vmem=2625mb:mpiprocs=1:ompthreads=1
+#PBS -l select=64:ncpus=1:vmem=2625mb:mpiprocs=1:ompthreads=1
 #PBS -l pvmem=2625mb
 
 #PBS -m "abe"
@@ -18,8 +18,8 @@
 
 #  PBS -r y
 
-OPT="-setnumber Lay1 17
-     -setnumber Lay3 17"
+OPT="-setnumber Lay1 129
+     -setnumber Lay3 129"
 
 GMSH="$HOME/src/gmsh/bin/gmsh $OPT -v 4 -bin";
 GETDP="$HOME/src/getdp/bin/getdp $OPT -v 4 -bin";

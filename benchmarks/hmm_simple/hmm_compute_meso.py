@@ -12,8 +12,8 @@ file_dir = os.path.abspath(os.path.dirname(__file__)) + "/"
 if os.path.isfile(file_dir + "nodes_pbs.txt"):
     filename = file_dir + "nodes_pbs"
     #ssh = "/opt/pbs/default/bin/pbs_tmrsh"
-    #ssh = "pbsdsh"
-    ssh = "ssh"
+    ssh = "pbsdsh"
+    #ssh = "ssh"
 elif os.path.isfile(file_dir + "nodes_slurm.txt"):
     filename = file_dir + "nodes_slurm"
     ssh = "srun"
@@ -95,7 +95,7 @@ else:
                     node = nodes[i].strip()
                     args.extend([ssh])
                     if "pbsdsh" in ssh:
-                        args.extend(["-n", str(node0 + i), "--"])
+                        args.extend(["-n", str(i), "--"])
                     elif "srun" in ssh:
                         args.extend(["--exclusive", "-N", "1", "-n", "1"])
                     else:
