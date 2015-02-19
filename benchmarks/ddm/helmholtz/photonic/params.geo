@@ -1,6 +1,14 @@
 Include "params.pro";
 
-DEBUG=0;
+FULL = 1;
+BINARY = 0;
+
+DEBUG = 0;
+
+If (BINARY)
+  Mesh.Binary = 1 ;
+  PostProcessing.Format = 1;
+EndIf
 
 ni = 1e7 ;
 //// n = -3.3285e5*lambda0+3.5031

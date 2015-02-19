@@ -1,9 +1,6 @@
 Include "params.pro";
 Include "params.geo";
 
-// fix the output format to binary
-Mesh.Binary=1 ;
-
 Lx = (nx-0.5) * dx ; // fix in several places
 //// ==> ugly les bons tuyaux !! (or just Huggy Bear ;)
 
@@ -74,16 +71,17 @@ Delete Physicals ;
 
 
 // // Full
+If (FULL)
+  For i In {0:N_DOM-1}
+	tempnum = Sprintf("%g.msh",i);
+	Merge Sprintf(StrCat(Problem,tempnum));
+  EndFor
+  Coherence Mesh;
+  Save Sprintf(StrCat(Problem,"_Full_merged.msh"));
 
-For i In {0:N_DOM-1}
-tempnum = Sprintf("%g.msh",i);
-Merge Sprintf(StrCat(Problem,tempnum));
-EndFor
-Coherence Mesh;
-Save Sprintf(StrCat(Problem,"_Full_merged.msh"));
-
-// ugly hack to fix the problem in Full (incompatible with -msh)
-from = Sprintf(StrCat(Problem,"_Full_merged.msh "));
-to = Sprintf(StrCat(Problem,".msh"));
-temp = Sprintf(StrCat(from, to));
-SystemCall Sprintf(StrCat( "ln -s ", temp));
+  // ugly hack to fix the problem in Full (incompatible with -msh)
+  from = Sprintf(StrCat(Problem,"_Full_merged.msh "));
+  to = Sprintf(StrCat(Problem,".msh"));
+  temp = Sprintf(StrCat(from, to));
+  SystemCall Sprintf(StrCat( "ln -s ", temp));
+EndIf

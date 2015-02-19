@@ -1,7 +1,4 @@
 Include "params.pro" ;
-Problemm = Str[Problem] ;
-Dir= Str["../photonic/3D/"];
-MshName=StrCat[Dir,Problemm];
 
 Group{
 //FULL

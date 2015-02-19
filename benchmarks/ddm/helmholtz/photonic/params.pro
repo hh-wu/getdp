@@ -1,40 +1,33 @@
 
 Problem = "test" ;
-ALEX = 0 ;
+
+// Dimension of the problem (used to generate the useful mesh)
+DIM = 3;
+
+N_DOM = 5;
+
 //
 PRECOND_SWEEP = 0;
 REUSE = 1;
 
-EXT_TIME = 1;
-
-N_DOM = 5;
-
-CELERITY = 3e8 ;
-
-FREQ = 3e9 ;
-WAVENUMBER = 2*Pi*FREQ / CELERITY ;
-
 WAVENUMBER = 1.0*Pi;
 N_LAMBDA = 10 ;
 
-LAMBDA = 2*Pi/WAVENUMBER;
-LC = LAMBDA/ N_LAMBDA ;
-
-//Geometry (useless for submarine but avoid errors)
-R_INT = 1;
-R_EXT = 5;
-Z = 3;
-
-// incident angle
 THETA_INC = Pi/4;
 
 // Which transmission condition ? (only one must be equal to 1)
 OSRC = 0;
 OO2 = 1;
 EMDA = 0;
-
-//// not tested yet.
+//// not working yet;
 PML = 0; 
+
+//probing to ouput time data
+EXT_TIME = 1;
+
+LAMBDA = 2*Pi/WAVENUMBER;
+LC = LAMBDA/ N_LAMBDA ;
+
 
 // Constant DDM parameters (other parameters are located in the .pro file)
 // EMDA parameter
@@ -63,9 +56,6 @@ MSH_SPLIT = 1;  // NameOfMesh = MeshName_idom.msh
 // 1 for DDM
 // TODO,FIXME: -msh stronger than NameOfMesh
 
-// Dimension of the problem (a priori, do not change)
-DIM = 3;
-
 // Iterative Solver parameters
 LinSystType = "I-A";
 SOLVER = "gmres";
@@ -73,8 +63,6 @@ TOL = 1e-07;
 MAXIT = 1000;
 RESTART = MAXIT;
 
-
-// guide alex
-d = 1. ;
-D = 4. ;
-MODE = 2 ;
+Problemm = Str[Problem] ;
+Dir= Str["../photonic/"];
+MshName=StrCat[Dir, Problemm];

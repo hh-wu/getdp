@@ -1,5 +1,5 @@
 Include "params.pro";
-Include "../../main/ddmDefines.pro";
+Include "../main/ddmDefines.pro";
 
 Include "groups.pro";
 
@@ -63,7 +63,7 @@ Function {
 }
 
 
-Include "../../main/topology/inline.pro";
+Include "../main/topology/inline.pro";
 
 Function{
   ListOfFacto = {} ;
@@ -90,4 +90,4 @@ Function{
 }
 
 
-Include "../../main/Helmholtz.pro";
+Include "../main/Helmholtz.pro";

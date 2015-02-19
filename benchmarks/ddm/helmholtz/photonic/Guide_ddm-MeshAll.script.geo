@@ -23,4 +23,4 @@ If (DIM == 3)
   Delete Model ; Delete Physicals ;
 EndIf
 
-Include "Guide_DDM.script.geo";
+Include "Guide_ddm.script.geo";
