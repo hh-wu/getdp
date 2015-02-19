@@ -596,17 +596,18 @@ Resolution {
       	  If (MPI_Rank == 0)
       	    Printf[" -- List of cuts --"];
       	    For iCut In{0:#ListOfCuts()-1}
-      	      Printf["%g", ListOfCuts(iCut)];
+      	      Printf["  %g", ListOfCuts(iCut)];
       	    EndFor
-      	    Printf[" -- List of cuts --"];
-      	  EndIf
-      	EndIf
-	If (SKIP_SAVE_SOLUTION)
-	  Printf["!!! Solution will not be saved on disk !!!"];
-	EndIf
-      	If (EXT_TIME)  SystemCommand["rm time*.txt"]; EndIf
-      EndIf
-      Barrier;
+			//Printf[" -- List of cuts --"];
+		  EndIf
+		EndIf
+		If (SKIP_SAVE_SOLUTION)
+		  Printf["!!! Solution will not be saved on disk !!!"];
+		EndIf
+		// FIXME: check if time*.txt exist.
+		If (EXT_TIME)  SystemCommand["rm time*.txt"]; EndIf
+	  EndIf
+	  Barrier;
 
       SetCommSelf;
       //setting homogeneous BC on transmission boundaries
@@ -615,6 +616,7 @@ Resolution {
       Evaluate[1. #9];
       //Initialization (compute the right hand side)
       If (EXT_TIME) SystemCommand[Sprintf["./../main/ddmProcTime.py %g factor", MPI_Rank]]; EndIf
+	  If (REUSE) Printf[" -- List of factorization used --"]; EndIf
       For ii In {0: #ListOfDom()-1}
       	idom = ListOfDom(ii);
       	//Setting the non homogeneous Dirichlet BC on GammaD (part 2/2)
@@ -627,12 +629,12 @@ Resolution {
       	If (REUSE)
       	  ifact = ListOfFacto(ii);
       	  If (idom == ifact)
-      	    Printf("  True  factorization: %g (%g)",idom,ifact);
+			Printf("  %g (%g)  [true]",idom,ifact);
       	    Generate[Helmholtz~{idom}] ;
       	    Solve[Helmholtz~{idom}] ;
       	  EndIf
       	  If (idom != ifact)
-      	    Printf("  Reuse factorization: %g (%g)",idom,ifact) ;
+			Printf("  %g (%g)  [reuse]",idom,ifact) ;
       	    GenerateRHS[Helmholtz~{idom}] ;
       	    SolveAgainWithOther[Helmholtz~{idom},Helmholtz~{ifact}] ;
       	  EndIf
