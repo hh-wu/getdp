@@ -77,9 +77,8 @@ Solver.AutoShowLastStep = 0;
 
 // what to do when we double-click on a graph point
 PostProcessing.GraphPointCommand =
-"c = DefineString[StrCat(StrPrefix(General.FileName),
-                         Sprintf(' -pos plot_boundary plot_h -bin -v 3 -name res_%g -setnumber ic %g -setnumber selectedEigenvalue %.16g',
-                                 PostProcessing.GraphPointX, PostProcessing.GraphPointX, PostProcessing.GraphPointY)),
-                  Name 'GetDP_NoAutoRun/9ComputeCommand', ReadOnly 1, NeverChanged 1, Visible 0];
-OnelabRun('GetDP_NoAutoRun', Solver.Executable0);
+"OnelabRun('GetDP_NoAutoRun', StrCat(Solver.Executable0, ' ', StrPrefix(General.FileName),
+   ' -pos plot_boundary plot_h -bin -v 3 ',
+   Sprintf('-name res_%g -setnumber ic %g -setnumber selectedEigenvalue %.16g',
+     PostProcessing.GraphPointX, PostProcessing.GraphPointX, PostProcessing.GraphPointY)));
 Draw;";
