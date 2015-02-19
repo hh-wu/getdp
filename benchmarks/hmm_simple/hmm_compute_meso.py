@@ -93,14 +93,13 @@ else:
                 args = [];
                 if ssh:
                     node = nodes[i].strip()
-                    if(node != socket.gethostname()):
-                        args.extend([ssh])
-                        if "pbsdsh" in ssh:
-                            args.extend(["-n", str(node0 + i), "--"])
-                        elif "srun" in ssh:
-                            args.extend(["-Q", "-w", node])
-                        else:
-                            args.extend([node])
+                    args.extend([ssh])
+                    if "pbsdsh" in ssh:
+                        args.extend(["-n", str(node0 + i), "--"])
+                    elif "srun" in ssh:
+                        args.extend(["--exclusive", "-N", "1", "-n", "1"])
+                    else:
+                        args.extend([node])
                 args.extend([file_dir + "getdp.sh", file_dir + "meso", 
                              "-bin", "-v", "2", "-solve", "a_NR", 
                              "-pos", "mean_1", "mean_2", "mean_3",
