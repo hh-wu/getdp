@@ -19,16 +19,12 @@ GETDP="$HOME/src/getdp/bin/getdp $OPT -v 4 -bin"
 DIR="$HOME/src/getdp/benchmarks/hmm_simple/"
 
 cat $0
+
 rm ${DIR}/nodes_slurm.txt
 srun hostname >> ${DIR}/nodes_slurm.txt
 wait
+cat ${DIR}/nodes_slurm.txt
 
-cat > ${DIR}/python.sh << EOF
-#!/bin/sh
-export SLURM_JOB_ID=${SLURM_JOB_ID}
-/usr/bin/env python \$*
-EOF
-chmod 755 ${DIR}/python.sh
 cat > ${DIR}/getdp.sh << EOF
 #!/bin/sh
 export SLURM_JOB_ID=${SLURM_JOB_ID}
@@ -37,4 +33,4 @@ EOF
 chmod 755 ${DIR}/getdp.sh
 
 mpirun -np 1 $GMSH ${DIR}/macro.geo -3
-mpirun -np 1 $GETDP ${DIR}/macro.pro -setnumber Nb_pools 4 -solve MagSta_a_hmm
+mpirun -np 1 $GETDP ${DIR}/macro.pro -solve MagSta_a_hmm

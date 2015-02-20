@@ -1,15 +1,15 @@
 #!/bin/sh
 
-#PBS -q main
-#PBS -l model=ivybridge
-#  PBS -q large
+#  PBS -q main
+#  PBS -l model=ivybridge
+#PBS -q large
 
 #PBS -W group_list=getdphmm
 
 #PBS -l walltime=1:00:00
 #PBS -r y
 
-#PBS -l select=64:ncpus=1:vmem=2625mb:mpiprocs=1:ompthreads=1
+#PBS -l select=256:ncpus=1:vmem=2625mb:mpiprocs=1:ompthreads=1
 #PBS -l pvmem=2625mb
 
 #PBS -m "abe"
@@ -27,20 +27,13 @@ GETDP="$HOME/src/getdp/bin/getdp $OPT -v 4 -bin";
 #DIR="${HOME}/scratch/hmm_simple";
 DIR="${HOME}/src/getdp/benchmarks/hmm_simple";
 
-LOG="$DIR/out_${PBS_JOBID}.log";
+exec > ${DIR}/res_${PBS_JOBID}.log
 
-cat $0 > $LOG;
+cat $0
+
 cat $PBS_NODEFILE > ${DIR}/nodes_pbs.txt
-cat $PBS_NODEFILE >> $LOG
-cat > ${DIR}/python.sh << EOF
-#!/bin/sh
-ulimit -n 4096
-ulimit -u 4096
-export PATH=${PATH}
-export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}
-/usr/bin/env python \$*
-EOF
-chmod 755 ${DIR}/python.sh
+cat $PBS_NODEFILE
+
 cat > ${DIR}/getdp.sh << EOF
 #!/bin/sh
 ulimit -n 4096
@@ -50,5 +43,7 @@ ${HOME}/src/getdp/bin_seq/getdp \$*
 EOF
 chmod 755 ${DIR}/getdp.sh
 
-mpirun -np 1 $GMSH ${DIR}/macro.geo -3 2>&1 >> $LOG;
-mpirun -np 1 $GETDP ${DIR}/macro.pro -setnumber Nb_pools 2 -solve MagSta_a_hmm 2>&1 >> $LOG;
+mpirun -np 1 $GMSH ${DIR}/macro.geo -3
+mpirun -np 1 $GETDP ${DIR}/macro.pro -solve MagSta_a_hmm
+
+qstat -f $PBS_JOBID
