@@ -2,16 +2,16 @@
 
 #SBATCH --job-name=GetDP_HMM
 #SBATCH --output=res_%j.txt
-#SBATCH --time=1:00:00
-#SBATCH --ntasks=128
+#SBATCH --time=02:00:00
+#SBATCH --ntasks=256
 #SBATCH --cpus-per-task=1
 # #SBATCH --ntasks-per-node=16
 #SBATCH --mem-per-cpu=2000
 #SBATCH --mail-user=cgeuzaine@ulg.ac.be
 #SBATCH --mail-type=ALL
 
-OPT="-setnumber Lay1 65
-     -setnumber Lay3 65"
+OPT="-setnumber Lay1 129
+     -setnumber Lay3 129"
 
 GMSH="$HOME/src/gmsh/bin/gmsh $OPT -v 4 -bin"
 GETDP="$HOME/src/getdp/bin/getdp $OPT -v 4 -bin"
@@ -27,7 +27,6 @@ cat ${DIR}/nodes_slurm.txt
 
 cat > ${DIR}/getdp.sh << EOF
 #!/bin/sh
-export SLURM_JOB_ID=${SLURM_JOB_ID}
 ${HOME}/src/getdp/bin_seq/getdp \$*
 EOF
 chmod 755 ${DIR}/getdp.sh

@@ -11,19 +11,18 @@ file_dir = os.path.abspath(os.path.dirname(__file__)) + "/"
 
 if os.path.isfile(file_dir + "nodes_pbs.txt"):
     filename = file_dir + "nodes_pbs"
-    #ssh = "/opt/pbs/default/bin/pbs_tmrsh"
     ssh = "pbsdsh"
-    #ssh = "ssh"
 elif os.path.isfile(file_dir + "nodes_slurm.txt"):
     filename = file_dir + "nodes_slurm"
     ssh = "srun"
-    #ssh = "ssh"
+elif os.path.isfile(file_dir + "nodes_ssh.txt"):
+    filename = file_dir + "nodes_ssh"
+    ssh = "ssh"
 else:
     filename = None
     ssh = None
 
 if filename:
-    # read list of compute nodes
     f = open(filename + ".txt")
     nodes = f.readlines()
     ncpus = len(nodes)
@@ -64,7 +63,6 @@ while len(queue):
                          "-setnumber", "BY", str(by_table[key]),
                          "-setnumber", "ELENUM", str(key[0]),
                          "-setnumber", "QPINDEX", str(key[1])])
-            # print(args)
             cpus[i] = subprocess.Popen(args)
         if len(queue) == 0:
             break
