@@ -53,7 +53,7 @@ while len(queue):
                 if "pbsdsh" in ssh:
                     args.extend(["-n", str(i), "--"])
                 elif "srun" in ssh:
-                    args.extend(["--exclusive", "-N", "1", "-n", "1"])
+                    args.extend(["--exclusive", "-N", "1", "-n", "1", "-w", node])
                 else:
                     args.extend([node])
             args.extend([file_dir + "getdp.sh", file_dir + "meso", 
