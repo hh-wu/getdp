@@ -16,8 +16,6 @@
 #PBS -M cgeuzaine@ulg.ac.be
 #PBS -N GetDP_HMM
 
-#  PBS -r y
-
 OPT="-setnumber Lay1 129
      -setnumber Lay3 129"
 
@@ -30,9 +28,8 @@ DIR="${HOME}/src/getdp/benchmarks/hmm_simple";
 exec > ${DIR}/res_${PBS_JOBID}.log
 
 cat $0
-
-cat $PBS_NODEFILE > ${DIR}/nodes_pbs.txt
 cat $PBS_NODEFILE
+cat $PBS_NODEFILE > ${DIR}/nodes_pbs.txt
 
 cat > ${DIR}/getdp.sh << EOF
 #!/bin/sh
