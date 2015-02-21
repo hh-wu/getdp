@@ -1,10 +1,13 @@
 #!/bin/sh
 
 #  PBS -q main
+#  PBS -l model=ivybridge
 #PBS -q large
+
 #PBS -W group_list=wavesddm
 
 #PBS -l walltime=4:00:00
+#PBS -r y
 
 #  2 mpi processes, each spawning 12 threads, on each of the 5 chunks (each chunk has 63Gb of RAM); each chunk on 24 cores:
 #  PBS -l select=5:ncpus=24:vmem=63000mb:mpiprocs=2:ompthreads=12
@@ -34,8 +37,6 @@
 #PBS -M cgeuzaine@ulg.ac.be
 #PBS -N GetDP_DDM
 
-#  PBS -r y
-
 MPI_PROCESSES=`cat $PBS_NODEFILE | wc -l`
 
 OPT="-setnumber ANALYSIS 1
@@ -51,18 +52,18 @@ OPT="-setnumber ANALYSIS 1
      -setnumber RESTART 1000
      -setstring DIR $SCRATCH_DIR/out_$PBS_JOBID/";
 
-MPIRUN="mpirun";
 GMSH="$HOME/src/gmsh/bin/gmsh $OPT -v 3 -bin";
 GETDP="$HOME/src/getdp/bin/getdp $OPT -v 3 -bin";
+
 DIR="$HOME/src/getdp/benchmarks/ddm_wave_simple";
 FILE="$DIR/waveguide3d";
-LOG="$DIR/out_${PBS_JOBID}.log";
 
-cat $0 2>&1 >> $LOG;
-cat $PBS_NODEFILE 2>1 >> $LOG
+exec > ${DIR}/res_${PBS_JOBID}.log
 
-$MPIRUN $GMSH $FILE.geo - 2>&1 >> $LOG;
-$MPIRUN $GETDP $FILE.pro -solve DDM -pc_factor_mat_solver_package mumps 2>&1 >> $LOG;
+cat $0
+cat $PBS_NODEFILE
 
-#$MPIRUN -np 1 $GMSH $FILE.geo - 2>&1 >> $LOG;
-#$MPIRUN $GETDP $FILE.pro -solve DDM -pc_factor_mat_solver_package mkl_pardiso 2>&1 >> $LOG;
+mpirun $GMSH $FILE.geo -
+mpirun $GETDP $FILE.pro -solve DDM -pc_factor_mat_solver_package mumps
+
+qstat -f $PBS_JOBID
