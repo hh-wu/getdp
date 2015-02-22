@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2014 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2015 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@geuz.org>.

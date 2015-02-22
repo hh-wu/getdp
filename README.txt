@@ -1,6 +1,6 @@
 This is GetDP, a General environment for the treatment of Discrete Problems.
 
-GetDP is copyright (C) 1997-2014 P. Dular and C. Geuzaine, University of Liege,
+GetDP is copyright (C) 1997-2015 P. Dular and C. Geuzaine, University of Liege,
 and is distributed under the terms of the GNU General Public License, Version 2
 or later. See doc/LICENSE.txt and doc/CREDITS.txt for more information.
 
