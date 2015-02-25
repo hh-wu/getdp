@@ -1,5 +1,3 @@
-// Model created on Feb 25 2015 by C. Geuzaine
-
 Include "magnets_data.pro"
 
 Group{

@@ -1,7 +1,5 @@
-// Model created on Feb 25 2015 by C. Geuzaine
-
 DefineConstant[
-  NumMagnets = {2, Name "Parameters/0Number of magnets"}
+  NumMagnets = {2, Min 1, Max 20, Step 1, Name "Parameters/0Number of magnets"}
 ];
 
 mm = 1.e-3;
