@@ -1,23 +1,26 @@
+// include parameters common to geometry and solver
 Include "magnets_data.pro"
 
 Group{
   Domain_M = Region[{}];
   For i In {1:NumMagnets}
-    Magnet~{i} = Region[i];
-    SkinMagnet~{i} = Region[(100+i)];
-    Domain_M += Region[{Magnet~{i}}];
+    Magnet~{i} = Region[i]; // volume of magnet i
+    SkinMagnet~{i} = Region[(100+i)]; // boundary of magnet i
+    Domain_M += Region[{Magnet~{i}}]; // all the magnet volumes
   EndFor
   Air = Region[(NumMagnets + 1)];
   Domain = Region[{Air, Domain_M}];
-  Dirichlet_phi_0 = Region[(NumMagnets + 2)];
+  Dirichlet_phi_0 = Region[(NumMagnets + 2)]; // boundary of air box
 }
 
 Function{
   mu[] = 4*Pi*1e-7;
-  DefineConstant[ HC = {20000, Name "Parameters/Hc"} ];
+  // coercive field of magnets
+  DefineConstant[ HC = {800e3, Name "Parameters/Coercive magnetic field [Am^-1]"} ];
   For i In {1:NumMagnets}
     hc[Magnet~{i}] = Rotate[Vector[0, HC, 0], Rx~{i}, Ry~{i}, Rz~{i}];
   EndFor
+  // Maxwell stress tensor
   TM[] = ( SquDyadicProduct[$1] - SquNorm[$1] * TensorDiag[0.5, 0.5, 0.5] ) / mu[] ;
 }
 
@@ -59,6 +62,7 @@ Constraint {
 }
 
 FunctionSpace {
+  // scalar magnetic potential
   { Name Hgrad_phi ; Type Form0 ;
     BasisFunction {
       { Name sn ; NameOfCoef phin ; Function BF_Node ;
@@ -69,6 +73,10 @@ FunctionSpace {
     }
   }
   For i In {1:NumMagnets}
+    // auxiliary field on layer of elements touching each magnet, for the
+    // accurate integration of the Maxwell stress tensor (the gradient of this
+    // field converges to the outside normal to the magnet when the mesh is
+    // refined)
     { Name Magnet~{i} ; Type Form0 ;
       BasisFunction {
         { Name sn ; NameOfCoef un ; Function BF_GroupOfNodes ;
@@ -157,6 +165,7 @@ PostOperation {
 }
 
 DefineConstant[
+  // preset all getdp options and make them invisible
   R_ = {"MagSta_phi", Name "GetDP/1ResolutionChoices", Visible 0},
   C_ = {"-solve -pos -v2 -bin", Name "GetDP/9ComputeCommand", Visible 0},
   P_ = {"MagSta_phi", Name "GetDP/2PostOperationChoices", Visible 0}

@@ -5,7 +5,7 @@ Include "magnets_data.pro";
 DefineConstant[
   lc1 = {5*mm, Name "Parameters/2Mesh size on magnets [m]"}
   lc2 = {20*mm, Name "Parameters/2Mesh size at infinity [m]"}
-  inf = {100*mm, Name "Parameters/1Air box size [m]"}
+  inf = {100*mm, Name "Parameters/1Air box distance [m]"}
 ];
 
 // change global Gmsh options
