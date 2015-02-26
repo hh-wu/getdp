@@ -92,6 +92,7 @@ void F_Trace(F_ARG)
 
 void F_RotateXYZ(F_ARG)
 {
+  // Apply a (X_1 Y_2 Z_3) rotation matrix using Euler (Tait-Bryan) angles
   double  ca, sa, cb, sb, cc, sc ;
   struct  Value Rot ;
 
