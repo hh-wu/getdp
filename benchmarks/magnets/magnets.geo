@@ -12,6 +12,7 @@ DefineConstant[
 Mesh.Optimize = 1; // optimize quality of tetrahedra
 Mesh.VolumeEdges = 0; // hide volume edges
 Geometry.ExactExtrusion = 0; // to allow rotation of extruded shapes
+Solver.AutoMesh = 2; // always remesh if necessary (don't reuse mesh on disk)
 
 // create magnets
 For i In {1:NumMagnets}
