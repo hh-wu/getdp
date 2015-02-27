@@ -47,7 +47,7 @@ rShellExt = rShellInt*1.4;
 
 // M e s h   s i z e s
 
-s=0.7; // Factor to globally modify the characteristic lengths
+s=0.9; // Factor to globally modify the characteristic lengths
 
 lc0 = 5.e-3 *s;
 lcCoreIntS = 2.*xCoreInt / 16. *s;  lcCoreIntM = 2.*xCoreInt / 10. *s;
@@ -55,7 +55,7 @@ lcCoreExtS = lcCoreIntS ;  lcCoreExtM = lcCoreIntM ;
 
 lcInd = dxInd1 / 1. *s;
 
-lcShell = (rShellExt-rShellInt)/5. *s;
+lcShell = (rShellExt-rShellInt)/3. *s;
 
 // P h y s i c a l   r e g i o n s
 
