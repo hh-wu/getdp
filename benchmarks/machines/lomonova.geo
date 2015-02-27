@@ -5,8 +5,6 @@ Solver.AutoShowLastStep = 1;
 Mesh.Algorithm = 1;
 Geometry.CopyMeshingMethod = 1;
 
-//Mesh.CharacteristicLengthFactor = 1.5 ;
-
 // Mesh characteristic lengths
 s = 1 ;
 pR1=(rR2-rR1)/6.*s;

@@ -5,13 +5,15 @@ Mesh.Algorithm = 1;
 Geometry.CopyMeshingMethod = 1;
 
 // characteristic lengths
-uc = 1e-3*12*0.05;
+uc = u*6/10;
+If(TotalMemory < 1024)
+  uc *= 2;
+EndIf
+
 p = uc* 6;
 pa = uc* 0.4;
-pc = u* 4;
-//pMB = u*2.1/4;
-
-ucs = 1e-3*3;
+pc = 10/6*uc* 4;
+ucs = 10/6*uc * 3;
 pslo = ucs*0.2; // slot opening
 psl  = ucs*1; // upper part slot
 pout = ucs*4.9; // outer radius

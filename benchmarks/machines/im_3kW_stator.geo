@@ -26,13 +26,13 @@ RX2 = RR*Cos(Pi/NbrSectStatorTot) ;
 RY2 = RR*Sin(Pi/NbrSectStatorTot) ;
 
 // characteristic lengths
-uc = u* 1.4 ;
+uc = (TotalMemory < 1024) ? u * 3 : u * 1.4 ;
 
 pslo = uc* 0.3; // slot opening
 psl  = uc* 0.6; // upper part slot
 pslu = uc* 1; // lower part slot
 pout = uc* 2; // outer radius
-pMB  = AG*1; // MB
+pMB  = uc* 0.5; // MB
 p  = uc* 2; //
 
 StatorPeriod_Ref_[] = {}; // Empty if no symmetry is considered

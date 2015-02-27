@@ -16,13 +16,13 @@ d1  = u* 2;
 Rsl = u* 4.26/2;
 
 // characteristic lengths
-uc = u*1.3;
+uc = (TotalMemory < 1024) ? u*3 : u*1.3;
 
 pslo = uc* 0.3; // slot opening
 psl  = uc* 0.6; // upper part slot
 pslu = uc* 1; // lower part slot
 psha = uc* 2; // shaft radius
-pMB  = AG; // = uc* 0.5;
+pMB  = uc* 0.5;
 p  = uc* 2;
 
 Y1 = Sqrt(R2*R2-d1*d1/4) ;

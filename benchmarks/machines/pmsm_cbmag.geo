@@ -5,7 +5,6 @@ Mesh.Algorithm = 1;
 Geometry.CopyMeshingMethod = 1;
 
 //Mesh.SurfaceFaces = 1;
-//Mesh.CharacteristicLengthFactor = 1.5 ;
 
 // Mesh characteristic lengths
 

@@ -28,20 +28,20 @@
 		<preview type="png">screenshot_wfsm_4p_128.png</preview>
 		<url>http://onelab.info/wiki/Electric_Machines</url>
 	</model>
-	<model>
+	<!-- model>
 		<title>Simple induction motor</title>
 		<summary>Team30 benchmark induction machine with solid rotor</summary>
 		<file type="pro">t30.pro</file>
 		<preview type="png">screenshot_t30_128.png</preview>
 		<url>http://onelab.info/wiki/Electric_Machines</url>
-	</model>
-	<model>
+	</model -->
+	<!-- model>
 		<title>Deep-bar induction machine</title>
 		<summary>Four-pole deep-bar induction machine</summary>
 		<file type="pro">im.pro</file>
 		<preview type="png">screenshot_im_128.png</preview>
 		<url>http://onelab.info/wiki/Electric_Machines</url>
-	</model>
+	</model -->
 	<model>
 		<title>Induction machine</title>
 		<summary>3kW Four-pole induction machine</summary>

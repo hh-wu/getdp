@@ -1,9 +1,8 @@
 Include "pmsm_data.geo";
 
 Solver.AutoShowLastStep = 1;
-Mesh.Algorithm = 6; // 2D mesh algorithm (1=MeshAdapt, 2=Automatic, 5=Delaunay, 6=Frontal, 7=bamg, 8=delquad)
+Mesh.Algorithm = 6;
 Geometry.CopyMeshingMethod = 1;
-//Mesh.CharacteristicLengthFactor = 0.5 ;
 
 fact_trans = Mesh.CharacteristicLengthFactor ;
 
@@ -16,6 +15,14 @@ pR2=(rR2-rR1)/6.*s;
 pS1=(rS7-rS1)/7.*s;
 pS2=(rS7-rS1)/12.*s;
 pS3=(rS6-rS3)/10.*s;
+
+If(TotalMemory < 1024)
+  pR1 *= 2;
+  pR2 *= 2;
+  pS1 *= 2;
+  pS2 *= 2;
+  pS3 *= 2;
+EndIf
 
 NbrDivMB = 2*Ceil[2*Pi*rRext/8/pR1/fact_trans] ; //1/8 Moving band
 
