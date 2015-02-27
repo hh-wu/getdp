@@ -15,24 +15,21 @@ For idom In {start:end}
 
   Delete Model;
 
-  ct = Cos(theta);
-  st = Sin(theta);
-
-  Point(1) = {idom*dDom*ct, idom*dDom*st, 0., LC};
-  myExtrudedLine[] = Extrude {-DY*st, DY*ct, 0} {
+  Point(1) = {idom*dDom, 0, 0., LC};
+  myExtrudedLine[] = Extrude {0, DY, 0} {
     Point{1}; Layers{DY/LC};
   };
-  myExtrudedSurface[] = Extrude {dDom*ct, dDom*st, 0} {
+  myExtrudedSurface[] = Extrude {dDom, 0, 0} {
     Line{myExtrudedLine[1]}; Layers{dDom/LC}; Recombine;
   };
   lateralSides[] = {};
   For i In {2:3}
     lateralSides += myExtrudedSurface[i];
   EndFor
-  pmlLeft[] = Extrude {-dBb*ct, -dBb*st, 0} {
+  pmlLeft[] = Extrude {-dBb, 0, 0} {
     Line{myExtrudedLine[1]}; Layers{dBb/LC}; Recombine;
   };
-  pmlRight[] = Extrude {dBb*ct, dBb*st, 0} {
+  pmlRight[] = Extrude {dBb, 0, 0} {
     Line{myExtrudedSurface[0]}; Layers{dBb/LC}; Recombine;
   };
 

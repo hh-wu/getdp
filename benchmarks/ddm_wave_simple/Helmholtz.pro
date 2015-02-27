@@ -168,9 +168,9 @@ Formulation {
         EndIf
 
 	If (TC_TYPE == 3)
-	  Galerkin { [Rotate[D[],0.,0.,-thetaList(idom)]* Dof{d u~{idom}}, {d u~{idom}}];
+	  Galerkin { [D[] * Dof{d u~{idom}}, {d u~{idom}}];
 	    In Pml~{idom}~{0}; Jacobian JVol; Integration I1;}
-	  Galerkin { [Rotate[D[],0.,0.,-thetaList(idom+1)]* Dof{d u~{idom}}, {d u~{idom}}];
+	  Galerkin { [D[] * Dof{d u~{idom}}, {d u~{idom}}];
 	    In Pml~{idom}~{1}; Jacobian JVol; Integration I1;}
 
 	  Galerkin { [-(kPml~{idom}~{0}[])^2*Kx[]*Ky[]*Kz[]*Dof{u~{idom}}, {u~{idom}}];
@@ -230,9 +230,6 @@ Formulation {
                   {u~{idom}} ) , {g_out~{idom}~{iSide}} ] ;
               In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
             For j In{1:NP_OSRC}
-              // replace the div-grad term by its value in terms of u and phi
-              // (eq. (59) of the paper); no integration by parts in this case,
-              // hence no boundary term
               Galerkin { [  2 * ( I[] * k[] * OSRC_Aj[]{j,NP_OSRC,theta_branch} /
                     OSRC_Bj[]{j,NP_OSRC,theta_branch} *
                     ({u~{idom}} - {phi~{j}~{idom}~{iSide}})) , {g_out~{idom}~{iSide}} ] ;
@@ -241,7 +238,7 @@ Formulation {
           EndIf
 
 	  If (TC_TYPE == 3)
-            Galerkin { [ -2 * Rotate[D[],0.,0.,-thetaList(idom+iSide)] * {d u~{idom}}, {d g_out~{idom}~{iSide}}];
+            Galerkin { [ -2 * D[] * {d u~{idom}}, {d g_out~{idom}~{iSide}}];
               In Pml~{idom}~{iSide}; Jacobian JVol; Integration I1;}
             Galerkin { [ 2 * (kPml~{idom}~{iSide}[])^2*Kx[]*Ky[]*Kz[] * {u~{idom}}, {g_out~{idom}~{iSide}}];
               In Pml~{idom}~{iSide}; Jacobian JVol; Integration I1;}

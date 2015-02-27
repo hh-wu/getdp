@@ -29,5 +29,4 @@ nLayersPml = 5;//*meshFactor;
 dTr = nLayersTr*LC;
 dPml = nLayersPml*LC;
 dBb = (nLayersPml+nLayersTr)*LC;
-theta = Pi/12.;
 dDom = DX / N_DOM;

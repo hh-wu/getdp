@@ -20,17 +20,8 @@ DefineConstant[ // allows to set these from outside
 Function {
   I[] = Complex[0, 1];
 
-  // local interface coordinates for the delta functions
-  For idom In {0:N_DOM-1}
-    For jdom In {0:1}
-      P~{idom}~{jdom}[] = (-X[]*Sin[theta]+Y[]*Cos[theta]);
-      Q~{idom}~{jdom}[] = Z[];
-    EndFor
-  EndFor
-  P[] = (-X[]*Sin[theta]+Y[]*Cos[theta]);
-
   c0[] = 1;
-  c[] = 1.25*(1.-.4*Exp[-32*(P[]-DY/2)^2]) ; // gaussian
+  c[] = 1.25*(1.-.4*Exp[-32*(Y[]-DY/2)^2]) ; // gaussian
   //c[] = 1; // constant
   freq[] = c0[] / LAMBDA;
   om[] = 2 * Pi * freq[];
@@ -38,7 +29,7 @@ Function {
 
   BETA_M[] = Sqrt[k[]^2-(MODE*Pi/DY)^2];
 
-  uinc[] = Complex[ Sin[MODE * Pi / DY * P~{0}~{0}[]], 0];
+  uinc[] = Complex[ Sin[MODE * Pi / DY * Y[]], 0];
 
   // parameter for ABC
   kInf[] = k[];//BETA_M[];
@@ -215,19 +206,16 @@ Function{
 Function{
   // parameters for PML TC
   xSigmaList = {};
-  thetaList = {};
   For i In {0:N_DOM}
     xSigmaList += i*dDom;
-    thetaList += theta;
   EndFor
   For ii In {0: N_DOM-1}
     idom = ii;
     xSigma~{idom}~{0} = xSigmaList(idom);
     xSigma~{idom}~{1} = xSigmaList(idom+1);
-    theta~{idom}[] = thetaList(idom);
   EndFor
   For i In {0:N_DOM}
-    distSigma~{i}[] = X[]*Cos[theta] + Y[]*Sin[theta] - xSigmaList(i);
+    distSigma~{i}[] = X[] - xSigmaList(i);
   EndFor
   For ii In {0: N_DOM-1}
     idom = ii;
