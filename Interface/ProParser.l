@@ -1,5 +1,5 @@
 %{
-// GetDP - Copyright (C) 1997-2008 P. Dular, C. Geuzaine
+// GetDP - Copyright (C) 1997-2015 P. Dular, C. Geuzaine
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@geuz.org>.
@@ -196,6 +196,9 @@ GmshOpen                     return tGmshOpen;
 GmshRead                     return tGmshRead;
 GmshWrite                    return tGmshWrite;
 Group                        return tGroup;
+GETDP_MAJOR_VERSION          return tGETDP_MAJOR_VERSION;
+GETDP_MINOR_VERSION          return tGETDP_MINOR_VERSION;
+GETDP_PATCH_VERSION          return tGETDP_PATCH_VERSION;
 
 HarmonicToTime               return tHarmonicToTime;
 Header                       return tHeader;
@@ -369,6 +372,7 @@ TimeStep                     return tTimeStep;
 TimeValue                    return tTimeValue;
 TimeImagValue                return tTimeImagValue;
 ToleranceFactor              return tToleranceFactor;
+TotalMemory                  return tTotalMemory;
 Trace                        return tTrace;
 Type                         return tType;
 

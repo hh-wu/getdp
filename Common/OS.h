@@ -11,6 +11,7 @@
 
 FILE *FOpen(const char *f, const char *mode);
 void GetResources(double *s, long *mem);
+double GetTotalRam();
 void IncreaseStackSize();
 int BlockingSystemCall(const char *command);
 int RemoveFile(const std::string &fileName);

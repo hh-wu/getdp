@@ -1,5 +1,5 @@
 %{
-// GetDP - Copyright (C) 1997-2008 P. Dular, C. Geuzaine
+// GetDP - Copyright (C) 1997-2015 P. Dular, C. Geuzaine
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@geuz.org>.
@@ -18,6 +18,7 @@
 #include <math.h>
 #include <time.h>
 #include "GetDPConfig.h"
+#include "GetDPVersion.h"
 #include "ProData.h"
 #include "ProDefine.h"
 #include "ProDefines.h"
@@ -174,7 +175,8 @@ struct doubleXstring{
 %type <c>  NameForMathFunction NameForFunction CharExpr CharExprNoVar
 %type <c>  StrCat StringIndex String__Index
 %type <t>  Quantity_Def
-%type <l>  TimeLoopAdaptiveSystems TimeLoopAdaptivePOs IterativeLoopSystems IterativeLoopPOs
+%type <l>  TimeLoopAdaptiveSystems TimeLoopAdaptivePOs IterativeLoopSystems
+%type <l>  IterativeLoopPOs
 
 /* ------------------------------------------------------------------ */
 %token  tEND tDOTS
@@ -186,7 +188,8 @@ struct doubleXstring{
 %token  tConstant tList tListAlt tLinSpace tLogSpace tListFromFile
 %token  tChangeCurrentPosition
 %token  tDefineConstant tUndefineConstant tDefineNumber tDefineString
-%token  tPi tMPI_Rank tMPI_Size t0D t1D t2D t3D
+%token  tPi tMPI_Rank tMPI_Size t0D t1D t2D t3D tTotalMemory
+%token  tGETDP_MAJOR_VERSION tGETDP_MINOR_VERSION tGETDP_PATCH_VERSION
 %token  tExp tLog tLog10 tSqrt tSin tAsin tCos tAcos tTan
 %token    tAtan tAtan2 tSinh tCosh tTanh tFabs tFloor tCeil tRound tSign
 %token    tFmod tModulo tHypot tRand
@@ -227,7 +230,9 @@ struct doubleXstring{
 %token        tNameOfSpace tIndexOfSystem
 %token        tSymmetry
 %token    tGalerkin tdeRham tGlobalTerm tGlobalEquation
-%token        tDt tDtDof tDtDt tDtDtDof tDtDtDtDof tDtDtDtDtDof tDtDtDtDtDtDof tJacNL tDtDofJacNL tNeverDt tDtNL tAtAnteriorTimeStep tMaxOverTime tFourierSteinmetz /*guillchange*/
+%token        tDt tDtDof tDtDt tDtDtDof tDtDtDtDof tDtDtDtDtDof tDtDtDtDtDtDof
+%token        tJacNL tDtDofJacNL tNeverDt tDtNL
+%token        tAtAnteriorTimeStep tMaxOverTime tFourierSteinmetz
 %token        tIn
 %token        tFull_Matrix
 
@@ -7467,6 +7472,11 @@ OneFExpr :
   | t3D       { $$ = (double)_3D; }
   | tMPI_Rank { $$ = Message::GetCommRank(); }
   | tMPI_Size { $$ = Message::GetCommSize(); }
+  | tGETDP_MAJOR_VERSION { $$ = GETDP_MAJOR_VERSION; }
+  | tGETDP_MINOR_VERSION { $$ = GETDP_MINOR_VERSION; }
+  | tGETDP_PATCH_VERSION { $$ = GETDP_PATCH_VERSION; }
+  | tTotalMemory { $$ = GetTotalRam(); }
+
   | tDefineNumber '[' FExpr
     { FloatOptions_S.clear(); CharOptions_S.clear(); }
     FloatParameterOptions ']'

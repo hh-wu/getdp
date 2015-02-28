@@ -16,7 +16,7 @@ d1  = u* 2;
 Rsl = u* 4.26/2;
 
 // characteristic lengths
-uc = (TotalMemory < 1024) ? u*3 : u*1.3;
+uc = (TotalMemory <= 1024) ? u*3 : u*1.3;
 
 pslo = uc* 0.3; // slot opening
 psl  = uc* 0.6; // upper part slot

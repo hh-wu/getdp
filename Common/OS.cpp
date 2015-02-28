@@ -14,6 +14,14 @@
 #include <signal.h>
 #include <time.h>
 
+#if defined(__APPLE__)
+#include <sys/sysctl.h>
+#endif
+
+#if defined(__linux__) && !defined(BUILD_ANDROID)
+#include <sys/sysinfo.h>
+#endif
+
 #if !defined(WIN32) || defined(__CYGWIN__)
 #include <unistd.h>
 #include <sys/time.h>
@@ -158,16 +166,7 @@ FILE *FOpen(const char *f, const char *mode)
 
 void GetResources(double *s, long *mem)
 {
-#if !defined(WIN32) || defined(__CYGWIN__)
-  static struct rusage r;
-  getrusage(RUSAGE_SELF, &r);
-  *s = (double)r.ru_utime.tv_sec + 1.e-6 * (double)r.ru_utime.tv_usec;
-#if defined(__APPLE__)
-  *mem = (long)r.ru_maxrss;
-#else
-  *mem = (long)(r.ru_maxrss * 1024L);
-#endif
-#else
+#if defined(WIN32) && !defined(__CYGWIN__)
   FILETIME creation, exit, kernel, user;
   if(GetProcessTimes(GetCurrentProcess(), &creation, &exit, &kernel, &user)){
     *s = 1.e-7 * 4294967296. * (double)user.dwHighDateTime +
@@ -176,7 +175,40 @@ void GetResources(double *s, long *mem)
   PROCESS_MEMORY_COUNTERS info;
   GetProcessMemoryInfo(GetCurrentProcess(), &info, sizeof(info));
   *mem = (long)info.PeakWorkingSetSize;
+#else
+  static struct rusage r;
+  getrusage(RUSAGE_SELF, &r);
+  *s = (double)r.ru_utime.tv_sec + 1.e-6 * (double)r.ru_utime.tv_usec;
+#if defined(__APPLE__)
+  *mem = (long)r.ru_maxrss;
+#else
+  *mem = (long)(r.ru_maxrss * 1024L);
 #endif
+#endif
+}
+
+double GetTotalRam()
+{
+  double ram = 0;
+#if defined(__APPLE__)
+  int name[] = {CTL_HW, HW_MEMSIZE};
+  int64_t value;
+  size_t len = sizeof(value);
+  if(sysctl(name, 2, &value, &len, NULL, 0) != -1)
+    ram = value / (1024 * 1024);
+#elif defined (WIN32)
+  MEMORYSTATUSEX status;
+  status.dwLength = sizeof(status);
+  GlobalMemoryStatusEx(&status);
+  ram = status.ullTotalPhys  / ((double)1024 * 1024);
+#elif defined(BUILD_ANDROID)
+  ram = 1024;
+#elif defined(__linux__)
+  struct sysinfo infos;
+  if(sysinfo(&infos) != -1)
+    ram = infos.totalram * (unsigned long)infos.mem_unit / ((double)1024 * 1024);
+#endif
+  return ram;
 }
 
 void IncreaseStackSize()
