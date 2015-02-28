@@ -13,5 +13,5 @@ Print.Background = 1;
 
 Save StrCat("screenshot_", StrPrefix(StrRelative(General.FileName)), ".png") ;
 
-SystemCall StrCat("convert -scale 256 screenshot_", StrPrefix(StrRelative(General.FileName)),
+SystemCall StrCat("convert -scale 128 screenshot_", StrPrefix(StrRelative(General.FileName)),
   ".png screenshot_", StrPrefix(StrRelative(General.FileName)), "_128.png");

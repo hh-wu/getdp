@@ -2,7 +2,7 @@
 
 SRC=${HOME}/src/getdp/benchmarks
 DST=/onelab_files
-MODELS='machines relay inductor indheat magnetometer antennas acoustic_scattering time_reversal shielding waveguides transfo_simple ddm_wave_simple bloch_periodic_waveguides magnets'
+MODELS='machines relay inductor indheat magnetometer antennas acoustic_scattering time_reversal shielding waveguides transfo_simple ddm_wave_simple bloch_periodic_waveguides magnets thermal_conduction'
 
 # sync files from local svn checkout
 for m in ${MODELS}; do
