@@ -1,3 +1,7 @@
+DefineConstant[
+  Flag_AnalysisType = {2, Choices{ 0="Steady-state", 2="Transient"},
+    Name "Parameters/0Type of analysis"}
+];
 
 Group {
   influx  = Region[1000] ;
@@ -50,7 +54,9 @@ Constraint {
   { Name Temperature ;
     Case {
       { Region fixtemp ; Type Assign; Value 20. ; }
-      { Region Vol_The ; Type Init; Value 20. ; }
+      If(Flag_AnalysisType != 0)
+        { Region Vol_The ; Type Init; Value 20. ; }
+      EndIf
     }
   }
 }

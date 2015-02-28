@@ -1,3 +1,5 @@
+DefineConstant[ Flag_AnalysisType = 0 ];
+
 Jacobian {
   { Name JVol ;
     Case {
@@ -81,11 +83,6 @@ Formulation {
 
 }
 
-DefineConstant[
-  Flag_AnalysisType = {2, Choices{ 0="Steady-state", 2="Transient"},
-    Name "Parameters/0Type of analysis"}
-];
-
 Resolution {
   { Name analysis;
     System {
@@ -109,7 +106,7 @@ Resolution {
         GenerateSeparate[T] ;
         TimeLoopTheta [t0, t1, dt, 1.0] {
 	  Update[T, TimeFct[]] ;
-          Solve[T] ;
+          SolveAgain[T] ;
 	  Test[SaveFct[]] {
             SaveSolution[T];
           }
