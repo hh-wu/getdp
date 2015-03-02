@@ -157,6 +157,7 @@ Exp                          return tExp;
 Fabs                         return tFabs;
 File                         return tFile;
 Filter                       return tFilter;
+FixRelativePath              return tFixRelativePath;
 Flag                         return tFlag;
 Floor                        return tFloor;
 Fmod                         return tFmod;

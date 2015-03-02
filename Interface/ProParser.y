@@ -288,7 +288,8 @@ struct doubleXstring{
 %token        tStoreMaxZinRegister tStoreMinInRegister tStoreMinXinRegister
 %token        tStoreMinYinRegister tStoreMinZinRegister
 %token        tLastTimeStepOnly tAppendTimeStepToFileName tTimeValue tTimeImagValue
-%token        tOverrideTimeStepValue tNoMesh tSendToServer tColor tStr tDate
+%token        tOverrideTimeStepValue tNoMesh tSendToServer tColor tStr
+%token        tDate tFixRelativePath
 %token        tNewCoordinates tAppendToExistingFile
 
 /* ------------------------------------------------------------------ */
@@ -7982,6 +7983,18 @@ CharExprNoVar :
       $$ = (char *)Malloc((strlen(ctime(&date_info))+1)*sizeof(char));
       strcpy($$, ctime(&date_info));
       $$[strlen($$)-1] = 0;
+    }
+
+  | tFixRelativePath '[' CharExpr ']'
+    {
+      $$ = strSave(Fix_RelativePath($3).c_str());
+      Free($3);
+    }
+
+  | tFixRelativePath '(' CharExpr ')'
+    {
+      $$ = strSave(Fix_RelativePath($3).c_str());
+      Free($3);
     }
 
   | tDefineString '[' CharExprNoVar
