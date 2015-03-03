@@ -70,8 +70,8 @@ Function{
   For ii In {0: #ListOfDom()-1}
     idom = ListOfDom(ii);
     u_init~{idom}[] = ComplexScalarField[XYZ[]]{2*N_DOM+idom};
-    ginn~{idom}~{0}[] = ComplexScalarField[XYZ[]]{(2*(idom+2*N_DOM)+(0-1))%(2*N_DOM)};
-    ginn~{idom}~{1}[] = ComplexScalarField[XYZ[]]{(2*(idom+2*N_DOM)+(1-1))%(2*N_DOM)};
+    ginn~{idom}~{0}[] = ComplexScalarField[XYZ[]]{(4*N_DOM+(2*(idom+N_DOM)-1)%(2*N_DOM))};
+    ginn~{idom}~{1}[] = ComplexScalarField[XYZ[]]{(4*N_DOM+(2*(idom+N_DOM))%(2*N_DOM))};
   EndFor
 
   F_SOURCE[] = V_SOURCE[]*#9;
@@ -606,7 +606,7 @@ Formulation {
       { Name uD ; Type Local ; NameOfSpace Hgrad_u_Dirichlet2D~{idom} ;}
     }
     Equation {
-      Galerkin { [ Dof{gout}, {gout} ] ; // gout is dnu, used as source for the dual PML problem
+      Galerkin { [ Dof{gout}, {gout} ] ; // gout is dnu, used as source for the dual PML problem -- FIXME: account for g_in here ??
       	In Sigma~{idom}~{jdom} ; Jacobian JSur ; Integration I1 ; }
       Galerkin { [ -I[]*kDtn[]*{uD}, {gout} ] ;
       	In Sigma~{idom}~{jdom} ; Jacobian JSur ; Integration I1 ; }      
@@ -775,13 +775,10 @@ Resolution {
       	  // { Name ComputeGbb~{idom}~{jdom} ; NameOfFormulation ComputeGbb~{idom}~{jdom} ; Type Complex; If(MSH_SPLIT) NameOfMesh Sprintf(StrCat[MshName, "%g.msh"],idom) ;EndIf}
       	  { Name ComputeGPrecond~{idom}~{jdom} ; NameOfFormulation ComputeGPrecond~{idom}~{jdom} ; Type Complex; If(MSH_SPLIT) NameOfMesh Sprintf(StrCat[MshName, "%g.msh"],idom) ;EndIf}
 
-
-
         { Name Bp~{idom}~{jdom} ; NameOfFormulation WaveDirichlet2D_pml_primal~{idom}~{jdom} ; Type Complex ; If(MSH_SPLIT) NameOfMesh Sprintf(StrCat[MshName, "%g.msh"],idom) ;EndIf }
 	{ Name Bd~{idom}~{jdom} ; NameOfFormulation WaveDirichlet2D_pml_dual~{idom}~{jdom} ; Type Complex ; If(MSH_SPLIT) NameOfMesh Sprintf(StrCat[MshName, "%g.msh"],idom) ;EndIf }
 	{ Name Gin~{idom}~{jdom} ; NameOfFormulation Compute_gin~{idom}~{jdom} ; Type Complex ; If(MSH_SPLIT) NameOfMesh Sprintf(StrCat[MshName, "%g.msh"],idom) ;EndIf }
 	{ Name Gout~{idom}~{jdom} ; NameOfFormulation Compute_gout~{idom}~{jdom} ; Type Complex ; If(MSH_SPLIT) NameOfMesh Sprintf(StrCat[MshName, "%g.msh"],idom) ;EndIf }
-
 
       	EndFor
       EndFor
@@ -831,7 +828,6 @@ Resolution {
       SetCommSelf;
       //setting homogeneous BC on transmission boundaries
       Evaluate[0. #10]; Evaluate[0. #11];
-      Evaluate[0. #17]; // disable DtN corrections
       //Setting the non homogeneous Dirichlet BC on GammaD (part 1/2)
       Evaluate[1. #9];
       //Initialization (compute the right hand side)
@@ -839,53 +835,52 @@ Resolution {
       For ii In {0: #ListOfDom()-1}
       	idom = ListOfDom(ii);
       	//Setting the non homogeneous Dirichlet BC on GammaD (part 2/2)
+
+	Evaluate[0. #17]; // disable DtN corrections
       	UpdateConstraint[Helmholtz~{idom}, GammaD~{idom}, Assign];
 
       	If (REUSE == 0)
       	  Generate[Helmholtz~{idom}] ;
       	  Solve[Helmholtz~{idom}] ;
 
-      If (dPML)
-
-      	  /////////////////////////////////
-      // Evaluate[0. #17]; // disable DtN corrections
-      For jdom In {0:1}
-      	  If( NbrRegions[Sigma~{idom}~{jdom}] )
-        Generate[Gout~{idom}~{jdom}]; Solve[Gout~{idom}~{jdom}];
-
-      	// Pml primal + dual
-      	Generate[Bp~{idom}~{jdom}]; Solve[Bp~{idom}~{jdom}];
-      	Generate[Bd~{idom}~{jdom}]; Solve[Bd~{idom}~{jdom}];
-
-      	// Compute correction source
-      	Generate[Gin~{idom}~{jdom}]; Solve[Gin~{idom}~{jdom}];
-      	PostOperation[gin~{idom}~{jdom}]; // keep a copy, since we compute increments 
-	EndIf
-      EndFor
-
-      Evaluate[1. #17];
-      For nn In {1:nit}
-      GenerateRHSGroup[Helmholtz~{idom}, #{Sigma~{idom}, GammaD~{idom}, TrGr~{idom}}]; SolveAgain[Helmholtz~{idom}];
-        // GenerateRHS[Helmholtz~{idom}]; SolveAgain[Helmholtz~{idom}];
-      	For jdom In {0:1}
-      	  If( NbrRegions[Sigma~{idom}~{jdom}] )
-          GenerateRHSGroup[Gout~{idom}~{jdom}, #{Sigma~{idom}~{jdom}}]; SolveAgain[Gout~{idom}~{jdom}];
-      	  GenerateRHSGroup[Bp~{idom}~{jdom}, #{Sigma~{idom}~{jdom}}]; SolveAgain[Bp~{idom}~{jdom}];
-      	  GenerateRHSGroup[Bd~{idom}~{jdom}, #{Sigma~{idom}~{jdom}}]; SolveAgain[Bd~{idom}~{jdom}];
-      	  GenerateRHSGroup[Gin~{idom}~{jdom}, #{Sigma~{idom}~{jdom}}]; SolveAgain[Gin~{idom}~{jdom}];
-          // GenerateRHS[Gout~{idom}~{jdom}]; SolveAgain[Gout~{idom}~{jdom}];
-	  // GenerateRHS[Bp~{idom}~{jdom}]; SolveAgain[Bp~{idom}~{jdom}];
-	  // GenerateRHS[Bd~{idom}~{jdom}]; SolveAgain[Bd~{idom}~{jdom}];
-	  // GenerateRHS[Gin~{idom}~{jdom}]; SolveAgain[Gin~{idom}~{jdom}];
-      	  PostOperation[gin~{idom}~{jdom}];
-	  EndIf
-      	EndFor
-      EndFor
-      GenerateRHSGroup[Helmholtz~{idom}, #{Sigma~{idom}, GammaD~{idom}, TrGr~{idom}}]; SolveAgain[Helmholtz~{idom}];
-      // GenerateRHS[Helmholtz~{idom}]; SolveAgain[Helmholtz~{idom}];
 	  /////////////////////////////////
+	  If (dPML)
+	    For jdom In {0:1}
+      	      If( NbrRegions[Sigma~{idom}~{jdom}] )
+		Generate[Gout~{idom}~{jdom}]; Solve[Gout~{idom}~{jdom}];
 
-	EndIf
+	        // Pml primal + dual
+	        Generate[Bp~{idom}~{jdom}]; Solve[Bp~{idom}~{jdom}];
+		Generate[Bd~{idom}~{jdom}]; Solve[Bd~{idom}~{jdom}];
+
+		// Compute correction source
+		Generate[Gin~{idom}~{jdom}]; Solve[Gin~{idom}~{jdom}];
+		PostOperation[gin~{idom}~{jdom}]; // keep a copy, since we compute increments 
+	      EndIf
+	    EndFor
+
+	    Evaluate[1. #17];
+	    For nn In {1:nit}
+	      GenerateRHSGroup[Helmholtz~{idom}, #{Sigma~{idom}, GammaD~{idom}, TrGr~{idom}}]; SolveAgain[Helmholtz~{idom}];
+	      // GenerateRHS[Helmholtz~{idom}]; SolveAgain[Helmholtz~{idom}];
+	      For jdom In {0:1}
+	        If( NbrRegions[Sigma~{idom}~{jdom}] )
+		  GenerateRHSGroup[Gout~{idom}~{jdom}, #{Sigma~{idom}~{jdom}}]; SolveAgain[Gout~{idom}~{jdom}];
+		  GenerateRHSGroup[Bp~{idom}~{jdom}, #{Sigma~{idom}~{jdom}}]; SolveAgain[Bp~{idom}~{jdom}];
+		  GenerateRHSGroup[Bd~{idom}~{jdom}, #{Sigma~{idom}~{jdom}}]; SolveAgain[Bd~{idom}~{jdom}];
+		  GenerateRHSGroup[Gin~{idom}~{jdom}, #{Sigma~{idom}~{jdom}}]; SolveAgain[Gin~{idom}~{jdom}];
+		  // GenerateRHS[Gout~{idom}~{jdom}]; SolveAgain[Gout~{idom}~{jdom}];
+		  // GenerateRHS[Bp~{idom}~{jdom}]; SolveAgain[Bp~{idom}~{jdom}];
+		  // GenerateRHS[Bd~{idom}~{jdom}]; SolveAgain[Bd~{idom}~{jdom}];
+		  // GenerateRHS[Gin~{idom}~{jdom}]; SolveAgain[Gin~{idom}~{jdom}];
+		  PostOperation[gin~{idom}~{jdom}];
+		EndIf
+	      EndFor
+	    EndFor
+	    GenerateRHSGroup[Helmholtz~{idom}, #{Sigma~{idom}, GammaD~{idom}, TrGr~{idom}}]; SolveAgain[Helmholtz~{idom}];
+	    // GenerateRHS[Helmholtz~{idom}]; SolveAgain[Helmholtz~{idom}];
+	  EndIf
+	  /////////////////////////////////
 
       	EndIf
       	If (REUSE)
@@ -953,10 +948,11 @@ Resolution {
 	SetCommSelf;
 	//setting non homogeneous BC on transmission boundaries
 	Evaluate[1. #10]; Evaluate[1. #11];
-	Evaluate[0. #17]; // disable DtN corrections
 	// Solve Helmholtz on each of my subdomain
 	For ii In {0: #ListOfDom()-1}
 	  idom = ListOfDom(ii);
+
+	  Evaluate[0. #17]; // disable DtN corrections
 	  //Compute u on Omega_i (fast way)
 	  // GenerateRHSGroup[Helmholtz~{idom}, Sigma~{idom}] ;
 	  GenerateRHSGroup[Helmholtz~{idom}, #{Sigma~{idom}}] ; // FIXME: why do we need that syntax with PML ??
@@ -965,47 +961,44 @@ Resolution {
 	  If (REUSE == 0)
 	    SolveAgain[Helmholtz~{idom}] ;
 
-      If (dPML)
-
 	  /////////////////////////////////
-      // Evaluate[0. #17]; // disable DtN corrections
-      For jdom In {0:1}
-      	  If( NbrRegions[Sigma~{idom}~{jdom}] )
-          GenerateRHSGroup[Gout~{idom}~{jdom}, #{Sigma~{idom}~{jdom}}]; SolveAgain[Gout~{idom}~{jdom}];
-	  GenerateRHSGroup[Bp~{idom}~{jdom}, #{Sigma~{idom}~{jdom}}]; SolveAgain[Bp~{idom}~{jdom}];
-	  GenerateRHSGroup[Bd~{idom}~{jdom}, #{Sigma~{idom}~{jdom}}]; SolveAgain[Bd~{idom}~{jdom}];
-	  GenerateRHSGroup[Gin~{idom}~{jdom}, #{Sigma~{idom}~{jdom}}]; SolveAgain[Gin~{idom}~{jdom}];
-          // GenerateRHS[Gout~{idom}~{jdom}]; SolveAgain[Gout~{idom}~{jdom}];
-	  // GenerateRHS[Bp~{idom}~{jdom}]; SolveAgain[Bp~{idom}~{jdom}];
-	  // GenerateRHS[Bd~{idom}~{jdom}]; SolveAgain[Bd~{idom}~{jdom}];
-	  // GenerateRHS[Gin~{idom}~{jdom}]; SolveAgain[Gin~{idom}~{jdom}];
-	  PostOperation[gin~{idom}~{jdom}]; // keep a copy, since we compute increments 
-	  EndIf
-      EndFor
+	  If (dPML)
+	    For jdom In {0:1}
+      	      If( NbrRegions[Sigma~{idom}~{jdom}] )
+		Generate[Gout~{idom}~{jdom}]; Solve[Gout~{idom}~{jdom}];
 
-      Evaluate[1. #17];
-      For nn In {1:nit}
-        GenerateRHSGroup[Helmholtz~{idom}, #{Sigma~{idom}}]; SolveAgain[Helmholtz~{idom}];
-        // GenerateRHS[Helmholtz~{idom}]; SolveAgain[Helmholtz~{idom}];
-	For jdom In {0:1}
-      	  If( NbrRegions[Sigma~{idom}~{jdom}] )
-          GenerateRHSGroup[Gout~{idom}~{jdom}, #{Sigma~{idom}~{jdom}}]; SolveAgain[Gout~{idom}~{jdom}];
-	  GenerateRHSGroup[Bp~{idom}~{jdom}, #{Sigma~{idom}~{jdom}}]; SolveAgain[Bp~{idom}~{jdom}];
-	  GenerateRHSGroup[Bd~{idom}~{jdom}, #{Sigma~{idom}~{jdom}}]; SolveAgain[Bd~{idom}~{jdom}];
-	  GenerateRHSGroup[Gin~{idom}~{jdom}, #{Sigma~{idom}~{jdom}}]; SolveAgain[Gin~{idom}~{jdom}];
-          // GenerateRHS[Gout~{idom}~{jdom}]; SolveAgain[Gout~{idom}~{jdom}];
-	  // GenerateRHS[Bp~{idom}~{jdom}]; SolveAgain[Bp~{idom}~{jdom}];
-	  // GenerateRHS[Bd~{idom}~{jdom}]; SolveAgain[Bd~{idom}~{jdom}];
-	  // GenerateRHS[Gin~{idom}~{jdom}]; SolveAgain[Gin~{idom}~{jdom}];
-	  PostOperation[gin~{idom}~{jdom}];
+	        // Pml primal + dual
+	        Generate[Bp~{idom}~{jdom}]; Solve[Bp~{idom}~{jdom}];
+		Generate[Bd~{idom}~{jdom}]; Solve[Bd~{idom}~{jdom}];
+
+		// Compute correction source
+		Generate[Gin~{idom}~{jdom}]; Solve[Gin~{idom}~{jdom}];
+		PostOperation[gin~{idom}~{jdom}]; // keep a copy, since we compute increments 
+	      EndIf
+	    EndFor
+
+	    Evaluate[1. #17];
+	    For nn In {1:nit}
+	      GenerateRHSGroup[Helmholtz~{idom}, #{Sigma~{idom}, GammaD~{idom}, TrGr~{idom}}]; SolveAgain[Helmholtz~{idom}];
+	      // GenerateRHS[Helmholtz~{idom}]; SolveAgain[Helmholtz~{idom}];
+	      For jdom In {0:1}
+	        If( NbrRegions[Sigma~{idom}~{jdom}] )
+		  GenerateRHSGroup[Gout~{idom}~{jdom}, #{Sigma~{idom}~{jdom}}]; SolveAgain[Gout~{idom}~{jdom}];
+		  GenerateRHSGroup[Bp~{idom}~{jdom}, #{Sigma~{idom}~{jdom}}]; SolveAgain[Bp~{idom}~{jdom}];
+		  GenerateRHSGroup[Bd~{idom}~{jdom}, #{Sigma~{idom}~{jdom}}]; SolveAgain[Bd~{idom}~{jdom}];
+		  GenerateRHSGroup[Gin~{idom}~{jdom}, #{Sigma~{idom}~{jdom}}]; SolveAgain[Gin~{idom}~{jdom}];
+		  // GenerateRHS[Gout~{idom}~{jdom}]; SolveAgain[Gout~{idom}~{jdom}];
+		  // GenerateRHS[Bp~{idom}~{jdom}]; SolveAgain[Bp~{idom}~{jdom}];
+		  // GenerateRHS[Bd~{idom}~{jdom}]; SolveAgain[Bd~{idom}~{jdom}];
+		  // GenerateRHS[Gin~{idom}~{jdom}]; SolveAgain[Gin~{idom}~{jdom}];
+		  PostOperation[gin~{idom}~{jdom}];
+		EndIf
+	      EndFor
+	    EndFor
+	    GenerateRHSGroup[Helmholtz~{idom}, #{Sigma~{idom}, GammaD~{idom}, TrGr~{idom}}]; SolveAgain[Helmholtz~{idom}];
+	    // GenerateRHS[Helmholtz~{idom}]; SolveAgain[Helmholtz~{idom}];
 	  EndIf
-	EndFor
-      EndFor
-      GenerateRHSGroup[Helmholtz~{idom}, #{Sigma~{idom}}]; SolveAgain[Helmholtz~{idom}];
-      // GenerateRHS[Helmholtz~{idom}]; SolveAgain[Helmholtz~{idom}];
 	  /////////////////////////////////
-
-	EndIf
 
 
 	  EndIf
@@ -1094,12 +1087,56 @@ Resolution {
 		BroadcastFields[skipList()];
 
 		Evaluate[1. #10]; Evaluate[0. #11];
+		Evaluate[0. #17]; // disable DtN corrections
 		//Compute u on Omega_i (fast way)
 		// GenerateRHSGroup[Helmholtz~{idom_f}, Sigma~{idom_f}] ;
 		GenerateRHSGroup[Helmholtz~{idom_f}, #{Sigma~{idom_f}}] ;
 
 		If (REUSE == 0)
 		  SolveAgain[Helmholtz~{idom_f}] ;
+
+      If (dPML)
+
+	  /////////////////////////////////
+      For jdom In {0:1}
+      	  // If( NbrRegions[Sigma~{idom_f}~{jdom}] )
+          GenerateRHSGroup[Gout~{idom_f}~{jdom}, #{Sigma~{idom_f}~{jdom}}]; SolveAgain[Gout~{idom_f}~{jdom}];
+	  GenerateRHSGroup[Bp~{idom_f}~{jdom}, #{Sigma~{idom_f}~{jdom}}]; SolveAgain[Bp~{idom_f}~{jdom}];
+	  GenerateRHSGroup[Bd~{idom_f}~{jdom}, #{Sigma~{idom_f}~{jdom}}]; SolveAgain[Bd~{idom_f}~{jdom}];
+	  GenerateRHSGroup[Gin~{idom_f}~{jdom}, #{Sigma~{idom_f}~{jdom}}]; SolveAgain[Gin~{idom_f}~{jdom}];
+          // GenerateRHS[Gout~{idom}~{jdom}]; SolveAgain[Gout~{idom}~{jdom}];
+	  // GenerateRHS[Bp~{idom}~{jdom}]; SolveAgain[Bp~{idom}~{jdom}];
+	  // GenerateRHS[Bd~{idom}~{jdom}]; SolveAgain[Bd~{idom}~{jdom}];
+	  // GenerateRHS[Gin~{idom}~{jdom}]; SolveAgain[Gin~{idom}~{jdom}];
+	  PostOperation[gin~{idom_f}~{jdom}]; // keep a copy, since we compute increments 
+	  // EndIf
+      EndFor
+
+      Evaluate[1. #17];
+      For nn In {1:nit}
+        // GenerateRHSGroup[Helmholtz~{idom_f}, #{Sigma~{idom_f}}]; SolveAgain[Helmholtz~{idom_f}];
+        GenerateRHS[Helmholtz~{idom_f}]; SolveAgain[Helmholtz~{idom_f}];
+	For jdom In {0:1}
+      	  // If( NbrRegions[Sigma~{idom_f}~{jdom}] )
+          GenerateRHSGroup[Gout~{idom_f}~{jdom}, #{Sigma~{idom_f}~{jdom}}]; SolveAgain[Gout~{idom_f}~{jdom}];
+	  GenerateRHSGroup[Bp~{idom_f}~{jdom}, #{Sigma~{idom_f}~{jdom}}]; SolveAgain[Bp~{idom_f}~{jdom}];
+	  GenerateRHSGroup[Bd~{idom_f}~{jdom}, #{Sigma~{idom_f}~{jdom}}]; SolveAgain[Bd~{idom_f}~{jdom}];
+	  GenerateRHSGroup[Gin~{idom_f}~{jdom}, #{Sigma~{idom_f}~{jdom}}]; SolveAgain[Gin~{idom_f}~{jdom}];
+          // GenerateRHS[Gout~{idom}~{jdom}]; SolveAgain[Gout~{idom}~{jdom}];
+	  // GenerateRHS[Bp~{idom}~{jdom}]; SolveAgain[Bp~{idom}~{jdom}];
+	  // GenerateRHS[Bd~{idom}~{jdom}]; SolveAgain[Bd~{idom}~{jdom}];
+	  // GenerateRHS[Gin~{idom}~{jdom}]; SolveAgain[Gin~{idom}~{jdom}];
+	  PostOperation[gin~{idom_f}~{jdom}];
+	  // EndIf
+	EndFor
+      EndFor
+      // GenerateRHSGroup[Helmholtz~{idom_f}, #{Sigma~{idom_f}}]; SolveAgain[Helmholtz~{idom_f}];
+      GenerateRHS[Helmholtz~{idom_f}]; SolveAgain[Helmholtz~{idom_f}];
+	  /////////////////////////////////
+
+	EndIf
+
+
 		EndIf
 		If(REUSE)
 		  ifact = ListOfFacto(idom_f);
@@ -1138,12 +1175,56 @@ Resolution {
 		BroadcastFields[skipList()];
 
 		Evaluate[0. #10]; Evaluate[1. #11];
+		Evaluate[0. #17]; // disable DtN corrections
 		//Compute u on Omega_i (fast way)
 		// GenerateRHSGroup[Helmholtz~{idom_b}, Sigma~{idom_b}] ;
 		GenerateRHSGroup[Helmholtz~{idom_b}, #{Sigma~{idom_b}}] ;
 
 		If (REUSE == 0)
 		  SolveAgain[Helmholtz~{idom_b}] ;
+
+      If (dPML)
+
+	  /////////////////////////////////
+      For jdom In {0:1}
+      	  // If( NbrRegions[Sigma~{idom_b}~{jdom}] )
+          GenerateRHSGroup[Gout~{idom_b}~{jdom}, #{Sigma~{idom_b}~{jdom}}]; SolveAgain[Gout~{idom_b}~{jdom}];
+	  GenerateRHSGroup[Bp~{idom_b}~{jdom}, #{Sigma~{idom_b}~{jdom}}]; SolveAgain[Bp~{idom_b}~{jdom}];
+	  GenerateRHSGroup[Bd~{idom_b}~{jdom}, #{Sigma~{idom_b}~{jdom}}]; SolveAgain[Bd~{idom_b}~{jdom}];
+	  GenerateRHSGroup[Gin~{idom_b}~{jdom}, #{Sigma~{idom_b}~{jdom}}]; SolveAgain[Gin~{idom_b}~{jdom}];
+          // GenerateRHS[Gout~{idom}~{jdom}]; SolveAgain[Gout~{idom}~{jdom}];
+	  // GenerateRHS[Bp~{idom}~{jdom}]; SolveAgain[Bp~{idom}~{jdom}];
+	  // GenerateRHS[Bd~{idom}~{jdom}]; SolveAgain[Bd~{idom}~{jdom}];
+	  // GenerateRHS[Gin~{idom}~{jdom}]; SolveAgain[Gin~{idom}~{jdom}];
+	  PostOperation[gin~{idom_b}~{jdom}]; // keep a copy, since we compute increments 
+	  // EndIf
+      EndFor
+
+      Evaluate[1. #17];
+      For nn In {1:nit}
+        GenerateRHSGroup[Helmholtz~{idom_b}, #{Sigma~{idom_b}}]; SolveAgain[Helmholtz~{idom_b}];
+        // GenerateRHS[Helmholtz~{idom_b}]; SolveAgain[Helmholtz~{idom_b}];
+	For jdom In {0:1}
+      	  // If( NbrRegions[Sigma~{idom_b}~{jdom}] )
+          GenerateRHSGroup[Gout~{idom_b}~{jdom}, #{Sigma~{idom_b}~{jdom}}]; SolveAgain[Gout~{idom_b}~{jdom}];
+	  GenerateRHSGroup[Bp~{idom_b}~{jdom}, #{Sigma~{idom_b}~{jdom}}]; SolveAgain[Bp~{idom_b}~{jdom}];
+	  GenerateRHSGroup[Bd~{idom_b}~{jdom}, #{Sigma~{idom_b}~{jdom}}]; SolveAgain[Bd~{idom_b}~{jdom}];
+	  GenerateRHSGroup[Gin~{idom_b}~{jdom}, #{Sigma~{idom_b}~{jdom}}]; SolveAgain[Gin~{idom_b}~{jdom}];
+          // GenerateRHS[Gout~{idom}~{jdom}]; SolveAgain[Gout~{idom}~{jdom}];
+	  // GenerateRHS[Bp~{idom}~{jdom}]; SolveAgain[Bp~{idom}~{jdom}];
+	  // GenerateRHS[Bd~{idom}~{jdom}]; SolveAgain[Bd~{idom}~{jdom}];
+	  // GenerateRHS[Gin~{idom}~{jdom}]; SolveAgain[Gin~{idom}~{jdom}];
+	  PostOperation[gin~{idom_b}~{jdom}];
+	  // EndIf
+	EndFor
+      EndFor
+      GenerateRHSGroup[Helmholtz~{idom_b}, #{Sigma~{idom_b}}]; SolveAgain[Helmholtz~{idom_b}];
+      // GenerateRHS[Helmholtz~{idom_b}]; SolveAgain[Helmholtz~{idom_b}];
+	  /////////////////////////////////
+
+	EndIf
+
+
 		EndIf
 		If(REUSE)
 		  ifact = ListOfFacto(idom_b);
@@ -1204,9 +1285,11 @@ Resolution {
     //Computing solution
     //setting non homogeneous BC on transmission boundaries
     Evaluate[1. #10]; Evaluate[1. #11];
-    Evaluate[0. #17];
     For ii In {0: #ListOfDom()-1}
       idom = ListOfDom(ii);
+
+      Evaluate[0. #17];
+
       GenerateRHSGroup[Helmholtz~{idom}, Sigma~{idom}] ;
       // GenerateRHS[Helmholtz~{idom}] ;
 
@@ -1469,7 +1552,7 @@ PostOperation {
 
       { Name gin~{idom}~{jdom} ; NameOfPostProcessing gin~{idom}~{jdom} ;
 	Operation {
-	  Print[ gin, OnElementsOf #{Sigma~{idom}~{jdom}}, StoreInField (2*(idom+2*N_DOM)+(jdom-1))%(2*N_DOM) ] ;
+	  Print[ gin, OnElementsOf #{Sigma~{idom}~{jdom}}, StoreInField (4*N_DOM+(2*(idom+N_DOM)+(jdom-1))%(2*N_DOM)) ] ;
 	}
       }
 
