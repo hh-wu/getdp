@@ -2207,6 +2207,15 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Current.Time = Value.Val[0] ;
       break ;
 
+      /*  -->  S e t T i m e S t e p                  */
+      /*  ------------------------------------------  */
+
+    case OPERATION_SETTIMESTEP :
+      Get_ValueOfExpressionByIndex(Operation_P->Case.SetTime.ExpressionIndex,
+				   NULL, 0., 0., 0., &Value) ;
+      Current.TimeStep = Value.Val[0] ;
+      break ;
+
       /*  -->  S e t F r e q u e n c y                */
       /*  ------------------------------------------  */
 

@@ -241,7 +241,7 @@ struct doubleXstring{
 %token      tNameOfFormulation tNameOfMesh tFrequency tSolver
 %token      tOriginSystem tDestinationSystem
 %token    tOperation tOperationEnd
-%token      tSetTime tDTime tSetFrequency tFourierTransform tFourierTransformJ
+%token      tSetTime tSetTimeStep tDTime tSetFrequency tFourierTransform tFourierTransformJ
 %token      tLanczos tEigenSolve tEigenSolveJac tPerturbation
 %token      tUpdate tUpdateConstraint tBreak
 %token      tEvaluate tSelectCorrection tAddCorrection tMultiplySolution
@@ -4075,6 +4075,13 @@ OperationTerm :
       Operation_P->Case.SetTime.ExpressionIndex = $2;
     }
 
+  | tSetTimeStep Expression tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_SETTIMESTEP;
+      Operation_P->Case.SetTime.ExpressionIndex = $2;
+    }
+
   | tTimeLoopTheta '{' TimeLoopTheta '}'
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
@@ -4128,6 +4135,13 @@ OperationTerm :
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_SETTIME;
+      Operation_P->Case.SetTime.ExpressionIndex = $3;
+    }
+
+  | tSetTimeStep '[' Expression ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_SETTIMESTEP;
       Operation_P->Case.SetTime.ExpressionIndex = $3;
     }
 

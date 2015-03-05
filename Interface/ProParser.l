@@ -317,6 +317,7 @@ SetCommWorld                 return tSetCommWorld;
 SetFrequency                 return tSetFrequency;
 SetGlobalSolverOptions       return tSetGlobalSolverOptions;
 SetTime                      return tSetTime;
+SetTimeStep                  return tSetTimeStep;
 Sign                         return tSign;
 Sin                          return tSin;
 Sinh                         return tSinh;

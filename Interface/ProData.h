@@ -1214,6 +1214,7 @@ struct IterativeLoopSystem {
 #define OPERATION_RESIDUAL                 84
 #define OPERATION_RENAMEFILE               85
 #define OPERATION_WHILE                    86
+#define OPERATION_SETTIMESTEP              87
 
 /* ChangeOfState.Type */
 #define CHANGEOFSTATE_NOCHANGE              0

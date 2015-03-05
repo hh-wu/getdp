@@ -4359,6 +4359,11 @@ Evaluate @var{expression}.
 
 Change the current time.
 
+@item SetTimeStep
+@code{[@var{expression}]}
+
+Change the current time step.
+
 @item SetFrequency
 @code{[@var{system-id}, @var{expression}]}
 

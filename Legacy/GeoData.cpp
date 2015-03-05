@@ -315,6 +315,18 @@ void Geo_SaveMesh(struct GeoData * GeoData_P, List_T * InitialList, char * FileN
   List_Delete(GeoData.Elements);
 }
 
+static std::string ExtractDoubleQuotedString(const char *str, int len)
+{
+  char *c = strstr((char*)str, "\"");
+  if(!c) return "";
+  std::string ret;
+  for(int i = 1; i < len; i++) {
+    if(c[i] == '"' || c[i] == EOF || c[i] == '\n' || c[i] == '\r') break;
+    ret.push_back(c[i]);
+  }
+  return ret;
+}
+
 void Geo_ReadFile(struct GeoData * GeoData_P)
 {
   int                 Nbr, i, j, Type, iDummy, Format, Size, NbTags ;
@@ -373,6 +385,9 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
         }
         if(fscanf(File_GEO, "%d", &num) != 1) return ;
         fgets(String, sizeof(String), File_GEO) ;
+        //std::string name = ExtractDoubleQuotedString(String, 256);
+        //if(name.size())
+        //  GeoData_P->PhysicalNames[std::pair<int,int>(dim, num)] = name;
       }
     }
 
@@ -657,7 +672,8 @@ struct Geo_Element *Geo_GetGeoElementOfNum(int Num_Element)
 /*  G e o _ G e t N b r G e o N o d e s                                     */
 /* ------------------------------------------------------------------------ */
 
-int Geo_GetNbrGeoNodes(void){
+int Geo_GetNbrGeoNodes(void)
+{
   return(List_Nbr(CurrentGeoData->Nodes)) ;
 }
 
@@ -786,4 +802,19 @@ void Geo_SetNodesCoordinatesZ(int Nbr_Node, int * Num_Node,
 
     Geo_Node_P->z = z[i] ;
   }
+}
+
+
+void Geo_PrintPhysicalNames(FILE *file)
+{
+  /*
+  if(!CurrentGeoData || CurrentGeoData->PhysicalNames.empty()) return;
+  fprintf(file, "$PhysicalNames\n%d\n", (int)CurrentGeoData->PhysicalNames.size());
+  for(std::map<std::pair<int,int>, std::string>::iterator it =
+      CurrentGeoData->PhysicalNames.begin();  it != CurrentGeoData->PhysicalNames.end(); it++{
+    fprintf(file, "%d %d \"%s\"\n", it->first.first, it->first.second,
+            it->second.c_str());
+  }
+  fprintf(file, "$EndPhysicalNames\n");
+  */
 }
