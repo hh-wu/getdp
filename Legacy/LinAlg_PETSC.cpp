@@ -226,8 +226,14 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
                          prealloc, PETSC_NULL, prealloc, PETSC_NULL, &M->M));
 #endif
   }
-  else
+  else{
     _try(MatCreateSeqAIJ(PETSC_COMM_SELF, n, m, 0, &nnz[0], &M->M));
+    // PETSc (I)LU does not like matrices with empty (non assembled) diagonals
+    for(int i = 0; i < n; i++){
+      PetscScalar d = 0.;
+      _try(MatSetValues(M->M, 1, &i, 1, &i, &d, INSERT_VALUES));
+    }
+  }
 
 #if ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 3))
   // Preallocation routines automatically set now MAT_NEW_NONZERO_ALLOCATION_ERR,
@@ -1255,7 +1261,7 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
     _try(PCFactorSetMatSolverPackage(pc, "mumps"));
 #elif (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MKL_PARDISO)
     _try(PCFactorSetMatSolverPackage(pc, "mkl_pardiso"));
-#elif (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_UMFPACK)
+#elif (PETSC_VERSION_MAJOR > 2) && (defined(PETSC_HAVE_UMFPACK) || defined(PETSC_HAVE_SUITESPARSE))
     _try(PCFactorSetMatSolverPackage(pc, "umfpack"));
 #else
     _try(PetscOptionsSetValue("-pc_factor_nonzeros_along_diagonal", "1e-12"));
