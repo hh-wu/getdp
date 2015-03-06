@@ -233,6 +233,7 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
       PetscScalar d = 0.;
       _try(MatSetValues(M->M, 1, &i, 1, &i, &d, INSERT_VALUES));
     }
+    LinAlg_AssembleMatrix(M);
   }
 
 #if ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 3))
