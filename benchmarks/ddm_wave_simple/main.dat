@@ -6,7 +6,7 @@ PBM_WAVEGUIDE3D = 5 ;
 
 DefineConstant[
     FLAG_PBM = {PBM_CIRCLE_CONCENTRIC, Name "Input/00Problem", Highlight "Blue",
-                GmshOption "ResetDatabase", Autocheck 0,
+                GmshOption "Reset", Autocheck 0,
                 Choices {0 = "...",
                          PBM_CIRCLE_CONCENTRIC = "Circle concentric",
                          PBM_CIRCLE_PIE = "Circle pie",
