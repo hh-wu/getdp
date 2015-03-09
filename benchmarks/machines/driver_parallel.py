@@ -20,7 +20,7 @@ machine = c.defineString('Machine model', value='pmsm')
 if c.action == 'check' :
    exit(0)
 
-angles = [0, 10, 20, 30]
+angles = [0, 10, 20, 30] # range(0,21)
 
 # change the angle of the rotor and mesh for each one in //
 for angle in angles:
