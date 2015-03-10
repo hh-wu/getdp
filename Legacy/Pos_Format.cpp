@@ -1738,10 +1738,11 @@ void Pos_FourierTransform(int NbrTimeStep, int NbrRegion,
   }
 
   // Limited to cosine transform now
-
-  *NbrFreq = Nhalf+1;
-  *Frequencies = (double *)Malloc(*NbrFreq*sizeof(double));
-  *OutValues = (struct Value *)Malloc(*NbrFreq*sizeof(struct Value));
+  if (TypeOutput == 2){
+    *NbrFreq = Nhalf+1;
+    *Frequencies = (double *)Malloc(*NbrFreq*sizeof(double));
+    *OutValues = (struct Value *)Malloc(*NbrFreq*sizeof(struct Value));
+  }
 
   //  for (k_fc=-Nhalf; k_fc<Nhalf; k_fc++){
   for (k_fc=0; k_fc<Nhalf; k_fc++){
