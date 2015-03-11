@@ -36,7 +36,6 @@ nicepos_stator[] = {};
 Include "pmsm_rotor.geo";
 Include "pmsm_stator.geo";
 
-
 // For nice visualisation...
 //Mesh.Light = 0 ;
 //Mesh.SurfaceFaces = 1; Mesh.SurfaceEdges=0;
@@ -96,4 +95,33 @@ If(Flag_AddInfo)
 
   Include "info_view.geo";
 
+EndIf
+
+DefineConstant[
+  NumSlices = {1, Name "Input/Multislice/Number of slices", Visible 0},
+  SlicePhysOffset = 100000,
+  SliceZOffset = 0.01
+];
+
+If(NumSlices > 1)
+  ps[] = Physical Surface "*";
+  For s In {0:#ps[]-1}
+    For slice In {1:NumSlices-1}
+      Physical Surface(ps[s] + SlicePhysOffset * slice) = {
+        Translate {0, 0, SliceZOffset * slice} {
+          Duplicata { Surface{ Physical Surface{ps[s]} }; }
+        }
+      };
+    EndFor
+  EndFor
+  pl[] = Physical Line "*";
+  For l In {0:#pl[]-1}
+    For slice In {1:NumSlices-1}
+      Physical Line(pl[l] + SlicePhysOffset * slice) = {
+        Translate {0, 0, SliceZOffset * slice} {
+          Duplicata { Line{ Physical Line{pl[l]} }; }
+        }
+      };
+    EndFor
+  EndFor
 EndIf

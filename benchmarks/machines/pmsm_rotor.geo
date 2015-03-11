@@ -115,6 +115,7 @@ EndIf
 // -------------------------------------------------------------------------------
 
 Physical Surface(ROTOR_FE)     = {srotor[]};     // Rotor
+
 Physical Surface(ROTOR_AIR)    = {sairrotor[]};  // AirRotor
 Physical Surface(ROTOR_AIRGAP) = {sairrotormb[]};// AirRotor for possible torque computation with Maxwell stress tensor
 
@@ -124,7 +125,6 @@ For k In {0:NN-1}
 EndFor
 
 Physical Line(SURF_INT) = {surfint[]}; // SurfInt
-
 
 If(Flag_Symmetry)  //Lines for symmetry link
   Physical Line(ROTOR_BND_A0)  = linR0[];
