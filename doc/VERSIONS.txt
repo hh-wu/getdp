@@ -1,4 +1,4 @@
-2.4.5: added option to embed Octave and Python interpreters; extended "Field"
+2.5.0: added option to embed Octave and Python interpreters; extended "Field"
 functions with gradient; extended string and list handling functions; new
 resolution and postprocessing functions (RenameFile, While, ...); extended
 EigenSolve with eigenvalue filter and high order polynomial EV problems; small
