@@ -267,7 +267,7 @@ void F_SurfaceArea(F_ARG)
 	    Val_Surface += fabs(DetJac) * 4. ;
 
 	}
-	if (Element.Type == LINE) {
+	else if (Element.Type == LINE) {
 	  Get_NodesCoordinatesOfElement(&Element) ;
 	  Get_BFGeoElement(&Element, 0., 0., 0.) ;
 
@@ -280,8 +280,8 @@ void F_SurfaceArea(F_ARG)
           Val_Surface += fabs(DetJac) * 2 ; // SurfaceArea of LINE x 1m
         }
 	else {
-	  Message::Error("Function 'SurfaceArea' only valid for Triangle or "
-                         "Quandrangle Elements");
+	  Message::Error("Function 'SurfaceArea' only valid for line, triangle or "
+                         "quandrangle elements");
 	}
       }
     }
