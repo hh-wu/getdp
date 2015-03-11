@@ -2,7 +2,8 @@ PBM_CIRCLE_CONCENTRIC = 1 ;
 PBM_CIRCLE_PIE = 2 ;
 PBM_CYLINDER_CONCENTRIC = 3 ;
 PBM_SPHERE_CONCENTRIC = 4 ;
-PBM_WAVEGUIDE3D = 5 ;
+PBM_WAVEGUIDE2D = 5 ;
+PBM_WAVEGUIDE3D = 6 ;
 
 DefineConstant[
     FLAG_PBM = {PBM_CIRCLE_CONCENTRIC, Name "Input/00Problem", Highlight "Blue",
@@ -12,6 +13,7 @@ DefineConstant[
                          PBM_CIRCLE_PIE = "Circle pie",
                          PBM_CYLINDER_CONCENTRIC = "Cylinder concentric",
                          PBM_SPHERE_CONCENTRIC = "Sphere concentric",
+                         PBM_WAVEGUIDE2D = "Waveguide 2D",
                          PBM_WAVEGUIDE3D = "Waveguide 3D"} }
 ] ;
 
@@ -30,6 +32,10 @@ EndIf
 If (FLAG_PBM==PBM_SPHERE_CONCENTRIC)
   LinkGeo = "sphere_concentric.geo" ;
   LinkPro = "sphere_concentric.pro" ;
+EndIf
+If (FLAG_PBM==PBM_WAVEGUIDE2D)
+  LinkGeo = "waveguide2d.geo" ;
+  LinkPro = "waveguide2d.pro" ;
 EndIf
 If (FLAG_PBM==PBM_WAVEGUIDE3D)
   LinkGeo = "waveguide3d.geo" ;
