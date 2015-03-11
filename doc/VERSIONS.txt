@@ -1,7 +1,8 @@
 2.4.5: added option to embed Octave and Python interpreters; extended "Field"
 functions with gradient; extended string and list handling functions; new
 resolution and postprocessing functions (RenameFile, While, ...); extended
-EigenSolve with eigenvalue filter and higher order problems; small bug fixes.
+EigenSolve with eigenvalue filter and high order polynomial EV problems; small
+bug fixes.
 
 2.4.4: better stability, updated onelab API version and inline parameter
 definitions, fixed UpdateConstraint in harmonic case, improved performance of
