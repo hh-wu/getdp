@@ -124,7 +124,9 @@ Formulation {
     Equation {
       Galerkin { [ Dof{d a_dummy} , {d a_dummy} ] ;
         In Domain ; Jacobian JVol ; Integration I1 ; }
-      Galerkin { [ Python[ElementNum[], QuadraturePointIndex[], CompZ[{a}], CompX[{d a}], CompY[{d a} ] ]{"hmm_downscale_b.py"} * Dof{d a_dummy} , {d a_dummy} ] ;
+      Galerkin { [ Python[ElementNum[], QuadraturePointIndex[],
+                          CompZ[{a}], CompX[{d a}], CompY[{d a} ] ]{"hmm_downscale_b.py"} *
+                      Dof{d a_dummy} , {d a_dummy} ] ;
         In Domain_NL ; Jacobian JVol ; Integration I1 ; }
     }
   }
@@ -138,7 +140,8 @@ Formulation {
         In Domain_L ; Jacobian JVol ; Integration I1 ; }
       Galerkin { [ Python[ElementNum[], QuadraturePointIndex[]]{"hmm_upscale_h.py"}, {d a} ] ;
         In Domain_NL ; Jacobian JVol ; Integration I1 ; }
-      Galerkin { JacNL [ Python[ElementNum[], QuadraturePointIndex[]]{"hmm_upscale_dhdb.py"} * Dof{d a} , {d a} ] ;
+      Galerkin { JacNL [ Python[ElementNum[], QuadraturePointIndex[]]{"hmm_upscale_dhdb.py"} *
+                          Dof{d a} , {d a} ] ;
         In Domain_NL ; Jacobian JVol ; Integration I1 ; }
       Galerkin { [ -js[] , {a} ] ;
         In Domain_S ; Jacobian JVol ; Integration I1 ; }
@@ -172,7 +175,7 @@ Resolution {
       IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
       //IterativeLoopN[Nb_max_iter, relaxation_factor, System{ {C, 1e-6, 1e-6, Residual MeanL2Norm} } ]{
         Generate[B] ;
-        Evaluate[ Python[Nb_pools]{"hmm_compute_meso.py"} ];
+        Evaluate[ Python[]{"hmm_compute_meso.py"} ];
         GenerateJac[C] ; SolveJac[C] ;
       }
       SaveSolution[C];

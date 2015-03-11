@@ -4,7 +4,6 @@ import os
 import time
 import socket
 
-npools = input[0]
 keys = bx_table.keys()
 nkeys = len(keys)
 file_dir = os.path.abspath(os.path.dirname(__file__)) + "/"
