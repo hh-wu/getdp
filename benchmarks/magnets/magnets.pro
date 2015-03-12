@@ -15,10 +15,11 @@ Group{
 
 Function{
   mu[] = 4*Pi*1e-7;
-  // coercive field of magnets
-  DefineConstant[ HC = {800e3, Name "Parameters/Coercive magnetic field [Am^-1]"} ];
   For i In {1:NumMagnets}
-    hc[Magnet~{i}] = Rotate[Vector[0, HC, 0], Rx~{i}, Ry~{i}, Rz~{i}];
+    // coercive field of magnets
+    DefineConstant[ HC~{i} = {800e3,
+        Name Sprintf("Parameters/Magnet %g/0Coercive magnetic field [Am^-1]", i)} ];
+    hc[Magnet~{i}] = Rotate[Vector[0, HC~{i}, 0], Rx~{i}, Ry~{i}, Rz~{i}];
   EndFor
   // Maxwell stress tensor
   TM[] = ( SquDyadicProduct[$1] - SquNorm[$1] * TensorDiag[0.5, 0.5, 0.5] ) / mu[] ;
