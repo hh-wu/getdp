@@ -174,6 +174,7 @@ struct doubleXstring{
 %type <l>  PostQuantities SubPostQuantities PostSubOperations
 %type <c>  NameForMathFunction NameForFunction CharExpr CharExprNoVar
 %type <c>  StrCat StringIndex String__Index
+%type <c>  LP RP
 %type <t>  Quantity_Def
 %type <l>  TimeLoopAdaptiveSystems TimeLoopAdaptivePOs IterativeLoopSystems
 %type <l>  IterativeLoopPOs
@@ -181,7 +182,7 @@ struct doubleXstring{
 /* ------------------------------------------------------------------ */
 %token  tEND tDOTS
 %token  tStrCat tSprintf tPrintf tMPI_Printf tRead tPrintConstants tStrCmp
-%token  tNbrRegions tGetRegion
+%token  tStrChoice tNbrRegions tGetRegion
 %token  tFor tEndFor tIf tElse tEndIf tWhile
 %token  tFlag
 %token  tInclude
@@ -7031,14 +7032,7 @@ Affectation :
       Tree_Replace(ConstantTable_L, &Constant_S);
     }
 
-  | String__Index tDEF tStr '[' CharExpr ']' tEND
-    {
-      Constant_S.Name = $1; Constant_S.Type = VAR_CHAR;
-      Constant_S.Value.Char = $5;
-      Tree_Replace(ConstantTable_L, &Constant_S);
-    }
-
-  | String__Index tDEF tStr '(' CharExpr ')' tEND
+  | String__Index tDEF tStr LP CharExpr RP tEND
     {
       Constant_S.Name = $1; Constant_S.Type = VAR_CHAR;
       Constant_S.Value.Char = $5;
@@ -7072,13 +7066,7 @@ Affectation :
       Tree_Replace(ConstantTable_L, &Constant_S);
     }
 
-  // deprectated
-  | Printf '(' tBIGSTR ')' tEND
-    {
-      Message::Direct($1, $3);
-    }
-
-  | Printf '[' tBIGSTR ']' tEND
+  | Printf LP tBIGSTR RP tEND
     {
       Message::Direct($1, $3);
     }
@@ -7105,21 +7093,7 @@ Affectation :
       Message::Direct($1, "Line number: %d", getdp_yylinenum);
     }
 
-  // deprectated
-  | Printf '(' tBIGSTR ',' RecursiveListOfFExpr ')' tEND
-    {
-      char tmpstr[256];
-      int i = Print_ListOfDouble($3, $5, tmpstr);
-      if(i < 0)
-	vyyerror("Too few arguments in Printf");
-      else if(i > 0)
-	vyyerror("Too many arguments (%d) in Printf", i);
-      else
-	Message::Direct($1, tmpstr);
-      List_Delete($5);
-    }
-
-  | Printf '[' tBIGSTR ',' RecursiveListOfFExpr ']' tEND
+  | Printf LP tBIGSTR ',' RecursiveListOfFExpr RP tEND
     {
       char tmpstr[256];
       int i = Print_ListOfDouble($3, $5, tmpstr);
@@ -7938,39 +7912,24 @@ CharExprNoVar :
       List_Delete($3);
     }
 
-  // deprecated
-  | tSprintf '(' CharExpr ')'
+  | tStrChoice LP FExpr ',' CharExpr ',' CharExpr RP
     {
-      $$ = $3;
-    }
-
-  | tSprintf '[' CharExpr ']'
-    {
-      $$ = $3;
-    }
-
-  // deprecated
-  | tSprintf '(' CharExpr ',' RecursiveListOfFExpr ')'
-    {
-      char tmpstr[256];
-      int i = Print_ListOfDouble($3,$5,tmpstr);
-      if(i<0){
-	vyyerror("Too few arguments in Sprintf");
-	$$ = $3;
-      }
-      else if(i>0){
-	vyyerror("Too many arguments (%d) in Sprintf", i);
-	$$ = $3;
+      if($3){
+        $$ = $5;
+        Free($7);
       }
       else{
-	$$ = (char*)Malloc((strlen(tmpstr)+1)*sizeof(char));
-	strcpy($$, tmpstr);
-	Free($3);
+        $$ = $7;
+        Free($5);
       }
-      List_Delete($5);
     }
 
-  | tSprintf '[' CharExpr ',' RecursiveListOfFExpr ']'
+  | tSprintf LP CharExpr RP
+    {
+      $$ = $3;
+    }
+
+  | tSprintf LP CharExpr ',' RecursiveListOfFExpr RP
     {
       char tmpstr[256];
       int i = Print_ListOfDouble($3,$5,tmpstr);
@@ -7999,13 +7958,7 @@ CharExprNoVar :
       $$[strlen($$)-1] = 0;
     }
 
-  | tFixRelativePath '[' CharExpr ']'
-    {
-      $$ = strSave(Fix_RelativePath($3).c_str());
-      Free($3);
-    }
-
-  | tFixRelativePath '(' CharExpr ')'
+  | tFixRelativePath LP CharExpr RP
     {
       $$ = strSave(Fix_RelativePath($3).c_str());
       Free($3);
@@ -8056,28 +8009,15 @@ RecursiveListOfCharExpr :
     { List_Add($$, &($3)); }
  ;
 
+// these are for compatibility with the syntax in Gmsh (parentheses instead of
+// square brackets)
+
+LP : '(' { $$ = (char*)"("; } | '[' { $$ = (char*)"["; } ;
+RP : ')' { $$ = (char*)")"; } | ']' { $$ = (char*)"]"; } ;
+
 StrCat :
 
-    tStrCat '[' RecursiveListOfCharExpr ']'
-    {
-      int size = 1;
-      for(int i = 0; i < List_Nbr($3); i++){
-        char *s;
-        List_Read($3, i, &s);
-        size += strlen(s) + 1;
-      }
-      $$ = (char*)Malloc(size * sizeof(char));
-      $$[0] = '\0';
-      for(int i = 0; i < List_Nbr($3); i++){
-        char *s;
-        List_Read($3, i, &s);
-        strcat($$, s);
-        Free(s);
-      }
-      List_Delete($3);
-    }
-  // deprecated
-  | tStrCat '(' RecursiveListOfCharExpr ')'
+    tStrCat LP RecursiveListOfCharExpr RP
     {
       int size = 1;
       for(int i = 0; i < List_Nbr($3); i++){
@@ -8099,7 +8039,7 @@ StrCat :
 
 StrCmp :
 
-    tStrCmp '[' CharExpr ',' CharExpr ']'
+    tStrCmp LP CharExpr ',' CharExpr RP
     {
       if ($3 != NULL && $5 != NULL) {
 	$$ = strcmp($3, $5);

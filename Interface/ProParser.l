@@ -345,6 +345,7 @@ StoreMinYinRegister          return tStoreMinYinRegister;
 StoreMinZinRegister          return tStoreMinZinRegister;
 Str                          return tStr;
 StrCat                       return tStrCat;
+StrChoice                    return tStrChoice;
 StrCmp                       return tStrCmp ;
 SubFunction                  return tSubFunction;
 SubRegion                    return tSubRegion;
