@@ -29,7 +29,7 @@ DefineConstant[
   InitialRotorAngle_deg = { 10,
     Name "Input/20Initial rotor angle (deg)", Highlight "AliceBlue"},
   Flag_OpenRotor = {1, Choices{0,1},
-    Name "Input/39Open slots in rotor", Highlight "White"}
+    Name "Input/39Open slots in rotor"}
 ];
 
 

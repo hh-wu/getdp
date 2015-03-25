@@ -15,9 +15,9 @@ DefineConstant[
   Flag_Symmetry3D = {2, Choices{0="Full",1="Half",2="One fourth"},
     Name "Input/01Symmetry type", Highlight "Blue", Visible (Flag_3Dmodel==1)},
   Flag_OpenCore = {1, Choices{0,1},
-    Name "Input/02Core with air gap", Highlight "White"},
+    Name "Input/02Core with air gap"},
   Flag_Infinity = {0/*1*/, Choices{0,1},
-    Name "Input/01Use shell transformation to infinity", Highlight "White"}
+    Name "Input/01Use shell transformation to infinity"}
 ];
 
 Flag_Symmetry  = (Flag_3Dmodel==0) ? Flag_Symmetry2D : Flag_Symmetry3D;
@@ -79,9 +79,9 @@ Val_Rext = Rext;
 //-------------------------------------------------------------------------
 // Some mesh control stuff
 DefineConstant[
-  Flag_meshRecombine={0, Name "Geo/RecombineSurface",Label "Mesh recombine surface", 
+  Flag_meshRecombine={0, Name "Geo/RecombineSurface",Label "Mesh recombine surface",
     Choices {0,1}, Highlight Str[colorpp], Closed close_menu},
-  md = { 2., Name "Geo/Mesh Characteristic Length Factor",Label "Mesh density", 
+  md = { 2., Name "Geo/Mesh Characteristic Length Factor",Label "Mesh density",
     /*Name StrCat[ppm, "0Mesh density"],*/
     Highlight Str[colorpp], Closed close_menu},
   nn_wcore   = { Ceil[md*2], Name StrCat[ppm, "0Core width"], ReadOnly 1,

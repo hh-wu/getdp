@@ -14,9 +14,9 @@ DefineConstant[
   Flag_Symmetry3D = {2, Choices{0="Full",1="Half",2="One fourth"},
     Name "Input/01Symmetry type", Highlight "Blue", Visible (Flag_3Dmodel==1)},
   Flag_OpenCore = {1, Choices{0,1},
-    Name "Input/02Core with air gap", Highlight "White"},
+    Name "Input/02Core with air gap"},
   Flag_Infinity = {1, Choices{0,1},
-    Name "Input/01Use shell transformation to infinity", Highlight "White"}
+    Name "Input/01Use shell transformation to infinity"}
 ];
 
 Flag_Symmetry  = (Flag_3Dmodel==0) ? Flag_Symmetry2D : Flag_Symmetry3D;
