@@ -1,12 +1,16 @@
 AxialLength = 1; // 1 m is the default value
 
-Flag_NL = 1;
+Flag_NL = 1; // non-linear meso material
+Flag_Dynamic = 1; // static or dynamic simulation
 
 Dir_Macro = "res_macro/";
 Dir_Meso  = "res_meso/";
 Dir_Test  = "res_ref/";
 ExtGmsh   = Str[ Sprintf("_nl%g.pos", Flag_NL) ];
 ExtData   = Str[ Sprintf("_nl%g.txt", Flag_NL) ];
+
+Freq      = 50000;
+NbSteps   = 100;
 
 micron    = 1e-6;        // the micron
 d         = 45 * micron; // thickness of conductor

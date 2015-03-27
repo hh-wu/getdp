@@ -35,12 +35,19 @@ Function {
     dhdb[ Core ]      = TensorDiag[1., 1., 1.] * nu[$1#1] + 2 * dnudb2[#1] * SquDyadicProduct[#1]  ;
     dhdb_NL[ Core ]   = 2 * dnudb2[$1#1] * SquDyadicProduct[#1]  ;
   EndIf
-  js[]              = Vector[0., 0., 100e7];
 
+  js0[]               = Vector[0., 0., 100e7] ;
+  js[]                = js0[] * F_Sin_wt_p[]{2 * Pi * Freq, Flag_Dynamic ? 0 : Pi/2};
   Nb_max_iter       = 10;
   relaxation_factor = 1.;
   stop_criterion    = 1e-6;
-  DefineConstant[ Nb_pools = {1, Name "Number of pools for parallel load distribution"}];
+  T                 = 1./Freq;
+  Omega             = 2 * Pi * Freq;
+  NbT               = 1./20.;
+  time0             = 0. ;
+  timemax           = T * NbT ;
+  dtime             = T/NbSteps ;
+  theta_value       = 1;
 }
 
-Include "MagSta_a_macro.pro"
+Include "MagStaDyn_a_macro.pro"
