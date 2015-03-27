@@ -123,12 +123,17 @@ Resolution {
         }
       EndIf
 
-      // FIXME: add option recompute meso solution around point of interest,
-      // between [t_post0, tpostmax]
+      // recompute some meso cells around points of interest
+      Evaluate[ Python[]{"hmm_initialize.py"} ];
+      PostOperation[ cuts ];
+      Evaluate[ Python[]{"hmm_compute_meso.py"} ];
+
     }
   }
 
 }
+
+ncuts = n_smc ;
 
 PostProcessing {
   { Name MagStaDyn_a_hmm ; NameOfFormulation MagSta_a_hmm ;
@@ -165,6 +170,15 @@ PostProcessing {
             Integral { [ nu[] * {d a} * Dt[{d a}] ]; In Domain_L ; Jacobian JVol; Integration I1; }
           EndIf
           Integral { [ Python[ElementNum[], QuadraturePointIndex[], 2]{"hmm_upscale.py"} ]; In Domain_NL; Jacobian JVol; Integration I1; } } }
+
+      For j In {1:ncuts}
+        { Name data~{j} ; Value {
+            Local { [ 0*Python[ j, 0,
+                  CompX[{a}], CompY[{a}], CompZ[{a}],
+                  CompX[{d a}], CompY[{d a}], CompZ[{d a}],
+                  CompX[Dt[{a}]], CompY[Dt[{a}]], CompZ[Dt[{a}]],
+                  CompX[Dt[{d a}] ], CompY[Dt[{d a}] ], CompZ[Dt[{d a}]] ]{"hmm_downscale.py"}   ] ; In Domain   ; Jacobian JVol ; } } }
+      EndFor
     }
   }
 }
@@ -172,9 +186,16 @@ PostProcessing {
 PostOperation {
   { Name maps ; NameOfPostProcessing MagStaDyn_a_hmm;
     Operation {
-      Print[ az, OnElementsOf Domain,  File StrCat[Dir_Macro,"az_hmm",ExtGmsh] ];
-      Print[ b,  OnElementsOf Domain,  File StrCat[Dir_Macro,"b_hmm",ExtGmsh] ];
-      Print[ h,  OnElementsOf Domain , File StrCat[Dir_Macro,"h_hmm",ExtGmsh] ];
+      Print[ az, OnElementsOf Domain, File StrCat[Dir_Macro,"az_hmm",ExtGmsh] ];
+      Print[ b,  OnElementsOf Domain, File StrCat[Dir_Macro,"b_hmm",ExtGmsh] ];
+      Print[ h,  OnElementsOf Domain, File StrCat[Dir_Macro,"h_hmm",ExtGmsh] ];
+    }
+  }
+  { Name cuts ; NameOfPostProcessing MagStaDyn_a_hmm;
+    Operation {
+      For j In {1:ncuts}
+        Print[ data~{j}, OnPoint {e-0.5*e, j*e-e/2, 0.}, File "dummy.pos" ];
+      EndFor
     }
   }
 }

@@ -1,7 +1,7 @@
 AxialLength = 1; // 1 m is the default value
 
 Flag_NL = 1; // non-linear meso material
-Flag_Dynamic = 1; // static or dynamic simulation
+Flag_Dynamic = 0; // static or dynamic simulation
 
 Dir_Macro = "res_macro/";
 Dir_Meso  = "res_meso/";
