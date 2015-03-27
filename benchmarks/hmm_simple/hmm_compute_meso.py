@@ -5,7 +5,8 @@ import time
 import socket
 
 nbr_subproblems = input[0]
-postpro_cuts = input[1]
+flag_dynamic = input[1]
+postpro_cuts = input[2]
 
 keys = bx_table.keys()
 nkeys = len(keys)
@@ -59,9 +60,10 @@ while len(queue):
                 else:
                     args.extend([node])
             args.extend([file_dir + "getdp.sh", file_dir + "smc_meso", 
-                         "-bin", "-v", "2", "-solve", "a_NR", 
+                         "-bin", "-v", "2", "-v2", "-solve", "a_NR", 
                          "-pos", "mean_1", "mean_2", "mean_3", 
                          "map_field_1" if postpro_cuts else "",
+                         "-setnumber", "Flag_Dynamic", str(flag_dynamic),
                          "-setnumber", "AX", str(ax_table[key]),
                          "-setnumber", "AY", str(ay_table[key]),
                          "-setnumber", "AZ", str(az_table[key]),

@@ -18,9 +18,6 @@ dtbx_table = {}
 dtby_table = {}
 dtbz_table = {}
 
-currentTime = 0
-currentTimeStep = 0
-
 # python output
 hx_table = {}
 hy_table = {}

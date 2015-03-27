@@ -101,15 +101,21 @@ Resolution {
     Operation {
       CreateDirectory[Dir_Macro];
       Evaluate[ Python[]{"hmm_initialize.py"} ];
+      Evaluate[ Python[0, 0]{"hmm_update_time.py"} ];
       InitSolution[A];
 
       If(!Flag_Dynamic)
         IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
           Generate[Dummy];
-          Evaluate[ Python[Nbr_SubProblems, 0]{"hmm_compute_meso.py"} ];
+          Evaluate[ Python[Nbr_SubProblems, Flag_Dynamic, 0]{"hmm_compute_meso.py"} ];
           GenerateJac[A]; SolveJac[A];
         }
         SaveSolution[A];
+        If(Flag_PostCuts) // compute some meso cells around points of interest
+          Evaluate[ Python[]{"hmm_initialize.py"} ];
+          PostOperation[ cuts ];
+          Evaluate[ Python[Nbr_SubProblems, Flag_Dynamic, 1]{"hmm_compute_meso.py"} ];
+        EndIf
       EndIf
 
       If(Flag_Dynamic)
@@ -117,18 +123,16 @@ Resolution {
           Evaluate[ Python[$Time, $TimeStep]{"hmm_update_time.py"} ];
           IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
             Generate[Dummy];
-            Evaluate[ Python[Nbr_SubProblems, 0]{"hmm_compute_meso.py"} ];
+            Evaluate[ Python[Nbr_SubProblems, Flag_Dynamic, 0]{"hmm_compute_meso.py"} ];
             GenerateJac[A]; SolveJac[A];
           }
           SaveSolution[A];
+          If(Flag_PostCuts) // compute some meso cells around points of interest
+            Evaluate[ Python[]{"hmm_initialize.py"} ];
+            PostOperation[ cuts ];
+            Evaluate[ Python[Nbr_SubProblems, Flag_Dynamic, 1]{"hmm_compute_meso.py"} ];
+          EndIf
         }
-      EndIf
-
-      If(Flag_PostCuts)
-        // recompute some meso cells around points of interest
-        Evaluate[ Python[]{"hmm_initialize.py"} ];
-        PostOperation[ cuts ];
-        Evaluate[ Python[Nbr_SubProblems, 1]{"hmm_compute_meso.py"} ];
       EndIf
     }
   }
@@ -207,7 +211,7 @@ PostOperation {
     Operation {
       For j In {1:ncuts}
         Print[ data~{j}, OnPoint {e-0.5*e, j*e-e/2, 0.},
-          File StrCat[Dir_Macro,"dummy.pos"] ];
+          File StrCat[Dir_Macro,"dummy.pos"] , LastTimeStepOnly ];
       EndFor
     }
   }
