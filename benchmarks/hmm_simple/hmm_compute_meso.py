@@ -4,6 +4,9 @@ import os
 import time
 import socket
 
+nbr_subproblems = input[0]
+postpro_cuts = input[1]
+
 keys = bx_table.keys()
 nkeys = len(keys)
 file_dir = os.path.abspath(os.path.dirname(__file__)) + "/"
@@ -57,7 +60,8 @@ while len(queue):
                     args.extend([node])
             args.extend([file_dir + "getdp.sh", file_dir + "smc_meso", 
                          "-bin", "-v", "2", "-solve", "a_NR", 
-                         "-pos", "mean_1", "mean_2", "mean_3", # "map_field_1",
+                         "-pos", "mean_1", "mean_2", "mean_3", 
+                         "map_field_1" if postpro_cuts else "",
                          "-setnumber", "AX", str(ax_table[key]),
                          "-setnumber", "AY", str(ay_table[key]),
                          "-setnumber", "AZ", str(az_table[key]),
@@ -86,24 +90,15 @@ for i, cpu in enumerate(cpus):
     
 Dir_Meso = file_dir + "res_meso/"
 for key in keys:
-    f = open(Dir_Meso + "h1_" + str(key[0]) + ".txt", "r")
-    h1 = map(float, f.readline().split())
-    f.close()
-    f = open(Dir_Meso + "h2_" + str(key[0]) + ".txt", "r")
-    h2 = map(float, f.readline().split())
-    f.close()
-    f = open(Dir_Meso + "h3_" + str(key[0]) + ".txt", "r")
-    h3 = map(float, f.readline().split())
-    f.close()
-    f = open(Dir_Meso + "b1_" + str(key[0]) + ".txt", "r")
-    b1 = map(float, f.readline().split())
-    f.close()
-    f = open(Dir_Meso + "b2_" + str(key[0]) + ".txt", "r")
-    b2 = map(float, f.readline().split())
-    f.close()
-    f = open(Dir_Meso + "b3_" + str(key[0]) + ".txt", "r")
-    b3 = map(float, f.readline().split())
-    f.close()
+    h = {}
+    b = {}
+    for i in range(nbr_subproblems):
+        f = open(Dir_Meso + "h" + str(i + 1) + "_" + str(key[0]) + ".txt", "r")
+        h[i + 1] = map(float, f.readline().split())
+        f.close()
+        f = open(Dir_Meso + "b" + str(i + 1) + "_" + str(key[0]) + ".txt", "r")
+        b[i + 1] = map(float, f.readline().split())
+        f.close()
     f = open(Dir_Meso + "JouleLosses_" + str(key[0]) + ".txt", "r")
     jl = map(float, f.readline().split())
     f.close()
@@ -111,27 +106,25 @@ for key in keys:
     me = map(float, f.readline().split())
     f.close()
 
-    hx_table[key] = h1[1]
-    hy_table[key] = h1[2]
-    hz_table[key] = h1[3]
-    dhdbxx_table[key] = (h2[1] - h1[1]) / (b2[1] - b1[1])
-    dhdbxy_table[key] = (h2[2] - h1[2]) / (b2[1] - b1[1])
-    #dhdbxz_table[key] = FIXME: add perturbation along z for 3D!
-    dhdbyx_table[key] = (h3[1] - h1[1]) / (b3[2] - b1[2])
-    dhdbyy_table[key] = (h3[2] - h1[2]) / (b3[2] - b1[2])
-    #dhdbyz_table[key] = FIXME: add perturbation along z for 3D!
-    #dhdbzx_table[key] = FIXME: add perturbation along z for 3D!
-    #dhdbzy_table[key] = FIXME: add perturbation along z for 3D!
-    #dhdbzz_table[key] = FIXME: add perturbation along z for 3D!
-
+    hx_table[key] = h[1][1]
+    hy_table[key] = h[1][2]
+    hz_table[key] = h[1][3]
+    dhdbxx_table[key] = (h[2][1] - h[1][1]) / (b[2][1] - b[1][1])
+    dhdbxy_table[key] = (h[2][2] - h[1][2]) / (b[2][1] - b[1][1])
+    dhdbyx_table[key] = (h[3][1] - h[1][1]) / (b[3][2] - b[1][2])
+    dhdbyy_table[key] = (h[3][2] - h[1][2]) / (b[3][2] - b[1][2])
+    if nbr_subproblems == 4:
+        print("Python: FIXME: need to code FD for 3D case")
+        #dhdbxz_table[key] = FIXME: add perturbation along z for 3D!
+        #dhdbyz_table[key] = FIXME: add perturbation along z for 3D!
+        #dhdbzx_table[key] = FIXME: add perturbation along z for 3D!
+        #dhdbzy_table[key] = FIXME: add perturbation along z for 3D!
+        #dhdbzz_table[key] = FIXME: add perturbation along z for 3D!
     JouleLosses_table[key] = jl
     MagneticEnergy_table[key] = me
 
-    os.remove(Dir_Meso + "h1_" + str(key[0]) + ".txt")
-    os.remove(Dir_Meso + "h2_" + str(key[0]) + ".txt")
-    os.remove(Dir_Meso + "h3_" + str(key[0]) + ".txt")
-    os.remove(Dir_Meso + "b1_" + str(key[0]) + ".txt")
-    os.remove(Dir_Meso + "b2_" + str(key[0]) + ".txt")
-    os.remove(Dir_Meso + "b3_" + str(key[0]) + ".txt")
+    for i in range(nbr_subproblems):
+        os.remove(Dir_Meso + "h" + str(i + 1) + "_" + str(key[0]) + ".txt")
+        os.remove(Dir_Meso + "b" + str(i + 1) + "_" + str(key[0]) + ".txt")
     os.remove(Dir_Meso + "JouleLosses_" + str(key[0]) + ".txt")
     os.remove(Dir_Meso + "MagneticEnergy_" + str(key[0]) + ".txt")

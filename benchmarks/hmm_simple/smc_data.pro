@@ -17,30 +17,33 @@ DefineConstant[
 Dir_Macro = "res_macro/";
 Dir_Meso  = "res_meso/";
 
+// 2D problem -> 3 meso computations for dhdb
+Nbr_SubProblems = 3;
+
 // Common dimensions
 micron    = 1e-6;        // the micron
 d         = 45 * micron; // thickness of conductor
 e         = 50 * micron; // thickness of smc grain
 n_smc     = 10;          // number of SMC grains
-nlai      = 4 ;          //
+nlai      = 4;          //
 LX        = e * 10;      // width of the entire SMC structure
 LY        = LX;
 cellSize  = e;
 numPoints = 16;
-w_ind    = 2 * e ;
-rla_ind  = 5 * e ; // minimum distance between lamination and inductor (radious)
-gap_ind  = e ;
-xlam     = LX ; //w_lam/2 ;
-ylam     = LX ;
-x_air    = 5 * (LX + rla_ind + w_ind) ;
-y_air    = 5 * (LY + rla_ind + w_ind) ;
-d_inf    = 2 * LY ;
-Val_Rint = x_air ;
-Val_Rext = x_air + d_inf ;
+w_ind    = 2 * e;
+rla_ind  = 5 * e; // minimum distance between lamination and inductor (radious)
+gap_ind  = e;
+xlam     = LX; //w_lam/2;
+ylam     = LX;
+x_air    = 5 * (LX + rla_ind + w_ind);
+y_air    = 5 * (LY + rla_ind + w_ind);
+d_inf    = 2 * LY;
+Val_Rint = x_air;
+Val_Rext = x_air + d_inf;
 
 // Common characteristic lengths
-pind        = w_ind/2 ;
-plam        = d/8  ; // lc for the homogenized domain
+pind        = w_ind/2;
+plam        = d/8; // lc for the homogenized domain
 lca         = pind * 5; // lc for the inf transfo domain
 DefineConstant[Lay1 = 5];
 Lay2        = 5;
