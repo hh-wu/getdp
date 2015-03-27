@@ -146,7 +146,7 @@ Resolution {
         If(Flag_Dynamic)
           SetTime[ti];
           InitSolution[Meso~{iP} ];
-          TimeLoopTheta[ ti, tf, dt, 1.]{
+          TimeLoopTheta[ti, tf, dt, theta_value]{
             IterativeLoop[NbrMaxIter, Eps, Relax]{
               GenerateJac[Meso~{iP}]; SolveJac[Meso~{iP}];
             }

@@ -41,14 +41,12 @@ Function {
   Pert~{3}[]     = epsilon * Vector[0.0, 1.0, 0.0];
 
   T               = 1.0/Freq;
-  t0              = 0.0;
   ti              = TCURRENT;
   dt              = T/NbSteps;
   theta_value     = 1;
   tf              = ti + dt;
-  a_macro[]       = Vector[ 0., 0., ScalarField[XYZ[]]{1}];
   a_tprevious[]   = (TSCURRENT == 1) ? Vector[0.,0.,0.] :
-  Vector[ 0., 0., ScalarField[XYZ[]]{0}];
+                       Vector[ 0., 0., ScalarField[XYZ[]]{0}];
 
   // Parameters for the electric linear law
   sigmaIron = 5.e6;
