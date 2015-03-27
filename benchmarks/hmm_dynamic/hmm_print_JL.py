@@ -1,0 +1,3 @@
+from hmm_initialize import thisMesoComp
+thisMesoComp.printDictOfHomogenized_GQ_GP_JouleLosses()
+#thisMesoComp.printDictOfHomogenized_ML_GP_TgTMatrix()

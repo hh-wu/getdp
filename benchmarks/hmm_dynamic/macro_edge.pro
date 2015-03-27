@@ -1,4 +1,4 @@
-// getdp macro_dyn.pro -msh macro.msh -sol MagDyn_a_hmm -pos Dyn_NL
+// getdpOA macro_dyn.pro -msh macro.msh -sol MagDyn_a_hmm -pos Dyn_NL
 Include "macro.dat" ;
 Include "ListOfPoints.pro";
 //=================================================================
@@ -17,18 +17,19 @@ Group {
   Domain_Inf    = Region[ {Infinity} ] ;
   Domain_NL     = Region[ {Core} ] ;
   Domain_L      = Region[ {Air, Domain_S, Domain_Inf} ] ;
-  Domain_C     = Region[ {Core} ] ;
-  Domain_CC      = Region[ {Air, Domain_S, Domain_Inf} ] ;
+  Domain_C      = Region[ {Core} ] ;
+  Domain_CC     = Region[ {Air, Domain_S, Domain_Inf} ] ;
   Domain        = Region[ {Core, Air, Domain_S, Domain_Inf} ] ;
-  Dirichlet_a_0 = Region[ {GAMMA_INF} ] ;
+  Dirichlet_a0 = Region[ {GAMMA_INF} ] ;
 }
 
 Function {
   // Parameters for the electric linear law
   //=======================================
-  //sigmaIron     = 5e6;
-  //sigma[Core]   = sigmaIron;
-
+  sigmaIron         = 5e6;
+  sigma[Core]       = sigmaIron;
+  sigma_homog[Core] = sigmaIron;
+  
   // Parameters for the magnetic linear law
   //=======================================
   mu0           = 4.e-7 * Pi;
@@ -66,7 +67,7 @@ Function {
   //Freq                = 50000;
   //Source_Amplitude    = 50e8;
   Ns[Domain_S]        = Source_Amplitude;
-  js0[]               = Ns[] * Vector[0., 0., 1.] ;
+  js0[]               = Ns[] * Vector[-Y[], X[], 0]/SquNorm[Vector[X[], Y[], 0.0]] ;
   js[]                = js0[] * F_Sin_wt_p[]{2 * Pi * Freq, 0.};
 
   // Defining temporal parameters of the problem
@@ -116,31 +117,28 @@ Integration {
 }
 
 Constraint {
-  { Name MVP  ; Type Assign ;
+
+  { Name Gauge; Type Assign;
     Case {
-      { Region Dirichlet_a_0 ; Value 0. ; }
+      { Region Domain_CC; SubRegion Dirichlet_a0; Value 0.; }
     }
   }
-}
+} 
 
 FunctionSpace {
-  { Name Hcurl_a ; Type Form1P ;
+  { Name Hcurl_a ; Type Form1 ;
     BasisFunction {
-      { Name se  ; NameOfCoef ae  ; Function BF_PerpendicularEdge ;
-        Support Domain ; Entity NodesOf[All] ; }
+      { Name se; NameOfCoef ae; Function BF_Edge; Support Domain; Entity EdgesOf[All, Not Dirichlet_a0]; }
      }
     Constraint {
-      { NameOfCoef ae ; EntityType NodesOf ; NameOfConstraint MVP ; }
+      { NameOfCoef ae; EntityType EdgesOfTreeIn; EntitySubType StartingOn; NameOfConstraint Gauge; } 
     }
   }
-  { Name Hcurl_a_dummy ; Type Form1P ;
+  { Name Hcurl_a_dummy ; Type Form1 ;
     BasisFunction {
-      { Name se ; NameOfCoef ae ; Function BF_PerpendicularEdge ;
-        Support Domain ; Entity NodesOf[ All ] ; }
+      { Name se; NameOfCoef ae; Function BF_Edge; Support Domain; Entity NodesOf[All]; }
     }
-    Constraint {
-      { NameOfCoef ae ; EntityType NodesOf ; NameOfConstraint MVP ; }
-    }
+    // Constraint { { NameOfCoef ae ; EntityType NodesOf ; NameOfConstraint MVP ; } }
   }
   { Name Hgrad_v_JL; Type Form0;
     BasisFunction { { Name sn; NameOfCoef vn; Function BF_Node; Support Domain; Entity NodesOf[All]; }
@@ -166,7 +164,7 @@ FunctionSpace {
 
 
 Formulation {
-  // ====================================================================
+
   // NONLINEAR - single value b-h curve
   // ====================================================================
 
@@ -175,8 +173,9 @@ Formulation {
       { Name a  ; Type Local  ; NameOfSpace Hcurl_a ; }
     }
     Equation {
+      Galerkin { DtDof[ sigma[] * Dof{a} , {a} ]           ; In Domain_C ; Jacobian JVol ; Integration I1 ; }
       Galerkin { [ nu[{d a}] * Dof{d a} , {d a} ]          ; In Domain   ; Jacobian JVol ; Integration I1 ; }
-      Galerkin { JacNL[ dhdb_NL[{d a}]* Dof{d a} , {d a} ] ; In Domain_NL ; Jacobian JVol ; Integration I1 ; }
+      Galerkin { JacNL[ dhdb_NL[{d a}]* Dof{d a} , {d a} ] ; In Domain_NL; Jacobian JVol ; Integration I1 ; }
       Galerkin { [ -js[] , {a} ]                           ; In Domain_S ; Jacobian JVol ; Integration I1 ; }
     }
   }
@@ -194,11 +193,10 @@ Formulation {
   { Name MagDyn_a_hmm ; Type FemEquation ;
     Quantity {
       { Name a  ; Type Local ; NameOfSpace Hcurl_a ; }
-      { Name JL_Interpolated  ; Type Local ; NameOfSpace Hgrad_v_JL; }
     }
     Equation {
-      Galerkin { [ nu[] * Dof{d a}, {d a} ] ;
-        In Domain_L ; Jacobian JVol ; Integration I1 ; }
+      Galerkin { DtDof[ sigma_homog[] * Dof{a} , {a} ]; In Domain_C; Jacobian JVol; Integration I1; }
+      Galerkin { [ nu[] * Dof{d a}, {d a} ]; In Domain_L ; Jacobian JVol ; Integration I1 ; }
       Galerkin { [ Python[ElementNum[], QuadraturePointIndex[]]{"hmm_upscale_h.py"}, {d a} ] ;
         In Domain_NL ; Jacobian JVol ; Integration I1 ; }
       Galerkin { JacNL [ Python[ElementNum[], QuadraturePointIndex[]]{"hmm_upscale_dhdb.py"} * Dof{d a} , {d a} ] ;
@@ -309,44 +307,51 @@ Resolution {
 
 
 PostProcessing {
-  
+
   // NONLINEAR
   //=================================================
   { Name MagDyn_a_NL ; NameOfFormulation MagDyn_a_NL ;
     PostQuantity {
-      { Name az ; Value { Local { [ CompZ[{a}] ]; In Domain ; Jacobian JVol; } } }
-      { Name a ; Value { Local { [ {a} ]; In Domain ; Jacobian JVol; } } } 
+      { Name a ; Value { Local { [ {a} ]; In Domain ; Jacobian JVol; } } }
       { Name b ; Value { Local { [ {d a} ]; In Domain ; Jacobian JVol; } } }
       { Name h ; Value { Local { [ nu[] * {d a} ]; In Domain_L  ; Jacobian JVol; }
                          Local { [ nu[{d a}] * {d a} ]; In Domain_NL  ; Jacobian JVol; } } }
-      { Name e; Value { Local { [  -Dt[{d a}] ]; In Domain_NL; Jacobian JVol; } } } 
+      { Name e ; Value { Local { [ -Dt[{a}] ]; In Domain_C ; Jacobian JVol; } } }
+      { Name j ; Value { Local { [ -sigma[] * ( Dt[{a}] ) ]; In Domain_C ; Jacobian JVol; } } }
       { Name js; Value { Local { [ js[] ]; In Domain_S ; Jacobian JVol; } } }
+      { Name sigma; Value { Local { [ sigma[] ]; In Domain_C ; Jacobian JVol; } } }
+      { Name JouleLosses_Local ; Value { Local { [ sigma[] * SquNorm[Dt[{a}] ] ]; In Domain_C ; Jacobian JVol ; } } }
+      { Name JouleLosses_Global; Value { Integral { [ sigma[] * SquNorm[Dt[{a}] ] ]; In Domain_C ; Jacobian JVol ; Integration I1 ; } } }
       { Name MagneticEnergy_Local; Value {
           Local { [ nu[] * {d a} * Dt[{d a}] ]; In Domain_L; Jacobian JVol; }
           Local { [ nu[{d a}] * {d a} * Dt[{d a}] ]; In Domain_NL; Jacobian JVol; } } }
       { Name MagneticEnergy_Global; Value {
           Integral { [ nu[] * {d a} * Dt[{d a}] ]; In Domain_L ; Jacobian JVol ; Integration I1 ; }
-          Integral { [ nu[{d a}] * {d a} * Dt[{d a}] ]; In Domain_NL ; Jacobian JVol ; Integration I1 ; } } }
+          Integral { [ nu[{d a}] * {d a} * Dt[{d a}] ]; In Domain_NL ; Jacobian JVol ; Integration I1 ; } } }        
     }
   }
   { Name MagDyn_a_hmm ; NameOfFormulation MagDyn_a_hmm ;
     Quantity {
-      { Name az; Value { Local { [ CompZ[{a}] ]; In Domain; Jacobian JVol; } } }
       { Name a; Value { Local { [ {a} ]; In Domain; Jacobian JVol; } } }
       { Name b; Value { Local { [ {d a} ]; In Domain; Jacobian JVol; } } }
       { Name dt_b; Value { Local { [ Dt[{d a}] ]; In Domain; Jacobian JVol; } } }
       { Name h; Value { Local { [ nu[] * {d a} ]; In Domain_L; Jacobian JVol; }
-                        Local { [ h[] ]; In Domain_NL; Jacobian JVol; } } }
-      { Name e; Value { Local { [  -Dt[{d a}] ]; In Domain_NL; Jacobian JVol; } } }
+                           Local { [ h [] ]; In Domain_NL; Jacobian JVol; } } }
+      { Name e; Value { Local { [ -Dt[{a}] ]; In Domain_C; Jacobian JVol ; } } }
+      { Name j; Value { Local { [ -sigma_homog[] * ( Dt[ {a} ] ) ]; In Domain_C ; Jacobian JVol; } } }
       { Name js; Value { Local { [ js[] ]; In Domain_S ; Jacobian JVol; } } }
+      { Name sigma_homog; Value { Local { [ sigma_homog[] ]; In Domain_NL ; Jacobian JVol; } } }
+      { Name JouleLosses_Macro_Local; Value { Local { [ sigma_homog[] * SquNorm[Dt[ {a} ] ] ]; In Domain_C ; Jacobian JVol ; } } }
+      { Name JouleLosses_Macro_Global; Value { Integral { [ sigma_homog[] * SquNorm[Dt[{a}] ] ]; In Domain_C ; Jacobian JVol ; Integration I1 ; } } }
       { Name MagneticEnergy_Macro_Local; Value {
           Local { [ nu[] * {d a} * Dt[{d a}] ]; In Domain_L ; Jacobian JVol; }
-          Local { [ h[] * Dt[{d a}] ]; In Domain_NL; Jacobian JVol; } } }
+          Local { [ nu[{d a}] * {d a} * Dt[{d a}] ]; In Domain_NL; Jacobian JVol; } } }
       { Name MagneticEnergy_Macro_Global; Value {
           Integral { [ nu[] * {d a} * Dt[{d a}] ]; In Domain_L ; Jacobian JVol; Integration I1; }
-          Integral { [ h[] * Dt[{d a}] ]; In Domain_NL; Jacobian JVol; Integration I1; } } }
+          Integral { [ nu[{d a}] * {d a} * Dt[{d a}] ]; In Domain_NL; Jacobian JVol; Integration I1; } } } 
     }
-  } 
+  }
+  
   { Name MagDyn_a_hmm_GQ_upscaled ; NameOfFormulation MagDyn_a_hmm;
     Quantity {
       { Name MagneticEnergy_upscaled; Value {
@@ -355,8 +360,7 @@ PostProcessing {
       { Name JouleLosses_upscaled; Value {
           Integral { [ Python[ElementNum[], QuadraturePointIndex[] ]{"hmm_upscale_joulelosses.py"} ]; In Domain_NL; Jacobian JVol; Integration I1; } } }
     }
-  }  
-
+  }
   /*
   { Name MagDyn_a_hmm_GQ_upscaled ; NameOfFormulation MagDyn_a_hmm_GQ ;
     Quantity {
@@ -383,22 +387,31 @@ PostOperation {
       Print[ a,  OnElementsOf Domain,  File StrCat[Dir_Macro,StrCat["a",ExtGmsh] ] ];
       Print[ b,  OnElementsOf Domain,  File StrCat[Dir_Macro,StrCat["b" ,ExtGmsh] ] ];
       Print[ h,  OnElementsOf Domain , File StrCat[Dir_Macro,StrCat["h" ,ExtGmsh] ] ];
+      Print[ e,  OnElementsOf Domain_C, File StrCat[Dir_Macro,StrCat["e" ,ExtGmsh] ] ];
+      Print[ j,  OnElementsOf Domain_C, File StrCat[Dir_Macro,StrCat["j" ,ExtGmsh] ] ];
       Print[ js, OnElementsOf Domain_S, File StrCat[Dir_Macro,StrCat["js" ,ExtGmsh] ] ];
+      Print[ sigma, OnElementsOf Domain_C, File StrCat[Dir_Macro,StrCat["sigma" ,ExtGmsh] ] ];
+      Print[ JouleLosses_Local,OnElementsOf Domain_C, File StrCat[Dir_Macro,StrCat["JouleLosses_Local",ExtGmsh] ] ];
+      Print[ JouleLosses_Global[Domain_C],OnGlobal, Format TimeTable, File StrCat[Dir_Macro,Sprintf("JouleLosses_Global_nl%g_f%g.dat", Flag_NL, Freq) ] ];
       Print[ MagneticEnergy_Local,OnElementsOf Domain, File StrCat[Dir_Macro,StrCat["MagneticEnergy_Local",ExtGmsh] ] ];
       Print[ MagneticEnergy_Global[Domain], OnGlobal, Format TimeTable, File StrCat[Dir_Macro, Sprintf("MagneticEnergy_Global_nl%g_f%g.dat", Flag_NL, Freq) ] ] ;
     }
   }
   { Name MagDyn_a_hmm_LocalFields ; NameOfPostProcessing MagDyn_a_hmm;
     Operation {
-      Print[ a,  OnElementsOf Domain,  File StrCat[Dir_Macro,StrCat["a_hmm",ExtGmsh] ] ];
-      Print[ b,  OnElementsOf Domain,  File StrCat[Dir_Macro,StrCat["b_hmm" ,ExtGmsh] ] ];
-      Print[ h,  OnElementsOf Domain , File StrCat[Dir_Macro,StrCat["h_hmm" ,ExtGmsh] ] ];
+      Print[ a,  OnElementsOf Domain, File StrCat[Dir_Macro,StrCat["a_hmm",ExtGmsh] ] ];
+      Print[ b,  OnElementsOf Domain, File StrCat[Dir_Macro,StrCat["b_hmm" ,ExtGmsh] ] ];
+      Print[ h,  OnElementsOf Domain, File StrCat[Dir_Macro,StrCat["h_hmm" ,ExtGmsh] ] ];
+      Print[ e,  OnElementsOf Domain_C, File StrCat[Dir_Macro,StrCat["e_hmm" ,ExtGmsh] ] ];
+      Print[ j,  OnElementsOf Domain_C, File StrCat[Dir_Macro,StrCat["j_hmm" ,ExtGmsh] ] ];
       Print[ js, OnElementsOf Domain_S, File StrCat[Dir_Macro,StrCat["js_hmm" ,ExtGmsh] ] ];
+      Print[ sigma_homog, OnElementsOf Domain, File StrCat[Dir_Macro,StrCat["sigma_homog" ,ExtGmsh] ] ];
+      Print[ JouleLosses_Macro_Local,OnElementsOf Domain_C, File StrCat[Dir_Macro,StrCat["JouleLosses_Macro_Local",ExtGmsh] ] ];
+      Print[ JouleLosses_Macro_Global[Domain_C], OnGlobal, Format TimeTable, File StrCat[Dir_Macro,Sprintf("JouleLosses_Macro_Global_nl%g_f%g.dat", Flag_NL, Freq) ] ];
       Print[ MagneticEnergy_Macro_Local,OnElementsOf Domain, File StrCat[Dir_Macro,StrCat["MagneticEnergy_Macro_Local",ExtGmsh] ] ];
       Print[ MagneticEnergy_Macro_Global[Domain], OnGlobal, Format TimeTable, File StrCat[Dir_Macro, Sprintf("MagneticEnergy_Macro_Global_nl%g_f%g.dat", Flag_NL, Freq) ] ] ;
     }
   }
-
   /*
   { Name MagDyn_a_hmm_GQ_upscaled ; NameOfPostProcessing MagDyn_a_hmm_GQ_upscaled ;
     Operation {
@@ -414,24 +427,23 @@ PostOperation {
       Print[ TED_Homog_upscaled[Domain_NL], OnGlobal, Format TimeTable, File StrCat[Dir_Macro, Sprintf("TED_Homog%g_f%g.dat", Flag_NL, Freq) ] ] ;
     }
   } 
-  */
-
+  */  
   { Name MagDyn_a_hmm_GQ ; NameOfPostProcessing MagDyn_a_hmm_GQ_upscaled ;
     Operation {
       Print[ MagneticEnergy_upscaled[Domain], OnGlobal, Format TimeTable, File StrCat[Dir_Macro, Sprintf("MagneticEnergy_upscaled_nl%g_f%g.dat", Flag_NL, Freq) ] ] ;
       Print[ JouleLosses_upscaled[Domain_C], OnGlobal, Format TimeTable, File StrCat[Dir_Macro, Sprintf("JouleLosses_upscaled_nl%g_f%g.dat", Flag_NL, Freq) ] ] ;
     }
   }
-  
+
   { Name MagDyn_a_hmm_LocalCuts; NameOfPostProcessing MagDyn_a_hmm;
     Operation {
       For iTS In {1:nTS}
       TS = listOfTS~{iTS};
 
-      Print[ az, OnLine{ {25e-6 , 0., 0.}{25e-6 , 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Macro, StrCat[Sprintf["az_hmm_macro_cut1_TS%g", TS], ExtData ] ], TimeStep{TS} ];
-      Print[ az, OnLine{ {175e-6, 0., 0.}{175e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Macro, StrCat[Sprintf["az_hmm_macro_cut2_TS%g", TS], ExtData ] ], TimeStep{TS} ];
-      Print[ az, OnLine{ {325e-6, 0., 0.}{325e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Macro, StrCat[Sprintf["az_hmm_macro_cut3_TS%g", TS], ExtData ] ], TimeStep{TS} ];
-      Print[ az, OnLine{ {475e-6, 0., 0.}{475e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Macro, StrCat[Sprintf["az_hmm_macro_cut4_TS%g", TS], ExtData ] ], TimeStep{TS} ];
+      Print[ a, OnLine{ {25e-6 , 0., 0.}{25e-6 , 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Macro, StrCat[Sprintf["a_hmm_macro_cut1_TS%g", TS], ExtData ] ], TimeStep{TS} ];
+      Print[ a, OnLine{ {175e-6, 0., 0.}{175e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Macro, StrCat[Sprintf["a_hmm_macro_cut2_TS%g", TS], ExtData ] ], TimeStep{TS} ];
+      Print[ a, OnLine{ {325e-6, 0., 0.}{325e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Macro, StrCat[Sprintf["a_hmm_macro_cut3_TS%g", TS], ExtData ] ], TimeStep{TS} ];
+      Print[ a, OnLine{ {475e-6, 0., 0.}{475e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Macro, StrCat[Sprintf["a_hmm_macro_cut4_TS%g", TS], ExtData ] ], TimeStep{TS} ];
 
       Print[ b, OnLine{ {25e-6 , 0., 0.}{25e-6 , 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Macro, StrCat[Sprintf["b_hmm_macro_cut1_TS%g", TS], ExtData ] ], TimeStep{TS} ];
       Print[ b, OnLine{ {175e-6, 0., 0.}{175e-6, 500e-6, 0.} } {200}, Format Table, File StrCat[Dir_Macro, StrCat[Sprintf["b_hmm_macro_cut2_TS%g", TS], ExtData ] ], TimeStep{TS} ];
@@ -463,3 +475,4 @@ PostOperation {
     }
   }
 }
+
