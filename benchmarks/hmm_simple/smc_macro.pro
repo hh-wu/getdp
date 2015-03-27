@@ -32,7 +32,8 @@ Function {
     nu[ Core ]        = aa + bb * Exp[cc*SquNorm[$1]] ;
     dnudb2[ Core ]    = bb *cc* Exp[cc*SquNorm[$1]] ;
     h[ Core ]         = nu[$1#1] * #1 ;
-    dhdb[ Core ]      = TensorDiag[1., 1., 1.] * nu[$1#1] + 2 * dnudb2[#1] * SquDyadicProduct[#1]  ;
+    dhdb[ Core ]      = TensorDiag[1., 1., 1.] * nu[$1#1] +
+    2 * dnudb2[#1] * SquDyadicProduct[#1]  ;
     dhdb_NL[ Core ]   = 2 * dnudb2[$1#1] * SquDyadicProduct[#1]  ;
   EndIf
 
@@ -43,7 +44,6 @@ Function {
   stop_criterion    = 1e-6;
   T                 = 1./Freq;
   Omega             = 2 * Pi * Freq;
-  NbT               = 1./20.;
   time0             = 0. ;
   timemax           = T * NbT ;
   dtime             = T/NbSteps ;

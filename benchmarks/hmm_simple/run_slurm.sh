@@ -31,5 +31,5 @@ ${HOME}/src/getdp/bin_seq/getdp \$*
 EOF
 chmod 755 ${DIR}/getdp.sh
 
-mpirun -np 1 $GMSH ${DIR}/macro.geo -3
-mpirun -np 1 $GETDP ${DIR}/macro.pro -solve MagSta_a_hmm
+mpirun -np 1 $GMSH ${DIR}/smc_macro.geo -3
+mpirun -np 1 $GETDP ${DIR}/smc_macro.pro -solve MagStaDyn_a_hmm

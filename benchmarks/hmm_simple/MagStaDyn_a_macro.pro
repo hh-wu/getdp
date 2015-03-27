@@ -66,8 +66,8 @@ Formulation {
             CompX[{a}], CompY[{a}], CompZ[{a}],
             CompX[{d a}], CompY[{d a}], CompZ[{d a}],
             CompX[Dt[{a}]], CompY[Dt[{a}]], CompZ[Dt[{a}]],
-            CompX[Dt[{d a}] ], CompY[Dt[{d a}] ], CompZ[Dt[{d a}]] ]{"hmm_downscale.py"} *
-          Dof{d a_dummy} , {d a_dummy} ] ;
+            CompX[Dt[{d a}] ], CompY[Dt[{d a}] ], CompZ[Dt[{d a}]] ]
+          {"hmm_downscale.py"} * Dof{d a_dummy} , {d a_dummy} ] ;
         In Domain_NL ; Jacobian JVol ; Integration I1 ; }
     }
   }
@@ -79,10 +79,11 @@ Formulation {
     Equation {
       Galerkin { [ nu[] * Dof{d a}, {d a} ] ;
         In Domain_L ; Jacobian JVol ; Integration I1 ; }
-      Galerkin { [ Python[ElementNum[], QuadraturePointIndex[], 0]{"hmm_upscale.py"}, {d a} ] ;
+      Galerkin { [ Python[ElementNum[], QuadraturePointIndex[], 0]
+          {"hmm_upscale.py"}, {d a} ] ;
         In Domain_NL ; Jacobian JVol ; Integration I1 ; }
-      Galerkin { JacNL [ Python[ElementNum[], QuadraturePointIndex[], 1]{"hmm_upscale.py"} *
-                          Dof{d a} , {d a} ] ;
+      Galerkin { JacNL [ Python[ElementNum[], QuadraturePointIndex[], 1]
+          {"hmm_upscale.py"} * Dof{d a} , {d a} ] ;
         In Domain_NL ; Jacobian JVol ; Integration I1 ; }
       Galerkin { [ -js[] , {a} ] ;
         In Domain_S ; Jacobian JVol ; Integration I1 ; }
@@ -123,11 +124,12 @@ Resolution {
         }
       EndIf
 
-      // recompute some meso cells around points of interest
-      Evaluate[ Python[]{"hmm_initialize.py"} ];
-      PostOperation[ cuts ];
-      Evaluate[ Python[]{"hmm_compute_meso.py"} ];
-
+      If(Flag_PostCuts)
+        // recompute some meso cells around points of interest
+        Evaluate[ Python[]{"hmm_initialize.py"} ];
+        PostOperation[ cuts ];
+        Evaluate[ Python[]{"hmm_compute_meso.py"} ];
+      EndIf
     }
   }
 
@@ -138,21 +140,24 @@ ncuts = n_smc ;
 PostProcessing {
   { Name MagStaDyn_a_hmm ; NameOfFormulation MagSta_a_hmm ;
     Quantity {
-      { Name az ; Value { Local { [ CompZ[{a}] ]        ; In Domain   ; Jacobian JVol ; } } }
-      { Name a  ; Value { Local { [ {a} ]               ; In Domain   ; Jacobian JVol ; } } }
-      { Name b  ; Value { Local { [ {d a} ]             ; In Domain   ; Jacobian JVol ; } } }
-      { Name h  ; Value { Local { [ nu[] * {d a} ]      ; In Domain_L ; Jacobian JVol ; }
-                          Local { [ h[ {d a}] ]         ; In Domain_NL; Jacobian JVol ; } } }
-      { Name dt_b; Value { Local { [ Dt[{d a}] ]        ; In Domain; Jacobian JVol; } } }
+      { Name az ; Value { Local { [ CompZ[{a}] ]       ; In Domain   ; Jacobian JVol ; } } }
+      { Name a  ; Value { Local { [ {a} ]              ; In Domain   ; Jacobian JVol ; } } }
+      { Name b  ; Value { Local { [ {d a} ]            ; In Domain   ; Jacobian JVol ; } } }
+      { Name h  ; Value { Local { [ nu[] * {d a} ]     ; In Domain_L ; Jacobian JVol ; }
+                          Local { [ h[ {d a}] ]        ; In Domain_NL; Jacobian JVol ; } } }
+      { Name dt_b; Value { Local { [ Dt[{d a}] ]       ; In Domain; Jacobian JVol; } } }
       { Name e;    Value { Local { [ -Dt[{d a}] ]      ; In Domain_NL; Jacobian JVol; } } }
       { Name js; Value { Local { [ js[] ]; In Domain_S ; Jacobian JVol; } } }
 
       { Name MagneticEnergy_Macro_Local; Value {
           Local { [ nu[] * {d a} * Dt[{d a}] ]; In Domain_L ; Jacobian JVol; }
-          Local { [ h[{d a}] * Dt[{d a}] ]; In Domain_NL; Jacobian JVol; } } } // makes no sense
+          // does not make sense unless we have an approximate homogenized h[]
+          Local { [ h[{d a}] * Dt[{d a}] ]; In Domain_NL; Jacobian JVol; } } }
       { Name MagneticEnergy_Macro; Value {
-          Integral { [ nu[] * {d a} * Dt[{d a}] ]; In Domain_L ; Jacobian JVol; Integration I1; }
-          Integral { [ h[{d a}] * Dt[{d a}] ]; In Domain_NL; Jacobian JVol; Integration I1; } } } // makes no sense
+          Integral { [ nu[] * {d a} * Dt[{d a}] ];
+            In Domain_L ; Jacobian JVol; Integration I1; }
+          Integral { [ h[{d a}] * Dt[{d a}] ];
+            In Domain_NL; Jacobian JVol; Integration I1; } } } // makes no sense
 
       { Name MagneticEnergy_Upscaled_Local; Value {
           If(!Flag_Dynamic)
@@ -161,15 +166,19 @@ PostProcessing {
           If(Flag_Dynamic)
             Local { [ nu[] * {d a} * Dt[{d a}]  ]; In Domain_L ; Jacobian JVol; }
           EndIf
-          Local { [ Python[ElementNum[], QuadraturePointIndex[], 2]{"hmm_upscale.py"} ]; In Domain_NL; Jacobian JVol; } } }
+          Local { [ Python[ElementNum[], QuadraturePointIndex[], 2]{"hmm_upscale.py"} ];
+            In Domain_NL; Jacobian JVol; } } }
       { Name MagneticEnergy_Upscaled; Value {
           If(!Flag_Dynamic)
-            Integral { [ nu[] * SquNorm[{d a}] ]; In Domain_L ; Jacobian JVol; Integration I1; }
+            Integral { [ nu[] * SquNorm[{d a}] ];
+              In Domain_L ; Jacobian JVol; Integration I1; }
           EndIf
           If(Flag_Dynamic)
-            Integral { [ nu[] * {d a} * Dt[{d a}] ]; In Domain_L ; Jacobian JVol; Integration I1; }
+            Integral { [ nu[] * {d a} * Dt[{d a}] ];
+              In Domain_L ; Jacobian JVol; Integration I1; }
           EndIf
-          Integral { [ Python[ElementNum[], QuadraturePointIndex[], 2]{"hmm_upscale.py"} ]; In Domain_NL; Jacobian JVol; Integration I1; } } }
+          Integral { [ Python[ElementNum[], QuadraturePointIndex[], 2]{"hmm_upscale.py"} ];
+            In Domain_NL; Jacobian JVol; Integration I1; } } }
 
       For j In {1:ncuts}
         { Name data~{j} ; Value {
@@ -177,7 +186,9 @@ PostProcessing {
                   CompX[{a}], CompY[{a}], CompZ[{a}],
                   CompX[{d a}], CompY[{d a}], CompZ[{d a}],
                   CompX[Dt[{a}]], CompY[Dt[{a}]], CompZ[Dt[{a}]],
-                  CompX[Dt[{d a}] ], CompY[Dt[{d a}] ], CompZ[Dt[{d a}]] ]{"hmm_downscale.py"}   ] ; In Domain   ; Jacobian JVol ; } } }
+                  CompX[Dt[{d a}] ], CompY[Dt[{d a}] ], CompZ[Dt[{d a}]] ]
+                {"hmm_downscale.py"} ] ;
+              In Domain   ; Jacobian JVol ; } } }
       EndFor
     }
   }
@@ -186,15 +197,16 @@ PostProcessing {
 PostOperation {
   { Name maps ; NameOfPostProcessing MagStaDyn_a_hmm;
     Operation {
-      Print[ az, OnElementsOf Domain, File StrCat[Dir_Macro,"az_hmm",ExtGmsh] ];
-      Print[ b,  OnElementsOf Domain, File StrCat[Dir_Macro,"b_hmm",ExtGmsh] ];
-      Print[ h,  OnElementsOf Domain, File StrCat[Dir_Macro,"h_hmm",ExtGmsh] ];
+      Print[ az, OnElementsOf Domain, File StrCat[Dir_Macro,"az_hmm.pos"] ];
+      Print[ b,  OnElementsOf Domain, File StrCat[Dir_Macro,"b_hmm.pos"] ];
+      Print[ h,  OnElementsOf Domain, File StrCat[Dir_Macro,"h_hmm.pos"] ];
     }
   }
   { Name cuts ; NameOfPostProcessing MagStaDyn_a_hmm;
     Operation {
       For j In {1:ncuts}
-        Print[ data~{j}, OnPoint {e-0.5*e, j*e-e/2, 0.}, File "dummy.pos" ];
+        Print[ data~{j}, OnPoint {e-0.5*e, j*e-e/2, 0.},
+          File StrCat[Dir_Macro,"dummy.pos"] ];
       EndFor
     }
   }

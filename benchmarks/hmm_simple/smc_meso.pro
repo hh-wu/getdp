@@ -51,13 +51,11 @@ Function {
   a_tprevious[]   = (TSCURRENT == 1) ? Vector[0.,0.,0.] : Vector[ 0., 0., ScalarField[XYZ[]]{0}] ;
 
   // Parameters for the electric linear law
-  //=======================================
   sigmaIron     = 5.e6;
   sigma[Omega_NL]     = sigmaIron              ;
   sigma[Omega_L]      = 1.e-12 * sigmaIron     ;
 
   //Parameters of the Brauer nonlinear constitutive law
-  //===================================================
   nu[Omega_L]    = nu0 ;
   If(!Flag_NL)
     nu[Omega_NL]   = nu0 / 1000 ;
@@ -70,13 +68,14 @@ Function {
     nu_ML[Omega_NL] = gamma + alpha * Exp[beta*$1] ;
     dnudb2[]       = alpha * beta* Exp[beta*$1] ;
     nu[Omega_NL]   = nu_ML[SquNorm[$1]] ;
-    dhdb[Omega_NL] = nu[SquNorm[$1]] * TensorDiag[1., 1., 1.] + 2 * dnudb2[SquNorm[$1]] * SquDyadicProduct[$1] ;
+    dhdb[Omega_NL] = nu[SquNorm[$1]] * TensorDiag[1., 1., 1.] +
+    2 * dnudb2[SquNorm[$1]] * SquDyadicProduct[$1] ;
     dhdb_NL[Omega_NL] = 2 * dnudb2[SquNorm[$1]] * SquDyadicProduct[$1] ;
   EndIf
 }
 
 Constraint {
-  { Name a_Micro ;
+  { Name a_Meso ;
     Case {
       { Region GammaRight; Type Link; RegionRef GammaLeft;
         Coefficient 1.; Function Vector[$X-lx, $Y, $Z]; }
@@ -86,7 +85,7 @@ Constraint {
     }
   }
 
-  { Name a_Micro_Init ;
+  { Name a_Meso_Init ;
     Case {
       If(Flag_Dynamic)
         { Type InitFromResolution ; Region Omega ; NameOfResolution a_Init ; }
