@@ -1,4 +1,4 @@
-Include "meso.dat";
+Include "smc_data.pro";
 
 x_L = - 0.5 * eps;
 y_L = - 0.5 * eps;

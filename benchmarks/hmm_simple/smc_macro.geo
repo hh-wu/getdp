@@ -1,6 +1,7 @@
-Include "macro.dat" ;
+Include "smc_data.pro" ;
 
-Mesh.Algorithm = 1; // 2D mesh algorithm (1=MeshAdapt, 2=Automatic, 5=Delaunay, 6=Frontal, 7=bamg, 8=delquad)
+Mesh.Algorithm = 1; // 2D mesh algorithm (1=MeshAdapt, 2=Automatic, 5=Delaunay,
+                    // 6=Frontal, 7=bamg, 8=delquad)
 Geometry.CopyMeshingMethod = 1; // Copy meshing method when duplicating geometrical entities?
 
 // First lamination -- up to down
@@ -81,7 +82,7 @@ Transfinite Line{ci[]} = n_circle ;
 Transfinite Line{li[{1,3}]}  = 4 ;
 Transfinite Line{li[{4,6}]}  = Lay2 Using Progression 1.0 ;
 Transfinite Line{-li[{8}],li[{10}]} = Lay1 Using Progression 1.0 ; // Prog1
-Transfinite Surface{surfind[]}; 
+Transfinite Surface{surfind[]};
 Recombine Surface{surfind[]};
 
 laxis[] += li[9];

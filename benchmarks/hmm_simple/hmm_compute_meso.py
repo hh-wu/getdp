@@ -55,7 +55,7 @@ while len(queue):
                     args.extend(["-N", "1", "-n", "1", "-w", node])
                 else:
                     args.extend([node])
-            args.extend([file_dir + "getdp.sh", file_dir + "meso", 
+            args.extend([file_dir + "getdp.sh", file_dir + "smc_meso", 
                          "-bin", "-v", "2", "-solve", "a_NR", 
                          "-pos", "mean_1", "mean_2", "mean_3",
                          "-setnumber", "BX", str(bx_table[key]),

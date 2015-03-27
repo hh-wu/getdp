@@ -16,13 +16,12 @@ nlai      = 4 ;          //
 LX        = e * 10;       // width of the entire SMC structure
 LY        = LX;
 
-
 cellSize  = e;
 numPoints = 16;
 
-//======================
-// Dimensions without Al
-//======================
+//============
+// Dimensions
+//============
 
 w_ind    = 2 * e ;
 rla_ind  = 5 * e ; // minimum distance between lamination and inductor (radious)
@@ -48,3 +47,39 @@ DefineConstant[Lay3        = 5];    // 11  vertical divisions of one lamination
 Pro1        = 0.95; // 14 horizontal divisions of the laminations
 n_thickness = 6;
 n_circle    = 6;
+
+//==============================
+// meso dimensions
+//==============================
+
+lx          = e;   // length of the cell
+ly          = lx;       //
+lc_ext      = LX/200.0; // characteristic length for points in the insulator
+lc_int      = LX/200.0; // characteristic length for points in the conductor
+r_c         = 5.e-6;    // radius of the chamfer
+d_i         = 5.e-6;    // thickness of the insulator
+eps         = e;        // thickness of the SMC grain
+n_1         = 21;       // subdivisions along length of insulation layer
+n_2         = 3;        // subdivisions along thickness of insulation layer
+
+//==================================
+// Physical groups for macro problem
+//==================================
+
+GAMMA_INF = 10000;
+CONDUCTOR = 10001;
+AIR       = 10002;
+INDUCTOR  = 10003;
+OMEGA_INF = 10004;
+
+//=================================
+// Physical groups for meso problem
+//=================================
+
+GAMMA_POINT = 1000; // point used for fixing the value of the
+GAMMA_LEFT  = 1001; // left boundary
+GAMMA_RIGHT = 1002; // right boundary
+GAMMA_DOWN  = 1003; // lower boundary
+GAMMA_UP    = 1004; // upper boundary
+IRON        = 1005; // conductor
+INSULATION  = 1006; // insulation
