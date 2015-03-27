@@ -31,7 +31,7 @@ Function {
   eM[]            = - Vector[DTAX, DTAY, DTAZ];
   dt_bM[]         = Vector[DTBX, DTBY, DTBZ];
 
-  NbrMaxIter     = 5;
+  NbrMaxIter     = 10;
   Eps            = 1e-4;
   Relax          = 1.0;
   factor         = 1.0;

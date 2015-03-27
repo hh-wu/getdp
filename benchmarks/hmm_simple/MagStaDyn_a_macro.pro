@@ -107,14 +107,16 @@ Resolution {
       If(!Flag_Dynamic)
         IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
           Generate[Dummy];
-          Evaluate[ Python[Nbr_SubProblems, Flag_Dynamic, 0]{"hmm_compute_meso.py"} ];
+          Evaluate[ Python[Nbr_SubProblems, Flag_Dynamic, Freq, NbSteps, 0]
+            {"hmm_compute_meso.py"} ];
           GenerateJac[A]; SolveJac[A];
         }
         SaveSolution[A];
         If(Flag_PostCuts) // compute some meso cells around points of interest
           Evaluate[ Python[]{"hmm_initialize.py"} ];
           PostOperation[ cuts ];
-          Evaluate[ Python[Nbr_SubProblems, Flag_Dynamic, 1]{"hmm_compute_meso.py"} ];
+          Evaluate[ Python[Nbr_SubProblems, Flag_Dynamic, Freq, NbSteps, 1]
+            {"hmm_compute_meso.py"} ];
         EndIf
       EndIf
 
@@ -123,14 +125,16 @@ Resolution {
           Evaluate[ Python[$Time, $TimeStep]{"hmm_update_time.py"} ];
           IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
             Generate[Dummy];
-            Evaluate[ Python[Nbr_SubProblems, Flag_Dynamic, 0]{"hmm_compute_meso.py"} ];
+            Evaluate[ Python[Nbr_SubProblems, Flag_Dynamic, Freq, NbSteps, 0]
+              {"hmm_compute_meso.py"} ];
             GenerateJac[A]; SolveJac[A];
           }
           SaveSolution[A];
           If(Flag_PostCuts) // compute some meso cells around points of interest
             Evaluate[ Python[]{"hmm_initialize.py"} ];
             PostOperation[ cuts ];
-            Evaluate[ Python[Nbr_SubProblems, Flag_Dynamic, 1]{"hmm_compute_meso.py"} ];
+            Evaluate[ Python[Nbr_SubProblems, Flag_Dynamic, Freq, NbSteps, 1]
+              {"hmm_compute_meso.py"} ];
           EndIf
         }
       EndIf

@@ -6,7 +6,9 @@ import socket
 
 nbr_subproblems = input[0]
 flag_dynamic = input[1]
-postpro_cuts = input[2]
+freq = input[2]
+nb_steps = input[3]
+postpro_cuts = input[4]
 
 keys = bx_table.keys()
 nkeys = len(keys)
@@ -64,6 +66,8 @@ while len(queue):
                          "-pos", "mean_1", "mean_2", "mean_3", 
                          "map_field_1" if postpro_cuts else "",
                          "-setnumber", "Flag_Dynamic", str(flag_dynamic),
+                         "-setnumber", "Freq", str(freq),
+                         "-setnumber", "NbSteps", str(nb_steps),
                          "-setnumber", "AX", str(ax_table[key]),
                          "-setnumber", "AY", str(ay_table[key]),
                          "-setnumber", "AZ", str(az_table[key]),
