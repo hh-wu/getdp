@@ -1,12 +1,12 @@
 #!/bin/sh
 
 SRC=${HOME}/src/getdp/benchmarks
-DST=/onelab_files
+DST=/tmp/onelab_files
 MODELS='machines relay inductor indheat magnetometer antennas acoustic_scattering time_reversal shielding waveguides transfo_simple ddm_wave_simple bloch_periodic_waveguides magnets thermal_conduction'
 
 # sync files from local svn checkout
 for m in ${MODELS}; do
-  sudo rsync -avz ${SRC}/${m} ${DST} --delete --exclude .svn
+  sudo rsync -avz ${SRC}/${m} ${DST} --delete --exclude .svn --exclude *.png
 done
 
 # create zip file

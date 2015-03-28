@@ -2,7 +2,7 @@ Include "common.dat" ;
 Include "hmm_meso_geometry.dat";
 
 lx          = e;   // length of the cell
-ly          = lx;       //  
+ly          = lx;       //
 lc_ext      = LX/200.0; // characteristic length for points in the insulator
 lc_int      = LX/300.0; // characteristic length for points in the conductor
 r_c         = 5.e-6;    // radius of the chamfer
@@ -15,7 +15,7 @@ n_2         = 3;        // subdivisions along thickness of insulation layer
 // Physical groups
 //================
 
-GAMMA_POINT = 1000; // point used for fixing the value of the 
+GAMMA_POINT = 1000; // point used for fixing the value of the
 GAMMA_LEFT  = 1001; // left boundary
 GAMMA_RIGHT = 1002; // right boundary
 GAMMA_DOWN  = 1003; // lower boundary
