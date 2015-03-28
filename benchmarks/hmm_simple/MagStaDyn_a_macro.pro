@@ -100,11 +100,10 @@ Resolution {
     }
     Operation {
       CreateDirectory[Dir_Macro];
-      Evaluate[ Python[]{"hmm_initialize.py"} ];
-      Evaluate[ Python[0, 0]{"hmm_update_time.py"} ];
       InitSolution[A];
 
       If(!Flag_Dynamic)
+        Evaluate[ Python[0, 0]{"hmm_initialize.py"} ];
         IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
           Generate[Dummy];
           Evaluate[ Python[Nbr_SubProblems, Flag_Dynamic, Freq, NbSteps, 0]
@@ -113,7 +112,7 @@ Resolution {
         }
         SaveSolution[A];
         If(Flag_PostCuts) // compute some meso cells around points of interest
-          Evaluate[ Python[]{"hmm_initialize.py"} ];
+          Evaluate[ Python[0, 0]{"hmm_initialize.py"} ];
           PostOperation[ cuts ];
           Evaluate[ Python[Nbr_SubProblems, Flag_Dynamic, Freq, NbSteps, 1]
             {"hmm_compute_meso.py"} ];
@@ -122,7 +121,7 @@ Resolution {
 
       If(Flag_Dynamic)
         TimeLoopTheta[ time0, timemax, dtime, theta_value]{
-          Evaluate[ Python[$Time, $TimeStep]{"hmm_update_time.py"} ];
+          Evaluate[ Python[$Time, $TimeStep]{"hmm_initialize.py"} ];
           IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
             Generate[Dummy];
             Evaluate[ Python[Nbr_SubProblems, Flag_Dynamic, Freq, NbSteps, 0]
@@ -131,7 +130,7 @@ Resolution {
           }
           SaveSolution[A];
           If(Flag_PostCuts) // compute some meso cells around points of interest
-            Evaluate[ Python[]{"hmm_initialize.py"} ];
+            Evaluate[ Python[$Time, $TimeStep]{"hmm_initialize.py"} ];
             PostOperation[ cuts ];
             Evaluate[ Python[Nbr_SubProblems, Flag_Dynamic, Freq, NbSteps, 1]
               {"hmm_compute_meso.py"} ];
