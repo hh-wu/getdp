@@ -87,13 +87,21 @@ while len(queue):
             cpus[i] = subprocess.Popen(args)
         if len(queue) == 0:
             break
-        # little sleep so we do not use 100% CPU just for polling
-        time.sleep(0.01)
-# wait for last jobs to finish
-for i, cpu in enumerate(cpus):
-    if cpu and cpu.returncode == None:
-        cpus[i].wait()
-    
+    # little sleep so we do not use 100% CPU just for polling
+    time.sleep(0.001)
+
+# wait for last jobs to finish (simply poll() and don't use wait() synchronously
+# to avoid having zombie processes triggering the clusters' warning systems)
+done = False
+while not done:
+    done = True
+    for i, cpu in enumerate(cpus):
+        if cpu and cpu.returncode == None:
+            done = False
+            cpus[i].poll()
+    # little sleep so we do not use 100% CPU just for polling
+    time.sleep(0.001)
+
 Dir_Meso = file_dir + "res_meso/"
 for key in keys:
     h = {}
