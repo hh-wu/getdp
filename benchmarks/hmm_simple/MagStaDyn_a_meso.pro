@@ -25,7 +25,7 @@ FunctionSpace{
       }
       Constraint {
         { NameOfCoef an; EntityType NodesOf; NameOfConstraint a_Meso; }
-        { NameOfCoef an; EntityType NodesOf; NameOfConstraint a_Meso_Init~{iP}; }
+        { NameOfCoef an; EntityType NodesOf; NameOfConstraint a_Meso_Init; }
       }
     }
 
@@ -58,7 +58,7 @@ Formulation {
       }
       Equation{
         Galerkin { [ Dof{a} , {a} ]; In Omega; Jacobian Vol; Integration II; }
-        Galerkin { [ -a_tprevious~{iP}[], {a} ]; In Omega; Jacobian Vol; Integration II; }
+        Galerkin { [ -a_tprevious[], {a} ]; In Omega; Jacobian Vol; Integration II; }
       }
     }
 
@@ -108,29 +108,28 @@ Formulation {
 }
 
 Resolution {
-  For iP In {1:Nbr_SubProblems}
-    { Name a_Init~{iP}; Hidden 1;
-      System {
+  { Name a_Init; Hidden 1;
+    System {
+      For iP In {1:Nbr_SubProblems}
         { Name AH~{iP}; NameOfFormulation Init_PreviousTimeStep~{iP};
           DestinationSystem Meso~{iP}; }
-      }
-      Operation {
-        If(TSCURRENT == 1)
-          Generate[AH~{iP}]; Solve[AH~{iP}]; TransferSolution[AH~{iP}];
-        EndIf
-        If(TSCURRENT > 1)
-          GmshRead[StrCat(Dir_Meso, Sprintf("a_pert_Prob%g_TS%g_Elenum%g.pos",
-                iP, (TSCURRENT - 1), ELENUM) ) , iP];
-          Generate[AH~{iP}]; Solve[AH~{iP}]; TransferSolution[AH~{iP}];
-        EndIf
-        If(TSCURRENT > 2)
-          // this will not be used anymore, either for calculations or for post-processing
-          DeleteFile[StrCat(Dir_Meso, Sprintf("a_pert_Prob%g_TS%g_Elenum%g.pos",
-                iP, (TSCURRENT - 2), ELENUM) ) ];
-        EndIf
-      }
+      EndFor
     }
-  EndFor
+    Operation {
+      If(TSCURRENT > 1)
+        GmshRead[StrCat(Dir_Meso, Sprintf("a_pert_Prob1_TS%g_Elenum%g.pos",
+              (TSCURRENT - 1), ELENUM) ) , 0];
+      EndIf
+      For iP In {1:Nbr_SubProblems}
+        Generate[AH~{iP}]; Solve[AH~{iP}]; TransferSolution[AH~{iP}];
+      EndFor
+      If(TSCURRENT > 2)
+        // file will not be used for computations or postCuts
+        DeleteFile[StrCat(Dir_Meso, Sprintf("a_pert_Prob1_TS%g_Elenum%g.pos",
+              (TSCURRENT - 1), ELENUM) ) ];
+      EndIf
+    }
+  }
   { Name a_NR;
     System {
       For iP In {1:Nbr_SubProblems}
@@ -154,7 +153,9 @@ Resolution {
               GenerateJac[Meso~{iP}]; SolveJac[Meso~{iP}];
             }
           }
-          PostOperation[init_field~{iP}];
+          If(iP == 1)
+            PostOperation[init_field_1];
+          EndIf
         EndIf
       EndFor
     }

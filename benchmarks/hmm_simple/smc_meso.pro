@@ -45,11 +45,8 @@ Function {
   dt              = T/NbSteps;
   theta_value     = 1;
   tf              = ti + dt;
-
-  For iP In {1:Nbr_SubProblems}
-    a_tprevious~{iP}[] = (TSCURRENT == 1) ?
-      Vector[0.,0.,0.] : Vector[ 0., 0., ScalarField[XYZ[]]{iP}];
-  EndFor
+  a_tprevious[]   = (TSCURRENT == 1) ? Vector[0.,0.,0.] :
+                       Vector[ 0., 0., ScalarField[XYZ[]]{0}];
 
   // Parameters for the electric linear law
   sigmaIron = 5.e6;
@@ -86,15 +83,13 @@ Constraint {
     }
   }
 
-  For iP In {1:Nbr_SubProblems}
-    { Name a_Meso_Init~{iP};
-      Case {
-        If(Flag_Dynamic)
-          { Type InitFromResolution; Region Omega; NameOfResolution a_Init~{iP}; }
-        EndIf
-      }
+  { Name a_Meso_Init;
+    Case {
+      If(Flag_Dynamic)
+        { Type InitFromResolution; Region Omega; NameOfResolution a_Init; }
+      EndIf
     }
-  EndFor
+  }
 
  { Name Current_2D;
     Case {
