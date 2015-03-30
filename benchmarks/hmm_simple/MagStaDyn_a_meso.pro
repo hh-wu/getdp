@@ -25,7 +25,7 @@ FunctionSpace{
       }
       Constraint {
         { NameOfCoef an; EntityType NodesOf; NameOfConstraint a_Meso; }
-        { NameOfCoef an; EntityType NodesOf; NameOfConstraint a_Meso_Init; }
+        { NameOfCoef an; EntityType NodesOf; NameOfConstraint a_Meso_Init~{iP}; }
       }
     }
 
@@ -58,7 +58,7 @@ Formulation {
       }
       Equation{
         Galerkin { [ Dof{a} , {a} ]; In Omega; Jacobian Vol; Integration II; }
-        Galerkin { [ -a_tprevious[], {a} ]; In Omega; Jacobian Vol; Integration II; }
+        Galerkin { [ -a_tprevious~{iP}[], {a} ]; In Omega; Jacobian Vol; Integration II; }
       }
     }
 
@@ -108,26 +108,29 @@ Formulation {
 }
 
 Resolution {
-  { Name a_Init; Hidden 1;
-    System {
-      For iP In {1:Nbr_SubProblems}
+  For iP In {1:Nbr_SubProblems}
+    { Name a_Init~{iP}; Hidden 1;
+      System {
         { Name AH~{iP}; NameOfFormulation Init_PreviousTimeStep~{iP};
           DestinationSystem Meso~{iP}; }
-      EndFor
-    }
-    Operation {
-      For iP In {1:Nbr_SubProblems}
+      }
+      Operation {
         If(TSCURRENT == 1)
           Generate[AH~{iP}]; Solve[AH~{iP}]; TransferSolution[AH~{iP}];
         EndIf
-        If(TSCURRENT != 1)
-          GmshRead[StrCat(Dir_Meso, Sprintf("a_pert_Prob1_TS%g_Elenum%g.pos",
-                                            (TSCURRENT - 1), ELENUM) ) ];
+        If(TSCURRENT > 1)
+          GmshRead[StrCat(Dir_Meso, Sprintf("a_pert_Prob%g_TS%g_Elenum%g.pos",
+                iP, (TSCURRENT - 1), ELENUM) ) , iP];
           Generate[AH~{iP}]; Solve[AH~{iP}]; TransferSolution[AH~{iP}];
         EndIf
-      EndFor
+        If(TSCURRENT > 2)
+          // this will not be used anymore, either for calculations or for post-processing
+          DeleteFile[StrCat(Dir_Meso, Sprintf("a_pert_Prob%g_TS%g_Elenum%g.pos",
+                iP, (TSCURRENT - 2), ELENUM) ) ];
+        EndIf
+      }
     }
-  }
+  EndFor
   { Name a_NR;
     System {
       For iP In {1:Nbr_SubProblems}
@@ -151,9 +154,7 @@ Resolution {
               GenerateJac[Meso~{iP}]; SolveJac[Meso~{iP}];
             }
           }
-          If(iP == 1)
-            PostOperation[init_field_1];
-          EndIf
+          PostOperation[init_field~{iP}];
         EndIf
       EndFor
     }
