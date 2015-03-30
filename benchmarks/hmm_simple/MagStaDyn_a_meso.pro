@@ -126,7 +126,7 @@ Resolution {
       If(TSCURRENT > 2)
         // file will not be used for computations or postCuts
         DeleteFile[StrCat(Dir_Meso, Sprintf("a_pert_Prob1_TS%g_Elenum%g.pos",
-              (TSCURRENT - 1), ELENUM) ) ];
+              (TSCURRENT - 2), ELENUM) ) ];
       EndIf
     }
   }
