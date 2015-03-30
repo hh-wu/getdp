@@ -111,7 +111,7 @@ surfPml=news; Plane Surface(surfPml) = {surfPmlLL};
 
 Physical Surface(AIR) = surfAir;
 Physical Surface(PML) = surfPml;
-Physical Line(SURFAIRINF) = lpml[{0:2}];
+Physical Line(SURFAIRINF) = lpml[{1:3}];
 
 Physical Surface(DIPOLE) = {surfdipole[{0,1}]};
 
