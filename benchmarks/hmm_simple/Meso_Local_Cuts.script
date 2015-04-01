@@ -1,0 +1,80 @@
+// Used for making local cuts on mesoscale fields (16 mesoproblems ranging from 699994 to 999997)
+
+N                 = 200;
+num_samples       = 100;
+which_view_list[] = {2, 4, 5};
+which_TS_list[]   = {1, 2};
+which_meso_list[] = {1, 4, 7, 10};
+e                 = 50e-6;
+Freq              = 10000;
+
+locationFile_input  = "res_meso/";
+locationFile_output = "res_cuts/";
+viewString   = "";
+
+For k In {0:#which_view_list[]-1}
+
+// 1 for "a", 2 for "b", 3 for "e", 4 for "h", 5 for "j".
+//=======================================================
+which_view = which_view_list[k]; 
+
+If(which_view == 1)
+viewString   = "a";
+EndIf
+If(which_view == 2)
+viewString   = "b";
+EndIf
+If(which_view == 3)
+viewString   = "e";
+EndIf
+If(which_view == 4)
+viewString   = "h";
+EndIf
+If(which_view == 5)
+viewString   = "j";
+EndIf
+
+For j In {0:#which_TS_list[]-1}
+which_TS = which_TS_list[j];
+
+For i In {0:#which_meso_list[]-1}
+which_meso = which_meso_list[i];
+
+Merge StrCat(locationFile_input, StrCat(viewString, Sprintf("_Prob1_Elenum%g.pos", which_meso) ) );
+
+View[PostProcessing.NbViews-1].Visible = 0;
+
+Plugin(MathEval).Expression0    = 'v0';
+Plugin(MathEval).Expression1    = 'v1';
+Plugin(MathEval).Expression2    = 'v2';
+Plugin(MathEval).TimeStep       = which_TS;
+Plugin(MathEval).View           = PostProcessing.NbViews-1;
+Plugin(MathEval).PhysicalRegion = -1;
+Plugin(MathEval).Run;
+
+View[PostProcessing.NbViews-1].Visible = 0; 
+
+Plugin(CutGrid).X0            = 0.0;
+Plugin(CutGrid).Y0            = -0.5 * e;
+Plugin(CutGrid).Z0            = 0;
+Plugin(CutGrid).X1            = 0.0;
+Plugin(CutGrid).Y1            = 0.5 * e;
+Plugin(CutGrid).Z1            = 0.00;
+Plugin(CutGrid).X2            = 0.00;
+Plugin(CutGrid).Y2            = 0.00;
+Plugin(CutGrid).Z2            = 0.00;
+Plugin(CutGrid).NumPointsU    = num_samples;
+Plugin(CutGrid).NumPointsV    = 1;
+Plugin(CutGrid).ConnectPoints = 1;
+Plugin(CutGrid).View          = PostProcessing.NbViews-1;
+Plugin(CutGrid).Run;
+
+View[PostProcessing.NbViews-1].Visible = 0;
+
+Save View[PostProcessing.NbViews-1] StrCat(locationFile_output, StrCat(viewString, Sprintf("_Prob1_Elenum%g_TS%g.txt", which_meso, which_TS) ) );
+
+EndFor
+
+EndFor
+
+EndFor

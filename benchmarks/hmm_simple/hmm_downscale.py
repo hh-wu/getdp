@@ -15,4 +15,3 @@ dtaz_table[key] = input[10]
 dtbx_table[key] = input[11]
 dtby_table[key] = input[12]
 dtbz_table[key] = input[13]
-

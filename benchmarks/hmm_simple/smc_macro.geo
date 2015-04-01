@@ -21,16 +21,16 @@ Line Loop(newll) = {ll0[]};
 surfIron[] +=news; Plane Surface(news) = {newll-1};
 laxis_iron[] += ll0[2] ;
 
-Transfinite Line{-ll0[1],ll0[3]} = Lay1 Using Progression Pro1 ; // 10
-Transfinite Line{-ll0[{0}], ll0[{2}]} = (Lay3) Using Progression 1.0;
+Transfinite Line{-ll0[1], ll0[3]} = Lay_X Using Progression Pro_X ; // 10
+Transfinite Line{-ll0[0], ll0[2]} = Lay_Y Using Progression Pro_Y;
 Transfinite Surface{surfIron[]} ;
 Recombine Surface{surfIron[]} ;
 
 // Inductor
 //=====================================
-phi = Atan2[ylam, xlam] ;
-dla_ind_x = rla_ind * Cos[phi] ;
-dla_ind_y = rla_ind * Sin[phi] ;
+//phi = Atan2[ylam, xlam] ;
+dla_ind_x = rla_ind;// * Cos[phi] ;
+dla_ind_y = rla_ind;// * Sin[phi] ;
 
 xind1 = xlam + dla_ind_x;
 xind2 = xlam + dla_ind_x + w_ind;
@@ -78,10 +78,10 @@ Line Loop(newll) = {ci[0],li[7],-ci[1],li[5]};
 surfind[] += news ; Plane Surface(news) = {newll-1};
 
 Transfinite Line{li[{0,2,5,7,9}]} = n_thickness ;
-Transfinite Line{ci[]} = n_circle ;
-Transfinite Line{li[{1,3}]}  = 4 ;
-Transfinite Line{li[{4,6}]}  = Lay2 Using Progression 1.0 ;
-Transfinite Line{-li[{8}],li[{10}]} = Lay1 Using Progression 1.0 ; // Prog1
+Transfinite Line{ci[]}            = n_circle ;
+Transfinite Line{li[{1,3}]}       = Lay3 Using Progression Pro3;
+Transfinite Line{li[{4,6}]}       = Lay2 Using Progression Pro2;
+Transfinite Line{-li[8],li[10]}   = Lay1 Using Progression Pro1; // Prog1
 Transfinite Surface{surfind[]};
 Recombine Surface{surfind[]};
 

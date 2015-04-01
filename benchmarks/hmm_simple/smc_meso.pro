@@ -28,7 +28,7 @@ Function {
 
   aM[]            = Vector[AX, AY, AZ];
   bM[]            = Vector[BX, BY, BZ];
-  eM[]            = - Vector[DTAX, DTAY, DTAZ];
+  eM[]            = - 0 * Vector[DTAX, DTAY, DTAZ];
   dt_bM[]         = Vector[DTBX, DTBY, DTBZ];
 
   NbrMaxIter     = 10;

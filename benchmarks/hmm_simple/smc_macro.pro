@@ -37,8 +37,8 @@ Function {
     dhdb_NL[ Core ]   = 2 * dnudb2[$1#1] * SquDyadicProduct[#1];
   EndIf
 
-  js0[]               = Vector[0., 0., 100e7];
-  js[]                = js0[] * F_Sin_wt_p[]{2 * Pi * Freq, Flag_Dynamic ? 0 : Pi/2};
+  js0[]             = Vector[0., 0., source_amplitude];
+  js[]              = js0[] * F_Sin_wt_p[]{2 * Pi * Freq, Flag_Dynamic ? 0 : Pi/2};
   Nb_max_iter       = 10;
   relaxation_factor = 1.;
   stop_criterion    = 1e-6;

@@ -9,6 +9,8 @@ elif field == 1:
                dhdbyx_table[key], dhdbyy_table[key], 0.,
                0.,                0.,                0.]
 elif field == 2:
-    output = MagneticEnergy[key]
+    #output = [MagneticEnergy_table[key]];
+    output = [0., 0., MagneticEnergy_table[key]];
 elif field == 3:
-    output = JouleLosses[key]
+    #output = [JouleLosses_table[key]];
+    output = [0., 0., JouleLosses_table[key]];

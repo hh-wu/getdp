@@ -135,8 +135,8 @@ for key in keys:
         dhdbzy_table[key] = (h[4][2] - h[1][2]) / (b[4][3] - b[1][3])
         dhdbzz_table[key] = (h[4][3] - h[1][3]) / (b[4][3] - b[1][3])
 
-    JouleLosses_table[key] = jl
-    MagneticEnergy_table[key] = me
+    JouleLosses_table[key] = jl[1]
+    MagneticEnergy_table[key] = me[1]
 
     for i in range(nbr_subproblems):
         os.remove(Dir_Meso + "h" + str(i + 1) + "_" + str(key[0]) + ".txt")
