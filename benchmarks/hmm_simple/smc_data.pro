@@ -15,9 +15,16 @@ DefineConstant[
 ];
 source_amplitude = 700.e7;
 
-Dir_Macro = "res_macro/";
-Dir_Meso  = "res_meso/";
-Dir_Ref   = "res_ref/";
+Flag_Local = 0;
+If(Flag_Local)
+results_dir = "";
+EndIf
+If(!Flag_Local)
+results_dir = "../../../../project/";
+EndIf
+Dir_Macro = StrCat(results_dir, "res_macro/");
+Dir_Meso  = StrCat(results_dir, "res_meso/");
+Dir_Ref   = StrCat(results_dir, "res_ref/");
 
 // Infos for PostProcessing
 ExtGmsh      = Str[ Sprintf("_nl%g.pos", Flag_NL) ];
