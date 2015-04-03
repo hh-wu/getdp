@@ -16,8 +16,8 @@
 #PBS -M cgeuzaine@ulg.ac.be
 #PBS -N GetDP_HMM
 
-OPT="-setnumber Lay1 129
-     -setnumber Lay3 129"
+OPT="-setnumber Lay_X 129
+     -setnumber Lay_Y 129"
 
 GMSH="$HOME/src/gmsh/bin/gmsh $OPT -v 4 -bin";
 GETDP="$HOME/src/getdp/bin/getdp $OPT -v 4 -bin";

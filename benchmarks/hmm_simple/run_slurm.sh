@@ -10,8 +10,8 @@
 #SBATCH --mail-user=cgeuzaine@ulg.ac.be
 #SBATCH --mail-type=ALL
 
-OPT="-setnumber Lay1 33
-     -setnumber Lay3 33
+OPT="-setnumber Lay_X 33
+     -setnumber Lay_Y 33
      -setnumber Flag_Dynamic 1
      -setnumber NbT 1
      -setnumber Flag_PostCuts 1"
