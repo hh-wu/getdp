@@ -94,13 +94,14 @@ static void Info(int level, char *arg0)
     fprintf(stderr, "Build host       : %s\n", GETDP_HOST);
     fprintf(stderr, "Build options    :%s\n", GETDP_CONFIG_OPTIONS);
 #if defined(HAVE_PETSC)
-    fprintf(stderr, "PETSc version    : %d.%d.%d\n", PETSC_VERSION_MAJOR,
-            PETSC_VERSION_MINOR, PETSC_VERSION_SUBMINOR);
+    fprintf(stderr, "PETSc version    : %d.%d.%d (%s arithmetic)\n", PETSC_VERSION_MAJOR,
+            PETSC_VERSION_MINOR, PETSC_VERSION_SUBMINOR,
 #if defined(PETSC_USE_COMPLEX)
-    fprintf(stderr, "PETSc arithmetic : Complex\n");
+            "complex"
 #else
-    fprintf(stderr, "PETSc arithmetic : Real\n");
+            "real"
 #endif
+            );
 #endif
 #if defined(HAVE_GMSH)
     fprintf(stderr, "Gmsh lib version : %s%s (%s)\n",
