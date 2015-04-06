@@ -115,7 +115,7 @@ void F_Python(F_ARG)
     if(out){
       if(PyList_Check(out)){
         Py_ssize_t size = PyList_Size(out);
-        if(size == 3 || size == 9){
+        if(size == 1 || size == 3 || size == 9){
           for(int i = 0; i < size; i++){
             PyObject *item = PyList_GetItem(out, i);
             if(PyComplex_Check(item)){
@@ -131,11 +131,11 @@ void F_Python(F_ARG)
               Message::Error("Unknown type of Python output list item");
             }
           }
-          V->Type = (size == 3) ? VECTOR : TENSOR;
+          V->Type = (size == 1) ? SCALAR : (size == 3) ? VECTOR : TENSOR;
         }
         else{
           Message::Error("Wrong number of components in Python output list "
-                         "(%d != 3 or 9)", size);
+                         "(%d != 1, 3 or 9)", size);
         }
       }
       else if(PyComplex_Check(out)){
