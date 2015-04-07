@@ -1,15 +1,16 @@
 // Used for making local cuts on mesoscale fields (16 mesoproblems ranging from 699994 to 999997)
+Include "smc_data.pro";
 
 N                 = 200;
 num_samples       = 100;
 which_view_list[] = {2, 4, 5};
-which_TS_list[]   = {1, 2};
-which_meso_list[] = {1, 4, 7, 10};
+which_TS_list[]   = {1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50};
+which_meso_list[] = {1, 4, 7, 10, 31, 34, 37, 40, 61, 64, 67, 70, 91, 94, 97, 100};
 e                 = 50e-6;
-Freq              = 10000;
+Freq              = 50000;
 
-locationFile_input  = "res_meso/";
-locationFile_output = "res_cuts/";
+locationFile_input  = StrCat(Dir_Meso, "res_meso/");
+locationFile_output = StrCat(Dir_Meso, "res_cuts/");
 viewString   = "";
 
 For k In {0:#which_view_list[]-1}

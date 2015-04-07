@@ -103,7 +103,7 @@ while not done:
     time.sleep(0.001)
 
 Dir_Meso = file_dir + "res_meso/" 
-#Dir_Meso = file_dir + "../../../../project/res_meso/"
+#Dir_Meso = file_dir + "../../../../project/results/res_meso/"
 for key in keys:
     h = {}
     b = {}
