@@ -32,7 +32,7 @@ Function {
   dt_bM[]         = Vector[DTBX, DTBY, DTBZ];
 
   NbrMaxIter     = 10;
-  Eps            = 1e-4;
+  Eps            = 1e-8;
   Relax          = 1.0;
   factor         = 1.0;
   epsilon        = 1e-6;

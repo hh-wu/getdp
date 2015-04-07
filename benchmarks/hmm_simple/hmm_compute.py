@@ -102,7 +102,8 @@ while not done:
     # little sleep so we do not use 100% CPU just for polling
     time.sleep(0.001)
 
-Dir_Meso = file_dir + "res_meso/"
+Dir_Meso = file_dir + "res_meso/" 
+#Dir_Meso = file_dir + "../../../../project/res_meso/"
 for key in keys:
     h = {}
     b = {}

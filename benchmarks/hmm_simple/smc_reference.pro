@@ -73,8 +73,8 @@ Function {
   dtime               = T/NbSteps ;
   theta_value         = 1;
   Nb_max_iter         = 10;
-  reltol              = 1e-9;
-  abstol              = 1e-9;
+  reltol              = 1e-8;
+  abstol              = 1e-8;
   relaxation_factor[] = ($Iteration < Nb_max_iter/2) ? 1: 0.3;
 }
 

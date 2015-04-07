@@ -146,6 +146,8 @@ Resolution {
 }
 
 ncuts = n_smc;
+ndeltacuts_x = 3;
+ndeltacuts_y = 3;
 
 PostProcessing {
   { Name MagStaDyn_a_hmm; NameOfFormulation MagSta_a_hmm;
@@ -216,10 +218,12 @@ PostProcessing {
               In Domain_NL; Jacobian JVol; Integration I1; }
           EndIf
        } }
-      
-      For j In {1:ncuts}
-      { Name data~{j}; Value {
-          Local { [ 0*Python[ j, 0,
+
+      For i In {1:ncuts:ndeltacuts_x}
+      For j In {1:ncuts:ndeltacuts_y}
+      k = (i-1)*ncuts + j;
+      { Name data~{k}; Value {
+          Local { [ 0*Python[ k, 0,
                               CompX[{a}], CompY[{a}], CompZ[{a}],
                               CompX[{d a}], CompY[{d a}], CompZ[{d a}],
                               CompX[Dt[{a}]], CompY[Dt[{a}]], CompZ[Dt[{a}]],
@@ -228,19 +232,7 @@ PostProcessing {
             In Domain; Jacobian JVol; }
         } }
       EndFor
-        /*
-        For i In{}
-      For j In {1:ncuts}
-      { Name data~{j}; Value {
-          Local { [ 0*Python[ j, 0,
-                  CompX[{a}], CompY[{a}], CompZ[{a}],
-                  CompX[{d a}], CompY[{d a}], CompZ[{d a}],
-                  CompX[Dt[{a}]], CompY[Dt[{a}]], CompZ[Dt[{a}]],
-                  CompX[Dt[{d a}] ], CompY[Dt[{d a}] ], CompZ[Dt[{d a}]] ]
-                    {"hmm_downscale.py"} ];
-            In Domain; Jacobian JVol; } } }
-      EndFor 
-*/
+      EndFor
     }
   }
 }
@@ -261,22 +253,20 @@ PostOperation {
 
   { Name globalquantities; NameOfPostProcessing MagStaDyn_a_hmm;
     Operation {
-
-      //Print[ MagneticEnergy_Macro_Local, OnElementsOf Domain, File > StrCat[Dir_Macro,"MagneticEnergy_Macro_Local.pos"] ];
-      //Print[ MagneticEnergy_Upscaled_Local, OnElementsOf Domain, File > StrCat[Dir_Macro,"MagneticEnergy_Upscaled_Local.pos"] ];
-      //Print[ JouleLosses_Upscaled_Local, OnElementsOf Domain_NL, File > StrCat[Dir_Macro,"JouleLosses_Upscaled_Local.pos"] ]; 
-      
       Print[ MagneticEnergy_Macro[Domain], OnGlobal, Format TimeTable, File > StrCat[Dir_Macro, "MagneticEnergy_Macro.dat" ], LastTimeStepOnly ] ;
       Print[ MagneticEnergy_Upscaled[Domain], OnGlobal, Format TimeTable, File > StrCat[Dir_Macro, "MagneticEnergy_Upscaled.dat" ], LastTimeStepOnly ] ;
       Print[ JouleLosses_Upscaled[Domain_NL], OnGlobal, Format TimeTable, File > StrCat[Dir_Macro, "JouleLosses_Upscaled.dat" ], LastTimeStepOnly ] ;
     }
   } 
-  
+
   { Name cuts; NameOfPostProcessing MagStaDyn_a_hmm;
     Operation {
-      For j In {1:ncuts:3}
-        Print[ data~{j}, OnPoint {e-0.5*e, j*e-e/2, 0.},
-          File StrCat[Dir_Macro,"dummy.pos"] , LastTimeStepOnly ];
+      For i In {1:ncuts:ndeltacuts_x}
+        For j In {1:ncuts:ndeltacuts_y}
+          k = (i-1)*ncuts + j;
+          Print[ data~{k}, OnPoint {i*e-0.5*e, j*e-e/2, 0.},
+             File StrCat[Dir_Macro,"dummy.pos"] , LastTimeStepOnly ];
+        EndFor
       EndFor
     }
   }

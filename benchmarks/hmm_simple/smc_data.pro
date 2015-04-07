@@ -8,14 +8,14 @@ DefineConstant[
 
   Freq = {50000,
     Name "Parameters/Frequency", Visible Flag_Dynamic},
-  NbT = {25./100.,
+  NbT = {2./100.,
     Name "Parameters/Number of periods", Visible Flag_Dynamic},
   NbSteps = {100,
     Name "Parameters/Steps per period", Visible Flag_Dynamic}
 ];
 source_amplitude = 700.e7;
 
-Flag_Local = 0;
+Flag_Local = 1;
 If(Flag_Local)
 results_dir = "";
 EndIf
