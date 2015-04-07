@@ -29,13 +29,19 @@ Dir_Ref   = StrCat(results_dir, "res_ref/");
 // Infos for PostProcessing
 ExtGmsh      = Str[ Sprintf("_nl%g.pos", Flag_NL) ];
 ExtData      = Str[ Sprintf("_nl%g.txt", Flag_NL) ];
-nTS          = 6;
+
+nTS          = 2;
 listOfTS~{1} = 1;
 listOfTS~{2} = 5;
 listOfTS~{3} = 10;
 listOfTS~{4} = 15;
 listOfTS~{5} = 20;
 listOfTS~{6} = 25;
+listOfTS~{7} = 30;
+listOfTS~{8} = 35;
+listOfTS~{9} = 40;
+listOfTS~{10} = 45;
+listOfTS~{11} = 50;
 
 // 2D problem -> 3 meso computations for dhdb
 Nbr_SubProblems = 3;

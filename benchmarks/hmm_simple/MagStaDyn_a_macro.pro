@@ -134,7 +134,7 @@ Resolution {
           PostOperation[ globalquantities ];
           If(Flag_PostCuts) // compute some meso cells around points of interest
             Evaluate[ Python[$Time, $TimeStep]{"hmm_initialize.py"} ];
-            PostOperation[ cuts ];
+            PostOperation[ meso_computations ];
             Evaluate[ Python[Nbr_SubProblems, Flag_Dynamic, Freq, NbSteps, 1]
               {"hmm_compute.py"} ];
           EndIf
@@ -148,6 +148,7 @@ Resolution {
 ncuts = n_smc;
 ndeltacuts_x = 3;
 ndeltacuts_y = 3;
+numPtsDiscret = 2000;
 
 PostProcessing {
   { Name MagStaDyn_a_hmm; NameOfFormulation MagSta_a_hmm;
@@ -259,7 +260,7 @@ PostOperation {
     }
   } 
 
-  { Name cuts; NameOfPostProcessing MagStaDyn_a_hmm;
+  { Name meso_computations; NameOfPostProcessing MagStaDyn_a_hmm;
     Operation {
       For i In {1:ncuts:ndeltacuts_x}
         For j In {1:ncuts:ndeltacuts_y}
@@ -270,4 +271,20 @@ PostOperation {
       EndFor
     }
   }
+
+
+  
+  { Name cuts; NameOfPostProcessing MagStaDyn_a_hmm ;
+    Operation {
+      For iTS In {1:nTS}
+      TS = listOfTS~{iTS};
+      For i In {1:ncuts:ndeltacuts_x}
+      Print[ az, OnLine{ {(i-0.5)*e , 0., 0.}{(i-0.5)*e , 500e-6, 0.} } {numPtsDiscret}, Format Table, File StrCat[Dir_Macro, StrCat[Sprintf["az_ref_cut%g_TS%g", i, TS], ExtData ] ], TimeStep{TS}];
+      Print[ a, OnLine{ {(i-0.5)*e , 0., 0.}{(i-0.5)*e , 500e-6, 0.} } {numPtsDiscret}, Format Table, File StrCat[Dir_Macro, StrCat[Sprintf["a_ref_cut%g_TS%g", i, TS], ExtData ] ], TimeStep{TS} ];
+      Print[ b, OnLine{ {(i-0.5)*e , 0., 0.}{(i-0.5)*e , 500e-6, 0.} } {numPtsDiscret}, Format Table, File StrCat[Dir_Macro, StrCat[Sprintf["b_ref_cut%g_TS%g", i, TS], ExtData ] ], TimeStep{TS} ];
+      Print[ h, OnLine{ {(i-0.5)*e , 0., 0.}{(i-0.5)*e , 500e-6, 0.} } {numPtsDiscret}, Format Table, File StrCat[Dir_Macro, StrCat[Sprintf["h_ref_cut%g_TS%g", i, TS], ExtData ] ], TimeStep{TS} ];
+      EndFor
+      EndFor
+    }
+  }   
 }

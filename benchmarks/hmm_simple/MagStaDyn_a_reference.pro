@@ -78,7 +78,7 @@ Formulation {
   // NONLINEAR - single value b-h curve
   // ====================================================================
 
-  { Name MagDyn_a; Type FemEquation ;
+  { Name MagStaDyn_a_ref; Type FemEquation ;
     Quantity {
       { Name a  ; Type Local  ; NameOfSpace Hcurl_a ; }
       { Name ur ; Type Local  ; NameOfSpace Hregion_u_2D ; }
@@ -102,9 +102,9 @@ Formulation {
 }
 
 Resolution {
-  { Name MagDyn_a ;
+  { Name MagStaDyn_a_ref ;
     System {
-      { Name A ; NameOfFormulation MagDyn_a; }
+      { Name A ; NameOfFormulation MagStaDyn_a_ref; }
     }
     Operation {
       CreateDirectory[Dir_Ref];
@@ -124,7 +124,7 @@ PostProcessing {
   //=================================================
   // NONLINEAR
   //=================================================
-  { Name MagDyn_a ; NameOfFormulation MagDyn_a ;
+  { Name MagStaDyn_a_ref ; NameOfFormulation MagStaDyn_a_ref ;
     PostQuantity {
       { Name a ; Value { Local { [ {a} ]; In Domain ; Jacobian JVol; } } }
       { Name az; Value { Local { [ CompZ[{a}] ]; In Domain ; Jacobian JVol; } } }
@@ -142,42 +142,37 @@ PostProcessing {
   }
 }
 
+ncuts = n_smc;
+ndeltacuts_x = 3;
+numPtsDiscret = 2000;
 PostOperation {
-  { Name maps ; NameOfPostProcessing MagDyn_a ;
+  { Name maps ; NameOfPostProcessing MagStaDyn_a_ref ;
     Operation {
       Print[ az, OnElementsOf Domain,  File StrCat[Dir_Ref,StrCat["az",ExtGmsh] ] ];
+      Print[ a,  OnElementsOf Domain,  File StrCat[Dir_Ref,StrCat["a" ,ExtGmsh] ] ];
       Print[ j,  OnElementsOf DomainC, File StrCat[Dir_Ref,StrCat["j" ,ExtGmsh] ] ];
       Print[ b,  OnElementsOf Domain,  File StrCat[Dir_Ref,StrCat["b" ,ExtGmsh] ] ];
       Print[ h,  OnElementsOf Domain , File StrCat[Dir_Ref,StrCat["h" ,ExtGmsh] ] ];
       Print[ JouleLossesMap,OnElementsOf DomainC , File StrCat[Dir_Ref,StrCat["JLMap",ExtGmsh] ] ];
     }
   }
-  { Name globalquantities ; NameOfPostProcessing MagDyn_a ;
+  { Name globalquantities ; NameOfPostProcessing MagStaDyn_a_ref ;
     Operation {
       Print[ MagEnergy[Domain], OnGlobal, Format TimeTable, File StrCat[Dir_Ref, Sprintf("MagEnergy_nl%g_f%g.dat", Flag_NL, Freq) ] ] ;
       Print[ JouleLosses[Iron], OnGlobal, Format TimeTable, File StrCat[Dir_Ref, Sprintf("JL_nl%g_f%g.dat"       , Flag_NL, Freq) ] ] ;
     }
   }
 
-  numPtsDiscret = 2000;
-  { Name cuts; NameOfPostProcessing MagDyn_a ;    
+  { Name cuts; NameOfPostProcessing MagStaDyn_a_ref ;    
     Operation {
       For iTS In {1:nTS}
       TS = listOfTS~{iTS};
-      Print[ az, OnLine{ {25e-6 , 0., 0.}{25e-6 , 500e-6, 0.} } {numPtsDiscret}, Format Table, File StrCat[Dir_Ref, StrCat[Sprintf["az_ref_cut1_TS%g", TS], ExtData ] ], TimeStep{TS} ];
-      Print[ az, OnLine{ {175e-6, 0., 0.}{175e-6, 500e-6, 0.} } {numPtsDiscret}, Format Table, File StrCat[Dir_Ref, StrCat[Sprintf["az_ref_cut2_TS%g", TS], ExtData ] ], TimeStep{TS} ];
-      Print[ az, OnLine{ {325e-6, 0., 0.}{325e-6, 500e-6, 0.} } {numPtsDiscret}, Format Table, File StrCat[Dir_Ref, StrCat[Sprintf["az_ref_cut3_TS%g", TS], ExtData ] ], TimeStep{TS} ];
-      Print[ az, OnLine{ {475e-6, 0., 0.}{475e-6, 500e-6, 0.} } {numPtsDiscret}, Format Table, File StrCat[Dir_Ref, StrCat[Sprintf["az_ref_cut4_TS%g", TS], ExtData ] ], TimeStep{TS} ];
-
-      Print[ b, OnLine{ {25e-6 , 0., 0.}{25e-6 , 500e-6, 0.} } {numPtsDiscret}, Format Table, File StrCat[Dir_Ref, StrCat[Sprintf["b_ref_cut1_TS%g", TS], ExtData ] ], TimeStep{TS} ];
-      Print[ b, OnLine{ {175e-6, 0., 0.}{175e-6, 500e-6, 0.} } {numPtsDiscret}, Format Table, File StrCat[Dir_Ref, StrCat[Sprintf["b_ref_cut2_TS%g", TS], ExtData ] ], TimeStep{TS} ];
-      Print[ b, OnLine{ {325e-6, 0., 0.}{325e-6, 500e-6, 0.} } {numPtsDiscret}, Format Table, File StrCat[Dir_Ref, StrCat[Sprintf["b_ref_cut3_TS%g", TS], ExtData ] ], TimeStep{TS} ];
-      Print[ b, OnLine{ {475e-6, 0., 0.}{475e-6, 500e-6, 0.} } {numPtsDiscret}, Format Table, File StrCat[Dir_Ref, StrCat[Sprintf["b_ref_cut4_TS%g", TS], ExtData ] ], TimeStep{TS} ];
-
-      Print[ h, OnLine{ {25e-6 , 0., 0.}{25e-6 , 500e-6, 0.} } {numPtsDiscret}, Format Table, File StrCat[Dir_Ref, StrCat[Sprintf["h_ref_cut1_TS%g", TS], ExtData ] ], TimeStep{TS} ];
-      Print[ h, OnLine{ {175e-6, 0., 0.}{175e-6, 500e-6, 0.} } {numPtsDiscret}, Format Table, File StrCat[Dir_Ref, StrCat[Sprintf["h_ref_cut2_TS%g", TS], ExtData ] ], TimeStep{TS} ];
-      Print[ h, OnLine{ {325e-6, 0., 0.}{325e-6, 500e-6, 0.} } {numPtsDiscret}, Format Table, File StrCat[Dir_Ref, StrCat[Sprintf["h_ref_cut3_TS%g", TS], ExtData ] ], TimeStep{TS} ];
-      Print[ h, OnLine{ {475e-6, 0., 0.}{475e-6, 500e-6, 0.} } {numPtsDiscret}, Format Table, File StrCat[Dir_Ref, StrCat[Sprintf["h_ref_cut4_TS%g", TS], ExtData ] ], TimeStep{TS} ];
+      For i In {1:ncuts:ndeltacuts_x}
+      Print[ az, OnLine{ {(i-0.5)*e , 0., 0.}{(i-0.5)*e , 500e-6, 0.} } {numPtsDiscret}, Format Table, File StrCat[Dir_Ref, StrCat[Sprintf["az_ref_cut%g_TS%g", i, TS], ExtData ] ], TimeStep{TS}];
+      Print[ a, OnLine{ {(i-0.5)*e , 0., 0.}{(i-0.5)*e , 500e-6, 0.} } {numPtsDiscret}, Format Table, File StrCat[Dir_Ref, StrCat[Sprintf["a_ref_cut%g_TS%g", i, TS], ExtData ] ], TimeStep{TS}];
+      Print[ b, OnLine{ {(i-0.5)*e , 0., 0.}{(i-0.5)*e , 500e-6, 0.} } {numPtsDiscret}, Format Table, File StrCat[Dir_Ref, StrCat[Sprintf["b_ref_cut%g_TS%g", i, TS], ExtData ] ], TimeStep{TS}];
+      Print[ h, OnLine{ {(i-0.5)*e , 0., 0.}{(i-0.5)*e , 500e-6, 0.} } {numPtsDiscret}, Format Table, File StrCat[Dir_Ref, StrCat[Sprintf["h_ref_cut%g_TS%g", i, TS], ExtData ] ], TimeStep{TS}];
+      EndFor
       EndFor
     }
   }
