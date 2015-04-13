@@ -29,13 +29,25 @@ close_menu = 1;
 colorro  = "LightGrey";
 colorpp = "Ivory";
 
+//-------------------------------------------------------------------------
+// optimization stuff
+DefineConstant[
+  mshName = "inductor.msh",// set as input
+  mshParamName="inductorParams.msh",// set as input
+  InputId = "",// e.g. "cpu0/", ""cpu1/", ...
+  Flag_ParameterSet = {1,Name "Geo/Design Variables Set",Choices {0,1},Visible 1},
+  Flag_topopt = {0, Name "Input/OptParam/optType",Label "Optimization Type",
+                 Choices {0="Structural Optimization",1="Topology Optimization"}, 
+                 Visible 1}
+];
+//-------------------------------------------------------------------------
 DefineConstant[
   wcoreI = {6*mm/*4*cm*/,  Name StrCat[pp, "Width I core [m]"],
     Highlight Str[colorpp],Closed close_menu},
   stepAirBox = {10*mm/*15*cm*/,Name StrCat[pp, "Step air box [m]"],
     Highlight Str[colorpp],Closed close_menu},
-  wcoreE = {24*mm/*20*cm*//*3*cm*/,  Name StrCat[pp, "1E-core width of side legs [m]"],
-    Highlight Str[colorpp],Closed close_menu},
+//  wcoreE = {24*mm/*20*cm*//*3*cm*/,  Name StrCat[pp, "1E-core width of side legs [m]"],
+//    Highlight Str[colorpp],Closed close_menu},
   hcoil  = {18/2*mm/*9*cm*/,  Name StrCat[pp, "4Coil height [m]"],
     Highlight Str[colorpp]},
   wgapCoil = {6*mm/*3*cm*/,  Name StrCat[pp, "Gap between coil[m]"],
@@ -44,11 +56,39 @@ DefineConstant[
     Highlight Str[colorro]},
   hcoreE = {0.5*(6+18+6)*mm/*hcoil+wcoreE*/, Name StrCat[pp, "2E-core height of legs [m]"], ReadOnly 1,
     Highlight Str[colorro]},
-  ag     = {2*mm, Min 0.1*cm, Max 4*cm, Step 0.2*cm, ReadOnlyRange 1, Visible (Flag_OpenCore==1),
-    Name StrCat[pp, "5Air gap width [m]"], Highlight Str[colorpp]},
-  Lz = {9*cm, Name StrCat[pp, "0Length along z-axis [m]"], Highlight Str[colorpp]}//????
-];
+  Lz = {9*cm, Name StrCat[pp, "0Length along z-axis [m]"], Highlight Str[colorpp]},
+  ag = {2*mm, Name StrCat[pp,"Air gap width [m]"], Highlight Str[colorpp]}
 
+];
+//-------------------------------------------------------------------------
+pInOpt = StrCat[InputId,"Input/OptParam/"];
+If(Flag_ParameterSet==0)
+  DefineConstant[
+    wcoreE = {24*mm, Name StrCat[pInOpt,"x_0"],
+              Label "1E-core width of side legs [m]",
+              Visible (!Flag_topopt)}
+    //ag = {2*mm, Name StrCat[pInOpt,"x_0"], Label "Air gap width [m]",
+    //            Visible (!Flag_topopt)}
+  ];
+EndIf
+If(Flag_ParameterSet==1)
+  DefineConstant[
+    nbPointsSpline = {5, Name StrCat[pInOpt,"nbPointSpline"],
+                         Label "nb point spline",Visible (1)}
+  ];
+  For k In {1:nbPointsSpline}
+    DefineConstant[
+       deltaX~{k} = {0.0, Name StrCat[pInOpt,Sprintf("x_%0g",(k-1))],
+                      Label Sprintf("point spline %0g",(k-1)),Visible 1}
+    ]; 
+  EndFor
+EndIf
+DefineConstant[
+  nbPointsSpline = 0,
+  ag = 2*mm,
+  wcoreE = 24*mm,
+  wcoreEMax = 26*mm
+];
 // rest of EI-Core dimensions
 wcoreE_centralleg = 2*wcoreE;
 
@@ -75,7 +115,6 @@ DefineConstant[
 
 Val_Rint = Rint;
 Val_Rext = Rext;
-
 //-------------------------------------------------------------------------
 // Some mesh control stuff
 DefineConstant[
@@ -92,12 +131,6 @@ DefineConstant[
     Visible (Flag_Infinity==1), Highlight Str[colorro]},
   nn_ro = { Ceil[md*6], Name StrCat[ppm, "3One fourth shell out"], ReadOnly 1,
     Highlight Str[colorro]}
-];
-//-------------------------------------------------------------------------
-// optimization stuff
-DefineConstant[
-  Flag_topopt = {0, Name "Input/OptParam/optType",Label "Optimization Type",
-             Choices {0="Structural Optimization",1="Topology Optimization"}, Visible 1}
 ];
 //-------------------------------------------------------------------------
 
@@ -172,10 +205,14 @@ CUTCOIL = 2555;
 
 AIR    = 3000;
 AIRINF = 3100;
-AIRGAP = 3200;
+AIRGAP_C = 3200;
+AIRGAP_I = 3300;
 
 // Lines and surfaces for boundary conditions
 SURF_AIROUT = 3333;
+SURF_AIRGAP_ECORE =3334; 
+SURF_AIRGAP_ICORE =3335; 
+NICEPOS = 5551;
 
 AXIS_Y = 10000;
 CUT_YZ = 11000;
@@ -197,8 +234,8 @@ MESH_VEL_FIELD = 8;
 NU_ROTA_ROTLAMBDA_VELOCITY_FIELD = 9;
 JS_LAMBDA_VELOCITY_FIELD = 10;
 FUNC_IND_VELOCITY_FIELD = 11;
-GRAD_LAMBDA_V_FIELD = 12;
-GRAD_A_V_FIELD = 13;
+GRADLAMBDA_V_FIELD = 12;
+GRADA_V_FIELD = 13;
 ROT_A_FIELD = 14;
 M_ROTLAMBDA_VELOCITY_FIELD = 15;
 B_FIELD = 16;

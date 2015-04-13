@@ -34,6 +34,7 @@ Function{
   Mat1_nu_b2  = ListAlt[Mat1_b2, Mat1_nu] ;
   nu_1[] = InterpolationLinear[ SquNorm[$1] ]{List[Mat1_nu_b2]} ;
   dnudb2_1[] = dInterpolationLinear[SquNorm[$1]]{List[Mat1_nu_b2]} ;
+  dnudb_1[] = dInterpolationLinear[SquNorm[$1]]{List[Mat1_nu_b2]}*2.0*$1; //new
   h_1[] = nu_1[$1] * $1 ;
   dhdb_1[] = TensorDiag[1,1,1] * nu_1[$1#1] + 2*dnudb2_1[#1] * SquDyadicProduct[#1]  ;
   dhdb_1_NL[] = 2*dnudb2_1[$1#1] * SquDyadicProduct[#1] ;
@@ -139,6 +140,7 @@ Function{
   MatEIcore_nu_b2  = ListAlt[MatEIcore_b2, MatEIcore_nu] ;
   nu_EIcore[] = InterpolationLinear[SquNorm[$1]]{List[MatEIcore_nu_b2]} ;
   dnudb2_EIcore[] = dInterpolationLinear[SquNorm[$1]]{List[MatEIcore_nu_b2]} ;
+  dnudb_EIcore[] = dInterpolationLinear[SquNorm[$1]]{List[MatEIcore_nu_b2]}*2.0*$1;//new
   h_EIcore[] = nu_EIcore[$1] * $1 ;
   dhdb_EIcore[] = TensorDiag[1,1,1]*nu_EIcore[$1#1] + 2*dnudb2_EIcore[#1] * SquDyadicProduct[#1] ;
   dhdb_EIcore_NL[] = 2*dnudb2_EIcore[$1] * SquDyadicProduct[$1] ;

@@ -26,6 +26,101 @@ DefineConstant[
   Flag_NL_Curve = {0,Choices{0="EIcore",1="park"},Name "Input/NonlinearCurve",Label "BH"}
 ];
 
+DefineConstant[
+  //-------------------------------------------------------------
+  // optimization stuff ...
+  //-------------------------------------------------------------
+  ResId = "",
+  ResDir = StrCat["res/", ResId],
+
+  Flag_SolveStateVar = {1, Name "Input/OptParam/SolveStateVar",
+                           Label "Get State Variable", Choices {0,1}, Visible 1},
+  
+  Flag_SolveEigSys = {0, Name "Input/OptParam/SolveStateVarEig",
+                           Label "Get State Variable Eig", Choices {0,1}, Visible 1},
+
+  Flag_SolveAdjointVar = {1, Name "Input/OptParam/SolveAdjointVar",
+                             Label "Get Adjoint Variable",Choices {0,1}, Visible 1},
+
+  Flag_PerfType = {COMPLIANCE, Name "Input/OptParam/PerfType",
+                               Label "performance function type",
+                               Choices {NO_PERF="No performance function",
+                                        BFIELD_ERROR="air gap B field error",
+                                        TORQUE_VAR="torque variance",
+				        IRON_LOSSES="losses",
+                                        COMPLIANCE="compliance",
+                                        TORQUE="torque"},Visible Flag_SolveAdjointVar},
+  // Sensitivity analysis method --> replace by 1 variable!!!
+  Flag_SemiAnalyticAvmSens = {0, Name "Input/OptParam/SemiAnalyticAvmSensQuantitys",
+                                 Label "Semi analytic quantitys (avm)",
+                                 Choices {0,1}, Visible 1},
+
+  Flag_velocity_vol = {0, Name "Input/OptParam/FlagVelocityVol",
+                      Label "Volume Velocity?", Choices {0,1},Visible 1},
+
+  Flag_SemiAnalyticDirSens = {0, Name "Input/OptParam/SemiAnalyticDirQuantitys",
+                                 Label "Semi analytic quantitys (direct)", 
+                                 Choices {0,1}, Visible 0},
+
+  Flag_AvmFixedDomSens = {0, Name "Input/OptParam/AdjointMethodSensFixedDom",
+                             Label "fixed domain derivative (avm)", 
+                             Choices {0,1}, Visible 1},
+
+  Flag_FixedDomSensEig = {0, Name "Input/OptParam/SensFixedDomEig",
+                             Label "fixed domain derivative (eig)", 
+                             Choices {0,1}, Visible 1},
+
+  Flag_DirFixedDomSens = {0, Name "Input/OptParam/DirMethodSensFixedDom",
+                            Label "fixed domain derivative (direct)", 
+                            Choices {0,1}, Visible 0},
+
+  Flag_AvmVarDomSens = {0, Name "Input/OptParam/AdjointMethodSensVarDom",
+                           Label "continuum derivative (avm)",
+                           Choices {0,1}, Visible 1},
+
+  Flag_LieAvmVarDomSens = {1, Name "Input/OptParam/AdjointMethodSensLie",
+                           Label "continuum derivative (avm)",
+                           Choices {0,1}, Visible 1},
+
+  Flag_DirVarDomSens = {0, Name "Input/OptParam/DirectMethodSensVarDom",
+                           Label "continuum derivative (direct)",
+                           Choices {0,1}, Visible 0},
+  
+  NbSubDom = {2, Name "Input/OptParam/NbDomain", Label "Nbr of regions", Visible 0},
+
+  //Tnom = {90, Name "Input/OptParam/TorqueNominal", Visible 1},
+  Tnom = {90.0, Name "Input/OptParam/TorqueNominal",
+                Label "Nominal desired torque",
+                Visible (Flag_PerfType==TORQUE_VAR)},
+  // Filter
+  Flag_filterSensitivity = {0, Name "Input/OptParam/filterSens", 
+                               Label "Filter Derivatives?",
+                               Choices {0, 1}, Visible (Flag_topopt==1)}, 
+
+  Rmin = {0.001*10, Name "Input/OptParam/RadiusSensFilter",
+                    Label "Sensitivity Filter Radius", 
+                    Visible (Flag_filterSensitivity==1)},
+
+  Flag_filterMeshCoordinates = {0, Name "Input/OptParam/filterMeshCoord", 
+                                   Label "Filter mesh nodes coordinates?", 
+                                   Choices {0, 1}, Visible 0}, 
+
+  regionVar = {0, Name "Input/OptParam/regionVar",
+                  Label "Region of design variables", 
+                  Choices {0="E-core",1="E+I-core"},
+                  Visible (Flag_topopt)},
+
+  Flag_InterpLaw = {0, Name "Input/OptParam/MaterialInterpLaw",
+                       Label "material interpolation law",
+                       Choices {0="SIMP",1="RAMP"},Visible (Flag_topopt==1)},
+
+  degree_SIMP = {3.0, Name "Input/OptParam/SimpPenalDegree",
+                      Label "Degree SIMP", Visible (Flag_topopt==1)}
+  //-------------------------------------------------------------
+
+];
+
+
 Group {
   Core = Region[ {ECORE, ICORE} ];
   Ind_1      = Region[{COIL}] ;
@@ -46,7 +141,7 @@ Group {
     Inds  = Region[ {Ind_1} ];
   EndIf
 
-  AirGap = Region[ AIRGAP ];
+  AirGap = Region[ {AIRGAP_C,AIRGAP_I}];
 
   Air  = Region[ AIR ];
   AirInf = Region[ AIRINF ];
@@ -92,6 +187,7 @@ Function {
     SurfCoil[] = SurfaceArea[]{COIL} ;
     Idir[#{COIL}]     =  1. ;
     Idir[#{(COIL+1)}] = -1. ;
+    Idir[#{Air,Inds,Core,-COIL,-(COIL+1)}]     =  0. ;
     vDir[]   = Vector[ 0, 0, Idir[]] ;
   EndIf
   If(Flag_3Dmodel==1)

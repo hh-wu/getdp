@@ -6,88 +6,10 @@ Group {
   ];
 }
 
-DefineConstant[
-  //-------------------------------------------------------------
-  // optimization stuff ...
-  //-------------------------------------------------------------
-  ResId = "",
-  ResDir = StrCat["res/", ResId],
-
-  Flag_SolveStateVar = {0, Name "Input/OptParam/SolveStateVar",
-                           Label "Get State Variable", Choices {0,1}, Visible 1},
-
-  Flag_SolveAdjointVar = {0, Name "Input/OptParam/SolveAdjointVar",
-                             Label "Get Adjoint Variable",Choices {0,1}, Visible 1},
-
-  Flag_PerfType = {COMPLIANCE, Name "Input/OptParam/PerfType",
-                               Label "performance function type",
-                               Choices {NO_PERF="No performance function",
-                                        BFIELD_ERROR="air gap B field error",
-                                        TORQUE_VAR="torque variance",
-				        IRON_LOSSES="losses",
-                                        COMPLIANCE="compliance",
-                                        TORQUE="torque"},Visible Flag_SolveAdjointVar},
-  // Sensitivity analysis method --> replace by 1 variable!!!
-  Flag_SemiAnalyticAvmSens = {0, Name "Input/OptParam/SemiAnalyticAvmSensQuantitys",
-                                 Label "Semi analytic quantitys (avm)",
-                                 Choices {0,1}, Visible 0},
-
-  Flag_SemiAnalyticDirSens = {0, Name "Input/OptParam/SemiAnalyticDirQuantitys",
-                                 Label "Semi analytic quantitys (direct)", 
-                                 Choices {0,1}, Visible 0},
-
-  Flag_AvmFixedDomSens = {0, Name "Input/OptParam/AdjointMethodSensFixedDom",
-                             Label "fixed domain derivative (avm)", 
-                             Choices {0,1}, Visible 1},
-
-  Flag_DirFixedDomSens = {0, Name "Input/OptParam/DirMethodSensFixedDom",
-                            Label "fixed domain derivative (direct)", 
-                            Choices {0,1}, Visible 0},
-
-  Flag_AvmVarDomSens = {0, Name "Input/OptParam/AdjointMethodSensVarDom",
-                           Label "continuum derivative (avm)",
-                           Choices {0,1}, Visible 0},
-
-  Flag_DirVarDomSens = {0, Name "Input/OptParam/DirectMethodSensVarDom",
-                           Label "continuum derivative (direct)",
-                           Choices {0,1}, Visible 0},
-  
-  NbSubDom = {2, Name "Input/OptParam/NbDomain", Label "Nbr of regions", Visible 0},
-
-  //Tnom = {90, Name "Input/OptParam/TorqueNominal", Visible 1},
-  Tnom = {90.0, Name "Input/OptParam/TorqueNominal",
-                Label "Nominal desired torque",
-                Visible (Flag_PerfType==TORQUE_VAR)},
-  // Filter
-  Flag_filterSensitivity = {0, Name "Input/OptParam/filterSens", 
-                               Label "Filter Derivatives?",
-                               Choices {0, 1}, Visible (Flag_topopt==1)}, 
-
-  Rmin = {0.001*10, Name "Input/OptParam/RadiusSensFilter",
-                    Label "Sensitivity Filter Radius", 
-                    Visible (Flag_filterSensitivity==1)},
-
-  Flag_filterMeshCoordinates = {0, Name "Input/OptParam/filterMeshCoord", 
-                                   Label "Filter mesh nodes coordinates?", 
-                                   Choices {0, 1}, Visible 0}, 
-
-  regionVar = {0, Name "Input/OptParam/regionVar",
-                     Label "Region of design variables", 
-                     Choices {0="E-core",1="E+I-core"},
-                     Visible (Flag_topopt)},
-
-  Flag_InterpLaw = {0, Name "Input/OptParam/MaterialInterpLaw",
-                       Label "material interpolation law",
-                       Choices {0="SIMP",1="RAMP"},Visible (Flag_topopt==1)},
-
-  degree_SIMP = {3.0, Name "Input/OptParam/SimpPenalDegree",
-                      Label "Degree SIMP", Visible (Flag_topopt==1)}
-  //-------------------------------------------------------------
-
-];
 
 Function{
  DefineConstant[
+    N=2,//number of subdomains 
     Val_Rint, Val_Rext,
     Lz = 1,
     SymmetryFactor = 1,
@@ -115,8 +37,9 @@ Function{
   ];
 
   DefineFunction[
-    dhdb_NL, br, js0,
-    rmin2,prod_x_dC,designVar,nu_prime
+    dhdb_NL, br, js0,dnudb,
+    rmin2,prod_x_dC,designVar,nu_prime,
+    d_E_mec,d_rho_mec
   ];
 
 }
@@ -138,9 +61,10 @@ Group {
     DomainNL = Region[ {Core} ];
     DomainL  = Region[ {Domain,-DomainNL} ];
   EndIf
-  DomainDummy = #12345 ; // Dummy region number for postpro with functions
+  DomainDummy = #NICEPOS; //#12345 ; // Dummy region number for postpro with functions
   // ----------------------------------------------------------
-  DomCompl = Region[{AIRGAP}];
+  DomCompl = /*Region[{ICORE}];*/ Region[{AIRGAP_I}];
+  DomainFunc = /*Region[{ICORE}];*/ Region[{AIRGAP_I}];
   If(Flag_topopt)
     If(regionVar == 0)
       DomainOpt = Region[{ECORE}];
@@ -150,31 +74,118 @@ Group {
     EndIf
   EndIf
   If(!Flag_topopt)
-    DomainOpt = Region[{}];
+    DomainOpt = Region[{ECORE}];
   EndIf
+  //regions for shape derivative
+  Domain~{1} = Region[{ECORE}];//Region[{AIRGAP_C}];
+  Domain~{2} = Region[{AIRGAP_C}];//Region[{AIRGAP_I}];
+  SkinDomain~{1} = Region[{SURF_AIRGAP_ECORE}]; 
+  SkinDomain~{2} = Region[{SURF_AIRGAP_ECORE}]; 
   // ----------------------------------------------------------
 }
 
 Function {
- 
-  nu0 = 1./mu0;
-  nu [#{DomainCC,-Core}]  = 1./mu0 ;
-  //nu [#{Air/*, AirInf*/, Inds}]  = 1./mu0 ;
+  If(Flag_topopt)
+    p = degree_SIMP;
+    designVar[#DomainOpt]  = ScalarField[XYZ[],0,1]{DES_VAR_FIELD};
+    //designVar[#{Domain,-DomainOpt}] = 0.0;
+  EndIf
 
+  // mechanical
+  DefineConstant[
+    young = {150e9, Name "Input/Materials/0Young modulus [Pa]"},
+    nu_Poisson = {0.17, Name "Input/Materials/1Poisson coeficient"},
+    rh = {4400, Name "Input/Materials/2Mass density", Label "Mass density [kg/m^3]"}
+  ];
+
+  // ----------------------------------------------------------
+  // eigen problem
+  // ----------------------------------------------------------
+  If(!Flag_topopt) //quid de l'air et des bobinages ???
+    E_mec[#{Core,Inds}] = young;
+    E_mec[#{Domain,-Core,-Inds}] = 1000; // si je met 0 -> mode parasite !!!
+    rho_mec[] = rh; // vol. mas
+  EndIf
+  If(Flag_topopt)
+    E_mec[DomainOpt] = young*designVar[]^p;// simp
+    d_E_mec[DomainOpt] = young*p*designVar[]^(p-1.0);
+    alpha = 16.0; 
+    //E_mec[DomainOpt] = young*((alpha-1.0)*designVar[]^p + designVar[])/alpha;//poynomial
+    //d_E_mec[DomainOpt] = young*((alpha-1.0)*p*designVar[]^(p-1.0) + 1.0)/alpha;
+    rho_mec[] = rh*designVar[]; // vol. mas
+    d_rho_mec[] = rh; // vol. mas
+  EndIf
+  ff[] = E_mec[]/(1-nu_Poisson^2.0);
+  d_ff[] = d_E_mec[]/(1-nu_Poisson^2.0);
+  C[] = ff[]*TensorSym[ 1.0, nu_Poisson, 0, 1.0, 0, 0.5*(1-nu_Poisson) ];
+  d_C[] = d_ff[]*TensorSym[1.0,nu_Poisson,0,1.0,0,0.5*(1-nu_Poisson)];
+
+  //derivartive of stiff matrix (eig):$1:{D1 u}
+  d_stiff_eig[] = d_C[]*$1*$1;
+
+  //derivartive of mass matrix (eig):$1:{u}
+  d_mass_eig[] = (d_rho_mec[]*$1)*$1;
+
+  //normalizing factor: $1:{u}
+  norm_eig[] = (rho_mec[]*$1)*$1;
+
+  //derivative of eigenvalue: $1:{D1 u}, $2:{u}
+  d_eig[] = (d_C[]*$1*$1-($ReOmega^2+$ImOmega^2)*(d_rho_mec[]*$2)*$2);
+      
+
+// 3D
+//  //Cij = [ C11   C12
+//  //        C21   C22];
+//  //Cij = E/(1+nu)/(1-2nu)*
+//  //[ 1-nu        nu         nu         0                  0                  0
+//  //    nu      1-nu         nu         0                  0                  0
+//  //    nu        nu       1-nu         0                  0                  0
+//  //     0         0          0      (1-2nu)/2             0                  0
+//  //     0         0          0         0               (1-2nu)/2             0
+//  //     0         0          0         0                  0              (1-2nu)/2 ]
+//  ff[] = E_mec[]/(1+nu_Poisson)/(1-2*nu_Poisson);
+//  d_ff[] = d_E_mec[]/(1+nu_Poisson)/(1-2*nu_Poisson);
+//      
+//  c11 = 1-nu_Poisson ;
+//  c12 = nu_Poisson ;
+//  c44 = (1-2*nu_Poisson)/2 ;
+//  C_11[Domain] = ff[] * TensorSym[ c11, c12, c12, c11, c12, c11 ];
+//  d_C_11[Domain] = d_ff[]*TensorSym[ c11, c12, c12, c11, c12, c11 ];  
+//  C_22[Domain] = ff[] * TensorSym[ c44, 0, 0, c44, 0, c44 ];
+//  d_C_22[Domain] = d_ff[] * TensorSym[ c44, 0, 0, c44, 0, c44 ];
+//  C_12[Domain] = Tensor[0,0,0, 0,0,0, 0,0,0];
+//  C_21[Domain] = Tensor[0,0,0, 0,0,0, 0,0,0];
+
+//  //derivartive of stiff matrix (eig):$1:{D1 u}, $2:{D2 u}
+//  d_stiff_eig[] = (d_C_11[]*$1)*$1 + (d_C_22[]*$2)*$2;
+
+//  //derivartive of mass matrix (eig):$1:{u}, $2:{u}
+//  d_mass_eig[] = (d_rho_mec[]*$1)*$1;
+
+//  //normalizing factor
+//  norm_eig[] = (rho_mec[]*$1)*$1;
+
+  // ----------------------------------------------------------
+  // topology optimization
+  // ----------------------------------------------------------
+  nu0 = 1./mu0;
+  nu[#{DomainCC,-Core}]  = 1./mu0 ;
+  //nu [#{Air/*, AirInf*/, Inds}]  = 1./mu0 ;
+  
   If(!Flag_topopt)
     If(!Flag_NL)
       nu [#{Core}]  = 1/(mur_fe*mu0) ;
+      dnudb[] = 0.0;
     EndIf
     If(Flag_NL)
       nu [ DomainNL ] = nu_EIcore[$1] ;
       dhdb_NL [ DomainNL ] = dhdb_EIcore_NL[$1];
+      dnudb[] = dnudb_EIcore[$1];
     EndIf
   EndIf
   If(Flag_topopt)
-    p = degree_SIMP;
-    designVar[#DomainOpt]  = ScalarField[XYZ[],0,1]{DES_VAR_FIELD};
     If(!Flag_NL)
-      nu [#{Core,-DomainOpt}]  = 1/(mur_fe*mu0) ;
+      nu[#{Core,-DomainOpt}]  = 1/(mur_fe*mu0) ;
       nu[#DomainOpt]  = (1 / (mur_fe * mu0) - nu0)*designVar[]^p + nu0; 
       nu_prime[#DomainOpt]  = p*(1 / (mur_fe * mu0) - nu0)*designVar[]^(p-1.0); 
     EndIf
@@ -213,6 +224,80 @@ Function {
   //volDensity[#{DomainM}] = 7400; //PM
 
   T_max[] = ( SquDyadicProduct[$1] - SquNorm[$1] * TensorDiag[0.5, 0.5, 0.5] ) / mu0 ;
+  
+  // ----------------------------------------------------------
+  // material derivative
+  // ----------------------------------------------------------
+  //indicatrice
+  indicFunc[#{DomainFunc}] = 1.0;
+  indicFunc[#{Domain,-DomainFunc}] = 0.0;
+  dindicFunc_dL[#{Domain}] = 0.0;
+
+  // -- velocity field --
+  velocityField_0[] = VectorField[XYZ[],0,1]{0};
+  velocityField[] = VectorField[XYZ[],0,1]{VELOCITY_FIELD};
+
+  grad_A[] = GradVectorField[XYZ[],0,1]{A_FIELD}; //analytic
+
+  grad_Lambda[] = GradVectorField[XYZ[],0,1]{LAMBDA_FIELD};
+
+  rot_gradA_V[]=Vector[(CompZY[GradVectorField[XYZ[],0,1]{GRADA_V_FIELD}#1]-CompYZ[#1]),
+                            (CompXZ[#1] - CompZX[#1]),
+                            (CompYX[#1] - CompXY[#1])];
+
+  rot_gradLambda_V[]=
+                      Vector[(CompZY[GradVectorField[XYZ[],0,1]{GRADLAMBDA_V_FIELD}#1] 
+                                 - CompYZ[#1]),
+                            (CompXZ[#1] - CompZX[#1]),
+                            (CompYX[#1] - CompXY[#1])];
+ 
+  div_nuRotARotLambdaVel[]= 
+             CompXX[GradVectorField[XYZ[],0,1]{NU_ROTA_ROTLAMBDA_VELOCITY_FIELD}#1]
+               + CompYY[#1] + CompZZ[#1];
+
+  div_jsLambdaVel[]= 
+             CompXX[GradVectorField[XYZ[],0,1]{JS_LAMBDA_VELOCITY_FIELD}#1]
+               + CompYY[#1] + CompZZ[#1];
+
+  div_MRotLambdaVel[] = 
+              CompXX[GradVectorField[XYZ[],0,1]{M_ROTLAMBDA_VELOCITY_FIELD}#1]
+               + CompYY[#1] + CompZZ[#1];
+
+  div_FuncIndVel[] = 
+              CompXX[GradVectorField[XYZ[],0,1]{FUNC_IND_VELOCITY_FIELD}#1]
+               + CompYY[#1] + CompZZ[#1];
+
+  //$1:{d a}, $2:{d lambda} 
+  d_bilin_mat[] = - nu[ $1 ] * $2 * rot_gradA_V[] - nu[ $1 ] * $1 * rot_gradLambda_V[]
+                  + div_nuRotARotLambdaVel[];
+  //d_load_mat[] = - nu[ $1 ] * br[] * rot_gradLambda_V[] + div_MRotLambdaVel[];
+  //dF_mat[] = - dFdb[ $1 ] * rot_dA_V[] + div_FuncIndVel[];
+  If(Flag_PerfType == COMPLIANCE)
+    Func[] = nu[$1] * SquNorm[$1]; //F = nu*B^2
+    dFdb[] = 2. * nu[$1] * $1; //dF/db = 2*nu*B
+  EndIf
+  If(Flag_PerfType == TORQUE)
+    Func[] = nu[$1]*torqueCoeff[]*( $1*er[] )*( $1*et[] );
+    dFdb[] = nu[$1]*torqueCoeff[]*(er[]*($1*et[]) + et[]*($1*er[]));
+  EndIf
+  d_load_mat[] = -js0[]*(grad_Lambda[]*velocityField[])+ div_jsLambdaVel[];
+  dF_mat[] = div_FuncIndVel[]-(dFdb[$1]*indicFunc[])*rot_gradA_V[];
+
+//  dF_mat[] = Func[]*dindicFunc_dL[] + div_FuncIndVel[]
+//             -((2.0*nu[$1]*$1)*indicFunc[])*rot_gradA_V[];
+  // ----------------------------------------------------------
+  // lie derivative
+  // ----------------------------------------------------------
+  dV[] = Transpose[ GradVectorField[XYZ[], 0 , 1]{VELOCITY_FIELD} ];
+  ETA[] = dV[] + Transpose [ dV[] ] - TTrace [ dV[] ] * TensorDiag[1,1,1];
+  LV1[] = dV[] * $1 ;
+  LV2[] = TTrace [ dV[] ] * $1 - Transpose [ dV[] ] * $1 ;
+
+  dF_lie[] = nu[$1] * $1 * ( ETA[] * $1 ) ;
+  d_bilin_lie[] = nu[$1] * $1 * ( ETA[] * $2 ) ;
+  d_load_lie[] = nu[$1] * ( LV1[ br[] ] ) * $2 ;
+
+
 }
 
 //-------------------------------------------------------------------------------------
@@ -249,23 +334,77 @@ Constraint {
       //{ Region Surf_bn0 ; Type Assign ; Value 0. ; }
     }
   }
-
+  //-----------------------------------------------------------------
   { Name Current_2D ;
     Case {
       { Region Inds ; Value II*Idir[] ; TimeFunction IA[]; }
     }
   }
-
+  //----------------------------------------------------------------- 
   { Name Voltage_2D ;
     Case {
     }
   }
-
+  //-----------------------------------------------------------------
+  { Name DeplacementX ;
+    Case {
+      //{ Region Encastrement ; Value 0. ; }
+    }
+  }
+  { Name DeplacementY ;
+    Case {
+      //{ Region Encastrement ; Value 0. ; }
+    }
+  }
+  { Name DeplacementZ ;
+    Case {
+      //{ Region Encastrement ; Value 0. ; }
+    }
+  }
 }
 
 //-----------------------------------------------------------------------------------------------
 
 FunctionSpace {
+  //-----------------------------------------------------------------
+  // TODO: 2D !!!
+  { Name H_u_Mec3D ; Type Vector ;
+    BasisFunction {
+      { Name sxn ; NameOfCoef uxn ; Function BF_NodeX ;
+        Support Domain ; Entity NodesOf[ All ] ; }
+      { Name syn ; NameOfCoef uyn ; Function BF_NodeY ;
+        Support Domain ; Entity NodesOf[ All ] ; }
+      { Name szn ; NameOfCoef uzn ; Function BF_NodeZ ;
+        Support Domain ; Entity NodesOf[ All ] ; }
+    }
+    Constraint {
+      { NameOfCoef uxn ; EntityType NodesOf ; NameOfConstraint DeplacementX ; }
+      { NameOfCoef uyn ; EntityType NodesOf ; NameOfConstraint DeplacementY ; }
+      { NameOfCoef uzn ; EntityType NodesOf ; NameOfConstraint DeplacementZ ; }
+    }
+  }
+  //----------------------------------------------
+  { Name H_u_Mec2D ; Type Vector ; 
+    BasisFunction {
+      { Name sxn ; NameOfCoef uxn ; Function BF_NodeX ; 
+        dFunction {BF_NodeX_D12, BF_Zero}; //??
+        Support Domain; Entity NodesOf[ All ] ; }
+      { Name syn ; NameOfCoef uyn ; Function BF_NodeY ; 
+        dFunction {BF_NodeY_D12, BF_Zero};
+        Support Domain; Entity NodesOf[ All ] ; }
+    }
+//      SubSpace {
+//        { Name u_x ; NameOfBasisFunction { sxn } ; }
+//        { Name u_y ; NameOfBasisFunction { syn } ; }
+//      }
+//    Constraint {
+//      { NameOfCoef uxn ;
+//        EntityType NodesOf ; NameOfConstraint DisplacementX_Mec ; }
+//      { NameOfCoef uyn ;
+//        EntityType NodesOf ; NameOfConstraint DisplacementY_Mec ; }
+//    }
+  }
+  //-----------------------------------------------------------------
   // Magnetic Vector Potential
   { Name Hcurl_a_2D ; Type Form1P ;
     BasisFunction {
@@ -329,8 +468,22 @@ FunctionSpace {
 }
 //----------------------------------------------------------------------------------------
 
-Formulation {
+Group{
+  // Transitions layers
+  If(Flag_velocity_vol==0.0)
+    For n In {1:NbSubDom}
+      DomShapeSens~{n} = ElementsOf[Domain~{n},OnOneSideOf SkinDomain~{n} ];
+      Domain_all += Region[ Domain~{n} ];
+      SkinDomain_all += Region[ SkinDomain~{n} ];
+    EndFor
+    DomShapeSens = ElementsOf[Domain_all,OnOneSideOf SkinDomain_all ];
+  EndIf  
+}
 
+Formulation {
+  //-----------------------------------------------------------------
+  // Magnetostatic Formulation
+  //-----------------------------------------------------------------
   { Name MagStaDyn_a_2D ; Type FemEquation ;
     Quantity {
       { Name a  ; Type Local  ; NameOfSpace Hcurl_a_2D ; }
@@ -350,7 +503,7 @@ Formulation {
       Galerkin { JacNL [ dhdb_NL[{d a}] * Dof{d a} , {d a} ] ;
         In DomainNL ; Jacobian Vol ; Integration I1 ; }
       EndIf
-      Galerkin { [ -nu[] * br[] , {d a} ] ;
+      Galerkin { [ -nu[] * br[] , {d a} ] ; 
         In DomainM ; Jacobian Vol ; Integration I1 ; }
 
       Galerkin { DtDof[ sigma[] * Dof{a} , {a} ] ;
@@ -380,6 +533,42 @@ Formulation {
       // if we have an estimation of the resistance of DomainB, via e.g. measurements
       // which is better to account for the end windings...
 
+    }
+  }
+  //-----------------------------------------------------------------
+  // Modal Formulation
+  //-----------------------------------------------------------------
+//  { Name Elasticity3D_u_modal ; Type FemEquation ;
+//    Quantity {
+//      { Name u ; Type Local ; NameOfSpace H_u_Mec3D ; }
+//    }
+//    Equation {
+//       Galerkin { [ C_11[] * Dof{D1 u} , {D1 u} ] ;
+//         In Domain ;Jacobian Vol ; Integration I1 ; }
+
+//       Galerkin { [ C_22[] * Dof{D2 u} , {D2 u} ] ;
+//         In Domain ;Jacobian Vol ; Integration I1 ; }
+
+//       Galerkin { [ C_12[] * Dof{D2 u} , {D1 u} ] ;
+//         In Domain ; Jacobian Vol ; Integration I1 ; }
+
+//       Galerkin { [ C_21[] * Dof{D1 u} , {D2 u} ] ;
+//         In Domain ; Jacobian Vol ; Integration I1 ; }
+
+//       Galerkin { DtDtDof [ rho_mec[] * Dof{u} , {u} ];
+//         In Domain ; Jacobian Vol ; Integration I1 ; }
+//    }
+//  }
+  { Name Elasticity2D_u_modal ; Type FemEquation ;
+    Quantity {
+      { Name u ; Type Local ; NameOfSpace H_u_Mec2D ; }
+    }
+    Equation {
+       Galerkin { [ C[]*Dof{D1 u}, {D1 u}] ; // define only on DomainTopOpt ???
+                 In DomainOpt; Jacobian Vol ; Integration I1 ; }
+
+       Galerkin { DtDtDof [ rho_mec[] * Dof{u} , {u} ];
+         In DomainOpt ; Jacobian Vol ; Integration I1 ; }
     }
   }
   //-----------------------------------------------------------------
@@ -481,9 +670,10 @@ Resolution {
   //===================================================================
   { Name OptimStep ;
     System {
-        { Name A ; NameOfFormulation MagStaDyn_a_2D ; } //get state variable
-        { Name B ; NameOfFormulation AdjointFormulation ; } //get adjoint variable
-        { Name D ; NameOfFormulation Filt_sens ; }
+        { Name A ; NameOfFormulation MagStaDyn_a_2D ; } //state variable
+        { Name B ; NameOfFormulation AdjointFormulation ; } //adjoint variable
+        { Name D ; NameOfFormulation Filt_sens ; }//filter sensitivity
+        { Name E; NameOfFormulation Elasticity2D_u_modal;} //modal analysis(2D)
     }
     Operation {
      CreateDir[ResDir];
@@ -524,6 +714,12 @@ Resolution {
        SaveSolution[A]; SaveSolution[B]; 
        PostOperation[Get_AdjointSystem];
      EndIf
+    //-------------------------------------------------------------------
+     If(Flag_SemiAnalyticAvmSens)
+       Printf["-- Compute AVM Semi-Analytic quantitys --"];
+       ReadSolution[A];ReadSolution[B]; // load A and Lambda
+       PostOperation[Get_SemiAnalyticAvmQuantitys]; // Compute Lambda*K*A and Lambda*g
+     EndIf
      //-------------------------------------------------------------------
      If(Flag_AvmFixedDomSens) // adjoint method sens. - fixed mesh
        Printf["-- Compute AVM sensitivity analysis (fixed domain) --"];
@@ -532,12 +728,54 @@ Resolution {
        PostOperation[Get_AvmFixedDomSens];
      EndIf
      //-------------------------------------------------------------------
+     If(Flag_LieAvmVarDomSens) //shape optimization analytic derative
+       ReadSolution[A];ReadSolution[B];//A and Lambda 
+       GmshRead["res/velocity.pos", VELOCITY_FIELD];
+       PostOperation[Get_AvmVarDomSens_Lie];
+     EndIf
+     //-------------------------------------------------------------------
+     If(Flag_AvmVarDomSens) //shape optimization analytic derative
+        Printf["-- Compute AVM sensitivity analysis (variable domain) --"];
+        ReadSolution[A];ReadSolution[B];//A and Lambda 
+        GmshRead["res/TorqueVarianceAllDom.pos", TORQUE_VAR_FIELD];
+        GmshRead["res/velocity.pos", VELOCITY_FIELD];
+        PostOperation[Get_AvmVarDomSens_0];//generate fields
+	GmshRead["res/a.pos", A_FIELD];
+	GmshRead["res/lambda.pos", LAMBDA_FIELD];
+	GmshRead["res/nuRotARotLambdaVelocity.pos", NU_ROTA_ROTLAMBDA_VELOCITY_FIELD];
+        GmshRead["res/jsLambdaVelocity.pos", JS_LAMBDA_VELOCITY_FIELD];
+        GmshRead["res/funcIndVelocity.pos", FUNC_IND_VELOCITY_FIELD];
+        GmshRead["res/MRotLambdaVelocity.pos", M_ROTLAMBDA_VELOCITY_FIELD];
+	PostOperation[Get_AvmVarDomSens_1];//generate fields
+   	GmshRead["res/grad_A_V.pos", GRADA_V_FIELD];
+	GmshRead["res/grad_Lambda_V.pos", GRADLAMBDA_V_FIELD];	
+	PostOperation[Get_AvmVarDomSens]; //compute derivative
+     EndIf
+     //-------------------------------------------------------------------
      If(Flag_filterSensitivity) // Filter sensitivity (only if TO)
        Printf["-- Filter Sensitivity --"];
        GmshRead["res/Sensitivity_DesVar.pos", SENS_FIELD]; 
        Generate[D]; Solve[D]; SaveSolution[D];
        PostOperation[Get_FilteredSens];
      EndIf
+     //-------------------------------------------------------------------
+     If(Flag_SolveEigSys) 
+       If(Flag_topopt)
+         GmshRead["res/designVariable.pos",DES_VAR_FIELD]; 
+       EndIf
+       GenerateSeparate[E]; EigenSolve[E, 10, 0, 0];//comment filtrer les modes rigides??
+       SaveSolutions[E] ;
+       PostOperation[Get_PrimalSystemEig] ;
+       PostOperation[Get_FixedDomSens_Stiff_eig];
+     EndIf
+//     //-------------------------------------------------------------------
+//     If(Flag_FixedDomSensEig) // adjoint method sens. - fixed mesh
+//       Printf["-- Compute sensitivity analysis eig (fixed domain) --"];
+//       ReadSolution[E];   
+//       GmshRead["res/designVariable.pos",DES_VAR_FIELD];
+//       PostOperation[Get_FixedDomSens_Stiff_eig];
+//     EndIf
+//     //-------------------------------------------------------------------
     }
   }
 }
