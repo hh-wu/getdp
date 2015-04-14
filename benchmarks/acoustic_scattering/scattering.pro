@@ -108,7 +108,7 @@ If(Type_PROBLEM == PENETRABLE)
   Include "Acoustic2D_penetrable.pro";
 EndIf
 
-//GetDP parameters (hiddent)
+//GetDP parameters (hidden)
 DefineConstant[
   R_ = {"Scattering", Name "GetDP/1ResolutionChoices", Visible 0},
   C_ = {"-solve -pos -v2", Name "GetDP/9ComputeCommand", Visible 0},

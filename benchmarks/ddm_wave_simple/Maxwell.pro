@@ -174,7 +174,7 @@ Formulation {
           In Omega~{idom}; Integration I1; Jacobian JVol; }
         Galerkin { [ -k[]^2 * Dof{e~{idom}} , {e~{idom}} ];
           In Omega~{idom}; Integration I1; Jacobian JVol; }
-        Galerkin { [ I[] * kInf[] * (N[]) /\ ( N[] /\ Dof{e~{idom}} ) , {e~{idom}} ];
+        Galerkin { [ -I[] * kInf[] * N[] /\ (Dof{e~{idom}} /\ N[]) , {e~{idom}} ];
           In GammaInf~{idom}; Integration I1; Jacobian JSur; }
 
         // boundary condition using Lagrange multiplier
@@ -193,7 +193,7 @@ Formulation {
             In Sigma~{idom}~{0}; Integration I1; Jacobian JSur; }
           Galerkin { [ (#12 > 0. ? g_in~{idom}~{1}[] : Vector[0,0,0]) , {e~{idom}} ];
             In Sigma~{idom}~{1}; Integration I1; Jacobian JSur; }
-          Galerkin { [ I[] * kDtN[] * N[] /\ ( N[] /\ Dof{e~{idom}} ), {e~{idom}} ];
+	  Galerkin { [ -I[] * kDtN[] * N[] /\ (Dof{e~{idom}} /\ N[]), {e~{idom}} ];
             In Sigma~{idom}; Integration I1; Jacobian JSur; }
         EndIf
 
