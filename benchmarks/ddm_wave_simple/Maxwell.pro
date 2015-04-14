@@ -31,11 +31,6 @@ Group{
   EndFor
 }
 
-Function{
-  al[] = -1/(keps[]^2);
-  be[] =  1/(keps[]^2);
-}
-
 Constraint{
   For ii In {0: #ListOfDom()-1}
     idom = ListOfDom(ii);
@@ -93,18 +88,18 @@ FunctionSpace {
 
     If(TC_TYPE == 1)
       For iSide In {0:1}
+        { Name Hcurl_r~{idom}~{iSide}; Type Form1;
+          BasisFunction {
+            { Name sph1; NameOfCoef eph1; Function BF_Edge;
+              Support Region[{Sigma~{idom}~{iSide}}] ;
+              Entity EdgesOf[Sigma~{idom}~{iSide}, Not {GammaD~{idom}, GammaD0~{idom}}]; }
+          }
+        }
         { Name Hgrad_rho~{idom}~{iSide} ; Type Form0 ;
           BasisFunction {
             { Name srh1; NameOfCoef erh1; Function BF_Node;
               Support Region[{Sigma~{idom}~{iSide}}] ;
               Entity NodesOf[Sigma~{idom}~{iSide}, Not {GammaD~{idom}, GammaD0~{idom}}]; }
-          }
-        }
-        { Name Hcurl_phi~{idom}~{iSide}; Type Form1;
-          BasisFunction {
-            { Name sph1; NameOfCoef eph1; Function BF_Edge;
-              Support Region[{Sigma~{idom}~{iSide}}] ;
-              Entity EdgesOf[Sigma~{idom}~{iSide}, Not {GammaD~{idom}, GammaD0~{idom}}]; }
           }
         }
       EndFor
@@ -121,19 +116,19 @@ FunctionSpace {
           }
         }
         For j In {1:NP_OSRC}
-          { Name Hgrad_rho~{j}~{idom}~{iSide} ; Type Form0 ;
-            BasisFunction {
-              { Name srh1; NameOfCoef erh1; Function BF_Node;
-                Support Region[{Sigma~{idom}~{iSide}}] ;
-                Entity NodesOf[Sigma~{idom}~{iSide},
-                               Not {GammaD~{idom}, GammaD0~{idom}, GammaInf~{idom}}]; }
-            }
-          }
           { Name Hcurl_phi~{j}~{idom}~{iSide}; Type Form1;
             BasisFunction {
               { Name sph1; NameOfCoef eph1; Function BF_Edge;
                 Support Region[{Sigma~{idom}~{iSide}}] ;
                 Entity EdgesOf[Sigma~{idom}~{iSide},
+                               Not {GammaD~{idom}, GammaD0~{idom}, GammaInf~{idom}}]; }
+            }
+          }
+          { Name Hgrad_rho~{j}~{idom}~{iSide} ; Type Form0 ;
+            BasisFunction {
+              { Name srh1; NameOfCoef erh1; Function BF_Node;
+                Support Region[{Sigma~{idom}~{iSide}}] ;
+                Entity NodesOf[Sigma~{idom}~{iSide},
                                Not {GammaD~{idom}, GammaD0~{idom}, GammaInf~{idom}}]; }
             }
           }
@@ -155,16 +150,16 @@ Formulation {
         { Name lambda~{idom}; Type Local; NameOfSpace Hcurl_lambda~{idom}; }
         If(TC_TYPE == 1)
           For iSide In {0:1}
+            { Name r~{idom}~{iSide}; Type Local; NameOfSpace Hcurl_r~{idom}~{iSide};}
             { Name rho~{idom}~{iSide}; Type Local; NameOfSpace Hgrad_rho~{idom}~{iSide};}
-            { Name phi~{idom}~{iSide}; Type Local; NameOfSpace Hcurl_phi~{idom}~{iSide};}
           EndFor
         EndIf
         If(TC_TYPE == 2)
           For iSide In {0:1}
           { Name r~{idom}~{iSide}; Type Local; NameOfSpace Hcurl_r~{idom}~{iSide};}
             For j In {1:NP_OSRC}
-              { Name rho~{j}~{idom}~{iSide}; Type Local; NameOfSpace Hgrad_rho~{j}~{idom}~{iSide};}
               { Name phi~{j}~{idom}~{iSide}; Type Local; NameOfSpace Hcurl_phi~{j}~{idom}~{iSide};}
+              { Name rho~{j}~{idom}~{iSide}; Type Local; NameOfSpace Hgrad_rho~{j}~{idom}~{iSide};}
             EndFor
           EndFor
         EndIf
@@ -187,86 +182,77 @@ Formulation {
         Galerkin { [ (#10 > 0. ? einc[]: Vector[0,0,0]), {lambda~{idom}} ] ;
           In GammaD~{idom}; Jacobian JSur ; Integration I1 ; }
 
+        Galerkin { [ (#11 > 0. ? g_in~{idom}~{0}[] : Vector[0,0,0]) , {e~{idom}} ];
+          In Sigma~{idom}~{0}; Integration I1; Jacobian JSur; }
+        Galerkin { [ (#12 > 0. ? g_in~{idom}~{1}[] : Vector[0,0,0]) , {e~{idom}} ];
+          In Sigma~{idom}~{1}; Integration I1; Jacobian JSur; }
+
         // transmission condition
         If(TC_TYPE == 0)
-          Galerkin { [ (#11 > 0. ? g_in~{idom}~{0}[] : Vector[0,0,0]) , {e~{idom}} ];
-            In Sigma~{idom}~{0}; Integration I1; Jacobian JSur; }
-          Galerkin { [ (#12 > 0. ? g_in~{idom}~{1}[] : Vector[0,0,0]) , {e~{idom}} ];
-            In Sigma~{idom}~{1}; Integration I1; Jacobian JSur; }
 	  Galerkin { [ -I[] * kDtN[] * N[] /\ (Dof{e~{idom}} /\ N[]), {e~{idom}} ];
             In Sigma~{idom}; Integration I1; Jacobian JSur; }
         EndIf
 
         If(TC_TYPE == 1)
-          Galerkin { [ (#11 > 0. ? I[]*k[]*g_in~{idom}~{0}[] : Vector[0,0,0]) , {e~{idom}} ];
-            In Sigma~{idom}~{0}; Integration I1; Jacobian JSur; }
-          Galerkin { [ (#12 > 0. ? I[]*k[]*g_in~{idom}~{1}[] : Vector[0,0,0]) , {e~{idom}} ];
-            In Sigma~{idom}~{1}; Integration I1; Jacobian JSur; }
           For iSide In {0:1}
-            Galerkin { [ -I[]*k[]*Dof{phi~{idom}~{iSide}} , {e~{idom}} ] ;
+            Galerkin { [ -I[] * k[] * Dof{r~{idom}~{iSide}} , {e~{idom}} ] ;
               In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
 
-            Galerkin { [ -Coef_Lee2[]*Dof{d rho~{idom}~{iSide}} , {phi~{idom}~{iSide}} ] ;
+            Galerkin { [ aa[]/k[]^2 * Dof{d rho~{idom}~{iSide}} , {r~{idom}~{iSide}} ] ;
               In Sigma~{idom}~{iSide}; Integration I1; Jacobian  JSur; }
-            Galerkin { [(k[]^2)*Dof{phi~{idom}~{iSide}} , {phi~{idom}~{iSide}} ] ;
+            Galerkin { [ Dof{r~{idom}~{iSide}} , {r~{idom}~{iSide}} ] ;
               In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
-            Galerkin { [-(k[]^2)*Dof{e~{idom}} , {phi~{idom}~{iSide}} ] ;
+            Galerkin { [ -Dof{e~{idom}} , {r~{idom}~{iSide}} ] ;
               In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
-            Galerkin { [ Coef_Lee1[]*Dof{d e~{idom}} , {d phi~{idom}~{iSide}} ] ;
+            Galerkin { [ bb[]/k[]^2 * Dof{d e~{idom}} , {d r~{idom}~{iSide}} ] ;
               In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
 
             Galerkin { [ Dof{rho~{idom}~{iSide}} , {rho~{idom}~{iSide}} ];
               In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
-            Galerkin { [ Dof{phi~{idom}~{iSide}} , {d rho~{idom}~{iSide}} ];
+            Galerkin { [ Dof{r~{idom}~{iSide}} , {d rho~{idom}~{iSide}} ];
               In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
           EndFor
         EndIf
 
         If(TC_TYPE == 2)
-          Galerkin { [ (#11 > 0. ? -1 / OSRC_R0[]{NP_OSRC,theta_branch}
-                                      * g_in~{idom}~{0}[] : Vector[0,0,0]) ,
-                       {r~{idom}~{0}} ];
-            In Sigma~{idom}~{0}; Integration I1; Jacobian JSur; }
-          Galerkin { [ (#12 > 0. ? -1 / OSRC_R0[]{NP_OSRC,theta_branch}
-                                      * g_in~{idom}~{1}[] : Vector[0,0,0]) ,
-                       {r~{idom}~{1}} ];
-            In Sigma~{idom}~{1}; Integration I1; Jacobian JSur; }
-
           For iSide In {0:1}
-            Galerkin { [ I[] * k[] * Dof{r~{idom}~{iSide}} , {e~{idom}} ];
+            Galerkin { [ -I[] * k[] * Dof{r~{idom}~{iSide}} , {e~{idom}} ];
               In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
-            Galerkin { [ 1 / OSRC_R0[]{NP_OSRC,theta_branch} * (Dof{e~{idom}}),
-                         {r~{idom}~{iSide}} ];
+
+            Galerkin { [ - Dof{e~{idom}} , {r~{idom}~{iSide}} ];
               In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
-            Galerkin { [ -1 / (OSRC_R0[]{NP_OSRC,theta_branch} * keps[]^2)
-                            * Dof{d e~{idom}} , {d r~{idom}~{iSide}} ];
+            Galerkin { [ 1/keps[]^2 * Dof{d e~{idom}} , {d r~{idom}~{iSide}} ];
               In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
-            Galerkin { [ Dof{r~{idom}~{iSide}} , {r~{idom}~{iSide}} ] ;
+            Galerkin { [ OSRC_C0[]{NP_OSRC,theta_branch} * Dof{r~{idom}~{iSide}},
+                {r~{idom}~{iSide}} ];
               In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
+
             For j In{1:NP_OSRC}
-              Galerkin { [ -OSRC_Aj[]{j,NP_OSRC,theta_branch} /
-                           (OSRC_Bj[]{j,NP_OSRC,theta_branch} *
-                            OSRC_R0[]{  NP_OSRC,theta_branch}) *
-                           Dof{phi~{j}~{idom}~{iSide}} , {r~{idom}~{iSide}} ] ;
+              Galerkin { [ OSRC_Aj[]{j,NP_OSRC,theta_branch} *
+                  Dof{d rho~{j}~{idom}~{iSide}}, {r~{idom}~{iSide}} ];
                 In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
-              Galerkin { [ Dof{r~{idom}~{iSide}} , {phi~{j}~{idom}~{iSide}} ] ;
+              Galerkin { [ -OSRC_Aj[]{j,NP_OSRC,theta_branch} / keps[]^2 *
+                  Dof{d phi~{j}~{idom}~{iSide}}, {d r~{idom}~{iSide}} ];
+              In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
+            EndFor
+
+            For j In{1:NP_OSRC}
+              Galerkin { [ Dof{phi~{j}~{idom}~{iSide}}, {phi~{j}~{idom}~{iSide}} ];
                 In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
-              Galerkin { [ -Dof{phi~{j}~{idom}~{iSide}} ,
-                           {phi~{j}~{idom}~{iSide}} ] ;
-                In Sigma~{idom}~{iSide}; Integration I1; Jacobian  JSur; }
-              Galerkin { [ OSRC_Bj[]{j,NP_OSRC,theta_branch} / (keps[]^2) *
-                           Dof{d phi~{j}~{idom}~{iSide}} ,
-                           {d phi~{j}~{idom}~{iSide}} ] ;
+              Galerkin { [ OSRC_Bj[]{j,NP_OSRC,theta_branch} *
+                  Dof{d rho~{j}~{idom}~{iSide}}, {phi~{j}~{idom}~{iSide}} ];
                 In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
-              Galerkin { [ -OSRC_Bj[]{j,NP_OSRC,theta_branch} *
-                           Dof{d rho~{j}~{idom}~{iSide}} ,
-                           {phi~{j}~{idom}~{iSide}} ] ;
+              Galerkin { [ -OSRC_Bj[]{j,NP_OSRC,theta_branch} / keps[]^2 *
+                  Dof{d phi~{j}~{idom}~{iSide}}, {d phi~{j}~{idom}~{iSide}} ];
                 In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
-              Galerkin { [ keps[]^2 * Dof{rho~{j}~{idom}~{iSide}} ,
-                           {rho~{j}~{idom}~{iSide}} ];
+              Galerkin { [ - Dof{r~{idom}~{iSide}}, {phi~{j}~{idom}~{iSide}} ];
                 In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
-              Galerkin { [ Dof{phi~{j}~{idom}~{iSide}} ,
-                           {d rho~{j}~{idom}~{iSide}} ];
+            EndFor
+
+            For j In{1:NP_OSRC}
+              Galerkin { [ Dof{rho~{j}~{idom}~{iSide}} , {rho~{j}~{idom}~{iSide}} ];
+                In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
+              Galerkin { [ 1/keps[]^2 * Dof{phi~{j}~{idom}~{iSide}} , {d rho~{j}~{idom}~{iSide}} ];
                 In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
             EndFor
           EndFor
@@ -289,7 +275,7 @@ Formulation {
           EndIf
           If(TC_TYPE == 1)
             { Name rho~{idom}~{iSide}; Type Local; NameOfSpace Hgrad_rho~{idom}~{iSide};}
-            { Name phi~{idom}~{iSide}; Type Local; NameOfSpace Hcurl_phi~{idom}~{iSide};}
+            { Name r~{idom}~{iSide}; Type Local; NameOfSpace Hcurl_r~{idom}~{iSide};}
           EndIf
           If(TC_TYPE == 2)
             { Name r~{idom}~{iSide}; Type Local;  NameOfSpace Hcurl_r~{idom}~{iSide};}
@@ -303,32 +289,22 @@ Formulation {
           Galerkin { [ Dof{g_out~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ];
             In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
 
+          Galerkin { [ (#10 > 0. ? Vector[0,0,0] : g_in~{idom}~{iSide}[]) , {g_out~{idom}~{iSide}} ];
+            In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
+
           If(TC_TYPE == 0)
-            Galerkin { [ (#10 > 0. ? Vector[0,0,0] : g_in~{idom}~{iSide}[]) , {g_out~{idom}~{iSide}} ];
-              In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
-            Galerkin { [ 2*I[] * kDtN[] * N[] /\ ( N[] /\ {e~{idom}} ) , {g_out~{idom}~{iSide}} ];
+            Galerkin { [ -2 * I[] * kDtN[] * N[] /\ ({e~{idom}} /\ N[]) , {g_out~{idom}~{iSide}} ];
               In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
           EndIf
 
           If(TC_TYPE == 1)
-            Galerkin { [ (#10 > 0. ? Vector[0,0,0] : g_in~{idom}~{iSide}[]) , {g_out~{idom}~{iSide}} ];
-              In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
-            Galerkin { [ -2 * { phi~{idom}~{iSide}} , { g_out~{idom}~{iSide}} ] ;
+            Galerkin { [ -2 * I[] * kDtN[] * {r~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ] ;
               In Sigma~{idom}~{iSide}; Jacobian JSur; Integration I1; }
           EndIf
 
           If(TC_TYPE == 2)
-            Galerkin { [ (#10 > 0. ? Vector[0,0,0] : -g_in~{idom}~{iSide}[]) , {g_out~{idom}~{iSide}} ];
+            Galerkin { [ -2 * I[] * kDtN[] * {r~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ] ;
               In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
-            Galerkin { [ 2 * OSRC_R0[]{NP_OSRC,theta_branch} *
-                         {r~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ] ;
-              In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
-            For j In{1:NP_OSRC}
-              Galerkin { [ -2 * OSRC_Aj[]{j,NP_OSRC,theta_branch} /
-                                OSRC_Bj[]{j,NP_OSRC,theta_branch} *
-                           {phi~{j}~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ] ;
-                In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
-            EndFor
           EndIf
         }
       }

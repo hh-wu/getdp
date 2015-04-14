@@ -54,8 +54,8 @@ Function {
   // parameters for 2nd order TC Maxwell: J.-F. Lee
   kmax[] = Pi/LC ;
   delt[] = Sqrt[kmax[]^2-k^2]/Sqrt[k^2];
-  Coef_Lee1[] = 1/(1 + I[]*delt[]);
-  Coef_Lee2[] = -Coef_Lee1[];
+  aa[] = 1/(1 + I[]*delt[]);
+  bb[] = aa[];
 
   // parameters for Pade-type TC
   kappa[] =  1/R_INT;

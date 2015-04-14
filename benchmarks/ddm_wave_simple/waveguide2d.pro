@@ -40,11 +40,6 @@ Function {
   kDtN[] = k[];
 
   // parameters for 2nd order TC
-  // J.-F. Lee
-  kmax[] = Pi/LC ;
-  delt[] = Sqrt[kmax[]^2-k[]^2]/Sqrt[k[]^2];
-  Coef_Lee1[] = 1/(1 + I[]*delt[]);
-  Coef_Lee2[] = -Coef_Lee1[];
   // OO2 Gander 2002, pp. 46-47
   xsimin = 0;
   xsimax = Pi / LC;

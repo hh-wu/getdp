@@ -61,16 +61,13 @@ Function {
   // parameters for 2nd order TC Maxwell: J.-F. Lee
   kmax[] = Pi/LC ;
   delt[] = Sqrt[kmax[]^2-k^2]/Sqrt[k^2];
-  Coef_Lee1[] = 1/(1 + I[]*delt[]);
-  Coef_Lee2[] = -Coef_Lee1[];
+  aa[] = 1/(1 + I[]*delt[]);
+  bb[] = aa[];
 
   // parameters for Pade-type TC
   kappa[] =  1/R_INT;
   keps[] = Complex[ k, 0.4 * k^(1/3) * kappa[]^(-2/3) ];
   theta_branch = Pi/2;
-
-  //UnSurKeps2[] = 1/(keps[]^2);
-  //CoefLeeSurK2[] = Coef_Lee1[]/k^2;
 
   Printf("N_DOM %g WAVENUMBER %g N_LAMBDA %g TC_TYPE %g NP_OSRC %g POLARISATION %g",
          N_DOM, WAVENUMBER, N_LAMBDA, TC_TYPE, NP_OSRC, POLARISATION);
