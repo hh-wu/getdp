@@ -76,14 +76,14 @@ FunctionSpace {
     }
 
     For iSide In {0:1}
-    { Name Hcurl_g_out~{idom}~{iSide}; Type Form1;
-      BasisFunction {
-        { Name se; NameOfCoef ee; Function BF_Edge;
-          Support Region[{Sigma~{idom}~{iSide}}] ;
-          Entity EdgesOf[Sigma~{idom}~{iSide},
-                         Not {GammaD~{idom}, GammaD0~{idom}, GammaInf~{idom}}]; }
+      { Name Hcurl_g_out~{idom}~{iSide}; Type Form1;
+        BasisFunction {
+          { Name se; NameOfCoef ee; Function BF_Edge;
+            Support Region[{Sigma~{idom}~{iSide}}] ;
+            Entity EdgesOf[Sigma~{idom}~{iSide},
+                           Not {GammaD~{idom}, GammaD0~{idom}, GammaInf~{idom}}]; }
+        }
       }
-    }
     EndFor
 
     If(TC_TYPE == 1)
@@ -234,9 +234,7 @@ Formulation {
               Galerkin { [ -OSRC_Aj[]{j,NP_OSRC,theta_branch} / keps[]^2 *
                   Dof{d phi~{j}~{idom}~{iSide}}, {d r~{idom}~{iSide}} ];
               In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
-            EndFor
 
-            For j In{1:NP_OSRC}
               Galerkin { [ Dof{phi~{j}~{idom}~{iSide}}, {phi~{j}~{idom}~{iSide}} ];
                 In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
               Galerkin { [ OSRC_Bj[]{j,NP_OSRC,theta_branch} *
@@ -247,9 +245,7 @@ Formulation {
                 In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
               Galerkin { [ - Dof{r~{idom}~{iSide}}, {phi~{j}~{idom}~{iSide}} ];
                 In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
-            EndFor
 
-            For j In{1:NP_OSRC}
               Galerkin { [ Dof{rho~{j}~{idom}~{iSide}} , {rho~{j}~{idom}~{iSide}} ];
                 In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
               Galerkin { [ 1/keps[]^2 * Dof{phi~{j}~{idom}~{iSide}} , {d rho~{j}~{idom}~{iSide}} ];
@@ -400,8 +396,6 @@ Resolution {
           EndFor
         EndFor
         SetCommWorld;
-      }
-      {
       }
 
       DeleteFile[ "/tmp/kspiter.txt" ];

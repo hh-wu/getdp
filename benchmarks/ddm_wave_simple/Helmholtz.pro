@@ -347,8 +347,6 @@ Resolution {
 	EndFor
 	SetCommWorld;
       }
-      {
-      }
 
       // build final volume solution after convergence on own cpu; using both
       // physical and artificial sources
