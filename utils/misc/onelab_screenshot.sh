@@ -4,8 +4,9 @@
 # used in the ONELAB wiki, e.g.:
 #
 #  > gmsh main.pro
-#  ... get nice view ...
+#  ... get nice view with Gmsh window maximized ...
 #  > onelab_screenshot 1
+#  ... get nice second view ...
 #  > onelab_screenshot 2
 
 if [ $# -lt 1 ]; then
@@ -16,4 +17,6 @@ fi
 NUMBER=$1
 
 screencapture -Wi screenshot${NUMBER}.png
-convert -scale 512 screenshot${NUMBER}.png screenshot${NUMBER}_512.png
+
+# create miniature image with width of 512 pixels
+convert -resize 512 screenshot${NUMBER}.png screenshot${NUMBER}_512.png

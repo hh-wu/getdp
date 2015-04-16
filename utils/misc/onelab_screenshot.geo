@@ -10,7 +10,6 @@ Print.Width = 1014;
 Print.Height = 1014;
 Print.Background = 1;
 
-
 Save StrCat("screenshot_", StrPrefix(StrRelative(General.FileName)), ".png") ;
 
 SystemCall StrCat("convert -scale 128 screenshot_", StrPrefix(StrRelative(General.FileName)),
