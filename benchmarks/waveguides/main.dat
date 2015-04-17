@@ -10,18 +10,20 @@ PBM_REC3D = 4 ;
 PBM_STAR2D = 5 ;
 PBM_STAR3D = 6 ;
 PBM_MMI2D = 7 ;
+PBM_STEP3D = 8 ;
 
 DefineConstant[
-    FLAG_PBM = {PBM_STR2D, Name "Input/00Problem", Highlight "Blue",
-                GmshOption "Reset", Autocheck 0,
-    Choices {0 = "...",
-             PBM_STR2D = "Straight waveguide [2D]",
-             PBM_STR2D_DIEL = "Straight waveguide with dielectric [2D]",
-             PBM_HBEND2D = "H-bend waveguide [2D]",
-             PBM_REC3D = "Rectangular waveguide [3D]",
-             PBM_STAR2D = "Star-shaped network [2D]",
-             PBM_STAR3D = "Star-shaped network [3D]",
-             PBM_MMI2D = "Multi-mode interference coupler [2D]"} }
+  FLAG_PBM = {PBM_STR2D, Name "Input/00Problem", Highlight "Blue",
+              GmshOption "Reset", Autocheck 0,
+              Choices {0 = "...",
+                       PBM_STR2D = "Straight waveguide [2D]",
+                       PBM_STR2D_DIEL = "Straight waveguide with dielectric [2D]",
+                       PBM_HBEND2D = "H-bend waveguide [2D]",
+                       PBM_REC3D = "Rectangular waveguide [3D]",
+                       PBM_STAR2D = "Star-shaped network [2D]",
+                       PBM_STAR3D = "Star-shaped network [3D]",
+                       PBM_MMI2D = "Multi-mode interference coupler [2D]",
+                       PBM_STEP3D = "Waveguide with step [3D]"}}
 ] ;
 
 If (FLAG_PBM==PBM_STR2D)
@@ -58,4 +60,9 @@ If (FLAG_PBM==PBM_MMI2D)
   LinkGeo = "waveguide2D_MMI.geo" ;
   LinkPro = "waveguide2D_MMI.pro" ;
   DIM = 2 ;
+EndIf
+If (FLAG_PBM==PBM_STEP3D)
+  LinkGeo = "waveguide3D_step.geo" ;
+  LinkPro = "waveguide3D_step.pro" ;
+  DIM = 3 ;
 EndIf

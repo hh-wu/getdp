@@ -8,6 +8,8 @@
 
 Include "waveguide2D_Hbend.dat" ;
 
+DefineConstant[ Excitation = 1 ]; // FIXME: add BC for TM excitation
+
 Group {
   Port_1 = Region[{BND_PORT_1}] ;
   Port_2 = Region[{BND_PORT_2}] ;

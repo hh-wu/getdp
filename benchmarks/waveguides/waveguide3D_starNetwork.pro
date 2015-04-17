@@ -6,6 +6,8 @@
 
 Include "waveguide3D_starNetwork.dat" ;
 
+DefineConstant[ Excitation = 1 ]; // FIXME: add BC for TM excitation
+
 Group {
   For n In {1:NbPorts}
     Port~{n} = Region[{BND_PORT~{n}}] ;
@@ -41,11 +43,11 @@ Function {
   I[] = Complex[0.,1.] ;
   epsR[] = 1 ;
   muR[] = 1 ;
-  
+
   k0 = 2*Pi/LAMB ;   // Free space wavevector
   ky = mMode*Pi/W ;  // Transverse wavevector (horizontal)
   kz = nMode*Pi/Wz ; // Transverse wavevector (vertical)
-  
+
   For n In {1:NbPorts}
     phi = 2*Pi*(n-0.5)/NbPorts ;
     yLoc~{n}[] = Sin[phi]*X[] - Cos[phi]*Y[] + W/2 ;

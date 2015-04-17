@@ -1,5 +1,7 @@
 Include "waveguide2D_MMI.dat" ;
 
+DefineConstant[ Excitation = 1 ]; // FIXME: add BC for TM excitation
+
 Group {
   For n In {1:NbPorts}
     Port~{n} = Region[{BND_PORT~{n}}] ;

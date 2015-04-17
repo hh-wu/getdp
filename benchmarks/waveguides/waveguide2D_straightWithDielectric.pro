@@ -6,6 +6,8 @@
 
 Include "waveguide2D_straightWithDielectric.dat" ;
 
+DefineConstant[ Excitation = 1 ]; // FIXME: add BC for TM excitation
+
 Group {
   Port_1 = Region[{BND_PORT_1}] ;
   Port_2 = Region[{BND_PORT_2}] ;
@@ -39,15 +41,15 @@ LAMB = LAMB/100 ;
 
 Function {
   I[] = Complex[0.,1.] ;
-  
+
   epsR[BndABC] = 1. ;
   epsR[DomainAir] = 1. ;
   epsR[DomainDiel] = 4. ; //Complex[4.,1.] ;
   muR[] = 1 ;
-  
+
   k0 = 2*Pi/LAMB ; // Free space wavevector
   ky = m*Pi/W ;    // Transverse wavevector
-  
+
   For n In {1:NbPorts}
     ePort~{n}[] = Vector[ 0., 0., Sin[ky*Y[]] ] ;
     eInc[Port~{n}] = (n == ActivePort) ? ePort~{n}[] : Vector[ 0., 0., 0. ] ;

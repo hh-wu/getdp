@@ -1,0 +1,57 @@
+//========================================================
+// Benchmark "EM waveguide 3D - Rectangular Step"
+// File: Parameters
+// Contributors: B. Klein
+// Based on the example, waveguide3D_rectangle by: C. Geuzaine, A. Modave
+//========================================================
+
+ExtGnuplot = ".dat";
+ExtGmsh = ".pos";
+myDir = "output/";
+catParam1 = "Input/2Geometry/";
+catParam2 = "Input/3Signal/";
+catParam3 = "Input/4Discretization/";
+catOutput = "Output/";
+
+//---------------------------
+// Parameters of the geometry
+//---------------------------
+
+DIM = 3;
+
+DefineConstant[
+  Lb = { 1.2, Min 1, Max 100, Step 1,
+    Name StrCat[catParam1,"1Lengthb of Domain [cm]"]},
+  Ls = { 1.2, Min 1, Max 100, Step 1,
+    Name StrCat[catParam1,"1Lengths of Domain [cm]"]},
+  Wxb = { 2.29, Min 1, Max 100, Step 1,
+    Name StrCat[catParam1,"2Xb-width of Domain [cm]"]},
+  Wyb = { 1.02, Min 1, Max 100, Step 1,
+    Name StrCat[catParam1,"2Yb-width of Domain [cm]"]},
+  Wxs = { 1.58, Min 1, Max 100, Step 1,
+    Name StrCat[catParam1,"2Xs-width of Domain [cm]"]},
+  Wys = { 0.79, Min 1, Max 100, Step 1,
+    Name StrCat[catParam1,"2Ys-width of Domain [cm]"]},
+  res = { 1e-1, Min 1e-2, Max 50e-1, Step 1e-2,
+    Name StrCat[catParam3,"1Resolution of grid [cm]"]}
+];
+
+Lb = Lb/100;
+Ls = Ls/100;
+Wxb = Wxb/100;
+Wxs = Wxs/100;
+Wyb = Wyb/100;
+Wys = Wys/100;
+res = res/100;
+
+//--------------
+// Physical TAGs
+//--------------
+
+DOM = 1000;
+BND_PEC = 2000;
+BND_PORT_1 = 2001;
+BND_PORT_2 = 2002;
+
+W0x=(Wxb-Wxs)/2;
+W0y=(Wyb-Wys)/2;
