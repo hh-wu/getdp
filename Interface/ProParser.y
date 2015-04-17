@@ -840,7 +840,7 @@ Function :
 DefineFunctions :
 
     /* none */
-  | DefineFunctions Comma tSTRING
+  | DefineFunctions Comma  String__Index
     {
       int i;
       if ( (i = List_ISearchSeq
@@ -851,7 +851,7 @@ DefineFunctions :
       else  Free($3) ;
     }
 
-  | DefineFunctions Comma tSTRING '{' FExpr '}'
+  | DefineFunctions Comma  String__Index '{' FExpr '}'
     {
       for (int k = 0 ; k < (int)$5 ; k++) {
 	char tmpstr[256];
