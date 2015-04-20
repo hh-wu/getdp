@@ -6566,8 +6566,8 @@ Point (1 node).
 @end table
 
 GetDP can also read more recent versions of the `msh' format (2.0 and
-above). See the Gmsh documentation for more information about these
-formats.
+above), as well as binary meshes. See the Gmsh documentation for more
+information about these formats.
 
 @c -------------------------------------------------------------------------
 @c Output File Format
