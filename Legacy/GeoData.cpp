@@ -333,25 +333,25 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
   double              Version = 1.0 ;
   struct Geo_Node     Geo_Node ;
   struct Geo_Element  Geo_Element ;
-  char                String[256] ;
+  char                String[256] = "" ;
   int                 binary = 0, swap = 0;
 
   while (1) {
 
     do {
-      fgets(String, sizeof(String), File_GEO) ;
-      if (feof(File_GEO))  break ;
+      if(!fgets(String, sizeof(String), File_GEO) || feof(File_GEO))
+        break;
     } while (String[0] != '$') ;
 
-    if (feof(File_GEO))  break ;
+    if (feof(File_GEO))
+      break ;
 
     /*  F O R M A T  */
 
     if(!strncmp(&String[1], "MeshFormat", 10)) {
 
-      fgets(String, sizeof(String), File_GEO) ;
-      if(sscanf(String, "%lf %d %d", &Version, &Format, &Size) != 3)
-        return;
+      if(!fgets(String, sizeof(String), File_GEO)) return;
+      if(sscanf(String, "%lf %d %d", &Version, &Format, &Size) != 3) return;
       if(Version < 2.0 || Version >= 3.0){
 	Message::Error("Unknown mesh file version (%g)", Version);
 	return;
@@ -375,7 +375,7 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
 
       // GetDP does not currently use the name information
 
-      fgets(String, sizeof(String), File_GEO) ;
+      if(!fgets(String, sizeof(String), File_GEO)) return ;
       int numNames;
       if(sscanf(String, "%d", &numNames) != 1) return ;
       for(int i = 0; i < numNames; i++) {
@@ -384,7 +384,7 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
           if(fscanf(File_GEO, "%d", &dim) != 1) return ;
         }
         if(fscanf(File_GEO, "%d", &num) != 1) return ;
-        fgets(String, sizeof(String), File_GEO) ;
+        if(!fgets(String, sizeof(String), File_GEO)) return ;
         //std::string name = ExtractDoubleQuotedString(String, 256);
         //if(name.size())
         //  GeoData_P->PhysicalNames[std::pair<int,int>(dim, num)] = name;
@@ -397,7 +397,7 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
 	     !strncmp(&String[1], "NOD", 3) ||
 	     !strncmp(&String[1], "Nodes", 5)) {
 
-      fgets(String, sizeof(String), File_GEO) ;
+      if(!fgets(String, sizeof(String), File_GEO)) return;
       if(sscanf(String, "%d", &Nbr) != 1) return;
       Message::Debug("%d nodes", Nbr);
 
@@ -474,7 +474,7 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
     else if (!strncmp(&String[1], "ELM", 3) ||
 	     !strncmp(&String[1], "Elements", 8)) {
 
-      fgets(String, sizeof(String), File_GEO) ;
+      if(!fgets(String, sizeof(String), File_GEO)) return;
       if(sscanf(String, "%d", &Nbr) != 1) return;
       Message::Debug("%d elements", Nbr);
 
@@ -548,8 +548,8 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
     }
 
     do {
-      fgets(String, sizeof(String), File_GEO) ;
-      if (feof(File_GEO)){ Message::Error("Premature end of file"); return; }
+      if(!fgets(String, sizeof(String), File_GEO) || feof(File_GEO))
+        break;
     } while (String[0] != '$') ;
 
   }   /* while 1 ... */
@@ -577,8 +577,8 @@ void Geo_ReadFileAdapt(struct GeoData * GeoData_P)
   while (1) {
 
     do {
-      fgets(String, sizeof(String), File_GEO) ;
-      if (feof(File_GEO))  break ;
+      if(!fgets(String, sizeof(String), File_GEO) || feof(File_GEO))
+        break ;
     } while (String[0] != '$') ;
 
     if (feof(File_GEO))  break ;
@@ -600,8 +600,8 @@ void Geo_ReadFileAdapt(struct GeoData * GeoData_P)
     }
 
     do {
-      fgets(String, sizeof(String), File_GEO) ;
-      if (feof(File_GEO)){ Message::Error("Premature end of file"); break; }
+      if(!fgets(String, sizeof(String), File_GEO) || feof(File_GEO))
+        break;
     } while (String[0] != '$') ;
 
   }   /* while 1 ... */
