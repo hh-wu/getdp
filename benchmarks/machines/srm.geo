@@ -45,7 +45,6 @@ DefineConstant[
       StrCat[pp, "1Stator/Inner radius [m]"],
       StrCat[pp, "1Stator/Yoke width [m]"],
       StrCat[pp, "2Rotor/Pole opening angle [deg]"],
-      StrCat[pp, "2Rotor/Outer radius [m]"],
       StrCat[pp, "2Rotor/Inner radius [m]"],
       StrCat[pp, "2Rotor/Shaft radius [m]"]
     },
