@@ -101,7 +101,7 @@ Resolution {
     Operation {
       CreateDirectory[Dir_Macro];
       InitSolution[A];
-      
+
       //PostOperation[ globalquantities ];
 
       If(!Flag_Dynamic)
@@ -171,7 +171,7 @@ PostProcessing {
           Integral { [ nu[] * {d a} * Dt[{d a}] ];
             In Domain_L; Jacobian JVol; Integration I1; }
           Integral { [ h[{d a}] * Dt[{d a}] ];
-            In Domain_NL; Jacobian JVol; Integration I1; } // makes no sense 
+            In Domain_NL; Jacobian JVol; Integration I1; } // makes no sense
         } }
 
       { Name MagneticEnergy_Upscaled_Local; Value {
@@ -184,7 +184,7 @@ PostProcessing {
             Local { [ Python[ElementNum[], QuadraturePointIndex[], 2]{"hmm_upscale.py"} ];
             In Domain_NL; Jacobian JVol; }
         } }
-      
+
       { Name MagneticEnergy_Upscaled; Value {
           If(!Flag_Dynamic)
             Integral { [ nu[] * SquNorm[{d a}] ];
@@ -197,7 +197,7 @@ PostProcessing {
             Integral { [ Python[ElementNum[], QuadraturePointIndex[], 2]{"hmm_upscale.py"} ];
             In Domain_NL; Jacobian JVol; Integration I1; }
         } }
-      
+
       { Name JouleLosses_Upscaled_Local; Value {
           If(!Flag_Dynamic)
             Local { [ 0.0 ]; In Domain_L; Jacobian JVol; }
@@ -208,7 +208,7 @@ PostProcessing {
               In Domain_NL; Jacobian JVol; }
           EndIf
        } }
-      
+
       { Name JouleLosses_Upscaled; Value {
           If(!Flag_Dynamic)
             Integral { [ 0.0 ]; In Domain_L; Jacobian JVol; Integration I1; }
@@ -258,7 +258,7 @@ PostOperation {
       Print[ MagneticEnergy_Upscaled[Domain], OnGlobal, Format TimeTable, File > StrCat[Dir_Macro, "MagneticEnergy_Upscaled.dat" ], LastTimeStepOnly ] ;
       Print[ JouleLosses_Upscaled[Domain_NL], OnGlobal, Format TimeTable, File > StrCat[Dir_Macro, "JouleLosses_Upscaled.dat" ], LastTimeStepOnly ] ;
     }
-  } 
+  }
 
   { Name meso_computations; NameOfPostProcessing MagStaDyn_a_hmm;
     Operation {
@@ -273,7 +273,7 @@ PostOperation {
   }
 
 
-  
+
   { Name cuts; NameOfPostProcessing MagStaDyn_a_hmm ;
     Operation {
       For iTS In {1:nTS}
@@ -286,5 +286,5 @@ PostOperation {
       EndFor
       EndFor
     }
-  }   
+  }
 }

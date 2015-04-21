@@ -127,5 +127,13 @@ If(NumSlices > 1)
 EndIf
 
 // test for sensitivity analysis
-//Merge "perturb.geo";
+DefineConstant[
+  SensitivityParameter = { StrCat[pp, "Magnet height [m]"] ,
+    Choices{
+      StrCat[pp, "Magnet height [m]"],
+      StrCat[pp, "Airgap width [m]"]
+    },
+    Name "Sensitivity/Parameter to perturb" }
+];
+Merge "perturb.geo";
 

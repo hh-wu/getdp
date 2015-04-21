@@ -395,7 +395,10 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
 
     else if (!strncmp(&String[1], "NOE", 3) ||
 	     !strncmp(&String[1], "NOD", 3) ||
-	     !strncmp(&String[1], "Nodes", 5)) {
+	     !strncmp(&String[1], "Nodes", 5) ||
+             !strncmp(&String[1], "ParametricNodes", 15)) {
+
+      bool parametric = !strncmp(&String[1], "ParametricNodes", 15);
 
       if(!fgets(String, sizeof(String), File_GEO)) return;
       if(sscanf(String, "%d", &Nbr) != 1) return;
@@ -405,20 +408,64 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
 	GeoData_P->Nodes = List_Create(Nbr, 1000, sizeof(struct Geo_Node)) ;
 
       for (i = 0 ; i < Nbr ; i++) {
-	if (!binary){
-	  fscanf(File_GEO, "%d %lf %lf %lf",
-		 &Geo_Node.Num, &Geo_Node.x, &Geo_Node.y, &Geo_Node.z) ;
-	}
-	else {
-	  if(fread(&Geo_Node.Num, sizeof(int), 1, File_GEO) != 1) return;
-	  if(swap) swapBytes((char*)&Geo_Node.Num, sizeof(int), 1);
-	  double xyz[3];
-	  if(fread(xyz, sizeof(double), 3, File_GEO) != 3) return;
-	  if(swap) swapBytes((char*)xyz, sizeof(double), 3);
-	  Geo_Node.x = xyz[0];
-	  Geo_Node.y = xyz[1];
-	  Geo_Node.z = xyz[2];
-	}
+        if(!parametric){
+          if(!binary){
+            if(fscanf(File_GEO, "%d %lf %lf %lf",
+                      &Geo_Node.Num, &Geo_Node.x, &Geo_Node.y, &Geo_Node.z) != 4) return;
+          }
+          else {
+            if(fread(&Geo_Node.Num, sizeof(int), 1, File_GEO) != 1) return;
+            if(swap) swapBytes((char*)&Geo_Node.Num, sizeof(int), 1);
+            double xyz[3];
+            if(fread(xyz, sizeof(double), 3, File_GEO) != 3) return;
+            if(swap) swapBytes((char*)xyz, sizeof(double), 3);
+            Geo_Node.x = xyz[0];
+            Geo_Node.y = xyz[1];
+            Geo_Node.z = xyz[2];
+          }
+        }
+        else{
+          int iClasDim, iClasTag;
+          if(!binary){
+            if(fscanf(File_GEO, "%d %lf %lf %lf %d %d",
+                      &Geo_Node.Num, &Geo_Node.x, &Geo_Node.y, &Geo_Node.z,
+                      &iClasDim, &iClasTag) != 6) return;
+          }
+          else{
+            if(fread(&Geo_Node.Num, sizeof(int), 1, File_GEO) != 1) return;
+            if(swap) swapBytes((char*)&Geo_Node.Num, sizeof(int), 1);
+            double xyz[3];
+            if(fread(xyz, sizeof(double), 3, File_GEO) != 3) return;
+            if(swap) swapBytes((char*)xyz, sizeof(double), 3);
+            if(fread(&iClasDim, sizeof(int), 1, File_GEO) != 1) return;
+            if(swap) swapBytes((char*)&iClasDim, sizeof(int), 1);
+            if(fread(&iClasTag, sizeof(int), 1, File_GEO) != 1) return;
+            if(swap) swapBytes((char*)&iClasTag, sizeof(int), 1);
+            Geo_Node.x = xyz[0];
+            Geo_Node.y = xyz[1];
+            Geo_Node.z = xyz[2];
+          }
+          if (iClasDim == 1){
+            double u[1];
+            if(!binary){
+              if(fscanf(File_GEO, "%lf", &u[0]) != 1) return;
+            }
+            else{
+              if(fread(u, sizeof(double), 1, File_GEO) != 1) return;
+              if(swap) swapBytes((char*)u, sizeof(double), 1);
+            }
+          }
+          else if (iClasDim == 2){
+            double uv[2];
+            if(!binary){
+              if(fscanf(File_GEO, "%lf %lf", &uv[0], &uv[1]) != 2) return;
+            }
+            else{
+              if(fread(uv, sizeof(double), 2, File_GEO) != 2) return;
+              if(swap) swapBytes((char*)uv, sizeof(double), 2);
+            }
+          }
+        }
 	List_Add(GeoData_P->Nodes, &Geo_Node) ;
 	if(!i){
 	  GeoData_P->Xmin = GeoData_P->Xmax = Geo_Node.x;
@@ -460,13 +507,6 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
 	     SQU(GeoData_P->Zmax - GeoData_P->Zmin));
       if(!GeoData_P->CharacteristicLength)
 	GeoData_P->CharacteristicLength = 1.;
-    }
-
-    else if (!strncmp(&String[1], "ParametricNodes", 15)) {
-
-      Message::Error("Cannot read parametric nodes: please save mesh file with standard "
-                     "nodes instead!");
-
     }
 
     /*  E L E M E N T S  */
