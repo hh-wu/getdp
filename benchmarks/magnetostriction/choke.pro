@@ -6,36 +6,34 @@ DefineConstant[
   Flag_AnalysisType = { 0,
     Choices{0="Magnetostatic solver",
       1="MagnetoMechanical solver",
-      2="Deflection of a specific point",
-      3="Mechanical natural frequencies"},
+      2="Mechanical natural frequencies"},
     Name "Input/1Type of analysis", // Highlight "Blue",
     Help Str[ "- Use 'Magnetostatic solver' to compute the magnetic fields on the inductor",
       "- Use 'MagnetoMechanical solver' to compute the deflection due to magnetostriction and/or maxwell stress tensor",
-      "- Use 'Deflection of a specific point' to compute the FRF on a specific point",
       "- Use 'Mechanical natural frequencies' to compute the modal frequencies of the inductor"]},
 
   is_Magnetostriction = {1,
     Choices{0,1},
     Name "Input/Magnetic Forces/Compute Magnetostriction",
-    Visible (Flag_AnalysisType==1 || Flag_AnalysisType==2 )},
+    Visible (Flag_AnalysisType==1)},
 
   is_Maxwell = {1,
     Choices{0,1},
     Name "Input/Magnetic Forces/Compute Maxwell stress tensor",
-    Visible (Flag_AnalysisType==1 || Flag_AnalysisType==2 )},
+    Visible (Flag_AnalysisType==1)},
 
   freq = { 0,
     Name "Input/2Frequency",Highlight "LightSkyBlue",
-    Visible (Flag_AnalysisType==1 || Flag_AnalysisType==2 )},
+    Visible (Flag_AnalysisType==1)},
 
   x_measurement = {0,
     Name "Input/Measurement point/x [m]",Highlight "LightSkyBlue",
-    Visible (Flag_AnalysisType==2 ),
+    Visible (Flag_AnalysisType==1),
     ReadOnly 1},
 
   y_measurement = {nb_sheet*H_sheet+(nb_sheet+1)*airgap+H_yoke,
     Name "Input/Measurement point/y [m]",Highlight "LightSkyBlue",
-    Visible (Flag_AnalysisType==2 ),
+    Visible (Flag_AnalysisType==1),
     ReadOnly 1},
 
   Res_dir = "solutions/"
@@ -135,11 +133,11 @@ Resolution {
       If (Flag_AnalysisType == 0)
         { Name A ; NameOfFormulation MagSta_a ; }
       EndIf
-      If(Flag_AnalysisType == 1 || Flag_AnalysisType == 2)
+      If(Flag_AnalysisType == 1)
         { Name A ; NameOfFormulation MagSta_a ; }
         { Name Sys_Mec ; NameOfFormulation Mec_Mag_dyn_2D;  Frequency {freq}; }
       EndIf
-      If(Flag_AnalysisType == 3)
+      If(Flag_AnalysisType == 2)
         { Name Sys_Mec_eigen; NameOfFormulation Mec_eigen; /* Type Complex; */  }
       EndIf
     }
@@ -148,12 +146,12 @@ Resolution {
       If (Flag_AnalysisType == 0)
         Generate[A] ; Solve[A] ; SaveSolution[A];
       EndIf
-      If(Flag_AnalysisType == 1 || Flag_AnalysisType == 2)
+      If(Flag_AnalysisType == 1)
         Generate[A] ; Solve[A] ; SaveSolution[A];
         InitSolution [Sys_Mec];
         IterativeLoop[1, NL_Eps, NL_Relax] { GenerateJac[Sys_Mec]; SolveJac[Sys_Mec]; }
       EndIf
-      If(Flag_AnalysisType == 3)
+      If(Flag_AnalysisType == 2)
         GenerateSeparate[Sys_Mec_eigen];
         EigenSolve[Sys_Mec_eigen, 40, 0, 0];
         SaveSolutions[Sys_Mec_eigen] ;
@@ -186,12 +184,6 @@ PostOperation {
         // Print [ eps_N,  OnElementsOf Domain_Disp, File StrCat [Res_dir,"eps_N.pos" ]] ;
         // Print [ Fmaxwell,  OnElementsOf Domain_Disp, File StrCat [Res_dir,"Fmaxwell.pos" ]] ;
         Print[ bn, OnElementsOf Domain_Mag, File StrCat [Res_dir,"bn.pos" ]] ;
-      }
-    }
-  EndIf
-  If (Flag_AnalysisType == 2)
-    { Name Maps ; NameOfPostProcessing Mec2D_u;
-      Operation {
         Print [ u_N, OnPoint {x_measurement,y_measurement-1e-3,0},
           LastTimeStepOnly,
           File StrCat [Res_dir,"u_measurement_N.dat"],
@@ -207,7 +199,7 @@ PostOperation {
       }
     }
   EndIf
-  If (Flag_AnalysisType == 3)
+  If (Flag_AnalysisType == 2)
     { Name Maps; NameOfPostProcessing Mec_eigen;
       Operation {
         Print [ u,  OnElementsOf Domain_Disp, File StrCat [Res_dir,"u_eigen.pos"],
