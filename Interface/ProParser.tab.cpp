@@ -13975,7 +13975,7 @@ yyreduce:
       Constant_S.Name = (yyvsp[(1) - (7)].c); Constant_S.Type = VAR_LISTOFFLOAT;
       Message::Barrier();
       FILE *File;
-      if(!(File = FOpen((yyvsp[(5) - (7)].c), "rb"))){
+      if(!(File = FOpen(Fix_RelativePath((yyvsp[(5) - (7)].c)).c_str(), "rb"))){
         Message::Warning("Could not open file '%s'", (yyvsp[(5) - (7)].c));
 	Constant_S.Value.ListOfFloat = NULL;
       }
