@@ -1,8 +1,6 @@
 
 2D model of inductor with magnetostriction.
 
-Magnetostriction
-
 [[Category:GetDP]]
 [[Category:Electromagnetism]]
 [[Category:Mechanics]]
