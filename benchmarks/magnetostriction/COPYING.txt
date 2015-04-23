@@ -1,0 +1,6 @@
+Models developed by Mathieu Rossi, Jean Le Besnerais and [[User:Geuzaine|Christophe Geuzaine]]. Copyright (c) 2015 [http://eomys.com EOMYS]
+<!--
+
+Include full license here
+
+-->
