@@ -6,7 +6,7 @@ DefineConstant[
 nameMachine = "pmsm";
 
 // Load Perturbed CAO
-Merge StrCat[nameMachine, StrCat[GeoPerturbedId, "Perturb.geo"]];
+Merge StrCat[nameMachine, StrCat[GeoPerturbedId, ".geo"]];
 
 // Load Initial mesh
 Merge StrCat[nameMachine, StrCat[MeshPerturbId, "Params.msh"] ];

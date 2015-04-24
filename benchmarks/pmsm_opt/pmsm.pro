@@ -14,7 +14,7 @@ DefineConstant[
                          Highlight "Blue", Visible 1},
   Flag_SrcType_Stator = { 1, Name "Input/Source type in stator",
                              Choices{0="None",1="Current"}, Highlight "Blue", Visible 1},
-  Flag_NL = { 1, Name "Input/NonlinearSystem",
+  Flag_NL = { 0, Name "Input/NonlinearSystem",
                  Label "Nonlinear BH-curve", Choices{0,1}},
 
   Flag_NL_law_Type = { 1, Name "Input/NonlinearCurve", Label "BH-curve", 
@@ -228,11 +228,17 @@ If(Flag_SrcType_Stator)
   UndefineConstant["Input/Load resistance"];
 EndIf
 
-If(Flag_Cir)
-  Include "pmsm_8p_circuit.pro" ;
-EndIf
+//If(Flag_Cir)
+//  Include "pmsm_8p_circuit.pro" ;
+//EndIf
+
+// analysis
 Include "machine_magstadyn_a.pro" ;
-Include "optim_post.pro" ;
+
+
+// sensitivity analysis (If flag_opttype)
+Include "sensitivity.pro" ;
+
 
 
 

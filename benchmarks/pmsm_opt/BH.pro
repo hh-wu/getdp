@@ -38,14 +38,13 @@ Function{
   dhdb_1[] = TensorDiag[1,1,1] * nu_1[$1#1] + 2*dnudb2_1[#1] * SquDyadicProduct[#1]  ;
   dhdb_1_NL[] = 2*dnudb2_1[$1#1] * SquDyadicProduct[#1] ;
 
-
   // nu = 123. + 0.0596 * exp ( 3.504 * b * b )
   // analytical 3kW machine
   nu_3kWa[] = 123. + 0.0596 * Exp[3.504*SquNorm[$1]] ;
   dnudb2_3kWa[] = 0.0596*3.504 * Exp[3.504*SquNorm[$1]] ;
   h_3kWa[] = nu_3kWa[$1]*$1 ;
-  dhdb_3kWa[] = TensorDiag[1,1,1] * nu_3kWa[$1#1] + 2*dnudb2_3kWa[#1] * SquDyadicProduct[$1]  ;
-  dhdb_3kWa_NL[] = 2*dnudb2_3kWa[$1#1] * SquDyadicProduct[#1]  ;
+  dhdb_3kWa[] = TensorDiag[1,1,1] * nu_3kWa[$1#1] + 2*dnudb2_3kWa[#1] * SquDyadicProduct[$1];
+  dhdb_3kWa_NL[] = 2*dnudb2_3kWa[$1#1] * SquDyadicProduct[#1] ;
 
   // interpolated
   Mat3kW_h = {
@@ -77,11 +76,5 @@ Function{
   h_3kW[] = nu_3kW[$1] * $1 ;
   dhdb_3kW[] = TensorDiag[1,1,1]*nu_3kW[$1#1] + 2*dnudb2_3kW[#1] * SquDyadicProduct[#1] ;
   dhdb_3kW_NL[] = 2*dnudb2_3kW[$1] * SquDyadicProduct[$1] ;
-
 }
-
-
-
-
-
 

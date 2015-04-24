@@ -19,7 +19,7 @@ PostProcessing {
 
       { Name Flux ;
 	Value {
-	  Integral { [ SymmetryFactor*AxialLength*Idir[]*NbrWires[]/SurfCoil[]* CompZ[{a}] ] ;
+	  Integral {[SymmetryFactor*AxialLength*Idir[]*NbrWires[]/SurfCoil[]*CompZ[{a}] ] ;
 	    In Inds  ; Jacobian Vol ; Integration I1 ; } } }
 
       { Name I ; Value {
@@ -109,7 +109,7 @@ PostProcessing {
       	}
       }
 
-      { Name Torque_var_square; // T/Tref - 1
+      { Name Torque_var_square; // ()T/Tref - 1
       	Value {
       	  Term {Type Global;
             [  (#58 / Ttarget[] - 1.0)^2.0 ];
@@ -156,7 +156,7 @@ PostProcessing {
       }
       { Name b_radial_airgap; 
 	Value {
-	  Term{ [ ({d a}*Unit[XYZ[]]) ];
+	  Term{ [ {d a}*er[] ];
 	    In Domain; Jacobian Vol; }
         }
       } 
@@ -174,14 +174,14 @@ PostProcessing {
       }
       { Name error_b_radial_airgap;
 	Value {
-	  Term{ [ ({d a}*Unit[XYZ[]] - Btarget[])  ];
+	  Term{ [ ({d a}*er[] - Btarget[])  ];
 	    In Domain; Jacobian Vol; }
         }
       }
 
       { Name BradError; //Br - Btarget
 	Value {
-	  Integral{ [ ({d a}*er[]- Btarget[])^2.0  ];
+	  Integral{ [ BradCoeff[]*({d a}*er[]- Btarget[])^2.0  ];
 	    In Domain; Jacobian Vol; Integration I1; }
         }
       }
@@ -263,6 +263,66 @@ PostProcessing {
     }
   }
   // --------------------------------------------------------------------
+  // Continuum sensitivity analysis, adjoint method, variable domain
+  // --------------------------------------------------------------------
+  { Name AvmVarDomSens_lie ;NameOfFormulation AdjointFormulation;
+    PostQuantity {    
+        { Name v ; Value { Term { [ velocityField[] ] ; In Domain ; Jacobian Vol ; }}}
+        { Name rho_d_bilin_NL ; 
+          Value { Term { [ d_bilin_lie[{d a},{d lambda}] ]; In Domain;Jacobian Vol ;}}}
+
+        { Name sensF ; 
+          Value { 
+              Integral{[dF_adjoint_lie[{d a}]]; // d{f}/d{tau}(phi)
+                In Domain ; Jacobian Vol ; Integration I1;}
+          }
+        }
+        { Name sensK ; 
+          Value { 
+              Integral{[ d_bilin_lie[{d a},{d lambda}] ];//d{a}/d{tau}(A,lambda)
+                In Domain;Jacobian Vol ; Integration I1;}
+              //Integral{[ d_bilin_NL[{d a},{d lambda}] ];
+              //  In DomainNL;Jacobian Vol ; Integration I1;}
+          }
+        }
+        { Name sensM ; 
+          Value { 
+              Integral{[ d_load_lie[ {d a}, {d lambda} ] ];//d{l}/d{tau}(A,lambda)
+                In Domain ; Jacobian Vol ; Integration I1;}
+          }
+        }
+      { Name AvmVarDomSens; 
+        Value { 
+          Integral { [ dF_adjoint_lie[ {d a} ] ];  // d{f}/d{tau}(phi)
+            In DomainFunc ; Jacobian Vol ; Integration I1 ;}
+          Integral { [ -d_bilin_lie[ {d a}, {d lambda} ] ];//d{a}/d{tau}(phi,lambda)
+            In Domain ; Jacobian Vol ; Integration I1 ; }
+          //Integral { [ -d_bilin_NL[ {d a}, {d lambda} ] ];
+          //  In DomainNL;Jacobian Vol ; Integration I1;}
+          Integral { [ d_load_lie[ {d a}, {d lambda} ] ];//d{l}/d{tau}(phi,lambda)
+            In DomainM ; Jacobian Vol ; Integration I1 ; }
+        } 
+      }
+    }
+  }
+  // --------------------------------------------------------------------
+  // Continuum sensitivity analysis, adjoint method, variable domain
+  // --------------------------------------------------------------------
+  { Name DirectVarDomSens_lie ;NameOfFormulation DirectDerivFormulation;
+    PostQuantity {    
+        { Name v ; Value { Term { [ velocityField[] ] ; In Domain ; Jacobian Vol ; }}}
+ 
+        { Name d_aZ ; Value { Term { [ CompZ[{d_a}] ] ; In Domain ; Jacobian Vol ; }}}
+
+        { Name sensDirectLie ; 
+          Value { 
+              Integral{[ dF_direct_lie[{d a}, {d d_a}] ]; // d{f}/d{tau}(phi)
+                In DomainFunc; Jacobian Vol; Integration I1; }
+          }
+        }
+    }
+  }
+  // --------------------------------------------------------------------
   // Semi-analytic method
   // --------------------------------------------------------------------
   { Name SemiAnalyticQuantitys; NameOfFormulation AdjointFormulation;
@@ -287,7 +347,10 @@ PostProcessing {
        }
       { Name lambda_g; // Sum_i{lambda*g_i}
       	Value {
-      	  Term {Type Global; [ (#95 + #96) ]; In Domain ;}
+      	     Integral { [( nu[{d a}] * br[] )*{d lambda}];
+	              In DomainM ; Jacobian Vol  ; Integration I1; }      	
+      	     Integral { [( js[] )*{lambda}];
+	              In DomainS ; Jacobian Vol  ; Integration I1; }      	
       	}
       }
 
@@ -359,26 +422,26 @@ PostOperation {
          SendToServer StrCat[po_min, "surfacePM"], Color "LightYellow" ];
 
      // optim quantitys
-     Print[ BradError[Rotor_Airgap], OnGlobal, Format Table, 
+     Print[ BradError[DomainFunc], OnGlobal, Format Table, 
          File StrCat[ResDir, StrCat["BradialErrorInt",ExtGnuplot]], LastTimeStepOnly, 
          SendToServer StrCat[po_min,"BradialErrorInt"], Color "LightYellow" ];
 
-     Print[ComplianceELM[DomCompliance], OnGlobal, Format Table,
+     Print[ComplianceELM[DomainFunc], OnGlobal, Format Table,
 	 File StrCat[ResDir, StrCat["ComplianceElm",ExtGnuplot]], LastTimeStepOnly,
 	 SendToServer StrCat[po_min,"ComplianceElm"], Color "LightYellow" ];
 
-     Print[Torque_simple[Rotor_Airgap], OnGlobal, Format Table,
+     Print[Torque_simple[DomainFunc], OnGlobal, Format Table,
 	 Store 58,File StrCat[ResDir, StrCat["Torque",ExtGnuplot]], LastTimeStepOnly,
 	 SendToServer StrCat[po_min,"Torque"], Color "LightYellow" ];
 
-     Print[Torque_var[Rotor_Airgap], OnGlobal, Format Table,LastTimeStepOnly,
+     Print[Torque_var[DomainFunc], OnGlobal, Format Table,LastTimeStepOnly,
 	 Store 60, File StrCat[ResDir, StrCat["TorqueVariance",ExtGnuplot]], 
 	 SendToServer StrCat[po_min,"TorqueVariance"], Color "LightYellow" ];
 
      Print[Torque_var, OnElementsOf Domain,
 	 File StrCat[ResDir, StrCat["TorqueVarianceAllDom",ExtGmsh]], LastTimeStepOnly];
 
-     Print[Torque_var_square, OnRegion Rotor_Airgap, Format Table,LastTimeStepOnly,
+     Print[Torque_var_square, OnRegion DomainFunc, Format Table,LastTimeStepOnly,
 	 Store 61, File StrCat[ResDir, StrCat["TorqueVarianceSquare",ExtGnuplot]], 
 	 SendToServer StrCat[po_min,"TorqueVarianceSquare"], Color "LightYellow" ];
 
@@ -426,6 +489,13 @@ PostOperation {
          File StrCat[ResDir, StrCat["b_radialFund_airgap",ExtGmsh]],
          LastTimeStepOnly, Format Gmsh];
 
+    Print[ b_radial_airgap, OnGrid {$A*Cos[$B], $A*Sin[$B], $C} { r, 0:theta_Bradial:(theta_Bradial)/nb_Bradial, 0.},    
+        File StrCat[ResDir, StrCat["b_radial_airgap",ExtGnuplot]], Format Gnuplot] ;
+
+    Print[ b_radial_airgap, OnGrid {$A*Cos[$B], $A*Sin[$B], $C} { r, 0:theta_Bradial:(theta_Bradial)/nb_Bradial, 0.}, 
+         File StrCat[ResDir, StrCat["b_radial_airgap",ExtGmsh]],
+         LastTimeStepOnly, Format Gmsh];
+
    }
  }
 
@@ -455,7 +525,7 @@ PostOperation {
 	   File StrCat[ResDir, StrCat["lambda_g_J",ExtGnuplot]], LastTimeStepOnly,
 	   SendToServer StrCat[po_min,"lambda_g_J"], Color "LightYellow" ];
 
-     Print[ lambda_g,OnRegion Rotor_Airgap, Format Table,
+     Print[ lambda_g[Domain], OnGlobal, Format Table,
 	   File StrCat[ResDir, StrCat["lambda_g",ExtGnuplot]], LastTimeStepOnly,
 	   SendToServer StrCat[po_min,"lambda_g"], Color "LightYellow" ];
    }
@@ -467,6 +537,49 @@ PostOperation {
 	   File StrCat[ResDir, StrCat["SensPerfAvmFixedDom",ExtGmsh]]] ;
    }
  }
+
+  // --------------------------------------------------------------------
+  // Sensitivity (adjoint variable) with Lie approach 
+  // --------------------------------------------------------------------
+  { Name Get_AvmVarDomSens_Lie; NameOfPostProcessing AvmVarDomSens_lie;
+    Operation{
+       Print[ v, OnElementsOf Domain,
+	      File StrCat[ResDir, StrCat["velocity",ExtGmsh]], LastTimeStepOnly] ;
+       Print[ rho_d_bilin_NL, OnElementsOf Domain,
+	      File StrCat[ResDir, StrCat["rho_d_bilin_NL",ExtGmsh]], LastTimeStepOnly] ;
+       Print[ sensF[DomainFunc], OnGlobal, Format Table, 
+              File StrCat[ResDir, StrCat["d_func", ExtGnuplot]], 
+	      SendToServer StrCat[po_min,"d_func"], LastTimeStepOnly];
+       Print[ sensK[Domain], OnGlobal, Format Table,
+              File StrCat[ResDir, StrCat["d_bilin", ExtGnuplot]],  
+              SendToServer StrCat[po_min,"d_bilin"], LastTimeStepOnly];
+       Print[ sensM[DomainM], OnGlobal, Format Table,
+              File StrCat[ResDir, StrCat["d_load", ExtGnuplot]], 
+              SendToServer StrCat[po_min,"d_load"], LastTimeStepOnly];
+       Print[ AvmVarDomSens[Domain], OnGlobal, Format Table,
+              File StrCat[ResDir, StrCat["AvmVarDomSens", ExtGnuplot]], 
+              SendToServer StrCat[po_min,"AvmVarDomSens"], LastTimeStepOnly];
+    }
+  } 
+
+  // --------------------------------------------------------------------
+  // Sensitivity (direct method) with Lie approach 
+  // --------------------------------------------------------------------
+  { Name Get_DirectVarDomSens_lie0; NameOfPostProcessing DirectVarDomSens_lie;
+    Operation{
+       Print[ d_aZ, OnElementsOf Domain,
+	      File StrCat[ResDir, StrCat["d_aZ",ExtGmsh]], LastTimeStepOnly] ;
+    }
+  } 
+  { Name Get_DirectVarDomSens_lie; NameOfPostProcessing DirectVarDomSens_lie;
+    Operation{
+       Print[ v, OnElementsOf Domain,
+	      File StrCat[ResDir, StrCat["velocity",ExtGmsh]], LastTimeStepOnly] ;
+       Print[ sensDirectLie[DomainFunc], OnGlobal, Format Table,
+              File StrCat[ResDir, StrCat["sensDirectLie", ExtGnuplot]], 
+              SendToServer StrCat[po_min,"sensDirectLie"], LastTimeStepOnly];
+    }
+  } 
 
   // --------------------------------------------------------------------------
   // Get Filtered Mesh Coordinates
@@ -504,3 +617,5 @@ PostOperation {
   }
 
 }
+
+

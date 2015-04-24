@@ -1,84 +1,3 @@
-
-DefineConstant[
-
-  // main fields
-  Flag_SolveStateVar = {0, Name "Input/OptParam/SolveStateVar",
-                           Label "Get State Variable", Choices {0,1}, Visible 1},
-
-  Flag_SolveAdjointVar = {0, Name "Input/OptParam/SolveAdjointVar",
-                             Label "Get Adjoint Variable",Choices {0,1}, Visible 1},
-
-  Flag_PerfType = {TORQUE_VAR, Name "Input/OptParam/PerfType",
-                               Label "performance function type",
-                               Choices {NO_PERF="No performance function",
-                                        BFIELD_ERROR="air gap B field error",
-                                        TORQUE_VAR="torque variance",
-				        IRON_LOSSES="losses",
-                                        COMPLIANCE="compliance",
-                                        TORQUE="torque"},Visible Flag_SolveAdjointVar},
-  // Sensitivity analysis method --> replace by 1 variable!!!
-  Flag_SemiAnalyticAvmSens = {0, Name "Input/OptParam/SemiAnalyticAvmSensQuantitys",
-                                 Label "Semi analytic quantitys (avm)",
-                                 Choices {0,1}, Visible 1},
-
-//  Flag_SemiAnalyticDirSens = {0, Name "Input/OptParam/SemiAnalyticDirQuantitys",
-//                                 Label "Semi analytic quantitys (direct)", 
-//                                 Choices {0,1}, Visible 1},
-
-  Flag_AvmFixedDomSens = {0, Name "Input/OptParam/AdjointMethodSensFixedDom",
-                             Label "fixed domain derivative (avm)", 
-                             Choices {0,1}, Visible 1},
-
-//  Flag_DirFixedDomSens = {0, Name "Input/OptParam/DirMethodSensFixedDom",
-//                            Label "fixed domain derivative (direct)", 
-//                            Choices {0,1}, Visible 1},
-
-//  Flag_AvmVarDomSens = {0, Name "Input/OptParam/AdjointMethodSensVarDom",
-//                           Label "continuum derivative (avm)",
-//                           Choices {0,1}, Visible 1},
-
-//  Flag_DirVarDomSens = {0, Name "Input/OptParam/DirectMethodSensVarDom",
-//                           Label "continuum derivative (direct)",
-//                           Choices {0,1}, Visible 1},
-  
-  NbSubDom = {2, Name "Input/OptParam/NbDomain", Label "Nbr of regions", Visible 0},
-
-  //Tnom = {90, Name "Input/OptParam/TorqueNominal", Visible 1},
-  Tnom = {90.0, Name "Input/OptParam/TorqueNominal",
-                Label "Nominal desired torque",
-                Visible (Flag_PerfType==TORQUE_VAR)},
-  // Filter
-  Flag_filterSensitivity = {0, Name "Input/OptParam/filterSens", 
-                               Label "Filter Derivatives?",
-                               Choices {0, 1}, Visible (Flag_topopt==1)}, 
-
-  Rmin = {0.001*10, Name "Input/OptParam/RadiusSensFilter",
-                    Label "Sensitivity Filter Radius", 
-                    Visible 1/*(Flag_filterSensitivity==1)*/},
-
-  Flag_filterMeshCoordinates = {0, Name "Input/OptParam/filterMeshCoord", 
-                                   Label "Filter mesh nodes coordinates?", 
-                                   Choices {0, 1}, Visible 1}, 
-
-  regionVar = {ROTOR_FE, Name "Input/OptParam/regionVar",
-                     Label "Region of design variables", 
-                     Choices {ROTOR_FE="Rotor Fe",STATOR_FE="Stator Fe"},
-                     Visible (Flag_topopt)},
-
-  Flag_InterpLaw = {0, Name "Input/OptParam/MaterialInterpLaw",
-                       Label "material interpolation law",
-                       Choices {0="SIMP",1="RAMP"},Visible (Flag_topopt==1)},
-
-  degree_SIMP = {3.0, Name "Input/OptParam/SimpPenalDegree",
-                      Label "Degree SIMP", Visible (Flag_topopt==1)},
-
-  //--------------------------------------------------------------
-
-
-  PhaseAngle=0
-
-];
-
 DefineConstant[
   R_ = {"OptimStep", Name "GetDP/1ResolutionChoices",Choices {"Analysis", "OptimStep"}, Visible 0},
   C_ = {"-solve -v 5 -v2", Name "GetDP/9ComputeCommand", Visible 0},
@@ -98,6 +17,7 @@ Group {
 Function{
 
   DefineConstant[
+    PhaseAngle=0,
     Flag_Cir,
     Flag_NL,
     Flag_ParkTransformation,
@@ -153,8 +73,8 @@ Function{
     dhdb_NL, br, js, Resistance, Inductance, Capacitance,nbrWires,
     Theta_Park, Theta_Park_deg, RotorPosition, RotorPosition_deg,
     Friction, Torque_mec,volDensity,IronLossDensity,
-    rmin2, prod_x_dC, designVar, nu_r_inv, bField, pseudoLoad,
-    velocityField_0,velocityField0,velocityField
+    prod_x_dC, designVar, nu_r_inv, bField, pseudoLoad,nu_prime,
+    velocityField_0,velocityField0,velocityField,BradCoeff
   ];
 
   Flag_Symmetry = (SymmetryFactor==1) ? 0 : 1 ;
@@ -168,7 +88,7 @@ Group {
 
   Inds = Region[ {Stator_Inds, Rotor_Inds} ] ;
 
-//  DomainB = Region[ {Inds} ] ;
+  //  DomainB = Region[ {Inds} ] ;
   DomainM = Region[ {Rotor_Magnets} ] ;
 
   If(!Flag_ImposedCurrentDensity)
@@ -185,7 +105,7 @@ Group {
 
   Rotor_Moving = Region[{ Rotor,Rotor_Air,Rotor_Airgap,Rotor_Inds,Rotor_Bnd_MBaux}]; 
 
-  MB  = MovingBand2D[ MovingBand_PhysicalNb, Stator_Bnd_MB, Rotor_Bnd_MB, SymmetryFactor] ;
+  MB=MovingBand2D[MovingBand_PhysicalNb, Stator_Bnd_MB, Rotor_Bnd_MB, SymmetryFactor] ;
   Air = Region[{ Rotor_Air, Rotor_Airgap, Stator_Air, Stator_Airgap, MB } ] ;
   Inds = Region[{ Rotor_Inds, Stator_Inds } ] ;
 
@@ -197,7 +117,7 @@ Group {
   DomainCC = Region[{ Air, Inds, StatorCC, RotorCC }];
   DomainC  = Region[{ StatorC, RotorC }];
   Domain  = Region[{ DomainCC, DomainC }] ;
-
+  DomainFe = Region[ {Stator_Fe, Rotor_Fe } ];
   If(Flag_NL)
     DomainNL = Region[ {Stator_Fe, Rotor_Fe } ];
     DomainL  = Region[ {Domain,-DomainNL} ];
@@ -206,21 +126,30 @@ Group {
   DomainKin = #1234 ; // Dummy region number for mechanical equation
   DomainDummy = #12345 ; // Dummy region number for postpro with functions
 
-  // TO domain
-  If(!Flag_topopt)
-    DomainOpt = Region[{}];
-  EndIf
-  If(Flag_topopt)
-    If(regionVar == ROTOR_FE)
-      DomainOpt = Region[{Rotor_Fe}];
-    EndIf 
-    If(regionVar == STATOR_FE)
-      DomainOpt = Region[{Stator_Fe}];
-    EndIf 
-  EndIf
-  DomCompliance = Region[{Rotor_Airgap}];
-  DomBradError  = Region[{Rotor_Airgap}];
-  DomTorqueVar = Region[{Rotor_Airgap}];
+//  // TO domain
+//  If(!Flag_topopt)
+//    DomainOpt = Region[{}];
+//  EndIf
+//  If(Flag_topopt)
+//    If(regionVar == 0)
+//      DomainOpt = Region[{Rotor_Fe}];
+//      DomainOptFix = Region[{}];
+//      DomainOptMV = Region[{Rotor_Fe}];
+//    EndIf 
+//    If(regionVar == 1)
+//      DomainOpt = Region[{Stator_Fe}];
+//      DomainOptFix = Region[{Stator_Fe}];
+//      DomainOptMV = Region[{}];
+//    EndIf
+//    If(regionVar == 2)
+//      DomainOpt = Region[{Rotor_Fe,Stator_Fe}];
+//      DomainOptFix = Region[{Stator_Fe}];
+//      DomainOptMV = Region[{Rotor_Fe}];
+//    EndIf
+//  EndIf  
+//  DomCompliance = Region[{Rotor_Airgap}];
+//  DomBradError  = Region[{Rotor_Airgap}];
+//  DomTorqueVar = Region[{Rotor_Airgap}];
 }
 
 Function {
@@ -232,67 +161,60 @@ Function {
   sigma_al = 3.72e7 ; // conductivity of aluminum [S/m]
   sigma_cu = 5.9e7  ; // conductivity of copper [S/m]
 
-  nu [#{Air, Inds, Stator_Al, Rotor_Al, Stator_Cu, Rotor_Cu, Rotor_Magnets, Rotor_Bars}]  = 1. / mu0 ;
+  nu[#{Air,Inds,Stator_Al,Rotor_Al,Stator_Cu,Rotor_Cu,Rotor_Magnets,Rotor_Bars}]=1./ mu0;
   RotateZ_desVar[] = Rotate[ XYZ[], 0, 0, -RotorPosition[] ] ; 
 
-  If(!Flag_NL) //linear ferro
-    If(!Flag_topopt) //no top opt
+  If(!Flag_NL) //linear ferromagnetic material -> fixme !!!
+    If(!Flag_topopt) //shape opt 
+      Printf["------- Lin Ferro -------"];
+//      nu[#{DomainFe}]  = 1 / (mur_fe * mu0) ;
+//      nu_prime[#{DomainFe}] = 0.;
+//      dhdb_NL[] = 0;
       nu [#{ Stator_Fe, Rotor_Fe }]  = 1 / (mur_fe * mu0) ;
       nu_prime[#{Stator_Fe, Rotor_Fe }] = 0.;
       dhdb_NL [] = 0;
-    EndIf 
-    If(Flag_topopt)
+    EndIf
+    If(Flag_topopt) //if shape opt or initialize topology opt
       Printf["------- TO: Lin TO -------"];
-      p = degree_SIMP;//penalty factor
-      
-      If(regionVar==ROTOR_FE)
-        //design variables in rotor
-        designVar[#Rotor_Fe]  = ScalarField[RotateZ_desVar[],0,1]{DES_VAR_FIELD};   
-        nu [#Stator_Fe]  = 1 / (mur_fe * mu0) ;
-        nu [#Rotor_Fe]  = (1 / (mur_fe * mu0) - nu0)*designVar[]^p  +  nu0; //linear
-        nu_prime [#Rotor_Fe]  = p*(1 / (mur_fe * mu0) - nu0)*designVar[]^(p-1.0); //linear
-      EndIf
-      If(regionVar==STATOR_FE)
-        //design variables in stator
-	designVar[#Stator_Fe]  = ScalarField[XYZ[],0,1]{DES_VAR_FIELD};//stator 
-        nu [#Stator_Fe]  = (1 / (mur_fe * mu0) - nu0)*designVar[]^p  +  nu0; //linear
-	nu [#Rotor_Fe]  = 1 / (mur_fe * mu0) ;        
-        nu_prime [#Stator_Fe]  = p*(1 / (mur_fe * mu0) - nu0)*designVar[]^(p-1.0); //linear
-      EndIf
+      p = degree_SIMP; //penalty factor
+      designVar[#{DomainOptMV}]  = ScalarField[RotateZ_desVar[],0,1]{DES_VAR_FIELD};
+      designVar[#{DomainOptFix}] = ScalarField[XYZ[],0,1]{DES_VAR_FIELD};    
+      nu[#{DomainFe,-DomainOpt}]  = 1 / (mur_fe * mu0) ;
+      nu[#{DomainOpt}]  = (1/(mur_fe * mu0)-nu0)*designVar[]^p + nu0; 
+      nu_prime[#{DomainOpt}]  = p*(1 / (mur_fe * mu0) - nu0)*designVar[]^(p-1.0); 
       dhdb_NL [] = 0;
     EndIf
   EndIf
-
   If(Flag_NL)
-    If(Flag_NL_law_Type==0 ) //analytic nu-law
-        Printf["Compute Nu map, Nltype=%g",Flag_NL_law_Type];
-	If(!Flag_topopt)
-          nu [#{Stator_Fe, Rotor_Fe }] = nu_1a[$1] ;
-      	  dhdb_NL [ DomainNL ] = dhdb_1a_NL[$1]; //Vérifier la formule !!!!
-	  nu_prime[#{Stator_Fe, Rotor_Fe }] = 0.;
-	EndIf
-	If(Flag_topopt)
-          // pas besoin d'utiliser un facteur p pour un mapping par rélectivité !!!
-	  p = degree_SIMP; 
-	  //define stator nu
-	  nu [#Stator_Fe] = nu_1a[$1] ; 
-	
-	  // define rotor nu      		
-	  //RotateZ_desVar[] = Rotate[ XYZ[], 0, 0, -RotorPosition[] ] ; 
-      	  designVar[#Rotor_Fe]  = ScalarField[XYZ[],0,1]{DES_VAR_FIELD}; //design variables (read from view of .pos)  
-          nu [#Rotor_Fe] = (nu_1a[$1]-nu0)*designVar[]^p + nu0; //non-linear SIMP law 
-			
-	  // define derivartive of nu 
-          dhdb_NL [ Stator_Fe ] = dhdb_1a_NL[$1]; //stator
-      	  dhdb_NL [ Rotor_Fe ] = dhdb_1a_NL[$1]*designVar[]^p; //rotor
-	  nu_prime [#Rotor_Fe]  = nu_1a[$1]-nu0; //linear
-	EndIf
+    If(Flag_NL_law_Type==0) //analytic nu-law
+      Printf["Compute Nu map, Nltype=%g",Flag_NL_law_Type];
+      nu [#{DomainFe}] = nu_1a[$1] ;
+      dhdb_NL [#{DomainFe}] = dhdb_1a_NL[$1]; //Vérifier la formule !!!!
     EndIf
     If(Flag_NL_law_Type==1) //interpolated nu-law
-      Printf["Compute Nu map, Nltype=%g",Flag_NL_law_Type];
-      nu [#{Stator_Fe, Rotor_Fe }] = nu_1[$1] ;
-      dhdb_NL [#{Stator_Fe, Rotor_Fe } ] = dhdb_1_NL[$1];
-      nu_prime[#{Stator_Fe, Rotor_Fe } ] = 0.;
+      If(!Flag_topopt)
+        nu [#{DomainFe}] = nu_1[$1] ;
+        dhdb_NL[#{DomainFe} ] = dhdb_1_NL[$1];
+      EndIf
+      If(Flag_topopt)
+        p = degree_SIMP;
+        nu[#{DomainFe,-DomainOpt}] = nu_1[$1];
+        dhdb_NL[#{DomainFe,-DomainOpt}] = dhdb_1_NL[$1]; //stator
+        designVar[#{DomainOptMV}]=ScalarField[RotateZ_desVar[],0,1]{DES_VAR_FIELD};
+        designVar[#{DomainOptFix}]=ScalarField[XYZ[],0,1]{DES_VAR_FIELD};  
+        If(Flag_InterpLaw == 0) // SIMP
+          Printf["Compute SIMP Nu map, Nltype=%g",Flag_NL_law_Type];
+	  nu[#{DomainOpt}] = nu0*(1.0 + (nu_1[$1]/nu0 - 1.0)*designVar[]^p);
+          nu_prime[#{DomainOpt}] = p*nu0*(nu_1[$1]/nu0 - 1.0)*designVar[]^(p-1.0);
+	  dhdb_NL[#{DomainOpt}] = dhdb_1_NL[$1]*designVar[]^p; 
+        EndIf
+        If(Flag_InterpLaw == 1) // RAMP
+          Printf["Compute RAMP Nu map, Nltype=%g",Flag_NL_law_Type];	    
+          nu[#{DomainOpt}]=(designVar[]/(1.0 + p*(1 - designVar[])))*nu_1[$1];
+          nu_prime[#{DomainOpt}]=((1.0+p)/(1.0+p*(1-designVar[]))^2.0)*nu_1[$1];
+      	  dhdb_NL[#{DomainOpt}]=dhdb_1_NL[$1]*(designVar[]/(1.0+p*(1-designVar[]))); 
+        EndIf
+      EndIf
     EndIf
     If(Flag_NL_law_Type==2)
        nu [#{Stator_Fe, Rotor_Fe }] = nu_3kWa[$1] ;
@@ -311,56 +233,11 @@ Function {
 
   rho[] = 1/sigma[] ;
 
-  Rb[] = Factor_R_3DEffects*AxialLength*FillFactor_Winding*NbrWires[]^2/SurfCoil[]/sigma[] ;
+  Rb[]=Factor_R_3DEffects*AxialLength*FillFactor_Winding*NbrWires[]^2/SurfCoil[]/sigma[] ;
   Resistance[#{Stator_Inds, Rotor_Inds}] = Rb[] ;
 
   Idir[#{Stator_IndsP, Rotor_IndsP}] =  1 ;
   Idir[#{Stator_IndsN, Rotor_IndsN}] = -1 ;
-// -------------------------------------------------
-// !!! change this !!!
-  // Functions for Park transformation
-//  Idq0[] = Vector[ ID, IQ, I0 ] ;
-//  Pinv[] = Tensor[ Sin[Theta_Park[]],        Cos[Theta_Park[]],        1,
-//                   Sin[Theta_Park[]-2*Pi/3], Cos[Theta_Park[]-2*Pi/3], 1,
-//                   Sin[Theta_Park[]+2*Pi/3], Cos[Theta_Park[]+2*Pi/3], 1 ];
-
-//  P[] = 2/3 * Tensor[ Sin[Theta_Park[]], Sin[Theta_Park[]-2*Pi/3], Sin[Theta_Park[]+2*Pi/3],
-//                      Cos[Theta_Park[]], Cos[Theta_Park[]-2*Pi/3], Cos[Theta_Park[]+2*Pi/3],
-//                      1/2, 1/2, 1/2 ] ;
-
-//  Iabc[]     = Pinv[] * Idq0[] ;
-//  Flux_dq0[] = P[] * Vector[#11, #22, #33] ;
-
-//  If(Flag_ParkTransformation)
-//    II = 1. ;
-//    IA[] = CompX[ Iabc[] ] ;
-//    IB[] = CompY[ Iabc[] ] ;
-//    IC[] = CompZ[ Iabc[] ] ;
-//  EndIf
-//  If(!Flag_ParkTransformation)
-//    If(!Flag_ConstantSource)
-//      //+++
-//      pA=0; pB= -2*Pi/3; pC= -4*Pi/3;
-//      Ia=1; Ib=1; Ic=1;
-//      IA[] = F_Sin_wt_p[]{2*Pi*Freq, pA} ;
-//      IB[] = F_Sin_wt_p[]{2*Pi*Freq, pB} ;
-//      IC[] = F_Sin_wt_p[]{2*Pi*Freq, pC} ;
-//    EndIf
-//    If(Flag_ConstantSource)
-//      IA[] = 1. ;
-//      IB[] = 1. ;
-//      IC[] = 1. ;
-//      Frelax[] =1;
-//    EndIf
-//    WaveFormA[] = IA[];
-//    WaveFormB[] = IB[]; 
-//    WaveFormC[] = IC[];
-
-//    js[PhaseA] = II * NbrWires[]/SurfCoil[] * IA[] * Idir[] * Vector[0, 0, 1] ;
-//    js[PhaseB] = II * NbrWires[]/SurfCoil[] * IB[] * Idir[] * Vector[0, 0, 1] ;
-//    js[PhaseC] = II * NbrWires[]/SurfCoil[] * IC[] * Idir[] * Vector[0, 0, 1] ;
-//  EndIf
-
 // -------------------------------------------------
 
   // Functions for Park transformation
@@ -413,38 +290,6 @@ Function {
     js[PhaseC] = 0.0*II * NbrWires[]/SurfCoil[] * IC[] * Idir[] * Vector[0, 0, 1] ;
   EndIf
 
-/*
-  Flag_ParkTransformation = 1.0;
-
-  If(!Flag_ParkTransformation)
-    Printf["-- no Park Transform --"];
-    PhaseAngleA = PhaseAngle ;
-    PhaseAngleB = PhaseAngleA - 2.*Pi/3. ;
-    PhaseAngleC = PhaseAngleB - 2.*Pi/3. ;
-    WaveFormA[] = F_Cos_wt_p[]{2*Pi*Freq, -PhaseAngleA} ;
-    WaveFormB[] = F_Cos_wt_p[]{2*Pi*Freq, -PhaseAngleB} ;
-    WaveFormC[] = F_Cos_wt_p[]{2*Pi*Freq, -PhaseAngleC} ;
-    Ia = II ;
-    Ib = II ;
-    Ic = II ;
-  EndIf
-  If(Flag_ParkTransformation) // Imposed currents calculated from given ID, IQ and I0
-    Printf["-- Park transform --"];
-    II = 1. ; Ia = II; Ib = II; Ic = II;
-    WaveFormA[] = CompX[ Iabc[] ] ;
-    WaveFormB[] = CompY[ Iabc[] ] ;
-    WaveFormC[] = CompZ[ Iabc[] ] ;
-  EndIf
-
-  // do not use j[s] when a coils system is present
-  If(Flag_ImposedCurrentDensity)
-    Printf["-- ImposedCurrentDensity --"];
-    Printf["II=%g",II];
-    js[PhaseA] = II * NbrWires[]/SurfCoil[] * WaveFormA[] * Idir[] * Vector[0, 0, 1] ;
-    js[PhaseB] = II * NbrWires[]/SurfCoil[] * WaveFormB[] * Idir[] * Vector[0, 0, 1] ;
-    js[PhaseC] = II * NbrWires[]/SurfCoil[] * WaveFormC[] * Idir[] * Vector[0, 0, 1] ;
-  EndIf
-*/
   Velocity[] = wr*XYZ[]/\Vector[0,0,-1] ;
 
   // Maxwell stress tensor
@@ -458,32 +303,6 @@ Function {
   RotatePZ[] = Rotate[ XYZ[]/*Vector[$X,$Y,$Z]*/, 0, 0, $1 ] ;//Watch out: Do not use XYZ[]!
 
   Torque_mag[] = #55 ; // Torque computed in postprocessing (Trotor in #54, Tstator in #55, Tmb in #56)
-
-  // Functions used for optimization
-  // Target B in air-gap
-  Btarget[] = Sqrt[2]*0.502*Sin[(AngularPosition[]-RotorPosition[]+Pi/8)*NbrPolesTot/2.0];
-
-  // Target Torque
-  Ttarget[] = Tnom;//Nm 
-  torqueVar[] = ScalarField[XYZ[],0,1]{TORQUE_VAR_FIELD};
-  torqueCoeff[] = XYZ[]*XYZ[]*2*Pi*AxialLength/SurfaceArea[]; 
-  er[] = Unit[XYZ[]];
-  et[] = Unit[Vector[-Sin[ Atan2[Y[],X[]] ], Cos[ Atan2[Y[],X[]] ], 0]];
-
-  If(Flag_filterSensitivity)
-    rmin2[] = Rmin*Rmin;
-    prod_x_dC[] = ScalarField[RotateZ_desVar[],0,1]{SENS_FIELD};
-  EndIf
-
-
-  volDensity[#{Rotor_Fe,Stator_Fe}] = 7874; //acier
-  volDensity[#{DomainM}] = 7400; //PM
-
-  // -- velocity field --
-  //velocityField0_0[] = VectorField[$1,0,1]{0};
-  velocityField_0[] = VectorField[RotateZ_desVar[],0,1]{0};
-  velocityField0[] = VectorField[$1,0,1]{VELOCITY_FIELD};
-  velocityField[] = VectorField[RotateZ_desVar[],0,1]{VELOCITY_FIELD};
 
 }
 
@@ -515,42 +334,28 @@ Constraint {
       { Region Surf_bn0 ; Type Assign; Value 0. ; }
 
       If(Flag_Symmetry)
-        { Region Surf_cutA1; SubRegion Region[{Surf_Inf,Surf_bn0, Point_ref}]; Type Link;
+        { Region Surf_cutA1; SubRegion Region[{Surf_Inf,Surf_bn0, Point_ref}]; 
+          Type Link;
           RegionRef Surf_cutA0; SubRegionRef Region[{Surf_Inf,Surf_bn0, Point_ref}];
-          Coefficient ((NbrPoles%2)?-1:1) ; Function RotatePZ[-NbrPoles*2*Pi/NbrPolesTot]; }
+          Coefficient ((NbrPoles%2)?-1:1) ; 
+          Function RotatePZ[-NbrPoles*2*Pi/NbrPolesTot]; }
         { Region Surf_cutA1; Type Link; RegionRef Surf_cutA0;
-          Coefficient (NbrPoles%2)?-1:1 ; Function RotatePZ[-NbrPoles*2*Pi/NbrPolesTot]; }
+          Coefficient (NbrPoles%2)?-1:1 ; 
+          Function RotatePZ[-NbrPoles*2*Pi/NbrPolesTot]; }
 
         //For the moving band
         For k In {1:SymmetryFactor-1}
-        { Region Rotor_Bnd_MB~{k+1} ; SubRegion Rotor_Bnd_MB~{(k!=SymmetryFactor-1)?k+2:1}; Type Link;
+        { Region Rotor_Bnd_MB~{k+1} ; 
+          SubRegion Rotor_Bnd_MB~{(k!=SymmetryFactor-1)?k+2:1}; Type Link;
           RegionRef Rotor_Bnd_MB_1; SubRegionRef Rotor_Bnd_MB_2;
-          Coefficient ((NbrPoles%2)?-1:1)^(k); Function RotatePZ[-k*NbrPoles*2*Pi/NbrPolesTot]; }
+          Coefficient ((NbrPoles%2)?-1:1)^(k); 
+          Function RotatePZ[-k*NbrPoles*2*Pi/NbrPolesTot]; }
         EndFor
 
       EndIf
 
     }
   }
-  //-----------------------------------------------------------------
-//  { Name DirichletBCx; Type Assign;
-//      Case{
-//        {Region SkinDomain~{1};  Value CompX[velocityField_0[]]; }
-//        {Region Gama;  Value 0; }
-//      }
-//  }
-//  { Name DirichletBCy; Type Assign;
-//      Case{
-//        {Region SkinDomain~{1};  Value CompY[velocityField_0[]]; }
-//        {Region Gama;  Value 0; }
-//      }
-//  }
-//  { Name DirichletBCz; Type Assign;
-//      Case{
-//        {Region SkinDomain~{1};  Value CompZ[velocityField_0[]]; }
-//        {Region Gama;  Value 0; }
-//      }
-//  }
   //-----------------------------------------------------------------
   { Name Current_2D ;
     Case {
@@ -623,62 +428,6 @@ FunctionSpace {
       { NameOfCoef ae1 ; EntityType NodesOf ; NameOfConstraint MVP_2D ; }
     }
   }
-  //-----------------------------------------------------------------
-  //  Adjoint var --> same constraints as A
-  //-----------------------------------------------------------------
-  { Name Hcurl_lambda_2D ; Type Form1P ;
-    BasisFunction {
-      { Name se1 ; NameOfCoef ae1 ; Function BF_PerpendicularEdge ;
-        Support Region[{ Domain , Rotor_Bnd_MBaux }] ; Entity NodesOf [ All ] ; }
-   }
-    Constraint {
-      { NameOfCoef ae1 ; EntityType NodesOf ; NameOfConstraint MVP_2D; }
-    }
-
-  }
-  //-----------------------------------------------------------------
-  // Filtered sensitivity
-  //-----------------------------------------------------------------
-  { Name H_psi ; Type Form0 ;
-    BasisFunction {
-      { Name sPsi ; NameOfCoef psi ; Function BF_Node ;
-        Support Domain ; Entity NodesOf[ All ] ; }
-    }
-  }
-  //-----------------------------------------------------------------
-//  { Name H_velocityX; Type Form0;
-//    BasisFunction{
-//      {Name wn; NameOfCoef vn; Function BF_Node;
-//       Support Domain; Entity NodesOf[All];}
-//    }
-//    // Contrary to Neumann case, we had here the constraint :
-//	Constraint{
-//	{NameOfCoef vn; EntityType NodesOf;
-//	 NameOfConstraint DirichletBCx;}
-//	}
-//  }
-//  { Name H_velocityY; Type Form0;
-//    BasisFunction{
-//      {Name wn; NameOfCoef vn; Function BF_Node;
-//    Support Domain; Entity NodesOf[All];}
-//    }
-//    // Contrary to Neumann case, we had here the constraint :
-//	Constraint{
-//	{NameOfCoef vn; EntityType NodesOf;
-//	 NameOfConstraint DirichletBCy;}
-//	}
-//  }
-//  { Name H_velocityZ; Type Form0;
-//    BasisFunction{
-//      {Name wn; NameOfCoef vn; Function BF_Node;
-//    Support Domain; Entity NodesOf[All];}
-//    }
-//    // Contrary to Neumann case, we had here the constraint :
-//	Constraint{
-//	{NameOfCoef vn; EntityType NodesOf;
-//	 NameOfConstraint DirichletBCz;}
-//	}
-//  }
   //-----------------------------------------------------------------
   // Gradient of Electric scalar potential (2D)
   //-----------------------------------------------------------------
@@ -756,7 +505,6 @@ FunctionSpace {
   }
 
 }
-//-----------------------------------------------------------------------------------------------
 Formulation {
   //---------------------------------------------------------------------------------
   // Primary system
@@ -859,95 +607,6 @@ Formulation {
       GlobalTerm {       [-Dof{V} , {P} ] ; In DomainKin ; }
     }
   }
-
-  //---------------------------------------------------------------------------------
-  // Adjoint weak formulation
-  //---------------------------------------------------------------------------------
- { Name AdjointFormulation ; Type FemEquation ;
-    Quantity {
-      { Name a ; Type Local  ; NameOfSpace Hcurl_a_2D ; }
-      { Name lambda ; Type Local  ; NameOfSpace Hcurl_lambda_2D ; }
-    }
-    Equation {
-      Galerkin { [ nu[ {d a} ]* Dof{d lambda}  , {d lambda} ] ;
-        In Domain ; Jacobian Vol ; Integration I1 ; }
-      Galerkin { [ dhdb_NL[ {d a} ] * Dof{d lambda} , {d lambda} ] ; 
-        In DomainNL ; Jacobian Vol ; Integration I1 ; }
-
-      // DO NOT REMOVE!!!
-      // Keeping track of Dofs in auxiliar line of MB if Symmetry==1
-      Galerkin {  [  0*Dof{d lambda} , {d lambda} ]  ;
-        In Rotor_Bnd_MBaux; Jacobian Vol; Integration I1; }
-
-      If(Flag_PerfType == BFIELD_ERROR) // F = Int((Br - Bref)^2)
-        Printf["-- Radial Field Pseudoload --"];
-        Galerkin { [ -2.0*({d a}*er[] - Btarget[])*er[], {d lambda}] ;
-                 In DomBradError ; Jacobian Vol ; Integration I1 ; }
-      EndIf
-      If(Flag_PerfType == TORQUE_VAR) // F = (T/Tref - 1)^2
-       Printf["-- TORQUE VAR Pseudoload --"];
-       Galerkin {[-2.0*torqueVar[]*nu[{d a}]*torqueCoeff[]/Ttarget[]*(et[]*({d a}*er[]) ), {d lambda} ];
-         In DomTorqueVar ; Jacobian Vol ; Integration I1 ; } 
-       Galerkin { [ -2.0*torqueVar[]*nu[{d a}]*torqueCoeff[]/Ttarget[]*( er[]*({d a}*et[]) ), {d lambda} ];
-         In DomTorqueVar ; Jacobian Vol ; Integration I1 ; } 
-      EndIf
-      If(Flag_PerfType == COMPLIANCE) // F = Int_DO{nu*curl(A)^2}
-        Printf["-- Compliance Pseudoload --"];
-        Galerkin { [ -2.0*nu[{d a}]*{d a}, {d lambda} ] ;
-         In DomCompliance ; Jacobian Vol ; Integration I1 ; }
-      EndIf
-
-   }
-  }
-  //---------------------------------------------------------------------------------
-  // Sensitivity filtering
-  //--------------------------------------------------------------------------------- 
- { Name Filt_sens ; Type FemEquation ;
-    Quantity {
-       { Name psi ; Type Local ; NameOfSpace H_psi;}
-      }
-    Equation {
-       Galerkin { [ rmin2[] * Dof{d psi}, {d psi} ] ; 
-                   In DomainOpt; Jacobian Vol ; Integration I1 ; }
-
-       Galerkin { [ Dof{psi}, {psi} ] ; 
-                   In DomainOpt; Jacobian Vol; Integration I1; }
-
-       Galerkin { [ -prod_x_dC[], {psi} ] ; 
-                   In DomainOpt; Jacobian Vol; Integration I1; }
-      }
-  }
-  //-----------------------------------------------------------------
-  // Velocity field filtering 
-  //-----------------------------------------------------------------
-// { Name FiltLaplace_DeltaMeshCoord_x ; Type FemEquation ;
-//   Quantity {
-//       { Name uX ; Type Local ; NameOfSpace H_velocityX;}
-//   }
-//   Equation {
-//      Galerkin{ [Dof{Grad uX}, {Grad uX}];
-//        In Domain; Jacobian Vol; Integration I1;}
-//   }
-// }
-// { Name FiltLaplace_DeltaMeshCoord_y ; Type FemEquation ;
-//   Quantity {
-//       { Name uY ; Type Local ; NameOfSpace H_velocityY;}
-//   }
-//   Equation {
-//      Galerkin{ [Dof{Grad uY}, {Grad uY}];
-//        In Domain; Jacobian Vol; Integration I1;}
-//   }
-// }
-
-// { Name FiltLaplace_DeltaMeshCoord_z ; Type FemEquation ;
-//   Quantity {
-//       { Name uZ ; Type Local ; NameOfSpace H_velocityZ;}
-//   }
-//   Equation {
-//      Galerkin{ [Dof{Grad uZ}, {Grad uZ}];
-//        In Domain; Jacobian Vol; Integration I1;}
-//   }
-// }
 }
 //-----------------------------------------------------------------------------------------------
 Resolution {
@@ -1050,14 +709,6 @@ Resolution {
 
           ChangeOfCoordinates[ NodesOf[Rotor_Moving], RotatePZ[delta_theta[]]];
 
-	  /* -- Nouveau -- */
-	  // ChangeOfCoordinates[ NodesOf[Permanent_Magnet], perturb[]];
-	  // - RotatePZ: rotation selon Z dans le sens positif --> pas besoin dans mon cas?
-	  // - perturb serait une fonction constante dans un premier temps
-	  //   -> utiliser une carte de post-process générée par le script python 
-	  //   -> lire la carte pour générer la fonction 'perturb'
-          //   -> Question: quels noeds perturber, puisque la spline est perturbée? Discuter avec Pierre Duysinx
-
           If(!Flag_ImposedSpeed)
             Evaluate[ #77#66 ]; //Keep track of previous angular position
           EndIf
@@ -1066,100 +717,7 @@ Resolution {
       EndIf // End Flag_AnalysisType==1 (Time domain)
     }
   }
-  { Name OptimStep ;
-    System {
-        { Name A ; NameOfFormulation MagStaDyn_a_2D ; } //solve for A
-        { Name B ; NameOfFormulation AdjointFormulation ; } // solve for lambda
-        { Name D ; NameOfFormulation Filt_sens ; }
-//        If(Flag_filterMeshCoordinates)
-//	  { Name I ; NameOfFormulation FiltLaplace_DeltaMeshCoord_x ; }
-//          { Name J ; NameOfFormulation FiltLaplace_DeltaMeshCoord_y ; }
-//          { Name K ; NameOfFormulation FiltLaplace_DeltaMeshCoord_z ; }
-//        EndIf
-    }
-    Operation {
-     CreateDir["res/"];
-     //-------------------------------------------------------------------
-     If(Flag_SolveStateVar) //Solve for A ?
-       Printf["--------- Get state variable ---------"];
-       If(Flag_AnalysisType==0) // --- stationnary ---
-         ChangeOfCoordinates[ NodesOf[Rotor_Moving], RotatePZ[RotorPosition[] ]];
-         If(Flag_topopt)
-           GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD]; 
-         EndIf
-         InitMovingBand2D[MB];
-         MeshMovingBand2D[MB];
-         InitSolution[A] ;
-         If(!Flag_NL)
-           Generate[A] ;
-           Solve[A] ;
-         EndIf
-         If(Flag_NL)
-           IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
-             GenerateJac[A] ; SolveJac[A] ; }
-         EndIf 
-         SaveSolution[A];
-         PostOperation[Get_PrimalSystem]; 
-         ChangeOfCoordinates[ NodesOf[Rotor_Moving], RotatePZ[-RotorPosition[] ]];
-       EndIf
-     EndIf
-     //-------------------------------------------------------------------
-     If(Flag_SolveAdjointVar) 
-       Printf["-- Compute Adjoint Variable --"];
-       // Compute adjoint variable (independent of design variables) 
-       // --> choose this method if #PerfFunc << #var 
-       // --> Same system for shape and topology optimization
-       // --> 1 system per performance function
-       ChangeOfCoordinates[ NodesOf[Rotor_Moving], RotatePZ[RotorPosition[] ]];
-       InitMovingBand2D[MB];
-       MeshMovingBand2D[MB];
-       ReadSolution[A]; //Load state variable (potential vector)
-       If(Flag_topopt)
-         GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD]; 
-       EndIf
-       GmshRead[StrCat[ResDir,"TorqueVarianceAllDom.pos"], TORQUE_VAR_FIELD];
-       InitSolution[B]; Generate[B]; Solve[B]; SaveSolution[A]; SaveSolution[B]; 
-       PostOperation[Get_AdjointSystem];
-       ChangeOfCoordinates[ NodesOf[Rotor_Moving], RotatePZ[-RotorPosition[] ]];
-     EndIf
-     //-------------------------------------------------------------------
-     If(Flag_AvmFixedDomSens) // adjoint method sens. - fixed mesh
-       Printf["-- Compute AVM sensitivity analysis (fixed domain) --"];
-       ChangeOfCoordinates[ NodesOf[Rotor_Moving], RotatePZ[RotorPosition[] ]];
-       ReadSolution[A];ReadSolution[B];//A and Lambda   
-       GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD];
-       GmshRead[StrCat[ResDir,"TorqueVarianceAllDom.pos"], TORQUE_VAR_FIELD];
-       PostOperation[Get_AvmFixedDomSens];
-       ChangeOfCoordinates[ NodesOf[Rotor_Moving], RotatePZ[-RotorPosition[] ]];
-     EndIf
-     //-------------------------------------------------------------------
-     If(Flag_SemiAnalyticAvmSens)
-       Printf["-- Compute AVM Semi-Analytic quantitys --"];
-       // grandeurs sauvées à la bonne position angulaire du rotor
-       If(Flag_topopt)
-         GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD]; 
-       EndIf
-       ChangeOfCoordinates[ NodesOf[Rotor_Moving], RotatePZ[RotorPosition[] ]];
-       InitMovingBand2D[MB];
-       MeshMovingBand2D[MB];
-       ReadSolution[A];ReadSolution[B]; // load A and Lambda
-       PostOperation[Get_SemiAnalyticAvmQuantitys]; // Compute Lambda*K*A and Lambda*g
-       ChangeOfCoordinates[ NodesOf[Rotor_Moving], RotatePZ[-RotorPosition[] ]];
-     EndIf
-     //-------------------------------------------------------------------
-     If(Flag_filterSensitivity) // Filter sensitivity (only if TO)
-       Printf["-- Filter Sensitivity --"];
-       ChangeOfCoordinates[ NodesOf[Rotor_Moving], RotatePZ[RotorPosition[] ]];
-       //GmshRead["res/designVariable.pos", DES_VAR_FIELD]; 
-       //GmshRead["res/SensPerfAvmFixedDom.pos", SENS_FIELD]; 
-       GmshRead[StrCat[ResDir,"Sensitivity_DesVar.pos"], SENS_FIELD]; 
-       Generate[D]; Solve[D]; SaveSolution[D];
-       PostOperation[Get_FilteredSens];
-       ChangeOfCoordinates[ NodesOf[Rotor_Moving], RotatePZ[-RotorPosition[] ]];
-     EndIf
-    }
-  }
-}
 
+}
 
 

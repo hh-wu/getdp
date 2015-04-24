@@ -26,23 +26,24 @@ parameters['flagOptType'] = 1
 parameters['analysisType'] = 0
 parameters['NLsys'] = 0
 parameters['defautValue']={'MaterialInterpLaw':0,'SimpDegree':3.0,
-                           'RecombineSurf':1,'lc':0.2,'TorqueNominal':2.0}
+                           'lc':0.2,'TorqueNominal':2.0,'DomOpt':2}
 
 # Design variables
 parameters['paramNameDisp']  = ['nu']
-parameters['VolFrac'] = 0.75
-parameters['elementOfDomainTopOptTAG'] = [1000] #1000:rotor_fe, 2000:stator_fe
-x0 = np.array([parameters['VolFrac']])
+parameters['VolFrac'] = 0.4
+parameters['elementOfDomainTopOptTAG'] = [1000,2000] #1000:rotor_fe, 2000:stator_fe
+x = np.array([parameters['VolFrac']])
 xmax = np.array([1.0])
 xmin = np.array([0.001])
 
 # Performance function
-parameters['performance'] = ['Compliance', 'Volume']
-parameters['rotorAngles'] = np.array([0.0])
-#np.linspace(7.5,22.5,5)
-#np.array([7.5, 15.0, 15.0+7.5])
+parameters['performance'] = ['BradialErrorInt', 'Volume']
+parameters['rotorAngles'] = np.array([15.0])
+#np.arange(0.0,45,45/3.0)
+print parameters['rotorAngles']
+#np.array([0.0, 15.0, 30.0, 45.0])
 parameters['m'] = len(parameters['performance']) - 1 # number of constraint
-parameters['sign'] = [-1.0, 1.0]
+parameters['sign'] = [1.0, 1.0]
 
 # Sensitivity analysis
 parameters['flag_computeGrad']  = 1
@@ -58,7 +59,7 @@ parameters['xtol'] = 1.0e-02
 # ************************************************************************
 # ***** Instantiate the Model and the Optimizer                      *****
 # ************************************************************************
-op = Optimization(parameters,xmin,xmax,x0)
+op = Optimization(parameters,xmin,xmax,x)
 
 # ************************************************************************
 # ***** Optimization routine                                         *****
@@ -67,7 +68,7 @@ op = Optimization(parameters,xmin,xmax,x0)
 op.preprocessing(op.parameters)
 
 # Call optimizer
-op.solveOpt(op.x0,op.xmax,op.xmin,op.fjMax,2,op.parameters)
+op.solveOpt(op.x,op.xmax,op.xmin,op.fjMax,2,op.parameters)
 
 # Close optimizer
 op.close()
