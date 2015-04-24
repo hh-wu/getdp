@@ -16,36 +16,92 @@ Integration {
   }
 }
 
+Group {
+  If(!Flag_Dynamic)
+    Surf_a_NoGauge = Region [ {GammaLeft, GammaRight, GammaUp, GammaDown} ];
+  EndIf
+  If(Flag_Dynamic)
+    Surf_a_NoGauge = Region [ {GammaLeft, GammaRight, GammaUp, GammaDown,
+        Skin_Omega_C} ] ;
+  EndIf
+}
+
+Constraint {
+  { Name GaugeCondition_a ; Type Assign ;
+    Case {
+      If(!Flag_Dynamic)
+        { Region Omega ; SubRegion Surf_a_NoGauge ; Value 0. ; }
+      EndIf
+      If(Flag_Dynamic)
+        { Region Omega_CC ; SubRegion Surf_a_NoGauge ; Value 0. ; }
+      EndIf
+    }
+  }
+}
+
 FunctionSpace{
   For iP In {1:Nbr_SubProblems}
-    { Name HCurl_a_Meso~{iP}; Type Form1P;
-      BasisFunction{
-        { Name sn; NameOfCoef an; Function BF_PerpendicularEdge;
-          Support Omega; Entity NodesOf[ All ]; }
-      }
-      Constraint {
-        { NameOfCoef an; EntityType NodesOf; NameOfConstraint a_Meso; }
-        { NameOfCoef an; EntityType NodesOf; NameOfConstraint a_Meso_Init; }
-      }
-    }
 
-    // Gradient of Electric scalar potential (2D)
-    { Name Hregion_u_2D~{iP}; Type Form1P;
-      BasisFunction {
-        { Name sr; NameOfCoef ur; Function BF_RegionZ;
-          Support Omega_C; Entity Omega_C; }
+    If(!Flag_3D)
+      { Name Hcurl_a_Meso~{iP}; Type Form1P;
+        BasisFunction{
+          { Name sn; NameOfCoef an; Function BF_PerpendicularEdge;
+            Support Omega; Entity NodesOf[ All ]; }
+        }
+        Constraint {
+          { NameOfCoef an; EntityType NodesOf; NameOfConstraint a_Meso; }
+          { NameOfCoef an; EntityType NodesOf; NameOfConstraint a_Meso_Init; }
+        }
       }
-      GlobalQuantity {
-        { Name U; Type AliasOf; NameOfCoef ur; }
-        { Name I; Type AssociatedWith; NameOfCoef ur; }
+      // Gradient of Electric scalar potential (2D)
+      { Name Hregion_u_2D~{iP}; Type Form1P;
+        BasisFunction {
+          { Name sr; NameOfCoef ur; Function BF_RegionZ;
+            Support Omega_C; Entity Omega_C; }
+        }
+        GlobalQuantity {
+          { Name U; Type AliasOf; NameOfCoef ur; }
+          { Name I; Type AssociatedWith; NameOfCoef ur; }
+        }
+        Constraint {
+          { NameOfCoef U;
+            EntityType Region; NameOfConstraint Voltage_2D; }
+          { NameOfCoef I;
+            EntityType Region; NameOfConstraint Current_2D; }
+        }
       }
-      Constraint {
-        { NameOfCoef U;
-          EntityType Region; NameOfConstraint Voltage_2D; }
-        { NameOfCoef I;
-          EntityType Region; NameOfConstraint Current_2D; }
+    EndIf
+    If(Flag_3D && !Flag_Dynamic)
+      { Name Hcurl_a_Meso~{iP}; Type Form1;
+        BasisFunction {
+          { Name se;  NameOfCoef ae;  Function BF_Edge; Support Omega ;
+            Entity EdgesOf[ All ]; }
+        }
+        Constraint {
+          { NameOfCoef ae;  EntityType EdgesOf ; NameOfConstraint a_Meso; }
+          { NameOfCoef ae;  EntityType EdgesOfTreeIn ; EntitySubType StartingOn ;
+            NameOfConstraint GaugeCondition_a ; }
+        }
       }
-    }
+    EndIf
+    If(Flag_3D && Flag_Dynamic)
+      { Name Hcurl_a_Meso~{iP}; Type Form1;
+        BasisFunction {
+          { Name se;  NameOfCoef ae;  Function BF_Edge; Support Omega ;
+            Entity EdgesOf[ All, Not Omega_C ]; }
+          { Name sec;  NameOfCoef aec;  Function BF_Edge; Support Omega ;
+            Entity EdgesOf[ Omega_C ]; }
+        }
+        Constraint {
+          { NameOfCoef ae;  EntityType EdgesOf ; NameOfConstraint a_Meso; }
+          { NameOfCoef aec; EntityType EdgesOf ; NameOfConstraint a_Meso; }
+          //{ NameOfCoef ae;  EntityType EdgesOf ; NameOfConstraint a_Meso_Init; }
+          { NameOfCoef aec; EntityType EdgesOf ; NameOfConstraint a_Meso_Init; }
+          { NameOfCoef ae;  EntityType EdgesOfTreeIn ; EntitySubType StartingOn ;
+            NameOfConstraint GaugeCondition_a ; }
+        }
+      }
+    EndIf
   EndFor
 }
 
@@ -54,7 +110,7 @@ Formulation {
 
     { Name Init_PreviousTimeStep~{iP}; Type FemEquation;
       Quantity{
-        { Name a; Type Local; NameOfSpace HCurl_a_Meso~{iP}; }
+        { Name a; Type Local; NameOfSpace Hcurl_a_Meso~{iP}; }
       }
       Equation{
         Galerkin { [ Dof{a} , {a} ]; In Omega; Jacobian Vol; Integration II; }
@@ -64,8 +120,8 @@ Formulation {
 
     { Name a_NR~{iP}; Type FemEquation;
       Quantity {
-        { Name a; Type Local; NameOfSpace HCurl_a_Meso~{iP}; }
-        If(Flag_Dynamic)
+        { Name a; Type Local; NameOfSpace Hcurl_a_Meso~{iP}; }
+        If(Flag_Dynamic && !Flag_3D)
           { Name ur; Type Local; NameOfSpace Hregion_u_2D~{iP}; }
           { Name I; Type Global; NameOfSpace Hregion_u_2D~{iP}[I]; }
           { Name U; Type Global; NameOfSpace Hregion_u_2D~{iP}[U]; }
@@ -84,23 +140,25 @@ Formulation {
         If(Flag_Dynamic)
           Galerkin { DtDof[ sigma[] * Dof{a} , {a} ];
             In Omega_C; Jacobian Vol; Integration II; }
-          Galerkin { [ sigma[] * Dof{ur} , {a} ];
-            In Omega_C; Jacobian Vol; Integration II; }
           Galerkin { [ - sigma[] * eM[] , {a} ];
             In Omega_C; Jacobian Vol; Integration II; }
           Galerkin { [ sigma[] * ( factor * dt_bM[] /\ XYZ[] ) , {a} ];
             In Omega_C; Jacobian Vol; Integration II; }
 
-          Galerkin { DtDof [ sigma[] * Dof{a} , {ur} ];
-            In Omega_C; Jacobian Vol; Integration II; }
-          Galerkin { [ sigma[] * Dof{ur} , {ur} ];
-            In Omega_C; Jacobian Vol; Integration II; }
-          Galerkin { [ - sigma[] * eM[] , {ur} ];
-            In Omega_C; Jacobian Vol; Integration II; }
-          Galerkin { [ sigma[] * ( factor * dt_bM[] /\ XYZ[] ) , {ur} ];
-            In Omega_C; Jacobian Vol; Integration II; }
-          GlobalTerm { [ Dof{I} , {U} ];
-            In Omega_C; }
+          If(!Flag_3D)
+            Galerkin { [ sigma[] * Dof{ur} , {a} ];
+              In Omega_C; Jacobian Vol; Integration II; }
+            Galerkin { DtDof [ sigma[] * Dof{a} , {ur} ];
+              In Omega_C; Jacobian Vol; Integration II; }
+            Galerkin { [ sigma[] * Dof{ur} , {ur} ];
+              In Omega_C; Jacobian Vol; Integration II; }
+            Galerkin { [ - sigma[] * eM[] , {ur} ];
+              In Omega_C; Jacobian Vol; Integration II; }
+            Galerkin { [ sigma[] * ( factor * dt_bM[] /\ XYZ[] ) , {ur} ];
+              In Omega_C; Jacobian Vol; Integration II; }
+            GlobalTerm { [ Dof{I} , {U} ];
+              In Omega_C; }
+            EndIf
         EndIf
       }
     }
@@ -169,7 +227,7 @@ PostProcessing {
         { Name vol; Value { // stored in register #12
             Integral { [ 1. ]; In Omega; Jacobian Vol; Integration II; } } }
         { Name a_pert; Value {
-            Term { [ CompZ[ {a} ] ]; In Omega; Jacobian Vol; } } }
+            Term { [ {a} ]; In Omega; Jacobian Vol; } } }
         { Name a_proj; Value {
             Term { [ CompZ[ ( aM[] ) ] ]; In Omega; Jacobian Vol; }
             Term { [ CompZ[ ( - factor * (XYZ[]) /\ bM[] ) ] ]; In Omega; Jacobian Vol; } } }
@@ -206,30 +264,53 @@ PostProcessing {
         EndIf
 
         If(Flag_Dynamic)
-          { Name e_pert; Value {
-              Term { [ -Dt[{a}] ]; In Omega_C; Jacobian Vol;  }
-              Term { [ - {ur} ]; In Omega_C; Jacobian Vol;  } } }
           { Name e_proj; Value {
               Term { [ factor * ( XYZ[] /\ dt_bM[] ) ]; In Omega_C; Jacobian Vol;  } } }
-          { Name e; Value {
-              Term { [ - Dt[{a}] ]; In Omega_C; Jacobian Vol;  }
-              Term { [ - {ur} ]; In Omega_C; Jacobian Vol;  }
-              Term { [ factor * ( XYZ[] /\ dt_bM[] ) ]; In Omega_C; Jacobian Vol;} } }
-          { Name j_pert; Value {
-              Term { [ - sigma[] * Dt[{a}] ]; In Omega_C; Jacobian Vol;  }
-              Term { [ - sigma[] * {ur} ]; In Omega_C; Jacobian Vol;  } } }
           { Name j_proj; Value { Term { [ factor * sigma[] * ( XYZ[] /\ dt_bM[] ) ];
                 In Omega_C; Jacobian Vol;  } } }
-          { Name j; Value {
-              Term { [ - sigma[] * Dt[{a}] ]; In Omega_C; Jacobian Vol;  }
-              Term { [ - sigma[] * {ur} ]; In Omega_C; Jacobian Vol;  }
-              Term { [   factor * sigma[] * ( XYZ[] /\ dt_bM[] ) ];
-                In Omega_C; Jacobian Vol;  } } }
 
-          { Name JouleLosses_mean; Value{ // stored in #25
-              Integral { [ ( sigma[] * SquNorm[ Dt[{a}] + {ur} -
-                      factor * ( XYZ[] /\ dt_bM[] ) ] )/#12 ];
-                In Omega_C; Jacobian Vol; Integration II; } } }
+          If(!Flag_3D)
+            { Name e_pert; Value {
+                Term { [ -Dt[{a}] ]; In Omega_C; Jacobian Vol;  }
+                Term { [ - {ur} ]; In Omega_C; Jacobian Vol;  }
+              } }
+            { Name e; Value {
+                Term { [ - Dt[{a}] ]; In Omega_C; Jacobian Vol;  }
+                Term { [ - {ur} ]; In Omega_C; Jacobian Vol;  }
+                Term { [ factor * ( XYZ[] /\ dt_bM[] ) ]; In Omega_C; Jacobian Vol;} } }
+            { Name j_pert; Value {
+                Term { [ - sigma[] * Dt[{a}] ]; In Omega_C; Jacobian Vol;  }
+                Term { [ - sigma[] * {ur} ]; In Omega_C; Jacobian Vol;  } } }
+            { Name j; Value {
+                Term { [ - sigma[] * Dt[{a}] ]; In Omega_C; Jacobian Vol;  }
+                Term { [ - sigma[] * {ur} ]; In Omega_C; Jacobian Vol;  }
+                Term { [   factor * sigma[] * ( XYZ[] /\ dt_bM[] ) ];
+                  In Omega_C; Jacobian Vol;  } } }
+            { Name JouleLosses_mean; Value{ // stored in #25
+                Integral { [ ( sigma[] * SquNorm[ Dt[{a}] + {ur} -
+                        factor * ( XYZ[] /\ dt_bM[] ) ] )/#12 ];
+                  In Omega_C; Jacobian Vol; Integration II; } } }
+          EndIf
+          If(Flag_3D)
+            { Name e_pert; Value {
+                Term { [ -Dt[{a}] ]; In Omega_C; Jacobian Vol;  }
+              } }
+            { Name e; Value {
+                Term { [ - Dt[{a}] ]; In Omega_C; Jacobian Vol;  }
+                Term { [ factor * ( XYZ[] /\ dt_bM[] ) ]; In Omega_C; Jacobian Vol;} } }
+            { Name j_pert; Value {
+                Term { [ - sigma[] * Dt[{a}] ]; In Omega_C; Jacobian Vol;  }
+              } }
+            { Name j; Value {
+                Term { [ - sigma[] * Dt[{a}] ]; In Omega_C; Jacobian Vol;  }
+                Term { [   factor * sigma[] * ( XYZ[] /\ dt_bM[] ) ];
+                  In Omega_C; Jacobian Vol;  } } }
+            { Name JouleLosses_mean; Value{ // stored in #25
+                Integral { [ ( sigma[] * SquNorm[ Dt[{a}] -
+                        factor * ( XYZ[] /\ dt_bM[] ) ] )/#12 ];
+                  In Omega_C; Jacobian Vol; Integration II; } } }
+          EndIf
+
           { Name MagneticEnergy_mean; Value{
               // stored in #27. Contribution of the current time step to the
               // integral \oint (h db)

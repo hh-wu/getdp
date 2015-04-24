@@ -7,8 +7,8 @@ Group {
   GammaRight     = Region[ {GAMMA_RIGHT} ];
   GammaUp        = Region[ {GAMMA_UP} ];
   GammaDown      = Region[ {GAMMA_DOWN} ];
-  GammaDirichlet = Region[ {GAMMA_UP, GAMMA_DOWN} ];
-  GammaDirichlet_Yindi = Region[ {GAMMA_LEFT, GAMMA_RIGHT} ];
+
+  Skin_Omega_C   = Region[ {SKIN_COND} ];
 
   Omega_NL       = Region[ {IRON} ];
   Omega_L        = Region[ {INSULATION} ];
@@ -39,14 +39,14 @@ Function {
   Pert~{1}[]     = Vector[0, 0, 0];
   Pert~{2}[]     = epsilon * Vector[1.0, 0.0, 0.0];
   Pert~{3}[]     = epsilon * Vector[0.0, 1.0, 0.0];
+  Pert~{4}[]     = epsilon * Vector[0.0, 0.0, 1.0];
 
   T               = 1.0/Freq;
   ti              = TCURRENT;
   dt              = T/NbSteps;
   theta_value     = 1;
   tf              = ti + dt;
-  a_tprevious[]   = (TSCURRENT == 1) ? Vector[0.,0.,0.] :
-                       Vector[ 0., 0., ScalarField[XYZ[]]{0}];
+  a_tprevious[]   = (TSCURRENT == 1) ? Vector[0.,0.,0.] : VectorField[XYZ[]]{0};
 
   // Parameters for the electric linear law
   sigmaIron = 5.e6;

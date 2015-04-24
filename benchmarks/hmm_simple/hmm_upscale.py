@@ -3,14 +3,12 @@ key = (input[0], input[1]) # element num, quadrature point index
 field = input[2]
 
 if field == 0:
-    output = [ hx_table[key], hy_table[key], 0. ];
+    output = [ hx_table[key], hy_table[key], hz_table[key] ];
 elif field == 1:
-    output = [ dhdbxx_table[key], dhdbxy_table[key], 0.,
-               dhdbyx_table[key], dhdbyy_table[key], 0.,
-               0.,                0.,                0.]
+    output = [ dhdbxx_table[key], dhdbxy_table[key], dhdbxz_table[key],
+               dhdbyx_table[key], dhdbyy_table[key], dhdbyz_table[key],
+               dhdbzx_table[key], dhdbzy_table[key], dhdbzz_table[key]]
 elif field == 2:
-    #output = [MagneticEnergy_table[key]];
-    output = [0., 0., MagneticEnergy_table[key]];
+    output = MagneticEnergy_table[key];
 elif field == 3:
-    #output = [JouleLosses_table[key]];
-    output = [0., 0., JouleLosses_table[key]];
+    output = JouleLosses_table[key];

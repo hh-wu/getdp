@@ -18,11 +18,11 @@ Group {
   Air                 = Region[AIR];
   Omega_Inf           = Region[OMEGA_INF];
 
-  If(Flag_3D)
-    SurfacesDirichletBC = Region[{GAMMA_INF, SYMMETRY_X0, SYMMETRY_Y0}];
-  EndIf
   If(!Flag_3D)
-    SurfacesDirichletBC = Region[{GAMMA_INF, SYMMETRY_X0}];
+    Dirichlet_a_0 = Region[{GAMMA_INF, SYMMETRY_Y0}];
+  EndIf
+  If(Flag_3D)
+    Dirichlet_a_0 = Region[{GAMMA_INF, SYMMETRY_X0, SYMMETRY_Y0}];
   EndIf
 
   Skin_DomainC        = Region[ {SKIN_COND} ];
@@ -56,32 +56,31 @@ Function {
   //Defining the magnetic law
   //=========================
   nu[DomainL] = 1./mu0 ;
-  If(Flag_NL==0) // For testing purposes
+  If(!Flag_NL) // For testing purposes
     nu[DomainNL]      = nuIron ;
     h[]               = nu[] * $1 ;
     dhdb[]            = nu[] * TensorDiag[1., 1., 1.] ;
     dhdb_NL[]         = nu[] * TensorDiag[0., 0., 0.] ;
   EndIf
-
-  If (Flag_NL==1)
+  If(Flag_NL)
     h[]               = h_1a[$1];
     dhdb[]            = dhdb_1a[$1];
     nu[#{Iron}]       = nu_1a[$1];
     dhdb_NL[]         = dhdb_1a_NL[$1];
   EndIf
 
+  If(!Flag_3D)
+    js0[] = Vector[0., 0., source_amplitude];
+    js[] = js0[] * F_Sin_wt_p[]{2 * Pi * Freq, Flag_Dynamic ? 0 : Pi/2};
+  EndIf
   If(Flag_3D)
     alpha[] = Pi/2-Atan2[(Y[]-ylam),(X[]-xlam)];
-    js0[]               =
-    (X[] < xlam) ? Vector[-source_amplitude, 0, 0] :
-    (Y[] < ylam) ? Vector[0, source_amplitude, 0] :
-    Vector[ -Cos[alpha[]] * source_amplitude, Sin[alpha[]] * source_amplitude, 0 ];
-    js[]                = js0[] * F_Sin_wt_p[]{2 * Pi * Freq, Flag_Dynamic ? 0 : Pi/2};
+    js0[] = (X[] < xlam) ? Vector[-source_amplitude, 0, 0] :
+            (Y[] < ylam) ? Vector[0, source_amplitude, 0] :
+            Vector[ -Cos[alpha[]] * source_amplitude, Sin[alpha[]] * source_amplitude, 0 ];
+    js[] = js0[] * F_Sin_wt_p[]{2 * Pi * Freq, Flag_Dynamic ? 0 : Pi/2};
   EndIf
-  If(!Flag_3D)
-    js0[]               = Vector[0., 0., source_amplitude];
-    js[]                = js0[] * F_Sin_wt_p[]{2 * Pi * Freq, Flag_Dynamic ? 0 : Pi/2};
-  EndIf
+
   T                   = 1./Freq ;
   Omega               = 2 * Pi * Freq ;
   time0               = 0. ;
@@ -92,6 +91,27 @@ Function {
   reltol              = 1e-8;
   abstol              = 1e-8;
   relaxation_factor[] = ($Iteration < Nb_max_iter/2) ? 1: 0.3;
+}
+
+Constraint {
+  { Name a  ; Type Assign ;
+    Case {
+      { Region Dirichlet_a_0 ; Value 0. ; }
+    }
+  }
+
+  { Name Current_2D  ; Type Assign ; // Zero net current in each lamination
+    Case {
+      For k In {1:N}
+        { Region Iron~{k} ; Value 0. ; }
+      EndFor
+    }
+  }
+
+  { Name Voltage_2D  ; Type Assign ;
+    Case {
+    }
+  }
 }
 
 Include "MagStaDyn_a_reference.pro"

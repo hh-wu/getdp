@@ -128,8 +128,18 @@ surfair_out[]+= news ; Plane Surface(news) = {newll-1};
 Line Loop(newll) = {lair[{3:5}], -lair[{1}]};
 surf_Inf[]+= news ; Plane Surface(news) = {newll-1};
 
-Physical Line(GAMMA_INF)    = {lair[{0, 3:4}], lind_middle[], lines_sym[],lair[0] };
+Physical Line(GAMMA_INF)    = {lair[{0, 3:4}], lind_middle[], lines_sym[], lair[0] };
 Physical Surface(CONDUCTOR) = {surfIron[]} ;
-Physical Surface(AIR)       = {surfair[], surfair_out[], surfind[0]} ;
-Physical Surface(INDUCTOR)  = {surfind[{1:#surfind[]-1}]} ;
+
+If(!Flag_3D)
+  Physical Surface(AIR) = {surfair[], surfair_out[], surfind[0]} ;
+  Physical Surface(INDUCTOR) = {surfind[{1:#surfind[]-1}] } ;
+EndIf
+If(Flag_3D)
+  Physical Surface(AIR) = {surfair[], surfair_out[]} ;
+  Physical Surface(INDUCTOR) = {surfind[]} ;
+EndIf
+
 Physical Surface(OMEGA_INF) = {surf_Inf[]} ;
+Physical Line(SYMMETRY_X0) = {3, 29, 20, 34, 37} ;
+Physical Line(SYMMETRY_Y0) = {2, 28, 7, 32, 35} ;

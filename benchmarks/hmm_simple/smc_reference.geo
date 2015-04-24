@@ -177,13 +177,13 @@ surfair_out[]+= news ; Plane Surface(news) = {newll-1};
 Line Loop(newll) = {lair[{3:5}], -lair[{1}]};
 surf_Inf[]+= news ; Plane Surface(news) = {newll-1};
 
-If(Flag_3D)
-  Physical Surface(AIR) = {surfair_out[], s_air_added} ;
-  Physical Surface(INDUCTOR) = {surfind[]} ;
-EndIf
 If(!Flag_3D)
   Physical Surface(AIR) = {surfair_out[], s_air_added, surfind[0]} ;
   Physical Surface(INDUCTOR) = {surfind[{1:#surfind[]-1}] } ;
+EndIf
+If(Flag_3D)
+  Physical Surface(AIR) = {surfair_out[], s_air_added} ;
+  Physical Surface(INDUCTOR) = {surfind[]} ;
 EndIf
 
 Physical Surface(ISOLATION) = {s_iso[]} ;
@@ -196,5 +196,5 @@ EndFor
 Physical Line(SKIN_COND) = Boundary{Surface{s_cond[]};} ;
 
 Physical Line(GAMMA_INF)   = lair[{4}];
-Physical Line(SYMMETRY_X0) = {lind_middle[],lair[{0,3}], x0[], ladd2};
-Physical Line(SYMMETRY_Y0) = {14, lair[{2,5}], y0[], ladd1};
+Physical Line(SYMMETRY_Y0) = {lind_middle[],lair[{0,3}], x0[], ladd2};
+Physical Line(SYMMETRY_X0) = {14, lair[{2,5}], y0[], ladd1};

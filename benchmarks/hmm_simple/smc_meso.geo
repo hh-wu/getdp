@@ -94,11 +94,13 @@ Transfinite Surface{s_iso6[]} ; Recombine Surface{s_iso6[]} ;
 
 Physical Point(GAMMA_POINT)  = {p1};
 
-Physical Line(GAMMA_LEFT)    = {l20};
+Physical Line(GAMMA_LEFT)    = {-l20}; // for edge element orientation w.r.t. GAMMA_RIGHT
 Physical Line(GAMMA_RIGHT)   = {l16};
 Physical Line(GAMMA_DOWN)    = {l13};
-Physical Line(GAMMA_UP)      = {l18};
+Physical Line(GAMMA_UP)      = {-l18};
 
 Physical Surface(IRON)       = {s_cond[]};
 Physical Surface(INSULATION) = {s_iso[], s_iso3[], s_iso4[], s_iso5[], s_iso6[]};
+
+Physical Line(SKIN_COND) = Boundary{Surface{s_cond[]};} ;
 

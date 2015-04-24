@@ -64,6 +64,7 @@ while len(queue):
             args.extend([file_dir + "getdp.sh", file_dir + "smc_meso", 
                          "-bin", "-v", "2", "-v2", "-solve", "a_NR", 
                          "-pos", "mean_1", "mean_2", "mean_3", 
+                         "mean_4" if nbr_subproblems == 4 else "",
                          "map_field_1" if postpro_cuts else "",
                          "-setnumber", "Flag_Dynamic", str(flag_dynamic),
                          "-setnumber", "Freq", str(freq),
@@ -135,12 +136,19 @@ for key in keys:
         dhdbzx_table[key] = (h[4][1] - h[1][1]) / (b[4][3] - b[1][3])
         dhdbzy_table[key] = (h[4][2] - h[1][2]) / (b[4][3] - b[1][3])
         dhdbzz_table[key] = (h[4][3] - h[1][3]) / (b[4][3] - b[1][3])
+    else:
+        dhdbxz_table[key] = 0
+        dhdbyz_table[key] = 0
+        dhdbzx_table[key] = 0
+        dhdbzy_table[key] = 0
+        dhdbzz_table[key] = 0
+
 
     JouleLosses_table[key] = jl[1]
     MagneticEnergy_table[key] = me[1]
 
-    for i in range(nbr_subproblems):
-        os.remove(Dir_Meso + "h" + str(i + 1) + "_" + str(key[0]) + ".txt")
-        os.remove(Dir_Meso + "b" + str(i + 1) + "_" + str(key[0]) + ".txt")
-    os.remove(Dir_Meso + "JouleLosses_" + str(key[0]) + ".txt")
-    os.remove(Dir_Meso + "MagneticEnergy_" + str(key[0]) + ".txt")
+    # for i in range(nbr_subproblems):
+    #     os.remove(Dir_Meso + "h" + str(i + 1) + "_" + str(key[0]) + ".txt")
+    #     os.remove(Dir_Meso + "b" + str(i + 1) + "_" + str(key[0]) + ".txt")
+    # os.remove(Dir_Meso + "JouleLosses_" + str(key[0]) + ".txt")
+    # os.remove(Dir_Meso + "MagneticEnergy_" + str(key[0]) + ".txt")

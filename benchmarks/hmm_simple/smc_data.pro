@@ -1,7 +1,7 @@
 DefineConstant[
   Flag_NL = {1, Choices{0,1},
     Name "Parameters/0Non-linear meso material"},
-  Flag_Dynamic = {1, Choices{0,1},
+  Flag_Dynamic = {0, Choices{0,1},
     Name "Parameters/1Dynamic analysis"}
   Flag_PostCuts = {1, Choices{0,1},
     Name "Parameters/2Post-process meso problem on cuts"},
@@ -49,7 +49,7 @@ listOfTS~{10} = 45;
 listOfTS~{11} = 50;
 
 // 2D problem -> 3 meso computations for dhdb
-Nbr_SubProblems = 3;
+Nbr_SubProblems = Flag_3D ? 4 : 3;
 
 // Common dimensions
 micron    = 1e-6;        // the micron
@@ -80,8 +80,8 @@ lc_smc_cond = e/40. ;
 DefineConstant[Lay1 = 11];
 DefineConstant[Lay2 = 11];
 DefineConstant[Lay3 = 5];
-DefineConstant[Lay_X = 6];
-DefineConstant[Lay_Y = 6];
+DefineConstant[Lay_X = 5];
+DefineConstant[Lay_Y = 5];
 Pro1        = 1.0;
 Pro2        = 1.0;
 Pro3        = 1.0;
