@@ -6,6 +6,9 @@ DefineConstant[
   Flag_PostCuts = {1, Choices{0,1},
     Name "Parameters/2Post-process meso problem on cuts"},
 
+  Flag_3D = {0, Choices{0,1},
+    Name "Parameters/0Currents in the plane or 3D"},
+
   Freq = {50000,
     Name "Parameters/Frequency", Visible Flag_Dynamic},
   NbT = {2./100.,
@@ -13,22 +16,24 @@ DefineConstant[
   NbSteps = {100,
     Name "Parameters/Steps per period", Visible Flag_Dynamic}
 ];
-source_amplitude = 700.e7;
+
+// FIXME:
+source_amplitude = Flag_3D ? 7e5 : 700.e7;
 
 Flag_Local = 1;
 If(Flag_Local)
-results_dir = "";
+  results_dir = "";
 EndIf
 If(!Flag_Local)
-results_dir = "../../../../project/";
+  results_dir = "../../../../project/";
 EndIf
 Dir_Macro = StrCat(results_dir, "res_macro/");
 Dir_Meso  = StrCat(results_dir, "res_meso/");
 Dir_Ref   = StrCat(results_dir, "res_ref/");
 
 // Infos for PostProcessing
-ExtGmsh      = Str[ Sprintf("_nl%g.pos", Flag_NL) ];
-ExtData      = Str[ Sprintf("_nl%g.txt", Flag_NL) ];
+ExtGmsh = Str[ Sprintf("_nl%g.pos", Flag_NL) ];
+ExtData = Str[ Sprintf("_nl%g.txt", Flag_NL) ];
 
 nTS          = 2;
 listOfTS~{1} = 1;
@@ -51,7 +56,7 @@ micron    = 1e-6;        // the micron
 d         = 45 * micron; // thickness of conductor
 e         = 50 * micron; // thickness of smc grain
 eps       = e;
-n_smc     = 10;          // number of SMC grains
+n_smc     = 2;          // number of SMC grains for reference calculation
 nlai      = 4;          //
 LX        = e * 10;      // width of the entire SMC structure
 LY        = LX;
@@ -71,12 +76,12 @@ pind        = w_ind/2;
 plam        = d/8; // lc for the homogenized domain
 lca         = pind * 5; // lc for the inf transfo domain
 lc_smc_iso  = d/20. ;
-lc_smc_cond = e/40. ; 
+lc_smc_cond = e/40. ;
 DefineConstant[Lay1 = 11];
 DefineConstant[Lay2 = 11];
 DefineConstant[Lay3 = 5];
 DefineConstant[Lay_X = 6];
-DefineConstant[Lay_Y = 6]; 
+DefineConstant[Lay_Y = 6];
 Pro1        = 1.0;
 Pro2        = 1.0;
 Pro3        = 1.0;
@@ -96,12 +101,14 @@ n_1         = 21;       // subdivisions along length of insulation layer
 n_2         = 3;        // subdivisions along thickness of insulation layer
 // Physical groups for macro & reference problems
 GAMMA_INF   = 10000;
-SYMMETRY_X0 = 10001; 
+SYMMETRY_X0 = 10001;
 AIR         = 10002;
 INDUCTOR    = 10003;
 OMEGA_INF   = 10004;
 ISOLATION   = 10005;
-CONDUCTOR   = 10006;
+SYMMETRY_Y0 = 10007;
+SKIN_COND   = 10008;
+CONDUCTOR   = 10100; // ! (CONDUCTOR + i) is defined
 
 // Physical groups for meso problem
 GAMMA_POINT = 1000; // point used for fixing the value of the
@@ -111,4 +118,3 @@ GAMMA_DOWN  = 1003; // lower boundary
 GAMMA_UP    = 1004; // upper boundary
 IRON        = 1005; // conductor
 INSULATION  = 1006; // insulation
-

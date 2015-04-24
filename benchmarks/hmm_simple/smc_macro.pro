@@ -11,7 +11,7 @@ Group {
   Domain_NL  = Region[ {Core} ];
   Domain_L   = Region[ {Air, Domain_S, Domain_Inf} ];
   Domain = Region[ {Core, Air, Domain_S, Domain_Inf} ];
-  Dirichlet_a_0     = Region[ {GAMMA_INF} ];
+  Dirichlet_a_0     = Region[ {GAMMA_INF, SYMMETRY_X0} ];
 }
 
 Function {

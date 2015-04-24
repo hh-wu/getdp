@@ -5,22 +5,28 @@
 Include "smc_data.pro";
 
 SymmetryFactor = 4 ;
-AxialLength    = 1; 
+AxialLength    = 1;
 N              = n_smc * n_smc;
 
 Group {
   For k In {1:N}
-    Iron~{k}          = #{(CONDUCTOR+k-1)};
+    Iron~{k}          = Region[{(CONDUCTOR+k-1)}];
     Iron              += Region[{Iron~{k}}];
   EndFor
-  Isolation           = #ISOLATION;
-  Ind                 = #INDUCTOR;
-  Air                 = #AIR;
-  OuterBnd            = #GAMMA_INF;
-  Omega_Inf           = #OMEGA_INF;
-  SurfaceSym          = #SYMMETRY_X0;
+  Isolation           = Region[ISOLATION];
+  Ind                 = Region[INDUCTOR];
+  Air                 = Region[AIR];
+  Omega_Inf           = Region[OMEGA_INF];
 
-  SurfacesDirichletBC = Region[{OuterBnd, SurfaceSym}];
+  If(Flag_3D)
+    SurfacesDirichletBC = Region[{GAMMA_INF, SYMMETRY_X0, SYMMETRY_Y0}];
+  EndIf
+  If(!Flag_3D)
+    SurfacesDirichletBC = Region[{GAMMA_INF, SYMMETRY_X0}];
+  EndIf
+
+  Skin_DomainC        = Region[ {SKIN_COND} ];
+
   DomainS0            = Region[ {Ind} ];
   DomainL             = Region[ {Air, Ind, Isolation, Omega_Inf} ] ;
   DomainNL            = Region[ {Iron} ];
@@ -38,8 +44,8 @@ Function {
   mur                 = 1000 ;
   nuIron              = nu0/mur ;
 
-  aa                  = 388; 
-  bb                  = 0.3774; 
+  aa                  = 388;
+  bb                  = 0.3774;
   cc                  = 2.97;
   nu_1a[]             = aa + bb * Exp[cc*SquNorm[$1]] ; // $1 => b ={d a}
   dnudb2_1a[]         = bb *cc* Exp[cc*SquNorm[$1]] ;
@@ -56,7 +62,7 @@ Function {
     dhdb[]            = nu[] * TensorDiag[1., 1., 1.] ;
     dhdb_NL[]         = nu[] * TensorDiag[0., 0., 0.] ;
   EndIf
-  
+
   If (Flag_NL==1)
     h[]               = h_1a[$1];
     dhdb[]            = dhdb_1a[$1];
@@ -64,12 +70,22 @@ Function {
     dhdb_NL[]         = dhdb_1a_NL[$1];
   EndIf
 
-  js0[]               = Vector[0., 0., source_amplitude];
-  js[]                = js0[] * F_Sin_wt_p[]{2 * Pi * Freq, Flag_Dynamic ? 0 : Pi/2};
+  If(Flag_3D)
+    alpha[] = Pi/2-Atan2[(Y[]-ylam),(X[]-xlam)];
+    js0[]               =
+    (X[] < xlam) ? Vector[-source_amplitude, 0, 0] :
+    (Y[] < ylam) ? Vector[0, source_amplitude, 0] :
+    Vector[ -Cos[alpha[]] * source_amplitude, Sin[alpha[]] * source_amplitude, 0 ];
+    js[]                = js0[] * F_Sin_wt_p[]{2 * Pi * Freq, Flag_Dynamic ? 0 : Pi/2};
+  EndIf
+  If(!Flag_3D)
+    js0[]               = Vector[0., 0., source_amplitude];
+    js[]                = js0[] * F_Sin_wt_p[]{2 * Pi * Freq, Flag_Dynamic ? 0 : Pi/2};
+  EndIf
   T                   = 1./Freq ;
   Omega               = 2 * Pi * Freq ;
-  time0               = 0. ; 
-  timemax             = T * NbT ; 
+  time0               = 0. ;
+  timemax             = T * NbT ;
   dtime               = T/NbSteps ;
   theta_value         = 1;
   Nb_max_iter         = 10;
@@ -78,4 +94,4 @@ Function {
   relaxation_factor[] = ($Iteration < Nb_max_iter/2) ? 1: 0.3;
 }
 
-Include "MagStaDyn_a_reference.pro" 
+Include "MagStaDyn_a_reference.pro"

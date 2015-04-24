@@ -109,35 +109,50 @@ s_iso[]  += news ; Plane Surface(news) = {ll2, ll1} ;
 bnd[] = Boundary{Surface{s_iso[0],s_cond[0]};};
 l_bottom[] += bnd[0];
 
-For k In {1:n_smc-1}
-s_cond[] += Translate {k * eps, 0, 0} { Duplicata { Surface{s_cond[{0}] }; } };
-s_iso[]  += Translate {k * eps, 0, 0} { Duplicata { Surface{s_iso[{0}]  }; } };
-bnd[] = Boundary{Surface{s_iso[k],s_cond[k]};};
-l_bottom[] += bnd[0];
-EndFor
-For k In {1:n_smc-1}
-//For k In {1:n_smc/2-1}
-s_cond[] += Translate {0, k * eps, 0} { Duplicata { Surface{s_cond[{0:n_smc-1}] }; } };
-s_iso[]  += Translate {0, k * eps, 0} { Duplicata { Surface{s_iso[{0:n_smc-1}]  }; } };
-EndFor
+If(n_smc > 1)
+  For k In {1:n_smc-1}
+    s_cond[] += Translate {k * eps, 0, 0} { Duplicata { Surface{s_cond[{0}] }; } };
+    s_iso[]  += Translate {k * eps, 0, 0} { Duplicata { Surface{s_iso[{0}]  }; } };
+    bnd[] = Boundary{Surface{s_iso[k],s_cond[k]};};
+    l_bottom[] += bnd[0];
+  EndFor
+  For k In {1:n_smc-1}
+    //For k In {1:n_smc/2-1}
+    s_cond[] += Translate {0, k * eps, 0} { Duplicata { Surface{s_cond[{0:n_smc-1}] }; } };
+    s_iso[]  += Translate {0, k * eps, 0} { Duplicata { Surface{s_iso[{0:n_smc-1}]  }; } };
+  EndFor
+EndIf
 
 bnd_num[] = Boundary{Surface{s_iso[n_smc-1],s_cond[n_smc-1]};};
 lastCellBnd[] = Boundary{Line{bnd_num[0]}; };
-p_lastCellBnd = lastCellBnd[1]; 
+p_lastCellBnd = lastCellBnd[1];
 
 // Getting the Boundary of the entire duplicated structure
-allSurfaces[] = Surface '*';
-bndlines[] = CombinedBoundary{Surface{allSurfaces[]};};
+bndlines[] = CombinedBoundary{Surface{s_cond[], s_iso[]};};
 
 For k In {0:#bndlines[]-1}
-Printf("%g", bndlines[k]);
+  //Printf("%g", bndlines[k]);
+  pp[] = Boundary{ Line{bndlines[k]}; };
+  xyz0[] = Point{pp[0]};
+  xyz1[] = Point{pp[1]};
+  If(xyz0[0] == 0 && xyz1[0] == 0)
+    y0[] += bndlines[k];
+  EndIf
+  If(xyz0[1] == 0 && xyz1[1] == 0)
+    x0[] += bndlines[k];
+  EndIf
+EndFor
+bndlines[] -= {x0[], y0[]};
+
+For k In {0:#bndlines[]-1}
+  Printf("%g", bndlines[k]);
 EndFor
 
-alll = 999999; Line Loop(newll) = bndlines[];
-//=======================================================
-ladd1 = newl; Line(ladd1) = {11, 7340};
-ladd2 = newl; Line(ladd2) = {348, 2};
-ll_air_added = 9999; Line Loop(ll_air_added) = {ladd2, -4, -9, 18, -15, ladd1, -1936, -1949, -1962, -1975, -1988, -2001, -2014, -2027, -2040, -2053, -2052, -1841, -1630, -1419, -1208, -997, -786, -575, -364, -153};
+pp[] = CombinedBoundary{ Line{bndlines[]}; };
+ladd1 = newl; Line(ladd1) = {11, pp[1]};
+ladd2 = newl; Line(ladd2) = {pp[0], 2};
+
+ll_air_added = 9999; Line Loop(ll_air_added) = {ladd2, -4, -9, 18, -15, ladd1, -bndlines[]};
 s_air_added = news ; Plane Surface(s_air_added) = {-ll_air_added} ;
 
 // Air around
@@ -162,15 +177,24 @@ surfair_out[]+= news ; Plane Surface(news) = {newll-1};
 Line Loop(newll) = {lair[{3:5}], -lair[{1}]};
 surf_Inf[]+= news ; Plane Surface(news) = {newll-1};
 
+If(Flag_3D)
+  Physical Surface(AIR) = {surfair_out[], s_air_added} ;
+  Physical Surface(INDUCTOR) = {surfind[]} ;
+EndIf
+If(!Flag_3D)
+  Physical Surface(AIR) = {surfair_out[], s_air_added, surfind[0]} ;
+  Physical Surface(INDUCTOR) = {surfind[{1:#surfind[]-1}] } ;
+EndIf
 
-Physical Surface(AIR) = {surfair_out[], s_air_added, surfind[0]} ;
-Physical Surface(INDUCTOR) = {surfind[{1:#surfind[]-1}] } ;
 Physical Surface(ISOLATION) = {s_iso[]} ;
 Physical Surface(OMEGA_INF) = {surf_Inf[] } ;
+
 For ii In {0:#s_cond[]-1}
   Physical Surface(CONDUCTOR+ii)  = s_cond[{ii}];
 EndFor
 
-//allSkinIron[] += Boundary{Surface{s_cond[]};} ;
+Physical Line(SKIN_COND) = Boundary{Surface{s_cond[]};} ;
+
 Physical Line(GAMMA_INF)   = lair[{4}];
-Physical Line(SYMMETRY_X0) = {lind_middle[],lair[{0,3}], 22, 48, 61, 74, 87, 100, 113, 126, 139, 152, ladd2};
+Physical Line(SYMMETRY_X0) = {lind_middle[],lair[{0,3}], x0[], ladd2};
+Physical Line(SYMMETRY_Y0) = {14, lair[{2,5}], y0[], ladd1};

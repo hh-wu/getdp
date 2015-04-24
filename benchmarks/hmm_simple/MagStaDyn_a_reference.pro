@@ -21,8 +21,16 @@ Integration {
   }
 }
 
-Constraint {
+Group {
+  If(Flag_Dynamic)
+    Surf_a_NoGauge = Region [ {SurfacesDirichletBC, Skin_DomainC} ] ;
+  EndIf
+  If(!Flag_Dynamic)
+    Surf_a_NoGauge = Region [ {SurfacesDirichletBC} ] ;
+  EndIf
+}
 
+Constraint {
   { Name MVP  ; Type Assign ;
     Case {
       { Region SurfacesDirichletBC ; Value 0. ; }
@@ -42,34 +50,61 @@ Constraint {
     }
   }
 
+  { Name GaugeCondition_a ; Type Assign ;
+    Case {
+      If(Flag_Dynamic)
+        { Region DomainCC ; SubRegion Surf_a_NoGauge ; Value 0. ; }
+      EndIf
+      If(!Flag_Dynamic)
+        { Region Domain ; SubRegion Surf_a_NoGauge ; Value 0. ; }
+      EndIf
+    }
+  }
 }
 
 FunctionSpace {
-  { Name Hcurl_a ; Type Form1P ;
-    BasisFunction {
-      { Name se  ; NameOfCoef ae  ; Function BF_PerpendicularEdge ;
-        Support Domain ; Entity NodesOf[All] ; }
-     }
-    Constraint {
-      { NameOfCoef ae ; EntityType NodesOf ; NameOfConstraint MVP ; }
+  If(Flag_3D)
+    { Name Hcurl_a; Type Form1;
+      BasisFunction {
+        { Name se;  NameOfCoef ae;  Function BF_Edge; Support Domain ;
+          Entity EdgesOf[ All, Not DomainC ]; }
+        { Name sec;  NameOfCoef aec;  Function BF_Edge; Support Domain ;
+          Entity EdgesOf[ DomainC ]; }
+      }
+      Constraint {
+        { NameOfCoef ae;  EntityType EdgesOf ; NameOfConstraint MVP; }
+        { NameOfCoef aec; EntityType EdgesOf ; NameOfConstraint MVP; }
+        { NameOfCoef ae;  EntityType EdgesOfTreeIn ; EntitySubType StartingOn ;
+          NameOfConstraint GaugeCondition_a ; }
+      }
     }
-  }
-  // Gradient of Electric scalar potential (2D)
-  //===========================================
-  { Name Hregion_u_2D ; Type Form1P ;
-    BasisFunction {
-      { Name sr ; NameOfCoef ur ; Function BF_RegionZ ;
-        Support DomainC ; Entity DomainC ; }
+  EndIf
+  If(!Flag_3D)
+    { Name Hcurl_a ; Type Form1P ;
+      BasisFunction {
+        { Name se  ; NameOfCoef ae  ; Function BF_PerpendicularEdge ;
+          Support Domain ; Entity NodesOf[All] ; }
+      }
+      Constraint {
+        { NameOfCoef ae ; EntityType NodesOf ; NameOfConstraint MVP ; }
+      }
     }
-    GlobalQuantity {
-      { Name U ; Type AliasOf        ; NameOfCoef ur ; }
-      { Name I ; Type AssociatedWith ; NameOfCoef ur ; }
+    // Gradient of Electric scalar potential (2D)
+    { Name Hregion_u_2D ; Type Form1P ;
+      BasisFunction {
+        { Name sr ; NameOfCoef ur ; Function BF_RegionZ ;
+          Support DomainC ; Entity DomainC ; }
+      }
+      GlobalQuantity {
+        { Name U ; Type AliasOf        ; NameOfCoef ur ; }
+        { Name I ; Type AssociatedWith ; NameOfCoef ur ; }
+      }
+      Constraint {
+        { NameOfCoef U ; EntityType Region ; NameOfConstraint Voltage_2D ; }
+        { NameOfCoef I ; EntityType Region ; NameOfConstraint Current_2D ; }
+      }
     }
-    Constraint {
-      { NameOfCoef U ; EntityType Region ; NameOfConstraint Voltage_2D ; }
-      { NameOfCoef I ; EntityType Region ; NameOfConstraint Current_2D ; }
-    }
-  }
+  EndIf
 }
 
 
@@ -81,20 +116,23 @@ Formulation {
   { Name MagStaDyn_a_ref; Type FemEquation ;
     Quantity {
       { Name a  ; Type Local  ; NameOfSpace Hcurl_a ; }
-      { Name ur ; Type Local  ; NameOfSpace Hregion_u_2D ; }
-      { Name I  ; Type Global ; NameOfSpace Hregion_u_2D [I] ; }
-      { Name U  ; Type Global ; NameOfSpace Hregion_u_2D [U] ; }
+      If(!Flag_3D)
+        { Name ur ; Type Local  ; NameOfSpace Hregion_u_2D ; }
+        { Name I  ; Type Global ; NameOfSpace Hregion_u_2D [I] ; }
+        { Name U  ; Type Global ; NameOfSpace Hregion_u_2D [U] ; }
+      EndIf
     }
     Equation {
       Galerkin { [ nu[{d a}] * Dof{d a} , {d a} ]  ; In Domain ; Jacobian JVol ; Integration I ; }
       Galerkin { JacNL[ dhdb_NL[{d a}]* Dof{d a} , {d a} ] ; In DomainNL ; Jacobian JVol ; Integration I ; }
 
       Galerkin { DtDof[ sigma[] * Dof{a} , {a} ]   ; In DomainC ; Jacobian JVol ; Integration I ; }
-      Galerkin { [      sigma[] * Dof{ur}, {a} ]   ; In DomainC ; Jacobian JVol ; Integration I ; }
-
-      Galerkin { DtDof[ sigma[] * Dof{a} , {ur} ]  ; In DomainC ; Jacobian JVol ; Integration I ; }
-      Galerkin { [      sigma[] * Dof{ur}, {ur} ]  ; In DomainC ; Jacobian JVol ; Integration I ; }
-      GlobalTerm { [ Dof{I} , {U} ]                ; In DomainC ; }
+      If(!Flag_3D)
+        Galerkin { [      sigma[] * Dof{ur}, {a} ]   ; In DomainC ; Jacobian JVol ; Integration I ; }
+        Galerkin { DtDof[ sigma[] * Dof{a} , {ur} ]  ; In DomainC ; Jacobian JVol ; Integration I ; }
+        Galerkin { [      sigma[] * Dof{ur}, {ur} ]  ; In DomainC ; Jacobian JVol ; Integration I ; }
+        GlobalTerm { [ Dof{I} , {U} ]                ; In DomainC ; }
+      EndIf
 
       Galerkin { [ -js[] , {a} ] ; In DomainS0     ; Jacobian JVol; Integration I ; }
     }
@@ -108,13 +146,23 @@ Resolution {
     }
     Operation {
       CreateDirectory[Dir_Ref];
-      InitSolution[A] ; SaveSolution[A] ;
-      TimeLoopTheta[ time0, timemax, dtime, theta_value]{
+
+      If(!Flag_Dynamic)
         IterativeLoop[Nb_max_iter, reltol, relaxation_factor[]] {
           GenerateJac[A]; SolveJac[A];
         }
         SaveSolution[A];
-      }
+      EndIf
+
+      If(Flag_Dynamic)
+        InitSolution[A] ; SaveSolution[A] ;
+        TimeLoopTheta[ time0, timemax, dtime, theta_value]{
+          IterativeLoop[Nb_max_iter, reltol, relaxation_factor[]] {
+            GenerateJac[A]; SolveJac[A];
+          }
+          SaveSolution[A];
+        }
+      EndIf
     }
   }
 }
@@ -130,14 +178,21 @@ PostProcessing {
       { Name az; Value { Local { [ CompZ[{a}] ]; In Domain ; Jacobian JVol; } } }
       { Name b ; Value { Local { [ {d a} ]; In Domain ; Jacobian JVol; } } }
       { Name h ; Value { Local { [ nu[ {d a} ] * {d a} ]; In Domain  ; Jacobian JVol; } } }
-      { Name j ; Value { Local { [ -sigma[] * ( Dt[ {a} ] + {ur} ) ]; In DomainC ; Jacobian JVol; } } }
-      { Name jz; Value { Local { [ CompZ[ -sigma[] * ( Dt[ {a} ] + {ur} )] ]; In DomainC ; Jacobian JVol; } } }
       { Name js; Value { Local { [ js[] ]; In DomainS0 ; Jacobian JVol; } } }
-      { Name U ; Value { Term { [ {U} ]; In DomainC ; } } }
-      { Name I ; Value { Term { [ {I} ]; In DomainC ; } } }
-      { Name JouleLossesMap ; Value { Local { [ sigma[] * SquNorm[Dt[ {a} ] + {ur} ] ]; In DomainC ; Jacobian JVol ; } } }
-      { Name JouleLosses    ; Value { Integral { [ sigma[] * SquNorm[Dt[{a}] + {ur} ] ]; In DomainC ; Jacobian JVol ; Integration I ; } } }
-      { Name MagEnergy      ; Value { Integral { [ nu[ {d a} ] * {d a} * Dt[ {d a} ] ]; In Domain ; Jacobian JVol ; Integration I ; } } } 
+      { Name MagEnergy      ; Value { Integral { [ nu[ {d a} ] * {d a} * Dt[ {d a} ] ]; In Domain ; Jacobian JVol ; Integration I ; } } }
+      If(Flag_3D)
+        { Name j ; Value { Local { [ -sigma[] * Dt[ {a} ] ]; In DomainC ; Jacobian JVol; } } }
+        { Name JouleLossesMap ; Value { Local { [ sigma[] * SquNorm[Dt[ {a} ] ] ]; In DomainC ; Jacobian JVol ; } } }
+        { Name JouleLosses    ; Value { Integral { [ sigma[] * SquNorm[Dt[{a}]] ]; In DomainC ; Jacobian JVol ; Integration I ; } } }
+      EndIf
+      If(!Flag_3D)
+        { Name j ; Value { Local { [ -sigma[] * ( Dt[ {a} ] + {ur} ) ]; In DomainC ; Jacobian JVol; } } }
+        { Name jz; Value { Local { [ CompZ[ -sigma[] * ( Dt[ {a} ] + {ur} )] ]; In DomainC ; Jacobian JVol; } } }
+        { Name U ; Value { Term { [ {U} ]; In DomainC ; } } }
+        { Name I ; Value { Term { [ {I} ]; In DomainC ; } } }
+        { Name JouleLossesMap ; Value { Local { [ sigma[] * SquNorm[Dt[ {a} ] + {ur} ] ]; In DomainC ; Jacobian JVol ; } } }
+        { Name JouleLosses    ; Value { Integral { [ sigma[] * SquNorm[Dt[{a}] + {ur} ] ]; In DomainC ; Jacobian JVol ; Integration I ; } } }
+      EndIf
     }
   }
 }
@@ -150,12 +205,14 @@ PostOperation {
     Operation {
       Print[ az, OnElementsOf Domain,  File StrCat[Dir_Ref,StrCat["az",ExtGmsh] ] ];
       Print[ a,  OnElementsOf Domain,  File StrCat[Dir_Ref,StrCat["a" ,ExtGmsh] ] ];
-      Print[ j,  OnElementsOf DomainC, File StrCat[Dir_Ref,StrCat["j" ,ExtGmsh] ] ];
       Print[ b,  OnElementsOf Domain,  File StrCat[Dir_Ref,StrCat["b" ,ExtGmsh] ] ];
       Print[ h,  OnElementsOf Domain , File StrCat[Dir_Ref,StrCat["h" ,ExtGmsh] ] ];
+      Print[ js,  OnElementsOf Domain , File StrCat[Dir_Ref,StrCat["js" ,ExtGmsh] ] ];
+      Print[ j,  OnElementsOf DomainC, File StrCat[Dir_Ref,StrCat["j" ,ExtGmsh] ] ];
       Print[ JouleLossesMap,OnElementsOf DomainC , File StrCat[Dir_Ref,StrCat["JLMap",ExtGmsh] ] ];
     }
   }
+
   { Name globalquantities ; NameOfPostProcessing MagStaDyn_a_ref ;
     Operation {
       Print[ MagEnergy[Domain], OnGlobal, Format TimeTable, File StrCat[Dir_Ref, Sprintf("MagEnergy_nl%g_f%g.dat", Flag_NL, Freq) ] ] ;
@@ -163,7 +220,7 @@ PostOperation {
     }
   }
 
-  { Name cuts; NameOfPostProcessing MagStaDyn_a_ref ;    
+  { Name cuts; NameOfPostProcessing MagStaDyn_a_ref ;
     Operation {
       For iTS In {1:nTS}
       TS = listOfTS~{iTS};
