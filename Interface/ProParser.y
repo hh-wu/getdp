@@ -7025,21 +7025,7 @@ Affectation :
       List_Delete($4);
     }
 
-  | String__Index tDEF tBIGSTR tEND
-    {
-      Constant_S.Name = $1; Constant_S.Type = VAR_CHAR;
-      Constant_S.Value.Char = $3;
-      Tree_Replace(ConstantTable_L, &Constant_S);
-    }
-
-  | String__Index tDEF tStr LP CharExpr RP tEND
-    {
-      Constant_S.Name = $1; Constant_S.Type = VAR_CHAR;
-      Constant_S.Value.Char = $5;
-      Tree_Replace(ConstantTable_L, &Constant_S);
-    }
-
-  | String__Index tDEF StrCat tEND
+  | String__Index tDEF CharExprNoVar tEND
     {
       Constant_S.Name = $1; Constant_S.Type = VAR_CHAR;
       Constant_S.Value.Char = $3;
@@ -7066,7 +7052,7 @@ Affectation :
       Tree_Replace(ConstantTable_L, &Constant_S);
     }
 
-  | Printf LP tBIGSTR RP tEND
+  | Printf LP CharExprNoVar RP tEND
     {
       Message::Direct($1, $3);
     }
@@ -7093,7 +7079,7 @@ Affectation :
       Message::Direct($1, "Line number: %d", getdp_yylinenum);
     }
 
-  | Printf LP tBIGSTR ',' RecursiveListOfFExpr RP tEND
+  | Printf LP CharExprNoVar ',' RecursiveListOfFExpr RP tEND
     {
       char tmpstr[256];
       int i = Print_ListOfDouble($3, $5, tmpstr);
