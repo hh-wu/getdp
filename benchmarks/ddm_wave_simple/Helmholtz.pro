@@ -107,7 +107,7 @@ FunctionSpace {
 Formulation {
   For ii In {0: #ListOfDom()-1}
     idom = ListOfDom(ii);
-    { Name DDM_Helmholtz~{idom} ; Type FemEquation ;
+    { Name Vol~{idom} ; Type FemEquation ;
       Quantity {
         { Name u~{idom} ; Type Local ; NameOfSpace Hgrad_u~{idom}; }
         For iSide In {0:1}
@@ -197,7 +197,7 @@ Formulation {
 
     // Compute the outgoing data
     For iSide In {0:1}
-      { Name ComputeG~{idom}~{iSide} ; Type FemEquation ;
+      { Name Sur~{idom}~{iSide} ; Type FemEquation ;
         Quantity {
           { Name u~{idom} ; Type Local ; NameOfSpace Hgrad_u~{idom}; }
           { Name g_out~{idom}~{iSide} ; Type Local ; NameOfSpace Hgrad_g_out~{idom}~{iSide}; }
@@ -250,133 +250,19 @@ Formulation {
   EndFor // loop on idom
 }
 
-Resolution {
-  { Name DDM ;
-    System {
-      For ii In {0: #ListOfDom()-1}
-        idom = ListOfDom(ii);
-        { Name Helmholtz~{idom} ; NameOfFormulation DDM_Helmholtz~{idom} ;
-          Type Complex; NameOfMesh Sprintf(StrCat[MSH_NAME, "%g.msh"],idom) ; }
-        For iSide In {0:1}
-          { Name ComputeG~{idom}~{iSide} ; NameOfFormulation ComputeG~{idom}~{iSide} ;
-            Type Complex; NameOfMesh Sprintf(StrCat[MSH_NAME, "%g.msh"],idom) ; }
-        EndFor
-      EndFor
-    }
-    Operation {
-      If (MPI_Rank == 0)
-        Printf["Starting Helmholtz DDM with %g subdomains / %g processes", N_DOM, MPI_Size];
-        If(TC_TYPE == 0)
-          Printf["Using 0-th order (Sommerfeld/EMDA) transmission conditions"];
-        EndIf
-        If(TC_TYPE == 1)
-          Printf["Using 2-nd order (OO2) transmission conditions"];
-        EndIf
-        If(TC_TYPE == 2)
-          Printf["Using %g-th order Pade (OSRC) transmission conditions", NP_OSRC];
-        EndIf
-        If(TC_TYPE == 3)
-          Printf["Using PML transmission conditions"];
-        EndIf
-        Printf["Relative iterative solver tolerance = %g", TOL];
-      EndIf
-
-      // synchronize all mpi processes and start work on own cpu
-      Barrier;
-      SetCommSelf;
-
-      // compute rhs for krylov -- physical sources only
-      Evaluate[1. #10];
-      Evaluate[0. #11]; Evaluate[0. #12];
-
-      For ii In {0: #ListOfDom()-1}
-        idom = ListOfDom(ii);
-	UpdateConstraint[Helmholtz~{idom}, GammaD~{idom}, Assign];
-        Generate[Helmholtz~{idom}] ;
-        Solve[Helmholtz~{idom}] ;
-	For iSide In {0:1}
-	  If( NbrRegions[Sigma~{idom}~{iSide}] )
-	    Generate[ComputeG~{idom}~{iSide}] ;
-	    Solve[ComputeG~{idom}~{iSide}] ;
-	  EndIf
-	EndFor
-      EndFor
-
-      For ii In {0: #ListOfDom()-1}
-	idom = ListOfDom(ii);
-	For iSide In {0:1}
-	  PostOperation[g_out~{idom}~{iSide}] ; // compute g_in for next iteration
-	EndFor
-      EndFor
-
-      // update "Dirichlet" Boundary condition (now homogenous) (prepare non
-      // homogeneous BC on transmission boundaries)
-      Evaluate[0. #10];
-      Evaluate[1. #11]; Evaluate[1. #12];
-      For ii In {0: #ListOfDom()-1}
-        idom = ListOfDom(ii);
-        UpdateConstraint[Helmholtz~{idom}, GammaD~{idom}, Assign];
-      EndFor
-
-      // launch iterative Krylov solver on all cpus
-      SetCommWorld;
-
-      IterativeLinearSolver["I-A", SOLVER, TOL, MAXIT, RESTART,
-                            {ListOfField()}, {ListOfNeighborField()}, {}]
-      {
-	SetCommSelf;
-	// Solve Helmholtz on each of my subdomain
-	For ii In {0: #ListOfDom()-1}
-	  idom = ListOfDom(ii);
-          GenerateRHSGroup[Helmholtz~{idom}, Sigma~{idom}] ;
-          SolveAgain[Helmholtz~{idom}] ;
-	  For iSide In {0:1}
-	    If( NbrRegions[Sigma~{idom}~{iSide}] )
-              GenerateRHSGroup[ComputeG~{idom}~{iSide}, Region[{Sigma~{idom}~{iSide},
-                                                                TrPmlSigma~{idom}~{iSide}}]] ;
-	      SolveAgain[ComputeG~{idom}~{iSide}] ;
-	    EndIf
-	  EndFor
-	EndFor
-      	// update view (must be done after all resolutions)
-	For ii In {0: #ListOfDom()-1}
-	  idom = ListOfDom(ii);
-	  For iSide In {0:1}
-	    PostOperation[g_out~{idom}~{iSide}] ;
-	  EndFor
-	EndFor
-	SetCommWorld;
-      }
-
-      // build final volume solution after convergence on own cpu; using both
-      // physical and artificial sources
-      SetCommSelf;
-      Evaluate[1. #10];
-      Evaluate[1. #11]; Evaluate[1. #12];
-      For ii In {0: #ListOfDom()-1}
-        idom = ListOfDom(ii);
-        UpdateConstraint[Helmholtz~{idom}, GammaD~{idom}, Assign];
-        GenerateRHSGroup[Helmholtz~{idom}, Region[{Sigma~{idom}, TrOmegaGammaD~{idom}}] ] ;
-        SolveAgain[Helmholtz~{idom}] ;
-        PostOperation[DDM~{idom}] ;
-      EndFor
-      SetCommWorld;
-
-    }
-  }
-}
+Include "Schwarz.pro" ;
 
 PostProcessing {
   For ii In {0: #ListOfDom()-1}
     idom = ListOfDom(ii);
-    { Name DDM_Helmholtz~{idom} ; NameOfFormulation DDM_Helmholtz~{idom} ;
+    { Name Vol~{idom} ; NameOfFormulation Vol~{idom} ;
       PostQuantity {
         { Name u~{idom} ; Value { Local { [ {u~{idom}} ] ; In Omega~{idom}; Jacobian JVol ; } } }
 	{ Name u_tot~{idom} ; Value { Local { [ {u~{idom}} + uinc[]] ; In Omega~{idom}; Jacobian JVol ; } } }
       }
     }
     For iSide In {0:1}
-      { Name g_out~{idom}~{iSide} ; NameOfFormulation ComputeG~{idom}~{iSide} ;
+      { Name Sur~{idom}~{iSide} ; NameOfFormulation Sur~{idom}~{iSide} ;
 	PostQuantity {
           { Name g_out~{idom}~{iSide} ; Value { Local { [ {g_out~{idom}~{iSide}} ] ;
                 In Sigma~{idom}~{iSide}; Jacobian JSur ; } } }
@@ -389,14 +275,14 @@ PostProcessing {
 PostOperation {
   For ii In {0: #ListOfDom()-1}
     idom = ListOfDom(ii);
-    { Name DDM~{idom} ; NameOfPostProcessing DDM_Helmholtz~{idom};
+    { Name DDM~{idom} ; NameOfPostProcessing Vol~{idom};
       Operation {
         Print[ u~{idom}, OnElementsOf Omega~{idom}, File StrCat(DIR, Sprintf("u_%g.pos",idom))] ;
         //Print[ u_tot~{idom}, OnElementsOf Omega~{idom}, File StrCat(DIR, Sprintf("u_tot_%g.pos",idom))] ;
       }
     }
     For iSide In {0:1}
-      { Name g_out~{idom}~{iSide} ; NameOfPostProcessing g_out~{idom}~{iSide};
+      { Name g_out~{idom}~{iSide} ; NameOfPostProcessing Sur~{idom}~{iSide};
 	Operation {
           Print[ g_out~{idom}~{iSide}, OnElementsOf Sigma~{idom}~{iSide},
                  StoreInField (2*(idom+N_DOM)+(iSide-1))%(2*N_DOM)

@@ -27,7 +27,12 @@ Integration {
 Group{
   For ii In {0: #ListOfDom()-1}
     idom = ListOfDom(ii);
-    TrGr~{idom} = ElementsOf[ Omega~{idom}, OnOneSideOf GammaD~{idom} ];
+    TrOmegaGammaD~{idom} = ElementsOf[ Omega~{idom}, OnOneSideOf GammaD~{idom} ];
+    For iSide In {0:1}
+      DefineGroup [ Pml~{idom}~{iSide}, PmlD0~{idom}~{iSide}, PmlInf~{idom}~{iSide} ] ;
+      TrPmlSigma~{idom}~{iSide} = ElementsOf[ Pml~{idom}~{iSide},
+                                              OnOneSideOf Sigma~{idom}~{iSide} ];
+    EndFor
   EndFor
 }
 
@@ -143,7 +148,7 @@ Formulation {
 
   For ii In {0: #ListOfDom()-1}
     idom = ListOfDom(ii);
-    { Name DDM_Maxwell~{idom}; Type FemEquation;
+    { Name Vol~{idom}; Type FemEquation;
       Quantity {
         { Name e~{idom}; Type Local; NameOfSpace Hcurl_e~{idom}; }
         { Name h~{idom}; Type Local; NameOfSpace Hcurl_h~{idom}; }
@@ -256,14 +261,14 @@ Formulation {
 
         // store magnetic field on layer of elements touching the boundary
         Galerkin { [ Dof{h~{idom}} , {h~{idom}} ] ;
-          In TrGr~{idom}; Jacobian JVol ; Integration I1 ; }
+          In TrOmegaGammaD~{idom}; Jacobian JVol ; Integration I1 ; }
         Galerkin { [ 1/(I[]*omega[]*mu[]) * Dof{d e~{idom}}, {h~{idom}} ] ;
-          In TrGr~{idom}; Jacobian JVol ; Integration I1 ; }
+          In TrOmegaGammaD~{idom}; Jacobian JVol ; Integration I1 ; }
       }
     }
 
     For iSide In{0:1}
-      { Name ComputeIterationData~{idom}~{iSide}; Type FemEquation;
+      { Name Sur~{idom}~{iSide}; Type FemEquation;
         Quantity {
           { Name g_out~{idom}~{iSide}; Type Local;  NameOfSpace Hcurl_g_out~{idom}~{iSide}; }
           If(TC_TYPE == 0)
@@ -308,119 +313,12 @@ Formulation {
   EndFor
 }
 
-Resolution {
-  { Name DDM;
-    System {
-      For ii In {0: #ListOfDom()-1}
-        idom = ListOfDom(ii);
-        { Name Maxw~{idom}; NameOfFormulation DDM_Maxwell~{idom} ;
-          Type Complex; NameOfMesh Sprintf(StrCat[MSH_NAME, "%g.msh"],idom) ; }
-        For iSide In{0:1}
-          { Name ComputeG~{idom}~{iSide}; NameOfFormulation ComputeIterationData~{idom}~{iSide} ;
-            Type Complex; NameOfMesh Sprintf(StrCat[MSH_NAME, "%g.msh"],idom) ; }
-        EndFor
-      EndFor
-    }
-    Operation {
-      If (MPI_Rank == 0)
-        Printf["Starting Maxwell DDM with %g subdomains / %g processes", N_DOM, MPI_Size];
-        If(TC_TYPE == 0)
-          Printf["Using 0-th order (Silver-Muller) transmission conditions"];
-        EndIf
-        If(TC_TYPE == 1)
-          Printf["Using 2-nd order (OO2/J.-F. Lee) transmission conditions"];
-        EndIf
-        If(TC_TYPE == 2)
-          Printf["Using %g-th order Pade (OSRC) transmission conditions", NP_OSRC];
-        EndIf
-        Printf["Relative iterative solver tolerance = %g", TOL];
-      EndIf
-
-      SetGlobalSolverOptions["-petsc_prealloc 200"];
-
-      // synchronize all mpi processes and start work on own cpu
-      Barrier;
-      SetCommSelf;
-
-      // compute rhs for Krylov -- physical sources only
-      Evaluate[1. #10];
-      Evaluate[0. #11]; Evaluate[0. #12];
-
-      For ii In {0: #ListOfDom()-1}
-        idom = ListOfDom(ii);
-        Generate[Maxw~{idom}];
-        Solve[Maxw~{idom}];
-        For iSide In{0:1}
-          If( NbrRegions[Sigma~{idom}~{iSide}] )
-            Generate[ComputeG~{idom}~{iSide}];
-            Solve[ComputeG~{idom}~{iSide}];
-          EndIf
-        EndFor
-      EndFor
-
-      For ii In {0: #ListOfDom()-1}
-        idom = ListOfDom(ii);
-        For iSide In{0:1}
-          PostOperation[g_out~{idom}~{iSide}];
-        EndFor
-      EndFor
-
-      // no physical sources from now on; non homogeneous BC on transmission
-      // boundaries
-      Evaluate[0. #10];
-      Evaluate[1. #11]; Evaluate[1. #12];
-
-      // launch iterative Krylov solver on all cpus
-      SetCommWorld;
-
-      IterativeLinearSolver["I-A", SOLVER, TOL, MAXIT, RESTART, {ListOfField()}, {ListOfNeighborField()},{}]
-      {
-        // do matrix-vector product on own cpu
-        SetCommSelf;
-        For ii In {0: #ListOfDom()-1}
-          idom = ListOfDom(ii);
-          GenerateRHSGroup[Maxw~{idom}, Sigma~{idom}];
-          SolveAgain[Maxw~{idom}];
-          For iSide In{0:1}
-            If( NbrRegions[Sigma~{idom}~{iSide}] )
-              GenerateRHSGroup[ComputeG~{idom}~{iSide}, Sigma~{idom}~{iSide}];
-              SolveAgain[ComputeG~{idom}~{iSide}];
-            EndIf
-          EndFor
-        EndFor
-        // update view (must be done after all resolutions)
-        For ii In {0: #ListOfDom()-1}
-          idom = ListOfDom(ii) ;
-          For iSide In{0:1}
-            PostOperation[g_out~{idom}~{iSide}] ;
-          EndFor
-        EndFor
-        SetCommWorld;
-      }
-
-      DeleteFile[ "/tmp/kspiter.txt" ];
-      Print[ {$KSPIts} , File "/tmp/kspiter.txt"];
-
-      // build final volume solution after convergence on own cpu; using both
-      // physical and artificial sources
-      SetCommSelf;
-      Evaluate[1. #10];
-      Evaluate[1. #11]; Evaluate[1. #12];
-      For ii In {0: #ListOfDom()-1}
-        idom = ListOfDom(ii);
-        GenerateRHSGroup[Maxw~{idom}, Region[{Sigma~{idom}, GammaD~{idom}}]];
-        SolveAgain[Maxw~{idom}] ;
-        PostOperation[DDM~{idom}] ;
-      EndFor
-      SetCommWorld;
-    }
-  }
-}
+Include "Schwarz.pro" ;
 
 PostProcessing {
   For ii In {0: #ListOfDom()-1}
     idom = ListOfDom(ii);
-    { Name DDM_Maxwell~{idom} ; NameOfFormulation DDM_Maxwell~{idom} ;
+    { Name Vol~{idom} ; NameOfFormulation Vol~{idom} ;
       Quantity {
         { Name e~{idom} ; Value { Local { [ {e~{idom}}] ; In Omega~{idom}; Jacobian JVol ; } } }
         { Name e_tot~{idom} ; Value { Local { [ {e~{idom}} + einc[]] ; In Omega~{idom}; Jacobian JVol ; } } }
@@ -431,7 +329,7 @@ PostProcessing {
       }
     }
     For iSide In{0:1}
-      { Name g_out~{idom}~{iSide} ; NameOfFormulation ComputeIterationData~{idom}~{iSide} ;
+      { Name Sur~{idom}~{iSide} ; NameOfFormulation Sur~{idom}~{iSide} ;
         Quantity {
           { Name g_out~{idom}~{iSide} ;
             Value { Local { [ {g_out~{idom}~{iSide}} ] ; In Sigma~{idom}~{iSide}; Jacobian JSur ; } } }
@@ -444,7 +342,7 @@ PostProcessing {
 PostOperation {
   For ii In {0: #ListOfDom()-1}
     idom = ListOfDom(ii);
-    { Name DDM~{idom} ; NameOfPostProcessing DDM_Maxwell~{idom};
+    { Name DDM~{idom} ; NameOfPostProcessing Vol~{idom};
       Operation{
          Print[ e~{idom}, OnElementsOf Omega~{idom}, File StrCat(DIR, Sprintf("e_%g.pos",idom))] ;
          Print[ e_tot~{idom}, OnElementsOf Omega~{idom}, File StrCat(DIR, Sprintf("e_tot_%g.pos",idom))] ;
@@ -454,7 +352,7 @@ PostOperation {
       }
     }
     For iSide In{0:1}
-    { Name g_out~{idom}~{iSide} ; NameOfPostProcessing g_out~{idom}~{iSide};
+    { Name g_out~{idom}~{iSide} ; NameOfPostProcessing Sur~{idom}~{iSide};
       Operation{
         Print[ g_out~{idom}~{iSide}, OnElementsOf Sigma~{idom}~{iSide},
                StoreInField (2*(idom+N_DOM)+(iSide-1))%(2*N_DOM)
