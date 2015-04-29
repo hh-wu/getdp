@@ -17,6 +17,7 @@ Group{
   Air = Region[(NumMagnets + 1)];
   Domain = Region[{Air, Domain_M}];
   Dirichlet_phi_0 = Region[(NumMagnets + 2)]; // boundary of air box
+  Dirichlet_a_0 = Region[(NumMagnets + 2)]; // boundary of air box
 }
 
 Function{
@@ -65,6 +66,16 @@ Constraint {
       { Region Dirichlet_phi_0 ; Value 0. ; }
     }
   }
+  { Name a ;
+    Case {
+      { Region Dirichlet_a_0 ; Value 0. ; }
+    }
+  }
+  { Name GaugeCondition_a ; Type Assign ;
+    Case {
+      { Region Domain ; SubRegion Dirichlet_a_0 ; Value 0. ; }
+    }
+  }
   For i In {1:NumMagnets}
     { Name Magnet~{i} ;
       Case {
@@ -72,13 +83,6 @@ Constraint {
       }
     }
   EndFor
-
-  { Name GaugeCondition_a ; Type Assign ;
-    Case {
-        { Region Domain ; SubRegion Dirichlet_phi_0 ; Value 0. ; }
-    }
-  }
-
 }
 
 FunctionSpace {
@@ -99,7 +103,7 @@ FunctionSpace {
         Entity EdgesOf[ All ]; }
     }
     Constraint {
-      //{ NameOfCoef ae;  EntityType EdgesOf ; NameOfConstraint a; }
+      { NameOfCoef ae;  EntityType EdgesOf ; NameOfConstraint a; }
       { NameOfCoef ae;  EntityType EdgesOfTreeIn ; EntitySubType StartingOn ;
         NameOfConstraint GaugeCondition_a ; }
     }
