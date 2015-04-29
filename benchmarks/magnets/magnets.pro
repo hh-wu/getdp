@@ -15,12 +15,17 @@ Group{
 
 Function{
   mu[] = 4*Pi*1e-7;
+  nu[] = 1.0/mu[];
+  b_remanent = 1.3;
+
   For i In {1:NumMagnets}
     // coercive field of magnets
     DefineConstant[ HC~{i} = {800e3,
         Name Sprintf("Parameters/Magnet %g/0Coercive magnetic field [Am^-1]", i)} ];
     hc[Magnet~{i}] = Rotate[Vector[0, HC~{i}, 0], Rx~{i}, Ry~{i}, Rz~{i}];
+    br[Magnet~{i}] = Rotate[Vector[0, b_remanent, 0], Rx~{i}, Ry~{i}, Rz~{i}];  
   EndFor
+
   // Maxwell stress tensor
   TM[] = ( SquDyadicProduct[$1] - SquNorm[$1] * TensorDiag[0.5, 0.5, 0.5] ) / mu[] ;
 }
@@ -60,6 +65,13 @@ Constraint {
       }
     }
   EndFor
+
+  { Name GaugeCondition_a ; Type Assign ;
+    Case {
+        { Region Domain ; SubRegion Dirichlet_phi_0 ; Value 0. ; }
+    }
+  }
+
 }
 
 FunctionSpace {
@@ -88,6 +100,19 @@ FunctionSpace {
       }
     }
   EndFor
+
+  // vector magnetic potential
+  { Name Hcurl_a; Type Form1;
+    BasisFunction {
+      { Name se;  NameOfCoef ae;  Function BF_Edge; Support Domain ;
+        Entity EdgesOf[ All ]; }
+    }
+    Constraint {
+      //{ NameOfCoef ae;  EntityType EdgesOf ; NameOfConstraint a; }
+      { NameOfCoef ae;  EntityType EdgesOfTreeIn ; EntitySubType StartingOn ;
+        NameOfConstraint GaugeCondition_a ; }
+      }
+  }
 }
 
 Formulation {
@@ -109,6 +134,18 @@ Formulation {
       EndFor
     }
   }
+
+  { Name MagStaDyn_a; Type FemEquation ;
+    Quantity {
+      { Name a  ; Type Local  ; NameOfSpace Hcurl_a ; }
+    }
+    Equation {
+      Galerkin { [ nu[] * Dof{d a} , {d a} ] ;
+        In Domain ; Jacobian JVol ; Integration I1 ; }
+      Galerkin { [ - nu[] * br[] , {d a} ] ;
+        In Domain_M ; Jacobian JVol ; Integration I1 ; }
+    }
+  }
 }
 
 Resolution {
@@ -120,6 +157,26 @@ Resolution {
       Generate[A] ; Solve[A] ; SaveSolution[A] ;
     }
   }
+  { Name MagStaDyn_a ;
+    System {
+      { Name A ; NameOfFormulation MagStaDyn_a ; }
+    }
+    Operation {
+      Generate[A] ; Solve[A] ; SaveSolution[A] ; PostOperation[MagStaDyn_a];
+    }
+  }
+  { Name MagSta_phi_MagStaDyn_a ;
+    System {
+      { Name A ; NameOfFormulation MagSta_phi ; }
+      { Name B ; NameOfFormulation MagStaDyn_a ; }
+    }
+    Operation {
+      CreateDir[ResDir];
+      Generate[A] ; Solve[A] ; SaveSolution[A] ; PostOperation[MagSta_phi];
+      Generate[B] ; Solve[B] ; SaveSolution[B] ; PostOperation[MagStaDyn_a];
+    }
+  }
+
 }
 
 PostProcessing {
@@ -143,6 +200,13 @@ PostProcessing {
       EndFor
     }
   }
+  { Name MagStaDyn_a ; NameOfFormulation MagStaDyn_a ;
+    PostQuantity {
+      { Name a ; Value { Local { [ {a} ]; In Domain ; Jacobian JVol; } } }
+      { Name b ; Value { Local { [ {d a} ]; In Domain ; Jacobian JVol; } } }
+      { Name br ; Value { Local { [ br[] ]; In Domain ; Jacobian JVol; } } }
+    }
+  }
 }
 
 PostOperation {
@@ -163,11 +227,22 @@ PostOperation {
       EndFor
     }
   }
+  { Name MagStaDyn_a ; NameOfPostProcessing MagStaDyn_a ;
+    Operation {
+      //Print[ a,  OnElementsOf Domain,  File StrCat[ResDir,StrCat["a" ,ExtGmsh] ] ];
+      Print[ b,  OnElementsOf Domain,  File StrCat[ResDir,StrCat["b" ,ExtGmsh] ] ];
+      Print[ br,  OnElementsOf Domain_M,  File StrCat[ResDir,StrCat["br" ,ExtGmsh] ] ];
+    }
+  }
 }
 
 DefineConstant[
   // preset all getdp options and make them invisible
-  R_ = {"MagSta_phi", Name "GetDP/1ResolutionChoices", Visible 0},
-  C_ = {"-solve -pos -v2 -bin", Name "GetDP/9ComputeCommand", Visible 0},
-  P_ = {"MagSta_phi", Name "GetDP/2PostOperationChoices", Visible 0}
+  R_ = {"MagSta_phi_MagStaDyn_a", Name "GetDP/1ResolutionChoices", Visible 1},
+  //C_ = {"-solve -pos -v2 -bin", Name "GetDP/9ComputeCommand", Visible 1},
+  C_ = {"-solve -v 5 -v2", Name "GetDP/9ComputeCommand", Visible 0}
+  //P_ = {"MagStaDyn_a"/*"MagSta_phi"*/, Name "GetDP/2PostOperationChoices", Visible 1}
 ];
+
+
+

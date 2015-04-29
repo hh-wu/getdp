@@ -1,7 +1,8 @@
 DefineConstant[
   NumMagnets = {2, Min 1, Max 20, Step 1, Name "Parameters/0Number of magnets"}
 ];
-
+ResDir = "res/";
+ExtGmsh = ".pos";
 mm = 1.e-3;
 
 For i In {1:NumMagnets}
