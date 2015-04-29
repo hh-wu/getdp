@@ -24,14 +24,18 @@ Function{
   mu0 = 4*Pi*1e-7;
   mu[] = mu0;
   nu[] = 1.0/mu[];
-  b_remanent = 1.3;
 
   For i In {1:NumMagnets}
     // coercive field of magnets
-    DefineConstant[ HC~{i} = {800e3,
-        Name Sprintf("Parameters/Magnet %g/0Coercive magnetic field [Am^-1]", i)} ];
+    DefineConstant[
+      HC~{i} = {800e3,
+        Name Sprintf("Parameters/Magnet %g/0Coercive magnetic field [Am^-1]", i)},
+      BR~{i} = {mu0 * HC~{i},
+        Name Sprintf("Parameters/Magnet %g/0Remnent magnetic flux density [T]", i),
+        ReadOnly 1}
+    ];
     hc[Magnet~{i}] = Rotate[Vector[0, HC~{i}, 0], Rx~{i}, Ry~{i}, Rz~{i}];
-    br[Magnet~{i}] = mu0 * hc[];
+    br[Magnet~{i}] = Rotate[Vector[0, BR~{i}, 0], Rx~{i}, Ry~{i}, Rz~{i}];
   EndFor
 
   // Maxwell stress tensor
