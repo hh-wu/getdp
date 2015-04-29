@@ -1,6 +1,12 @@
 // include parameters common to geometry and solver
 Include "magnets_data.pro"
 
+DefineConstant[ Flag_Analysis = {0,
+    Choices { 0 = "H-formulation",
+              1 = "A-formulation"},
+            Name "Parameters/0Formulation" }
+];
+
 Group{
   Domain_M = Region[{}];
   For i In {1:NumMagnets}
@@ -14,7 +20,8 @@ Group{
 }
 
 Function{
-  mu[] = 4*Pi*1e-7;
+  mu0 = 4*Pi*1e-7;
+  mu[] = mu0;
   nu[] = 1.0/mu[];
   b_remanent = 1.3;
 
@@ -23,7 +30,7 @@ Function{
     DefineConstant[ HC~{i} = {800e3,
         Name Sprintf("Parameters/Magnet %g/0Coercive magnetic field [Am^-1]", i)} ];
     hc[Magnet~{i}] = Rotate[Vector[0, HC~{i}, 0], Rx~{i}, Ry~{i}, Rz~{i}];
-    br[Magnet~{i}] = Rotate[Vector[0, b_remanent, 0], Rx~{i}, Ry~{i}, Rz~{i}];  
+    br[Magnet~{i}] = mu0 * hc[];
   EndFor
 
   // Maxwell stress tensor
@@ -85,6 +92,18 @@ FunctionSpace {
       { NameOfCoef phin ; EntityType NodesOf ; NameOfConstraint phi ; }
     }
   }
+  // vector magnetic potential
+  { Name Hcurl_a; Type Form1;
+    BasisFunction {
+      { Name se;  NameOfCoef ae;  Function BF_Edge; Support Domain ;
+        Entity EdgesOf[ All ]; }
+    }
+    Constraint {
+      //{ NameOfCoef ae;  EntityType EdgesOf ; NameOfConstraint a; }
+      { NameOfCoef ae;  EntityType EdgesOfTreeIn ; EntitySubType StartingOn ;
+        NameOfConstraint GaugeCondition_a ; }
+    }
+  }
   For i In {1:NumMagnets}
     // auxiliary field on layer of elements touching each magnet, for the
     // accurate integration of the Maxwell stress tensor (the gradient of this
@@ -100,19 +119,6 @@ FunctionSpace {
       }
     }
   EndFor
-
-  // vector magnetic potential
-  { Name Hcurl_a; Type Form1;
-    BasisFunction {
-      { Name se;  NameOfCoef ae;  Function BF_Edge; Support Domain ;
-        Entity EdgesOf[ All ]; }
-    }
-    Constraint {
-      //{ NameOfCoef ae;  EntityType EdgesOf ; NameOfConstraint a; }
-      { NameOfCoef ae;  EntityType EdgesOfTreeIn ; EntitySubType StartingOn ;
-        NameOfConstraint GaugeCondition_a ; }
-      }
-  }
 }
 
 Formulation {
@@ -134,16 +140,22 @@ Formulation {
       EndFor
     }
   }
-
-  { Name MagStaDyn_a; Type FemEquation ;
+  { Name MagSta_a; Type FemEquation ;
     Quantity {
       { Name a  ; Type Local  ; NameOfSpace Hcurl_a ; }
+      For i In {1:NumMagnets}
+        { Name un~{i} ; Type Local ; NameOfSpace Magnet~{i} ; }
+      EndFor
     }
     Equation {
       Galerkin { [ nu[] * Dof{d a} , {d a} ] ;
         In Domain ; Jacobian JVol ; Integration I1 ; }
-      Galerkin { [ - nu[] * br[] , {d a} ] ;
+      Galerkin { [ nu[] * br[] , {d a} ] ;
         In Domain_M ; Jacobian JVol ; Integration I1 ; }
+      For i In {1:NumMagnets} // dummy term to define dofs for fully fixed space
+        Galerkin { [ 0 * Dof{un~{i}} , {un~{i}} ] ;
+          In Domain ; Jacobian JVol ; Integration I1 ; }
+      EndFor
     }
   }
 }
@@ -155,28 +167,37 @@ Resolution {
     }
     Operation {
       Generate[A] ; Solve[A] ; SaveSolution[A] ;
+      PostOperation[MagSta_phi] ;
     }
   }
-  { Name MagStaDyn_a ;
+  { Name MagSta_a ;
     System {
-      { Name A ; NameOfFormulation MagStaDyn_a ; }
+      { Name A ; NameOfFormulation MagSta_a ; }
     }
     Operation {
-      Generate[A] ; Solve[A] ; SaveSolution[A] ; PostOperation[MagStaDyn_a];
+      Generate[A] ; Solve[A] ; SaveSolution[A] ;
+      PostOperation[MagSta_a] ;
     }
   }
-  { Name MagSta_phi_MagStaDyn_a ;
+  { Name Analysis ;
     System {
-      { Name A ; NameOfFormulation MagSta_phi ; }
-      { Name B ; NameOfFormulation MagStaDyn_a ; }
+      If(Flag_Analysis == 0)
+        { Name A ; NameOfFormulation MagSta_phi ; }
+      EndIf
+      If(Flag_Analysis == 1)
+        { Name A ; NameOfFormulation MagSta_a ; }
+      EndIf
     }
     Operation {
-      CreateDir[ResDir];
-      Generate[A] ; Solve[A] ; SaveSolution[A] ; PostOperation[MagSta_phi];
-      Generate[B] ; Solve[B] ; SaveSolution[B] ; PostOperation[MagStaDyn_a];
+      Generate[A] ; Solve[A] ; SaveSolution[A] ;
+      If(Flag_Analysis == 0)
+        PostOperation[MagSta_phi] ;
+      EndIf
+      If(Flag_Analysis == 1)
+        PostOperation[MagSta_a] ;
+      EndIf
     }
   }
-
 }
 
 PostProcessing {
@@ -200,11 +221,22 @@ PostProcessing {
       EndFor
     }
   }
-  { Name MagStaDyn_a ; NameOfFormulation MagStaDyn_a ;
+  { Name MagSta_a ; NameOfFormulation MagSta_a ;
     PostQuantity {
-      { Name a ; Value { Local { [ {a} ]; In Domain ; Jacobian JVol; } } }
       { Name b ; Value { Local { [ {d a} ]; In Domain ; Jacobian JVol; } } }
+      { Name a ; Value { Local { [ {a} ]; In Domain ; Jacobian JVol; } } }
       { Name br ; Value { Local { [ br[] ]; In Domain ; Jacobian JVol; } } }
+      For i In {1:NumMagnets}
+        { Name un~{i} ; Value { Local { [ {un~{i}} ] ; In Domain ; Jacobian JVol ; } } }
+        { Name f~{i} ; Value { Integral { [ - TM[{d a}] * {d un~{i}} ] ;
+              In Air ; Jacobian JVol ; Integration I1 ; } } }
+        { Name fx~{i} ; Value { Integral { [ CompX[- TM[{d a}] * {d un~{i}} ] ] ;
+              In Air ; Jacobian JVol ; Integration I1 ; } } }
+        { Name fy~{i} ; Value { Integral { [ CompY[- TM[{d a}] * {d un~{i}} ] ] ;
+              In Air ; Jacobian JVol ; Integration I1 ; } } }
+        { Name fz~{i} ; Value { Integral { [ CompZ[- TM[{d a}] * {d un~{i}} ] ] ;
+              In Air ; Jacobian JVol ; Integration I1 ; } } }
+      EndFor
     }
   }
 }
@@ -227,22 +259,28 @@ PostOperation {
       EndFor
     }
   }
-  { Name MagStaDyn_a ; NameOfPostProcessing MagStaDyn_a ;
+  { Name MagSta_a ; NameOfPostProcessing MagSta_a ;
     Operation {
-      //Print[ a,  OnElementsOf Domain,  File StrCat[ResDir,StrCat["a" ,ExtGmsh] ] ];
-      Print[ b,  OnElementsOf Domain,  File StrCat[ResDir,StrCat["b" ,ExtGmsh] ] ];
-      Print[ br,  OnElementsOf Domain_M,  File StrCat[ResDir,StrCat["br" ,ExtGmsh] ] ];
+      Print[ b,  OnElementsOf Domain,  File "b.pos" ];
+      //Print[ br,  OnElementsOf Domain_M,  File "br.pos" ];
+      //Print[ a,  OnElementsOf Domain,  File "a.pos" ];
+      For i In {1:NumMagnets}
+        //Print[ un~{i}, OnElementsOf Domain, File "un.pos"  ];
+        Print[ f~{i}[Air], OnGlobal, Format Table, File > "F.dat"  ];
+        Print[ fx~{i}[Air], OnGlobal, Format Table, File > "Fx.dat",
+          SendToServer Sprintf("Output/Magnet %g/X force [N]", i), Color "Ivory"  ];
+        Print[ fy~{i}[Air], OnGlobal, Format Table, File > "Fy.dat",
+          SendToServer Sprintf("Output/Magnet %g/Y force [N]", i), Color "Ivory"  ];
+        Print[ fz~{i}[Air], OnGlobal, Format Table, File > "Fz.dat",
+          SendToServer Sprintf("Output/Magnet %g/Z force [N]", i), Color "Ivory"  ];
+      EndFor
     }
   }
 }
 
 DefineConstant[
   // preset all getdp options and make them invisible
-  R_ = {"MagSta_phi_MagStaDyn_a", Name "GetDP/1ResolutionChoices", Visible 1},
-  //C_ = {"-solve -pos -v2 -bin", Name "GetDP/9ComputeCommand", Visible 1},
-  C_ = {"-solve -v 5 -v2", Name "GetDP/9ComputeCommand", Visible 0}
-  //P_ = {"MagStaDyn_a"/*"MagSta_phi"*/, Name "GetDP/2PostOperationChoices", Visible 1}
+  R_ = {"Analysis", Name "GetDP/1ResolutionChoices", Visible 0},
+  C_ = {"-solve -v 5 -v2 -bin", Name "GetDP/9ComputeCommand", Visible 0}
+  P_ = {"", Name "GetDP/2PostOperationChoices", Visible 0}
 ];
-
-
-
