@@ -1,10 +1,10 @@
 // include parameters common to geometry and solver
 Include "magnets_data.pro"
 
-DefineConstant[ Flag_Analysis = {0,
-    Choices { 0 = "H-formulation",
-              1 = "A-formulation"},
-            Name "Parameters/0Formulation" }
+DefineConstant[
+  Flag_Analysis = {0,
+    Choices { 0 = "H-formulation", 1 = "A-formulation"},
+    Name "Parameters/0Formulation" }
 ];
 
 Group{
@@ -12,7 +12,7 @@ Group{
   For i In {1:NumMagnets}
     Magnet~{i} = Region[i]; // volume of magnet i
     SkinMagnet~{i} = Region[(100+i)]; // boundary of magnet i
-    Domain_M += Region[{Magnet~{i}}]; // all the magnet volumes
+    Domain_M += Region[Magnet~{i}]; // all the magnet volumes
   EndFor
   Air = Region[(NumMagnets + 1)];
   Domain = Region[{Air, Domain_M}];
@@ -31,7 +31,7 @@ Function{
       HC~{i} = {800e3,
         Name Sprintf("Parameters/Magnet %g/0Coercive magnetic field [Am^-1]", i)},
       BR~{i} = {mu0 * HC~{i},
-        Name Sprintf("Parameters/Magnet %g/0Remnent magnetic flux density [T]", i),
+        Name Sprintf("Parameters/Magnet %g/0Remnant magnetic flux density [T]", i),
         ReadOnly 1}
     ];
     hc[Magnet~{i}] = Rotate[Vector[0, HC~{i}, 0], Rx~{i}, Ry~{i}, Rz~{i}];
@@ -114,9 +114,8 @@ FunctionSpace {
   }
   For i In {1:NumMagnets}
     // auxiliary field on layer of elements touching each magnet, for the
-    // accurate integration of the Maxwell stress tensor (the gradient of this
-    // field converges to the outside normal to the magnet when the mesh is
-    // refined)
+    // accurate integration of the Maxwell stress tensor (using the gradient of
+    // this field)
     { Name Magnet~{i} ; Type Form0 ;
       BasisFunction {
         { Name sn ; NameOfCoef un ; Function BF_GroupOfNodes ;
@@ -233,7 +232,7 @@ PostProcessing {
     PostQuantity {
       { Name b ; Value { Local { [ {d a} ]; In Domain ; Jacobian JVol; } } }
       { Name a ; Value { Local { [ {a} ]; In Domain ; Jacobian JVol; } } }
-      { Name br ; Value { Local { [ br[] ]; In Domain ; Jacobian JVol; } } }
+      { Name br ; Value { Local { [ br[] ]; In Domain_M ; Jacobian JVol; } } }
       For i In {1:NumMagnets}
         { Name un~{i} ; Value { Local { [ {un~{i}} ] ; In Domain ; Jacobian JVol ; } } }
         { Name f~{i} ; Value { Integral { [ - TM[{d a}] * {d un~{i}} ] ;
