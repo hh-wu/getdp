@@ -90,6 +90,7 @@ Branch                       return tBranch;
 Break                        return tBreak;
 BroadcastFields              return tBroadcastFields;
 
+Call                         return tCall;
 Case                         return tCase;
 Ceil                         return tCeil;
 ChangeOfCoordinates          return tChangeOfCoordinates;
@@ -238,6 +239,7 @@ MHTransform                  return tMHTransform;
 MPI_Printf                   return tMPI_Printf;
 MPI_Rank                     return tMPI_Rank;
 MPI_Size                     return tMPI_Size;
+Macro                        return tMacro;
 Matrix                       return tMatrix;
 MaxNumberOfDivisions         return tMaxNumberOfDivisions;
 MaxNumberOfPoints            return tMaxNumberOfPoints;
@@ -303,6 +305,7 @@ RelaxationFactor             return tRelaxationFactor;
 RenameFile                   return tRenameFile;
 ResampleTime                 return tResampleTime;
 Resolution                   return tResolution;
+Return                       return tReturn;
 Round                        return tRound;
 
 SaveMesh                     return tSaveMesh;

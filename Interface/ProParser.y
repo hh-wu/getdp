@@ -23,6 +23,7 @@
 #include "ProDefine.h"
 #include "ProDefines.h"
 #include "ProParser.h"
+#include "MacroManager.h"
 #include "MallocUtils.h"
 #include "TreeUtils.h"
 #include "Message.h"
@@ -32,7 +33,7 @@
 extern struct Problem Problem_S;
 
 // Global parser variables
-char getdp_yyname[256] = "";
+std::string getdp_yyname;
 char getdp_yyincludename[256] = "";
 long int getdp_yylinenum = 0;
 int getdp_yycolnum = 0;
@@ -183,7 +184,7 @@ struct doubleXstring{
 %token  tEND tDOTS
 %token  tStrCat tSprintf tPrintf tMPI_Printf tRead tPrintConstants tStrCmp
 %token  tStrChoice tNbrRegions tGetRegion
-%token  tFor tEndFor tIf tElse tEndIf tWhile
+%token  tFor tEndFor tIf tElse tEndIf tWhile tMacro tReturn tCall
 %token  tFlag
 %token  tInclude
 %token  tConstant tList tListAlt tLinSpace tLogSpace tListFromFile
@@ -6897,6 +6898,28 @@ Loop :
       }
     }
 
+  | tMacro tSTRING
+    {
+      if(!MacroManager::Instance()->createMacro
+         (std::string($2), getdp_yyin, getdp_yyname, getdp_yylinenum))
+        vyyerror("Redefinition of function %s", $2);
+      skipUntil(NULL, "Return");
+      Free($2);
+    }
+  | tReturn
+    {
+      if(!MacroManager::Instance()->leaveMacro
+         (&getdp_yyin, getdp_yyname, getdp_yylinenum))
+	vyyerror("Error while exiting function");
+    }
+  | tCall String__Index tEND
+    {
+      if(!MacroManager::Instance()->enterMacro
+         (std::string($2), &getdp_yyin, getdp_yyname, getdp_yylinenum))
+	vyyerror("Unknown function %s", $2);
+      Free($2);
+    }
+
   | tIf '(' FExpr ')'
     {
       if(!$3) skipUntil("If", "EndIf");
@@ -8121,7 +8144,7 @@ void Free_ParserVariables()
   List_Delete(ListOfFormulation); ListOfFormulation = 0;
   List_Delete(ListOfBasisFunction); ListOfBasisFunction = 0;
   List_Delete(ListOfEntityIndex); ListOfEntityIndex = 0;
-  strcpy(getdp_yyname, "");
+  getdp_yyname = "";
   strcpy(getdp_yyincludename, "");
   getdp_yylinenum = 0;
   getdp_yycolnum = 0;
@@ -8467,7 +8490,8 @@ void  Print_Constants()
 void yyerror(const char *s)
 {
   extern char *getdp_yytext;
-  Message::Error("'%s', line %ld : %s (%s)", getdp_yyname, getdp_yylinenum, s, getdp_yytext);
+  Message::Error("'%s', line %ld : %s (%s)", getdp_yyname.c_str(),
+                 getdp_yylinenum, s, getdp_yytext);
   getdp_yyerrorlevel = 1;
 }
 
@@ -8478,6 +8502,7 @@ void vyyerror(const char *fmt, ...)
   va_start(args, fmt);
   vsprintf(str, fmt, args);
   va_end(args);
-  Message::Error("'%s', line %ld : %s", getdp_yyname, getdp_yylinenum, str);
+  Message::Error("'%s', line %ld : %s", getdp_yyname.c_str(),
+                 getdp_yylinenum, str);
   getdp_yyerrorlevel = 1;
 }

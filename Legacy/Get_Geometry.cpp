@@ -460,7 +460,7 @@ double  Transformation (int Dim, int Type, struct Element * Element, MATRIX3x3 *
       L = Element->JacobianCase->Para[7] ;
     if(Element->JacobianCase->NbrParameters >= 9){
       Message::Error("Too many parameters for rectangular transformation Jacobian. "
-                     "Vvalid parameters: Radius1 Radius2 Axis CenterX CenterY CenterZ Power 1/Infinity");
+                     "Valid parameters: Dist1 Dist2 Axis CenterX CenterY CenterZ Power 1/Infinity");
     }
   }
   else if(Type == JACOBIAN_SPH){
@@ -539,7 +539,6 @@ double  Transformation (int Dim, int Type, struct Element * Element, MATRIX3x3 *
     break;
   default :
     DetJac = f * f * f * (1.0 - theta);
-
     /*
     DetJac =  Jac->c11 * (Jac->c22 * Jac->c33 - Jac->c23*Jac->c32)
             - Jac->c12 * (Jac->c21 * Jac->c33 - Jac->c23*Jac->c31)

@@ -291,7 +291,7 @@ std::string Fix_RelativePath(const char *name, const char *reference)
   }
   else{
     char AbsPath[2048];
-    strcpy(AbsPath, reference ? reference : getdp_yyname);
+    strcpy(AbsPath, reference ? reference : getdp_yyname.c_str());
     int i = strlen(AbsPath) - 1;
     while(i >= 0 && AbsPath[i] != '/' && AbsPath[i] != '\\') i--;
     AbsPath[i+1] = '\0';
@@ -302,7 +302,7 @@ std::string Fix_RelativePath(const char *name, const char *reference)
 void Read_ProblemStructure(const char *name)
 {
   int Last_yylinenum = getdp_yylinenum;
-  std::string Last_yyname = std::string(getdp_yyname);
+  std::string Last_yyname = getdp_yyname;
   int Last_ErrorLevel = getdp_yyerrorlevel;
   int Last_yyincludenum = getdp_yyincludenum;
 
@@ -315,8 +315,8 @@ void Read_ProblemStructure(const char *name)
     strcpy(AbsPath, name);
   }
   else{
-    strcpy(AbsPath, getdp_yyname);
-    i = strlen(getdp_yyname) - 1;
+    strcpy(AbsPath, getdp_yyname.c_str());
+    i = getdp_yyname.size() - 1;
     while(i >= 0 && getdp_yyname[i] != '/' && getdp_yyname[i] != '\\') i--;
     AbsPath[i+1] = '\0';
     strcat(AbsPath, name);
@@ -333,7 +333,7 @@ void Read_ProblemStructure(const char *name)
   }
 
   getdp_yyerrorlevel = 0;  getdp_yylinenum = 1; getdp_yyincludenum=0;
-  strcpy(getdp_yyname, AbsPath);
+  getdp_yyname = std::string(AbsPath);
 
   getdp_yyrestart(getdp_yyin); getdp_yyparse(); fclose(getdp_yyin);
 
@@ -341,7 +341,7 @@ void Read_ProblemStructure(const char *name)
 
   while(getdp_yyincludenum > 0){
     Read_ProblemStructure(getdp_yyincludename);
-    getdp_yyin = FOpen(getdp_yyname, "rb"); // same comment as above
+    getdp_yyin = FOpen(getdp_yyname.c_str(), "rb"); // same comment as above
     getdp_yyrestart(getdp_yyin);
     for(i = 0; i < getdp_yylinenum; i++) fgets(AbsPath, 2048, getdp_yyin);
     getdp_yylinenum++;
@@ -351,7 +351,7 @@ void Read_ProblemStructure(const char *name)
   }
 
   getdp_yylinenum = Last_yylinenum;
-  strcpy(getdp_yyname, Last_yyname.c_str());
+  getdp_yyname = Last_yyname;
   getdp_yyerrorlevel = Last_ErrorLevel;
   getdp_yyincludenum = Last_yyincludenum;
 }

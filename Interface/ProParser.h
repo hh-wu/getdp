@@ -27,7 +27,7 @@ struct Constant {
 #define VAR_CHAR          3
 
 extern FILE *getdp_yyin;
-extern char getdp_yyname[256];
+extern std::string getdp_yyname;
 extern char getdp_yyincludename[256];
 extern long int getdp_yylinenum;
 extern int getdp_yycolnum;

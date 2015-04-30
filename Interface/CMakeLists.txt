@@ -8,6 +8,7 @@ set(SRC
   ProDefine.cpp
   ProParser.yy.cpp
   ProParser.tab.cpp
+  MacroManager.cpp
 )
 
 file(GLOB HDR RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.h)
