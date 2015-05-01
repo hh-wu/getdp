@@ -1,4 +1,4 @@
-2.5.2: small fixes in MSH reader.
+2.5.2: new ability to use Macros in .pro files; small fixes in MSH reader.
 
 2.5.1: enhanced Python[] and DefineFunction[].
 
