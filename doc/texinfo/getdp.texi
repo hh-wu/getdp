@@ -161,7 +161,7 @@ Expressions
 * Arguments::                   
 * Registers::                   
 * Fields::                      
-* Loops and conditionals::      
+* Macros loops and conditionals::  
 
 Expressions definition
 
@@ -848,7 +848,7 @@ and all the available options.
 * Arguments::                   
 * Registers::                   
 * Fields::                      
-* Loops and conditionals::      
+* Macros loops and conditionals::  
 @end menu
 
 @c -------------------------------------------------------------------------
@@ -1144,7 +1144,7 @@ Five constants are predefined in GetDP: @code{Pi} (3.1415926535897932),
 When @code{~@{@var{expression-cst}@}} is appended to a string @var{string},
 the result is a new string formed by the concatenation of @var{string},
 @code{_} (an underscore) and the value of the @var{expression-cst}. This is
-most useful in loops (@pxref{Loops and conditionals}), where it permits to
+most useful in loops (@pxref{Macros loops and conditionals}), where it permits to
 define unique strings automatically. For example, 
 @example
 For i In @{1:3@}
@@ -1555,7 +1555,7 @@ See @ref{Function examples}, for an example.
 @c Fields
 @c -------------------------------------------------------------------------
 
-@node Fields, Loops and conditionals, Registers, Expressions
+@node Fields, Macros loops and conditionals, Registers, Expressions
 @section Fields
 
 @cindex Fields
@@ -1753,22 +1753,47 @@ single item).
 @end enumerate
 
 @c -------------------------------------------------------------------------
-@c Loops and conditionals
+@c Macros, loops and conditionals
 @c -------------------------------------------------------------------------
 
-@node Loops and conditionals,  , Fields, Expressions
-@section Loops and conditionals
+@node Macros loops and conditionals,  , Fields, Expressions
+@section Macros, loops and conditionals
 
+@cindex Macros
 @cindex Loops
 @cindex Conditionals
 
 @vindex @var{loop}
 
-Loops and conditionals are defined as follows, and can be imbricated:
+Macros are defined as follows:
+
+@ftable @code
+
+@item Macro @var{string}
+Begins the declaration of a user-defined macro named @var{string}. The
+body of the macro starts on the line after `@code{Macro
+@var{string}}', and can contain any GetDP command.
+
+@item Return
+Ends the body of the current user-defined macro. Macro declarations
+cannot be imbricated, and must be made outside any GetDP object.
+
+@end ftable
+
+Macros, loops and conditionals can be used in any of the following
+objects: Group, Function, Constraint (as well as in a contraint-case),
+FunctionSpace, Formulation (as well as in the quantity and equation
+defintions), Resolution (as well as resolution-term, system defintion
+and operations), PostProcessing (in the definition of the
+PostQuantities) and PostOperation (as well as in the operation list).
 
 @var{loop}:
 
 @ftable @code
+
+@item Call @var{string};
+Executes the body of a (previously defined) macro named @var{string}.
+
 @item For ( @var{expression-cst} : @var{expression-cst} )
 Iterates from the value of the first @var{expression-cst} to the value of
 the second @var{expression-cst}, with a unit incrementation step. At each
@@ -1809,13 +1834,6 @@ The body enclosed between `@code{If ( @var{expression-cst} )}' and the matching
 @item EndIf
 Ends a matching @code{If} command.
 @end ftable
-
-Loops and conditionals can be used in any of the following objects: Group,
-Function, Constraint (as well as in a contraint-case), FunctionSpace,
-Formulation (as well as in the quantity and equation defintions), Resolution
-(as well as resolution-term, system defintion and operations),
-PostProcessing (in the definition of the PostQuantities) and PostOperation
-(as well as in the operation list).
 
 @c =========================================================================
 @c Objects

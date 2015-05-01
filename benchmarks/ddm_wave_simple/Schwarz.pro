@@ -16,12 +16,12 @@ Resolution {
         Printf[StrCat["Starting ", StrChoice[ANALYSIS == 0, "Helmholtz", "Maxwell"],
             " DDM with %g subdomains / %g processes"], N_DOM, MPI_Size];
         If(TC_TYPE == 0)
-          Printf[StrCat["Using 0-th order (", StrChoice[ANALYSIS == 0, "Sommerfeld/EMDA", "Silver-Muller"],
-              ") transmission conditions"]];
+          Printf[StrCat["Using 0-th order (", StrChoice[ANALYSIS == 0, "Sommerfeld/EMDA",
+                "Silver-Muller"], ") transmission conditions"]];
         EndIf
         If(TC_TYPE == 1)
-          Printf[StrCat["Using 2-nd order (", StrChoice[ANALYSIS == 0, "OO2", "J-F. Lee"],
-              ") transmission conditions"]];
+          Printf[StrCat["Using 2-nd order (", StrChoice[ANALYSIS == 0, "OO2",
+                "J-F. Lee"], ") transmission conditions"]];
         EndIf
         If(TC_TYPE == 2)
           Printf["Using %g-th order Pade (OSRC) transmission conditions", NP_OSRC];
@@ -68,12 +68,14 @@ Resolution {
       EndFor
 
       // update "Dirichlet" Boundary condition (now homogenous) (prepare non
-      // homogeneous BC on transmission boundaries)
+      // homogeneous BC on transmission boundaries); actually not currently
+      // necessary for Maxwell (since we impose Dirichlet BCs using Lagrange
+      // multipliers)
       Evaluate[0. #10];
       Evaluate[1. #11]; Evaluate[1. #12];
       For ii In {0: #ListOfDom()-1}
         idom = ListOfDom(ii);
-        UpdateConstraint[Vol~{idom}, GammaD~{idom}, Assign]; // actually not necessary for Maxwell
+        UpdateConstraint[Vol~{idom}, GammaD~{idom}, Assign];
       EndFor
 
       // launch iterative Krylov solver on all cpus
