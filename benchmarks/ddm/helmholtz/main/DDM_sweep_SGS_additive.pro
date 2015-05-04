@@ -79,12 +79,6 @@ Function{
   //Value inside register #10 is changed during the Resolution process
   flag_homogen[] = #9;
   f_diri[] = uinc[]*flag_homogen[];
-  //u_init is the value of u at initialization (needed to compute the scattered field at the end)
-  For ii In {0: #ListOfDom()-1}
-  idom = ListOfDom(ii);
-    u_init~{idom}[] = ComplexScalarField[XYZ[]]{2*N_DOM+idom};
-  EndFor
-
   F_SOURCE[] = V_SOURCE[]*#9;
 }
 
@@ -175,10 +169,9 @@ Formulation {
       // g_in RIGHT (#11 > 0) or 0 (#11 == 0)
       Galerkin { [ - (#11 > 0. ? g_in~{idom}~{1}[] : 0), {u~{idom}} ] ;
 	In Sigma~{idom}~{1}; Jacobian JSur ; Integration I1 ; }
-      // g_in LEFT (#10 > 0) or 0 (#10 == 0)
+      // same story, modified for SGS
       Galerkin { [ - (#20 > 0. ? g_in_c~{idom}~{0}[] : 0), {u~{idom}} ] ;
       	In Sigma~{idom}~{0}; Jacobian JSur ; Integration I1 ; }
-      // g_in RIGHT (#11 > 0) or 0 (#11 == 0)
       Galerkin { [ - (#21 > 0. ? g_in_c~{idom}~{1}[] : 0), {u~{idom}} ] ;
       	In Sigma~{idom}~{1}; Jacobian JSur ; Integration I1 ; }
 
@@ -440,9 +433,8 @@ Resolution {
 	  EndIf
 	EndFor
 	If (EXT_TIME) SystemCommand[Sprintf["./../main/ddmProcTime.py %g factor", MPI_Rank]]; EndIf
-	//print u_init either in Memory (STORE_U_INIT == 1) and/or on disk (WRITE_U_INIT == 1)
-	PostOperation[u_init~{idom}] ;
       EndFor
+
       // Compute the g_out in the RAM (right hand side of iterative solver)
       For ii In {0: #ListOfDom()-1}
 	idom = ListOfDom(ii);
@@ -529,7 +521,7 @@ Resolution {
       //--------------------
 
       If(PRECOND_SWEEP)
-	SGS = 0;
+	SGS = 1;
 	VERBOSE = 0; // Developer's best friend ;)
 	If (VERBOSE)
 	  SystemCommand[Sprintf["echo 'Proc %g: ************** ready to start preconditioner *******************'", MPI_Rank]];
@@ -537,16 +529,18 @@ Resolution {
 	EndIf
 	SetCommSelf;
 
-	Evaluate[1. #20]; Evaluate[1. #21];
-	// Take a copy of the input data
-	For ii In {0:#ListOfDom()-1}
-      	  idom = ListOfDom(ii);
-	  For jdom In {0:1}
-	    PostOperation[g_copy~{idom}~{jdom}];
+	If (SGS)
+	  Evaluate[1. #20]; Evaluate[1. #21];
+	  // Take a copy of the input data
+	  For ii In {0:#ListOfDom()-1}
+      	    idom = ListOfDom(ii);
+	    For jdom In {0:1}
+	      PostOperation[g_copy~{idom}~{jdom}];
+	    EndFor
 	  EndFor
-	EndFor
+	EndIf
 
-	nCuts = #ListOfCuts()-1; // the number of groups of domains
+	nCuts = #ListOfCuts()-1; // the number of groups of domains (FIXME: not tested in the cyclic case)
 
 	Evaluate[SGS #10]; Evaluate[SGS #11];
 	Evaluate[0. #20]; Evaluate[0. #21];
@@ -674,12 +668,15 @@ Resolution {
     //Now the solution G is stored in the PView of index ListOfDom()
     SetCommSelf;
     //Computing solution
-    //setting non homogeneous BC on transmission boundaries
+    //setting non homogeneous BC on transmission boundaries + physical sources
+    Evaluate[1. #9];
     Evaluate[1. #10]; Evaluate[1. #11];
     Evaluate[0. #20]; Evaluate[0. #21];
     For ii In {0: #ListOfDom()-1}
       idom = ListOfDom(ii);
-      GenerateRHSGroup[Helmholtz~{idom}, Sigma~{idom}] ;
+      UpdateConstraint[Helmholtz~{idom}, GammaD~{idom}, Assign];
+      // GenerateRHSGroup[Helmholtz~{idom}, Sigma~{idom}] ;
+      GenerateRHS[Helmholtz~{idom}] ;
 
       If (REUSE == 0)
 	SolveAgain[Helmholtz~{idom}] ;
@@ -710,16 +707,9 @@ PostProcessing {
     idom = ListOfDom(ii);
     { Name u_ddm~{idom} ; NameOfFormulation DDM~{idom} ;
       PostQuantity {
-	If(STORE_U_INIT)
-	  { Name u~{idom} ; Value { Local { [ {u~{idom}} + u_init~{idom}[] ] ; In Omega~{idom}; Jacobian JVol ; } } }
-	EndIf
-	//If u_init is not stored then compute only the result of the DDM algorithm (not the "real" scattered field)
-	If(!STORE_U_INIT)
-	  { Name u~{idom} ; Value { Local { [ {u~{idom}}] ; In Omega~{idom}; Jacobian JVol ; } } }
-	EndIf
+	{ Name u~{idom} ; Value { Local { [ {u~{idom}} ] ; In Omega~{idom}; Jacobian JVol ; } } }
       }
     }
-
     For jdom In {0:1}
       { Name g_out~{idom}~{jdom} ; NameOfFormulation ComputeG~{idom}~{jdom} ;
 	PostQuantity {
@@ -737,13 +727,6 @@ PostProcessing {
 	}
       }
     EndFor
-
-    //Save on disk or in RAM field u at initialization (needed to obtain the scattered field)
-    { Name u_init~{idom} ; NameOfFormulation DDM~{idom} ;
-      PostQuantity {
-	{ Name u_init~{idom} ; Value { Local { [ {u~{idom}} ] ; In Omega~{idom}; Jacobian JVol ; } } }
-      }
-    }
   EndFor
 }
 
@@ -751,20 +734,6 @@ PostOperation {
   //DDM
   For ii In {0: #ListOfDom()-1}
     idom = ListOfDom(ii);
-    //initialization
-    { Name u_init~{idom} ; NameOfPostProcessing u_init~{idom};
-      Operation {
-	If(STORE_U_INIT && !WRITE_U_INIT)
-	  Print[ u_init~{idom}, OnElementsOf Omega~{idom}, StoreInField 2*N_DOM+idom] ;
-	EndIf
-	If(!STORE_U_INIT && WRITE_U_INIT)
-	  Print[ u_init~{idom}, OnElementsOf Omega~{idom}, File Sprintf("u_init%g.pos",idom)] ;
-	EndIf
-	If(STORE_U_INIT && WRITE_U_INIT)
-	  Print[ u_init~{idom}, OnElementsOf Omega~{idom}, File Sprintf("u_init%g.pos",idom), StoreInField 2*N_DOM+idom] ;
-	EndIf
-      }
-    }
     //volume solution
     { Name u_ddm~{idom} ; NameOfPostProcessing u_ddm~{idom};
       Operation {
@@ -775,26 +744,18 @@ PostOperation {
     For jdom In {0:1}
       { Name g_out~{idom}~{jdom} ; NameOfPostProcessing g_out~{idom}~{jdom};
 	Operation {
-	  // If(!((idom == 0 && jdom == 0) || (idom == N_DOM-1 && jdom == 1)))
-	  //   Print[ g_out~{idom}~{jdom}, OnElementsOf Sigma~{idom}~{jdom}, StoreInField 2*idom+jdom-1/*, File Sprintf("gg%g_%g.pos",idom, jdom)*/] ;
-	  // EndIf
-	  Print[ g_out~{idom}~{jdom}, OnElementsOf Sigma~{idom}~{jdom}, StoreInField (2*(idom+N_DOM)+(jdom-1))%(2*N_DOM)/*, StoreInField 4*N_DOM+(2*(idom+N_DOM)+(jdom-1))%(2*N_DOM)*//*, File Sprintf("gg%g_%g.pos",idom, jdom)*/] ;
+	  Print[ g_out~{idom}~{jdom}, OnElementsOf Sigma~{idom}~{jdom}, StoreInField (2*(idom+N_DOM)+(jdom-1))%(2*N_DOM)] ;
 	}
       }
       { Name g_out_pc~{idom}~{jdom} ; NameOfPostProcessing g_out_pc~{idom}~{jdom};
 	Operation {
-	  // If(!((idom == 0 && jdom == 0) || (idom == N_DOM-1 && jdom == 1)))
-	  //   Print[ g_out~{idom}~{jdom}, OnElementsOf Sigma~{idom}~{jdom}, StoreInField 4*N_DOM+2*idom+jdom-1/*, File Sprintf("gg%g_%g.pos",idom, jdom)*/] ;
-	  // EndIf
-	  Print[ g_out~{idom}~{jdom}, OnElementsOf Sigma~{idom}~{jdom}, StoreInField (2*(idom+N_DOM)+(jdom-1))%(2*N_DOM)/*, File Sprintf("gg%g_%g.pos",idom, jdom)*/] ;
-	  // Print[ g_out~{idom}~{jdom}, OnElementsOf Sigma~{idom}~{jdom}, StoreInField 4*N_DOM+(2*(idom+N_DOM)+(jdom-1))%(2*N_DOM)] ;
+	  Print[ g_out~{idom}~{jdom}, OnElementsOf Sigma~{idom}~{jdom}, StoreInField (2*(idom+N_DOM)+(jdom-1))%(2*N_DOM)] ;
 	}
       }
       { Name g_copy~{idom}~{jdom} ; NameOfPostProcessing g_copy~{idom}~{jdom};
 	Operation {
 	  If(!((idom == 0 && jdom == 0) || (idom == N_DOM-1 && jdom == 1)))
-	    // Print[ g~{idom}~{jdom}, OnElementsOf Sigma~{idom}~{jdom}, StoreInField 4*N_DOM+(2*(idom+N_DOM)+(jdom-1))%(2*N_DOM)/*, File Sprintf("gg%g_%g.pos",idom, jdom)*/] ; //mF
-	    Print[ g~{idom}~{jdom}, OnElementsOf Sigma~{idom}~{jdom}, StoreInField 4*N_DOM+(2*(idom+N_DOM)-2+3*jdom)%(2*N_DOM)/*, File Sprintf("gg%g_%g.pos",idom, jdom)*/] ; //xF
+	    Print[ g~{idom}~{jdom}, OnElementsOf Sigma~{idom}~{jdom}, StoreInField 4*N_DOM+(2*(idom+N_DOM)-2+3*jdom)%(2*N_DOM)] ; //xF
 	  EndIf
 	}
       }
