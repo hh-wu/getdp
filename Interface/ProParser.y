@@ -6901,8 +6901,8 @@ Loop :
   | tMacro tSTRING
     {
       if(!MacroManager::Instance()->createMacro
-         (std::string($2), getdp_yyin, getdp_yyname, getdp_yylinenum))
-        vyyerror("Redefinition of function %s", $2);
+         (std::string($2), getdp_yyin, getdp_yyname, getdp_yylinenum + 1))
+        vyyerror("Redefinition of macro '%s'", $2);
       skipUntil(NULL, "Return");
       Free($2);
     }
@@ -6910,13 +6910,13 @@ Loop :
     {
       if(!MacroManager::Instance()->leaveMacro
          (&getdp_yyin, getdp_yyname, getdp_yylinenum))
-	vyyerror("Error while exiting function");
+	vyyerror("Error while exiting macro");
     }
   | tCall String__Index tEND
     {
       if(!MacroManager::Instance()->enterMacro
          (std::string($2), &getdp_yyin, getdp_yyname, getdp_yylinenum))
-	vyyerror("Unknown function %s", $2);
+	vyyerror("Unknown macro '%s'", $2);
       Free($2);
     }
 

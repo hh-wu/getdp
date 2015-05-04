@@ -299,6 +299,8 @@ std::string Fix_RelativePath(const char *name, const char *reference)
   }
 }
 
+static std::vector<FILE*> openFiles;
+
 void Read_ProblemStructure(const char *name)
 {
   int Last_yylinenum = getdp_yylinenum;
@@ -335,7 +337,10 @@ void Read_ProblemStructure(const char *name)
   getdp_yyerrorlevel = 0;  getdp_yylinenum = 1; getdp_yyincludenum=0;
   getdp_yyname = std::string(AbsPath);
 
-  getdp_yyrestart(getdp_yyin); getdp_yyparse(); fclose(getdp_yyin);
+  getdp_yyrestart(getdp_yyin); getdp_yyparse();
+  // don't close the file here: we'll need it if there is a Macro in it:
+  //fclose(getdp_yyin);
+  openFiles.push_back(getdp_yyin);
 
   if(getdp_yyerrorlevel) return;
 
@@ -346,8 +351,10 @@ void Read_ProblemStructure(const char *name)
     for(i = 0; i < getdp_yylinenum; i++) fgets(AbsPath, 2048, getdp_yyin);
     getdp_yylinenum++;
     getdp_yyparse();
-    fclose(getdp_yyin);
-    if(getdp_yyerrorlevel) return;
+    // don't close the file here: we'll need it if there is a Macro in it:
+    //fclose(getdp_yyin);
+    openFiles.push_back(getdp_yyin);
+    if(getdp_yyerrorlevel) break;
   }
 
   getdp_yylinenum = Last_yylinenum;
@@ -358,8 +365,14 @@ void Read_ProblemStructure(const char *name)
 
 void Finalize_ProblemStructure()
 {
-  // Here we should parse any ONELAB-defined functions (+ their context)
+  if(!getdp_yyincludenum){
+    printf("CLOSING!\n");
+    for(unsigned int i = 0; i < openFiles.size(); i++){
+      fclose(openFiles[i]);
+    }
+  }
 
+  // Here we should parse any ONELAB-defined functions (+ their context)
 }
 
 char *Get_ExpressionName(int Index)

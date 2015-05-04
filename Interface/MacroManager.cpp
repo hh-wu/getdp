@@ -82,6 +82,8 @@ int MacroManager::leaveMacro(FILE **f, std::string &filename, long int &lno)
 int MacroManager::createMacro(const std::string &name, FILE *f,
                               const std::string &filename, long int lno)
 {
+  if(macros->m.find(name) != macros->m.end())
+    return 0;
   File_Position fp;
   fp.file = f;
   fp.filename = filename;

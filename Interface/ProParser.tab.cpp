@@ -13880,8 +13880,8 @@ yyreduce:
 #line 6902 "ProParser.y"
     {
       if(!MacroManager::Instance()->createMacro
-         (std::string((yyvsp[(2) - (2)].c)), getdp_yyin, getdp_yyname, getdp_yylinenum))
-        vyyerror("Redefinition of function %s", (yyvsp[(2) - (2)].c));
+         (std::string((yyvsp[(2) - (2)].c)), getdp_yyin, getdp_yyname, getdp_yylinenum + 1))
+        vyyerror("Redefinition of macro '%s'", (yyvsp[(2) - (2)].c));
       skipUntil(NULL, "Return");
       Free((yyvsp[(2) - (2)].c));
     }
@@ -13893,7 +13893,7 @@ yyreduce:
     {
       if(!MacroManager::Instance()->leaveMacro
          (&getdp_yyin, getdp_yyname, getdp_yylinenum))
-	vyyerror("Error while exiting function");
+	vyyerror("Error while exiting macro");
     }
     break;
 
@@ -13903,7 +13903,7 @@ yyreduce:
     {
       if(!MacroManager::Instance()->enterMacro
          (std::string((yyvsp[(2) - (3)].c)), &getdp_yyin, getdp_yyname, getdp_yylinenum))
-	vyyerror("Unknown function %s", (yyvsp[(2) - (3)].c));
+	vyyerror("Unknown macro '%s'", (yyvsp[(2) - (3)].c));
       Free((yyvsp[(2) - (3)].c));
     }
     break;
