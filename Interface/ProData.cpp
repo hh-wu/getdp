@@ -365,12 +365,8 @@ void Read_ProblemStructure(const char *name)
 
 void Finalize_ProblemStructure()
 {
-  if(!getdp_yyincludenum){
-    printf("CLOSING!\n");
-    for(unsigned int i = 0; i < openFiles.size(); i++){
-      fclose(openFiles[i]);
-    }
-  }
+  for(unsigned int i = 0; i < openFiles.size(); i++)
+    fclose(openFiles[i]);
 
   // Here we should parse any ONELAB-defined functions (+ their context)
 }
