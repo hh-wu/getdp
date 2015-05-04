@@ -354,7 +354,7 @@ void Read_ProblemStructure(const char *name)
     // don't close the file here: we'll need it if there is a Macro in it:
     //fclose(getdp_yyin);
     openFiles.push_back(getdp_yyin);
-    if(getdp_yyerrorlevel) break;
+    if(getdp_yyerrorlevel) return;
   }
 
   getdp_yylinenum = Last_yylinenum;
