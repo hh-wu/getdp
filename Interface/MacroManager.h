@@ -21,6 +21,7 @@ class MacroManager
   static MacroManager *instance;
  public :
   static MacroManager* Instance();
+  void clear();
   int createMacro(const std::string &name, FILE *f,
                   const std::string &filename, long int lineno);
   int enterMacro(const std::string &name, FILE **f,

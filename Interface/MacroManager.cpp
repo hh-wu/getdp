@@ -46,6 +46,11 @@ MacroManager *MacroManager::Instance()
   return instance;
 }
 
+void MacroManager::clear()
+{
+  macros->m.clear();
+}
+
 int MacroManager::enterMacro(const std::string &name, FILE **f,
                              std::string &filename, long int &lno) const
 {

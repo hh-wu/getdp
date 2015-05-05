@@ -10,6 +10,7 @@
 #include "ProData.h"
 #include "ProDefine.h"
 #include "ProParser.h"
+#include "MacroManager.h"
 #include "Message.h"
 #include "MallocUtils.h"
 #include "OS.h"
@@ -367,6 +368,7 @@ void Finalize_ProblemStructure()
 {
   for(unsigned int i = 0; i < openFiles.size(); i++)
     fclose(openFiles[i]);
+  MacroManager::Instance()->clear();
 
   // Here we should parse any ONELAB-defined functions (+ their context)
 }
