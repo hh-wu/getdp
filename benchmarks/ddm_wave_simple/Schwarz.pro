@@ -43,6 +43,7 @@ Macro solve
       PostOperation[DDM~{idom}] ;
     EndIf
   EndFor
+  // go back to parallel mode
   SetCommWorld;
 Return
 
