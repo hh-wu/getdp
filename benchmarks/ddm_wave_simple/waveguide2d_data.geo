@@ -24,9 +24,27 @@ LC = LAMBDA/N_LAMBDA;
 // prefix for (split) mesh files (one for each partition)
 MSH_NAME = StrCat(DIR, MSH_BASE_NAME) ;
 
-nLayersTr = 1;
-nLayersPml = 5;//*meshFactor;
+nLayersTr = 0;
+nLayersPml = 1;
 dTr = nLayersTr*LC;
 dPml = nLayersPml*LC;
 dBb = (nLayersPml+nLayersTr)*LC;
 dDom = DX / N_DOM;
+
+// PML parameters
+theta = 0.;
+xSigmaList = {};
+thetaList = {};
+For i In {0:N_DOM}
+  xSigmaList += i*dDom;
+  thetaList += theta;
+EndFor
+
+// for sweeping preconditioners
+ListOfCuts = {0, N_DOM-1};
+// ListOfCuts = {0, 4, N_DOM-1};
+
+ProcOwnsDomain = {};
+For idom In{0:N_DOM-1}
+  ProcOwnsDomain += {(idom%MPI_Size == MPI_Rank)}; // define your rule here -- must match listOfDom()
+EndFor

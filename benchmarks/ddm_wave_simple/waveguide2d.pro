@@ -13,8 +13,10 @@ DefineConstant[ // allows to set these from outside
   // parameters for the DDM iterative solver
   SOLVER = "gmres", // bcgs, gmsh_pcleft, ...
   TOL = 1e-6,
-  MAXIT = 1000,
-  RESTART = MAXIT
+  MAXIT = 100,
+  RESTART = MAXIT,
+  // sweeping preconditioner
+  PRECOND_SWEEP = 1
 ];
 
 Function {
@@ -155,8 +157,9 @@ Function{
       kPml~{idom}~{jdom}[] = k[ Vector[xSigma~{idom}~{jdom},Y[],Z[]] ] ;
     EndFor
     // Bermudez damping functions
-    SigmaX[Pml~{idom}~{1}] = distSigma~{idom+1}[] > dTr ? c[]/(dBb-distSigma~{idom+1}[]) : 0;
-    SigmaX[Pml~{idom}~{0}] = -distSigma~{idom}[] > dTr ? c[]/Fabs[(dBb+distSigma~{idom}[])] : 0 ;
+    SigmaX[Omega~{idom}] = 0. ;
+    SigmaX[Pml~{idom}~{1}] = distSigma~{idom+1}[] > dTr ? c[]/(dBb-distSigma~{idom+1}[]) : 0. ;
+    SigmaX[Pml~{idom}~{0}] = -distSigma~{idom}[] > dTr ? c[]/Fabs[(dBb+distSigma~{idom}[])] : 0. ;
   EndFor
   SigmaY[] = 0.;
   SigmaZ[] = 0.;
@@ -166,7 +169,7 @@ Function{
   D[] = TensorDiag[Ky[]*Kz[]/Kx[], Kx[]*Kz[]/Ky[], Kx[]*Ky[]/Kz[]];
 }
 
-Include "Helmholtz.pro" ;
+Include "Helmholtz_gPml.pro" ;
 
 DefineConstant[
   // default getdp parameters for onelab

@@ -107,6 +107,8 @@ Resolution {
 	EndFor
 	SetCommWorld;
       }
+      {
+      }
 
       //DeleteFile[ "/tmp/kspiter.txt" ];
       //Print[ {$KSPIts} , File "/tmp/kspiter.txt"];
