@@ -31,19 +31,28 @@ Function {
   // electrical
   DefineConstant[
     sigm = {37e6, Name "Input/Materials/3Electric conductivity",
-      Label "Electric conductivity [S/m]"},
-    b_y = {-1e-6, Name "Input/91B field (y comp.) [T]"},
-    V_imposed = {0.00181, Name "Input/92Voltage [V]"}
+      Label "Electric conductivity [S/m]",
+      Visible (Flag_AnalysisType != 0)},
+    b_y = {-1e-6, Name "Input/91B field (y comp.) [T]",
+      Visible (Flag_AnalysisType != 0)},
+    V_imposed = {0.00181, Name "Input/92Voltage [V]",
+      Visible (Flag_AnalysisType != 0)}
   ];
   sigma[DomainC_Ele] = sigm ;
   bext[] = Vector[0, b_y, 0];
 
   // mechanical
   DefineConstant[
-    young = {150e9, Name "Input/Materials/0Young modulus [Pa]"},
-    nu = {0.17, Name "Input/Materials/1Poisson coeficient"},
-    rh = {4400, Name "Input/Materials/2Mass density", Label "Mass density [kg/m^3]"},
-    Freq = {100e3, Name "Input/93Frequency [Hz]", Min 90e3, Max 120e3, Step 2.5e3}
+    young = {150e9, Name "Input/Materials/0Young modulus [Pa]",
+      Visible (Flag_AnalysisType != 1)},
+    nu = {0.17, Name "Input/Materials/1Poisson coeficient",
+      Visible (Flag_AnalysisType != 1)},
+    rh = {4400, Name "Input/Materials/2Mass density", Label "Mass density [kg/m^3]",
+      Visible (Flag_AnalysisType != 1)},
+    Freq = {100e3, Name "Input/93Frequency [Hz]", Min 90e3, Max 120e3, Step 2.5e3,
+      Visible (Flag_AnalysisType == 3)},
+    target_freq = {0, Name "Input/93Target frequency [Hz]", Min 0, Max 1e7, Step 1e4,
+      Visible (Flag_AnalysisType == 0)}
   ];
 
   //F[] = Vector[0, 0, 10];
@@ -156,7 +165,7 @@ Resolution {
       EndIf
 
       If(Flag_AnalysisType == 0)
-        GenerateSeparate[Sys_Mec]; EigenSolve[Sys_Mec, 10, 0, 0];
+        GenerateSeparate[Sys_Mec]; EigenSolve[Sys_Mec, 10, (2*Pi*target_freq)^2, 0];
         SaveSolutions[Sys_Mec] ;
         PostOperation[Mec] ;
       EndIf
