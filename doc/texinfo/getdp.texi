@@ -4435,23 +4435,23 @@ time steps.
 @item EigenSolve
 @code{[@var{system-id}, @var{expression-cst}, @var{expression-cst}, @var{expression-cst} < , @var{expression} > ]}
 
-Eigenvalue/eigenvector computation using Arpack or SLEPc (). The parameters
+Eigenvalue/eigenvector computation using Arpack or SLEPc. The parameters
 are: the system (which has to be generated with
 @code{GenerateSeparate[]}), the number of eigenvalues/eigenvectors to
 compute and the real and imaginary spectral shift (around which to look
 for eigenvalues). The last optional argument allows to filter which
 eigenvalue/eigenvector pairs will be saved. For example,
-@code{($EigenvalueReal > 0)} would only keep pairs corresponding to eigenvalues with
-a striclty positive real part.
+@code{($EigenvalueReal > 0)} would only keep pairs corresponding to
+eigenvalues with a striclty positive real part.
 
 @item Lanczos
 @code{[@var{system-id}, @var{expression-cst}, @{ @var{expression-cst-list} @} , @var{expression-cst}]}
 
 Eigenvalue/eigenvector computation using the Lanczos algorithm. The
 parameters are: the system (which has to be generated with
-@code{GenerateSeparate[]}), the size of the Lanczos space, the indices of
-the eigenvalues/eigenvectors to store, the spectral shift. This routine is
-deprecated: use @code{EigenSolve} instead.
+@code{GenerateSeparate[]}), the size of the Lanczos space, the indices
+of the eigenvalues/eigenvectors to store, the spectral shift. This
+routine is deprecated: use @code{EigenSolve} instead.
 
 @item FourierTransform
 @code{[@var{system-id}, @var{system-id}, @{ @var{expression-cst-list} @}]}
