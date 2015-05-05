@@ -13,10 +13,11 @@ ExtGmsh     = ".pos";
 ExtGnuplot  = ".dat";
 
 DefineConstant[
-  Flag_AnalysisType = { 0,  Choices{0="Static",  1="Time domain"},
+  Flag_AnalysisType = { 0,  Choices{0="Static",  1="Time domain", 2="Frequency domain"},
     Name "Input/20Type of analysis",  Highlight "Blue",
     Help Str["- Use 'Static' to compute static fields created in the inductor",
-      "- Use 'Time domain' to compute the dynamic response of the inductor"]},
+      "- Use 'Time domain' to compute the dynamic, time-domain response of the inductor",
+      "- Use 'Frequency domain' to compute the dynamic, time-harmonic response of the inductor"]},
 
   Flag_BC_Type = {1, Choices{0="Neumann",1="Dirichlet"}, ReadOnly (Flag_Infinity==1),
     Name "Input/20Boundary condition at infinity",
@@ -24,6 +25,8 @@ DefineConstant[
 
   Flag_NL = { 0, Choices{0,1},
     Name "Input/40Nonlinear BH-curve"}
+  Flag_ConductingCore = { 0, Choices{0,1},
+    Name "Input/40Conducting core"}
 ];
 
 Group {
@@ -72,9 +75,10 @@ Group {
 }
 
 Function {
-  Freq = 50. ;
-
   DefineConstant[
+    Freq = { 50., Min 0, Max 1e3, Step 1,
+      Name "Input/21Frequency [Hz]", Highlight "AliceBlue",
+      Visible Flag_AnalysisType},
     Irms = { IA, Min 1, Max 4*IA, Step 2,
       Name "Input/4Coil Parameters/0Current (rms) [A]", Highlight "AliceBlue"},
     NbWires = { Nw,
@@ -107,8 +111,6 @@ Function {
   IA[] = F_Sin_wt_p[]{2*Pi*Freq, pA}; // DomainB
   js0[] = NbWires[]/SurfCoil[] * vDir[] ;
 
-
-
   // Material properties
   mu0 = 4.e-7 * Pi ;
 
@@ -118,7 +120,10 @@ Function {
       Name "Input/4Coil Parameters/5Conductivity", Highlight "AliceBlue"},
     mur_fe = { 2000., Min 100, Max 2000, Step 100,
       Name "Input/42Core relative permeability", Highlight "AliceBlue",
-      Visible (!Flag_NL)}
+      Visible (!Flag_NL)},
+    sigma_core = { 1e4, Label "Core conductivity [S/m]",
+      Name "Input/43Core conductivity", Highlight "AliceBlue",
+      Visible Flag_ConductingCore}
   ];
 
   // Reluctance of the simplified magnetic circuit (neglecting leakage and frindging)

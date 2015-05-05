@@ -1,5 +1,3 @@
-// --------------------------------------------------------------------------
-// --------------------------------------------------------------------------
 
 Group {
   DefineGroup[
@@ -42,7 +40,14 @@ Include "BH.pro"; // nonlinear BH caracteristic of magnetic material
 
 Group {
 
-  DomainCC = Region[ {Air, AirInf, Core} ];
+  If(!Flag_ConductingCore)
+    DomainCC = Region[ {Air, AirInf, Core} ];
+    DomainC  = Region[ { } ];
+  EndIf
+  If(Flag_ConductingCore)
+    DomainCC = Region[ {Air, AirInf} ];
+    DomainC  = Region[ {Core} ];
+  EndIf
 
   //--------------------------------------------------------------
   Nbr_DomainB = 1 ; // Number of stranded inductors
@@ -66,7 +71,6 @@ Group {
     DomainInf = Region[ {AirInf} ];
   EndIf
 
-  DomainC  = Region[ { } ];
   Domain  = Region[ {DomainCC, DomainC} ];
 
   If(Flag_NL)
@@ -91,6 +95,7 @@ Function {
   EndIf
 
   sigma[#{Inds}] = sigma_coil ;
+  sigma[Core] = sigma_core ;
   rho[] = 1/sigma[] ;
 }
 
@@ -153,6 +158,9 @@ Constraint {
 
   { Name V_3D ;
     Case {
+      If(Flag_ConductingCore)
+        { Region Core ; Value 0; }
+      EndIf
     }
   }
 
@@ -308,7 +316,7 @@ Resolution {
       InitSolution[Sys] ;
       PostOperation[Get_Analytical] ; // Values from magnetic circuit
 
-      If(Flag_AnalysisType==0 || Flag_AnalysisType==2)
+      If(Flag_AnalysisType==0 || Flag_AnalysisType==2) // Static or Frequency-domain
         If(!Flag_NL)
           Generate[Sys] ; Solve[Sys] ;
         EndIf
@@ -320,10 +328,10 @@ Resolution {
 
         PostOperation[Get_LocalFields] ;
         PostOperation[Get_GlobalQuantities] ;
-      EndIf // End Flag_AnalysisType==0 (Static) Flag_AnalysisType==2 (Frequency)
+      EndIf
 
       If(Flag_AnalysisType==1)
-        TimeLoopTheta[time0, timemax, delta_time, 1.]{ // Euler implicit (1) -- Crank-Nicolson (0.5)
+        TimeLoopTheta[time0, timemax, delta_time, 1.]{ // Implicit Euler (theta=1)
           If(!Flag_NL)
             Generate[Sys]; Solve[Sys];
           EndIf
@@ -338,7 +346,7 @@ Resolution {
             PostOperation[Get_GlobalQuantities];
           }
         }
-      EndIf // End Flag_AnalysisType==1 (Time domain)
+      EndIf
     }
   }
 }

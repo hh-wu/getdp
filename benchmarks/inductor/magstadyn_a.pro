@@ -49,8 +49,15 @@ Group {
     DomainInf = Region[ {AirInf} ];
   EndIf
 
-  DomainCC = Region[ {Air, AirInf, Inds, Core} ];
-  DomainC  = Region[ { } ];
+  If(!Flag_ConductingCore)
+    DomainCC = Region[ {Air, AirInf, Inds, Core} ];
+    DomainC  = Region[ { } ];
+  EndIf
+  If(Flag_ConductingCore)
+    DomainCC = Region[ {Air, AirInf, Inds} ];
+    DomainC  = Region[ {Core} ];
+  EndIf
+
   Domain  = Region[ {DomainCC, DomainC} ];
 
   If(Flag_NL)
@@ -73,6 +80,7 @@ Function {
   EndIf
 
   sigma[#{Inds}] = sigma_coil ;
+  sigma[Core] = sigma_core ;
   rho[] = 1/sigma[] ;
 
   Rb[] = Factor_R_3DEffects*FillFactor_Winding*Lz*NbWires[]^2/SurfCoil[]/sigma[] ;
@@ -122,6 +130,9 @@ Constraint {
 
   { Name Voltage_2D ;
     Case {
+      If(Flag_ConductingCore)
+        { Region Core ; Value 0; }
+      EndIf
     }
   }
 
@@ -233,7 +244,6 @@ Formulation {
 }
 
 //-----------------------------------------------------------------------------------------------
-//-----------------------------------------------------------------------------------------------
 
 Resolution {
 
@@ -253,7 +263,7 @@ Resolution {
 
       PostOperation[Get_Analytical] ; // Values from magnetic circuit
 
-      If(Flag_AnalysisType==0 || Flag_AnalysisType==2)
+      If(Flag_AnalysisType==0 || Flag_AnalysisType==2) // Static or Frequency-domain
         If(!Flag_NL)
           Generate[A] ; Solve[A] ;
         EndIf
@@ -265,10 +275,10 @@ Resolution {
 
         PostOperation[Get_LocalFields] ;
         PostOperation[Get_GlobalQuantities] ;
-      EndIf // End Flag_AnalysisType==0 (Static) Flag_AnalysisType==2 (Frequency)
+      EndIf
 
-      If(Flag_AnalysisType==1)
-        TimeLoopTheta[time0, timemax, delta_time, 1.]{ // Euler implicit (1) -- Crank-Nicolson (0.5)
+      If(Flag_AnalysisType==1) // Time-domain
+        TimeLoopTheta[time0, timemax, delta_time, 1.]{ // Implicit Euler (theta=1)
           If(!Flag_NL)
             Generate[A]; Solve[A];
           EndIf
@@ -283,7 +293,7 @@ Resolution {
             PostOperation[Get_GlobalQuantities];
           }
         }
-      EndIf // End Flag_AnalysisType==1 (Time domain)
+      EndIf
     }
   }
 }
@@ -382,12 +392,10 @@ PostProcessing {
       { Name Inductance_from_Flux ; Value { Term { Type Global; [ #11*1e3/II ] ; In DomainDummy ; } } } // Flux stored in register #11
       { Name Inductance_from_MagEnergy ; Value { Term { Type Global; [ 2*#22*1e3/(II*II) ] ; In DomainDummy ; } } } // MagEnergy stored in register #22
 
-    }//PostQuantity
-  }// MagStaDyn_a_2D
-}// PostProcessing
+    }
+  }
+}
 
-
-//-----------------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------
 
 PostOperation Get_LocalFields UsingPost MagStaDyn_a_2D {
