@@ -1,7 +1,10 @@
 Macro solve
   For ii In {0: #ListOfDom()-1}
     idom = ListOfDom(ii);
+    // update Dirichlet constraints (only actually necessary when #10, #11, #12
+    // change for Helmholtz)
     UpdateConstraint[Vol~{idom}, GammaD~{idom}, Assign];
+    // solve the volume PDE on each subdomain
     If(SOLVE == 0)
       Generate[Vol~{idom}] ;
       Solve[Vol~{idom}] ;
@@ -10,6 +13,7 @@ Macro solve
       GenerateRHSGroup[Vol~{idom}, Sigma~{idom}] ;
       SolveAgain[Vol~{idom}] ;
     EndIf
+    // solve the surface PDE on the boundaries of each subdomain
     For iSide In {0:1}
       If(NbrRegions[Sigma~{idom}~{iSide}])
         If(SOLVE == 0)
@@ -24,8 +28,8 @@ Macro solve
       EndIf
     EndFor
   EndFor
+  // compute g_in for next iteration (must be done after all resolutions)
   If(SOLVE == 0 || SOLVE == 1)
-    // compute g_in for next iteration (must be done after all resolutions)
     For ii In {0: #ListOfDom()-1}
       idom = ListOfDom(ii);
       For iSide In {0:1}
