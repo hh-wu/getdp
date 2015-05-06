@@ -170,7 +170,8 @@ Function{
 }
 
 // Include "Helmholtz_gPml.pro" ;
-Include "Helmholtz.pro" ;
+// Include "Helmholtz.pro" ;
+Include "Schwarz.pro" ;
 
 DefineConstant[
   // default getdp parameters for onelab

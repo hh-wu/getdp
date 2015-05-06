@@ -313,8 +313,6 @@ Formulation {
   EndFor
 }
 
-Include "Schwarz.pro" ;
-
 PostProcessing {
   For ii In {0: #ListOfDom()-1}
     idom = ListOfDom(ii);

@@ -250,7 +250,6 @@ Formulation {
   EndFor // loop on idom
 }
 
-Include "Schwarz.pro" ;
 
 PostProcessing {
   For ii In {0: #ListOfDom()-1}
