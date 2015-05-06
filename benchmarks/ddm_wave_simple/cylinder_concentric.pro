@@ -11,7 +11,7 @@ DefineConstant[ // allows to set these from outside
   MAXIT = 1000,
   RESTART = MAXIT,
   POLARISATION = {1, Name "Input/02Polarisation",
-    Choices {0="TM", 1="TE"}}
+    Choices {0="TM", 1="TE"}, Visible (ANALYSIS == 1) }
 ];
 
 Function {
@@ -77,13 +77,19 @@ Group{
   For idom In {0:N_DOM-1}
     Omega~{idom} = Region[(100 + idom)];
 
-    If(POLARISATION)
-      GammaD0~{idom} = Region[(200 + idom)];
-      GammaN~{idom} = Region[{}];
-    EndIf
-    If(!POLARISATION)
+    If(ANALYSIS == 0)
       GammaD0~{idom} = Region[{}];
       GammaN~{idom} = Region[{(200 + idom)}];
+    EndIf
+    If(ANALYSIS == 1)
+      If(POLARISATION)
+        GammaD0~{idom} = Region[(200 + idom)];
+        GammaN~{idom} = Region[{}];
+      EndIf
+      If(!POLARISATION)
+        GammaD0~{idom} = Region[{}];
+        GammaN~{idom} = Region[{(200 + idom)}];
+      EndIf
     EndIf
 
     If(idom == 0)
@@ -125,6 +131,8 @@ EndIf
 If(ANALYSIS == 1)
   Include "Maxwell.pro" ;
 EndIf
+
+Include "Schwarz.pro" ;
 
 DefineConstant[
   // default getdp parameters for onelab

@@ -1,6 +1,6 @@
 DefineConstant[
   // Analysis type
-  ANALYSIS = {1, Name "Input/00Type of analysis",
+  ANALYSIS = {0, Name "Input/00Type of analysis",
     Choices {0="Helmholtz", 1="Maxwell"}},
   // frequency
   WAVENUMBER = {Pi, Min 0.1, Max 31.5, Step 0.1, Name "Input/0Wavenumber"},
@@ -24,4 +24,3 @@ LC = LAMBDA/N_LAMBDA;
 
 // prefix for (split) mesh files (one for each partition)
 MSH_NAME = StrCat(DIR, MSH_BASE_NAME) ;
-

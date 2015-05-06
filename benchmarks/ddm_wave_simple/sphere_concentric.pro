@@ -109,6 +109,8 @@ If(ANALYSIS == 1)
   Include "Maxwell.pro" ;
 EndIf
 
+Include "Schwarz.pro" ;
+
 DefineConstant[
   // default getdp parameters for onelab
   R_ = {"DDM", Name "GetDP/1ResolutionChoices", Visible 0},

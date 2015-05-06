@@ -43,7 +43,7 @@ For i In {0:N_DOM}
 EndFor
 
 ret[] = Extrude{0,0,1}{
-  Surface{ss[]}; Layers{1}; Recombine;
+  Surface{ss[]}; Layers{2}; Recombine;
 };
 
 ii = 1;
