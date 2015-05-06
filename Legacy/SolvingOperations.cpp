@@ -673,10 +673,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   for (i_Operation = 0 ; i_Operation < Nbr_Operation ; i_Operation++) {
     Operation_P = (struct Operation*)List_Pointer(Operation_L, i_Operation) ;
 
-    if(Message::GetCommSize() > 1 && Operation_P->Rank >= 0 &&
-       Message::GetCommRank() != (Operation_P->Rank % Message::GetCommSize()))
-      continue;
-
     Flag_CPU = 0 ;
     Flag_Jac = 0 ;
 
@@ -1124,28 +1120,17 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
           LinAlg_AssembleVector(&DofData_P->b) ;
         }
 
-        // By default, Operation_P->Rank = -1.
-        // If Operation_P->Rank >= 0 then OPERATION_SOLVE is achieved sequentially on processus
-        // Operation_P->Rank only.
-        // If Operation_P->Rank < 0 then OPERATION_SOLVE is launched "classically" in parallel
-        // with a choice of the solver.
-        // The last argument of function "_solve" called by LinAlg_Solve defines which solver
-        // to use, from 0 to 9 (0=default, 1,2,... see "_solve" function)
-        // Thus, if Operation_P->Rank < 0, then we have to substitute Operation_P->Rank
-        // to (-Operation_P->Rank-1) in the last argument to recover the solver number (0,1,2, ...)
-        // This modification permits to do numerical simulations of Domain Decomposition Method
-        // The same applies for LinAlg_SolveAgain, bellow
         if(!again){
           LinAlg_Solve(&DofData_P->A, &DofData_P->b, &DofData_P->Solver,
                        &DofData_P->CurrentSolution->x,
-                       (Operation_P->Rank < 0) ? (-Operation_P->Rank-1) : 0) ;
+                       (Operation_P->Flag < 0) ? 0 : Operation_P->Flag) ;
         }
         else{
           DofData *d = (again == 1) ? DofData_P :
             DofData_P0 + Operation_P->Case.SolveAgainWithOther.DefineSystemIndex;
           LinAlg_SolveAgain(&d->A, &DofData_P->b, &d->Solver,
                             &DofData_P->CurrentSolution->x,
-                            (Operation_P->Rank < 0) ? (-Operation_P->Rank-1) : 0) ;
+                            (Operation_P->Flag < 0) ? 0 : Operation_P->Flag) ;
         }
         Flag_CPU = 1 ;
 #ifdef TIMER
@@ -1182,8 +1167,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       LinAlg_SolveNL(&DofData_P->A, &DofData_P->b, &DofData_P->Jac, &DofData_P->res,
                      &DofData_P->Solver, &DofData_P->dx,
-                     (Message::GetCommSize() > 1 || Operation_P->Rank < 0) ? 0 :
-                     Operation_P->Rank) ;
+                     (Operation_P->Flag < 0) ? 0 : Operation_P->Flag) ;
       Flag_CPU = 1 ;
       break ;
 
@@ -2025,7 +2009,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         Message::Info("GmshRead[%s]", Operation_P->Case.GmshRead.FileName);
       }
       GmshMergePostProcessingFile(Operation_P->Case.GmshRead.FileName);
-      Operation_P->Rank = -1;
 #else
       Message::Error("You need to compile GetDP with Gmsh support to use 'GmshRead'");
 #endif
@@ -2042,7 +2025,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         Message::Info("GmshMerge[%s]", Operation_P->Case.GmshRead.FileName);
       }
       GmshMergeFile(Operation_P->Case.GmshRead.FileName);
-      Operation_P->Rank = -1;
 #else
       Message::Error("You need to compile GetDP with Gmsh support to use 'GmshMerge'");
 #endif
@@ -2059,7 +2041,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         Message::Info("GmshOpen[%s]", Operation_P->Case.GmshRead.FileName);
       }
       GmshOpenProject(Operation_P->Case.GmshRead.FileName);
-      Operation_P->Rank = -1;
 #else
       Message::Error("You need to compile GetDP with Gmsh support to use 'GmshOpen'");
 #endif
@@ -2070,7 +2051,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Message::Info("GmshClearAll[]");
       while(PView::list.size()) delete PView::list[0];
       PView::setGlobalTag(0);
-      Operation_P->Rank = -1;
 #else
       Message::Error("You need to compile GetDP with Gmsh support to use 'GmshClearAll'");
 #endif
@@ -2085,7 +2065,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
           view->write(Operation_P->Case.GmshRead.FileName, 10);
         else
           Message::Error("View %d does not exist");
-        Operation_P->Rank = -1;
       }
 #else
       Message::Error("You need to compile GetDP with Gmsh support to use 'GmshWrite'");

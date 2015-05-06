@@ -1086,7 +1086,8 @@ WholeQuantity :
 #endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
-  | WholeQuantity tNOTEQUAL WholeQuantity
+
+   | WholeQuantity tNOTEQUAL WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_NOTEQUAL;
 #if defined(HAVE_LEGACY)
@@ -1178,7 +1179,6 @@ WholeQuantity_Single :
 
   | NameForFunction ArgumentsForFunction ParametersForFunction
     {
-
       /* Expression */
 
       int l;
@@ -1338,7 +1338,7 @@ WholeQuantity_Single :
 
   | tMaxOverTime
     { Last_DofIndexInWholeQuantity = Current_DofIndexInWholeQuantity; }
-'[' WholeQuantityExpression ',' FExpr ',' FExpr ']'
+    '[' WholeQuantityExpression ',' FExpr ',' FExpr ']'
     { WholeQuantity_S.Type = WQ_MAXOVERTIME;
       WholeQuantity_S.Case.MaxOverTime.WholeQuantity = $4;
       WholeQuantity_S.Case.FourierSteinmetz.TimeInit = $6;
@@ -1354,7 +1354,7 @@ WholeQuantity_Single :
 
   | tFourierSteinmetz
     { Last_DofIndexInWholeQuantity = Current_DofIndexInWholeQuantity; }
-'[' WholeQuantityExpression ',' FExpr ',' FExpr ',' FExpr ',' FExpr ',' FExpr  ']'
+    '[' WholeQuantityExpression ',' FExpr ',' FExpr ',' FExpr ',' FExpr ',' FExpr  ']'
     { WholeQuantity_S.Type = WQ_FOURIERSTEINMETZ;
       WholeQuantity_S.Case.FourierSteinmetz.WholeQuantity = $4;
       WholeQuantity_S.Case.FourierSteinmetz.TimeInit = $6;
@@ -1371,10 +1371,10 @@ WholeQuantity_Single :
 	vyyerror("Dof{} definition out of context");
     }
 
-
-
   | tMHTransform
-    '[' NameForFunction { Last_DofIndexInWholeQuantity = Current_DofIndexInWholeQuantity; } '[' WholeQuantityExpression ']' ']' '{' FExpr '}'
+    '[' NameForFunction
+     { Last_DofIndexInWholeQuantity = Current_DofIndexInWholeQuantity; }
+    '[' WholeQuantityExpression ']' ']' '{' FExpr '}'
     {
       int i;
       if((i = List_ISearchSeq(Problem_S.Expression, $3, fcmp_Expression_Name)) < 0)
@@ -1405,22 +1405,6 @@ WholeQuantity_Single :
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
 
-/*
-  | tMHJacNL
-    '[' NameForFunction { Last_DofIndexInWholeQuantity = Current_DofIndexInWholeQuantity; } '[' WholeQuantityExpression ']' ']' '{' FExpr ',' FExpr '}'
-    {
-      int i;
-      if((i = List_ISearchSeq(Problem_S.Expression, $3,fcmp_Expression_Name)) < 0)
-	vyyerror("Undefined function '%s' used in MHJacNL", $3);
-      WholeQuantity_S.Type = WQ_MHJACNL;
-      WholeQuantity_S.Case.MHJacNL.Index = i;
-      WholeQuantity_S.Case.MHJacNL.WholeQuantity = $6;
-      WholeQuantity_S.Case.MHJacNL.NbrPoints = (int)$10;
-      WholeQuantity_S.Case.MHJacNL.FreqOffSet = (int)$12;
-      List_Read(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1, &Current_WholeQuantity_L);
-      List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
-    }
-*/
   | tSolidAngle '[' Quantity_Def ']'
     { WholeQuantity_S.Type = WQ_SOLIDANGLE;
       WholeQuantity_S.Case.OperatorAndQuantity.Index = $3.Int2;
@@ -4009,16 +3993,17 @@ Operation :
       $$ = List_Create(6, 6, sizeof (struct Operation));
       Operation_S.Type = OPERATION_NONE;
       Operation_S.DefineSystemIndex = -1;
-      Operation_S.Rank = -1;
+      Operation_S.Flag = -1;
       List_Add(Operation_L, &Operation_S);
     }
 
   | Operation OperationTerm
     {
       if(((struct Operation*)
-	  List_Pointer(Operation_L, List_Nbr(Operation_L)-1))->Type !=  OPERATION_NONE)
+	  List_Pointer(Operation_L, List_Nbr(Operation_L)-1))->Type != OPERATION_NONE){
 	List_Add($$ = $1, (struct Operation*)
 		 List_Pointer(Operation_L, List_Nbr(Operation_L)-1));
+      }
     }
  ;
 
@@ -4130,7 +4115,7 @@ OperationTerm :
          Operation_P->Type == OPERATION_GENERATEJAC ||
          Operation_P->Type == OPERATION_GENERATESEPARATE)
 	Operation_P->Case.Generate.GroupIndex = -1;
-      Operation_P->Rank = $4;
+      Operation_P->Flag = $4;
     }
 
   | tSetTime '[' Expression ']' tEND
@@ -4151,28 +4136,24 @@ OperationTerm :
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_SETCOMMSELF;
-      Operation_P->Rank = -1;
     }
 
   | tSetCommWorld tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_SETCOMMWORLD;
-      Operation_P->Rank = -1;
     }
 
   | tBarrier tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_BARRIER;
-      Operation_P->Rank = -1;
     }
 
   | tBroadcastFields '[' ListOfFExpr ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_BROADCASTFIELDS;
-      Operation_P->Rank = -1;
       Operation_P->Case.BroadcastFields.FieldsToSkip = $3;
     }
 
@@ -4443,12 +4424,11 @@ OperationTerm :
       Operation_P->Case.EigenSolve.FilterExpressionIndex = -1;
     }
 
-  | tEvaluate '[' Expression CommaFExprOrNothing ']' tEND
+  | tEvaluate '[' Expression ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_EVALUATE;
-      Operation_P->Case.Evaluate.ExpressionIndex = (int)$3;
-      Operation_P->Rank = $4;
+      Operation_P->Case.Evaluate.ExpressionIndex = $3;
     }
 
   | tSelectCorrection '[' String__Index ',' FExpr ']' tEND
@@ -4733,7 +4713,7 @@ OperationTerm :
       Operation_P->Case.ChangeOfCoordinates.ExpressionIndex2 = $9;
     }
 
-  | tPostOperation '[' String__Index CommaFExprOrNothing ']' tEND
+  | tPostOperation '[' String__Index ']' tEND
     {
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
@@ -4741,7 +4721,6 @@ OperationTerm :
       Operation_P->Case.PostOperation.PostOperations =
 	List_Create(1,1,sizeof(char*));
       List_Add(Operation_P->Case.PostOperation.PostOperations, &$3);
-      Operation_P->Rank = $4;
     }
 
   | tSystemCommand '[' CharExpr ']' tEND
@@ -5087,7 +5066,7 @@ OperationTerm :
       Operation_P->Type = OPERATION_DEFORMEMESH;
     }
 
-  | GenerateGroupOperation  '[' String__Index ',' GroupRHS CommaFExprOrNothing ']'  tEND
+  | GenerateGroupOperation  '[' String__Index ',' GroupRHS ']'  tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       int i;
@@ -5098,10 +5077,9 @@ OperationTerm :
       Operation_P->DefineSystemIndex = i;
       Operation_P->Type = $1;
       Operation_P->Case.Generate.GroupIndex = Num_Group(&Group_S, (char*)"OP_GenerateGroup", $5);
-      Operation_P->Rank = $6;
     }
 
-  | tSolveAgainWithOther '[' String__Index ',' String__Index CommaFExprOrNothing ']'  tEND
+  | tSolveAgainWithOther '[' String__Index ',' String__Index ']'  tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_SOLVEAGAINWITHOTHER;
@@ -5116,7 +5094,6 @@ OperationTerm :
 	vyyerror("Unknown System: %s", $5);
       Free($5);
       Operation_P->Case.SolveAgainWithOther.DefineSystemIndex = i;
-      Operation_P->Rank = $6;
     }
 
   | tSetGlobalSolverOptions '[' CharExpr ']'  tEND

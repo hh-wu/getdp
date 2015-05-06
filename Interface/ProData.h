@@ -887,7 +887,7 @@ struct DefineSystem {
 #define VAL_COMPLEX  2
 
 struct Operation {
-  int  Type, DefineSystemIndex, Rank;
+  int  Type, DefineSystemIndex, Flag;
 
   union {
     struct {
