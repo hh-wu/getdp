@@ -54,7 +54,8 @@ Resolution {
 
 	  // init the sweeps (solve first domain of each group if SGS +
 	  // broadcast)
-	  nCuts = #ListOfCuts()-1; // number of groups of domains (FIXME: not tested in cyclic case)
+	  nCuts = #ListOfCuts()-1; // number of groups of domains (FIXME: not
+                                   // tested in cyclic case)
 	  For ii In{0:nCuts}
 	    For proc In {0:MPI_Size-1}
 	      idom = ListOfCuts(ii);
