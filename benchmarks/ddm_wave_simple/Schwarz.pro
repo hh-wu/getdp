@@ -28,6 +28,12 @@ Resolution {
 	Call SolveSubdomains;
 	Call UpdateGonSurfaces;
       }
+      {
+	If (PRECONDITIONER_SWEEP)
+	  SGS = 1;
+	  Call DoubleSweep;
+	EndIf
+      }
 
       //DeleteFile[ "/tmp/kspiter.txt" ];
       //Print[ {$KSPIts} , File "/tmp/kspiter.txt"];
