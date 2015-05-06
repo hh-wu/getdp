@@ -62,6 +62,16 @@ Macro SaveVolumeSolutions
   SetCommWorld;
 Return
 
+Macro EnablePhysicalSourcesOnly
+  Evaluate[1. #10]; Evaluate[0. #11]; Evaluate[0. #12];
+Return
+Macro EnableArtificialSourcesOnly
+  Evaluate[0. #10]; Evaluate[1. #11]; Evaluate[1. #12];
+Return
+Macro EnableAllSources
+  Evaluate[1. #10]; Evaluate[1. #11]; Evaluate[1. #12];
+Return
+
 Resolution {
   { Name DDM ;
     System {
@@ -102,7 +112,7 @@ Resolution {
       EndIf
 
       // compute rhs for Krylov solver on own cpu using physical sources only
-      Evaluate[1. #10]; Evaluate[0. #11]; Evaluate[0. #12]; //SOLVE_STEP = 0;
+      Call EnablePhysicalSourcesOnly;
       Call SolveSubdomains;
       Call UpdateGonSurfaces;
 
@@ -111,7 +121,7 @@ Resolution {
                             {ListOfField()}, {ListOfNeighborField()}, {}]
       {
         // solve each subproblem on own cpu using articifial sources only
-        Evaluate[0. #10]; Evaluate[1. #11]; Evaluate[1. #12]; //SOLVE_STEP = 1;
+	Call EnableArtificialSourcesOnly;
 	Call SolveSubdomains;
 	Call UpdateGonSurfaces;
       }
@@ -121,7 +131,7 @@ Resolution {
 
       // build final volume solution after convergence on own cpu, using both
       // physical and artificial sources
-      Evaluate[1. #10]; Evaluate[1. #11]; Evaluate[1. #12]; //SOLVE_STEP = 2;
+      Call EnableAllSources;
       Call SolveSubdomains;
       Call SaveVolumeSolutions;
     }
