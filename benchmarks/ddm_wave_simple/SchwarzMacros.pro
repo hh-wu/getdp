@@ -100,15 +100,13 @@ Macro PrintInfo
       Printf["Using PML transmission conditions"];
     EndIf
     Printf["Relative iterative solver tolerance = %g", TOL];
+    Printf["Using sweeping preconditioner: %g", PRECOND_SWEEP];
+    If (PRECOND_SWEEP)
+      Printf["SGS (additive) = %g", SGS];
+    EndIf
   EndIf
-
   // increase preallocation for Maxwell formulation
   If(ANALYSIS == 1)
     SetGlobalSolverOptions["-petsc_prealloc 200"];
-  EndIf
-
-  Printf["Using sweeping preconditioner: %g", PRECOND_SWEEP];
-  If (PRECOND_SWEEP)
-    Printf["SGS (additive) = %g", SGS];
   EndIf
 Return

@@ -24,7 +24,6 @@ Resolution {
         EndFor
       EndFor
     }
-
     Operation {
       // output parameters
       Call PrintInfo;
@@ -39,7 +38,7 @@ Resolution {
       IterativeLinearSolver["I-A", SOLVER, TOL, MAXIT, RESTART,
                             {ListOfField()}, {ListOfNeighborField()}, {}]
       {
-        // solve subproblems in parallel on own cpu using articifial sources
+        // solve subproblems in parallel on own cpu using artificial sources
         // only and update surface data
 	Call EnableArtificialSourcesOnly;
         Call SolveSubdomains;
