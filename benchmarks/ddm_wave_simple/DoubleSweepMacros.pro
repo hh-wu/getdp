@@ -1,6 +1,5 @@
 DefineConstant[ SGS ];
 
-// Double sweep preconditioner
 For ii In {0: #ListOfDom()-1}
   idom = ListOfDom(ii);
   DefineConstant[GenerateSurPcFlag~{idom}~{0} = 0, GenerateSurPcFlag~{idom}~{1} = 0];
@@ -26,7 +25,7 @@ Return
 
 Macro SolveAndStepForward
   SetCommSelf;
-  If( proc == MPI_Rank && ProcOwnsDomain(idom_f) ) // FORWARD
+  If( proc == MPI_Rank && ProcOwnsDomain(idom_f) )
     Evaluate[1. #11]; Evaluate[0. #12];
     Evaluate[0. #21]; Evaluate[SGS #22];
 
@@ -53,18 +52,18 @@ Return
 
 Macro SolveAndStepBackward
   SetCommSelf;
-  If( proc == MPI_Rank && ProcOwnsDomain(idom_b) ) // BACKWARD
+  If( proc == MPI_Rank && ProcOwnsDomain(idom_b) )
     Evaluate[0. #11]; Evaluate[1. #12];
     Evaluate[SGS #21]; Evaluate[0. #22];
 
     skipList = {(2*(idom_b + N_DOM)-1)%(2*N_DOM), (2*(idom_b + N_DOM)-2)%(2*N_DOM)}; // left
     BroadcastFields[skipList()];
 
-    //Compute u on Omega_i (fast way)
+    // compute u on Omega_i (fast way)
     GenerateRHSGroup[Vol~{idom_b}, Region[{Sigma~{idom_b}}]] ;
     SolveAgain[Vol~{idom_b}] ;
 
-    //Compute the new g_out (fast way)
+    // compute the new g_out (fast way)
     If( NbrRegions[Sigma~{idom_b}~{0}] )
       GenerateRHSGroup[SurPc~{idom_b}~{0}, Region[{Sigma~{idom_b}~{0},
             TrPmlSigma~{idom_b}~{0}}]] ;
@@ -92,10 +91,10 @@ Macro InitSweep
     If (SGS)
       Evaluate[SGS #11]; Evaluate[SGS #12];
       Evaluate[0. #21]; Evaluate[0. #22];
-      //Compute u on Omega_i (fast way)
+      // compute u on Omega_i (fast way)
       GenerateRHSGroup[Vol~{idom}, Region[{Sigma~{idom}}]] ;
       SolveAgain[Vol~{idom}] ;
-      //Compute the new g_out (fast way), on both sides
+      // compute the new g_out (fast way), on both sides
       For iSide In{0:1}
         If( NbrRegions[Sigma~{idom}~{iSide}] )
           GenerateRHSGroup[SurPc~{idom}~{iSide}, Region[{Sigma~{idom}~{iSide},

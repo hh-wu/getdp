@@ -27,12 +27,14 @@ Integration {
 Function{
   For idom In {0:N_DOM-1}
     If (idom % MPI_Size == MPI_Rank)
-      // g_in_c~{idom}~{0}[Sigma~{idom}~{0}] = (1 ? ComplexScalarField[XYZ[]]{4*N_DOM+2*idom-2} : 0.);
-      // g_in_c~{idom}~{1}[Sigma~{idom}~{1}] = (1 ? ComplexScalarField[XYZ[]]{4*N_DOM+2*idom+1} : 0.);
+      // g_in_c~{idom}~{0}[Sigma~{idom}~{0}] =
+      //   (1 ? ComplexScalarField[XYZ[]]{4*N_DOM+2*idom-2} : 0.);
+      // g_in_c~{idom}~{1}[Sigma~{idom}~{1}] =
+      //   (1 ? ComplexScalarField[XYZ[]]{4*N_DOM+2*idom+1} : 0.);
 
       // This variant converges slightly faster since it is even more
       // 'Gauss-Seidel oriented': it is not using a copy of the input data, but
-      // rather data updated by the other sweep after the sweeps have crossed ;
+      // rather data updated by the other sweep after the sweeps have crossed;
       // hence behaves differently when used sequentially since the sweeps are
       // performed sequentially, thus the backward sweep uses only updated data
       g_in_c~{idom}~{0}[Sigma~{idom}~{0}] = g_in~{idom}~{0}[];
@@ -42,10 +44,8 @@ Function{
 }
 
 Group{
-  gPml = 1.; // 1. if d_n computed on Pml side; -1. if Omega side -- best choice is unclear (more testing needed), sticking to 1. for now
-  If (TC_TYPE != 3)
-    gPml = 1.;
-  EndIf
+  // gPml = 1. if d_n u computed in Pml side; -1. in Omega side
+  gPml = 1.;
 
   For ii In {0: #ListOfDom()-1}
     idom = ListOfDom(ii);
@@ -58,14 +58,11 @@ Group{
       BndSigmaInf~{idom}~{iSide} = Region[BndSigma~{idom}~{iSide},
                                           Not {GammaN~{idom}, GammaD~{idom}}];
       DefineGroup [ Pml~{idom}~{iSide}, PmlD0~{idom}~{iSide}, PmlInf~{idom}~{iSide} ] ;
-
-      // choose on what side the d_n will be computed
       If (gPml == 1.)
 	TrPmlSigma~{idom}~{iSide} = ElementsOf[ Pml~{idom}~{iSide},
 						OnOneSideOf Sigma~{idom}~{iSide} ];
       EndIf
-      If (gPml != 1.)
-	gPml = -1.;
+      If (gPml == -1.)
         TrPmlSigma~{idom}~{iSide} = ElementsOf[ Omega~{idom},
 						OnOneSideOf Sigma~{idom}~{iSide} ];
       EndIf
@@ -179,26 +176,28 @@ Formulation {
         EndIf
 
         If(TC_TYPE == 2)
-          Galerkin { [  - I[] * k[] * OSRC_C0[]{NP_OSRC,theta_branch} * Dof{u~{idom}} , {u~{idom}} ] ;
+          Galerkin { [  - I[] * k[] * OSRC_C0[]{NP_OSRC,theta_branch} * Dof{u~{idom}} ,
+              {u~{idom}} ] ;
             In Sigma~{idom}; Jacobian JSur ; Integration I1 ; }
           For iSide In {0:1}
             For j In{1:NP_OSRC}
               Galerkin { [   I[] * k[] * OSRC_Aj[]{j,NP_OSRC,theta_branch} / keps[]^2 *
                   Dof{d phi~{j}~{idom}~{iSide}} , {d u~{idom}} ] ;
                 In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
-              Galerkin { [ - I[] * k[] * OSRC_Aj[]{j,NP_OSRC,theta_branch} / keps[]^2 *
-                  ( I[] * kInf[] * Dof{phi~{j}~{idom}~{iSide}}) , {u~{idom}} ] ; // experimental
-                In BndSigmaInf~{idom}~{iSide}; Jacobian JLin ; Integration I1 ; }
               Galerkin { [ - OSRC_Bj[]{j,NP_OSRC,theta_branch} / keps[]^2 *
                   Dof{d phi~{j}~{idom}~{iSide}} , {d phi~{j}~{idom}~{iSide}} ] ;
                 In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
-              Galerkin { [ OSRC_Bj[]{j,NP_OSRC,theta_branch} / keps[]^2 *
-                  ( I[] * kInf[] * Dof{phi~{j}~{idom}~{iSide}}) , {phi~{j}~{idom}~{iSide}} ] ; // experimental
-                In BndSigmaInf~{idom}~{iSide}; Jacobian JLin ; Integration I1 ; }
               Galerkin { [ Dof{phi~{j}~{idom}~{iSide}} , {phi~{j}~{idom}~{iSide}} ] ;
                 In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
               Galerkin { [  - Dof{u~{idom}} , {phi~{j}~{idom}~{iSide}} ] ;
                 In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
+              // experimental boundary terms:
+              Galerkin { [ - I[] * k[] * OSRC_Aj[]{j,NP_OSRC,theta_branch} / keps[]^2 *
+                  ( I[] * kInf[] * Dof{phi~{j}~{idom}~{iSide}}) , {u~{idom}} ] ;
+                In BndSigmaInf~{idom}~{iSide}; Jacobian JLin ; Integration I1 ; }
+              Galerkin { [ OSRC_Bj[]{j,NP_OSRC,theta_branch} / keps[]^2 *
+                  ( I[] * kInf[] * Dof{phi~{j}~{idom}~{iSide}}) , {phi~{j}~{idom}~{iSide}} ] ;
+                In BndSigmaInf~{idom}~{iSide}; Jacobian JLin ; Integration I1 ; }
             EndFor
           EndFor
         EndIf
@@ -225,7 +224,8 @@ Formulation {
           In GammaInf~{idom}; Jacobian JSur ; Integration I1 ; }
         Galerkin { [ alphaBT[] * Dof{u~{idom}} , {u~{idom}} ] ;
           In GammaInf~{idom}; Jacobian JSur ; Integration I1 ; }
-        // this assumes that GammaInf is closed; we need to add the boundary terms if it is open
+        // this assumes that GammaInf is closed; we need to add the boundary
+        // terms if it is open
         Galerkin { [ betaBT[] * Dof{d u~{idom}} , {d u~{idom}} ] ;
           In GammaInf~{idom}; Jacobian JSur ; Integration I1 ; }
       }
@@ -246,7 +246,8 @@ Formulation {
         Equation {
           Galerkin { [ Dof{g_out~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ] ;
             In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
-          Galerkin { [ ( (iSide ? #12 : #11) > 0. ? g_in~{idom}~{iSide}[] : 0) , {g_out~{idom}~{iSide}} ] ;
+          Galerkin { [ ( (iSide ? #12 : #11) > 0. ? g_in~{idom}~{iSide}[] : 0) ,
+              {g_out~{idom}~{iSide}} ] ;
             In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
 
           If(TC_TYPE == 0)
@@ -274,9 +275,11 @@ Formulation {
           EndIf
 
 	  If (TC_TYPE == 3)
-            Galerkin { [ -2 * Rotate[D[],0.,0.,-thetaList(idom)] *  {d u~{idom}}, {d g_out~{idom}~{iSide}}];
+            Galerkin { [ -2 * Rotate[D[],0.,0.,-thetaList(idom)] *  {d u~{idom}},
+                {d g_out~{idom}~{iSide}}];
               In TrPmlSigma~{idom}~{iSide}; Jacobian JVol; Integration I1;}
-            Galerkin { [ 2 * (kPml~{idom}~{iSide}[])^2*Kx[]*Ky[]*Kz[] * {u~{idom}}, {g_out~{idom}~{iSide}}];
+            Galerkin { [ 2 * (kPml~{idom}~{iSide}[])^2*Kx[]*Ky[]*Kz[] * {u~{idom}},
+                {g_out~{idom}~{iSide}}];
               In TrPmlSigma~{idom}~{iSide}; Jacobian JVol; Integration I1;}
           EndIf
         }
@@ -297,10 +300,11 @@ Formulation {
           Galerkin { [ gPml * Dof{g_out~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ] ;
             In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
 
-	  Galerkin{[ - ComplexScalarField[XYZ[]]{( (2*(idom+N_DOM)+(iSide-1))%(2*N_DOM) ) }, {g_out~{idom}~{iSide}}] ;
+	  Galerkin{[ - ComplexScalarField[XYZ[]]{( (2*(idom+N_DOM)+(iSide-1))%(2*N_DOM) ) },
+              {g_out~{idom}~{iSide}}] ;
 	    In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
 
-          // For SGS:
+          // for SGS
 	  Galerkin{[ (#(21+iSide) ? g_in_c~{idom}~{iSide}[] : 0.), {g_out~{idom}~{iSide}}] ;
 	    In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
 
@@ -329,9 +333,11 @@ Formulation {
           EndIf
 
 	  If (TC_TYPE == 3)
-            Galerkin { [ -2 * Rotate[D[],0.,0.,-thetaList(idom)] *  {d u~{idom}}, {d g_out~{idom}~{iSide}}];
+            Galerkin { [ -2 * Rotate[D[],0.,0.,-thetaList(idom)] *  {d u~{idom}},
+                {d g_out~{idom}~{iSide}}];
               In TrPmlSigma~{idom}~{iSide}; Jacobian JVol; Integration I1;}
-            Galerkin { [ 2 * (kPml~{idom}~{iSide}[])^2*Kx[]*Ky[]*Kz[] * {u~{idom}}, {g_out~{idom}~{iSide}}];
+            Galerkin { [ 2 * (kPml~{idom}~{iSide}[])^2*Kx[]*Ky[]*Kz[] * {u~{idom}},
+                {g_out~{idom}~{iSide}}];
               In TrPmlSigma~{idom}~{iSide}; Jacobian JVol; Integration I1;}
           EndIf
         }
@@ -347,8 +353,10 @@ PostProcessing {
     idom = ListOfDom(ii);
     { Name Vol~{idom} ; NameOfFormulation Vol~{idom} ;
       PostQuantity {
-        { Name u~{idom} ; Value { Local { [ {u~{idom}} ] ; In Omega~{idom}; Jacobian JVol ; } } }
-	{ Name u_tot~{idom} ; Value { Local { [ {u~{idom}} + uinc[]] ; In Omega~{idom}; Jacobian JVol ; } } }
+        { Name u~{idom} ; Value { Local { [ {u~{idom}} ] ;
+              In Omega~{idom}; Jacobian JVol ; } } }
+	{ Name u_tot~{idom} ; Value { Local { [ {u~{idom}} + uinc[]] ;
+              In Omega~{idom}; Jacobian JVol ; } } }
       }
     }
     For iSide In {0:1}
@@ -363,7 +371,7 @@ PostProcessing {
         // function space is actually used
         PostQuantity {
 	  { Name g~{idom}~{iSide} ; Value { Local { [ ( #(21+iSide) ? g_in~{idom}~{iSide}[] : 0. ) ] ;
-		In Sigma~{idom}~{iSide}; Jacobian JSur ; } } }
+                In Sigma~{idom}~{iSide}; Jacobian JSur ; } } }
 	}
       }
     EndFor
@@ -375,8 +383,10 @@ PostOperation {
     idom = ListOfDom(ii);
     { Name DDM~{idom} ; NameOfPostProcessing Vol~{idom};
       Operation {
-        Print[ u~{idom}, OnElementsOf Omega~{idom}, File StrCat(DIR, Sprintf("u_%g.pos",idom))] ;
-        //Print[ u_tot~{idom}, OnElementsOf Omega~{idom}, File StrCat(DIR, Sprintf("u_tot_%g.pos",idom))] ;
+        Print[ u~{idom}, OnElementsOf Omega~{idom},
+          File StrCat(DIR, Sprintf("u_%g.pos",idom))] ;
+        // Print[ u_tot~{idom}, OnElementsOf Omega~{idom},
+        //  File StrCat(DIR, Sprintf("u_tot_%g.pos",idom))] ;
       }
     }
     For iSide In {0:1}
@@ -384,7 +394,8 @@ PostOperation {
         Operation {
           Print[ g_out~{idom}~{iSide}, OnElementsOf Sigma~{idom}~{iSide},
             StoreInField (2*(idom+N_DOM)+(iSide-1))%(2*N_DOM)
-            /*, File Sprintf("gg%g_%g.pos",idom, iSide)*/] ;
+            // File Sprintf("gg%g_%g.pos",idom, iSide)
+          ] ;
         }
       }
       { Name g_copy~{idom}~{iSide} ; NameOfPostProcessing g_copy~{idom}~{iSide};

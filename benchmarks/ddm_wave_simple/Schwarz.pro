@@ -2,6 +2,7 @@
 DefineConstant[ PRECOND_SWEEP ];
 
 Include "SchwarzMacros.pro"; // macros for the resolution
+
 If (PRECOND_SWEEP)
   Include "DoubleSweepMacros.pro"; // macros for the sweeping preconditioners
 EndIf
@@ -26,7 +27,7 @@ Resolution {
 
     Operation {
       // output parameters
-      Call DdmInfo;
+      Call PrintInfo;
 
       // compute rhs for Krylov solver in parallel on own cpu using physical
       // sources only, and update surface data

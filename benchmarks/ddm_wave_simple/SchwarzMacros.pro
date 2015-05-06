@@ -81,7 +81,7 @@ Macro EnableAllSources
   Evaluate[0. #21]; Evaluate[0. #22];
 Return
 
-Macro DdmInfo
+Macro PrintInfo
   If (MPI_Rank == 0)
     Printf[StrCat["Starting ", StrChoice[ANALYSIS == 0, "Helmholtz", "Maxwell"],
         " DDM with %g subdomains / %g processes"], N_DOM, MPI_Size];

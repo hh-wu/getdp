@@ -318,19 +318,26 @@ PostProcessing {
     idom = ListOfDom(ii);
     { Name Vol~{idom} ; NameOfFormulation Vol~{idom} ;
       Quantity {
-        { Name e~{idom} ; Value { Local { [ {e~{idom}}] ; In Omega~{idom}; Jacobian JVol ; } } }
-        { Name e_tot~{idom} ; Value { Local { [ {e~{idom}} + einc[]] ; In Omega~{idom}; Jacobian JVol ; } } }
-        { Name norm_e~{idom} ; Value { Local { [ Norm[{e~{idom}}] ] ; In Omega~{idom}; Jacobian JVol ; } } }
-        { Name norm_e_tot~{idom} ; Value { Local { [ Norm[{e~{idom}} + einc[]]] ; In Omega~{idom}; Jacobian JVol ; } } }
-        { Name h~{idom} ; Value { Local { [ {h~{idom}} ] ; In GammaD~{idom}; Jacobian JSur ; } } }
-        { Name j~{idom} ; Value { Local { [ N[] /\ ({h~{idom}}) ] ; In GammaD~{idom}; Jacobian JSur ; } } }
+        { Name e~{idom} ; Value { Local { [ {e~{idom}}] ;
+              In Omega~{idom}; Jacobian JVol ; } } }
+        { Name e_tot~{idom} ; Value { Local { [ {e~{idom}} + einc[]] ;
+              In Omega~{idom}; Jacobian JVol ; } } }
+        { Name norm_e~{idom} ; Value { Local { [ Norm[{e~{idom}}] ] ;
+              In Omega~{idom}; Jacobian JVol ; } } }
+        { Name norm_e_tot~{idom} ; Value { Local { [ Norm[{e~{idom}} + einc[]]] ;
+              In Omega~{idom}; Jacobian JVol ; } } }
+        { Name h~{idom} ; Value { Local { [ {h~{idom}} ] ;
+              In GammaD~{idom}; Jacobian JSur ; } } }
+        { Name j~{idom} ; Value { Local { [ N[] /\ ({h~{idom}}) ] ;
+              In GammaD~{idom}; Jacobian JSur ; } } }
       }
     }
     For iSide In{0:1}
       { Name Sur~{idom}~{iSide} ; NameOfFormulation Sur~{idom}~{iSide} ;
         Quantity {
           { Name g_out~{idom}~{iSide} ;
-            Value { Local { [ {g_out~{idom}~{iSide}} ] ; In Sigma~{idom}~{iSide}; Jacobian JSur ; } } }
+            Value { Local { [ {g_out~{idom}~{iSide}} ] ;
+                In Sigma~{idom}~{iSide}; Jacobian JSur ; } } }
       }
     }
     EndFor
@@ -342,11 +349,16 @@ PostOperation {
     idom = ListOfDom(ii);
     { Name DDM~{idom} ; NameOfPostProcessing Vol~{idom};
       Operation{
-         Print[ e~{idom}, OnElementsOf Omega~{idom}, File StrCat(DIR, Sprintf("e_%g.pos",idom))] ;
-         Print[ e_tot~{idom}, OnElementsOf Omega~{idom}, File StrCat(DIR, Sprintf("e_tot_%g.pos",idom))] ;
-         Print[ norm_e_tot~{idom}, OnElementsOf Omega~{idom}, File StrCat(DIR, Sprintf("norm_e_tot_%g.pos",idom))] ;
-        // Print[ h~{idom}, OnElementsOf GammaD~{idom}, File StrCat(DIR, Sprintf("h_%g.pos",idom))] ;
-        // Print[ j~{idom}, OnElementsOf GammaD~{idom}, File StrCat(DIR, Sprintf("j_%g.pos", idom))] ;
+         Print[ e~{idom}, OnElementsOf Omega~{idom},
+           File StrCat(DIR, Sprintf("e_%g.pos",idom))] ;
+         Print[ e_tot~{idom}, OnElementsOf Omega~{idom},
+           File StrCat(DIR, Sprintf("e_tot_%g.pos",idom))] ;
+         Print[ norm_e_tot~{idom}, OnElementsOf Omega~{idom},
+           File StrCat(DIR, Sprintf("norm_e_tot_%g.pos",idom))] ;
+        // Print[ h~{idom}, OnElementsOf GammaD~{idom},
+        //   File StrCat(DIR, Sprintf("h_%g.pos",idom))] ;
+        // Print[ j~{idom}, OnElementsOf GammaD~{idom},
+        //   File StrCat(DIR, Sprintf("j_%g.pos", idom))] ;
       }
     }
     For iSide In{0:1}
@@ -354,7 +366,8 @@ PostOperation {
       Operation{
         Print[ g_out~{idom}~{iSide}, OnElementsOf Sigma~{idom}~{iSide},
           StoreInField (2*(idom+N_DOM)+(iSide-1))%(2*N_DOM)
-          /*, File Sprintf("gg%g_%g.pos",idom, jdom)*/] ;
+          //, File Sprintf("gg%g_%g.pos",idom, jdom)
+        ] ;
       }
     }
     EndFor
