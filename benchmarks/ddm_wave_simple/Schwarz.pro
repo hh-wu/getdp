@@ -1,5 +1,8 @@
-DefineConstant[GenerateVolFlag = 0];
-DefineConstant[GenerateSurFlag_0 = 0, GenerateSurFlag_1 = 0];
+For ii In {0: #ListOfDom()-1}
+  idom = ListOfDom(ii);
+  DefineConstant[GenerateVolFlag~{idom} = 0];
+  DefineConstant[GenerateSurFlag~{idom}~{0} = 0, GenerateSurFlag~{idom}~{1} = 0];
+EndFor
 
 Macro SolveSubdomains
   // work on own cpu
@@ -10,30 +13,15 @@ Macro SolveSubdomains
     // changes for Helmholtz)
     UpdateConstraint[Vol~{idom}, GammaD~{idom}, Assign];
     // solve the volume PDE on each subdomain
-    If(GenerateVolFlag == 0)
+    If(GenerateVolFlag~{idom} == 0)
       Generate[Vol~{idom}] ;
       Solve[Vol~{idom}] ;
-      GenerateVolFlag = 1 ;
+      GenerateVolFlag~{idom} = 1 ;
     EndIf
-    If(GenerateVolFlag)
+    If(GenerateVolFlag~{idom})
       GenerateRHSGroup[Vol~{idom}, Region[{Sigma~{idom}, TrOmegaGammaD~{idom}}] ] ;
       SolveAgain[Vol~{idom}] ;
     EndIf
-    // solve the surface PDE on the boundaries of each subdomain
-    For iSide In {0:1}
-      If(NbrRegions[Sigma~{idom}~{iSide}])
-        If(GenerateSurFlag~{iSide} == 0)
-          Generate[Sur~{idom}~{iSide}] ;
-          Solve[Sur~{idom}~{iSide}] ;
-          GenerateSurFlag~{iSide} = 1 ;
-        EndIf
-        If(GenerateSurFlag~{iSide})
-          GenerateRHSGroup[Sur~{idom}~{iSide},
-			   Region[{Sigma~{idom}~{iSide}, TrPmlSigma~{idom}~{iSide}}]] ;
-          SolveAgain[Sur~{idom}~{iSide}] ;
-        EndIf
-      EndIf
-    EndFor
   EndFor
   // go back to parallel mode
   SetCommWorld;
@@ -43,6 +31,24 @@ Macro UpdateGonSurfaces
   SetCommSelf;
   // compute g_in for next iteration, (must be
   // done after all resolutions)
+  For ii In {0: #ListOfDom()-1}
+    idom = ListOfDom(ii);
+    // solve the surface PDE on the boundaries of each subdomain
+    For iSide In {0:1}
+      If(NbrRegions[Sigma~{idom}~{iSide}])
+        If(GenerateSurFlag~{idom}~{iSide} == 0)
+          Generate[Sur~{idom}~{iSide}] ;
+          Solve[Sur~{idom}~{iSide}] ;
+          GenerateSurFlag~{idom}~{iSide} = 1 ;
+        EndIf
+        If(GenerateSurFlag~{idom}~{iSide})
+          GenerateRHSGroup[Sur~{idom}~{iSide},
+			   Region[{Sigma~{idom}~{iSide}, TrPmlSigma~{idom}~{iSide}}]] ;
+          SolveAgain[Sur~{idom}~{iSide}] ;
+        EndIf
+      EndIf
+    EndFor
+  EndFor
   For ii In {0: #ListOfDom()-1}
     idom = ListOfDom(ii);
       For iSide In {0:1}
