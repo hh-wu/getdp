@@ -353,8 +353,8 @@ PostOperation {
     { Name g_out~{idom}~{iSide} ; NameOfPostProcessing Sur~{idom}~{iSide};
       Operation{
         Print[ g_out~{idom}~{iSide}, OnElementsOf Sigma~{idom}~{iSide},
-               StoreInField (2*(idom+N_DOM)+(iSide-1))%(2*N_DOM)
-               /*, File Sprintf("gg%g_%g.pos",idom, jdom)*/] ;
+          StoreInField (2*(idom+N_DOM)+(iSide-1))%(2*N_DOM)
+          /*, File Sprintf("gg%g_%g.pos",idom, jdom)*/] ;
       }
     }
     EndFor

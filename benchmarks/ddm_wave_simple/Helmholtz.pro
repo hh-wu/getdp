@@ -29,15 +29,23 @@ Function{
     If (idom % MPI_Size == MPI_Rank)
       // g_in_c~{idom}~{0}[Sigma~{idom}~{0}] = (1 ? ComplexScalarField[XYZ[]]{4*N_DOM+2*idom-2} : 0.);
       // g_in_c~{idom}~{1}[Sigma~{idom}~{1}] = (1 ? ComplexScalarField[XYZ[]]{4*N_DOM+2*idom+1} : 0.);
-      g_in_c~{idom}~{0}[Sigma~{idom}~{0}] = g_in~{idom}~{0}[]; // xF -- this variant converges slightly faster since it is even more 'Gauss-Seidel oriented': it is not using a copy of 
-      g_in_c~{idom}~{1}[Sigma~{idom}~{1}] = g_in~{idom}~{1}[]; // the input data, but rather data updated by the other sweep after the sweeps have crossed ; hence behaves differently when used sequentially since the sweeps are performed sequentially, thus the backward sweep uses only updated data
+
+      // This variant converges slightly faster since it is even more
+      // 'Gauss-Seidel oriented': it is not using a copy of the input data, but
+      // rather data updated by the other sweep after the sweeps have crossed ;
+      // hence behaves differently when used sequentially since the sweeps are
+      // performed sequentially, thus the backward sweep uses only updated data
+      g_in_c~{idom}~{0}[Sigma~{idom}~{0}] = g_in~{idom}~{0}[];
+      g_in_c~{idom}~{1}[Sigma~{idom}~{1}] = g_in~{idom}~{1}[];
     EndIf
   EndFor
 }
 
 Group{
   gPml = 1.; // 1. if d_n computed on Pml side; -1. if Omega side -- best choice is unclear (more testing needed), sticking to 1. for now
-  If (TC_TYPE != 3) gPml = 1.; EndIf
+  If (TC_TYPE != 3)
+    gPml = 1.;
+  EndIf
 
   For ii In {0: #ListOfDom()-1}
     idom = ListOfDom(ii);
@@ -285,16 +293,16 @@ Formulation {
           EndIf
         }
         Equation {
-          Galerkin { [ gPml*Dof{g_out~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ] ; // reverse sign if d_n computed in Omega
+          // reverse sign if d_n computed in Omega
+          Galerkin { [ gPml * Dof{g_out~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ] ;
             In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
 
 	  Galerkin{[ - ComplexScalarField[XYZ[]]{( (2*(idom+N_DOM)+(iSide-1))%(2*N_DOM) ) }, {g_out~{idom}~{iSide}}] ;
 	    In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
 
-	  /////////////////////////////// SGS //////////////////////////////////////
+          // For SGS:
 	  Galerkin{[ (#(21+iSide) ? g_in_c~{idom}~{iSide}[] : 0.), {g_out~{idom}~{iSide}}] ;
 	    In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
-	  /////////////////////////////// SGS //////////////////////////////////////
 
           If(TC_TYPE == 0)
             Galerkin { [ 2 * I[] * kDtN[] * {u~{idom}} , {g_out~{idom}~{iSide}} ] ;
@@ -313,9 +321,6 @@ Formulation {
                   {u~{idom}} ) , {g_out~{idom}~{iSide}} ] ;
               In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
             For j In{1:NP_OSRC}
-              // replace the div-grad term by its value in terms of u and phi
-              // (eq. (59) of the paper); no integration by parts in this case,
-              // hence no boundary term
               Galerkin { [  2 * ( I[] * k[] * OSRC_Aj[]{j,NP_OSRC,theta_branch} /
                     OSRC_Bj[]{j,NP_OSRC,theta_branch} *
                     ({u~{idom}} - {phi~{j}~{idom}~{iSide}})) , {g_out~{idom}~{iSide}} ] ;
@@ -332,12 +337,10 @@ Formulation {
         }
       }
 
-
     EndFor
 
   EndFor // loop on idom
 }
-
 
 PostProcessing {
   For ii In {0: #ListOfDom()-1}
@@ -355,8 +358,10 @@ PostProcessing {
                 In Sigma~{idom}~{iSide}; Jacobian JSur ; } } }
 	}
       }
-      { Name g_copy~{idom}~{iSide} ; NameOfFormulation Sur~{idom}~{iSide} ; // name of formulation is used only for convenience; no data from that function space is actually used
-	PostQuantity {
+      { Name g_copy~{idom}~{iSide} ; NameOfFormulation Sur~{idom}~{iSide} ;
+        // name of formulation is used only for convenience; no data from that
+        // function space is actually used
+        PostQuantity {
 	  { Name g~{idom}~{iSide} ; Value { Local { [ ( #(21+iSide) ? g_in~{idom}~{iSide}[] : 0. ) ] ;
 		In Sigma~{idom}~{iSide}; Jacobian JSur ; } } }
 	}
@@ -376,17 +381,17 @@ PostOperation {
     }
     For iSide In {0:1}
       { Name g_out~{idom}~{iSide} ; NameOfPostProcessing Sur~{idom}~{iSide};
-	Operation {
+        Operation {
           Print[ g_out~{idom}~{iSide}, OnElementsOf Sigma~{idom}~{iSide},
-                 StoreInField (2*(idom+N_DOM)+(iSide-1))%(2*N_DOM)
-                 /*, File Sprintf("gg%g_%g.pos",idom, iSide)*/] ;
-	}
+            StoreInField (2*(idom+N_DOM)+(iSide-1))%(2*N_DOM)
+            /*, File Sprintf("gg%g_%g.pos",idom, iSide)*/] ;
+        }
       }
       { Name g_copy~{idom}~{iSide} ; NameOfPostProcessing g_copy~{idom}~{iSide};
-	Operation {
-	    Print[ g~{idom}~{iSide}, OnElementsOf Sigma~{idom}~{iSide},
-		   StoreInField 4*N_DOM+(2*(idom+N_DOM)-2+3*iSide)%(2*N_DOM)] ;
-	}
+        Operation {
+          Print[ g~{idom}~{iSide}, OnElementsOf Sigma~{idom}~{iSide},
+            StoreInField 4*N_DOM+(2*(idom+N_DOM)-2+3*iSide)%(2*N_DOM)] ;
+        }
       }
     EndFor
   EndFor
