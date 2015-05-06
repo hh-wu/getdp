@@ -169,8 +169,13 @@ Function{
   D[] = TensorDiag[Ky[]*Kz[]/Kx[], Kx[]*Kz[]/Ky[], Kx[]*Ky[]/Kz[]];
 }
 
-// Include "Helmholtz_gPml.pro" ;
-// Include "Helmholtz.pro" ;
+If (ANALYSIS == 0)
+  Include "Helmholtz.pro"; // formulations, function spaces and other definitions
+EndIf
+If (ANALYSIS == 1)
+  Include "Maxwell.pro"; // formulations, function spaces and other definitions
+EndIf
+
 Include "Schwarz.pro" ;
 
 DefineConstant[
