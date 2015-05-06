@@ -169,7 +169,8 @@ Function{
   D[] = TensorDiag[Ky[]*Kz[]/Kx[], Kx[]*Kz[]/Ky[], Kx[]*Ky[]/Kz[]];
 }
 
-Include "Helmholtz_gPml.pro" ;
+// Include "Helmholtz_gPml.pro" ;
+Include "Helmholtz.pro" ;
 
 DefineConstant[
   // default getdp parameters for onelab

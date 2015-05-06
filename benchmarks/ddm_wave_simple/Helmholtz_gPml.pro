@@ -133,7 +133,7 @@ FunctionSpace {
 Formulation {
   For ii In {0: #ListOfDom()-1}
     idom = ListOfDom(ii);
-    { Name DDM_Vol~{idom} ; Type FemEquation ;
+    { Name Vol~{idom} ; Type FemEquation ;
       Quantity {
         { Name u~{idom} ; Type Local ; NameOfSpace Hgrad_u~{idom}; }
         For iSide In {0:1}
@@ -356,7 +356,7 @@ Include "Schwarz_Ds.pro";
 PostProcessing {
   For ii In {0: #ListOfDom()-1}
     idom = ListOfDom(ii);
-    { Name DDM_Vol~{idom} ; NameOfFormulation DDM_Vol~{idom} ;
+    { Name Vol~{idom} ; NameOfFormulation Vol~{idom} ;
       PostQuantity {
         { Name u~{idom} ; Value { Local { [ {u~{idom}} ] ; In Omega~{idom}; Jacobian JVol ; } } }
 	{ Name u_tot~{idom} ; Value { Local { [ {u~{idom}} + uinc[]] ; In Omega~{idom}; Jacobian JVol ; } } }
@@ -367,12 +367,6 @@ PostProcessing {
 	PostQuantity {
           { Name g_out~{idom}~{iSide} ; Value { Local { [ {g_out~{idom}~{iSide}} ] ;
                 In Sigma~{idom}~{iSide}; Jacobian JSur ; } } }
-	}
-      }
-      { Name g_out_pc~{idom}~{iSide} ; NameOfFormulation Sur~{idom}~{iSide} ;
-	PostQuantity {
-	  { Name g_out~{idom}~{iSide} ; Value { Local { [ {g_out~{idom}~{iSide}} ] ;
-		In Sigma~{idom}~{iSide}; Jacobian JSur ; } } }
 	}
       }
       { Name g_copy~{idom}~{iSide} ; NameOfFormulation Sur~{idom}~{iSide} ; // name of formulation is used only for convenience; no data from that function space is actually used
@@ -388,7 +382,7 @@ PostProcessing {
 PostOperation {
   For ii In {0: #ListOfDom()-1}
     idom = ListOfDom(ii);
-    { Name DDM~{idom} ; NameOfPostProcessing DDM_Vol~{idom};
+    { Name DDM~{idom} ; NameOfPostProcessing Vol~{idom};
       Operation {
         Print[ u~{idom}, OnElementsOf Omega~{idom}, File StrCat(DIR, Sprintf("u_%g.pos",idom))] ;
         //Print[ u_tot~{idom}, OnElementsOf Omega~{idom}, File StrCat(DIR, Sprintf("u_tot_%g.pos",idom))] ;
@@ -400,12 +394,6 @@ PostOperation {
           Print[ g_out~{idom}~{iSide}, OnElementsOf Sigma~{idom}~{iSide},
                  StoreInField (2*(idom+N_DOM)+(iSide-1))%(2*N_DOM)
                  /*, File Sprintf("gg%g_%g.pos",idom, iSide)*/] ;
-	}
-      }
-      { Name g_out_pc~{idom}~{iSide} ; NameOfPostProcessing g_out_pc~{idom}~{iSide};
-	Operation {
-	  Print[ g_out~{idom}~{iSide}, OnElementsOf Sigma~{idom}~{iSide},
-		 StoreInField (2*(idom+N_DOM)+(iSide-1))%(2*N_DOM)] ;
 	}
       }
       { Name g_copy~{idom}~{iSide} ; NameOfPostProcessing g_copy~{idom}~{iSide};

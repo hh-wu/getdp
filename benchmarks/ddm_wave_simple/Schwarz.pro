@@ -1,49 +1,64 @@
-Macro solve
+DefineConstant[GenerateVolFlag = 0];
+DefineConstant[GenerateSurFlag_0 = 0, GenerateSurFlag_1 = 0];
+
+Macro SolveSubdomains
   // work on own cpu
   SetCommSelf;
   For ii In {0: #ListOfDom()-1}
     idom = ListOfDom(ii);
-    // update Dirichlet constraints (only actually necessary when #10, #11, #12
-    // change for Helmholtz)
+    // update Dirichlet constraints (only actually necessary when #10
+    // changes for Helmholtz)
     UpdateConstraint[Vol~{idom}, GammaD~{idom}, Assign];
     // solve the volume PDE on each subdomain
-    If(SOLVE_STEP == 0)
+    If(GenerateVolFlag == 0)
       Generate[Vol~{idom}] ;
       Solve[Vol~{idom}] ;
+      GenerateVolFlag = 1 ;
     EndIf
-    If(SOLVE_STEP == 1 || SOLVE_STEP == 2)
-      GenerateRHSGroup[Vol~{idom}, Sigma~{idom}] ;
+    If(GenerateVolFlag)
+      GenerateRHSGroup[Vol~{idom}, Region[{Sigma~{idom}, TrOmegaGammaD~{idom}}] ] ;
       SolveAgain[Vol~{idom}] ;
     EndIf
     // solve the surface PDE on the boundaries of each subdomain
     For iSide In {0:1}
       If(NbrRegions[Sigma~{idom}~{iSide}])
-        If(SOLVE_STEP == 0)
+        If(GenerateSurFlag~{iSide} == 0)
           Generate[Sur~{idom}~{iSide}] ;
           Solve[Sur~{idom}~{iSide}] ;
+          GenerateSurFlag~{iSide} = 1 ;
         EndIf
-        If(SOLVE_STEP == 1)
+        If(GenerateSurFlag~{iSide})
           GenerateRHSGroup[Sur~{idom}~{iSide},
-            Region[{Sigma~{idom}~{iSide}, TrPmlSigma~{idom}~{iSide}}]] ;
+			   Region[{Sigma~{idom}~{iSide}, TrPmlSigma~{idom}~{iSide}}]] ;
           SolveAgain[Sur~{idom}~{iSide}] ;
         EndIf
       EndIf
     EndFor
   EndFor
-  // compute g_in for next iteration, or compute the volume solution (must be
+  // go back to parallel mode
+  SetCommWorld;
+Return
+
+Macro UpdateGonSurfaces
+  SetCommSelf;
+  // compute g_in for next iteration, (must be
   // done after all resolutions)
   For ii In {0: #ListOfDom()-1}
     idom = ListOfDom(ii);
-    If(SOLVE_STEP == 0 || SOLVE_STEP == 1)
       For iSide In {0:1}
         PostOperation[g_out~{idom}~{iSide}] ;
       EndFor
-    EndIf
-    If(SOLVE_STEP == 2)
-      PostOperation[DDM~{idom}] ;
-    EndIf
   EndFor
-  // go back to parallel mode
+  SetCommWorld;
+Return
+
+Macro SaveVolumeSolutions
+  SetCommSelf;
+  // compute the volume solution
+  For ii In {0: #ListOfDom()-1}
+    idom = ListOfDom(ii);
+    PostOperation[DDM~{idom}] ;
+  EndFor
   SetCommWorld;
 Return
 
@@ -87,16 +102,18 @@ Resolution {
       EndIf
 
       // compute rhs for Krylov solver on own cpu using physical sources only
-      Evaluate[1. #10]; Evaluate[0. #11]; Evaluate[0. #12]; SOLVE_STEP = 0;
-      Call solve;
+      Evaluate[1. #10]; Evaluate[0. #11]; Evaluate[0. #12]; //SOLVE_STEP = 0;
+      Call SolveSubdomains;
+      Call UpdateGonSurfaces;
 
       // launch Krylov solver in parallel on all cpus
       IterativeLinearSolver["I-A", SOLVER, TOL, MAXIT, RESTART,
                             {ListOfField()}, {ListOfNeighborField()}, {}]
       {
         // solve each subproblem on own cpu using articifial sources only
-        Evaluate[0. #10]; Evaluate[1. #11]; Evaluate[1. #12]; SOLVE_STEP = 1;
-        Call solve;
+        Evaluate[0. #10]; Evaluate[1. #11]; Evaluate[1. #12]; //SOLVE_STEP = 1;
+	Call SolveSubdomains;
+	Call UpdateGonSurfaces;
       }
 
       //DeleteFile[ "/tmp/kspiter.txt" ];
@@ -104,8 +121,9 @@ Resolution {
 
       // build final volume solution after convergence on own cpu, using both
       // physical and artificial sources
-      Evaluate[1. #10]; Evaluate[1. #11]; Evaluate[1. #12]; SOLVE_STEP = 2;
-      Call solve;
+      Evaluate[1. #10]; Evaluate[1. #11]; Evaluate[1. #12]; //SOLVE_STEP = 2;
+      Call SolveSubdomains;
+      Call SaveVolumeSolutions;
     }
   }
 }

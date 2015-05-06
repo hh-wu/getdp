@@ -3,7 +3,7 @@ Resolution {
     System {
       For ii In {0: #ListOfDom()-1}
         idom = ListOfDom(ii);
-        { Name Vol~{idom} ; NameOfFormulation DDM_Vol~{idom} ;
+        { Name Vol~{idom} ; NameOfFormulation Vol~{idom} ;
           Type Complex; NameOfMesh Sprintf(StrCat[MSH_NAME, "%g.msh"],idom) ; }
         For iSide In {0:1}
           { Name Sur~{idom}~{iSide} ; NameOfFormulation Sur~{idom}~{iSide} ;
@@ -146,7 +146,7 @@ Resolution {
 									     TrPmlSigma~{idom}~{iSide}}]] ;
 		    SolveAgain[SurPc~{idom}~{iSide}] ;
 		  EndIf
-		  PostOperation[g_out_pc~{idom}~{iSide}] ;
+		  PostOperation[g_out~{idom}~{iSide}] ;
 		EndFor
 	      EndIf
 	      BroadcastFields[];
@@ -176,7 +176,7 @@ Resolution {
 									 TrPmlSigma~{idom_f}~{1}}]] ;
 		  SolveAgain[SurPc~{idom_f}~{1}] ;
 		EndIf
-		PostOperation[g_out_pc~{idom_f}~{1}] ;
+		PostOperation[g_out~{idom_f}~{1}] ;
 
 		skipList = {(2*(idom_f + N_DOM)-1)%(2*N_DOM), (2*(idom_f + N_DOM)-2)%(2*N_DOM)}; // left
 		BroadcastFields[skipList()];
@@ -197,7 +197,7 @@ Resolution {
 									 TrPmlSigma~{idom_b}~{0}}]] ;
 		  SolveAgain[SurPc~{idom_b}~{0}] ;
 		EndIf
-		PostOperation[g_out_pc~{idom_b}~{0}] ;
+		PostOperation[g_out~{idom_b}~{0}] ;
 
 		skipList = {2*idom_b, (2*(idom_b + N_DOM)+1)%(2*N_DOM)}; // right
 		BroadcastFields[skipList()];
