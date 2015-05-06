@@ -156,6 +156,10 @@ Macro DdmInfo
       If(ANALYSIS == 1)
         SetGlobalSolverOptions["-petsc_prealloc 200"];
       EndIf
+
+      Printf["Using sweeping preconditioner: %g", PRECOND_SWEEP];
+      If (PRECOND_SWEEP)  Printf["SGS (additive) = %g", SGS]; EndIf
+
 Return
 
 // Macro DdmSystemDefs

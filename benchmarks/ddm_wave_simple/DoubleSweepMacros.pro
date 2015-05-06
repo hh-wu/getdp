@@ -4,18 +4,14 @@ For ii In {0: #ListOfDom()-1}
   DefineConstant[GenerateSurPcFlag~{idom}~{0} = 0, GenerateSurPcFlag~{idom}~{1} = 0];
 EndFor
 
-Macro DoubleSweep
-
-	SetCommSelf;
-
-	// For the 'clean' version of SGS, we use a copy of the data; in practice (EXPERIMENTAL) it works best by not using it (cf. definition of g_in_c[])
+Macro CopyG
+	    SetCommSelf;
         For ii In {0:#ListOfDom()-1}
           idom = ListOfDom(ii);
           For iSide In {0:1}
-            // Take a copy of the input data for SGS
             If (SGS) PostOperation[g_copy~{idom}~{iSide}]; EndIf
 	    // do the Generate if necessary
-            If (GenerateSurPcFlag~{idom}~{iSide} == 0)
+            If (GenerateSurPcFlag~{idom}~{iSide} == 0) // FIXME: to this separately ?
 	      If( NbrRegions[Sigma~{idom}~{iSide}] )
 		Generate[SurPc~{idom}~{iSide}] ;
               EndIf
@@ -23,42 +19,13 @@ Macro DoubleSweep
             EndIf
 	  EndFor
 	EndFor
+	    SetCommWorld;
+Return
 
-	nCuts = #ListOfCuts()-1; // the number of groups of domains (FIXME: not tested in the cyclic case)
 
-	// init the sweeps (first domain if SGS + broadcast)
-	For ii In{0:nCuts}
-	  For proc In {0:MPI_Size-1}
-	    idom = ListOfCuts(ii);
-	    If( 1 && proc == MPI_Rank && ProcOwnsDomain(idom) )
-	      If (SGS)
-	        Evaluate[SGS #11]; Evaluate[SGS #12];
-	        Evaluate[0. #21]; Evaluate[0. #22];
-	        //Compute u on Omega_i (fast way)
-	        GenerateRHSGroup[Vol~{idom}, Region[{Sigma~{idom}}]] ;
-	        SolveAgain[Vol~{idom}] ;
-		//Compute the new g_out (fast way), on both sides
-		For iSide In{0:1}
-		  If( NbrRegions[Sigma~{idom}~{iSide}] )
-		    GenerateRHSGroup[SurPc~{idom}~{iSide}, Region[{Sigma~{idom}~{iSide},
-								   TrPmlSigma~{idom}~{iSide}}]] ;
-		    SolveAgain[SurPc~{idom}~{iSide}] ;
-		  EndIf
-		  PostOperation[g_out~{idom}~{iSide}] ;
-		EndFor
-	      EndIf
-	      BroadcastFields[];
-	    EndIf
-	  EndFor
-	EndFor
-
-	// Do the sweeps concurrently
-	For iCut In{0:nCuts-1}
-	  For ii In {ListOfCuts(iCut)+1: ListOfCuts(iCut+1)-1:1} // inner domains
-	    For proc In {0:MPI_Size-1}
-	      idom_f = ii%N_DOM; // index for the forward sweep
-	      idom_b = (ListOfCuts(iCut) + ListOfCuts(iCut+1) - ii)%N_DOM; // index for the backward sweep
-	      If( 1 && proc == MPI_Rank && ProcOwnsDomain(idom_f) ) // FORWARD
+Macro SolveAndStepForward
+	    SetCommSelf;
+	      If( proc == MPI_Rank && ProcOwnsDomain(idom_f) ) // FORWARD
 		Evaluate[1. #11]; Evaluate[0. #12];
 		Evaluate[0. #21]; Evaluate[SGS #22];
 
@@ -79,8 +46,13 @@ Macro DoubleSweep
 
 		skipList = {(2*(idom_f + N_DOM)-1)%(2*N_DOM), (2*(idom_f + N_DOM)-2)%(2*N_DOM)}; // left
 		BroadcastFields[skipList()];
-	      EndIf
-	      If( 1 && proc == MPI_Rank && ProcOwnsDomain(idom_b) ) // BACKWARD
+              EndIf
+	    SetCommWorld;
+Return
+
+Macro SolveAndStepBackward
+	    SetCommSelf;
+              If( proc == MPI_Rank && ProcOwnsDomain(idom_b) ) // BACKWARD
 		Evaluate[0. #11]; Evaluate[1. #12];
 		Evaluate[SGS #21]; Evaluate[0. #22];
 
@@ -101,20 +73,39 @@ Macro DoubleSweep
 
 		skipList = {2*idom_b, (2*(idom_b + N_DOM)+1)%(2*N_DOM)}; // right
 		BroadcastFields[skipList()];
-	      EndIf
-	    EndFor
-	  EndFor
-	EndFor
-
-	// Finalize communication (last/first domain of each segment)
-	For iCut In{0:nCuts}
-	  For proc In {0:MPI_Size-1}
-	    If ( 1 && proc == MPI_Rank && ProcOwnsDomain(ListOfCuts(iCut))) // first of cut
-	      BroadcastFields[];
-	    EndIf
-	  EndFor
-	EndFor
-
-	SetCommWorld;
-
+              EndIf
+	    SetCommWorld;
 Return
+
+Macro FinalizeSweep
+	    SetCommSelf;
+	      If ( proc == MPI_Rank && ProcOwnsDomain(ListOfCuts(iCut)) ) // first of cut
+	        BroadcastFields[];
+              EndIf
+	    SetCommWorld;
+Return
+
+Macro InitSweep
+	    SetCommSelf;
+	    If( proc == MPI_Rank && ProcOwnsDomain(idom) )
+	      If (SGS)
+	        Evaluate[SGS #11]; Evaluate[SGS #12];
+	        Evaluate[0. #21]; Evaluate[0. #22];
+	        //Compute u on Omega_i (fast way)
+	        GenerateRHSGroup[Vol~{idom}, Region[{Sigma~{idom}}]] ;
+	        SolveAgain[Vol~{idom}] ;
+		//Compute the new g_out (fast way), on both sides
+		For iSide In{0:1}
+		  If( NbrRegions[Sigma~{idom}~{iSide}] )
+		    GenerateRHSGroup[SurPc~{idom}~{iSide}, Region[{Sigma~{idom}~{iSide},
+								   TrPmlSigma~{idom}~{iSide}}]] ;
+		    SolveAgain[SurPc~{idom}~{iSide}] ;
+		  EndIf
+		  PostOperation[g_out~{idom}~{iSide}] ;
+		EndFor
+	      EndIf
+	      BroadcastFields[];
+            EndIf
+	    SetCommWorld;
+Return
+

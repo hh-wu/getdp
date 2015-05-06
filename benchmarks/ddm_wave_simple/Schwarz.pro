@@ -46,6 +46,7 @@ Resolution {
       // Exchange data with neighbours
       Call ExchangeG;
 
+
       // launch Krylov solver in parallel on all cpus
       IterativeLinearSolver["I-A", SOLVER, TOL, MAXIT, RESTART,
                             {ListOfField()}, {ListOfNeighborField()}, {}]
@@ -60,11 +61,11 @@ Resolution {
 	  Call SolveSubdomain;
 	EndFor
 
+	// Update the surface data (in parallel)
 	For ii In {0: #ListOfDom()-1}
 	  idom = ListOfDom(ii);
 	  // solve the surface PDE on the boundaries of each subdomain
 	  For iSide In {0:1}
-	    // solve the surface PDE on the boundaries of each subdomain
 	    Call ComputeGonSurface;
 	  EndFor
 	EndFor
@@ -74,12 +75,39 @@ Resolution {
       }
       {
 	If (PRECOND_SWEEP)
-	  SGS = 1;
-	  Printf["SGS (additive) = %g", SGS];
-	  Call DoubleSweep;
-	  // For iCut
-	  // For IDom
-	  
+
+	  // For the 'clean' version of SGS, we use a copy of the data;
+	  // in practice (EXPERIMENTAL) it works best by not using it (cf. definition of g_in_c[])
+	  Call CopyG;
+
+	  // init the sweeps (solve first domain of each group if SGS + broadcast)
+	  nCuts = #ListOfCuts()-1; // the number of groups of domains (FIXME: not tested in the cyclic case)
+	  For ii In{0:nCuts}
+	    For proc In {0:MPI_Size-1}
+	      idom = ListOfCuts(ii);
+	      Call InitSweep;
+	    EndFor
+	  EndFor
+
+	  // Do the sweeps concurrently
+	  For iCut In{0:nCuts-1}
+	    For ii In {ListOfCuts(iCut)+1: ListOfCuts(iCut+1)-1:1} // inner domains
+	      For proc In {0:MPI_Size-1}
+	        idom_f = ii%N_DOM; // index for the forward sweep
+	        idom_b = (ListOfCuts(iCut) + ListOfCuts(iCut+1) - ii)%N_DOM; // index for the backward sweep
+
+		Call SolveAndStepForward; Call SolveAndStepBackward; // these two calls are independent and work in parallel
+
+	      EndFor
+	    EndFor
+	  EndFor
+
+	  // Finalize communication (last/first domain of each segment)
+	  For iCut In{0:nCuts}
+	    For proc In {0:MPI_Size-1}
+	      Call FinalizeSweep;
+	    EndFor
+	  EndFor
 
 	EndIf
       }

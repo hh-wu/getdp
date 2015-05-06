@@ -16,7 +16,8 @@ DefineConstant[ // allows to set these from outside
   MAXIT = 100,
   RESTART = MAXIT,
   // sweeping preconditioner
-  PRECOND_SWEEP = 1
+  PRECOND_SWEEP = 1,
+  SGS = 1
 ];
 
 Function {
