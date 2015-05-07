@@ -291,9 +291,10 @@ struct doubleXstring{
 %token        tStoreMaxZinRegister tStoreMinInRegister tStoreMinXinRegister
 %token        tStoreMinYinRegister tStoreMinZinRegister
 %token        tLastTimeStepOnly tAppendTimeStepToFileName tTimeValue tTimeImagValue
+%token        tAppendExpressionToFileName tAppendExpressionFormat
 %token        tOverrideTimeStepValue tNoMesh tSendToServer tColor tStr
 %token        tDate tFixRelativePath
-%token        tNewCoordinates tAppendToExistingFile
+%token        tNewCoordinates tAppendToExistingFile tAppendStringToFileName
 
 /* ------------------------------------------------------------------ */
 /* Operators (with ascending priority): cf. C language                */
@@ -6087,6 +6088,9 @@ PostSubOperations :
       PostSubOperation_S.StoreInMeshBasedField = -1;
       PostSubOperation_S.LastTimeStepOnly = 0;
       PostSubOperation_S.AppendTimeStepToFileName = 0;
+      PostSubOperation_S.AppendExpressionToFileName = -1;
+      PostSubOperation_S.AppendExpressionFormat = NULL;
+      PostSubOperation_S.AppendStringToFileName = NULL;
       PostSubOperation_S.OverrideTimeStepValue = -1;
       PostSubOperation_S.NoMesh = 0;
       PostSubOperation_S.SendToServer = NULL;
@@ -6740,6 +6744,18 @@ PrintOption :
   | ',' tAppendTimeStepToFileName FExpr
     {
       PostSubOperation_S.AppendTimeStepToFileName = $3;
+    }
+  | ',' tAppendExpressionToFileName Expression
+    {
+      PostSubOperation_S.AppendExpressionToFileName = $3;
+    }
+  | ',' tAppendExpressionFormat CharExpr
+    {
+      PostSubOperation_S.AppendExpressionFormat = $3;
+    }
+  | ',' tAppendStringToFileName CharExpr
+    {
+      PostSubOperation_S.AppendStringToFileName = $3;
     }
   | ',' tOverrideTimeStepValue FExpr
     {

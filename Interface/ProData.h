@@ -1316,6 +1316,8 @@ struct PostSubOperation {
   char  *NewCoordinatesFile;
   int    ValueIndex;
   int    ChangeOfCoordinates[3], LastTimeStepOnly, AppendTimeStepToFileName;
+  int    AppendExpressionToFileName;
+  char  *AppendStringToFileName, *AppendExpressionFormat;
   int    OverrideTimeStepValue, NoMesh;
   char  *StoreInVariable;
   int    StoreInRegister, StoreMinInRegister, StoreMinXinRegister;

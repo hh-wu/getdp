@@ -4970,10 +4970,26 @@ Outputs results for the specified imaginary time value(s) only.
 Outputs results for the last time step only (useful when calling a
 @code{PostOperation} directly in a @code{Resolution}, for example).
 
+@item AppendExpressionToFileName
+@var{expression}
+
+Evaluate the given @var{expression} at run-time and append it to the filename.
+
+@item AppendExpressionFormat
+@var{expression-char}
+
+C-style format string for printing the @var{expression} provided in
+@code{AppendExpressionToFileName}. Default is @code{"%.16g"}.
+
 @item AppendTimeStepToFileName
 < @var{expression-cst} >
 
 Appends the time step to the output file; only makes sense with @code{LastTimeStepOnly}.
+
+@item AppendStringToFileName
+@var{expression-char}
+
+Append the given @var{expression-char} to the filename.
 
 @item OverrideTimeStepValue 
 @var{expression-cst}

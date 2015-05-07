@@ -9,6 +9,7 @@
 #include "DofData.h"
 #include "GeoData.h"
 #include "Get_DofOfElement.h"
+#include "Cal_Quantity.h"
 #include "Pos_Print.h"
 #include "Pos_Format.h"
 #include "ListUtils.h"
@@ -32,14 +33,11 @@
 
 extern struct Problem Problem_S ;
 extern struct CurrentData Current ;
-
 extern int    Flag_BIN, Flag_GMSH_VERSION ;
-
 extern char   *Name_Path ;
 
 FILE *PostStream = stdout;
-
-char FileNameDimi[256]; //Peter, Dimitri: use public formulation to change file mode in format_unv.cpp
+char PostFileName[256];
 
 /* ------------------------------------------------------------------------ */
 /*  P o s _ F e m F o r m u l a t i o n                                     */
@@ -66,7 +64,6 @@ void  Pos_FemFormulation(struct Formulation       *Formulation_P,
 				  sizeof (struct QuantityStorage) ) ;
 
   for(i = 0 ; i < List_Nbr(Formulation_P->DefineQuantity) ; i++) {
-
     QuantityStorage.DefineQuantity = DefineQuantity_P0 + i ;
 
     if(QuantityStorage.DefineQuantity->Type == INTEGRALQUANTITY &&
@@ -363,7 +360,6 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
   struct PostQuantity   *NCPQ_P = NULL, *CPQ_P = NULL ;
   double                 Pulsation ;
   int                    i, Order = 0 ;
-  char                   FileName[256], AddExt[100] ;
 
   if(PostSubOperation_P->Type == POP_MERGE){
     Message::SendMergeFileRequest(PostSubOperation_P->FileOut);
@@ -373,36 +369,49 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
   if(PostSubOperation_P->FileOut){
     if(PostSubOperation_P->FileOut[0] == '/' ||
        PostSubOperation_P->FileOut[0] == '\\'){
-      strcpy(FileName, PostSubOperation_P->FileOut);
+      strcpy(PostFileName, PostSubOperation_P->FileOut);
     }
     else{
-      strcpy(FileName, Name_Path);
-      strcat(FileName, PostSubOperation_P->FileOut);
+      strcpy(PostFileName, Name_Path);
+      strcat(PostFileName, PostSubOperation_P->FileOut);
+    }
+
+    if(PostSubOperation_P->AppendExpressionToFileName >= 0) {
+      struct Value Value ;
+      Get_ValueOfExpressionByIndex(PostSubOperation_P->AppendExpressionToFileName,
+                                   NULL, 0., 0., 0., &Value) ;
+      char AddExt[100];
+      if(PostSubOperation_P->AppendExpressionFormat)
+        sprintf(AddExt, PostSubOperation_P->AppendExpressionFormat, Value.Val[0]);
+      else
+        sprintf(AddExt, "%.16g", Value.Val[0]);
+      strcat(PostFileName, AddExt);
     }
 
     if(PostSubOperation_P->AppendTimeStepToFileName) {
-      /* We should implement something more general, like strings with
-	 tags (e.g., "file_%TimeStep.pos") */
+      char AddExt[100] ;
       sprintf(AddExt, "_%03d", (PostSubOperation_P->OverrideTimeStepValue >= 0) ?
               PostSubOperation_P->OverrideTimeStepValue : (int)Current.TimeStep) ;
-      strcat(FileName, AddExt);
+      strcat(PostFileName, AddExt);
     }
 
-    strcpy(FileNameDimi, FileName); //Peter,Dimitri: get Name for Unv File
+    if(PostSubOperation_P->AppendStringToFileName) {
+      strcat(PostFileName, PostSubOperation_P->AppendStringToFileName);
+    }
 
     if(!PostSubOperation_P->CatFile) {
-      if((PostStream = FOpen(FileName, Flag_BIN ? "wb" : "w")))
-	Message::Direct(4, "          > '%s'", FileName) ;
+      if((PostStream = FOpen(PostFileName, Flag_BIN ? "wb" : "w")))
+	Message::Direct(4, "          > '%s'", PostFileName) ;
       else{
-	Message::Error("Unable to open file '%s'", FileName) ;
+	Message::Error("Unable to open file '%s'", PostFileName) ;
         PostStream = stdout ;
       }
     }
     else {
-      if((PostStream = FOpen(FileName, Flag_BIN ? "ab" : "a")))
-	Message::Direct(4, "          >> '%s'", FileName) ;
+      if((PostStream = FOpen(PostFileName, Flag_BIN ? "ab" : "a")))
+	Message::Direct(4, "          >> '%s'", PostFileName) ;
       else{
-	Message::Error("Unable to open file '%s'", FileName) ;
+	Message::Error("Unable to open file '%s'", PostFileName) ;
         PostStream = stdout ;
       }
     }
@@ -496,11 +505,11 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
       if(PostSubOperation_P->Format == FORMAT_GMSH_PARSED ||
          PostSubOperation_P->Format == FORMAT_GMSH){
         // send merge request
-        Message::SendMergeFileRequest(FileName);
+        Message::SendMergeFileRequest(PostFileName);
       }
       // Add link to file
       Message::AddOnelabStringChoice(Message::GetOnelabClientName() + "/9Output files",
-                                     "file", FileName);
+                                     "file", PostFileName);
     }
 
     /* NewCoordinates print option: write a new mesh */
@@ -508,7 +517,7 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
 
 #if defined(HAVE_GMSH)
 
-      GmshMergeFile(std::string(FileName));
+      GmshMergeFile(std::string(PostFileName));
       int iview = PView::list.size() - 1;
       PViewData *data = PView::list[iview]->getData();
 
@@ -524,7 +533,7 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
           std::vector<double> xyz(3);
           if(!data->searchVector(v->x(), v->y(), v->z(), &xyz[0]))
             Message::Error("Did not find new coordinate Vector at point (%g,%g,%g) "
-                           "from file %s", v->x(), v->y(), v->z(), FileName);
+                           "from file %s", v->x(), v->y(), v->z(), PostFileName);
           newcoords[v] = xyz;
         }
       }

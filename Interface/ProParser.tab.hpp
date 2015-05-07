@@ -346,28 +346,31 @@ extern int getdp_yydebug;
      tAppendTimeStepToFileName = 555,
      tTimeValue = 556,
      tTimeImagValue = 557,
-     tOverrideTimeStepValue = 558,
-     tNoMesh = 559,
-     tSendToServer = 560,
-     tColor = 561,
-     tStr = 562,
-     tDate = 563,
-     tFixRelativePath = 564,
-     tNewCoordinates = 565,
-     tAppendToExistingFile = 566,
-     tDEF = 567,
-     tOR = 568,
-     tAND = 569,
-     tAPPROXEQUAL = 570,
-     tNOTEQUAL = 571,
-     tEQUAL = 572,
-     tGREATERGREATER = 573,
-     tLESSLESS = 574,
-     tGREATEROREQUAL = 575,
-     tLESSOREQUAL = 576,
-     tCROSSPRODUCT = 577,
-     UNARYPREC = 578,
-     tSHOW = 579
+     tAppendExpressionToFileName = 558,
+     tAppendExpressionFormat = 559,
+     tOverrideTimeStepValue = 560,
+     tNoMesh = 561,
+     tSendToServer = 562,
+     tColor = 563,
+     tStr = 564,
+     tDate = 565,
+     tFixRelativePath = 566,
+     tNewCoordinates = 567,
+     tAppendToExistingFile = 568,
+     tAppendStringToFileName = 569,
+     tDEF = 570,
+     tOR = 571,
+     tAND = 572,
+     tAPPROXEQUAL = 573,
+     tNOTEQUAL = 574,
+     tEQUAL = 575,
+     tGREATERGREATER = 576,
+     tLESSLESS = 577,
+     tGREATEROREQUAL = 578,
+     tLESSOREQUAL = 579,
+     tCROSSPRODUCT = 580,
+     UNARYPREC = 581,
+     tSHOW = 582
    };
 #endif
 
@@ -386,7 +389,7 @@ typedef union YYSTYPE
 
 
 /* Line 2053 of yacc.c  */
-#line 390 "ProParser.tab.hpp"
+#line 393 "ProParser.tab.hpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
