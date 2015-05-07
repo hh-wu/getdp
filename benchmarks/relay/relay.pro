@@ -16,23 +16,23 @@ DefineConstant[
 
 
 Group {
-  MovingIron     = #MOVINGIRON ;
-  SkinMovingIron = #SKINMOVINGIRON ;
+  MovingIron     = Region[MOVINGIRON] ;
+  SkinMovingIron = Region[SKINMOVINGIRON] ;
 
-  Yoke        = #YOKE ;
-  SkinYokeOut = #SKINYOKEOUT ;
+  Yoke        = Region[YOKE] ;
+  SkinYokeOut = Region[SKINYOKEOUT] ;
 
-  MagnetRight = #MAGNETRIGHT ;
-  MagnetLeft  = #MAGNETLEFT ;
+  MagnetRight = Region[MAGNETRIGHT] ;
+  MagnetLeft  = Region[MAGNETLEFT] ;
 
-  CoilR_up   = #COILR_UP ;
-  CoilR_down = #COILR_DOWN  ;
-  CoilL_up   = #COILL_UP ;
-  CoilL_down = #COILL_DOWN ;
+  CoilR_up   = Region[COILR_UP] ;
+  CoilR_down = Region[COILR_DOWN]  ;
+  CoilL_up   = Region[COILL_UP] ;
+  CoilL_down = Region[COILL_DOWN] ;
 
-  AirLayer = #AIRLAYER ;
-  AirGapOut = #AIRGAPOUT ;
-  Dummy = #DUMMY;
+  AirLayer = Region[AIRLAYER] ;
+  AirGapOut = Region[AIRGAPOUT] ;
+  Dummy = Region[DUMMY];
 
 
   Magnets = Region[{MagnetLeft, MagnetRight}] ;
@@ -53,7 +53,7 @@ Group {
 
   DomainCC = Region[{ Coils, AirGap, Magnets} ];
 
-  DomainKin = #1234 ; // Dummy region number for mechanical equation
+  DomainKin = Region[1234] ; // Dummy region number for mechanical equation
 
   If(!Flag_NL)
     DomainNL = Region[{}];
@@ -73,10 +73,10 @@ Function {
   DefineFunction[ js, dhdb_NL ];
 
   mu0 = 4.e-7 * Pi ; mur = 1000 ;
-  nu[#{Coils, Magnets, AirGap}]  = 1. / mu0 ;
+  nu[Region[{Coils, Magnets, AirGap}]]  = 1. / mu0 ;
 
   If(!Flag_NL)
-    nu[ #{MovingIron, Yoke} ]  = 1 / (mur * mu0) ;
+    nu[ Region[{MovingIron, Yoke}] ]  = 1 / (mur * mu0) ;
   EndIf
   If(Flag_NL)
     nu [ DomainNL ] = nu_26[$1] ;
@@ -89,12 +89,12 @@ Function {
 
   sigma_iron = 2e6 ;
   sigma_lam = 10e6 *.5e-3*.5e-3/12. ; // laminated iron
-  sigma[#{MovingIron,Yoke}] = 0; //sigma_lam ;
+  sigma[Region[{MovingIron,Yoke}]] = 0; //sigma_lam ;
 
   NbWires[] = nwires;
   SurfCoil[] = SurfaceArea[]{COILR_UP}; // All of them have the same surface
-  Idir[#{CoilR_down, CoilR_up}] =  1.;
-  Idir[#{CoilL_down, CoilL_up}] = -1.;
+  Idir[Region[{CoilR_down, CoilR_up}]] =  1.;
+  Idir[Region[{CoilL_down, CoilL_up}]] = -1.;
 
   // Permanent magnets
   Br = .8*1.06;
@@ -106,22 +106,22 @@ Function {
     velocityY = { 0., Name "Output/3Vertical velocity", Visible (Flag_AnalysisType == 1)}
   ];
 
-  hc[#MagnetLeft ] = Vector[+Hc,0,0] ;
-  hc[#MagnetRight] = Vector[-Hc,0,0] ;
+  hc[MagnetLeft ] = Vector[+Hc,0,0] ;
+  hc[MagnetRight] = Vector[-Hc,0,0] ;
 
   // Artificial control of the geometrical limits for avoiding crashes...
   velocityY = (displacementY >=-15e-3 && displacementY <= 0) ? velocityY :0.;
 
   time0 = time_min + step * delta_time;
 
-  dXYZ[#{DomainC_NonMoving, DomainB}] = Vector[0., 0., 0.];
-  dXYZ[#{DomainC_Moving}] = Vector[0, DefineNumber[0, Name "DeltaU", Visible 0], 0];
+  dXYZ[Region[{DomainC_NonMoving, DomainB}]] = Vector[0., 0., 0.];
+  dXYZ[DomainC_Moving] = Vector[0, DefineNumber[0, Name "DeltaU", Visible 0], 0];
   a_previousstep[] = Vector[0, 0, Field[XYZ[]-dXYZ[]]] ;
 
   // Normal for computing Force with Maxwell stress tensor
   p_current = p_init + displacementY ; // Current position
 
-  N[#{AirLayer}] = 1/d *
+  N[AirLayer] = 1/d *
     ( (Y[] >= h1+p_current) ? Vector[ 0.,  1.,0.] :
       (Y[] <=-h1+p_current) ? Vector[ 0., -1.,0.] :
       (X[] >= e1)   ? Vector[ 1.,  0.,0.] : Vector[ -1., 0.,0.] ) ;
@@ -144,8 +144,8 @@ Function {
   Fspring[] = (p_current < p1) ? (f0 + (f1-f0)/(p1-p0)*(p_current-p0)):
               (p_current < p2) ? 0.:
                          (f2 + (f3-f2)/(p3-p2)*(p_current-p2));
-  Fmag[] = CompY[#55] ; // Computed in postprocessing
-  Fmag_vw[] = CompY[#56] ; // Computed in postprocessing
+  Fmag[] = CompY[$Fmag] ; // computed in postprocessing
+  Fmag_vw[] = CompY[$Fmag_vw] ; // computed in postprocessing
 }
 
 Jacobian {
@@ -163,7 +163,6 @@ Integration {
 }
 
 Include "ElectricCircuit.pro"
-
 
 Constraint {
   { Name MVP_2D ;
@@ -422,8 +421,6 @@ PostProcessing {
          Integral { Type Global ; [ 0.5 * nu[] * VirtualWork [{d a}] * AxialLength ];
            In ElementsOf[DomainCC, OnOneSideOf SkinDomainC_Moving];
            Jacobian Vol ; Integration I1 ; } } }
-     { Name Fy ; Value { Term { Type Global; [  CompY[#55] ] ;
-           In Domain ; Jacobian Vol ; } } } // Magnetic force stored in register #55
 
      If(Flag_Cir)
        { Name Uc ; Value {
@@ -466,9 +463,9 @@ PostOperation MapMag UsingPost MagDyn_a_2D {
   Print[ az, OnElementsOf Domain, File StrCat["tmp", ExtGmsh], Format Gmsh,
     OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
   Print[ F[AirLayer], OnGlobal, Format Table, File "Fmag.dat",
-    Store 55, LastTimeStepOnly] ;
+    StoreInVariable Fmag, LastTimeStepOnly] ;
   Print[ F_vw, OnRegion NodesOf[SkinDomainC_Moving], Format RegionValue,
-    File StrCat["Fvw", ExtGnuplot], Store 56, LastTimeStepOnly] ;
+    File StrCat["Fvw", ExtGnuplot], StoreInVariable Fmag_vw, LastTimeStepOnly] ;
 }
 
 PostOperation MapMec UsingPost Mechanical {

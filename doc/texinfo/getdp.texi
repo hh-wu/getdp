@@ -5070,11 +5070,18 @@ solution (@var{$Val0}, @var{$Val1}, etc.).
 Decomposes all output elements in simplices (points, lines, triangles or
 tetrahedra).
 
+@item StoreInVariable
+@code{@var{expression-char}}
+
+Stores the result of a point-wise evaluation or an @code{OnRegion}
+post-processing operation in the run-time variable
+$code{$}@var{expression-char}.
+
 @item StoreInRegister
 @code{@var{expression-cst}}
 
-Stores the result of an @code{OnRegion} post-processing operation in the
-register @var{expression-cst}.
+Stores the result of point-wise evaluation or an @code{OnRegion}
+post-processing operation in the register @var{expression-cst}.
 
 @item StoreMinInRegister
 @item StoreMaxInRegister

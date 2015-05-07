@@ -77,24 +77,24 @@ Group {
     DomainNL = Region[ {Core} ];
     DomainL  = Region[ {Domain,-DomainNL} ];
   EndIf
-  DomainDummy = #12345 ; // Dummy region number for postpro with functions
+  DomainDummy = Region[ 12345 ] ; // Dummy region number for postpro with functions
 
   Surf_FixedMVP = Region[{ Surf_bn0, Surf_Inf }];
 
 }
 
 Function {
-  nu [#{Air, AirInf, Inds}]  = 1./mu0 ;
+  nu [ Region[{Air, AirInf, Inds}] ]  = 1./mu0 ;
 
   If(!Flag_NL)
-    nu [#{Core}]  = 1/(mur_fe*mu0) ;
+    nu [Core]  = 1/(mur_fe*mu0) ;
   EndIf
   If(Flag_NL)
     nu [ DomainNL ] = nu_EIcore[$1] ;
     dhdb_NL [ DomainNL ] = dhdb_EIcore_NL[$1];
   EndIf
 
-  sigma[#{Inds}] = sigma_coil ;
+  sigma[Inds] = sigma_coil ;
   sigma[Core] = sigma_core ;
   rho[] = 1/sigma[] ;
 }
@@ -408,8 +408,8 @@ PostProcessing {
       { Name Inductance~{k} ; Value { Term { Type Global; [ Inductance~{k}[] ] ; In DomainDummy ; } } }
     EndFor
 
-    { Name Inductance_from_Flux ; Value { Term { Type Global; [ #11*1e3/II ] ; In DomainDummy ; } } } // Flux stored in register #11
-    { Name Inductance_from_MagEnergy ; Value { Term { Type Global; [ 2*#22*1e3/(II*II) ] ; In DomainDummy ; } } } // MagEnergy stored in register #22
+    { Name Inductance_from_Flux ; Value { Term { Type Global; [ $Flux * 1e3/II ] ; In DomainDummy ; } } }
+    { Name Inductance_from_MagEnergy ; Value { Term { Type Global; [ 2 * $MagEnergy * 1e3/(II*II) ] ; In DomainDummy ; } } }
 
   }
 }
@@ -441,7 +441,7 @@ PostProcessing {
      SendToServer StrCat[po,"30U [V]"], Color "LightYellow" ];
 
    Print[ Flux[DomainB], OnGlobal, Format TimeTable,
-     File > StrCat[Dir,"Flux",ExtGnuplot], LastTimeStepOnly, Store 11,
+     File > StrCat[Dir,"Flux",ExtGnuplot], LastTimeStepOnly, StoreInVariable Flux,
      SendToServer StrCat[po,"40Flux [Wb]"],  Color "LightYellow" ];
 
    Print[ Inductance_from_Flux, OnRegion DomainDummy, Format Table, LastTimeStepOnly,
@@ -449,14 +449,13 @@ PostProcessing {
     SendToServer StrCat[po,"50Inductance from Flux [mH]"], Color "LightYellow" ];
 
    Print[ MagEnergy[Domain], OnGlobal, Format TimeTable,
-     File > StrCat[Dir,"ME",ExtGnuplot], LastTimeStepOnly, Store 22,
+     File > StrCat[Dir,"ME",ExtGnuplot], LastTimeStepOnly, StoreInVariable MagEnergy,
      SendToServer StrCat[po,"41Magnetic Energy [W]"],  Color "LightYellow" ];
 
    Print[ Inductance_from_MagEnergy, OnRegion DomainDummy, Format Table, LastTimeStepOnly,
      File StrCat[Dir,"InductanceE",ExtGnuplot],
      SendToServer StrCat[po,"51Inductance from Magnetic Energy [mH]"], Color "LightYellow" ];
 }
-
 
 DefineConstant[
   R_ = {"Analysis", Name "GetDP/1ResolutionChoices", Visible 0},

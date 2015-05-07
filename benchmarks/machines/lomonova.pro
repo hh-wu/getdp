@@ -21,29 +21,29 @@ DefineConstant[
 Flag_Cir = !Flag_SrcType_Stator;
 
 Group {
-  Stator_Fe     = #STATOR_FE ;
-  Stator_Al     = #{};
-  Stator_Cu     = #{};
-  Stator_Air    = #STATOR_AIR ;
-  Stator_Airgap = #STATOR_AIRGAP ;
+  Stator_Fe     = Region[STATOR_FE] ;
+  Stator_Al     = Region[{}];
+  Stator_Cu     = Region[{}];
+  Stator_Air    = Region[STATOR_AIR] ;
+  Stator_Airgap = Region[STATOR_AIRGAP] ;
 
-  Stator_Bnd_A0 = #STATOR_BND_A0 ;
-  Stator_Bnd_A1 = #STATOR_BND_A1 ;
+  Stator_Bnd_A0 = Region[STATOR_BND_A0] ;
+  Stator_Bnd_A1 = Region[STATOR_BND_A1] ;
 
-  Rotor_Fe     = #ROTOR_FE ;
-  Rotor_Al     = #{};
-  Rotor_Cu     = #{};
-  Rotor_Air    = #ROTOR_AIR ;
-  Rotor_Airgap = #ROTOR_AIRGAP ;
+  Rotor_Fe     = Region[ROTOR_FE] ;
+  Rotor_Al     = Region[{}];
+  Rotor_Cu     = Region[{}];
+  Rotor_Air    = Region[ROTOR_AIR] ;
+  Rotor_Airgap = Region[ROTOR_AIRGAP] ;
 
-  Rotor_Bnd_A0 = #ROTOR_BND_A0 ;
-  Rotor_Bnd_A1 = #ROTOR_BND_A1 ;
+  Rotor_Bnd_A0 = Region[ROTOR_BND_A0] ;
+  Rotor_Bnd_A1 = Region[ROTOR_BND_A1] ;
 
-  MovingBand_PhysicalNb = #MOVING_BAND ; // Fictitious number for moving band, not in the geo file
-  Surf_Inf = #SURF_EXT ;
-  Surf_bn0 = #SURF_INT ;
-  Surf_cutA0 = #{STATOR_BND_A0, ROTOR_BND_A0};
-  Surf_cutA1 = #{STATOR_BND_A1, ROTOR_BND_A1};
+  MovingBand_PhysicalNb = Region[MOVING_BAND] ; // Fictitious number for moving band, not in the geo file
+  Surf_Inf = Region[SURF_EXT] ;
+  Surf_bn0 = Region[SURF_INT] ;
+  Surf_cutA0 = Region[{STATOR_BND_A0, ROTOR_BND_A0}];
+  Surf_cutA1 = Region[{STATOR_BND_A1, ROTOR_BND_A1}];
 
   For k In {1:nbMagnets}
     Rotor_Magnet~{k} = Region[ (ROTOR_MAGNET+k-1) ];
@@ -86,36 +86,36 @@ Group {
 
   If(Flag_Type>0)
     For k In {1:nbInds:3}
-      PhaseA += Region[{ Stator_Ind~{k+0} }];
-      PhaseB += Region[{ Stator_Ind~{k+1} }];
-      PhaseC += Region[{ Stator_Ind~{k+2} }];
+      PhaseA += Region[Stator_Ind~{k+0}];
+      PhaseB += Region[Stator_Ind~{k+1}];
+      PhaseC += Region[Stator_Ind~{k+2}];
     EndFor
-    PhaseA_pos = Region[{ Stator_Ind~{1} }];
-    PhaseB_pos = Region[{ Stator_Ind~{2} }];
-    PhaseC_pos = Region[{ Stator_Ind~{3} }];
+    PhaseA_pos = Region[Stator_Ind~{1}];
+    PhaseB_pos = Region[Stator_Ind~{2}];
+    PhaseC_pos = Region[Stator_Ind~{3}];
 
     For k In {1:nbInds:2}
-      Stator_IndsP += Region[{ Stator_Ind~{k} }];
+      Stator_IndsP += Region[Stator_Ind~{k}];
     EndFor
     For k In {2:nbInds:2}
-      Stator_IndsN += Region[{ Stator_Ind~{k} }];
+      Stator_IndsN += Region[Stator_Ind~{k}];
     EndFor
   EndIf
 
-  StatorC  = Region[{ }] ;
-  StatorCC = Region[{ Stator_Fe }] ;
-  RotorC   = Region[{ }] ;
-  RotorCC  = Region[{ Rotor_Fe, Rotor_Magnets }] ;
+  StatorC  = Region[{}] ;
+  StatorCC = Region[Stator_Fe] ;
+  RotorC   = Region[{}] ;
+  RotorCC  = Region[{Rotor_Fe, Rotor_Magnets}] ;
 
   // Moving band:  with or without symmetry, these BND lines must be complete
-  Stator_Bnd_MB = #STATOR_BND_MOVING_BAND;
+  Stator_Bnd_MB = Region[STATOR_BND_MOVING_BAND];
   For k In {1:SymmetryFactor}
     Rotor_Bnd_MB~{k} = Region[ (ROTOR_BND_MOVING_BAND+k-1) ];
     Rotor_Bnd_MB += Region[ Rotor_Bnd_MB~{k} ];
   EndFor
   Rotor_Bnd_MBaux = Region[ {Rotor_Bnd_MB, -Rotor_Bnd_MB~{1}}];
 
-  Dummy = #NICEPOS ;
+  Dummy = Region[NICEPOS] ;
 }
 
 // --------------------------------------------------------------------------

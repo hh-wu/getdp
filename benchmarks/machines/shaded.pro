@@ -29,12 +29,12 @@ DefineConstant[
 Flag_Cir = (Flag_SrcType_Stator==2);
 
 Group {
-  Stator_Fe     = #STATOR_FE ;
-  Stator_Al     = #{};
-  Stator_Air    = #STATOR_AIR ;
-  Stator_Airgap = #STATOR_AIRGAP ;
-  Stator_Bnd_A0 = #STATOR_BND_A0 ;
-  Stator_Bnd_A1 = #STATOR_BND_A1 ;
+  Stator_Fe     = Region[STATOR_FE] ;
+  Stator_Al     = Region[{}];
+  Stator_Air    = Region[STATOR_AIR] ;
+  Stator_Airgap = Region[STATOR_AIRGAP] ;
+  Stator_Bnd_A0 = Region[STATOR_BND_A0] ;
+  Stator_Bnd_A1 = Region[STATOR_BND_A1] ;
 
   For k In {0:3}
     Stator_Ring~{k} = Region[{(STATOR_RING+k)}]; // Up: 0 left, 1 right; Down: 2 left, 3 right
@@ -43,30 +43,30 @@ Group {
   Stator_Cu = Region[{Stator_Rings}];
 
 
-  Rotor_Fe     = #ROTOR_FE ;
-  Rotor_Al     = #{};
-  Rotor_Cu     = #{};
-  Rotor_Air    = #ROTOR_AIR ;
-  Rotor_Airgap = #ROTOR_AIRGAP ;
-  Rotor_Bnd_A0 = #ROTOR_BND_A0 ;
-  Rotor_Bnd_A1 = #ROTOR_BND_A1 ;
+  Rotor_Fe     = Region[ROTOR_FE] ;
+  Rotor_Al     = Region[{}];
+  Rotor_Cu     = Region[{}];
+  Rotor_Air    = Region[ROTOR_AIR] ;
+  Rotor_Airgap = Region[ROTOR_AIRGAP] ;
+  Rotor_Bnd_A0 = Region[ROTOR_BND_A0] ;
+  Rotor_Bnd_A1 = Region[ROTOR_BND_A1] ;
 
-  MovingBand_PhysicalNb = #MOVING_BAND ;  // Fictitious number for moving band, not in the geo file
-  Surf_Inf = #SURF_EXT ;
+  MovingBand_PhysicalNb = Region[MOVING_BAND] ;  // Fictitious number for moving band, not in the geo file
+  Surf_Inf = Region[SURF_EXT] ;
 
-  Dummy = #NICEPOS;
+  Dummy = Region[NICEPOS];
 
   nbInds = 1;
-  Stator_Ind_Ap = #{STATOR_IND_AP};    Stator_Ind_Am = #{(STATOR_IND_AM)}; // right
-  Stator_Ind_Bp = #{};              Stator_Ind_Bm = #{};
-  Stator_Ind_Cp = #{};              Stator_Ind_Cm = #{};
+  Stator_Ind_Ap = Region[STATOR_IND_AP]; Stator_Ind_Am = Region[STATOR_IND_AM]; // right
+  Stator_Ind_Bp = Region[{}];            Stator_Ind_Bm = Region[{}];
+  Stator_Ind_Cp = Region[{}];            Stator_Ind_Cm = Region[{}];
 
-  PhaseA = Region[{ Stator_Ind_Ap, Stator_Ind_Am }];
+  PhaseA = Region[{Stator_Ind_Ap, Stator_Ind_Am}];
   PhaseB = Region[{}];
   PhaseC = Region[{}];
 
  // FIXME: Just one physical region for nice graph in Onelab
-  PhaseA_pos = Region[{ Stator_Ind_Ap }];
+  PhaseA_pos = Region[Stator_Ind_Ap];
   PhaseB_pos = Region[{}];
   PhaseC_pos = Region[{}];
 
@@ -75,33 +75,33 @@ Group {
   Flag_SrcType_StatorC = 99;
   NbPhases=1;
 
-  Stator_IndsP = Region[{ Stator_Ind_Ap }];
-  Stator_IndsN = Region[{ Stator_Ind_Am }];
+  Stator_IndsP = Region[Stator_Ind_Ap];
+  Stator_IndsN = Region[Stator_Ind_Am];
 
-  Stator_Inds = Region[ {PhaseA, PhaseB, PhaseC} ] ;
-  Rotor_Inds  = Region[ {} ] ;
+  Stator_Inds = Region[{PhaseA, PhaseB, PhaseC}] ;
+  Rotor_Inds  = Region[{}] ;
 
-  StatorCC = Region[{ Stator_Fe }] ;
+  StatorCC = Region[Stator_Fe] ;
   RotorCC  = Region[{}] ;
   StatorC  = Region[{}] ;
   RotorC   = Region[{}] ;
 
   If(Flag_Case==0) // conducting rotor and rings
-    StatorC += Region[{ Stator_Rings }];
-    RotorC  += Region[{ Rotor_Fe }];
+    StatorC += Region[Stator_Rings];
+    RotorC  += Region[Rotor_Fe];
   EndIf
    If(Flag_Case==1) // only conducting rings
-    StatorC += Region[{ Stator_Rings }];
-    RotorCC += Region[{ Rotor_Fe }];
+    StatorC += Region[Stator_Rings];
+    RotorCC += Region[Rotor_Fe];
   EndIf
   If(Flag_Case==2) // non-conducting rotor and rings
-    StatorCC += Region[{ Stator_Rings }];
-    RotorCC += Region[{ Rotor_Fe }];
+    StatorCC += Region[Stator_Rings];
+    RotorCC += Region[Rotor_Fe];
   EndIf
 
-    // Moving band:  with or without symmetry, these BND lines must be complete
-  Stator_Bnd_MB = #STATOR_BND_MOVING_BAND;
-  Rotor_Bnd_MB  = #ROTOR_BND_MOVING_BAND;
+  // Moving band:  with or without symmetry, these BND lines must be complete
+  Stator_Bnd_MB = Region[STATOR_BND_MOVING_BAND];
+  Rotor_Bnd_MB  = Region[ROTOR_BND_MOVING_BAND];
 }
 
 Function {
@@ -128,7 +128,7 @@ Function {
 
   // imposed movement with fixed speed wr
   delta_time = T/NbSteps; // time step in s
-  delta_theta[] = (Flag_ImposedSpeed) ? (-delta_time*wr) : (#77-#66); // angle step (in rad)
+  delta_theta[] = (Flag_ImposedSpeed) ? (-delta_time*wr) : ($Position-$PreviousPosition); // angle step (in rad)
   time0 = 0.;                 // initial time in s
   timemax = NbT*T;  // final time  in s
 

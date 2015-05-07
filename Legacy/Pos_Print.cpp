@@ -1100,6 +1100,8 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
 
     if (PSO_P->StoreInRegister >= 0)
       Cal_StoreInRegister(&PE->Value[0], PSO_P->StoreInRegister) ;
+    if (PSO_P->StoreInVariable)
+      Cal_StoreInVariable(&PE->Value[0], PSO_P->StoreInVariable) ;
     break;
 
   case PRINT_ONGRID_1D :
@@ -1441,8 +1443,9 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
       if (PSO_P->Format != FORMAT_REGION_VALUE) {
         if (PSO_P->StoreInRegister >= 0)
           Cal_StoreInRegister(&Value, PSO_P->StoreInRegister) ;
-        if (PSO_P->SendToServer &&
-            strcmp(PSO_P->SendToServer, "No")){
+        if (PSO_P->StoreInVariable)
+          Cal_StoreInVariable(&Value, PSO_P->StoreInVariable) ;
+        if (PSO_P->SendToServer && strcmp(PSO_P->SendToServer, "No")){
           if(Value.Type == SCALAR)
             Message::AddOnelabNumberChoice(PSO_P->SendToServer,
                                            Value.Val[0], PSO_P->Color);
@@ -1473,8 +1476,9 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
       fprintf(PostStream, "%s", Print_Value_ToString(&ValueSummed).c_str());
       if (PSO_P->StoreInRegister >= 0)
         Cal_StoreInRegister(&ValueSummed, PSO_P->StoreInRegister) ;
-      if (PSO_P->SendToServer &&
-          strcmp(PSO_P->SendToServer, "No")){
+      if (PSO_P->StoreInVariable)
+        Cal_StoreInVariable(&ValueSummed, PSO_P->StoreInVariable) ;
+      if (PSO_P->SendToServer && strcmp(PSO_P->SendToServer, "No")){
         if(Value.Type == SCALAR)
           Message::AddOnelabNumberChoice(PSO_P->SendToServer,
                                          ValueSummed.Val[0], PSO_P->Color);

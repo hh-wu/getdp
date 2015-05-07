@@ -335,6 +335,7 @@ Sprintf                      return tSprintf;
 Sqrt                         return tSqrt;
 StoppingCriterion            return tStoppingCriterion;
 Store                        return tStoreInRegister;
+StoreInVariable              return tStoreInVariable;
 StoreInField                 return tStoreInField;
 StoreInMeshBasedField        return tStoreInMeshBasedField;
 StoreInRegister              return tStoreInRegister;

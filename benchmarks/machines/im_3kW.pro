@@ -47,23 +47,23 @@ Group{
 }
 
 Group{
-  Stator_Fe     = #STATOR_FE ;
-  Stator_Air    = #STATOR_SLOTOPENING ;
-  Stator_Airgap = #STATOR_AIRGAP ;
+  Stator_Fe     = Region[STATOR_FE] ;
+  Stator_Air    = Region[STATOR_SLOTOPENING] ;
+  Stator_Airgap = Region[STATOR_AIRGAP] ;
 
-  Stator_Bnd_A0 = #STATOR_BND_A0 ;
-  Stator_Bnd_A1 = #STATOR_BND_A1 ;
+  Stator_Bnd_A0 = Region[STATOR_BND_A0] ;
+  Stator_Bnd_A1 = Region[STATOR_BND_A1] ;
 
   If(Flag_OpenRotor)
-    Rotor_Fe     = #{ROTOR_FE} ;
-    Rotor_Air    = #{ROTOR_SLOTOPENING} ;
+    Rotor_Fe     = Region[ROTOR_FE] ;
+    Rotor_Air    = Region[ROTOR_SLOTOPENING] ;
   EndIf
   If(!Flag_OpenRotor)
-    Rotor_Fe     = #{ROTOR_FE, ROTOR_SLOTOPENING} ;
-    Rotor_Air    = #{} ;
+    Rotor_Fe     = Region[{ROTOR_FE, ROTOR_SLOTOPENING}] ;
+    Rotor_Air    = Region[{}] ;
   EndIf
 
-  Rotor_Airgap = #ROTOR_AIRGAP ;
+  Rotor_Airgap = Region[ROTOR_AIRGAP] ;
 
   nbRotorBars = (Flag_Symmetry) ? NbrPolesInModel*NbrSectTot/NbrPolesTot : NbrSectTot ;
   For k In {1:nbRotorBars}
@@ -71,48 +71,47 @@ Group{
     Rotor_Bars += Region[ Rotor_Bar~{k} ];
   EndFor
 
-  Rotor_Bnd_MB = #ROTOR_BND_MOVING_BAND ;
-  Rotor_Bnd_A0 = #ROTOR_BND_A0 ;
-  Rotor_Bnd_A1 = #ROTOR_BND_A1 ;
+  Rotor_Bnd_MB = Region[ROTOR_BND_MOVING_BAND] ;
+  Rotor_Bnd_A0 = Region[ROTOR_BND_A0] ;
+  Rotor_Bnd_A1 = Region[ROTOR_BND_A1] ;
 
-  MovingBand_PhysicalNb = #MOVING_BAND ;  // Fictitious number for moving band, not in the geo file
-  Surf_Inf = #SURF_EXT ;
-  Surf_bn0 = #SURF_INT ;
-  Surf_cutA0 = #{STATOR_BND_A0, ROTOR_BND_A0};
-  Surf_cutA1 = #{STATOR_BND_A1, ROTOR_BND_A1};
+  MovingBand_PhysicalNb = Region[MOVING_BAND] ;  // Fictitious number for moving band, not in the geo file
+  Surf_Inf = Region[SURF_EXT] ;
+  Surf_bn0 = Region[SURF_INT] ;
+  Surf_cutA0 = Region[{STATOR_BND_A0, ROTOR_BND_A0}];
+  Surf_cutA1 = Region[{STATOR_BND_A1, ROTOR_BND_A1}];
 
-  Stator_Ind_Ap = #{STATOR_IND_AP}; Stator_Ind_Am = #{};
-  Stator_Ind_Bp = #{STATOR_IND_BP}; Stator_Ind_Bm = #{};
-  Stator_Ind_Cp = #{}             ; Stator_Ind_Cm = #{STATOR_IND_CM};
+  Stator_Ind_Ap = Region[STATOR_IND_AP]; Stator_Ind_Am = Region[{}];
+  Stator_Ind_Bp = Region[STATOR_IND_BP]; Stator_Ind_Bm = Region[{}];
+  Stator_Ind_Cp = Region[{}]           ; Stator_Ind_Cm = Region[STATOR_IND_CM];
   If(NbrPolesInModel > 1)
-    Stator_Ind_Am += #STATOR_IND_AM;
-    Stator_Ind_Bm += #STATOR_IND_BM;
-    Stator_Ind_Cp += #STATOR_IND_CP;
+    Stator_Ind_Am += Region[STATOR_IND_AM];
+    Stator_Ind_Bm += Region[STATOR_IND_BM];
+    Stator_Ind_Cp += Region[STATOR_IND_CP];
   EndIf
 
-  PhaseA = Region[{ Stator_Ind_Ap, Stator_Ind_Am }];
-  PhaseB = Region[{ Stator_Ind_Bp, Stator_Ind_Bm }];
-  PhaseC = Region[{ Stator_Ind_Cp, Stator_Ind_Cm }];
+  PhaseA = Region[{Stator_Ind_Ap, Stator_Ind_Am}];
+  PhaseB = Region[{Stator_Ind_Bp, Stator_Ind_Bm}];
+  PhaseC = Region[{Stator_Ind_Cp, Stator_Ind_Cm}];
 
   // FIXME: Just one physical region for nice graph in Onelab
-  PhaseA_pos = Region[{ Stator_Ind_Ap }];
-  PhaseB_pos = Region[{ Stator_Ind_Bp }];
-  PhaseC_pos = Region[{ Stator_Ind_Cm }];
+  PhaseA_pos = Region[Stator_Ind_Ap];
+  PhaseB_pos = Region[Stator_Ind_Bp];
+  PhaseC_pos = Region[Stator_Ind_Cm];
 
-  Stator_IndsP = Region[{ Stator_Ind_Ap, Stator_Ind_Bp, Stator_Ind_Cp }];
-  Stator_IndsN = Region[{ Stator_Ind_Am, Stator_Ind_Bm, Stator_Ind_Cm }];
+  Stator_IndsP = Region[{Stator_Ind_Ap, Stator_Ind_Bp, Stator_Ind_Cp}];
+  Stator_IndsN = Region[{Stator_Ind_Am, Stator_Ind_Bm, Stator_Ind_Cm}];
 
-  Stator_Inds = Region[ {PhaseA, PhaseB, PhaseC} ] ;
-  Rotor_Inds  = Region[ {} ] ;
+  Stator_Inds = Region[{PhaseA, PhaseB, PhaseC}] ;
+  Rotor_Inds  = Region[{}] ;
 
-  StatorC  = Region[{ }] ;
-  StatorCC = Region[{ Stator_Fe }] ;
-  RotorC   = Region[{ Rotor_Bars }] ;
-  RotorCC  = Region[{ Rotor_Fe   }] ;
-
+  StatorC  = Region[{}] ;
+  StatorCC = Region[Stator_Fe] ;
+  RotorC   = Region[Rotor_Bars] ;
+  RotorCC  = Region[Rotor_Fe] ;
 
   // Moving band:  with or without symmetry, the BND line of the rotor must be complete
-  Stator_Bnd_MB = #STATOR_BND_MOVING_BAND;
+  Stator_Bnd_MB = Region[STATOR_BND_MOVING_BAND];
   For k In {1:NbrPolesTot/NbrPolesInModel}
     Rotor_Bnd_MB~{k} = Region[ (ROTOR_BND_MOVING_BAND+k-1) ];
     Rotor_Bnd_MB += Region[ Rotor_Bnd_MB~{k} ];
@@ -121,7 +120,7 @@ Group{
     Rotor_Bnd_MBaux  += Region[ Rotor_Bnd_MB~{k} ] ;
   EndFor
 
-  Dummy = #NICEPOS;   // boundary between different materials, used for animation
+  Dummy = Region[NICEPOS];   // boundary between different materials, used for animation
 }
 
 Function{
@@ -164,7 +163,7 @@ Function{
 
   // imposed movement with fixed speed wr
   delta_time = Period/NbSteps; // time step in s
-  delta_theta[] = (Flag_ImposedSpeed) ? (delta_time*wr) : (#77-#66); // angle step (in rad)
+  delta_theta[] = (Flag_ImposedSpeed) ? (delta_time*wr) : ($Position-$PreviousPosition); // angle step (in rad)
   time0 = 0.;                 // initial time in s
   timemax = NbrPeriod*Period;  // final time  in s
 
@@ -202,4 +201,3 @@ If(Flag_Cir)
   Include "im_3kW_circuit.pro" ;
 EndIf
 Include "machine_magstadyn_a.pro" ;
-

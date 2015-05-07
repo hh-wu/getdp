@@ -40,7 +40,7 @@ Group {
   ];
   // Exception: the group 'MovingBand_PhysicalNb' needs contain exactly one region
   // to pass a test done by the parser. It is declared with a dummy region "0".
-  MovingBand_PhysicalNb = #0 ;
+  MovingBand_PhysicalNb = Region[0] ;
 }
 
 //-------------------------------------------------------------------------------------
@@ -198,8 +198,8 @@ Group {
     DomainV = Region[{ RotorC }];
   EndIf
 
-  DomainKin = #1234 ; // Dummy region number for mechanical equation
-  DomainDummy = #12345 ; // Dummy region number for postpro with functions
+  DomainKin = Region[1234] ; // Dummy region number for mechanical equation
+  DomainDummy = Region[12345] ; // Dummy region number for postpro with functions
 }
 
 
@@ -212,43 +212,43 @@ Include "BH.pro"; // nonlinear BH caracteristic of magnetic material
 Function {
   mu0 = 4.e-7 * Pi ;
   nu0 = 1. / mu0 ;
-  nu [#{Air, Inds, Stator_Al, Rotor_Al, Stator_Cu, Rotor_Cu, Rotor_Magnets, Rotor_Bars}]=nu0;
+  nu [Region[{Air, Inds, Stator_Al, Rotor_Al, Stator_Cu, Rotor_Cu, Rotor_Magnets, Rotor_Bars}]]=nu0;
 
   If(!Flag_NL)
-    nu [#{Stator_Fe, Rotor_Fe }]  = 1 / (mur_fe * mu0) ;
+    nu [Region[{Stator_Fe, Rotor_Fe}]]  = 1 / (mur_fe * mu0) ;
     dhdb_NL [] = 0;
   EndIf
   If(Flag_NL)
     If(Flag_NL_law_Type==0)
-      nu [#{Stator_Fe, Rotor_Fe }] = nu_1a[$1] ;
+      nu [Region[{Stator_Fe, Rotor_Fe}]] = nu_1a[$1] ;
       dhdb_NL [ DomainNL ] = dhdb_1a_NL[$1];
     EndIf
     If(Flag_NL_law_Type==1)
-      nu [#{Stator_Fe, Rotor_Fe }] = nu_1[$1] ;
+      nu [Region[{Stator_Fe, Rotor_Fe}]] = nu_1[$1] ;
       dhdb_NL [ DomainNL ] = dhdb_1_NL[$1];
     EndIf
     If(Flag_NL_law_Type==2)
-       nu [#{Stator_Fe, Rotor_Fe }] = nu_3kWa[$1] ;
-       dhdb_NL [ DomainNL ] = dhdb_3kWa_NL[$1];
+      nu [Region[{Stator_Fe, Rotor_Fe}]] = nu_3kWa[$1] ;
+      dhdb_NL [ DomainNL ] = dhdb_3kWa_NL[$1];
     EndIf
     If(Flag_NL_law_Type==3)
-       nu [#{Stator_Fe, Rotor_Fe }] = nu_3kW[$1] ;
-       dhdb_NL [ DomainNL ] = dhdb_3kW_NL[$1];
+      nu [Region[{Stator_Fe, Rotor_Fe}]] = nu_3kW[$1] ;
+      dhdb_NL [ DomainNL ] = dhdb_3kW_NL[$1];
     EndIf
   EndIf
 
-  sigma[#{Rotor_Fe, Stator_Fe}] = sigma_fe ;
-  sigma[#{Rotor_Al, Stator_Al}] = sigma_al ;
-  sigma[#{Rotor_Cu, Stator_Cu}] = sigma_cu ;
-  sigma[#{Inds}] = sigma_cu ;
+  sigma[Region[{Rotor_Fe, Stator_Fe}]] = sigma_fe ;
+  sigma[Region[{Rotor_Al, Stator_Al}]] = sigma_al ;
+  sigma[Region[{Rotor_Cu, Stator_Cu}]] = sigma_cu ;
+  sigma[Inds] = sigma_cu ;
 
   rho[] = 1/sigma[] ;
 
   Rb[] = Factor_R_3DEffects*AxialLength*FillFactor_Winding*NbWires[]^2/SurfCoil[]/sigma[] ;
-  Resistance[#{Stator_Inds, Rotor_Inds}] = Rb[] ;
+  Resistance[Region[{Stator_Inds, Rotor_Inds}]] = Rb[] ;
 
-  Idir[#{Stator_IndsP, Rotor_IndsP}] =  1 ;
-  Idir[#{Stator_IndsN, Rotor_IndsN}] = -1 ;
+  Idir[Region[{Stator_IndsP, Rotor_IndsP}]] =  1 ;
+  Idir[Region[{Stator_IndsN, Rotor_IndsN}]] = -1 ;
 
   Idq0[] = Vector[ ID, IQ, I0 ] ;
   Pinv[] = Tensor[ Sin[Theta_Park[]],        Cos[Theta_Park[]],        1,
@@ -260,7 +260,7 @@ Function {
                       1/2, 1/2, 1/2 ] ;
 
   Iabc[]     = Pinv[] * Idq0[] ;
-  Flux_dq0[] = P[] * Vector[#11, #22, #33] ;
+  Flux_dq0[] = P[] * Vector[$Flux_a, $Flux_b, $Flux_c] ;
 
   If(Flag_ParkTransformation)
     II = 1. ;
@@ -300,8 +300,8 @@ Function {
   // This has been fixed in getdp 25/04/2014 -- we could now remove all $X,$Y,$Z
   // calls
 
-  // Torque computed in postprocessing (Trotor in #54, Tstator in #55, Tmb in #56)
-  Torque_mag[] = #55 ;
+  // Torque computed in postprocessing
+  Torque_mag[] = $Tstator ;
 }
 
 
@@ -403,7 +403,7 @@ Constraint {
   //Kinetics
   { Name CurrentPosition ; // [m]
     Case {
-      { Region DomainKin ; Type Init ; Value 0.#66 ; }
+      { Region DomainKin ; Type Init ; Value ($PreviousPosition = 0) ; }
     }
   }
 
@@ -720,7 +720,10 @@ Resolution {
             PostOperation[Get_GlobalQuantities];
             PostOperation[Get_Torque] ;
           }
-
+          Else{
+            Evaluate[ $Tstator = 0 ];
+            Evaluate[ $Trotor = 0 ];
+          }
           If(!Flag_ImposedSpeed)
             Generate[M]; Solve[M]; SaveSolution[M];
             PostOperation[Mechanical] ;
@@ -728,7 +731,8 @@ Resolution {
 
           ChangeOfCoordinates[ NodesOf[Rotor_Moving], RotatePZ[delta_theta[]]];
           If(!Flag_ImposedSpeed)
-            Evaluate[ #77#66 ]; //Keep track of previous angular position
+            // Keep track of previous position
+            Evaluate[ $PreviousPosition = $Position ];
           EndIf
           MeshMovingBand2D[MB] ;
         }
@@ -1035,15 +1039,15 @@ PostOperation Get_GlobalQuantities UsingPost MagStaDyn_a_2D {
 
   If(Flag_SrcType_Stator)
     Print[ Flux[PhaseA], OnGlobal, Format TimeTable,
-	   File > StrCat[ResDir,"Flux_a",ExtGnuplot], LastTimeStepOnly, Store 11,
-	   SendToServer StrCat[poF,"A"],  Color "Pink" ];
+	   File > StrCat[ResDir,"Flux_a",ExtGnuplot], LastTimeStepOnly,
+           StoreInVariable Flux_a, SendToServer StrCat[poF,"A"],  Color "Pink" ];
     If(NbrPhases==3)
       Print[ Flux[PhaseB], OnGlobal, Format TimeTable,
-	     File > StrCat[ResDir,"Flux_b",ExtGnuplot], LastTimeStepOnly, Store 22,
-	     SendToServer StrCat[poF,"B"],  Color "Yellow" ];
+	     File > StrCat[ResDir,"Flux_b",ExtGnuplot], LastTimeStepOnly,
+             StoreInVariable Flux_b, SendToServer StrCat[poF,"B"],  Color "Yellow" ];
       Print[ Flux[PhaseC], OnGlobal, Format TimeTable,
-	     File > StrCat[ResDir,"Flux_c",ExtGnuplot], LastTimeStepOnly, Store 33,
-	     SendToServer StrCat[poF,"C"], Color "LightGreen"];
+	     File > StrCat[ResDir,"Flux_c",ExtGnuplot], LastTimeStepOnly,
+             StoreInVariable Flux_c, SendToServer StrCat[poF,"C"], Color "LightGreen"];
     EndIf
     If(Flag_ParkTransformation && Flag_SrcType_Stator)
       Print[ Flux_d, OnRegion DomainDummy, Format TimeTable,
@@ -1068,25 +1072,25 @@ PostOperation Get_GlobalQuantities UsingPost MagStaDyn_a_2D {
 
 PostOperation Get_Torque UsingPost MagStaDyn_a_2D {
   Print[ Torque_Maxwell[Rotor_Airgap], OnGlobal, Format TimeTable,
-    File > StrCat[ResDir,"Tr",ExtGnuplot], LastTimeStepOnly, Store 54,
+    File > StrCat[ResDir,"Tr",ExtGnuplot], LastTimeStepOnly, StoreInVariable Trotor,
 	 SendToServer StrCat[po_mecT, "rotor"], Color "Ivory" ];
   Print[ Torque_Maxwell[Stator_Airgap], OnGlobal, Format TimeTable,
-    File > StrCat[ResDir,"Ts",ExtGnuplot], LastTimeStepOnly, Store 55,
+    File > StrCat[ResDir,"Ts",ExtGnuplot], LastTimeStepOnly, StoreInVariable Tstator,
 	 SendToServer StrCat[po_mecT, "stator"], Color "Ivory" ];
 }
 
 PostOperation Get_Torque_cplx UsingPost MagStaDyn_a_2D {
   Print[ Torque_Maxwell_cplx[Rotor_Airgap], OnGlobal, Format TimeTable,
-	 File > StrCat[ResDir,"Tr",ExtGnuplot], Store 54,
+	 File > StrCat[ResDir,"Tr",ExtGnuplot], StoreInVariable Trotor,
 	 SendToServer StrCat[po_mecT, "rotor"], Color "Ivory" ];
   Print[ Torque_Maxwell_cplx[Stator_Airgap], OnGlobal, Format TimeTable,
-	 File > StrCat[ResDir,"Ts",ExtGnuplot], Store 55,
+	 File > StrCat[ResDir,"Ts",ExtGnuplot], StoreInVariable Tstator,
 	 SendToServer StrCat[po_mecT,"stator"], Color "Ivory" ];
 }
 
 PostOperation Mechanical UsingPost Mechanical {
   Print[ P, OnRegion DomainKin, Format Table,
-	 File > StrCat[ResDir,"P", ExtGnuplot], LastTimeStepOnly, Store 77,
+	 File > StrCat[ResDir,"P", ExtGnuplot], LastTimeStepOnly, StoreInVariable Position,
 	 SendToServer StrCat[po_mec,"11Position [rad]"], Color "Ivory"] ;
   Print[ Pdeg, OnRegion DomainKin, Format Table,
 	 File > StrCat[ResDir,"P_deg", ExtGnuplot], LastTimeStepOnly,

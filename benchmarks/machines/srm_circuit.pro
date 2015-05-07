@@ -4,16 +4,15 @@
 
 Group{
   // Dummy numbers for circuit definition
-  R1 = #55551 ;
-  R2 = #55552 ;
-  R3 = #55553 ;
+  R1 = Region[55551] ;
+  R2 = Region[55552] ;
+  R3 = Region[55553] ;
 
-  Input1 = #10001 ;
-  Input2 = #10002 ;
-  Input3 = #10003 ;
+  Input1 = Region[10001] ;
+  Input2 = Region[10002] ;
+  Input3 = Region[10003] ;
 
   Resistance_Cir  = Region[{R1, R2, R3}];
-  //Resistance_Cir  = Region[{R1}];
   DomainZ_Cir = Region[ {Resistance_Cir} ];
 
   DomainSource_Cir = Region[ {} ] ;
@@ -31,8 +30,8 @@ Function {
   // Open circuit - load - short circuit
   DefineConstant[ ZR = {1, Choices{1e-8, 1, 1e8},
       Name "Input/8Load resistance [Ohm]", Highlight "AliceBlue"} ];
-  Resistance[#{R1}]     = ZR ;
-  Resistance[#{R2, R3}] = 1e8 ;
+  Resistance[R1]     = ZR ;
+  Resistance[Region[{R2, R3}]] = 1e8 ;
 }
 
 // --------------------------------------------------------------------------
@@ -86,4 +85,3 @@ Constraint {
       }
     }
 }
-

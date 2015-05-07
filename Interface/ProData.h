@@ -1317,6 +1317,7 @@ struct PostSubOperation {
   int    ValueIndex;
   int    ChangeOfCoordinates[3], LastTimeStepOnly, AppendTimeStepToFileName;
   int    OverrideTimeStepValue, NoMesh;
+  char  *StoreInVariable;
   int    StoreInRegister, StoreMinInRegister, StoreMinXinRegister;
   int    StoreMinYinRegister, StoreMinZinRegister, StoreMaxInRegister;
   int    StoreMaxXinRegister, StoreMaxYinRegister, StoreMaxZinRegister;

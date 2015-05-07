@@ -16,51 +16,50 @@ DefineConstant[
 
 
 Group {
-  Stator_Fe = #STATOR_FE ;
-  Stator_Cu = #{};
-  Stator_Al = #{};
+  Stator_Fe = Region[STATOR_FE] ;
+  Stator_Cu = Region[{}];
+  Stator_Al = Region[{}];
 
-  Stator_Air = #STATOR_AIR ;
-  Stator_Airgap = #STATOR_AIRGAP ; // Note: air split in two for easing torque computation
-  Stator_Bnd_MB = #STATOR_BND_MOVING_BAND ;
+  Stator_Air = Region[STATOR_AIR] ;
+  Stator_Airgap = Region[STATOR_AIRGAP] ; // Note: air split in two for easing torque computation
+  Stator_Bnd_MB = Region[STATOR_BND_MOVING_BAND] ;
 
-  Rotor_Fe = #ROTOR_FE ;
-  Rotor_Cu = #{} ;
-  Rotor_Al = #ROTOR_AL ;
-  Rotor_Magnets = #{} ;
-  Rotor_Air = #{} ;
-  Rotor_Airgap = #ROTOR_AIRGAP ; // Note: air split in two for easing torque computation
-  Rotor_Bnd_MB = #ROTOR_BND_MOVING_BAND ;
+  Rotor_Fe = Region[ROTOR_FE] ;
+  Rotor_Cu = Region[{}] ;
+  Rotor_Al = Region[ROTOR_AL] ;
+  Rotor_Magnets = Region[{}] ;
+  Rotor_Air = Region[{}] ;
+  Rotor_Airgap = Region[ROTOR_AIRGAP] ; // Note: air split in two for easing torque computation
+  Rotor_Bnd_MB = Region[ROTOR_BND_MOVING_BAND] ;
 
-  MovingBand_PhysicalNb = #MOVING_BAND ;  // Fictitious number for moving band, not in the geo file
-  Surf_Inf = #SURF_INF ;
+  MovingBand_PhysicalNb = Region[MOVING_BAND] ;  // Fictitious number for moving band, not in the geo file
+  Surf_Inf = Region[SURF_INF] ;
 
   // Stator inductors
-  Stator_IndA = #STATOR_INDA ; Stator_IndAn = #STATOR_INDAN ;
-  Stator_IndB = #STATOR_INDB ; Stator_IndBn = #STATOR_INDBN ;
-  Stator_IndC = #STATOR_INDC ; Stator_IndCn = #STATOR_INDCN ;
+  Stator_IndA = Region[STATOR_INDA] ; Stator_IndAn = Region[STATOR_INDAN] ;
+  Stator_IndB = Region[STATOR_INDB] ; Stator_IndBn = Region[STATOR_INDBN] ;
+  Stator_IndC = Region[STATOR_INDC] ; Stator_IndCn = Region[STATOR_INDCN] ;
 
-  PhaseA = Region[ {Stator_IndA, Stator_IndAn} ];
-  PhaseB = Region[ {Stator_IndB, Stator_IndBn} ];
-  PhaseC = Region[ {Stator_IndC, Stator_IndCn} ];
+  PhaseA = Region[{Stator_IndA, Stator_IndAn}];
+  PhaseB = Region[{Stator_IndB, Stator_IndBn}];
+  PhaseC = Region[{Stator_IndC, Stator_IndCn}];
 
   // FIXME: Just one physical region for nice graph in Onelab
-  PhaseA_pos = Region[ {Stator_IndA, Stator_IndAn} ];
-  PhaseB_pos = Region[ {Stator_IndB, Stator_IndBn} ];
-  PhaseC_pos = Region[ {Stator_IndC, Stator_IndCn} ];
+  PhaseA_pos = Region[{Stator_IndA, Stator_IndAn}];
+  PhaseB_pos = Region[{Stator_IndB, Stator_IndBn}];
+  PhaseC_pos = Region[{Stator_IndC, Stator_IndCn}];
 
-  Stator_IndsP = Region[ {Stator_IndA, Stator_IndB, Stator_IndC} ];
-  Stator_IndsN = Region[ {Stator_IndAn, Stator_IndBn, Stator_IndCn} ];
+  Stator_IndsP = Region[{Stator_IndA, Stator_IndB, Stator_IndC}];
+  Stator_IndsN = Region[{Stator_IndAn, Stator_IndBn, Stator_IndCn}];
 
-  Stator_Inds = Region[ {PhaseA, PhaseB, PhaseC} ] ;
-  Rotor_Inds  = Region[ {} ] ;
+  Stator_Inds = Region[{PhaseA, PhaseB, PhaseC}] ;
+  Rotor_Inds  = Region[{}] ;
 
-  StatorC  = Region[{ }] ;
-  StatorCC = Region[{ Stator_Fe }] ;
-  RotorC   = Region[{ Rotor_Al, Rotor_Fe }] ;
-  RotorCC  = Region[{ }] ;
+  StatorC  = Region[{}] ;
+  StatorCC = Region[{Stator_Fe}] ;
+  RotorC   = Region[{Rotor_Al, Rotor_Fe}] ;
+  RotorCC  = Region[{}] ;
 }
-
 
 Function {
   Period = 1/Freq ;
@@ -109,7 +108,7 @@ Function {
   theta0 = rotorAngle0*Pi/180 ; // fixed rotor position or inital position (in rad) in case of rotation
   theta1 = (rotorAngle0+180)*Pi/180 ; // end angle (in rad)
 
-  delta_theta[] = (Flag_ImposedSpeed) ? ((wr>0)?(theta1-theta0)/NbSteps:0) : (#77-#66) ; // angle step (in rad)
+  delta_theta[] = (Flag_ImposedSpeed) ? ((wr>0)?(theta1-theta0)/NbSteps:0) : ($Position-$PreviousPosition) ; // angle step (in rad)
   delta_time = (Flag_ImposedSpeed && wr>0) ? (theta1-theta0)/NbSteps/wr : NbrPeriod/NbSteps; // time step
 
   time0 = 0.;
@@ -123,4 +122,3 @@ Function {
 
 
 Include "machine_magstadyn_a.pro" ;
-

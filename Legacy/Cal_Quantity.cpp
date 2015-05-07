@@ -1170,3 +1170,12 @@ void Cal_StoreInRegister(struct  Value  *Value, int RegisterIndex)
 {
   Cal_CopyValue(Value, &ValueSaved[RegisterIndex]) ;
 }
+
+/* ------------------------------------------------------------------------ */
+/*  C a l _ S t o r e I n V a r i a b l e                                   */
+/* ------------------------------------------------------------------------ */
+
+void Cal_StoreInVariable(struct  Value  *Value, const char *name)
+{
+  Cal_CopyValue(Value, &NamedValueSaved[name]) ;
+}

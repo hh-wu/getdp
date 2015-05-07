@@ -3,17 +3,17 @@
 //
 
 Group{
-  R1 = #55551 ;
-  R2 = #55552 ;
-  R3 = #55553 ;
+  R1 = Region[55551] ;
+  R2 = Region[55552] ;
+  R3 = Region[55553] ;
 
-  Input1 = #10001 ;
-  Input2 = #10002 ;
-  Input3 = #10003 ;
-  Input4 = #10004 ;
+  Input1 = Region[10001] ;
+  Input2 = Region[10002] ;
+  Input3 = Region[10003] ;
+  Input4 = Region[10004] ;
 
   Resistance_Cir  = Region[{R1, R2, R3}];
-  DomainZ_Cir = Region[ {Resistance_Cir} ];
+  DomainZ_Cir = Region[Resistance_Cir];
 
   DomainSource_Cir = Region[ {} ] ;
   If(Flag_SrcType_Stator>1)
@@ -30,7 +30,7 @@ Function {
   // Open circuit - load - short circuit
   DefineConstant[ ZR = {200, Choices{1e-8, 200, 1e8},
       Name "Input/8Load resistance", Highlight "AliceBlue"} ];
-  Resistance[#{R1, R2, R3}]  = ZR ;
+  Resistance[Region[{R1, R2, R3}]]  = ZR ;
 }
 
 // --------------------------------------------------------------------------
@@ -119,4 +119,3 @@ Constraint {
     EndIf
   EndIf
 }
-

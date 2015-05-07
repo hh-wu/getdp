@@ -24,28 +24,28 @@ Flag_Cir = !Flag_SrcType_Stator;
 my_output = "No";
 
 Group {
-  Stator_Fe     = #STATOR_FE ;
-  Stator_Al     = #{};
-  Stator_Cu     = #{};
-  Stator_Air    = #STATOR_SLOT_OPENING ;
-  Stator_Airgap = #STATOR_AIRGAP ;
-  Stator_Bnd_MB = #STATOR_BND_MOVING_BAND  ;
-  Stator_Bnd_A0 = #STATOR_PERIOD_REFERENCE ;
-  Stator_Bnd_A1 = #STATOR_PERIOD_DEPENDENT ;
+  Stator_Fe     = Region[STATOR_FE] ;
+  Stator_Al     = Region[{}];
+  Stator_Cu     = Region[{}];
+  Stator_Air    = Region[STATOR_SLOT_OPENING] ;
+  Stator_Airgap = Region[STATOR_AIRGAP] ;
+  Stator_Bnd_MB = Region[STATOR_BND_MOVING_BAND]  ;
+  Stator_Bnd_A0 = Region[STATOR_PERIOD_REFERENCE] ;
+  Stator_Bnd_A1 = Region[STATOR_PERIOD_DEPENDENT] ;
 
-  Rotor_Fe     = #{ROTOR_FE, ROTOR_SHAFT};
-  Rotor_Al     = #{};
-  Rotor_Cu     = #{};
-  Rotor_Air    = #ROTOR_AIR ;
-  Rotor_Airgap = #ROTOR_AIRGAP ;
-  Rotor_Bnd_MB = #ROTOR_BND_MOVING_BAND ;
-  Rotor_Bnd_A0 = #ROTOR_PERIOD_REFERENCE ;
-  Rotor_Bnd_A1 = #ROTOR_PERIOD_DEPENDENT ;
+  Rotor_Fe     = Region[{ROTOR_FE, ROTOR_SHAFT}];
+  Rotor_Al     = Region[{}];
+  Rotor_Cu     = Region[{}];
+  Rotor_Air    = Region[ROTOR_AIR] ;
+  Rotor_Airgap = Region[ROTOR_AIRGAP] ;
+  Rotor_Bnd_MB = Region[ROTOR_BND_MOVING_BAND] ;
+  Rotor_Bnd_A0 = Region[ROTOR_PERIOD_REFERENCE] ;
+  Rotor_Bnd_A1 = Region[ROTOR_PERIOD_DEPENDENT] ;
 
-  MovingBand_PhysicalNb = #MOVING_BAND ; // Fictitious number for moving band, not in the geo file
+  MovingBand_PhysicalNb = Region[MOVING_BAND] ; // Fictitious number for moving band, not in the geo file
 
-  Surf_Inf = #SURF_EXT ;
-  Surf_bn0 = #{}; // #SURF_INT ;
+  Surf_Inf = Region[SURF_EXT] ;
+  Surf_bn0 = Region[{}];
   Surf_cutA0 = Region[{Stator_Bnd_A0, Rotor_Bnd_A0}];
   Surf_cutA1 = Region[{Stator_Bnd_A1, Rotor_Bnd_A1}];
 
@@ -53,39 +53,39 @@ Group {
 
   nbInds = NbrPolesInModel*NbrSectStatorTot/NbrPolesTot ;
 
-  Stator_Ind_Ap = #STATOR_UP; Stator_Ind_Am = #{};
-  Stator_Ind_Bp = #STATOR_VP; Stator_Ind_Bm = #STATOR_VM;
-  Stator_Ind_Cp = #{};        Stator_Ind_Cm = #STATOR_WM;
+  Stator_Ind_Ap = Region[STATOR_UP]; Stator_Ind_Am = Region[{}];
+  Stator_Ind_Bp = Region[STATOR_VP]; Stator_Ind_Bm = Region[STATOR_VM];
+  Stator_Ind_Cp = Region[{}];        Stator_Ind_Cm = Region[STATOR_WM];
 
   If(NbrPolesInModel>1)
-    Stator_Ind_Am = #{STATOR_UM};
-    Stator_Ind_Cp = #{STATOR_WP};
+    Stator_Ind_Am = Region[STATOR_UM];
+    Stator_Ind_Cp = Region[STATOR_WP];
   EndIf
 
-  PhaseA = Region[{ Stator_Ind_Ap, Stator_Ind_Am }];
-  PhaseB = Region[{ Stator_Ind_Bp, Stator_Ind_Bm }];
-  PhaseC = Region[{ Stator_Ind_Cp, Stator_Ind_Cm }];
+  PhaseA = Region[{Stator_Ind_Ap, Stator_Ind_Am}];
+  PhaseB = Region[{Stator_Ind_Bp, Stator_Ind_Bm}];
+  PhaseC = Region[{Stator_Ind_Cp, Stator_Ind_Cm}];
 
-  PhaseA_pos = Region[{ STATOR_UP }];
-  PhaseB_pos = Region[{ STATOR_VP }];
-  PhaseC_pos = Region[{ STATOR_WM }];
+  PhaseA_pos = Region[STATOR_UP];
+  PhaseB_pos = Region[STATOR_VP];
+  PhaseC_pos = Region[STATOR_WM];
 
-  Stator_IndsP = Region[{ Stator_Ind_Ap, Stator_Ind_Bp, Stator_Ind_Cp }];
-  Stator_IndsN = Region[{ Stator_Ind_Am, Stator_Ind_Bm, Stator_Ind_Cm }];
-  Stator_Inds = Region[ {PhaseA, PhaseB, PhaseC} ] ;
+  Stator_IndsP = Region[{Stator_Ind_Ap, Stator_Ind_Bp, Stator_Ind_Cp}];
+  Stator_IndsN = Region[{Stator_Ind_Am, Stator_Ind_Bm, Stator_Ind_Cm}];
+  Stator_Inds = Region[{PhaseA, PhaseB, PhaseC}] ;
 
   // Rotor conductors
-  Rotor_IndsP = #ROTOR_COND1 ;
-  Rotor_IndsN = #ROTOR_COND2 ;
-  Rotor_Inds = Region[ {Rotor_IndsP, Rotor_IndsN} ];
+  Rotor_IndsP = Region[ROTOR_COND1] ;
+  Rotor_IndsN = Region[ROTOR_COND2] ;
+  Rotor_Inds = Region[{Rotor_IndsP, Rotor_IndsN}];
 
-  StatorC  = Region[{ }] ;
-  StatorCC = Region[{ Stator_Fe }] ;
-  RotorC   = Region[{ }] ;
-  RotorCC  = Region[{ Rotor_Fe }] ;
+  StatorC  = Region[{}] ;
+  StatorCC = Region[Stator_Fe] ;
+  RotorC   = Region[{}] ;
+  RotorCC  = Region[Rotor_Fe] ;
 
   // Moving band:  with or without symmetry, the BND line of the rotor must be complete
-  Stator_Bnd_MB = #STATOR_BND_MOVING_BAND;
+  Stator_Bnd_MB = Region[STATOR_BND_MOVING_BAND];
   For k In {1:NbrPolesTot/NbrPolesInModel}
     Rotor_Bnd_MB~{k} = Region[ (ROTOR_BND_MOVING_BAND+k-1) ];
     Rotor_Bnd_MB += Region[ Rotor_Bnd_MB~{k} ];
@@ -94,7 +94,7 @@ Group {
     Rotor_Bnd_MBaux  += Region[ Rotor_Bnd_MB~{k} ] ;
   EndFor
 
-  Dummy = #NICEPOS;
+  Dummy = Region[NICEPOS];
 }
 
 // --------------------------------------------------------------------------
@@ -106,10 +106,10 @@ Function {
   Stator_PhaseArea[]    = SurfaceArea[]{STATOR_UP} + SurfaceArea[]{STATOR_UM};
   Rotor_ConductorArea[] = SurfaceArea[]{ROTOR_COND1} + SurfaceArea[]{ROTOR_COND2};
 
-  NbWires[#{Stator_Inds}]  = 160  * NbrPolesInModel/NbrPolesTot; // Number of wires in series per phase
-  NbWires[#{Rotor_Inds}]   = 1050 * NbrPolesInModel/NbrPolesTot; // Number of wires in series per phase
-  SurfCoil[#{Stator_Inds}] = Stator_PhaseArea[];
-  SurfCoil[#{Rotor_Inds}]  = Rotor_ConductorArea[];
+  NbWires[Stator_Inds]  = 160  * NbrPolesInModel/NbrPolesTot; // Number of wires in series per phase
+  NbWires[Rotor_Inds]   = 1050 * NbrPolesInModel/NbrPolesTot; // Number of wires in series per phase
+  SurfCoil[Stator_Inds] = Stator_PhaseArea[];
+  SurfCoil[Rotor_Inds]  = Rotor_ConductorArea[];
 
   FillFactor_Winding = 0.5 ; // percentage of Cu in the surface coil side, smaller than 1
   Factor_R_3DEffects = 1.5 ; // bigger than Adding 50% of resistance
@@ -184,6 +184,3 @@ If(Flag_Cir)
   Include "wfsm_4p_circuit.pro" ;
 EndIf
 Include "machine_magstadyn_a.pro" ;
-
-
-

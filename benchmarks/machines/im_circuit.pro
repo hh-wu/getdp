@@ -6,17 +6,17 @@
 Group{
   // Dummy numbers for circuit definition
 
-  Input1 = #10001 ;
-  Input2 = #10002 ;
-  Input3 = #10003 ;
+  Input1 = Region[10001] ;
+  Input2 = Region[10002] ;
+  Input3 = Region[10003] ;
 
-  R1 = #55551 ;
-  R2 = #55552 ;
-  R3 = #55553 ;
+  R1 = Region[55551] ;
+  R2 = Region[55552] ;
+  R3 = Region[55553] ;
 
-  L1 = #55561 ;
-  L2 = #55562 ;
-  L3 = #55563 ;
+  L1 = Region[55561] ;
+  L2 = Region[55562] ;
+  L3 = Region[55563] ;
 
   For k In {1:nbRotorBars}
     Rers~{k} = Region[{(60000+k)}]; // resistance per endring segment
@@ -54,7 +54,7 @@ Function {
     NL2~{k} = (k<nbRotorBars && SymmetryFactor<4) ? NB2~{k2} : NB1~{1} ; // second node number for each endring resistance
   EndFor
 
-  Inductance[#{L1, L2, L3}]  = Ls ; // endwinding reactance per phase
+  Inductance[Region[{L1, L2, L3}]]  = Ls ; // endwinding reactance per phase
   Resistance[All_EndRingResistancesRotor] = R_endring_segment;
   Inductance[All_EndRingInductancesRotor] = L_endring_segment;
 }
@@ -163,4 +163,3 @@ Constraint {
     }
   EndIf
 }
-

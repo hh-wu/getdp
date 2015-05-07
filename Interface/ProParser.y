@@ -285,7 +285,8 @@ struct doubleXstring{
 %token        tFormat tHeader tFooter tSkin tSmoothing
 %token        tTarget tSort tIso tNoNewLine tNoTitle tDecomposeInSimplex tChangeOfValues
 %token        tTimeLegend tFrequencyLegend tEigenvalueLegend
-%token        tEvaluationPoints tStoreInRegister tStoreInField tStoreInMeshBasedField
+%token        tEvaluationPoints tStoreInRegister tStoreInVariable
+%token        tStoreInField tStoreInMeshBasedField
 %token        tStoreMaxInRegister tStoreMaxXinRegister tStoreMaxYinRegister
 %token        tStoreMaxZinRegister tStoreMinInRegister tStoreMinXinRegister
 %token        tStoreMinYinRegister tStoreMinZinRegister
@@ -6072,6 +6073,7 @@ PostSubOperations :
       PostSubOperation_S.LegendPosition[1] = 0.;
       PostSubOperation_S.LegendPosition[2] = 0.;
       PostSubOperation_S.EvaluationPoints = NULL;
+      PostSubOperation_S.StoreInVariable = NULL;
       PostSubOperation_S.StoreInRegister = -1;
       PostSubOperation_S.StoreMinInRegister = -1;
       PostSubOperation_S.StoreMinXinRegister = -1;
@@ -6678,6 +6680,10 @@ PrintOption :
       else {
 	PostSubOperation_S.EvaluationPoints = $4;
       }
+    }
+  | ',' tStoreInVariable String__Index
+    {
+      PostSubOperation_S.StoreInVariable = $3;
     }
   | ',' tStoreInRegister FExpr
     {

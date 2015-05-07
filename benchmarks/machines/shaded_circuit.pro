@@ -5,17 +5,17 @@
 
 Group{
   // Dummy numbers for circuit definition
-  Input1 = #10001 ;
-  Input2 = #10002 ;
-  Input3 = #10003 ;
+  Input1 = Region[10001] ;
+  Input2 = Region[10002] ;
+  Input3 = Region[10003] ;
 
-  R1 = #55551 ;
-  R2 = #55552 ;
-  R3 = #55553 ;
+  R1 = Region[55551] ;
+  R2 = Region[55552] ;
+  R3 = Region[55553] ;
 
-  L1 = #55561 ;
-  L2 = #55562 ;
-  L3 = #55563 ;
+  L1 = Region[55561] ;
+  L2 = Region[55562] ;
+  L3 = Region[55563] ;
 
   Resistance_Cir  = Region[{}];
   Inductance_Cir  = Region[{}];
