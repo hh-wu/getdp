@@ -1,4 +1,4 @@
-Include "sphere_concentric_data.geo";
+Include "cylinder_concentric_data.geo";
 
 If(ANALYSIS == 0)
   name = "u";

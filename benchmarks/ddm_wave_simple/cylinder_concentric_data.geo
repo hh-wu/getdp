@@ -1,6 +1,6 @@
 DefineConstant[
   // Analysis type
-  ANALYSIS = {0, Name "Input/00Type of analysis",
+  ANALYSIS = {1, Name "Input/00Type of analysis",
     Choices {0="Helmholtz", 1="Maxwell"}},
   // frequency
   WAVENUMBER = {Pi, Min 0.1, Max 31.5, Step 0.1, Name "Input/0Wavenumber"},
@@ -24,3 +24,12 @@ LC = LAMBDA/N_LAMBDA;
 
 // prefix for (split) mesh files (one for each partition)
 MSH_NAME = StrCat(DIR, MSH_BASE_NAME) ;
+
+// for sweeping preconditioners
+ListOfCuts = {0, N_DOM-1};
+// ListOfCuts = {0, 4, N_DOM-1};
+
+ProcOwnsDomain = {};
+For idom In{0:N_DOM-1}
+  ProcOwnsDomain += {(idom%MPI_Size == MPI_Rank)}; // define your rule here -- must match listOfDom()
+EndFor

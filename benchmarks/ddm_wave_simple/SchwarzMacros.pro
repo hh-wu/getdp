@@ -11,7 +11,7 @@ Macro SolveSubdomains
     idom = ListOfDom(ii);
     // solve the volume PDE on each subdomain
     If(GenerateVolFlag~{idom})
-      GenerateRHSGroup[Vol~{idom}, Region[{Sigma~{idom}, TrOmegaGammaD~{idom}}] ] ;
+      GenerateRHSGroup[Vol~{idom}, Region[{Sigma~{idom}, TrOmegaGammaD~{idom}, GammaD~{idom}}] ] ;
     EndIf
     If(GenerateVolFlag~{idom} == 0)
       Generate[Vol~{idom}] ;
