@@ -9,9 +9,6 @@ Macro SolveSubdomains
   SetCommSelf;
   For ii In {0: #ListOfDom()-1}
     idom = ListOfDom(ii);
-    // update Dirichlet constraints (only actually necessary when
-    // $PhysicalSource changes for Helmholtz)
-    UpdateConstraint[Vol~{idom}, GammaD~{idom}, Assign];
     // solve the volume PDE on each subdomain
     If(GenerateVolFlag~{idom})
       GenerateRHSGroup[Vol~{idom}, Region[{Sigma~{idom}, TrOmegaGammaD~{idom}}] ] ;
@@ -28,8 +25,7 @@ Return
 
 Macro UpdateGonSurfaces
   SetCommSelf;
-  // compute g_in for next iteration, (must be
-  // done after all resolutions)
+  // compute g_in for next iteration, (must be done after all resolutions)
   For ii In {0: #ListOfDom()-1}
     idom = ListOfDom(ii);
     // solve the surface PDE on the boundaries of each subdomain
@@ -66,12 +62,27 @@ Macro SaveVolumeSolutions
   SetCommWorld;
 Return
 
+Macro UpdateConstraints
+  // update Dirichlet constraints (only actually necessary for Helmholtz, as we
+  // currently use Lagrange multipliers to specify boundary conditions for
+  // Maxwell)
+  If(ANALYSIS == 0)
+    SetCommSelf;
+    For ii In {0: #ListOfDom()-1}
+      idom = ListOfDom(ii);
+      UpdateConstraint[Vol~{idom}, GammaD~{idom}, Assign];
+    EndFor
+    SetCommWorld;
+  EndIf
+Return
+
 Macro EnablePhysicalSourcesOnly
   Evaluate[$PhysicalSource = 1];
   For iSide In {0:1}
     Evaluate[$ArtificialSource~{iSide} = 0];
     Evaluate[$ArtificialSourceSGS~{iSide} = 0];
   EndFor
+  Call UpdateConstraints;
 Return
 
 Macro EnableArtificialSourcesOnly
@@ -80,6 +91,7 @@ Macro EnableArtificialSourcesOnly
     Evaluate[$ArtificialSource~{iSide} = 1];
     Evaluate[$ArtificialSourceSGS~{iSide} = 0];
   EndFor
+  Call UpdateConstraints;
 Return
 
 Macro EnableAllSources
@@ -88,6 +100,7 @@ Macro EnableAllSources
     Evaluate[$ArtificialSource~{iSide} = 1];
     Evaluate[$ArtificialSourceSGS~{iSide} = 0];
   EndFor
+  Call UpdateConstraints;
 Return
 
 Macro PrintInfo

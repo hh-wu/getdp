@@ -34,13 +34,12 @@ Resolution {
       Call SolveSubdomains;
       Call UpdateGonSurfaces;
 
-      // launch Krylov solver in parallel on all cpus
+      // launch Krylov solver in parallel on all cpus using artificial sources
+      // only
+      Call EnableArtificialSourcesOnly;
       IterativeLinearSolver["I-A", SOLVER, TOL, MAXIT, RESTART,
                             {ListOfField()}, {ListOfNeighborField()}, {}]
       {
-        // solve subproblems in parallel on own cpu using artificial sources
-        // only and update surface data
-	Call EnableArtificialSourcesOnly;
         Call SolveSubdomains;
         Call UpdateGonSurfaces;
       }
