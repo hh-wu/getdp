@@ -75,7 +75,7 @@ Constraint{
     idom = ListOfDom(ii);
     { Name Dirichlet~{idom} ;
       Case {
-        { Region GammaD~{idom} ; Value uinc[] * #10; }
+        { Region GammaD~{idom} ; Value $PhysicalSource ? uinc[] : 0. ; }
       }
     }
     { Name Dirichlet0~{idom} ;
@@ -152,15 +152,13 @@ Formulation {
         Galerkin { [ -k[]^2 * Dof{u~{idom}} , {u~{idom}} ] ;
           In Omega~{idom}; Jacobian JVol ; Integration I1 ; }
 
-	Galerkin { [ - (#11 > 0. ? g_in~{idom}~{0}[] : 0), {u~{idom}} ] ;
-	  In Sigma~{idom}~{0}; Jacobian JSur ; Integration I1 ; }
-	Galerkin { [ - (#12 > 0. ? g_in~{idom}~{1}[] : 0), {u~{idom}} ] ;
-	  In Sigma~{idom}~{1}; Jacobian JSur ; Integration I1 ; }
-	// same story, modified for SGS
-	Galerkin { [ - (#21 > 0. ? g_in_c~{idom}~{0}[] : 0), {u~{idom}} ] ;
-	  In Sigma~{idom}~{0}; Jacobian JSur ; Integration I1 ; }
-	Galerkin { [ - (#22 > 0. ? g_in_c~{idom}~{1}[] : 0), {u~{idom}} ] ;
-	  In Sigma~{idom}~{1}; Jacobian JSur ; Integration I1 ; }
+        For iSide In {0:1}
+          Galerkin { [ - ($ArtificialSource~{iSide} ? g_in~{idom}~{iSide}[] : 0), {u~{idom}} ] ;
+            In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
+          // the same, but modified for SGS
+          Galerkin { [ - ($ArtificialSourceSGS~{iSide} ? g_in_c~{idom}~{iSide}[] : 0), {u~{idom}} ] ;
+            In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
+        EndFor
 
         // transmission condition
         If(TC_TYPE == 0)
@@ -203,21 +201,15 @@ Formulation {
         EndIf
 
 	If (TC_TYPE == 3)
-	  Galerkin { [D[] * Dof{d u~{idom}}, {d u~{idom}}];
-	    In Pml~{idom}~{0}; Jacobian JVol; Integration I1;}
-	  Galerkin { [D[] * Dof{d u~{idom}}, {d u~{idom}}];
-	    In Pml~{idom}~{1}; Jacobian JVol; Integration I1;}
-
-	  Galerkin { [-(kPml~{idom}~{0}[])^2*Kx[]*Ky[]*Kz[]*Dof{u~{idom}}, {u~{idom}}];
-	    In Pml~{idom}~{0}; Jacobian JVol; Integration I1;}
-	  Galerkin { [-(kPml~{idom}~{1}[])^2*Kx[]*Ky[]*Kz[]*Dof{u~{idom}}, {u~{idom}}];
-	    In Pml~{idom}~{1}; Jacobian JVol; Integration I1;}
-
-	  Galerkin { [ -I[]*(kPml~{idom}~{0}[])*Dof{u~{idom}}, {u~{idom}} ] ;
-	    In PmlInf~{idom}~{0} ; Jacobian JSur ; Integration I1 ; }
-	  Galerkin { [ -I[]*(kPml~{idom}~{1}[])*Dof{u~{idom}}, {u~{idom}} ] ;
-	    In PmlInf~{idom}~{1} ; Jacobian JSur ; Integration I1 ; }
-	EndIf
+          For iSide In {0:1}
+            Galerkin { [D[] * Dof{d u~{idom}}, {d u~{idom}}];
+              In Pml~{idom}~{iSide}; Jacobian JVol; Integration I1;}
+            Galerkin { [-(kPml~{idom}~{iSide}[])^2*Kx[]*Ky[]*Kz[]*Dof{u~{idom}}, {u~{idom}}];
+              In Pml~{idom}~{iSide}; Jacobian JVol; Integration I1;}
+            Galerkin { [ -I[]*(kPml~{idom}~{iSide}[])*Dof{u~{idom}}, {u~{idom}} ] ;
+              In PmlInf~{idom}~{iSide} ; Jacobian JSur ; Integration I1 ; }
+          EndFor
+        EndIf
 
         // Bayliss-Turkel absorbing boundary condition
         Galerkin { [ - I[] * kInf[] * Dof{u~{idom}} , {u~{idom}} ] ;
@@ -246,7 +238,7 @@ Formulation {
         Equation {
           Galerkin { [ Dof{g_out~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ] ;
             In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
-          Galerkin { [ ( (iSide ? #12 : #11) > 0. ? g_in~{idom}~{iSide}[] : 0) ,
+          Galerkin { [ $ArtificialSource~{iSide} ? g_in~{idom}~{iSide}[] : 0 ,
               {g_out~{idom}~{iSide}} ] ;
             In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
 
@@ -275,7 +267,7 @@ Formulation {
           EndIf
 
 	  If (TC_TYPE == 3)
-            Galerkin { [ -2 * Rotate[D[],0.,0.,-thetaList(idom)] *  {d u~{idom}},
+            Galerkin { [ -2 * D[] *  {d u~{idom}},
                 {d g_out~{idom}~{iSide}}];
               In TrPmlSigma~{idom}~{iSide}; Jacobian JVol; Integration I1;}
             Galerkin { [ 2 * (kPml~{idom}~{iSide}[])^2*Kx[]*Ky[]*Kz[] * {u~{idom}},
@@ -305,7 +297,7 @@ Formulation {
 	    In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
 
           // for SGS
-	  Galerkin{[ (#(21+iSide) ? g_in_c~{idom}~{iSide}[] : 0.), {g_out~{idom}~{iSide}}] ;
+          Galerkin{[ $ArtificialSourceSGS~{iSide} ? g_in_c~{idom}~{iSide}[] : 0., {g_out~{idom}~{iSide}}] ;
 	    In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
 
           If(TC_TYPE == 0)
@@ -333,8 +325,7 @@ Formulation {
           EndIf
 
 	  If (TC_TYPE == 3)
-            Galerkin { [ -2 * Rotate[D[],0.,0.,-thetaList(idom)] *  {d u~{idom}},
-                {d g_out~{idom}~{iSide}}];
+            Galerkin { [ -2 * D[] *  {d u~{idom}}, {d g_out~{idom}~{iSide}}];
               In TrPmlSigma~{idom}~{iSide}; Jacobian JVol; Integration I1;}
             Galerkin { [ 2 * (kPml~{idom}~{iSide}[])^2*Kx[]*Ky[]*Kz[] * {u~{idom}},
                 {g_out~{idom}~{iSide}}];
@@ -370,7 +361,8 @@ PostProcessing {
         // name of formulation is used only for convenience; no data from that
         // function space is actually used
         PostQuantity {
-	  { Name g~{idom}~{iSide} ; Value { Local { [ ( #(21+iSide) ? g_in~{idom}~{iSide}[] : 0. ) ] ;
+          { Name g~{idom}~{iSide} ; Value {
+              Local { [ $ArtificialSourceSGS~{iSide} ? g_in~{idom}~{iSide}[] : 0. ] ;
                 In Sigma~{idom}~{iSide}; Jacobian JSur ; } } }
 	}
       }

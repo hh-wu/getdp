@@ -184,13 +184,14 @@ Formulation {
           In GammaD~{idom}; Jacobian JSur ; Integration I1 ; }
         Galerkin { [ Dof{e~{idom}} , {lambda~{idom}} ] ;
           In GammaD~{idom}; Jacobian JSur ; Integration I1 ; }
-        Galerkin { [ (#10 > 0. ? einc[]: Vector[0,0,0]), {lambda~{idom}} ] ;
+        Galerkin { [ ($PhysicalSource ? einc[]: Vector[0,0,0]), {lambda~{idom}} ] ;
           In GammaD~{idom}; Jacobian JSur ; Integration I1 ; }
 
-        Galerkin { [ (#11 > 0. ? g_in~{idom}~{0}[] : Vector[0,0,0]) , {e~{idom}} ];
-          In Sigma~{idom}~{0}; Integration I1; Jacobian JSur; }
-        Galerkin { [ (#12 > 0. ? g_in~{idom}~{1}[] : Vector[0,0,0]) , {e~{idom}} ];
-          In Sigma~{idom}~{1}; Integration I1; Jacobian JSur; }
+        For iSide In {0:1}
+          Galerkin { [ $ArtificialSource~{iSide} ? g_in~{idom}~{iSide}[] : Vector[0,0,0] ,
+              {e~{idom}} ];
+            In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
+        EndFor
 
         // transmission condition
         If(TC_TYPE == 0)
@@ -290,7 +291,8 @@ Formulation {
           Galerkin { [ Dof{g_out~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ];
             In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
 
-          Galerkin { [ (#10 > 0. ? Vector[0,0,0] : g_in~{idom}~{iSide}[]) , {g_out~{idom}~{iSide}} ];
+          Galerkin { [ ($PhysicalSource ? Vector[0,0,0] : g_in~{idom}~{iSide}[]) ,
+              {g_out~{idom}~{iSide}} ];
             In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
 
           If(TC_TYPE == 0)

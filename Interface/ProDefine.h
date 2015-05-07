@@ -114,10 +114,10 @@ void  Get_FunctionForFunction(struct FunctionXFunction  FXF[], void (*Function1)
 
 const char *Get_StringForFunction2Nbr(struct StringXFunction2Nbr SXF[], void (*Function)());
 
-char *Get_Valid_SXD(struct StringXDefine V[]);
-char *Get_Valid_SXD1N(struct StringXDefine1Nbr V[]);
-char *Get_Valid_SXP(struct StringXPointer V[]);
-char *Get_Valid_SX3F3N(struct StringX3Function3Nbr V[]);
-char *Get_Valid_SXF2N(struct StringXFunction2Nbr V[]);
+void Get_Valid_SXD(const char *value, struct StringXDefine V[]);
+void Get_Valid_SXD1N(const char *value, struct StringXDefine1Nbr V[]);
+void Get_Valid_SXP(const char *value, struct StringXPointer V[]);
+void Get_Valid_SX3F3N(const char *value, struct StringX3Function3Nbr V[]);
+void Get_Valid_SXF2N(const char *value, struct StringXFunction2Nbr V[]);
 
 #endif

@@ -247,6 +247,7 @@ void Cal_SolidAngle(int Source, struct Element *Element,
 // many {op qty} as you want.
 
 static std::map<int, Value> ValueSaved ;
+static std::map<std::string, Value> NamedValueSaved ;
 
 void Cal_WholeQuantity(struct Element * Element,
 		       struct QuantityStorage * QuantityStorage_P0,
@@ -628,7 +629,8 @@ void Cal_WholeQuantity(struct Element * Element,
                           u, v, w, -1, 0, &Stack[0][Index], NbrArguments, ExpressionName);
 
         for (k = 0 ; k < Current.NbrSystem ; k++)
-          (Current.DofData_P0+k)->Save_CurrentSolution = (Current.DofData_P0+k)->CurrentSolution;
+          (Current.DofData_P0+k)->Save_CurrentSolution =
+            (Current.DofData_P0+k)->CurrentSolution;
         Save_TimeStep = Current.TimeStep ;
         Save_Time = Current.Time ;
         Save_TimeImag = Current.TimeImag ;
@@ -636,7 +638,8 @@ void Cal_WholeQuantity(struct Element * Element,
         for (int n = 0; n < Current.CorrOrder; n++) {
 
           for (k = 0 ; k < Current.NbrSystem ; k++){
-            Solution_P0 = (struct Solution*)List_Pointer((Current.DofData_P0+k)->Solutions, 0);
+            Solution_P0 = (struct Solution*)List_Pointer
+              ((Current.DofData_P0+k)->Solutions, 0);
             if(((Current.DofData_P0+k)->CurrentSolution - Solution_P0) > 0)
               ((Current.DofData_P0+k)->CurrentSolution) -= 1 ;
             else{
@@ -663,7 +666,8 @@ void Cal_WholeQuantity(struct Element * Element,
 
         }
 
-        Cal_MultValue(&Stack[0][Index], 1./(Current.bCorrCoeff*Current.DTime), &Stack[0][Index]);
+        Cal_MultValue(&Stack[0][Index], 1./(Current.bCorrCoeff*Current.DTime),
+                      &Stack[0][Index]);
 
         for (k = 0 ; k < Current.NbrSystem ; k++)
           (Current.DofData_P0+k)->CurrentSolution =
@@ -688,14 +692,15 @@ void Cal_WholeQuantity(struct Element * Element,
 	   (Current.DofData_P0+k)->CurrentSolution;
 
 	  if(List_Nbr((Current.DofData_P0+k)->Solutions) > 1){
-	    Solution_P0 = (struct Solution*)List_Pointer((Current.DofData_P0+k)->Solutions, 0);
+	    Solution_P0 = (struct Solution*)List_Pointer
+              ((Current.DofData_P0+k)->Solutions, 0);
 	    if ((Current.DofData_P0+k)->CurrentSolution != Solution_P0)
 	      ((Current.DofData_P0+k)->CurrentSolution) -- ;
 	  }
 	  else {
 	    if (!Flag_WarningMissSolForDt) {
-	      Message::Warning("Missing solution for time derivative computation (Sys#%d/%d)",
-                               k+1, Current.NbrSystem);
+	      Message::Warning("Missing solution for time derivative computation "
+                               "(Sys#%d/%d)", k+1, Current.NbrSystem);
 	      Flag_WarningMissSolForDt = 1 ;
 	    }
 	  }
@@ -772,8 +777,8 @@ void Cal_WholeQuantity(struct Element * Element,
 	}
 	else {
 	  if (!Flag_WarningMissSolForTime_ntime) {
-	    Message::Warning("Missing solution for time step -%d computation (System #%d/%d)",
-                             ntime, k+1, Current.NbrSystem);
+	    Message::Warning("Missing solution for time step -%d computation "
+                             "(System #%d/%d)", ntime, k+1, Current.NbrSystem);
 	    Flag_WarningMissSolForTime_ntime = 1 ;
 	  }
 	}
@@ -814,11 +819,9 @@ void Cal_WholeQuantity(struct Element * Element,
 
 
     case WQ_MAXOVERTIME :
-
       if (Current.NbrHar == 1) {
         double time_init = WholeQuantity_P->Case.MaxOverTime.TimeInit;
         double time_final = WholeQuantity_P->Case.MaxOverTime.TimeFinal;
-
         /*
 	for (k = 0 ; k < Current.NbrSystem ; k++)
 	  (Current.DofData_P0+k)->Save_CurrentSolution =
@@ -847,7 +850,6 @@ void Cal_WholeQuantity(struct Element * Element,
           Current.TimeStep = Current.DofData->CurrentSolution->TimeStep ;
           Current.Time = Current.DofData->CurrentSolution->Time ;
           Current.TimeImag = Current.DofData->CurrentSolution->TimeImag ;
-
 
           //++++ test to do more accurately!
           if (Current.Time >= time_init && Current.Time <= time_final) {
@@ -882,11 +884,9 @@ void Cal_WholeQuantity(struct Element * Element,
         Message::Error("MaxOverTime can only be used in time domain") ;
         break;
       }
-
       break ;
 
     case WQ_FOURIERSTEINMETZ :
-
       if (Current.NbrHar == 1) {
         double time_init = WholeQuantity_P->Case.FourierSteinmetz.TimeInit;
         double time_final = WholeQuantity_P->Case.FourierSteinmetz.TimeFinal;
@@ -909,7 +909,6 @@ void Cal_WholeQuantity(struct Element * Element,
           Index++ ;
         }
         Index -= NbrArguments ;
-
 
         int i_Solution_init = -1, i_Solution_final = -1;
         int NbrTimeStep, Size=-1;
@@ -949,7 +948,7 @@ void Cal_WholeQuantity(struct Element * Element,
           Cal_WholeQuantity(Element, QuantityStorage_P0,
                             WholeQuantity_P->Case.MaxOverTime.WholeQuantity,
                             u, v, w, -1, 0, &Stack[0][Index], NbrArguments, ExpressionName) ;
-          Times[j] = Current.Time ;              
+          Times[j] = Current.Time ;
           Cal_CopyValue(&Stack[0][Index], &TmpValues[j]) ;
           if (Stack[0][Index].Type == SCALAR)
             Size = 1;
@@ -967,18 +966,20 @@ void Cal_WholeQuantity(struct Element * Element,
         Pos_FourierTransform(NbrTimeStep, 1, Times, TmpValues, Size,
                              2, &NbrFreq, &Frequencies, &FourierValues);
 
-      /*
-        we calculate the Sum for all frequencies of frequency_i^exponent_f * b_i^exponent_b
-       */
+        /*
+          we calculate the Sum for all frequencies of frequency_i^exponent_f *
+          b_i^exponent_b
+        */
 
         if (nbrFrequencyInFormula > NbrFreq-1)
-          Message::Error("FourierSteinmetz: too many frequencies asked (%d asked and only %d available)", nbrFrequencyInFormula, NbrFreq-1) ;
+          Message::Error("FourierSteinmetz: too many frequencies asked "
+                         "(%d asked and only %d available)",
+                         nbrFrequencyInFormula, NbrFreq-1) ;
 
         double val=0.;
         for (j=0; j<nbrFrequencyInFormula; j++) {
-          //         Message::Info("FourierSteinmetz: %d %g", j+1, Frequencies[j+1], FourierValues[j+1].Val[0])) ;
           if (Size==1) {
-            val += pow(Frequencies[j+1], exponent_f) * 
+            val += pow(Frequencies[j+1], exponent_f) *
               pow(FourierValues[j+1].Val[0], exponent_b);
           }
           else {
@@ -986,8 +987,8 @@ void Cal_WholeQuantity(struct Element * Element,
               pow(Frequencies[j+1], exponent_f) *
               pow(sqrt(FourierValues[j+1].Val[0]*FourierValues[j+1].Val[0]
                        + FourierValues[j+1].Val[1]*FourierValues[j+1].Val[1]
-                       + FourierValues[j+1].Val[2]*FourierValues[j+1].Val[2])
-                  , exponent_b);
+                       + FourierValues[j+1].Val[2]*FourierValues[j+1].Val[2]),
+                  exponent_b);
           }
         }
         Stack[0][Index].Type = SCALAR;
@@ -1014,12 +1015,12 @@ void Cal_WholeQuantity(struct Element * Element,
         Message::Error("FourierSteinmetz can only be used in time domain") ;
         break;
       }
-
       break ;
 
     case WQ_MHTRANSFORM :
       if(Current.NbrHar == 1){
-	Message::Error("MHTransform can only be used in complex (multi-harmonic) calculations") ;
+	Message::Error("MHTransform can only be used in complex (multi-harmonic)"
+                       " calculations") ;
         break;
       }
 
@@ -1109,6 +1110,29 @@ void Cal_WholeQuantity(struct Element * Element,
         Cal_CopyValue(&ValueSaved[WholeQuantity_P->Case.ValueSaved.Index],
                       &Stack[0][Index]) ;
       else{
+        if(TreatmentStatus != _PRE)
+          Message::Warning("Empty register %d: assuming zero value",
+                           WholeQuantity_P->Case.ValueSaved.Index);
+        Cal_ZeroValue(&Stack[0][Index]);
+        Stack[0][Index].Type = SCALAR ;
+      }
+      Multi[Index] = 0 ;
+      Index++ ;
+      break ;
+
+    case WQ_SAVENAMEDVALUE :
+      Cal_CopyValue(&Stack[0][Index-1],
+		    &NamedValueSaved[WholeQuantity_P->Case.NamedValue.Name]) ;
+      break ;
+
+    case WQ_NAMEDVALUESAVED :
+      if(NamedValueSaved.count(WholeQuantity_P->Case.NamedValue.Name))
+        Cal_CopyValue(&NamedValueSaved[WholeQuantity_P->Case.NamedValue.Name],
+                      &Stack[0][Index]) ;
+      else{
+        if(TreatmentStatus != _PRE)
+          Message::Warning("Unknown current value '$%s': assuming zero value",
+                           WholeQuantity_P->Case.NamedValue.Name);
         Cal_ZeroValue(&Stack[0][Index]);
         Stack[0][Index].Type = SCALAR ;
       }

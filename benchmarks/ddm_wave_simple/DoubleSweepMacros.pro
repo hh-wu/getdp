@@ -26,8 +26,8 @@ Return
 Macro SolveAndStepForward
   SetCommSelf;
   If( proc == MPI_Rank && ProcOwnsDomain(idom_f) )
-    Evaluate[1. #11]; Evaluate[0. #12];
-    Evaluate[0. #21]; Evaluate[SGS #22];
+    Evaluate[$ArtificialSource~{0} = 1]; Evaluate[$ArtificialSource~{1} = 0];
+    Evaluate[$ArtificialSourceSGS~{0} = 0]; Evaluate[$ArtificialSourceSGS~{1} = SGS];
 
     skipList = {2*idom_f, (2*(idom_f + N_DOM)+1)%(2*N_DOM)}; // right
     BroadcastFields[skipList()];
@@ -53,8 +53,8 @@ Return
 Macro SolveAndStepBackward
   SetCommSelf;
   If( proc == MPI_Rank && ProcOwnsDomain(idom_b) )
-    Evaluate[0. #11]; Evaluate[1. #12];
-    Evaluate[SGS #21]; Evaluate[0. #22];
+    Evaluate[$ArtificialSource~{0} = 0]; Evaluate[$ArtificialSource~{1} = 1];
+    Evaluate[$ArtificialSourceSGS~{0} = SGS]; Evaluate[$ArtificialSourceSGS~{1} = 0];
 
     skipList = {(2*(idom_b + N_DOM)-1)%(2*N_DOM), (2*(idom_b + N_DOM)-2)%(2*N_DOM)}; // left
     BroadcastFields[skipList()];
@@ -89,8 +89,8 @@ Macro InitSweep
   SetCommSelf;
   If( proc == MPI_Rank && ProcOwnsDomain(idom) )
     If (SGS)
-      Evaluate[SGS #11]; Evaluate[SGS #12];
-      Evaluate[0. #21]; Evaluate[0. #22];
+      Evaluate[$ArtificialSource~{0} = SGS]; Evaluate[$ArtificialSource~{1} = SGS];
+      Evaluate[$ArtificialSourceSGS~{0} = 0]; Evaluate[$ArtificialSourceSGS~{1} = 0];
       // compute u on Omega_i (fast way)
       GenerateRHSGroup[Vol~{idom}, Region[{Sigma~{idom}}]] ;
       SolveAgain[Vol~{idom}] ;

@@ -1,4 +1,6 @@
-2.5.2: new ability to use Macros in .pro files; small fixes in MSH reader.
+2.5.2: new ability to use Macros in .pro files; new run-time variables (act as
+registers, but with user-defined names like $myVariable); small fixes in MSH
+reader.
 
 2.5.1: enhanced Python[] and DefineFunction[].
 

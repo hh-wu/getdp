@@ -781,6 +781,7 @@ struct WholeQuantity {
              double TimeInit; double TimeFinal; int NbrFrequency;
              double Exponent_f; double Exponent_b; }             FourierSteinmetz;
     struct { double *Value; }                                    CurrentValue;
+    struct { char *Name; }                                       NamedValue;
     struct { int  Index; }                                       Argument;
     struct { List_T *WholeQuantity_True, *WholeQuantity_False; } Test;
     struct { int  Index; }                                       SaveValue;
@@ -822,15 +823,17 @@ struct WholeQuantity {
 #define WQ_TRACE                   17
 #define WQ_ORDER                   18
 #define WQ_MHTIMEINTEGRATION       19
-#define WQ_MHTRANSFORM             199
-#define WQ_SHOWVALUE               20
-#define WQ_MHTIMEEVAL              211
-#define WQ_MHJACNL                 212
-#define WQ_POSTSAVE                214
-#define WQ_ATANTERIORTIMESTEP      22
-#define WQ_CHANGECURRENTPOSITION   30
-#define WQ_MAXOVERTIME             40
-#define WQ_FOURIERSTEINMETZ        41
+#define WQ_MHTRANSFORM             20
+#define WQ_SHOWVALUE               21
+#define WQ_MHTIMEEVAL              22
+#define WQ_MHJACNL                 23
+#define WQ_POSTSAVE                24
+#define WQ_ATANTERIORTIMESTEP      25
+#define WQ_CHANGECURRENTPOSITION   26
+#define WQ_MAXOVERTIME             27
+#define WQ_FOURIERSTEINMETZ        28
+#define WQ_SAVENAMEDVALUE          29
+#define WQ_NAMEDVALUESAVED         30
 
 /* TypeOperator */
 #define OP_PLUS           1

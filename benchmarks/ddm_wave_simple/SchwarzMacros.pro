@@ -9,8 +9,8 @@ Macro SolveSubdomains
   SetCommSelf;
   For ii In {0: #ListOfDom()-1}
     idom = ListOfDom(ii);
-    // update Dirichlet constraints (only actually necessary when #10
-    // changes for Helmholtz)
+    // update Dirichlet constraints (only actually necessary when
+    // $PhysicalSource changes for Helmholtz)
     UpdateConstraint[Vol~{idom}, GammaD~{idom}, Assign];
     // solve the volume PDE on each subdomain
     If(GenerateVolFlag~{idom})
@@ -67,18 +67,27 @@ Macro SaveVolumeSolutions
 Return
 
 Macro EnablePhysicalSourcesOnly
-  Evaluate[1. #10]; Evaluate[0. #11]; Evaluate[0. #12];
-  Evaluate[0. #21]; Evaluate[0. #22];
+  Evaluate[$PhysicalSource = 1];
+  For iSide In {0:1}
+    Evaluate[$ArtificialSource~{iSide} = 0];
+    Evaluate[$ArtificialSourceSGS~{iSide} = 0];
+  EndFor
 Return
 
 Macro EnableArtificialSourcesOnly
-  Evaluate[0. #10]; Evaluate[1. #11]; Evaluate[1. #12];
-  Evaluate[0. #21]; Evaluate[0. #22];
+  Evaluate[$PhysicalSource = 0];
+  For iSide In {0:1}
+    Evaluate[$ArtificialSource~{iSide} = 1];
+    Evaluate[$ArtificialSourceSGS~{iSide} = 0];
+  EndFor
 Return
 
 Macro EnableAllSources
-  Evaluate[1. #10]; Evaluate[1. #11]; Evaluate[1. #12];
-  Evaluate[0. #21]; Evaluate[0. #22];
+  Evaluate[$PhysicalSource = 1];
+  For iSide In {0:1}
+    Evaluate[$ArtificialSource~{iSide} = 1];
+    Evaluate[$ArtificialSourceSGS~{iSide} = 0];
+  EndFor
 Return
 
 Macro PrintInfo

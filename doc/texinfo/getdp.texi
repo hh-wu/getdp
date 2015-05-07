@@ -114,7 +114,7 @@ dimensions. This is the @cite{GetDP Reference Manual} for GetDP
 @c =========================================================================
 
 @menu
-* Obtaining GetDP::             
+* Obtaining GetDP::
 * Copying conditions::          Terms and conditions of use.
 * Overview::                    What is GetDP?
 * How to Read this Manual::     Which parts of this manual should you read?
@@ -141,27 +141,27 @@ dimensions. This is the @cite{GetDP Reference Manual} for GetDP
 
 Overview
 
-* Numerical tools as objects::  
-* Which problems can GetDP actually solve?::  
-* Bug reports::                 
+* Numerical tools as objects::
+* Which problems can GetDP actually solve?::
+* Bug reports::
 
 How to read this manual
 
-* Syntactic rules::             
+* Syntactic rules::
 
 Expressions 
 
-* Comments::                    
-* Includes::                    
-* Expression definition::       
-* Constants::                   
-* Operators::                   
-* Functions::                   
-* Current values::              
-* Arguments::                   
-* Registers::                   
-* Fields::                      
-* Macros loops and conditionals::  
+* Comments::
+* Includes::
+* Expression definition::
+* Constants::
+* Operators::
+* Functions::
+* Current values::
+* Arguments::
+* Run-time variables and registers::
+* Fields::
+* Macros loops and conditionals::
 
 Expressions definition
 
@@ -173,105 +173,105 @@ Expressions definition
 
 Operators
 
-* Operator types::              
-* Evaluation order::            
+* Operator types::
+* Evaluation order::
 
 Objects
 
-* Group::                       
-* Function::                    
-* Constraint::                  
-* FunctionSpace::               
-* Jacobian::                    
-* Integration::                 
-* Formulation::                 
-* Resolution::                  
-* PostProcessing::              
-* PostOperation::               
+* Group::
+* Function::
+* Constraint::
+* FunctionSpace::
+* Jacobian::
+* Integration::
+* Formulation::
+* Resolution::
+* PostProcessing::
+* PostOperation::
 
 Types for objects
 
-* Types for Group::             
-* Types for Function::          
-* Types for Constraint::        
-* Types for FunctionSpace::     
-* Types for Jacobian::          
-* Types for Integration::       
-* Types for Formulation::       
-* Types for Resolution::        
-* Types for PostProcessing::    
-* Types for PostOperation::     
+* Types for Group::
+* Types for Function::
+* Types for Constraint::
+* Types for FunctionSpace::
+* Types for Jacobian::
+* Types for Integration::
+* Types for Formulation::
+* Types for Resolution::
+* Types for PostProcessing::
+* Types for PostOperation::
 
 Types for @code{Function}
 
-* Math functions::              
-* Extended math functions::     
-* Green functions::             
-* Type manipulation functions::  
-* Coordinate functions::        
-* Miscellaneous functions::     
+* Math functions::
+* Extended math functions::
+* Green functions::
+* Type manipulation functions::
+* Coordinate functions::
+* Miscellaneous functions::
 
 Short examples
 
-* Constant expression examples::  
-* Group examples::              
-* Function examples::           
-* Constraint examples::         
-* FunctionSpace examples::      
-* Jacobian examples::           
-* Integration examples::        
-* Formulation examples::        
-* Resolution examples::         
-* PostProcessing examples::     
-* PostOperation examples::      
+* Constant expression examples::
+* Group examples::
+* Function examples::
+* Constraint examples::
+* FunctionSpace examples::
+* Jacobian examples::
+* Integration examples::
+* Formulation examples::
+* Resolution examples::
+* PostProcessing examples::
+* PostOperation examples::
 
 @code{FunctionSpace} examples
 
-* Conform space::               
-* High order space::            
-* Global values::               
-* Curl-conform space::          
-* Gauge condition::             
-* Coupled spaces::              
-* Multiply connected domains::  
+* Conform space::
+* High order space::
+* Global values::
+* Curl-conform space::
+* Gauge condition::
+* Coupled spaces::
+* Multiply connected domains::
 
 @code{Formulation} examples
 
-* Electrostatics::              
-* Electrostatics 2::            
-* Magnetostatics::              
-* Magnetodynamics::             
-* Other formulations::          
+* Electrostatics::
+* Electrostatics 2::
+* Magnetostatics::
+* Magnetodynamics::
+* Other formulations::
 
 @code{Resolution} examples
 
-* Static resolution::           
-* Frequency domain resolution::  
-* Time domain resolution::      
-* Nonlinear resolution::        
-* Coupled formulations::        
+* Static resolution::
+* Frequency domain resolution::
+* Time domain resolution::
+* Nonlinear resolution::
+* Coupled formulations::
 
 Complete examples
 
-* Electrostatic problem::       
-* Magnetostatic problem::       
-* Magnetodynamic problem::      
+* Electrostatic problem::
+* Magnetostatic problem::
+* Magnetodynamic problem::
 
 File formats
 
-* Input file format::           
-* Output file format::          
+* Input file format::
+* Output file format::
 
 Output file format
 
-* File pre::                    
-* File res::                    
+* File pre::
+* File res::
 
 Frequently asked questions
 
-* The basics::                  
-* Installation::                
-* Usage::                       
+* The basics::
+* Installation::
+* Usage::
 
 @end detailmenu
 @end menu
@@ -381,9 +381,9 @@ as research, collaboration, education, training and industrial studies.
 @c -------------------------------------------------------------------------
 
 @menu
-* Numerical tools as objects::  
-* Which problems can GetDP actually solve?::  
-* Bug reports::                 
+* Numerical tools as objects::
+* Which problems can GetDP actually solve?::
+* Bug reports::
 @end menu
 
 @node Numerical tools as objects, Which problems can GetDP actually solve?, Overview, Overview
@@ -578,7 +578,7 @@ manual.
 @c -------------------------------------------------------------------------
 
 @menu
-* Syntactic rules::             
+* Syntactic rules::
 @end menu
 
 @node Syntactic rules,  , How to Read this Manual, How to Read this Manual
@@ -838,17 +838,17 @@ back here to learn more about the specific syntax of all the objects,
 and all the available options.
 
 @menu
-* Comments::                    
-* Includes::                    
-* Expression definition::       
-* Constants::                   
-* Operators::                   
-* Functions::                   
-* Current values::              
-* Arguments::                   
-* Registers::                   
-* Fields::                      
-* Macros loops and conditionals::  
+* Comments::
+* Includes::
+* Expression definition::
+* Constants::
+* Operators::
+* Functions::
+* Current values::
+* Arguments::
+* Run-time variables and registers::
+* Fields::
+* Macros loops and conditionals::
 @end menu
 
 @c -------------------------------------------------------------------------
@@ -933,8 +933,10 @@ Expressions are denoted by the metasyntactic variable @var{expression}
   @var{quantity} |
   @var{argument} |
   @var{current-value} |
-  @var{register-value-set} |
-  @var{register-value-get} |
+  @var{variable-set} |
+  @var{variable-get} |
+  @var{register-set} |
+  @var{register-get} |
   @var{operator-unary} @var{expression} |
   @var{expression} @var{operator-binary} @var{expression} |
   @var{expression} @var{operator-ternary-left} @var{expression} @var{operator-ternary-right} @var{expression} |
@@ -953,7 +955,7 @@ expressions, i.e., constant terminals (@var{integer}, @var{real}) and
 constant expression identifiers (@var{constant-id},
 @var{expression-cst-list}), discretized fields (@var{quantity}), arguments
 (@var{argument}), current values (@var{current-value}), register values
-(@var{register-value-set}, @var{register-value-get}), operators
+(@var{register-set}, @var{register-get}), operators
 (@var{operator-unary}, @var{operator-binary}, @var{operator-ternary-left},
 @var{operator-ternary-right}) and built-in or user-defined functions
 (@var{built-in-function-id}, @var{function-id}). The last seven cases in
@@ -1118,7 +1120,7 @@ for the definition of constants is:
 @var{constant-id}:
   @var{string} |
   @var{string} ( @var{expression-cst-list} ) |
-  @var{string} ~ @{ @var{expression-cst} @}
+  @var{string} ~ @{ @var{expression-cst} @} <,@dots{}>
 
 @var{constant-def}:
   @var{expression-cst-list-item} |
@@ -1127,7 +1129,7 @@ for the definition of constants is:
 
 @var{string-id}:
   @var{string} |
-  @var{string} ~ @{ @var{expression-cst} @}
+  @var{string} ~ @{ @var{expression-cst} @} <,@dots{}>
 
 @var{string-def}:
   "@var{string}" |
@@ -1209,8 +1211,8 @@ string that can contain floating point formatting characters: @code{%e},
 @section Operators
 
 @menu
-* Operator types::              
-* Evaluation order::            
+* Operator types::
+* Evaluation order::
 @end menu
 
 @c .........................................................................
@@ -1441,9 +1443,8 @@ the only functions allowed in a constant definition (see the definition of
 @tindex $B
 @tindex $C
 
-Current values are a special kind of arguments (@pxref{Arguments}) which
-return the current integer or floating point value of an internal GetDP
-variable:
+Current values return the current floating point value of an internal
+GetDP variable:
 
 @table @code
 @item $Time
@@ -1483,12 +1484,15 @@ The current X, Y and Z coordinates refer to the `physical world'
 coordinates, i.e., coordinates in which the mesh is expressed.
 @end enumerate
 
+Current values are ``read-only''. User-defined run-time variables, which
+share the same syntax but whose value can be changed in an
+@var{expression}, are defined in @ref{Run-time variables and registers}.
 
 @c -------------------------------------------------------------------------
 @c Arguments
 @c -------------------------------------------------------------------------
 
-@node Arguments, Registers, Current values, Expressions
+@node Arguments, Run-time variables and registers, Current values, Expressions
 @section Arguments
 
 @cindex Arguments, definition
@@ -1510,52 +1514,73 @@ See @ref{Function}, and @ref{Function examples}, for more details.
 
 
 @c -------------------------------------------------------------------------
-@c Registers
+@c Run-time variables and registers
 @c -------------------------------------------------------------------------
 
-@node Registers, Fields, Arguments, Expressions
-@section Registers
+@node Run-time variables and registers, Fields, Arguments, Expressions
+@section Run-time variables and registers
 
+@cindex Run-time variables, definition
 @cindex Registers, definition
 
-@vindex @var{register-value-set}
-@vindex @var{register-value-get}
+@vindex @var{variable-set}
+@vindex @var{variable-get}
+@vindex @var{register-set}
+@vindex @var{register-get}
 
 @tindex #@var{expression-cst}
 
-In many situations, identical parts of expressions are used more than
-once. If this is not a problem with constant expressions (since
-@var{expression-cst}s are evaluated only once during the analysis of the
-problem definition structure, cf.@: @ref{Constants}), it may introduce some
-important overhead while evaluating complex @var{expression}s (which are
-evaluated at runtime, thanks to an internal stack mechanism). In order to
-circumvent this problem, the evaluation result of any part of an
-@var{expression} can be saved in a register: a memory location where this
-partial result will be accessible without any costly reevaluation of the
-partial expression.
+Constant expressions (@var{expression-cst}s) are evaluated only once
+during the analysis of the problem definition structure, cf.@:
+@ref{Constants}. While this is perfectly fine in most situations,
+sometimes it is necessary to store and modify variables at run-time. For
+example, an iteration in a @code{Resolution} could depend on values
+computed at run-time. Also, to speed-up the evaluation of
+@var{expression}s (which are evaluated at runtime through GetDP's
+internal stack mechanism), it can be useful to save some results in a
+temporary variable, at run-time, in order to reuse them later on.
+
+Two mechanisms exit to handle such cases: run-time variables (which
+follow the same syntax as @ref{Current values}), and registers.
+
+Run-time variables have the following syntax: 
+@example
+@var{variable-set}:
+  $@var{variable-id} = @var{expression}
+
+@var{variable-get}:
+  $@var{variable-id}
+
+@var{variable-id}:
+  @var{string} |
+  @var{string} ~ @{ @var{expression-cst} @} <,@dots{}>
+@end example
+
+@noindent Thus, run-time variables can simply be defined anywhere in an @var{expression}
+and be reused later on. Current values can be seen as special cases of
+run-time variables, which are read-only.
 
 Registers have the following syntax: 
 @example
-@var{register-value-set}:
+@var{register-set}:
   @var{expression}#@var{expression-cst}
 
-@var{register-value-get}:
+@var{register-get}:
   #@var{expression-cst}
 @end example
 
-@noindent Thus, to store any part of an expression in the register 5, one
+@noindent Thus, to store any expression in the register 5, one
 should add @code{#5} directly after the expression. To reuse the value
-stored in this register, one simply uses @code{#5} instead of the expression
-it should replace.
+stored in this register, one simply uses @code{#5} instead of the
+expression it should replace.
 
 See @ref{Function examples}, for an example.
-
 
 @c -------------------------------------------------------------------------
 @c Fields
 @c -------------------------------------------------------------------------
 
-@node Fields, Macros loops and conditionals, Registers, Expressions
+@node Fields, Macros loops and conditionals, Run-time variables and registers, Expressions
 @section Fields
 
 @cindex Fields
@@ -1851,16 +1876,16 @@ in @ref{Syntactic rules}). Please refer to @ref{Types for objects}, for
 the list of all available options.
 
 @menu
-* Group::                       
-* Function::                    
-* Constraint::                  
-* FunctionSpace::               
-* Jacobian::                    
-* Integration::                 
-* Formulation::                 
-* Resolution::                  
-* PostProcessing::              
-* PostOperation::               
+* Group::
+* Function::
+* Constraint::
+* FunctionSpace::
+* Jacobian::
+* Integration::
+* Formulation::
+* Resolution::
+* PostProcessing::
+* PostOperation::
 @end menu
 
 
@@ -2914,16 +2939,16 @@ metasyntactic variables introduced for the ten GetDP objects.
 @cindex Objects, types
 
 @menu
-* Types for Group::             
-* Types for Function::          
-* Types for Constraint::        
-* Types for FunctionSpace::     
-* Types for Jacobian::          
-* Types for Integration::       
-* Types for Formulation::       
-* Types for Resolution::        
-* Types for PostProcessing::    
-* Types for PostOperation::     
+* Types for Group::
+* Types for Function::
+* Types for Constraint::
+* Types for FunctionSpace::
+* Types for Jacobian::
+* Types for Integration::
+* Types for Formulation::
+* Types for Resolution::
+* Types for PostProcessing::
+* Types for PostOperation::
 @end menu
 
 @c -------------------------------------------------------------------------
@@ -3034,12 +3059,12 @@ Dual volumes of elements of @var{R1}.
 @section Types for @code{Function}
 
 @menu
-* Math functions::              
-* Extended math functions::     
-* Green functions::             
-* Type manipulation functions::  
-* Coordinate functions::        
-* Miscellaneous functions::     
+* Math functions::
+* Extended math functions::
+* Green functions::
+* Type manipulation functions::
+* Coordinate functions::
+* Miscellaneous functions::
 @end menu
 
 @c .........................................................................
@@ -5172,17 +5197,17 @@ Adaptation map, suitable for the GetDP @code{-adapt} command line option.
 @cindex Examples, short
 
 @menu
-* Constant expression examples::  
-* Group examples::              
-* Function examples::           
-* Constraint examples::         
-* FunctionSpace examples::      
-* Jacobian examples::           
-* Integration examples::        
-* Formulation examples::        
-* Resolution examples::         
-* PostProcessing examples::     
-* PostOperation examples::      
+* Constant expression examples::
+* Group examples::
+* Function examples::
+* Constraint examples::
+* FunctionSpace examples::
+* Jacobian examples::
+* Integration examples::
+* Formulation examples::
+* Resolution examples::
+* PostProcessing examples::
+* PostOperation examples::
 @end menu
 
 @c -------------------------------------------------------------------------
@@ -5352,6 +5377,11 @@ g[] = f[$1]#0 * Sin[#0^2];
 @noindent thus reducing the number of evaluations of @code{f[]} (and of the
 argument @code{$1}) to one.
 
+The same results can be obtained using a run-time variable @code{$v}:
+@example
+g[] = ($v = f[$1]) * Sin[$v^2];
+@end example
+
 A function can also be time dependent, e.g.,
 
 @example
@@ -5449,13 +5479,13 @@ Various discrete function spaces can be defined in the frame of the finite
 element method. 
 
 @menu
-* Conform space::               
-* High order space::            
-* Global values::               
-* Curl-conform space::          
-* Gauge condition::             
-* Coupled spaces::              
-* Multiply connected domains::  
+* Conform space::
+* High order space::
+* Global values::
+* Curl-conform space::
+* Gauge condition::
+* Coupled spaces::
+* Multiply connected domains::
 @end menu
 
 @c .........................................................................
@@ -5857,11 +5887,11 @@ of elements.
 @cindex Formulation, examples
 
 @menu
-* Electrostatics::              
-* Electrostatics 2::            
-* Magnetostatics::              
-* Magnetodynamics::             
-* Other formulations::          
+* Electrostatics::
+* Electrostatics 2::
+* Magnetostatics::
+* Magnetodynamics::
+* Other formulations::
 @end menu
 
 @c todo: ajouter un vrai exemple de circuit (cf. constraint example)
@@ -6064,11 +6094,11 @@ mixed formulations can be defined.
 @cindex Resolution, examples
 
 @menu
-* Static resolution::           
-* Frequency domain resolution::  
-* Time domain resolution::      
-* Nonlinear resolution::        
-* Coupled formulations::        
+* Static resolution::
+* Frequency domain resolution::
+* Time domain resolution::
+* Nonlinear resolution::
+* Coupled formulations::
 @end menu
 
 @c .........................................................................
@@ -6406,9 +6436,9 @@ password=getdp).
 
 
 @menu
-* Electrostatic problem::       
-* Magnetostatic problem::       
-* Magnetodynamic problem::      
+* Electrostatic problem::
+* Magnetostatic problem::
+* Magnetodynamic problem::
 @end menu
 
 @c -------------------------------------------------------------------------
@@ -6520,8 +6550,8 @@ user. The format of the problem definition structure is explained in
 post-processing files is explained in @ref{Types for PostOperation}.
 
 @menu
-* Input file format::           
-* Output file format::          
+* Input file format::
+* Output file format::
 @end menu
 
 @c -------------------------------------------------------------------------
@@ -6597,8 +6627,8 @@ information about these formats.
 @cindex Output file format
 
 @menu
-* File pre::                    
-* File res::                    
+* File pre::
+* File res::
 @end menu
 
 
@@ -6811,9 +6841,9 @@ enable optional modules or features. Here is the list of CMake options:
 @c -------------------------------------------------------------------------
 
 @menu
-* The basics::                  
-* Installation::                
-* Usage::                       
+* The basics::
+* Installation::
+* Usage::
 @end menu
 
 @node The basics, Installation, Frequently asked questions, Frequently asked questions

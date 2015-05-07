@@ -153,25 +153,29 @@ const char *Get_StringForFunction2Nbr(struct StringXFunction2Nbr SXF[], void (*F
 
 static char Valid[5000];
 
-#define GV(Get_Valid_X)				\
-  int i = 0;					\
-  Message::Direct("Valid Choices are:");		\
-  while (V[i].string != NULL){			\
-    if(!(i%3)){					\
-      if(i) Message::Direct("  %s", Valid);		\
-      strcpy(Valid, V[i].string);		\
-    }						\
-    else strcat(Valid, V[i].string);		\
-    strcat(Valid, " ");				\
-    i++ ;					\
-  }						\
-  Message::Direct("  %s", Valid);			\
-  return(Valid)
+#define GV(value, Get_Valid_X)                                          \
+  int i = 0;                                                            \
+  Message::Direct("Value '%s' not amongst valid choices:", value);      \
+  while (V[i].string != NULL){                                          \
+    if(!(i%3)){                                                         \
+      if(i) Message::Direct("  %s", Valid);                             \
+      strcpy(Valid, V[i].string);                                       \
+    }                                                                   \
+    else strcat(Valid, V[i].string);                                    \
+    strcat(Valid, " ");                                                 \
+    i++ ;                                                               \
+  }                                                                     \
+  Message::Direct("  %s", Valid);
 
-char* Get_Valid_SXD   (struct StringXDefine V[]) { GV("Get_Valid_SXD"); }
-char* Get_Valid_SXD1N (struct StringXDefine1Nbr V[]) { GV("Get_Valid_SXD1N"); }
-char* Get_Valid_SXP   (struct StringXPointer V[]) { GV("Get_Valid_SXP"); }
-char* Get_Valid_SX3F3N(struct StringX3Function3Nbr V[]) { GV("Get_Valid_SX3F3N"); }
-char* Get_Valid_SXF2N (struct StringXFunction2Nbr V[]) { GV("Get_Valid_SXF2N"); }
+void Get_Valid_SXD   (const char *value, struct StringXDefine V[])
+{ GV(value, "Get_Valid_SXD"); }
+void Get_Valid_SXD1N (const char *value, struct StringXDefine1Nbr V[])
+{ GV(value, "Get_Valid_SXD1N"); }
+void Get_Valid_SXP   (const char *value, struct StringXPointer V[])
+{ GV(value, "Get_Valid_SXP"); }
+void Get_Valid_SX3F3N(const char *value, struct StringX3Function3Nbr V[])
+{ GV(value, "Get_Valid_SX3F3N"); }
+void Get_Valid_SXF2N (const char *value, struct StringXFunction2Nbr V[])
+{ GV(value, "Get_Valid_SXF2N"); }
 
 #undef GV
