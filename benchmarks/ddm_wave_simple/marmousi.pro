@@ -190,9 +190,17 @@ Function{
   For ii In {0: N_DOM-1}
     idom = ii;
     For jdom In {0:1}
-      kPml~{idom}~{jdom}[] = k[Vector[xSigma~{idom}~{jdom},Y[],Z[]]] ;
-      cPml~{idom}~{jdom}[] = c[Vector[xSigma~{idom}~{jdom},Y[],Z[]]] ; // FIXME: the specified position is ignored !!
-      // cPml~{idom}~{jdom}[] = c[ ] ;
+
+      If (EXTERNAL_VELOCITY_FIELD)
+        cPml~{idom}~{jdom}[] = ScalarField[Vector[xSigma~{idom}~{jdom},Y[],Z[]]]{7*N_DOM} ;
+      EndIf
+      If (!EXTERNAL_VELOCITY_FIELD)
+        cPml~{idom}~{jdom}[Pml~{idom}~{jdom}] = c[Vector[xSigma~{idom}~{jdom},Y[],Z[]]] ;
+        cPml~{idom}~{jdom}[PmlInf~{idom}~{jdom}] = c[Vector[xSigma~{idom}~{jdom},Y[],Z[]]] ;
+        cPml~{idom}~{jdom}[PmlN~{idom}~{jdom}] = c[Vector[xSigma~{idom}~{jdom},Y[],Z[]]] ;
+        // cPml~{idom}~{jdom}[] = cMin + (cMax-cMin)/(D^2)*(D*xSigma~{idom}~{jdom}); // speed gradient along X -- FIXME: harcoded !!!
+      EndIf
+      kPml~{idom}~{jdom}[] = om[]/cPml~{idom}~{jdom}[];
     EndFor
     // Bermudez damping functions
     SigmaX[Omega~{idom}] = 0. ;
