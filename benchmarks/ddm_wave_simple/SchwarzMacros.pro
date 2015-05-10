@@ -1,3 +1,5 @@
+DefineConstant[ EXTERNAL_VELOCITY_FIELD ];
+
 For ii In {0: #ListOfDom()-1}
   idom = ListOfDom(ii);
   DefineConstant[GenerateVolFlag~{idom} = 0];
@@ -119,7 +121,7 @@ Macro PrintInfo
       Printf["Using %g-th order Pade (OSRC) transmission conditions", NP_OSRC];
     EndIf
     If(TC_TYPE == 3)
-      Printf["Using PML transmission conditions"];
+      Printf["Using PML transmission conditions: nLayersTr %g, nLayersPml %g", nLayersTr, nLayersPml];
     EndIf
     Printf["Relative iterative solver tolerance = %g", TOL];
     Printf["Using sweeping preconditioner: %g", PRECOND_SWEEP];
@@ -130,5 +132,9 @@ Macro PrintInfo
   // increase preallocation for Maxwell formulation
   If(ANALYSIS == 1)
     SetGlobalSolverOptions["-petsc_prealloc 200"];
+  EndIf
+  If (EXTERNAL_VELOCITY_FIELD)
+    GmshRead[VELOCITY_FNAME, 7*N_DOM];
+    Printf["Using external data for the velocity field"];
   EndIf
 Return

@@ -40,26 +40,27 @@ Resolution {
       IterativeLinearSolver["I-A", SOLVER, TOL, MAXIT, RESTART,
                             {ListOfField()}, {ListOfNeighborField()}, {}]
       {
+	// Call EnableArtificialSourcesOnly;
         Call SolveSubdomains;
         Call UpdateGonSurfaces;
       }
       {
 	If (PRECOND_SWEEP)
-	  // for the 'clean' version of SGS, we use a copy of the data; in
-	  // practice (EXPERIMENTAL) it works best by not using it
-	  // (cf. definition of g_in_c[])
-	  Call CopyG;
+      	  // for the 'clean' version of SGS, we use a copy of the data; in
+      	  // practice (EXPERIMENTAL) it works best by not using it
+      	  // (cf. definition of g_in_c[])
+      	  Call CopyG;
 
-	  // init the sweeps (solve first domain of each group if SGS +
-	  // broadcast)
-	  nCuts = #ListOfCuts()-1; // number of groups of domains (FIXME: not
+      	  // init the sweeps (solve first domain of each group if SGS +
+      	  // broadcast)
+      	  nCuts = #ListOfCuts()-1; // number of groups of domains (FIXME: not
                                    // tested in cyclic case)
-	  For ii In{0:nCuts}
-	    For proc In {0:MPI_Size-1}
-	      idom = ListOfCuts(ii);
-	      Call InitSweep;
-	    EndFor
-	  EndFor
+      	  For ii In{0:nCuts}
+      	    For proc In {0:MPI_Size-1}
+      	      idom = ListOfCuts(ii);
+      	      Call InitSweep;
+      	    EndFor
+      	  EndFor
 
           // do the sweeps concurrently
           For iCut In{0:nCuts-1}
@@ -71,19 +72,18 @@ Resolution {
                 // index for the backward sweep
                 idom_b = (ListOfCuts(iCut) + ListOfCuts(iCut+1) - ii) % N_DOM;
                 // these two calls are independent and work in parallel
-		Call SolveAndStepForward;
+      		Call SolveAndStepForward;
                 Call SolveAndStepBackward;
-	      EndFor
-	    EndFor
-	  EndFor
+      	      EndFor
+      	    EndFor
+      	  EndFor
 
-	  // finalize communication (last/first domain of each segment)
+      	  // finalize communication (last/first domain of each segment)
           For iCut In{0:nCuts}
             For proc In {0:MPI_Size-1}
               Call FinalizeSweep;
             EndFor
-	  EndFor
-
+      	  EndFor
         EndIf
       }
 
@@ -95,6 +95,7 @@ Resolution {
       Call EnableAllSources;
       Call SolveSubdomains;
       Call SaveVolumeSolutions;
+
     }
   }
 }

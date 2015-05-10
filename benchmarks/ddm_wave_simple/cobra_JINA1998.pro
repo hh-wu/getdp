@@ -11,7 +11,7 @@ DefineConstant[ // allows to set these from outside
   WALLS = {1, Name "Input/05Walls",
     Choices {0="Transparent", 1="Metallic"}},
   // excitation mode
-  MODE_M = {1, Name "Input/05m"}, // y
+  MODE_M = {2, Name "Input/05m"}, // y
   MODE_N = {1, Name "Input/05n"}, // z
   // transmission boundary condition
   TC_TYPE = {0, Name "Input/01Transmission condition",
@@ -20,8 +20,11 @@ DefineConstant[ // allows to set these from outside
   // parameters for the DDM iterative solver
   SOLVER = "gmres", // bcgs, gmsh_pcleft, ...
   TOL = 1e-4,
-  MAXIT = 1000,
+  MAXIT = 100,
   RESTART = MAXIT
+  // sweeping preconditioner
+  PRECOND_SWEEP = {0, Name "Input/01Sweeping preconditioner", Choices{0,1}},
+  SGS = 0
 ];
 
 
@@ -89,10 +92,13 @@ ic += i;
 
 Function {
   I[] = Complex[0, 1];
+  N[] = Normal[];
   om[] = WAVENUMBER;
   c[] = 1.;//1.25*(1.-.4*Exp[-32*(Y[]-.5)^2]) ;
   k[] = om[]/c[] ;
   omega[] = c*k[] ;
+
+  mu[] = mu0 ;
 
   kDtN[] = k[];
   kInf[] = k[];
@@ -119,15 +125,24 @@ Function {
     EndFor
   EndFor
 
-  // uinc[] = Sin[1.*Pi/d1*P~{0}~{0}[]]*Sin[1.*Pi/d2*Q~{0}~{0}[]]; // mode in the rotated coordinates
-  // uinc[] = Sin[1.*Pi/d1*P~{N_DOM-1}~{1}[]]*Sin[1.*Pi/d2*Q~{N_DOM-1}~{1}[]]; // mode in the rotated coordinates
-  uinc[] = Sin[1.*Pi/d1*Y[]]*Sin[1.*Pi/d2*Z[]]; // mode in the rotated coordinates
+  ky = MODE_M*Pi/d1 ;
+  kz = MODE_N*Pi/d2 ;
+  kc = Sqrt[ky^2+kz^2] ;
 
-  einc[] = Vector[ Sin[ky*Y[]]*Sin[kz*Z[]], I[]*beta[]*ky/kc^2*Cos[ky*Y[]]*Sin[kz*Z[]], I[]*beta[]*kz/kc^2*Cos[kz*Z[]]*Sin[ky*Y[]] ]; // TM
+  uinc[] = Sin[ky*(Y[]-shiftY)]*Sin[kz*Z[]]; // mode in the rotated coordinates
+
+  beta[] = ( -kc^2 + k[]^2 >=0 ? Sqrt[-kc^2 + k[]^2] : -I[]*Sqrt[kc^2 - k[]^2] ) ;
+  einc[] = Vector[ Sin[ky*(Y[]-shiftY)]*Sin[kz*Z[]],
+		   I[]*beta[]*ky/kc^2*Cos[ky*(Y[]-shiftY)]*Sin[kz*Z[]],
+		   I[]*beta[]*kz/kc^2*Cos[kz*Z[]]*Sin[ky*(Y[]-shiftY)] ]; // TM
+
+  alphaBT[] = 0; //1/(2*R_EXT) - I[]/(8*k*R_EXT^2*(1+I[]/(k*R_EXT)));
+  betaBT[] = 0; // -1/(2*I[]*k); //- 1/(2*I[]*k*(1+I[]/(k*R_EXT)));
 }
 
 If (PRECOND_SWEEP)
   ListOfCuts = {0, N_DOM-1};
+  ListOfCuts = {0, 4, N_DOM-1};
   // ListOfCuts = {0, 7, N_DOM-1}; //16/1
   // ListOfCuts = {0, 5, 10, N_DOM-1}; //16/2
   // ListOfCuts = {0, 4, 8, 12, N_DOM-1}; //16/3
@@ -194,7 +209,12 @@ Group{
     If (idom == N_DOM-1)
       Sigma~{idom}~{0} = Region[ ((idom+1)*1000+10) ];
       Sigma~{idom}~{1} = Region[{}];
-      GammaInf~{idom} += Region[ ((idom+1)*1000+20) ];
+      If (OPEN_ENDED)
+	GammaInf~{idom} += Region[ ((idom+1)*1000+20) ];
+      EndIf
+      If (!OPEN_ENDED)
+	GammaD0~{idom} += Region[ ((idom+1)*1000+20) ];
+      EndIf
       GammaD~{idom} = Region[{}];
       Pml~{idom}~{0} += Region[ ((idom+1)*1000+100) ];
       If(WALLS == 1)

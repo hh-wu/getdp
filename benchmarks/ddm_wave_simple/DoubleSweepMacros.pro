@@ -46,6 +46,9 @@ Macro SolveAndStepForward
 
     skipList = {(2*(idom_f + N_DOM)-1)%(2*N_DOM), (2*(idom_f + N_DOM)-2)%(2*N_DOM)}; // left
     BroadcastFields[skipList()];
+
+    Evaluate[$ArtificialSource~{0} = 1]; Evaluate[$ArtificialSource~{1} = 1];
+    Evaluate[$ArtificialSourceSGS~{0} = 0]; Evaluate[$ArtificialSourceSGS~{1} = 0];
   EndIf
   SetCommWorld;
 Return
@@ -73,6 +76,9 @@ Macro SolveAndStepBackward
 
     skipList = {2*idom_b, (2*(idom_b + N_DOM)+1)%(2*N_DOM)}; // right
     BroadcastFields[skipList()];
+
+    Evaluate[$ArtificialSource~{0} = 1]; Evaluate[$ArtificialSource~{1} = 1];
+    Evaluate[$ArtificialSourceSGS~{0} = 0]; Evaluate[$ArtificialSourceSGS~{1} = 0];
   EndIf
   SetCommWorld;
 Return
