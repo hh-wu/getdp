@@ -23,7 +23,7 @@ DefineConstant[ // allows to set these from outside
   SGS = 1,
   N_ON_TOP = {1, Name "Input/01Neumann condition on top",
 	      Choices{0,1}},
-  EXTERNAL_VELOCITY_FIELD = {0, Name "Input/01Velocity Field",
+  EXTERNAL_VELOCITY_FIELD = {1, Name "Input/01Velocity Field",
 			     Choices {0="Homogeneous", 1="Marmousi"}}
 ];
 
@@ -47,28 +47,15 @@ EndIf
 Function {
   I[] = Complex[0,1];
   If (EXTERNAL_VELOCITY_FIELD)
-    c[] = ScalarField[XYZ[]]{7*N_DOM};
+    velocityField[] = ScalarField[ $1 ]{7*N_DOM};
   EndIf
   If (!EXTERNAL_VELOCITY_FIELD)
-    // cMin = 2.*cMin;
-    // cMax = cMax/2.;
-    // cMax = cMin*3.1;
-
-    // cMin = cAvg/1.5;
-    // cMax = cAvg/1.5;
-
-    // c[] = cAvg; //use a mean value
-    // c[] = cMin + (cMax-cMin)/(D^2+d^2)*(D*X[]-d*Y[]); // 'oblique' speed gradient
-    // c[] = cMin + (cMax-cMin)/(d^2)*(-d*Y[]); // speed gradient along Y
-    c[] = cMin + (cMax-cMin)/(D^2)*(D*X[]); // speed gradient along X
-
-    // For i In {0:N_DOM-1}
-    //   // cMid~{i}[] = cMin + (cMax-cMin)/(D^2+d^2)*(D*xSigmaList(i)-d*Y[]);
-    //   cMid~{i}[] = cMin + (cMax-cMin)/(D^2+d^2)*(D*xSigmaList(i)-d*Y[]); // 'oblique' speed gradient
-    //   // cMid~{i}[] = cMin + (cMax-cMin)/(d^2)*(-d*Y[]); // speed gradient along Y
-    //   // cMid~{i}[] = cMin + (cMax-cMin)/(D^2)*(D*(i*dDom)); // speed gradient along X
-    // EndFor
+    // velocityField[] = cAvg; //use a mean value
+    // velocityField[] = cMin + (cMax-cMin)/(D^2+d^2)*(D*CompX[ $1 ]-d*CompY[ $1 ]); // 'oblique' speed gradient
+    // velocityField[] = cMin + (cMax-cMin)/(d^2)*(-d*CompY[ $1 ]); // speed gradient along Y
+    velocityField[] = cMin + (cMax-cMin)/(D^2)*(D*CompX[ $1 ]); // speed gradient along X
   EndIf
+  c[] = velocityField[ XYZ[] ];
 
   om[] = om;
 
@@ -190,16 +177,7 @@ Function{
   For ii In {0: N_DOM-1}
     idom = ii;
     For jdom In {0:1}
-
-      If (EXTERNAL_VELOCITY_FIELD)
-        cPml~{idom}~{jdom}[] = ScalarField[Vector[xSigma~{idom}~{jdom},Y[],Z[]]]{7*N_DOM} ;
-      EndIf
-      If (!EXTERNAL_VELOCITY_FIELD)
-        cPml~{idom}~{jdom}[Pml~{idom}~{jdom}] = c[Vector[xSigma~{idom}~{jdom},Y[],Z[]]] ;
-        cPml~{idom}~{jdom}[PmlInf~{idom}~{jdom}] = c[Vector[xSigma~{idom}~{jdom},Y[],Z[]]] ;
-        cPml~{idom}~{jdom}[PmlN~{idom}~{jdom}] = c[Vector[xSigma~{idom}~{jdom},Y[],Z[]]] ;
-        // cPml~{idom}~{jdom}[] = cMin + (cMax-cMin)/(D^2)*(D*xSigma~{idom}~{jdom}); // speed gradient along X -- FIXME: harcoded !!!
-      EndIf
+      cPml~{idom}~{jdom}[] = velocityField[Vector[xSigma~{idom}~{jdom},Y[],Z[]]];
       kPml~{idom}~{jdom}[] = om[]/cPml~{idom}~{jdom}[];
     EndFor
     // Bermudez damping functions

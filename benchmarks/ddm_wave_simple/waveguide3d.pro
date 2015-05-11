@@ -204,10 +204,8 @@ Function{
     D[Pml~{idom}~{1}] = Rotate[Dpml[],0.,0.,-thetaList(idom+1)];
   EndFor
 
-  //   nu[] = 1./D[];
-  // eps[] = 1.*D[];
-    nu[] = 1.;
-  eps[] = 1.;
+  nu[] = 1./D[];
+  eps[] = 1.*D[];
 
 }
 
