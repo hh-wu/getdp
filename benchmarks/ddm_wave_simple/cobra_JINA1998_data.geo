@@ -28,7 +28,7 @@ MSH_NAME = StrCat(DIR, MSH_BASE_NAME) ;
 // N_LAMBDA = 20.000000 ;
 LC = LAMBDA/N_LAMBDA;//0.005-0*1e-9;//2500;
 // LC = 0.005-1*1e-9;//2500;
-LC = 0.005;//2500;
+// LC = 0.005;//2500;
 
 Printf("LC: %g",LC);
 
@@ -40,9 +40,10 @@ n = 1 ; // 'horizontal'
 PARTS = 5; // use 5 for the full model
 OPEN_ENDED = 1; // radiation condition ; otherwise wall condition
 
-// nDomList = {3,5,2,5,1}; // number of domains in the different parts of the domain, starting from inner straight part
-nDomList = {2,2,1,2,1}; // number of domains in the different parts of the domain, starting from inner straight part
-// nDomList = {6,10,4,10,2}; // number of domains in the different parts of the domain, starting from inner straight part
+// nDomList = {2,2,1,2,1}; // number of domains in the different parts of the domain, starting from inner straight part -- 8
+nDomList = {3,5,2,5,1}; // number of domains in the different parts of the domain, starting from inner straight part -- 16
+// nDomList = {6,10,4,10,2}; // number of domains in the different parts of the domain, starting from inner straight part -- 32
+// nDomList = {12,20,8,20,4}; // number of domains in the different parts of the domain, starting from inner straight part -- 64
 
 D1 = .1; // inner straight part length
 D2 = .08; // middle straight part length

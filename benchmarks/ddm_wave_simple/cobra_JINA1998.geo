@@ -43,28 +43,36 @@ Transfinite Surface{s}; Recombine Surface{s};
 theta = 0; // theta is the cumulative angle
 
 For i In {0:nDomList[0]-1} // straight part on the left
-  ext[] = Extrude{D1/nDomList[0],0,0}{ Surface{ls[i]}; Layers{D1/nDomList[0]/lc}; Recombine; };
+  nLayersDom = Ceil(D1/nDomList[0]/(lc*(1.+1e-6)));
+  If (nLayersDom < 5)
+    Printf("WARNING: less than 5 layers (%g) in domain %g", nLayersDom, (i));
+  EndIf
+  ext[] = Extrude{D1/nDomList[0],0,0}{ Surface{ls[i]}; Layers{ nLayersDom }; Recombine; };
   ls[] += ext[0];
   lv[] += ext[1];
   lSides[] += ext[{2:5}];
 
   idom = i;
-  pmlLeft~{idom} = Extrude {-dBb*Cos(theta), -dBb*Sin(theta), 0} {Surface{ls[i]} ; Layers{ (dBb/LC) } ; Recombine ; };
-  pmlRight~{idom} = Extrude {dBb*Cos(theta), dBb*Sin(theta), 0} {Surface{ls[i+1]} ; Layers{ (dBb/LC) } ; Recombine ; };
+  pmlLeft~{idom} = Extrude {-dBb*Cos(theta), -dBb*Sin(theta), 0} {Surface{ls[i]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ; };
+  pmlRight~{idom} = Extrude {dBb*Cos(theta), dBb*Sin(theta), 0} {Surface{ls[i+1]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ; };
 EndFor
 
 If (PARTS > 1)
   n = nDomList[0];
   For i In {n:n+nDomList[1]-1} // first bend
-    ext[] = Extrude{{0,0,1}, {shiftX+D1,R+d1+shiftY,0}, alpha/nDomList[1]}{ Surface{ls[i]}; Layers{R*alpha/nDomList[1]/lc}; Recombine; };
+    nLayersDom = Ceil(R*alpha/nDomList[1]/lc); // perturbation of LC to help rounding
+    If (nLayersDom < 5)
+      Printf("WARNING: less than 5 layers (%g) in domain %g", nLayersDom, (i));
+    EndIf
+    ext[] = Extrude{{0,0,1}, {shiftX+D1,R+d1+shiftY,0}, alpha/nDomList[1]}{ Surface{ls[i]}; Layers{ nLayersDom }; Recombine; };
     ls[] += ext[0];
     lv[] += ext[1];
     lSides[] += ext[{2:5}];
 
     idom =i;
-    pmlLeft~{idom} = Extrude {-dBb*Cos(theta), -dBb*Sin(theta), 0} {Surface{ls[i]} ; Layers{ (dBb/LC) } ; Recombine ; };
+    pmlLeft~{idom} = Extrude {-dBb*Cos(theta), -dBb*Sin(theta), 0} {Surface{ls[i]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ; };
     theta += alpha/nDomList[1];
-    pmlRight~{idom} = Extrude {dBb*Cos(theta), dBb*Sin(theta), 0} {Surface{ls[i+1]} ; Layers{ (dBb/LC) } ; Recombine ; };
+    pmlRight~{idom} = Extrude {dBb*Cos(theta), dBb*Sin(theta), 0} {Surface{ls[i+1]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ; };
   EndFor
 EndIf
 
@@ -72,14 +80,18 @@ If (PARTS > 2)
   If (D2 > 0)
     n += nDomList[1];
     For i In {n:n+nDomList[2]-1} // straight part in the middle
-      ext[] = Extrude{D2/nDomList[2]*Cos(alpha), D2/nDomList[2]*Sin(alpha), 0}{ Surface{ls[i]}; Layers{D2/nDomList[2]/lc-1}; Recombine; }; // reduce the #layers by 1 for a more balanced mesh ?
+      nLayersDom = Ceil(D2/nDomList[2]/(lc*(1.+1e-6))); // perturbation of LC to help rounding
+      If (nLayersDom < 5)
+	Printf("WARNING: less than 5 layers (%g) in domain %g", nLayersDom, (i));
+      EndIf
+      ext[] = Extrude{D2/nDomList[2]*Cos(alpha), D2/nDomList[2]*Sin(alpha), 0}{ Surface{ls[i]}; Layers{ nLayersDom }; Recombine; }; 
       ls[] += ext[0];
       lv[] += ext[1];
       lSides[] += ext[{2:5}];
       
       idom =i;
-      pmlLeft~{idom} = Extrude {-dBb*Cos(theta), -dBb*Sin(theta), 0} {Surface{ls[i]} ; Layers{ (dBb/LC) } ; Recombine ; };
-      pmlRight~{idom} = Extrude {dBb*Cos(theta), dBb*Sin(theta), 0} {Surface{ls[i+1]} ; Layers{ (dBb/LC) } ; Recombine ; };
+      pmlLeft~{idom} = Extrude {-dBb*Cos(theta), -dBb*Sin(theta), 0} {Surface{ls[i]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ; };
+      pmlRight~{idom} = Extrude {dBb*Cos(theta), dBb*Sin(theta), 0} {Surface{ls[i+1]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ; };
     EndFor
   EndIf
 EndIf
@@ -87,29 +99,37 @@ EndIf
 If (PARTS > 3)
   n += nDomList[2];
   For i In {n:n+nDomList[3]-1} // second bend
-    ext[] = Extrude{{0,0,1}, {shiftX+D1+(R+d1)*Sin[alpha]+D2*Cos(alpha)+R*Sin[alpha], shiftY+(R+d1)*(1-Cos[alpha])+D2*Sin[alpha]+R*(1-Cos[alpha])-R, 0}, -alpha/nDomList[3]}{ Surface{ls[i]}; Layers{R*alpha/nDomList[3]/lc}; Recombine; };
+    nLayersDom = Ceil(R*alpha/nDomList[3]/lc);
+    If (nLayersDom < 5)
+      Printf("WARNING: less than 5 layers (%g) in domain %g", nLayersDom, (i));
+    EndIf
+    ext[] = Extrude{{0,0,1}, {shiftX+D1+(R+d1)*Sin[alpha]+D2*Cos(alpha)+R*Sin[alpha], shiftY+(R+d1)*(1-Cos[alpha])+D2*Sin[alpha]+R*(1-Cos[alpha])-R, 0}, -alpha/nDomList[3]}{ Surface{ls[i]}; Layers{ nLayersDom }; Recombine; };
     ls[] += ext[0];
     lv[] += ext[1];
     lSides[] += ext[{2:5}];
     
     idom =i;
-    pmlLeft~{idom} = Extrude {-dBb*Cos(theta), -dBb*Sin(theta), 0} {Surface{ls[i]} ; Layers{ (dBb/LC) } ; Recombine ; };
+    pmlLeft~{idom} = Extrude {-dBb*Cos(theta), -dBb*Sin(theta), 0} {Surface{ls[i]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ; };
     theta -= alpha/nDomList[1];
-    pmlRight~{idom} = Extrude {dBb*Cos(theta), dBb*Sin(theta), 0} {Surface{ls[i+1]} ; Layers{ (dBb/LC) } ; Recombine ; };
+    pmlRight~{idom} = Extrude {dBb*Cos(theta), dBb*Sin(theta), 0} {Surface{ls[i+1]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ; };
   EndFor
 EndIf
 
 If (PARTS > 4)
   n += nDomList[3]; // straight part on the right
   For i In {n:n+nDomList[4]-1}
-    ext[] = Extrude{D3/nDomList[4],0,0}{ Surface{ls[i]}; Layers{D3/nDomList[4]/lc}; Recombine; };
+    nLayersDom = Ceil(D3/nDomList[4]/(lc*(1.+1e-6))); // perturbation of LC to help rounding
+    If (nLayersDom < 5)
+      Printf("WARNING: less than 5 layers (%g) in domain %g", nLayersDom, (i));
+    EndIf
+    ext[] = Extrude{D3/nDomList[4],0,0}{ Surface{ls[i]}; Layers{ nLayersDom }; Recombine; };
     ls[] += ext[0];
     lv[] += ext[1];
     lSides[] += ext[{2:5}];
 
     idom =i;
-    pmlLeft~{idom} = Extrude {-dBb*Cos(theta), -dBb*Sin(theta), 0} {Surface{ls[i]} ; Layers{ (dBb/LC) } ; Recombine ; };
-    pmlRight~{idom} = Extrude {dBb*Cos(theta), dBb*Sin(theta), 0} {Surface{ls[i+1]} ; Layers{ (dBb/LC) } ; Recombine ; };
+    pmlLeft~{idom} = Extrude {-dBb*Cos(theta), -dBb*Sin(theta), 0} {Surface{ls[i]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ; };
+    pmlRight~{idom} = Extrude {dBb*Cos(theta), dBb*Sin(theta), 0} {Surface{ls[i+1]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ; };
   EndFor
 EndIf
 n += nDomList[4];
@@ -158,7 +178,6 @@ For i In {start:end}
       EndIf
     EndFor
   EndIf
-  // // // //   If ((is < idom) && (is > idom+1))  // !!! this line causes problems on 1 CPU if pasted above the if (even if still commented) !!!
     
   Physical Volume(((idom+1)*1000+200)) = lv[i];
   Physical Volume(((idom+1)*1000+100)) = pmlLeft~{idom}[1];
@@ -190,7 +209,6 @@ For i In {start:end}
     Printf("Done.");
   EndIf
     
-// Save Sprintf("cobra%g.msh",i);
 If(StrCmp(OnelabAction, "check")) // only mesh if not in onelab check mode
   CreateDir Str(DIR);
   Save StrCat(MSH_NAME, Sprintf("%g.msh", idom));
