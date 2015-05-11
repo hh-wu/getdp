@@ -55,7 +55,7 @@ Function {
     js[] = js0[] * F_Sin_wt_p[]{2 * Pi * Freq, Flag_Dynamic ? 0 : Pi/2};
   EndIf
 
-  Nb_max_iter       = 10;
+  Nb_max_iter       = 5;
   relaxation_factor = 1.;
   stop_criterion    = 1e-8;
   T                 = 1./Freq;

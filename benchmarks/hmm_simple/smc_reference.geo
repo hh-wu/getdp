@@ -62,7 +62,7 @@ bndind[] += CombinedBoundary{Surface{surfind[]};};
 bndind_out[]+= {-bndind[{1,3,5}],-bndind[{9}]};
 bndind_in[]+= {-bndind[{8}], bndind[{2,4,7}]};
 
-cen0 = newp ; Point(cen0) = {0, 0, 0, pind};
+cen0 = newp ; Point(cen0) = {0, 0, 0, lc_smc_iso};
 
 //===============================================================================================
 x_L = 0.0;

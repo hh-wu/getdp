@@ -8,6 +8,11 @@ Group {
   GammaUp        = Region[ {GAMMA_UP} ];
   GammaDown      = Region[ {GAMMA_DOWN} ];
 
+  If (Flag_Half)
+  GammaLeft_NJ   = Region[ {GAMMA_LEFT_NJ } ];
+  GammaLeft_NB   = Region[ {GAMMA_LEFT_NB } ];
+  EndIf
+
   Skin_Omega_C   = Region[ {SKIN_COND} ];
 
   Omega_NL       = Region[ {IRON} ];
@@ -31,8 +36,8 @@ Function {
   eM[]            = - 0 * Vector[DTAX, DTAY, DTAZ];
   dt_bM[]         = Vector[DTBX, DTBY, DTBZ];
 
-  NbrMaxIter     = 10;
-  Eps            = 1e-8;
+  NbrMaxIter     = 5;
+  Eps            = 1e-4;
   Relax          = 1.0;
   factor         = 1.0;
   epsilon        = 1e-6;
@@ -75,11 +80,18 @@ Function {
 Constraint {
   { Name a_Meso;
     Case {
+      If (!Flag_Half)
       { Region GammaRight; Type Link; RegionRef GammaLeft;
         Coefficient 1.; Function Vector[$X-lx, $Y, $Z]; }
       { Region GammaUp; Type Link; RegionRef GammaDown;
         Coefficient 1.; Function Vector[$X, $Y-ly, $Z]; }
       { Region GammaCornerFix; Type Assign; Value 0.0; }
+      EndIf
+      If(Flag_Half)
+      { Region GammaUp; Type Link; RegionRef GammaDown;
+        Coefficient 1.; Function Vector[$X, $Y-ly, $Z]; }
+      { Region GammaLeft; Type Assign; Value 0.0; } 
+      EndIf
     }
   }
 
