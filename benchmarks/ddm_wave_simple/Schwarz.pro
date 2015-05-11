@@ -28,23 +28,25 @@ Resolution {
       // output parameters
       Call PrintInfo;
 
-      // compute rhs for Krylov solver in parallel on own cpu using physical
-      // sources only, and update surface data
+      // compute rhs for Krylov solver on own cpu using physical sources only,
+      // and update surface data
       Call EnablePhysicalSourcesOnly;
       Call SolveSubdomains;
       Call UpdateGonSurfaces;
 
-      // launch Krylov solver in parallel on all cpus using artificial sources
-      // only
+      // launch Krylov solver on all cpus using artificial sources only.
+      // IterativeLinearSolver solves (I-A) g = b: ListOfField() initially
+      // stores b; then stores each iterate g^k.
       Call EnableArtificialSourcesOnly;
       IterativeLinearSolver["I-A", SOLVER, TOL, MAXIT, RESTART,
                             {ListOfField()}, {ListOfNeighborField()}, {}]
       {
-	// Call EnableArtificialSourcesOnly;
+        // compute (A g^k) and stores the result in ListOfField()
         Call SolveSubdomains;
         Call UpdateGonSurfaces;
       }
       {
+        // applies a preconditioner
 	If (PRECOND_SWEEP)
       	  // for the 'clean' version of SGS, we use a copy of the data; in
       	  // practice (EXPERIMENTAL) it works best by not using it
@@ -95,7 +97,6 @@ Resolution {
       Call EnableAllSources;
       Call SolveSubdomains;
       Call SaveVolumeSolutions;
-
     }
   }
 }
