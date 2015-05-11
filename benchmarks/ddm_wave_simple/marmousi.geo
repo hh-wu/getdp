@@ -77,12 +77,16 @@ For i In {start+1:end+1}
     Transfinite Line{10,16,13} = (Ddom)/lc+1 Using Progression 1;
     Transfinite Line{77,15,11,62} = (d+ySource)/lc+1 Using Progression 1;
     Transfinite Line{76,14,12,63} = (-ySource)/lc+1 Using Progression 1;
+    Transfinite Line{78,65,75,61,79,64} = (nLayersTr+nLayersPml+1) Using Progression 1;
 
     Transfinite Surface{100:101,104:107};
     Recombine Surface{100:101,104:107};
     
     iDom = i;
-    
+
+    Physical Point(1001) = CombinedBoundary{ Line{14,15};};
+    Physical Point(1002) = CombinedBoundary{ Line{11,12};};
+
     Physical Line((iDom*1000+102)) = {78}; // bottom PML left
     Physical Line((iDom*1000+202)) = {10}; // bottom Omega
     Physical Line((iDom*1000+302)) = {61}; // bottom PML right
@@ -170,7 +174,8 @@ For i In {start+1:end+1}
     Transfinite Line{12,17,18,77,62} = (d+ySource)/lc+1 Using Progression 1;
     Transfinite Line{13,16,20,76,63} = (-ySource)/lc+1 Using Progression 1;
     
-    Transfinite Line{78,65,75,61,79,64} = (dBb)/lc+1 Using Progression 1;
+    // Transfinite Line{78,65,75,61,79,64} = (dBb)/lc+1 Using Progression 1;
+    Transfinite Line{78,65,75,61,79,64} = (nLayersTr+nLayersPml+1) Using Progression 1;
 
     Transfinite Surface{100:107};
     Recombine Surface{100:107};
@@ -178,6 +183,9 @@ For i In {start+1:end+1}
     iDom = i;
 
     Physical Point(1) = {5};
+    
+    Physical Point(1001) = CombinedBoundary{ Line{16,17};};
+    Physical Point(1002) = CombinedBoundary{ Line{12,13};};
     
     Physical Line((iDom*1000+102)) = {78}; // bottom PML left
     Physical Line((iDom*1000+202)) = {10,11}; // bottom Omega

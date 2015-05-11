@@ -15,7 +15,7 @@ DefineConstant[ // allows to set these from outside
   // parameters for the DDM iterative solver
   SOLVER = "gmres", // bcgs, gmsh_pcleft, ...
   TOL = 1e-4,
-  MAXIT = 100,
+  MAXIT = 200,
   RESTART = MAXIT
   // sweeping preconditioner
   PRECOND_SWEEP = {0, Name "Input/01Sweeping preconditioner",
@@ -28,6 +28,7 @@ DefineConstant[ // allows to set these from outside
 ];
 
 VELOCITY_FNAME = "marmousi.pos";
+DELTA_SOURCE = 1; // 1 ? delta function : dirichlet
 
 If (1)
   xSigmaList = {};
@@ -50,10 +51,10 @@ Function {
     velocityField[] = ScalarField[ $1 ]{7*N_DOM};
   EndIf
   If (!EXTERNAL_VELOCITY_FIELD)
-    // velocityField[] = cAvg; //use a mean value
+    velocityField[] = cAvg; //use a mean value
     // velocityField[] = cMin + (cMax-cMin)/(D^2+d^2)*(D*CompX[ $1 ]-d*CompY[ $1 ]); // 'oblique' speed gradient
     // velocityField[] = cMin + (cMax-cMin)/(d^2)*(-d*CompY[ $1 ]); // speed gradient along Y
-    velocityField[] = cMin + (cMax-cMin)/(D^2)*(D*CompX[ $1 ]); // speed gradient along X
+    // velocityField[] = cMin + (cMax-cMin)/(D^2)*(D*CompX[ $1 ]); // speed gradient along X
   EndIf
   c[] = velocityField[ XYZ[] ];
 
@@ -86,8 +87,13 @@ Group{
     PmlInf~{idom}~{1} = Region[{}];
     PmlN~{idom}~{0} = Region[{}];
     PmlN~{idom}~{1} = Region[{}];
-    GammaD~{idom} = Region[ 1 ]; // Point source
-
+    If (!DELTA_SOURCE)
+      GammaD~{idom} = Region[ 1 ]; // Point source
+    EndIf
+    If (DELTA_SOURCE)
+      GammaD~{idom} = Region[{}]; // Point source
+      GammaPoint~{idom} = Region[ 1 ]; // Point source
+    EndIf
     // GammaInf~{idom} = Region[{}];
     GammaInf~{idom} = Region[ ((idom+1)*1000+202) ]; // lower boundary
     GammaN~{idom} = Region[{}];
@@ -148,10 +154,14 @@ Group{
 
     Sigma~{idom} = Region[{Sigma~{idom}~{0}, Sigma~{idom}~{1}}] ;
 
-    BndSigma~{idom}~{0} = Region[{}];
-    BndSigma~{idom}~{1} = Region[{}];
+    // BndSigma~{idom}~{0} = Region[{}];
+    // BndSigma~{idom}~{1} = Region[{}];
+    BndSigma~{idom}~{0} = Region[{1001}];
+    BndSigma~{idom}~{1} = Region[{1002}];
     BndSigma~{idom} = Region[{BndSigma~{idom}~{0}, BndSigma~{idom}~{1}}] ;
 
+    // BndGammaInf~{idom}~{0} = Region[{}];
+    // BndGammaInf~{idom}~{1} = Region[{}];
     BndGammaInf~{idom}~{0} = Region[{}];
     BndGammaInf~{idom}~{1} = Region[{}];
     BndGammaInf~{idom} = Region[{BndGammaInf~{idom}~{0}, BndGammaInf~{idom}~{1}}] ;

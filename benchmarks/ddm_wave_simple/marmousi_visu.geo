@@ -12,3 +12,9 @@ For idom In {0:N_DOM-1}
 EndFor
 Combine ElementsFromVisibleViews;
 
+General.Trackball = 0;
+General.RotationX = -45 ;
+General.RotationY = 0 ;
+General.RotationZ = 15 ;
+
+View[0].NormalRaise += 7000*View[0].Max ; // helpful to detect discontinuities

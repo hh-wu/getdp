@@ -9,7 +9,7 @@ DefineConstant[ // allows to set these from outside
   // number of points per wavelength
   N_LAMBDA = {20, Name "Input/2Points per wavelength"},
   // number of subdmains in the DDM
-  N_DOM = {8, Name "Input/04Number of subdomains"},
+  N_DOM = {16, Name "Input/04Number of subdomains"},
   // base msh filename
   MSH_BASE_NAME = "mesh_",
   // directory for output files
@@ -35,8 +35,8 @@ LC = LAMBDA/N_LAMBDA;
 D = 9192.000000 ;
 d = 2904.000000 ;
 
-nLayersTr = 1;
-nLayersPml = 5;
+nLayersTr = 0;
+nLayersPml = 3;
 
 nDoms = N_DOM;
 

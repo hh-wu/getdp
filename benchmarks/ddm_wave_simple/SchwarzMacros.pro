@@ -14,7 +14,7 @@ Macro SolveSubdomains
     // solve the volume PDE on each subdomain
     If(GenerateVolFlag~{idom})
       GenerateRHSGroup[Vol~{idom},
-        Region[{Sigma~{idom}, TrOmegaGammaD~{idom}, GammaD~{idom}}] ] ;
+        Region[{Sigma~{idom}, TrOmegaGammaD~{idom}, GammaD~{idom}, GammaPoint~{idom}}] ] ;
     EndIf
     If(GenerateVolFlag~{idom} == 0)
       Generate[Vol~{idom}] ;
@@ -36,7 +36,9 @@ Macro UpdateGonSurfaces
       If(NbrRegions[Sigma~{idom}~{iSide}])
         If(GenerateSurFlag~{idom}~{iSide})
           GenerateRHSGroup[Sur~{idom}~{iSide},
-            Region[{Sigma~{idom}~{iSide}, TrPmlSigma~{idom}~{iSide}}]] ;
+			   Region[{Sigma~{idom}~{iSide},
+				   TrPmlSigma~{idom}~{iSide},
+				   TrBndPmlSigma~{idom}~{iSide}}]] ;
         EndIf
         If(GenerateSurFlag~{idom}~{iSide} == 0)
           Generate[Sur~{idom}~{iSide}] ;
@@ -137,5 +139,8 @@ Macro PrintInfo
   If (EXTERNAL_VELOCITY_FIELD)
     GmshRead[VELOCITY_FNAME, 7*N_DOM];
     Printf["Using external data for the velocity field"];
+  EndIf
+  If (DELTA_SOURCE)
+    Printf["Using delta function as point source"];
   EndIf
 Return

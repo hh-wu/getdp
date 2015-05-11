@@ -1,5 +1,7 @@
 // Simple DDM example for Helmholtz
 
+DefineConstant[DELTA_SOURCE=0];
+
 Jacobian {
   { Name JVol ; Case{ { Region All ; Jacobian Vol ; } } }
   { Name JSur ; Case { { Region All ; Jacobian Sur ; } } }
@@ -33,10 +35,11 @@ Function{
       //   (1 ? ComplexScalarField[XYZ[]]{4*N_DOM+2*idom+1} : 0.);
 
       // This variant converges slightly faster since it is even more
-      // 'Gauss-Seidel oriented': it is not using a copy of the input data, but
-      // rather data updated by the other sweep after the sweeps have crossed;
-      // hence behaves differently when used sequentially since the sweeps are
-      // performed sequentially, thus the backward sweep uses only updated data
+      // 'Gauss-Seidel oriented': it is not using a copy of the input
+      // data, but rather data updated by the other sweep after the
+      // sweeps have crossed; hence behaves differently when used on a
+      // single CPU since the sweeps are performed sequentially, thus
+      // the backward sweep uses only updated data
       g_in_c~{idom}~{0}[Sigma~{idom}~{0}] = g_in~{idom}~{0}[];
       g_in_c~{idom}~{1}[Sigma~{idom}~{1}] = g_in~{idom}~{1}[];
     EndIf
@@ -50,6 +53,9 @@ Group{
   For ii In {0: #ListOfDom()-1}
     idom = ListOfDom(ii);
     TrOmegaGammaD~{idom} = ElementsOf[ Omega~{idom}, OnOneSideOf GammaD~{idom} ];
+    If (!DELTA_SOURCE)
+      GammaPoint~{idom} = Region[{}];
+    EndIf
     For iSide In {0:1}
       BndSigmaD~{idom}~{iSide} = Region[BndSigma~{idom}~{iSide},
                                         Not {GammaN~{idom}, GammaInf~{idom}}];
@@ -61,10 +67,14 @@ Group{
       If (gPml == 1.)
 	TrPmlSigma~{idom}~{iSide} = ElementsOf[ Pml~{idom}~{iSide},
 						OnOneSideOf Sigma~{idom}~{iSide} ];
+	TrBndPmlSigma~{idom}~{iSide} = ElementsOf[ PmlInf~{idom}~{iSide},
+						OnOneSideOf Sigma~{idom}~{iSide} ];
       EndIf
       If (gPml == -1.)
         TrPmlSigma~{idom}~{iSide} = ElementsOf[ Omega~{idom},
 						OnOneSideOf Sigma~{idom}~{iSide} ];
+        TrBndPmlSigma~{idom}~{iSide} = ElementsOf[ GammaInf~{idom},
+						   OnOneSideOf Sigma~{idom}~{iSide} ];
       EndIf
     EndFor
   EndFor
@@ -96,7 +106,7 @@ FunctionSpace {
         { Name sn ; NameOfCoef un ; Function BF_Node ;
           Support Region[ {Omega~{idom}, Pml~{idom}~{0}, Pml~{idom}~{1},
               GammaInf~{idom}, BndGammaInf~{idom}, PmlInf~{idom}~{0}, PmlInf~{idom}~{1},
-              Sigma~{idom}, BndSigma~{idom}} ] ;
+	      Sigma~{idom}, GammaPoint~{idom}} ] ;
           Entity NodesOf[ All ] ;
         }
       }
@@ -110,8 +120,10 @@ FunctionSpace {
       { Name Hgrad_g_out~{idom}~{iSide}; Type Form0 ;
         BasisFunction {
           { Name sn ; NameOfCoef un ; Function BF_Node ;
-            Support Region[ {Sigma~{idom}~{iSide}, Pml~{idom}~{iSide}} ] ;
-            Entity NodesOf[ Sigma~{idom}~{iSide}, Not {GammaD~{idom}, GammaD0~{idom}}];
+            Support Region[ {Sigma~{idom}~{iSide}, TrPmlSigma~{idom}~{iSide}
+			     TrBndPmlSigma~{idom}~{0}, TrBndPmlSigma~{idom}~{1}} ] ;
+            Entity NodesOf[ Sigma~{idom}~{iSide}, Not {GammaD~{idom}, GammaD0~{idom},
+			    PmlD0~{idom}~{0}, PmlD0~{idom}~{1}}];
           }
         }
       }
@@ -151,6 +163,9 @@ Formulation {
           In Omega~{idom}; Jacobian JVol ; Integration I1 ; }
         Galerkin { [ -k[]^2 * Dof{u~{idom}} , {u~{idom}} ] ;
           In Omega~{idom}; Jacobian JVol ; Integration I1 ; }
+
+	Galerkin { [ ($PhysicalSource ? -1. : 0) , {u~{idom}} ] ; // delta function
+            In GammaPoint~{idom}; Jacobian JVol ; Integration I1 ; }
 
         For iSide In {0:1}
           Galerkin { [ - ($ArtificialSource~{iSide} ? g_in~{idom}~{iSide}[] : 0), {u~{idom}} ] ;
@@ -236,7 +251,8 @@ Formulation {
           EndIf
         }
         Equation {
-          Galerkin { [ Dof{g_out~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ] ;
+          // reverse sign if d_n computed in Omega
+          Galerkin { [ gPml * Dof{g_out~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ] ;
             In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
           Galerkin { [ $ArtificialSource~{iSide} ? g_in~{idom}~{iSide}[] : 0 ,
               {g_out~{idom}~{iSide}} ] ;
@@ -273,6 +289,8 @@ Formulation {
             Galerkin { [ 2 * (kPml~{idom}~{iSide}[])^2*Kx[]*Ky[]*Kz[] * {u~{idom}},
                 {g_out~{idom}~{iSide}}];
               In TrPmlSigma~{idom}~{iSide}; Jacobian JVol; Integration I1;}
+            Galerkin { [ 2 * I[] * kInf[] * {u~{idom}}, {g_out~{idom}~{iSide}}];
+              In TrBndPmlSigma~{idom}~{iSide}; Jacobian JSur; Integration I1;}
           EndIf
         }
       }
@@ -292,7 +310,7 @@ Formulation {
           Galerkin { [ gPml * Dof{g_out~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ] ;
             In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
 
-	  Galerkin{[ - ComplexScalarField[XYZ[]]{( (2*(idom+N_DOM)+(iSide-1))%(2*N_DOM) ) },
+	  Galerkin{[ - gPml * ComplexScalarField[XYZ[]]{( (2*(idom+N_DOM)+(iSide-1))%(2*N_DOM) ) },
               {g_out~{idom}~{iSide}}] ;
 	    In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
 
@@ -330,6 +348,8 @@ Formulation {
             Galerkin { [ 2 * (kPml~{idom}~{iSide}[])^2*Kx[]*Ky[]*Kz[] * {u~{idom}},
                 {g_out~{idom}~{iSide}}];
               In TrPmlSigma~{idom}~{iSide}; Jacobian JVol; Integration I1;}
+            Galerkin { [ 2 * I[] * kInf[] * {u~{idom}}, {g_out~{idom}~{iSide}}];
+              In TrBndPmlSigma~{idom}~{iSide}; Jacobian JSur; Integration I1;}
           EndIf
         }
       }

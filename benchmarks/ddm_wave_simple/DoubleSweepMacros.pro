@@ -39,7 +39,8 @@ Macro SolveAndStepForward
     // compute the new g_out (fast way)
     If( NbrRegions[Sigma~{idom_f}~{1}] )
       GenerateRHSGroup[SurPc~{idom_f}~{1}, Region[{Sigma~{idom_f}~{1},
-            TrPmlSigma~{idom_f}~{1}}]] ;
+						   TrPmlSigma~{idom_f}~{1}, BndSigma~{idom_f}~{1},
+						   TrBndPmlSigma~{idom_f}~{1}}]] ;
       SolveAgain[SurPc~{idom_f}~{1}] ;
     EndIf
     PostOperation[g_out~{idom_f}~{1}] ;
@@ -69,7 +70,8 @@ Macro SolveAndStepBackward
     // compute the new g_out (fast way)
     If( NbrRegions[Sigma~{idom_b}~{0}] )
       GenerateRHSGroup[SurPc~{idom_b}~{0}, Region[{Sigma~{idom_b}~{0},
-            TrPmlSigma~{idom_b}~{0}}]] ;
+						   TrPmlSigma~{idom_b}~{0}, BndSigma~{idom_b}~{0},
+						   TrBndPmlSigma~{idom_b}~{0}}]] ;
       SolveAgain[SurPc~{idom_b}~{0}] ;
     EndIf
     PostOperation[g_out~{idom_b}~{0}] ;

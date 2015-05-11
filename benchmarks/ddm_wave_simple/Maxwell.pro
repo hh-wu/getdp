@@ -43,6 +43,8 @@ Group{
       DefineGroup [ Pml~{idom}~{iSide}, PmlD0~{idom}~{iSide}, PmlInf~{idom}~{iSide} ] ;
       TrPmlSigma~{idom}~{iSide} = ElementsOf[ Pml~{idom}~{iSide},
                                               OnOneSideOf Sigma~{idom}~{iSide} ];
+      TrBndPmlSigma~{idom}~{iSide} = ElementsOf[ PmlInf~{idom}~{iSide},
+						 OnOneSideOf Sigma~{idom}~{iSide} ];
     EndFor
   EndFor
 }
@@ -99,7 +101,7 @@ FunctionSpace {
         BasisFunction {
           { Name se; NameOfCoef ee; Function BF_Edge;
             Support Region[{Sigma~{idom}~{iSide}, TrPmlSigma~{idom}~{iSide}}] ;
-            Entity EdgesOf[Sigma~{idom}~{iSide},
+            Entity EdgesOf[Sigma~{idom}~{iSide}, TrBndPmlSigma~{idom}~{iSide},
                            Not {GammaD~{idom}, GammaD0~{idom}, GammaInf~{idom}}]; }
         }
       }
@@ -346,6 +348,8 @@ Formulation {
               In TrPmlSigma~{idom}~{iSide}; Jacobian JVol; Integration I1;}
             Galerkin { [ -2 * eps[] * (kPml~{idom}~{iSide}[])^2 * {e~{idom}}, {g_out~{idom}~{iSide}}];
               In TrPmlSigma~{idom}~{iSide}; Jacobian JVol; Integration I1;}
+	    Galerkin { [ I[] * kDtN[] * (N[]) /\ ( N[] /\ Dof{e~{idom}} ) , {e~{idom}} ]; // FIXME: check if sign is correct ?
+              In TrBndPmlSigma~{idom}~{iSide} ; Jacobian JSur ; Integration I1 ; }
           EndIf
         }
       }
@@ -405,6 +409,8 @@ Formulation {
             Galerkin { [ -2 * eps[] * (kPml~{idom}~{iSide}[])^2 * {e~{idom}},
                 {g_out~{idom}~{iSide}}];
               In TrPmlSigma~{idom}~{iSide}; Jacobian JVol; Integration I1;}
+	    Galerkin { [ I[] * kDtN[] * (N[]) /\ ( N[] /\ Dof{e~{idom}} ) , {e~{idom}} ]; // FIXME: check if sign is correct ?
+              In TrBndPmlSigma~{idom}~{iSide} ; Jacobian JSur ; Integration I1 ; }
           EndIf
         }
       }
