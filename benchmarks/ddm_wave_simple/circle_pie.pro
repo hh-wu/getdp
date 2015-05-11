@@ -122,10 +122,3 @@ Function{
 
 Include "Helmholtz.pro" ;
 Include "Schwarz.pro" ;
-
-DefineConstant[
-  // default getdp parameters for onelab
-  R_ = {"DDM", Name "GetDP/1ResolutionChoices", Visible 0},
-  C_ = {"-solve -ksp_monitor -bin -v 3", Name "GetDP/9ComputeCommand", Visible 0},
-  P_ = {"", Name "GetDP/2PostOperationChoices", Visible 0}
-];

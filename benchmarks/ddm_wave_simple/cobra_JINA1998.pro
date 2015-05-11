@@ -302,8 +302,8 @@ Function {
   For ii In {0: #ListOfDom()-1}
   idom = ListOfDom(ii);
 
-  D[Pml~{idom}~{0}] = Rotate[TensorDiag[Ky[]*Kz[]/Kx[], Kx[]*Kz[]/Ky[], Kx[]*Ky[]/Kz[]], 0., 0., -thetaList(idom) ]; 
-  D[Pml~{idom}~{1}] = Rotate[TensorDiag[Ky[]*Kz[]/Kx[], Kx[]*Kz[]/Ky[], Kx[]*Ky[]/Kz[]], 0., 0., -thetaList(idom+1) ]; 
+  D[Pml~{idom}~{0}] = Rotate[TensorDiag[Ky[]*Kz[]/Kx[], Kx[]*Kz[]/Ky[], Kx[]*Ky[]/Kz[]], 0., 0., -thetaList(idom) ];
+  D[Pml~{idom}~{1}] = Rotate[TensorDiag[Ky[]*Kz[]/Kx[], Kx[]*Kz[]/Ky[], Kx[]*Ky[]/Kz[]], 0., 0., -thetaList(idom+1) ];
 
   EndFor
 
@@ -321,10 +321,3 @@ If(ANALYSIS == 1)
 EndIf
 
 Include "Schwarz.pro" ;
-
-DefineConstant[
-  // default getdp parameters for onelab
-  R_ = {"DDM", Name "GetDP/1ResolutionChoices", Visible 0},
-  C_ = {"-solve -v 3 -bin -ksp_monitor", Name "GetDP/9ComputeCommand", Visible 0},
-  P_ = {"", Name "GetDP/2PostOperationChoices", Visible 0}
-];

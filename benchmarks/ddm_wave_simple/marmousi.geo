@@ -34,7 +34,7 @@ For i In {start+1:end+1}
     Point(52) = {(i)*Ddom+dBb,-d,0,lc};
     Point(57) = {(i)*Ddom+dBb,ySource,0,lc};
     Point(53) = {(i)*Ddom+dBb,0,0,lc};
-    
+
     Point(51) = {(i-1)*Ddom-dBb,-d,0,lc};
     Point(59) = {(i-1)*Ddom-dBb,ySource,0,lc};
     Point(54) = {(i-1)*Ddom-dBb,0,0,lc};
@@ -72,7 +72,7 @@ For i In {start+1:end+1}
     Plane Surface(106) = {90};
     Line Loop(95) = {78,-15,-65,77};
     Plane Surface(107) = {95};
-    
+
 
     Transfinite Line{10,16,13} = (Ddom)/lc+1 Using Progression 1;
     Transfinite Line{77,15,11,62} = (d+ySource)/lc+1 Using Progression 1;
@@ -81,7 +81,7 @@ For i In {start+1:end+1}
 
     Transfinite Surface{100:101,104:107};
     Recombine Surface{100:101,104:107};
-    
+
     iDom = i;
 
     Physical Point(1001) = CombinedBoundary{ Line{14,15};};
@@ -99,12 +99,12 @@ For i In {start+1:end+1}
 
     Physical Line((iDom*1000+10)) = {14,15}; // interface with left PML
     Physical Line((iDom*1000+20)) = {11,12}; // interface with right PML
-    
+
     Physical Surface((iDom*1000+200)) = {100:101};
     Physical Surface((iDom*1000+300)) = {104,105};
     Physical Surface((iDom*1000+100)) = {106,107};
   EndIf
-  
+
   If (i == iPoint)
     Point(1) = {(i-1)*Ddom,-d,0,lc};
     Point(2) = {i*Ddom,-d,0,lc};
@@ -173,7 +173,7 @@ For i In {start+1:end+1}
     Transfinite Line{11,14,19} = (i*Ddom-xSource)/lc+1 Using Progression 1;
     Transfinite Line{12,17,18,77,62} = (d+ySource)/lc+1 Using Progression 1;
     Transfinite Line{13,16,20,76,63} = (-ySource)/lc+1 Using Progression 1;
-    
+
     // Transfinite Line{78,65,75,61,79,64} = (dBb)/lc+1 Using Progression 1;
     Transfinite Line{78,65,75,61,79,64} = (nLayersTr+nLayersPml+1) Using Progression 1;
 
@@ -183,10 +183,10 @@ For i In {start+1:end+1}
     iDom = i;
 
     Physical Point(1) = {5};
-    
+
     Physical Point(1001) = CombinedBoundary{ Line{16,17};};
     Physical Point(1002) = CombinedBoundary{ Line{12,13};};
-    
+
     Physical Line((iDom*1000+102)) = {78}; // bottom PML left
     Physical Line((iDom*1000+202)) = {10,11}; // bottom Omega
     Physical Line((iDom*1000+302)) = {61}; // bottom PML right
@@ -213,7 +213,7 @@ For i In {start+1:end+1}
     Save StrCat(MSH_NAME, Sprintf("%g.msh", idom));
     Printf("Done.");
   EndIf
-  
+
 EndFor
 
-
+BoundingBox {0, D, -d, 0, 0, 0};

@@ -91,10 +91,3 @@ Group{
 Include "Decomposition.pro";
 Include "Helmholtz.pro" ;
 Include "Schwarz.pro" ;
-
-DefineConstant[
-  // default getdp parameters for onelab
-  R_ = {"DDM", Name "GetDP/1ResolutionChoices", Visible 0},
-  C_ = {"-solve -v 3 -bin -ksp_monitor", Name "GetDP/9ComputeCommand", Visible 0},
-  P_ = {"", Name "GetDP/2PostOperationChoices", Visible 0}
-];
