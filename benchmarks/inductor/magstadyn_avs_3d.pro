@@ -441,7 +441,7 @@ PostProcessing {
      SendToServer StrCat[po,"30U [V]"], Color "LightYellow" ];
 
    Print[ Flux[DomainB], OnGlobal, Format TimeTable,
-     File > StrCat[Dir,"Flux",ExtGnuplot], LastTimeStepOnly, StoreInVariable Flux,
+     File > StrCat[Dir,"Flux",ExtGnuplot], LastTimeStepOnly, StoreInVariable $Flux,
      SendToServer StrCat[po,"40Flux [Wb]"],  Color "LightYellow" ];
 
    Print[ Inductance_from_Flux, OnRegion DomainDummy, Format Table, LastTimeStepOnly,
@@ -449,7 +449,7 @@ PostProcessing {
     SendToServer StrCat[po,"50Inductance from Flux [mH]"], Color "LightYellow" ];
 
    Print[ MagEnergy[Domain], OnGlobal, Format TimeTable,
-     File > StrCat[Dir,"ME",ExtGnuplot], LastTimeStepOnly, StoreInVariable MagEnergy,
+     File > StrCat[Dir,"ME",ExtGnuplot], LastTimeStepOnly, StoreInVariable $MagEnergy,
      SendToServer StrCat[po,"41Magnetic Energy [W]"],  Color "LightYellow" ];
 
    Print[ Inductance_from_MagEnergy, OnRegion DomainDummy, Format Table, LastTimeStepOnly,

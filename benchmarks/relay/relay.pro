@@ -463,9 +463,9 @@ PostOperation MapMag UsingPost MagDyn_a_2D {
   Print[ az, OnElementsOf Domain, File StrCat["tmp", ExtGmsh], Format Gmsh,
     OverrideTimeStepValue 0, LastTimeStepOnly, SendToServer "No"] ;
   Print[ F[AirLayer], OnGlobal, Format Table, File "Fmag.dat",
-    StoreInVariable Fmag, LastTimeStepOnly] ;
+    StoreInVariable $Fmag, LastTimeStepOnly] ;
   Print[ F_vw, OnRegion NodesOf[SkinDomainC_Moving], Format RegionValue,
-    File StrCat["Fvw", ExtGnuplot], StoreInVariable Fmag_vw, LastTimeStepOnly] ;
+    File StrCat["Fvw", ExtGnuplot], StoreInVariable $Fmag_vw, LastTimeStepOnly] ;
 }
 
 PostOperation MapMec UsingPost Mechanical {

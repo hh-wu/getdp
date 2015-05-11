@@ -1040,14 +1040,14 @@ PostOperation Get_GlobalQuantities UsingPost MagStaDyn_a_2D {
   If(Flag_SrcType_Stator)
     Print[ Flux[PhaseA], OnGlobal, Format TimeTable,
 	   File > StrCat[ResDir,"Flux_a",ExtGnuplot], LastTimeStepOnly,
-           StoreInVariable Flux_a, SendToServer StrCat[poF,"A"],  Color "Pink" ];
+           StoreInVariable $Flux_a, SendToServer StrCat[poF,"A"],  Color "Pink" ];
     If(NbrPhases==3)
       Print[ Flux[PhaseB], OnGlobal, Format TimeTable,
 	     File > StrCat[ResDir,"Flux_b",ExtGnuplot], LastTimeStepOnly,
-             StoreInVariable Flux_b, SendToServer StrCat[poF,"B"],  Color "Yellow" ];
+             StoreInVariable $Flux_b, SendToServer StrCat[poF,"B"],  Color "Yellow" ];
       Print[ Flux[PhaseC], OnGlobal, Format TimeTable,
 	     File > StrCat[ResDir,"Flux_c",ExtGnuplot], LastTimeStepOnly,
-             StoreInVariable Flux_c, SendToServer StrCat[poF,"C"], Color "LightGreen"];
+             StoreInVariable $Flux_c, SendToServer StrCat[poF,"C"], Color "LightGreen"];
     EndIf
     If(Flag_ParkTransformation && Flag_SrcType_Stator)
       Print[ Flux_d, OnRegion DomainDummy, Format TimeTable,
@@ -1072,25 +1072,25 @@ PostOperation Get_GlobalQuantities UsingPost MagStaDyn_a_2D {
 
 PostOperation Get_Torque UsingPost MagStaDyn_a_2D {
   Print[ Torque_Maxwell[Rotor_Airgap], OnGlobal, Format TimeTable,
-    File > StrCat[ResDir,"Tr",ExtGnuplot], LastTimeStepOnly, StoreInVariable Trotor,
+    File > StrCat[ResDir,"Tr",ExtGnuplot], LastTimeStepOnly, StoreInVariable $Trotor,
 	 SendToServer StrCat[po_mecT, "rotor"], Color "Ivory" ];
   Print[ Torque_Maxwell[Stator_Airgap], OnGlobal, Format TimeTable,
-    File > StrCat[ResDir,"Ts",ExtGnuplot], LastTimeStepOnly, StoreInVariable Tstator,
+    File > StrCat[ResDir,"Ts",ExtGnuplot], LastTimeStepOnly, StoreInVariable $Tstator,
 	 SendToServer StrCat[po_mecT, "stator"], Color "Ivory" ];
 }
 
 PostOperation Get_Torque_cplx UsingPost MagStaDyn_a_2D {
   Print[ Torque_Maxwell_cplx[Rotor_Airgap], OnGlobal, Format TimeTable,
-	 File > StrCat[ResDir,"Tr",ExtGnuplot], StoreInVariable Trotor,
+	 File > StrCat[ResDir,"Tr",ExtGnuplot], StoreInVariable $Trotor,
 	 SendToServer StrCat[po_mecT, "rotor"], Color "Ivory" ];
   Print[ Torque_Maxwell_cplx[Stator_Airgap], OnGlobal, Format TimeTable,
-	 File > StrCat[ResDir,"Ts",ExtGnuplot], StoreInVariable Tstator,
+	 File > StrCat[ResDir,"Ts",ExtGnuplot], StoreInVariable $Tstator,
 	 SendToServer StrCat[po_mecT,"stator"], Color "Ivory" ];
 }
 
 PostOperation Mechanical UsingPost Mechanical {
   Print[ P, OnRegion DomainKin, Format Table,
-	 File > StrCat[ResDir,"P", ExtGnuplot], LastTimeStepOnly, StoreInVariable Position,
+	 File > StrCat[ResDir,"P", ExtGnuplot], LastTimeStepOnly, StoreInVariable $Position,
 	 SendToServer StrCat[po_mec,"11Position [rad]"], Color "Ivory"] ;
   Print[ Pdeg, OnRegion DomainKin, Format Table,
 	 File > StrCat[ResDir,"P_deg", ExtGnuplot], LastTimeStepOnly,

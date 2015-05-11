@@ -5087,7 +5087,7 @@ Decomposes all output elements in simplices (points, lines, triangles or
 tetrahedra).
 
 @item StoreInVariable
-@code{@var{expression-char}}
+@code{$@var{expression-char}}
 
 Stores the result of a point-wise evaluation or an @code{OnRegion}
 post-processing operation in the run-time variable

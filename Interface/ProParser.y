@@ -6685,9 +6685,9 @@ PrintOption :
 	PostSubOperation_S.EvaluationPoints = $4;
       }
     }
-  | ',' tStoreInVariable String__Index
+  | ',' tStoreInVariable '$' String__Index
     {
-      PostSubOperation_S.StoreInVariable = $3;
+      PostSubOperation_S.StoreInVariable = $4;
     }
   | ',' tStoreInRegister FExpr
     {
