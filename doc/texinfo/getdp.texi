@@ -1070,7 +1070,8 @@ List of constant expressions are defined as:
   @var{expression-cst-list-item} + @var{expression-cst-list-item} |
   @var{expression-cst-list-item} - @var{expression-cst-list-item} |
   @var{expression-cst-list-item} * @var{expression-cst-list-item} |
-  @var{expression-cst-list-item} / @var{expression-cst-list-item}
+  @var{expression-cst-list-item} / @var{expression-cst-list-item} |
+  ListFromFile [ @var{expression-char} ]
 @end example
 
 The second case in this last definition permits to create a list containing
@@ -1124,8 +1125,7 @@ for the definition of constants is:
 
 @var{constant-def}:
   @var{expression-cst-list-item} |
-  @{ @var{expression-cst-list} @} |
-  ListFromFile [ @var{expression-char} ]
+  @{ @var{expression-cst-list} @}
 
 @var{string-id}:
   @var{string} |

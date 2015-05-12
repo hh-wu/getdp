@@ -7118,26 +7118,6 @@ Affectation :
       Tree_Replace(ConstantTable_L, &Constant_S);
     }
 
-  | String__Index tDEF tListFromFile '[' CharExpr ']' tEND
-    {
-      Constant_S.Name = $1; Constant_S.Type = VAR_LISTOFFLOAT;
-      Message::Barrier();
-      FILE *File;
-      if(!(File = FOpen(Fix_RelativePath($5).c_str(), "rb"))){
-        Message::Warning("Could not open file '%s'", $5);
-	Constant_S.Value.ListOfFloat = NULL;
-      }
-      else{
-	Constant_S.Value.ListOfFloat = List_Create(100,100,sizeof(double));
-	double d;
-	while(!feof(File))
-	  if(fscanf(File, "%lf", &d) != EOF)
-	    List_Add(Constant_S.Value.ListOfFloat, &d);
-	fclose(File);
-      }
-      Tree_Replace(ConstantTable_L, &Constant_S);
-    }
-
   | Printf LP CharExprNoVar RP tEND
     {
       Message::Direct($1, $3);
@@ -7618,7 +7598,7 @@ ListOfFExpr :
 
   | '{' RecursiveListOfFExpr '}'
     { $$ = $2; }
- ;
+;
 
 
 RecursiveListOfFExpr :
@@ -7921,6 +7901,22 @@ MultiFExpr :
       }
     }
 
+  | tListFromFile '[' CharExpr ']'
+    {
+      Message::Barrier();
+      FILE *File;
+      if(!(File = FOpen(Fix_RelativePath($3).c_str(), "rb"))){
+        Message::Warning("Could not open file '%s'", $3);
+      }
+      else{
+	$$ = List_Create(100,100,sizeof(double));
+	double d;
+	while(!feof(File))
+	  if(fscanf(File, "%lf", &d) != EOF)
+	    List_Add($$, &d);
+	fclose(File);
+      }
+    }
  ;
 
 StringIndex :
