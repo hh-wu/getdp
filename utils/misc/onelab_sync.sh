@@ -8,7 +8,7 @@ MODELS='machines relay inductor indheat magnetometer antennas acoustic_scatterin
 for m in ${MODELS}; do
   sudo rsync -avz ${SRC}/${m} ${DST} --delete --exclude .svn
 done
-find ${DST}/ -type f -exec unix2dos {} \;
+find ${DST} -name "*.geo" -o -name "*.pro" -exec unix2dos {} \;
 
 # create zip file
 for m in ${MODELS}; do
