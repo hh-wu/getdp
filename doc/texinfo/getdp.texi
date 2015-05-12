@@ -1091,6 +1091,7 @@ argument 1, etc. These kinds of lists of constants are for example often
 used for function parameters (@pxref{Functions}). The next two cases permit
 to create linear and logarithmic lists of numbers, respectively. The
 remaining cases permit to apply arithmetic operators item-wise in lists.
+@code{ListFromFile} reads a list of numbers from a file.
 
 Contrary to a general @var{expression} which is evaluated at runtime (thanks
 to an internal stack mechanism), an @var{expression-cst} is completely
