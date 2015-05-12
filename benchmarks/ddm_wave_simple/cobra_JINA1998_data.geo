@@ -50,7 +50,7 @@ nDomList = {3*F,5*F,2*F,5*F,1*F}; // number of domains in the different parts of
 // Compute the number of domains as the sum of the domains in each part of the waveguide
 N = 0;
 For i In {0:PARTS-1}
-  N += nDomList({i});
+  N += nDomList(i);
 EndFor
 If (MPI_Rank == 0)
   Printf("Total number of domains: %g", N);
