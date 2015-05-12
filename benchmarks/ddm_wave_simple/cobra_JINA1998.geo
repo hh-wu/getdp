@@ -6,11 +6,6 @@ Include "cobra_JINA1998_data.geo";
 
 Solver.AutoMesh = 0;
 
-N_DOM = 0;
-For i In {0:PARTS-1}
-  N_DOM += nDomList[i];
-EndFor
-
 // For idom In {0:nDoms-1}
 If(MPI_Size == 1) // sequential meshing
   start = 0;
@@ -84,11 +79,11 @@ If (PARTS > 2)
       If (nLayersDom < 5)
 	Printf("WARNING: less than 5 layers (%g) in domain %g", nLayersDom, (i));
       EndIf
-      ext[] = Extrude{D2/nDomList[2]*Cos(alpha), D2/nDomList[2]*Sin(alpha), 0}{ Surface{ls[i]}; Layers{ nLayersDom }; Recombine; }; 
+      ext[] = Extrude{D2/nDomList[2]*Cos(alpha), D2/nDomList[2]*Sin(alpha), 0}{ Surface{ls[i]}; Layers{ nLayersDom }; Recombine; };
       ls[] += ext[0];
       lv[] += ext[1];
       lSides[] += ext[{2:5}];
-      
+
       idom =i;
       pmlLeft~{idom} = Extrude {-dBb*Cos(theta), -dBb*Sin(theta), 0} {Surface{ls[i]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ; };
       pmlRight~{idom} = Extrude {dBb*Cos(theta), dBb*Sin(theta), 0} {Surface{ls[i+1]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ; };
@@ -107,7 +102,7 @@ If (PARTS > 3)
     ls[] += ext[0];
     lv[] += ext[1];
     lSides[] += ext[{2:5}];
-    
+
     idom =i;
     pmlLeft~{idom} = Extrude {-dBb*Cos(theta), -dBb*Sin(theta), 0} {Surface{ls[i]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ; };
     theta -= alpha/nDomList[1];
@@ -134,12 +129,11 @@ If (PARTS > 4)
 EndIf
 n += nDomList[4];
 
-If (MPI_Size == 1)
+If (MPI_Size == 1 && StrCmp(OnelabAction, "check")) // only mesh if not in onelab check mode
   Printf("Meshing all subdomains on 1 CPU...");
   Mesh 3 ;
   Printf("Done.");
 EndIf
-
 
 // For i In {0:n-1}
 For i In {start:end}
@@ -149,10 +143,10 @@ For i In {start:end}
   If(MPI_Size > 1) // parallel meshing
     For iv In {0:N_DOM-1}
       If (iv != idom)
-    	Delete{ 
+    	Delete{
     	  Volume{lv[iv]};
     	  Volume{pmlLeft~{iv}[1]};
-    	  Volume{pmlRight~{iv}[1]}; 
+    	  Volume{pmlRight~{iv}[1]};
     	  Surface{pmlLeft~{idom}[0]};
     	  Surface{pmlRight~{idom}[0]};
     	  Surface{pmlLeft~{idom}[2]};
@@ -169,16 +163,16 @@ For i In {start:end}
     	  Surface{lSides[{(idom*4)+3}]};
     	}
       EndIf
-    EndFor  
+    EndFor
     For is In {0:N_DOM}
       If ( (is < idom) && (is > idom+1) )
-    	Delete{ 
+    	Delete{
     	  Surface{ls[is]};
     	}
       EndIf
     EndFor
   EndIf
-    
+
   Physical Volume(((idom+1)*1000+200)) = lv[i];
   Physical Volume(((idom+1)*1000+100)) = pmlLeft~{idom}[1];
   Physical Volume(((idom+1)*1000+300)) = pmlRight~{idom}[1];
@@ -203,17 +197,17 @@ For i In {start:end}
   Physical Surface(((idom+1)*1000+102)) = {myList1[]};
   Physical Surface(((idom+1)*1000+302)) = {myList3[]};
 
-  If (MPI_Size > 1)
+  If (MPI_Size > 1 && StrCmp(OnelabAction, "check"))
     Printf("Meshing waveguide subdomain %g...", idom);
     Mesh 3 ;
     Printf("Done.");
   EndIf
-    
-If(StrCmp(OnelabAction, "check")) // only mesh if not in onelab check mode
-  CreateDir Str(DIR);
-  Save StrCat(MSH_NAME, Sprintf("%g.msh", idom));
-EndIf
-  
+
+  If(StrCmp(OnelabAction, "check")) // only mesh if not in onelab check mode
+    CreateDir Str(DIR);
+    Save StrCat(MSH_NAME, Sprintf("%g.msh", idom));
+  EndIf
+
 EndFor
 
 // // Full domain

@@ -27,23 +27,6 @@ DefineConstant[ // allows to set these from outside
   SGS = 0
 ];
 
-
-// Compute the number of domains as the sum of the domains in each part of the waveguide
-N_DOM = 0;
-For i In {0:PARTS-1}
-N_DOM += nDomList(i);
-EndFor
-
-If (MPI_Rank == 0)
-Printf("Total number of domains: %g", N_DOM);
-EndIf
-
-N_DOM = 0;
-For i In {0:PARTS-1}
-N_DOM += nDomList(i);
-EndFor
-
-
 xBaseList = {};
 yBaseList = {};
 thetaList = {};

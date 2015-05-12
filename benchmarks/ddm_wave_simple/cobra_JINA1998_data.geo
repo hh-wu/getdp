@@ -40,10 +40,22 @@ n = 1 ; // 'horizontal'
 PARTS = 5; // use 5 for the full model
 OPEN_ENDED = 1; // radiation condition ; otherwise wall condition
 
+DefineConstant[ F = {1, Min 1, Max 20, Step 1, Name "Input/04N_Dom Mult"} ];
+
 // nDomList = {2,2,1,2,1}; // number of domains in the different parts of the domain, starting from inner straight part -- 8
-nDomList = {3,5,2,5,1}; // number of domains in the different parts of the domain, starting from inner straight part -- 16
+nDomList = {3*F,5*F,2*F,5*F,1*F}; // number of domains in the different parts of the domain, starting from inner straight part -- 16
 // nDomList = {6,10,4,10,2}; // number of domains in the different parts of the domain, starting from inner straight part -- 32
 // nDomList = {12,20,8,20,4}; // number of domains in the different parts of the domain, starting from inner straight part -- 64
+
+// Compute the number of domains as the sum of the domains in each part of the waveguide
+N = 0;
+For i In {0:PARTS-1}
+  N += nDomList({i});
+EndFor
+If (MPI_Rank == 0)
+  Printf("Total number of domains: %g", N);
+EndIf
+DefineConstant[ N_DOM = {N, Name "Input/04Number of subdomains", ReadOnly 1} ];
 
 D1 = .1; // inner straight part length
 D2 = .08; // middle straight part length
