@@ -21,23 +21,17 @@ Function{
     8.2180e+03, 1.3936e+04, 2.4000e+04, 4.0000e+04, 8.0000e+04, 1.6000e+05
   };
 
-  Mat26_b2 = List[Mat26_b]^2;
-  Mat26_h2 = List[Mat26_h]^2;
+  Mat26_b2 = Mat26_b()^2;
+  Mat26_h2 = Mat26_h()^2;
 
-  Mat26_nu = List[Mat26_h]/List[Mat26_b];
+  Mat26_nu = Mat26_h() / Mat26_b();
   Mat26_nu(0) = Mat26_nu(1);
 
   Mat26_nu_b2  = ListAlt[Mat26_b2, Mat26_nu] ;
-  nu_26[] = InterpolationLinear[ SquNorm[$1] ]{List[Mat26_nu_b2]} ;
-  dnudb2_26[] = dInterpolationLinear[SquNorm[$1]]{List[Mat26_nu_b2]} ;
+  nu_26[] = InterpolationLinear[ SquNorm[$1] ]{ Mat26_nu_b2() } ;
+  dnudb2_26[] = dInterpolationLinear[SquNorm[$1]]{ Mat26_nu_b2() } ;
   h_26[] = nu_26[$1] * $1 ;
   dhdb_26[] = TensorDiag[1,1,1] * nu_26[$1#1] + 2*dnudb2_26[#1] * SquDyadicProduct[#1]  ;
   dhdb_26_NL[] = 2*dnudb2_26[$1#1] * SquDyadicProduct[#1] ;
 
 }
-
-
-
-
-
-

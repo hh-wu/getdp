@@ -27,13 +27,13 @@ Function{
     2.1000e+00, 2.1500e+00, 2.2000e+00, 2.2500e+00, 2.3000e+00, 2.3500e+00, 2.4000e+00
   } ;
 
-  Mat1_b2 = List[Mat1_b]^2;
-  Mat1_nu = List[Mat1_h]/List[Mat1_b];
+  Mat1_b2 = Mat1_b()^2;
+  Mat1_nu = Mat1_h()/Mat1_b();
   Mat1_nu(0) = Mat1_nu(1);
 
   Mat1_nu_b2  = ListAlt[Mat1_b2, Mat1_nu] ;
-  nu_1[] = InterpolationLinear[ SquNorm[$1] ]{List[Mat1_nu_b2]} ;
-  dnudb2_1[] = dInterpolationLinear[SquNorm[$1]]{List[Mat1_nu_b2]} ;
+  nu_1[] = InterpolationLinear[ SquNorm[$1] ]{Mat1_nu_b2()} ;
+  dnudb2_1[] = dInterpolationLinear[SquNorm[$1]]{Mat1_nu_b2()} ;
   h_1[] = nu_1[$1] * $1 ;
   dhdb_1[] = TensorDiag[1,1,1] * nu_1[$1#1] + 2*dnudb2_1[#1] * SquDyadicProduct[#1]  ;
   dhdb_1_NL[] = 2*dnudb2_1[$1#1] * SquDyadicProduct[#1] ;
@@ -67,21 +67,15 @@ Function{
     2.1000e+00, 2.1500e+00, 2.2000e+00, 2.2500e+00, 2.3000e+00, 2.3500e+00, 2.4000e+00
   } ;
 
-  Mat3kW_b2 = List[Mat3kW_b]^2;
-  Mat3kW_nu = List[Mat3kW_h]/List[Mat3kW_b];
+  Mat3kW_b2 = Mat3kW_b()^2;
+  Mat3kW_nu = Mat3kW_h() / Mat3kW_b();
   Mat3kW_nu(0) = Mat3kW_nu(1);
 
   Mat3kW_nu_b2  = ListAlt[Mat3kW_b2, Mat3kW_nu] ;
-  nu_3kW[] = InterpolationLinear[SquNorm[$1]]{List[Mat3kW_nu_b2]} ;
-  dnudb2_3kW[] = dInterpolationLinear[SquNorm[$1]]{List[Mat3kW_nu_b2]} ;
+  nu_3kW[] = InterpolationLinear[SquNorm[$1]]{ Mat3kW_nu_b2() } ;
+  dnudb2_3kW[] = dInterpolationLinear[SquNorm[$1]]{ Mat3kW_nu_b2() } ;
   h_3kW[] = nu_3kW[$1] * $1 ;
   dhdb_3kW[] = TensorDiag[1,1,1]*nu_3kW[$1#1] + 2*dnudb2_3kW[#1] * SquDyadicProduct[#1] ;
   dhdb_3kW_NL[] = 2*dnudb2_3kW[$1] * SquDyadicProduct[$1] ;
 
 }
-
-
-
-
-
-

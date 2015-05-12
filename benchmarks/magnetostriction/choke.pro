@@ -103,7 +103,7 @@ Function {
   // magnetostrictif properties
   lambdalist = ListFromFile["magnetostriction.txt"];
 
-  lambdap[] = InterpolationLinear[$1]{List[lambdalist]}*1e-6;
+  lambdap[] = InterpolationLinear[$1]{ lambdalist() }*1e-6;
   lambdaper[] = -lambdap[$1]/2;
 
   // Coil parameters
