@@ -43,7 +43,7 @@ OPEN_ENDED = 1; // radiation condition ; otherwise wall condition
 DefineConstant[ F = {1, Min 1, Max 20, Step 1, Name "Input/04N_Dom Mult"} ];
 
 // nDomList = {2,2,1,2,1}; // number of domains in the different parts of the domain, starting from inner straight part -- 8
-nDomList = {3*F,5*F,2*F,5*F,1*F}; // number of domains in the different parts of the domain, starting from inner straight part -- 16
+nDomList = F*{3,5,2,5,1}; // number of domains in the different parts of the domain, starting from inner straight part -- 16
 // nDomList = {6,10,4,10,2}; // number of domains in the different parts of the domain, starting from inner straight part -- 32
 // nDomList = {12,20,8,20,4}; // number of domains in the different parts of the domain, starting from inner straight part -- 64
 

@@ -7598,6 +7598,24 @@ ListOfFExpr :
 
   | '{' RecursiveListOfFExpr '}'
     { $$ = $2; }
+
+  | '-' '{' RecursiveListOfFExpr '}'
+    {
+      $$ = $3;
+      for(int i = 0; i < List_Nbr($$); i++){
+	double *pd = (double*)List_Pointer($$, i);
+	(*pd) = - (*pd);
+      }
+    }
+
+  | FExpr '*' '{' RecursiveListOfFExpr '}'
+    {
+      $$ = $4;
+      for(int i = 0; i < List_Nbr($$); i++){
+	double *pd = (double*)List_Pointer($$, i);
+	(*pd) *= $1;
+      }
+    }
 ;
 
 
