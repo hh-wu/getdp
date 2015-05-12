@@ -6971,6 +6971,14 @@ Affectation :
       Tree_Replace(ConstantTable_L, &Constant_S);
     }
 
+  | String__Index '(' ')' tDEF ListOfFExpr tEND
+    {
+      Constant_S.Name = $1;
+      Constant_S.Type = VAR_LISTOFFLOAT;
+      Constant_S.Value.ListOfFloat = $5;
+      Tree_Replace(ConstantTable_L, &Constant_S);
+    }
+
   | String__Index '(' RecursiveListOfFExpr ')' tDEF ListOfFExpr tEND
     {
       Constant_S.Name = $1;
@@ -7021,6 +7029,23 @@ Affectation :
       List_Delete($4);
     }
 
+  | String__Index '(' ')' '+' tDEF ListOfFExpr tEND
+    {
+      Constant_S.Name = $1;
+      Constant *c = (Constant*)Tree_PQuery(ConstantTable_L, &Constant_S);
+      if(c){
+        if(c->Type == VAR_LISTOFFLOAT){
+          for(int i = 0; i < List_Nbr($6); i++)
+            List_Add(c->Value.ListOfFloat, List_Pointer($6, i));
+        }
+        else
+          vyyerror("Cannot append list to float");
+      }
+      else
+	vyyerror("Unknown Constant: %s", $1);
+      List_Delete($6);
+    }
+
   | String__Index '-' tDEF ListOfFExpr tEND
     {
       Constant_S.Name = $1;
@@ -7054,6 +7079,36 @@ Affectation :
       else
 	vyyerror("Unknown Constant: %s", $1);
       List_Delete($4);
+    }
+
+  | String__Index '(' ')' '-' tDEF ListOfFExpr tEND
+    {
+      Constant_S.Name = $1;
+      Constant *c = (Constant*)Tree_PQuery(ConstantTable_L, &Constant_S);
+      if(c){
+        if(c->Type == VAR_LISTOFFLOAT){
+          std::vector<double> tmp;
+          for(int i = 0; i < List_Nbr(c->Value.ListOfFloat); i++){
+            double d;
+            List_Read(c->Value.ListOfFloat, i, &d);
+            tmp.push_back(d);
+          }
+          for(int i = 0; i < List_Nbr($6); i++){
+            double d;
+            List_Read($6, i, &d);
+            std::vector<double>::iterator it = std::find(tmp.begin(), tmp.end(), d);
+            if(it != tmp.end()) tmp.erase(it);
+          }
+          List_Reset(c->Value.ListOfFloat);
+          for(unsigned int i = 0; i < tmp.size(); i++)
+            List_Add(c->Value.ListOfFloat, &tmp[i]);
+        }
+        else
+          vyyerror("Cannot erase list from float");
+      }
+      else
+	vyyerror("Unknown Constant: %s", $1);
+      List_Delete($6);
     }
 
   | String__Index tDEF CharExprNoVar tEND
