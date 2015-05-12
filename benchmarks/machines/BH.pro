@@ -31,7 +31,7 @@ Function{
   Mat1_nu = Mat1_h()/Mat1_b();
   Mat1_nu(0) = Mat1_nu(1);
 
-  Mat1_nu_b2  = ListAlt[Mat1_b2, Mat1_nu] ;
+  Mat1_nu_b2 = ListAlt[Mat1_b2(), Mat1_nu()] ;
   nu_1[] = InterpolationLinear[ SquNorm[$1] ]{Mat1_nu_b2()} ;
   dnudb2_1[] = dInterpolationLinear[SquNorm[$1]]{Mat1_nu_b2()} ;
   h_1[] = nu_1[$1] * $1 ;
@@ -71,7 +71,7 @@ Function{
   Mat3kW_nu = Mat3kW_h() / Mat3kW_b();
   Mat3kW_nu(0) = Mat3kW_nu(1);
 
-  Mat3kW_nu_b2  = ListAlt[Mat3kW_b2, Mat3kW_nu] ;
+  Mat3kW_nu_b2 = ListAlt[Mat3kW_b2(), Mat3kW_nu()] ;
   nu_3kW[] = InterpolationLinear[SquNorm[$1]]{ Mat3kW_nu_b2() } ;
   dnudb2_3kW[] = dInterpolationLinear[SquNorm[$1]]{ Mat3kW_nu_b2() } ;
   h_3kW[] = nu_3kW[$1] * $1 ;

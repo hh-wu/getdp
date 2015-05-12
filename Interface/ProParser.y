@@ -7780,6 +7780,24 @@ MultiFExpr :
 	  }
     }
 
+  | StringIndex '(' ')'
+    {
+      $$ = List_Create(20,20,sizeof(double));
+      Constant_S.Name = $1;
+      if(!Tree_Query(ConstantTable_L, &Constant_S))
+	vyyerror("Unknown Constant: %s", $1);
+      else
+	if(Constant_S.Type != VAR_LISTOFFLOAT)
+	  /* vyyerror("Multi value Constant needed: %s", $1); */
+	  List_Add($$, &Constant_S.Value.Float);
+	else
+	  for(int i = 0; i < List_Nbr(Constant_S.Value.ListOfFloat); i++) {
+	    double d;
+	    List_Read(Constant_S.Value.ListOfFloat, i, &d);
+	    List_Add($$, &d);
+	  }
+    }
+
   // deprecated
   | tSTRING '{' '}'
     {
@@ -7822,11 +7840,37 @@ MultiFExpr :
 	      List_Add($$, &d);
 	    }
 	  }
-      Free($4);
+      List_Delete($4);
+    }
+
+  | StringIndex '(' '{' RecursiveListOfFExpr '}' ')'
+    {
+      $$ = List_Create(20,20,sizeof(double));
+      Constant_S.Name = $1;
+      if(!Tree_Query(ConstantTable_L, &Constant_S))
+	vyyerror("Unknown Constant: %s", $1);
+      else
+	if(Constant_S.Type != VAR_LISTOFFLOAT)
+	  vyyerror("Multi value Constant needed: %s", $1);
+	else
+	  for(int i = 0; i < List_Nbr($4); i++) {
+            int j = (int)(*(double*)List_Pointer($4, i));
+	    if(j >= 0 && j < List_Nbr(Constant_S.Value.ListOfFloat)){
+	      double d;
+	      List_Read(Constant_S.Value.ListOfFloat, j, &d);
+	      List_Add($$, &d);
+	    }
+	    else{
+              vyyerror("Index %d out of range", j);
+	      double d = 0.;
+	      List_Add($$, &d);
+	    }
+	  }
+      List_Delete($4);
     }
 
   // same as tSTRING '(' ')'
-  | tList '[' tSTRING ']'
+  | tList '[' String__Index ']'
     {
       $$ = List_Create(20,20,sizeof(double));
       Constant_S.Name = $3;
@@ -7864,7 +7908,7 @@ MultiFExpr :
 	    }
 	    else {
 	      if(List_Nbr(Constant1_S.Value.ListOfFloat) !=
-		  List_Nbr(Constant2_S.Value.ListOfFloat)) {
+                 List_Nbr(Constant2_S.Value.ListOfFloat)) {
 		vyyerror("Different dimensions of Multi value Constants: "
 			 "%s {%d}, %s {%d}",
 			 $3, List_Nbr(Constant1_S.Value.ListOfFloat),
@@ -7881,6 +7925,27 @@ MultiFExpr :
 	      }
 	    }
 	}
+      Free($3); Free($5);
+    }
+
+  | tListAlt '[' MultiFExpr ',' MultiFExpr ']'
+    {
+      $$ = List_Create(20,20,sizeof(double));
+      if(List_Nbr($3) != List_Nbr($5)) {
+        vyyerror("Different dimensions of lists: %d != %d",
+                 List_Nbr($3), List_Nbr($5));
+      }
+      else {
+        for(int i = 0; i < List_Nbr($3); i++) {
+          double d;
+          List_Read($3, i, &d);
+          List_Add($$, &d);
+          List_Read($5, i, &d);
+          List_Add($$, &d);
+        }
+      }
+      List_Delete($3);
+      List_Delete($5);
     }
 
   | tLinSpace '[' FExpr ',' FExpr ',' FExpr ']'
@@ -7916,6 +7981,7 @@ MultiFExpr :
 	    List_Add($$, &d);
 	fclose(File);
       }
+      Free($3);
     }
  ;
 

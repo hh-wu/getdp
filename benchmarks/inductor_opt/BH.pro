@@ -27,14 +27,14 @@ Function{
     2.1000e+00, 2.1500e+00, 2.2000e+00, 2.2500e+00, 2.3000e+00, 2.3500e+00, 2.4000e+00
   } ;
 
-  Mat1_b2 = List[Mat1_b]^2;
-  Mat1_nu = List[Mat1_h]/List[Mat1_b];
+  Mat1_b2 = Mat1_b()^2;
+  Mat1_nu = Mat1_h() / Mat1_b();
   Mat1_nu(0) = Mat1_nu(1);
 
-  Mat1_nu_b2  = ListAlt[Mat1_b2, Mat1_nu] ;
-  nu_1[] = InterpolationLinear[ SquNorm[$1] ]{List[Mat1_nu_b2]} ;
-  dnudb2_1[] = dInterpolationLinear[SquNorm[$1]]{List[Mat1_nu_b2]} ;
-  dnudb_1[] = dInterpolationLinear[SquNorm[$1]]{List[Mat1_nu_b2]}*2.0*$1; //new
+  Mat1_nu_b2 = ListAlt[Mat1_b2(), Mat1_nu()] ;
+  nu_1[] = InterpolationLinear[ SquNorm[$1] ]{ Mat1_nu_b2() } ;
+  dnudb2_1[] = dInterpolationLinear[SquNorm[$1]]{ Mat1_nu_b2() } ;
+  dnudb_1[] = dInterpolationLinear[SquNorm[$1]]{ Mat1_nu_b2() } * 2.0*$1; //new
   h_1[] = nu_1[$1] * $1 ;
   dhdb_1[] = TensorDiag[1,1,1] * nu_1[$1#1] + 2*dnudb2_1[#1] * SquDyadicProduct[#1]  ;
   dhdb_1_NL[] = 2*dnudb2_1[$1#1] * SquDyadicProduct[#1] ;
@@ -68,13 +68,13 @@ Function{
     2.1000e+00, 2.1500e+00, 2.2000e+00, 2.2500e+00, 2.3000e+00, 2.3500e+00, 2.4000e+00
   } ;
 
-  Mat3kW_b2 = List[Mat3kW_b]^2;
-  Mat3kW_nu = List[Mat3kW_h]/List[Mat3kW_b];
+  Mat3kW_b2 = Mat3kW_b()^2;
+  Mat3kW_nu = Mat3kW_h() / Mat3kW_b();
   Mat3kW_nu(0) = Mat3kW_nu(1);
 
-  Mat3kW_nu_b2  = ListAlt[Mat3kW_b2, Mat3kW_nu] ;
-  nu_3kW[] = InterpolationLinear[SquNorm[$1]]{List[Mat3kW_nu_b2]} ;
-  dnudb2_3kW[] = dInterpolationLinear[SquNorm[$1]]{List[Mat3kW_nu_b2]} ;
+  Mat3kW_nu_b2  = ListAlt[Mat3kW_b2(), Mat3kW_nu()] ;
+  nu_3kW[] = InterpolationLinear[SquNorm[$1]]{ Mat3kW_nu_b2() } ;
+  dnudb2_3kW[] = dInterpolationLinear[SquNorm[$1]]{ Mat3kW_nu_b2() } ;
   h_3kW[] = nu_3kW[$1] * $1 ;
   dhdb_3kW[] = TensorDiag[1,1,1]*nu_3kW[$1#1] + 2*dnudb2_3kW[#1] * SquDyadicProduct[#1] ;
   dhdb_3kW_NL[] = 2*dnudb2_3kW[$1] * SquDyadicProduct[$1] ;
@@ -105,13 +105,13 @@ Function{
     2.0500e+00,2.0744e+00,2.1000e+00,2.1244e+00,2.1500e+00,2.1744e+00,2.2000e+00,2.2244e+00,
     2.2500e+00,2.2744e+00,2.3000e+00,2.3243e+00} ;
 
-  MatT20_b2 = List[MatT20_b]^2;
-  MatT20_nu = List[MatT20_h]/List[MatT20_b];
+  MatT20_b2 = MatT20_b()^2;
+  MatT20_nu = MatT20_h() / MatT20_b();
   MatT20_nu(0) = MatT20_nu(1);
 
-  MatT20_nu_b2 = ListAlt[MatT20_b2, MatT20_nu] ;
-  nu_T20[] = InterpolationLinear[SquNorm[$1]]{List[MatT20_nu_b2]} ;
-  dnudb2_T20[] = dInterpolationLinear[SquNorm[$1]]{List[MatT20_nu_b2]} ;
+  MatT20_nu_b2 = ListAlt[MatT20_b2(), MatT20_nu()] ;
+  nu_T20[] = InterpolationLinear[SquNorm[$1]]{ MatT20_nu_b2() } ;
+  dnudb2_T20[] = dInterpolationLinear[SquNorm[$1]]{ MatT20_nu_b2() } ;
   h_T20[] = nu_T20[$1] * $1 ;
   dhdb_T20[]    = TensorDiag[1,1,1] * nu_T20[$1#1] + 2*dnudb2_T20[#1] * SquDyadicProduct[$1] ;
   dhdb_NL_T20[] = 2*dnudb2_T20[$1] * SquDyadicProduct[$1] ;
@@ -133,14 +133,14 @@ Function{
     1.7446e+00,1.7593e+00,1.7667e+00,1.7815e+00,
     1.7889e+00,1.7963e+00} ;
 
-  MatEIcore_b2 = List[MatEIcore_b]^2 ;
-  MatEIcore_nu = List[MatEIcore_h]/List[MatEIcore_b] ;
+  MatEIcore_b2 = MatEIcore_b()^2 ;
+  MatEIcore_nu = MatEIcore_h() / MatEIcore_b() ;
   MatEIcore_nu(0) = MatEIcore_nu(1);
 
-  MatEIcore_nu_b2  = ListAlt[MatEIcore_b2, MatEIcore_nu] ;
-  nu_EIcore[] = InterpolationLinear[SquNorm[$1]]{List[MatEIcore_nu_b2]} ;
-  dnudb2_EIcore[] = dInterpolationLinear[SquNorm[$1]]{List[MatEIcore_nu_b2]} ;
-  dnudb_EIcore[] = dInterpolationLinear[SquNorm[$1]]{List[MatEIcore_nu_b2]}*2.0*$1;//new
+  MatEIcore_nu_b2 = ListAlt[MatEIcore_b2(), MatEIcore_nu()] ;
+  nu_EIcore[] = InterpolationLinear[SquNorm[$1]]{ MatEIcore_nu_b2() } ;
+  dnudb2_EIcore[] = dInterpolationLinear[SquNorm[$1]]{ MatEIcore_nu_b2() } ;
+  dnudb_EIcore[] = dInterpolationLinear[SquNorm[$1]]{ MatEIcore_nu_b2() } * 2.0*$1;//new
   h_EIcore[] = nu_EIcore[$1] * $1 ;
   dhdb_EIcore[] = TensorDiag[1,1,1]*nu_EIcore[$1#1] + 2*dnudb2_EIcore[#1] * SquDyadicProduct[#1] ;
   dhdb_EIcore_NL[] = 2*dnudb2_EIcore[$1] * SquDyadicProduct[$1] ;
@@ -153,9 +153,3 @@ Function{
   dhdb_Park[] = TensorDiag[1,1,1]*nu_Park[$1#1]+2*dnudb2_Park[#1]*SquDyadicProduct[#1];
   dhdb_Park_NL[] = 2*dnudb2_Park[$1#1]*SquDyadicProduct[#1];
 }
-
-
-
-
-
-
