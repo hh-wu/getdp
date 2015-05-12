@@ -31,7 +31,7 @@ Function{
   Mat1_nu = Mat1_h() / Mat1_b();
   Mat1_nu(0) = Mat1_nu(1);
 
-  Mat1_nu_b2  = ListAlt[Mat1_b2(), Mat1_nu()] ;
+  Mat1_nu_b2 = ListAlt[Mat1_b2(), Mat1_nu()] ;
   nu_1[] = InterpolationLinear[ SquNorm[$1] ]{ Mat1_nu_b2() } ;
   dnudb2_1[] = dInterpolationLinear[SquNorm[$1]]{ Mat1_nu_b2() } ;
   h_1[] = nu_1[$1] * $1 ;
