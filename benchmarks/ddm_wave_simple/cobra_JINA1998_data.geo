@@ -8,12 +8,6 @@ DefineConstant[ // allows to set these from outside
   LAMBDA = {2*Pi/WAVENUMBER, Name "Input/1Wavelength", ReadOnly 1},
   // number of points per wavelength
   N_LAMBDA = {20, Name "Input/2Points per wavelength"},
-  // // dimensions of the waveguide
-  // DX = {2, Name "Input/X dimension"},
-  // DY = {1, Name "Input/Y dimension"},
-  // DZ = {1, Name "Input/Z dimension"},
-  // number of subdmains in the DDM
-  // N_DOM = {4, Name "Input/04Number of subdomains"},
   // base msh filename
   MSH_BASE_NAME = "mesh_",
   // directory for output files
@@ -42,12 +36,13 @@ OPEN_ENDED = 1; // radiation condition ; otherwise wall condition
 
 DefineConstant[ F = {1, Min 1, Max 20, Step 1, Name "Input/04N_Dom Mult"} ];
 
-// nDomList = {2,2,1,2,1}; // number of domains in the different parts of the domain, starting from inner straight part -- 8
-nDomList = F*{3,5,2,5,1}; // number of domains in the different parts of the domain, starting from inner straight part -- 16
-// nDomList = {6,10,4,10,2}; // number of domains in the different parts of the domain, starting from inner straight part -- 32
-// nDomList = {12,20,8,20,4}; // number of domains in the different parts of the domain, starting from inner straight part -- 64
+// number of domains in the different parts of the domain, starting from inner
+// straight part:
+// nDomList = {2,2,1,2,1};
+nDomList = F*{3,5,2,5,1};
 
-// Compute the number of domains as the sum of the domains in each part of the waveguide
+// compute the number of domains as the sum of the domains in each part of the
+// waveguide:
 N = 0;
 For i In {0:PARTS-1}
   N += nDomList(i);
