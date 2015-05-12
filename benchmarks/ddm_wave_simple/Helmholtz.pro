@@ -366,7 +366,9 @@ PostProcessing {
       PostQuantity {
         { Name u~{idom} ; Value { Local { [ {u~{idom}} ] ;
               In Omega~{idom}; Jacobian JVol ; } } }
-	{ Name u_tot~{idom} ; Value { Local { [ {u~{idom}} + uinc[]] ;
+	{ Name u_tot~{idom} ; Value { Local { [ {u~{idom}} + uinc[] ] ;
+              In Omega~{idom}; Jacobian JVol ; } } }
+        { Name c~{idom} ; Value { Local { [ c[] ] ;
               In Omega~{idom}; Jacobian JVol ; } } }
       }
     }
@@ -398,7 +400,9 @@ PostOperation {
         Print[ u~{idom}, OnElementsOf Omega~{idom},
           File StrCat(DIR, Sprintf("u_%g.pos",idom))] ;
         // Print[ u_tot~{idom}, OnElementsOf Omega~{idom},
-        //  File StrCat(DIR, Sprintf("u_tot_%g.pos",idom))] ;
+        //   File StrCat(DIR, Sprintf("u_tot_%g.pos",idom))] ;
+        Print[ c~{idom}, OnElementsOf Omega~{idom},
+          File StrCat(DIR, Sprintf("c_%g.pos",idom))] ;
       }
     }
     For iSide In {0:1}

@@ -137,7 +137,6 @@ Macro PrintInfo
     SetGlobalSolverOptions["-petsc_prealloc 200"];
   EndIf
   If (EXTERNAL_VELOCITY_FIELD)
-    GmshRead[VELOCITY_FNAME, 7*N_DOM];
     Printf["Using external data for the velocity field"];
   EndIf
   If (DELTA_SOURCE)

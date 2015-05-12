@@ -1,7 +1,6 @@
 DefineConstant[ // allows to set these from outside
   // Analysis type
   ANALYSIS = {0, Name "Input/00Type of analysis",
-    // Choices {0="Helmholtz", 1="Maxwell"}},
     Choices {0="Helmholtz"}},
   // wavenumber
   WAVENUMBER = {2*Pi*15, Name "Input/0Wavenumber"},

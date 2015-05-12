@@ -27,7 +27,6 @@ DefineConstant[ // allows to set these from outside
 			     Choices {0="Homogeneous", 1="Marmousi"}}
 ];
 
-VELOCITY_FNAME = "marmousi.pos";
 DELTA_SOURCE = 1; // 1 ? delta function : dirichlet
 
 If (1)
@@ -48,7 +47,7 @@ EndIf
 Function {
   I[] = Complex[0,1];
   If (EXTERNAL_VELOCITY_FIELD)
-    velocityField[] = ScalarField[ $1 ]{7*N_DOM};
+    velocityField[] = InterpolationBilinear[ $1, $2 ]{ ListFromFile["marmousi.dat"] };
   EndIf
   If (!EXTERNAL_VELOCITY_FIELD)
     velocityField[] = cAvg; //use a mean value
@@ -56,7 +55,7 @@ Function {
     // velocityField[] = cMin + (cMax-cMin)/(d^2)*(-d*CompY[ $1 ]); // speed gradient along Y
     // velocityField[] = cMin + (cMax-cMin)/(D^2)*(D*CompX[ $1 ]); // speed gradient along X
   EndIf
-  c[] = velocityField[ XYZ[] ];
+  c[] = velocityField[ X[], Y[] ];
 
   om[] = om;
 
@@ -72,8 +71,6 @@ Function {
   alphaBT[] = 0;
   betaBT[] = 0;
 }
-
-
 
 Group{
   For idom In {0:N_DOM-1}
@@ -187,7 +184,7 @@ Function{
   For ii In {0: N_DOM-1}
     idom = ii;
     For jdom In {0:1}
-      cPml~{idom}~{jdom}[] = velocityField[Vector[xSigma~{idom}~{jdom},Y[],Z[]]];
+      cPml~{idom}~{jdom}[] = velocityField[ xSigma~{idom}~{jdom}, Y[]];
       kPml~{idom}~{jdom}[] = om[]/cPml~{idom}~{jdom}[];
     EndFor
     // Bermudez damping functions
@@ -216,10 +213,7 @@ If (PRECOND_SWEEP)
 EndIf
 
 If (ANALYSIS == 0)
-  Include "Helmholtz.pro"; // formulations, function spaces and other definitions
-EndIf
-If (ANALYSIS == 1)
-  Include "Maxwell.pro"; // formulations, function spaces and other definitions
+  Include "Helmholtz.pro";
 EndIf
 
 Include "Schwarz.pro";
