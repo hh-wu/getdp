@@ -687,6 +687,13 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       BlockingSystemCall(Operation_P->Case.SystemCommand.String);
       break ;
 
+      /*  -->  E r r o r                              */
+      /*  ------------------------------------------  */
+
+    case OPERATION_ERROR :
+      Message::Error(Operation_P->Case.Error.String);
+      break ;
+
       /*  -->  G e n e r a t e                        */
       /*  ------------------------------------------  */
 

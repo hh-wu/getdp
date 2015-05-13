@@ -903,6 +903,9 @@ struct Operation {
       char *String;
     } SystemCommand;
     struct {
+      char *String;
+    } Error;
+    struct {
       char *FileName;
       int ViewTag;
     } GmshRead;
@@ -1218,6 +1221,7 @@ struct IterativeLoopSystem {
 #define OPERATION_RENAMEFILE               85
 #define OPERATION_WHILE                    86
 #define OPERATION_SETTIMESTEP              87
+#define OPERATION_ERROR                    88
 
 /* ChangeOfState.Type */
 #define CHANGEOFSTATE_NOCHANGE              0

@@ -4420,6 +4420,11 @@ Change the frequency of system @var{system-id}.
 
 Execute the system command given by @var{expression-char}.
 
+@item Error
+@code{[@var{expression-char}]}
+
+Output error message @var{expression-char}.
+
 @item Test | If
 @code{[@var{expression}] @{ @var{resolution-op} @}} 
 

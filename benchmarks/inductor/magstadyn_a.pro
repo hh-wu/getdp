@@ -275,6 +275,9 @@ Resolution {
 
         PostOperation[Get_LocalFields] ;
         PostOperation[Get_GlobalQuantities] ;
+        Test[ Fabs[$MagEnergy - 11.42] > 1e-12 ]{ // fail on purpose to test ctest
+          Error["Computed magnetic energy is out of confidence bound"];
+        }
       EndIf
 
       If(Flag_AnalysisType==1) // Time-domain
