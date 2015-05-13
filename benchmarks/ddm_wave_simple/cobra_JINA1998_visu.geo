@@ -17,3 +17,15 @@ For idom In {0:N_DOM-1}
 EndFor
 Combine ElementsFromVisibleViews;
 
+If (ANALYSIS == 0)
+  View.IntervalsType = 1;
+EndIf
+
+General.Trackball = 0;
+General.RotationX = 30 ;
+General.RotationY = 30 ;
+General.RotationZ = 0 ;
+
+General.Clip2C = -1.;
+General.Clip2D = d2/2.;
+View[0].Clip = 4;

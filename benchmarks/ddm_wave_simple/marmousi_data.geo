@@ -3,8 +3,9 @@ DefineConstant[ // allows to set these from outside
   ANALYSIS = {0, Name "Input/00Type of analysis",
     Choices {0="Helmholtz"}},
   // wavenumber
-  WAVENUMBER = {2*Pi*15, Name "Input/0Wavenumber"},
-  LAMBDA = {2*Pi/WAVENUMBER, Name "Input/1Wavelength", ReadOnly 1},
+  // WAVENUMBER = {2*Pi*15, Name "Input/0Wavenumber"},
+  FREQ = {7, Name "Input/0Frequency"},
+  // LAMBDA = {2*Pi/WAVENUMBER, Name "Input/1Wavelength", ReadOnly 1},
   // number of points per wavelength
   N_LAMBDA = {20, Name "Input/2Points per wavelength"},
   // number of subdmains in the DDM
@@ -20,15 +21,15 @@ DefineConstant[ // allows to set these from outside
 // prefix for (split) mesh files (one for each partition)
 MSH_NAME = StrCat(DIR, MSH_BASE_NAME) ;
 
-om = 2*Pi*7;
+om = 2*Pi*FREQ;
 cMin = 1500.;
 cMax = 5500.;
 cAvg = 3500.;
 kMax = om/cMin;
 
+// meshing for shortest wavelength
 WAVENUMBER = kMax ;
 LAMBDA = 2*Pi/WAVENUMBER ;
-N_LAMBDA = 20.000000 ;
 LC = LAMBDA/N_LAMBDA;
 
 D = 9192.000000 ;

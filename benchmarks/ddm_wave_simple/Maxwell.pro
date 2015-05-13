@@ -1,5 +1,7 @@
 // Simple DDM example for Maxwell
 
+DefineConstant[DELTA_SOURCE=0];
+
 Jacobian {
   { Name JVol ; Case{ { Region All ; Jacobian Vol ; } } }
   { Name JSur ; Case { { Region All ; Jacobian Sur ; } } }
@@ -39,6 +41,9 @@ Group{
   For ii In {0: #ListOfDom()-1}
     idom = ListOfDom(ii);
     TrOmegaGammaD~{idom} = ElementsOf[ Omega~{idom}, OnOneSideOf GammaD~{idom} ];
+    If (!DELTA_SOURCE)
+      GammaPoint~{idom} = Region[{}];
+    EndIf
     For iSide In {0:1}
       DefineGroup [ Pml~{idom}~{iSide}, PmlD0~{idom}~{iSide}, PmlInf~{idom}~{iSide} ] ;
       TrPmlSigma~{idom}~{iSide} = ElementsOf[ Pml~{idom}~{iSide},
@@ -100,8 +105,8 @@ FunctionSpace {
       { Name Hcurl_g_out~{idom}~{iSide}; Type Form1;
         BasisFunction {
           { Name se; NameOfCoef ee; Function BF_Edge;
-            Support Region[{Sigma~{idom}~{iSide}, TrPmlSigma~{idom}~{iSide}}] ;
-            Entity EdgesOf[Sigma~{idom}~{iSide}, TrBndPmlSigma~{idom}~{iSide},
+            Support Region[{Sigma~{idom}~{iSide}, TrPmlSigma~{idom}~{iSide}, TrBndPmlSigma~{idom}~{iSide}}] ;
+            Entity EdgesOf[Sigma~{idom}~{iSide},
                            Not {GammaD~{idom}, GammaD0~{idom}, GammaInf~{idom}}]; }
         }
       }
@@ -348,8 +353,8 @@ Formulation {
               In TrPmlSigma~{idom}~{iSide}; Jacobian JVol; Integration I1;}
             Galerkin { [ -2 * eps[] * (kPml~{idom}~{iSide}[])^2 * {e~{idom}}, {g_out~{idom}~{iSide}}];
               In TrPmlSigma~{idom}~{iSide}; Jacobian JVol; Integration I1;}
-	    Galerkin { [ I[] * kDtN[] * (N[]) /\ ( N[] /\ Dof{e~{idom}} ) , {e~{idom}} ]; // FIXME: check if sign is correct ?
-              In TrBndPmlSigma~{idom}~{iSide} ; Jacobian JSur ; Integration I1 ; }
+	    // Galerkin { [ 2 * I[] * kDtN[] * (N[]) /\ ( N[] /\ Dof{e~{idom}} ) , {e~{idom}} ]; // FIXME: check if sign is correct ?
+            //   In TrBndPmlSigma~{idom}~{iSide} ; Jacobian JSur ; Integration I1 ; }
           EndIf
         }
       }
@@ -409,8 +414,8 @@ Formulation {
             Galerkin { [ -2 * eps[] * (kPml~{idom}~{iSide}[])^2 * {e~{idom}},
                 {g_out~{idom}~{iSide}}];
               In TrPmlSigma~{idom}~{iSide}; Jacobian JVol; Integration I1;}
-	    Galerkin { [ I[] * kDtN[] * (N[]) /\ ( N[] /\ Dof{e~{idom}} ) , {e~{idom}} ]; // FIXME: check if sign is correct ?
-              In TrBndPmlSigma~{idom}~{iSide} ; Jacobian JSur ; Integration I1 ; }
+	    // Galerkin { [ 2 * I[] * kDtN[] * (N[]) /\ ( N[] /\ Dof{e~{idom}} ) , {e~{idom}} ]; // FIXME: check if sign is correct ?
+            //   In TrBndPmlSigma~{idom}~{iSide} ; Jacobian JSur ; Integration I1 ; }
           EndIf
         }
       }

@@ -401,8 +401,9 @@ PostOperation {
           File StrCat(DIR, Sprintf("u_%g.pos",idom))] ;
         // Print[ u_tot~{idom}, OnElementsOf Omega~{idom},
         //   File StrCat(DIR, Sprintf("u_tot_%g.pos",idom))] ;
-        Print[ c~{idom}, OnElementsOf Omega~{idom},
-          File StrCat(DIR, Sprintf("c_%g.pos",idom))] ;
+	// // save velocity field
+	// Print[ c~{idom}, OnElementsOf Omega~{idom},
+        //   File StrCat(DIR, Sprintf("c_%g.pos",idom))] ;
       }
     }
     For iSide In {0:1}

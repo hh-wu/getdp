@@ -5,8 +5,10 @@ DefineConstant[ // allows to set these from outside
   WALLS = {1, Name "Input/05Walls",
     Choices {0="Transparent", 1="Metallic"}},
   // excitation mode
-  MODE_M = {1, Name "Input/05m"}, // y
+  MODE_M = {2, Name "Input/05m"}, // y
   MODE_N = {1, Name "Input/05n"}, // z
+  MEDIUM_TYPE = {0, Name "Input/01Medium type",
+    Choices {0="Constant", 1="Gaussian"}},
   // transmission boundary condition
   TC_TYPE = {0, Name "Input/01Transmission condition",
     Choices {0="Order 0", 1="Order 2", 2="Pade (OSRC)", 3="PML"}},
@@ -21,15 +23,23 @@ DefineConstant[ // allows to set these from outside
 Function {
   I[] = Complex[0, 1] ;
   N[] = Normal[] ;
-  k = WAVENUMBER ;
-  k[] = k ;
 
-  eps0 = 8.854e-12;
-  mu0 = 4*Pi*1e-7;
-  c = 1 / Sqrt[mu0*eps0];
-  c[] = c;
+  // coordinates in the rotated structure
+  P[] = (-X[]*Sin[theta]+Y[]*Cos[theta]);
+  Q[] = Z[];
 
-  omega[] = c*k[] ;
+  If (MEDIUM_TYPE == 0)
+    c[] = c0; // constant
+  EndIf
+  If (MEDIUM_TYPE == 1)
+    // c[] = c0 * 1.25 * ( 1. - .4 * Exp[ -32 * ( (P[]-DY/2)^2 + (Q[]-DZ/2)^2 ) ] ) ; // gaussian
+    c[] = c0 * 1.25 * ( 1. - .55 * Exp[ -32 * ( (P[]-DY/2)^2 + (Q[]-DZ/2)^2 ) ] ) ; // gaussian
+  EndIf
+  // freq[] = c0[] / LAMBDA;
+  // om[] = 2 * Pi * freq[];
+  k[] = om / c[] ;
+
+  omega[] = om;//c[]*k[] ;
   mu[] = mu0 ;
 
   ky = MODE_M*Pi/DY ;
@@ -37,54 +47,45 @@ Function {
   kc = Sqrt[ky^2+kz^2] ;
   beta[] = ( -kc^2 + k[]^2 >=0 ? Sqrt[-kc^2 + k[]^2] : -I[]*Sqrt[kc^2 - k[]^2] ) ;
 
-  // coordinates in the rotated structure
-  For idom In {0:N_DOM-1}
-    For jdom In {0:1}
-      P~{idom}~{jdom}[] = (-X[]*Sin[theta]+Y[]*Cos[theta]);
-      Q~{idom}~{jdom}[] = Z[];
-      // R_0~{idom}~{jdom}[] = X[]*Cos[theta]+Y[]*Sin[theta]+dBb;
-    EndFor
-  EndFor
-
   // rotation tensor
   R[] = Tensor[Cos[-theta], Sin[-theta], 0.,
 	       -Sin[-theta], Cos[-theta], 0.,
 	       0., 0., 1.];
 
   // for TM mode
-  einc[] = R[]*Vector[ Sin[ky*P~{0}~{0}[]]*Sin[kz*Q~{0}~{0}[]],
-		       I[]*beta[]*ky/kc^2*Cos[ky*P~{0}~{0}[]]*Sin[kz*Q~{0}~{0}[]],
-		       I[]*beta[]*kz/kc^2*Cos[kz*Q~{0}~{0}[]]*Sin[ky*P~{0}~{0}[]] ];
+  einc[] = R[]*Vector[ Sin[ky*P[]]*Sin[kz*Q[]],
+		       I[]*beta[]*ky/kc^2*Cos[ky*P[]]*Sin[kz*Q[]],
+		       I[]*beta[]*kz/kc^2*Cos[kz*Q[]]*Sin[ky*P[]] ];
 
   // for acoustic
-  uinc[] = Sin[ky*P~{0}~{0}[]]*Sin[kz*Q~{0}~{0}[]]; // mode in the rotated coordinates
+  uinc[] = Sin[ky*P[]]*Sin[kz*Q[]]; // mode in the rotated coordinates
 
   // parameter for ABC
-  kInf[] = k;
+  kInf[] = k[];
   alphaBT[] = 0; //1/(2*R_EXT) - I[]/(8*k*R_EXT^2*(1+I[]/(k*R_EXT)));
   betaBT[] = 0; // -1/(2*I[]*k); //- 1/(2*I[]*k*(1+I[]/(k*R_EXT)));
 
   // parameter for 0th order TC
-  kDtN[] = k;
+  kDtN[] = k[];
 
   // parameters for 2nd order TC
   // J.-F. Lee
   kmax[] = Pi/LC ;
-  delt[] = Sqrt[kmax[]^2-k^2]/Sqrt[k^2];
+  delt[] = Sqrt[kmax[]^2-k[]^2]/Sqrt[k[]^2];
   aa[] = 1/(1 + I[]*delt[]);
   bb[] = aa[];
   // OO2 Gander 2002, pp. 46-47
   xsimin = 0;
   xsimax = Pi / LC;
   deltak[] = Pi;
-  alphastar[] = I[] * ((k^2 - xsimin^2) * (k^2 - (k-deltak[])^2))^(1/4);
-  betastar[] = ((xsimax^2 - k^2) * ((k+deltak[])^2 - k^2))^(1/4);
-  a[] = - (alphastar[] * betastar[] - k^2) / (alphastar[] + betastar[]);
+  alphastar[] = I[] * ((k[]^2 - xsimin^2) * (k[]^2 - (k[]-deltak[])^2))^(1/4);
+  betastar[] = ((xsimax^2 - k[]^2) * ((k[]+deltak[])^2 - k[]^2))^(1/4);
+  a[] = - (alphastar[] * betastar[] - k[]^2) / (alphastar[] + betastar[]);
   b[] = - 1 / (alphastar[] + betastar[]);
 
   // parameters for Pade-type TC
   kepsI = 0.;
-  keps[] = k*(1+kepsI*I[]);
+  keps[] = k[]*(1+kepsI*I[]);
   theta_branch = Pi/4;
 }
 

@@ -1,15 +1,8 @@
 Include "marmousi_data.geo";
 
 DefineConstant[ // allows to set these from outside
-  // type of walls
-  // WALLS = {1, Name "Input/05Walls",
-  //   Choices {0="Transparent", 1="Metallic"}},
-  // excitation mode
-  // MODE_M = {2, Name "Input/05m"}, // y
-  // MODE_N = {1, Name "Input/05n"}, // z
   // transmission boundary condition
   TC_TYPE = {0, Name "Input/01Transmission condition",
-    // Choices {0="Order 0", 1="PML"}},
     Choices {0="Order 0", 3="PML"}},
   NP_OSRC = 4,
   // parameters for the DDM iterative solver

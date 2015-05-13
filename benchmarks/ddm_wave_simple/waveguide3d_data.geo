@@ -3,10 +3,11 @@ DefineConstant[ // allows to set these from outside
   ANALYSIS = {0, Name "Input/00Type of analysis",
     Choices {0="Helmholtz", 1="Maxwell"}},
   // wavenumber
-  WAVENUMBER = {10, Name "Input/0Wavenumber"},
-  LAMBDA = {2*Pi/WAVENUMBER, Name "Input/1Wavelength", ReadOnly 1},
+  // WAVENUMBER = {10, Name "Input/0Wavenumber"},
+  FREQ = {470, Name "Input/0Wavenumber (MHz)"},
+  // LAMBDA = {2*Pi/WAVENUMBER, Name "Input/1Wavelength", ReadOnly 1},
   // number of points per wavelength
-  N_LAMBDA = {10, Name "Input/2Points per wavelength"},
+  N_LAMBDA = {15, Name "Input/2Points per wavelength"},
   // dimensions of the waveguide
   DX = {2, Name "Input/X dimension"},
   DY = {1, Name "Input/Y dimension"},
@@ -19,6 +20,14 @@ DefineConstant[ // allows to set these from outside
   DIR = "out/"
 ];
 
+om = 2*Pi*FREQ*1e6;
+
+eps0 = 8.854e-12;
+mu0 = 4*Pi*1e-7;
+c0 = 1 / Sqrt[mu0*eps0];
+
+WAVENUMBER = om/c0;
+LAMBDA = 2*Pi/WAVENUMBER ;
 LC = LAMBDA/N_LAMBDA;
 
 // prefix for (split) mesh files (one for each partition)
