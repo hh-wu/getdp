@@ -4,7 +4,7 @@ DefineConstant[ // allows to set these from outside
     Choices {0="Helmholtz", 1="Maxwell"}},
   // wavenumber
   // WAVENUMBER = {10, Name "Input/0Wavenumber"},
-  FREQ = {470, Name "Input/0Wavenumber (MHz)"},
+  FREQ = {470, Name "Input/0Frequency (MHz)"},
   // LAMBDA = {2*Pi/WAVENUMBER, Name "Input/1Wavelength", ReadOnly 1},
   // number of points per wavelength
   N_LAMBDA = {15, Name "Input/2Points per wavelength"},

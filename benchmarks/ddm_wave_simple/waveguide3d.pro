@@ -33,7 +33,7 @@ Function {
   EndIf
   If (MEDIUM_TYPE == 1)
     // c[] = c0 * 1.25 * ( 1. - .4 * Exp[ -32 * ( (P[]-DY/2)^2 + (Q[]-DZ/2)^2 ) ] ) ; // gaussian
-    c[] = c0 * 1.25 * ( 1. - .55 * Exp[ -32 * ( (P[]-DY/2)^2 + (Q[]-DZ/2)^2 ) ] ) ; // gaussian
+    c[] = c0 * 1.25 * ( 1. - .55 * Exp[ -32 * ( (P[]-DY/2)^2 + (Q[]-DZ/2)^2 ) ] ) ; // gaussian -- FIXME exceeds speed of light...
   EndIf
   // freq[] = c0[] / LAMBDA;
   // om[] = 2 * Pi * freq[];
