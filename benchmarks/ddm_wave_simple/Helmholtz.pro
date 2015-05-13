@@ -1,6 +1,9 @@
 // Simple DDM example for Helmholtz
 
-DefineConstant[DELTA_SOURCE=0];
+Function{
+  DefineConstant[DELTA_SOURCE=0];
+  DefineFunction[c];
+}
 
 Jacobian {
   { Name JVol ; Case{ { Region All ; Jacobian Vol ; } } }

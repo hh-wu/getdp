@@ -988,8 +988,13 @@ include(CTest)
 file(GLOB_RECURSE TESTFILES demos/magnet.pro 
      benchmarks/academic_eigenvalues/main.pro
      benchmarks/acoustic_scattering/scattering.pro
+     benchmarks/ddm_wave_simple/main.pro
+     benchmarks/inductor/inductor.pro
      benchmarks/machines/pmsm.pro
      benchmarks/magnetometer/magnetometer.pro
+     benchmarks/magnets/magnets.pro
+     benchmarks/thermal_conduction/contact.pro
+     benchmarks/transfo_simple/transfo.pro
      benchmarks/waveguides/waveguide3D_rectangle.pro)
 find_program(TEST_BIN ../../gmsh/bin/gmsh)
 if(TEST_BIN)
