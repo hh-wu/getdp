@@ -985,10 +985,10 @@ endif(WIN32 OR CYGWIN)
 include(CPack)
 
 include(CTest)
-file(GLOB_RECURSE TESTFILES demos/magnet.pro 
+file(GLOB_RECURSE TESTS
+     demos/magnet.pro 
      benchmarks/academic_eigenvalues/main.pro
      benchmarks/acoustic_scattering/scattering.pro
-     benchmarks/ddm_wave_simple/main.pro
      benchmarks/inductor/inductor.pro
      benchmarks/machines/pmsm.pro
      benchmarks/magnetometer/magnetometer.pro
@@ -996,6 +996,10 @@ file(GLOB_RECURSE TESTFILES demos/magnet.pro
      benchmarks/thermal_conduction/contact.pro
      benchmarks/transfo_simple/transfo.pro
      benchmarks/waveguides/waveguide3D_rectangle.pro)
+if(HAVE_PETSC)
+  file(GLOB_RECURSE TESTS_PETSC
+       benchmarks/ddm_wave_simple/main.pro)
+endif(HAVE_PETSC)
 find_program(TEST_BIN ../../gmsh/bin/gmsh)
 if(TEST_BIN)
   message(STATUS "Will test GetDP with Gmsh through ONELAB")
@@ -1004,12 +1008,12 @@ else(TEST_BIN)
   set(TEST_BIN getdp)
 endif(TEST_BIN)
 
-foreach(TESTFILE ${TESTFILES})
+foreach(TESTFILE ${TESTS} ${TESTS_PETSC})
   # use relative path for cygwin/mingw (the pure win exe built with the mingw 
   # compilers does not understand a full cygwin-style path)
   FILE(RELATIVE_PATH TEST ${CMAKE_CURRENT_BINARY_DIR} ${TESTFILE})
   add_test(${TEST} ${TEST_BIN} ${TEST} - )
-endforeach()
+endforeach(TESTFILE)
 
 message(STATUS "")
 message(STATUS "GetDP ${GETDP_VERSION} has been configured for ${GETDP_OS}:")

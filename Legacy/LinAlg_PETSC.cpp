@@ -229,14 +229,14 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
   else{
     _try(MatCreateSeqAIJ(PETSC_COMM_SELF, n, m, 0, &nnz[0], &M->M));
     // PETSc (I)LU does not like matrices with empty (non assembled) diagonals
-    
+
     for(int i = 0; i < n; i++){
       PetscScalar d = 0.;
       _try(MatSetValues(M->M, 1, &i, 1, &i, &d, INSERT_VALUES));
     }
     _try(MatAssemblyBegin(M->M, MAT_FLUSH_ASSEMBLY));
     _try(MatAssemblyEnd(M->M, MAT_FLUSH_ASSEMBLY));
-    
+
   }
 
 #if ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 3))
@@ -1217,6 +1217,7 @@ static void _zitsol(gMatrix *A, gVector *B, gVector *X)
 static PetscErrorCode _myKspMonitor(KSP ksp, PetscInt it, PetscReal rnorm, void *mctx)
 {
   Message::Info("%3ld KSP Residual norm %14.12e", (long)it, rnorm);
+  // Current.KSPResidual = rnorm;
   return 0;
 }
 
