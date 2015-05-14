@@ -210,6 +210,8 @@ For i In {start:end}
 
 EndFor
 
+BoundingBox {-0.1, 0.6, -0.2, 0.2, -0.2, 0.2};
+
 // // Full domain
 // Delete Physicals;
 

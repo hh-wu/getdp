@@ -4,6 +4,8 @@ PBM_CYLINDER_CONCENTRIC = 3 ;
 PBM_SPHERE_CONCENTRIC = 4 ;
 PBM_WAVEGUIDE2D = 5 ;
 PBM_WAVEGUIDE3D = 6 ;
+PBM_MARMOUSI = 7 ;
+PBM_COBRA = 8 ;
 
 DefineConstant[
     FLAG_PBM = {PBM_CIRCLE_CONCENTRIC, Name "Input/00Problem", Highlight "Blue",
@@ -14,7 +16,9 @@ DefineConstant[
                          PBM_CYLINDER_CONCENTRIC = "Cylinder concentric",
                          PBM_SPHERE_CONCENTRIC = "Sphere concentric",
                          PBM_WAVEGUIDE2D = "Waveguide 2D",
-                         PBM_WAVEGUIDE3D = "Waveguide 3D"} }
+                         PBM_WAVEGUIDE3D = "Waveguide 3D",
+                         PBM_MARMOUSI = "Marmousi",
+                         PBM_COBRA = "Cobra"} }
 ] ;
 
 If (FLAG_PBM==PBM_CIRCLE_CONCENTRIC)
@@ -40,4 +44,12 @@ EndIf
 If (FLAG_PBM==PBM_WAVEGUIDE3D)
   LinkGeo = "waveguide3d.geo" ;
   LinkPro = "waveguide3d.pro" ;
+EndIf
+If (FLAG_PBM==PBM_MARMOUSI)
+  LinkGeo = "marmousi.geo" ;
+  LinkPro = "marmousi.pro" ;
+EndIf
+If (FLAG_PBM==PBM_COBRA)
+  LinkGeo = "cobra_JINA1998.geo" ;
+  LinkPro = "cobra_JINA1998.pro" ;
 EndIf

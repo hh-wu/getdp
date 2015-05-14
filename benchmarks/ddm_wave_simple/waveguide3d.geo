@@ -15,14 +15,14 @@ EndIf
 For idom In {start:end}
 
   x = idom * dx;
-  
+
   Delete Model;
 
   Point(1) = {idom*dx*Cos(theta), idom*dx*Sin(theta), 0., LC} ;
   myExtrudedLine[] = Extrude {-DY*Sin(theta), DY*Cos(theta), 0} {Point{1} ; } ;
   myExtrudedSurface[] = Extrude {0, 0, DZ} {Line{myExtrudedLine[1]} ; } ;
   myExtrudedVolume[] = Extrude {dx*Cos(theta), dx*Sin(theta), 0} {Surface{myExtrudedSurface[1]} ; };
-  
+
   Transfinite Surface{myExtrudedSurface[1]} ;
   Recombine Surface {myExtrudedSurface[1]} ;
 
@@ -54,7 +54,7 @@ For idom In {start:end}
   Physical Surface(((idom+1)*1000+20)) = myExtrudedVolume[0] ; // right face
   Physical Surface(((idom+1)*1000+202)) = lateralSides[] ; // lateral shell
   Physical Volume(((idom+1)*1000+200)) = myExtrudedVolume[1] ;
-  
+
   Physical Surface(-((idom+1)*1000+1)) = {pmlLeft[0]} ; // left face
   Physical Surface(-((idom+1)*1000+102)) = pmlLeftSides[] ; // lateral shell
   Physical Volume(((idom+1)*1000+100)) = pmlLeft[1] ;
@@ -73,3 +73,5 @@ For idom In {start:end}
   EndIf
 
 EndFor
+
+BoundingBox {0, DX, 0, DY, 0, DZ};
