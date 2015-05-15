@@ -29,14 +29,18 @@
 double F_Man (double He, double Ms, double a)
 {
   // Anhysteretic magnetisation
-  if (fabs(He) < 0.01*a) return Ms*He/(3.*a) ;
+  if (fabs(He) < 0.01*a)
+    //return Ms*He/(3.*a) ; // Aprox. up to 1st order
+    return Ms*(He/(3.*a)-1/45*CUB(He/a)) ; // Approx. up to 3rd order
   else return Ms*(cosh(He/a)/sinh(He/a)-a/He) ;
 }
 
 double F_dMandHe (double He, double Ms, double a)
 {
   // Derivative of the magnetisation Man with respect to the effective field He
-  if (fabs(He) < 0.01*a) return Ms/(3.*a) ;
+  if (fabs(He) < 0.01*a)
+    //return Ms/(3.*a) ; // Aprox. up to 1st order
+    return Ms/(3.*a)-Ms/(15*a)*SQU(He/a) ; // Approx. up to 3rd order
   else return Ms/a*(1-SQU(cosh(He/a)/sinh(He/a))+SQU(a/He)) ;
 }
 
@@ -62,7 +66,7 @@ void FV_dMandHe(double He[3], double Ms, double a, double dMandHe[6])
 
   if ( !nHe ) {
     dMandHe[0] = dMandHe[3] = dMandHe[5] = ndMandHe ;
-    dMandHe[1] = dMandHe[2] = dMandHe[4] = 0 ;
+    dMandHe[1] = dMandHe[2] = dMandHe[4] = 0. ;
   }
   else {
     dMandHe[0] = Man/nHe + (ndMandHe - Man/nHe)*He[0]*He[0]/(nHe*nHe) ;
@@ -80,8 +84,8 @@ void FV_dMidHe(double He[3], double Man[3],
 {
   double dM = sqrt( (Man[0]-Mi[0])*(Man[0]-Mi[0]) + (Man[1]-Mi[1])*(Man[1]-Mi[1]) + (Man[2]-Mi[2])*(Man[2]-Mi[2]) ) ;
 
-  if ( !dM || (Man[0]-Mi[0])*dH[0] + (Man[1]-Mi[1])*dH[1] + (Man[2]-Mi[2])*dH[2] < 0 ) {
-    dMidHe[0] = dMidHe[3] = dMidHe[5] = dMidHe[1] = dMidHe[2] =  dMidHe[4] = 0 ;
+  if ( !dM || (Man[0]-Mi[0])*dH[0] + (Man[1]-Mi[1])*dH[1] + (Man[2]-Mi[2])*dH[2] <= 0 ) {
+    dMidHe[0] = dMidHe[3] = dMidHe[5] = dMidHe[1] = dMidHe[2] =  dMidHe[4] = 0. ;
   } else {
     double kdM = k * dM;
     dMidHe[0] = (Man[0]-Mi[0])*(Man[0]-Mi[0]) / kdM ;
@@ -126,11 +130,14 @@ void Vector_dBdH(double H[3], double B[3], double dH[3],
   d[5] = 1 - alpha*c*dMandHe[5] - alpha*(1-c)*dMidHe[5] ; // zz
   d[1] =   - alpha*c*dMandHe[1] - alpha*(1-c)*dMidHe[1] ; // xy
   d[2] =   - alpha*c*dMandHe[2] - alpha*(1-c)*dMidHe[2] ; // xz
-  d[4] =   - alpha*c*dMandHe[4] - alpha*(1-c)*dMidHe[4] ; // zz
+  d[4] =   - alpha*c*dMandHe[4] - alpha*(1-c)*dMidHe[4] ; // yz
 
   double dd = d[0] * (d[3] *d[5] - d[4] *d[4])
             - d[1] * (d[1] *d[5] - d[4] *d[2])
             + d[2] * (d[1] *d[4] - d[3] *d[2]);
+
+  if (!dd)
+    Message::Error("Null determinant of denominator of dm/dh!");
 
   e[0] =  (d[3]*d[5]-d[4]*d[4])/dd ;
   e[1] = -(d[1]*d[5]-d[2]*d[4])/dd ;
@@ -212,7 +219,7 @@ void F_dbdh_Jiles(F_ARG)
 {
   // #define F_ARG   struct Function * Fct, struct Value * A, struct Value * V
   // input : h, b, dh
-  // dbdh_Jiles[{h}, {d a}, {h}-{h}[1] ]{List[hyst_FeSi]}
+  // dbdh_Jiles[{h}, {b}, {h}-{h}[1] ]{List[hyst_FeSi]}
   // Material parameters: e.g. hyst_FeSi = { Msat, a, k, c, alpha};==> struct FunctionActive *D
 
   double H[3], B[3], dH[3], dBdH[6] ;
@@ -315,8 +322,8 @@ void Vector_H2 (double Hone[3], double Bone[3], double Btwo[3], int n,
       B[k] = (double)(n-i)/(double)n * Bone[k] + (double)i/(double)n * Btwo[k] ;
     if (!i) {
       for (int k=0; k<3; k++) dH[k] = dB[k] ;
-      Vector_dHdB (H, B, dH, D, dHdB) ;
 
+      Vector_dHdB (H, B, dH, D, dHdB) ;
       dH[0] = dHdB[0] * dB[0] + dHdB[1] * dB[1] + dHdB[2] * dB[2] ;
       dH[1] = dHdB[1] * dB[0] + dHdB[3] * dB[1] + dHdB[4] * dB[2] ;
       dH[2] = dHdB[2] * dB[0] + dHdB[4] * dB[1] + dHdB[5] * dB[2] ;
@@ -746,18 +753,18 @@ void F_dhdb_Vinch(F_ARG)
 
 bool limiter(const double Js, double v[3])
 {
-  
+
   double max = 0.999*Js ; //0.9999 // SENSITIVE_PARAM (0.999)
   double mod = norm(v);
   if(mod >= max){
-    
+
     for (int n=0; n<3; n++)
       v[n] *= max/mod;
     return true;
     //Message::Warning("Js=%g, norm(J)=%g", Js, mod);
   }
   return false;
-  
+
   return false;
 }
 
@@ -1160,7 +1167,7 @@ void Tensor_dJkdh_Vinch_K(int dim, double h[3], double Jk[3], double Jkp[3], dou
     double delta[3] = { (fabs(h[0])>EPSILON) ? (fabs(h[0])) * delta0 : delta0,
                         (fabs(h[1])>EPSILON) ? (fabs(h[1])) * delta0 : delta0,
                         (fabs(h[2])>EPSILON) ? (fabs(h[2])) * delta0 : delta0 } ;
-    
+
 
     /*
     double delta[3] = {((norm(h)>EPSILON) ? (norm(h)+1) * delta0 : delta0),
