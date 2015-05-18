@@ -54,8 +54,12 @@ For i In {0:N_DOM}
 EndFor
 
 // for sweeping preconditioners
-ListOfCuts = {0, N_DOM-1};
+//ListOfCuts = {0, N_DOM-1};
 // ListOfCuts = {0, 4, N_DOM-1};
+
+DefineConstant[
+  ListOfCuts = { {0, N_DOM-1} }
+];
 
 ProcOwnsDomain = {};
 For idom In{0:N_DOM-1}

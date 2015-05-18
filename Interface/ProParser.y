@@ -39,7 +39,7 @@ long int getdp_yylinenum = 0;
 int getdp_yycolnum = 0;
 int getdp_yyincludenum = 0;
 int getdp_yyerrorlevel = 0;
-std::map<std::string, double> CommandLineNumbers;
+std::map<std::string, std::vector<double> > CommandLineNumbers;
 std::map<std::string, std::string> CommandLineStrings;
 
 // Static parser variables (accessible only in this file)
@@ -7347,16 +7347,15 @@ DefineConstants :
     /* none */
   | DefineConstants Comma String__Index
     { Constant_S.Name = $3; Constant_S.Type = VAR_FLOAT;
-      Constant_S.Value.Float = 0.;
       FloatOptions_S.clear(); CharOptions_S.clear();
       if(!Tree_Search(ConstantTable_L, &Constant_S)){
+        Constant_S.Value.Float = 0.;
 	Tree_Replace(ConstantTable_L, &Constant_S);
       }
     }
   | DefineConstants Comma String__Index '{' FExpr '}'
     {
       Constant_S.Type = VAR_FLOAT ;
-      Constant_S.Value.Float = 0. ;
       FloatOptions_S.clear(); CharOptions_S.clear();
       for (int k = 0 ; k < (int)$5 ; k++) {
 	char tmpstr[256];
@@ -7364,6 +7363,7 @@ DefineConstants :
 	Constant_S.Name = tmpstr ;
 	if (!Tree_Search(ConstantTable_L, &Constant_S)) {
 	  Constant_S.Name = strSave(tmpstr);
+          Constant_S.Value.Float = 0. ;
 	  Tree_Replace(ConstantTable_L, &Constant_S) ;
 	}
       }
@@ -7371,25 +7371,38 @@ DefineConstants :
     }
   | DefineConstants Comma String__Index tDEF FExpr
     { Constant_S.Name = $3; Constant_S.Type = VAR_FLOAT;
-      Constant_S.Value.Float = $5;
       if(!Tree_Search(ConstantTable_L, &Constant_S)){
+        Constant_S.Value.Float = $5;
 	Tree_Replace(ConstantTable_L, &Constant_S);
       }
     }
-  | DefineConstants Comma String__Index tDEF '{' FExpr
+  | DefineConstants Comma String__Index tDEF '{' ListOfFExpr
     { FloatOptions_S.clear(); CharOptions_S.clear(); }
     FloatParameterOptions '}'
-    { Constant_S.Name = $3; Constant_S.Type = VAR_FLOAT;
-      Constant_S.Value.Float = $6;
-      if(!Tree_Search(ConstantTable_L, &Constant_S)){
-        Message::ExchangeOnelabParameter(&Constant_S, FloatOptions_S, CharOptions_S);
-	Tree_Replace(ConstantTable_L, &Constant_S);
+    { Constant_S.Name = $3;
+      if(List_Nbr($6) == 1){
+        Constant_S.Type = VAR_FLOAT;
+        if(!Tree_Search(ConstantTable_L, &Constant_S)){
+          double d;
+          List_Read($6, 0, &d);
+          Constant_S.Value.Float = d;
+          Message::ExchangeOnelabParameter(&Constant_S, FloatOptions_S, CharOptions_S);
+          Tree_Replace(ConstantTable_L, &Constant_S);
+        }
+        List_Delete($6);
+      }
+      else{
+        Constant_S.Type = VAR_LISTOFFLOAT;
+        if(!Tree_Search(ConstantTable_L, &Constant_S)){
+          Constant_S.Value.ListOfFloat = $6;
+          Tree_Replace(ConstantTable_L, &Constant_S);
+        }
       }
     }
   | DefineConstants Comma String__Index tDEF CharExprNoVar
     { Constant_S.Name = $3; Constant_S.Type = VAR_CHAR;
-      Constant_S.Value.Char = $5;
       if(!Tree_Search(ConstantTable_L, &Constant_S)){
+        Constant_S.Value.Char = $5;
 	Tree_Replace(ConstantTable_L, &Constant_S);
       }
     }
@@ -7397,8 +7410,8 @@ DefineConstants :
     { FloatOptions_S.clear(); CharOptions_S.clear(); }
     CharParameterOptions '}'
     { Constant_S.Name = $3; Constant_S.Type = VAR_CHAR;
-      Constant_S.Value.Char = $6;
       if(!Tree_Search(ConstantTable_L, &Constant_S)){
+        Constant_S.Value.Char = $6;
         Message::ExchangeOnelabParameter(&Constant_S, FloatOptions_S, CharOptions_S);
 	Tree_Replace(ConstantTable_L, &Constant_S);
       }
@@ -8264,12 +8277,22 @@ void Alloc_ParserVariables()
 {
   if(!ConstantTable_L) {
     ConstantTable_L = Tree_Create(sizeof(struct Constant), fcmp_Constant);
-    for(std::map<std::string, double>::iterator it = CommandLineNumbers.begin();
-        it != CommandLineNumbers.end(); it++){
-      Message::Info("Adding number %s = %g", it->first.c_str(), it->second);
+    for(std::map<std::string, std::vector<double> >::iterator it =
+          CommandLineNumbers.begin(); it != CommandLineNumbers.end(); it++){
+      std::vector<double> &v(it->second);
       Constant_S.Name = strdup(it->first.c_str());
-      Constant_S.Type = VAR_FLOAT;
-      Constant_S.Value.Float = it->second;
+      if(v.size() == 1){
+        Message::Info("Adding number %s = %g", it->first.c_str(), v[0]);
+        Constant_S.Type = VAR_FLOAT;
+        Constant_S.Value.Float = v[0];
+      }
+      else{
+        Message::Info("Adding list of numbers %s", it->first.c_str());
+        Constant_S.Type = VAR_LISTOFFLOAT;
+        Constant_S.Value.ListOfFloat = List_Create(v.size(), 1, sizeof(double));
+        for(unsigned int i = 0; i < v.size(); i ++)
+          List_Add(Constant_S.Value.ListOfFloat, &v[i]);
+      }
       Tree_Add(ConstantTable_L, &Constant_S);
     }
     for(std::map<std::string, std::string>::iterator it = CommandLineStrings.begin();

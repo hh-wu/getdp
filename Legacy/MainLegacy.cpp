@@ -168,7 +168,7 @@ static void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *
       else if (!strcmp(argv[i]+1, "setnumber")) {
         i++;
 	if (i + 1 < argc && argv[i][0] != '-') {
-          CommandLineNumbers[argv[i]] = atof(argv[i + 1]);
+          CommandLineNumbers[argv[i]] = std::vector<double>(1, atof(argv[i + 1]));
           i += 2;
 	}
         else{
@@ -184,6 +184,24 @@ static void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *
 	}
         else{
           Message::Error("Missing name and/or value for string definition");
+        }
+      }
+
+      else if (!strcmp(argv[i]+1, "setlist") ||
+               !strcmp(argv[i]+1, "setlistofnumbers")) {
+        i++;
+	if (i + 1 < argc && argv[i][0] != '-') {
+          std::string n(argv[i]);
+          std::vector<double> v(1, atof(argv[i + 1]));
+          i += 2;
+          while(i < argc && argv[i][0] != '-'){
+            v.push_back(atof(argv[i]));
+            i++;
+          }
+          CommandLineNumbers[n] = v;
+	}
+        else{
+          Message::Error("Missing name and/or value for definition of list of numbers");
         }
       }
 

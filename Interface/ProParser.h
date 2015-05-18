@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <map>
+#include <vector>
 #include <string>
 #include "ListUtils.h"
 
@@ -33,7 +34,7 @@ extern long int getdp_yylinenum;
 extern int getdp_yycolnum;
 extern int getdp_yyincludenum;
 extern int getdp_yyerrorlevel;
-extern std::map<std::string, double> CommandLineNumbers;
+extern std::map<std::string, std::vector<double> > CommandLineNumbers;
 extern std::map<std::string, std::string> CommandLineStrings;
 
 int getdp_yyparse();
