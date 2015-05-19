@@ -124,10 +124,7 @@ FunctionSpace {
         BasisFunction {
           { Name sn ; NameOfCoef un ; Function BF_Node ;
             Support Region[ {Sigma~{idom}~{iSide}, TrPmlSigma~{idom}~{iSide},
-		TrBndPmlSigma~{idom}~{iSide},//, TrBndPmlSigma~{idom}~{1}//,
-		// BndSigma~{idom}~{iSide}
-		BndSigmaInf~{idom}~{iSide}
-	      } ] ;
+		TrBndPmlSigma~{idom}~{iSide} } ] ;
             Entity NodesOf[ Sigma~{idom}~{iSide}, Not {GammaD~{idom}, GammaD0~{idom},
 			    PmlD0~{idom}~{0}, PmlD0~{idom}~{1}}];
           }
@@ -212,11 +209,11 @@ Formulation {
                 In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
               // experimental boundary terms:
 	      Galerkin { [ - I[] * k[] * OSRC_Aj[]{j,NP_OSRC,theta_branch} / keps[]^2 *
-	      	    ( I[] * kInf[] * Dof{phi~{j}~{idom}~{iSide}}) , {u~{idom}} ] ;
-                In BndSigmaInf~{idom}~{iSide}; Jacobian JLin ; Integration I1 ; }
+		  ( I[] * kInf[] * Dof{phi~{j}~{idom}~{iSide}}) , {u~{idom}} ] ;
+		In BndSigmaInf~{idom}~{iSide}; Jacobian JLin ; Integration I1 ; }
 	      Galerkin { [ OSRC_Bj[]{j,NP_OSRC,theta_branch} / keps[]^2 *
-	      	    ( I[] * kInf[] * Dof{phi~{j}~{idom}~{iSide}}) , {phi~{j}~{idom}~{iSide}} ] ;
-                In BndSigmaInf~{idom}~{iSide}; Jacobian JLin ; Integration I1 ; }
+		  ( I[] * kInf[] * Dof{phi~{j}~{idom}~{iSide}}) , {phi~{j}~{idom}~{iSide}} ] ;
+		In BndSigmaInf~{idom}~{iSide}; Jacobian JLin ; Integration I1 ; }
             EndFor
           EndFor
         EndIf
@@ -296,8 +293,6 @@ Formulation {
               In TrPmlSigma~{idom}~{iSide}; Jacobian JVol; Integration I1;}
             Galerkin { [ 2 * I[] * kInf[] * {u~{idom}}, {g_out~{idom}~{iSide}}];
               In TrBndPmlSigma~{idom}~{iSide}; Jacobian JSur; Integration I1;}
-	    // Galerkin { [ -2 * I[] * kInf[] * {u~{idom}}, {g_out~{idom}~{iSide}}];
-            //   In BndSigmaInf~{idom}~{iSide}; Jacobian JLin; Integration I1;}
           EndIf
         }
       }

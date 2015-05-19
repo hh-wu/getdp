@@ -38,7 +38,8 @@ Macro UpdateGonSurfaces
           GenerateRHSGroup[Sur~{idom}~{iSide},
 			   Region[{Sigma~{idom}~{iSide},
 				   TrPmlSigma~{idom}~{iSide},
-				   TrBndPmlSigma~{idom}~{iSide}}]] ;
+				   TrBndPmlSigma~{idom}~{iSide},
+				   BndSigmaInf~{idom}~{iSide}}]] ;
         EndIf
         If(GenerateSurFlag~{idom}~{iSide} == 0)
           Generate[Sur~{idom}~{iSide}] ;
