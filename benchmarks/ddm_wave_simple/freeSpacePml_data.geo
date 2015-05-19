@@ -37,17 +37,13 @@ tPml = .5;
 D = 2.000000 ;
 d = .300000 + 2*tPml ;
 
-shiftX = 0;//-D/2.;
-shiftY = 0;//-d/2.;
+shiftX = 0;
+shiftY = 0;
 shiftX = -D/2.;
 shiftY = d/2.;
 
-// xSource += shiftX;
-// ySource += shiftY-tPml;
-xSource = D/2.+shiftX;
-ySource = -d/2.+shiftY;
-
-
+xSource = (D/2.+shiftX) - 2*D/N_DOM; // last term is a shift from the center of the domain
+ySource = (-d/2.+shiftY) - .1;
 
 nLayersTr = 1;
 nLayersPml = 5;

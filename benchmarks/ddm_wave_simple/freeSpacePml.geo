@@ -5,7 +5,7 @@ lc=LC;
 Ddom = D/N_DOM;
 // iPoint = Ceil(xSource/Ddom); // source location
 // iPoint = Ceil(xSource/Ddom) + Ceil((N_DOM-1)/2.+1); // source location
-iPoint = 4; // source location
+iPoint = Ceil((xSource-shiftX)/Ddom); // source location
 Printf("iPoint: %g",iPoint);
 
 

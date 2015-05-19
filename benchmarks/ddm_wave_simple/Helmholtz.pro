@@ -162,10 +162,12 @@ Formulation {
         EndFor
       }
       Equation {
-        Galerkin { [ Dof{Grad u~{idom}} , {Grad u~{idom}} ] ;
-          In Omega~{idom}; Jacobian JVol ; Integration I1 ; }
-        Galerkin { [ -k[]^2 * Dof{u~{idom}} , {u~{idom}} ] ;
-          In Omega~{idom}; Jacobian JVol ; Integration I1 ; }
+        // Galerkin { [ Dof{Grad u~{idom}} , {Grad u~{idom}} ] ;
+	Galerkin { [D[] * Dof{d u~{idom}}, {d u~{idom}}];
+	  In Omega~{idom}; Jacobian JVol ; Integration I1 ; }
+        // Galerkin { [ -k[]^2 * Dof{u~{idom}} , {u~{idom}} ] ;
+	Galerkin { [-(kPml~{idom}~{iSide}[])^2*Kx[]*Ky[]*Kz[]*Dof{u~{idom}}, {u~{idom}}];
+	  In Omega~{idom}; Jacobian JVol ; Integration I1 ; }
 
 	Galerkin { [ ($PhysicalSource ? -1. : 0) , {u~{idom}} ] ; // delta function
             In GammaPoint~{idom}; Jacobian JVol ; Integration I1 ; }
