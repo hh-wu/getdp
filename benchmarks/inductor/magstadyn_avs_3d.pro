@@ -362,8 +362,8 @@ PostProcessing {
       { Name h ; Value { Term { [ nu[{d a}] * {d a} ] ; In Domain ; Jacobian Vol ; } } }
 
       { Name v ; Value { Term { [ {v} ]          ; In DomainC ; Jacobian Vol ; } } }
-      { Name e ; Value { Term { [ -Dt[{a}]+{d v} ] ; In DomainC ; Jacobian Vol ; } } }
-      { Name j ; Value { Term { [ sigma[]*(-Dt[{a}]+{d v}) ] ; In DomainC ; Jacobian Vol ; } } }
+      { Name e ; Value { Term { [ -(Dt[{a}]+{d v}) ] ; In DomainC ; Jacobian Vol ; } } }
+      { Name j ; Value { Term { [ -sigma[]*(Dt[{a}]+{d v}) ] ; In DomainC ; Jacobian Vol ; } } }
       { Name js0 ; Value { Term { [ js0[] ]      ; In DomainS ; Jacobian Vol ; } } }
 
       { Name js  ; Value { Term { [ {d hs} ]     ; In DomainB  ; Jacobian Vol ; } } }
@@ -371,7 +371,7 @@ PostProcessing {
 
       { Name JouleLosses ;
         Value { Integral {
-            [ SymmetryFactor * sigma[]*SquNorm[-Dt[{a}]+{d v}] ] ;
+            [ SymmetryFactor * sigma[]*SquNorm[Dt[{a}]+{d v}] ] ;
             In DomainC ; Jacobian Vol ; Integration II ; }
         }
       }
