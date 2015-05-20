@@ -15,7 +15,9 @@ DefineConstant[ // allows to set these from outside
   // directory for output files
   DIR = "out/",
   xSource = 0.5,
-  ySource = -0.5
+  ySource = -0.5,
+  nLayersTr = 1,
+  nLayersPml = 2
 ];
 
 // prefix for (split) mesh files (one for each partition)
@@ -32,21 +34,18 @@ WAVENUMBER = kMax ;
 LAMBDA = 2*Pi/WAVENUMBER ;
 LC = LAMBDA/N_LAMBDA;
 
-tPml = .5;
+tPml = .1;
 
-D = 2.000000 ;
-d = .300000 + 2*tPml ;
+D = 2. + 2*tPml;
+d = 2. + 2*tPml ;
 
 shiftX = 0;
 shiftY = 0;
 shiftX = -D/2.;
 shiftY = d/2.;
 
-xSource = (D/2.+shiftX) - 2*D/N_DOM; // last term is a shift from the center of the domain
-ySource = (-d/2.+shiftY) - .1;
-
-nLayersTr = 1;
-nLayersPml = 5;
+xSource = (D/2.+shiftX) - 0*2*D/N_DOM; // last term is a shift from the center of the domain
+ySource = (-d/2.+shiftY) - 0*.1;
 
 nDoms = N_DOM;
 

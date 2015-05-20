@@ -11,30 +11,25 @@ DefineConstant[ // allows to set these from outside
   // base msh filename
   MSH_BASE_NAME = "mesh_",
   // directory for output files
-  DIR = "out/"
+  DIR = "out/",
+  nLayersTr = 1,
+  nLayersPml = 4,
+  OPEN_ENDED = 1 // radiation condition ; otherwise wall condition
 ];
 
 // prefix for (split) mesh files (one for each partition)
 MSH_NAME = StrCat(DIR, MSH_BASE_NAME) ;
 
-// WAVENUMBER = 2*Pi*15. ;
-// LAMBDA = 2*Pi/WAVENUMBER ;
-// N_LAMBDA = 20.000000 ;
-LC = LAMBDA/N_LAMBDA;//0.005-0*1e-9;//2500;
-// LC = 0.005-1*1e-9;//2500;
-// LC = 0.005;//2500;
+LC = LAMBDA/N_LAMBDA;
 
 Printf("LC: %g",LC);
-
-// Geometry.Tolerance = 1e-12;
 
 m = 1 ; // 'vertical'
 n = 1 ; // 'horizontal'
 
 PARTS = 5; // use 5 for the full model
-OPEN_ENDED = 1; // radiation condition ; otherwise wall condition
 
-DefineConstant[ F = {1, Min 1, Max 20, Step 1, Name "Input/04N_Dom Mult"} ];
+DefineConstant[ F = {1, Min 1, Max 16, Step 1, Name "Input/04N_Dom Mult"} ];
 
 // number of domains in the different parts of the domain, starting from inner
 // straight part:
@@ -61,9 +56,6 @@ R = 0.186 + d1/2.; // rotation radius
 alpha = 35/360*2*Pi; // rotation angle
 shiftX = 0;
 shiftY = -( (R+d1)*(1-Cos[alpha]) + D2*Sin[alpha] + R*(1-Cos[alpha]) ) ;
-
-nLayersTr = 1;
-nLayersPml = 4;
 
 lc = LC;
 

@@ -103,6 +103,8 @@ Group{
 	GammaN~{idom} += Region[{((idom+1)*1000+203)}]; // top boundary
         PmlN~{idom}~{1} += Region[{((idom+1)*1000+303)}]; // top boundary
       EndIf
+      BndSigma~{idom}~{0} = Region[{}];
+      BndSigma~{idom}~{1} = Region[{((idom+1)*1000+21)}];
     EndIf
     If (idom == N_DOM-1)
       Sigma~{idom}~{0} = Region[ ((idom+1)*1000+10) ];
@@ -120,6 +122,8 @@ Group{
 	GammaN~{idom} += Region[{((idom+1)*1000+203)}];
         PmlN~{idom}~{0} += Region[{((idom+1)*1000+103)}];
       EndIf
+      BndSigma~{idom}~{0} = Region[{((idom+1)*1000+11)}];
+      BndSigma~{idom}~{1} = Region[{}];
     EndIf
     If (idom >= 1 && idom < N_DOM-1)
       Sigma~{idom}~{0} = Region[ ((idom+1)*1000+10) ];
@@ -140,18 +144,13 @@ Group{
         PmlN~{idom}~{0} += Region[{((idom+1)*1000+103)}];
         PmlN~{idom}~{1} += Region[{((idom+1)*1000+303)}];
       EndIf
+      BndSigma~{idom}~{0} = Region[{((idom+1)*1000+11)}];
+      BndSigma~{idom}~{1} = Region[{((idom+1)*1000+21)}];
     EndIf
 
     Sigma~{idom} = Region[{Sigma~{idom}~{0}, Sigma~{idom}~{1}}] ;
-
-    // BndSigma~{idom}~{0} = Region[{}];
-    // BndSigma~{idom}~{1} = Region[{}];
-    BndSigma~{idom}~{0} = Region[{1001}];
-    BndSigma~{idom}~{1} = Region[{1002}];
     BndSigma~{idom} = Region[{BndSigma~{idom}~{0}, BndSigma~{idom}~{1}}] ;
 
-    // BndGammaInf~{idom}~{0} = Region[{}];
-    // BndGammaInf~{idom}~{1} = Region[{}];
     BndGammaInf~{idom}~{0} = Region[{}];
     BndGammaInf~{idom}~{1} = Region[{}];
     BndGammaInf~{idom} = Region[{BndGammaInf~{idom}~{0}, BndGammaInf~{idom}~{1}}] ;

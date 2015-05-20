@@ -17,7 +17,9 @@ DefineConstant[ // allows to set these from outside
   // base msh filename
   MSH_BASE_NAME = "mesh_",
   // directory for output files
-  DIR = "out/"
+  DIR = "out/",
+  nLayersTr = 1,
+  nLayersPml = 4
 ];
 
 om = 2*Pi*FREQ*1e6;
@@ -38,9 +40,6 @@ dx = (DX / N_DOM);
 theta = Pi/12.;//0.; // angle of the structure
 
 // PML parameters
-
-nLayersTr = 1;
-nLayersPml = 4;
 dTr = nLayersTr*LC;
 dPml = nLayersPml*LC;
 dBb = (nLayersPml+nLayersTr)*LC;
@@ -57,9 +56,9 @@ EndFor
 //ListOfCuts = {0, N_DOM-1};
 // ListOfCuts = {0, 4, N_DOM-1};
 
-DefineConstant[
-  ListOfCuts = { {0, N_DOM-1} }
-];
+// DefineConstant[
+//   ListOfCuts = { {0, N_DOM-1} }
+// ];
 
 ProcOwnsDomain = {};
 For idom In{0:N_DOM-1}

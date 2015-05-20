@@ -16,7 +16,10 @@ DefineConstant[ // allows to set these from outside
   // base msh filename
   MSH_BASE_NAME = "mesh_",
   // directory for output files
-  DIR = "out/"
+  DIR = "out/",
+  nLayersTr = 1,
+  nLayersPml = 2,
+  theta = 0.
 ];
 
 LC = LAMBDA/N_LAMBDA;
@@ -24,15 +27,12 @@ LC = LAMBDA/N_LAMBDA;
 // prefix for (split) mesh files (one for each partition)
 MSH_NAME = StrCat(DIR, MSH_BASE_NAME) ;
 
-nLayersTr = 0;
-nLayersPml = 1;
+// PML parameters
 dTr = nLayersTr*LC;
 dPml = nLayersPml*LC;
 dBb = (nLayersPml+nLayersTr)*LC;
 dDom = DX / N_DOM;
 
-// PML parameters
-theta = 0.;
 xSigmaList = {};
 thetaList = {};
 For i In {0:N_DOM}

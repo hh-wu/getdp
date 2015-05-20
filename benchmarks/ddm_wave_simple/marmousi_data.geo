@@ -15,7 +15,9 @@ DefineConstant[ // allows to set these from outside
   // directory for output files
   DIR = "out/",
   xSource = 6200,
-  ySource = -2300
+  ySource = -2300,
+  nLayersTr = 1,
+  nLayersPml = 4
 ];
 
 // prefix for (split) mesh files (one for each partition)
@@ -34,9 +36,6 @@ LC = LAMBDA/N_LAMBDA;
 
 D = 9192.000000 ;
 d = 2904.000000 ;
-
-nLayersTr = 0;
-nLayersPml = 3;
 
 nDoms = N_DOM;
 

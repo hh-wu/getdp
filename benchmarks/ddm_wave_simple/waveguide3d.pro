@@ -1,6 +1,6 @@
 Include "waveguide3d_data.geo";
 
-DefineConstant[ // allows to set these from outside
+DefineVariable[ // allows to set these from outside
   // type of walls
   WALLS = {1, Name "Input/05Walls",
     Choices {0="Transparent", 1="Metallic"}},
@@ -17,7 +17,8 @@ DefineConstant[ // allows to set these from outside
   SOLVER = "gmres", // bcgs, gmsh_pcleft, ...
   TOL = 1e-4,
   MAXIT = 1000,
-  RESTART = MAXIT
+  RESTART = MAXIT,
+  ListOfCuts = { {0, N_DOM-1} }
 ];
 
 Function {
@@ -203,12 +204,22 @@ Function{
     idom = ii;
     D[Pml~{idom}~{0}] = Rotate[Dpml[],0.,0.,-thetaList(idom)];
     D[Pml~{idom}~{1}] = Rotate[Dpml[],0.,0.,-thetaList(idom+1)];
+    D[Omega~{idom}] = 1.;
   EndFor
 
   nu[] = 1./D[];
   eps[] = 1.*D[];
 
 }
+
+// // for sweeping preconditioners
+// ListOfCuts = {0, N_DOM-1};
+// // ListOfCuts = {0, 4, N_DOM-1};
+
+ProcOwnsDomain = {};
+For idom In{0:N_DOM-1}
+  ProcOwnsDomain += {(idom%MPI_Size == MPI_Rank)}; // define your rule here -- must match listOfDom()
+EndFor
 
 If(ANALYSIS == 0)
   Include "Helmholtz.pro" ;

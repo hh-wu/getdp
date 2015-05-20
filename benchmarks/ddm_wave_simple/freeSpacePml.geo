@@ -87,8 +87,6 @@ For i In {start+1:end+1}
 
     iDom = i;
 
-    // Physical Point(1001) = CombinedBoundary{ Line{14,15};};
-    // Physical Point(1002) = CombinedBoundary{ Line{11,12};};
     Physical Point((iDom*1000+11)) = CombinedBoundary{ Line{14,15};};
     Physical Point((iDom*1000+21)) = CombinedBoundary{ Line{11,12};};
 

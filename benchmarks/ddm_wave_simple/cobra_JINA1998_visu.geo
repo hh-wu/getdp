@@ -22,7 +22,7 @@ If (ANALYSIS == 0)
 EndIf
 
 General.Trackball = 0;
-General.RotationX = 30 ;
+General.RotationX = 15 ;
 General.RotationY = 30 ;
 General.RotationZ = 0 ;
 

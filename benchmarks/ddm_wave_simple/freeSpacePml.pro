@@ -140,7 +140,6 @@ Group{
     EndIf
 
     Sigma~{idom} = Region[{Sigma~{idom}~{0}, Sigma~{idom}~{1}}] ;
-
     BndSigma~{idom} = Region[{BndSigma~{idom}~{0}, BndSigma~{idom}~{1}}] ;
 
     BndGammaInf~{idom}~{0} = Region[{}];
@@ -152,6 +151,12 @@ Group{
 Include "Decomposition.pro";
 
 Function{
+  // for enclosing (truncation) PMLS
+  yCenter = -d/2.+shiftY;
+  distY[] = Fabs[Y[]-yCenter]; 
+  xCenter = D/2.+shiftX;
+  distX[] = Fabs[X[]-xCenter]; 
+
   // parameters for PML TC
   xSigmaList = {};
   For i In {0:N_DOM}
@@ -172,14 +177,12 @@ Function{
       kPml~{idom}~{jdom}[] = om[]/cPml~{idom}~{jdom}[];
     EndFor
     // Bermudez damping functions
-    SigmaX[Omega~{idom}] = 0. ;
+    // SigmaX[Omega~{idom}] = 0. ;
+    SigmaX[#{Omega~{idom}, Sigma~{idom}~{0}, Sigma~{idom}~{1}}] = distX[] > D/2.-tPml ? c[]/(D/2.-distX[]) : 0. ;
     SigmaX[Pml~{idom}~{1}] = distSigma~{idom+1}[] > dTr ? cPml~{idom}~{1}[]/(dBb-distSigma~{idom+1}[]) : 0. ;
     SigmaX[Pml~{idom}~{0}] = -distSigma~{idom}[] > dTr ? cPml~{idom}~{0}[]/Fabs[(dBb+distSigma~{idom}[])] : 0. ;
   EndFor
-  
-  yCenter = -d/2.+shiftY;
-  distY[] = Fabs[Y[]-yCenter]; 
-  
+    
   // SigmaY[] = 0.;
   SigmaY[] = distY[] > d/2.-tPml ? c[]/(d/2.-distY[]) : 0. ;
   SigmaZ[] = 0.;
@@ -188,7 +191,7 @@ Function{
   Kz[] = Complex[1, SigmaZ[]/om[]];
   D[] = TensorDiag[Ky[]*Kz[]/Kx[], Kx[]*Kz[]/Ky[], Kx[]*Ky[]/Kz[]];
   
-  kDtN[] = k[]*Ky[]*(1+.0*I[]);
+  kDtN[] = k[]*Kx[]*Ky[]*Kz[]*(1+.0*I[]);
   
 }
 

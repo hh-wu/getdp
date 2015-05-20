@@ -1,4 +1,4 @@
-DefineConstant[ EXTERNAL_VELOCITY_FIELD ];
+DefineConstant[ EXTERNAL_VELOCITY_FIELD, SAVE_SOLUTION=1 ];
 
 For ii In {0: #ListOfDom()-1}
   idom = ListOfDom(ii);
@@ -59,13 +59,15 @@ Macro UpdateGonSurfaces
 Return
 
 Macro SaveVolumeSolutions
-  SetCommSelf;
-  // compute the volume solution
-  For ii In {0: #ListOfDom()-1}
-    idom = ListOfDom(ii);
-    PostOperation[DDM~{idom}] ;
-  EndFor
-  SetCommWorld;
+  If(SAVE_SOLUTION)
+    SetCommSelf;
+    // compute the volume solution
+    For ii In {0: #ListOfDom()-1}
+      idom = ListOfDom(ii);
+      PostOperation[DDM~{idom}] ;
+    EndFor
+    SetCommWorld;
+  EndIf
 Return
 
 Macro UpdateConstraints
@@ -137,10 +139,13 @@ Macro PrintInfo
   If(ANALYSIS == 1)
     SetGlobalSolverOptions["-petsc_prealloc 200"];
   EndIf
-  If (EXTERNAL_VELOCITY_FIELD)
+  If(EXTERNAL_VELOCITY_FIELD)
     Printf["Using external data for the velocity field"];
   EndIf
-  If (DELTA_SOURCE)
+  If(DELTA_SOURCE)
     Printf["Using delta function as point source"];
+  EndIf
+  If(!SAVE_SOLUTION)
+    Printf("Solution will NOT be saved")
   EndIf
 Return
