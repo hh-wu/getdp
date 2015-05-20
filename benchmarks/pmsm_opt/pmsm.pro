@@ -232,6 +232,12 @@ EndIf
 //  Include "pmsm_8p_circuit.pro" ;
 //EndIf
 
+DefineConstant[
+  R_ = {"OptimStep", Name "GetDP/1ResolutionChoices",Choices {"Analysis", "OptimStep"}, Visible 0},
+  C_ = {"-solve -v 5 -v2", Name "GetDP/9ComputeCommand", Visible 0},
+  P_ = {"", Name "GetDP/2PostOperationChoices", Visible 0}
+];
+
 // analysis
 Include "machine_magstadyn_a.pro" ;
 

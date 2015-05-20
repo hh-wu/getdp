@@ -1,8 +1,3 @@
-DefineConstant[
-  R_ = {"OptimStep", Name "GetDP/1ResolutionChoices",Choices {"Analysis", "OptimStep"}, Visible 0},
-  C_ = {"-solve -v 5 -v2", Name "GetDP/9ComputeCommand", Visible 0},
-  P_ = {"", Name "GetDP/2PostOperationChoices", Visible 0}
-];
 
 Group {
    DefineGroup[
@@ -172,7 +167,6 @@ Function {
 //      dhdb_NL[] = 0;
       nu [#{ Stator_Fe, Rotor_Fe }]  = 1 / (mur_fe * mu0) ;
       nu_prime[#{Stator_Fe, Rotor_Fe }] = 0.;
-      dhdb_NL [] = 0;
     EndIf
     If(Flag_topopt) //if shape opt or initialize topology opt
       Printf["------- TO: Lin TO -------"];
@@ -182,14 +176,19 @@ Function {
       nu[#{DomainFe,-DomainOpt}]  = 1 / (mur_fe * mu0) ;
       nu[#{DomainOpt}]  = (1/(mur_fe * mu0)-nu0)*designVar[]^p + nu0; 
       nu_prime[#{DomainOpt}]  = p*(1 / (mur_fe * mu0) - nu0)*designVar[]^(p-1.0); 
-      dhdb_NL [] = 0;
     EndIf
   EndIf
   If(Flag_NL)
     If(Flag_NL_law_Type==0) //analytic nu-law
       Printf["Compute Nu map, Nltype=%g",Flag_NL_law_Type];
-      nu [#{DomainFe}] = nu_1a[$1] ;
-      dhdb_NL [#{DomainFe}] = dhdb_1a_NL[$1]; //Vérifier la formule !!!!
+      //nu [#{DomainFe}] = nu_1a[$1] ;
+      //dhdb_NL [#{DomainFe}] = dhdb_1a_NL[$1]; //Vérifier la formule !!!!
+      nu [#{DomainFe}] = nu_2a[$1] ;
+      //dhdb_NL [#{DomainFe}] = dhdb_2a[$1];
+      dhdb_NL [#{DomainFe}] = dhdb_2a_NL[$1];  
+//      coen[ DomainNL ] = SquNorm[$1]/2.*(p0 + p1*(2-1./(p2+1.)) 
+//				       * Exp[ p2 * Log[ SquNorm [$1]]]) ;
+
     EndIf
     If(Flag_NL_law_Type==1) //interpolated nu-law
       If(!Flag_topopt)
@@ -294,6 +293,11 @@ Function {
 
   // Maxwell stress tensor
   T_max[] = ( SquDyadicProduct[$1] - SquNorm[$1] * TensorDiag[0.5, 0.5, 0.5] ) / mu0 ;
+//  T_max[ Region[ {Air, Inds, DomainL}] ] = 
+//    ( SquDyadicProduct[$1] - SquNorm[$1]/2.*TensorDiag[1.,1.,1.] ) * nu[$1] ;
+//  T_max[ DomainNL ] = 
+//    ( nu[$1] * SquDyadicProduct[$1] - coen[$1]*TensorDiag[1,1,1] ) ;
+
   T_max_cplx[] = Re[0.5*(TensorV[CompX[$1]*Conj[$1], CompY[$1]*Conj[$1], CompZ[$1]*Conj[$1]] - $1*Conj[$1] * TensorDiag[0.5, 0.5, 0.5] ) / mu0] ;
   T_max_cplx_2f[] = 0.5*(TensorV[CompX[$1]*$1, CompY[$1]*$1, CompZ[$1]*$1] - $1*$1 * TensorDiag[0.5, 0.5, 0.5] ) / mu0 ;// To check ????
 

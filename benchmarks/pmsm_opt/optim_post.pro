@@ -33,6 +33,9 @@ PostProcessing {
       { Name mur; 
 	Value { Term { [ nu0/nu[{d a}] ] ; In Domain ; Jacobian Vol ; } } 
       }
+      { Name nu; 
+	Value { Term { [ nu[{d a}] ] ; In Domain ; Jacobian Vol ; } } 
+      }
 
       { Name designVarPlot; 
 	Value { Term { [ designVar[] ] ; In Domain ; Jacobian Vol ; } } 
@@ -77,6 +80,23 @@ PostProcessing {
 	    In Domain ; Jacobian Vol  ; Integration I1; }
       	}
       }
+//      { Name Torque_Maxwell ; 
+//        Value {
+//          Integral {
+//            [ CompZ [ XYZ[] /\ (TM[{d a}] * XYZ[]) ] *
+//	      2*Pi*AxialLength/SurfaceArea[] ] ;
+//            In Domain ; Jacobian Vol  ; Integration I1; }
+//        }
+//      }
+
+//      { Name Torque_s; // Torque computation via Maxwell stress tensor
+//      	Value {
+//      	  Integral {
+//                    [nu[{d a}]*torqueCoeff[]*({d a}*er[])*({d a}*et[])];
+//	             In Domain ; Jacobian Vol  ; Integration I1; 
+//         }
+//      	}
+//      }
 
       { Name ComplianceELM;//ELM energy 
       	Value {
@@ -268,8 +288,9 @@ PostProcessing {
   { Name AvmVarDomSens_lie ;NameOfFormulation AdjointFormulation;
     PostQuantity {    
         { Name v ; Value { Term { [ velocityField[] ] ; In Domain ; Jacobian Vol ; }}}
-        { Name rho_d_bilin_NL ; 
-          Value { Term { [ d_bilin_lie[{d a},{d lambda}] ]; In Domain;Jacobian Vol ;}}}
+        
+	{ Name rho_d_bilin_NL ; 
+          Value { Term { [ d_bilin_NL[{d a},{d lambda}] ]; In DomainNL;Jacobian Vol ;}}}
 
         { Name sensF ; 
           Value { 
@@ -281,8 +302,8 @@ PostProcessing {
           Value { 
               Integral{[ d_bilin_lie[{d a},{d lambda}] ];//d{a}/d{tau}(A,lambda)
                 In Domain;Jacobian Vol ; Integration I1;}
-              //Integral{[ d_bilin_NL[{d a},{d lambda}] ];
-              //  In DomainNL;Jacobian Vol ; Integration I1;}
+              Integral{[ d_bilin_NL[{d a},{d lambda}] ];
+                In DomainNL;Jacobian Vol ; Integration I1;}
           }
         }
         { Name sensM ; 
@@ -295,10 +316,10 @@ PostProcessing {
         Value { 
           Integral { [ dF_adjoint_lie[ {d a} ] ];  // d{f}/d{tau}(phi)
             In DomainFunc ; Jacobian Vol ; Integration I1 ;}
-          Integral { [ -d_bilin_lie[ {d a}, {d lambda} ] ];//d{a}/d{tau}(phi,lambda)
+          Integral { [ -d_bilin_lie[ {d a}, {d lambda} ]];//d{a}/d{tau}(phi,lambda)
             In Domain ; Jacobian Vol ; Integration I1 ; }
-          //Integral { [ -d_bilin_NL[ {d a}, {d lambda} ] ];
-          //  In DomainNL;Jacobian Vol ; Integration I1;}
+          Integral { [ -d_bilin_NL[ {d a}, {d lambda} ] ];
+            In DomainNL;Jacobian Vol ; Integration I1;}
           Integral { [ d_load_lie[ {d a}, {d lambda} ] ];//d{l}/d{tau}(phi,lambda)
             In DomainM ; Jacobian Vol ; Integration I1 ; }
         } 
@@ -374,6 +395,38 @@ PostProcessing {
 }
 
 PostOperation {
+ { Name Get_PrimalSystem_Func; NameOfPostProcessing PostOptim;
+   Operation{
+
+     // optim quantitys
+     Print[ BradError[DomainFunc], OnGlobal, Format Table, 
+         File StrCat[ResDir, StrCat["BradialErrorInt",ExtGnuplot]], LastTimeStepOnly, 
+         SendToServer StrCat[po_min,"BradialErrorInt"], Color "LightYellow" ];
+
+     Print[ComplianceELM[DomainFunc], OnGlobal, Format Table,
+	 File StrCat[ResDir, StrCat["ComplianceElm",ExtGnuplot]], LastTimeStepOnly,
+	 SendToServer StrCat[po_min,"ComplianceElm"], Color "LightYellow" ];
+
+     Print[Torque_simple[DomainFunc], OnGlobal, Format Table,
+	 Store 58,File StrCat[ResDir, StrCat["Torque",ExtGnuplot]], LastTimeStepOnly,
+	 SendToServer StrCat[po_min,"Torque"], Color "LightYellow" ];
+
+     Print[Torque_Maxwell[DomainFunc], OnGlobal, Format Table,LastTimeStepOnly,
+	 Store 58,File StrCat[ResDir, StrCat["Torque_Maxwell",ExtGnuplot]], 
+	 SendToServer StrCat[po_min,"TorqueMaxwell"], Color "LightYellow" ];
+
+     Print[Torque_var[DomainFunc], OnGlobal, Format Table,LastTimeStepOnly,
+	 Store 60, File StrCat[ResDir, StrCat["TorqueVariance",ExtGnuplot]], 
+	 SendToServer StrCat[po_min,"TorqueVariance"], Color "LightYellow" ];
+
+     Print[Torque_var, OnElementsOf Domain,
+	 File StrCat[ResDir, StrCat["TorqueVarianceAllDom",ExtGmsh]], LastTimeStepOnly];
+
+     Print[Torque_var_square, OnRegion DomainFunc, Format Table,LastTimeStepOnly,
+	 Store 61, File StrCat[ResDir, StrCat["TorqueVarianceSquare",ExtGnuplot]], 
+	 SendToServer StrCat[po_min,"TorqueVarianceSquare"], Color "LightYellow" ];
+   }
+ }
 
  { Name Get_PrimalSystem; NameOfPostProcessing PostOptim;
    Operation{
@@ -421,30 +474,6 @@ PostOperation {
          File > StrCat[ResDir, StrCat["surf_PM",ExtGmsh]], LastTimeStepOnly, 
          SendToServer StrCat[po_min, "surfacePM"], Color "LightYellow" ];
 
-     // optim quantitys
-     Print[ BradError[DomainFunc], OnGlobal, Format Table, 
-         File StrCat[ResDir, StrCat["BradialErrorInt",ExtGnuplot]], LastTimeStepOnly, 
-         SendToServer StrCat[po_min,"BradialErrorInt"], Color "LightYellow" ];
-
-     Print[ComplianceELM[DomainFunc], OnGlobal, Format Table,
-	 File StrCat[ResDir, StrCat["ComplianceElm",ExtGnuplot]], LastTimeStepOnly,
-	 SendToServer StrCat[po_min,"ComplianceElm"], Color "LightYellow" ];
-
-     Print[Torque_simple[DomainFunc], OnGlobal, Format Table,
-	 Store 58,File StrCat[ResDir, StrCat["Torque",ExtGnuplot]], LastTimeStepOnly,
-	 SendToServer StrCat[po_min,"Torque"], Color "LightYellow" ];
-
-     Print[Torque_var[DomainFunc], OnGlobal, Format Table,LastTimeStepOnly,
-	 Store 60, File StrCat[ResDir, StrCat["TorqueVariance",ExtGnuplot]], 
-	 SendToServer StrCat[po_min,"TorqueVariance"], Color "LightYellow" ];
-
-     Print[Torque_var, OnElementsOf Domain,
-	 File StrCat[ResDir, StrCat["TorqueVarianceAllDom",ExtGmsh]], LastTimeStepOnly];
-
-     Print[Torque_var_square, OnRegion DomainFunc, Format Table,LastTimeStepOnly,
-	 Store 61, File StrCat[ResDir, StrCat["TorqueVarianceSquare",ExtGnuplot]], 
-	 SendToServer StrCat[po_min,"TorqueVarianceSquare"], Color "LightYellow" ];
-
     Print[ Iron_Loss_Density,  OnElementsOf Stator_Fe,
 	 File StrCat[ResDir, StrCat["LossDensity",ExtGmsh]], LastTimeStepOnly] ;
 
@@ -452,10 +481,11 @@ PostOperation {
 	 File StrCat[ResDir, StrCat["IronLoss",ExtGnuplot]], LastTimeStepOnly,
 	 SendToServer StrCat[po_min,"IronLoss"], Color "LightYellow" ];
 
-    If(Flag_topopt)
-      Print[ mur,  OnElementsOf DomainOpt, 
+      Print[ mur,  OnElementsOf Domain, 
            File StrCat[ResDir, StrCat["mur",ExtGmsh]], LastTimeStepOnly];
-
+      Print[ nu,  OnElementsOf Domain, 
+           File StrCat[ResDir, StrCat["nu",ExtGmsh]], LastTimeStepOnly];
+    If(Flag_topopt)
       Print[ designVarPlot,  OnElementsOf DomainOpt, 
             File StrCat[ResDir, StrCat["designVariablePlot",ExtGmsh]], LastTimeStepOnly];
     EndIf

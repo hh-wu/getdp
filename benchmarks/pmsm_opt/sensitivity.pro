@@ -26,6 +26,7 @@ VELOCITY_FIELD = 7;//pour que ça marche avec -gmshread il faut mettre à 0
 DES_VAR_FIELD = 21;
 SENS_FIELD = 22;
 TORQUE_VAR_FIELD = 20;
+NU_FIELD = 33;
 
 ppOpt = "Input/OptParam/";
 
@@ -94,12 +95,6 @@ DefineConstant[
   degree_SIMP = {3.0, Name "Input/OptParam/SimpPenalDegree",
                       Label "Degree SIMP", Visible (Flag_topopt)}
 
-];
-
-DefineConstant[
-  R_ = {"OptimStep", Name "GetDP/1ResolutionChoices",Choices {"Analysis", "OptimStep"}, Visible 0},
-  C_ = {"-solve -v 5 -v2", Name "GetDP/9ComputeCommand", Visible 0},
-  P_ = {"", Name "GetDP/2PostOperationChoices", Visible 0}
 ];
 
 Group {
@@ -171,7 +166,7 @@ Function{
     Theta_Park, Theta_Park_deg, RotorPosition, RotorPosition_deg,
     Friction, Torque_mec,volDensity,IronLossDensity,
     prod_x_dC, designVar, nu_r_inv, bField, pseudoLoad,dFdb,Func,
-    BradCoeff,dF_adjoint_lie
+    BradCoeff,dF_adjoint_lie,d_bilin_NL
   ];
 
   Flag_Symmetry = (SymmetryFactor==1) ? 0 : 1 ;
@@ -238,11 +233,16 @@ Function {
   volDensity[#{DomainM}] = 7400; //PM
 
   // lie derivative
-  velocityField[] = VectorField[RotateZ_desVar[],0,1]{VELOCITY_FIELD};
-  dV[] = Transpose[ GradVectorField[XYZ[], 0 , 1]{VELOCITY_FIELD} ];
+  velocityField[] = Rotate[ VectorField[RotateZ_desVar[],0,1]{VELOCITY_FIELD}, 
+                            0, 0, RotorPosition[] ] ;
+  dV[] = Rotate[ Transpose[GradVectorField[RotateZ_desVar[], 0 , 1]{VELOCITY_FIELD}], 
+                     0, 0, -RotorPosition[] ];
+  
+  //dnu[] = GradScalarField[XYZ[], 0 , 1]{NU_FIELD};
   ETA[] = dV[]#1 + Transpose [ #1 ] - TTrace [ #1 ] * TensorDiag[1,1,1];//(1,2)-form
   LV1[] = dV[] * $1 ;
   LV2[] = TTrace [ dV[]#1 ] * $1 - Transpose [ #1 ] * $1 ;
+  LV3[] = -TTrace [ dV[]#1 ]* TensorDiag[1,1,1] + Transpose [ #1 ] ;
   
   If(Flag_PerfType == COMPLIANCE)
     Func[] = nu[$1] * SquNorm[$1]; //F = nu*B^2, alpha=nu*{d a},beta={d a} 
@@ -273,7 +273,13 @@ Function {
   EndIf
 
   dF_direct_lie[] = dFdb[$1#1]*$2 + dF_adjoint_lie[#1];
-  d_bilin_lie[] = nu[$1] * $1 * ( ETA[] * $2 ) ; //2-form
+  d_bilin_lie[] = nu[$1] * $1 * ( ETA[] * $2 ); //2-form
+  If(Flag_NL)  //-> not necessary !!!
+    dhdb_NL_full[] = Tensor[CompXX[dhdb_NL[$1]#99],CompXY[#99],CompXZ[#99],
+                            CompXY[#99],           CompYY[#99],CompYZ[#99],
+			    CompXZ[#99],           CompYZ[#99],CompZZ[#99]];
+    d_bilin_lie_NL[] = $2 * ((Transpose[ dhdb_NL_full[$1] ] * LV3[]) * $1);
+  EndIf
   d_load_lie[] = nu[$1] * ( LV1[ br[] ] ) * $2 ; //1-form equivalent to 2-form
 
 }
@@ -375,6 +381,8 @@ Formulation {
      // pseudo-load -> depend on design variable (velocity)
      Galerkin { [ nu[ {d a} ] * {d a}, ETA[]*{d d_a} ] ; //fixme: sign
        In Domain ; Jacobian Vol ; Integration I1 ; }
+     Galerkin { [(Transpose[ dhdb_NL_full[{d a}] ] * LV3[]) * {d a}, {d d_a}]; 
+       In DomainNL ; Jacobian Vol ; Integration I1 ; }
 
      Galerkin { [ -nu[ {d a} ] * LV1[ br[] ], {d d_a} ] ;
        In DomainM ; Jacobian Vol ; Integration I1 ; }
@@ -476,6 +484,7 @@ Resolution {
          EndIf 
          SaveSolution[A];
          PostOperation[Get_PrimalSystem]; 
+         PostOperation[Get_PrimalSystem_Func]; 
          ChangeOfCoordinates[ NodesOf[Rotor_Moving], RotatePZ[-RotorPosition[] ]];
        EndIf
      EndIf
@@ -525,6 +534,7 @@ Resolution {
        MeshMovingBand2D[MB] ;
        ReadSolution[A];ReadSolution[B];//A and lambda
        GmshRead[StrCat[ResDir,"velocity.pos"], VELOCITY_FIELD];
+       GmshRead[StrCat[ResDir,"nu.pos"], NU_FIELD];
        PostOperation[Get_AvmVarDomSens_Lie];
        ChangeOfCoordinates[ NodesOf[Rotor_Moving], RotatePZ[-RotorPosition[] ]];
      EndIf
@@ -551,6 +561,7 @@ Resolution {
        MeshMovingBand2D[MB];
        ReadSolution[A];ReadSolution[B]; // load A and Lambda
        PostOperation[Get_SemiAnalyticAvmQuantitys]; // Compute Lambda*K*A and Lambda*g
+       PostOperation[Get_PrimalSystem_Func]; 
        ChangeOfCoordinates[ NodesOf[Rotor_Moving], RotatePZ[-RotorPosition[] ]];
      EndIf
      //-------------------------------------------------------------------
@@ -567,7 +578,4 @@ Resolution {
 }
 
 Include "optim_post.pro" ;
-
-
-
 

@@ -7,6 +7,13 @@ Function{
   dhdb_1a[] = TensorDiag[1,1,1] * nu_1a[$1#1] + 2*dnudb2_1a[#1] * SquDyadicProduct[#1]  ;
   dhdb_1a_NL[] = 2*dnudb2_1a[$1#1] * SquDyadicProduct[#1]  ;
 
+  p0 = 77.8; p1 = 0.8; p2 = 9.87;
+  p3 = 3.6e-02; p4 = 36.7; p5 = 8.7;   
+  nu_2a[] = p0 + p1 * Exp[ p2 * Log[ SquNorm [$1]]] ;
+  dnudb2_2a[] = p1 * p2 * Exp[ (p2-1) * Log[ SquNorm [$1]]] ;
+  dhdb_2a[] = TensorDiag[1,1,1] * nu_2a[$1#11]+2.*dnudb2_2a[#11]*SquDyadicProduct[#11] ;
+  dhdb_2a_NL[] = 2.*dnudb2_2a[$1#11]*SquDyadicProduct[#11] ;
+
   // interpolated
   Mat1_h = {
     0.0000e+00, 5.5023e+00, 1.1018e+01, 1.6562e+01, 2.2149e+01, 2.7798e+01, 3.3528e+01,

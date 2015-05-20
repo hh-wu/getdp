@@ -25,12 +25,13 @@ DefineConstant[
 
   // Constructive parameters
   //lm = {2.352*mm , Name StrCat[pp,"Magnet height [m]"], Visible 1, Closed 1},
-  lm = {2.352*mm , Name StrCat[pInOpt,"x_0"], Visible 1, Closed 1},  
-  Th_magnet = {32.67 *deg2rad, Name StrCat[pp,"Magnet angular opening [deg]"]},
+  lm = {2.352*mm , Name StrCat[pInOpt,"x_1"], Visible 1, Closed 1},  
+  Th_magnet = {32.67 *deg2rad, Name StrCat[pInOpt,"x_0"], Closed 1},
+  //Th_magnet = {32.67 *deg2rad, Name StrCat[pp,"Magnet angular opening [deg]"]},
   AxialLength = {35*mm,  Name StrCat[pp,"Axial length [m]"], Closed 1},
   Gap = {(26.02-25.6)*mm, Name StrCat[pp,"Airgap width [m]"], Closed 1},
   //Gap = {3*mm, Name StrCat[pp,"Airgap width [m]"], Closed 1},
-  b_remanent = { 1.7/*1.2*/, Name StrCat[pp,"Remanent induction[T]"] }  
+  b_remanent = { 1.2, Name StrCat[pp,"Remanent induction[T]"] }  
 ] ;
 
 //--------------------------------------------------------------------------------
