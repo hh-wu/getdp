@@ -309,6 +309,7 @@ Function {
 
 Jacobian {
   { Name Vol; Case { { Region All ; Jacobian Vol; } } }
+  { Name Sur; Case { { Region All ; Jacobian Sur; } } }
 }
 
 Integration {
@@ -532,7 +533,7 @@ Formulation {
       // DO NOT REMOVE!!!
       // Keeping track of Dofs in auxiliar line of MB if Symmetry==1
       Galerkin {  [  0*Dof{d a} , {d a} ]  ;
-        In Rotor_Bnd_MBaux; Jacobian Vol; Integration I1; }
+        In Rotor_Bnd_MBaux; Jacobian Sur; Integration I1; }
 
       Galerkin { [ -nu[] * br[] , {d a} ] ;
         In DomainM ; Jacobian Vol ; Integration I1 ; }
