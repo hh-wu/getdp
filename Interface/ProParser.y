@@ -190,8 +190,11 @@ struct doubleXstring{
 %token  tConstant tList tListAlt tLinSpace tLogSpace tListFromFile
 %token  tChangeCurrentPosition
 %token  tDefineConstant tUndefineConstant tDefineNumber tDefineString
-%token  tPi tMPI_Rank tMPI_Size t0D t1D t2D t3D tTotalMemory
+
+%token  tPi tMPI_Rank tMPI_Size t0D t1D t2D t3D
+%token  tTotalMemory tCurrentDirectory
 %token  tGETDP_MAJOR_VERSION tGETDP_MINOR_VERSION tGETDP_PATCH_VERSION
+
 %token  tExp tLog tLog10 tSqrt tSin tAsin tCos tAcos tTan
 %token    tAtan tAtan2 tSinh tCosh tTanh tFabs tFloor tCeil tRound tSign
 %token    tFmod tModulo tHypot tRand
@@ -8134,6 +8137,13 @@ CharExprNoVar :
       $$ = (char *)Malloc((strlen(ctime(&date_info))+1)*sizeof(char));
       strcpy($$, ctime(&date_info));
       $$[strlen($$)-1] = 0;
+    }
+
+  | tCurrentDirectory
+    {
+      std::string tmp = GetDir(getdp_yyname);
+      $$ = (char*)Malloc((tmp.size() + 1) * sizeof(char));
+      strcpy($$, tmp.c_str());
     }
 
   | tFixRelativePath LP CharExpr RP

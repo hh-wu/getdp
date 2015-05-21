@@ -114,6 +114,8 @@ CreateDirectory              return tCreateDir;
 Criterion                    return tCriterion;
 Cross                        return tCrossProduct;
 CrossProduct                 return tCrossProduct;
+CurrentDirectory             return tCurrentDirectory;
+CurrentDir                   return tCurrentDirectory;
 
 DTime                        return tDTime;
 Date                         return tDate;

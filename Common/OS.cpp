@@ -42,7 +42,7 @@
 
 // Unicode utility routines borrowed from FLTK
 
-static unsigned utf8decode(const char* p, const char* end, int* len)
+static unsigned int utf8decode(const char* p, const char* end, int* len)
 {
   static unsigned short cp1252[32] = {
     0x20ac, 0x0081, 0x201a, 0x0192, 0x201e, 0x2026, 0x2020, 0x2021,
@@ -99,18 +99,18 @@ static unsigned utf8decode(const char* p, const char* end, int* len)
   }
 }
 
-static unsigned utf8toUtf16(const char* src, unsigned srclen,
-                            unsigned short* dst, unsigned dstlen)
+static unsigned int utf8toUtf16(const char* src, unsigned int srclen,
+                                unsigned short* dst, unsigned int dstlen)
 {
   const char* p = src;
   const char* e = src+srclen;
-  unsigned count = 0;
+  unsigned int count = 0;
   if (dstlen) for (;;) {
     if (p >= e) {dst[count] = 0; return count;}
     if (!(*p & 0x80)) { // ascii
       dst[count] = *p++;
     } else {
-      int len; unsigned ucs = utf8decode(p,e,&len);
+      int len; unsigned int ucs = utf8decode(p,e,&len);
       p += len;
       if (ucs < 0x10000) {
 	dst[count] = ucs;
@@ -127,7 +127,7 @@ static unsigned utf8toUtf16(const char* src, unsigned srclen,
   while (p < e) {
     if (!(*p & 0x80)) p++;
     else {
-      int len; unsigned ucs = utf8decode(p,e,&len);
+      int len; unsigned int ucs = utf8decode(p,e,&len);
       p += len;
       if (ucs >= 0x10000) ++count;
     }
@@ -145,9 +145,9 @@ static void setwbuf(int i, const char *f)
   // (through wchar_t), so we need to convert.
   if(i != 0 && i != 1) return;
   size_t l = strlen(f);
-  unsigned wn = utf8toUtf16(f, (unsigned) l, NULL, 0) + 1;
+  unsigned int wn = utf8toUtf16(f, (unsigned int) l, NULL, 0) + 1;
   wbuf[i] = (wchar_t*)realloc(wbuf[i], sizeof(wchar_t)*wn);
-  wn = utf8toUtf16(f, (unsigned) l, (unsigned short *)wbuf[i], wn);
+  wn = utf8toUtf16(f, (unsigned int) l, (unsigned short *)wbuf[i], wn);
   wbuf[i][wn] = 0;
 }
 
@@ -297,4 +297,22 @@ int CreateDirs(const std::string &dirName)
   } while(cur != std::string::npos);
 
   return ret;
+}
+
+std::string GetDir(const std::string &fileName)
+{
+#if defined(WIN32) && !defined(__CYGWIN__)
+  setwbuf(0, fileName.c_str());
+  wchar_t path[MAX_PATH];
+  unsigned long size = GetFullPathNameW(wbuf[0], MAX_PATH, path, NULL);
+  char dst[MAX_PATH] = "";
+  if(size) utf8FromUtf16(dst, MAX_PATH, path, size);
+#else
+  char dst[4096] = "";
+  realpath(fileName.c_str(), dst);
+#endif
+  int i = strlen(dst);
+  while(i > 0 && dst[i-1] != '/' && dst[i-1] != '\\') i--;
+  dst[i] = '\0';
+  return dst;
 }

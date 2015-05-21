@@ -18,5 +18,6 @@ int RemoveFile(const std::string &fileName);
 int RenameFile(const std::string &oldName, const std::string &newName);
 int CreateDir(const std::string &dirName);
 int CreateDirs(const std::string &dirName);
+std::string GetDir(const std::string &fileName);
 
 #endif
