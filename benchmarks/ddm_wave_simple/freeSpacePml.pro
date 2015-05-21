@@ -22,9 +22,9 @@ DELTA_SOURCE = 1; // 1 ? delta function : dirichlet
 Function {
   I[] = Complex[0,1];
   velocityField[] = cAvg; //use a mean value
-  
+
   k = om/cAvg;
-  
+
   c[] = velocityField[ X[], Y[] ];
 
   om[] = om;
@@ -40,7 +40,7 @@ Function {
 
   alphaBT[] = 0;
   betaBT[] = 0;
-  
+
   // parameters for 2nd order TC
   // OO2 Gander 2002, pp. 46-47
   xsimin = 0;
@@ -53,7 +53,7 @@ Function {
 
   // parameters for Pade-type TC
   keps[] = Complex[ k, 0.4 * k^(1/3) * Norm[XYZ[]]^(-2/3) ];
-  theta_branch = Pi/4;  
+  theta_branch = Pi/4;
 }
 
 Group{
@@ -153,9 +153,9 @@ Include "Decomposition.pro";
 Function{
   // for enclosing (truncation) PMLS
   yCenter = -d/2.+shiftY;
-  distY[] = Fabs[Y[]-yCenter]; 
+  distY[] = Fabs[Y[]-yCenter];
   xCenter = D/2.+shiftX;
-  distX[] = Fabs[X[]-xCenter]; 
+  distX[] = Fabs[X[]-xCenter];
 
   // parameters for PML TC
   xSigmaList = {};
@@ -182,7 +182,7 @@ Function{
     SigmaX[Pml~{idom}~{1}] = distSigma~{idom+1}[] > dTr ? cPml~{idom}~{1}[]/(dBb-distSigma~{idom+1}[]) : 0. ;
     SigmaX[Pml~{idom}~{0}] = -distSigma~{idom}[] > dTr ? cPml~{idom}~{0}[]/Fabs[(dBb+distSigma~{idom}[])] : 0. ;
   EndFor
-    
+
   // SigmaY[] = 0.;
   SigmaY[] = distY[] > d/2.-tPml ? c[]/(d/2.-distY[]) : 0. ;
   SigmaZ[] = 0.;
@@ -190,9 +190,9 @@ Function{
   Ky[] = Complex[1, SigmaY[]/om[]];
   Kz[] = Complex[1, SigmaZ[]/om[]];
   D[] = TensorDiag[Ky[]*Kz[]/Kx[], Kx[]*Kz[]/Ky[], Kx[]*Ky[]/Kz[]];
-  
+  E[] = Kx[]*Ky[]*Kz[];
+
   kDtN[] = k[]*Kx[]*Ky[]*Kz[]*(1+.0*I[]);
-  
 }
 
 If (PRECOND_SWEEP)

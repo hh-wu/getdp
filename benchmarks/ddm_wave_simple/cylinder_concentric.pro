@@ -69,6 +69,10 @@ Function {
   keps[] = Complex[ k, 0.4 * k^(1/3) * kappa[]^(-2/3) ];
   theta_branch = Pi/2;
 
+  // not ready yet for PMLs
+  D[] = 1;
+  E[] = 1;
+
   Printf("N_DOM %g WAVENUMBER %g N_LAMBDA %g TC_TYPE %g NP_OSRC %g POLARISATION %g",
          N_DOM, WAVENUMBER, N_LAMBDA, TC_TYPE, NP_OSRC, POLARISATION);
 }

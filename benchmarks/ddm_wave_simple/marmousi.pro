@@ -190,6 +190,7 @@ Function{
   Ky[] = Complex[1, SigmaY[]/om[]];
   Kz[] = Complex[1, SigmaZ[]/om[]];
   D[] = TensorDiag[Ky[]*Kz[]/Kx[], Kx[]*Kz[]/Ky[], Kx[]*Ky[]/Kz[]];
+  E[] = Kx[]*Ky[]*Kz[];
 }
 
 If (PRECOND_SWEEP)

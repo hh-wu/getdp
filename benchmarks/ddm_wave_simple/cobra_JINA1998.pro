@@ -263,7 +263,7 @@ Function {
 
   For ii In {0: #ListOfDom()-1}
     idom = ListOfDom(ii);
-    SigmaX[Omega~{idom}] = 0.;  
+    SigmaX[Omega~{idom}] = 0.;
     SigmaX[Pml~{idom}~{1}] = distSigma~{idom}~{1}[] > dTr ? c[]/(dBb-distSigma~{idom}~{1}[]) : 0; // Bermudez
     SigmaX[Pml~{idom}~{0}] = -distSigma~{idom}~{0}[] > dTr ? c[]/Fabs[(dBb+distSigma~{idom}~{0}[])] : 0 ;
     // SigmaX[OmegaPml~{idom}~{1}] = distSigma~{idom}~{1}[] > dTr ? c[]/(dBb-distSigma~{idom}~{1}[])-c[]/(dBb-dTr) : 0; // Bermudez -- no jump
@@ -286,6 +286,9 @@ Function {
     D[Pml~{idom}~{0}] = Rotate[TensorDiag[Ky[]*Kz[]/Kx[], Kx[]*Kz[]/Ky[], Kx[]*Ky[]/Kz[]], 0., 0., -thetaList(idom) ];
     D[Pml~{idom}~{1}] = Rotate[TensorDiag[Ky[]*Kz[]/Kx[], Kx[]*Kz[]/Ky[], Kx[]*Ky[]/Kz[]], 0., 0., -thetaList(idom+1) ];
     D[Omega~{idom}] = 1.;
+    E[Pml~{idom}~{0}] = Kx[]*Ky[]*Kz[];
+    E[Pml~{idom}~{1}] = Kx[]*Ky[]*Kz[];
+    E[Omega~{idom}] = 1.;
   EndFor
 
   nu[] = 1./D[];

@@ -205,6 +205,9 @@ Function{
     D[Pml~{idom}~{0}] = Rotate[Dpml[],0.,0.,-thetaList(idom)];
     D[Pml~{idom}~{1}] = Rotate[Dpml[],0.,0.,-thetaList(idom+1)];
     D[Omega~{idom}] = 1.;
+    E[Pml~{idom}~{0}] = Kx[]*Ky[]*Kz[];
+    E[Pml~{idom}~{1}] = Kx[]*Ky[]*Kz[];
+    E[Omega~{idom}] = 1.;
   EndFor
 
   nu[] = 1./D[];

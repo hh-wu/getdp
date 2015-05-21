@@ -1,6 +1,4 @@
-// Simple DDM example for Maxwell
-
-DefineConstant[DELTA_SOURCE=0];
+DefineConstant[ DELTA_SOURCE=0 ];
 
 Jacobian {
   { Name JVol ; Case{ { Region All ; Jacobian Vol ; } } }
@@ -29,10 +27,18 @@ Integration {
 Function{
   For idom In {0:N_DOM-1}
     If (idom % MPI_Size == MPI_Rank)
-      // g_in_c~{idom}~{0}[Sigma~{idom}~{0}] = (1 ? ComplexVectorField[XYZ[]]{4*N_DOM+2*idom-2} : 0.);
-      // g_in_c~{idom}~{1}[Sigma~{idom}~{1}] = (1 ? ComplexVectorField[XYZ[]]{4*N_DOM+2*idom+1} : 0.);
-      g_in_c~{idom}~{0}[Sigma~{idom}~{0}] = g_in~{idom}~{0}[]; // xF -- this variant converges slightly faster since it is even more 'Gauss-Seidel oriented': it is not using a copy of 
-      g_in_c~{idom}~{1}[Sigma~{idom}~{1}] = g_in~{idom}~{1}[]; // the input data, but rather data updated by the other sweep after the sweeps have crossed ; hence behaves differently when used sequentially since the sweeps are performed sequentially, thus the backward sweep uses only updated data
+      // g_in_c~{idom}~{0}[Sigma~{idom}~{0}] =
+      //   (1 ? ComplexVectorField[XYZ[]]{4*N_DOM+2*idom-2} : 0.);
+      // g_in_c~{idom}~{1}[Sigma~{idom}~{1}] =
+      //   (1 ? ComplexVectorField[XYZ[]]{4*N_DOM+2*idom+1} : 0.);
+
+      // this variant converges slightly faster since it is even more
+      // 'Gauss-Seidel oriented': it is not using a copy of the input data, but
+      // rather data updated by the other sweep after the sweeps have crossed ;
+      // hence behaves differently when used sequentially since the sweeps are
+      // performed sequentially, thus the backward sweep uses only updated data
+      g_in_c~{idom}~{0}[Sigma~{idom}~{0}] = g_in~{idom}~{0}[];
+      g_in_c~{idom}~{1}[Sigma~{idom}~{1}] = g_in~{idom}~{1}[];
     EndIf
   EndFor
 }
@@ -47,9 +53,10 @@ Group{
     For iSide In {0:1}
       DefineGroup [ Pml~{idom}~{iSide}, PmlD0~{idom}~{iSide}, PmlInf~{idom}~{iSide} ] ;
       TrPmlSigma~{idom}~{iSide} = ElementsOf[ Pml~{idom}~{iSide},
-                                              OnOneSideOf Sigma~{idom}~{iSide} ];
+        OnOneSideOf Sigma~{idom}~{iSide} ];
       TrBndPmlSigma~{idom}~{iSide} = ElementsOf[ PmlInf~{idom}~{iSide},
-						 OnOneSideOf Sigma~{idom}~{iSide} ];
+        OnOneSideOf Sigma~{idom}~{iSide} ];
+      BndSigmaInf~{idom}~{iSide} = Region[{}]; // unused
     EndFor
   EndFor
 }
@@ -105,9 +112,10 @@ FunctionSpace {
       { Name Hcurl_g_out~{idom}~{iSide}; Type Form1;
         BasisFunction {
           { Name se; NameOfCoef ee; Function BF_Edge;
-            Support Region[{Sigma~{idom}~{iSide}, TrPmlSigma~{idom}~{iSide}, TrBndPmlSigma~{idom}~{iSide}}] ;
+            Support Region[{Sigma~{idom}~{iSide}, TrPmlSigma~{idom}~{iSide},
+                TrBndPmlSigma~{idom}~{iSide}}] ;
             Entity EdgesOf[Sigma~{idom}~{iSide},
-                           Not {GammaD~{idom}, GammaD0~{idom}, GammaInf~{idom}}]; }
+              Not {GammaD~{idom}, GammaD0~{idom}, GammaInf~{idom}}]; }
         }
       }
     EndFor
@@ -321,7 +329,7 @@ Formulation {
               { Name phi~{j}~{idom}~{iSide}; Type Local;  NameOfSpace Hcurl_phi~{j}~{idom}~{iSide};}
             EndFor
           EndIf
-          If(TC_TYPE == 3)	      
+          If(TC_TYPE == 3)
 	    { Name e~{idom}; Type Local; NameOfSpace Hcurl_e~{idom}; }
 	  EndIf
         }
@@ -353,7 +361,9 @@ Formulation {
               In TrPmlSigma~{idom}~{iSide}; Jacobian JVol; Integration I1;}
             Galerkin { [ -2 * eps[] * (kPml~{idom}~{iSide}[])^2 * {e~{idom}}, {g_out~{idom}~{iSide}}];
               In TrPmlSigma~{idom}~{iSide}; Jacobian JVol; Integration I1;}
-	    // Galerkin { [ 2 * I[] * kDtN[] * (N[]) /\ ( N[] /\ Dof{e~{idom}} ) , {e~{idom}} ]; // FIXME: check if sign is correct ?
+
+            // FIXME: check if sign is correct
+            // Galerkin { [ 2 * I[] * kDtN[] * (N[]) /\ ( N[] /\ Dof{e~{idom}} ) , {e~{idom}} ];
             //   In TrBndPmlSigma~{idom}~{iSide} ; Jacobian JSur ; Integration I1 ; }
           EndIf
         }
@@ -376,7 +386,7 @@ Formulation {
               { Name phi~{j}~{idom}~{iSide}; Type Local;  NameOfSpace Hcurl_phi~{j}~{idom}~{iSide};}
             EndFor
           EndIf
-          If(TC_TYPE == 3)	      
+          If(TC_TYPE == 3)
 	    { Name e~{idom}; Type Local; NameOfSpace Hcurl_e~{idom}; }
 	  EndIf
 
@@ -385,13 +395,13 @@ Formulation {
           Galerkin { [ Dof{g_out~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ];
             In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
 
-	  Galerkin{[ - ComplexVectorField[XYZ[]]{( (2*(idom+N_DOM)+(iSide-1))%(2*N_DOM) ) }, {g_out~{idom}~{iSide}}] ;
+	  Galerkin{[ - ComplexVectorField[XYZ[]]{( (2*(idom+N_DOM)+(iSide-1))%(2*N_DOM) ) },
+              {g_out~{idom}~{iSide}}] ;
 	    In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
 
-	  /////////////////////////////// SGS //////////////////////////////////////
-	  Galerkin{[ ( $ArtificialSourceSGS~{iSide} ? g_in_c~{idom}~{iSide}[] : 0. ), {g_out~{idom}~{iSide}}] ;
-	    In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
-	  /////////////////////////////// SGS //////////////////////////////////////
+	  Galerkin{[ ( $ArtificialSourceSGS~{iSide} ? g_in_c~{idom}~{iSide}[] : 0. ),
+              {g_out~{idom}~{iSide}}] ;
+            In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
 
           If(TC_TYPE == 0)
             Galerkin { [ -2 * I[] * kDtN[] * N[] /\ ({e~{idom}} /\ N[]) , {g_out~{idom}~{iSide}} ];
@@ -414,7 +424,9 @@ Formulation {
             Galerkin { [ -2 * eps[] * (kPml~{idom}~{iSide}[])^2 * {e~{idom}},
                 {g_out~{idom}~{iSide}}];
               In TrPmlSigma~{idom}~{iSide}; Jacobian JVol; Integration I1;}
-	    // Galerkin { [ 2 * I[] * kDtN[] * (N[]) /\ ( N[] /\ Dof{e~{idom}} ) , {e~{idom}} ]; // FIXME: check if sign is correct ?
+
+            // FIXME: check if sign is correct
+            // Galerkin { [ 2 * I[] * kDtN[] * (N[]) /\ ( N[] /\ Dof{e~{idom}} ) , {e~{idom}} ];
             //   In TrBndPmlSigma~{idom}~{iSide} ; Jacobian JSur ; Integration I1 ; }
           EndIf
         }
@@ -451,10 +463,13 @@ PostProcessing {
                 In Sigma~{idom}~{iSide}; Jacobian JSur ; } } }
       }
     }
-    { Name g_copy~{idom}~{iSide} ; NameOfFormulation Sur~{idom}~{iSide} ; // name of formulation is used only for convenience; no data from that function space is actually used
+    // name of formulation is used only for convenience; no data from that
+    // function space is actually used
+    { Name g_copy~{idom}~{iSide} ; NameOfFormulation Sur~{idom}~{iSide} ;
       PostQuantity {
-	{ Name g~{idom}~{iSide} ; Value { Local { [ ( $ArtificialSourceSGS~{iSide} ? g_in~{idom}~{iSide}[] : 0. ) ] ;
-	      In Sigma~{idom}~{iSide}; Jacobian JSur ; } } }
+	{ Name g~{idom}~{iSide} ;
+          Value { Local { [ ( $ArtificialSourceSGS~{iSide} ? g_in~{idom}~{iSide}[] : 0. ) ] ;
+              In Sigma~{idom}~{iSide}; Jacobian JSur ; } } }
       }
     }
     EndFor

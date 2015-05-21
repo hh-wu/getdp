@@ -61,6 +61,10 @@ Function {
   kappa[] =  1/R_INT;
   keps[] = Complex[ k, 0.4 * k^(1/3) * kappa[]^(-2/3) ];
   theta_branch = Pi/2;
+
+  // not ready yet for PMLs
+  D[] = 1;
+  E[] = 1;
 }
 
 Group{

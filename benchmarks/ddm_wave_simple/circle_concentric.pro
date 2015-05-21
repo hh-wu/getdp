@@ -45,6 +45,10 @@ Function {
   // parameters for Pade-type TC
   keps[] = Complex[ k, 0.4 * k^(1/3) * Norm[XYZ[]]^(-2/3) ];
   theta_branch = Pi/4;
+
+  // not ready yet for PMLs
+  D[] = 1;
+  E[] = 1;
 }
 
 Group{

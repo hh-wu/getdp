@@ -108,8 +108,9 @@ FunctionSpace {
       BasisFunction {
         { Name sn ; NameOfCoef un ; Function BF_Node ;
           Support Region[ {Omega~{idom}, Pml~{idom}~{0}, Pml~{idom}~{1},
-              GammaInf~{idom}, BndGammaInf~{idom}, PmlInf~{idom}~{0}, PmlInf~{idom}~{1},
-	      Sigma~{idom}, GammaPoint~{idom}, BndSigmaInf~{idom}~{0}, BndSigmaInf~{idom}~{1}} ] ; // BndSigmaInf for OSRC
+              GammaInf~{idom}, BndGammaInf~{idom}, PmlInf~{idom}~{0},
+              PmlInf~{idom}~{1}, Sigma~{idom}, GammaPoint~{idom},
+              BndSigmaInf~{idom}~{0}, BndSigmaInf~{idom}~{1}} ] ; // BndSigmaInf for OSRC
           Entity NodesOf[ All ] ;
         }
       }
@@ -156,27 +157,29 @@ Formulation {
         For iSide In {0:1}
           If(TC_TYPE == 2)
             For j In{1:NP_OSRC}
-              { Name phi~{j}~{idom}~{iSide}; Type Local ; NameOfSpace Hgrad_phi~{j}~{idom}~{iSide}; }
+              { Name phi~{j}~{idom}~{iSide}; Type Local ;
+                NameOfSpace Hgrad_phi~{j}~{idom}~{iSide}; }
             EndFor
           EndIf
         EndFor
       }
       Equation {
-        // Galerkin { [ Dof{Grad u~{idom}} , {Grad u~{idom}} ] ;
-	Galerkin { [D[] * Dof{d u~{idom}}, {d u~{idom}}];
+        // D[] and E[] for PMLs (=1 outside PML layers)
+        Galerkin { [ D[] * Dof{d u~{idom}}, {d u~{idom}} ];
 	  In Omega~{idom}; Jacobian JVol ; Integration I1 ; }
-        // Galerkin { [ -k[]^2 * Dof{u~{idom}} , {u~{idom}} ] ;
-	Galerkin { [-(k[])^2*Kx[]*Ky[]*Kz[]*Dof{u~{idom}}, {u~{idom}}];
+        Galerkin { [- k[]^2 * E[] * Dof{u~{idom}}, {u~{idom}} ];
 	  In Omega~{idom}; Jacobian JVol ; Integration I1 ; }
 
 	Galerkin { [ ($PhysicalSource ? -1. : 0) , {u~{idom}} ] ; // delta function
             In GammaPoint~{idom}; Jacobian JVol ; Integration I1 ; }
 
         For iSide In {0:1}
-          Galerkin { [ - ($ArtificialSource~{iSide} ? g_in~{idom}~{iSide}[] : 0), {u~{idom}} ] ;
+          Galerkin { [ - ($ArtificialSource~{iSide} ? g_in~{idom}~{iSide}[] : 0),
+              {u~{idom}} ] ;
             In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
           // the same, but modified for SGS
-          Galerkin { [ - ($ArtificialSourceSGS~{iSide} ? g_in_c~{idom}~{iSide}[] : 0), {u~{idom}} ] ;
+          Galerkin { [ - ($ArtificialSourceSGS~{iSide} ? g_in_c~{idom}~{iSide}[] : 0),
+              {u~{idom}} ] ;
             In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
         EndFor
 
@@ -224,7 +227,7 @@ Formulation {
           For iSide In {0:1}
             Galerkin { [D[] * Dof{d u~{idom}}, {d u~{idom}}];
               In Pml~{idom}~{iSide}; Jacobian JVol; Integration I1;}
-            Galerkin { [-(kPml~{idom}~{iSide}[])^2*Kx[]*Ky[]*Kz[]*Dof{u~{idom}}, {u~{idom}}];
+            Galerkin { [ - kPml~{idom}~{iSide}[]^2 * E[] * Dof{u~{idom}}, {u~{idom}}];
               In Pml~{idom}~{iSide}; Jacobian JVol; Integration I1;}
             Galerkin { [ -I[]*(kPml~{idom}~{iSide}[])*Dof{u~{idom}}, {u~{idom}} ] ;
               In PmlInf~{idom}~{iSide} ; Jacobian JSur ; Integration I1 ; }
@@ -248,10 +251,12 @@ Formulation {
       { Name Sur~{idom}~{iSide} ; Type FemEquation ;
         Quantity {
           { Name u~{idom} ; Type Local ; NameOfSpace Hgrad_u~{idom}; }
-          { Name g_out~{idom}~{iSide} ; Type Local ; NameOfSpace Hgrad_g_out~{idom}~{iSide}; }
+          { Name g_out~{idom}~{iSide} ; Type Local ;
+            NameOfSpace Hgrad_g_out~{idom}~{iSide}; }
           If(TC_TYPE == 2)
             For j In{1:NP_OSRC}
-              { Name phi~{j}~{idom}~{iSide}; Type Local ; NameOfSpace Hgrad_phi~{j}~{idom}~{iSide}; }
+              { Name phi~{j}~{idom}~{iSide}; Type Local ;
+                NameOfSpace Hgrad_phi~{j}~{idom}~{iSide}; }
             EndFor
           EndIf
         }
@@ -290,7 +295,7 @@ Formulation {
 	  If (TC_TYPE == 3)
             Galerkin { [ -2 * D[] *  {d u~{idom}}, {d g_out~{idom}~{iSide}}];
               In TrPmlSigma~{idom}~{iSide}; Jacobian JVol; Integration I1;}
-            Galerkin { [ 2 * (kPml~{idom}~{iSide}[])^2*Kx[]*Ky[]*Kz[] * {u~{idom}},
+            Galerkin { [ 2 * kPml~{idom}~{iSide}[]^2 *E[] * {u~{idom}},
                 {g_out~{idom}~{iSide}}];
               In TrPmlSigma~{idom}~{iSide}; Jacobian JVol; Integration I1;}
             Galerkin { [ 2 * I[] * kInf[] * {u~{idom}}, {g_out~{idom}~{iSide}}];
@@ -305,7 +310,8 @@ Formulation {
           { Name g_out~{idom}~{iSide} ; Type Local ; NameOfSpace Hgrad_g_out~{idom}~{iSide}; }
           If(TC_TYPE == 2)
             For j In{1:NP_OSRC}
-              { Name phi~{j}~{idom}~{iSide}; Type Local ; NameOfSpace Hgrad_phi~{j}~{idom}~{iSide}; }
+              { Name phi~{j}~{idom}~{iSide}; Type Local ;
+                NameOfSpace Hgrad_phi~{j}~{idom}~{iSide}; }
             EndFor
           EndIf
         }
@@ -314,12 +320,13 @@ Formulation {
           Galerkin { [ gPml * Dof{g_out~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ] ;
             In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
 
-	  Galerkin{[ - gPml * ComplexScalarField[XYZ[]]{( (2*(idom+N_DOM)+(iSide-1))%(2*N_DOM) ) },
-              {g_out~{idom}~{iSide}}] ;
-	    In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
+	  Galerkin{[ - gPml * ComplexScalarField[XYZ[]]
+              { ( (2*(idom+N_DOM)+(iSide-1))%(2*N_DOM) ) }, {g_out~{idom}~{iSide}}] ;
+            In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
 
           // for SGS
-          Galerkin{[ $ArtificialSourceSGS~{iSide} ? g_in_c~{idom}~{iSide}[] : 0., {g_out~{idom}~{iSide}}] ;
+          Galerkin{[ $ArtificialSourceSGS~{iSide} ? g_in_c~{idom}~{iSide}[] : 0.,
+              {g_out~{idom}~{iSide}}] ;
 	    In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
 
           If(TC_TYPE == 0)
@@ -349,7 +356,7 @@ Formulation {
 	  If(TC_TYPE == 3)
             Galerkin { [ -2 * D[] *  {d u~{idom}}, {d g_out~{idom}~{iSide}}];
               In TrPmlSigma~{idom}~{iSide}; Jacobian JVol; Integration I1;}
-            Galerkin { [ 2 * (kPml~{idom}~{iSide}[])^2*Kx[]*Ky[]*Kz[] * {u~{idom}},
+            Galerkin { [ 2 * kPml~{idom}~{iSide}[]^2 * E[] * {u~{idom}},
                 {g_out~{idom}~{iSide}}];
               In TrPmlSigma~{idom}~{iSide}; Jacobian JVol; Integration I1;}
             Galerkin { [ 2 * I[] * kInf[] * {u~{idom}}, {g_out~{idom}~{iSide}}];

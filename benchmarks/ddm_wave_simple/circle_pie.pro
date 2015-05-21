@@ -46,6 +46,10 @@ Function {
   kepsI = 0.;
   keps[] = k*(1+kepsI*I[]);
   theta_branch = Pi/4;
+
+  // not ready yet for PMLs
+  D[] = 1;
+  E[] = 1;
 }
 
 Group{
