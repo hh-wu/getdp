@@ -1254,7 +1254,7 @@ void  ChangeOfCoord_Form1P(struct Element * Element,
 void  ChangeOfCoord_Form2P(struct Element * Element,
 			   double vBFu[], double vBFx[])
 {
-  if(!Element->DetJac) Message::Error("Null determinant in 'ChangeOfCoord_Form2P'");
+  if(!Element->DetJac) Message::Error("Null determinant in 'ChangeOfCoord_Form2P' %d %d %d", Element->Num, Element->Type, Element->Region);
 
   vBFx[0] = (vBFu[0] * Element->Jac.c11 + vBFu[1] * Element->Jac.c21)
     / Element->DetJac ;
