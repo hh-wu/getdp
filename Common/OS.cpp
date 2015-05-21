@@ -136,6 +136,68 @@ static unsigned int utf8toUtf16(const char* src, unsigned int srclen,
   return count;
 }
 
+static unsigned int utf8FromUtf16(char* dst, unsigned int dstlen,
+                                  const wchar_t* src, unsigned int srclen)
+{
+  unsigned int i = 0;
+  unsigned int count = 0;
+  if (dstlen) {
+    for (;;) {
+      unsigned int ucs;
+      if (i >= srclen) {dst[count] = 0; return count;}
+      ucs = src[i++];
+      if (ucs < 0x80U) {
+        dst[count++] = ucs;
+        if (count >= dstlen) {dst[count-1] = 0; break;}
+      }
+      else if (ucs < 0x800U) { /* 2 bytes */
+        if (count+2 >= dstlen) {dst[count] = 0; count += 2; break;}
+        dst[count++] = 0xc0 | (ucs >> 6);
+        dst[count++] = 0x80 | (ucs & 0x3F);
+      }
+      else if (ucs >= 0xd800 && ucs <= 0xdbff && i < srclen &&
+	       src[i] >= 0xdc00 && src[i] <= 0xdfff) {
+        /* surrogate pair */
+        unsigned int ucs2 = src[i++];
+        ucs = 0x10000U + ((ucs&0x3ff)<<10) + (ucs2&0x3ff);
+        /* all surrogate pairs turn into 4-byte utf8 */
+        if (count+4 >= dstlen) {dst[count] = 0; count += 4; break;}
+        dst[count++] = 0xf0 | (ucs >> 18);
+        dst[count++] = 0x80 | ((ucs >> 12) & 0x3F);
+        dst[count++] = 0x80 | ((ucs >> 6) & 0x3F);
+        dst[count++] = 0x80 | (ucs & 0x3F);
+      }
+      else {
+        /* all others are 3 bytes: */
+        if (count+3 >= dstlen) {dst[count] = 0; count += 3; break;}
+        dst[count++] = 0xe0 | (ucs >> 12);
+        dst[count++] = 0x80 | ((ucs >> 6) & 0x3F);
+        dst[count++] = 0x80 | (ucs & 0x3F);
+      }
+    }
+  }
+  /* we filled dst, measure the rest: */
+  while (i < srclen) {
+    unsigned int ucs = src[i++];
+    if (ucs < 0x80U) {
+      count++;
+    }
+    else if (ucs < 0x800U) { /* 2 bytes */
+      count += 2;
+    }
+    else if (ucs >= 0xd800 && ucs <= 0xdbff && i < srclen-1 &&
+             src[i+1] >= 0xdc00 && src[i+1] <= 0xdfff) {
+      /* surrogate pair */
+      ++i;
+      count += 4;
+    }
+    else {
+      count += 3;
+    }
+  }
+  return count;
+}
+
 static wchar_t *wbuf[2] = {NULL, NULL};
 
 static void setwbuf(int i, const char *f)
@@ -309,7 +371,8 @@ std::string GetDir(const std::string &fileName)
   if(size) utf8FromUtf16(dst, MAX_PATH, path, size);
 #else
   char dst[4096] = "";
-  realpath(fileName.c_str(), dst);
+  if(!realpath(fileName.c_str(), dst))
+    dst[0] = '\0';
 #endif
   int i = strlen(dst);
   while(i > 0 && dst[i-1] != '/' && dst[i-1] != '\\') i--;
