@@ -13,6 +13,7 @@
 #include <sys/stat.h>
 #include <signal.h>
 #include <time.h>
+#include <string.h>
 
 #if defined(__APPLE__)
 #include <sys/sysctl.h>
