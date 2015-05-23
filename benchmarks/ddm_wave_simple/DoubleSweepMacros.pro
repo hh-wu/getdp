@@ -1,4 +1,7 @@
 DefineConstant[ SGS ];
+If (PRECOND_SWEEP==2)
+  SGS = 1;
+EndIf
 
 For ii In {0: #ListOfDom()-1}
   idom = ListOfDom(ii);

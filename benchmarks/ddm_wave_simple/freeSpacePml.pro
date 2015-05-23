@@ -12,8 +12,10 @@ DefineConstant[ // allows to set these from outside
   RESTART = MAXIT
   // sweeping preconditioner
   PRECOND_SWEEP = {0, Name "Input/01Sweeping preconditioner",
-		   Choices{0,1}},
-  SGS = 1,
+		   Choices{0="Unpreconditioned",
+		     1="Double sweep",
+		     2="SGS"}},
+  ListOfCuts = { {0, N_DOM-1} },
   N_ON_TOP = 0
 ];
 
@@ -179,12 +181,14 @@ Function{
     // Bermudez damping functions
     // SigmaX[Omega~{idom}] = 0. ;
     SigmaX[#{Omega~{idom}, Sigma~{idom}~{0}, Sigma~{idom}~{1}}] = distX[] > D/2.-tPml ? c[]/(D/2.-distX[]) : 0. ;
+    // SigmaX[#{Omega~{idom}, Sigma~{idom}~{0}, Sigma~{idom}~{1}}] = distX[] > D/2.-tPml ? 50. : 0. ; // constant coefficient
     SigmaX[Pml~{idom}~{1}] = distSigma~{idom+1}[] > dTr ? cPml~{idom}~{1}[]/(dBb-distSigma~{idom+1}[]) : 0. ;
     SigmaX[Pml~{idom}~{0}] = -distSigma~{idom}[] > dTr ? cPml~{idom}~{0}[]/Fabs[(dBb+distSigma~{idom}[])] : 0. ;
   EndFor
 
   // SigmaY[] = 0.;
   SigmaY[] = distY[] > d/2.-tPml ? c[]/(d/2.-distY[]) : 0. ;
+  // SigmaY[] = distY[] > d/2.-tPml ? 50. : 0. ; // constant coefficient
   SigmaZ[] = 0.;
   Kx[] = Complex[1, SigmaX[]/om[]];
   Ky[] = Complex[1, SigmaY[]/om[]];

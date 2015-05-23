@@ -9,7 +9,12 @@ DefineConstant[ // allows to set these from outside
   SOLVER = "gmres", // bcgs, gmsh_pcleft, ...
   TOL = 1e-6,
   MAXIT = 1000,
-  RESTART = MAXIT
+  RESTART = MAXIT,
+  PRECOND_SWEEP = {0, Name "Input/01Sweeping preconditioner",
+    Choices{0="Unpreconditioned",
+      1="Double sweep",
+      2="SGS"}},
+  ListOfCuts = { {0, N_DOM-1} }
 ];
 
 Function {

@@ -34,7 +34,7 @@ WAVENUMBER = kMax ;
 LAMBDA = 2*Pi/WAVENUMBER ;
 LC = LAMBDA/N_LAMBDA;
 
-tPml = .1;
+tPml = 20*LC;
 
 D = 2. + 2*tPml;
 d = 2. + 2*tPml ;

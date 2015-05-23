@@ -51,6 +51,8 @@ Group{
       GammaPoint~{idom} = Region[{}];
     EndIf
     For iSide In {0:1}
+      BndSigmaInf~{idom}~{iSide} = Region[BndSigma~{idom}~{iSide},
+                                          Not {GammaN~{idom}, GammaD~{idom}}];
       DefineGroup [ Pml~{idom}~{iSide}, PmlD0~{idom}~{iSide}, PmlInf~{idom}~{iSide} ] ;
       TrPmlSigma~{idom}~{iSide} = ElementsOf[ Pml~{idom}~{iSide},
         OnOneSideOf Sigma~{idom}~{iSide} ];

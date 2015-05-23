@@ -11,7 +11,7 @@ DefineConstant[ // allows to set these from outside
   WALLS = {1, Name "Input/05Walls",
     Choices {0="Transparent", 1="Metallic"}},
   // excitation mode
-  MODE_M = {2, Name "Input/05m"}, // y
+  MODE_M = {1, Name "Input/05m"}, // y
   MODE_N = {1, Name "Input/05n"}, // z
   // transmission boundary condition
   TC_TYPE = {0, Name "Input/01Transmission condition",
@@ -23,8 +23,11 @@ DefineConstant[ // allows to set these from outside
   MAXIT = 100,
   RESTART = MAXIT
   // sweeping preconditioner
-  PRECOND_SWEEP = {0, Name "Input/01Sweeping preconditioner", Choices{0,1}},
-  SGS = 0
+  PRECOND_SWEEP = {0, Name "Input/01Sweeping preconditioner",
+    Choices{0="Unpreconditioned",
+      1="Double sweep",
+      2="SGS"}},
+  ListOfCuts = { {0, N_DOM-1} }
 ];
 
 xBaseList = {};

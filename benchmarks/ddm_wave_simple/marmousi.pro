@@ -12,8 +12,9 @@ DefineConstant[ // allows to set these from outside
   RESTART = MAXIT
   // sweeping preconditioner
   PRECOND_SWEEP = {0, Name "Input/01Sweeping preconditioner",
-		   Choices{0,1}},
-  SGS = 1,
+    Choices{0="Unpreconditioned",
+      1="Double sweep",
+      2="SGS"}},
   N_ON_TOP = {1, Name "Input/01Neumann condition on top",
 	      Choices{0,1}},
   EXTERNAL_VELOCITY_FIELD = {1, Name "Input/01Velocity Field",
