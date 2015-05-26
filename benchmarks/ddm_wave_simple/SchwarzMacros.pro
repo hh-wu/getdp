@@ -1,22 +1,24 @@
 DefineConstant[ EXTERNAL_VELOCITY_FIELD, SAVE_SOLUTION=1 ];
 
-For ii In {0: #ListOfDom()-1}
-  idom = ListOfDom(ii);
+For ii In {0: #ListOfSubdomains()-1}
+  idom = ListOfSubdomains(ii);
   DefineConstant[GenerateVolFlag~{idom} = 0];
   DefineConstant[GenerateSurFlag~{idom}~{0} = 0, GenerateSurFlag~{idom}~{1} = 0];
 EndFor
 
-Macro SolveSubdomains
+Macro SolveVolumePDE
   // work on own cpu
   SetCommSelf;
-  For ii In {0: #ListOfDom()-1}
-    idom = ListOfDom(ii);
+  For ii In {0: #ListOfSubdomains()-1}
+    idom = ListOfSubdomains(ii);
     // solve the volume PDE on each subdomain
     If(GenerateVolFlag~{idom})
+      // the matrix is already factorized, only regenerate the RHS
       GenerateRHSGroup[Vol~{idom},
         Region[{Sigma~{idom}, TrOmegaGammaD~{idom}, GammaD~{idom}, GammaPoint~{idom}}] ] ;
     EndIf
     If(GenerateVolFlag~{idom} == 0)
+      // first time generation and factorization of the matrix
       Generate[Vol~{idom}] ;
       GenerateVolFlag~{idom} = 1 ;
     EndIf
@@ -26,15 +28,16 @@ Macro SolveSubdomains
   SetCommWorld;
 Return
 
-Macro UpdateGonSurfaces
+Macro SolveSurfacePDE
   SetCommSelf;
-  // compute g_in for next iteration, (must be done after all resolutions)
-  For ii In {0: #ListOfDom()-1}
-    idom = ListOfDom(ii);
+  // compute g_in for next iteration
+  For ii In {0: #ListOfSubdomains()-1}
+    idom = ListOfSubdomains(ii);
     // solve the surface PDE on the boundaries of each subdomain
     For iSide In {0:1}
       If(NbrRegions[Sigma~{idom}~{iSide}])
         If(GenerateSurFlag~{idom}~{iSide})
+          // the matrix is already factorized, only regenerate the RHS
           GenerateRHSGroup[Sur~{idom}~{iSide},
 			   Region[{Sigma~{idom}~{iSide},
 				   TrPmlSigma~{idom}~{iSide},
@@ -42,6 +45,7 @@ Macro UpdateGonSurfaces
 				   BndSigmaInf~{idom}~{iSide}}]] ;
         EndIf
         If(GenerateSurFlag~{idom}~{iSide} == 0)
+          // first time generation and factorization of the matrix
           Generate[Sur~{idom}~{iSide}] ;
           GenerateSurFlag~{idom}~{iSide} = 1 ;
         EndIf
@@ -49,8 +53,14 @@ Macro UpdateGonSurfaces
       EndIf
     EndFor
   EndFor
-  For ii In {0: #ListOfDom()-1}
-    idom = ListOfDom(ii);
+  SetCommWorld;
+Return
+
+Macro UpdateSurfaceFields
+  SetCommSelf;
+  // store g in ListOfFields()
+  For ii In {0: #ListOfSubdomains()-1}
+    idom = ListOfSubdomains(ii);
     For iSide In {0:1}
       PostOperation[g_out~{idom}~{iSide}] ;
     EndFor
@@ -62,8 +72,8 @@ Macro SaveVolumeSolutions
   If(SAVE_SOLUTION)
     SetCommSelf;
     // compute the volume solution
-    For ii In {0: #ListOfDom()-1}
-      idom = ListOfDom(ii);
+    For ii In {0: #ListOfSubdomains()-1}
+      idom = ListOfSubdomains(ii);
       PostOperation[DDM~{idom}] ;
     EndFor
     SetCommWorld;
@@ -76,39 +86,36 @@ Macro UpdateConstraints
   // Maxwell)
   If(ANALYSIS == 0)
     SetCommSelf;
-    For ii In {0: #ListOfDom()-1}
-      idom = ListOfDom(ii);
+    For ii In {0: #ListOfSubdomains()-1}
+      idom = ListOfSubdomains(ii);
       UpdateConstraint[Vol~{idom}, GammaD~{idom}, Assign];
     EndFor
     SetCommWorld;
   EndIf
 Return
 
-Macro EnablePhysicalSourcesOnly
+Macro EnablePhysicalSources
   Evaluate[$PhysicalSource = 1];
+  Call UpdateConstraints;
+Return
+
+Macro DisablePhysicalSources
+  Evaluate[$PhysicalSource = 0];
+  Call UpdateConstraints;
+Return
+
+Macro EnableArtificialSources
+  For iSide In {0:1}
+    Evaluate[$ArtificialSource~{iSide} = 1];
+    Evaluate[$ArtificialSourceSGS~{iSide} = 0];
+  EndFor
+Return
+
+Macro DisableArtificialSources
   For iSide In {0:1}
     Evaluate[$ArtificialSource~{iSide} = 0];
     Evaluate[$ArtificialSourceSGS~{iSide} = 0];
   EndFor
-  Call UpdateConstraints;
-Return
-
-Macro EnableArtificialSourcesOnly
-  Evaluate[$PhysicalSource = 0];
-  For iSide In {0:1}
-    Evaluate[$ArtificialSource~{iSide} = 1];
-    Evaluate[$ArtificialSourceSGS~{iSide} = 0];
-  EndFor
-  Call UpdateConstraints;
-Return
-
-Macro EnableAllSources
-  Evaluate[$PhysicalSource = 1];
-  For iSide In {0:1}
-    Evaluate[$ArtificialSource~{iSide} = 1];
-    Evaluate[$ArtificialSourceSGS~{iSide} = 0];
-  EndFor
-  Call UpdateConstraints;
 Return
 
 Macro PrintInfo
@@ -153,15 +160,15 @@ Return
 
 // Macros for preconditioners
 
-For ii In {0: #ListOfDom()-1}
-  idom = ListOfDom(ii);
+For ii In {0: #ListOfSubdomains()-1}
+  idom = ListOfSubdomains(ii);
   DefineConstant[GenerateSurPcFlag~{idom}~{0} = 0, GenerateSurPcFlag~{idom}~{1} = 0];
 EndFor
 
-Macro CopyG
+Macro CopySurfaceFields
   SetCommSelf;
-  For ii In {0:#ListOfDom()-1}
-    idom = ListOfDom(ii);
+  For ii In {0:#ListOfSubdomains()-1}
+    idom = ListOfSubdomains(ii);
     For iSide In {0:1}
       If (PRECONDITIONER == 2) PostOperation[g_copy~{idom}~{iSide}]; EndIf
       // do the Generate if necessary
@@ -203,8 +210,10 @@ Macro SolveAndStepForward
     skipList = {(2*(idom_f + N_DOM)-1)%(2*N_DOM), (2*(idom_f + N_DOM)-2)%(2*N_DOM)}; // left
     BroadcastFields[skipList()];
 
-    Evaluate[$ArtificialSource~{0} = 1]; Evaluate[$ArtificialSource~{1} = 1];
-    Evaluate[$ArtificialSourceSGS~{0} = 0]; Evaluate[$ArtificialSourceSGS~{1} = 0];
+    Evaluate[$ArtificialSource~{0} = 1];
+    Evaluate[$ArtificialSource~{1} = 1];
+    Evaluate[$ArtificialSourceSGS~{0} = 0];
+    Evaluate[$ArtificialSourceSGS~{1} = 0];
   EndIf
   SetCommWorld;
 Return

@@ -53,8 +53,8 @@ Group{
   // gPml = 1. if d_n u computed in Pml side; -1. in Omega side
   gPml = 1.;
 
-  For ii In {0: #ListOfDom()-1}
-    idom = ListOfDom(ii);
+  For ii In {0: #ListOfSubdomains()-1}
+    idom = ListOfSubdomains(ii);
     TrOmegaGammaD~{idom} = ElementsOf[ Omega~{idom}, OnOneSideOf GammaD~{idom} ];
     If (!DELTA_SOURCE)
       GammaPoint~{idom} = Region[{}];
@@ -84,8 +84,8 @@ Group{
 }
 
 Constraint{
-  For ii In {0: #ListOfDom()-1}
-    idom = ListOfDom(ii);
+  For ii In {0: #ListOfSubdomains()-1}
+    idom = ListOfSubdomains(ii);
     { Name Dirichlet~{idom} ;
       Case {
         { Region GammaD~{idom} ; Value $PhysicalSource ? uinc[] : 0. ; }
@@ -102,8 +102,8 @@ Constraint{
 }
 
 FunctionSpace {
-  For ii In {0: #ListOfDom()-1}
-    idom = ListOfDom(ii);
+  For ii In {0: #ListOfSubdomains()-1}
+    idom = ListOfSubdomains(ii);
     { Name Hgrad_u~{idom} ; Type Form0 ;
       BasisFunction {
         { Name sn ; NameOfCoef un ; Function BF_Node ;
@@ -149,8 +149,8 @@ FunctionSpace {
 }
 
 Formulation {
-  For ii In {0: #ListOfDom()-1}
-    idom = ListOfDom(ii);
+  For ii In {0: #ListOfSubdomains()-1}
+    idom = ListOfSubdomains(ii);
     { Name Vol~{idom} ; Type FemEquation ;
       Quantity {
         { Name u~{idom} ; Type Local ; NameOfSpace Hgrad_u~{idom}; }
@@ -164,15 +164,18 @@ Formulation {
         EndFor
       }
       Equation {
-        // D[] and E[] for PMLs (=1 outside PML layers)
+        // volume terms (D[] = E[] = 1 outside PMLs)
         Galerkin { [ D[] * Dof{d u~{idom}}, {d u~{idom}} ];
 	  In Omega~{idom}; Jacobian JVol ; Integration I1 ; }
-        Galerkin { [- k[]^2 * E[] * Dof{u~{idom}}, {u~{idom}} ];
+        Galerkin { [ - k[]^2 * E[] * Dof{u~{idom}}, {u~{idom}} ];
 	  In Omega~{idom}; Jacobian JVol ; Integration I1 ; }
 
-	Galerkin { [ ($PhysicalSource ? -1. : 0) , {u~{idom}} ] ; // delta function
-            In GammaPoint~{idom}; Jacobian JVol ; Integration I1 ; }
+        // point source (delta function)
+	Galerkin { [ ($PhysicalSource ? -1. : 0) , {u~{idom}} ] ;
+          In GammaPoint~{idom}; Jacobian JVol ; Integration I1 ; }
 
+        // artificial sources on transmission boundaries (iSide split only
+        // useful for sweeping-type preconditioners)
         For iSide In {0:1}
           Galerkin { [ - ($ArtificialSource~{iSide} ? g_in~{idom}~{iSide}[] : 0),
               {u~{idom}} ] ;
@@ -184,46 +187,46 @@ Formulation {
         EndFor
 
         // transmission condition
-        If(TC_TYPE == 0)
-          Galerkin { [ - I[] * kDtN[] * Dof{u~{idom}} , {u~{idom}} ] ;
+        If(TC_TYPE == 0) // IBC
+          Galerkin { [ - I[] * kIBC[] * Dof{u~{idom}} , {u~{idom}} ] ;
             In Sigma~{idom}; Jacobian JSur ; Integration I1 ; }
         EndIf
 
-        If(TC_TYPE == 1)
+        If(TC_TYPE == 1) // GIBC(a, b)
           Galerkin { [ a[] * Dof{u~{idom}} , {u~{idom}} ] ;
             In Sigma~{idom}; Jacobian JSur ; Integration I1 ; }
-          Galerkin { [ -b[] * Dof{d u~{idom}} , {d u~{idom}} ] ;
+          Galerkin { [ - b[] * Dof{d u~{idom}} , {d u~{idom}} ] ;
             In Sigma~{idom}; Jacobian JSur ; Integration I1 ; }
         EndIf
 
-        If(TC_TYPE == 2)
-          Galerkin { [  - I[] * k[] * OSRC_C0[]{NP_OSRC,theta_branch} * Dof{u~{idom}} ,
+        If(TC_TYPE == 2) // GIBC(NP_OSRC, theta_branch, eps)
+          Galerkin { [ - I[] * k[] * OSRC_C0[]{NP_OSRC,theta_branch} * Dof{u~{idom}} ,
               {u~{idom}} ] ;
             In Sigma~{idom}; Jacobian JSur ; Integration I1 ; }
           For iSide In {0:1}
             For j In{1:NP_OSRC}
-              Galerkin { [   I[] * k[] * OSRC_Aj[]{j,NP_OSRC,theta_branch} / keps[]^2 *
+              Galerkin { [ I[] * k[] * OSRC_Aj[]{j,NP_OSRC,theta_branch} / keps[]^2 *
                   Dof{d phi~{j}~{idom}~{iSide}} , {d u~{idom}} ] ;
+                In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
+              Galerkin { [ - I[] * k[] * OSRC_Aj[]{j,NP_OSRC,theta_branch} / keps[]^2 *
+                  ( I[] * kInf[] * Dof{phi~{j}~{idom}~{iSide}}) , {u~{idom}} ] ;
+                In BndSigmaInf~{idom}~{iSide}; Jacobian JLin ; Integration I1 ; }
+
+              Galerkin { [ - Dof{u~{idom}} , {phi~{j}~{idom}~{iSide}} ] ;
                 In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
               Galerkin { [ - OSRC_Bj[]{j,NP_OSRC,theta_branch} / keps[]^2 *
                   Dof{d phi~{j}~{idom}~{iSide}} , {d phi~{j}~{idom}~{iSide}} ] ;
                 In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
               Galerkin { [ Dof{phi~{j}~{idom}~{iSide}} , {phi~{j}~{idom}~{iSide}} ] ;
                 In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
-              Galerkin { [  - Dof{u~{idom}} , {phi~{j}~{idom}~{iSide}} ] ;
-                In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
-              // experimental boundary terms:
-	      Galerkin { [ - I[] * k[] * OSRC_Aj[]{j,NP_OSRC,theta_branch} / keps[]^2 *
-		  ( I[] * kInf[] * Dof{phi~{j}~{idom}~{iSide}}) , {u~{idom}} ] ;
-		In BndSigmaInf~{idom}~{iSide}; Jacobian JLin ; Integration I1 ; }
-	      Galerkin { [ OSRC_Bj[]{j,NP_OSRC,theta_branch} / keps[]^2 *
-		  ( I[] * kInf[] * Dof{phi~{j}~{idom}~{iSide}}) , {phi~{j}~{idom}~{iSide}} ] ;
+              Galerkin { [ OSRC_Bj[]{j,NP_OSRC,theta_branch} / keps[]^2 *
+                  ( I[] * kInf[] * Dof{phi~{j}~{idom}~{iSide}}) , {phi~{j}~{idom}~{iSide}} ] ;
 		In BndSigmaInf~{idom}~{iSide}; Jacobian JLin ; Integration I1 ; }
             EndFor
           EndFor
         EndIf
 
-	If (TC_TYPE == 3)
+        If (TC_TYPE == 3) // PML
           For iSide In {0:1}
             Galerkin { [D[] * Dof{d u~{idom}}, {d u~{idom}}];
               In Pml~{idom}~{iSide}; Jacobian JVol; Integration I1;}
@@ -268,19 +271,19 @@ Formulation {
               {g_out~{idom}~{iSide}} ] ;
             In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
 
-          If(TC_TYPE == 0)
-            Galerkin { [ 2 * I[] * kDtN[] * {u~{idom}} , {g_out~{idom}~{iSide}} ] ;
+          If(TC_TYPE == 0) // IBC
+            Galerkin { [ 2 * I[] * kIBC[] * {u~{idom}} , {g_out~{idom}~{iSide}} ] ;
               In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
           EndIf
 
-          If(TC_TYPE == 1)
+          If(TC_TYPE == 1) // GIBC(a, b)
             Galerkin { [ - 2 * a[] * {u~{idom}} , {g_out~{idom}~{iSide}} ] ;
               In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
             Galerkin { [ 2 * b[] * {d u~{idom}} , {d g_out~{idom}~{iSide}} ] ;
               In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
           EndIf
 
-          If(TC_TYPE == 2)
+          If(TC_TYPE == 2) // GIBC(NP_OSRC, theta_branch, eps)
             Galerkin { [ 2 * ( I[] * k[] * OSRC_C0[]{NP_OSRC,theta_branch} *
                   {u~{idom}} ) , {g_out~{idom}~{iSide}} ] ;
               In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
@@ -292,7 +295,7 @@ Formulation {
             EndFor
           EndIf
 
-	  If (TC_TYPE == 3)
+          If (TC_TYPE == 3) // PML
             Galerkin { [ -2 * D[] *  {d u~{idom}}, {d g_out~{idom}~{iSide}}];
               In TrPmlSigma~{idom}~{iSide}; Jacobian JVol; Integration I1;}
             Galerkin { [ 2 * kPml~{idom}~{iSide}[]^2 *E[] * {u~{idom}},
@@ -330,7 +333,7 @@ Formulation {
 	    In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
 
           If(TC_TYPE == 0)
-            Galerkin { [ 2 * I[] * kDtN[] * {u~{idom}} , {g_out~{idom}~{iSide}} ] ;
+            Galerkin { [ 2 * I[] * kIBC[] * {u~{idom}} , {g_out~{idom}~{iSide}} ] ;
               In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
           EndIf
 
@@ -371,8 +374,8 @@ Formulation {
 }
 
 PostProcessing {
-  For ii In {0: #ListOfDom()-1}
-    idom = ListOfDom(ii);
+  For ii In {0: #ListOfSubdomains()-1}
+    idom = ListOfSubdomains(ii);
     { Name Vol~{idom} ; NameOfFormulation Vol~{idom} ;
       PostQuantity {
         { Name u~{idom} ; Value { Local { [ {u~{idom}} ] ;
@@ -404,8 +407,8 @@ PostProcessing {
 }
 
 PostOperation {
-  For ii In {0: #ListOfDom()-1}
-    idom = ListOfDom(ii);
+  For ii In {0: #ListOfSubdomains()-1}
+    idom = ListOfSubdomains(ii);
     { Name DDM~{idom} ; NameOfPostProcessing Vol~{idom};
       Operation {
         Print[ u~{idom}, OnElementsOf Omega~{idom},

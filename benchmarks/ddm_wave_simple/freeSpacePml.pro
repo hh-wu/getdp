@@ -33,7 +33,7 @@ Function {
 
   k[] = om[]/c[] ;
   kInf[] = k[];
-  // kDtN[] = k[]; // MODIFIED DEFINITION: see below PML functions
+  // kIBC[] = k[]; // MODIFIED DEFINITION: see below PML functions
 
   uinc[] = 1.;
 
@@ -196,7 +196,7 @@ Function{
   D[] = TensorDiag[Ky[]*Kz[]/Kx[], Kx[]*Kz[]/Ky[], Kx[]*Ky[]/Kz[]];
   E[] = Kx[]*Ky[]*Kz[];
 
-  kDtN[] = k[]*Kx[]*Ky[]*Kz[]*(1+.0*I[]);
+  kIBC[] = k[]*Kx[]*Ky[]*Kz[]*(1+.0*I[]);
 }
 
 If (PRECONDITIONER)

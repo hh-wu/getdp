@@ -71,7 +71,7 @@ Function {
   betaBT[] = 0; // -1/(2*I[]*k); //- 1/(2*I[]*k*(1+I[]/(k*R_EXT)));
 
   // parameter for 0th order TC
-  kDtN[] = k[];
+  kIBC[] = k[];
 
   // parameters for 2nd order TC
   // J.-F. Lee

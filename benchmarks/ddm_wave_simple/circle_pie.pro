@@ -35,7 +35,7 @@ Function {
   betaBT[] = - 1/(2*I[]*k*(1+I[]/(k*R_EXT)));
 
   // parameter for 0th order TC
-  kDtN[] = k + (2*Pi /-I[]);
+  kIBC[] = k + (2*Pi /-I[]);
 
   // parameters for 2nd order TC
   // OO2 Gander 2002, pp. 46-47
@@ -86,9 +86,9 @@ Group{
 Function{
   // definitions for parallel (MPI) runs:
 
-  ListOfDom = {} ; // the domains that I'm in charge of
-  ListOfField = {}; // my fields
-  ListOfNeighborField = {}; // my neighbors
+  ListOfSubdomains = {} ; // the domains that I'm in charge of
+  ListOfFields = {}; // my fields
+  ListOfConnectedFields = {}; // my neighbors
 
   // this describes a layered (1-d like) decomposition (domain 0 and N-1 are adjacent)
   //         +--------+------+------+---...---+------------+
@@ -101,31 +101,31 @@ Function{
       // my fields
       myFieldLeft  = {(2*(idom + N_DOM) + (0-1)) % (2*N_DOM)};
       myFieldRight = {(2*(idom + N_DOM) + (1-1)) % (2*N_DOM)};
-      exchangeFieldLeft  = {(2*(idom - 1 + N_DOM)+(1-1)) % (2*N_DOM)}; // right boundary of left neightbor
-      exchangeFieldRight = {(2*(idom + 1 + N_DOM)+(0-1)) % (2*N_DOM)}; // left boundary of right neightbor
+      connectedFieldLeft  = {(2*(idom - 1 + N_DOM)+(1-1)) % (2*N_DOM)}; // right boundary of left neightbor
+      connectedFieldRight = {(2*(idom + 1 + N_DOM)+(0-1)) % (2*N_DOM)}; // left boundary of right neightbor
       // 2 "blocks"
-      ListOfNeighborField += 1;
-      ListOfNeighborField += exchangeFieldLeft{};
-      ListOfNeighborField += 1;
-      ListOfNeighborField += exchangeFieldRight{};
+      ListOfConnectedFields += 1;
+      ListOfConnectedFields += connectedFieldLeft{};
+      ListOfConnectedFields += 1;
+      ListOfConnectedFields += connectedFieldRight{};
 
-      ListOfDom += idom;
-      ListOfField += {myFieldLeft(), myFieldRight()};
+      ListOfSubdomains += idom;
+      ListOfFields += {myFieldLeft(), myFieldRight()};
       If(ANALYSIS == 0)
-        g_in~{idom}~{0}[Sigma~{idom}~{0}] = ComplexScalarField[XYZ[]]{exchangeFieldLeft()};
-        g_in~{idom}~{1}[Sigma~{idom}~{1}] = ComplexScalarField[XYZ[]]{exchangeFieldRight()};
+        g_in~{idom}~{0}[Sigma~{idom}~{0}] = ComplexScalarField[XYZ[]]{connectedFieldLeft()};
+        g_in~{idom}~{1}[Sigma~{idom}~{1}] = ComplexScalarField[XYZ[]]{connectedFieldRight()};
       EndIf
       If(ANALYSIS == 1)
-        g_in~{idom}~{0}[Sigma~{idom}~{0}] = ComplexVectorField[XYZ[]]{exchangeFieldLeft()};
-        g_in~{idom}~{1}[Sigma~{idom}~{1}] = ComplexVectorField[XYZ[]]{exchangeFieldRight()};
+        g_in~{idom}~{0}[Sigma~{idom}~{0}] = ComplexVectorField[XYZ[]]{connectedFieldLeft()};
+        g_in~{idom}~{1}[Sigma~{idom}~{1}] = ComplexVectorField[XYZ[]]{connectedFieldRight()};
       EndIf
     EndIf
   EndFor
 
   /*
-  MPI_Printf["ListOfDom = ", ListOfDom()];
-  MPI_Printf["ListOfField = ", ListOfField()];
-  MPI_Printf["ListOfNeighborField = ", ListOfNeighborField()];
+  MPI_Printf["ListOfSubdomains = ", ListOfSubdomains()];
+  MPI_Printf["ListOfFields = ", ListOfFields()];
+  MPI_Printf["ListOfConnectedFields = ", ListOfConnectedFields()];
   */
 }
 

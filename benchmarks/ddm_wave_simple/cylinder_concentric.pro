@@ -49,10 +49,10 @@ Function {
   betaBT[] = - 1/(2*I[]*k*(1+I[]/(k*R_EXT)));
 
   // parameter for 0th order TC : IBC(0)
-  kDtN[] = k;
+  kIBC[] = k;
 
   // parameter for 0th order TC : IBC(alpha) - EMDA
-  // kDtN[] = k + (2*Pi /-I[]);
+  // kIBC[] = k + (2*Pi /-I[]);
 
   // parameters for 2nd order TC Helmholtz: OO2 Gander 2002, pp. 46-47
   xsimin = 0;

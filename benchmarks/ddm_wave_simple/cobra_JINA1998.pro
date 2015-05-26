@@ -86,7 +86,7 @@ Function {
 
   mu[] = mu0 ;
 
-  kDtN[] = k[];
+  kIBC[] = k[];
   kInf[] = k[];
 
   V_SOURCE[] = 0.;
@@ -143,7 +143,8 @@ If (PRECONDITIONER)
   // what domains am I in charge of ? Implemented with a list
   ProcOwnsDomain = {};
   For idom In{0:N_DOM-1}
-    ProcOwnsDomain += {(idom%MPI_Size == MPI_Rank)}; // define your rule here -- must match listOfDom()
+    // define your rule here -- must match listOfSubdomains()
+    ProcOwnsDomain += {(idom%MPI_Size == MPI_Rank)};
   EndFor
 EndIf
 
@@ -241,8 +242,8 @@ Function {
   // Damping functions of the PML: equal to 0 inside the propagation domain
   // and on the intern boundary of the PML (Boundary in common with the Propagation domain).
   // Sigma is (here) linear.
-  For ii In {0: #ListOfDom()-1}
-    idom = ListOfDom(ii);
+  For ii In {0: #ListOfSubdomains()-1}
+    idom = ListOfSubdomains(ii);
 
     For jdom In {0:1}
       // kPml~{idom}~{jdom}[] = k[ Vector[xSigma~{idom}~{jdom},Y[],Z[]] ] ;
@@ -251,8 +252,8 @@ Function {
     EndFor
   EndFor
 
-  For ii In {0: #ListOfDom()-1}
-    idom = ListOfDom(ii);
+  For ii In {0: #ListOfSubdomains()-1}
+    idom = ListOfSubdomains(ii);
     SigmaX[Omega~{idom}] = 0.;
     SigmaX[Pml~{idom}~{1}] = distSigma~{idom}~{1}[] > dTr ? c[]/(dBb-distSigma~{idom}~{1}[]) : 0; // Bermudez
     SigmaX[Pml~{idom}~{0}] = -distSigma~{idom}~{0}[] > dTr ? c[]/Fabs[(dBb+distSigma~{idom}~{0}[])] : 0 ;
@@ -270,8 +271,8 @@ Function {
   Ky[] = Complex[1, SigmaY[]/om[]];
   Kz[] = Complex[1, SigmaZ[]/om[]];
 
-  For ii In {0: #ListOfDom()-1}
-    idom = ListOfDom(ii);
+  For ii In {0: #ListOfSubdomains()-1}
+    idom = ListOfSubdomains(ii);
 
     D[Pml~{idom}~{0}] = Rotate[TensorDiag[Ky[]*Kz[]/Kx[], Kx[]*Kz[]/Ky[], Kx[]*Ky[]/Kz[]], 0., 0., -thetaList(idom) ];
     D[Pml~{idom}~{1}] = Rotate[TensorDiag[Ky[]*Kz[]/Kx[], Kx[]*Kz[]/Ky[], Kx[]*Ky[]/Kz[]], 0., 0., -thetaList(idom+1) ];

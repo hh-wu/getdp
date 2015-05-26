@@ -56,7 +56,7 @@ Function {
 
   k[] = om[]/c[] ;
   kInf[] = k[];
-  kDtN[] = k[];
+  kIBC[] = k[];
 
   uinc[] = 1.;
 

@@ -6,8 +6,8 @@ Include "SchwarzMacros.pro"; // macros for the resolution
 Resolution {
   { Name DDM ;
     System {
-      For ii In {0: #ListOfDom()-1}
-        idom = ListOfDom(ii);
+      For ii In {0: #ListOfSubdomains()-1}
+        idom = ListOfSubdomains(ii);
         { Name Vol~{idom} ; NameOfFormulation Vol~{idom} ;
           Type Complex; NameOfMesh Sprintf(StrCat[MSH_NAME, "%g.msh"],idom) ; }
         For iSide In {0:1}
@@ -24,22 +24,26 @@ Resolution {
       // output parameters
       Call PrintInfo;
 
-      // compute rhs for Krylov solver on own cpu using physical sources only,
-      // and update surface data
-      Call EnablePhysicalSourcesOnly;
-      Call SolveSubdomains;
-      Call UpdateGonSurfaces;
+      // compute local part of distributed rhs b for Krylov solver using
+      // physical sources only, and update surface data
+      Call EnablePhysicalSources;
+      Call DisableArtificialSources;
+      Call SolveVolumePDE;
+      Call SolveSurfacePDE;
+      Call UpdateSurfaceFields;
 
-      // launch Krylov solver on all cpus using artificial sources only.
-      // IterativeLinearSolver solves (I-A) g = b: ListOfField() initially
-      // stores b; then stores each iterate g^k.
-      Call EnableArtificialSourcesOnly;
+      // launch distributed Krylov solver using artificial sources only.
+      // IterativeLinearSolver solves (I-A) g = b: ListOfFields() initially
+      // stores the local part of b; then stores each local part of iterate g^n.
+      Call DisablePhysicalSources;
+      Call EnableArtificialSources;
       IterativeLinearSolver["I-A", SOLVER, TOL, MAXIT, RESTART,
-                            {ListOfField()}, {ListOfNeighborField()}, {}]
+                            {ListOfFields()}, {ListOfConnectedFields()}, {}]
       {
-        // compute (A g^k) and stores the result in ListOfField()
-        Call SolveSubdomains;
-        Call UpdateGonSurfaces;
+        // compute local part of (A g^n) and stores the result in ListOfFields()
+        Call SolveVolumePDE;
+        Call SolveSurfacePDE;
+        Call UpdateSurfaceFields;
       }
       {
         // applies a preconditioner
@@ -47,7 +51,7 @@ Resolution {
       	  // for the 'clean' version of SGS, we use a copy of the data; in
       	  // practice (EXPERIMENTAL) it works best by not using it
       	  // (cf. definition of g_in_c[])
-      	  Call CopyG;
+      	  Call CopySurfaceFields;
 
       	  // init the sweeps (solve first domain of each group if SGS +
       	  // broadcast)
@@ -90,8 +94,9 @@ Resolution {
 
       // build final volume solution after convergence on own cpu, using both
       // physical and artificial sources
-      Call EnableAllSources;
-      Call SolveSubdomains;
+      Call EnablePhysicalSources;
+      Call EnableArtificialSources;
+      Call SolveVolumePDE;
       Call SaveVolumeSolutions;
     }
   }

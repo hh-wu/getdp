@@ -44,8 +44,8 @@ Function{
 }
 
 Group{
-  For ii In {0: #ListOfDom()-1}
-    idom = ListOfDom(ii);
+  For ii In {0: #ListOfSubdomains()-1}
+    idom = ListOfSubdomains(ii);
     TrOmegaGammaD~{idom} = ElementsOf[ Omega~{idom}, OnOneSideOf GammaD~{idom} ];
     If (!DELTA_SOURCE)
       GammaPoint~{idom} = Region[{}];
@@ -64,8 +64,8 @@ Group{
 }
 
 Constraint{
-  For ii In {0: #ListOfDom()-1}
-    idom = ListOfDom(ii);
+  For ii In {0: #ListOfSubdomains()-1}
+    idom = ListOfSubdomains(ii);
     { Name Dirichlet_e_homog~{idom} ;
       Case {
         { Region GammaD0~{idom} ; Type Assign ; Value 0. ; }
@@ -77,8 +77,8 @@ Constraint{
 }
 
 FunctionSpace {
-  For ii In {0: #ListOfDom()-1}
-    idom = ListOfDom(ii);
+  For ii In {0: #ListOfSubdomains()-1}
+    idom = ListOfSubdomains(ii);
     { Name Hcurl_e~{idom}; Type Form1;
       BasisFunction {
         { Name se; NameOfCoef ee; Function BF_Edge;
@@ -177,8 +177,8 @@ FunctionSpace {
 
 Formulation {
 
-  For ii In {0: #ListOfDom()-1}
-    idom = ListOfDom(ii);
+  For ii In {0: #ListOfSubdomains()-1}
+    idom = ListOfSubdomains(ii);
     { Name Vol~{idom}; Type FemEquation;
       Quantity {
         { Name e~{idom}; Type Local; NameOfSpace Hcurl_e~{idom}; }
@@ -229,7 +229,7 @@ Formulation {
 
         // transmission condition
         If(TC_TYPE == 0)
-	  Galerkin { [ -I[] * kDtN[] * N[] /\ (Dof{e~{idom}} /\ N[]), {e~{idom}} ];
+	  Galerkin { [ -I[] * kIBC[] * N[] /\ (Dof{e~{idom}} /\ N[]), {e~{idom}} ];
             In Sigma~{idom}; Integration I1; Jacobian JSur; }
         EndIf
 
@@ -300,7 +300,7 @@ Formulation {
               In Pml~{idom}~{iSide}; Jacobian JVol; Integration I1;}
             Galerkin { [ -eps[] * (kPml~{idom}~{iSide}[])^2*Dof{e~{idom}}, {e~{idom}} ];
               In Pml~{idom}~{iSide}; Jacobian JVol; Integration I1;}
-	    Galerkin { [ I[] * kDtN[] * (N[]) /\ ( N[] /\ Dof{e~{idom}} ) , {e~{idom}} ];
+	    Galerkin { [ I[] * kIBC[] * (N[]) /\ ( N[] /\ Dof{e~{idom}} ) , {e~{idom}} ];
               In PmlInf~{idom}~{iSide} ; Jacobian JSur ; Integration I1 ; }
           EndFor
         EndIf
@@ -344,17 +344,17 @@ Formulation {
             In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
 
           If(TC_TYPE == 0)
-            Galerkin { [ -2 * I[] * kDtN[] * N[] /\ ({e~{idom}} /\ N[]) , {g_out~{idom}~{iSide}} ];
+            Galerkin { [ -2 * I[] * kIBC[] * N[] /\ ({e~{idom}} /\ N[]) , {g_out~{idom}~{iSide}} ];
               In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
           EndIf
 
           If(TC_TYPE == 1)
-            Galerkin { [ -2 * I[] * kDtN[] * {r~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ] ;
+            Galerkin { [ -2 * I[] * kIBC[] * {r~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ] ;
               In Sigma~{idom}~{iSide}; Jacobian JSur; Integration I1; }
           EndIf
 
           If(TC_TYPE == 2)
-            Galerkin { [ -2 * I[] * kDtN[] * {r~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ] ;
+            Galerkin { [ -2 * I[] * kIBC[] * {r~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ] ;
               In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
           EndIf
 
@@ -365,7 +365,7 @@ Formulation {
               In TrPmlSigma~{idom}~{iSide}; Jacobian JVol; Integration I1;}
 
             // FIXME: check if sign is correct
-            // Galerkin { [ 2 * I[] * kDtN[] * (N[]) /\ ( N[] /\ Dof{e~{idom}} ) , {e~{idom}} ];
+            // Galerkin { [ 2 * I[] * kIBC[] * (N[]) /\ ( N[] /\ Dof{e~{idom}} ) , {e~{idom}} ];
             //   In TrBndPmlSigma~{idom}~{iSide} ; Jacobian JSur ; Integration I1 ; }
           EndIf
         }
@@ -406,17 +406,17 @@ Formulation {
             In Sigma~{idom}~{iSide}; Jacobian JSur ; Integration I1 ; }
 
           If(TC_TYPE == 0)
-            Galerkin { [ -2 * I[] * kDtN[] * N[] /\ ({e~{idom}} /\ N[]) , {g_out~{idom}~{iSide}} ];
+            Galerkin { [ -2 * I[] * kIBC[] * N[] /\ ({e~{idom}} /\ N[]) , {g_out~{idom}~{iSide}} ];
               In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
           EndIf
 
           If(TC_TYPE == 1)
-            Galerkin { [ -2 * I[] * kDtN[] * {r~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ] ;
+            Galerkin { [ -2 * I[] * kIBC[] * {r~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ] ;
               In Sigma~{idom}~{iSide}; Jacobian JSur; Integration I1; }
           EndIf
 
           If(TC_TYPE == 2)
-            Galerkin { [ -2 * I[] * kDtN[] * {r~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ] ;
+            Galerkin { [ -2 * I[] * kIBC[] * {r~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ] ;
               In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
           EndIf
 
@@ -428,7 +428,7 @@ Formulation {
               In TrPmlSigma~{idom}~{iSide}; Jacobian JVol; Integration I1;}
 
             // FIXME: check if sign is correct
-            // Galerkin { [ 2 * I[] * kDtN[] * (N[]) /\ ( N[] /\ Dof{e~{idom}} ) , {e~{idom}} ];
+            // Galerkin { [ 2 * I[] * kIBC[] * (N[]) /\ ( N[] /\ Dof{e~{idom}} ) , {e~{idom}} ];
             //   In TrBndPmlSigma~{idom}~{iSide} ; Jacobian JSur ; Integration I1 ; }
           EndIf
         }
@@ -439,8 +439,8 @@ Formulation {
 }
 
 PostProcessing {
-  For ii In {0: #ListOfDom()-1}
-    idom = ListOfDom(ii);
+  For ii In {0: #ListOfSubdomains()-1}
+    idom = ListOfSubdomains(ii);
     { Name Vol~{idom} ; NameOfFormulation Vol~{idom} ;
       Quantity {
         { Name e~{idom} ; Value { Local { [ {e~{idom}}] ;
@@ -479,8 +479,8 @@ PostProcessing {
 }
 
 PostOperation {
-  For ii In {0: #ListOfDom()-1}
-    idom = ListOfDom(ii);
+  For ii In {0: #ListOfSubdomains()-1}
+    idom = ListOfSubdomains(ii);
     { Name DDM~{idom} ; NameOfPostProcessing Vol~{idom};
       Operation{
          Print[ e~{idom}, OnElementsOf Omega~{idom},
