@@ -7578,10 +7578,12 @@ OneFExpr :
       if(!Tree_Query(ConstantTable_L, &Constant_S))
 	vyyerror("Unknown Constant: %s", $2);
       else{
-	if(Constant_S.Type != VAR_LISTOFFLOAT)
-	  vyyerror("Multi value Constant needed: %s", $2);
-	else
+	if(Constant_S.Type == VAR_LISTOFFLOAT)
           ret = List_Nbr(Constant_S.Value.ListOfFloat);
+	else if(Constant_S.Type == VAR_FLOAT)
+          ret = 1;
+        else
+          vyyerror("Float Constant needed: %s", $2);
       }
       $$ = ret;
       Free($2);
