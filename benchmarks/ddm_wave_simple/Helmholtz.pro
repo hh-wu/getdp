@@ -110,7 +110,7 @@ FunctionSpace {
           Support Region[ {Omega~{idom}, Pml~{idom}~{0}, Pml~{idom}~{1},
               GammaInf~{idom}, BndGammaInf~{idom}, PmlInf~{idom}~{0},
               PmlInf~{idom}~{1}, Sigma~{idom}, GammaPoint~{idom},
-              BndSigmaInf~{idom}~{0}, BndSigmaInf~{idom}~{1}} ] ; // BndSigmaInf for OSRC
+              BndSigmaInf~{idom}~{0}, BndSigmaInf~{idom}~{1}} ] ;
           Entity NodesOf[ All ] ;
         }
       }
