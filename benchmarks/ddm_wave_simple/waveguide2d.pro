@@ -16,7 +16,7 @@ DefineConstant[ // allows to set these from outside
   MAXIT = 100,
   RESTART = MAXIT,
   // sweeping preconditioner
-  PRECOND_SWEEP = {0, Name "Input/01Sweeping preconditioner",
+  PRECONDITIONER = {0, Name "Input/01Sweeping preconditioner",
     Choices{0="Unpreconditioned",
       1="Double sweep",
       2="SGS"}},
@@ -173,6 +173,14 @@ Function{
   D[] = TensorDiag[Ky[]*Kz[]/Kx[], Kx[]*Kz[]/Ky[], Kx[]*Ky[]/Kz[]];
   E[] = Kx[]*Ky[]*Kz[];
 }
+
+If (PRECONDITIONER)
+  ProcOwnsDomain = {};
+  For idom In{0:N_DOM-1}
+    // define your rule here -- must match listOfDom()
+    ProcOwnsDomain += {(idom%MPI_Size == MPI_Rank)};
+  EndFor
+EndIf
 
 If (ANALYSIS == 0)
   Include "Helmholtz.pro"; // formulations, function spaces and other definitions

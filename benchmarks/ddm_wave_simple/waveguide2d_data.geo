@@ -32,19 +32,3 @@ dTr = nLayersTr*LC;
 dPml = nLayersPml*LC;
 dBb = (nLayersPml+nLayersTr)*LC;
 dDom = DX / N_DOM;
-
-xSigmaList = {};
-thetaList = {};
-For i In {0:N_DOM}
-  xSigmaList += i*dDom;
-  thetaList += theta;
-EndFor
-
-// for sweeping preconditioners
-ListOfCuts = {0, N_DOM-1};
-// ListOfCuts = {0, 4, N_DOM-1};
-
-ProcOwnsDomain = {};
-For idom In{0:N_DOM-1}
-  ProcOwnsDomain += {(idom%MPI_Size == MPI_Rank)}; // define your rule here -- must match listOfDom()
-EndFor

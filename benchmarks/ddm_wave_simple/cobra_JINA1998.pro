@@ -23,7 +23,7 @@ DefineConstant[ // allows to set these from outside
   MAXIT = 500,
   RESTART = MAXIT
   // sweeping preconditioner
-  PRECOND_SWEEP = {0, Name "Input/01Sweeping preconditioner",
+  PRECONDITIONER = {0, Name "Input/01Sweeping preconditioner",
     Choices{0="Unpreconditioned",
       1="Double sweep",
       2="SGS"}},
@@ -126,20 +126,7 @@ Function {
   betaBT[] = 0; // -1/(2*I[]*k); //- 1/(2*I[]*k*(1+I[]/(k*R_EXT)));
 }
 
-If (PRECOND_SWEEP)
-  ListOfCuts = {0, N_DOM-1};
-  ListOfCuts = {0, 4, N_DOM-1};
-  // ListOfCuts = {0, 7, N_DOM-1}; //16/1
-  // ListOfCuts = {0, 5, 10, N_DOM-1}; //16/2
-  // ListOfCuts = {0, 4, 8, 12, N_DOM-1}; //16/3
-  // ListOfCuts = {0, 3, 6, 9, 12, N_DOM-1}; //16/4
-
-  // ListOfCuts = {0, 17, N_DOM-1}; //32/1
-  // ListOfCuts = {0, 11, 22, N_DOM-1}; //32/2;
-  // ListOfCuts = {0, 8, 16, 24, N_DOM-1}; //32/3
-  // ListOfCuts = {0, 6, 12, 18, 24, N_DOM-1}; //32/4
-
-
+If (PRECONDITIONER)
   // Hack to build a 'list of lists': generate variables with 'indexed names'
   nCuts = 0;
   For iCut In {0:#ListOfCuts()-2}

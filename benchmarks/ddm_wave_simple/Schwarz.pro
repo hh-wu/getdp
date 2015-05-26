@@ -1,11 +1,7 @@
 
-DefineConstant[ PRECOND_SWEEP ];
+DefineConstant[ PRECONDITIONER ];
 
 Include "SchwarzMacros.pro"; // macros for the resolution
-
-If (PRECOND_SWEEP)
-  Include "DoubleSweepMacros.pro"; // macros for the sweeping preconditioners
-EndIf
 
 Resolution {
   { Name DDM ;
@@ -17,7 +13,7 @@ Resolution {
         For iSide In {0:1}
           { Name Sur~{idom}~{iSide} ; NameOfFormulation Sur~{idom}~{iSide} ;
             Type Complex; NameOfMesh Sprintf(StrCat[MSH_NAME, "%g.msh"],idom) ; }
-          If (PRECOND_SWEEP)
+          If (PRECONDITIONER)
             { Name SurPc~{idom}~{iSide} ; NameOfFormulation SurPc~{idom}~{iSide} ;
               Type Complex; NameOfMesh Sprintf(StrCat[MSH_NAME, "%g.msh"],idom) ; }
           EndIf
@@ -47,7 +43,7 @@ Resolution {
       }
       {
         // applies a preconditioner
-	If (PRECOND_SWEEP)
+	If (PRECONDITIONER)
       	  // for the 'clean' version of SGS, we use a copy of the data; in
       	  // practice (EXPERIMENTAL) it works best by not using it
       	  // (cf. definition of g_in_c[])

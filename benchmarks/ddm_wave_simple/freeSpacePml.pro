@@ -11,7 +11,7 @@ DefineConstant[ // allows to set these from outside
   MAXIT = 200,
   RESTART = MAXIT
   // sweeping preconditioner
-  PRECOND_SWEEP = {0, Name "Input/01Sweeping preconditioner",
+  PRECONDITIONER = {0, Name "Input/01Sweeping preconditioner",
 		   Choices{0="Unpreconditioned",
 		     1="Double sweep",
 		     2="SGS"}},
@@ -199,11 +199,7 @@ Function{
   kDtN[] = k[]*Kx[]*Ky[]*Kz[]*(1+.0*I[]);
 }
 
-If (PRECOND_SWEEP)
-  ListOfCuts = {0, N_DOM-1};
-  // ListOfCuts = {0, 7, N_DOM-1}; //16/1
-  // ListOfCuts = {0, 5, 10, N_DOM-1}; //16/2
-
+If (PRECONDITIONER)
   // what domains am I in charge of ? Implemented with a list
   ProcOwnsDomain = {};
   For idom In{0:N_DOM-1}

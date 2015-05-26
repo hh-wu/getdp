@@ -18,7 +18,7 @@ DefineVariable[ // allows to set these from outside
   TOL = 1e-4,
   MAXIT = 1000,
   RESTART = MAXIT,
-  PRECOND_SWEEP = {0, Name "Input/01Sweeping preconditioner",
+  PRECONDITIONER = {0, Name "Input/01Sweeping preconditioner",
     Choices{0="Unpreconditioned",
       1="Double sweep",
       2="SGS"}},
@@ -206,8 +206,8 @@ Function{
 
   For ii In {0: N_DOM-1}
     idom = ii;
-    D[Pml~{idom}~{0}] = Rotate[Dpml[],0.,0.,-thetaList(idom)];
-    D[Pml~{idom}~{1}] = Rotate[Dpml[],0.,0.,-thetaList(idom+1)];
+    D[Pml~{idom}~{0}] = Rotate[Dpml[],0.,0.,-theta];
+    D[Pml~{idom}~{1}] = Rotate[Dpml[],0.,0.,-theta];
     D[Omega~{idom}] = 1.;
     E[Pml~{idom}~{0}] = Kx[]*Ky[]*Kz[];
     E[Pml~{idom}~{1}] = Kx[]*Ky[]*Kz[];
@@ -216,12 +216,7 @@ Function{
 
   nu[] = 1./D[];
   eps[] = 1.*D[];
-
 }
-
-// // for sweeping preconditioners
-// ListOfCuts = {0, N_DOM-1};
-// // ListOfCuts = {0, 4, N_DOM-1};
 
 ProcOwnsDomain = {};
 For idom In{0:N_DOM-1}
