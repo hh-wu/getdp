@@ -7,7 +7,7 @@ DefineConstant[ // allows to set these from outside
   NP_OSRC = 4,
   // parameters for the DDM iterative solver
   SOLVER = "gmres", // bcgs, gmsh_pcleft, ...
-  TOL = 1e-4,
+  TOL = 1e-7,
   MAXIT = 200,
   RESTART = MAXIT
   // sweeping preconditioner

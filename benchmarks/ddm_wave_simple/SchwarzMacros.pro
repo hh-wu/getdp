@@ -133,6 +133,7 @@ Macro PrintInfo
     Printf["Using sweeping preconditioner: %g", PRECOND_SWEEP];
     If (PRECOND_SWEEP)
       Printf["SGS (additive) = %g", SGS];
+      Printf["Number of Cuts: %g", #ListOfCuts()-2];
     EndIf
   EndIf
   // increase preallocation for Maxwell formulation

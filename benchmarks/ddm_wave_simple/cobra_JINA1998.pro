@@ -20,7 +20,7 @@ DefineConstant[ // allows to set these from outside
   // parameters for the DDM iterative solver
   SOLVER = "gmres", // bcgs, gmsh_pcleft, ...
   TOL = 1e-4,
-  MAXIT = 100,
+  MAXIT = 500,
   RESTART = MAXIT
   // sweeping preconditioner
   PRECOND_SWEEP = {0, Name "Input/01Sweeping preconditioner",

@@ -8,13 +8,14 @@ DefineConstant[ // allows to set these from outside
   // parameters for the DDM iterative solver
   SOLVER = "gmres", // bcgs, gmsh_pcleft, ...
   TOL = 1e-4,
-  MAXIT = 200,
+  MAXIT = 500,
   RESTART = MAXIT
   // sweeping preconditioner
   PRECOND_SWEEP = {0, Name "Input/01Sweeping preconditioner",
     Choices{0="Unpreconditioned",
       1="Double sweep",
       2="SGS"}},
+  ListOfCuts = {0, N_DOM-1},
   N_ON_TOP = {1, Name "Input/01Neumann condition on top",
 	      Choices{0,1}},
   EXTERNAL_VELOCITY_FIELD = {1, Name "Input/01Velocity Field",
@@ -195,7 +196,7 @@ Function{
 }
 
 If (PRECOND_SWEEP)
-  ListOfCuts = {0, N_DOM-1};
+  // ListOfCuts = {0, N_DOM-1};
   // ListOfCuts = {0, 7, N_DOM-1}; //16/1
   // ListOfCuts = {0, 5, 10, N_DOM-1}; //16/2
 

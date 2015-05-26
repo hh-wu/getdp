@@ -207,8 +207,12 @@ For i In {start+1:end+1}
   idom = i-1;
   // Save Sprintf("marmousi_mshcut%g.msh", i-1);
   If(StrCmp(OnelabAction, "check")) // only mesh if not in onelab check mode
-    Printf("Meshing waveguide subdomain %g...", idom);
+    Printf("Meshing marmousi subdomain %g...", idom);
     Mesh 2 ;
+    
+    nNodes = Mesh.NbNodes ;
+    Printf("Nodes: %g", nNodes);
+    
     CreateDir Str(DIR);
     Save StrCat(MSH_NAME, Sprintf("%g.msh", idom));
     Printf("Done.");
