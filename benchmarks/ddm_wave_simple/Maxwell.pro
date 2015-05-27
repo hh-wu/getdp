@@ -58,15 +58,16 @@ Group{
         OnOneSideOf Sigma~{idom}~{iSide} ];
       TrBndPmlSigma~{idom}~{iSide} = ElementsOf[ PmlInf~{idom}~{iSide},
         OnOneSideOf Sigma~{idom}~{iSide} ];
-      BndSigmaInf~{idom}~{iSide} = Region[{}]; // unused
     EndFor
+    Pml~{idom} = Region[{Pml~{idom}~{0}, Pml~{idom}~{1}}];
+    PmlInf~{idom} = Region[{PmlInf~{idom}~{0}, PmlInf~{idom}~{1}}];
   EndFor
 }
 
 Constraint{
   For ii In {0: #ListOfSubdomains()-1}
     idom = ListOfSubdomains(ii);
-    { Name Dirichlet_e_homog~{idom} ;
+    { Name Dirichlet_e0~{idom} ;
       Case {
         { Region GammaD0~{idom} ; Type Assign ; Value 0. ; }
         { Region PmlD0~{idom}~{0} ; Type Assign ; Value 0. ; }
@@ -83,12 +84,11 @@ FunctionSpace {
       BasisFunction {
         { Name se; NameOfCoef ee; Function BF_Edge;
           Support Region[{Omega~{idom}, GammaD~{idom}, GammaInf~{idom}, Sigma~{idom},
-			  PmlInf~{idom}~{0}, PmlInf~{idom}~{1},
-			  GammaD0~{idom}, Pml~{idom}~{0}, Pml~{idom}~{1}}] ;
+              Pml~{idom}, PmlInf~{idom}, GammaD0~{idom}}] ;
           Entity EdgesOf[All]; }
       }
       Constraint {
-        { NameOfCoef ee; EntityType EdgesOf ; NameOfConstraint Dirichlet_e_homog~{idom}; }
+        { NameOfCoef ee; EntityType EdgesOf ; NameOfConstraint Dirichlet_e0~{idom}; }
       }
     }
 
@@ -106,7 +106,7 @@ FunctionSpace {
           Support Region[{GammaD~{idom}}] ; Entity EdgesOf[All]; }
       }
       Constraint {
-        { NameOfCoef ee; EntityType EdgesOf ; NameOfConstraint Dirichlet_e_homog~{idom}; }
+        { NameOfCoef ee; EntityType EdgesOf ; NameOfConstraint Dirichlet_e0~{idom}; }
       }
     }
 
@@ -201,6 +201,7 @@ Formulation {
         EndIf
       }
       Equation {
+        // volume terms
         Galerkin { [ Dof{d e~{idom}}, {d e~{idom}} ];
           In Omega~{idom}; Integration I1; Jacobian JVol; }
         Galerkin { [ -k[]^2 * Dof{e~{idom}} , {e~{idom}} ];
@@ -218,6 +219,8 @@ Formulation {
         Galerkin { [ ($PhysicalSource ? einc[]: Vector[0,0,0]), {lambda~{idom}} ] ;
           In GammaD~{idom}; Jacobian JSur ; Integration I1 ; }
 
+        // artificial sources on transmission boundaries (iSide split only
+        // useful for sweeping-type preconditioners)
         For iSide In {0:1}
           Galerkin { [ $ArtificialSource~{iSide} ? g_in~{idom}~{iSide}[] : Vector[0,0,0] ,
               {e~{idom}} ];
@@ -298,7 +301,7 @@ Formulation {
           For iSide In {0:1}
             Galerkin { [ nu[] * Dof{d e~{idom}}, {d e~{idom}} ];
               In Pml~{idom}~{iSide}; Jacobian JVol; Integration I1;}
-            Galerkin { [ -eps[] * (kPml~{idom}~{iSide}[])^2*Dof{e~{idom}}, {e~{idom}} ];
+            Galerkin { [ - eps[] * (kPml~{idom}~{iSide}[])^2*Dof{e~{idom}}, {e~{idom}} ];
               In Pml~{idom}~{iSide}; Jacobian JVol; Integration I1;}
 	    Galerkin { [ I[] * kIBC[] * (N[]) /\ ( N[] /\ Dof{e~{idom}} ) , {e~{idom}} ];
               In PmlInf~{idom}~{iSide} ; Jacobian JSur ; Integration I1 ; }

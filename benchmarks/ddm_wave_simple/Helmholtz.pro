@@ -80,18 +80,21 @@ Group{
 						   OnOneSideOf Sigma~{idom}~{iSide} ];
       EndIf
     EndFor
+    Pml~{idom} = Region[{Pml~{idom}~{0}, Pml~{idom}~{1}}];
+    PmlInf~{idom} = Region[{PmlInf~{idom}~{0}, PmlInf~{idom}~{1}}];
+    BndSigmaInf~{idom} = Region[{BndSigmaInf~{idom}~{0}, BndSigmaInf~{idom}~{1}}];
   EndFor
 }
 
 Constraint{
   For ii In {0: #ListOfSubdomains()-1}
     idom = ListOfSubdomains(ii);
-    { Name Dirichlet~{idom} ;
+    { Name Dirichlet_u~{idom} ;
       Case {
         { Region GammaD~{idom} ; Value $PhysicalSource ? uinc[] : 0. ; }
       }
     }
-    { Name Dirichlet0~{idom} ;
+    { Name Dirichlet_u0~{idom} ;
       Case {
         { Region GammaD0~{idom} ; Value 0.; }
         { Region PmlD0~{idom}~{0} ; Value 0.; }
@@ -107,16 +110,15 @@ FunctionSpace {
     { Name Hgrad_u~{idom} ; Type Form0 ;
       BasisFunction {
         { Name sn ; NameOfCoef un ; Function BF_Node ;
-          Support Region[ {Omega~{idom}, Pml~{idom}~{0}, Pml~{idom}~{1},
-              GammaInf~{idom}, BndGammaInf~{idom}, PmlInf~{idom}~{0},
-              PmlInf~{idom}~{1}, Sigma~{idom}, GammaPoint~{idom},
-              BndSigmaInf~{idom}~{0}, BndSigmaInf~{idom}~{1}} ] ;
+          Support Region[ {Omega~{idom}, Pml~{idom}, GammaInf~{idom},
+              BndGammaInf~{idom}, PmlInf~{idom}, Sigma~{idom}, GammaPoint~{idom},
+              BndSigmaInf~{idom}} ] ;
           Entity NodesOf[ All ] ;
         }
       }
       Constraint {
-        { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet~{idom} ; }
-        { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet0~{idom} ; }
+        { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet_u~{idom} ; }
+        { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Dirichlet_u0~{idom} ; }
       }
     }
 
@@ -127,7 +129,7 @@ FunctionSpace {
             Support Region[ {Sigma~{idom}~{iSide}, TrPmlSigma~{idom}~{iSide},
 		TrBndPmlSigma~{idom}~{iSide} } ] ;
             Entity NodesOf[ Sigma~{idom}~{iSide}, Not {GammaD~{idom}, GammaD0~{idom},
-			    PmlD0~{idom}~{0}, PmlD0~{idom}~{1}}];
+			    PmlD0~{idom}~{iSide}}];
           }
         }
       }
