@@ -31,7 +31,9 @@ DefineConstant[
   AxialLength = {35*mm,  Name StrCat[pp,"Axial length [m]"], Closed 1},
   Gap = {(26.02-25.6)*mm, Name StrCat[pp,"Airgap width [m]"], Closed 1},
   //Gap = {3*mm, Name StrCat[pp,"Airgap width [m]"], Closed 1},
-  b_remanent = { 1.2, Name StrCat[pp,"Remanent induction[T]"] }  
+  b_remanent = { 1.2, Name StrCat[pp,"Remanent induction[T]"] },
+  Flag_Degree ={0, Name "Input/OptParam/degree", Label "degree 2 ShapeFunc?", 
+                   Choices {0,1} }  
 ] ;
 
 //--------------------------------------------------------------------------------

@@ -4,9 +4,8 @@
     Check the computation of sensitivity 
     
 """
-#quest: why difference of torque with pmsm_FH ???
 import sys
-sys.path.insert(0,'/Users/erinkuci/Desktop/src/getdp/benchmarks/pmsm_opt/tool')
+sys.path.append('../../benchmarks_kst/tool/')
 from tool import *
 from defPerfFunc import *
 from defPerfFuncSens import *
@@ -14,10 +13,10 @@ from defPerfFuncSens import *
 # ************************************************************************
 # **** Input                                                         *****
 # ************************************************************************
-x = np.array([0.3]) #np.array([op.getScalarParamVal('Input/OptParam/x_0')])
-execMode = 2 #0:debug, 1:sensitivity, 2:plot
-lc = [0.65] #np.logspace(0.5, -0.7, num=20)
-step = [1.0e-07] #np.logspace(-16, -3, num=14)
+x = np.array([0.57]) #np.array([op.getScalarParamVal('Input/OptParam/x_0')])
+execMode = 2 #1:debug, 2:sensitivity, 2:plot
+lc = np.logspace(0.0, -0.9, num=10)
+step = [1.0e-08] #np.logspace(-16, -3, num=14)
 sensMeth = ['GlobalFiniteDifference','AdjointSemi','AdjointLie','DirectLie']
 pathSave = 'resSens'
 
@@ -30,11 +29,11 @@ parameters = {
     'AnalysisModelType':'FEM',
     'OptType': 0, #0:'Shape', 1:'Topology'
     'analysisType': ['static'],
-    'NLsys': 1,
+    'NLsys': 0,
     'NLcurve': 1,
     'performance':[Compliance],#[Compliance],[Torque]
     'allowCentralFD': 0,
-    'rotorAngles': np.array([37.0]),#np.linspace(7.5,15.0,5)
+    'rotorAngles': np.array([0.0]),#np.linspace(7.5,15.0,5)
     'defautValue': {'TorqueNominal':90.0}}
 
 # ************************************************************************
@@ -100,19 +99,17 @@ elif( execMode == 2 ): # check sensitivity
                       format(f[j],dfdx[j,k,l],sensMeth[l],sensMeth[0],
                              float(relErr[j,k,l]),float(tf-t0)))
                 print('-'*80)
-
-    # Save result
-    saveData(pathSave,f,dfdx,step,lc,relErr,sensMeth)
+        # Save result
+        saveData(pathSave,f,dfdx,step,lc,relErr,sensMeth)
 
 else: #load data and plot
     sensMeth,f,dfdx,step,lc,relErr = loadData(pathSave)
-    sensMeth = ['GlobalFiniteDifference','AdjointLie','DirectLie']
     plotMultiVec(np.arange(len(lc)),np.abs(dfdx[:,0,:,0]),pathSave+'/dfdx_lc.pdf',
-        labelx='Mesh Quality',labely=sensMeth,log=0,titleName='Derivative')
-    plotMultiVec(np.arange(len(lc)),np.abs(relErr[:,0,1:,0]), pathSave+'/relErr_lc.pdf',
-        labelx='Mesh Quality', labely=sensMeth[1:],log=3,titleName='RelErr(.,FD)')
-#    plotMultiVec(step,np.abs(dfdx[0,:,:,0][0]),pathSave+'/dfdx_step.pdf',
-#                 labelx='perturbation step',labely=sensMeth)
+        labelx='Mesh Density',labely=sensMeth,log=0,titleName='Derivative')
+#    plotMultiVec(np.arange(len(lc)),np.abs(relErr[:,0,1:,0]), pathSave+'/relErr_lc.pdf',
+#        labelx='Mesh Density', labely=sensMeth[1:],log=3,titleName='RelErr(.,FD)')
+#    plotMultiVec(step,np.abs(dfdx[0,:,:,0]),pathSave+'/dfdx_step.pdf',
+#                 labelx='perturbation step',labely=sensMeth,log=1)
 #    plotMultiVec(step,np.abs(relErr[:,0,1:,0][0]),pathSave+'/relErr_step.pdf',
 #                labelx='perturbation step', labely=sensMeth[1:])
 

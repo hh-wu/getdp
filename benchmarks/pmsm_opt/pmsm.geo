@@ -22,6 +22,7 @@ Hide { Point{ Point '*' }; }
 Hide { Line{ Line '*' }; }
 Show { Line{ nicepos_rotor[], nicepos_stator[] }; }
 
-Physical Line(NICEPOS) = { nicepos_rotor[], nicepos_stator[] };
+//fixme -> nb of elements differs from pmsm.msh and its perturbed version !!!
+//Physical Line(NICEPOS) = { nicepos_rotor[], nicepos_stator[] };
 
 

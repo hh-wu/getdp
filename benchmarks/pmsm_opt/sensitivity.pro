@@ -236,13 +236,11 @@ Function {
   velocityField[] = Rotate[ VectorField[RotateZ_desVar[],0,1]{VELOCITY_FIELD}, 
                             0, 0, RotorPosition[] ] ;
   dV[] = Rotate[ Transpose[GradVectorField[RotateZ_desVar[], 0 , 1]{VELOCITY_FIELD}], 
-                     0, 0, -RotorPosition[] ];
-  
-  //dnu[] = GradScalarField[XYZ[], 0 , 1]{NU_FIELD};
+                            0, 0, -RotorPosition[] ];
   ETA[] = dV[]#1 + Transpose [ #1 ] - TTrace [ #1 ] * TensorDiag[1,1,1];//(1,2)-form
   LV1[] = dV[] * $1 ;
   LV2[] = TTrace [ dV[]#1 ] * $1 - Transpose [ #1 ] * $1 ;
-  LV3[] = -TTrace [ dV[]#1 ]* TensorDiag[1,1,1] + Transpose [ #1 ] ;
+  LV3[] = Transpose [ dV[]#1 ] - TTrace [ #1 ] * TensorDiag[1,1,1];
   
   If(Flag_PerfType == COMPLIANCE)
     Func[] = nu[$1] * SquNorm[$1]; //F = nu*B^2, alpha=nu*{d a},beta={d a} 
@@ -273,14 +271,16 @@ Function {
   EndIf
 
   dF_direct_lie[] = dFdb[$1#1]*$2 + dF_adjoint_lie[#1];
-  d_bilin_lie[] = nu[$1] * $1 * ( ETA[] * $2 ); //2-form
-  If(Flag_NL)  //-> not necessary !!!
-    dhdb_NL_full[] = Tensor[CompXX[dhdb_NL[$1]#99],CompXY[#99],CompXZ[#99],
-                            CompXY[#99],           CompYY[#99],CompYZ[#99],
-			    CompXZ[#99],           CompYZ[#99],CompZZ[#99]];
-    d_bilin_lie_NL[] = $2 * ((Transpose[ dhdb_NL_full[$1] ] * LV3[]) * $1);
-  EndIf
-  d_load_lie[] = nu[$1] * ( LV1[ br[] ] ) * $2 ; //1-form equivalent to 2-form
+
+
+  // derivative of linear load
+  d_M_lie[] = nu[$1] * ( LV1[ br[] ] ) * $2 ; 
+//  d_M_lie[] = nu[$1] * br[] * ( ETA[] * $2 ) ; 
+//  d_J_lie[] = LV2[js[]]* $1;//-( LV3[] * js[] ) * $1 ;
+
+  // derivative of bilinear form
+  d_bilin_lie[] = nu[$1] * $1 * ( ETA[] * $2 ) ; 
+  d_bilin_lie_NL[] = $2 * (( dhdb_NL[$1] * LV3[] ) * $1);
 
 }
 
@@ -323,9 +323,16 @@ FunctionSpace {
     BasisFunction {
       { Name se1 ; NameOfCoef ae1 ; Function BF_PerpendicularEdge ;
         Support Region[{ Domain, Rotor_Bnd_MBaux }] ; Entity NodesOf [ All ] ; }
+	If (Flag_Degree)
+         { Name se2 ; NameOfCoef ae2 ; Function BF_PerpendicularEdge_2E ;
+           Support Region[{ Domain, Rotor_Bnd_MBaux}] ; Entity EdgesOf [All];}
+	EndIf
    }
     Constraint {
       { NameOfCoef ae1 ; EntityType NodesOf ; NameOfConstraint MVP_2D ; }
+      If (Flag_Degree)
+       { NameOfCoef ae2 ; EntityType EdgesOf ; NameOfConstraint MVP_2D ; }
+      EndIf
     }
   }
   //-----------------------------------------------------------------
@@ -335,9 +342,17 @@ FunctionSpace {
     BasisFunction {
       { Name se1 ; NameOfCoef ae1 ; Function BF_PerpendicularEdge ;
         Support Region[{ Domain , Rotor_Bnd_MBaux }] ; Entity NodesOf [ All ] ; }
+	If (Flag_Degree)
+          { Name se2 ; NameOfCoef ae2 ; Function BF_PerpendicularEdge_2E ;
+            Support Region[{ Domain, Rotor_Bnd_MBaux}]; 
+            Entity EdgesOf [ All ] ; }
+	EndIf
    }
     Constraint {
       { NameOfCoef ae1 ; EntityType NodesOf ; NameOfConstraint MVP_2D_lambda; }
+      If (Flag_Degree)
+        { NameOfCoef ae2 ; EntityType EdgesOf ; NameOfConstraint MVP_2D_lambda ; }
+      EndIf
     }
 
   }
@@ -375,17 +390,16 @@ Formulation {
      // DO NOT REMOVE!!!
      // Keeping track of Dofs in auxiliar line of MB if Symmetry==1
      Galerkin {  [  0*Dof{d d_a} , {d d_a} ]  ;
-       In Rotor_Bnd_MBaux; Jacobian Vol; Integration I1; }
+       In Rotor_Bnd_MBaux; Jacobian Sur; Integration I1; }
 
-     // vérifier le sign !!!
-     // pseudo-load -> depend on design variable (velocity)
-     Galerkin { [ nu[ {d a} ] * {d a}, ETA[]*{d d_a} ] ; //fixme: sign
+     Galerkin { [ nu[ {d a} ] * {d a}, ETA[]*{d d_a} ] ; 
        In Domain ; Jacobian Vol ; Integration I1 ; }
-     Galerkin { [(Transpose[ dhdb_NL_full[{d a}] ] * LV3[]) * {d a}, {d d_a}]; 
+     Galerkin { [( dhdb_NL[{d a}] * LV3[]) * {d a}, {d d_a}]  ; 
        In DomainNL ; Jacobian Vol ; Integration I1 ; }
-
+          
      Galerkin { [ -nu[ {d a} ] * LV1[ br[] ], {d d_a} ] ;
        In DomainM ; Jacobian Vol ; Integration I1 ; }
+
    }
   }
  //-----------------------------------------------------------------
@@ -407,28 +421,11 @@ Formulation {
       // DO NOT REMOVE!!!
       // Keeping track of Dofs in auxiliar line of MB if Symmetry==1
       Galerkin {  [  0*Dof{d lambda} , {d lambda} ]  ;
-        In Rotor_Bnd_MBaux; Jacobian Vol; Integration I1; }
+        In Rotor_Bnd_MBaux; Jacobian Sur; Integration I1; }
 
       // adjoint load
       Galerkin { [ -dFdb[{d a}], {d lambda}] ;
                  In DomainFunc ; Jacobian Vol ; Integration I1 ; }
-
-//      If(Flag_PerfType == BFIELD_ERROR) // F = Int((Br - Bref)^2)
-//        Galerkin { [ -2.0*BradCoeff[]*({d a}*er[] - Btarget[])*er[], {d lambda}] ;
-//                 In DomainFunc ; Jacobian Vol ; Integration I1 ; }
-//      EndIf
-//      If(Flag_PerfType == TORQUE_VAR) // F = (T/Tref - 1)^2
-//       Galerkin {[-2.0*torqueVar[]*nu[{d a}]*torqueCoeff[]/
-//                  Ttarget[]*(et[]*({d a}*er[]) ), {d lambda} ];
-//         In DomainFunc ; Jacobian Vol ; Integration I1 ; } 
-//       Galerkin { [ -2.0*torqueVar[]*nu[{d a}]*torqueCoeff[]/
-//                   Ttarget[]*( er[]*({d a}*et[]) ), {d lambda} ];
-//         In DomainFunc ; Jacobian Vol ; Integration I1 ; } 
-//      EndIf
-//      If(Flag_PerfType == COMPLIANCE) // F = Int_DO{nu*curl(A)^2}
-//        Galerkin { [ -2.0*nu[{d a}]*{d a}, {d lambda} ] ;
-//         In DomainFunc ; Jacobian Vol ; Integration I1 ; }
-//      EndIf
 
    }
   }

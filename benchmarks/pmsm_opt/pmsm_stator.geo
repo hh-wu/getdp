@@ -146,6 +146,8 @@ Physical Surface(STATOR_AIR)    = {sairslot[]}; // AirStator
 Physical Surface(STATOR_AIRGAP) = {sairgapS[]}; 
 
 NN = 3;
+
+// fixme !!!
 Physical Surface(STATOR_IND_AM) = {sslot[{0:NN-1:6}]};
 Physical Surface(STATOR_IND_CP) = {sslot[{1:NN-1:6}]};
 Physical Surface(STATOR_IND_BM) = {sslot[{2:NN-1:6}]};

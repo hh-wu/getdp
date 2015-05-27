@@ -314,6 +314,7 @@ Function {
 
 Jacobian {
   { Name Vol; Case { { Region All ; Jacobian Vol; } } }
+  { Name Sur; Case { { Region All ; Jacobian Sur; } } }
 }
 
 Integration {
@@ -427,9 +428,17 @@ FunctionSpace {
     BasisFunction {
       { Name se1 ; NameOfCoef ae1 ; Function BF_PerpendicularEdge ;
         Support Region[{ Domain, Rotor_Bnd_MBaux }] ; Entity NodesOf [ All ] ; }
+	If (Flag_Degree)
+         { Name se2 ; NameOfCoef ae2 ; Function BF_PerpendicularEdge_2E ;
+           Support Region[{ Domain, Rotor_Bnd_MBaux}] ; Entity EdgesOf [All];}
+	EndIf
    }
     Constraint {
       { NameOfCoef ae1 ; EntityType NodesOf ; NameOfConstraint MVP_2D ; }
+      If (Flag_Degree)
+       { NameOfCoef ae2 ; EntityType EdgesOf ; NameOfConstraint MVP_2D ; }
+      EndIf
+
     }
   }
   //-----------------------------------------------------------------
@@ -535,7 +544,7 @@ Formulation {
 
      // DO NOT REMOVE!!! - Keeping track of Dofs in auxiliar line of MB if Symmetry==1
       Galerkin {  [  0*Dof{d a} , {d a} ]  ; 
-        In Rotor_Bnd_MBaux; Jacobian Vol; Integration I1; }
+        In Rotor_Bnd_MBaux; Jacobian Sur; Integration I1; }
 
       Galerkin { [ -nu[{d a}] * br[] , {d a} ] ;
         In DomainM ; Jacobian Vol ; Integration I1 ; }

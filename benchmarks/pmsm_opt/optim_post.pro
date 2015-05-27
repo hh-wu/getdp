@@ -308,24 +308,27 @@ PostProcessing {
         }
         { Name sensM ; 
           Value { 
-              Integral{[ d_load_lie[ {d a}, {d lambda} ] ];//d{l}/d{tau}(A,lambda)
+              Integral{[ d_M_lie[ {d a}, {d lambda} ] ];//d{l}/d{tau}(A,lambda)
                 In Domain ; Jacobian Vol ; Integration I1;}
           }
         }
-      { Name AvmVarDomSens; 
-        Value { 
-          Integral { [ dF_adjoint_lie[ {d a} ] ];  // d{f}/d{tau}(phi)
-            In DomainFunc ; Jacobian Vol ; Integration I1 ;}
-          Integral { [ -d_bilin_lie[ {d a}, {d lambda} ]];//d{a}/d{tau}(phi,lambda)
-            In Domain ; Jacobian Vol ; Integration I1 ; }
-          Integral { [ -d_bilin_NL[ {d a}, {d lambda} ] ];
-            In DomainNL;Jacobian Vol ; Integration I1;}
-          Integral { [ d_load_lie[ {d a}, {d lambda} ] ];//d{l}/d{tau}(phi,lambda)
-            In DomainM ; Jacobian Vol ; Integration I1 ; }
-        } 
+        { Name AvmVarDomSens; 
+          Value { 
+            Integral { [ dF_adjoint_lie[ {d a} ] ];  // d{f}/d{tau}(phi)
+              In DomainFunc ; Jacobian Vol ; Integration I1 ;}
+            Integral { [ -d_bilin_lie[ {d a}, {d lambda} ]];//d{a}/d{tau}(phi,lambda)
+              In Domain ; Jacobian Vol ; Integration I1 ; }
+            Integral { [ -d_bilin_lie_NL[ {d a}, {d lambda} ] ];
+              In DomainNL; Jacobian Vol ; Integration I1;}
+            Integral { [ d_M_lie[ {d a}, {d lambda} ] ];//d{l}/d{tau}(phi,lambda)
+              In DomainM ; Jacobian Vol ; Integration I1 ; }
+//            Integral { [ d_J_lie[ {lambda} ] ];//d{l}/d{tau}(A,lambda)
+//              In DomainS ; Jacobian Vol ; Integration I1;}
+          } 
+        }
       }
     }
-  }
+  
   // --------------------------------------------------------------------
   // Continuum sensitivity analysis, adjoint method, variable domain
   // --------------------------------------------------------------------
@@ -584,8 +587,8 @@ PostOperation {
               File StrCat[ResDir, StrCat["d_bilin", ExtGnuplot]],  
               SendToServer StrCat[po_min,"d_bilin"], LastTimeStepOnly];
        Print[ sensM[DomainM], OnGlobal, Format Table,
-              File StrCat[ResDir, StrCat["d_load", ExtGnuplot]], 
-              SendToServer StrCat[po_min,"d_load"], LastTimeStepOnly];
+              File StrCat[ResDir, StrCat["d_M", ExtGnuplot]], 
+              SendToServer StrCat[po_min,"d_M"], LastTimeStepOnly];
        Print[ AvmVarDomSens[Domain], OnGlobal, Format Table,
               File StrCat[ResDir, StrCat["AvmVarDomSens", ExtGnuplot]], 
               SendToServer StrCat[po_min,"AvmVarDomSens"], LastTimeStepOnly];
