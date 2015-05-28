@@ -11,6 +11,85 @@ For ii In {0: #ListOfSubdomains()-1}
   ];
 EndFor
 
+Macro PrintInfo
+  If (MPI_Rank == 0)
+    Printf[StrCat["Starting ", StrChoice[ANALYSIS == 0, "Helmholtz", "Maxwell"],
+        " DDM with %g subdomains / %g processes"], N_DOM, MPI_Size];
+    If(TC_TYPE == 0)
+      Printf[StrCat["Using 0-th order (", StrChoice[ANALYSIS == 0, "Sommerfeld/EMDA",
+            "Silver-Muller"], ") transmission conditions"]];
+    EndIf
+    If(TC_TYPE == 1)
+      Printf[StrCat["Using 2-nd order (", StrChoice[ANALYSIS == 0, "OO2",
+            "J-F. Lee"], ") transmission conditions"]];
+    EndIf
+    If(TC_TYPE == 2)
+      Printf["Using %g-th order Pade (OSRC) transmission conditions", NP_OSRC];
+    EndIf
+    If(TC_TYPE == 3)
+      Printf["Using PML transmission conditions (nLayersTr %g, nLayersPml %g)",
+        nLayersTr, nLayersPml];
+    EndIf
+    Printf["Relative iterative solver tolerance = %g", TOL];
+    If (PRECONDITIONER)
+      Printf[StrCat["Using sweeping preconditioner: ",
+          StrChoice[PRECONDITIONER == 2, "SGS (additive)", "Double-sweep"]]];
+      Printf["Number of Cuts: %g", #ListOfCuts()-2];
+    EndIf
+    If(EXTERNAL_VELOCITY_FIELD)
+      Printf["Using external data for the velocity field"];
+    EndIf
+    If(DELTA_SOURCE)
+      Printf["Using delta function as point source"];
+    EndIf
+    If(!SAVE_SOLUTION)
+      Printf["Solution will *not* be saved"];
+    EndIf
+  EndIf
+  // increase preallocation for Maxwell formulation
+  If(ANALYSIS == 1)
+    SetGlobalSolverOptions["-petsc_prealloc 200"];
+  EndIf
+Return
+
+Macro EnablePhysicalSources
+  Evaluate[$PhysicalSource = 1];
+  Call UpdateConstraints;
+Return
+
+Macro DisablePhysicalSources
+  Evaluate[$PhysicalSource = 0];
+  Call UpdateConstraints;
+Return
+
+Macro EnableArtificialSources
+  For iSide In {0:1}
+    Evaluate[$ArtificialSource~{iSide} = 1];
+    Evaluate[$ArtificialSourceSGS~{iSide} = 0];
+  EndFor
+Return
+
+Macro DisableArtificialSources
+  For iSide In {0:1}
+    Evaluate[$ArtificialSource~{iSide} = 0];
+    Evaluate[$ArtificialSourceSGS~{iSide} = 0];
+  EndFor
+Return
+
+Macro UpdateConstraints
+  // update Dirichlet constraints (only actually necessary for Helmholtz, as we
+  // currently use Lagrange multipliers to specify boundary conditions for
+  // Maxwell)
+  If(ANALYSIS == 0)
+    SetCommSelf;
+    For ii In {0: #ListOfSubdomains()-1}
+      idom = ListOfSubdomains(ii);
+      UpdateConstraint[Vol~{idom}, GammaD~{idom}, Assign];
+    EndFor
+    SetCommWorld;
+  EndIf
+Return
+
 Macro SolveVolumePDE
   // work on own cpu
   SetCommSelf;
@@ -83,87 +162,6 @@ Macro SaveVolumeSolutions
     SetCommWorld;
   EndIf
 Return
-
-Macro UpdateConstraints
-  // update Dirichlet constraints (only actually necessary for Helmholtz, as we
-  // currently use Lagrange multipliers to specify boundary conditions for
-  // Maxwell)
-  If(ANALYSIS == 0)
-    SetCommSelf;
-    For ii In {0: #ListOfSubdomains()-1}
-      idom = ListOfSubdomains(ii);
-      UpdateConstraint[Vol~{idom}, GammaD~{idom}, Assign];
-    EndFor
-    SetCommWorld;
-  EndIf
-Return
-
-Macro EnablePhysicalSources
-  Evaluate[$PhysicalSource = 1];
-  Call UpdateConstraints;
-Return
-
-Macro DisablePhysicalSources
-  Evaluate[$PhysicalSource = 0];
-  Call UpdateConstraints;
-Return
-
-Macro EnableArtificialSources
-  For iSide In {0:1}
-    Evaluate[$ArtificialSource~{iSide} = 1];
-    Evaluate[$ArtificialSourceSGS~{iSide} = 0];
-  EndFor
-Return
-
-Macro DisableArtificialSources
-  For iSide In {0:1}
-    Evaluate[$ArtificialSource~{iSide} = 0];
-    Evaluate[$ArtificialSourceSGS~{iSide} = 0];
-  EndFor
-Return
-
-Macro PrintInfo
-  If (MPI_Rank == 0)
-    Printf[StrCat["Starting ", StrChoice[ANALYSIS == 0, "Helmholtz", "Maxwell"],
-        " DDM with %g subdomains / %g processes"], N_DOM, MPI_Size];
-    If(TC_TYPE == 0)
-      Printf[StrCat["Using 0-th order (", StrChoice[ANALYSIS == 0, "Sommerfeld/EMDA",
-            "Silver-Muller"], ") transmission conditions"]];
-    EndIf
-    If(TC_TYPE == 1)
-      Printf[StrCat["Using 2-nd order (", StrChoice[ANALYSIS == 0, "OO2",
-            "J-F. Lee"], ") transmission conditions"]];
-    EndIf
-    If(TC_TYPE == 2)
-      Printf["Using %g-th order Pade (OSRC) transmission conditions", NP_OSRC];
-    EndIf
-    If(TC_TYPE == 3)
-      Printf["Using PML transmission conditions: nLayersTr %g, nLayersPml %g",
-        nLayersTr, nLayersPml];
-    EndIf
-    Printf["Relative iterative solver tolerance = %g", TOL];
-    Printf["Using sweeping preconditioner? %g", PRECONDITIONER];
-    If (PRECONDITIONER)
-      Printf["SGS (additive) = %g", (PRECONDITIONER == 2)];
-      Printf["Number of Cuts: %g", #ListOfCuts()-2];
-    EndIf
-  EndIf
-  // increase preallocation for Maxwell formulation
-  If(ANALYSIS == 1)
-    SetGlobalSolverOptions["-petsc_prealloc 200"];
-  EndIf
-  If(EXTERNAL_VELOCITY_FIELD)
-    Printf["Using external data for the velocity field"];
-  EndIf
-  If(DELTA_SOURCE)
-    Printf["Using delta function as point source"];
-  EndIf
-  If(!SAVE_SOLUTION)
-    Printf["Solution will NOT be saved"];
-  EndIf
-Return
-
-// Macros for preconditioners
 
 Macro CopySurfaceFields
   SetCommSelf;
@@ -255,14 +253,6 @@ Macro SolveAndStepBackward
   SetCommWorld;
 Return
 
-Macro FinalizeSweep
-  SetCommSelf;
-  If ( proc == MPI_Rank && ProcOwnsDomain(ListOfCuts(iCut)) ) // first of cut
-    BroadcastFields[];
-  EndIf
-  SetCommWorld;
-Return
-
 Macro InitSweep
   SetCommSelf;
   If( proc == MPI_Rank && ProcOwnsDomain(idom) )
@@ -284,6 +274,14 @@ Macro InitSweep
         PostOperation[g_out~{idom}~{iSide}];
       EndFor
     EndIf
+    BroadcastFields[];
+  EndIf
+  SetCommWorld;
+Return
+
+Macro FinalizeSweep
+  SetCommSelf;
+  If ( proc == MPI_Rank && ProcOwnsDomain(ListOfCuts(iCut)) ) // first of cut
     BroadcastFields[];
   EndIf
   SetCommWorld;

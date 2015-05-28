@@ -10,7 +10,7 @@ DefineConstant[ // allows to set these from outside
   TOL = 1e-4,
   MAXIT = 1000,
   RESTART = MAXIT,
-  PRECONDITIONER = {0, Name "Input/01Sweeping preconditioner",
+  PRECONDITIONER = {0, Name "Input/01Sweeping preconditioner", ReadOnly 1,
     Choices{0="Unpreconditioned",
       1="Double sweep",
       2="SGS"}},

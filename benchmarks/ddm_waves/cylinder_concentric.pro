@@ -12,7 +12,7 @@ DefineConstant[ // allows to set these from outside
   RESTART = MAXIT,
   POLARISATION = {1, Name "Input/02Polarisation",
     Choices {0="TM", 1="TE"}, Visible (ANALYSIS == 1) },
-  PRECONDITIONER = {0, Name "Input/01Sweeping preconditioner",
+  PRECONDITIONER = {0, Name "Input/01Sweeping preconditioner", ReadOnly 1,
     Choices{0="Unpreconditioned",
       1="Double sweep",
       2="SGS"}},
