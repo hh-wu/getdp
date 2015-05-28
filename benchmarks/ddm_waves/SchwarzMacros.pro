@@ -1,9 +1,14 @@
-DefineConstant[ EXTERNAL_VELOCITY_FIELD, SAVE_SOLUTION=1 ];
+DefineConstant[
+  PRECONDITIONER, DELTA_SOURCE, EXTERNAL_VELOCITY_FIELD, SAVE_SOLUTION = 1
+];
 
 For ii In {0: #ListOfSubdomains()-1}
   idom = ListOfSubdomains(ii);
-  DefineConstant[GenerateVolFlag~{idom} = 0];
-  DefineConstant[GenerateSurFlag~{idom}~{0} = 0, GenerateSurFlag~{idom}~{1} = 0];
+  DefineConstant[
+    GenerateVolFlag~{idom} = 0,
+    GenerateSurFlag~{idom}~{0} = 0, GenerateSurFlag~{idom}~{1} = 0,
+    GenerateSurPcFlag~{idom}~{0} = 0, GenerateSurPcFlag~{idom}~{1} = 0
+  ];
 EndFor
 
 Macro SolveVolumePDE
@@ -133,7 +138,8 @@ Macro PrintInfo
       Printf["Using %g-th order Pade (OSRC) transmission conditions", NP_OSRC];
     EndIf
     If(TC_TYPE == 3)
-      Printf["Using PML transmission conditions: nLayersTr %g, nLayersPml %g", nLayersTr, nLayersPml];
+      Printf["Using PML transmission conditions: nLayersTr %g, nLayersPml %g",
+        nLayersTr, nLayersPml];
     EndIf
     Printf["Relative iterative solver tolerance = %g", TOL];
     Printf["Using sweeping preconditioner? %g", PRECONDITIONER];
@@ -159,17 +165,14 @@ Return
 
 // Macros for preconditioners
 
-For ii In {0: #ListOfSubdomains()-1}
-  idom = ListOfSubdomains(ii);
-  DefineConstant[GenerateSurPcFlag~{idom}~{0} = 0, GenerateSurPcFlag~{idom}~{1} = 0];
-EndFor
-
 Macro CopySurfaceFields
   SetCommSelf;
   For ii In {0:#ListOfSubdomains()-1}
     idom = ListOfSubdomains(ii);
     For iSide In {0:1}
-      If (PRECONDITIONER == 2) PostOperation[g_copy~{idom}~{iSide}]; EndIf
+      If (PRECONDITIONER == 2)
+        PostOperation[g_copy~{idom}~{iSide}];
+      EndIf
       // do the Generate if necessary
       If (GenerateSurPcFlag~{idom}~{iSide} == 0) // FIXME: to this separately ?
         If( NbrRegions[Sigma~{idom}~{iSide}] )

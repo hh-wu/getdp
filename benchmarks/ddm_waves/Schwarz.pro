@@ -1,7 +1,4 @@
-
-DefineConstant[ PRECONDITIONER ];
-
-Include "SchwarzMacros.pro"; // macros for the resolution
+Include "SchwarzMacros.pro";
 
 Resolution {
   { Name DDM;

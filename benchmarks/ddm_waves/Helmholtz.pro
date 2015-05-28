@@ -1,10 +1,3 @@
-// Simple DDM example for Helmholtz
-
-Function{
-  DefineConstant[DELTA_SOURCE=0];
-  DefineFunction[c];
-}
-
 Jacobian {
   { Name JVol; Case{ { Region All; Jacobian Vol; } } }
   { Name JSur; Case { { Region All; Jacobian Sur; } } }
@@ -30,6 +23,7 @@ Integration {
 }
 
 Function{
+  DefineFunction[c];
   For idom In {0:N_DOM-1}
     If (idom % MPI_Size == MPI_Rank)
       // g_in_c~{idom}~{0}[Sigma~{idom}~{0}] =
@@ -55,18 +49,16 @@ Group{
 
   For ii In {0: #ListOfSubdomains()-1}
     idom = ListOfSubdomains(ii);
+    DefineGroup[ GammaPoint~{idom} ];
     TrOmegaGammaD~{idom} = ElementsOf[ Omega~{idom}, OnOneSideOf GammaD~{idom} ];
-    If (!DELTA_SOURCE)
-      GammaPoint~{idom} = Region[{}];
-    EndIf
     For iSide In {0:1}
+      DefineGroup [ Pml~{idom}~{iSide}, PmlD0~{idom}~{iSide}, PmlInf~{idom}~{iSide} ];
       BndSigmaD~{idom}~{iSide} = Region[BndSigma~{idom}~{iSide},
                                         Not {GammaN~{idom}, GammaInf~{idom}}];
       BndSigmaN~{idom}~{iSide} = Region[BndSigma~{idom}~{iSide},
                                         Not {GammaD~{idom}, GammaInf~{idom}}];
       BndSigmaInf~{idom}~{iSide} = Region[BndSigma~{idom}~{iSide},
                                           Not {GammaN~{idom}, GammaD~{idom}}];
-      DefineGroup [ Pml~{idom}~{iSide}, PmlD0~{idom}~{iSide}, PmlInf~{idom}~{iSide} ];
       If (gPml == 1.)
 	TrPmlSigma~{idom}~{iSide} = ElementsOf[ Pml~{idom}~{iSide},
 						OnOneSideOf Sigma~{idom}~{iSide} ];
