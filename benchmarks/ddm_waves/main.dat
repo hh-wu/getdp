@@ -50,6 +50,6 @@ If (FLAG_PBM==PBM_MARMOUSI)
   LinkPro = "marmousi.pro" ;
 EndIf
 If (FLAG_PBM==PBM_COBRA)
-  LinkGeo = "cobra_JINA1998.geo" ;
-  LinkPro = "cobra_JINA1998.pro" ;
+  LinkGeo = "cobra.geo" ;
+  LinkPro = "cobra.pro" ;
 EndIf
