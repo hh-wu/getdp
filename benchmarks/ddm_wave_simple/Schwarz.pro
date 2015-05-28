@@ -9,13 +9,13 @@ Resolution {
       For ii In {0: #ListOfSubdomains()-1}
         idom = ListOfSubdomains(ii);
         { Name Vol~{idom}; NameOfFormulation Vol~{idom};
-          Type Complex; NameOfMesh Sprintf(StrCat[MSH_NAME, "%g.msh"],idom); }
+          Type Complex; NameOfMesh Sprintf[StrCat[MSH_NAME, "%g.msh"], idom]; }
         For iSide In {0:1}
           { Name Sur~{idom}~{iSide}; NameOfFormulation Sur~{idom}~{iSide};
-            Type Complex; NameOfMesh Sprintf(StrCat[MSH_NAME, "%g.msh"],idom); }
+            Type Complex; NameOfMesh Sprintf[StrCat[MSH_NAME, "%g.msh"], idom]; }
           If (PRECONDITIONER)
             { Name SurPc~{idom}~{iSide}; NameOfFormulation SurPc~{idom}~{iSide};
-              Type Complex; NameOfMesh Sprintf(StrCat[MSH_NAME, "%g.msh"],idom); }
+              Type Complex; NameOfMesh Sprintf[StrCat[MSH_NAME, "%g.msh"], idom]; }
           EndIf
         EndFor
       EndFor
