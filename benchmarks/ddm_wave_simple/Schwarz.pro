@@ -4,18 +4,18 @@ DefineConstant[ PRECONDITIONER ];
 Include "SchwarzMacros.pro"; // macros for the resolution
 
 Resolution {
-  { Name DDM ;
+  { Name DDM;
     System {
       For ii In {0: #ListOfSubdomains()-1}
         idom = ListOfSubdomains(ii);
-        { Name Vol~{idom} ; NameOfFormulation Vol~{idom} ;
-          Type Complex; NameOfMesh Sprintf(StrCat[MSH_NAME, "%g.msh"],idom) ; }
+        { Name Vol~{idom}; NameOfFormulation Vol~{idom};
+          Type Complex; NameOfMesh Sprintf(StrCat[MSH_NAME, "%g.msh"],idom); }
         For iSide In {0:1}
-          { Name Sur~{idom}~{iSide} ; NameOfFormulation Sur~{idom}~{iSide} ;
-            Type Complex; NameOfMesh Sprintf(StrCat[MSH_NAME, "%g.msh"],idom) ; }
+          { Name Sur~{idom}~{iSide}; NameOfFormulation Sur~{idom}~{iSide};
+            Type Complex; NameOfMesh Sprintf(StrCat[MSH_NAME, "%g.msh"],idom); }
           If (PRECONDITIONER)
-            { Name SurPc~{idom}~{iSide} ; NameOfFormulation SurPc~{idom}~{iSide} ;
-              Type Complex; NameOfMesh Sprintf(StrCat[MSH_NAME, "%g.msh"],idom) ; }
+            { Name SurPc~{idom}~{iSide}; NameOfFormulation SurPc~{idom}~{iSide};
+              Type Complex; NameOfMesh Sprintf(StrCat[MSH_NAME, "%g.msh"],idom); }
           EndIf
         EndFor
       EndFor

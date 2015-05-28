@@ -14,15 +14,15 @@ Macro SolveVolumePDE
     // solve the volume PDE on each subdomain
     If(GenerateVolFlag~{idom})
       // the matrix is already factorized, only regenerate the RHS
-      GenerateRHSGroup[Vol~{idom},
-        Region[{Sigma~{idom}, TrOmegaGammaD~{idom}, GammaD~{idom}, GammaPoint~{idom}}] ] ;
+      GenerateRHSGroup[Vol~{idom}, Region[{Sigma~{idom}, TrOmegaGammaD~{idom},
+            GammaD~{idom}, GammaPoint~{idom}}] ];
+      SolveAgain[Vol~{idom}];
     EndIf
     If(GenerateVolFlag~{idom} == 0)
       // first time generation and factorization of the matrix
-      Generate[Vol~{idom}] ;
-      GenerateVolFlag~{idom} = 1 ;
+      Generate[Vol~{idom}]; Solve[Vol~{idom}];
+      GenerateVolFlag~{idom} = 1;
     EndIf
-    SolveAgain[Vol~{idom}] ;
   EndFor
   // go back to parallel mode
   SetCommWorld;
@@ -38,18 +38,17 @@ Macro SolveSurfacePDE
       If(NbrRegions[Sigma~{idom}~{iSide}])
         If(GenerateSurFlag~{idom}~{iSide})
           // the matrix is already factorized, only regenerate the RHS
-          GenerateRHSGroup[Sur~{idom}~{iSide},
-			   Region[{Sigma~{idom}~{iSide},
-				   TrPmlSigma~{idom}~{iSide},
-				   TrBndPmlSigma~{idom}~{iSide},
-				   BndSigmaInf~{idom}~{iSide}}]] ;
+          GenerateRHSGroup[Sur~{idom}~{iSide}, Region[{Sigma~{idom}~{iSide},
+                TrPmlSigma~{idom}~{iSide}, TrBndPmlSigma~{idom}~{iSide},
+                BndSigmaInf~{idom}~{iSide}}]];
+          SolveAgain[Sur~{idom}~{iSide}];
         EndIf
         If(GenerateSurFlag~{idom}~{iSide} == 0)
           // first time generation and factorization of the matrix
-          Generate[Sur~{idom}~{iSide}] ;
-          GenerateSurFlag~{idom}~{iSide} = 1 ;
+          Generate[Sur~{idom}~{iSide}]; Solve[Sur~{idom}~{iSide}];
+          GenerateSurFlag~{idom}~{iSide} = 1;
         EndIf
-        SolveAgain[Sur~{idom}~{iSide}] ;
+
       EndIf
     EndFor
   EndFor
@@ -62,7 +61,7 @@ Macro UpdateSurfaceFields
   For ii In {0: #ListOfSubdomains()-1}
     idom = ListOfSubdomains(ii);
     For iSide In {0:1}
-      PostOperation[g_out~{idom}~{iSide}] ;
+      PostOperation[g_out~{idom}~{iSide}];
     EndFor
   EndFor
   SetCommWorld;
@@ -74,7 +73,7 @@ Macro SaveVolumeSolutions
     // compute the volume solution
     For ii In {0: #ListOfSubdomains()-1}
       idom = ListOfSubdomains(ii);
-      PostOperation[DDM~{idom}] ;
+      PostOperation[DDM~{idom}];
     EndFor
     SetCommWorld;
   EndIf
@@ -174,7 +173,7 @@ Macro CopySurfaceFields
       // do the Generate if necessary
       If (GenerateSurPcFlag~{idom}~{iSide} == 0) // FIXME: to this separately ?
         If( NbrRegions[Sigma~{idom}~{iSide}] )
-          Generate[SurPc~{idom}~{iSide}] ;
+          Generate[SurPc~{idom}~{iSide}];
         EndIf
         GenerateSurPcFlag~{idom}~{iSide} = 1;
       EndIf
@@ -195,17 +194,17 @@ Macro SolveAndStepForward
     BroadcastFields[skipList()];
 
     // compute u on Omega_i (fast way)
-    GenerateRHSGroup[Vol~{idom_f}, Region[{Sigma~{idom_f}}]] ;
-    SolveAgain[Vol~{idom_f}] ;
+    GenerateRHSGroup[Vol~{idom_f}, Region[{Sigma~{idom_f}}]];
+    SolveAgain[Vol~{idom_f}];
 
     // compute the new g_out (fast way)
     If( NbrRegions[Sigma~{idom_f}~{1}] )
       GenerateRHSGroup[SurPc~{idom_f}~{1}, Region[{Sigma~{idom_f}~{1},
             TrPmlSigma~{idom_f}~{1}, BndSigma~{idom_f}~{1},
-            TrBndPmlSigma~{idom_f}~{1}}]] ;
-      SolveAgain[SurPc~{idom_f}~{1}] ;
+            TrBndPmlSigma~{idom_f}~{1}}]];
+      SolveAgain[SurPc~{idom_f}~{1}];
     EndIf
-    PostOperation[g_out~{idom_f}~{1}] ;
+    PostOperation[g_out~{idom_f}~{1}];
 
     skipList = {(2*(idom_f + N_DOM)-1)%(2*N_DOM), (2*(idom_f + N_DOM)-2)%(2*N_DOM)}; // left
     BroadcastFields[skipList()];
@@ -230,17 +229,17 @@ Macro SolveAndStepBackward
     BroadcastFields[skipList()];
 
     // compute u on Omega_i (fast way)
-    GenerateRHSGroup[Vol~{idom_b}, Region[{Sigma~{idom_b}}]] ;
-    SolveAgain[Vol~{idom_b}] ;
+    GenerateRHSGroup[Vol~{idom_b}, Region[{Sigma~{idom_b}}]];
+    SolveAgain[Vol~{idom_b}];
 
     // compute the new g_out (fast way)
     If( NbrRegions[Sigma~{idom_b}~{0}] )
       GenerateRHSGroup[SurPc~{idom_b}~{0}, Region[{Sigma~{idom_b}~{0},
             TrPmlSigma~{idom_b}~{0}, BndSigma~{idom_b}~{0},
-            TrBndPmlSigma~{idom_b}~{0}}]] ;
-      SolveAgain[SurPc~{idom_b}~{0}] ;
+            TrBndPmlSigma~{idom_b}~{0}}]];
+      SolveAgain[SurPc~{idom_b}~{0}];
     EndIf
-    PostOperation[g_out~{idom_b}~{0}] ;
+    PostOperation[g_out~{idom_b}~{0}];
 
     skipList = {2*idom_b, (2*(idom_b + N_DOM)+1)%(2*N_DOM)}; // right
     BroadcastFields[skipList()];
@@ -270,16 +269,16 @@ Macro InitSweep
       Evaluate[$ArtificialSourceSGS~{0} = 0];
       Evaluate[$ArtificialSourceSGS~{1} = 0];
       // compute u on Omega_i (fast way)
-      GenerateRHSGroup[Vol~{idom}, Region[{Sigma~{idom}}]] ;
-      SolveAgain[Vol~{idom}] ;
+      GenerateRHSGroup[Vol~{idom}, Region[{Sigma~{idom}}]];
+      SolveAgain[Vol~{idom}];
       // compute the new g_out (fast way), on both sides
       For iSide In{0:1}
         If( NbrRegions[Sigma~{idom}~{iSide}] )
           GenerateRHSGroup[SurPc~{idom}~{iSide}, Region[{Sigma~{idom}~{iSide},
-                TrPmlSigma~{idom}~{iSide}}]] ;
-          SolveAgain[SurPc~{idom}~{iSide}] ;
+                TrPmlSigma~{idom}~{iSide}}]];
+          SolveAgain[SurPc~{idom}~{iSide}];
         EndIf
-        PostOperation[g_out~{idom}~{iSide}] ;
+        PostOperation[g_out~{idom}~{iSide}];
       EndFor
     EndIf
     BroadcastFields[];
