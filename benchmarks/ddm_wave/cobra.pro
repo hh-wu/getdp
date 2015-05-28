@@ -1,4 +1,4 @@
-Include "cobra_JINA1998_data.geo";
+Include "cobra_data.geo";
 
 eps0 = 8.854e-12;
 mu0 = 4*Pi*1e-7;

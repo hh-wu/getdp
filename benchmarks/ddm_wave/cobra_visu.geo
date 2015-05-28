@@ -1,4 +1,4 @@
-Include "cobra_JINA1998_data.geo";
+Include "cobra_data.geo";
 
 N_DOM = 0;
 For i In {0:PARTS-1}

@@ -2,7 +2,7 @@
 // following the JINA1998 specifications.
 // Contributed to by Alexandre Vion - 2013-2015
 
-Include "cobra_JINA1998_data.geo";
+Include "cobra_data.geo";
 
 Solver.AutoMesh = 0;
 

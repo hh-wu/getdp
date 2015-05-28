@@ -1,4 +1,4 @@
-Include "freeSpacePml_data.geo";
+Include "freespace_data.geo";
 
 DefineConstant[ // allows to set these from outside
   // transmission boundary condition

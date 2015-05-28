@@ -1,4 +1,4 @@
-Include "freeSpacePml_data.geo";
+Include "freespace_data.geo";
 
 If(ANALYSIS == 0)
   name = "u";
