@@ -16,12 +16,17 @@ For idom In {start:end}
 
   x = idom * dx;
 
+  //NewModel;
   Delete Model;
 
   Point(1) = {idom*dx*Cos(theta), idom*dx*Sin(theta), 0., LC} ;
   myExtrudedLine[] = Extrude {-DY*Sin(theta), DY*Cos(theta), 0} {Point{1} ; } ;
-  myExtrudedSurface[] = Extrude {0, 0, DZ} {Line{myExtrudedLine[1]} ; } ;
-  myExtrudedVolume[] = Extrude {dx*Cos(theta), dx*Sin(theta), 0} {Surface{myExtrudedSurface[1]} ; };
+  myExtrudedSurface[] = Extrude {0, 0, DZ} {
+    Line{myExtrudedLine[1]} ;
+  };
+  myExtrudedVolume[] = Extrude {dx*Cos(theta), dx*Sin(theta), 0} {
+    Surface{myExtrudedSurface[1]} ;
+  };
 
   Transfinite Surface{myExtrudedSurface[1]} ;
   Recombine Surface {myExtrudedSurface[1]} ;
@@ -36,8 +41,12 @@ For idom In {start:end}
   Recombine Surface {myExtrudedVolume[0]} ;
   Transfinite Volume{myExtrudedVolume[1]} ;
 
-  pmlLeft[] = Extrude {-dBb*Cos(theta), -dBb*Sin(theta), 0} {Surface{myExtrudedSurface[1]} ; Layers{ (dBb/LC) } ; Recombine ; };
-  pmlRight[] = Extrude {dBb*Cos(theta), dBb*Sin(theta), 0} {Surface{myExtrudedVolume[0]} ; Layers{ (dBb/LC) } ; Recombine ; };
+  pmlLeft[] = Extrude {-dBb*Cos(theta), -dBb*Sin(theta), 0} {
+    Surface{myExtrudedSurface[1]} ; Layers{ (dBb/LC) } ; Recombine ;
+  };
+  pmlRight[] = Extrude {dBb*Cos(theta), dBb*Sin(theta), 0} {
+    Surface{myExtrudedVolume[0]} ; Layers{ (dBb/LC) } ; Recombine ;
+  };
 
   pmlLeftSides[] = {} ;
   For i In {2:5}
@@ -62,7 +71,6 @@ For idom In {start:end}
   Physical Surface(((idom+1)*1000+4)) = pmlRight[0] ; // right face
   Physical Surface(((idom+1)*1000+302)) = pmlRightSides[] ; // lateral shell
   Physical Volume(((idom+1)*1000+300)) = pmlRight[1] ;
-
 
   If(StrCmp(OnelabAction, "check")) // only mesh if not in onelab check mode
     Printf("Meshing waveguide subdomain %g...", idom);

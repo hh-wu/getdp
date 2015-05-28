@@ -13,6 +13,7 @@ EndIf
 
 For idom In {start:end}
 
+  //NewModel;
   Delete Model;
 
   Point(1) = {idom*dDom, 0, 0., LC};
