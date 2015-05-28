@@ -154,7 +154,7 @@ Macro PrintInfo
     Printf["Using delta function as point source"];
   EndIf
   If(!SAVE_SOLUTION)
-    Printf("Solution will NOT be saved")
+    Printf["Solution will NOT be saved"];
   EndIf
 Return
 
