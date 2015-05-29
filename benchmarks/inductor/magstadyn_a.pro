@@ -245,6 +245,8 @@ Formulation {
 
 //-----------------------------------------------------------------------------------------------
 
+Flag_NL_BFGS = 0; // test
+
 Resolution {
 
   { Name Analysis ;
@@ -269,7 +271,14 @@ Resolution {
         EndIf
         If(Flag_NL)
           IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
-            GenerateJac[A] ; SolveJac[A] ; }
+            Test[ $Iteration == 1 || !Flag_NL_BFGS ]{
+              GenerateJac[A] ;
+            }
+            Else{
+              Error["implement GenerateJacBFGS"]; //GenerateJacBFGS[A] ;
+            }
+            SolveJac[A] ;
+          }
         EndIf
         SaveSolution[A] ;
 
