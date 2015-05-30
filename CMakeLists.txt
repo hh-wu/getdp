@@ -1004,7 +1004,7 @@ file(GLOB_RECURSE TESTS
      benchmarks/waveguides/waveguide3D_rectangle.pro)
 if(HAVE_PETSC)
   file(GLOB_RECURSE TESTS_PETSC
-       benchmarks/ddm_wave_simple/main.pro)
+       benchmarks/ddm_waves/main.pro)
 endif(HAVE_PETSC)
 find_program(TEST_BIN ../../gmsh/bin/gmsh)
 if(TEST_BIN)
