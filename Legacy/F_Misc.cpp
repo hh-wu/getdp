@@ -11,6 +11,7 @@
 #include "F.h"
 #include "Message.h"
 #include "Cal_Value.h"
+#include "OS.h"
 
 extern struct CurrentData Current ;
 
@@ -60,6 +61,25 @@ void F_QuadraturePointIndex (F_ARG)
 {
   V->Type = SCALAR ;
   V->Val[0] = Current.QuadraturePointIndex ;
+}
+
+void F_CpuTime (F_ARG)
+{
+  double s = 0.;
+  long mem = 0;
+  GetResources(&s, &mem);
+  V->Type = SCALAR ;
+  V->Val[0] = s ;
+}
+
+void F_Memory (F_ARG)
+{
+  double s = 0.;
+  long mem = 0;
+  GetResources(&s, &mem);
+  double val = mem / 1024. / 1024.;
+  V->Type = SCALAR ;
+  V->Val[0] = val ;
 }
 
 void F_VirtualWork (F_ARG)

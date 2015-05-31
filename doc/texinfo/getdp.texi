@@ -3284,7 +3284,7 @@ z-axis.
 
 Trace; @var{expression} must be a tensor.
 
-@item F_Cos_wt_p
+@item Cos_wt_p
 @code{[]@{@var{expression-cst},@var{expression-cst}@}}
 
 The first parameter represents the angular frequency and the second
@@ -3293,7 +3293,7 @@ represents the phase. If the type of the current system is @code{Real},
 type of the current system is @code{Complex}, it is identical to
 @code{Complex[Cos[w],Sin[w]]}.
 
-@item F_Sin_wt_p
+@item Sin_wt_p
 @code{[]@{@var{expression-cst},@var{expression-cst}@}}
 
 The first parameter represents the angular frequency and the second
@@ -3302,7 +3302,7 @@ represents the phase. If the type of the current system is @code{Real},
 type of the current system is @code{Complex}, it is identical to
 @code{Complex[Sin[w],-Cos[w]]}.
 
-@item F_Period
+@item Period
 @code{[@var{expression}]@{@var{expression-cst}@}}
 
 @code{Fmod[@var{expression},@var{expression-cst}]} 
@@ -3644,7 +3644,7 @@ Computes the area of the actual surface.
 
 Computes the volume of the actual physical group.
 
-@item F_CompElementNum
+@item CompElementNum
 @code{[]}
 
 Returns 0 if the current element and the current source element are
@@ -3744,8 +3744,20 @@ are treated in the same way as for @code{ScalarField}.
 Idem, but consider only complex-valued tensor fields. Optional arguments
 are treated in the same way as for @code{ScalarField}.
 
-@end ftable
+@item CpuTime
+@code{[]}
 
+Returns current CPU time, in seconds (total amount of time spent
+executing in user mode since GetDP was started). @c (This is not the
+wall clock time.)
+
+@item Memory
+@code{[]}
+
+Return the current memory usage, in megabytes (maximum resident set
+size).
+
+@end ftable
 
 @c -------------------------------------------------------------------------
 @c Constraint
@@ -5421,7 +5433,7 @@ Function @{
   Freq = 50.; Phase = 30./180.*Pi; // Constants
   TimeFct_Sin[] = Sin [ 2.*Pi*Freq * $Time + Phase ];
   TimeFct_Exp[] = Exp [ - $Time / 0.0119 ];
-  TimeFct_ExtSin[] = F_Sin_wt_p [] @{2.*Pi*Freq, Phase@};
+  TimeFct_ExtSin[] = Sin_wt_p [] @{2.*Pi*Freq, Phase@};
 @}
 @end example
 
