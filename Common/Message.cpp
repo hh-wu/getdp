@@ -828,6 +828,49 @@ void Message::AddOnelabStringChoice(std::string name, std::string kind,
   }
 }
 
+void Message::SetOnelabNumber(std::string name, double val, bool visible)
+{
+  if(_onelabClient){
+    std::vector<onelab::number> numbers;
+#if defined(HAVE_ONELAB2)
+    _onelabClient->get(numbers, name, "GetDP");
+#else
+    _onelabClient->get(numbers, name);
+#endif
+    if(numbers.empty()){
+      numbers.resize(1);
+      numbers[0].setName(name);
+    }
+    numbers[0].setValue(val);
+    numbers[0].setVisible(visible);
+#if defined(HAVE_ONELAB2)
+    _onelabClient->set(numbers[0], "GetDP");
+#else
+    _onelabClient->set(numbers[0]);
+#endif
+  }
+}
+
+double Message::GetOnelabNumber(std::string name)
+{
+  if(_onelabClient){
+    std::vector<onelab::number> numbers;
+#if defined(HAVE_ONELAB2)
+    _onelabClient->get(numbers, name, "GetDP");
+#else
+    _onelabClient->get(numbers, name);
+#endif
+    if(numbers.empty()){
+      Msg::Error("Unknown ONELAB number parameter '%s'", name.c_str());
+      return 0.;
+    }
+    else
+      return numbers[0].getValue();
+  }
+  Msg::Error("GetNumber requires a ONELAB client");
+  return 0.;
+}
+
 void Message::GetOnelabString(std::string name, char **val)
 {
   if(_onelabClient){

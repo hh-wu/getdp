@@ -173,6 +173,8 @@ void  F_ElementNum      (F_ARG) ;
 void  F_QuadraturePointIndex (F_ARG) ;
 void  F_CpuTime         (F_ARG) ;
 void  F_Memory          (F_ARG) ;
+void  F_SetNumber       (F_ARG) ;
+void  F_GetNumber       (F_ARG) ;
 void  F_VirtualWork     (F_ARG) ;
 
 void  F_Felec		(F_ARG) ;

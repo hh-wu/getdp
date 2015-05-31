@@ -82,6 +82,39 @@ void F_Memory (F_ARG)
   V->Val[0] = val ;
 }
 
+void F_SetNumber (F_ARG)
+{
+  double val = A->Val[0];
+  int type = A->Type;
+
+  for (int k = 0; k < Current.NbrHar; k++)
+    V->Val[MAX_DIM * k] = 0. ;
+  V->Type = SCALAR;
+  if(type != SCALAR){
+    Message::Error("Non scalar argument for function 'SetNumber'");
+    return;
+  }
+  if(!Fct->String){
+    Message::Error("Missing ONELAB variable name: use SetNumber[value]{\"name\"}");
+    return;
+  }
+
+  Message::SetOnelabNumber(Fct->String, val);
+  V->Val[0] = val ;
+}
+
+void F_GetNumber (F_ARG)
+{
+  for (int k = 0; k < Current.NbrHar; k++)
+    V->Val[MAX_DIM * k] = 0. ;
+  V->Type = SCALAR;
+  if(!Fct->String){
+    Message::Error("Missing ONELAB variable name: use GetNumber[]{\"name\"}");
+    return;
+  }
+  V->Val[0] = Message::GetOnelabNumber(Fct->String);
+}
+
 void F_VirtualWork (F_ARG)
 {
   MATRIX3x3 Jac ;

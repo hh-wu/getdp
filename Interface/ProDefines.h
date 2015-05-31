@@ -1001,6 +1001,8 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"QuadraturePointIndex" , (CAST)F_QuadraturePointIndex ,   0,   0 },
   {"CpuTime"           , (CAST)F_CpuTime          ,   0,   0 },
   {"Memory"            , (CAST)F_Memory           ,   0,   0 },
+  {"SetNumber"         , (CAST)F_SetNumber        ,   -1,   -1 },
+  {"GetNumber"         , (CAST)F_GetNumber        ,   -1,   -1 },
   {"VirtualWork"       , (CAST)F_VirtualWork      ,   0,   1 },
   {"Felec"	       , (CAST)F_Felec      	  ,   0,   1 },
 
