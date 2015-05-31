@@ -4438,11 +4438,11 @@ OperationTerm :
       Operation_P->Case.EigenSolve.FilterExpressionIndex = -1;
     }
 
-  | tEvaluate '[' Expression ']' tEND
+  | tEvaluate '[' RecursiveListOfExpression ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_EVALUATE;
-      Operation_P->Case.Evaluate.ExpressionIndex = $3;
+      Operation_P->Case.Evaluate.Expressions = List_Copy(ListOfInt_L);
     }
 
   | tSelectCorrection '[' String__Index ',' FExpr ']' tEND
@@ -4690,7 +4690,7 @@ OperationTerm :
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_PRINT;
-      Operation_P->Case.Print.Expression = NULL;
+      Operation_P->Case.Print.Expressions = NULL;
       Operation_P->DefineSystemIndex = -1;
     }
    '[' PrintOperation PrintOperationOptions ']' tEND
@@ -4699,7 +4699,7 @@ OperationTerm :
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_WRITE;
-      Operation_P->Case.Print.Expression = NULL;
+      Operation_P->Case.Print.Expressions = NULL;
       Operation_P->DefineSystemIndex = -1;
     }
    '[' PrintOperation PrintOperationOptions ']' tEND
@@ -5139,7 +5139,7 @@ OperationTerm :
 PrintOperation :
     ListOfExpression
     {
-      Operation_P->Case.Print.Expression = List_Copy(ListOfInt_L);
+      Operation_P->Case.Print.Expressions = List_Copy(ListOfInt_L);
     }
 
   | String__Index
@@ -5159,6 +5159,7 @@ PrintOperationOptions :
       Operation_P->Case.Print.FileOut = NULL;
       Operation_P->Case.Print.TimeStep = NULL;
       Operation_P->Case.Print.DofNumber = NULL;
+      Operation_P->Case.Print.FormatString = NULL;
     }
   | PrintOperationOptions PrintOperationOption
  ;
@@ -5177,6 +5178,11 @@ PrintOperationOption :
 	List_Add(Operation_P->Case.Print.TimeStep, &j);
       }
       List_Delete($3);
+    }
+
+  | ',' tFormat CharExpr
+    {
+      Operation_P->Case.Print.FormatString = $3;
     }
 
   | ',' ListOfFExpr

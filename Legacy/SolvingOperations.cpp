@@ -2162,7 +2162,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
           LinAlg_AssembleVector(&Solution_S.x) ;
 
 	  if (!DofData2_P->Solutions)
-	    DofData2_P->Solutions = List_Create( 20, 20, sizeof(struct Solution)) ;
+	    DofData2_P->Solutions = List_Create(20, 20, sizeof(struct Solution)) ;
 
 	  List_Add(DofData2_P->Solutions, &Solution_S) ;
 	  DofData2_P->CurrentSolution = (struct Solution*)
@@ -2175,8 +2175,11 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  ------------------------------------------  */
 
     case OPERATION_EVALUATE :
-       Get_ValueOfExpressionByIndex(Operation_P->Case.Evaluate.ExpressionIndex,
-				   NULL, 0., 0., 0., &Value) ;
+      for(int i = 0 ; i < List_Nbr(Operation_P->Case.Evaluate.Expressions); i++){
+        int j;
+        List_Read(Operation_P->Case.Evaluate.Expressions, i, &j) ;
+        Get_ValueOfExpressionByIndex(j, NULL, 0., 0., 0., &Value) ;
+      }
       break ;
 
       /*  -->  S e t T i m e                          */
@@ -2606,12 +2609,15 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	Message::Info("Print") ;
       }
 
-      if(Operation_P->Case.Print.Expression){
-	for(i=0 ; i<List_Nbr(Operation_P->Case.Print.Expression) ; i++){
-	  j = *(int*)List_Pointer(Operation_P->Case.Print.Expression, i) ;
-	  Get_ValueOfExpressionByIndex(j, NULL, 0., 0., 0., &Value) ;
-	  Print_Value(&Value, fp) ;
-	}
+      if(Operation_P->Case.Print.Expressions){
+        if(Operation_P->Case.Print.FormatString)
+          Message::Error("Print with format not implemented yet");
+        for(i = 0 ; i < List_Nbr(Operation_P->Case.Print.Expressions); i++){
+          int j;
+          List_Read(Operation_P->Case.Print.Expressions, i, &j) ;
+          Get_ValueOfExpressionByIndex(j, NULL, 0., 0., 0., &Value) ;
+          Print_Value(&Value, fp) ;
+        }
       }
       else if (Operation_P->Case.Print.DofNumber){
 	DofData_P = DofData_P0 + Operation_P->DefineSystemIndex ;

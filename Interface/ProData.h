@@ -950,7 +950,7 @@ struct Operation {
       int     FilterExpressionIndex;
     } EigenSolve;
     struct {
-      int     ExpressionIndex;
+      List_T  *Expressions;
     } Evaluate;
     struct {
       int     Iteration ;
@@ -1025,8 +1025,8 @@ struct Operation {
       List_T  *Operation;
     } While;
     struct {
-      List_T  *DofNumber, *TimeStep, *Expression;
-      char    *FileOut;
+      List_T  *DofNumber, *TimeStep, *Expressions;
+      char    *FileOut, *FormatString;
     } Print;
     struct {
       int     GroupIndex, ExpressionIndex;

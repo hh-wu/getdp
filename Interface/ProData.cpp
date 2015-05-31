@@ -1357,8 +1357,7 @@ void Print_Operation(struct Resolution *RE, List_T *Operation_L)
 
     case OPERATION_EVALUATE :
       for (i=0; i<2*NbrBlk; i++) Message::Check(" ");
-      Message::Check("      Evaluate [ Exp[%s] ];\n",
-                     Get_ExpressionName(OPE->Case.Evaluate.ExpressionIndex));
+      Message::Check("      Evaluate [ ... ];\n");
       break;
 
     case OPERATION_SETTIME :

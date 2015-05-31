@@ -4410,9 +4410,9 @@ constraint, to the system of equations defined with a
 @code{InitFromResolution} constraint type (@pxref{Types for Constraint}).
 
 @item Evaluate
-@code{[@var{expression}]}
+@code{[@var{expression} <, @var{expression}>]}
 
-Evaluate @var{expression}.
+Evaluate the @var{expression}(s).
 
 @item SetTime
 @code{[@var{expression}]}
