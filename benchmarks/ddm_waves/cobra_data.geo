@@ -13,7 +13,7 @@ DefineConstant[ // allows to set these from outside
   // directory for output files
   DIR = "out/",
   nLayersTr = 1,
-  nLayersPml = 4,
+  nLayersPml = 3,
   OPEN_ENDED = 1 // radiation condition ; otherwise wall condition
 ];
 
@@ -29,12 +29,18 @@ n = 1 ; // 'horizontal'
 
 PARTS = 5; // use 5 for the full model
 
-DefineConstant[ F = {1, Min 1, Max 16, Step 1, Name "Input/04N_Dom Mult"} ];
+DefineConstant[ F = {1, Min 1, Max 32, Step 1, Name "Input/04N_Dom Mult"} ];
 
 // number of domains in the different parts of the domain, starting from inner
 // straight part:
-// nDomList = {2,2,1,2,1};
-nDomList = F*{3,5,2,5,1};
+If(F==1)
+  // 8 subdomains
+  nDomList = {2,2,1,2,1};
+EndIf
+If(F>1)
+  // 16, 32, ... subdomains
+  nDomList = F*{3,5,2,5,1};
+EndIf
 
 // compute the number of domains as the sum of the domains in each part of the
 // waveguide:

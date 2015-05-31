@@ -27,8 +27,12 @@ Function {
   I[] = Complex[0, 1];
 
   c0[] = 1;
-  c[] = 1.25*(1.-.4*Exp[-32*(Y[]-DY/2)^2]) ; // gaussian
-  //c[] = 1; // constant
+  If(GAUSSIAN==1)
+    c[] = 1.25*(1.-.4*Exp[-32*(Y[]-DY/2)^2]) ; // gaussian
+  EndIf
+  If(GAUSSIAN==0)
+    c[] = 1; // constant
+  EndIf
   freq[] = c0[] / LAMBDA;
   om[] = 2 * Pi * freq[];
   k[] = om[] / c[] ;
