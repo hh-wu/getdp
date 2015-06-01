@@ -129,9 +129,36 @@ PostProcessing {
   // --------------------------------------------------------------------------
   // Adjoint sensitivity Lie (variable domain)
   // --------------------------------------------------------------------------
+//  { Name AvmVarDomSens_lie0 ;NameOfFormulation AdjointFormulation;
+//    PostQuantity {    
+//        { Name dlambda_v ; 
+//          Value { Term { [ d_lambda[]*velocityField[] ] ; In Domain ; Jacobian Vol ; }}}
+//        
+//        { Name du_v ; 
+//          Value { Term { [ d_u[]*velocityField[] ] ; In Domain ; Jacobian Vol ; }}}
+//    }
+//  }
+
   { Name AvmVarDomSens_lie ;NameOfFormulation AdjointFormulation;
     PostQuantity {    
+//        { Name dlambda_v ; 
+//          Value { Term { [ d_lambda[]*velocityField[] ] ; In Domain ; Jacobian Vol ; }}}
+//        
+//        { Name du_v ; 
+//          Value { Term { [ d_u[]*velocityField[] ] ; In Domain ; Jacobian Vol ; }}}
+
+        { Name eps_lambda; Value { Term { [ {D1 lambda} ] ; In Domain ; Jacobian Vol ;}}}
+        
+        { Name eps_u; Value { Term { [ {D1 u} ] ; In Domain ; Jacobian Vol ;}}}
+
         { Name v ; Value { Term { [ velocityField[] ] ; In Domain ; Jacobian Vol ; }}}
+
+        { Name rho_sensF ; 
+          Value { Term { [ dF_adjoint_lie[{D1 u}] ] ; In Domain ; Jacobian Vol ; }}}
+
+        { Name rho_sensK ; 
+          Value { Term { [ d_bilin_lie[{D1 u},{D1 lambda}]]  ; 
+                   In Domain ; Jacobian Vol ; }}}
 
         { Name sensF ; 
           Value { 
@@ -287,10 +314,26 @@ PostOperation {
   // --------------------------------------------------------------------
   // Sensitivity (adjoint variable) with Lie approach 
   // --------------------------------------------------------------------
+  { Name Get_AvmVarDomSens_Lie0; NameOfPostProcessing AvmVarDomSens_lie;
+    Operation{
+//       Print[ dlambda_v, OnElementsOf Domain,
+//	      File StrCat[ResDir, StrCat["dlambda_v",ExtGmsh]], LastTimeStepOnly] ;
+//       Print[ du_v, OnElementsOf Domain,
+//	      File StrCat[ResDir, StrCat["du_v",ExtGmsh]], LastTimeStepOnly] ;
+       Print[ eps_lambda, OnElementsOf Domain,
+	      File StrCat[ResDir, StrCat["eps_lambda",ExtGmsh]], LastTimeStepOnly] ;
+       Print[ eps_u, OnElementsOf Domain,
+	      File StrCat[ResDir, StrCat["eps_u",ExtGmsh]], LastTimeStepOnly] ;
+    }
+  } 
   { Name Get_AvmVarDomSens_Lie; NameOfPostProcessing AvmVarDomSens_lie;
     Operation{
        Print[ v, OnElementsOf Domain,
 	      File StrCat[ResDir, StrCat["velocity",ExtGmsh]], LastTimeStepOnly] ;
+       Print[ rho_sensF, OnElementsOf Domain,
+	      File StrCat[ResDir, StrCat["rho_sensF",ExtGmsh]], LastTimeStepOnly] ;
+       Print[ rho_sensK, OnElementsOf Domain,
+	      File StrCat[ResDir, StrCat["rho_sensK",ExtGmsh]], LastTimeStepOnly] ;
        Print[ sensF[DomainFunc], OnGlobal, Format Table, 
               File StrCat[ResDir, StrCat["d_func", ExtGnuplot]], 
 	      SendToServer StrCat[po_min,"d_func"], LastTimeStepOnly];

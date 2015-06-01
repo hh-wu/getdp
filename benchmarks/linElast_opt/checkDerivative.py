@@ -17,8 +17,8 @@ x = np.array([0.5]) #np.array([op.getScalarParamVal('Input/OptParam/x_0')])
 execMode = 2 #1:debug, 2:sensitivity, 3:plot
 lc = [1.0] #np.logspace(0.0, -0.12, num=5)
 step = [1.0e-08] #np.logspace(-16, -3, num=14)
-sensMeth = ['GlobalFiniteDifference','AdjointSemi','AdjointLie']#,'DirectLie']
-#sensMeth = ['AdjointSemi']
+#sensMeth = ['GlobalFiniteDifference','AdjointSemi','AdjointLie']#,'DirectLie']
+sensMeth = ['AdjointLie']
 pathSave = 'resSens'
 # ************************************************************************
 # **** Define parameters                                              ****

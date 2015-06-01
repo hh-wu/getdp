@@ -34,31 +34,31 @@ parameters = {
     'elementOfDomainTopOptTAG':[1000],
 
     # Performance function
-    #'performance':[Compliance, Volume],
-    #'fjMax': [0.0,Volume],
-    #'sign':np.array([1.0,1.0]),
+    'performance':[Compliance, Volume],
+    'fjMax': [0.0,Volume],
+    'sign':np.array([1.0,1.0]),
 
 #    'performance':[MinEigFreqSquare, Volume],
 #    'fjMax':[0.0, Volume],
 #    'sign':np.array([-1.0, 1.0]),
 
-    'performance':aa +[Volume],
-    'fjMax':aa+[Volume],
-    'sign':np.array([-1]*nbEig+[1]),
+#    'performance':aa +[Volume],
+#    'fjMax':aa+[Volume],
+#    'sign':np.array([-1]*nbEig+[1]),
 
     # Sensitivity analysis
     'flag_computeGrad':1,
-    #'SensitivityMethod':['AnalyticSelfAdjAvmFixedDom','Analytic'],
+    'SensitivityMethod':['AnalyticAvmFixedDom','Analytic'],
     #'SensitivityMethod':['AnalyticEig','Analytic'],
-    'SensitivityMethod':['AnalyticEig']*nbEig+['Analytic'],
+    #'SensitivityMethod':['AnalyticEig']*nbEig+['Analytic'],
 
     'perfSensHandle':[volumeSens], #for 'analytic' methods
-    #'FilterSensitivity':[0,0],
+    'FilterSensitivity':[1,0],
     'rmin':0.005,
     
     # Optimizer set-up
-    'optimizer':'mma2007',#'mma2007','conlinFile','gcmma','openopt'
-    'solverName':'MMA-SVANBERG07',
+    'optimizer':'conlinFile',#'mma2007','conlinFile','gcmma','openopt'
+    'solverName':'CONLIN',
     'xtol':1.0e-02,
     'iterMax':1000}
 
@@ -74,20 +74,20 @@ op = Optimization(parameters,xmin,xmax,x)
 # ************************************************************************
 # ***** Optimization routine                                         *****
 # ************************************************************************
-## Preprocess
-#op.preprocessing(op.parameters)
-#
-## Call optimizer
-#op.solveOpt(op.x,op.xmax,op.xmin,op.fjMax,1,op.parameters)
-#
-## Close optimizer
-#op.close()
+# Preprocess
+op.preprocessing(op.parameters)
+
+# Call optimizer
+op.solveOpt(op.x,op.xmax,op.xmin,op.fjMax,1,op.parameters)
+
+# Close optimizer
+op.close()
 
 # ************************************************************************
 # ***** Optimization Post-Process                                    *****
 # ************************************************************************
 # Optimization history
-op.postprocessing('resOpt/histOptClassAttr.txt',85)
+#op.postprocessing('resOpt/histOptClassAttr.txt',85)
 
 
 

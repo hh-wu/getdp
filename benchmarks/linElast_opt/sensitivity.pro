@@ -14,6 +14,8 @@ VELOCITY_FILT = 2;
 
 // postpro views tag
 VELOCITY_FIELD = 7;
+EPS_U_FIELD = 8;
+EPS_LAMBDA_FIELD = 9;
 DES_VAR_FIELD = 21;
 SENS_FIELD = 22;
 TORQUE_VAR_FIELD = 20;//user provided
@@ -76,7 +78,14 @@ Function {
   prod_x_dC[] = ScalarField[XYZ[],0,1]{SENS_FIELD};
   
   // lie derivative
-  velocityField[] = VectorField[XYZ[],0,1]{VELOCITY_FIELD}; 
+  velocityField[] = VectorField[XYZ[],0,1]{VELOCITY_FIELD};
+//  d_u[] = Transpose[GradVectorField[XYZ[],0,1]{999}];
+//  d_lambda[] = Transpose[GradVectorField[XYZ[],0,1]{9999}];
+//  epsilon_du_v[] = 0.5 * ( Transpose[GradVectorField[XYZ[],0,1]{1999}#1] + #1 );
+//  epsilon_dlambda_v[] = 0.5* ( Transpose[GradVectorField[XYZ[],0,1]{19999}#2] + #2);
+
+  d_epsLambda[] = Transpose[GradVectorField[XYZ[],0,1]{EPS_LAMBDA_FIELD}];  
+  d_epsU[] = Transpose[GradVectorField[XYZ[],0,1]{EPS_U_FIELD}];  
   dV[] = Transpose[GradVectorField[XYZ[],0,1]{VELOCITY_FIELD}]; 
   ETA[] = dV[]#1 + Transpose [ #1 ] - TTrace [ #1 ] * TensorDiag[1,1,1];//(1,2)-form
   LV1[] = dV[] * $1 ;
@@ -91,8 +100,20 @@ Function {
   EndIf
   dF_direct_lie[] = dFdb[$1#1]*$2 + dF_adjoint_lie[#1];
 
-  // derivative of bilinear form
-  d_bilin_lie[] = - $1*((C[]*ETA[])*$2)  ; 
+  // derivative of bilinear form ($1:{D1 u}, $2:{D1 lambda})
+//  d_bilin_lie[] = - $1*((C[]*ETA[])*$2)  ; 
+
+  d_bilin_lie[] = - $1 * ( ( C[] * ETA[] ) * $2 ) 
+                  + velocityField[] * ( ( d_epsLambda[] * C[] ) * $1 )  
+                  + $2 * ( ( C[] * Transpose[d_epsU[]] ) * velocityField[] );
+
+//  d_bilin_lie[] = - (C[] * $1)* ( d_lambda[] * velocityField[] ) 
+//                  - (C[] * ( d_u[] * velocityField[] ))* $2  
+//                  + TTrace [ dV[] ]*(C[] * $1) * $2;
+
+//  d_bilin_lie[] = - (C[] * Transpose[epsilon_dlambda_v[]]) * $1 
+//                  - (C[] * epsilon_du_v[])* $2  
+//                  + TTrace [ dV[] ] * (C[] * $1) * $2;
 }
 
 FunctionSpace {
