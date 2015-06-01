@@ -861,13 +861,13 @@ double Message::GetOnelabNumber(std::string name)
     _onelabClient->get(numbers, name);
 #endif
     if(numbers.empty()){
-      Msg::Error("Unknown ONELAB number parameter '%s'", name.c_str());
+      Message::Error("Unknown ONELAB number parameter '%s'", name.c_str());
       return 0.;
     }
     else
       return numbers[0].getValue();
   }
-  Msg::Error("GetNumber requires a ONELAB client");
+  Message::Error("GetNumber requires a ONELAB client");
   return 0.;
 }
 
