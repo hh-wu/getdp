@@ -29,7 +29,7 @@ n = 1 ; // 'horizontal'
 
 PARTS = 5; // use 5 for the full model
 
-DefineConstant[ F = {1, Min 1, Max 32, Step 1, Name "Input/04N_Dom Mult"} ];
+DefineConstant[ F = {2, Min 1, Max 32, Step 1, Name "Input/04N_Dom Mult"} ];
 
 // number of domains in the different parts of the domain, starting from inner
 // straight part:
@@ -39,7 +39,7 @@ If(F==1)
 EndIf
 If(F>1)
   // 16, 32, ... subdomains
-  nDomList = F*{3,5,2,5,1};
+  nDomList = (F-1)*{3,5,2,5,1};
 EndIf
 
 // compute the number of domains as the sum of the domains in each part of the
