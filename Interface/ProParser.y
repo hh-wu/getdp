@@ -7328,9 +7328,17 @@ CharParameterOption :
       Free($3);
     }
 
-  | ',' tName CharExprNoVar
+  | ',' tName CharExprNoVar // Name is already a reserved GetDP keyword
     {
       std::string key("Name");
+      std::string val($3);
+      CharOptions_S[key].push_back(val);
+      Free($3);
+    }
+
+  | ',' tMacro CharExprNoVar // Macro is already a reserved GetDP keyword
+    {
+      std::string key("Macro");
       std::string val($3);
       CharOptions_S[key].push_back(val);
       Free($3);

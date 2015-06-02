@@ -1,6 +1,7 @@
 2.6.0: new ability to use Macros in .pro files; new run-time variables (act as
-registers, but with user-defined names like $myVariable); new Append*ToFileName
-PostOperation options; fixes in MSH reader.
+registers, but with user-defined names like $myVariable) and run-time ONELAB
+Get/Set functions; new Append*ToFileName PostOperation options; fixes in MSH
+reader.
 
 2.5.1: enhanced Python[] and DefineFunction[].
 

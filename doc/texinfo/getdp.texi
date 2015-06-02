@@ -3757,6 +3757,17 @@ wall clock time.)
 Return the current memory usage, in megabytes (maximum resident set
 size).
 
+@item SetNumber
+@code{[@var{expression}]{@var{char-expression}}}
+
+Sets the @var{char-expression} ONELAB variable at run-time to
+@var{expression}.
+
+@item GetNumber
+@code{[]{@var{char-expression}}}
+
+Gets the value of the @var{char-expression} ONELAB variable at run-time.
+
 @end ftable
 
 @c -------------------------------------------------------------------------
