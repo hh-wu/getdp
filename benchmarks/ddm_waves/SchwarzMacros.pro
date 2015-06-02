@@ -11,7 +11,7 @@ DefineConstant[
 
 // parameters for the DDM iterative solver
 DefineConstant[
-  SOLVER = {"gmres", Name "Iterative Solver/0Solver", Choices {"gmres", "dgmres", "fgmres", "gmsh_pcleft", "bcgs"} },//"gmres",
+  SOLVER = {"gmres", Name "Iterative Solver/0Solver", Choices {"gmres", "fgmres", "bcgs"} },//"gmres",
   TOLlog10 = {-4, Max -1, Min -16, Step -1, Name "Iterative Solver/1Tolerance (log10)"},
   TOL = 10^(TOLlog10),
   MAXIT = {1000, Min 1, Step 1, Max 100000, Name "Iterative Solver/2Max. iterations", AutoCheck 1},
