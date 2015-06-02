@@ -5,11 +5,6 @@ DefineConstant[ // allows to set these from outside
   TC_TYPE = {2, Name "Input/01Transmission condition",
     Choices {0="Order 0", 1="Order 2", 2="Pade (OSRC)"}},
   NP_OSRC = 4,
-  // parameters for the DDM iterative solver
-  SOLVER = "gmres", // bcgs, gmsh_pcleft, ...
-  TOL = 1e-6,
-  MAXIT = 1000,
-  RESTART = MAXIT,
   POLARISATION = {1, Name "Input/02Polarisation",
     Choices {0="TM", 1="TE"}, Visible (ANALYSIS == 1) },
   PRECONDITIONER = {0, Name "Input/01Sweeping preconditioner", ReadOnly 1,

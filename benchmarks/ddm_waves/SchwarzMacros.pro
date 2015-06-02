@@ -1,13 +1,26 @@
 DefineConstant[
-  PRECONDITIONER, DELTA_SOURCE, EXTERNAL_VELOCITY_FIELD, SAVE_SOLUTION = 1,
-  COMBINE = {Str["For i In {0:N_DOM-1}",
+  PRECONDITIONER, DELTA_SOURCE, EXTERNAL_VELOCITY_FIELD, SAVE_SOLUTION = 1//,
+/*  COMBINE = {Str["For i In {0:N_DOM-1}",
       "For j In {0:PostProcessing.NbViews-1}",
       "View[j].Name=StrReplace(View[j].Name, Sprintf('_%g', i), '');",
       "EndFor",
       "EndFor",
       "Combine ElementsByViewName;"],
-    Name "Macros/Combine results", AutoCheck 0, Macro "GmshParseString"}
+    Name "Macros/Combine results", AutoCheck 0, Macro "GmshParseString"}*/
 ];
+
+// parameters for the DDM iterative solver
+DefineConstant[
+  SOLVER = {"gmres", Name "Iterative Solver/0Solver", Choices {"gmres", "dgmres", "fgmres", "gmsh_pcleft", "bcgs"} },//"gmres",
+  TOLlog10 = {-4, Max -1, Min -16, Step -1, Name "Iterative Solver/1Tolerance (log10)"},
+  TOL = 10^(TOLlog10),
+  MAXIT = {1000, Min 1, Step 1, Max 100000, Name "Iterative Solver/2Max. iterations", AutoCheck 1},
+  restart_maxit = {0, Choices {0,1}, Name "Iterative Solver/30Set Restart=Max. iterations"}
+  RESTART = {restart_maxit?MAXIT:MAXIT, Min 0, Max 100000, Step 1, Name "Iterative Solver/3Restart", ReadOnly restart_maxit}
+];
+If(RESTART > MAXIT || RESTART == 0)
+	RESTART = MAXIT;
+EndIf
 
 For ii In {0: #ListOfSubdomains()-1}
   idom = ListOfSubdomains(ii);
