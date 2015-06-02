@@ -1,5 +1,12 @@
 DefineConstant[
-  PRECONDITIONER, DELTA_SOURCE, EXTERNAL_VELOCITY_FIELD, SAVE_SOLUTION = 1
+  PRECONDITIONER, DELTA_SOURCE, EXTERNAL_VELOCITY_FIELD, SAVE_SOLUTION = 1,
+  COMBINE = {Str["For i In {0:N_DOM-1}",
+      "For j In {0:PostProcessing.NbViews-1}",
+      "View[j].Name=StrReplace(View[j].Name, Sprintf('_%g', i), '');",
+      "EndFor",
+      "EndFor",
+      "Combine ElementsByViewName;"],
+    Name "Macros/Combine results", AutoCheck 0, Macro "GmshParseString"}
 ];
 
 For ii In {0: #ListOfSubdomains()-1}
