@@ -1,25 +1,30 @@
 DefineConstant[
-  PRECONDITIONER, DELTA_SOURCE, EXTERNAL_VELOCITY_FIELD, SAVE_SOLUTION = 1//,
-/*  COMBINE = {Str["For i In {0:N_DOM-1}",
+  PRECONDITIONER = 0,
+  DELTA_SOURCE = 0,
+  EXTERNAL_VELOCITY_FIELD = 0,
+  SAVE_SOLUTION = 1,
+  COMBINE = {Str["For i In {0:N_DOM-1}",
       "For j In {0:PostProcessing.NbViews-1}",
       "View[j].Name=StrReplace(View[j].Name, Sprintf('_%g', i), '');",
       "EndFor",
       "EndFor",
       "Combine ElementsByViewName;"],
-    Name "Macros/Combine results", AutoCheck 0, Macro "GmshParseString"}*/
+    Name "Macros/Combine results", AutoCheck 0, Macro "GmshParseString"},
+  SOLVER = {"gmres", Choices {"gmres", "fgmres", "bcgs"},
+    Name "Iterative Solver/0Solver"},
+  TOLlog10 = {-4, Max -1, Min -16, Step -1,
+    Name "Iterative Solver/1Tolerance (log10)"},
+  TOL = 10^(TOLlog10),
+  MAXIT = {1000, Min 1, Step 1, Max 100000,
+    Name "Iterative Solver/2Max. iterations"},
+  RESTART_MAXIT = {1, Choices {0,1},
+    Name "Iterative Solver/31Force Restart = Max. iterations"}
+  RESTART = {RESTART_MAXIT ? MAXIT : MAXIT, Min 0, Max 100000, Step 1,
+    Name "Iterative Solver/30Restart", ReadOnly RESTART_MAXIT }
 ];
 
-// parameters for the DDM iterative solver
-DefineConstant[
-  SOLVER = {"gmres", Name "Iterative Solver/0Solver", Choices {"gmres", "fgmres", "bcgs"} },//"gmres",
-  TOLlog10 = {-4, Max -1, Min -16, Step -1, Name "Iterative Solver/1Tolerance (log10)"},
-  TOL = 10^(TOLlog10),
-  MAXIT = {1000, Min 1, Step 1, Max 100000, Name "Iterative Solver/2Max. iterations", AutoCheck 1},
-  restart_maxit = {0, Choices {0,1}, Name "Iterative Solver/30Set Restart=Max. iterations"}
-  RESTART = {restart_maxit?MAXIT:MAXIT, Min 0, Max 100000, Step 1, Name "Iterative Solver/3Restart", ReadOnly restart_maxit}
-];
 If(RESTART > MAXIT || RESTART == 0)
-	RESTART = MAXIT;
+  RESTART = MAXIT;
 EndIf
 
 For ii In {0: #ListOfSubdomains()-1}
