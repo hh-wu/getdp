@@ -28,7 +28,7 @@ DefineConstant[
   Flag_topopt = {1, Name "Input/OptParam/optType",Label "Optimization Type",
                     Choices {0="ShapeOpt",1="TopOpt"}, Visible 1},
 
-  Flag_meshRecombine={0, Name "Geo/RecombineSurface",Label "Mesh recombine surface", 
+  Flag_meshRecombine={1, Name "Geo/RecombineSurface",Label "Mesh recombine surface", 
                        Choices {0,1},Visible 1},
 
   md = { 1., Name "Geo/Mesh Characteristic Length Factor",Label "Mesh density"},

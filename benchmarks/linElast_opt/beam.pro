@@ -381,7 +381,7 @@ Formulation {
     }
     Equation {
       // u formulation
-      Galerkin { [ C[]*Dof{D1 u}, {D1 u}] ; //D1 --> grad ??
+      Galerkin { [ C[]*Dof{D1 u}, {D1 u}] ; 
                  In Domain_Disp; Jacobian Vol ; Integration I1 ; }
 
       // densite de force imposee

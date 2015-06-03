@@ -12,6 +12,8 @@ PostProcessing {
 	Value { Term { [ designVar[] ] ; In Domain ; Jacobian Vol ; } } 
       }
 
+      { Name du; Value { Term { [ {d u} ] ; In Domain ; Jacobian Vol ;}}}
+
       { Name Young; Value { Term { [ E[] ] ; In Domain ; Jacobian Vol ; } } }
 
       { Name rho_mec; Value { Term { [ rho_mec[] ] ; In Domain ; Jacobian Vol ; } } }
@@ -249,6 +251,9 @@ PostOperation {
 
      Print[ u, OnElementsOf Domain,
  	    File StrCat[ResDir, StrCat["u",ExtGmsh]], LastTimeStepOnly] ;
+
+     Print[ du, OnElementsOf Domain,
+	    File StrCat[ResDir, StrCat["du",ExtGmsh]], LastTimeStepOnly] ;
 
      Print[ Young, OnElementsOf Domain,
  	    File StrCat[ResDir, StrCat["Young",ExtGmsh]], LastTimeStepOnly] ;
