@@ -17,6 +17,7 @@ DefineConstant[
       "Plugin(HarmonicToTime).TimeSign = 1;",
       "Plugin(HarmonicToTime).Run;",
       "EndIf",
+      "EndFor",
       "EndFor"],
     Name "Macros/Convert visible views to time-domain", AutoCheck 0, Macro "GmshParseString"},
   SOLVER = {"gmres", Choices {"gmres", "fgmres", "bcgs"},

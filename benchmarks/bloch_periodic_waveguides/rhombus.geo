@@ -68,8 +68,6 @@ Physical Line (124) = {10,11,12} ;
 Physical Line(9998) = {1:12};
 Physical Line(9999) = {13:16};
 
-// per timestep range
-View.RangeType = 3;
 // show all merged views
 Solver.AutoShowViews = 1;
 // don't show last step
@@ -82,3 +80,15 @@ PostProcessing.GraphPointCommand =
    Sprintf('-name res_%g -setnumber ic %g -setnumber selectedEigenvalue %.16g',
      PostProcessing.GraphPointX, PostProcessing.GraphPointX, PostProcessing.GraphPointY)));
 Draw;";
+
+// macro to convert "h" view from harmonic to time-domain
+DefineConstant[
+  H2T = {Str["For j In {0:PostProcessing.NbViews-1}",
+      "If(!StrCmp(View[j].Name, 'h'))",
+      "Plugin(HarmonicToTime).View = j;",
+      "Plugin(HarmonicToTime).TimeSign = -1;",
+      "Plugin(HarmonicToTime).Run;",
+      "EndIf",
+      "EndFor"],
+    Name "}Macros/Convert h-field view to time-domain", AutoCheck 0, Macro "GmshParseString"}
+];
