@@ -84,7 +84,7 @@ Draw;";
 // macro to convert "h" view from harmonic to time-domain
 DefineConstant[
   H2T = {Str["For j In {0:PostProcessing.NbViews-1}",
-      "If(!StrCmp(View[j].Name, 'h'))",
+      "If(!StrCmp(View[j].Name, 'h') || !StrCmp(View[j].Name, 'h_Combine'))",
       "Plugin(HarmonicToTime).View = j;",
       "Plugin(HarmonicToTime).TimeSign = -1;",
       "Plugin(HarmonicToTime).Run;",
