@@ -222,7 +222,7 @@ Formulation {
 
         If (TC_TYPE == 3) // PML
           For iSide In {0:1}
-            Galerkin { [D[] * Dof{d u~{idom}}, {d u~{idom}}];
+            Galerkin { [ D[] * Dof{d u~{idom}}, {d u~{idom}} ];
               In Pml~{idom}~{iSide}; Jacobian JVol; Integration I1;}
             Galerkin { [ - kPml~{idom}~{iSide}[]^2 * E[] * Dof{u~{idom}}, {u~{idom}}];
               In Pml~{idom}~{iSide}; Jacobian JVol; Integration I1;}
@@ -282,7 +282,7 @@ Formulation {
                   {u~{idom}} ) , {g_out~{idom}~{iSide}} ];
               In Sigma~{idom}~{iSide}; Jacobian JSur; Integration I1; }
             For j In{1:NP_OSRC}
-              Galerkin { [  2 * ( I[] * k[] * OSRC_Aj[]{j,NP_OSRC,theta_branch} /
+              Galerkin { [ 2 * ( I[] * k[] * OSRC_Aj[]{j,NP_OSRC,theta_branch} /
                     OSRC_Bj[]{j,NP_OSRC,theta_branch} *
                     ({u~{idom}} - {phi~{j}~{idom}~{iSide}})) , {g_out~{idom}~{iSide}} ];
                 In Sigma~{idom}~{iSide}; Jacobian JSur; Integration I1; }
