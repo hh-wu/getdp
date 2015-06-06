@@ -160,7 +160,7 @@ void Operation_IterativeLoopN(Resolution  *Resolution_P,
 {
   int       NbrMaxIteration, RelaxationFactorIndex;
   int       Num_Iteration, NbrPostOps, SavePostOpDataIndex, NbrSolutions;
-  double    Save_Iteration, MaxErrorRatio;
+  double    Save_Iteration, MaxErrorRatio = 0.;
   List_T    *ILsystems_L, *LEPostOp_L, *xPrevious_L;
   List_T    *LEPostOpNames_L, *PostOpSolutionPrevious_L;
   List_T    *SavePostOpData_L;

@@ -708,7 +708,7 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
             std::vector<int> data;
             if(numData > 0){
               data.resize(numData);
-              if(fread(&data[0], sizeof(int), numData, File_GEO) != numData) return;
+              if((int)fread(&data[0], sizeof(int), numData, File_GEO) != numData) return;
               if(swap) swapBytes((char*)&data[0], sizeof(int), numData);
             }
             Geo_Element.Type = Geo_GetElementType(FORMAT_GMSH, Type) ;
