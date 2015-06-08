@@ -12,9 +12,7 @@ Optimized Schwarz domain decomposition methods for time-harmonic wave problems
 Quick start with GetDDM
 -----------------------
 
-The `ddm_waves' archive contains several complete examples for both Helmholtz
-and Maxwell problems. Here are the simple steps to run these examples
-interactively in serial mode
+Follow the following steps to run GetDDM interactively, in serial mode:
 
 1. Download and uncompress the pre-compiled GetDDM code bundle:
    * Windows: http://onelab.info/files/gmsh-getdp-Windows64.zip
@@ -24,7 +22,7 @@ interactively in serial mode
 3. Open the `main.pro' file with the File>Open menu.
 4. Click on Run.
 
-Different test-cases can be chosen by selecting the appropriate Problem in the
+Different test-cases can be chosen by selecting the appropriate `Problem' in the
 menu to the left of the graphics window. Top-level parameters (type of
 transmission condition, number of subdomains, frequency, etc.) can be changed
 interactively in the menu as well.
@@ -33,7 +31,7 @@ This interactive use of GetDDM is useful for testing, demonstration and
 visualization purposes. For actual, parallel computations, you will need to
 recompile the GetDDM source code for your particular computer architecture and
 MPI implementation. Detailed installation instructions are available on the
-website of the GetDDM project, at the address: http: //onelab.info/wiki/GetDDM.
+website of the GetDDM project, at the address: http://onelab.info/wiki/GetDDM.
 
 Once compiled, GetDDM is then called from the command line, using (depending on
 your MPI setup), commands similar to the following (here for the waveguide3d
@@ -46,11 +44,11 @@ test-case, on 100 CPUs):
 Additional information
 ----------------------
 
-See http://onelab.info/wiki/DDM_for_Waves
+See http://onelab.info/wiki/GetDDM and http://onelab.info/wiki/DDM_for_Waves.
 
 
-Description of the files in the `ddm_waves' archive
----------------------------------------------------
+Description of the files in the archive
+---------------------------------------
 
 The archive contains the following model files:
 
@@ -65,15 +63,15 @@ The archive contains the following model files:
 
 Each model description is split into 3 files: a *.geo file with the Gmsh
 geometry (e.g. `cobra.geo'), a *.pro file with the GetDP problem definition
-(e.g. `cobra.pro'), and a *_data.geo file with parameters for both Gmsh and
-GetDP (e.g. `cobra_data.geo'). The `main.{pro,geo}' model file allows to
+(e.g. `cobra.pro'), and a *_data.geo file with parameters common to both Gmsh
+and GetDP (e.g. `cobra_data.geo'). The `main.{pro,geo}' model file allows to
 interactively select one of the above models.
 
 The model-specific files include the following common problem description files:
 
   Decomposition.pro (subdomain and communication layout)
   Schwarz.pro (iterative Schwarz solver)
-  SchwarzMacros.pro (macros used in Schwarz.pro)
+  SchwarzMacros.pro (macros used in `Schwarz.pro')
   Helmholtz.pro (Helmholtz formulation)
   Maxwell.pro (Maxwell formulation)
 
