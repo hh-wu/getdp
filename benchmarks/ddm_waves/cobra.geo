@@ -113,7 +113,7 @@ EndIf
 If (PARTS > 4)
   n += nDomList[3]; // straight part on the right
   For i In {n:n+nDomList[4]-1}
-    nLayersDom = Ceil(D3/nDomList[4]/(lc*(1.+1e-6))); // perturbation of LC to help rounding
+    nLayersDom = Ceil(D3/nDomList[4]/(lc*(1.+1e-6))-1); // perturbation of LC to help rounding
     If (nLayersDom < 5)
       Printf("WARNING: less than 5 layers (%g) in domain %g", nLayersDom, (i));
     EndIf
