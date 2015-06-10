@@ -1,4 +1,4 @@
-Models developed by [[User:Ruth V. Sabariego|R. Sabariego]], F. Baneira, J. Gyselinck and [[User:Geuzaine|C. Geuzaine]]. This work was funded in part by the Walloon Region (WBGreen No 1217703 [[FEDO]], WIST3 No 1017086 [[ONELAB]]) and by the Belgian Science Policy (IAP P7/02). Copyright (c) 2012-2015 ULg-ULB.
+Models developed by [[User:Ruth V. Sabariego|R. Sabariego]], J. Gyselinck and [[User:Geuzaine|C. Geuzaine]]. This work was funded in part by the Walloon Region (WBGreen No 1217703 [[FEDO]], WIST3 No 1017086 [[ONELAB]]) and by the Belgian Science Policy (IAP P7/02). Copyright (c) 2012-2015 ULg-ULB.
 <!--
 
 Include full license here
