@@ -39,7 +39,7 @@ theta = 0; // theta is the cumulative angle
 
 For i In {0:nDomList[0]-1} // straight part on the left
   nLayersDom = Ceil(D1/nDomList[0]/(lc*(1.+1e-6)));
-  If (nLayersDom < 5)
+  If ( (MPI_Size == 1 || MPI_Rank == i) && nLayersDom < 5 )
     Printf("WARNING: less than 5 layers (%g) in domain %g", nLayersDom, (i));
   EndIf
   ext[] = Extrude{D1/nDomList[0],0,0}{ Surface{ls[i]}; Layers{ nLayersDom }; Recombine; };
@@ -56,7 +56,7 @@ If (PARTS > 1)
   n = nDomList[0];
   For i In {n:n+nDomList[1]-1} // first bend
     nLayersDom = Ceil(R*alpha/nDomList[1]/lc); // perturbation of LC to help rounding
-    If (nLayersDom < 5)
+    If ( (MPI_Size == 1 || MPI_Rank == i) && nLayersDom < 5 )
       Printf("WARNING: less than 5 layers (%g) in domain %g", nLayersDom, (i));
     EndIf
     ext[] = Extrude{{0,0,1}, {shiftX+D1,R+d1+shiftY,0}, alpha/nDomList[1]}{ Surface{ls[i]}; Layers{ nLayersDom }; Recombine; };
@@ -76,7 +76,7 @@ If (PARTS > 2)
     n += nDomList[1];
     For i In {n:n+nDomList[2]-1} // straight part in the middle
       nLayersDom = Ceil(D2/nDomList[2]/(lc*(1.+1e-6))); // perturbation of LC to help rounding
-      If (nLayersDom < 5)
+    If ( (MPI_Size == 1 || MPI_Rank == i) && nLayersDom < 5 )
 	Printf("WARNING: less than 5 layers (%g) in domain %g", nLayersDom, (i));
       EndIf
       ext[] = Extrude{D2/nDomList[2]*Cos(alpha), D2/nDomList[2]*Sin(alpha), 0}{ Surface{ls[i]}; Layers{ nLayersDom }; Recombine; };
@@ -95,7 +95,7 @@ If (PARTS > 3)
   n += nDomList[2];
   For i In {n:n+nDomList[3]-1} // second bend
     nLayersDom = Ceil(R*alpha/nDomList[3]/lc);
-    If (nLayersDom < 5)
+    If ( (MPI_Size == 1 || MPI_Rank == i) && nLayersDom < 5 )
       Printf("WARNING: less than 5 layers (%g) in domain %g", nLayersDom, (i));
     EndIf
     ext[] = Extrude{{0,0,1}, {shiftX+D1+(R+d1)*Sin[alpha]+D2*Cos(alpha)+R*Sin[alpha], shiftY+(R+d1)*(1-Cos[alpha])+D2*Sin[alpha]+R*(1-Cos[alpha])-R, 0}, -alpha/nDomList[3]}{ Surface{ls[i]}; Layers{ nLayersDom }; Recombine; };
@@ -114,7 +114,7 @@ If (PARTS > 4)
   n += nDomList[3]; // straight part on the right
   For i In {n:n+nDomList[4]-1}
     nLayersDom = Ceil(D3/nDomList[4]/(lc*(1.+1e-6))); // perturbation of LC to help rounding
-    If (nLayersDom < 5)
+    If ( (MPI_Size == 1 || MPI_Rank == i) && nLayersDom < 5 )
       Printf("WARNING: less than 5 layers (%g) in domain %g", nLayersDom, (i));
     EndIf
     ext[] = Extrude{D3/nDomList[4],0,0}{ Surface{ls[i]}; Layers{ nLayersDom }; Recombine; };

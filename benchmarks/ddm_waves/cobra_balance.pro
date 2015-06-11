@@ -8,19 +8,19 @@ p = {D1/Ltot,
      R*alpha/Ltot,
      D3/Ltot};
 
-nDomList = {}; // list of subdomains per part
+nDomList = {}; // list of number of subdomains in each of the 5 parts
 l = {}; // list of lengths of the subdomains in each part
 nd = 0; // counter
 For i In{0:4}
-  nDomList += Round[p(i)*N_DOM];
-  If (nDomList(i) == 0)
+  nDomList += Round[p(i)*N_DOM]; // initial guess
+  If (nDomList(i) == 0) // prevent part with 0 subdomain
     nDomList(i) = 1.;
   EndIf
   nd += nDomList(i);
   l += p(i);
 EndFor
 
-// remove or add domains (simplistic approach)
+// remove or add domains as needed (simplistic approach)
 nDiff = nd - N_DOM;
 If (nDiff > 0)
   If (nDiff == 1)
