@@ -74,12 +74,14 @@ Solver.AutoShowViews = 1;
 Solver.AutoShowLastStep = 0;
 
 // what to do when we double-click on a graph point
-PostProcessing.GraphPointCommand =
-"OnelabRun('GetDP_NoAutoRun', StrCat(Solver.Executable0, ' ', StrPrefix(General.FileName),
-   ' -pos plot_boundary plot_h -bin -v 3 ',
-   Sprintf('-name res_%g -setnumber ic %g -setnumber selectedEigenvalue %.16g',
-     PostProcessing.GraphPointX, PostProcessing.GraphPointX, PostProcessing.GraphPointY)));
-Draw;";
+PostProcessing.DoubleClickedGraphPointCommand = "OnelabRun('GetDP_NoAutoRun',
+  StrCat(Solver.Executable0, ' ', StrPrefix(General.FileName),
+         ' -pos plot_boundary plot_h -bin -v 3 ',
+         Sprintf('-name res_%g -setnumber ic %g -setnumber selectedEigenvalue %.16g',
+                 PostProcessing.DoubleClickedGraphPointX,
+                 PostProcessing.DoubleClickedGraphPointX,
+                 PostProcessing.DoubleClickedGraphPointY)));
+  Draw;";
 
 // macro to convert "h" view from harmonic to time-domain
 DefineConstant[
