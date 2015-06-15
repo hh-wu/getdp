@@ -20,32 +20,27 @@ For idom In {start:end}
   Delete Model;
 
   Point(1) = {idom*dx*Cos(theta), idom*dx*Sin(theta), 0., LC} ;
-  myExtrudedLine[] = Extrude {-DY*Sin(theta), DY*Cos(theta), 0} {Point{1} ; } ;
+  myExtrudedLine[] = Extrude {-DY*Sin(theta), DY*Cos(theta), 0} {Point{1} ; Layers{ DY/LC };} ;
   myExtrudedSurface[] = Extrude {0, 0, DZ} {
-    Line{myExtrudedLine[1]} ;
+    Line{myExtrudedLine[1]} ; Layers{ DZ/LC }; Recombine;
   };
+  If ( (MPI_Size == 1 || MPI_Rank == idom) && nLayersDom < 5 )
+    Printf("WARNING: less than 5 layers (%g) in domain %g", nLayersDom, (idom));
+  EndIf
   myExtrudedVolume[] = Extrude {dx*Cos(theta), dx*Sin(theta), 0} {
-    Surface{myExtrudedSurface[1]} ;
+    Surface{myExtrudedSurface[1]} ; Layers{ nLayersDom }; Recombine;
   };
-
-  Transfinite Surface{myExtrudedSurface[1]} ;
-  Recombine Surface {myExtrudedSurface[1]} ;
 
   lateralSides[] = {} ;
   For i In {2:5}
     lateralSides += myExtrudedVolume[i] ;
-    Transfinite Surface{myExtrudedVolume[i]} ;
-    Recombine Surface {myExtrudedVolume[i]} ;
   EndFor
-  Transfinite Surface{myExtrudedVolume[0]} ;
-  Recombine Surface {myExtrudedVolume[0]} ;
-  Transfinite Volume{myExtrudedVolume[1]} ;
-
+  
   pmlLeft[] = Extrude {-dBb*Cos(theta), -dBb*Sin(theta), 0} {
-    Surface{myExtrudedSurface[1]} ; Layers{ (dBb/LC) } ; Recombine ;
+    Surface{myExtrudedSurface[1]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ;
   };
   pmlRight[] = Extrude {dBb*Cos(theta), dBb*Sin(theta), 0} {
-    Surface{myExtrudedVolume[0]} ; Layers{ (dBb/LC) } ; Recombine ;
+    Surface{myExtrudedVolume[0]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ;
   };
 
   pmlLeftSides[] = {} ;
