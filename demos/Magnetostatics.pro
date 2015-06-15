@@ -218,7 +218,7 @@ Resolution {
         //IterativeLoopN[ Nb_max_iter, relaxation_factor,
         //                System { {A, reltol, abstol, Solution MeanL2Norm} } ]{
         IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
-        GenerateJac[A] ; SolveJac[A] ; Sleep[2];
+        GenerateJac[A] ; SolveJac[A] ;
         }
       EndIf
       SaveSolution[A] ;
