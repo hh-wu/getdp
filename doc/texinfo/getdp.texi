@@ -3744,6 +3744,11 @@ are treated in the same way as for @code{ScalarField}.
 Idem, but consider only complex-valued tensor fields. Optional arguments
 are treated in the same way as for @code{ScalarField}.
 
+@item Sleep
+@code{[@var{expression}]}
+
+Sleeps for @var{expression} seconds.
+
 @item CpuTime
 @code{[]}
 

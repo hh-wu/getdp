@@ -63,6 +63,11 @@ void F_QuadraturePointIndex (F_ARG)
   V->Val[0] = Current.QuadraturePointIndex ;
 }
 
+void F_Sleep (F_ARG)
+{
+  SleepSeconds(A->Val[0]);
+}
+
 void F_CpuTime (F_ARG)
 {
   double s = 0.;

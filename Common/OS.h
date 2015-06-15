@@ -13,6 +13,7 @@ FILE *FOpen(const char *f, const char *mode);
 void GetResources(double *s, long *mem);
 double GetTotalRam();
 void IncreaseStackSize();
+void SleepSeconds(double s);
 int BlockingSystemCall(const char *command);
 int RemoveFile(const std::string &fileName);
 int RenameFile(const std::string &oldName, const std::string &newName);

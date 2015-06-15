@@ -291,6 +291,15 @@ void IncreaseStackSize()
 #endif
 }
 
+void SleepSeconds(double s)
+{
+#if defined(WIN32) && !defined(__CYGWIN__)
+  Sleep((long)(1.e3 * s));
+#else
+  usleep((long)(1.e6 * s));
+#endif
+}
+
 int BlockingSystemCall(const char *command)
 {
 #if defined(WIN32)
