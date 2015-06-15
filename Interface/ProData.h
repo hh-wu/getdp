@@ -923,6 +923,9 @@ struct Operation {
     } SetTime;
     struct {
       int     ExpressionIndex;
+    } Sleep;
+    struct {
+      int     ExpressionIndex;
     } Update;
     struct {
       int     GroupIndex, Type;
@@ -1222,6 +1225,7 @@ struct IterativeLoopSystem {
 #define OPERATION_WHILE                    86
 #define OPERATION_SETTIMESTEP              87
 #define OPERATION_ERROR                    88
+#define OPERATION_SLEEP                    89
 
 /* ChangeOfState.Type */
 #define CHANGEOFSTATE_NOCHANGE              0

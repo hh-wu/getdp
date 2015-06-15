@@ -2945,6 +2945,13 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Flag_Break = 1;
       break ;
 
+    case OPERATION_SLEEP :
+      Get_ValueOfExpressionByIndex(Operation_P->Case.Sleep.ExpressionIndex,
+                                   NULL, 0., 0., 0., &Value) ;
+      Message::Info("Sleeping for %g seconds", Value.Val[0]);
+      SleepSeconds(Value.Val[0]);
+      break ;
+
       /*  -->  P a r a l l e l   C o m p u t i n g	  */
       /*  ------------------------------------------  */
 

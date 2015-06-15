@@ -331,6 +331,7 @@ Sign                         return tSign;
 Sin                          return tSin;
 Sinh                         return tSinh;
 Skin                         return tSkin;
+Sleep                        return tSleep;
 Smoothing                    return tSmoothing;
 SolidAngle                   return tSolidAngle;
 SolveAgainWithOther          return tSolveAgainWithOther;

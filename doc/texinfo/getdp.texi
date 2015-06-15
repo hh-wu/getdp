@@ -3744,11 +3744,6 @@ are treated in the same way as for @code{ScalarField}.
 Idem, but consider only complex-valued tensor fields. Optional arguments
 are treated in the same way as for @code{ScalarField}.
 
-@item Sleep
-@code{[@var{expression}]}
-
-Sleeps for @var{expression} seconds.
-
 @item CpuTime
 @code{[]}
 
@@ -4479,6 +4474,28 @@ While @var{expression} is true (nonzero), perform the operations in
 @item Break
 
 Aborts an iterative loop, a time loop or a While loop.
+
+@item Sleep
+@code{[@var{expression}] 
+
+Sleeps for @var{expression} seconds;
+
+@item SetCommSelf
+
+Changes MPI communicator to self.
+
+@item SetCommWorld
+
+Changes MPI communicator to world.
+
+@item Barrier
+
+Changes MPI communicator to world.
+
+@item BroadcastFields
+@code{[ < @var{expression-list} > ] 
+
+Broadcast all fields over MPI (except those listed in the list).
 
 @item Print
 @code{[ @{ @var{expression-list} @}, < File @var{expression-char} > ]}

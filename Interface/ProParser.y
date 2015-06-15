@@ -258,7 +258,7 @@ struct doubleXstring{
 %token      tIterativeLoop tIterativeLoopN tIterativeLinearSolver
 %token      tNbrMaxIteration tRelaxationFactor
 %token      tIterativeTimeReduction
-%token        tSetCommSelf tSetCommWorld tBarrier tBroadcastFields
+%token        tSetCommSelf tSetCommWorld tBarrier tBroadcastFields tSleep
 %token      tDivisionCoefficient tChangeOfState
 %token      tChangeOfCoordinates tChangeOfCoordinates2 tSystemCommand tError
 %token        tGmshRead tGmshMerge tGmshOpen tGmshWrite tGmshClearAll
@@ -4144,6 +4144,13 @@ OperationTerm :
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_SETTIMESTEP;
       Operation_P->Case.SetTime.ExpressionIndex = $3;
+    }
+
+  | tSleep '[' Expression ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_SLEEP;
+      Operation_P->Case.Sleep.ExpressionIndex = $3;
     }
 
   | tSetCommSelf tEND
