@@ -7,7 +7,7 @@ DefineConstant[ // allows to set these from outside
   WAVENUMBER = {2*Pi*15, Name "Input/0Wavenumber"},
   LAMBDA = {2*Pi/WAVENUMBER, Name "Input/1Wavelength", ReadOnly 1},
   // number of points per wavelength
-  N_DOM = {16, Name "Input/1Wavelength", ReadOnly 1},
+  N_DOM = {16, Name "Input/04Number of subdomains"},
   N_LAMBDA = {20, Name "Input/2Points per wavelength"},
   // base msh filename
   MSH_BASE_NAME = "mesh_",
