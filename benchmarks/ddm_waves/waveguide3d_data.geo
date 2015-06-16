@@ -38,7 +38,7 @@ MSH_NAME = StrCat(DIR, MSH_BASE_NAME) ;
 dx = (DX / N_DOM);
 
 // recompute the LC to ensure continuity in the PML direction
-nLayersDom = Ceil(dx/(LC*(1.+1e-6)));
+nLayersDom = Ceil[dx/(LC*(1.+1e-6))];
 LC = dx/nLayersDom;
 
 theta = Pi/12.;//0.; // angle of the structure
