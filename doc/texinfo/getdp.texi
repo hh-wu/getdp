@@ -1195,7 +1195,7 @@ Character expressions are defined as follows:
   StrChoice[ @var{expression}, @var{expression-char}, @var{expression-char} ] |
   Sprintf [ @var{expression-char} ] |
   Sprintf[ @var{expression-char}, @var{expression-cst-list} ] |
-  Date | CurrentDirectory | CurrentDir
+  Date | CurrentDirectory | CurrentDir | OnelabAction
 @end example
 
 @noindent @code{StrCat} and @code{Str} permit to concatenate 
@@ -1205,7 +1205,8 @@ string except the last).  @code{Sprintf} is equivalent to the
 string that can contain floating point formatting characters: @code{%e},
 @code{%g}, etc.). @code{Date} permits to access the current
 date. @code{CurrentDirectory} and @code{CurrentDir} return the directory
-of the @code{.pro} file.
+of the @code{.pro} file.  @code{OnelabAction} returns the current ONELAB
+action (e.g. @code{check} or @code{compute}).
 
 @c -------------------------------------------------------------------------
 @c Operators

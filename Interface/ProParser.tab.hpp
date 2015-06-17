@@ -357,23 +357,24 @@ extern int getdp_yydebug;
      tColor = 566,
      tStr = 567,
      tDate = 568,
-     tFixRelativePath = 569,
-     tNewCoordinates = 570,
-     tAppendToExistingFile = 571,
-     tAppendStringToFileName = 572,
-     tDEF = 573,
-     tOR = 574,
-     tAND = 575,
-     tAPPROXEQUAL = 576,
-     tNOTEQUAL = 577,
-     tEQUAL = 578,
-     tGREATERGREATER = 579,
-     tLESSLESS = 580,
-     tGREATEROREQUAL = 581,
-     tLESSOREQUAL = 582,
-     tCROSSPRODUCT = 583,
-     UNARYPREC = 584,
-     tSHOW = 585
+     tOnelabAction = 569,
+     tFixRelativePath = 570,
+     tNewCoordinates = 571,
+     tAppendToExistingFile = 572,
+     tAppendStringToFileName = 573,
+     tDEF = 574,
+     tOR = 575,
+     tAND = 576,
+     tAPPROXEQUAL = 577,
+     tNOTEQUAL = 578,
+     tEQUAL = 579,
+     tGREATERGREATER = 580,
+     tLESSLESS = 581,
+     tGREATEROREQUAL = 582,
+     tLESSOREQUAL = 583,
+     tCROSSPRODUCT = 584,
+     UNARYPREC = 585,
+     tSHOW = 586
    };
 #endif
 
@@ -392,7 +393,7 @@ typedef union YYSTYPE
 
 
 /* Line 2053 of yacc.c  */
-#line 396 "ProParser.tab.hpp"
+#line 397 "ProParser.tab.hpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

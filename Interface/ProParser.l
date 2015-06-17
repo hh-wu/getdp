@@ -278,6 +278,7 @@ NumberOfPoints               return tNumberOfPoints;
 OnBox                        return tOnBox;
 OnCut                        return tOnSection;
 OnElementsOf                 return tOnElementsOf;
+OnelabAction                 return tOnelabAction;
 OnGlobal                     return tOnGlobal;
 OnGrid                       return tOnGrid;
 OnLine                       return tOnLine;

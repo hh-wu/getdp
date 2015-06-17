@@ -296,7 +296,7 @@ struct doubleXstring{
 %token        tLastTimeStepOnly tAppendTimeStepToFileName tTimeValue tTimeImagValue
 %token        tAppendExpressionToFileName tAppendExpressionFormat
 %token        tOverrideTimeStepValue tNoMesh tSendToServer tColor tStr
-%token        tDate tFixRelativePath
+%token        tDate tOnelabAction tFixRelativePath
 %token        tNewCoordinates tAppendToExistingFile tAppendStringToFileName
 
 /* ------------------------------------------------------------------ */
@@ -8160,6 +8160,13 @@ CharExprNoVar :
       $$ = (char *)Malloc((strlen(ctime(&date_info))+1)*sizeof(char));
       strcpy($$, ctime(&date_info));
       $$[strlen($$)-1] = 0;
+    }
+
+  | tOnelabAction
+    {
+      std::string action = Message::GetOnelabAction();
+      $$ = (char *)Malloc(action.size() + 1);
+      strcpy($$, action.c_str());
     }
 
   | tCurrentDirectory
