@@ -262,7 +262,7 @@ struct doubleXstring{
 %token      tDivisionCoefficient tChangeOfState
 %token      tChangeOfCoordinates tChangeOfCoordinates2 tSystemCommand tError
 %token        tGmshRead tGmshMerge tGmshOpen tGmshWrite tGmshClearAll
-%token        tDeleteFile tRenameFile tCreateDir
+%token        tDelete tDeleteFile tRenameFile tCreateDir
 %token      tGenerateOnly tGenerateOnlyJac
 %token      tSolveJac_AdaptRelax
 %token      tSaveSolutionExtendedMH tSaveSolutionMHtoTime tSaveSolutionWithEntityNum
@@ -6984,6 +6984,16 @@ Affectation :
    tDefineConstant '[' DefineConstants ']' tEND
 
   | tUndefineConstant '[' UndefineConstants ']' tEND
+
+  | tDelete String__Index tEND
+   {
+     Constant_S.Name = $2;
+     // FIXME: leak if constant is list or char; all Tree_Replace functions
+     // below also leak; correct fix is to replace all of this with a std::map
+     // like in Gmsh
+     Tree_Suppress(ConstantTable_L, &Constant_S);
+     Free($2);
+   }
 
   | String__Index tDEF ListOfFExpr tEND
     {

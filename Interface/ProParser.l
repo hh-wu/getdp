@@ -128,6 +128,7 @@ DefineString                 return tDefineString;
 DefineVariable               return tDefineConstant;
 DeformMesh                   return tDeformMesh;
 DeformeMesh                  return tDeformMesh;
+Delete                       return tDelete;
 DeleteFile                   return tDeleteFile;
 Depth                        return tDepth;
 deRham                       return tdeRham;
