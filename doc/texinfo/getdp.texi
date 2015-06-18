@@ -4492,7 +4492,7 @@ Changes MPI communicator to world.
 
 @item Barrier
 
-Changes MPI communicator to world.
+MPI barrier (blocks until all processes have reached this call).
 
 @item BroadcastFields
 @code{[ < @var{expression-list} > ]}
