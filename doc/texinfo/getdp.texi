@@ -4478,7 +4478,7 @@ While @var{expression} is true (nonzero), perform the operations in
 Aborts an iterative loop, a time loop or a While loop.
 
 @item Sleep
-@code{[@var{expression}] 
+@code{[@var{expression}]}
 
 Sleeps for @var{expression} seconds;
 
@@ -4495,7 +4495,7 @@ Changes MPI communicator to world.
 Changes MPI communicator to world.
 
 @item BroadcastFields
-@code{[ < @var{expression-list} > ] 
+@code{[ < @var{expression-list} > ]}
 
 Broadcast all fields over MPI (except those listed in the list).
 
