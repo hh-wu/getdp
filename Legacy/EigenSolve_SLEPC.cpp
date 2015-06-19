@@ -107,9 +107,15 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv, EPS eps,
   if (nconv <= 0) return;
 
   // temporary (parallel) vectors to store real and imaginary part of eigenvectors
+  // FIXME: replace this with MatCreateVecs in PETSc 3.6
   Vec xr, xi;
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 6)
   _try(MatGetVecs(DofData_P->M1.M, PETSC_NULL, &xr));
   _try(MatGetVecs(DofData_P->M1.M, PETSC_NULL, &xi));
+#else
+  _try(MatCreateVecs(DofData_P->M1.M, PETSC_NULL, &xr));
+  _try(MatCreateVecs(DofData_P->M1.M, PETSC_NULL, &xi));
+#endif
 
   // temporary sequential vectors to transfer eigenvectors to getdp
   Vec xr_seq, xi_seq;
@@ -127,7 +133,11 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv, EPS eps,
     PetscReal error;
     if(eps){
       _try(EPSGetEigenpair(eps, i, &kr, &ki, xr, xi));
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 6)
       _try(EPSComputeRelativeError(eps, i, &error));
+#else
+      _try(EPSComputeError(eps, i, EPS_ERROR_RELATIVE, &error));
+#endif
     }
     else{
 #if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 5)
@@ -135,7 +145,11 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv, EPS eps,
       _try(QEPComputeRelativeError(qep, i, &error));
 #else
       _try(PEPGetEigenpair(pep, i, &kr, &ki, xr, xi));
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 6)
       _try(PEPComputeRelativeError(pep, i, &error));
+#else
+      _try(PEPComputeError(pep, i, PEP_ERROR_RELATIVE, &error));
+#endif
 #endif
     }
 #if defined(PETSC_USE_COMPLEX)
@@ -557,7 +571,12 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
 #endif
   }
 
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 6)
   _try(PEPSetScale(pep, PEP_SCALE_SCALAR, PETSC_DECIDE, PETSC_DECIDE, PETSC_DECIDE));
+#else
+  _try(PEPSetScale(pep, PEP_SCALE_SCALAR, PETSC_DECIDE, PETSC_NULL, PETSC_NULL,
+                   PETSC_DECIDE, PETSC_DECIDE));
+#endif
 
   // override these options at runtime, petsc-style
   _try(PEPSetFromOptions(pep));
@@ -679,7 +698,12 @@ static void _polynomialEVP(struct DofData * DofData_P, int numEigenValues,
   PetscInt maxit;
   _try(PEPGetTolerances(pep, &tol, &maxit));
   Message::Info("SLEPc stopping condition: tol=%g, maxit=%d", tol, maxit);
-  _try(PEPSetScale(pep,PEP_SCALE_SCALAR,PETSC_DECIDE,PETSC_DECIDE,PETSC_DECIDE));
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 6)
+  _try(PEPSetScale(pep, PEP_SCALE_SCALAR, PETSC_DECIDE, PETSC_DECIDE, PETSC_DECIDE));
+#else
+  _try(PEPSetScale(pep, PEP_SCALE_SCALAR, PETSC_DECIDE, PETSC_NULL, PETSC_NULL,
+                   PETSC_DECIDE, PETSC_DECIDE));
+#endif
 
   // solve
   _try(PEPSolve(pep));
