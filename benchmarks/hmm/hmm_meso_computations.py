@@ -75,7 +75,7 @@ class hmm_mesoscale_computations:
             s += "Position_Z = "  + str(Position_Z)      + ";"
             fp.write(s)
             fp.close()
-            args = "../../../gmsh/bin/gmsh -v 0 meso.geo -3 -o hmm_meso_mesh/meso_" + str(key) + ".msh"
+            args = "../../../gmsh/build/gmsh -v 0 meso.geo -3 -o hmm_meso_mesh/meso_" + str(key) + ".msh"
             os.system(args)
         #fp = open("hmm_meso_geometry_exact.dat", "w")
         #s  = "Flag_Exact = "  + str(0) + "; \n" 

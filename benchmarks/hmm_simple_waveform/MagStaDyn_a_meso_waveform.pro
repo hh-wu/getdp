@@ -20,17 +20,9 @@ Group {
   If(!Flag_Dynamic)
     Surf_a_NoGauge = Region [ {GammaLeft, GammaRight, GammaUp, GammaDown} ];
   EndIf
-    If(Flag_Dynamic && ((Flag_Geometry != Half_Geometry) && (Flag_Geometry != Quarter_Geometry)))
+  If(Flag_Dynamic)
     Surf_a_NoGauge = Region [ {GammaLeft, GammaRight, GammaUp, GammaDown,
         Skin_Omega_C} ] ;
-  EndIf
-  If(Flag_Dynamic && (Flag_Geometry == Half_Geometry))
-      Surf_a_NoGauge = Region [ {GammaLeft_NB, GammaRight, GammaUp, GammaDown,
-                                 Skin_Omega_C} ] ;   
-  EndIf  
-  If(Flag_Dynamic && (Flag_Geometry == Quarter_Geometry))
-      Surf_a_NoGauge = Region [ {GammaLeft_TH, GammaRight, GammaUp, GammaDown_TH,
-                                 Skin_Omega_C} ] ;   
   EndIf
 }
 
@@ -59,6 +51,9 @@ FunctionSpace{
         Constraint {
           { NameOfCoef an; EntityType NodesOf; NameOfConstraint a_Meso; }
           { NameOfCoef an; EntityType NodesOf; NameOfConstraint a_Meso_Init; }
+          If ((Flag_WR == 0) && (Flag_WR_meso == 0))
+            { NameOfCoef an; EntityType NodesOf; NameOfConstraint a_Meso_WR; }
+          EndIf
         }
       }
       // Gradient of Electric scalar potential (2D)
@@ -105,9 +100,11 @@ FunctionSpace{
           { NameOfCoef aec; EntityType EdgesOf ; NameOfConstraint a_Meso; }
           //{ NameOfCoef ae;  EntityType EdgesOf ; NameOfConstraint a_Meso_Init; }
           { NameOfCoef aec; EntityType EdgesOf ; NameOfConstraint a_Meso_Init; }
-          // Initial solution only in Omega_C. The solution in Omega_CC is set to zero???
           { NameOfCoef ae;  EntityType EdgesOfTreeIn ; EntitySubType StartingOn ;
-            NameOfConstraint GaugeCondition_a ; }// Tree only in Omega_CC
+            NameOfConstraint GaugeCondition_a ; }
+           If ((Flag_WR == 0) && (Flag_WR_meso == 0))
+            { NameOfCoef an; EntityType NodesOf; NameOfConstraint a_Meso_WR; }
+          EndIf
         }
       }
     EndIf
@@ -116,16 +113,6 @@ FunctionSpace{
 
 Formulation {
   For iP In {1:Nbr_SubProblems}
-
-    { Name Init_PreviousTimeStep~{iP}; Type FemEquation;
-      Quantity{
-        { Name a; Type Local; NameOfSpace Hcurl_a_Meso~{iP}; }
-      }
-      Equation{
-        Galerkin { [ Dof{a} , {a} ]; In Omega; Jacobian Vol; Integration II; }
-        Galerkin { [ -a_tprevious[], {a} ]; In Omega; Jacobian Vol; Integration II; }
-      }
-    }
 
     { Name a_NR~{iP}; Type FemEquation;
       Quantity {
@@ -143,13 +130,13 @@ Formulation {
           In Omega; Jacobian Vol; Integration II; }
         Galerkin { [ nu[ {d a}+bM[]+Pert~{iP}[] ] * Pert~{iP}[] , {d a} ];
           In Omega; Jacobian Vol; Integration II; }
-        Galerkin { JacNL[ dhdb[{d a}+bM[]+Pert~{iP}[] ] * Dof{d a}, {d a} ];
+        Galerkin { JacNL[ dhdb_NL[{d a}+bM[]+Pert~{iP}[] ] * Dof{d a}, {d a} ];
           In Omega_NL; Jacobian Vol; Integration II; }
 
         If(Flag_Dynamic)
           Galerkin { DtDof[ sigma[] * Dof{a} , {a} ];
             In Omega_C; Jacobian Vol; Integration II; }
-          Galerkin { [ - sigma[] * eM[] , {a} ];
+          Galerkin { [ - 0 * sigma[] * eM[] , {a} ];
             In Omega_C; Jacobian Vol; Integration II; }
           Galerkin { [ sigma[] * ( factor * dt_bM[] /\ XYZ[] ) , {a} ];
             In Omega_C; Jacobian Vol; Integration II; }
@@ -161,7 +148,7 @@ Formulation {
               In Omega_C; Jacobian Vol; Integration II; }
             Galerkin { [ sigma[] * Dof{ur} , {ur} ];
               In Omega_C; Jacobian Vol; Integration II; }
-            Galerkin { [ - sigma[] * eM[] , {ur} ];
+            Galerkin { [ - 0 * sigma[] * eM[] , {ur} ];
               In Omega_C; Jacobian Vol; Integration II; }
             Galerkin { [ sigma[] * ( factor * dt_bM[] /\ XYZ[] ) , {ur} ];
               In Omega_C; Jacobian Vol; Integration II; }
@@ -175,28 +162,6 @@ Formulation {
 }
 
 Resolution {
-  { Name a_Init; Hidden 1;
-    System {
-      For iP In {1:Nbr_SubProblems}
-        { Name AH~{iP}; NameOfFormulation Init_PreviousTimeStep~{iP};
-          DestinationSystem Meso~{iP}; }
-      EndFor
-    }
-    Operation {
-      If(TSCURRENT > 1)
-        GmshRead[StrCat(StrCat("Input_", Dir_Meso), Sprintf("a_pert_Prob1_TS%g_Elenum%g.pos",
-              (TSCURRENT - 1), ELENUM) ) , 0];
-      EndIf
-      For iP In {1:Nbr_SubProblems}
-        Generate[AH~{iP}]; Solve[AH~{iP}]; TransferSolution[AH~{iP}];
-      EndFor
-      If(TSCURRENT > 2)
-        // file will not be used for computations or postCuts
-        DeleteFile[StrCat(StrCat("Input_", Dir_Meso), Sprintf("a_pert_Prob1_TS%g_Elenum%g.pos",
-              (TSCURRENT - 2), ELENUM) ) ];
-      EndIf
-    }
-  }
   { Name a_NR;
     System {
       For iP In {1:Nbr_SubProblems}
@@ -204,25 +169,44 @@ Resolution {
       EndFor
     }
     Operation {
-      CreateDirectory[Dir_Meso];
-      For iP In {1:Nbr_SubProblems}
-        InitSolution[Meso~{iP} ];
-        If(!Flag_Dynamic)
-          IterativeLoop[NbrMaxIter, Eps, Relax]{
-            GenerateJac[Meso~{iP}]; SolveJac[Meso~{iP}];
-          }
-        EndIf
-        If(Flag_Dynamic)
-          SetTime[ti];
+      If ((Flag_WR != 0) || (Flag_WR_meso != 0))
+        CreateDirectory[Dir_Meso];
+        //==============================================================================================
+        For iP In {1:Nbr_SubProblems}
           InitSolution[Meso~{iP} ];
-          TimeLoopTheta[ti, tf, dt, theta_value]{
-            IterativeLoop[NbrMaxIter, Eps, Relax]{
-              GenerateJac[Meso~{iP}]; SolveJac[Meso~{iP}];
-            }
-            SaveSolution[Meso~{iP}];
+        EndFor
+        TimeLoopTheta[time0, timemax, dt_Meso, theta_value]{
+          IterativeLoop[NbrMaxIter, Eps, Relax]{
+            GenerateJac[Meso_1]; SolveJac[Meso_1];
+            //Test[ ((Fmod[($Time - time0), dt_Macro]##111) < 1e-14) || ((Fmod[dt_Macro, ($Time - time0)]##222) < 1e-14)]{
+            Test[ (Fabs[Ceil[($Time - time0)/dt_Macro] - ($Time - time0)/dt_Macro] < 1e-14) ||
+                  (Fabs[($Time - time0)/dt_Macro - Floor[($Time - time0)/dt_Macro]] < 1e-14) ]{
+              For iP In {2:Nbr_SubProblems}
+                GenerateJac[Meso~{iP}]; SolveJac[Meso~{iP}];
+              EndFor
+            } 
           }
-        EndIf
-      EndFor
+          SaveSolution[Meso_1];
+          Test[ (Fabs[Ceil[($Time - time0)/dt_Macro] - ($Time - time0)/dt_Macro] < 1e-14) ||
+                (Fabs[($Time - time0)/dt_Macro - Floor[($Time - time0)/dt_Macro]] < 1e-14) ]{
+            For iP In {2:Nbr_SubProblems}
+              SaveSolution[Meso~{iP}];
+            EndFor
+          }
+        }
+      //==============================================================================================      
+      EndIf
+      If ((Flag_WR == 0) && (Flag_WR_meso == 0))
+        //============================================================================================
+        GmshRead[Sprintf("res_meso/b_pert_Prob1_Elenum%g.pos", ELENUM)] ;
+        InitSolution[Meso_1 ];
+        TimeLoopTheta[time0, timemax, dt_Macro, theta_value]{
+          PostOperation[Compute_Material_Law];
+        }
+      //==============================================================================================      
+      EndIf
+        
+        
     }
   }
 }
@@ -236,12 +220,12 @@ PostProcessing {
         { Name a_pert; Value {
             Term { [ {a} ]; In Omega; Jacobian Vol; } } }
         { Name a_proj; Value {
-            Term { [ aM[] ]; In Omega; Jacobian Vol; }
-            Term { [ ( - factor * (XYZ[]) /\ bM[] ) ]; In Omega; Jacobian Vol; } } }
+            Term { [ CompZ[ ( aM[] ) ] ]; In Omega; Jacobian Vol; }
+            Term { [ CompZ[ ( - factor * (XYZ[]) /\ bM[] ) ] ]; In Omega; Jacobian Vol; } } }
         { Name a; Value {
-            Term { [ {a} ]; In Omega; Jacobian Vol; }
-            Term { [ aM[] ]; In Omega; Jacobian Vol; }
-            Term { [ ( - factor * (XYZ[]) /\ bM[] ) ]; In Omega; Jacobian Vol; } } }
+            Term { [ CompZ[ {a}] ]; In Omega; Jacobian Vol; }
+            Term { [ CompZ[ aM[] ] ]; In Omega; Jacobian Vol; }
+            Term { [ CompZ[ ( - factor * (XYZ[]) /\ bM[] ) ] ]; In Omega; Jacobian Vol; } } }
         { Name b_pert; Value { Term { [ {d a} ]; In Omega; Jacobian Vol;  } } }
         { Name b_proj; Value { Term { [ bM[] ]; In Omega; Jacobian Vol;  } } }
         { Name b; Value {
@@ -330,10 +314,12 @@ PostProcessing {
   EndFor
 }
 
+
 PostOperation {
   For iP In {1:Nbr_SubProblems}
     { Name mean~{iP}; NameOfPostProcessing a_Meso_NR~{iP};
-      LastTimeStepOnly; Format Table;
+      Format Table;
+      //LastTimeStepOnly; Format Table;
       Operation{
         Print[ vol[Omega] , OnGlobal, Store 12,
           File StrCat[Dir_Meso, "vol.txt"] ];
@@ -349,9 +335,10 @@ PostOperation {
         EndIf
       }
     }
+    
     { Name map_field~{iP}; NameOfPostProcessing a_Meso_NR~{iP};
-      //      LastTimeStepOnly; Format Gmsh;
       Format Gmsh;
+      //LastTimeStepOnly; Format Gmsh;
       Operation {
         If(!Flag_Dynamic)
           Print[ a_pert, OnElementsOf Omega,
@@ -370,72 +357,39 @@ PostOperation {
             File StrCat[Dir_Meso, Sprintf("h_Prob%g_Elenum%g.pos"  , iP, ELENUM) ] ];
         EndIf
         If(Flag_Dynamic)
-          Print[ a_pert,  OnElementsOf Omega,
-            File StrCat[Dir_Meso, Sprintf("a_pert_Prob%g_Elenum%g.pos" , iP, ELENUM) ],
-            AppendToExistingFile (TSCURRENT > 1 ? 1 : 0), NoMesh (TSCURRENT > 1 ? 1 : 0),
-            OverrideTimeStepValue TSCURRENT ];
+        Print[ a_pert,  OnElementsOf Omega,
+            File StrCat[Dir_Meso, Sprintf("a_pert_Prob%g_Elenum%g.pos" , iP, ELENUM) ] ];
           Print[ a_proj,  OnElementsOf Omega,
-            File StrCat[Dir_Meso, Sprintf("a_proj_Prob%g_Elenum%g.pos" , iP, ELENUM) ],
-            AppendToExistingFile (TSCURRENT > 1 ? 1 : 0), NoMesh (TSCURRENT > 1 ? 1 : 0),
-            OverrideTimeStepValue TSCURRENT ];
+            File StrCat[Dir_Meso, Sprintf("a_proj_Prob%g_Elenum%g.pos" , iP, ELENUM) ] ];
           Print[ a,  OnElementsOf Omega,
-            File StrCat[Dir_Meso, Sprintf("a_Prob%g_Elenum%g.pos" , iP, ELENUM) ],
-            AppendToExistingFile (TSCURRENT > 1 ? 1 : 0), NoMesh (TSCURRENT > 1 ? 1 : 0),
-            OverrideTimeStepValue TSCURRENT ];
+            File StrCat[Dir_Meso, Sprintf("a_Prob%g_Elenum%g.pos" , iP, ELENUM) ] ];
 
           Print[ b_pert,  OnElementsOf Omega,
-            File StrCat[Dir_Meso, Sprintf("b_pert_Prob%g_Elenum%g.pos" , iP, ELENUM) ],
-            AppendToExistingFile (TSCURRENT > 1 ? 1 : 0), NoMesh (TSCURRENT > 1 ? 1 : 0),
-            OverrideTimeStepValue TSCURRENT ];
+            File StrCat[Dir_Meso, Sprintf("b_pert_Prob%g_Elenum%g.pos" , iP, ELENUM) ] ];
           Print[ b_proj,  OnElementsOf Omega,
-            File StrCat[Dir_Meso, Sprintf("b_proj_Prob%g_Elenum%g.pos" , iP, ELENUM) ],
-            AppendToExistingFile (TSCURRENT > 1 ? 1 : 0), NoMesh (TSCURRENT > 1 ? 1 : 0),
-            OverrideTimeStepValue TSCURRENT ];
+            File StrCat[Dir_Meso, Sprintf("b_proj_Prob%g_Elenum%g.pos" , iP, ELENUM) ] ];
           Print[ b,  OnElementsOf Omega,
-            File StrCat[Dir_Meso, Sprintf("b_Prob%g_Elenum%g.pos" , iP, ELENUM) ],
-            AppendToExistingFile (TSCURRENT > 1 ? 1 : 0), NoMesh (TSCURRENT > 1 ? 1 : 0),
-            OverrideTimeStepValue TSCURRENT ];
+            File StrCat[Dir_Meso, Sprintf("b_Prob%g_Elenum%g.pos" , iP, ELENUM) ] ];
 
           Print[ e_pert,  OnElementsOf Omega,
-            File StrCat[Dir_Meso, Sprintf("e_pert_Prob%g_Elenum%g.pos" , iP, ELENUM) ],
-            AppendToExistingFile (TSCURRENT > 1 ? 1 : 0), NoMesh (TSCURRENT > 1 ? 1 : 0),
-            OverrideTimeStepValue TSCURRENT ];
+            File StrCat[Dir_Meso, Sprintf("e_pert_Prob%g_Elenum%g.pos" , iP, ELENUM) ] ];
           Print[ e_proj,  OnElementsOf Omega,
-            File StrCat[Dir_Meso, Sprintf("e_proj_Prob%g_Elenum%g.pos" , iP, ELENUM) ],
-            AppendToExistingFile (TSCURRENT > 1 ? 1 : 0), NoMesh (TSCURRENT > 1 ? 1 : 0),
-            OverrideTimeStepValue TSCURRENT ];
+            File StrCat[Dir_Meso, Sprintf("e_proj_Prob%g_Elenum%g.pos" , iP, ELENUM) ] ];
           Print[ e,  OnElementsOf Omega,
-            File StrCat[Dir_Meso, Sprintf("e_Prob%g_Elenum%g.pos" , iP, ELENUM) ],
-            AppendToExistingFile (TSCURRENT > 1 ? 1 : 0), NoMesh (TSCURRENT > 1 ? 1 : 0),
-            OverrideTimeStepValue TSCURRENT ];
+            File StrCat[Dir_Meso, Sprintf("e_Prob%g_Elenum%g.pos" , iP, ELENUM) ] ];
 
           Print[ j_pert,  OnElementsOf Omega,
-            File StrCat[Dir_Meso, Sprintf("j_pert_Prob%g_Elenum%g.pos" , iP, ELENUM) ],
-            AppendToExistingFile (TSCURRENT > 1 ? 1 : 0), NoMesh (TSCURRENT > 1 ? 1 : 0),
-            OverrideTimeStepValue TSCURRENT ];
+            File StrCat[Dir_Meso, Sprintf("j_pert_Prob%g_Elenum%g.pos" , iP, ELENUM) ] ];
           Print[ j_proj,  OnElementsOf Omega,
-            File StrCat[Dir_Meso, Sprintf("j_proj_Prob%g_Elenum%g.pos" , iP, ELENUM) ],
-            AppendToExistingFile (TSCURRENT > 1 ? 1 : 0), NoMesh (TSCURRENT > 1 ? 1 : 0),
-            OverrideTimeStepValue TSCURRENT ];
+            File StrCat[Dir_Meso, Sprintf("j_proj_Prob%g_Elenum%g.pos" , iP, ELENUM) ] ];
           Print[ j,  OnElementsOf Omega,
-            File StrCat[Dir_Meso, Sprintf("j_Prob%g_Elenum%g.pos" , iP, ELENUM) ],
-            AppendToExistingFile (TSCURRENT > 1 ? 1 : 0), NoMesh (TSCURRENT > 1 ? 1 : 0),
-            OverrideTimeStepValue TSCURRENT ];
+            File StrCat[Dir_Meso, Sprintf("j_Prob%g_Elenum%g.pos" , iP, ELENUM) ] ];
 
           Print[ h,  OnElementsOf Omega,
-            File StrCat[Dir_Meso, Sprintf("h_Prob%g_Elenum%g.pos" , iP, ELENUM) ],
-            AppendToExistingFile (TSCURRENT > 1 ? 1 : 0), NoMesh (TSCURRENT > 1 ? 1 : 0),
-            OverrideTimeStepValue TSCURRENT ];
+            File StrCat[Dir_Meso, Sprintf("h_Prob%g_Elenum%g.pos" , iP, ELENUM) ] ];
         EndIf
-      }
-    }
-    { Name init_field~{iP}; NameOfPostProcessing a_Meso_NR~{iP};
-      Operation {
-        Print[ a_pert, OnElementsOf Omega,
-          File StrCat[Dir_Meso, Sprintf("a_pert_Prob%g_TS%g_Elenum%g.pos",
-                                        iP, TSCURRENT, ELENUM) ],
-          Format Gmsh, LastTimeStepOnly, OverrideTimeStepValue 0 ];
       }
     }
   EndFor
 }
+

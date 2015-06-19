@@ -1,6 +1,6 @@
 Include "smc_data.pro";
 
-If (((Flag_Geometry != Half_Geometry) && (Flag_Geometry != Quarter_Geometry)) || (Flag_Geometry == Full_Geometry)) 
+If (!Flag_Half)
 
 x_L = - 0.5 * eps;
 y_L = - 0.5 * eps;
@@ -108,7 +108,7 @@ Physical Line(SKIN_COND) = Boundary{Surface{s_cond[]};} ;
 
 EndIf
 
-If (Flag_Geometry == Half_Geometry)
+If (Flag_Half)
 
 x_L = - 0.5 * eps;
 y_L = - 0.5 * eps;
@@ -195,7 +195,7 @@ Transfinite Surface{s_iso5[]} ; Recombine Surface{s_iso5[]} ;
 Physical Point(GAMMA_POINT)  = {p1};
 
 Physical Line(GAMMA_LEFT)    = {l16, l17, -l11, -l10, l18};
-Physical Line(GAMMA_LEFT_TH)    = {l16, l17, -l11, -l10}; // for edge element orientation w.r.t. GAMMA_RIGHT
+Physical Line(GAMMA_LEFT_NB)    = {l16, l17, -l11, -l10}; // for edge element orientation w.r.t. GAMMA_RIGHT
 Physical Line(GAMMA_LEFT_NJ)    = {l18}; // for edge element orientation w.r.t. GAMMA_RIGHT
 
 Physical Line(GAMMA_RIGHT)   = {l4};
@@ -207,107 +207,5 @@ Physical Surface(INSULATION) = {s_iso[], s_iso3[], s_iso4[], s_iso5[]};
 
 //Physical Line(SKIN_COND) = Boundary{Surface{s_cond[]};} ;
 Physical Line(SKIN_COND) = {l3, l13, l6, l15, l9};   
-
-EndIf
-
-
-If (Flag_Geometry == Quarter_Geometry)
-
-x_1 = 0.0;
-x_2 = 0.5 * eps - (r_c + 0.5 * d_i);
-x_3 = 0.5 * eps - (0.5 * d_i);
-x_4 = 0.5 * eps - (0.25 * d_i);
-x_5 = 0.5 * eps;
-
-y_1 = 0.0;
-y_2 = 0.5 * eps - (r_c + 0.5 * d_i);
-y_3 = 0.5 * eps - (0.5 * d_i);
-y_4 = 0.5 * eps - (0.25 * d_i);
-y_5 = 0.5 * eps;
-
-p1 = newp ;  Point(p1)  = { x_1, y_1, 0.0, lc_int};
-p2 = newp ;  Point(p2)  = { x_3, y_1, 0.0, lc_int};
-p3 = newp ;  Point(p3)  = { x_4, y_1, 0.0, lc_int};
-p4 = newp ;  Point(p4)  = { x_5, y_1, 0.0, lc_int};
-
-p5 = newp ;  Point(p5)  = { x_3, y_2, 0.0, lc_int};
-
-p6 = newp ;  Point(p6)  = { x_1, y_3, 0.0, lc_int};
-p7 = newp ;  Point(p7)  = { x_2, y_3, 0.0, lc_int};
-
-p8 = newp ;  Point(p8)  = { x_1, y_4, 0.0, lc_int};
-p9 = newp ;  Point(p9)  = { x_4, y_4, 0.0, lc_int};
-
-p10 = newp ;  Point(p10)  = { x_1, y_5, 0.0, lc_ext};
-p11 = newp ;  Point(p11)  = { x_5, y_5, 0.0, lc_ext};
-p12 = newp ;  Point(p12)  = { x_2, y_2, 0.0, lc_int};
-
-//=============
-// Adding lines
-//=============
-
-l1 = newl ; Line(l1)  = {p1, p2} ;
-l2 = newl ; Line(l2)  = {p2, p3} ;
-l3 = newl ; Line(l3)  = {p3, p4} ;
-l4 = newl ; Line(l4)  = {p6, p7} ;
-l5 = newl ; Line(l5)  = {p8, p9} ;
-l6 = newl ; Line(l6)  = {p10, p11} ;
-l7 = newl ; Line(l7)  = {p4, p11} ;
-l8 = newl ; Line(l8)  = {p3, p9} ;
-l9 = newl ; Line(l9)  = {p2, p5} ;
-l10 = newl; Line(l10) = {p11, p9} ;
-l11 = newl; Line(l11) = {p10, p8} ;
-l12 = newl; Line(l12) = {p8, p6} ;
-l13 = newl; Line(l13) = {p6, p1} ;
-c1 = newl; Circle(c1) = {p5, p12, p7} ;
-
-//====================================
-// Adding the surface of the conductor
-//====================================
-
-ll1 = newll; Line Loop(ll1)   = {l1, l9, c1, -l4, l13} ;
-s_cond[] = news ; Plane Surface(news) = {ll1} ;
-ll2 = newll; Line Loop(ll2)   = {l2, l8, -l5, l12, l4, -c1, -l9} ;
-s_iso[]  = news ; Plane Surface(news) = {ll2} ;
-
-//=======================================
-// Adding transfinite insulation surfaces
-//=======================================
-
-ll3 = newll; Line Loop(ll3)   = {l3, l7, l10, -l8} ;
-s_iso3[]  = news ; Plane Surface(news) = {ll3} ;
-Transfinite Line{l7, l8} = n_1 ;
-Transfinite Line{-l3, l10} = n_2 ;
-Transfinite Surface{s_iso3[]} ; Recombine Surface{s_iso3[]} ;
-
-ll4 = newll; Line Loop(ll4)   = {l5, -l10, -l6, l11} ;
-s_iso4[]  = news ; Plane Surface(news) = {ll4} ;
-Transfinite Line{l6, l5 } = n_1 ;
-Transfinite Line{l10, l11} = n_2 ;
-Transfinite Surface{s_iso4[]} ; Recombine Surface{s_iso4[]} ;
-
-//========================
-// Adding physical regions
-//========================
-
-Physical Point(GAMMA_POINT)  = {p9};
-
-Physical Line(GAMMA_LEFT)    = {l11, l12, l13};
-Physical Line(GAMMA_LEFT_TH)    = {l11, l12}; // for edge element orientation w.r.t. GAMMA_RIGHT
-Physical Line(GAMMA_LEFT_NJ)    = {l13}; // for edge element orientation w.r.t. GAMMA_RIGHT
-
-Physical Line(GAMMA_RIGHT)   = {l7};
-
-Physical Line(GAMMA_DOWN)    = {l1, l2, l3};
-Physical Line(GAMMA_DOWN_TH) = {l2, l3};
-Physical Line(GAMMA_DOWN_NJ) = {l1};
-
-Physical Line(GAMMA_UP)      = {l6};
-
-Physical Surface(IRON)       = {s_cond[]};
-Physical Surface(INSULATION) = {s_iso[], s_iso3[], s_iso4[]};
-
-//Physical Line(SKIN_COND) = Boundary{Surface{s_cond[]};} ;
-Physical Line(SKIN_COND) = {l9, c1, -l4};   
 
 EndIf

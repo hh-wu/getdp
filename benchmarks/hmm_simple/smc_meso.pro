@@ -8,11 +8,17 @@ Group {
   GammaUp        = Region[ {GAMMA_UP} ];
   GammaDown      = Region[ {GAMMA_DOWN} ];
 
-  If (Flag_Half)
-  GammaLeft_NJ   = Region[ {GAMMA_LEFT_NJ } ];
-  GammaLeft_NB   = Region[ {GAMMA_LEFT_NB } ];
+  If (Flag_Geometry == Half_Geometry)
+    GammaLeft_NJ   = Region[ {GAMMA_LEFT_NJ } ];
+    GammaLeft_TH   = Region[ {GAMMA_LEFT_TH } ];
   EndIf
 
+  If (Flag_Geometry == Quarter_Geometry)
+    GammaLeft_NJ   = Region[ {GAMMA_LEFT_NJ } ];
+    GammaLeft_TH   = Region[ {GAMMA_LEFT_TH } ];
+    GammaDown_NJ   = Region[ {GAMMA_DOWN_NJ } ];
+    GammaDown_TH   = Region[ {GAMMA_DOWN_TH } ];
+  EndIf
   Skin_Omega_C   = Region[ {SKIN_COND} ];
 
   Omega_NL       = Region[ {IRON} ];
@@ -31,13 +37,25 @@ Function {
     DTAX=0, DTAY=0, DTAZ=0, DTBX=0, DTBY=0, DTBZ=0,
     TCURRENT=0, TSCURRENT=0];
 
+  //=========================================
+  ELENUM = 300;
+  //AX = 0.005; AY = 0.005;
+
+  //bM[]   = Vector[0., 0., 1.0] * F_Sin_wt_p[]{2 * Pi * Freq, 0.0};
+  //dt_bM[] = Vector[0., 0., 1000.0] * F_Sin_wt_p[]{2 * Pi * Freq, 0.0};
+  
+  //BZ = 0.1;
+  //DTBZ = 100;
+  //TCURRENT = 0.0 * 2.e-7; TSCURRENT = 0;
+  //=========================================
+  
   aM[]            = Vector[AX, AY, AZ];
   bM[]            = Vector[BX, BY, BZ];
   eM[]            = - 0 * Vector[DTAX, DTAY, DTAZ];
   dt_bM[]         = Vector[DTBX, DTBY, DTBZ];
 
   NbrMaxIter     = 5;
-  Eps            = 1e-4;
+  Eps            = 1e-8;
   Relax          = 1.0;
   factor         = 1.0;
   epsilon        = 1e-6;
@@ -50,7 +68,7 @@ Function {
   ti              = TCURRENT;
   dt              = T/NbSteps;
   theta_value     = 1;
-  tf              = ti + dt;
+  tf              = ti + 1 * dt;
   a_tprevious[]   = (TSCURRENT == 1) ? Vector[0.,0.,0.] : VectorField[XYZ[]]{0};
 
   // Parameters for the electric linear law
@@ -80,17 +98,23 @@ Function {
 Constraint {
   { Name a_Meso;
     Case {
-      If (!Flag_Half)
+      /*
+      If ((Flag_Geometry != Half_Geometry) || (Flag_Geometry != Quarter_Geometry))
       { Region GammaRight; Type Link; RegionRef GammaLeft;
         Coefficient 1.; Function Vector[$X-lx, $Y, $Z]; }
       { Region GammaUp; Type Link; RegionRef GammaDown;
         Coefficient 1.; Function Vector[$X, $Y-ly, $Z]; }
       { Region GammaCornerFix; Type Assign; Value 0.0; }
       EndIf
-      If(Flag_Half)
+        */
+      If(Flag_Geometry == Half_Geometry)
       { Region GammaUp; Type Link; RegionRef GammaDown;
         Coefficient 1.; Function Vector[$X, $Y-ly, $Z]; }
       { Region GammaLeft; Type Assign; Value 0.0; } 
+      EndIf
+      If(Flag_Geometry == Quarter_Geometry)
+      { Region GammaLeft; Type Assign; Value 0.0; }
+      { Region GammaDown; Type Assign; Value 0.0; } 
       EndIf
     }
   }
@@ -98,7 +122,7 @@ Constraint {
   { Name a_Meso_Init;
     Case {
       If(Flag_Dynamic)
-        { Type InitFromResolution; Region Omega; NameOfResolution a_Init; }
+        //{ Type InitFromResolution; Region Omega; NameOfResolution a_Init; }
       EndIf
     }
   }

@@ -173,6 +173,7 @@ PostProcessing {
     PostQuantity {
       { Name a ; Value { Local { [ {a} ]; In Domain ; Jacobian JVol; } } }
       { Name az; Value { Local { [ CompZ[{a}] ]; In Domain ; Jacobian JVol; } } }
+      { Name sigma; Value { Local { [ sigma[] ]; In Domain ; Jacobian JVol; } } }
       { Name b ; Value { Local { [ {d a} ]; In Domain ; Jacobian JVol; } } }
       { Name h ; Value { Local { [ nu[ {d a} ] * {d a} ]; In Domain  ; Jacobian JVol; } } }
       { Name js; Value { Local { [ js[] ]; In DomainS0 ; Jacobian JVol; } } }
@@ -209,6 +210,7 @@ PostOperation {
     Operation {
       Print[ az, OnElementsOf Domain,  File StrCat[Dir_Ref,StrCat["az",ExtGmsh] ] ];
       Print[ a,  OnElementsOf Domain,  File StrCat[Dir_Ref,StrCat["a" ,ExtGmsh] ] ];
+      Print[ sigma,  OnElementsOf Domain,  File StrCat[Dir_Ref,StrCat["sigma" ,ExtGmsh] ] ];
       Print[ b,  OnElementsOf Domain,  File StrCat[Dir_Ref,StrCat["b" ,ExtGmsh] ] ];
       Print[ h,  OnElementsOf Domain , File StrCat[Dir_Ref,StrCat["h" ,ExtGmsh] ] ];
       Print[ js,  OnElementsOf Domain , File StrCat[Dir_Ref,StrCat["js" ,ExtGmsh] ] ];

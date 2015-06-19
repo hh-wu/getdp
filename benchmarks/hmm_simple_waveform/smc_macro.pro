@@ -38,13 +38,13 @@ Function {
     nu[ Core ]        = aa + bb * Exp[cc*SquNorm[$1]];
     dnudb2[ Core ]    = bb *cc* Exp[cc*SquNorm[$1]];
     h[ Core ]         = nu[$1#1] * #1;
-    dhdb[ Core ]      = TensorDiag[1., 1., 1.] * nu[$1#1] +
-    2 * dnudb2[#1] * SquDyadicProduct[#1];
+    dhdb[ Core ]      = TensorDiag[1., 1., 1.] * nu[$1#1] + 2 * dnudb2[#1] * SquDyadicProduct[#1];
     dhdb_NL[ Core ]   = 2 * dnudb2[$1#1] * SquDyadicProduct[#1];
   EndIf
 
   If(!Flag_3D)
     js0[] = Vector[0., 0., source_amplitude];
+    //js[] = js0[] * F_Cos_wt_p[]{2 * Pi * Freq, Flag_Dynamic ? 0 : Pi/2};
     js[] = js0[] * F_Sin_wt_p[]{2 * Pi * Freq, Flag_Dynamic ? 0 : Pi/2};
   EndIf
   If(Flag_3D)
@@ -55,15 +55,16 @@ Function {
     js[] = js0[] * F_Sin_wt_p[]{2 * Pi * Freq, Flag_Dynamic ? 0 : Pi/2};
   EndIf
 
-  Nb_max_iter       = 2;
+  Nb_max_iter       = 10;
   relaxation_factor = 1.;
-  stop_criterion    = 1e-5;
+  stop_criterion    = 1e-8;
   T                 = 1./Freq;
   Omega             = 2 * Pi * Freq;
   time0             = 0.;
   timemax           = T * NbT;
   dtime             = T/NbSteps;
   theta_value       = 1;
+  Flag_Init_Step    = 1;
 }
 
 Include "MagStaDyn_a_macro.pro"

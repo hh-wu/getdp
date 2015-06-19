@@ -5,7 +5,7 @@ proc = {}
 parallel = True
 
 for key in keys:
-    args = ["../../bin/getdp", "meso", "-v", "2", 
+    args = ["../../build/getdp", "meso", "-v", "2", 
             "-solve", "a_NR", 
             "-pos", "mean_1", "mean_2", "mean_3",
             "-setnumber", "BX", str(bx_table[key]),

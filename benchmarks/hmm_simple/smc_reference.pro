@@ -37,7 +37,8 @@ Group {
 
 Function {
   sigmaIron           = 5e6;
-  sigma[]             = sigmaIron;
+  sigma[DomainC]       = sigmaIron;
+  sigma[DomainCC]      = sigmaIron * 1e-12;
 
   mu0                 = 4.e-7*Pi;
   nu0                 = 1./mu0;

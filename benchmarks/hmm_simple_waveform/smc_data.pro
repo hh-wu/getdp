@@ -9,8 +9,11 @@ DefineConstant[
   Flag_3D = {0, Choices{0,1},
     Name "Parameters/0Currents in the plane or 3D"},
 
-  Flag_Geometry = {2, Choices{0,1,2},
+  Flag_Half = {0, Choices{0,1},
   Name "Parameters/0Half geometry for mesoproblems or not"}
+
+  Flag_WR= {0, Choices{0,1},
+  Name "Parameters/1Waveform relaxation iterations or not"}
 
   Freq = {50000,
     Name "Parameters/Frequency", Visible Flag_Dynamic},
@@ -23,10 +26,7 @@ DefineConstant[
 // FIXME:
 source_amplitude = Flag_3D ? 7e5 : 700.e7;
 
-Quarter_Geometry = 0;
-Half_Geometry    = 1;
-Full_Geometry    = 2;
-
+//Flag_Init_Step[] = 1;
 Flag_Local = 1;
 If(Flag_Local)
   results_dir = "";
@@ -43,9 +43,7 @@ ExtGmsh = Str[ Sprintf("_nl%g.pos", Flag_NL) ];
 ExtData = Str[ Sprintf("_nl%g.txt", Flag_NL) ];
 
 // 2D problem -> 3 meso computations for dhdb
-
-//Nbr_SubProblems = Flag_3D ? 4 : 3;
-Nbr_SubProblems = 4;
+Nbr_SubProblems = Flag_3D ? 4 : 3;
 
 // Common dimensions
 micron    = 1e-6;        // the micron
@@ -76,8 +74,8 @@ lc_smc_cond = e/40. ;
 DefineConstant[Lay1 = 11];
 DefineConstant[Lay2 = 11];
 DefineConstant[Lay3 = 5];
-DefineConstant[Lay_X = 3];
-DefineConstant[Lay_Y = 3];
+DefineConstant[Lay_X = 2];
+DefineConstant[Lay_Y = 2];
 Pro1        = 1.0;
 Pro2        = 1.0;
 Pro3        = 1.0;
@@ -85,6 +83,7 @@ Pro_X       = 0.95;
 Pro_Y       = 0.95;
 n_thickness = 6;
 n_circle    = 6;
+num_waveform_iterations = 15;
 
 // meso dimensions
 lx          = e;   // length of the cell
@@ -93,8 +92,8 @@ lc_ext      = e/30.0; // characteristic length for points in the insulator
 lc_int      = e/60.0; // characteristic length for points in the conductor
 r_c         = 5.e-6;    // radius of the chamfer
 d_i         = 5.e-6;    // thickness of the insulator
-n_1         = 41;       // subdivisions along length of insulation layer
-n_2         = 6;        // subdivisions along thickness of insulation layer
+n_1         = 51;       // subdivisions along length of insulation layer
+n_2         = 11;        // subdivisions along thickness of insulation layer
 // Physical groups for macro & reference problems
 GAMMA_INF   = 10000;
 SYMMETRY_X0 = 10001;
@@ -115,17 +114,9 @@ GAMMA_UP    = 1004; // upper boundary
 IRON        = 1005; // conductor
 INSULATION  = 1006; // insulation
 
-If(Flag_Geometry == Half_Geometry)
+If(Flag_Half)
 GAMMA_LEFT_NJ = 1007; // right boundary
-GAMMA_LEFT_TH = 1008; // right boundary
-EndIf
-
-If(Flag_Geometry == Quarter_Geometry)
-GAMMA_LEFT_NJ = 1007; // right boundary
-GAMMA_LEFT_TH = 1008; // right boundary
-
-GAMMA_DOWN_NJ = 1009; // right boundary
-GAMMA_DOWN_TH = 1010; // right boundary
+GAMMA_LEFT_NB = 1008; // right boundary
 EndIf
 // Information concerning the cuts
 

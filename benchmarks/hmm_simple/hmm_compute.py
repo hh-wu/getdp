@@ -33,7 +33,7 @@ if filename:
     ncpus = len(nodes)
     f.close()
 else:
-    ncpus = 8
+    ncpus = 4
     nodes = ["localhost" for x in range(ncpus)]
     f = open(file_dir + "getdp.sh", "w")
     f.write("#!/bin/sh\n{0} $*\n".format(sys.argv[0])) # same getdp as for macro computation
@@ -62,7 +62,7 @@ while len(queue):
                 else:
                     args.extend([node])
             args.extend([file_dir + "getdp.sh", file_dir + "smc_meso", 
-                         "-bin", "-v", "2", "-v2", "-solve", "a_NR", 
+                         "-bin", "-v", "4", "-v2", "-solve", "a_NR", 
                          "-pos", "mean_1", "mean_2", "mean_3", 
                          "mean_4" if nbr_subproblems == 4 else "",
                          "map_field_1" if postpro_cuts else "",
@@ -122,6 +122,8 @@ for key in keys:
     me = map(float, f.readline().split())
     f.close()
 
+    
+    
     hx_table[key] = h[1][1]
     hy_table[key] = h[1][2]
     hz_table[key] = h[1][3]
