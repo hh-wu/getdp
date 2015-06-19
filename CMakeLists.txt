@@ -359,6 +359,15 @@ if(ENABLE_PETSC)
     file(STRINGS ${ENV_PETSC_DIR}/${ENV_PETSC_ARCH}/lib/petsc-conf/petscvariables
          PETSC_VARIABLES NEWLINE_CONSUME)
   endif(EXISTS ${ENV_PETSC_DIR}/${ENV_PETSC_ARCH}/lib/petsc-conf/petscvariables)
+  # for PETSc >= 3.6 
+  if(EXISTS ${ENV_PETSC_DIR}/${ENV_PETSC_ARCH}/lib/petsc/conf/petscvariables)
+    # old-style PETSc installations (using PETSC_DIR and PETSC_ARCH)
+    message(STATUS "Using PETSc dir: ${ENV_PETSC_DIR}")
+    message(STATUS "Using PETSc arch: ${ENV_PETSC_ARCH}")
+    # find includes by parsing the petscvariables file
+    file(STRINGS ${ENV_PETSC_DIR}/${ENV_PETSC_ARCH}/lib/petsc/conf/petscvariables
+         PETSC_VARIABLES NEWLINE_CONSUME)
+  endif(EXISTS ${ENV_PETSC_DIR}/${ENV_PETSC_ARCH}/lib/petsc/conf/petscvariables)
   if(PETSC_VARIABLES)
     # try to find PETSC_CC_INCLUDES for PETSc >= 3.4
     string(REGEX MATCH "PETSC_CC_INCLUDES = [^\n\r]*" PETSC_PACKAGES_INCLUDES
