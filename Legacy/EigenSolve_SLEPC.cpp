@@ -107,7 +107,6 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv, EPS eps,
   if (nconv <= 0) return;
 
   // temporary (parallel) vectors to store real and imaginary part of eigenvectors
-  // FIXME: replace this with MatCreateVecs in PETSc 3.6
   Vec xr, xi;
 #if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 6)
   _try(MatGetVecs(DofData_P->M1.M, PETSC_NULL, &xr));
