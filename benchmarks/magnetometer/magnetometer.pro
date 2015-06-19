@@ -165,8 +165,7 @@ Resolution {
       EndIf
 
       If(Flag_AnalysisType == 0)
-        GenerateSeparate[Sys_Mec]; Print[Sys_Mec];
-        EigenSolve[Sys_Mec, 10, (2*Pi*target_freq)^2, 0];
+        GenerateSeparate[Sys_Mec]; EigenSolve[Sys_Mec, 10, (2*Pi*target_freq)^2, 0];
         SaveSolutions[Sys_Mec] ;
         PostOperation[Mec] ;
       EndIf
