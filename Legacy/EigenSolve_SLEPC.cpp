@@ -669,19 +669,19 @@ static void _polynomialEVP(struct DofData * DofData_P, int numEigenValues,
   _try(PEPSetFromOptions(pep));
 
   // -pc_factor_shift_type NONZERO -pc_factor_shift_amount [amount]
-  // 	 or
+  //     or
   // '-pc_factor_shift_type POSITIVE_DEFINITE'
   // '-[level]_pc_factor_shift_type NONZERO -pc_factor_shift_amount [amount]'
-  // 	or
+  //    or
   // '-[level]_pc_factor_shift_type POSITIVE_DEFINITE' to prevent the zero pivot.
-  // 	[level] is "sub" when lu, ilu, cholesky, or icc are employed in each
+  //    [level] is "sub" when lu, ilu, cholesky, or icc are employed in each
   //    individual block of the bjacobi or ASM preconditioner; and
-  // 	[level] is "mg_levels" or "mg_coarse" when lu, ilu, cholesky, or icc are
+  //    [level] is "mg_levels" or "mg_coarse" when lu, ilu, cholesky, or icc are
   //    used insi
 
-  Message::Info("Polynomial eigenvalue problem solved using PEP using the "
-                "following options:");
-  _try(PEPView(pep, PETSC_VIEWER_STDOUT_SELF));
+  // Message::Info("Polynomial eigenvalue problem solved using PEP using the "
+  //               "following options:");
+  // _try(PEPView(pep, PETSC_VIEWER_STDOUT_SELF));
 
   // force options specified directly as arguments
   if(numEigenValues){
