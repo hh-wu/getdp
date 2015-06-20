@@ -38,11 +38,13 @@ double  JacobianVolSphShell2D (JACOBIAN_ARG);
 double  JacobianVolRectShell2D (JACOBIAN_ARG);
 double  JacobianVolPlpdX2D (JACOBIAN_ARG);
 
+double  JacobianVolAxi1D (JACOBIAN_ARG);
 double  JacobianVolAxi2D (JACOBIAN_ARG);
 double  JacobianVolAxiSphShell2D (JACOBIAN_ARG);
 double  JacobianVolAxiRectShell2D (JACOBIAN_ARG);
 double  JacobianVolAxiPlpdX2D (JACOBIAN_ARG);
 
+double  JacobianVolAxiSqu1D (JACOBIAN_ARG);
 double  JacobianVolAxiSqu2D (JACOBIAN_ARG);
 double  JacobianVolAxiSquSphShell2D (JACOBIAN_ARG);
 double  JacobianVolAxiSquRectShell2D (JACOBIAN_ARG);

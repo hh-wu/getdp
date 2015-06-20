@@ -138,6 +138,9 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
 
     switch (Type_Element) {
 
+    case LINE        : case LINE_2 :
+      *Type_Dimension = _1D ; return((void *)JacobianVolAxi1D) ;
+
     case TRIANGLE    : case TRIANGLE_2   :
     case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
       *Type_Dimension = _2D ; return((void *)JacobianVolAxi2D) ;
@@ -190,6 +193,9 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
   case JACOBIAN_VOL_AXI_SQU :
 
     switch (Type_Element) {
+
+    case LINE        : case LINE_2 :
+      *Type_Dimension = _1D ; return((void *)JacobianVolAxiSqu1D) ;
 
     case TRIANGLE    : case TRIANGLE_2   :
     case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
@@ -659,7 +665,29 @@ double  JacobianVolPlpdX2D (struct Element * Element, MATRIX3x3 * Jac)
   return(DetJac1 * DetJac2) ;
 }
 
-/* 2D Axi (Attention, l'axe doit etre x=z=0) */
+/* 1D & 2D Axi (Attention, l'axe doit etre x=z=0) */
+
+double  JacobianVolAxi1D (struct Element * Element, MATRIX3x3 * Jac)
+{
+  int  i ;
+  double s = 0., DetJac ;
+
+  DetJac = JacobianVol1D(Element, Jac) ;
+
+  for (i = 0 ; i < Element->GeoElement->NbrNodes ; i++)
+    s += Element->x[i] * Element->n[i] ;
+
+  /* Warning! For evaluations on the symmetry axis */
+  if (s==0.0) {
+    for (i = 0 ; i < Element->GeoElement->NbrNodes ; i++)
+      s += Element->x[i] ;
+    s /= (double)Element->GeoElement->NbrNodes  ;
+  }
+
+  Jac->c33 = s ;
+
+  return(DetJac * Jac->c33) ;
+}
 
 double  JacobianVolAxi2D (struct Element * Element, MATRIX3x3 * Jac)
 {
@@ -734,7 +762,38 @@ double  JacobianVolAxiPlpdX2D (struct Element * Element, MATRIX3x3 * Jac)
   return(DetJac1 * DetJac2) ;
 }
 
-/* 2D Axi avec transformation quadratique (Attention, l'axe doit etre x=z=0) */
+/* 1D & 2D Axi avec transformation quadratique (Attention, l'axe doit etre x=z=0) */
+double  JacobianVolAxiSqu1D (struct Element * Element, MATRIX3x3 * Jac)
+{
+  int    i ;
+  double s = 0., r, DetJac ;
+
+  Jac->c11 = 0. ;  Jac->c12 = 0. ;  Jac->c13 = 0. ;
+  Jac->c21 = 0. ;  Jac->c22 = 1. ;  Jac->c23 = 0. ;
+  Jac->c31 = 0. ;  Jac->c32 = 0. ;  Jac->c33 = 1. ;
+
+  for (i = 0 ; i < Element->GeoElement->NbrNodes ; i++)
+    s += SQU(Element->x[i]) * Element->n[i] ;
+
+
+  /* Warning! For evaluations on the symmetry axis */
+  if (s==0.0) {
+    for (i = 0 ; i < Element->GeoElement->NbrNodes ; i++)
+      s += Element->x[i] * Element->x[i] ;
+    s /= (double)Element->GeoElement->NbrNodes  ;
+  }
+
+  r = sqrt(s);
+
+  for ( i = 0 ; i < Element->GeoElement->NbrNodes ; i++ ) {
+    Jac->c11 += 0.5/r * SQU(Element->x[i]) * Element->dndu[i][0] ;
+  }
+  Jac->c33 = r ;
+
+  DetJac = Jac->c11 * Jac->c33 ;
+
+  return(DetJac) ;
+}
 
 double  JacobianVolAxiSqu2D (struct Element * Element, MATRIX3x3 * Jac)
 {
