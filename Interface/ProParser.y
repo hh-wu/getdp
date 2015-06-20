@@ -2413,9 +2413,9 @@ OptionalParametersForBasisFunction :
     /* none */
 
   | '{' tQuantity tSTRING tEND
-        tFormulation tSTRING '{' FExpr '}' tEND
+        tFormulation String__Index '{' FExpr '}' tEND
         tGroup GroupRHS tEND
-        tResolution tSTRING '{' FExpr '}' tEND '}'
+        tResolution String__Index '{' FExpr '}' tEND '}'
     {
       int dim = $8;
       if(dim != $17)
