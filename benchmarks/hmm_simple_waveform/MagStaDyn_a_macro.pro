@@ -98,7 +98,7 @@ Formulation {
     Equation {
       Galerkin { [ Dof{d a_dummy} , {d a_dummy} ];
         In Domain; Jacobian JVol; Integration I1; }
-      Galerkin { [ Python[ ElementNum[], QuadraturePointIndex[], $Time,
+      Galerkin { [ Python[ ElementNum[], QuadraturePointIndex[], $TimeStep,
                            CompX[{a}], CompY[{a}], CompZ[{a}],
                            CompX[{d a}], CompY[{d a}], CompZ[{d a}],
                            CompX[Dt[{a}]], CompY[Dt[{a}]], CompZ[Dt[{a}]],
@@ -130,19 +130,19 @@ Formulation {
         Galerkin { [ nu[] * Dof{d a}, {d a} ];
             In Domain_L; Jacobian JVol; Integration I1; }
         //=========================================================================   
-        If(Flag_WR)
-          Galerkin { [ 0 * Python[ElementNum[], QuadraturePointIndex[], $Time, 0]
+        If(1)
+          Galerkin { [ 0 * Python[ElementNum[], QuadraturePointIndex[], $TimeStep, 0]
                        {"hmm_upscale_waveform.py"}, {d a} ];
             In Domain_NL; Jacobian JVol; Integration I1; }
-          Galerkin { [ Python[ElementNum[], QuadraturePointIndex[], $Time, 1]
+          Galerkin { [ Python[ElementNum[], QuadraturePointIndex[], $TimeStep, 1]
                      {"hmm_upscale_waveform.py"} * Dof{d a} , {d a} ];
             In Domain_NL; Jacobian JVol; Integration I1; }
         EndIf
-        If(Flag_WR == 0)
-          Galerkin { [ Python[ElementNum[], QuadraturePointIndex[], $Time, 0]
+        If(0)
+          Galerkin { [ Python[ElementNum[], QuadraturePointIndex[], $TimeStep, 0]
                        {"hmm_upscale_waveform.py"}, {d a} ];
             In Domain_NL; Jacobian JVol; Integration I1; }
-          Galerkin { JacNL [ Python[ElementNum[], QuadraturePointIndex[], $Time, 1]
+          Galerkin { JacNL [ Python[ElementNum[], QuadraturePointIndex[], $TimeStep, 1]
                              {"hmm_upscale_waveform.py"} * Dof{d a} , {d a} ];
             In Domain_NL; Jacobian JVol; Integration I1; }
         EndIf
@@ -168,19 +168,21 @@ Resolution {
         //===================================
         tolerance_waveform = 1.0e-6;
         error = 10 * tolerance_waveform;
-        Evaluate[ Python[]{"hmm_initialize_waveform.py"} ];
+        Evaluate[ Python[0, num_TS]{"hmm_initialize_waveform.py"} ];
         // 2. First computation. Homogenized law is not available
         //=======================================================       
         InitSolution[A_Init];
-        SaveSolution[A_Init];
+        //SaveSolution[A_Init];
         Evaluate[ Python[tolerance_waveform, 0]{"hmm_error_waveform.py"} ];
         TimeLoopTheta[ time0-dtime, timemax, dtime, theta_value]{
-          Evaluate[ Python[$Time, $TimeStep]{"hmm_first_macro_resolution.py"} ];
+          Evaluate[ Python[$Time, $TimeStep, dtime]{"hmm_first_macro_resolution.py"} ];
           IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
             GenerateJac[A_Init]; SolveJac[A_Init];
           }
           Generate[Dummy];
         }
+        //Evaluate[Python[1]{"hmm_print_time.py"}];
+        //Evaluate[Python[1]{"hmm_print_maps.py"}];
         // 3. Waveform relaxation iterations. Homogenized law is now available
         //====================================================================
         For i In {1:num_waveform_iterations}
@@ -188,59 +190,71 @@ Resolution {
         //===================================
         If (i == 1)
           Evaluate[ Python[tolerance_waveform, i]{"hmm_error_waveform.py"} ];
-          Evaluate[Python[Nbr_SubProblems, Flag_Dynamic, Freq, NbSteps, 0, dtime, 1]{"hmm_compute_waveform.py"}];
+          Evaluate[Python[Nbr_SubProblems, Flag_Dynamic, Freq, NbSteps, 0, dtime, 1, 0]{"hmm_compute_waveform.py"}];
+          //Evaluate[Python[1]{"hmm_print_time.py"}];
           Evaluate[Python[0]{"hmm_sort_tables_waveform.py"}];
           Evaluate[Python[1]{"hmm_swap_tables_waveform.py"}];
           InitSolution[A];
-          SaveSolution[A];
+          //SaveSolution[A];
           TimeLoopTheta[ time0, timemax, dtime, theta_value]{
             IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
               If(Flag_WR == 0)
-                Printf("Begin komera Pilote weeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee = %f", i);
-                Evaluate[Python[Nbr_SubProblems, Flag_Dynamic, Freq, NbSteps, 0, dtime, 0]{"hmm_compute_waveform.py"}];
+                //Evaluate[Python[1]{"hmm_print_time.py"}];
+                Evaluate[Python[Nbr_SubProblems, Flag_Dynamic, Freq, NbSteps, 0, dtime, 0, 0]{"hmm_compute_waveform.py"}];
               EndIf
               GenerateJac[A]; SolveJac[A];
             }
             Generate[Dummy];
           }
         EndIf
-        If ( (i != 1) )
+          If ( (i != 1) )
+          //Test[Python[]{"hmm_finish_waveform.py"}] {
           Evaluate[Python[1]{"hmm_sort_tables_waveform.py"}];
           Test[ Python[tolerance_waveform, i]{"hmm_error_waveform.py"} ] {
-            Evaluate[Python[Nbr_SubProblems, Flag_Dynamic, Freq, NbSteps, 0, dtime, 1]{"hmm_compute_waveform.py"}];
+            //Evaluate[Python[1]{"hmm_print_time.py"}];
+            Evaluate[Python[Nbr_SubProblems, Flag_Dynamic, Freq, NbSteps, 0, dtime, 1, 0]{"hmm_compute_waveform.py"}];
             Evaluate[Python[0]{"hmm_sort_tables_waveform.py"}];
             Evaluate[Python[1]{"hmm_swap_tables_waveform.py"}];
             InitSolution[A];
-            SaveSolution[A];
+            //SaveSolution[A];
             TimeLoopTheta[ time0, timemax, dtime, theta_value]{
               IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
                 If(Flag_WR == 0)
-                  Printf("Begin komera Pilote weeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee = %f", i);
-                  Evaluate[Python[Nbr_SubProblems, Flag_Dynamic, Freq, NbSteps, 0, dtime, 0]{"hmm_compute_waveform.py"}];
+                  //Evaluate[Python[1]{"hmm_print_time.py"}];
+                  Evaluate[Python[Nbr_SubProblems, Flag_Dynamic, Freq, NbSteps, 0, dtime, 0, 0]{"hmm_compute_waveform.py"}];
                 EndIf
                 GenerateJac[A]; SolveJac[A];
               }
               Generate[Dummy];
             } // TimeLoopTheta
           } //Test...
-       
-          // 3.2. Compute if convergence has been attained
-          //==============================================
-          Else{
-            InitSolution[A];
-            SaveSolution[A];
-            TimeLoopTheta[ time0, timemax, dtime, theta_value]{
-              IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
-                //Evaluate[Python[Nbr_SubProblems, Flag_Dynamic, Freq, NbSteps, 0, dtime, 0]{"hmm_compute_waveform.py"}];
-                GenerateJac[A]; SolveJac[A];
-              }
-              SaveSolution[A];
-            }
-          } // Else
+          //}
         EndIf// (!1)
         EndFor //(WR iterations)
       EndIf //(Flag_Dynamic)
-     }
+
+      // 3.2. Compute if convergence has been attained
+      //==============================================
+      InitSolution[A];
+        //SaveSolution[A];
+      Evaluate[ Python[1, num_TS]{"hmm_initialize_waveform.py"} ];
+      TimeLoopTheta[ time0, timemax, dtime, theta_value]{
+        IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
+          GenerateJac[A]; SolveJac[A];
+        }
+        SaveSolution[A];
+        PostOperation[ globalquantities ];
+        If(Flag_PostCuts) // compute some meso cells around points of interest
+          //Evaluate[Python[1]{"hmm_print_maps.py"}];
+          PostOperation[ meso_computations ];
+        //Evaluate[Python[1]{"hmm_print_maps.py"}];
+        EndIf
+      }
+      Evaluate[ Python[Nbr_SubProblems, Flag_Dynamic, Freq, NbSteps, 1, dtime, 1, 1]{"hmm_compute_waveform.py"} ];
+
+
+        
+    }
   }  
 }
 
@@ -280,7 +294,7 @@ PostProcessing {
           If(Flag_Dynamic)
             Local { [ nu[] * {d a} * Dt[{d a}]  ]; In Domain_L; Jacobian JVol; }
           EndIf
-          Local { [ Python[ElementNum[], QuadraturePointIndex[], 2]{"hmm_upscale.py"} ];
+            Local { [ Python[ElementNum[], QuadraturePointIndex[], $TimeStep, 2]{"hmm_upscale_waveform.py"} ];
             In Domain_NL; Jacobian JVol; }
         } }
 
@@ -293,7 +307,7 @@ PostProcessing {
             Integral { [ nu[] * {d a} * Dt[{d a}] ];
               In Domain_L; Jacobian JVol; Integration I1; }
           EndIf
-          Integral { [ Python[ElementNum[], QuadraturePointIndex[], 2]{"hmm_upscale.py"} ];
+          Integral { [ Python[ElementNum[], QuadraturePointIndex[], $TimeStep, 2]{"hmm_upscale_waveform.py"} ];
             In Domain_NL; Jacobian JVol; Integration I1; }
         } }
 
@@ -303,7 +317,7 @@ PostProcessing {
           EndIf
           If(Flag_Dynamic)
             Local { [ 0.0 ]; In Domain_L; Jacobian JVol; }
-            Local { [ Python[ElementNum[], QuadraturePointIndex[], 3]{"hmm_upscale.py"} ];
+            Local { [ Python[ElementNum[], QuadraturePointIndex[], $TimeStep, 3]{"hmm_upscale_waveform_waveform.py"} ];
               In Domain_NL; Jacobian JVol; }
           EndIf
         } }
@@ -314,7 +328,7 @@ PostProcessing {
           EndIf
           If(Flag_Dynamic)
             Integral { [ 0.0 ]; In Domain_L; Jacobian JVol; Integration I1; }
-            Integral { [ Python[ElementNum[], QuadraturePointIndex[], 3]{"hmm_upscale_waveform.py"} ];
+            Integral { [ Python[ElementNum[], QuadraturePointIndex[], $TimeStep, 3]{"hmm_upscale_waveform.py"} ];
               In Domain_NL; Jacobian JVol; Integration I1; }
           EndIf
         } }
@@ -323,23 +337,16 @@ PostProcessing {
         For j In {1:ncuts:ndeltacuts_y}
           k = (i-1)*ncuts + j;
           { Name data~{k}; Value {
-              Local { [ 0*Python[ k, 0,
+              Local { [ 0*Python[ k, 0, $TimeStep, 
                     CompX[{a}], CompY[{a}], CompZ[{a}],
                     CompX[{d a}], CompY[{d a}], CompZ[{d a}],
                     CompX[Dt[{a}]], CompY[Dt[{a}]], CompZ[Dt[{a}]],
                     CompX[Dt[{d a}] ], CompY[Dt[{d a}] ], CompZ[Dt[{d a}]] ]
-                  {"hmm_downscale.py"} ];
+                  {"hmm_downscale_waveform.py"} ];
                 In Domain; Jacobian JVol; }
             } }
         EndFor
       EndFor
-          
-        { Name compute_error; Value {
-            Integral { [ Python[]{"hmm_error_waveform.py"} ];
-              In Domain_NL; Jacobian JVol; Integration I1; }
-            }
-        }
-        
      }
   }
 }
@@ -364,6 +371,7 @@ PostOperation {
   }
 
   { Name globalquantities; NameOfPostProcessing MagStaDyn_a_hmm;
+    //LastTimeStepOnly;
     Operation {
       Print[ MagneticEnergy_Macro[Domain], OnGlobal, Format TimeTable,
         File > StrCat[Dir_Macro, "MagneticEnergy_Macro.dat" ], LastTimeStepOnly ] ;
@@ -375,6 +383,7 @@ PostOperation {
   }
 
   { Name meso_computations; NameOfPostProcessing MagStaDyn_a_hmm;
+    //LastTimeStepOnly;
     Operation {
       For i In {1:ncuts:ndeltacuts_x}
         For j In {1:ncuts:ndeltacuts_y}

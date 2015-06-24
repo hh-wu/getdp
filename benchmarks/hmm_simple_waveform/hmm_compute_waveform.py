@@ -16,6 +16,7 @@ nb_steps = input[3]
 postpro_cuts = input[4]
 dt_Macro = input[5]
 Flag_WR_meso = input[6]
+Flag_meso_comp = input[7]
 
 time_table_keys = time_table.keys()
 keys = bx_table.keys()
@@ -53,7 +54,7 @@ if filename:
     ncpus = len(nodes)
     f.close()
 else:
-    ncpus = 1
+    ncpus = 9
     nodes = ["localhost" for x in range(ncpus)]
     f = open(file_dir + "getdp.sh", "w")
     f.write("#!/bin/sh\n{0} $*\n".format(sys.argv[0])) # same getdp as for macro computation
@@ -88,38 +89,76 @@ while len(queue):
                 #=============================================
                 # Build lists of downscaled quantities per key
                 #=============================================
-                list_time = ''
-                list_ax = ''
-                list_ay = ''
-                list_az = ''
-                list_bx = ''
-                list_by = ''
-                list_bz = ''
-                list_dtax = ''
-                list_dtay = ''
-                list_dtaz = ''
-                list_dtbx = ''
-                list_dtby = ''
-                list_dtbz = ''
-                for j in range(0,len_time):
-                    getdp_list_key = (key[0], key[1], time_table[j+1])
-                    list_time += " " + str(time_table[j+1])
-                    list_ax += " " + str(ax_table[getdp_list_key])
-                    list_ay += " " + str(ay_table[getdp_list_key])
-                    list_az += " " + str(az_table[getdp_list_key])
-                    list_bx += " " + str(bx_table[getdp_list_key])
-                    list_by += " " + str(by_table[getdp_list_key])
-                    list_bz += " " + str(bz_table[getdp_list_key])
-                    list_dtax += " " + str(dtax_table[getdp_list_key])
-                    list_dtay += " " + str(dtay_table[getdp_list_key])
-                    list_dtaz += " " + str(dtaz_table[getdp_list_key])
-                    list_dtbx += " " + str(dtbx_table[getdp_list_key])
-                    list_dtby += " " + str(dtby_table[getdp_list_key])
-                    list_dtbz += " " + str(dtbz_table[getdp_list_key])
-                #==================================================================                    
+                if (Flag_meso_comp == 0):
+                    list_time = ''
+                    list_ax = ''
+                    list_ay = ''
+                    list_az = ''
+                    list_bx = ''
+                    list_by = ''
+                    list_bz = ''
+                    list_dtax = ''
+                    list_dtay = ''
+                    list_dtaz = ''
+                    list_dtbx = ''
+                    list_dtby = ''
+                    list_dtbz = ''
+                    for j in range(0,len_time-1):
+                        #getdp_list_key = (key[0], key[1], time_table[j+1])
+                        getdp_list_key = (key[0], key[1], time_index[j+1])
+                        list_time += " " + str(time_table[j+1])
+                        list_ax += " " + str(ax_table[getdp_list_key])
+                        list_ay += " " + str(ay_table[getdp_list_key])
+                        list_az += " " + str(az_table[getdp_list_key])
+                        list_bx += " " + str(bx_table[getdp_list_key])
+                        list_by += " " + str(by_table[getdp_list_key])
+                        list_bz += " " + str(bz_table[getdp_list_key])
+                        list_dtax += " " + str(dtax_table[getdp_list_key])
+                        list_dtay += " " + str(dtay_table[getdp_list_key])
+                        list_dtaz += " " + str(dtaz_table[getdp_list_key])
+                        list_dtbx += " " + str(dtbx_table[getdp_list_key])
+                        list_dtby += " " + str(dtby_table[getdp_list_key])
+                        list_dtbz += " " + str(dtbz_table[getdp_list_key])
+                if (Flag_meso_comp != 0):
+                    list_time = '0'
+                    list_ax = '0'
+                    list_ay = '0'
+                    list_az = '0'
+                    list_bx = '0'
+                    list_by = '0'
+                    list_bz = '0'
+                    list_dtax = '0'
+                    list_dtay = '0'
+                    list_dtaz = '0'
+                    list_dtbx = '0'
+                    list_dtby = '0'
+                    list_dtbz = '0'
+                    for j in range(1,len_time):
+                        #getdp_list_key = (key[0], key[1], time_table[j+1])
+                        getdp_list_key = (key[0], key[1], time_index[j+1])
+                        list_time += " " + str(time_table[j+1])
+                        list_ax += " " + str(ax_table[getdp_list_key])
+                        list_ay += " " + str(ay_table[getdp_list_key])
+                        list_az += " " + str(az_table[getdp_list_key])
+                        list_bx += " " + str(bx_table[getdp_list_key])
+                        list_by += " " + str(by_table[getdp_list_key])
+                        list_bz += " " + str(bz_table[getdp_list_key])
+                        list_dtax += " " + str(dtax_table[getdp_list_key])
+                        list_dtay += " " + str(dtay_table[getdp_list_key])
+                        list_dtaz += " " + str(dtaz_table[getdp_list_key])
+                        list_dtbx += " " + str(dtbx_table[getdp_list_key])
+                        list_dtby += " " + str(dtby_table[getdp_list_key])
+                        list_dtbz += " " + str(dtbz_table[getdp_list_key])
+                #==================================================================
+                print 'Done solving for mesoscale problems ' + str(key[0])
+                print 'Done solving for mesoscale problems ' + str(key[0])
+                print 'Done solving for mesoscale problems ' + str(key[0])
                 args.extend([file_dir + "getdp.sh", file_dir + "smc_meso_waveform", 
-                             "-bin", "-v", "4", "-v2", "-solve", "a_NR", 
-                             "-pos", "mean_1", "mean_2", "mean_3", 
+                             #"-bin", "-v", "2", "-v2", "-solve", "a_NR", 
+                             "-bin", "-v", "2" if Flag_meso_comp != 0 else "2", "-v2", "-solve", "a_NR", 
+                             "-pos", "mean_1",
+                             "" if Flag_meso_comp != 0 else "mean_2", 
+                             "" if Flag_meso_comp != 0 else "mean_3", 
                              "mean_4" if nbr_subproblems == 4 else "",
                              "map_field_1",
                              #"map_field_1" if postpro_cuts else "",
@@ -128,77 +167,64 @@ while len(queue):
                              "-setnumber", "Freq", str(freq),
                              "-setnumber", "dt_Macro", str(dt_Macro),
                              "-setnumber", "NbSteps", str(nb_steps),
-                             "-setlist", "TIMEVEC "  + str(len_time), str(list_time),
-                             "-setlist", "AX " + str(len_time), str(list_ax),
-                             "-setlist", "AY " + str(len_time), str(list_ay),
-                             "-setlist", "AZ " + str(len_time), str(list_az),
-                             "-setlist", "BX " + str(len_time), str(list_bx),
-                             "-setlist", "BY " + str(len_time), str(list_by),
-                             "-setlist", "BZ " + str(len_time), str(list_bz),
-                             "-setlist", "DTAX " + str(len_time), str(list_dtax),
-                             "-setlist", "DTAY " + str(len_time), str(list_dtay),
-                             "-setlist", "DTAZ " + str(len_time), str(list_dtaz),
-                             "-setlist", "DTBX " + str(len_time), str(list_dtbx),
-                             "-setlist", "DTBY " + str(len_time), str(list_dtby),
-                             "-setlist", "DTBZ " + str(len_time), str(list_dtbz),                         
+                             "-setlist", "TIMEVEC "  + str(len_time-1), str(list_time),
+                             "-setlist", "AX " + str(len_time-1), str(list_ax),
+                             "-setlist", "AY " + str(len_time-1), str(list_ay),
+                             "-setlist", "AZ " + str(len_time-1), str(list_az),
+                             "-setlist", "BX " + str(len_time-1), str(list_bx),
+                             "-setlist", "BY " + str(len_time-1), str(list_by),
+                             "-setlist", "BZ " + str(len_time-1), str(list_bz),
+                             "-setlist", "DTAX " + str(len_time-1), str(list_dtax),
+                             "-setlist", "DTAY " + str(len_time-1), str(list_dtay),
+                             "-setlist", "DTAZ " + str(len_time-1), str(list_dtaz),
+                             "-setlist", "DTBX " + str(len_time-1), str(list_dtbx),
+                             "-setlist", "DTBY " + str(len_time-1), str(list_dtby),
+                             "-setlist", "DTBZ " + str(len_time-1), str(list_dtbz),                         
                              "-setnumber", "ELENUM", str(key[0]),
                              "-setnumber", "QPINDEX", str(key[1]),
+                             "-setnumber", "Flag_meso_comp", str(Flag_meso_comp),
                              "-setnumber", "Flag_WR_meso", str(Flag_WR_meso)])
                 cpus[i] = subprocess.Popen(args)
             elif(Flag_WR_meso == 0):
                 #=============================================
                 # Build lists of downscaled quantities per key
                 #=============================================
-                list_time = ''
-                list_ax = ''
-                list_ay = ''
-                list_az = ''
-                list_bx = ''
-                list_by = ''
-                list_bz = ''
-                list_dtax = ''
-                list_dtay = ''
-                list_dtaz = ''
-                list_dtbx = ''
-                list_dtby = ''
-                list_dtbz = ''
-                for j in range(0,len_time):
-                    getdp_list_key = (key[0], key[1], time_table[j+1])
+                list_time = '0'
+                list_ax = '0'
+                list_ay = '0'
+                list_az = '0'
+                list_bx = '0'
+                list_by = '0'
+                list_bz = '0'
+                list_dtax = '0'
+                list_dtay = '0'
+                list_dtaz = '0'
+                list_dtbx = '0'
+                list_dtby = '0'
+                list_dtbz = '0'
+                for j in range(1,len_time):
+                    #getdp_list_key = (key[0], key[1], time_table[j+1])
+                    getdp_list_key = (key[0], key[1], time_index[j+1])
                     list_time += " " + str(time_table[j+1])
-                    list_ax += " " + str(ax_table[getdp_list_key])
-                    list_ay += " " + str(ay_table[getdp_list_key])
-                    list_az += " " + str(az_table[getdp_list_key])
                     list_bx += " " + str(bx_table[getdp_list_key])
                     list_by += " " + str(by_table[getdp_list_key])
                     list_bz += " " + str(bz_table[getdp_list_key])
-                    list_dtax += " " + str(dtax_table[getdp_list_key])
-                    list_dtay += " " + str(dtay_table[getdp_list_key])
-                    list_dtaz += " " + str(dtaz_table[getdp_list_key])
-                    list_dtbx += " " + str(dtbx_table[getdp_list_key])
-                    list_dtby += " " + str(dtby_table[getdp_list_key])
-                    list_dtbz += " " + str(dtbz_table[getdp_list_key])
                 #==================================================================
+                print 'Done projecting for mesoscale problems ' + str(key[0])
+                print 'Done projecting for mesoscale problems ' + str(key[0])
+                print 'Done projecting for mesoscale problems ' + str(key[0])
                 file_name = "res_meso/a_pert_Prob1_Elenum%g.pos" % (key[0])
                 args.extend([file_dir + "getdp.sh", file_dir + "smc_meso_waveform_1",
-                             "-bin", "-v", "4", "-v2", "-solve", "a_NR_WR", 
+                             "-bin", "-v", "2", "-v2", "-solve", "a_NR_WR", 
                              "-pos", "mean_WR", "map_field_WR",
                              "-setnumber", "Flag_Dynamic", str(flag_dynamic),
                              "-setnumber", "Freq", str(freq),
                              "-setnumber", "dt_Macro", str(dt_Macro),
                              "-setnumber", "NbSteps", str(nb_steps),
                              "-setlist", "TIMEVEC "  + str(len_time), str(list_time),
-                             "-setlist", "AX " + str(len_time), str(list_ax),
-                             "-setlist", "AY " + str(len_time), str(list_ay),
-                             "-setlist", "AZ " + str(len_time), str(list_az),
                              "-setlist", "BX " + str(len_time), str(list_bx),
                              "-setlist", "BY " + str(len_time), str(list_by),
-                             "-setlist", "BZ " + str(len_time), str(list_bz),
-                             "-setlist", "DTAX " + str(len_time), str(list_dtax),
-                             "-setlist", "DTAY " + str(len_time), str(list_dtay),
-                             "-setlist", "DTAZ " + str(len_time), str(list_dtaz),
-                             "-setlist", "DTBX " + str(len_time), str(list_dtbx),
-                             "-setlist", "DTBY " + str(len_time), str(list_dtby),
-                             "-setlist", "DTBZ " + str(len_time), str(list_dtbz),                         
+                             "-setlist", "BZ " + str(len_time), str(list_bz),                        
                              "-setnumber", "ELENUM", str(key[0]),
                              "-setnumber", "QPINDEX", str(key[1]),
                              "-gmshread", file_name,
@@ -226,188 +252,203 @@ while not done:
 Dir_Meso = file_dir + "res_meso/" 
 #Dir_Meso = file_dir + "../../../../project/results/res_meso/"
 
-
-# 1. Material law maps per element and GP
-#========================================
-h_1      = {}
-h_2      = {}
-h_3      = {}
-h_4      = {}
-b_1      = {}
-b_2      = {}
-b_3      = {}
-b_4      = {}
-jl       = {}
-me       = {}
-
-for key in keys_new: # keys_new is the number of problems
-    for i in range(nbr_subproblems):
-        # Magnetic field map
-        #===================
-        f = open(Dir_Meso + "h" + str(i + 1) + "_" + str(key[0]) + ".txt", "r")
+if (Flag_meso_comp == 0):
+    
+    # 1. Material law maps per element and GP
+    #========================================
+    h_1      = {}
+    h_2      = {}
+    h_3      = {}
+    h_4      = {}
+    b_1      = {}
+    b_2      = {}
+    b_3      = {}
+    b_4      = {}
+    jl       = {}
+    me       = {}
+    
+    for key in keys_new: # keys_new is the number of problems
+        f_h = open(Dir_Meso + "h" + str(1) + "_new_" + str(key[0]) + ".txt", "w")
+        f = open(Dir_Meso + "h" + str(1) + "_" + str(key[0]) + ".txt", "r")
         g = f.readlines()
-        l_1 = 1
-        l_2 = 1
-        l_3 = 1
-        l_4 = 1
         for j in g:
             line = j.split()
             aaa = (float(line[0])/dt_Macro)
+            if ( ( ( math.ceil(aaa) - aaa) < 5e-14) or ( ( aaa - math.floor(aaa) ) < 5e-14) ):
+                f_h.write(j)
+        f.close()
+        f_h.close()
+
+        f_b = open(Dir_Meso + "b" + str(1) + "_new_" + str(key[0]) + ".txt", "w")
+        f = open(Dir_Meso + "b" + str(1) + "_" + str(key[0]) + ".txt", "r")
+        g = f.readlines()
+        for j in g:
+            line = j.split()
+            aaa = (float(line[0])/dt_Macro)
+            if ( ( ( math.ceil(aaa) - aaa) < 5e-14) or ( ( aaa - math.floor(aaa) ) < 5e-14) ):
+                f_b.write(j)
+        f.close()
+        f_b.close()
+
+        f_JL = open(Dir_Meso + "JouleLosses" + "_new_" + str(key[0]) + ".txt", "w")
+        f = open(Dir_Meso + "JouleLosses" + "_" + str(key[0]) + ".txt", "r")
+        g = f.readlines()
+        for j in g:
+            line = j.split()
+            aaa = (float(line[0])/dt_Macro)
+            if ( ( ( math.ceil(aaa) - aaa) < 5e-14) or ( ( aaa - math.floor(aaa) ) < 5e-14) ):
+                f_JL.write(j)
+        f.close()
+        f_JL.close()
+
+        f_ME = open(Dir_Meso + "MagneticEnergy" + "_new_" + str(key[0]) + ".txt", "w")
+        f = open(Dir_Meso + "JouleLosses" + "_" + str(key[0]) + ".txt", "r")
+        g = f.readlines()
+        for j in g:
+            line = j.split()
+            aaa = (float(line[0])/dt_Macro)
+            if ( ( ( math.ceil(aaa) - aaa) < 5e-14) or ( ( aaa - math.floor(aaa) ) < 5e-14) ):
+                f_ME.write(j)
+        f.close()
+        f_ME.close()
+
+            
+
+    for key in keys_new: # keys_new is the number of problems
+        for i in range(nbr_subproblems):
+            # Magnetic field map
+            #===================
             if (i == 0):
-                if ( ( ( math.ceil(aaa) - aaa) < 1e-15) or ( ( aaa - math.floor(aaa) ) < 1e-15) ):
-                    new_key = (key[0], key[1], time_table[l_1])
+                f = open(Dir_Meso + "h" + str(1) + "_new_" + str(key[0]) + ".txt", "r")
+            elif(i != 0):
+                f = open(Dir_Meso + "h" + str(i + 1) + "_" + str(key[0]) + ".txt", "r")
+            g = f.readlines()
+            l_1 = 1
+            l_2 = 1
+            l_3 = 1
+            l_4 = 1
+            for j in g:
+                line = j.split()
+                aaa = (float(line[0])/dt_Macro)
+                if (i == 0):
+                    new_key = (key[0], key[1], time_index[l_1])
                     h_1[new_key] = line[1 : len(line)]
                     l_1 += 1
-            elif(i == 1):
-                if ( ( ( math.ceil(aaa) - aaa) < 1e-15) or ( ( aaa - math.floor(aaa) ) < 1e-15) ):
-                    new_key = (key[0], key[1], time_table[l_2])
+                elif(i == 1):
+                    new_key = (key[0], key[1], time_index[l_2])
                     h_2[new_key] = line[1 : len(line)]
                     l_2 += 1
-            elif(i == 2):
-                if ( ( ( math.ceil(aaa) - aaa) < 1e-15) or ( ( aaa - math.floor(aaa) ) < 1e-15) ):
-                    new_key = (key[0], key[1], time_table[l_3])
+                elif(i == 2):
+                    new_key = (key[0], key[1], time_index[l_3])
                     h_3[new_key] = line[1 : len(line)]
                     l_3 += 1
-            elif(i == 3):
-                if ( ( ( math.ceil(aaa) - aaa) < 1e-15) or ( ( aaa - math.floor(aaa) ) < 1e-15) ):
-                    new_key = (key[0], key[1], time_table[k+1])
+                elif(i == 3):
+                    new_key = (key[0], key[1], time_index[k+1])
                     h_4[new_key] = line[1 : len(line)]
                     l_4 += 1
-            else:
-                print "Reading the mesoproblem denoted " + str(i) + " Abort..."
-                sys.exit(0)
-        f.close()
+                else:
+                    print "Reading the mesoproblem denoted " + str(i) + " Abort..."
+                    sys.exit(0)
+            f.close()
             
-        # magnetic induction map
-        #=======================
-        f = open(Dir_Meso + "b" + str(i + 1) + "_" + str(key[0]) + ".txt", "r")
-        g = f.readlines()
-        l_1 = 1
-        l_2 = 1
-        l_3 = 1
-        l_4 = 1
-        for j in g:
-            line = j.split()
-            aaa = (float(line[0])/dt_Macro)
+            # magnetic induction map
+            #=======================
             if (i == 0):
-                if ( ( ( math.ceil(aaa) - aaa) < 1e-15) or ( ( aaa - math.floor(aaa) ) < 1e-15) ):
-                    new_key = (key[0], key[1], time_table[l_1])
+                f = open(Dir_Meso + "b" + str(1) + "_new_" + str(key[0]) + ".txt", "r")
+            elif(i != 0):
+                f = open(Dir_Meso + "b" + str(i + 1) + "_" + str(key[0]) + ".txt", "r")
+            g = f.readlines()
+            l_1 = 1
+            l_2 = 1
+            l_3 = 1
+            l_4 = 1
+            for j in g:
+                line = j.split()
+                aaa = (float(line[0])/dt_Macro)
+                if (i == 0):
+                    new_key = (key[0], key[1], time_index[l_1])
                     b_1[new_key] = line[1 : len(line)]
                     l_1 += 1
-            elif(i == 1):
-                if ( ( ( math.ceil(aaa) - aaa) < 1e-15) or ( ( aaa - math.floor(aaa) ) < 1e-15) ):
-                    new_key = (key[0], key[1], time_table[l_2])
+                elif(i == 1):
+                    new_key = (key[0], key[1], time_index[l_2])
                     b_2[new_key] = line[1 : len(line)]
                     l_2 += 1
-            elif(i == 2):
-                if ( ( ( math.ceil(aaa) - aaa) < 1e-15) or ( ( aaa - math.floor(aaa) ) < 1e-15) ):
-                    new_key = (key[0], key[1], time_table[l_3])
+                elif(i == 2):
+                    new_key = (key[0], key[1], time_index[l_3])
                     b_3[new_key] = line[1 : len(line)]
                     l_3 += 1
-            elif(i == 3):
-                if ( ( ( math.ceil(aaa) - aaa) < 1e-15) or ( ( aaa - math.floor(aaa) ) < 1e-15) ):
-                    new_key = (key[0], key[1], time_table[l_4])
+                elif(i == 3):
+                    new_key = (key[0], key[1], time_index[l_4])
                     b_4[new_key] = line[1 : len(line)]
                     l_4 += 1
-            else:
-                print "Reading the mesoproblem denoted " + str(i) + " Abort..."
-                sys.exit(0)
+                else:
+                    print "Reading the mesoproblem denoted " + str(i) + " Abort..."
+                    sys.exit(0)
+                    
+            f.close()
                 
-        f.close()
-                
-        # Joule losses map
-        #=================
-        f = open(Dir_Meso + "JouleLosses_" + str(key[0]) + ".txt", "r")
-        g = f.readlines()
-        l_1 = 1
-        for j in g:
-            line = j.split()
-            aaa = (float(line[0])/dt_Macro)
-            if ( ( ( math.ceil(aaa) - aaa) < 1e-15) or ( ( aaa - math.floor(aaa) ) < 1e-15) ):
-                new_key = (key[0], key[1], time_table[l_1])
+            # Joule losses map
+            #=================
+            f = open(Dir_Meso + "JouleLosses_new_" + str(key[0]) + ".txt", "r")
+            g = f.readlines()
+            l_1 = 1
+            for j in g:
+                line = j.split()
+                #aaa = (float(line[0])/dt_Macro)
+                #if ( ( ( math.ceil(aaa) - aaa) < 5e-15) or ( ( aaa - math.floor(aaa) ) < 5e-15) ):
+                #    new_key = (key[0], key[1], time_table[l_1])
+                new_key = (key[0], key[1], time_index[l_1])
                 jl[new_key] = line[1 : len(line)]
                 l_1 += 1
-        f.close()
-    
-        # Magnetic energy map
-        #====================
-        f = open(Dir_Meso + "MagneticEnergy_" + str(key[0]) + ".txt", "r")
-        g = f.readlines()
-        l_1 = 1
-        for j in g:
-            line = j.split()
-            aaa = (float(line[0])/dt_Macro)
-            if ( ( ( math.ceil(aaa) - aaa) < 1e-15) or ( ( aaa - math.floor(aaa) ) < 1e-15) ):
-                new_key = (key[0], key[1], time_table[l_1])
+            f.close()
+            
+            # Magnetic energy map
+            #====================
+            f = open(Dir_Meso + "MagneticEnergy_new_" + str(key[0]) + ".txt", "r")
+            g = f.readlines()
+            l_1 = 1
+            for j in g:
+                line = j.split()
+                #aaa = (float(line[0])/dt_Macro)
+                #if ( ( ( math.ceil(aaa) - aaa) < 5e-15) or ( ( aaa - math.floor(aaa) ) < 5e-15) ):
+                #    new_key = (key[0], key[1], time_table[l_1])
+                new_key = (key[0], key[1], time_index[l_1])
                 me[new_key] = line[1 : len(line)]
                 l_1 += 1
-        f.close()
+            f.close()
 
         
-# 2. Writing the material law per element/GP/Time
-#================================================
-
-for key in keys:
-    hx_table[key] = float(h_1[key][0])
-    hy_table[key] = float(h_1[key][1])
-    hz_table[key] = float(h_1[key][2])
-    dhdbxx_table[key] = (float(h_2[key][0]) - float(h_1[key][0])) / (float(b_2[key][0]) - float(b_1[key][0]))
-    dhdbxy_table[key] = (float(h_2[key][1]) - float(h_1[key][1])) / (float(b_2[key][0]) - float(b_1[key][0]))
-    dhdbyx_table[key] = (float(h_3[key][0]) - float(h_1[key][0])) / (float(b_3[key][1]) - float(b_1[key][1]))
-    dhdbyy_table[key] = (float(h_3[key][1]) - float(h_1[key][1])) / (float(b_3[key][1]) - float(b_1[key][1]))
+            # 2. Writing the material law per element/GP/Time
+            #================================================
     
-    if nbr_subproblems == 4: # perturbation along z in 3D case
-        dhdbxz_table[key] = (float(h_2[key][2]) - float(h_1[key][2])) / (float(b_2[key][0]) - float(b_1[key][0]))
-        dhdbyz_table[key] = (float(h_3[key][2]) - float(h_1[key][2])) / (float(b_3[key][1]) - float(b_1[key][1]))
-        dhdbzx_table[key] = (float(h_4[key][0]) - float(h_1[key][0])) / (float(b_4[key][2]) - float(b_1[key][2]))
-        dhdbzy_table[key] = (float(h_4[key][1]) - float(h_1[key][1])) / (float(b_4[key][2]) - float(b_1[key][2]))
-        dhdbzz_table[key] = (float(h_4[key][2]) - float(h_1[key][2])) / (float(b_4[key][2]) - float(b_1[key][2]))
-    else:
-        dhdbxz_table[key] = 0.0
-        dhdbyz_table[key] = 0.0
-        dhdbzx_table[key] = 0.0
-        dhdbzy_table[key] = 0.0
-        dhdbzz_table[key] = 0.0
-
-    JouleLosses_table[key] = float(jl[key][0])
-    MagneticEnergy_table[key] = float(me[key][0])
+    for key in keys:
+        hx_table[key] = float(h_1[key][0])
+        hy_table[key] = float(h_1[key][1])
+        hz_table[key] = float(h_1[key][2])
+        dhdbxx_table[key] = (float(h_2[key][0]) - float(h_1[key][0])) / (float(b_2[key][0]) - float(b_1[key][0]))
+        dhdbxy_table[key] = (float(h_2[key][1]) - float(h_1[key][1])) / (float(b_2[key][0]) - float(b_1[key][0]))
+        dhdbyx_table[key] = (float(h_3[key][0]) - float(h_1[key][0])) / (float(b_3[key][1]) - float(b_1[key][1]))
+        dhdbyy_table[key] = (float(h_3[key][1]) - float(h_1[key][1])) / (float(b_3[key][1]) - float(b_1[key][1]))
+        
+        if nbr_subproblems == 4: # perturbation along z in 3D case
+            dhdbxz_table[key] = (float(h_2[key][2]) - float(h_1[key][2])) / (float(b_2[key][0]) - float(b_1[key][0]))
+            dhdbyz_table[key] = (float(h_3[key][2]) - float(h_1[key][2])) / (float(b_3[key][1]) - float(b_1[key][1]))
+            dhdbzx_table[key] = (float(h_4[key][0]) - float(h_1[key][0])) / (float(b_4[key][2]) - float(b_1[key][2]))
+            dhdbzy_table[key] = (float(h_4[key][1]) - float(h_1[key][1])) / (float(b_4[key][2]) - float(b_1[key][2]))
+            dhdbzz_table[key] = (float(h_4[key][2]) - float(h_1[key][2])) / (float(b_4[key][2]) - float(b_1[key][2]))
+        else:
+            dhdbxz_table[key] = 0.0
+            dhdbyz_table[key] = 0.0
+            dhdbzx_table[key] = 0.0
+            dhdbzy_table[key] = 0.0
+            dhdbzz_table[key] = 0.0
+            
+        JouleLosses_table[key] = float(jl[key][0])
+        MagneticEnergy_table[key] = float(me[key][0])
     
-# for i in range(nbr_subproblems):
-#     os.remove(Dir_Meso + "h" + str(i + 1) + "_" + str(key[0]) + ".txt")
-#     os.remove(Dir_Meso + "b" + str(i + 1) + "_" + str(key[0]) + ".txt")
-# os.remove(Dir_Meso + "JouleLosses_" + str(key[0]) + ".txt")
-# os.remove(Dir_Meso + "MagneticEnergy_" + str(key[0]) + ".txt")
-
-print 'material law h1'
-print h_1
-print 'material law h2'
-print h_2
-print 'material law h3'
-print h_3
-print 'material law b1'
-print b_1
-print 'material law b2'
-print b_2
-print 'material law b3'
-print b_3
-print 'material law dhdbxx_table'
-print dhdbxx_table
-print 'material law dhdbxy_table'
-print dhdbxy_table
-print 'material law dhdbyx_table'
-print dhdbyx_table
-print 'material law dhdbyy_table'
-print dhdbyy_table
-print 'material law'
-
-
-
-
-
-print 'materlai law bx_table diff'
-for keyyy in keys:
-    print 'printing bx_diff Pilotetetetetetetetetetetetetetete'
-    print keyyy, (bx_table[keyyy] - bx_old_table[keyyy])
-    print 'printing by_diff Pilotetetetetetetetetetetetetetete'
-    print keyyy, (by_table[keyyy] - by_old_table[keyyy])
-
+        # for i in range(nbr_subproblems):
+        #     os.remove(Dir_Meso + "h" + str(i + 1) + "_" + str(key[0]) + ".txt")
+        #     os.remove(Dir_Meso + "b" + str(i + 1) + "_" + str(key[0]) + ".txt")
+        # os.remove(Dir_Meso + "JouleLosses_" + str(key[0]) + ".txt")
+        # os.remove(Dir_Meso + "MagneticEnergy_" + str(key[0]) + ".txt")
+        

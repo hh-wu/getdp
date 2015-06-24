@@ -26,8 +26,12 @@ Function {
   mu0            = 4.e-7 * Pi;
   nu0            = 1/mu0;
 
-  DefineConstant[ ELENUM=0, QPINDEX=0, dt_Macro=0, Flag_WR_meso=1];
-  
+  DefineConstant[ ELENUM=0, QPINDEX=0, dt_Macro=0, Flag_WR_meso=1, Flag_meso_comp=0];
+
+  If(Flag_meso_comp)
+    Nbr_SubProblems = 1;
+  EndIf
+    
   AX_TIME[] = InterpolationLinear[$Time]{ListAlt[TIMEVEC, AX] };  
   AY_TIME[] = InterpolationLinear[$Time]{ListAlt[TIMEVEC, AY] };  
   AZ_TIME[] = InterpolationLinear[$Time]{ListAlt[TIMEVEC, AZ] };
@@ -79,7 +83,7 @@ Function {
   time0           = 0.0;
   timemax         = T * NbT;
   ti              = time0;
-  dt_Meso         = dt_Macro/1;
+  dt_Meso         = dt_Macro/2;
   theta_value     = 1;
   tf              = timemax;
   

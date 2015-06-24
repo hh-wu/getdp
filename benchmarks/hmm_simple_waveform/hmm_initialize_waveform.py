@@ -1,8 +1,40 @@
 print("Python: initializing HMM tables");
 
 # vector of macroscale time instant
-time_table = {}
+if (input[0] == 0):
+    time_table = {}
+    time_index = {}
+    num_TS = input[1]
+    WR_Abs_L_inf_b_0 = 1
+    WR_Abs_L_inf_dta_0 = 1
+    WR_Abs_L_inf_dtb_0 = 1
+    
+    # python output (filling after meso computations and used for upscaling)
+    hx_table = {}
+    hy_table = {}
+    hz_table = {}
+    dhdbxx_table = {}
+    dhdbxy_table = {}
+    dhdbxz_table = {}
+    dhdbyx_table = {}
+    dhdbyy_table = {}
+    dhdbyz_table = {}
+    dhdbzx_table = {}
+    dhdbzy_table = {}
+    dhdbzz_table = {}
+    JouleLosses_table = {}
+    MagneticEnergy_table = {}
+    
+    
+    hx_old_table = {}
+    hy_old_table = {}
+    hz_old_table = {}
+    dhdbxx_old_table = {}
+    dhdbxy_old_table = {}
+    dhdbyx_old_table = {}
+    dhdbyy_old_table = {}
 
+    
 # python input (filled during downscaling)
 ax_table = {}
 ay_table = {}
@@ -40,27 +72,7 @@ delta_dtbx = {}
 delta_dtby = {}
 delta_dtbz = {}
 
-# python output (filling after meso computations and used for upscaling)
-hx_table = {}
-hy_table = {}
-hz_table = {}
-dhdbxx_table = {}
-dhdbxy_table = {}
-dhdbxz_table = {}
-dhdbyx_table = {}
-dhdbyy_table = {}
-dhdbyz_table = {}
-dhdbzx_table = {}
-dhdbzy_table = {}
-dhdbzz_table = {}
-JouleLosses_table = {}
-MagneticEnergy_table = {}
-
-
-hx_old_table = {}
-hy_old_table = {}
-hz_old_table = {}
-dhdbxx_old_table = {}
-dhdbxy_old_table = {}
-dhdbyx_old_table = {}
-dhdbyy_old_table = {}
+if (input[0] == 0):
+    end_computations = False
+if (input[0] == 1):
+    end_computations = True

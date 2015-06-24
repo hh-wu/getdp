@@ -28,15 +28,6 @@ Function {
   nu0            = 1/mu0;
 
   DefineConstant[ ELENUM=0, QPINDEX=0, dt_Macro=0, Flag_WR_meso=1];
-  
-  AX_TIME[] = InterpolationLinear[$Time]{ListAlt[TIMEVEC, AX] };  
-  AY_TIME[] = InterpolationLinear[$Time]{ListAlt[TIMEVEC, AY] };  
-  AZ_TIME[] = InterpolationLinear[$Time]{ListAlt[TIMEVEC, AZ] };
-  dAX_TIME[] = dInterpolationLinear[$Time]{ListAlt[TIMEVEC, AX] };  
-  dAY_TIME[] = dInterpolationLinear[$Time]{ListAlt[TIMEVEC, AY] };  
-  dAZ_TIME[] = dInterpolationLinear[$Time]{ListAlt[TIMEVEC, AZ] };  
-  aM[]   = Vector[AX_TIME[], AY_TIME[], AZ_TIME[]];
-  daM[]   = Vector[dAX_TIME[], dAY_TIME[], dAZ_TIME[]];  
 
   BX_TIME[] = InterpolationLinear[$Time]{ListAlt[TIMEVEC, BX]};  
   BY_TIME[] = InterpolationLinear[$Time]{ListAlt[TIMEVEC, BY]};  
@@ -46,25 +37,6 @@ Function {
   dBZ_TIME[] = dInterpolationLinear[$Time]{ListAlt[TIMEVEC, BZ]};  
   bM[]   = Vector[BX_TIME[], BY_TIME[], BZ_TIME[]];
   dbM[]   = Vector[dBX_TIME[], dBY_TIME[], dBZ_TIME[]];
-
-  DTAX_TIME[] = InterpolationLinear[$Time]{ListAlt[TIMEVEC, DTAX]};  
-  DTAY_TIME[] = InterpolationLinear[$Time]{ListAlt[TIMEVEC, DTAY]};  
-  DTAZ_TIME[] = InterpolationLinear[$Time]{ListAlt[TIMEVEC, DTAZ]};
-  dDTAX_TIME[] = dInterpolationLinear[$Time]{ListAlt[TIMEVEC, DTAX]};  
-  dDTAY_TIME[] = dInterpolationLinear[$Time]{ListAlt[TIMEVEC, DTAY]};  
-  dDTAZ_TIME[] = dInterpolationLinear[$Time]{ListAlt[TIMEVEC, DTAZ]};  
-  eM[]   = Vector[DTAX_TIME[], DTAY_TIME[], DTAZ_TIME[]];
-  deM[]   = Vector[dDTAX_TIME[], dDTAY_TIME[], dDTAZ_TIME[]];
-
-
-  DTBX_TIME[] = InterpolationLinear[$Time]{ListAlt[TIMEVEC, DTBX]};  
-  DTBY_TIME[] = InterpolationLinear[$Time]{ListAlt[TIMEVEC, DTBY]};  
-  DTBZ_TIME[] = InterpolationLinear[$Time]{ListAlt[TIMEVEC, DTBZ]};
-  dDTBX_TIME[] = dInterpolationLinear[$Time]{ListAlt[TIMEVEC, DTBX]};
-  dDTBY_TIME[] = dInterpolationLinear[$Time]{ListAlt[TIMEVEC, DTBY]};  
-  dDTBZ_TIME[] = dInterpolationLinear[$Time]{ListAlt[TIMEVEC, DTBZ]};  
-  dt_bM[]   = Vector[DTBX_TIME[], DTBY_TIME[], DTBZ_TIME[]];
-  dt_dbM[]   = Vector[dDTBX_TIME[], dDTBY_TIME[], dDTBZ_TIME[]];
 
   NbrMaxIter     = 5;
   Eps            = 1e-8;
@@ -80,7 +52,7 @@ Function {
   time0           = 0.0;
   timemax         = T * NbT;
   ti              = time0;
-  dt_Meso         = dt_Macro/1;
+  dt_Meso         = dt_Macro/2;
   theta_value     = 1;
   tf              = timemax;
   
@@ -108,7 +80,7 @@ Function {
     dhdb_NL[Omega_NL] = 2 * dnudb2[SquNorm[$1]] * SquDyadicProduct[$1];
   EndIf
     
-  a_pert[] = VectorField[XYZ[]]{0};
+  a_pert[] = VectorField[XYZ[], $1 ]{0};
   
 }
 

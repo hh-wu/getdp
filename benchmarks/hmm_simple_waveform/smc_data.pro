@@ -1,3 +1,6 @@
+num_TSSS = 25;
+NbStepsss = 100.;
+
 DefineConstant[
   Flag_NL = {1, Choices{0,1},
     Name "Parameters/0Non-linear meso material"},
@@ -8,23 +11,31 @@ DefineConstant[
 
   Flag_3D = {0, Choices{0,1},
     Name "Parameters/0Currents in the plane or 3D"},
-
+  
+  //Flag_Geometry = {2, Choices{0,1,2},
+  //                 Name "Parameters/0Half geometry for mesoproblems or not"}
   Flag_Half = {0, Choices{0,1},
   Name "Parameters/0Half geometry for mesoproblems or not"}
 
   Flag_WR= {0, Choices{0,1},
   Name "Parameters/1Waveform relaxation iterations or not"}
-
+  
   Freq = {50000,
     Name "Parameters/Frequency", Visible Flag_Dynamic},
-  NbT = {2./100.,
+  NbT = {num_TSSS/NbStepsss,
     Name "Parameters/Number of periods", Visible Flag_Dynamic},
-  NbSteps = {100,
+  NbSteps = {NbStepsss,
     Name "Parameters/Steps per period", Visible Flag_Dynamic}
 ];
 
+num_TS = num_TSSS;
+
 // FIXME:
 source_amplitude = Flag_3D ? 7e5 : 700.e7;
+
+Quarter_Geometry = 0;
+Half_Geometry    = 1;
+Full_Geometry    = 2;
 
 //Flag_Init_Step[] = 1;
 Flag_Local = 1;
@@ -50,16 +61,16 @@ micron    = 1e-6;        // the micron
 d         = 45 * micron; // thickness of conductor
 e         = 50 * micron; // thickness of smc grain
 eps       = e;
-n_smc     = 2;          // number of SMC grains for reference calculation
+n_smc     = 10;          // number of SMC grains for reference calculation
 nlai      = 4;          //
 LX        = e * n_smc;      // width of the entire SMC structure
 LY        = LX;
-w_ind     = 1 * e;
-rla_ind   = 1 * e; // minimum distance between lamination and inductor (radious)
+w_ind     = 2 * e;
+rla_ind   = 3 * e; // minimum distance between lamination and inductor (radious)
 gap_ind   = (n_smc <= 2) ? (0.5 * e) : e;
 xlam      = LX; //w_lam/2;
 ylam      = LX;
-x_air     = 2 * (LX + rla_ind + w_ind);
+x_air     = 5 * (LX + rla_ind + w_ind);
 y_air     = x_air;
 d_inf     = 0.5 * x_air;
 Val_Rint  = x_air;
@@ -71,29 +82,29 @@ plam        = d/8; // lc for the homogenized domain
 lca         = pind * 5; // lc for the inf transfo domain
 lc_smc_iso  = d/15. ;
 lc_smc_cond = e/40. ;
-DefineConstant[Lay1 = 11];
-DefineConstant[Lay2 = 11];
+DefineConstant[Lay1 = 16];
+DefineConstant[Lay2 = 16];
 DefineConstant[Lay3 = 5];
-DefineConstant[Lay_X = 2];
-DefineConstant[Lay_Y = 2];
+DefineConstant[Lay_X = 7];
+DefineConstant[Lay_Y = 7];
 Pro1        = 1.0;
 Pro2        = 1.0;
 Pro3        = 1.0;
-Pro_X       = 0.95;
-Pro_Y       = 0.95;
+Pro_X       = 1.0;
+Pro_Y       = 1.0;
 n_thickness = 6;
-n_circle    = 6;
+n_circle    = 11;
 num_waveform_iterations = 15;
 
 // meso dimensions
 lx          = e;   // length of the cell
 ly          = lx;       //
-lc_ext      = e/30.0; // characteristic length for points in the insulator
-lc_int      = e/60.0; // characteristic length for points in the conductor
+lc_ext      = e/20.0; // characteristic length for points in the insulator
+lc_int      = e/40.0; // characteristic length for points in the conductor
 r_c         = 5.e-6;    // radius of the chamfer
 d_i         = 5.e-6;    // thickness of the insulator
-n_1         = 51;       // subdivisions along length of insulation layer
-n_2         = 11;        // subdivisions along thickness of insulation layer
+n_1         = 31;       // subdivisions along length of insulation layer
+n_2         = 4;        // subdivisions along thickness of insulation layer
 // Physical groups for macro & reference problems
 GAMMA_INF   = 10000;
 SYMMETRY_X0 = 10001;
@@ -116,8 +127,23 @@ INSULATION  = 1006; // insulation
 
 If(Flag_Half)
 GAMMA_LEFT_NJ = 1007; // right boundary
-GAMMA_LEFT_NB = 1008; // right boundary
+GAMMA_LEFT_TH = 1008; // right boundary
 EndIf
+
+/*
+
+If(Flag_Geometry == Half_Geometry)
+GAMMA_LEFT_NJ = 1007; // right boundary
+GAMMA_LEFT_TH = 1008; // right boundary
+EndIf
+If(Flag_Geometry == Quarter_Geometry)
+GAMMA_LEFT_NJ = 1007; // right boundary
+GAMMA_LEFT_TH = 1008; // right boundary
+
+GAMMA_DOWN_NJ = 1009; // right boundary
+GAMMA_DOWN_TH = 1010; // right boundary
+EndIf
+*/
 // Information concerning the cuts
 
 nTS          = 2;

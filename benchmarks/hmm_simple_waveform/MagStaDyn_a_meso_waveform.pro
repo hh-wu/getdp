@@ -179,16 +179,16 @@ Resolution {
           IterativeLoop[NbrMaxIter, Eps, Relax]{
             GenerateJac[Meso_1]; SolveJac[Meso_1];
             //Test[ ((Fmod[($Time - time0), dt_Macro]##111) < 1e-14) || ((Fmod[dt_Macro, ($Time - time0)]##222) < 1e-14)]{
-            Test[ (Fabs[Ceil[($Time - time0)/dt_Macro] - ($Time - time0)/dt_Macro] < 1e-14) ||
-                  (Fabs[($Time - time0)/dt_Macro - Floor[($Time - time0)/dt_Macro]] < 1e-14) ]{
+            Test[ (Fabs[Ceil[($Time - time0)/dt_Macro] - ($Time - time0)/dt_Macro] < 5e-14) ||
+                  (Fabs[($Time - time0)/dt_Macro - Floor[($Time - time0)/dt_Macro]] < 5e-14) ]{
               For iP In {2:Nbr_SubProblems}
                 GenerateJac[Meso~{iP}]; SolveJac[Meso~{iP}];
               EndFor
             } 
           }
           SaveSolution[Meso_1];
-          Test[ (Fabs[Ceil[($Time - time0)/dt_Macro] - ($Time - time0)/dt_Macro] < 1e-14) ||
-                (Fabs[($Time - time0)/dt_Macro - Floor[($Time - time0)/dt_Macro]] < 1e-14) ]{
+          Test[ (Fabs[Ceil[($Time - time0)/dt_Macro] - ($Time - time0)/dt_Macro] < 5e-14) ||
+                (Fabs[($Time - time0)/dt_Macro - Floor[($Time - time0)/dt_Macro]] < 5e-14) ]{
             For iP In {2:Nbr_SubProblems}
               SaveSolution[Meso~{iP}];
             EndFor

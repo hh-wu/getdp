@@ -60,7 +60,7 @@ Formulation {
       }
       Equation{
         Galerkin { [ Dof{a} , {a} ]; In Omega; Jacobian Vol; Integration II; }
-        Galerkin { [ -a_pert[], {a} ]; In Omega; Jacobian Vol; Integration II; }
+        Galerkin { [ -a_pert[$TimeStep], {a} ]; In Omega; Jacobian Vol; Integration II; }
       }
     }
 }
@@ -68,26 +68,23 @@ Formulation {
 Resolution {
   { Name a_NR_WR;
     System {
-      { Name Meso_1; NameOfFormulation a_NR_WR; }
+      { Name Meso_WR; NameOfFormulation a_NR_WR; }
     }
     Operation {
-      //CreateDirectory[Dir_Meso];
       //GmshRead[Sprintf("res_meso/a_pert_Prob1_Elenum%g.pos", ELENUM)] ;
-      InitSolution[Meso_1 ];
-      SaveSolution[Meso_1 ];
+      InitSolution[Meso_WR ];
+      SaveSolution[Meso_WR ];
       //TimeLoopTheta[time0, timemax, dt_Macro, theta_value]{
       TimeLoopTheta[time0, timemax, dt_Meso, theta_value]{
         IterativeLoop[NbrMaxIter, Eps, Relax]{
-          //Generate[Meso_1]; Solve[Meso_1];
         }
-        //SaveSolution[Meso_1 ];
         PostOperation[mean_WR];
       }
     }
   }
 }
 PostProcessing {
-  { Name a_Meso_NR_WR; NameOfFormulation a_NR_WR; NameOfSystem Meso_1;
+  { Name a_Meso_NR_WR; NameOfFormulation a_NR_WR; NameOfSystem Meso_WR;
     PostQuantity {
       { Name vol; Value { // stored in register #12
           Integral { [ 1. ]; In Omega; Jacobian Vol; Integration II; } } }
@@ -97,9 +94,16 @@ PostProcessing {
       { Name h_mean; Value {// stored in #22
           Integral { [ nu[ {d a} + bM[]] * ({d a} + bM[])/#12 ];
             In Omega; Jacobian Vol; Integration II; } } }
+      //{ Name dhdb_mean; Value {// stored in #22
+      //    Integral { [ dhdb[ {d a} + bM[]]/#12 ];
+      //      In Omega; Jacobian Vol; Integration II; } } }
       { Name dhdb_mean; Value {// stored in #22
-          Integral { [ dhdb[ {d a} + bM[]]/#12 ];
-            In Omega; Jacobian Vol; Integration II; } } }
+          Integral { [ Tensor[ CompXX[dhdb[ {d a} + bM[] ] ], CompXY[dhdb[ {d a} + bM[] ] ], CompXZ[dhdb[ {d a} + bM[] ] ],
+                               CompYX[dhdb[ {d a} + bM[] ] ], CompYY[dhdb[ {d a} + bM[] ] ], CompYZ[dhdb[ {d a} + bM[] ] ],
+                               CompZX[dhdb[ {d a} + bM[] ] ], CompZY[dhdb[ {d a} + bM[] ] ], CompZZ[dhdb[ {d a} + bM[] ] ] ]/#12 ] ;
+            In Omega ; Jacobian Vol ; Integration II; } } }
+  
+      
     }
   }
 }
