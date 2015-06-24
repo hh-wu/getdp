@@ -52,7 +52,7 @@ Function {
   time0           = 0.0;
   timemax         = T * NbT;
   ti              = time0;
-  dt_Meso         = dt_Macro/2;
+  dt_Meso         = dt_Macro/1;
   theta_value     = 1;
   tf              = timemax;
   

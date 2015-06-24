@@ -3,8 +3,6 @@ print("Python: initializing HMM tables");
 # vector of macroscale time instant
 if (input[0] == 0):
     time_table = {}
-    time_index = {}
-    num_TS = input[1]
     WR_Abs_L_inf_b_0 = 1
     WR_Abs_L_inf_dta_0 = 1
     WR_Abs_L_inf_dtb_0 = 1

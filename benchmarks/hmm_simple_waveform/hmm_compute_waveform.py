@@ -31,6 +31,20 @@ for i in range(0, num_mesoproblems):
 keys_new.sort()
 #===============================================================
 
+#print 'bx_table bx_table bx_table bx_table bx_table bx_table bx_table bx_table '
+#print 'bx_table bx_table bx_table bx_table bx_table bx_table bx_table bx_table '
+#print 'bx_table bx_table bx_table bx_table bx_table bx_table bx_table bx_table '
+#print 'bx_table bx_table bx_table bx_table bx_table bx_table bx_table bx_table '
+#print 'bx_table bx_table bx_table bx_table bx_table bx_table bx_table bx_table '
+#bxxx = bx_table.keys()
+#bxxx.sort()
+#print bxxx
+#print 'bx_table bx_table bx_table bx_table bx_table bx_table bx_table bx_table '
+#print 'bx_table bx_table bx_table bx_table bx_table bx_table bx_table bx_table '
+#print 'bx_table bx_table bx_table bx_table bx_table bx_table bx_table bx_table '
+#print 'bx_table bx_table bx_table bx_table bx_table bx_table bx_table bx_table '
+
+
 #nkeys = len(keys)
 nkeys = len(keys_new)
 file_dir = os.path.abspath(os.path.dirname(__file__)) + "/"
@@ -90,22 +104,21 @@ while len(queue):
                 # Build lists of downscaled quantities per key
                 #=============================================
                 if (Flag_meso_comp == 0):
-                    list_time = ''
-                    list_ax = ''
-                    list_ay = ''
-                    list_az = ''
-                    list_bx = ''
-                    list_by = ''
-                    list_bz = ''
-                    list_dtax = ''
-                    list_dtay = ''
-                    list_dtaz = ''
-                    list_dtbx = ''
-                    list_dtby = ''
-                    list_dtbz = ''
-                    for j in range(0,len_time-1):
-                        #getdp_list_key = (key[0], key[1], time_table[j+1])
-                        getdp_list_key = (key[0], key[1], time_index[j+1])
+                    list_time = '0'
+                    list_ax = '0'
+                    list_ay = '0'
+                    list_az = '0'
+                    list_bx = '0'
+                    list_by = '0'
+                    list_bz = '0'
+                    list_dtax = '0'
+                    list_dtay = '0'
+                    list_dtaz = '0'
+                    list_dtbx = '0'
+                    list_dtby = '0'
+                    list_dtbz = '0'
+                    for j in range(0,len_time):
+                        getdp_list_key = (key[0], key[1], time_table[j+1])
                         list_time += " " + str(time_table[j+1])
                         list_ax += " " + str(ax_table[getdp_list_key])
                         list_ay += " " + str(ay_table[getdp_list_key])
@@ -134,8 +147,7 @@ while len(queue):
                     list_dtby = '0'
                     list_dtbz = '0'
                     for j in range(1,len_time):
-                        #getdp_list_key = (key[0], key[1], time_table[j+1])
-                        getdp_list_key = (key[0], key[1], time_index[j+1])
+                        getdp_list_key = (key[0], key[1], time_table[j+1])
                         list_time += " " + str(time_table[j+1])
                         list_ax += " " + str(ax_table[getdp_list_key])
                         list_ay += " " + str(ay_table[getdp_list_key])
@@ -167,19 +179,19 @@ while len(queue):
                              "-setnumber", "Freq", str(freq),
                              "-setnumber", "dt_Macro", str(dt_Macro),
                              "-setnumber", "NbSteps", str(nb_steps),
-                             "-setlist", "TIMEVEC "  + str(len_time-1), str(list_time),
-                             "-setlist", "AX " + str(len_time-1), str(list_ax),
-                             "-setlist", "AY " + str(len_time-1), str(list_ay),
-                             "-setlist", "AZ " + str(len_time-1), str(list_az),
-                             "-setlist", "BX " + str(len_time-1), str(list_bx),
-                             "-setlist", "BY " + str(len_time-1), str(list_by),
-                             "-setlist", "BZ " + str(len_time-1), str(list_bz),
-                             "-setlist", "DTAX " + str(len_time-1), str(list_dtax),
-                             "-setlist", "DTAY " + str(len_time-1), str(list_dtay),
-                             "-setlist", "DTAZ " + str(len_time-1), str(list_dtaz),
-                             "-setlist", "DTBX " + str(len_time-1), str(list_dtbx),
-                             "-setlist", "DTBY " + str(len_time-1), str(list_dtby),
-                             "-setlist", "DTBZ " + str(len_time-1), str(list_dtbz),                         
+                             "-setlist", "TIMEVEC "  + str(len_time), str(list_time),
+                             "-setlist", "AX " + str(len_time), str(list_ax),
+                             "-setlist", "AY " + str(len_time), str(list_ay),
+                             "-setlist", "AZ " + str(len_time), str(list_az),
+                             "-setlist", "BX " + str(len_time), str(list_bx),
+                             "-setlist", "BY " + str(len_time), str(list_by),
+                             "-setlist", "BZ " + str(len_time), str(list_bz),
+                             "-setlist", "DTAX " + str(len_time), str(list_dtax),
+                             "-setlist", "DTAY " + str(len_time), str(list_dtay),
+                             "-setlist", "DTAZ " + str(len_time), str(list_dtaz),
+                             "-setlist", "DTBX " + str(len_time), str(list_dtbx),
+                             "-setlist", "DTBY " + str(len_time), str(list_dtby),
+                             "-setlist", "DTBZ " + str(len_time), str(list_dtbz),                         
                              "-setnumber", "ELENUM", str(key[0]),
                              "-setnumber", "QPINDEX", str(key[1]),
                              "-setnumber", "Flag_meso_comp", str(Flag_meso_comp),
@@ -202,9 +214,8 @@ while len(queue):
                 list_dtbx = '0'
                 list_dtby = '0'
                 list_dtbz = '0'
-                for j in range(1,len_time):
-                    #getdp_list_key = (key[0], key[1], time_table[j+1])
-                    getdp_list_key = (key[0], key[1], time_index[j+1])
+                for j in range(0,len_time):
+                    getdp_list_key = (key[0], key[1], time_table[j+1])
                     list_time += " " + str(time_table[j+1])
                     list_bx += " " + str(bx_table[getdp_list_key])
                     list_by += " " + str(by_table[getdp_list_key])
@@ -266,7 +277,8 @@ if (Flag_meso_comp == 0):
     b_4      = {}
     jl       = {}
     me       = {}
-    
+
+
     for key in keys_new: # keys_new is the number of problems
         f_h = open(Dir_Meso + "h" + str(1) + "_new_" + str(key[0]) + ".txt", "w")
         f = open(Dir_Meso + "h" + str(1) + "_" + str(key[0]) + ".txt", "r")
@@ -323,28 +335,33 @@ if (Flag_meso_comp == 0):
             elif(i != 0):
                 f = open(Dir_Meso + "h" + str(i + 1) + "_" + str(key[0]) + ".txt", "r")
             g = f.readlines()
-            l_1 = 1
-            l_2 = 1
-            l_3 = 1
-            l_4 = 1
+            l_1 = 0
+            l_2 = 0
+            l_3 = 0
+            l_4 = 0
             for j in g:
                 line = j.split()
+                #print line
                 aaa = (float(line[0])/dt_Macro)
                 if (i == 0):
-                    new_key = (key[0], key[1], time_index[l_1])
-                    h_1[new_key] = line[1 : len(line)]
+                    if (l_1 != 0):
+                        new_key = (key[0], key[1], time_table[l_1])
+                        h_1[new_key] = line[1 : len(line)]
                     l_1 += 1
                 elif(i == 1):
-                    new_key = (key[0], key[1], time_index[l_2])
-                    h_2[new_key] = line[1 : len(line)]
+                    if (l_2 != 0):
+                        new_key = (key[0], key[1], time_table[l_2])
+                        h_2[new_key] = line[1 : len(line)]
                     l_2 += 1
                 elif(i == 2):
-                    new_key = (key[0], key[1], time_index[l_3])
-                    h_3[new_key] = line[1 : len(line)]
+                    if (l_3 != 0):
+                        new_key = (key[0], key[1], time_table[l_3])
+                        h_3[new_key] = line[1 : len(line)]
                     l_3 += 1
                 elif(i == 3):
-                    new_key = (key[0], key[1], time_index[k+1])
-                    h_4[new_key] = line[1 : len(line)]
+                    if (l_4 != 0):
+                        new_key = (key[0], key[1], time_table[k+1])
+                        h_4[new_key] = line[1 : len(line)]
                     l_4 += 1
                 else:
                     print "Reading the mesoproblem denoted " + str(i) + " Abort..."
@@ -358,28 +375,32 @@ if (Flag_meso_comp == 0):
             elif(i != 0):
                 f = open(Dir_Meso + "b" + str(i + 1) + "_" + str(key[0]) + ".txt", "r")
             g = f.readlines()
-            l_1 = 1
-            l_2 = 1
-            l_3 = 1
-            l_4 = 1
+            l_1 = 0
+            l_2 = 0
+            l_3 = 0
+            l_4 = 0
             for j in g:
                 line = j.split()
                 aaa = (float(line[0])/dt_Macro)
                 if (i == 0):
-                    new_key = (key[0], key[1], time_index[l_1])
-                    b_1[new_key] = line[1 : len(line)]
+                    if (l_1 != 0):
+                        new_key = (key[0], key[1], time_table[l_1])
+                        b_1[new_key] = line[1 : len(line)]
                     l_1 += 1
                 elif(i == 1):
-                    new_key = (key[0], key[1], time_index[l_2])
-                    b_2[new_key] = line[1 : len(line)]
+                    if (l_2 != 0):
+                        new_key = (key[0], key[1], time_table[l_2])
+                        b_2[new_key] = line[1 : len(line)]
                     l_2 += 1
                 elif(i == 2):
-                    new_key = (key[0], key[1], time_index[l_3])
-                    b_3[new_key] = line[1 : len(line)]
+                    if (l_3 != 0):
+                        new_key = (key[0], key[1], time_table[l_3])
+                        b_3[new_key] = line[1 : len(line)]
                     l_3 += 1
                 elif(i == 3):
-                    new_key = (key[0], key[1], time_index[l_4])
-                    b_4[new_key] = line[1 : len(line)]
+                    if (l_4 != 0):
+                        new_key = (key[0], key[1], time_table[l_4])
+                        b_4[new_key] = line[1 : len(line)]
                     l_4 += 1
                 else:
                     print "Reading the mesoproblem denoted " + str(i) + " Abort..."
@@ -391,14 +412,15 @@ if (Flag_meso_comp == 0):
             #=================
             f = open(Dir_Meso + "JouleLosses_new_" + str(key[0]) + ".txt", "r")
             g = f.readlines()
-            l_1 = 1
+            l_1 = 0
             for j in g:
                 line = j.split()
-                #aaa = (float(line[0])/dt_Macro)
-                #if ( ( ( math.ceil(aaa) - aaa) < 5e-15) or ( ( aaa - math.floor(aaa) ) < 5e-15) ):
-                #    new_key = (key[0], key[1], time_table[l_1])
-                new_key = (key[0], key[1], time_index[l_1])
-                jl[new_key] = line[1 : len(line)]
+                if (l_1 != 0):
+                    #aaa = (float(line[0])/dt_Macro)
+                    #if ( ( ( math.ceil(aaa) - aaa) < 5e-15) or ( ( aaa - math.floor(aaa) ) < 5e-15) ):
+                    #    new_key = (key[0], key[1], time_table[l_1])
+                    new_key = (key[0], key[1], time_table[l_1])
+                    jl[new_key] = line[1 : len(line)]
                 l_1 += 1
             f.close()
             
@@ -406,21 +428,41 @@ if (Flag_meso_comp == 0):
             #====================
             f = open(Dir_Meso + "MagneticEnergy_new_" + str(key[0]) + ".txt", "r")
             g = f.readlines()
-            l_1 = 1
+            l_1 = 0
             for j in g:
                 line = j.split()
-                #aaa = (float(line[0])/dt_Macro)
-                #if ( ( ( math.ceil(aaa) - aaa) < 5e-15) or ( ( aaa - math.floor(aaa) ) < 5e-15) ):
-                #    new_key = (key[0], key[1], time_table[l_1])
-                new_key = (key[0], key[1], time_index[l_1])
-                me[new_key] = line[1 : len(line)]
+                if (l_1 != 0):
+                    #aaa = (float(line[0])/dt_Macro)
+                    #if ( ( ( math.ceil(aaa) - aaa) < 5e-15) or ( ( aaa - math.floor(aaa) ) < 5e-15) ):
+                    #    new_key = (key[0], key[1], time_table[l_1])
+                    new_key = (key[0], key[1], time_table[l_1])
+                    me[new_key] = line[1 : len(line)]
                 l_1 += 1
             f.close()
 
-        
             # 2. Writing the material law per element/GP/Time
             #================================================
-    
+
+    #print 'maps maps maps maps maps maps maps maps maps maps maps maps '
+    #print 'maps maps maps maps maps maps maps maps maps maps maps maps '
+    #print 'maps maps maps maps maps maps maps maps maps maps maps maps '
+    #print 'maps maps maps maps maps maps maps maps maps maps maps maps '
+    #print 'maps maps maps maps maps maps maps maps maps maps maps maps '
+    #print 'maps maps maps maps maps maps maps maps maps maps maps maps '
+    #print 'maps maps maps maps maps maps maps maps maps maps maps maps '
+    #print 'h_1'
+    #print h_1
+    #print 'h_2'
+    #print h_2
+    #print 'h_3'
+    #print h_3
+    #print 'b_1'
+    #print b_1
+    #print 'b_2'
+    #print b_2
+    #print 'b_3'
+    #print b_3
+            
     for key in keys:
         hx_table[key] = float(h_1[key][0])
         hy_table[key] = float(h_1[key][1])

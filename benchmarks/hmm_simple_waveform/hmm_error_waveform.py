@@ -94,10 +94,10 @@ if (WR_iteration > 0):
         f.write("WR iteration " + str(WR_Rel_L_inf_dtb) + "\n")
         output = (True)
     if (WR_iteration != 0):
-        f = open(file_dir + "WR_Rel_L_inf_b.txt", "w")
+        f = open(file_dir + "WR_Rel_L_inf_b.txt", "a")
         f.write("WR iteration " + str(WR_Rel_L_inf_b) + "\n")
-        f = open(file_dir + "WR_Rel_L_inf_dta.txt", "w")
+        f = open(file_dir + "WR_Rel_L_inf_dta.txt", "a")
         f.write("WR iteration " + str(WR_Rel_L_inf_dta) + "\n")
-        f = open(file_dir + "WR_Rel_L_inf_dtb.txt", "w")
+        f = open(file_dir + "WR_Rel_L_inf_dtb.txt", "a")
         f.write("WR iteration " + str(WR_Rel_L_inf_dtb) + "\n")
         output = ((WR_Rel_L_inf_b > tolerance) or (WR_Rel_L_inf_dta > tolerance) or (WR_Rel_L_inf_dtb > tolerance))

@@ -1,9 +1,8 @@
-import math
+Time = round(input[2]+5e-13, 7) 
 
-#TS = math.fmod(input[2], num_TS)
-TS = (input[2] % (num_TS + 1)) + 1
 
-key = (input[0], input[1], TS) # element num, quadrature point index
+#key = (input[0], input[1], input[2]) # element num, quadrature point index
+key = (input[0], input[1], Time) # element num, quadrature point index
 
 ax_table[key] = input[3]
 ay_table[key] = input[4]

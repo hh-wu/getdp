@@ -1,6 +1,3 @@
-num_TSSS = 25;
-NbStepsss = 100.;
-
 DefineConstant[
   Flag_NL = {1, Choices{0,1},
     Name "Parameters/0Non-linear meso material"},
@@ -19,16 +16,14 @@ DefineConstant[
 
   Flag_WR= {0, Choices{0,1},
   Name "Parameters/1Waveform relaxation iterations or not"}
-  
+
   Freq = {50000,
     Name "Parameters/Frequency", Visible Flag_Dynamic},
-  NbT = {num_TSSS/NbStepsss,
+  NbT = {10./100.,
     Name "Parameters/Number of periods", Visible Flag_Dynamic},
-  NbSteps = {NbStepsss,
+  NbSteps = {100,
     Name "Parameters/Steps per period", Visible Flag_Dynamic}
 ];
-
-num_TS = num_TSSS;
 
 // FIXME:
 source_amplitude = Flag_3D ? 7e5 : 700.e7;
@@ -85,8 +80,8 @@ lc_smc_cond = e/40. ;
 DefineConstant[Lay1 = 16];
 DefineConstant[Lay2 = 16];
 DefineConstant[Lay3 = 5];
-DefineConstant[Lay_X = 7];
-DefineConstant[Lay_Y = 7];
+DefineConstant[Lay_X = 2];
+DefineConstant[Lay_Y = 2];
 Pro1        = 1.0;
 Pro2        = 1.0;
 Pro3        = 1.0;

@@ -179,16 +179,18 @@ Resolution {
           IterativeLoop[NbrMaxIter, Eps, Relax]{
             GenerateJac[Meso_1]; SolveJac[Meso_1];
             //Test[ ((Fmod[($Time - time0), dt_Macro]##111) < 1e-14) || ((Fmod[dt_Macro, ($Time - time0)]##222) < 1e-14)]{
-            Test[ (Fabs[Ceil[($Time - time0)/dt_Macro] - ($Time - time0)/dt_Macro] < 5e-14) ||
-                  (Fabs[($Time - time0)/dt_Macro - Floor[($Time - time0)/dt_Macro]] < 5e-14) ]{
+            //Test[ (Fabs[Ceil[($Time - time0)/dt_Macro] - ($Time - time0)/dt_Macro] < 5e-13) ||
+            //      (Fabs[($Time - time0)/dt_Macro - Floor[($Time - time0)/dt_Macro]] < 5e-13) ]{
+            Test[ (Fmod[($Time + 5e-14 - time0), dt_Macro] < 5e-13)] {
               For iP In {2:Nbr_SubProblems}
                 GenerateJac[Meso~{iP}]; SolveJac[Meso~{iP}];
               EndFor
             } 
           }
           SaveSolution[Meso_1];
-          Test[ (Fabs[Ceil[($Time - time0)/dt_Macro] - ($Time - time0)/dt_Macro] < 5e-14) ||
-                (Fabs[($Time - time0)/dt_Macro - Floor[($Time - time0)/dt_Macro]] < 5e-14) ]{
+          //Test[ (Fabs[Ceil[($Time - time0)/dt_Macro] - ($Time - time0)/dt_Macro] < 5e-13) ||
+          //      (Fabs[($Time - time0)/dt_Macro - Floor[($Time - time0)/dt_Macro]] < 5e-13) ]{
+          Test[ (Fmod[($Time + 5e-14 - time0), dt_Macro] < 5e-13)] {
             For iP In {2:Nbr_SubProblems}
               SaveSolution[Meso~{iP}];
             EndFor
@@ -196,15 +198,17 @@ Resolution {
         }
       //==============================================================================================      
       EndIf
-      If ((Flag_WR == 0) && (Flag_WR_meso == 0))
-        //============================================================================================
-        GmshRead[Sprintf("res_meso/b_pert_Prob1_Elenum%g.pos", ELENUM)] ;
-        InitSolution[Meso_1 ];
-        TimeLoopTheta[time0, timemax, dt_Macro, theta_value]{
+        /*
+          If ((Flag_WR == 0) && (Flag_WR_meso == 0))
+          //============================================================================================
+          GmshRead[Sprintf("res_meso/b_pert_Prob1_Elenum%g.pos", ELENUM)] ;
+          InitSolution[Meso_1 ];
+          TimeLoopTheta[time0, timemax, dt_Macro, theta_value]{
           PostOperation[Compute_Material_Law];
-        }
-      //==============================================================================================      
-      EndIf
+          }
+          //==============================================================================================      
+          EndIf
+        */
         
         
     }

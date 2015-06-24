@@ -1,10 +1,8 @@
-import math
-
-#TS = math.fmod(input[2], num_TS)
-TS = (input[2] % (num_TS + 1) ) + 1
+Time = round(input[2]+5e-13, 7) 
 
 
-key = (input[0], input[1], TS) # element num, quadrature point index and time instant
+#key = (input[0], input[1], input[2]) # element num, quadrature point index
+key = (input[0], input[1], Time) # element num, quadrature point index
 
 field = input[3]
 
