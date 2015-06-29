@@ -246,6 +246,7 @@ Formulation {
 //-----------------------------------------------------------------------------------------------
 
 Flag_NL_BFGS = 0; // test
+Flag_SNES = 1; // test
 
 Resolution {
 
@@ -269,7 +270,11 @@ Resolution {
         If(!Flag_NL)
           Generate[A] ; Solve[A] ;
         EndIf
-        If(Flag_NL)
+        If(Flag_NL && Flag_SNES)
+          GenerateJac[A];
+          SolveNL[A];
+        EndIf
+        If(Flag_NL && !Flag_SNES)
           IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
             Test[ $Iteration == 1 || !Flag_NL_BFGS ]{
               GenerateJac[A] ;

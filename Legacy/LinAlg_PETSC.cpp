@@ -1445,8 +1445,6 @@ static void _solveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R, gSolver *So
   if(solverIndex != 0)
     Message::Info("Using nonlinear solver index %d", solverIndex);
 
-  PetscTruth fd_jacobian = PETSC_FALSE, snes_fd = PETSC_FALSE ;
-
   // Setting nonlinear solver defaults
   if(!Solver->snes[solverIndex]) {
     _try(SNESCreate(MyComm, &Solver->snes[solverIndex]));
@@ -1459,9 +1457,9 @@ static void _solveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R, gSolver *So
 
     // override default options with those from database (if any)
     _try(SNESSetFromOptions(Solver->snes[solverIndex]));
-
-    PetscOptionsGetTruth(PETSC_NULL,"-fd_jacobian",&fd_jacobian,0);
-    PetscOptionsGetTruth(PETSC_NULL,"-snes_fd",&snes_fd,0);
+    PetscTruth fd_jacobian = PETSC_FALSE, snes_fd = PETSC_FALSE ;
+    PetscOptionsGetTruth(PETSC_NULL, "-fd_jacobian", &fd_jacobian, 0);
+    PetscOptionsGetTruth(PETSC_NULL, "-snes_fd", &snes_fd, 0);
     if (fd_jacobian || snes_fd) {
       Message::Error("Finite Difference Jacobian not yet implemented");
 
