@@ -473,6 +473,7 @@ void Generate_Residual(gVector *x, gVector *f)
                                    -1., &DofData_P->CurrentSolution->x);
   // calculate residual with new solution
   ReGenerate_System(DefineSystem_P, DofData_P, DofData_P0, 1) ;
+
   // calculate residual with new solution
   LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x, &DofData_P->res) ;
   // res = b(xn)-A(xn)*xn
@@ -503,8 +504,7 @@ void Generate_FullJacobian(gVector *x, gMatrix *Jac)
   LinAlg_CopyVector(x, &DofData_P->dx);
   LinAlg_AddVectorVector(&DofData_P->CurrentSolution->x, &DofData_P->dx,
                          &DofData_P->CurrentSolution->x); // updating solution solution
-
-  //LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->Jac, &DofData_P->Jac) ;
+  LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->Jac, &DofData_P->Jac) ;
 
   *Jac = DofData_P->Jac ;
   LinAlg_AssembleMatrix(Jac) ;

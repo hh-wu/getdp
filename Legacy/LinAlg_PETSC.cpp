@@ -1360,8 +1360,11 @@ static PetscErrorCode _NLFormFunction(SNES snes, Vec x, Vec f, void *mctx)
 {
   gVector gx, gf ;
   gx.V = x ;
+  gx.haveSeq = 0;
   gf.V = f ;
+  gf.haveSeq = 0;
   Generate_Residual(&gx, &gf) ;
+
   PetscScalar *ff ;
   _try(VecGetArray(gf.V, &ff)) ;
   PetscInt n;
@@ -1379,6 +1382,7 @@ static PetscErrorCode _NLFormJacobian(SNES snes, Vec x, Mat *J, Mat *PC,
 {
   gVector gx ;
   gx.V = x ;
+  gx.haveSeq = 0;
   gMatrix gJ ;
   gJ.M = *J ;
   Generate_FullJacobian(&gx, &gJ);
@@ -1399,6 +1403,7 @@ static PetscErrorCode _NLFormJacobian(SNES snes, Vec x, Mat J, Mat PC,
 {
   gVector gx ;
   gx.V = x ;
+  gx.haveSeq = 0;
   gMatrix gJ ;
   gJ.M = J ;
   Generate_FullJacobian(&gx, &gJ);
@@ -1452,8 +1457,7 @@ static void _solveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R, gSolver *So
       _try(SNESMonitorSet(Solver->snes[solverIndex], _mySnesMonitor,
                           PETSC_NULL, PETSC_NULL));
     _try(SNESSetTolerances(Solver->snes[solverIndex], 1.e-12, PETSC_DEFAULT,
-                           PETSC_DEFAULT, PETSC_DEFAULT,
-                           PETSC_DEFAULT));
+                           PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT));
 
     // override default options with those from database (if any)
     _try(SNESSetFromOptions(Solver->snes[solverIndex]));
