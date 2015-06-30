@@ -11,8 +11,6 @@ Group {
       Filaments += Region[ (FILAMENT + 1000 * i + j) ];
     EndFor
   EndFor
-  //ht0 = Region[ {21001, 21002, 21101, 21102, 200001, 200002, 210002, 210003} ];
-  ht0 = Region[ {ExternalBnd} ];
 
   Omega_c = Region[{Matrixx,Filaments}];
   Omega_a = Region[{Air}];
@@ -42,7 +40,7 @@ Function {
       Ec = {1e-4, Name "Critical electric field"},
       Jc = {5e8, Name "Critical current density"},
       n = {40, Name "n value"},
-      Itot = {100, Name "Total current"}
+      Itot = {800, Name "Total current"}
     ];
 
     rho[Filaments] =
@@ -58,7 +56,7 @@ Function {
   EndIf
 
   Freq = 50;
-  dtimet = 1e-4;
+  dtimet = 1e-5;
   time0t = 0; // transient analysis initial time
   time1t = 10*dtimet; // transient analysis final time
   theta = 1;
@@ -98,11 +96,6 @@ Integration {
 }
 
 Constraint {
-  { Name MagneticField ;
-    Case {
-      { Region ht0; Value 0; }
-    }
-  }
   { Name CurrentTO ;
     Case {
       { Region Cut1TO; Value Itot ; TimeFunction Sin_wt_p[]{2*Pi*Freq, 0.} ; }
@@ -129,10 +122,6 @@ FunctionSpace {
       { Name Voltage1    ; Type AssociatedWith ; NameOfCoef I1 ; }
     }
     Constraint {
-      { NameOfCoef t ;
-        EntityType EdgesOf ; NameOfConstraint MagneticField ; }
-      { NameOfCoef phi ;
-        EntityType NodesOf ; NameOfConstraint MagneticField ; }
       { NameOfCoef Current1 ;
         EntityType GroupsOfEdgesOf ; NameOfConstraint CurrentTO ; }
       { NameOfCoef Voltage1 ;
