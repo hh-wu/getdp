@@ -494,7 +494,7 @@ void Generate_FullJacobian(gVector *x, gMatrix *Jac)
 
   Message::Debug("Generating Full Jacobian = A(x) + DofData_P->Jac");
 
-  DofData_P  = Current.DofData ;
+  DofData_P = Current.DofData ;
 
   if(!DofData_P->CurrentSolution){
     Message::Error("No current solution available");

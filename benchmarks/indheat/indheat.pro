@@ -207,7 +207,6 @@ FunctionSpace {
         EntityType GroupsOfEdgesOf ; NameOfConstraint VoltageTO ; }
       { NameOfCoef Voltage2 ;
         EntityType GroupsOfEdgesOf ; NameOfConstraint VoltageTO ; }
-
     }
   }
 

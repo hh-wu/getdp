@@ -239,6 +239,8 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
 
   }
 
+  //MatSetOption(M->M, MAT_NEW_NONZERO_ALLOCATION_ERR, PETSC_FALSE);
+
 #if ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 3))
   // Preallocation routines automatically set now MAT_NEW_NONZERO_ALLOCATION_ERR,
   // what causes a problem when the mask of the matrix changes (e.g. moving band)
@@ -1405,16 +1407,10 @@ static PetscErrorCode _NLFormJacobian(SNES snes, Vec x, Mat J, Mat PC,
   gx.V = x ;
   gx.haveSeq = 0;
   gMatrix gJ ;
-  gJ.M = J ;
   Generate_FullJacobian(&gx, &gJ);
-  J = gJ.M ;
-  Message::Barrier();
-  _try(MatAssemblyBegin(J, MAT_FINAL_ASSEMBLY));
-  _try(MatAssemblyEnd(J, MAT_FINAL_ASSEMBLY));
-  if (PC != J){
-    _try(MatAssemblyBegin(PC, MAT_FINAL_ASSEMBLY));
-    _try(MatAssemblyEnd(PC, MAT_FINAL_ASSEMBLY));
-  }
+  //J = gJ.M;
+  MatCopy(gJ.M, J, SAME_NONZERO_PATTERN);
+  //Message::Barrier();
   return 0;
 }
 #endif
@@ -1453,9 +1449,8 @@ static void _solveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R, gSolver *So
   // Setting nonlinear solver defaults
   if(!Solver->snes[solverIndex]) {
     _try(SNESCreate(MyComm, &Solver->snes[solverIndex]));
-    if(Message::UseSocket())
-      _try(SNESMonitorSet(Solver->snes[solverIndex], _mySnesMonitor,
-                          PETSC_NULL, PETSC_NULL));
+    _try(SNESMonitorSet(Solver->snes[solverIndex], _mySnesMonitor,
+                        PETSC_NULL, PETSC_NULL));
     _try(SNESSetTolerances(Solver->snes[solverIndex], 1.e-12, PETSC_DEFAULT,
                            PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT));
 
@@ -1465,7 +1460,7 @@ static void _solveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R, gSolver *So
     PetscOptionsGetTruth(PETSC_NULL, "-fd_jacobian", &fd_jacobian, 0);
     PetscOptionsGetTruth(PETSC_NULL, "-snes_fd", &snes_fd, 0);
     if (fd_jacobian || snes_fd) {
-      Message::Error("Finite Difference Jacobian not yet implemented");
+      //  Message::Error("Finite Difference Jacobian not yet implemented");
 
 #if (PETSC_VERSION_RELEASE == 0) || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 4))
       _try(SNESSetJacobian(Solver->snes[solverIndex], J->M, J->M,
@@ -1484,6 +1479,16 @@ static void _solveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R, gSolver *So
                          PETSC_NULL)); // R(x) = A(x)*x-b
   }
 
+
+  KSP ksp;
+  SNESGetKSP(Solver->snes[solverIndex], &ksp);
+  PC pc;
+  _try(KSPGetPC(ksp, &pc));
+  _try(KSPSetType(ksp, "preonly"));
+  _try(PCSetType(pc, PCLU));
+#if (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
+  _try(PCFactorSetMatSolverPackage(pc, "mumps"));
+#endif
   _try(SNESSolve(Solver->snes[solverIndex], PETSC_NULL, X->V));
 
   // copy result on all procs
