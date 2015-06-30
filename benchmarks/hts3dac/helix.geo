@@ -1,24 +1,24 @@
+Include "helix_data.pro";
 
 mm = 1e-3;
 DefineConstant[
   AirRadius = {1, Name "Radius of air domain [mm]"},
-  MatrixRadius = {0.4, Name "Radius of conductive matrix [mm]"},
-  NumLayers = {2, Name "Number of filament layers"},
-  FilamentRadius = {0.04, Name "Radius of filements [mm]"},
-  TwistPitch = {5, Name "Twist pitch [mm]"},
-  TwistFraction = {1/4, Min 1/16, Max 2, Step 1/4, Name "Twist fraction in model"},
-  LcFilament = {FilamentRadius / 1, Name "Mesh size on filaments [mm]"},
+  MatrixRadius = {0.56419, Name "Radius of conductive matrix [mm]"},
+  FilamentRadius = {0.1784, Name "Radius of filements [mm]"},
+  TwistPitch = {4, Name "Twist pitch [mm]"},
+  TwistFraction = {1/2, Min 1/16, Max 2, Step 1/4, Name "Twist fraction in model"},
+  LcFilament = {FilamentRadius / 4, Name "Mesh size on filaments [mm]"},
   LcMatrix = {MatrixRadius / 5, Name "Mesh size on matrix boundary [mm]"},
   LcAir = {AirRadius / 5, Name "Mesh size on air boundary [mm]"}
 ];
 
 For i In {1:NumLayers}
   DefineConstant[
-    LayerRadius~{i} = { (i+1) * MatrixRadius / (NumLayers + 2) ,
+    LayerRadius~{i} = {
+      MatrixRadius / 2,
+      //(i+1) * MatrixRadius / (NumLayers + 2) ,
       Min FilamentRadius, Max MatrixRadius, Step 1e-2,
       Name Sprintf["Radius of layer %g [mm]", i]},
-    NumFilaments~{i} = {4, Min 1, Max 100, Step 1,
-      Name Sprintf["Number of filaments in layer %g", i]},
     StartAngleFilament~{i} = {0, Min 0, Max 2*Pi, Step 2*Pi/100,
       Name Sprintf["Starting angle for layer %g [rad]", i]}
   ];
@@ -46,22 +46,26 @@ For i In {1:NumLayers}
     ll1 = newll; Line Loop(ll1) = {l1, l2, l3, l4};
     s1 = news; Plane Surface(s1) = {ll1};
     llf_0[] += ll1;
-    Physical Surface(20000 + 1000 * i + j) = {s1};
-    splits = 4 * TwistFraction; // heuristics
+    Physical Surface(Sprintf("Filament bottom boundary (%g in layer %g)", j, i),
+                     BND_FILAMENT + 1000 * i + j) = {s1}; // bottom
+    splits = (4 * TwistFraction) < 1 ? 1 : 4 * TwistFraction; // heuristics
     v[] = {};
     s[] = {};
     tmp[] = {s1};
     For k In {1:splits}
       tmp[] = Extrude {{0,0,TwistPitch*mm / splits * TwistFraction},
         {0,0,1} , {0,0,0} , 2*Pi / splits * TwistFraction} {
-        Surface{ tmp[0] }; // Layers{10};
+        Surface{ tmp[0] }; Layers{20};
       };
       v[] += tmp[1];
       s[] += tmp[{2:5}];
     EndFor
-    Physical Volume(30000 + 1000 * i + j) = v[];
-    Physical Surface(20000 + 1100 * i + j) = s[];
-    Physical Surface(20000 + 1200 * i + j) = tmp[0];
+    Physical Surface(Sprintf("Filament top boundary (%g in layer %g)", j, i),
+                     BND_FILAMENT + 1100 * i + j) = tmp[0]; // top
+    Physical Surface(Sprintf("Filament lateral boundary (%g in layer %g)", j, i),
+                     BND_FILAMENT + 1200 * i + j) = s[]; // sides
+    Physical Volume(Sprintf("Filament volume (%g in layer %g)", j, i),
+                    FILAMENT + 1000 * i + j) = v[];
     sf[] += s[];
     ll2 = newll; Line Loop(ll2) = Boundary{ Surface{tmp[0]}; };
     llf_1[] += ll2;
@@ -108,11 +112,10 @@ s4 = news; Ruled Surface(s4) = {ll4};
 sl1 = newsl; Surface Loop(sl1) = {s1, s2, s3, s4, s1_0, s1_1, sf[]};
 v1 = newv; Volume(v1) = {sl1};
 
-Physical Volume(300000) = v1;
-TUBE = 200000;
-Physical Surface(TUBE) = {s1, s2, s3, s4};
-Physical Surface(200001) = {s1_0};
-Physical Surface(200002) = {s1_1};
+Physical Volume("Matrix", MATRIX) = v1;
+Physical Surface("Matrix lateral boundary",  BND_MATRIX) = {s1, s2, s3, s4};
+Physical Surface("Matrix bottom boundary", BND_MATRIX + 1) = {s1_0};
+Physical Surface("Matrix top boundary", BND_MATRIX + 2) = {s1_1};
 
 l11 = newl; Line(l11) = {p11_0, p11_1};
 l12 = newl; Line(l12) = {p12_0, p12_1};
@@ -129,11 +132,12 @@ s14 = news; Ruled Surface(s14) = {ll14};
 sl11 = newsl; Surface Loop(sl11) = {s11, s12, s13, s14, s11_0, s11_1, s1, s2, s3, s4};
 v11 = newv; Volume(v11) = {sl11};
 
-AIR = 300001;
-Physical Volume(300001) = v11;
-Physical Surface(200003) = {s11, s12, s13, s14};
-Physical Surface(200004) = {s11_0};
-Physical Surface(200005) = {s11_1};
+Physical Volume("Air", AIR) = v11;
+Physical Surface("Air lateral boundary", BND_AIR) = {s11, s12, s13, s14};
+Physical Surface("Air bottom boundary", BND_AIR + 1) = {s11_0};
+Physical Surface("Air top boundary", BND_AIR + 2) = {s11_1};
 
 // Cohomology computation for the T-Omega method
-Cohomology(1) {{AIR, TUBE},{}};
+Cohomology(1) {{AIR, BND_MATRIX},{}};
+
+Mesh.Optimize = 1;
