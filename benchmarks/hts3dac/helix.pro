@@ -11,6 +11,8 @@ Group {
       Filaments += Region[ (FILAMENT + 1000 * i + j) ];
     EndFor
   EndFor
+  //ht0 = Region[ {21001, 21002, 21101, 21102, 200001, 200002, 210002, 210003} ];
+  ht0 = Region[ {ExternalBnd} ];
 
   Omega_c = Region[{Matrixx,Filaments}];
   Omega_a = Region[{Air}];
@@ -24,7 +26,7 @@ Group {
 
 Function {
   mu0 = 4*Pi*1e-7; // Vacuum permeablility
-  sigmaCu = 6e7; // electric conductivity of copper
+  sigmaCu = 6e9; // electric conductivity of copper
   sigmaFilaments = 6e10;
   mu[Omega_a] = 1*mu0;
   mu[Omega_c] = 1*mu0;
@@ -42,6 +44,7 @@ Function {
       n = {40, Name "n value"},
       Itot = {100, Name "Total current"}
     ];
+
     rho[Filaments] =
       (Ec / Jc * (Norm[$1] / Jc)^(n - 1))#2 * 0 +
       (#2 < 1e-8) ? #2 : 1e-8 ;
@@ -55,7 +58,7 @@ Function {
   EndIf
 
   Freq = 50;
-  dtimet = 1e-6;
+  dtimet = 1e-4;
   time0t = 0; // transient analysis initial time
   time1t = 10*dtimet; // transient analysis final time
   theta = 1;
@@ -95,6 +98,11 @@ Integration {
 }
 
 Constraint {
+  { Name MagneticField ;
+    Case {
+      { Region ht0; Value 0; }
+    }
+  }
   { Name CurrentTO ;
     Case {
       { Region Cut1TO; Value Itot ; TimeFunction Sin_wt_p[]{2*Pi*Freq, 0.} ; }
@@ -121,6 +129,10 @@ FunctionSpace {
       { Name Voltage1    ; Type AssociatedWith ; NameOfCoef I1 ; }
     }
     Constraint {
+      { NameOfCoef t ;
+        EntityType EdgesOf ; NameOfConstraint MagneticField ; }
+      { NameOfCoef phi ;
+        EntityType NodesOf ; NameOfConstraint MagneticField ; }
       { NameOfCoef Current1 ;
         EntityType GroupsOfEdgesOf ; NameOfConstraint CurrentTO ; }
       { NameOfCoef Voltage1 ;
@@ -138,8 +150,8 @@ Formulation {
       { Name V1; Type Global; NameOfSpace HSpace[Voltage1]; }
     }
     Equation {
-      Galerkin { [ -mu[] * Dof{t} , {t} ];
-        In Omega; Integration Int; Jacobian Vol;  }
+      //Galerkin { [ -mu[] * Dof{t} , {t} ];
+      //  In Omega; Integration Int; Jacobian Vol;  }
 
       Galerkin { DtDof [ mu[] * Dof{t} , {t} ];
         In Omega; Integration Int; Jacobian Vol;  }

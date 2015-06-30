@@ -6,7 +6,7 @@ DefineConstant[
   MatrixRadius = {0.56419, Name "Radius of conductive matrix [mm]"},
   FilamentRadius = {0.1784, Name "Radius of filements [mm]"},
   TwistPitch = {4, Name "Twist pitch [mm]"},
-  TwistFraction = {1/2, Min 1/16, Max 2, Step 1/4, Name "Twist fraction in model"},
+  TwistFraction = {1/16, Min 1/16, Max 2, Step 1/4, Name "Twist fraction in model"},
   LcFilament = {FilamentRadius / 4, Name "Mesh size on filaments [mm]"},
   LcMatrix = {MatrixRadius / 5, Name "Mesh size on matrix boundary [mm]"},
   LcAir = {AirRadius / 5, Name "Mesh size on air boundary [mm]"}
@@ -54,7 +54,7 @@ For i In {1:NumLayers}
     tmp[] = {s1};
     For k In {1:splits}
       tmp[] = Extrude {{0,0,TwistPitch*mm / splits * TwistFraction},
-        {0,0,1} , {0,0,0} , 2*Pi / splits * TwistFraction} {
+        {0,0,1} , {0,0,0} , /* 0* */ 2*Pi / splits * TwistFraction} {
         Surface{ tmp[0] }; Layers{20};
       };
       v[] += tmp[1];
@@ -140,4 +140,5 @@ Physical Surface("Air top boundary", BND_AIR + 2) = {s11_1};
 // Cohomology computation for the T-Omega method
 Cohomology(1) {{AIR, BND_MATRIX},{}};
 
+General.ExpertMode = 1;
 Mesh.Optimize = 1;
