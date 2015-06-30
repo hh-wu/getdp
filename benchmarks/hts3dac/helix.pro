@@ -30,7 +30,10 @@ Function {
   mu[Omega_c] = 1*mu0;
   rho[Matrixx] = 1/sigmaCu;
 
-  DefineConstant[ Flag_NL = 1 ];
+  DefineConstant[
+    Itot = {800, Name "Total current"},
+    Flag_NL = 0
+  ];
 
   If(!Flag_NL)
     rho[Filaments] = 1/sigmaFilaments;
@@ -40,7 +43,6 @@ Function {
       Ec = {1e-4, Name "Critical electric field"},
       Jc = {5e8, Name "Critical current density"},
       n = {40, Name "n value"},
-      Itot = {800, Name "Total current"}
     ];
 
     rho[Filaments] =
