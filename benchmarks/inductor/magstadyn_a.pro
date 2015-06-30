@@ -245,8 +245,7 @@ Formulation {
 
 //-----------------------------------------------------------------------------------------------
 
-Flag_NL_BFGS = 0; // test
-Flag_SNES = 1; // test
+DefineConstant[ Flag_NL_BFGS = 0, Flag_SNES = 1 ]; // test
 
 Resolution {
 
