@@ -144,11 +144,6 @@ Constraint {
       { Region Cut2TO; Value 0. ; }
     }
   }
-  { Name TGauge ;
-    Case {
-      { Region Omega_c; Region BdOmega_c; Value 0. ; }
-    }
-  }
   { Name AGauge ;
     Case {
       { Region Omega; Value 0. ; }
@@ -196,9 +191,6 @@ FunctionSpace {
       { Name Voltage2    ; Type AssociatedWith ; NameOfCoef I2 ; }
     }
     Constraint {
-      { NameOfCoef t ;  // Gauge condition
-        EntityType EdgesOfTreeIn ; EntitySubType StartingOn ;
-        NameOfConstraint TGauge ; }
       { NameOfCoef Current1 ;
         EntityType GroupsOfEdgesOf ; NameOfConstraint CurrentTO ; }
       { NameOfCoef Current2 ;
@@ -290,10 +282,6 @@ Formulation {
       { Name V2; Type Global; NameOfSpace HSpace[Voltage2]; }
     }
     Equation {
-
-      Galerkin { [ -mu[] * Dof{t} , {t} ];
-        In Omega; Integration Int; Jacobian Vol;  }
-
       Galerkin { DtDof [ mu[] * Dof{t} , {t} ];
         In Omega; Integration Int; Jacobian Vol;  }
 
