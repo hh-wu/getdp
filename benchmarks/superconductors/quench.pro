@@ -8,11 +8,23 @@
 //
 
 Group {
-
+  Source = Region[2001];
+  Omega = Region[{2001,2002}];
 }
 
 Function {
+  lambda[] = 1;
+  gamma[] = 1;
+  C[] = 1;
+  Q[] = 1;
 
+  time0t = 0;
+  time1t = 1;
+  dtimet = 0.1;
+  theta = 1;
+  NL_NbrMax = 50;
+  NL_Eps = 1.e-6;
+  NL_Relax = 1;
 }
 
 Jacobian {
@@ -75,7 +87,7 @@ Formulation {
       Galerkin { DtDof [ - gamma[] * C[{T}] * Dof{T} , {T} ];
 	In Omega; Integration Int; Jacobian Vol;  }
       Galerkin { [ Q[{T}], {T} ];
-	In Omega; Integration Int; Jacobian Vol;  }
+	In Source; Integration Int; Jacobian Vol;  }
     }
   }
 }
@@ -87,7 +99,7 @@ Resolution {
     }
     Operation {
       InitSolution[A];
-      TimeLoopTheta[time0t, time1t, dtimet[], theta] {
+      TimeLoopTheta[time0t, time1t, dtimet, theta] {
 	IterativeLoop[NL_NbrMax, NL_Eps, NL_Relax] {
 	  GenerateJac[A]; SolveJac[A];
 	}
@@ -112,9 +124,8 @@ PostProcessing {
 PostOperation {
   { Name TheDyn ; NameOfPostProcessing TheDyn ;
     Operation {
-      Print[ t, OnElementsOf Omega_c2 , File "tThe.pos"] ;
-      Print[ q, OnElementsOf Omega_c2 , File "qThe.pos"] ;
-      Print[ p, OnElementsOf Omega_c2 , File "pThe.pos"] ;
+      Print[ T, OnElementsOf Omega , File "tThe.pos"] ;
+      Print[ q, OnElementsOf Omega , File "qThe.pos"] ;
     }
   }
 }
