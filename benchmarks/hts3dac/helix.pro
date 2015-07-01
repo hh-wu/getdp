@@ -1,3 +1,16 @@
+
+// ideas for future work: for AC losses
+//
+// - add definition of external magnetic field; usually provided through a
+// boundary condition.
+//
+// - Have Jc as a function of h: Jc(B) = k / (B_0 + |B|) (Kim's model, really
+// basic; or use a table with interpolated values)
+//
+// - Test with higher order edge basis functions; maybe 1st order in the HTS,
+// high order in the air
+//
+
 Include "helix_data.pro";
 
 Group {
@@ -32,7 +45,7 @@ Function {
 
   DefineConstant[
     Itot = {800, Name "Total current"},
-    Flag_NL = 0
+    Flag_NL = 1
   ];
 
   If(!Flag_NL)
@@ -42,9 +55,10 @@ Function {
     DefineConstant[
       Ec = {1e-4, Name "Critical electric field"},
       Jc = {5e8, Name "Critical current density"},
-      n = {40, Name "n value"},
+      n = {40, Name "n value"}
     ];
 
+    /*
     rho[Filaments] =
       (Ec / Jc * (Norm[$1] / Jc)^(n - 1))#2 * 0 +
       (#2 < 1e-8) ? #2 : 1e-8 ;
@@ -52,13 +66,16 @@ Function {
     drhodJ[Filaments] =
       (Ec / Jc * (Norm[$1] / Jc)^(n - 1))#3 * 0 +
       (#3 < 1e-08) ? (Ec / Jc^2 * (n-1) * (Norm[$1] / Jc)^(n - 2)) : 0;
+      */
+    rho[Filaments] = Ec / Jc * (Norm[$1] / Jc)^(n - 1);
+    drhodJ[Filaments] = Ec / Jc^2 * (n-1) * (Norm[$1] / Jc)^(n - 2);
 
-      dEdJ_NL[Filaments] = drhodJ[$1#1] * SquDyadicProduct[#1]  ;
+    dEdJ_NL[Filaments] = drhodJ[$1#1] * SquDyadicProduct[#1]  ;
     dEdJ_NL[Matrixx] = 0;
   EndIf
 
   Freq = 50;
-  dtimet = 1e-5;
+  dtimet = 1e-3;
   time0t = 0; // transient analysis initial time
   time1t = 10*dtimet; // transient analysis final time
   theta = 1;
@@ -100,7 +117,7 @@ Integration {
 Constraint {
   { Name CurrentTO ;
     Case {
-      { Region Cut1TO; Value Itot ; TimeFunction Sin_wt_p[]{2*Pi*Freq, 0.} ; }
+      { Region Cut1TO; Value Itot ; TimeFunction $Time + 0*Sin_wt_p[]{2*Pi*Freq, 0.} ; }
     }
   }
   { Name VoltageTO ;
@@ -158,7 +175,6 @@ Formulation {
       GlobalTerm { [ -Dof{V1} , {I1} ] ; In Cut1TO ; }
     }
   }
-
 }
 
 Resolution {
