@@ -43,6 +43,9 @@ void LinAlg_InitializeSolver(int* sargc, char*** sargv)
 	else
 	  Message::Error("Missing file name");
       }
+      else if (!strcmp(argv[i]+1, "slepc")) {
+        i++;
+      }
       else{
 	i++ ;
 	if (i<argc && argv[i][0]!='-') {
