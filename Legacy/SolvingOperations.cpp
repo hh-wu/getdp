@@ -1159,35 +1159,29 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       }
       break ;
 
-    // Using PETSC nonlinear solvers - SNES, nonlinear loop internal to PETSC
-    // Jacobian furnished or not (finite differences)...
+      /*  -->  S o l v e N L                          */
+      /*  ------------------------------------------  */
     case OPERATION_SOLVENL :
-      /*  Solve nonlinear system: A(x) x = b(x)  */
-      Init_OperationOnSystem("Using SNES: SolveNL",
+      Init_OperationOnSystem("Using PETSc SNES: SolveNL",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
-
-      if(DofData_P->Flag_Init[0] < 2){
-	Message::Info("Initializing Jacobian system: no JacNL term");
-        LinAlg_CreateMatrix(&DofData_P->Jac, &DofData_P->Solver,
-                            DofData_P->NbrDof, DofData_P->NbrDof) ;
-        LinAlg_CreateVector(&DofData_P->res, &DofData_P->Solver, DofData_P->NbrDof) ;
-        LinAlg_CreateVector(&DofData_P->dx, &DofData_P->Solver, DofData_P->NbrDof) ;
-
-        LinAlg_ZeroMatrix(&DofData_P->Jac) ;
-        LinAlg_ZeroVector(&DofData_P->res) ;
-        LinAlg_ZeroVector(&DofData_P->dx) ;
-
-        LinAlg_AssembleMatrix(&DofData_P->Jac) ;
-        LinAlg_AssembleVector(&DofData_P->res) ;
-        LinAlg_AssembleVector(&DofData_P->dx) ;
-      }
-
+      Init_SystemData(DofData_P, 1);
       LinAlg_SolveNL(&DofData_P->A, &DofData_P->b, &DofData_P->Jac, &DofData_P->res,
                      &DofData_P->Solver, &DofData_P->dx,
                      (Operation_P->Flag < 0) ? 0 : Operation_P->Flag) ;
       Flag_CPU = 1 ;
       break ;
+
+      /*
+    case OPERATION_SOLVENLTS :
+      Init_OperationOnSystem("Using PETSc SNES and TS: SolveNL",
+			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+                             &DefineSystem_P, &DofData_P, Resolution2_P) ;
+      LinAlg_SolveNLTS(&DofData_P->A, &DofData_P->b, &DofData_P->Jac, &DofData_P->res,
+                       &DofData_P->Solver, &DofData_P->dx,
+                       (Operation_P->Flag < 0) ? 0 : Operation_P->Flag) ;
+      break;
+      */
 
       /*  -->  S o l v e J a c                        */
       /*  ------------------------------------------  */

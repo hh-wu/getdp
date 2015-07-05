@@ -714,7 +714,7 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
             Geo_Element.Type = Geo_GetElementType(FORMAT_GMSH, Type) ;
             Geo_Element.NbrNodes = Geo_GetNbNodesPerElement(Geo_Element.Type);
             Geo_Element.NumNodes = (int *)Malloc(Geo_Element.NbrNodes * sizeof(int)) ;
-            if(data.size() >= Geo_Element.NbrNodes){
+            if((int)data.size() >= Geo_Element.NbrNodes){
               for (j = 0 ; j < Geo_Element.NbrNodes ; j++){
                 Geo_Element.NumNodes[j] = data[numData - Geo_Element.NbrNodes + j] ;
               }
