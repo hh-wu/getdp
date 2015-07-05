@@ -7,20 +7,68 @@
 // an automatic loop to detect the quench
 //
 
+Include "quench_data.pro";
+
 Group {
   Source = Region[2001];
   Omega = Region[{2001,2002}];
 }
 
 Function {
-  lambda[] = 1;
-  gamma[] = 1;
-  C[] = 1;
-  Q[] = 1;
+  // density of copper
+  gamma[] = 8960;
 
+  constant = 1;
+
+  // specific heat ($1: temperature)
+  Cv_const = {-1.91844,-0.15973,8.61013,-18.996,21.9661,-12.7328,3.54322,-0.3797};
+  Cv[] = (gamma[] * 10^(Cv_const(0)+
+    Cv_const(1)*(Log[$1])#0+
+    Cv_const(2)*(#0*Log[$1])#1+
+    Cv_const(3)*(#1*Log[$1])#2+
+    Cv_const(4)*(#2*Log[$1])#3+
+    Cv_const(5)*(#3*Log[$1])#4+
+    Cv_const(6)*(#4*Log[$1])#5+
+    Cv_const(7)*(#5*Log[$1]))
+  ) ;
+  // resistivity of copper ($1: temperature, $2: magnetic flux density)
+  // (cannot really change RRR, because then the coefficients for the thermal
+  // conductivity must then be changed)
+  RRR = 100;
+  rho[] = ((1.67e-8 / RRR + 5*1e-11*Norm[$2])#6*0 +
+          (5.9e-11*$1-1e-9)#7*0 +
+          (#6 < #7) ? #7 : #6) ##33;
+  // thermal conductivity ($1: temperature)
+  lambda_const = {2.215,-0.88068,0.29505,-0.04831,0.003207,-0.47461,
+    0.13871,-0.02043,0.001281};
+  lambda[] = ( 10^(
+    (lambda_const(0) + lambda_const(1)*(Sqrt[$1])#8 + lambda_const(2)*$1 +
+      lambda_const(3)*(Sqrt[$1]*$1)#9 + lambda_const(4)*($1*$1)#10) /
+    (1 + lambda_const(5)*#8 + lambda_const(6)*$1 +
+      lambda_const(7)*#9 + lambda_const(8)*#10)
+  ) ) ;
+
+  //Cv[] = 0.09;
+  //rho[] = 0.35e-9;
+  //lambda[] = 260;
+
+  // critical current ($1: temperature)
+  I_c[] = 500 * ( 1 - ($1 - 4.2) / (20 - 4.2) );
+
+  // default operating current (can be changed): I_op = 0.7 I_c(4.2) = 350 A
+  I_op = 350;
+
+  // heat source ($1: temperature)
+  A_tot = Pi*(0.5e-3)^2;
+  B = 1;
+  alpha = 0.7;
+  Q[] = (I_op < (I_c[$1#1]#2)) ? 0 : (rho[#1, B] * (I_op - #2) * I_op / (alpha*A_tot^2))##11 ;
+  MQE[] = ($Time < 10e-3) ? 21000e-3 / A_tot / lengthPart1 : 0.;
+
+  // perturbation
   time0t = 0;
-  time1t = 1;
-  dtimet = 0.1;
+  time1t = 2;
+  dtimet = 1e-3;
   theta = 1;
   NL_NbrMax = 50;
   NL_Eps = 1.e-6;
@@ -84,9 +132,11 @@ Formulation {
     Equation {
       Galerkin { [ - lambda[{T}] * Dof{d T} , {d T} ];
 	In Omega; Integration Int; Jacobian Vol;  }
-      Galerkin { DtDof [ - gamma[] * C[{T}] * Dof{T} , {T} ];
+      Galerkin { DtDof [ - Cv[{T}] * Dof{T} , {T} ];
 	In Omega; Integration Int; Jacobian Vol;  }
       Galerkin { [ Q[{T}], {T} ];
+        In Omega; Integration Int; Jacobian Vol;  }
+      Galerkin { [ MQE[], {T} ];
 	In Source; Integration Int; Jacobian Vol;  }
     }
   }
