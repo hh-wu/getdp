@@ -53,7 +53,7 @@ MPI_Comm ILS::_comm = MPI_COMM_WORLD;
 int ILS::_commRank = 0;
 int ILS::_commSize = 1;
 
-class Field{
+class ILSField{
  public:
   // number of Fields in this class
   PetscInt nb_field;
@@ -118,18 +118,18 @@ class Field{
   }
 };
 
-bool Field::areNeighbor = false;
+bool ILSField::areNeighbor = false;
 
 // pointers to MyField and AllField, valid while Operation_LinearIterativeSolver
 // is running; This is used by Operation_BroadcastFields to explicitely
 // braodcast the fields in the middle of a ILSMatVec call.
-static Field *MyStaticField = 0, *AllStaticField = 0;
+static ILSField *MyStaticField = 0, *AllStaticField = 0;
 
 // Matrix Free structure (Matrix Shell)
 typedef struct{
   char *LinearSystemType;
-  Field *MyField;
-  Field *AllField;
+  ILSField *MyField;
+  ILSField *AllField;
   struct Resolution *Resolution_P;
   struct Operation *Operation_P;
   struct DofData *DofData_P0;
@@ -143,7 +143,7 @@ static PView *GetViewByTag(int tag)
   return view;
 }
 
-static PetscErrorCode InitData(Field *MyField, Field *AllField,
+static PetscErrorCode InitData(ILSField *MyField, ILSField *AllField,
                                struct Operation *Operation_P,
                                std::vector<std::vector<std::vector<double> > > *B_std)
 {
@@ -251,11 +251,11 @@ static PetscErrorCode InitData(Field *MyField, Field *AllField,
 
   // make every process agreed on whether there is neighbor or not
   if(mpi_comm_size < 2){
-    Field::areNeighbor = false;
+    ILSField::areNeighbor = false;
   }
   else{
     //suppose it's true
-    Field::areNeighbor = true;
+    ILSField::areNeighbor = true;
     //share info on neighbor
     int bool_neigh = (nNeighbor_aux > 0);
     std::vector<int> tab_bool_neigh(mpi_comm_size);
@@ -264,10 +264,10 @@ static PetscErrorCode InitData(Field *MyField, Field *AllField,
     for(int irank = 0; irank < mpi_comm_size ; irank ++)
       if(tab_bool_neigh[irank] == 0 && AllField->GetGmshTagFromRank(irank) >= 0)
         // if one process has no neighbord AND is charge of some fields (=is a worker)
-        Field::areNeighbor = false;
+        ILSField::areNeighbor = false;
   }
 
-  if(Field::areNeighbor){
+  if(ILSField::areNeighbor){
     int cpt_neigh = 0; // counter in list IterativeLinearSolver.NeighborFieldTag
     // for every field, RankToSend contain the rank of the process in need of
     // the field
@@ -406,13 +406,13 @@ static PetscErrorCode InitData(Field *MyField, Field *AllField,
 }
 
 // Communicate PViews
-static PetscErrorCode PViewBCast(Field MyField, Field AllField,
+static PetscErrorCode PViewBCast(ILSField MyField, ILSField AllField,
                                  const std::set<int> &fieldsToSkip=std::set<int>())
 {
   if(Message::GetCommSize() == 1) // serial: all views are available to everyone
     PetscFunctionReturn(0);
 
-  if(!(Field::areNeighbor)){
+  if(!(ILSField::areNeighbor)){
     // broadcast all views
     for (int iField = 0 ; iField < AllField.nb_field ; iField++){
       int GmshTag = AllField.GmshTag[iField];
@@ -525,7 +525,7 @@ static PetscErrorCode PViewBCast(Field MyField, Field AllField,
 // In fact, copy the local part only of the PETSc Vec
 static PetscErrorCode STD_vector_to_PETSc_Vec
   (std::vector<std::vector<std::vector<double> > > std_vec,
-   Vec petsc_vec, Field *Local)
+   Vec petsc_vec, ILSField *Local)
 {
   PetscInt nb_view = Local->nb_field;
 
@@ -583,7 +583,7 @@ static PetscErrorCode STD_vector_to_PETSc_Vec
 // Copy Petsc Vec to a std::vector
 // Send ONLY THE LOCAL Part of the PETSC VEC !
 static PetscErrorCode PETSc_Vec_to_STD_Vec
-  (Vec petsc_vec, Field *Local,
+  (Vec petsc_vec, ILSField *Local,
    std::vector<std::vector<std::vector<double> > > *std_vec)
 {
   PetscScalar val;
@@ -653,7 +653,7 @@ static PetscErrorCode CreateILSMat(ILSMat **shell)
 
 // Set data to the shell matrix contex
 static PetscErrorCode SetILSMat(ILSMat **shell, char *LinearSystemType,
-                                Field *MyField, Field *AllField,
+                                ILSField *MyField, ILSField *AllField,
                                 struct Resolution *Resolution_P,
                                 struct Operation *Operation_P,
                                 struct DofData *DofData_P0,
@@ -673,7 +673,7 @@ static PetscErrorCode SetILSMat(ILSMat **shell, char *LinearSystemType,
 static PetscErrorCode MatMultILSMat(Mat A, Vec X, Vec Y)
 {
   std::vector<std::vector<std::vector<double> > > std_vec;
-  Field MyField, AllField;
+  ILSField MyField, AllField;
   ILSMat *ctx;
   char *LinearSystemType;
 
@@ -941,7 +941,7 @@ static PetscErrorCode Jacobi_Solver(Mat A, Vec X, Vec B, double Tol, int MaxIter
 static PetscErrorCode MatMultPC(PC pc, Vec X, Vec Y)
 {
   std::vector<std::vector<std::vector<double> > > std_vec;
-  Field MyField, AllField;
+  ILSField MyField, AllField;
   ILSMat *ctx;
 
   _try(PCShellGetContext(pc, (void**)&ctx));
@@ -1002,7 +1002,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   PC pc;
   MPI_Comm ILSComm = PETSC_COMM_WORLD; // by default, KSP is launched in parallel
   char *LinearSystemType;
-  Field MyField, AllField;
+  ILSField MyField, AllField;
 #if defined(TIMER)
   double time_total = 0.;
   double time_start = MPI_Wtime();
@@ -1041,7 +1041,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   }
 
   Message::Info(3, "Number of Fields: %d", AllField.nb_field);
-  if(Field::areNeighbor)
+  if(ILSField::areNeighbor)
     Message::Info(3, "Neighbors are specified: Fast exchange between process");
   for(int iField = 0; iField < AllField.nb_field; iField++)
     Message::Info(3, "Size of Field %d: %d (on CPU %d)", AllField.GmshTag[iField],
