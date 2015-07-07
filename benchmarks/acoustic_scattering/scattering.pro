@@ -39,9 +39,9 @@ Function {
   EndFor
   //Now we can set the right boundaries
   If(Type_PROBLEM == IMPENETRABLE)
-    For j In {0:N_scat-1}
+    For j In {0:N_scat_to_create-1}
       If(BCond~{j} == DIRICHLET)
-	Scat_Dirichlet += 100 + j;
+        Scat_Dirichlet += 100 + j;
       EndIf
       If(BCond~{j} == NEUMANN)
 	Scat_Neumann += 100 + j;
