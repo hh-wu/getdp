@@ -438,13 +438,15 @@ void  Cst_GlobalTermOfFemEquation(int  Num_Region,
     switch(QuantityStorageEqu_P->BasisFunction[0].Constraint) {
     case ASSIGN:
       Dof_UpdateAssignFixedDof
-	(QuantityStorageEqu_P->BasisFunction[0].Dof, Current.NbrHar,
+	(QuantityStorageEqu_P->BasisFunction[0].CodeBasisFunction,
+         QuantityStorageEqu_P->BasisFunction[0].CodeEntity, Current.NbrHar,
 	 QuantityStorageEqu_P->BasisFunction[0].Value) ;
       break ;
     case CST_LINK:
     case CST_LINKCPLX:
       Dof_UpdateLinkDof
-	(QuantityStorageEqu_P->BasisFunction[0].Dof, Current.NbrHar,
+	(QuantityStorageEqu_P->BasisFunction[0].CodeBasisFunction,
+         QuantityStorageEqu_P->BasisFunction[0].CodeEntity, Current.NbrHar,
 	 QuantityStorageEqu_P->BasisFunction[0].Value,
 	 QuantityStorageEqu_P->BasisFunction[0].CodeEntity_Link) ;
       break;
@@ -457,13 +459,15 @@ void  Cst_GlobalTermOfFemEquation(int  Num_Region,
       switch(QuantityStorageDof_P->BasisFunction[0].Constraint) {
       case ASSIGN:
 	Dof_UpdateAssignFixedDof
-	  (QuantityStorageDof_P->BasisFunction[0].Dof, Current.NbrHar,
+	  (QuantityStorageDof_P->BasisFunction[0].CodeBasisFunction,
+           QuantityStorageDof_P->BasisFunction[0].CodeEntity, Current.NbrHar,
 	   QuantityStorageDof_P->BasisFunction[0].Value) ;
 	break ;
       case CST_LINK:
       case CST_LINKCPLX:
 	Dof_UpdateLinkDof
-	  (QuantityStorageDof_P->BasisFunction[0].Dof, Current.NbrHar,
+	  (QuantityStorageDof_P->BasisFunction[0].CodeBasisFunction,
+           QuantityStorageDof_P->BasisFunction[0].CodeEntity, Current.NbrHar,
 	   QuantityStorageDof_P->BasisFunction[0].Value,
 	   QuantityStorageDof_P->BasisFunction[0].CodeEntity_Link) ;
 	break;
@@ -674,7 +678,8 @@ void Cst_TermOfFemEquation(struct Element          * Element,
 	*/
       case ASSIGN:
 	Dof_UpdateAssignFixedDof
-	  (QuantityStorageEqu_P->BasisFunction[i].Dof, Current.NbrHar,
+	  (QuantityStorageEqu_P->BasisFunction[i].CodeBasisFunction,
+	   QuantityStorageEqu_P->BasisFunction[i].CodeEntity, Current.NbrHar,
 	   QuantityStorageEqu_P->BasisFunction[i].Value) ;
 	break;
 	/*
@@ -701,7 +706,8 @@ void Cst_TermOfFemEquation(struct Element          * Element,
       case CST_LINK:
       case CST_LINKCPLX:
 	Dof_UpdateLinkDof
-	  (QuantityStorageEqu_P->BasisFunction[i].Dof, Current.NbrHar,
+	  (QuantityStorageEqu_P->BasisFunction[i].CodeBasisFunction,
+	   QuantityStorageEqu_P->BasisFunction[i].CodeEntity, Current.NbrHar,
 	   QuantityStorageEqu_P->BasisFunction[i].Value,
 	   QuantityStorageEqu_P->BasisFunction[i].CodeEntity_Link) ;
 	break;
@@ -718,7 +724,8 @@ void Cst_TermOfFemEquation(struct Element          * Element,
       switch(QuantityStorageDof_P->BasisFunction[i].Constraint){
       case ASSIGN:
 	Dof_UpdateAssignFixedDof
-	  (QuantityStorageDof_P->BasisFunction[i].Dof, Current.NbrHar,
+	  (QuantityStorageDof_P->BasisFunction[i].CodeBasisFunction,
+	   QuantityStorageDof_P->BasisFunction[i].CodeEntity, Current.NbrHar,
 	   QuantityStorageDof_P->BasisFunction[i].Value) ;
 	break;
 	/*
@@ -744,7 +751,8 @@ void Cst_TermOfFemEquation(struct Element          * Element,
       case CST_LINK:
       case CST_LINKCPLX:
 	Dof_UpdateLinkDof
-	  (QuantityStorageDof_P->BasisFunction[i].Dof, Current.NbrHar,
+	  (QuantityStorageDof_P->BasisFunction[i].CodeBasisFunction,
+	   QuantityStorageDof_P->BasisFunction[i].CodeEntity, Current.NbrHar,
 	   QuantityStorageDof_P->BasisFunction[i].Value,
 	   QuantityStorageDof_P->BasisFunction[i].CodeEntity_Link) ;
 	break;

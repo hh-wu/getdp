@@ -253,7 +253,7 @@ void  Get_ValueForConstraint(struct ConstraintInFS * Constraint_P, double Value[
 	 List_Pointer(Problem_S.Expression,
 		      Constraint_P->ConstraintPerRegion->TimeFunctionIndex),
 	 NULL, 0., 0., 0., &Val_TimeFunction) ;
-      Cal_ProductValue(&Val_Modulus, &Val_TimeFunction,  &Val_Modulus) ;
+      Cal_ProductValue(&Val_Modulus, &Val_TimeFunction, &Val_Modulus) ;
     }
     for (k = 0 ; k < Current.NbrHar ; k++){
       Value[k] = Val_Modulus.Val[MAX_DIM*k] ;

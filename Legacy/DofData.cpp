@@ -1257,37 +1257,51 @@ struct Dof *Dof_GetDofStruct(struct DofData * DofData_P, int D1, int D2, int D3)
 /*  D o f _ U p d a t e A s s i g n F i x e d D o f                         */
 /* ------------------------------------------------------------------------ */
 
-void Dof_UpdateAssignFixedDof(struct Dof *Dof_P, int NbrHar, double *Val)
+void Dof_UpdateAssignFixedDof(int D1, int D2, int NbrHar, double *Val)
 {
-  if(Dof_P->Harmonic >= NbrHar){
-    Message::Error("Invalid harmonic in Dof_UpdateAssignFixedDof");
-    return;
+  struct Dof  Dof, * Dof_P ;
+  int         k ;
+
+  Dof.NumType = D1 ;  Dof.Entity = D2 ;
+
+  for(k=0 ; k<NbrHar ; k+=gSCALAR_SIZE){
+    Dof.Harmonic = k ;
+    if(CurrentDofData->DofTree)
+      Dof_P = (struct Dof *)Tree_PQuery(CurrentDofData->DofTree, &Dof);
+    else
+      Dof_P = (struct Dof *)List_PQuery(CurrentDofData->DofList, &Dof, fcmp_Dof);
+    LinAlg_SetScalar(&Dof_P->Val, &Val[Dof_P->Harmonic]) ;
   }
-  LinAlg_SetScalar(&Dof_P->Val, &Val[Dof_P->Harmonic]) ;
 }
 
 /* ------------------------------------------------------------------------ */
 /*  D o f _ U p d a t e L i n k D o f                                       */
 /* ------------------------------------------------------------------------ */
 
-void Dof_UpdateLinkDof(struct Dof *Dof_P, int NbrHar, double Value[], int D2_Link)
+void Dof_UpdateLinkDof(int D1, int D2, int NbrHar, double Value[], int D2_Link)
 {
+  struct Dof  Dof, * Dof_P ;
   int         k ;
 
-  if (Dof_P->Type == DOF_LINK || Dof_P->Type == DOF_LINKCPLX) {
-    /*
-    fprintf(stderr,"===> %d %d %.16g\n", Dof_P->NumType, Dof_P->Entity, Value[0]) ;
-    */
-    for(k=0 ; k<NbrHar ; k+=gSCALAR_SIZE){
-      Dof_P->Case.Link.Coef = Value[0] ;
+  Dof.NumType = D1 ;  Dof.Entity = D2 ;
 
+  for(k=0 ; k<NbrHar ; k+=gSCALAR_SIZE){
+    Dof.Harmonic = k ;
+    if(CurrentDofData->DofTree)
+      Dof_P = (struct Dof *)Tree_PQuery(CurrentDofData->DofTree, &Dof);
+    else
+      Dof_P = (struct Dof *)List_PQuery(CurrentDofData->DofList, &Dof, fcmp_Dof);
+
+    if (Dof_P->Type == DOF_LINK || Dof_P->Type == DOF_LINKCPLX) {
+      /*
+        fprintf(stderr,"===> %d %d %.16g\n", Dof_P->NumType, Dof_P->Entity, Value[0]) ;
+      */
+      Dof_P->Case.Link.Coef = Value[0] ;
       if (Dof_P->Type == DOF_LINKCPLX)
 	Dof_P->Case.Link.Coef2 = Value[1] ;
-
       Dof_P->Case.Link.EntityRef = D2_Link ;
       Dof_P->Case.Link.Dof = NULL ;
     }
-
   }
 }
 

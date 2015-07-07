@@ -122,7 +122,7 @@ bool ILSField::areNeighbor = false;
 
 // pointers to MyField and AllField, valid while Operation_LinearIterativeSolver
 // is running; This is used by Operation_BroadcastFields to explicitely
-// braodcast the fields in the middle of a ILSMatVec call.
+// braodcast the fields in the middle of an ILSMatVec call.
 static ILSField *MyStaticField = 0, *AllStaticField = 0;
 
 // Matrix Free structure (Matrix Shell)
