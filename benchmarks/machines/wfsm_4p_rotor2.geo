@@ -18,9 +18,9 @@ Point(dP+7)  = {105.9 *u, 62.5 *u, 0 *u, pc};
 Point(dP+8)  = {105.9 *u, 25 *u, 0 *u, pc};
 Point(dP+9)  = {110.9 *u, Y0, 0 *u, pMB*2};
 Point(dP+10)  = {110.9 *u, 25 *u, 0 *u, pc/1.5};
-Point(dP+11)  = {127.9 *u, 0 *u, 0 *u, pMB*4}; //6
+Point(dP+11)  = {127.9 *u, 0 *u, 0 *u, pMB*2}; //6
 Point(dP+12)  = {3 *u, 0 *u, 0 *u, p*0.3};
-Point(dP+13)  = {125.73/1.4 *u, 125.73/1.4 *u, 0 *u, pMB*6};
+Point(dP+13)  = {125.73/1.4 *u, 125.73/1.4 *u, 0 *u, pMB*2};
 
 dR=newl-1;
 Line(dR+1) = {dP+1,dP+11};
@@ -166,7 +166,3 @@ Color Purple  {Surface{RotorConductor_[{C2[]}]};}
 nicepos_rotor[] = {CombinedBoundary{ Surface{RotorIron_[], RotorShaft_[]};},
                    Boundary{ Surface{RotorConductor_[]};},
                    CombinedBoundary{ Surface{RotorAir_[]};} } ;
-
-
-
-

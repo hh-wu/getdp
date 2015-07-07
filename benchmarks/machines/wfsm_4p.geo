@@ -6,7 +6,7 @@ Geometry.CopyMeshingMethod = 1;
 
 // characteristic lengths
 uc = u*6/10;
-If(TotalMemory <= 1024)
+If(TotalMemory <= 100024)
   uc *= 2;
 EndIf
 
