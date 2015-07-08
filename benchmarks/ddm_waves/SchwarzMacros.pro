@@ -9,7 +9,7 @@ DefineConstant[
       "EndFor",
       "EndFor",
       "Combine ElementsByViewName;"],
-    Name "Macros/Combine subdmain results", AutoCheck 0, Macro "GmshParseString"},
+    Name "Macros/Combine subdomain results", AutoCheck 0, Macro "GmshParseString"},
   H2T = {Str["For j In {0:PostProcessing.NbViews-1}",
       "If(View[j].Visible)",
       "Plugin(HarmonicToTime).View = j;",
