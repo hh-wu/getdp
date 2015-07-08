@@ -3,7 +3,7 @@ DefineConstant[
   DELTA_SOURCE = 0,
   EXTERNAL_VELOCITY_FIELD = 0,
   SAVE_SOLUTION = 1,
-  COMBINE = {Str["For i In {0:N_DOM-1}",
+  COMBINE = {Str["For i In {N_DOM-1:0:-1}",
       "For j In {0:PostProcessing.NbViews-1}",
       "View[j].Name=StrReplace(View[j].Name, Sprintf('_%g', i), '');",
       "EndFor",
