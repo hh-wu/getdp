@@ -7046,6 +7046,62 @@ Affectation :
       List_Delete($6);
     }
 
+  | String__Index '(' RecursiveListOfFExpr ')' '+' tDEF ListOfFExpr tEND
+    {
+      Constant_S.Name = $1;
+      Constant *c = (Constant*)Tree_PQuery(ConstantTable_L, &Constant_S);
+      if(c && (c->Type == VAR_LISTOFFLOAT)){
+        if(List_Nbr($3) == List_Nbr($7)){
+          for(int i = 0; i < List_Nbr($3); i++){
+            double d;
+            List_Read($3, i, &d);
+            int idx = (int)d;
+            if(idx >= 0 && idx < List_Nbr(c->Value.ListOfFloat)){
+              double *pd = (double*)List_Pointer(c->Value.ListOfFloat, idx);
+              double d2 = *(double*)List_Pointer($7, i);
+              *pd += d2;
+            }
+            else
+              vyyerror("Index %d out of range", idx);
+          }
+        }
+        else
+          vyyerror("Bad list sizes (%d, %d) for += operation", List_Nbr($3), List_Nbr($7));
+      }
+      else
+	vyyerror("Unknown list Constant: %s", $1);
+      List_Delete($3);
+      List_Delete($7);
+    }
+
+  | String__Index '(' RecursiveListOfFExpr ')' '-' tDEF ListOfFExpr tEND
+    {
+      Constant_S.Name = $1;
+      Constant *c = (Constant*)Tree_PQuery(ConstantTable_L, &Constant_S);
+      if(c && (c->Type == VAR_LISTOFFLOAT)){
+        if(List_Nbr($3) == List_Nbr($7)){
+          for(int i = 0; i < List_Nbr($3); i++){
+            double d;
+            List_Read($3, i, &d);
+            int idx = (int)d;
+            if(idx >= 0 && idx < List_Nbr(c->Value.ListOfFloat)){
+              double *pd = (double*)List_Pointer(c->Value.ListOfFloat, idx);
+              double d2 = *(double*)List_Pointer($7, i);
+              *pd -= d2;
+            }
+            else
+              vyyerror("Index %d out of range", idx);
+          }
+        }
+        else
+          vyyerror("Bad list sizes (%d, %d) for -= operation", List_Nbr($3), List_Nbr($7));
+      }
+      else
+	vyyerror("Unknown list Constant: %s", $1);
+      List_Delete($3);
+      List_Delete($7);
+    }
+
   | String__Index '+' tDEF ListOfFExpr tEND
     {
       Constant_S.Name = $1;
