@@ -14,7 +14,7 @@ DefineConstant[ // allows to set these from outside
   // directory for output files
   DIR = "out/",
   nLayersTr = 1,
-  nLayersPml = 3,
+  nLayersPml = 2,
   OPEN_ENDED = 1 // radiation condition ; otherwise wall condition
 ];
 

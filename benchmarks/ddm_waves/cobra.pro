@@ -16,7 +16,7 @@ DefineConstant[ // allows to set these from outside
   // transmission boundary condition
   TC_TYPE = {0, Name "Input/01Transmission condition",
     Choices {0="Order 0", 1="Order 2", 2="Pade (OSRC)", 3="PML"}},
-  NP_OSRC = 4,
+  NP_OSRC = 2,
   // sweeping preconditioner
   PRECONDITIONER = {0, Name "Input/01Sweeping preconditioner",
     Choices{0="Unpreconditioned",
@@ -119,6 +119,21 @@ Function {
 
   alphaBT[] = 0; //1/(2*R_EXT) - I[]/(8*k*R_EXT^2*(1+I[]/(k*R_EXT)));
   betaBT[] = 0; // -1/(2*I[]*k); //- 1/(2*I[]*k*(1+I[]/(k*R_EXT)));
+  
+  // parameters for 2nd order TC
+  // OO2 Gander 2002, pp. 46-47
+  xsimin = 0;
+  xsimax = Pi / LC;
+  deltak[] = xsimax; //Pi / Norm[XYZ[]];
+  alphastar[] = I[] * ((k[]^2 - xsimin^2) * (k[]^2 - (k[]-deltak[])^2))^(1/4);
+  betastar[] = ((xsimax^2 - k[]^2) * ((k[]+deltak[])^2 - k[]^2))^(1/4);
+  a[] = - (alphastar[] * betastar[] - k[]^2) / (alphastar[] + betastar[]);
+  b[] = - 1 / (alphastar[] + betastar[]);
+
+  // parameters for Pade-type TC
+  keps[] = Complex[ k[], 0.4 * k[] ];
+  theta_branch = Pi/4;
+
 }
 
 If (PRECONDITIONER)
