@@ -208,6 +208,7 @@ struct StringXDefine  Operation_Type[] = {
   {"GenerateRHS"            , OPERATION_GENERATERHS},
   {"GenerateRHSCumulative"  , OPERATION_GENERATERHS_CUMULATIVE},
   {"GenerateSeparate"       , OPERATION_GENERATESEPARATE},
+  {"Residual"               , OPERATION_RESIDUAL},
   {"InitCorrection"         , OPERATION_INITCORRECTION},
   {"InitSolution"           , OPERATION_INITSOLUTION},
   {"InitSolution1"          , OPERATION_INITSOLUTION1},
@@ -262,7 +263,7 @@ struct StringXPointer  Current_Value[] = {
   {"EigenvalueReal" , &Current.Time}, {"EigenvalueImag" , &Current.TimeImag},
   {"ReOmega"  , &Current.Time},       {"ImOmega"   , &Current.TimeImag},
   {"wr"       , &Current.Time},       {"wi"        , &Current.TimeImag},
-  {"Breakpoint" , &Current.Breakpoint},
+  {"Breakpoint" , &Current.Breakpoint}, {"Residual" , &Current.Residual},
 
   {"X"  , &Current.x}, {"Y"  , &Current.y},  {"Z"  , &Current.z},
   {"XS" , &Current.xs},{"YS" , &Current.ys}, {"ZS" , &Current.zs},

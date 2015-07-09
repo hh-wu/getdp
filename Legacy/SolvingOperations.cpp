@@ -1076,7 +1076,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
           LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x,
                                   &DofData_P->res);
           LinAlg_SubVectorVector(&DofData_P->b, &DofData_P->res, &DofData_P->res);
-          LinAlg_CopyVector(&DofData_P->res, &DofData_P->CurrentSolution->x);
+          //LinAlg_CopyVector(&DofData_P->res, &DofData_P->CurrentSolution->x);
+          LinAlg_VectorNorm2(&DofData_P->res, &Current.Residual);
         }
         else
           Message::Error("No current solution available");
@@ -2250,6 +2251,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       while (Current.Time < Operation_P->Case.TimeLoopTheta.TimeMax * 0.999999) {
 
         if(Message::GetOnelabAction() == "stop" || Message::GetErrorCount()) break;
+
+        Current.Residual = 1; // FIXME test
 
 	if (!Flag_NextThetaFixed) { /* Attention: Test */
 	  Get_ValueOfExpressionByIndex(Operation_P->Case.TimeLoopTheta.ThetaIndex,
