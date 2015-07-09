@@ -350,7 +350,6 @@ Resolution {
         Type ComplexValue; Frequency Freq;}
     }
     Operation {
-      InitSolution[A];
       Generate[A]; Solve[A]; SaveSolution[A];
     }
   }
@@ -361,7 +360,6 @@ Resolution {
         Type ComplexValue; Frequency Freq;}
     }
     Operation {
-      InitSolution[A];
       Generate[A]; Solve[A]; SaveSolution[A];
     }
   }
