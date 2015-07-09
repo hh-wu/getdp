@@ -1,13 +1,14 @@
 Include "helix_data.pro";
 
-mm = 1e-3;
+mm = 1e-3 * scaling;
+
 DefineConstant[
   AirRadius = {1, Name "Radius of air domain [mm]"},
   MatrixRadius = {0.56419, Name "Radius of conductive matrix [mm]"},
   FilamentRadius = {0.1784, Name "Radius of filements [mm]"},
   TwistPitch = {4, Name "Twist pitch [mm]"},
-  TwistFraction = {1/100, Min 1/16, Max 2, Step 1/4, Name "Twist fraction in model"},
-  LcFilament = {FilamentRadius / 10, Name "Mesh size on filaments [mm]"},
+  TwistFraction = {1/4, Min 1/16, Max 2, Step 1/4, Name "Twist fraction in model"},
+  LcFilament = {FilamentRadius / 4, Name "Mesh size on filaments [mm]"},
   LcMatrix = {MatrixRadius / 5, Name "Mesh size on matrix boundary [mm]"},
   LcAir = {AirRadius / 5, Name "Mesh size on air boundary [mm]"}
 ];
@@ -23,6 +24,10 @@ For i In {1:NumLayers}
       Name Sprintf["Starting angle for layer %g [rad]", i]}
   ];
 EndFor
+
+phys_fil = {};
+phys_fil_top = {};
+phys_fil_bot = {};
 
 Geometry.ExtrudeSplinePoints = 20;
 Geometry.Points = 0;
@@ -48,24 +53,27 @@ For i In {1:NumLayers}
     llf_0[] += ll1;
     Physical Surface(Sprintf("Filament bottom boundary (%g in layer %g)", j, i),
                      BND_FILAMENT + 1000 * i + j) = {s1}; // bottom
+    phys_fil_bot += BND_FILAMENT + 1000 * i + j;
     splits = (4 * TwistFraction) < 1 ? 1 : 4 * TwistFraction; // heuristics
     v[] = {};
     s[] = {};
     tmp[] = {s1};
     For k In {1:splits}
       tmp[] = Extrude {{0,0,TwistPitch*mm / splits * TwistFraction},
-        {0,0,1} , {0,0,0} , 0* 2*Pi / splits * TwistFraction} {
-        Surface{ tmp[0] }; Layers{1};
+        {0,0,1} , {0,0,0} , 1* 2*Pi / splits * TwistFraction} {
+        Surface{ tmp[0] }; Layers{6};
       };
       v[] += tmp[1];
       s[] += tmp[{2:5}];
     EndFor
     Physical Surface(Sprintf("Filament top boundary (%g in layer %g)", j, i),
                      BND_FILAMENT + 1100 * i + j) = tmp[0]; // top
+    phys_fil_top += BND_FILAMENT + 1100 * i + j;
     Physical Surface(Sprintf("Filament lateral boundary (%g in layer %g)", j, i),
                      BND_FILAMENT + 1200 * i + j) = s[]; // sides
     Physical Volume(Sprintf("Filament volume (%g in layer %g)", j, i),
                     FILAMENT + 1000 * i + j) = v[];
+    phys_fil += FILAMENT + 1000 * i + j;
     sf[] += s[];
     ll2 = newll; Line Loop(ll2) = Boundary{ Surface{tmp[0]}; };
     llf_1[] += ll2;
@@ -139,6 +147,9 @@ Physical Surface("Air top boundary", BND_AIR + 2) = {s11_1};
 
 // Cohomology computation for the T-Omega method
 Cohomology(1) {{AIR, BND_MATRIX},{}};
+
+// Cohomology computation for the A-V method
+Cohomology(1) {{MATRIX, phys_fil()},  {BND_MATRIX + 1, BND_MATRIX + 2, phys_fil_bot(), phys_fil_top()}};
 
 General.ExpertMode = 1;
 Mesh.Optimize = 1;
