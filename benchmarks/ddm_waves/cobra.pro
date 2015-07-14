@@ -5,7 +5,6 @@ mu0 = 4*Pi*1e-7;
 Z0 = 1;//Sqrt[mu0/eps0];
 c = 1/Sqrt[mu0*eps0];
 
-
 DefineConstant[ // allows to set these from outside
   // type of walls
   WALLS = {1, Name "Input/05Walls",
@@ -43,7 +42,7 @@ EndFor
 ic += i;
 // Printf["part %g: %g", 1, nDomList(1)];
 For i In {1:nDomList(1)}
-xBaseList += xBaseList((ic)) + (R+d1)*Sin[alpha*i/nDomList(1)];
+  xBaseList += xBaseList((ic)) + (R+d1)*Sin[alpha*i/nDomList(1)];
   yBaseList += yBaseList((ic)) + (R+d1)*(1.-Cos[alpha*(i)/nDomList(1)]);
   thetaList += thetaList(#thetaList()-1) + alpha/nDomList(1);
 EndFor
@@ -57,8 +56,10 @@ EndFor
 ic += i;
 // Printf["part %g: %g", 3, nDomList(3)];
 For i In {1:nDomList(3)}
-xBaseList += xBaseList((ic)) + ( (R)*Sin[alpha] - (R)*Sin[alpha*(nDomList(3)-i)/nDomList(3)] );
-yBaseList += yBaseList((ic)) + ((R)*(1.-Cos[alpha])-(R)*(1.-Cos[alpha*(nDomList(3)-i)/nDomList(3)]));
+  xBaseList += xBaseList((ic)) +
+    ( (R)*Sin[alpha] - (R)*Sin[alpha*(nDomList(3)-i)/nDomList(3)] );
+  yBaseList += yBaseList((ic)) +
+    ((R)*(1.-Cos[alpha])-(R)*(1.-Cos[alpha*(nDomList(3)-i)/nDomList(3)]));
   thetaList += thetaList(#thetaList()-1) - alpha/nDomList(3);
 EndFor
 ic += i;
@@ -69,7 +70,6 @@ For i In {1:nDomList(4)}
   thetaList += thetaList(#thetaList()-1);
 EndFor
 ic += i;
-
 
 Function {
   I[] = Complex[0, 1];
@@ -86,26 +86,6 @@ Function {
 
   V_SOURCE[] = 0.;
 
-  For idom In {0:N_DOM-1}
-    For jdom In {0:1}
-      If (idom == 0) // straight part
-        P~{idom}~{jdom}[] = Y[]-shiftY;//(R+d1) - Norm[ (Vector[shiftX,R+d1+shiftY,0] - Vector[X[], Y[], 0 ]) ];
-        Q~{idom}~{jdom}[] = Z[];
-        // R_0~{idom}~{jdom}[] = X[]*Cos[theta]+Y[]*Sin[theta]+dBb;
-      EndIf
-      If (idom == 1) // bent part
-        P~{idom}~{jdom}[] = (R+d1) - Norm[ (Vector[shiftX+D1,R+d1+shiftY,0] - Vector[X[], Y[], 0 ]) ];
-        Q~{idom}~{jdom}[] = Z[];
-        // R_0~{idom}~{jdom}[] = X[]*Cos[theta]+Y[]*Sin[theta]+dBb;
-      EndIf
-      If (idom == 2) // straight oblique part
-        P~{idom}~{jdom}[] = Sin[-alpha]*(X[]-(shiftX+D1+(R+d1)*Sin[alpha])) + Cos[-alpha]*(Y[]-((R+d1)*(1.-Cos[alpha])+shiftY)) + 0*shiftY;//(R+d1) - Norm[ (Vector[shiftX+D1,R+d1+shiftY,0] - Vector[X[], Y[], 0 ]) ];
-        Q~{idom}~{jdom}[] = Z[];
-        // R_0~{idom}~{jdom}[] = X[]*Cos[theta]+Y[]*Sin[theta]+dBb;
-      EndIf
-    EndFor
-  EndFor
-
   ky = MODE_M*Pi/d1 ;
   kz = MODE_N*Pi/d2 ;
   kc = Sqrt[ky^2+kz^2] ;
@@ -119,7 +99,7 @@ Function {
 
   alphaBT[] = 0; //1/(2*R_EXT) - I[]/(8*k*R_EXT^2*(1+I[]/(k*R_EXT)));
   betaBT[] = 0; // -1/(2*I[]*k); //- 1/(2*I[]*k*(1+I[]/(k*R_EXT)));
-  
+
   // parameters for 2nd order TC
   // OO2 Gander 2002, pp. 46-47
   xsimin = 0;

@@ -16,12 +16,10 @@ If(MPI_Size > 1) // parallel meshing
   end = MPI_Rank;
 EndIf
 
-lc = LC;
-
-p = newp ; lp[] += p ; Point(p) = {shiftX, d1+shiftY, 0, lc} ;
-p = newp ; lp[] += p ; Point(p) = {shiftX, 0.+shiftY, 0, lc} ;
-p = newp ; lp[] += p ; Point(p) = {shiftX, 0.+shiftY, d2, lc} ;
-p = newp ; lp[] += p ; Point(p) = {shiftX, d1+shiftY, d2, lc} ;
+p = newp ; lp[] += p ; Point(p) = {shiftX, d1+shiftY, 0, LC} ;
+p = newp ; lp[] += p ; Point(p) = {shiftX, 0.+shiftY, 0, LC} ;
+p = newp ; lp[] += p ; Point(p) = {shiftX, 0.+shiftY, d2, LC} ;
+p = newp ; lp[] += p ; Point(p) = {shiftX, d1+shiftY, d2, LC} ;
 
 l = newl ; ll[] += l ; Line(l) = {lp[0], lp[1]};
 l = newl ; ll[] += l ; Line(l) = {lp[1], lp[2]};
@@ -31,14 +29,14 @@ l = newl ; ll[] += l ; Line(l) = {lp[3], lp[0]};
 lo = newll ; llo[] += lo ; Line Loop(lo) = {ll[]};
 s = news ; ls[] += s ; Plane Surface(s) = {lo};
 
-Transfinite Line{ll[{0,2}]} = d1/lc+1 Using Progression 1;
-Transfinite Line{ll[{1,3}]} = d2/lc+1 Using Progression 1;
+Transfinite Line{ll[{0,2}]} = d1/LC+1 Using Progression 1;
+Transfinite Line{ll[{1,3}]} = d2/LC+1 Using Progression 1;
 Transfinite Surface{s}; Recombine Surface{s};
 
 theta = 0; // theta is the cumulative angle
 
 For i In {0:nDomList[0]-1} // straight part on the left
-  nLayersDom = Ceil(D1/nDomList[0]/(lc*(1.+1e-6)));
+  nLayersDom = Ceil(D1/nDomList[0]/(LC*(1.+1e-6)));
   If ( (MPI_Size == 1 || MPI_Rank == i) && nLayersDom < 5 )
     Printf("WARNING: less than 5 layers (%g) in domain %g", nLayersDom, (i));
   EndIf
@@ -55,7 +53,7 @@ EndFor
 If (PARTS > 1)
   n = nDomList[0];
   For i In {n:n+nDomList[1]-1} // first bend
-    nLayersDom = Ceil(R*alpha/nDomList[1]/lc); // perturbation of LC to help rounding
+    nLayersDom = Ceil(R*alpha/nDomList[1]/LC); // perturbation of LC to help rounding
     If ( (MPI_Size == 1 || MPI_Rank == i) && nLayersDom < 5 )
       Printf("WARNING: less than 5 layers (%g) in domain %g", nLayersDom, (i));
     EndIf
@@ -75,7 +73,7 @@ If (PARTS > 2)
   If (D2 > 0)
     n += nDomList[1];
     For i In {n:n+nDomList[2]-1} // straight part in the middle
-      nLayersDom = Ceil(D2/nDomList[2]/(lc*(1.+1e-6))); // perturbation of LC to help rounding
+      nLayersDom = Ceil(D2/nDomList[2]/(LC*(1.+1e-6))); // perturbation of LC to help rounding
     If ( (MPI_Size == 1 || MPI_Rank == i) && nLayersDom < 5 )
 	Printf("WARNING: less than 5 layers (%g) in domain %g", nLayersDom, (i));
       EndIf
@@ -94,7 +92,7 @@ EndIf
 If (PARTS > 3)
   n += nDomList[2];
   For i In {n:n+nDomList[3]-1} // second bend
-    nLayersDom = Ceil(R*alpha/nDomList[3]/lc);
+    nLayersDom = Ceil(R*alpha/nDomList[3]/LC);
     If ( (MPI_Size == 1 || MPI_Rank == i) && nLayersDom < 5 )
       Printf("WARNING: less than 5 layers (%g) in domain %g", nLayersDom, (i));
     EndIf
@@ -113,7 +111,7 @@ EndIf
 If (PARTS > 4)
   n += nDomList[3]; // straight part on the right
   For i In {n:n+nDomList[4]-1}
-    nLayersDom = Ceil(D3/nDomList[4]/(lc*(1.+1e-6))); // perturbation of LC to help rounding
+    nLayersDom = Ceil(D3/nDomList[4]/(LC*(1.+1e-6))); // perturbation of LC to help rounding
     If ( (MPI_Size == 1 || MPI_Rank == i) && nLayersDom < 5 )
       Printf("WARNING: less than 5 layers (%g) in domain %g", nLayersDom, (i));
     EndIf
