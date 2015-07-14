@@ -146,7 +146,7 @@ Constraint {
   }
   { Name AGauge ;
     Case {
-      { Region Omega; Value 0. ; }
+      { Region Omega; SubRegion BdOmega; Value 0. ; }
     }
   }
   { Name VoltageAV ;
@@ -209,7 +209,7 @@ FunctionSpace {
     }
     Constraint {
       { NameOfCoef a ;  // Gauge condition
-	EntityType EdgesOfTreeIn ;
+	EntityType EdgesOfTreeIn ; EntitySubType StartingOn ;
 	NameOfConstraint AGauge ; }
     }
   }
