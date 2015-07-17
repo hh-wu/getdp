@@ -4361,6 +4361,22 @@ right-hand-side of the linear system can simply be multiplied by
 Recompute the constraint of type @var{constraint-type} acting on
 @var{group-id} during processing.
 
+@item GetResidual
+@code{[@var{system-id}, $@var{variable-id}]}
+
+Compute the residual @code{r = b - A x} and store its L2 norm in the
+run-time variable $@var{variable-id}.
+
+@item SwapSolutionAndResidual
+@code{[@var{system-id}]}
+
+Swap the solution @code{x} and residual @code{r} vectors.
+
+@item SwapSolutionAndRHS
+@code{[@var{system-id}]}
+
+Swap the solution @code{x} and RHS @code{b} vectors.
+
 @item InitSolution
 @code{[@var{system-id}]}
 

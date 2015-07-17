@@ -248,7 +248,7 @@ struct doubleXstring{
 %token    tOperation tOperationEnd
 %token      tSetTime tSetTimeStep tDTime tSetFrequency tFourierTransform tFourierTransformJ
 %token      tLanczos tEigenSolve tEigenSolveJac tPerturbation
-%token      tUpdate tUpdateConstraint tBreak
+%token      tUpdate tUpdateConstraint tBreak tGetResidual
 %token      tEvaluate tSelectCorrection tAddCorrection tMultiplySolution
 %token      tAddOppositeFullSolution tSolveAgainWithOther tSetGlobalSolverOptions
 
@@ -4335,6 +4335,27 @@ OperationTerm :
       Operation_P->Case.UpdateConstraint.Type = ASSIGN;
     }
 
+  | tGetResidual '[' String__Index ',' '$' String__Index ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_GETRESIDUAL;
+      int i;
+      if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $3);
+      Free($3);
+      Operation_P->DefineSystemIndex = i;
+      Operation_P->Case.GetResidual.VariableName = $6;
+      Operation_P->Case.GetResidual.NormType = L2NORM;
+      /*
+      NormType = Get_DefineForString(ErrorNorm_Type, $xx, &FlagError);
+      if(FlagError){
+        Get_Valid_SXD($xx, ErrorNorm_Type);
+        vyyerror("Unknown error norm type for residual calculation");
+      }
+      */
+    }
+
   | tFourierTransform '[' String__Index ',' String__Index ',' ListOfFExpr ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
@@ -5275,7 +5296,7 @@ LTEdefinitions :
       TimeLoopAdaptiveSystem_S.SystemLTEabstol = $7;
       TimeLoopAdaptiveSystem_S.NormType = Get_DefineForString(ErrorNorm_Type, $9, &FlagError);
       if(FlagError){
-        Get_Valid_SXD($3, ChangeOfState_Type);
+        Get_Valid_SXD($9, ErrorNorm_Type);
         vyyerror("Unknown error norm type of TimeLoopAdaptive system %s", $3);
       }
       TimeLoopAdaptiveSystem_S.NormTypeString = $9;
@@ -5297,7 +5318,7 @@ LTEdefinitions :
       TimeLoopAdaptivePO_S.PostOperationAbstol = $7;
       TimeLoopAdaptivePO_S.NormType = Get_DefineForString(ErrorNorm_Type, $9, &FlagError);
       if(FlagError){
-        Get_Valid_SXD($3, ChangeOfState_Type);
+        Get_Valid_SXD($9, ErrorNorm_Type);
         vyyerror("Unknown error norm type of TimeLoopAdaptive PostOperation %s", $3);
       }
       TimeLoopAdaptivePO_S.NormTypeString = $9;
@@ -5349,7 +5370,7 @@ IterativeLoopDefinitions :
       IterativeLoopSystem_S.NormOfString = $9;
       IterativeLoopSystem_S.NormType = Get_DefineForString(ErrorNorm_Type, $10, &FlagError);
       if(FlagError){
-        Get_Valid_SXD($3, ChangeOfState_Type);
+        Get_Valid_SXD($10, ErrorNorm_Type);
         vyyerror("Unknown error norm type of IterativeLoop system: %s", $3);
       }
       IterativeLoopSystem_S.NormTypeString = $10;
@@ -5372,7 +5393,7 @@ IterativeLoopDefinitions :
       IterativeLoopPO_S.PostOperationAbstol = $7;
       IterativeLoopPO_S.NormType = Get_DefineForString(ErrorNorm_Type, $9, &FlagError);
       if(FlagError){
-        Get_Valid_SXD($3, ChangeOfState_Type);
+        Get_Valid_SXD($9, ErrorNorm_Type);
         vyyerror("Unknown error norm type of IterativeLoopN PostOperation %s", $3);
       }
       IterativeLoopPO_S.NormTypeString = $9;

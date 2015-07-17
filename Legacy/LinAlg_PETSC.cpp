@@ -297,6 +297,12 @@ void LinAlg_CopyVector(gVector *V1, gVector *V2)
   if(V1->haveSeq) _try(VecCopy(V1->Vseq, V2->Vseq));
 }
 
+void LinAlg_SwapVector(gVector *V1, gVector *V2)
+{
+  _try(VecSwap(V1->V, V2->V));
+  if(V1->haveSeq) _try(VecSwap(V1->Vseq, V2->Vseq));
+}
+
 void LinAlg_CopyMatrix(gMatrix *M1, gMatrix *M2)
 {
   _try(MatCopy(M1->M, M2->M, DIFFERENT_NONZERO_PATTERN));

@@ -26,6 +26,7 @@ void LinAlg_DestroyVector(gVector *V){ err; }
 void LinAlg_DestroyMatrix(gMatrix *M){ err; }
 void LinAlg_CopyScalar(gScalar *S1, gScalar *S2){ err; }
 void LinAlg_CopyVector(gVector *V1, gVector *V2){ err; }
+void LinAlg_SwapVector(gVector *V1, gVector *V2){ err; }
 void LinAlg_CopyMatrix(gMatrix *M1, gMatrix *M2){ err; }
 void LinAlg_ZeroScalar(gScalar *S){ err; }
 void LinAlg_ZeroVector(gVector *V){ err; }

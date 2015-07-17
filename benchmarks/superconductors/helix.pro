@@ -283,10 +283,12 @@ Resolution {
       SetGlobalSolverOptions["-mat_mumps_icntl_14 500"];
       InitSolution[A];
       TimeLoopTheta[time0t, time1t, dtimet, theta] {
-        Print[ {$Residual} ];
-        While[$Residual > NL_Eps]{
-          Generate[A]; Solve[A]; Residual[A];
+        Evaluate[ $it = 0 ];
+        While[1]{
+          Evaluate[ $it = $it + 1 ];
+          Generate[A]; Solve[A]; GetResidual[A, $Residual];
           Print[ {$Residual} ];
+          Test[ $Residual < NL_Eps || $it > NL_NbrMax ]{ Break; }
         }
         SaveSolution[A];
       }
@@ -329,16 +331,6 @@ Resolution {
       { Name A; NameOfFormulation MagDynAV_modified; }
     }
     Operation {
-      SetGlobalSolverOptions["-mat_mumps_icntl_14 500"];
-      InitSolution[A];
-      TimeLoopTheta[time0t, time1t, dtimet, theta] {
-        Print[ {$Residual} ];
-        While[$Residual > NL_Eps]{
-          Generate[A]; Solve[A]; Residual[A];
-          Print[ {$Residual} ];
-        }
-        SaveSolution[A];
-      }
     }
   }
 

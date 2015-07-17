@@ -127,12 +127,12 @@ void Dof_FreeDofData(struct DofData * DofData_P)
   if(DofData_P->Flag_Init[0] == 1 || DofData_P->Flag_Init[0] == 2){
     LinAlg_DestroyMatrix(&DofData_P->A);
     LinAlg_DestroyVector(&DofData_P->b);
+    LinAlg_DestroyVector(&DofData_P->res);
     LinAlg_DestroySolver(&DofData_P->Solver);
   }
 
   if(DofData_P->Flag_Init[0] == 2){
     LinAlg_DestroyMatrix(&DofData_P->Jac);
-    LinAlg_DestroyVector(&DofData_P->res);
     LinAlg_DestroyVector(&DofData_P->dx);
   }
 

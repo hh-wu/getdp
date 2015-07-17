@@ -78,6 +78,8 @@ void LinAlg_CopyScalar(gScalar *S1, gScalar *S2);
 void LinAlg_CopyVector(gVector *V1, gVector *V2);
 void LinAlg_CopyMatrix(gMatrix *M1, gMatrix *M2);
 
+void LinAlg_SwapVector(gVector *V1, gVector *V2);
+
 void LinAlg_ZeroScalar(gScalar *S);
 void LinAlg_ZeroVector(gVector *V);
 void LinAlg_ZeroMatrix(gMatrix *M);

@@ -196,6 +196,7 @@ GenerateRHSGroup             return tGenerateRHSGroup;
 GenerateRHSGroupCumulative   return tGenerateRHSGroupCumulative;
 GeoElement                   return tGeoElement;
 GetRegion                    return tGetRegion ;
+GetResidual                  return tGetResidual;
 GlobalEquation               return tGlobalEquation;
 GlobalQuantity               return tGlobalQuantity;
 GlobalTerm                   return tGlobalTerm;

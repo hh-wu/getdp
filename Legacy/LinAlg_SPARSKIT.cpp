@@ -154,6 +154,19 @@ void LinAlg_CopyVector(gVector *V1, gVector *V2)
   memcpy(V2->V, V1->V, V1->N*sizeof(double)) ;
 }
 
+void LinAlg_SwapVector(gVector *V1, gVector *V2)
+{
+  if(V1->N != V2->N){
+    Message::Error("Cannot swap vectors of different size");
+    return;
+  }
+  for(int i = 0; i < V1->N; i++){
+    double tmp = V1->V[i];
+    V1->V[i] = V2->V[i];
+    V2->V[i] = tmp;
+  }
+}
+
 void LinAlg_CopyMatrix(gMatrix *M1, gMatrix *M2)
 {
   Message::Error("'LinAlg_CopyMatrix' not yet implemented");

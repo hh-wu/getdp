@@ -126,6 +126,7 @@ void  Init_SystemData(struct DofData * DofData_P, int Flag_Jac)
     LinAlg_CreateMatrix(&DofData_P->A, &DofData_P->Solver,
 			DofData_P->NbrDof, DofData_P->NbrDof) ;
     LinAlg_CreateVector(&DofData_P->b, &DofData_P->Solver, DofData_P->NbrDof) ;
+    LinAlg_CreateVector(&DofData_P->res, &DofData_P->Solver, DofData_P->NbrDof) ;
   }
 
   /* GenerateOnly: Taking advantage of the invariant parts of the matrix in every time-step */
@@ -158,7 +159,6 @@ void  Init_SystemData(struct DofData * DofData_P, int Flag_Jac)
     DofData_P->Flag_Init[0] = 2 ;
     LinAlg_CreateMatrix(&DofData_P->Jac, &DofData_P->Solver,
 			DofData_P->NbrDof, DofData_P->NbrDof) ;
-    LinAlg_CreateVector(&DofData_P->res, &DofData_P->Solver, DofData_P->NbrDof) ;
     LinAlg_CreateVector(&DofData_P->dx, &DofData_P->Solver, DofData_P->NbrDof) ;
   }
 }
@@ -1043,6 +1043,34 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       }
       break ;
 
+      /*  -->  S w a p S o l u t i o n              */
+      /*  ----------------------------------------  */
+    case OPERATION_SWAPSOLUTIONANDRHS :
+      {
+        Init_OperationOnSystem("SwapSolutionAndRHS",
+                               Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+                               &DefineSystem_P, &DofData_P, Resolution2_P) ;
+        if(DofData_P->CurrentSolution)
+          LinAlg_SwapVector(&DofData_P->CurrentSolution->x, &DofData_P->b);
+        else
+          Message::Error("No current solution available");
+        Flag_CPU = 1 ;
+      }
+      break ;
+
+    case OPERATION_SWAPSOLUTIONANDRESIDUAL :
+      {
+        Init_OperationOnSystem("SwapSolutionAndResidual",
+                               Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+                               &DefineSystem_P, &DofData_P, Resolution2_P) ;
+        if(DofData_P->CurrentSolution)
+          LinAlg_SwapVector(&DofData_P->CurrentSolution->x, &DofData_P->res);
+        else
+          Message::Error("No current solution available");
+        Flag_CPU = 1 ;
+      }
+      break ;
+
       /*  -->  A p p l y                              */
       /*  ------------------------------------------  */
     case OPERATION_APPLY :
@@ -1052,7 +1080,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                                Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                                &DefineSystem_P, &DofData_P, Resolution2_P) ;
         if(DofData_P->CurrentSolution){
-          LinAlg_CreateVector(&DofData_P->res, &DofData_P->Solver, DofData_P->NbrDof) ;
           LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x,
                                   &DofData_P->res);
           LinAlg_CopyVector(&DofData_P->res, &DofData_P->CurrentSolution->x);
@@ -1063,21 +1090,24 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       }
       break ;
 
-      /*  -->  Residual                               */
+      /*  -->  G e t R e s i d u a l                  */
       /*  ------------------------------------------  */
-    case OPERATION_RESIDUAL :
+    case OPERATION_GETRESIDUAL :
       {
-        /*  Compute : x <- b - A x  */
-        Init_OperationOnSystem("Residual",
+        /*  Compute : b - A x  */
+        Init_OperationOnSystem("GetResidual",
                                Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                                &DefineSystem_P, &DofData_P, Resolution2_P) ;
         if(DofData_P->CurrentSolution){
-          LinAlg_CreateVector(&DofData_P->res, &DofData_P->Solver, DofData_P->NbrDof) ;
           LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x,
                                   &DofData_P->res);
           LinAlg_SubVectorVector(&DofData_P->b, &DofData_P->res, &DofData_P->res);
-          //LinAlg_CopyVector(&DofData_P->res, &DofData_P->CurrentSolution->x);
-          LinAlg_VectorNorm2(&DofData_P->res, &Current.Residual);
+          double residual;
+          LinAlg_VectorNorm2(&DofData_P->res, &residual);
+          Cal_ZeroValue(&Value);
+          Value.Type = SCALAR;
+          Value.Val[0] = residual;
+          Cal_StoreInVariable(&Value, Operation_P->Case.GetResidual.VariableName);
         }
         else
           Message::Error("No current solution available");
@@ -2252,8 +2282,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
         if(Message::GetOnelabAction() == "stop" || Message::GetErrorCount()) break;
 
-        Current.Residual = 1; // FIXME test
-
 	if (!Flag_NextThetaFixed) { /* Attention: Test */
 	  Get_ValueOfExpressionByIndex(Operation_P->Case.TimeLoopTheta.ThetaIndex,
 				       NULL, 0., 0., 0., &Value) ;
@@ -2366,7 +2394,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
 	Flag_IterativeLoop = Operation_P->Case.IterativeLoop.Flag ; /* Attention: Test */
 
-        // Resolution2_P and DofData2_P0 added as arguments for allowing TransferSolution of a nonlinear resolution
+        // Resolution2_P and DofData2_P0 added as arguments for allowing
+        // TransferSolution of a nonlinear resolution
  	Treatment_Operation(Resolution_P, Operation_P->Case.IterativeLoop.Operation,
 			    DofData_P0, GeoData_P0, Resolution2_P, DofData2_P0) ;
 

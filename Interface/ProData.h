@@ -931,6 +931,10 @@ struct Operation {
       int     GroupIndex, Type;
     } UpdateConstraint;
     struct {
+      char *VariableName;
+      int NormType;
+    } GetResidual;
+    struct {
       int     ExpressionIndex;
     } SetFrequency;
     struct {
@@ -1220,12 +1224,14 @@ struct IterativeLoopSystem {
 #define OPERATION_UPDATE                   81
 #define OPERATION_UPDATECONSTRAINT         82
 #define OPERATION_WRITE                    83
-#define OPERATION_RESIDUAL                 84
+#define OPERATION_GETRESIDUAL              84
 #define OPERATION_RENAMEFILE               85
 #define OPERATION_WHILE                    86
 #define OPERATION_SETTIMESTEP              87
 #define OPERATION_ERROR                    88
 #define OPERATION_SLEEP                    89
+#define OPERATION_SWAPSOLUTIONANDRHS       90
+#define OPERATION_SWAPSOLUTIONANDRESIDUAL  91
 
 /* ChangeOfState.Type */
 #define CHANGEOFSTATE_NOCHANGE              0
@@ -1496,7 +1502,7 @@ struct CurrentData {
 
   // For IterativeLoop
   double  Iteration, RelativeDifference, RelativeDifferenceOld;
-  double  RelaxationFactor, Residual;
+  double  RelaxationFactor;
 
   // Iterative linear system solvers
   double  KSPIts;

@@ -1,8 +1,9 @@
 2.6.0: new ability to define and use Macros in .pro files; new run-time
 variables (act as registers, but with user-defined names like starting with '$')
 and run-time ONELAB Get/Set functions; new Append*ToFileName PostOperation
-options; fixes and extended format support in MSH file reader; fixed
-UpdateConstraint for complex-simulated-real and multi-harmonic calculations.
+options; new GetResdidual and associated operations; fixes and extended format
+support in MSH file reader; fixed UpdateConstraint for complex-simulated-real
+and multi-harmonic calculations.
 
 2.5.1: enhanced Python[] and DefineFunction[].
 
