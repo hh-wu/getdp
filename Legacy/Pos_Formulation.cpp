@@ -354,9 +354,6 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
 		      struct PostProcessing    *PostProcessing_P,
 		      struct PostSubOperation  *PostSubOperation_P)
 {
-  // currently cannot postprocess in parallel!
-  if(Message::GetIsCommWorld() && Message::GetCommRank()) return;
-
   struct PostQuantity   *NCPQ_P = NULL, *CPQ_P = NULL ;
   double                 Pulsation ;
   int                    i, Order = 0 ;
@@ -399,7 +396,11 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
       strcat(PostFileName, PostSubOperation_P->AppendStringToFileName);
     }
 
-    if(!PostSubOperation_P->CatFile) {
+    if(Message::GetIsCommWorld() && Message::GetCommRank()){
+      // in parallel mode (SetCommWorld), only rank 0 prints output
+      PostStream = NULL ;
+    }
+    else if(!PostSubOperation_P->CatFile) {
       if((PostStream = FOpen(PostFileName, Flag_BIN ? "wb" : "w")))
 	Message::Direct(4, "          > '%s'", PostFileName) ;
       else{
@@ -439,7 +440,7 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
       Message::Error("StoreInMeshBasedField not compatible with selected options");
   }
 
-  if(PostSubOperation_P->CatFile == 2)  fprintf(PostStream, "\n\n") ;
+  if(PostStream && PostSubOperation_P->CatFile == 2)  fprintf(PostStream, "\n\n") ;
   /*  two blanks lines for -index in gnuplot  */
 
   Format_PostFormat(PostSubOperation_P) ;
@@ -497,7 +498,7 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
 
   Flag_GMSH_VERSION = oldVersion;
 
-  if(PostSubOperation_P->FileOut){
+  if(PostStream && PostSubOperation_P->FileOut){
     fclose(PostStream) ;
 
     if(PostSubOperation_P->SendToServer == NULL ||

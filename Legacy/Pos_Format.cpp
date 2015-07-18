@@ -89,7 +89,7 @@ static void Gmsh_StringStart(int Format, double x, double y, double style)
     T2D.push_back(T2C.size());
     NbT2++;
   }
-  else{
+  else if(PostStream){
     fprintf(PostStream, "T2(%g,%g,%g){", x, y, style);
   }
 }
@@ -101,7 +101,7 @@ static void Gmsh_StringAdd(int Format, int first, char *text)
     for(i = 0; i < (int)strlen(text)+1; i++)
       T2C.push_back(text[i]);
   }
-  else{
+  else if(PostStream){
     if(!first)
       fprintf(PostStream, ",");
     fprintf(PostStream, "\"%s\"", text);
@@ -112,7 +112,7 @@ static void Gmsh_StringEnd(int Format)
 {
   if(Flag_BIN){ /* bricolage: should use Format instead */
   }
-  else{
+  else if(PostStream){
     fprintf(PostStream, "};\n") ;
   }
 }
@@ -145,6 +145,7 @@ static int Gmsh_GetElementType(int Type)
 static void Gmsh_PrintElementNodeData(struct PostSubOperation *PSO_P, int numTimeStep,
                                       int numComp, int Nb[8], std::vector<double> *L[8])
 {
+  if(!PostStream) return;
   int N = 0;
   for(int i = 0; i < 8; i++) N += Nb[i];
   if(!N) return;
@@ -220,6 +221,8 @@ static void GmshParsed_PrintElement(double Time, int TimeStep, int NbTimeStep, i
   else
     for(k = 0 ; k < HarmonicToTime ; k++)
       List_Put(TimeValue_L, HarmonicToTime*TimeStep+k, &Time);
+
+  if(!PostStream) return;
 
   switch (Value[0].Type) {
 
@@ -630,6 +633,8 @@ static void Gnuplot_PrintElement(int Format, double Time, int TimeStep, int NbrT
   double      TimeMH ;
   struct Value  TmpValue ;
 
+  if(!PostStream) return;
+
   if(TimeStep == 0){
     switch(Value->Type){
     case SCALAR      : Size = 1 ; break ;
@@ -732,6 +737,8 @@ static void Tabular_PrintElement(struct PostSubOperation *PSO_P,
   int         i,j,k ;
   double      TimeMH ;
   struct Value  TmpValue ;
+
+  if(!PostStream) return;
 
   if(TimeStep == 0){
     switch(Value->Type){
@@ -929,7 +936,7 @@ void Unv_PrintRegion(FILE *PostStream, int Flag_Comma, int numRegion, int NbrHar
 
 void  Format_PostFormat(struct PostSubOperation *PSO_P)
 {
-  if(PSO_P->Type == POP_EXPRESSION) return;
+  if(!PostStream || PSO_P->Type == POP_EXPRESSION) return;
 
   int Format = PSO_P->Format;
   int NoMesh = PSO_P->NoMesh;
@@ -1010,7 +1017,7 @@ void  Format_PostFormat(struct PostSubOperation *PSO_P)
         fprintf(PostStream, "$EndElements\n");
       }
     }
-    else if(Flag_BIN){/* bricolage */
+    else if(PostStream && Flag_BIN){/* bricolage */
       fprintf(PostStream, "$PostFormat /* Gmsh 1.2, %s */\n",
 	      Flag_BIN ? "binary" : "ascii") ;
       fprintf(PostStream, "1.2 %d %d\n", Flag_BIN, (int)sizeof(double)) ;
@@ -1065,14 +1072,14 @@ void  Format_PostHeader(struct PostSubOperation *PSO_P, int NbTimeStep,
 
   switch(Format){
   case FORMAT_GMSH_PARSED :
-    fprintf(PostStream, "View \"%s\" {\n", name) ;
+    if(PostStream) fprintf(PostStream, "View \"%s\" {\n", name) ;
     Gmsh_StartNewView = 1 ;
     break ;
   case FORMAT_GMSH :
     Gmsh_StartNewView = 1 ;
     if((PSO_P->StoreInField >= 0 || PSO_P->StoreInMeshBasedField >= 0) &&
        !PSO_P->FileOut) break;
-    if(Flag_GMSH_VERSION != 2){
+    if(PostStream && Flag_GMSH_VERSION != 2){
       if(Flag_BIN){ /* bricolage */
         fprintf(PostStream, "$View /* %s */\n", name);
         fprintf(PostStream, "%s ", name);
@@ -1083,17 +1090,19 @@ void  Format_PostHeader(struct PostSubOperation *PSO_P, int NbTimeStep,
     }
     break ;
   case FORMAT_UNV :
-    Unv_PrintHeader(PostStream, name, SubType, Time, TimeStep);
+    if(PostStream) Unv_PrintHeader(PostStream, name, SubType, Time, TimeStep);
     break ;
   case FORMAT_GNUPLOT :
-    fprintf(PostStream, "# PostData '%s'\n", name);
-    fprintf(PostStream, "# Type Num  X Y Z  N1 N2 N3  Values  <Values>...\n");
+    if(PostStream){
+      fprintf(PostStream, "# PostData '%s'\n", name);
+      fprintf(PostStream, "# Type Num  X Y Z  N1 N2 N3  Values  <Values>...\n");
+    }
     break ;
   case FORMAT_NODE_TABLE :
     NodeTable_StartNew = 1 ;
     break ;
   case FORMAT_ADAPT :
-    fprintf(PostStream, "$Adapt /* %s */\n", name) ;
+    if(PostStream) fprintf(PostStream, "$Adapt /* %s */\n", name) ;
     break ;
   }
 }
@@ -1205,7 +1214,7 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
       NbrIso = NBR_MAX_ISO;
     }
 
-    if(PSO_P->Format == FORMAT_GNUPLOT)
+    if(PostStream && PSO_P->Format == FORMAT_GNUPLOT)
       fprintf(PostStream, "# NbIso = %d, Min = %g, Max = %g\n",
 	      NbrIso, IsoMin, IsoMax) ;
 
@@ -1237,13 +1246,13 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
 	Destroy_PostElement(PE) ;
       }
       List_Delete(Iso_L[iIso]) ;
-      if(PSO_P->Format == FORMAT_GNUPLOT) fprintf(PostStream, "\n") ;
+      if(PostStream && PSO_P->Format == FORMAT_GNUPLOT) fprintf(PostStream, "\n") ;
     }
   }
 
   switch(PSO_P->Format){
   case FORMAT_GMSH_PARSED :
-    if(List_Nbr(TimeValue_L) > 1){
+    if(PostStream && List_Nbr(TimeValue_L) > 1){
       fprintf(PostStream, "TIME{");
       for(iTime = 0; iTime < List_Nbr(TimeValue_L); iTime++){
 	if(iTime) fprintf(PostStream, ",");
@@ -1292,7 +1301,7 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
       std::vector<double> *LT[8] = {&TP, &TL, &TT, &TQ, &TS1, &TH, &TI, &TY};
       Gmsh_PrintElementNodeData(PSO_P, NbTimeStep, 9, NT, LT);
     }
-    else if(Flag_BIN){ /* bricolage */
+    else if(PostStream && Flag_BIN){ /* bricolage */
       fprintf(PostStream, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d "
 	      "%d %d %d %d %d %d %d %d %d %d %d 0 0\n",
 	      List_Nbr(TimeValue_L),
@@ -1322,7 +1331,7 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
       fprintf(PostStream, "\n");
       fprintf(PostStream, "$EndView\n");
     }
-    else{
+    else if(PostStream){
       if(List_Nbr(TimeValue_L) > 1){
 	fprintf(PostStream, "TIME{");
 	for(iTime = 0; iTime < List_Nbr(TimeValue_L); iTime++){
@@ -1335,19 +1344,21 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
     }
     break ;
   case FORMAT_ADAPT :
-    fprintf(PostStream, "$EndAdapt\n");
+    if(PostStream) fprintf(PostStream, "$EndAdapt\n");
     break ;
   case FORMAT_UNV :
-    Unv_PrintFooter(PostStream);
+    if(PostStream) Unv_PrintFooter(PostStream);
     break ;
   case FORMAT_NODE_TABLE :
-    fprintf(PostStream, "%d\n", (int)NodeTable.size());
-    for(std::map<int, std::vector<double> >::iterator it = NodeTable.begin();
-        it != NodeTable.end(); it++){
-      fprintf(PostStream, "%d", it->first);
-      for(unsigned int i = 0; i < it->second.size(); i++)
-        fprintf(PostStream, " %.16g", it->second[i]);
-      fprintf(PostStream, "\n");
+    if(PostStream){
+      fprintf(PostStream, "%d\n", (int)NodeTable.size());
+      for(std::map<int, std::vector<double> >::iterator it = NodeTable.begin();
+          it != NodeTable.end(); it++){
+        fprintf(PostStream, "%d", it->first);
+        for(unsigned int i = 0; i < it->second.size(); i++)
+          fprintf(PostStream, " %.16g", it->second[i]);
+        fprintf(PostStream, "\n");
+      }
     }
     break;
   case FORMAT_LOOP_ERROR :
@@ -1464,7 +1475,7 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
                             PE->Value) ;
     break ;
   case FORMAT_UNV :
-    Unv_PrintElement(PostStream, Num_Element, PE->NbrNodes, PE->Value) ;
+    if(PostStream) Unv_PrintElement(PostStream, Num_Element, PE->NbrNodes, PE->Value) ;
     break ;
   case FORMAT_GMSH :
     if(PSO_P->StoreInField >= 0 || PSO_P->StoreInMeshBasedField >= 0){
@@ -1504,7 +1515,7 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
     StorePostOpResult(NbrHarmonics, PE);
     break;
   case FORMAT_ADAPT:
-    {
+    if(PostStream){
       if(Dummy[4]) fprintf(PostStream, "%d\n", (int)Dummy[4]) ;
       fprintf(PostStream, "%d %g %g %g\n",
               (int)Dummy[0], Dummy[1], Dummy[2], Dummy[3]);
@@ -1562,7 +1573,7 @@ void Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
     if(iRegion == 0){
       if(PostStream == stdout || PostStream == stderr)
         Message::Direct("%d", NbrRegion);
-      else
+      else if(PostStream)
         fprintf(PostStream, "%d\n", NbrRegion) ;
     }
     std::ostringstream sstream;
@@ -1576,7 +1587,7 @@ void Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
     }
     if(PostStream == stdout || PostStream == stderr)
       Message::Direct(sstream.str().c_str());
-    else
+    else if(PostStream)
       fprintf(PostStream, "%s\n", sstream.str().c_str()) ;
   }
   else if (Format == FORMAT_GMSH && Flag_GMSH_VERSION != 2) {
@@ -1592,7 +1603,8 @@ void Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
                             Value) ;
   }
   else if (Format == FORMAT_UNV) {
-    Unv_PrintRegion(PostStream, Flag_Comma, numRegion, NbrHarmonics, Size, Value);
+    if(PostStream)
+      Unv_PrintRegion(PostStream, Flag_Comma, numRegion, NbrHarmonics, Size, Value);
   }
   else if (Format == FORMAT_LOOP_ERROR) {
     StorePostOpResult(NbrHarmonics, Value);
@@ -1614,7 +1626,7 @@ void Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
 
     if (!flag_storeAllTimeResults && iRegion == NbrRegion-1) {
 
-      if (HarmonicToTime == 1) {
+      if (PostStream && HarmonicToTime == 1) {
 	switch (Format) {
 	case FORMAT_FREQUENCY_TABLE :
 	  if (NbrHarmonics == 1){
@@ -1644,7 +1656,7 @@ void Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
 	else
 	  fprintf(PostStream, "\n") ;
       }
-      else {
+      else if(PostStream){
 	for(k = 0 ; k < HarmonicToTime ; k++) {
 	  for (iRegion = 0 ; iRegion < NbrRegion ; iRegion++) {
 	    F_MHToTime0(k+iRegion, &TmpValues[indexInTmpValues+iRegion], &TmpValue,
@@ -1673,7 +1685,6 @@ void Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
 
   }
 }
-
 
 
 /* ------------------------------------------------------------------------ */
@@ -1737,6 +1748,8 @@ void Pos_FourierTransform(int NbrTimeStep, int NbrRegion,
     }
   }
 
+  if(!PostStream) TypeOutput = 2;
+
   // Limited to cosine transform now
   if (TypeOutput == 2){
     *NbrFreq = Nhalf+1;
@@ -1747,7 +1760,6 @@ void Pos_FourierTransform(int NbrTimeStep, int NbrRegion,
   //  for (k_fc=-Nhalf; k_fc<Nhalf; k_fc++){
   for (k_fc=0; k_fc<Nhalf; k_fc++){
     i_k = Nhalf+k_fc;
-    //    fprintf(PostStream, "%d %.16g", k_fc, k_fc*w/TWO_PI) ;
 
     if (TypeOutput == 1) {
       fprintf(PostStream, "%.16g", k_fc*w/TWO_PI) ;
@@ -1791,5 +1803,4 @@ void Pos_FourierTransform(int NbrTimeStep, int NbrRegion,
   }
 
   Free(val_FourierComps);
-
 }

@@ -1525,9 +1525,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
             }
 	  }
 	}
-        // FIXME: required by parallel version
         LinAlg_AssembleVector(&Solution_S.x) ;
-
 	List_Add(DofData_P->Solutions, &Solution_S) ;
 
 	DofData_P->CurrentSolution = (struct Solution*)
@@ -2186,7 +2184,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
               //               Dof.Type);
 	    }
 	  }
-          // FIXME: required by parallel version
           LinAlg_AssembleVector(&Solution_S.x) ;
 
 	  if (!DofData2_P->Solutions)

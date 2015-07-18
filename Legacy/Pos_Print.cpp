@@ -1159,7 +1159,7 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
 	  LETS_PRINT_THE_RESULT ;
 	}
       }
-      if(PSO_P->Depth < 2 && !Flag_BIN) fprintf(PostStream, "\n");
+      if(PostStream && PSO_P->Depth < 2 && !Flag_BIN) fprintf(PostStream, "\n");
     }
 
     if(PSO_P->Depth > 1){
@@ -1237,9 +1237,9 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
 	  Current.z = Z[0] + (Z[1]-Z[0])*S[0] + (Z[2]-Z[0])*S[1] + (Z[3]-Z[0])*S[2] ;
 	  LETS_PRINT_THE_RESULT ;
 	}
-	if(!Flag_BIN) fprintf(PostStream, "\n");
+	if(PostStream && !Flag_BIN) fprintf(PostStream, "\n");
       }
-      if(!Flag_BIN) fprintf(PostStream, "\n\n");
+      if(PostStream && !Flag_BIN) fprintf(PostStream, "\n\n");
       /*  two blanks lines for -index in gnuplot  */
     }
     break;
@@ -1265,10 +1265,10 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
 	  Normal[2] = Current.c ;
 	  LETS_PRINT_THE_RESULT ;
 	}
-	if(List_Nbr(PSO_P->Case.OnParamGrid.ParameterValue[2])>1 && !Flag_BIN)
+	if(PostStream && List_Nbr(PSO_P->Case.OnParamGrid.ParameterValue[2])>1 && !Flag_BIN)
 	  fprintf(PostStream, "\n");
       }
-      if(List_Nbr(PSO_P->Case.OnParamGrid.ParameterValue[1])>1 && !Flag_BIN)
+      if(PostStream && List_Nbr(PSO_P->Case.OnParamGrid.ParameterValue[1])>1 && !Flag_BIN)
 	fprintf(PostStream, "\n\n");
       /*  two blanks lines for -index in gnuplot  */
     }
@@ -1379,7 +1379,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 	}
         if(PostStream == stdout || PostStream == stderr)
           Message::Direct(sstream.str().c_str());
-        else
+        else if(PostStream)
           fprintf(PostStream, "%s\n", sstream.str().c_str()) ;
       }
     }
@@ -1472,7 +1472,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
         Message::ProgressMeter(i + 1, Nbr_Region, "Post-processing (OnRegion)");
     }
 
-    if (PSO_P->Format == FORMAT_REGION_VALUE) {
+    if (PostStream && PSO_P->Format == FORMAT_REGION_VALUE) {
       fprintf(PostStream, "%s", Print_Value_ToString(&ValueSummed).c_str());
       if (PSO_P->StoreInRegister >= 0)
         Cal_StoreInRegister(&ValueSummed, PSO_P->StoreInRegister) ;
@@ -1571,6 +1571,8 @@ void  Pos_PrintExpression(struct PostSubOperation *PSO_P)
 
   if((!str || !strlen(str)) && (!str2 || !strlen(str2)) && expr < 0)
     return; // nothing to print; useful to request merging an existing file
+
+  if(!PostStream) return;
 
   NbrTimeStep = Pos_InitTimeSteps(PSO_P);
 
