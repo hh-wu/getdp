@@ -1,5 +1,5 @@
 2.6.0: new ability to define and use Macros in .pro files; new run-time
-variables (act as registers, but with user-defined names like starting with '$')
+variables (act as registers, but with user-defined names starting with '$')
 and run-time ONELAB Get/Set functions; new Append*ToFileName PostOperation
 options; new GetResdidual and associated operations; fixes and extended format
 support in MSH file reader; fixed UpdateConstraint for complex-simulated-real
