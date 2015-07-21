@@ -3760,13 +3760,13 @@ Return the current memory usage, in megabytes (maximum resident set
 size).
 
 @item SetNumber
-@code{[@var{expression}]{@var{char-expression}}}
+@code{[@var{expression}]@{@var{char-expression}@}}
 
 Sets the @var{char-expression} ONELAB variable at run-time to
 @var{expression}.
 
 @item GetNumber
-@code{[]{@var{char-expression}}}
+@code{[]@{@var{char-expression}@}}
 
 Gets the value of the @var{char-expression} ONELAB variable at run-time.
 
@@ -5163,7 +5163,7 @@ tetrahedra).
 
 Stores the result of a point-wise evaluation or an @code{OnRegion}
 post-processing operation in the run-time variable
-$code{$}@var{expression-char}.
+$code[$]@var{expression-char}.
 
 @item StoreInRegister
 @code{@var{expression-cst}}
@@ -5460,10 +5460,10 @@ Function @{
 @end example
 
 @noindent In order to optimize the evaluation time of complex expressions,
-registers may be used (@pxref{Registers}). For example, the evaluation of
-@code{g[] = f[$1]*Sin[f[$1]^2]} would require two (costly) linear
-interpolations. But the result of the evaluation of @code{f[]} may be stored
-in a register (for example the register 0) with
+registers may be used (@pxref{Run-time variables and registers}). For
+example, the evaluation of @code{g[] = f[$1]*Sin[f[$1]^2]} would require
+two (costly) linear interpolations. But the result of the evaluation of
+@code{f[]} may be stored in a register (for example the register 0) with
 
 @example
 g[] = f[$1]#0 * Sin[#0^2];
