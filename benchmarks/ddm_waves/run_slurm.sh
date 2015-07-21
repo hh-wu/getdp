@@ -22,7 +22,7 @@ MPIRUN="mpirun --bind-to-core"
 GMSH="$HOME/src/gmsh/bin/gmsh $OPT -v 3 -bin"
 GETDP="$HOME/src/getdp/bin/getdp $OPT -v 3 -bin"
 
-DIR="$HOME/src/getdp/benchmarks/ddm_wave_simple";
+DIR="$HOME/src/getdp/benchmarks/ddm_waves";
 FILE="$DIR/waveguide3d"
 
 cat $0

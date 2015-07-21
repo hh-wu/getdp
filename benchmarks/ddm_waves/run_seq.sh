@@ -38,7 +38,7 @@ OPT_PB=OPT_$PROBLEM
 GMSH="$HOME/src/gmsh/bin/gmsh $OPT ${!OPT_PB} -v 3 -bin"
 GETDP="$HOME/src/getdp/bin/getdp $OPT ${!OPT_PB} -v 3 -bin"
 
-FILE="$HOME/src/getdp/benchmarks/ddm_wave_simple/${PROBLEM}"
+FILE="$HOME/src/getdp/benchmarks/ddm_waves/${PROBLEM}"
 
 $GMSH $FILE.geo -
 $GETDP $FILE.pro -solve DDM
