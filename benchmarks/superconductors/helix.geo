@@ -23,9 +23,7 @@ DefineConstant[
 
 For i In {1:NumLayers}
   DefineConstant[
-    LayerRadius~{i} = {
-      MatrixRadius / 2,
-      //(i+1) * MatrixRadius / (NumLayers + 2) ,
+    LayerRadius~{i} = {i * MatrixRadius / (NumLayers + 1),
       Min FilamentRadius, Max MatrixRadius, Step 1e-2,
       Name Sprintf["Input/Geometry/{Layer %g/Radius [mm]", i]},
     StartAngleFilament~{i} = {0, Min 0, Max 2*Pi, Step 2*Pi/100,
