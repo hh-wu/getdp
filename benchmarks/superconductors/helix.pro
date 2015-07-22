@@ -179,10 +179,10 @@ Resolution {
       CreateDirectory["res"];
       InitSolution[A];
       TimeLoopTheta[time0, time1, dt, theta] {
-        Evaluate[ $Residual = 1e10 ];
+        Generate[A]; GetResidual[A, $Residual]; Print[{$Residual}];
         While[$Residual > eps]{
-          Generate[A]; Solve[A]; GetResidual[A, $Residual];
-          Evaluate[ SetNumber[$Residual##0]{"GetDP/Residual"} ];
+          Solve[A];
+          Generate[A]; GetResidual[A, $Residual]; Print[{$Residual}];
         }
         SaveSolution[A];
         PostOperation[MagDynTO];
