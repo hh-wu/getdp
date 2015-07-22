@@ -15,7 +15,9 @@ DefineConstant[
     Name "Input/Geometry/Twist fraction in model"},
   LcFilament = {FilamentRadius / 4,
     Name "Input/Mesh/Size on filaments [mm]"},
-  LcMatrix = {MatrixRadius / 5,
+  FilamentMeshAniso = {2, Min 1, Max 5, Step 1,
+    Name "Input/Mesh/Anisotropy of filament mesh"},
+   LcMatrix = {MatrixRadius / 5,
     Name "Input/Mesh/Size on matrix boundary [mm]"},
   LcAir = {AirRadius / 5,
     Name "Input/Mesh/Size on air boundary [mm]"}
@@ -65,9 +67,10 @@ For i In {1:NumLayers}
     s[] = {};
     tmp[] = {s1};
     For k In {1:splits}
-      tmp[] = Extrude {{0,0,TwistPitch*mm / splits * TwistFraction},
-        {0,0,1} , {0,0,0} , 1* 2*Pi / splits * TwistFraction} {
-        Surface{ tmp[0] }; Layers{6};
+      h = TwistPitch*mm / splits * TwistFraction;
+      N = h / (LcFilament*mm) / FilamentMeshAniso;
+      tmp[] = Extrude {{0,0,h}, {0,0,1}, {0,0,0}, 2*Pi / splits * TwistFraction} {
+        Surface{ tmp[0] }; Layers{N};
       };
       v[] += tmp[1];
       s[] += tmp[{2:5}];

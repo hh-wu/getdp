@@ -5,7 +5,7 @@ DefineConstant[
 
 For i In {1:NumLayers}
   DefineConstant[
-    NumFilaments~{i} = {2, Min 1, Max 100, Step 1,
+    NumFilaments~{i} = {2 * i, Min 1, Max 100, Step 1,
       Name Sprintf["Input/Geometry/{Layer %g/Filaments", i]}
   ];
 EndFor
