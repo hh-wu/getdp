@@ -2464,6 +2464,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_WHILE :
       Message::Info("While...") ;
       while(1){
+        if(Message::GetOnelabAction() == "stop" || Message::GetErrorCount()) break;
+
         Get_ValueOfExpressionByIndex(Operation_P->Case.While.ExpressionIndex,
                                      NULL, 0., 0., 0., &Value) ;
         if(!Value.Val[0]) break;

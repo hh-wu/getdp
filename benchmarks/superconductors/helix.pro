@@ -182,6 +182,7 @@ Resolution {
         Evaluate[ $Residual = 1e10 ];
         While[$Residual > eps]{
           Generate[A]; Solve[A]; GetResidual[A, $Residual];
+          Evaluate[ SetNumber[$Residual]{"GetDP/Residual"} ];
           Print[ {$Residual} ];
         }
         SaveSolution[A];
