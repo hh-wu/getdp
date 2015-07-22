@@ -248,7 +248,6 @@ MPI_Printf                   return tMPI_Printf;
 MPI_Rank                     return tMPI_Rank;
 MPI_Size                     return tMPI_Size;
 Macro                        return tMacro;
-Matrix                       return tMatrix;
 MaxNumberOfDivisions         return tMaxNumberOfDivisions;
 MaxNumberOfPoints            return tMaxNumberOfPoints;
 MeshMovingBand2D             return tMeshMovingBand2D;

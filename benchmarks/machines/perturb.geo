@@ -30,6 +30,11 @@ If(PerturbMesh == 2)
   Printf("Computing perturbation velocity field...");
   Merge StrCat(StrPrefix(StrRelative(General.FileName)), ".msh");
   Plugin(NewView).Run;
+
+  // FIXME: MathEval currently creates "list-based" views: we should create
+  // "model-based" views, so that we could keep the node numbers in the velocity
+  // field, and we could export this as a "node_number value" table.
+
   Plugin(MathEval).View = 0;
   Plugin(MathEval).Expression0 = "x";
   Plugin(MathEval).Expression1 = "y";

@@ -216,7 +216,6 @@ struct doubleXstring{
 %token  tMetricTensor
 
 %token  tIntegration
-%token  tMatrix
 %token    tType tSubType tCriterion tGeoElement
 %token      tNumberOfPoints tMaxNumberOfPoints
 %token        tNumberOfDivisions tMaxNumberOfDivisions
@@ -3594,7 +3593,7 @@ LocalTermTerm  :
       EquationTerm_S.Case.LocalTerm.Full_Matrix = 1;
     }
 
-  | tMatrix '[' tINT ']' tEND
+  | tSTRING '[' tINT ']' tEND
     { if($3 == 1 || $3 == 2 || $3 == 3)
 	EquationTerm_S.Case.LocalTerm.MatrixIndex = $3;
       else
