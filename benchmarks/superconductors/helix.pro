@@ -50,11 +50,11 @@ Function {
   // power law E(J) = rho(J) * J
   rho[Filaments] = Ec / Jc^n * (Norm[$1])^(n - 1);
   dEdJ[Filaments] =
-    Ec / Jc^n * (Norm[$1])^(n - 1)*TensorDiag[1.,1.,1.] +
-    Ec / Jc^n * (n-1) * (Norm[$1])^(n - 3)*
-      Tensor[CompX[$1]*CompX[$1],CompX[$1]*CompY[$1],CompX[$1]*CompZ[$1],
-        CompY[$1]*CompX[$1],CompY[$1]*CompY[$1],CompY[$1]*CompZ[$1],
-        CompZ[$1]*CompX[$1],CompZ[$1]*CompY[$1],CompZ[$1]*CompZ[$1]];
+    Ec / Jc^n * (Norm[$1])^(n - 1) * TensorDiag[1.,1.,1.] +
+    Ec / Jc^n * (n-1) * (Norm[$1])^(n - 3) *
+      Tensor[CompX[$1] * CompX[$1], CompX[$1] * CompY[$1], CompX[$1] * CompZ[$1],
+             CompY[$1] * CompX[$1], CompY[$1] * CompY[$1], CompY[$1] * CompZ[$1],
+             CompZ[$1] * CompX[$1], CompZ[$1] * CompY[$1], CompZ[$1] * CompZ[$1]];
 
   Freq = 50;
   time0 = 0; // initial time
@@ -182,8 +182,7 @@ Resolution {
         Evaluate[ $Residual = 1e10 ];
         While[$Residual > eps]{
           Generate[A]; Solve[A]; GetResidual[A, $Residual];
-          Evaluate[ SetNumber[$Residual]{"GetDP/Residual"} ];
-          Print[ {$Residual} ];
+          Evaluate[ SetNumber[$Residual##0]{"GetDP/Residual"} ];
         }
         SaveSolution[A];
         PostOperation[MagDynTO];
