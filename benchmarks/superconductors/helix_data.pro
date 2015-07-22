@@ -1,11 +1,12 @@
 DefineConstant[
-  NumLayers = {1, Name "Number of filament layers"}
+  NumLayers = {1,
+    Name "Input/Geometry/Layers"}
 ];
 
 For i In {1:NumLayers}
   DefineConstant[
     NumFilaments~{i} = {2, Min 1, Max 100, Step 1,
-      Name Sprintf["Number of filaments in layer %g", i]}
+      Name Sprintf["Input/Geometry/{Layer %g/Filaments", i]}
   ];
 EndFor
 

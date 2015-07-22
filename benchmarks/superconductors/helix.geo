@@ -3,14 +3,22 @@ Include "helix_data.pro";
 mm = 1e-3 * scaling;
 
 DefineConstant[
-  AirRadius = {1, Name "Radius of air domain [mm]"},
-  MatrixRadius = {0.56419, Name "Radius of conductive matrix [mm]"},
-  FilamentRadius = {0.1784, Name "Radius of filements [mm]"},
-  TwistPitch = {4, Name "Twist pitch [mm]"},
-  TwistFraction = {1/4, Min 1/16, Max 2, Step 1/4, Name "Twist fraction in model"},
-  LcFilament = {FilamentRadius / 4, Name "Mesh size on filaments [mm]"},
-  LcMatrix = {MatrixRadius / 5, Name "Mesh size on matrix boundary [mm]"},
-  LcAir = {AirRadius / 5, Name "Mesh size on air boundary [mm]"}
+  AirRadius = {1,
+    Name "Input/Geometry/Radius of air domain [mm]"},
+  MatrixRadius = {0.56419,
+    Name "Input/Geometry/Radius of conductive matrix [mm]"},
+  FilamentRadius = {0.1784,
+    Name "Input/Geometry/Radius of filements [mm]"},
+  TwistPitch = {4,
+    Name "Input/Geometry/Twist pitch [mm]"},
+  TwistFraction = {1/4, Min 1/16, Max 2, Step 1/4,
+    Name "Input/Geometry/Twist fraction in model"},
+  LcFilament = {FilamentRadius / 4,
+    Name "Input/Mesh/Size on filaments [mm]"},
+  LcMatrix = {MatrixRadius / 5,
+    Name "Input/Mesh/Size on matrix boundary [mm]"},
+  LcAir = {AirRadius / 5,
+    Name "Input/Mesh/Size on air boundary [mm]"}
 ];
 
 For i In {1:NumLayers}
@@ -19,9 +27,9 @@ For i In {1:NumLayers}
       MatrixRadius / 2,
       //(i+1) * MatrixRadius / (NumLayers + 2) ,
       Min FilamentRadius, Max MatrixRadius, Step 1e-2,
-      Name Sprintf["Radius of layer %g [mm]", i]},
+      Name Sprintf["Input/Geometry/{Layer %g/Radius [mm]", i]},
     StartAngleFilament~{i} = {0, Min 0, Max 2*Pi, Step 2*Pi/100,
-      Name Sprintf["Starting angle for layer %g [rad]", i]}
+      Name Sprintf["Input/Geometry/{Layer %g/Starting angle [rad]", i]}
   ];
 EndFor
 
@@ -149,7 +157,8 @@ Physical Surface("Air top boundary", BND_AIR + 2) = {s11_1};
 Cohomology(1) {{AIR, BND_MATRIX},{}};
 
 // Cohomology computation for the A-V method
-Cohomology(1) {{MATRIX, phys_fil()},  {BND_MATRIX + 1, BND_MATRIX + 2, phys_fil_bot(), phys_fil_top()}};
+Cohomology(1) {{MATRIX, phys_fil()},
+               {BND_MATRIX + 1, BND_MATRIX + 2, phys_fil_bot(), phys_fil_top()}};
 
 General.ExpertMode = 1;
 Mesh.Optimize = 1;
