@@ -1123,6 +1123,13 @@ WholeQuantity :
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
 
+  | '$' String__Index tDEF WholeQuantity
+    {
+      WholeQuantity_S.Type = WQ_SAVENAMEDVALUE;
+      WholeQuantity_S.Case.NamedValue.Name = $2;
+      List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
+    }
+
   | '-' WholeQuantity %prec UNARYPREC
     { WholeQuantity_S.Type = WQ_UNARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_NEG;
@@ -1508,13 +1515,6 @@ WholeQuantity_Single :
   | '$' tINT
     { WholeQuantity_S.Type = WQ_ARGUMENT;
       WholeQuantity_S.Case.Argument.Index = $2;
-      List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
-    }
-
-  | '$' String__Index tDEF WholeQuantity_Single
-    {
-      WholeQuantity_S.Type = WQ_SAVENAMEDVALUE;
-      WholeQuantity_S.Case.NamedValue.Name = $2;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
 
