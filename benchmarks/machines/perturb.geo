@@ -19,7 +19,7 @@ If(PerturbMesh == 1)
     ParamValue = GetNumber(Str(SensitivityParameter));
     SetNumber(Str(SensitivityParameter), ParamValue + Perturbation);
     OnelabRun("Gmsh_NoAutoRun", StrCat(GmshExecutableName, " ", General.FileName,
-        " -setnumber PerturbMesh 2 -"));
+        " -setnumber PerturbMesh 2 -run"));
     SetNumber(Str(SensitivityParameter), ParamValue);
     Merge "velocity.pos";
   EndIf
