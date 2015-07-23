@@ -105,14 +105,20 @@ void F_SetNumber (F_ARG)
 
 void F_GetNumber (F_ARG)
 {
-  for (int k = 0; k < Current.NbrHar; k++)
-    V->Val[MAX_DIM * k] = 0. ;
-  V->Type = SCALAR;
+  if(Fct->NbrArguments){
+    Cal_CopyValue(A, V);
+  }
+  else{
+    for (int k = 0; k < Current.NbrHar; k++)
+      V->Val[MAX_DIM * k] = 0. ;
+    V->Type = SCALAR;
+  }
   if(!Fct->String){
     Message::Error("Missing ONELAB variable name: use GetNumber[]{\"name\"}");
     return;
   }
-  V->Val[0] = Message::GetOnelabNumber(Fct->String);
+  if(Message::UseOnelab())
+    V->Val[0] = Message::GetOnelabNumber(Fct->String);
 }
 
 void F_VirtualWork (F_ARG)

@@ -3766,9 +3766,11 @@ Sets the @var{char-expression} ONELAB variable at run-time to
 @var{expression}.
 
 @item GetNumber
-@code{[]@{@var{char-expression}@}}
+@code{[ <@var{expression}> ]@{@var{char-expression}@}}
 
-Gets the value of the @var{char-expression} ONELAB variable at run-time.
+Gets the value of the @var{char-expression} ONELAB variable at
+run-time. If the optional @var{expression} is provided, it is used as a
+default value if ONELAB is not available.
 
 @end ftable
 

@@ -160,7 +160,8 @@ void F_dJn(F_ARG)
   double  x, *jntab;
 
   if(A->Type != SCALAR || (A+1)->Type != SCALAR)
-    Message::Error("Non scalar argument(s) for the derivative of the Bessel function of the first kind 'dJn'");
+    Message::Error("Non scalar argument(s) for the derivative of the Bessel "
+                   "function of the first kind 'dJn'");
   n = (int)A->Val[0];
   x = (A+1)->Val[0];
 
@@ -185,7 +186,8 @@ void F_dYn(F_ARG)
   double  x, *yntab;
 
   if(A->Type != SCALAR || (A+1)->Type != SCALAR)
-    Message::Error("Non scalar argument(s) for the derivative of the Bessel function of the second kind 'dYn'");
+    Message::Error("Non scalar argument(s) for the derivative of the Bessel "
+                   "function of the second kind 'dYn'");
   n = (int)A->Val[0];
   x = (A+1)->Val[0];
 

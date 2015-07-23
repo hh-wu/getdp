@@ -867,7 +867,7 @@ double Message::GetOnelabNumber(std::string name)
     else
       return numbers[0].getValue();
   }
-  Message::Error("GetNumber requires a ONELAB client");
+  Message::Warning("GetNumber requires a ONELAB client");
   return 0.;
 }
 
