@@ -50,9 +50,9 @@ If(PerturbMesh == 2)
 
   Plugin(MathEval).View = 0;
   Plugin(MathEval).OtherView = 1;
-  Plugin(MathEval).Expression0 = Sprintf("(w0 - v0)/%g", Perturbation);
-  Plugin(MathEval).Expression1 = Sprintf("(w1 - v1)/%g", Perturbation);
-  Plugin(MathEval).Expression2 = Sprintf("(w2 - v2)/%g", Perturbation);
+  Plugin(MathEval).Expression0 = Sprintf("(w0 - v0)/(%g)", Perturbation);
+  Plugin(MathEval).Expression1 = Sprintf("(w1 - v1)/(%g)", Perturbation);
+  Plugin(MathEval).Expression2 = Sprintf("(w2 - v2)/(%g)", Perturbation);
   Plugin(MathEval).Run;
   Delete View[0];
   Delete View[0];
