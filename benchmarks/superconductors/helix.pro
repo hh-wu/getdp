@@ -27,23 +27,35 @@ Group {
 
 Function {
 
-  mu[Omega] = 4*Pi*1e-7 / scaling;
-
   DefineConstant[
     sigmaMatrix = {6e7 / scaling,
-      Name "Input/Materials/Matrix conductivity"},
+      Name "Input/4Materials/Matrix conductivity"},
     Itot = {800/2,
-      Name "Input/Source/Total current"},
+      Name "Input/3Source/Total current"},
     Ec = {1e-4  /scaling,
-      Name "Input/Materials/Critical electric field"},
+      Name "Input/4Materials/Critical electric field"},
     Jc = {5e8 /scaling^2,
-      Name "Input/Materials/Critical current density"},
-    n = {10, Name "Input/Materials/n value"},
-    // n = 10, dt = 5e-5
-    // n = 20, dt = 6e-5
-    dt = {5e-5,
+      Name "Input/4Materials/Critical current density"},
+    n = {10, Min 3, Max 40, Step 1, Highlight "LightYellow",
+      Name "Input/4Materials/Exponent (n) value"},
+    Freq = {50,
+      Name "Input/3Source/Frequency"},
+    periods = {0.25,
+      Name "Input/Solver/Periods to simulate"},
+    time0 = 0, // initial time
+    time1 = periods * (1 / Freq), // final time
+    // n = 10 -> 20, dt = 5e-5
+    // n = 30, dt = 5e-6
+    dt = {5e-5, Min 5e-7, Max 5e-4, Step 1e-6,
       Name "Input/Solver/Time step"}
+    theta = 1, // implicit Euler
+    tol_abs = {1e-6,
+      Name "Input/Solver/{Absolute tolerance on nonlinear residual"},
+    tol_rel = {1e-3,
+      Name "Input/Solver/{Relative tolerance on nonlinear residual"}
   ];
+
+  mu[Omega] = 4*Pi*1e-7 / scaling;
 
   rho[Matrix] = 1 / sigmaMatrix;
 
@@ -55,13 +67,6 @@ Function {
       Tensor[CompX[$1] * CompX[$1], CompX[$1] * CompY[$1], CompX[$1] * CompZ[$1],
              CompY[$1] * CompX[$1], CompY[$1] * CompY[$1], CompY[$1] * CompZ[$1],
              CompZ[$1] * CompX[$1], CompZ[$1] * CompY[$1], CompZ[$1] * CompZ[$1]];
-
-  Freq = 50;
-  time0 = 0; // initial time
-  time1 = 1 * (1 / Freq); // final time
-  theta = 1; // implicit Euler
-  tol_abs = 1e-6; // absolute tolerance on nonlinear residual
-  tol_rel = 1e-3; // relative tolerance on nonlinear residual
 }
 
 Jacobian {
@@ -181,12 +186,12 @@ Resolution {
       InitSolution[A];
       TimeLoopTheta[time0, time1, dt, theta] {
         Generate[A]; Solve[A];
-        Generate[A]; GetResidual[A, $res0]; Evaluate[ $res = $res0 ];
-        Print[{$res, $res / $res0}, Format "Residual: abs %14.12e rel %14.12e"];
+        Generate[A]; GetResidual[A, $res0]; Evaluate[ $res = $res0, $it = 0 ];
+        Print[{$it, $res, $res / $res0}, Format "Residual %03g: abs %14.12e rel %14.12e"];
         While[$res > tol_abs && $res / $res0 > tol_rel]{
           Solve[A];
-          Generate[A]; GetResidual[A, $res];
-          Print[{$res, $res / $res0}, Format "Residual: abs %14.12e rel %14.12e"];
+          Generate[A]; GetResidual[A, $res]; Evaluate[ $it = $it + 1 ];
+          Print[{$it, $res, $res / $res0}, Format "Residual %03g: abs %14.12e rel %14.12e"];
         }
         SaveSolution[A];
         PostOperation[MagDynTO];

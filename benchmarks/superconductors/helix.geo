@@ -4,32 +4,32 @@ mm = 1e-3 * scaling;
 
 DefineConstant[
   AirRadius = {1,
-    Name "Input/Geometry/Radius of air domain [mm]"},
+    Name "Input/1Geometry/Radius of air domain [mm]"},
   MatrixRadius = {0.56419,
-    Name "Input/Geometry/Radius of conductive matrix [mm]"},
+    Name "Input/1Geometry/Radius of conductive matrix [mm]"},
   FilamentRadius = {0.1784,
-    Name "Input/Geometry/Radius of filements [mm]"},
+    Name "Input/1Geometry/Radius of filements [mm]"},
   TwistPitch = {4,
-    Name "Input/Geometry/Twist pitch [mm]"},
+    Name "Input/1Geometry/Twist pitch [mm]"},
   TwistFraction = {1/4, Min 1/16, Max 2, Step 1/4,
-    Name "Input/Geometry/Twist fraction in model"},
+    Name "Input/1Geometry/Twist fraction in model"},
   LcFilament = {FilamentRadius / 4,
-    Name "Input/Mesh/Size on filaments [mm]"},
+    Name "Input/2Mesh/Size on filaments [mm]", Closed 1},
   FilamentMeshAniso = {2, Min 1, Max 5, Step 1,
-    Name "Input/Mesh/Anisotropy of filament mesh"},
+    Name "Input/2Mesh/Anisotropy of filament mesh"},
    LcMatrix = {MatrixRadius / 5,
-    Name "Input/Mesh/Size on matrix boundary [mm]"},
+    Name "Input/2Mesh/Size on matrix boundary [mm]"},
   LcAir = {AirRadius / 5,
-    Name "Input/Mesh/Size on air boundary [mm]"}
+    Name "Input/2Mesh/Size on air boundary [mm]"}
 ];
 
 For i In {1:NumLayers}
   DefineConstant[
     LayerRadius~{i} = {i * MatrixRadius / (NumLayers + 1),
       Min FilamentRadius, Max MatrixRadius, Step 1e-2,
-      Name Sprintf["Input/Geometry/{Layer %g/Radius [mm]", i]},
+      Name Sprintf["Input/1Geometry/{Layer %g/Radius [mm]", i]},
     StartAngleFilament~{i} = {0, Min 0, Max 2*Pi, Step 2*Pi/100,
-      Name Sprintf["Input/Geometry/{Layer %g/Starting angle [rad]", i]}
+      Name Sprintf["Input/1Geometry/{Layer %g/Starting angle [rad]", i]}
   ];
 EndFor
 
