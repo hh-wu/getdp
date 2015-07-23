@@ -128,7 +128,6 @@ void Pro_DefineQuantityIndex(List_T *WholeQuantity_L,int DefineQuantityIndexEqu,
 			     int *NbrQuantityIndex, int **QuantityIndexTable,
 			     int **QuantityTraceGroupIndexTable);
 void Pro_DefineQuantityIndex_1(List_T *WholeQuantity_L, int TraceGroupIndex);
-int  Print_ListOfDouble(char *format, List_T *list, char *buffer);
 void yyerror(const char *s);
 void vyyerror(const char *fmt, ...);
 

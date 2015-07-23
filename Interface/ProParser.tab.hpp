@@ -383,7 +383,7 @@ extern int getdp_yydebug;
 
 union YYSTYPE
 {
-#line 143 "ProParser.y" /* yacc.c:1909  */
+#line 142 "ProParser.y" /* yacc.c:1909  */
 
   char    *c;
   int     i;

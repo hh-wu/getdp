@@ -59,8 +59,9 @@ Function {
   Freq = 50;
   time0 = 0; // initial time
   time1 = 1 * (1 / Freq); // final time
-  theta = 1; // implcit Euler
-  eps = 1.e-4; // nonlinear tol
+  theta = 1; // implicit Euler
+  tol_abs = 1e-6; // absolute tolerance on nonlinear residual
+  tol_rel = 1e-3; // relative tolerance on nonlinear residual
 }
 
 Jacobian {
@@ -180,11 +181,12 @@ Resolution {
       InitSolution[A];
       TimeLoopTheta[time0, time1, dt, theta] {
         Generate[A]; Solve[A];
-        Generate[A]; GetResidual[A, $res0];
-        Evaluate[ $res = $res0 ]; Print[{$res / $res0}];
-        While[$res / $res0 > eps]{
+        Generate[A]; GetResidual[A, $res0]; Evaluate[ $res = $res0 ];
+        Print[{$res, $res / $res0}, Format "Residual: abs %14.12e rel %14.12e"];
+        While[$res > tol_abs && $res / $res0 > tol_rel]{
           Solve[A];
-          Generate[A]; GetResidual[A, $res]; Print[{$res / $res0}];
+          Generate[A]; GetResidual[A, $res];
+          Print[{$res, $res / $res0}, Format "Residual: abs %14.12e rel %14.12e"];
         }
         SaveSolution[A];
         PostOperation[MagDynTO];

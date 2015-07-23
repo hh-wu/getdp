@@ -46,5 +46,6 @@ void cxxStyleComments();
 void parseString(char endchar);
 void skipUntil(const char *skip, const char *until);
 void Print_Constants();
+int  Print_ListOfDouble(char *format, List_T *list, char *buffer);
 
 #endif

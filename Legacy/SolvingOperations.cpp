@@ -13,6 +13,7 @@
 #include "GetDPConfig.h"
 #include "ProData.h"
 #include "ProDefine.h"
+#include "ProParser.h"
 #include "GeoData.h"
 #include "DofData.h"
 #include "Cal_Quantity.h"
@@ -1108,6 +1109,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
           Value.Type = SCALAR;
           Value.Val[0] = residual;
           Cal_StoreInVariable(&Value, Operation_P->Case.GetResidual.VariableName);
+          if(Message::GetProgressMeterStep() > 0 && Message::GetProgressMeterStep() < 100)
+            Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Residual",
+                                           residual);
         }
         else
           Message::Error("No current solution available");
@@ -2639,13 +2643,23 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       }
 
       if(Operation_P->Case.Print.Expressions){
+        List_T *list = 0;
         if(Operation_P->Case.Print.FormatString)
-          Message::Error("Print with format not implemented yet");
+          list = List_Create(10, 10, sizeof(double));
         for(int i = 0; i < List_Nbr(Operation_P->Case.Print.Expressions); i++){
           int j;
           List_Read(Operation_P->Case.Print.Expressions, i, &j) ;
           Get_ValueOfExpressionByIndex(j, NULL, 0., 0., 0., &Value) ;
-          Print_Value(&Value, fp) ;
+          if(list)
+            List_Add(list, &Value.Val[0]);
+          else
+            Print_Value(&Value, fp) ;
+        }
+        if(list){
+          char buffer[1024];
+          Print_ListOfDouble(Operation_P->Case.Print.FormatString, list, buffer);
+          Message::Direct(3, buffer);
+          List_Delete(list);
         }
       }
       else if (Operation_P->Case.Print.DofNumber){
