@@ -36,7 +36,7 @@ Function {
       Name "Input/4Materials/Critical electric field [Vm⁻¹]"},
     Jc = {5e8,
       Name "Input/4Materials/Critical current density [Am⁻²]"},
-    n = {30, Min 3, Max 40, Step 1, Highlight "LightYellow",
+    n = {10, Min 3, Max 40, Step 1, Highlight "LightYellow",
       Name "Input/4Materials/Exponent (n) value"},
     Freq = {50,
       Name "Input/3Source/Frequency [Hz]"},
