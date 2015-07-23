@@ -130,7 +130,7 @@ void Message::Initialize(int argc, char **argv)
 #endif
 #if defined(HAVE_PYTHON)
   Py_SetProgramName(argv[0]);
-  Py_Initialize();
+  Py_InitializeEx(0); // Py_Initialize() handles signals
   PySys_SetArgv(argc, argv);
 #endif
 }
