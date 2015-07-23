@@ -221,7 +221,8 @@ Function {
   torqueVar[] = ScalarField[XYZ[],0,1]{TORQUE_VAR_FIELD};
   torqueCoeff[] = XYZ[]*XYZ[]*2*Pi*AxialLength/SurfaceArea[]; 
   er[] = Unit[XYZ[]];
-  et[] = Unit[Vector[-Sin[ Atan2[Y[],X[]] ], Cos[ Atan2[Y[],X[]] ], 0]];
+  et[] = Unit[ Vector[ -Y[], X[],0] ];
+  //et[] = Unit[Vector[-Sin[ Atan2[Y[],X[]] ], Cos[ Atan2[Y[],X[]] ], 0]];
 
   If(Flag_FilterMethod == SENS_FILT)
     //rmin2 = Rmin*Rmin;
@@ -238,9 +239,10 @@ Function {
   dV[] = Rotate[ Transpose[GradVectorField[RotateZ_desVar[], 0 , 1]{VELOCITY_FIELD}], 
                             0, 0, -RotorPosition[] ];
   ETA[] = dV[]#1 + Transpose [ #1 ] - TTrace [ #1 ] * TensorDiag[1,1,1];//(1,2)-form
-  LV1[] = dV[] * $1 ;
+  LV1[] = Transpose[ dV[] ]; //dV[] * $1 ;
   LV2[] = TTrace [ dV[]#1 ] * $1 - Transpose [ #1 ] * $1 ;
   LV3[] = Transpose [ dV[]#1 ] - TTrace [ #1 ] * TensorDiag[1,1,1];
+  dot_er[] = (et[] * velocityField[])/Norm[XYZ[]] * et[];
   
   If(Flag_PerfType == COMPLIANCE)
     Func[] = nu[$1] * SquNorm[$1]; //F = nu*B^2, alpha=nu*{d a},beta={d a} 
@@ -251,10 +253,16 @@ Function {
     Func[] = nu[$1]*torqueCoeff[]*( $1*er[] )*( $1*et[] );
     dFdb[] = nu[$1]*torqueCoeff[]*(er[]*($1*et[]) + et[]*($1*er[]));
     d_torqueCoeff[] = (er[]*velocityField[])*2*Pi*AxialLength/SurfaceArea[];
+//    dF_adjoint_lie[]= nu[$1#2]*d_torqueCoeff[] * ( #2 * er[] ) * ( #2 * et[] )
+//                     -nu[#2]*torqueCoeff[]*(
+//                       ( LV2[#2] * er[] ) * ( #2 * et[] )
+//                      +( #2 * er[] ) * ( LV2[#2] * et[] )
+//                      -( #2 * er[] ) * ( #2 * et[] ) * TTrace [#1]);  
     dF_adjoint_lie[]= nu[$1#2]*d_torqueCoeff[] * ( #2 * er[] ) * ( #2 * et[] )
-                     -nu[#2]*torqueCoeff[]*(
-                       ( LV2[#2] * er[] ) * ( #2 * et[] )
-                      +( #2 * er[] ) * ( LV2[#2] * et[] )
+                     -nu[$1]*torqueCoeff[]*(
+                       ( LV2[#2] * er[] ) * ( #2 * et[] )#3
+                      +( LV2[#2] * et[] ) * ( #2 * er[] )#4
+		      + ((#3*#3) - (#4*#4))*(velocityField[]*et[])/Norm[XYZ[]]
                       -( #2 * er[] ) * ( #2 * et[] ) * TTrace [#1]);  
   EndIf
   If(Flag_PerfType == TORQUE_VAR)
@@ -274,8 +282,11 @@ Function {
 
 
   // derivative of linear load
-  d_M_lie[] = nu[$1] * ( LV1[ br[] ] ) * $2 ; 
-//  d_M_lie[] = nu[$1] * br[] * ( ETA[] * $2 ) ; 
+//  d_M_lie[] = nu[$1]*br[] * (Transpose [ dV[] ]   * $2) 
+//             + nu[$1] * br_mag[]*(et[]*velocityField[])*(et[]*$2)/Norm[XYZ[]]; 
+  d_M_lie[] = nu[$1] * br[] * (Transpose [ dV[] ] * $2) 
+            + nu[$1] * br_mag[] * (dot_er[]*$2); 
+  //d_M_lie[] = nu[$1] * br[] * ( ETA[] * $2 ) ; 
 //  d_J_lie[] = LV2[js[]]* $1;//-( LV3[] * js[] ) * $1 ;
 
   // derivative of bilinear form
@@ -397,9 +408,10 @@ Formulation {
      Galerkin { [( dhdb_NL[{d a}] * LV3[]) * {d a}, {d d_a}]  ; 
        In DomainNL ; Jacobian Vol ; Integration I1 ; }
           
-     Galerkin { [ -nu[ {d a} ] * LV1[ br[] ], {d d_a} ] ;
+     Galerkin { [ -nu[{d a}] * br[],  LV1[] * {d d_a} ] ;
        In DomainM ; Jacobian Vol ; Integration I1 ; }
-
+     Galerkin { [ -nu[{d a}]*br_mag[]*dot_er[],{d d_a}];
+       In DomainM ; Jacobian Vol ; Integration I1 ; }
    }
   }
  //-----------------------------------------------------------------
@@ -470,6 +482,7 @@ Resolution {
          EndIf
          InitMovingBand2D[MB];
          MeshMovingBand2D[MB];
+         SaveMesh[A,#{MB,Rotor_Airgap,Stator_Airgap},"saveMesh.msh"];
          InitSolution[A] ;
          If(!Flag_NL)
            Generate[A] ;

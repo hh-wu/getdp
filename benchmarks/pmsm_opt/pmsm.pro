@@ -106,7 +106,9 @@ Function {
 
   // For a radial remanent b
   For k In {1:nbMagnets}
-    br[ Rotor_Magnet~{k} ] = (-1)^(k-1) * b_remanent * Vector[ Cos[Atan2[Y[],X[]]], Sin[Atan2[Y[],X[]]], 0 ];
+    br_mag[Rotor_Magnet~{k}] = (-1)^(k-1) * b_remanent;
+    br_dir[Rotor_Magnet~{k}] = Vector[ Cos[Atan2[Y[],X[]]], Sin[Atan2[Y[],X[]]], 0 ];
+    br[ Rotor_Magnet~{k} ] = br_mag[]*br_dir[];
   EndFor
 
 

@@ -11,7 +11,8 @@ DefineConstant[
   lc = {.2,Name "Geo/Mesh Characteristic Length Factor",Visible 1},
   InputId = "",
   ResId = "",
-  ResDir = "res/",
+  modelpath = CurrentDir, 
+  ResDir = StrCat[ modelpath, "res/" ],
   mshName = "pmsm.msh",
   mshParamName="pmsmParams.msh",
   pInOpt = StrCat[InputId,ppp],
@@ -69,9 +70,16 @@ rS5 = rS4 + 0.11*mm; //rS5 = 38.27*mm;
 rS6 = rS5 + 1.75*mm; //rS6 = 40.02*mm;
 rS7 = rS6 + 5.98*mm; //rS7 = 46.00*mm;
 
+// decrease MB
+delta = (1-0.5*lc)/2.;
+rB1  = rR5+Gap*delta;
+rB1b = rB1;
+rB2  = rR5+Gap*(1.-delta);
+/*
 rB1  = rR5+Gap/3;
 rB1b = rB1;
 rB2  = rR5+Gap*2/3;
+*/
 
 A0 =  45 * deg2rad ;
 

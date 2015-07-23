@@ -13,9 +13,9 @@ from defPerfFuncSens import *
 # ************************************************************************
 # **** Input                                                         *****
 # ************************************************************************
-x = np.array([0.57]) #np.array([op.getScalarParamVal('Input/OptParam/x_0')])
-execMode = 2 #1:debug, 2:sensitivity, 2:plot
-lc = np.logspace(0.0, -0.9, num=10)
+x = np.array([0.57]) #np.array([2.352e-03])
+execMode = 1 #1:debug, 2:sensitivity, 2:plot
+lc = [1.0] #np.logspace(0.0, -0.9, num=10)
 step = [1.0e-08] #np.logspace(-16, -3, num=14)
 sensMeth = ['GlobalFiniteDifference','AdjointSemi','AdjointLie','DirectLie']
 pathSave = 'resSens'
@@ -31,9 +31,9 @@ parameters = {
     'analysisType': ['static'],
     'NLsys': 0,
     'NLcurve': 1,
-    'performance':[Compliance],#[Compliance],[Torque]
+    'performance':[Torque],#[Compliance],[Torque]
     'allowCentralFD': 0,
-    'rotorAngles': np.array([0.0]),#np.linspace(7.5,15.0,5)
+    'rotorAngles': np.array([0.001]),#np.linspace(7.5,15.0,5)
     'defautValue': {'TorqueNominal':90.0}}
 
 # ************************************************************************
@@ -45,25 +45,9 @@ op = Sensitivity(parameters)
 # **** Compute sensitivity analysis                                  *****
 # ************************************************************************
 # Initialization
-if ((execMode <= 2) and not(os.path.exists(pathSave))):os.mkdir(pathSave, 0755)
+if (not(os.path.exists(pathSave))):os.mkdir(pathSave, 0755)
 
-if ( execMode == 1 ): # debug code
-
-    # Compute f
-    print('*'*80+'\n** Compute performance function **\n'+'*'*80)
-    op.setScalarParameter('Geo/Mesh Characteristic Length Factor',lc[0])
-    op.MeshCao(x, op.parameters)
-    resAnalysis = op.Analysis(x,parameters)
-    print('*'*80+'\n** d[f1, ..., fk]/dx with method [M1,...Mk] **\n'+'*'*80)
-    op.parameters['step'] = step[0]
-    op.parameters['SensitivityMethod'] = np.copy(sensMeth)
-    dfdx = op.Sensitivity(x,resAnalysis['fj'],resAnalysis['dataFEM'],op.parameters)
-    dfdx = dfdx['dfjdx']
-    print('[f1, ..., fk]:{}\n[M1,...Mk]:{}\nd[f1, ..., fk]/dx:{}'.\
-          format(resAnalysis['fj'],op.parameters['SensitivityMethod'],dfdx))
-
-elif( execMode == 2 ): # check sensitivity
-    
+if ( execMode ): # check sensitivity
     print('*'*80+'\n** df/dx with method [M1,...Mk] for (lc,step) **\n'+'*'*80)
     sensMeth = np.array(sensMeth)
     Nlc = len(lc);Nstep = len(step);nbMeth = len(sensMeth);n = len(x)
@@ -104,7 +88,8 @@ elif( execMode == 2 ): # check sensitivity
 
 else: #load data and plot
     sensMeth,f,dfdx,step,lc,relErr = loadData(pathSave)
-    plotMultiVec(np.arange(len(lc)),np.abs(dfdx[:,0,:,0]),pathSave+'/dfdx_lc.pdf',
+    sensMeth = ['GlobalFiniteDifference','AdjointLie','DirectLie']
+    plotMultiVec(np.arange(len(lc)),np.abs(dfdx[:,0,0:3,0]),pathSave+'/dfdx_lc.pdf',
         labelx='Mesh Density',labely=sensMeth,log=0,titleName='Derivative')
 #    plotMultiVec(np.arange(len(lc)),np.abs(relErr[:,0,1:,0]), pathSave+'/relErr_lc.pdf',
 #        labelx='Mesh Density', labely=sensMeth[1:],log=3,titleName='RelErr(.,FD)')
