@@ -4516,9 +4516,10 @@ MPI barrier (blocks until all processes have reached this call).
 Broadcast all fields over MPI (except those listed in the list).
 
 @item Print
-@code{[ @{ @var{expression-list} @}, < File @var{expression-char} > ]}
+@code{[ @{ @var{expression-list} @} <, File @var{expression-char} > <, Format @var{expression-char} > ]}
 
-Print the expressions listed in @var{expression-list}.
+Print the expressions listed in @var{expression-list}. If @code{Format}
+is given, use it to format the (scalar) expressions like @code{Printf}.
 
 @item Print
 @code{[ @var{system-id} <, File @var{expression-char} > <, @{ @var{expression-cst-list} @} >}@*
