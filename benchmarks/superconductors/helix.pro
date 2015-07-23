@@ -41,18 +41,20 @@ Function {
     Freq = {50,
       Name "Input/3Source/Frequency [Hz]"},
     periods = {0.25,
-      Name "Input/Solver/Periods to simulate [s]"},
+      Name "Input/Solver/0Periods to simulate [s]"},
     time0 = 0, // initial time
     time1 = periods * (1 / Freq), // final time
     // n = 10 -> 20, dt = 5e-5
     // n = 30, dt = 5e-6
     dt = {5e-5, Min 5e-7, Max 5e-4, Step 1e-6,
-      Name "Input/Solver/Time step [s]"}
+      Name "Input/Solver/1Time step [s]"}
     theta = 1, // implicit Euler
     tol_abs = {1e-6,
-      Name "Input/Solver/{Absolute tolerance on nonlinear residual"},
+      Name "Input/Solver/Absolute tolerance on nonlinear residual"},
     tol_rel = {1e-3,
-      Name "Input/Solver/{Relative tolerance on nonlinear residual"}
+      Name "Input/Solver/Relative tolerance on nonlinear residual"},
+    visu = {1, Choices{0, 1}, AutoCheck 0,
+      Name "Input/Solver/Visu", Label "Real-time visualization"}
   ];
 
   mu[Omega] = 4*Pi*1e-7;
@@ -194,7 +196,7 @@ Resolution {
           Print[{$it, $res, $res / $res0}, Format "Residual %03g: abs %14.12e rel %14.12e"];
         }
         SaveSolution[A];
-        PostOperation[MagDynTO];
+        Test[ GetNumber[]{"Input/Solver/Visu"} ]{ PostOperation[MagDynTO]; }
       }
     }
   }
@@ -252,5 +254,5 @@ PostOperation {
 DefineConstant[
   R_ = {"MagDynTOTime", Name "GetDP/1ResolutionChoices", Visible 0},
   C_ = {"-solve -bin -v 3 -v2", Name "GetDP/9ComputeCommand", Visible 0},
-  P_ = {"", Name "GetDP/2PostOperationChoices", Visible 0}
+  P_ = { "", Name "GetDP/2PostOperationChoices", Visible 0}
 ];
