@@ -1,6 +1,6 @@
 Include "helix_data.pro";
 
-mm = 1e-3 * scaling;
+mm = 1e-3;
 
 DefineConstant[
   AirRadius = {1,

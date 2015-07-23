@@ -28,26 +28,26 @@ Group {
 Function {
 
   DefineConstant[
-    sigmaMatrix = {6e7 / scaling,
-      Name "Input/4Materials/Matrix conductivity"},
+    sigmaMatrix = {6e7,
+      Name "Input/4Materials/Matrix conductivity [Sm⁻¹]"},
     Itot = {800/2,
-      Name "Input/3Source/Total current"},
-    Ec = {1e-4  /scaling,
-      Name "Input/4Materials/Critical electric field"},
-    Jc = {5e8 /scaling^2,
-      Name "Input/4Materials/Critical current density"},
-    n = {10, Min 3, Max 40, Step 1, Highlight "LightYellow",
+      Name "Input/3Source/Total current [A]"},
+    Ec = {1e-4,
+      Name "Input/4Materials/Critical electric field [Vm⁻¹]"},
+    Jc = {5e8,
+      Name "Input/4Materials/Critical current density [Am⁻²]"},
+    n = {30, Min 3, Max 40, Step 1, Highlight "LightYellow",
       Name "Input/4Materials/Exponent (n) value"},
     Freq = {50,
-      Name "Input/3Source/Frequency"},
+      Name "Input/3Source/Frequency [Hz]"},
     periods = {0.25,
-      Name "Input/Solver/Periods to simulate"},
+      Name "Input/Solver/Periods to simulate [s]"},
     time0 = 0, // initial time
     time1 = periods * (1 / Freq), // final time
     // n = 10 -> 20, dt = 5e-5
     // n = 30, dt = 5e-6
     dt = {5e-5, Min 5e-7, Max 5e-4, Step 1e-6,
-      Name "Input/Solver/Time step"}
+      Name "Input/Solver/Time step [s]"}
     theta = 1, // implicit Euler
     tol_abs = {1e-6,
       Name "Input/Solver/{Absolute tolerance on nonlinear residual"},
@@ -55,7 +55,7 @@ Function {
       Name "Input/Solver/{Relative tolerance on nonlinear residual"}
   ];
 
-  mu[Omega] = 4*Pi*1e-7 / scaling;
+  mu[Omega] = 4*Pi*1e-7;
 
   rho[Matrix] = 1 / sigmaMatrix;
 
