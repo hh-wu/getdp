@@ -15,30 +15,13 @@ Include "pmsm_rotor.geo";
 Include "pmsm_stator.geo";
 
 Geometry.AutoCoherence = 1;
-
 Geometry.OldNewReg = 1; 
 
 Hide { Point{ Point '*' }; }
 Hide { Line{ Line '*' }; }
 Show { Line{ nicepos_rotor[], nicepos_stator[] }; }
 
-//fixme -> nb of elements differs from pmsm.msh and its perturbed version !!!
-//Physical Line(NICEPOS) = { nicepos_rotor[], nicepos_stator[] };
-
-// test for sensitivity analysis
-DefineConstant[
-  SensitivityParameter = { StrCat[pInOpt, "x_0"],
-    Choices{
-      StrCat[pInOpt, "x_0"],
-      StrCat[pInOpt, "x_1"],
-      StrCat[pInOpt, "x_2"],
-      StrCat[pInOpt, "x_3"],
-      StrCat[pInOpt, "x_4"],
-      StrCat[pInOpt, "x_5"],
-      StrCat[pInOpt, "x_6"]
-    },
-    Name "Sensitivity/Parameter to perturb" }
-];
-
-Merge "../optimization/perturb.geo";
-
+// Velocity field for shape perturbation
+If(Flag_opt && !Flag_topopt)
+  Merge "../optimization/perturb.geo";
+EndIf

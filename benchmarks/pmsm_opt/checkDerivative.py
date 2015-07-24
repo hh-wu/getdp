@@ -13,7 +13,7 @@ from defPerfFuncSens import *
 # ************************************************************************
 # **** Input                                                         *****
 # ************************************************************************
-x = np.array([0.57]) #np.array([2.352e-03])
+x = np.array([2.352e-03]) #0.57,np.array([2.352e-03])
 execMode = 1 #1:debug, 2:sensitivity, 2:plot
 lc = [1.0] #np.logspace(0.0, -0.9, num=10)
 step = [1.0e-08] #np.logspace(-16, -3, num=14)

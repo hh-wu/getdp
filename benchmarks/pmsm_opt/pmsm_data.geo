@@ -1,41 +1,21 @@
 // Permanent magnet synchronous machine
 
-mm = 1e-3 ;
-deg = Pi/180 ;
-
-pp = "Input/ConstructiveParameters/"; 
-ppp = "Input/OptParam/";
+mm = 1e-3;
+deg = Pi/180;
 
 DefineConstant[
+  pp = "Input/ConstructiveParameters/", 
   NbrPoles = { 1, Choices {0,1}, Name "Number of poles in FE model",Visible 0},
   lc = {.2,Name "Geo/Mesh Characteristic Length Factor",Visible 1},
-  InputId = "",
-  ResId = "",
   modelpath = CurrentDir, 
   ResDir = StrCat[ modelpath, "res/" ],
-  mshName = "pmsm.msh",
-  mshParamName="pmsmParams.msh",
-  pInOpt = StrCat[InputId,ppp],
-  InitialRotorAngle_deg = {0, 
-	   Name "Geo/Initial rotor position [mech. deg]", Visible 1},
-
-  // Optimization parameters
-  Flag_topopt = {0, Name "Input/OptParam/optType",Label "Optimization Type",
-             Choices {0="Structural Optimization",1="Topology Optimization"}, Visible 1},
-
-
-  // Constructive parameters
-  //lm = {2.352*mm , Name StrCat[pp,"Magnet height [m]"], Visible 1, Closed 1},
-  lm = {2.352*mm , Name StrCat[pInOpt,"x_1"], Visible 1, Closed 1},  
-  Th_magnet = {32.67 *deg, Name StrCat[pInOpt,"x_0"], Closed 1},
-  //Th_magnet = {32.67 *deg, Name StrCat[pp,"Magnet angular opening [deg]"]},
-  AxialLength = {35*mm,  Name StrCat[pp,"Axial length [m]"], Closed 1},
-  Gap = {(26.02-25.6)*mm, Name StrCat[pp,"Airgap width [m]"], Closed 1},
-  //Gap = {3*mm, Name StrCat[pp,"Airgap width [m]"], Closed 1},
+  InitialRotorAngle_deg = {0, Name "Geo/Initial rotor position [mech. deg]", Visible 1},
   b_remanent = { 1.2, Name StrCat[pp,"Remanent induction[T]"] },
-  Flag_Degree ={0, Name "Input/OptParam/degree", Label "degree 2 ShapeFunc?", 
-                   Choices {0,1} }  
-] ;
+  Flag_Degree = {0, Name StrCat[pp,"degree"], Label "deg 2 SF?", Choices {0,1} }  
+];
+
+// Optimization problem specification
+Include "opt_data.geo";
 
 //--------------------------------------------------------------------------------
 NbrPolesInModel = 1;
@@ -46,7 +26,6 @@ SymmetryFactor = NbrPolesTot/NbrPoles ;
 Flag_Symmetry = (SymmetryFactor==1)?0:1 ;
 NbrSectTot = NbrPolesTot ; // number of "rotor teeth"
 NbrSect = NbrSectTot*NbrPoles/NbrPolesTot ; // number of "rotor teeth" in FE model
-
 
 //------------------------------------------------
 // Stator
@@ -61,7 +40,6 @@ rR2 = (rRext-lm); //23.243e-03;
 rR3 = (rRext-0.7389*lm); //23.862e-03;
 rR4 = (rRext-0.72278*lm); //23.9e-03;
 rR5 = rRext; //25.6e-03;
-
 
 rS1 = rR5 + Gap;     //rS1 = 26.02*mm;
 rS2 = rS1 + 0.6*mm;  //rS2 = 26.62*mm;
@@ -125,6 +103,5 @@ SURF_EXT = 3000 ; // outer boundary
 MOVING_BAND = 9999 ;
 
 NICEPOS = 111111 ;
-
 
 

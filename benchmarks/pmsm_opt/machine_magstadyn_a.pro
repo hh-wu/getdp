@@ -123,31 +123,6 @@ Group {
 
   DomainKin = #1234 ; // Dummy region number for mechanical equation
   DomainDummy = #12345 ; // Dummy region number for postpro with functions
-
-//  // TO domain
-//  If(!Flag_topopt)
-//    DomainOpt = Region[{}];
-//  EndIf
-//  If(Flag_topopt)
-//    If(regionVar == 0)
-//      DomainOpt = Region[{Rotor_Fe}];
-//      DomainOptFix = Region[{}];
-//      DomainOptMV = Region[{Rotor_Fe}];
-//    EndIf 
-//    If(regionVar == 1)
-//      DomainOpt = Region[{Stator_Fe}];
-//      DomainOptFix = Region[{Stator_Fe}];
-//      DomainOptMV = Region[{}];
-//    EndIf
-//    If(regionVar == 2)
-//      DomainOpt = Region[{Rotor_Fe,Stator_Fe}];
-//      DomainOptFix = Region[{Stator_Fe}];
-//      DomainOptMV = Region[{Rotor_Fe}];
-//    EndIf
-//  EndIf  
-//  DomCompliance = Region[{Rotor_Airgap}];
-//  DomBradError  = Region[{Rotor_Airgap}];
-//  DomTorqueVar = Region[{Rotor_Airgap}];
 }
 
 Function {
@@ -923,17 +898,13 @@ PostProcessing {
   EndIf
 }
 //-------------------------------------------------------------------------------------------
-//po      = "Output - Electromagnetics/";
-po      = StrCat["Output - Electromagnetics/", ResId];
+po      = "Output - Electromagnetics/";
 poI     = StrCat[po,"0Current [A]/"];
 poV     = StrCat[po,"1Voltage [V]/"];
 poF     = StrCat[po,"2Flux linkage [Vs]/"];
 poJL    = StrCat[po,"3Joule Losses [W]/"];
-//po_mec  = "Output - Mechanics/";
-po_mec  = StrCat["Output - Mechanics/", ResId];
+po_mec  = "Output - Mechanics/";
 po_mecT = StrCat[po_mec,"0Torque [Nm]/"];
-//po_opt   = "Output - Optimization/";
-po_opt  = StrCat["Output - Optimization/", ResId];
 //-------------------------------------------------------------------------------------------
 
 PostOperation Get_LocalFields UsingPost MagStaDyn_a_2D {
