@@ -37,7 +37,7 @@ cirS[] -= linS[6]; // stator contour
 // Slots
 // --------------------------------------------------------------------------
 
-AA[]=deg2rad*{2.77, 4.0, 5.52, 5.56, 5.65, 9.35, 9.44, 9.48, 11, 12.23} ;
+AA[]=deg * {2.77, 4.0, 5.52, 5.56, 5.65, 9.35, 9.44, 9.48, 11, 12.23} ;
 
 For k In {0:#AA[]-1}
   cosAA[]+=Cos(AA[k]); sinAA[]+=Sin(AA[k]);
@@ -97,7 +97,7 @@ Line Loop(newll) = {-linASlot[2],linSlot[]};
 sslot[] = news ; Plane Surface(sslot[0]) = {newll-1};
 
 // slots 2 and 3
-A2 = 15*deg2rad;
+A2 = 15*deg;
 
 pntSlot0[0] = pntSlot[0];
 pntSlot1[0] = pntSlot[11];

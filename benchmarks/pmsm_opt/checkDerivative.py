@@ -1,4 +1,4 @@
-""" 
+"""
     Author: Erin Kuci
     
     Check the computation of sensitivity 
@@ -31,7 +31,7 @@ parameters = {
     'analysisType': ['static'],
     'NLsys': 0,
     'NLcurve': 1,
-    'performance':[Torque],#[Compliance],[Torque]
+    'performance':[Compliance],#[Compliance],[Torque]
     'allowCentralFD': 0,
     'rotorAngles': np.array([0.001]),#np.linspace(7.5,15.0,5)
     'defautValue': {'TorqueNominal':90.0}}

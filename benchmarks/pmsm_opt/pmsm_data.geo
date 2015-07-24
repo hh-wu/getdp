@@ -1,7 +1,7 @@
 // Permanent magnet synchronous machine
 
 mm = 1e-3 ;
-deg2rad = Pi/180 ;
+deg = Pi/180 ;
 
 pp = "Input/ConstructiveParameters/"; 
 ppp = "Input/OptParam/";
@@ -27,8 +27,8 @@ DefineConstant[
   // Constructive parameters
   //lm = {2.352*mm , Name StrCat[pp,"Magnet height [m]"], Visible 1, Closed 1},
   lm = {2.352*mm , Name StrCat[pInOpt,"x_1"], Visible 1, Closed 1},  
-  Th_magnet = {32.67 *deg2rad, Name StrCat[pInOpt,"x_0"], Closed 1},
-  //Th_magnet = {32.67 *deg2rad, Name StrCat[pp,"Magnet angular opening [deg]"]},
+  Th_magnet = {32.67 *deg, Name StrCat[pInOpt,"x_0"], Closed 1},
+  //Th_magnet = {32.67 *deg, Name StrCat[pp,"Magnet angular opening [deg]"]},
   AxialLength = {35*mm,  Name StrCat[pp,"Axial length [m]"], Closed 1},
   Gap = {(26.02-25.6)*mm, Name StrCat[pp,"Airgap width [m]"], Closed 1},
   //Gap = {3*mm, Name StrCat[pp,"Airgap width [m]"], Closed 1},
@@ -39,7 +39,7 @@ DefineConstant[
 
 //--------------------------------------------------------------------------------
 NbrPolesInModel = 1;
-InitialRotorAngle = InitialRotorAngle_deg*deg2rad ; // initial rotor angle, 0 if aligned
+InitialRotorAngle = InitialRotorAngle_deg*deg ; // initial rotor angle, 0 if aligned
 NbrPolesTot = 8 ; // number of poles in complete cross-section
 NbrPolePairs = NbrPolesTot/2 ;
 SymmetryFactor = NbrPolesTot/NbrPoles ;
@@ -62,6 +62,7 @@ rR3 = (rRext-0.7389*lm); //23.862e-03;
 rR4 = (rRext-0.72278*lm); //23.9e-03;
 rR5 = rRext; //25.6e-03;
 
+
 rS1 = rR5 + Gap;     //rS1 = 26.02*mm;
 rS2 = rS1 + 0.6*mm;  //rS2 = 26.62*mm;
 rS3 = rS2 + 0.34*mm; //rS3 = 26.96*mm;
@@ -81,7 +82,10 @@ rB1b = rB1;
 rB2  = rR5+Gap*2/3;
 */
 
-A0 =  45 * deg2rad ;
+A0 =  45 * deg ;
+
+Drotor = rR5*2;
+Ef = Gap*10;
 
 sigma_fe = 0. ; // laminated steel
 

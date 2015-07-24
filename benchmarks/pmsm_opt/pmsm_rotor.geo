@@ -1,7 +1,7 @@
 //--------------------------------------------------------------------------------
 // Rotor PMSM
 //--------------------------------------------------------------------------------
-A = InitialRotorAngle ; //-45/2*deg2rad + A1; // with Theta_Park
+A = InitialRotorAngle ; //-45/2*deg + A1; // with Theta_Park
 
 sinA = Sin(A); cosA = Cos(A);
 pntR[]+=newp; Point(newp)={rR1*cosA, rR1*sinA, 0, pR1};

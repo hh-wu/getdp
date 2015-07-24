@@ -4,6 +4,19 @@
 
 Include "pmsm_data.geo";
 
+// performance function type
+NO_PERF = 0;
+BFIELD_ERROR = 1;
+TORQUE_VAR = 2;
+IRON_LOSSES = 3;
+COMPLIANCE = 4;
+VOLUME = 5;
+TORQUE = 6;
+
+// postpro views tag
+TORQUE_VAR_FIELD = 20;
+VELOCITY_FIELD = 7;//pour que ça marche avec -gmshread il faut mettre à 0
+
 DefineConstant[
   //!!! impose current density directly, instead of voltage or current
   //Flag_ImposedCurrentDensity = 1,
@@ -21,6 +34,35 @@ DefineConstant[
 		       Choices{0="Analytical", 1="Interpolated",
 			       2="Analytical VH800-65D", 3="Interpolated VH800-65D"},
 		       Highlight "Blue", Visible Flag_NL}
+
+  // sensitivity analysis input
+  Flag_PerfType = {TORQUE, 
+    Choices {
+      NO_PERF="No performance function",  
+      BFIELD_ERROR="air gap B field error",
+      TORQUE_VAR="torque variance",
+      IRON_LOSSES="losses",
+      COMPLIANCE="compliance",
+      TORQUE="torque"
+    },
+   Name "Input/OptParam/PerfType",Label "performance function type", Visible 1},
+
+  Tnom = {90.0, 
+    Name "Input/OptParam/TorqueNominal", Label "Nominal desired torque",
+    Visible (Flag_PerfType==TORQUE_VAR)},
+
+  regionVar = {0, Name "Input/OptParam/regionVar",
+                  Label "Region of design variables", 
+                  Choices {0="Rotor Fe",1="Stator Fe",2="Rotor/Stator Fe"},
+                  Visible (Flag_topopt)},
+
+  Flag_InterpLaw = {0, Name "Input/OptParam/MaterialInterpLaw",
+                       Label "material interpolation law",
+                       Choices {0="SIMP",1="RAMP"},Visible (Flag_topopt)},
+
+  degree_SIMP = {3.0, Name "Input/OptParam/SimpPenalDegree",
+                      Label "Degree SIMP", Visible (Flag_topopt)}
+
 ];
 
 Flag_Cir = !Flag_SrcType_Stator ;
@@ -147,7 +189,7 @@ Function {
   ];
 
   theta0   = InitialRotorAngle + 0. ;
-  thetaMax = thetaMax_deg * deg2rad ; // end rotor angle (used in doing a loop)
+  thetaMax = thetaMax_deg * deg ; // end rotor angle (used in doing a loop)
 
   DefineConstant[
     NbTurns  = { (thetaMax-theta0)/(2*Pi), Name "Input/Number of revolutions",
@@ -163,10 +205,10 @@ Function {
 
 ];
 
-  delta_theta[] = delta_theta_deg * deg2rad ; //fonction utilisée dans changeOfCoordinates
+  delta_theta[] = delta_theta_deg * deg ; //fonction utilisée dans changeOfCoordinates
 
   time0 = 0 ; // at initial rotor position
-  delta_time = delta_theta_deg * deg2rad/wr;
+  delta_time = delta_theta_deg * deg/wr;
   timemax = thetaMax/wr;
 
   DefineConstant[
@@ -180,9 +222,9 @@ Function {
   If(Flag_AnalysisType==0)
     II_phase = 0.0;
     Flag_RotatingField = 1.0;
-    RotorPosition[] = ( /* InitialRotorAngle_deg +*/ delta_theta_deg ) * deg2rad ;
-    PhaseAngle = II_phase * deg2rad  
-      + ( InitialRotorAngle_deg + delta_theta_deg ) * NbrPolePairs * Flag_RotatingField * deg2rad;
+    RotorPosition[] = ( /* InitialRotorAngle_deg +*/ delta_theta_deg ) * deg ;
+    PhaseAngle = II_phase * deg  
+      +(InitialRotorAngle_deg+delta_theta_deg)*NbrPolePairs*Flag_RotatingField*deg;
     Printf("PhaseAngle:%g",PhaseAngle);
   EndIf
 
@@ -192,10 +234,10 @@ Function {
   EndIf
 
   //-- new --
-  InitialRotorAngle_deg = InitialRotorAngle/deg2rad;
+  InitialRotorAngle_deg = InitialRotorAngle/deg;
   II_phase = 30.0;
-  PhaseAngle = II_phase * deg2rad  
-      + ( InitialRotorAngle_deg + delta_theta_deg ) * NbrPolePairs*deg2rad;
+  PhaseAngle = II_phase * deg  
+      + ( InitialRotorAngle_deg + delta_theta_deg ) * NbrPolePairs*deg;
   Printf("PhaseAngle:%g",PhaseAngle);
   //-- end new --
 //+++
@@ -213,18 +255,6 @@ Function {
   II = Inominal;
 }
 
-// --------------------------------------------------------------------------
-// --------------------------------------------------------------------------
-// --------------------------------------------------------------------------
-
-Dir = "res/";
-ResDir = "res/";
-ExtGmsh = ".pos";
-ExtGnuplot = ".dat";
-
-// --------------------------------------------------------------------------
-// --------------------------------------------------------------------------
-// --------------------------------------------------------------------------
 
 If(Flag_SrcType_Stator)
   UndefineConstant["Input/Load resistance"];
@@ -240,13 +270,128 @@ DefineConstant[
   P_ = {"", Name "GetDP/2PostOperationChoices", Visible 0}
 ];
 
-// analysis
+// physical problem formulation
 Include "machine_magstadyn_a.pro" ;
 
 
-// sensitivity analysis (If flag_opttype)
-Include "sensitivity.pro" ;
+// sensitivity analysis formulation
+Group {
+  // TO domain
+  If(!Flag_topopt)
+    DomainOpt = Region[{}];
+  EndIf
+  If(Flag_topopt)
+    If(regionVar == 0)
+      DomainOpt = Region[{Rotor_Fe}];
+      DomainOptFix = Region[{}];
+      DomainOptMV = Region[{Rotor_Fe}];
+    EndIf 
+    If(regionVar == 1)
+      DomainOpt = Region[{Stator_Fe}];
+      DomainOptFix = Region[{Stator_Fe}];
+      DomainOptMV = Region[{}];
+    EndIf
+    If(regionVar == 2)
+      DomainOpt = Region[{Rotor_Fe,Stator_Fe}];
+      DomainOptFix = Region[{Stator_Fe}];
+      DomainOptMV = Region[{Rotor_Fe}];
+    EndIf
+  EndIf  
 
+  // specified by user !!!
+  DomainFunc = Region[{}];
+  If(Flag_PerfType == COMPLIANCE 
+     || Flag_PerfType == TORQUE
+     || Flag_PerfType == TORQUE_VAR
+     || Flag_PerfType == BFIELD_ERROR)
+    DomainFunc = Region[{Rotor_Airgap}];    
+  EndIf 
+}
+
+Function {
+  // Functions used for optimization
+  // Target B in air-gap
+  Btarget[] = Sqrt[2]*0.502*Sin[(AngularPosition[]-RotorPosition[]
+                                + Pi/8)*NbrPolesTot/2.0];
+  BradCoeff[] = 2*Pi*AxialLength/SurfaceArea[];
+
+  // Target Torque
+  Ttarget[] = Tnom;//Nm 
+  torqueVar[] = ScalarField[XYZ[],0,1]{TORQUE_VAR_FIELD};
+  torqueCoeff[] = XYZ[]*XYZ[]*2*Pi*AxialLength/SurfaceArea[]; 
+  er[] = Unit[XYZ[]];
+  et[] = Unit[ Vector[ -Y[], X[],0] ];
+
+//  If(Flag_FilterMethod == SENS_FILT)
+//    //rmin2 = Rmin*Rmin;
+//    prod_x_dC[#{DomainOptMV}] = ScalarField[RotateZ_desVar[],0,1]{SENS_FIELD};
+//    prod_x_dC[#{DomainOptFix}] = ScalarField[XYZ[],0,1]{SENS_FIELD};
+//  EndIf
+
+  // operators used for lie derivative
+  velocityField[] = Rotate[ VectorField[RotateZ_desVar[],0,1]{VELOCITY_FIELD}, 
+                            0, 0, RotorPosition[] ] ;
+  dV[] = Rotate[ Transpose[GradVectorField[RotateZ_desVar[], 0 , 1]{VELOCITY_FIELD}], 
+                            0, 0, -RotorPosition[] ];
+
+  ETA[] = dV[]#1 + Transpose [ #1 ] - TTrace [ #1 ] * TensorDiag[1,1,1];
+  LV1[] = dV[] * $1 ;
+  LV2[] = TTrace [ dV[]#1 ] * $1 - Transpose [ #1 ] * $1 ;
+  LV3[] = Transpose [ dV[]#1 ] - TTrace [ #1 ] * TensorDiag[1,1,1];
+  dot_er[] = (et[] * velocityField[])/Norm[XYZ[]] * et[];
+  
+  If(Flag_PerfType == COMPLIANCE)
+    Func[] = nu[$1] * SquNorm[$1]; //F = nu*B^2, alpha=nu*{d a},beta={d a} 
+    dFdb[] = 2. * nu[$1] * $1; //dF/db = 2*nu*B
+    dF_adjoint_lie[] = nu[$1#2] * #2 * ( ETA[] * #2 ) ;//fixme #1 != #2 !!!
+  EndIf
+  If(Flag_PerfType == TORQUE)
+    Func[] = nu[$1]*torqueCoeff[]*( $1*er[] )*( $1*et[] );
+    dFdb[] = nu[$1]*torqueCoeff[]*(er[]*($1*et[]) + et[]*($1*er[]));
+    d_torqueCoeff[] = (er[]*velocityField[])*2*Pi*AxialLength/SurfaceArea[];
+//    dF_adjoint_lie[]= nu[$1#2]*d_torqueCoeff[] * ( #2 * er[] ) * ( #2 * et[] )
+//                     -nu[#2]*torqueCoeff[]*(
+//                       ( LV2[#2] * er[] ) * ( #2 * et[] )
+//                      +( #2 * er[] ) * ( LV2[#2] * et[] )
+//                      -( #2 * er[] ) * ( #2 * et[] ) * TTrace [#1]);  
+    dF_adjoint_lie[]= nu[$1#2]*d_torqueCoeff[] * ( #2 * er[] ) * ( #2 * et[] )
+                     -nu[$1]*torqueCoeff[]*(
+                       ( LV2[#2] * er[] ) * ( #2 * et[] )#3
+                      +( LV2[#2] * et[] ) * ( #2 * er[] )#4
+		      + ((#3*#3) - (#4*#4))*(velocityField[]*et[])/Norm[XYZ[]]
+                      -( #2 * er[] ) * ( #2 * et[] ) * TTrace [#1]);  
+  EndIf
+  If(Flag_PerfType == TORQUE_VAR)
+    Func[] = (nu[$1]*torqueCoeff[]*( $1*er[] )*( $1*et[] ))/Ttarget[] - 1.0; 
+    dFdb[] = 2.0 * torqueVar[] * nu[$1] * torqueCoeff[] / Ttarget[]*
+            ( et[] * ( $1 * er[] )   +  er[] * ( $1 * et[] ) );
+//    dFdb[] = 2.0 * Func[$1] * nu[$1] * torqueCoeff[] / Ttarget[]*
+//            ( et[] * ( $1 * er[] )   +  er[] * ( $1 * et[] ) );
+
+  EndIf
+  If(Flag_PerfType == BFIELD_ERROR)
+    Func[] = nu[$1] * SquNorm[$1]; 
+    dFdb[] = 2.0 * BradCoeff[] * ( $1 * er[] - Btarget[] ) * er[];
+  EndIf
+
+  dF_direct_lie[] = dFdb[$1#1]*$2 + dF_adjoint_lie[#1];
+
+
+//  // derivative of linear load
+////  d_M_lie[] = nu[$1]*br[] * (Transpose [ dV[] ]   * $2) 
+////             + nu[$1] * br_mag[]*(et[]*velocityField[])*(et[]*$2)/Norm[XYZ[]]; 
+//  d_M_lie[] = nu[$1] * br[] * (Transpose [ dV[] ] * $2) 
+//            + nu[$1] * br_mag[] * (dot_er[]*$2); 
+//  //d_M_lie[] = nu[$1] * br[] * ( ETA[] * $2 ) ; 
+////  d_J_lie[] = LV2[js[]]* $1;//-( LV3[] * js[] ) * $1 ;
+
+//  // derivative of bilinear form
+//  d_bilin_lie[] = nu[$1] * $1 * ( ETA[] * $2 ) ; 
+//  d_bilin_lie_NL[] = $2 * (( dhdb_NL[$1] * LV3[] ) * $1);
+
+}
+
+Include "../optimization/sensitivity.pro"; //FIXME
 
 
 

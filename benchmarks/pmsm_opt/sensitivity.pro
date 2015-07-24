@@ -1,17 +1,3 @@
-// execution
-NONE = 0;
-SEMI_AVM = 1;
-FIXDOM_AVM = 2;
-VARDOM_AVM = 3;
-VARDOM_DIR = 4;
-
-STATE = 1;
-AVM = 2;
-DIR = 3;
-
-SENS_FILT = 1;
-VELOCITY_FILT = 2;
-
 // performance function type
 NO_PERF = 0;
 BFIELD_ERROR = 1;

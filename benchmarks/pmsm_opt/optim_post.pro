@@ -510,7 +510,9 @@ PostOperation {
 //    nb_Bradial = 101;
     rS1 = rR5 + Gap;
     A0 =  45 * deg2rad ;
-    r_Bradial = rR5+Gap/10; r_Bradial_end = rS1-Gap/10; dr_Bradial = (r_Bradial_end-r_Bradial)/3.; 
+    r_Bradial = rR5+Gap/10; 
+    r_Bradial_end = rS1-Gap/10; 
+    dr_Bradial = (r_Bradial_end-r_Bradial)/3.; 
     r = r_Bradial_end;
     theta_Bradial = A0;
     nb_Bradial = 101;
