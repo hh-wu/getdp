@@ -1,5 +1,5 @@
 
-Superconducting cable.
+Superconducting wire.
 
 [[Category:GetDP]]
 [[Category:Electromagnetism]]
