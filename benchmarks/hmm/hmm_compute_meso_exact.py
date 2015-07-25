@@ -1,4 +1,0 @@
-import subprocess
-from hmm_initialize_exact import thisMesoComp
-
-thisMesoComp.computeMesoFieldsForPointsOfDict()
