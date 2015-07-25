@@ -1,3 +1,0 @@
-from hmm_initialize import thisMesoComp
-thisMesoComp.printDictOfHomogenized_GQ_GP_MagneticEnergy()
-#thisMesoComp.printDictOfHomogenized_ML_GP_TgTMatrix()
