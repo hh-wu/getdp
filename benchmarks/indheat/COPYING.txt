@@ -1,6 +1,1 @@
 Model developed by M. Pellikka, S. Suuriniemi, L. Kettunen and [[User:Geuzaine|C. Geuzaine]].
-<!--
-
-Include full license here
-
--->

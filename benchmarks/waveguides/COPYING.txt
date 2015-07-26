@@ -1,6 +1,1 @@
-Model developed by A. Modave, [[User:BenjaminKlein|B. Klein]] and [[User:Geuzaine|C. Geuzaine]].
-<!--
-
-Include full license here
-
--->
+Model developed by A. Modave, [[User:BenjaminKlein|B. Klein]] and [[User:Geuzaine|C. Geuzaine]]

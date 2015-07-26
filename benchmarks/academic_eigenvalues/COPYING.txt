@@ -1,7 +1,1 @@
-Model developed by [[User:Axel Modave|A. Modave]].
-Onelab wrapping by [[User:Francois Henrotte|F. Henrotte]].
-<!--
-
-Include full license here
-
--->
+Model developed by [[User:Axel Modave|A. Modave]]. Onelab wrapping by [[User:Francois Henrotte|F. Henrotte]].
