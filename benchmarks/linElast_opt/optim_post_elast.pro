@@ -4,15 +4,11 @@ PostProcessing {
   // --------------------------------------------------------------------
   // Performance funnctions and state variables
   // --------------------------------------------------------------------
-  { Name PostOptim ; NameOfFormulation Mec2D_u ;
+  { Name PostOptim ; NameOfFormulation PrimalSystem ;
     PostQuantity {
       { Name designVarPlot; 
 	Value { Term { [ designVar[] ] ; In Domain ; Jacobian Vol ; } } 
       }
-
-      { Name eps_2D; Value { Term { [ eps_2D[{D1 u}] ]; In Domain ; Jacobian Vol ;}}}
-      { Name eps_x; Value { Term { [ eps_x[{D1 u}] ]; In Domain ; Jacobian Vol ;}}}
-      { Name eps_y; Value { Term { [ eps_y[{D1 u}] ]; In Domain ; Jacobian Vol ;}}}
 
       { Name Young; Value { Term { [ E[] ] ; In Domain ; Jacobian Vol ; } } }
 
@@ -247,15 +243,6 @@ PostOperation {
 
      Print[ u, OnElementsOf Domain,
  	    File StrCat[ResDir, StrCat["u",ExtGmsh]], LastTimeStepOnly] ;
-
-     Print[ eps_2D, OnElementsOf Domain,
-	    File StrCat[ResDir, StrCat["eps_2D",ExtGmsh]], LastTimeStepOnly] ;
-
-     Print[ eps_x, OnElementsOf Domain,
-	    File StrCat[ResDir, StrCat["eps_x",ExtGmsh]], LastTimeStepOnly] ;
-
-     Print[ eps_y, OnElementsOf Domain,
-	    File StrCat[ResDir, StrCat["eps_y",ExtGmsh]], LastTimeStepOnly] ;
 
      Print[ Young, OnElementsOf Domain,
  	    File StrCat[ResDir, StrCat["Young",ExtGmsh]], LastTimeStepOnly] ;

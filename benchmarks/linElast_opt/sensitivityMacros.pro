@@ -30,6 +30,8 @@ Macro SolveDirectSystem
   PostOperation[Get_DirectVarDomSens_lie0];
 Return
 
+/* sensitivity analysis macros */
+
 Macro GetFixDomAdjointSens
   Printf["-- Compute AVM sensitivity analysis (fixed domain) --"];
   ReadSolution[A];ReadSolution[B];//A and Lambda   

@@ -79,29 +79,13 @@ Function {
   
   // lie derivative
   velocityField[] = VectorField[XYZ[],0,1]{VELOCITY_FIELD};
-  
-  //D1 [u_x, u_y] gives: [du_x/dx, du_y/dy, du_y/dx + du_x/dy]
-  eps_x[] = Vector[ CompX[$1], 2.0 * CompZ[$1], 0. ] ; 
-  eps_y[] = Vector[ 2.0 * CompZ[$1], CompY[$1], 0. ] ;
-  
-  eps_2D[] =  Vector[ CompX[$1], CompY[$1], CompZ[$1] ] ; //$1 = {D1 (.)}
-  eps_xx_2D[] =  CompX[$1];
-  eps_yy_2D[] =  CompY[$1];
-  eps_xy_2D[] =  CompZ[$1];
-    
   dV[] = Transpose[GradVectorField[XYZ[],0,1]{VELOCITY_FIELD}]; 
   du[] = Transpose[GradVectorField[XYZ[],0,1]{3999}]; 
   dlambda[] = Transpose[GradVectorField[XYZ[],0,1]{4999}]; 
   dVdu[] = dV[]*du[]; 
   dVdlam[] = dV[]*dlambda[]; 
-
   d_e_u[] = Vector[ CompXX[dVdu[]#991], CompYY[#991], CompXY[#991]+CompYX[#991] ];
   d_e_lam[] = Vector[ CompXX[dVdlam[]#992], CompYY[#992], CompXY[#992]+CompYX[#992] ];
-
-  ETA[] = dV[]#1 + Transpose [ #1 ] - TTrace [ #1 ] * TensorDiag[1,1,1];//(1,2)-form
-  LV1[] = dV[] * $1 ;
-  LV2[] = TTrace [ dV[]#1 ] * $1 - Transpose [ #1 ] * $1 ;
-  LV3[] = Transpose [ dV[]#1 ] - TTrace [ #1 ] * TensorDiag[1,1,1];
   
   // Derivative of performance function
   If(Flag_PerfType == COMPLIANCE)
@@ -253,7 +237,7 @@ Resolution {
 
   { Name OptimStep ;
     System {
-          { Name A ; NameOfFormulation Mec2D_u ; } //state variable
+          { Name A ; NameOfFormulation PrimalSystem ; } //state variable
           { Name B ; NameOfFormulation AdjointFormulation ; } //adjoint variable
           { Name C ; NameOfFormulation DirectDerivFormulation ; }  //direct variable
           { Name D ; NameOfFormulation Filt_sens ; }
