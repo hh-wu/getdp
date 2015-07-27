@@ -6,13 +6,9 @@ DefineConstant[
   SensitivityParameter = {"",
     Name "Sensitivity/Parameter to perturb"}
 ];
-Printf("======> perturbed mesh?... %g",PerturbMesh);
+
 If(PerturbMesh == 1)
-  Mesh.SaveParametric = 1;
-  BoundingBox;  
   Solver.AutoMesh = 0;
-  Printf(StrCat("OnelabAction:",OnelabAction));
-  Printf("Perturbation:%g",Perturbation);
   If(!StrCmp(OnelabAction, "compute")) 
     Printf("Perturbing parameter...");
     ParamValue = GetNumber(Str(SensitivityParameter));

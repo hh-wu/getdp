@@ -54,6 +54,10 @@ Macro GetShapeOptAdjointSens
   Printf["Compute derivative (adjoint, variable domain) --"];
   ReadSolution[A];ReadSolution[B];//A and lambda
   GmshRead[StrCat[ResDir,"velocity.pos"], VELOCITY_FIELD];
+  If(Flag_SysType == ELAST2D)
+    GmshRead[StrCat[ResDir,"u.pos"], STATE_FIELD];
+    GmshRead[StrCat[ResDir,"lambda.pos"], ADJOINT_FIELD];
+  EndIf
   PostOperation[GetShapeOptAdjointSens];
 Return
 
