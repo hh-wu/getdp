@@ -196,7 +196,7 @@ Resolution {
           Print[{$it, $res, $res / $res0}, Format "Residual %03g: abs %14.12e rel %14.12e"];
         }
         SaveSolution[A];
-        Test[ GetNumber[1]{"Input/Solver/Visu"} ]{ PostOperation[MagDynTO]; }
+        Test[ GetNumber[visu]{"Input/Solver/Visu"} ]{ PostOperation[MagDynTO]; }
       }
     }
   }
