@@ -16,6 +16,7 @@ VELOCITY_FILT = 2;
 VELOCITY_FIELD = 7;
 EPS_U_FIELD = 8;
 EPS_LAMBDA_FIELD = 9;
+EPS = 10;
 DES_VAR_FIELD = 21;
 SENS_FIELD = 22;
 TORQUE_VAR_FIELD = 20;//user provided
@@ -70,7 +71,6 @@ Function{
   DefineFunction[
     dFdb,dF_adjoint_lie
   ];
-
 }
 
 Function {
@@ -79,50 +79,44 @@ Function {
   
   // lie derivative
   velocityField[] = VectorField[XYZ[],0,1]{VELOCITY_FIELD};
-//  d_u[] = Transpose[GradVectorField[XYZ[],0,1]{999}];
-//  d_lambda[] = Transpose[GradVectorField[XYZ[],0,1]{9999}];
-//  epsilon_du_v[] = 0.5 * ( Transpose[GradVectorField[XYZ[],0,1]{1999}#1] + #1 );
-//  epsilon_dlambda_v[] = 0.5* ( Transpose[GradVectorField[XYZ[],0,1]{19999}#2] + #2);
-
-  d_epsLambda[] = Transpose[GradVectorField[XYZ[],0,1]{EPS_LAMBDA_FIELD}];  
-  d_epsU[] = Transpose[GradVectorField[XYZ[],0,1]{EPS_U_FIELD}];  
+  
+  //D1 [u_x, u_y] gives: [du_x/dx, du_y/dy, du_y/dx + du_x/dy]
+  eps_x[] = Vector[ CompX[$1], 2.0 * CompZ[$1], 0. ] ; 
+  eps_y[] = Vector[ 2.0 * CompZ[$1], CompY[$1], 0. ] ;
+  
+  eps_2D[] =  Vector[ CompX[$1], CompY[$1], CompZ[$1] ] ; //$1 = {D1 (.)}
+  eps_xx_2D[] =  CompX[$1];
+  eps_yy_2D[] =  CompY[$1];
+  eps_xy_2D[] =  CompZ[$1];
+    
   dV[] = Transpose[GradVectorField[XYZ[],0,1]{VELOCITY_FIELD}]; 
-  ETA[] = dV[]#1 + Transpose [ #1 ] + TTrace [ #1 ] * TensorDiag[1,1,1];//(1,2)-form
+  du[] = Transpose[GradVectorField[XYZ[],0,1]{3999}]; 
+  dlambda[] = Transpose[GradVectorField[XYZ[],0,1]{4999}]; 
+  dVdu[] = dV[]*du[]; 
+  dVdlam[] = dV[]*dlambda[]; 
+
+  d_e_u[] = Vector[ CompXX[dVdu[]#991], CompYY[#991], CompXY[#991]+CompYX[#991] ];
+  d_e_lam[] = Vector[ CompXX[dVdlam[]#992], CompYY[#992], CompXY[#992]+CompYX[#992] ];
+
+  ETA[] = dV[]#1 + Transpose [ #1 ] - TTrace [ #1 ] * TensorDiag[1,1,1];//(1,2)-form
   LV1[] = dV[] * $1 ;
   LV2[] = TTrace [ dV[]#1 ] * $1 - Transpose [ #1 ] * $1 ;
   LV3[] = Transpose [ dV[]#1 ] - TTrace [ #1 ] * TensorDiag[1,1,1];
   
   // Derivative of performance function
   If(Flag_PerfType == COMPLIANCE)
-    Func[] = 0.5* (C[] * $1) * $1; //F = C * (D u)^2 
-    dFdb[] = C[] * $1; //dF/db = 2 * C * (D u)
-    //dF_adjoint_lie[] = -0.5* (C[] * $1) * ( ETA[] * $1 ) ;
-    dF_adjoint_lie[] = 0.5 * $1 * ( (C[] * ETA[]) * $1 ); 
-//    dF_adjoint_lie[] =  0.5*(( C[] * ( Transpose[ dV[]#1 ] * $1 ) ) * $1
-//                 + ( C[] * $1 ) * ( Transpose[ #1 ] * $1 )
-//                 + ( ( C[] * $1 ) * $1 ) * TTrace[ #1 ]); 
-
+    Func[] = (C[] * $1) * $1; //F = C * (D u)^2 
+    dFdb[] = 2.0*C[] * $1; //dF/db = 2 * C * (D u)
+    dF_adjoint_lie[] = -( C[] * d_e_u[] ) * $1 
+                       -( C[] * $1 ) * d_e_u[] 
+                       +( (C[] * $1) * $1 ) * TTrace[dV[]];
   EndIf
   dF_direct_lie[] = dFdb[$1#1]*$2 + dF_adjoint_lie[#1];
 
   // derivative of bilinear form ($1:{D1 u}, $2:{D1 lambda})
-  d_bilin_lie[] = $2 * ( (C[] * ETA[]) * $1 ); 
-
-//  d_bilin_lie[] = - $1 * ( ( C[] * ETA[] ) * $2 ) 
-//                  + velocityField[] * ( ( d_epsLambda[] * C[] ) * $1 )  
-//                  + $2 * ( ( C[] * Transpose[d_epsU[]] ) * velocityField[] );
-
-//  d_bilin_lie[] =  ( C[] * ( Transpose[ dV[]#1 ] * $1 ) ) * $2
-//                 + ( C[] * $1 ) * ( Transpose[ #1 ] * $2 )
-//                 + ( ( C[] * $1 ) * $2 ) * TTrace[ #1 ]; 
-                  
-//  d_bilin_lie[] = - (C[] * $1)* ( d_lambda[] * velocityField[] ) 
-//                  - (C[] * ( d_u[] * velocityField[] ))* $2  
-//                  + TTrace [ dV[] ]*(C[] * $1) * $2;
-
-//  d_bilin_lie[] = - (C[] * Transpose[epsilon_dlambda_v[]]) * $1 
-//                  - (C[] * epsilon_du_v[])* $2  
-//                  + TTrace [ dV[] ] * (C[] * $1) * $2;
+  d_bilin_lie[] = -( C[] * d_e_u[] ) * $2 
+                  -( C[] * $1 ) * d_e_lam[] 
+                  +( (C[] * $1) * $2 ) * TTrace[dV[]];
 }
 
 FunctionSpace {
@@ -201,6 +195,12 @@ Formulation {
       Galerkin { [ C[]*Dof{D1 d_u}, {D1 d_u}] ; 
         In Domain; Jacobian Vol ; Integration I1 ; }
 
+//      Galerkin { [ C[] * d_e_u[], {D1 d_u}] ; 
+//        In Domain; Jacobian Vol ; Integration I1 ; }
+//      Galerkin { [ C[] * {D1 u}, {D1 d_u}] ; 
+//        In Domain; Jacobian Vol ; Integration I1 ; }
+//      Galerkin { [ -C[] * {D1 u} * TTrace[dV[]], {D1 d_u}] ; 
+//        In Domain; Jacobian Vol ; Integration I1 ; }
    }
   }
  //-----------------------------------------------------------------

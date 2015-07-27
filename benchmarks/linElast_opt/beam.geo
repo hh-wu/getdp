@@ -97,4 +97,8 @@ If(Flag_meshRecombine==1.0)
   Mesh.Algorithm = 8; // DelQuad (experimental)
 EndIf
 
+// Velocity field for shape perturbation
+If(Flag_opt && !Flag_topopt)
+  Merge "../optimization/perturb.geo";
+EndIf
 

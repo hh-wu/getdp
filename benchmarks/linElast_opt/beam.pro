@@ -381,7 +381,7 @@ Formulation {
     }
     Equation {
       // u formulation
-      Galerkin { [ C[]*Dof{D1 u}, {D1 u}] ; 
+      Galerkin { [ C[] * Dof{D1 u}, {D1 u}] ; 
                  In Domain_Disp; Jacobian Vol ; Integration I1 ; }
 
       // densite de force imposee
@@ -404,5 +404,102 @@ Formulation {
 // sensitivity analysis
 Include "sensitivity.pro";
 
+// sensitivity analysis formulation
+//If(Flag_opt)
+//  // - Specify performance function (formula, domain)
+//  // - Domain of optimization (global structure -> input)
+
+//Group {
+//  // TO domain
+//  If(!Flag_topopt)
+//    DomainOpt = Region[{}];
+//  EndIf
+//  If(Flag_topopt)
+//    If(regionVar == 0)
+//      DomainOpt = Region[{Rotor_Fe}];
+//      DomainOptFix = Region[{}];
+//      DomainOptMV = Region[{Rotor_Fe}];
+//    EndIf 
+//    If(regionVar == 1)
+//      DomainOpt = Region[{Stator_Fe}];
+//      DomainOptFix = Region[{Stator_Fe}];
+//      DomainOptMV = Region[{}];
+//    EndIf
+//    If(regionVar == 2)
+//      DomainOpt = Region[{Rotor_Fe,Stator_Fe}];
+//      DomainOptFix = Region[{Stator_Fe}];
+//      DomainOptMV = Region[{Rotor_Fe}];
+//    EndIf
+//  EndIf  
+
+//  // specified by user !!!
+//  //DomainFunc = Region[{}];
+//  DomainFunc = Region[{Rotor_Airgap}];    
+//}
+
+//Function {
+//  // Target B in air-gap
+//  Btarget[] = Sqrt[2]*0.502*Sin[(AngularPosition[]-RotorPosition[]
+//                                +Pi/8)*NbrPolesTot/2.0];
+//  BradCoeff[] = 2*Pi*AxialLength/SurfaceArea[];
+
+//  // Target Torque
+//  Ttarget[] = Tnom;//Nm 
+//  torqueVar[] = ScalarField[XYZ[],0,1]{TORQUE_VAR_FIELD};
+//  torqueCoeff[] = XYZ[]*XYZ[]*2*Pi*AxialLength/SurfaceArea[]; 
+
+//  er[] = Unit[XYZ[]];
+//  et[] = Unit[Vector[-Sin[ Atan2[Y[],X[]] ], Cos[ Atan2[Y[],X[]] ], 0]];
+//  
+//  // operators used for lie derivative
+//  velocityField[] = Rotate[ VectorField[RotateZ_desVar[],0,1]{VELOCITY_FIELD}, 
+//                            0, 0, RotorPosition[] ] ;
+//  dV[] = Rotate[ Transpose[GradVectorField[RotateZ_desVar[], 0 , 1]{VELOCITY_FIELD}], 
+//                            0, 0, -RotorPosition[] ];
+//  
+//  ETA[] = dV[]#1 + Transpose [ #1 ] - TTrace [ #1 ] * TensorDiag[1,1,1];//(1,2)-form
+//  LV1[] = dV[] * $1 ;
+//  LV2[] = TTrace [ dV[]#1 ] * $1 - Transpose [ #1 ] * $1 ;
+//  LV3[] = Transpose [ dV[]#1 ] - TTrace [ #1 ] * TensorDiag[1,1,1];
+//  
+//  // Derivative of performance function
+//  If(Flag_PerfType == COMPLIANCE)
+//    Func[] = nu[$1] * SquNorm[$1]; //F = nu*B^2, alpha=nu*{d a},beta={d a} 
+//    dFdb[] = 2. * nu[$1] * $1; //dF/db = 2*nu*B
+//    dF_adjoint_lie[] = nu[$1#2] * #2 * ( ETA[] * #2 ) ;//fixme #1 != #2 !!!
+//  EndIf
+//  If(Flag_PerfType == TORQUE)
+//    Func[] = nu[$1]*torqueCoeff[]*( $1*er[] )*( $1*et[] );
+//    dFdb[] = nu[$1]*torqueCoeff[]*(er[]*($1*et[]) + et[]*($1*er[]));
+//    d_torqueCoeff[] = (er[]*velocityField[])*2*Pi*AxialLength/SurfaceArea[];
+//    dF_adjoint_lie[]= nu[$1#2]*d_torqueCoeff[] * ( #2 * er[] ) * ( #2 * et[] )*
+//                     -nu[$1]*torqueCoeff[]*(
+//                       ( LV2[#2] * er[] ) * ( #2 * et[] )#3
+//                      +( LV2[#2] * et[] ) * ( #2 * er[] )#4
+//		      + ((#3*#3) - (#4*#4))*(velocityField[]*et[])/Norm[XYZ[]]
+//                      -( #2 * er[] ) * ( #2 * et[] ) * TTrace [#1]);  
+//  EndIf
+//  If(Flag_PerfType == TORQUE_VAR)
+//    Func[] = nu[$1]*torqueCoeff[]*( $1*er[] )*( $1*et[] )/Ttarget[] - 1.0;
+//    dFdb[] = 2.0*torqueVar[]*nu[$1]*torqueCoeff[]/Ttarget[]
+//             *(er[]*($1*et[]) + et[]*($1*er[]));
+//    d_torqueCoeff[] = (er[]*velocityField[])*2*Pi*AxialLength/SurfaceArea[];
+//    dF_adjoint_lie[]= /*2.0/Ttarget[]*nu[$1#2]*d_torqueCoeff[]*(#2*er[])*(#2*et[])*/
+//                     -2.0/Ttarget[]*nu[$1#2]*torqueCoeff[]*(
+//                       ( LV2[#2] * er[] ) * ( #2 * et[] )
+//                      +( #2 * er[] ) * ( LV2[#2] * et[] )
+//                      -( #2 * er[] ) * ( #2 * et[] ) * TTrace [#1]);  
+//  EndIf
+//  If(Flag_PerfType == BFIELD_ERROR)
+//    Func[] = nu[$1] * SquNorm[$1]; 
+//    dFdb[] = 2.0 * BradCoeff[] * ( $1 * er[] - Btarget[] ) * er[];
+//  EndIf
+
+//  dF_direct_lie[] = dFdb[$1#1]*$2 + dF_adjoint_lie[#1];
+//}
+
+//  Include "../benchmarks/optimization/sensitivity.pro";
+
+//EndIf
 
 

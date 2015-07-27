@@ -41,11 +41,8 @@ Return
 Macro GetVarDomAdjointSens
   ReadSolution[A];ReadSolution[B];//A and lambda
   GmshRead[StrCat[ResDir,"velocity.pos"], VELOCITY_FIELD];
-  //GmshRead[StrCat[ResDir,"u.pos"], 999];
-  //GmshRead[StrCat[ResDir,"lambda.pos"], 9999];
-  PostOperation[Get_AvmVarDomSens_Lie0];
-  GmshRead[StrCat[ResDir,"eps_u.pos"], EPS_U_FIELD];
-  GmshRead[StrCat[ResDir,"eps_lambda.pos"], EPS_LAMBDA_FIELD];
+  GmshRead[StrCat[ResDir,"u.pos"], 3999];
+  GmshRead[StrCat[ResDir,"lambda.pos"], 4999];
   PostOperation[Get_AvmVarDomSens_Lie];
 Return
 

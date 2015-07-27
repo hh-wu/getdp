@@ -10,15 +10,17 @@ sys.path.append('../../benchmarks_kst/tool/')
 from tool import *
 from defPerfFunc import *
 from defPerfFuncSens import *
+
 # ************************************************************************
 # **** Input                                                         *****
 # ************************************************************************
-x = np.array([0.5]) #np.array([op.getScalarParamVal('Input/OptParam/x_0')])
-execMode = 3 #1:debug, 2:sensitivity, 3:plot
-lc = np.logspace(0.0, 0.5, num=10)
+x = np.array([0.1]) #np.array([op.getScalarParamVal('Input/OptParam/x_0')])
+execMode = 1 #1:debug, 2:sensitivity, 3:plot
+lc = [2.0]#np.logspace(0.0, 0.5, num=10)
 step = [1.0e-05] #np.logspace(-16, -3, num=14)
-sensMeth = ['GlobalFiniteDifference','AdjointSemi','AdjointLie']#,'DirectLie']
+sensMeth = ['GlobalFiniteDifference','AdjointSemi','AdjointLie','DirectLie']
 pathSave = 'resSens'
+
 # ************************************************************************
 # **** Define parameters                                              ****
 # ************************************************************************
@@ -41,25 +43,7 @@ op = Sensitivity(parameters)
 # **** Compute sensitivity analysis                                  *****
 # ************************************************************************
 # Initialization
-if ((execMode <= 2) and not(os.path.exists(pathSave))):os.mkdir(pathSave, 0755)
-
-if ( execMode == 1 ): # debug code
-
-    # Compute f
-    print('*'*80+'\n** Compute performance function **\n'+'*'*80)
-    op.setScalarParameter('Geo/Mesh Characteristic Length Factor',lc[0])
-    op.MeshCao(x, op.parameters)
-    resAnalysis = op.Analysis(x,parameters)
-    print('*'*80+'\n** d[f1, ..., fk]/dx with method [M1,...Mk] **\n'+'*'*80)
-    op.parameters['step'] = step[0]
-    op.parameters['SensitivityMethod'] = np.copy(sensMeth)
-    dfdx = op.Sensitivity(x,resAnalysis['fj'],resAnalysis['dataFEM'],op.parameters)
-    dfdx = dfdx['dfjdx']
-    print('[f1, ..., fk]:{}\n[M1,...Mk]:{}\nd[f1, ..., fk]/dx:{}'.\
-          format(resAnalysis['fj'],op.parameters['SensitivityMethod'],dfdx))
-
-elif( execMode == 2 ): # check sensitivity
-    
+if ( execMode ): # check sensitivity
     print('*'*80+'\n** df/dx with method [M1,...Mk] for (lc,step) **\n'+'*'*80)
     sensMeth = np.array(sensMeth)
     Nlc = len(lc);Nstep = len(step);nbMeth = len(sensMeth);n = len(x)

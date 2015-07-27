@@ -1,6 +1,4 @@
-ResId = "";
-po_opt  = StrCat["Output - Optimization/", ResId];
-po_min  = StrCat["Output/", ResId];
+po_min  = "Output/";
 
 PostProcessing {
   // --------------------------------------------------------------------
@@ -12,7 +10,9 @@ PostProcessing {
 	Value { Term { [ designVar[] ] ; In Domain ; Jacobian Vol ; } } 
       }
 
-      { Name du; Value { Term { [ {d u} ] ; In Domain ; Jacobian Vol ;}}}
+      { Name eps_2D; Value { Term { [ eps_2D[{D1 u}] ]; In Domain ; Jacobian Vol ;}}}
+      { Name eps_x; Value { Term { [ eps_x[{D1 u}] ]; In Domain ; Jacobian Vol ;}}}
+      { Name eps_y; Value { Term { [ eps_y[{D1 u}] ]; In Domain ; Jacobian Vol ;}}}
 
       { Name Young; Value { Term { [ E[] ] ; In Domain ; Jacobian Vol ; } } }
 
@@ -27,7 +27,7 @@ PostProcessing {
       { Name uy  ; Value { Term { [ CompY[{u}] ] ; In Domain ; Jacobian Vol ;}}}
        
       { Name Compliance; Value {
-      	  Integral { [ 0.5*(C[]*{D1 u})*{D1 u} ];
+      	  Integral { [ (C[]*{D1 u})*{D1 u} ];
             In Domain ; Jacobian Vol  ; Integration I1; }}
       }
 
@@ -148,18 +148,14 @@ PostProcessing {
 //        
 //        { Name du_v ; 
 //          Value { Term { [ d_u[]*velocityField[] ] ; In Domain ; Jacobian Vol ; }}}
-
-        { Name eps_lambda; Value { Term { [ {D1 lambda} ] ; In Domain ; Jacobian Vol ;}}}
-        
-        { Name eps_u; Value { Term { [ {D1 u} ] ; In Domain ; Jacobian Vol ;}}}
-
+                
         { Name v ; Value { Term { [ velocityField[] ] ; In Domain ; Jacobian Vol ; }}}
 
         { Name rho_sensF ; 
           Value { Term { [ dF_adjoint_lie[{D1 u}] ] ; In Domain ; Jacobian Vol ; }}}
 
         { Name rho_sensK ; 
-          Value { Term { [ d_bilin_lie[{D1 u},{D1 lambda}]]  ; 
+          Value { Term { [ d_bilin_lie[{D1 u},{D2 u},{D1 lambda},{D2 lambda}]]  ; 
                    In Domain ; Jacobian Vol ; }}}
 
         { Name sensF ; 
@@ -170,7 +166,7 @@ PostProcessing {
         }
         { Name sensK ; 
           Value { 
-              Integral{[ d_bilin_lie[{D1 u},{D1 lambda}] ];//d{a}/d{tau}(A,lambda)
+              Integral{[ d_bilin_lie[ {D1 u}, {D1 lambda}] ];//d{a}/d{tau}(A,lambda)
                 In Domain; Jacobian Vol ; Integration I1;}
            }
         }
@@ -178,7 +174,7 @@ PostProcessing {
           Value { 
             Integral { [ dF_adjoint_lie[ {D1 u} ] ];  // d{f}/d{tau}(phi)
               In DomainFunc ; Jacobian Vol ; Integration I1 ;}
-            Integral { [ -d_bilin_lie[ {D1 u}, {D1 lambda} ]];//d{a}/d{tau}(phi,lambda)
+            Integral { [ -d_bilin_lie[ {D1 u},{D1 lambda} ] ];
               In Domain ; Jacobian Vol ; Integration I1 ; }
           } 
         }
@@ -252,8 +248,14 @@ PostOperation {
      Print[ u, OnElementsOf Domain,
  	    File StrCat[ResDir, StrCat["u",ExtGmsh]], LastTimeStepOnly] ;
 
-     Print[ du, OnElementsOf Domain,
-	    File StrCat[ResDir, StrCat["du",ExtGmsh]], LastTimeStepOnly] ;
+     Print[ eps_2D, OnElementsOf Domain,
+	    File StrCat[ResDir, StrCat["eps_2D",ExtGmsh]], LastTimeStepOnly] ;
+
+     Print[ eps_x, OnElementsOf Domain,
+	    File StrCat[ResDir, StrCat["eps_x",ExtGmsh]], LastTimeStepOnly] ;
+
+     Print[ eps_y, OnElementsOf Domain,
+	    File StrCat[ResDir, StrCat["eps_y",ExtGmsh]], LastTimeStepOnly] ;
 
      Print[ Young, OnElementsOf Domain,
  	    File StrCat[ResDir, StrCat["Young",ExtGmsh]], LastTimeStepOnly] ;
@@ -325,10 +327,6 @@ PostOperation {
 //	      File StrCat[ResDir, StrCat["dlambda_v",ExtGmsh]], LastTimeStepOnly] ;
 //       Print[ du_v, OnElementsOf Domain,
 //	      File StrCat[ResDir, StrCat["du_v",ExtGmsh]], LastTimeStepOnly] ;
-       Print[ eps_lambda, OnElementsOf Domain,
-	      File StrCat[ResDir, StrCat["eps_lambda",ExtGmsh]], LastTimeStepOnly] ;
-       Print[ eps_u, OnElementsOf Domain,
-	      File StrCat[ResDir, StrCat["eps_u",ExtGmsh]], LastTimeStepOnly] ;
     }
   } 
   { Name Get_AvmVarDomSens_Lie; NameOfPostProcessing AvmVarDomSens_lie;
