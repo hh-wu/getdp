@@ -500,7 +500,8 @@ Formulation {
   //---------------------------------------------------------------------------------
   // Primary system
   //---------------------------------------------------------------------------------
-  { Name MagStaDyn_a_2D ; Type FemEquation ;
+  //{ Name MagStaDyn_a_2D ; Type FemEquation ;
+  { Name PrimalSystem ; Type FemEquation ;
     Quantity {
       { Name a  ; Type Local  ; NameOfSpace Hcurl_a_2D ; }
       { Name ur ; Type Local  ; NameOfSpace Hregion_u_Mag_2D ; }
@@ -605,10 +606,10 @@ Resolution {
   { Name Analysis ;
     System {
       If(Flag_AnalysisType==2)
-        { Name A ; NameOfFormulation MagStaDyn_a_2D ; Type ComplexValue ; Frequency Freq ; }
+        { Name A ;NameOfFormulation PrimalSystem;Type ComplexValue ; Frequency Freq ; }
       EndIf
       If(Flag_AnalysisType<2)
-        { Name A ; NameOfFormulation MagStaDyn_a_2D ; }
+        { Name A ; NameOfFormulation PrimalSystem ; }
         If(!Flag_ImposedSpeed) // Full dynamics
           { Name M ; NameOfFormulation Mechanical ; }
         EndIf
@@ -713,7 +714,7 @@ Resolution {
 
 
 PostProcessing {
-  { Name MagStaDyn_a_2D ; NameOfFormulation MagStaDyn_a_2D ;
+  { Name MagStaDyn_a_2D ; NameOfFormulation PrimalSystem ;
     PostQuantity {
 
       // Field quantities
@@ -875,7 +876,7 @@ PostProcessing {
   // Park quantities  (on DomainDummy)
   // FIXME Remove "In DomainDummy; " ?
   If(Flag_ParkTransformation)
-  { Name Park_Transformation ; NameOfFormulation MagStaDyn_a_2D ;
+  { Name Park_Transformation ; NameOfFormulation PrimalSystem ;
     PostQuantity {
       // { Name Theta_Park_deg ;
       //   Value { Term { Type Global; [ Theta_Park[] * 180./Pi ] ; In DomainDummy ; } } }

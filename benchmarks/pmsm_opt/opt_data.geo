@@ -13,6 +13,9 @@ TORQUE = 6;
 TORQUE_VAR_FIELD = 20;
 VELOCITY_FIELD = 7;//pour que ça marche avec -gmshread il faut mettre à 0
 
+MAGSTADYN = 0;
+ELAST2D = 1;
+
 DefineConstant[
   pInOpt = "Input/OptParam/",
 
@@ -24,6 +27,12 @@ DefineConstant[
   Flag_topopt = {0, 
     Name StrCat[pInOpt,"optType"],Label "TopOpt?",
     Choices {0,1}, Visible (Flag_opt == 1)},
+
+  Flag_SysType = {MAGSTADYN,
+    Choices{
+      MAGSTADYN = "magnetostatic",
+      ELAST2D = "lin. elast."
+    },Name StrCat[pInOpt, "systemType"], Label "system type",Visible (Flag_opt == 1) },
 
   // Design variables -> FIXME: write in py toolkit!
   lm = {2.352*mm , 
