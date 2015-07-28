@@ -4,7 +4,6 @@
     Check the computation of sensitivity 
     
 """
-
 import sys
 sys.path.append('../../benchmarks_kst/tool/')
 from tool import *
@@ -16,7 +15,7 @@ from defPerfFuncSens import *
 # ************************************************************************
 x = np.array([0.1]) #np.array([op.getScalarParamVal('Input/OptParam/x_0')])
 execMode = 1 #1:debug, 2:sensitivity, 3:plot
-lc = [2.0]#np.logspace(0.0, 0.5, num=10)
+lc = [2.0] #np.logspace(0.0, 0.5, num=10)
 step = [1.0e-05] #np.logspace(-16, -3, num=14)
 sensMeth = ['GlobalFiniteDifference','AdjointSemi','AdjointLie','DirectLie']
 pathSave = 'resSens'

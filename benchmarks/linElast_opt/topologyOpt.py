@@ -5,11 +5,12 @@
     
 """
 import sys
-sys.path.insert(0,'/Users/erinkuci/Desktop/src/getdp/benchmarks_kst/tool')
+sys.path.append('../../benchmarks_kst/tool/')
 from tool import *
 from defPerfFunc import *
 from defPerfFuncSens import *
 import defPerfFunc
+
 # ************************************************************************
 # ***** Create the parameters                                        *****
 # ************************************************************************

@@ -25,10 +25,10 @@ Group {
   If(Flag_testBench == 2) //MBB-beam
     Domain_Force = Region[{POINT_5}];
   EndIf
-  If(!Flag_hole)
+  If(!Flag_squhole)
     Domain_Disp = Region[{Bloc}];
   EndIf
-  If(Flag_hole)
+  If(Flag_squhole)
     Domain_Disp = Region[{BLOC,BLOC_HOLE}];
   EndIf
   Domain = Region[{Domain_Disp}];
@@ -50,7 +50,7 @@ Function {
   If(!Flag_topopt) //shape optimization
     E[Bloc] = E0;
     rho_mec[Bloc] = rh;
-    If(Flag_hole)
+    If(Flag_squhole)
       E[#BLOC_HOLE] = 0.1;
       rho_mec[#BLOC_HOLE] = 1.0;
     EndIf
