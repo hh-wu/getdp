@@ -895,10 +895,10 @@ if(MAKEINFO)
                      ARGS ${TEX_DIR}/getdp.texi WORKING_DIRECTORY ${TEX_DIR})
   add_custom_target(txt DEPENDS ${TEX_DIR}/getdp.txt)
   add_custom_command(OUTPUT ${TEX_DIR}/getdp.html DEPENDS ${TEX_SRC}
-                     COMMAND ${MAKEINFO} --html --css-ref=http://geuz.org/geuz.css
-                     --no-split --set-customization-variable
-                     EXTRA_HEAD='<meta name="viewport" content="width=device-width">'
-                     ARGS ${TEX_DIR}/getdp.texi WORKING_DIRECTORY ${TEX_DIR})
+    COMMAND ${MAKEINFO} --html --css-ref=http://geuz.org/geuz.css
+    --no-split --set-customization-variable
+    EXTRA_HEAD='<meta name="viewport" content="width=device-width,initial-scale=1.0">'
+    ARGS ${TEX_DIR}/getdp.texi WORKING_DIRECTORY ${TEX_DIR})
   add_custom_target(html DEPENDS ${TEX_DIR}/getdp.html)
   install(FILES ${TEX_DIR}/getdp.html DESTINATION ${GETDP_DOC} OPTIONAL)
 endif(MAKEINFO)
