@@ -4,15 +4,9 @@ PostProcessing {
   // --------------------------------------------------------------------
   // Performance funnctions and state variables
   // --------------------------------------------------------------------
-  { Name PostOptim ; NameOfFormulation PrimalSystem ;
+  { Name PrimalSystem ; NameOfFormulation PrimalSystem ;
     PostQuantity {
-      { Name designVarPlot; 
-	Value { Term { [ designVar[] ] ; In Domain ; Jacobian Vol ; } } 
-      }
-
-//      { Name eps_2D; Value { Term { [ eps_2D[{D1 u}] ]; In Domain ; Jacobian Vol ;}}}
-//      { Name eps_x; Value { Term { [ eps_x[{D1 u}] ]; In Domain ; Jacobian Vol ;}}}
-//      { Name eps_y; Value { Term { [ eps_y[{D1 u}] ]; In Domain ; Jacobian Vol ;}}}
+      { Name designVarPlot; Value{Term{[designVar[]]; In Domain; Jacobian Vol;}}}
 
       { Name Young; Value { Term { [ E[] ] ; In Domain ; Jacobian Vol ; } } }
 
@@ -21,36 +15,27 @@ PostProcessing {
       { Name Volume; Value{Integral{[1.0];In Domain; Jacobian Vol;Integration I1;}}}
 
       { Name u  ; Value { Term { [ {u} ] ; In Domain ; Jacobian Vol ; } } }
-
       { Name ux  ; Value { Term { [ CompX[{u}] ] ; In Domain ; Jacobian Vol ;}}}
-
       { Name uy  ; Value { Term { [ CompY[{u}] ] ; In Domain ; Jacobian Vol ;}}}
        
+      { Name Stresses; Value { Term { [ sigma[{D1 u}] ]; In Domain ; Jacobian Vol;}}}
+      { Name StressesX; Value{Term{[ CompX[sigma[{D1 u}]]];In Domain ; Jacobian Vol;}}}
+      { Name StressesY; Value{Term{[ CompY[sigma[{D1 u}]]];In Domain ; Jacobian Vol;}}}
+      { Name StressesXY; Value{Term{[ CompZ[sigma[{D1 u}]]];In Domain ; Jacobian Vol;}}}
+      { Name StressVM; Value { Term { [ sigmaVM[{D1 u}] ]; In Domain ; Jacobian Vol; }}}
+
       { Name Compliance; Value {
       	  Integral { [ (C[]*{D1 u})*{D1 u} ];
-            In Domain ; Jacobian Vol  ; Integration I1; }}
+            In Domain ; Jacobian Vol  ; Integration I1; }
+        }
       }
 
-      { Name Stresses; Value {
-      	  Integral { [ C[]*{D1 u} ];
-            In Domain ; Jacobian Vol  ; Integration I1; }}
+      { Name StressVMInt; Value {
+      	  Integral { [ sigmaVM[{D1 u}]^2.0 ];
+            In Domain ; Jacobian Vol  ; Integration I1; }
+        }
       }
-
-      { Name NormStresses; Value {
-      	  Integral { [ Norm[C[]*{D1 u}] ];
-            In Domain ; Jacobian Vol  ; Integration I1; }}
-      }
-
-      { Name StressesX; Value {
-      	  Integral { [ CompX[ C[]*{D1 u} ] ];
-            In Domain ; Jacobian Vol  ; Integration I1; }}
-      }
-
-      { Name StressesY; Value {
-      	  Integral { [ CompY[ C[]*{D1 u} ] ];
-            In Domain ; Jacobian Vol  ; Integration I1; }}
-      }
-     
+   
       { Name volumeMaterial;
 	Value {
 	  Integral{ [ designVar[] ];
@@ -100,108 +85,70 @@ PostProcessing {
   // --------------------------------------------------------------------
   // Adjoint variable
   // --------------------------------------------------------------------
-  { Name PostOptim_AdjointMethod ; NameOfFormulation AdjointFormulation ;
+  { Name AdjointFormulation ; NameOfFormulation AdjointFormulation ;
     PostQuantity {
       { Name lambda ; Value { Term {[ {lambda} ] ; In Domain ; Jacobian Vol;}}}
-    }
-  }
-  // --------------------------------------------------------------------
-  // Semi-analytic method
-  // --------------------------------------------------------------------
-  { Name SemiAnalyticQuantitys; NameOfFormulation AdjointFormulation;
-    PostQuantity {
-       { Name lambda_K_A; // Int(nu*rotA*rotLambda)->lambda*K*A
-          Value {
-      	     Integral { [ (C[]*{D1 u})*{D1 lambda}];
+      
+      { Name lambda_K_A; // Int(nu*rotA*rotLambda)->lambda*K*A
+        Value {
+      	  Integral { [ (C[]*{D1 u})*{D1 lambda}];
 	       In Domain_Disp ; Jacobian Vol  ; Integration I1; }   
-          }
-       }
-       { Name lambda_g; // Sum_i{lambda*g_i} FIXME
+        }
+      }
+
+      { Name lambda_g; // Sum_i{lambda*g_i} FIXME
       	Value {
       	     Integral { [ force_node[] * {lambda} ];
 	              In Domain_Force ; Jacobian Vol  ; Integration I1; }
-//      	     Integral { [CompX[force_node[]]*Unit[{u_dum_x}]*Unit[CompX[{lambda}]]];
-//	              In Domain_Force ; Jacobian Sur  ; Integration I1; }
-//      	     Integral { [CompY[force_node[]]*Unit[{u_dum_y}]*Unit[CompY[{lambda}]]];
-//	              In Domain_Force ; Jacobian Sur  ; Integration I1; }      	      	
       	}
-       }
-    }
-  }
-  // --------------------------------------------------------------------------
-  // Adjoint sensitivity Lie (variable domain)
-  // --------------------------------------------------------------------------
-//  { Name AvmVarDomSens_lie0 ;NameOfFormulation AdjointFormulation;
-//    PostQuantity {    
-//        { Name dlambda_v ; 
-//          Value { Term { [ d_lambda[]*velocityField[] ] ; In Domain ; Jacobian Vol ; }}}
-//        
-//        { Name du_v ; 
-//          Value { Term { [ d_u[]*velocityField[] ] ; In Domain ; Jacobian Vol ; }}}
-//    }
-//  }
+      }
 
-  { Name AvmVarDomSens_lie ;NameOfFormulation AdjointFormulation;
-    PostQuantity {    
-//        { Name dlambda_v ; 
-//          Value { Term { [ d_lambda[]*velocityField[] ] ; In Domain ; Jacobian Vol ; }}}
-//        
-//        { Name du_v ; 
-//          Value { Term { [ d_u[]*velocityField[] ] ; In Domain ; Jacobian Vol ; }}}
-                
-        { Name v ; Value { Term { [ velocityField[] ] ; In Domain ; Jacobian Vol ; }}}
+      { Name v ; Value { Term { [ velocityField[] ] ; In Domain ; Jacobian Vol ; }}}
 
-        { Name rho_sensF ; 
+      { Name rho_sensF ; 
           Value { Term { [ dF_adjoint_lie[{D1 u}] ] ; In Domain ; Jacobian Vol ; }}}
 
-        { Name rho_sensK ; 
+      { Name rho_sensK ; 
           Value { Term { [ d_bilin_lie[{D1 u},{D2 u},{D1 lambda},{D2 lambda}]]  ; 
                    In Domain ; Jacobian Vol ; }}}
 
-        { Name sensF ; 
+      { Name sensF ; 
           Value { 
               Integral{[dF_adjoint_lie[{D1 u}]]; // d{f}/d{tau}(phi)
                 In Domain ; Jacobian Vol ; Integration I1;}
           }
-        }
-        { Name sensK ; 
-          Value { 
+      }
+
+      { Name sensK ; 
+        Value { 
               Integral{[ d_bilin_lie[ {D1 u}, {D1 lambda}] ];//d{a}/d{tau}(A,lambda)
                 In Domain; Jacobian Vol ; Integration I1;}
            }
-        }
-        { Name AvmVarDomSens; 
-          Value { 
+      }
+
+      { Name AvmVarDomSens; 
+        Value { 
             Integral { [ dF_adjoint_lie[ {D1 u} ] ];  // d{f}/d{tau}(phi)
               In DomainFunc ; Jacobian Vol ; Integration I1 ;}
             Integral { [ -d_bilin_lie[ {D1 u},{D1 lambda} ] ];
               In Domain ; Jacobian Vol ; Integration I1 ; }
-          } 
-        }
+        } 
       }
-    }
-  // --------------------------------------------------------------------
-  // Sensitivity (adjoint variable) on fixed mesh
-  // --------------------------------------------------------------------
-  { Name AvmFixedDomSens; NameOfFormulation AdjointFormulation;
-    PostQuantity {
-        { Name Sensitivity_AdjointMethod; 
-          Value { 
+
+      { Name Sensitivity_AdjointMethod; 
+        Value { 
                Integral {[-0.5*(C_prime[]*{D1 u})*{D1 lambda}]; 
                  In Domain ; Jacobian Vol  ; Integration I1; }
-          }
         }
-    }
-  }
-  { Name SelfAvmFixedDomSens; NameOfFormulation AdjointFormulation;
-    PostQuantity {
-        { Name Sensitivity_AdjointMethod; 
-          Value { 
+      }
+      
+      { Name Sensitivity_AdjointMethod; 
+        Value { 
                Integral {[-0.5*(C_prime[]*{D1 u})*{D1 u}]; 
                  In Domain ; Jacobian Vol  ; Integration I1; }
-          }
         }
-    }
+      }    
+   }
   }
   // --------------------------------------------------------------------
   // Filter sensitivitys
@@ -226,7 +173,7 @@ PostOperation {
   // --------------------------------------------------------------------------
   // Get state variable 
   // --------------------------------------------------------------------------
- { Name Get_PrimalSystem; NameOfPostProcessing PostOptim;
+ { Name Get_PrimalSystem; NameOfPostProcessing PrimalSystem;
    Operation{
 
 //     // Volume and mass
@@ -248,13 +195,6 @@ PostOperation {
      Print[ u, OnElementsOf Domain,
  	    File StrCat[ResDir, StrCat["u",ExtGmsh]], LastTimeStepOnly] ;
 
-//     Print[ eps_2D, OnElementsOf Domain,
-//	    File StrCat[ResDir, StrCat["eps_2D",ExtGmsh]], LastTimeStepOnly] ;
-//     Print[ eps_x, OnElementsOf Domain,
-//	    File StrCat[ResDir, StrCat["eps_x",ExtGmsh]], LastTimeStepOnly] ;
-//     Print[ eps_y, OnElementsOf Domain,
-//	    File StrCat[ResDir, StrCat["eps_y",ExtGmsh]], LastTimeStepOnly] ;
-
      Print[ Young, OnElementsOf Domain,
  	    File StrCat[ResDir, StrCat["Young",ExtGmsh]], LastTimeStepOnly] ;
 
@@ -263,15 +203,28 @@ PostOperation {
 
      Print[ Stresses, OnElementsOf Domain,
  	    File StrCat[ResDir, StrCat["Stresses",ExtGmsh]], LastTimeStepOnly] ;
+//     Print[ StressesX, OnElementsOf Domain,
+// 	    File StrCat[ResDir, StrCat["StressesX",ExtGmsh]], LastTimeStepOnly] ;
+//     Print[ StressesY, OnElementsOf Domain,
+// 	    File StrCat[ResDir, StrCat["StressesY",ExtGmsh]], LastTimeStepOnly] ;
+//     Print[ StressesXY, OnElementsOf Domain,
+// 	    File StrCat[ResDir, StrCat["StressesXY",ExtGmsh]], LastTimeStepOnly] ;
+
+     Print[ StressVM, OnElementsOf Domain, Depth 1,
+	 File StrCat[ResDir, StrCat["StressVM",ExtGmsh]], LastTimeStepOnly];
 
    }
  }
- { Name Get_PrimalSystem_Func; NameOfPostProcessing PostOptim;
+ { Name Get_PrimalSystem_Func; NameOfPostProcessing PrimalSystem;
    Operation{
 
      Print[Compliance[DomainFunc], OnGlobal, Format TimeTable,
 	 File StrCat[ResDir, StrCat["ComplianceElm",ExtGnuplot]], LastTimeStepOnly,
 	 SendToServer StrCat[po_min,"ComplianceElm"], Color "LightYellow" ];
+
+     Print[StressVMInt[DomainFunc], OnGlobal, Format TimeTable,
+	 File StrCat[ResDir, StrCat["StressVMInt",ExtGnuplot]], LastTimeStepOnly,
+	 SendToServer StrCat[po_min,"StressVMInt"], Color "LightYellow" ];
 
      Print[ Volume[Domain], OnGlobal, Format TimeTable, 
           File StrCat["res/Volume",ExtGmsh], LastTimeStepOnly, 
@@ -288,7 +241,7 @@ PostOperation {
   // --------------------------------------------------------------------------
   // Get Adjoint variable
   // --------------------------------------------------------------------------
- { Name SolveAdjointSystem; NameOfPostProcessing PostOptim_AdjointMethod;
+ { Name SolveAdjointSystem; NameOfPostProcessing AdjointFormulation;
    Operation{
      Print[ lambda, OnElementsOf Domain,
      	 File StrCat[ResDir, StrCat["lambda",ExtGmsh]], LastTimeStepOnly] ;
@@ -297,7 +250,7 @@ PostOperation {
   // --------------------------------------------------------------------------
   // Get Semi-analytic quantities
   // --------------------------------------------------------------------------
- { Name GetSemiAdjointSens; NameOfPostProcessing SemiAnalyticQuantitys;
+ { Name GetSemiAdjointSens; NameOfPostProcessing AdjointFormulation;
    Operation{
      Print[ lambda_K_A[Domain], OnGlobal, Format Table,
   	   File StrCat[ResDir, StrCat["lambda_K_A",ExtGnuplot]], LastTimeStepOnly,
@@ -310,7 +263,7 @@ PostOperation {
   // --------------------------------------------------------------------
   // Sensitivity (adjoint variable) with Lie approach 
   // --------------------------------------------------------------------
-  { Name Get_AvmVarDomSens_Lie0; NameOfPostProcessing AvmVarDomSens_lie;
+  { Name Get_AvmVarDomSens_Lie0; NameOfPostProcessing AdjointFormulation;
     Operation{
 //       Print[ dlambda_v, OnElementsOf Domain,
 //	      File StrCat[ResDir, StrCat["dlambda_v",ExtGmsh]], LastTimeStepOnly] ;
@@ -318,7 +271,7 @@ PostOperation {
 //	      File StrCat[ResDir, StrCat["du_v",ExtGmsh]], LastTimeStepOnly] ;
     }
   } 
-  { Name GetShapeOptAdjointSens; NameOfPostProcessing AvmVarDomSens_lie;
+  { Name GetShapeOptAdjointSens; NameOfPostProcessing AdjointFormulation;
     Operation{
        Print[ v, OnElementsOf Domain,
 	      File StrCat[ResDir, StrCat["velocity",ExtGmsh]], LastTimeStepOnly] ;
@@ -340,7 +293,7 @@ PostOperation {
   // --------------------------------------------------------------------------
   // Get Sensitivity
   // --------------------------------------------------------------------------
- { Name Get_AvmFixedDomSens;NameOfPostProcessing AvmFixedDomSens;
+ { Name GetTopOptAdjointSens; NameOfPostProcessing AdjointFormulation;
    Operation{
      Print[ Sensitivity_AdjointMethod, OnElementsOf DomainOpt,LastTimeStepOnly,
 	   File StrCat[ResDir, StrCat["SensPerfAvmFixedDom",ExtGmsh]]] ;
@@ -349,7 +302,7 @@ PostOperation {
 	   File StrCat[ResDir, StrCat["SensPerfAvmFixedDomNodes",ExtGmsh]]] ;
    }
  }
- { Name Get_SelfAvmFixedDomSens;NameOfPostProcessing SelfAvmFixedDomSens;//FIXME
+ { Name Get_SelfAvmFixedDomSens; NameOfPostProcessing AdjointFormulation;//FIXME
    Operation{
      Print[ Sensitivity_AdjointMethod, OnElementsOf DomainOpt,LastTimeStepOnly,
 	   File StrCat[ResDir, StrCat["SensPerfAvmFixedDom",ExtGmsh]]] ;

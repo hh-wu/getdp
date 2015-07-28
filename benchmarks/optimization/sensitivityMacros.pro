@@ -15,7 +15,7 @@ Macro SolvePrimalSystem
   EndIf 
   SaveSolution[A];
   PostOperation[Get_PrimalSystem_Func]; 
-  //PostOperation[Get_PrimalSystem]; 
+  PostOperation[Get_PrimalSystem]; 
 Return
 
 Macro SolveAdjointSystem
@@ -81,6 +81,7 @@ Macro GetShapeOptDirectSens
 Return
 
 /* sensitivity filtering macros */
+
 Macro FilterSens
   Printf["Filter derivative "];
   GmshRead[StrCat[ResDir,"Sensitivity_DesVar.pos"], SENS_FIELD]; 
