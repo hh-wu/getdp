@@ -1,14 +1,5 @@
 // Optimization problem specification
 
-// performance function type
-NO_PERF = 0;
-BFIELD_ERROR = 1;
-TORQUE_VAR = 2;
-IRON_LOSSES = 3;
-COMPLIANCE = 4;
-VOLUME = 5;
-TORQUE = 6;
-
 // postpro views tag
 TORQUE_VAR_FIELD = 20;
 VELOCITY_FIELD = 7;//pour que ça marche avec -gmshread il faut mettre à 0
@@ -62,20 +53,19 @@ DefineConstant[
     Name "Sensitivity/Parameter to perturb", Visible (Flag_opt == 1) }
 
   // sensitivity analysis 
-  Flag_PerfType = {TORQUE, 
+  Flag_PerfType = {"None", 
     Choices {
-      NO_PERF="No performance function",  
-      BFIELD_ERROR="air gap B field error",
-      TORQUE_VAR="torque variance",
-      IRON_LOSSES="losses",
-      COMPLIANCE="compliance",
-      TORQUE="torque"
+      "None",  
+      "BradialErrorInt",
+      "TorqueVariance",
+      "IronLoss",
+      "Compliance",
+      "Torque"
     },
-   Name "Input/OptParam/PerfType",Label "performance function type", Visible 1},
+    Name StrCat[pInOpt,"PerfType"],Label "performance function type", Visible 1},
 
   Tnom = {90.0, 
-    Name "Input/OptParam/TorqueNominal", Label "Nominal desired torque",
-    Visible (Flag_PerfType==TORQUE_VAR)},
+    Name "Input/OptParam/TorqueNominal", Label "Nominal desired torque"},
 
   regionVar = {0, Name "Input/OptParam/regionVar",
                   Label "Region of design variables", 

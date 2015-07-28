@@ -237,16 +237,11 @@ If(Flag_opt)
     EndIf  
 
     // specified by user !!!
-    DomainFunc = Region[{}];
-    If(Flag_PerfType == COMPLIANCE 
-       || Flag_PerfType == TORQUE
-       || Flag_PerfType == TORQUE_VAR
-       || Flag_PerfType == BFIELD_ERROR)
-      DomainFunc = Region[{Rotor_Airgap}];    
-    EndIf 
+    DomainFunc = Region[{Rotor_Airgap}];    
   }
 
   Function {
+    DefineFunction[dFdb,dF_adjoint_lie];
     // Functions used for optimization
     // Target B in air-gap
     Btarget[] = Sqrt[2]*0.502*Sin[(AngularPosition[]-RotorPosition[]
@@ -269,12 +264,12 @@ If(Flag_opt)
     LV2[] = TTrace [ dV[]#1 ] * $1 - Transpose [ #1 ] * $1 ;
     LV3[] = Transpose [ dV[]#1 ] - TTrace [ #1 ] * TensorDiag[1,1,1];
   
-    If(Flag_PerfType == COMPLIANCE)
+    If(!StrCmp[Flag_PerfType,"Compliance"])
       Func[] = nu[$1] * SquNorm[$1]; //F = nu*B^2, alpha=nu*{d a},beta={d a} 
       dFdb[] = 2. * nu[$1] * $1; //dF/db = 2*nu*B
       dF_adjoint_lie[] = nu[$1#2] * #2 * ( ETA[] * #2 ) ;//fixme #1 != #2 !!!
     EndIf
-    If(Flag_PerfType == TORQUE)
+    If(!StrCmp[Flag_PerfType,"Torque"])
       Func[] = nu[$1]*torqueCoeff[]*( $1*er[] )*( $1*et[] );
       dFdb[] = nu[$1]*torqueCoeff[]*(er[]*($1*et[]) + et[]*($1*er[]));
       d_torqueCoeff[] = (er[]*velocityField[])*2*Pi*AxialLength/SurfaceArea[];
@@ -290,37 +285,22 @@ If(Flag_opt)
 		      + ((#3*#3) - (#4*#4))*(velocityField[]*et[])/Norm[XYZ[]]
                       -( #2 * er[] ) * ( #2 * et[] ) * TTrace [#1]);  
     EndIf
-    If(Flag_PerfType == TORQUE_VAR)
+    If(!StrCmp[Flag_PerfType,"TorqueVariance"])
       Func[] = (nu[$1]*torqueCoeff[]*( $1*er[] )*( $1*et[] ))/Ttarget[] - 1.0; 
       dFdb[] = 2.0 * torqueVar[] * nu[$1] * torqueCoeff[] / Ttarget[]*
             ( et[] * ( $1 * er[] )   +  er[] * ( $1 * et[] ) );
 //    dFdb[] = 2.0 * Func[$1] * nu[$1] * torqueCoeff[] / Ttarget[]*
 //            ( et[] * ( $1 * er[] )   +  er[] * ( $1 * et[] ) );
-
     EndIf
-    If(Flag_PerfType == BFIELD_ERROR)
+    If(!StrCmp[Flag_PerfType,"BradialErrorInt"])
       Func[] = nu[$1] * SquNorm[$1]; 
       dFdb[] = 2.0 * BradCoeff[] * ( $1 * er[] - Btarget[] ) * er[];
     EndIf
 
     dF_direct_lie[] = dFdb[$1#1]*$2 + dF_adjoint_lie[#1];
-
-
-  // derivative of linear load
-//  d_M_lie[] = nu[$1]*br[] * (Transpose [ dV[] ]   * $2) 
-//             + nu[$1] * br_mag[]*(et[]*velocityField[])*(et[]*$2)/Norm[XYZ[]]; 
-
-//ok
-//  d_M_lie[] = nu[$1] * br[] * (Transpose [ dV[] ] * $2) 
-//            + nu[$1] * br_mag[] * (dot_er[]*$2); 
-  //d_M_lie[] = nu[$1] * br[] * ( ETA[] * $2 ) ; 
-//  d_J_lie[] = LV2[js[]]* $1;//-( LV3[] * js[] ) * $1 ;
-
-  // derivative of bilinear form
-//  d_bilin_lie[] = nu[$1] * $1 * ( ETA[] * $2 ) ; 
-//  d_bilin_lie_NL[] = $2 * (( dhdb_NL[$1] * LV3[] ) * $1);
   }
 
   Include "../optimization/sensitivity.pro"; 
+
 EndIf
 
