@@ -208,17 +208,12 @@ DefineConstant[
   P_ = {"", Name "GetDP/2PostOperationChoices", Visible 0}
 ];
 
-// physical problem formulation
-Include "machine_magstadyn_a.pro" ;
-
-// sensitivity analysis formulation
 If(Flag_opt)
   Group {
-    // TO domain
-    If(!Flag_topopt)
+    If(!StrCmp(Flag_optType,"shape"))
       DomainOpt = Region[{}];
     EndIf
-    If(Flag_topopt)
+    If(!StrCmp(Flag_optType,"topology"))
       If(regionVar == 0)
         DomainOpt = Region[{Rotor_Fe}];
         DomainOptFix = Region[{}];
@@ -239,6 +234,13 @@ If(Flag_opt)
     // specified by user !!!
     DomainFunc = Region[{Rotor_Airgap}];    
   }
+EndIf
+
+// physical problem formulation
+Include "machine_magstadyn_a.pro" ;
+
+// sensitivity analysis formulation
+If(Flag_opt)
 
   Function {
     DefineFunction[dFdb,dF_adjoint_lie];

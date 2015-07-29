@@ -2,38 +2,39 @@
 
 // postpro views tag
 TORQUE_VAR_FIELD = 20;
-VELOCITY_FIELD = 7;//pour que ça marche avec -gmshread il faut mettre à 0
-
-MAGSTADYN = 0;
-ELAST2D = 1;
+VELOCITY_FIELD = 7;
+STATE_FIELD = 8;
+ADJOINT_FIELD = 9;
+DES_VAR_FIELD = 21;
 
 DefineConstant[
   pInOpt = "Input/OptParam/",
 
   // Optimization 
   Flag_opt = {1,
-    Name StrCat[pInOpt,"opt"], Label "Optimization",
-    Choices {0,1}, Visible 1},
+    Name StrCat[pInOpt,"Optimization"],Choices {0,1}, Visible 1},
 
-  Flag_topopt = {0, 
-    Name StrCat[pInOpt,"optType"],Label "TopOpt?",
-    Choices {0,1}, Visible (Flag_opt == 1)},
+  Flag_optType = {"shape", 
+    Choices {
+      "shape",
+      "topology"
+    }, Name StrCat[pInOpt,"Optimization Type"], Visible (Flag_opt==1)},
 
-  Flag_SysType = {MAGSTADYN,
+  Flag_SysType = {"MagnetoStatic",
     Choices{
-      MAGSTADYN = "magnetostatic",
-      ELAST2D = "lin. elast."
-    },Name StrCat[pInOpt, "systemType"], Label "system type",Visible (Flag_opt == 1) },
+      "MagnetoStatic",
+      "LinearElast2D"
+    }, Name StrCat[pInOpt, "System Type"], Visible (Flag_opt == 1) },
 
   // Design variables -> FIXME: write in py toolkit!
   lm = {2.352*mm , 
-    Name StrCat[pInOpt,"x_0"], Visible (Flag_opt == 1), Closed 1},  
+    Name StrCat[pInOpt,"x_0"], Visible ( !StrCmp(Flag_optType, "shape") ), Closed 1},  
   Th_magnet = {32.67 *deg, 
-    Name StrCat[pInOpt,"x_1"], Visible (Flag_opt == 1), Closed 1},
+    Name StrCat[pInOpt,"x_1"], Visible ( !StrCmp(Flag_optType, "shape") ), Closed 1},
   AxialLength = {35*mm,
-    Name StrCat[pp,"Axial length [m]"],Visible (Flag_opt == 1),Closed 1},
+    Name StrCat[pp,"Axial length [m]"],Visible (!StrCmp(Flag_optType, "shape")),Closed 1},
   Gap = {(26.02-25.6)*mm,
-    Name StrCat[pp,"Airgap width [m]"],Visible (Flag_opt==1), Closed 1},
+    Name StrCat[pp,"Airgap width [m]"],Visible (!StrCmp(Flag_optType,"shape")), Closed 1},
 
   // Velocity field (Mesh perturbation)
   PerturbMesh = {0, Choices{0,1},
@@ -62,22 +63,27 @@ DefineConstant[
       "Compliance",
       "Torque"
     },
-    Name StrCat[pInOpt,"PerfType"],Label "performance function type", Visible 1},
+    Name StrCat[pInOpt,"Performance function"], Visible (Flag_opt == 1)},
 
-  Tnom = {90.0, 
-    Name "Input/OptParam/TorqueNominal", Label "Nominal desired torque"},
+  Tnom = {90.0, Name "Input/OptParam/TorqueNominal"},
 
   regionVar = {0, Name "Input/OptParam/regionVar",
                   Label "Region of design variables", 
                   Choices {0="Rotor Fe",1="Stator Fe",2="Rotor/Stator Fe"},
-                  Visible (Flag_topopt)},
+                  Visible (!StrCmp(Flag_optType, "topology"))},
 
-  Flag_InterpLaw = {0, Name "Input/OptParam/MaterialInterpLaw",
-                       Label "material interpolation law",
-                       Choices {0="SIMP",1="RAMP"},Visible (Flag_topopt)},
+  // Material law interpolation 
+  Flag_InterpLaw = {"simp", 
+    Choices {
+      "simp",
+      "ramp",
+      "h-s",
+      "polynomial"},	
+    Name StrCat[pInOpt,"Material Interpo. Law"],
+    Visible (!StrCmp(Flag_optType,"topology"))},
 
-  degree_SIMP = {3.0, Name "Input/OptParam/SimpPenalDegree",
-                      Label "Degree SIMP", Visible (Flag_topopt)}
+  degree_SIMP = {3.0, 
+    Name StrCat[pInOpt,"Simp Degree"],Visible (!StrCmp(Flag_optType,"topology"))}
 
 ] ;
 

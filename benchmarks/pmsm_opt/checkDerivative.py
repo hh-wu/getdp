@@ -27,14 +27,11 @@ parameters = {
     'PrintOpt':99,
     'fileName': 'pmsm',
     'AnalysisModelType':'FEM',
-    'OptType': 0, #0:'Shape', 1:'Topology'
     'analysisType': ['static'],
-    'NLsys': 0,
-    'NLcurve': 1,
-    'performance':[Compliance],#[Compliance],[Torque]
+    'performance':[Compliance],
     'allowCentralFD': 0,
     'rotorAngles': np.array([0.001]),#np.linspace(7.5,15.0,5)
-    'defautValue': {'TorqueNominal':90.0}}
+    'defautValue': {'OptType':'shape','NLsys':0,'NLcurve': 1,'TorqueNominal':90.0}}
 
 # ************************************************************************
 # **** Instantiate the sensitivity module                            *****

@@ -22,6 +22,6 @@ Hide { Line{ Line '*' }; }
 Show { Line{ nicepos_rotor[], nicepos_stator[] }; }
 
 // Velocity field for shape perturbation
-If(Flag_opt && !Flag_topopt)
+If(Flag_opt && !(StrCmp(Flag_optType,"shape")))
   Merge "../optimization/perturb.geo";
 EndIf

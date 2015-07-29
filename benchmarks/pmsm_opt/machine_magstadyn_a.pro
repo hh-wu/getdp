@@ -138,7 +138,7 @@ Function {
   RotateZ_desVar[] = Rotate[ XYZ[], 0, 0, -RotorPosition[] ] ; 
 
   If(!Flag_NL) //linear ferromagnetic material -> fixme !!!
-    If(!Flag_topopt) //shape opt 
+    If(!StrCmp(Flag_optType,"shape")) //shape opt 
       Printf["------- Lin Ferro -------"];
 //      nu[#{DomainFe}]  = 1 / (mur_fe * mu0) ;
 //      nu_prime[#{DomainFe}] = 0.;
@@ -146,7 +146,7 @@ Function {
       nu [#{ Stator_Fe, Rotor_Fe }]  = 1 / (mur_fe * mu0) ;
       nu_prime[#{Stator_Fe, Rotor_Fe }] = 0.;
     EndIf
-    If(Flag_topopt) //if shape opt or initialize topology opt
+    If(!StrCmp(Flag_optType,"topology")) 
       Printf["------- TO: Lin TO -------"];
       p = degree_SIMP; //penalty factor
       designVar[#{DomainOptMV}]  = ScalarField[RotateZ_desVar[],0,1]{DES_VAR_FIELD};
@@ -169,23 +169,23 @@ Function {
 
     EndIf
     If(Flag_NL_law_Type==1) //interpolated nu-law
-      If(!Flag_topopt)
+      If(!StrCmp(Flag_optType,"shape"))
         nu [#{DomainFe}] = nu_1[$1] ;
         dhdb_NL[#{DomainFe} ] = dhdb_1_NL[$1];
       EndIf
-      If(Flag_topopt)
+      If(!StrCmp(Flag_optType,"topology"))
         p = degree_SIMP;
         nu[#{DomainFe,-DomainOpt}] = nu_1[$1];
         dhdb_NL[#{DomainFe,-DomainOpt}] = dhdb_1_NL[$1]; //stator
         designVar[#{DomainOptMV}]=ScalarField[RotateZ_desVar[],0,1]{DES_VAR_FIELD};
         designVar[#{DomainOptFix}]=ScalarField[XYZ[],0,1]{DES_VAR_FIELD};  
-        If(Flag_InterpLaw == 0) // SIMP
+        If(!StrCmp(Flag_InterpLaw,"simp")) // SIMP
           Printf["Compute SIMP Nu map, Nltype=%g",Flag_NL_law_Type];
 	  nu[#{DomainOpt}] = nu0*(1.0 + (nu_1[$1]/nu0 - 1.0)*designVar[]^p);
           nu_prime[#{DomainOpt}] = p*nu0*(nu_1[$1]/nu0 - 1.0)*designVar[]^(p-1.0);
 	  dhdb_NL[#{DomainOpt}] = dhdb_1_NL[$1]*designVar[]^p; 
         EndIf
-        If(Flag_InterpLaw == 1) // RAMP
+        If(!StrCmp(Flag_InterpLaw,"ramp")) // SIMP
           Printf["Compute RAMP Nu map, Nltype=%g",Flag_NL_law_Type];	    
           nu[#{DomainOpt}]=(designVar[]/(1.0 + p*(1 - designVar[])))*nu_1[$1];
           nu_prime[#{DomainOpt}]=((1.0+p)/(1.0+p*(1-designVar[]))^2.0)*nu_1[$1];
