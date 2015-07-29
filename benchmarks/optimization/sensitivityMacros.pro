@@ -1,7 +1,7 @@
 /* System resolution macros */
 Macro SolvePrimalSystem
   Printf["Compute state variable"];
-  If(Flag_topopt)
+  If(!StrCmp(Flag_optType,"topology"))
     GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD]; 
   EndIf
   //SaveMesh[A,#{MB,Rotor_Airgap,Stator_Airgap},"mb.msh"];
@@ -21,7 +21,7 @@ Return
 Macro SolveAdjointSystem
   Printf["Compute adjoint variable"];
   ReadSolution[A]; //Load state variable 
-  If(Flag_topopt)
+  If(!StrCmp(Flag_optType,"topology"))
     GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD]; 
   EndIf
   GmshRead[StrCat[ResDir,"TorqueVarianceAllDom.pos"], TORQUE_VAR_FIELD];//FIXME
@@ -54,7 +54,7 @@ Macro GetShapeOptAdjointSens
   Printf["Compute derivative (adjoint, variable domain) --"];
   ReadSolution[A];ReadSolution[B];//A and lambda
   GmshRead[StrCat[ResDir,"velocity.pos"], VELOCITY_FIELD];
-  If(Flag_SysType == ELAST2D)
+  If(!StrCmp[Flag_SysType,"LinearElast2D"])
     GmshRead[StrCat[ResDir,"u.pos"], STATE_FIELD];
     GmshRead[StrCat[ResDir,"lambda.pos"], ADJOINT_FIELD];
   EndIf
@@ -64,7 +64,7 @@ Return
 Macro GetSemiAdjointSens
   Printf["Compute Semi-Analytic quantities (adjoint) --"];
   // grandeurs sauvées à la bonne position angulaire du rotor
-  If(Flag_topopt)
+  If(!StrCmp(Flag_optType,"topology"))
     GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD]; 
   EndIf
   ReadSolution[A];ReadSolution[B]; // load A and Lambda

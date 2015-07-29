@@ -187,7 +187,7 @@ PostOperation {
 //     Print[ Volume, OnElementsOf Domain,Format NodeTable, 
 //          File StrCat["res/ElementVolumeNodes",ExtGmsh], LastTimeStepOnly] ;
  
-     If(Flag_topopt)
+     If(!StrCmp(Flag_optType,"topology"))
        Print[ designVarPlot,  OnElementsOf DomainOpt,LastTimeStepOnly, 
             File StrCat[ResDir, StrCat["designVariablePlot",ExtGmsh]]];
      EndIf

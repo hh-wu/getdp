@@ -1,67 +1,45 @@
 // TODO: 
-// - add perturb.geo (automatic computation of velocity field)
 // - provide design variables with onelab parameter names instead of x_0, ...
 // - add verbosity level (show a , lambda, ... according to the value of the verbosity)
-
-// execution step
-NONE = 0;
-SEMI_AVM = 1;
-TOPOPT_AVM = 2;
-SHAPEOPT_AVM = 3;
-SHAPEOPT_DIR = 4;
-
-PRIMAL_SYSTEM = 1;
-ADJOINT_SYSTEM = 2;
-DIRECT_SYSTEM = 3;
-
-SENS_FILT = 1;
-VELOCITY_FILT = 2;
 
 // postpro views tag
 SENS_FIELD = 22;
 
-MAGSTADYN = 0;
-ELAST2D = 1;
-ELAST3D = 2;
 
 DefineConstant[
-  Flag_SysType = {MAGSTADYN,
+  Flag_SysType = {"LinearElast2D",
     Choices{
-      MAGSTADYN = "magnetostatic",
-      ELAST2D = "lin. elast."
-    },
-    Name StrCat[pInOpt, "systemType"], Label "system type" },
+      "MagnetoStatic",
+      "LinearElast2D"
+    }, Name StrCat[pInOpt, "System Type"]},
 
-  Flag_AnalysisMethod = {NONE,
+  Flag_AnalysisMethod = {"none",
     Choices{
-      NONE = "none",
-      PRIMAL_SYSTEM = "state variable",
-      ADJOINT_SYSTEM = "adjoint varibale",
-      DIRECT_SYSTEM = "direct derivative"
-    },
-    Name StrCat[pInOpt, "analysisMethod"], Label "analysis method" },
+      "none",
+      "state variable",
+      "adjoint variable",
+      "direct derivative"
+    }, Name StrCat[pInOpt, "Analysis Method"]},
   
-  Flag_SensitivityMethod = {NONE,
+  Flag_SensitivityMethod = {"none",
     Choices{
-      NONE="none",
-      SEMI_AVM="semi-analytic avm",
-      TOPOPT_AVM="topology opt. adjoint",
-      SHAPEOPT_AVM="shape opt. adjoint (Lie)",
-      SHAPEOPT_DIR="shape opt. direct (Lie)" 
-    },
-    Name StrCat[pInOpt, "sensMethod"], Label "derivative method" },
+      "none",
+      "semi-analytic avm",
+      "topology opt. adjoint",
+      "shape opt. adjoint (Lie)",
+      "shape opt. direct (Lie)" 
+    }, Name StrCat[pInOpt, "Derivative Method"]},
 
-  Flag_FilterMethod = {NONE,
+  Flag_FilterMethod = {"none",
     Choices{
-      NONE="none",
-      SENS_FILT="filter sensitivity",
-      VELOCITY_FILT="filter velocity"
-    },
-    Name StrCat[pInOpt, "Filter"], Label "filter" },
+      "none",
+      "filter sensitivity",
+      "filter velocity"
+    }, Name StrCat[pInOpt, "Filter"]},
 
   Rmin = {0.001*10, 
-    Name "Input/OptParam/RadiusSensFilter",Label "Sensitivity Filter Radius", 
-    Visible (Flag_FilterMethod==SENS_FILT)},
+    Name StrCat[pInOpt,"Filter Radius"], 
+    Visible (!StrCmp[Flag_FilterMethod,"filter sensitivity"])},
 
   Flag_NL = 0
 ];
@@ -75,13 +53,11 @@ Group {
 
 
 Function {
-  DefineFunction[ 
-    br_mag
-  ];
+  DefineFunction[ br_mag];
   // FIXME: where to write eta,lv1, ... ?  (here)
    
   // derivative of bilinear form and linear load 
-  If(Flag_SysType == MAGSTADYN)
+  If(!StrCmp[Flag_SysType,"MagnetoStatic"])
     dot_er[] = (et[] * velocityField[])/Norm[XYZ[]] * et[];
     d_bilin_lie[] = nu[$1] * $1 * ( ETA[] * $2 ) ; 
     d_bilin_lie_NL[] = $2 * (( dhdb_NL[$1] * LV3[] ) * $1);
@@ -89,25 +65,25 @@ Function {
               + nu[$1] * br_mag[] * (dot_er[]*$2); 
     d_J_lie[] = LV2[js[]]* $1;//-( LV3[] * js[] ) * $1 ;
   EndIf
-  If(Flag_SysType == ELAST2D)
+  If(!StrCmp[Flag_SysType,"LinearElast2D"])
     d_bilin_lie[] = -( C[] * d_e_u[] ) * $2 
                     -( C[] * $1 ) * d_e_lam[] 
                     +( (C[] * $1) * $2 ) * TTrace[dV[]];
   EndIf
 
   // filter sensitivity (topology optimization)
-  If(Flag_SysType == MAGSTADYN)
+  If(!StrCmp[Flag_SysType,"MagnetoStatic"])
     prod_x_dC[#{DomainOptMV}] = ScalarField[RotateZ_desVar[],0,1]{SENS_FIELD};
     prod_x_dC[#{DomainOptFix}] = ScalarField[XYZ[],0,1]{SENS_FIELD};
   EndIf
-  If(Flag_SysType != MAGSTADYN)
+  If(StrCmp[Flag_SysType,"MagnetoStatic"])  
     prod_x_dC[#{DomainOpt}] = ScalarField[XYZ[],0,1]{SENS_FIELD};
   EndIf
 }
 
 FunctionSpace {
   // Direct method SA: derivative of state variable
-  If(Flag_SysType == MAGSTADYN)
+  If(!StrCmp[Flag_SysType,"MagnetoStatic"])
     { Name H_dState ; Type Form1P ;
       BasisFunction {
         { Name se1 ; NameOfCoef ae1 ; Function BF_PerpendicularEdge ;
@@ -126,7 +102,7 @@ FunctionSpace {
       }
     }
   EndIf
-  If(Flag_SysType == ELAST2D)
+  If(!StrCmp[Flag_SysType,"LinearElast2D"])
     { Name H_dState ; Type Vector ; 
       BasisFunction {
         { Name sxn ; NameOfCoef uxn ; Function BF_NodeX ; 
@@ -150,7 +126,7 @@ FunctionSpace {
   EndIf
 
   // Adjoint method SA: adjoint variable
-  If(Flag_SysType == MAGSTADYN)
+  If(!StrCmp[Flag_SysType,"MagnetoStatic"])
     { Name H_lambda ; Type Form1P ; // adjoint variable
       BasisFunction {
         { Name se1 ; NameOfCoef ae1 ; Function BF_PerpendicularEdge ;
@@ -169,7 +145,7 @@ FunctionSpace {
       }
     }
   EndIf
-  If(Flag_SysType == ELAST2D)
+  If(!StrCmp[Flag_SysType,"LinearElast2D"])
     { Name H_lambda; Type Vector ; // adjoint variable
       BasisFunction {
         { Name sxn ; NameOfCoef lambdaxn ; Function BF_NodeX ; 
@@ -209,7 +185,7 @@ Formulation {
   // Compute the derivative of the state variable for each design variable
   // design variable:tau -> Velocity
   // Apply this method if the nb. of design function >>> nb. of design variables 
-  If(Flag_SysType == MAGSTADYN)
+  If(!StrCmp[Flag_SysType,"MagnetoStatic"])
     { Name DirectFormulation ; Type FemEquation ;
       Quantity {
         { Name a ; Type Local  ; NameOfSpace Hcurl_a_2D ; }
@@ -244,7 +220,7 @@ Formulation {
       }
     }
   EndIf
-  If(Flag_SysType == ELAST2D)
+  If(!StrCmp[Flag_SysType,"LinearElast2D"])
     { Name DirectFormulation ; Type FemEquation ;
       Quantity {
         { Name u ; Type Local  ; NameOfSpace H_Mec2D_u ; }
@@ -269,7 +245,7 @@ Formulation {
  //-----------------------------------------------------------------
  // Compute the adjoint variable for a given design function
  // Apply this method if the nb. of design function <<< nb. of design variables 
- If(Flag_SysType == MAGSTADYN)
+ If(!StrCmp[Flag_SysType,"MagnetoStatic"])
    { Name AdjointFormulation ; Type FemEquation ;
      Quantity {
        { Name a ; Type Local  ; NameOfSpace Hcurl_a_2D ; }
@@ -291,8 +267,8 @@ Formulation {
          In DomainFunc ; Jacobian Vol ; Integration I1 ; }
       }
    }
-   EndIf
- If(Flag_SysType == ELAST2D)
+ EndIf
+ If(!StrCmp[Flag_SysType,"LinearElast2D"])
    { Name AdjointFormulation ; Type FemEquation ;
      Quantity {
        { Name u  ; Type Local  ; NameOfSpace H_Mec2D_u; }
@@ -347,53 +323,53 @@ Resolution {
       // create result directory
       CreateDir[ResDir];
 
-      If(Flag_SysType == MAGSTADYN)
+      If(!StrCmp[Flag_SysType,"MagnetoStatic"])
         ChangeOfCoordinates[ NodesOf[Rotor_Moving], RotatePZ[RotorPosition[] ]];
         InitMovingBand2D[MB];
         MeshMovingBand2D[MB];
       EndIf
       
       // compute state varible, adjoint variable or derivative of state varibale
-      If(Flag_AnalysisMethod == PRIMAL_SYSTEM) // state variable
+      If(!StrCmp[Flag_AnalysisMethod,"state variable"]) // state variable
         Call SolvePrimalSystem;
       EndIf
-      If(Flag_AnalysisMethod == ADJOINT_SYSTEM) // adjoint variable
+      If(!StrCmp[Flag_AnalysisMethod,"adjoint variable"]) // adjoint variable
         Call SolveAdjointSystem; 
       EndIf
-      If(Flag_AnalysisMethod == DIRECT_SYSTEM) // direct derivative of state variable
+      If(!StrCmp[Flag_AnalysisMethod,"direct derivative"]) // direct derivative of state
         Call SolveDirectSystem;
       EndIf
 
       // Sensitivity analysis method
-      If(Flag_SensitivityMethod == TOPOPT_AVM) 
+      If(!StrCmp[Flag_SensitivityMethod,"topology opt. adjoint"]) 
         Call GetTopOptAdjointSens;
       EndIf
-      If(Flag_SensitivityMethod == SHAPEOPT_AVM) 
+      If(!StrCmp[Flag_SensitivityMethod,"shape opt. adjoint (Lie)"]) 
         Call GetShapeOptAdjointSens;
       EndIf
-      If(Flag_SensitivityMethod == SHAPEOPT_DIR) 
+      If(!StrCmp[Flag_SensitivityMethod,"shape opt. direct (Lie)"]) 
         Call GetShapeOptDirectSens;
       EndIf
-      If(Flag_SensitivityMethod == SEMI_AVM) 
+      If(!StrCmp[Flag_SensitivityMethod,"semi-analytic avm"])
         Call GetSemiAdjointSens;
       EndIf
 
       // Sensitivity analysis filtering method
-      If(Flag_FilterMethod == SENS_FILT) // Filter sensitivity (only if TO)
+      If(!StrCmp[Flag_FilterMethod,"filter sensitivity"]) // Filter sensitivity (TO)
         Call FilterSens;
       EndIf
  
-     If(Flag_SysType == MAGSTADYN)
+     If(!StrCmp[Flag_SysType,"MagnetoStatic"])
        ChangeOfCoordinates[ NodesOf[Rotor_Moving], RotatePZ[-RotorPosition[] ]];
      EndIf
     }
   }
 }
 
-If(Flag_SysType == MAGSTADYN)
+If(!StrCmp[Flag_SysType,"MagnetoStatic"])
   Include "optim_post_magsta.pro" ;
 EndIf
-If(Flag_SysType == ELAST2D)
+If(!StrCmp[Flag_SysType,"LinearElast2D"])
   Include "optim_post_elast.pro" ;
 EndIf
 
