@@ -27,9 +27,9 @@ parameters = {
     'fileName':'beam',
     'AnalysisModelType':'FEM',
     'nbEigRigid':0,
-    'OptType':1, #0:'Shape',1:'Topology'
-    'defautValue':{'MaterialInterpLaw':3,'SimpDegree':3.0,
-                   'RecombineSurf':1,'lc':3.0},
+    'defautValue':{
+      'OptType':'topology','MaterialInterpLaw':'simp','SimpDegree':3.0,
+      'RecombineSurf':1,'lc':3.0},
     # Design variables
     'VolFrac':0.5,
     'elementOfDomainTopOptTAG':[1000],

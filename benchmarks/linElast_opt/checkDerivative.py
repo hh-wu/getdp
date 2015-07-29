@@ -27,9 +27,8 @@ parameters = {
     'PrintOpt':99,
     'fileName': 'beam',
     'AnalysisModelType':'FEM',
-    'OptType': 0, #0:'Shape', 1:'Topology'
     'analysisType': ['static'],
-    'NLsys': 0,
+    'defautValue':{'OptType':'shape'},
     'performance':[Compliance],
     'allowCentralFD': 1}
 

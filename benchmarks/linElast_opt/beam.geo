@@ -99,7 +99,7 @@ If(Flag_meshRecombine==1.0)
 EndIf
 
 // Velocity field for shape perturbation
-If(Flag_opt && !Flag_topopt)
+If(Flag_opt && !StrCmp(Flag_optType,"shape"))
   Merge "../optimization/perturb.geo";
 EndIf
 

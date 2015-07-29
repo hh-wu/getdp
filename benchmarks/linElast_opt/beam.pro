@@ -15,17 +15,18 @@ Include "elasticity_2D.pro";
 
 // sensitivity analysis formulation
 If(Flag_opt)
-  // - Specify performance function (formula, domain)
-  // - Domain of optimization (global structure -> input)
+  // - Specify performance function (formula, domain) in input file
+  // - Domain of optimization (global structure -> input) in input file
 
   Group {
-    // TO domain
+    // TO and function domain
     DomainOpt = Region[{Domain}];
     DomainFunc = Region[{BLOC}];    
   }
 
   Function {  
     DefineFunction[dFdb,dF_adjoint_lie];
+
     sigma[] = C[]*$1; //[sigma_11,sigma_22,sigma_12]
     sigmaVM[]=(CompX[sigma[$1]#2]^2.0-CompX[#2]*CompY[#2]
               + CompY[#2]^2.0 + 3.0*CompZ[#2])^1.0;//vm^2

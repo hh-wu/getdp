@@ -47,7 +47,7 @@ Function {
   ];
   E0 = young;//210e09,//(Acier) N/m2
   nu0 = nu_Poisson;
-  If(!Flag_topopt) //shape optimization
+  If(!StrCmp(Flag_optType,"shape")) //shape optimization
     E[Bloc] = E0;
     rho_mec[Bloc] = rh;
     If(Flag_squhole)
@@ -56,13 +56,13 @@ Function {
     EndIf
     C[]  = (E[]/(1-nu0^2))*TensorSym[ 1.0, nu0, 0, 1.0, 0, 0.5*(1-nu0) ];
   EndIf
-  If(Flag_topopt) // law for E,nu,rho
+  If(!StrCmp(Flag_optType,"topology")) // law for E,nu,rho
      designVar[] = ScalarField[XYZ[],0,1]{DES_VAR_FIELD};
      rho_mec[] = rh*designVar[]; // vol. mas
      d_rho_mec[] = rh; // vol. mas
      //rho_mec[] = (designVar[] > 0.1)? rh*designVar[] : rh*designVar[]^6.0 ; // vol. mas
      //d_rho_mec[] = (designVar[] > 0.1)? rh : 6.0*rh*designVar[]^5.0; 
-     If(Flag_InterpLaw == 0.0) //SIMP
+     If(!StrCmp(Flag_InterpLaw,"simp")) //SIMP
        Printf["-- Simp law --"];
        //E0_min = 1.0e-06;
        //E[] = (E0 - E0_min)*designVar[]^degree_SIMP + E0_min;
@@ -70,30 +70,30 @@ Function {
        E[] = E0 * designVar[] ^ degree_SIMP;
        E_prime[] = degree_SIMP * E0 * designVar[] ^ (degree_SIMP - 1.0);
      EndIf
-     If(Flag_InterpLaw == 1.0) // RAMP
+     If(!StrCmp(Flag_InterpLaw,"ramp")) // RAMP
        E[] = ( designVar[]#1/(1.0 + degree_SIMP*(1 - #1)) )*E0 ;
        E_prime[] = ( (1.0 + degree_SIMP)/( 1.0 + degree_SIMP*(1-designVar[]) )^2.0 )*E0;
      EndIf
-     If(Flag_InterpLaw == 2.0) // Hashin-Shtrikman (H-S)
+     If(!StrCmp(Flag_InterpLaw,"h-s")) // Hashin-Shtrikman (H-S)
        E[] = ( designVar[]#1/(3.0 - 2.0*#1) )*E0 ;
        E_prime[] = 3.0*E0/(3.0 - 2.0*designVar[])^2.0;
        nu[] = (1.0-designVar[]#1*(1.0-nu0))/(3.0-2.0*#1);
        nu_prime[] = -(1.0-nu0)/(3.0-2.0*designVar[])^2.0; 
      EndIf
-     If(Flag_InterpLaw == 3.0) // poynomial
+     If(!StrCmp(Flag_InterpLaw,"polynomial")) // poynomial
        alpha = 16.0;
        E[] = ((( alpha - 1.0 )/alpha) * designVar[]#1^degree_SIMP + #1/alpha)*E0;
        E_prime[] = (degree_SIMP*((alpha-1.0)/alpha)*designVar[]^(degree_SIMP-1.0)
                     + 1.0/alpha)*E0;
      EndIf
   EndIf
-  If(Flag_topopt == 1.0 && Flag_InterpLaw != 2.0) //topology (E(x)) 
+  If(!StrCmp(Flag_optType,"topology") && StrCmp(Flag_InterpLaw,"h-s")) //(E(x),nu) 
     f[]  = E[]/(1-nu0*nu0);
     f_prime[]  = E_prime[]*(1-nu0*nu0);
     C[ Bloc ]  = f[]*TensorSym[ 1.0, nu0, 0, 1.0, 0, 0.5*(1-nu0) ];
     C_prime[ Bloc ]  = f_prime[]*TensorSym[ 1.0, nu0, 0, 1.0, 0, 0.5*(1-nu0) ];
   EndIf
-  If(Flag_topopt == 1.0 && Flag_InterpLaw == 2.0) //topology (E(x),nu(x))
+  If(!StrCmp(Flag_optType,"topology") && !StrCmp(Flag_InterpLaw,"h-s")) //(E(x),nu(x))
     f[]  = E[]/(1-nu[]*nu[]);
     f_prime[]  = (E_prime[]*(1-nu[]*nu[]) + 2.0*E[]*nu[]*nu_prime[])/(1-nu[]*nu[])^2.0;
     C[ Bloc ]  = f[]*TensorSym[ 1.0, nu[], 0, 1.0, 0, 0.5*(1-nu[]) ];
@@ -101,7 +101,7 @@ Function {
                        +f[]*TensorSym[ 1.0, nu_prime[], 0, 1.0, 0, -0.5*nu_prime[] ];
   EndIf
 
-  If(Flag_topopt)
+  If(!StrCmp(Flag_optType,"topology"))
     //normalizing factor: $1:{u}
     norm_eig[] = $1*(rho_mec[]*$1);
     //derivative of eigenvalue: $1:{D1 u}, $2:{u}

@@ -8,7 +8,7 @@ DefineConstant[
   ExtGnuplot = ".dat",
   modelpath = CurrentDir, 
   ResDir = StrCat[ modelpath, "res/" ],
-  Flag_squhole = {1, Name "Geo/Hole",Choices {0,1},Visible 1},
+  Flag_squhole = {0, Name "Geo/Hole",Choices {0,1},Visible 1},
   transfiniteMesh = {0, Name "Geo/transfinite Mesh",Choices {0,1},Visible (Flag_squhole)},
   nbElemPerLineHor = {40, Name "Geo/Nb of Nodes/Line",Visible (transfiniteMesh==1)},
   nbElemPerLineVert2 = {10,Name "Geo/Nb of Nod/Line Trans",Visible (transfiniteMesh==1)},
