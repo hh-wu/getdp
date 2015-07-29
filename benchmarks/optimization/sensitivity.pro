@@ -53,11 +53,11 @@ Group {
 
 
 Function {
-  DefineFunction[ br_mag];
+  DefineFunction[ br_mag,dhdb_NL,ETA,LV1,LV2,LV3,js ];
   // FIXME: where to write eta,lv1, ... ?  (here)
    
   // derivative of bilinear form and linear load 
-  If(!StrCmp[Flag_SysType,"MagnetoStatic"])
+  If(!StrCmp[Flag_SysType,"MagnetoStatic"] || !StrCmp[Flag_SysType,"MagnetoStatic3D"])
     dot_er[] = (et[] * velocityField[])/Norm[XYZ[]] * et[];
     d_bilin_lie[] = nu[$1] * $1 * ( ETA[] * $2 ) ; 
     d_bilin_lie_NL[] = $2 * (( dhdb_NL[$1] * LV3[] ) * $1);
@@ -102,6 +102,25 @@ FunctionSpace {
       }
     }
   EndIf
+  If(!StrCmp[Flag_SysType,"MagnetoStatic3D"])
+    { Name H_dState ; Type Form1;
+      BasisFunction {
+        { Name se;NameOfCoef ae;Function BF_Edge; Support Domain;Entity EdgesOf[ All ]; }
+          If (Flag_Degree)
+            { Name se2 ; NameOfCoef ae2 ; Function BF_PerpendicularEdge_2E ; 
+              Support Domain; Entity EdgesOf [All];}
+          EndIf
+      }
+      Constraint {
+        { NameOfCoef ae;  EntityType EdgesOf ; NameOfConstraint a; }
+        { NameOfCoef ae;  EntityType EdgesOfTreeIn ; EntitySubType StartingOn ;
+          NameOfConstraint GaugeCondition_a ; }
+          If (Flag_Degree)
+            { NameOfCoef ae2 ; EntityType EdgesOf ; NameOfConstraint a ; }
+          EndIf
+      }
+    }
+  EndIf
   If(!StrCmp[Flag_SysType,"LinearElast2D"])
     { Name H_dState ; Type Vector ; 
       BasisFunction {
@@ -142,6 +161,25 @@ FunctionSpace {
         If (Flag_Degree)
           { NameOfCoef ae2 ; EntityType EdgesOf ; NameOfConstraint MVP_2D ; }
         EndIf
+      }
+    }
+  EndIf
+  If(!StrCmp[Flag_SysType,"MagnetoStatic3D"])
+    { Name H_lambda; Type Form1 ; // adjoint variable
+      BasisFunction {
+        { Name se;NameOfCoef ae;Function BF_Edge;Support Domain;Entity EdgesOf[ All ]; }
+        If (Flag_Degree)
+          { Name se2 ; NameOfCoef ae2 ; Function BF_PerpendicularEdge_2E ; 
+            Support Domain; Entity EdgesOf [All];}
+        EndIf
+      }
+      Constraint {
+        { NameOfCoef ae;  EntityType EdgesOf ; NameOfConstraint a; }
+        { NameOfCoef ae;  EntityType EdgesOfTreeIn ; EntitySubType StartingOn ;
+          NameOfConstraint GaugeCondition_a ; }
+          If (Flag_Degree)
+           { NameOfCoef ae2 ; EntityType EdgesOf ; NameOfConstraint a ; }
+          EndIf
       }
     }
   EndIf
@@ -220,6 +258,34 @@ Formulation {
       }
     }
   EndIf
+  If(!StrCmp[Flag_SysType,"MagnetoStatic3D"])
+    { Name DirectFormulation ; Type FemEquation ;
+      Quantity {
+        { Name a  ; Type Local  ; NameOfSpace Hcurl_a ; }
+        For i In {1:NumMagnets}
+          { Name un~{i} ; Type Local ; NameOfSpace Magnet~{i} ; }
+        EndFor
+        { Name d_a ; Type Local  ; NameOfSpace H_dState ; }
+      }
+      Equation {
+        // bilinear(Lambda,Lambda')
+        Galerkin { [ nu[] * Dof{d d_a} , {d d_a} ] ;
+          In Domain ; Jacobian Vol ; Integration I1 ; }
+
+        For i In {1:NumMagnets} // dummy term to define dofs for fully fixed space
+          Galerkin { [ 0 * Dof{un~{i}} , {un~{i}} ] ;
+            In Domain ; Jacobian Vol ; Integration I1 ; }
+        EndFor
+
+        // pseudo-load -> depend on design variable (velocity)
+        Galerkin { [ nu[ {d a} ] * {d a}, ETA[]*{d d_a} ] ; //fixme: sign
+          In Domain ; Jacobian Vol ; Integration I1 ; }
+
+        Galerkin { [ nu[ {d a} ] * LV1[ br[] ], {d d_a} ] ;
+          In DomainM ; Jacobian Vol ; Integration I1 ; }
+      }
+    }
+  EndIf
   If(!StrCmp[Flag_SysType,"LinearElast2D"])
     { Name DirectFormulation ; Type FemEquation ;
       Quantity {
@@ -266,6 +332,30 @@ Formulation {
        Galerkin { [ -dFdb[{d a}], {d lambda}] ;
          In DomainFunc ; Jacobian Vol ; Integration I1 ; }
       }
+   }
+ EndIf
+ If(!StrCmp[Flag_SysType,"MagnetoStatic3D"])
+   { Name AdjointFormulation ; Type FemEquation ;
+     Quantity {
+       { Name a  ; Type Local  ; NameOfSpace Hcurl_a ; }
+         For i In {1:NumMagnets}
+           { Name un~{i} ; Type Local ; NameOfSpace Magnet~{i} ; }
+         EndFor
+       { Name lambda ; Type Local  ; NameOfSpace H_lambda ; }
+     }
+     Equation {
+       Galerkin { [ nu[]* Dof{d lambda}  , {d lambda} ] ;
+         In Domain ; Jacobian Vol ; Integration I1 ; }
+
+       For i In {1:NumMagnets} // dummy term to define dofs for fully fixed space
+         Galerkin { [ 0 * Dof{un~{i}} , {un~{i}} ] ;
+           In Domain ; Jacobian JVol ; Integration I1 ; }
+       EndFor
+
+       // adjoint load
+       Galerkin { [ -dFdb[{d a}], {d lambda} ] ;
+         In DomainFunc ; Jacobian Vol ; Integration I1 ; }
+     }
    }
  EndIf
  If(!StrCmp[Flag_SysType,"LinearElast2D"])
@@ -368,6 +458,9 @@ Resolution {
 
 If(!StrCmp[Flag_SysType,"MagnetoStatic"])
   Include "optim_post_magsta.pro" ;
+EndIf
+If(!StrCmp[Flag_SysType,"MagnetoStatic3D"])
+  Include "optim_post_magsta3D.pro" ;
 EndIf
 If(!StrCmp[Flag_SysType,"LinearElast2D"])
   Include "optim_post_elast.pro" ;
