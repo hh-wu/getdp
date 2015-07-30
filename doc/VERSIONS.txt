@@ -1,4 +1,4 @@
-2.6.1: enhanced Print[] command.
+2.6.1: enhanced Print[] command; minor fixes.
 
 2.6.0: new ability to define and use Macros in .pro files; new run-time
 variables (act as registers, but with user-defined names starting with '$')

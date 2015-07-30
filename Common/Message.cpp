@@ -138,9 +138,11 @@ void Message::Initialize(int argc, char **argv)
 void Message::Finalize()
 {
 #if defined(HAVE_PETSC)
-  int flag;
-  MPI_Initialized(&flag);
-  if(flag) MPI_Finalize();
+  int initialized, finalized;
+  MPI_Initialized(&initialized);
+  MPI_Finalized(&finalized);
+  if(initialized && !finalized)
+    MPI_Finalize();
 #endif
   FinalizeSocket();
   FinalizeOnelab();
