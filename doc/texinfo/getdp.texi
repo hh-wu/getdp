@@ -136,6 +136,7 @@ dimensions. This is the @cite{GetDP Reference Manual} for GetDP
 * Metasyntactic variable index::  Index of metasyntactic variables used in this manual.
 * Syntax index::                Index of reserved keywords in the GetDP language.
 
+@ifnothtml
 @detailmenu
  --- The Detailed Node Listing ---
 
@@ -274,6 +275,7 @@ Frequently asked questions
 * Usage::
 
 @end detailmenu
+@end ifnothtml
 @end menu
 
 @c =========================================================================
