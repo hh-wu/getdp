@@ -6962,6 +6962,16 @@ Loop :
       skipUntil(NULL, "Return");
       Free($2);
     }
+
+  | tMacro '[' String__Index ']'
+    {
+      // FIXME: Other syntax because error (incorrect file position) without [ ]... How to do without?
+      if(!MacroManager::Instance()->createMacro
+         (std::string($3), getdp_yyin, getdp_yyname, getdp_yylinenum + 1))
+        vyyerror("Redefinition of macro '%s'", $3);
+      skipUntil(NULL, "Return");
+      Free($3);
+    }
   | tReturn
     {
       if(!MacroManager::Instance()->leaveMacro
@@ -8169,6 +8179,10 @@ String__Index :
 
   | StringIndex
     { $$ = $1; }
+
+  // Name from any string
+  | '$' CharExprNoVar
+    { $$ = $2; }
 
  ;
 
