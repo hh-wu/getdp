@@ -6975,7 +6975,7 @@ Loop :
          (&getdp_yyin, getdp_yyname, getdp_yylinenum))
 	vyyerror("Error while exiting macro");
     }
-  | tCall tSTRING tEND
+  | tCall String__Index tEND
     {
       if(!MacroManager::Instance()->enterMacro
          (std::string($2), &getdp_yyin, getdp_yyname, getdp_yylinenum))
@@ -8183,7 +8183,7 @@ String__Index :
     { $$ = $1; }
 
   // Name from any string
-  | tNameFromString '[' CharExprNoVar ']'
+  | tNameFromString '[' CharExpr ']'
     { $$ = $3; }
 
  ;
@@ -8192,7 +8192,7 @@ CharExprNoVar :
     tBIGSTR
     { $$ = $1; }
 
-  | tStringFromName '[' tSTRING ']'
+  | tStringFromName '[' String__Index ']'
     { $$ = $3; }
 
   | StrCat
