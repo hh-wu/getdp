@@ -1802,7 +1802,7 @@ Macros are defined as follows:
 
 @ftable @code
 
-@item Macro @var{string}
+@item Macro @var{string} | @var{expression-char}
 Begins the declaration of a user-defined macro named @var{string}. The
 body of the macro starts on the line after `@code{Macro
 @var{string}}', and can contain any GetDP command.
@@ -1824,7 +1824,7 @@ PostQuantities) and PostOperation (as well as in the operation list).
 
 @ftable @code
 
-@item Call @var{string};
+@item Call @var{string}  | @var{expression-char};
 Executes the body of a (previously defined) macro named @var{string}.
 
 @item For ( @var{expression-cst} : @var{expression-cst} )
