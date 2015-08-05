@@ -360,7 +360,7 @@ StoreMinZinRegister          return tStoreMinZinRegister;
 Str                          return tStr;
 StrCat                       return tStrCat;
 StrChoice                    return tStrChoice;
-StrCmp                       return tStrCmp ;
+StrCmp                       return tStrCmp;
 StringFromName               return tStringFromName;
 SubFunction                  return tSubFunction;
 SubRegion                    return tSubRegion;
@@ -397,6 +397,7 @@ Type                         return tType;
 UndefineConstant             return tUndefineConstant;
 Update                       return tUpdate;
 UpdateConstraint             return tUpdateConstraint;
+UpperCase                    return tUpperCase;
 UsingPost                    return tUsingPost;
 
 Value                        return tValue;

@@ -182,7 +182,8 @@ struct doubleXstring{
 /* ------------------------------------------------------------------ */
 %token  tEND tDOTS
 %token  tStrCat tSprintf tPrintf tMPI_Printf tRead tPrintConstants tStrCmp
-%token  tStrChoice tNbrRegions tGetRegion tNameFromString tStringFromName
+%token  tStrChoice tUpperCase
+%token  tNbrRegions tGetRegion tNameFromString tStringFromName
 %token  tFor tEndFor tIf tElse tEndIf tWhile tMacro tReturn tCall
 %token  tFlag
 %token  tInclude
@@ -8198,6 +8199,17 @@ CharExprNoVar :
   | StrCat
     {
       $$ = $1;
+    }
+
+  | tUpperCase '[' CharExpr ']'
+    {
+      int i=0;
+      while ($3[i]) {
+        $3[i] = toupper($3[i]);
+        i++;
+      }
+      $$ = (char*)Malloc((i+1) * sizeof(char));
+      strcpy($$, $3);
     }
 
   | tStr '[' RecursiveListOfCharExpr ']'
