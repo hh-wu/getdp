@@ -361,6 +361,7 @@ Str                          return tStr;
 StrCat                       return tStrCat;
 StrChoice                    return tStrChoice;
 StrCmp                       return tStrCmp ;
+StringFromName               return tStringFromName;
 SubFunction                  return tSubFunction;
 SubRegion                    return tSubRegion;
 SubRegionRef                 return tSubRegionRef;

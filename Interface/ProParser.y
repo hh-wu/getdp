@@ -182,7 +182,7 @@ struct doubleXstring{
 /* ------------------------------------------------------------------ */
 %token  tEND tDOTS
 %token  tStrCat tSprintf tPrintf tMPI_Printf tRead tPrintConstants tStrCmp
-%token  tStrChoice tNbrRegions tGetRegion tNameFromString
+%token  tStrChoice tNbrRegions tGetRegion tNameFromString tStringFromName
 %token  tFor tEndFor tIf tElse tEndIf tWhile tMacro tReturn tCall
 %token  tFlag
 %token  tInclude
@@ -6953,7 +6953,6 @@ Loop :
 	}
       }
     }
-
   | tMacro tSTRING
     {
       if(!MacroManager::Instance()->createMacro
@@ -6962,15 +6961,13 @@ Loop :
       skipUntil(NULL, "Return");
       Free($2);
     }
-
-  | tMacro '[' String__Index ']'
+  | tMacro CharExprNoVar
     {
-      // FIXME: Other syntax because error (incorrect file position) without [ ]... How to do without?
       if(!MacroManager::Instance()->createMacro
-         (std::string($3), getdp_yyin, getdp_yyname, getdp_yylinenum + 1))
-        vyyerror("Redefinition of macro '%s'", $3);
+         (std::string($2), getdp_yyin, getdp_yyname, getdp_yylinenum + 1))
+        vyyerror("Redefinition of macro '%s'", $2);
       skipUntil(NULL, "Return");
-      Free($3);
+      Free($2);
     }
   | tReturn
     {
@@ -6978,14 +6975,20 @@ Loop :
          (&getdp_yyin, getdp_yyname, getdp_yylinenum))
 	vyyerror("Error while exiting macro");
     }
-  | tCall String__Index tEND
+  | tCall tSTRING tEND
     {
       if(!MacroManager::Instance()->enterMacro
          (std::string($2), &getdp_yyin, getdp_yyname, getdp_yylinenum))
 	vyyerror("Unknown macro '%s'", $2);
       Free($2);
     }
-
+  | tCall CharExprNoVar tEND
+    {
+      if(!MacroManager::Instance()->enterMacro
+         (std::string($2), &getdp_yyin, getdp_yyname, getdp_yylinenum))
+	vyyerror("Unknown macro '%s'", $2);
+      Free($2);
+    }
   | tIf '(' FExpr ')'
     {
       if(!$3) skipUntil("If", "EndIf");
@@ -6993,7 +6996,6 @@ Loop :
   | tEndIf
     {
     }
-
   | Affectation
  ;
 
@@ -8189,6 +8191,9 @@ String__Index :
 CharExprNoVar :
     tBIGSTR
     { $$ = $1; }
+
+  | tStringFromName '[' tSTRING ']'
+    { $$ = $3; }
 
   | StrCat
     {
