@@ -257,6 +257,7 @@ MovingBand2D                 return tMovingBand2D;
 MultiplySolution             return tMultiplySolution ;
 
 Name                         return tName;
+NameFromString               return tNameFromString;
 NameOfBasisFunction          return tNameOfBasisFunction;
 NameOfCoef                   return tNameOfCoef;
 NameOfConstraint             return tNameOfConstraint;

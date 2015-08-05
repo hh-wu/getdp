@@ -182,7 +182,7 @@ struct doubleXstring{
 /* ------------------------------------------------------------------ */
 %token  tEND tDOTS
 %token  tStrCat tSprintf tPrintf tMPI_Printf tRead tPrintConstants tStrCmp
-%token  tStrChoice tNbrRegions tGetRegion
+%token  tStrChoice tNbrRegions tGetRegion tNameFromString
 %token  tFor tEndFor tIf tElse tEndIf tWhile tMacro tReturn tCall
 %token  tFlag
 %token  tInclude
@@ -8181,8 +8181,8 @@ String__Index :
     { $$ = $1; }
 
   // Name from any string
-  | '$' CharExprNoVar
-    { $$ = $2; }
+  | tNameFromString '[' CharExprNoVar ']'
+    { $$ = $3; }
 
  ;
 
