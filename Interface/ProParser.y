@@ -173,7 +173,7 @@ struct doubleXstring{
 %type <l>  ListOfSystem RecursiveListOfSystem
 %type <l>  PostQuantities SubPostQuantities PostSubOperations
 %type <c>  NameForMathFunction NameForFunction CharExpr CharExprNoVar
-%type <c>  StrCat StringIndex String__Index
+%type <c>  StrCat StringIndex String__Index CallArg
 %type <c>  LP RP
 %type <t>  Quantity_Def
 %type <l>  TimeLoopAdaptiveSystems TimeLoopAdaptivePOs IterativeLoopSystems
@@ -184,7 +184,7 @@ struct doubleXstring{
 %token  tStrCat tSprintf tPrintf tMPI_Printf tRead tPrintConstants tStrCmp
 %token  tStrChoice tUpperCase
 %token  tNbrRegions tGetRegion tNameFromString tStringFromName
-%token  tFor tEndFor tIf tElse tEndIf tWhile tMacro tReturn tCall
+%token  tFor tEndFor tIf tElse tEndIf tWhile tMacro tReturn tCall tCallIf
 %token  tFlag
 %token  tInclude
 %token  tConstant tList tListAlt tLinSpace tLogSpace tListFromFile
@@ -6838,6 +6838,13 @@ PrintOption :
 /*  L o o p                                                                 */
 /* ------------------------------------------------------------------------ */
 
+CallArg :
+    String__Index
+    { $$ = $1; }
+  | CharExprNoVar
+    { $$ = $1; }
+ ;
+
 Loop :
 
     tFor '(' FExpr tDOTS FExpr ')'
@@ -6976,19 +6983,20 @@ Loop :
          (&getdp_yyin, getdp_yyname, getdp_yylinenum))
 	vyyerror("Error while exiting macro");
     }
-  | tCall String__Index tEND
+  | tCall CallArg tEND
     {
       if(!MacroManager::Instance()->enterMacro
          (std::string($2), &getdp_yyin, getdp_yyname, getdp_yylinenum))
 	vyyerror("Unknown macro '%s'", $2);
       Free($2);
     }
-  | tCall CharExprNoVar tEND
+  | tCallIf '(' FExpr ')' CallArg tEND
     {
-      if(!MacroManager::Instance()->enterMacro
-         (std::string($2), &getdp_yyin, getdp_yyname, getdp_yylinenum))
-	vyyerror("Unknown macro '%s'", $2);
-      Free($2);
+      if($3)
+        if(!MacroManager::Instance()->enterMacro
+           (std::string($5), &getdp_yyin, getdp_yyname, getdp_yylinenum))
+          vyyerror("Unknown macro '%s'", $5);
+      Free($5);
     }
   | tIf '(' FExpr ')'
     {
@@ -8208,8 +8216,7 @@ CharExprNoVar :
         $3[i] = toupper($3[i]);
         i++;
       }
-      $$ = (char*)Malloc((i+1) * sizeof(char));
-      strcpy($$, $3);
+      $$ = $3;
     }
 
   | tStr '[' RecursiveListOfCharExpr ']'
