@@ -21,6 +21,18 @@ elements finis, programme gratuit">
 
 <style type="text/css"><!--
   #spacer { margin-bottom:5ex; }
+  pre { border:0; }
+  img.image { width:20ex; padding-bottom:1ex; }
+  #image-container { float:right; width:41ex; padding-right:0px; padding-top:0ex; 
+                     padding-left:2em; padding-bottom:2ex; background: white; }
+  @media screen and (max-width: 1000px) {
+    img.image { width:20ex; }
+    #image-container { width:20ex; }
+  }
+  @media screen and (max-width: 500px) {
+    img.image { width:80px; }
+    #image-container { width:80px; padding-left:1em; padding-bottom:1ex;}
+  }
 --></style>
 
 </head>
@@ -34,13 +46,30 @@ the Treatment of Discrete Problems</span></h1>
 
 <center> 
   <a href="#Download"><b>Download</b></a> |
-  <a href="#Authors">Authors and credits</a> |
   <a href="#Documentation">Documentation</a> |
+  <a href="#Authors">Authors and credits</a> |
   <a href="#Licensing">Licensing</a> |
   <a href="#Links">Links</a>
 </center>
 
 <div id=spacer></div>
+
+<div id="image-container">
+  <a href="http://onelab.info/wiki/Inductor"><img class=image src="http://onelab.info/files/inductor/screenshot2_512.png"/></a>
+  <a href="http://onelab.info/wiki/Magnetometer"><img class=image src="http://onelab.info/files/magnetometer/screenshot1_512.png"/></a>
+  <a href="http://onelab.info/wiki/Electric_machines"><img class=image src="http://onelab.info/files/machines/screenshot2_512.png"/></a>
+  <a href="http://onelab.info/wiki/Magnetodynamics_with_cohomology_conditions"><img class=image src="http://onelab.info/files/indheat/screenshot1_512.png"/></a>
+  <a href="http://onelab.info/wiki/Waveguides"><img class=image src="http://onelab.info/files/waveguides/screenshot2_512.png"/></a>
+  <a href="http://onelab.info/wiki/Electromechanical_relay"><img class=image src="http://onelab.info/files/relay/screenshot2_512.png"/></a>
+  <a href="http://onelab.info/wiki/Bloch_modes_in_periodic_waveguides"><img class=image src="http://onelab.info/files/bloch_periodic_waveguides/screenshot1_512.png"/></a>
+  <a href="http://onelab.info/wiki/Acoustic_scattering"><img class=image src="http://onelab.info/files/acoustic_scattering/screenshot2_512.png"/></a>
+  <a href="http://onelab.info/wiki/Magnets"><img class=image src="http://onelab.info/files/magnets/screenshot1_512.png"/></a>
+  <a href="http://onelab.info/wiki/Domain_decomposition_methods_for_waves"><img class=image src="http://onelab.info/files/ddm_waves/screenshot1_512.png"/></a>
+  <a href="http://onelab.info/wiki/Antennas"><img class=image src="http://onelab.info/files/antennas/screenshot2_512.png"/></a>
+  <a href="http://onelab.info/wiki/Thermal_conduction"><img class=image src="http://onelab.info/files/thermal_conduction/screenshot2_512.png"/></a>
+  <a href="http://onelab.info/wiki/Superconducting_wire"><img class=image src="http://onelab.info/files/superconductors/screenshot1_512.png"/></a>
+  <a href="http://onelab.info/wiki/Time_reversal"><img class=image src="http://onelab.info/files/time_reversal/screenshot2_512.png"/></a>  
+</div>
 
 <p>
 GetDP is an open source finite element solver using mixed elements to
@@ -48,7 +77,9 @@ discretize <a href="http://en.wikipedia.org/wiki/De_Rham_cohomology">de
 Rham-type complexes</a> in one, two and three dimensions.  The main
 feature of GetDP is the closeness between the input data defining
 discrete problems (written by the user in ASCII data files) and the
-symbolic mathematical expressions of these problems. 
+symbolic mathematical expressions of these problems.
+</p>
+
 <p>
 For example, to solve the Poisson equation <code>div(a grad(v)) = f</code> on a
 domain <code>D</code>, an input file ("<code>.pro</code>" file) would contain
@@ -75,18 +106,21 @@ something like this:
 </pre>
 i.e., a direct transcription of the discrete function space and 
 <a href="http://en.wikipedia.org/wiki/Weak_formulation">weak
-formulation</a> of the problem. 
+  formulation</a> of the problem.
+</p>
 <p>
 See GetDP's reference manual for a more
 thorough <a href="doc/texinfo/getdp.html#Overview">overview of GetDP's
 capabilities</a>.
+</p>
 
 <h2><a name="Download"></a>Download</h2>
 
+<p>
 GetDP is distributed under the terms of
 the <a href="http://www.gnu.org/copyleft/gpl.html">GNU General Public
 License (GPL)</a>:
-
+</p>
 <ul>
   <li>
     <p class="highlight">
@@ -129,24 +163,11 @@ License (GPL)</a>:
   <li>All versions: <a href="bin/">binaries</a>
     and <a href="src/">sources</a>
 </ul>
-
+<p>
 If you use GetDP please cite one of
 the <a href="doc/getdp.bib">references</a> in your work (books,
 articles, reports, etc.).
-
-<h2><a name="Authors"></a>Authors and credits</h2>
-
-GetDP was created by Patrick Dular and Christophe Geuzaine at
-the <a href="http://www.ulg.ac.be">University of
-Li&egrave;ge</a>. The <a href="doc/CREDITS.txt">CREDITS</a> file has
-more information.
-<p>
-Please use the public mailing
-list <a href="mailto:getdp@geuz.org">getdp@geuz.org</a> to send questions or ask
-for help. If you think you have found a bug in the program, you can file a
-report directly
-<a href="https://geuz.org/trac/getdp/newticket" data-tooltip=
-	     "Login: getdp Password: getdp">here</a>.
+</p>
 
 <h2><a name="Documentation"></a>Documentation</h2>
 
@@ -191,13 +212,35 @@ report directly
   <option value="/pipermail/getdp">GetDP mailing list archives
 </select>
 </form>
+</p>
+
+<h2><a name="Authors"></a>Authors and credits</h2>
+
+<p>
+GetDP was created by Patrick Dular and Christophe Geuzaine at
+the <a href="http://www.ulg.ac.be">University of
+Li&egrave;ge</a>. The <a href="doc/CREDITS.txt">CREDITS</a> file has
+more information.
+</p>
+
+<p>
+Please use the public mailing
+list <a href="mailto:getdp@geuz.org">getdp@geuz.org</a> to send questions or ask
+for help. If you think you have found a bug in the program, you can file a
+report directly
+<a href="https://geuz.org/trac/getdp/newticket" data-tooltip=
+	     "Login: getdp Password: getdp">here</a>.
+</p>
 
 <h2><a name="Licensing"></a>Licensing</h2>
 
+<p>
 GetDP is copyright (C) 1997-2015 by P. Dular and C. Geuzaine, University of
 Liege, and is distributed under the terms of
 the <a href="http://www.gnu.org/copyleft/gpl.html">GNU General Public License
-(GPL)</a>.
+    (GPL)</a>.
+</p>
+
 <p>
 In short, this means that everyone is free to use GetDP and to
 redistribute it on a free basis. GetDP is not in the public domain; it
@@ -211,6 +254,7 @@ closed-source software, or want to sell a modified closed-source
 version of GetDP, you will need to obtain a different
 license. Please <a href="/">contact us directly</a> for more
 information.
+</p>
 
 <h2><a name="Links"></a>Links</h2>
 
@@ -239,8 +283,11 @@ information.
 <input type="image" src="/images/donation.gif" name="submit" 
        alt="Make a donation with PayPal">
 </form>
+</p>
+
 <p>
 Back to <a href="/">geuz.org</a>
+</p>
 
 </body>
 </html>
