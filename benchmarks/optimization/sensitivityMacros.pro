@@ -14,8 +14,8 @@ Macro SolvePrimalSystem
       GenerateJac[A] ; SolveJac[A] ; }
   EndIf 
   SaveSolution[A];
-  PostOperation[Get_PrimalSystem_Func]; 
   PostOperation[Get_PrimalSystem]; 
+  PostOperation[Get_PrimalSystem_Func]; 
 Return
 
 Macro SolveAdjointSystem
@@ -42,53 +42,87 @@ Return
 
 /* sensitivity analysis macros */
 
-Macro GetTopOptAdjointSens
-  Printf["Compute derivative (adjoint, fixed domain) --"];
-  ReadSolution[A];ReadSolution[B];//A and Lambda   
-  GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD];
-  GmshRead[StrCat[ResDir,"TorqueVarianceAllDom.pos"], TORQUE_VAR_FIELD];
-  PostOperation[GetTopOptAdjointSens];
-Return
-
-Macro GetShapeOptAdjointSens
-  Printf["Compute derivative (adjoint, variable domain) --"];
-  ReadSolution[A];ReadSolution[B];//A and lambda
-  GmshRead[StrCat[ResDir,"velocity.pos"], VELOCITY_FIELD];
-  If(!StrCmp[Flag_SysType,"LinearElast2D"])
-    GmshRead[StrCat[ResDir,"u.pos"], STATE_FIELD];
-    GmshRead[StrCat[ResDir,"lambda.pos"], ADJOINT_FIELD];
+Macro GetAnalyticSens
+  Printf["Compute Analytic Sensitivity --"];
+  
+  // load useful maps
+  If(!StrCmp(Flag_optType,"shape"))
+    GmshRead[StrCat[ResDir,"velocity.pos"],VELOCITY_FIELD]; 
   EndIf
-  PostOperation[GetShapeOptAdjointSens];
+
+  // postpro
+  PostOperation[GetAnalyticSens];  
 Return
 
-Macro GetSemiAdjointSens
-  Printf["Compute Semi-Analytic quantities (adjoint) --"];
-  // grandeurs sauvées à la bonne position angulaire du rotor
+Macro GetAdjointSens
+  Printf["Compute derivative with adjoint method"];
+  // load state variable and adjoint variable
+  ReadSolution[A];ReadSolution[B];
+
+  // load useful maps   
   If(!StrCmp(Flag_optType,"topology"))
-    GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD]; 
+    GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD];
   EndIf
-  ReadSolution[A];ReadSolution[B]; // load A and Lambda
-  PostOperation[GetSemiAdjointSens]; // Compute Lambda*K*A and Lambda*g
-  PostOperation[Get_PrimalSystem_Func]; 
+  If(!StrCmp(Flag_optType,"shape"))
+    GmshRead[StrCat[ResDir,"velocity.pos"], VELOCITY_FIELD];
+    If(!StrCmp[Flag_SysType,"LinearElast2D"] ||
+       !StrCmp[Flag_SysType,"LinearElast3D"])
+      GmshRead[StrCat[ResDir,"u.pos"], STATE_FIELD];
+      GmshRead[StrCat[ResDir,"lambda.pos"], ADJOINT_FIELD];
+    EndIf
+  EndIf
+  GmshRead[StrCat[ResDir,"TorqueVarianceAllDom.pos"], TORQUE_VAR_FIELD];
+  
+  // postpro
+  If(!Flag_AnalyticSensitivity) // semi-analytic
+    PostOperation[GetSemiAdjointSens]; 
+    PostOperation[Get_PrimalSystem_Func];
+  EndIf
+  If(Flag_AnalyticSensitivity && !StrCmp(Flag_optType,"shape")) 
+    PostOperation[GetShapeOptAdjointSens];
+  EndIf
+  If(Flag_AnalyticSensitivity && !StrCmp(Flag_optType,"topology"))
+    PostOperation[GetTopOptAdjointSens];
+  EndIf
 Return
 
-Macro GetShapeOptDirectSens
-  Printf["Compute derivative (direct, variable domain) "];
-  ReadSolution[A];ReadSolution[C];//A and deriv_A
-  GmshRead[StrCat[ResDir,"velocity.pos"], VELOCITY_FIELD];
+Macro GetDirectSens
+  Printf["Compute derivative with direct method"];
+  // load state variable and derivative of state variable
+  ReadSolution[A];ReadSolution[C];
+
+  // load useful maps   
+  If(!StrCmp(Flag_optType,"shape"))
+    GmshRead[StrCat[ResDir,"velocity.pos"], VELOCITY_FIELD];
+  EndIf
   GmshRead[StrCat[ResDir,"TorqueVarianceAllDom.pos"], TORQUE_VAR_FIELD];
-  PostOperation[GetShapeOptDirectSens];
+  
+  // postpro
+  If(Flag_AnalyticSensitivity && !StrCmp(Flag_optType,"shape"))
+    PostOperation[GetShapeOptDirectSens];
+  EndIf
+  If(Flag_AnalyticSensitivity && !StrCmp(Flag_optType,"topology"))
+    //TODO //PostOperation[GetTopOptDirectSens];
+  EndIf
 Return
+
 
 /* sensitivity filtering macros */
 
 Macro FilterSens
   Printf["Filter derivative "];
+  GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD];
   GmshRead[StrCat[ResDir,"Sensitivity_DesVar.pos"], SENS_FIELD]; 
   Generate[D]; Solve[D]; SaveSolution[D];
   PostOperation[FilterSens];
 Return
 
+//Macro FilterDesignVariables
+//  Printf["Filter design variables "];
+//  GmshRead[StrCat[ResDir,"designVariable.pos"], SENS_FIELD]; 
+//  Generate[D]; Solve[D]; SaveSolution[D];
+//  PostOperation[FilterSens];
+//Return
 
 
 

@@ -15,27 +15,28 @@ DefineConstant[
 
   Flag_AnalysisMethod = {"none",
     Choices{
-      "none",
-      "state variable",
-      "adjoint variable",
-      "direct derivative"
+      "state",
+      "adjoint",
+      "direct"
     }, Name StrCat[pInOpt, "Analysis Method"]},
   
   Flag_SensitivityMethod = {"none",
     Choices{
-      "none",
-      "semi-analytic avm",
-      "topology opt. adjoint",
-      "shape opt. adjoint (Lie)",
-      "shape opt. direct (Lie)" 
+      "noSystem",
+      "adjoint",
+      "direct"
     }, Name StrCat[pInOpt, "Derivative Method"]},
+
+  Flag_AnalyticSensitivity = {0,//analytic or semi-analytic
+    Choices{0,1}, Name StrCat[pInOpt, "Analytic Derivative?"]},
 
   Flag_FilterMethod = {"none",
     Choices{
-      "none",
       "filter sensitivity",
       "filter velocity"
-    }, Name StrCat[pInOpt, "Filter"]},
+    }, 
+    Name StrCat[pInOpt, "Filter"],
+    Visible (!StrCmp(Flag_optType,"topology"))},
 
   Rmin = {0.001*10, 
     Name StrCat[pInOpt,"Filter Radius"], 
@@ -49,8 +50,6 @@ Group {
     DomainOpt,DomainOptFix,DomainOptMV
   ];
 }
-
-
 
 Function {
   DefineFunction[ br_mag,dhdb_NL,ETA,LV1,LV2,LV3,js ];
@@ -66,21 +65,35 @@ Function {
     d_J_lie[] = LV2[js[]]* $1;//-( LV3[] * js[] ) * $1 ;
   EndIf
   If(!StrCmp[Flag_SysType,"LinearElast2D"])
-    d_bilin_lie[] = -( C[] * d_e_u[] ) * $2 
-                    -( C[] * $1 ) * d_e_lam[] 
+    //$1:{D1 u},$2:{D1 lambda}
+    d_bilin_lie[] = -( C[] * d_D1_2D_u[] ) * $2 
+                    -( C[] * $1 ) * d_D1_2D_lam[] 
                     +( (C[] * $1) * $2 ) * TTrace[dV[]];
+    d_bilin[] = (d_C[] * $1) * $2; 
+  EndIf
+  If(!StrCmp[Flag_SysType,"LinearElast3D"]) 
+    //$1:{D1 u}, $2:{D1 lambda}, $3:{D2 u}, $4:{D2 lambda}
+    d_bilin_lie[] = -( C11[] * d_D1_3D_u[]#1001 ) * $2 -( C11[] * $1)*d_D1_3D_lam[]#1003 
+                    -( C12[] * d_D2_3D_u[]#1002 ) * $2 -( C12[] * $3 ) * #1003
+                    -( C21[] * #1001 ) * $4 -( C21[] * $1 ) * d_D2_3D_lam[]#1004 
+                    -( C22[] * #1002 ) * $4 -( C22[] * $3 ) * #1004  
+                    +( (C11[] * $1) * $2 + (C12[] * $3) * $2
+                      +(C21[] * $1) * $4 + (C22[] * $3) * $4 ) * TTrace[dV[]];
+    d_bilin[] = (d_C11[] * $1) * $2 + (d_C12[] * $3) * $2
+               +(d_C21[] * $1) * $4 + (d_C22[] * $3) * $4;
   EndIf
 
   // filter sensitivity (topology optimization)
   If(!StrCmp[Flag_SysType,"MagnetoStatic"])
-    prod_x_dC[#{DomainOptMV}] = ScalarField[RotateZ_desVar[],0,1]{SENS_FIELD};
-    prod_x_dC[#{DomainOptFix}] = ScalarField[XYZ[],0,1]{SENS_FIELD};
+    filtSource[#{DomainOptMV}] = ScalarField[RotateZ_desVar[],0,1]{SENS_FIELD};
+    filtSource[#{DomainOptFix}] = ScalarField[XYZ[],0,1]{SENS_FIELD};
   EndIf
   If(StrCmp[Flag_SysType,"MagnetoStatic"])  
-    prod_x_dC[#{DomainOpt}] = ScalarField[XYZ[],0,1]{SENS_FIELD};
+    filtSource[#{DomainOpt}] = ScalarField[XYZ[],0,1]{SENS_FIELD};
   EndIf
 }
 
+// FIXME: add FunctionSpace to each primal system template => sensitivity script simple!
 FunctionSpace {
   // Direct method SA: derivative of state variable
   If(!StrCmp[Flag_SysType,"MagnetoStatic"])
@@ -118,28 +131,6 @@ FunctionSpace {
           If (Flag_Degree)
             { NameOfCoef ae2 ; EntityType EdgesOf ; NameOfConstraint a ; }
           EndIf
-      }
-    }
-  EndIf
-  If(!StrCmp[Flag_SysType,"LinearElast2D"])
-    { Name H_dState ; Type Vector ; 
-      BasisFunction {
-        { Name sxn ; NameOfCoef uxn ; Function BF_NodeX ; 
-          dFunction {BF_NodeX_D12, BF_Zero}; //??
-          Support Domain; Entity NodesOf[ All ] ; }
-        { Name syn ; NameOfCoef uyn ; Function BF_NodeY ; 
-          dFunction {BF_NodeY_D12, BF_Zero};
-          Support Domain; Entity NodesOf[ All ] ; }
-      }
-      SubSpace {
-        { Name u_x ; NameOfBasisFunction { sxn } ; }
-        { Name u_y ; NameOfBasisFunction { syn } ; }
-      }
-      Constraint {
-        { NameOfCoef uxn ;
-          EntityType NodesOf ; NameOfConstraint DisplacementX_Mec ; }
-        { NameOfCoef uyn ;
-          EntityType NodesOf ; NameOfConstraint DisplacementY_Mec ; }
       }
     }
   EndIf
@@ -183,34 +174,12 @@ FunctionSpace {
       }
     }
   EndIf
-  If(!StrCmp[Flag_SysType,"LinearElast2D"])
-    { Name H_lambda; Type Vector ; // adjoint variable
-      BasisFunction {
-        { Name sxn ; NameOfCoef lambdaxn ; Function BF_NodeX ; 
-               dFunction {BF_NodeX_D12, BF_Zero};
-          Support Domain_Disp_Tot ; Entity NodesOf[ All ] ; }
-        { Name syn ; NameOfCoef lambdayn ; Function BF_NodeY ; 
-               dFunction {BF_NodeY_D12, BF_Zero};
-          Support Domain_Disp_Tot ; Entity NodesOf[ All ] ; }
-      }
-        SubSpace {
-          { Name lambda_x ; NameOfBasisFunction { sxn } ; }
-          { Name lambda_y ; NameOfBasisFunction { syn } ; }
-        }
-      Constraint {
-        { NameOfCoef lambdaxn ;
-          EntityType NodesOf ; NameOfConstraint DisplacementX_Mec; }
-        { NameOfCoef lambdayn ;
-          EntityType NodesOf ; NameOfConstraint DisplacementY_Mec; }
-      }
-    }
-  EndIf
 
   // SA filter
   { Name H_psi ; Type Form0 ;
     BasisFunction {
       { Name sPsi ; NameOfCoef psi ; Function BF_Node ;
-        Support Domain ; Entity NodesOf[ All ] ; }
+        Support Region[{Domain,Domain_Force}] ; Entity NodesOf[ All ] ; }
     }
   }
 
@@ -286,26 +255,7 @@ Formulation {
       }
     }
   EndIf
-  If(!StrCmp[Flag_SysType,"LinearElast2D"])
-    { Name DirectFormulation ; Type FemEquation ;
-      Quantity {
-        { Name u ; Type Local  ; NameOfSpace H_Mec2D_u ; }
-        { Name d_u ; Type Local  ; NameOfSpace H_dState ; }
-      }
-      Equation {
-        // u formulation
-        Galerkin { [ C[]*Dof{D1 d_u}, {D1 d_u}] ; 
-          In Domain; Jacobian Vol ; Integration I1 ; }
-
-//      Galerkin { [ C[] * d_e_u[], {D1 d_u}] ; 
-//        In Domain; Jacobian Vol ; Integration I1 ; }
-//      Galerkin { [ C[] * {D1 u}, {D1 d_u}] ; 
-//        In Domain; Jacobian Vol ; Integration I1 ; }
-//      Galerkin { [ -C[] * {D1 u} * TTrace[dV[]], {D1 d_u}] ; 
-//        In Domain; Jacobian Vol ; Integration I1 ; }
-      }
-    }
-  EndIf  
+ 
  //-----------------------------------------------------------------
  // Adjoint weak formulation
  //-----------------------------------------------------------------
@@ -358,26 +308,6 @@ Formulation {
      }
    }
  EndIf
- If(!StrCmp[Flag_SysType,"LinearElast2D"])
-   { Name AdjointFormulation ; Type FemEquation ;
-     Quantity {
-       { Name u  ; Type Local  ; NameOfSpace H_Mec2D_u; }
-       { Name u_x ; Type Local ; NameOfSpace H_Mec2D_u[u_x] ;}
-       { Name u_y ; Type Local ; NameOfSpace H_Mec2D_u[u_y] ;}
-       { Name u_dum_x ; Type Local ; NameOfSpace H_Mec2D_u_dum[u_dum_x] ;}
-       { Name u_dum_y ; Type Local ; NameOfSpace H_Mec2D_u_dum[u_dum_y] ;}
-       { Name lambda ; Type Local  ; NameOfSpace H_lambda; }
-     }
-     Equation {
-       Galerkin { [ C[] * Dof{D1 lambda}, {D1 lambda} ] ;
-         In Domain ; Jacobian Vol ; Integration I1 ; }
-
-       // Adjoint load
-       Galerkin { [ -dFdb[{D1 u}], {D1 lambda} ] ;
-         In DomainFunc ; Jacobian Vol ; Integration I1 ; }
-     }
-   }
- EndIf
  //-----------------------------------------------------------------
  // Sensitivity filtering
  //-----------------------------------------------------------------
@@ -387,13 +317,13 @@ Formulation {
       }
     Equation {
        Galerkin { [ Dof{d psi}*Rmin^2.0, {d psi} ] ; 
-                   In DomainOpt; Jacobian Vol ; Integration I1 ; }
+         In Domain; Jacobian Vol ; Integration I1 ; }
 
        Galerkin { [ Dof{psi}, {psi} ] ; 
-                   In DomainOpt; Jacobian Vol; Integration I1; }
+         In Domain; Jacobian Vol; Integration I1; }
 
-       Galerkin { [ -prod_x_dC[], {psi} ] ; 
-                   In DomainOpt; Jacobian Vol; Integration I1; }
+       Galerkin { [ -filtSource[], {psi} ] ; 
+         In Domain; Jacobian Vol; Integration I1; }
       }
   }
 }
@@ -420,28 +350,25 @@ Resolution {
       EndIf
       
       // compute state varible, adjoint variable or derivative of state varibale
-      If(!StrCmp[Flag_AnalysisMethod,"state variable"]) // state variable
+      If(!StrCmp[Flag_AnalysisMethod,"state"]) // state variable
         Call SolvePrimalSystem;
       EndIf
-      If(!StrCmp[Flag_AnalysisMethod,"adjoint variable"]) // adjoint variable
+      If(!StrCmp[Flag_AnalysisMethod,"adjoint"]) // adjoint variable
         Call SolveAdjointSystem; 
       EndIf
-      If(!StrCmp[Flag_AnalysisMethod,"direct derivative"]) // direct derivative of state
+      If(!StrCmp[Flag_AnalysisMethod,"direct"]) // direct derivative of state
         Call SolveDirectSystem;
       EndIf
 
       // Sensitivity analysis method
-      If(!StrCmp[Flag_SensitivityMethod,"topology opt. adjoint"]) 
-        Call GetTopOptAdjointSens;
+      If(!StrCmp[Flag_SensitivityMethod,"noSystem"]) 
+        Call GetAnalyticSens;
       EndIf
-      If(!StrCmp[Flag_SensitivityMethod,"shape opt. adjoint (Lie)"]) 
-        Call GetShapeOptAdjointSens;
+      If(!StrCmp[Flag_SensitivityMethod,"adjoint"]) 
+        Call GetAdjointSens;
       EndIf
-      If(!StrCmp[Flag_SensitivityMethod,"shape opt. direct (Lie)"]) 
-        Call GetShapeOptDirectSens;
-      EndIf
-      If(!StrCmp[Flag_SensitivityMethod,"semi-analytic avm"])
-        Call GetSemiAdjointSens;
+      If(!StrCmp[Flag_SensitivityMethod,"direct"]) 
+        Call GetDirectSens;
       EndIf
 
       // Sensitivity analysis filtering method
@@ -462,7 +389,8 @@ EndIf
 If(!StrCmp[Flag_SysType,"MagnetoStatic3D"])
   Include "optim_post_magsta3D.pro" ;
 EndIf
-If(!StrCmp[Flag_SysType,"LinearElast2D"])
-  Include "optim_post_elast.pro" ;
-EndIf
+//If(!StrCmp[Flag_SysType,"LinearElast2D"] || 
+//   !StrCmp[Flag_SysType,"LinearElast3D"])
+//  Include "optim_post_elast.pro" ;
+//EndIf
 

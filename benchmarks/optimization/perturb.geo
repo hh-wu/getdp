@@ -1,10 +1,13 @@
 DefineConstant[
   PerturbMesh = {0, Choices{0,1},
-    Name "Sensitivity/Compute perturbation velocity field"},
+    Name StrCat(pInOpt,"Compute perturbation velocity field"),
+    Visible (!StrCmp(Flag_optType,"shape"))},
   Perturbation = {1e-6,
-    Name "Sensitivity/Perturbation value"},
+    Name StrCat(pInOpt,"Perturbation value"),
+    Visible (!StrCmp(Flag_optType,"shape"))},
   SensitivityParameter = {"",
-    Name "Sensitivity/Parameter to perturb"}
+    Name StrCat(pInOpt,"Parameter to perturb"),
+    Visible (!StrCmp(Flag_optType,"shape"))}
 ];
 
 If(PerturbMesh == 1)
