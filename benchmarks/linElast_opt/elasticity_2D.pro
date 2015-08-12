@@ -1,59 +1,33 @@
 DefineConstant[
-  R_ = {"OptimStep", Name "GetDP/1ResolutionChoices", 
-	Choices {"Analysis", "OptimStep"}, Visible 0},
+  R_ = {"res2D", Name "GetDP/1ResolutionChoices", Visible (Flag_2D)},
   C_ = {"-solve -v 5 -slepc -v2", Name "GetDP/9ComputeCommand", Visible 0},
   P_ = {"", Name "GetDP/2PostOperationChoices", Visible 0}
 ];
 
-Function {
-  DefineFunction[ 
-    C,C_prime,force_density,force_node,
-    rmin2,prod_x_dC,designVar,E,E_prime,nu,nu_prime,
-    norm_eig,d_eig
-  ];
-}
+//Function {
+//  DefineFunction[ 
+//    C,C_prime,force_density,force_node,
+//    rmin2,prod_x_dC,designVar,E,E_prime,nu,nu_prime,
+//    norm_eig,d_eig
+//  ];
+//}
 
 Group {
-  Bloc = #BLOC;
-  BlocForce = {};
-  If(Flag_testBench == 0) //short cantilever beam
-    Domain_Force = Region[{SURF_DROITE}];//force sur toute le coté de droite
-  EndIf
-  If(Flag_testBench == 1) //MBB-beam
-    Domain_Force = Region[{POINT_4}];  // force sur le point 4
-  EndIf
-  If(Flag_testBench == 2) //MBB-beam
-    Domain_Force = Region[{POINT_5}];
-  EndIf
-  If(!Flag_squhole)
-    Domain_Disp = Region[{Bloc}];
-  EndIf
-  If(Flag_squhole)
-    Domain_Disp = Region[{BLOC,BLOC_HOLE}];
-  EndIf
-  Domain = Region[{Domain_Disp}];
-  DomainOpt = Region[{Domain_Disp}];
-  DomCompl = Region[{Domain_Disp}];
-  SurfTot = Region[{SURF_BAS, SURF_HAUT, SURF_GAUCHE, SURF_DROITE}];
+  DefineGroup[Domain,Domain_Force];
 }
-
 
 Function {
 
   DefineConstant[
-    young = {1.0e07/*210e09*//*7.0e10*/, Name "Input/Materials/0Young modulus [Pa]"},
-    nu_Poisson = {0.3, Name "Input/Materials/1Poisson coeficient"},
+    E0 = {1.0e07/*210e09*//*7.0e10*/, Name "Input/Materials/0Young modulus [Pa]"},
+    nu0 = {0.3, Name "Input/Materials/1Poisson coeficient"},
     rh={7200.0,Name "Input/Materials/2Mass density",Label "Mass density [kg/m^3]"}
   ];
-  E0 = young;//210e09,//(Acier) N/m2
-  nu0 = nu_Poisson;
-  If(!StrCmp(Flag_optType,"shape")) //shape optimization
+  //E0 = young;//210e09,//(Acier) N/m2
+  //nu0 = nu_Poisson;
+  If(!StrCmp(Flag_optType,"none") || !StrCmp(Flag_optType,"shape")) //shape optimization
     E[Bloc] = E0;
     rho_mec[Bloc] = rh;
-    If(Flag_squhole)
-      E[#BLOC_HOLE] = 0.1;
-      rho_mec[#BLOC_HOLE] = 1.0;
-    EndIf
     C[]  = (E[]/(1-nu0^2))*TensorSym[ 1.0, nu0, 0, 1.0, 0, 0.5*(1-nu0) ];
   EndIf
   If(!StrCmp(Flag_optType,"topology")) // law for E,nu,rho
@@ -118,71 +92,58 @@ Function {
   //force_density[] = Vector[0,-9.81,0]; //???
 }
 
-Group {
-  Domain_Disp_Tot = Region[{Domain_Disp, Domain_Force}];
-}
-
 Constraint {
-  { Name dummy ; // [rad/s]
+//  { Name dummy ; // [rad/s]
+//    Case {
+//      { Region #{Domain,Domain_Force}; Value 1. ; }
+//    }
+//  }
+  // Dirichlet constraint for Elasticity problem
+  { Name DisplacementX_Mec ; Type Assign ;
     Case {
-      { Region Domain_Disp_Tot ; Value 1. ; }
+      If(Flag_testBench == 0)
+        { Region #SURF_GAUCHE;  Value 0.; }
+      EndIf
+      If(Flag_testBench == 1)
+        { Region #SURF_GAUCHE;  Value 0.; } //bloquer déplacement selon x du coté gauche
+      EndIf
+      If(Flag_testBench == 2)
+        { Region #POINT_1;  Value 0.; } //bloquer déplacement selon x du coté gauche
+        { Region #POINT_4;  Value 0.; } //bloquer déplacement selon x du coté gauche
+      EndIf
+      If(Flag_testBench == 3)
+        { Region #SURF_GAUCHE;  Value 0.; }
+        { Region #SURF_DROITE;  Value 0.; }
+      EndIf
     }
   }
-}
-Constraint {
-
- // Dirichlet constraint for Elasticity problem
- { Name DisplacementX_Mec ; Type Assign ;
-  Case {
-    If(Flag_testBench == 0)
-      { Region #SURF_GAUCHE;  Value 0.; }
-    EndIf
-    If(Flag_testBench == 1)
-      { Region #SURF_GAUCHE;  Value 0.; } //bloquer déplacement selon x du coté gauche
-    EndIf
-    If(Flag_testBench == 2)
-      { Region #POINT_1;  Value 0.; } //bloquer déplacement selon x du coté gauche
-      { Region #POINT_4;  Value 0.; } //bloquer déplacement selon x du coté gauche
-    EndIf
-    If(Flag_testBench == 3)
-      { Region #SURF_GAUCHE;  Value 0.; }
-      { Region #SURF_DROITE;  Value 0.; }
-    EndIf
-
+  { Name DisplacementY_Mec; Type Assign ;
+    Case {
+      If(Flag_testBench == 0) //short beam
+        { Region #SURF_GAUCHE;  Value 0.; } //bloquer déplacement selon y
+      EndIf
+      If(Flag_testBench == 1) //mbb beam
+        { Region #POINT_2;  Value 0.; } //bloquer déplacement selon y du point en bas à droite
+      EndIf
+      If(Flag_testBench == 2)
+        { Region #POINT_1;  Value 0.; } //bloquer déplacement selon x du coté gauche
+        { Region #POINT_4;  Value 0.; } //bloquer déplacement selon x du coté gauche
+      EndIf
+      If(Flag_testBench == 3)
+        { Region #SURF_GAUCHE;  Value 0.; }
+        { Region #SURF_DROITE;  Value 0.; }
+      EndIf
+    }
   }
- }
- { Name DisplacementY_Mec; Type Assign ;
-   Case {
-    If(Flag_testBench == 0) //short beam
-      { Region #SURF_GAUCHE;  Value 0.; } //bloquer déplacement selon y
-    EndIf
-    If(Flag_testBench == 1) //mbb beam
-      { Region #POINT_2;  Value 0.; } //bloquer déplacement selon y du point en bas à droite
-    EndIf
-    If(Flag_testBench == 2)
-      { Region #POINT_1;  Value 0.; } //bloquer déplacement selon x du coté gauche
-      { Region #POINT_4;  Value 0.; } //bloquer déplacement selon x du coté gauche
-    EndIf
-    If(Flag_testBench == 3)
-      { Region #SURF_GAUCHE;  Value 0.; }
-      { Region #SURF_DROITE;  Value 0.; }
-    EndIf
+  { Name DisplacementX_Mec_d2 ; Type Assign ; Case {}}
+  { Name DisplacementY_Mec_d2; Type Assign ; Case {}}
+  { Name Displacement_Mec_dum ; Type Assign ;
+    Case {
+      { Region #{Domain,Domain_Force} ; Value 1; }
+    }
   }
- }
-
- { Name DisplacementX_Mec_d2 ; Type Assign ;
-  Case {
-    //    { Region SurfTot;  Value 0.; }
-  }
- }
- { Name DisplacementY_Mec_d2; Type Assign ;
-   Case {
-     //    { Region SurfTot;  Value 0.; }
-  }
- }
 
 }
-
 
 Integration {
   { Name I1 ;
@@ -203,26 +164,22 @@ Jacobian {
   { Name Sur ;Case {{ Region All ; Jacobian Sur ; }}}
 }
 
-Group {
-  DefineGroup[Domain_Disp, Domain_Force];
-}
-
 FunctionSpace{
   { Name H_Mec2D_u ; Type Vector ;
     BasisFunction {
       { Name sxn ; NameOfCoef uxn ; Function BF_NodeX ; 
         dFunction {BF_NodeX_D12, BF_Zero};
-        Support Domain_Disp_Tot ; Entity NodesOf[ All ] ; }
+        Support Region[{Domain,Domain_Force}]; Entity NodesOf[ All ] ; }
       { Name syn ; NameOfCoef uyn ; Function BF_NodeY ; 
         dFunction {BF_NodeY_D12, BF_Zero};
-        Support Domain_Disp_Tot ; Entity NodesOf[ All ] ; }
+        Support Region[{Domain,Domain_Force}]; Entity NodesOf[ All ] ; }
       If (Flag_degree == 2)
-       { Name sxn2 ; NameOfCoef uxn2 ; Function BF_NodeX_2E ; 
-         dFunction {BF_NodeX_D12_2E, BF_Zero};
-         Support Domain_Disp_Tot ; Entity EdgesOf[ All ] ; }
-       { Name syn2 ; NameOfCoef uyn2 ; Function BF_NodeY_2E ; 
-         dFunction {BF_NodeY_D12_2E, BF_Zero};
-         Support Domain_Disp_Tot ; Entity EdgesOf[ All ] ; }
+        { Name sxn2 ; NameOfCoef uxn2 ; Function BF_NodeX_2E ; 
+          dFunction {BF_NodeX_D12_2E, BF_Zero};
+          Support Region[{Domain,Domain_Force}]; Entity EdgesOf[ All ] ; }
+        { Name syn2 ; NameOfCoef uyn2 ; Function BF_NodeY_2E ; 
+          dFunction {BF_NodeY_D12_2E, BF_Zero};
+          Support Region[{Domain,Domain_Force}]; Entity EdgesOf[ All ] ; }
       EndIf
     }
     If (Flag_degree == 1)
@@ -238,25 +195,12 @@ FunctionSpace{
       }
     EndIf
     Constraint {
-      { NameOfCoef uxn ;
-        EntityType NodesOf ; NameOfConstraint DisplacementX_Mec ; }
-      { NameOfCoef uyn ;
-        EntityType NodesOf ; NameOfConstraint DisplacementY_Mec ; }
+      { NameOfCoef uxn ; EntityType NodesOf ; NameOfConstraint DisplacementX_Mec ; }
+      { NameOfCoef uyn ; EntityType NodesOf ; NameOfConstraint DisplacementY_Mec ; }
       If (Flag_degree == 2)
-       { NameOfCoef uxn2 ;
-         EntityType EdgesOf ; NameOfConstraint DisplacementX_Mec_d2 ; }
-       { NameOfCoef uyn2 ;
-         EntityType EdgesOf ; NameOfConstraint DisplacementY_Mec_d2 ; }
+        { NameOfCoef uxn2 ; EntityType EdgesOf ; NameOfConstraint DisplacementX_Mec_d2 ; }
+        { NameOfCoef uyn2 ; EntityType EdgesOf ; NameOfConstraint DisplacementY_Mec_d2 ; }
       EndIf
-    }
-  }
-}
-
-// +++ for dummy space
-Constraint {
-  { Name Displacement_Mec_dum ; Type Assign ;
-    Case {
-      { Region Domain_Disp_Tot ; Value 1; }
     }
   }
 }
@@ -266,10 +210,10 @@ FunctionSpace{
     BasisFunction {
       { Name sxn ; NameOfCoef uxn ; 
         Function BF_NodeX ; dFunction {BF_NodeX_D12, BF_Zero};
-        Support Domain_Disp_Tot ; Entity NodesOf[ All ] ; }
+        Support Region[{Domain,Domain_Force}] ; Entity NodesOf[ All ] ; }
       { Name syn ; NameOfCoef uyn ; 
         Function BF_NodeY ; dFunction {BF_NodeY_D12, BF_Zero};
-        Support Domain_Disp_Tot ; Entity NodesOf[ All ] ; }
+        Support Region[{Domain,Domain_Force}] ; Entity NodesOf[ All ] ; }
     }
     SubSpace {
       { Name u_dum_x ; NameOfBasisFunction { sxn } ; }
@@ -287,10 +231,10 @@ FunctionSpace{
     BasisFunction {
       { Name sxn ; NameOfCoef uxn ; Function BF_NodeX ; 
         dFunction {BF_NodeX_D12, BF_Zero}; //??
-        Support Domain; Entity NodesOf[ All ] ; }
+        Support Region[{Domain,Domain_Force}]; Entity NodesOf[ All ] ; }
       { Name syn ; NameOfCoef uyn ; Function BF_NodeY ; 
         dFunction {BF_NodeY_D12, BF_Zero};
-        Support Domain; Entity NodesOf[ All ] ; }
+        Support Region[{Domain,Domain_Force}]; Entity NodesOf[ All ] ; }
     }
       SubSpace {
         { Name u_x ; NameOfBasisFunction { sxn } ; }
@@ -303,19 +247,18 @@ FunctionSpace{
         EntityType NodesOf ; NameOfConstraint DisplacementY_Mec ; }
     }
   }
+  //----------------------------------------------
+//  { Name dummy ; Type Form1P ;
+//    BasisFunction {
+//      { Name s_dummy ; NameOfCoef s_dummy1 ; Function BF_RegionZ;
+//        Support Region[{Domain,Domain_Force}] ; Entity NodesOf[ All ] ; }
+//    }
+//    Constraint {
+//      { NameOfCoef s_dummy1 ; EntityType NodesOf ; NameOfConstraint dummy ; }
+//    }
+//  }
 }
 
-FunctionSpace{
-  { Name dummy ; Type Form1P ;
-    BasisFunction {
-      { Name s_dummy ; NameOfCoef s_dummy1 ; Function BF_RegionZ;
-        Support Domain_Disp_Tot ; Entity NodesOf[ All ] ; }
-   }
-    Constraint {
-      { NameOfCoef s_dummy1 ; EntityType NodesOf ; NameOfConstraint dummy ; }
-    }
-  }
-}
 
 Formulation {
   { Name PrimalSystem ; Type FemEquation ;
@@ -329,7 +272,7 @@ Formulation {
     Equation {
       // u formulation
       Galerkin { [ C[] * Dof{D1 u}, {D1 u}] ; 
-                 In Domain_Disp; Jacobian Vol ; Integration I1 ; }
+                 In Domain; Jacobian Vol ; Integration I1 ; }
 
       // densite de force imposee
       If (0)
@@ -346,5 +289,35 @@ Formulation {
       EndIf
     }
    }
+}
+
+Resolution{
+  { Name res2D; 
+    System {
+      { Name A; NameOfFormulation PrimalSystem; }
+    }
+    Operation{
+      CreateDir["res/"];
+      InitSolution[A];Generate[A];Solve[A];SaveSolution[A];
+      PostOperation[Get_PrimalSystem];
+    }
+  }
+}
+
+PostProcessing {
+  { Name PostElast2D ; NameOfFormulation PrimalSystem ;
+    PostQuantity {
+      { Name u; Value { Term { [ {u} ] ; In Domain ; Jacobian Vol ; } } }
+    }
+  }
+}
+
+PostOperation {
+ { Name Get_Elast2D; NameOfPostProcessing PostElast2D;
+   Operation{
+     Print[ u, OnElementsOf Domain,
+       File StrCat[ResDir, StrCat["u",ExtGmsh]], LastTimeStepOnly] ;
+   }
+ }
 }
 

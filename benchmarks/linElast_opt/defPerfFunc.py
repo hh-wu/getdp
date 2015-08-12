@@ -5,11 +5,10 @@
 from tool import *
 
 def Compliance(x,data,parameters):
-    print('compliance:{}'.format(np.sum(np.array(data['ComplianceElm']).flatten())))
     return np.sum(np.array(data['ComplianceElm']).flatten())
 
-def StressVM(x,data,parameters):
-    print('StressVM:{}'.format(np.sum(np.array(data['StressVM']).flatten())))
+def vonMises(x,data,parameters):
+    #print('StressVM:{}'.format(np.sum(np.array(data['StressVM']).flatten())))
     return np.sum(np.array(data['StressVM']).flatten())
 
 def EigFreqSquare_1(x,data,parameters):
@@ -40,11 +39,20 @@ def EigFreqSquare_6(x,data,parameters):
     return aa
 
 def Volume(x,data,parameters):
-    #print('ext volume')
     # TODO: add vector values in data too in computePhysicalQuantitySerial !!!!
-    n = len(x)
-    ve = data['VolumeElemDomain'][0]
-    #print('len x:{0} len ve:{1}'.format(n,len(ve)))
-    return np.sum(ve*x)
+    #ve = data['ElementVolume'][0]
+    #return np.sum(ve*x)
+#    print x
+#    print len(x)
+#    print("volume:{}".format(np.sum(x)))
+    return np.sum(x)
+
+def MassTO(x,data,parameters):
+    me = data['ElementMass'][0]
+    return np.sum(me*x)
+
+def Mass(x,data,parameters):
+    return np.sum(np.array(data['Mass']).flatten())
+
 
 

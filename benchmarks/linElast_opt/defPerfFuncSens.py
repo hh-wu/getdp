@@ -6,17 +6,9 @@
 from tool import *
 
 def volumeSens(x,data,parameters):
-    result = np.zeros(len(x))
-    
-    if(parameters['unitElemVol']):
-        result = [1.0]*n
-    else:
-        result = data['VolumeElemDomain'][0]
+    #return data['ElementVolume'][0] #ve
+    return np.ones(len(x))
 
-    return result
-
-
-
-
-
+def massSens(x,data,parameters):
+    return np.array(data['ElementMass'][0])
 

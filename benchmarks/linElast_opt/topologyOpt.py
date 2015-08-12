@@ -11,6 +11,11 @@ from defPerfFunc import *
 from defPerfFuncSens import *
 import defPerfFunc
 
+#aa = ''
+#bb = np.linspace(0,255,100)
+#for k in bb:
+#    aa += '{125,0,0,'+str(int(k))+'},'
+#print aa
 # ************************************************************************
 # ***** Create the parameters                                        *****
 # ************************************************************************
@@ -20,7 +25,7 @@ aa = [getattr(defPerfFunc,'EigFreqSquare_'+str(k)) for k in range (1,nbEig+1)]
 parameters = {
     'plot':1,
     'PrintOpt':99,
-    'analysisType':['static','eig'],
+    'analysisType':['static'],#['static','eig'],
     'nbEig':4,
    
     # Model
@@ -28,16 +33,21 @@ parameters = {
     'AnalysisModelType':'FEM',
     'nbEigRigid':0,
     'defautValue':{
-      'OptType':'topology','MaterialInterpLaw':'simp','SimpDegree':3.0,
-      'RecombineSurf':1,'lc':3.0},
+        'OptType':'topology',
+        'MaterialInterpLaw':'simp','SimpDegree':3.0,
+        'RecombineSurf':1,'lc':1.0},
+
     # Design variables
-    'VolFrac':0.5,
     'elementOfDomainTopOptTAG':[1000],
 
     # Performance function
     'performance':[Compliance, Volume],
     'fjMax': [0.0,Volume],
     'sign':np.array([1.0,1.0]),
+
+#    'performance':[MassTO, vonMises],
+#    'fjMax': [0.0,2.0e09],
+#    'sign':np.array([1.0,1.0]),
 
 #    'performance':[MinEigFreqSquare, Volume],
 #    'fjMax':[0.0, Volume],
@@ -48,22 +58,23 @@ parameters = {
 #    'sign':np.array([-1]*nbEig+[1]),
 
     # Sensitivity analysis
-    'flag_computeGrad':1,
-    'SensitivityMethod':['AnalyticAvmFixedDom','Analytic'],
+    'Sensitivity':['AnalyticAvmFixedDom','Analytic'],
+#    'SensitivityMethod':['Analytic','AnalyticAvmFixedDom'],
     #'SensitivityMethod':['AnalyticEig','Analytic'],
     #'SensitivityMethod':['AnalyticEig']*nbEig+['Analytic'],
 
-    'perfSensHandle':[volumeSens], #for 'analytic' methods
+    'perfSensHandle':[volumeSens],#[massSens], #for 'analytic' methods
     'FilterSensitivity':[1,0],
-    'rmin':0.005,
-    
+    'rmin':0.03,#0.00041667*1.5/(2.0*np.sqrt(3.0)),#0.00041667*1.5,
+    'nelx':300,
+    'nely':100,
     # Optimizer set-up
-    'optimizer':'conlinFile',#'mma2007','conlinFile','gcmma','openopt'
-    'solverName':'CONLIN',
+    'optimizer':'mma2007',#'mma2007','conlinFile','gcmma','openopt'
+    #'solverName':'MMA-SVANBERG07',
     'xtol':1.0e-02,
     'iterMax':1000}
 
-x = np.array([parameters['VolFrac']])
+x = np.array([0.5])
 xmax = np.array([1.0])
 xmin = np.array([0.001])
 
@@ -79,7 +90,8 @@ op = Optimization(parameters,xmin,xmax,x)
 op.preprocessing(op.parameters)
 
 # Call optimizer
-op.solveOpt(op.x,op.xmax,op.xmin,op.fjMax,1,op.parameters)
+#op.solveOpt(op.x,op.xmax,op.xmin,op.fjMax,1,op.parameters)
+op.OC(op.x,op.fjMax,op.parameters)
 
 # Close optimizer
 op.close()
@@ -88,7 +100,7 @@ op.close()
 # ***** Optimization Post-Process                                    *****
 # ************************************************************************
 # Optimization history
-#op.postprocessing('resOpt/histOptClassAttr.txt',85)
+#op.postprocessing('resOpt/histOptClassAttr.txt',53)
 
 
 

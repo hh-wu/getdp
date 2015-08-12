@@ -8,50 +8,32 @@ ADJOINT_FIELD = 9;
 DES_VAR_FIELD = 21;
 
 DefineConstant[
-  pInOpt = "Input/OptParam/",
+  pInOpt = "Input/Optimization/",
 
   // Optimization 
-  Flag_opt = {1,
-    Name StrCat[pInOpt,"Optimization"],Choices {0,1}, Visible 1},
-
-  Flag_optType = {"shape", 
+  Flag_optType = {"none", 
     Choices {
       "shape",
       "topology"
-    }, Name StrCat[pInOpt,"Optimization Type"], Visible (Flag_opt==1)},
-
-  Flag_SysType = {"LinearElast2D",
-    Choices{
-      "MagnetoStatic",
-      "LinearElast2D"
-    }, Name StrCat[pInOpt, "System Type"], Visible (Flag_opt == 1) },
-
-  // Design variables -> FIXME: write in py toolkit!
-  hole_length = {dx/2, 
-    Name StrCat[pInOpt,"x_0"], Label "Hole Length", 
-    Visible ( !StrCmp(Flag_optType, "shape"))},
-  hole_width = {dy/3, 
-    Name StrCat[pInOpt,"x_1"], Label "Hole width", 
-    Visible ( !StrCmp(Flag_optType, "shape"))},
+    }, Name "Input/Optimization Type", Visible 1},
   
   // Velocity field (Mesh perturbation)
-  PerturbMesh = {0, Choices{0,1},
-    Name "Sensitivity/Compute perturbation velocity field", Visible (Flag_opt == 1)},
-  Perturbation = {1e-6,
-    Name "Sensitivity/Perturbation value", Visible (Flag_opt == 1)},
-  SensitivityParameter = { StrCat[pInOpt, "x_0"],
+  SensitivityParameter = { "Input/Constructive parameters/Hole Length",
     Choices{
-      StrCat[pInOpt, "x_0"],
-      StrCat[pInOpt, "x_1"]
-    },Name "Sensitivity/Parameter to perturb", Visible (Flag_opt == 1) },
+      "Input/Constructive parameters/Hole Length",
+      "Input/Constructive parameters/Hole Width"
+    },
+    Name StrCat(pInOpt,"Parameter to perturb"), 
+    Visible (!StrCmp(Flag_optType,"shape")) },
 
   // sensitivity analysis 
   Flag_PerfType = {"None", 
     Choices {
-      "None",  
       "Compliance",
       "vonMises"
-    },Name StrCat[pInOpt,"Performance function"], Visible (Flag_opt==1)},
+    },
+    Name StrCat[pInOpt,"Performance function"], 
+    Visible (StrCmp(Flag_optType,"none"))},
   
   // Material law interpolation 
   Flag_InterpLaw = {"simp", 
@@ -64,7 +46,8 @@ DefineConstant[
     Visible (!StrCmp(Flag_optType,"topology"))},
 
   degree_SIMP = {3.0, 
-    Name StrCat[pInOpt,"Simp Degree"], Visible (Flag_opt==1)}
+    Name StrCat[pInOpt,"Simp Degree"], 
+    Visible (!StrCmp(Flag_optType,"topology"))}
 
 ] ;
 
