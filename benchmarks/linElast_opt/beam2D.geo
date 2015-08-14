@@ -59,6 +59,9 @@ Physical Point(POINT_2) = {2};
 Physical Point(POINT_3) = {3};
 Physical Point(POINT_4) = {4};
 Physical Point(POINT_5) = {5};
+If(Flag_hole)
+  Physical Line(HOLE) = {6,7,8,9}; 
+EndIf
 
 If(Flag_meshRecombine)
   Recombine Surface "*";

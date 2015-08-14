@@ -1,6 +1,10 @@
 mm = 1e-3;
-LL = 1.0;
-dx = LL*4;
+LL = 1.5;
+//dx = LL*4;
+//dy = LL;
+//dz = LL;
+
+dx = LL;
 dy = LL;
 dz = LL;
 
@@ -9,13 +13,15 @@ DefineConstant[
   Flag_hole = {1, Name "Geo/Hole",Choices {0,1},Visible 1},
   ExtGmsh = ".pos",
   ExtGnuplot = ".dat",
+  ExtOnelabScal = ".onelabScal",
+  ExtOnelabVec = ".onelabVec",
   modelpath = CurrentDir, 
   ResDir = StrCat[ modelpath, "res/" ],
   Flag_meshRecombine = {0, Name "Geo/RecombineSurface", Choices {0,1},Visible 1},
   transfiniteMesh = {0, Name "Geo/transfinite Mesh",Choices {0,1},Visible (!Flag_hole)},
-  nbElemPerLineX = {401, Name "Geo/Nx",Visible (transfiniteMesh==1)},
-  nbElemPerLineY = {101,Name "Geo/Ny",Visible (transfiniteMesh==1)},//even number
-  nbElemPerLineZ = {10,Name "Geo/Nz",Visible 1},
+  nbElemPerLineX = {161, Name "Geo/Nx",Visible (transfiniteMesh==1)},
+  nbElemPerLineY = {41,Name "Geo/Ny",Visible (transfiniteMesh==1)},//even number
+  nbElemPerLineZ = {51,Name "Geo/Nz",Visible 1},
   md = { 1., Name "Geo/Mesh Characteristic Length Factor",Label "Mesh density"},
   Flag_degree2 = { 0., Name "Input/degree?",Visible 0}
 ];
@@ -23,9 +29,9 @@ lc = dx*0.05/md;
 
 // Constructive parameters
 DefineConstant[
-  hole_length = {dx/2, 
+  hole_length = {0.2, 
     Name "Input/Constructive parameters/Hole Length", Visible (Flag_hole)},
-  hole_width =  {dy/3, 
+  hole_width =  {0.2, 
     Name "Input/Constructive parameters/Hole Width", Visible (Flag_hole)}
 ];
 
@@ -54,5 +60,6 @@ POINT_2 = 1202;
 POINT_3 = 1203;
 POINT_4 = 1204;
 POINT_5 = 1205;
+HOLE = 9000;
 
 

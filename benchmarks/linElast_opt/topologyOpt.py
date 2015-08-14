@@ -24,13 +24,15 @@ aa = [getattr(defPerfFunc,'EigFreqSquare_'+str(k)) for k in range (1,nbEig+1)]
 
 parameters = {
     'plot':1,
-    'PrintOpt':99,
-    'analysisType':['static'],#['static','eig'],
+    'Print':99,
+    'analysisType':['u_Mec'],#['static','eig'],
     'nbEig':4,
    
     # Model
-    'fileName':'beam',
+    'file':'beam',
     'AnalysisModelType':'FEM',
+    'adjoint':['Adjoint_u_Mec'],
+    'direct':['Direct_u_Mec'],
     'nbEigRigid':0,
     'defautValue':{
         'OptType':'topology',
@@ -58,14 +60,14 @@ parameters = {
 #    'sign':np.array([-1]*nbEig+[1]),
 
     # Sensitivity analysis
-    'Sensitivity':['AnalyticAvmFixedDom','Analytic'],
+    'Sensitivity':['AdjointFixedDom','Analytic'],
 #    'SensitivityMethod':['Analytic','AnalyticAvmFixedDom'],
     #'SensitivityMethod':['AnalyticEig','Analytic'],
     #'SensitivityMethod':['AnalyticEig']*nbEig+['Analytic'],
 
     'perfSensHandle':[volumeSens],#[massSens], #for 'analytic' methods
-    'FilterSensitivity':[1,0],
-    'rmin':0.03,#0.00041667*1.5/(2.0*np.sqrt(3.0)),#0.00041667*1.5,
+    'Filter':[1,-1],#[0]
+    'rmin':0.025,#0.00041667*1.5/(2.0*np.sqrt(3.0)),#0.00041667*1.5,
     'nelx':300,
     'nely':100,
     # Optimizer set-up
@@ -100,7 +102,7 @@ op.close()
 # ***** Optimization Post-Process                                    *****
 # ************************************************************************
 # Optimization history
-#op.postprocessing('resOpt/histOptClassAttr.txt',53)
+op.postprocessing('resOpt/histOptClassAttr.txt',75)
 
 
 

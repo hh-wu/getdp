@@ -1,15 +1,16 @@
 Include "beam_data.geo";
 
 DefineConstant[
-  Flag_testBench = {0,  
+  Flag_testBench = {2,  
     Choices {
       0="Short Cantiler Beam", 
-      1="MBB Beam"
+      1="MBB Beam",
+      2="Plate with hole"
       }, Visible 1,
     Name "Geo/Test Case"},
-  E0  = {1.0, Name "Input/ Materials/ Young modulus"},
-  nu0 = {0.2, Name "Input/ Materials/ Poisson coeficient"},
-  rh = {7200.0,Name "Input/ Materials/ Mass density"}
+  E0  = {210e6, Name "Input/ Materials/ Young modulus"},
+  nu0 = {0.3, Name "Input/ Materials/ Poisson coeficient"},
+  rh = {1.,Name "Input/ Materials/ Mass density"}
 ];
 
 Group {
@@ -19,7 +20,7 @@ Group {
   Domain_Force_Lin = Region[ {} ];
   If(Flag_testBench==0) //short cantilever beam
     If(Flag_2D)
-      Domain_Force_Lin = Region[ POINT_2 ];
+      Domain_Force_Lin = Region[ POINT_5 ];
     EndIf
     If(!Flag_2D)
       Domain_Force_Lin = Region[ LINE_BAS ];
@@ -28,12 +29,22 @@ Group {
   If(Flag_testBench==1) //MBB-beam
     Domain_Force_Lin = Region[{POINT_4}];  // force sur le point 4
   EndIf
+  If(Flag_testBench==2) //plate-hole
+    Domain_Force_Lin = Region[{SURF_BAS,SURF_HAUT,SURF_DROITE,SURF_GAUCHE}];  
+  EndIf
   Domain_Force = Region[{Domain_Force_Sur,Domain_Force_Lin}];
   Domain = Region[{BLOC}];
 
   // Optimization problem
   DomainOpt = Region[{Domain}];
   DomainFunc = Region[{Domain}];    
+  //skin = Region[{HOLE}];
+  //TL = ElementsOf[Domain,OnOneSideOf skin ];
+/*
+  If(!StrCmp[Flag_PerfType,"vonMises"])
+    DomainFunc = ElementsOf[Domain,OnOneSideOf Region[HOLE] ]; 
+  EndIf
+*/
 }
 
 Function {
@@ -46,7 +57,15 @@ Function {
   /* ------------------------------------------------------------------- */
   // Primal problem: 
   /* ------------------------------------------------------------------- */
-  force_mec[Domain_Force] = Vector[0, -1.0, 0]; 
+  If(Flag_testBench == 2)
+    force_mec[#SURF_BAS] = Vector[0, -22.5e6, 0]; 
+    force_mec[#SURF_HAUT] = Vector[0, 22.5e6, 0]; 
+    force_mec[#SURF_DROITE] = Vector[45e6, 0, 0]; 
+    force_mec[#SURF_GAUCHE] = Vector[-45e6, 0, 0]; 
+  EndIf
+  If(Flag_testBench != 2)
+    force_mec[Domain_Force] = Vector[0, -1.0, 0]; 
+  EndIf
 
   If(StrCmp(Flag_optType,"topology")) // no topology optimization
     E[] = E0;
@@ -89,20 +108,20 @@ Function {
   /* ------------------------------------------------------------------- */
   // Optimization problem: performance functions and derivatives 
   /* ------------------------------------------------------------------- */
+  If(Flag_2D) // operators for 2D 
+    sigma[] = C[]*$1; //[sigma_11,sigma_22,sigma_12]
+    sigmaVM[] = Sqrt[ CompX[sigma[$1]#2]^2.0 - CompX[#2]*CompY[#2]
+                   + CompY[#2]^2.0 + 3.0*CompZ[#2]^2.0 ];
+  EndIf
+  If(!Flag_2D) // operators for 3D
+    sigma_ii[] = C11[]*$1; //[sigma_11,sigma_22,sigma_12], $1:{D1 u}
+    sigma_ij[] = C12[]*$1; //[sigma_12,sigma_23,sigma_13], $1:{D2 u}
+    sigmaVM[]  = Sqrt[ 0.5*(CompX[sigma_ii[$1]#2]-CompY[#2])^2.0  
+                      +0.5*(CompY[#2]-CompZ[#2])^2.0 + 0.5*(CompZ[#2]-CompX[#2])^2.0
+                      +3.0*SquNorm[sigma_ij[$2]] ];
+  EndIf
   If(!StrCmp(Flag_optType,"shape") || !StrCmp(Flag_optType,"topology") )
     // 1) operators used for lie derivative 
-    If(Flag_2D) // operators for 2D 
-      sigma[] = C[]*$1; //[sigma_11,sigma_22,sigma_12]
-      sigmaVM[] = Sqrt[ CompX[sigma[$1]#2]^2.0 - CompX[#2]*CompY[#2]
-                     + CompY[#2]^2.0 + 3.0*CompZ[#2]^2.0 ];
-    EndIf
-    If(!Flag_2D) // operators for 3D
-      sigma_ii[] = C11[]*$1; //[sigma_11,sigma_22,sigma_12], $1:{D1 u}
-      sigma_ij[] = C12[]*$1; //[sigma_12,sigma_23,sigma_13], $1:{D2 u}
-      sigmaVM[]  = Sqrt[ 0.5*(CompX[sigma_ii[$1]#2]-CompY[#2])^2.0  
-                        +0.5*(CompY[#2]-CompZ[#2])^2.0 + 0.5*(CompZ[#2]-CompX[#2])^2.0
-                        +3.0*SquNorm[sigma_ij[$2]] ];
-    EndIf
     velocityField[] = VectorField[XYZ[],0,1]{VELOCITY_FIELD};
     dV[] = Transpose[GradVectorField[XYZ[],0,1]{VELOCITY_FIELD}]; 
     du[] = Transpose[GradVectorField[XYZ[],0,1]{STATE_FIELD}]; 
@@ -211,17 +230,18 @@ Constraint{
 
 // Primal system analysis and sensitivity analysis
 Include "Elasticity.pro";
+Include "optim_post.pro" ;
 
 If(!StrCmp(Flag_optType,"shape") 
    || !StrCmp(Flag_optType,"topology"))
   Include "../optimization/sensitivity.pro";
-  Include "optim_post_elast.pro" ;
+  Include "optim_post_elast.pro" ;//optim_post_sens.pro
 EndIf
 
 DefineConstant[
-  R_ = {"OptimStep", Name "GetDP/1ResolutionChoices", Visible 1},
-  C_ = {"-solve -v 5 -slepc -v2", Name "GetDP/9ComputeCommand", Visible 0},
-  P_ = {"", Name "GetDP/2PostOperationChoices", Visible 0}
+  R_ = {"u_Mec", Name "GetDP/1ResolutionChoices", Visible 1},
+  C_ = {"-solve -v 5 -slepc -v2", Name "GetDP/9ComputeCommand", Visible 1},
+  P_ = {"", Name "GetDP/2PostOperationChoices", Visible 1}
 ];
 
 

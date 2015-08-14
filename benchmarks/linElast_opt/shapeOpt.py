@@ -15,24 +15,26 @@ from defPerfFuncSens import *
 # ************************************************************************
 pIn = 'Input/Constructive parameters/'
 parameters = {
-    'fileName':'beam',
+    'file':'beam',
     'plot':1,
-    'PrintOpt':99,
+    'Print':99,
     'AnalysisModelType':'FEM',
-    'analysisType': ['static'],
-    'defautValue':{'OptType':'shape','lc':2},
+    'analysisType': ['u_Mec'],
+    'adjoint':['Adjoint_u_Mec'],
+    'direct':['Direct_u_Mec'],
+    'defautValue':{'OptType':'shape','lc':5},
     'variables':[pIn+'Hole Length',pIn+'Hole Width'],
     'performance': [Mass, vonMises],
-    'fjMax':[0.0,3.0e08],
+    'fjMax':[0.0,3.6e15],
     'sign':[1.0,1.0], # -1:>=, 1:<=
     'Sensitivity':['AnalyticNotEplicit','AdjointLie'],
     'optimizer':'conlinFile', #mma2007,conlinFile,gcmma,openopt
-    'xtol':1.0e-04}
+    'xtol':1.0e-06}
 
 # Design variables
-x = np.array([0.006, 0.0025])
-xmin = np.array([0.002,0.002])
-xmax = np.array([0.02,0.006])
+x = np.array([0.2, 0.2])
+xmin = np.array([0.001,0.001])
+xmax = np.array([1.2,1.2])
 
 # ************************************************************************
 # ***** Instantiate the Model and the Optimizer                      *****

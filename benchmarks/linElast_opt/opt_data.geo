@@ -2,7 +2,7 @@
 
 // postpro views tag
 TORQUE_VAR_FIELD = 20;
-VELOCITY_FIELD = 7;
+VELOCITY_FIELD = 0;
 STATE_FIELD = 8;
 ADJOINT_FIELD = 9;
 DES_VAR_FIELD = 21;
@@ -11,7 +11,7 @@ DefineConstant[
   pInOpt = "Input/Optimization/",
 
   // Optimization 
-  Flag_optType = {"none", 
+  Flag_optType = {"shape", 
     Choices {
       "shape",
       "topology"
@@ -27,7 +27,7 @@ DefineConstant[
     Visible (!StrCmp(Flag_optType,"shape")) },
 
   // sensitivity analysis 
-  Flag_PerfType = {"None", 
+  Flag_PerfType = {"Compliance", 
     Choices {
       "Compliance",
       "vonMises"

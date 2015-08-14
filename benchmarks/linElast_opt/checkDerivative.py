@@ -9,17 +9,17 @@ sys.path.append('../../benchmarks_kst/tool/')
 from tool import *
 from defPerfFunc import *
 from defPerfFuncSens import *
-#dfdx:[ 6.22629418, ]
+
 # ************************************************************************
 # **** Input                                                         *****
 # ************************************************************************
-x = np.array([0.18])
+x = np.array([0.2])
 varName = ['Input/Constructive parameters/Hole Length',
            'Input/Constructive parameters/Hole Width']
 execMode = 'derivative' #{'response','derivative','plot'
-lc = [2] #np.logspace(0.0, 0.8, num=10)[5:] #[3.0]
+lc = [5] #np.logspace(0.0, 0.8, num=10)[5:] #[3.0]
 step = [1.0e-06] #np.logspace(-11, -1, num=11)
-sensMeth = ['FiniteDifference','AdjointSemi','AdjointLie']#,'DirectLie']
+sensMeth =['FiniteDifference','AdjointSemi','AdjointLie']#,'DirectLie']
 #sensMeth = ['FiniteDifference','AnalyticNotEplicit']
 pathSave = 'resSens'
 if(execMode=='response'):xmin=[0.002,0.002];xmax=[0.02,0.006];nbSample=5
@@ -28,13 +28,15 @@ if(execMode=='response'):xmin=[0.002,0.002];xmax=[0.02,0.006];nbSample=5
 # **** Define parameters                                              ****
 # ************************************************************************
 parameters = {
-    'PrintOpt':99,
-    'fileName':'beam',
+    'Print':99,
+    'file':'beam',
     'AnalysisModelType':'FEM',
-    'analysisType':['static'],
+    'analysisType':['u_Mec'],#each name of the system!
+    'adjoint':['Adjoint_u_Mec'],#each name of the system!
+    'direct':['Direct_u_Mec'],
     'defautValue':{'OptType':'shape'},
     'variables':varName,
-    'performance':[Compliance],
+    'performance':[vonMises],
     'allowCentralFD':1}
 
 # ************************************************************************
@@ -89,7 +91,7 @@ elif ( execMode == 'derivative'):
         op.setScalarParameter('Geo/Mesh Characteristic Length Factor',lc[j])
         op.setDesignVariables(x)
         op.MeshCao(op.parameters)
-        mm = parameters['fileName']+'.msh'
+        mm = parameters['file']+'.msh'
         os.system('cp ' + mm + ' ' + pathSave + '/'+ mm + str(j))
         
         for k in range(Nstep): # loop over perturbation step (step)
@@ -99,12 +101,12 @@ elif ( execMode == 'derivative'):
                 # compute f(x)
                 resAnalysis = op.Analysis(x,op.parameters)
                 f[j] = np.copy(resAnalysis['fj'][0])
+                print f
                 
                 # compute df/dx(x)
                 op.parameters['Sensitivity'] = [sensMeth[l]]
                 t0 = time.time()
-                resSens = op.Sensitivity(
-                             x, resAnalysis['fj'], parameters=op.parameters)
+                resSens = op.Sensitivity(x, resAnalysis['fj'], op.parameters)
                 tf = time.time()
                 dfdx[j,k,l] = resSens['dfjdx']
                 
