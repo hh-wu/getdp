@@ -4,7 +4,7 @@
 
 // postpro views tag
 SENS_FIELD = 22;
-
+SOURCE_FILT_FIELD = 99;
 
 DefineConstant[
   Flag_SysType = {"LinearElast2D",
@@ -27,20 +27,21 @@ DefineConstant[
       "direct"
     }, Name StrCat[pInOpt, "Derivative Method"]},
 
-  Flag_AnalyticSensitivity = {0,//analytic or semi-analytic
+  Flag_AnalyticSensitivity = {1,//analytic or semi-analytic
     Choices{0,1}, Name StrCat[pInOpt, "Analytic Derivative?"]},
 
   Flag_FilterMethod = {"none",
     Choices{
-      "filter sensitivity",
-      "filter velocity"
+      "sensitivity",
+      "density"
     }, 
     Name StrCat[pInOpt, "Filter"],
     Visible (!StrCmp(Flag_optType,"topology"))},
 
-  Rmin = {0.001*10, 
+  Rmin = {0.001, 
     Name StrCat[pInOpt,"Filter Radius"], 
-    Visible (!StrCmp[Flag_FilterMethod,"filter sensitivity"])},
+    Visible (!StrCmp[Flag_FilterMethod,"sensitivity"]
+             || !StrCmp[Flag_FilterMethod,"density"])},
 
   Flag_NL = 0
 ];
@@ -52,7 +53,7 @@ Group {
 }
 
 Function {
-  DefineFunction[ br_mag,dhdb_NL,ETA,LV1,LV2,LV3,js ];
+  DefineFunction[ br_mag,dhdb_NL,ETA,LV1,LV2,LV3,js, filtSource ];
   // FIXME: where to write eta,lv1, ... ?  (here)
    
   // derivative of bilinear form and linear load 
@@ -88,8 +89,8 @@ Function {
     filtSource[#{DomainOptMV}] = ScalarField[RotateZ_desVar[],0,1]{SENS_FIELD};
     filtSource[#{DomainOptFix}] = ScalarField[XYZ[],0,1]{SENS_FIELD};
   EndIf
-  If(StrCmp[Flag_SysType,"MagnetoStatic"])  
-    filtSource[#{DomainOpt}] = ScalarField[XYZ[],0,1]{SENS_FIELD};
+  If(StrCmp[Flag_SysType,"MagnetoStatic"])
+    filtSource[#{DomainOpt}] = ScalarField[XYZ[],0,1]{SOURCE_FILT_FIELD};
   EndIf
 }
 
@@ -311,7 +312,7 @@ Formulation {
  //-----------------------------------------------------------------
  // Sensitivity filtering
  //-----------------------------------------------------------------
- { Name FilterSensitivity ; Type FemEquation ;
+ { Name FilterTopOpt ; Type FemEquation ;
     Quantity {
        { Name psi ; Type Local ; NameOfSpace H_psi;}
       }
@@ -326,6 +327,22 @@ Formulation {
          In Domain; Jacobian Vol; Integration I1; }
       }
   }
+ { Name FilterTopOpt_dXdx ; Type FemEquation ;
+    Quantity {
+       { Name psi ; Type Local ; NameOfSpace H_psi;}
+      }
+    Equation {
+       Galerkin { [ Dof{d psi}*Rmin^2.0, {d psi} ] ; 
+         In Domain; Jacobian Vol ; Integration I1 ; }
+
+       Galerkin { [ Dof{psi}, {psi} ] ; 
+         In Domain; Jacobian Vol; Integration I1; }
+
+       Galerkin { [ -1.0, {psi} ] ; 
+         In Domain; Jacobian Vol; Integration I1; }
+      }
+  }
+
 }
 
 Include "SensitivityMacros.pro";
@@ -334,10 +351,11 @@ Resolution {
 
   { Name OptimStep ;
     System {
-      { Name A ; NameOfFormulation PrimalSystem ; } 
-      { Name B ; NameOfFormulation AdjointFormulation ; } 
-      { Name C ; NameOfFormulation DirectFormulation ; }  
-      { Name D ; NameOfFormulation FilterSensitivity ; }
+      //{ Name A ; NameOfFormulation PrimalSystem ; } 
+      //{ Name B ; NameOfFormulation AdjointFormulation ; } 
+      //{ Name C ; NameOfFormulation DirectFormulation ; }  
+      { Name D ; NameOfFormulation FilterTopOpt ; }
+      { Name E ; NameOfFormulation FilterTopOpt_dXdx ; }
     }
     Operation {
       // create result directory
@@ -348,17 +366,18 @@ Resolution {
         InitMovingBand2D[MB];
         MeshMovingBand2D[MB];
       EndIf
-      
-      // compute state varible, adjoint variable or derivative of state varibale
-      If(!StrCmp[Flag_AnalysisMethod,"state"]) // state variable
-        Call SolvePrimalSystem;
-      EndIf
-      If(!StrCmp[Flag_AnalysisMethod,"adjoint"]) // adjoint variable
-        Call SolveAdjointSystem; 
-      EndIf
-      If(!StrCmp[Flag_AnalysisMethod,"direct"]) // direct derivative of state
-        Call SolveDirectSystem;
-      EndIf
+
+      // FIXME: let it to each model!!!      
+//      // compute state varible, adjoint variable or derivative of state varibale
+//      If(!StrCmp[Flag_AnalysisMethod,"state"]) // state variable
+//        Call SolvePrimalSystem;
+//      EndIf
+//      If(!StrCmp[Flag_AnalysisMethod,"adjoint"]) // adjoint variable
+//        Call SolveAdjointSystem; 
+//      EndIf
+//      If(!StrCmp[Flag_AnalysisMethod,"direct"]) // direct derivative of state
+//        Call SolveDirectSystem;
+//      EndIf
 
       // Sensitivity analysis method
       If(!StrCmp[Flag_SensitivityMethod,"noSystem"]) 
@@ -372,8 +391,9 @@ Resolution {
       EndIf
 
       // Sensitivity analysis filtering method
-      If(!StrCmp[Flag_FilterMethod,"filter sensitivity"]) // Filter sensitivity (TO)
-        Call FilterSens;
+      If(!StrCmp[Flag_FilterMethod,"sensitivity"] 
+          || !StrCmp[Flag_FilterMethod,"density"]) // Filter sensitivity (TO)
+        Call FilterTopOpt;
       EndIf
  
      If(!StrCmp[Flag_SysType,"MagnetoStatic"])
