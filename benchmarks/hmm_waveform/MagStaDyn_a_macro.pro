@@ -162,6 +162,8 @@ Resolution {
     }
     Operation {
       CreateDirectory[Dir_Macro];
+
+      Inno_TS = 0;
       
       If(Flag_Dynamic)
         //===================================
@@ -170,19 +172,48 @@ Resolution {
         tolerance_waveform = 1.0e-14;
         error = 10 * tolerance_waveform;
         Evaluate[ Python[0]{"hmm_initialize_waveform.py"} ];
+
+        //=======================
+        // Loop over time windows
+        //=======================
+        For j In {1:num_time_windows}
+        time0_j = time0 + (j - 1) * time_window;
+        timemax_j = time0 + j * time_window;
+
+        Printf("j = %g, Ti = %g and Tf = %g.", j, time0_j, timemax_j);
+
+        Evaluate[ Python[0, j]{"hmm_initialize_waveform.py"} ];
+        
+        
+        //=========================
+        // Waveform relaxation loop
+        //=========================
+        
         //=======================================================
         // 2. First computation. Homogenized law is not available
-        //=======================================================       
+        //=======================================================
+        SetTime[time0_j];
         InitSolution[A_Init]; SaveSolution[A_Init];
         Evaluate[ Python[tolerance_waveform, 0]{"hmm_error_waveform.py"} ];
-        TimeLoopTheta[ time0, timemax, dtime, theta_value]{
-          Evaluate[ Python[$Time, $TimeStep, dtime]{"hmm_first_macro_resolution.py"} ];
+        If (j != 1)
+          Evaluate[ Python[$TimeStep]{"hmm_delete_time_table.py"} ];
+        EndIf
+        TimeLoopTheta[ time0_j, timemax_j, dtime, theta_value]{
+          If (j == 1)
+            Evaluate[ Python[$Time, $TimeStep, dtime, 0]{"hmm_first_macro_resolution.py"} ];
+          EndIf
+          If (j != 1)
+            Evaluate[ Python[$Time, $TimeStep, dtime, 1]{"hmm_first_macro_resolution.py"} ];
+          EndIf
+            
           IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
             GenerateJac[A_Init]; SolveJac[A_Init];
           }
           Generate[Dummy];
         }
-        
+        Printf("Lalalalalalalalalalalalalalalalalal");
+        Evaluate[Python[1]{"hmm_print_time.py"}];
+        Printf("Lalalalalalalalalalalalalalalalalal");
         //====================================================================
         // 3. Waveform relaxation iterations. Homogenized law is now available
         //====================================================================
@@ -195,18 +226,20 @@ Resolution {
           //==============================================
           // 3. 1. 1. Mesoscale computations (in parallel)
           //==============================================
-          Evaluate[Python[Nbr_SubProblems, Flag_Dynamic, Freq, NbSteps, 0, dtime, 1, 0]{"hmm_compute_waveform.py"}];
+        Evaluate[Python[Nbr_SubProblems, Flag_Dynamic, Freq,
+                        NbSteps, 0, time0_j, timemax_j, dtime, 1, 0]{"hmm_compute_waveform.py"}];
           Evaluate[Python[1]{"hmm_print_time.py"}];
           Evaluate[Python[0]{"hmm_sort_tables_waveform.py"}];
           Evaluate[Python[1]{"hmm_swap_tables_waveform.py"}];
           InitSolution[A]; SaveSolution[A];
-          TimeLoopTheta[ time0, timemax, dtime, theta_value]{
+          TimeLoopTheta[ time0_j, timemax_j, dtime, theta_value]{
             IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
               If(Flag_WR == 0)
                 //======================================================
                 // 3. 1. 2. Evaluation of the material law (in parallel)
                 //======================================================
-                Evaluate[Python[Nbr_SubProblems, Flag_Dynamic, Freq, NbSteps, 0, dtime, 0, 0]{"hmm_compute_waveform.py"}];
+                Evaluate[Python[Nbr_SubProblems, Flag_Dynamic, Freq,
+                                NbSteps, 0, time0_j, timemax_j, dtime, 0, 0]{"hmm_compute_waveform.py"}];
               EndIf
               GenerateJac[A]; SolveJac[A];
             }
@@ -217,7 +250,7 @@ Resolution {
             // 3.2. Compute the solution for the first WR iteration
             //=====================================================
             InitSolution[A]; SaveSolution[A];
-            TimeLoopTheta[ time0, timemax, dtime, theta_value]{
+            TimeLoopTheta[ time0_j, timemax_j, dtime, theta_value]{
               IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
                 GenerateJac[A]; SolveJac[A];
               }
@@ -225,10 +258,10 @@ Resolution {
               PostOperation[ globalquantities~{i} ];
               If(Flag_PostCuts)
                 //PostOperation[ meso_computations ];
-                EndIf
+              EndIf
             }
             Evaluate[ Python[Nbr_SubProblems, Flag_Dynamic, Freq,
-                             NbSteps, 1, dtime, 1, 1]{"hmm_compute_waveform.py"} ];
+                             NbSteps, 1, time0_j, timemax_j, dtime, 1, 1]{"hmm_compute_waveform.py"} ];
             //====================================================
           EndIf // Flag_WR_Iterations    
         EndIf // (i == 1)
@@ -239,24 +272,24 @@ Resolution {
             // 3. 1. 1. Mesoscale computations (in parallel)
             //==============================================
             Evaluate[Python[Nbr_SubProblems, Flag_Dynamic, Freq,
-                            NbSteps, 0, dtime, 1, 0]{"hmm_compute_waveform.py"}];
+                            NbSteps, 0, time0_j, timemax_j, dtime, 1, 0]{"hmm_compute_waveform.py"}];
             Evaluate[Python[0]{"hmm_sort_tables_waveform.py"}];
             Evaluate[Python[1]{"hmm_swap_tables_waveform.py"}];
             InitSolution[A]; SaveSolution[A];
-            TimeLoopTheta[ time0, timemax, dtime, theta_value]{
+            TimeLoopTheta[ time0_j, timemax_j, dtime, theta_value]{
               IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
                 //======================================================
                 // 3. 1. 2. Evaluation of the material law (in parallel)
                 //======================================================
                 If(Flag_WR == 0)
                   Evaluate[Python[Nbr_SubProblems, Flag_Dynamic, Freq,
-                                  NbSteps, 0, dtime, 0, 0]{"hmm_compute_waveform.py"}];
+                                  NbSteps, 0, time0_j, timemax_j, dtime, 0, 0]{"hmm_compute_waveform.py"}];
                 EndIf
                 GenerateJac[A]; SolveJac[A];
               }
               Generate[Dummy];
             }
-            
+           
             If(Flag_WR_Iterations)
               //=================================================
               // 3.2. Computations for the waveform iteration 'i'
@@ -273,32 +306,32 @@ Resolution {
                 EndIf
               }
               Evaluate[ Python[Nbr_SubProblems, Flag_Dynamic, Freq,
-                               NbSteps, 1, dtime, 1, 1]{"hmm_compute_waveform.py"} ];
-            //=================================================
+                               NbSteps, 1, time0_j, timemax_j, dtime, 1, 1]{"hmm_compute_waveform.py"} ];
+              //=================================================
             EndIf
           } //Test...
-          //}
         EndIf// (!1)
         EndFor //(WR iterations)
-      EndIf //(Flag_Dynamic)
-          
 
-      // 3.2. Compute if convergence has been attained
-      //==============================================
-      InitSolution[A]; SaveSolution[A];
-      Evaluate[ Python[1]{"hmm_initialize_waveform.py"} ];
-      TimeLoopTheta[ time0, timemax, dtime, theta_value]{
-        IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
-          GenerateJac[A]; SolveJac[A];
+        // 3.2. Compute if convergence has been attained
+        //==============================================
+        InitSolution[A]; SaveSolution[A];
+        Evaluate[ Python[1]{"hmm_initialize_waveform.py"} ];
+        TimeLoopTheta[ time0_j, timemax_j, dtime, theta_value]{
+          IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
+            GenerateJac[A]; SolveJac[A];
+          }
+          SaveSolution[A];
+          PostOperation[ globalquantities ];
+          If(Flag_PostCuts)
+            PostOperation[ meso_computations ];
+          EndIf
         }
-        SaveSolution[A];
-        PostOperation[ globalquantities ];
-        If(Flag_PostCuts)
-          PostOperation[ meso_computations ];
-        EndIf
-      }
-      Evaluate[ Python[Nbr_SubProblems, Flag_Dynamic, Freq,
-                       NbSteps, 1, dtime, 1, 1]{"hmm_compute_waveform.py"} ];        
+        Evaluate[ Python[Nbr_SubProblems, Flag_Dynamic, Freq,
+                         NbSteps, 1, time0_j, timemax_j, dtime, 1, 1]{"hmm_compute_waveform.py"} ];
+        //Inno_TS = $TimeStep;
+        EndFor // num_time_window
+      EndIf //(Flag_Dynamic)          
     }
   }  
 }

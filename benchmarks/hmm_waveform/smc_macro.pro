@@ -62,6 +62,7 @@ Function {
   Omega             = 2 * Pi * Freq;
   time0             = 0.;
   timemax           = T * NbT;
+  time_window       = (timemax - time0)/num_time_windows;
   dtime             = T/NbSteps;
   theta_value       = 1;
   Flag_Init_Step    = 1;

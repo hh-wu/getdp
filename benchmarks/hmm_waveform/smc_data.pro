@@ -19,21 +19,30 @@ DefineConstant[
 
   Freq = {50000,
     Name "Parameters/Frequency", Visible Flag_Dynamic},
-  NbT = {3./50.,
+  NbT = {4./50.,
     Name "Parameters/Number of periods", Visible Flag_Dynamic},
   NbSteps = {50,
     Name "Parameters/Steps per period", Visible Flag_Dynamic}
 ];
 
-// FIXME:
-num_waveform_iterations = 6;
+// Parameters for the WR case
+//===========================
+num_time_windows = 2;
+num_waveform_iterations = 3;
 Flag_WR_Iterations = 0;
+
+// FIXME:
+//======
 source_amplitude = Flag_3D ? 7e5 : 700.e7;
 
+// Choice of mesoscale geometry
+//=============================
 Quarter_Geometry = 0;
 Half_Geometry    = 1;
 Full_Geometry    = 2;
 
+// Directories
+//============
 Flag_Local = 1;
 If(Flag_Local)
   results_dir = "";
@@ -46,6 +55,7 @@ Dir_Meso  = StrCat(results_dir, "res_meso/");
 Dir_Ref   = StrCat(results_dir, "res_ref/");
 
 // Infos for PostProcessing
+//=========================
 ExtGmsh = Str[ Sprintf("_nl%g.pos", Flag_NL) ];
 ExtData = Str[ Sprintf("_nl%g.txt", Flag_NL) ];
 
@@ -81,8 +91,8 @@ lc_smc_cond = e/40. ;
 DefineConstant[Lay1 = 31];
 DefineConstant[Lay2 = 31];
 DefineConstant[Lay3 = 16];
-DefineConstant[Lay_X = 6];
-DefineConstant[Lay_Y = 6];
+DefineConstant[Lay_X = 3];
+DefineConstant[Lay_Y = 3];
 Pro1        = 1.0;
 Pro2        = 1.0;
 Pro3        = 1.0;
@@ -128,7 +138,6 @@ EndIf
 If(Flag_Geometry == Quarter_Geometry)
 GAMMA_LEFT_NJ = 1007; // right boundary
 GAMMA_LEFT_TH = 1008; // right boundary
-
 GAMMA_DOWN_NJ = 1009; // right boundary
 GAMMA_DOWN_TH = 1010; // right boundary
 EndIf

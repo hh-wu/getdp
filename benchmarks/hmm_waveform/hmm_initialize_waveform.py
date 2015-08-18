@@ -22,8 +22,7 @@ if (input[0] == 0):
     dhdbzz_table = {}
     JouleLosses_table = {}
     MagneticEnergy_table = {}
-    
-    
+
     hx_old_table = {}
     hy_old_table = {}
     hz_old_table = {}
@@ -32,7 +31,6 @@ if (input[0] == 0):
     dhdbyx_old_table = {}
     dhdbyy_old_table = {}
 
-    
 # python input (filled during downscaling)
 ax_table = {}
 ay_table = {}
@@ -70,7 +68,11 @@ delta_dtbx = {}
 delta_dtby = {}
 delta_dtbz = {}
 
+ref_TS = 1e8
+num_tw = input[1]
+
 if (input[0] == 0):
     end_computations = False
 if (input[0] == 1):
     end_computations = True
+    

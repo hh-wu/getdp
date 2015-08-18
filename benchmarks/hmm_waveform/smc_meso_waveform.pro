@@ -32,7 +32,7 @@ Function {
   mu0            = 4.e-7 * Pi;
   nu0            = 1/mu0;
 
-  DefineConstant[ ELENUM=0, QPINDEX=0, dt_Macro=0, Flag_WR_meso=1, Flag_meso_comp=0];
+  DefineConstant[ ELENUM=0, QPINDEX=0, t_0=0, t_end=0, dt_Macro=0, Flag_WR_meso=1, Flag_meso_comp=0];
 
   If(!Flag_WR_meso)
     Nbr_SubProblems = 1;
@@ -98,9 +98,19 @@ Function {
   Pert~{4}[]     = epsilon * Vector[0.0, 0.0, 1.0];
 
   T               = 1.0/Freq;
-  time0           = 0.0;
-  timemax         = T * NbT;
+
+  
+  //time0           = 0.0;
+  //timemax         = T * NbT;
+  //ti              = time0;
+
+  time0           = t_0;
+  timemax         = t_end;
   ti              = time0;
+
+  Printf("Done in the mesoscale resolution. t_0 = %g, t_end = %g and Nbr_SubProblems=%g", t_0, t_end, Nbr_SubProblems);
+
+
   dt_Meso         = dt_Macro/1;
   theta_value     = 1;
   tf              = timemax;

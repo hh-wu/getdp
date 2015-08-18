@@ -10,9 +10,11 @@ flag_dynamic = input[1]
 freq = input[2]
 nb_steps = input[3]
 postpro_cuts = input[4]
-dt_Macro = input[5]
-Flag_WR_meso = input[6]
-Flag_meso_comp = input[7]
+t_0 = input[5]
+t_end = input[6]
+dt_Macro = input[7]
+Flag_WR_meso = input[8]
+Flag_meso_comp = input[9]
 
 time_table_keys = time_table.keys()
 keys = bx_table.keys()
@@ -104,6 +106,9 @@ while len(queue):
                 list_dtby = '0'
                 list_dtbz = '0'
                 for j in range(first_index,len_time): #only difference from line "132" is 'j = 0:len_time'
+                    print key[0]
+                    print key[1]
+                    print time_table[j+1]
                     getdp_list_key = (key[0], key[1], time_table[j+1])
                     list_time += " " + str(time_table[j+1])
                     list_ax += " " + str(ax_table[getdp_list_key])
@@ -122,6 +127,7 @@ while len(queue):
                 print 'Done solving for mesoscale problems ' + str(key[0])
                 args.extend([file_dir + "getdp.sh", file_dir + "smc_meso_waveform", 
                              "-bin", "-v", "2" if Flag_meso_comp != 0 else "2", "-v2", "-solve", "a_NR", 
+                             #"-pos", "mean_1 mean_2 mean_3",
                              "-pos", "mean_1",
                              "" if Flag_meso_comp != 0 else "mean_2", 
                              "" if Flag_meso_comp != 0 else "mean_3", 
@@ -129,6 +135,8 @@ while len(queue):
                              "map_field_1",
                              "-setnumber", "Flag_Dynamic", str(flag_dynamic),
                              "-setnumber", "Freq", str(freq),
+                             "-setnumber", "t_0", str(t_0),
+                             "-setnumber", "t_end", str(t_end),
                              "-setnumber", "dt_Macro", str(dt_Macro),
                              "-setnumber", "NbSteps", str(nb_steps),
                              "-setlist", "TIMEVEC "  + str(len_time), str(list_time),
@@ -180,6 +188,8 @@ while len(queue):
                              "-pos", "mean_WR", "map_field_WR",
                              "-setnumber", "Flag_Dynamic", str(flag_dynamic),
                              "-setnumber", "Freq", str(freq),
+                             "-setnumber", "t_0", str(t_0),
+                             "-setnumber", "t_end", str(t_end),
                              "-setnumber", "dt_Macro", str(dt_Macro),
                              "-setnumber", "NbSteps", str(nb_steps),
                              "-setlist", "TIMEVEC "  + str(len_time), str(list_time),
@@ -289,17 +299,31 @@ if (Flag_meso_comp == 0):
             elif(i != 0):
                 f = open(Dir_Meso + "h" + str(i + 1) + "_" + str(key[0]) + ".txt", "r")
             g = f.readlines()
+            #print 'printing the lenght of G'
+            #print len(g)
+            #print g
+            #print 'printing the time table'
+            print time_table
+            #print key[0]
+            #print key[1]
+            #print time_table[l_1]
             l_1 = 0
             l_2 = 0
             l_3 = 0
             l_4 = 0
             for j in g:
                 line = j.split()
+                #print "printing line"
                 #print line
                 aaa = (float(line[0])/dt_Macro)
                 if (i == 0):
                     if (l_1 != 0):
+                        #print key[0]
+                        #print key[1]
+                        #print time_table[l_1]
                         new_key = (key[0], key[1], time_table[l_1])
+                        #print 'printing key'
+                        #print key
                         h_1[new_key] = line[1 : len(line)]
                     l_1 += 1
                 elif(i == 1):

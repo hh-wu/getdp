@@ -81,20 +81,20 @@ if (WR_iteration > 0):
     WR_Rel_L_inf_dtb = WR_Abs_L_inf_dtb/WR_Abs_L_inf_dtb_0
 
     print 'Tolerance = ' + str(tolerance)
-    print 'W_Rel_L_inf_norm_b = '   + str(WR_Rel_L_inf_b) 
-    print 'W_Rel_L_inf_norm_dta = ' + str(WR_Rel_L_inf_dta) 
-    print 'W_Rel_L_inf_norm_dtb = ' + str(WR_Rel_L_inf_dtb) 
+    print 'W_Rel_L_inf_norm_b_ntw' + str(num_tw) + ' = ' + str(WR_Rel_L_inf_b) 
+    print 'W_Rel_L_inf_norm_dta_ntw' + str(num_tw) + ' = ' + str(WR_Rel_L_inf_dta) 
+    print 'W_Rel_L_inf_norm_dtb_ntw' + str(num_tw) + ' = ' + str(WR_Rel_L_inf_dtb) 
 
 if (WR_iteration == 0):
-    f = open(file_dir + "WR_Rel_L_inf_b.txt", "w")
-    f = open(file_dir + "WR_Rel_L_inf_dta.txt", "w")
-    f = open(file_dir + "WR_Rel_L_inf_dtb.txt", "w")
+    f = open(file_dir + "WR_Rel_L_inf_b_ntw" + str(num_tw) + ".txt", "w")
+    f = open(file_dir + "WR_Rel_L_inf_dta_ntw" . str(num_tw) + ".txt", "w")
+    f = open(file_dir + "WR_Rel_L_inf_dtb_ntw" . str(num_tw) + ".txt", "w")
     output = (True)
 if (WR_iteration != 0):
-    f = open(file_dir + "WR_Rel_L_inf_b.txt", "a")
+    f = open(file_dir + "WR_Rel_L_inf_b_ntw" + str(num_tw) + ".txt", "a")
     f.write(str(WR_iteration) + " " + str(WR_Rel_L_inf_b) + "\n")
-    f = open(file_dir + "WR_Rel_L_inf_dta.txt", "a")
+    f = open(file_dir + "WR_Rel_L_inf_dta_ntw" + str(num_tw) + ".txt", "a")
     f.write(str(WR_iteration) + " " + str(WR_Rel_L_inf_dta) + "\n")
-    f = open(file_dir + "WR_Rel_L_inf_dtb.txt", "a")
+    f = open(file_dir + "WR_Rel_L_inf_dtb_ntw" + str(num_tw) + ".txt", "a")
     f.write(str(WR_iteration) + " " + str(WR_Rel_L_inf_dtb) + "\n")
     output = ((WR_Rel_L_inf_b > tolerance) or (WR_Rel_L_inf_dta > tolerance) or (WR_Rel_L_inf_dtb > tolerance))
