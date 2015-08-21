@@ -1,10 +1,16 @@
 DefineConstant[
-  NumMagnets = {2, Min 1, Max 20, Step 1, Name "Parameters/0Number of magnets"}
+  NumMagnets = {2, Min 1, Max 20, Step 1, Name "Parameters/0Number of magnets"},
+  Flag_Degree = {1, Choices {0,1},Name "Input/degree 2?"}
 ];
+
 modelpath = CurrentDir;
 ResDir = StrCat[ modelpath, "res/" ];
 ExtGmsh = ".pos";
-ExtGnuplot = ".dat";  
+ExtGnuplot = ".dat";
+ExtAnalyticSens = ".analyticSens";
+ExtOnelabScal = ".onelabScal";
+ExtOnelabVec = ".onelabVec";
+po_min  = "Output/";
 mm = 1.e-3;
 
 For i In {1:NumMagnets}
@@ -22,12 +28,9 @@ For i In {1:NumMagnets}
     R~{i} = {20*mm, Min mm, Max 100*mm, Step mm,
       Name Sprintf("Parameters/Magnet %g/1Radius [m]", i),
       Visible (M~{i} == 0) },
-//    L~{i} = {50*mm, Name StrCat[pInOpt,Sprintf("x_%g", (i-1))],
-//      Label Sprintf("Magnet %g:Length [m]", i),
-//      Visible 1 },
-//    L~{i} = {50*mm, Min mm, Max 100*mm, Step mm,
-//      Name Sprintf("Parameters/Magnet %g/1Length [m]", i),
-//      Visible (M~{i} == 0) },
+    L~{i} = {50*mm, Min mm, Max 100*mm, Step mm,
+      Name Sprintf("Parameters/Magnet %g/1Length [m]", i),
+      Visible (M~{i} == 0) },
 
     Lx~{i} = {50*mm, Min mm, Max 100*mm, Step mm,
       Name Sprintf("Parameters/Magnet %g/1X length [m]", i),

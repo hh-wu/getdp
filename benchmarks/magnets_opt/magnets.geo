@@ -1,7 +1,6 @@
 // include parameters common to geometry and solver
 Include "magnets_data.geo";
 
-
 // define geometry-specific parameters
 DefineConstant[
   lchar = {1.0,Name "Geo/Mesh Characteristic Length Factor",Visible 1},
@@ -88,6 +87,7 @@ Physical Volume(NumMagnets+1) = v1; // air
 Physical Surface(NumMagnets+2) = ss[]; // infinity
 
 // Velocity field for shape perturbation
-If(Flag_opt && !(StrCmp(Flag_optType,"shape")))
+If( !(StrCmp(Flag_optType,"shape")) )
   Merge "../optimization/perturb.geo";
 EndIf
+

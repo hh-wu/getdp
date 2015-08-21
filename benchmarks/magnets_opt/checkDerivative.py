@@ -2,8 +2,6 @@
     Author: Erin Kuci
     
     Check the computation of sensitivity 
-    #TODO: estimate FEM error !!!
-    
 """
 
 import sys
@@ -15,24 +13,32 @@ from defPerfFuncSens import *
 # ************************************************************************
 # **** Input                                                         *****
 # ************************************************************************
-x = np.array([50e-03]) #np.array([op.getScalarParamVal('Input/OptParam/x_0')])
+x = np.array([50e-03,50e-03]) #np.array([op.getScalarParamVal('Input/OptParam/x_0')])
+varName = ['Parameters/Magnet 1/1Length [m]',
+           'Parameters/Magnet 2/1Length [m]']
 execMode = 1 #1:sensitivity, 2:plot
 lc = [1.0] #np.logspace(0.0, -0.4, num=10)
-step = [1.0e-08] #np.logspace(-16, -3, num=14)
-sensMeth = ['GlobalFiniteDifference','AdjointSemi','AdjointLie','DirectLie']
+step = [1.0e-06] #np.logspace(-16, -3, num=14)
+#sensMeth = ['FiniteDifference','AdjointSemi','AdjointLie','DirectLie']
+sensMeth = ['FiniteDifference']*2
 pathSave = 'resSens'
 
 # ************************************************************************
 # **** Define parameters                                              ****
 # ************************************************************************
 parameters = {
-    'PrintOpt':99,
-    'fileName': 'magnets',
-    'AnalysisModelType':'FEM',
-    'analysisType': ['static'],
-    'performance':[Compliance],
+    'Print':4,
+    'file': 'magnets',
+    'analysis': ['MagSta_a'],
+    'analysisPost':['MagSta_a'],#not necessary since corresp. to 'analysis'
+    'semiPost':['SemiAdjoint_MagSta_a'],
+    'adjoint':['Adjoint_MagSta_a'],
+    'direct':['Direct_MagSta_a'],
+    'variables':varName,
+    'performance':[Compliance]*2,
     'allowCentralFD': 0,
-    'defautValue': {'OptType':'shape','TorqueNominal':90.0}}
+    'defaultValue':{'OptType':['Input/Optimization Type','shape']}
+}
 
 # ************************************************************************
 # **** Instantiate the sensitivity module                            *****
@@ -55,20 +61,33 @@ if( execMode ): # check sensitivity
     # Compute df/dx
     for j in range(Nlc): # loop over mesh quality (lc)
         op.setScalarParameter('Geo/Mesh Characteristic Length Factor',lc[j])
-        op.MeshCao(x, op.parameters)
-        
+        op.setDesignVariables(x)
+        op.MeshCao(op.parameters)
+        mm = parameters['file']+'.msh'
+        os.system('cp ' + mm + ' ' + pathSave + '/'+ mm + str(j))
+
+#        op.computeVelocityField(op.parameters['variables'][0],
+#                        -op.parameters['step'])
+#        os.system('cp res/velocity.pos res/velocity_1.pos')
+
         for k in range(Nstep): # loop over perturbation step (step)
             op.parameters['step'] = step[k]
-            
+ 
+#            # compute f(x)
+#            resAnalysis = op.Analysis(x,op.parameters)
+#            print resAnalysis
+#            # compute df/dx(x)
+#            op.parameters['Sensitivity'] = sensMeth
+#            resSens = op.Sensitivity(x,resAnalysis['fj'],op.parameters)
+#            print resSens
             for l in range(nbMeth): # loop over sens. analysis methods
                 # compute f(x)
                 resAnalysis = op.Analysis(x,op.parameters)
                 f[j] = np.copy(resAnalysis['fj'][0])
-                
+
                 # compute df/dx(x)
-                op.parameters['SensitivityMethod'] = [sensMeth[l]]
-                resSens = op.Sensitivity(
-                             x,resAnalysis['fj'],parameters=op.parameters)
+                op.parameters['Sensitivity'] = [sensMeth[l]]
+                resSens = op.Sensitivity(x,resAnalysis['fj'],op.parameters)
                 dfdx[j,k,l] = resSens['dfjdx']
                 
                 # compute relative error wrt FD
@@ -78,7 +97,8 @@ if( execMode ): # check sensitivity
                 print('-'*80)
                 print('method:{},lc:{},step:{}'.format(sensMeth[l],lc[j],step[k]))
                 print('f:{}\ndfdx:{}\nrelErr({},{}):{:.4E}'.\
-                      format(f[j],dfdx[j,k,l],sensMeth[l],sensMeth[0],float(relErr[j,k,l])))
+                      format(f[j],dfdx[j,k,l],sensMeth[l],sensMeth[0],
+                             float(relErr[j,k,l])))
                 print('-'*80)
 
     # Save result
