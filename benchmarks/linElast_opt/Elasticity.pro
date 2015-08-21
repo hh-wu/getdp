@@ -178,7 +178,7 @@ Formulation{
       }
     }
     //If(!StrCmp(Flag_optType,"shape") || !StrCmp(Flag_optType,"topology"))
-      { Name Direct_Mec ; Type FemEquation ;
+      { Name Direct_u_Mec ; Type FemEquation ;
         Quantity {
           { Name u ; Type Local  ; NameOfSpace H_u_Mec2D ; }
           { Name d_u ; Type Local  ; NameOfSpace H_dState_Mec2D ; }
@@ -241,7 +241,7 @@ Formulation{
             In DomainFunc ; Jacobian SurLinVol ; Integration I1 ; }
         }
       }
-      { Name Direct_Mec ; Type FemEquation ;
+      { Name Direct_u_Mec ; Type FemEquation ;
         Quantity {
           { Name u ; Type Local  ; NameOfSpace H_u_Mec3D ; }
           { Name d_u ; Type Local  ; NameOfSpace H_dState_Mec3D ; }
@@ -268,16 +268,13 @@ Resolution{
       { Name A; NameOfFormulation u_Mec; }
     }
     Operation{
-      // /Applications/getdp beam.pro -solve Semi_Adjoint_u_Mec -pos u_Mec_Post
-      // cp beam.pre beam_u_Mec.pre
-      // cp beam.res beam_u_Mec.res
       CreateDir[ResDir];
       If(!StrCmp(Flag_optType,"topology"))
         GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD]; 
       EndIf
       InitSolution[A];Generate[A];Solve[A];
       SaveSolution[A];
-      PostOperation[u_Mec_Post];
+      PostOperation[u_Mec];
     }
   }
   { Name Adjoint_u_Mec; 
@@ -286,15 +283,30 @@ Resolution{
       { Name B; NameOfFormulation Adjoint_u_Mec; }
     }
     Operation{
-      // /Applications/getdp beam.pro -res beam_u_Mec.res -solve Adjoint_u_Mec -pos Post_Adjoint_u_Mec
-      // cp beam.res beam_Adj_u_Mec.res
       CreateDir[ResDir];
       ReadSolution[A]; //Load state variable
+      PostOperation[u_Mec];//generate useful coeff !!
       If(!StrCmp(Flag_optType,"topology"))
         GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD]; 
       EndIf
       InitSolution[B];Generate[B];Solve[B];SaveSolution[B];
-      PostOperation[Post_Adjoint_u_Mec];
+      PostOperation[Adjoint_u_Mec];
+    }
+  }
+  { Name Direct_u_Mec; 
+    System {
+      { Name A; NameOfFormulation u_Mec; } //more than 1!
+      { Name B; NameOfFormulation Direct_u_Mec; }
+    }
+    Operation{
+      CreateDir[ResDir];
+      ReadSolution[A]; //Load state variable
+      GmshRead[StrCat[ResDir,"velocity.pos"], VELOCITY_FIELD];
+      If(!StrCmp(Flag_optType,"topology"))
+        GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD]; 
+      EndIf
+      InitSolution[B];Generate[B];Solve[B];SaveSolution[B];
+      PostOperation[Post_Direct_u_Mec];
     }
   }
   { Name Lie_Adjoint_u_Mec; 
@@ -309,12 +321,34 @@ Resolution{
       //Load state variable
       ReadSolution[A];ReadSolution[B]; 
      
+      PostOperation[u_Mec];//generate useful coeff !!
+
       // load useful maps   
       GmshRead[StrCat[ResDir,"velocity.pos"], VELOCITY_FIELD];
       GmshRead[StrCat[ResDir,"u.pos"], STATE_FIELD];
       GmshRead[StrCat[ResDir,"lambda.pos"], ADJOINT_FIELD];
   
       PostOperation[GetShapeOptAdjointSens];
+    }
+  }
+  { Name Lie_Direct_u_Mec; 
+    System {
+      { Name A; NameOfFormulation u_Mec; } //more than 1!
+      { Name B; NameOfFormulation Direct_u_Mec; }
+    }
+    Operation{
+      // TODO: gmsh read directly in command line !!!
+      CreateDir[ResDir];
+
+      //Load state variable
+      ReadSolution[A];ReadSolution[B]; 
+     
+      // load useful maps   
+      GmshRead[StrCat[ResDir,"velocity.pos"], VELOCITY_FIELD];
+      GmshRead[StrCat[ResDir,"u.pos"], STATE_FIELD];
+      GmshRead[StrCat[ResDir,"lambda.pos"], ADJOINT_FIELD];
+  
+      PostOperation[GetShapeOptDirectSens];
     }
   }
   { Name TO_Adjoint_u_Mec; 
@@ -344,41 +378,14 @@ Resolution{
       // TODO: gmsh read directly in command line !!!
       CreateDir[ResDir];
 
-      //Load state variable
+      //Load state variable and useful maps
       ReadSolution[A]; 
-     
-      // load useful maps   
       GmshRead[StrCat[ResDir,"velocity.pos"], VELOCITY_FIELD];
       
       PostOperation[GetAnalyticSens];
     }
   }
 
-//  { Name Semi_Adjoint_u_Mec; 
-//    System {
-//      { Name A; NameOfFormulation u_Mec; } //more than 1!
-//      { Name B; NameOfFormulation Adjoint_u_Mec; }
-//    }
-//    Operation{
-/////Applications/getdp beam.pro -res beam_u_Mec.res beam_Adj_u_Mec.res 
-////                             -pos GetSemiAdjointSens
-//      // load state variable and adjoint variable
-//      ReadSolution[A];ReadSolution[B];
-
-//      // load maps
-//      If(!StrCmp(Flag_optType,"topology"))
-//        GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD];
-//      EndIf
-//      If(!StrCmp(Flag_optType,"shape"))
-//        GmshRead[StrCat[ResDir,"velocity.pos"], VELOCITY_FIELD];
-//        GmshRead[StrCat[ResDir,"u.pos"], STATE_FIELD];
-//        GmshRead[StrCat[ResDir,"lambda.pos"], ADJOINT_FIELD];
-//      EndIf
-
-//      PostOperation[GetSemiAdjointSens]; 
-//      PostOperation[u_Mec_Func];
-//    }
-//  }
 }
 
 

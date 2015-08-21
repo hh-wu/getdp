@@ -13,13 +13,14 @@ from defPerfFuncSens import *
 # ************************************************************************
 # **** Input                                                         *****
 # ************************************************************************
-x = np.array([0.2])
+x = np.array([0.3])
 varName = ['Input/Constructive parameters/Hole Length',
            'Input/Constructive parameters/Hole Width']
+func = [vonMises_Pnorm]
 execMode = 'derivative' #{'response','derivative','plot'
 lc = [5] #np.logspace(0.0, 0.8, num=10)[5:] #[3.0]
 step = [1.0e-06] #np.logspace(-11, -1, num=11)
-sensMeth =['FiniteDifference','AdjointSemi','AdjointLie']#,'DirectLie']
+sensMeth =['FiniteDifference','AdjointSemi','AdjointLie']
 #sensMeth = ['FiniteDifference','AnalyticNotEplicit']
 pathSave = 'resSens'
 if(execMode=='response'):xmin=[0.002,0.002];xmax=[0.02,0.006];nbSample=5
@@ -28,16 +29,20 @@ if(execMode=='response'):xmin=[0.002,0.002];xmax=[0.02,0.006];nbSample=5
 # **** Define parameters                                              ****
 # ************************************************************************
 parameters = {
-    'Print':99,
+    'Print':4,
     'file':'beam',
-    'AnalysisModelType':'FEM',
-    'analysisType':['u_Mec'],#each name of the system!
-    'adjoint':['Adjoint_u_Mec'],#each name of the system!
+    'analysis':['u_Mec'],
+    'analysisPost':['u_Mec'],
+    'adjoint':['Adjoint_u_Mec'],
+    'semiPost':['SemiAdjoint_u_Mec'],
     'direct':['Direct_u_Mec'],
-    'defautValue':{'OptType':'shape'},
+    'defaultValue':{
+        'OptType':['Input/Optimization Type','shape'],
+        'degVM':['Input/Optimization/degVM',2]},
     'variables':varName,
-    'performance':[vonMises],
-    'allowCentralFD':1}
+    'performance':func,
+    'allowCentralFD':1
+}
 
 # ************************************************************************
 # **** Instantiate the sensitivity module                            *****
@@ -88,7 +93,7 @@ elif ( execMode == 'derivative'):
     
     # Compute df/dx
     for j in range(Nlc): # loop over mesh quality (lc)
-        op.setScalarParameter('Geo/Mesh Characteristic Length Factor',lc[j])
+        op.setScalarParameter('Geo/Mesh density',lc[j])
         op.setDesignVariables(x)
         op.MeshCao(op.parameters)
         mm = parameters['file']+'.msh'
@@ -96,13 +101,12 @@ elif ( execMode == 'derivative'):
         
         for k in range(Nstep): # loop over perturbation step (step)
             op.parameters['step'] = step[k]
-            
+
             for l in range(nbMeth): # loop over sens. analysis methods
                 # compute f(x)
                 resAnalysis = op.Analysis(x,op.parameters)
                 f[j] = np.copy(resAnalysis['fj'][0])
-                print f
-                
+
                 # compute df/dx(x)
                 op.parameters['Sensitivity'] = [sensMeth[l]]
                 t0 = time.time()

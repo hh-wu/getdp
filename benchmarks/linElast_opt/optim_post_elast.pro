@@ -12,12 +12,18 @@ PostProcessing {
 	    In Domain; Jacobian Vol; Integration I1; }
 	}
       }
+      { Name dMass2;
+	Value {
+	  Integral{ [ -dMass[] ];
+	    In Domain; Jacobian Vol; Integration I1; }
+	}
+      }
     }
   }
   // --------------------------------------------------------------------
   // Adjoint variable
   // --------------------------------------------------------------------
-  { Name Post_Adjoint_u_Mec ; NameOfFormulation Adjoint_u_Mec ;
+  { Name Adjoint_u_Mec ; NameOfFormulation Adjoint_u_Mec ;
     PostQuantity {
       { Name v ; Value { Term { [ velocityField[] ] ; In Domain ; Jacobian Vol ; }}}
       { Name lambda ; Value { Term {[ {lambda} ] ; In Domain ; Jacobian Vol;}}}
@@ -115,7 +121,7 @@ PostOperation {
    // --------------------------------------------------------------------------
   // Get Adjoint variable
   // --------------------------------------------------------------------------
- { Name Post_Adjoint_u_Mec; NameOfPostProcessing Post_Adjoint_u_Mec;
+ { Name Adjoint_u_Mec; NameOfPostProcessing Adjoint_u_Mec;
    Operation{
      Print[ lambda, OnElementsOf Domain,
      	 File StrCat[ResDir, StrCat["lambda",ExtGmsh]], LastTimeStepOnly] ;
@@ -131,14 +137,17 @@ PostOperation {
  { Name GetAnalyticSens; NameOfPostProcessing GetAnalyticSens;
    Operation{
      Print[ dMass[Domain], OnGlobal, Format Table,
-  	   File StrCat[ResDir, StrCat["dMass",ExtGnuplot]], LastTimeStepOnly,
+  	   File StrCat[ResDir, StrCat["dMass",ExtAnalyticSens]], LastTimeStepOnly,
 	   SendToServer StrCat[po_min,"dMass"], Color "LightYellow" ];
+     Print[ dMass2[Domain], OnGlobal, Format Table,
+  	   File StrCat[ResDir, StrCat["dMass2",ExtAnalyticSens]], LastTimeStepOnly,
+	   SendToServer StrCat[po_min,"dMass2"], Color "LightYellow" ];
    }
  }
   // --------------------------------------------------------------------------
   // Get Semi-analytic quantities
   // --------------------------------------------------------------------------
- { Name GetSemiAdjointSens; NameOfPostProcessing Post_Adjoint_u_Mec;
+ { Name SemiAdjoint_u_Mec; NameOfPostProcessing Adjoint_u_Mec;
    Operation{
      Print[ bilinLamdaState[Domain], OnGlobal, Format Table,
   	   File StrCat[ResDir, StrCat["lambda_K_A",ExtGnuplot]], LastTimeStepOnly,
@@ -151,7 +160,7 @@ PostOperation {
   // --------------------------------------------------------------------
   // Sensitivity (adjoint variable) with Lie approach 
   // --------------------------------------------------------------------
-  { Name Get_AvmVarDomSens_Lie0; NameOfPostProcessing Post_Adjoint_u_Mec;
+  { Name Get_AvmVarDomSens_Lie0; NameOfPostProcessing Adjoint_u_Mec;
     Operation{
 //       Print[ dlambda_v, OnElementsOf Domain,
 //	      File StrCat[ResDir, StrCat["dlambda_v",ExtGmsh]], LastTimeStepOnly] ;
@@ -159,7 +168,7 @@ PostOperation {
 //	      File StrCat[ResDir, StrCat["du_v",ExtGmsh]], LastTimeStepOnly] ;
     }
   } 
-  { Name GetShapeOptAdjointSens; NameOfPostProcessing Post_Adjoint_u_Mec;
+  { Name GetShapeOptAdjointSens; NameOfPostProcessing Adjoint_u_Mec;
     Operation{
        Print[ v, OnElementsOf Domain,
 	      File StrCat[ResDir, StrCat["velocity",ExtGmsh]], LastTimeStepOnly] ;
@@ -181,7 +190,7 @@ PostOperation {
   // ----------------------------------------VM----------------------------------
   // Get Sensitivity
   // --------------------------------------------------------------------------
- { Name GetTopOptAdjointSens; NameOfPostProcessing Post_Adjoint_u_Mec;
+ { Name GetTopOptAdjointSens; NameOfPostProcessing Adjoint_u_Mec;
    Operation{
      Print[ Sensitivity_AdjointMethod, OnElementsOf DomainOpt,LastTimeStepOnly,
 	   File StrCat[ResDir, StrCat["SensPerfAvmFixedDom",ExtGmsh]]] ;
@@ -194,7 +203,7 @@ PostOperation {
 //	   File StrCat[ResDir, StrCat["SensPerfAvmFixedDomNodes",ExtGmsh]]] ;
    }
  }
- { Name Get_SelfAvmFixedDomSens; NameOfPostProcessing Post_Adjoint_u_Mec;//FIXME
+ { Name Get_SelfAvmFixedDomSens; NameOfPostProcessing Adjoint_u_Mec;//FIXME
    Operation{
      Print[ Sensitivity_AdjointMethod, OnElementsOf DomainOpt,LastTimeStepOnly,
 	   File StrCat[ResDir, StrCat["SensPerfAvmFixedDom",ExtGmsh]]] ;

@@ -30,10 +30,16 @@ DefineConstant[
   Flag_PerfType = {"Compliance", 
     Choices {
       "Compliance",
-      "vonMises"
+      "vonMises",
+      "vonMises_Pnorm"
     },
     Name StrCat[pInOpt,"Performance function"], 
     Visible (StrCmp(Flag_optType,"none"))},
+  
+  degVM = {2.0, 
+    Name StrCat[pInOpt,"degVM"], 
+    Visible (StrCmp(Flag_PerfType,"vonMises"))},
+  
   
   // Material law interpolation 
   Flag_InterpLaw = {"simp", 
@@ -42,7 +48,7 @@ DefineConstant[
       "ramp",
       "h-s",
       "polynomial"},	
-    Name StrCat[pInOpt,"Material Interpo. Law"],
+    Name StrCat[pInOpt,"Material Law"],
     Visible (!StrCmp(Flag_optType,"topology"))},
 
   degree_SIMP = {3.0, 

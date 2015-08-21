@@ -11,6 +11,9 @@ def vonMises(x,data,parameters):
     #print('StressVM:{}'.format(np.sum(np.array(data['StressVM']).flatten())))
     return np.sum(np.array(data['StressVM']).flatten())
 
+def vonMises_Pnorm(x,data,parameters):
+    return np.sum(np.array(data['StressVM_pNorm']).flatten())
+
 def EigFreqSquare_1(x,data,parameters):
     print('data[EigOmega_re]:{}'.format(data['EigOmega_re']))
     #print('data[EigOmega_im]:{}'.format(data['EigOmega_im']))
@@ -53,6 +56,10 @@ def MassTO(x,data,parameters):
 
 def Mass(x,data,parameters):
     return np.sum(np.array(data['Mass']).flatten())
+
+def Mass2(x,data,parameters):
+    # mass of the hole !!!
+    return 16.0 - np.sum(np.array(data['Mass']).flatten())
 
 
 

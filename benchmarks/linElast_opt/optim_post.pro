@@ -1,36 +1,40 @@
 po_min  = "Output/";
 
 PostProcessing {
-  { Name u_Mec_Post ; NameOfFormulation u_Mec ;
+  { Name u_Mec ; NameOfFormulation u_Mec ;
     PostQuantity {
       { Name u; Value { Term { [ {u} ] ; In Domain ; } }} 
       { Name um ; Value { Term { [Norm[{u}]] ; In Domain  ; } } }
       { Name F ; Value { Term { [ force_mec[] ]; In Domain_Force ; } } }   
+
       { Name StressVM; Value { Term {[sigmaVM[{D1 u},{D2 u}]];In Domain;}}}
       { Name StressVMInt; Value {
-      	Integral { [ sigmaVM[{D1 u},{D2 u}]^2.0 ];
-          In Domain ; Jacobian Vol  ; Integration I1; }
+      	Integral { [ sigmaVM[{D1 u},{D2 u}]^degVM ];
+          In Domain ; Jacobian SurLinVol  ; Integration I1; }
         }
       }
+      { Name StressVM_pNorm;Value{
+        Term{Type Global; [$VM_P ^ (1/degVM)];In DomainFunc ; } }} 
+
       { Name Volume; Value{Integral{[1.0];In Domain; Jacobian Vol;Integration I1;}}}
       { Name designVarPlot; Value{Term{[designVar[]]; In Domain; Jacobian Vol;}}}
       If(Flag_2D)
         { Name Compliance; Value {
       	  Integral { [ 0.5 * (C[]*{D1 u}) * {D1 u} ];
-            In Domain ; Jacobian Vol  ; Integration I1; }
+            In Domain ; Jacobian SurLinVol ; Integration I1; }
           }
         }
       EndIf
       If(!Flag_2D)
         { Name Compliance; Value {
       	  Integral { [ 0.5 * (C11[]*{D1 u}) * {D1 u} ];
-            In Domain ; Jacobian Vol  ; Integration I1; }
+            In Domain ; Jacobian SurLinVol  ; Integration I1; }
       	  Integral { [ 0.5 * (C12[]*{D2 u}) * {D1 u} ];
-            In Domain ; Jacobian Vol  ; Integration I1; }
+            In Domain ; Jacobian SurLinVol  ; Integration I1; }
       	  Integral { [ 0.5 * (C21[]*{D1 u}) * {D2 u} ];
-            In Domain ; Jacobian Vol  ; Integration I1; }
+            In Domain ; Jacobian SurLinVol  ; Integration I1; }
       	  Integral { [ 0.5 * (C22[]*{D2 u}) * {D2 u} ];
-            In Domain ; Jacobian Vol  ; Integration I1; }
+            In Domain ; Jacobian SurLinVol  ; Integration I1; }
           }
         }
       EndIf
@@ -38,7 +42,7 @@ PostProcessing {
       { Name Mass;
 	Value {
 	  Integral{ [ rho_mec[] ];
-	    In Domain; Jacobian Vol; Integration I1; }
+	    In Domain; Jacobian SurLinVol; Integration I1; }
 	}
       } 
       
@@ -87,7 +91,7 @@ PostOperation {
   // --------------------------------------------------------------------------
   // Get state variable 
   // --------------------------------------------------------------------------
- { Name u_Mec_Post; NameOfPostProcessing u_Mec_Post;
+ { Name u_Mec; NameOfPostProcessing u_Mec;
    Operation{
      Print[ u, OnElementsOf Domain,File StrCat[ResDir,"u",ExtGmsh]] ;
 
@@ -107,17 +111,21 @@ PostOperation {
 
      Print[ StressVMInt[DomainFunc], OnGlobal, Format TimeTable,
        File StrCat[ResDir, StrCat["StressVM",ExtOnelabScal]], LastTimeStepOnly,
-       SendToServer StrCat[po_min,"StressVM"], Color "LightYellow" ];
+       StoreInVariable $VM_P,SendToServer StrCat[po_min,"StressVM"],Color "LightYellow" ];
+
+     Print[ StressVM_pNorm, OnRegion DomainFunc, Format TimeTable,
+       File StrCat[ResDir, StrCat["StressVM_pNorm",ExtOnelabScal]], LastTimeStepOnly,
+       SendToServer StrCat[po_min,"StressVM_pNorm"], Color "LightYellow"];
 
      Print[ Volume[Domain], OnGlobal, Format TimeTable, 
        File StrCat[ResDir,"Volume",ExtOnelabScal], LastTimeStepOnly, 
        SendToServer StrCat[po_min,"Volume"], Color "LightYellow"] ;
 
-     Print[ Mass, OnElementsOf Domain, 
-       File StrCat[ResDir,"ElementMass",ExtOnelabVec], LastTimeStepOnly] ;
+//     Print[ Mass, OnElementsOf Domain, 
+//       File StrCat[ResDir,"ElementMass",ExtOnelabVec], LastTimeStepOnly] ;
 
-     Print[ Volume, OnElementsOf Domain, 
-       File StrCat[ResDir,"ElementVolume",ExtOnelabVec], LastTimeStepOnly] ;
+//     Print[ Volume, OnElementsOf Domain, 
+//       File StrCat[ResDir,"ElementVolume",ExtOnelabVec], LastTimeStepOnly] ;
 
    }
  }
