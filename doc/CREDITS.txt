@@ -3,10 +3,12 @@
                           Patrick Dular
                   <patrick.dular at ulg.ac.be>
 
-                               and 
+                               and
 
                        Christophe Geuzaine 
-                     <cgeuzaine at ulg.ac.be> 
+                     <cgeuzaine at ulg.ac.be>
+
+                       University of Liege
 
 Major code contributions to GetDP have been provided by Johan Gyselinck, Ruth
 Sabariego, Michael Asam and Bertrand Thierry. Other code contributors include:
