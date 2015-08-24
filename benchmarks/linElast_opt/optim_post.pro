@@ -95,7 +95,7 @@ PostOperation {
    Operation{
      Print[ u, OnElementsOf Domain,File StrCat[ResDir,"u",ExtGmsh]] ;
 
-     Print[ StressVM, OnElementsOf Domain,File StrCat[ResDir,"VM",ExtGmsh]] ;
+     Print[ StressVM, OnElementsOf Domain,File StrCat[ResDir,"VM",ExtOnelabVec]] ;
 
      Print[ um,OnElementsOf Domain,File StrCat[ResDir,"um",ExtGmsh]] ;
 

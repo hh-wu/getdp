@@ -285,10 +285,10 @@ Resolution{
     Operation{
       CreateDir[ResDir];
       ReadSolution[A]; //Load state variable
-      PostOperation[u_Mec];//generate useful coeff !!
       If(!StrCmp(Flag_optType,"topology"))
         GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD]; 
       EndIf
+      PostOperation[u_Mec];//generate useful coeff !!
       InitSolution[B];Generate[B];Solve[B];SaveSolution[B];
       PostOperation[Adjoint_u_Mec];
     }

@@ -23,23 +23,20 @@ else:
 parameters = {
     'file':'beam',
     'plot':1,
-    'Print':2,
+    'Print':5,
     'analysis': ['u_Mec'],
     'analysisPost':['u_Mec'],
     'adjoint':['Adjoint_u_Mec'],
     'direct':['Direct_u_Mec'],
     'defaultValue':{
         'OptType':['Input/Optimization Type','shape'],
-        'lc':['Geo/Mesh density',10.0],
+        'lc':['Geo/Mesh density',3.0],
         '2D':['Input/ 2D?',1],
         'Hole':['Geo/Hole',param],
         'nbPtSpline':['Geo/nb points',n],
         'degVM':['Input/Optimization/degVM',2]},
     'variables':var,
-    'performance': [Mass2, vonMises_Pnorm],
-    'fjMax':[16,1.7e8],
-    'sign':[-1.0,1.0], # -1:>=, 1:<=
-    'Sensitivity':['AnalyticNotEplicit','AdjointLie'],#['FiniteDifference']*2,
+    'performance': opt_pnorm,#[opt_vonMises_elem],
     'optimizer':'conlinFile', #mma2007,conlinFile,gcmma,openopt
     'xtol':1.0e-03
 }
@@ -57,13 +54,13 @@ else:
 # ************************************************************************
 # ***** Instantiate the Model and the Optimizer                      *****
 # ************************************************************************
-op = Optimization(parameters,xmin,xmax,x)
+op = Optimization(parameters, xmin, xmax, x)
 
 # ************************************************************************
 # ***** Shape Optimization routine                                   *****
 # ************************************************************************
 # Preprocess
-op.preprocessing(op.parameters)
+#op.preprocessing(op.parameters)
 
 # Call Optimizer
 op.solveOpt(op.x,op.xmax,op.xmin,op.fjMax,2,op.parameters)
@@ -72,7 +69,7 @@ op.solveOpt(op.x,op.xmax,op.xmin,op.fjMax,2,op.parameters)
 # ***** Optimization Post-Process                                    *****
 # ************************************************************************
 # Optimization history
-op.postprocessing('resOpt/histOptClassAttr.txt', op.iter)
+#op.postprocessing('resOpt/histOptClassAttr.txt', op.iter)
 
 ## Torque comparison
 #angles=np.linspace(7.5,15.0+7.5,15*3)

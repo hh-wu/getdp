@@ -1,5 +1,5 @@
 mm = 1e-3;
-LL = 4.0;//1.5*2;
+LL = 1.0;//1.5*2;
 //dx = LL;
 //dy = LL;
 //dz = LL;
@@ -17,8 +17,8 @@ DefineConstant[
   ResDir = StrCat[ modelpath, "res/" ],
   Flag_meshRecombine = {0, Name "Geo/Recombine", Choices {0,1},Visible 1},
   transfiniteMesh = {0, Name "Geo/transfinite",Choices {0,1},Visible (!Flag_hole)},
-  nbElemPerLineX = {61, Name "Geo/Nx",Visible (transfiniteMesh==1)},
-  nbElemPerLineY = {21,Name "Geo/Ny",Visible (transfiniteMesh==1)},//even number
+  nbElemPerLineX = {81, Name "Geo/Nx",Visible (transfiniteMesh==1)},
+  nbElemPerLineY = {41,Name "Geo/Ny",Visible (transfiniteMesh==1)},//even number
   nbElemPerLineZ = {20,Name "Geo/Nz",Visible 1},
   md = { 1., Name "Geo/Mesh density"},
   Flag_degree2 = { 0., Name "Input/degree?",Visible 0}
@@ -26,7 +26,7 @@ DefineConstant[
 
 // Constructive parameters
 DefineConstant[
-  dx = {LL, 
+  dx = {LL*2, 
     Name "Input/Constructive parameters/ Lx"},
   dy = {LL, 
     Name "Input/Constructive parameters/ Ly"},

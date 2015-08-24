@@ -1,7 +1,7 @@
 Include "beam_data.geo";
 
 DefineConstant[
-  Flag_testBench = {2,  
+  Flag_testBench = {0,  
     Choices {
       1="Short Cantiler Beam", 
       1="MBB Beam",
@@ -144,6 +144,12 @@ Function {
    
     // 2) Derivative of performance function
     If(Flag_2D) // 2D 
+      //$1:{D1 u},$2:{D1 lambda}
+      d_bilin_lie[] = -( C[] * d_D1[ du[] ] ) * $2 
+                    -( C[] * $1 ) * d_D1[ dlam[] ] 
+                    +( (C[] * $1) * $2 ) * TTrace[ dV[] ];
+      d_bilin[] = (d_C[] * $1) * $2; 
+
       If(!StrCmp[Flag_PerfType,"Compliance"])
         Func[] = 0.5 * (C[] * $1) * $1; //F = C * (D u)^2
         dFdb_TO[] = 0.5 * (d_C[]*$1)*$1; 
@@ -172,6 +178,15 @@ Function {
       EndIf
     EndIf
     If(!Flag_2D) // 3D
+      //$1:{D1 u}, $2:{D1 lambda}, $3:{D2 u}, $4:{D2 lambda}
+      d_bilin_lie[] = -( C11[]*d_D1[du[]]#1001)*$2 -( C11[]*$1)*d_D1[dlam[]#51]#1003 
+                    -( C12[]*d_D2[du[]]#1002)*$2 -( C12[] * $3 ) * #1003
+                    -( C21[] * #1001 ) * $4 -( C21[] * $1 ) * d_D2[dlam[]]#1004 
+                    -( C22[] * #1002 ) * $4 -( C22[] * $3 ) * #1004  
+                    +( (C11[] * $1) * $2 + (C12[] * $3) * $2
+                      +(C21[] * $1) * $4 + (C22[] * $3) * $4 ) * TTrace[ dV[] ];
+      d_bilin[] = (d_C11[] * $1) * $2 + (d_C12[] * $3) * $2
+                 +(d_C21[] * $1) * $4 + (d_C22[] * $3) * $4;
       If(!StrCmp[Flag_PerfType,"Compliance"])
         Func[] = 0.5 *( (C11[]*$1)*$1 + (C12[]*$2)*$1
                        +(C21[]*$1)*$2 + (C22[]*$2)*$2 ); //$1:{D1 u}, $2:{D2 u}

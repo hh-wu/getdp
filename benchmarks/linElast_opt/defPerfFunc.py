@@ -3,16 +3,56 @@
     Performance functions of the optimization problem.
 """
 from tool import *
+from defPerfFuncSens import *
+
+def opt_pnorm(x,data,parameters):
+    input = {
+        'f':[16.0-data['Mass'][0],data['StressVM_pNorm'][0]],
+        'df':['AnalyticNotEplicit','AdjointLie'],#['FiniteDifference']*2,
+        'fmax':[16.0,1.7e8],
+        'f_name':['Mass2','vonMises_Pnorm'],
+        'sign':[-1.0,1.0]
+    }
+    return input
+
+def opt_vonMises_elem(x,data,parameters):
+    vm = data['VM'][0]
+    input = {
+        'f':[16.0-data['Mass'][0]]+vm,
+        'df':['FiniteDifference']*(len(vm)+1),
+        'fmax':[16.0]+[2.8e8]*len(vm),
+        'sign':[-1.0]+[1.0]*len(vm)
+    }
+    return input
+
+def Compliance_Volume(x,data,parameters):
+    input = {
+        'f':[data['ComplianceElm'][0], np.sum(x)],
+        'df':['AdjointFixedDom',volumeSens],#provide the name of a function!!
+        'fmax':[0, np.sum(x)],
+        'f_name':['Compliance','Volume'],#see .pro
+        'sign':[1.0]*2,
+        'filter':[2,0]
+    }
+    return input
 
 def Compliance(x,data,parameters):
-    return np.sum(np.array(data['ComplianceElm']).flatten())
+    return [np.sum(np.array(data['ComplianceElm']).flatten())]
 
 def vonMises(x,data,parameters):
-    #print('StressVM:{}'.format(np.sum(np.array(data['StressVM']).flatten())))
-    return np.sum(np.array(data['StressVM']).flatten())
+    r = {'f':[np.sum(np.array(data['StressVM']).flatten())],
+         'df':['FiniteDifference'],'fmax':[2.5e16]}
+    return r
 
 def vonMises_Pnorm(x,data,parameters):
-    return np.sum(np.array(data['StressVM_pNorm']).flatten())
+    r = {   'f':[np.sum(np.array(data['StressVM_pNorm']).flatten())],
+            'df':['FiniteDifference'],'fmax':[2.8e9]}
+    return r
+
+def vonMises_elem(x,data,parameters):
+    vm = data['VM'][0]
+    r = {'f':vm,'df':['FiniteDifference']*len(vm),'fmax':[2.8e8]*len(vm)}
+    return r
 
 def EigFreqSquare_1(x,data,parameters):
     print('data[EigOmega_re]:{}'.format(data['EigOmega_re']))
@@ -48,18 +88,22 @@ def Volume(x,data,parameters):
 #    print x
 #    print len(x)
 #    print("volume:{}".format(np.sum(x)))
-    return np.sum(x)
+    return [np.sum(x)]
 
 def MassTO(x,data,parameters):
     me = data['ElementMass'][0]
-    return np.sum(me*x)
+    return [np.sum(me*x)]
 
 def Mass(x,data,parameters):
-    return np.sum(np.array(data['Mass']).flatten())
+    r = {'f':[np.sum(np.array(data['Mass']).flatten())],
+         'df':['FiniteDifference'],'fmax':[16.0]}
+    return r
 
 def Mass2(x,data,parameters):
     # mass of the hole !!!
-    return 16.0 - np.sum(np.array(data['Mass']).flatten())
+    r = {'f':[16.0-np.sum(np.array(data['Mass']).flatten())],
+         'df':['FiniteDifference'],'fmax':[16.0]}
+    return  r
 
 
 
