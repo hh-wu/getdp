@@ -18,30 +18,16 @@ PostProcessing {
 
       { Name Volume; Value{Integral{[1.0];In Domain; Jacobian Vol;Integration I1;}}}
       { Name designVarPlot; Value{Term{[designVar[]]; In Domain; Jacobian Vol;}}}
-      If(Flag_2D)
-        { Name Compliance; Value {
-      	  Integral { [ 0.5 * (C[]*{D1 u}) * {D1 u} ];
-            In Domain ; Jacobian SurLinVol ; Integration I1; }
-          }
+
+      { Name Compliance; Value {
+      	Integral { [ 0.5 * bilin_uu[{D1 u},{D2 u}] ];
+          In Domain ; Jacobian SurLinVol ; Integration I1; }
         }
-      EndIf
-      If(!Flag_2D)
-        { Name Compliance; Value {
-      	  Integral { [ 0.5 * (C11[]*{D1 u}) * {D1 u} ];
-            In Domain ; Jacobian SurLinVol  ; Integration I1; }
-      	  Integral { [ 0.5 * (C12[]*{D2 u}) * {D1 u} ];
-            In Domain ; Jacobian SurLinVol  ; Integration I1; }
-      	  Integral { [ 0.5 * (C21[]*{D1 u}) * {D2 u} ];
-            In Domain ; Jacobian SurLinVol  ; Integration I1; }
-      	  Integral { [ 0.5 * (C22[]*{D2 u}) * {D2 u} ];
-            In Domain ; Jacobian SurLinVol  ; Integration I1; }
-          }
-        }
-      EndIf
+      }
    
       { Name Mass;
 	Value {
-	  Integral{ [ rho_mec[] ];
+	  Integral{ [ rho[] ];
 	    In Domain; Jacobian SurLinVol; Integration I1; }
 	}
       } 
@@ -51,40 +37,27 @@ PostProcessing {
   // --------------------------------------------------------------------
   // Eigen system
   // --------------------------------------------------------------------
-//  { Name Elasticity2D ; NameOfFormulation Elasticity2D_u_modal ;
-//    PostQuantity {
-//      { Name designVarPlot;Value {Term {[ designVar[] ];In Domain ; Jacobian Vol;}}}
-//      { Name E_mec  ; Value { Term { [ E[] ]; In Domain  ; Jacobian Vol; } } }
-//      { Name rho_mec  ; Value { Term { [ rho_mec[] ]; In Domain  ; Jacobian Vol; } } }
-//      { Name u_eig  ; Value { Term { [ {u_eig} ]; In Domain  ; Jacobian Vol; } } }
-//      { Name u_eigx  ; Value { Term { [CompX[{u_eig}]] ; In Domain  ; Jacobian Vol; } } }
-//      { Name u_eigy  ; Value { Term { [CompY[{u_eig}]] ; In Domain  ; Jacobian Vol; } } }
-////        { Name d_stiff_eig;  
-////          Value { 
-////                 Integral { [d_stiff_eig[{D1 u}]]; 
-////                 In Domain ; Jacobian Vol  ; Integration I1; }
-////          }
-////        }
-////        { Name d_mass_eig;  
-////          Value { 
-////                 Integral { [ d_mass_eig[{u}] ]; 
-////                 In Domain ; Jacobian Vol  ; Integration I1; }
-////          }
-////        }
-//        { Name norm_eig;  
-//          Value { 
-//                 Integral { [ norm_eig[{u_eig}] ]; 
-//                 In Domain ; Jacobian Vol  ; Integration I1; }
-//          }
-//        }
-//        { Name d_eig;  
-//          Value { 
-//                 Integral { [ d_eig[{D1 u_eig},{u_eig}] ]; 
-//                 In Domain ; Jacobian Vol  ; Integration I1; }
-//          }
-//        }
-//    }
-//  }
+  { Name u_Mec_eig ; NameOfFormulation u_Mec_eig ;
+    PostQuantity {
+      { Name u  ; Value { Term { [ {u} ]; In Domain  ; Jacobian Vol; }}}
+
+      { Name eig2 ; Value { Term { Type Global;[ eig2[] ]; In Domain; Jacobian Vol; }}}
+
+      { Name mass_eig;  
+        Value { 
+          Integral { [ mass_eig[{u}] ]; 
+            In Domain ; Jacobian Vol  ; Integration I1; }
+        }
+      }
+
+      { Name stiff_eig; Value {
+      	Integral { [ bilin_uu[{D1 u},{D2 u}] ];
+          In Domain ; Jacobian SurLinVol ; Integration I1; }
+        }
+      }
+
+    }
+  }
 }
 
 PostOperation {
@@ -129,34 +102,26 @@ PostOperation {
 
    }
  }
-  // --------------------------------------------------------------------------
-  // PVP
-  // --------------------------------------------------------------------------
-//  { Name Get_PrimalSystemEig ; NameOfPostProcessing Elasticity2D;
-//    Operation {
-//      Print[ designVarPlot, OnElementsOf DomainOpt,
-//     	 File StrCat[ResDir, StrCat["designVarPlot",ExtGmsh]], LastTimeStepOnly] ;
-//      Print[ E_mec, OnElementsOf DomainOpt,
-//     	 File StrCat[ResDir, StrCat["E_mec",ExtGmsh]], LastTimeStepOnly] ;
-//      Print[ rho_mec, OnElementsOf DomainOpt,
-//     	 File StrCat[ResDir, StrCat["rho_mec",ExtGmsh]], LastTimeStepOnly] ;
-//      Print[ u_eig, OnElementsOf DomainOpt, File "res/u.pos", EigenvalueLegend ] ;
+
+  { Name u_Mec_eig ; NameOfPostProcessing u_Mec_eig;
+    Operation {
+      Print[ u, OnElementsOf Domain, File StrCat[ResDir,"u.pos"]] ;
 //      Echo[ Str["View[PostProcessing.NbViews-1].VectorType=5;",
 //		"View[PostProcessing.NbViews-1].DisplacementFactor = 0.1;"],
 //        File "res/u.pos.opt"] ;
-//	// gmsh res/u.pos res/u.pos.opt
-//    }
-//  }
-// { Name Get_FixedDomSens_Stiff_eig;NameOfPostProcessing Elasticity2D;
-//   Operation{
-////     Print[ d_stiff_eig, OnElementsOf DomainOpt,
-////	   File StrCat[ResDir, StrCat["d_stiff_eig",ExtGmsh]]] ;
-////     Print[ d_mass_eig, OnElementsOf DomainOpt,
-////	   File StrCat[ResDir, StrCat["d_mass_eig",ExtGmsh]]] ;
-//     Print[ norm_eig[DomainOpt], OnGlobal, Format TimeTable,
-//	   File StrCat[ResDir, "norm_eig.txt"]] ;
-//     Print[ d_eig, OnElementsOf DomainOpt,
-//	   File StrCat[ResDir, StrCat["d_eig",ExtGmsh]]] ;
-//   }
-// }
+	// gmsh res/u.pos res/u.pos.opt
+     Print[ mass_eig[Domain], OnGlobal, Format Table,
+       File StrCat[ResDir, "mass_eig",ExtGmsh],     
+       SendToServer StrCat[po_min,"mass_eig"], Color "LightYellow"] ;
+
+     Print[ stiff_eig[Domain], OnGlobal, Format Table,
+       File StrCat[ResDir, "stiff_eig",ExtGmsh],     
+       SendToServer StrCat[po_min,"stiff_eig"], Color "LightYellow"] ;
+
+      Print[ eig2,OnRegion Domain, Format Table,
+        File StrCat[ResDir,"eig2",ExtOnelabVec2],
+        SendToServer StrCat[po_min,"eig2"], Color "LightYellow"] ;
+    }
+  }
 }
+

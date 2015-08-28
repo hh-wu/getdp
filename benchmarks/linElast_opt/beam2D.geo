@@ -14,10 +14,10 @@ Point(5) = {dx, dy/2, 0, lc};
 If(Flag_hole==1) //ellipse
   Printf("ellispe");
   Point(6) = {dx/2, dy/2, 0, lc}; //center
-  Point(7) = {dx/2+hole_length/2, dy/2, 0, lc/5};  //right
-  Point(8) = {dx/2, dy/2+hole_width/2, 0, lc/5};   //up
-  Point(9) = {dx/2-hole_length/2, dy/2, 0, lc/5};  //left
-  Point(10) = {dx/2, dy/2-hole_width/2, 0, lc/5};  //down
+  Point(7) = {dx/2+hole_length/2, dy/2, 0, lc};  //right
+  Point(8) = {dx/2, dy/2+hole_width/2, 0, lc};   //up
+  Point(9) = {dx/2-hole_length/2, dy/2, 0, lc};  //left
+  Point(10) = {dx/2, dy/2-hole_width/2, 0, lc};  //down
 EndIf
 If(Flag_hole==2)//spline
   Printf("spline");
@@ -84,11 +84,11 @@ EndIf
 If(Flag_meshRecombine)
   Recombine Surface "*";
 EndIf
-//Mesh.RecombineAll = Flag_meshRecombine;
-If(Flag_meshRecombine==0.0)
-  Mesh.Algorithm = 2; // auto 
-EndIf
-If(Flag_meshRecombine==1.0)
-  Mesh.Algorithm = 8; // DelQuad (experimental)
-EndIf
+////Mesh.RecombineAll = Flag_meshRecombine;
+//If(Flag_meshRecombine==0.0)
+//  Mesh.Algorithm = 2; // auto 
+//EndIf
+//If(Flag_meshRecombine==1.0)
+//  Mesh.Algorithm = 8; // DelQuad (experimental)
+//EndIf
 

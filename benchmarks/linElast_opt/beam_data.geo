@@ -13,6 +13,7 @@ DefineConstant[
   ExtAnalyticSens = ".analyticSens",
   ExtOnelabScal = ".onelabScal",
   ExtOnelabVec = ".onelabVec",
+  ExtOnelabVec2 = ".onelabNbChoice",
   modelpath = CurrentDir, 
   ResDir = StrCat[ modelpath, "res/" ],
   Flag_meshRecombine = {0, Name "Geo/Recombine", Choices {0,1},Visible 1},
@@ -21,14 +22,15 @@ DefineConstant[
   nbElemPerLineY = {41,Name "Geo/Ny",Visible (transfiniteMesh==1)},//even number
   nbElemPerLineZ = {20,Name "Geo/Nz",Visible 1},
   md = { 1., Name "Geo/Mesh density"},
-  Flag_degree2 = { 0., Name "Input/degree?",Visible 0}
+  Flag_degree2 = { 0., Name "Input/degree?",Visible 0},
+  nbEig = {10, Name "Input/nb Eig",Visible 1}
 ];
 
 // Constructive parameters
 DefineConstant[
-  dx = {LL*2, 
+  dx = {LL*4, 
     Name "Input/Constructive parameters/ Lx"},
-  dy = {LL, 
+  dy = {LL*4, 
     Name "Input/Constructive parameters/ Ly"},
   dz = {LL, 
     Name "Input/Constructive parameters/ Lz"},

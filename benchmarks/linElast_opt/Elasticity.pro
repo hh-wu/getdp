@@ -170,11 +170,21 @@ Formulation{
         { Name u ; Type Local ; NameOfSpace H_u_Mec2D ;}
       }
       Equation {
-        // u formulation
         Galerkin { [ C[] * Dof{D1 u}, {D1 u}] ; 
           In Domain; Jacobian Vol ; Integration I1 ; }
         Galerkin { [ -force_mec[], {u}] ;
           In Domain_Force ; Jacobian SurLinVol; Integration I1; }
+      }
+    }
+    { Name u_Mec_eig ; Type FemEquation ;
+      Quantity {
+        { Name u ; Type Local ; NameOfSpace H_u_Mec2D ;}
+      }
+      Equation {
+        Galerkin { DtDtDof [ rho[] * Dof{u} , {u} ];
+          In Domain ; Jacobian Vol ; Integration I1 ; }
+        Galerkin { [ C[] * Dof{D1 u}, {D1 u}] ; 
+          In Domain; Jacobian Vol ; Integration I1 ; }
       }
     }
     //If(!StrCmp(Flag_optType,"shape") || !StrCmp(Flag_optType,"topology"))
@@ -220,6 +230,23 @@ Formulation{
           In Domain_Force ; Jacobian SurLinVol; Integration I1; }
       }
     }
+    { Name u_Mec_eig; Type FemEquation; 
+      Quantity{
+        { Name u; Type Local; NameOfSpace H_u_Mec3D;}
+      }
+      Equation{
+        Galerkin { DtDtDof [ rho[] * Dof{u} , {u} ];
+          In Domain ; Jacobian Vol ; Integration I1 ; }
+        Galerkin { [ C11[] * Dof{D1 u} , {D1 u} ] ;
+          In Domain ; Jacobian Vol ; Integration I1 ; }
+        Galerkin { [ C12[] * Dof{D2 u} , {D1 u} ] ;
+	  In Domain ; Jacobian Vol ; Integration I1 ; }
+        Galerkin { [ C21[] * Dof{D1 u} , {D2 u} ] ;
+	  In Domain ; Jacobian Vol ; Integration I1 ; }
+        Galerkin { [ C22[] * Dof{D2 u} , {D2 u} ] ;
+	  In Domain ; Jacobian Vol ; Integration I1 ; }
+      }
+    }
     //If(!StrCmp(Flag_optType,"shape") || !StrCmp(Flag_optType,"topology"))
       { Name Adjoint_u_Mec ; Type FemEquation ;
         Quantity {
@@ -263,7 +290,13 @@ Formulation{
 }
 
 Resolution{
-  { Name u_Mec; 
+  // FIXME
+  // group  (direct,adjoint) -> Sens_u_Mec
+  // give "u_Mec" as input -> other resolutions depend on "u_Mec"
+  // gmsh read directly in command line !!! -> postpro without solve
+
+  // state variable
+  { Name u_Mec; // mechanic 2D/3D
     System {
       { Name A; NameOfFormulation u_Mec; }
     }
@@ -277,6 +310,18 @@ Resolution{
       PostOperation[u_Mec];
     }
   }
+  { Name u_Mec_eig ; // modal 2D/3D
+    System {
+      { Name A; NameOfFormulation u_Mec_eig; /*Type Complex;*/ }
+    }
+    Operation {
+      GenerateSeparate[A];
+      EigenSolve[A, nbEig, 0, 0]; SaveSolutions[A] ;
+      PostOperation[u_Mec_eig];
+    }
+  }
+
+  // adjoint variable
   { Name Adjoint_u_Mec; 
     System {
       { Name A; NameOfFormulation u_Mec; } //more than 1!
@@ -293,6 +338,8 @@ Resolution{
       PostOperation[Adjoint_u_Mec];
     }
   }
+
+  // direct variable
   { Name Direct_u_Mec; 
     System {
       { Name A; NameOfFormulation u_Mec; } //more than 1!
@@ -309,13 +356,14 @@ Resolution{
       PostOperation[Post_Direct_u_Mec];
     }
   }
+
+  // sensitivities -> only postOperation is useful
   { Name Lie_Adjoint_u_Mec; 
     System {
       { Name A; NameOfFormulation u_Mec; } //more than 1!
       { Name B; NameOfFormulation Adjoint_u_Mec; }
     }
     Operation{
-      // TODO: gmsh read directly in command line !!!
       CreateDir[ResDir];
 
       //Load state variable
@@ -328,16 +376,112 @@ Resolution{
       GmshRead[StrCat[ResDir,"u.pos"], STATE_FIELD];
       GmshRead[StrCat[ResDir,"lambda.pos"], ADJOINT_FIELD];
   
-      PostOperation[GetShapeOptAdjointSens];
+      PostOperation[Lie_Adjoint_u_Mec];
     }
   }
+  { Name TO_Adjoint_u_Mec; 
+    System {
+      { Name A; NameOfFormulation u_Mec; } //more than 1!
+      { Name B; NameOfFormulation Adjoint_u_Mec; }
+    }
+    Operation{
+      CreateDir[ResDir];
+
+      //Load state variable
+      ReadSolution[A];ReadSolution[B]; 
+     
+      // load useful maps   
+      GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD];
+      
+      PostOperation[TO_Adjoint_u_Mec];
+    }
+  }
+  { Name Sens_Adjoint_u_Mec; 
+    System {
+      { Name A; NameOfFormulation u_Mec; } //more than 1!
+      { Name B; NameOfFormulation Adjoint_u_Mec; }
+    }
+    Operation{
+      CreateDir[ResDir];
+
+      //Load state variable and adjoint variable
+      ReadSolution[A];ReadSolution[B]; 
+     
+      //Generate useful coeff !!
+      PostOperation[u_Mec];
+
+      //Load useful maps 
+      If(!StrCmp(Flag_optType,"shape"))   
+        GmshRead[StrCat[ResDir,"velocity.pos"], VELOCITY_FIELD];
+        GmshRead[StrCat[ResDir,"u.pos"], STATE_FIELD];
+        GmshRead[StrCat[ResDir,"lambda.pos"], ADJOINT_FIELD];
+      EndIf
+      If(!StrCmp(Flag_optType,"topology"))
+        GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD];
+      EndIf
+
+      //Run post-operation
+      PostOperation[Sens_Adjoint_u_Mec];
+    }
+  }
+
+   // provide "u_Mec" as input !!!
+  { Name Sens_u_Mec; // Pourait être transformé en PostOperation (gmshRead!)
+    System {
+      { Name A; NameOfFormulation u_Mec; } //more than 1!
+      If (!StrCmp[Flag_SensitivityMethod,"adjoint"])
+        { Name B; NameOfFormulation Adjoint_u_Mec; }
+      EndIf
+      If (!StrCmp[Flag_SensitivityMethod,"direct"])
+        { Name B; NameOfFormulation Direct_u_Mec; }
+      EndIf
+    }
+    Operation{
+      CreateDir[ResDir];
+
+      //Load state variable and adjoint/direct variable
+      ReadSolution[A];
+      If (!StrCmp[Flag_SensitivityMethod,"direct"]
+          || !StrCmp[Flag_SensitivityMethod,"adjoint"])
+        ReadSolution[B]; 
+      EndIf
+   
+      //Generate useful coeff !!
+      PostOperation[u_Mec];
+
+      //Load useful maps 
+      If(!StrCmp(Flag_optType,"shape") 
+         || !StrCmp(Flag_SensitivityMethod,"noSystem"))   
+        GmshRead[StrCat[ResDir,"velocity.pos"], VELOCITY_FIELD];
+      EndIf
+      If(!StrCmp(Flag_optType,"shape"))   
+        GmshRead[StrCat[ResDir,"u.pos"], STATE_FIELD];
+        GmshRead[StrCat[ResDir,"lambda.pos"], ADJOINT_FIELD];
+      EndIf
+      If(!StrCmp(Flag_optType,"topology"))
+        GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD];
+      EndIf
+
+      //Run post-operation
+      If(!StrCmp(Flag_SensitivityMethod,"noSystem")) //ex: volume   
+        PostOperation[Analytic_Sens_u_Mec];
+      EndIf
+      If(!StrCmp(Flag_optType,"shape")) 
+        PostOperation[Sens_Adjoint_u_Mec];
+      EndIf
+      If(!StrCmp(Flag_optType,"topology")) 
+        PostOperation[Sens_Direct_u_Mec];
+      EndIf    
+    }
+  }
+
+  // Direct sensitivity
   { Name Lie_Direct_u_Mec; 
     System {
       { Name A; NameOfFormulation u_Mec; } //more than 1!
       { Name B; NameOfFormulation Direct_u_Mec; }
     }
     Operation{
-      // TODO: gmsh read directly in command line !!!
       CreateDir[ResDir];
 
       //Load state variable
@@ -351,41 +495,38 @@ Resolution{
       PostOperation[GetShapeOptDirectSens];
     }
   }
-  { Name TO_Adjoint_u_Mec; 
-    System {
-      { Name A; NameOfFormulation u_Mec; } //more than 1!
-      { Name B; NameOfFormulation Adjoint_u_Mec; }
-    }
-    Operation{
-      // TODO: gmsh read directly in command line !!!
-      CreateDir[ResDir];
 
-      //Load state variable
-      ReadSolution[A];ReadSolution[B]; 
-     
-      // load useful maps   
-      GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD];
-      
-      PostOperation[GetTopOptAdjointSens];
-    }
-  }
-
+  // Analytic sensitivity
   { Name Analytic_Sens_u_Mec; 
     System {
       { Name A; NameOfFormulation u_Mec; } //more than 1!
     }
     Operation{
-      // TODO: gmsh read directly in command line !!!
       CreateDir[ResDir];
 
       //Load state variable and useful maps
       ReadSolution[A]; 
       GmshRead[StrCat[ResDir,"velocity.pos"], VELOCITY_FIELD];
       
-      PostOperation[GetAnalyticSens];
+      PostOperation[Analytic_Sens_u_Mec];
     }
   }
 
+  { Name Analytic_Sens_u_Mec_eig; 
+    System {
+      { Name A; NameOfFormulation u_Mec_eig; } //more than 1!
+    }
+    Operation{
+      CreateDir[ResDir];
+
+      //Load state variable and useful maps
+      ReadSolution[A]; 
+      GmshRead[StrCat[ResDir,"velocity.pos"], VELOCITY_FIELD];
+      GmshRead[StrCat[ResDir,"u.pos"], STATE_FIELD];
+      
+      PostOperation[Analytic_Sens_u_Mec_eig];
+    }
+  }
 }
 
 

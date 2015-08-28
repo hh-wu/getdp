@@ -14,9 +14,6 @@ import defPerfFunc
 # ************************************************************************
 # ***** Create the parameters                                        *****
 # ************************************************************************
-nbEig = 3
-aa = [getattr(defPerfFunc,'EigFreqSquare_'+str(k)) for k in range (1,nbEig+1)]
-
 parameters = {
     'plot':1,'Print':0,'file':'beam',
     'analysis':['u_Mec'],
@@ -33,7 +30,7 @@ parameters = {
         '2D':['Input/ 2D?', 1],
         'Hole':['Geo/Hole',0]},
     'TAG':[1000],
-    'performance':Compliance_Volume, #[Compliance, Volume],
+    'performance':Compliance_Volume,
     'rmin':0.025,
     'optimizer':'conlinFile',#'mma2007','conlinFile','gcmma','openopt'
     'xtol':1.0e-02,

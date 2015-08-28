@@ -13,15 +13,15 @@ from defPerfFuncSens import *
 # ************************************************************************
 # **** Input                                                         *****
 # ************************************************************************
-x = np.array([0.3])
-varName = ['Input/Constructive parameters/Hole Length',
-           'Input/Constructive parameters/Hole Width']
-func = [vonMises_Pnorm]
-execMode = 'derivative' #{'response','derivative','plot'
-lc = [5] #np.logspace(0.0, 0.8, num=10)[5:] #[3.0]
-step = [1.0e-06] #np.logspace(-11, -1, num=11)
-sensMeth =['FiniteDifference','AdjointSemi','AdjointLie']
-#sensMeth = ['FiniteDifference','AnalyticNotEplicit']
+x = np.array([0.4])
+pIn = 'Input/Constructive parameters/'
+varName = [pIn+'Hole Length',pIn+'Hole Width']
+func = opt_eig_sens
+execMode = 'plot' #{'response','derivative','plot'
+lc = [5.0] #np.logspace(0.0, 0.8, num=10)[5:] #[3.0]
+step = np.logspace(-11, -1, num=11)
+#sensMeth =['FiniteDifference','AdjointSemi','AdjointLie']
+sensMeth = ['FiniteDifference'] #,'AnalyticNotEplicit']
 pathSave = 'resSens'
 if(execMode=='response'):xmin=[0.002,0.002];xmax=[0.02,0.006];nbSample=5
 
@@ -29,10 +29,10 @@ if(execMode=='response'):xmin=[0.002,0.002];xmax=[0.02,0.006];nbSample=5
 # **** Define parameters                                              ****
 # ************************************************************************
 parameters = {
-    'Print':4,
+    'Print':0,
     'file':'beam',
-    'analysis':['u_Mec'],
-    'analysisPost':['u_Mec'],
+    'analysis':['u_Mec_eig'],
+    'analysisPost':['u_Mec_eig'],
     'adjoint':['Adjoint_u_Mec'],
     'semiPost':['SemiAdjoint_u_Mec'],
     'direct':['Direct_u_Mec'],
@@ -41,13 +41,15 @@ parameters = {
         'degVM':['Input/Optimization/degVM',2]},
     'variables':varName,
     'performance':func,
-    'allowCentralFD':1
+    'sensitivity':sensMeth,
+    'allowCentralFD':0
 }
 
 # ************************************************************************
 # **** Instantiate the sensitivity module                            *****
 # ************************************************************************
-op = Sensitivity(parameters)
+#op = Sensitivity(parameters)
+op = Optimization(parameters, x, x, x)
 
 # ************************************************************************
 # **** Compute sensitivity analysis                                  *****
@@ -130,11 +132,11 @@ elif ( execMode == 'derivative'):
 
 else: #load data and plot
     sensMeth,f,dfdx,step,lc,relErr = loadData(pathSave)
-    plotMultiVec(np.arange(len(lc)),dfdx[:,0,:,0],pathSave+'/dfdx_lc.pdf',
-        labelx='Mesh Density',labely=sensMeth,log=0,titleName='Derivative')
+#    plotMultiVec(np.arange(len(lc)),dfdx[:,0,:,0],pathSave+'/dfdx_lc.pdf',
+#        labelx='Mesh Density',labely=sensMeth,log=0,titleName='Derivative')
 #    plotMultiVec(np.arange(len(lc)),np.abs(relErr[:,0,1:,0]),pathSave+'/rE_lc.pdf', labelx='Mesh Quality',labely=sensMeth[1:],log=0,titleName='RelErr(.,FD)')
-#    plotMultiVec(step,np.abs(dfdx[0,:,:,0]),pathSave+'/dfdx_step.pdf',
-#        labelx='perturbation step',labely=sensMeth,log=1,titleName='Derivative')
+    plotMultiVec(step,dfdx[0,:,:,0],pathSave+'/dfdx_step.pdf',
+        labelx='perturbation step',labely=sensMeth,log=1,titleName='Derivative')
 #    plotMultiVec(step,np.abs(relErr[:,0,1:,0]),pathSave+'/relErr_step.pdf',
 #        labelx='perturbation step', labely=sensMeth[1:])
 

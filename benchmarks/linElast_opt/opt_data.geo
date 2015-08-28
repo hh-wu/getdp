@@ -17,6 +17,13 @@ DefineConstant[
       "topology"
     }, Name "Input/Optimization Type", Visible 1},
   
+  Flag_SensitivityMethod = {"adjoint",
+    Choices{
+      "noSystem",
+      "adjoint",
+      "direct"
+    }, Name StrCat[pInOpt, "Derivative Method"]},
+
   // Velocity field (Mesh perturbation)
   SensitivityParameter = { "Input/Constructive parameters/Hole Length",
     Choices{

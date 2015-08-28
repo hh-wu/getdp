@@ -1,15 +1,57 @@
 """ 
     Author: Erin Kuci
     Performance functions of the optimization problem.
+
 """
 from tool import *
 from defPerfFuncSens import *
 
+def opt_eig_sens(x,data,parameters):
+    nbEig = 1
+    w2 = data['eig2'][0]
+    #print('eig2-before:{}'.format(w2)) #fixme
+    nn = len(w2)
+    w2 = w2[nn-nbEig:nn]
+    print('l_eig2:{}\neig2:{}'.format(nn,w2)) #fixme
+    input = {
+        'f':[w2]*len(parameters['sensitivity']),
+        'df':['FiniteDifference'],
+        'fmax':[0],
+        'f_name':['eig_noNorm'],
+        'sign':[1.0]
+    }
+    return input
+
+def opt_eig(x,data,parameters):
+    nbEig = 10
+    w2 = data['eig2'][0]
+    nn = len(w2)
+    w2 = w2[nn-nbEig:nn]
+    #print('l_eig2:{}\neig2:{}'.format(nn,eig2)) #fixme
+    input = {
+        'f':w2,
+        'df':['AnalyticNotEplicit']*nbEig,#'AnalyticNotEplicit','FiniteDifference'
+        'fmax':[0]*nbEig,
+        'f_name':['eig_noNorm']*nbEig,
+        'sign':[1.0]*nbEig
+    }
+    return input
+
+def opt_vm2(x,data,parameters):
+    input = {
+        'f':[16.0-data['Mass'][0],data['StressVM'][0]],
+        'df':['AnalyticNotEplicit','AdjointLie'],
+        'fmax':[16.0,data['StressVM'][0]*1.1],
+        'f_name':['Mass2','vonMises'],
+        'sign':[-1.0,1.0]
+    }
+    return input
+
 def opt_pnorm(x,data,parameters):
     input = {
         'f':[16.0-data['Mass'][0],data['StressVM_pNorm'][0]],
-        'df':['AnalyticNotEplicit','AdjointLie'],#['FiniteDifference']*2,
-        'fmax':[16.0,1.7e8],
+        'df':['FiniteDifference']*2,#['AnalyticNotEplicit','AdjointLie']
+        'fmax':[16.0,data['StressVM_pNorm'][0]*1.05],
         'f_name':['Mass2','vonMises_Pnorm'],
         'sign':[-1.0,1.0]
     }
