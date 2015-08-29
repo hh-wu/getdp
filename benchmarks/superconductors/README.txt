@@ -14,7 +14,7 @@ Open `helix.pro' with Gmsh.
 Additional info
 ---------------
 
-The example contains a 3D model of a superconducting wire, using a T-\Omega
-formulation and the Gmsh cohomology solver.
+The example contains a 3D model of a superconducting wire, using an
+H-formulation and the Gmsh cohomology solver.
 
 -->

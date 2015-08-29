@@ -19,8 +19,7 @@ Group {
   Omega = Region[{OmegaC, OmegaCC}];
   BndOmegaC = Region[{BndMatrix}];
 
-  Cut1AV = Region[ (AIR + 1) ];
-  Cut1TO = Region[ (AIR + 2) ];
+  Cut = Region[ (AIR + 2) ];
 
   BndOmega = Region[ {(BND_AIR),  (BND_AIR+1),  (BND_AIR+2), Terminals} ];
 }
@@ -28,9 +27,9 @@ Group {
 Function {
 
   DefineConstant[
-    sigmaMatrix = {6e7,
+    sigmaMatrix = {6e7, Min 1e3, Max 6e7, Step 1e3,
       Name "Input/4Materials/Matrix conductivity [Sm⁻¹]"},
-    Itot = {800/2,
+    Itot = {800/2, Min 100, Max 1000, Step 100,
       Name "Input/3Source/Total current [A]"},
     Ec = {1e-4,
       Name "Input/4Materials/Critical electric field [Vm⁻¹]"},
@@ -38,9 +37,9 @@ Function {
       Name "Input/4Materials/Critical current density [Am⁻²]"},
     n = {10, Min 3, Max 40, Step 1, Highlight "LightYellow",
       Name "Input/4Materials/Exponent (n) value"},
-    Freq = {50,
+    Freq = {50, Min 1, Max 100, Step 1,
       Name "Input/3Source/Frequency [Hz]"},
-    periods = {0.25,
+    periods = {1.25, Min 0.1, Max 2.0, Step 0.05,
       Name "Input/Solver/0Periods to simulate [s]"},
     time0 = 0, // initial time
     time1 = periods * (1 / Freq), // final time
@@ -100,13 +99,13 @@ Integration {
 }
 
 Constraint {
-  { Name VoltageTO ;
+  { Name Voltage ;
     Case {
     }
   }
-  { Name CurrentTO ;
+  { Name Current ;
     Case {
-      { Region Cut1TO; Value Itot ; TimeFunction Sin_wt_p[]{2*Pi*Freq, 0.} ; }
+      { Region Cut; Value Itot ; TimeFunction Sin_wt_p[]{2*Pi*Freq, 0.} ; }
     }
   }
 }
@@ -119,7 +118,7 @@ FunctionSpace {
       { Name se; NameOfCoef t; Function BF_Edge;
         Support OmegaC; Entity EdgesOf[All, Not BndOmegaC]; }
       { Name sc1; NameOfCoef I1; Function BF_GroupOfEdges;
-        Support Omega; Entity GroupsOfEdgesOf[Cut1TO]; }
+        Support Omega; Entity GroupsOfEdgesOf[Cut]; }
     }
     GlobalQuantity {
       { Name Current1 ; Type AliasOf        ; NameOfCoef I1 ; }
@@ -127,26 +126,26 @@ FunctionSpace {
     }
     Constraint {
       { NameOfCoef Current1 ;
-        EntityType GroupsOfEdgesOf ; NameOfConstraint CurrentTO ; }
+        EntityType GroupsOfEdgesOf ; NameOfConstraint Current ; }
       { NameOfCoef Voltage1 ;
-        EntityType GroupsOfEdgesOf ; NameOfConstraint VoltageTO ; }
+        EntityType GroupsOfEdgesOf ; NameOfConstraint Voltage ; }
     }
   }
 }
 
 Formulation {
-  { Name MagDynTO; Type FemEquation;
+  { Name MagDynH; Type FemEquation;
     Quantity {
-      { Name t; Type Local; NameOfSpace HSpace; }
+      { Name h; Type Local; NameOfSpace HSpace; }
       { Name I1; Type Global; NameOfSpace HSpace[Current1]; }
       { Name V1; Type Global; NameOfSpace HSpace[Voltage1]; }
     }
     Equation {
-      // Nonlinear weak form: Find t_k such that
+      // Nonlinear weak form: Find h_k such that
       //
-      //   \partial_t (\mu t_k, t') + (\rho(curl t_k) curl t_k, curl t') = 0,
+      //   \partial_t (\mu h_k, h') + (\rho(curl h_k) curl h_k, curl h') = 0,
       //
-      // for all t' in Hspace.
+      // for all h' in Hspace.
       //
       // Linearization:
       //
@@ -154,33 +153,33 @@ Formulation {
       //
       // i.e.
       //
-      //   (\rho(curl t_k) curl t_k, curl t') \approx
-      //      (\rho(curl t_k-1) curl t_k-1, curl t')
-      //    + (dEdJ(curl t_k-1) curl t_k, curl t')
-      //    - (dEdJ(curl t_k-1) curl t_k-1, curl t')
+      //   (\rho(curl h_k) curl h_k, curl h') \approx
+      //      (\rho(curl h_k-1) curl h_k-1, curl h')
+      //    + (dEdJ(curl h_k-1) curl h_k, curl h')
+      //    - (dEdJ(curl h_k-1) curl h_k-1, curl h')
       //
-      Galerkin { DtDof [ mu[] * Dof{t} , {t} ];
+      Galerkin { DtDof [ mu[] * Dof{h} , {h} ];
         In Omega; Integration Int; Jacobian Vol;  }
 
-      Galerkin { [ rho[] * Dof{d t} , {d t} ];
+      Galerkin { [ rho[] * Dof{d h} , {d h} ];
         In Matrix; Integration Int; Jacobian Vol;  }
 
-      Galerkin { [ rho[{d t}] * {d t} , {d t} ];
+      Galerkin { [ rho[{d h}] * {d h} , {d h} ];
         In Filaments; Integration Int; Jacobian Vol;  }
-      Galerkin { [ dEdJ[{d t}] * Dof{d t} , {d t} ];
+      Galerkin { [ dEdJ[{d h}] * Dof{d h} , {d h} ];
         In Filaments; Integration Int; Jacobian Vol;  }
-      Galerkin { [ - dEdJ[{d t}] * {d t} , {d t} ];
+      Galerkin { [ - dEdJ[{d h}] * {d h} , {d h} ];
         In Filaments ; Integration Int; Jacobian Vol;  }
 
-      GlobalTerm { [ -Dof{V1} , {I1} ] ; In Cut1TO ; }
+      GlobalTerm { [ -Dof{V1} , {I1} ] ; In Cut ; }
     }
   }
 }
 
 Resolution {
-  { Name MagDynTOTime;
+  { Name MagDynHTime;
     System {
-      { Name A; NameOfFormulation MagDynTO; }
+      { Name A; NameOfFormulation MagDynH; }
     }
     Operation {
       SetGlobalSolverOptions["-mat_mumps_icntl_14 500"];
@@ -196,14 +195,14 @@ Resolution {
           Print[{$it, $res, $res / $res0}, Format "Residual %03g: abs %14.12e rel %14.12e"];
         }
         SaveSolution[A];
-        Test[ GetNumber[visu]{"Input/Solver/Visu"} ]{ PostOperation[MagDynTO]; }
+        Test[ GetNumber[visu]{"Input/Solver/Visu"} ]{ PostOperation[MagDynH]; }
       }
     }
   }
 
-  { Name MagDynTOComplex;
+  { Name MagDynHComplex;
     System {
-      { Name A; NameOfFormulation MagDynTO;
+      { Name A; NameOfFormulation MagDynH;
         Type ComplexValue; Frequency Freq;}
     }
     Operation {
@@ -214,45 +213,47 @@ Resolution {
 }
 
 PostProcessing {
-  { Name MagDynTO; NameOfFormulation MagDynTO;
+  { Name MagDynH; NameOfFormulation MagDynH;
     Quantity {
-      { Name phi; Value{ Local{ [ {dInv t} ] ;
+      { Name phi; Value{ Local{ [ {dInv h} ] ;
 	    In Omega; Jacobian Vol; } } }
-      { Name t; Value{ Local{ [ {t} ] ;
+      { Name h; Value{ Local{ [ {h} ] ;
 	    In Omega; Jacobian Vol; } } }
-      { Name h; Value{ Local{ [ {t} ] ;
-	    In Omega; Jacobian Vol; } } }
-      { Name j; Value{ Local{ [ {d t} ] ;
+      { Name j; Value{ Local{ [ {d h} ] ;
 	    In OmegaC; Jacobian Vol; } } }
-      { Name q; Value{ Local{ [ rho[{d t}]*( Re[{d t}]*Re[{d t}] + Im[{d t}]*Im[{d t}]) ] ;
-	    In OmegaC; Jacobian Vol; } } }
-      { Name b; Value{ Local{ [ mu[]*({t}) ] ;
+      { Name b; Value{ Local{ [ mu[]*{h} ] ;
             In Omega; Jacobian Vol; } } }
-      { Name dtb; Value{ Local{ [ mu[]*(Dt [{t}]) ] ;
+      { Name dtb; Value{ Local{ [ mu[]* Dt[{h}] ] ;
             In Omega; Jacobian Vol; } } }
-      { Name I1 ; Value { Term { [ {I1} ] ; In Cut1TO ; } } }
-      { Name V1 ; Value { Term { [ {V1} ] ; In Cut1TO ; } } }
-      { Name Z1 ; Value { Term { [ {V1}/{I1} ] ; In Cut1TO ; } } }
+      { Name I1 ; Value { Term { [ {I1} ] ; In Cut ; } } }
+      { Name V1 ; Value { Term { [ {V1} ] ; In Cut ; } } }
+      { Name Z1 ; Value { Term { [ {V1}/{I1} ] ; In Cut ; } } }
+      { Name Losses ; Value { Integral { [ rho[{d h}] * {d h} * {d h}];
+            In OmegaC ; Integration Int; Jacobian Vol; } } }
     }
   }
 }
 
 PostOperation {
-  { Name MagDynTO ; NameOfPostProcessing MagDynTO ; LastTimeStepOnly ;
+  { Name MagDynH ; NameOfPostProcessing MagDynH ; LastTimeStepOnly ;
     Operation {
-      Print[ h, OnElementsOf Omega , File "res/hTO.pos" ];
-      Print[ j, OnElementsOf OmegaC , File "res/jTO.pos" ];
-      //Print[ q, OnElementsOf OmegaC , File "res/qTO.pos"] ;
-      //Print[I1, OnRegion Cut1TO, File "res/I1TO.pos"];
-      //Print[V1, OnRegion Cut1TO, File "res/V1TO.pos"];
-      //Print[Z1, OnRegion Cut1TO, File "res/Z1TO.pos"];
+      Print[ h, OnElementsOf Omega , File "res/h.pos" ];
+      Print[ j, OnElementsOf OmegaC , File "res/j.pos" ];
+      //Print[I1, OnRegion Cut, File "res/I1.pos"];
+      //Print[V1, OnRegion Cut, File "res/V1.pos"];
+      //Print[Z1, OnRegion Cut, File "res/Z1.pos"];
+      Print[ Losses[OmegaC],  OnGlobal, Format TimeTable,
+        File > "res/losses_total.txt", SendToServer "Output/Losses"] ;
+      Print[ Losses[Filaments], OnGlobal, Format TimeTable,
+        File > "res/losses_filaments.txt"] ;
+      Print[ Losses[Matrix], OnGlobal, Format TimeTable,
+        File > "res/losses_matrix.txt"] ;
     }
   }
-
 }
 
 DefineConstant[
-  R_ = {"MagDynTOTime", Name "GetDP/1ResolutionChoices", Visible 0},
+  R_ = {"MagDynHTime", Name "GetDP/1ResolutionChoices", Visible 0},
   C_ = {"-solve -bin -v 3 -v2", Name "GetDP/9ComputeCommand", Visible 0},
   P_ = { "", Name "GetDP/2PostOperationChoices", Visible 0}
 ];

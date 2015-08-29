@@ -1,11 +1,12 @@
+// Basic quenching model from "Basics of Stability Analysis of Superconductors –
+// What is it There Behind the Numerical Approaches and How They Can Be Utilized
+// to Aid the Complete Superconducting Systems Engineering?", by Antti Stenvall,
+// Tiina Salmi and Erkki Haro, Tampere University of Technology, Tampere,
+// Finland, May 29, 2015.
 //
-// ideas for future work: for the quench
-//
-// - start from Antti's chapter and implement the 1D problem (cf. Matlab code)
-//
-// - investigate propagation or not of the quench based on the energy; implement
-// an automatic loop to detect the quench
-//
+// This is a preliminary implementation:
+//  - results have not yet been validated
+//  - an automatic loop to detect the quench should be added
 
 Include "quench_data.pro";
 
