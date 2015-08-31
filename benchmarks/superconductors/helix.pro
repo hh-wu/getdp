@@ -171,9 +171,9 @@ Formulation {
 
       Galerkin { [ rho[{d h}] * {d h} , {d h} ];
         In Filaments; Integration Int; Jacobian Vol;  }
-      Galerkin { [ dEdJ[{d h}] * Dof{d h} , {d h} ];
+      Galerkin { [ $relax * dEdJ[{d h}] * Dof{d h} , {d h} ];
         In Filaments; Integration Int; Jacobian Vol;  }
-      Galerkin { [ - dEdJ[{d h}] * {d h} , {d h} ];
+      Galerkin { [ - $relax * dEdJ[{d h}] * {d h} , {d h} ];
         In Filaments ; Integration Int; Jacobian Vol;  }
 
       GlobalTerm { [ -Dof{V1} , {I1} ] ; In Cut ; }
@@ -190,7 +190,7 @@ Resolution {
       SetGlobalSolverOptions["-mat_mumps_icntl_14 500"];
       CreateDirectory["res"];
       InitSolution[A];
-      Evaluate[ $relax = 1e-10 ];
+      Evaluate[ $relax = 1 ];
       TimeLoopTheta[time0, time1, dt, theta] {
         Generate[A]; Solve[A];
         Generate[A]; GetResidual[A, $res0]; Evaluate[ $res = $res0, $it = 0 ];
