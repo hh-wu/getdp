@@ -17,6 +17,13 @@ DefineConstant[
       "topology"
     }, Name "Input/Optimization Type", Visible 1},
   
+  SysName = {"u_Mec",
+    Choices{
+      "noSystem",
+      "adjoint",
+      "direct"
+    }, Name StrCat[pInOpt, "Derivative Method"]},
+
   Flag_SensitivityMethod = {"adjoint",
     Choices{
       "noSystem",
@@ -25,10 +32,10 @@ DefineConstant[
     }, Name StrCat[pInOpt, "Derivative Method"]},
 
   // Velocity field (Mesh perturbation)
-  SensitivityParameter = { "Input/Constructive parameters/Hole Length",
+  SensitivityParameter = { StrCat(pp,"Hole Length"),
     Choices{
-      "Input/Constructive parameters/Hole Length",
-      "Input/Constructive parameters/Hole Width"
+      StrCat(pp,"Hole Length"),
+      StrCat(pp,"Magnet length")
     },
     Name StrCat(pInOpt,"Parameter to perturb"), 
     Visible (!StrCmp(Flag_optType,"shape")) },

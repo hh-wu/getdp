@@ -1,4 +1,5 @@
-""" 
+
+"""
     Author: Erin Kuci
     
     Check the computation of sensitivity 
@@ -14,14 +15,14 @@ from defPerfFuncSens import *
 # **** Input                                                         *****
 # ************************************************************************
 x = np.array([0.4])
-pIn = 'Input/Constructive parameters/'
+pIn = 'Input/Constructive Parameters/'
 varName = [pIn+'Hole Length',pIn+'Hole Width']
-func = opt_eig_sens
-execMode = 'plot' #{'response','derivative','plot'
+func = opt_sens
+execMode = 'derivative' #{'response','derivative','plot'
 lc = [5.0] #np.logspace(0.0, 0.8, num=10)[5:] #[3.0]
-step = np.logspace(-11, -1, num=11)
-#sensMeth =['FiniteDifference','AdjointSemi','AdjointLie']
-sensMeth = ['FiniteDifference'] #,'AnalyticNotEplicit']
+step = [1.0e-06] #np.logspace(-11, -1, num=11)
+sensMeth =['FiniteDifference','AdjointSemi','AdjointLie']
+#sensMeth = ['FiniteDifference'] #,'AnalyticNotEplicit']
 pathSave = 'resSens'
 if(execMode=='response'):xmin=[0.002,0.002];xmax=[0.02,0.006];nbSample=5
 
@@ -29,10 +30,10 @@ if(execMode=='response'):xmin=[0.002,0.002];xmax=[0.02,0.006];nbSample=5
 # **** Define parameters                                              ****
 # ************************************************************************
 parameters = {
-    'Print':0,
+    'Print':4,
     'file':'beam',
-    'analysis':['u_Mec_eig'],
-    'analysisPost':['u_Mec_eig'],
+    'analysis':['u_Mec'],
+    'analysisPost':['u_Mec'],
     'adjoint':['Adjoint_u_Mec'],
     'semiPost':['SemiAdjoint_u_Mec'],
     'direct':['Direct_u_Mec'],
@@ -41,14 +42,12 @@ parameters = {
         'degVM':['Input/Optimization/degVM',2]},
     'variables':varName,
     'performance':func,
-    'sensitivity':sensMeth,
     'allowCentralFD':0
 }
 
 # ************************************************************************
 # **** Instantiate the sensitivity module                            *****
 # ************************************************************************
-#op = Sensitivity(parameters)
 op = Optimization(parameters, x, x, x)
 
 # ************************************************************************
@@ -110,7 +109,7 @@ elif ( execMode == 'derivative'):
                 f[j] = np.copy(resAnalysis['fj'][0])
 
                 # compute df/dx(x)
-                op.parameters['Sensitivity'] = [sensMeth[l]]
+                op.opt['df'] = [sensMeth[l]]
                 t0 = time.time()
                 resSens = op.Sensitivity(x, resAnalysis['fj'], op.parameters)
                 tf = time.time()

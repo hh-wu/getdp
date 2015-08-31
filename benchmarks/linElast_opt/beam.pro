@@ -1,22 +1,40 @@
 Include "beam_data.geo";
 
 DefineConstant[
-  Flag_testBench = {0,  
+  Flag_testBench = {3,  
     Choices {
       0="Short Cantiler Beam", 
       1="MBB Beam",
-      2="Plate with hole"
-      }, Visible 1,
-    Name "Geo/Test Case"},
-  E0  = {210e6, Name "Input/ Materials/ Young modulus"},
-  nu0 = {0.3, Name "Input/ Materials/ Poisson coeficient"},
-  rh = {1000.,Name "Input/ Materials/ Mass density"}
+      2="Plate with hole",
+      3="Rotor"}, Visible 1,
+    Name "Input/Loading/case"},
+  E0  = {210e6, Name "Input/Materials/ Young modulus",Visible 0},
+  nu0 = {0.3, Name "Input/Materials/ Poisson coeficient",Visible 0},
+  rh = {1000.,Name "Input/Materials/ Mass density",Visible 0}
 ];
 
 Group {
   /* ----------------------------------------------------------------- 
      Primal problem: 
      ----------------------------------------------------------------- */
+  If(!StrCmp(Flag_cao,"square"))
+    Domain = Region[{BLOC}];
+  EndIf
+  If(!StrCmp(Flag_cao,"rotor")) 
+    Rotor_int    = #LINTERIEUR;
+    Rotor_Fe     = #ROTOR_FE ;
+    Rotor_Air    = #ROTOR_AIR ;
+    Rotor_Airgap = #ROTOR_ENTREFER ;
+    Rotor_Bnd_A0 = #ROTOR_BND_A0 ;
+    Rotor_Bnd_A1 = #ROTOR_BND_A1 ;
+    For k In {1:NbrMagnets}
+      Rotor_Magnet~{k} = Region[ (ROTOR_AIMANT1+k-1) ];
+      Rotor_Magnets += Region[ Rotor_Magnet~{k} ];
+    EndFor
+    Domain = Region[{Rotor_Fe,Rotor_Magnets}];
+  EndIf
+
+  // Force
   Domain_Force_Vol = Region[ {} ];
   Domain_Force_Sur = Region[ {} ];
   Domain_Force_Lin = Region[ {} ];
@@ -39,8 +57,10 @@ Group {
       Domain_Force_Sur = Region[{SURF_BAS,SURF_HAUT,SURF_DROITE,SURF_GAUCHE}]; 
     EndIf 
   EndIf
+  If(Flag_testBench==3) //rotor
+    Domain_Force_Lin = Region[Rotor_Bnd_A0];
+  EndIf
   Domain_Force = Region[{Domain_Force_Sur,Domain_Force_Lin}];
-  Domain = Region[{BLOC}];
 
   // Optimization problem: comment spécifier ça??
   DomainOpt = Region[{Domain}];
@@ -67,18 +87,26 @@ Function {
      Primal problem: 
      ----------------------------------------------------------------- */
   If(Flag_testBench == 2)
-    force_mec[#SURF_BAS] = Vector[0, -22.5e6, 0]; 
-    force_mec[#SURF_HAUT] = Vector[0, 22.5e6, 0]; 
-    force_mec[#SURF_DROITE] = Vector[45e6, 0, 0]; 
-    force_mec[#SURF_GAUCHE] = Vector[-45e6, 0, 0]; 
+    force_mec[#SURF_BAS] = Vector[0, -2e6, 0]; 
+    force_mec[#SURF_HAUT] = Vector[0, 2e6, 0]; 
+    force_mec[#SURF_DROITE] = Vector[4e6, 0, 0]; 
+    force_mec[#SURF_GAUCHE] = Vector[-4e6, 0, 0]; 
   EndIf
   If(Flag_testBench != 2)
     force_mec[Domain_Force] = Vector[0, -1.0e6, 0]; 
   EndIf
 
   If(StrCmp(Flag_optType,"topology")) // no topology optimization
-    E[] = E0;
-    rho[] = rh;
+    If(StrCmp(Flag_cao,"rotor")) 
+      E[Domain] = E0;
+      rho[Domain] = rh;
+    EndIf
+    If(!StrCmp(Flag_cao,"rotor")) // rotor 
+      E[#{Domain,-Rotor_Fe}] = 210e09;
+      E[Rotor_Fe] = 196e09;
+      rho[#{Domain,-Rotor_Fe}] = 8100.0;
+      rho[Rotor_Fe] = 7860.0;
+    EndIf
   EndIf
   If(!StrCmp(Flag_optType,"topology")) // topology optimization
     designVar[] = ScalarField[XYZ[],0,1]{DES_VAR_FIELD};
@@ -115,7 +143,7 @@ Function {
   EndIf
 
   eig2[] = $ReOmega^2;
-  bilin_mass_[] = rho[] * $1 * $1; //$1:u  
+  mass_eig[] = rho[] * $1 * $1; //$1:u  
   If(Flag_2D) // operators for 2D
     bilin_uu[] = (C[] * $1) * $1; 
     bilin[] = (C[] * $1) * $2; //$1:{D1 u} 
@@ -264,6 +292,9 @@ Constraint{
       If(Flag_testBench == 1)
         { Region #SURF_GAUCHE;  Value 0.; } 
       EndIf
+      If(Flag_testBench == 3)
+        { Region Rotor_int;  Value 0.; } 
+      EndIf
     }
   }
   { Name DisplacementY; Type Assign ;
@@ -273,6 +304,9 @@ Constraint{
       EndIf
       If(Flag_testBench == 1) //mbb beam
         { Region #POINT_2;  Value 0.; } 
+      EndIf
+      If(Flag_testBench == 3)
+        { Region Rotor_int;  Value 0.; } 
       EndIf
     }
   }

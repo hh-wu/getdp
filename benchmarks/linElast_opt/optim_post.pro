@@ -5,7 +5,10 @@ PostProcessing {
     PostQuantity {
       { Name u; Value { Term { [ {u} ] ; In Domain ; } }} 
       { Name um ; Value { Term { [Norm[{u}]] ; In Domain  ; } } }
-      { Name F ; Value { Term { [ force_mec[] ]; In Domain_Force ; } } }   
+      { Name F ; Value { Term { [ force_mec[] ]; In Domain_Force ; } } }
+      { Name E ; Value { Term { [ E[] ]; In Domain ; } } }
+      { Name rho ; Value { Term { [ rho[] ]; In Domain ; } } }
+         
 
       { Name StressVM; Value { Term {[sigmaVM[{D1 u},{D2 u}]];In Domain;}}}
       { Name StressVMInt; Value {
@@ -66,12 +69,11 @@ PostOperation {
   // --------------------------------------------------------------------------
  { Name u_Mec; NameOfPostProcessing u_Mec;
    Operation{
+     Print[ E, OnElementsOf Domain,File StrCat[ResDir,"E",ExtGmsh]] ;
+     Print[ rho, OnElementsOf Domain,File StrCat[ResDir,"rho",ExtGmsh]] ;
      Print[ u, OnElementsOf Domain,File StrCat[ResDir,"u",ExtGmsh]] ;
-
      Print[ StressVM, OnElementsOf Domain,File StrCat[ResDir,"VM",ExtOnelabVec]] ;
-
-     Print[ um,OnElementsOf Domain,File StrCat[ResDir,"um",ExtGmsh]] ;
-
+     //Print[ um,OnElementsOf Domain,File StrCat[ResDir,"um",ExtGmsh]] ;
      Print[ F, OnElementsOf Domain_Force,File StrCat[ResDir,"F",ExtGmsh]] ;
 
      Print[ Compliance[DomainFunc], OnGlobal, Format TimeTable,

@@ -48,7 +48,9 @@ from defPerfFuncSens import *
 # ************************************************************************
 # ***** create the parameters                                        *****
 # ************************************************************************
-pIn = 'Input/Constructive parameters/'
+pIn = 'Input/Constructive Parameters/'
+ppC = 'Input/0Cao/'
+cao = 'square'
 param=1;n=10
 if (param==1):
     var = [pIn+'Hole Length',pIn+'Hole Width']
@@ -57,54 +59,54 @@ else:
 
 parameters = {
     'file':'beam','plot':1,'Print':5,
-    'analysis': ['u_Mec_eig'],
-    'analysisPost':['u_Mec_eig'],
+    'analysis': ['u_Mec'],
+    'analysisPost':['u_Mec'],
     'adjoint':['Adjoint_u_Mec'],
     'direct':['Direct_u_Mec'],
     'defaultValue':{
         'OptType':['Input/Optimization Type','shape'],
-        'lc':['Geo/Mesh density',5.0],
-        '2D':['Input/ 2D?',1],
-        'Hole':['Geo/Hole',param],
-        'nbPtSpline':['Geo/nb points',n],
+        'cao':[ppC+'0 Cao?',cao],
+        'load':['Input/Loading/case',2],
+        'lc':[ppC+'Mesh density',5.0],
+        'Hole':[ppC+'Hole',param],
+        'nbPtSpline':[ppC+'nb points',n],
         'degVM':['Input/Optimization/degVM',2]},
     'step':1.0e-06,
     'variables':var,
-    'performance':opt_eig,#opt_eig,opt_vm2,opt_pnorm,opt_vonMises_elem
+    'performance':opt_pnorm,#opt_eig,opt_vm2,opt_pnorm,opt_vonMises_elem
     'optimizer':'conlinFile', #mma2007,conlinFile,gcmma,openopt
     'xtol':1.0e-03
 }
 
 # Design variables
 if (param==1):
-    x = [0.4]#, 0.4]
-    xmin = [0.01]#,0.01]
-    xmax = [3.5]#,3.5]
+    x = [0.4,0.4]
+    xmin = [0.01,0.01]
+    xmax = [3.5,3.5]
 else:
     x = [0.4]*n
     xmin = [0.01]*n
     xmax = [3.5]*n
+
 # ************************************************************************
 # ***** Instantiate the Model and the Optimizer                      *****
 # ************************************************************************
 op = Optimization(parameters, xmin, xmax, x)
 
-aa = op.generateFuncDerivFunc(x)
-print aa
 # ************************************************************************
 # ***** Shape Optimization routine                                   *****
 # ************************************************************************
-## Preprocess
-#op.preprocessing(op.parameters)
-#
-## Call Optimizer
-#op.solveOpt(op.x,op.xmax,op.xmin,op.fjMax,2,op.parameters)
-#
-## ************************************************************************
-## ***** Optimization Post-Process                                    *****
-## ************************************************************************
-## Optimization history
-#op.postprocessing('resOpt/histOptClassAttr.txt', op.iter-1)
+# Preprocess
+op.preprocessing(op.parameters)
+
+# Call Optimizer
+op.solveOpt(op.x,op.xmax,op.xmin,op.fjMax,2,op.parameters)
+
+# ************************************************************************
+# ***** Optimization Post-Process                                    *****
+# ************************************************************************
+# Optimization history
+op.postprocessing('resOpt/histOptClassAttr.txt', op.iter-1)
 
 ## Torque comparison
 #angles=np.linspace(7.5,15.0+7.5,15*3)

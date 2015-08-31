@@ -6,6 +6,17 @@
 from tool import *
 from defPerfFuncSens import *
 
+def opt_sens(x,data,parameters):
+    vm = data['ComplianceElm'][0]
+    input = {
+        'f':[vm],
+        'f_name':['Compliance'],
+        'df':['FiniteDifference'],
+        'fmax':[1.0],
+        'sign':[-1.0],
+    }
+    return input
+
 def opt_eig_sens(x,data,parameters):
     nbEig = 1
     w2 = data['eig2'][0]
@@ -49,11 +60,11 @@ def opt_vm2(x,data,parameters):
 
 def opt_pnorm(x,data,parameters):
     input = {
-        'f':[16.0-data['Mass'][0],data['StressVM_pNorm'][0]],
+        'f':[data['Mass'][0],data['StressVM_pNorm'][0]],
         'df':['FiniteDifference']*2,#['AnalyticNotEplicit','AdjointLie']
-        'fmax':[16.0,data['StressVM_pNorm'][0]*1.05],
+        'fmax':[data['Mass'][0],data['StressVM_pNorm'][0]*1.05],
         'f_name':['Mass2','vonMises_Pnorm'],
-        'sign':[-1.0,1.0]
+        'sign':[1.0,1.0]
     }
     return input
 

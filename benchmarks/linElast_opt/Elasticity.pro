@@ -426,7 +426,8 @@ Resolution{
   }
 
    // provide "u_Mec" as input !!!
-  { Name Sens_u_Mec; // Pourait être transformé en PostOperation (gmshRead!)
+  { Name /*StrCat["Sens_",SysName]*/Sens_u_Mec; 
+    // Pourait être transformé en PostOperation (gmshRead!)
     System {
       { Name A; NameOfFormulation u_Mec; } //more than 1!
       If (!StrCmp[Flag_SensitivityMethod,"adjoint"])
