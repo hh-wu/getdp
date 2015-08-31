@@ -26,6 +26,8 @@ Group {
 
 Function {
 
+  mu0 = 4*Pi*1e-7; // [Hm⁻¹]
+
   DefineConstant[
     sigmaMatrix = {6e7, Min 1e3, Max 6e7, Step 1e3,
       Name "Input/4Materials/Matrix conductivity [Sm⁻¹]"},
@@ -56,8 +58,11 @@ Function {
       Name "Input/Solver/Visu", Label "Real-time visualization"}
   ];
 
-  mu[Omega] = 4*Pi*1e-7;
+  sigmaMatrix = sigmaMatrix / Scaling;
+  Ec = Ec / Scaling;
+  Jc = Jc / Scaling^2;
 
+  mu[Omega] =  mu0 / Scaling;
   rho[Matrix] = 1 / sigmaMatrix;
 
   // power law E(J) = rho(J) * J
@@ -185,6 +190,7 @@ Resolution {
       SetGlobalSolverOptions["-mat_mumps_icntl_14 500"];
       CreateDirectory["res"];
       InitSolution[A];
+      Evaluate[ $relax = 1e-10 ];
       TimeLoopTheta[time0, time1, dt, theta] {
         Generate[A]; Solve[A];
         Generate[A]; GetResidual[A, $res0]; Evaluate[ $res = $res0, $it = 0 ];
@@ -217,13 +223,13 @@ PostProcessing {
     Quantity {
       { Name phi; Value{ Local{ [ {dInv h} ] ;
 	    In Omega; Jacobian Vol; } } }
-      { Name h; Value{ Local{ [ {h} ] ;
+      { Name h; Value{ Local{ [ {h} * Scaling ] ;
 	    In Omega; Jacobian Vol; } } }
-      { Name j; Value{ Local{ [ {d h} ] ;
+      { Name j; Value{ Local{ [ {d h} * Scaling^2 ] ;
 	    In OmegaC; Jacobian Vol; } } }
-      { Name b; Value{ Local{ [ mu[]*{h} ] ;
+      { Name b; Value{ Local{ [ mu[]*{h} * Scaling] ;
             In Omega; Jacobian Vol; } } }
-      { Name dtb; Value{ Local{ [ mu[]* Dt[{h}] ] ;
+      { Name dtb; Value{ Local{ [ mu[]* Dt[{h}] * Scaling ] ;
             In Omega; Jacobian Vol; } } }
       { Name I1 ; Value { Term { [ {I1} ] ; In Cut ; } } }
       { Name V1 ; Value { Term { [ {V1} ] ; In Cut ; } } }
@@ -237,13 +243,13 @@ PostProcessing {
 PostOperation {
   { Name MagDynH ; NameOfPostProcessing MagDynH ; LastTimeStepOnly ;
     Operation {
-      Print[ h, OnElementsOf Omega , File "res/h.pos" ];
-      Print[ j, OnElementsOf OmegaC , File "res/j.pos" ];
+      Print[ h, OnElementsOf Omega , File "res/h.pos", Name "h [Am⁻1]" ];
+      Print[ j, OnElementsOf OmegaC , File "res/j.pos", Name "j [Am⁻²]" ];
       //Print[I1, OnRegion Cut, File "res/I1.pos"];
       //Print[V1, OnRegion Cut, File "res/V1.pos"];
       //Print[Z1, OnRegion Cut, File "res/Z1.pos"];
       Print[ Losses[OmegaC],  OnGlobal, Format TimeTable,
-        File > "res/losses_total.txt", SendToServer "Output/Losses"] ;
+        File > "res/losses_total.txt", SendToServer "Output/Losses [W]"] ;
       Print[ Losses[Filaments], OnGlobal, Format TimeTable,
         File > "res/losses_filaments.txt"] ;
       Print[ Losses[Matrix], OnGlobal, Format TimeTable,

@@ -1,7 +1,5 @@
 Include "helix_data.pro";
 
-mm = 1e-3;
-
 DefineConstant[
   AirRadius = {1,
     Name "Input/1Geometry/Radius of air domain [mm]"},
@@ -32,6 +30,8 @@ For i In {1:NumLayers}
       Name Sprintf["Input/1Geometry/{Layer %g/Starting angle [rad]", i]}
   ];
 EndFor
+
+mm = 1e-3 * Scaling;
 
 phys_fil = {};
 phys_fil_top = {};

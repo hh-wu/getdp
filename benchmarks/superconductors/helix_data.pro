@@ -1,4 +1,12 @@
 DefineConstant[
+  Scaling = {1e3,
+    Help Str["All geometrical dimensions are multiplied by this factor",
+             "(Scaling = 1 corresponds to geometrical dimensions in meters),",
+             "and material characteristics modified accordingly.",
+             "Setting dimensions e.g. in mm (Scaling = 1e3) will improve",
+             "numerical robustness by avoiding overflows in the power law",
+             "for large values of the exponent (e.g. n > 30)."],
+    Name "Input/1Geometry/0Scaling factor"},
   NumLayers = {1,
     Name "Input/1Geometry/Layers"}
 ];
