@@ -66,24 +66,18 @@ Function {
   rho[Matrix] = 1 / sigmaMatrix;
 
   // power law E(J) = rho(J) * J
-  rho[Filaments] = Ec / Jc^n * (Norm[$1])^(n - 1);
+  rho[Filaments] = Ec / Jc^n * Norm[$1]^(n - 1);
   dEdJ[Filaments] =
-    Ec / Jc^n * (Norm[$1])^(n - 1) * TensorDiag[1.,1.,1.] +
-    Ec / Jc^n * (n-1) * (Norm[$1])^(n - 3) *
-      Tensor[CompX[$1] * CompX[$1], CompX[$1] * CompY[$1], CompX[$1] * CompZ[$1],
-             CompY[$1] * CompX[$1], CompY[$1] * CompY[$1], CompY[$1] * CompZ[$1],
-             CompZ[$1] * CompX[$1], CompZ[$1] * CompY[$1], CompZ[$1] * CompZ[$1]];
+    Ec / Jc^n * Norm[$1]^(n - 1) * TensorDiag[1, 1, 1] +
+    Ec / Jc^n * (n - 1) * Norm[$1]^(n - 3) *
+      Tensor[CompX[$1]^2, CompX[$1] * CompY[$1], CompX[$1] * CompZ[$1],
+             CompY[$1] * CompX[$1], CompY[$1]^2, CompY[$1] * CompZ[$1],
+             CompZ[$1] * CompX[$1], CompZ[$1] * CompY[$1], CompZ[$1]^2];
 }
 
 Jacobian {
   { Name Vol ;
     Case { { Region All ; Jacobian Vol ; } }
-  }
-  { Name Sur ;
-    Case { { Region All ; Jacobian Sur ; } }
-  }
-  { Name Lin ;
-    Case { { Region All ; Jacobian Lin ; } }
   }
 }
 
@@ -91,13 +85,8 @@ Integration {
   { Name Int ;
     Case { { Type Gauss ;
 	Case {
-	  { GeoElement Point       ; NumberOfPoints  1 ; }
-	  { GeoElement Line        ; NumberOfPoints  3 ; }
 	  { GeoElement Triangle    ; NumberOfPoints  4 ; }
-	  { GeoElement Quadrangle  ; NumberOfPoints  4 ; }
 	  { GeoElement Tetrahedron ; NumberOfPoints  5 ; }
-	  { GeoElement Hexahedron  ; NumberOfPoints  6 ; }
-	  { GeoElement Prism       ; NumberOfPoints  6 ; }
 	}
       } }
   }
@@ -231,9 +220,12 @@ PostProcessing {
             In Omega; Jacobian Vol; } } }
       { Name dtb; Value{ Local{ [ mu[]* Dt[{h}] * Scaling ] ;
             In Omega; Jacobian Vol; } } }
-      { Name I1 ; Value { Term { [ {I1} ] ; In Cut ; } } }
-      { Name V1 ; Value { Term { [ {V1} ] ; In Cut ; } } }
-      { Name Z1 ; Value { Term { [ {V1}/{I1} ] ; In Cut ; } } }
+      { Name I1 ; Value { Term { [ {I1} ] ;
+            In Cut ; } } }
+      { Name V1 ; Value { Term { [ {V1} ] ;
+            In Cut ; } } }
+      { Name Z1 ; Value { Term { [ {V1} / {I1} ] ;
+            In Cut ; } } }
       { Name Losses ; Value { Integral { [ rho[{d h}] * {d h} * {d h}];
             In OmegaC ; Integration Int; Jacobian Vol; } } }
     }
