@@ -118,9 +118,9 @@ Constraint {
 FunctionSpace {
   { Name HSpace; Type Form1;
     BasisFunction {
-      { Name sn; NameOfCoef phi; Function BF_GradNode;
+      { Name sn; NameOfCoef phin; Function BF_GradNode;
         Support Omega; Entity NodesOf[OmegaCC]; }
-      { Name se; NameOfCoef t; Function BF_Edge;
+      { Name se; NameOfCoef he; Function BF_Edge;
         Support OmegaC; Entity EdgesOf[All, Not BndOmegaC]; }
       { Name sc1; NameOfCoef I1; Function BF_GroupOfEdges;
         Support Omega; Entity GroupsOfEdgesOf[Cut]; }
