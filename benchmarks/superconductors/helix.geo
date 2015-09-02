@@ -1,32 +1,33 @@
 Include "helix_data.pro";
 
 DefineConstant[
-  AirRadius = {1,
+  AirRadius = {1, ReadOnly Preset,
     Name "Input/1Geometry/Radius of air domain [mm]"},
-  MatrixRadius = {0.56419,
+  MatrixRadius = {0.56419, ReadOnly Preset,
     Name "Input/1Geometry/Radius of conductive matrix [mm]"},
-  FilamentRadius = {0.1784,
+  FilamentRadius = { (Preset == 1) ? 0.5 : 0.1784, ReadOnly Preset,
     Name "Input/1Geometry/Radius of filements [mm]"},
-  TwistPitch = {4,
+  TwistPitch = {4, ReadOnly Preset,
     Name "Input/1Geometry/Twist pitch [mm]"},
-  TwistFraction = {1/4, Min 1/16, Max 2, Step 1/4,
+  TwistFraction = {(Preset == 1) ? 0.01 : 1/4,
+    Min 1/16, Max 2, Step 1/4, ReadOnly Preset,
     Name "Input/1Geometry/Twist fraction in model"},
-  LcFilament = {FilamentRadius / 4,
+  LcFilament = {0.05,
     Name "Input/2Mesh/Size on filaments [mm]", Closed 1},
   FilamentMeshAniso = {2, Min 1, Max 5, Step 1,
     Name "Input/2Mesh/Anisotropy of filament mesh"},
-   LcMatrix = {MatrixRadius / 5,
+  LcMatrix = {0.1,
     Name "Input/2Mesh/Size on matrix boundary [mm]"},
-  LcAir = {AirRadius / 5,
+  LcAir = {0.2,
     Name "Input/2Mesh/Size on air boundary [mm]"}
 ];
 
 For i In {1:NumLayers}
   DefineConstant[
-    LayerRadius~{i} = {i * MatrixRadius / (NumLayers + 1),
-      Min FilamentRadius, Max MatrixRadius, Step 1e-2,
+    LayerRadius~{i} = { (Preset == 1) ? 0 : i * MatrixRadius / (NumLayers + 1),
+      Min FilamentRadius, Max MatrixRadius, Step 1e-2, ReadOnly Preset,
       Name Sprintf["Input/1Geometry/{Layer %g/Radius [mm]", i]},
-    StartAngleFilament~{i} = {0, Min 0, Max 2*Pi, Step 2*Pi/100,
+    StartAngleFilament~{i} = {0, Min 0, Max 2*Pi, Step 2*Pi/100, ReadOnly Preset,
       Name Sprintf["Input/1Geometry/{Layer %g/Starting angle [rad]", i]}
   ];
 EndFor
