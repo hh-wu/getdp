@@ -101,6 +101,12 @@ Function {
   betaBT[] = 0; // -1/(2*I[]*k); //- 1/(2*I[]*k*(1+I[]/(k*R_EXT)));
 
   // parameters for 2nd order TC
+  // J.-F. Lee
+  kmax[] = Pi/LC ;
+  delt[] = Sqrt[kmax[]^2-k[]^2]/Sqrt[k[]^2];
+  aa[] = 1/(1 + I[]*delt[]);
+  bb[] = aa[];
+  // parameters for 2nd order TC
   // OO2 Gander 2002, pp. 46-47
   xsimin = 0;
   xsimax = Pi / LC;
