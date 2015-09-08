@@ -14,8 +14,10 @@ DefineConstant[ // allows to set these from outside
   MSH_BASE_NAME = "mesh_",
   // directory for output files
   DIR = "out/",
-  xSource = 6200,
-  ySource = -2300,
+  // xSource = 6200,
+  // ySource = -2300,
+  xSource = 4585,
+  ySource = -10,
   nLayersTr = 1,
   nLayersPml = 4
 ];

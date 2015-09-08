@@ -106,11 +106,12 @@ Function {
   delt[] = Sqrt[kmax[]^2-k[]^2]/Sqrt[k[]^2];
   aa[] = 1/(1 + I[]*delt[]);
   bb[] = aa[];
+
   // parameters for 2nd order TC
   // OO2 Gander 2002, pp. 46-47
   xsimin = 0;
   xsimax = Pi / LC;
-  deltak[] = xsimax; //Pi / Norm[XYZ[]];
+  deltak[] = Pi/(d1);//xsimax; //Pi / Norm[XYZ[]];
   alphastar[] = I[] * ((k[]^2 - xsimin^2) * (k[]^2 - (k[]-deltak[])^2))^(1/4);
   betastar[] = ((xsimax^2 - k[]^2) * ((k[]+deltak[])^2 - k[]^2))^(1/4);
   a[] = - (alphastar[] * betastar[] - k[]^2) / (alphastar[] + betastar[]);

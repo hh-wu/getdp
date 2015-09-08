@@ -77,7 +77,7 @@ Function {
   // OO2 Gander 2002, pp. 46-47
   xsimin = 0;
   xsimax = Pi / LC;
-  deltak[] = Pi;
+  deltak[] = Pi/DY;
   alphastar[] = I[] * ((k[]^2 - xsimin^2) * (k[]^2 - (k[]-deltak[])^2))^(1/4);
   betastar[] = ((xsimax^2 - k[]^2) * ((k[]+deltak[])^2 - k[]^2))^(1/4);
   a[] = - (alphastar[] * betastar[] - k[]^2) / (alphastar[] + betastar[]);

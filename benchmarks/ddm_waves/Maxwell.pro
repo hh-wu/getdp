@@ -307,7 +307,7 @@ Formulation {
         // store magnetic field on layer of elements touching the boundary
         Galerkin { [ Dof{h~{idom}} , {h~{idom}} ];
           In TrOmegaGammaD~{idom}; Jacobian JVol; Integration I1; }
-        Galerkin { [ 1/(I[]*omega[]*mu[]) * Dof{d e~{idom}}, {h~{idom}} ];
+        Galerkin { [ 1/(I[]*om[]*mu[]) * Dof{d e~{idom}}, {h~{idom}} ];
           In TrOmegaGammaD~{idom}; Jacobian JVol; Integration I1; }
       }
     }
