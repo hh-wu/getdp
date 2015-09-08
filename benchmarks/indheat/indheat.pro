@@ -288,8 +288,8 @@ Formulation {
       Galerkin { [ 1/sigma[] * Dof{d t} , {d t} ];
         In Omega_c; Integration Int; Jacobian Vol;  }
 
-      GlobalTerm { [ -Dof{V1} , {I1} ] ; In Cut1TO ; }
-      GlobalTerm { [ -Dof{V2} , {I2} ] ; In Cut2TO ; }
+      GlobalTerm { [ Dof{V1} , {I1} ] ; In Cut1TO ; }
+      GlobalTerm { [ Dof{V2} , {I2} ] ; In Cut2TO ; }
     }
   }
 
@@ -313,8 +313,8 @@ Formulation {
 	In Omega_c; Integration Int; Jacobian Vol;  }
       Galerkin { DtDof [ sigma[] * Dof{a} , {e} ];
         In Omega_c; Integration Int; Jacobian Vol;  }
-      GlobalTerm { [ -Dof{I1} , {V1} ] ; In Cut1AV ; }
-      GlobalTerm { [ -Dof{I2} , {V2} ] ; In Cut2AV ; }
+      GlobalTerm { [ - Dof{I1} , {V1} ] ; In Cut1AV ; }
+      GlobalTerm { [ - Dof{I2} , {V2} ] ; In Cut2AV ; }
     }
   }
 

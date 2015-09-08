@@ -160,12 +160,12 @@ Formulation {
 
       Galerkin { [ rho[{d h}] * {d h} , {d h} ];
         In Filaments; Integration Int; Jacobian Vol;  }
-      Galerkin { [ $relax * dEdJ[{d h}] * Dof{d h} , {d h} ];
+      Galerkin { [ dEdJ[{d h}] * Dof{d h} , {d h} ];
         In Filaments; Integration Int; Jacobian Vol;  }
-      Galerkin { [ - $relax * dEdJ[{d h}] * {d h} , {d h} ];
+      Galerkin { [ - dEdJ[{d h}] * {d h} , {d h} ];
         In Filaments ; Integration Int; Jacobian Vol;  }
 
-      GlobalTerm { [ -Dof{V1} , {I1} ] ; In Cut ; }
+      GlobalTerm { [ Dof{V1} , {I1} ] ; In Cut ; }
     }
   }
 }
@@ -176,18 +176,18 @@ Resolution {
       { Name A; NameOfFormulation MagDynH; }
     }
     Operation {
-      SetGlobalSolverOptions["-mat_mumps_icntl_14 500"];
       CreateDirectory["res"];
       InitSolution[A];
-      Evaluate[ $relax = 1 ];
       TimeLoopTheta[time0, time1, dt, theta] {
         Generate[A]; Solve[A];
         Generate[A]; GetResidual[A, $res0]; Evaluate[ $res = $res0, $it = 0 ];
-        Print[{$it, $res, $res / $res0}, Format "Residual %03g: abs %14.12e rel %14.12e"];
+        Print[{$it, $res, $res / $res0},
+              Format "Residual %03g: abs %14.12e rel %14.12e"];
         While[$res > tol_abs && $res / $res0 > tol_rel]{
           Solve[A];
           Generate[A]; GetResidual[A, $res]; Evaluate[ $it = $it + 1 ];
-          Print[{$it, $res, $res / $res0}, Format "Residual %03g: abs %14.12e rel %14.12e"];
+          Print[{$it, $res, $res / $res0},
+                Format "Residual %03g: abs %14.12e rel %14.12e"];
         }
         SaveSolution[A];
         Test[ GetNumber[visu]{"Input/Solver/Visu"} ]{ PostOperation[MagDynH]; }
@@ -235,17 +235,19 @@ PostProcessing {
 PostOperation {
   { Name MagDynH ; NameOfPostProcessing MagDynH ; LastTimeStepOnly ;
     Operation {
+      Echo["General.Verbosity=3;", File "res/option.pos"];
       Print[ h, OnElementsOf Omega , File "res/h.pos", Name "h [Am⁻1]" ];
       Print[ j, OnElementsOf OmegaC , File "res/j.pos", Name "j [Am⁻²]" ];
-      //Print[I1, OnRegion Cut, File "res/I1.pos"];
-      //Print[V1, OnRegion Cut, File "res/V1.pos"];
-      //Print[Z1, OnRegion Cut, File "res/Z1.pos"];
       Print[ Losses[OmegaC],  OnGlobal, Format TimeTable,
         File > "res/losses_total.txt", SendToServer "Output/Losses [W]"] ;
       Print[ Losses[Filaments], OnGlobal, Format TimeTable,
         File > "res/losses_filaments.txt"] ;
       Print[ Losses[Matrix], OnGlobal, Format TimeTable,
         File > "res/losses_matrix.txt"] ;
+      Print[I1, OnRegion Cut, Format TimeTable, File "res/I1.pos"];
+      Print[V1, OnRegion Cut, Format TimeTable, File "res/V1.pos"];
+      Print[Z1, OnRegion Cut, Format TimeTable, File "res/Z1.pos"];
+      Echo["General.Verbosity=5;", File "res/option.pos"];
     }
   }
 }

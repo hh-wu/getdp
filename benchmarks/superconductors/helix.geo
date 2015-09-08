@@ -5,7 +5,7 @@ DefineConstant[
     Name "Input/1Geometry/Radius of air domain [mm]"},
   MatrixRadius = {0.56419, ReadOnly Preset,
     Name "Input/1Geometry/Radius of conductive matrix [mm]"},
-  FilamentRadius = { (Preset == 1) ? 0.5 : 0.1784, ReadOnly Preset,
+  FilamentRadius = {(Preset == 1) ? 0.5 : 0.1784, ReadOnly Preset,
     Name "Input/1Geometry/Radius of filements [mm]"},
   TwistPitch = {4, ReadOnly Preset,
     Name "Input/1Geometry/Twist pitch [mm]"},
@@ -155,10 +155,10 @@ Physical Surface("Air lateral boundary", BND_AIR) = {s11, s12, s13, s14};
 Physical Surface("Air bottom boundary", BND_AIR + 1) = {s11_0};
 Physical Surface("Air top boundary", BND_AIR + 2) = {s11_1};
 
-// Cohomology computation for the T-Omega method
-Cohomology(1) {{AIR, BND_MATRIX},{}};
+// Cohomology computation for the H-Phi formulation
+Cohomology(1) {AIR, {}};
 
-// Cohomology computation for the A-V method
+// Cohomology computation for the A-V formulation
 Cohomology(1) {{MATRIX, phys_fil()},
                {BND_MATRIX + 1, BND_MATRIX + 2, phys_fil_bot(), phys_fil_top()}};
 
