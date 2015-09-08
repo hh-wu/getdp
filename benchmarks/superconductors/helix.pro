@@ -99,7 +99,7 @@ Constraint {
   }
   { Name Current ;
     Case {
-      { Region Cut; Value Itot ; TimeFunction Sin_wt_p[]{2*Pi*Freq, 0.} ; }
+      { Region Cut; Value -Itot ; TimeFunction Sin_wt_p[]{2*Pi*Freq, 0.} ; }
     }
   }
 }
