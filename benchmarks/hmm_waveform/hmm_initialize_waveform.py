@@ -1,6 +1,6 @@
 print("Python: initializing HMM tables");
 
-# vector of macroscale time instant
+# vectors of macroscale fields of macroscaleas a function of time
 if (input[0] == 0):
     time_table = {}
     WR_Abs_L_inf_b_0 = 1
@@ -69,7 +69,7 @@ delta_dtby = {}
 delta_dtbz = {}
 
 ref_TS = 1e8
-num_tw = input[1]
+num_tw = str(input[1])
 
 if (input[0] == 0):
     end_computations = False

@@ -32,7 +32,8 @@ Function {
   mu0            = 4.e-7 * Pi;
   nu0            = 1/mu0;
 
-  DefineConstant[ ELENUM=0, QPINDEX=0, t_0=0, t_end=0, dt_Macro=0, Flag_WR_meso=1, Flag_meso_comp=0];
+  DefineConstant[ ELENUM=0, QPINDEX=0, t_0=0, t_end=0, dt_Macro=0, Flag_WR_meso=1,
+                  Flag_meso_comp=0, which_time_window, which_wr_iteration, len_time, which_time_step, which_time];
 
   If(!Flag_WR_meso)
     Nbr_SubProblems = 1;
@@ -108,7 +109,8 @@ Function {
   timemax         = t_end;
   ti              = time0;
 
-  Printf("Done in the mesoscale resolution. t_0 = %g, t_end = %g and Nbr_SubProblems=%g", t_0, t_end, Nbr_SubProblems);
+  Printf("Done in the mesoscale resolution. t_0 = %g, t_end = %g and Nbr_SubProblems=%g. Which_time_step = %g Which_time = %g",
+         t_0, t_end, Nbr_SubProblems, which_time_step, which_time);
 
 
   dt_Meso         = dt_Macro/1;
@@ -144,8 +146,19 @@ Function {
   EndIf
   */
   If (!Flag_WR_meso)
-    a_pert[] = VectorField[XYZ[], $1 ]{0};
+    a_tprevious[] = VectorField[XYZ[], $1]{0};
   EndIf
+  If (Flag_WR_meso)
+    //a_tot[] = ScalarField[XYZ[]]{0};
+    //a_tprevious[]   = (TSCURRENT == 1) ? Vector[0.,0.,0.] : VectorField[XYZ[]]{0};
+    //a_tprevious[]   = (which_time_window == 1) ? Vector[0.,0.,0.] : VectorField[XYZ[]]{0};
+
+    //a_tprevious[]   = (which_time_window == 1) ? Vector[0.,0.,0.] : VectorField[XYZ[]]{0};
+    a_tprevious[]   = (which_time_window == 1) ? Vector[0.,0.,0.] : Vector[0., 0., ScalarField[XYZ[]]{0}];
+  EndIf
+
+    Printf("Running computations for time step %g", (which_time_step - (which_wr_iteration * len_time)) );
+    
 }
 
 Constraint {
@@ -166,18 +179,21 @@ Constraint {
     }
   }
 
-  If (!Flag_WR_meso)
   { Name a_Meso_WR ;
     Case {
-      { Region Omega ; Type Init ; Value Field[XYZ[]] ; }
+      If (!Flag_WR_meso)
+        { Region Omega ; Type Init ; Value Field[XYZ[]]{0} ; }
+        //{ Region Omega ; Type Init ; Value Field[XYZ[]]{0} ; }
+      EndIf
     }
   }  
-  EndIf
+
   
   { Name a_Meso_Init;
     Case {
-      If(Flag_Dynamic)
-        //{ Type InitFromResolution; Region Omega; NameOfResolution a_Init; }
+      If(Flag_Dynamic && Flag_WR_meso && (which_time_window > 1) ) 
+        //{ Region Omega ; Type Init ; Value Field[XYZ[]]{0} ; }
+        { Type InitFromResolution; Region Omega; NameOfResolution a_Init; }
       EndIf
     }
   }

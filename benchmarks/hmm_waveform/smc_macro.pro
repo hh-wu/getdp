@@ -66,6 +66,8 @@ Function {
   dtime             = T/NbSteps;
   theta_value       = 1;
   Flag_Init_Step    = 1;
+
+  num_wr_iterations = num_waveform_iterations;
 }
 
 Include "MagStaDyn_a_macro.pro"

@@ -161,162 +161,124 @@ Resolution {
       { Name Dummy; NameOfFormulation MagSta_a_hmm_init_downscaling; }
     }
     Operation {
-      CreateDirectory[Dir_Macro];
-
-      Inno_TS = 0;
-      
+      CreateDirectory[Dir_Macro];      
       If(Flag_Dynamic)
-        //===================================
         // 1. Data and initialization of maps
         //===================================
         tolerance_waveform = 1.0e-14;
         error = 10 * tolerance_waveform;
-        Evaluate[ Python[0]{"hmm_initialize_waveform.py"} ];
 
-        //=======================
-        // Loop over time windows
-        //=======================
+        // A. Loop over time windows
+        //==========================
         For j In {1:num_time_windows}
+        Printf("num_time_windows = %g", num_time_windows);
         time0_j = time0 + (j - 1) * time_window;
         timemax_j = time0 + j * time_window;
-
-        Printf("j = %g, Ti = %g and Tf = %g.", j, time0_j, timemax_j);
-
         Evaluate[ Python[0, j]{"hmm_initialize_waveform.py"} ];
         
+        // B. Waveform relaxation loop
+        //============================
         
-        //=========================
-        // Waveform relaxation loop
-        //=========================
-        
-        //=======================================================
         // 2. First computation. Homogenized law is not available
         //=======================================================
         SetTime[time0_j];
         InitSolution[A_Init]; SaveSolution[A_Init];
         Evaluate[ Python[tolerance_waveform, 0]{"hmm_error_waveform.py"} ];
         If (j != 1)
+          // delete the table of time spets before starting computations on the next time window 
           Evaluate[ Python[$TimeStep]{"hmm_delete_time_table.py"} ];
         EndIf
+        // Compute initial macroscale solution for each time window
+        //=========================================================
         TimeLoopTheta[ time0_j, timemax_j, dtime, theta_value]{
-          If (j == 1)
+          If (j == 1) // just write the table of time steps
             Evaluate[ Python[$Time, $TimeStep, dtime, 0]{"hmm_first_macro_resolution.py"} ];
           EndIf
-          If (j != 1)
+          If (j != 1) // time steps are written module the first element
             Evaluate[ Python[$Time, $TimeStep, dtime, 1]{"hmm_first_macro_resolution.py"} ];
           EndIf
-            
           IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
             GenerateJac[A_Init]; SolveJac[A_Init];
           }
-          Generate[Dummy];
+          Generate[Dummy]; // Downscaling
         }
-        Printf("Lalalalalalalalalalalalalalalalalal");
         Evaluate[Python[1]{"hmm_print_time.py"}];
-        Printf("Lalalalalalalalalalalalalalalalalal");
-        //====================================================================
+
         // 3. Waveform relaxation iterations. Homogenized law is now available
         //====================================================================
         For i In {1:num_waveform_iterations}
-        //===================================
+
         // 3.1.  Compute ML until convergence
         //===================================
         If (i == 1)
           Evaluate[ Python[tolerance_waveform, i]{"hmm_error_waveform.py"} ];
-          //==============================================
-          // 3. 1. 1. Mesoscale computations (in parallel)
-          //==============================================
-        Evaluate[Python[Nbr_SubProblems, Flag_Dynamic, Freq,
-                        NbSteps, 0, time0_j, timemax_j, dtime, 1, 0]{"hmm_compute_waveform.py"}];
+
+          // 3. 1. 1. Parallel mesoscale computations
+          //=========================================
+          Evaluate[Python[Nbr_SubProblems, Flag_Dynamic, Freq, NbSteps, 0, time0_j,
+                          timemax_j, dtime, 1, 0, j, i, $TimeStep, $Time]{"hmm_compute_waveform.py"}];
           Evaluate[Python[1]{"hmm_print_time.py"}];
           Evaluate[Python[0]{"hmm_sort_tables_waveform.py"}];
           Evaluate[Python[1]{"hmm_swap_tables_waveform.py"}];
-          InitSolution[A]; SaveSolution[A];
+          If (j == 1)
+            InitSolution[A]; SaveSolution[A];
+          EndIf
           TimeLoopTheta[ time0_j, timemax_j, dtime, theta_value]{
             IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
-              If(Flag_WR == 0)
-                //======================================================
-                // 3. 1. 2. Evaluation of the material law (in parallel)
-                //======================================================
-                Evaluate[Python[Nbr_SubProblems, Flag_Dynamic, Freq,
-                                NbSteps, 0, time0_j, timemax_j, dtime, 0, 0]{"hmm_compute_waveform.py"}];
-              EndIf
+                // 3. 1. 2. Parallel evaluation of the material law followed by downscaling.
+                //==========================================================================
+                Evaluate[Python[Nbr_SubProblems, Flag_Dynamic, Freq, NbSteps, 0, time0_j,
+                                timemax_j, dtime, 0, 0, j, i, $TimeStep, $Time]{"hmm_compute_waveform.py"}];
               GenerateJac[A]; SolveJac[A];
             }
-            Generate[Dummy];
-          }
-          If(Flag_WR_Iterations)
-            //=====================================================
-            // 3.2. Compute the solution for the first WR iteration
-            //=====================================================
-            InitSolution[A]; SaveSolution[A];
-            TimeLoopTheta[ time0_j, timemax_j, dtime, theta_value]{
-              IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
-                GenerateJac[A]; SolveJac[A];
-              }
-              SaveSolution[A];
-              PostOperation[ globalquantities~{i} ];
-              If(Flag_PostCuts)
-                //PostOperation[ meso_computations ];
-              EndIf
-            }
-            Evaluate[ Python[Nbr_SubProblems, Flag_Dynamic, Freq,
-                             NbSteps, 1, time0_j, timemax_j, dtime, 1, 1]{"hmm_compute_waveform.py"} ];
-            //====================================================
-          EndIf // Flag_WR_Iterations    
+            Generate[Dummy]; // downscaling
+            PostOperation[ globalquantities~{ ((j - 1) * num_wr_iterations + i) } ];
+            PostOperation[ maps~{ ((j - 1) * num_wr_iterations + i) } ];
+          }  
         EndIf // (i == 1)
         If ( (i != 1) )
           Evaluate[Python[1]{"hmm_sort_tables_waveform.py"}];
           Test[ Python[tolerance_waveform, i]{"hmm_error_waveform.py"} ] {
-            //==============================================
             // 3. 1. 1. Mesoscale computations (in parallel)
             //==============================================
-            Evaluate[Python[Nbr_SubProblems, Flag_Dynamic, Freq,
-                            NbSteps, 0, time0_j, timemax_j, dtime, 1, 0]{"hmm_compute_waveform.py"}];
+            Evaluate[Python[Nbr_SubProblems, Flag_Dynamic, Freq, NbSteps, 0, time0_j,
+                            timemax_j, dtime, 1, 0, j, i, $TimeStep, $Time]{"hmm_compute_waveform.py"}];
             Evaluate[Python[0]{"hmm_sort_tables_waveform.py"}];
             Evaluate[Python[1]{"hmm_swap_tables_waveform.py"}];
-            InitSolution[A]; SaveSolution[A];
+            If (j == 1)
+              InitSolution[A]; SaveSolution[A];
+            EndIf
             TimeLoopTheta[ time0_j, timemax_j, dtime, theta_value]{
               IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
-                //======================================================
-                // 3. 1. 2. Evaluation of the material law (in parallel)
-                //======================================================
-                If(Flag_WR == 0)
-                  Evaluate[Python[Nbr_SubProblems, Flag_Dynamic, Freq,
-                                  NbSteps, 0, time0_j, timemax_j, dtime, 0, 0]{"hmm_compute_waveform.py"}];
-                EndIf
+                // 3. 1. 2. Parallel evaluation of the material law followed by downscaling
+                //=========================================================================
+                  Evaluate[Python[Nbr_SubProblems, Flag_Dynamic, Freq, NbSteps, 0, time0_j,
+                                  timemax_j, dtime, 0, 0, j, i, $TimeStep, $Time]{"hmm_compute_waveform.py"}];
                 GenerateJac[A]; SolveJac[A];
               }
-              Generate[Dummy];
-            }
-           
-            If(Flag_WR_Iterations)
-              //=================================================
-              // 3.2. Computations for the waveform iteration 'i'
-              //=================================================
-              InitSolution[A]; SaveSolution[A];
-              TimeLoopTheta[ time0, timemax, dtime, theta_value]{
-                IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
-                  GenerateJac[A]; SolveJac[A];
-                }
-                SaveSolution[A];
-                PostOperation[ globalquantities~{i} ];
-                If(Flag_PostCuts)
-                  //PostOperation[ meso_computations ];
+              Generate[Dummy]; // downscaling
+              PostOperation[ maps~{ ((j - 1) * num_wr_iterations + i) } ];
+              If(Flag_WR_Iterations)
+                PostOperation[ globalquantities~{ ((j - 1) * num_wr_iterations + i) } ];
+                If(0)
+                  Evaluate[ Python[Nbr_SubProblems, Flag_Dynamic, Freq, NbSteps, 1, time0_j,
+                                   timemax_j, dtime, 1, 1, j, i, $TimeStep, $Time]{"hmm_compute_waveform.py"} ];
                 EndIf
-              }
-              Evaluate[ Python[Nbr_SubProblems, Flag_Dynamic, Freq,
-                               NbSteps, 1, time0_j, timemax_j, dtime, 1, 1]{"hmm_compute_waveform.py"} ];
-              //=================================================
-            EndIf
+              EndIf
+              If(i == num_waveform_iterations)
+                  PostOperation[ writeInitialSolutionForNextTimeWindow ];
+              EndIf
+            }
           } //Test...
         EndIf// (!1)
         EndFor //(WR iterations)
 
         // 3.2. Compute if convergence has been attained
         //==============================================
-        InitSolution[A]; SaveSolution[A];
-        Evaluate[ Python[1]{"hmm_initialize_waveform.py"} ];
+        If(j == 1)
+          InitSolution[A]; SaveSolution[A];
+        EndIf
+        Evaluate[ Python[1, j]{"hmm_initialize_waveform.py"} ];
         TimeLoopTheta[ time0_j, timemax_j, dtime, theta_value]{
           IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
             GenerateJac[A]; SolveJac[A];
@@ -328,15 +290,15 @@ Resolution {
           EndIf
         }
         Evaluate[ Python[Nbr_SubProblems, Flag_Dynamic, Freq,
-                         NbSteps, 1, time0_j, timemax_j, dtime, 1, 1]{"hmm_compute_waveform.py"} ];
-        //Inno_TS = $TimeStep;
+                         NbSteps, 1, time0_j, timemax_j, dtime, 1, 1, j, i, $TimeStep, $Time]{"hmm_compute_waveform.py"} ];
         EndFor // num_time_window
       EndIf //(Flag_Dynamic)          
     }
   }  
 }
 
-ncuts = n_smc;
+//ncuts = n_smc;
+ncuts = 1;
 ndeltacuts_x = 3;
 ndeltacuts_y = 3;
 numPtsDiscret = 2000;
@@ -437,31 +399,45 @@ PostOperation {
       Print[ b, OnElementsOf Domain, File StrCat[Dir_Macro,"b_hmm.pos"] ];
       Print[ h, OnElementsOf Domain, File StrCat[Dir_Macro,"h_hmm.pos"] ];
       Print[ js, OnElementsOf Domain_S, File StrCat[Dir_Macro,"js.pos"] ];
-      /*
-      Print[ MagneticEnergy_Macro_Local, OnElementsOf Domain,
-             File StrCat[Dir_Macro,"MagneticEnergy_Macro_Local.pos"] ];
-      Print[ MagneticEnergy_Upscaled_Local, OnElementsOf Domain,
-             File StrCat[Dir_Macro,"MagneticEnergy_Upscaled_Local.pos"] ];
-      Print[ JouleLosses_Upscaled_Local, OnElementsOf Domain_NL,
-             File StrCat[Dir_Macro,"JouleLosses_Upscaled_Local.pos"] ];
-      */
     }
   }
 
-  For iP In {1:num_waveform_iterations}
-  { Name globalquantities~{iP}; NameOfPostProcessing MagStaDyn_a_hmm;
-    //LastTimeStepOnly;
-    Operation {
-      Print[ MagneticEnergy_Macro[Domain], OnGlobal, Format TimeTable,
-             File > StrCat[Dir_Macro, Sprintf("MagneticEnergy_Macro_%g.dat", iP) ], LastTimeStepOnly ] ;
-      Print[ MagneticEnergy_Upscaled[Domain], OnGlobal, Format TimeTable,
-             File > StrCat[Dir_Macro, Sprintf("MagneticEnergy_Upscaled_%g.dat", iP) ], LastTimeStepOnly ] ;
-      Print[ JouleLosses_Upscaled[Domain_NL], OnGlobal, Format TimeTable,
-             File > StrCat[Dir_Macro, Sprintf("JouleLosses_Upscaled_%g.dat", iP) ], LastTimeStepOnly ] ;
-    }
-  }
+  For iTW In {1:num_time_windows}
+    For iWR In {1:num_waveform_iterations}
+    { Name maps~{((iTW - 1) * num_waveform_iterations + iWR)}; NameOfPostProcessing MagStaDyn_a_hmm;
+        Operation {
+          Print[ az, OnElementsOf Domain, File StrCat[Dir_Macro,Sprintf("az_hmm_TW%g_WR%g.pos", iTW, iWR) ], LastTimeStepOnly ];
+          Print[ a, OnElementsOf Domain, File StrCat[Dir_Macro,Sprintf("a_hmm_TW%g_WR%g.pos", iTW, iWR) ], LastTimeStepOnly ];
+          Print[ b, OnElementsOf Domain, File StrCat[Dir_Macro,Sprintf("b_hmm_TW%g_WR%g.pos", iTW, iWR) ], LastTimeStepOnly ];
+          Print[ h, OnElementsOf Domain, File StrCat[Dir_Macro,Sprintf("h_hmm_TW%g_WR%g.pos", iTW, iWR) ], LastTimeStepOnly ];
+          Print[ js, OnElementsOf Domain, File StrCat[Dir_Macro,Sprintf("js_hmm_TW%g_WR%g.pos", iTW, iWR) ], LastTimeStepOnly ];
+        }
+      }
+    EndFor
   EndFor
   
+  For iTW In {1:num_time_windows}
+    For iWR In {1:num_waveform_iterations}
+    { Name globalquantities~{((iTW - 1) * num_waveform_iterations + iWR)}; NameOfPostProcessing MagStaDyn_a_hmm;
+        Operation {
+          Print[ MagneticEnergy_Macro[Domain], OnGlobal, Format TimeTable,
+                 File > StrCat[Dir_Macro, Sprintf("MagneticEnergy_Macro_TW%g_WR%g.dat", iTW, iWR) ], LastTimeStepOnly ] ;
+          Print[ MagneticEnergy_Upscaled[Domain], OnGlobal, Format TimeTable,
+                 File > StrCat[Dir_Macro, Sprintf("MagneticEnergy_Upscaled_TW%g_WR%g.dat", iTW, iWR) ], LastTimeStepOnly ] ;
+          Print[ JouleLosses_Upscaled[Domain_NL], OnGlobal, Format TimeTable,
+                 File > StrCat[Dir_Macro, Sprintf("JouleLosses_Upscaled_TW%g_WR%g.dat", iTW, iWR) ], LastTimeStepOnly ] ;
+        }
+      }
+    EndFor
+  EndFor
+      
+  { Name writeInitialSolutionForNextTimeWindow; NameOfPostProcessing MagStaDyn_a_hmm;
+    LastTimeStepOnly;
+    Operation {
+      Print[ a, OnElementsOf Domain, File StrCat[Dir_Macro,"a_hmm_Init.pos"] ];
+    }
+  }
+    
   { Name globalquantities; NameOfPostProcessing MagStaDyn_a_hmm;
     //LastTimeStepOnly;
     Operation {

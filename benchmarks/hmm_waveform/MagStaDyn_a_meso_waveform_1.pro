@@ -60,7 +60,7 @@ Formulation {
       }
       Equation{
         Galerkin { [ Dof{a} , {a} ]; In Omega; Jacobian Vol; Integration II; }
-        Galerkin { [ -a_pert[$TimeStep], {a} ]; In Omega; Jacobian Vol; Integration II; }
+        Galerkin { [ -a_tprevious[which_time_step], {a} ]; In Omega; Jacobian Vol; Integration II; }
       }
     }
 }
@@ -71,15 +71,13 @@ Resolution {
       { Name Meso_WR; NameOfFormulation a_NR_WR; }
     }
     Operation {
-      //GmshRead[Sprintf("res_meso/a_pert_Prob1_Elenum%g.pos", ELENUM)] ;
       InitSolution[Meso_WR ];
       SaveSolution[Meso_WR ];
-      //TimeLoopTheta[time0, timemax, dt_Macro, theta_value]{
-      TimeLoopTheta[time0, timemax, dt_Meso, theta_value]{
         IterativeLoop[NbrMaxIter, Eps, Relax]{
+          GenerateJac[Meso_WR]; SolveJac[Meso_WR];
         }
+        SaveSolution[Meso_WR];
         PostOperation[mean_WR];
-      }
     }
   }
 }
@@ -88,9 +86,9 @@ PostProcessing {
     PostQuantity {
       { Name vol; Value { // stored in register #12
           Integral { [ 1. ]; In Omega; Jacobian Vol; Integration II; } } }
-      { Name a_pert; Value {
+      { Name a_tot; Value {
           Term { [ {a} ]; In Omega; Jacobian Vol; } } }
-      { Name b_pert; Value { Term { [ {d a} ]; In Omega; Jacobian Vol;  } } }
+      { Name b_tot; Value { Term { [ {d a} ]; In Omega; Jacobian Vol;  } } }
       { Name h_mean; Value {// stored in #22
           Integral { [ nu[ {d a} + bM[]] * ({d a} + bM[])/#12 ];
             In Omega; Jacobian Vol; Integration II; } } }
@@ -113,12 +111,10 @@ PostOperation {
     Format Table;
     //LastTimeStepOnly; Format Table;
     Operation{
-      Print[ vol[Omega] , OnGlobal, Store 12,
-             File StrCat[Dir_Meso, "vol.txt"] ];
-      Print[ h_mean[Omega], OnGlobal, Store 22,
-             File StrCat[Dir_Meso, Sprintf("h_%g.txt", ELENUM) ]];
-      Print[ dhdb_mean[Omega], OnGlobal, Store 21,
-             File StrCat[Dir_Meso, Sprintf("dhdb_%g.txt", ELENUM) ]];
+      Print[ vol[Omega] ,      OnGlobal, Store 12, File StrCat[Dir_Meso, "vol.txt"] ];
+      Print[ h_mean[Omega],    OnGlobal, Store 22, File StrCat[Dir_Meso, Sprintf("h_%g.txt",    ELENUM) ] ];
+      Print[ h_mean[Omega],    OnGlobal, Store 22, File StrCat[Dir_Meso, Sprintf("h_Inno_%g.txt",    ELENUM) ] ];
+      Print[ dhdb_mean[Omega], OnGlobal, Store 21, File StrCat[Dir_Meso, Sprintf("dhdb_%g.txt", ELENUM) ] ];
     }
   }
   
@@ -126,10 +122,10 @@ PostOperation {
     Format Gmsh;
     //LastTimeStepOnly; Format Gmsh;
     Operation {
-      Print[ a_pert,  OnElementsOf Omega,
-             File StrCat[Dir_Meso, Sprintf("a_pert_Prob1_Elenum_%g.pos", ELENUM) ] ];
-      Print[ b_pert,  OnElementsOf Omega,
-             File StrCat[Dir_Meso, Sprintf("b_pert_Prob1_Elenum_%g.pos", ELENUM) ] ];
+      Print[ a_tot,  OnElementsOf Omega,
+             File StrCat[Dir_Meso, Sprintf("a_tot_Prob_Elenum_%g.pos", ELENUM) ] ];
+      Print[ b_tot,  OnElementsOf Omega,
+             File StrCat[Dir_Meso, Sprintf("b_tot_Prob_Elenum_%g.pos", ELENUM) ] ];
     }
   }
 }

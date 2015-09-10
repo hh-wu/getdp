@@ -19,17 +19,17 @@ DefineConstant[
 
   Freq = {50000,
     Name "Parameters/Frequency", Visible Flag_Dynamic},
-  NbT = {4./50.,
+  NbT = {32./32.,
     Name "Parameters/Number of periods", Visible Flag_Dynamic},
-  NbSteps = {50,
+  NbSteps = {32.,
     Name "Parameters/Steps per period", Visible Flag_Dynamic}
 ];
 
 // Parameters for the WR case
 //===========================
 num_time_windows = 2;
-num_waveform_iterations = 3;
-Flag_WR_Iterations = 0;
+num_waveform_iterations = 7;
+Flag_WR_Iterations = 1;
 
 // FIXME:
 //======
@@ -76,7 +76,7 @@ rla_ind   = 2.5 * e; // minimum distance between lamination and inductor (radiou
 gap_ind   = (n_smc <= 2) ? (0.5 * e) : e;
 xlam      = LX; //w_lam/2;
 ylam      = LX;
-x_air     = 4 * (LX + rla_ind + w_ind);
+x_air     = 7.5 * (LX + rla_ind + w_ind);
 y_air     = x_air;
 d_inf     = 0.5 * x_air;
 Val_Rint  = x_air;
@@ -91,8 +91,8 @@ lc_smc_cond = e/40. ;
 DefineConstant[Lay1 = 31];
 DefineConstant[Lay2 = 31];
 DefineConstant[Lay3 = 16];
-DefineConstant[Lay_X = 3];
-DefineConstant[Lay_Y = 3];
+DefineConstant[Lay_X = 5];
+DefineConstant[Lay_Y = 5];
 Pro1        = 1.0;
 Pro2        = 1.0;
 Pro3        = 1.0;
