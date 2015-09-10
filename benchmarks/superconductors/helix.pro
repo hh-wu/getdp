@@ -37,7 +37,8 @@ Function {
       Name "Input/4Materials/Critical electric field [Vm⁻¹]"},
     Jc = {5e8,
       Name "Input/4Materials/Critical current density [Am⁻²]"},
-    n = {10, Min 3, Max 40, Step 1, Highlight "LightYellow",
+    n = {(Preset == 3) ? 30 : 10, Min 3, Max 40, Step 1,
+      ReadOnly Preset, Highlight "LightYellow",
       Name "Input/4Materials/Exponent (n) value"},
     Freq = {50, Min 1, Max 100, Step 1,
       Name "Input/3Source/Frequency [Hz]"},
@@ -47,12 +48,13 @@ Function {
     time1 = periods * (1 / Freq), // final time
     // n = 10 -> 20, dt = 5e-5
     // n = 30, dt = 5e-6
-    dt = {5e-5, Min 5e-7, Max 5e-4, Step 1e-6,
+    dt = {(Preset == 3) ? 1e-5 : 5e-5, ReadOnly Preset,
+      Min 5e-7, Max 5e-4, Step 1e-6,
       Name "Input/Solver/1Time step [s]"}
     theta = 1, // implicit Euler
     tol_abs = {1e-6,
       Name "Input/Solver/Absolute tolerance on nonlinear residual"},
-    tol_rel = {1e-3,
+    tol_rel = {1e-6,
       Name "Input/Solver/Relative tolerance on nonlinear residual"},
     visu = {1, Choices{0, 1}, AutoCheck 0,
       Name "Input/Solver/Visu", Label "Real-time visualization"}
@@ -137,7 +139,8 @@ Formulation {
     Equation {
       // Nonlinear weak form: Find h_k such that
       //
-      //   \partial_t (\mu h_k, h') + (\rho(curl h_k) curl h_k, curl h') = 0,
+      //   \partial_t (\mu h_k, h') + (\rho(curl h_k) curl h_k, curl h')
+      //     + < n x e, h'> = 0,
       //
       // for all h' in Hspace.
       //
@@ -148,9 +151,9 @@ Formulation {
       // i.e.
       //
       //   (\rho(curl h_k) curl h_k, curl h') \approx
-      //      (\rho(curl h_k-1) curl h_k-1, curl h')
-      //    + (dEdJ(curl h_k-1) curl h_k, curl h')
-      //    - (dEdJ(curl h_k-1) curl h_k-1, curl h')
+      //       (\rho(curl h_k-1) curl h_k-1, curl h')
+      //     + (dEdJ(curl h_k-1) curl h_k, curl h')
+      //     - (dEdJ(curl h_k-1) curl h_k-1, curl h')
       //
       Galerkin { DtDof [ mu[] * Dof{h} , {h} ];
         In Omega; Integration Int; Jacobian Vol;  }
@@ -160,9 +163,9 @@ Formulation {
 
       Galerkin { [ rho[{d h}] * {d h} , {d h} ];
         In Filaments; Integration Int; Jacobian Vol;  }
-      Galerkin { [ dEdJ[{d h}] * Dof{d h} , {d h} ];
+      Galerkin { [ $relax * dEdJ[{d h}] * Dof{d h} , {d h} ];
         In Filaments; Integration Int; Jacobian Vol;  }
-      Galerkin { [ - dEdJ[{d h}] * {d h} , {d h} ];
+      Galerkin { [ - $relax * dEdJ[{d h}] * {d h} , {d h} ];
         In Filaments ; Integration Int; Jacobian Vol;  }
 
       GlobalTerm { [ Dof{V1} , {I1} ] ; In Cut ; }
@@ -178,6 +181,7 @@ Resolution {
     Operation {
       CreateDirectory["res"];
       InitSolution[A];
+      Evaluate[ $relax = 1 ];
       TimeLoopTheta[time0, time1, dt, theta] {
         Generate[A]; Solve[A];
         Generate[A]; GetResidual[A, $res0]; Evaluate[ $res = $res0, $it = 0 ];

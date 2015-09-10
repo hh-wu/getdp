@@ -7,15 +7,17 @@ DefineConstant[
              "numerical robustness by avoiding overflows in the power law",
              "for large values of the exponent (e.g. n > 30)."],
     Name "Input/1Geometry/0Scaling factor"},
-  Preset = {0, Choices{0="None",1="1 filament", 2="2 filaments"},
+  Preset = {0, Choices{0="None", 1="1 filament (AK benchmark)",
+      2="2 filaments", 3="36 filaments (GE benchmark)"},
     Name "Input/1Geometry/0Preset configuration" },
-  NumLayers = {1, ReadOnly Preset,
+  NumLayers = {(Preset == 3) ? 3 : 1, ReadOnly Preset,
     Name "Input/1Geometry/Layers"}
 ];
 
 For i In {1:NumLayers}
   DefineConstant[
-    NumFilaments~{i} = { (Preset == 2) ? 2 : (Preset == 1) ? 1 : 2 * i,
+    NumFilaments~{i} = { (Preset == 3 && i == 1) ? 6 : (Preset == 3 && i == 2) ? 12 :
+      (Preset == 3 && i == 3) ? 18 : (Preset == 2) ? 2 : (Preset == 1) ? 1 : 2 * i,
       Min 1, Max 100, Step 1, ReadOnly Preset,
       Name Sprintf["Input/1Geometry/{Layer %g/Filaments", i]}
   ];
