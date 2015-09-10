@@ -7,8 +7,9 @@ DefineConstant[
              "numerical robustness by avoiding overflows in the power law",
              "for large values of the exponent (e.g. n > 30)."],
     Name "Input/1Geometry/0Scaling factor"},
-  Preset = {0, Choices{0="None", 1="1 filament (AK benchmark)",
-      2="2 filaments", 3="36 filaments (GE benchmark)"},
+  Preset = {(TotalMemory <= 1024) ? 1 : 0,
+    Choices{0="None", 1="1 filament (AK benchmark)", 2="2 filaments",
+      3="36 filaments (GE benchmark)"},
     Name "Input/1Geometry/0Preset configuration" },
   NumLayers = {(Preset == 3) ? 3 : 1, ReadOnly Preset,
     Name "Input/1Geometry/Layers"}

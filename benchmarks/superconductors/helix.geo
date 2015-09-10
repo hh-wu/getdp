@@ -9,7 +9,7 @@ DefineConstant[
     Name "Input/1Geometry/Radius of filements [mm]"},
   TwistPitch = {(Preset == 3) ? 12 : 4, ReadOnly Preset,
     Name "Input/1Geometry/Twist pitch [mm]"},
-  TwistFraction = {(Preset == 3) ? 1/36 : (Preset == 1) ? 0.01 : 1/4,
+  TwistFraction = {(Preset == 3) ? 0.075 : (Preset == 1) ? 0.01 : 1/4,
     Min 1/16, Max 2, Step 1/4, ReadOnly Preset,
     Name "Input/1Geometry/Twist fraction in model"},
   LcFilament = {(Preset == 3) ? 0.015 : 0.05,
