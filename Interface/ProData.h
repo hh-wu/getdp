@@ -935,6 +935,9 @@ struct Operation {
       int NormType;
     } GetResidual;
     struct {
+      int CopyFromTimeStep;
+    } CreateSolution;
+    struct {
       int     ExpressionIndex;
     } SetFrequency;
     struct {
@@ -1232,6 +1235,7 @@ struct IterativeLoopSystem {
 #define OPERATION_SLEEP                    89
 #define OPERATION_SWAPSOLUTIONANDRHS       90
 #define OPERATION_SWAPSOLUTIONANDRESIDUAL  91
+#define OPERATION_CREATESOLUTION           92
 
 /* ChangeOfState.Type */
 #define CHANGEOFSTATE_NOCHANGE              0

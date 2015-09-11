@@ -113,6 +113,7 @@ CosineTransform              return tCosineTransform;
 CreateDir                    return tCreateDir;
 CreateDirectory              return tCreateDir;
 Criterion                    return tCriterion;
+CreateSolution               return tCreateSolution;
 Cross                        return tCrossProduct;
 CrossProduct                 return tCrossProduct;
 CurrentDirectory             return tCurrentDirectory;

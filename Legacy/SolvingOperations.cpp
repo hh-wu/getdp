@@ -1461,6 +1461,44 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
       break ;
 
+      /*  -->  C r e a t e S o l u t i o n            */
+      /*  ------------------------------------------  */
+
+    case OPERATION_CREATESOLUTION :
+      Init_OperationOnSystem("CreateSolution",
+			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+                             &DefineSystem_P, &DofData_P, Resolution2_P) ;
+
+      if (!DofData_P->Solutions)
+        DofData_P->Solutions = List_Create( 20, 20, sizeof(struct Solution)) ;
+
+      Solution_S.TimeStep = (int)Current.TimeStep ;
+      Solution_S.Time = Current.Time ;
+      Solution_S.TimeImag = Current.TimeImag ;
+      Solution_S.TimeFunctionValues = Get_TimeFunctionValues(DofData_P) ;
+      Solution_S.SolutionExist = 1 ;
+      LinAlg_CreateVector(&Solution_S.x, &DofData_P->Solver, DofData_P->NbrDof) ;
+      LinAlg_ZeroVector(&Solution_S.x) ;
+      {
+        int ts = Operation_P->Case.CreateSolution.CopyFromTimeStep;
+        if(ts >= 0){ // FIXME Inno: maybe better to search for the actual
+                     // timestep instead of assuming we provide an index
+          if(ts < List_Nbr(DofData_P->Solutions)){
+            LinAlg_CopyVector(&((struct Solution *)
+                                List_Pointer(DofData_P->Solutions, ts))->x,
+                              &Solution_S.x) ;
+          }
+          else{
+            Message::Error("Solution at step %d does not exist", ts);
+          }
+        }
+      }
+      LinAlg_AssembleVector(&Solution_S.x) ;
+      List_Add(DofData_P->Solutions, &Solution_S) ;
+      DofData_P->CurrentSolution = (struct Solution*)
+        List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1) ;
+      break ;
+
       /*  -->  I n i t S o l u t i o n                */
       /*  ------------------------------------------  */
 

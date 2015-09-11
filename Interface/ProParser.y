@@ -247,7 +247,7 @@ struct doubleXstring{
 %token    tOperation tOperationEnd
 %token      tSetTime tSetTimeStep tDTime tSetFrequency tFourierTransform tFourierTransformJ
 %token      tLanczos tEigenSolve tEigenSolveJac tPerturbation
-%token      tUpdate tUpdateConstraint tBreak tGetResidual
+%token      tUpdate tUpdateConstraint tBreak tGetResidual tCreateSolution
 %token      tEvaluate tSelectCorrection tAddCorrection tMultiplySolution
 %token      tAddOppositeFullSolution tSolveAgainWithOther tSetGlobalSolverOptions
 
@@ -4353,6 +4353,32 @@ OperationTerm :
         vyyerror("Unknown error norm type for residual calculation");
       }
       */
+    }
+
+  | tCreateSolution '[' String__Index ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_CREATESOLUTION;
+      int i;
+      if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $3);
+      Free($3);
+      Operation_P->DefineSystemIndex = i;
+      Operation_P->Case.CreateSolution.CopyFromTimeStep = -1;
+    }
+
+  | tCreateSolution '[' String__Index ',' FExpr ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_CREATESOLUTION;
+      int i;
+      if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $3);
+      Free($3);
+      Operation_P->DefineSystemIndex = i;
+      Operation_P->Case.CreateSolution.CopyFromTimeStep = $5;
     }
 
   | tFourierTransform '[' String__Index ',' String__Index ',' ListOfFExpr ']' tEND
