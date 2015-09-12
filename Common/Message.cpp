@@ -796,10 +796,12 @@ void Message::AddOnelabNumberChoice(std::string name, double val, const char *co
     ps[0].setChoices(choices);
     _onelabClient->set(ps[0]);
 
+#if !defined(BUILD_ANDROID) // FIXME: understand why this leads to crashes
     // ask Gmsh to refresh
     onelab::string o("Gmsh/Action", "refresh");
     o.setVisible(false);
     _onelabClient->set(o);
+#endif
   }
 }
 
