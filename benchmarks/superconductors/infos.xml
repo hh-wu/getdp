@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<models>
+	<model>
+		<title>Superconducting wire</title>
+		<summary>3D H-formulation of HTS with nonlinear power law</summary>
+		<file type="pro">helix.pro</file>
+		<preview type="png">screenshot_helix_128.png</preview>
+		<url>http://onelab.info/wiki/Superconduting_wire</url>
+	</model>
+</models>
