@@ -37,7 +37,7 @@ DefineConstant[
     Highlight Str[colorro]},
   hcoreE = {hcoil+wcoreE, Name StrCat[pp, "2E-core height of legs [m]"], ReadOnly 1,
     Highlight Str[colorro]},
-  ag     = {0.33*cm, Min 0.1*cm, Max 4*cm, Step 0.2*cm, ReadOnlyRange 1, Visible (Flag_OpenCore==1),
+  ag     = {(TotalMemory <= 1024) ? 1*cm : 0.33*cm, Min 0.1*cm, Max 4*cm, Step 0.2*cm, ReadOnlyRange 1, Visible (Flag_OpenCore==1),
     Name StrCat[pp, "5Air gap width [m]"], Highlight Str[colorpp]},
   Lz     = {9*cm, Name StrCat[pp, "0Length along z-axis [m]"], Highlight Str[colorpp]}
 ];
