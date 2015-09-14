@@ -464,10 +464,19 @@ void Message::Cpu(int level, bool printTime, bool printCpu, bool printMem,
 
   std::string ptime = "";
   if(printTime){
+    static bool first = true;
+    static time_t started;
+    if(first){
+      time(&started);
+      first = false;
+    }
     time_t now;
     time(&now);
     ptime = ctime(&now);
     ptime.resize(ptime.size() - 1);
+    char tmp[128];
+    sprintf(tmp, ", Wall = %gs", difftime(now, started));
+    ptime += tmp;
     if(printCpu || (mem && printMem))
       ptime += ", ";
   }
