@@ -441,12 +441,15 @@ void Message::Cpu(int level, bool printTime, bool printCpu, bool printMem,
   long mem = 0;
   GetResources(&s, &mem);
   double val[2] = {s, (double)mem / 1024. / 1024.};
-  double min[2] = {val[0], val[1]}, max[2] = {val[0], val[1]};
+  double min[2] = {val[0], val[1]};
+  double max[2] = {val[0], val[1]};
+  double sum[2] = {val[0], val[1]};
 
 #if defined(HAVE_PETSC)
   if(_commSize > 1 && _isCommWorld){
     MPI_Reduce(val, min, 2, MPI_DOUBLE, MPI_MIN, 0, MPI_COMM_WORLD);
     MPI_Reduce(val, max, 2, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+    MPI_Reduce(val, sum, 2, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
   }
 #endif
 
@@ -473,7 +476,7 @@ void Message::Cpu(int level, bool printTime, bool printCpu, bool printMem,
   if(printCpu){
     char tmp[128];
     if(_commSize > 1 && _isCommWorld)
-      sprintf(tmp, "CPU in [%gs,%gs]", min[0], max[0]);
+      sprintf(tmp, "CPU = %gs [%gs,%gs]", sum[0], min[0], max[0]);
     else
       sprintf(tmp, "CPU = %gs", max[0]);
     pcpu = tmp;
@@ -484,7 +487,7 @@ void Message::Cpu(int level, bool printTime, bool printCpu, bool printMem,
   if(mem && printMem){
     char tmp[128];
     if(_commSize > 1 && _isCommWorld)
-      sprintf(tmp, "Mem in [%gMb,%gMb]", min[1], max[1]);
+      sprintf(tmp, "Mem = %gs [%gMb,%gMb]", sum[1], min[1], max[1]);
     else
       sprintf(tmp, "Mem = %gMb", max[1]);
     pmem = tmp;
