@@ -487,7 +487,7 @@ void Message::Cpu(int level, bool printTime, bool printCpu, bool printMem,
   if(mem && printMem){
     char tmp[128];
     if(_commSize > 1 && _isCommWorld)
-      sprintf(tmp, "Mem = %gs [%gMb,%gMb]", sum[1], min[1], max[1]);
+      sprintf(tmp, "Mem = %gMb [%gMb,%gMb]", sum[1], min[1], max[1]);
     else
       sprintf(tmp, "Mem = %gMb", max[1]);
     pmem = tmp;
