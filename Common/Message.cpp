@@ -421,6 +421,11 @@ void Message::Debug(const char *fmt, ...)
   }
 }
 
+double Message::GetWallClockTime()
+{
+  return GetTimeOfDay() - _startTime;
+}
+
 void Message::Cpu(const char *fmt, ...)
 {
   if(_verbosity < 5) return;
@@ -471,7 +476,7 @@ void Message::Cpu(int level, bool printTime, bool printCpu, bool printMem,
     ptime = ctime(&now);
     ptime.resize(ptime.size() - 1);
     char tmp[128];
-    sprintf(tmp, ", Wall = %gs", GetTimeOfDay() - _startTime);
+    sprintf(tmp, ", Wall = %gs", GetWallClockTime());
     ptime += tmp;
     if(printCpu || (mem && printMem))
       ptime += ", ";

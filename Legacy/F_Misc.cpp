@@ -63,7 +63,7 @@ void F_QuadraturePointIndex (F_ARG)
   V->Val[0] = Current.QuadraturePointIndex ;
 }
 
-void F_CpuTime (F_ARG)
+void F_GetCpuTime (F_ARG)
 {
   double s = 0.;
   long mem = 0;
@@ -72,7 +72,13 @@ void F_CpuTime (F_ARG)
   V->Val[0] = s ;
 }
 
-void F_Memory (F_ARG)
+void F_GetWallClockTime (F_ARG)
+{
+  V->Type = SCALAR ;
+  V->Val[0] = Message::GetWallClockTime() ;
+}
+
+void F_GetMemory (F_ARG)
 {
   double s = 0.;
   long mem = 0;

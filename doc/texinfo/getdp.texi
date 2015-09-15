@@ -3748,17 +3748,22 @@ are treated in the same way as for @code{ScalarField}.
 Idem, but consider only complex-valued tensor fields. Optional arguments
 are treated in the same way as for @code{ScalarField}.
 
-@item CpuTime
+@item GetCpuTime
 @code{[]}
 
 Returns current CPU time, in seconds (total amount of time spent
-executing in user mode since GetDP was started). @c (This is not the
-wall clock time.)
+executing in user mode since GetDP was started). 
 
-@item Memory
+@item GetWallClockTime
 @code{[]}
 
-Return the current memory usage, in megabytes (maximum resident set
+Returns the current wall clock time, in seconds (total wall clock time
+since GetDP was started).
+
+@item GetMemory
+@code{[]}
+
+Returns the current memory usage, in megabytes (maximum resident set
 size).
 
 @item SetNumber
@@ -4384,15 +4389,32 @@ Swap the solution @code{x} and RHS @code{b} vectors.
 @item InitSolution
 @code{[@var{system-id}]}
 
-Initialize the solution of @var{system-id} to zero (default) or to the
-values given in a @code{Constraint} of @code{Init} type. If two values
-are given in @code{Init}, the second value is used.
+Creates a new solution vector, adds it to the solution vector list for
+@var{system-id}, and initializes the solution. The values in the vector
+are initialized to the the values given in a @code{Constraint} of
+@code{Init} type (if two values are given in @code{Init}, the second
+value is used). If no constraint is provided, the values are initialized
+to zero if the solution vector is the first in the solution list;
+otherwise the values are initialized using the previous solution in the
+list.
 
 @item InitSolution1
 @code{[@var{system-id}]}
 
-Initialize the first of two time steps for a Newmark Scheme. Only works
-if two values are specified in @code{Init}.
+Same as @{InitSolution}, but uses the first value given in the
+@code{Init} constraints.
+
+@item CreateSolution
+@code{[@var{system-id}]}
+
+Creates a new solution vector, adds it to the solution vector list for
+@var{system-id}, and initializes the solution to zero.
+
+@item CreateSolution
+@code{[@var{system-id}, @var{expression-cst}]}
+
+Same as @code{CreateSolution}, but initialize the solution by copying
+the @var{expression-cst}th solution in the solution list.
 
 @item Apply
 @code{[@var{system-id}]}

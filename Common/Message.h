@@ -81,6 +81,7 @@ class Message {
   static void Direct(int level, const char *fmt, ...);
   static void Check(const char *fmt, ...);
   static void Debug(const char *fmt, ...);
+  static double GetWallClockTime();
   static void Cpu(const char *fmt, ...);
   static void Cpu(int level, bool printTime, bool printCpu, bool printMem,
                   const char *fmt, ...);
