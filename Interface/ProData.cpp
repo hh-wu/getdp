@@ -309,7 +309,7 @@ void Read_ProblemStructure(const char *name)
   int Last_ErrorLevel = getdp_yyerrorlevel;
   int Last_yyincludenum = getdp_yyincludenum;
 
-  char AbsPath[2048];
+  char AbsPath[4096];
   int i;
 
   if((strlen(name) > 0 && (name[0] == '/' || name[0] == '\\')) ||
@@ -349,7 +349,7 @@ void Read_ProblemStructure(const char *name)
     Read_ProblemStructure(getdp_yyincludename);
     getdp_yyin = FOpen(getdp_yyname.c_str(), "rb"); // same comment as above
     getdp_yyrestart(getdp_yyin);
-    for(i = 0; i < getdp_yylinenum; i++) fgets(AbsPath, 2048, getdp_yyin);
+    for(i = 0; i < getdp_yylinenum; i++) fgets(AbsPath, sizeof(AbsPath), getdp_yyin);
     getdp_yylinenum++;
     getdp_yyparse();
     // don't close the file here: we'll need it if there is a Macro in it:

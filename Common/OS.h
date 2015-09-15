@@ -12,6 +12,7 @@
 FILE *FOpen(const char *f, const char *mode);
 void GetResources(double *s, long *mem);
 double GetTotalRam();
+double GetTimeOfDay();
 void IncreaseStackSize();
 void SleepSeconds(double s);
 int BlockingSystemCall(const char *command);

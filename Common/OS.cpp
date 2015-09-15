@@ -274,6 +274,29 @@ double GetTotalRam()
   return ram;
 }
 
+double GetTimeOfDay()
+{
+#if defined(WIN32) && !defined(__CYGWIN__)
+  // Note: some broken versions only have 8 trailing zero's, the correct epoch
+  // has 9 trailing zero's
+  static const uint64_t EPOCH = ((uint64_t) 116444736000000000ULL);
+  SYSTEMTIME  system_time;
+  FILETIME    file_time;
+  uint64_t    time;
+  GetSystemTime(&system_time);
+  SystemTimeToFileTime(&system_time, &file_time);
+  time = ((uint64_t)file_time.dwLowDateTime);
+  time += ((uint64_t)file_time.dwHighDateTime) << 32;
+  long sec = (long) ((time - EPOCH) / 10000000L);
+  long usec = (long) (system_time.wMilliseconds * 1000);
+  return sec + 1e-6 * usec;
+#else
+  struct timeval t;
+  gettimeofday(&t, NULL);
+  return t.tv_sec + 1e-6 * t.tv_usec;
+#endif
+}
+
 void IncreaseStackSize()
 {
 #if !defined (WIN32) || defined(__CYGWIN__)

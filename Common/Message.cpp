@@ -75,6 +75,7 @@ bool Message::_operatingInTimeLoopAdaptive = false;
 int Message::_verbosity = 5;
 int Message::_progressMeterStep = 10;
 int Message::_progressMeterCurrent = 0;
+double Message::_startTime = 0.;
 std::map<std::string, double> Message::_timers;
 GmshClient* Message::_client = 0;
 #ifdef HAVE_ONELAB2
@@ -112,6 +113,7 @@ static void gslErrorHandler(const char *reason, const char *file, int line,
 
 void Message::Initialize(int argc, char **argv)
 {
+  _startTime = GetTimeOfDay();
   _errorCount = 0;
 #if defined(HAVE_PETSC)
   MPI_Init(&argc, &argv);
@@ -464,18 +466,12 @@ void Message::Cpu(int level, bool printTime, bool printCpu, bool printMem,
 
   std::string ptime = "";
   if(printTime){
-    static bool first = true;
-    static time_t started;
-    if(first){
-      time(&started);
-      first = false;
-    }
     time_t now;
     time(&now);
     ptime = ctime(&now);
     ptime.resize(ptime.size() - 1);
     char tmp[128];
-    sprintf(tmp, ", Wall = %gs", difftime(now, started));
+    sprintf(tmp, ", Wall = %gs", GetTimeOfDay() - _startTime);
     ptime += tmp;
     if(printCpu || (mem && printMem))
       ptime += ", ";

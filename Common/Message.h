@@ -38,6 +38,8 @@ class Message {
   static int _verbosity;
   // step (in %) of the progress meter and current progress %
   static int _progressMeterStep, _progressMeterCurrent;
+  // starting time (gettimeofday at startup)
+  static double _startTime;
   // timers
   static std::map<std::string, double> _timers;
   // communication with Gmsh
