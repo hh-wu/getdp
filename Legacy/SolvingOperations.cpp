@@ -2697,6 +2697,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
           char buffer[1024];
           Print_ListOfDouble(Operation_P->Case.Print.FormatString, list, buffer);
           Message::Direct(3, buffer);
+          if(fp != stdout) fprintf(fp, "%s\n", buffer);
           List_Delete(list);
         }
       }
