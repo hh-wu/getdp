@@ -1,3 +1,5 @@
+new timing and memory reporting functions.
+
 2.6.1: enhanced Print[] command; minor fixes.
 
 2.6.0: new ability to define and use Macros in .pro files; new run-time
