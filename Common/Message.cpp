@@ -436,11 +436,11 @@ void Message::Cpu(const char *fmt, ...)
   vsnprintf(str, sizeof(str), fmt, args);
   va_end(args);
 
-  Cpu(5, true, true, true, str);
+  Cpu(5, false, true, true, true, str);
 }
 
-void Message::Cpu(int level, bool printTime, bool printCpu, bool printMem,
-                  const char *fmt, ...)
+void Message::Cpu(int level, bool printDate, bool printWallTime, bool printCpu,
+                  bool printMem, const char *fmt, ...)
 {
   if(_verbosity < abs(level)) return;
 
@@ -469,17 +469,23 @@ void Message::Cpu(int level, bool printTime, bool printCpu, bool printMem,
   va_end(args);
   if(strlen(fmt)) strcat(str, " ");
 
-  std::string ptime = "";
-  if(printTime){
+  std::string pdate = "";
+  if(printDate){
     time_t now;
     time(&now);
-    ptime = ctime(&now);
-    ptime.resize(ptime.size() - 1);
+    pdate = ctime(&now);
+    pdate.resize(pdate.size() - 1);
+    if(printWallTime || printCpu || (printMem && mem))
+      pdate += ", ";
+  }
+
+  std::string pwall = "";
+  if(printWallTime){
     char tmp[128];
-    sprintf(tmp, ", Wall = %gs", GetWallClockTime());
-    ptime += tmp;
-    if(printCpu || (mem && printMem))
-      ptime += ", ";
+    sprintf(tmp, "Wall = %gs", GetWallClockTime());
+    pwall = tmp;
+    if(printCpu || (printMem && mem))
+      pwall += ", ";
   }
 
   std::string pcpu = "";
@@ -490,7 +496,8 @@ void Message::Cpu(int level, bool printTime, bool printCpu, bool printMem,
     else
       sprintf(tmp, "CPU = %gs", max[0]);
     pcpu = tmp;
-    if(mem) pcpu += ", ";
+    if(printMem && mem)
+      pcpu += ", ";
   }
 
   std::string pmem = "";
@@ -504,8 +511,8 @@ void Message::Cpu(int level, bool printTime, bool printCpu, bool printMem,
   }
 
   char str2[256] = "";
-  if(ptime.size() || pcpu.size() || pmem.size())
-    sprintf(str2, "(%s%s%s)", ptime.c_str(), pcpu.c_str(), pmem.c_str());
+  if(pdate.size() || pwall.size() || pcpu.size() || pmem.size())
+    sprintf(str2, "(%s%s%s%s)", pdate.c_str(), pwall.c_str(), pcpu.c_str(), pmem.c_str());
   strcat(str, str2);
 
   if(_client){
