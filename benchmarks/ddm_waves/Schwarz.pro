@@ -50,6 +50,7 @@ Resolution {
         Call SolveSurfacePDE;
         Call UpdateSurfaceFields;
 
+	Barrier;
 	Evaluate[ $t2 = GetWallClockTime[] ];
 	Evaluate[ $t2c = GetCpuTime[] ];
 	If (TIMING)
@@ -102,14 +103,12 @@ Resolution {
       	  EndFor
         EndIf
 
+	Barrier;
 	Evaluate[ $t2p = GetWallClockTime[] ];
 	Evaluate[ $t2pc = GetCpuTime[] ];
-	// SetCommSelf;
-	Barrier;
 	If (TIMING)
 	  Print[{$t2p-$t1p, $t2pc-$t1pc}, Format "WALL total preconditioner = %gs ; CPU = %gs"];
 	EndIf      
-	// SetCommWorld;
       }
 
       Evaluate[ $tt2 = GetWallClockTime[] ];
