@@ -231,12 +231,12 @@ Macro SolveAndStepForward
     Evaluate[$ArtificialSource~{1} = 0];
     Evaluate[$ArtificialSourceSGS~{0} = 0];
     Evaluate[$ArtificialSourceSGS~{1} = (PRECONDITIONER == 2)];
-
-    Evaluate[ $t1pf = GetWallClockTime[] ];
-    Evaluate[ $t1pcf = GetCpuTime[] ];
     
     skipList = {2*idom_f, (2*(idom_f + N_DOM)+1)%(2*N_DOM)}; // right
     BroadcastFields[skipList()];
+
+    Evaluate[ $t1pf = GetWallClockTime[] ];
+    Evaluate[ $t1pfc = GetCpuTime[] ];
 
     // compute u on Omega_i (fast way)
     GenerateRHSGroup[Vol~{idom_f}, Region[{Sigma~{idom_f}}]];
@@ -252,10 +252,11 @@ Macro SolveAndStepForward
     PostOperation[g_out~{idom_f}~{1}];
 
     Evaluate[ $t2pf = GetWallClockTime[] ];
-    Evaluate[ $t2pcf = GetCpuTime[] ];
+    Evaluate[ $t2pfc = GetCpuTime[] ];
     If(TIMING)
-      Print[{$t2pf-$t1pf, $t2pcf-$t1pcf}, Format "WALL (FORWARD) subroblem solve in preconditioner = %gs ; CPU = %gs"];
+      Print[{$t2pf-$t1pf, $t2pfc-$t1pfc}, Format "WALL (FORWARD) subroblem solve in preconditioner = %gs ; CPU = %gs"];
     EndIf
+
     skipList = {(2*(idom_f + N_DOM)-1)%(2*N_DOM), (2*(idom_f + N_DOM)-2)%(2*N_DOM)}; // left
     BroadcastFields[skipList()];
     
@@ -279,7 +280,7 @@ Macro SolveAndStepBackward
     BroadcastFields[skipList()];
 
     Evaluate[ $t1pb = GetWallClockTime[] ];
-    Evaluate[ $t1pcb = GetCpuTime[] ];
+    Evaluate[ $t1pbc = GetCpuTime[] ];
 
     // compute u on Omega_i (fast way)
     GenerateRHSGroup[Vol~{idom_b}, Region[{Sigma~{idom_b}}]];
@@ -295,9 +296,10 @@ Macro SolveAndStepBackward
     PostOperation[g_out~{idom_b}~{0}];
 
     Evaluate[ $t2pb = GetWallClockTime[] ];
-    Evaluate[ $t2pcb = GetCpuTime[] ];
+    Evaluate[ $t2pbc = GetCpuTime[] ];
+
     If(TIMING)
-      Print[{$t2pb-$t1pb, $t2pcb-$t1pcb}, Format "WALL (BACKWARD) subroblem solve in preconditioner = %gs ; CPU = %gs"];
+      Print[{$t2pb-$t1pb, $t2pbc-$t1pbc}, Format "WALL (BACKWARD) subroblem solve in preconditioner = %gs ; CPU = %gs"];
     EndIf
     skipList = {2*idom_b, (2*(idom_b + N_DOM)+1)%(2*N_DOM)}; // right
     BroadcastFields[skipList()];
@@ -319,18 +321,12 @@ Macro InitSweep
       Evaluate[$ArtificialSourceSGS~{0} = 0];
       Evaluate[$ArtificialSourceSGS~{1} = 0];
 
-      Evaluate[ $t1p = GetWallClockTime[] ];
-      Evaluate[ $t1pc = GetCpuTime[] ];
+      Evaluate[ $t1pi = GetWallClockTime[] ];
+      Evaluate[ $t1pic = GetCpuTime[] ];
 
       // compute u on Omega_i (fast way)
       GenerateRHSGroup[Vol~{idom}, Region[{Sigma~{idom}}]];
       SolveAgain[Vol~{idom}];
-
-      Evaluate[ $t2p = GetWallClockTime[] ];
-      Evaluate[ $t2pc = GetCpuTime[] ];
-      If(TIMING)
-	Print[{$t2p-$t1p, $t2pc-$t1pc}, Format "WALL (INIT SGS) subproblem solve in preconditioner = %gs ; CPU = %gs"];
-      EndIf
       
       // compute the new g_out (fast way), on both sides
       For iSide In{0:1}
@@ -341,6 +337,13 @@ Macro InitSweep
         EndIf
         PostOperation[g_out~{idom}~{iSide}];
       EndFor
+
+      Evaluate[ $t2pi = GetWallClockTime[] ];
+      Evaluate[ $t2pic = GetCpuTime[] ];
+      If(TIMING)
+	Print[{$t2pi-$t1pi, $t2pic-$t1pic}, Format "WALL (INIT SGS) subproblem solve in preconditioner = %gs ; CPU = %gs"];
+      EndIf
+
     EndIf
     BroadcastFields[];
   EndIf
