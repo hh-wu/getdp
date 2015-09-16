@@ -39,7 +39,6 @@ R = 0.186 + d1/2.; // rotation radius
 alpha = 35/360*2*Pi; // rotation angle
 
 // dispatch the subdomains on the different parts
-
 Ltot = D1+D2+D3+2.*R*alpha;
 
 // normalized lengths of each part

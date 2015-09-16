@@ -34,18 +34,35 @@ Resolution {
       // stores the local part of b; then stores each local part of iterate g^n.
       Call DisablePhysicalSources;
       Call EnableArtificialSources;
+
+      Evaluate[ $tt1 = GetWallClockTime[] ];
+      Evaluate[ $tt1c = GetCpuTime[] ];
+
       IterativeLinearSolver["I-A", SOLVER, TOL, MAXIT, RESTART,
                             {ListOfFields()}, {ListOfConnectedFields()}, {}]
       {
         // compute local part of (A g^n) and stores the result in ListOfFields()
-        Call SolveVolumePDE;
+
+	Evaluate[ $t1 = GetWallClockTime[] ];
+	Evaluate[ $t1c = GetCpuTime[] ];
+	
+	Call SolveVolumePDE;
         Call SolveSurfacePDE;
         Call UpdateSurfaceFields;
+
+	Evaluate[ $t2 = GetWallClockTime[] ];
+	Evaluate[ $t2c = GetCpuTime[] ];
+	If (TIMING)
+	  Print[{$t2-$t1, $t2c-$t1c}, Format "WALL Schwarz iteration = %gs ; CPU = %gs"];
+	EndIf
       }
       {
         // applies a preconditioner
 	If (PRECONDITIONER)
-      	  // for the 'clean' version of SGS, we use a copy of the data; in
+	  Evaluate[ $t1p = GetWallClockTime[] ];
+	  Evaluate[ $t1pc = GetCpuTime[] ];
+
+	  // for the 'clean' version of SGS, we use a copy of the data; in
       	  // practice (EXPERIMENTAL) it works best by not using it
       	  // (cf. definition of g_in_c[])
       	  Call CopySurfaceFields;
@@ -84,8 +101,24 @@ Resolution {
             EndFor
       	  EndFor
         EndIf
+
+	Evaluate[ $t2p = GetWallClockTime[] ];
+	Evaluate[ $t2pc = GetCpuTime[] ];
+	// SetCommSelf;
+	Barrier;
+	If (TIMING)
+	  Print[{$t2p-$t1p, $t2pc-$t1pc}, Format "WALL total preconditioner = %gs ; CPU = %gs"];
+	EndIf      
+	// SetCommWorld;
       }
 
+      Evaluate[ $tt2 = GetWallClockTime[] ];
+      Evaluate[ $tt2c = GetCpuTime[] ];
+      If (TIMING)
+	Print[{$tt2-$tt1, $tt2c-$tt1c}, Format "WALL total DDM solver = %gs ; CPU = %gs"];
+      EndIf      
+
+      
       //DeleteFile[ "/tmp/kspiter.txt" ];
       //Print[ {$KSPIts} , File "/tmp/kspiter.txt"];
 
