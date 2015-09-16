@@ -101,14 +101,15 @@ Resolution {
               Call FinalizeSweep;
             EndFor
       	  EndFor
-        EndIf
 
-	Barrier;
-	Evaluate[ $t2p = GetWallClockTime[] ];
-	Evaluate[ $t2pc = GetCpuTime[] ];
-	If (TIMING)
-	  Print[{$t2p-$t1p, $t2pc-$t1pc}, Format "WALL total preconditioner = %gs ; CPU = %gs"];
-	EndIf      
+	  Barrier;
+	  Evaluate[ $t2p = GetWallClockTime[] ];
+	  Evaluate[ $t2pc = GetCpuTime[] ];
+	  If (TIMING)
+	    Print[{$t2p-$t1p, $t2pc-$t1pc}, Format "WALL total preconditioner = %gs ; CPU = %gs"];
+	  EndIf
+
+        EndIf
       }
 
       Evaluate[ $tt2 = GetWallClockTime[] ];
