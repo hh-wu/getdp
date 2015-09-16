@@ -98,15 +98,13 @@ Return
 
 Macro EnableArtificialSources
   For iSide In {0:1}
-    Evaluate[$ArtificialSource~{iSide} = 1];
-    Evaluate[$ArtificialSourceSGS~{iSide} = 0];
+    Evaluate[$ArtificialSource~{iSide} = 1, $ArtificialSourceSGS~{iSide} = 0];
   EndFor
 Return
 
 Macro DisableArtificialSources
   For iSide In {0:1}
-    Evaluate[$ArtificialSource~{iSide} = 0];
-    Evaluate[$ArtificialSourceSGS~{iSide} = 0];
+    Evaluate[$ArtificialSource~{iSide} = 0, $ArtificialSourceSGS~{iSide} = 0];
   EndFor
 Return
 
@@ -227,16 +225,13 @@ Return
 Macro SolveAndStepForward
   SetCommSelf;
   If( proc == MPI_Rank && ProcOwnsDomain(idom_f) )
-    Evaluate[$ArtificialSource~{0} = 1];
-    Evaluate[$ArtificialSource~{1} = 0];
-    Evaluate[$ArtificialSourceSGS~{0} = 0];
-    Evaluate[$ArtificialSourceSGS~{1} = (PRECONDITIONER == 2)];
+    Evaluate[$ArtificialSource~{0} = 1, $ArtificialSource~{1} = 0];
+    Evaluate[$ArtificialSourceSGS~{0} = 0, $ArtificialSourceSGS~{1} = (PRECONDITIONER == 2)];
     
     skipList = {2*idom_f, (2*(idom_f + N_DOM)+1)%(2*N_DOM)}; // right
     BroadcastFields[skipList()];
 
-    Evaluate[ $t1pf = GetWallClockTime[] ];
-    Evaluate[ $t1pfc = GetCpuTime[] ];
+    Evaluate[ $t1pf = GetWallClockTime[], $t1pfc = GetCpuTime[] ];
 
     // compute u on Omega_i (fast way)
     GenerateRHSGroup[Vol~{idom_f}, Region[{Sigma~{idom_f}}]];
@@ -251,8 +246,7 @@ Macro SolveAndStepForward
     EndIf
     PostOperation[g_out~{idom_f}~{1}];
 
-    Evaluate[ $t2pf = GetWallClockTime[] ];
-    Evaluate[ $t2pfc = GetCpuTime[] ];
+    Evaluate[ $t2pf = GetWallClockTime[], $t2pfc = GetCpuTime[] ];
     If(TIMING)
       Print[{$t2pf-$t1pf, $t2pfc-$t1pfc}, Format "WALL (FORWARD) subroblem solve in preconditioner = %gs ; CPU = %gs"];
     EndIf
@@ -260,10 +254,8 @@ Macro SolveAndStepForward
     skipList = {(2*(idom_f + N_DOM)-1)%(2*N_DOM), (2*(idom_f + N_DOM)-2)%(2*N_DOM)}; // left
     BroadcastFields[skipList()];
     
-    Evaluate[$ArtificialSource~{0} = 1];
-    Evaluate[$ArtificialSource~{1} = 1];
-    Evaluate[$ArtificialSourceSGS~{0} = 0];
-    Evaluate[$ArtificialSourceSGS~{1} = 0];
+    Evaluate[$ArtificialSource~{0} = 1, $ArtificialSource~{1} = 1];
+    Evaluate[$ArtificialSourceSGS~{0} = 0, $ArtificialSourceSGS~{1} = 0];
   EndIf
   SetCommWorld;
 Return
@@ -271,16 +263,13 @@ Return
 Macro SolveAndStepBackward
   SetCommSelf;
   If( proc == MPI_Rank && ProcOwnsDomain(idom_b) )
-    Evaluate[$ArtificialSource~{0} = 0];
-    Evaluate[$ArtificialSource~{1} = 1];
-    Evaluate[$ArtificialSourceSGS~{0} = (PRECONDITIONER == 2)];
-    Evaluate[$ArtificialSourceSGS~{1} = 0];
+    Evaluate[$ArtificialSource~{0} = 0, $ArtificialSource~{1} = 1];
+    Evaluate[$ArtificialSourceSGS~{0} = (PRECONDITIONER == 2), $ArtificialSourceSGS~{1} = 0];
 
     skipList = {(2*(idom_b + N_DOM)-1)%(2*N_DOM), (2*(idom_b + N_DOM)-2)%(2*N_DOM)}; // left
     BroadcastFields[skipList()];
 
-    Evaluate[ $t1pb = GetWallClockTime[] ];
-    Evaluate[ $t1pbc = GetCpuTime[] ];
+    Evaluate[ $t1pb = GetWallClockTime[], $t1pbc = GetCpuTime[] ];
 
     // compute u on Omega_i (fast way)
     GenerateRHSGroup[Vol~{idom_b}, Region[{Sigma~{idom_b}}]];
@@ -295,8 +284,7 @@ Macro SolveAndStepBackward
     EndIf
     PostOperation[g_out~{idom_b}~{0}];
 
-    Evaluate[ $t2pb = GetWallClockTime[] ];
-    Evaluate[ $t2pbc = GetCpuTime[] ];
+    Evaluate[ $t2pb = GetWallClockTime[], $t2pbc = GetCpuTime[] ];
 
     If(TIMING)
       Print[{$t2pb-$t1pb, $t2pbc-$t1pbc}, Format "WALL (BACKWARD) subroblem solve in preconditioner = %gs ; CPU = %gs"];
@@ -304,10 +292,8 @@ Macro SolveAndStepBackward
     skipList = {2*idom_b, (2*(idom_b + N_DOM)+1)%(2*N_DOM)}; // right
     BroadcastFields[skipList()];
 
-    Evaluate[$ArtificialSource~{0} = 1];
-    Evaluate[$ArtificialSource~{1} = 1];
-    Evaluate[$ArtificialSourceSGS~{0} = 0];
-    Evaluate[$ArtificialSourceSGS~{1} = 0];
+    Evaluate[$ArtificialSource~{0} = 1, $ArtificialSource~{1} = 1];
+    Evaluate[$ArtificialSourceSGS~{0} = 0, $ArtificialSourceSGS~{1} = 0];
   EndIf
   SetCommWorld;
 Return
@@ -316,13 +302,10 @@ Macro InitSweep
   SetCommSelf;
   If( proc == MPI_Rank && ProcOwnsDomain(idom) )
     If (PRECONDITIONER == 2)
-      Evaluate[$ArtificialSource~{0} = (PRECONDITIONER == 2)];
-      Evaluate[$ArtificialSource~{1} = (PRECONDITIONER == 2)];
-      Evaluate[$ArtificialSourceSGS~{0} = 0];
-      Evaluate[$ArtificialSourceSGS~{1} = 0];
+      Evaluate[$ArtificialSource~{0} = (PRECONDITIONER == 2), $ArtificialSource~{1} = (PRECONDITIONER == 2)];
+      Evaluate[$ArtificialSourceSGS~{0} = 0, $ArtificialSourceSGS~{1} = 0];
 
-      Evaluate[ $t1pi = GetWallClockTime[] ];
-      Evaluate[ $t1pic = GetCpuTime[] ];
+      Evaluate[ $t1pi = GetWallClockTime[], $t1pic = GetCpuTime[] ];
 
       // compute u on Omega_i (fast way)
       GenerateRHSGroup[Vol~{idom}, Region[{Sigma~{idom}}]];
@@ -338,8 +321,7 @@ Macro InitSweep
         PostOperation[g_out~{idom}~{iSide}];
       EndFor
 
-      Evaluate[ $t2pi = GetWallClockTime[] ];
-      Evaluate[ $t2pic = GetCpuTime[] ];
+      Evaluate[ $t2pi = GetWallClockTime[], $t2pic = GetCpuTime[] ];
       If(TIMING)
 	Print[{$t2pi-$t1pi, $t2pic-$t1pic}, Format "WALL (INIT SGS) subproblem solve in preconditioner = %gs ; CPU = %gs"];
       EndIf

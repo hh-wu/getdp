@@ -35,24 +35,21 @@ Resolution {
       Call DisablePhysicalSources;
       Call EnableArtificialSources;
 
-      Evaluate[ $tt1 = GetWallClockTime[] ];
-      Evaluate[ $tt1c = GetCpuTime[] ];
+      Evaluate[ $tt1 = GetWallClockTime[], $tt1c = GetCpuTime[] ];
 
       IterativeLinearSolver["I-A", SOLVER, TOL, MAXIT, RESTART,
                             {ListOfFields()}, {ListOfConnectedFields()}, {}]
       {
         // compute local part of (A g^n) and stores the result in ListOfFields()
 
-	Evaluate[ $t1 = GetWallClockTime[] ];
-	Evaluate[ $t1c = GetCpuTime[] ];
+	Evaluate[ $t1 = GetWallClockTime[], $t1c = GetCpuTime[] ];
 	
 	Call SolveVolumePDE;
         Call SolveSurfacePDE;
         Call UpdateSurfaceFields;
 
 	Barrier;
-	Evaluate[ $t2 = GetWallClockTime[] ];
-	Evaluate[ $t2c = GetCpuTime[] ];
+	Evaluate[ $t2 = GetWallClockTime[], $t2c = GetCpuTime[] ];
 	If (TIMING)
 	  Print[{$t2-$t1, $t2c-$t1c}, Format "WALL Schwarz iteration = %gs ; CPU = %gs"];
 	EndIf
@@ -60,8 +57,7 @@ Resolution {
       {
         // applies a preconditioner
 	If (PRECONDITIONER)
-	  Evaluate[ $t1p = GetWallClockTime[] ];
-	  Evaluate[ $t1pc = GetCpuTime[] ];
+	  Evaluate[ $t1p = GetWallClockTime[], $t1pc = GetCpuTime[] ];
 
 	  // for the 'clean' version of SGS, we use a copy of the data; in
       	  // practice (EXPERIMENTAL) it works best by not using it
@@ -103,8 +99,7 @@ Resolution {
       	  EndFor
 
 	  Barrier;
-	  Evaluate[ $t2p = GetWallClockTime[] ];
-	  Evaluate[ $t2pc = GetCpuTime[] ];
+	  Evaluate[ $t2p = GetWallClockTime[], $t2pc = GetCpuTime[] ];
 	  If (TIMING)
 	    Print[{$t2p-$t1p, $t2pc-$t1pc}, Format "WALL total preconditioner = %gs ; CPU = %gs"];
 	  EndIf
@@ -112,8 +107,7 @@ Resolution {
         EndIf
       }
 
-      Evaluate[ $tt2 = GetWallClockTime[] ];
-      Evaluate[ $tt2c = GetCpuTime[] ];
+      Evaluate[ $tt2 = GetWallClockTime[], $tt2c = GetCpuTime[] ];
       If (TIMING)
 	Print[{$tt2-$tt1, $tt2c-$tt1c}, Format "WALL total DDM solver = %gs ; CPU = %gs"];
       EndIf      
