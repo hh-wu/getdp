@@ -5034,6 +5034,8 @@ elements.
 Computes the result on the boundary of the region. 
 
 @item Smoothing
+< @var{expression-cst} >
+
 Smoothes the solution at the nodes.
 
 @item HarmonicToTime

@@ -6564,6 +6564,10 @@ PrintOption :
     {
       PostSubOperation_S.Smoothing = 1;
     }
+  | ',' tSmoothing FExpr
+    {
+      PostSubOperation_S.Smoothing = (int)$3;
+    }
   | ',' tHarmonicToTime FExpr
     {
       PostSubOperation_S.HarmonicToTime = (int)$3;
