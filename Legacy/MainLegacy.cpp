@@ -585,7 +585,7 @@ int MainLegacy(int argc, char *argv[])
   Message::Cpu(3, true, true, true, true, "Stopped");
 
 #if defined(HAVE_GMSH)
-  GmshFinalize();
+  if(!Flag_CALLED_WITH_ONELAB_SERVER) GmshFinalize();
 #endif
 
   Free_GlobalVariables();
