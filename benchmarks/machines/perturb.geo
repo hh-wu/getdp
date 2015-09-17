@@ -29,37 +29,30 @@ If(PerturbMesh == 2)
   SyncModel;
   Printf("Computing perturbation velocity field...");
   Merge StrCat(StrPrefix(StrRelative(General.FileName)), ".msh");
+  Plugin(NewView).Dimension = 3;
   Plugin(NewView).Run;
-
-  // FIXME: MathEval currently creates "list-based" views: we should create
-  // "model-based" views, so that we could keep the node numbers in the velocity
-  // field, and we could export this as a "node_number value" table.
-
-  Plugin(MathEval).View = 0;
-  Plugin(MathEval).Expression0 = "x";
-  Plugin(MathEval).Expression1 = "y";
-  Plugin(MathEval).Expression2 = "z";
-  Plugin(MathEval).Run;
-  Delete View[0];
+  Plugin(ModifyComponents).View = 0;
+  Plugin(ModifyComponents).Expression0 = "x";
+  Plugin(ModifyComponents).Expression1 = "y";
+  Plugin(ModifyComponents).Expression2 = "z";
+  Plugin(ModifyComponents).Run;
 
   RelocateMesh Point "*";
   RelocateMesh Line "*";
   //Save "perturbed.msh";
   Plugin(NewView).Run;
-  Plugin(MathEval).View = 1;
-  Plugin(MathEval).Expression0 = "x";
-  Plugin(MathEval).Expression1 = "y";
-  Plugin(MathEval).Expression2 = "z";
-  Plugin(MathEval).Run;
-  Delete View[1];
+  Plugin(ModifyComponents).View = 1;
+  Plugin(ModifyComponents).Expression0 = "x";
+  Plugin(ModifyComponents).Expression1 = "y";
+  Plugin(ModifyComponents).Expression2 = "z";
+  Plugin(ModifyComponents).Run;
 
-  Plugin(MathEval).View = 0;
-  Plugin(MathEval).OtherView = 1;
-  Plugin(MathEval).Expression0 = Sprintf("(w0 - v0)/%g", Perturbation);
-  Plugin(MathEval).Expression1 = Sprintf("(w1 - v1)/%g", Perturbation);
-  Plugin(MathEval).Expression2 = Sprintf("(w2 - v2)/%g", Perturbation);
-  Plugin(MathEval).Run;
-  Delete View[0];
-  Delete View[0];
-  Save View[0] "velocity.pos";
+  Plugin(ModifyComponents).View = 0;
+  Plugin(ModifyComponents).OtherView = 1;
+  Plugin(ModifyComponents).Expression0 = Sprintf("(w0 - v0)/%g", Perturbation);
+  Plugin(ModifyComponents).Expression1 = Sprintf("(w1 - v1)/%g", Perturbation);
+  Plugin(ModifyComponents).Expression2 = Sprintf("(w2 - v2)/%g", Perturbation);
+  Plugin(ModifyComponents).Run;
+  Delete View[1];
+  Save View[0] "velocity.msh";
 EndIf
