@@ -19,7 +19,7 @@ DefineConstant[
 
   Freq = {50000,
     Name "Parameters/Frequency", Visible Flag_Dynamic},
-  NbT = {50./50.,
+  NbT = {2./50.,
     Name "Parameters/Number of periods", Visible Flag_Dynamic},
   NbSteps = {50.,
     Name "Parameters/Steps per period", Visible Flag_Dynamic}
@@ -27,8 +27,8 @@ DefineConstant[
 
 // Parameters for the WR case
 //===========================
-num_time_windows = 5;
-num_waveform_iterations = 5;
+num_time_windows = 1;
+num_waveform_iterations = 3;
 Flag_WR_Iterations = 1;
 
 // FIXME:
@@ -91,8 +91,8 @@ lc_smc_cond = e/40. ;
 DefineConstant[Lay1 = 31];
 DefineConstant[Lay2 = 31];
 DefineConstant[Lay3 = 16];
-DefineConstant[Lay_X = 7];
-DefineConstant[Lay_Y = 7];
+DefineConstant[Lay_X = 5];
+DefineConstant[Lay_Y = 5];
 Pro1        = 1.0;
 Pro2        = 1.0;
 Pro3        = 1.0;

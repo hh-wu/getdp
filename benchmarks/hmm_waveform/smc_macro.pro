@@ -66,6 +66,7 @@ Function {
   dtime             = T/NbSteps;
   theta_value       = 1;
   Flag_Init_Step    = 1;
+  epsilon_t         = 5e-13;
 
   num_wr_iterations = num_waveform_iterations;
 }

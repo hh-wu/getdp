@@ -110,14 +110,14 @@ Formulation {
 
   { Name MagSta_a_hmm_init; Type FemEquation;
     Quantity {
-      { Name a_1; Type Local; NameOfSpace Hcurl_a; }
+      { Name a_Init_TW; Type Local; NameOfSpace Hcurl_a; }
     }
     Equation {
-        Galerkin { [ nu[] * Dof{d a_1}, {d a_1} ];
+        Galerkin { [ nu[] * Dof{d a_Init_TW}, {d a_Init_TW} ];
             In Domain_L; Jacobian JVol; Integration I1; }            
-        Galerkin { [ nu[{d a_1}] * Dof{d a_1}, {d a_1} ];
+        Galerkin { [ nu[{d a_Init_TW}] * Dof{d a_init_TW}, {d a_Init_TW} ];
           In Domain_NL; Jacobian JVol; Integration I1; }
-        Galerkin { [ -js[] , {a_1} ];
+        Galerkin { [ -js[] , {a_Init_TW} ];
           In Domain_S; Jacobian JVol; Integration I1; }
     }
   }
@@ -127,27 +127,13 @@ Formulation {
       { Name a; Type Local; NameOfSpace Hcurl_a; }
     }
     Equation {
-        Galerkin { [ nu[] * Dof{d a}, {d a} ];
-            In Domain_L; Jacobian JVol; Integration I1; }
-        //=========================================================================   
-        If(1)
-          Galerkin { [ Python[ElementNum[], QuadraturePointIndex[], $Time, 0]
-                       {"hmm_upscale_waveform.py"}, {d a} ];
-            In Domain_NL; Jacobian JVol; Integration I1; }
-          Galerkin { [ Python[ElementNum[], QuadraturePointIndex[], $Time, 1]
-                     {"hmm_upscale_waveform.py"} * Dof{d a} , {d a} ];
-            In Domain_NL; Jacobian JVol; Integration I1; }
-        EndIf
-        If(0)
-          Galerkin { [ Python[ElementNum[], QuadraturePointIndex[], $Time, 0]
-                       {"hmm_upscale_waveform.py"}, {d a} ];
-            In Domain_NL; Jacobian JVol; Integration I1; }
-          Galerkin { JacNL [ Python[ElementNum[], QuadraturePointIndex[], $Time, 1]
-                             {"hmm_upscale_waveform.py"} * Dof{d a} , {d a} ];
-            In Domain_NL; Jacobian JVol; Integration I1; }
-        EndIf
-        //=========================================================================
-        Galerkin { [ -js[] , {a} ]; In Domain_S; Jacobian JVol; Integration I1; }
+      Galerkin { [ nu[] * Dof{d a}, {d a} ];
+        In Domain_L; Jacobian JVol; Integration I1; }
+      Galerkin { [ Python[ElementNum[], QuadraturePointIndex[], $Time, 0] {"hmm_upscale_waveform.py"}, {d a} ];
+        In Domain_NL; Jacobian JVol; Integration I1; }
+      Galerkin { JacNL [ Python[ElementNum[], QuadraturePointIndex[], $Time, 1]{"hmm_upscale_waveform.py"} * Dof{d a} , {d a} ];
+        In Domain_NL; Jacobian JVol; Integration I1; }
+      Galerkin { [ -js[] , {a} ]; In Domain_S; Jacobian JVol; Integration I1; }
     }
   }
 
@@ -163,44 +149,45 @@ Resolution {
     Operation {
       CreateDirectory[Dir_Macro];      
       If(Flag_Dynamic)
-        // 1. Data and initialization of maps
-        //===================================
+        // 1. Setting data and initialization of Python dictionaries
+        //==========================================================
         tolerance_waveform = 1.0e-14;
         error = 10 * tolerance_waveform;
 
-        // A. Loop over time windows
-        //==========================
+        // 1. A. Loop over time windows
+        //=============================
         For j In {1:num_time_windows}
-        Printf("num_time_windows = %g", num_time_windows);
         time0_j = time0 + (j - 1) * time_window;
         timemax_j = time0 + j * time_window;
         Evaluate[ Python[0, j]{"hmm_initialize_waveform.py"} ];
         
-        // B. Waveform relaxation loop
-        //============================
+        // 1. B. Waveform relaxation loop
+        //===============================
         
-        // 2. First computation. Homogenized law is not available
-        //=======================================================
+        // 2. First computation fr time window TW. Homogenized law is not available.
+        // Solve system "A_init" to initialize values of the dictionaries 
+        //==========================================================================
         SetTime[time0_j];
         InitSolution[A_Init]; SaveSolution[A_Init];
         Evaluate[ Python[tolerance_waveform, 0]{"hmm_error_waveform.py"} ];
         If (j != 1)
-          // delete the table of time spets before starting computations on the next time window 
+          // Delete the table of time steps before starting computations for the next time window 
+          //=====================================================================================
           Evaluate[ Python[$TimeStep]{"hmm_delete_time_table.py"} ];
         EndIf
-        // Compute initial macroscale solution for each time window
-        //=========================================================
+        // Compute initial macroscale solution for each time window using system "A_init".
+        //================================================================================
         TimeLoopTheta[ time0_j, timemax_j, dtime, theta_value]{
-          If (j == 1) // just write the table of time steps
+          If (j == 1) // write the able of true time steps from the macroscale
             Evaluate[ Python[$Time, $TimeStep, dtime, 0]{"hmm_first_macro_resolution.py"} ];
           EndIf
-          If (j != 1) // time steps are written module the first element
+          If (j != 1) // time steps for the mesoscale problems are written module the first element
             Evaluate[ Python[$Time, $TimeStep, dtime, 1]{"hmm_first_macro_resolution.py"} ];
           EndIf
           IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
             GenerateJac[A_Init]; SolveJac[A_Init];
           }
-          Generate[Dummy]; // Downscaling
+          Generate[Dummy]; // Downscaling for the first mesoscale computation
         }
         Evaluate[Python[1]{"hmm_print_time.py"}];
 
@@ -225,8 +212,7 @@ Resolution {
           EndIf
           If (j != 1)
             SetTime[time0_j];
-          //CreateSolution[A, (Floor[(time_window + 5e-13)/dtime] * (num_wr_iterations + 1) * (j - 1) ) ];
-          CreateSolution[A, (Floor[(time_window + 5e-13)/dtime] * num_wr_iterations * (j - 1) ) ];
+            CreateSolution[A, (Floor[(time_window + epsilon_t)/dtime] * num_wr_iterations * (j - 1) ) ];
           EndIf
           TimeLoopTheta[ time0_j, timemax_j, dtime, theta_value]{
             IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
@@ -237,7 +223,7 @@ Resolution {
                               timemax_j, dtime, 0, 0, j, i, $TimeStep, $Time]{"hmm_compute_waveform.py"}];
               GenerateJac[A]; SolveJac[A];
             }
-            //Generate[Dummy]; // downscaling
+            Generate[Dummy]; // downscaling
             PostOperation[ globalquantities~{ ((j - 1) * num_wr_iterations + i) } ];
             PostOperation[ maps~{ ((j - 1) * num_wr_iterations + i) } ];
           }  
@@ -253,8 +239,7 @@ Resolution {
             Evaluate[Python[1]{"hmm_swap_tables_waveform.py"}];
             If (j == 1)
               SetTime[time0_j];
-            //CreateSolution[A, (Floor[(time_window + 5e-13)/dtime] * (num_wr_iterations + 1) * (j - 1) ) ];
-              CreateSolution[A, (Floor[(time_window + 5e-13)/dtime] * num_wr_iterations * (j - 1) ) ];
+              CreateSolution[A, (Floor[(time_window + epsilon_t)/dtime] * num_wr_iterations * (j - 1) ) ];
             EndIf
             TimeLoopTheta[ time0_j, timemax_j, dtime, theta_value]{
               IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
@@ -283,13 +268,13 @@ Resolution {
         EndIf// (!1)
         EndFor //(WR iterations)
 
-          /*
+        /*
         // 3.2. Compute if convergence has been attained
         //==============================================
         //If(j == 1)
         SetTime[time0_j];
-        //CreateSolution[A, (Floor[(time_window + 5e-13)/dtime] * (num_wr_iterations + 1) * (j - 1) ) ];
-        CreateSolution[A, (Floor[(time_window + 5e-13)/dtime] * num_wr_iterations * (j - 1) ) ];
+        //CreateSolution[A, (Floor[(time_window + epsilon_t)/dtime] * (num_wr_iterations + 1) * (j - 1) ) ];
+        CreateSolution[A, (Floor[(time_window + epsilon_t)/dtime] * num_wr_iterations * (j - 1) ) ];
         //InitSolution[A]; SaveSolution[A];
         //EndIf
         Evaluate[ Python[1, j]{"hmm_initialize_waveform.py"} ];

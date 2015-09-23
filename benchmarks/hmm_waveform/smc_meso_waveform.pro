@@ -104,7 +104,7 @@ Function {
          t_0, t_end, Nbr_SubProblems, which_time_step, which_time);
 
 
-  dt_Meso         = dt_Macro/2;
+  dt_Meso         = dt_Macro/1;
   theta_value     = 1;
   tf              = timemax;
   
