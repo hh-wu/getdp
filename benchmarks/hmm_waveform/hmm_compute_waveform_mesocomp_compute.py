@@ -34,8 +34,6 @@ for j in range(first_index,len_time):
     list_dtbz += " " + str(dtbz_table[getdp_list_key])
 
 print 'Done solving for mesoscale problems ' + str(key[0])
-#file_name = ""
-#if (which_time_window != 1):
 file_name      = "res_meso/az_pert_Prob_Elenum%g_TW%g_Init.pos" % (key[0], (which_time_window - 1) ) # used with GmshRead
 args.extend([file_dir + "getdp.sh", file_dir + "smc_meso_waveform", 
             "-bin", "-v", "2", "-solve", "a_NR", 

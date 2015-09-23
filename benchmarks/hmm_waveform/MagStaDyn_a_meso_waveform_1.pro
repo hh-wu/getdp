@@ -78,6 +78,7 @@ Resolution {
         }
         SaveSolution[Meso_WR];
         PostOperation[mean_WR];
+        PostOperation[map_field_WR];
     }
   }
 }
@@ -86,16 +87,11 @@ PostProcessing {
     PostQuantity {
       { Name vol; Value { // stored in register #12
           Integral { [ 1. ]; In Omega; Jacobian Vol; Integration II; } } }
-      { Name a_tot; Value {
-          Term { [ {a} ]; In Omega; Jacobian Vol; } } }
-      { Name b_tot; Value { Term { [ {d a} ]; In Omega; Jacobian Vol;  } } }
-      { Name h_mean; Value {// stored in #22
-          Integral { [ nu[ {d a} + bM[]] * ({d a} + bM[])/#12 ];
+      { Name a_pert; Value { Term { [ {a} ]; In Omega; Jacobian Vol; } } }
+      { Name b_pert; Value { Term { [ {d a} ]; In Omega; Jacobian Vol;  } } }
+      { Name h_mean; Value { Integral { [ nu[ {d a} + bM[]] * ({d a} + bM[])/#12 ];
             In Omega; Jacobian Vol; Integration II; } } }
-      //{ Name dhdb_mean; Value {// stored in #22
-      //    Integral { [ dhdb[ {d a} + bM[]]/#12 ];
-      //      In Omega; Jacobian Vol; Integration II; } } }
-      { Name dhdb_mean; Value {// stored in #22
+      { Name dhdb_mean; Value {
           Integral { [ Tensor[ CompXX[dhdb[ {d a} + bM[] ] ], CompXY[dhdb[ {d a} + bM[] ] ], CompXZ[dhdb[ {d a} + bM[] ] ],
                                CompYX[dhdb[ {d a} + bM[] ] ], CompYY[dhdb[ {d a} + bM[] ] ], CompYZ[dhdb[ {d a} + bM[] ] ],
                                CompZX[dhdb[ {d a} + bM[] ] ], CompZY[dhdb[ {d a} + bM[] ] ], CompZZ[dhdb[ {d a} + bM[] ] ] ]/#12 ] ;
@@ -109,11 +105,9 @@ PostProcessing {
 PostOperation {
   { Name mean_WR; NameOfPostProcessing a_Meso_NR_WR;
     Format Table;
-    //LastTimeStepOnly; Format Table;
     Operation{
       Print[ vol[Omega] ,      OnGlobal, Store 12, File StrCat[Dir_Meso, "vol.txt"] ];
       Print[ h_mean[Omega],    OnGlobal, Store 22, File StrCat[Dir_Meso, Sprintf("h_%g.txt",    ELENUM) ] ];
-      Print[ h_mean[Omega],    OnGlobal, Store 22, File StrCat[Dir_Meso, Sprintf("h_Inno_%g.txt",    ELENUM) ] ];
       Print[ dhdb_mean[Omega], OnGlobal, Store 21, File StrCat[Dir_Meso, Sprintf("dhdb_%g.txt", ELENUM) ] ];
     }
   }
@@ -122,10 +116,8 @@ PostOperation {
     Format Gmsh;
     //LastTimeStepOnly; Format Gmsh;
     Operation {
-      Print[ a_tot,  OnElementsOf Omega,
-             File StrCat[Dir_Meso, Sprintf("a_tot_Prob_Elenum_%g.pos", ELENUM) ] ];
-      Print[ b_tot,  OnElementsOf Omega,
-             File StrCat[Dir_Meso, Sprintf("b_tot_Prob_Elenum_%g.pos", ELENUM) ] ];
+      Print[ a_pert,  OnElementsOf Omega, File StrCat[Dir_Meso, Sprintf("a_pert_Projection_Prob_Elenum_%g.pos", ELENUM) ] ];
+      Print[ b_pert,  OnElementsOf Omega, File StrCat[Dir_Meso, Sprintf("b_pert_Projection_Prob_Elenum_%g.pos", ELENUM) ] ];
     }
   }
 }

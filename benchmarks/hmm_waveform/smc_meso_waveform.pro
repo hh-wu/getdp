@@ -36,6 +36,8 @@ Function {
                   Flag_meso_comp=0, which_time_window, which_wr_iteration, len_time, which_time_step, which_time];
 
   If(!Flag_WR_meso)
+    bM[]   = Vector[BX, BY, BZ];
+    /*
     Nbr_SubProblems = 1;
 
     BX_TIME[] = InterpolationLinear[$Time]{ListAlt[TIMEVEC, BX]};  
@@ -46,6 +48,7 @@ Function {
     dBZ_TIME[] = dInterpolationLinear[$Time]{ListAlt[TIMEVEC, BZ]};  
     bM[]   = Vector[BX_TIME[], BY_TIME[], BZ_TIME[]];
     dbM[]   = Vector[dBX_TIME[], dBY_TIME[], dBZ_TIME[]];
+    */
   EndIf
 
   If(Flag_WR_meso)
@@ -92,19 +95,7 @@ Function {
   Eps            = 1e-6;
   Relax          = 1.0;
   factor         = 1.0;
-  epsilon        = 1e-6;
-  Pert~{1}[]     = Vector[0, 0, 0];
-  Pert~{2}[]     = epsilon * Vector[1.0, 0.0, 0.0];
-  Pert~{3}[]     = epsilon * Vector[0.0, 1.0, 0.0];
-  Pert~{4}[]     = epsilon * Vector[0.0, 0.0, 1.0];
-
   T               = 1.0/Freq;
-
-  
-  //time0           = 0.0;
-  //timemax         = T * NbT;
-  //ti              = time0;
-
   time0           = t_0;
   timemax         = t_end;
   ti              = time0;
@@ -113,7 +104,7 @@ Function {
          t_0, t_end, Nbr_SubProblems, which_time_step, which_time);
 
 
-  dt_Meso         = dt_Macro/1;
+  dt_Meso         = dt_Macro/2;
   theta_value     = 1;
   tf              = timemax;
   
@@ -123,10 +114,10 @@ Function {
   sigma[Omega_L] = 1.e-12 * sigmaIron;
 
   //Parameters of the Brauer nonlinear constitutive law
-  nu[Omega_L] = nu0 * TensorDiag[1., 1., 1.] / 1.;
+  nu[Omega_L] = nu0 * TensorDiag[1., 1., 1.];
   dhdb[Omega_L] = nu[SquNorm[$1]];
   If(!Flag_NL)
-    nu[Omega_NL] = nu0 * TensorDiag[1., 1., 1.] / 1.;
+    nu[Omega_NL] = nu0 * TensorDiag[1., 1., 1.];
     dhdb[Omega_NL] = nu[SquNorm[$1]];
     dhdb_NL[Omega_NL] = nu0 * TensorDiag[0., 0., 0.];
   EndIf
@@ -140,20 +131,10 @@ Function {
     dhdb[Omega_NL] = nu[SquNorm[$1]] * TensorDiag[1., 1., 1.] + 2 * dnudb2[SquNorm[$1]] * SquDyadicProduct[$1];
     dhdb_NL[Omega_NL] = 2 * dnudb2[SquNorm[$1]] * SquDyadicProduct[$1];
   EndIf
-  /*
   If (!Flag_WR_meso)
-    b_tprevious[]   = VectorField[XYZ[]]{0};
-  EndIf
-  */
-  If (!Flag_WR_meso)
-    a_tprevious[] = VectorField[XYZ[], $1]{0};
+    a_tprevious[] = Vector[0., 0., ScalarField[XYZ[], $1]{0}];
   EndIf
   If (Flag_WR_meso)
-    //a_tot[] = ScalarField[XYZ[]]{0};
-    //a_tprevious[]   = (TSCURRENT == 1) ? Vector[0.,0.,0.] : VectorField[XYZ[]]{0};
-    //a_tprevious[]   = (which_time_window == 1) ? Vector[0.,0.,0.] : VectorField[XYZ[]]{0};
-
-    //a_tprevious[]   = (which_time_window == 1) ? Vector[0.,0.,0.] : VectorField[XYZ[]]{0};
     a_tprevious[]   = (which_time_window == 1) ? Vector[0.,0.,0.] : Vector[0., 0., ScalarField[XYZ[]]{0}];
   EndIf
 
@@ -164,25 +145,18 @@ Function {
 Constraint {
   { Name a_Meso;
     Case {
-      If (!Flag_Geometry)
       { Region GammaRight; Type Link; RegionRef GammaLeft;
         Coefficient 1.; Function Vector[$X-lx, $Y, $Z]; }
       { Region GammaUp; Type Link; RegionRef GammaDown;
         Coefficient 1.; Function Vector[$X, $Y-ly, $Z]; }
       { Region GammaCornerFix; Type Assign; Value 0.0; }
-      EndIf
-      If(Flag_Geometry)
-      { Region GammaUp; Type Link; RegionRef GammaDown;
-        Coefficient 1.; Function Vector[$X, $Y-ly, $Z]; }
-      { Region GammaLeft; Type Assign; Value 0.0; } 
-      EndIf
     }
   }
 
   { Name a_Meso_WR ;
     Case {
       If (!Flag_WR_meso)
-        { Region Omega ; Type Init ; Value Field[XYZ[]]{0} ; }
+        { Region Omega ; Type Init ; Value Field[XYZ[] ]{0} ; }
         //{ Region Omega ; Type Init ; Value Field[XYZ[]]{0} ; }
       EndIf
     }

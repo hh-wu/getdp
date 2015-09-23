@@ -22,9 +22,7 @@ which_wr_iteration = input[11]
 which_time_step_init    = input[12]
 which_time_init         = input[13]
 
-
 # 1.2 Building the keys
-
 #======================
 time_table_keys  = time_table.keys()
 keys             = bx_table.keys()
@@ -66,7 +64,7 @@ if filename:
     ncpus = len(nodes)
     f.close()
 else:
-    ncpus = 16
+    ncpus = 18
     nodes = ["localhost" for x in range(ncpus)]
     f = open(file_dir + "getdp.sh", "w")
     f.write("#!/bin/sh\n{0} $*\n".format(sys.argv[0])) # same getdp as for macro computation

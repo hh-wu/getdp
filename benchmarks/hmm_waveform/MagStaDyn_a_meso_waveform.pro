@@ -48,9 +48,6 @@ FunctionSpace{
         Constraint {
           { NameOfCoef an; EntityType NodesOf; NameOfConstraint a_Meso; }
           { NameOfCoef an; EntityType NodesOf; NameOfConstraint a_Meso_Init; }
-          If ((Flag_WR == 0) && (Flag_WR_meso == 0))
-            { NameOfCoef an; EntityType NodesOf; NameOfConstraint a_Meso_WR; }
-          EndIf
         }
       }
       // Gradient of Electric scalar potential (2D)
@@ -99,9 +96,6 @@ FunctionSpace{
           { NameOfCoef aec; EntityType EdgesOf ; NameOfConstraint a_Meso_Init; }
           { NameOfCoef ae;  EntityType EdgesOfTreeIn ; EntitySubType StartingOn ;
             NameOfConstraint GaugeCondition_a ; }
-           If ((Flag_WR == 0) && (Flag_WR_meso == 0))
-            { NameOfCoef an; EntityType NodesOf; NameOfConstraint a_Meso_WR; }
-          EndIf
         }
       }
     EndIf
@@ -183,9 +177,6 @@ Resolution {
         TimeLoopTheta[time0, timemax, dt_Meso, theta_value]{
           IterativeLoop[NbrMaxIter, Eps, Relax]{
             GenerateJac[Meso]; SolveJac[Meso];
-            //Test[ (Fmod[($Time + 5e-14 - time0), dt_Macro] < 5e-13)] {
-            //  GenerateJac[Meso]; SolveJac[Meso];
-            //} 
           }
           SaveSolution[Meso];
           If (which_wr_iteration == num_waveform_iterations)
@@ -288,11 +279,17 @@ PostProcessing {
                   In Omega_C; Jacobian Vol; Integration II; } } }
           EndIf
 
-          { Name MagneticEnergy_mean; Value{
+          { Name MagneticPower_mean; Value{
               // stored in #27. Contribution of the current time step to the
               // integral \oint (h db)
               Integral { [ ( nu[ {d a} + bM[] ] *
                     ({d a} + bM[]  ) * (Dt[{d a}] + dt_bM[]) )/#12 ];
+                In Omega; Jacobian Vol; Integration II; } } }
+          { Name MagneticEnergy_mean; Value{
+              // stored in #27. Contribution of the current time step to the
+              // integral \oint (h db)
+              Integral { [ ( nu[ {d a} + bM[] ] *
+                    ({d a} + bM[]  ) * ({d a} + bM[]) )/#12 ];
                 In Omega; Jacobian Vol; Integration II; } } }
         EndIf
       }
@@ -313,7 +310,9 @@ PostOperation {
                File StrCat[Dir_Meso, Sprintf("b_%g.txt", ELENUM) ]];
         Print[ JouleLosses_mean[Omega_C], OnGlobal, Store 25,
                File StrCat[Dir_Meso, Sprintf("JouleLosses_%g.txt", ELENUM) ]];
-        Print[ MagneticEnergy_mean[Omega], OnGlobal, Store 28,
+        Print[ MagneticPower_mean[Omega], OnGlobal, Store 28,
+               File StrCat[Dir_Meso, Sprintf("MagneticPower_%g.txt", ELENUM) ] ];
+        Print[ MagneticEnergy_mean[Omega], OnGlobal, Store 33,
                File StrCat[Dir_Meso, Sprintf("MagneticEnergy_%g.txt", ELENUM) ] ];
       }
     }
@@ -375,6 +374,8 @@ PostOperation {
         Print[ a_pert,  OnElementsOf Omega, File StrCat[Dir_Meso, Sprintf("a_pert_Prob_Elenum%g_Init.pos", ELENUM) ], LastTimeStepOnly ];
         Print[ az_pert,  OnElementsOf Omega, File StrCat[Dir_Meso, Sprintf("az_pert_Prob_Elenum%g_Init.pos", ELENUM) ], LastTimeStepOnly ];
         Print[ a_pert,  OnElementsOf Omega, File StrCat[Dir_Meso, Sprintf("a_pert_Prob_Elenum%g_TW%g_Yose.pos", ELENUM, which_time_window) ] ]; 
+        Print[ az_pert,  OnElementsOf Omega, File StrCat[Dir_Meso, Sprintf("az_pert_Prob_Elenum%g_TW%g_Yose.pos", ELENUM, which_time_window) ] ]; 
+
         Print[ a_pert,  OnElementsOf Omega, File StrCat[Dir_Meso, Sprintf("a_pert_Prob_Elenum%g_TW%g_Init.pos", ELENUM, which_time_window) ], LastTimeStepOnly ];
         Print[ az_pert,  OnElementsOf Omega, File StrCat[Dir_Meso, Sprintf("az_pert_Prob_Elenum%g_TW%g_Init.pos", ELENUM, which_time_window) ], LastTimeStepOnly ];
         Print[ a,  OnElementsOf Omega, File StrCat[Dir_Meso, Sprintf("a_Prob_Elenum%g_Proj.pos", ELENUM) ] ];

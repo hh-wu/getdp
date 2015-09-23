@@ -21,6 +21,7 @@ if (input[0] == 0):
     dhdbzy_table = {}
     dhdbzz_table = {}
     JouleLosses_table = {}
+    MagneticPower_table = {}
     MagneticEnergy_table = {}
 
     hx_old_table = {}
