@@ -115,7 +115,7 @@ Formulation {
     Equation {
         Galerkin { [ nu[] * Dof{d a_Init_TW}, {d a_Init_TW} ];
             In Domain_L; Jacobian JVol; Integration I1; }            
-        Galerkin { [ nu[{d a_Init_TW}] * Dof{d a_init_TW}, {d a_Init_TW} ];
+        Galerkin { [ nu[{d a_Init_TW}] * Dof{d a_Init_TW}, {d a_Init_TW} ];
           In Domain_NL; Jacobian JVol; Integration I1; }
         Galerkin { [ -js[] , {a_Init_TW} ];
           In Domain_S; Jacobian JVol; Integration I1; }
