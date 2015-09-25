@@ -80,7 +80,9 @@ int MacroManager::leaveMacro(FILE **f, std::string &filename, long int &lno)
   fsetpos(fp.file, &fp.position);
   *f = fp.file;
   filename = fp.filename;
-  lno = fp.lineno;
+  //  lno = fp.lineno;
+  // To fix: bad line number after leaving macro if not -1
+  lno = fp.lineno-1;
   return 1;
 }
 
