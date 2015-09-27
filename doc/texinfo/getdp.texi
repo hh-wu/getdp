@@ -1196,6 +1196,7 @@ Character expressions are defined as follows:
   StrCat[ @var{expression-char} <,@dots{}> ] |
   Str[ @var{expression-char} <,@dots{}> ]
   StrChoice[ @var{expression}, @var{expression-char}, @var{expression-char} ] |
+  UpperCase [ @var{expression-char} ] |
   Sprintf [ @var{expression-char} ] |
   Sprintf[ @var{expression-char}, @var{expression-cst-list} ] |
   Date | CurrentDirectory | CurrentDir | OnelabAction
@@ -1203,13 +1204,16 @@ Character expressions are defined as follows:
 
 @noindent @code{StrCat} and @code{Str} permit to concatenate 
 character expressions (@code{Str} adds a newline character after each
-string except the last).  @code{Sprintf} is equivalent to the
-@code{sprintf} C function (where @var{expression-char} is a format
-string that can contain floating point formatting characters: @code{%e},
-@code{%g}, etc.). @code{Date} permits to access the current
-date. @code{CurrentDirectory} and @code{CurrentDir} return the directory
-of the @code{.pro} file.  @code{OnelabAction} returns the current ONELAB
-action (e.g. @code{check} or @code{compute}).
+string except the last). @code{StrChoice} returns the first or second
+@var{expression-char} depending on the value of
+@var{expression}. @code{UpperCase} converts the @var{expression-char} to
+upper case. @code{Sprintf} is equivalent to the @code{sprintf} C function
+(where @var{expression-char} is a format string that can contain
+floating point formatting characters: @code{%e}, @code{%g}, etc.).
+@code{Date} permits to access the current date. @code{CurrentDirectory}
+and @code{CurrentDir} return the directory of the @code{.pro} file.
+@code{OnelabAction} returns the current ONELAB action (e.g. @code{check}
+or @code{compute}).
 
 @c -------------------------------------------------------------------------
 @c Operators
