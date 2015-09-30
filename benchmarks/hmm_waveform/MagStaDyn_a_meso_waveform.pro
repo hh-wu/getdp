@@ -132,7 +132,7 @@ Formulation {
       If(Flag_Dynamic)
         Galerkin { DtDof[ sigma[] * Dof{a} , {a} ];
           In Omega_C; Jacobian Vol; Integration II; }
-        Galerkin { [ - 0 * sigma[] * eM[] , {a} ];
+        Galerkin { [ - factor_e * sigma[] * eM[] , {a} ];
           In Omega_C; Jacobian Vol; Integration II; }
         Galerkin { [ sigma[] * ( factor * dt_bM[] /\ XYZ[] ) , {a} ];
           In Omega_C; Jacobian Vol; Integration II; }
@@ -144,7 +144,7 @@ Formulation {
             In Omega_C; Jacobian Vol; Integration II; }
           Galerkin { [ sigma[] * Dof{ur} , {ur} ];
             In Omega_C; Jacobian Vol; Integration II; }
-          Galerkin { [ - 0 * sigma[] * eM[] , {ur} ];
+          Galerkin { [ - factor_e * sigma[] * eM[] , {ur} ];
             In Omega_C; Jacobian Vol; Integration II; }
           Galerkin { [ sigma[] * ( factor * dt_bM[] /\ XYZ[] ) , {ur} ];
             In Omega_C; Jacobian Vol; Integration II; }
@@ -304,10 +304,12 @@ PostOperation {
       Operation{
         Print[ vol[Omega] , OnGlobal, Store 12,
                File StrCat[Dir_Meso, "vol.txt"] ];
-        Print[ h_mean[Omega], OnGlobal, Store 22,
-               File StrCat[Dir_Meso, Sprintf("h_%g.txt", ELENUM) ]];
-        Print[ b_mean[Omega], OnGlobal, Store 21,
-               File StrCat[Dir_Meso, Sprintf("b_%g.txt", ELENUM) ]];
+        /*
+          Print[ h_mean[Omega], OnGlobal, Store 22,
+          File StrCat[Dir_Meso, Sprintf("h_%g.txt", ELENUM) ]];
+          Print[ b_mean[Omega], OnGlobal, Store 21,
+          File StrCat[Dir_Meso, Sprintf("b_%g.txt", ELENUM) ]];
+        */
         Print[ JouleLosses_mean[Omega_C], OnGlobal, Store 25,
                File StrCat[Dir_Meso, Sprintf("JouleLosses_%g.txt", ELENUM) ]];
         Print[ MagneticPower_mean[Omega], OnGlobal, Store 28,

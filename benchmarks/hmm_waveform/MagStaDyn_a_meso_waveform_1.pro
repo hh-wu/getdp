@@ -24,6 +24,7 @@ Group {
     Surf_a_NoGauge = Region [ {GammaLeft, GammaRight, GammaUp, GammaDown,
         Skin_Omega_C} ] ;
   EndIf
+    Printf("The current time is %g", which_time);
 }
 
 Constraint {
@@ -60,7 +61,8 @@ Formulation {
       }
       Equation{
         Galerkin { [ Dof{a} , {a} ]; In Omega; Jacobian Vol; Integration II; }
-        Galerkin { [ -a_tprevious[which_time_step], {a} ]; In Omega; Jacobian Vol; Integration II; }
+        //Galerkin { [ -a_tprevious[which_time], {a} ]; In Omega; Jacobian Vol; Integration II; }
+        Galerkin { [ -a_tprevious[ratio_dtM_dtm * which_time_step], {a} ]; In Omega; Jacobian Vol; Integration II; }
       }
     }
 }

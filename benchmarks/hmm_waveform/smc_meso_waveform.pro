@@ -40,52 +40,54 @@ Function {
     /*
     Nbr_SubProblems = 1;
 
-    BX_TIME[] = InterpolationLinear[$Time]{ListAlt[TIMEVEC, BX]};  
-    BY_TIME[] = InterpolationLinear[$Time]{ListAlt[TIMEVEC, BY]};  
-    BZ_TIME[] = InterpolationLinear[$Time]{ListAlt[TIMEVEC, BZ]};
-    dBX_TIME[] = dInterpolationLinear[$Time]{ListAlt[TIMEVEC, BX]};  
-    dBY_TIME[] = dInterpolationLinear[$Time]{ListAlt[TIMEVEC, BY]};  
-    dBZ_TIME[] = dInterpolationLinear[$Time]{ListAlt[TIMEVEC, BZ]};  
+    BX_TIME[] = InterpolationAkima[$Time]{ListAlt[TIMEVEC, BX]};  
+    BY_TIME[] = InterpolationAkima[$Time]{ListAlt[TIMEVEC, BY]};  
+    BZ_TIME[] = InterpolationAkima[$Time]{ListAlt[TIMEVEC, BZ]};
+    dBX_TIME[] = dInterpolationAkima[$Time]{ListAlt[TIMEVEC, BX]};  
+    dBY_TIME[] = dInterpolationAkima[$Time]{ListAlt[TIMEVEC, BY]};  
+    dBZ_TIME[] = dInterpolationAkima[$Time]{ListAlt[TIMEVEC, BZ]};  
     bM[]   = Vector[BX_TIME[], BY_TIME[], BZ_TIME[]];
     dbM[]   = Vector[dBX_TIME[], dBY_TIME[], dBZ_TIME[]];
     */
   EndIf
 
   If(Flag_WR_meso)
-    AX_TIME[] = InterpolationLinear[$Time]{ListAlt[TIMEVEC, AX] };  
-    AY_TIME[] = InterpolationLinear[$Time]{ListAlt[TIMEVEC, AY] };  
-    AZ_TIME[] = InterpolationLinear[$Time]{ListAlt[TIMEVEC, AZ] };
-    dAX_TIME[] = dInterpolationLinear[$Time]{ListAlt[TIMEVEC, AX] };  
-    dAY_TIME[] = dInterpolationLinear[$Time]{ListAlt[TIMEVEC, AY] };  
-    dAZ_TIME[] = dInterpolationLinear[$Time]{ListAlt[TIMEVEC, AZ] };  
+    AX_TIME[] = InterpolationAkima[$Time]{ListAlt[TIMEVEC, AX] };  
+    AY_TIME[] = InterpolationAkima[$Time]{ListAlt[TIMEVEC, AY] };  
+    AZ_TIME[] = InterpolationAkima[$Time]{ListAlt[TIMEVEC, AZ] };
+    dAX_TIME[] = dInterpolationAkima[$Time]{ListAlt[TIMEVEC, AX] };  
+    dAY_TIME[] = dInterpolationAkima[$Time]{ListAlt[TIMEVEC, AY] };  
+    dAZ_TIME[] = dInterpolationAkima[$Time]{ListAlt[TIMEVEC, AZ] };  
     aM[]   = Vector[AX_TIME[], AY_TIME[], AZ_TIME[]];
     daM[]   = Vector[dAX_TIME[], dAY_TIME[], dAZ_TIME[]];  
     
-    BX_TIME[] = InterpolationLinear[$Time]{ListAlt[TIMEVEC, BX]};  
-    BY_TIME[] = InterpolationLinear[$Time]{ListAlt[TIMEVEC, BY]};  
-    BZ_TIME[] = InterpolationLinear[$Time]{ListAlt[TIMEVEC, BZ]};
-    dBX_TIME[] = dInterpolationLinear[$Time]{ListAlt[TIMEVEC, BX]};  
-    dBY_TIME[] = dInterpolationLinear[$Time]{ListAlt[TIMEVEC, BY]};  
-    dBZ_TIME[] = dInterpolationLinear[$Time]{ListAlt[TIMEVEC, BZ]};  
+    BX_TIME[] = InterpolationAkima[$Time]{ListAlt[TIMEVEC, BX]};  
+    BY_TIME[] = InterpolationAkima[$Time]{ListAlt[TIMEVEC, BY]};  
+    BZ_TIME[] = InterpolationAkima[$Time]{ListAlt[TIMEVEC, BZ]};
+    dBX_TIME[] = dInterpolationAkima[$Time]{ListAlt[TIMEVEC, BX]};  
+    dBY_TIME[] = dInterpolationAkima[$Time]{ListAlt[TIMEVEC, BY]};  
+    dBZ_TIME[] = dInterpolationAkima[$Time]{ListAlt[TIMEVEC, BZ]};  
     bM[]   = Vector[BX_TIME[], BY_TIME[], BZ_TIME[]];
     dbM[]   = Vector[dBX_TIME[], dBY_TIME[], dBZ_TIME[]];
     
-    DTAX_TIME[] = InterpolationLinear[$Time]{ListAlt[TIMEVEC, DTAX]};  
-    DTAY_TIME[] = InterpolationLinear[$Time]{ListAlt[TIMEVEC, DTAY]};  
-    DTAZ_TIME[] = InterpolationLinear[$Time]{ListAlt[TIMEVEC, DTAZ]};
-    dDTAX_TIME[] = dInterpolationLinear[$Time]{ListAlt[TIMEVEC, DTAX]};  
-    dDTAY_TIME[] = dInterpolationLinear[$Time]{ListAlt[TIMEVEC, DTAY]};  
-    dDTAZ_TIME[] = dInterpolationLinear[$Time]{ListAlt[TIMEVEC, DTAZ]};  
-    eM[]   = Vector[DTAX_TIME[], DTAY_TIME[], DTAZ_TIME[]];
-    deM[]   = Vector[dDTAX_TIME[], dDTAY_TIME[], dDTAZ_TIME[]];
+    DTAX_TIME[] = InterpolationAkima[$Time]{ListAlt[TIMEVEC, DTAX]};  
+    DTAY_TIME[] = InterpolationAkima[$Time]{ListAlt[TIMEVEC, DTAY]};  
+    DTAZ_TIME[] = InterpolationAkima[$Time]{ListAlt[TIMEVEC, DTAZ]};
+    dDTAX_TIME[] = dInterpolationAkima[$Time]{ListAlt[TIMEVEC, DTAX]};  
+    dDTAY_TIME[] = dInterpolationAkima[$Time]{ListAlt[TIMEVEC, DTAY]};  
+    dDTAZ_TIME[] = dInterpolationAkima[$Time]{ListAlt[TIMEVEC, DTAZ]};  
+    //eM[]   = -Vector[DTAX_TIME[], DTAY_TIME[], DTAZ_TIME[]]; // derivative of the interpolated function
+    eM[]   = -Vector[dAX_TIME[], dAY_TIME[], dAZ_TIME[]]; // interpolation of the derivative values
+    deM[]   = -Vector[dDTAX_TIME[], dDTAY_TIME[], dDTAZ_TIME[]];
       
-    DTBX_TIME[] = InterpolationLinear[$Time]{ListAlt[TIMEVEC, DTBX]};  
-    DTBY_TIME[] = InterpolationLinear[$Time]{ListAlt[TIMEVEC, DTBY]};  
-    DTBZ_TIME[] = InterpolationLinear[$Time]{ListAlt[TIMEVEC, DTBZ]};
-    dDTBX_TIME[] = dInterpolationLinear[$Time]{ListAlt[TIMEVEC, DTBX]};
-    dDTBY_TIME[] = dInterpolationLinear[$Time]{ListAlt[TIMEVEC, DTBY]};  
-    dDTBZ_TIME[] = dInterpolationLinear[$Time]{ListAlt[TIMEVEC, DTBZ]};  
-    dt_bM[]   = Vector[DTBX_TIME[], DTBY_TIME[], DTBZ_TIME[]];
+    DTBX_TIME[] = InterpolationAkima[$Time]{ListAlt[TIMEVEC, DTBX]};  
+    DTBY_TIME[] = InterpolationAkima[$Time]{ListAlt[TIMEVEC, DTBY]};  
+    DTBZ_TIME[] = InterpolationAkima[$Time]{ListAlt[TIMEVEC, DTBZ]};
+    dDTBX_TIME[] = dInterpolationAkima[$Time]{ListAlt[TIMEVEC, DTBX]};
+    dDTBY_TIME[] = dInterpolationAkima[$Time]{ListAlt[TIMEVEC, DTBY]};  
+    dDTBZ_TIME[] = dInterpolationAkima[$Time]{ListAlt[TIMEVEC, DTBZ]};  
+    //dt_bM[]   = Vector[DTBX_TIME[], DTBY_TIME[], DTBZ_TIME[]]; // derivative of the interpolated function
+    dt_bM[]   =  Vector[dBX_TIME[], dBY_TIME[], dBZ_TIME[]]; // interpolation of the derivative values
     dt_dbM[]   = Vector[dDTBX_TIME[], dDTBY_TIME[], dDTBZ_TIME[]];
 
   EndIf
@@ -94,7 +96,6 @@ Function {
   NbrMaxIter     = 5;
   Eps            = 1e-6;
   Relax          = 1.0;
-  factor         = 1.0;
   T               = 1.0/Freq;
   time0           = t_0;
   timemax         = t_end;
@@ -103,8 +104,8 @@ Function {
   Printf("Done in the mesoscale resolution. t_0 = %g, t_end = %g and Nbr_SubProblems=%g. Which_time_step = %g Which_time = %g",
          t_0, t_end, Nbr_SubProblems, which_time_step, which_time);
 
-
-  dt_Meso         = dt_Macro/1;
+  ratio_dtM_dtm   = 5;
+  dt_Meso         = dt_Macro/ratio_dtM_dtm;
   theta_value     = 1;
   tf              = timemax;
   

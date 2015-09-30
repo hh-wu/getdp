@@ -19,21 +19,24 @@ DefineConstant[
 
   Freq = {50000,
     Name "Parameters/Frequency", Visible Flag_Dynamic},
-  NbT = {2./50.,
+  NbT = {8./50.,
     Name "Parameters/Number of periods", Visible Flag_Dynamic},
   NbSteps = {50.,
     Name "Parameters/Steps per period", Visible Flag_Dynamic}
 ];
-
 // Parameters for the WR case
 //===========================
-num_time_windows = 1;
+num_time_windows = 4;
 num_waveform_iterations = 3;
 Flag_WR_Iterations = 1;
+
 
 // FIXME:
 //======
 source_amplitude = Flag_3D ? 7e5 : 700.e7;
+factor           = 1.0;
+factor_e         = 0.0;
+
 
 // Choice of mesoscale geometry
 //=============================
