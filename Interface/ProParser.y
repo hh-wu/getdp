@@ -182,9 +182,9 @@ struct doubleXstring{
 /* ------------------------------------------------------------------ */
 %token  tEND tDOTS
 %token  tStrCat tSprintf tPrintf tMPI_Printf tRead tPrintConstants tStrCmp
-%token  tStrChoice tUpperCase
+%token  tStrChoice tUpperCase tLowerCase tLowerCaseIn
 %token  tNbrRegions tGetRegion tNameFromString tStringFromName
-%token  tFor tEndFor tIf tElse tEndIf tWhile tMacro tReturn tCall tCallIf
+%token  tFor tEndFor tIf tElse tEndIf tWhile tMacro tReturn tCall tCallTest
 %token  tFlag
 %token  tInclude
 %token  tConstant tList tListAlt tLinSpace tLogSpace tListFromFile
@@ -7020,7 +7020,7 @@ Loop :
 	vyyerror("Unknown macro '%s'", $2);
       Free($2);
     }
-  | tCallIf '(' FExpr ')' CallArg tEND
+  | tCallTest '(' FExpr ')' CallArg tEND
     {
       if($3)
         if(!MacroManager::Instance()->enterMacro
@@ -8241,9 +8241,30 @@ CharExprNoVar :
 
   | tUpperCase '[' CharExpr ']'
     {
-      int i=0;
+      int i = 0;
       while ($3[i]) {
         $3[i] = toupper($3[i]);
+        i++;
+      }
+      $$ = $3;
+    }
+
+  | tLowerCase '[' CharExpr ']'
+    {
+      int i = 0;
+      while ($3[i]) {
+        $3[i] = tolower($3[i]);
+        i++;
+      }
+      $$ = $3;
+    }
+
+  | tLowerCaseIn '[' CharExpr ']'
+    {
+      int i=0;
+      while ($3[i]) {
+        if (i > 0 && $3[i-1] != '_')
+          $3[i] = tolower($3[i]);
         i++;
       }
       $$ = $3;

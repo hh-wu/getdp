@@ -94,7 +94,7 @@ Break                        return tBreak;
 BroadcastFields              return tBroadcastFields;
 
 Call                         return tCall;
-CallIf                       return tCallIf;
+CallTest                     return tCallTest;
 Case                         return tCase;
 Ceil                         return tCeil;
 ChangeOfCoordinates          return tChangeOfCoordinates;
@@ -400,6 +400,8 @@ UndefineConstant             return tUndefineConstant;
 Update                       return tUpdate;
 UpdateConstraint             return tUpdateConstraint;
 UpperCase                    return tUpperCase;
+LowerCase                    return tLowerCase;
+LowerCaseIn                  return tLowerCaseIn;
 UsingPost                    return tUsingPost;
 
 Value                        return tValue;
