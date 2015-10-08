@@ -14,5 +14,10 @@ If(!StrCmp(Flag_cao,"rotor"))
 EndIf
 // Velocity field for shape perturbation
 If(!StrCmp(Flag_optType,"shape"))
-  Merge "../optimization/perturb.geo";
+  Merge "../optimization/perturb_2.geo";
 EndIf
+
+Merge "../optimization/refineMesh.geo";
+
+
+

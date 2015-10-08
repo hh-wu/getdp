@@ -11,15 +11,16 @@ DefineConstant[
   ExtOnelabScal = ".onelabScal",
   ExtOnelabVec = ".onelabVec",
   ExtOnelabVec2 = ".onelabNbChoice",
+  ExtOnelabSens = ".toSens",
   modelpath = CurrentDir, 
   ResDir = StrCat[ modelpath, "res/" ],
 
   //Flag_2D = {1, Choices {0,1}, Name "Input/1 2D?"},
-  Flag_cao = {"rotor", Choices {"square","rotor"}, Name StrCat(ppC,"0 Cao?")},
+  Flag_cao = {"square", Choices {"square","rotor"}, Name StrCat(ppC,"0 Cao?")},
   md = { 1., Name StrCat(ppC,"Mesh density")},
 
   Flag_degree2 = { 0., Name "Input/degree?",Visible 0},
-  nbEig = {10, Name "Input/nb Eig",Visible 1}
+  nbEig = {3, Name "Input/nb Eig",Visible 1}
 ];
 
 // parametres of each geometry

@@ -59,6 +59,13 @@ PostProcessing {
         }
       }
 
+      { Name d_eig_TO;  
+        Value { 
+          Integral { [ d_eig_TO[{u},{D1 u},{D2 u}] ]; 
+            In Domain ; Jacobian Vol  ; Integration I1; }
+        }
+      }
+
     }
   }
 }
@@ -107,22 +114,28 @@ PostOperation {
 
   { Name u_Mec_eig ; NameOfPostProcessing u_Mec_eig;
     Operation {
+      Print[ eig2, OnRegion Domain, Format Table,
+        File StrCat[ResDir,"eig2",ExtOnelabVec2],
+        SendToServer StrCat[po_min,"eig2"], Color "LightYellow"] ;
+
       Print[ u, OnElementsOf Domain, File StrCat[ResDir,"u.pos"]] ;
 //      Echo[ Str["View[PostProcessing.NbViews-1].VectorType=5;",
 //		"View[PostProcessing.NbViews-1].DisplacementFactor = 0.1;"],
 //        File "res/u.pos.opt"] ;
 	// gmsh res/u.pos res/u.pos.opt
-     Print[ mass_eig[Domain], OnGlobal, Format Table,
-       File StrCat[ResDir, "mass_eig",ExtGmsh],     
+
+     Print[ mass_eig[DomainOpt], OnGlobal, Format Table,
+       File StrCat[ResDir, "mass_eig",ExtOnelabVec2],     
        SendToServer StrCat[po_min,"mass_eig"], Color "LightYellow"] ;
 
-     Print[ stiff_eig[Domain], OnGlobal, Format Table,
+     Print[ stiff_eig[DomainOpt], OnGlobal, Format Table,
        File StrCat[ResDir, "stiff_eig",ExtGmsh],     
        SendToServer StrCat[po_min,"stiff_eig"], Color "LightYellow"] ;
 
-      Print[ eig2,OnRegion Domain, Format Table,
-        File StrCat[ResDir,"eig2",ExtOnelabVec2],
-        SendToServer StrCat[po_min,"eig2"], Color "LightYellow"] ;
+     If(!StrCmp(Flag_optType,"topology"))
+       Print[ d_eig_TO, OnElementsOf DomainOpt, 
+         File StrCat[ResDir,"d_eig_TO",ExtOnelabSens] ];
+     EndIf
     }
   }
 }

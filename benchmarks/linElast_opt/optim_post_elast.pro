@@ -4,6 +4,16 @@ PostProcessing {
   // --------------------------------------------------------------------
   // Performance funnctions and state variables
   // --------------------------------------------------------------------
+  { Name velocity ; NameOfFormulation velocity ;
+    PostQuantity {
+      { Name velocity; 
+        Value { 
+          Term { [ {v} ]; In Domain  ; Jacobian Vol; } 
+        } 
+      }
+    }
+  }
+
   { Name Analytic_Sens_u_Mec ; NameOfFormulation u_Mec ;
     PostQuantity {
       { Name dMass;
@@ -20,15 +30,12 @@ PostProcessing {
       }
     }
   }
+
   { Name Analytic_Sens_u_Mec_eig ; NameOfFormulation u_Mec_eig ;
     PostQuantity {
       { Name u_eig  ; Value { Term { [ {u} ]; In Domain  ; Jacobian Vol; } } }
 
       { Name vel  ; Value { Term { [ velocityField[] ]; In Domain  ; Jacobian Vol; } } }
-      { Name dV_x  ; Value { Term { [ dV_x[] ]; In Domain  ; Jacobian Vol; } } }
-      { Name dV_y  ; Value { Term { [ dV_y[] ]; In Domain  ; Jacobian Vol; } } }
-      { Name du_x  ; Value { Term { [ du_x[] ]; In Domain  ; Jacobian Vol; } } }
-      { Name du_y  ; Value { Term { [ du_y[] ]; In Domain  ; Jacobian Vol; } } }
       { Name d_D1  ; Value { Term { [ d_D1[du[]] ]; In Domain  ; Jacobian Vol; } } }
       
       { Name mass_eig;  
@@ -62,6 +69,13 @@ PostProcessing {
       { Name deig;  
         Value { 
           Integral { [ d_eig[{u},{D1 u},{D2 u}] / $MassEig ]; 
+            In Domain ; Jacobian Vol  ; Integration I1; }
+        }
+      }
+
+      { Name d_eig_TO;  
+        Value { 
+          Integral { [ d_eig_TO[{u},{D1 u},{D2 u}] ]; 
             In Domain ; Jacobian Vol  ; Integration I1; }
         }
       }
@@ -116,9 +130,9 @@ PostProcessing {
 
       { Name AvmVarDomSens; 
         Value { 
-          Integral { [ dF_lie[ {D1 u},{D2 u} ] ];  // d{f}/d{tau}(phi)
+          Integral { [ dF_lie[ {D1 u},{D2 u},{v} ] ];  // d{f}/d{tau}(phi)
             In DomainFunc ; Jacobian Vol ; Integration I1 ;}
-          Integral { [ -d_bilin_lie[ {D1 u},{D1 lambda},{D2 u},{D2 lambda} ] ];
+          Integral { [ -d_bilin_lie[ {D1 u},{D1 lambda},{D2 u},{D2 lambda}, {v}] ];
             In Domain ; Jacobian Vol ; Integration I1 ; }
         } 
       }
@@ -167,6 +181,11 @@ PostOperation {
    // --------------------------------------------------------------------------
   // Get Adjoint variable
   // --------------------------------------------------------------------------
+ { Name velocity; NameOfPostProcessing velocity;
+   Operation{
+     Print[ velocity, OnElementsOf Domain, File StrCat[ResDir,"vel_getdp.pos"]] ;
+   }
+ }
  { Name Sens_Adjoint_u_Mec; NameOfPostProcessing Adjoint_u_Mec;
    Operation{
      If(!StrCmp(Flag_optType,"topology"))
@@ -203,14 +222,19 @@ PostOperation {
 	   SendToServer StrCat[po_min,"dMass2"], Color "LightYellow" ];
    }
  }
+ { Name TO_Analytic_Sens_u_Mec_eig; NameOfPostProcessing Analytic_Sens_u_Mec_eig;
+   Operation{
+     Print[ mass_eig[Domain], OnGlobal, Format Table,
+       File StrCat[ResDir, "mass_eig",ExtGmsh], StoreInVariable $MassEig,     
+       SendToServer StrCat[po_min,"mass_eig"], Color "LightYellow"] ;
+
+     Print[ d_eig_TO, OnElementsOf DomainOpt, File StrCat[ResDir,"d_eig_TO.pos"]] ;
+   }
+ }
  { Name Analytic_Sens_u_Mec_eig; NameOfPostProcessing Analytic_Sens_u_Mec_eig;
    Operation{
      Print[ u_eig, OnElementsOf Domain, File StrCat[ResDir,"u_eig.pos"]] ;
      Print[ vel, OnElementsOf Domain, File StrCat[ResDir,"vel.pos"]] ;
-     Print[ dV_x, OnElementsOf Domain, File StrCat[ResDir,"dV_x.pos"]] ;
-     Print[ dV_y, OnElementsOf Domain, File StrCat[ResDir,"dV_y.pos"]] ;
-     Print[ du_x, OnElementsOf Domain, File StrCat[ResDir,"du_x.pos"]] ;
-     Print[ du_y, OnElementsOf Domain, File StrCat[ResDir,"du_y.pos"]] ;
      Print[ d_D1, OnElementsOf Domain, File StrCat[ResDir,"d_D1.pos"]] ;
      
      // FIXME:StoreInVariable $MassEig takes only the last element
