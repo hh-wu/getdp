@@ -114,6 +114,9 @@ Macro FilterTopOpt
   GmshRead[StrCat[ResDir,"filterIn.pos"],SOURCE_FILT_FIELD];
   Generate[D]; Solve[D]; SaveSolution[D];
   PostOperation[FilterTopOpt];
+  If(!StrCmp[Flag_FilterMethod,"density"])
+    Generate[E]; Solve[E]; SaveSolution[E];PostOperation[FilterTopOpt_dXdx];
+  EndIf
 Return
 
 Macro FilterSens
