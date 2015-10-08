@@ -1,4 +1,4 @@
-// TODO: 
+// TODO:
 // - add verbosity level (show a , lambda, ... according to the value of the verbosity)
 // - define properly DomainFunc !!! for each function (user input)
 // postpro views tag
@@ -18,7 +18,7 @@ DefineConstant[
 //      "adjoint",
 //      "direct"
 //    }, Name StrCat[pInOpt, "Analysis Method"]},
-  
+
   Flag_SensitivityMethod = {"none",
     Choices{
       "noSystem",
@@ -33,12 +33,12 @@ DefineConstant[
     Choices{
       "sensitivity",
       "density"
-    }, 
+    },
     Name StrCat[pInOpt, "Filter"],
     Visible (!StrCmp(Flag_optType,"topology"))},
 
-  Rmin = {0.001, 
-    Name StrCat[pInOpt,"Radius"], 
+  Rmin = {0.001,
+    Name StrCat[pInOpt,"Radius"],
     Visible (!StrCmp[Flag_FilterMethod,"sensitivity"]
              || !StrCmp[Flag_FilterMethod,"density"])},
 
@@ -54,29 +54,29 @@ Group {
 Function {
   DefineFunction[ br_mag,dhdb_NL,ETA,LV1,LV2,LV3,js, filtSource ];
   // FIXME: where to write eta,lv1, ... ?  (here)
-   
-  // derivative of bilinear form and linear load 
+
+  // derivative of bilinear form and linear load
 //  If(!StrCmp[Flag_SysType,"MagnetoStatic"] || !StrCmp[Flag_SysType,"MagnetoStatic3D"])
 //    dot_er[] = (et[] * velocityField[])/Norm[XYZ[]] * et[];
-//    d_bilin_lie[] = nu[$1] * $1 * ( ETA[] * $2 ) ; 
+//    d_bilin_lie[] = nu[$1] * $1 * ( ETA[] * $2 ) ;
 //    d_bilin_lie_NL[] = $2 * (( dhdb_NL[$1] * LV3[] ) * $1);
-//    d_M_lie[] = nu[$1] * ( LV1[ br[] ] ) * $2 
-//              + nu[$1] * br_mag[] * (dot_er[]*$2); 
+//    d_M_lie[] = nu[$1] * ( LV1[ br[] ] ) * $2
+//              + nu[$1] * br_mag[] * (dot_er[]*$2);
 //    d_J_lie[] = LV2[js[]]* $1;//-( LV3[] * js[] ) * $1 ;
 //  EndIf
 //  If(!StrCmp[Flag_SysType,"LinearElast2D"])
 //    //$1:{D1 u},$2:{D1 lambda}
-//    d_bilin_lie[] = -( C[] * d_D1[ du[] ] ) * $2 
-//                    -( C[] * $1 ) * d_D1[ dlam[] ] 
+//    d_bilin_lie[] = -( C[] * d_D1[ du[] ] ) * $2
+//                    -( C[] * $1 ) * d_D1[ dlam[] ]
 //                    +( (C[] * $1) * $2 ) * TTrace[ dV[] ];
-//    d_bilin[] = (d_C[] * $1) * $2; 
+//    d_bilin[] = (d_C[] * $1) * $2;
 //  EndIf
-//  If(!StrCmp[Flag_SysType,"LinearElast3D"]) 
+//  If(!StrCmp[Flag_SysType,"LinearElast3D"])
 //    //$1:{D1 u}, $2:{D1 lambda}, $3:{D2 u}, $4:{D2 lambda}
-//    d_bilin_lie[] = -( C11[]*d_D1[du[]]#1001)*$2 -( C11[]*$1)*d_D1[dlam[]#51]#1003 
+//    d_bilin_lie[] = -( C11[]*d_D1[du[]]#1001)*$2 -( C11[]*$1)*d_D1[dlam[]#51]#1003
 //                    -( C12[]*d_D2[du[]]#1002)*$2 -( C12[] * $3 ) * #1003
-//                    -( C21[] * #1001 ) * $4 -( C21[] * $1 ) * d_D2[dlam[]]#1004 
-//                    -( C22[] * #1002 ) * $4 -( C22[] * $3 ) * #1004  
+//                    -( C21[] * #1001 ) * $4 -( C21[] * $1 ) * d_D2[dlam[]]#1004
+//                    -( C22[] * #1002 ) * $4 -( C22[] * $3 ) * #1004
 //                    +( (C11[] * $1) * $2 + (C12[] * $3) * $2
 //                      +(C21[] * $1) * $4 + (C22[] * $3) * $4 ) * TTrace[ dV[] ];
 //    d_bilin[] = (d_C11[] * $1) * $2 + (d_C12[] * $3) * $2
@@ -103,7 +103,7 @@ FunctionSpace {
 //          Support Region[{ Domain, Rotor_Bnd_MBaux }] ; Entity NodesOf [ All ] ; }
 //	  If (Flag_Degree)
 //            { Name se2 ; NameOfCoef ae2 ; Function BF_PerpendicularEdge_2E ;
-//              Support Region[{ Domain, Rotor_Bnd_MBaux}]; 
+//              Support Region[{ Domain, Rotor_Bnd_MBaux}];
 //              Entity EdgesOf [ All ] ; }
 //	  EndIf
 //      }
@@ -120,7 +120,7 @@ FunctionSpace {
 //      BasisFunction {
 //        { Name se;NameOfCoef ae;Function BF_Edge; Support Domain;Entity EdgesOf[ All ]; }
 //          If (Flag_Degree)
-//            { Name se2 ; NameOfCoef ae2 ; Function BF_PerpendicularEdge_2E ; 
+//            { Name se2 ; NameOfCoef ae2 ; Function BF_PerpendicularEdge_2E ;
 //              Support Domain; Entity EdgesOf [All];}
 //          EndIf
 //      }
@@ -143,7 +143,7 @@ FunctionSpace {
 //          Support Region[{ Domain , Rotor_Bnd_MBaux }] ; Entity NodesOf [ All ] ; }
 //	  If (Flag_Degree)
 //            { Name se2 ; NameOfCoef ae2 ; Function BF_PerpendicularEdge_2E ;
-//              Support Region[{ Domain, Rotor_Bnd_MBaux}]; 
+//              Support Region[{ Domain, Rotor_Bnd_MBaux}];
 //              Entity EdgesOf [ All ] ; }
 // 	  EndIf
 //     }
@@ -160,7 +160,7 @@ FunctionSpace {
 //      BasisFunction {
 //        { Name se;NameOfCoef ae;Function BF_Edge;Support Domain;Entity EdgesOf[ All ]; }
 //        If (Flag_Degree)
-//          { Name se2 ; NameOfCoef ae2 ; Function BF_PerpendicularEdge_2E ; 
+//          { Name se2 ; NameOfCoef ae2 ; Function BF_PerpendicularEdge_2E ;
 //            Support Domain; Entity EdgesOf [All];}
 //        EndIf
 //      }
@@ -187,11 +187,11 @@ FunctionSpace {
 
 Formulation {
   //-----------------------------------------------------------------
-  // Direct method Formulation 
+  // Direct method Formulation
   //-----------------------------------------------------------------
   // Compute the derivative of the state variable for each design variable
   // design variable:tau -> Velocity
-  // Apply this method if the nb. of design function >>> nb. of design variables 
+  // Apply this method if the nb. of design function >>> nb. of design variables
 //  If(!StrCmp[Flag_SysType,"MagnetoStatic"])
 //    { Name DirectFormulation ; Type FemEquation ;
 //      Quantity {
@@ -202,7 +202,7 @@ Formulation {
 //        // bilinear(Lambda,Lambda')
 //        Galerkin { [ nu[ {d a} ] * Dof{d d_a} , {d d_a} ] ;
 //          In Domain ; Jacobian Vol ; Integration I1 ; }
-//        Galerkin { [ dhdb_NL[ {d a} ] * Dof{d d_a} , {d d_a} ] ; 
+//        Galerkin { [ dhdb_NL[ {d a} ] * Dof{d d_a} , {d d_a} ] ;
 //          In DomainNL ; Jacobian Vol ; Integration I1 ; }
 
 //        // DO NOT REMOVE!!!
@@ -211,11 +211,11 @@ Formulation {
 //          In Rotor_Bnd_MBaux; Jacobian Sur; Integration I1; }
 
 //        // pseudo-load -> depend on design variable (velocity)
-//        Galerkin { [ nu[ {d a} ] * {d a}, ETA[]*{d d_a} ] ; 
+//        Galerkin { [ nu[ {d a} ] * {d a}, ETA[]*{d d_a} ] ;
 //          In Domain ; Jacobian Vol ; Integration I1 ; }
-//        Galerkin { [( dhdb_NL[{d a}] * LV3[]) * {d a}, {d d_a}]  ; 
+//        Galerkin { [( dhdb_NL[{d a}] * LV3[]) * {d a}, {d d_a}]  ;
 //          In DomainNL ; Jacobian Vol ; Integration I1 ; }
-//          
+//
 //        Galerkin { [ -nu[ {d a} ] * LV1[ br[] ], {d d_a} ] ;
 //          In DomainM ; Jacobian Vol ; Integration I1 ; }
 ////     Galerkin { [ -nu[ {d a} ] * dV[]*br[], {d d_a} ] ;
@@ -255,12 +255,12 @@ Formulation {
 //      }
 //    }
 //  EndIf
- 
+
  //-----------------------------------------------------------------
  // Adjoint weak formulation
  //-----------------------------------------------------------------
  // Compute the adjoint variable for a given design function
- // Apply this method if the nb. of design function <<< nb. of design variables 
+ // Apply this method if the nb. of design function <<< nb. of design variables
 // If(!StrCmp[Flag_SysType,"MagnetoStatic"])
 //   { Name AdjointFormulation ; Type FemEquation ;
 //     Quantity {
@@ -270,7 +270,7 @@ Formulation {
 //     Equation {
 //       Galerkin { [ nu[ {d a} ]* Dof{d lambda}  , {d lambda} ] ;
 //         In Domain ; Jacobian Vol ; Integration I1 ; }
-//       Galerkin { [ dhdb_NL[ {d a} ] * Dof{d lambda} , {d lambda} ] ; 
+//       Galerkin { [ dhdb_NL[ {d a} ] * Dof{d lambda} , {d lambda} ] ;
 //         In DomainNL ; Jacobian Vol ; Integration I1 ; }
 
 //       // DO NOT REMOVE!!!
@@ -316,13 +316,13 @@ Formulation {
        { Name psi ; Type Local ; NameOfSpace H_psi;}
       }
     Equation {
-       Galerkin { [ Dof{d psi}*Rmin^2.0, {d psi} ] ; 
+       Galerkin { [ Dof{d psi}*Rmin^2.0, {d psi} ] ;
          In Domain; Jacobian Vol ; Integration I1 ; }
 
-       Galerkin { [ Dof{psi}, {psi} ] ; 
+       Galerkin { [ Dof{psi}, {psi} ] ;
          In Domain; Jacobian Vol; Integration I1; }
 
-       Galerkin { [ -filtSource[], {psi} ] ; 
+       Galerkin { [ -filtSource[], {psi} ] ;
          In Domain; Jacobian Vol; Integration I1; }
       }
   }
@@ -331,28 +331,28 @@ Formulation {
        { Name psi ; Type Local ; NameOfSpace H_psi;}
       }
     Equation {
-       Galerkin { [ Dof{d psi}*Rmin^2.0, {d psi} ] ; 
+       Galerkin { [ Dof{d psi}*Rmin^2.0, {d psi} ] ;
          In Domain; Jacobian Vol ; Integration I1 ; }
 
-       Galerkin { [ Dof{psi}, {psi} ] ; 
+       Galerkin { [ Dof{psi}, {psi} ] ;
          In Domain; Jacobian Vol; Integration I1; }
 
-       Galerkin { [ -1.0, {psi} ] ; 
+       Galerkin { [ -1.0, {psi} ] ;
          In Domain; Jacobian Vol; Integration I1; }
       }
   }
 
 }
 
-Include "SensitivityMacros.pro";
+Include "sensitivityMacros.pro";
 
 Resolution {
 
   { Name OptimStep ;
     System {
-      //{ Name A ; NameOfFormulation PrimalSystem ; } 
-      //{ Name B ; NameOfFormulation AdjointFormulation ; } 
-      //{ Name C ; NameOfFormulation DirectFormulation ; }  
+      //{ Name A ; NameOfFormulation PrimalSystem ; }
+      //{ Name B ; NameOfFormulation AdjointFormulation ; }
+      //{ Name C ; NameOfFormulation DirectFormulation ; }
       { Name D ; NameOfFormulation FilterTopOpt ; }
       { Name E ; NameOfFormulation FilterTopOpt_dXdx ; }
     }
@@ -366,35 +366,35 @@ Resolution {
         MeshMovingBand2D[MB];
       EndIf
 
-      // FIXME: let it to each model!!!      
+      // FIXME: let it to each model!!!
 //      // compute state varible, adjoint variable or derivative of state varibale
 //      If(!StrCmp[Flag_AnalysisMethod,"state"]) // state variable
 //        Call SolvePrimalSystem;
 //      EndIf
 //      If(!StrCmp[Flag_AnalysisMethod,"adjoint"]) // adjoint variable
-//        Call SolveAdjointSystem; 
+//        Call SolveAdjointSystem;
 //      EndIf
 //      If(!StrCmp[Flag_AnalysisMethod,"direct"]) // direct derivative of state
 //        Call SolveDirectSystem;
 //      EndIf
 
 //      // Sensitivity analysis method
-//      If(!StrCmp[Flag_SensitivityMethod,"noSystem"]) 
+//      If(!StrCmp[Flag_SensitivityMethod,"noSystem"])
 //        Call GetAnalyticSens;
 //      EndIf
-//      If(!StrCmp[Flag_SensitivityMethod,"adjoint"]) 
+//      If(!StrCmp[Flag_SensitivityMethod,"adjoint"])
 //        Call GetAdjointSens;
 //      EndIf
-//      If(!StrCmp[Flag_SensitivityMethod,"direct"]) 
+//      If(!StrCmp[Flag_SensitivityMethod,"direct"])
 //        Call GetDirectSens;
 //      EndIf
 
       // Sensitivity analysis filtering method
-      If(!StrCmp[Flag_FilterMethod,"sensitivity"] 
+      If(!StrCmp[Flag_FilterMethod,"sensitivity"]
           || !StrCmp[Flag_FilterMethod,"density"]) // Filter sensitivity (TO)
         Call FilterTopOpt;
       EndIf
- 
+
      If(!StrCmp[Flag_SysType,"MagnetoStatic"])
        ChangeOfCoordinates[ NodesOf[Rotor_Moving], RotatePZ[-RotorPosition[] ]];
      EndIf
@@ -408,7 +408,7 @@ EndIf
 If(!StrCmp[Flag_SysType,"MagnetoStatic3D"])
   Include "optim_post_magsta3D.pro" ;
 EndIf
-//If(!StrCmp[Flag_SysType,"LinearElast2D"] || 
+//If(!StrCmp[Flag_SysType,"LinearElast2D"] ||
 //   !StrCmp[Flag_SysType,"LinearElast3D"])
 //  Include "optim_post_elast.pro" ;
 //EndIf
