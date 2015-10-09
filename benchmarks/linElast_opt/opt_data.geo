@@ -32,6 +32,8 @@ DefineConstant[
     }, Name StrCat[pInOpt, "Derivative Method"]},
 
   // Velocity field (Mesh perturbation)
+  Flag_readV = {0, Choices {0,1}, Name "Input/read vel", Visible 1},
+
   SensitivityParameter = { StrCat(pp,"Hole Length"),
     Choices{
       StrCat(pp,"Hole Length"),

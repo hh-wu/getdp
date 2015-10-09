@@ -76,12 +76,12 @@ PostOperation {
   // --------------------------------------------------------------------------
  { Name u_Mec; NameOfPostProcessing u_Mec;
    Operation{
-     Print[ E, OnElementsOf Domain,File StrCat[ResDir,"E",ExtGmsh]] ;
-     Print[ rho, OnElementsOf Domain,File StrCat[ResDir,"rho",ExtGmsh]] ;
-     Print[ u, OnElementsOf Domain,File StrCat[ResDir,"u",ExtGmsh]] ;
-     Print[ StressVM, OnElementsOf Domain,File StrCat[ResDir,"VM",ExtOnelabVec]] ;
-     //Print[ um,OnElementsOf Domain,File StrCat[ResDir,"um",ExtGmsh]] ;
-     Print[ F, OnElementsOf Domain_Force,File StrCat[ResDir,"F",ExtGmsh]] ;
+//     Print[ E, OnElementsOf Domain,File StrCat[ResDir,"E",ExtGmsh]] ;
+//     Print[ rho, OnElementsOf Domain,File StrCat[ResDir,"rho",ExtGmsh]] ;
+//     Print[ u, OnElementsOf Domain,File StrCat[ResDir,"u",ExtGmsh]] ;
+//     Print[ StressVM, OnElementsOf Domain,File StrCat[ResDir,"VM",ExtOnelabVec]] ;
+//     //Print[ um,OnElementsOf Domain,File StrCat[ResDir,"um",ExtGmsh]] ;
+//     Print[ F, OnElementsOf Domain_Force,File StrCat[ResDir,"F",ExtGmsh]] ;
 
      Print[ Compliance[DomainFunc], OnGlobal, Format TimeTable,
        File StrCat[ResDir, StrCat["ComplianceElm",ExtOnelabScal]], LastTimeStepOnly,
@@ -99,9 +99,9 @@ PostOperation {
        File StrCat[ResDir, StrCat["StressVM_pNorm",ExtOnelabScal]], LastTimeStepOnly,
        SendToServer StrCat[po_min,"StressVM_pNorm"], Color "LightYellow"];
 
-     Print[ Volume[Domain], OnGlobal, Format TimeTable, 
-       File StrCat[ResDir,"Volume",ExtOnelabScal], LastTimeStepOnly, 
-       SendToServer StrCat[po_min,"Volume"], Color "LightYellow"] ;
+//     Print[ Volume[Domain], OnGlobal, Format TimeTable, 
+//       File StrCat[ResDir,"Volume",ExtOnelabScal], LastTimeStepOnly, 
+//       SendToServer StrCat[po_min,"Volume"], Color "LightYellow"] ;
 
 //     Print[ Mass, OnElementsOf Domain, 
 //       File StrCat[ResDir,"ElementMass",ExtOnelabVec], LastTimeStepOnly] ;

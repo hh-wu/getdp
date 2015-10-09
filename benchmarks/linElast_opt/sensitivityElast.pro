@@ -68,11 +68,15 @@ FunctionSpace{
 Formulation{
   { Name velocity ; Type FemEquation ;
     Quantity {
-      { Name v ; Type Local ; NameOfSpace H_v ;}
+      For i In {1:3}
+        { Name v~{i} ; Type Local ; NameOfSpace H_v~{i};}
+      EndFor
     }
     Equation {
-      Galerkin { [ 0*Dof{v}, {v} ] ;
-        In Domain; Jacobian Vol ; Integration I1 ; }
+      For i In {1:3}
+        Galerkin { [ 0*Dof{v~{i}}, {v~{i}} ] ;
+          In Domain; Jacobian Vol ; Integration I1 ; }
+      EndFor
     }
   }
   If (Flag_2D) // 2D formulation
@@ -90,8 +94,10 @@ Formulation{
       { Name Adjoint_u_Mec ; Type FemEquation ;
         Quantity {
           { Name u  ; Type Local  ; NameOfSpace H_u_Mec2D; }
-          { Name v  ; Type Local  ; NameOfSpace H_v; }
           { Name lambda ; Type Local  ; NameOfSpace H_lambda_Mec2D; }
+          For i In {1:3}
+            { Name v~{i} ; Type Local ; NameOfSpace H_v~{i};}
+          EndFor
         } 
         Equation {
           Galerkin { [ C[] * Dof{D1 lambda}, {D1 lambda} ] ;

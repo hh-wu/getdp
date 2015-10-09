@@ -28,7 +28,7 @@ EndFor
 DefineConstant[
   Lx ={LL*4, 
     Name StrCat(pp,"X length [m]"), Visible 1, Closed 1},
-  Ly ={LL*4, 
+  Ly ={LL, 
     Name StrCat(pp,"Y length [m]"), Visible 1, Closed 1}
 ];
 If (Flag_extrude) //3D

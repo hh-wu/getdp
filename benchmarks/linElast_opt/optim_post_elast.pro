@@ -6,11 +6,24 @@ PostProcessing {
   // --------------------------------------------------------------------
   { Name velocity ; NameOfFormulation velocity ;
     PostQuantity {
+      For i In {1:3}
+        { Name velocity~{i}; 
+          Value { 
+            Term { [ { v~{i} } ]; In Domain  ; Jacobian Vol; } 
+          } 
+        }
+        { Name dvelocity~{i}; 
+          Value { 
+            Term { [ {d v~{i} } ]; In Domain  ; Jacobian Vol; } 
+          } 
+        }
+      EndFor
       { Name velocity; 
         Value { 
-          Term { [ {v} ]; In Domain  ; Jacobian Vol; } 
+          Term { [ velocity[{v_1},{v_2},{v_3}] ]; In Domain  ; Jacobian Vol; } 
         } 
       }
+
     }
   }
 
@@ -87,7 +100,13 @@ PostProcessing {
   // --------------------------------------------------------------------
   { Name Adjoint_u_Mec ; NameOfFormulation Adjoint_u_Mec ;
     PostQuantity {
-      { Name v ; Value { Term { [ velocityField[] ] ; In Domain ; Jacobian Vol ; }}}
+      { Name v ; Value {Term{[velocity[{v_1},{v_2},{v_3}]];In Domain;Jacobian Vol;}}}
+      { Name dV_c1;Value{Term{[dV_c1[{d v_1},{d v_2},{d v_3}]];
+          In Domain;Jacobian Vol;}}}
+      { Name dV_c2;Value{Term{[dV_c2[{d v_1},{d v_2},{d v_3}]];
+          In Domain;Jacobian Vol;}}}
+      { Name dV_c3;Value{Term{[dV_c3[{d v_1},{d v_2},{d v_3}]];
+          In Domain;Jacobian Vol;}}}
       { Name lambda ; Value { Term {[ {lambda} ] ; In Domain ; Jacobian Vol;}}}
       { Name u ; Value { Term {[ {u} ] ; In Domain ; Jacobian Vol;}}}
       { Name Fadj ; Value { Term { [ dFdb[{D1 u},{D2 u}] ]; In DomainFunc ; } } }   
@@ -111,28 +130,31 @@ PostProcessing {
             In Domain ; Jacobian Vol ; }}}
 
       { Name rho_sensK ; 
-          Value { Term { [ d_bilin_lie[{D1 u},{D1 lambda},{D2 u},{D2 lambda}]]  ; 
+          Value { Term { [ d_bilin_lie[{D1 u}, {D1 lambda}, {D2 u}, {D2 lambda},
+				      {d v_1}, {d v_2}, {d v_3}]]  ; 
             In Domain ; Jacobian Vol ; }}}
 
       { Name sensF ; 
           Value { 
-              Integral{[dF_lie[{D1 u},{D2 u}]]; // d{f}/d{tau}(phi)
+              Integral{[dF_lie[{D1 u},{D2 u},{d v_1}, {d v_2}, {d v_3}]];//d{f}/d{tau}
                 In Domain ; Jacobian Vol ; Integration I1;}
           }
       }
 
       { Name sensK ; 
         Value { 
-          Integral{[ d_bilin_lie[ {D1 u}, {D1 lambda},{D2 u},{D2 lambda}] ];
+          Integral{[ d_bilin_lie[ {D1 u}, {D1 lambda},{D2 u},{D2 lambda},
+ 				  {d v_1}, {d v_2}, {d v_3}] ];
             In Domain; Jacobian Vol ; Integration I1;}
         }
       }
 
       { Name AvmVarDomSens; 
         Value { 
-          Integral { [ dF_lie[ {D1 u},{D2 u},{v} ] ];  // d{f}/d{tau}(phi)
+          Integral { [ dF_lie[ {D1 u},{D2 u}, {d v_1}, {d v_2}, {d v_3} ] ];  
             In DomainFunc ; Jacobian Vol ; Integration I1 ;}
-          Integral { [ -d_bilin_lie[ {D1 u},{D1 lambda},{D2 u},{D2 lambda}, {v}] ];
+          Integral { [ -d_bilin_lie[ {D1 u},{D1 lambda},{D2 u},{D2 lambda},
+                                     {d v_1}, {d v_2}, {d v_3}] ];
             In Domain ; Jacobian Vol ; Integration I1 ; }
         } 
       }
@@ -154,7 +176,8 @@ PostProcessing {
             In DomainFunc ; Jacobian Vol ; Integration I1 ;}
           Integral {[ -d_bilin[{D1 u},{D1 lambda},{D2 u},{D2 lambda}]]; 
             In Domain ; Jacobian Vol  ; Integration I1; }
-          Integral {[ -d_bilin_lie[ {D1 u},{D1 lambda},{D2 u},{D2 lambda} ] ];
+          Integral {[ -d_bilin_lie[ {D1 u},{D1 lambda},{D2 u},{D2 lambda},
+                                    {d v_1}, {d v_2}, {d v_3} ] ];
             In Domain ; Jacobian Vol ; Integration I1 ; }
         }
       }
@@ -183,7 +206,14 @@ PostOperation {
   // --------------------------------------------------------------------------
  { Name velocity; NameOfPostProcessing velocity;
    Operation{
-     Print[ velocity, OnElementsOf Domain, File StrCat[ResDir,"vel_getdp.pos"]] ;
+     For i In {1:3}
+       Print[ velocity~{i}, OnElementsOf Domain, 
+         File StrCat[ResDir,Sprintf("vel_getdp_%g.pos",i)]] ;
+       Print[ dvelocity~{i}, OnElementsOf Domain, 
+         File StrCat[ResDir,Sprintf("dvel_getdp_%g.pos",i)]] ;
+     EndFor
+     Print[ velocity, OnElementsOf Domain, 
+       File StrCat[ResDir,"vel_getdp.pos"]] ;
    }
  }
  { Name Sens_Adjoint_u_Mec; NameOfPostProcessing Adjoint_u_Mec;
@@ -287,6 +317,12 @@ PostOperation {
     Operation{
        Print[ v, OnElementsOf Domain,
 	      File StrCat[ResDir, StrCat["velocity",ExtGmsh]], LastTimeStepOnly] ;
+       Print[ dV_c1, OnElementsOf Domain,
+	      File StrCat[ResDir, StrCat["dV_c1",ExtGmsh]], LastTimeStepOnly] ;  
+       Print[ dV_c2, OnElementsOf Domain,
+	      File StrCat[ResDir, StrCat["dV_c2",ExtGmsh]], LastTimeStepOnly] ;
+       Print[ dV_c3, OnElementsOf Domain,
+	      File StrCat[ResDir, StrCat["dV_c3",ExtGmsh]], LastTimeStepOnly] ;
 //       Print[ rho_sensF, OnElementsOf Domain,
 //	      File StrCat[ResDir, StrCat["rho_sensF",ExtGmsh]], LastTimeStepOnly] ;
 //       Print[ rho_sensK, OnElementsOf Domain,

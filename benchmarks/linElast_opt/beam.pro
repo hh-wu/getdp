@@ -191,23 +191,30 @@ Function {
      ----------------------------------------------------------------- */
   If( !StrCmp(Flag_optType,"shape") )
     // Operators used for lie derivative 
-    l_vx = ListFromFile["res/velocity_x.txt"];
-    l_vy = ListFromFile["res/velocity_y.txt"];
-    l_vz = ListFromFile["res/velocity_z.txt"];
-    velocity_x[] = ValueFromIndex[]{l_vx()};
-    velocity_y[] = ValueFromIndex[]{l_vy{}};
-    velocity_z[] = ValueFromIndex[]{l_vz{}};
+    If (Flag_readV)
+      For i In {1:3}
+        l_v~{i} = ListFromFile[Sprintf("res/velocity_%g.txt",i)];
+        velocity~{i}[] = ValueFromIndex[]{l_v~{i}()};
+      EndFor
+    EndIf
+    velocity[] = Vector[$1,$2,$3];
     velocityField[] = VectorField[XYZ[],0,1]{VELOCITY_FIELD};
-    dV[] = Transpose[GradVectorField[XYZ[],0,1]{VELOCITY_FIELD}];
+//    dV[] = Transpose[GradVectorField[XYZ[],0,1]{VELOCITY_FIELD}];
+    dV[] = Tensor[CompX[$1],CompX[$2],CompX[$3],
+                  CompY[$1],CompY[$2],CompY[$3],
+                  CompZ[$1],CompZ[$2],CompZ[$3]];
+    dV_c1[] = Vector[CompXX[dV[$1,$2,$3]#1],CompYX[#1],CompZX[#1] ];  
+    dV_c2[] = Vector[CompXY[dV[$1,$2,$3]#1],CompYY[#1],CompZY[#1] ];  
+    dV_c3[] = Vector[CompXZ[dV[$1,$2,$3]#1],CompYZ[#1],CompZZ[#1] ];  
     du[] = Transpose[GradVectorField[XYZ[],$TimeStep,1]{STATE_FIELD}]; 
     dlam[] = Transpose[GradVectorField[XYZ[],0,1]{ADJOINT_FIELD}]; 
-    dEps[] = 0.5*(dV[]#20 * $1#21 + Transpose[#21] * Transpose[#20]); 
+    dEps[] = 0.5 * ( $2 * $1 + Transpose[$1] * Transpose[$2] ); 
     If(Flag_2D)
-      d_D1[] = Vector[CompXX[dEps[$1]#991],CompYY[#991],CompXY[#991]+CompYX[#991]];
+      d_D1[] = Vector[CompXX[dEps[$1,$2]#991],CompYY[#991],CompXY[#991]+CompYX[#991]];
     EndIf
     If(!Flag_2D)    
-      d_D1[] = Vector[ CompXX[dEps[$1]#1991], CompYY[#1991], CompZZ[#1991] ];
-      d_D2[] = Vector[ CompXY[dEps[$1]#993]+CompYX[#993], 
+      d_D1[] = Vector[ CompXX[dEps[$1,$2,$3,$4]#1991], CompYY[#1991], CompZZ[#1991] ];
+      d_D2[] = Vector[ CompXY[dEps[$1,$2,$3,$4]#993]+CompYX[#993], 
                        CompYZ[#993]+CompZY[#993],CompXZ[#993]+CompZX[#993] ];
     EndIf
   EndIf
@@ -215,14 +222,14 @@ Function {
   If(!StrCmp(Flag_optType,"shape") || !StrCmp(Flag_optType,"topology") )
     // Derivative of performance function
     d_mass_eig_TO[] = (d_rho[]*$1)*$1;
-    d_mass_eig[] =  - 2.0 * rho[] * (Transpose[du[]] * velocityField[]) * $1
+    d_mass_eig[] =  - 2.0 * rho[] * (Transpose[du[]] * velocity[] /*Field[]*/) * $1
                     + rho[] * $1 * $1 * TTrace[ dV[] ]; 
 
     If(Flag_2D) // 2D 
       //$1:{D1 u},$2:{D1 lambda}
-      d_bilin_lie[] = -( C[] * d_D1[ du[] ] ) * $2 
-                      -( C[] * $1 ) * d_D1[ dlam[] ] 
-                      +( (C[] * $1) * $2 ) * TTrace[ dV[] ];
+      d_bilin_lie[] = -( C[] * d_D1[ du[], dV[$5,$6,$7] ] ) * $2 
+                      -( C[] * $1 ) * d_D1[ dlam[], dV[$5,$6,$7] ] 
+                      +( (C[] * $1) * $2 ) * TTrace[ dV[$5,$6,$7] ];
       d_bilin[] = (d_C[] * $1) * $2; 
 
       //$1:{u},$2:{D1 u},$3:{D2 u}
@@ -234,7 +241,7 @@ Function {
         Func[] = 0.5 * bilin_uu[$1]; //F = C * {D1 u}^2
         dFdb[] = C[] * $1; // derivative wrt state variable
         dF_TO[] = 0.5 * (d_C[]*$1)*$1; 
-        dF_lie[] = - dFdb[$1] * d_D1[ du[] ] + Func[$1] * TTrace[ dV[] ];
+        dF_lie[] = - dFdb[$1]*d_D1[du[],dV[$3,$4,$5]] + Func[$1]*TTrace[ dV[$3,$4,$5]];
       EndIf
       If(!StrCmp[Flag_PerfType,"vonMises"])
         Func[] = sigmaVM[$1]^degVM; //F = Sqrt[s11^2-s11*s22+s22^2+3*s12^2]
@@ -242,8 +249,8 @@ Function {
                          2.0*CompY[#3]-CompX[#3],6.0*CompZ[#3]];  
         dF_TO[] = ( d_C[] * c_sig[$1] ) * $1; 
         dFdb[] = 0.5 * degVM * sigmaVM[$1]^(degVM-2) * C[] * c_sig[$1];
-        dF_lie[] = - dFdb[$1] * d_D1[ du[] ]
-                           + Func[$1] * TTrace[dV[]]; 
+        dF_lie[] = - dFdb[$1] * d_D1[ du[],$3,$4,$5 ]
+                           + Func[$1] * TTrace[dV[$3,$4,$5]]; 
       EndIf
       If(!StrCmp[Flag_PerfType,"vonMises_Pnorm"])
         coeff[] = (1/degVM) * ($VM_P)^( (1-degVM) / degVM );
@@ -252,7 +259,7 @@ Function {
                          2.0*CompY[#3]-CompX[#3],6.0*CompZ[#3]];  
         dF_TO[] = ( d_C[] * c_sig[$1] ) * $1; 
         dFdb[] = coeff[]*0.5 * degVM * sigmaVM[$1]^(degVM-2) * C[] * c_sig[$1];
-        dF_lie[] = - dFdb[$1] * d_D1[ du[] ]+ Func[$1] * TTrace[dV[]]; 
+        dF_lie[] = - dFdb[$1] * d_D1[du[],dV[$3,$4,$5]]+ Func[$1] * TTrace[dV[$3,$4,$5]]; 
       EndIf
     EndIf
     If(!Flag_2D) // 3D
@@ -262,7 +269,7 @@ Function {
                       -( C21[] * #1001 ) * $4 -( C21[] * $1 ) * d_D2[dlam[]]#1004 
                       -( C22[] * #1002 ) * $4 -( C22[] * $3 ) * #1004  
                       +( (C11[] * $1) * $2 + (C12[] * $3) * $2
-                        +(C21[] * $1) * $4 + (C22[] * $3) * $4 ) * TTrace[ dV[] ];
+                        +(C21[] * $1) * $4 + (C22[] * $3) * $4 )*TTrace[dV[$3,$4,$5] ];
       d_bilin[] = (d_C11[] * $1) * $2 + (d_C12[] * $3) * $2
                  +(d_C21[] * $1) * $4 + (d_C22[] * $3) * $4;
 
@@ -272,18 +279,18 @@ Function {
                       - (C12[] * #1003) * $2 - (C12[] * $3 ) * #1001
                       - (C21[] * #1001) * $3 - (C21[] * $2 ) * #1003
                       +( (C11[] * $2) * $2 + (C12[] * $3) * $2
-                        +(C21[] * $2) * $3 + (C22[] * $3) * $3 ) * TTrace[ dV[] ];
+                        +(C21[] * $2) * $3 + (C22[] * $3) * $3 )*TTrace[ dV[$3,$4,$5] ];
                     
       If(!StrCmp[Flag_PerfType,"Compliance"])
         Func[] = 0.5 * bilin_uu[$1,$2]; //$1:{D1 u}, $2:{D2 u}
-        dF_TO[] = 0.5*( (d_C11[]*$1)*$1+(d_C12[]*$2)*$1
+        dF_TO[]= 0.5*( (d_C11[]*$1)*$1+(d_C12[]*$2)*$1
                          +(d_C21[]*$1)*$2+(d_C22[]*$2)*$2 );//$1:{D1 u},$2:{D2u}        
 	dFdb[]  = C11[] * $1 + 0.5 * ( C12[] + C21[] ) * $2;//dF/d1
 	dFdb2[] = C22[] * $2 + 0.5 * ( C12[] + C21[] ) * $1;//dF/d2
         //$1:{D1 u}, $2:{D2 u}
         dF_lie[] = - dFdb[$1,$2] * d_D1[ du[] ]
                            - dFdb2[$1,$2] * d_D2[ du[] ]
-                           + Func[$1,$2] * TTrace[dV[]];
+                           + Func[$1,$2] * TTrace[dV[$3,$4,$5]];
       EndIf
       If(!StrCmp[Flag_PerfType,"vonMises"])
 	degVM = 2;
@@ -295,7 +302,7 @@ Function {
 
         dF_lie[] = - dFdb[$1,$2] * d_D1[ du[] ]
                            - dFdb2[$1,$2] * d_D2[ du[] ]
-                           + Func[$1,$2] * TTrace[dV[]]; 
+                           + Func[$1,$2] * TTrace[dV[$3,$4,$5]]; 
       EndIf
       If(!StrCmp[Flag_PerfType,"vonMises_Pnorm"])
         coeff[] = (1/degVM) * ($VM_P)^( (1-degVM) / degVM );
@@ -306,7 +313,7 @@ Function {
         dFdb[] = coeff[] * 0.5 * degVM * sigmaVM[$1,$2]^(degVM-2) * 
 		(C11[] * $1 + 0.5 * ( C12[] + C21[] ) * $2
 	        +C22[] * $2 + 0.5 * ( C12[] + C21[] ) * $1)* c_sig[$1,$2];
-        dF_lie[] = - dFdb[$1,$2] * d_D1[ du[] ]+ Func[$1,$2] * TTrace[dV[]]; 
+        dF_lie[] = - dFdb[$1,$2] * d_D1[ du[] ]+ Func[$1,$2]*TTrace[dV[$3,$4,$5]]; 
       EndIf
     EndIf
     dF_direct_lie[] = dFdb[$1#1]*$2 + dF_lie[#1];
@@ -317,21 +324,16 @@ Function {
 }
 
 Constraint{
-  { Name velocity_x ;
-    Case {
-      { Region Domain ; Value velocity_x[]; }
-    }
-  }
-  { Name velocity_y ;
-    Case {
-      { Region Domain ; Value velocity_y[]; }
-    }
-  }
-  { Name velocity_z ;
-    Case {
-      { Region Domain ; Value velocity_z[]; }
-    }
-  }
+  If (Flag_readV)
+    For i In {1:3}
+      { Name velocity~{i} ;
+        Case {
+          { Region Domain ; Value velocity~{i}[]; }
+        }
+      }
+    EndFor
+  EndIf
+
   { Name DisplacementX ; Type Assign ;
     Case {
       If(Flag_testBench == 0)
@@ -395,8 +397,10 @@ Include "Elasticity.pro";
 Include "optim_post.pro";
 
 If(!StrCmp(Flag_optType,"shape") || !StrCmp(Flag_optType,"topology"))
-  Include "../optimization/sensitivity.pro";
-  Include "optim_post_elast.pro" ;//optim_post_sens.pro
+  If (Flag_readV)
+    Include "../optimization/sensitivity.pro";
+    Include "optim_post_elast.pro" ;//optim_post_sens.pro
+  EndIf
 EndIf
 
 DefineConstant[
