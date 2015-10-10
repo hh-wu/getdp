@@ -22,13 +22,13 @@ DefineConstant[ // allows to set these from outside
   nLayersPml = 4
 ];
 
-om = 2*Pi*FREQ*1e6;
+om0 = 2*Pi*FREQ*1e6;
 
 eps0 = 8.854e-12;
 mu0 = 4*Pi*1e-7;
 c0 = 1 / Sqrt[mu0*eps0];
 
-WAVENUMBER = om/c0;
+WAVENUMBER = om0/c0;
 LAMBDA = 2*Pi/WAVENUMBER ;
 LC = LAMBDA/N_LAMBDA;
 

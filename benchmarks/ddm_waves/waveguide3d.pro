@@ -37,9 +37,10 @@ Function {
   EndIf
   // freq[] = c0[] / LAMBDA;
   // om[] = 2 * Pi * freq[];
-  k[] = om / c[] ;
+  om[] = om0;
+  k[] = om[] / c[] ;
 
-  omega[] = om;//c[]*k[] ;
+  omega[] = om[];//c[]*k[] ;
   mu[] = mu0 ;
 
   ky = MODE_M*Pi/DY ;

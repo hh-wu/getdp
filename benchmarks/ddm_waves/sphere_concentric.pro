@@ -23,6 +23,7 @@ Function {
   c = 1 / Sqrt[mu0*eps0];
 
   omega[] = c*k[] ;
+  om[] = omega[] ;
   mu[] = mu0 ;
 
   // for Helmholtz
