@@ -287,6 +287,51 @@ int Geo_GetDimOfElement(int Type)
   }
 }
 
+void Geo_ReverseElement(Geo_Element *Geo_Element)
+{
+  int tmp;
+  switch(Geo_Element->Type){
+  case LINE :
+  case LINE_2 :
+    tmp = Geo_Element->NumNodes[0];
+    Geo_Element->NumNodes[0] = Geo_Element->NumNodes[1];
+    Geo_Element->NumNodes[1] = tmp;
+    break;
+  case TRIANGLE :
+    tmp = Geo_Element->NumNodes[1];
+    Geo_Element->NumNodes[1] = Geo_Element->NumNodes[2];
+    Geo_Element->NumNodes[2] = tmp;
+    break;
+  case TRIANGLE_2 :
+    tmp = Geo_Element->NumNodes[1];
+    Geo_Element->NumNodes[1] = Geo_Element->NumNodes[2];
+    Geo_Element->NumNodes[2] = tmp;
+    tmp = Geo_Element->NumNodes[3+0];
+    Geo_Element->NumNodes[3] = Geo_Element->NumNodes[5];
+    Geo_Element->NumNodes[5] = tmp;
+    break;
+  case QUADRANGLE :
+    tmp = Geo_Element->NumNodes[1];
+    Geo_Element->NumNodes[1] = Geo_Element->NumNodes[3];
+    Geo_Element->NumNodes[3] = tmp;
+    break;
+  case QUADRANGLE_2 :
+  case QUADRANGLE_2_8N:
+    tmp = Geo_Element->NumNodes[1];
+    Geo_Element->NumNodes[1] = Geo_Element->NumNodes[3];
+    Geo_Element->NumNodes[3] = tmp;
+    tmp = Geo_Element->NumNodes[4+0];
+    Geo_Element->NumNodes[4] = Geo_Element->NumNodes[7];
+    Geo_Element->NumNodes[7] = tmp;
+    tmp = Geo_Element->NumNodes[5];
+    Geo_Element->NumNodes[5] = Geo_Element->NumNodes[6];
+    Geo_Element->NumNodes[6] = tmp;
+    break;
+  default :
+    break;
+  }
+}
+
 void Geo_SaveMesh(struct GeoData * GeoData_P, List_T * InitialList, char * FileName)
 {
   FILE * file;
@@ -436,8 +481,6 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
             if(fscanf(File_GEO, "%d", &physicals[j]) != 1) return;
           }
           entities[dim][num] = physicals;
-          // FIXME: remove this when we support multiple elementary groups for
-          // the same element
           if(numPhysicals > 1){
             Message::Error("GetDP does not support multiple physical groups per element:"
                            " elementary entity %d belongs to %d physical groups",
@@ -652,6 +695,7 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
             }
             else
               Geo_Element.Region = phys[0];
+
             /* ignore any other tags for now */
             for(j = 0; j < numData - Geo_Element.NbrNodes; j++){
               if(fscanf(File_GEO, "%d", &iDummy) != 1) return;
@@ -661,6 +705,11 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
 	  Geo_Element.NumNodes = (int *)Malloc(Geo_Element.NbrNodes * sizeof(int)) ;
 	  for (j = 0 ; j < Geo_Element.NbrNodes ; j++)
 	    fscanf(File_GEO, "%d", &Geo_Element.NumNodes[j]) ;
+
+          if(Geo_Element.Region < 0){
+            Geo_ReverseElement(&Geo_Element);
+            Geo_Element.Region = -Geo_Element.Region;
+          }
 
 	  List_Add(GeoData_P->Elements, &Geo_Element) ;
 	}
@@ -733,6 +782,12 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
             }
             else
               Geo_Element.Region = phys[0];
+
+            if(Geo_Element.Region < 0){
+              Geo_ReverseElement(&Geo_Element);
+              Geo_Element.Region = -Geo_Element.Region;
+            }
+
             List_Add(GeoData_P->Elements, &Geo_Element) ;
           }
         }
