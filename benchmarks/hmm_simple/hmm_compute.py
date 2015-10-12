@@ -33,7 +33,7 @@ if filename:
     ncpus = len(nodes)
     f.close()
 else:
-    ncpus = 4
+    ncpus = 18
     nodes = ["localhost" for x in range(ncpus)]
     f = open(file_dir + "getdp.sh", "w")
     f.write("#!/bin/sh\n{0} $*\n".format(sys.argv[0])) # same getdp as for macro computation
@@ -62,7 +62,7 @@ while len(queue):
                 else:
                     args.extend([node])
             args.extend([file_dir + "getdp.sh", file_dir + "smc_meso", 
-                         "-bin", "-v", "4", "-v2", "-solve", "a_NR", 
+                         "-bin", "-v", "2", "-v2", "-solve", "a_NR", 
                          "-pos", "mean_1", "mean_2", "mean_3", 
                          "mean_4" if nbr_subproblems == 4 else "",
                          "map_field_1" if postpro_cuts else "",
@@ -118,6 +118,9 @@ for key in keys:
     f = open(Dir_Meso + "JouleLosses_" + str(key[0]) + ".txt", "r")
     jl = map(float, f.readline().split())
     f.close()
+    f = open(Dir_Meso + "MagneticPower_" + str(key[0]) + ".txt", "r")
+    mp = map(float, f.readline().split())
+    f.close()
     f = open(Dir_Meso + "MagneticEnergy_" + str(key[0]) + ".txt", "r")
     me = map(float, f.readline().split())
     f.close()
@@ -147,6 +150,7 @@ for key in keys:
 
 
     JouleLosses_table[key] = jl[1]
+    MagneticPower_table[key] = mp[1]
     MagneticEnergy_table[key] = me[1]
 
     # for i in range(nbr_subproblems):

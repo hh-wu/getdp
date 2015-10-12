@@ -86,10 +86,19 @@ FunctionSpace {
   If(Flag_3D && Flag_Dynamic)
     { Name Hcurl_a; Type Form1;
       BasisFunction {
+        /*
         { Name se;  NameOfCoef ae;  Function BF_Edge; Support Domain ;
           Entity EdgesOf[ All, Not DomainC ]; }
         { Name sec;  NameOfCoef aec;  Function BF_Edge; Support Domain ;
           Entity EdgesOf[ DomainC ]; }
+        */
+
+        { Name se;  NameOfCoef ae;  Function BF_Edge; Support Domain ;
+          Entity EdgesOf[ All, Not Skin_DomainC ]; }
+        { Name sec;  NameOfCoef aec;  Function BF_Edge; Support Domain ;
+          Entity EdgesOf[ Skin_DomainC ]; }
+        
+        
       }
       Constraint {
         { NameOfCoef ae;  EntityType EdgesOf ; NameOfConstraint a; }
@@ -158,7 +167,11 @@ Resolution {
         InitSolution[A] ; SaveSolution[A] ;
         TimeLoopTheta[ time0, timemax, dtime, theta_value]{
           IterativeLoop[Nb_max_iter, reltol, relaxation_factor[]] {
-            GenerateJac[A]; SolveJac[A];
+            //IterativeLoopN[Nb_max_iter, relaxation_factor[],
+            //             System{ {A, reltol, reltol, Solution  MeanL2Norm } } ] {
+            GenerateJac[A];
+            SolveJac[A];
+            //SolveJac_AdaptRelax[A, List[RelaxFac_Lin], TestAllFactors];
           }
           SaveSolution[A];
         }
@@ -177,7 +190,9 @@ PostProcessing {
       { Name b ; Value { Local { [ {d a} ]; In Domain ; Jacobian JVol; } } }
       { Name h ; Value { Local { [ nu[ {d a} ] * {d a} ]; In Domain  ; Jacobian JVol; } } }
       { Name js; Value { Local { [ js[] ]; In DomainS0 ; Jacobian JVol; } } }
-      { Name MagEnergy ; Value { Integral { [ nu[ {d a} ] * {d a} * Dt[ {d a} ] ];
+      { Name MagPower ; Value { Integral { [ nu[ {d a} ] * {d a} * Dt[ {d a} ] ];
+            In Domain ; Jacobian JVol ; Integration I ; } } }
+      { Name MagEnergy ; Value { Integral { [ nu[ {d a} ] * {d a} * {d a} ];
             In Domain ; Jacobian JVol ; Integration I ; } } }
       If(!Flag_3D)
         { Name j ; Value { Local { [ -sigma[] * ( Dt[ {a} ] + {ur} ) ];
@@ -213,7 +228,7 @@ PostOperation {
       Print[ sigma,  OnElementsOf Domain,  File StrCat[Dir_Ref,StrCat["sigma" ,ExtGmsh] ] ];
       Print[ b,  OnElementsOf Domain,  File StrCat[Dir_Ref,StrCat["b" ,ExtGmsh] ] ];
       Print[ h,  OnElementsOf Domain , File StrCat[Dir_Ref,StrCat["h" ,ExtGmsh] ] ];
-      Print[ js,  OnElementsOf Domain , File StrCat[Dir_Ref,StrCat["js" ,ExtGmsh] ] ];
+      Print[ js,  OnElementsOf DomainS0 , File StrCat[Dir_Ref,StrCat["js" ,ExtGmsh] ] ];
       Print[ j,  OnElementsOf DomainC, File StrCat[Dir_Ref,StrCat["j" ,ExtGmsh] ] ];
       Print[ JouleLossesMap,OnElementsOf DomainC , File StrCat[Dir_Ref,StrCat["JLMap",ExtGmsh] ] ];
     }
@@ -221,6 +236,8 @@ PostOperation {
 
   { Name globalquantities ; NameOfPostProcessing MagStaDyn_a_ref ;
     Operation {
+      Print[ MagPower[Domain], OnGlobal, Format TimeTable,
+        File StrCat[Dir_Ref, Sprintf("MagPower_nl%g_f%g.dat", Flag_NL, Freq) ] ] ;
       Print[ MagEnergy[Domain], OnGlobal, Format TimeTable,
         File StrCat[Dir_Ref, Sprintf("MagEnergy_nl%g_f%g.dat", Flag_NL, Freq) ] ] ;
       Print[ JouleLosses[Iron], OnGlobal, Format TimeTable,

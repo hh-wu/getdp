@@ -1,4 +1,4 @@
-Include "smc_data.pro";
+Include "smc_data_edge.pro";
 
 Mesh.Algorithm = 1; // 2D mesh algorithm (1=MeshAdapt, 2=Automatic, 5=Delaunay, 6=Frontal, 7=bamg, 8=delquad)
 Geometry.CopyMeshingMethod = 1; // Copy meshing method when duplicating geometrical entities?
@@ -11,6 +11,10 @@ xind1 = xlam + dla_ind_x;
 xind2 = xlam + dla_ind_x + w_ind;
 yind1 = ylam ;
 yind2 = ylam + dla_ind_x;
+
+/*
+// Building the inductor
+//======================
 
 pi[]+=newp ; Point(newp) = { xind1, 0,       0, pind};
 pi[]+=newp ; Point(newp) = { xind2, 0,       0, pind};
@@ -67,7 +71,33 @@ bndind[] += CombinedBoundary{Surface{surfind[]};};
 bndind_out[]+= {-bndind[{1,3,5}],-bndind[{9}]};
 bndind_in[]+= {-bndind[{8}], bndind[{2,4,7}]};
 
-cen0 = newp ; Point(cen0) = {0, 0, 0, lc_smc_iso};
+*/
+
+
+
+p_zero  = newp; Point(newp) = { 0                , 0                , 0, lc_smc_iso};
+p_indu1 = newp; Point(newp) = { 2 * xind1        , 0                , 0, pind};
+p_indu2 = newp; Point(newp) = { 2 * xind1 + w_ind, 0                , 0, pind};
+p_indu3 = newp; Point(newp) = { 0                , 2 * xind1 + w_ind, 0, pind};
+p_indu4 = newp; Point(newp) = { 0                , 2 * xind1        , 0, pind};
+
+l_indu1 = newl; Line(newl) = {p_indu1, p_indu2};
+c_indu2 = newl; Circle(newl) = {p_indu2,p_zero,p_indu3};
+l_indu3 = newl; Line(newl) = {p_indu3, p_indu4};
+c_indu4 = newl; Circle(newl) = {p_indu4,p_zero,p_indu1};
+
+li[] = {l_indu1, c_indu2, l_indu3, c_indu4};
+
+
+Line Loop(newll) = {l_indu1, c_indu2, l_indu3, c_indu4};
+surfind[] += news ; Plane Surface(news) = {(newll-1)};
+
+Transfinite Line{l_indu1, l_indu3} = 5;//n_thickness ;
+Transfinite Line{c_indu2, c_indu4} = 25; //5 * n_thickness ;
+Transfinite Surface{surfind[]}; Recombine Surface{surfind[]};
+
+bndind_out = {c_indu2};
+bndind_in  = {c_indu4};
 
 //===============================================================================================
 x_L = 0.0;
@@ -149,57 +179,47 @@ For k In {0:#bndlines[]-1}
 EndFor
 bndlines[] -= {x0[], y0[]};
 
-For k In {0:#bndlines[]-1}
-  Printf("%g", bndlines[k]);
-EndFor
 
 pp[] = CombinedBoundary{ Line{bndlines[]}; };
-ladd1 = newl; Line(ladd1) = {11, pp[1]};
-ladd2 = newl; Line(ladd2) = {pp[0], 2};
+//Printf("",pp[]);
 
-ll_air_added = 9999; Line Loop(ll_air_added) = {ladd2, -4, -9, 18, -15, ladd1, -bndlines[]};
+ladd1 = newl; Line(ladd1) = {pp[0], p_indu1};
+ladd2 = newl; Line(ladd2) = {p_indu4, pp[1]};
+
+ll_air_added = newll; Line Loop(ll_air_added) = {ladd1, -c_indu4, ladd2, -bndlines[]};
 s_air_added = news ; Plane Surface(s_air_added) = {-ll_air_added} ;
 
+
+// Ruth: I think what follows is not needed
 // Air around
 pa[]+=newp ; Point(newp) = { x_air        , 0.0,           0, lca};
-pa[]+=newp ; Point(newp) = { x_air + d_inf, 0.0,           0, lca};
 pa[]+=newp ; Point(newp) = { 0.0          , y_air,         0, lca};
-pa[]+=newp ; Point(newp) = { 0.0          , y_air + d_inf, 0, lca};
 
-p_zero = newp; Point(p_zero) = {0.0, 0.0, 0.0, 0.05};
+lair[]+=newl ; Line(newl)   = {p_indu2, pa[0]}; // y = 0
+lair[]+=newl ; Circle(newl) = {pa[0], p_zero, pa[1]};
+lair[]+=newl ; Line(newl)   = {pa[1], p_indu3}; // axis (x=0)
 
-lair[]+=newl ; Line(newl) = {pi[1], pa[0]}; // y = 0
-lair[]+=newl ; Circle(newl) = {pa[0], p_zero, pa[2]};
-lair[]+=newl ; Line(newl) = {pa[2], pi[8]}; // axis (x=0)
-
-lair[]+=newl ; Line(newl) = {pa[0], pa[1]};
-lair[]+=newl ; Circle(newl) = {pa[1], p_zero, pa[3]};
-lair[]+=newl ; Line(newl) = {pa[3], pa[2]};
-
-Line Loop(newll) = {bndind_out[],lair[{0:2}]};
+Line Loop(newll) = {-bndind_out[],lair[{0:2}]};
 surfair_out[]+= news ; Plane Surface(news) = {newll-1};
 
-Line Loop(newll) = {lair[{3:5}], -lair[{1}]};
-surf_Inf[]+= news ; Plane Surface(news) = {newll-1};
 
-If(!Flag_3D)
-  Physical Surface(AIR) = {surfair_out[], s_air_added, surfind[0]} ;
-  Physical Surface(INDUCTOR) = {surfind[{1:#surfind[]-1}] } ;
-EndIf
-If(Flag_3D)
-  Physical Surface(AIR) = {surfair_out[], s_air_added} ;
-  Physical Surface(INDUCTOR) = {surfind[]} ;
-EndIf
+// Physical groups
+//===============================================================
+Physical Surface(AIR) = {surfair_out[], s_air_added} ;
+Physical Surface(INDUCTOR) = {surfind[]} ;
 
 Physical Surface(ISOLATION) = {s_iso[]} ;
-Physical Surface(OMEGA_INF) = {surf_Inf[] } ;
 
 For ii In {0:#s_cond[]-1}
   Physical Surface(CONDUCTOR+ii)  = s_cond[{ii}];
+  Physical Line(SKIN_COND+ii) = Boundary{Surface{s_cond[{ii}]};} ;
 EndFor
+//Physical Line(SKIN_COND) = Boundary{Surface{s_cond[]};} ;
 
-Physical Line(SKIN_COND) = Boundary{Surface{s_cond[]};} ;
+Physical Line(SKIN_COND_ISO) = bndlines[] ;
 
-Physical Line(GAMMA_INF)   = lair[{4}];
-Physical Line(SYMMETRY_Y0) = {lind_middle[],lair[{0,3}], x0[], ladd2};
-Physical Line(SYMMETRY_X0) = {14, lair[{2,5}], y0[], ladd1};
+Physical Line(GAMMA_INF)   = lair[{1}];
+Physical Line(SYMMETRY_Y0) = {ladd1, lair[{0}], x0[], li[0]};
+Physical Line(SYMMETRY_X0) = {ladd2, lair[{2}], y0[], li[2]};
+
+Physical Point(POINT_INF) = {pa[0]};

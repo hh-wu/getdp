@@ -31,4 +31,5 @@ dhdbzx_table = {}
 dhdbzy_table = {}
 dhdbzz_table = {}
 JouleLosses_table = {}
+MagneticPower_table = {}
 MagneticEnergy_table = {}

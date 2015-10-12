@@ -167,8 +167,14 @@ Resolution {
         // 2. First computation fr time window TW. Homogenized law is not available.
         // Solve system "A_init" to initialize values of the dictionaries 
         //==========================================================================
-        SetTime[time0_j];
-        InitSolution[A_Init]; SaveSolution[A_Init];
+        If(j == 1)
+          SetTime[time0_j];
+          InitSolution[A_Init]; SaveSolution[A_Init];
+        EndIf
+        If(j != 1)
+          SetTime[time0_j];
+          CreateSolution[A_Init, (Floor[(time_window + epsilon_t)/dtime] * (j - 1) ) ];
+        EndIf
         Evaluate[ Python[tolerance_waveform, 0]{"hmm_error_waveform.py"} ];
         If (j != 1)
           // Delete the table of time steps before starting computations for the next time window 
@@ -187,6 +193,13 @@ Resolution {
           IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
             GenerateJac[A_Init]; SolveJac[A_Init];
           }
+          /*
+          If(j != 1)
+            Test[Fmod[$TimeStep, ( Floor[ (time_window + epsilon_t)/dtime] ) ] == 0]{
+              CreateSolution[A, ( (Floor[(time_window + epsilon_t)/dtime] * (j - 1) ) - 1) ];
+            }
+          EndIf
+          */
           Generate[Dummy]; // Downscaling for the first mesoscale computation
         }
         Evaluate[Python[1]{"hmm_print_time.py"}];
@@ -226,6 +239,13 @@ Resolution {
             Generate[Dummy]; // downscaling
             PostOperation[ globalquantities~{ ((j - 1) * num_wr_iterations + i) } ];
             PostOperation[ maps~{ ((j - 1) * num_wr_iterations + i) } ];
+            /*
+            If(j != 1)
+              Test[Fmod[$TimeStep, ( Floor[ (time_window + epsilon_t)/dtime] ) ] == 0]{
+                CreateSolution[A, ( ( Floor[(time_window + epsilon_t)/dtime] * num_wr_iterations * (j - 1) ) - 1) ];
+              }
+            EndIf
+            */
           }  
         EndIf // (i == 1)
         If ( (i != 1) )
@@ -259,10 +279,13 @@ Resolution {
                                    timemax_j, dtime, 1, 1, j, i, $TimeStep, $Time]{"hmm_compute_waveform.py"} ];
                 EndIf
               EndIf
-              If(i == num_waveform_iterations)
-                  PostOperation[ writeInitialSolutionForNextTimeWindow ];
+              /*
+              If(j != 1)
+                Test[Fmod[$TimeStep, ( Floor[ (time_window + epsilon_t)/dtime] ) ] == 0]{
+                  CreateSolution[A, ( ( Floor[(time_window + epsilon_t)/dtime] * num_wr_iterations * (j - 1) ) - 1) ];
+                }
               EndIf
-              
+              */
             }
           } //Test...
         EndIf// (!1)

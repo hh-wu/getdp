@@ -33,31 +33,19 @@ Function {
   nu0            = 1/mu0;
 
   DefineConstant[ ELENUM=0, QPINDEX=0,
-    AX=0, AY=0, AZ=0, BX=0, BY=0, BZ=0,
-    DTAX=0, DTAY=0, DTAZ=0, DTBX=0, DTBY=0, DTBZ=0,
-    TCURRENT=0, TSCURRENT=0];
-
-  //=========================================
-  ELENUM = 300;
-  //AX = 0.005; AY = 0.005;
-
-  //bM[]   = Vector[0., 0., 1.0] * F_Sin_wt_p[]{2 * Pi * Freq, 0.0};
-  //dt_bM[] = Vector[0., 0., 1000.0] * F_Sin_wt_p[]{2 * Pi * Freq, 0.0};
-  
-  //BZ = 0.1;
-  //DTBZ = 100;
-  //TCURRENT = 0.0 * 2.e-7; TSCURRENT = 0;
-  //=========================================
+                  AX=0, AY=0, AZ=0, BX=0, BY=0, BZ=0,
+                  DTAX=0, DTAY=0, DTAZ=0, DTBX=0, DTBY=0, DTBZ=0,
+                  TCURRENT=0, TSCURRENT=0];
   
   aM[]            = Vector[AX, AY, AZ];
   bM[]            = Vector[BX, BY, BZ];
-  eM[]            = - 0 * Vector[DTAX, DTAY, DTAZ];
+  eM[]            = - Vector[DTAX, DTAY, DTAZ];
   dt_bM[]         = Vector[DTBX, DTBY, DTBZ];
 
   NbrMaxIter     = 5;
-  Eps            = 1e-8;
+  Eps            = 1e-12;
   Relax          = 1.0;
-  factor         = 1.0;
+  kappa          = 1.0;
   epsilon        = 1e-6;
   Pert~{1}[]     = Vector[0, 0, 0];
   Pert~{2}[]     = epsilon * Vector[1.0, 0.0, 0.0];
@@ -66,21 +54,21 @@ Function {
 
   T               = 1.0/Freq;
   ti              = TCURRENT;
-  dt              = T/NbSteps;
+  dt              = T/(NbSteps);
   theta_value     = 1;
-  tf              = ti + 1 * dt;
+  tf              = ti + dt;
   a_tprevious[]   = (TSCURRENT == 1) ? Vector[0.,0.,0.] : VectorField[XYZ[]]{0};
 
   // Parameters for the electric linear law
   sigmaIron = 5.e6;
-  sigma[Omega_NL] = sigmaIron;
-  sigma[Omega_L] = 1.e-12 * sigmaIron;
+  sigma[Omega_NL] = sigmaIron  * TensorDiag[1.0, 1.0, 1.0];
+  sigma[Omega_L] = 1.e-12 * sigmaIron  * TensorDiag[1.0, 1.0, 1.0];
 
   //Parameters of the Brauer nonlinear constitutive law
-  nu[Omega_L] = nu0;
+  nu[Omega_L] = nu0 * TensorDiag[1.0, 1.0, 1.0];
   If(!Flag_NL)
-    nu[Omega_NL] = nu0 / 1000;
-    dhdb[Omega_NL] = nu0 * TensorDiag[0., 0., 0.];
+    nu[Omega_NL] = (nu0/1000) * TensorDiag[1.0, 1.0, 1.0];
+    dhdb[Omega_NL] = (nu0/1000) * TensorDiag[0., 0., 0.];
   EndIf
   If(Flag_NL)
     gamma = 388.;
@@ -88,9 +76,8 @@ Function {
     beta = 2.97;
     nu_ML[Omega_NL] = gamma + alpha * Exp[beta*$1];
     dnudb2[] = alpha * beta* Exp[beta*$1];
-    nu[Omega_NL] = nu_ML[SquNorm[$1]];
-    dhdb[Omega_NL] = nu[SquNorm[$1]] * TensorDiag[1., 1., 1.] +
-    2 * dnudb2[SquNorm[$1]] * SquDyadicProduct[$1];
+    nu[Omega_NL] = nu_ML[SquNorm[$1]] * TensorDiag[1.0, 1.0, 1.0];
+    dhdb[Omega_NL] = nu[SquNorm[$1]] * TensorDiag[1., 1., 1.] + 2 * dnudb2[SquNorm[$1]] * SquDyadicProduct[$1];
     dhdb_NL[Omega_NL] = 2 * dnudb2[SquNorm[$1]] * SquDyadicProduct[$1];
   EndIf
 }
@@ -98,23 +85,23 @@ Function {
 Constraint {
   { Name a_Meso;
     Case {
-      /*
-      If ((Flag_Geometry != Half_Geometry) || (Flag_Geometry != Quarter_Geometry))
-      { Region GammaRight; Type Link; RegionRef GammaLeft;
-        Coefficient 1.; Function Vector[$X-lx, $Y, $Z]; }
-      { Region GammaUp; Type Link; RegionRef GammaDown;
-        Coefficient 1.; Function Vector[$X, $Y-ly, $Z]; }
-      { Region GammaCornerFix; Type Assign; Value 0.0; }
+      If(Flag_Geometry == Full_Geometry)
+        { Region GammaRight; Type Link; RegionRef GammaLeft;
+          Coefficient 1.; Function Vector[$X-lx, $Y, $Z]; }
+        { Region GammaUp; Type Link; RegionRef GammaDown;
+          Coefficient 1.; Function Vector[$X, $Y-ly, $Z]; }
+        If(!Flag_3D)
+          { Region GammaCornerFix; Type Assign; Value 0.0; }
+        EndIf
       EndIf
-        */
       If(Flag_Geometry == Half_Geometry)
-      { Region GammaUp; Type Link; RegionRef GammaDown;
-        Coefficient 1.; Function Vector[$X, $Y-ly, $Z]; }
-      { Region GammaLeft; Type Assign; Value 0.0; } 
+        { Region GammaUp; Type Link; RegionRef GammaDown;
+          Coefficient 1.; Function Vector[$X, $Y-ly, $Z]; }
+        { Region GammaLeft; Type Assign; Value 0.0; } 
       EndIf
       If(Flag_Geometry == Quarter_Geometry)
-      { Region GammaLeft; Type Assign; Value 0.0; }
-      { Region GammaDown; Type Assign; Value 0.0; } 
+        { Region GammaLeft; Type Assign; Value 0.0; }
+        { Region GammaDown; Type Assign; Value 0.0; } 
       EndIf
     }
   }
@@ -122,7 +109,7 @@ Constraint {
   { Name a_Meso_Init;
     Case {
       If(Flag_Dynamic)
-        //{ Type InitFromResolution; Region Omega; NameOfResolution a_Init; }
+        { Type InitFromResolution; Region Omega; NameOfResolution a_Init; }
       EndIf
     }
   }

@@ -101,7 +101,7 @@ Formulation {
             CompX[{a}], CompY[{a}], CompZ[{a}],
             CompX[{d a}], CompY[{d a}], CompZ[{d a}],
             CompX[Dt[{a}]], CompY[Dt[{a}]], CompZ[Dt[{a}]],
-            CompX[Dt[{d a}] ], CompY[Dt[{d a}] ], CompZ[Dt[{d a}]] ]
+            CompX[Dt[{d a}]], CompY[Dt[{d a}]], CompZ[Dt[{d a}]] ]
           {"hmm_downscale.py"} * Dof{d a_dummy} , {d a_dummy} ];
         In Domain_NL; Jacobian JVol; Integration I1; }
     }
@@ -135,9 +135,6 @@ Resolution {
     }
     Operation {
       CreateDirectory[Dir_Macro];
-      InitSolution[A];
-
-      //PostOperation[ globalquantities ];
 
       If(!Flag_Dynamic)
         Evaluate[ Python[0, 0]{"hmm_initialize.py"} ];
@@ -157,6 +154,7 @@ Resolution {
       EndIf
 
       If(Flag_Dynamic)
+      InitSolution[A] ; SaveSolution[A] ;
         TimeLoopTheta[ time0, timemax, dtime, theta_value]{
           Evaluate[ Python[$Time, $TimeStep]{"hmm_initialize.py"} ];
           IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
@@ -209,7 +207,7 @@ PostProcessing {
             In Domain_NL; Jacobian JVol; Integration I1; } // makes no sense
         } }
 
-      { Name MagneticEnergy_Upscaled_Local; Value {
+      { Name MagneticPower_Upscaled_Local; Value {
           If(!Flag_Dynamic)
             Local { [ nu[] * SquNorm[{d a}] ]; In Domain_L; Jacobian JVol; }
           EndIf
@@ -220,7 +218,7 @@ PostProcessing {
             In Domain_NL; Jacobian JVol; }
         } }
 
-      { Name MagneticEnergy_Upscaled; Value {
+      { Name MagneticPower_Upscaled; Value {
           If(!Flag_Dynamic)
             Integral { [ nu[] * SquNorm[{d a}] ];
               In Domain_L; Jacobian JVol; Integration I1; }
@@ -233,13 +231,37 @@ PostProcessing {
             In Domain_NL; Jacobian JVol; Integration I1; }
         } }
 
+      { Name MagneticEnergy_Upscaled_Local; Value {
+          If(!Flag_Dynamic)
+            Local { [ nu[] * SquNorm[{d a}] ]; In Domain_L; Jacobian JVol; }
+          EndIf
+          If(Flag_Dynamic)
+            Local { [ nu[] * {d a} * {d a}  ]; In Domain_L; Jacobian JVol; }
+          EndIf
+          Local { [ Python[ElementNum[], QuadraturePointIndex[], 3]{"hmm_upscale.py"} ];
+            In Domain_NL; Jacobian JVol; }
+        } }
+
+      { Name MagneticEnergy_Upscaled; Value {
+          If(!Flag_Dynamic)
+            Integral { [ nu[] * SquNorm[{d a}] ];
+              In Domain_L; Jacobian JVol; Integration I1; }
+          EndIf
+          If(Flag_Dynamic)
+            Integral { [ nu[] * {d a} * {d a} ];
+              In Domain_L; Jacobian JVol; Integration I1; }
+          EndIf
+          Integral { [ Python[ElementNum[], QuadraturePointIndex[], 3]{"hmm_upscale.py"} ];
+            In Domain_NL; Jacobian JVol; Integration I1; }
+        } }
+
       { Name JouleLosses_Upscaled_Local; Value {
           If(!Flag_Dynamic)
             Local { [ 0.0 ]; In Domain_L; Jacobian JVol; }
           EndIf
           If(Flag_Dynamic)
             Local { [ 0.0 ]; In Domain_L; Jacobian JVol; }
-            Local { [ Python[ElementNum[], QuadraturePointIndex[], 3]{"hmm_upscale.py"} ];
+            Local { [ Python[ElementNum[], QuadraturePointIndex[], 4]{"hmm_upscale.py"} ];
               In Domain_NL; Jacobian JVol; }
           EndIf
         } }
@@ -250,7 +272,7 @@ PostProcessing {
           EndIf
           If(Flag_Dynamic)
             Integral { [ 0.0 ]; In Domain_L; Jacobian JVol; Integration I1; }
-            Integral { [ Python[ElementNum[], QuadraturePointIndex[], 3]{"hmm_upscale.py"} ];
+            Integral { [ Python[ElementNum[], QuadraturePointIndex[], 4]{"hmm_upscale.py"} ];
               In Domain_NL; Jacobian JVol; Integration I1; }
           EndIf
         } }
@@ -281,12 +303,6 @@ PostOperation {
       Print[ b, OnElementsOf Domain, File StrCat[Dir_Macro,"b_hmm.pos"] ];
       Print[ h, OnElementsOf Domain, File StrCat[Dir_Macro,"h_hmm.pos"] ];
       Print[ js, OnElementsOf Domain_S, File StrCat[Dir_Macro,"js.pos"] ];
-      //Print[ MagneticEnergy_Macro_Local, OnElementsOf Domain,
-      //       File StrCat[Dir_Macro,"MagneticEnergy_Macro_Local.pos"] ];
-      //Print[ MagneticEnergy_Upscaled_Local, OnElementsOf Domain,
-      //       File StrCat[Dir_Macro,"MagneticEnergy_Upscaled_Local.pos"] ];
-      //Print[ JouleLosses_Upscaled_Local, OnElementsOf Domain_NL,
-      //       File StrCat[Dir_Macro,"JouleLosses_Upscaled_Local.pos"] ];
     }
   }
 
@@ -294,6 +310,8 @@ PostOperation {
     Operation {
       Print[ MagneticEnergy_Macro[Domain], OnGlobal, Format TimeTable,
         File > StrCat[Dir_Macro, "MagneticEnergy_Macro.dat" ], LastTimeStepOnly ] ;
+      Print[ MagneticPower_Upscaled[Domain], OnGlobal, Format TimeTable,
+        File > StrCat[Dir_Macro, "MagneticPower_Upscaled.dat" ], LastTimeStepOnly ] ;
       Print[ MagneticEnergy_Upscaled[Domain], OnGlobal, Format TimeTable,
         File > StrCat[Dir_Macro, "MagneticEnergy_Upscaled.dat" ], LastTimeStepOnly ] ;
       Print[ JouleLosses_Upscaled[Domain_NL], OnGlobal, Format TimeTable,

@@ -51,12 +51,12 @@ Function {
   nu_1a[]             = aa + bb * Exp[cc*SquNorm[$1]] ; // $1 => b ={d a}
   dnudb2_1a[]         = bb *cc* Exp[cc*SquNorm[$1]] ;
   h_1a[]              = nu_1a[$1#1] * #1 ;
-  dhdb_1a[]           = TensorDiag[1,1,1] * nu_1a[$1#1] + 2*dnudb2_1a[#1] * SquDyadicProduct[#1]  ;
-  dhdb_1a_NL[]        = 2*dnudb2_1a[$1#1] * SquDyadicProduct[#1]  ;
+  dhdb_1a[]           = TensorDiag[1., 1., 1.] * nu_1a[$1#1] + 2 * dnudb2_1a[#1] * SquDyadicProduct[#1]  ;
+  dhdb_1a_NL[]        = 2 * dnudb2_1a[$1#1] * SquDyadicProduct[#1]  ;
 
   //Defining the magnetic law
   //=========================
-  nu[DomainL] = 1./mu0 ;
+  nu[DomainL] = nu0 * TensorDiag[1., 1., 1.] ;
   If(!Flag_NL) // For testing purposes
     nu[DomainNL]      = nuIron ;
     h[]               = nu[] * $1 ;
@@ -64,10 +64,10 @@ Function {
     dhdb_NL[]         = nu[] * TensorDiag[0., 0., 0.] ;
   EndIf
   If(Flag_NL)
-    h[]               = h_1a[$1];
-    dhdb[]            = dhdb_1a[$1];
-    nu[#{Iron}]       = nu_1a[$1];
-    dhdb_NL[]         = dhdb_1a_NL[$1];
+    h[DomainNL]       = h_1a[$1];
+    dhdb[DomainNL]    = dhdb_1a[$1];
+    nu[DomainNL]      = nu_1a[$1];
+    dhdb_NL[DomainNL] = dhdb_1a_NL[$1];
   EndIf
 
   If(!Flag_3D)
@@ -88,10 +88,12 @@ Function {
   timemax             = T * NbT ;
   dtime               = T/NbSteps ;
   theta_value         = 1;
-  Nb_max_iter         = 10;
-  reltol              = 1e-8;
-  abstol              = 1e-8;
-  relaxation_factor[] = ($Iteration < Nb_max_iter/2) ? 1: 0.3;
+  Nb_max_iter         = 5;
+  reltol              = 1e-12;
+  abstol              = 1e-12;
+  relaxation_factor[] = 1.;
+  RelaxFac_Lin = LinSpace[1, 0.1, 20];
+  TestAllFactors = 1;
 }
 
 Constraint {

@@ -85,6 +85,11 @@ Transfinite Line{-li[8],li[10]}   = Lay1 Using Progression Pro1; // Prog1
 Transfinite Surface{surfind[]};
 Recombine Surface{surfind[]};
 
+Hide{ Line{li[{5}], li[{7}]}; }
+If(Flag_3D)
+Hide{ Line{li[{2}]}; }
+EndIf
+
 laxis[] += li[9];
 lind_middle[] += li[0];
 bndind[] += CombinedBoundary{Surface{surfind[]};};

@@ -1,24 +1,41 @@
 DefineConstant[
   Flag_NL = {1, Choices{0,1},
     Name "Parameters/0Non-linear meso material"},
+
   Flag_Dynamic = {1, Choices{0,1},
     Name "Parameters/1Dynamic analysis"}
+
+  Flag_ConductingIsolation = {0, Choices{0,1},
+    Name "Input/11Conducting Isolation", Visible Flag_Dynamic}
+
   Flag_PostCuts = {1, Choices{0,1},
     Name "Parameters/2Post-process meso problem on cuts"},
+
+  Flag_TreeCotreeGauge = {0, Choices{0,1},
+    Name "Parameters/0Currents in the plane or 3D"},
+
+  //Flag_CoulombGauge = {0, Choices{0,1},
+  //  Name "Parameters/0Currents in the plane or 3D"},
+
   Flag_3D = {1, Choices{0,1},
     Name "Parameters/0Currents in the plane or 3D"},
+
   Flag_Geometry = {2, Choices{0,1,2},
   Name "Parameters/0Half geometry for mesoproblems or not"}
+
   Freq = {50000,
     Name "Parameters/Frequency", Visible Flag_Dynamic},
-  NbT = {2./50.,
+
+  NbT = {20./20.,
     Name "Parameters/Number of periods", Visible Flag_Dynamic},
-  NbSteps = {50,
+
+  NbSteps = {20,
     Name "Parameters/Steps per period", Visible Flag_Dynamic}
 ];
 
 // FIXME:
-source_amplitude = Flag_3D ? 7e7 : 700.e7;
+source_amplitude = Flag_3D ? 7e5 : 700.e7;
+//source_amplitude = 700.e7;
 
 Quarter_Geometry = 0;
 Half_Geometry    = 1;
@@ -47,16 +64,16 @@ micron    = 1e-6;        // the micron
 d         = 45 * micron; // thickness of conductor
 e         = 50 * micron; // thickness of smc grain
 eps       = e;
-n_smc     = 10;          // number of SMC grains for reference calculation
+n_smc     = 2;          // number of SMC grains for reference calculation
 nlai      = 4;          //
 LX        = e * n_smc;      // width of the entire SMC structure
 LY        = LX;
 w_ind     = 1 * e;
-rla_ind   = 2.5 * e; // minimum distance between lamination and inductor (radious)
+rla_ind   = 0.25* e; // minimum distance between lamination and inductor (radious)
 gap_ind   = (n_smc <= 2) ? (0.5 * e) : e;
 xlam      = LX; //w_lam/2;
 ylam      = LX;
-x_air     = 7.5 * (LX + rla_ind + w_ind);
+x_air     = 5 * (LX + rla_ind + w_ind);
 y_air     = x_air;
 d_inf     = 0.5 * x_air;
 Val_Rint  = x_air;
@@ -65,27 +82,28 @@ Val_Rext  = x_air + d_inf;
 // Common characteristic lengths
 pind        = w_ind/2;
 plam        = d/8; // lc for the homogenized domain
-lca         = 5 * e; // lc for the inf transfo domain
-lc_smc_iso  = d/20. ;
-lc_smc_cond = e/40. ;
+//lca         = 0.5 * e; // lc for the inf transfo domain
+lca         = 0.5 * e; // lc for the inf transfo domain
+lc_smc_iso  = d/15. ;
+lc_smc_cond = e/30. ;
 DefineConstant[Lay1 = 31];
 DefineConstant[Lay2 = 31];
 DefineConstant[Lay3 = 16];
-DefineConstant[Lay_X = 7];
-DefineConstant[Lay_Y = 7];
+DefineConstant[Lay_X = 3];
+DefineConstant[Lay_Y = 2];
 Pro1        = 1.0;
 Pro2        = 1.0;
 Pro3        = 1.0;
 Pro_X       = 1.0;//0.95;
 Pro_Y       = 1.0;//.95;
-n_thickness = 6;
-n_circle    = 16;
+n_thickness = 21;
+n_circle    = 61;
 
 // meso dimensions
 lx          = e;   // length of the cell
 ly          = lx;       //
-lc_ext      = e/20.0; // characteristic length for points in the insulator
-lc_int      = e/40.0; // characteristic length for points in the conductor
+lc_ext      = e/15.0; // characteristic length for points in the insulator
+lc_int      = e/30.0; // characteristic length for points in the conductor
 r_c         = 5.e-6;    // radius of the chamfer
 d_i         = 5.e-6;    // thickness of the insulator
 n_1         = 41;       // subdivisions along length of insulation layer
@@ -100,6 +118,17 @@ INDUCTOR    = 10005;
 OMEGA_INF   = 10006;
 ISOLATION   = 10007;
 CONDUCTOR   = 10008; // ! (CONDUCTOR + i) is defined
+
+
+SKIN_COND   = 56000;
+SKIN_COND_ISO = 56100;
+POINT_INF   = 11111;
+
+
+DomainS0_1 = 1000000;
+DomainS0_2 = 1000001;
+DomainS0_3 = 1000002;
+DomainS0_4 = 1000003;
 
 // Physical groups for meso problem
 GAMMA_POINT = 1000; // point used for fixing the value of the

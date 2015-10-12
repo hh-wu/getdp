@@ -20,17 +20,9 @@ Group {
   If(!Flag_Dynamic)
     Surf_a_NoGauge = Region [ {GammaLeft, GammaRight, GammaUp, GammaDown} ];
   EndIf
-    If(Flag_Dynamic && ((Flag_Geometry != Half_Geometry) && (Flag_Geometry != Quarter_Geometry)))
+  If(Flag_Dynamic)
     Surf_a_NoGauge = Region [ {GammaLeft, GammaRight, GammaUp, GammaDown,
         Skin_Omega_C} ] ;
-  EndIf
-  If(Flag_Dynamic && (Flag_Geometry == Half_Geometry))
-      Surf_a_NoGauge = Region [ {GammaLeft_NB, GammaRight, GammaUp, GammaDown,
-                                 Skin_Omega_C} ] ;   
-  EndIf  
-  If(Flag_Dynamic && (Flag_Geometry == Quarter_Geometry))
-      Surf_a_NoGauge = Region [ {GammaLeft_TH, GammaRight, GammaUp, GammaDown_TH,
-                                 Skin_Omega_C} ] ;   
   EndIf
 }
 
@@ -103,11 +95,17 @@ FunctionSpace{
         Constraint {
           { NameOfCoef ae;  EntityType EdgesOf ; NameOfConstraint a_Meso; }
           { NameOfCoef aec; EntityType EdgesOf ; NameOfConstraint a_Meso; }
-          //{ NameOfCoef ae;  EntityType EdgesOf ; NameOfConstraint a_Meso_Init; }
+          { NameOfCoef ae;  EntityType EdgesOf ; NameOfConstraint a_Meso_Init; }
           { NameOfCoef aec; EntityType EdgesOf ; NameOfConstraint a_Meso_Init; }
-          // Initial solution only in Omega_C. The solution in Omega_CC is set to zero???
-          { NameOfCoef ae;  EntityType EdgesOfTreeIn ; EntitySubType StartingOn ;
-            NameOfConstraint GaugeCondition_a ; }// Tree only in Omega_CC
+          { NameOfCoef ae;  EntityType EdgesOfTreeIn; EntitySubType StartingOn;
+            NameOfConstraint GaugeCondition_a; }
+        }
+      }
+      { Name Hgrad_phi_meso~{iP} ; Type Form0 ;
+        BasisFunction {
+          { Name sn; NameOfCoef phin; Function BF_Region; Support Omega_C; Entity VolumesOf[ Omega_C ]; }
+        }
+        Constraint {
         }
       }
     EndIf
@@ -135,6 +133,9 @@ Formulation {
           { Name I; Type Global; NameOfSpace Hregion_u_2D~{iP}[I]; }
           { Name U; Type Global; NameOfSpace Hregion_u_2D~{iP}[U]; }
         EndIf
+        If(Flag_Dynamic && Flag_3D)
+          { Name eta; Type Local; NameOfSpace Hgrad_phi_meso~{iP}; }
+        EndIf
       }
       Equation {
         Galerkin { [ nu[ {d a}+bM[]+Pert~{iP}[] ] * Dof{d a} , {d a} ];
@@ -149,9 +150,9 @@ Formulation {
         If(Flag_Dynamic)
           Galerkin { DtDof[ sigma[] * Dof{a} , {a} ];
             In Omega_C; Jacobian Vol; Integration II; }
-          Galerkin { [ - sigma[] * eM[] , {a} ];
+          Galerkin { [ - 0 * sigma[] * eM[] , {a} ];
             In Omega_C; Jacobian Vol; Integration II; }
-          Galerkin { [ sigma[] * ( factor * dt_bM[] /\ XYZ[] ) , {a} ];
+          Galerkin { [ sigma[] * ( kappa * dt_bM[] /\ XYZ[] ) , {a} ];
             In Omega_C; Jacobian Vol; Integration II; }
 
           If(!Flag_3D)
@@ -161,13 +162,20 @@ Formulation {
               In Omega_C; Jacobian Vol; Integration II; }
             Galerkin { [ sigma[] * Dof{ur} , {ur} ];
               In Omega_C; Jacobian Vol; Integration II; }
-            Galerkin { [ - sigma[] * eM[] , {ur} ];
+            Galerkin { [ - 0 * sigma[] * eM[] , {ur} ];
               In Omega_C; Jacobian Vol; Integration II; }
-            Galerkin { [ sigma[] * ( factor * dt_bM[] /\ XYZ[] ) , {ur} ];
+            Galerkin { [ 0 * sigma[] * ( kappa * dt_bM[] /\ XYZ[] ) , {ur} ];
               In Omega_C; Jacobian Vol; Integration II; }
             GlobalTerm { [ Dof{I} , {U} ];
               In Omega_C; }
-            EndIf
+          EndIf
+            //If(Flag_3D)
+          If(0)
+            Galerkin { [ 0 * Dof{d eta} , {a} ];
+              In Omega_C; Jacobian Vol; Integration II; }
+            Galerkin { DtDof [ sigma[] * Dof{a} , {eta} ];
+              In Omega_C; Jacobian Vol; Integration II; }
+          EndIf
         EndIf
       }
     }
@@ -184,7 +192,7 @@ Resolution {
     }
     Operation {
       If(TSCURRENT > 1)
-        GmshRead[StrCat(StrCat("Input_", Dir_Meso), Sprintf("a_pert_Prob1_TS%g_Elenum%g.pos",
+        GmshRead[StrCat(Dir_Meso, Sprintf("a_pert_Prob1_TS%g_Elenum%g.pos",
               (TSCURRENT - 1), ELENUM) ) , 0];
       EndIf
       For iP In {1:Nbr_SubProblems}
@@ -192,11 +200,11 @@ Resolution {
       EndFor
       If(TSCURRENT > 2)
         // file will not be used for computations or postCuts
-        DeleteFile[StrCat(StrCat("Input_", Dir_Meso), Sprintf("a_pert_Prob1_TS%g_Elenum%g.pos",
+        DeleteFile[StrCat(Dir_Meso, Sprintf("a_pert_Prob1_TS%g_Elenum%g.pos",
               (TSCURRENT - 2), ELENUM) ) ];
       EndIf
     }
-  }
+ } 
   { Name a_NR;
     System {
       For iP In {1:Nbr_SubProblems}
@@ -219,8 +227,10 @@ Resolution {
             IterativeLoop[NbrMaxIter, Eps, Relax]{
               GenerateJac[Meso~{iP}]; SolveJac[Meso~{iP}];
             }
-            SaveSolution[Meso~{iP}];
           }
+          If(iP == 1)
+            PostOperation[init_field_1];
+          EndIf
         EndIf
       EndFor
     }
@@ -236,12 +246,21 @@ PostProcessing {
         { Name a_pert; Value {
             Term { [ {a} ]; In Omega; Jacobian Vol; } } }
         { Name a_proj; Value {
-            Term { [ aM[] ]; In Omega; Jacobian Vol; }
-            Term { [ ( - factor * (XYZ[]) /\ bM[] ) ]; In Omega; Jacobian Vol; } } }
+            Term { [ ( aM[] ) ]; In Omega; Jacobian Vol; }
+            Term { [ ( - kappa * (XYZ[]) /\ bM[] ) ]; In Omega; Jacobian Vol; } } }
         { Name a; Value {
             Term { [ {a} ]; In Omega; Jacobian Vol; }
             Term { [ aM[] ]; In Omega; Jacobian Vol; }
-            Term { [ ( - factor * (XYZ[]) /\ bM[] ) ]; In Omega; Jacobian Vol; } } }
+            Term { [  ( - kappa * (XYZ[]) /\ bM[] ) ]; In Omega; Jacobian Vol; } } }
+        { Name az_pert; Value {
+            Term { [ CompZ[{a}] ]; In Omega; Jacobian Vol; } } }
+        { Name az_proj; Value {
+            Term { [ CompZ[ ( aM[] ) ] ]; In Omega; Jacobian Vol; }
+            Term { [ CompZ[ ( - kappa * (XYZ[]) /\ bM[] ) ] ]; In Omega; Jacobian Vol; } } }
+        { Name az; Value {
+            Term { [ CompZ[{a}] ]; In Omega; Jacobian Vol; }
+            Term { [ CompZ[ aM[] ] ]; In Omega; Jacobian Vol; }
+            Term { [ CompZ[ ( - kappa * (XYZ[]) /\ bM[] ) ] ]; In Omega; Jacobian Vol; } } }
         { Name b_pert; Value { Term { [ {d a} ]; In Omega; Jacobian Vol;  } } }
         { Name b_proj; Value { Term { [ bM[] ]; In Omega; Jacobian Vol;  } } }
         { Name b; Value {
@@ -272,8 +291,8 @@ PostProcessing {
 
         If(Flag_Dynamic)
           { Name e_proj; Value {
-              Term { [ factor * ( XYZ[] /\ dt_bM[] ) ]; In Omega_C; Jacobian Vol;  } } }
-          { Name j_proj; Value { Term { [ factor * sigma[] * ( XYZ[] /\ dt_bM[] ) ];
+              Term { [ kappa * ( XYZ[] /\ dt_bM[] ) ]; In Omega_C; Jacobian Vol;  } } }
+          { Name j_proj; Value { Term { [ kappa * sigma[] * ( XYZ[] /\ dt_bM[] ) ];
                 In Omega_C; Jacobian Vol;  } } }
 
           If(!Flag_3D)
@@ -284,18 +303,16 @@ PostProcessing {
             { Name e; Value {
                 Term { [ - Dt[{a}] ]; In Omega_C; Jacobian Vol;  }
                 Term { [ - {ur} ]; In Omega_C; Jacobian Vol;  }
-                Term { [ factor * ( XYZ[] /\ dt_bM[] ) ]; In Omega_C; Jacobian Vol;} } }
+                Term { [ kappa * ( XYZ[] /\ dt_bM[] ) ]; In Omega_C; Jacobian Vol;} } }
             { Name j_pert; Value {
                 Term { [ - sigma[] * Dt[{a}] ]; In Omega_C; Jacobian Vol;  }
                 Term { [ - sigma[] * {ur} ]; In Omega_C; Jacobian Vol;  } } }
             { Name j; Value {
                 Term { [ - sigma[] * Dt[{a}] ]; In Omega_C; Jacobian Vol;  }
                 Term { [ - sigma[] * {ur} ]; In Omega_C; Jacobian Vol;  }
-                Term { [   factor * sigma[] * ( XYZ[] /\ dt_bM[] ) ];
-                  In Omega_C; Jacobian Vol;  } } }
+                Term { [   kappa * sigma[] * ( XYZ[] /\ dt_bM[] ) ]; In Omega_C; Jacobian Vol;  } } }
             { Name JouleLosses_mean; Value{ // stored in #25
-                Integral { [ ( sigma[] * SquNorm[ Dt[{a}] + {ur} -
-                        factor * ( XYZ[] /\ dt_bM[] ) ] )/#12 ];
+                Integral { [ ( sigma[] * SquNorm[ Dt[{a}] + {ur} - kappa * ( XYZ[] /\ dt_bM[] ) ] )/#12 ];
                   In Omega_C; Jacobian Vol; Integration II; } } }
           EndIf
           If(Flag_3D)
@@ -304,25 +321,27 @@ PostProcessing {
               } }
             { Name e; Value {
                 Term { [ - Dt[{a}] ]; In Omega_C; Jacobian Vol;  }
-                Term { [ factor * ( XYZ[] /\ dt_bM[] ) ]; In Omega_C; Jacobian Vol;} } }
+                Term { [ kappa * ( XYZ[] /\ dt_bM[] ) ]; In Omega_C; Jacobian Vol;} } }
             { Name j_pert; Value {
                 Term { [ - sigma[] * Dt[{a}] ]; In Omega_C; Jacobian Vol;  }
               } }
             { Name j; Value {
                 Term { [ - sigma[] * Dt[{a}] ]; In Omega_C; Jacobian Vol;  }
-                Term { [   factor * sigma[] * ( XYZ[] /\ dt_bM[] ) ];
+                Term { [   kappa * sigma[] * ( XYZ[] /\ dt_bM[] ) ];
                   In Omega_C; Jacobian Vol;  } } }
             { Name JouleLosses_mean; Value{ // stored in #25
                 Integral { [ ( sigma[] * SquNorm[ Dt[{a}] -
-                        factor * ( XYZ[] /\ dt_bM[] ) ] )/#12 ];
+                        kappa  * ( XYZ[] /\ dt_bM[] ) ] )/#12 ];
                   In Omega_C; Jacobian Vol; Integration II; } } }
           EndIf
 
-          { Name MagneticEnergy_mean; Value{
-              // stored in #27. Contribution of the current time step to the
-              // integral \oint (h db)
+          { Name MagneticPower_mean; Value{
               Integral { [ ( nu[ {d a} + bM[] + Pert~{iP}[]] *
                     ({d a} + bM[] + Pert~{iP}[] ) * (Dt[{d a}] + dt_bM[]) )/#12 ];
+                In Omega; Jacobian Vol; Integration II; } } }
+          { Name MagneticEnergy_mean; Value{
+              Integral { [ ( nu[ {d a} + bM[] + Pert~{iP}[]] *
+                    ({d a} + bM[] + Pert~{iP}[] ) * ({d a} + bM[]) )/#12 ];
                 In Omega; Jacobian Vol; Integration II; } } }
         EndIf
       }
@@ -344,14 +363,15 @@ PostOperation {
         If(iP == 1)
           Print[ JouleLosses_mean[Omega_C], OnGlobal, Store 25,
             File StrCat[Dir_Meso, Sprintf("JouleLosses_%g.txt", ELENUM) ]];
-          Print[ MagneticEnergy_mean[Omega], OnGlobal, Store 28,
+          Print[ MagneticPower_mean[Omega], OnGlobal, Store 28,
+            File StrCat[Dir_Meso, Sprintf("MagneticPower_%g.txt", ELENUM) ] ];
+          Print[ MagneticEnergy_mean[Omega], OnGlobal, Store 31,
             File StrCat[Dir_Meso, Sprintf("MagneticEnergy_%g.txt", ELENUM) ] ];
         EndIf
       }
     }
     { Name map_field~{iP}; NameOfPostProcessing a_Meso_NR~{iP};
-      //      LastTimeStepOnly; Format Gmsh;
-      Format Gmsh;
+      LastTimeStepOnly; Format Gmsh;
       Operation {
         If(!Flag_Dynamic)
           Print[ a_pert, OnElementsOf Omega,
@@ -433,6 +453,10 @@ PostOperation {
       Operation {
         Print[ a_pert, OnElementsOf Omega,
           File StrCat[Dir_Meso, Sprintf("a_pert_Prob%g_TS%g_Elenum%g.pos",
+                                        iP, TSCURRENT, ELENUM) ],
+          Format Gmsh, LastTimeStepOnly, OverrideTimeStepValue 0 ];
+        Print[ az_pert, OnElementsOf Omega,
+          File StrCat[Dir_Meso, Sprintf("az_pert_Prob%g_TS%g_Elenum%g.pos",
                                         iP, TSCURRENT, ELENUM) ],
           Format Gmsh, LastTimeStepOnly, OverrideTimeStepValue 0 ];
       }
