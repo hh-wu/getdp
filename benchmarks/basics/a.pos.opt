@@ -1,0 +1,3 @@
+k=PostProcessing.NbViews - 1 ; 
+View[k].IntervalsType = 1;
+View[k].NbIso = 50;
