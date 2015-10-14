@@ -33,7 +33,7 @@ if filename:
     ncpus = len(nodes)
     f.close()
 else:
-    ncpus = 18
+    ncpus = 16
     nodes = ["localhost" for x in range(ncpus)]
     f = open(file_dir + "getdp.sh", "w")
     f.write("#!/bin/sh\n{0} $*\n".format(sys.argv[0])) # same getdp as for macro computation

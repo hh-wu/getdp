@@ -1,4 +1,4 @@
-Include "smc_data.pro";
+Include "smc_data_edge.pro";
 
 Group {
   Air = Region[ AIR ];
@@ -12,6 +12,14 @@ Group {
   Domain_L = Region[ {Air, Domain_S, Domain_Inf} ];
   Domain = Region[ {Core, Air, Domain_S, Domain_Inf} ];
 
+  If(Flag_Macro_EddyCurrent == 0)
+    Domain_C  = Region[ {} ];
+    Domain_CC = Region[ {Core, Air, Domain_S, Domain_Inf} ];
+  EndIf
+  If(Flag_Macro_EddyCurrent != 0)
+    Domain_C  = Region[ {Core} ];
+    Domain_CC = Region[ {Air, Domain_S, Domain_Inf} ];
+  EndIf
   If(!Flag_3D)
     Dirichlet_a_0 = Region[{GAMMA_INF, SYMMETRY_Y0}];
   EndIf
@@ -48,25 +56,18 @@ Function {
     js[] = js0[] * F_Sin_wt_p[]{2 * Pi * Freq, Flag_Dynamic ? 0 : Pi/2};
   EndIf
   If(Flag_3D)
-    /*
-      alpha[] = Pi/2-Atan2[(Y[]-ylam),(X[]-xlam)];
-      js0[] = (X[] < xlam) ? Vector[-source_amplitude, 0, 0] :
-      (Y[] < ylam) ? Vector[0, source_amplitude, 0] :
-      Vector[ -Cos[alpha[]] * source_amplitude, Sin[alpha[]] * source_amplitude, 0 ];
-      js[] = js0[] * F_Sin_wt_p[]{2 * Pi * Freq, Flag_Dynamic ? 0 : Pi/2};
-    */
     alpha[] = Atan2[Y[],X[]];
     js0[] =  source_amplitude* Vector[ -Sin[alpha[]], Cos[alpha[]], 0 ];
     js[] = js0[] * F_Sin_wt_p[]{2 * Pi * Freq, Flag_Dynamic ? 0 : Pi/2};
   EndIf
-
-  T                 = 1./Freq;
-  Omega             = 2 * Pi * Freq;
-  time0             = 0.;
-  timemax           = T * NbT;
-  dtime             = T/NbSteps;
-  theta_value       = 1;
-
+    
+  T                   = 1./Freq;
+  Omega               = 2 * Pi * Freq;
+  time0               = 0.;
+  timemax             = T * NbT;
+  dtime               = T/NbSteps;
+  theta_value         = 1;
+  
   Nb_max_iter         = 5;
   stop_criterion      = 1e-12;
   relaxation_factor[] = ($Iteration < Nb_max_iter/2) ? 1: 0.3;
@@ -74,6 +75,22 @@ Function {
   abstol              = 1e-12;
   RelaxFac_Lin        = LinSpace[1, 0.1, 20];
   TestAllFactors      = 1;
+}
+
+Constraint {
+  { Name a;
+    Case {
+      { Region Dirichlet_a_0; Value 0.; }
+    }
+  }
+  
+  //==============================================
+  // Constraint for Coulomb gauging
+  { Name phi  ; Type Assign ;
+    Case {
+      { Region Dirichlet_a_0 ; Value 0. ; }
+    }
+  }
 }
 
 Include "MagStaDyn_a_macro.pro"

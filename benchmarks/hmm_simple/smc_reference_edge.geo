@@ -192,15 +192,31 @@ s_air_added = news ; Plane Surface(s_air_added) = {-ll_air_added} ;
 
 // Ruth: I think what follows is not needed
 // Air around
-pa[]+=newp ; Point(newp) = { x_air        , 0.0,           0, lca};
-pa[]+=newp ; Point(newp) = { 0.0          , y_air,         0, lca};
+pa[]+=newp ; Point(newp) = { x_air        , 0            , 0, lca};
+pa[]+=newp ; Point(newp) = { x_air + d_inf, 0            , 0, lca};
+pa[]+=newp ; Point(newp) = { 0.0          , y_air + d_inf, 0, lca};
+pa[]+=newp ; Point(newp) = { 0.0          , y_air        , 0, lca};
 
+// Outer layer of air
+//===================
 lair[]+=newl ; Line(newl)   = {p_indu2, pa[0]}; // y = 0
-lair[]+=newl ; Circle(newl) = {pa[0], p_zero, pa[1]};
-lair[]+=newl ; Line(newl)   = {pa[1], p_indu3}; // axis (x=0)
+lair[]+=newl ; Circle(newl) = {pa[0], p_zero, pa[3]};
+lair[]+=newl ; Line(newl)   = {pa[3], p_indu3}; // axis (x=0)
 
 Line Loop(newll) = {-bndind_out[],lair[{0:2}]};
 surfair_out[]+= news ; Plane Surface(news) = {newll-1};
+
+// Outer layer for infty transformation
+//=====================================
+
+lair[]+=newl ; Line(newl) = {pa[0],pa[1]};
+lair[]+=newl ; Circle(newl) = {pa[1],p_zero,pa[2]};
+lair[]+=newl ; Line(newl) = {pa[2],pa[3]};
+
+Line Loop(newll) = {lair[{3:5}], -lair[{1}]};
+surf_Inf[]+= news ; Plane Surface(news) = {newll-1};
+
+//===============================================================
 
 
 // Physical groups
@@ -214,12 +230,13 @@ For ii In {0:#s_cond[]-1}
   Physical Surface(CONDUCTOR+ii)  = s_cond[{ii}];
   Physical Line(SKIN_COND+ii) = Boundary{Surface{s_cond[{ii}]};} ;
 EndFor
+Physical Surface(OMEGA_INF) = {surf_Inf[]} ;
 //Physical Line(SKIN_COND) = Boundary{Surface{s_cond[]};} ;
 
 Physical Line(SKIN_COND_ISO) = bndlines[] ;
 
-Physical Line(GAMMA_INF)   = lair[{1}];
-Physical Line(SYMMETRY_Y0) = {ladd1, lair[{0}], x0[], li[0]};
-Physical Line(SYMMETRY_X0) = {ladd2, lair[{2}], y0[], li[2]};
+Physical Line(GAMMA_INF)   = lair[{4}];
+Physical Line(SYMMETRY_Y0) = {ladd1, lair[{0}], lair[{3}], x0[], li[0]};
+Physical Line(SYMMETRY_X0) = {ladd2, lair[{2}], lair[{5}], y0[], li[2]};
 
 Physical Point(POINT_INF) = {pa[0]};

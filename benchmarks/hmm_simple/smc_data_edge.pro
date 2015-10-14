@@ -12,10 +12,10 @@ DefineConstant[
     Name "Parameters/2Post-process meso problem on cuts"},
 
   Flag_TreeCotreeGauge = {0, Choices{0,1},
-    Name "Parameters/0Currents in the plane or 3D"},
+    Name "Parameters/0Use of the Tree-Cotree or Coulomb gauge"},
 
-  //Flag_CoulombGauge = {0, Choices{0,1},
-  //  Name "Parameters/0Currents in the plane or 3D"},
+  Flag_Macro_EddyCurrent = {0, Choices{0,1},
+    Name "Parameters/0Presence of macroscale eddy currents"},
 
   Flag_3D = {1, Choices{0,1},
     Name "Parameters/0Currents in the plane or 3D"},
@@ -34,8 +34,8 @@ DefineConstant[
 ];
 
 // FIXME:
-source_amplitude = Flag_3D ? 7e5 : 700.e7;
-//source_amplitude = 700.e7;
+//source_amplitude = Flag_3D ? 7e5 : 700.e7;
+source_amplitude = 1.e7;
 
 Quarter_Geometry = 0;
 Half_Geometry    = 1;
@@ -89,8 +89,8 @@ lc_smc_cond = e/30. ;
 DefineConstant[Lay1 = 31];
 DefineConstant[Lay2 = 31];
 DefineConstant[Lay3 = 16];
-DefineConstant[Lay_X = 3];
-DefineConstant[Lay_Y = 2];
+DefineConstant[Lay_X = 5];
+DefineConstant[Lay_Y = 5];
 Pro1        = 1.0;
 Pro2        = 1.0;
 Pro3        = 1.0;

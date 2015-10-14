@@ -1,11 +1,26 @@
 DefineConstant[ time0, timemax, dtime, theta_value, Nb_max_iter,
                 stop_criterion, relaxation_factor ];
 
+DefineConstant[
+  R_ = {"MagStaDyn_a_ref", Name "GetDP/1ResolutionChoices", Visible 1}
+  C_ = {"-solve -v 3 -v2", Name "GetDP/9ComputeCommand", Visible 1}
+  P_ = {"maps", Name "GetDP/2PostOperationChoices", Visible 1}
+  //Name "Input/Absolute tolerance on nonlinear residual"},
+  tol_rel = {1e-6,
+             Name "Input/Relative tolerance on nonlinear residual"},
+  visu = {0, Choices{0, 1}, AutoCheck 0,
+          Name "Input/Visu", Label "Real-time visualization"}
+  ];
+
 Jacobian {
   { Name JVol;
     Case {
       { Region Domain_Inf; Jacobian VolSphShell{Val_Rint, Val_Rext}; }
       { Region All; Jacobian Vol; }
+    }
+  }
+  { Name JSur;
+    Case { { Region All ; Jacobian Sur; }
     }
   }
 }
@@ -15,8 +30,9 @@ Integration {
     Case {
       { Type Gauss;
         Case {
-	  { GeoElement Triangle; NumberOfPoints 1; }
-          { GeoElement Quadrangle; NumberOfPoints 1; }
+	  { GeoElement Triangle    ; NumberOfPoints 1; }
+          { GeoElement Quadrangle  ; NumberOfPoints 1; }
+          { GeoElement Tetrahedron ; NumberOfPoints 1; }
 	}
       }
     }
@@ -24,18 +40,25 @@ Integration {
 }
 
 Group {
-  Surf_a_NoGauge = Region [ {Dirichlet_a_0} ] ;
+  If(Flag_Macro_EddyCurrent == 0)
+    Surf_a_NoGauge = Region [ {Dirichlet_a_0} ] ;
+  EndIf
+  If(Flag_Macro_EddyCurrent !=0)
+    //============
+  EndIf
 }
 
 Constraint {
-  { Name a;
-    Case {
-      { Region Dirichlet_a_0; Value 0.; }
-    }
-  }
   { Name GaugeCondition_a ; Type Assign ;
     Case {
-      { Region Domain ; SubRegion Surf_a_NoGauge ; Value 0. ; }
+      If(Flag_TreeCotreeGauge==1)
+        If(Flag_Macro_EddyCurrent == 0)
+          { Region Domain ; SubRegion Surf_a_NoGauge ; Value 0. ; }
+        EndIf
+        If(Flag_Macro_EddyCurrent != 0)
+          { Region DomainCC ; SubRegion Surf_a_NoGauge ; Value 0. ; }
+        EndIf
+      EndIf
     }
   }
 }
@@ -61,29 +84,65 @@ FunctionSpace {
       }
     }
   EndIf
-  If(Flag_3D)
-    { Name Hcurl_a; Type Form1;
+  If(Flag_3D && Flag_TreeCotreeGauge)
+    If(Flag_Macro_EddyCurrent == 0)
+      { Name Hcurl_a; Type Form1;
+        BasisFunction {
+          { Name se;  NameOfCoef ae;  Function BF_Edge; Support Domain; Entity EdgesOf[ All ]; }
+        }
+        Constraint {
+          { NameOfCoef ae;  EntityType EdgesOf ; NameOfConstraint a; }
+          { NameOfCoef ae;  EntityType EdgesOfTreeIn ; EntitySubType StartingOn ;
+            NameOfConstraint GaugeCondition_a ; }
+        }
+      }
+      { Name Hcurl_a_dummy; Type Form1;
+        BasisFunction {
+          { Name se;  NameOfCoef ae;  Function BF_Edge; Support Domain ;
+            Entity EdgesOf[ All ]; }
+        }
+        Constraint {
+          { NameOfCoef ae;  EntityType EdgesOf ; NameOfConstraint a; }
+          { NameOfCoef ae;  EntityType EdgesOfTreeIn ; EntitySubType StartingOn ;
+            NameOfConstraint GaugeCondition_a ; }
+        }
+      }
+    EndIf
+    If(Flag_Macro_EddyCurrent != 0)
+      //==============================
+    EndIf
+  EndIf
+  If(Flag_3D && (Flag_TreeCotreeGauge == 0))
+    If(Flag_Macro_EddyCurrent == 0)
+      { Name Hcurl_a; Type Form1;
+        BasisFunction {
+          { Name se;  NameOfCoef ae;  Function BF_Edge; Support Domain; Entity EdgesOf[ All ]; }
+        }
+        Constraint {
+          { NameOfCoef ae;  EntityType EdgesOf ; NameOfConstraint a; }
+        }
+      }
+      { Name Hcurl_a_dummy; Type Form1;
+        BasisFunction {
+          { Name se;  NameOfCoef ae;  Function BF_Edge; Support Domain; Entity EdgesOf[ All ]; }
+        }
+        Constraint {
+          { NameOfCoef ae;  EntityType EdgesOf ; NameOfConstraint a; }
+        }
+      }
+      { Name Hgrad_phi ; Type Form0 ;
       BasisFunction {
-        { Name se;  NameOfCoef ae;  Function BF_Edge; Support Domain ;
-          Entity EdgesOf[ All ]; }
+        { Name sn; NameOfCoef phin; Function BF_Node;
+          Support Domain; Entity NodesOf[All]; }
       }
       Constraint {
-        { NameOfCoef ae;  EntityType EdgesOf ; NameOfConstraint a; }
-        { NameOfCoef ae;  EntityType EdgesOfTreeIn ; EntitySubType StartingOn ;
-          NameOfConstraint GaugeCondition_a ; }
+        { NameOfCoef phin; EntityType NodesOf; NameOfConstraint phi; }
       }
     }
-    { Name Hcurl_a_dummy; Type Form1;
-      BasisFunction {
-        { Name se;  NameOfCoef ae;  Function BF_Edge; Support Domain ;
-          Entity EdgesOf[ All ]; }
-      }
-      Constraint {
-        { NameOfCoef ae;  EntityType EdgesOf ; NameOfConstraint a; }
-        { NameOfCoef ae;  EntityType EdgesOfTreeIn ; EntitySubType StartingOn ;
-          NameOfConstraint GaugeCondition_a ; }
-      }
-    }
+    EndIf
+    If(Flag_3D && (Flag_Macro_EddyCurrent != 0))
+      //==============================
+    EndIf
   EndIf
 }
 
@@ -110,28 +169,41 @@ Formulation {
   { Name MagSta_a_hmm; Type FemEquation;
     Quantity {
       { Name a; Type Local; NameOfSpace Hcurl_a; }
+      If(Flag_3D && (Flag_TreeCotreeGauge == 0))
+        { Name phi ; Type Local  ; NameOfSpace Hgrad_phi ; }        
+      EndIf
     }
     Equation {
-      Galerkin { [ nu[] * Dof{d a}, {d a} ];
-        In Domain_L; Jacobian JVol; Integration I1; }
-      Galerkin { [ Python[ElementNum[], QuadraturePointIndex[], 0]
-          {"hmm_upscale.py"}, {d a} ];
-        In Domain_NL; Jacobian JVol; Integration I1; }
-      Galerkin { JacNL [ Python[ElementNum[], QuadraturePointIndex[], 1]
-          {"hmm_upscale.py"} * Dof{d a} , {d a} ];
-        In Domain_NL; Jacobian JVol; Integration I1; }
-      Galerkin { [ -js[] , {a} ];
-        In Domain_S; Jacobian JVol; Integration I1; }
+      Galerkin { [ nu[] * Dof{d a}, {d a} ]; In Domain_L; Jacobian JVol; Integration I1; }
+
+      If(0)
+        Galerkin { [ Python[ElementNum[], QuadraturePointIndex[], 0]
+                     {"hmm_upscale.py"}, {d a} ]; In Domain_NL; Jacobian JVol; Integration I1; }
+        Galerkin { JacNL [ Python[ElementNum[], QuadraturePointIndex[], 1]
+                           {"hmm_upscale.py"} * Dof{d a} , {d a} ]; In Domain_NL; Jacobian JVol; Integration I1; }
+      EndIf
+      If( Flag_Macro_EddyCurrent !=0)
+        Galerkin { DtDof[ sigma_M[] * Dof{a} , {a} ]; In Domain_C ; Jacobian JVol ; Integration I ; }
+      EndIf
+
+      If(1)
+        Galerkin { [ nu[{d a}] * Dof{d a}, {d a} ]; In Domain_NL; Jacobian JVol; Integration I1; }
+      EndIf
+        
+      If( Flag_3D && (Flag_TreeCotreeGauge == 0))
+        Galerkin { [ Dof{d phi} , {a} ]; In Domain_CC; Jacobian JVol; Integration I1; }
+        Galerkin { [ Dof{a} , {d phi} ]; In Domain_CC; Jacobian JVol; Integration I1; }
+      EndIf  
+      Galerkin { [ -js[] , {a} ]; In Domain_S; Jacobian JVol; Integration I1; }
     }
   }
-
 }
 
 Resolution {
   { Name MagStaDyn_a_hmm;
     System {
       { Name A; NameOfFormulation MagSta_a_hmm; }
-      { Name Dummy; NameOfFormulation MagSta_a_hmm_init_downscaling; }
+      //{ Name Dummy; NameOfFormulation MagSta_a_hmm_init_downscaling; }
     }
     Operation {
       CreateDirectory[Dir_Macro];
@@ -156,20 +228,27 @@ Resolution {
       If(Flag_Dynamic)
       InitSolution[A] ; SaveSolution[A] ;
         TimeLoopTheta[ time0, timemax, dtime, theta_value]{
-          Evaluate[ Python[$Time, $TimeStep]{"hmm_initialize.py"} ];
-          IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
+          //Evaluate[ Python[$Time, $TimeStep]{"hmm_initialize.py"} ];
+          IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor[]]{//111 and 113
+          //IterativeLoopN[Nb_max_iter, relaxation_factor[], System{ {A, reltol, reltol, Solution  MeanL2Norm } } ] { //112
+            /*
             Generate[Dummy];
             Evaluate[ Python[Nbr_SubProblems, Flag_Dynamic, Freq, NbSteps, 0]
               {"hmm_compute.py"} ];
-            GenerateJac[A]; SolveJac[A];
+            */
+            GenerateJac[A];
+            //SolveJac[A];// 111 and 112
+            SolveJac_AdaptRelax[A, List[RelaxFac_Lin], TestAllFactors]; //113
           }
           SaveSolution[A];
-          PostOperation[ globalquantities ];
+          //PostOperation[ globalquantities ];
           If(Flag_PostCuts) // compute some meso cells around points of interest
+            /*
             Evaluate[ Python[$Time, $TimeStep]{"hmm_initialize.py"} ];
             PostOperation[ meso_computations ];
             Evaluate[ Python[Nbr_SubProblems, Flag_Dynamic, Freq, NbSteps, 1]
               {"hmm_compute.py"} ];
+            */
           EndIf
         }
       EndIf
@@ -192,8 +271,13 @@ PostProcessing {
       { Name h; Value {
           Local { [ nu[] * {d a} ]; In Domain_L; Jacobian JVol; }
           Local { [ h[ {d a}] ]; In Domain_NL; Jacobian JVol; } } }
-      { Name dt_b; Value { Local { [ Dt[{d a}] ]; In Domain; Jacobian JVol; } } }
-      { Name e; Value { Local { [ -Dt[{d a}] ]; In Domain_NL; Jacobian JVol; } } }
+      
+      If(Flag_Macro_EddyCurrent)
+      { Name e; Value { Local { [ -Dt[{a}] ]; In Domain_NL; Jacobian JVol; } } }
+      { Name j; Value { Local { [ -sigma_M[] * Dt[{a}] ]; In Domain_NL; Jacobian JVol; } } }
+      EndIf
+
+        { Name dt_b; Value { Local { [  Dt[{d a}] ]; In Domain   ; Jacobian JVol; } } }
       { Name js; Value { Local { [ js[] ]; In Domain_S; Jacobian JVol; } } }
 
       { Name MagneticEnergy_Macro_Local; Value {
@@ -263,6 +347,9 @@ PostProcessing {
             Local { [ 0.0 ]; In Domain_L; Jacobian JVol; }
             Local { [ Python[ElementNum[], QuadraturePointIndex[], 4]{"hmm_upscale.py"} ];
               In Domain_NL; Jacobian JVol; }
+            If(Flag_Macro_EddyCurrent)
+              //........  
+            EndIf
           EndIf
         } }
 
@@ -274,6 +361,9 @@ PostProcessing {
             Integral { [ 0.0 ]; In Domain_L; Jacobian JVol; Integration I1; }
             Integral { [ Python[ElementNum[], QuadraturePointIndex[], 4]{"hmm_upscale.py"} ];
               In Domain_NL; Jacobian JVol; Integration I1; }
+            If(Flag_Macro_EddyCurrent)
+              //........  
+            EndIf
           EndIf
         } }
 
@@ -302,6 +392,9 @@ PostOperation {
       Print[ a, OnElementsOf Domain, File StrCat[Dir_Macro,"a_hmm.pos"] ];
       Print[ b, OnElementsOf Domain, File StrCat[Dir_Macro,"b_hmm.pos"] ];
       Print[ h, OnElementsOf Domain, File StrCat[Dir_Macro,"h_hmm.pos"] ];
+      If (Flag_Macro_EddyCurrent)
+        Print[ e, OnElementsOf Domain, File StrCat[Dir_Macro,"e_hmm.pos"] ];
+      EndIf
       Print[ js, OnElementsOf Domain_S, File StrCat[Dir_Macro,"js.pos"] ];
     }
   }

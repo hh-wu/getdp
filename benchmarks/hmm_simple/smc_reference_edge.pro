@@ -19,18 +19,19 @@ Group {
   Isolation        = Region[ISOLATION];
   Ind              = Region[INDUCTOR];
   Air              = Region[AIR];
+  Omega_Inf        = Region[OMEGA_INF];
 
 
-  OuterBnd0 = #GAMMA_INF;
-  SymX0     = #SYMMETRY_X0;
-  SymY0     = #SYMMETRY_Y0;
+  OuterBnd0        = Region[{GAMMA_INF}]; //#GAMMA_INF;
+  SymX0            = Region[{SYMMETRY_X0}]; //#SYMMETRY_X0;
+  SymY0            = Region[{SYMMETRY_Y0}]; //#SYMMETRY_Y0;
 
   DomainS0         = Region[ {Ind} ];
 
-  DomainL          = Region[ {Air, Ind, Isolation} ] ;
+  DomainL          = Region[ {Air, Ind, Isolation, Omega_Inf} ] ;
   DomainNL         = Region[ {Iron} ];
 
-  DomainCC         = Region[ {Air, Ind} ] ;
+  DomainCC         = Region[ {Air, Ind, Omega_Inf} ] ;
   DomainC          = Region[ {} ];
   Skin_DomainC     = Region[ {} ];
 

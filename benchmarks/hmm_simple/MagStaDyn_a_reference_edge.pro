@@ -24,10 +24,14 @@ DefineConstant[
 Jacobian {
   { Name JVol ;
     Case {
+      { Region Domain_Inf; Jacobian VolSphShell{Val_Rint, Val_Rext}; }
       { Region All ; Jacobian Vol ; }
     }
   }
-  { Name JSur ; Case { { Region All ; Jacobian Sur; } } }
+  { Name JSur;
+    Case { { Region All ; Jacobian Sur; }
+    }
+  }
 }
 
 Integration {
