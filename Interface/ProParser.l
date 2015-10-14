@@ -502,7 +502,7 @@ void skipUntil(const char *skip, const char *until)
 {
   int l, l_skip, l_until;
   char chars[256];
-  int c_next, c_next_skip, c_next_until;
+  int c_next, c_next_skip, c_next_until, c_previous = 0;
 
   int nb_skip = 0;
 
@@ -527,8 +527,15 @@ void skipUntil(const char *skip, const char *until)
         else if(c_next ==  '/') cxxStyleComments();
         else unput(c_next);
       }
-      if(chars[0] == until[0]) break;
-      if(skip && chars[0] == skip[0]) break;
+      if(!c_previous
+         || (!(c_previous>='a' && c_previous<='z')
+             && !(c_previous>='A' && c_previous<='Z')
+             && c_previous!='_')
+         ){
+        if(chars[0] == until[0]) break;
+        if(skip && chars[0] == skip[0]) break;
+      }
+      c_previous = chars[0];
     }
 
     l = (l_skip > l_until) ? l_skip : l_until;
