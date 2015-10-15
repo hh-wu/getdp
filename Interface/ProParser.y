@@ -61,8 +61,11 @@ static int Current_DofIndexInWholeQuantity = 0, Last_DofIndexInWholeQuantity = 0
 static int Current_NoDofIndexInWholeQuantity = 0;
 static int Current_System = 0, Constraint_Index = 0;
 static int TypeOperatorDofInTrace = 0, DefineQuantityIndexDofInTrace = 0;
-static int ImbricatedLoop = 0;
+static int ImbricatedLoop = 0, ImbricatedTest = 0;
 static char *StringForParameter = 0;
+
+#define MAX_RECUR_TESTS 100
+static int statusImbricatedTests[MAX_RECUR_TESTS];
 
 #define MAX_RECUR_LOOPS 100
 static fpos_t FposImbricatedLoopsTab[MAX_RECUR_LOOPS];
@@ -184,14 +187,15 @@ struct doubleXstring{
 %token  tStrCat tSprintf tPrintf tMPI_Printf tRead tPrintConstants tStrCmp
 %token  tStrChoice tUpperCase tLowerCase tLowerCaseIn
 %token  tNbrRegions tGetRegion tNameFromString tStringFromName
-%token  tFor tEndFor tIf tElse tEndIf tWhile tMacro tReturn tCall tCallTest
+%token  tFor tEndFor tIf tElseIf tElse tEndIf tMacro tReturn tCall tCallTest
+%token  tTest tWhile
 %token  tFlag
 %token  tInclude
 %token  tConstant tList tListAlt tLinSpace tLogSpace tListFromFile
 %token  tChangeCurrentPosition
 %token  tDefineConstant tUndefineConstant tDefineNumber tDefineString
 
-%token  tPi tMPI_Rank tMPI_Size t0D t1D t2D t3D
+%token  tPi tMPI_Rank tMPI_Size t0D t1D t2D t3D tTestLevel
 %token  tTotalMemory tCurrentDirectory
 %token  tGETDP_MAJOR_VERSION tGETDP_MINOR_VERSION tGETDP_PATCH_VERSION
 
@@ -4183,7 +4187,7 @@ OperationTerm :
       Operation_P->Type = OPERATION_BREAK;
     }
 
-  | tIf '[' Expression ']' '{' Operation '}'
+  | tTest '[' Expression ']' '{' Operation '}'
     {
       List_Pop(Operation_L);
       Operation_P = (struct Operation*)
@@ -4192,9 +4196,11 @@ OperationTerm :
       Operation_P->Case.Test.ExpressionIndex = $3;
       Operation_P->Case.Test.Operation_True = $6;
       Operation_P->Case.Test.Operation_False = NULL;
+
+      Message::Warning("line %ld : New syntax for 'Test' Operation: use ':' and not 'Else' anymore", getdp_yylinenum);
     }
 
-  | tIf '[' Expression ']' '{' Operation '}'  tElse '{' Operation '}'
+  | tTest '[' Expression ']' '{' Operation '}' tDOTS '{' Operation '}'
     {
       List_Pop(Operation_L);
       List_Pop(Operation_L);
@@ -7030,10 +7036,67 @@ Loop :
     }
   | tIf '(' FExpr ')'
     {
-      if(!$3) skipUntil("If", "EndIf");
+      ImbricatedTest++;
+      if(ImbricatedTest > MAX_RECUR_TESTS-1){
+        vyyerror("Reached maximum number of imbricated tests");
+        ImbricatedTest = MAX_RECUR_TESTS-1;
+      }
+
+      if($3){
+        // Current test is true
+        statusImbricatedTests[ImbricatedTest] = 1;
+      }
+      else{
+        statusImbricatedTests[ImbricatedTest] = 0;
+        // Go after the next ElseIf or Else or EndIf
+        int type_until2 = 0;
+        skipUntil_test("If", "EndIf", "ElseIf", 4, &type_until2);
+        if(!type_until2) ImbricatedTest--; // EndIf reached
+      }
+    }
+  | tElseIf '(' FExpr ')'
+    {
+      if(ImbricatedTest > 0){
+        if (statusImbricatedTests[ImbricatedTest]){
+          // Last test (If or ElseIf) was true, thus go after EndIf (out of If EndIf)
+          skipUntil("If", "EndIf");
+          ImbricatedTest--;
+        }
+        else{
+          // Previous test(s) (If and ElseIf) not yet true
+          if($3){
+            statusImbricatedTests[ImbricatedTest] = 1;
+          }
+          else{
+            // Current test still not true: statusImbricatedTests[ImbricatedTest] = 0;
+            // Go after the next ElseIf or Else or EndIf
+            int type_until2 = 0;
+            skipUntil_test("If", "EndIf", "ElseIf", 4, &type_until2);
+            if(!type_until2) ImbricatedTest--;
+          }
+        }
+      }
+      else{
+        Message::Error("Orphan ElseIf");
+      }
+    }
+  | tElse
+    {
+      if(ImbricatedTest > 0){
+        if(statusImbricatedTests[ImbricatedTest]){
+          skipUntil("If", "EndIf");
+          ImbricatedTest--;
+        }
+      }
+      else{
+        Message::Error("Orphan Else");
+      }
     }
   | tEndIf
     {
+      ImbricatedTest--;
+      if(ImbricatedTest < 0)
+        Message::Warning("line %ld : Orphan EndIf", getdp_yylinenum);
     }
   | Affectation
  ;
@@ -7697,6 +7760,7 @@ OneFExpr :
   | t1D       { $$ = (double)_1D; }
   | t2D       { $$ = (double)_2D; }
   | t3D       { $$ = (double)_3D; }
+  | tTestLevel { $$ = (double)ImbricatedTest; }
   | tMPI_Rank { $$ = Message::GetCommRank(); }
   | tMPI_Size { $$ = Message::GetCommSize(); }
   | tGETDP_MAJOR_VERSION { $$ = GETDP_MAJOR_VERSION; }

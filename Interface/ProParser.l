@@ -154,6 +154,7 @@ EigenSolve                   return tEigenSolve;
 EigenSolveJac                return tEigenSolveJac;
 EigenvalueLegend             return tEigenvalueLegend;
 Else                         return tElse;
+ElseIf                       return tElseIf;
 EndFor                       return tEndFor;
 EndIf                        return tEndIf;
 Entity                       return tEntity;
@@ -378,7 +379,8 @@ SystemCommand                return tSystemCommand;
 Tan                          return tTan;
 Tanh                         return tTanh;
 Target                       return tTarget;
-Test                         return tIf;
+Test                         return tTest;
+TestLevel                    return tTestLevel;
 Theta                        return tTheta;
 Time0                        return tTime0;
 TimeFunction                 return tTimeFunction;
@@ -498,6 +500,11 @@ void parseString(char endchar)
   getdp_yylval.c = strSave(tmp);
 }
 
+bool is_alpha(const int c)
+{
+  return (c>='a' && c<='z') || (c>='A' && c<='Z') || c=='_';
+}
+
 void skipUntil(const char *skip, const char *until)
 {
   int l, l_skip, l_until;
@@ -506,12 +513,14 @@ void skipUntil(const char *skip, const char *until)
 
   int nb_skip = 0;
 
-  if(skip)
-    l_skip = strlen(skip);
-  else
-    l_skip = 0;
-
+  l_skip = (skip)? strlen(skip) : 0;
   l_until = strlen(until);
+
+  l = (l_skip > l_until) ? l_skip : l_until;
+  if(l >= (int)sizeof(chars)){
+    Message::Error("Search pattern too long in skipUntil");
+    return;
+  }
 
   while(1){
     while (1){
@@ -527,22 +536,13 @@ void skipUntil(const char *skip, const char *until)
         else if(c_next ==  '/') cxxStyleComments();
         else unput(c_next);
       }
-      if(!c_previous
-         || (!(c_previous>='a' && c_previous<='z')
-             && !(c_previous>='A' && c_previous<='Z')
-             && c_previous!='_')
-         ){
+      if(!c_previous || !is_alpha(c_previous)){
         if(chars[0] == until[0]) break;
         if(skip && chars[0] == skip[0]) break;
       }
       c_previous = chars[0];
     }
 
-    l = (l_skip > l_until) ? l_skip : l_until;
-    if(l >= (int)sizeof(chars)){
-      Message::Error("Search pattern too long in skip_until");
-      return;
-    }
     for(int i = 1; i < l; i++){
       chars[i] = input();
       if(chars[i] == '\n') getdp_yylinenum++;
@@ -556,11 +556,7 @@ void skipUntil(const char *skip, const char *until)
     c_next_skip = (l_skip<l)? chars[l_skip] : c_next;
     c_next_until = (l_until<l)? chars[l_until] : c_next;
 
-    if(!strncmp(chars,until,l_until)
-       && (!(c_next_until>='a' && c_next_until<='z')
-           && !(c_next_until>='A' && c_next_until<='Z')
-           && c_next_until!='_' )
-      ){
+    if(!strncmp(chars,until,l_until) && !is_alpha(c_next_until)){
       if(!nb_skip){
 	return;
       }
@@ -568,11 +564,102 @@ void skipUntil(const char *skip, const char *until)
 	nb_skip--;
       }
     }
-    else if(skip && !strncmp(chars,skip,l_skip)
-       && (!(c_next_skip>='a' && c_next_skip<='z')
-           && !(c_next_skip>='A' && c_next_skip<='Z')
-           && c_next_skip!='_' )
-    ){
+    else if(skip && !strncmp(chars,skip,l_skip) && !is_alpha(c_next_skip)){
+      nb_skip++;
+      // Attention: unput(.) should be applied a number of times equal to l-l_skip (always >0 for skip="For" and until="EndFor", or skip="If" and until="EndIf"); in particular, because "If" is followed by a minimum of 3 chars (e.g., '(1)'), with a total lenght thus exactly equal to the one of "EndIf", one avoid an error when looking then for "EndIf". (Patrick)
+    }
+    else{
+      for(int i = 1; i < l - 1; i++){
+	unput(chars[l-i]);
+        if(chars[l-i] == '\n') getdp_yylinenum--;
+      }
+    }
+
+  }
+}
+
+void skipUntil_test(const char *skip, const char *until, 
+                    const char *until2, int l_until2_sub, int *type_until2)
+{
+  int l, l_skip, l_until, l_until2;
+  char chars[256];
+  int c_next, c_next_skip, c_next_until, c_next_until2, c_previous = 0;
+
+  int nb_skip = 0;
+
+  l_skip = (skip)? strlen(skip) : 0;
+  l_until = strlen(until);
+  l_until2 = (until2)? strlen(until2) : 0;
+
+  l = (l_skip > l_until) ? l_skip : l_until;
+  l = (l_until2 > l) ? l_until2 : l;
+  if(l >= (int)sizeof(chars)){
+    Message::Error("Search pattern too long in skipUntil_test");
+    return;
+  }
+
+  while(1){
+    while (1){
+      chars[0] = input();
+      if(chars[0] == '\n') getdp_yylinenum++;
+      if(feof(getdp_yyin)){
+	Message::Error("Unexpected end of file");
+	return;
+      }
+      if(chars[0] == '/'){
+        c_next = input();
+        if     (c_next ==  '*') cStyleComments();
+        else if(c_next ==  '/') cxxStyleComments();
+        else unput(c_next);
+      }
+      if(!c_previous || !is_alpha(c_previous)){
+        if(chars[0] == until[0]) break;
+        if(skip && chars[0] == skip[0]) break;
+        if(!nb_skip && until2 && chars[0] == until2[0]) break;
+        // Useless to search for until2 if nb_skip!=0
+      }
+      c_previous = chars[0];
+    }
+    for(int i = 1; i < l; i++){
+      chars[i] = input();
+      if(chars[i] == '\n') getdp_yylinenum++;
+      if(feof(getdp_yyin)){
+	l = i;
+	break;
+      }
+    }
+
+    c_next = input(); unput(c_next);
+    c_next_skip = (l_skip<l)? chars[l_skip] : c_next;
+    c_next_until = (l_until<l)? chars[l_until] : c_next;
+    if (!nb_skip)
+      c_next_until2 = (l_until2<l)? chars[l_until2] : c_next;
+
+    if(!nb_skip && !strncmp(chars,until2,l_until2) && !is_alpha(c_next_until2)){
+      *type_until2 = 1; // Found word is full until2 (e.g., "ElseIf")
+      for(int i = 1; i <= l; i++){ // Only correct if l == l_until2
+        unput(chars[l-i]);
+        if(chars[l-i] == '\n') getdp_yylinenum--;
+      } // New file position points "ElseIf", that will be then analysed by the parser
+      return;
+    }
+    else if(!nb_skip && !strncmp(chars,until2,l_until2_sub) && !is_alpha(chars[l_until2_sub])){
+      *type_until2 = 2; // Found word is subword from until2 (e.g., "Else")
+      for(int i = 1; i <= l-l_until2_sub; i++){ // Only correct if l_until2_sub < l
+        unput(chars[l-i]);
+        if(chars[l-i] == '\n') getdp_yylinenum--;
+      }
+      return;
+    }
+    else if(!strncmp(chars,until,l_until) && !is_alpha(c_next_until)){
+      if(!nb_skip){
+	return;
+      }
+      else{
+	nb_skip--;
+      }
+    }
+    else if(skip && !strncmp(chars,skip,l_skip) && !is_alpha(c_next_skip)){
       nb_skip++;
     }
     else{

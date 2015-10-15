@@ -44,7 +44,10 @@ char *strSave(const char *string);
 void cStyleComments();
 void cxxStyleComments();
 void parseString(char endchar);
+bool is_alpha(const int c);
 void skipUntil(const char *skip, const char *until);
+void skipUntil_test(const char *skip, const char *until, 
+                    const char *until2, int l_until2_sub, int *type_until2);
 void Print_Constants();
 int  Print_ListOfDouble(char *format, List_T *list, char *buffer);
 
