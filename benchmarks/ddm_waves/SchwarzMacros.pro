@@ -134,7 +134,8 @@ Macro SolveVolumePDE
 	GenerateRHSGroup[Vol~{idom}, Region[{Sigma~{idom}, TrOmegaGammaD~{idom},
 	      GammaD~{idom}, GammaPoint~{idom}}] ];
       }
-      :{
+      :
+      {
 	GenerateRHSGroup[Vol~{idom}, Region[{Sigma~{idom},
 	      GammaD~{idom}, GammaPoint~{idom}}] ];
       }	

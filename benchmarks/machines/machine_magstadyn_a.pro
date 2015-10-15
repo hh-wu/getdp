@@ -721,7 +721,8 @@ Resolution {
             PostOperation[Get_GlobalQuantities];
             PostOperation[Get_Torque] ;
           }
-          :{
+          :
+          {
             Evaluate[ $Tstator = 0 ];
             Evaluate[ $Trotor = 0 ];
           }
