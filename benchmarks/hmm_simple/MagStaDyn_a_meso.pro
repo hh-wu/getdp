@@ -29,11 +29,13 @@ Group {
 Constraint {
   { Name GaugeCondition_a ; Type Assign ;
     Case {
-      If(!Flag_Dynamic)
-        { Region Omega ; SubRegion Surf_a_NoGauge ; Value 0. ; }
-      EndIf
-      If(Flag_Dynamic)
-        { Region Omega_CC ; SubRegion Surf_a_NoGauge ; Value 0. ; }
+      If (Flag_TreeCotreeGauge == 1)
+        If(!Flag_Dynamic)
+          { Region Omega ; SubRegion Surf_a_NoGauge ; Value 0. ; }
+        EndIf
+        If(Flag_Dynamic)
+          { Region Omega_CC ; SubRegion Surf_a_NoGauge ; Value 0. ; }
+        EndIf
       EndIf
     }
   }
@@ -71,7 +73,8 @@ FunctionSpace{
         }
       }
     EndIf
-    If(Flag_3D && !Flag_Dynamic)
+    If(Flag_3D && (!Flag_TreeCotreeGauge) )
+      If (!Flag_Dynamic)
       { Name Hcurl_a_Meso~{iP}; Type Form1;
         BasisFunction {
           { Name se;  NameOfCoef ae;  Function BF_Edge; Support Omega ;
@@ -84,13 +87,13 @@ FunctionSpace{
         }
       }
     EndIf
-    If(Flag_3D && Flag_Dynamic)
+    If(Flag_Dynamic)
       { Name Hcurl_a_Meso~{iP}; Type Form1;
         BasisFunction {
           { Name se;  NameOfCoef ae;  Function BF_Edge; Support Omega ;
-            Entity EdgesOf[ All, Not Omega_C ]; }
+            Entity EdgesOf[ All, Not Skin_Omega_C ]; }
           { Name sec;  NameOfCoef aec;  Function BF_Edge; Support Omega ;
-            Entity EdgesOf[ Omega_C ]; }
+            Entity EdgesOf[ Skin_Omega_C ]; }
         }
         Constraint {
           { NameOfCoef ae;  EntityType EdgesOf ; NameOfConstraint a_Meso; }
@@ -103,11 +106,14 @@ FunctionSpace{
       }
       { Name Hgrad_phi_meso~{iP} ; Type Form0 ;
         BasisFunction {
-          { Name sn; NameOfCoef phin; Function BF_Region; Support Omega_C; Entity VolumesOf[ Omega_C ]; }
+          { Name sn; NameOfCoef phin; Function BF_Node;
+            Support Omega; Entity NodesOf[All, Not Skin_Omega_C ]; }
         }
         Constraint {
+          { NameOfCoef phin; EntityType NodesOf; NameOfConstraint phi; }
         }
       }
+    EndIf
     EndIf
   EndFor
 }
@@ -134,7 +140,7 @@ Formulation {
           { Name U; Type Global; NameOfSpace Hregion_u_2D~{iP}[U]; }
         EndIf
         If(Flag_Dynamic && Flag_3D)
-          { Name eta; Type Local; NameOfSpace Hgrad_phi_meso~{iP}; }
+          { Name phi; Type Local; NameOfSpace Hgrad_phi_meso~{iP}; }
         EndIf
       }
       Equation {
@@ -144,8 +150,8 @@ Formulation {
           In Omega; Jacobian Vol; Integration II; }
         Galerkin { [ nu[ {d a}+bM[]+Pert~{iP}[] ] * Pert~{iP}[] , {d a} ];
           In Omega; Jacobian Vol; Integration II; }
-        Galerkin { JacNL[ dhdb[{d a}+bM[]+Pert~{iP}[] ] * Dof{d a}, {d a} ];
-          In Omega_NL; Jacobian Vol; Integration II; }
+        //Galerkin { JacNL[ dhdb[{d a}+bM[]+Pert~{iP}[] ] * Dof{d a}, {d a} ];
+        //  In Omega_NL; Jacobian Vol; Integration II; }
 
         If(Flag_Dynamic)
           Galerkin { DtDof[ sigma[] * Dof{a} , {a} ];
@@ -170,10 +176,10 @@ Formulation {
               In Omega_C; }
           EndIf
             //If(Flag_3D)
-          If(0)
-            Galerkin { [ 0 * Dof{d eta} , {a} ];
+          If(Flag_TreeCotreeGauge == 0)
+            Galerkin { [ Dof{d phi} , {a} ];
               In Omega_C; Jacobian Vol; Integration II; }
-            Galerkin { DtDof [ sigma[] * Dof{a} , {eta} ];
+            Galerkin { [ Dof{a} , {d phi} ];
               In Omega_C; Jacobian Vol; Integration II; }
           EndIf
         EndIf
@@ -224,8 +230,12 @@ Resolution {
           SetTime[ti];
           InitSolution[Meso~{iP} ];
           TimeLoopTheta[ti, tf, dt, theta_value]{
-            IterativeLoop[NbrMaxIter, Eps, Relax]{
-              GenerateJac[Meso~{iP}]; SolveJac[Meso~{iP}];
+            //IterativeLoop[NbrMaxIter, Eps, Relax]{
+            IterativeLoop[Nb_max_iter, reltol, relaxation_factor[]] { //111 and 113
+          //IterativeLoopN[Nb_max_iter, relaxation_factor[], System{ {A, reltol, reltol, Solution  MeanL2Norm } } ] { //112
+              GenerateJac[Meso~{iP}];
+              //SolveJac[Meso~{iP}];
+              SolveJac_AdaptRelax[Meso~{iP}, List[RelaxFac_Lin], TestAllFactors]; //113
             }
           }
           If(iP == 1)

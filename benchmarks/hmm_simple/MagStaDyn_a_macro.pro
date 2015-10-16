@@ -176,24 +176,26 @@ Formulation {
     Equation {
       Galerkin { [ nu[] * Dof{d a}, {d a} ]; In Domain_L; Jacobian JVol; Integration I1; }
 
-      If(0)
+      If( Flag_Macro_EddyCurrent !=0)
+        Galerkin { DtDof[ sigma_M[] * Dof{a} , {a} ]; In Domain_C; Jacobian JVol; Integration I; }
+      EndIf
+
+      If(1)
         Galerkin { [ Python[ElementNum[], QuadraturePointIndex[], 0]
                      {"hmm_upscale.py"}, {d a} ]; In Domain_NL; Jacobian JVol; Integration I1; }
         Galerkin { JacNL [ Python[ElementNum[], QuadraturePointIndex[], 1]
                            {"hmm_upscale.py"} * Dof{d a} , {d a} ]; In Domain_NL; Jacobian JVol; Integration I1; }
       EndIf
-      If( Flag_Macro_EddyCurrent !=0)
-        Galerkin { DtDof[ sigma_M[] * Dof{a} , {a} ]; In Domain_C ; Jacobian JVol ; Integration I ; }
-      EndIf
 
-      If(1)
+      If(0)
         Galerkin { [ nu[{d a}] * Dof{d a}, {d a} ]; In Domain_NL; Jacobian JVol; Integration I1; }
       EndIf
         
       If( Flag_3D && (Flag_TreeCotreeGauge == 0))
         Galerkin { [ Dof{d phi} , {a} ]; In Domain_CC; Jacobian JVol; Integration I1; }
         Galerkin { [ Dof{a} , {d phi} ]; In Domain_CC; Jacobian JVol; Integration I1; }
-      EndIf  
+      EndIf
+        
       Galerkin { [ -js[] , {a} ]; In Domain_S; Jacobian JVol; Integration I1; }
     }
   }
@@ -203,7 +205,7 @@ Resolution {
   { Name MagStaDyn_a_hmm;
     System {
       { Name A; NameOfFormulation MagSta_a_hmm; }
-      //{ Name Dummy; NameOfFormulation MagSta_a_hmm_init_downscaling; }
+      { Name Dummy; NameOfFormulation MagSta_a_hmm_init_downscaling; }
     }
     Operation {
       CreateDirectory[Dir_Macro];
@@ -228,27 +230,23 @@ Resolution {
       If(Flag_Dynamic)
       InitSolution[A] ; SaveSolution[A] ;
         TimeLoopTheta[ time0, timemax, dtime, theta_value]{
-          //Evaluate[ Python[$Time, $TimeStep]{"hmm_initialize.py"} ];
+          Evaluate[ Python[$Time, $TimeStep]{"hmm_initialize.py"} ];
           IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor[]]{//111 and 113
           //IterativeLoopN[Nb_max_iter, relaxation_factor[], System{ {A, reltol, reltol, Solution  MeanL2Norm } } ] { //112
-            /*
             Generate[Dummy];
             Evaluate[ Python[Nbr_SubProblems, Flag_Dynamic, Freq, NbSteps, 0]
               {"hmm_compute.py"} ];
-            */
             GenerateJac[A];
             //SolveJac[A];// 111 and 112
             SolveJac_AdaptRelax[A, List[RelaxFac_Lin], TestAllFactors]; //113
           }
           SaveSolution[A];
-          //PostOperation[ globalquantities ];
+          PostOperation[ globalquantities ];
           If(Flag_PostCuts) // compute some meso cells around points of interest
-            /*
             Evaluate[ Python[$Time, $TimeStep]{"hmm_initialize.py"} ];
             PostOperation[ meso_computations ];
             Evaluate[ Python[Nbr_SubProblems, Flag_Dynamic, Freq, NbSteps, 1]
               {"hmm_compute.py"} ];
-            */
           EndIf
         }
       EndIf

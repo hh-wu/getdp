@@ -1,4 +1,4 @@
-Include "smc_data.pro";
+Include "smc_data_edge.pro";
 
 Group {
   GammaCornerFix = Region[ {GAMMA_POINT } ];
@@ -45,6 +45,15 @@ Function {
   NbrMaxIter     = 5;
   Eps            = 1e-12;
   Relax          = 1.0;
+
+  Nb_max_iter         = 5;
+  relaxation_factor[] = ($Iteration < Nb_max_iter/2) ? 1: 0.3;
+  reltol              = 1e-12;
+  abstol              = 1e-12;
+  RelaxFac_Lin        = LinSpace[1, 0.1, 20];
+  TestAllFactors      = 1;
+  
+  
   kappa          = 1.0;
   epsilon        = 1e-6;
   Pert~{1}[]     = Vector[0, 0, 0];
@@ -94,6 +103,7 @@ Constraint {
           { Region GammaCornerFix; Type Assign; Value 0.0; }
         EndIf
       EndIf
+      /*
       If(Flag_Geometry == Half_Geometry)
         { Region GammaUp; Type Link; RegionRef GammaDown;
           Coefficient 1.; Function Vector[$X, $Y-ly, $Z]; }
@@ -103,6 +113,7 @@ Constraint {
         { Region GammaLeft; Type Assign; Value 0.0; }
         { Region GammaDown; Type Assign; Value 0.0; } 
       EndIf
+      */
     }
   }
 
@@ -122,6 +133,16 @@ Constraint {
   }
  { Name Voltage_2D;
     Case {
+    }
+  }
+   //==============================================
+  // Constraint for Coulomb gauging
+  { Name phi  ; Type Assign ;
+    Case {
+      { Region GammaRight; Type Link; RegionRef GammaLeft;
+        Coefficient 1.; Function Vector[$X-lx, $Y, $Z]; }
+      { Region GammaUp; Type Link; RegionRef GammaDown;
+        Coefficient 1.; Function Vector[$X, $Y-ly, $Z]; }
     }
   }
 }

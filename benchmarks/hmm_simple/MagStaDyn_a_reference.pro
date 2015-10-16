@@ -2,6 +2,7 @@
 Jacobian {
   { Name JVol ;
     Case {
+      { Region Omega_Inf; Jacobian VolSphShell {Val_Rint, Val_Rext}; }
       { Region All ; Jacobian Vol ; }
     }
   }
