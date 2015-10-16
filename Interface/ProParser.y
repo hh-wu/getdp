@@ -4200,7 +4200,7 @@ OperationTerm :
       Message::Warning("line %ld : New syntax for 'Test' Operation: use ':' and not 'Else' anymore", getdp_yylinenum);
     }
 
-  | tTest '[' Expression ']' '{' Operation '}' tDOTS '{' Operation '}'
+  | tTest '[' Expression ']' '{' Operation '}' '{' Operation '}'
     {
       List_Pop(Operation_L);
       List_Pop(Operation_L);
@@ -4209,7 +4209,7 @@ OperationTerm :
       Operation_P->Type = OPERATION_TEST;
       Operation_P->Case.Test.ExpressionIndex = $3;
       Operation_P->Case.Test.Operation_True = $6;
-      Operation_P->Case.Test.Operation_False = $10;
+      Operation_P->Case.Test.Operation_False = $9;
     }
 
   | tWhile '[' Expression ']' '{' Operation '}'

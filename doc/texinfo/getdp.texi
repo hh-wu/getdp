@@ -4514,16 +4514,14 @@ Execute the system command given by @var{expression-char}.
 
 Output error message @var{expression-char}.
 
-@item Test | If
+@item Test
 @code{[@var{expression}] @{ @var{resolution-op} @}} 
 
 If @var{expression} is true (nonzero), perform the operations in
 @var{resolution-op}.
 
-@item Test | If
-@code{[@var{expression}] @{ @var{resolution-op} @}} 
-@code{:}
-@code{@{ @var{resolution-op} @}} 
+@item Test
+@code{[@var{expression}] @{ @var{resolution-op} @} @{ @var{resolution-op} @}} 
 
 If @var{expression} is true (nonzero), perform the operations in the first
 @var{resolution-op}, else perform the operations in the second
