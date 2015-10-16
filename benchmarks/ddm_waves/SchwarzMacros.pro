@@ -134,11 +134,10 @@ Macro SolveVolumePDE
 	GenerateRHSGroup[Vol~{idom}, Region[{Sigma~{idom}, TrOmegaGammaD~{idom},
 	      GammaD~{idom}, GammaPoint~{idom}}] ];
       }
-      :
       {
 	GenerateRHSGroup[Vol~{idom}, Region[{Sigma~{idom},
 	      GammaD~{idom}, GammaPoint~{idom}}] ];
-      }	
+      }
 
     SolveAgain[Vol~{idom}];
     EndIf
@@ -228,7 +227,7 @@ Macro SolveAndStepForward
   If( proc == MPI_Rank && ProcOwnsDomain(idom_f) )
     Evaluate[$ArtificialSource~{0} = 1, $ArtificialSource~{1} = 0];
     Evaluate[$ArtificialSourceSGS~{0} = 0, $ArtificialSourceSGS~{1} = (PRECONDITIONER == 2)];
-    
+
     skipList = {2*idom_f, (2*(idom_f + N_DOM)+1)%(2*N_DOM)}; // right
     BroadcastFields[skipList()];
 
@@ -254,7 +253,7 @@ Macro SolveAndStepForward
 
     skipList = {(2*(idom_f + N_DOM)-1)%(2*N_DOM), (2*(idom_f + N_DOM)-2)%(2*N_DOM)}; // left
     BroadcastFields[skipList()];
-    
+
     Evaluate[$ArtificialSource~{0} = 1, $ArtificialSource~{1} = 1];
     Evaluate[$ArtificialSourceSGS~{0} = 0, $ArtificialSourceSGS~{1} = 0];
   EndIf
@@ -311,7 +310,7 @@ Macro InitSweep
       // compute u on Omega_i (fast way)
       GenerateRHSGroup[Vol~{idom}, Region[{Sigma~{idom}}]];
       SolveAgain[Vol~{idom}];
-      
+
       // compute the new g_out (fast way), on both sides
       For iSide In{0:1}
         If( NbrRegions[Sigma~{idom}~{iSide}] )

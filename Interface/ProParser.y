@@ -4196,8 +4196,6 @@ OperationTerm :
       Operation_P->Case.Test.ExpressionIndex = $3;
       Operation_P->Case.Test.Operation_True = $6;
       Operation_P->Case.Test.Operation_False = NULL;
-
-      Message::Warning("line %ld : New syntax for 'Test' Operation: use ':' and not 'Else' anymore", getdp_yylinenum);
     }
 
   | tTest '[' Expression ']' '{' Operation '}' '{' Operation '}'

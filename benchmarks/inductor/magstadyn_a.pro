@@ -278,7 +278,7 @@ Resolution {
             Test[ $Iteration == 1 || !Flag_NL_BFGS ]{
               GenerateJac[A] ;
             }
-            :{
+            {
               Error["implement GenerateJacBFGS"]; //GenerateJacBFGS[A] ;
             }
             SolveJac[A] ;

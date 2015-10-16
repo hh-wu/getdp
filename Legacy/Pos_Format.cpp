@@ -1696,6 +1696,15 @@ void Pos_FourierTransform(int NbrTimeStep, int NbrRegion,
                           int TypeOutput,
                           int *NbrFreq, double **Frequencies, struct Value **OutValues)
 {
+  /*
+  if (TypeOutput == 2){
+    *NbrFreq = (NbrTimeStep-1)/2+1;
+    *Frequencies = (double *)Malloc(*NbrFreq*sizeof(double));
+    *OutValues = (struct Value *)Malloc(*NbrFreq*sizeof(struct Value));
+    return;
+  }
+  */
+
   int iTime, iRegion, k_fc, i_k, j, k;
   int N, Nhalf, NbrFourierComps;
   double *val_FourierComps;
