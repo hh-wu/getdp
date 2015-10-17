@@ -23,6 +23,7 @@
 #include "Cal_Quantity.h"
 #include "MallocUtils.h"
 #include "Message.h"
+#include "kissfft.hh"
 
 #if defined(HAVE_GMSH)
 #include <gmsh/PView.h>
@@ -1696,14 +1697,20 @@ void Pos_FourierTransform(int NbrTimeStep, int NbrRegion,
                           int TypeOutput,
                           int *NbrFreq, double **Frequencies, struct Value **OutValues)
 {
-  /*
-  if (TypeOutput == 2){
-    *NbrFreq = (NbrTimeStep-1)/2+1;
-    *Frequencies = (double *)Malloc(*NbrFreq*sizeof(double));
-    *OutValues = (struct Value *)Malloc(*NbrFreq*sizeof(struct Value));
-    return;
-  }
-  */
+#if NEW_CODE
+  *NbrFreq = (NbrTimeStep-1)/2+1;
+  *Frequencies = (double *)Malloc(*NbrFreq*sizeof(double));
+  *OutValues = (struct Value *)Malloc(*NbrFreq*sizeof(struct Value));
+
+  int nfft = *NbrFreq;
+  kissfft<double> fft(nfft, false);
+  std::vector<std::complex<double> > inbuf(nfft);
+  std::vector<std::complex<double> > outbuf(nfft);
+  for (int k = 0; k < nfft; ++k)
+    inbuf[k]= std::complex<double>(rand()/(double)RAND_MAX - .5,
+                                   rand()/(double)RAND_MAX - .5);
+  fft.transform(&inbuf[0], &outbuf[0]);
+#else
 
   int iTime, iRegion, k_fc, i_k, j, k;
   int N, Nhalf, NbrFourierComps;
@@ -1812,4 +1819,5 @@ void Pos_FourierTransform(int NbrTimeStep, int NbrRegion,
   }
 
   Free(val_FourierComps);
+#endif
 }
