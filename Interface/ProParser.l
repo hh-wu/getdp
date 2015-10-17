@@ -507,7 +507,7 @@ static bool is_alpha(const int c)
 
 void skipUntil(const char *skip, const char *until)
 {
-  int l, l_skip, l_until;
+  int l_skip, l_until, l_max, l;
   char chars[256];
   int c_next, c_next_skip, c_next_until, c_previous = 0;
 
@@ -516,8 +516,8 @@ void skipUntil(const char *skip, const char *until)
   l_skip = (skip)? strlen(skip) : 0;
   l_until = strlen(until);
 
-  l = (l_skip > l_until) ? l_skip : l_until;
-  if(l >= (int)sizeof(chars)){
+  l_max = (l_skip > l_until) ? l_skip : l_until;
+  if(l_max >= (int)sizeof(chars)){
     Message::Error("Search pattern too long in skipUntil");
     return;
   }
@@ -542,6 +542,8 @@ void skipUntil(const char *skip, const char *until)
       }
       c_previous = chars[0];
     }
+
+    l = l_max;
 
     for(int i = 1; i < l; i++){
       chars[i] = input();
@@ -586,9 +588,9 @@ void skipUntil(const char *skip, const char *until)
 void skipUntil_test(const char *skip, const char *until,
                     const char *until2, int l_until2_sub, int *type_until2)
 {
-  int l, l_skip, l_until, l_until2;
+  int l_skip, l_until, l_until2, l_max, l;
   char chars[256];
-  int c_next, c_next_skip, c_next_until, c_next_until2, c_previous = 0;
+  int c_next, c_next_skip, c_next_until, c_next_until2, c_previous = 0, flag_EOL_EOF = 0;
 
   int nb_skip = 0;
 
@@ -596,9 +598,9 @@ void skipUntil_test(const char *skip, const char *until,
   l_until = strlen(until);
   l_until2 = (until2)? strlen(until2) : 0;
 
-  l = (l_skip > l_until) ? l_skip : l_until;
-  l = (l_until2 > l) ? l_until2 : l;
-  if(l >= (int)sizeof(chars)){
+  l_max = (l_skip > l_until) ? l_skip : l_until;
+  l_max = (l_until2 > l_max) ? l_until2 : l_max;
+  if(l_max >= (int)sizeof(chars)){
     Message::Error("Search pattern too long in skipUntil_test");
     return;
   }
@@ -625,26 +627,39 @@ void skipUntil_test(const char *skip, const char *until,
       }
       c_previous = chars[0];
     }
+
+    l = l_max;
+    flag_EOL_EOF = 0;
+
     for(int i = 1; i < l; i++){
       chars[i] = input();
-      if(chars[i] == '\n') getdp_yylinenum++;
+      if(chars[i] == '\n'){
+        //        getdp_yylinenum++;
+        unput(chars[i]); chars[i] = 0; l = i; flag_EOL_EOF = 1;
+        break;
+      }
       if(feof(getdp_yyin)){
-	l = i;
+	l = i; flag_EOL_EOF = 1;
 	break;
       }
     }
 
-    c_next = input(); unput(c_next);
-    c_next_skip = (l_skip<l)? chars[l_skip] : c_next;
-    c_next_until = (l_until<l)? chars[l_until] : c_next;
-    if (!nb_skip)
-      c_next_until2 = (l_until2<l)? chars[l_until2] : c_next;
+    if(!flag_EOL_EOF){
+      c_next = input(); unput(c_next);
+      c_next_skip = (l_skip<l)? chars[l_skip] : c_next;
+      c_next_until = (l_until<l)? chars[l_until] : c_next;
+      if (!nb_skip)
+        c_next_until2 = (l_until2<l)? chars[l_until2] : c_next;
+    }
+    else{
+      c_next = 0; c_next_skip = 0; c_next_until = 0; c_next_until2 = 0;
+    }
 
     if(!nb_skip && !strncmp(chars,until2,l_until2) && !is_alpha(c_next_until2)){
       *type_until2 = 1; // Found word is full until2 (e.g., "ElseIf")
       for(int i = 1; i <= l; i++){ // Only correct if l == l_until2
         unput(chars[l-i]);
-        if(chars[l-i] == '\n') getdp_yylinenum--;
+        //        if(chars[l-i] == '\n') getdp_yylinenum--;
       } // New file position points "ElseIf", that will be then analysed by the parser
       return;
     }
@@ -652,11 +667,15 @@ void skipUntil_test(const char *skip, const char *until,
       *type_until2 = 2; // Found word is subword from until2 (e.g., "Else")
       for(int i = 1; i <= l-l_until2_sub; i++){ // Only correct if l_until2_sub < l
         unput(chars[l-i]);
-        if(chars[l-i] == '\n') getdp_yylinenum--;
+        //        if(chars[l-i] == '\n') getdp_yylinenum--;
       }
       return;
     }
     else if(!strncmp(chars,until,l_until) && !is_alpha(c_next_until)){
+      for(int i = 1; i <= l-l_until; i++){
+        unput(chars[l-i]);
+        //        if(chars[l-i] == '\n') getdp_yylinenum--;
+      }
       if(!nb_skip){
 	return;
       }
@@ -670,7 +689,7 @@ void skipUntil_test(const char *skip, const char *until,
     else{
       for(int i = 1; i < l - 1; i++){
 	unput(chars[l-i]);
-        if(chars[l-i] == '\n') getdp_yylinenum--;
+        //        if(chars[l-i] == '\n') getdp_yylinenum--;
       }
     }
 
