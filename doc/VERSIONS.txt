@@ -1,82 +1,94 @@
-new timing and memory reporting functions.
+2.6.2 (??, 2015): new Else/ElseIf commands; new timing and memory reporting
+functions.
 
-2.6.1: enhanced Print[] command; minor fixes.
+2.6.1 (July 30, 2015): enhanced Print[] command; minor fixes.
 
-2.6.0: new ability to define and use Macros in .pro files; new run-time
-variables (act as registers, but with user-defined names starting with '$')
-and run-time ONELAB Get/Set functions; new Append*ToFileName PostOperation
+2.6.0 (July 21, 2015): new ability to define and use Macros in .pro files; new
+run-time variables (act as registers, but with user-defined names starting with
+'$') and run-time ONELAB Get/Set functions; new Append*ToFileName PostOperation
 options; new GetResdidual and associated operations; fixes and extended format
 support in MSH file reader; fixed UpdateConstraint for complex-simulated-real
 and multi-harmonic calculations.
 
-2.5.1: enhanced Python[] and DefineFunction[].
+2.5.1 (April 18, 2015): enhanced Python[] and DefineFunction[].
 
-2.5.0: added option to embed Octave and Python interpreters; extended "Field"
-functions with gradient; extended string and list handling functions; new
-resolution and postprocessing functions (RenameFile, While, ...); extended
-EigenSolve with eigenvalue filter and high order polynomial EV problems; small
-bug fixes.
+2.5.0 (March 12, 2015): added option to embed Octave and Python interpreters;
+extended "Field" functions with gradient; extended string and list handling
+functions; new resolution and postprocessing functions (RenameFile, While, ...);
+extended EigenSolve with eigenvalue filter and high order polynomial EV
+problems; small bug fixes.
 
-2.4.4: better stability, updated onelab API version and inline parameter
-definitions, fixed UpdateConstraint in harmonic case, improved performance of
-multi-harmonic assembly, fixed memory leak in parallel MPI version, improved
-EigenSolve (quadratic EVP with SLEPC, EVP on real matrices), new
-CosineTransform, MPI_Printf, SendMergeFileRequest parser commands, small
+2.4.4 (July 9, 2014): better stability, updated onelab API version and inline
+parameter definitions, fixed UpdateConstraint in harmonic case, improved
+performance of multi-harmonic assembly, fixed memory leak in parallel MPI
+version, improved EigenSolve (quadratic EVP with SLEPC, EVP on real matrices),
+new CosineTransform, MPI_Printf, SendMergeFileRequest parser commands, small
 improvements and bug fixes.
 
-2.4.3: new mandatory 'Name' attribute to define onelab variables in
-DefineConstant[] & co; minor bug fixes.
+2.4.3 (February 7, 2104): new mandatory 'Name' attribute to define onelab
+variables in DefineConstant[] & co; minor bug fixes.
 
-2.4.2: fixed function arguments in nested expressions; minor improvements.
+2.4.2 (Septembre 27, 2013): fixed function arguments in nested expressions;
+minor improvements.
 
-2.4.1: minor improvements and bug fixes.
+2.4.1 (July 16, 2013): minor improvements and bug fixes.
 
-2.4.0: new two-step Init constraints; faster network computation (with new
--cache); improved Update operation; better cpu/memory reporting; new -setnumber,
--setstring and -gmshread command line options; accept unicode file paths on
-Windows; small bug fixes.
+2.4.0 (July 9, 2013): new two-step Init constraints; faster network computation
+(with new -cache); improved Update operation; better cpu/memory reporting; new
+-setnumber, -setstring and -gmshread command line options; accept unicode file
+paths on Windows; small bug fixes.
 
-2.3.1: updated onelab; small bug fixes.
+2.3.1 (May 11, 2013): updated onelab; small bug fixes.
 
-2.3.0: moved build system from autoconf to cmake; new family of Field functions
-to use data imported from Gmsh; improved list handling; general code cleanup.
+2.3.0 (March 9, 2013): moved build system from autoconf to cmake; new family of
+Field functions to use data imported from Gmsh; improved list handling; general
+code cleanup.
 
-2.2.1: cleaned up nonlinear convergence tests and integrated experimental
-adaptive time loop code; small bug fixes.
+2.2.1 (July 15, 2012): cleaned up nonlinear convergence tests and integrated
+experimental adaptive time loop code; small bug fixes.
 
-2.2.0: new solver interface based on ONELAB; parallel SLEPC eigensolvers;
-cleaned up syntax for groups, moving band and global basis functions; new
-Field[] functions to interpolate post-processing datasets from Gmsh; fixed bug
-in Sur/Lin transformation of 2 forms; fixed bug for periodic constraints on
-high-order edge elements.
+2.2.0 (June 19, 2012): new solver interface based on ONELAB; parallel SLEPC
+eigensolvers; cleaned up syntax for groups, moving band and global basis
+functions; new Field[] functions to interpolate post-processing datasets from
+Gmsh; fixed bug in Sur/Lin transformation of 2 forms; fixed bug for periodic
+constraints on high-order edge elements.
 
-2.1.0: parallel resolution using PETSc solvers; new Gmsh2 output format; new
-experimental SLEPc-based eigensolvers; various bug and performance fixes
-(missing face basis functions, slow PETSc assembly with global quantities, ...)
+2.1.1 (April 12, 2011): default direct solver using MUMPS.
 
-2.0.0: general code cleanup (separated interface from legacy code; removed
-various undocumented, unstable and otherwise experimental features; moved to
-C++); updated input file formats; default solvers are now based on PETSc; small
-bug fixes (binary .res read, Newmark -restart).
+2.1.0 (October 24, 2010): parallel resolution using PETSc solvers; new Gmsh2
+output format; new experimental SLEPc-based eigensolvers; various bug and
+performance fixes (missing face basis functions, slow PETSc assembly with global
+quantities, ...)
 
-1.2: Windows versions do not depend on Cygwin anymore; major parser cleanup
-(loops & co).
+2.0.0 (March 16, 2010): general code cleanup (separated interface from legacy
+code; removed various undocumented, unstable and otherwise experimental
+features; moved to C++); updated input file formats; default solvers are now
+based on PETSc; small bug fixes (binary .res read, Newmark -restart).
 
-1.1: New eigensolver based on Arpack (EigenSolve); generalized old Lanczos
-solver to work with GSL+lapack; reworked PETSc interface, which now requires
-PETSc 2.3; documented many previously undocumented features (loops,
-conditionals, strings, link constraints, etc.); various improvements and bug
-fixes.
+1.2.1 (March 18, 2006): Small fixes.
 
-1.0: New license (GNU GPL); added support for latest Gmsh mesh file format; more
-code cleanups.
+1.2.0 (March 10, 2006): Windows versions do not depend on Cygwin anymore; major
+parser cleanup (loops & co).
+
+1.1.2 (September 3, 2005): Small fixes.
+
+1.1.0 (August 21, 2005): New eigensolver based on Arpack (EigenSolve);
+generalized old Lanczos solver to work with GSL+lapack; reworked PETSc
+interface, which now requires PETSc 2.3; documented many previously undocumented
+features (loops, conditionals, strings, link constraints, etc.); various
+improvements and bug fixes.
+
+1.0.1 (February 6, 2005): Small fixes.
+
+1.0.0 (April 24, 2004): New license (GNU GPL); added support for latest Gmsh
+mesh file format; more code cleanups.
 
 0.91: Merged moving band and multi-harmonic code; new loops and conditionals in
 the parser; removed old readline code (just use GNU readline if available);
 upgraded to latest Gmsh post-processing format; various small enhancements and
 bug fixes.
 
-0.89: Code cleanup.
+0.89 (March 26, 2003): Code cleanup.
 
 0.88: Integrated FMM code.
 
@@ -87,16 +99,16 @@ OS X; Re-introduced face basis functions mistakenly removed in 0.86; fixed
 post-processing bug with pyramidal basis functions; new build system based on
 autoconf.
 
-0.86: Updated Gmsh output format; many small bug fixes.
+0.86 (January 25, 2003): Updated Gmsh output format; many small bug fixes.
 
-0.85: Upgraded communication interface with Gmsh; new ChangeOfValues option in
-PostOperation; many internal changes.
+0.85 (January 21, 2002): Upgraded communication interface with Gmsh; new
+ChangeOfValues option in PostOperation; many internal changes.
 
-0.84: New ChangeOfCoordinate option in PostOperation; fixed crash in
-InterpolationAkima; improved interactive postprocessing (-ipos); changed syntax
-of parametric OnGrid ($S, $T -> $A, $B, $C); corrected Skin for non simplicial
-meshes; fixed floating point exception in diagonal matrix scaling; many other
-small fixes and cleanups.
+0.84 (September 6, 2001): New ChangeOfCoordinate option in PostOperation; fixed
+crash in InterpolationAkima; improved interactive postprocessing (-ipos);
+changed syntax of parametric OnGrid ($S, $T -> $A, $B, $C); corrected Skin for
+non simplicial meshes; fixed floating point exception in diagonal matrix
+scaling; many other small fixes and cleanups.
 
 0.83: Fixed bugs in SaveSolutions[] and InitSolution[]; fixed corrupted binary
 post-processing files in the harmonic case for the Gmsh format; output files are
