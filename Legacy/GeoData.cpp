@@ -466,25 +466,35 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
       }
     }
 
-    /* E n t i t i e s */
+    /* E N T I T I E S */
 
     else if(!strncmp(&String[1], "Entities", 8)) {
       if(!fgets(String, sizeof(String), File_GEO)) return;
-      int numEntities;
-      if(sscanf(String, "%d", &numEntities) != 1) return;
-      for(int i = 0; i < numEntities; i++) {
-        int num, dim, numPhysicals;
-        if(fscanf(File_GEO, "%d %d %d", &num, &dim, &numPhysicals) != 3) return;
-        if(numPhysicals > 0){
-          std::vector<int> physicals(numPhysicals);
-          for(int j = 0; j < numPhysicals; j++){
-            if(fscanf(File_GEO, "%d", &physicals[j]) != 1) return;
+      int num[4];
+      if(sscanf(String, "%d %d %d %d", &num[0], &num[1], &num[2], &num[3]) != 4) return;
+      for(int dim = 0; dim < 4; dim++) {
+        for(int j = 0; j < num[dim]; j++) {
+          int num;
+          if(fscanf(File_GEO, "%d", &num) != 1) return;
+          int nbound = 0;
+          if(dim > 0){
+            if(fscanf(File_GEO, "%d", &nbound) != 1) return;
+            for(int k = 0; k < nbound; k++){
+              int dummy;
+              if(fscanf(File_GEO, "%d", &dummy) != 1) return;
+            }
+          }
+          int nphys;
+          if(fscanf(File_GEO, "%d", &nphys) != 1) return;
+          std::vector<int> physicals(nphys);
+          for(int k = 0; k < nphys; k++){
+            if(fscanf(File_GEO, "%d", &physicals[k]) != 1) return;
           }
           entities[dim][num] = physicals;
-          if(numPhysicals > 1){
+          if(nphys > 1){
             Message::Error("GetDP does not support multiple physical groups per element:"
                            " elementary entity %d belongs to %d physical groups",
-                           num, numPhysicals);
+                           num, nphys);
             return;
           }
         }

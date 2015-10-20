@@ -1,5 +1,4 @@
 DefineConstant[
-  TIMING = 1,
   PRECONDITIONER = 0,
   DELTA_SOURCE = 0,
   EXTERNAL_VELOCITY_FIELD = 0,
@@ -29,7 +28,9 @@ DefineConstant[
   RESTART_MAXIT = {1, Choices {0,1},
     Name "Iterative Solver/31Force Restart = Max. iterations"}
   RESTART = {RESTART_MAXIT ? MAXIT : MAXIT, Min 0, Max 100000, Step 1,
-    Name "Iterative Solver/30Restart", ReadOnly RESTART_MAXIT }
+    Name "Iterative Solver/30Restart", ReadOnly RESTART_MAXIT },
+  TIMING = {0, Choices{0, 1},
+    Name "Iterative Solver/4Print detailed timing info"}
 ];
 
 If(RESTART > MAXIT || RESTART == 0)
