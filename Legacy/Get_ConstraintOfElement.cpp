@@ -84,6 +84,9 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 		Geo_GetNodesCoordinates(1, &Current.NumEntity,
                                         &Current.x, &Current.y, &Current.z) ;
 		break ;
+	      case VOLUMESOF :
+		Current.NumEntity = abs(Num_Entity[i_Entity]) ;
+                break;
 	      case EDGESOF :
 		Current.NumEntity = abs(Num_Entity[i_Entity]) ;
 		Current.NumEntityInElement = i_Entity ;
