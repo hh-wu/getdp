@@ -71,4 +71,3 @@ int fcmp_double(const void *a, const void *b);
 List_T *ListOfDouble2ListOfInt(List_T *dList);
 
 #endif
-

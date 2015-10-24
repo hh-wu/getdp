@@ -478,4 +478,3 @@ int List_LQuery(List_T *liste, void *data,
   memcpy(data,ptr,liste->size);
   return (1);
 }
-

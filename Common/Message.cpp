@@ -995,7 +995,7 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
       if(fopt.count("ReadOnly") && fopt["ReadOnly"][0])
         ps[0].setValue(c->Value.Float); // use local value
       else
-	      c->Value.Float = ps[0].getValue(); // use value from server
+        c->Value.Float = ps[0].getValue(); // use value from server
       // keep track of these attributes, which can be changed server-side
       // (unless they are not visible, or, for the range/choices, when
       // explicitely setting these attributes as ReadOnly)
