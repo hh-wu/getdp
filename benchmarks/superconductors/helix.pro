@@ -19,7 +19,7 @@ Group {
   Omega = Region[{OmegaC, OmegaCC}];
   BndOmegaC = Region[{BndMatrix}];
 
-  Cut = Region[ (AIR + 2) ];
+  Cut = Region[ (AIR + 1) ];
 
   BndOmega = Region[ {(BND_AIR),  (BND_AIR+1),  (BND_AIR+2), Terminals} ];
 }

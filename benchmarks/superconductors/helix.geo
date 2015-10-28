@@ -1,6 +1,8 @@
 Include "helix_data.pro";
 
 DefineConstant[
+  ThreeD = {0, Choices{0,1},
+    Name "Input/1Geometry/0Three-dimensional model"},
   AirRadius = {1, ReadOnly Preset,
     Name "Input/1Geometry/Radius of air domain [mm]"},
   MatrixRadius = {(Preset == 3) ? 0.5 : 0.56419, ReadOnly Preset,
@@ -62,37 +64,44 @@ For i In {1:NumLayers}
     ll1 = newll; Line Loop(ll1) = {l1, l2, l3, l4};
     s1 = news; Plane Surface(s1) = {ll1};
     llf_0[] += ll1;
-    Physical Surface(Sprintf("Filament bottom boundary (%g in layer %g)", j, i),
-                     BND_FILAMENT + 1000 * i + j) = {s1}; // bottom
-    phys_fil_bot += BND_FILAMENT + 1000 * i + j;
-    splits = (4 * TwistFraction) < 1 ? 1 : 4 * TwistFraction; // heuristics
-    v[] = {};
-    s[] = {};
-    tmp[] = {s1};
-    For k In {1:splits}
-      h = TwistPitch*mm / splits * TwistFraction;
-      N = h / (LcFilament*mm) / FilamentMeshAniso;
-      tmp[] = Extrude {{0,0,h}, {0,0,1}, {0,0,0}, 2*Pi / splits * TwistFraction} {
-        Surface{ tmp[0] }; Layers{N};
-      };
-      v[] += tmp[1];
-      s[] += tmp[{2:5}];
-    EndFor
-    Physical Surface(Sprintf("Filament top boundary (%g in layer %g)", j, i),
-                     BND_FILAMENT + 1100 * i + j) = tmp[0]; // top
-    phys_fil_top += BND_FILAMENT + 1100 * i + j;
-    Physical Surface(Sprintf("Filament lateral boundary (%g in layer %g)", j, i),
-                     BND_FILAMENT + 1200 * i + j) = s[]; // sides
-    Physical Volume(Sprintf("Filament volume (%g in layer %g)", j, i),
-                    FILAMENT + 1000 * i + j) = v[];
-    phys_fil += FILAMENT + 1000 * i + j;
-    sf[] += s[];
-    ll2 = newll; Line Loop(ll2) = Boundary{ Surface{tmp[0]}; };
-    llf_1[] += ll2;
+    If(ThreeD && TwistFraction)
+      Physical Surface(Sprintf("Filament bottom boundary (%g in layer %g)", j, i),
+        BND_FILAMENT + 1000 * i + j) = {s1}; // bottom
+      phys_fil_bot += BND_FILAMENT + 1000 * i + j;
+      splits = (4 * TwistFraction) < 1 ? 1 : 4 * TwistFraction; // heuristics
+      v[] = {};
+      s[] = {};
+      tmp[] = {s1};
+      For k In {1:splits}
+        h = TwistPitch*mm / splits * TwistFraction;
+        N = h / (LcFilament*mm) / FilamentMeshAniso;
+        tmp[] = Extrude {{0,0,h}, {0,0,1}, {0,0,0}, 2*Pi / splits * TwistFraction} {
+          Surface{ tmp[0] }; Layers{N};
+        };
+        v[] += tmp[1];
+        s[] += tmp[{2:5}];
+      EndFor
+      Physical Surface(Sprintf("Filament top boundary (%g in layer %g)", j, i),
+        BND_FILAMENT + 1100 * i + j) = tmp[0]; // top
+      phys_fil_top += BND_FILAMENT + 1100 * i + j;
+      Physical Surface(Sprintf("Filament lateral boundary (%g in layer %g)", j, i),
+        BND_FILAMENT + 1200 * i + j) = s[]; // sides
+      Physical Volume(Sprintf("Filament volume (%g in layer %g)", j, i),
+        FILAMENT + 1000 * i + j) = v[];
+      phys_fil += FILAMENT + 1000 * i + j;
+      sf[] += s[];
+      ll2 = newll; Line Loop(ll2) = Boundary{ Surface{tmp[0]}; };
+      llf_1[] += ll2;
+    Else
+      Physical Line(Sprintf("Filament lateral boundary (%g in layer %g)", j, i),
+        BND_FILAMENT + 1200 * i + j) = {l1, l2, l3, l4};
+      Physical Surface(Sprintf("Filament volume (%g in layer %g)", j, i),
+        FILAMENT + 1000 * i + j) = s1;
+    EndIf
   EndFor
 EndFor
 
-For i In {0:1}
+For i In {0 : (ThreeD && TwistFraction) ? 1 : 0}
   z = i*TwistPitch*mm * TwistFraction;
   p0~{i} = newp; Point(p0~{i}) = {0, 0, z, LcMatrix*mm};
   p1~{i} = newp; Point(p1~{i}) = {MatrixRadius*mm, 0, z, LcMatrix*mm};
@@ -117,52 +126,53 @@ For i In {0:1}
   ll11~{i} = newll; Line Loop(ll11~{i}) = {l11~{i}, l12~{i}, l13~{i}, l14~{i}};
   s11~{i} = news; Plane Surface(s11~{i}) = {ll11~{i}, ll1~{i}};
 EndFor
-l1 = newl; Line(l1) = {p1_0, p1_1};
-l2 = newl; Line(l2) = {p2_0, p2_1};
-l3 = newl; Line(l3) = {p3_0, p3_1};
-l4 = newl; Line(l4) = {p4_0, p4_1};
-ll1 = newll; Line Loop(ll1) = {l1_0, l2, -l1_1, -l1};
-s1 = news; Ruled Surface(s1) = {ll1};
-ll2 = newll; Line Loop(ll2) = {l2_0, l3, -l2_1, -l2};
-s2 = news; Ruled Surface(s2) = {ll2};
-ll3 = newll; Line Loop(ll3) = {l3_0, l4, -l3_1, -l3};
-s3 = news; Ruled Surface(s3) = {ll3};
-ll4 = newll; Line Loop(ll4) = {l4_0, l1, -l4_1, -l4};
-s4 = news; Ruled Surface(s4) = {ll4};
-sl1 = newsl; Surface Loop(sl1) = {s1, s2, s3, s4, s1_0, s1_1, sf[]};
-v1 = newv; Volume(v1) = {sl1};
 
-Physical Volume("Matrix", MATRIX) = v1;
-Physical Surface("Matrix lateral boundary",  BND_MATRIX) = {s1, s2, s3, s4};
-Physical Surface("Matrix bottom boundary", BND_MATRIX + 1) = {s1_0};
-Physical Surface("Matrix top boundary", BND_MATRIX + 2) = {s1_1};
-
-l11 = newl; Line(l11) = {p11_0, p11_1};
-l12 = newl; Line(l12) = {p12_0, p12_1};
-l13 = newl; Line(l13) = {p13_0, p13_1};
-l14 = newl; Line(l14) = {p14_0, p14_1};
-ll11 = newll; Line Loop(ll11) = {l11_0, l12, -l11_1, -l11};
-s11 = news; Ruled Surface(s11) = {ll11};
-ll12 = newll; Line Loop(ll12) = {l12_0, l13, -l12_1, -l12};
-s12 = news; Ruled Surface(s12) = {ll12};
-ll13 = newll; Line Loop(ll13) = {l13_0, l14, -l13_1, -l13};
-s13 = news; Ruled Surface(s13) = {ll13};
-ll14 = newll; Line Loop(ll14) = {l14_0, l11, -l14_1, -l14};
-s14 = news; Ruled Surface(s14) = {ll14};
-sl11 = newsl; Surface Loop(sl11) = {s11, s12, s13, s14, s11_0, s11_1, s1, s2, s3, s4};
-v11 = newv; Volume(v11) = {sl11};
-
-Physical Volume("Air", AIR) = v11;
-Physical Surface("Air lateral boundary", BND_AIR) = {s11, s12, s13, s14};
-Physical Surface("Air bottom boundary", BND_AIR + 1) = {s11_0};
-Physical Surface("Air top boundary", BND_AIR + 2) = {s11_1};
+If(ThreeD && TwistFraction)
+  l1 = newl; Line(l1) = {p1_0, p1_1};
+  l2 = newl; Line(l2) = {p2_0, p2_1};
+  l3 = newl; Line(l3) = {p3_0, p3_1};
+  l4 = newl; Line(l4) = {p4_0, p4_1};
+  ll1 = newll; Line Loop(ll1) = {l1_0, l2, -l1_1, -l1};
+  s1 = news; Ruled Surface(s1) = {ll1};
+  ll2 = newll; Line Loop(ll2) = {l2_0, l3, -l2_1, -l2};
+  s2 = news; Ruled Surface(s2) = {ll2};
+  ll3 = newll; Line Loop(ll3) = {l3_0, l4, -l3_1, -l3};
+  s3 = news; Ruled Surface(s3) = {ll3};
+  ll4 = newll; Line Loop(ll4) = {l4_0, l1, -l4_1, -l4};
+  s4 = news; Ruled Surface(s4) = {ll4};
+  sl1 = newsl; Surface Loop(sl1) = {s1, s2, s3, s4, s1_0, s1_1, sf[]};
+  v1 = newv; Volume(v1) = {sl1};
+  Physical Volume("Matrix", MATRIX) = v1;
+  Physical Surface("Matrix lateral boundary",  BND_MATRIX) = {s1, s2, s3, s4};
+  Physical Surface("Matrix bottom boundary", BND_MATRIX + 1) = {s1_0};
+  Physical Surface("Matrix top boundary", BND_MATRIX + 2) = {s1_1};
+  l11 = newl; Line(l11) = {p11_0, p11_1};
+  l12 = newl; Line(l12) = {p12_0, p12_1};
+  l13 = newl; Line(l13) = {p13_0, p13_1};
+  l14 = newl; Line(l14) = {p14_0, p14_1};
+  ll11 = newll; Line Loop(ll11) = {l11_0, l12, -l11_1, -l11};
+  s11 = news; Ruled Surface(s11) = {ll11};
+  ll12 = newll; Line Loop(ll12) = {l12_0, l13, -l12_1, -l12};
+  s12 = news; Ruled Surface(s12) = {ll12};
+  ll13 = newll; Line Loop(ll13) = {l13_0, l14, -l13_1, -l13};
+  s13 = news; Ruled Surface(s13) = {ll13};
+  ll14 = newll; Line Loop(ll14) = {l14_0, l11, -l14_1, -l14};
+  s14 = news; Ruled Surface(s14) = {ll14};
+  sl11 = newsl; Surface Loop(sl11) = {s11, s12, s13, s14, s11_0, s11_1, s1, s2, s3, s4};
+  v11 = newv; Volume(v11) = {sl11};
+  Physical Volume("Air", AIR) = v11;
+  Physical Surface("Air lateral boundary", BND_AIR) = {s11, s12, s13, s14};
+  Physical Surface("Air bottom boundary", BND_AIR + 1) = {s11_0};
+  Physical Surface("Air top boundary", BND_AIR + 2) = {s11_1};
+Else
+  Physical Surface("Matrix", MATRIX) = s1_0;
+  Physical Line("Matrix lateral boundary",  BND_MATRIX) = {l1_0, l2_0, l3_0, l4_0};
+  Physical Surface("Air", AIR) = s11_0;
+  Physical Line("Air lateral boundary", BND_AIR) = {l11_0, l12_0, l13_0, l14_0};
+EndIf
 
 // Cohomology computation for the H-Phi formulation
 Cohomology(1) {AIR, {}};
-
-// Cohomology computation for the A-V formulation
-Cohomology(1) {{MATRIX, phys_fil()},
-               {BND_MATRIX + 1, BND_MATRIX + 2, phys_fil_bot(), phys_fil_top()}};
 
 General.ExpertMode = 1;
 Mesh.Optimize = 1;
