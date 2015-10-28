@@ -7,8 +7,14 @@ DefineConstant[
     Name "Input/1Geometry/Radius of air domain [mm]"},
   MatrixRadius = {(Preset == 3) ? 0.5 : 0.56419, ReadOnly Preset,
     Name "Input/1Geometry/Radius of conductive matrix [mm]"},
+  FilamentShape = {!Preset, Choices{0="Round", 1="Rectangular"}, ReadOnly Preset,
+    Name "Input/1Geometry/Filament shape"},
   FilamentRadius = {(Preset == 3) ? 0.036 : (Preset == 1) ? 0.5 : 0.1784, ReadOnly Preset,
-    Name "Input/1Geometry/Radius of filements [mm]"},
+    Name "Input/1Geometry/Filement radius [mm]", Visible !FilamentShape},
+  FilamentWidth = {0.2, ReadOnly Preset,
+    Name "Input/1Geometry/Filament width [mm]", Visible FilamentShape},
+  FilamentThickness = {0.1, ReadOnly Preset,
+    Name "Input/1Geometry/Filament thickness [mm]", Visible FilamentShape},
   TwistPitch = {(Preset == 3) ? 12 : 4, ReadOnly Preset,
     Name "Input/1Geometry/Twist pitch [mm]"},
   TwistFraction = {(Preset == 3) ? 0.075 : (Preset == 1) ? 0.01 : 1/4,
@@ -52,15 +58,26 @@ For i In {1:NumLayers}
     theta = j * 2*Pi / NumFilaments~{i} + StartAngleFilament~{i};
     xr = LayerRadius~{i} * mm * Cos[theta];
     yr = LayerRadius~{i} * mm * Sin[theta];
-    p0 = newp; Point(p0) = {xr, yr, 0, LcFilament*mm};
-    p1 = newp; Point(p1) = {xr+FilamentRadius*mm, yr, 0, LcFilament*mm};
-    p2 = newp; Point(p2) = {xr, yr+FilamentRadius*mm, 0, LcFilament*mm};
-    p3 = newp; Point(p3) = {xr-FilamentRadius*mm, yr, 0, LcFilament*mm};
-    p4 = newp; Point(p4) = {xr, yr-FilamentRadius*mm, 0, LcFilament*mm};
-    l1 = newl; Circle(l1) = {p1, p0, p2};
-    l2 = newl; Circle(l2) = {p2, p0, p3};
-    l3 = newl; Circle(l3) = {p3, p0, p4};
-    l4 = newl; Circle(l4) = {p4, p0, p1};
+    If(!FilamentShape)
+      p0 = newp; Point(p0) = {xr, yr, 0, LcFilament*mm};
+      p1 = newp; Point(p1) = {xr+FilamentRadius*mm, yr, 0, LcFilament*mm};
+      p2 = newp; Point(p2) = {xr, yr+FilamentRadius*mm, 0, LcFilament*mm};
+      p3 = newp; Point(p3) = {xr-FilamentRadius*mm, yr, 0, LcFilament*mm};
+      p4 = newp; Point(p4) = {xr, yr-FilamentRadius*mm, 0, LcFilament*mm};
+      l1 = newl; Circle(l1) = {p1, p0, p2};
+      l2 = newl; Circle(l2) = {p2, p0, p3};
+      l3 = newl; Circle(l3) = {p3, p0, p4};
+      l4 = newl; Circle(l4) = {p4, p0, p1};
+    Else
+      p1 = newp; Point(p1) = {xr-FilamentWidth/2*mm, yr-FilamentThickness/2*mm, 0, LcFilament*mm};
+      p2 = newp; Point(p2) = {xr+FilamentWidth/2*mm, yr-FilamentThickness/2*mm, 0, LcFilament*mm};
+      p3 = newp; Point(p3) = {xr+FilamentWidth/2*mm, yr+FilamentThickness/2*mm, 0, LcFilament*mm};
+      p4 = newp; Point(p4) = {xr-FilamentWidth/2*mm, yr+FilamentThickness/2*mm, 0, LcFilament*mm};
+      l1 = newl; Line(l1) = {p1, p2};
+      l2 = newl; Line(l2) = {p2, p3};
+      l3 = newl; Line(l3) = {p3, p4};
+      l4 = newl; Line(l4) = {p4, p1};
+    EndIf
     ll1 = newll; Line Loop(ll1) = {l1, l2, l3, l4};
     s1 = news; Plane Surface(s1) = {ll1};
     llf_0[] += ll1;
