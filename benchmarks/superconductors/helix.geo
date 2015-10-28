@@ -7,7 +7,7 @@ DefineConstant[
     Name "Input/1Geometry/Radius of air domain [mm]"},
   MatrixRadius = {(Preset == 3) ? 0.5 : 0.56419, ReadOnly Preset,
     Name "Input/1Geometry/Radius of conductive matrix [mm]"},
-  FilamentShape = {!Preset, Choices{0="Round", 1="Rectangular"}, ReadOnly Preset,
+  FilamentShape = {0, Choices{0="Round", 1="Rectangular"}, ReadOnly Preset,
     Name "Input/1Geometry/Filament shape"},
   FilamentRadius = {(Preset == 3) ? 0.036 : (Preset == 1) ? 0.5 : 0.1784, ReadOnly Preset,
     Name "Input/1Geometry/Filement radius [mm]", Visible !FilamentShape},
