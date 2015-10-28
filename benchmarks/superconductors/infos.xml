@@ -3,7 +3,7 @@
 <models>
 	<model>
 		<title>Superconducting wire</title>
-		<summary>3D H-formulation of HTS with nonlinear power law</summary>
+		<summary>2D and 3D H-formulation of HTS with nonlinear power law</summary>
 		<file type="pro">helix.pro</file>
 		<preview type="png">screenshot_helix_128.png</preview>
 		<url>http://onelab.info/wiki/Superconducting_wire</url>

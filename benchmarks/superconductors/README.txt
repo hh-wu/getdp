@@ -1,5 +1,5 @@
 
-3D model of a superconducting wire.
+2D and 3D models of superconducting wires.
 
 [[Category:GetDP]]
 [[Category:Electromagnetism]]
@@ -14,7 +14,7 @@ Open `helix.pro' with Gmsh.
 Additional info
 ---------------
 
-The example contains a 3D model of a superconducting wire, using an
+The example contains 2D and 3D models of superconducting wires, using an
 H-formulation and the Gmsh cohomology solver.
 
 -->
