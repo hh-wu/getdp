@@ -24,6 +24,8 @@ DefineConstant[
     Name "Input/2Mesh/Size on filaments [mm]", Closed 1},
   FilamentMeshAniso = {(Preset == 3) ? 5 : 2, Min 1, Max 5, Step 1,
     Name "Input/2Mesh/Anisotropy of filament mesh"},
+  FilamentMeshTransfinite = {1, Choices{0,1},
+    Name "Input/2Mesh/Use regular mesh in rectangular filaments"},
   LcMatrix = {0.1,
     Name "Input/2Mesh/Size on matrix boundary [mm]"},
   LcAir = {0.2,
@@ -80,6 +82,9 @@ For i In {1:NumLayers}
     EndIf
     ll1 = newll; Line Loop(ll1) = {l1, l2, l3, l4};
     s1 = news; Plane Surface(s1) = {ll1};
+    If(FilamentShape && FilamentMeshTransfinite)
+      Transfinite Surface{s1};
+    EndIf
     llf_0[] += ll1;
     If(ThreeD && TwistFraction)
       Physical Surface(Sprintf("Filament bottom boundary (%g in layer %g)", j, i),
@@ -191,5 +196,6 @@ EndIf
 // Cohomology computation for the H-Phi formulation
 Cohomology(1) {AIR, {}};
 
-General.ExpertMode = 1;
-Mesh.Optimize = 1;
+General.ExpertMode = 1; // Don't complain for hybrid structured/unstructured mesh
+Mesh.Algorithm = 6; // Use Frontal 2D algorithm
+Mesh.Optimize = 1; // Remove slivers in 3D tet mesh
