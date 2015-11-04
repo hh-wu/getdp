@@ -5,12 +5,9 @@ Group {
   Matrix = Region[ {MATRIX} ];
   BndMatrix = Region[ BND_MATRIX ];
   Filaments = Region[{}];
-  Terminals = Region[{ (BND_MATRIX + 1), (BND_MATRIX + 2) }];
   For i In {1:NumLayers}
     For j In {1:NumFilaments~{i}}
       Filaments += Region[ (FILAMENT + 1000 * i + j) ];
-      Terminals += Region[ (BND_FILAMENT + 1000 * i + j) ];
-      Terminals += Region[ (BND_FILAMENT + 1100 * i + j) ];
     EndFor
   EndFor
 
@@ -20,8 +17,6 @@ Group {
   BndOmegaC = Region[{BndMatrix}];
 
   Cut = Region[ (AIR + 1) ];
-
-  BndOmega = Region[ {(BND_AIR),  (BND_AIR+1),  (BND_AIR+2), Terminals} ];
 }
 
 Function {
@@ -87,7 +82,8 @@ Integration {
   { Name Int ;
     Case { { Type Gauss ;
 	Case {
-	  { GeoElement Triangle    ; NumberOfPoints  4 ; }
+	  { GeoElement Triangle ; NumberOfPoints  4 ; }
+          { GeoElement Quadrangle ; NumberOfPoints  4 ; }
 	  { GeoElement Tetrahedron ; NumberOfPoints  5 ; }
 	}
       } }
@@ -241,6 +237,7 @@ PostOperation {
     Operation {
       Echo["General.Verbosity=3;", File "res/option.pos"];
       Print[ h, OnElementsOf Omega , File "res/h.pos", Name "h [Am⁻1]" ];
+      Print[ phi, OnElementsOf Omega , File "res/phi.pos", Name "phi" ];
       Print[ j, OnElementsOf OmegaC , File "res/j.pos", Name "j [Am⁻²]" ];
       Print[ Losses[OmegaC],  OnGlobal, Format TimeTable,
         File > "res/losses_total.txt", SendToServer "Output/Losses [W]"] ;

@@ -1,19 +1,19 @@
 Include "helix_data.pro";
 
 DefineConstant[
-  ThreeD = {0, Choices{0,1},
+  ThreeD = {0, Choices{0,1}, Highlight "LightYellow",
     Name "Input/1Geometry/0Three-dimensional model"},
   AirRadius = {1, ReadOnly Preset,
     Name "Input/1Geometry/Radius of air domain [mm]"},
   MatrixRadius = {(Preset == 3) ? 0.5 : 0.56419, ReadOnly Preset,
     Name "Input/1Geometry/Radius of conductive matrix [mm]"},
-  FilamentShape = {0, Choices{0="Round", 1="Rectangular"}, ReadOnly Preset,
+  FilamentShape = {(Preset == 4) ? 1 : 0, Choices{0="Round", 1="Rectangular"}, ReadOnly Preset,
     Name "Input/1Geometry/Filament shape"},
   FilamentRadius = {(Preset == 3) ? 0.036 : (Preset == 1) ? 0.5 : 0.1784, ReadOnly Preset,
     Name "Input/1Geometry/Filement radius [mm]", Visible !FilamentShape},
-  FilamentWidth = {0.2, ReadOnly Preset,
+  FilamentWidth = {0.75, ReadOnly Preset,
     Name "Input/1Geometry/Filament width [mm]", Visible FilamentShape},
-  FilamentThickness = {0.1, ReadOnly Preset,
+  FilamentThickness = {0.05, ReadOnly Preset,
     Name "Input/1Geometry/Filament thickness [mm]", Visible FilamentShape},
   TwistPitch = {(Preset == 3) ? 12 : 4, ReadOnly Preset,
     Name "Input/1Geometry/Twist pitch [mm]"},
@@ -23,9 +23,11 @@ DefineConstant[
   LcFilament = {(Preset == 3) ? 0.015 : 0.05,
     Name "Input/2Mesh/Size on filaments [mm]", Closed 1},
   FilamentMeshAniso = {(Preset == 3) ? 5 : 2, Min 1, Max 5, Step 1,
-    Name "Input/2Mesh/Anisotropy of filament mesh"},
+    Name "Input/2Mesh/Anisotropy of filament mesh along filament"},
   FilamentMeshTransfinite = {1, Choices{0,1},
     Name "Input/2Mesh/Use regular mesh in rectangular filaments"},
+  FilamentMeshTransfiniteAniso = {5,
+    Name "Input/2Mesh/Anisotropy of regular mesh in rectangular filaments"},
   LcMatrix = {0.1,
     Name "Input/2Mesh/Size on matrix boundary [mm]"},
   LcAir = {0.2,
@@ -36,7 +38,7 @@ For i In {1:NumLayers}
   DefineConstant[
     LayerRadius~{i} = { (Preset == 3 && i == 1) ? 0.13 :
       (Preset == 3 && i == 2) ? 0.25 : (Preset == 3 && i == 3) ? 0.39 :
-      (Preset == 1) ? 0 : i * MatrixRadius / (NumLayers + 1),
+      (Preset == 1 || Preset == 4) ? 0 : i * MatrixRadius / (NumLayers + 1),
       Min FilamentRadius, Max MatrixRadius, Step 1e-2, ReadOnly Preset,
       Name Sprintf["Input/1Geometry/{Layer %g/Radius [mm]", i]},
     StartAngleFilament~{i} = {0, Min 0, Max 2*Pi, Step 2*Pi/100, ReadOnly Preset,
@@ -83,7 +85,14 @@ For i In {1:NumLayers}
     ll1 = newll; Line Loop(ll1) = {l1, l2, l3, l4};
     s1 = news; Plane Surface(s1) = {ll1};
     If(FilamentShape && FilamentMeshTransfinite)
+      nw = (FilamentWidth / LcFilament) + 1;
+      nt = ((FilamentThickness / LcFilament) + 1) * FilamentMeshTransfiniteAniso;
+      Transfinite Line{l1, l3} = nw;
+      Transfinite Line{l2, l4} = nt;
       Transfinite Surface{s1};
+      If(!ThreeD)
+        Recombine Surface{s1};
+      EndIf
     EndIf
     llf_0[] += ll1;
     If(ThreeD && TwistFraction)
