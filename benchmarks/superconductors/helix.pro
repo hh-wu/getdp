@@ -1,22 +1,21 @@
 Include "helix_data.pro";
 
 Group {
-  Air = Region[ AIR ];
-  Matrix = Region[ {MATRIX} ];
-  BndMatrix = Region[ BND_MATRIX ];
+  Air = Region[AIR];
+  Matrix = Region[MATRIX];
+  BndMatrix = Region[BND_MATRIX];
   Filaments = Region[{}];
   For i In {1:NumLayers}
     For j In {1:NumFilaments~{i}}
-      Filaments += Region[ (FILAMENT + 1000 * i + j) ];
+      Filaments += Region[(FILAMENT + 1000 * i + j)];
     EndFor
   EndFor
 
-  OmegaC = Region[{Matrix, Filaments}];
-  OmegaCC = Region[{Air}];
-  Omega = Region[{OmegaC, OmegaCC}];
-  BndOmegaC = Region[{BndMatrix}];
-
-  Cut = Region[ (AIR + 1) ];
+  OmegaC = Region[{Matrix, Filaments}]; // conducting domain
+  OmegaCC = Region[Air]; // non-conducting domain
+  BndOmegaC = Region[BndMatrix]; // boundary of conducting domain
+  Cut = Region[(AIR + 1)]; // thick cut
+  Omega = Region[{OmegaC, OmegaCC}]; // full domain
 }
 
 Function {
@@ -80,13 +79,15 @@ Jacobian {
 
 Integration {
   { Name Int ;
-    Case { { Type Gauss ;
+    Case {
+      { Type Gauss ;
 	Case {
 	  { GeoElement Triangle ; NumberOfPoints  4 ; }
           { GeoElement Quadrangle ; NumberOfPoints  4 ; }
 	  { GeoElement Tetrahedron ; NumberOfPoints  5 ; }
 	}
-      } }
+      }
+    }
   }
 }
 
@@ -140,7 +141,7 @@ Formulation {
       //
       // for all h' in Hspace.
       //
-      // Linearization:
+      // Linearization in the superconducting filaments:
       //
       //   E(J_k) \approx E(J_k-1) + (dE/dJ)_k-1 * (J_k - J_k-1)
       //
@@ -197,8 +198,7 @@ Resolution {
 
   { Name MagDynHComplex;
     System {
-      { Name A; NameOfFormulation MagDynH;
-        Type ComplexValue; Frequency Freq;}
+      { Name A; NameOfFormulation MagDynH; Type ComplexValue; Frequency Freq;}
     }
     Operation {
       CreateDirectory["res"];
@@ -237,7 +237,6 @@ PostOperation {
     Operation {
       Echo["General.Verbosity=3;", File "res/option.pos"];
       Print[ h, OnElementsOf Omega , File "res/h.pos", Name "h [Am⁻1]" ];
-      Print[ phi, OnElementsOf Omega , File "res/phi.pos", Name "phi" ];
       Print[ j, OnElementsOf OmegaC , File "res/j.pos", Name "j [Am⁻²]" ];
       Print[ Losses[OmegaC],  OnGlobal, Format TimeTable,
         File > "res/losses_total.txt", SendToServer "Output/Losses [W]"] ;

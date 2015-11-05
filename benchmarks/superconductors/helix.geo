@@ -7,9 +7,14 @@ DefineConstant[
     Name "Input/1Geometry/Radius of air domain [mm]"},
   MatrixRadius = {(Preset == 3) ? 0.5 : 0.56419, ReadOnly Preset,
     Name "Input/1Geometry/Radius of conductive matrix [mm]"},
-  FilamentShape = {(Preset == 4) ? 1 : 0, Choices{0="Round", 1="Rectangular"}, ReadOnly Preset,
+  FilamentShape = {(Preset == 4 || Preset == 5) ? 1 : 0,
+    Choices{0="Round", 1="Rectangular"}, ReadOnly Preset,
     Name "Input/1Geometry/Filament shape"},
-  FilamentRadius = {(Preset == 3) ? 0.036 : (Preset == 1) ? 0.5 : 0.1784, ReadOnly Preset,
+  FilamentRadius = {
+    (Preset == 3) ? 0.036 :
+    (Preset == 1) ? 0.5 :
+    0.1784,
+    ReadOnly Preset,
     Name "Input/1Geometry/Filement radius [mm]", Visible !FilamentShape},
   FilamentWidth = {0.75, ReadOnly Preset,
     Name "Input/1Geometry/Filament width [mm]", Visible FilamentShape},
@@ -17,7 +22,10 @@ DefineConstant[
     Name "Input/1Geometry/Filament thickness [mm]", Visible FilamentShape},
   TwistPitch = {(Preset == 3) ? 12 : 4, ReadOnly Preset,
     Name "Input/1Geometry/Twist pitch [mm]"},
-  TwistFraction = {(Preset == 3) ? 0.075 : (Preset == 1) ? 0.01 : 1/4,
+  TwistFraction = {
+    (Preset == 3) ? 0.075 :
+    (Preset == 1) ? 0.01 :
+    1/4,
     Min 1/16, Max 2, Step 1/4, ReadOnly Preset,
     Name "Input/1Geometry/Twist fraction in model"},
   LcFilament = {(Preset == 3) ? 0.015 : 0.05,
@@ -36,12 +44,17 @@ DefineConstant[
 
 For i In {1:NumLayers}
   DefineConstant[
-    LayerRadius~{i} = { (Preset == 3 && i == 1) ? 0.13 :
-      (Preset == 3 && i == 2) ? 0.25 : (Preset == 3 && i == 3) ? 0.39 :
-      (Preset == 1 || Preset == 4) ? 0 : i * MatrixRadius / (NumLayers + 1),
+    LayerRadius~{i} = {
+      (Preset == 3 && i == 1) ? 0.13 :
+      (Preset == 3 && i == 2) ? 0.25 :
+      (Preset == 3 && i == 3) ? 0.39 :
+      (Preset == 5) ? 0.1 :
+      (Preset == 1 || Preset == 4) ? 0 :
+      i * MatrixRadius / (NumLayers + 1),
       Min FilamentRadius, Max MatrixRadius, Step 1e-2, ReadOnly Preset,
       Name Sprintf["Input/1Geometry/{Layer %g/Radius [mm]", i]},
-    StartAngleFilament~{i} = {0, Min 0, Max 2*Pi, Step 2*Pi/100, ReadOnly Preset,
+    StartAngleFilament~{i} = { (Preset == 5) ? Pi/2 : 0,
+      Min 0, Max 2*Pi, Step 2*Pi/100, ReadOnly Preset,
       Name Sprintf["Input/1Geometry/{Layer %g/Starting angle [rad]", i]}
   ];
 EndFor
@@ -87,7 +100,7 @@ For i In {1:NumLayers}
     If(FilamentShape && FilamentMeshTransfinite)
       nw = (FilamentWidth / LcFilament) + 1;
       nt = ((FilamentThickness / LcFilament) + 1) * FilamentMeshTransfiniteAniso;
-      Transfinite Line{l1, l3} = nw;
+      Transfinite Line{l1, l3} = nw Using Bump 0.5;
       Transfinite Line{l2, l4} = nt;
       Transfinite Surface{s1};
       If(!ThreeD)
@@ -207,4 +220,4 @@ Cohomology(1) {AIR, {}};
 
 General.ExpertMode = 1; // Don't complain for hybrid structured/unstructured mesh
 Mesh.Algorithm = 6; // Use Frontal 2D algorithm
-Mesh.Optimize = 1; // Remove slivers in 3D tet mesh
+Mesh.Optimize = 1; // Optimize 3D tet mesh
