@@ -4421,7 +4421,7 @@ list.
 @item InitSolution1
 @code{[@var{system-id}]}
 
-Same as @{InitSolution}, but uses the first value given in the
+Same as @code{InitSolution}, but uses the first value given in the
 @code{Init} constraints.
 
 @item CreateSolution
