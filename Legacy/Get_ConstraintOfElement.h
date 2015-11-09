@@ -23,7 +23,7 @@ void Treatment_ConstraintByLocalProjection(struct Element *Element,
 
 void  Get_ValueForConstraint(struct ConstraintInFS * Constraint_P,
                              double Value[], double Value2[],
-			     int * Index_TimeFunction) ;
+			     int * Index_TimeFunction, bool KeepCurrentElement=false) ;
 void  Get_PreResolutionForConstraint(struct ConstraintInFS * Constraint_P,
 				     int * Index_TimeFunction) ;
 void  Get_LinkForConstraint(struct ConstraintInFS * Constraint_P,

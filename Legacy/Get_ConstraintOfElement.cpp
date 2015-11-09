@@ -75,6 +75,7 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 
 	    if (ConstraintPerRegion_P->Type == ASSIGN ||
 		ConstraintPerRegion_P->Type == INIT) {
+              bool KeepCurrentElement = false;
 	      switch (TypeConstraint) {
 	      case NODESOF :
 	      case GROUPSOFEDGESONNODESOF :
@@ -86,6 +87,7 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 		break ;
 	      case VOLUMESOF :
 		Current.NumEntity = abs(Num_Entity[i_Entity]) ;
+                KeepCurrentElement = true;
                 break;
 	      case EDGESOF :
 		Current.NumEntity = abs(Num_Entity[i_Entity]) ;
@@ -97,7 +99,7 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 		 QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Value,
 		 QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Value2,
 		 &QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].
-		 TimeFunctionIndex) ;
+		 TimeFunctionIndex, KeepCurrentElement) ;
 	    }
             else if (ConstraintPerRegion_P->Type == ASSIGN_LOCALPROJ ||
                      ConstraintPerRegion_P->Type == INIT_LOCALPROJ) {
@@ -220,7 +222,8 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 /* ------------------------------------------------------------------------ */
 
 void  Get_ValueForConstraint(struct ConstraintInFS * Constraint_P, double Value[],
-                             double Value2[], int * Index_TimeFunction)
+                             double Value2[], int * Index_TimeFunction,
+                             bool KeepCurrentElement)
 {
   int  k ;
   struct Value  Val_Modulus, Val_Modulus2, Val_TimeFunction ;
@@ -229,7 +232,8 @@ void  Get_ValueForConstraint(struct ConstraintInFS * Constraint_P, double Value[
   // in the reference element. We thus set Current.Element=0 and rely on
   // Current.{x,y,z}.
   struct Element *old = Current.Element;
-  Current.Element = 0;
+
+  if(!KeepCurrentElement) Current.Element = 0;
 
   Get_ValueOfExpression
     ((struct Expression *)
