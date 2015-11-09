@@ -22,6 +22,7 @@
 #include <gmsh/Gmsh.h>
 #include <gmsh/GmshVersion.h>
 #include <gmsh/GmshConfig.h>
+#include <gmsh/PView.h>
 #endif
 
 int     Flag_PRE = 0, Flag_CAL = 0, Flag_POS = 0, Flag_RESTART = 0;
@@ -34,6 +35,7 @@ char   *Name_MshFile = 0, *Name_AdaptFile = 0;
 char   *Name_PostOperation[NBR_MAX_POS] = {0};
 char   *Name_ResFile[NBR_MAX_RES] = {0};
 char   *Name_GmshReadFile[NBR_MAX_RES] = {0};
+int     Tag_GmshReadFile[NBR_MAX_RES] = {-1};
 
 static void Info(int level, char *arg0)
 {
@@ -49,6 +51,7 @@ static void Info(int level, char *arg0)
 	    "  -pos 'PostOperation(s)'   post-processing\n"
 	    "  -msh file                 read mesh (in msh format) from file\n"
             "  -gmshread file(s)         read gmsh data (same as GmshRead in resolution)\n"
+            "  -gmshtag tag(s)           tag(s) associated to GmshRead data\n"
 	    "  -restart                  resume processing from where it stopped\n"
 	    "  -solve 'Resolution'       same as -pre 'Resolution' -cal\n"
 	    "  -split                    save processing results in separate files\n"
@@ -364,6 +367,7 @@ static void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *
       }
 
       else if (!strcmp(argv[i]+1, "gmshread")) {
+        for(int k = 0; k < NBR_MAX_RES; k++) Tag_GmshReadFile[k] = -1;
 	i++; j = 0;
 	while (i < argc && argv[i][0] != '-') {
 	  Name_GmshReadFile[j] = strSave(argv[i]); i++; j++;
@@ -377,6 +381,20 @@ static void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *
 	else{
 	  Name_GmshReadFile[j] = NULL;
 	}
+      }
+
+      else if (!strcmp(argv[i]+1, "gmshtag")) {
+        for(int k = 0; k < NBR_MAX_RES; k++) Tag_GmshReadFile[k] = -1;
+	i++; j = 0;
+	while (i < argc && argv[i][0] != '-') {
+	  Tag_GmshReadFile[j] = atoi(argv[i]); i++; j++;
+	  if(j == NBR_MAX_RES){
+	    Message::Error("Too many tags");
+            break;
+          }
+	}
+	if(!j)
+	  Message::Error("Missing tag");
       }
 
       else if (!strcmp(argv[i]+1, "name")) {
@@ -549,6 +567,13 @@ int MainLegacy(int argc, char *argv[])
   }
   int j = 0;
   while(Name_GmshReadFile[j]){
+    if(Tag_GmshReadFile[j] >= 0){
+      PView::setGlobalTag(Tag_GmshReadFile[j]);
+      Message::Info("GmshRead[%s] -> View[%d]", Name_GmshReadFile[j], Tag_GmshReadFile[j]);
+    }
+    else{
+      Message::Info("GmshRead[%s]", Name_GmshReadFile[j]);
+    }
     GmshMergePostProcessingFile(Name_GmshReadFile[j]);
     j++;
   }
