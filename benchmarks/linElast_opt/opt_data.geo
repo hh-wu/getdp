@@ -11,7 +11,7 @@ DefineConstant[
   pInOpt = "Input/Optimization/",
 
   // Optimization 
-  Flag_optType = {"shape", 
+  Flag_optType = {"topology", 
     Choices {
       "shape",
       "topology"
@@ -33,6 +33,7 @@ DefineConstant[
 
   // Velocity field (Mesh perturbation)
   Flag_readV = {0, Choices {0,1}, Name "Input/read vel", Visible 1},
+  Flag_bilinInt = {0, Choices {0,1}, Name "Input/bilin int", Visible 1},
 
   SensitivityParameter = { StrCat(pp,"Hole Length"),
     Choices{

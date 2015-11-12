@@ -1,6 +1,5 @@
 """
     Author: Erin Kuci
-    
     Topology optimization using SIMP method and MMA algorithm (matlab)
 """
 import sys
@@ -13,33 +12,44 @@ import defPerfFunc
 pIn = 'Input/Constructive Parameters/'
 ppC = 'Input/0Cao/'
 cao = 'square' #'square','rotor'
-extrude=0
-hole=0
+extrude=1;nz=10;hole=0
+if os.path.isfile('data.npy'):
+    data = np.load('data.npy')
+    nx=data[0];ny=data[1]
+else:
+    nx=60*4;ny=20*4
+Lx = 3; Ly = 1
 # ************************************************************************
 # ***** Create the parameters                                        *****
 # ************************************************************************
 parameters = {
-    'plot':1,'Print':5,'file':'beam',
+    'plot':1,'Print':2,'file':'beam',
     'analysis':['u_Mec'],
     'analysisPost':['u_Mec_Post'],
     'adjoint':['Adjoint_u_Mec'],
     'direct':['Direct_u_Mec'],
+    'project_xe':0,
+    'MeshRefine':1,
+    'iter':1000,
     'defaultValue':{
         'OptType':['Input/Optimization Type','topology'],
         'cao':[ppC+'0 Cao?',cao],
         'extrude':[ppC+'extrude?',extrude],
         'load':['Input/Loading/case',0],
-        'MaterialInterpLaw':['Input/Optimization/Material Law','polynomial'],
+        'MaterialInterpLaw':['Input/Optimization/Material Law','simp'],
         'SimpDegree':['Input/Optimization/Simp Degree',3.0],
-        'Lx':[pIn+'X length [m]',4],
-        'Ly':[pIn+'Y length [m]',1],
+        'Lx':[pIn+'X length [m]',Lx],
+        'Ly':[pIn+'Y length [m]',Ly],
         'Transfinite':[ppC+'transfinite?',1],
-        'lc':[ppC+'Mesh density',1.0],
+        'Nx':[ppC+'Nx',nx],
+        'Ny':[ppC+'Ny',ny],
+        'Nz':[ppC+'Nz',nz],
+        #'lc':[ppC+'Mesh density',1.0],
         'Hole':[ppC+'Hole',hole]
     },
     'TAG':[1000], #1000,1001
     'performance':opt_complianceVolume,#opt_maxBeta_eig,
-    'rmin':0.0125,
+    'rmin':1.5*Lx/nx, #0.0125,
     'optimizer':'mma2007',#'mma2007','conlinFile','gcmma','openopt'
     'xtol':1.0e-02,
     'iterMax':1000}
@@ -57,11 +67,13 @@ op = Optimization(parameters,xmin,xmax,x)
 # ***** Optimization routine                                         *****
 # ************************************************************************
 # Preprocess
-op.preprocessing(op.parameters)
+#op.preprocessing(op.parameters)
 
 # Call optimizer
 #op.solveOpt(op.x,op.xmax,op.xmin,op.fjMax,2,op.parameters)
 op.OC(op.x,op.fjMax,op.parameters)
+
+np.save('out_timing.npy',np.array([op.time]))
 
 #mm = len(op.fjMax) - 1
 #cc = 10000.0*np.ones(mm)
@@ -74,13 +86,13 @@ op.OC(op.x,op.fjMax,op.parameters)
 #op.mmaSvanMatlab(op.x,op.xmax,op.xmin,op.fjMax[1:],op.parameters,aa,1)
 
 # Close optimizer
-op.close()
+#op.close()
 
 # ************************************************************************
 # ***** Optimization Post-Process                                    *****
 # ************************************************************************
 # Optimization history
-op.postprocessing('resOpt/histOptClassAttr.txt',op.iter-1)
+#op.postprocessing('resOpt/histOptClassAttr.txt',op.iter-1)
 #op.postprocessing('hist/TO_2D_cantil_100.400_midlPnt_Filt0.005_vfrac0.5/histOptClassAttr.txt',146)
 
 

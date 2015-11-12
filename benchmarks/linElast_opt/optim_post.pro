@@ -3,16 +3,16 @@ po_min  = "Output/";
 PostProcessing {
   { Name u_Mec ; NameOfFormulation u_Mec ;
     PostQuantity {
+      
       { Name u; Value { Term { [ {u} ] ; In Domain ; } }} 
       { Name um ; Value { Term { [Norm[{u}]] ; In Domain  ; } } }
       { Name F ; Value { Term { [ force_mec[] ]; In Domain_Force ; } } }
-      { Name E ; Value { Term { [ E[] ]; In Domain ; } } }
-      { Name rho ; Value { Term { [ rho[] ]; In Domain ; } } }
-         
+      { Name E ; Value { Term { [ E[{xe}] ]; In Domain ; } } }
+      { Name rho ; Value { Term { [ rho[{xe}] ]; In Domain ; } } }   
 
-      { Name StressVM; Value { Term {[sigmaVM[{D1 u},{D2 u}]];In Domain;}}}
+      { Name StressVM; Value { Term {[sigmaVM[{D1 u},{D2 u},{xe}]];In Domain;}}}
       { Name StressVMInt; Value {
-      	Integral { [ sigmaVM[{D1 u},{D2 u}]^degVM ];
+      	Integral { [ sigmaVM[{D1 u},{D2 u},{xe}]^degVM ];
           In Domain ; Jacobian SurLinVol  ; Integration I1; }
         }
       }
@@ -20,17 +20,16 @@ PostProcessing {
         Term{Type Global; [$VM_P ^ (1/degVM)];In DomainFunc ; } }} 
 
       { Name Volume; Value{Integral{[1.0];In Domain; Jacobian Vol;Integration I1;}}}
-      { Name designVarPlot; Value{Term{[designVar[]]; In Domain; Jacobian Vol;}}}
-
+      { Name desVar; Value{Term{[designVar[]]; In Domain; Jacobian Vol;}}}
+      { Name xe; Value{Term{[{xe}]; In Domain; Jacobian Vol;}}}
       { Name Compliance; Value {
-      	Integral { [ 0.5 * bilin_uu[{D1 u},{D2 u}] ];
+      	Integral { [ 0.5 * bilin_uu[{D1 u},{D2 u},{xe}] ];
           In Domain ; Jacobian SurLinVol ; Integration I1; }
         }
       }
-   
       { Name Mass;
 	Value {
-	  Integral{ [ rho[] ];
+	  Integral{ [ rho[{xe}] ];
 	    In Domain; Jacobian SurLinVol; Integration I1; }
 	}
       } 
@@ -71,6 +70,12 @@ PostProcessing {
 }
 
 PostOperation {
+// { Name xe; NameOfPostProcessing xe;
+//   Operation{
+//       Print[ xe, OnElementsOf Domain, 
+//         File StrCat[ResDir,"desVarPlot_xe",ExtGmsh], LastTimeStepOnly] ;
+//   } 
+// }
   // --------------------------------------------------------------------------
   // Get state variable 
   // --------------------------------------------------------------------------
@@ -80,24 +85,24 @@ PostOperation {
 //     Print[ rho, OnElementsOf Domain,File StrCat[ResDir,"rho",ExtGmsh]] ;
 //     Print[ u, OnElementsOf Domain,File StrCat[ResDir,"u",ExtGmsh]] ;
 //     Print[ StressVM, OnElementsOf Domain,File StrCat[ResDir,"VM",ExtOnelabVec]] ;
-//     //Print[ um,OnElementsOf Domain,File StrCat[ResDir,"um",ExtGmsh]] ;
+//     Print[ um,OnElementsOf Domain,File StrCat[ResDir,"um",ExtGmsh]] ;
 //     Print[ F, OnElementsOf Domain_Force,File StrCat[ResDir,"F",ExtGmsh]] ;
 
      Print[ Compliance[DomainFunc], OnGlobal, Format TimeTable,
        File StrCat[ResDir, StrCat["ComplianceElm",ExtOnelabScal]], LastTimeStepOnly,
        SendToServer StrCat[po_min,"ComplianceElm"], Color "LightYellow" ];
 
-     Print[ Mass[DomainFunc], OnGlobal, Format TimeTable,
-       File StrCat[ResDir, StrCat["Mass",ExtOnelabScal]], LastTimeStepOnly,
-       SendToServer StrCat[po_min,"Mass"], Color "LightYellow" ];
+//     Print[ Mass[DomainFunc], OnGlobal, Format TimeTable,
+//       File StrCat[ResDir, StrCat["Mass",ExtOnelabScal]], LastTimeStepOnly,
+//       SendToServer StrCat[po_min,"Mass"], Color "LightYellow" ];
 
-     Print[ StressVMInt[DomainFunc], OnGlobal, Format TimeTable,
-       File StrCat[ResDir, StrCat["StressVM",ExtOnelabScal]], LastTimeStepOnly,
-       StoreInVariable $VM_P,SendToServer StrCat[po_min,"StressVM"],Color "LightYellow" ];
+//     Print[ StressVMInt[DomainFunc], OnGlobal, Format TimeTable,Color "LightYellow",
+//       File StrCat[ResDir, StrCat["StressVM",ExtOnelabScal]], LastTimeStepOnly,
+//       StoreInVariable $VM_P,SendToServer StrCat[po_min,"StressVM"] ];
 
-     Print[ StressVM_pNorm, OnRegion DomainFunc, Format TimeTable,
-       File StrCat[ResDir, StrCat["StressVM_pNorm",ExtOnelabScal]], LastTimeStepOnly,
-       SendToServer StrCat[po_min,"StressVM_pNorm"], Color "LightYellow"];
+//     Print[ StressVM_pNorm, OnRegion DomainFunc, Format TimeTable,
+//       File StrCat[ResDir, StrCat["StressVM_pNorm",ExtOnelabScal]], LastTimeStepOnly,
+//       SendToServer StrCat[po_min,"StressVM_pNorm"], Color "LightYellow"];
 
 //     Print[ Volume[Domain], OnGlobal, Format TimeTable, 
 //       File StrCat[ResDir,"Volume",ExtOnelabScal], LastTimeStepOnly, 
@@ -109,6 +114,13 @@ PostOperation {
 //     Print[ Volume, OnElementsOf Domain, 
 //       File StrCat[ResDir,"ElementVolume",ExtOnelabVec], LastTimeStepOnly] ;
 
+//     If (!Flag_bilinInt)
+//       Print[ desVarPlot, OnElementsOf Domain, 
+//         File StrCat[ResDir,"xe_gen",ExtGmsh], LastTimeStepOnly] ;
+//     Else
+//	Print[ xe, OnElementsOf Domain, 
+//         File StrCat[ResDir,"xe_trans",ExtGmsh], LastTimeStepOnly] ;
+//     EndIf
    }
  }
 

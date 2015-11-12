@@ -1,10 +1,10 @@
+// FIXME: Comment passer proprement l'argument {xe} 
+//        (sans doubler la taille du code) ???
+// donner xe en entrée à toutes les fonctions!
 Group {
   DefineGroup[
     Domain,Domain_Force,Domain_Force_Lin,Domain_Force_Sur,
     DomainFunc] ;
-}
-
-Function {
 }
 
 Jacobian {
@@ -39,20 +39,26 @@ Integration {
 }
 
 FunctionSpace{
-  //If(!StrCmp(Flag_optType,"shape") || !StrCmp(Flag_optType,"topology") )
-  If (Flag_readV)
-    For i In {1:3}
-      { Name H_v~{i} ; Type Form0 /*Scalar*/ ; // primal 2D
-        BasisFunction {
-          { Name sn ; NameOfCoef un ; Function BF_Node ;
-            Support Domain; Entity NodesOf[ All ] ; }
-        }
-        Constraint {
-          { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint velocity~{i}; }
-        }
+  For i In {1:3}
+    { Name H_v~{i} ; Type Form0 /*Scalar*/ ; // primal 2D
+      BasisFunction {
+        { Name sn ; NameOfCoef un ; Function BF_Node ;
+          Support Domain; Entity NodesOf[ All ] ; }
       }
-    EndFor
-  EndIf
+      Constraint {
+        { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint velocity~{i}; }
+      }
+    }
+  EndFor
+  { Name H_xe ; Type Form0 ; // primal 2D 
+    BasisFunction {
+      { Name sxn ; NameOfCoef uxn ; Function BF_Volume ;
+        Support Region[{Domain}]; Entity VolumesOf[ All ] ; }
+    }
+    Constraint {
+      { NameOfCoef uxn ; EntityType VolumesOf ; NameOfConstraint constr_xe ; }
+    }
+  }
   { Name H_u_Mec2D ; Type Vector ; // primal 2D
     BasisFunction {
       { Name sxn ; NameOfCoef uxn ; Function BF_NodeX ;
@@ -79,6 +85,18 @@ FunctionSpace{
       EndIf
     }
   }
+
+  For i In {1:2}
+    { Name H_u~{i} ; Type Form0 ;
+      BasisFunction {
+        { Name sn ; NameOfCoef un ; Function BF_Node ;
+          Support Region[{Domain,Domain_Force}]; Entity NodesOf[ All ] ; }
+      }
+      Constraint {
+        { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Displacement~{i} ; }
+      }
+    }
+  EndFor
 
   { Name H_ux_Mec ; Type Form0 ;
     BasisFunction {
@@ -135,35 +153,33 @@ Formulation{
     { Name u_Mec ; Type FemEquation ;
       Quantity {
         { Name u ; Type Local ; NameOfSpace H_u_Mec2D ;}
-        //If(!StrCmp(Flag_optType,"shape") || !StrCmp(Flag_optType,"topology") )
-        If (Flag_readV)
-          For i In {1:3}
-            { Name v~{i} ; Type Local ; NameOfSpace H_v~{i};}
-          EndFor
-        EndIf
+        For i In {1:3}
+          { Name v~{i} ; Type Local ; NameOfSpace H_v~{i};}
+        EndFor
+        { Name xe ; Type Local ; NameOfSpace H_xe;}
       }
       Equation {
-        Galerkin { [ C[] * Dof{D1 u}, {D1 u}] ;
+        Galerkin { [ C[{xe}] * Dof{D1 u}, {D1 u}] ;
           In Domain; Jacobian Vol ; Integration I1 ; }
-        Galerkin { [ -force_mec[], {u}] ;
+
+        Galerkin { [ -force_mec[], {u}];
           In Domain_Force ; Jacobian SurLinVol; Integration I1; }
-        //If(!StrCmp(Flag_optType,"shape") || !StrCmp(Flag_optType,"topology") )
-        If (Flag_readV)
-          For i In {1:3}
-            Galerkin { [ 0*Dof{v~{i}}, {v~{i}} ] ;
-              In Domain; Jacobian Vol ; Integration I1 ; }
-          EndFor
-        EndIf
+ 
+        For i In {1:3}
+          Galerkin { [ 0*Dof{v~{i}}, {v~{i}} ] ;
+            In Domain; Jacobian Vol ; Integration I1 ; }
+        EndFor
+        Galerkin { [ 0*Dof{xe}, {xe} ] ;
+          In Domain; Jacobian Vol ; Integration I1 ; }
       }
     }
+
     { Name u_Mec_eig ; Type FemEquation ;
       Quantity {
         { Name u ; Type Local ; NameOfSpace H_u_Mec2D ;}
-        If (Flag_readV)
-          For i In {1:3}
-            { Name v~{i} ; Type Local ; NameOfSpace H_v~{i};}
-          EndFor
-        EndIf
+        For i In {1:3}
+          { Name v~{i} ; Type Local ; NameOfSpace H_v~{i};}
+        EndFor
       }
       Equation {
         Galerkin { DtDtDof [ rho[] * Dof{u} , {u} ];
@@ -171,29 +187,34 @@ Formulation{
         Galerkin { [ C[] * Dof{D1 u}, {D1 u}] ;
           In Domain; Jacobian Vol ; Integration I1 ; }
 
-        If (Flag_readV)
-          For i In {1:3}
-            Galerkin { [ 0*Dof{v~{i}}, {v~{i}} ] ;
-              In Domain; Jacobian Vol ; Integration I1 ; }
-          EndFor
-        EndIf
+        For i In {1:3}
+          Galerkin { [ 0*Dof{v~{i}}, {v~{i}} ] ;
+            In Domain; Jacobian Vol ; Integration I1 ; }
+        EndFor
       }
     }
     { Name u_Mec_Comp ; Type FemEquation ;
       Quantity {
         { Name ux; Type Local ; NameOfSpace H_ux_Mec ;}
         { Name uy; Type Local ; NameOfSpace H_uy_Mec ;}
-        If (Flag_readV)
-          For i In {1:3}
-            { Name v~{i} ; Type Local ; NameOfSpace H_v~{i};}
-          EndFor
-        EndIf
+        For i In {1:3}
+          { Name v~{i} ; Type Local ; NameOfSpace H_v~{i};}
+        EndFor
+        For i In {1:}
+          { Name u~{i} ; Type Local ; NameOfSpace H_u~{i};}
+        EndFor
       }
       Equation {
         Galerkin { [ CompXX[C[]] * CompX[Dof{d ux}], CompX[{d ux}] ] ;
           In Domain; Jacobian Vol ; Integration I1 ; }
-        // FIXME: complete...
-
+        Galerkin { [ CompXY[C[]] * CompY[Dof{d uy}], CompX[{d ux}] ] ;
+          In Domain; Jacobian Vol ; Integration I1 ; }
+        Galerkin { [ CompXZ[C[]] * (CompX[Dof{d uy}], CompX[{d ux}] ] ;
+          In Domain; Jacobian Vol ; Integration I1 ; }
+        Galerkin { [ CompXZ[C[]] * (CompY[Dof{d ux}], CompX[{d ux}] ] ;
+          In Domain; Jacobian Vol ; Integration I1 ; }
+         // FIXME: complete...
+         // 
         Galerkin { [ -CompX[force_mec[]], {ux}] ;
           In Domain_Force ; Jacobian SurLinVol; Integration I1; }
         Galerkin { [ -CompY[force_mec[]], {uy}] ;
@@ -206,45 +227,42 @@ Formulation{
         EndIf
       }
     }
-  EndIf
-  If (!Flag_2D) // 3D formulation
+  Else // 3D formulation
     { Name u_Mec; Type FemEquation;
       Quantity{
         { Name u; Type Local; NameOfSpace H_u_Mec3D;}
-        If (Flag_readV)
-          For i In {1:3}
-            { Name v~{i} ; Type Local ; NameOfSpace H_v~{i};}
-          EndFor
-        EndIf
+        For i In {1:3}
+          { Name v~{i} ; Type Local ; NameOfSpace H_v~{i};}
+        EndFor
+        { Name xe ; Type Local ; NameOfSpace H_xe;}
       }
       Equation{
-        Galerkin { [ C11[] * Dof{D1 u} , {D1 u} ] ;
+        Galerkin { [ C11[{xe}] * Dof{D1 u} , {D1 u} ] ;
           In Domain ; Jacobian Vol ; Integration I1 ; }
-        Galerkin { [ C12[] * Dof{D2 u} , {D1 u} ] ;
+        Galerkin { [ C12[{xe}] * Dof{D2 u} , {D1 u} ] ;
 	  In Domain ; Jacobian Vol ; Integration I1 ; }
-        Galerkin { [ C21[] * Dof{D1 u} , {D2 u} ] ;
+        Galerkin { [ C21[{xe}] * Dof{D1 u} , {D2 u} ] ;
 	  In Domain ; Jacobian Vol ; Integration I1 ; }
-        Galerkin { [ C22[] * Dof{D2 u} , {D2 u} ] ;
+        Galerkin { [ C22[{xe}] * Dof{D2 u} , {D2 u} ] ;
 	  In Domain ; Jacobian Vol ; Integration I1 ; }
         Galerkin { [ -force_mec[], {u}] ;
           In Domain_Force ; Jacobian SurLinVol; Integration I1; }
 
-        If (Flag_readV)
-          For i In {1:3}
-            Galerkin { [ 0*Dof{v~{i}}, {v~{i}} ] ;
-              In Domain; Jacobian Vol ; Integration I1 ; }
-          EndFor
-        EndIf
+        For i In {1:3}
+          Galerkin { [ 0*Dof{v~{i}}, {v~{i}} ] ;
+            In Domain; Jacobian Vol ; Integration I1 ; }
+        EndFor
+
+        Galerkin { [ 0*Dof{xe}, {xe} ] ;
+          In Domain; Jacobian Vol ; Integration I1 ; }
       }
     }
     { Name u_Mec_eig; Type FemEquation;
       Quantity{
         { Name u; Type Local; NameOfSpace H_u_Mec3D;}
-        If (Flag_readV)
-          For i In {1:3}
-            { Name v~{i} ; Type Local ; NameOfSpace H_v~{i};}
-          EndFor
-        EndIf
+        For i In {1:3}
+          { Name v~{i} ; Type Local ; NameOfSpace H_v~{i};}
+        EndFor
       }
       Equation{
         Galerkin { DtDtDof [ rho[] * Dof{u} , {u} ];
@@ -258,12 +276,10 @@ Formulation{
         Galerkin { [ C22[] * Dof{D2 u} , {D2 u} ] ;
 	  In Domain ; Jacobian Vol ; Integration I1 ; }
 
-        If (Flag_readV)
-          For i In {1:3}
-            Galerkin { [ 0*Dof{v~{i}}, {v~{i}} ] ;
-              In Domain; Jacobian Vol ; Integration I1 ; }
-          EndFor
-        EndIf
+        For i In {1:3}
+          Galerkin { [ 0*Dof{v~{i}}, {v~{i}} ] ;
+            In Domain; Jacobian Vol ; Integration I1 ; }
+        EndFor
       }
     }
   EndIf
@@ -274,6 +290,7 @@ Resolution{
   // group  (direct,adjoint) -> Sens_u_Mec
   // give "u_Mec" as input -> other resolutions depend on "u_Mec"
   // gmsh read directly in command line !!! -> postpro without solve
+  // design variable
 
   // state variable
   { Name u_Mec; // mechanic 2D/3D
@@ -282,12 +299,11 @@ Resolution{
     }
     Operation{
       CreateDir[ResDir];
-      SetGlobalSolverOptions["-petsc_prealloc 20"];
-      If(!StrCmp(Flag_optType,"topology"))
+      //SetGlobalSolverOptions["-petsc_prealloc 2"];
+      If(!StrCmp(Flag_optType,"topology") && !Flag_bilinInt)
         GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD];
       EndIf
-      InitSolution[A];Generate[A];Solve[A];
-      SaveSolution[A];
+      InitSolution[A];Generate[A];Solve[A];SaveSolution[A];
       PostOperation[u_Mec];
     }
   }
@@ -309,7 +325,5 @@ Resolution{
 
 // Sensitivity analysis
 If(!StrCmp(Flag_optType,"shape") || !StrCmp(Flag_optType,"topology") )
-  If (Flag_readV)
-    Include "sensitivityElast.pro";
-  EndIf
+  Include "sensitivityElast.pro";
 EndIf

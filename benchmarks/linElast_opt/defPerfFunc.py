@@ -166,15 +166,14 @@ def opt_complianceVolume(x,data,parameters):
          x
         s.t. vol <= volM
     """
-    compl = data['ComplianceElm'][0]
-    vol = np.sum(x)
+    compl = data['ComplianceElm'][0];vol = np.sum(x)
     input = {
         'f':[compl,vol],
-        'df':['AdjointFixedDom',volumeSens],
+        'df':['SelfFixedDom',volumeSens],
         'fmax':[0, vol],
         'f_name':['Compliance','Volume'],
         'sign':[1.0,1.0],
-        'filter':[1]
+        'filter':[0]
     }
     return input
 

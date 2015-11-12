@@ -14,6 +14,7 @@ DefineConstant[
   ExtOnelabSens = ".toSens",
   modelpath = CurrentDir, 
   ResDir = StrCat[ modelpath, "res/" ],
+  po_min  = "Output/",
 
   //Flag_2D = {1, Choices {0,1}, Name "Input/1 2D?"},
   Flag_cao = {"square", Choices {"square","rotor"}, Name StrCat(ppC,"0 Cao?")},

@@ -2,32 +2,53 @@ Include "beam_data.geo";
 
 // square
 p1 = newp; Point(p1) = {-Lx/2,-Ly/2,-Lz/2, lc};
-p2 = newp; Point(p2) = { Lx/2,-Ly/2,-Lz/2, lc};
-p3 = newp; Point(p3) = { Lx/2, Ly/2,-Lz/2, lc};
+If (Flag_sym)
+  p2 = newp; Point(p2) = { 0,-Ly/2,-Lz/2, lc};
+  p3 = newp; Point(p3) = { 0, Ly/2,-Lz/2, lc};
+  p10 = newp; Point(p10) = {0, 0,-Lz/2, lc};
+EndIf
+If (!Flag_sym)
+  p2 = newp; Point(p2) = { Lx/2,-Ly/2,-Lz/2, lc};
+  p3 = newp; Point(p3) = { Lx/2, Ly/2,-Lz/2, lc};
+  p10 = newp; Point(p10) = {Lx/2, 0,-Lz/2, lc};
+EndIf
 p4 = newp; Point(p4) = {-Lx/2, Ly/2,-Lz/2, lc};
-p10 = newp; Point(p10) = {Lx/2, 0,-Lz/2, lc};
 l1 = newl; Line(l1) = {p1,p2}; 
 l2 = newl; Line(l2) = {p2,p10,p3};
 l3 = newl; Line(l3) = {p3,p4}; 
 l4 = newl; Line(l4) = {p4,p1};
 ll1 = newll; Line Loop(ll1) = {l1,l2,l3,l4};
 ll_[] = {ll1};
+Printf("l1:%g",l1);
+Printf("l2:%g",l2);
+Printf("l3:%g",l3);
+Printf("l4:%g",l4);
+Printf("ll_:",ll_[]);
 
 // hole
-If(Flag_hole==1) //ellipse
+If( Flag_hole == 1 ) //ellipse
   p_ec = newp;Point(p_ec) = {0, 0, -Lz/2, lc}; //center
-  p_e1 = newp;Point(p_e1) = {hole_length/2, 0, -Lz/2, lc};  //right
+  If (!Flag_sym)
+    p_e1 = newp;Point(p_e1) = {hole_length/2, 0, -Lz/2, lc};  //right
+  EndIf
   p_e2 = newp;Point(p_e2) = {0, hole_width/2, -Lz/2, lc};   //up
   p_e3 = newp;Point(p_e3) = {-hole_length/2, 0, -Lz/2, lc};  //left
   p_e4 = newp;Point(p_e4) = {0, -hole_width/2, -Lz/2, lc};  //down
-  l_e1 = newll;Ellipse(l_e1) = {p_e1, p_ec, p_e1, p_e2};
+  If (!Flag_sym)
+    l_e1 = newll;Ellipse(l_e1) = {p_e1, p_ec, p_e1, p_e2};
+    l_e4 = newll;Ellipse(l_e4) = {p_e4, p_ec, p_e4, p_e1}; 
+  EndIf
   l_e2 = newll;Ellipse(l_e2) = {p_e2, p_ec, p_e2, p_e3};
   l_e3 = newll;Ellipse(l_e3) = {p_e3, p_ec, p_e3, p_e4};
-  l_e4 = newll;Ellipse(l_e4) = {p_e4, p_ec, p_e4, p_e1}; 
-  ll_e = newll;Line Loop(ll_e) = {l_e1,l_e2,l_e3,l_e4};
+  If (!Flag_sym)
+    ll_e = newll;Line Loop(ll_e) = {l_e1,l_e2,l_e3,l_e4};
+  EndIf
+  If (Flag_sym)
+    ll_e = newll;Line Loop(ll_e) = {l_e2,l_e3};
+  EndIf
   ll_[] += -ll_e;
 EndIf
-If(Flag_hole==2)//spline
+If ( Flag_hole == 2 ) //spline
   aa[] = {};
   For i In {0:(NSpline-1)}
     theta = i*2*Pi/NSpline;
@@ -41,8 +62,8 @@ EndIf
 s1 = news; Plane Surface(s1) = ll_[];
 
 If(transfinite)
-  Transfinite Line{l1} = nbE_X;//Using Progression 1.3;
-  Transfinite Line{l3} = nbE_X; //Using Progression 1.2;
+  Transfinite Line{l1} = nbE_X;
+  Transfinite Line{l3} = nbE_X; 
   Transfinite Line{l2} = nbE_Y;
   Transfinite Line{l4} = nbE_Y;
   Transfinite Surface{s1} = {l1,l2,l3,l4};
@@ -63,6 +84,7 @@ If(Flag_extrude)
   vol[] = {e1[1]};
 EndIf
 
+// Physical regions
 If(!Flag_extrude) //2D
   Physical Surface(BLOC) = {s1}; 
   Physical Line(SURF_GAUCHE) = {l4};

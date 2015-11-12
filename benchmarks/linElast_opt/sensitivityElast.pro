@@ -66,25 +66,30 @@ FunctionSpace{
 }
 
 Formulation{
-  { Name velocity ; Type FemEquation ;
-    Quantity {
-      For i In {1:3}
-        { Name v~{i} ; Type Local ; NameOfSpace H_v~{i};}
-      EndFor
-    }
-    Equation {
-      For i In {1:3}
-        Galerkin { [ 0*Dof{v~{i}}, {v~{i}} ] ;
-          In Domain; Jacobian Vol ; Integration I1 ; }
-      EndFor
-    }
-  }
+//  { Name velocity ; Type FemEquation ;
+//    Quantity {
+//      For i In {1:3}
+//        { Name v~{i} ; Type Local ; NameOfSpace H_v~{i}; }
+//      EndFor
+//    }
+//    Equation {
+//      For i In {1:3}
+//        Galerkin { [ 0*Dof{v~{i}}, {v~{i}} ] ;
+//          In Domain; Jacobian Vol ; Integration I1 ; }
+//      EndFor
+//    }
+//  }
   If (Flag_2D) // 2D formulation
     //If(!StrCmp(Flag_optType,"shape") || !StrCmp(Flag_optType,"topology"))
       { Name Direct_u_Mec ; Type FemEquation ;
         Quantity {
           { Name u ; Type Local  ; NameOfSpace H_u_Mec2D ; }
           { Name d_u ; Type Local  ; NameOfSpace H_dState_Mec2D ; }
+          If(Flag_readV)
+            For i In {1:3}
+              { Name v~{i} ; Type Local ; NameOfSpace H_v~{i};}
+            EndFor
+          EndIf
         }
         Equation {
           Galerkin { [ C[]*Dof{D1 d_u}, {D1 d_u}] ; 
@@ -95,38 +100,43 @@ Formulation{
         Quantity {
           { Name u  ; Type Local  ; NameOfSpace H_u_Mec2D; }
           { Name lambda ; Type Local  ; NameOfSpace H_lambda_Mec2D; }
+          { Name xe ; Type Local ; NameOfSpace H_xe;}
           For i In {1:3}
             { Name v~{i} ; Type Local ; NameOfSpace H_v~{i};}
           EndFor
         } 
         Equation {
-          Galerkin { [ C[] * Dof{D1 lambda}, {D1 lambda} ] ;
+          Galerkin { [ C[{xe}] * Dof{D1 lambda}, {D1 lambda} ] ;
             In Domain ; Jacobian Vol ; Integration I1 ; }
-          Galerkin { [ -dFdb[{D1 u}], {D1 lambda} ] ;
+          Galerkin { [ -dFdb[{D1 u},{D2 u},{xe}], {D1 lambda} ] ;
             In DomainFunc ; Jacobian SurLinVol ; Integration I1 ; }
+          Galerkin { [ 0*Dof{xe}, {xe} ] ;
+            In Domain; Jacobian Vol ; Integration I1 ; }
         }
       }
     //EndIf  
-  EndIf
-  If (!Flag_2D) // 3D formulation
+  Else // 3D formulation
       { Name Adjoint_u_Mec ; Type FemEquation ;
         Quantity {
           { Name u  ; Type Local  ; NameOfSpace H_u_Mec3D; }
           { Name lambda ; Type Local  ; NameOfSpace H_lambda_Mec3D; }
-
+          { Name xe ; Type Local ; NameOfSpace H_xe;}
+          For i In {1:3}
+            { Name v~{i} ; Type Local ; NameOfSpace H_v~{i};}
+          EndFor
         }
         Equation {
-          Galerkin { [ C11[] * Dof{D1 lambda}, {D1 lambda} ] ;
+          Galerkin { [ C11[{xe}] * Dof{D1 lambda}, {D1 lambda} ] ;
             In Domain ; Jacobian Vol ; Integration I1 ; }
-          Galerkin { [ C12[] * Dof{D2 lambda}, {D1 lambda} ] ;
+          Galerkin { [ C12[{xe}] * Dof{D2 lambda}, {D1 lambda} ] ;
             In Domain ; Jacobian Vol ; Integration I1 ; }
-          Galerkin { [ C21[] * Dof{D1 lambda}, {D2 lambda} ] ;
+          Galerkin { [ C21[{xe}] * Dof{D1 lambda}, {D2 lambda} ] ;
             In Domain ; Jacobian Vol ; Integration I1 ; }
-          Galerkin { [ C22[] * Dof{D2 lambda}, {D2 lambda} ] ;
+          Galerkin { [ C22[{xe}] * Dof{D2 lambda}, {D2 lambda} ] ;
             In Domain ; Jacobian Vol ; Integration I1 ; }
-          Galerkin { [ -dFdb[{D1 u},{D2 u}], {D1 lambda} ] ;
+          Galerkin { [ -dFdb[{D1 u},{D2 u},{xe}], {D1 lambda} ] ;
             In DomainFunc ; Jacobian SurLinVol ; Integration I1 ; }
-          Galerkin { [ -dFdb2[{D1 u},{D2 u}], {D2 lambda} ] ;
+          Galerkin { [ -dFdb2[{D1 u},{D2 u},{xe}], {D2 lambda} ] ;
             In DomainFunc ; Jacobian SurLinVol ; Integration I1 ; }
         }
       }
@@ -134,6 +144,11 @@ Formulation{
         Quantity {
           { Name u ; Type Local  ; NameOfSpace H_u_Mec3D ; }
           { Name d_u ; Type Local  ; NameOfSpace H_dState_Mec3D ; }
+          If(Flag_readV)
+            For i In {1:3}
+              { Name v~{i} ; Type Local ; NameOfSpace H_v~{i};}
+            EndFor
+          EndIf
         }
         Equation {
           // u formulation
@@ -157,18 +172,6 @@ Resolution{
   // give "u_Mec" as input -> other resolutions depend on "u_Mec"
   // gmsh read directly in command line !!! -> postpro without solve
 
-  // velocity field
-  { Name velocity; // mechanic 2D/3D
-    System {
-      { Name A; NameOfFormulation velocity; }
-    }
-    Operation{
-      CreateDir[ResDir];
-      InitSolution[A];Generate[A];Solve[A];SaveSolution[A];
-      PostOperation[velocity];
-    }
-  }
-
   // adjoint variable
   { Name Adjoint_u_Mec; 
     System {
@@ -178,7 +181,7 @@ Resolution{
     Operation{
       CreateDir[ResDir];
       ReadSolution[A]; //Load state variable
-      If(!StrCmp(Flag_optType,"topology"))
+      If(!StrCmp(Flag_optType,"topology") && !Flag_bilinInt)
         GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD]; 
       EndIf
       PostOperation[u_Mec];//generate useful coeff !!
@@ -196,7 +199,7 @@ Resolution{
     Operation{
       CreateDir[ResDir];
       ReadSolution[A]; //Load state variable
-      GmshRead[StrCat[ResDir,"velocity.pos"], VELOCITY_FIELD];
+      //GmshRead[StrCat[ResDir,"velocity.pos"], VELOCITY_FIELD];
       If(!StrCmp(Flag_optType,"topology"))
         GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD]; 
       EndIf
@@ -220,29 +223,11 @@ Resolution{
       PostOperation[u_Mec];//generate useful coeff !!
 
       // load useful maps   
-      GmshRead[StrCat[ResDir,"velocity.pos"], VELOCITY_FIELD];
+      //GmshRead[StrCat[ResDir,"velocity.pos"], VELOCITY_FIELD];
       GmshRead[StrCat[ResDir,"u.pos"], STATE_FIELD];
       GmshRead[StrCat[ResDir,"lambda.pos"], ADJOINT_FIELD];
   
       PostOperation[Lie_Adjoint_u_Mec];
-    }
-  }
-
-  { Name TO_Adjoint_u_Mec; 
-    System {
-      { Name A; NameOfFormulation u_Mec; } //more than 1!
-      { Name B; NameOfFormulation Adjoint_u_Mec; }
-    }
-    Operation{
-      CreateDir[ResDir];
-
-      //Load state variable
-      ReadSolution[A];ReadSolution[B]; 
-     
-      // load useful maps   
-      GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD];
-      
-      PostOperation[TO_Adjoint_u_Mec];
     }
   }
 
@@ -262,7 +247,7 @@ Resolution{
 
       //Load useful maps 
       If(!StrCmp(Flag_optType,"shape"))   
-        GmshRead[StrCat[ResDir,"velocity.pos"], VELOCITY_FIELD];
+        //GmshRead[StrCat[ResDir,"velocity.pos"], VELOCITY_FIELD];
         GmshRead[StrCat[ResDir,"u.pos"], STATE_FIELD];
         GmshRead[StrCat[ResDir,"lambda.pos"], ADJOINT_FIELD];
       EndIf
@@ -301,10 +286,10 @@ Resolution{
       PostOperation[u_Mec];
 
       //Load useful maps 
-      If(!StrCmp(Flag_optType,"shape") 
-         || !StrCmp(Flag_SensitivityMethod,"noSystem"))   
-        GmshRead[StrCat[ResDir,"velocity.pos"], VELOCITY_FIELD];
-      EndIf
+//      If(!StrCmp(Flag_optType,"shape") 
+//         || !StrCmp(Flag_SensitivityMethod,"noSystem"))   
+//        GmshRead[StrCat[ResDir,"velocity.pos"], VELOCITY_FIELD];
+//      EndIf
       If(!StrCmp(Flag_optType,"shape"))   
         GmshRead[StrCat[ResDir,"u.pos"], STATE_FIELD];
         GmshRead[StrCat[ResDir,"lambda.pos"], ADJOINT_FIELD];
@@ -339,7 +324,7 @@ Resolution{
       ReadSolution[A];ReadSolution[B]; 
      
       // load useful maps   
-      GmshRead[StrCat[ResDir,"velocity.pos"], VELOCITY_FIELD];
+      //GmshRead[StrCat[ResDir,"velocity.pos"], VELOCITY_FIELD];
       GmshRead[StrCat[ResDir,"u.pos"], STATE_FIELD];
       GmshRead[StrCat[ResDir,"lambda.pos"], ADJOINT_FIELD];
   
@@ -357,7 +342,7 @@ Resolution{
 
       //Load state variable and useful maps
       ReadSolution[A]; 
-      GmshRead[StrCat[ResDir,"velocity.pos"], VELOCITY_FIELD];
+      //GmshRead[StrCat[ResDir,"velocity.pos"], VELOCITY_FIELD];
       
       PostOperation[Analytic_Sens_u_Mec];
     }
@@ -372,7 +357,7 @@ Resolution{
 
       //Load state variable and useful maps
       ReadSolution[A]; 
-      GmshRead[StrCat[ResDir,"velocity.pos"], VELOCITY_FIELD];
+      //GmshRead[StrCat[ResDir,"velocity.pos"], VELOCITY_FIELD];
       GmshRead[StrCat[ResDir,"u.pos"], STATE_FIELD];
       
       PostOperation[Analytic_Sens_u_Mec_eig];
