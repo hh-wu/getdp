@@ -2,7 +2,6 @@
 
 // postpro views tag
 TORQUE_VAR_FIELD = 20;
-VELOCITY_FIELD = 0;
 STATE_FIELD = 8;
 ADJOINT_FIELD = 9;
 DES_VAR_FIELD = 21;
@@ -11,7 +10,7 @@ DefineConstant[
   pInOpt = "Input/Optimization/",
 
   // Optimization 
-  Flag_optType = {"topology", 
+  Flag_optType = {"shape", 
     Choices {
       "shape",
       "topology"
@@ -32,8 +31,12 @@ DefineConstant[
     }, Name StrCat[pInOpt, "Derivative Method"]},
 
   // Velocity field (Mesh perturbation)
-  Flag_readV = {0, Choices {0,1}, Name "Input/read vel", Visible 1},
-  Flag_bilinInt = {0, Choices {0,1}, Name "Input/bilin int", Visible 1},
+  Flag_projFuncSpace_xe = {0,Choices {0,1}, 
+    Name "Input/project density in func. space", Visible 1},
+  Flag_projFuncSpace_v = {0, Choices {0,1},
+    Name "Input/project velocity in func. space", Visible 1},
+  Flag_NeumanVel = {0, Choices{0,1},
+    Name "Input/Filter Velocity", Visible 1},
 
   SensitivityParameter = { StrCat(pp,"Hole Length"),
     Choices{

@@ -2,28 +2,27 @@ Include "beam_data.geo";
 
 // square
 p1 = newp; Point(p1) = {-Lx/2,-Ly/2,-Lz/2, lc};
-If (Flag_sym)
-  p2 = newp; Point(p2) = { 0,-Ly/2,-Lz/2, lc};
-  p3 = newp; Point(p3) = { 0, Ly/2,-Lz/2, lc};
-  p10 = newp; Point(p10) = {0, 0,-Lz/2, lc};
-EndIf
 If (!Flag_sym)
   p2 = newp; Point(p2) = { Lx/2,-Ly/2,-Lz/2, lc};
   p3 = newp; Point(p3) = { Lx/2, Ly/2,-Lz/2, lc};
-  p10 = newp; Point(p10) = {Lx/2, 0,-Lz/2, lc};
+EndIf
+If (Flag_sym)
+  p2 = newp; Point(p2) = { 0,-Ly/2,-Lz/2, lc};
+  p3 = newp; Point(p3) = { 0, Ly/2,-Lz/2, lc};
 EndIf
 p4 = newp; Point(p4) = {-Lx/2, Ly/2,-Lz/2, lc};
+If (!Flag_sym)
+  p10 = newp; Point(p10) = {Lx/2, 0,-Lz/2, lc};
+EndIf
+If (Flag_sym)
+  p10 = newp; Point(p10) = {0, 0,-Lz/2, lc};
+EndIf
 l1 = newl; Line(l1) = {p1,p2}; 
 l2 = newl; Line(l2) = {p2,p10,p3};
 l3 = newl; Line(l3) = {p3,p4}; 
 l4 = newl; Line(l4) = {p4,p1};
 ll1 = newll; Line Loop(ll1) = {l1,l2,l3,l4};
 ll_[] = {ll1};
-Printf("l1:%g",l1);
-Printf("l2:%g",l2);
-Printf("l3:%g",l3);
-Printf("l4:%g",l4);
-Printf("ll_:",ll_[]);
 
 // hole
 If( Flag_hole == 1 ) //ellipse
@@ -34,6 +33,12 @@ If( Flag_hole == 1 ) //ellipse
   p_e2 = newp;Point(p_e2) = {0, hole_width/2, -Lz/2, lc};   //up
   p_e3 = newp;Point(p_e3) = {-hole_length/2, 0, -Lz/2, lc};  //left
   p_e4 = newp;Point(p_e4) = {0, -hole_width/2, -Lz/2, lc};  //down
+  If (Flag_sym)
+    l_p2_pe4 = newl; Line(l_p2_pe4) = {p2,p_e4};
+    l_pe4_pe2 = newl; Line(l_pe4_pe2) = {p_e4,p_e2}; 
+    l_pe2_p3 = newl; Line(l_pe2_p3) = {p_e2,p3}; 
+  EndIf
+
   If (!Flag_sym)
     l_e1 = newll;Ellipse(l_e1) = {p_e1, p_ec, p_e1, p_e2};
     l_e4 = newll;Ellipse(l_e4) = {p_e4, p_ec, p_e4, p_e1}; 
@@ -42,11 +47,13 @@ If( Flag_hole == 1 ) //ellipse
   l_e3 = newll;Ellipse(l_e3) = {p_e3, p_ec, p_e3, p_e4};
   If (!Flag_sym)
     ll_e = newll;Line Loop(ll_e) = {l_e1,l_e2,l_e3,l_e4};
+    ll_[] += -ll_e;
   EndIf
   If (Flag_sym)
-    ll_e = newll;Line Loop(ll_e) = {l_e2,l_e3};
+    ll_e = newll;Line Loop(ll_e) = {l1,l_p2_pe4,-l_e2,-l_e3,l_pe2_p3,l3,l4};
+    Printf("ll_e:%g",ll_e);
+    ll_[] = {ll_e};
   EndIf
-  ll_[] += -ll_e;
 EndIf
 If ( Flag_hole == 2 ) //spline
   aa[] = {};
@@ -70,6 +77,7 @@ If(transfinite)
   Recombine Surface "*";
 EndIf
 
+pl[] = Line "*";
 // Extrude: 3D
 If(Flag_extrude) 
   If(!transfinite)
@@ -80,7 +88,6 @@ If(Flag_extrude)
     Recombine Surface "*";
     e1[] = Extrude {0, 0, Lz} { Surface{s1}; Layers {nbE_Z}; Recombine;};
   EndIf
-  pl[] = Line "*";
   vol[] = {e1[1]};
 EndIf
 
@@ -96,8 +103,15 @@ If(!Flag_extrude) //2D
   Physical Point(POINT_3) = {p3};
   Physical Point(POINT_4) = {p4};
   Physical Point(POINT_5) = {p10};
-  If(Flag_hole)
-    Physical Line(HOLE) = {-ll_[1]}; 
+  If(Flag_hole && !Flag_sym)
+    Physical Line(HOLE) = {pl[4],pl[5],pl[6],pl[7]}; 
+    pNP[] = pl[];
+    pNP[] -= {pl[4],pl[5],pl[6],pl[7]};
+  EndIf
+  If(Flag_hole && Flag_sym)
+    Physical Line(HOLE) = {l_e2,l_e3}; 
+    pNP[] = pl[];
+    pNP[] -= {l_e2,l_e3};
   EndIf
 EndIf
 If(Flag_extrude) //3D
@@ -121,4 +135,6 @@ If(Flag_extrude) //3D
   Physical Point(POINT_3) = p3;
   Physical Point(POINT_4) = p4;
 EndIf
+
+Physical Line(LINE_NON_PERTURBED) = { pNP[] };
 

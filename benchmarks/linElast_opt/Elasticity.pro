@@ -1,6 +1,3 @@
-// FIXME: Comment passer proprement l'argument {xe} 
-//        (sans doubler la taille du code) ???
-// donner xe en entrée à toutes les fonctions!
 Group {
   DefineGroup[
     Domain,Domain_Force,Domain_Force_Lin,Domain_Force_Sur,
@@ -40,7 +37,7 @@ Integration {
 
 FunctionSpace{
   For i In {1:3}
-    { Name H_v~{i} ; Type Form0 /*Scalar*/ ; // primal 2D
+    { Name H_v~{i}; Type Form0; 
       BasisFunction {
         { Name sn ; NameOfCoef un ; Function BF_Node ;
           Support Domain; Entity NodesOf[ All ] ; }
@@ -50,6 +47,7 @@ FunctionSpace{
       }
     }
   EndFor
+
   { Name H_xe ; Type Form0 ; // primal 2D 
     BasisFunction {
       { Name sxn ; NameOfCoef uxn ; Function BF_Volume ;
@@ -59,32 +57,64 @@ FunctionSpace{
       { NameOfCoef uxn ; EntityType VolumesOf ; NameOfConstraint constr_xe ; }
     }
   }
-  { Name H_u_Mec2D ; Type Vector ; // primal 2D
-    BasisFunction {
-      { Name sxn ; NameOfCoef uxn ; Function BF_NodeX ;
-        dFunction {BF_NodeX_D12, BF_Zero};
-        Support Region[{Domain,Domain_Force}]; Entity NodesOf[ All ] ; }
-      { Name syn ; NameOfCoef uyn ; Function BF_NodeY ;
-        dFunction {BF_NodeY_D12, BF_Zero};
-        Support Region[{Domain,Domain_Force}]; Entity NodesOf[ All ] ; }
-      If (Flag_degree2)
-        { Name sxn2 ; NameOfCoef uxn2 ; Function BF_NodeX_2E ;
-          dFunction {BF_NodeX_D12_2E, BF_Zero};
-          Support Region[{Domain,Domain_Force}]; Entity EdgesOf[ All ] ; }
-        { Name syn2 ; NameOfCoef uyn2 ; Function BF_NodeY_2E ;
-          dFunction {BF_NodeY_D12_2E, BF_Zero};
-          Support Region[{Domain,Domain_Force}]; Entity EdgesOf[ All ] ; }
-      EndIf
+
+  If (Flag_2D) // 2D 
+    { Name H_u ; Type Vector ; // primal 2D
+      BasisFunction {
+        { Name sxn ; NameOfCoef uxn ; Function BF_NodeX ;
+          dFunction {BF_NodeX_D12, BF_Zero};
+          Support Region[{Domain,Domain_Force}]; Entity NodesOf[ All ] ; }
+        { Name syn ; NameOfCoef uyn ; Function BF_NodeY ;
+          dFunction {BF_NodeY_D12, BF_Zero};
+          Support Region[{Domain,Domain_Force}]; Entity NodesOf[ All ] ; }
+        If (Flag_degree2)
+          { Name sxn2 ; NameOfCoef uxn2 ; Function BF_NodeX_2E ;
+            dFunction {BF_NodeX_D12_2E, BF_Zero};
+            Support Region[{Domain,Domain_Force}]; Entity EdgesOf[ All ] ; }
+          { Name syn2 ; NameOfCoef uyn2 ; Function BF_NodeY_2E ;
+            dFunction {BF_NodeY_D12_2E, BF_Zero};
+            Support Region[{Domain,Domain_Force}]; Entity EdgesOf[ All ] ; }
+        EndIf
+      }
+      Constraint {
+        { NameOfCoef uxn ; EntityType NodesOf ; NameOfConstraint DisplacementX ; }
+        { NameOfCoef uyn ; EntityType NodesOf ; NameOfConstraint DisplacementY ; }
+        If (Flag_degree2)
+          { NameOfCoef uxn2;EntityType EdgesOf;NameOfConstraint DisplacementX ; }
+          { NameOfCoef uyn2;EntityType EdgesOf ; NameOfConstraint DisplacementY ; }
+        EndIf
+      }
     }
-    Constraint {
-      { NameOfCoef uxn ; EntityType NodesOf ; NameOfConstraint DisplacementX ; }
-      { NameOfCoef uyn ; EntityType NodesOf ; NameOfConstraint DisplacementY ; }
-      If (Flag_degree2)
-        { NameOfCoef uxn2;EntityType EdgesOf;NameOfConstraint DisplacementX ; }
-        { NameOfCoef uyn2;EntityType EdgesOf ; NameOfConstraint DisplacementY ; }
-      EndIf
+  Else // 3D
+    { Name H_u; Type Vector; //primal 3D
+      BasisFunction{
+        { Name sxn; NameOfCoef uxn; Function BF_NodeX;
+	  Support Region[{Domain,Domain_Force}]; Entity NodesOf[All];}
+        { Name syn; NameOfCoef uyn; Function BF_NodeY;
+	  Support Region[{Domain,Domain_Force}]; Entity NodesOf[All];}
+        { Name szn; NameOfCoef uzn; Function BF_NodeZ;
+	  Support Region[{Domain,Domain_Force}]; Entity NodesOf[All];}
+        If (Flag_degree2)
+          { Name sxn2 ; NameOfCoef uxn2 ; Function BF_NodeX_2E ;
+            Support Region[{Domain,Domain_Force}]; Entity EdgesOf[ All ] ; }
+          { Name syn2 ; NameOfCoef uyn2 ; Function BF_NodeY_2E ;
+            Support Region[{Domain,Domain_Force}]; Entity EdgesOf[ All ] ; }
+          { Name szn2 ; NameOfCoef uzn2 ; Function BF_NodeZ_2E ;
+            Support Region[{Domain,Domain_Force}]; Entity EdgesOf[ All ] ; }
+        EndIf
+      }
+      Constraint{
+        { NameOfCoef uxn; EntityType NodesOf; NameOfConstraint DisplacementX;}
+        { NameOfCoef uyn; EntityType NodesOf; NameOfConstraint DisplacementY;}
+        { NameOfCoef uzn; EntityType NodesOf; NameOfConstraint DisplacementZ;}
+        If (Flag_degree2)
+          { NameOfCoef uxn2; EntityType EdgesOf; NameOfConstraint DisplacementX ; }
+          { NameOfCoef uyn2; EntityType EdgesOf; NameOfConstraint DisplacementY ; }
+          { NameOfCoef uzn2; EntityType EdgesOf; NameOfConstraint DisplacementZ ; }
+        EndIf
+      }
     }
-  }
+  EndIf
 
   For i In {1:2}
     { Name H_u~{i} ; Type Form0 ;
@@ -93,7 +123,7 @@ FunctionSpace{
           Support Region[{Domain,Domain_Force}]; Entity NodesOf[ All ] ; }
       }
       Constraint {
-        { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint Displacement~{i} ; }
+        { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint DisplacementX ; }
       }
     }
   EndFor
@@ -117,42 +147,13 @@ FunctionSpace{
       { NameOfCoef uyn ; EntityType NodesOf ; NameOfConstraint DisplacementY ; }
     }
   }
-
-  { Name H_u_Mec3D; Type Vector; //primal 3D
-    BasisFunction{
-      { Name sxn; NameOfCoef uxn; Function BF_NodeX;
-	Support Region[{Domain,Domain_Force}]; Entity NodesOf[All];}
-      { Name syn; NameOfCoef uyn; Function BF_NodeY;
-	Support Region[{Domain,Domain_Force}]; Entity NodesOf[All];}
-      { Name szn; NameOfCoef uzn; Function BF_NodeZ;
-	Support Region[{Domain,Domain_Force}]; Entity NodesOf[All];}
-      If (Flag_degree2)
-        { Name sxn2 ; NameOfCoef uxn2 ; Function BF_NodeX_2E ;
-          Support Region[{Domain,Domain_Force}]; Entity EdgesOf[ All ] ; }
-        { Name syn2 ; NameOfCoef uyn2 ; Function BF_NodeY_2E ;
-          Support Region[{Domain,Domain_Force}]; Entity EdgesOf[ All ] ; }
-        { Name szn2 ; NameOfCoef uzn2 ; Function BF_NodeZ_2E ;
-          Support Region[{Domain,Domain_Force}]; Entity EdgesOf[ All ] ; }
-      EndIf
-    }
-    Constraint{
-      { NameOfCoef uxn; EntityType NodesOf; NameOfConstraint DisplacementX;}
-      { NameOfCoef uyn; EntityType NodesOf; NameOfConstraint DisplacementY;}
-      { NameOfCoef uzn; EntityType NodesOf; NameOfConstraint DisplacementZ;}
-      If (Flag_degree2)
-        { NameOfCoef uxn2; EntityType EdgesOf; NameOfConstraint DisplacementX ; }
-        { NameOfCoef uyn2; EntityType EdgesOf; NameOfConstraint DisplacementY ; }
-        { NameOfCoef uzn2; EntityType EdgesOf; NameOfConstraint DisplacementZ ; }
-      EndIf
-    }
-  }
 }
 
 Formulation{
   If (Flag_2D) // 2D formulation
     { Name u_Mec ; Type FemEquation ;
       Quantity {
-        { Name u ; Type Local ; NameOfSpace H_u_Mec2D ;}
+        { Name u ; Type Local ; NameOfSpace H_u ;}
         For i In {1:3}
           { Name v~{i} ; Type Local ; NameOfSpace H_v~{i};}
         EndFor
@@ -176,7 +177,7 @@ Formulation{
 
     { Name u_Mec_eig ; Type FemEquation ;
       Quantity {
-        { Name u ; Type Local ; NameOfSpace H_u_Mec2D ;}
+        { Name u ; Type Local ; NameOfSpace H_u ;}
         For i In {1:3}
           { Name v~{i} ; Type Local ; NameOfSpace H_v~{i};}
         EndFor
@@ -193,6 +194,7 @@ Formulation{
         EndFor
       }
     }
+
     { Name u_Mec_Comp ; Type FemEquation ;
       Quantity {
         { Name ux; Type Local ; NameOfSpace H_ux_Mec ;}
@@ -200,37 +202,35 @@ Formulation{
         For i In {1:3}
           { Name v~{i} ; Type Local ; NameOfSpace H_v~{i};}
         EndFor
-        For i In {1:}
+        For i In {1:2}
           { Name u~{i} ; Type Local ; NameOfSpace H_u~{i};}
         EndFor
       }
       Equation {
-        Galerkin { [ CompXX[C[]] * CompX[Dof{d ux}], CompX[{d ux}] ] ;
-          In Domain; Jacobian Vol ; Integration I1 ; }
-        Galerkin { [ CompXY[C[]] * CompY[Dof{d uy}], CompX[{d ux}] ] ;
-          In Domain; Jacobian Vol ; Integration I1 ; }
-        Galerkin { [ CompXZ[C[]] * (CompX[Dof{d uy}], CompX[{d ux}] ] ;
-          In Domain; Jacobian Vol ; Integration I1 ; }
-        Galerkin { [ CompXZ[C[]] * (CompY[Dof{d ux}], CompX[{d ux}] ] ;
-          In Domain; Jacobian Vol ; Integration I1 ; }
+//        Galerkin { [ CompXX[C[]] * CompX[Dof{d ux}], CompX[{d ux}] ] ;
+//          In Domain; Jacobian Vol ; Integration I1 ; }
+//        Galerkin { [ CompXY[C[]] * CompY[Dof{d uy}], CompX[{d ux}] ] ;
+//          In Domain; Jacobian Vol ; Integration I1 ; }
+//        Galerkin { [ CompXZ[C[]] * (CompX[Dof{d uy}], CompX[{d ux}] ] ;
+//          In Domain; Jacobian Vol ; Integration I1 ; }
+//        Galerkin { [ CompXZ[C[]] * (CompY[Dof{d ux}], CompX[{d ux}] ] ;
+//          In Domain; Jacobian Vol ; Integration I1 ; }
          // FIXME: complete...
          // 
         Galerkin { [ -CompX[force_mec[]], {ux}] ;
           In Domain_Force ; Jacobian SurLinVol; Integration I1; }
         Galerkin { [ -CompY[force_mec[]], {uy}] ;
           In Domain_Force ; Jacobian SurLinVol; Integration I1; }
-        If (Flag_readV)
-          For i In {1:3}
-            Galerkin { [ 0*Dof{v~{i}}, {v~{i}} ] ;
-              In Domain; Jacobian Vol ; Integration I1 ; }
-          EndFor
-        EndIf
+        For i In {1:3}
+          Galerkin { [ 0*Dof{v~{i}}, {v~{i}} ] ;
+            In Domain; Jacobian Vol ; Integration I1 ; }
+        EndFor
       }
     }
   Else // 3D formulation
     { Name u_Mec; Type FemEquation;
       Quantity{
-        { Name u; Type Local; NameOfSpace H_u_Mec3D;}
+        { Name u; Type Local; NameOfSpace H_u;}
         For i In {1:3}
           { Name v~{i} ; Type Local ; NameOfSpace H_v~{i};}
         EndFor
@@ -257,9 +257,10 @@ Formulation{
           In Domain; Jacobian Vol ; Integration I1 ; }
       }
     }
+
     { Name u_Mec_eig; Type FemEquation;
       Quantity{
-        { Name u; Type Local; NameOfSpace H_u_Mec3D;}
+        { Name u; Type Local; NameOfSpace H_u;}
         For i In {1:3}
           { Name v~{i} ; Type Local ; NameOfSpace H_v~{i};}
         EndFor
@@ -300,7 +301,7 @@ Resolution{
     Operation{
       CreateDir[ResDir];
       //SetGlobalSolverOptions["-petsc_prealloc 2"];
-      If(!StrCmp(Flag_optType,"topology") && !Flag_bilinInt)
+      If(!StrCmp(Flag_optType,"topology") && !Flag_projFuncSpace_xe)
         GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD];
       EndIf
       InitSolution[A];Generate[A];Solve[A];SaveSolution[A];

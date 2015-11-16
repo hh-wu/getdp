@@ -3,8 +3,12 @@ po_min  = "Output/";
 PostProcessing {
   { Name u_Mec ; NameOfFormulation u_Mec ;
     PostQuantity {
-      
+      { Name v; Value {Term{[velocity[{v_1},{v_2},{v_3}]];In Domain;Jacobian Vol;}}}
+      { Name v_1; Value {Term{[ {v_1} ]; In Domain; Jacobian Vol;}}}
       { Name u; Value { Term { [ {u} ] ; In Domain ; } }} 
+      { Name u_1; Value { Term { [ CompX[{u}] ] ; In Domain ; } }} 
+      { Name u_2; Value { Term { [ CompY[{u}] ] ; In Domain ; } }} 
+      { Name u_3; Value { Term { [ CompZ[{u}] ] ; In Domain ; } }} 
       { Name um ; Value { Term { [Norm[{u}]] ; In Domain  ; } } }
       { Name F ; Value { Term { [ force_mec[] ]; In Domain_Force ; } } }
       { Name E ; Value { Term { [ E[{xe}] ]; In Domain ; } } }
@@ -83,11 +87,17 @@ PostOperation {
    Operation{
 //     Print[ E, OnElementsOf Domain,File StrCat[ResDir,"E",ExtGmsh]] ;
 //     Print[ rho, OnElementsOf Domain,File StrCat[ResDir,"rho",ExtGmsh]] ;
-//     Print[ u, OnElementsOf Domain,File StrCat[ResDir,"u",ExtGmsh]] ;
+     Print[ u, OnElementsOf Domain,File StrCat[ResDir,"u",ExtGmsh]] ;
+//     For i In {1:3}
+//       Print[ u~{i}, OnElementsOf Domain, Format NodeTable,
+//         File Sprintf["res/u_%g.txt", i], LastTimeStepOnly] ;
+//     EndFor
 //     Print[ StressVM, OnElementsOf Domain,File StrCat[ResDir,"VM",ExtOnelabVec]] ;
 //     Print[ um,OnElementsOf Domain,File StrCat[ResDir,"um",ExtGmsh]] ;
-//     Print[ F, OnElementsOf Domain_Force,File StrCat[ResDir,"F",ExtGmsh]] ;
+     Print[ F, OnElementsOf Domain_Force,File StrCat[ResDir,"F",ExtGmsh]] ;
 
+     Print[ v, OnElementsOf Domain, File "res/v_an.pos", LastTimeStepOnly] ;
+     Print[ v_1, OnElementsOf Domain, File "res/v_1_an.pos", LastTimeStepOnly] ;
      Print[ Compliance[DomainFunc], OnGlobal, Format TimeTable,
        File StrCat[ResDir, StrCat["ComplianceElm",ExtOnelabScal]], LastTimeStepOnly,
        SendToServer StrCat[po_min,"ComplianceElm"], Color "LightYellow" ];

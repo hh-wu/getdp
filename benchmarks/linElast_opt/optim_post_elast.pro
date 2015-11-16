@@ -1,27 +1,44 @@
 po_min  = "Output/";
 
 PostProcessing {
-  // --------------------------------------------------------------------
-  // Performance funnctions and state variables
-  // --------------------------------------------------------------------
-  If ( Flag_readV)
+  For i In {1:3}
+    { Name Filter_v~{i} ; NameOfFormulation Filter_v~{i} ;
+      PostQuantity {
+        // Field quantities
+        { Name fv~{i}  ; Value { Term { [ {fv~{i}} ] ; In Domain ; Jacobian Vol ; }}}
+  
+      }
+    }
+  EndFor
+
   { Name Analytic_Sens_u_Mec ; NameOfFormulation u_Mec ;
     PostQuantity {
+      { Name Sensitivity_AdjointMethod; 
+        Value { 
+          Integral {[ dF_TO[{D1 u},{D2 u},{xe}] ]; 
+            In DomainFunc ; Jacobian Vol  ; Integration I1; }
+          Integral {[-d_bilin[{D1 u},{D1 u},{D2 u},{D2 u},{xe}]]; 
+            In Domain ; Jacobian Vol  ; Integration I1; }
+        }
+      }
+
       { Name dMass;
 	Value {
 	  Integral{ [ dMass[{d v_1},{d v_2},{d v_3}] ];
 	    In Domain; Jacobian Vol; Integration I1; }
 	}
       }
+
       { Name dMass2;
 	Value {
 	  Integral{ [ -dMass[{d v_1},{d v_2},{d v_3}] ];
 	    In Domain; Jacobian Vol; Integration I1; }
 	}
       }
+
     }
   }
-  EndIf
+
   { Name Analytic_Sens_u_Mec_eig ; NameOfFormulation u_Mec_eig ;
     PostQuantity {
       { Name u_eig  ; Value { Term { [ {u} ]; In Domain  ; Jacobian Vol; } } }
@@ -35,7 +52,6 @@ PostProcessing {
             In Domain ; Jacobian Vol  ; Integration I1; }
         }
       }
-     If ( Flag_readV)
      { Name d_mass_eig;  
         Value { 
           Integral { [ d_mass_eig[{u},{D1 u},{D2 u},{d v_1},{d v_2},{d v_3}] ]; 
@@ -63,7 +79,6 @@ PostProcessing {
             In Domain ; Jacobian Vol  ; Integration I1; }
         }
       }
-      EndIf
       { Name d_eig_TO;  
         Value { 
           Integral { [ d_eig_TO[{u},{D1 u},{D2 u}] ]; 
@@ -73,45 +88,36 @@ PostProcessing {
 
     }
   }
-  // --------------------------------------------------------------------
-  // Adjoint variable
-  // --------------------------------------------------------------------
-  { Name TO_SelfAdjoint_u_Mec ; NameOfFormulation u_Mec ;
-    PostQuantity {
-      { Name Sensitivity_AdjointMethod; 
-        Value { 
-          Integral {[ dF_TO[{D1 u},{D2 u},{xe}] ]; 
-            In DomainFunc ; Jacobian Vol  ; Integration I1; }
-          Integral {[-d_bilin[{D1 u},{D1 u},{D2 u},{D2 u},{xe}]]; 
-            In Domain ; Jacobian Vol  ; Integration I1; }
-        }
-      }
-    }
-  }
+
+//  { Name TO_SelfAdjoint_u_Mec ; NameOfFormulation u_Mec ;
+//    PostQuantity {
+//      { Name Sensitivity_AdjointMethod; 
+//        Value { 
+//          Integral {[ dF_TO[{D1 u},{D2 u},{xe}] ]; 
+//            In DomainFunc ; Jacobian Vol  ; Integration I1; }
+//          Integral {[-d_bilin[{D1 u},{D1 u},{D2 u},{D2 u},{xe}]]; 
+//            In Domain ; Jacobian Vol  ; Integration I1; }
+//        }
+//      }
+//    }
+//  }
 
   { Name Adjoint_u_Mec ; NameOfFormulation Adjoint_u_Mec ;
     PostQuantity {
-      If ( Flag_readV)
-      { Name v ; Value {Term{[velocity[{v_1},{v_2},{v_3}]];In Domain;Jacobian Vol;}}}
-      { Name dV_c1;Value{Term{[dV_c1[{d v_1},{d v_2},{d v_3}]];
-          In Domain;Jacobian Vol;}}}
-      { Name dV_c2;Value{Term{[dV_c2[{d v_1},{d v_2},{d v_3}]];
-          In Domain;Jacobian Vol;}}}
-      { Name dV_c3;Value{Term{[dV_c3[{d v_1},{d v_2},{d v_3}]];
-          In Domain;Jacobian Vol;}}}
-      EndIf
-      { Name lambda ; Value { Term {[ {lambda} ] ; In Domain ; Jacobian Vol;}}}
       { Name u ; Value { Term {[ {u} ] ; In Domain ; Jacobian Vol;}}}
       { Name Fadj ; Value { Term { [ dFdb[{D1 u},{D2 u}] ]; In DomainFunc ; } } }   
+      { Name v; Value {Term{[velocity[{v_1},{v_2},{v_3}]];In Domain;Jacobian Vol;}}}
+      { Name v_1; Value {Term{[ {v_1} ];In Domain;Jacobian Vol;}}}
+      { Name lambda ; Value { Term {[ {lambda} ] ; In Domain ; Jacobian Vol;}}}
  
-      { Name bilinLamdaState; // Int(nu*rotA*rotLambda)->lambda*K*A
+      { Name bilinLamdaState; 
         Value {
       	  Integral { [ bilin[{D1 u}, {D1 lambda}, {D2 u}, {D2 lambda},{xe}] ];
 	    In Domain ; Jacobian Vol  ; Integration I1; }   
         }
       }
 
-      { Name loadLambda; // Sum_i{lambda*g_i} FIXME
+      { Name loadLambda; 
         Value {
           Integral { [ force_mec[] * {lambda} ];
 	    In Domain_Force ; Jacobian SurLinVol  ; Integration I1; }
@@ -121,7 +127,7 @@ PostProcessing {
       { Name rho_sensF ; 
           Value { Term { [ dF_lie[{D1 u},{D1 lambda},{D2 u},{D2 lambda}] ] ; 
             In Domain ; Jacobian Vol ; }}}
-      If ( Flag_readV)
+
       { Name rho_sensK ; 
           Value { Term { [ d_bilin_lie[{D1 u}, {D1 lambda}, {D2 u}, {D2 lambda},
 				      {d v_1}, {d v_2}, {d v_3}]]  ; 
@@ -129,8 +135,8 @@ PostProcessing {
 
       { Name sensF ; 
           Value { 
-              Integral{[dF_lie[{D1 u},{D2 u},{d v_1}, {d v_2}, {d v_3}]];//d{f}/d{tau}
-                In Domain ; Jacobian Vol ; Integration I1;}
+            Integral{[dF_lie[{D1 u},{D2 u},{d v_1}, {d v_2}, {d v_3}]];
+              In Domain ; Jacobian Vol ; Integration I1;}
           }
       }
 
@@ -151,7 +157,7 @@ PostProcessing {
             In Domain ; Jacobian Vol ; Integration I1 ; }
         } 
       }
-      EndIf
+
       { Name Sensitivity_AdjointMethod; 
         Value { 
           Integral {[ dF_TO[{D1 u},{D2 u},{xe}] ]; 
@@ -177,202 +183,147 @@ PostProcessing {
       
     }
   }
-  // --------------------------------------------------------------------
-  // Filter sensitivitys
-  // --------------------------------------------------------------------
+
   { Name FilterTopOpt; NameOfFormulation FilterTopOpt ;
     PostQuantity {
       { Name filtSource; Value { Term { [ filtSource[] ]; In Domain ; Jacobian Vol;}}}
       { Name filtOut; Value { Term { [ {psi} ]; In Domain; Jacobian Vol; }}}
     }
   }
+
   { Name FilterTopOpt_dXdx; NameOfFormulation FilterTopOpt_dXdx ;
     PostQuantity {
       { Name dxFiltdx; Value { Term { [ {psi} ] ; In Domain ; Jacobian Vol ; }}}
     }
   }
+
 }
 
 PostOperation {
-   // --------------------------------------------------------------------------
-  // Get Adjoint variable
-  // --------------------------------------------------------------------------
-// { Name velocity; NameOfPostProcessing velocity;
-//   Operation{
-//     For i In {1:3}
-//       Print[ velocity~{i}, OnElementsOf Domain, 
-//         File StrCat[ResDir,Sprintf("vel_getdp_%g.pos",i)]] ;
-//       Print[ dvelocity~{i}, OnElementsOf Domain, 
-//         File StrCat[ResDir,Sprintf("dvel_getdp_%g.pos",i)]] ;
-//     EndFor
-//     Print[ velocity, OnElementsOf Domain, 
-//       File StrCat[ResDir,"vel_getdp.pos"]] ;
-//   }
-// }
- { Name Sens_Adjoint_u_Mec; NameOfPostProcessing Adjoint_u_Mec;
-   Operation{
-//     If(!StrCmp(Flag_optType,"topology"))
-//       Print[ Sensitivity_avm, OnElementsOf Domain,
-//         File StrCat[ResDir,"Fadj",ExtGmsh]] ;
-//     EndIf
-//     If(!StrCmp(Flag_optType,"shape"))
-//       Print[ Sensitivity_avm[Domain], OnGlobal, Format Table,
-//         File StrCat[ResDir, "sens_avm",ExtGmsh], LastTimeStepOnly,
-//	 SendToServer StrCat[po_min,"sens_avm"], Color "LightYellow" ];
-//     EndIf
-   }
- }
- { Name Adjoint_u_Mec; NameOfPostProcessing Adjoint_u_Mec;
-   Operation{
-     Print[ lambda, OnElementsOf Domain,
-     	 File StrCat[ResDir, StrCat["lambda",ExtGmsh]], LastTimeStepOnly] ;
-//     Echo[ StrCat["View[PostProcessing.NbViews-1].VectorType=5;",
-//                  "View[PostProcessing.NbViews-1].DisplacementFactor=1.0e-07;"],
-//       File StrCat[ResDir, StrCat["lambda",ExtGmsh],".opt"], LastTimeStepOnly] ;
-     Print[ Fadj, OnElementsOf Domain_Force,File StrCat[ResDir,"Fadj",ExtGmsh]] ;
-   }
- }
-  // --------------------------------------------------------------------------
-  // Get analytic sensitivities (no system) 
-  // --------------------------------------------------------------------------
- If(Flag_readV)
- { Name Analytic_Sens_u_Mec; NameOfPostProcessing Analytic_Sens_u_Mec;
-   Operation{
-     
-     Print[ dMass[Domain], OnGlobal, Format Table,
-  	   File StrCat[ResDir, StrCat["dMass",ExtAnalyticSens]], LastTimeStepOnly,
-	   SendToServer StrCat[po_min,"dMass"], Color "LightYellow" ];
-     Print[ dMass2[Domain], OnGlobal, Format Table,
-  	   File StrCat[ResDir, StrCat["dMass2",ExtAnalyticSens]], LastTimeStepOnly,
-	   SendToServer StrCat[po_min,"dMass2"], Color "LightYellow" ];
-   }
- }
- EndIf
- { Name TO_Analytic_Sens_u_Mec_eig; NameOfPostProcessing Analytic_Sens_u_Mec_eig;
-   Operation{
-     Print[ mass_eig[Domain], OnGlobal, Format Table,
-       File StrCat[ResDir, "mass_eig",ExtGmsh], StoreInVariable $MassEig,     
-       SendToServer StrCat[po_min,"mass_eig"], Color "LightYellow"] ;
-
-     Print[ d_eig_TO, OnElementsOf DomainOpt, File StrCat[ResDir,"d_eig_TO.pos"]] ;
-   }
- }
- { Name Analytic_Sens_u_Mec_eig; NameOfPostProcessing Analytic_Sens_u_Mec_eig;
-   Operation{
-     Print[ u_eig, OnElementsOf Domain, File StrCat[ResDir,"u_eig.pos"]] ;
-     Print[ vel, OnElementsOf Domain, File StrCat[ResDir,"vel.pos"]] ;
-     Print[ d_D1, OnElementsOf Domain, File StrCat[ResDir,"d_D1.pos"]] ;
-     
-     // FIXME:StoreInVariable $MassEig takes only the last element
-     Print[ mass_eig[Domain], OnGlobal, Format Table,
-       File StrCat[ResDir, "mass_eig",ExtGmsh], StoreInVariable $MassEig,     
-       SendToServer StrCat[po_min,"mass_eig"], Color "LightYellow"] ;
-
-     If(Flag_readV)
-     Print[ d_stiff_eig[Domain], OnGlobal,Format Table,
-       File StrCat[ResDir, "d_stiff_eig",ExtGmsh],
-       SendToServer StrCat[po_min,"d_stiff_eig"], Color "LightYellow"] ;
-
-     Print[ d_mass_eig[Domain], OnGlobal,Format Table,
-       File StrCat[ResDir, "d_mass_eig",ExtGmsh],
-       SendToServer StrCat[po_min,"d_mass_eig"], Color "LightYellow"] ;
-
-     Print[ deig_noNorm[Domain], OnGlobal,Format Table,
-       File StrCat[ResDir, "deig_noNorm",ExtGmsh],
-       SendToServer StrCat[po_min,"deig_noNorm"], Color "LightYellow"] ;
-     EndIf
-//     Print[ deig[Domain], OnGlobal,Format Table,
-//       File StrCat[ResDir, "deig",ExtGmsh],
-//       SendToServer StrCat[po_min,"deig"], Color "LightYellow"] ;
-   }
- }
-  // --------------------------------------------------------------------------
-  // Get Semi-analytic quantities
-  // --------------------------------------------------------------------------
- { Name SemiAdjoint_u_Mec; NameOfPostProcessing Adjoint_u_Mec;
-   Operation{
-     Print[ bilinLamdaState[Domain], OnGlobal, Format Table,
-  	   File StrCat[ResDir, StrCat["lambda_K_A",ExtGnuplot]], LastTimeStepOnly,
-	   SendToServer StrCat[po_min,"lambda_K_A"], Color "LightYellow" ];
-     Print[ loadLambda[Domain_Force],OnGlobal, Format Table,
-	   File StrCat[ResDir, StrCat["lambda_g",ExtGnuplot]], LastTimeStepOnly,
-	   SendToServer StrCat[po_min,"lambda_g"], Color "LightYellow" ];
-   }
- }
-  // --------------------------------------------------------------------
-  // Sensitivity (adjoint variable) with Lie approach 
-  // --------------------------------------------------------------------
-  { Name Get_AvmVarDomSens_Lie0; NameOfPostProcessing Adjoint_u_Mec;
-    Operation{
-//       Print[ dlambda_v, OnElementsOf Domain,
-//	      File StrCat[ResDir, StrCat["dlambda_v",ExtGmsh]], LastTimeStepOnly] ;
-//       Print[ du_v, OnElementsOf Domain,
-//	      File StrCat[ResDir, StrCat["du_v",ExtGmsh]], LastTimeStepOnly] ;
+  For i In {1:3}
+    { Name Filter_v~{i}; NameOfPostProcessing Filter_v~{i};
+      Operation{
+        Print[ fv~{i}, OnElementsOf Region[{Domain,POINT_5}],
+         File Sprintf["res/velocityFilt_%g.pos",i], LastTimeStepOnly] ;
+        Print[ fv~{i}, OnElementsOf Region[{Domain,POINT_5}], LastTimeStepOnly, 
+          Format NodeTable, File Sprintf["res/velocityFilt_%g.txt",i]] ;
+      }
     }
-  } 
+  EndFor
+
+  { Name Adjoint_u_Mec; NameOfPostProcessing Adjoint_u_Mec;
+    Operation{
+      Print[ lambda, OnElementsOf Domain,
+        File StrCat[ResDir, "lambda", ExtGmsh], LastTimeStepOnly] ;
+      Print[ Fadj, OnElementsOf Domain_Force,File StrCat[ResDir,"Fadj",ExtGmsh]] ;
+    }
+  }
+
+  { Name Analytic_Sens_u_Mec; NameOfPostProcessing Analytic_Sens_u_Mec;
+    Operation{  
+     Print[ dMass[Domain], OnGlobal, Format Table,
+       File StrCat[ResDir, StrCat["dMass",ExtAnalyticSens]], LastTimeStepOnly,
+       SendToServer StrCat[po_min,"dMass"], Color "LightYellow" ];
+     Print[ dMass2[Domain], OnGlobal, Format Table,
+       File StrCat[ResDir, StrCat["dMass2",ExtAnalyticSens]], LastTimeStepOnly,
+       SendToServer StrCat[po_min,"dMass2"], Color "LightYellow" ];
+    }
+  }
+
+  { Name TO_Analytic_Sens_u_Mec_eig; NameOfPostProcessing Analytic_Sens_u_Mec_eig;
+    Operation{
+      Print[ mass_eig[Domain], OnGlobal, Format Table,
+        File StrCat[ResDir, "mass_eig",ExtGmsh], StoreInVariable $MassEig,     
+        SendToServer StrCat[po_min,"mass_eig"], Color "LightYellow"] ;
+      Print[ d_eig_TO, OnElementsOf DomainOpt, File StrCat[ResDir,"d_eig_TO.pos"]] ;
+    }
+  }
+
+  { Name Analytic_Sens_u_Mec_eig; NameOfPostProcessing Analytic_Sens_u_Mec_eig;
+    Operation{
+      Print[ u_eig, OnElementsOf Domain, File StrCat[ResDir,"u_eig.pos"]] ;
+      Print[ vel, OnElementsOf Domain, File StrCat[ResDir,"vel.pos"]] ;
+      Print[ d_D1, OnElementsOf Domain, File StrCat[ResDir,"d_D1.pos"]] ;
+      Print[ mass_eig[Domain], OnGlobal, Format Table,
+        File StrCat[ResDir, "mass_eig",ExtGmsh], StoreInVariable $MassEig,     
+        SendToServer StrCat[po_min,"mass_eig"], Color "LightYellow"] ;
+      Print[ d_stiff_eig[Domain], OnGlobal,Format Table,
+        File StrCat[ResDir, "d_stiff_eig",ExtGmsh],
+        SendToServer StrCat[po_min,"d_stiff_eig"], Color "LightYellow"] ;
+      Print[ d_mass_eig[Domain], OnGlobal,Format Table,
+        File StrCat[ResDir, "d_mass_eig",ExtGmsh],
+        SendToServer StrCat[po_min,"d_mass_eig"], Color "LightYellow"] ;
+      Print[ deig_noNorm[Domain], OnGlobal,Format Table,
+        File StrCat[ResDir, "deig_noNorm",ExtGmsh],
+        SendToServer StrCat[po_min,"deig_noNorm"], Color "LightYellow"] ;
+    }
+  }
+
+  { Name Semi_Adjoint_u_Mec; NameOfPostProcessing Adjoint_u_Mec;
+    Operation{
+      Print[ bilinLamdaState[Domain], OnGlobal, Format Table,
+        File StrCat[ResDir, StrCat["lambda_K_A",ExtGnuplot]], LastTimeStepOnly,
+	SendToServer StrCat[po_min,"lambda_K_A"], Color "LightYellow" ];
+      Print[ loadLambda[Domain_Force],OnGlobal, Format Table,
+	File StrCat[ResDir, StrCat["lambda_g",ExtGnuplot]], LastTimeStepOnly,
+	SendToServer StrCat[po_min,"lambda_g"], Color "LightYellow" ];
+    }
+  }
+
   { Name Lie_Adjoint_u_Mec; NameOfPostProcessing Adjoint_u_Mec;
     Operation{
-       If(Flag_readV)
        Print[ v, OnElementsOf Domain,
-	      File StrCat[ResDir, StrCat["velocity",ExtGmsh]], LastTimeStepOnly] ;
-       Print[ dV_c1, OnElementsOf Domain,
-	      File StrCat[ResDir, StrCat["dV_c1",ExtGmsh]], LastTimeStepOnly] ;  
-       Print[ dV_c2, OnElementsOf Domain,
-	      File StrCat[ResDir, StrCat["dV_c2",ExtGmsh]], LastTimeStepOnly] ;
-       Print[ dV_c3, OnElementsOf Domain,
-	      File StrCat[ResDir, StrCat["dV_c3",ExtGmsh]], LastTimeStepOnly] ;
+         File StrCat[ResDir, StrCat["velocitylieavm",ExtGmsh]], LastTimeStepOnly] ;
+       Print[ v_1, OnElementsOf Domain,
+         File StrCat[ResDir, StrCat["velocitylieavm_1",ExtGmsh]], LastTimeStepOnly] ;
 //       Print[ rho_sensF, OnElementsOf Domain,
 //	      File StrCat[ResDir, StrCat["rho_sensF",ExtGmsh]], LastTimeStepOnly] ;
 //       Print[ rho_sensK, OnElementsOf Domain,
 //	      File StrCat[ResDir, StrCat["rho_sensK",ExtGmsh]], LastTimeStepOnly] ;
        Print[ sensF[DomainFunc], OnGlobal, Format Table, 
-              File StrCat[ResDir, "d_func", ExtGnuplot], 
-	      SendToServer StrCat[po_min,"d_func"], LastTimeStepOnly];
+         File StrCat[ResDir, "d_func", ExtGnuplot], 
+	 SendToServer StrCat[po_min,"d_func"], LastTimeStepOnly];
        Print[ sensK[#{Domain,Domain_Force}], OnGlobal, Format Table,
-              File StrCat[ResDir, "d_bilin", ExtGnuplot],  
-              SendToServer StrCat[po_min,"d_bilin"], LastTimeStepOnly];
+         File StrCat[ResDir, "d_bilin", ExtGnuplot],  
+         SendToServer StrCat[po_min,"d_bilin"], LastTimeStepOnly];
        Print[ AvmVarDomSens[Domain], OnGlobal, Format Table,
-              File StrCat[ResDir, "AvmVarDomSens", ExtGnuplot], 
-              SendToServer StrCat[po_min,"AvmVarDomSens"], LastTimeStepOnly];
-       EndIf
+         File StrCat[ResDir, "AvmVarDomSens", ExtGnuplot], 
+         SendToServer StrCat[po_min,"AvmVarDomSens"], LastTimeStepOnly];
     }
   } 
-  // ----------------------------------------VM----------------------------------
-  // Get Sensitivity
-  // --------------------------------------------------------------------------
- { Name TO_Adjoint_u_Mec; NameOfPostProcessing Adjoint_u_Mec;
-   Operation{
-     Print[ Sensitivity_AdjointMethod, OnElementsOf DomainOpt,LastTimeStepOnly,
-	   File StrCat[ResDir, StrCat["SensPerfAvmFixedDom",ExtGmsh]]] ;
-   }
- }
- { Name TO_SelfAdjoint_u_Mec; NameOfPostProcessing TO_SelfAdjoint_u_Mec;
-   Operation{
-     Print[ Sensitivity_AdjointMethod, OnElementsOf DomainOpt,LastTimeStepOnly,
-	   File StrCat[ResDir, StrCat["SensPerfAvmFixedDom",ExtGmsh]]] ;
-   }
- }
- { Name Get_SelfAvmFixedDomSens; NameOfPostProcessing Adjoint_u_Mec;//FIXME
-   Operation{
-     Print[ Sensitivity_AdjointMethod, OnElementsOf DomainOpt,LastTimeStepOnly,
-	   File StrCat[ResDir, StrCat["SensPerfAvmFixedDom",ExtGmsh]]] ;
-     Print[ Sensitivity_AdjointMethod, OnElementsOf DomainOpt,
-           LastTimeStepOnly, Format NodeTable,
-	   File StrCat[ResDir, StrCat["SensPerfAvmFixedDomNodes",ExtGmsh]]] ;
-   }
- }
-  // --------------------------------------------------------------------
-  // Filter sensitivity 
-  // --------------------------------------------------------------------
+
+  { Name TO_Adjoint_u_Mec; NameOfPostProcessing Adjoint_u_Mec;
+    Operation{
+      Print[ Sensitivity_AdjointMethod, OnElementsOf DomainOpt,LastTimeStepOnly,
+        File StrCat[ResDir, StrCat["SensPerfAvmFixedDom",ExtGmsh]]] ;
+    }
+  }
+  { Name TO_SelfAdjoint_u_Mec; NameOfPostProcessing Analytic_Sens_u_Mec;
+    Operation{
+      Print[ Sensitivity_AdjointMethod, OnElementsOf DomainOpt,LastTimeStepOnly,
+        File StrCat[ResDir, StrCat["SensPerfAvmFixedDom",ExtGmsh]]] ;
+    }
+  }
+  { Name Get_SelfAvmFixedDomSens; NameOfPostProcessing Adjoint_u_Mec;//FIXME
+    Operation{
+      Print[ Sensitivity_AdjointMethod, OnElementsOf DomainOpt,LastTimeStepOnly,
+        File StrCat[ResDir, StrCat["SensPerfAvmFixedDom",ExtGmsh]]] ;
+      Print[ Sensitivity_AdjointMethod, OnElementsOf DomainOpt,
+         LastTimeStepOnly, Format NodeTable,
+	 File StrCat[ResDir, StrCat["SensPerfAvmFixedDomNodes",ExtGmsh]]] ;
+    }
+  }
+
   { Name FilterTopOpt; NameOfPostProcessing FilterTopOpt;
     Operation {
-      Print [ filtSource, OnElementsOf DomainOpt, File StrCat[ResDir,"filtSource.pos"] ];
+      Print [ filtSource, OnElementsOf DomainOpt,File StrCat[ResDir,"filtSource.pos"]];
       Print [ filtOut, OnElementsOf DomainOpt, File StrCat[ResDir,"filtOut.pos"] ];
     }
   }
+
   { Name FilterTopOpt_dXdx; NameOfPostProcessing FilterTopOpt_dXdx;
     Operation {
-      Print [ dxFiltdx, OnElementsOf DomainOpt,File StrCat[ResDir,"dxFiltdx.pos"] ];
+      Print [ dxFiltdx, OnElementsOf DomainOpt,File StrCat[ResDir,"dxFiltdx.pos"]];
     }
   }
   // --------------------------------------------------------------------------

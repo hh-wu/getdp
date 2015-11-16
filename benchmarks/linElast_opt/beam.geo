@@ -1,6 +1,9 @@
 Include "beam_data.geo";
 
 // load geometry
+If( !StrCmp(Flag_cao,"square2") )
+  Include "square2.geo";
+EndIf
 If( !StrCmp(Flag_cao,"square") )
   Include "square.geo";
 EndIf
@@ -14,6 +17,4 @@ If(!StrCmp(Flag_optType,"shape"))
 EndIf
 
 Merge "../optimization/refineMesh.geo";
-
-
 

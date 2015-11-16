@@ -1,23 +1,48 @@
+Constraint{
+  For i In {1:3}
+    { Name Dir_v~{i}; Type Assign;
+      Case{ // FIXME: specify only skin
+        { Region SkinPerturb; Value velocity~{i}[]; }
+        { Region SkinNonPerturb; Value 0.; }
+      }
+    }
+  EndFor
+}
+
 FunctionSpace{
 
-  { Name H_lambda_Mec2D; Type Vector ; // adjoint variable 2D
-    BasisFunction {
-      { Name sxn ; NameOfCoef lambdaxn ; Function BF_NodeX ; 
-        dFunction {BF_NodeX_D12, BF_Zero};
-        Support Region[{Domain,Domain_Force}] ; Entity NodesOf[ All ] ; }
-      { Name syn ; NameOfCoef lambdayn ; Function BF_NodeY ; 
-        dFunction {BF_NodeY_D12, BF_Zero};
-        Support Region[{Domain,Domain_Force}] ; Entity NodesOf[ All ] ; }
+  For i In {1:3}
+    { Name H_fv~{i}; Type Form0;
+      BasisFunction{
+        { Name wn; NameOfCoef vn; Function BF_Node;
+          Support  Region[{Domain,SkinPerturb}]; Entity NodesOf[All];}
+      }
+      If ( !Flag_NeumanVel )
+        Constraint{
+	  { NameOfCoef vn; EntityType NodesOf; NameOfConstraint Dir_v~{i};}
+        }
+      EndIf
     }
-    Constraint {
-      { NameOfCoef lambdaxn ;
-        EntityType NodesOf ; NameOfConstraint DisplacementX; }
-      { NameOfCoef lambdayn ;
-        EntityType NodesOf ; NameOfConstraint DisplacementY; }
-    }
-  }
+  EndFor
 
-  { Name H_dState_Mec2D ; Type Vector ; // direct sensitivity 2D
+  If (Flag_2D) // 2D formulation
+    { Name H_lambda_Mec; Type Vector ; // adjoint variable 2D
+      BasisFunction {
+        { Name sxn ; NameOfCoef lambdaxn ; Function BF_NodeX ; 
+          dFunction {BF_NodeX_D12, BF_Zero};
+          Support Region[{Domain,Domain_Force}] ; Entity NodesOf[ All ] ; }
+        { Name syn ; NameOfCoef lambdayn ; Function BF_NodeY ; 
+          dFunction {BF_NodeY_D12, BF_Zero};
+          Support Region[{Domain,Domain_Force}] ; Entity NodesOf[ All ] ; }
+      }
+      Constraint {
+        { NameOfCoef lambdaxn ;
+          EntityType NodesOf ; NameOfConstraint DisplacementX; }
+        { NameOfCoef lambdayn ;
+          EntityType NodesOf ; NameOfConstraint DisplacementY; }
+      }
+    }
+    { Name H_dState_Mec ; Type Vector ; // direct sensitivity 2D
       BasisFunction {
         { Name sxn ; NameOfCoef uxn ; Function BF_NodeX ; 
           dFunction {BF_NodeX_D12, BF_Zero}; //??
@@ -33,7 +58,8 @@ FunctionSpace{
           EntityType NodesOf ; NameOfConstraint DisplacementY ; }
       }
     }
-   { Name H_lambda_Mec3D ; Type Vector ; 
+  Else
+    { Name H_lambda_Mec ; Type Vector ; 
       BasisFunction{
         { Name sxn; NameOfCoef uxn; Function BF_NodeX; 
           Support Region[{Domain,Domain_Force}]; Entity NodesOf[All];}
@@ -48,7 +74,7 @@ FunctionSpace{
         { NameOfCoef uzn; EntityType NodesOf; NameOfConstraint DisplacementZ;}
       }
     }
-    { Name H_dState_Mec3D ; Type Vector ; 
+    { Name H_dState_Mec ; Type Vector ; 
       BasisFunction{
         { Name sxn; NameOfCoef uxn; Function BF_NodeX; 
 	  Support Region[{Domain,Domain_Force}]; Entity NodesOf[All];}
@@ -63,106 +89,103 @@ FunctionSpace{
         { NameOfCoef uzn; EntityType NodesOf; NameOfConstraint DisplacementZ;}
       }
     }
+  EndIf
 }
 
 Formulation{
-//  { Name velocity ; Type FemEquation ;
-//    Quantity {
-//      For i In {1:3}
-//        { Name v~{i} ; Type Local ; NameOfSpace H_v~{i}; }
-//      EndFor
-//    }
-//    Equation {
-//      For i In {1:3}
-//        Galerkin { [ 0*Dof{v~{i}}, {v~{i}} ] ;
-//          In Domain; Jacobian Vol ; Integration I1 ; }
-//      EndFor
-//    }
-//  }
+  For i In {1:3}
+    { Name Filter_v~{i} ; Type FemEquation ;
+      Quantity {
+        { Name fv~{i} ; Type Local ; NameOfSpace H_fv~{i};}
+      }
+      Equation {
+        Galerkin{ [Dof{d fv~{i}}, {d fv~{i}}];
+          In Domain; Jacobian Vol; Integration I1;}
+//        If ( Flag_NeumanVel )
+//          Galerkin{ [-velocity~{i}[], {fv~{i}}];
+//            In SkinPerturb; Jacobian Lin; Integration I1;}
+//        EndIf
+      }
+    }
+  EndFor
+
   If (Flag_2D) // 2D formulation
-    //If(!StrCmp(Flag_optType,"shape") || !StrCmp(Flag_optType,"topology"))
-      { Name Direct_u_Mec ; Type FemEquation ;
-        Quantity {
-          { Name u ; Type Local  ; NameOfSpace H_u_Mec2D ; }
-          { Name d_u ; Type Local  ; NameOfSpace H_dState_Mec2D ; }
-          If(Flag_readV)
-            For i In {1:3}
-              { Name v~{i} ; Type Local ; NameOfSpace H_v~{i};}
-            EndFor
-          EndIf
-        }
-        Equation {
-          Galerkin { [ C[]*Dof{D1 d_u}, {D1 d_u}] ; 
-            In Domain; Jacobian Vol ; Integration I1 ; }
-        }
+    { Name Direct_u_Mec ; Type FemEquation ;
+      Quantity {
+        { Name u ; Type Local  ; NameOfSpace H_u ; }
+        { Name d_u ; Type Local  ; NameOfSpace H_dState_Mec ; }
+        For i In {1:3}
+          { Name v~{i} ; Type Local ; NameOfSpace H_v~{i};}
+        EndFor
       }
-      { Name Adjoint_u_Mec ; Type FemEquation ;
-        Quantity {
-          { Name u  ; Type Local  ; NameOfSpace H_u_Mec2D; }
-          { Name lambda ; Type Local  ; NameOfSpace H_lambda_Mec2D; }
-          { Name xe ; Type Local ; NameOfSpace H_xe;}
-          For i In {1:3}
-            { Name v~{i} ; Type Local ; NameOfSpace H_v~{i};}
-          EndFor
-        } 
-        Equation {
-          Galerkin { [ C[{xe}] * Dof{D1 lambda}, {D1 lambda} ] ;
-            In Domain ; Jacobian Vol ; Integration I1 ; }
-          Galerkin { [ -dFdb[{D1 u},{D2 u},{xe}], {D1 lambda} ] ;
-            In DomainFunc ; Jacobian SurLinVol ; Integration I1 ; }
-          Galerkin { [ 0*Dof{xe}, {xe} ] ;
-            In Domain; Jacobian Vol ; Integration I1 ; }
-        }
+      Equation {
+        Galerkin { [ C[]*Dof{D1 d_u}, {D1 d_u}] ; 
+          In Domain; Jacobian Vol ; Integration I1 ; }
       }
-    //EndIf  
+    }
+    { Name Adjoint_u_Mec ; Type FemEquation ;
+      Quantity {
+        { Name u  ; Type Local  ; NameOfSpace H_u; }
+        { Name lambda ; Type Local  ; NameOfSpace H_lambda_Mec; }
+        { Name xe ; Type Local ; NameOfSpace H_xe;}
+        For i In {1:3}
+          { Name v~{i} ; Type Local ; NameOfSpace H_v~{i};}
+        EndFor
+      } 
+      Equation {
+        Galerkin { [ C[{xe}] * Dof{D1 lambda}, {D1 lambda} ] ;
+          In Domain ; Jacobian Vol ; Integration I1 ; }
+        Galerkin { [ -dFdb[{D1 u},{D2 u},{xe}], {D1 lambda} ] ;
+          In DomainFunc ; Jacobian SurLinVol ; Integration I1 ; }
+        Galerkin { [ 0*Dof{xe}, {xe} ] ;
+          In Domain; Jacobian Vol ; Integration I1 ; }
+      }
+    }
   Else // 3D formulation
-      { Name Adjoint_u_Mec ; Type FemEquation ;
-        Quantity {
-          { Name u  ; Type Local  ; NameOfSpace H_u_Mec3D; }
-          { Name lambda ; Type Local  ; NameOfSpace H_lambda_Mec3D; }
-          { Name xe ; Type Local ; NameOfSpace H_xe;}
-          For i In {1:3}
-            { Name v~{i} ; Type Local ; NameOfSpace H_v~{i};}
-          EndFor
-        }
-        Equation {
-          Galerkin { [ C11[{xe}] * Dof{D1 lambda}, {D1 lambda} ] ;
-            In Domain ; Jacobian Vol ; Integration I1 ; }
-          Galerkin { [ C12[{xe}] * Dof{D2 lambda}, {D1 lambda} ] ;
-            In Domain ; Jacobian Vol ; Integration I1 ; }
-          Galerkin { [ C21[{xe}] * Dof{D1 lambda}, {D2 lambda} ] ;
-            In Domain ; Jacobian Vol ; Integration I1 ; }
-          Galerkin { [ C22[{xe}] * Dof{D2 lambda}, {D2 lambda} ] ;
-            In Domain ; Jacobian Vol ; Integration I1 ; }
-          Galerkin { [ -dFdb[{D1 u},{D2 u},{xe}], {D1 lambda} ] ;
-            In DomainFunc ; Jacobian SurLinVol ; Integration I1 ; }
-          Galerkin { [ -dFdb2[{D1 u},{D2 u},{xe}], {D2 lambda} ] ;
-            In DomainFunc ; Jacobian SurLinVol ; Integration I1 ; }
-        }
+    { Name Adjoint_u_Mec ; Type FemEquation ;
+      Quantity {
+        { Name u  ; Type Local  ; NameOfSpace H_u; }
+        { Name lambda ; Type Local  ; NameOfSpace H_lambda_Mec; }
+        { Name xe ; Type Local ; NameOfSpace H_xe;}
+        For i In {1:3}
+          { Name v~{i} ; Type Local ; NameOfSpace H_v~{i};}
+        EndFor
       }
-      { Name Direct_u_Mec ; Type FemEquation ;
-        Quantity {
-          { Name u ; Type Local  ; NameOfSpace H_u_Mec3D ; }
-          { Name d_u ; Type Local  ; NameOfSpace H_dState_Mec3D ; }
-          If(Flag_readV)
-            For i In {1:3}
-              { Name v~{i} ; Type Local ; NameOfSpace H_v~{i};}
-            EndFor
-          EndIf
-        }
-        Equation {
-          // u formulation
-         Galerkin { [ C11[] * Dof{D1 d_u}, {D1 d_u} ] ;
-           In Domain ; Jacobian Vol ; Integration I1 ; }
-         Galerkin { [ C12[] * Dof{D2 d_u}, {D1 d_u} ] ;
-           In Domain ; Jacobian Vol ; Integration I1 ; }
-         Galerkin { [ C21[] * Dof{D1 d_u}, {D2 d_u} ] ;
-           In Domain ; Jacobian Vol ; Integration I1 ; }
-         Galerkin { [ C22[] * Dof{D2 d_u}, {D2 d_u} ] ;
-           In Domain ; Jacobian Vol ; Integration I1 ; }
-        }
+      Equation {
+        Galerkin { [ C11[{xe}] * Dof{D1 lambda}, {D1 lambda} ] ;
+          In Domain ; Jacobian Vol ; Integration I1 ; }
+        Galerkin { [ C12[{xe}] * Dof{D2 lambda}, {D1 lambda} ] ;
+          In Domain ; Jacobian Vol ; Integration I1 ; }
+        Galerkin { [ C21[{xe}] * Dof{D1 lambda}, {D2 lambda} ] ;
+          In Domain ; Jacobian Vol ; Integration I1 ; }
+        Galerkin { [ C22[{xe}] * Dof{D2 lambda}, {D2 lambda} ] ;
+          In Domain ; Jacobian Vol ; Integration I1 ; }
+        Galerkin { [ -dFdb[{D1 u},{D2 u},{xe}], {D1 lambda} ] ;
+          In DomainFunc ; Jacobian SurLinVol ; Integration I1 ; }
+        Galerkin { [ -dFdb2[{D1 u},{D2 u},{xe}], {D2 lambda} ] ;
+          In DomainFunc ; Jacobian SurLinVol ; Integration I1 ; }
       }
-    //EndIf
+    }
+    { Name Direct_u_Mec ; Type FemEquation ;
+      Quantity {
+        { Name u ; Type Local  ; NameOfSpace H_u ; }
+        { Name d_u ; Type Local  ; NameOfSpace H_dState_Mec ; }
+        For i In {1:3}
+          { Name v~{i} ; Type Local ; NameOfSpace H_v~{i};}
+        EndFor
+      }
+      Equation {
+        // u formulation
+       Galerkin { [ C11[] * Dof{D1 d_u}, {D1 d_u} ] ;
+         In Domain ; Jacobian Vol ; Integration I1 ; }
+       Galerkin { [ C12[] * Dof{D2 d_u}, {D1 d_u} ] ;
+         In Domain ; Jacobian Vol ; Integration I1 ; }
+       Galerkin { [ C21[] * Dof{D1 d_u}, {D2 d_u} ] ;
+         In Domain ; Jacobian Vol ; Integration I1 ; }
+       Galerkin { [ C22[] * Dof{D2 d_u}, {D2 d_u} ] ;
+         In Domain ; Jacobian Vol ; Integration I1 ; }
+      }
+    }
   EndIf
 }
 
@@ -171,6 +194,20 @@ Resolution{
   // group  (direct,adjoint) -> Sens_u_Mec
   // give "u_Mec" as input -> other resolutions depend on "u_Mec"
   // gmsh read directly in command line !!! -> postpro without solve
+
+  // filter velocity
+  For i In {1:3}
+    { Name Filter_v~{i}; 
+      System {
+        { Name A; NameOfFormulation Filter_v~{i}; } 
+      }
+      Operation{
+        CreateDir[ResDir];
+        InitSolution[A];Generate[A];Solve[A];
+        PostOperation[Filter_v~{i}];
+      }
+    }
+  EndFor
 
   // adjoint variable
   { Name Adjoint_u_Mec; 
@@ -181,7 +218,7 @@ Resolution{
     Operation{
       CreateDir[ResDir];
       ReadSolution[A]; //Load state variable
-      If(!StrCmp(Flag_optType,"topology") && !Flag_bilinInt)
+      If(!StrCmp(Flag_optType,"topology") && !Flag_projFuncSpace_xe)
         GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD]; 
       EndIf
       PostOperation[u_Mec];//generate useful coeff !!
@@ -199,64 +236,11 @@ Resolution{
     Operation{
       CreateDir[ResDir];
       ReadSolution[A]; //Load state variable
-      //GmshRead[StrCat[ResDir,"velocity.pos"], VELOCITY_FIELD];
       If(!StrCmp(Flag_optType,"topology"))
         GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD]; 
       EndIf
       InitSolution[B];Generate[B];Solve[B];SaveSolution[B];
       PostOperation[Post_Direct_u_Mec];
-    }
-  }
-
-  // sensitivities -> only postOperation is useful
-  { Name Lie_Adjoint_u_Mec; 
-    System {
-      { Name A; NameOfFormulation u_Mec; } //more than 1!
-      { Name B; NameOfFormulation Adjoint_u_Mec; }
-    }
-    Operation{
-      CreateDir[ResDir];
-
-      //Load state variable
-      ReadSolution[A];ReadSolution[B]; 
-     
-      PostOperation[u_Mec];//generate useful coeff !!
-
-      // load useful maps   
-      //GmshRead[StrCat[ResDir,"velocity.pos"], VELOCITY_FIELD];
-      GmshRead[StrCat[ResDir,"u.pos"], STATE_FIELD];
-      GmshRead[StrCat[ResDir,"lambda.pos"], ADJOINT_FIELD];
-  
-      PostOperation[Lie_Adjoint_u_Mec];
-    }
-  }
-
-  { Name Sens_Adjoint_u_Mec; 
-    System {
-      { Name A; NameOfFormulation u_Mec; } //more than 1!
-      { Name B; NameOfFormulation Adjoint_u_Mec; }
-    }
-    Operation{
-      CreateDir[ResDir];
-
-      //Load state variable and adjoint variable
-      ReadSolution[A];ReadSolution[B]; 
-     
-      //Generate useful coeff !!
-      PostOperation[u_Mec];
-
-      //Load useful maps 
-      If(!StrCmp(Flag_optType,"shape"))   
-        //GmshRead[StrCat[ResDir,"velocity.pos"], VELOCITY_FIELD];
-        GmshRead[StrCat[ResDir,"u.pos"], STATE_FIELD];
-        GmshRead[StrCat[ResDir,"lambda.pos"], ADJOINT_FIELD];
-      EndIf
-      If(!StrCmp(Flag_optType,"topology"))
-        GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD];
-      EndIf
-
-      //Run post-operation
-      PostOperation[Sens_Adjoint_u_Mec];
     }
   }
 
@@ -308,27 +292,6 @@ Resolution{
       If(!StrCmp(Flag_optType,"topology")) 
         PostOperation[Sens_Direct_u_Mec];
       EndIf    
-    }
-  }
-
-  // Direct sensitivity
-  { Name Lie_Direct_u_Mec; 
-    System {
-      { Name A; NameOfFormulation u_Mec; } //more than 1!
-      { Name B; NameOfFormulation Direct_u_Mec; }
-    }
-    Operation{
-      CreateDir[ResDir];
-
-      //Load state variable
-      ReadSolution[A];ReadSolution[B]; 
-     
-      // load useful maps   
-      //GmshRead[StrCat[ResDir,"velocity.pos"], VELOCITY_FIELD];
-      GmshRead[StrCat[ResDir,"u.pos"], STATE_FIELD];
-      GmshRead[StrCat[ResDir,"lambda.pos"], ADJOINT_FIELD];
-  
-      PostOperation[GetShapeOptDirectSens];
     }
   }
 

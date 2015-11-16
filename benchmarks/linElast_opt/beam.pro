@@ -17,13 +17,13 @@ DefineConstant[
 ];
 
 Group {
+  DefineGroup[SkinPerturb,SkinNonPerturb];
   /* ----------------------------------------------------------------- 
      Primal problem: 
      ----------------------------------------------------------------- */
   If(!StrCmp(Flag_cao,"square"))
     Domain = Region[{BLOC}];
-  EndIf
-  If(!StrCmp(Flag_cao,"rotor")) 
+  ElseIf(!StrCmp(Flag_cao,"rotor")) 
     Rotor_int    = #LINTERIEUR;
     Rotor_Fe     = #ROTOR_FE ;
     Rotor_Air    = #ROTOR_AIR ;
@@ -42,26 +42,21 @@ Group {
   Domain_Force_Vol = Region[ {} ];
   Domain_Force_Sur = Region[ {} ];
   Domain_Force_Lin = Region[ {} ];
-  If(Flag_testBench==0) //short cantilever beam
+  If( Flag_testBench == 0 ) //short cantilever beam
     If(Flag_2D)
       Domain_Force_Lin = Region[ POINT_2 ];
-    EndIf
-    If(!Flag_2D)
+    Else 
       Domain_Force_Lin = Region[ LINE_BAS ];
     EndIf
-  EndIf
-  If(Flag_testBench==1) //MBB-beam
+  ElseIf(Flag_testBench==1) //MBB-beam
     Domain_Force_Lin = Region[{POINT_4}];  // force sur le point 4
-  EndIf
-  If(Flag_testBench==2) //plate-hole
+  ElseIf(Flag_testBench==2) //plate-hole
     If(Flag_2D)
       Domain_Force_Lin = Region[{SURF_BAS,SURF_HAUT,SURF_DROITE,SURF_GAUCHE}]; 
-    EndIf
-    If(!Flag_2D)
+    Else
       Domain_Force_Sur = Region[{SURF_BAS,SURF_HAUT,SURF_DROITE,SURF_GAUCHE}]; 
     EndIf 
-  EndIf
-  If(Flag_testBench==3) //rotor
+  ElseIf( Flag_testBench == 3 ) //rotor
     Domain_Force_Lin = Region[Rotor_ext];//Region[Rotor_Bnd_A0];
   EndIf
   Domain_Force = Region[{Domain_Force_Sur,Domain_Force_Lin}];
@@ -70,18 +65,13 @@ Group {
   If(!StrCmp(Flag_cao,"rotor"))
     DomainOpt = Region[{Rotor_Fe}];
     DomainFunc = Region[{Rotor_Fe}];    
-  EndIf
-  If(StrCmp(Flag_cao,"rotor"))
+  Else
+    SkinPerturb = Region[{HOLE,SURF_DROITE}];
+    SkinNonPerturb = Region[{LINE_NON_PERTURBED}];
     DomainOpt = Region[{Domain}];
     DomainFunc = Region[{Domain}];    
   EndIf
-  //skin = Region[{HOLE}];
-  //TL = ElementsOf[Domain,OnOneSideOf skin ];
-/*
-  If(!StrCmp[Flag_PerfType,"vonMises"])
-    DomainFunc = ElementsOf[Domain,OnOneSideOf Region[HOLE] ]; 
-  EndIf
-*/
+
 }
 
 Function {
@@ -98,16 +88,14 @@ Function {
   /* ----------------------------------------------------------------- 
      Primal problem: 
      ----------------------------------------------------------------- */
-  If(Flag_testBench == 2)
+  If ( Flag_testBench == 2 )
     force_mec[#SURF_BAS] = Vector[0, -2e6, 0]; 
     force_mec[#SURF_HAUT] = Vector[0, 2e6, 0]; 
     force_mec[#SURF_DROITE] = Vector[4e6, 0, 0]; 
     force_mec[#SURF_GAUCHE] = Vector[-4e6, 0, 0]; 
-  EndIf
-  If(Flag_testBench < 2)
+  ElseIf ( Flag_testBench < 2 )
     force_mec[Domain_Force] = Vector[0.0,-1e6,0.0]; 
-  EndIf
-  If(Flag_testBench == 3)
+  ElseIf ( Flag_testBench == 3 )
     force_mec[Domain_Force] = 1e6*er[];  
   EndIf
 
@@ -115,8 +103,7 @@ Function {
     If(StrCmp(Flag_cao,"rotor")) 
       E[Domain] = E0;
       rho[Domain] = rh;
-    EndIf
-    If(!StrCmp(Flag_cao,"rotor")) // rotor 
+    Else
       E[#{Domain,-Rotor_Fe}] = 210e09;
       E[Rotor_Fe] = 196e09;
       rho[#{Domain,-Rotor_Fe}] = 8100.0;
@@ -125,24 +112,22 @@ Function {
   EndIf
  //InterpolationBilinear !
   If(!StrCmp(Flag_optType,"topology")) // topology optimization
-    If (Flag_bilinInt)
-      l_xe = ListFromFile["res/designVariable.txt"];
-      designVar[] = ValueFromIndex[]{l_xe()};
-    Else
-      designVar[] = ScalarField[XYZ[],0,1]{DES_VAR_FIELD};
-    EndIf
     E[#{Domain,-DomainOpt}] = 210e09; 
     rho[#{Domain,-DomainOpt}] = 8100.0; 
-    If(!Flag_bilinInt)
-      rho[DomainOpt] = rh * designVar[]; // vol. mas
-      d_rho[DomainOpt] = rh; // vol. mas
-    Else
+    If (Flag_projFuncSpace_xe)
+      l_xe = ListFromFile["res/designVariable.txt"];
+      designVar[] = ValueFromIndex[]{l_xe()};
       rho[DomainOpt] = rh * $1; 
       d_rho[DomainOpt] = rh; 
+    Else
+      designVar[] = ScalarField[XYZ[],0,1]{DES_VAR_FIELD};
+      rho[DomainOpt] = rh * designVar[]; // vol. mas
+      d_rho[DomainOpt] = rh; // vol. mas
     EndIf
+
     If(!StrCmp(Flag_InterpLaw,"simp")) // simp-law
       Printf["simp law"];
-      If(!Flag_bilinInt)
+      If(!Flag_projFuncSpace_xe)
         E[DomainOpt] = E0 * designVar[] ^ degree_SIMP;
         d_E[DomainOpt] = degree_SIMP * E0 * designVar[] ^ (degree_SIMP - 1.0);
       Else
@@ -153,7 +138,7 @@ Function {
     If(!StrCmp(Flag_InterpLaw,"polynomial")) // simp-law
       Printf["polynomial law"];
       alpha = 16.0;
-      If(!Flag_bilinInt)
+      If(!Flag_projFuncSpace_xe)
         E[DomainOpt]=E0*((alpha-1.0)/alpha*designVar[]^degree_SIMP + designVar[]/alpha);
         d_E[DomainOpt]= degree_SIMP*E0*((alpha-1.0)/alpha)*designVar[]^(degree_SIMP-1.0)
                         + E0/alpha;
@@ -167,7 +152,7 @@ Function {
   // Hooke matrix
   If(Flag_2D)
     C0[] = TensorSym[ 1.0, nu0, 0, 1.0, 0, 0.5*(1-nu0) ];
-    If(!Flag_bilinInt)
+    If(!Flag_projFuncSpace_xe)
       ff[] = E[]/(1-nu0^2);
       C[] = ff[] * C0[];
     Else
@@ -196,14 +181,16 @@ Function {
   mass_eig[] = rho[] * $1 * $1; //$1:u  
   If(Flag_2D) // operators for 2D
     bilin_uu[] = (C[$3] * $1) * $1; 
+    bilin_uu_lie[] = (C[] * $1) * $1; 
     bilin[] = (C[$3] * $1) * $2; //$1:{D1 u} 
     sigma[] = C[$3]*$1; //[sigma_11,sigma_22,sigma_12]
     sigmaVM[] = Sqrt[ CompX[sigma[$1,$2,$3]#2]^2.0 - CompX[#2]*CompY[#2]
                     + CompY[#2]^2.0 + 3.0*CompZ[#2]^2.0 ];
-  EndIf
-  If(!Flag_2D) // operators for 3D
+  Else // operators for 3D
     bilin_uu[] = (C11[$3] * $1) * $1 + (C12[$3] * $2) * $1
                 +(C21[$3] * $1) * $2 + (C22[$3] * $2) * $2 ;//$1:{D1 u},$2:{D2 u},$3:{x}
+    bilin_uu_lie[] = (C11[] * $1) * $1 + (C12[] * $2) * $1
+                +(C21[] * $1) * $2 + (C22[] * $2) * $2 ;//$1:{D1 u},$2:{D2 u},$3:{x}
     bilin[] = (C11[$3] * $1) * $2 + (C12[$3] * $3) * $2
              +(C21[$3] * $1) * $4 + (C22[$3] * $3) * $4 ; 
     sigma_ii[] = C11[$2]*$1; //[sigma_11,sigma_22,sigma_12], $1:{D1 u}
@@ -218,7 +205,7 @@ Function {
      ----------------------------------------------------------------- */
     // shape variation velocity field
     For i In {1:3}
-      If (Flag_readV)
+      If (Flag_projFuncSpace_v)
         l_v~{i} = ListFromFile[Sprintf("res/velocity_%g.txt",i)];
         velocity~{i}[] = ValueFromIndex[]{l_v~{i}()};
       Else
@@ -228,8 +215,6 @@ Function {
 
   If( !StrCmp(Flag_optType,"shape") )
     velocity[] = Vector[$1,$2,$3];
-    velocityField[] = VectorField[XYZ[],0,1]{VELOCITY_FIELD};
-//    dV[] = Transpose[GradVectorField[XYZ[],0,1]{VELOCITY_FIELD}];
     dV[] = Tensor[CompX[$1],CompX[$2],CompX[$3],
                   CompY[$1],CompY[$2],CompY[$3],
                   CompZ[$1],CompZ[$2],CompZ[$3]];
@@ -268,10 +253,13 @@ Function {
       d_bilin_eig_TO[] =  (d_C[] * $2) * $2;
       
       If(!StrCmp[Flag_PerfType,"Compliance"])
-        Func[] = 0.5 * bilin_uu[$1]; //F = C * {D1 u}^2
+        Func[] = 0.5 * bilin_uu[$1,$1,$3]; //F = C * {D1 u}^2
+        Func_lie[] = 0.5 * bilin_uu_lie[$1]; //F = C * {D1 u}^2
         dFdb[] = C[$3] * $1; // derivative wrt state variable
+        dFdb_Lie[] = C[] * $1; // derivative wrt state variable
         dF_TO[] = 0.5 * (d_C[$3]*$1)*$1; 
-        dF_lie[] = - dFdb[$1]*d_D1[du[],dV[$3,$4,$5]] + Func[$1]*TTrace[dV[$3,$4,$5]];
+        dF_lie[] = - dFdb_Lie[$1]*d_D1[du[],dV[$3,$4,$5]]
+                   + Func_lie[$1,$1]*TTrace[dV[$3,$4,$5]];
       EndIf
       If(!StrCmp[Flag_PerfType,"vonMises"])
         Func[] = sigmaVM[$1]^degVM; //F = Sqrt[s11^2-s11*s22+s22^2+3*s12^2]
@@ -279,8 +267,9 @@ Function {
                          2.0*CompY[#3]-CompX[#3],6.0*CompZ[#3]];  
         dF_TO[] = ( d_C[] * c_sig[$1] ) * $1; 
         dFdb[] = 0.5 * degVM * sigmaVM[$1]^(degVM-2) * C[] * c_sig[$1];
-        dF_lie[] = - dFdb[$1] * d_D1[ du[], dV[$3,$4,$5] ]
-                           + Func[$1] * TTrace[dV[$3,$4,$5]]; 
+        dFdb_Lie[] = 0.5 * degVM * sigmaVM[$1]^(degVM-2) * C[] * c_sig[$1];
+        dF_lie[] = - dFdb_Lie[$1,$2] * d_D1[ du[], dV[$3,$4,$5] ]
+                   + Func[$1] * TTrace[dV[$3,$4,$5]]; 
       EndIf
       If(!StrCmp[Flag_PerfType,"vonMises_Pnorm"])
         coeff[] = (1/degVM) * ($VM_P)^( (1-degVM) / degVM );
@@ -289,7 +278,9 @@ Function {
                          2.0*CompY[#3]-CompX[#3],6.0*CompZ[#3]];  
         dF_TO[] = ( d_C[] * c_sig[$1] ) * $1; 
         dFdb[] = coeff[]*0.5 * degVM * sigmaVM[$1]^(degVM-2) * C[] * c_sig[$1];
-        dF_lie[] = -dFdb[$1]*d_D1[du[],dV[$3,$4,$5]] + Func[$1]*TTrace[dV[$3,$4,$5]]; 
+        dFdb_Lie[] = coeff[]*0.5 * degVM * sigmaVM[$1]^(degVM-2) * C[] * c_sig[$1];
+        dF_lie[] = -dFdb_Lie[$1,$2,$6]*d_D1[du[],dV[$3,$4,$5]] 
+		   + Func[$1]*TTrace[dV[$3,$4,$5]]; 
       EndIf
     Else // 3D
       //$1:{D1 u}, $2:{D1 lambda}, $3:{D2 u}, $4:{D2 lambda}
@@ -315,7 +306,8 @@ Function {
                         +(C21[] * $2) * $3 + (C22[] * $3) * $3 )*TTrace[dV[$4,$5,$6]];
                     
       If(!StrCmp[Flag_PerfType,"Compliance"])
-        Func[] = 0.5 * bilin_uu[$1,$2]; //$1:{D1 u}, $2:{D2 u}
+        Func[] = 0.5 * bilin_uu[$1,$2,$3]; //$1:{D1 u}, $2:{D2 u}
+        Func_lie[] = 0.5 * bilin_uu[$1,$2]; //$1:{D1 u}, $2:{D2 u}
         dF_TO[]= 0.5*( (d_C11[$3]*$1)*$1+(d_C12[$3]*$2)*$1
                          +(d_C21[$3]*$1)*$2+(d_C22[$3]*$2)*$2 );
 	//$1:{D1 u},$2:{D2u}        
@@ -323,8 +315,8 @@ Function {
 	dFdb2[] = C22[$3] * $2 + 0.5 * ( C12[$3] + C21[$3] ) * $1;//dF/d2
         //$1:{D1 u}, $2:{D2 u}
         dF_lie[] = - dFdb[$1,$2] * d_D1[ du[], dV[$3,$4,$5] ]
-                           - dFdb2[$1,$2] * d_D2[ du[], dV[$3,$4,$5] ]
-                           + Func[$1,$2] * TTrace[dV[$3,$4,$5]];
+                   - dFdb2[$1,$2] * d_D2[ du[], dV[$3,$4,$5] ]
+                   + Func_lie[$1,$2] * TTrace[dV[$3,$4,$5]];
       EndIf
       If(!StrCmp[Flag_PerfType,"vonMises"])
 	degVM = 2;
@@ -368,7 +360,7 @@ Constraint{
 
   { Name constr_xe ;
     Case {
-      If(Flag_bilinInt)
+      If(Flag_projFuncSpace_xe)
         { Region Domain ; Value designVar[]*ElementVol[]; }
       Else
         { Region Domain ; Value 1.0; }
