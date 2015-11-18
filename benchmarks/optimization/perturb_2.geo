@@ -19,15 +19,14 @@ If(PerturbMesh == 1)
     ParamValue = GetNumber(Str(SensitivityParameter));
     SetNumber(Str(SensitivityParameter), ParamValue + Perturbation);
     OnelabRun("Gmsh_NoAutoRun", StrCat(GmshExecutableName, " ",
-        modelpath,General.FileName," -setnumber PerturbMesh 2 -run"));
+      modelpath,General.FileName," -setnumber PerturbMesh 2 -run"));
     SetNumber(Str(SensitivityParameter), ParamValue);
-    //Merge StrCat(ResDir, "velocity.pos");
   EndIf
 EndIf
 
 If(PerturbMesh == 2)
   SyncModel;
-  Printf("Computing perturbation velocity field...");
+  Printf("Computing velocity field ...");
   Merge StrCat(modelpath,StrPrefix(StrRelative(General.FileName)), ".msh");
   Plugin(NewView).Dimension = 3;
   Plugin(NewView).Run;
@@ -58,7 +57,11 @@ If(PerturbMesh == 2)
   Delete View[1];
   CreateDir Str(ResDir);
   Save View[0] StrCat(ResDir, "velocity.msh");
-  //Save View[0] StrCat(ResDir, "velocity.pos");
-  //Delete View[0];
-  //Delete View[0];
 EndIf
+
+
+
+
+
+
+
