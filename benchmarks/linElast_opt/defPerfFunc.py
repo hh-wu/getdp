@@ -190,7 +190,7 @@ def compliance(x,data,parameters):
 
 def vm_pnorm(x,data,parameters):
     input = {
-        'f':data['StressVM_pNorm'],#data['StressVM_pNorm'],
+        'f':data['StressVM_pNorm'],
         'df':['AdjointFixedDom'],
         'fmax':[0],
         'f_name':['vonMises_Pnorm'],
@@ -209,9 +209,6 @@ def eig0(x,data,parameters):
         'sign':[-1.0]
     }
     return input
-
-def Compliance(x,data,parameters):
-    return [np.sum(np.array(data['ComplianceElm']).flatten())]
 
 def vonMises(x,data,parameters):
     r = {'f':[np.sum(np.array(data['StressVM']).flatten())],

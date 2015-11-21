@@ -184,7 +184,10 @@ Function {
     bilin_uu_lie[] = (C[] * $1) * $1; 
     bilin[] = (C[$3] * $1) * $2; //$1:{D1 u} 
     sigma[] = C[$3]*$1; //[sigma_11,sigma_22,sigma_12]
+    sigma_lie[] = C[]*$1; //[sigma_11,sigma_22,sigma_12]
     sigmaVM[] = Sqrt[ CompX[sigma[$1,$2,$3]#2]^2.0 - CompX[#2]*CompY[#2]
+                    + CompY[#2]^2.0 + 3.0*CompZ[#2]^2.0 ];
+    sigmaVM_lie[] = Sqrt[ CompX[sigma_lie[$1,$2]#2]^2.0 - CompX[#2]*CompY[#2]
                     + CompY[#2]^2.0 + 3.0*CompZ[#2]^2.0 ];
   Else // operators for 3D
     bilin_uu[] = (C11[$3] * $1) * $1 + (C12[$3] * $2) * $1
@@ -262,25 +265,32 @@ Function {
                    + Func_lie[$1,$1]*TTrace[dV[$3,$4,$5]];
       EndIf
       If(!StrCmp[Flag_PerfType,"vonMises"])
-        Func[] = sigmaVM[$1]^degVM; //F = Sqrt[s11^2-s11*s22+s22^2+3*s12^2]
-        c_sig[] = Vector[2.0*CompX[sigma[$1]#3]-CompY[#3],
+        Func[] = sigmaVM[$1,$2,$3]^degVM; //F = Sqrt[s11^2-s11*s22+s22^2+3*s12^2]
+        Func_lie[] = sigmaVM_lie[$1,$2]^degVM; //F = Sqrt[s11^2-s11*s22+s22^2+3*s12^2]
+        c_sig[] = Vector[2.0*CompX[sigma[$1,]#3]-CompY[#3],
+                         2.0*CompY[#3]-CompX[#3],6.0*CompZ[#3]];  
+        c_sig_lie[] = Vector[2.0*CompX[sigma_lie[$1]#3]-CompY[#3],
                          2.0*CompY[#3]-CompX[#3],6.0*CompZ[#3]];  
         dF_TO[] = ( d_C[] * c_sig[$1] ) * $1; 
-        dFdb[] = 0.5 * degVM * sigmaVM[$1]^(degVM-2) * C[] * c_sig[$1];
-        dFdb_Lie[] = 0.5 * degVM * sigmaVM[$1]^(degVM-2) * C[] * c_sig[$1];
-        dF_lie[] = - dFdb_Lie[$1,$2] * d_D1[ du[], dV[$3,$4,$5] ]
-                   + Func[$1] * TTrace[dV[$3,$4,$5]]; 
+        dFdb[] = 0.5 * degVM * sigmaVM[$1]^(degVM-2) * C[$3] * c_sig[$1];
+        dFdb_lie[] = 0.5 * degVM * sigmaVM_lie[$1,$2]^(degVM-2) * C[] * c_sig_lie[$1];
+        dF_lie[] = - dFdb_lie[$1,$2] * d_D1[ du[], dV[$3,$4,$5] ]
+                   + Func_lie[$1,$2] * TTrace[dV[$3,$4,$5]]; 
       EndIf
       If(!StrCmp[Flag_PerfType,"vonMises_Pnorm"])
+        Printf("vonMises_Pnorm");
         coeff[] = (1/degVM) * ($VM_P)^( (1-degVM) / degVM );
         Func[] = coeff[]*sigmaVM[$1]^degVM; //F = Sqrt[s11^2-s11*s22+s22^2+3*s12^2]
-        c_sig[] = Vector[2.0*CompX[sigma[$1]#3]-CompY[#3],
+        Func_lie[] = coeff[]*sigmaVM_lie[$1,$2]^degVM;
+        c_sig[] = Vector[2.0*CompX[sigma[$1,$2,$3]#3]-CompY[#3],
+                         2.0*CompY[#3]-CompX[#3],6.0*CompZ[#3]];  
+        c_sig_lie[] = Vector[2.0*CompX[sigma_lie[$1]#3]-CompY[#3],
                          2.0*CompY[#3]-CompX[#3],6.0*CompZ[#3]];  
         dF_TO[] = ( d_C[] * c_sig[$1] ) * $1; 
-        dFdb[] = coeff[]*0.5 * degVM * sigmaVM[$1]^(degVM-2) * C[] * c_sig[$1];
-        dFdb_Lie[] = coeff[]*0.5 * degVM * sigmaVM[$1]^(degVM-2) * C[] * c_sig[$1];
-        dF_lie[] = -dFdb_Lie[$1,$2,$6]*d_D1[du[],dV[$3,$4,$5]] 
-		   + Func[$1]*TTrace[dV[$3,$4,$5]]; 
+        dFdb[] = coeff[]*0.5*degVM*sigmaVM[$1,$2,$3]^(degVM-2)*C[$3]*c_sig[$1,$2,$3];
+        dFdb_Lie[] = coeff[]*0.5*degVM*sigmaVM_lie[$1,$2]^(degVM-2)*C[]*c_sig_lie[$1];
+        dF_lie[] = -dFdb_Lie[$1,$2]*d_D1[du[],dV[$3,$4,$5]] 
+                     +Func_lie[$1,$2] * TTrace[dV[$3,$4,$5]]; 
       EndIf
     Else // 3D
       //$1:{D1 u}, $2:{D1 lambda}, $3:{D2 u}, $4:{D2 lambda}

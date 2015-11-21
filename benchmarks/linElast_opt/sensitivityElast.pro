@@ -28,10 +28,10 @@ FunctionSpace{
   If (Flag_2D) // 2D formulation
     { Name H_lambda_Mec; Type Vector ; // adjoint variable 2D
       BasisFunction {
-        { Name sxn ; NameOfCoef lambdaxn ; Function BF_NodeX ; 
+        { Name sxn ; NameOfCoef uxn ; Function BF_NodeX ; 
           dFunction {BF_NodeX_D12, BF_Zero};
           Support Region[{Domain,Domain_Force}] ; Entity NodesOf[ All ] ; }
-        { Name syn ; NameOfCoef lambdayn ; Function BF_NodeY ; 
+        { Name syn ; NameOfCoef uyn ; Function BF_NodeY ; 
           dFunction {BF_NodeY_D12, BF_Zero};
           Support Region[{Domain,Domain_Force}] ; Entity NodesOf[ All ] ; }
         If (Flag_degree2)
@@ -44,9 +44,9 @@ FunctionSpace{
         EndIf
       }
       Constraint {
-        { NameOfCoef lambdaxn ;
+        { NameOfCoef uxn ;
           EntityType NodesOf ; NameOfConstraint DisplacementX; }
-        { NameOfCoef lambdayn ;
+        { NameOfCoef uyn ;
           EntityType NodesOf ; NameOfConstraint DisplacementY; }
         If (Flag_degree2)
           { NameOfCoef uxn2;EntityType EdgesOf;NameOfConstraint DisplacementX ; }
