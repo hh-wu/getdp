@@ -31,6 +31,7 @@ parameters = {
     'adjoint':['Adjoint_u_Mec'],
     'direct':['Direct_u_Mec'],
     'defaultValue':{
+        'Deg2':['Input/degree 2?',1],
         'OptType':['Input/Optimization Type','shape'],
         'cao':[ppC+'0 Cao?',cao],
         'Lx':[pIn+'X length [m]',4],
@@ -43,6 +44,8 @@ parameters = {
         'degVM':['Input/Optimization/degVM',2]},
     'step':1.0e-06,
     'allowCentralFD':0,
+    'MeshRefine':3,
+    'iterMax':1000,
     'variables':var,
     'performance':opt_pnormVM,#opt_eig,opt_vm2,opt_pnorm,opt_vonMises_elem
     'optimizer':'conlinFile', #mma2007,conlinFile,gcmma,openopt

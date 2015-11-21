@@ -12,7 +12,7 @@ import defPerfFunc
 pIn = 'Input/Constructive Parameters/'
 ppC = 'Input/0Cao/'
 cao = 'square' #'square','rotor'
-extrude=1;nz=10;hole=0
+extrude=0;nz=10;hole=0
 if os.path.isfile('data.npy'):
     data = np.load('data.npy')
     nx=data[0];ny=data[1]
@@ -23,12 +23,12 @@ Lx = 3; Ly = 1
 # ***** Create the parameters                                        *****
 # ************************************************************************
 parameters = {
-    'plot':1,'Print':2,'file':'beam',
+    'plot':0,'Print':2,'file':'beam',
     'analysis':['u_Mec'],
     'analysisPost':['u_Mec_Post'],
     'adjoint':['Adjoint_u_Mec'],
     'direct':['Direct_u_Mec'],
-    'project_xe':0,
+    'project_xe':1,
     'MeshRefine':1,
     'iter':1000,
     'defaultValue':{
@@ -52,7 +52,7 @@ parameters = {
     'rmin':1.5*Lx/nx, #0.0125,
     'optimizer':'mma2007',#'mma2007','conlinFile','gcmma','openopt'
     'xtol':1.0e-02,
-    'iterMax':1000}
+    'iterMax':2}
 
 x = np.array([0.5])
 xmax = np.array([1.0])

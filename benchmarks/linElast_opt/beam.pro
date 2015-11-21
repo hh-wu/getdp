@@ -218,9 +218,9 @@ Function {
     dV[] = Tensor[CompX[$1],CompX[$2],CompX[$3],
                   CompY[$1],CompY[$2],CompY[$3],
                   CompZ[$1],CompZ[$2],CompZ[$3]];
-    dV_c1[] = Vector[CompXX[dV[$1,$2,$3]#1],CompYX[#1],CompZX[#1] ];  
-    dV_c2[] = Vector[CompXY[dV[$1,$2,$3]#1],CompYY[#1],CompZY[#1] ];  
-    dV_c3[] = Vector[CompXZ[dV[$1,$2,$3]#1],CompYZ[#1],CompZZ[#1] ];  
+//    dV_c1[] = Vector[CompXX[dV[$1,$2,$3]#1],CompYX[#1],CompZX[#1] ];  
+//    dV_c2[] = Vector[CompXY[dV[$1,$2,$3]#1],CompYY[#1],CompZY[#1] ];  
+//    dV_c3[] = Vector[CompXZ[dV[$1,$2,$3]#1],CompYZ[#1],CompZZ[#1] ];  
     du[] = Transpose[GradVectorField[XYZ[],$TimeStep,1]{STATE_FIELD}]; 
     dlam[] = Transpose[GradVectorField[XYZ[],0,1]{ADJOINT_FIELD}]; 
     dEps[] = 0.5 * ( $2 * $1 + Transpose[$1] * Transpose[$2] );//$2:dV 

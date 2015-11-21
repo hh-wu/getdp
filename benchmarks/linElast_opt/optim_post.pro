@@ -83,6 +83,14 @@ PostOperation {
   // --------------------------------------------------------------------------
   // Get state variable 
   // --------------------------------------------------------------------------
+ { Name u_TO; NameOfPostProcessing u_Mec;
+   Operation{
+     Print[ Compliance[DomainFunc], OnGlobal, Format TimeTable,
+       File StrCat[ResDir, StrCat["ComplianceElm",ExtOnelabScal]], LastTimeStepOnly,
+       SendToServer StrCat[po_min,"ComplianceElm"], Color "LightYellow" ];
+   }
+ }
+
  { Name u_Mec; NameOfPostProcessing u_Mec;
    Operation{
 //     Print[ E, OnElementsOf Domain,File StrCat[ResDir,"E",ExtGmsh]] ;
@@ -96,23 +104,23 @@ PostOperation {
 //     Print[ um,OnElementsOf Domain,File StrCat[ResDir,"um",ExtGmsh]] ;
      Print[ F, OnElementsOf Domain_Force,File StrCat[ResDir,"F",ExtGmsh]] ;
 
-     Print[ v, OnElementsOf Domain, File "res/v_an.pos", LastTimeStepOnly] ;
-     Print[ v_1, OnElementsOf Domain, File "res/v_1_an.pos", LastTimeStepOnly] ;
+//     Print[ v, OnElementsOf Domain, File "res/v_an.pos", LastTimeStepOnly] ;
+//     Print[ v_1, OnElementsOf Domain, File "res/v_1_an.pos", LastTimeStepOnly] ;
      Print[ Compliance[DomainFunc], OnGlobal, Format TimeTable,
        File StrCat[ResDir, StrCat["ComplianceElm",ExtOnelabScal]], LastTimeStepOnly,
        SendToServer StrCat[po_min,"ComplianceElm"], Color "LightYellow" ];
 
-//     Print[ Mass[DomainFunc], OnGlobal, Format TimeTable,
-//       File StrCat[ResDir, StrCat["Mass",ExtOnelabScal]], LastTimeStepOnly,
-//       SendToServer StrCat[po_min,"Mass"], Color "LightYellow" ];
+     Print[ Mass[DomainFunc], OnGlobal, Format TimeTable,
+       File StrCat[ResDir, StrCat["Mass",ExtOnelabScal]], LastTimeStepOnly,
+       SendToServer StrCat[po_min,"Mass"], Color "LightYellow" ];
 
-//     Print[ StressVMInt[DomainFunc], OnGlobal, Format TimeTable,Color "LightYellow",
-//       File StrCat[ResDir, StrCat["StressVM",ExtOnelabScal]], LastTimeStepOnly,
-//       StoreInVariable $VM_P,SendToServer StrCat[po_min,"StressVM"] ];
+     Print[ StressVMInt[DomainFunc], OnGlobal, Format TimeTable,Color "LightYellow",
+       File StrCat[ResDir, StrCat["StressVM",ExtOnelabScal]], LastTimeStepOnly,
+       StoreInVariable $VM_P,SendToServer StrCat[po_min,"StressVM"] ];
 
-//     Print[ StressVM_pNorm, OnRegion DomainFunc, Format TimeTable,
-//       File StrCat[ResDir, StrCat["StressVM_pNorm",ExtOnelabScal]], LastTimeStepOnly,
-//       SendToServer StrCat[po_min,"StressVM_pNorm"], Color "LightYellow"];
+     Print[ StressVM_pNorm, OnRegion DomainFunc, Format TimeTable,
+       File StrCat[ResDir, StrCat["StressVM_pNorm",ExtOnelabScal]], LastTimeStepOnly,
+       SendToServer StrCat[po_min,"StressVM_pNorm"], Color "LightYellow"];
 
 //     Print[ Volume[Domain], OnGlobal, Format TimeTable, 
 //       File StrCat[ResDir,"Volume",ExtOnelabScal], LastTimeStepOnly, 

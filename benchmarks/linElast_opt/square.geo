@@ -77,7 +77,6 @@ If(transfinite)
   Recombine Surface "*";
 EndIf
 
-pl[] = Line "*";
 // Extrude: 3D
 If(Flag_extrude) 
   If(!transfinite)
@@ -90,6 +89,7 @@ If(Flag_extrude)
   EndIf
   vol[] = {e1[1]};
 EndIf
+pl[] = Line "*";
 
 // Physical regions
 If(!Flag_extrude) //2D
@@ -112,6 +112,9 @@ If(!Flag_extrude) //2D
     Physical Line(HOLE) = {l_e2,l_e3}; 
     pNP[] = pl[];
     pNP[] -= {l_e2,l_e3};
+  EndIf
+  If(Flag_hole)
+    Physical Line(LINE_NON_PERTURBED) = { pNP[] };
   EndIf
 EndIf
 If(Flag_extrude) //3D
@@ -136,5 +139,4 @@ If(Flag_extrude) //3D
   Physical Point(POINT_4) = p4;
 EndIf
 
-Physical Line(LINE_NON_PERTURBED) = { pNP[] };
 

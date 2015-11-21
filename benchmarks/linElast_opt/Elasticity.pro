@@ -305,7 +305,11 @@ Resolution{
         GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD];
       EndIf
       InitSolution[A];Generate[A];Solve[A];SaveSolution[A];
-      PostOperation[u_Mec];
+      If(!StrCmp(Flag_optType,"topology"))
+        PostOperation[u_TO];
+      Else
+        PostOperation[u_Mec];
+      EndIf
     }
   }
   { Name u_Mec_eig ; // modal 2D/3D
