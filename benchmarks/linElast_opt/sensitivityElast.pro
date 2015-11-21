@@ -34,12 +34,24 @@ FunctionSpace{
         { Name syn ; NameOfCoef lambdayn ; Function BF_NodeY ; 
           dFunction {BF_NodeY_D12, BF_Zero};
           Support Region[{Domain,Domain_Force}] ; Entity NodesOf[ All ] ; }
+        If (Flag_degree2)
+          { Name sxn2 ; NameOfCoef uxn2 ; Function BF_NodeX_2E ;
+            dFunction {BF_NodeX_D12_2E, BF_Zero};
+            Support Region[{Domain,Domain_Force}]; Entity EdgesOf[ All ] ; }
+          { Name syn2 ; NameOfCoef uyn2 ; Function BF_NodeY_2E ;
+            dFunction {BF_NodeY_D12_2E, BF_Zero};
+            Support Region[{Domain,Domain_Force}]; Entity EdgesOf[ All ] ; }
+        EndIf
       }
       Constraint {
         { NameOfCoef lambdaxn ;
           EntityType NodesOf ; NameOfConstraint DisplacementX; }
         { NameOfCoef lambdayn ;
           EntityType NodesOf ; NameOfConstraint DisplacementY; }
+        If (Flag_degree2)
+          { NameOfCoef uxn2;EntityType EdgesOf;NameOfConstraint DisplacementX ; }
+          { NameOfCoef uyn2;EntityType EdgesOf ; NameOfConstraint DisplacementY ; }
+        EndIf
       }
     }
     { Name H_dState_Mec ; Type Vector ; // direct sensitivity 2D
@@ -67,11 +79,24 @@ FunctionSpace{
           Support Region[{Domain,Domain_Force}]; Entity NodesOf[All];}
         { Name szn; NameOfCoef uzn; Function BF_NodeZ; 
           Support Region[{Domain,Domain_Force}]; Entity NodesOf[All];}
+        If (Flag_degree2)
+          { Name sxn2 ; NameOfCoef uxn2 ; Function BF_NodeX_2E ;
+            Support Region[{Domain,Domain_Force}]; Entity EdgesOf[ All ] ; }
+          { Name syn2 ; NameOfCoef uyn2 ; Function BF_NodeY_2E ;
+            Support Region[{Domain,Domain_Force}]; Entity EdgesOf[ All ] ; }
+          { Name szn2 ; NameOfCoef uzn2 ; Function BF_NodeZ_2E ;
+            Support Region[{Domain,Domain_Force}]; Entity EdgesOf[ All ] ; }
+        EndIf
       }
       Constraint{
         { NameOfCoef uxn; EntityType NodesOf; NameOfConstraint DisplacementX;}
         { NameOfCoef uyn; EntityType NodesOf; NameOfConstraint DisplacementY;}
         { NameOfCoef uzn; EntityType NodesOf; NameOfConstraint DisplacementZ;}
+        If (Flag_degree2)
+          { NameOfCoef uxn2; EntityType EdgesOf; NameOfConstraint DisplacementX ; }
+          { NameOfCoef uyn2; EntityType EdgesOf; NameOfConstraint DisplacementY ; }
+          { NameOfCoef uzn2; EntityType EdgesOf; NameOfConstraint DisplacementZ ; }
+        EndIf
       }
     }
     { Name H_dState_Mec ; Type Vector ; 

@@ -42,8 +42,8 @@ If (!Flag_extrude)
   Lz = 0;
 EndIf
 
-//lc = Lx*0.05/md;
-lc = 0.2;
+lc = Lx*0.05/md;
+//lc = 0.2;
 
 // Physical region TAG
 BLOC = 1000;
