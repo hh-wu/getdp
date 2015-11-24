@@ -287,6 +287,10 @@ Formulation{
 }
 
 Resolution{
+  //Info    : (Wall = 50.4264s, CPU = 26.7739s, Mem = 331.918Mb)             
+//Info    : Solve[A]
+//Info    : N: 14595 - preonly lu mumps
+//Info    : (Wall = 50.9963s, CPU = 27.188s, Mem = 331.918Mb)
   // FIXME
   // group  (direct,adjoint) -> Sens_u_Mec
   // give "u_Mec" as input -> other resolutions depend on "u_Mec"
@@ -300,7 +304,9 @@ Resolution{
     }
     Operation{
       CreateDir[ResDir];
-      //SetGlobalSolverOptions["-petsc_prealloc 2"];
+      If(Flag_degree2)
+        SetGlobalSolverOptions["-petsc_prealloc 1000"];
+      EndIf
       If(!StrCmp(Flag_optType,"topology") && !Flag_projFuncSpace_xe)
         GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD];
       EndIf

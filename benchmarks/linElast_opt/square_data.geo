@@ -3,7 +3,7 @@ DefineConstant[
   Flag_hole = {1, Name StrCat(ppC,"Hole"),Choices {0="no hole",1="ellipse",2="spline"}},
   Flag_sym = {0, Name StrCat(ppC,"Symetry"),Choices {0,1}},
   NSpline = {6, Name StrCat(ppC,"nb points"), Visible (Flag_hole==2) },
-  Flag_extrude = {0, Choices {0,1}, Name StrCat(ppC,"extrude?")},
+  Flag_extrude = {1, Choices {0,1}, Name StrCat(ppC,"extrude?")},
   transfinite={0, Name StrCat(ppC,"transfinite?"),Choices {0,1},Visible (!Flag_hole)},
   nbE_X = {20*4+1, Name StrCat(ppC,"Nx"),Visible (transfinite)},
   nbE_Y = {21,Name StrCat(ppC,"Ny"),Visible (transfinite)},//even number
