@@ -9,7 +9,9 @@
 #include <string.h>
 #include <math.h>
 #include <set>
+
 #include "GetDPVersion.h"
+#include "GetDPConfig.h"
 #include "ProData.h"
 #include "ProDefine.h"
 #include "GeoData.h"
