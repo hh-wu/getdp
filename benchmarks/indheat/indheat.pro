@@ -57,6 +57,7 @@ Function {
     frequency  = {50, Min 0, Step 1, Name "Material/Frequency"},
     CoilConductivity  = {sigmaCu, Min 0, Step 1e6, Name "Material/Coil conductivity"},
     TubeConductivity  = {sigmaAl, Min 0, Step 1e6, Name "Material/Tube conductivity"}
+
     TubeDensity  = {rhoAl, Min 0, Step 10, Name "Material/Type density"}
     TubeSpecificHeat  = {cAl, Min 0, Step 10, Name "Material/Tube specific heat"}
     TubeThermalConductivity  = {kAl, Min 0, Step 10, Name "Material/Tube thermal conductivity"}
@@ -330,6 +331,7 @@ Formulation {
 	In Omega_c2; Integration Int; Jacobian Vol;  }
       Galerkin { [ -1./sigma[]*( Re[{d h}]*Re[{d h}] + Im[{d h}]*Im[{d h}]), {t} ];
 	In Omega_c2; Integration Int; Jacobian Vol;  }
+
       Galerkin { [ h[]*Dof{t} , {t} ] ;
 	In BdOmega_c2; Jacobian Sur ; Integration Int ; }
       Galerkin { [ -h[]*AmbT[] , {t} ] ;
@@ -407,6 +409,19 @@ PostProcessing {
       { Name V1 ; Value { Term { [ {V1} ] ; In Cut1TO ; } } }
       { Name Z1 ; Value { Term { [ {V1}/{I1} ] ; In Cut1TO ; } } }
       { Name V2 ; Value { Term { [ {V2} ] ; In Cut2TO ; } } }
+
+      { Name reI1 ; Value { Term { [ Re[{I1}] ] ; In Cut1TO ; } } }
+      { Name reI2 ; Value { Term { [ Re[{I2}] ] ; In Cut2TO ; } } }
+      { Name reV1 ; Value { Term { [ Re[{V1}] ] ; In Cut1TO ; } } }
+      { Name reZ1 ; Value { Term { [ Re[{V1}/{I1}] ] ; In Cut1TO ; } } }
+      { Name reV2 ; Value { Term { [ Re[{V2}] ] ; In Cut2TO ; } } }
+
+      { Name imI1 ; Value { Term { [ Im[{I1}] ] ; In Cut1TO ; } } }
+      { Name imI2 ; Value { Term { [ Im[{I2}] ] ; In Cut2TO ; } } }
+      { Name imV1 ; Value { Term { [ Im[{V1}] ] ; In Cut1TO ; } } }
+      { Name imZ1 ; Value { Term { [ Im[{V1}/{I1}] ] ; In Cut1TO ; } } }
+      { Name imV2 ; Value { Term { [ Im[{V2}] ] ; In Cut2TO ; } } }
+
     }
   }
 }
@@ -433,6 +448,18 @@ PostProcessing {
       { Name Z1 ; Value { Term { [ {V1}/{I1} ] ; In Cut1AV ; } } }
       { Name I2 ; Value { Term { [ {I2} ] ; In Cut2AV ; } } }
       { Name V2 ; Value { Term { [ {V2} ] ; In Cut2AV ; } } }
+
+      { Name reI1 ; Value { Term { [ Re[{I1}] ] ; In Cut1AV ; } } }
+      { Name reV1 ; Value { Term { [ Re[{V1}] ] ; In Cut1AV ; } } }
+      { Name reZ1 ; Value { Term { [ Re[{V1}/{I1}] ] ; In Cut1AV ; } } }
+      { Name reI2 ; Value { Term { [ Re[{I2}] ] ; In Cut2AV ; } } }
+      { Name reV2 ; Value { Term { [ Re[{V2}] ] ; In Cut2AV ; } } }
+
+      { Name imI1 ; Value { Term { [ Im[{I1}] ] ; In Cut1AV ; } } }
+      { Name imV1 ; Value { Term { [ Im[{V1}] ] ; In Cut1AV ; } } }
+      { Name imZ1 ; Value { Term { [ Im[{V1}/{I1}] ] ; In Cut1AV ; } } }
+      { Name imI2 ; Value { Term { [ Im[{I2}] ] ; In Cut2AV ; } } }
+      { Name imV2 ; Value { Term { [ Im[{V2}] ] ; In Cut2AV ; } } }
     }
   }
 
@@ -455,10 +482,31 @@ PostProcessing {
       Print[ h, OnElementsOf Omega , File "hTO.pos"] ;
       Print[ j, OnElementsOf Omega_c , File "jTO.pos"] ;
       Print[ q, OnElementsOf Omega_c , File "qTO.pos"] ;
-      Print[I1, OnRegion Cut1TO, File "I1TO.pos"];
-      Print[V1, OnRegion Cut1TO, File "V1TO.pos"];
-      Print[Z1, OnRegion Cut1TO, File "Z1TO.pos"];
-      Print[I2, OnRegion Cut2TO, File "I2TO.pos"];
+
+      Print[I1, OnRegion Cut1TO, Format FrequencyTable, File "I1TO.txt"];
+      Print[V1, OnRegion Cut1TO, Format FrequencyTable, File "V1TO.txt"];
+      Print[Z1, OnRegion Cut1TO, Format FrequencyTable, File "Z1TO.txt"];
+      Print[I2, OnRegion Cut2TO, Format FrequencyTable, File "I2TO.txt"];
+
+      Print[reI1, OnRegion Cut1TO, Format FrequencyTable, File "temp.txt",
+        SendToServer "88Output TO/10re(I1)"];
+      Print[imI1, OnRegion Cut1TO, Format FrequencyTable, File "temp.txt",
+        SendToServer "88Output TO/11im(I1)"];
+
+      Print[reV1, OnRegion Cut1TO, Format FrequencyTable, File "temp.txt",
+        SendToServer "88Output TO/20re(V1)"];
+      Print[imV1, OnRegion Cut1TO, Format FrequencyTable, File "temp.txt",
+        SendToServer "88Output TO/21imag(V1)"];
+
+      Print[reZ1, OnRegion Cut1TO, Format FrequencyTable, File "temp.txt",
+        SendToServer "88Output TO/30re(Z1)"];
+      Print[imZ1, OnRegion Cut1TO, Format FrequencyTable, File "temp.txt",
+        SendToServer "88Output TO/30imag(Z1)"];
+
+      Print[reI2, OnRegion Cut2TO, Format FrequencyTable, File "temp.txt",
+        SendToServer "88Output TO/40re(I2)"];
+      Print[imI2, OnRegion Cut2TO, Format FrequencyTable, File "temp.txt",
+        SendToServer "88Output TO/40imag(I2)"];
     }
   }
 
@@ -469,10 +517,31 @@ PostProcessing {
       Print[ v, OnElementsOf Omega_c , File "vAV.pos"] ;
       Print[ j, OnElementsOf Omega_c , File "jAV.pos"] ;
       Print[ q, OnElementsOf Omega_c , File "qAV.pos"] ;
-      Print[I1, OnRegion Cut1AV, File "I1AV.pos"];
-      Print[V1, OnRegion Cut1AV, File "V1AV.pos"];
-      Print[Z1, OnRegion Cut1AV, File "Z1AV.pos"];
-      Print[I2, OnRegion Cut2AV, File "I2AV.pos"];
+
+      Print[I1, OnRegion Cut1AV, Format FrequencyTable, File "I1AV.txt"];
+      Print[V1, OnRegion Cut1AV, Format FrequencyTable, File "V1AV.txt"];
+      Print[Z1, OnRegion Cut1AV, Format FrequencyTable, File "Z1AV.txt"];
+      Print[I2, OnRegion Cut2AV, Format FrequencyTable, File "I2AV.txt"];
+
+      Print[reI1, OnRegion Cut1AV, Format Table, File "temp.txt",
+        SendToServer "88Output AV/10re(I1)"];
+      Print[imI1, OnRegion Cut1AV, Format Table, File "temp.txt",
+        SendToServer "88Output AV/11im(I1)"];
+
+      Print[reV1, OnRegion Cut1AV, Format Table, File "temp.txt",
+        SendToServer "88Output AV/20re(V1)"];
+      Print[imV1, OnRegion Cut1AV, Format Table, File "temp.txt",
+        SendToServer "88Output AV/21imag(V1)"];
+
+      Print[reZ1, OnRegion Cut1AV, Format Table, File "temp.txt",
+        SendToServer "88Output AV/30re(Z1)"];
+      Print[imZ1, OnRegion Cut1AV, Format Table, File "temp.txt",
+        SendToServer "88Output AV/30imag(Z1)"];
+
+      Print[reI2, OnRegion Cut2AV, Format Table, File "temp.txt",
+        SendToServer "88Output AV/40re(I2)"];
+      Print[imI2, OnRegion Cut2AV, Format Table, File "temp.txt",
+        SendToServer "88Output AV/40imag(I2)"];
     }
   }
 
@@ -485,3 +554,10 @@ PostProcessing {
   }
 
 }
+
+
+DefineConstant[
+  R_ = {"MagDynTOComplex", Name "GetDP/1ResolutionChoices", Visible 1},
+  C_ = {"-solve -v2 -pos", Name "GetDP/9ComputeCommand", Visible 1},
+  P_ = {"MagDynTO", Name "GetDP/2PostOperationChoices", Visible 1}
+];
