@@ -189,8 +189,8 @@ EndIf
 //=================================================
 
 all_surf_Coil[] = Boundary{Volume{vol_Coil[]};};
-all_surf_ECore[] = Boundary{Volume{vol_ECore[]};};
-all_surf_ICore[] = Boundary{Volume{vol_ICore[]};};
+all_surf_ECore[] = CombinedBoundary{Volume{vol_ECore[]};};
+all_surf_ICore[] = CombinedBoundary{Volume{vol_ICore[]};};
 
 all_surf_Airgap[] = Boundary{Volume{vol_Airgap[]};};
 all_surf_Air[] = Boundary{Volume{vol_Air[]};};
@@ -263,3 +263,14 @@ If(Flag_Symmetry)
     Physical Surface(CUT_YZ) = {surf_cut_yz[]}; // BC if symmetry
   EndIf
 EndIf
+
+If(Flag_Symmetry)
+  all_surf_ICore[] -= surf_cut_xy[];
+  all_surf_ECore[] -= surf_cut_xy[];
+  If(Flag_Symmetry==2) // Half
+    all_surf_ICore[] -= surf_cut_yz[];
+    all_surf_ECore[] -= surf_cut_yz[];
+  EndIf
+EndIf
+Physical Surface(SKINECORE) = all_surf_ECore[];
+Physical Surface(SKINICORE) = all_surf_ICore[];

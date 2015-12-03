@@ -58,6 +58,14 @@ Group {
     DomainC  = Region[ {Core} ];
   EndIf
 
+
+  If(!Flag_ConductingCore)
+    DomainCC += Region[ {Core} ];
+  EndIf
+  If(Flag_ConductingCore)
+    DomainC += Region[ {Core} ];
+  EndIf
+
   Domain  = Region[ {DomainCC, DomainC} ];
 
   If(Flag_NL)
@@ -420,8 +428,20 @@ PostOperation Get_LocalFields UsingPost MagStaDyn_a_2D {
   Print[ ir, OnElementsOf Inds,   File StrCat[Dir,"ir",ExtGmsh], LastTimeStepOnly ] ;
   Print[ b,  OnElementsOf Domain, File StrCat[Dir,"b",ExtGmsh], LastTimeStepOnly ] ;
   Print[ nb,  OnElementsOf Domain, File StrCat[Dir,"nb",ExtGmsh], LastTimeStepOnly ] ;
-  //Print[ dhdb, OnElementsOf DomainNL, File StrCat[Dir,"dhdb",ExtGmsh], LastTimeStepOnly ];
+
   Print[ az, OnElementsOf Domain, File StrCat[Dir,"a",ExtGmsh], LastTimeStepOnly ];
+
+  If(Flag_ConductingCore)
+    Print[ jz, OnElementsOf DomainC, File StrCat[Dir,"jz",ExtGmsh], LastTimeStepOnly ];
+  EndIf
+
+  Echo[Str[ "For k In {0:PostProcessing.NbViews-1}",
+      "View[k].RangeType = 3;" ,// per timestep
+      "View[k].NbIso = 25;",
+      "View[k].IntervalsType = 3;",
+      "EndFor"// iso values
+    ], File "tmp.opt"];
+
 }
 
 PostOperation Get_Analytical UsingPost MagStaDyn_a_2D {

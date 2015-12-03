@@ -47,6 +47,7 @@ Group {
   If(Flag_ConductingCore)
     DomainCC = Region[ {Air, AirInf} ];
     DomainC  = Region[ {Core} ];
+    SkinDomainC = Region[ {SkinCore} ];
   EndIf
 
   //--------------------------------------------------------------
@@ -420,6 +421,10 @@ PostProcessing {
    Print[ js, OnElementsOf DomainB, File StrCat[Dir,"js",ExtGmsh], LastTimeStepOnly ] ;
    //Print[ hs, OnElementsOf DomainB, File StrCat[Dir,"hs",ExtGmsh], LastTimeStepOnly ] ;
    Print[ b, OnElementsOf Domain, File StrCat[Dir,"b",ExtGmsh], LastTimeStepOnly ] ;
+
+   If(Flag_ConductingCore)
+     Print[ j, OnElementsOf DomainC, File StrCat[Dir,"j",ExtGmsh], LastTimeStepOnly ] ;
+   EndIf
  }
 
  PostOperation Get_Analytical UsingPost MagStaDyn_a_3D {

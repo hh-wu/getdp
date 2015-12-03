@@ -24,13 +24,16 @@ DefineConstant[
     Highlight "Blue"},
 
   Flag_NL = { 0, Choices{0,1},
-    Name "Input/40Nonlinear BH-curve"}
-  Flag_ConductingCore = { 0, Choices{0,1},
-    Name "Input/40Conducting core"}
+              Name "Input/40Nonlinear BH-curve", ReadOnly (Flag_AnalysisType==2)}
+  Flag_ConductingCore = { (Flag_AnalysisType==2), Choices{0,1},
+    Name "Input/40Conducting core", ReadOnly (Flag_AnalysisType==0)}
 ];
 
 Group {
-  Core = Region[ {ECORE, ICORE} ];
+  CoreE = Region[ {ECORE} ];
+  CoreI = Region[ {ICORE} ];
+  Core = Region[ {CoreE, CoreI} ];
+
   Ind_1      = Region[{COIL}] ;
 
   If (Flag_3Dmodel==0)
@@ -46,6 +49,11 @@ Group {
 
     SkinInds = Region[ {SkinInd_1} ];
     Inds  = Region[ {Ind_1} ];
+    If(Flag_ConductingCore)
+      SkinCoreE = Region[ {SKINECORE} ];
+      SkinCoreI = Region[ {SKINICORE} ];
+      SkinCore = Region[{SkinCoreE, SkinCoreI}];
+    EndIf
   EndIf
 
   AirGap = Region[ AIRGAP ];
@@ -116,6 +124,8 @@ Function {
 
   // Use if linear problem
   DefineConstant[
+    sigma_core = { 1e5/10, Label "Core conductivity [S/m]",
+                   Name "Input/44Core Conductivity", Highlight "AliceBlue", Visible Flag_ConductingCore},
     sigma_coil = { sigma_cu, Label "Conductivity [S/m]",
       Name "Input/4Coil Parameters/5Conductivity", Highlight "AliceBlue"},
     mur_fe = { 2000., Min 100, Max 2000, Step 100,
