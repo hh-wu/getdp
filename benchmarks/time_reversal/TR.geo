@@ -1,10 +1,11 @@
 /*
-Numerical simulation of a Time Reversal experiment.
-The simulation is achieved in 2D, with a thick Time Reversal Miror (TRM).
-The domain is free of any obstacle.
+  Numerical simulation of a Time Reversal experiment.
+  The simulation is achieved in 2D, with a thick Time Reversal Miror (TRM).
+  The domain is free of any obstacle.
 */
 
 Include "TR_data.pro";
+
 // Point source :
 PS = newp; Point(PS) = {XS, YS, ZS, lcSourceInt};
 
@@ -21,12 +22,13 @@ If(CLUTTER)
 EndIf
 
 DefineConstant[
-N_scat2 = {N_scatCreated, Name StrCat[MENU_GEO, StrCat[MENU_OBSTACLES, "/01Nb. of placed obstacles"]], ReadOnly 1}
+  N_scat2 = {N_scatCreated,
+    Name StrCat[MENU_GEO, StrCat[MENU_OBSTACLES, "/01Nb. of placed obstacles"]], ReadOnly 1}
 ];
 
-//===================
+//-------------------
 //Creation of the TRM
-//===================
+//-------------------
 
 P1 = newp; Point(P1) = {X_TRM_min, Y_TRM_min, ZS, lcTRM};
 P2 = newp; Point(P2) = {X_TRM_max, Y_TRM_min, ZS, lcTRM};
@@ -40,16 +42,16 @@ LTRM4 = newreg; Line(LTRM4) = {P4, P1};
 
 LLTRM = newreg; Line Loop(LLTRM) = {LTRM1, LTRM2, LTRM3, LTRM4};
 
-//==============================
+//------------------------------
 // Perfectly Matched Layer (PML)
-//==============================
+//------------------------------
 
 // Centre XF,YF,ZF (imported from "data_geometry.geo")
-//PF = newp; Point(PF) = {XF,YF,ZF,lcFictitious};
+// PF = newp; Point(PF) = {XF,YF,ZF,lcFictitious};
 
-//Interior boundary (propagating part of the domain)
-//Rectangle centred on (XF,YF,ZF) with sizes SizeInteriorDomainX (X direction)
-//and SizeInteriorDomainY (Y direction)
+// Interior boundary (propagating part of the domain)
+// Rectangle centred on (XF,YF,ZF) with sizes SizeInteriorDomainX (X direction)
+// and SizeInteriorDomainY (Y direction)
 
 // Remark on the different names:
 // Int = mean "interior" (Beginning of the PML)
@@ -79,8 +81,10 @@ LIntBoundL = newreg; Line(LIntBoundL) = {PIntBoundUL, PIntBoundDL};
 LLIntBound = newreg; Line Loop(LLIntBound) = {LIntBoundD, LIntBoundR, LIntBoundU, LIntBoundL};
 
 // Absorbing domain (PML) :
-//Rectangle centred on (XF,YF,ZF) with sides (SizeInteriorDomainX + SizeAbsorbingDomainX) and (SizeInteriorDomainY + SizeAbsorbingDomainY)
-//In the X direction, the PML have a thickness of "SizeAbsorbingDomainX" (same for "Y direction" and "SizeAbsorbingDomainY")
+// Rectangle centred on (XF,YF,ZF) with sides (SizeInteriorDomainX +
+// SizeAbsorbingDomainX) and (SizeInteriorDomainY + SizeAbsorbingDomainY)
+// In the X direction, the PML have a thickness of "SizeAbsorbingDomainX" (same
+// for "Y direction" and "SizeAbsorbingDomainY")
 
 PExtBoundDL = newp; Point(PExtBoundDL) = {Xmin - SizePMLX, Ymin - SizePMLY, ZF, lcExtern_Bound};
 PExtBoundDR = newp; Point(PExtBoundDR) = {Xmax + SizePMLX, Ymin - SizePMLY, ZF, lcExtern_Bound};
@@ -95,12 +99,15 @@ LExtBoundL = newreg; Line(LExtBoundL) = {PExtBoundUL, PExtBoundDL};
 LLExtBound = newreg; Line Loop(LLExtBound) = {LExtBoundD, LExtBoundR, LExtBoundU, LExtBoundL};
 
 If(HidePML)
-  Hide{Line{LExtBoundD,LExtBoundR,LExtBoundU,LExtBoundL}; Point{PExtBoundDL, PExtBoundDR, PExtBoundUR, PExtBoundUL};}
+  Hide{
+    Line{LExtBoundD,LExtBoundR,LExtBoundU,LExtBoundL};
+    Point{PExtBoundDL, PExtBoundDR, PExtBoundUR, PExtBoundUL};
+  }
 EndIf
 
-//==========================
-//  Creation of the surfaces
-//==========================
+//-------------------------
+// Creation of the surfaces
+//-------------------------
 
 // Mirror :
 SurfTRM = newreg; Plane Surface(SurfTRM) = {LLTRM};
@@ -114,16 +121,16 @@ EndIf
 // PML
 SurfPML = newreg; Plane Surface(SurfPML) = {LLExtBound,LLIntBound};
 
-//==============================
-//  Physical entities
-//==============================
+//------------------
+// Physical entities
+//------------------
 
 // Surfaces
 Physical Surface(1) = {SurfTRM};
 Physical Surface(2) = {SurfExteriorDomain};
 Physical Surface(3) = {SurfPML};
 
-// Boundaries		
+// Boundaries
 Physical Line(11) = {LTRM1, LTRM2, LTRM3, LTRM4};
 Physical Line(12) = {LIntBoundL,LIntBoundD,LIntBoundR,LIntBoundU};
 Physical Line(13) = {LExtBoundD, LExtBoundR, LExtBoundU, LExtBoundL};
