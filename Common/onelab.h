@@ -140,9 +140,12 @@ namespace onelab{
       std::string::size_type last = _name.find_last_of('/');
       if(last != std::string::npos)
         s = _name.substr(last + 1);
+      // remove starting white space
+      while(s.size() && s[0] == ' ')
+        s = s.substr(1);
       // remove starting braces: can be used to order parameters 'from the end',
       // as the ASCII code is after numbers and letters
-      while(s.size() && (s[0] == '}' || s[0] == '{' || s[0] == '{'))
+      while(s.size() && (s[0] == '}' || s[0] == '{'))
         s = s.substr(1);
       // remove starting numbers: can be used to order parameters 'from the
       // start'
@@ -1251,11 +1254,11 @@ namespace onelab{
       std::vector<std::string> out;
       std::vector<number> n; get(n);
       for(unsigned int i = 0; i < n.size(); i++) out.push_back(n[i].toChar());
-      std::vector<number> s; get(s);
+      std::vector<string> s; get(s);
       for(unsigned int i = 0; i < s.size(); i++) out.push_back(s[i].toChar());
       std::vector<region> r; get(r);
       for(unsigned int i = 0; i < r.size(); i++) out.push_back(r[i].toChar());
-      std::vector<region> f; get(f);
+      std::vector<function> f; get(f);
       for(unsigned int i = 0; i < f.size(); i++) out.push_back(f[i].toChar());
       return out;
     }
