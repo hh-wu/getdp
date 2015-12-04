@@ -87,7 +87,7 @@ FunctionSpace{
   // One space for backpropagation
   {Name EspUback; Type Form0;
     BasisFunction{
-      {Name Ure; NameOfCoef Uren; Function BF_Node;
+      { Name Ure; NameOfCoef Uren; Function BF_Node;
 	Support Region[{AllDomains, AllDomains_Bnd}]; Entity NodesOf[All];}
     }
     //PML constraint
@@ -98,7 +98,7 @@ FunctionSpace{
     // One space for emission (approx. Green function)
     {Name EspUforw; Type Form0;
       BasisFunction{
-	{Name Ue; NameOfCoef Uen; Function BF_Node;
+	{ Name Ue; NameOfCoef Uen; Function BF_Node;
 	  Support Region[{AllDomains, AllDomains_Bnd}]; Entity NodesOf[All];}
       }
       //PML constraint
@@ -116,5 +116,5 @@ If(MultiFreq)
 EndIf
 
 DefineConstant[
-  C_ = {"-solve -pos -bin", Name "GetDP/9ComputeCommand"}
+  C_ = {"-solve -pos -bin", Name "GetDP/9ComputeCommand", Visible 0}
 ];

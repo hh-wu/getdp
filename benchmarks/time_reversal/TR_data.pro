@@ -24,7 +24,7 @@ MENU_PML = "/PML size (in nb. element)/";
 DefineConstant[
   // reference to build geometry
   k_geo = {10., Min 1., Max 100., Step 0.1,
-    Name StrCat[MENU_GEO, MENU_WAVENUMBER, "1k_geo"]}
+    Name StrCat[MENU_GEO, MENU_WAVENUMBER, "1k_geo"], Closed 1},
   // reference for discretization (if band of frequencies for example)
   k_dis = {10., Min 1., Max 100., Step 0.1,
     Name StrCat[MENU_GEO, MENU_WAVENUMBER, "2k_dis"]}
@@ -42,7 +42,7 @@ lambda_dis = 2*Pi/k_dis;
 
 DefineConstant[
   nDy = {15., Min 0.1, Max 100., Step 0.1,
-    Name StrCat[MENU_GEO, MENU_TRM, "1Aperture"]}
+    Name StrCat[MENU_GEO, MENU_TRM, "1Aperture"], Closed 1}
   nDx = {0.2, Min 0.1, Max 10., Step 0.01,
     Name StrCat[MENU_GEO, MENU_TRM, "2Thickness"]}
   nL = {20., Min 1., Max 100., Step 0.1,
@@ -57,7 +57,7 @@ Dz = lambda_geo*0;
 DefineConstant[
   // Coordinate of the source :
   YS = {0., Min -Dy/2, Max Dy/2, Step 0.1,
-    Name StrCat[MENU_GEO, MENU_SOURCE, "0Y coordinate"]}
+    Name StrCat[MENU_GEO, MENU_SOURCE, "0Y coordinate"], Closed 1}
 ];
 XS = 0;
 ZS = 0;
@@ -73,7 +73,7 @@ Y_TRM_max = Dy/2;
 
 DefineConstant[
   linkLS = {1, Choices {0,1},
-    Name StrCat[MENU_GEO, MENU_PROP, "0Set distances TRM-Source = Source-Xmin"]}
+    Name StrCat[MENU_GEO, MENU_PROP, "0Set distances TRM-Source = Source-Xmin"], Closed 1}
   n_LS = {nL + nDx, Min 1., Max 30., Step 0.1,
     Name StrCat[MENU_GEO, MENU_PROP, "00Distance behind the source"], ReadOnly linkLS}
   n_LTRM = {Dy/4, Min Dy/10, Max 100., Step 0.1,

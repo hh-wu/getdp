@@ -1,5 +1,5 @@
 
-2D model of time reversal in free space.
+2D model of time reversal of acoustic waves.
 
 [[Category:GetDP]]
 [[Category:Acoustic]]

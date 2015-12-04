@@ -4,6 +4,8 @@
   The domain is free of any obstacle.
 */
 
+Mesh.Algorithm = 6;
+
 Include "TR_data.pro";
 
 // Point source :
@@ -23,7 +25,7 @@ EndIf
 
 DefineConstant[
   N_scat2 = {N_scatCreated,
-    Name StrCat[MENU_GEO, StrCat[MENU_OBSTACLES, "/01Nb. of placed obstacles"]], ReadOnly 1}
+    Name StrCat[MENU_GEO, StrCat[MENU_OBSTACLES, "/01Nb. of placed obstacles"]], ReadOnly 1, Closed 1}
 ];
 
 //-------------------
