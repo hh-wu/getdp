@@ -1500,7 +1500,7 @@ struct CurrentData {
   double  Theta, Beta, Gamma;
 
   // For TimeLoopAdaptive
-  double  PredOrder, CorrOrder;
+  int     PredOrder, CorrOrder;
   double  aPredCoeff[7], aCorrCoeff[6], bCorrCoeff, PredErrorConst, CorrErrorConst;
   double  Breakpoint;
 

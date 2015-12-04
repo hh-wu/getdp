@@ -11,11 +11,6 @@
 #include <string.h>
 #include <math.h>
 #include "GetDPConfig.h"
-
-#if defined(HAVE_GSL)
-#include <gsl/gsl_linalg.h>
-#endif
-
 #include "ProData.h"
 #include "DofData.h"
 #include "SolvingOperations.h"
@@ -23,6 +18,19 @@
 #include "Message.h"
 #include "MallocUtils.h"
 #include "Legendre.h"
+
+
+#if !defined(F77NAME)
+#define F77NAME(x) (x##_)
+#endif
+
+#if defined(HAVE_LAPACK)
+extern "C" {
+  void F77NAME(dgesv)(int *N, int *nrhs, double *A, int *lda, int *ipiv,
+                      double *b, int *ldb, int *info);
+}
+#endif
+
 
 extern struct CurrentData Current;
 extern int Flag_IterativeLoopConverged;
@@ -33,7 +41,7 @@ extern int Flag_RESTART;
 /*  C a l c I n t e g r a t i o n C o e f f i c i e n t s                   */
 /* ------------------------------------------------------------------------ */
 
-#if !defined(HAVE_GSL)
+#if !defined(HAVE_LAPACK)
 
 void CalcIntegrationCoefficients(Resolution  *Resolution_P,
                                  DofData     *DofData_P0,
@@ -41,7 +49,7 @@ void CalcIntegrationCoefficients(Resolution  *Resolution_P,
                                  List_T      *TLAPostOp_L,
                                  int         Order)
 {
-  Message::Error("TimeLoopAdaptive requires the GSL");
+  Message::Error("TimeLoopAdaptive requires Lapack");
 }
 
 #else
@@ -58,14 +66,12 @@ void CalcIntegrationCoefficients(Resolution  *Resolution_P,
   TimeLoopAdaptiveSystem TLAsystem;
   List_T                 *Solutions_L=NULL;
   PostOpSolutions        *PostOpSolutions_P0;
-  int                    j, s, NbrOfSolutions=0;
+  int                    j, NbrOfRows, NbrOfSolutions=0;
+  int                    Info, Pivots[7], NbrOfRightHandSides=1;
   double                 t[8], temp;
-  double                 A_data[49], b_data[7];
+  double                 A[49], b[7];
   bool                   RecomputeTimeStep;
-  gsl_matrix_view        A;
-  gsl_vector_view        b;
-  gsl_vector             *coeff;
-  gsl_permutation        *p;
+
 
   // Initialization
   for (int i=0; i<7; i++)
@@ -160,28 +166,23 @@ void CalcIntegrationCoefficients(Resolution  *Resolution_P,
   if (Current.PredOrder == 0)
     Current.aPredCoeff[0] = 1.0;
   else {
+    NbrOfRows = Current.PredOrder + 1;
     for (int c=0; c <= Current.PredOrder; c++) {
-      A_data[c] = 1.0;
+      A[0 + c*NbrOfRows] = 1.0;
       for (int r=1; r <= Current.PredOrder; r++)
-        A_data[c + r*((int)Current.PredOrder+1)] = pow(t[c+1],r);
+        A[r + c*NbrOfRows] = pow(t[c+1],r);
     }
-    A = gsl_matrix_view_array(A_data, Current.PredOrder+1, Current.PredOrder+1);
 
-    b_data[0] = 1.0;
+    b[0] = 1.0;
     for (int r=1; r <= Current.PredOrder; r++)
-      b_data[r] = pow(t[0],r);
-    b = gsl_vector_view_array(b_data, Current.PredOrder+1);
+      b[r] = pow(t[0],r);
 
-    coeff = gsl_vector_alloc(Current.PredOrder+1);
-    p = gsl_permutation_alloc(Current.PredOrder+1);
-    gsl_linalg_LU_decomp(&A.matrix, p, &s);
-    gsl_linalg_LU_solve(&A.matrix, p, &b.vector, coeff);
+    F77NAME(dgesv)(&NbrOfRows, &NbrOfRightHandSides, A, &NbrOfRows, Pivots, b, &NbrOfRows, &Info);
+    if (Info != 0)
+      Message::Error("Can't calculate predictor coefficients for TimeLoopAdaptive");
 
     for (int i=0; i<=Current.PredOrder; i++)
-      Current.aPredCoeff[i] = gsl_vector_get(coeff, i);
-
-    gsl_permutation_free(p);
-    gsl_vector_free(coeff);
+      Current.aPredCoeff[i] = b[i];
   }
 
   // Calculation of corrector integration constants
@@ -203,35 +204,28 @@ void CalcIntegrationCoefficients(Resolution  *Resolution_P,
    */
 
   if (Current.TypeTime == TIME_GEAR) {
-
+    NbrOfRows = Current.CorrOrder + 1;
     for (int c=0; c < Current.CorrOrder; c++) {
-      A_data[c] = 1.0;
+      A[0 + c*NbrOfRows] = 1.0;
       for (int r=1; r <= Current.CorrOrder; r++)
-        A_data[c + r*((int)Current.CorrOrder+1)] = pow(t[c+1],r);
+        A[r + c*NbrOfRows] = pow(t[c+1],r);
     }
-    A_data[(int)Current.CorrOrder] = 0.0;
-    A_data[(int)Current.CorrOrder + 1*((int)Current.CorrOrder+1)] = t[0]-t[1];
+    A[0 + (int)Current.CorrOrder*NbrOfRows] = 0.0;
+    A[1 + (int)Current.CorrOrder*NbrOfRows] = t[0]-t[1];
     for (int r=2; r <= Current.CorrOrder; r++)
-      A_data[(int)Current.CorrOrder + r*((int)Current.CorrOrder+1)] =
-          r*pow(t[0],r-1)*(t[0]-t[1]);
-    A = gsl_matrix_view_array(A_data, Current.CorrOrder+1, Current.CorrOrder+1);
+      A[r + (int)Current.CorrOrder*NbrOfRows] = r*pow(t[0],r-1)*(t[0]-t[1]);
 
-    b_data[0] = 1.0;
+    b[0] = 1.0;
     for (int r=1; r <= Current.CorrOrder; r++)
-      b_data[r] = pow(t[0],r);
-    b = gsl_vector_view_array(b_data, Current.CorrOrder+1);
+      b[r] = pow(t[0],r);
 
-    coeff = gsl_vector_alloc(Current.CorrOrder+1);
-    p = gsl_permutation_alloc(Current.CorrOrder+1);
-    gsl_linalg_LU_decomp(&A.matrix, p, &s);
-    gsl_linalg_LU_solve(&A.matrix, p, &b.vector, coeff);
+    F77NAME(dgesv)(&NbrOfRows, &NbrOfRightHandSides, A, &NbrOfRows, Pivots, b, &NbrOfRows, &Info);
+    if (Info != 0)
+      Message::Error("Can't calculate corrector coefficients for TimeLoopAdaptive");
 
-     for (int i=0; i<Current.CorrOrder; i++)
-      Current.aCorrCoeff[i] = gsl_vector_get(coeff, i);
-    Current.bCorrCoeff =  gsl_vector_get(coeff, Current.CorrOrder);
-
-    gsl_permutation_free(p);
-    gsl_vector_free(coeff);
+    for (int i=0; i<Current.CorrOrder; i++)
+      Current.aCorrCoeff[i] = b[i];
+    Current.bCorrCoeff =  b[(int)Current.CorrOrder];
   }
 
   // Calculation of predictor error constant

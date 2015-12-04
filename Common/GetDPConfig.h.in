@@ -7,8 +7,10 @@
 #define _GETDP_CONFIG_H_
 
 #cmakedefine HAVE_ARPACK
+#cmakedefine HAVE_BLAS
 #cmakedefine HAVE_GMSH
 #cmakedefine HAVE_GSL
+#cmakedefine HAVE_LAPACK
 #cmakedefine HAVE_LEGACY
 #cmakedefine HAVE_MPI
 #cmakedefine HAVE_MULTIHARMONIC
