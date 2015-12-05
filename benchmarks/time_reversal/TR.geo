@@ -5,6 +5,7 @@
 */
 
 Mesh.Algorithm = 6;
+Solver.AutoShowLastStep = 0;
 
 Include "TR_data.pro";
 
