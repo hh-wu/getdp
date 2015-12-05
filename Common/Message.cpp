@@ -131,9 +131,18 @@ void Message::Initialize(int argc, char **argv)
   octave_main(2, oargv.c_str_vec(), 1);
 #endif
 #if defined(HAVE_PYTHON)
+#if (PY_MAJOR_VERSION < 3)
   Py_SetProgramName(argv[0]);
-  Py_InitializeEx(0); // Py_Initialize() handles signals
+  Py_InitializeEx(0);
   PySys_SetArgv(argc, argv);
+#else // requires Python 3.5
+  std::vector<wchar_t*> wargv(argc ? argc : 1);
+  for(int i = 0; i < argc; i++)
+    wargv[i] = Py_DecodeLocale(argv[i], NULL);
+  Py_SetProgramName(wargv[0], NULL);
+  Py_InitializeEx(0);
+  PySys_SetArgv(argc, &wargv[0]);
+#endif
 #endif
 }
 
