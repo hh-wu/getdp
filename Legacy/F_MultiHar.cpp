@@ -420,7 +420,8 @@ void Cal_InitGalerkinTermOfFemEquation_MHJacNL(struct EquationTerm  * EquationTe
   */
 
   FI->MHJacNL = 1 ;
-  FI->MHJacNL_Index  = (WholeQuantity_P0 + i_WQ)->Case.MHJacNL.Index ; /* index of function for jacobian, e.g. dhdb[{d a}]*/
+  FI->MHJacNL_Index  = (WholeQuantity_P0 + i_WQ)->Case.MHJacNL.Index ; /* index of function for jacobian, e.g. dhdb[{d a}] */
+  FI->MHJacNL_NbrArguments = (WholeQuantity_P0 + i_WQ)->Case.MHJacNL.NbrArguments ; /* number of arguments of function for jacobian */
 
   if(Message::GetVerbosity() == 10)
     Message::Info("FreqOffSet in 'MHJacNL' == %d ", (WholeQuantity_P0 + i_WQ)->Case.MHJacNL.FreqOffSet) ;
@@ -659,7 +660,9 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
       }
 
       Get_ValueOfExpression(Expression_P, QuantityStorage_P0,
-			    Current.u, Current.v, Current.w, &t_Value, 1); //To generalize: Function in MHJacNL has 1 argument (e.g. dhdb[{d a}])
+                            Current.u, Current.v, Current.w, &t_Value,
+                            FI->MHJacNL_NbrArguments);
+			    //Current.u, Current.v, Current.w, &t_Value, 1); //To generalize: Function in MHJacNL has 1 argument (e.g. dhdb[{d a}])
 
       if (!iTime){
 	if (!i_IntPoint){

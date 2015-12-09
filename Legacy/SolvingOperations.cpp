@@ -502,7 +502,7 @@ void Generate_FullJacobian(gVector *x, gMatrix *Jac)
     return;
   }
 
-  LinAlg_CopyVector(x, &DofData_P->dx);
+  //LinAlg_CopyVector(x, &DofData_P->dx);
   LinAlg_AddVectorVector(&DofData_P->CurrentSolution->x, &DofData_P->dx,
                          &DofData_P->CurrentSolution->x); // updating solution solution
   LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->Jac, &DofData_P->Jac) ;
@@ -1291,8 +1291,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
           LinAlg_ProdVectorDouble(&DofData_P->dx, Current.RelaxationFactor, &DofData_P->dx) ;
         }
         else {  // Attention: phase test ... Technique bricolee ... provisoire
-          if (Current.Iteration == 1. || MeanError < Current.RelativeDifferenceOld)
+          if (Current.Iteration == 1. || MeanError < Current.RelativeDifferenceOld){
             LinAlg_ProdVectorDouble(&DofData_P->dx, Current.RelaxationFactor, &DofData_P->dx) ;
+            printf("hooooola\n");}
           else {
             RelFactor_Modified = Current.RelaxationFactor /
               (MeanError / Current.RelativeDifferenceOld) ;
@@ -2449,7 +2450,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       if (Num_Iteration > Operation_P->Case.IterativeLoop.NbrMaxIteration){
 	Num_Iteration = Operation_P->Case.IterativeLoop.NbrMaxIteration ;
         Flag_IterativeLoopConverged = 0;
-	Message::Info(3, "IterativeLoop did not converge (%d iterations, residual %g)",
+	Message::Info(3, "IterativeLoop did NOT converge (%d iterations, residual %g)",
                       Num_Iteration, Current.RelativeDifference);
       }
       else{

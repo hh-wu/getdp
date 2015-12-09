@@ -56,10 +56,14 @@ void Contour_MovingBand2D(List_T * InitialList, List_T ** ExtendedList,
       Tree_Add(Element_Tr, &ThreeInt1) ;
     }
   }
+
   *ExtendedList = Tree2List(Element_Tr) ; Tree_Delete(Element_Tr) ;
+  if (!List_Nbr(*ExtendedList))
+    Message::Error("MovingBand2D contour has no elements!") ;
 
   ThreeInt = (struct ThreeInt *)List_Pointer(*ExtendedList, 0) ;
   Nodes = Geo_GetGeoElement(ThreeInt->Int1)->NumNodes ;
+
   RightNode = Nodes[1] ; RightInt = 0 ;
   LeftNode  = Nodes[0] ; LeftInt = 0 ;
   ThreeInt->Int2 = 0 ; ThreeInt->Int3 = 1 ;

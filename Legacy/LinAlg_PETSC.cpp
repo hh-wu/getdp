@@ -258,6 +258,7 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
   // override the default options with the ones from the option
   // database (if any)
   _try(MatSetFromOptions(M->M));
+
 }
 
 void LinAlg_DestroySolver(gSolver *Solver)
@@ -1318,7 +1319,7 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
 #else
       const char *stype = "";
 #endif
-      Message::Info("N: %ld - %s %s %s", (long)i, ksptype, pctype, stype);
+      Message::Info("N: %ld - %s %s %s", long(i), ksptype, pctype, stype);
     }
   }
   else if(precond){
