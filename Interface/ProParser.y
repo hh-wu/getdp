@@ -1405,20 +1405,85 @@ WholeQuantity_Single :
     }
 
   | tMHJacNL
-    '[' NameForFunction ArgumentsForFunction ']' '{' FExpr ',' FExpr '}'
+    '[' NameForFunction ArgumentsForFunction ParametersForFunction ']' '{' FExpr ',' FExpr '}'
     {
       int i;
-      if((i = List_ISearchSeq(Problem_S.Expression, $3,fcmp_Expression_Name)) < 0)
-	vyyerror("Undefined function '%s' used in MHJacNL", $3);
-      WholeQuantity_S.Type = WQ_MHJACNL;
-      WholeQuantity_S.Case.MHJacNL.Index = i;
-      WholeQuantity_S.Case.MHJacNL.NbrArguments = $4;
-      if($4 != 1)  vyyerror("Uncompatible argument %d for Function: %s", $4, $3);
-      WholeQuantity_S.Case.MHJacNL.NbrPoints  = (int)$7;
-      WholeQuantity_S.Case.MHJacNL.FreqOffSet = (int)$9;
+      if((i = List_ISearchSeq(Problem_S.Expression, $3,fcmp_Expression_Name)) >= 0){
+        WholeQuantity_S.Type = WQ_MHJACNL;
+        WholeQuantity_S.Case.MHJacNL.Index = i;
+        WholeQuantity_S.Case.MHTransform.FunctionType = WQ_EXPRESSION;
+        WholeQuantity_S.Case.MHJacNL.NbrArguments = $4;
+        WholeQuantity_S.Case.MHJacNL.NbrParameters = List_Nbr($5);
+        if($4 < 0)  vyyerror("Uncompatible argument for Function (in MHJacNL): %s", $3);
+      }
+      /* Built in functions */
+      else {
+        Get_Function2NbrForString(F_Function, $3, &FlagError,
+				  &WholeQuantity_S.Case.Function.Fct,
+				  &WholeQuantity_S.Case.Function.NbrParameters,
+				  &WholeQuantity_S.Case.Function.NbrArguments);
+	WholeQuantity_S.Case.Function.Active = NULL;
+	if(!FlagError) {
+          WholeQuantity_S.Type = WQ_MHJACNL;
+
+          // arguments
+          if($4 >= 0) {
+            if($4 == WholeQuantity_S.Case.Function.NbrArguments) {
+              WholeQuantity_S.Case.MHJacNL.FunctionType =WQ_BUILTINFUNCTION;
+            }
+            else if(WholeQuantity_S.Case.Function.NbrArguments == -1  ||
+                    (WholeQuantity_S.Case.Function.NbrArguments == -2)) {
+	      // && ($4)%2 == 0)) {
+              WholeQuantity_S.Case.MHJacNL.FunctionType = WQ_BUILTINFUNCTION ;
+              WholeQuantity_S.Case.Function.NbrArguments = $4;
+            }
+            else {
+              vyyerror("Wrong number of arguments for Function (in MHJacNL) '%s' (%d instead of %d)",
+                       $3, $4, WholeQuantity_S.Case.Function.NbrArguments);
+            }
+          }
+          else {
+            WholeQuantity_S.Case.MHJacNL.FunctionType = WQ_EXTERNBUILTINFUNCTION;
+	    //WholeQuantity_S.Type = WQ_EXTERNBUILTINFUNCTION;
+	  }
+
+	  // parameters
+          WholeQuantity_S.Case.Function.Para = 0;
+          WholeQuantity_S.Case.Function.String = StringForParameter;
+	  if(WholeQuantity_S.Case.Function.NbrParameters >= 0 &&
+	      WholeQuantity_S.Case.Function.NbrParameters != List_Nbr($5)) {
+	    vyyerror("Wrong number of parameters for Function '%s' (%d instead of %d)",
+		     $3, List_Nbr($5), WholeQuantity_S.Case.Function.NbrParameters);
+	  }
+	  else if(WholeQuantity_S.Case.Function.NbrParameters == -2 && List_Nbr($5)%2 != 0) {
+	    vyyerror("Wrong number of parameters for Function '%s' (%d is not even)",
+		     $3, List_Nbr($5));
+	  }
+	  else {
+	    WholeQuantity_S.Case.Function.NbrParameters = List_Nbr($5);
+	    if(WholeQuantity_S.Case.Function.NbrParameters > 0) {
+	      WholeQuantity_S.Case.Function.Para =
+		(double *)Malloc
+		(WholeQuantity_S.Case.Function.NbrParameters * sizeof(double));
+	      for(int i = 0; i < WholeQuantity_S.Case.Function.NbrParameters; i++)
+		List_Read($5, i, &WholeQuantity_S.Case.Function.Para[i]);
+	    }
+	  }
+	}
+	else {
+	  vyyerror("Undefined function '%s' used in MHJacNL", $3);
+	}
+      }
+
+      WholeQuantity_S.Case.MHJacNL.NbrPoints  = (int)$8;
+      WholeQuantity_S.Case.MHJacNL.FreqOffSet = (int)$10;
       List_Read(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1, &Current_WholeQuantity_L);
+
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
+      List_Delete($5);
+      StringForParameter = 0;
     }
+
 
   | tSolidAngle '[' Quantity_Def ']'
     { WholeQuantity_S.Type = WQ_SOLIDANGLE;
@@ -8779,7 +8844,7 @@ void  Pro_DefineQuantityIndex_1(List_T *WholeQuantity_L, int TraceGroupIndex,
       break;
     case WQ_MHTRANSFORM  :
       Pro_DefineQuantityIndex_1
-	((WholeQuantity_P+i)->Case.MHTransform.WholeQuantity, TraceGroupIndex, pairs);
+      	((WholeQuantity_P+i)->Case.MHTransform.WholeQuantity, TraceGroupIndex, pairs);
     case WQ_TIMEDERIVATIVE :
       Pro_DefineQuantityIndex_1
 	((WholeQuantity_P+i)->Case.TimeDerivative.WholeQuantity, TraceGroupIndex, pairs);
