@@ -24,7 +24,7 @@ PostProcessing {
         Term{Type Global; [$VM_P ^ (1/degVM)];In DomainFunc ; } }} 
 
       { Name Volume; Value{Integral{[1.0];In Domain; Jacobian Vol;Integration I1;}}}
-      { Name desVar; Value{Term{[designVar[]]; In Domain; Jacobian Vol;}}}
+      { Name designVar; Value{Term{[designVar[]]; In Domain; Jacobian Vol;}}}
       { Name xe; Value{Term{[{xe}]; In Domain; Jacobian Vol;}}}
       { Name Compliance; Value {
       	Integral { [ 0.5 * bilin_uu[{D1 u},{D2 u},{xe}] ];
@@ -57,7 +57,7 @@ PostProcessing {
       }
 
       { Name stiff_eig; Value {
-      	Integral { [ bilin_uu[{D1 u},{D2 u}] ];
+      	Integral { [ bilin_uu[{D1 u},{D2 u},{xe}] ];
           In Domain ; Jacobian SurLinVol ; Integration I1; }
         }
       }
@@ -88,6 +88,15 @@ PostOperation {
      Print[ Compliance[DomainFunc], OnGlobal, Format TimeTable,
        File StrCat[ResDir, StrCat["ComplianceElm",ExtOnelabScal]], LastTimeStepOnly,
        SendToServer StrCat[po_min,"ComplianceElm"], Color "LightYellow" ];
+
+     If (!Flag_projFuncSpace_xe)
+       Print[ designVar, OnElementsOf Domain, 
+         File StrCat[ResDir,"xe_gen",ExtGmsh], LastTimeStepOnly] ;
+     Else
+	Print[ xe, OnElementsOf Domain, 
+         File StrCat[ResDir,"xe_trans",ExtGmsh], LastTimeStepOnly] ;
+     EndIf
+
    }
  }
 
@@ -100,9 +109,9 @@ PostOperation {
 //       Print[ u~{i}, OnElementsOf Domain, Format NodeTable,
 //         File Sprintf["res/u_%g.txt", i], LastTimeStepOnly] ;
 //     EndFor
-//     Print[ StressVM, OnElementsOf Domain,File StrCat[ResDir,"VM",ExtOnelabVec]] ;
+     //Print[ StressVM, OnElementsOf Domain,File StrCat[ResDir,"VM",ExtOnelabVec]] ;
 //     Print[ um,OnElementsOf Domain,File StrCat[ResDir,"um",ExtGmsh]] ;
-     Print[ F, OnElementsOf Domain_Force,File StrCat[ResDir,"F",ExtGmsh]] ;
+     //Print[ F, OnElementsOf Domain_Force,File StrCat[ResDir,"F",ExtGmsh]] ;
 
 //     Print[ v, OnElementsOf Domain, File "res/v_an.pos", LastTimeStepOnly] ;
 //     Print[ v_1, OnElementsOf Domain, File "res/v_1_an.pos", LastTimeStepOnly] ;
@@ -132,13 +141,13 @@ PostOperation {
 //     Print[ Volume, OnElementsOf Domain, 
 //       File StrCat[ResDir,"ElementVolume",ExtOnelabVec], LastTimeStepOnly] ;
 
-//     If (!Flag_bilinInt)
-//       Print[ desVarPlot, OnElementsOf Domain, 
-//         File StrCat[ResDir,"xe_gen",ExtGmsh], LastTimeStepOnly] ;
-//     Else
-//	Print[ xe, OnElementsOf Domain, 
-//         File StrCat[ResDir,"xe_trans",ExtGmsh], LastTimeStepOnly] ;
-//     EndIf
+     //If (!Flag_projFuncSpace_xe)
+     //  Print[ desVarPlot, OnElementsOf Domain, 
+     //    File StrCat[ResDir,"xe_gen",ExtGmsh], LastTimeStepOnly] ;
+     //Else
+	Print[ xe, OnElementsOf Domain, 
+         File StrCat[ResDir,"xe_trans",ExtGmsh], LastTimeStepOnly] ;
+     //EndIf
    }
  }
 

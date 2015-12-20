@@ -2,7 +2,7 @@
 Include "beam_data.geo";
 
 DefineConstant[
-  Flag_testBench = {1,  
+  Flag_testBench = {2,  
     Choices {
       0="Short Cantiler Beam", 
       1="MBB Beam",
@@ -115,11 +115,13 @@ Function {
     E[#{Domain,-DomainOpt}] = 210e09; 
     rho[#{Domain,-DomainOpt}] = 8100.0; 
     If (Flag_projFuncSpace_xe)
+      Printf["************** Flag_projFuncSpace_xe "];
       l_xe = ListFromFile["res/designVariable.txt"];
       designVar[] = ValueFromIndex[]{l_xe()};
       rho[DomainOpt] = rh * $1; 
       d_rho[DomainOpt] = rh; 
     Else
+      Printf["************** NO Flag_projFuncSpace_xe "];
       designVar[] = ScalarField[XYZ[],0,1]{DES_VAR_FIELD};
       rho[DomainOpt] = rh * designVar[]; // vol. mas
       d_rho[DomainOpt] = rh; // vol. mas
@@ -373,7 +375,7 @@ Constraint{
       If(Flag_projFuncSpace_xe)
         { Region Domain ; Value designVar[]*ElementVol[]; }
       Else
-        { Region Domain ; Value 1.0; }
+        { Region Domain ; Value 1.0*ElementVol[]; }
       EndIf
     }
   }

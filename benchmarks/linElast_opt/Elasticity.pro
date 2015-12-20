@@ -48,7 +48,7 @@ FunctionSpace{
     }
   EndFor
 
-  { Name H_xe ; Type Form0 ; // primal 2D 
+  { Name H_xe ; Type Form3 ;
     BasisFunction {
       { Name sxn ; NameOfCoef uxn ; Function BF_Volume ;
         Support Region[{Domain}]; Entity VolumesOf[ All ] ; }
@@ -181,6 +181,7 @@ Formulation{
         For i In {1:3}
           { Name v~{i} ; Type Local ; NameOfSpace H_v~{i};}
         EndFor
+        { Name xe ; Type Local ; NameOfSpace H_xe;}
       }
       Equation {
         Galerkin { DtDtDof [ rho[] * Dof{u} , {u} ];
@@ -192,6 +193,8 @@ Formulation{
           Galerkin { [ 0*Dof{v~{i}}, {v~{i}} ] ;
             In Domain; Jacobian Vol ; Integration I1 ; }
         EndFor
+        Galerkin { [ 0*Dof{xe}, {xe} ] ;
+          In Domain; Jacobian Vol ; Integration I1 ; }
       }
     }
 
@@ -264,6 +267,7 @@ Formulation{
         For i In {1:3}
           { Name v~{i} ; Type Local ; NameOfSpace H_v~{i};}
         EndFor
+        { Name xe ; Type Local ; NameOfSpace H_xe;}
       }
       Equation{
         Galerkin { DtDtDof [ rho[] * Dof{u} , {u} ];
@@ -281,16 +285,14 @@ Formulation{
           Galerkin { [ 0*Dof{v~{i}}, {v~{i}} ] ;
             In Domain; Jacobian Vol ; Integration I1 ; }
         EndFor
+        Galerkin { [ 0*Dof{xe}, {xe} ] ;
+          In Domain; Jacobian Vol ; Integration I1 ; }
       }
     }
   EndIf
 }
 
 Resolution{
-  //Info    : (Wall = 50.4264s, CPU = 26.7739s, Mem = 331.918Mb)             
-//Info    : Solve[A]
-//Info    : N: 14595 - preonly lu mumps
-//Info    : (Wall = 50.9963s, CPU = 27.188s, Mem = 331.918Mb)
   // FIXME
   // group  (direct,adjoint) -> Sens_u_Mec
   // give "u_Mec" as input -> other resolutions depend on "u_Mec"
@@ -304,9 +306,9 @@ Resolution{
     }
     Operation{
       CreateDir[ResDir];
-      If(Flag_degree2)
-        SetGlobalSolverOptions["-petsc_prealloc 1000"];
-      EndIf
+      //If(Flag_degree2)
+      SetGlobalSolverOptions["-petsc_prealloc 2000"];
+      //EndIf
       If(!StrCmp(Flag_optType,"topology") && !Flag_projFuncSpace_xe)
         GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD];
       EndIf
@@ -324,7 +326,7 @@ Resolution{
     }
     Operation {
       CreateDir[ResDir];
-      If(!StrCmp(Flag_optType,"topology"))
+      If(!StrCmp(Flag_optType,"topology") && !Flag_projFuncSpace_xe)
         GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD];
       EndIf
       GenerateSeparate[A];

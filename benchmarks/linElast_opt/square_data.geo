@@ -3,17 +3,17 @@ DefineConstant[
   Flag_hole = {1, Name StrCat(ppC,"Hole"),Choices {0="no hole",1="ellipse",2="spline"}},
   Flag_sym = {0, Name StrCat(ppC,"Symetry"),Choices {0,1}},
   NSpline = {6, Name StrCat(ppC,"nb points"), Visible (Flag_hole==2) },
-  Flag_extrude = {1, Choices {0,1}, Name StrCat(ppC,"extrude?")},
+  Flag_extrude = {0, Choices {0,1}, Name StrCat(ppC,"extrude?")},
   transfinite={0, Name StrCat(ppC,"transfinite?"),Choices {0,1},Visible (!Flag_hole)},
-  nbE_X = {20*4+1, Name StrCat(ppC,"Nx"),Visible (transfinite)},
-  nbE_Y = {21,Name StrCat(ppC,"Ny"),Visible (transfinite)},//even number
+  nbE_X = {60*4, Name StrCat(ppC,"Nx"),Visible (transfinite)},
+  nbE_Y = {20*4,Name StrCat(ppC,"Ny"),Visible (transfinite)},//even number
   nbE_Z = {40,Name StrCat(ppC,"Nz"),Visible (transfinite)}
 ];
 
 // Constructive parameters
 LL = 1.0;
 DefineConstant[
-  hole_length = {1.5/*LL/2*/, 
+  hole_length = {0.4/*LL/2*/, 
     Name StrCat(pp,"Hole Length"), Visible (Flag_hole==1), Closed 1},
   hole_width =  {.4/*LL/2*/, 
     Name StrCat(pp,"Hole Width"), Visible (Flag_hole==1), Closed 1}
@@ -27,7 +27,7 @@ For i In {0:(NSpline-1)}
 EndFor
 
 DefineConstant[
-  Lx ={LL*2, 
+  Lx ={LL*3, 
     Name StrCat(pp,"X length [m]"), Visible 1, Closed 1},
   Ly ={LL, 
     Name StrCat(pp,"Y length [m]"), Visible 1, Closed 1}

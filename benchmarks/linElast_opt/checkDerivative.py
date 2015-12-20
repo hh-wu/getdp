@@ -13,18 +13,18 @@ from _checkDerivative import *
 # ************************************************************************
 IP = 4
 file='beam'
-sys = 'u_Mec'
+sys = 'u_Mec_eig'
 gmshRead = {8:'res/u.pos',9:'res/lambda.pos'}
-x = [0.4]
+x = [0.8]
 pIn = 'Input/Constructive Parameters/';ppC = 'Input/0Cao/'
 extrude = 1
 varName = [pIn+'Hole Length']
-func = compliance #compliance,vm_pnorm,eig0
-load = 2
-execMode = 'plot-converge2' #'derivative','plot-perturb','plot-converge'
-Nlc = 4
+func = opt_eig_sens #compliance,vm_pnorm,eig0
+load = 4
+execMode = 'derivative' #'derivative','plot-perturb','plot-converge'
+Nlc = 5
 msh = ''
-if (Nlc==0): msh=['beam'+str(k)+'.msh' for k in range(6)]
+if (Nlc==0): msh=['beam3.msh']#['beam'+str(k)+'.msh' for k in range(6)]
 step = [1.0e-06] #np.logspace(-11, -1, num=11)
 sensMeth = ['FiniteDifference']#,'AdjointLie'] #,'AnalyticNotEplicit']
 pathSave = 'resSens'
@@ -34,9 +34,9 @@ femParam = {'OptType':['Input/Optimization Type','shape'],
             'load':['Input/Loading/case',load],
             'extrude':[ppC+'extrude?',extrude],
             'Lx':[pIn+'X length [m]',4],
-            'Ly':[pIn+'Y length [m]',4],
+            'Ly':[pIn+'Y length [m]',1],
             'degVM':['Input/Optimization/degVM',2],
-            'Deg2':['Input/degree 2?',1]}
+            'Deg2':['Input/degree 2?',0]}
 
 # ************************************************************************
 # **** Derivative computation                                        *****

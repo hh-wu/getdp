@@ -18,14 +18,14 @@ def opt_sens(x,data,parameters):
     return input
 
 def opt_eig_sens(x,data,parameters):
-    nbEig = 1
+    #nbEig = 1
     w2 = data['eig2'][0]
     #print('eig2-before:{}'.format(w2)) #fixme
-    nn = len(w2)
-    w2 = w2[nn-nbEig:nn]
-    print('l_eig2:{}\neig2:{}'.format(nn,w2)) #fixme
+    #nn = len(w2)
+    #w2 = w2[nn-nbEig:nn]
+    print('eig2:{}'.format(w2))
     input = {
-        'f':[w2]*len(parameters['sensitivity']),
+        'f':[w2[0]],
         'df':['FiniteDifference'],
         'fmax':[0],
         'f_name':['eig_noNorm'],
