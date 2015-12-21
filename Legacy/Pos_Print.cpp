@@ -218,6 +218,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 {
   Tree_T  * PostElement_T ;
   List_T  * PostElement_L, * Region_L ;
+  struct Group * Group_P ;
 
   struct Element        Element ;
   struct PostElement  * PE ;
@@ -257,9 +258,9 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 
   /* Get the region */
 
-  Region_L = ((struct Group *)
-	      List_Pointer(Problem_S.Group,
-			   PSO_P->Case.OnRegion.RegionIndex))->InitialList ;
+  Group_P = (struct Group *)List_Pointer(Problem_S.Group,
+                                         PSO_P->Case.OnRegion.RegionIndex);
+  Region_L = Group_P->InitialList ;
   Get_InitDofOfElement(&Element) ;
 
   /* Compute the Cumulative quantity, if any */
@@ -327,7 +328,12 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
     Message::ResetProgressMeter();
     for(iGeo = 0 ; iGeo < NbrGeo ; iGeo += incGeo) {
       Element.GeoElement = Geo_GetGeoElement(iGeo) ;
-      if(List_Search(Region_L, &Element.GeoElement->Region, fcmp_int)){
+      if ((Group_P->Type != ELEMENTLIST  &&
+           List_Search(Region_L, &Element.GeoElement->Region, fcmp_int))
+          ||
+          (Group_P->Type == ELEMENTLIST  &&
+           Check_IsEntityInExtendedGroup(Group_P, Element.GeoElement->Num, 0))
+          ) {
 	Fill_PostElement(Element.GeoElement, PostElement_L, iGeo,
 			 Depth, PSO_P->Skin,
 			 PSO_P->EvaluationPoints,
@@ -393,7 +399,12 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
     else{
       List_Reset(PostElement_L) ;
       Element.GeoElement = Geo_GetGeoElement(iGeo) ;
-      if(List_Search(Region_L, &Element.GeoElement->Region, fcmp_int)){
+      if ((Group_P->Type != ELEMENTLIST  &&
+           List_Search(Region_L, &Element.GeoElement->Region, fcmp_int))
+          ||
+          (Group_P->Type == ELEMENTLIST  &&
+           Check_IsEntityInExtendedGroup(Group_P, Element.GeoElement->Num, 0))
+          ) {
 	Fill_PostElement(Element.GeoElement, PostElement_L, iGeo,
 			 PSO_P->Depth, PSO_P->Skin,
 			 PSO_P->EvaluationPoints,
