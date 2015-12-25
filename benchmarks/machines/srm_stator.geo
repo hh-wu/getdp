@@ -151,12 +151,12 @@ Physical Surface(STATOR_IND_CP) = {Coilp[{2}]};
 Physical Surface(STATOR_IND_CM) = {Coiln[{2}]};
 
 If(!Flag_Symmetry)
-  Physical Surface(STATOR_IND_AP_) = {Coilp[{Ns/2}]};
-  Physical Surface(STATOR_IND_AM_) = {Coiln[{Ns/2}]};
-  Physical Surface(STATOR_IND_BP_) = {Coilp[{1+Ns/2}]};
-  Physical Surface(STATOR_IND_BM_) = {Coiln[{1+Ns/2}]};
-  Physical Surface(STATOR_IND_CP_) = {Coilp[{2+Ns/2}]};
-  Physical Surface(STATOR_IND_CM_) = {Coiln[{2+Ns/2}]};
+  Physical Surface(STATOR_IND_AM_) = {Coilp[{Ns/2}]};
+  Physical Surface(STATOR_IND_AP_) = {Coiln[{Ns/2}]};
+  Physical Surface(STATOR_IND_BM_) = {Coilp[{1+Ns/2}]};
+  Physical Surface(STATOR_IND_BP_) = {Coiln[{1+Ns/2}]};
+  Physical Surface(STATOR_IND_CM_) = {Coilp[{2+Ns/2}]};
+  Physical Surface(STATOR_IND_CP_) = {Coiln[{2+Ns/2}]};
 EndIf
 
 Physical Line(SURF_EXT) = arcso[] ;
