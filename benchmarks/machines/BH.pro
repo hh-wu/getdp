@@ -44,7 +44,7 @@ Function{
   nu_3kWa[] = 123. + 0.0596 * Exp[3.504*SquNorm[$1]] ;
   dnudb2_3kWa[] = 0.0596*3.504 * Exp[3.504*SquNorm[$1]] ;
   h_3kWa[] = nu_3kWa[$1]*$1 ;
-  dhdb_3kWa[] = TensorDiag[1,1,1] * nu_3kWa[$1#1] + 2*dnudb2_3kWa[#1] * SquDyadicProduct[$1]  ;
+  dhdb_3kWa[] = TensorDiag[1,1,1] * nu_3kWa[$1#1] + 2*dnudb2_3kWa[#1] * SquDyadicProduct[#1]  ;
   dhdb_3kWa_NL[] = 2*dnudb2_3kWa[$1#1] * SquDyadicProduct[#1]  ;
 
   // interpolated

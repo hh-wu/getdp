@@ -32,7 +32,7 @@ Hide { Point{ Point '*' }; }
 Hide { Line{ Line '*' }; }
 Show { Line{ nicepos_rotor[], nicepos_stator[] }; }
 
-Physical Line(NICEPOS) = { nicepos_rotor[], nicepos_stator[] };
+//Physical Line(NICEPOS) = { nicepos_rotor[], nicepos_stator[] };
 
 //For post-processing...
 //View[0].Light = 0;
@@ -97,4 +97,3 @@ EndIf
 
 
 EndIf
-

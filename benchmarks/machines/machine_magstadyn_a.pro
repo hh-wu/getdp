@@ -167,8 +167,7 @@ Group {
   If(!Flag_ImposedCurrentDensity)
     DomainB = Region[ {Inds} ] ;
     DomainS = Region[ {} ];
-  EndIf
-  If(Flag_ImposedCurrentDensity)
+    Else
     DomainB = Region[ {} ] ;
     DomainS = Region[ {Inds} ];
   EndIf
