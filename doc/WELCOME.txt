@@ -4,7 +4,7 @@ GetDP is distributed under the terms of the GNU General Public License. See the
 LICENSE.txt and CREDITS.txt files for more information.
 
 The demos/ directory contains a simple example. For more examples see the
-reference manual (http://geuz.org/getdp/doc/texinfo/) and the OneLab web site
+reference manual (http://getdp.info/doc/texinfo/) and the ONELAB web site
 (http://onelab.info).
 
 Notes:
@@ -13,7 +13,7 @@ Notes:
   shell (terminal).
 
 * If you are looking for a graphical user interface to GetDP, download Gmsh
-  (http://geuz.org/gmsh/). To launch GetDP via Gmsh, simply open Gmsh, go to the
+  (http://gmsh.info). To launch GetDP via Gmsh, simply open Gmsh, go to the
   solver module and click on the GetDP button. The OneLab web site
   (http://onelab.info) has more info.
 

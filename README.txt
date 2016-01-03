@@ -5,7 +5,7 @@ and is distributed under the terms of the GNU General Public License, Version 2
 or later. See doc/LICENSE.txt and doc/CREDITS.txt for more information.
 
 See the doc/ and demos/ directories for documentation. The reference manual is
-located in doc/texinfo/. See the web site http://geuz.org/getdp for additional
+located in doc/texinfo/. See the web site http://getdp.info for additional
 examples.
 
 Building a bare-bones version of GetDP from its source code requires a C++
