@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c GetDP - Copyright (C) 1997-2015 P. Dular and C. Geuzaine, University of Liege
+@c GetDP - Copyright (C) 1997-2016 P. Dular and C. Geuzaine, University of Liege
 @c
 @c See the LICENSE.txt file for license information. Please report all
 @c bugs and problems to the public mailing list <getdp@geuz.org>.
@@ -22,7 +22,7 @@
 @c %**start of header
 @setfilename getdp.info
 @set GETDP-VERSION 2.7
-@set COPYRIGHT @copyright{} 1997-2015 P. Dular and C. Geuzaine, University of Liege
+@set COPYRIGHT @copyright{} 1997-2016 P. Dular and C. Geuzaine, University of Liege
 @settitle GetDP @value{GETDP-VERSION}
 @footnotestyle separate
 @setchapternewpage odd
@@ -290,11 +290,11 @@ Frequently asked questions
 @cindex Download
 
 The source code and various pre-compiled versions of GetDP (for Windows,
-Linux and MacOS) can be downloaded from @uref{http://geuz.org/getdp}.
+Linux and MacOS) can be downloaded from @uref{http://getdp.info}.
 
 If you use GetDP, we would appreciate that you mention it in your
 work. References and the latest news about GetDP are always available on
-@url{http://geuz.org/getdp}.
+@url{http://getdp.info}.
 
 @c =========================================================================
 @c Copying Conditions
@@ -541,7 +541,7 @@ free to join the project: we gladly accept all code contributions!
 If you think you have found a bug in GetDP, you can report it by
 electronic mail to the GetDP mailing list at @email{getdp@@geuz.org}, or
 file it directly into our bug tracking system at
-@url{https://geuz.org/trac/getdp/report} (login: getdp, password:
+@url{https://onelab.info/trac/getdp/report} (login: getdp, password:
 getdp).  Please send as precise a description of the problem as you can,
 including sample input files that produce the bug (problem definition
 and mesh files). Don't forget to mention both the version of GetDP and
@@ -639,7 +639,7 @@ The @var{etc} symbol replaces nonlisted rules.
 
 GetDP has no graphical interface@footnote{If you are looking for a
 graphical front-end to GetDP, you may consider using Gmsh (available at
-@url{http://geuz.org/gmsh}). Gmsh permits to construct geometries, generate
+@url{http://gmsh.info}). Gmsh permits to construct geometries, generate
 meshes, launch computations and visualize results directly from within a
 user-friendly graphical interface. The file formats used by Gmsh for
 mesh generation and post-processing are the default file formats
@@ -1666,7 +1666,7 @@ at the previous iteration into the nonlinear equation (the previous
 value is known, and is accessed e.g. with @code{@{T@}} instead
 @code{Dof@{T@}}). The second is the Newton-Raphson iteration, where the
 Jacobian is specified with a @code{JacNL} equation term (see
-@url{https://geuz.org/trac/getdp} for an example).
+@url{https://onelab.info/trac/getdp} for an example).
 
 @item BF
 Indicates that only a basis function will be used (only valid with basis
@@ -3690,14 +3690,14 @@ expressions in @var{expression-cst-list} must be even.
 @code{[@var{expression},@var{expression}]@{@var{expression-cst-list}@}}
 
 Bilinear interpolation of a table based on two variables. See
-@url{https://geuz.org/trac/getdp/wiki/UsageOfTables} for an example.
+@url{https://onelab.info/trac/getdp/wiki/UsageOfTables} for an example.
 
 @item dInterpolationBilinear
 @code{[@var{expression},@var{expression}]@{@var{expression-cst-list}@}}
 
 Derivative of bilinear interpolation of a table based on two variables.
 The result is a vector. 
-See @url{https://geuz.org/trac/getdp/wiki/UsageOfTables} for an example.
+See @url{https://onelab.info/trac/getdp/wiki/UsageOfTables} for an example.
 
 @item InterpolationAkima
 @code{[@var{expression}]@{@var{expression-cst-list}@}}
@@ -4662,7 +4662,7 @@ MeanL2Norm, LinfNorm}.@*
 The first @var{resolution-op} is executed every time step. The second one is 
 only executed if the actual time step is accepted (LTE is in the specified range).
 E.g. @code{SaveSolution[]} is usually placed in the 2nd @var{resolution-op}.@*
-See @url{https://geuz.org/trac/getdp/wiki/TimeLoopAdaptive} for more details 
+See @url{https://onelab.info/trac/getdp/wiki/TimeLoopAdaptive} for more details 
 and an example.
 
 @item IterativeLoop
@@ -4701,7 +4701,7 @@ Possible choices for @var{norm-type}: @code{L1Norm, MeanL1Norm, L2Norm,
 MeanL2Norm, LinfNorm}.@*
 @code{MeanL1Norm} and @code{MeanL2Norm} correspond to @code{L1Norm} and
 @code{L2Norm} divided by the number of degrees of freedom, respectively.@*
-See @url{https://geuz.org/trac/getdp/wiki/IterativeLoopN} for more details 
+See @url{https://onelab.info/trac/getdp/wiki/IterativeLoopN} for more details 
 and an example.
 
 @item IterativeLinearSolver
@@ -5282,7 +5282,7 @@ is centered on top of the plot.
 @item Gmsh
 @itemx GmshParsed
 Gmsh output. See @ref{Input file format} and the documentation of Gmsh
-(@url{http://geuz.org/gmsh}) for a description of the file formats.
+(@url{http://gmsh.info}) for a description of the file formats.
 
 @item Table
 Space oriented column output, e.g., suitable for Gnuplot, Excel, Caleida
@@ -6710,7 +6710,7 @@ post-processing files is explained in @ref{Types for PostOperation}.
 @cindex @file{.msh} file
 
 The native mesh format read by GetDP is the mesh file format produced by
-Gmsh (@url{http://geuz.org/gmsh}). In its ``version 1'' incarnation, an
+Gmsh (@url{http://gmsh.info}). In its ``version 1'' incarnation, an
 `msh' file is divided into two sections, defining the nodes and the
 elements in the mesh.
 
@@ -6899,7 +6899,7 @@ the numbering of the equations given in the @file{.pre} file
 
 Gmsh is a three-dimensional finite element mesh generator with simple CAD
 and post-processing capabilities that can be used as a graphical front-end
-for GetDP. Gmsh can be downloaded from @url{http://geuz.org/gmsh}.
+for GetDP. Gmsh can be downloaded from @url{http://gmsh.info}.
 
 This appendix reproduces verbatim the input files needed by Gmsh to produce
 the mesh files @file{mStrip.msh} and @file{Core.msh} used in the examples of
@@ -6921,7 +6921,7 @@ the mesh files @file{mStrip.msh} and @file{Core.msh} used in the examples of
 @appendix Compiling the source code
 
 Stable releases and nightly source snapshots are available from
-@uref{http://geuz.org/getdp/src/}. You can also access the subversion
+@uref{http://getdp.info/src/}. You can also access the subversion
 repository directly:
 
 @enumerate
@@ -6929,7 +6929,7 @@ repository directly:
 The first time you want to download the latest full source, type:
 
 @example
-svn co https://geuz.org/svn/getdp/trunk getdp
+svn co https://onelab.info/svn/getdp/trunk getdp
 @end example
 
 You will be asked to accept the security certificate and to provide your
@@ -7015,7 +7015,7 @@ Discrete Problems''.
 
 @item Where can I find more information?
 
-@url{http://geuz.org/getdp} is the primary site to obtain information
+@url{http://getdp.info} is the primary site to obtain information
 about GetDP. You will find a short presentation, a complete reference
 guide as well as a searchable archive of the GetDP mailing list
 (@email{getdp@@geuz.org}) on this site.
@@ -7064,7 +7064,7 @@ sources.
 @item How can I provide a mesh to GetDP?
 
 The only meshing format accepted by this version of GetDP is the `msh'
-format created by Gmsh @url{http://geuz.org/gmsh}. This format being
+format created by Gmsh @url{http://gmsh.info}. This format being
 very simple (see the Gmsh reference manual for more details), it should
 be straightforward to write a converter from your mesh format to the
 `msh' format.

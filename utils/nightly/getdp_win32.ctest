@@ -1,11 +1,11 @@
-# GetDP - Copyright (C) 1997-2015 P. Dular and C. Geuzaine, University of Liege
+# GetDP - Copyright (C) 1997-2016 P. Dular and C. Geuzaine, University of Liege
 #
 # See the LICENSE.txt file for license information. Please report all
 # bugs and problems to the public mailing list <getdp@geuz.org>.
 
 set(CTEST_CMAKE_COMMAND "cmake")
 
-set(WEB_BIN "geuzaine@geuz.org:/home/www/geuz.org/getdp/bin/Windows")
+set(WEB_BIN "geuzaine@geuz.org:/home/www/getdp.info/bin/Windows")
 
 set(WITH_TEST TRUE)      # run the tests?
 set(WITH_COVERAGE FALSE) # check code coverage?
@@ -58,7 +58,7 @@ upload_package(${WEB_BIN} Windows 32s .zip .zip)
 
 ####################  NX builds for Dr. Binde Ingenieure ########################
 
-set(WEB_BIN "geuzaine@geuz.org:/home/www/geuz.org/getdp/bin_nx")
+set(WEB_BIN "geuzaine@geuz.org:/home/www/getdp.info/bin_nx")
 
 #################################################################################
 set(CTEST_BUILD_NAME "Win32-PETScComplex-NX")
