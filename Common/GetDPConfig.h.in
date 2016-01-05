@@ -27,6 +27,7 @@
 // FIXME HAVE_ONELAB2 from Gmsh
 #cmakedefine HAVE_ONELAB2
 #cmakedefine HAVE_SLEPC
+#cmakedefine HAVE_SMALLFEM
 #cmakedefine HAVE_SPARSKIT
 #cmakedefine HAVE_ZITSOL
 #cmakedefine HAVE_MULTIHARMONIC
