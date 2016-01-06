@@ -1,7 +1,7 @@
 // GetDP - Copyright (C) 1997-2016 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
-// bugs and problems to the public mailing list <getdp@geuz.org>.
+// bugs and problems to the public mailing list <getdp@onelab.info>.
 
 #ifndef _PRE_TERM_OF_FEM_EQUATION_H_
 #define _PRE_TERM_OF_FEM_EQUATION_H_

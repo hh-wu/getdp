@@ -1,7 +1,7 @@
 // GetDP - Copyright (C) 1997-2016 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
-// bugs and problems to the public mailing list <getdp@geuz.org>.
+// bugs and problems to the public mailing list <getdp@onelab.info>.
 
 #include <sstream>
 #include <vector>
@@ -112,8 +112,8 @@ static void Info(int level, char *arg0)
     fprintf(stderr, "Gmsh lib options :%s\n", GMSH_CONFIG_OPTIONS);
 #endif
     fprintf(stderr, "Packaged by      : %s\n", GETDP_PACKAGER);
-    fprintf(stderr, "Web site         : http://www.geuz.org/getdp/\n");
-    fprintf(stderr, "Mailing list     : getdp@geuz.org\n");
+    fprintf(stderr, "Web site         : http://getdp.info\n");
+    fprintf(stderr, "Mailing list     : getdp@onelab.info\n");
     break;
   }
   Message::Exit(0);

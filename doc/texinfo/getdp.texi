@@ -2,7 +2,7 @@
 @c GetDP - Copyright (C) 1997-2016 P. Dular and C. Geuzaine, University of Liege
 @c
 @c See the LICENSE.txt file for license information. Please report all
-@c bugs and problems to the public mailing list <getdp@geuz.org>.
+@c bugs and problems to the public mailing list <getdp@onelab.info>.
 @c
 @c =========================================================================
 @c
@@ -539,7 +539,7 @@ free to join the project: we gladly accept all code contributions!
 @cindex E-mail, authors
 
 If you think you have found a bug in GetDP, you can report it by
-electronic mail to the GetDP mailing list at @email{getdp@@geuz.org}, or
+electronic mail to the GetDP mailing list at @email{getdp@@onelab.info}, or
 file it directly into our bug tracking system at
 @url{https://onelab.info/trac/getdp/report} (login: getdp, password:
 getdp).  Please send as precise a description of the problem as you can,
@@ -7018,7 +7018,7 @@ Discrete Problems''.
 @url{http://getdp.info} is the primary site to obtain information
 about GetDP. You will find a short presentation, a complete reference
 guide as well as a searchable archive of the GetDP mailing list
-(@email{getdp@@geuz.org}) on this site.
+(@email{getdp@@onelab.info}) on this site.
 @end enumerate
 
 @c -------------------------------------------------------------------------

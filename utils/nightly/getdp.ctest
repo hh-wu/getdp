@@ -1,7 +1,7 @@
 # GetDP - Copyright (C) 1997-2016 P. Dular and C. Geuzaine, University of Liege
 #
 # See the LICENSE.txt file for license information. Please report all
-# bugs and problems to the public mailing list <getdp@geuz.org>.
+# bugs and problems to the public mailing list <getdp@onelab.info>.
 
 # this is the common ctest script used by all getdp nightly (and experimental)
 # builds, on all architectures
@@ -20,7 +20,7 @@ endif(WITH_COVERAGE AND CTEST_COVERAGE_COMMAND)
 
 set(CTEST_SOURCE_DIRECTORY "$ENV{HOME}/src/getdp")
 set(CTEST_BINARY_DIRECTORY "$ENV{HOME}/src/getdp/bin")
-set(CTEST_SVN_REPOS https://geuz.org/svn/getdp/trunk)
+set(CTEST_SVN_REPOS https://onelab.info/svn/getdp/trunk)
 set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
 
 if(NOT EXISTS "${CTEST_SOURCE_DIRECTORY}")

@@ -1,7 +1,7 @@
 // GetDP - Copyright (C) 1997-2015 P. Dular, C. Geuzaine
 //
 // See the LICENSE.txt file for license information. Please report all
-// bugs and problems to the public mailing list <getdp@geuz.org>.
+// bugs and problems to the public mailing list <getdp@onelab.info>.
 
 #include <stdio.h>
 #include <map>
