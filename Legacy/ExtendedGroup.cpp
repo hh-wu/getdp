@@ -588,86 +588,7 @@ public:
   }
 
   List_T* gen_ExtendedList
-  (List_T * InitialList, int Type_SuppList, List_T * InitialSuppList)
-  {
-    int Nbr_Element, i_Element, Nbr_Node, i_Node;
-    struct Geo_Element * geoElement;
-
-    Nbr_Element = Geo_GetNbrGeoElements() ;
-
-    if (List_Nbr(InitialSuppList)) {
-
-      // Create Facets (Edges/Nodes; depending of dimension) of InitialSuppList
-
-      int type_Dimension;
-
-      for (i_Element = 0 ; i_Element < Nbr_Element ; i_Element++) {
-        geoElement = Geo_GetGeoElement(i_Element) ;
-        if (List_Search(InitialSuppList, &geoElement->Region, fcmp_int) ) {
-
-          // Get dimension of element
-          Get_JacobianFunction (JACOBIAN_VOL, geoElement->Type, &type_Dimension);
-
-          if (type_Dimension > _2D)
-            Message::Error("Bad dimension (%d>2) for 'OnPositiveSideOf'", type_Dimension);
-
-          if (_type_Dimension_First == -1)
-            _type_Dimension_First = type_Dimension;
-          else if (_type_Dimension_First != type_Dimension)
-            Message::Error
-              ("Mix of dimensions (%d and %d) not allowed for 'OnPositiveSideOf'",
-               _type_Dimension_First, type_Dimension);
-
-          add_FacetsOnSur(geoElement);
-        }
-      }
-
-      def_EntitiesOnSurBorder();
-
-      //
-      // Search for Elements in contact with Nodes of InitialSuppList and place
-      // them with their Facets (Edges/Nodes; depending of dimension) in a Bubble
-
-      List_T * ExtendedSuppList ;
-      Generate_GroupsOfNodes(InitialSuppList, &ExtendedSuppList) ;
-
-      int nb_nodesOnSur;
-
-      for (i_Element = 0 ; i_Element < Nbr_Element ; i_Element++) {
-	geoElement = Geo_GetGeoElement(i_Element);
-
-	if (List_Search(InitialList, &geoElement->Region, fcmp_int)) {
-	  Nbr_Node = geoElement->NbrNodes;
-          nb_nodesOnSur = 0;
-	  for (i_Node = 0; i_Node < Nbr_Node; i_Node++)
-	    if (List_Search(ExtendedSuppList,
-			    &(geoElement->NumNodes[i_Node]), fcmp_int)) {
-              // At least one node of element is on surface Supp => element selected
-              //   Put the selected element in a sub-bubble
-              //   (at the end, 2 sub-bubbles will exist, one on each side)
-              //   Mark element with new bubble._num
-              //     for each face (edge) of element: mark with new bubble._num
-              //     if facet (edge) already in list, change num of bubble via bubble._new_bubble_P
-              if (++nb_nodesOnSur > 1) break;
-            }
-
-          if (nb_nodesOnSur) add_Facets(geoElement, nb_nodesOnSur, NULL);
-        }
-      }
-
-      if (!_flag_exclBorder) treat_ElementsOnBorder();
-
-      List_Delete(ExtendedSuppList);
-
-      // Keep selected elements from a given bubble (OnPositiveSideOf)
-      return select_ElementsInBubbleNum();
-    }
-    else {
-      return List_Create(1, 1, sizeof(int));
-    }
-
-  }
-
+  (List_T * InitialList, int Type_SuppList, List_T * InitialSuppList);
 
   class Bubble * add_bubble()
   {
@@ -739,6 +660,88 @@ public:
 };
 
 class GenEle_OnPositiveSideOf * GenEle_OnPositiveSideOf::_current_genEle_P;
+
+
+List_T* GenEle_OnPositiveSideOf::gen_ExtendedList
+(List_T * InitialList, int Type_SuppList, List_T * InitialSuppList)
+{
+  int Nbr_Element, i_Element, Nbr_Node, i_Node;
+  struct Geo_Element * geoElement;
+
+  Nbr_Element = Geo_GetNbrGeoElements() ;
+
+  if (List_Nbr(InitialSuppList)) {
+
+    // Create Facets (Edges/Nodes; depending of dimension) of InitialSuppList
+
+    int type_Dimension;
+
+    for (i_Element = 0 ; i_Element < Nbr_Element ; i_Element++) {
+      geoElement = Geo_GetGeoElement(i_Element) ;
+      if (List_Search(InitialSuppList, &geoElement->Region, fcmp_int) ) {
+
+        // Get dimension of element
+        Get_JacobianFunction (JACOBIAN_VOL, geoElement->Type, &type_Dimension);
+
+        if (type_Dimension > _2D)
+          Message::Error("Bad dimension (%d>2) for 'OnPositiveSideOf'", type_Dimension);
+
+        if (_type_Dimension_First == -1)
+          _type_Dimension_First = type_Dimension;
+        else if (_type_Dimension_First != type_Dimension)
+          Message::Error
+            ("Mix of dimensions (%d and %d) not allowed for 'OnPositiveSideOf'",
+             _type_Dimension_First, type_Dimension);
+
+        add_FacetsOnSur(geoElement);
+      }
+    }
+
+    def_EntitiesOnSurBorder();
+
+    //
+    // Search for Elements in contact with Nodes of InitialSuppList and place
+    // them with their Facets (Edges/Nodes; depending of dimension) in a Bubble
+
+    List_T * ExtendedSuppList ;
+    Generate_GroupsOfNodes(InitialSuppList, &ExtendedSuppList) ;
+
+    int nb_nodesOnSur;
+
+    for (i_Element = 0 ; i_Element < Nbr_Element ; i_Element++) {
+      geoElement = Geo_GetGeoElement(i_Element);
+
+      if (List_Search(InitialList, &geoElement->Region, fcmp_int)) {
+        Nbr_Node = geoElement->NbrNodes;
+        nb_nodesOnSur = 0;
+        for (i_Node = 0; i_Node < Nbr_Node; i_Node++)
+          if (List_Search(ExtendedSuppList,
+                          &(geoElement->NumNodes[i_Node]), fcmp_int)) {
+            // At least one node of element is on surface Supp => element selected
+            //   Put the selected element in a sub-bubble
+            //   (at the end, 2 sub-bubbles will exist, one on each side)
+            //   Mark element with new bubble._num
+            //     for each face (edge) of element: mark with new bubble._num
+            //     if facet (edge) already in list, change num of bubble via bubble._new_bubble_P
+            if (++nb_nodesOnSur > 1) break;
+          }
+
+        if (nb_nodesOnSur) add_Facets(geoElement, nb_nodesOnSur, NULL);
+      }
+    }
+
+    if (!_flag_exclBorder) treat_ElementsOnBorder();
+
+    List_Delete(ExtendedSuppList);
+
+    // Keep selected elements from a given bubble (OnPositiveSideOf)
+    return select_ElementsInBubbleNum();
+  }
+  else {
+    return List_Create(1, 1, sizeof(int));
+  }
+
+}
 
 
 void GenEle_OnPositiveSideOf::get_Entities
