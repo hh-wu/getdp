@@ -59,12 +59,14 @@ struct StringXDefine  FunctionForGroup_Type[] = {
 } ;
 
 struct StringXDefine  FunctionForGroup_SuppList[] = {
-  {"Not"         , SUPPLIST_NOT},
-  {"StartingOn"  , SUPPLIST_STARTINGON},
-  {"OnOneSideOf" , SUPPLIST_ONONESIDEOF},
-  {"InSupport"   , SUPPLIST_INSUPPORT},
-  {"ConnectedTo" , SUPPLIST_CONNECTEDTO},
-  {NULL          , 0}
+  {"Not"             , SUPPLIST_NOT},
+  {"StartingOn"      , SUPPLIST_STARTINGON},
+  {"OnOneSideOf"     , SUPPLIST_ONONESIDEOF},
+  {"OnPositiveSideOf", SUPPLIST_ONPOSITIVESIDEOF},
+  {"OnPositiveSideExclBorderOf", SUPPLIST_ONPOSITIVESIDEEXCLBORDEROF},
+  {"InSupport"       , SUPPLIST_INSUPPORT},
+  {"ConnectedTo"     , SUPPLIST_CONNECTEDTO},
+  {NULL              , 0}
 } ;
 
 struct StringXDefine1Nbr  Jacobian_Type[] = {
