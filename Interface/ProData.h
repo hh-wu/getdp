@@ -79,9 +79,9 @@ struct Problem {
 
 struct Group {
   char   *Name;
-  int     Num,  Type, FunctionType, SuppListType;
-  List_T *InitialList, *InitialSuppList;
-  List_T *ExtendedList, *ExtendedSuppList;
+  int     Num,  Type, FunctionType, SuppListType, SuppListType2;
+  List_T *InitialList, *InitialSuppList, *InitialSuppList2;
+  List_T *ExtendedList, *ExtendedSuppList, *ExtendedSuppList2;
   std::multimap<int, TwoInt> ExtendedListForSearch;
   struct  MovingBand2D *MovingBand2D;
 };
@@ -133,14 +133,13 @@ struct MovingBand2D {
 
 
 /* Group.SuppListType */
-#define SUPPLIST_NONE                        0
-#define SUPPLIST_NOT                         1
-#define SUPPLIST_STARTINGON                  2
-#define SUPPLIST_ONONESIDEOF                 3
-#define SUPPLIST_ONPOSITIVESIDEOF            4
-#define SUPPLIST_ONPOSITIVESIDEEXCLBORDEROF  5
-#define SUPPLIST_INSUPPORT                   6
-#define SUPPLIST_CONNECTEDTO                 7
+#define SUPPLIST_NONE             0
+#define SUPPLIST_NOT              1
+#define SUPPLIST_STARTINGON       2
+#define SUPPLIST_ONONESIDEOF      3
+#define SUPPLIST_ONPOSITIVESIDEOF 4
+#define SUPPLIST_INSUPPORT        5
+#define SUPPLIST_CONNECTEDTO      6
 
 
 /* ------------------------------------------------------------------------ */

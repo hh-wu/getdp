@@ -56,6 +56,8 @@ static List_T *Current_System_L = 0;
 static int Num_BasisFunction = 1;
 static int FlagError = 0;
 static int Type_TermOperator = 0, Type_Function = 0, Type_SuppList = 0;
+static int nb_SuppList, Type_SuppLists[2];
+static List_T *ListsOfRegion[2];
 static int Quantity_TypeOperator = 0, Quantity_Index = 0;
 static int Current_DofIndexInWholeQuantity = 0, Last_DofIndexInWholeQuantity = 0;
 static int Current_NoDofIndexInWholeQuantity = 0;
@@ -438,8 +440,22 @@ ReducedGroupRHS :
     }
     SuppListOfRegion ']'
     {
-      Group_S.SuppListType = Type_SuppList;
-      Group_S.InitialSuppList = $5;
+      if (nb_SuppList >=1) {
+        Group_S.SuppListType = Type_SuppLists[0];
+        Group_S.InitialSuppList = ListsOfRegion[0];
+      }
+      else {
+        Group_S.SuppListType = SUPPLIST_NONE;
+        Group_S.InitialSuppList = NULL;
+      }
+      if (nb_SuppList >=2) {
+        Group_S.SuppListType2 = Type_SuppLists[1];
+        Group_S.InitialSuppList2 = ListsOfRegion[1];
+      }
+      else {
+        Group_S.SuppListType2 = SUPPLIST_NONE;
+        Group_S.InitialSuppList2 = NULL;
+      }
       $$ = -1;
     }
 
@@ -502,25 +518,38 @@ ListOfRegionOrAll :
 SuppListOfRegion :
 
     /* none */
-    { Type_SuppList = SUPPLIST_NONE;  $$ = NULL; }
+    { nb_SuppList = 0; /*Type_SuppList = SUPPLIST_NONE;*/  $$ = NULL; }
 
-  | Comma SuppListTypeForGroup ListOfRegion
-    { Type_SuppList = $2; $$ = $3; }
-
-  | Comma tInSupport String__Index
+  | SuppListOfRegion Comma SuppListTypeForGroup ListOfRegion
     {
-      int i;
-      Type_SuppList = SUPPLIST_INSUPPORT;
-      if((i = List_ISearchSeq(Problem_S.Group, $3, fcmp_Group_Name)) >= 0) {
-	if(((struct Group *)List_Pointer(Problem_S.Group, i))->Type ==
-	     ELEMENTLIST) {
-	  $$ = List_Create(1, 5, sizeof(int));
-	  List_Add($$, &i);
-	}
-	else  vyyerror("Not a Support of Element Type: %s", $3);
+      if (nb_SuppList+1 <= 2) {
+        Type_SuppLists[nb_SuppList] = $3; $$ = $4; ListsOfRegion[nb_SuppList] = $4;
+        nb_SuppList++;
       }
-      else  vyyerror("Unknown Region for Support: %s", $3);
-      Free($3);
+      else
+        vyyerror("More than 2 supplementary lists of Regions not allowed");
+    }
+
+  | SuppListOfRegion Comma tInSupport String__Index
+    {
+      if (nb_SuppList+1 <= 2) {
+        int i;
+        Type_SuppLists[nb_SuppList] = SUPPLIST_INSUPPORT;
+        if((i = List_ISearchSeq(Problem_S.Group, $4, fcmp_Group_Name)) >= 0) {
+          if(((struct Group *)List_Pointer(Problem_S.Group, i))->Type ==
+	     ELEMENTLIST) {
+            $$ = List_Create(1, 5, sizeof(int));
+            List_Add($$, &i);
+            ListsOfRegion[nb_SuppList] = $$;
+          }
+          else  vyyerror("Not a Support of Element Type: %s", $4);
+        }
+        else  vyyerror("Unknown Region for Support: %s", $4);
+        Free($4);
+        nb_SuppList++;
+      }
+      else
+        vyyerror("More than 2 supplementary lists of Regions not allowed");
     }
  ;
 
@@ -8699,7 +8728,7 @@ int  Add_Group(struct Group *Group_P, char *Name, bool Flag_Add,
   int i;
   if((i = List_ISearchSeq(Problem_S.Group, Group_P->Name, fcmp_Group_Name)) < 0) {
     i = Group_P->Num = List_Nbr(Problem_S.Group);
-    Group_P->ExtendedList = NULL;  Group_P->ExtendedSuppList = NULL;
+    Group_P->ExtendedList = Group_P->ExtendedSuppList = Group_P->ExtendedSuppList2 = NULL;
     List_Add(Problem_S.Group, Group_P);
   }
   else if(Flag_Add) {

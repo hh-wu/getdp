@@ -103,6 +103,7 @@ void Generate_ExtendedGroup(struct Group * Group_P)
   case ELEMENTSOF :
     Generate_Elements(Group_P->InitialList,
 		      Group_P->SuppListType, Group_P->InitialSuppList,
+		      Group_P->SuppListType2, Group_P->InitialSuppList2,
 		      &Group_P->ExtendedList) ;
     break ;
 
@@ -540,15 +541,6 @@ public:
   double X[3], X_normal[3];
 };
 
-class DEntityOnSur {
-public:
-  DEntityOnSur() {}
-  ~DEntityOnSur() {}
-public:
-  int onBorder, i_Entity;
-  struct Geo_Element * geoElement;
-};
-
 
 template <class K, class T>
 class Map {
@@ -580,8 +572,8 @@ public:
 
 class GenEle_OnPositiveSideOf : public GenEle {
 public:
-  GenEle_OnPositiveSideOf(int flag_exclBorder)
-    : _type_Dimension_First(-1), _flag_exclBorder(flag_exclBorder), _nb_bubble(0)
+  GenEle_OnPositiveSideOf()
+    : _type_Dimension_Sur(-1), _nb_bubble(0)
   {
     _bubble_perNum_P[0] = add_bubble(); // bubble #1
     _bubble_perNum_P[1] = add_bubble(); // bubble #2
@@ -589,7 +581,9 @@ public:
   ~GenEle_OnPositiveSideOf() {}
 
   List_T* gen_ExtendedList
-  (List_T * InitialList, int Type_SuppList, List_T * InitialSuppList);
+  (List_T * InitialList,
+   int Type_SuppList, List_T * InitialSuppList,
+   int Type_SuppList2, List_T * InitialSuppList2);
 
 private:
   class Bubble * add_bubble()
@@ -603,8 +597,7 @@ private:
    int level_operator_d, int * nbr_Entity, int ** num_Entities);
 
   void add_FacetsOnSur(struct Geo_Element * geoElement);
-
-  void def_EntitiesOnSurBorder();
+  void add_EdgesAndNodesOnSurBorder(struct Geo_Element * geoElement);
 
   void add_Facets
   (struct Geo_Element * geoElement, int nb_nodesOnSur,
@@ -616,9 +609,8 @@ private:
 
 
 private:
-  int _type_Dimension_First, _flag_exclBorder;
+  int _type_Dimension_Sur, _flag_SuppList2_Type_Not;
   class Map<int, EntityOnSur> _facetsOnSur;
-  class Map<int, DEntityOnSur> _edgesOnSur;
   std::set<int> _entitiesOnSurBorder[2];
 
   std::forward_list<Bubble> _bubbles;
@@ -632,7 +624,9 @@ private:
 
 
 List_T* GenEle_OnPositiveSideOf::gen_ExtendedList
-(List_T * InitialList, int Type_SuppList, List_T * InitialSuppList)
+(List_T * InitialList,
+ int Type_SuppList, List_T * InitialSuppList,
+ int Type_SuppList2, List_T * InitialSuppList2)
 {
   int nb_Element, i_Element, nb_Node, i_Node;
   struct Geo_Element * geoElement;
@@ -644,31 +638,38 @@ List_T* GenEle_OnPositiveSideOf::gen_ExtendedList
     // Create Facets (Edges/Nodes; depending of dimension) of InitialSuppList
 
     int type_Dimension;
+    _flag_SuppList2_Type_Not = (Type_SuppList2 == SUPPLIST_NOT  && InitialSuppList2);
 
     for (i_Element = 0 ; i_Element < nb_Element ; i_Element++) {
       geoElement = Geo_GetGeoElement(i_Element) ;
       if (List_Search(InitialSuppList, &geoElement->Region, fcmp_int) ) {
-
         // Get dimension of element
         Get_JacobianFunction (JACOBIAN_VOL, geoElement->Type, &type_Dimension);
-
         if (type_Dimension > _2D)
           Message::Error("Bad dimension (%d>2) for 'OnPositiveSideOf'", type_Dimension);
-
-        if (_type_Dimension_First == -1)
-          _type_Dimension_First = type_Dimension;
-        else if (_type_Dimension_First != type_Dimension)
+        if (_type_Dimension_Sur == -1)
+          _type_Dimension_Sur = type_Dimension;
+        else if (_type_Dimension_Sur != type_Dimension)
           Message::Error
-            ("Mix of dimensions (%d and %d) not allowed for 'OnPositiveSideOf'",
-             _type_Dimension_First, type_Dimension);
-
+            ("Dimension %d in 'OnPositiveSideOf' incompatible with required dim. %d",
+             type_Dimension, _type_Dimension_Sur);
         add_FacetsOnSur(geoElement);
+      }
+      else if (_flag_SuppList2_Type_Not &&
+               List_Search(InitialSuppList2, &geoElement->Region, fcmp_int) ) {
+        Get_JacobianFunction (JACOBIAN_VOL, geoElement->Type, &type_Dimension);
+        if (type_Dimension > _1D)
+          Message::Error("Bad dimension (%d>1) for 'Not' (border)", type_Dimension);
+        if (_type_Dimension_Sur == -1)
+          _type_Dimension_Sur = type_Dimension+1;
+        else if (_type_Dimension_Sur != type_Dimension+1)
+          Message::Error
+            ("Dimension %d in 'Not' border incompatible with required dim. %d",
+             type_Dimension, _type_Dimension_Sur-1);
+        add_EdgesAndNodesOnSurBorder(geoElement);
       }
     }
 
-    def_EntitiesOnSurBorder();
-
-    //
     // Search for Elements in contact with Nodes of InitialSuppList and place
     // them with their Facets (Edges/Nodes; depending of dimension) in a Bubble
 
@@ -699,7 +700,7 @@ List_T* GenEle_OnPositiveSideOf::gen_ExtendedList
       }
     }
 
-    if (!_flag_exclBorder) treat_ElementsOnBorder();
+    if (!_flag_SuppList2_Type_Not) treat_ElementsOnBorder();
 
     List_Delete(ExtendedSuppList);
 
@@ -717,15 +718,15 @@ void GenEle_OnPositiveSideOf::get_Entities
 (struct Geo_Element * geoElement,
  int level_operator_d, int * nbr_Entity, int ** num_Entities)
 {
-  if (_type_Dimension_First - level_operator_d == _0D) {
+  if (_type_Dimension_Sur - level_operator_d == _0D) {
     *nbr_Entity = geoElement->NbrNodes; *num_Entities = geoElement->NumNodes;
   }
   else {
     if (geoElement->NbrEdges == 0)  Geo_CreateEdgesOfElement(geoElement) ;
-    if (_type_Dimension_First - level_operator_d == _1D) {
+    if (_type_Dimension_Sur - level_operator_d == _1D) {
       *nbr_Entity = geoElement->NbrEdges; *num_Entities = geoElement->NumEdges;
     }
-    else if (_type_Dimension_First - level_operator_d == _2D) {
+    else if (_type_Dimension_Sur - level_operator_d == _2D) {
       if (geoElement->NbrFacets == 0)  Geo_CreateFacetsOfElement(geoElement) ;
       *nbr_Entity = geoElement->NbrFacets; *num_Entities = geoElement->NumFacets;
     }
@@ -738,24 +739,22 @@ void GenEle_OnPositiveSideOf::get_Entities
 
 void GenEle_OnPositiveSideOf::add_FacetsOnSur(struct Geo_Element * geoElement)
 {
-  int nbr_Entity[3], * num_Entities[3], i_Entity[3], num_Entity[3];
+  int nbr_Entity, * num_Entities, i_Entity, num_Entity;
   int i;
 
   class EntityOnSur entityOnSur;
-  class DEntityOnSur dEntityOnSur, * dEntityOnSur_P;
   double x [NBR_MAX_NODES_IN_ELEMENT];
   double y [NBR_MAX_NODES_IN_ELEMENT];
   double z [NBR_MAX_NODES_IN_ELEMENT];
   double X, Y, Z;
 
-  get_Entities(geoElement, 0, &nbr_Entity[0], &num_Entities[0]);
-  get_Entities(geoElement, 1, &nbr_Entity[1], &num_Entities[1]);
+  get_Entities(geoElement, 0, &nbr_Entity, &num_Entities);
 
-  // Facet (or Edge/Node) on reference surface (in general: nbr_Entity[0] = 1)
+  // Facet (or Edge/Node) on reference surface (in general: nbr_Entity = 1)
 
-  for (i_Entity[0] = 0; i_Entity[0] < nbr_Entity[0]; i_Entity[0]++) {
-    num_Entity[0] = abs(num_Entities[0][i_Entity[0]]) ;
-    if (!_facetsOnSur.Find(num_Entity[0])) {
+  for (i_Entity = 0; i_Entity < nbr_Entity; i_Entity++) {
+    num_Entity = abs(num_Entities[i_Entity]) ;
+    if (!_facetsOnSur.Find(num_Entity)) {
       Geo_GetNodesCoordinates(geoElement->NbrNodes, geoElement->NumNodes, x, y, z);
       X = 0.; Y = 0.; Z = 0.;
       for (i = 0 ; i < geoElement->NbrNodes ; i++) {
@@ -763,42 +762,32 @@ void GenEle_OnPositiveSideOf::add_FacetsOnSur(struct Geo_Element * geoElement)
       }
       X /= geoElement->NbrNodes; Y /= geoElement->NbrNodes; Z /= geoElement->NbrNodes;
 
-      //      entityOnSur.num = num_Entity[0];
       entityOnSur.X[0] = X; entityOnSur.X[1] = Y; entityOnSur.X[2] = Z;
       Geo_CreateNormal(geoElement->Type, x, y, z, entityOnSur.X_normal);
-      _facetsOnSur[num_Entity[0]] = entityOnSur;
-
-      dEntityOnSur.onBorder = 1;
-      dEntityOnSur.geoElement = geoElement;
-      for (i_Entity[1] = 0; i_Entity[1] < nbr_Entity[1]; i_Entity[1]++) {
-        num_Entity[1] = abs(num_Entities[1][i_Entity[1]]) ;
-        if (!(dEntityOnSur_P = _edgesOnSur.Find(num_Entity[1]))) {
-          dEntityOnSur.i_Entity = i_Entity[1];
-          _edgesOnSur[num_Entity[1]] = dEntityOnSur;
-        }
-        else {
-          dEntityOnSur_P->onBorder = 0; // Edge/Node appears twice => not on border
-        }
-      }
-
+      _facetsOnSur[num_Entity] = entityOnSur;
     }
   }
 }
 
 
-void GenEle_OnPositiveSideOf::def_EntitiesOnSurBorder() {
-  for (std::map<int, DEntityOnSur>::iterator it = _edgesOnSur.get().begin();
-       it != _edgesOnSur.get().end(); ++it) {
-    if (it->second.onBorder) {
-      _entitiesOnSurBorder[0].insert(it->first);
-      if (_type_Dimension_First == _2D) {
-        int * num_Nodes = Geo_GetNodesOfEdgeInElement(it->second.geoElement,
-                                                      it->second.i_Entity) ;
-        _entitiesOnSurBorder[1].insert
-          (it->second.geoElement->NumNodes[abs(num_Nodes[0])-1]);
-        _entitiesOnSurBorder[1].insert
-          (it->second.geoElement->NumNodes[abs(num_Nodes[1])-1]);
-      }
+void GenEle_OnPositiveSideOf::add_EdgesAndNodesOnSurBorder
+(struct Geo_Element * geoElement)
+{
+  int nbr_Entity[2], * num_Entities[2], i_Entity, num_Entity;
+
+  get_Entities(geoElement, 1, &nbr_Entity[0], &num_Entities[0]);
+  get_Entities(geoElement, 2, &nbr_Entity[1], &num_Entities[1]);
+
+  // Edge (or Node) on border (in general: nbr_Entity[0] = 1)
+  for (i_Entity = 0; i_Entity < nbr_Entity[0]; i_Entity++) {
+    num_Entity = abs(num_Entities[0][i_Entity]) ;
+    _entitiesOnSurBorder[0].insert(num_Entity);
+  }
+  // Nodes
+  if (_type_Dimension_Sur == _2D) {
+    for (i_Entity = 0; i_Entity < nbr_Entity[1]; i_Entity++) {
+      num_Entity = abs(num_Entities[1][i_Entity]) ;
+      _entitiesOnSurBorder[1].insert(num_Entity);
     }
   }
 }
@@ -881,7 +870,7 @@ void GenEle_OnPositiveSideOf::add_Facets
       }
       // ... or else only one node could be on Sur border
       if (!flag_OnBorder && nb_nodesOnSur == 1
-          && _type_Dimension_First == _2D) {
+          && _type_Dimension_Sur == _2D) {
         for (i_Entity[2] = 0; i_Entity[2] < nbr_Entity[2]; i_Entity[2]++) {
           num_Entity[2] = abs(num_Entities[2][i_Entity[2]]) ;
           if (_entitiesOnSurBorder[1].find(num_Entity[2]) !=
@@ -893,16 +882,17 @@ void GenEle_OnPositiveSideOf::add_Facets
     }
 
     if (flag_OnBorder) {
-      k_elementInBubble_P->first *= -1; // element will be treated later
+      // Element will be treated later (bubble connections): marked as negative
+      k_elementInBubble_P->first *= -1;
       return;
     }
   }
 
   int sideOfSur = 0;
-  std::pair<int, EntityInBubble> bubble_exist[NBR_MAX_ENTITIES_IN_ELEMENT];
+  K_EntityInBubble k_bubble_exist[NBR_MAX_ENTITIES_IN_ELEMENT];
   class EntityInBubble entityInBubble, * entityInBubble_P;
   class Bubble * bubble_min_P;
-  int num_, num_bubble_min, nb_bubble_exist = 0;
+  int num_, num_bubble_min, nb_k_bubble_exist = 0;
 
   bubble_min_P = bubble_P; num_bubble_min = bubble_P->_num;
 
@@ -918,7 +908,8 @@ void GenEle_OnPositiveSideOf::add_Facets
         sideOfSur = num_bubble_min;
       }
       else if (sideOfSur != num_bubble_min) {
-        Message::Warning("OnPositiveSideOf: non-unique orientation of surface or ambiguous orientation for multiple surfaces");
+        Message::Warning("OnPositiveSideOf: non-unique orientation of surface "
+                         "or ambiguous orientation for multiple surfaces");
       }
       bubble_min_P = _bubble_perNum_P[num_bubble_min-1];
     }
@@ -931,7 +922,7 @@ void GenEle_OnPositiveSideOf::add_Facets
       // Existing Facet -> already in a Bubble
       num_ = entityInBubble_P->bubble_P->get_numBubble();
 
-      bubble_exist[nb_bubble_exist++] =
+      k_bubble_exist[nb_k_bubble_exist++] =
         K_EntityInBubble(num_, EntityInBubble(entityInBubble_P->bubble_P));
 
       if (!flag_onSur) {
@@ -945,19 +936,19 @@ void GenEle_OnPositiveSideOf::add_Facets
   }
 
   if (bubble_min_P != bubble_P) {
-    //Message::Info("===== Ele %d : -/%d : old %d -> new %d", geoElement->Num, nb_bubble_exist, bubble_P->get_numBubble(), num_bubble_min);
+    //Message::Info("===== Ele %d : -/%d : old %d -> new %d", geoElement->Num, nb_k_bubble_exist, bubble_P->get_numBubble(), num_bubble_min);
     bubble_P->set_newBubble(bubble_min_P);
   }
 
-  //if (!nb_bubble_exist) Message::Info("===== Ele %d NEW (%d)", geoElement->Num, bubble_P->num);
+  //if (!nb_k_bubble_exist) Message::Info("===== Ele %d NEW (%d)", geoElement->Num, bubble_P->num);
 
-  for (i = 0; i < nb_bubble_exist; i++) {
-    if (bubble_exist[i].first != num_bubble_min
-        && !(bubble_exist[i].first == 1 && num_bubble_min == 2)
-        && !(bubble_exist[i].first == 2 && num_bubble_min == 1)
+  for (i = 0; i < nb_k_bubble_exist; i++) {
+    if (k_bubble_exist[i].first != num_bubble_min
+        && !(k_bubble_exist[i].first == 1 && num_bubble_min == 2)
+        && !(k_bubble_exist[i].first == 2 && num_bubble_min == 1)
         ) {
-      //Message::Info("===== Ele %d : %d/%d : old %d -> new %d", geoElement->Num, i+1, nb_bubble_exist, bubble_exist[i].num, num_bubble_min);
-      bubble_exist[i].second.bubble_P->set_newBubble(bubble_min_P);
+      //Message::Info("===== Ele %d : %d/%d : old %d -> new %d", geoElement->Num, i+1, nb_k_bubble_exist, k_bubble_exist[i].first, num_bubble_min);
+      k_bubble_exist[i].second.bubble_P->set_newBubble(bubble_min_P);
     }
   }
 
@@ -973,7 +964,7 @@ List_T * GenEle_OnPositiveSideOf::select_ElementsInBubbleNum() {
     num_bubble = it->second.bubble_P->get_numBubble();
     if (num_bubble >= 1 && num_bubble <= 2)
       nbrElementsInBubbleNum[num_bubble-1]++;
-    else if (!_flag_exclBorder)
+    else if (!_flag_SuppList2_Type_Not)
       Message::Warning
         ("OnPositiveSideOf: unexpected bubble (%d) for element %d (not 1 nor 2)",
          num_bubble, it->first);
@@ -1016,6 +1007,7 @@ void GenEle_OnPositiveSideOf::treat_ElementsOnBorder() {
 
 void  Generate_Elements(List_T * InitialList,
 			int Type_SuppList, List_T * InitialSuppList,
+			int Type_SuppList2, List_T * InitialSuppList2,
 			List_T ** ExtendedList)
 {
   Tree_T  * Entity_Tr ;
@@ -1024,8 +1016,6 @@ void  Generate_Elements(List_T * InitialList,
   int     k ;
   int     Nbr_Element, i_Element, i_Element2, Nbr_Node, i_Node, i_Node2 ;
   List_T  * ExtendedSuppList ;
-
-  int flag_exclBorder = 0;
 
   Nbr_Element = Geo_GetNbrGeoElements() ;
 
@@ -1057,13 +1047,12 @@ void  Generate_Elements(List_T * InitialList,
     Tree_Delete(Entity_Tr) ;
     break ;
 
-  case SUPPLIST_ONPOSITIVESIDEEXCLBORDEROF :
-    flag_exclBorder = 1;
   case SUPPLIST_ONPOSITIVESIDEOF :
     {
-      class GenEle_OnPositiveSideOf genEle(flag_exclBorder);
+      class GenEle_OnPositiveSideOf genEle;
       *ExtendedList =
-        genEle.gen_ExtendedList(InitialList, Type_SuppList, InitialSuppList);
+        genEle.gen_ExtendedList
+        (InitialList, Type_SuppList, InitialSuppList, Type_SuppList2, InitialSuppList2);
       break ;
     }
 

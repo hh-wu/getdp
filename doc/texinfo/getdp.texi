@@ -2015,7 +2015,7 @@ Group @{
   @var{group-id} <@{<@var{integer}>@}>
 
 @var{group-sub-type}: 
-  Not | StartingOn | OnOneSideOf | @var{etc}
+  Not | StartingOn | OnPositiveSideOf | @var{etc}
 @end example
 
 @noindent Notes:
@@ -2993,11 +2993,11 @@ metasyntactic variables introduced for the ten GetDP objects.
 @noindent Types in
 
 @example
-@var{group-type} [ @var{R1} <, @var{group-sub-type} @var{R2} > ]
+@var{group-type} [ @var{R1} <, @var{group-sub-type} @var{R2} <, @var{group-sub-type-2} @var{R3} > > ]
 @end example
 
 @noindent
-@code{@var{group-type} < @var{group-sub-type} >}:
+@code{@var{group-type} < @var{group-sub-type} < @var{group-sub-type-2} > >}:
 @ftable @code
 
 @item Region
@@ -3031,7 +3031,11 @@ Volumes of elements of @var{R1}
 @item ElementsOf
 Elements of regions in @var{R1} 
 
-< @code{OnOneSideOf}: only elements on one side of @var{R2}) >.
+< @code{OnOneSideOf}: only elements on one side 
+of @var{R2} (non-automatic, i.e., both sides if both in @var{R1}) > |
+< @code{OnPositiveSideOf}: only elements on positive (normal) side of @var{R2} 
+  < , @code{Not}: but not those touching only its skin @var{R3} 
+  (mandatory for free skins for correct separation of side layers) > >.
 
 @item GroupsOfNodesOf
 Groups of nodes of elements of @var{R1} 

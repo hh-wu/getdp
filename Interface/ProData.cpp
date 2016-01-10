@@ -585,6 +585,25 @@ void Print_Group()
       }
     }
 
+    if (GR->InitialSuppList2 != NULL) {
+      if (GR->SuppListType2 != SUPPLIST_INSUPPORT) {
+	Message::Check(", %s {",
+                       Get_StringForDefine(FunctionForGroup_SuppList, GR->SuppListType2));
+	for (j = 0; j < List_Nbr(GR->InitialSuppList2); j++)
+	  Message::Check(" %d", *((int *)List_Pointer(GR->InitialSuppList2, j)) );
+	Message::Check(" }");
+      }
+      else {
+	Message::Check(", %s",
+                       Get_StringForDefine(FunctionForGroup_SuppList, GR->SuppListType2));
+	Message::Check(" %s",
+                       ((struct Group *)
+                        List_Pointer(Problem_S.Group,
+                                     *((int *)List_Pointer(GR->InitialSuppList2, 0))))
+                       ->Name);
+      }
+    }
+
     Message::Check(" ]");
 
     if (GR->Type == MOVINGBAND2D) {

@@ -17,7 +17,9 @@ void Generate_GroupsOfNodes(List_T * InitialList, List_T ** ExtendedList) ;
 void Generate_GroupsOfEdges(List_T * InitialList, int Type_SuppList,
 			    List_T * InitialSuppList, List_T ** ExtendedList) ;
 void Generate_GroupsOfFacets(List_T * InitialList, List_T ** ExtendedList) ;
-void Generate_Elements(List_T * InitialList, int Type_SuppList,
-		       List_T * InitialSuppList, List_T ** ExtendedList) ;
+void Generate_Elements(List_T * InitialList,
+                       int Type_SuppList, List_T * InitialSuppList,
+                       int Type_SuppList2, List_T * InitialSuppList2,
+                       List_T ** ExtendedList) ;
 
 #endif
