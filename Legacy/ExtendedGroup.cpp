@@ -549,8 +549,8 @@ public:
   ~Map() {}
 
   T * Find(int num) {
-    typename std::map<K, T>::iterator t_it;
-    if ( (t_it = _ts.find(num)) != _ts.end() ) return &t_it->second;
+    typename std::map<K, T>::iterator it;
+    if ( (it = _ts.find(num)) != _ts.end() ) return &it->second;
     else return NULL;
   }
 
