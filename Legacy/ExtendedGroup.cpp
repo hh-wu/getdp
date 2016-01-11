@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <set>
 #include <map>
-#include <forward_list>
+#include <list>
 #include "ProData.h"
 #include "ProDefine.h"
 #include "ExtendedGroup.h"
@@ -613,9 +613,9 @@ private:
   class Map<int, EntityOnSur> _facetsOnSur;
   std::set<int> _entitiesOnSurBorder[2];
 
-  std::forward_list<Bubble> _bubbles;
+  std::list<Bubble> _bubbles;
 
-  std::forward_list<K_ElementInBubble> _elementsInBubbles;
+  std::list<K_ElementInBubble> _elementsInBubbles;
   class Map<int, EntityInBubble> _facetsInBubbles;
 
   int _nb_bubble;
@@ -958,7 +958,7 @@ void GenEle_OnPositiveSideOf::add_Facets
 List_T * GenEle_OnPositiveSideOf::select_ElementsInBubbleNum() {
   int num_bubble, nbrElementsInBubbleNum[2], nb_elements = 0;
   nbrElementsInBubbleNum[0] = nbrElementsInBubbleNum[1] = 0;
-  for (std::forward_list<K_ElementInBubble>::iterator it = _elementsInBubbles.begin();
+  for (std::list<K_ElementInBubble>::iterator it = _elementsInBubbles.begin();
        it != _elementsInBubbles.end(); ++it) {
     nb_elements++;
     num_bubble = it->second.bubble_P->get_numBubble();
@@ -979,7 +979,7 @@ List_T * GenEle_OnPositiveSideOf::select_ElementsInBubbleNum() {
   _elements_L = List_Create(Nb, 1, sizeof(int));
   int num_element;
 
-  for (std::forward_list<K_ElementInBubble>::iterator it = _elementsInBubbles.begin();
+  for (std::list<K_ElementInBubble>::iterator it = _elementsInBubbles.begin();
        it != _elementsInBubbles.end(); ++it) {
     /*
     Message::Info("=== Ele %d, Bubble %d (%d) [%ld, %ld]",
@@ -998,7 +998,7 @@ List_T * GenEle_OnPositiveSideOf::select_ElementsInBubbleNum() {
 
 
 void GenEle_OnPositiveSideOf::treat_ElementsOnBorder() {
-  for (std::forward_list<K_ElementInBubble>::iterator it = _elementsInBubbles.begin();
+  for (std::list<K_ElementInBubble>::iterator it = _elementsInBubbles.begin();
        it != _elementsInBubbles.end(); ++it)
     if (it->first < 0) add_Facets(it->second.geoElement, 0, &(*it));
 }
