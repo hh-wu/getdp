@@ -25,7 +25,7 @@ def opt_eig_sens(x,data,parameters):
     #w2 = w2[nn-nbEig:nn]
     print('eig2:{}'.format(w2))
     input = {
-        'f':[w2[0]],
+        'f':[w2[1]],
         'df':['FiniteDifference'],
         'fmax':[0],
         'f_name':['eig_noNorm'],
@@ -140,24 +140,69 @@ def opt_vm2(x,data,parameters):
     }
     return input
 
+def opt_vmpNorm_massHole(x,data,parameters):
+    mass = data['Mass'][0]; vm = data['VM'][0]; pnVM = data['StressVM_pNorm'][0]
+    massHole=36.0*1000.-mass;
+    print('mass:{} | max(VM):{} | pnorm(VM):{} | #VM:{} '.format(mass,np.max(vm),pnVM,len(vm)))
+    input = {
+        'f':[pnVM,massHole],
+        'df':['FiniteDifference']*2,
+        'fmax':[0.0,124.85780610000074],
+        'f_name':['pnorm-vonMises','MassHole'],
+        'sign':[1.0,-1.0]
+    }
+    return input
+
+def opt_hole_compl(x,data,parameters):
+    input = {
+        'f':[data['Mass'][0],data['ComplianceElm'][0]],
+        'df':['FiniteDifference']*2,
+        'fmax':[0,592315.1051841*1.05],
+        'f_name':['Mass2','Compliance'],
+        'sign':[1.0,1.0]
+    }
+    return input
+
 def opt_pnormVM(x,data,parameters):
     input = {
         'f':[data['Mass'][0],data['StressVM_pNorm'][0]],
         'df':['FiniteDifference']*2,#['AnalyticNotEplicit','AdjointLie']
-        'fmax':[data['Mass'][0],data['StressVM_pNorm'][0]*1.05],
+        'fmax':[0, 14056038.10113676], #14051961.72089917],#data['StressVM_pNorm'][0]*1.05],
         'f_name':['Mass2','vonMises_Pnorm'],
         'sign':[1.0,1.0]
     }
     return input
 
-def opt_vonMises_elem(x,data,parameters):
-    vm = data['VM'][0]
+def opt_pnormVM_mass(x,data,parameters):
     input = {
-        'f':[data['Mass'][0]]+vm,
-        'df':['FiniteDifference']*(len(vm)+1),
-        'fmax':[16.0]+[2.8e8]*len(vm),
-        'sign':[1.0]+[1.0]*len(vm)
+        'f':[data['StressVM_pNorm'][0],data['Mass'][0]],
+        'df':['FiniteDifference']*2,#['AnalyticNotEplicit','AdjointLie']
+        'fmax':[0,20737857.2366],#data['StressVM_pNorm'][0]*1.05],
+        'f_name':['vonMises_Pnorm','Mass2'],
+        'sign':[1.0,1.0]
     }
+    return input
+
+def opt_vonMises_elem(x,data,parameters):
+    mass = data['Mass'][0]; vm = data['VM'][0]
+    print('mass:{} | max(VM):{} | #VM:{}'.format(mass,np.max(vm),len(vm)))
+    ff = [mass];ff.extend(vm);m=len(ff)
+    df = ['FiniteDifference']*m
+    ffmax = [0.];ffmax.extend([1.08e08]*(m-1))
+    ffname = ['Mass'];ffname.extend(['VM'+str(k) for k in range(m-1)])
+    sign = [1.0]*m
+    input = {'f':ff,'df':df,'fmax':ffmax,'sign':sign,'f_name':ffname}
+    return input
+
+def opt_maxvonMises(x,data,parameters):
+    mass = data['Mass'][0]; vm = data['VM'][0]
+    print('mass:{} | max(VM):{} | #VM:{}'.format(mass,np.max(vm),len(vm)))
+    ff = [mass];ff.append(np.max(vm));m=len(ff)
+    df = ['FiniteDifference']*m
+    ffmax = [0.];ffmax.extend([5355046.36142]*(m-1))
+    ffname = ['Mass'];ffname.extend(['VM'+str(k) for k in range(m-1)])
+    sign = [1.0]*m
+    input = {'f':ff,'df':df,'fmax':ffmax,'sign':sign,'f_name':ffname}
     return input
 
 def opt_complianceVolume(x,data,parameters):

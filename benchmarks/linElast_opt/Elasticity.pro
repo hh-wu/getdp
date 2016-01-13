@@ -63,17 +63,17 @@ FunctionSpace{
       BasisFunction {
         { Name sxn ; NameOfCoef uxn ; Function BF_NodeX ;
           dFunction {BF_NodeX_D12, BF_Zero};
-          Support Region[{Domain,Domain_Force}]; Entity NodesOf[ All ] ; }
+          Support Region[{Domain,Domain_Force,SURF_DROITE,SURF_BAS}]; Entity NodesOf[ All ] ; }
         { Name syn ; NameOfCoef uyn ; Function BF_NodeY ;
           dFunction {BF_NodeY_D12, BF_Zero};
-          Support Region[{Domain,Domain_Force}]; Entity NodesOf[ All ] ; }
+          Support Region[{Domain,Domain_Force,SURF_DROITE,SURF_BAS}]; Entity NodesOf[ All ] ; }
         If (Flag_degree2)
           { Name sxn2 ; NameOfCoef uxn2 ; Function BF_NodeX_2E ;
             dFunction {BF_NodeX_D12_2E, BF_Zero};
-            Support Region[{Domain,Domain_Force}]; Entity EdgesOf[ All ] ; }
+            Support Region[{Domain,Domain_Force,SURF_DROITE,SURF_BAS}]; Entity EdgesOf[ All ] ; }
           { Name syn2 ; NameOfCoef uyn2 ; Function BF_NodeY_2E ;
             dFunction {BF_NodeY_D12_2E, BF_Zero};
-            Support Region[{Domain,Domain_Force}]; Entity EdgesOf[ All ] ; }
+            Support Region[{Domain,Domain_Force,SURF_DROITE,SURF_BAS}]; Entity EdgesOf[ All ] ; }
         EndIf
       }
       Constraint {
@@ -307,7 +307,7 @@ Resolution{
     Operation{
       CreateDir[ResDir];
       //If(Flag_degree2)
-      SetGlobalSolverOptions["-petsc_prealloc 2000"];
+      SetGlobalSolverOptions["-petsc_prealloc 500"];
       //EndIf
       If(!StrCmp(Flag_optType,"topology") && !Flag_projFuncSpace_xe)
         GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD];
@@ -329,6 +329,7 @@ Resolution{
       If(!StrCmp(Flag_optType,"topology") && !Flag_projFuncSpace_xe)
         GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD];
       EndIf
+      SetGlobalSolverOptions["-petsc_prealloc 2000"];
       GenerateSeparate[A];
       EigenSolve[A, nbEig, 0, 0]; SaveSolutions[A] ;
       PostOperation[u_Mec_eig];

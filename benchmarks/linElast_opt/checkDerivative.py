@@ -21,11 +21,11 @@ extrude = 1
 varName = [pIn+'Hole Length']
 func = opt_eig_sens #compliance,vm_pnorm,eig0
 load = 4
-execMode = 'derivative' #'derivative','plot-perturb','plot-converge'
-Nlc = 5
+execMode = 'plot-perturb' #'derivative','plot-perturb','plot-converge'
+Nlc = 1
 msh = ''
 if (Nlc==0): msh=['beam3.msh']#['beam'+str(k)+'.msh' for k in range(6)]
-step = [1.0e-06] #np.logspace(-11, -1, num=11)
+step = np.logspace(-11, -1, num=11)
 sensMeth = ['FiniteDifference']#,'AdjointLie'] #,'AnalyticNotEplicit']
 pathSave = 'resSens'
 if(execMode=='response'):xmin=[0.002,0.002];xmax=[0.02,0.006];nbSample=5
@@ -36,7 +36,7 @@ femParam = {'OptType':['Input/Optimization Type','shape'],
             'Lx':[pIn+'X length [m]',4],
             'Ly':[pIn+'Y length [m]',1],
             'degVM':['Input/Optimization/degVM',2],
-            'Deg2':['Input/degree 2?',0]}
+            'Deg2':['Input/degree 2?',1]}
 
 # ************************************************************************
 # **** Derivative computation                                        *****

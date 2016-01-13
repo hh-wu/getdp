@@ -42,7 +42,7 @@ Group {
   Domain_Force_Vol = Region[ {} ];
   Domain_Force_Sur = Region[ {} ];
   Domain_Force_Lin = Region[ {} ];
-  If( Flag_testBench == 0 ) //short cantilever beam
+  If(Flag_testBench==0) //short cantilever beam
     If(Flag_2D)
       Domain_Force_Lin = Region[ POINT_2 ];
     Else 
@@ -51,9 +51,11 @@ Group {
   ElseIf(Flag_testBench==1) //MBB-beam
     Domain_Force_Lin = Region[{POINT_4}];  // force sur le point 4
   ElseIf(Flag_testBench==2) //plate-hole
-    If(Flag_2D)
+    If(Flag_2D && !Flag_sym)
       Domain_Force_Lin = Region[{SURF_BAS,SURF_HAUT,SURF_DROITE,SURF_GAUCHE}]; 
-    Else
+    ElseIf(Flag_2D && Flag_sym==2)
+      Domain_Force_Lin = Region[{SURF_HAUT,SURF_GAUCHE}]; 
+    ElseIf(!Flag_2D)
       Domain_Force_Sur = Region[{SURF_BAS,SURF_HAUT,SURF_DROITE,SURF_GAUCHE}]; 
     EndIf 
   ElseIf( Flag_testBench == 3 ) //rotor
@@ -89,10 +91,15 @@ Function {
      Primal problem: 
      ----------------------------------------------------------------- */
   If ( Flag_testBench == 2 )
-    force_mec[#SURF_BAS] = Vector[0, -2e6, 0]; 
-    force_mec[#SURF_HAUT] = Vector[0, 2e6, 0]; 
-    force_mec[#SURF_DROITE] = Vector[4e6, 0, 0]; 
-    force_mec[#SURF_GAUCHE] = Vector[-4e6, 0, 0]; 
+    If(!Flag_sym)
+      force_mec[#SURF_BAS] = Vector[0, -22.5e6, 0]; 
+      force_mec[#SURF_HAUT] = Vector[0, 22.5e6, 0]; 
+      force_mec[#SURF_DROITE] = Vector[45e6, 0, 0]; 
+      force_mec[#SURF_GAUCHE] = Vector[-45e6, 0, 0]; 
+    ElseIf(Flag_sym==2)
+      force_mec[#SURF_HAUT] = Vector[0, 22.5e6, 0]; 
+      force_mec[#SURF_GAUCHE] = Vector[-45e6, 0, 0]; 
+    EndIf
   ElseIf ( Flag_testBench < 2 )
     force_mec[Domain_Force] = Vector[0.0,-1e6,0.0]; 
   ElseIf ( Flag_testBench == 3 )
@@ -375,27 +382,25 @@ Constraint{
       If(Flag_projFuncSpace_xe)
         { Region Domain ; Value designVar[]*ElementVol[]; }
       Else
-        { Region Domain ; Value 1.0*ElementVol[]; }
+        { Region Domain ; Value 1.0/**ElementVol[]*/; }
       EndIf
     }
   }
 
   { Name DisplacementX ; Type Assign ;
     Case {
-      If(Flag_testBench == 0)
+      If (Flag_testBench==0)
         { Region #SURF_GAUCHE;  Value 0.; }
-      EndIf
-      If(Flag_testBench == 1)
+      ElseIf (Flag_testBench==1)
         { Region #SURF_GAUCHE;  Value 0.; } 
-      EndIf
-      If(Flag_testBench == 3)
+      ElseIf(Flag_testBench==2 && Flag_sym==2)
+        { Region #SURF_DROITE;  Value 0.; } 
+      ElseIf(Flag_testBench == 3)
         { Region Rotor_int;  Value 0.; } 
-      EndIf
-      If(Flag_testBench == 4)
+      ElseIf(Flag_testBench == 4)
         { Region #SURF_GAUCHE;  Value 0.; } 
         { Region #SURF_DROITE;  Value 0.; } 
-      EndIf
-      If(Flag_testBench == 5)
+      ElseIf(Flag_testBench == 5)
         { Region Rotor_int;  Value 0.; } 
         { Region Rotor_ext;  Value 0.; } 
       EndIf
@@ -405,18 +410,16 @@ Constraint{
     Case {
       If(Flag_testBench == 0) //short beam
         { Region #SURF_GAUCHE;  Value 0.; } 
-      EndIf
-      If(Flag_testBench == 1) //mbb beam
+      ElseIf(Flag_testBench == 1) //mbb beam
         { Region #POINT_2;  Value 0.; } 
-      EndIf
-      If(Flag_testBench == 3)
+      ElseIf(Flag_testBench == 2 && Flag_sym==2)
+        { Region #SURF_BAS;  Value 0.; } 
+      ElseIf(Flag_testBench == 3)
         { Region Rotor_int;  Value 0.; } 
-      EndIf
-      If(Flag_testBench == 4)
+      ElseIf(Flag_testBench == 4)
         { Region #SURF_GAUCHE;  Value 0.; } 
         { Region #SURF_DROITE;  Value 0.; } 
-      EndIf
-      If(Flag_testBench == 5)
+      ElseIf(Flag_testBench == 5)
         { Region Rotor_int;  Value 0.; } 
         { Region Rotor_ext;  Value 0.; } 
       EndIf
@@ -426,11 +429,9 @@ Constraint{
     Case {
       If(Flag_testBench == 0) //short beam
         { Region #SURF_GAUCHE;  Value 0.; } 
-      EndIf
-      If(Flag_testBench == 1) //mbb beam
+      ElseIf(Flag_testBench == 1) //mbb beam
         { Region #POINT_2;  Value 0.; } 
-      EndIf
-      If(Flag_testBench == 4)
+      ElseIf(Flag_testBench == 4)
         { Region #SURF_GAUCHE;  Value 0.; } 
         { Region #SURF_DROITE;  Value 0.; } 
       EndIf
