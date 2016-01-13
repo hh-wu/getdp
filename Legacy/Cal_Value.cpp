@@ -1099,6 +1099,76 @@ void Cal_ProductValue(struct Value * V1, struct Value * V2, struct Value * R)
     R->Type = VECTOR ;
   }
 
+  else if (V1->Type == TENSOR && V2->Type == TENSOR_DIAG) {
+    if (Current.NbrHar == 1) {
+      a1[0] = V1->Val[0]*V2->Val[0];
+      a1[1] = V1->Val[1]*V2->Val[1];
+      a1[2] = V1->Val[2]*V2->Val[2];
+      a1[3] = V1->Val[3]*V2->Val[0];
+      a1[4] = V1->Val[4]*V2->Val[1];
+      a1[5] = V1->Val[5]*V2->Val[2];
+      a1[6] = V1->Val[6]*V2->Val[0];
+      a1[7] = V1->Val[7]*V2->Val[1];
+      a1[8] = V1->Val[8]*V2->Val[2];
+      R->Val[0] = a1[0];  R->Val[1] = a1[1];  R->Val[2] = a1[2];
+      R->Val[3] = a1[3];  R->Val[4] = a1[4];  R->Val[5] = a1[5];
+      R->Val[6] = a1[6];  R->Val[7] = a1[7];  R->Val[8] = a1[8];
+
+    }
+    else {
+      for (k = 0 ; k < Current.NbrHar ; k += 2) {
+	CMULT(0,0,0);
+	CMULT(1,1,1); 
+	CMULT(2,2,2);
+	CMULT(3,0,3);
+	CMULT(4,1,4);
+	CMULT(5,2,5);
+	CMULT(6,0,6);
+	CMULT(7,1,7);
+	CMULT(8,2,8);
+	CPUT(0); CPUT(1); CPUT(2);
+	CPUT(3); CPUT(4); CPUT(5);
+	CPUT(6); CPUT(7); CPUT(8);
+      }
+    }
+    R->Type = TENSOR;
+  }
+
+  else if (V1->Type == TENSOR_DIAG && V2->Type == TENSOR) {
+    if (Current.NbrHar == 1) {
+      a1[0] = V1->Val[0]*V2->Val[0];
+      a1[1] = V1->Val[0]*V2->Val[1];
+      a1[2] = V1->Val[0]*V2->Val[2];
+      a1[3] = V1->Val[1]*V2->Val[3];
+      a1[4] = V1->Val[1]*V2->Val[4];
+      a1[5] = V1->Val[1]*V2->Val[5];
+      a1[6] = V1->Val[2]*V2->Val[6];
+      a1[7] = V1->Val[2]*V2->Val[7];
+      a1[8] = V1->Val[2]*V2->Val[8];
+      R->Val[0] = a1[0];  R->Val[1] = a1[1];  R->Val[2] = a1[2];
+      R->Val[3] = a1[3];  R->Val[4] = a1[4];  R->Val[5] = a1[5];
+      R->Val[6] = a1[6];  R->Val[7] = a1[7];  R->Val[8] = a1[8];
+
+    }
+    else {
+      for (k = 0 ; k < Current.NbrHar ; k += 2) {
+	CMULT(0,0,0);
+	CMULT(0,1,1); 
+	CMULT(0,2,2);
+	CMULT(1,3,3);
+	CMULT(1,4,4);
+	CMULT(1,5,5);
+	CMULT(2,6,6);
+	CMULT(2,7,7);
+	CMULT(2,8,8);
+	CPUT(0); CPUT(1); CPUT(2);
+	CPUT(3); CPUT(4); CPUT(5);
+	CPUT(6); CPUT(7); CPUT(8);
+      }
+    }
+    R->Type = TENSOR;
+  }
+
   else if (V1->Type == TENSOR_DIAG && V2->Type == TENSOR_DIAG) {
     if (Current.NbrHar == 1) {
       R->Val[0] = V1->Val[0]*V2->Val[0];
