@@ -1632,6 +1632,7 @@ void Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
       if (PostStream && HarmonicToTime == 1) {
 	switch (Format) {
 	case FORMAT_FREQUENCY_TABLE :
+	case FORMAT_FREQUENCY_REGION_VALUE :
 	  if (NbrHarmonics == 1){
 	    Message::Error("FrequencyTable format not allowed (only one harmonic)") ;
             return;
@@ -1645,16 +1646,20 @@ void Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
 	}
 	for (iRegion = 0 ; iRegion < NbrRegion ; iRegion++)
 	  for (k = 0 ; k < NbrHarmonics ; k++) {
-	    if (Format == FORMAT_FREQUENCY_TABLE && !(k%2) && iRegion==0) {
+	    if ((Format == FORMAT_FREQUENCY_TABLE ||
+                 Format == FORMAT_FREQUENCY_REGION_VALUE)
+                && !(k%2) && iRegion==0) {
 	      Freq = Current.DofData->Val_Pulsation[0] / TWO_PI ;
 	      fprintf(PostStream, "%.16g ", Freq) ;
 	    }
 	    for(j = 0 ; j < Size ; j++)
-              if (Format != FORMAT_REGION_VALUE)
+              if (Format != FORMAT_REGION_VALUE &&
+                  Format != FORMAT_FREQUENCY_REGION_VALUE)
 	      fprintf(PostStream, " %.16g",
                       TmpValues[indexInTmpValues+iRegion].Val[MAX_DIM*k+j]) ;
 	  }
-	if (Flag_NoNewLine || Format == FORMAT_REGION_VALUE)
+	if (Flag_NoNewLine || 
+            Format == FORMAT_REGION_VALUE || Format == FORMAT_FREQUENCY_REGION_VALUE)
 	  fprintf(PostStream, " ") ;
 	else
 	  fprintf(PostStream, "\n") ;

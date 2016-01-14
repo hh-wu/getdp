@@ -1412,7 +1412,8 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 
     Pos_InitAllSolutions(PSO_P->TimeStep_L, iTime) ;
 
-    if (PSO_P->Format == FORMAT_REGION_VALUE) {
+    if (PSO_P->Format == FORMAT_REGION_VALUE ||
+        PSO_P->Format == FORMAT_FREQUENCY_REGION_VALUE) {
       Cal_ZeroValue(&ValueSummed) ;
     }
 
@@ -1451,7 +1452,8 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 			 Support_L, &Element, u, v, w, &Value) ;
       }
 
-      if (PSO_P->Format != FORMAT_REGION_VALUE) {
+      if (PSO_P->Format != FORMAT_REGION_VALUE &&
+          PSO_P->Format != FORMAT_FREQUENCY_REGION_VALUE) {
         if (PSO_P->StoreInRegister >= 0)
           Cal_StoreInRegister(&Value, PSO_P->StoreInRegister) ;
         if (PSO_P->StoreInVariable)
@@ -1474,7 +1476,8 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 		       PSO_P->NoNewLine,
 		       &Value) ;
 
-      if (PSO_P->Format == FORMAT_REGION_VALUE) {
+      if (PSO_P->Format == FORMAT_REGION_VALUE ||
+          PSO_P->Format == FORMAT_FREQUENCY_REGION_VALUE) {
 	ValueSummed.Type = Value.Type ;
 	Cal_AddValue(&ValueSummed, &Value, &ValueSummed);
       }
@@ -1483,7 +1486,8 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
         Message::ProgressMeter(i + 1, Nbr_Region, "Post-processing (OnRegion)");
     }
 
-    if (PostStream && PSO_P->Format == FORMAT_REGION_VALUE) {
+    if (PostStream && (PSO_P->Format == FORMAT_REGION_VALUE ||
+                       PSO_P->Format == FORMAT_FREQUENCY_REGION_VALUE)) {
       fprintf(PostStream, "%s", Print_Value_ToString(&ValueSummed).c_str());
       if (PSO_P->StoreInRegister >= 0)
         Cal_StoreInRegister(&ValueSummed, PSO_P->StoreInRegister) ;

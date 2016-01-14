@@ -1420,21 +1420,22 @@ struct PostOpSolutions {
 #define TAG_COMMAND     16
 
 /* PostSubOperation.Format */
-#define FORMAT_SPACE_TABLE            1
-#define FORMAT_TIME_TABLE             2
-#define FORMAT_SIMPLE_SPACE_TABLE     3
-#define FORMAT_FREQUENCY_TABLE        4
-#define FORMAT_VALUE_ONLY             5
-#define FORMAT_ADAPT                  9
-#define FORMAT_GMSH                  10
-#define FORMAT_GMSH_PARSED           11
-#define FORMAT_MATLAB                14
-#define FORMAT_GNUPLOT               15
-#define FORMAT_REGION_TABLE          16
-#define FORMAT_REGION_VALUE          17
-#define FORMAT_UNV                   18
-#define FORMAT_NODE_TABLE            19
-#define FORMAT_LOOP_ERROR            20
+#define FORMAT_SPACE_TABLE             1
+#define FORMAT_TIME_TABLE              2
+#define FORMAT_SIMPLE_SPACE_TABLE      3
+#define FORMAT_FREQUENCY_TABLE         4
+#define FORMAT_VALUE_ONLY              5
+#define FORMAT_ADAPT                   9
+#define FORMAT_GMSH                   10
+#define FORMAT_GMSH_PARSED            11
+#define FORMAT_MATLAB                 14
+#define FORMAT_GNUPLOT                15
+#define FORMAT_REGION_TABLE           16
+#define FORMAT_REGION_VALUE           17
+#define FORMAT_FREQUENCY_REGION_VALUE 18
+#define FORMAT_UNV                    19
+#define FORMAT_NODE_TABLE             20
+#define FORMAT_LOOP_ERROR             21
 
 /* PostSubOperation.Sort */
 #define SORT_BY_POSITION      1
