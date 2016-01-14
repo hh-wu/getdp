@@ -1020,8 +1020,11 @@ void F_Comp(F_ARG){
     else										\
       for (k=0; k<Current.NbrHar; k++) V->Val[MAX_DIM*k] = 0.;				\
     break ;										\
+  case SCALAR :										\
+    for (k=0; k<Current.NbrHar; k++) V->Val[MAX_DIM*k] = A->Val[MAX_DIM*k] ;	\
+    break ;										\
   default :										\
-    Message::Error("Non tensor argument for function '" string "'");			\
+    Message::Error("Non tensor or scalar argument for function '" string "'");			\
     break;										\
   }											\
   V->Type = SCALAR ;
