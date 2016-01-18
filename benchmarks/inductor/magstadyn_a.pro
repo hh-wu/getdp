@@ -138,6 +138,7 @@ Constraint {
 
   { Name Voltage_2D ;
     Case {
+      //{ Region Inds ; Value 1.3 ; TimeFunction IA[]; }
       If(Flag_ConductingCore)
         { Region Core ; Value 0; }
       EndIf
