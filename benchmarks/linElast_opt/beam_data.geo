@@ -18,10 +18,10 @@ DefineConstant[
 
   //Flag_2D = {1, Choices {0,1}, Name "Input/1 2D?"},
   Flag_cao = {"square", Choices {"square","rotor"}, Name StrCat(ppC,"0 Cao?")},
-  md = { 1., Name StrCat(ppC,"Mesh density")},
+  md = { 2., Name StrCat(ppC,"Mesh density")},
 
   // FIXME: order 2 -> problem in TO !!!
-  Flag_degree2 = { 1, Choices {0,1}, Name "Input/degree 2?",Visible 1},
+  Flag_degree2 = { 0, Choices {0,1}, Name "Input/degree 2?",Visible 1},
   nbEig = {3, Name "Input/nb Eig",Visible 1}
 ];
 

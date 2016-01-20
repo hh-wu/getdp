@@ -47,7 +47,8 @@ PostProcessing {
           In Domain ; Jacobian SurLinVol  ; Integration I1; }
         }
       }
-      { Name StressVM_pNorm;Value{Term{Type Global;[$VM_P^(1/degVM)];In DomainFunc;}}} 
+//      { Name StressVM_pNorm;Value{Term{Type Global;[$VM_P^(1/degVM)];In DomainFunc;}}} 
+      { Name StressVM_pNorm;Value{Term{Type Global;[($VM_P/15.874)^(1/degVM)];In DomainFunc;}}} 
 
 //      { Name StressVM_pNorm2;Value{Term{Type Global;[$VM_P2^(1/2.)];In DomainFunc;}}} 
 //      { Name StressVM_pNorm3;Value{Term{Type Global;[$VM_P3^(1/3.)];In DomainFunc;}}} 

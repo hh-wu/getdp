@@ -32,11 +32,11 @@ parameters = {
         'Deg2':['Input/degree 2?',1],
         'OptType':['Input/Optimization Type','shape'],
         'cao':[ppC+'0 Cao?',cao],
-        'Lx':[pIn+'X length [m]',6],
-        'Ly':[pIn+'Y length [m]',6],
+        'Lx':[pIn+'X length [m]',8],
+        'Ly':[pIn+'Y length [m]',8],
         'extrude':[ppC+'extrude?',extrude],
         'load':['Input/Loading/case',load],
-        'lc':[ppC+'Mesh density',0.5],
+        'lc':[ppC+'Mesh density',1.0],
         'Hole':[ppC+'Hole',param],
         'nbPtSpline':[ppC+'nb points',n],
         'degVM':['Input/Optimization/degVM',2]},
@@ -45,19 +45,18 @@ parameters = {
     'MeshRefine':3,
     'iterMax':1000,
     'variables':var,
-    'performance':opt_maxvonMises,
-    #opt_vmpNorm_massHole,
+    'performance':opt_pnormVM,#opt_vmpNorm_massHole,#opt_maxvonMises,
     #opt_vonMises_elem,
     #opt_pnormVM,
     #opt_pnormVM_mass,
     #opt_eig,opt_vm2,opt_pnorm,
-    'optimizer':'mma',#'mma2007' ,conlinFile,gcmma,openopt
+    'optimizer':'mma',#'mma',#'mma2007',conlinFile,gcmma,openopt
     'xtol':1.0e-03,'archivate':1
 }
 
 # Design variables
 if (param==1 and cao=='square'):
-    x = [0.4,0.4];xmin = [0.01,0.01];xmax = [3.,3.]
+    x = [0.2,0.2];xmin = [0.001,0.001];xmax = [1.2,1.2]
 elif (param==2 and cao=='square'):
     x = [0.4]*n;xmin = [0.01]*n;xmax = [3.5]*n
 else:
@@ -72,7 +71,7 @@ op = Optimization(parameters, xmin, xmax, x)
 # ***** Shape Optimization routine                                   *****
 # ************************************************************************
 # Preprocess
-#op.preprocessing(op.parameters)
+op.preprocessing(op.parameters)
 
 # Call Optimizer
 a0 = 1.0; a=[0.]*op.m;c=[1000.]*op.m;d=[1.]*op.m

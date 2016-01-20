@@ -141,13 +141,13 @@ def opt_vm2(x,data,parameters):
     return input
 
 def opt_vmpNorm_massHole(x,data,parameters):
-    mass = data['Mass'][0]; vm = data['VM'][0]; pnVM = data['StressVM_pNorm'][0]
-    massHole=36.0*1000.-mass;
-    print('mass:{} | max(VM):{} | pnorm(VM):{} | #VM:{} '.format(mass,np.max(vm),pnVM,len(vm)))
+    mass = data['Mass'][0]; vm = data['VM'][0];massHole=16000. - mass;
+    degVM = float(parameters['defaultValue']['degVM'][1]);pNorm = np.sum(vm**degVM)**(1.0/degVM)
+    print('mass:{} | max(VM):{} | degVM:{} | pNorm:{}'.format(mass,np.max(vm),degVM,pNorm))
     input = {
-        'f':[pnVM,massHole],
+        'f':[pNorm,massHole],
         'df':['FiniteDifference']*2,
-        'fmax':[0.0,124.85780610000074],
+        'fmax':[0.0,7.80361289999928],
         'f_name':['pnorm-vonMises','MassHole'],
         'sign':[1.0,-1.0]
     }
@@ -164,10 +164,13 @@ def opt_hole_compl(x,data,parameters):
     return input
 
 def opt_pnormVM(x,data,parameters):
+    mass = data['Mass'][0]; vm = data['VM'][0];
+    degVM = parameters['defaultValue']['degVM'][1];pNorm = np.sum(vm**degVM)**(1.0/degVM)
+    print('mass:{} | max(VM):{} | degVM:{} | pNorm:{}'.format(mass,np.max(vm),degVM,pNorm))
     input = {
-        'f':[data['Mass'][0],data['StressVM_pNorm'][0]],
+        'f':[mass,pNorm],
         'df':['FiniteDifference']*2,#['AnalyticNotEplicit','AdjointLie']
-        'fmax':[0, 14056038.10113676], #14051961.72089917],#data['StressVM_pNorm'][0]*1.05],
+        'fmax':[0, 185105248.059],
         'f_name':['Mass2','vonMises_Pnorm'],
         'sign':[1.0,1.0]
     }
@@ -186,9 +189,9 @@ def opt_pnormVM_mass(x,data,parameters):
 def opt_vonMises_elem(x,data,parameters):
     mass = data['Mass'][0]; vm = data['VM'][0]
     print('mass:{} | max(VM):{} | #VM:{}'.format(mass,np.max(vm),len(vm)))
-    ff = [mass];ff.extend(vm);m=len(ff)
+    ff = [mass/2242.15162449];ff.extend(vm/(109233303.055*1.05));m=len(ff)
     df = ['FiniteDifference']*m
-    ffmax = [0.];ffmax.extend([1.08e08]*(m-1))
+    ffmax = [0.];ffmax.extend([1.05]*(m-1))
     ffname = ['Mass'];ffname.extend(['VM'+str(k) for k in range(m-1)])
     sign = [1.0]*m
     input = {'f':ff,'df':df,'fmax':ffmax,'sign':sign,'f_name':ffname}
@@ -197,9 +200,10 @@ def opt_vonMises_elem(x,data,parameters):
 def opt_maxvonMises(x,data,parameters):
     mass = data['Mass'][0]; vm = data['VM'][0]
     print('mass:{} | max(VM):{} | #VM:{}'.format(mass,np.max(vm),len(vm)))
+    print('r:{}'.format(x[0]/x[1]))
     ff = [mass];ff.append(np.max(vm));m=len(ff)
     df = ['FiniteDifference']*m
-    ffmax = [0.];ffmax.extend([5355046.36142]*(m-1))
+    ffmax = [0.];ffmax.extend([94621561.5286]*(m-1))
     ffname = ['Mass'];ffname.extend(['VM'+str(k) for k in range(m-1)])
     sign = [1.0]*m
     input = {'f':ff,'df':df,'fmax':ffmax,'sign':sign,'f_name':ffname}

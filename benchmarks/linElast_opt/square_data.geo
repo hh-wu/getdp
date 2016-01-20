@@ -13,9 +13,9 @@ DefineConstant[
 // Constructive parameters
 LL = 1.0;
 DefineConstant[
-  hole_length = {.8/*LL/2*/, 
+  hole_length = {.2/*LL/2*/, 
     Name StrCat(pp,"Hole Length"), Visible (Flag_hole==1), Closed 1},
-  hole_width =  {.8/*LL/2*/, 
+  hole_width =  {.2/*LL/2*/, 
     Name StrCat(pp,"Hole Width"), Visible (Flag_hole==1), Closed 1}
 ];
 

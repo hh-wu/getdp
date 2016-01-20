@@ -107,7 +107,7 @@ Function {
   EndIf
 
   If(StrCmp(Flag_optType,"topology")) // no topology optimization
-    If(StrCmp(Flag_cao,"rotor")) 
+    If(StrCmp(Flag_cao,"rotor")) //no rotor
       E[Domain] = E0;
       rho[Domain] = rh;
     Else
@@ -245,7 +245,7 @@ Function {
                        CompYZ[#993]+CompZY[#993],CompXZ[#993]+CompZX[#993] ];
     EndIf
   EndIf
-
+  cstView[] = ScalarField[XYZ[],0,1]{99991};
   If(!StrCmp(Flag_optType,"shape") || !StrCmp(Flag_optType,"topology") )
     // Derivative of performance function
     d_mass_eig_TO[] = (d_rho[]*$1)*$1;
@@ -394,7 +394,8 @@ Constraint{
       ElseIf (Flag_testBench==1)
         { Region #SURF_GAUCHE;  Value 0.; } 
       ElseIf(Flag_testBench==2 && Flag_sym==2)
-        { Region #SURF_DROITE;  Value 0.; } 
+        { Region #SURF_DROITE;  Value 0.; }
+        //{ Region #HOLE;  Value 0.; }
       ElseIf(Flag_testBench == 3)
         { Region Rotor_int;  Value 0.; } 
       ElseIf(Flag_testBench == 4)
@@ -414,6 +415,7 @@ Constraint{
         { Region #POINT_2;  Value 0.; } 
       ElseIf(Flag_testBench == 2 && Flag_sym==2)
         { Region #SURF_BAS;  Value 0.; } 
+        //{ Region #HOLE;  Value 0.; }
       ElseIf(Flag_testBench == 3)
         { Region Rotor_int;  Value 0.; } 
       ElseIf(Flag_testBench == 4)
