@@ -46,7 +46,8 @@ Function {
   DefineConstant[ murCore = {200., Min 1, Max 1000, Step 10, Visible !Flag_NL,
       Name "Parameters/Materials/Core relative permeability"} ];
 
-  nu [ Region[{Air, AirInf, AirGap, Magnet}] ] = 1. / mu0 ;
+  nu [ Region[{Air, AirInf, AirGap, Magnet}] ] = 1. / mu0;
+
 
   If(!Flag_NL)
     nu [ Core ]  = 1. / (murCore * mu0) ;

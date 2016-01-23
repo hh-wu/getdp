@@ -7,7 +7,7 @@ DefineConstant[
              "numerical robustness by avoiding overflows in the power law",
              "for large values of the exponent (e.g. n > 30)."],
     Name "Input/1Geometry/0Scaling factor"},
-  Preset = {(TotalMemory <= 1024) ? 1 : 0, Highlight "Blue",
+  Preset = {(TotalMemory <= 2048) ? 1 : 0, Highlight "Blue",
     Choices{
       0="None",
       1="1 round filament (AK benchmark)",

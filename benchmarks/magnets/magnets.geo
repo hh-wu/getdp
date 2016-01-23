@@ -3,8 +3,8 @@ Include "magnets_data.pro";
 
 // define geometry-specific parameters
 DefineConstant[
-  lc1 = {TotalMemory <= 1024 ? 10*mm : 5*mm, Name "Parameters/2Mesh size on magnets [m]"}
-  lc2 = {TotalMemory <= 1024 ? 40*mm : 20*mm, Name "Parameters/2Mesh size at infinity [m]"}
+  lc1 = {TotalMemory <= 2048 ? 10*mm : 5*mm, Name "Parameters/2Mesh size on magnets [m]"}
+  lc2 = {TotalMemory <= 2048 ? 40*mm : 20*mm, Name "Parameters/2Mesh size at infinity [m]"}
   inf = {100*mm, Name "Parameters/1Air box distance [m]"}
 ];
 
@@ -76,4 +76,3 @@ v1 = newv; Volume(v1) = {vv[]};
 
 Physical Volume(NumMagnets+1) = v1; // air
 Physical Surface(NumMagnets+2) = ss[]; // infinity
-

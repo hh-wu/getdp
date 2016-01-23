@@ -26,7 +26,7 @@ RX2 = RR*Cos(Pi/NbrSectStatorTot) ;
 RY2 = RR*Sin(Pi/NbrSectStatorTot) ;
 
 // characteristic lengths
-uc = (TotalMemory <= 1024) ? u * 3 : u * 1.4 ;
+uc = (TotalMemory <= 2048) ? u * 3 : u * 1.4 ;
 
 pslo = uc* 0.3; // slot opening
 psl  = uc* 0.6; // upper part slot

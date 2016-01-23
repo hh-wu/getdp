@@ -16,7 +16,7 @@ pS1=(rS7-rS1)/7.*s;
 pS2=(rS7-rS1)/12.*s;
 pS3=(rS6-rS3)/10.*s;
 
-If(TotalMemory <= 1024)
+If(TotalMemory <= 2048)
   pR1 *= 2;
   pR2 *= 2;
   pS1 *= 2;
