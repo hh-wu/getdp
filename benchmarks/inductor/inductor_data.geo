@@ -7,7 +7,7 @@ pp2 = "Input/10Geometric dimensions/01Shell radius/";
 ppm = "Input/11Mesh control (Nbr of divisions)/";
 
 DefineConstant[
-  Flag_3Dmodel = {1, Choices{0="2D",1="3D"},
+  Flag_3Dmodel = {0, Choices{0="2D",1="3D"},
     Name "Input/00FE model", Highlight "Blue"},
   Flag_Symmetry2D = {1, Choices{0="Full",1="Half"},
     Name "Input/00Symmetry type", Highlight "Blue", Visible (Flag_3Dmodel==0)},
