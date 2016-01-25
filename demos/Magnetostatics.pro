@@ -22,11 +22,11 @@ Group {
 Function{
   // Input constants:
   DefineConstant[
-    Val_Rint, Val_Rext // interior/exterior radius of Domain_Inf
+    Val_Rint, Val_Rext, Val_Cx, Val_Cy, Val_Cz, // parameters of Domain_Inf
     Nb_max_iter = 30,
     relaxation_factor = 1,
     stop_criterion = 1e-5,
-    Flag_NL = 1,
+    Flag_NL = 0,
     Flag_NL_Newton_Raphson = {1, Choices{0,1}, Visible Flag_NL,
       Name "Parameters/Materials/2Newton-Raphson iteration"}
     //R_ = {"MagSta_phi", Name "GetDP/1ResolutionChoices", Visible 0},
@@ -53,7 +53,8 @@ Function{
 Jacobian {
   { Name JVol ;
     Case {
-      { Region Domain_Inf ; Jacobian VolSphShell{Val_Rint, Val_Rext} ; }
+      { Region Domain_Inf ;
+        Jacobian VolSphShell{Val_Rint, Val_Rext, Val_Cx, Val_Cy, Val_Cz} ; }
       { Region All ; Jacobian Vol ; }
     }
   }
