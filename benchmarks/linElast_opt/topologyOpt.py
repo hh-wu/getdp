@@ -17,7 +17,7 @@ if os.path.isfile('data.npy'):
     data = np.load('data.npy')
     nx=data[0];ny=data[1]
 else:
-    nx=60*5;ny=20*5
+    nx=60*2;ny=20*2
 Lx = 3; Ly = 1
 # ************************************************************************
 # ***** Create the parameters                                        *****
@@ -28,7 +28,7 @@ parameters = {
     'analysisPost':['u_Mec_Post'],
     'adjoint':['Adjoint_u_Mec'],
     'direct':['Direct_u_Mec'],
-    'project_xe':1,
+    'project_xe':0,
     'MeshRefine':1,
     'defaultValue':{
         'OptType':['Input/Optimization Type','topology'],
@@ -46,6 +46,7 @@ parameters = {
         'Nz':[ppC+'Nz',nz],
         'Hole':[ppC+'Hole',hole]
     },
+    'archivate':1,
     'TAG':[1000], #1000,1001
     'performance':opt_complianceVolume,#opt_maxBeta_eig,
     'rmin':1.5*Lx/nx, #0.0125,

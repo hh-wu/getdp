@@ -170,7 +170,7 @@ def opt_pnormVM(x,data,parameters):
     input = {
         'f':[mass,pNorm],
         'df':['FiniteDifference']*2,#['AnalyticNotEplicit','AdjointLie']
-        'fmax':[0, 185105248.059],
+        'fmax':[0, 951947354.181*1.25],#874868049.876*1.05
         'f_name':['Mass2','vonMises_Pnorm'],
         'sign':[1.0,1.0]
     }
@@ -189,9 +189,9 @@ def opt_pnormVM_mass(x,data,parameters):
 def opt_vonMises_elem(x,data,parameters):
     mass = data['Mass'][0]; vm = data['VM'][0]
     print('mass:{} | max(VM):{} | #VM:{}'.format(mass,np.max(vm),len(vm)))
-    ff = [mass/2242.15162449];ff.extend(vm/(109233303.055*1.05));m=len(ff)
+    ff = [mass];ff.extend(vm);m=len(ff)
     df = ['FiniteDifference']*m
-    ffmax = [0.];ffmax.extend([1.05]*(m-1))
+    ffmax = [0.];ffmax.extend([70.0e06]*(m-1))
     ffname = ['Mass'];ffname.extend(['VM'+str(k) for k in range(m-1)])
     sign = [1.0]*m
     input = {'f':ff,'df':df,'fmax':ffmax,'sign':sign,'f_name':ffname}
@@ -200,10 +200,13 @@ def opt_vonMises_elem(x,data,parameters):
 def opt_maxvonMises(x,data,parameters):
     mass = data['Mass'][0]; vm = data['VM'][0]
     print('mass:{} | max(VM):{} | #VM:{}'.format(mass,np.max(vm),len(vm)))
-    print('r:{}'.format(x[0]/x[1]))
+    #print('r:{}'.format(x[0]/x[1]))
     ff = [mass];ff.append(np.max(vm));m=len(ff)
     df = ['FiniteDifference']*m
-    ffmax = [0.];ffmax.extend([94621561.5286]*(m-1))
+    #107961906.774
+    #92591376.0595
+    #94861084.1837
+    ffmax = [0.];ffmax.extend([70.0e06]*(m-1))
     ffname = ['Mass'];ffname.extend(['VM'+str(k) for k in range(m-1)])
     sign = [1.0]*m
     input = {'f':ff,'df':df,'fmax':ffmax,'sign':sign,'f_name':ffname}

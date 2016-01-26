@@ -13,7 +13,7 @@ DefineConstant[
     Name "Input/Loading/case",Visible 1},
   E0  = {210e6, Name "Input/Materials/ Young modulus",Visible 0},
   nu0 = {0.3, Name "Input/Materials/ Poisson coeficient",Visible 0},
-  rh = {1000.,Name "Input/Materials/ Mass density",Visible 0}
+  rh = {7850.,Name "Input/Materials/ Mass density",Visible 0}
 ];
 
 Group {

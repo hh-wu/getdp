@@ -32,15 +32,15 @@ ll_[] = {ll1};
 
 // hole
 If( Flag_hole == 1 ) //ellipse
-  p_ec = newp;Point(p_ec) = {0, 0, -Lz/2, lc/5}; //center
+  p_ec = newp;Point(p_ec) = {0, 0, -Lz/2, lc/10}; //center
   If (!Flag_sym)
-    p_e1 = newp;Point(p_e1) = {hole_length/2, 0, -Lz/2, lc/5};  //right
+    p_e1 = newp;Point(p_e1) = {hole_length/2, 0, -Lz/2, lc/10};  //right
     Printf("p_e1:%g",p_e1);
   EndIf
-  p_e2 = newp;Point(p_e2) = {0, hole_width/2, -Lz/2, lc/5};   //up
-  p_e3 = newp;Point(p_e3) = {-hole_length/2, 0, -Lz/2, lc/5};  //left
+  p_e2 = newp;Point(p_e2) = {0, hole_width/2, -Lz/2, lc/10};   //up
+  p_e3 = newp;Point(p_e3) = {-hole_length/2, 0, -Lz/2, lc/10};  //left
   If (Flag_sym==1)
-    p_e4 = newp;Point(p_e4) = {0, -hole_width/2, -Lz/2, lc/5};  //down
+    p_e4 = newp;Point(p_e4) = {0, -hole_width/2, -Lz/2, lc/10};  //down
     Printf("p_e4:%g",p_e4);
     l_p2_pe4 = newl; Line(l_p2_pe4) = {p2,p_e4};
     l_pe4_pe2 = newl; Line(l_pe4_pe2) = {p_e4,p_e2}; 
@@ -169,5 +169,8 @@ If(Flag_extrude) //3D
   Physical Point(POINT_3) = p3;
   Physical Point(POINT_4) = p4;
 EndIf
+
+//Mesh.RecombineAll = 1; 
+
 
 
