@@ -191,7 +191,7 @@ def opt_vonMises_elem(x,data,parameters):
     print('mass:{} | max(VM):{} | #VM:{}'.format(mass,np.max(vm),len(vm)))
     ff = [mass];ff.extend(vm);m=len(ff)
     df = ['FiniteDifference']*m
-    ffmax = [0.];ffmax.extend([70.0e06]*(m-1))
+    ffmax = [0.];ffmax.extend([75.0e06]*(m-1))
     ffname = ['Mass'];ffname.extend(['VM'+str(k) for k in range(m-1)])
     sign = [1.0]*m
     input = {'f':ff,'df':df,'fmax':ffmax,'sign':sign,'f_name':ffname}
