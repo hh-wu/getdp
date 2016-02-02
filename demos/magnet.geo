@@ -79,10 +79,10 @@ Line Loop(35) = {15, 16, 17, 18, 4, 5, 14};
 Plane Surface(36) = {35};
 
 // physical entities (for which elements will be saved)
-Physical Surface(AIR) = {28, 36};
-Physical Surface(AIR_INF) = {26};
-Physical Surface(AIR_GAP) = {34};
-Physical Surface(MAGNET) = {32};
-Physical Surface(CORE) = {30};
-Physical Line(LINE_INF) = {23, 24};
-Physical Line(LINE_X) = {1:8};
+Physical Surface("Air", AIR) = {28, 36};
+Physical Surface("Spherical shell", AIR_INF) = {26};
+Physical Surface("Airgap", AIR_GAP) = {34};
+Physical Surface("Magnet", MAGNET) = {32};
+Physical Surface("Core", CORE) = {30};
+Physical Line("Exterior boundary", LINE_INF) = {23, 24};
+Physical Line("Symmetry line", LINE_X) = {1:8};
