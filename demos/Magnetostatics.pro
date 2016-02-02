@@ -47,29 +47,43 @@ Group {
   Domain = Region[{Domain_Mag, Domain_M, Domain_S, Domain_Inf}];
 }
 
+If(interactive && NbrRegions[Domain_NL])
+  Include "BH.pro"
+EndIf
+
 Function{
   // Model materials
   DefineFunction[ mu, nu, hc, js, dhdb_NL, dbdh_NL ];
 
-  // interactive construction of material properties with Gmsh physical entities
+  // interactive construction of material properties
   If(interactive)
     For i In {1:numPhysicals}
       If(dim~{i} < modelDim)
         // nothing
       Else
         DefineConstant[
-          hcx~{i} = 0,
+          hcx~{i} = {1000, Visible (type~{i} == 0),
+            Name StrCat["Parameters/Materials/", name~{i}, "/Coercive field Hx"]},
           hcy~{i} = {1000, Visible (type~{i} == 0),
             Name StrCat["Parameters/Materials/", name~{i}, "/Coercive field Hy"]},
+          jsx~{i} = {0, Visible (type~{i} == 1),
+            Name StrCat["Parameters/Materials/", name~{i}, "/Current density Jx"]},
+          jsy~{i} = {1000, Visible (type~{i} == 1),
+            Name StrCat["Parameters/Materials/", name~{i}, "/Current density Jy"]},
           mur~{i} = {1, Visible (type~{i} == 2),
             Name StrCat["Parameters/Materials/", name~{i}, "/Relative permeability"]}
+          bhcurve~{i} = {1, Choices{1="Interpolated" },
+            Visible (type~{i} == 3),
+            Name StrCat["Parameters/Materials/", name~{i}, "/B-H curve"]}
         ];
         hc[ Region[tag~{i}] ] = Vector[hcx~{i}, hcy~{i}, 0];
         If(type~{i} == 3)
-          mu [ Region[tag~{i}] ] = mu_1[$1] ;
-          dbdh_NL [ Region[tag~{i}] ] = dbdh_1_NL[$1];
-          nu [ Region[tag~{i}] ] = nu_1[$1] ;
-          dhdb_NL [ Region[tag~{i}] ] = dhdb_1_NL[$1];
+          If(bhcurve~{i} == 1)
+            mu [ Region[tag~{i}] ] = mu_1[$1] ;
+            dbdh_NL [ Region[tag~{i}] ] = dbdh_1_NL[$1];
+            nu [ Region[tag~{i}] ] = nu_1[$1] ;
+            dhdb_NL [ Region[tag~{i}] ] = dhdb_1_NL[$1];
+          EndIf
         Else
           mu[ Region[tag~{i}] ] = mur~{i}*4*Pi*1e-7;
           nu[ Region[tag~{i}] ] = 1/(mur~{i}*4*Pi*1e-7);
