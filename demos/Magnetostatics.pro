@@ -1,53 +1,88 @@
 Group {
-  // Input groups:
-  DefineGroup[
-    Domain_M = {{},
-      Name "Regions/0Sources/Permanent magnets"},
-    Domain_S = {{},
-      Name "Regions/0Sources/Inductor (imposed j_s)"},
-    Domain_Inf = {{},
-      Name "Regions/0Special regions/Infinite domain (spherical shell)",
-      Closed "1"},
-    Domain_Mag = {{},
-      Name "Regions/Other regions/Passive magnetic regions"},
-    Dirichlet_phi_0 = {{},
-      Name "Regions/0Boundary conditions/h_t = 0", Closed "1"},
-    Dirichlet_a_0 = {{},
-      Name "Regions/0Boundary conditions/b_n = 0"} ];
+  // generic (mathematical) groups needed by the model
+  DefineGroup[ Domain_M, Domain_S, Domain_Inf, Domain_NL, Domain_Mag,
+    Dirichlet_phi_0, Dirichlet_a_0];
 
-  DefineGroup[ Domain = {{Domain_Mag, Domain_M, Domain_S, Domain_Inf},
-      Name "Regions/Computational domain", Visible 0} ];
+  // interactive model setup if Domain_Mag is empty
+  interactive = !NbrRegions[Domain_Mag];
+
+  // interactive construction of groups with Gmsh physical entities
+  If(interactive)
+    modelDim = DefineNumber[0, Name "Gmsh/Model dimension"];
+    numPhysicals = DefineNumber[0, Name "Gmsh/Number of physical groups"];
+    For i In {1:numPhysicals}
+      dim~{i} = DefineNumber[0, Name Sprintf["Gmsh/Physical group %g/Dimension", i]];
+      name~{i} = DefineString["", Name Sprintf["Gmsh/Physical group %g/Name", i]];
+      tag~{i} = DefineNumber[0, Name Sprintf["Gmsh/Physical group %g/Number", i]];
+      // TODO: we could add some intelligence, and preset some values depending
+      // on the names :-)
+      If(dim~{i} < modelDim)
+        DefineConstant[
+          bc~{i} = {0, Choices{0="Neumann", 1="Dirichlet"},
+            Name StrCat["Parameters/Boundary conditions/", name~{i}, "/0Type"]}
+        ];
+        If(bc~{i} == 1)
+          Dirichlet_a_0 += Region[tag~{i}];
+          Dirichlet_phi_0 += Region[tag~{i}];
+        EndIf
+      Else
+        DefineConstant[
+          type~{i} = {2, Choices{0="Magnet", 1="Current source", 2="Linear material",
+            3="Nonlinear material"},
+            Name StrCat["Parameters/Materials/", name~{i}, "/0Type"]}
+        ];
+        If(type~{i} == 0)
+          Domain_M += Region[tag~{i}];
+        ElseIf(type~{i} == 1)
+          Domain_S += Region[tag~{i}];
+        ElseIf(type~{i} == 2)
+          Domain_Mag += Region[tag~{i}];
+        ElseIf(type~{i} == 3)
+          Domain_NL += Region[tag~{i}];
+        EndIf
+      EndIf
+    EndFor
+  EndIf
+
+  Domain = Region[{Domain_Mag, Domain_M, Domain_S, Domain_Inf}];
 }
 
 Function{
-  // Input constants:
+  // Model materials
+  DefineFunction[ mu, nu, hc, js, dhdb_NL, dbdh_NL ];
+
+  // interactive construction of material properties with Gmsh physical entities
+  If(interactive)
+    For i In {1:numPhysicals}
+      If(dim~{i} < modelDim)
+        // nothing
+      Else
+        DefineConstant[
+          hcx~{i} = 0,
+          hcy~{i} = {1000, Visible (type~{i} == 0),
+            Name StrCat["Parameters/Materials/", name~{i}, "/Coercive field Hy"]},
+          mur~{i} = {1, Visible (type~{i} == 2),
+            Name StrCat["Parameters/Materials/", name~{i}, "/Relative permeability"]}
+        ];
+        hc[ Region[tag~{i}] ] = Vector[hcx~{i}, hcy~{i}, 0];
+        If(type~{i} == 3)
+          mu [ Region[tag~{i}] ] = mu_1[$1] ;
+          dbdh_NL [ Region[tag~{i}] ] = dbdh_1_NL[$1];
+          nu [ Region[tag~{i}] ] = nu_1[$1] ;
+          dhdb_NL [ Region[tag~{i}] ] = dhdb_1_NL[$1];
+        Else
+          mu[ Region[tag~{i}] ] = mur~{i}*4*Pi*1e-7;
+          nu[ Region[tag~{i}] ] = 1/(mur~{i}*4*Pi*1e-7);
+        EndIf
+      EndIf
+    EndFor
+  EndIf
+
+  // Constant parameters
   DefineConstant[
-    Val_Rint, Val_Rext, Val_Cx, Val_Cy, Val_Cz, // parameters of Domain_Inf
-    Nb_max_iter = 30,
-    relaxation_factor = 1,
-    stop_criterion = 1e-5,
-    Flag_NL = 0,
-    Flag_NL_Newton_Raphson = {1, Choices{0,1}, Visible Flag_NL,
-      Name "Parameters/Materials/2Newton-Raphson iteration"}
-    //R_ = {"MagSta_phi", Name "GetDP/1ResolutionChoices", Visible 0},
-    //C_ = {"-solve -v2", Name "GetDP/9ComputeCommand", Visible 0}
-    //P_ = {"", Name "GetDP/2PostOperationChoices", Visible 0}
+    Val_Rint, Val_Rext, Val_Cx, Val_Cy, Val_Cz,
+    Nb_max_iter = 30, relaxation_factor = 1, stop_criterion = 1e-5
   ];
-
-  // Input functions:
-  DefineFunction[ mu, // magnetic permeability
-                  nu, // magnetic reluctivity
-                  hc, // coercive magnetic field
-                  js // source current density
-                  dhdb_NL, dbdh_NL // part of the Jacobian matrix need for Newton-Raphson
-                  ];
-
-  // remove this: only for demo
-  //DefineConstant[ hcx = {0, Label "Coercive field h_x", Path "Sources"}];
-  //DefineConstant[ hcy = {1000, Label "Coercive field h_y", Path "Sources"}];
-  //hc[] = Vector[hcx,hcy,0];
-  //mu[] = 4*Pi*10^-7;
-  //nu[] = 1/mu[];
 }
 
 Jacobian {
@@ -121,10 +156,9 @@ Resolution {
       { Name A ; NameOfFormulation MagSta_phi ; }
     }
     Operation {
-      If(!Flag_NL)
+      If(!NbrRegions[Domain_NL])
         Generate[A] ; Solve[A] ;
-      EndIf
-      If(Flag_NL)
+      Else
         //IterativeLoopN[ Nb_max_iter, relaxation_factor,
         //                System { {A, reltol, abstol, Solution MeanL2Norm} } ]{
         IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
@@ -194,6 +228,7 @@ Formulation {
     Equation {
       Galerkin { [ nu[{d a}] * Dof{d a} , {d a} ] ;
                  In Domain ; Jacobian JVol ; Integration I1 ; }
+
       Galerkin { JacNL [ dhdb_NL[{d a}] * Dof{d a} , {d a} ] ;
                  In Domain_NL ; Jacobian JVol ; Integration I1 ; }
 
@@ -212,14 +247,13 @@ Resolution {
       { Name A ; NameOfFormulation MagSta_a ; }
     }
     Operation {
-      If(!Flag_NL)
+      If(!NbrRegions[Domain_NL])
         Generate[A] ; Solve[A] ;
-      EndIf
-      If(Flag_NL)
+      Else
         //IterativeLoopN[ Nb_max_iter, relaxation_factor,
         //                System { {A, reltol, abstol, Solution MeanL2Norm} } ]{
         IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
-        GenerateJac[A] ; SolveJac[A] ;
+          GenerateJac[A] ; SolveJac[A] ;
         }
       EndIf
       SaveSolution[A] ;
