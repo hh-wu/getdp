@@ -44,7 +44,7 @@ Group {
     EndFor
   EndIf
 
-  Domain = Region[{Domain_Mag, Domain_M, Domain_S, Domain_Inf}];
+  Domain = Region[{Domain_Mag, Domain_NL, Domain_M, Domain_S, Domain_Inf}];
 }
 
 If(interactive && NbrRegions[Domain_NL])
