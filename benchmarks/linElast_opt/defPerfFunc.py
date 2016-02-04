@@ -191,8 +191,24 @@ def opt_vonMises_elem(x,data,parameters):
     print('mass:{} | max(VM):{} | #VM:{}'.format(mass,np.max(vm),len(vm)))
     ff = [mass];ff.extend(vm);m=len(ff)
     df = ['FiniteDifference']*m
-    ffmax = [0.];ffmax.extend([75.0e06]*(m-1))
+    ffmax = [0.];ffmax.extend([70.0e06]*(m-1))
     ffname = ['Mass'];ffname.extend(['VM'+str(k) for k in range(m-1)])
+    sign = [1.0]*m
+    input = {'f':ff,'df':df,'fmax':ffmax,'sign':sign,'f_name':ffname}
+    return input
+
+def opt_vonMises_elemGreatLim(x,data,parameters,elem=[0]):
+    mass = data['Mass'][0]
+    max = 70.0e06
+    vm = np.array(data['VM'][0])
+    #elem = np.where(vm >= 0.8*max)[0]
+    vmGreat = vm[elem]
+    print('mass:{} | max(VM):{} | #VM:{} | #VM>0.8*M:{}'.\
+          format(mass,np.max(vm),len(vm),len(vmGreat)))
+    ff = [mass];ff.extend(vmGreat);m=len(ff)
+    df = ['FiniteDifference']*m
+    ffmax = [0.];ffmax.extend([max]*(m-1))
+    ffname = ['Mass'];ffname.extend(['VM'+str(k) for k in elem])
     sign = [1.0]*m
     input = {'f':ff,'df':df,'fmax':ffmax,'sign':sign,'f_name':ffname}
     return input
@@ -218,14 +234,15 @@ def opt_complianceVolume(x,data,parameters):
          x
         s.t. vol <= volM
     """
-    compl = data['ComplianceElm'][0];vol = np.sum(x)
+    compl = data['ComplianceElm'][0];vol = np.dot(x,data['ElementVolume'][0])
+    print('compl:{}; vol:{}'.format(compl,vol))
     input = {
         'f':[compl,vol],
         'df':['SelfFixedDom',volumeSens],
-        'fmax':[0, vol],
+        'fmax':[0, 1.5],
         'f_name':['Compliance','Volume'],
         'sign':[1.0,1.0],
-        'filter':[0]
+        'filter':[1]
     }
     return input
 

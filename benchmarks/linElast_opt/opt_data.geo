@@ -59,6 +59,10 @@ DefineConstant[
   degVM = {2.0, 
     Name StrCat[pInOpt,"degVM"], 
     Visible (StrCmp(Flag_PerfType,"vonMises"))},
+
+  optimIter = {1, 
+    Name StrCat[pInOpt,"optimIter"], 
+    Visible (StrCmp(Flag_optType,"shape") || StrCmp(Flag_optType,"topology"))},
   
   
   // Material law interpolation 

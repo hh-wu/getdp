@@ -2,7 +2,7 @@
 Include "beam_data.geo";
 
 DefineConstant[
-  Flag_testBench = {2,  
+  Flag_testBench = {1,  
     Choices {
       0="Short Cantiler Beam", 
       1="MBB Beam",

@@ -306,10 +306,7 @@ Resolution{
     }
     Operation{
       CreateDir[ResDir];
-      //If(Flag_degree2)
       SetGlobalSolverOptions["-petsc_prealloc 500"];
-      //EndIf
-      GmshRead["cstView.pos",99991];
       
       If(!StrCmp(Flag_optType,"topology") && !Flag_projFuncSpace_xe)
         GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD];

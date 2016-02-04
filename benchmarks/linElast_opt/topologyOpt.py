@@ -19,23 +19,24 @@ if os.path.isfile('data.npy'):
 else:
     nx=60*2;ny=20*2
 Lx = 3; Ly = 1
+pl1=1.1;pl2=1.1;pl3=1.1;pl4=1.1
 # ************************************************************************
 # ***** Create the parameters                                        *****
 # ************************************************************************
 parameters = {
-    'plot':1,'Print':0,'file':'beam',
+    'plot':1,'Print':10,'file':'beam',
     'analysis':['u_Mec'],
     'analysisPost':['u_Mec_Post'],
     'adjoint':['Adjoint_u_Mec'],
     'direct':['Direct_u_Mec'],
-    'project_xe':0,
+    'project_xe':1,
     'MeshRefine':1,
     'defaultValue':{
         'OptType':['Input/Optimization Type','topology'],
         'Deg2':['Input/degree 2?',0],
         'cao':[ppC+'0 Cao?',cao],
         'extrude':[ppC+'extrude?',extrude],
-        'load':['Input/Loading/case',0],
+        'load':['Input/Loading/case',1],
         'MaterialInterpLaw':['Input/Optimization/Material Law','simp'],
         'SimpDegree':['Input/Optimization/Simp Degree',3.0],
         'Lx':[pIn+'X length [m]',Lx],
@@ -44,19 +45,21 @@ parameters = {
         'Nx':[ppC+'Nx',nx],
         'Ny':[ppC+'Ny',ny],
         'Nz':[ppC+'Nz',nz],
+        'pl1':[ppC+'progression l1',pl1],
+        'pl2':[ppC+'progression l2',pl2],
+        'pl3':[ppC+'progression l3',pl3],
+        'pl4':[ppC+'progression l4',pl4],
         'Hole':[ppC+'Hole',hole]
     },
     'archivate':1,
     'TAG':[1000], #1000,1001
     'performance':opt_complianceVolume,#opt_maxBeta_eig,
     'rmin':1.5*Lx/nx, #0.0125,
-    'optimizer':'mma',#'mma2007','conlinFile','gcmma','openopt'
+    'optimizer':'mma3',#'mma2007','conlinFile','gcmma','openopt'
     'xtol':1.0e-02,
-    'iterMax':1}
+    'iterMax':1000}
 
-x = np.array([0.5])
-xmax = np.array([1.0])
-xmin = np.array([0.001])
+x = np.array([0.5]);xmax = np.array([1.0]);xmin = np.array([0.001])
 
 # ************************************************************************
 # ***** Instantiate the Model and the Optimizer                      *****
@@ -70,9 +73,9 @@ op = Optimization(parameters,xmin,xmax,x)
 #op.preprocessing(op.parameters)
 
 # Call optimizer
-if parameters['optimizer'] == 'mma':
+if parameters['optimizer'] == 'mma3':
     a0 = 1.0; a=[0.]*op.m;c=[1000.]*op.m;d=[1.]*op.m
-    op.mmaPy(op.x,op.xmin,op.xmax,a0,a,c,d,op.parameters['performance'],0)
+    op.mmaPy(op.x,op.xmin,op.xmax,a0,a,c,d,op.parameters['performance'],0,1)
 elif parameters['optimizer'] == 'mma2007':
     mm = len(op.fjMax) - 1
     cc = 1000.0*np.ones(mm)

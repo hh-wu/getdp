@@ -63,6 +63,13 @@ PostProcessing {
           In Domain ; Jacobian SurLinVol ; Integration I1; }
         }
       }
+      { Name energy; 
+	Value{
+	  Term{
+            [ 0.5 * bilin_uu[{D1 u},{D2 u},{xe}] ]; 
+            In Domain; Jacobian Vol;}
+        }
+      }
       { Name Mass;
 	Value {
 	  Integral{ [ rho[{xe}] ];
@@ -120,16 +127,17 @@ PostOperation {
      Print[ Compliance[DomainFunc], OnGlobal, Format TimeTable,
        File StrCat[ResDir, StrCat["ComplianceElm",ExtOnelabScal]], LastTimeStepOnly,
        SendToServer StrCat[po_min,"ComplianceElm"], Color "LightYellow" ];
-
-//     If (!Flag_projFuncSpace_xe)
-//       Print[ designVar, OnElementsOf Domain, 
-//         File StrCat[ResDir,"xe_gen",ExtGmsh], LastTimeStepOnly, 
-//         OverrideTimeStepValue It] ;
-//     Else
-//	Print[ xe, OnElementsOf Domain, 
-//         File StrCat[ResDir,"xe_trans",ExtGmsh], LastTimeStepOnly] ;
-//     EndIf
-
+     Print[Compliance, OnElementsOf Domain,
+       File StrCat[ResDir,"energyElem",ExtGmsh],OverrideTimeStepValue optimIter] ;
+     Print[ Volume, OnElementsOf Domain, 
+       File StrCat[ResDir,"ElementVolume",ExtOnelabVec], LastTimeStepOnly] ;
+     If (!Flag_projFuncSpace_xe)
+       Print[ designVar, OnElementsOf Domain, 
+         File StrCat[ResDir,"xe_gen",ExtGmsh],LastTimeStepOnly, OverrideTimeStepValue optimIter] ;
+     Else
+	Print[ xe, OnElementsOf Domain, 
+         File StrCat[ResDir,"xe_trans",ExtGmsh],LastTimeStepOnly, OverrideTimeStepValue optimIter] ;
+     EndIf
    }
  }
 
@@ -138,11 +146,14 @@ PostOperation {
 //     Print[ E, OnElementsOf Domain,File StrCat[ResDir,"E",ExtGmsh]] ;
 //     Print[ rho, OnElementsOf Domain,File StrCat[ResDir,"rho",ExtGmsh]] ;
      Print[ u, OnElementsOf Domain,File StrCat[ResDir,"u",ExtGmsh]] ;
+     Print[ energy, OnElementsOf Domain,File StrCat[ResDir,"energyElem",ExtGmsh]] ;
+
 //     For i In {1:3}
 //       Print[ u~{i}, OnElementsOf Domain, Format NodeTable,
 //         File Sprintf["res/u_%g.txt", i], LastTimeStepOnly] ;
 //     EndFor
-     Print[ StressVM, OnElementsOf Domain,File StrCat[ResDir,"VM",ExtOnelabVec]] ;
+     Print[ StressVM, OnElementsOf Domain,
+       File StrCat[ResDir,"VM",ExtOnelabVec],OverrideTimeStepValue optimIter];
 //     Print[ um,OnElementsOf Domain,File StrCat[ResDir,"um",ExtGmsh]] ;
      Print[ F, OnElementsOf Domain_Force,File StrCat[ResDir,"F",ExtGmsh]] ;
 
@@ -241,4 +252,3 @@ PostOperation {
     }
   }
 }
-

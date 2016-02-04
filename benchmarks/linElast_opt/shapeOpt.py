@@ -16,7 +16,7 @@ from defPerfFuncSens import *
 pIn = 'Input/Constructive Parameters/'
 ppC = 'Input/0Cao/'
 cao = 'square' #'square','rotor'
-extrude=0;param=1;n=10;load = 2
+extrude = 0; param = 1; n = 10; load = 2
 if (param==1):
     var = [pIn+'Hole Length',pIn+'Hole Width']
 else:
@@ -32,12 +32,14 @@ parameters = {
         'Deg2':['Input/degree 2?',1],
         'OptType':['Input/Optimization Type','shape'],
         'cao':[ppC+'0 Cao?',cao],
-        'Lx':[pIn+'X length [m]',9.0],
-        'Ly':[pIn+'Y length [m]',9.0],
+        'Lx':[pIn+'X length [m]',3.0],
+        'Ly':[pIn+'Y length [m]',3.0],
         'extrude':[ppC+'extrude?',extrude],
         'load':['Input/Loading/case',load],
         'lc':[ppC+'Mesh density',1.0],
         'Hole':[ppC+'Hole',param],
+        'Symetry':[ppC+'Symetry',2],
+        'Transf':[ppC+'transfinite?',0],
         'nbPtSpline':[ppC+'nb points',n],
         'degVM':['Input/Optimization/degVM',3]},
     'step':1.0e-06,
@@ -57,9 +59,7 @@ parameters = {
 
 # Design variables
 if (param==1 and cao=='square'):
-#    x = [0.4,0.4];xmin = [0.002,0.002];xmax = [1.2*2.,1.2*2.]
-#    x = [0.4,0.4];xmin = [0.002,0.002];xmax = [6.0,6.0]
-    x = [0.2,0.2];xmin = [0.002,0.002];xmax = [2.0,2.0]
+    x = [0.05*2.0]*2;xmin = [0.002]*2;xmax = [0.4*2.0]*2
 elif (param==2 and cao=='square'):
     x = [0.4]*n;xmin = [0.01]*n;xmax = [3.5]*n
 else:
@@ -78,7 +78,7 @@ op.preprocessing(op.parameters)
 
 # Call Optimizer
 a0 = 1.0; a=[0.]*op.m;c=[1000.]*op.m;d=[1.]*op.m
-op.gcmmaPy(op.x,op.xmin,op.xmax,a0,a,c,d,op.parameters['performance'],0,1)
+op.mmaPy(op.x,op.xmin,op.xmax,a0,a,c,d,op.parameters['performance'],0,1)
 #op.solveOpt(op.x,op.xmax,op.xmin,op.fjMax,2,op.parameters)
 #aa = []; cc = []
 #op.mmaSvanFortran07(op.x,op.xmax,op.xmin,op.fjMax,op.parameters,aa,cc)

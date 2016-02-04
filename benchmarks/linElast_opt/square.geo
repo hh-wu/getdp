@@ -91,10 +91,10 @@ EndIf
 s1 = news; Plane Surface(s1) = ll_[];
 
 If(transfinite)
-  Transfinite Line{l1} = nbE_X;
-  Transfinite Line{l3} = nbE_X; 
-  Transfinite Line{l2} = nbE_Y;
-  Transfinite Line{l4} = nbE_Y;
+  Transfinite Line{l1} = nbE_X Using Progression progl_1;//Using Bump 0.005;
+  Transfinite Line{-l3} = nbE_X Using Progression progl_3; 
+  Transfinite Line{l2} = nbE_Y Using Progression progl_2;
+  Transfinite Line{-l4} = nbE_Y Using Progression progl_4;
   Transfinite Surface{s1} = {l1,l2,l3,l4};
   Recombine Surface "*";
 EndIf

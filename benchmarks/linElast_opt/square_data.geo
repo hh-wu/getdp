@@ -1,13 +1,17 @@
 // general setting parameters
 DefineConstant[
-  Flag_hole = {1, Name StrCat(ppC,"Hole"),Choices {0="no hole",1="ellipse",2="spline"}},
-  Flag_sym = {2, Name StrCat(ppC,"Symetry"),Choices {0,1}},
+  Flag_hole = {0, Name StrCat(ppC,"Hole"),Choices {0="no hole",1="ellipse",2="spline"}},
+  Flag_sym = {0, Name StrCat(ppC,"Symetry"),Choices {0,1}},
   NSpline = {6, Name StrCat(ppC,"nb points"), Visible (Flag_hole==2) },
   Flag_extrude = {0, Choices {0,1}, Name StrCat(ppC,"extrude?")},
-  transfinite={0, Name StrCat(ppC,"transfinite?"),Choices {0,1},Visible (!Flag_hole)},
-  nbE_X = {60*4, Name StrCat(ppC,"Nx"),Visible (transfinite)},
-  nbE_Y = {20*4,Name StrCat(ppC,"Ny"),Visible (transfinite)},//even number
+  transfinite={1, Name StrCat(ppC,"transfinite?"),Choices {0,1},Visible (!Flag_hole)},
+  nbE_X = {36/**4*/, Name StrCat(ppC,"Nx"),Visible (transfinite)},
+  nbE_Y = {20/**4*/,Name StrCat(ppC,"Ny"),Visible (transfinite)},//even number
   nbE_Z = {40,Name StrCat(ppC,"Nz"),Visible (transfinite)}
+  progl_1 = {1., Name StrCat(ppC,"progression l1"),Visible (transfinite)},
+  progl_2 = {1., Name StrCat(ppC,"progression l2"),Visible (transfinite)},
+  progl_3 = {1., Name StrCat(ppC,"progression l3"),Visible (transfinite)},
+  progl_4 = {1., Name StrCat(ppC,"progression l4"),Visible (transfinite)}
 ];
 
 // Constructive parameters
@@ -22,13 +26,12 @@ DefineConstant[
 For i In {0:(NSpline-1)}
   DefineConstant[
     RSpline~{i} = {LL/2, 
-      Name Sprintf(StrCat(pp,"R%g"),i), Visible (Flag_hole==2), Closed 1}
-  ];
+      Name Sprintf(StrCat(pp,"R%g"),i), Visible (Flag_hole==2), Closed 1}  ];
 EndFor
 
 DefineConstant[
-  Lx ={LL*8,Name StrCat(pp,"X length [m]"), Visible 1, Closed 1},
-  Ly ={LL*8,Name StrCat(pp,"Y length [m]"), Visible 1, Closed 1}
+  Lx ={LL*3,Name StrCat(pp,"X length [m]"), Visible 1, Closed 1},
+  Ly ={LL*1,Name StrCat(pp,"Y length [m]"), Visible 1, Closed 1}
 ];
 If (Flag_extrude) //3D
   DefineConstant[
