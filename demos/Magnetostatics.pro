@@ -23,8 +23,11 @@ Group {
               1="Dirichlet"
             },
             Name StrCat["Parameters/Boundary conditions/", name~{i}, "/0Type"]}
+          bc_val~{i} = {0.,
+            Name StrCat["Parameters/Boundary conditions/", name~{i}, "/1Value"]}
         ];
         If(bc~{i} == 1)
+          //+++ Should be nice to allow non-zero Dirichlet BCs (for flux tubes, that are also simple test problems), thus Dirichlet_a_0 is not used anymore...
           Dirichlet_a_0 += Region[tag~{i}];
           Dirichlet_phi_0 += Region[tag~{i}];
         EndIf
@@ -74,10 +77,8 @@ Function{
             Name StrCat["Parameters/Materials/", name~{i}, "/Coercive field Hx"]},
           hcy~{i} = {0, Visible (material~{i} == 0),
             Name StrCat["Parameters/Materials/", name~{i}, "/Coercive field Hy"]},
-          jsx~{i} = {0, Visible (material~{i} == 1),
-            Name StrCat["Parameters/Materials/", name~{i}, "/Current density Jx"]},
-          jsy~{i} = {1000, Visible (material~{i} == 1),
-            Name StrCat["Parameters/Materials/", name~{i}, "/Current density Jy"]},
+          jsz~{i} = {0, Visible (material~{i} == 1),
+            Name StrCat["Parameters/Materials/", name~{i}, "/Current density Jz"]},
           mur~{i} = {1, Visible (material~{i} == 2),
             Name StrCat["Parameters/Materials/", name~{i}, "/Relative permeability"]}
           mur_fct~{i} = {"1", Visible (material~{i} == 3),
@@ -86,7 +87,12 @@ Function{
             Visible (material~{i} == 4),
             Name StrCat["Parameters/Materials/", name~{i}, "/B-H curve"]}
         ];
-        hc[ Region[tag~{i}] ] = Vector[hcx~{i}, hcy~{i}, 0];
+        If(material~{i} == 0)
+          hc[ Region[tag~{i}] ] = Vector[hcx~{i}, hcy~{i}, 0];
+        ElseIf(material~{i} == 1)
+          js[ Region[tag~{i}] ] = Vector[0, 0, jsz~{i}];
+        EndIf
+
         If(material~{i} == 4)
           If(bhcurve~{i} == 1)
             mu [ Region[tag~{i}] ] = mu_1[$1] ;
@@ -95,8 +101,8 @@ Function{
             dhdb_NL [ Region[tag~{i}] ] = dhdb_1_NL[$1];
           EndIf
         ElseIf(material~{i} == 3)
-          Parse[ StrCat["mu[ Region[tag~{i}] ] = ", mur_fct~{i}, "*4*Pi*1e-7;"] ];
-          Parse[ StrCat["nu[ Region[tag~{i}] ] = 1/(", mur_fct~{i}, "*4*Pi*1e-7);"] ];
+          Parse[ StrCat["mu[ Region[tag~{i}] ] = (", mur_fct~{i}, ")*4*Pi*1e-7;"] ];
+          Parse[ StrCat["nu[ Region[tag~{i}] ] = 1/( (", mur_fct~{i}, ") *4*Pi*1e-7);"] ];
         Else
           mu[ Region[tag~{i}] ] = mur~{i}*4*Pi*1e-7;
           nu[ Region[tag~{i}] ] = 1/(mur~{i}*4*Pi*1e-7);
@@ -228,7 +234,14 @@ PostOperation {
 Constraint {
   { Name a ;
     Case {
-      { Region Dirichlet_a_0 ; Value 0. ; }
+      For i In {1:numPhysicals}
+        If(dim~{i} < modelDim)
+          If(bc~{i} == 1)
+            { Region Region[tag~{i}] ; Value bc_val~{i} ; }
+          EndIf
+        EndIf
+      EndFor
+        //      { Region Dirichlet_a_0 ; Value 0. ; }
     }
   }
 }
