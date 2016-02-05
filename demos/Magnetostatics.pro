@@ -1,7 +1,6 @@
 Group {
   // generic (mathematical) groups needed by the model
-  DefineGroup[ Domain_M, Domain_S, Domain_Inf, Domain_NL, Domain_Mag,
-    Dirichlet_phi_0, Dirichlet_a_0];
+  DefineGroup[ Domain_M, Domain_S, Domain_Inf, Domain_NL, Domain_Mag];
 
   // interactive model setup if Domain_Mag is empty
   interactive = !NbrRegions[Domain_Mag];
@@ -26,19 +25,14 @@ Group {
           bc_val~{i} = {0.,
             Name StrCat["Parameters/Boundary conditions/", name~{i}, "/1Value"]}
         ];
-        If(bc~{i} == 1)
-          //+++ Should be nice to allow non-zero Dirichlet BCs (for flux tubes, that are also simple test problems), thus Dirichlet_a_0 is not used anymore...
-          Dirichlet_a_0 += Region[tag~{i}];
-          Dirichlet_phi_0 += Region[tag~{i}];
-        EndIf
       Else
         DefineConstant[
           material~{i} = {2, Choices{
               0="Magnet",
               1="Current source",
               2="Linear material (constant)",
-              3="Linear material (function)",
-              4="Nonlinear material"
+              3="User material (function)",
+              4="Preset material"
             },
             Name StrCat["Parameters/Materials/", name~{i}, "/0Type"]}
         ];
@@ -48,7 +42,7 @@ Group {
           Domain_S += Region[tag~{i}];
         ElseIf(material~{i} == 2 || material~{i} == 3)
           Domain_Mag += Region[tag~{i}];
-        ElseIf(material~{i} == 3)
+        ElseIf(material~{i} == 4)
           Domain_NL += Region[tag~{i}];
         EndIf
       EndIf
@@ -81,8 +75,8 @@ Function{
             Name StrCat["Parameters/Materials/", name~{i}, "/Current density Jz"]},
           mur~{i} = {1, Visible (material~{i} == 2),
             Name StrCat["Parameters/Materials/", name~{i}, "/Relative permeability"]}
-          mur_fct~{i} = {"1", Visible (material~{i} == 3),
-            Name StrCat["Parameters/Materials/", name~{i}, "/Relative permeability function"]}
+          mu_fct~{i} = {"1 * 4*Pi*1e-7", Visible (material~{i} == 3),
+            Name StrCat["Parameters/Materials/", name~{i}, "/Permeability"]}
           bhcurve~{i} = {1, Choices{1="Interpolated" },
             Visible (material~{i} == 4),
             Name StrCat["Parameters/Materials/", name~{i}, "/B-H curve"]}
@@ -101,8 +95,8 @@ Function{
             dhdb_NL [ Region[tag~{i}] ] = dhdb_1_NL[$1];
           EndIf
         ElseIf(material~{i} == 3)
-          Parse[ StrCat["mu[ Region[tag~{i}] ] = (", mur_fct~{i}, ")*4*Pi*1e-7;"] ];
-          Parse[ StrCat["nu[ Region[tag~{i}] ] = 1/( (", mur_fct~{i}, ") *4*Pi*1e-7);"] ];
+          Parse[ StrCat["mu[ Region[tag~{i}] ] = ", mu_fct~{i}, ";"] ];
+          Parse[ StrCat["nu[ Region[tag~{i}] ] = 1/", mu_fct~{i}, ";"] ];
         Else
           mu[ Region[tag~{i}] ] = mur~{i}*4*Pi*1e-7;
           nu[ Region[tag~{i}] ] = 1/(mur~{i}*4*Pi*1e-7);
@@ -146,13 +140,21 @@ Integration {
    MagSta_phi : Magnetic scalar potential phi formulation
    -------------------------------------------------------------------------- */
 
+If(interactive)
 Constraint {
   { Name phi ;
     Case {
-      { Region Dirichlet_phi_0 ; Value 0. ; }
+      For i In {1:numPhysicals}
+        If(dim~{i} < modelDim)
+          If(bc~{i} == 1)
+            { Region Region[tag~{i}] ; Value bc_val~{i} ; }
+          EndIf
+        EndIf
+      EndFor
     }
   }
 }
+EndIf
 
 FunctionSpace {
   { Name Hgrad_phi ; Type Form0 ;
@@ -231,6 +233,7 @@ PostOperation {
    MagSta_a : Magnetic vector potential a formulation (2D)
    -------------------------------------------------------------------------- */
 
+If(interactive)
 Constraint {
   { Name a ;
     Case {
@@ -241,13 +244,12 @@ Constraint {
           EndIf
         EndIf
       EndFor
-        //      { Region Dirichlet_a_0 ; Value 0. ; }
     }
   }
 }
+EndIf
 
 FunctionSpace {
-
   { Name Hcurl_a ; Type Form1P ;
     BasisFunction {
       { Name se ; NameOfCoef ae ; Function BF_PerpendicularEdge ;
@@ -257,7 +259,6 @@ FunctionSpace {
       { NameOfCoef ae ; EntityType NodesOf ; NameOfConstraint a ; }
     }
   }
-
 }
 
 Formulation {

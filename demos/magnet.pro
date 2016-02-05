@@ -67,6 +67,19 @@ Function {
   hc [ Magnet ] = Rotate[ Vector[Hc, 0, 0.], 0, 0, Pi/2] ;
 }
 
+Constraint {
+  { Name a ;
+    Case {
+      { Region Dirichlet_a_0 ; Value 0. ; }
+    }
+  }
+  { Name phi ;
+    Case {
+      { Region Dirichlet_phi_0 ; Value 0. ; }
+    }
+  }
+}
+
 Include "Magnetostatics.pro"
 
 eps = 1.e-5;
