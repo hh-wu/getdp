@@ -202,9 +202,12 @@ void F_ElementVol(F_ARG)
 
   V->Type = SCALAR ;
   V->Val[0] = fabs(Vol);
+  V->Val[MAX_DIM] = 0.;
 
-  for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2)
+  for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2) {
     V->Val[MAX_DIM* k] = V->Val[0] ;
+    V->Val[MAX_DIM* (k+1)] = 0. ;
+  }
 }
 
 void F_SurfaceArea(F_ARG)
@@ -290,11 +293,11 @@ void F_SurfaceArea(F_ARG)
 
   V->Type = SCALAR ;
   V->Val[0] = Fct->Active->Case.SurfaceArea.Value ;
-  V->Val[MAX_DIM] = 0;
+  V->Val[MAX_DIM] = 0.;
 
   for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2) {
     V->Val[MAX_DIM* k] = V->Val[0] ;
-    V->Val[MAX_DIM* (k+1)] = 0 ;
+    V->Val[MAX_DIM* (k+1)] = 0. ;
   }
 }
 
@@ -380,13 +383,27 @@ void F_GetVolume(F_ARG)
 
   V->Type = SCALAR ;
   V->Val[0] = Fct->Active->Case.GetVolume.Value ;
-  V->Val[MAX_DIM] = 0;
+  V->Val[MAX_DIM] = 0.;
+
+  for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2) {
+    V->Val[MAX_DIM* k] = V->Val[0] ;
+    V->Val[MAX_DIM* (k+1)] = 0. ;
+  }
+
+}
+
+void F_GetNumElement(F_ARG)
+{
+  int k;
+
+  V->Type = SCALAR ;
+  V->Val[0] = (double)Current.Element->Num;
+  V->Val[MAX_DIM] = 0.;
 
   for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2) {
     V->Val[MAX_DIM* k] = V->Val[0] ;
     V->Val[MAX_DIM* (k+1)] = 0 ;
   }
-
 }
 
 void F_GetNumElements(F_ARG)
@@ -416,11 +433,11 @@ void F_GetNumElements(F_ARG)
 
   V->Type = SCALAR ;
   V->Val[0] = Fct->Active->Case.GetNumElements.Value ;
-  V->Val[MAX_DIM] = 0;
+  V->Val[MAX_DIM] = 0.;
 
   for (int k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2) {
     V->Val[MAX_DIM* k] = V->Val[0] ;
-    V->Val[MAX_DIM* (k+1)] = 0 ;
+    V->Val[MAX_DIM* (k+1)] = 0. ;
   }
 }
 
@@ -493,7 +510,7 @@ void F_CellSize(F_ARG)
   V->Val[MAX_DIM] = 0. ;
   for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2) {
     V->Val[MAX_DIM* k] = V->Val[0] ;
-    V->Val[MAX_DIM* (k+1)] = 0 ;
+    V->Val[MAX_DIM* (k+1)] = 0. ;
   }
 }
 
@@ -565,7 +582,7 @@ void F_SquNormEdgeValues(F_ARG)
 
   for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2) {
     V->Val[MAX_DIM* k] = V->Val[0] ;
-    V->Val[MAX_DIM* (k+1)] = 0 ;
+    V->Val[MAX_DIM* (k+1)] = 0. ;
   }
 }
 
