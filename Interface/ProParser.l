@@ -14,13 +14,24 @@
 #include "MallocUtils.h"
 #include "Message.h"
 
+extern std::string getdp_yystring;
+
 // Redefinition of YY_INPUT to allow input character count (this is
-// slower than fread(), but the .pro files are never that big)
+// slower than fread(), but the .pro files are never that big) and
+// direct parsing from a string
 #ifdef YY_INPUT
 #undef YY_INPUT
 #endif
+
 #define YY_INPUT(buf,result,max_size) {		        \
-  int c = getc(getdp_yyin);				\
+  int c;                                                \
+  if(getdp_yystring.size()){                            \
+    c = getdp_yystring[0];                              \
+    getdp_yystring = getdp_yystring.substr(1);          \
+  }                                                     \
+  else{                                                 \
+    c = getc(getdp_yyin);				\
+  }                                                     \
   getdp_yycolnum++;					\
   result = (c == EOF) ? YY_NULL : (buf[0] = c, 1);	\
 }
@@ -297,6 +308,7 @@ Order                        return tOrder;
 OriginSystem                 return tOriginSystem;
 OverrideTimeStepValue        return tOverrideTimeStepValue;
 
+Parse                        return tParse;
 Pi                           return tPi;
 Plot                         return tPlot;
 PostOperation                return tPostOperation;

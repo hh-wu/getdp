@@ -18,7 +18,10 @@ Group {
       // on the names :-)
       If(dim~{i} < modelDim)
         DefineConstant[
-          bc~{i} = {0, Choices{0="Neumann", 1="Dirichlet"},
+          bc~{i} = {0, Choices{
+              0="Neumann",
+              1="Dirichlet"
+            },
             Name StrCat["Parameters/Boundary conditions/", name~{i}, "/0Type"]}
         ];
         If(bc~{i} == 1)
@@ -27,15 +30,20 @@ Group {
         EndIf
       Else
         DefineConstant[
-          material~{i} = {2, Choices{0="Magnet", 1="Current source", 2="Linear material",
-            3="Nonlinear material"},
+          material~{i} = {2, Choices{
+              0="Magnet",
+              1="Current source",
+              2="Linear material (constant)",
+              3="Linear material (function)",
+              4="Nonlinear material"
+            },
             Name StrCat["Parameters/Materials/", name~{i}, "/0Type"]}
         ];
         If(material~{i} == 0)
           Domain_M += Region[tag~{i}];
         ElseIf(material~{i} == 1)
           Domain_S += Region[tag~{i}];
-        ElseIf(material~{i} == 2)
+        ElseIf(material~{i} == 2 || material~{i} == 3)
           Domain_Mag += Region[tag~{i}];
         ElseIf(material~{i} == 3)
           Domain_NL += Region[tag~{i}];
@@ -64,7 +72,7 @@ Function{
         DefineConstant[
           hcx~{i} = {1000, Visible (material~{i} == 0),
             Name StrCat["Parameters/Materials/", name~{i}, "/Coercive field Hx"]},
-          hcy~{i} = {1000, Visible (material~{i} == 0),
+          hcy~{i} = {0, Visible (material~{i} == 0),
             Name StrCat["Parameters/Materials/", name~{i}, "/Coercive field Hy"]},
           jsx~{i} = {0, Visible (material~{i} == 1),
             Name StrCat["Parameters/Materials/", name~{i}, "/Current density Jx"]},
@@ -72,18 +80,23 @@ Function{
             Name StrCat["Parameters/Materials/", name~{i}, "/Current density Jy"]},
           mur~{i} = {1, Visible (material~{i} == 2),
             Name StrCat["Parameters/Materials/", name~{i}, "/Relative permeability"]}
+          mur_fct~{i} = {"1", Visible (material~{i} == 3),
+            Name StrCat["Parameters/Materials/", name~{i}, "/Relative permeability function"]}
           bhcurve~{i} = {1, Choices{1="Interpolated" },
-            Visible (material~{i} == 3),
+            Visible (material~{i} == 4),
             Name StrCat["Parameters/Materials/", name~{i}, "/B-H curve"]}
         ];
         hc[ Region[tag~{i}] ] = Vector[hcx~{i}, hcy~{i}, 0];
-        If(material~{i} == 3)
+        If(material~{i} == 4)
           If(bhcurve~{i} == 1)
             mu [ Region[tag~{i}] ] = mu_1[$1] ;
             dbdh_NL [ Region[tag~{i}] ] = dbdh_1_NL[$1];
             nu [ Region[tag~{i}] ] = nu_1[$1] ;
             dhdb_NL [ Region[tag~{i}] ] = dhdb_1_NL[$1];
           EndIf
+        ElseIf(material~{i} == 3)
+          Parse[ StrCat["mu[ Region[tag~{i}] ] = ", mur_fct~{i}, "*4*Pi*1e-7;"] ];
+          Parse[ StrCat["nu[ Region[tag~{i}] ] = 1/(", mur_fct~{i}, "*4*Pi*1e-7);"] ];
         Else
           mu[ Region[tag~{i}] ] = mur~{i}*4*Pi*1e-7;
           nu[ Region[tag~{i}] ] = 1/(mur~{i}*4*Pi*1e-7);

@@ -39,6 +39,7 @@ long int getdp_yylinenum = 0;
 int getdp_yycolnum = 0;
 int getdp_yyincludenum = 0;
 int getdp_yyerrorlevel = 0;
+std::string getdp_yystring = "";
 std::map<std::string, std::vector<double> > CommandLineNumbers;
 std::map<std::string, std::string> CommandLineStrings;
 
@@ -190,7 +191,7 @@ struct doubleXstring{
 %token  tStrChoice tUpperCase tLowerCase tLowerCaseIn
 %token  tNbrRegions tGetRegion tNameFromString tStringFromName
 %token  tFor tEndFor tIf tElseIf tElse tEndIf tMacro tReturn tCall tCallTest
-%token  tTest tWhile
+%token  tTest tWhile tParse
 %token  tFlag
 %token  tInclude
 %token  tConstant tList tListAlt tLinSpace tLogSpace tListFromFile
@@ -7190,9 +7191,13 @@ Loop :
       if(ImbricatedTest < 0)
         Message::Warning("line %ld : Orphan EndIf", getdp_yylinenum);
     }
+  | tParse LP CharExpr RP tEND
+    {
+      getdp_yystring = $3;
+      Free($3);
+    }
   | Affectation
  ;
-
 
 
 /* ------------------------------------------------------------------------ */

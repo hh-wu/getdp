@@ -1,3 +1,6 @@
+2.8.0: new Parse[] and OnPositiveSideOf commands; small improvements and bug
+fixes.
+
 2.7.0 (November 7, 2015): new Else/ElseIf commands; new timing and memory
 reporting functions.
 

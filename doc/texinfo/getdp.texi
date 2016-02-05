@@ -1799,6 +1799,7 @@ single item).
 @cindex Macros
 @cindex Loops
 @cindex Conditionals
+@cindex Parse
 
 @vindex @var{loop}
 
@@ -1886,6 +1887,9 @@ Ends a matching @code{If} command.
 @item TestLevel
 Variable equal to the level of imbrication of a body in an 
 @code{If}-@code{EndIf} test.
+
+@item Parse [ @var{expression-char} ];
+Parse the given string.
 @end ftable
 
 @c =========================================================================
