@@ -11,7 +11,8 @@ DefineConstant[
   progl_1 = {1., Name StrCat(ppC,"progression l1"),Visible (transfinite)},
   progl_2 = {1., Name StrCat(ppC,"progression l2"),Visible (transfinite)},
   progl_3 = {1., Name StrCat(ppC,"progression l3"),Visible (transfinite)},
-  progl_4 = {1., Name StrCat(ppC,"progression l4"),Visible (transfinite)}
+  progl_4 = {1., Name StrCat(ppC,"progression l4"),Visible (transfinite)},
+  Flag_duplicate = {1, Name StrCat(ppC,"duplicate")}
 ];
 
 // Constructive parameters

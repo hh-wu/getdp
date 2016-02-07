@@ -6,11 +6,10 @@
 from tool import *
 
 def volumeSens(x,data,parameters):
-    return data['ElementVolume'][0] #ve
-    #return np.ones(len(x))
+    return data['ElementVolume'][0][:,1] #ve
 
 def massSens(x,data,parameters):
-    return np.array(data['ElementMass'][0])
+    return np.array(data['ElementMass'][0][:,1])
 
 def sensBeta(x,data,parameters):
     return np.zeros(len(x))

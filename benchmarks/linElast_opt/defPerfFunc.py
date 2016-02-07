@@ -234,7 +234,9 @@ def opt_complianceVolume(x,data,parameters):
          x
         s.t. vol <= volM
     """
-    compl = data['ComplianceElm'][0];vol = np.dot(x,data['ElementVolume'][0])
+    compl = data['ComplianceElm'][0]
+    elemVol = data['ElementVolume'][0][:,1];vol = np.dot(x,elemVol)
+    print elemVol
     print('compl:{}; vol:{}'.format(compl,vol))
     input = {
         'f':[compl,vol],
@@ -242,7 +244,36 @@ def opt_complianceVolume(x,data,parameters):
         'fmax':[0, 1.5],
         'f_name':['Compliance','Volume'],
         'sign':[1.0,1.0],
-        'filter':[1]
+        'filter':[]
+    }
+    return input
+
+def opt_VolumeVMelem(x,data,parameters):
+    """
+        min  vol
+         x
+        s.t. VM,e <= M, e = 1,...,Ne
+    """
+    # get data
+    elemVol = data['ElementVolume'][0][:,1];vol = np.dot(x,elemVol)
+    elem = data['VM'][0][:,0];vm = data['VM'][0][:,1];nbVM = len(vm)
+    print('vol:{}'.format(vol))
+    
+    # build optimization structure
+    ff = [vol];ff.extend(vm)
+    ffMax = [0.];ffMax.extend([10.0e06]*nbVM)
+    dff = [volumeSens];dff.extend(['AdjointFixedDom']*nbVM)
+    f_name = ['Volume'];f_name.extend(['vonMisesElem']*nbVM)
+    sign = [1.0]*(nbVM+1)
+    f_elemNum = [0]; f_elemNum.extend(elem)
+    input = {
+        'f':ff,
+        'df':dff,
+        'fmax':ffMax,
+        'f_name':f_name,
+        'f_elemNum':f_elemNum,
+        'sign':sign,
+        'filter':[]
     }
     return input
 
@@ -250,6 +281,18 @@ def compliance(x,data,parameters):
     compl = data['ComplianceElm'][0]
     input = {
         'f':[compl],
+        'df':['AdjointFixedDom'],
+        'fmax':[0],
+        'f_name':['Compliance'],
+        'sign':[1.0]
+    }
+    return input
+
+def VMelem(x,data,parameters):
+    vm = data['VM'][0]
+    print vm
+    input = {
+        'f':[vm[10][1]],
         'df':['AdjointFixedDom'],
         'fmax':[0],
         'f_name':['Compliance'],

@@ -17,19 +17,20 @@ if os.path.isfile('data.npy'):
     data = np.load('data.npy')
     nx=data[0];ny=data[1]
 else:
-    nx=60*2;ny=20*2
+    nx=60;ny=20
 Lx = 3; Ly = 1
-pl1=1.1;pl2=1.1;pl3=1.1;pl4=1.1
+pl1=1.;pl2=1.;pl3=1.;pl4=1.
 # ************************************************************************
 # ***** Create the parameters                                        *****
 # ************************************************************************
 parameters = {
-    'plot':1,'Print':10,'file':'beam',
+    'plot':1,'Print':2,'file':'beam',
     'analysis':['u_Mec'],
     'analysisPost':['u_Mec_Post'],
     'adjoint':['Adjoint_u_Mec'],
     'direct':['Direct_u_Mec'],
-    'project_xe':1,
+    'project_xe':0,
+    'allowCentralFD':0,
     'MeshRefine':1,
     'defaultValue':{
         'OptType':['Input/Optimization Type','topology'],
@@ -53,7 +54,7 @@ parameters = {
     },
     'archivate':1,
     'TAG':[1000], #1000,1001
-    'performance':opt_complianceVolume,#opt_maxBeta_eig,
+    'performance':opt_VolumeVMelem,#opt_complianceVolume,opt_maxBeta_eig
     'rmin':1.5*Lx/nx, #0.0125,
     'optimizer':'mma3',#'mma2007','conlinFile','gcmma','openopt'
     'xtol':1.0e-02,

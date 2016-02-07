@@ -160,17 +160,17 @@ Function {
 
   // Hooke matrix
   If(Flag_2D)
-    C0[] = TensorSym[ 1.0, nu0, 0, 1.0, 0, 0.5*(1-nu0) ];
+    Cnu[] = TensorSym[ 1.0, nu0, 0, 1.0, 0, 0.5*(1-nu0) ];
     If(!Flag_projFuncSpace_xe)
       ff[] = E[]/(1-nu0^2);
-      C[] = ff[] * C0[];
+      C[] = ff[] * Cnu[];
     Else
       ff[] = E[$1] / (1-nu0^2);
-      C[]  = ff[$1] * C0[];
+      C[]  = ff[$1] * Cnu[];
     EndIf
     If(!StrCmp(Flag_optType,"topology")) // topology optimization
       d_ff[] =  d_E[$1]/(1-nu0^2);
-      d_C[] = d_ff[$1] * C0[];
+      d_C[] = d_ff[$1] * Cnu[];
     EndIf
   EndIf
   If(!Flag_2D)
@@ -191,11 +191,18 @@ Function {
   If(Flag_2D) // operators for 2D
     bilin_uu[] = (C[$3] * $1) * $1; 
     bilin_uu_lie[] = (C[] * $1) * $1; 
-    bilin[] = (C[$3] * $1) * $2; //$1:{D1 u} 
-    sigma[] = C[$3]*$1; //[sigma_11,sigma_22,sigma_12]
+    bilin[] = (C[$3] * $1) * $2; //$1:{D1 u}
+    If(StrCmp(Flag_optType,"topology")) // topology optimization 
+      sigma[] = C[$3] * $1; //[sigma_11,sigma_22,sigma_12]
+    Else
+      sigma0[] = (E0/(1-nu0^2))* (Cnu[]* $1);
+      sigma[] = designVar[]^degStress * sigma0[$1]; 
+    EndIf
     sigma_lie[] = C[]*$1; //[sigma_11,sigma_22,sigma_12]
     sigmaVM[] = Sqrt[ CompX[sigma[$1,$2,$3]#2]^2.0 - CompX[#2]*CompY[#2]
                     + CompY[#2]^2.0 + 3.0*CompZ[#2]^2.0 ];
+    V[] = TensorSym[1., -0.5, 0., 1., 0., 3.];
+    sigmaVM2[] = Sqrt[sigma[$1,$2,$3]#2 * ( V[] * #2)];
     sigmaVM_lie[] = Sqrt[ CompX[sigma_lie[$1,$2]#2]^2.0 - CompX[#2]*CompY[#2]
                     + CompY[#2]^2.0 + 3.0*CompZ[#2]^2.0 ];
   Else // operators for 3D
@@ -245,7 +252,6 @@ Function {
                        CompYZ[#993]+CompZY[#993],CompXZ[#993]+CompZX[#993] ];
     EndIf
   EndIf
-  cstView[] = ScalarField[XYZ[],0,1]{99991};
   If(!StrCmp(Flag_optType,"shape") || !StrCmp(Flag_optType,"topology") )
     // Derivative of performance function
     d_mass_eig_TO[] = (d_rho[]*$1)*$1;
@@ -273,14 +279,24 @@ Function {
         dF_lie[] = - dFdb_Lie[$1]*d_D1[du[],dV[$3,$4,$5]]
                    + Func_lie[$1,$1]*TTrace[dV[$3,$4,$5]];
       EndIf
+      If(!StrCmp[Flag_PerfType,"vonMisesElem"])
+	Printf["von Mises Elem"];
+        Func[] = sigmaVM2[$1,$2,$3];
+        dFdb[] = (((GetNumElement[]==elemNum)?1:0)
+               * ((designVar[]^degStress)*(E0/(1-nu0^2))*(Cnu[]*(V[]*sigma[$1,$2,$3]))) 
+	       / (sigmaVM2[$1,$2,$3]*ElementVol[]));
+        dF_TO[] = (((GetNumElement[]==elemNum)?1:0)
+                * (degStress * sigmaVM2[$1,$2,$3])/(designVar[] * ElementVol[]));
+
+      EndIf
       If(!StrCmp[Flag_PerfType,"vonMises"])
         Func[] = sigmaVM[$1,$2,$3]^degVM; //F = Sqrt[s11^2-s11*s22+s22^2+3*s12^2]
         Func_lie[] = sigmaVM_lie[$1,$2]^degVM; //F = Sqrt[s11^2-s11*s22+s22^2+3*s12^2]
-        c_sig[] = Vector[2.0*CompX[sigma[$1,]#3]-CompY[#3],
+        c_sig[] = Vector[2.0*CompX[sigma[$1,$2,$3]#3]-CompY[#3],
                          2.0*CompY[#3]-CompX[#3],6.0*CompZ[#3]];  
         c_sig_lie[] = Vector[2.0*CompX[sigma_lie[$1]#3]-CompY[#3],
                          2.0*CompY[#3]-CompX[#3],6.0*CompZ[#3]];  
-        dF_TO[] = ( d_C[] * c_sig[$1] ) * $1; 
+        dF_TO[] = ( d_C[$5] * c_sig[$1] ) * $1; 
         dFdb[] = 0.5 * degVM * sigmaVM[$1]^(degVM-2) * C[$3] * c_sig[$1];
         dFdb_lie[] = 0.5 * degVM * sigmaVM_lie[$1,$2]^(degVM-2) * C[] * c_sig_lie[$1];
         dF_lie[] = - dFdb_lie[$1,$2] * d_D1[ du[], dV[$3,$4,$5] ]

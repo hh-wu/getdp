@@ -10,7 +10,7 @@ DefineConstant[
   pInOpt = "Input/Optimization/",
 
   // Optimization 
-  Flag_optType = {"shape", 
+  Flag_optType = {"topology", 
     Choices {
       "shape",
       "topology"
@@ -47,11 +47,12 @@ DefineConstant[
     Visible (!StrCmp(Flag_optType,"shape")) },
 
   // sensitivity analysis 
-  Flag_PerfType = {"Compliance", 
+  Flag_PerfType = {"vonMisesElem", 
     Choices {
       "Compliance",
       "vonMises",
-      "vonMises_Pnorm"
+      "vonMises_Pnorm",
+      "vonMisesElem"
     },
     Name StrCat[pInOpt,"Performance function"], 
     Visible (StrCmp(Flag_optType,"none"))},
@@ -77,6 +78,12 @@ DefineConstant[
 
   degree_SIMP = {3.0, 
     Name StrCat[pInOpt,"Simp Degree"], 
+    Visible (!StrCmp(Flag_optType,"topology"))},
+  degStress = {0.5, 
+    Name StrCat[pInOpt,"Stress Degree"], 
+    Visible (!StrCmp(Flag_optType,"topology"))},
+  elemNum = {0.5, 
+    Name StrCat[pInOpt,"Element Number"], 
     Visible (!StrCmp(Flag_optType,"topology"))}
 
 ] ;

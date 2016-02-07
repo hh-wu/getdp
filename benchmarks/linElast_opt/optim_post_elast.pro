@@ -160,7 +160,7 @@ PostProcessing {
 
       { Name Sensitivity_AdjointMethod; 
         Value { 
-          Integral {[ dF_TO[{D1 u},{D2 u},{xe}] ]; 
+          Integral {[ dF_TO[{D1 u},{D2 u},{D1 lambda},{D2 lambda},{xe}] ]; 
             In DomainFunc ; Jacobian Vol  ; Integration I1; }
           Integral {[-d_bilin[{D1 u},{D1 lambda},{D2 u},{D2 lambda},{xe}]]; 
             In Domain ; Jacobian Vol  ; Integration I1; }

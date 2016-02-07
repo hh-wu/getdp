@@ -89,13 +89,45 @@ If ( Flag_hole == 2 ) //spline
   ll_[] += -ll_s;
 EndIf
 s1 = news; Plane Surface(s1) = ll_[];
+//ps[] = {s1}
+//If (Flag_duplicate)
+//  Translate {Lx, 0, 0} {
+//    Duplicata { Surface{s1}; }
+//  }
+////  Translate {Lx, -Ly, 0} {
+////    Duplicata { Surface{s1}; }
+////  }
+////  Translate {0, -Ly, 0} {
+////    Duplicata { Surface{s1}; }
+////  }
+////  ps[] = Surface "*";
+//EndIf
 
 If(transfinite)
-  Transfinite Line{l1} = nbE_X Using Progression progl_1;//Using Bump 0.005;
-  Transfinite Line{-l3} = nbE_X Using Progression progl_3; 
-  Transfinite Line{l2} = nbE_Y Using Progression progl_2;
-  Transfinite Line{-l4} = nbE_Y Using Progression progl_4;
-  Transfinite Surface{s1} = {l1,l2,l3,l4};
+  // s1
+  Transfinite Line{l1} = nbE_X; //Using Bump 0.01;//Using Progression progl_1;
+  Transfinite Line{-l3} = nbE_X; //Using Bump 0.01;//Using Progression progl_3; 
+  Transfinite Line{l2} = nbE_Y; //Using Bump 0.01;//Using Progression progl_2;
+  Transfinite Line{-l4} = nbE_Y; //Using Bump 0.01;//Using Progression progl_4;
+  Transfinite Surface{s1} = {p1,p2,p3,p4};
+  // s1 right
+//  Transfinite Line{8} = nbE_X Using Progression progl_1;//Using Bump 0.005;
+//  Transfinite Line{-10} = nbE_X Using Progression progl_3; 
+//  Transfinite Line{-9} = nbE_Y Using Progression progl_2;
+//  //Transfinite Line{-2} = nbE_Y Using Progression progl_4;
+//  Transfinite Surface{7} = {2,7,12,3};
+//  // s1 right bottom
+//  Transfinite Line{l1} = nbE_X Using Progression progl_1;//Using Bump 0.005;
+//  Transfinite Line{-l3} = nbE_X Using Progression progl_3; 
+//  Transfinite Line{l2} = nbE_Y Using Progression progl_2;
+//  Transfinite Line{-l4} = nbE_Y Using Progression progl_4;
+//  Transfinite Surface{s1} = {l1,l2,l3,l4};
+//  // s1 bottom
+//  Transfinite Line{l1} = nbE_X Using Progression progl_1;//Using Bump 0.005;
+//  Transfinite Line{-l3} = nbE_X Using Progression progl_3; 
+//  Transfinite Line{l2} = nbE_Y Using Progression progl_2;
+//  Transfinite Line{-l4} = nbE_Y Using Progression progl_4;
+//  Transfinite Surface{s1} = {l1,l2,l3,l4};
   Recombine Surface "*";
 EndIf
 
