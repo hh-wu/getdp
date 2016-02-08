@@ -244,10 +244,12 @@ Resolution{
       CreateDir[ResDir];
       ReadSolution[A]; //Load state variable
       If(!StrCmp(Flag_optType,"topology") && !Flag_projFuncSpace_xe)
-        GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD]; 
+        GmshRead[StrCat[ResDir0,"designVariable.pos"],DES_VAR_FIELD]; 
       EndIf
       PostOperation[u_Mec];//generate useful coeff !!
       InitSolution[B];Generate[B];Solve[B];SaveSolution[B];
+      RenameFile["beam.res", StrCat[ResDir,"beam.res"]];
+      RenameFile["beam.pre", StrCat[ResDir,"beam.pre"]];
       PostOperation[Adjoint_u_Mec];
     }
   }
@@ -262,7 +264,7 @@ Resolution{
       CreateDir[ResDir];
       ReadSolution[A]; //Load state variable
       If(!StrCmp(Flag_optType,"topology"))
-        GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD]; 
+        GmshRead[StrCat[ResDir0,"designVariable.pos"],DES_VAR_FIELD]; 
       EndIf
       InitSolution[B];Generate[B];Solve[B];SaveSolution[B];
       PostOperation[Post_Direct_u_Mec];
@@ -346,7 +348,7 @@ Resolution{
       //Load state variable and useful maps
       ReadSolution[A]; 
       //GmshRead[StrCat[ResDir,"velocity.pos"], VELOCITY_FIELD];
-      GmshRead[StrCat[ResDir,"u.pos"], STATE_FIELD];
+      GmshRead[StrCat[ResDir0,"u.pos"], STATE_FIELD];
       
       PostOperation[Analytic_Sens_u_Mec_eig];
     }
@@ -361,7 +363,7 @@ Resolution{
 
       //Load state variable and useful maps
       ReadSolution[A]; 
-      GmshRead[StrCat[ResDir,"designVariable.pos"], DES_VAR_FIELD];
+      GmshRead[StrCat[ResDir0,"designVariable.pos"], DES_VAR_FIELD];
       
       PostOperation[TO_Analytic_Sens_u_Mec_eig];
     }

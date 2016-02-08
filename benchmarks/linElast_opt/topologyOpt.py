@@ -17,14 +17,14 @@ if os.path.isfile('data.npy'):
     data = np.load('data.npy')
     nx=data[0];ny=data[1]
 else:
-    nx=60;ny=20
+    nx=7;ny=3
 Lx = 3; Ly = 1
 pl1=1.;pl2=1.;pl3=1.;pl4=1.
 # ************************************************************************
 # ***** Create the parameters                                        *****
 # ************************************************************************
 parameters = {
-    'plot':1,'Print':2,'file':'beam',
+    'plot':0,'Print':5,'file':'beam',
     'analysis':['u_Mec'],
     'analysisPost':['u_Mec_Post'],
     'adjoint':['Adjoint_u_Mec'],
@@ -58,7 +58,7 @@ parameters = {
     'rmin':1.5*Lx/nx, #0.0125,
     'optimizer':'mma3',#'mma2007','conlinFile','gcmma','openopt'
     'xtol':1.0e-02,
-    'iterMax':1000}
+    'iterMax':1,'parallel':1}
 
 x = np.array([0.5]);xmax = np.array([1.0]);xmin = np.array([0.001])
 

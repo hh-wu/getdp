@@ -82,7 +82,7 @@ DefineConstant[
   degStress = {0.5, 
     Name StrCat[pInOpt,"Stress Degree"], 
     Visible (!StrCmp(Flag_optType,"topology"))},
-  elemNum = {0.5, 
+  elemNum = {18, 
     Name StrCat[pInOpt,"Element Number"], 
     Visible (!StrCmp(Flag_optType,"topology"))}
 

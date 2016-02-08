@@ -82,7 +82,7 @@ Function {
     du,dV,dlam,dEps,velocity,velocityField,d_D1,d_D2,
     dV_x,dV_y,dV_z,du_x,du_y,du_z,
     rmin2,prod_x_dC,designVar,nu,nu_prime,
-    mass_eig,d_eig,d_eig_TO,force_mec,
+    mass_eig,d_eig,d_eig_TO,force_mec,sigmaVM2,
     dFdb,dFdb2,dF_TO,dF_lie,dMass,d_bilin_eig_TO
   ];
   er[] = Unit[XYZ[]];
@@ -217,6 +217,8 @@ Function {
     sigmaVM[]  = Sqrt[ 0.5*(CompX[sigma_ii[$1,$3]#2]-CompY[#2])^2.0  
                       +0.5*(CompY[#2]-CompZ[#2])^2.0 + 0.5*(CompZ[#2]-CompX[#2])^2.0
                       +3.0*SquNorm[sigma_ij[$2,$3]] ];
+    V[] = TensorSym[1., -0.5, -0.5, 1., -0.5, 1.];
+    sigmaVM2[] = Sqrt[0.5*sigma_ii[$1,$3]#2 * (V[] * #2)]; 
   EndIf
   
   /* ----------------------------------------------------------------- 
