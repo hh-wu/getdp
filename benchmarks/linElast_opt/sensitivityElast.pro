@@ -248,8 +248,10 @@ Resolution{
       EndIf
       PostOperation[u_Mec];//generate useful coeff !!
       InitSolution[B];Generate[B];Solve[B];SaveSolution[B];
-      RenameFile["beam.res", StrCat[ResDir,"beam.res"]];
-      RenameFile["beam.pre", StrCat[ResDir,"beam.pre"]];
+      If(StrCmp(ResId,""))
+        RenameFile["beam.res", StrCat[ResDir,"beam.res"]];
+        RenameFile["beam.pre", StrCat[ResDir,"beam.pre"]];
+      EndIf
       PostOperation[Adjoint_u_Mec];
     }
   }
