@@ -63,17 +63,21 @@ FunctionSpace{
       BasisFunction {
         { Name sxn ; NameOfCoef uxn ; Function BF_NodeX ;
           dFunction {BF_NodeX_D12, BF_Zero};
-          Support Region[{Domain,Domain_Force,SURF_DROITE,SURF_BAS}]; Entity NodesOf[ All ] ; }
+          Support Region[{Domain,Domain_Force}]; 
+          Entity NodesOf[ All ] ; }
         { Name syn ; NameOfCoef uyn ; Function BF_NodeY ;
           dFunction {BF_NodeY_D12, BF_Zero};
-          Support Region[{Domain,Domain_Force,SURF_DROITE,SURF_BAS}]; Entity NodesOf[ All ] ; }
+          Support Region[{Domain,Domain_Force}]; 
+          Entity NodesOf[ All ] ; }
         If (Flag_degree2)
           { Name sxn2 ; NameOfCoef uxn2 ; Function BF_NodeX_2E ;
             dFunction {BF_NodeX_D12_2E, BF_Zero};
-            Support Region[{Domain,Domain_Force,SURF_DROITE,SURF_BAS}]; Entity EdgesOf[ All ] ; }
+            Support Region[{Domain,Domain_Force}]; 
+            Entity EdgesOf[ All ] ; }
           { Name syn2 ; NameOfCoef uyn2 ; Function BF_NodeY_2E ;
             dFunction {BF_NodeY_D12_2E, BF_Zero};
-            Support Region[{Domain,Domain_Force,SURF_DROITE,SURF_BAS}]; Entity EdgesOf[ All ] ; }
+            Support Region[{Domain,Domain_Force}]; 
+            Entity EdgesOf[ All ] ; }
         EndIf
       }
       Constraint {

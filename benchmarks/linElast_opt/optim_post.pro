@@ -98,6 +98,7 @@ PostOperation {
   // --------------------------------------------------------------------------
  { Name u_TO; NameOfPostProcessing u_Mec;
    Operation{
+     Print[ u, OnElementsOf Domain,File StrCat[ResDir,"u",ExtGmsh]] ;
      Print[ StressVM, OnElementsOf Domain,
        File StrCat[ResDir,"VM",ExtOnelabVec],OverrideTimeStepValue optimIter];
      Print[ StressVM2, OnElementsOf Domain,

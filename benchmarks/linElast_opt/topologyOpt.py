@@ -17,14 +17,14 @@ if os.path.isfile('data.npy'):
     data = np.load('data.npy')
     nx=data[0];ny=data[1]
 else:
-    nx=7;ny=3
-Lx = 3; Ly = 1
+    nx=20;ny=50
+Lx = 1.0; Ly = 2.5
 pl1=1.;pl2=1.;pl3=1.;pl4=1.
 # ************************************************************************
 # ***** Create the parameters                                        *****
 # ************************************************************************
 parameters = {
-    'plot':0,'Print':5,'file':'beam',
+    'plot':1,'Print':0,'file':'beam',
     'analysis':['u_Mec'],
     'analysisPost':['u_Mec_Post'],
     'adjoint':['Adjoint_u_Mec'],
@@ -37,7 +37,7 @@ parameters = {
         'Deg2':['Input/degree 2?',0],
         'cao':[ppC+'0 Cao?',cao],
         'extrude':[ppC+'extrude?',extrude],
-        'load':['Input/Loading/case',1],
+        'load':['Input/Loading/case',6],
         'MaterialInterpLaw':['Input/Optimization/Material Law','simp'],
         'SimpDegree':['Input/Optimization/Simp Degree',3.0],
         'Lx':[pIn+'X length [m]',Lx],
@@ -54,13 +54,13 @@ parameters = {
     },
     'archivate':1,
     'TAG':[1000], #1000,1001
-    'performance':opt_VolumeVMelem,#opt_complianceVolume,opt_maxBeta_eig
+    'performance':opt_complianceVolume,#opt_VolumeVMelem,,opt_maxBeta_eig
     'rmin':1.5*Lx/nx, #0.0125,
     'optimizer':'mma3',#'mma2007','conlinFile','gcmma','openopt'
     'xtol':1.0e-02,
-    'iterMax':1,'parallel':1}
+    'iterMax':1000,'parallel':0}
 
-x = np.array([0.5]);xmax = np.array([1.0]);xmin = np.array([0.001])
+x = np.array([0.25]);xmax = np.array([1.0]);xmin = np.array([0.001])
 
 # ************************************************************************
 # ***** Instantiate the Model and the Optimizer                      *****

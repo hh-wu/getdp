@@ -10,7 +10,7 @@ DefineConstant[
   pInOpt = "Input/Optimization/",
 
   // Optimization 
-  Flag_optType = {"topology", 
+  Flag_optType = {"shape", 
     Choices {
       "shape",
       "topology"

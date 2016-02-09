@@ -23,11 +23,15 @@ EndIf
 If (Flag_sym)
   p10 = newp; Point(p10) = {0, 0,-Lz/2, lc};
 EndIf
+p11 = newp; Point(p11) = {-Lx/2,0,-Lz/2};
 l1 = newl; Line(l1) = {p1,p2}; 
-l2 = newl; Line(l2) = {p2,p10,p3};
+//l2 = newl; Line(l2) = {p2,p10,p3};
+l2_1 = newl; Line(l2_1) = {p2,p10};
+l2_2 = newl; Line(l2_2) = {p10,p3};
 l3 = newl; Line(l3) = {p3,p4}; 
-l4 = newl; Line(l4) = {p4,p1};
-ll1 = newll; Line Loop(ll1) = {l1,l2,l3,l4};
+l4_1 = newl; Line(l4_1) = {p4,p11};
+l4_2 = newl; Line(l4_2) = {p11,p1};
+ll1 = newll; Line Loop(ll1) = {l1,l2_1,l2_2,l3,l4_1,l4_2};
 ll_[] = {ll1};
 
 // hole
@@ -66,13 +70,13 @@ If( Flag_hole == 1 ) //ellipse
     ll_[] += -ll_e;
   EndIf
   If (Flag_sym==1)
-    ll_e = newll;Line Loop(ll_e) = {l1,l_p2_pe4,-l_e2,-l_e3,l_pe2_p3,l3,l4};
+    ll_e = newll;Line Loop(ll_e) = {l1,l_p2_pe4,-l_e2,-l_e3,l_pe2_p3,l3,l4_1,l4_2};
     Printf("ll_e:%g",ll_e);
     ll_[] = {ll_e};
   EndIf
   If (Flag_sym==2)
     l1 = newl; Line(l1) = {p1,p_e3};
-    ll_e = newll;Line Loop(ll_e) = {l1,-l_e2,l_pe2_p3,l3,l4};
+    ll_e = newll;Line Loop(ll_e) = {l1,-l_e2,l_pe2_p3,l3,l4_1,l4_2};
     Printf("ll_e:%g",ll_e);
     ll_[] = {ll_e};
   EndIf
@@ -89,45 +93,17 @@ If ( Flag_hole == 2 ) //spline
   ll_[] += -ll_s;
 EndIf
 s1 = news; Plane Surface(s1) = ll_[];
-//ps[] = {s1}
-//If (Flag_duplicate)
-//  Translate {Lx, 0, 0} {
-//    Duplicata { Surface{s1}; }
-//  }
-////  Translate {Lx, -Ly, 0} {
-////    Duplicata { Surface{s1}; }
-////  }
-////  Translate {0, -Ly, 0} {
-////    Duplicata { Surface{s1}; }
-////  }
-////  ps[] = Surface "*";
-//EndIf
 
 If(transfinite)
   // s1
   Transfinite Line{l1} = nbE_X; //Using Bump 0.01;//Using Progression progl_1;
   Transfinite Line{-l3} = nbE_X; //Using Bump 0.01;//Using Progression progl_3; 
-  Transfinite Line{l2} = nbE_Y; //Using Bump 0.01;//Using Progression progl_2;
-  Transfinite Line{-l4} = nbE_Y; //Using Bump 0.01;//Using Progression progl_4;
+  //Transfinite Line{l2_1,l2_2} = nbE_Y; //Using Bump 0.01;//Using Progression progl_2;
+  Transfinite Line{l2_1} = nbE_Y*0.5; //Using Bump 0.01;//Using Progression progl_2;
+  Transfinite Line{l2_2} = nbE_Y*0.5; //Using Bump 0.01;//Using Progression progl_2;
+  Transfinite Line{-l4_1} = nbE_Y*0.5; //Using Bump 0.01;//Using Progression progl_4;
+  Transfinite Line{-l4_2} = nbE_Y*0.5; //Using Bump 0.01;//Using Progression progl_4;
   Transfinite Surface{s1} = {p1,p2,p3,p4};
-  // s1 right
-//  Transfinite Line{8} = nbE_X Using Progression progl_1;//Using Bump 0.005;
-//  Transfinite Line{-10} = nbE_X Using Progression progl_3; 
-//  Transfinite Line{-9} = nbE_Y Using Progression progl_2;
-//  //Transfinite Line{-2} = nbE_Y Using Progression progl_4;
-//  Transfinite Surface{7} = {2,7,12,3};
-//  // s1 right bottom
-//  Transfinite Line{l1} = nbE_X Using Progression progl_1;//Using Bump 0.005;
-//  Transfinite Line{-l3} = nbE_X Using Progression progl_3; 
-//  Transfinite Line{l2} = nbE_Y Using Progression progl_2;
-//  Transfinite Line{-l4} = nbE_Y Using Progression progl_4;
-//  Transfinite Surface{s1} = {l1,l2,l3,l4};
-//  // s1 bottom
-//  Transfinite Line{l1} = nbE_X Using Progression progl_1;//Using Bump 0.005;
-//  Transfinite Line{-l3} = nbE_X Using Progression progl_3; 
-//  Transfinite Line{l2} = nbE_Y Using Progression progl_2;
-//  Transfinite Line{-l4} = nbE_Y Using Progression progl_4;
-//  Transfinite Surface{s1} = {l1,l2,l3,l4};
   Recombine Surface "*";
 EndIf
 
@@ -137,7 +113,7 @@ If(Flag_extrude)
     e1[] = Extrude {0, 0, Lz} { Surface{s1}; };
   EndIf
   If(transfinite)
-    Transfinite Surface {s1} = {l1, l2, l3, l4};
+    Transfinite Surface {s1} = {l1, l2_1, l2_2, l3, l4_1,l4_2};
     Recombine Surface "*";
     e1[] = Extrude {0, 0, Lz} { Surface{s1}; Layers {nbE_Z}; Recombine;};
   EndIf
@@ -148,12 +124,12 @@ pl[] = Line "*";
 // Physical regions
 If(!Flag_extrude) //2D
   Physical Surface(BLOC) = {s1}; 
-  Physical Line(SURF_GAUCHE) = {l4};
+  Physical Line(SURF_GAUCHE) = {l4_1,l4_2};
   Physical Line(SURF_HAUT) = {l3};
   If(Flag_hole && Flag_sym==2) 
     Physical Line(SURF_DROITE) = {l_pe2_p3};//{l2_1,l2_2};
   Else
-    Physical Line(SURF_DROITE) = {l2};//{l2_1,l2_2};
+    Physical Line(SURF_DROITE) = {l2_1,l2_2};
   EndIf 
   Physical Line(SURF_BAS) = {l1};
   Physical Point(POINT_1) = {p1};

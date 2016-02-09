@@ -9,9 +9,10 @@ DefineConstant[
       2="Plate with hole",
       3="Rotor",
       4="block-block",
-      5="Rotor block-block"}, 
+      5="Rotor block-block",
+      6="3-load case"}, 
     Name "Input/Loading/case",Visible 1},
-  E0  = {210e6, Name "Input/Materials/ Young modulus",Visible 0},
+  E0  = {100./*210e6*/, Name "Input/Materials/ Young modulus",Visible 0},
   nu0 = {0.3, Name "Input/Materials/ Poisson coeficient",Visible 0},
   rh = {7850.,Name "Input/Materials/ Mass density",Visible 0}
 ];
@@ -48,6 +49,8 @@ Group {
     Else 
       Domain_Force_Lin = Region[ LINE_BAS ];
     EndIf
+  ElseIf(Flag_testBench == 6) //short cantilever beam
+    Domain_Force_Lin = Region[ {POINT_5} ];
   ElseIf(Flag_testBench==1) //MBB-beam
     Domain_Force_Lin = Region[{POINT_4}];  // force sur le point 4
   ElseIf(Flag_testBench==2) //plate-hole
@@ -61,6 +64,7 @@ Group {
   ElseIf( Flag_testBench == 3 ) //rotor
     Domain_Force_Lin = Region[Rotor_ext];//Region[Rotor_Bnd_A0];
   EndIf
+
   Domain_Force = Region[{Domain_Force_Sur,Domain_Force_Lin}];
 
   // Optimization problem: comment spécifier ça??
@@ -100,6 +104,11 @@ Function {
       force_mec[#SURF_HAUT] = Vector[0, 22.5e6, 0]; 
       force_mec[#SURF_GAUCHE] = Vector[-45e6, 0, 0]; 
     EndIf
+  ElseIf ( Flag_testBench == 6 )
+    v1[] = Vector[40.0*Cos[45*deg], 40.0*Sin[45*deg], 0.];
+    v2[] = Vector[30.0, 0., 0.];
+    v3[] = Vector[20.0*Cos[45*deg], -20.0*Cos[45*deg], 0.];
+    force_mec[Domain_Force] = v1[] + v2[] + v3[]; 
   ElseIf ( Flag_testBench < 2 )
     force_mec[Domain_Force] = Vector[0.0,-1e6,0.0]; 
   ElseIf ( Flag_testBench == 3 )
@@ -422,6 +431,8 @@ Constraint{
       ElseIf(Flag_testBench == 5)
         { Region Rotor_int;  Value 0.; } 
         { Region Rotor_ext;  Value 0.; } 
+      ElseIf (Flag_testBench==6)
+        { Region #SURF_GAUCHE;  Value 0.; } 
       EndIf
     }
   }
@@ -442,6 +453,8 @@ Constraint{
       ElseIf(Flag_testBench == 5)
         { Region Rotor_int;  Value 0.; } 
         { Region Rotor_ext;  Value 0.; } 
+      ElseIf (Flag_testBench==6)
+        { Region #SURF_GAUCHE;  Value 0.; } 
       EndIf
     }
   }
@@ -454,6 +467,8 @@ Constraint{
       ElseIf(Flag_testBench == 4)
         { Region #SURF_GAUCHE;  Value 0.; } 
         { Region #SURF_DROITE;  Value 0.; } 
+      ElseIf (Flag_testBench==6)
+        { Region #SURF_GAUCHE;  Value 0.; } 
       EndIf
     }
   }
