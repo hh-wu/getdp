@@ -14,6 +14,7 @@ pIn = 'Input/Constructive Parameters/'
 ppC = 'Input/0Cao/'
 cao = 'square' #'square','rotor'
 extrude=0;nz=10;hole=0
+pl1=1.;pl2=1.;pl3=1.;pl4=1.
 if testCase < 7:
     Lx = 3.0; Ly = 1.0; nyPad = 1
     if os.path.isfile('data.npy'):
@@ -23,24 +24,22 @@ if testCase < 7:
         nx=20;ny=50
 elif testCase == 7:
     Lx = 0.4; Ly = 1.0
-    nx = 25; ny = 50; nyPad = 75
-    
-    pl1=1.;pl2=1.;pl3=1.;pl4=1.
+    nx = 25; ny = 50; nxPad = 75
 # ************************************************************************
 # ***** Create the parameters                                        *****
 # ************************************************************************
 parameters = {
-    'plot':1,'Print':0,'file':'beam',
+    'plot':1,'Print':2,'file':'beam',
     'analysis':['u_Mec'],
     'analysisPost':['u_Mec_Post'],
     'adjoint':['Adjoint_u_Mec'],
     'direct':['Direct_u_Mec'],
     'project_xe':0,
     'allowCentralFD':0,
-    'MeshRefine':0,
+    'MeshRefine':1,
     'defaultValue':{
         'OptType':['Input/Optimization Type','topology'],
-        'Deg2':['Input/degree 2?',0],
+        'Deg2':['Input/degree 2?',1],
         'cao':[ppC+'0 Cao?',cao],
         'extrude':[ppC+'extrude?',extrude],
         'load':['Input/Loading/case',7],
@@ -50,11 +49,11 @@ parameters = {
         'Ly':[pIn+'Y length [m]',Ly],
         'LxPad':[pIn+'X length pad [m]',0.6],
         'LyPad':[pIn+'Y length pad [m]',0.4],
-        'Transfinite':[ppC+'transfinite?',1],
+        'Transfinite':[ppC+'transfinite?',0],
         'Nx':[ppC+'Nx',nx],
         'Ny':[ppC+'Ny',ny],
         'Nz':[ppC+'Nz',nz],
-        'NxPad':[ppC+'Nx pad',nyPad],
+        'NxPad':[ppC+'Nx pad',nxPad],
         'NyPad':[ppC+'Ny pad',ny],
         'pl1':[ppC+'progression l1',pl1],
         'pl2':[ppC+'progression l2',pl2],
@@ -64,13 +63,13 @@ parameters = {
     },
     'archivate':1,
     'TAG':[1000], #1000,1001
-    'performance':opt_VolumeVMelem,#opt_complianceVolume,opt_maxBeta_eig
+    'performance':opt_VolumeVMelem, #opt_complianceVolume,opt_maxBeta_eig
     'rmin':1.5*Lx/nx, #0.0125,
     'optimizer':'mma3',#'mma2007','conlinFile','gcmma','openopt'
     'xtol':1.0e-02,
     'iterMax':1000,'parallel':2,'nbCPU':4}
 
-x = np.array([1.0]);xmax = np.array([1.0]);xmin = np.array([0.001])
+x = np.array([.25]);xmax = np.array([1.0]);xmin = np.array([0.001])
 
 # ************************************************************************
 # ***** Instantiate the Model and the Optimizer                      *****
