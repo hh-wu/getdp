@@ -16,8 +16,11 @@ If(PerturbMesh == 1)
   Solver.AutoMesh = 0;
   If(!StrCmp(OnelabAction, "compute")) 
     Printf("Perturbing parameter...");
+    Printf(SensitivityParameter);
     ParamValue = GetNumber(Str(SensitivityParameter));
     SetNumber(Str(SensitivityParameter), ParamValue + Perturbation);
+    Printf("%g",ParamValue);
+    Printf("%g",ParamValue + Perturbation);
     OnelabRun("Gmsh_NoAutoRun", StrCat(GmshExecutableName, " ",
       modelpath,General.FileName," -setnumber PerturbMesh 2 -run"));
     SetNumber(Str(SensitivityParameter), ParamValue);
