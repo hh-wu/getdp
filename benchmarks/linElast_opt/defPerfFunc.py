@@ -260,7 +260,7 @@ def opt_VolumeVMelem(x,data,parameters):
     
     # build optimization structure
     ff = [vol];ff.extend(vm)
-    ffMax = [0.];ffMax.extend([150.0]*nbVM)
+    ffMax = [0.];ffMax.extend([75.0]*nbVM)
     dff = [volumeSens];dff.extend(['AdjointFixedDom']*nbVM)
     f_name = ['Volume'];f_name.extend(['vonMisesElem']*nbVM)
     sign = [1.0]*(nbVM+1)

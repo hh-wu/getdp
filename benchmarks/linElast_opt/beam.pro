@@ -2,7 +2,7 @@
 Include "beam_data.geo";
 
 DefineConstant[
-  Flag_testBench = {1,  
+  Flag_testBench = {7,  
     Choices {
       0="Short Cantiler Beam", 
       1="MBB Beam",
@@ -10,7 +10,8 @@ DefineConstant[
       3="Rotor",
       4="block-block",
       5="Rotor block-block",
-      6="3-load case"}, 
+      6="3-load case",
+      7="L-bracket"}, 
     Name "Input/Loading/case",Visible 1},
   E0  = {100./*210e6*/, Name "Input/Materials/ Young modulus",Visible 0},
   nu0 = {0.3, Name "Input/Materials/ Poisson coeficient",Visible 0},
@@ -49,8 +50,6 @@ Group {
     Else 
       Domain_Force_Lin = Region[ LINE_BAS ];
     EndIf
-  ElseIf(Flag_testBench == 6) //short cantilever beam
-    Domain_Force_Lin = Region[ {POINT_5} ];
   ElseIf(Flag_testBench==1) //MBB-beam
     Domain_Force_Lin = Region[{POINT_4}];  // force sur le point 4
   ElseIf(Flag_testBench==2) //plate-hole
@@ -63,6 +62,10 @@ Group {
     EndIf 
   ElseIf( Flag_testBench == 3 ) //rotor
     Domain_Force_Lin = Region[Rotor_ext];//Region[Rotor_Bnd_A0];
+  ElseIf(Flag_testBench == 6) //short cantilever beam
+    Domain_Force_Lin = Region[ {POINT_5} ];
+  ElseIf(Flag_testBench == 7) //L-bracket
+    Domain_Force_Lin = Region[ {POINT_12} ];
   EndIf
 
   Domain_Force = Region[{Domain_Force_Sur,Domain_Force_Lin}];
@@ -104,15 +107,17 @@ Function {
       force_mec[#SURF_HAUT] = Vector[0, 22.5e6, 0]; 
       force_mec[#SURF_GAUCHE] = Vector[-45e6, 0, 0]; 
     EndIf
-  ElseIf ( Flag_testBench == 6 )
-    v1[] = Vector[40.0*Cos[45*deg], 40.0*Sin[45*deg], 0.];
-    v2[] = Vector[30.0, 0., 0.];
-    v3[] = Vector[20.0*Cos[45*deg], -20.0*Cos[45*deg], 0.];
-    force_mec[Domain_Force] = v1[] + v2[] + v3[]; 
   ElseIf ( Flag_testBench < 2 )
     force_mec[Domain_Force] = Vector[0.0,-1e6,0.0]; 
   ElseIf ( Flag_testBench == 3 )
-    force_mec[Domain_Force] = 1e6*er[];  
+    force_mec[Domain_Force] = 1e6*er[];
+  ElseIf ( Flag_testBench == 6 )
+    v1[] = Vector[40.0*Cos[45*deg], 40.0*Sin[45*deg], 0.];
+    v2[] = Vector[0., 30., 0.];
+    v3[] = Vector[20.0*Cos[45*deg], -20.0*Cos[45*deg], 0.];
+    force_mec[Domain_Force] = v2[]; 
+  ElseIf ( Flag_testBench == 7 )
+    force_mec[Domain_Force] = Vector[0.,-1.,0.]; 
   EndIf
 
   If(StrCmp(Flag_optType,"topology")) // no topology optimization
@@ -433,6 +438,8 @@ Constraint{
         { Region Rotor_ext;  Value 0.; } 
       ElseIf (Flag_testBench==6)
         { Region #SURF_GAUCHE;  Value 0.; } 
+      ElseIf (Flag_testBench==7)
+        { Region #SURF_HAUT;  Value 0.; } 
       EndIf
     }
   }
@@ -455,6 +462,8 @@ Constraint{
         { Region Rotor_ext;  Value 0.; } 
       ElseIf (Flag_testBench==6)
         { Region #SURF_GAUCHE;  Value 0.; } 
+      ElseIf (Flag_testBench==7)
+        { Region #SURF_HAUT;  Value 0.; } 
       EndIf
     }
   }
@@ -469,6 +478,8 @@ Constraint{
         { Region #SURF_DROITE;  Value 0.; } 
       ElseIf (Flag_testBench==6)
         { Region #SURF_GAUCHE;  Value 0.; } 
+      ElseIf (Flag_testBench==7)
+        { Region #SURF_HAUT;  Value 0.; } 
       EndIf
     }
   }

@@ -2,28 +2,40 @@ Include "beam_data.geo";
 
 // square
 If (!Flag_sym)
-  p1 = newp; Point(p1) = {-Lx/2,-Ly/2,-Lz/2, lc};
-  p2 = newp; Point(p2) = { Lx/2,-Ly/2,-Lz/2, lc};
-  p3 = newp; Point(p3) = { Lx/2, Ly/2,-Lz/2, lc};
+  p1 = newp; Point(p1) = {-Lx,-Ly/2,-Lz/2, lc};
+  p2 = newp; Point(p2) = { 0.,-Ly/2,-Lz/2, lc};
+  p3 = newp; Point(p3) = { 0., Ly/2,-Lz/2, lc};
 EndIf
 If (Flag_sym==1)
-  p1 = newp; Point(p1) = {-Lx/2,-Ly/2,-Lz/2, lc};
+  p1 = newp; Point(p1) = {-Lx,-Ly/2,-Lz/2, lc};
   p2 = newp; Point(p2) = { 0,-Ly/2,-Lz/2, lc};
   p3 = newp; Point(p3) = { 0, Ly/2,-Lz/2, lc};
 EndIf
 If (Flag_sym==2)
-  p1 = newp; Point(p1) = {-Lx/2,-0,-Lz/2, lc};
+  p1 = newp; Point(p1) = {-Lx,-0,-Lz/2, lc};
   p2 = newp; Point(p2) = { 0,0,-Lz/2, lc};
   p3 = newp; Point(p3) = { 0, Ly/2,-Lz/2, lc};
 EndIf
-p4 = newp; Point(p4) = {-Lx/2, Ly/2,-Lz/2, lc};
+p4 = newp; Point(p4) = {-Lx, Ly/2,-Lz/2, lc};
 If (!Flag_sym)
-  p10 = newp; Point(p10) = {Lx/2, 0,-Lz/2, lc};
-EndIf
-If (Flag_sym)
+  If (Flag_addpad)
+    p10 = newp; Point(p10) = {0.,-Ly/2 + Lypad,-Lz/2, lc};
+  Else
+    p10 = newp; Point(p10) = {0., 0,-Lz/2, lc};
+  EndIf
+Else  
   p10 = newp; Point(p10) = {0, 0,-Lz/2, lc};
 EndIf
-p11 = newp; Point(p11) = {-Lx/2,0,-Lz/2};
+If (Flag_addpad)
+  p11 = newp; Point(p11) = {-Lx,-Ly/2 + Lypad,-Lz/2,lc};
+Else
+  p11 = newp; Point(p11) = {-Lx,0,-Lz/2,lc};
+EndIf
+If (Flag_addpad)
+  p12 = newp; Point(p12) = {Lxpad,-Ly/2 + Lypad,-Lz/2,lc};
+  p13 = newp; Point(p13) = {Lxpad,-Ly/2,-Lz/2,lc};
+  p14 = newp; Point(p14) = {Lxpad,-Ly/2 + Lypad,-Lz/2,lc};
+EndIf
 l1 = newl; Line(l1) = {p1,p2}; 
 //l2 = newl; Line(l2) = {p2,p10,p3};
 l2_1 = newl; Line(l2_1) = {p2,p10};
@@ -33,18 +45,24 @@ l4_1 = newl; Line(l4_1) = {p4,p11};
 l4_2 = newl; Line(l4_2) = {p11,p1};
 ll1 = newll; Line Loop(ll1) = {l1,l2_1,l2_2,l3,l4_1,l4_2};
 ll_[] = {ll1};
+If (Flag_addpad)
+  lpad_1 = newl; Line(lpad_1) = {p10,p12};
+  lpad_2 = newl; Line(lpad_2) = {p12,p13};
+  lpad_3 = newl; Line(lpad_3) = {p13,p2};
+  ll2 = newll; Line Loop(ll2) = {lpad_1,lpad_2,lpad_3,l2_1};
+EndIf
 
 // hole
 If( Flag_hole == 1 ) //ellipse
-  p_ec = newp;Point(p_ec) = {0, 0, -Lz/2, lc/10}; //center
+  p_ec = newp;Point(p_ec) = {0, 0, -Lz/2, lc}; //center
   If (!Flag_sym)
-    p_e1 = newp;Point(p_e1) = {hole_length/2, 0, -Lz/2, lc/10};  //right
+    p_e1 = newp;Point(p_e1) = {hole_length/2, 0, -Lz/2, lc};  //right
     Printf("p_e1:%g",p_e1);
   EndIf
-  p_e2 = newp;Point(p_e2) = {0, hole_width/2, -Lz/2, lc/10};   //up
-  p_e3 = newp;Point(p_e3) = {-hole_length/2, 0, -Lz/2, lc/10};  //left
+  p_e2 = newp;Point(p_e2) = {0, hole_width/2, -Lz/2, lc};   //up
+  p_e3 = newp;Point(p_e3) = {-hole_length/2, 0, -Lz/2, lc};  //left
   If (Flag_sym==1)
-    p_e4 = newp;Point(p_e4) = {0, -hole_width/2, -Lz/2, lc/10};  //down
+    p_e4 = newp;Point(p_e4) = {0, -hole_width/2, -Lz/2, lc};  //down
     Printf("p_e4:%g",p_e4);
     l_p2_pe4 = newl; Line(l_p2_pe4) = {p2,p_e4};
     l_pe4_pe2 = newl; Line(l_pe4_pe2) = {p_e4,p_e2}; 
@@ -93,17 +111,25 @@ If ( Flag_hole == 2 ) //spline
   ll_[] += -ll_s;
 EndIf
 s1 = news; Plane Surface(s1) = ll_[];
+If (Flag_addpad)
+  s2 = news; Plane Surface(s2) = ll2;
+EndIf
 
 If(transfinite)
   // s1
-  Transfinite Line{l1} = nbE_X; //Using Bump 0.01;//Using Progression progl_1;
-  Transfinite Line{-l3} = nbE_X; //Using Bump 0.01;//Using Progression progl_3; 
-  //Transfinite Line{l2_1,l2_2} = nbE_Y; //Using Bump 0.01;//Using Progression progl_2;
-  Transfinite Line{l2_1} = nbE_Y*0.5; //Using Bump 0.01;//Using Progression progl_2;
-  Transfinite Line{l2_2} = nbE_Y*0.5; //Using Bump 0.01;//Using Progression progl_2;
-  Transfinite Line{-l4_1} = nbE_Y*0.5; //Using Bump 0.01;//Using Progression progl_4;
-  Transfinite Line{-l4_2} = nbE_Y*0.5; //Using Bump 0.01;//Using Progression progl_4;
-  Transfinite Surface{s1} = {p1,p2,p3,p4};
+    Transfinite Line{l1} = nbE_X; //Using Bump 0.01;//Using Progression progl_1;
+    Transfinite Line{-l3} = nbE_X; //Using Bump 0.01;//Using Progression progl_3; 
+    Transfinite Line{l2_1} = nbE_Y*0.5; //Using Bump 0.01;//Using Progression progl_2;
+    Transfinite Line{l2_2} = nbE_Y*0.5; //Using Bump 0.01;//Using Progression progl_2;
+    Transfinite Line{-l4_1} = nbE_Y*0.5; //Using Bump 0.01;//Using Progression progl_4;
+    Transfinite Line{-l4_2} = nbE_Y*0.5; //Using Bump 0.01;//Using Progression progl_4;
+    Transfinite Surface{s1} = {p1,p2,p3,p4};
+  If (Flag_addpad)
+    Transfinite Line{lpad_1} = nbE_X_pad;
+    Transfinite Line{lpad_3} = nbE_X_pad;
+    Transfinite Line{lpad_2} = nbE_Y_pad*0.5;
+    Transfinite Surface{s2} = {p10,p12,p13,p2};
+  EndIf
   Recombine Surface "*";
 EndIf
 
@@ -123,7 +149,11 @@ pl[] = Line "*";
 
 // Physical regions
 If(!Flag_extrude) //2D
-  Physical Surface(BLOC) = {s1}; 
+  If (Flag_addpad)
+    Physical Surface(BLOC) = {s1,s2}; 
+  Else
+    Physical Surface(BLOC) = {s1}; 
+  EndIf
   Physical Line(SURF_GAUCHE) = {l4_1,l4_2};
   Physical Line(SURF_HAUT) = {l3};
   If(Flag_hole && Flag_sym==2) 
@@ -137,6 +167,7 @@ If(!Flag_extrude) //2D
   Physical Point(POINT_3) = {p3};
   Physical Point(POINT_4) = {p4};
   Physical Point(POINT_5) = {p10};
+  Physical Point(POINT_12) = {p12};
   If(Flag_hole && !Flag_sym)
     Physical Line(HOLE) = {pl[4],pl[5],pl[6],pl[7]}; 
     pNP[] = pl[];

@@ -101,13 +101,11 @@ PostOperation {
      Print[ u, OnElementsOf Domain,File StrCat[ResDir,"u",ExtGmsh]] ;
      Print[ StressVM, OnElementsOf Domain,
        File StrCat[ResDir,"VM",ExtOnelabVec],OverrideTimeStepValue optimIter];
-     Print[ StressVM2, OnElementsOf Domain,
-       File StrCat[ResDir,"VM2",ExtOnelabVec],OverrideTimeStepValue optimIter];
+//     Print[ StressVM2, OnElementsOf Domain,
+//       File StrCat[ResDir,"VM2",ExtOnelabVec],OverrideTimeStepValue optimIter];
      Print[ Compliance[DomainFunc], OnGlobal, Format TimeTable,
        File StrCat[ResDir, StrCat["ComplianceElm",ExtOnelabScal]], LastTimeStepOnly,
        SendToServer StrCat[po_min,"ComplianceElm"], Color "LightYellow" ];
-     Print[Compliance, OnElementsOf Domain,
-       File StrCat[ResDir,"energyElem",ExtGmsh],OverrideTimeStepValue optimIter] ;
      Print[ Volume, OnElementsOf Domain, 
        File StrCat[ResDir,"ElementVolume",ExtOnelabVec], LastTimeStepOnly] ;
 //     If (!Flag_projFuncSpace_xe)
@@ -125,7 +123,6 @@ PostOperation {
 //     Print[ E, OnElementsOf Domain,File StrCat[ResDir,"E",ExtGmsh]] ;
 //     Print[ rho, OnElementsOf Domain,File StrCat[ResDir,"rho",ExtGmsh]] ;
      Print[ u, OnElementsOf Domain,File StrCat[ResDir,"u",ExtGmsh]] ;
-     Print[ energy, OnElementsOf Domain,File StrCat[ResDir,"energyElem",ExtGmsh]] ;
 
 //     For i In {1:3}
 //       Print[ u~{i}, OnElementsOf Domain, Format NodeTable,
@@ -146,16 +143,16 @@ PostOperation {
        File StrCat[ResDir, StrCat["Mass",ExtOnelabScal]], LastTimeStepOnly,
        SendToServer StrCat[po_min,"Mass"], Color "LightYellow" ];
 
-     Print[ StressVMInt[DomainFunc], OnGlobal, Format TimeTable,Color "LightYellow",
-       File StrCat[ResDir, StrCat["StressVM",ExtOnelabScal]], LastTimeStepOnly,
-       StoreInVariable $VM_P,SendToServer StrCat[po_min,"StressVM"] ];
+//     Print[ StressVMInt[DomainFunc], OnGlobal, Format TimeTable,Color "LightYellow",
+//       File StrCat[ResDir, StrCat["StressVM",ExtOnelabScal]], LastTimeStepOnly,
+//       StoreInVariable $VM_P,SendToServer StrCat[po_min,"StressVM"] ];
 
-     Print[ StressVM_pNorm, OnRegion DomainFunc, Format TimeTable,
-       File StrCat[ResDir, StrCat["StressVM_pNorm",ExtOnelabScal]], LastTimeStepOnly,
-       SendToServer StrCat[po_min,"StressVM_pNorm"], Color "LightYellow"];
-     Print[ StressVMNorm2, OnRegion DomainFunc, Format TimeTable,
-       File StrCat[ResDir, StrCat["StressVMNorm2",ExtOnelabScal]], LastTimeStepOnly,
-       SendToServer StrCat[po_min,"StressVMNorm2"], Color "LightYellow"];
+//     Print[ StressVM_pNorm, OnRegion DomainFunc, Format TimeTable,
+//       File StrCat[ResDir, StrCat["StressVM_pNorm",ExtOnelabScal]], LastTimeStepOnly,
+//       SendToServer StrCat[po_min,"StressVM_pNorm"], Color "LightYellow"];
+//     Print[ StressVMNorm2, OnRegion DomainFunc, Format TimeTable,
+//       File StrCat[ResDir, StrCat["StressVMNorm2",ExtOnelabScal]], LastTimeStepOnly,
+//       SendToServer StrCat[po_min,"StressVMNorm2"], Color "LightYellow"];
 
 //     Print[ Volume[Domain], OnGlobal, Format TimeTable, 
 //       File StrCat[ResDir,"Volume",ExtOnelabScal], LastTimeStepOnly, 
@@ -171,8 +168,8 @@ PostOperation {
      //  Print[ desVarPlot, OnElementsOf Domain, 
      //    File StrCat[ResDir,"xe_gen",ExtGmsh], LastTimeStepOnly] ;
      //Else
-	Print[ xe, OnElementsOf Domain, 
-         File StrCat[ResDir,"xe_trans",ExtGmsh], LastTimeStepOnly] ;
+//	Print[ xe, OnElementsOf Domain, 
+//         File StrCat[ResDir,"xe_trans",ExtGmsh], LastTimeStepOnly] ;
      //EndIf
    }
  }

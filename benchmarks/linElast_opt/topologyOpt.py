@@ -9,17 +9,23 @@ from defPerfFunc import *
 from defPerfFuncSens import *
 import defPerfFunc
 
+testCase = 7 #7:L-bracket
 pIn = 'Input/Constructive Parameters/'
 ppC = 'Input/0Cao/'
 cao = 'square' #'square','rotor'
 extrude=0;nz=10;hole=0
-if os.path.isfile('data.npy'):
-    data = np.load('data.npy')
-    nx=data[0];ny=data[1]
-else:
-    nx=20;ny=50
-Lx = 1.0; Ly = 2.5
-pl1=1.;pl2=1.;pl3=1.;pl4=1.
+if testCase < 7:
+    Lx = 3.0; Ly = 1.0; nyPad = 1
+    if os.path.isfile('data.npy'):
+        data = np.load('data.npy')
+        nx=data[0];ny=data[1]
+    else:
+        nx=20;ny=50
+elif testCase == 7:
+    Lx = 0.4; Ly = 1.0
+    nx = 25; ny = 50; nyPad = 75
+    
+    pl1=1.;pl2=1.;pl3=1.;pl4=1.
 # ************************************************************************
 # ***** Create the parameters                                        *****
 # ************************************************************************
@@ -31,21 +37,25 @@ parameters = {
     'direct':['Direct_u_Mec'],
     'project_xe':0,
     'allowCentralFD':0,
-    'MeshRefine':1,
+    'MeshRefine':0,
     'defaultValue':{
         'OptType':['Input/Optimization Type','topology'],
         'Deg2':['Input/degree 2?',0],
         'cao':[ppC+'0 Cao?',cao],
         'extrude':[ppC+'extrude?',extrude],
-        'load':['Input/Loading/case',6],
+        'load':['Input/Loading/case',7],
         'MaterialInterpLaw':['Input/Optimization/Material Law','simp'],
         'SimpDegree':['Input/Optimization/Simp Degree',3.0],
         'Lx':[pIn+'X length [m]',Lx],
         'Ly':[pIn+'Y length [m]',Ly],
+        'LxPad':[pIn+'X length pad [m]',0.6],
+        'LyPad':[pIn+'Y length pad [m]',0.4],
         'Transfinite':[ppC+'transfinite?',1],
         'Nx':[ppC+'Nx',nx],
         'Ny':[ppC+'Ny',ny],
         'Nz':[ppC+'Nz',nz],
+        'NxPad':[ppC+'Nx pad',nyPad],
+        'NyPad':[ppC+'Ny pad',ny],
         'pl1':[ppC+'progression l1',pl1],
         'pl2':[ppC+'progression l2',pl2],
         'pl3':[ppC+'progression l3',pl3],
@@ -54,13 +64,13 @@ parameters = {
     },
     'archivate':1,
     'TAG':[1000], #1000,1001
-    'performance':opt_complianceVolume,#opt_VolumeVMelem,,opt_maxBeta_eig
+    'performance':opt_VolumeVMelem,#opt_complianceVolume,opt_maxBeta_eig
     'rmin':1.5*Lx/nx, #0.0125,
     'optimizer':'mma3',#'mma2007','conlinFile','gcmma','openopt'
     'xtol':1.0e-02,
-    'iterMax':1000,'parallel':0}
+    'iterMax':1000,'parallel':2,'nbCPU':4}
 
-x = np.array([0.25]);xmax = np.array([1.0]);xmin = np.array([0.001])
+x = np.array([1.0]);xmax = np.array([1.0]);xmin = np.array([0.001])
 
 # ************************************************************************
 # ***** Instantiate the Model and the Optimizer                      *****

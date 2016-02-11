@@ -246,13 +246,13 @@ Resolution{
       If(!StrCmp(Flag_optType,"topology") && !Flag_projFuncSpace_xe)
         GmshRead[StrCat[ResDir0,"designVariable.pos"],DES_VAR_FIELD]; 
       EndIf
-      PostOperation[u_Mec];//generate useful coeff !!
+      //generate useful coeff !!
+      If(!StrCmp(Flag_optType,"topology"))
+        PostOperation[u_TO];
+      Else
+        PostOperation[u_Mec];
+      EndIf
       InitSolution[B];Generate[B];Solve[B];SaveSolution[B];
-//      If(StrCmp(ResId,""))
-//        RenameFile["beam.res", StrCat[ResDir,"beam.res"]];
-//        //RenameFile["beam.res", StrCat["beam_",ResId,".res"]];
-//        //RenameFile["beam.pre", StrCat["beam_",ResId,"_pre"]];
-//      EndIf
       PostOperation[Adjoint_u_Mec];
     }
   }

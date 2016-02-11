@@ -213,9 +213,9 @@ PostOperation {
 
   { Name Adjoint_u_Mec; NameOfPostProcessing Adjoint_u_Mec;
     Operation{
-      Print[ lambda, OnElementsOf Domain,
-        File StrCat[ResDir, "lambda", ExtGmsh], LastTimeStepOnly] ;
-      Print[ Fadj, OnElementsOf Domain_Force,File StrCat[ResDir,"Fadj",ExtGmsh]] ;
+      //Print[ lambda, OnElementsOf Domain,
+      //  File StrCat[ResDir, "lambda", ExtGmsh], LastTimeStepOnly] ;
+      //Print[ Fadj, OnElementsOf Domain_Force,File StrCat[ResDir,"Fadj",ExtGmsh]] ;
     }
   }
 
@@ -264,9 +264,9 @@ PostOperation {
       Print[ bilinLamdaState[Domain], OnGlobal, Format Table,
         File StrCat[ResDir, StrCat["lambda_K_A",ExtGnuplot]], LastTimeStepOnly,
 	SendToServer StrCat[po_min,"lambda_K_A"], Color "LightYellow" ];
-      Print[ loadLambda[Domain_Force],OnGlobal, Format Table,
-	File StrCat[ResDir, StrCat["lambda_g",ExtGnuplot]], LastTimeStepOnly,
-	SendToServer StrCat[po_min,"lambda_g"], Color "LightYellow" ];
+      //Print[ loadLambda[Domain_Force],OnGlobal, Format Table,
+	//File StrCat[ResDir, StrCat["lambda_g",ExtGnuplot]], LastTimeStepOnly,
+	//SendToServer StrCat[po_min,"lambda_g"], Color "LightYellow" ];
     }
   }
 
