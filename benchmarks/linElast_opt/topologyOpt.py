@@ -24,7 +24,7 @@ if testCase < 7:
         nx=20;ny=50
 elif testCase == 7:
     Lx = 0.4; Ly = 1.0
-    nx = 25; ny = 50; nxPad = 75
+    nx = 25*0.4; ny = 50*0.4; nxPad = 75*0.4
 # ************************************************************************
 # ***** Create the parameters                                        *****
 # ************************************************************************
@@ -36,7 +36,7 @@ parameters = {
     'direct':['Direct_u_Mec'],
     'project_xe':0,
     'allowCentralFD':0,
-    'MeshRefine':1,
+    'MeshRefine':0,
     'defaultValue':{
         'OptType':['Input/Optimization Type','topology'],
         'Deg2':['Input/degree 2?',1],
@@ -45,15 +45,16 @@ parameters = {
         'load':['Input/Loading/case',7],
         'MaterialInterpLaw':['Input/Optimization/Material Law','simp'],
         'SimpDegree':['Input/Optimization/Simp Degree',3.0],
+        'StressDegree':['Input/Optimization/Stress Degree',0.5],
         'Lx':[pIn+'X length [m]',Lx],
         'Ly':[pIn+'Y length [m]',Ly],
         'LxPad':[pIn+'X length pad [m]',0.6],
         'LyPad':[pIn+'Y length pad [m]',0.4],
-        'Transfinite':[ppC+'transfinite?',0],
+        'Transfinite':[ppC+'transfinite?',1],
         'Nx':[ppC+'Nx',nx],
         'Ny':[ppC+'Ny',ny],
         'Nz':[ppC+'Nz',nz],
-        'NxPad':[ppC+'Nx pad',nxPad],
+        'NxPad':[ppC+'Nx pad',nxPad*0.4],
         'NyPad':[ppC+'Ny pad',ny],
         'pl1':[ppC+'progression l1',pl1],
         'pl2':[ppC+'progression l2',pl2],
@@ -67,9 +68,9 @@ parameters = {
     'rmin':1.5*Lx/nx, #0.0125,
     'optimizer':'mma3',#'mma2007','conlinFile','gcmma','openopt'
     'xtol':1.0e-02,
-    'iterMax':1000,'parallel':2,'nbCPU':4}
+    'iterMax':1000,'parallel':2,'nbCPU':6}
 
-x = np.array([.25]);xmax = np.array([1.0]);xmin = np.array([0.001])
+x = np.array([1.0]);xmax = np.array([1.0]);xmin = np.array([0.001])
 
 # ************************************************************************
 # ***** Instantiate the Model and the Optimizer                      *****

@@ -240,7 +240,7 @@ def opt_complianceVolume(x,data,parameters):
     input = {
         'f':[compl,vol],
         'df':['SelfFixedDom',volumeSens],
-        'fmax':[0, 0.32],
+        'fmax':[0, 0.16],
         'f_name':['Compliance','Volume'],
         'sign':[1.0,1.0],
         'filter':[]

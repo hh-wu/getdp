@@ -15,7 +15,6 @@ PostProcessing {
       { Name rho ; Value { Term { [ rho[{xe}] ]; In Domain ; } } }   
 
       { Name StressVM; Value { Term {[sigmaVM[{D1 u},{D2 u},{xe}]];In Domain;}}}
-      { Name StressVM2; Value { Term {[sigmaVM2[{D1 u},{D2 u},{xe}]];In Domain;}}}
       { Name StressVMInt; Value {
       	Integral { [ sigmaVM[{D1 u},{D2 u},{xe}]^degVM ];
           In Domain ; Jacobian SurLinVol  ; Integration I1; }
@@ -101,8 +100,6 @@ PostOperation {
      Print[ u, OnElementsOf Domain,File StrCat[ResDir,"u",ExtGmsh]] ;
      Print[ StressVM, OnElementsOf Domain,
        File StrCat[ResDir,"VM",ExtOnelabVec],OverrideTimeStepValue optimIter];
-//     Print[ StressVM2, OnElementsOf Domain,
-//       File StrCat[ResDir,"VM2",ExtOnelabVec],OverrideTimeStepValue optimIter];
      Print[ Compliance[DomainFunc], OnGlobal, Format TimeTable,
        File StrCat[ResDir, StrCat["ComplianceElm",ExtOnelabScal]], LastTimeStepOnly,
        SendToServer StrCat[po_min,"ComplianceElm"], Color "LightYellow" ];

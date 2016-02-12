@@ -2,7 +2,7 @@
 nn = 1;
 DefineConstant[
   Flag_hole = {0, Name StrCat(ppC,"Hole"),Choices {0="no hole",1="ellipse",2="spline"}},
-  Flag_sym = {0, Name StrCat(ppC,"Symetry"),Choices {0,1}},
+  Flag_sym = {0, Name StrCat(ppC,"Symetry"),Choices {0,1,2}},
   NSpline = {6, Name StrCat(ppC,"nb points"), Visible (Flag_hole==2) },
   Flag_extrude = {0, Choices {0,1}, Name StrCat(ppC,"extrude?")},
   transfinite={1, Name StrCat(ppC,"transfinite?"),Choices {0,1},Visible (!Flag_hole)},
@@ -35,7 +35,7 @@ For i In {0:(NSpline-1)}
 EndFor
 
 DefineConstant[
-  Lx ={LL*0.4,Name StrCat(pp,"X length [m]"), Visible 1, Closed 1},
+  Lx ={LL*0.5,Name StrCat(pp,"X length [m]"), Visible 1, Closed 1},
   Ly ={LL,Name StrCat(pp,"Y length [m]"), Visible 1, Closed 1},
   Lxpad = {0.6,Name StrCat(pp,"X length pad [m]"), Visible (Flag_addpad), Closed 1},
   Lypad = {0.4,Name StrCat(pp,"Y length pad [m]"), Visible (Flag_addpad), Closed 1}
@@ -63,6 +63,7 @@ POINT_3 = 1203;
 POINT_4 = 1204;
 POINT_5 = 1205;
 POINT_12 = 1206;
+POINT_CENTER = 1207;
 HOLE = 9000;
 LINE_NON_PERTURBED = 100000;
 
