@@ -763,7 +763,6 @@ DefineGroups :
           for(unsigned int i = 0; i < vec.size(); i++)
             Fill_GroupInitialListFromString(Group_S.InitialList, vec[i].c_str());
         }
-        Message::ExchangeOnelabParameter(&Group_S, FloatOptions_S, CharOptions_S);
 	Group_S.SuppListType = SUPPLIST_NONE ; Group_S.InitialSuppList = NULL ;
 	i = Add_Group(&Group_S, $3, false, 0, 0) ;
       }

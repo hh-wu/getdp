@@ -7,8 +7,8 @@ Group {
 
   // interactive construction of groups with Gmsh physical entities
   If(interactive)
-    modelDim = DefineNumber[0, Name "Gmsh/Model dimension"];
-    numPhysicals = DefineNumber[0, Name "Gmsh/Number of physical groups"];
+    modelDim = DefineNumber[0, Name "Gmsh/Model dimension", Visible 0];
+    numPhysicals = DefineNumber[0, Name "Gmsh/Number of physical groups", Visible 0];
     For i In {1:numPhysicals}
       dim~{i} = DefineNumber[0, Name Sprintf["Gmsh/Physical group %g/Dimension", i]];
       name~{i} = DefineString["", Name Sprintf["Gmsh/Physical group %g/Name", i]];

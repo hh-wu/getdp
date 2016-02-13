@@ -17,17 +17,6 @@
 #include "ProData.h" // for onelab
 #include "ProParser.h" // for onelab
 
-#if defined(HAVE_ONELAB2)
-#include "NetworkUtils.h"
-#include "OnelabNetworkClient.h"
-#ifndef WIN32
-#include <pthread.h>
-#include <signal.h>
-#else
-#include <wspiapi.h>
-#endif
-#endif
-
 #if !defined(WIN32) || defined(__CYGWIN__)
 #include <sys/time.h>
 #include <sys/resource.h>
@@ -78,11 +67,7 @@ int Message::_progressMeterCurrent = 0;
 double Message::_startTime = 0.;
 std::map<std::string, double> Message::_timers;
 GmshClient* Message::_client = 0;
-#ifdef HAVE_ONELAB2
-OnelabNetworkClient* Message::_onelabClient = 0;
-#else
 onelab::client* Message::_onelabClient = 0;
-#endif
 #if !defined(HAVE_ONELAB) // if Gmsh is compiled without onelab
 onelab::server *onelab::server::_server = 0;
 #endif
@@ -554,11 +539,9 @@ void Message::ProgressMeter(int n, int N, const char *fmt, ...)
     vsnprintf(str, sizeof(str), fmt, args);
     va_end(args);
     sprintf(str2, "%3d%%    : %s", _progressMeterCurrent, str);
-#ifndef HAVE_ONELAB2
     if(_onelabClient && _onelabClient->getName() == "GetDP"){
       _onelabClient->sendProgress(str);
     }
-#endif
 
     if(N <= 0){
       if(_onelabClient && _onelabClient->getName() != "GetDPServer"){
@@ -653,11 +636,7 @@ void Message::SendMergeFileRequest(const std::string &filename)
     _client->MergeFile((char*)filename.c_str());
   }
   else if(_onelabClient && _onelabClient->getName() != "GetDPServer"){
-#ifdef HAVE_ONELAB2
-    _onelabClient->mergeFile(filename);
-#else
     _onelabClient->sendMergeFileRequest(filename);
-#endif
   }
 }
 
@@ -707,47 +686,6 @@ public:
 
 void Message::InitializeOnelab(std::string name, std::string sockname)
 {
-#ifdef HAVE_ONELAB2
-  if(sockname.size()){
-    UInt32 address = 0;
-    UInt16 port = 1148;
-    size_t colon = sockname.find(':');
-    if(colon != std::string::npos) {
-      address = ip4_inet_pton(sockname.substr(0,colon).c_str());
-      port = atoi(sockname.substr(colon+1).c_str());
-    }
-    OnelabNetworkClient *c = new OnelabNetworkClient(name, address, port);
-    if(!c->connect()) {
-        Error("Could not connect to ONELAB server");
-        delete c;
-    }
-    else {
-      _onelabClient = c;
-
-      onelab::string o(name + "/FileExtension", ".pro");
-      o.setVisible(false);
-      o.setAttribute("Persistent", "1");
-      _onelabClient->set(o);
-      onelab::number o2(name + "/UseCommandLine", 1.);
-      o2.setVisible(false);
-      o2.setAttribute("Persistent", "1");
-      _onelabClient->set(o2);
-      onelab::number o3(name + "/GuessModelName", 1.);
-      o3.setVisible(false);
-      o3.setAttribute("Persistent", "1");
-      _onelabClient->set(o3);
-      std::vector<onelab::string> ps;
-      _onelabClient->get(ps, name + "/Action", true);
-      if(ps.size()){
-        Info("Performing ONELAB '%s'", ps[0].getValue().c_str());
-        if(ps[0].getValue() == "initialize") Exit(0);
-      }
-      else {
-        Warning("No action for GetDP in ONELAB database");
-      }
-    }
-  }
-#else
   if(sockname.size()){
     // getdp is called by a distant onelab server
     onelab::remoteNetworkClient *c = new onelab::remoteNetworkClient(name, sockname);
@@ -759,15 +697,15 @@ void Message::InitializeOnelab(std::string name, std::string sockname)
       _onelabClient = c;
       // send configuration options (we send them even if Action != initialize),
       // so that they are also sent e.g. when the database is reset
-      onelab::string o(name + "/FileExtension", ".pro");
+      onelab::string o(name + "/File extension", ".pro");
       o.setVisible(false);
       o.setAttribute("Persistent", "1");
       _onelabClient->set(o);
-      onelab::number o2(name + "/UseCommandLine", 1.);
+      onelab::number o2(name + "/Use command line", 1.);
       o2.setVisible(false);
       o2.setAttribute("Persistent", "1");
       _onelabClient->set(o2);
-      onelab::number o3(name + "/GuessModelName", 1.);
+      onelab::number o3(name + "/Guess model name", 1.);
       o3.setVisible(false);
       o3.setAttribute("Persistent", "1");
       _onelabClient->set(o3);
@@ -799,7 +737,6 @@ void Message::InitializeOnelab(std::string name, std::string sockname)
         Message::Error("Could not open file '%s'", name.c_str());
     }
   }
-#endif
 }
 
 void Message::AddOnelabNumberChoice(std::string name, double val, const char *color)
@@ -808,9 +745,6 @@ void Message::AddOnelabNumberChoice(std::string name, double val, const char *co
     std::vector<double> choices;
     std::vector<onelab::number> ps;
     _onelabClient->get(ps, name);
-#ifdef HAVE_ONELAB2
-    _onelabClient->recvfrom();
-#endif
     if(ps.size()){
       choices = ps[0].getChoices();
     }
@@ -841,9 +775,6 @@ void Message::AddOnelabStringChoice(std::string name, std::string kind,
     std::vector<std::string> choices;
     std::vector<onelab::string> ps;
     _onelabClient->get(ps, name);
-#ifdef HAVE_ONELAB2
-    _onelabClient->recvfrom();
-#endif
     if(ps.size()){
       choices = ps[0].getChoices();
       if(std::find(choices.begin(), choices.end(), value) == choices.end())
@@ -865,22 +796,14 @@ void Message::SetOnelabNumber(std::string name, double val, bool visible)
 {
   if(_onelabClient){
     std::vector<onelab::number> numbers;
-#if defined(HAVE_ONELAB2)
-    _onelabClient->get(numbers, name, "GetDP");
-#else
     _onelabClient->get(numbers, name);
-#endif
     if(numbers.empty()){
       numbers.resize(1);
       numbers[0].setName(name);
     }
     numbers[0].setValue(val);
     numbers[0].setVisible(visible);
-#if defined(HAVE_ONELAB2)
-    _onelabClient->set(numbers[0], "GetDP");
-#else
     _onelabClient->set(numbers[0]);
-#endif
   }
 }
 
@@ -888,11 +811,7 @@ double Message::GetOnelabNumber(std::string name)
 {
   if(_onelabClient){
     std::vector<onelab::number> numbers;
-#if defined(HAVE_ONELAB2)
-    _onelabClient->get(numbers, name, "GetDP");
-#else
     _onelabClient->get(numbers, name);
-#endif
     if(numbers.empty()){
       Message::Error("Unknown ONELAB number parameter '%s'", name.c_str());
       return 0.;
@@ -909,9 +828,6 @@ void Message::GetOnelabString(std::string name, char **val)
   if(_onelabClient){
     std::vector<onelab::string> ps;
     _onelabClient->get(ps, name);
-#ifdef HAVE_ONELAB2
-    _onelabClient->recvfrom();
-#endif
     if(ps.size() && ps[0].getValue().size()){
       *val = strSave(ps[0].getValue().c_str());
       return;
@@ -925,9 +841,6 @@ std::string Message::GetOnelabAction()
   if(_onelabClient){
     std::vector<onelab::string> ps;
     _onelabClient->get(ps, _onelabClient->getName() + "/Action");
-#ifdef HAVE_ONELAB2
-    _onelabClient->recvfrom();
-#endif
     if(ps.size()) return ps[0].getValue();
   }
   return "";
@@ -1116,135 +1029,14 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
 
 extern void Fill_GroupInitialListFromString(List_T *list, const char *str);
 
-void Message::ExchangeOnelabParameter(Group *g, fmap &fopt, cmap &copt)
-{
-  if(!_onelabClient) return;
-
-  std::string name;
-  if(copt.count("Name"))
-    name = copt["Name"][0];
-
-  if(name.empty()){
-    if(copt.size() || fopt.size())
-      Message::Error("From now on you need to use the `Name' attribute to create a "
-                     "ONELAB parameter: `Name \"%s\"'",
-                     _getParameterName(g->Name, copt).c_str());
-    return;
-  }
-
-  std::vector<onelab::region> ps;
-  _onelabClient->get(ps, name);
-  bool noClosed = true;
-  if(ps.size()){
-    if(fopt.count("ReadOnly") && fopt["ReadOnly"][0]){ // use local value
-      std::vector<std::string> vec(copt["Strings"]);
-      std::set<std::string> val;
-      for(unsigned int i = 0; i < vec.size(); i++) val.insert(vec[i]);
-      ps[0].setValue(val);
-    }
-    else{ // use value from server
-      List_Reset(g->InitialList);
-      std::set<std::string> val(ps[0].getValue());
-      for(std::set<std::string>::iterator it = val.begin(); it != val.end(); it++)
-        Fill_GroupInitialListFromString(g->InitialList, it->c_str());
-    }
-    // keep track of these attributes, which can be changed server-side (unless
-    // they are not visible)
-    if(ps[0].getVisible()){
-      if(ps[0].getAttribute("Closed").size()) noClosed = false;
-    }
-  }
-  else{
-    ps.resize(1);
-    ps[0].setName(name);
-    std::vector<std::string> vec(copt["Strings"]);
-    std::set<std::string> val;
-    for(unsigned int i = 0; i < vec.size(); i++) val.insert(vec[i]);
-    ps[0].setValue(val);
-  }
-  // send updated parameter to server
-  if(noClosed && copt.count("Closed")) // for backward compatibility
-    ps[0].setAttribute("Closed", copt["Closed"][0]);
-  if(noClosed && fopt.count("Closed")) // for backward compatibility
-    ps[0].setAttribute("Closed", fopt["Closed"][0] ? "1" : "0");
-  _setStandardOptions(&ps[0], fopt, copt);
-  _onelabClient->set(ps[0]);
-}
-
-void Message::ExchangeOnelabParameter(Expression *e, fmap &fopt, cmap &copt)
-{
-  if(!_onelabClient) return;
-
-  Message::Error("Exchanging functions with ONELAB in not implemented yet");
-}
-
 void Message::UndefineOnelabParameter(const std::string &name)
 {
   if(!_onelabClient) return;
-
-  bool found = false;
-#ifndef HAVE_ONELAB2
-  {
-    // try to clear number with short name == name
-    std::vector<onelab::number> ps;
-    _onelabClient->get(ps);
-    for(unsigned int i = 0; i < ps.size(); i++){
-      if(ps[i].getShortName() == name){
-        found = true;
-        _onelabClient->clear(ps[i].getName());
-      }
-    }
-  }
-
-  if(!found){
-    // try to clear string with short name == name
-    std::vector<onelab::string> ps;
-    _onelabClient->get(ps);
-    for(unsigned int i = 0; i < ps.size(); i++){
-      if(ps[i].getShortName() == name){
-        found = true;
-        _onelabClient->clear(ps[i].getName());
-      }
-    }
-  }
-  // TODO for ONELAB2 (search only in local parameter ?)
-#endif
-
-  if(!found)
-    _onelabClient->clear(name);
+  _onelabClient->clear(name);
 }
 
 void Message::FinalizeOnelab()
 {
-#ifdef HAVE_ONELAB2
-  if(_onelabClient){
-    // add default computation modes
-    std::string name = ((VirtualClient *)_onelabClient)->getName();
-    std::vector<onelab::string> ps;
-    _onelabClient->get(ps, name + "/Action");
-    if(ps.size()){
-      if(ps[0].getValue() != "initialize"){
-        _onelabClient->get(ps, name + "/9ComputeCommand");
-        if(ps.empty()){ // only change value if none exists
-          ps.resize(1);
-          ps[0].setName(name + "/9ComputeCommand");
-          ps[0].setValue("-solve -pos");
-        }
-        ps[0].setLabel("Compute command");
-        std::vector<std::string> choices;
-        choices.push_back("-pre");
-        choices.push_back("-cal");
-        choices.push_back("-pos");
-        choices.push_back("-solve");
-        choices.push_back("-solve -pos");
-        ps[0].setChoices(choices);
-        _onelabClient->set(ps[0]);
-      }
-    }
-    _onelabClient->disconnect(true);
-    delete _onelabClient;
-    _onelabClient = 0;
-#else
   if(_onelabClient){
     // add default computation modes
     std::string name = _onelabClient->getName();
@@ -1271,7 +1063,6 @@ void Message::FinalizeOnelab()
     }
     delete _onelabClient;
     _onelabClient = 0;
-#endif
   }
 }
 

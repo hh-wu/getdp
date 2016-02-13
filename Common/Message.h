@@ -119,8 +119,6 @@ class Message {
   typedef std::map<std::string, std::vector<double> > fmap;
   typedef std::map<std::string, std::vector<std::string> > cmap;
   static void ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt);
-  static void ExchangeOnelabParameter(Group *p, fmap &fopt, cmap &copt);
-  static void ExchangeOnelabParameter(Expression *p, fmap &fopt, cmap &copt);
   static void UndefineOnelabParameter(const std::string &name);
 };
 
