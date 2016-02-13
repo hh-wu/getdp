@@ -29,7 +29,7 @@ elif testCase == 7:
 # ***** Create the parameters                                        *****
 # ************************************************************************
 parameters = {
-    'plot':1,'Print':2,'file':'beam',
+    'plot':0,'Print':2,'file':'beam',
     'analysis':['u_Mec'],
     'analysisPost':['u_Mec_Post'],
     'adjoint':['Adjoint_u_Mec'],

@@ -213,8 +213,8 @@ PostOperation {
 
   { Name Adjoint_u_Mec; NameOfPostProcessing Adjoint_u_Mec;
     Operation{
-      //Print[ lambda, OnElementsOf Domain,
-      //  File StrCat[ResDir, "lambda", ExtGmsh], LastTimeStepOnly] ;
+      Print[ lambda, OnElementsOf Domain,
+        File StrCat[ResDir, "lambda", ExtGmsh], LastTimeStepOnly] ;
       //Print[ Fadj, OnElementsOf Domain_Force,File StrCat[ResDir,"Fadj",ExtGmsh]] ;
     }
   }

@@ -254,6 +254,9 @@ Resolution{
       EndIf
       InitSolution[B];Generate[B];Solve[B];SaveSolution[B];
       PostOperation[Adjoint_u_Mec];
+
+      //SolveAgain[B];SaveSolution[B];
+      //PostOperation[Adjoint_u_Mec];
     }
   }
 
@@ -273,7 +276,6 @@ Resolution{
       PostOperation[Post_Direct_u_Mec];
     }
   }
-
    // provide "u_Mec" as input !!!
   { Name /*StrCat["Sens_",SysName]*/Sens_u_Mec; 
     // Pourait être transformé en PostOperation (gmshRead!)

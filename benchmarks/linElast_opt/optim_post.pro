@@ -26,7 +26,7 @@ PostProcessing {
           In Domain ; Jacobian SurLinVol  ; Integration I1; }
         }
       }
-      { Name StressVM_pNorm;Value{Term{Type Global;[($VM_P/15.874)^(1/degVM)];In DomainFunc;}}} 
+      { Name StressVM_pNorm;Value{Term{Type Global;[($VM_P)^(1/degVM)];In DomainFunc;}}} 
 
       { Name Volume; Value{Integral{[1.0];In Domain; Jacobian Vol;Integration I1;}}}
       { Name designVar; Value{Term{[designVar[]]; In Domain; Jacobian Vol;}}}
@@ -140,13 +140,13 @@ PostOperation {
        File StrCat[ResDir, StrCat["Mass",ExtOnelabScal]], LastTimeStepOnly,
        SendToServer StrCat[po_min,"Mass"], Color "LightYellow" ];
 
-//     Print[ StressVMInt[DomainFunc], OnGlobal, Format TimeTable,Color "LightYellow",
-//       File StrCat[ResDir, StrCat["StressVM",ExtOnelabScal]], LastTimeStepOnly,
-//       StoreInVariable $VM_P,SendToServer StrCat[po_min,"StressVM"] ];
+     Print[ StressVMInt[DomainFunc], OnGlobal, Format TimeTable,Color "LightYellow",
+       File StrCat[ResDir, StrCat["StressVM",ExtOnelabScal]], LastTimeStepOnly,
+       StoreInVariable $VM_P,SendToServer StrCat[po_min,"StressVM"] ];
 
-//     Print[ StressVM_pNorm, OnRegion DomainFunc, Format TimeTable,
-//       File StrCat[ResDir, StrCat["StressVM_pNorm",ExtOnelabScal]], LastTimeStepOnly,
-//       SendToServer StrCat[po_min,"StressVM_pNorm"], Color "LightYellow"];
+     Print[ StressVM_pNorm, OnRegion DomainFunc, Format TimeTable,
+       File StrCat[ResDir, StrCat["StressVM_pNorm",ExtOnelabScal]], LastTimeStepOnly,
+       SendToServer StrCat[po_min,"StressVM_pNorm"], Color "LightYellow"];
 //     Print[ StressVMNorm2, OnRegion DomainFunc, Format TimeTable,
 //       File StrCat[ResDir, StrCat["StressVMNorm2",ExtOnelabScal]], LastTimeStepOnly,
 //       SendToServer StrCat[po_min,"StressVMNorm2"], Color "LightYellow"];

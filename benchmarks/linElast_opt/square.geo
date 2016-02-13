@@ -86,20 +86,19 @@ If( Flag_hole == 1 ) //ellipse
     l_e1 = newll;Ellipse(l_e1) = {p_e1, p_ec, p_e1, p_e2};
     l_e4 = newll;Ellipse(l_e4) = {p_e4, p_ec, p_e4, p_e1}; 
   EndIf
-  l_e2 = newll;Ellipse(l_e2) = {p_e2, p_ec, p_e2, p_e3};
+  l_e2 = newll;Ellipse(l_e2) = {p_e2, p_ec, p_e2, p_e3}; 
+  line_vel[] = {l_e2};
   If (Flag_sym==0 || Flag_sym==1)
     l_e3 = newll;Ellipse(l_e3) = {p_e3, p_ec, p_e3, p_e4};
   EndIf
   If (!Flag_sym)
     ll_e = newll;Line Loop(ll_e) = {l_e1,l_e2,l_e3,l_e4};
     ll_[] += -ll_e;
-  EndIf
-  If (Flag_sym==1)
+  ElseIf(Flag_sym==1)
     ll_e = newll;Line Loop(ll_e) = {l1,l_p2_pe4,-l_e2,-l_e3,l_pe2_p3,l3,l4_1,l4_2};
     Printf("ll_e:%g",ll_e);
     ll_[] = {ll_e};
-  EndIf
-  If (Flag_sym==2)
+  ElseIf(Flag_sym==2)
     l1 = newl; Line(l1) = {p1,p_e3};
     ll_e = newll;Line Loop(ll_e) = {l1,-l_e2,l_pe2_p3,l3,l4};
     Printf("ll_e:%g",ll_e);
@@ -228,7 +227,7 @@ If(Flag_extrude) //3D
   Physical Point(POINT_3) = p3;
   Physical Point(POINT_4) = p4;
 EndIf
-
+Color SkyBlue {Surface{s1};}
 //Mesh.RecombineAll = 1; 
 
 

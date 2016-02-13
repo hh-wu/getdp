@@ -14,7 +14,7 @@ DefineConstant[
       7="L-bracket",
       8="square-center"}, 
     Name "Input/Loading/case",Visible 1},
-  E0  = {100./*210e6*/, Name "Input/Materials/ Young modulus",Visible 0},
+  E0  = {210e6, Name "Input/Materials/ Young modulus",Visible 0},
   nu0 = {0.3, Name "Input/Materials/ Poisson coeficient",Visible 0},
   rh = {7850.,Name "Input/Materials/ Mass density",Visible 0}
 ];
@@ -222,12 +222,9 @@ Function {
       sigma[] = designVar[]^degStress * sigma0[$1]; 
     EndIf
     sigma_lie[] = C[]*$1; //[sigma_11,sigma_22,sigma_12]
-    //sigmaVM[] = Sqrt[ CompX[sigma[$1,$2,$3]#2]^2.0 - CompX[#2]*CompY[#2]
-    //                + CompY[#2]^2.0 + 3.0*CompZ[#2]^2.0 ];
     V1[] = TensorSym[1., -0.5, 0., 1., 0., 3.];
     sigmaVM[] = Sqrt[sigma[$1,$2,$3]#2 * ( V1[] * #2)];
-    sigmaVM_lie[] = Sqrt[ CompX[sigma_lie[$1,$2]#2]^2.0 - CompX[#2]*CompY[#2]
-                    + CompY[#2]^2.0 + 3.0*CompZ[#2]^2.0 ];
+    sigmaVM_lie[] = Sqrt[sigma_lie[$1,$2]#2 * ( V1[] * #2)];
   Else // operators for 3D
     bilin_uu[] = (C11[$3] * $1) * $1 + (C12[$3] * $2) * $1
                 +(C21[$3] * $1) * $2 + (C22[$3] * $2) * $2 ;//$1:{D1 u},$2:{D2 u},$3:{x}
@@ -235,14 +232,14 @@ Function {
                 +(C21[] * $1) * $2 + (C22[] * $2) * $2 ;//$1:{D1 u},$2:{D2 u},$3:{x}
     bilin[] = (C11[$3] * $1) * $2 + (C12[$3] * $3) * $2
              +(C21[$3] * $1) * $4 + (C22[$3] * $3) * $4 ; 
-    sigma_ii[] = C11[$2]*$1; //[sigma_11,sigma_22,sigma_12], $1:{D1 u}
-    gamma_ij[] = C12[$2]*$1; //[sigma_12,sigma_23,sigma_13], $1:{D2 u}
+    sigma_ii[] = C11[$3]*$1; //[sigma_11,sigma_22,sigma_12], $1:{D1 u}
+    gamma_ij[] = C22[$3]*$2; //[sigma_12,sigma_23,sigma_13], $1:{D2 u}
+    sigma_iilie[] = C11[]*$1; //[sigma_11,sigma_22,sigma_12], $1:{D1 u}
+    gamma_ijlie[] = C22[]*$2; //[sigma_12,sigma_23,sigma_13], $1:{D2 u}
     
-    //sigmaVM[]  = Sqrt[ 0.5*(CompX[sigma_ii[$1,$3]#2]-CompY[#2])^2.0  
-    //                  +0.5*(CompY[#2]-CompZ[#2])^2.0 + 0.5*(CompZ[#2]-CompX[#2])^2.0
-    //                  +3.0*SquNorm[gamma_ij[$2,$3]] ];
-    V1[] = TensorSym[1., -0.5, -0.5, 1., -0.5, 1.];V2[] = TensorDiag[6.0, 6.0, 6.0];
-    sigmaVM[] = Sqrt[sigma_ii[$1,$3]#1*(V1[]*#1)+gamma_ij[$2,$3]#2*(V2[]*#2)]; 
+    V1[] = TensorSym[1., -0.5, -0.5, 1., -0.5, 1.];V2[] = TensorDiag[3.0, 3.0, 3.0];
+    sigmaVM[] = Sqrt[sigma_ii[$1,$2,$3]#1*(V1[]*#1)+gamma_ij[$1,$2,$3]#2*(V2[]*#2)]; 
+    sigmaVM_lie[]=Sqrt[sigma_iilie[$1,$2]#1*(V1[]*#1)+gamma_ijlie[$1,$2]#2*(V2[]*#2)]; 
   EndIf
   
   /* ----------------------------------------------------------------- 
@@ -268,8 +265,7 @@ Function {
     dEps[] = 0.5 * ( $2 * $1 + Transpose[$1] * Transpose[$2] );//$2:dV 
     If(Flag_2D)
       d_D1[] = Vector[CompXX[dEps[$1,$2]#991],CompYY[#991],CompXY[#991]+CompYX[#991]];
-    EndIf
-    If(!Flag_2D)    
+    Else    
       d_D1[] = Vector[ CompXX[dEps[$1,$2]#1991], CompYY[#1991], CompZZ[#1991] ];
       d_D2[] = Vector[ CompXY[dEps[$1,$2]#993]+CompYX[#993], 
                        CompYZ[#993]+CompZY[#993],CompXZ[#993]+CompZX[#993] ];
@@ -301,8 +297,7 @@ Function {
         dF_TO[] = 0.5 * (d_C[$3]*$1)*$1; 
         dF_lie[] = - dFdb_Lie[$1]*d_D1[du[],dV[$3,$4,$5]]
                    + Func_lie[$1,$1]*TTrace[dV[$3,$4,$5]];
-      EndIf
-      If(!StrCmp[Flag_PerfType,"vonMisesElem"])
+      ElseIf(!StrCmp[Flag_PerfType,"vonMisesElem"])
 	Printf["von Mises Elem"];
         Func[] = sigmaVM[$1,$2,$3];
         dFdb[] = (((GetNumElement[]==elemNum)?1:0)
@@ -310,48 +305,31 @@ Function {
 	       / (sigmaVM[$1,$2,$3]*ElementVol[]));
         dF_TO[] = (((GetNumElement[]==elemNum)?1:0)
                 * (degStress * sigmaVM[$1,$2,$3])/(designVar[] * ElementVol[]));
-
-      EndIf
-      If(!StrCmp[Flag_PerfType,"vonMises"])
-        Func[] = sigmaVM[$1,$2,$3]^degVM; //F = Sqrt[s11^2-s11*s22+s22^2+3*s12^2]
-        Func_lie[] = sigmaVM_lie[$1,$2]^degVM; //F = Sqrt[s11^2-s11*s22+s22^2+3*s12^2]
-        c_sig[] = Vector[2.0*CompX[sigma[$1,$2,$3]#3]-CompY[#3],
-                         2.0*CompY[#3]-CompX[#3],6.0*CompZ[#3]];  
-        c_sig_lie[] = Vector[2.0*CompX[sigma_lie[$1]#3]-CompY[#3],
-                         2.0*CompY[#3]-CompX[#3],6.0*CompZ[#3]];  
-        dF_TO[] = ( d_C[$5] * c_sig[$1] ) * $1; 
-        dFdb[] = 0.5 * degVM * sigmaVM[$1]^(degVM-2) * C[$3] * c_sig[$1];
-        dFdb_lie[] = 0.5 * degVM * sigmaVM_lie[$1,$2]^(degVM-2) * C[] * c_sig_lie[$1];
-        dF_lie[] = - dFdb_lie[$1,$2] * d_D1[ du[], dV[$3,$4,$5] ]
-                   + Func_lie[$1,$2] * TTrace[dV[$3,$4,$5]]; 
-      EndIf
-      If(!StrCmp[Flag_PerfType,"vonMises_Pnorm"])
-        Printf("vonMises_Pnorm");
-        coeff[] = (1/degVM) * ($VM_P)^( (1-degVM) / degVM );
-        Func[] = coeff[]*sigmaVM[$1]^degVM; //F = Sqrt[s11^2-s11*s22+s22^2+3*s12^2]
-        Func_lie[] = coeff[]*sigmaVM_lie[$1,$2]^degVM;
-        c_sig[] = Vector[2.0*CompX[sigma[$1,$2,$3]#3]-CompY[#3],
-                         2.0*CompY[#3]-CompX[#3],6.0*CompZ[#3]];  
-        c_sig_lie[] = Vector[2.0*CompX[sigma_lie[$1]#3]-CompY[#3],
-                         2.0*CompY[#3]-CompX[#3],6.0*CompZ[#3]];  
-        dF_TO[] = ( d_C[] * c_sig[$1] ) * $1; 
-        dFdb[] = coeff[]*0.5*degVM*sigmaVM[$1,$2,$3]^(degVM-2)*C[$3]*c_sig[$1,$2,$3];
-        dFdb_Lie[] = coeff[]*0.5*degVM*sigmaVM_lie[$1,$2]^(degVM-2)*C[]*c_sig_lie[$1];
+      ElseIf(!StrCmp[Flag_PerfType,"vonMises_Pnorm"])
+        Printf("pnorm von-Mises 2D");
+        coeff[] = ($VM_P ^ (1./degVM -1.))/degVM;
+        Func[] = sigmaVM[$1,$2,$3]^degVM; 
+        Func_lie[] = sigmaVM_lie[$1,$2]^degVM;
+        dFdb[] = ( coeff[] * degVM * sigmaVM[$1,$2,$3]^(degVM-2) )
+		 *( C[] * (V1[] * sigma[$1,$2,$3]) );
+        dFdb_Lie[] = ( coeff[] * degVM * sigmaVM_lie[$1,$2]^(degVM-2) )
+		 *( C[] * (V1[] * sigma_lie[$1,$2]));
         dF_lie[] = -dFdb_Lie[$1,$2]*d_D1[du[],dV[$3,$4,$5]] 
-                     +Func_lie[$1,$2] * TTrace[dV[$3,$4,$5]]; 
+                   +coeff[]*Func_lie[$1,$2] * TTrace[dV[$3,$4,$5]]; 
       EndIf
     Else // 3D
       //$1:{D1 u}, $2:{D1 lambda}, $3:{D2 u}, $4:{D2 lambda}
-      d_bilin_lie[] = -( C11[]*d_D1[du[],dV[$3,$4,$5]]#1001)*$2 
-                      -( C11[]*$1)*d_D1[dlam[]#51,dV[$3,$4,$5]]#1003 
-                      -( C12[]*d_D2[du[],dV[$3,$4,$5]]#1002)*$2 
+      d_bilin_lie[] = -( C11[]*d_D1[du[],dV[$5,$6,$7]]#1001)*$2 
+                      -( C11[]*$1)*d_D1[dlam[],dV[$5,$6,$7]]#1003 
+                      -( C12[]*d_D2[du[],dV[$5,$6,$7]]#1002)*$2 
                       -( C12[] * $3 ) * #1003
                       -( C21[] * #1001 ) * $4 
-                      -( C21[] * $1 ) * d_D2[dlam[],dV[$3,$4,$5]]#1004 
+                      -( C21[] * $1 ) * d_D2[dlam[],dV[$5,$6,$7]]#1004 
                       -( C22[] * #1002 ) * $4 
                       -( C22[] * $3 ) * #1004  
                       +( (C11[] * $1) * $2 + (C12[] * $3) * $2
-                        +(C21[] * $1) * $4 + (C22[] * $3) * $4 )*TTrace[dV[$3,$4,$5] ];
+                        +(C21[] * $1) * $4 + (C22[] * $3) * $4 )*TTrace[dV[$5,$6,$7] ];
+
       d_bilin[] = (d_C11[$5] * $1) * $2 + (d_C12[$5] * $3) * $2
                  +(d_C21[$5] * $1) * $4 + (d_C22[$5] * $3) * $4;
 
@@ -375,29 +353,22 @@ Function {
         dF_lie[] = - dFdb[$1,$2] * d_D1[ du[], dV[$3,$4,$5] ]
                    - dFdb2[$1,$2] * d_D2[ du[], dV[$3,$4,$5] ]
                    + Func_lie[$1,$2] * TTrace[dV[$3,$4,$5]];
-      EndIf
-      If(!StrCmp[Flag_PerfType,"vonMises"])
-	degVM = 2;
-        Func[] = sigmaVM[$1,$2]^degVM; 
-        dFdb[] = C11[]*Vector[2.0*CompX[sigma_ii[$1,$2]#3]-CompY[#3]-CompZ[#3],
-                              2.0*CompY[#3]-CompX[#3]-CompZ[#3],
-                              2.0*CompZ[#3]-CompX[#3]-CompY[#3]]; 
-        dFdb2[] = C22[]*6.0*gamma_ij[$1,$2]; 
-
-        dF_lie[] = - dFdb[$1,$2] * d_D1[ du[], dV[$3,$4,$5] ]
-                           - dFdb2[$1,$2] * d_D2[ du[], dV[$3,$4,$5] ]
-                           + Func[$1,$2] * TTrace[ dV[$3,$4,$5] ]; 
-      EndIf
-      If(!StrCmp[Flag_PerfType,"vonMises_Pnorm"])
-        coeff[] = (1/degVM) * ($VM_P)^( (1-degVM) / degVM );
-        Func[] = coeff[]*sigmaVM[$1,$2]^degVM; //F = Sqrt[s11^2-s11*s22+s22^2+3*s12^2]
-        c_sig[] = Vector[2.0*CompX[sigma_ii[$1,$2]#3]-CompY[#3]-CompZ[#3],
-                         2.0*CompY[#3]-CompX[#3]-CompZ[#3],
-                         2.0*CompZ[#3]-CompX[#3]-CompY[#3]]; 
-        dFdb[] = coeff[] * 0.5 * degVM * sigmaVM[$1,$2]^(degVM-2) * 
-		(C11[] * $1 + 0.5 * ( C12[] + C21[] ) * $2
-	        +C22[] * $2 + 0.5 * ( C12[] + C21[] ) * $1)* c_sig[$1,$2];
-        dF_lie[]=-dFdb[$1,$2]*d_D1[du[],dV[$3,$4,$5]]+Func[$1,$2]*TTrace[dV[$3,$4,$5]]; 
+      ElseIf(!StrCmp[Flag_PerfType,"vonMises_Pnorm"])
+        Printf("pnorm von-Mises 3D");
+        coeff[] = ($VM_P ^ (1./degVM -1.))/degVM;
+        Func[] = sigmaVM[$1,$2,$3]^degVM; 
+        Func_lie[] = sigmaVM_lie[$1,$2]^degVM;
+        dFdb[] = (coeff[] * degVM * sigmaVM[$1,$2,$3]^(degVM-2))
+                 * ( C11[] * (V1[] * sigma_ii[$1,$2,$3]) ) ;
+        dFdb_lie[] = (coeff[] * degVM * sigmaVM_lie[$1,$2]^(degVM-2))
+                     * ( C11[] * (V1[] * sigma_iilie[$1,$2] ) );
+        dFdb2[] = (coeff[] * degVM * sigmaVM[$1,$2,$3]^(degVM-2))
+                  * ( C22[] * (V2[] * gamma_ij[$1,$2,$3] ) );
+        dFdb2_lie[] = (coeff[] * degVM * sigmaVM_lie[$1,$2]^(degVM-2))
+		    * ( C22[] * (V2[] * gamma_ijlie[$1,$2] ) );
+        dF_lie[] = -dFdb_lie[$1,$2]*d_D1[du[],dV[$3,$4,$5]]
+                   -dFdb2_lie[$1,$2]*d_D2[du[],dV[$3,$4,$5]]
+                   +coeff[] * Func_lie[$1,$2] * TTrace[dV[$3,$4,$5]];  
       EndIf
     EndIf
     dF_direct_lie[] = dFdb[$1#1]*$2 + dF_lie[#1,$3,$4,$5];
