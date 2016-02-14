@@ -219,7 +219,11 @@ Function {
       sigma[] = C[$3] * $1; //[sigma_11,sigma_22,sigma_12]
     Else
       sigma0[] = (E0/(1-nu0^2))* (Cnu[]* $1);
-      sigma[] = designVar[]^degStress * sigma0[$1]; 
+      If(!Flag_projFuncSpace_xe)
+        sigma[] = designVar[]^degStress * sigma0[$1];
+      Else
+        sigma[] = sigma0[$1]* $3 ^ degStress ;
+      EndIf 
     EndIf
     sigma_lie[] = C[]*$1; //[sigma_11,sigma_22,sigma_12]
     V1[] = TensorSym[1., -0.5, 0., 1., 0., 3.];

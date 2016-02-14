@@ -230,9 +230,8 @@ def opt_maxvonMises(x,data,parameters):
 
 def opt_complianceVolume(x,data,parameters):
     """
-        min compl
-         x
-        s.t. vol <= volM
+        min (x) compl(x)
+        s.t. vol(x) <= volM
     """
     compl = data['ComplianceElm'][0]
     elemVol = data['ElementVolume'][0][:,1];vol = np.dot(x,elemVol)
@@ -240,7 +239,7 @@ def opt_complianceVolume(x,data,parameters):
     input = {
         'f':[compl,vol],
         'df':['SelfFixedDom',volumeSens],
-        'fmax':[0, 0.16],
+        'fmax':[0, 0.32],
         'f_name':['Compliance','Volume'],
         'sign':[1.0,1.0],
         'filter':[]

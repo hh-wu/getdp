@@ -18,14 +18,14 @@ gmshRead = {8:'res/u.pos',9:'res/lambda.pos'}
 x = [0.4]
 pIn = 'Input/Constructive Parameters/';ppC = 'Input/0Cao/'
 varName = [pIn+'Hole Length']
-func = vm_pnorm #VMelem,opt_eig_sens,compliance,vm_pnorm,eig0
+func = compliance #VMelem,opt_eig_sens,compliance,vm_pnorm,eig0
 funcName = 'vonMisesElem'
 execMode = 'derivative' #'derivative','plot-perturb','plot-converge'
-Nlc = 3
+Nlc = 4
 msh = ''
 if (Nlc==0): msh=['beam3.msh']#['beam'+str(k)+'.msh' for k in range(6)]
 step = [1.0e-06] #np.logspace(-11, -1, num=11)
-sensMeth = ['AdjointSemi','AdjointLie']
+sensMeth = ['AdjointLie']
 #'SelfFixedDom','AdjointLie','AnalyticNotEplicit','AdjointFixedDom'
 pathSave = 'resSens'
 if(execMode=='response'):xmin=[0.002,0.002];xmax=[0.02,0.006];nbSample=5
@@ -41,7 +41,7 @@ femParam = {'OptType':['Input/Optimization Type','shape'],
             'Nz':[ppC+'Nz',2],
             'Transfinite':[ppC+'transfinite?',0],
             'degVM':['Input/Optimization/degVM',2],
-            'Deg2':['Input/degree 2?',0]}
+            'Deg2':['Input/degree 2?',1]}
 tagElem = [1000]
 # ************************************************************************
 # **** Derivative computation                                        *****

@@ -1,6 +1,6 @@
 """
     Author: Erin Kuci
-    Topology optimization using SIMP method and MMA algorithm (matlab)
+    Topology optimization template
 """
 import sys
 sys.path.append('../../benchmarks_kst/tool/')
@@ -10,11 +10,8 @@ from defPerfFuncSens import *
 import defPerfFunc
 
 testCase = 7 #7:L-bracket
-pIn = 'Input/Constructive Parameters/'
-ppC = 'Input/0Cao/'
-cao = 'square' #'square','rotor'
-extrude=0;nz=10;hole=0
-pl1=1.;pl2=1.;pl3=1.;pl4=1.
+pIn = 'Input/Constructive Parameters/';ppC = 'Input/0Cao/';cao = 'square'
+extrude=0;nz=10;hole=0;pl1=1.;pl2=1.;pl3=1.;pl4=1.
 if testCase < 7:
     Lx = 3.0; Ly = 1.0; nyPad = 1
     if os.path.isfile('data.npy'):
@@ -22,9 +19,10 @@ if testCase < 7:
         nx=data[0];ny=data[1]
     else:
         nx=20;ny=50
+    nxPad = 1
 elif testCase == 7:
     Lx = 0.4; Ly = 1.0
-    nx = 25*0.4; ny = 50*0.4; nxPad = 75*0.4
+    nx = 25*1.5; ny = 50*1.5; nxPad = 75*1.5
 # ************************************************************************
 # ***** Create the parameters                                        *****
 # ************************************************************************
@@ -41,6 +39,7 @@ parameters = {
         'OptType':['Input/Optimization Type','topology'],
         'Deg2':['Input/degree 2?',1],
         'cao':[ppC+'0 Cao?',cao],
+        'Pad':[ppC+'add pad',testCase==7],
         'extrude':[ppC+'extrude?',extrude],
         'load':['Input/Loading/case',7],
         'MaterialInterpLaw':['Input/Optimization/Material Law','simp'],
@@ -54,7 +53,7 @@ parameters = {
         'Nx':[ppC+'Nx',nx],
         'Ny':[ppC+'Ny',ny],
         'Nz':[ppC+'Nz',nz],
-        'NxPad':[ppC+'Nx pad',nxPad*0.4],
+        'NxPad':[ppC+'Nx pad',nxPad],
         'NyPad':[ppC+'Ny pad',ny],
         'pl1':[ppC+'progression l1',pl1],
         'pl2':[ppC+'progression l2',pl2],
@@ -64,7 +63,7 @@ parameters = {
     },
     'archivate':1,
     'TAG':[1000], #1000,1001
-    'performance':opt_VolumeVMelem, #opt_complianceVolume,opt_maxBeta_eig
+    'performance':opt_VolumeVMelem,#opt_complianceVolume,opt_maxBeta_eig
     'rmin':1.5*Lx/nx, #0.0125,
     'optimizer':'mma3',#'mma2007','conlinFile','gcmma','openopt'
     'xtol':1.0e-02,

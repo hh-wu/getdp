@@ -14,20 +14,19 @@ PostProcessing {
       { Name E ; Value { Term { [ E[{xe}] ]; In Domain ; } } }
       { Name rho ; Value { Term { [ rho[{xe}] ]; In Domain ; } } }   
 
-      { Name StressVM; Value { Term {[sigmaVM[{D1 u},{D2 u},{xe}]];In Domain;}}}
+      { Name StressVM; Value { Term {[ sigmaVM[{D1 u},{D2 u},{xe}] ]; In Domain;}}}
       { Name StressVMInt; Value {
       	Integral { [ sigmaVM[{D1 u},{D2 u},{xe}]^degVM ];
           In Domain ; Jacobian SurLinVol  ; Integration I1; }
         }
       }
-
-      { Name StressVMNorm2; Value {
-      	Integral { [ sigmaVM[{D1 u},{D2 u},{xe}]^2.0 ];
-          In Domain ; Jacobian SurLinVol  ; Integration I1; }
+      { Name StressVM_pNorm;
+        Value{
+          Term{
+             Type Global;[($VM_P)^(1/degVM)];In DomainFunc;
+          }
         }
-      }
-      { Name StressVM_pNorm;Value{Term{Type Global;[($VM_P)^(1/degVM)];In DomainFunc;}}} 
-
+      } 
       { Name Volume; Value{Integral{[1.0];In Domain; Jacobian Vol;Integration I1;}}}
       { Name designVar; Value{Term{[designVar[]]; In Domain; Jacobian Vol;}}}
       { Name xe; Value{Term{[{xe}]; In Domain; Jacobian Vol;}}}
@@ -97,7 +96,8 @@ PostOperation {
   // --------------------------------------------------------------------------
  { Name u_TO; NameOfPostProcessing u_Mec;
    Operation{
-     Print[ u, OnElementsOf Domain,File StrCat[ResDir,"u",ExtGmsh]] ;
+//     Print[ F, OnElementsOf Domain_Force,File StrCat[ResDir,"F",ExtGmsh]] ;
+//     Print[ u, OnElementsOf Domain,File StrCat[ResDir,"u",ExtGmsh]] ;
      Print[ StressVM, OnElementsOf Domain,
        File StrCat[ResDir,"VM",ExtOnelabVec],OverrideTimeStepValue optimIter];
      Print[ Compliance[DomainFunc], OnGlobal, Format TimeTable,
@@ -147,9 +147,6 @@ PostOperation {
      Print[ StressVM_pNorm, OnRegion DomainFunc, Format TimeTable,
        File StrCat[ResDir, StrCat["StressVM_pNorm",ExtOnelabScal]], LastTimeStepOnly,
        SendToServer StrCat[po_min,"StressVM_pNorm"], Color "LightYellow"];
-//     Print[ StressVMNorm2, OnRegion DomainFunc, Format TimeTable,
-//       File StrCat[ResDir, StrCat["StressVMNorm2",ExtOnelabScal]], LastTimeStepOnly,
-//       SendToServer StrCat[po_min,"StressVMNorm2"], Color "LightYellow"];
 
 //     Print[ Volume[Domain], OnGlobal, Format TimeTable, 
 //       File StrCat[ResDir,"Volume",ExtOnelabScal], LastTimeStepOnly, 

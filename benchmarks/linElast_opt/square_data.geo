@@ -1,8 +1,8 @@
 // general setting parameters
 nn = 1;
 DefineConstant[
-  Flag_hole = {1, Name StrCat(ppC,"Hole"),Choices {0="no hole",1="ellipse",2="spline"}},
-  Flag_sym = {2, Name StrCat(ppC,"Symetry"),Choices {0,1,2}},
+  Flag_hole = {0, Name StrCat(ppC,"Hole"),Choices {0="no hole",1="ellipse",2="spline"}},
+  Flag_sym = {0, Name StrCat(ppC,"Symetry"),Choices {0,1,2}},
   NSpline = {6, Name StrCat(ppC,"nb points"), Visible (Flag_hole==2) },
   Flag_extrude = {1, Choices {0,1}, Name StrCat(ppC,"extrude?")},
   transfinite={0, Name StrCat(ppC,"transfinite?"),Choices {0,1},Visible (!Flag_hole)},
@@ -13,7 +13,7 @@ DefineConstant[
   progl_2 = {1., Name StrCat(ppC,"progression l2"),Visible (transfinite)},
   progl_3 = {1., Name StrCat(ppC,"progression l3"),Visible (transfinite)},
   progl_4 = {1., Name StrCat(ppC,"progression l4"),Visible (transfinite)},
-  Flag_addpad = {0, Choices {0,1}, Name StrCat(ppC,"add pad")},
+  Flag_addpad = {1, Choices {0,1}, Name StrCat(ppC,"add pad")},
   nbE_X_pad = {75*nn, Name StrCat(ppC,"Nx pad"),Visible (Flag_addpad)},
   nbE_Y_pad = {50*nn,Name StrCat(ppC,"Ny pad"),Visible (Flag_addpad)},//even number
   nbE_Z_pad = {40,Name StrCat(ppC,"Nz pad"),Visible (Flag_addpad)}
