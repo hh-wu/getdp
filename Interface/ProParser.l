@@ -411,6 +411,7 @@ Trace                        return tTrace;
 Type                         return tType;
 
 UndefineConstant             return tUndefineConstant;
+UndefineFunction             return tUndefineFunction;
 Update                       return tUpdate;
 UpdateConstraint             return tUpdateConstraint;
 UpperCase                    return tUpperCase;

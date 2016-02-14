@@ -48,7 +48,6 @@ Function {
 
   nu [ Region[{Air, AirInf, AirGap, Magnet}] ] = 1. / mu0;
 
-
   If(!Flag_NL)
     nu [ Core ]  = 1. / (murCore * mu0) ;
     mu [ Core ]  = murCore * mu0;

@@ -210,7 +210,7 @@ struct doubleXstring{
 
 %token  tGroup tDefineGroup tAll tInSupport tMovingBand2D
 
-%token  tDefineFunction
+%token  tDefineFunction tUndefineFunction
 
 %token  tConstraint
 %token    tRegion tSubRegion tRegionRef tSubRegionRef
@@ -878,7 +878,7 @@ Function :
 DefineFunctions :
 
     /* none */
-  | DefineFunctions Comma  String__Index
+  | DefineFunctions Comma String__Index
     {
       int i;
       if ( (i = List_ISearchSeq
@@ -889,7 +889,7 @@ DefineFunctions :
       else  Free($3) ;
     }
 
-  | DefineFunctions Comma  String__Index '{' FExpr '}'
+  | DefineFunctions Comma String__Index '{' FExpr '}'
     {
       for (int k = 0 ; k < (int)$5 ; k++) {
 	char tmpstr[256];
@@ -905,6 +905,19 @@ DefineFunctions :
     }
   ;
 
+
+UndefineFunctions :
+
+    /* none */
+  | UndefineFunctions Comma String__Index
+    {
+      int i = List_ISearchSeq(Problem_S.Expression, $3, fcmp_Expression_Name);
+      if(i >= 0){
+        Free(((struct Expression *)List_Pointer(Problem_S.Expression, i))->Name);
+        List_PSuppress(Problem_S.Expression, i);
+      }
+      Free($3) ;
+    }
 
 /* ------------------------------------------------------------------------
     E x p r e s s i o n s
@@ -7214,6 +7227,8 @@ Affectation :
 
   | tUndefineConstant '[' UndefineConstants ']' tEND
 
+  | tUndefineFunction '[' UndefineFunctions ']' tEND
+
   | tDelete String__Index tEND
    {
      Constant_S.Name = $2;
@@ -7222,6 +7237,16 @@ Affectation :
      // like in Gmsh
      Tree_Suppress(ConstantTable_L, &Constant_S);
      Free($2);
+   }
+
+  | tDelete '[' String__Index ']' tEND
+   {
+     Constant_S.Name = $3;
+     // FIXME: leak if constant is list or char; all Tree_Replace functions
+     // below also leak; correct fix is to replace all of this with a std::map
+     // like in Gmsh
+     Tree_Suppress(ConstantTable_L, &Constant_S);
+     Free($3);
    }
 
   | String__Index tDEF ListOfFExpr tEND
