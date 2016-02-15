@@ -21,7 +21,7 @@ varName = [pIn+'Hole Length']
 func = compliance #VMelem,opt_eig_sens,compliance,vm_pnorm,eig0
 funcName = 'vonMisesElem'
 execMode = 'derivative' #'derivative','plot-perturb','plot-converge'
-Nlc = 4
+Nlc = 3
 msh = ''
 if (Nlc==0): msh=['beam3.msh']#['beam'+str(k)+'.msh' for k in range(6)]
 step = [1.0e-06] #np.logspace(-11, -1, num=11)
@@ -32,7 +32,8 @@ if(execMode=='response'):xmin=[0.002,0.002];xmax=[0.02,0.006];nbSample=5
 
 femParam = {'OptType':['Input/Optimization Type','shape'],
             'load':['Input/Loading/case',2],
-            'extrude':[ppC+'extrude?',0],
+            'Sym':[ppC+'Symetry',2],
+            'extrude':[ppC+'extrude?',1],
             'Hole':[ppC+'Hole',1],
             'Lx':[pIn+'X length [m]',1.5],
             'Ly':[pIn+'Y length [m]',1.5],

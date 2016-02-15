@@ -122,20 +122,28 @@ If (Flag_addpad)
 EndIf
 
 If(transfinite)
-  // s1
-    Transfinite Line{l1} = nbE_X; //Using Bump 0.01;//Using Progression progl_1;
-    Transfinite Line{-l3} = nbE_X; //Using Bump 0.01;//Using Progression progl_3; 
-    Transfinite Line{l2_1} = nbE_Y*0.5; //Using Bump 0.01;//Using Progression progl_2;
-    Transfinite Line{l2_2} = nbE_Y*0.5; //Using Bump 0.01;//Using Progression progl_2;
-    Transfinite Line{-l4_1} = nbE_Y*0.5; //Using Bump 0.01;//Using Progression progl_4;
-    Transfinite Line{-l4_2} = nbE_Y*0.5; //Using Bump 0.01;//Using Progression progl_4;
-    Transfinite Surface{s1} = {p1,p2,p3,p4};
   If (Flag_addpad)
-    Transfinite Line{lpad_1} = nbE_X_pad;
-    Transfinite Line{lpad_3} = nbE_X_pad;
-    Transfinite Line{lpad_2} = nbE_Y_pad*0.5;
+    // s1
+    Transfinite Line{l1} = (nbE_Y*Lypad/Ly)*(Lxpad/Lx); //Using Bump 0.01;
+    Transfinite Line{-l3} = (nbE_Y*Lypad/Ly)*(Lxpad/Lx); //Using Bump 0.01;
+    Transfinite Line{l2_1} = nbE_Y*Lypad/Ly; //Using Bump 0.01;
+    Transfinite Line{l2_2} = nbE_Y*(1.0-Lypad/Ly); //Using Bump 0.01;
+    Transfinite Line{-l4_1} = nbE_Y*(1.0-Lypad/Ly); //Using Bump 0.01;
+    Transfinite Line{-l4_2} = nbE_Y*(Lypad/Ly); //Using Bump 0.01;
+    // s2 
+    Transfinite Line{lpad_1} = (nbE_Y_pad*Lypad/Ly)*(Lxpad/Lx);
+    Transfinite Line{lpad_3} = (nbE_Y_pad*Lypad/Ly)*(Lxpad/Lx);
+    Transfinite Line{lpad_2} = nbE_Y_pad*Lypad/Ly;
     Transfinite Surface{s2} = {p10,p12,p13,p2};
+  Else
+    Transfinite Line{l1} = nbE_X; //Using Bump 0.01;
+    Transfinite Line{-l3} = nbE_X; //Using Bump 0.01; 
+    Transfinite Line{l2_1} = nbE_Y*0.5; //Using Bump 0.01;
+    Transfinite Line{l2_2} = nbE_Y*0.5; //Using Bump 0.01;
+    Transfinite Line{-l4_1} = nbE_Y*0.5; //Using Bump 0.01;
+    Transfinite Line{-l4_2} = nbE_Y*0.5; //Using Bump 0.01;
   EndIf
+  Transfinite Surface{s1} = {p1,p2,p3,p4};
   Recombine Surface "*";
 EndIf
 

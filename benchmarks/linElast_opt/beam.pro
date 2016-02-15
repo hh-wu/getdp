@@ -14,7 +14,7 @@ DefineConstant[
       7="L-bracket",
       8="square-center"}, 
     Name "Input/Loading/case",Visible 1},
-  E0  = {210e6, Name "Input/Materials/ Young modulus",Visible 0},
+  E0  = {/*210e6*/100., Name "Input/Materials/ Young modulus",Visible 0},
   nu0 = {0.3, Name "Input/Materials/ Poisson coeficient",Visible 0},
   rh = {7850.,Name "Input/Materials/ Mass density",Visible 0}
 ];
@@ -292,8 +292,15 @@ Function {
       d_bilin_eig[] =  -2.0 * ( C[] * $2 ) * (d_D1[ du[], dV[$5,$6,$7] ]) 
                        +( (C[] * $2) * $2 ) * TTrace[ dV[$5,$6,$7] ];
       d_bilin_eig_TO[] =  (d_C[] * $2) * $2;
+
+      //FIXME
+//      coeff[] = ($VM_P ^ (1./degVM -1.))/degVM;
+//      dFdb[] = ($perf == 1)? C[$3] * $1:
+//	       ( coeff[] * degVM * sigmaVM[$1,$2,$3]^(degVM-2) )
+//	       *( C[] * (V1[] * sigma[$1,$2,$3]) );       
       
       If(!StrCmp[Flag_PerfType,"Compliance"])
+        Printf("compliance 2D");
         Func[] = 0.5 * bilin_uu[$1,$1,$3]; //F = C * {D1 u}^2
         Func_lie[] = 0.5 * bilin_uu_lie[$1]; //F = C * {D1 u}^2
         dFdb[] = C[$3] * $1; // derivative wrt state variable
@@ -346,16 +353,19 @@ Function {
                         +(C21[] * $2) * $3 + (C22[] * $3) * $3 )*TTrace[dV[$4,$5,$6]];
                     
       If(!StrCmp[Flag_PerfType,"Compliance"])
+        Printf("compliance 3D");
         Func[] = 0.5 * bilin_uu[$1,$2,$3]; //$1:{D1 u}, $2:{D2 u}
-        Func_lie[] = 0.5 * bilin_uu[$1,$2]; //$1:{D1 u}, $2:{D2 u}
+        Func_lie[] = 0.5 * bilin_uu_lie[$1,$2]; //$1:{D1 u}, $2:{D2 u}
         dF_TO[]= 0.5*( (d_C11[$3]*$1)*$1+(d_C12[$3]*$2)*$1
                          +(d_C21[$3]*$1)*$2+(d_C22[$3]*$2)*$2 );
 	//$1:{D1 u},$2:{D2u}        
 	dFdb[]  = C11[$3] * $1 + 0.5 * ( C12[$3] + C21[$3] ) * $2;//dF/d1
 	dFdb2[] = C22[$3] * $2 + 0.5 * ( C12[$3] + C21[$3] ) * $1;//dF/d2
+	dFdb_lie[]  = C11[] * $1 + 0.5 * ( C12[] + C21[] ) * $2;//dF/d1
+	dFdb2_lie[] = C22[] * $2 + 0.5 * ( C12[] + C21[] ) * $1;//dF/d2
         //$1:{D1 u}, $2:{D2 u}
-        dF_lie[] = - dFdb[$1,$2] * d_D1[ du[], dV[$3,$4,$5] ]
-                   - dFdb2[$1,$2] * d_D2[ du[], dV[$3,$4,$5] ]
+        dF_lie[] = - dFdb_lie[$1,$2] * d_D1[ du[], dV[$3,$4,$5] ]
+                   - dFdb2_lie[$1,$2] * d_D2[ du[], dV[$3,$4,$5] ]
                    + Func_lie[$1,$2] * TTrace[dV[$3,$4,$5]];
       ElseIf(!StrCmp[Flag_PerfType,"vonMises_Pnorm"])
         Printf("pnorm von-Mises 3D");
@@ -391,6 +401,7 @@ Constraint{
     }
   EndFor
 
+   // FIXME:ElementVol[] provides negative numbers 
   { Name constr_xe ;
     Case {
       If(Flag_projFuncSpace_xe)

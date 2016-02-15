@@ -252,11 +252,17 @@ Resolution{
       Else
         PostOperation[u_Mec];
       EndIf
-      InitSolution[B];Generate[B];Solve[B];SaveSolution[B];
-      PostOperation[Adjoint_u_Mec];
+      InitSolution[B];Generate[B];SolveAgain[B];SaveSolution[B];
 
-      //SolveAgain[B];SaveSolution[B];
-      //PostOperation[Adjoint_u_Mec];
+      // FIXME: reuse LU decomposition or run // process (debug code) 
+//      InitSolution[B];
+//      For i In {1:numPerfFunctions}
+//        Evaluate[$perf = 1];
+//        Generate[B];SolveAgain[B];SaveSolution[B];
+//        PostOperation[Adjoint_u_Mec];
+//        RenameFile["beam.res",Sprintf["beam_%g.res",i]];
+//        RenameFile["res/lambda.pos",Sprintf["res/lambda_%g.pos",i]];
+//      EndFor
     }
   }
 

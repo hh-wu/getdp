@@ -47,7 +47,7 @@ DefineConstant[
     Visible (!StrCmp(Flag_optType,"shape")) },
 
   // sensitivity analysis 
-  Flag_PerfType = {"vonMises_Pnorm", 
+  Flag_PerfType = {"compliance", 
     Choices {
       "Compliance",
       "vonMises",
@@ -56,6 +56,9 @@ DefineConstant[
     },
     Name StrCat[pInOpt,"Performance function"], 
     Visible (StrCmp(Flag_optType,"none"))},
+
+  numPerfFunctions = {2,
+    Name "Number of performance functions"},
   
   degVM = {2.0, 
     Name StrCat[pInOpt,"degVM"], 
