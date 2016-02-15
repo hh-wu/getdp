@@ -110,8 +110,10 @@ class Message {
 #endif
   static std::string GetOnelabClientName();
   static void SetOnelabNumber(std::string name, double val, bool visible=true);
-  static double GetOnelabNumber(std::string name);
-  static void GetOnelabString(std::string name, char **val);
+  static double GetOnelabNumber(std::string name, double defaultValue=0.,
+                                bool errorIfMissing=false);
+  static std::string GetOnelabString(std::string name, const std::string &defaultValue="",
+                                     bool errorIfMissing=false);
   static std::string GetOnelabAction();
   static void AddOnelabNumberChoice(std::string name, double val, const char *color=0);
   static void AddOnelabStringChoice(std::string name, std::string kind,

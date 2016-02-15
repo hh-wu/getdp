@@ -547,9 +547,11 @@ int MainLegacy(int argc, char *argv[])
   }
 
   if(!Name_MshFile){
-    Message::GetOnelabString("Gmsh/MshFileName", &Name_MshFile);
-    if(Name_MshFile)
+    std::string name = Message::GetOnelabString("Gmsh/MshFileName");
+    if(name.size()){
+      Name_MshFile = strSave(name.c_str());
       Message::Info("Got mesh name from Onelab: '%s'", Name_MshFile);
+    }
   }
   if(!Name_MshFile){
     Name_MshFile = (char*)Malloc((strlen(Name_Generic)+5)*sizeof(char));

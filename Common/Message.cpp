@@ -807,33 +807,43 @@ void Message::SetOnelabNumber(std::string name, double val, bool visible)
   }
 }
 
-double Message::GetOnelabNumber(std::string name)
+double Message::GetOnelabNumber(std::string name, double defaultValue,
+                                bool errorIfMissing)
 {
   if(_onelabClient){
     std::vector<onelab::number> numbers;
     _onelabClient->get(numbers, name);
     if(numbers.empty()){
-      Message::Error("Unknown ONELAB number parameter '%s'", name.c_str());
-      return 0.;
+      if(errorIfMissing)
+        Message::Error("Unknown ONELAB number parameter '%s'", name.c_str());
+      return defaultValue;
     }
     else
       return numbers[0].getValue();
   }
-  Message::Warning("GetNumber requires a ONELAB client");
-  return 0.;
+  if(errorIfMissing)
+    Message::Warning("GetNumber requires a ONELAB client");
+  return defaultValue;
 }
 
-void Message::GetOnelabString(std::string name, char **val)
+std::string Message::GetOnelabString(std::string name, const std::string &defaultValue,
+                                     bool errorIfMissing)
 {
   if(_onelabClient){
     std::vector<onelab::string> ps;
     _onelabClient->get(ps, name);
-    if(ps.size() && ps[0].getValue().size()){
-      *val = strSave(ps[0].getValue().c_str());
-      return;
+    if(ps.empty()){
+      if(errorIfMissing)
+        Message::Error("Unknown ONELAB string parameter '%s'", name.c_str());
+      return defaultValue;
+    }
+    else{
+      return ps[0].getValue();
     }
   }
-  *val = 0;
+  if(errorIfMissing)
+    Message::Warning("GetString requires a ONELAB client");
+  return defaultValue;
 }
 
 std::string Message::GetOnelabAction()

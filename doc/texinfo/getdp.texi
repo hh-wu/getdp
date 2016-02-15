@@ -1039,9 +1039,13 @@ purely constant expressions, denoted by the metasyntactic variable
       @var{expression-cst} |
   @var{math-function-id} [ < @var{expression-cst-list} > ] |
   #@var{constant-id}() |
-  @var{constant-id}(@var{expression-cst})
+  @var{constant-id}(@var{expression-cst}) |
+  GetNumber[ @var{expression-char} <, @var{expression-cst},> ] |
 @end example
 
+@code{GetNumber} allows to get the value of a ONELAB number variable
+(the optional second argument specifies the default value returned if
+the variable does not exist.)
 
 List of constant expressions are defined as:
 
@@ -1200,6 +1204,7 @@ Character expressions are defined as follows:
   UpperCase [ @var{expression-char} ] |
   Sprintf [ @var{expression-char} ] |
   Sprintf[ @var{expression-char}, @var{expression-cst-list} ] |
+  GetString[ @var{expression-char} <, @var{expression-char},> ] |
   Date | CurrentDirectory | CurrentDir | OnelabAction
 @end example
 
@@ -1211,6 +1216,9 @@ string except the last). @code{StrChoice} returns the first or second
 upper case. @code{Sprintf} is equivalent to the @code{sprintf} C function
 (where @var{expression-char} is a format string that can contain
 floating point formatting characters: @code{%e}, @code{%g}, etc.).
+@code{GetString} allows to get the value of a ONELAB string variable
+(the optional second argument specifies the default value returned if
+the variable does not exist.)
 @code{Date} permits to access the current date. @code{CurrentDirectory}
 and @code{CurrentDir} return the directory of the @code{.pro} file.
 @code{OnelabAction} returns the current ONELAB action (e.g. @code{check}

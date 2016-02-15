@@ -197,6 +197,7 @@ struct doubleXstring{
 %token  tConstant tList tListAlt tLinSpace tLogSpace tListFromFile
 %token  tChangeCurrentPosition
 %token  tDefineConstant tUndefineConstant tDefineNumber tDefineString
+%token  tGetNumber tGetString
 
 %token  tPi tMPI_Rank tMPI_Size t0D t1D t2D t3D tTestLevel
 %token  tTotalMemory tCurrentDirectory
@@ -7898,6 +7899,19 @@ OneFExpr :
       Message::ExchangeOnelabParameter(&Constant_S, FloatOptions_S, CharOptions_S);
       $$ = Constant_S.Value.Float;
     }
+
+  | tGetNumber LP CharExpr RP
+    {
+      $$ = Message::GetOnelabNumber($3, 0.);
+      Free($3);
+    }
+
+  | tGetNumber LP CharExpr ',' FExpr  RP
+    {
+      $$ = Message::GetOnelabNumber($3, $5);
+      Free($3);
+    }
+
   | String__Index
     {
       Constant_S.Name = $1;
@@ -8550,6 +8564,19 @@ CharExprNoVar :
       Message::ExchangeOnelabParameter(&Constant_S, FloatOptions_S, CharOptions_S);
       $$ = strSave(Constant_S.Value.Char);
       Free($3);
+    }
+
+  | tGetString LP CharExpr RP
+    {
+      $$ = strSave(Message::GetOnelabString($3, "").c_str());
+      Free($3);
+    }
+
+  | tGetString LP CharExpr ',' CharExpr  RP
+    {
+      $$ = strSave(Message::GetOnelabString($3, $5).c_str());
+      Free($3);
+      Free($5);
     }
  ;
 
