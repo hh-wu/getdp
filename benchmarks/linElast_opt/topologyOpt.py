@@ -22,7 +22,7 @@ if testCase < 7:
     nxPad = 1
 elif testCase == 7:
     Lx = 0.4; Ly = 1.0
-    nx = 25*0.8; ny = 50*0.8; nxPad = 75*0.8
+    nx = 25*0.6; ny = 50*0.6; nxPad = 75*0.6
 # ************************************************************************
 # ***** Create the parameters                                        *****
 # ************************************************************************
@@ -67,7 +67,7 @@ parameters = {
     'rmin':1.5*Lx/nx, #0.0125,
     'optimizer':'mma3',#'mma2007','conlinFile','gcmma','openopt'
     'xtol':1.0e-02,
-    'iterMax':1000,'parallel':0,'nbCPU':4}
+    'iterMax':1000,'parallel':2,'nbCPU':8}
 
 x = np.array([1.0]);xmax = np.array([1.0]);xmin = np.array([0.001])
 

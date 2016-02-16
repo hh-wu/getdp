@@ -252,8 +252,10 @@ Resolution{
       Else
         PostOperation[u_Mec];
       EndIf
-      InitSolution[B];Generate[B];SolveAgain[B];SaveSolution[B];
-
+      InitSolution[B];Generate[B];Solve[B];SaveSolution[B];
+//      If(!StrCmp(Flag_optType,"shape"))
+        PostOperation[Adjoint_u_Mec];
+//      EndIf
       // FIXME: reuse LU decomposition or run // process (debug code) 
 //      InitSolution[B];
 //      For i In {1:numPerfFunctions}

@@ -13,7 +13,7 @@ DefineConstant[
   progl_2 = {1., Name StrCat(ppC,"progression l2"),Visible (transfinite)},
   progl_3 = {1., Name StrCat(ppC,"progression l3"),Visible (transfinite)},
   progl_4 = {1., Name StrCat(ppC,"progression l4"),Visible (transfinite)},
-  Flag_addpad = {1, Choices {0,1}, Name StrCat(ppC,"add pad")},
+  Flag_addpad = {0, Choices {0,1}, Name StrCat(ppC,"add pad")},
   nbE_X_pad = {75*nn, Name StrCat(ppC,"Nx pad"),Visible (Flag_addpad)},
   nbE_Y_pad = {50*nn,Name StrCat(ppC,"Ny pad"),Visible (Flag_addpad)},//even number
   nbE_Z_pad = {40,Name StrCat(ppC,"Nz pad"),Visible (Flag_addpad)}
@@ -42,7 +42,7 @@ DefineConstant[
 ];
 If (Flag_extrude) //3D
   DefineConstant[
-    Lz = {LL/4,Name StrCat(pp,"Z length [m]"), Visible (Flag_extrude), Closed 1}
+    Lz = {LL/10,Name StrCat(pp,"Z length [m]"), Visible (Flag_extrude), Closed 1}
   ];
 Else 
   Lz = 0;
