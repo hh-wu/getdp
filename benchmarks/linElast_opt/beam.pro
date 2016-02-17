@@ -322,7 +322,7 @@ Function {
                *(($3^degStress)*(E0/(1-nu0^2))*(Cnu[]*(V1[]*sigma[$1,$2,$3]))) 
 	       / (sigmaVM[$1,$2,$3]*ElementVol[]);
           dF_TO[] = ((GetNumElement[]==elemNum)?1:0)
-                * (degStress * sigmaVM[$1,$2,$3])/($3 * ElementVol[]);
+                * (degStress * sigmaVM[$1,$2,$5])/($5 * ElementVol[]);
         EndIf
       ElseIf(!StrCmp[Flag_PerfType,"vonMises_Pnorm"])
         Printf("pnorm von-Mises 2D");
