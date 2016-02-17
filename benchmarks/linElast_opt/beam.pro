@@ -2,7 +2,7 @@
 Include "beam_data.geo";
 
 DefineConstant[
-  Flag_testBench = {2,  
+  Flag_testBench = {7,  
     Choices {
       0="Short Cantiler Beam", 
       1="MBB Beam",
@@ -311,18 +311,26 @@ Function {
       ElseIf(!StrCmp[Flag_PerfType,"vonMisesElem"])
 	Printf["von Mises Elem"];
         Func[] = sigmaVM[$1,$2,$3];
-        dFdb[] = (((GetNumElement[]==elemNum)?1:0)
+        If(!Flag_projFuncSpace_xe)
+          dFdb[] = ((GetNumElement[]==elemNum)?1:0)
                *((designVar[]^degStress)*(E0/(1-nu0^2))*(Cnu[]*(V1[]*sigma[$1,$2,$3]))) 
-	       / (sigmaVM[$1,$2,$3]*ElementVol[]));
-        dF_TO[] = (((GetNumElement[]==elemNum)?1:0)
+	       / (sigmaVM[$1,$2,$3]*ElementVol[]);
+         dF_TO[] = (((GetNumElement[]==elemNum)?1:0)
                 * (degStress * sigmaVM[$1,$2,$3])/(designVar[] * ElementVol[]));
+        Else
+          dFdb[] = ((GetNumElement[]==elemNum)?1:0)
+               *(($3^degStress)*(E0/(1-nu0^2))*(Cnu[]*(V1[]*sigma[$1,$2,$3]))) 
+	       / (sigmaVM[$1,$2,$3]*ElementVol[]);
+          dF_TO[] = ((GetNumElement[]==elemNum)?1:0)
+                * (degStress * sigmaVM[$1,$2,$3])/($3 * ElementVol[]);
+        EndIf
       ElseIf(!StrCmp[Flag_PerfType,"vonMises_Pnorm"])
         Printf("pnorm von-Mises 2D");
         coeff[] = ($VM_P ^ (1./degVM -1.))/degVM;
         Func[] = sigmaVM[$1,$2,$3]^degVM; 
         Func_lie[] = sigmaVM_lie[$1,$2]^degVM;
-        dFdb[] = ( coeff[] * degVM * sigmaVM[$1,$2,$3]^(degVM-2) )
-		 *( C[] * (V1[] * sigma[$1,$2,$3]) );
+        dFdb[] = ( coeff[] * degVM * sigmaVM[$1,$2,$3]^(degVM-2) );
+		 *( C[$3] * (V1[] * sigma[$1,$2,$3]) );
         dFdb_Lie[] = ( coeff[] * degVM * sigmaVM_lie[$1,$2]^(degVM-2) )
 		 *( C[] * (V1[] * sigma_lie[$1,$2]));
         dF_lie[] = -dFdb_Lie[$1,$2]*d_D1[du[],dV[$3,$4,$5]] 
@@ -405,7 +413,7 @@ Constraint{
   { Name constr_xe ;
     Case {
       If(Flag_projFuncSpace_xe)
-        { Region Domain ; Value designVar[]*ElementVol[]; }
+        { Region Domain ; Value (designVar[]*ElementVol[]); }
       Else
         { Region Domain ; Value 1.0/**ElementVol[]*/; }
       EndIf

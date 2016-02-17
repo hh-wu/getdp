@@ -118,7 +118,7 @@ If ( Flag_hole == 2 ) //spline
 EndIf
 s1 = news; Plane Surface(s1) = ll_[];
 If (Flag_addpad)
-  s2 = news; Plane Surface(s2) = ll2;
+  s2 = news; Plane Surface(s2) = -ll2;
 EndIf
 
 If(transfinite)

@@ -243,6 +243,7 @@ Resolution{
     Operation{
       CreateDir[ResDir];
       ReadSolution[A]; //Load state variable
+
       If(!StrCmp(Flag_optType,"topology") && !Flag_projFuncSpace_xe)
         GmshRead[StrCat[ResDir0,"designVariable.pos"],DES_VAR_FIELD]; 
       EndIf
@@ -252,10 +253,19 @@ Resolution{
       Else
         PostOperation[u_Mec];
       EndIf
+
+      SetGlobalSolverOptions["-petsc_prealloc 500"];
       InitSolution[B];Generate[B];Solve[B];SaveSolution[B];
-//      If(!StrCmp(Flag_optType,"shape"))
+//      InitSolution[B];GenerateRHSGroup[B,DomainFunc];Solve[B];SaveSolution[B];
+
+//      For i In {1:5}
+//        Generate[B];SolveAgain[B];SaveSolution[B];
+//      EndFor
+
+      If(!StrCmp(Flag_optType,"shape"))
         PostOperation[Adjoint_u_Mec];
-//      EndIf
+      EndIf
+
       // FIXME: reuse LU decomposition or run // process (debug code) 
 //      InitSolution[B];
 //      For i In {1:numPerfFunctions}

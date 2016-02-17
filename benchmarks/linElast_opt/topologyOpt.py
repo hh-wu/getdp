@@ -22,7 +22,7 @@ if testCase < 7:
     nxPad = 1
 elif testCase == 7:
     Lx = 0.4; Ly = 1.0
-    nx = 25*0.6; ny = 50*0.6; nxPad = 75*0.6
+    nx = 25*0.8; ny = 50*0.8; nxPad = 75*0.8
 # ************************************************************************
 # ***** Create the parameters                                        *****
 # ************************************************************************
@@ -32,7 +32,7 @@ parameters = {
     'analysisPost':['u_Mec_Post'],
     'adjoint':['Adjoint_u_Mec'],
     'direct':['Direct_u_Mec'],
-    'project_xe':0,
+    'project_xe':1,
     'allowCentralFD':0,
     'MeshRefine':0,
     'defaultValue':{
@@ -64,7 +64,7 @@ parameters = {
     'archivate':1,
     'TAG':[1000], #1000,1001
     'performance':opt_VolumeVMelem,#opt_complianceVolume,opt_maxBeta_eig
-    'rmin':1.5*Lx/nx, #0.0125,
+    'rmin':1.5*Lx/nx,
     'optimizer':'mma3',#'mma2007','conlinFile','gcmma','openopt'
     'xtol':1.0e-02,
     'iterMax':1000,'parallel':2,'nbCPU':8}

@@ -174,7 +174,7 @@ Formulation{
           Galerkin { [ 0*Dof{v~{i}}, {v~{i}} ] ;
             In Domain; Jacobian Vol ; Integration I1 ; }
         EndFor
-        Galerkin { [ -0*Dof{xe}, {xe} ] ;
+        Galerkin { [ 0*Dof{xe}, {xe} ] ;
           In Domain; Jacobian Vol ; Integration I1 ; }
       }
     }

@@ -47,7 +47,7 @@ DefineConstant[
     Visible (!StrCmp(Flag_optType,"shape")) },
 
   // sensitivity analysis 
-  Flag_PerfType = {"compliance", 
+  Flag_PerfType = {"Compliance", 
     Choices {
       "Compliance",
       "vonMises",
