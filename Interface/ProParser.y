@@ -187,9 +187,10 @@ struct doubleXstring{
 
 /* ------------------------------------------------------------------ */
 %token  tEND tDOTS
-%token  tStrCat tSprintf tPrintf tMPI_Printf tRead tPrintConstants tStrCmp
+%token  tStrCat tSprintf tPrintf tMPI_Printf tRead tPrintConstants
+%token  tStrCmp tStrFind
 %token  tStrChoice tUpperCase tLowerCase tLowerCaseIn
-%token  tNbrRegions tGetRegion tNameFromString tStringFromName
+%token  tNbrRegions tGetRegion tStringToName tNameToString
 %token  tFor tEndFor tIf tElseIf tElse tEndIf tMacro tReturn tCall tCallTest
 %token  tTest tWhile tParse
 %token  tFlag
@@ -7927,6 +7928,7 @@ OneFExpr :
       }
       Free($1);
     }
+
   | '#' tSTRING '(' ')'
     {
       Constant_S.Name = $2;
@@ -7944,6 +7946,47 @@ OneFExpr :
       $$ = ret;
       Free($2);
     }
+
+  // Should replace tSTRING with String__Index in above rule, but this leads to
+  // shift/reduce conflicts... don't know why
+  | '#' StringIndex '(' ')'
+    {
+      Constant_S.Name = $2;
+      int ret = 0;
+      if(!Tree_Query(ConstantTable_L, &Constant_S))
+	vyyerror("Unknown Constant: %s", $2);
+      else{
+	if(Constant_S.Type == VAR_LISTOFFLOAT)
+          ret = List_Nbr(Constant_S.Value.ListOfFloat);
+	else if(Constant_S.Type == VAR_FLOAT)
+          ret = 1;
+        else
+          vyyerror("Float Constant needed: %s", $2);
+      }
+      $$ = ret;
+      Free($2);
+    }
+
+  // Should replace tSTRING with String__Index in above rule, but this leads to
+  // shift/reduce conflicts... don't know why
+  | '#' tStringToName '[' CharExpr ']' '(' ')'
+    {
+      Constant_S.Name = $4;
+      int ret = 0;
+      if(!Tree_Query(ConstantTable_L, &Constant_S))
+	vyyerror("Unknown Constant: %s", $4);
+      else{
+	if(Constant_S.Type == VAR_LISTOFFLOAT)
+          ret = List_Nbr(Constant_S.Value.ListOfFloat);
+	else if(Constant_S.Type == VAR_FLOAT)
+          ret = 1;
+        else
+          vyyerror("Float Constant needed: %s", $4);
+      }
+      $$ = ret;
+      Free($4);
+    }
+
   | tSTRING '(' FExpr ')'
     {
       Constant_S.Name = $1;
@@ -7964,7 +8007,53 @@ OneFExpr :
       $$ = ret;
       Free($1);
     }
- ;
+
+  // Should replace tSTRING with String__Index in above rule, but this leads to
+  // shift/reduce conflicts... don't know why
+  | StringIndex '(' FExpr ')'
+    {
+      Constant_S.Name = $1;
+      double ret = 0.;
+      if(!Tree_Query(ConstantTable_L, &Constant_S))
+	vyyerror("Unknown Constant: %s", $1);
+      else{
+	if(Constant_S.Type != VAR_LISTOFFLOAT)
+	  vyyerror("Multi value Constant needed: %s", $1);
+	else{
+          int j = (int)$3;
+          if(j >= 0 && j < List_Nbr(Constant_S.Value.ListOfFloat))
+            List_Read(Constant_S.Value.ListOfFloat, j, &ret);
+          else
+            vyyerror("Index %d out of range", j);
+        }
+      }
+      $$ = ret;
+      Free($1);
+    }
+
+  // Should replace tSTRING with String__Index in above rule, but this leads to
+  // shift/reduce conflicts... don't know why
+  | tStringToName '[' CharExpr ']' '(' FExpr ')'
+    {
+      Constant_S.Name = $3;
+      double ret = 0.;
+      if(!Tree_Query(ConstantTable_L, &Constant_S))
+	vyyerror("Unknown Constant: %s", $3);
+      else{
+	if(Constant_S.Type != VAR_LISTOFFLOAT)
+	  vyyerror("Multi value Constant needed: %s", $3);
+	else{
+          int j = (int)$6;
+          if(j >= 0 && j < List_Nbr(Constant_S.Value.ListOfFloat))
+            List_Read(Constant_S.Value.ListOfFloat, j, &ret);
+          else
+            vyyerror("Index %d out of range", j);
+        }
+      }
+      $$ = ret;
+      Free($3);
+    }
+;
 
 ListOfFExpr :
 
@@ -8420,8 +8509,8 @@ String__Index :
   | StringIndex
     { $$ = $1; }
 
-  // Name from any string
-  | tNameFromString '[' CharExpr ']'
+  // Create a name from any string
+  | tStringToName '[' CharExpr ']'
     { $$ = $3; }
 
  ;
@@ -8430,7 +8519,7 @@ CharExprNoVar :
     tBIGSTR
     { $$ = $1; }
 
-  | tStringFromName '[' String__Index ']'
+  | tNameToString '[' String__Index ']'
     { $$ = $3; }
 
   | StrCat
@@ -8651,6 +8740,15 @@ StrCmp :
       else {
 	vyyerror("Undefined argument for StrCmp function") ;  $$ = 1 ;
       }
+    }
+  | tStrFind LP CharExpr ',' CharExpr RP
+    {
+      std::string s($3), substr($5);
+      if(s.find(substr) != std::string::npos)
+        $$ = 1.;
+      else
+        $$ = 0.;
+      Free($3); Free($5);
     }
   ;
 

@@ -1040,12 +1040,20 @@ purely constant expressions, denoted by the metasyntactic variable
   @var{math-function-id} [ < @var{expression-cst-list} > ] |
   #@var{constant-id}() |
   @var{constant-id}(@var{expression-cst}) |
-  GetNumber[ @var{expression-char} <, @var{expression-cst},> ] |
+  StrFind[ @var{expression-char}, @var{expression-char}] |
+  StrCmp[ @var{expression-char}, @var{expression-char}] |
+  StringToName(@var{expression-char}) | S2N(@var{expression-char}) |
+  GetNumber[ @var{expression-char} <, @var{expression-cst},> ]
 @end example
 
-@code{GetNumber} allows to get the value of a ONELAB number variable
-(the optional second argument specifies the default value returned if
-the variable does not exist.)
+@code{StrFind} searches the first @var{expression-char} for any
+occurrence of the second @var{expression-char}.  @code{StrCmp} compares
+the two strings (returns an integer greater than, equal to, or less than
+0, according as the first string is greater than, equal to, or less than
+the second string).  @code{StringToName} creates a name from the
+provided string.  @code{GetNumber} allows to get the value of a ONELAB
+number variable (the optional second argument specifies the default
+value returned if the variable does not exist.)
 
 List of constant expressions are defined as:
 
@@ -1204,6 +1212,7 @@ Character expressions are defined as follows:
   UpperCase [ @var{expression-char} ] |
   Sprintf [ @var{expression-char} ] |
   Sprintf[ @var{expression-char}, @var{expression-cst-list} ] |
+  NameToString ( @var{string} ) | N2S ( @var{string} ) |
   GetString[ @var{expression-char} <, @var{expression-char},> ] |
   Date | CurrentDirectory | CurrentDir | OnelabAction
 @end example
@@ -1213,16 +1222,16 @@ character expressions (@code{Str} adds a newline character after each
 string except the last). @code{StrChoice} returns the first or second
 @var{expression-char} depending on the value of
 @var{expression}. @code{UpperCase} converts the @var{expression-char} to
-upper case. @code{Sprintf} is equivalent to the @code{sprintf} C function
-(where @var{expression-char} is a format string that can contain
-floating point formatting characters: @code{%e}, @code{%g}, etc.).
+upper case. @code{Sprintf} is equivalent to the @code{sprintf} C
+function (where @var{expression-char} is a format string that can
+contain floating point formatting characters: @code{%e}, @code{%g},
+etc.).  @code{NameToString} converts a variable name into a string.
 @code{GetString} allows to get the value of a ONELAB string variable
 (the optional second argument specifies the default value returned if
-the variable does not exist.)
-@code{Date} permits to access the current date. @code{CurrentDirectory}
-and @code{CurrentDir} return the directory of the @code{.pro} file.
-@code{OnelabAction} returns the current ONELAB action (e.g. @code{check}
-or @code{compute}).
+the variable does not exist.)  @code{Date} permits to access the current
+date. @code{CurrentDirectory} and @code{CurrentDir} return the directory
+of the @code{.pro} file.  @code{OnelabAction} returns the current ONELAB
+action (e.g. @code{check} or @code{compute}).
 
 @c -------------------------------------------------------------------------
 @c Operators
