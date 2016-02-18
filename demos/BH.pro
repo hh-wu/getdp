@@ -57,30 +57,30 @@ Function{
 
     // intermediate lists used for interpolation of point data
     If(Exists[ S2N[StrCat[n, "_b_list"]] ] && Exists[ S2N[StrCat[n, "_h_list"]] ])
-      S2N[StrCat[n, "_b2_list"]]() = List[S2N[StrCat[n, "_b_list"]]]^2;
-      S2N[StrCat[n, "_h2_list"]]() = List[S2N[StrCat[n, "_h_list"]]]^2;
+      S2N[StrCat[n, "_b2_list"]]() = S2N[StrCat[n, "_b_list"]]()^2;
+      S2N[StrCat[n, "_h2_list"]]() = S2N[StrCat[n, "_h_list"]]()^2;
       S2N[StrCat[n, "_nu_list"]]() =
-        List[ S2N[ StrCat[n, "_b_list"]]] / List[S2N[StrCat[n, "_h_list"]]];
+        S2N[ StrCat[n, "_h_list"]]() / S2N[StrCat[n, "_b_list"]]();
       S2N[StrCat[n, "_nu_list"]](0) = S2N[StrCat[n, "_nu_list"]](1);
       S2N[StrCat[n, "_mu_list"]]() =
-        List[ S2N[ StrCat[n, "_h_list"]]] / List[S2N[StrCat[n, "_b_list"]]];
+        S2N[ StrCat[n, "_b_list"]]() / S2N[StrCat[n, "_h_list"]]();
       S2N[StrCat[n, "_mu_list"]](0) = S2N[StrCat[n, "_mu_list"]](1);
-      S2N[StrCat[n, "_nu_b2_list"]]() = ListAlt[List[S2N[StrCat[n, "_b2_list"]]],
-                                                List[S2N[StrCat[n, "_nu_list"]]]];
-      S2N[StrCat[n, "_mu_h2_list"]]() = ListAlt[List[S2N[StrCat[n, "_h2_list"]]],
-                                                List[S2N[StrCat[n, "_mu_list"]]]];
+      S2N[StrCat[n, "_nu_b2_list"]]() = ListAlt[S2N[StrCat[n, "_b2_list"]](),
+                                                S2N[StrCat[n, "_nu_list"]]()];
+      S2N[StrCat[n, "_mu_h2_list"]]() = ListAlt[S2N[StrCat[n, "_h2_list"]](),
+                                                S2N[StrCat[n, "_mu_list"]]()];
     EndIf
 
     // for a-formulation ($1 argument is supposed to be \vec{b}, i.e. {d a}):
     If(!Exists[ S2N[StrCat[n, "_nu"]][] ])
       // nu(\vec{b})
       S2N[StrCat[n, "_nu"]][] =
-        InterpolationLinear[SquNorm[$1]]{ List[S2N[StrCat[n, "_nu_b2_list"]]] };
+        InterpolationLinear[SquNorm[$1]]{ S2N[StrCat[n, "_nu_b2_list"]]() };
     EndIf
     If(!Exists[ S2N[StrCat[n, "_dnudb2"]][] ])
       // \frac{\partial nu}{\partial b^2}
       S2N[StrCat[n, "_dnudb2"]][] =
-        dInterpolationLinear[SquNorm[$1]]{ List[S2N[StrCat[n, "_nu_b2_list"]]] };
+        dInterpolationLinear[SquNorm[$1]]{ S2N[StrCat[n, "_nu_b2_list"]]() };
     EndIf
     // \vec{h}(\vec{b})
     S2N[StrCat[n, "_h"]][] = S2N[StrCat[n, "_nu"]][$1] * $1;
@@ -95,12 +95,12 @@ Function{
     If(!Exists[ S2N[StrCat[n, "_mu"]][] ])
       // mu(\vec{h})
       S2N[StrCat[n, "_mu"]][] =
-        InterpolationLinear[SquNorm[$1]]{ List[S2N[StrCat[n, "_mu_h2_list"]]] };
+        InterpolationLinear[SquNorm[$1]]{ S2N[StrCat[n, "_mu_h2_list"]]() };
     EndIf
     If(!Exists[ S2N[StrCat[n, "_dmudh2"]][] ])
         // \frac{\partial mu}{\partial h^2}
       S2N[StrCat[n, "_dmudh2"]][] =
-        dInterpolationLinear[SquNorm[$1]]{ List[S2N[StrCat[n, "_mu_h2_list"]]] };
+        dInterpolationLinear[SquNorm[$1]]{ S2N[StrCat[n, "_mu_h2_list"]]() };
     EndIf
     // \vec{b}(\vec{h})
     S2N[StrCat[n, "_b"]][] = S2N[StrCat[n, "_mu"]][$1] * $1;

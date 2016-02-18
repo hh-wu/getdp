@@ -246,14 +246,11 @@ Resolution {
       If(!NbrRegions[Domain_NL])
         Generate[A]; Solve[A];
       Else
-        //IterativeLoopN[ Nb_max_iter, relaxation_factor,
-        //                System { {A, reltol, abstol, Solution MeanL2Norm} } ]{
         IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
           GenerateJac[A]; SolveJac[A];
         }
       EndIf
       SaveSolution[A];
-      //PostOperation[MagSta_a];
     }
   }
   { Name Analysis;
