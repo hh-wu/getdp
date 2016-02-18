@@ -18,14 +18,15 @@ struct Constant {
   int Type;
   union {
     double Float;
-    List_T *ListOfFloat;
     char *Char;
+    List_T *List;
   } Value;
 };
 
 #define VAR_FLOAT         1
 #define VAR_LISTOFFLOAT   2
 #define VAR_CHAR          3
+#define VAR_LISTOFCHAR    4
 
 extern FILE *getdp_yyin;
 extern std::string getdp_yyname;

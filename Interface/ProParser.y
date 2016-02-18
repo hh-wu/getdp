@@ -187,13 +187,14 @@ struct doubleXstring{
 
 /* ------------------------------------------------------------------ */
 %token  tEND tDOTS
+%token  tStr
 %token  tStrCat tSprintf tPrintf tMPI_Printf tRead tPrintConstants
 %token  tStrCmp tStrFind
 %token  tStrChoice tUpperCase tLowerCase tLowerCaseIn
 %token  tNbrRegions tGetRegion tStringToName tNameToString
 %token  tFor tEndFor tIf tElseIf tElse tEndIf tMacro tReturn tCall tCallTest
 %token  tTest tWhile tParse
-%token  tFlag
+%token  tFlag tExists
 %token  tInclude
 %token  tConstant tList tListAlt tLinSpace tLogSpace tListFromFile
 %token  tChangeCurrentPosition
@@ -303,7 +304,7 @@ struct doubleXstring{
 %token        tStoreMinYinRegister tStoreMinZinRegister
 %token        tLastTimeStepOnly tAppendTimeStepToFileName tTimeValue tTimeImagValue
 %token        tAppendExpressionToFileName tAppendExpressionFormat
-%token        tOverrideTimeStepValue tNoMesh tSendToServer tColor tStr
+%token        tOverrideTimeStepValue tNoMesh tSendToServer tColor
 %token        tDate tOnelabAction tFixRelativePath
 %token        tNewCoordinates tAppendToExistingFile tAppendStringToFileName
 
@@ -649,9 +650,9 @@ IRegion :
 	  }
 	  else if(Constant_S.Type == VAR_LISTOFFLOAT) {
 	    List_Reset($$ = ListOfInt_L);
-	    for(int i = 0; i < List_Nbr(Constant_S.Value.ListOfFloat); i++) {
+	    for(int i = 0; i < List_Nbr(Constant_S.Value.List); i++) {
 	      double d;
-	      List_Read(Constant_S.Value.ListOfFloat, i, &d);
+	      List_Read(Constant_S.Value.List, i, &d);
 	      int j = (int)d;
 	      List_Add(ListOfInt_L, &j);
 	    }
@@ -7261,7 +7262,7 @@ Affectation :
       }
       else{
 	Constant_S.Type = VAR_LISTOFFLOAT;
-	Constant_S.Value.ListOfFloat = $3;
+	Constant_S.Value.List = $3;
       }
       Tree_Replace(ConstantTable_L, &Constant_S);
     }
@@ -7270,7 +7271,7 @@ Affectation :
     {
       Constant_S.Name = $1;
       Constant_S.Type = VAR_LISTOFFLOAT;
-      Constant_S.Value.ListOfFloat = $5;
+      Constant_S.Value.List = $5;
       Tree_Replace(ConstantTable_L, &Constant_S);
     }
 
@@ -7284,8 +7285,8 @@ Affectation :
             double d;
             List_Read($3, i, &d);
             int idx = (int)d;
-            if(idx >= 0 && idx < List_Nbr(c->Value.ListOfFloat)){
-              double *pd = (double*)List_Pointer(c->Value.ListOfFloat, idx);
+            if(idx >= 0 && idx < List_Nbr(c->Value.List)){
+              double *pd = (double*)List_Pointer(c->Value.List, idx);
               double d2 = *(double*)List_Pointer($6, i);
               *pd = d2;
             }
@@ -7312,8 +7313,8 @@ Affectation :
             double d;
             List_Read($3, i, &d);
             int idx = (int)d;
-            if(idx >= 0 && idx < List_Nbr(c->Value.ListOfFloat)){
-              double *pd = (double*)List_Pointer(c->Value.ListOfFloat, idx);
+            if(idx >= 0 && idx < List_Nbr(c->Value.List)){
+              double *pd = (double*)List_Pointer(c->Value.List, idx);
               double d2 = *(double*)List_Pointer($7, i);
               *pd += d2;
             }
@@ -7340,8 +7341,8 @@ Affectation :
             double d;
             List_Read($3, i, &d);
             int idx = (int)d;
-            if(idx >= 0 && idx < List_Nbr(c->Value.ListOfFloat)){
-              double *pd = (double*)List_Pointer(c->Value.ListOfFloat, idx);
+            if(idx >= 0 && idx < List_Nbr(c->Value.List)){
+              double *pd = (double*)List_Pointer(c->Value.List, idx);
               double d2 = *(double*)List_Pointer($7, i);
               *pd -= d2;
             }
@@ -7370,7 +7371,7 @@ Affectation :
         }
         else if(c->Type == VAR_LISTOFFLOAT){
           for(int i = 0; i < List_Nbr($4); i++)
-            List_Add(c->Value.ListOfFloat, List_Pointer($4, i));
+            List_Add(c->Value.List, List_Pointer($4, i));
         }
         else
           vyyerror("Cannot append list to float");
@@ -7387,7 +7388,7 @@ Affectation :
       if(c){
         if(c->Type == VAR_LISTOFFLOAT){
           for(int i = 0; i < List_Nbr($6); i++)
-            List_Add(c->Value.ListOfFloat, List_Pointer($6, i));
+            List_Add(c->Value.List, List_Pointer($6, i));
         }
         else
           vyyerror("Cannot append list to float");
@@ -7409,9 +7410,9 @@ Affectation :
         }
         else if(c->Type == VAR_LISTOFFLOAT){
           std::vector<double> tmp;
-          for(int i = 0; i < List_Nbr(c->Value.ListOfFloat); i++){
+          for(int i = 0; i < List_Nbr(c->Value.List); i++){
             double d;
-            List_Read(c->Value.ListOfFloat, i, &d);
+            List_Read(c->Value.List, i, &d);
             tmp.push_back(d);
           }
           for(int i = 0; i < List_Nbr($4); i++){
@@ -7420,9 +7421,9 @@ Affectation :
             std::vector<double>::iterator it = std::find(tmp.begin(), tmp.end(), d);
             if(it != tmp.end()) tmp.erase(it);
           }
-          List_Reset(c->Value.ListOfFloat);
+          List_Reset(c->Value.List);
           for(unsigned int i = 0; i < tmp.size(); i++)
-            List_Add(c->Value.ListOfFloat, &tmp[i]);
+            List_Add(c->Value.List, &tmp[i]);
         }
         else
           vyyerror("Cannot erase list from float");
@@ -7439,9 +7440,9 @@ Affectation :
       if(c){
         if(c->Type == VAR_LISTOFFLOAT){
           std::vector<double> tmp;
-          for(int i = 0; i < List_Nbr(c->Value.ListOfFloat); i++){
+          for(int i = 0; i < List_Nbr(c->Value.List); i++){
             double d;
-            List_Read(c->Value.ListOfFloat, i, &d);
+            List_Read(c->Value.List, i, &d);
             tmp.push_back(d);
           }
           for(int i = 0; i < List_Nbr($6); i++){
@@ -7450,9 +7451,9 @@ Affectation :
             std::vector<double>::iterator it = std::find(tmp.begin(), tmp.end(), d);
             if(it != tmp.end()) tmp.erase(it);
           }
-          List_Reset(c->Value.ListOfFloat);
+          List_Reset(c->Value.List);
           for(unsigned int i = 0; i < tmp.size(); i++)
-            List_Add(c->Value.ListOfFloat, &tmp[i]);
+            List_Add(c->Value.List, &tmp[i]);
         }
         else
           vyyerror("Cannot erase list from float");
@@ -7469,6 +7470,39 @@ Affectation :
       Tree_Replace(ConstantTable_L, &Constant_S);
     }
 
+  | String__Index '(' ')' tDEF tStr '[' ']' tEND
+    {
+      Constant_S.Name = $1;
+      Constant_S.Type = VAR_LISTOFCHAR;
+      Constant_S.Value.List = List_Create(20, 20, sizeof(char*));
+      Tree_Replace(ConstantTable_L, &Constant_S);
+    }
+
+  | String__Index '(' ')' tDEF tStr '[' RecursiveListOfCharExpr ']' tEND
+    {
+      Constant_S.Name = $1;
+      Constant_S.Type = VAR_LISTOFCHAR;
+      Constant_S.Value.List = $7;
+      Tree_Replace(ConstantTable_L, &Constant_S);
+    }
+
+  | String__Index '(' ')' '+' tDEF tStr '[' RecursiveListOfCharExpr ']' tEND
+    {
+      Constant_S.Name = $1;
+      Constant *c = (Constant*)Tree_PQuery(ConstantTable_L, &Constant_S);
+      if(c){
+        if(c->Type == VAR_LISTOFCHAR){
+          for(int i = 0; i < List_Nbr($8); i++)
+            List_Add(c->Value.List, List_Pointer($8, i));
+        }
+        else
+          vyyerror("Cannot append string to non-list of strings");
+      }
+      else
+	vyyerror("Unknown Constant: %s", $1);
+      List_Delete($8);
+    }
+
   | Printf LP CharExprNoVar RP tEND
     {
       Message::Direct($1, $3);
@@ -7483,10 +7517,10 @@ Affectation :
 	if(Constant_S.Type != VAR_LISTOFFLOAT)
           Message::Direct($1, "%s: %g", $2, Constant_S.Value.Float);
 	else
-          Message::Direct($1, "%s: Dimension %d", $2, List_Nbr(Constant_S.Value.ListOfFloat));
-	  for(int i = 0; i < List_Nbr(Constant_S.Value.ListOfFloat); i++) {
+          Message::Direct($1, "%s: Dimension %d", $2, List_Nbr(Constant_S.Value.List));
+	  for(int i = 0; i < List_Nbr(Constant_S.Value.List); i++) {
 	    double d;
-	    List_Read(Constant_S.Value.ListOfFloat, i, &d);
+	    List_Read(Constant_S.Value.List, i, &d);
             Message::Direct($1, " (%d) %g", i, d);
 	  }
     }
@@ -7567,7 +7601,7 @@ Affectation :
     {
       Print_Constants();
     }
- ;
+;
 
 Enumeration :
     FExpr tDEF CharExpr
@@ -7580,6 +7614,36 @@ Enumeration :
     {
       doubleXstring v = {$3, $5};
       List_Add($$, &v);
+    }
+  | MultiFExpr tDEF String__Index '(' ')'
+    {
+      $$ = List_Create(20,20,sizeof(doubleXstring));
+      int n = List_Nbr($1);
+      Constant_S.Name = $3;
+      if(!Tree_Query(ConstantTable_L, &Constant_S))
+	vyyerror("Unknown Constant: %s", $3);
+      else{
+	if(Constant_S.Type == VAR_LISTOFCHAR){
+          int m = List_Nbr(Constant_S.Value.List);
+          if(n == m){
+            for(int i = 0; i < n; i++){
+              double d;
+              List_Read($1, i, &d);
+              char *s;
+              List_Read(Constant_S.Value.List, i, &s);
+              doubleXstring v = {d, strSave(s)};
+              List_Add($$, &v);
+            }
+          }
+          else{
+            vyyerror("Size mismatch in enumeration: %d != %d", n, m);
+          }
+        }
+	else{
+          vyyerror("Enumeration requires list of strings");
+        }
+      }
+      List_Delete($1);
     }
   ;
 
@@ -7740,7 +7804,7 @@ DefineConstants :
       else{
         Constant_S.Type = VAR_LISTOFFLOAT;
         if(!Tree_Search(ConstantTable_L, &Constant_S)){
-          Constant_S.Value.ListOfFloat = $6;
+          Constant_S.Value.List = $6;
           Tree_Replace(ConstantTable_L, &Constant_S);
         }
       }
@@ -7936,12 +8000,11 @@ OneFExpr :
       if(!Tree_Query(ConstantTable_L, &Constant_S))
 	vyyerror("Unknown Constant: %s", $2);
       else{
-	if(Constant_S.Type == VAR_LISTOFFLOAT)
-          ret = List_Nbr(Constant_S.Value.ListOfFloat);
-	else if(Constant_S.Type == VAR_FLOAT)
+	if(Constant_S.Type == VAR_LISTOFFLOAT ||
+           Constant_S.Type == VAR_LISTOFCHAR)
+          ret = List_Nbr(Constant_S.Value.List);
+	else
           ret = 1;
-        else
-          vyyerror("Float Constant needed: %s", $2);
       }
       $$ = ret;
       Free($2);
@@ -7957,7 +8020,7 @@ OneFExpr :
 	vyyerror("Unknown Constant: %s", $2);
       else{
 	if(Constant_S.Type == VAR_LISTOFFLOAT)
-          ret = List_Nbr(Constant_S.Value.ListOfFloat);
+          ret = List_Nbr(Constant_S.Value.List);
 	else if(Constant_S.Type == VAR_FLOAT)
           ret = 1;
         else
@@ -7977,7 +8040,7 @@ OneFExpr :
 	vyyerror("Unknown Constant: %s", $4);
       else{
 	if(Constant_S.Type == VAR_LISTOFFLOAT)
-          ret = List_Nbr(Constant_S.Value.ListOfFloat);
+          ret = List_Nbr(Constant_S.Value.List);
 	else if(Constant_S.Type == VAR_FLOAT)
           ret = 1;
         else
@@ -7998,8 +8061,8 @@ OneFExpr :
 	  vyyerror("Multi value Constant needed: %s", $1);
 	else{
           int j = (int)$3;
-          if(j >= 0 && j < List_Nbr(Constant_S.Value.ListOfFloat))
-            List_Read(Constant_S.Value.ListOfFloat, j, &ret);
+          if(j >= 0 && j < List_Nbr(Constant_S.Value.List))
+            List_Read(Constant_S.Value.List, j, &ret);
           else
             vyyerror("Index %d out of range", j);
         }
@@ -8021,8 +8084,8 @@ OneFExpr :
 	  vyyerror("Multi value Constant needed: %s", $1);
 	else{
           int j = (int)$3;
-          if(j >= 0 && j < List_Nbr(Constant_S.Value.ListOfFloat))
-            List_Read(Constant_S.Value.ListOfFloat, j, &ret);
+          if(j >= 0 && j < List_Nbr(Constant_S.Value.List))
+            List_Read(Constant_S.Value.List, j, &ret);
           else
             vyyerror("Index %d out of range", j);
         }
@@ -8044,13 +8107,32 @@ OneFExpr :
 	  vyyerror("Multi value Constant needed: %s", $3);
 	else{
           int j = (int)$6;
-          if(j >= 0 && j < List_Nbr(Constant_S.Value.ListOfFloat))
-            List_Read(Constant_S.Value.ListOfFloat, j, &ret);
+          if(j >= 0 && j < List_Nbr(Constant_S.Value.List))
+            List_Read(Constant_S.Value.List, j, &ret);
           else
             vyyerror("Index %d out of range", j);
         }
       }
       $$ = ret;
+      Free($3);
+    }
+
+  | tExists LP String__Index RP
+    {
+      Constant_S.Name = $3;
+      if(Tree_Query(ConstantTable_L, &Constant_S))
+        $$ = 1;
+      else
+        $$ = 0;
+      Free($3);
+    }
+
+  | tExists LP String__Index '[' ']' RP
+    {
+      if(List_ISearchSeq(Problem_S.Expression, $3, fcmp_Expression_Name) >= 0)
+        $$ = 1;
+      else
+        $$ = 0;
       Free($3);
     }
 ;
@@ -8267,13 +8349,15 @@ MultiFExpr :
 	  /* vyyerror("Multi value Constant needed: %s", $1); */
 	  List_Add($$, &Constant_S.Value.Float);
 	else
-	  for(int i = 0; i < List_Nbr(Constant_S.Value.ListOfFloat); i++) {
+	  for(int i = 0; i < List_Nbr(Constant_S.Value.List); i++) {
 	    double d;
-	    List_Read(Constant_S.Value.ListOfFloat, i, &d);
+	    List_Read(Constant_S.Value.List, i, &d);
 	    List_Add($$, &d);
 	  }
     }
 
+  // Should replace tSTRING with String__Index in above rule, but this leads to
+  // shift/reduce conflicts... don't know why
   | StringIndex '(' ')'
     {
       $$ = List_Create(20,20,sizeof(double));
@@ -8285,9 +8369,29 @@ MultiFExpr :
 	  /* vyyerror("Multi value Constant needed: %s", $1); */
 	  List_Add($$, &Constant_S.Value.Float);
 	else
-	  for(int i = 0; i < List_Nbr(Constant_S.Value.ListOfFloat); i++) {
+	  for(int i = 0; i < List_Nbr(Constant_S.Value.List); i++) {
 	    double d;
-	    List_Read(Constant_S.Value.ListOfFloat, i, &d);
+	    List_Read(Constant_S.Value.List, i, &d);
+	    List_Add($$, &d);
+	  }
+    }
+
+  // Should replace tSTRING with String__Index in above rule, but this leads to
+  // shift/reduce conflicts... don't know why
+  | tStringToName '[' CharExpr ']' '(' ')'
+    {
+      $$ = List_Create(20,20,sizeof(double));
+      Constant_S.Name = $3;
+      if(!Tree_Query(ConstantTable_L, &Constant_S))
+	vyyerror("Unknown Constant: %s", $3);
+      else
+	if(Constant_S.Type != VAR_LISTOFFLOAT)
+	  /* vyyerror("Multi value Constant needed: %s", $3); */
+	  List_Add($$, &Constant_S.Value.Float);
+	else
+	  for(int i = 0; i < List_Nbr(Constant_S.Value.List); i++) {
+	    double d;
+	    List_Read(Constant_S.Value.List, i, &d);
 	    List_Add($$, &d);
 	  }
     }
@@ -8304,9 +8408,9 @@ MultiFExpr :
 	  /* vyyerror("Multi value Constant needed: %s", $1); */
 	  List_Add($$, &Constant_S.Value.Float);
 	else
-	  for(int i = 0; i < List_Nbr(Constant_S.Value.ListOfFloat); i++) {
+	  for(int i = 0; i < List_Nbr(Constant_S.Value.List); i++) {
 	    double d;
-	    List_Read(Constant_S.Value.ListOfFloat, i, &d);
+	    List_Read(Constant_S.Value.List, i, &d);
 	    List_Add($$, &d);
 	  }
     }
@@ -8323,9 +8427,9 @@ MultiFExpr :
 	else
 	  for(int i = 0; i < List_Nbr($4); i++) {
             int j = (int)(*(double*)List_Pointer($4, i));
-	    if(j >= 0 && j < List_Nbr(Constant_S.Value.ListOfFloat)){
+	    if(j >= 0 && j < List_Nbr(Constant_S.Value.List)){
 	      double d;
-	      List_Read(Constant_S.Value.ListOfFloat, j, &d);
+	      List_Read(Constant_S.Value.List, j, &d);
 	      List_Add($$, &d);
 	    }
 	    else{
@@ -8337,6 +8441,8 @@ MultiFExpr :
       List_Delete($4);
     }
 
+  // Should replace tSTRING with String__Index in above rule, but this leads to
+  // shift/reduce conflicts... don't know why
   | StringIndex '(' '{' RecursiveListOfFExpr '}' ')'
     {
       $$ = List_Create(20,20,sizeof(double));
@@ -8349,9 +8455,9 @@ MultiFExpr :
 	else
 	  for(int i = 0; i < List_Nbr($4); i++) {
             int j = (int)(*(double*)List_Pointer($4, i));
-	    if(j >= 0 && j < List_Nbr(Constant_S.Value.ListOfFloat)){
+	    if(j >= 0 && j < List_Nbr(Constant_S.Value.List)){
 	      double d;
-	      List_Read(Constant_S.Value.ListOfFloat, j, &d);
+	      List_Read(Constant_S.Value.List, j, &d);
 	      List_Add($$, &d);
 	    }
 	    else{
@@ -8361,6 +8467,34 @@ MultiFExpr :
 	    }
 	  }
       List_Delete($4);
+    }
+
+  // Should replace tSTRING with String__Index in above rule, but this leads to
+  // shift/reduce conflicts... don't know why
+  | tStringToName '[' CharExpr ']' '(' '{' RecursiveListOfFExpr '}' ')'
+    {
+      $$ = List_Create(20,20,sizeof(double));
+      Constant_S.Name = $3;
+      if(!Tree_Query(ConstantTable_L, &Constant_S))
+	vyyerror("Unknown Constant: %s", $3);
+      else
+	if(Constant_S.Type != VAR_LISTOFFLOAT)
+	  vyyerror("Multi value Constant needed: %s", $3);
+	else
+	  for(int i = 0; i < List_Nbr($7); i++) {
+            int j = (int)(*(double*)List_Pointer($7, i));
+	    if(j >= 0 && j < List_Nbr(Constant_S.Value.List)){
+	      double d;
+	      List_Read(Constant_S.Value.List, j, &d);
+	      List_Add($$, &d);
+	    }
+	    else{
+              vyyerror("Index %d out of range", j);
+	      double d = 0.;
+	      List_Add($$, &d);
+	    }
+	  }
+      List_Delete($7);
     }
 
   // same as tSTRING '(' ')'
@@ -8374,9 +8508,9 @@ MultiFExpr :
 	if(Constant_S.Type != VAR_LISTOFFLOAT)
 	  vyyerror("Multi value Constant needed: %s", $3);
 	else
-	  for(int i = 0; i < List_Nbr(Constant_S.Value.ListOfFloat); i++) {
+	  for(int i = 0; i < List_Nbr(Constant_S.Value.List); i++) {
 	    double d;
-	    List_Read(Constant_S.Value.ListOfFloat, i, &d);
+	    List_Read(Constant_S.Value.List, i, &d);
 	    List_Add($$, &d);
 	  }
     }
@@ -8401,19 +8535,19 @@ MultiFExpr :
 	      vyyerror("Multi value Constant needed: %s", $5);
 	    }
 	    else {
-	      if(List_Nbr(Constant1_S.Value.ListOfFloat) !=
-                 List_Nbr(Constant2_S.Value.ListOfFloat)) {
+	      if(List_Nbr(Constant1_S.Value.List) !=
+                 List_Nbr(Constant2_S.Value.List)) {
 		vyyerror("Different dimensions of Multi value Constants: "
 			 "%s {%d}, %s {%d}",
-			 $3, List_Nbr(Constant1_S.Value.ListOfFloat),
-			 $5, List_Nbr(Constant2_S.Value.ListOfFloat));
+			 $3, List_Nbr(Constant1_S.Value.List),
+			 $5, List_Nbr(Constant2_S.Value.List));
 	      }
 	      else {
-		for(int i = 0; i < List_Nbr(Constant1_S.Value.ListOfFloat); i++) {
+		for(int i = 0; i < List_Nbr(Constant1_S.Value.List); i++) {
 		  double d;
-		  List_Read(Constant1_S.Value.ListOfFloat, i, &d);
+		  List_Read(Constant1_S.Value.List, i, &d);
 		  List_Add($$, &d);
-		  List_Read(Constant2_S.Value.ListOfFloat, i, &d);
+		  List_Read(Constant2_S.Value.List, i, &d);
 		  List_Add($$, &d);
 		}
 	      }
@@ -8678,18 +8812,44 @@ CharExpr :
     {
       Constant_S.Name = $1;
       if(!Tree_Query(ConstantTable_L, &Constant_S)) {
-	vyyerror("Unknown Constant: %s", $1);  $$ = NULL;
+	vyyerror("Unknown Constant: %s", $1); $$ = NULL;
       }
       else  {
 	if(Constant_S.Type == VAR_CHAR)
 	  $$ = strSave(Constant_S.Value.Char);
 	else {
-	  vyyerror("String Constant needed: %s", $1);  $$ = NULL;
+	  vyyerror("String Constant needed: %s", $1); $$ = NULL;
 	}
       }
       Free($1);
     }
- ;
+
+  | String__Index '(' FExpr ')'
+    {
+      Constant_S.Name = $1;
+      if(!Tree_Query(ConstantTable_L, &Constant_S)) {
+	vyyerror("Unknown Constant: %s", $1); $$ = NULL;
+      }
+      else  {
+	if(Constant_S.Type == VAR_LISTOFCHAR){
+          int j = (int)$3;
+          if(j >= 0 && j < List_Nbr(Constant_S.Value.List)){
+            char *s;
+            List_Read(Constant_S.Value.List, j, &s);
+            $$ = strSave(s);
+          }
+          else{
+            vyyerror("Index %d out of range", j); $$ = NULL;
+          }
+        }
+	else {
+	  vyyerror("List of string Constant needed: %s", $1); $$ = NULL;
+	}
+      }
+      Free($1);
+    }
+
+;
 
 RecursiveListOfCharExpr :
 
@@ -8701,6 +8861,7 @@ RecursiveListOfCharExpr :
   | RecursiveListOfCharExpr ',' CharExpr
     { List_Add($$, &($3)); }
  ;
+
 
 // these are for compatibility with the syntax in Gmsh (parentheses instead of
 // square brackets)
@@ -8813,9 +8974,9 @@ void Alloc_ParserVariables()
       else{
         Message::Info("Adding list of numbers %s", it->first.c_str());
         Constant_S.Type = VAR_LISTOFFLOAT;
-        Constant_S.Value.ListOfFloat = List_Create(v.size(), 1, sizeof(double));
+        Constant_S.Value.List = List_Create(v.size(), 1, sizeof(double));
         for(unsigned int i = 0; i < v.size(); i ++)
-          List_Add(Constant_S.Value.ListOfFloat, &v[i]);
+          List_Add(Constant_S.Value.List, &v[i]);
       }
       Tree_Add(ConstantTable_L, &Constant_S);
     }
@@ -8932,9 +9093,9 @@ void Fill_GroupInitialListFromString(List_T *list, const char *str)
       found = true;
       break;
     case VAR_LISTOFFLOAT:
-      for(int j = 0; j < List_Nbr(Constant_P->Value.ListOfFloat); j++){
+      for(int j = 0; j < List_Nbr(Constant_P->Value.List); j++){
         double d;
-        List_Read(Constant_P->Value.ListOfFloat, j, &d);
+        List_Read(Constant_P->Value.List, j, &d);
         int num = (int)d;
         List_Add(list, &num);
       }
@@ -9166,10 +9327,10 @@ void  Print_Constants()
       {
         std::string str(Constant_P->Name);
         str += " = {";
-        for(int j = 0; j < List_Nbr(Constant_P->Value.ListOfFloat); j++){
+        for(int j = 0; j < List_Nbr(Constant_P->Value.List); j++){
           if(j) str += ",";
           double d;
-          List_Read(Constant_P->Value.ListOfFloat, j, &d);
+          List_Read(Constant_P->Value.List, j, &d);
           char tmp[32];
           sprintf(tmp, "%g", d);
           str += tmp;
@@ -9180,6 +9341,20 @@ void  Print_Constants()
       break;
     case VAR_CHAR:
       Message::Check("%s = \"%s\";\n", Constant_P->Name, Constant_P->Value.Char);
+      break;
+    case VAR_LISTOFCHAR:
+      {
+        std::string str(Constant_P->Name);
+        str += " = {";
+        for(int j = 0; j < List_Nbr(Constant_P->Value.List); j++){
+          if(j) str += ",";
+          char *s;
+          List_Read(Constant_P->Value.List, j, &s);
+          str += s;
+        }
+        str += "};\n";
+        Message::Check(str.c_str());
+      }
       break;
     }
   }

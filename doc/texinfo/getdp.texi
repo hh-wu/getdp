@@ -1042,7 +1042,8 @@ purely constant expressions, denoted by the metasyntactic variable
   @var{constant-id}(@var{expression-cst}) |
   StrFind[ @var{expression-char}, @var{expression-char}] |
   StrCmp[ @var{expression-char}, @var{expression-char}] |
-  StringToName(@var{expression-char}) | S2N(@var{expression-char}) |
+  StringToName[@var{expression-char}] | S2N[@var{expression-char}] |
+  Exists[ @var{string} ] | NbrRegions [ @var{string} ] |
   GetNumber[ @var{expression-char} <, @var{expression-cst},> ]
 @end example
 
@@ -1051,9 +1052,11 @@ occurrence of the second @var{expression-char}.  @code{StrCmp} compares
 the two strings (returns an integer greater than, equal to, or less than
 0, according as the first string is greater than, equal to, or less than
 the second string).  @code{StringToName} creates a name from the
-provided string.  @code{GetNumber} allows to get the value of a ONELAB
-number variable (the optional second argument specifies the default
-value returned if the variable does not exist.)
+provided string. @code{Exists} checks for the existance of a constant or
+a function. @code{NbrRegions} counts the numbers of elementary regions
+in a group. @code{GetNumber} allows to get the value of a ONELAB number
+variable (the optional second argument specifies the default value
+returned if the variable does not exist.)
 
 List of constant expressions are defined as:
 
@@ -1121,9 +1124,9 @@ for the definition of constants is:
   DefineConstant [ @var{constant-id} = @{ @var{expression-cst} , @var{onelab-options} @} <,@dots{}> ]; |
   DefineConstant [ @var{string-id} < = @var{string-def} >  <,@dots{}> ]; |
   DefineConstant [ @var{string-id} = @{ @var{string-def} , @var{onelab-options} @} <,@dots{}> ]; |
-  @var{constant-id} = @var{constant-def}; |
+  @var{constant-id} <()> = @var{constant-def}; |
   @var{constant-id} = DefineNumber[ @var{constant-def}, @var{onelab-options} ];
-  @var{string-id} = @var{string-def}; |
+  @var{string-id} <()> = @var{string-def}; |
   @var{string-id} = DefineString[ @var{string-def}, @var{onelab-options} ]; |
   Printf [ "@var{string}" ]; |
   Printf [ "@var{string}", @var{expression-cst-list} ]; |
@@ -1219,7 +1222,9 @@ Character expressions are defined as follows:
 
 @noindent @code{StrCat} and @code{Str} permit to concatenate 
 character expressions (@code{Str} adds a newline character after each
-string except the last). @code{StrChoice} returns the first or second
+string except the last) when creating a string. @code{Str} is also used
+to create string lists (when @var{string-id} is followed by
+@code{()}). @code{StrChoice} returns the first or second
 @var{expression-char} depending on the value of
 @var{expression}. @code{UpperCase} converts the @var{expression-char} to
 upper case. @code{Sprintf} is equivalent to the @code{sprintf} C
@@ -1232,6 +1237,13 @@ the variable does not exist.)  @code{Date} permits to access the current
 date. @code{CurrentDirectory} and @code{CurrentDir} return the directory
 of the @code{.pro} file.  @code{OnelabAction} returns the current ONELAB
 action (e.g. @code{check} or @code{compute}).
+
+List of character expressions are defined as:
+
+@example
+@var{expression-char-list}: 
+  @var{expression-char} <,@dots{}>
+@end example
 
 @c -------------------------------------------------------------------------
 @c Operators
