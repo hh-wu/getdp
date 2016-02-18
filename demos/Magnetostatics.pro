@@ -31,8 +31,8 @@ Group {
               0="Magnet",
               1="Current source",
               2="Linear material (constant)",
-              3="User material (function)",
-              4="Preset material"
+              3="Linear material (function)",
+              4="Nonlinear material (preset)"
             },
             Name StrCat["Parameters/Materials/", name~{i}, "/0Type"]}
         ];
@@ -52,7 +52,7 @@ Group {
   Domain = Region[{Domain_Mag, Domain_NL, Domain_M, Domain_S, Domain_Inf}];
 }
 
-If(interactive && NbrRegions[Domain_NL])
+If(interactive)
   Include "BH.pro"
 EndIf
 
@@ -77,29 +77,34 @@ Function{
             Name StrCat["Parameters/Materials/", name~{i}, "/Relative permeability"]}
           mu_fct~{i} = {"1 * 4*Pi*1e-7", Visible (material~{i} == 3),
             Name StrCat["Parameters/Materials/", name~{i}, "/Permeability"]}
-          bhcurve~{i} = {1, Choices{1="Interpolated" },
-            Visible (material~{i} == 4),
+          // this list should be constructed automatically in BH.pro
+          mat~{i} = {1, Visible (material~{i} == 4),
+            Choices{ 1:#materials() = materials() },
             Name StrCat["Parameters/Materials/", name~{i}, "/B-H curve"]}
         ];
-        If(material~{i} == 0)
+        If(material~{i} == 0) // magnet
           hc[ Region[tag~{i}] ] = Vector[hcx~{i}, hcy~{i}, 0];
-        ElseIf(material~{i} == 1)
+          mu[ Region[tag~{i}] ] = 4*Pi*1e-7;
+          nu[ Region[tag~{i}] ] = 1/(4*Pi*1e-7);
+        ElseIf(material~{i} == 1) // current source
           js[ Region[tag~{i}] ] = Vector[0, 0, jsz~{i}];
-        EndIf
-
-        If(material~{i} == 4)
-          If(bhcurve~{i} == 1)
-            mu [ Region[tag~{i}] ] = mu_1[$1] ;
-            dbdh_NL [ Region[tag~{i}] ] = dbdh_1_NL[$1];
-            nu [ Region[tag~{i}] ] = nu_1[$1] ;
-            dhdb_NL [ Region[tag~{i}] ] = dhdb_1_NL[$1];
-          EndIf
-        ElseIf(material~{i} == 3)
-          Parse[ StrCat["mu[ Region[tag~{i}] ] = ", mu_fct~{i}, ";"] ];
-          Parse[ StrCat["nu[ Region[tag~{i}] ] = 1/", mu_fct~{i}, ";"] ];
-        Else
+          mu[ Region[tag~{i}] ] = 4*Pi*1e-7;
+          nu[ Region[tag~{i}] ] = 1/(4*Pi*1e-7);
+        ElseIf(material~{i} == 2) // linear, constant
           mu[ Region[tag~{i}] ] = mur~{i}*4*Pi*1e-7;
           nu[ Region[tag~{i}] ] = 1/(mur~{i}*4*Pi*1e-7);
+        ElseIf(material~{i} == 3) // linear, user-defined
+          Parse[ StrCat["mu[ Region[tag~{i}] ] = ", mu_fct~{i}, ";"] ];
+          Parse[ StrCat["nu[ Region[tag~{i}] ] = 1/", mu_fct~{i}, ";"] ];
+        ElseIf(material~{i} == 4) // preset
+          mu[ Region[tag~{i}] ] =
+            S2N[StrCat[materials(mat~{i}-1), "_mu"]][$1] ;
+          dbdh_NL[ Region[tag~{i}] ] =
+            S2N[StrCat[materials(mat~{i}-1), "_dbdh_NL"]][$1] ;
+          nu[ Region[tag~{i}] ] =
+            S2N[StrCat[materials(mat~{i}-1), "_nu"]][$1] ;
+          dhdb_NL[ Region[tag~{i}] ] =
+            S2N[StrCat[materials(mat~{i}-1), "_dhdb_NL"]][$1] ;
         EndIf
       EndIf
     EndFor

@@ -53,10 +53,10 @@ Function {
     mu [ Core ]  = murCore * mu0;
   EndIf
   If(Flag_NL)
-    nu [ Core ] = nu_1[$1] ;
-    dhdb_NL [ Core ] = dhdb_1_NL[$1];
-    mu [ Core ] = mu_1[$1] ;
-    dbdh_NL [ Core ] = dbdh_1_NL[$1];
+    nu [ Core ] = SteelInd_nu[$1] ;
+    dhdb_NL [ Core ] = SteelInd_dhdb_NL[$1];
+    mu [ Core ] = SteelInd_mu[$1] ;
+    dbdh_NL [ Core ] = SteelInd_dbdh_NL[$1];
   EndIf
 
   mu [ Region[{Air, AirInf, AirGap, Magnet}] ] = mu0 ;
