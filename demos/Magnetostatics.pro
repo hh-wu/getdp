@@ -98,13 +98,13 @@ Function{
           Parse[ StrCat["nu[ Region[tag~{i}] ] = 1/", mu_fct~{i}, ";"] ];
         ElseIf(material~{i} == 4) // preset
           mu[ Region[tag~{i}] ] =
-            S2N[StrCat[materials(mat~{i}-1), "_mu"]][$1] ;
+            S2N[StrCat[materials(mat~{i}-1), "_mu"]][$1];
           dbdh_NL[ Region[tag~{i}] ] =
-            S2N[StrCat[materials(mat~{i}-1), "_dbdh_NL"]][$1] ;
+            S2N[StrCat[materials(mat~{i}-1), "_dbdh_NL"]][$1];
           nu[ Region[tag~{i}] ] =
-            S2N[StrCat[materials(mat~{i}-1), "_nu"]][$1] ;
+            S2N[StrCat[materials(mat~{i}-1), "_nu"]][$1];
           dhdb_NL[ Region[tag~{i}] ] =
-            S2N[StrCat[materials(mat~{i}-1), "_dhdb_NL"]][$1] ;
+            S2N[StrCat[materials(mat~{i}-1), "_dhdb_NL"]][$1];
         EndIf
       EndIf
     EndFor
@@ -113,27 +113,29 @@ Function{
   // Constant parameters
   DefineConstant[
     Val_Rint, Val_Rext, Val_Cx, Val_Cy, Val_Cz,
-    Nb_max_iter = 30, relaxation_factor = 1, stop_criterion = 1e-5
+    Nb_max_iter = 30, relaxation_factor = 1, stop_criterion = 1e-5,
+    Flag_AnalysisType = {1, Choices{0="Scalar potential", 1="Vector potential"},
+      Name "GetDP/Analysis"}
   ];
 }
 
 Jacobian {
-  { Name JVol ;
+  { Name JVol;
     Case {
-      { Region Domain_Inf ;
-        Jacobian VolSphShell{Val_Rint, Val_Rext, Val_Cx, Val_Cy, Val_Cz} ; }
-      { Region All ; Jacobian Vol ; }
+      { Region Domain_Inf;
+        Jacobian VolSphShell{Val_Rint, Val_Rext, Val_Cx, Val_Cy, Val_Cz}; }
+      { Region All; Jacobian Vol; }
     }
   }
 }
 
 Integration {
-  { Name I1 ;
+  { Name I1;
     Case {
-      { Type Gauss ;
+      { Type Gauss;
         Case {
-	  { GeoElement Triangle ; NumberOfPoints 4 ; }
-	  { GeoElement Quadrangle  ; NumberOfPoints 4 ; }
+	  { GeoElement Triangle; NumberOfPoints 4; }
+	  { GeoElement Quadrangle; NumberOfPoints 4; }
 	}
       }
     }
@@ -141,18 +143,25 @@ Integration {
 }
 
 
-/* --------------------------------------------------------------------------
-   MagSta_phi : Magnetic scalar potential phi formulation
-   -------------------------------------------------------------------------- */
-
 If(interactive)
 Constraint {
-  { Name phi ;
+  { Name phi; // scalar magnetic potential
     Case {
       For i In {1:numPhysicals}
         If(dim~{i} < modelDim)
           If(bc~{i} == 1)
-            { Region Region[tag~{i}] ; Value bc_val~{i} ; }
+            { Region Region[tag~{i}]; Value bc_val~{i}; }
+          EndIf
+        EndIf
+      EndFor
+    }
+  }
+  { Name a; // vector magnetic potential
+    Case {
+      For i In {1:numPhysicals}
+        If(dim~{i} < modelDim)
+          If(bc~{i} == 1)
+            { Region Region[tag~{i}]; Value bc_val~{i}; }
           EndIf
         EndIf
       EndFor
@@ -162,172 +171,162 @@ Constraint {
 EndIf
 
 FunctionSpace {
-  { Name Hgrad_phi ; Type Form0 ;
+  { Name Hgrad_phi; Type Form0;
     BasisFunction {
-      { Name sn ; NameOfCoef phin ; Function BF_Node ;
-        Support Domain ; Entity NodesOf[ All ] ; }
+      { Name sn; NameOfCoef phin; Function BF_Node;
+        Support Domain; Entity NodesOf[ All ]; }
     }
     Constraint {
-      { NameOfCoef phin ; EntityType NodesOf ; NameOfConstraint phi ; }
+      { NameOfCoef phin; EntityType NodesOf; NameOfConstraint phi; }
+    }
+  }
+  { Name Hcurl_a; Type Form1P;
+    BasisFunction {
+      { Name se; NameOfCoef ae; Function BF_PerpendicularEdge;
+        Support Domain; Entity NodesOf[ All ]; }
+    }
+    Constraint {
+      { NameOfCoef ae; EntityType NodesOf; NameOfConstraint a; }
     }
   }
 }
 
 Formulation {
-  { Name MagSta_phi ; Type FemEquation ;
+  { Name MagSta_phi; Type FemEquation;
     Quantity {
-      { Name phi ; Type Local ; NameOfSpace Hgrad_phi ; }
+      { Name phi; Type Local; NameOfSpace Hgrad_phi; }
     }
     Equation {
-      Galerkin { [ - mu[-{d phi}] * Dof{d phi} , {d phi} ] ;
-        In Domain ; Jacobian JVol ; Integration I1 ; }
-      Galerkin { JacNL [ - dbdh_NL[-{d phi}] * Dof{d phi} , {d phi} ] ;
-        In Domain_NL ; Jacobian JVol ; Integration I1 ; }
-
-      Galerkin { [ - mu[] * hc[] , {d phi} ] ;
-        In Domain_M ; Jacobian JVol ; Integration I1 ; }
+      Galerkin { [ - mu[-{d phi}] * Dof{d phi} , {d phi} ];
+        In Domain; Jacobian JVol; Integration I1; }
+      Galerkin { JacNL [ - dbdh_NL[-{d phi}] * Dof{d phi} , {d phi} ];
+        In Domain_NL; Jacobian JVol; Integration I1; }
+      Galerkin { [ - mu[] * hc[] , {d phi} ];
+        In Domain_M; Jacobian JVol; Integration I1; }
+    }
+  }
+  { Name MagSta_a; Type FemEquation;
+    Quantity {
+      { Name a; Type Local; NameOfSpace Hcurl_a; }
+    }
+    Equation {
+      Galerkin { [ nu[{d a}] * Dof{d a} , {d a} ];
+                 In Domain; Jacobian JVol; Integration I1; }
+      Galerkin { JacNL [ dhdb_NL[{d a}] * Dof{d a} , {d a} ];
+                 In Domain_NL; Jacobian JVol; Integration I1; }
+      Galerkin { [ hc[] , {d a} ];
+                 In Domain_M; Jacobian JVol; Integration I1; }
+      Galerkin { [ -js[] , {a} ];
+                 In Domain_S; Jacobian JVol; Integration I1; }
     }
   }
 }
 
 Resolution {
-  { Name MagSta_phi ;
+  { Name MagSta_phi;
     System {
-      { Name A ; NameOfFormulation MagSta_phi ; }
+      { Name A; NameOfFormulation MagSta_phi; }
     }
     Operation {
       If(!NbrRegions[Domain_NL])
-        Generate[A] ; Solve[A] ;
+        Generate[A]; Solve[A];
+      Else
+        IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
+          GenerateJac[A]; SolveJac[A];
+        }
+      EndIf
+      SaveSolution[A];
+    }
+  }
+  { Name MagSta_a;
+    System {
+      { Name A; NameOfFormulation MagSta_a; }
+    }
+    Operation {
+      If(!NbrRegions[Domain_NL])
+        Generate[A]; Solve[A];
       Else
         //IterativeLoopN[ Nb_max_iter, relaxation_factor,
         //                System { {A, reltol, abstol, Solution MeanL2Norm} } ]{
         IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
-          GenerateJac[A] ; SolveJac[A] ;
+          GenerateJac[A]; SolveJac[A];
         }
       EndIf
-      SaveSolution[A] ;
-      //PostOperation[MagSta_phi] ;
-    }
-  }
-}
-
-PostProcessing {
-  { Name MagSta_phi ; NameOfFormulation MagSta_phi ;
-    Quantity {
-      { Name b   ; Value { Local { [ - mu[-{d phi}] * {d phi} ] ; In Domain ; Jacobian JVol ; }
-                           Local { [ - mu[] * hc[] ]    ; In Domain_M ; Jacobian JVol ; } } }
-      { Name h   ; Value { Local { [ - {d phi} ]        ; In Domain ; Jacobian JVol ; } } }
-      { Name hc  ; Value { Local { [ hc[] ]             ; In Domain_M ; Jacobian JVol ; } } }
-      { Name phi ; Value { Local { [ {phi} ]            ; In Domain ; Jacobian JVol ; } } }
-    }
-  }
-}
-
-PostOperation {
-  { Name MagSta_phi ; NameOfPostProcessing MagSta_phi;
-    Operation {
-      Print[ b, OnElementsOf Domain, File "MagSta_phi_b.pos" ] ;
-      Print[ h, OnElementsOf Domain, File "MagSta_phi_h.pos" ] ;
-      Print[ hc, OnElementsOf Domain, File "MagSta_a_hc.pos" ] ;
-      Print[ phi, OnElementsOf Domain, File "MagSta_phi_phi.pos" ] ;
-    }
-  }
-}
-
-/* --------------------------------------------------------------------------
-   MagSta_a : Magnetic vector potential a formulation (2D)
-   -------------------------------------------------------------------------- */
-
-If(interactive)
-Constraint {
-  { Name a ;
-    Case {
-      For i In {1:numPhysicals}
-        If(dim~{i} < modelDim)
-          If(bc~{i} == 1)
-            { Region Region[tag~{i}] ; Value bc_val~{i} ; }
-          EndIf
-        EndIf
-      EndFor
-    }
-  }
-}
-EndIf
-
-FunctionSpace {
-  { Name Hcurl_a ; Type Form1P ;
-    BasisFunction {
-      { Name se ; NameOfCoef ae ; Function BF_PerpendicularEdge ;
-        Support Domain ; Entity NodesOf[ All ] ; }
-    }
-    Constraint {
-      { NameOfCoef ae ; EntityType NodesOf ; NameOfConstraint a ; }
-    }
-  }
-}
-
-Formulation {
-  { Name MagSta_a ; Type FemEquation ;
-    Quantity {
-      { Name a  ; Type Local ; NameOfSpace Hcurl_a ; }
-    }
-    Equation {
-      Galerkin { [ nu[{d a}] * Dof{d a} , {d a} ] ;
-                 In Domain ; Jacobian JVol ; Integration I1 ; }
-
-      Galerkin { JacNL [ dhdb_NL[{d a}] * Dof{d a} , {d a} ] ;
-                 In Domain_NL ; Jacobian JVol ; Integration I1 ; }
-
-      Galerkin { [ hc[] , {d a} ] ;
-                 In Domain_M ; Jacobian JVol ; Integration I1 ; }
-
-      Galerkin { [ -js[] , {a} ] ;
-                 In Domain_S ; Jacobian JVol ; Integration I1 ; }
-    }
-  }
-}
-
-Resolution {
-  { Name MagSta_a ;
-    System {
-      { Name A ; NameOfFormulation MagSta_a ; }
-    }
-    Operation {
-      If(!NbrRegions[Domain_NL])
-        Generate[A] ; Solve[A] ;
-      Else
-        //IterativeLoopN[ Nb_max_iter, relaxation_factor,
-        //                System { {A, reltol, abstol, Solution MeanL2Norm} } ]{
-        IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
-          GenerateJac[A] ; SolveJac[A] ;
-        }
-      EndIf
-      SaveSolution[A] ;
+      SaveSolution[A];
       //PostOperation[MagSta_a];
     }
   }
+  { Name Analysis;
+    System {
+      If(Flag_AnalysisType == 0)
+        { Name A; NameOfFormulation MagSta_phi; }
+      Else
+        { Name A; NameOfFormulation MagSta_a; }
+      EndIf
+    }
+    Operation {
+      If(!NbrRegions[Domain_NL])
+        Generate[A]; Solve[A];
+      Else
+        //IterativeLoopN[ Nb_max_iter, relaxation_factor,
+        //                System { {A, reltol, abstol, Solution MeanL2Norm} } ]{
+        IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
+          GenerateJac[A]; SolveJac[A];
+        }
+      EndIf
+      SaveSolution[A];
+      If(Flag_AnalysisType == 0)
+        PostOperation[MagSta_phi];
+      Else
+        PostOperation[MagSta_a];
+      EndIf
+    }
+  }
 }
 
 PostProcessing {
-  { Name MagSta_a ; NameOfFormulation MagSta_a ;
+  { Name MagSta_phi; NameOfFormulation MagSta_phi;
     Quantity {
-      { Name az ; Value { Local { [ CompZ[{a}] ]   ; In Domain ; Jacobian JVol ; } } }
-      { Name b ; Value { Local { [ {d a} ]        ; In Domain ; Jacobian JVol ; } } }
-      { Name a ; Value { Local { [ {a} ]          ; In Domain ; Jacobian JVol ; } } }
-      { Name h ; Value { Local { [ nu[{d a}] * {d a} ] ; In Domain ; Jacobian JVol ; }
-                         Local { [ hc[] ]         ; In Domain_M ; Jacobian JVol ; } } }
-      { Name hc  ; Value { Local { [ hc[] ]       ; In Domain_M ; Jacobian JVol ; } } }
+      { Name b; Value { Local { [ - mu[-{d phi}] * {d phi} ]; In Domain; Jacobian JVol; }
+                        Local { [ - mu[] * hc[] ]; In Domain_M; Jacobian JVol; } } }
+      { Name h; Value { Local { [ - {d phi} ]; In Domain; Jacobian JVol; } } }
+      { Name hc; Value { Local { [ hc[] ]; In Domain_M; Jacobian JVol; } } }
+      { Name phi; Value { Local { [ {phi} ]; In Domain; Jacobian JVol; } } }
+    }
+  }
+  { Name MagSta_a; NameOfFormulation MagSta_a;
+    Quantity {
+      { Name az; Value { Local { [ CompZ[{a}] ]; In Domain; Jacobian JVol; } } }
+      { Name b; Value { Local { [ {d a} ]; In Domain; Jacobian JVol; } } }
+      { Name a; Value { Local { [ {a} ]; In Domain; Jacobian JVol; } } }
+      { Name h; Value { Local { [ nu[{d a}] * {d a} ]; In Domain; Jacobian JVol; }
+                        Local { [ hc[] ]; In Domain_M; Jacobian JVol; } } }
+      { Name hc; Value { Local { [ hc[] ]; In Domain_M; Jacobian JVol; } } }
     }
   }
 }
 
 PostOperation {
-  { Name MagSta_a ; NameOfPostProcessing MagSta_a;
+  { Name MagSta_phi; NameOfPostProcessing MagSta_phi;
     Operation {
-      Print[ b, OnElementsOf Domain, File "MagSta_a_b.pos" ] ;
-      Print[ h, OnElementsOf Domain, File "MagSta_a_h.pos" ] ;
-      Print[ hc, OnElementsOf Domain, File "MagSta_a_hc.pos" ] ;
-      Print[ az, OnElementsOf Domain, File "MagSta_az_a.pos" ] ;
+      Print[ b, OnElementsOf Domain, File "MagSta_phi_b.pos" ];
+      Print[ h, OnElementsOf Domain, File "MagSta_phi_h.pos" ];
+      Print[ hc, OnElementsOf Domain, File "MagSta_a_hc.pos" ];
+      Print[ phi, OnElementsOf Domain, File "MagSta_phi_phi.pos" ];
+    }
+  }
+  { Name MagSta_a; NameOfPostProcessing MagSta_a;
+    Operation {
+      Print[ b, OnElementsOf Domain, File "MagSta_a_b.pos" ];
+      Print[ h, OnElementsOf Domain, File "MagSta_a_h.pos" ];
+      Print[ hc, OnElementsOf Domain, File "MagSta_a_hc.pos" ];
+      Print[ az, OnElementsOf Domain, File "MagSta_az_a.pos" ];
     }
   }
 }
+
+DefineConstant[
+  R_ = {"Analysis", Name "GetDP/1ResolutionChoices", Visible 0},
+  C_ = {"-solve -v2", Name "GetDP/9ComputeCommand", Visible 0},
+  P_ = {"", Name "GetDP/2PostOperationChoices", Visible 0}
+];
