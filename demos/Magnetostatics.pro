@@ -67,7 +67,7 @@ Function{
         // nothing
       Else
         DefineConstant[
-          hcx~{i} = {1000, Visible (material~{i} == 0),
+          hcx~{i} = {920000, Visible (material~{i} == 0),
             Name StrCat["Parameters/Materials/", name~{i}, "/Coercive field Hx"]},
           hcy~{i} = {0, Visible (material~{i} == 0),
             Name StrCat["Parameters/Materials/", name~{i}, "/Coercive field Hy"]},
