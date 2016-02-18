@@ -1,11 +1,11 @@
 Group {
-  // generic (mathematical) groups needed by the model
+  // generic groups needed by the model
   DefineGroup[ Domain_M, Domain_S, Domain_Inf, Domain_NL, Domain_Mag];
 
   // interactive model setup if Domain_Mag is empty
   interactive = !NbrRegions[Domain_Mag];
 
-  // interactive construction of groups with Gmsh physical entities
+  // interactive construction of groups with Gmsh
   If(interactive)
     modelDim = GetNumber["Gmsh/Model dimension"];
     numPhysicals = GetNumber["Gmsh/Number of physical groups"];
@@ -57,7 +57,7 @@ If(interactive)
 EndIf
 
 Function{
-  // Model materials
+  // generic functions needed by the model
   DefineFunction[ mu, nu, hc, js, dhdb_NL, dbdh_NL ];
 
   // interactive construction of material properties
@@ -110,7 +110,7 @@ Function{
     EndFor
   EndIf
 
-  // Constant parameters
+  // constant parameters needed by the model
   DefineConstant[
     Val_Rint, Val_Rext, Val_Cx, Val_Cy, Val_Cz,
     Nb_max_iter = 30, relaxation_factor = 1, stop_criterion = 1e-5,
