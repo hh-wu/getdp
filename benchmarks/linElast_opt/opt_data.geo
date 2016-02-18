@@ -57,8 +57,12 @@ DefineConstant[
     Name StrCat[pInOpt,"Performance function"], 
     Visible (StrCmp(Flag_optType,"none"))},
 
-  numPerfFunctions = {2,
-    Name "Number of performance functions"},
+  PerfsList = {"compliance", 
+    Name StrCat[pInOpt,"Performances"], 
+    Visible (StrCmp(Flag_optType,"none"))},
+
+//  numPerfFunctions = {2,
+//    Name "Number of performance functions"},
   
   degVM = {2.0, 
     Name StrCat[pInOpt,"degVM"], 

@@ -293,12 +293,53 @@ Function {
                        +( (C[] * $2) * $2 ) * TTrace[ dV[$5,$6,$7] ];
       d_bilin_eig_TO[] =  (d_C[] * $2) * $2;
 
-      //FIXME
-//      coeff[] = ($VM_P ^ (1./degVM -1.))/degVM;
-//      dFdb[] = ($perf == 1)? C[$3] * $1:
-//	       ( coeff[] * degVM * sigmaVM[$1,$2,$3]^(degVM-2) )
-//	       *( C[] * (V1[] * sigma[$1,$2,$3]) );       
-      
+
+      // ----------------------
+      // compliance
+      Func_compliance[] = 0.5 * bilin_uu[$1,$1,$3]; //F = C * {D1 u}^2
+      Func_compliance_lie[] = 0.5 * bilin_uu_lie[$1]; //F = C * {D1 u}^2
+      dFdb_compliance[] = C[$3] * $1; // derivative wrt state variable
+      dFdb_compliance_Lie[] = C[] * $1; // derivative wrt state variable
+      dF_compliance_TO[] = 0.5 * (d_C[$3]*$1)*$1; 
+      dF_compliance_lie[] = - dFdb_compliance_Lie[$1]*d_D1[du[],dV[$3,$4,$5]]
+                   + Func_compliance_lie[$1,$1]*TTrace[dV[$3,$4,$5]];
+
+      // von-mises for a given element
+      Func_vmElem[] = sigmaVM[$1,$2,$3];
+      If(!Flag_projFuncSpace_xe)
+        dFdb_vmElem[] = ((GetNumElement[]==elemNum)?1:0)
+               *((designVar[]^degStress)*(E0/(1-nu0^2))*(Cnu[]*(V1[]*sigma[$1,$2,$3]))) 
+	       / (sigmaVM[$1,$2,$3]*ElementVol[]);
+        dF_vmElem_TO[] = (((GetNumElement[]==elemNum)?1:0)
+                * (degStress * sigmaVM[$1,$2,$3])/(designVar[] * ElementVol[]));
+      Else
+        dFdb_vmElem[] = ((GetNumElement[]==elemNum)?1:0)
+               *(($3^degStress)*(E0/(1-nu0^2))*(Cnu[]*(V1[]*sigma[$1,$2,$3]))) 
+	       / (sigmaVM[$1,$2,$3]*ElementVol[]);
+        dF_vmElem_TO[] = ((GetNumElement[]==elemNum)?1:0)
+                * (degStress * sigmaVM[$1,$2,$5])/($5 * ElementVol[]);
+      EndIf
+    
+      // von-mises p-norm
+      coeff_vmPnorm[] = ($VM_P ^ (1./degVM -1.))/degVM;
+      Func_vmPnorm[] = sigmaVM[$1,$2,$3]^degVM; 
+      Func_vmPnorm_lie[] = sigmaVM_lie[$1,$2]^degVM;
+      dFdb_vmPnorm[] = ( coeff_vmPnorm[] * degVM * sigmaVM[$1,$2,$3]^(degVM-2) )
+		 *( C[$3] * (V1[] * sigma[$1,$2,$3]) );
+      dFdb_vmPnorm_Lie[] = ( coeff_vmPnorm[] * degVM * sigmaVM_lie[$1,$2]^(degVM-2) )
+		 *( C[] * (V1[] * sigma_lie[$1,$2]));
+      dF_vmPnorm_lie[] = -dFdb_vmPnorm_Lie[$1,$2]*d_D1[du[],dV[$3,$4,$5]] 
+                   +coeff_vmPnorm[]*Func_vmPnorm_lie[$1,$2] * TTrace[dV[$3,$4,$5]]; 
+
+      numPerf = 3;
+//      dFdb[] =
+//        ($perf == 1) ? dFdb_compliance[$1,$2,$3] :
+//        ($perf == 2) ? dFdb_vmElem[$1,$2,$3] :
+//        dFdb_vmPnorm[$1,$2,$3];
+
+
+      // ----------------------
+      //FIXME      
       If(!StrCmp[Flag_PerfType,"Compliance"])
         Printf("compliance 2D");
         Func[] = 0.5 * bilin_uu[$1,$1,$3]; //F = C * {D1 u}^2
@@ -315,7 +356,7 @@ Function {
           dFdb[] = ((GetNumElement[]==elemNum)?1:0)
                *((designVar[]^degStress)*(E0/(1-nu0^2))*(Cnu[]*(V1[]*sigma[$1,$2,$3]))) 
 	       / (sigmaVM[$1,$2,$3]*ElementVol[]);
-         dF_TO[] = (((GetNumElement[]==elemNum)?1:0)
+          dF_TO[] = (((GetNumElement[]==elemNum)?1:0)
                 * (degStress * sigmaVM[$1,$2,$3])/(designVar[] * ElementVol[]));
         Else
           dFdb[] = ((GetNumElement[]==elemNum)?1:0)

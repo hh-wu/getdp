@@ -256,25 +256,46 @@ Resolution{
 
       SetGlobalSolverOptions["-petsc_prealloc 500"];
       InitSolution[B];Generate[B];Solve[B];SaveSolution[B];
-//      InitSolution[B];GenerateRHSGroup[B,DomainFunc];Solve[B];SaveSolution[B];
-
-//      For i In {1:5}
-//        Generate[B];SolveAgain[B];SaveSolution[B];
-//      EndFor
-
       If(!StrCmp(Flag_optType,"shape"))
         PostOperation[Adjoint_u_Mec];
       EndIf
+    }
+  }
 
-      // FIXME: reuse LU decomposition or run // process (debug code) 
-//      InitSolution[B];
-//      For i In {1:numPerfFunctions}
-//        Evaluate[$perf = 1];
-//        Generate[B];SolveAgain[B];SaveSolution[B];
-//        PostOperation[Adjoint_u_Mec];
-//        RenameFile["beam.res",Sprintf["beam_%g.res",i]];
-//        RenameFile["res/lambda.pos",Sprintf["res/lambda_%g.pos",i]];
-//      EndFor
+  { Name Adjoint_u_Mec_2; 
+    System {
+      { Name A; NameOfFormulation u_Mec; } //more than 1!
+      { Name B; NameOfFormulation Adjoint_u_Mec; }
+    }
+    Operation{
+      CreateDir[ResDir];
+      ReadSolution[A]; //Load state variable
+
+      If(!StrCmp(Flag_optType,"topology") && !Flag_projFuncSpace_xe)
+        GmshRead[StrCat[ResDir0,"designVariable.pos"],DES_VAR_FIELD]; 
+      EndIf
+      //generate useful coeff !!
+      If(!StrCmp(Flag_optType,"topology"))
+        PostOperation[u_TO];
+      Else
+        PostOperation[u_Mec];
+      EndIf
+
+      SetGlobalSolverOptions["-petsc_prealloc 500"];
+      InitSolution[B];
+      For i In {1:numPerf}
+        Evaluate[ $perf = i ];
+        If ( (i == 1 && StrFind[PerfsList, "compliance"]) ||
+             (i == 2 && StrFind[PerfsList, "vonMisesElem"]) ||
+             (i == 3 && StrFind[PerfsList, "vonMisesPnorm"]) )
+          Printf[Sprintf["compute lambda %g", i]];
+	  Generate[B]; SolveAgain[B]; SaveSolution[B];
+          PostOperation[Adjoint_u_Mec];
+          RenameFile["beam.res", Sprintf["beam_%g.res",i]];
+          RenameFile[StrCat[ResDir,"lambda.pos"],
+	    Sprintf[StrCat[ResDir,"lambda","_%g.pos"],i]];
+        EndIf
+      EndFor
     }
   }
 

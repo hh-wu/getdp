@@ -2,6 +2,8 @@ mm = 1e-3;
 deg = Pi / 180. ;  // deg -> rad
 rad = 180. / Pi;   // rad -> deg
 
+//filePrefix = StrPrefix(StrRelative(General.FileName));
+
 DefineConstant[
   pp = "Input/Constructive Parameters/"
   ppC = "Input/0Cao/"
