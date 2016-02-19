@@ -8010,7 +8010,7 @@ OneFExpr :
       Free($2);
     }
 
-  // Should replace tSTRING with String__Index in above rule, but this leads to
+  // FIXME: Should replace tSTRING with String__Index in above rule, but this leads to
   // shift/reduce conflicts... don't know why
   | '#' StringIndex '(' ')'
     {
@@ -8030,7 +8030,7 @@ OneFExpr :
       Free($2);
     }
 
-  // Should replace tSTRING with String__Index in above rule, but this leads to
+  // FIXME: Should replace tSTRING with String__Index in above rule, but this leads to
   // shift/reduce conflicts... don't know why
   | '#' tStringToName '[' CharExpr ']' '(' ')'
     {
@@ -8071,7 +8071,7 @@ OneFExpr :
       Free($1);
     }
 
-  // Should replace tSTRING with String__Index in above rule, but this leads to
+  // FIXME: Should replace tSTRING with String__Index in above rule, but this leads to
   // shift/reduce conflicts... don't know why
   | StringIndex '(' FExpr ')'
     {
@@ -8094,7 +8094,7 @@ OneFExpr :
       Free($1);
     }
 
-  // Should replace tSTRING with String__Index in above rule, but this leads to
+  // FIXME: Should replace tSTRING with String__Index in above rule, but this leads to
   // shift/reduce conflicts... don't know why
   | tStringToName '[' CharExpr ']' '(' FExpr ')'
     {
@@ -8356,7 +8356,7 @@ MultiFExpr :
 	  }
     }
 
-  // Should replace tSTRING with String__Index in above rule, but this leads to
+  // FIXME: Should replace tSTRING with String__Index in above rule, but this leads to
   // shift/reduce conflicts... don't know why
   | StringIndex '(' ')'
     {
@@ -8376,7 +8376,7 @@ MultiFExpr :
 	  }
     }
 
-  // Should replace tSTRING with String__Index in above rule, but this leads to
+  // FIXME: Should replace tSTRING with String__Index in above rule, but this leads to
   // shift/reduce conflicts... don't know why
   | tStringToName '[' CharExpr ']' '(' ')'
     {
@@ -8441,7 +8441,7 @@ MultiFExpr :
       List_Delete($4);
     }
 
-  // Should replace tSTRING with String__Index in above rule, but this leads to
+  // FIXME: Should replace tSTRING with String__Index in above rule, but this leads to
   // shift/reduce conflicts... don't know why
   | StringIndex '(' '{' RecursiveListOfFExpr '}' ')'
     {
@@ -8469,7 +8469,7 @@ MultiFExpr :
       List_Delete($4);
     }
 
-  // Should replace tSTRING with String__Index in above rule, but this leads to
+  // FIXME: Should replace tSTRING with String__Index in above rule, but this leads to
   // shift/reduce conflicts... don't know why
   | tStringToName '[' CharExpr ']' '(' '{' RecursiveListOfFExpr '}' ')'
     {
