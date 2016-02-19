@@ -191,7 +191,7 @@ Resolution {
                 Format "Residual %03g: abs %14.12e rel %14.12e"];
         }
         SaveSolution[A];
-        Test[ GetNumber[visu]{"Input/Solver/Visu"} ]{ PostOperation[MagDynH]; }
+        Test[ GetNumberRunTime[visu]{"Input/Solver/Visu"} ]{ PostOperation[MagDynH]; }
       }
     }
   }

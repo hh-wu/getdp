@@ -88,7 +88,7 @@ void F_GetMemory (F_ARG)
   V->Val[0] = val ;
 }
 
-void F_SetNumber (F_ARG)
+void F_SetNumberRunTime (F_ARG)
 {
   double val = A->Val[0];
   int type = A->Type;
@@ -97,11 +97,11 @@ void F_SetNumber (F_ARG)
     V->Val[MAX_DIM * k] = 0. ;
   V->Type = SCALAR;
   if(type != SCALAR){
-    Message::Error("Non scalar argument for function 'SetNumber'");
+    Message::Error("Non scalar argument for function 'SetNumberRunTime'");
     return;
   }
   if(!Fct->String){
-    Message::Error("Missing ONELAB variable name: use SetNumber[value]{\"name\"}");
+    Message::Error("Missing ONELAB variable name: use SetNumberRunTime[value]{\"name\"}");
     return;
   }
 
@@ -109,7 +109,7 @@ void F_SetNumber (F_ARG)
   V->Val[0] = val ;
 }
 
-void F_GetNumber (F_ARG)
+void F_GetNumberRunTime (F_ARG)
 {
   if(Fct->NbrArguments){
     Cal_CopyValue(A, V);
@@ -120,7 +120,7 @@ void F_GetNumber (F_ARG)
     V->Type = SCALAR;
   }
   if(!Fct->String){
-    Message::Error("Missing ONELAB variable name: use GetNumber[]{\"name\"}");
+    Message::Error("Missing ONELAB variable name: use GetNumberRunTime[]{\"name\"}");
     return;
   }
   if(Message::UseOnelab())

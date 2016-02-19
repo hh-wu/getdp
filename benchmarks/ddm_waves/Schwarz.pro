@@ -43,7 +43,7 @@ Resolution {
         // compute local part of (A g^n) and stores the result in ListOfFields()
 
 	Evaluate[ $t1 = GetWallClockTime[], $t1c = GetCpuTime[] ];
-	
+
 	Call SolveVolumePDE;
         Call SolveSurfacePDE;
         Call UpdateSurfaceFields;
@@ -110,9 +110,10 @@ Resolution {
       Evaluate[ $tt2 = GetWallClockTime[], $tt2c = GetCpuTime[] ];
       If (TIMING)
 	Print[{$tt2-$tt1, $tt2c-$tt1c}, Format "WALL total DDM solver = %gs ; CPU = %gs"];
-      EndIf      
+      EndIf
 
-      
+      Print[{$KSPIts}, Format "mes iterations = %g", File "iter.txt"];
+
       //DeleteFile[ "/tmp/kspiter.txt" ];
       //Print[ {$KSPIts} , File "/tmp/kspiter.txt"];
 

@@ -175,8 +175,8 @@ void  F_QuadraturePointIndex (F_ARG) ;
 void  F_GetCpuTime      (F_ARG) ;
 void  F_GetWallClockTime(F_ARG) ;
 void  F_GetMemory       (F_ARG) ;
-void  F_SetNumber       (F_ARG) ;
-void  F_GetNumber       (F_ARG) ;
+void  F_SetNumberRunTime(F_ARG) ;
+void  F_GetNumberRunTime(F_ARG) ;
 void  F_VirtualWork     (F_ARG) ;
 
 void  F_Felec		(F_ARG) ;

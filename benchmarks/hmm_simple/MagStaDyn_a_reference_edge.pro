@@ -98,7 +98,7 @@ FunctionSpace {
   EndIf
 
     //=======================================================================
-    
+
   If(Flag_3D && Flag_TreeCotreeGauge)
     If(!Flag_Dynamic)
       { Name Hcurl_a; Type Form1;
@@ -182,7 +182,7 @@ Formulation {
         { Name U  ; Type Global ; NameOfSpace Hregion_u_2D [U] ; }
       EndIf
       If(Flag_3D && (Flag_TreeCotreeGauge == 0))
-        { Name phi ; Type Local  ; NameOfSpace Hgrad_phi ; }        
+        { Name phi ; Type Local  ; NameOfSpace Hgrad_phi ; }
       EndIf
     }
     Equation {
@@ -205,7 +205,7 @@ Formulation {
           GlobalTerm { [ Dof{I} , {U} ] ;
             In DomainC ; }
         EndIf
-        
+
         If( Flag_3D && (Flag_TreeCotreeGauge == 0))
           Galerkin { [ Dof{d phi} , {a} ];
             In DomainCC ; Jacobian JVol ; Integration I ; }
@@ -255,7 +255,7 @@ Resolution {
             SolveJac_AdaptRelax[A, List[RelaxFac_Lin], TestAllFactors]; //113
           }
           SaveSolution[A];
-          Test[ GetNumber[visu]{"Input/Visu"} ]{ PostOperation[maps]; }         
+          Test[ GetNumberRunTime[visu]{"Input/Visu"} ]{ PostOperation[maps]; }
         }
       EndIf
     }
@@ -355,4 +355,3 @@ PostOperation {
     }
   }
 }
-

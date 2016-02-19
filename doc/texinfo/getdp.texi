@@ -3824,13 +3824,13 @@ since GetDP was started).
 Returns the current memory usage, in megabytes (maximum resident set
 size).
 
-@item SetNumber
+@item SetNumberRunTime
 @code{[@var{expression}]@{@var{char-expression}@}}
 
 Sets the @var{char-expression} ONELAB variable at run-time to
 @var{expression}.
 
-@item GetNumber
+@item GetNumberRunTime
 @code{[ <@var{expression}> ]@{@var{char-expression}@}}
 
 Gets the value of the @var{char-expression} ONELAB variable at
