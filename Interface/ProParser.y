@@ -8019,7 +8019,8 @@ OneFExpr :
       if(!Tree_Query(ConstantTable_L, &Constant_S))
 	vyyerror("Unknown Constant: %s", $2);
       else{
-	if(Constant_S.Type == VAR_LISTOFFLOAT)
+	if(Constant_S.Type == VAR_LISTOFFLOAT ||
+           Constant_S.Type == VAR_LISTOFCHAR)
           ret = List_Nbr(Constant_S.Value.List);
 	else if(Constant_S.Type == VAR_FLOAT)
           ret = 1;
@@ -8039,7 +8040,8 @@ OneFExpr :
       if(!Tree_Query(ConstantTable_L, &Constant_S))
 	vyyerror("Unknown Constant: %s", $4);
       else{
-	if(Constant_S.Type == VAR_LISTOFFLOAT)
+	if(Constant_S.Type == VAR_LISTOFFLOAT ||
+           Constant_S.Type == VAR_LISTOFCHAR)
           ret = List_Nbr(Constant_S.Value.List);
 	else if(Constant_S.Type == VAR_FLOAT)
           ret = 1;
