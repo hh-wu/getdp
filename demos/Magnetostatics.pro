@@ -2,7 +2,7 @@ Group {
   // generic groups needed by the model
   DefineGroup[ Domain_M, Domain_S, Domain_Inf, Domain_NL, Domain_Mag];
 
-  // interactive model setup if no regionDomain_Mag is empty
+  // interactive model setup if no region currently defined
   interactive = !NbrRegions[];
 
   // interactive construction of groups with Gmsh
