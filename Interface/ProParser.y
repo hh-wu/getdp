@@ -8918,7 +8918,16 @@ StrCmp :
 
 NbrRegions :
 
-    tNbrRegions '[' String__Index ']'
+    tNbrRegions '[' ']'
+    {
+      int n = 0;
+      for(int i = 0; i < List_Nbr(Problem_S.Group); i++) {
+	n += List_Nbr(((struct Group *)List_Pointer(Problem_S.Group, i))
+		      ->InitialList) ;
+      }
+      $$ = n;
+    }
+  | tNbrRegions '[' String__Index ']'
     {
       int i;
       if ( (i = List_ISearchSeq(Problem_S.Group, $3, fcmp_Group_Name)) >= 0 ) {
@@ -8929,7 +8938,7 @@ NbrRegions :
 	vyyerror("Unknown Group: %s", $3) ;  $$ = 0 ;
       }
     }
-    | tGetRegion '[' String__Index ',' FExpr ']'
+  | tGetRegion '[' String__Index ',' FExpr ']'
     {
       int i, j, indexInGroup;
       indexInGroup = (int)$5;

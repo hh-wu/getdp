@@ -2,8 +2,8 @@ Group {
   // generic groups needed by the model
   DefineGroup[ Domain_M, Domain_S, Domain_Inf, Domain_NL, Domain_Mag];
 
-  // interactive model setup if Domain_Mag is empty
-  interactive = !NbrRegions[Domain_Mag];
+  // interactive model setup if no regionDomain_Mag is empty
+  interactive = !NbrRegions[];
 
   // interactive construction of groups with Gmsh
   If(interactive)
@@ -72,32 +72,32 @@ Function{
         DefineConstant[
           hcx~{i} = {920000, Visible (material~{i} == 0),
             Name StrCat["Parameters/Materials/", name~{i}, "/hcx value"],
-            Label "h_cx [A/m]"},
+            Label "h_cx [A/m]", Help "Coercive magnetic field along x-axis"},
           hcy~{i} = {0, Visible (material~{i} == 0),
             Name StrCat["Parameters/Materials/", name~{i}, "/hcy value"],
-            Label "h_cy [A/m]"},
+            Label "h_cy [A/m]", Help "Coercive magnetic field along y-axis"},
           jsz~{i} = {0, Visible (material~{i} == 1),
             Name StrCat["Parameters/Materials/", name~{i}, "/jz value"],
-            Label "j_sz [A/m²]"},
+            Label "j_sz [A/m²]", Help "Current density along z-axis"},
           mur~{i} = {1, Visible (material~{i} == 2),
             Name StrCat["Parameters/Materials/", name~{i}, "/mur value"],
-            Label "μ_r"},
+            Label "μ_r", Help "Relative magnetic permeability"},
           mur_fct~{i} = {"1 * 1", Visible (material~{i} == 3),
             Name StrCat["Parameters/Materials/", name~{i}, "/mur function"],
-            Label "μ_r"},
+            Label "μ_r", Help "Relative magnetic permeability"},
           mur_preset~{i} = {1, Visible (material~{i} == 4),
             Choices{ 1:#linearMaterials() = linearMaterials() },
             Name StrCat["Parameters/Materials/", name~{i}, "/mur preset"],
             Label "Name"}
           nu_fct~{i} = {"100. + 10. * Exp[1.8*SquNorm[$1]]", Visible (material~{i} == 5),
             Name StrCat["Parameters/Materials/", name~{i}, "/2nu function"],
-            Label "ν [m/H]"},
+            Label "ν [m/H]", Help "Magnetic reluctivity"},
           dnudb2_fct~{i} = {"18. * Exp[1.8*SquNorm[$1]]", Visible (material~{i} == 5),
             Name StrCat["Parameters/Materials/", name~{i}, "/3dnudb2 function"],
             Label "dν/db^2"},
           mu_fct~{i} = {"***", Visible (material~{i} == 5),
             Name StrCat["Parameters/Materials/", name~{i}, "/4mu function"],
-            Label "μ [H/m]"},
+            Label "μ [H/m]", Help "Magnetic permeability"},
           dmudh2_fct~{i} = {"***", Visible (material~{i} == 5),
             Name StrCat["Parameters/Materials/", name~{i}, "/5dmudh2 function"],
             Label "dμ/dh^2"},
@@ -186,30 +186,30 @@ Integration {
 
 
 If(interactive)
-Constraint {
-  { Name phi; // scalar magnetic potential
-    Case {
-      For i In {1:numPhysicals}
-        If(dim~{i} < modelDim)
-          If(bc~{i} == 1)
-            { Region Region[tag~{i}]; Value bc_val~{i}; }
+  Constraint {
+    { Name phi; // scalar magnetic potential
+      Case {
+        For i In {1:numPhysicals}
+          If(dim~{i} < modelDim)
+            If(bc~{i} == 1)
+              { Region Region[tag~{i}]; Value bc_val~{i}; }
+            EndIf
           EndIf
-        EndIf
-      EndFor
+        EndFor
+      }
+    }
+    { Name a; // vector magnetic potential
+      Case {
+        For i In {1:numPhysicals}
+          If(dim~{i} < modelDim)
+            If(bc~{i} == 1)
+              { Region Region[tag~{i}]; Value bc_val~{i}; }
+            EndIf
+          EndIf
+        EndFor
+      }
     }
   }
-  { Name a; // vector magnetic potential
-    Case {
-      For i In {1:numPhysicals}
-        If(dim~{i} < modelDim)
-          If(bc~{i} == 1)
-            { Region Region[tag~{i}]; Value bc_val~{i}; }
-          EndIf
-        EndIf
-      EndFor
-    }
-  }
-}
 EndIf
 
 FunctionSpace {
