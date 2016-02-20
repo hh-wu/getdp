@@ -32,7 +32,10 @@ Group {
               1="Current source",
               2="Linear material (constant)",
               3="Linear material (function)",
-              4="Nonlinear material (preset)"
+              4="Linear material (preset)",
+              5="Nonlinear material (function)",
+              6="Nonlinear material (interpolated)",
+              7="Nonlinear material (preset)"
             },
             Name StrCat["Parameters/Materials/", name~{i}, "/0Type"]}
         ];
@@ -40,9 +43,9 @@ Group {
           Domain_M += Region[tag~{i}];
         ElseIf(material~{i} == 1)
           Domain_S += Region[tag~{i}];
-        ElseIf(material~{i} == 2 || material~{i} == 3)
+        ElseIf(material~{i} == 2 || material~{i} == 3 || material~{i} == 4)
           Domain_Mag += Region[tag~{i}];
-        ElseIf(material~{i} == 4)
+        ElseIf(material~{i} == 5 || material~{i} == 6 || material~{i} == 7)
           Domain_NL += Region[tag~{i}];
         EndIf
       EndIf
@@ -74,13 +77,27 @@ Function{
           jsz~{i} = {0, Visible (material~{i} == 1),
             Name StrCat["Parameters/Materials/", name~{i}, "/Current density Jz"]},
           mur~{i} = {1, Visible (material~{i} == 2),
-            Name StrCat["Parameters/Materials/", name~{i}, "/Relative permeability"]}
-          mu_fct~{i} = {"1 * 4*Pi*1e-7", Visible (material~{i} == 3),
-            Name StrCat["Parameters/Materials/", name~{i}, "/Permeability"]}
-          // this list should be constructed automatically in BH.pro
-          mat~{i} = {1, Visible (material~{i} == 4),
-            Choices{ 1:#materials() = materials() },
-            Name StrCat["Parameters/Materials/", name~{i}, "/B-H curve"]}
+            Name StrCat["Parameters/Materials/", name~{i}, "/Relative permeability"]},
+          mur_fct~{i} = {"1 * 1", Visible (material~{i} == 3),
+            Name StrCat["Parameters/Materials/", name~{i}, "/Relative permeability (fct)"]},
+          mur_preset~{i} = {1, Visible (material~{i} == 4),
+            Choices{ 1:#linearMaterials() = linearMaterials() },
+            Name StrCat["Parameters/Materials/", name~{i}, "/Name"]}
+          nu_fct~{i} = {"100. + 10. * Exp[1.8*SquNorm[$1]]", Visible (material~{i} == 5),
+            Name StrCat["Parameters/Materials/", name~{i}, "/Nu"]},
+          dnudb2_fct~{i} = {"18. * Exp[1.8*SquNorm[$1]]", Visible (material~{i} == 5),
+            Name StrCat["Parameters/Materials/", name~{i}, "/dNudB2"]},
+          mu_fct~{i} = {"***", Visible (material~{i} == 5),
+            Name StrCat["Parameters/Materials/", name~{i}, "/Mu"]},
+          dmudh2_fct~{i} = {"***", Visible (material~{i} == 5),
+            Name StrCat["Parameters/Materials/", name~{i}, "/dMudH2"]},
+          b_list~{i} = {"{0,1,2,3,4,5}", Visible (material~{i} == 6),
+            Name StrCat["Parameters/Materials/", name~{i}, "/B points"]},
+          h_list~{i} = {"{0,1,2,3,4,5}", Visible (material~{i} == 6),
+            Name StrCat["Parameters/Materials/", name~{i}, "/H points"]},
+          bh_preset~{i} = {1, Visible (material~{i} == 7),
+            Choices{ 1:#nonLinearMaterials() = nonLinearMaterials() },
+            Name StrCat["Parameters/Materials/", name~{i}, "/Name (nonlinear)"]}
         ];
         If(material~{i} == 0) // magnet
           hc[ Region[tag~{i}] ] = Vector[hcx~{i}, hcy~{i}, 0];
@@ -93,18 +110,41 @@ Function{
         ElseIf(material~{i} == 2) // linear, constant
           mu[ Region[tag~{i}] ] = mur~{i}*4*Pi*1e-7;
           nu[ Region[tag~{i}] ] = 1/(mur~{i}*4*Pi*1e-7);
-        ElseIf(material~{i} == 3) // linear, user-defined
-          Parse[ StrCat["mu[ Region[tag~{i}] ] = ", mu_fct~{i}, ";"] ];
-          Parse[ StrCat["nu[ Region[tag~{i}] ] = 1/", mu_fct~{i}, ";"] ];
-        ElseIf(material~{i} == 4) // preset
+        ElseIf(material~{i} == 3) // linear, function
+          Parse[ StrCat["mu[ Region[tag~{i}] ] = (", mur_fct~{i}, ")*4*Pi*1e-7;"] ];
+          Parse[ StrCat["nu[ Region[tag~{i}] ] = 1/((", mur_fct~{i}, ")*4*Pi*1e-7);"] ];
+        ElseIf(material~{i} == 4) // linear, preset
+          mu[ Region[tag~{i}] ] = linearMaterialsVal(mur_preset~{i} - 1)*4*Pi*1e-7;
+          nu[ Region[tag~{i}] ] = 1/(linearMaterialsVal(mur_preset~{i} - 1)*4*Pi*1e-7);
+        ElseIf(material~{i} == 5) // nonlinear, function
+          _MaterialName_ = Sprintf["UserMatFct%g", i];
+          Parse[ StrCat[_MaterialName_, "_nu[] = ", nu_fct~{i}, ";"] ];
+          Parse[ StrCat[_MaterialName_, "_dnudb2[] = ", dnudb2_fct~{i}, ";"] ];
+          Parse[ StrCat[_MaterialName_, "_mu[] = ", nu_fct~{i}, ";"] ];
+          Parse[ StrCat[_MaterialName_, "_dmudh2[] = ", dnudb2_fct~{i}, ";"] ];
+          Call DefineBHFunctions;
+          mu[ Region[tag~{i}] ] = S2N[StrCat[_MaterialName_, "_mu"]][$1];
+          dbdh_NL[ Region[tag~{i}] ] = S2N[StrCat[_MaterialName_, "_dbdh_NL"]][$1];
+          nu[ Region[tag~{i}] ] = S2N[StrCat[_MaterialName_, "_nu"]][$1];
+          dhdb_NL[ Region[tag~{i}] ] = S2N[StrCat[_MaterialName_, "_dhdb_NL"]][$1];
+        ElseIf(material~{i} == 6) // nonlinear, points
+          _MaterialName_ = Sprintf["UserMatPts%g", i];
+          Parse[ StrCat[_MaterialName_, "_b_list() = ", b_list~{i}, ";"] ];
+          Parse[ StrCat[_MaterialName_, "_h_list() = ", h_list~{i}, ";"] ];
+          Call DefineBHFunctions;
+          mu[ Region[tag~{i}] ] = S2N[StrCat[_MaterialName_, "_mu"]][$1];
+          dbdh_NL[ Region[tag~{i}] ] = S2N[StrCat[_MaterialName_, "_dbdh_NL"]][$1];
+          nu[ Region[tag~{i}] ] = S2N[StrCat[_MaterialName_, "_nu"]][$1];
+          dhdb_NL[ Region[tag~{i}] ] = S2N[StrCat[_MaterialName_, "_dhdb_NL"]][$1];
+        ElseIf(material~{i} == 7) // nonlinear, preset
           mu[ Region[tag~{i}] ] =
-            S2N[StrCat[materials(mat~{i}-1), "_mu"]][$1];
+            S2N[StrCat[nonLinearMaterials(bh_preset~{i}-1), "_mu"]][$1];
           dbdh_NL[ Region[tag~{i}] ] =
-            S2N[StrCat[materials(mat~{i}-1), "_dbdh_NL"]][$1];
+            S2N[StrCat[nonLinearMaterials(bh_preset~{i}-1), "_dbdh_NL"]][$1];
           nu[ Region[tag~{i}] ] =
-            S2N[StrCat[materials(mat~{i}-1), "_nu"]][$1];
+            S2N[StrCat[nonLinearMaterials(bh_preset~{i}-1), "_nu"]][$1];
           dhdb_NL[ Region[tag~{i}] ] =
-            S2N[StrCat[materials(mat~{i}-1), "_dhdb_NL"]][$1];
+            S2N[StrCat[nonLinearMaterials(bh_preset~{i}-1), "_dhdb_NL"]][$1];
         EndIf
       EndIf
     EndFor

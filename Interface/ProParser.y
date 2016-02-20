@@ -196,7 +196,8 @@ struct doubleXstring{
 %token  tTest tWhile tParse
 %token  tFlag tExists
 %token  tInclude
-%token  tConstant tList tListAlt tLinSpace tLogSpace tListFromFile
+%token  tConstant tList tListAlt tLinSpace tLogSpace
+%token  tListFromFile
 %token  tChangeCurrentPosition
 %token  tDefineConstant tUndefineConstant tDefineNumber tDefineString
 %token  tGetNumber tGetString
