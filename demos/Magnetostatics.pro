@@ -33,8 +33,8 @@ Group {
               2="Linear material (constant)",
               3="Linear material (function)",
               4="Linear material (preset)",
-              5="Nonlinear material (function)",
-              6="Nonlinear material (interpolated)",
+              5="Nonlinear material (analytic)",
+              6="Nonlinear material (data points)",
               7="Nonlinear material (preset)"
             },
             Name StrCat["Parameters/Materials/", name~{i}, "/0Type"]}
@@ -71,33 +71,44 @@ Function{
       Else
         DefineConstant[
           hcx~{i} = {920000, Visible (material~{i} == 0),
-            Name StrCat["Parameters/Materials/", name~{i}, "/Coercive field Hx"]},
+            Name StrCat["Parameters/Materials/", name~{i}, "/hcx value"],
+            Label "h_cx [A/m]"},
           hcy~{i} = {0, Visible (material~{i} == 0),
-            Name StrCat["Parameters/Materials/", name~{i}, "/Coercive field Hy"]},
+            Name StrCat["Parameters/Materials/", name~{i}, "/hcy value"],
+            Label "h_cy [A/m]"},
           jsz~{i} = {0, Visible (material~{i} == 1),
-            Name StrCat["Parameters/Materials/", name~{i}, "/Current density Jz"]},
+            Name StrCat["Parameters/Materials/", name~{i}, "/jz value"],
+            Label "j_sz [A/m²]"},
           mur~{i} = {1, Visible (material~{i} == 2),
-            Name StrCat["Parameters/Materials/", name~{i}, "/Relative permeability"]},
+            Name StrCat["Parameters/Materials/", name~{i}, "/mur value"],
+            Label "μ_r"},
           mur_fct~{i} = {"1 * 1", Visible (material~{i} == 3),
-            Name StrCat["Parameters/Materials/", name~{i}, "/Relative permeability (fct)"]},
+            Name StrCat["Parameters/Materials/", name~{i}, "/mur function"],
+            Label "μ_r"},
           mur_preset~{i} = {1, Visible (material~{i} == 4),
             Choices{ 1:#linearMaterials() = linearMaterials() },
-            Name StrCat["Parameters/Materials/", name~{i}, "/Name"]}
+            Name StrCat["Parameters/Materials/", name~{i}, "/mur preset"],
+            Label "Name"}
           nu_fct~{i} = {"100. + 10. * Exp[1.8*SquNorm[$1]]", Visible (material~{i} == 5),
-            Name StrCat["Parameters/Materials/", name~{i}, "/Nu"]},
+            Name StrCat["Parameters/Materials/", name~{i}, "/2nu function"],
+            Label "ν [m/H]"},
           dnudb2_fct~{i} = {"18. * Exp[1.8*SquNorm[$1]]", Visible (material~{i} == 5),
-            Name StrCat["Parameters/Materials/", name~{i}, "/dNudB2"]},
+            Name StrCat["Parameters/Materials/", name~{i}, "/3dnudb2 function"],
+            Label "dν/db^2"},
           mu_fct~{i} = {"***", Visible (material~{i} == 5),
-            Name StrCat["Parameters/Materials/", name~{i}, "/Mu"]},
+            Name StrCat["Parameters/Materials/", name~{i}, "/4mu function"],
+            Label "μ [H/m]"},
           dmudh2_fct~{i} = {"***", Visible (material~{i} == 5),
-            Name StrCat["Parameters/Materials/", name~{i}, "/dMudH2"]},
-          b_list~{i} = {"{0,1,2,3,4,5}", Visible (material~{i} == 6),
-            Name StrCat["Parameters/Materials/", name~{i}, "/B points"]},
-          h_list~{i} = {"{0,1,2,3,4,5}", Visible (material~{i} == 6),
-            Name StrCat["Parameters/Materials/", name~{i}, "/H points"]},
+            Name StrCat["Parameters/Materials/", name~{i}, "/5dmudh2 function"],
+            Label "dμ/dh^2"},
+          b_list~{i} = {"{0,0.3,0.7,1,1.4,1.7,2.2}", Visible (material~{i} == 6),
+            Name StrCat["Parameters/Materials/", name~{i}, "/3b values"]},
+          h_list~{i} = {"{0,30,90,2e2,6e2,4e3,7e5}", Visible (material~{i} == 6),
+            Name StrCat["Parameters/Materials/", name~{i}, "/2h values"]},
           bh_preset~{i} = {1, Visible (material~{i} == 7),
             Choices{ 1:#nonLinearMaterials() = nonLinearMaterials() },
-            Name StrCat["Parameters/Materials/", name~{i}, "/Name (nonlinear)"]}
+            Name StrCat["Parameters/Materials/", name~{i}, "/bh preset"],
+            Label "Name"}
         ];
         If(material~{i} == 0) // magnet
           hc[ Region[tag~{i}] ] = Vector[hcx~{i}, hcy~{i}, 0];
@@ -116,35 +127,26 @@ Function{
         ElseIf(material~{i} == 4) // linear, preset
           mu[ Region[tag~{i}] ] = linearMaterialsVal(mur_preset~{i} - 1)*4*Pi*1e-7;
           nu[ Region[tag~{i}] ] = 1/(linearMaterialsVal(mur_preset~{i} - 1)*4*Pi*1e-7);
-        ElseIf(material~{i} == 5) // nonlinear, function
-          _MaterialName_ = Sprintf["UserMatFct%g", i];
-          Parse[ StrCat[_MaterialName_, "_nu[] = ", nu_fct~{i}, ";"] ];
-          Parse[ StrCat[_MaterialName_, "_dnudb2[] = ", dnudb2_fct~{i}, ";"] ];
-          Parse[ StrCat[_MaterialName_, "_mu[] = ", nu_fct~{i}, ";"] ];
-          Parse[ StrCat[_MaterialName_, "_dmudh2[] = ", dnudb2_fct~{i}, ";"] ];
-          Call DefineBHFunctions;
+        ElseIf(material~{i} >= 5 && material~{i} <= 7) // nonlinear materials
+          If(material~{i} == 5) // function
+            _MaterialName_ = Sprintf["UserMatFct%g", i];
+            Parse[ StrCat[_MaterialName_, "_nu[] = ", nu_fct~{i}, ";"] ];
+            Parse[ StrCat[_MaterialName_, "_dnudb2[] = ", dnudb2_fct~{i}, ";"] ];
+            Parse[ StrCat[_MaterialName_, "_mu[] = ", nu_fct~{i}, ";"] ];
+            Parse[ StrCat[_MaterialName_, "_dmudh2[] = ", dnudb2_fct~{i}, ";"] ];
+            Call DefineBHFunctions;
+          ElseIf(material~{i} == 6) // data points
+            _MaterialName_ = Sprintf["UserMatPts%g", i];
+            Parse[ StrCat[_MaterialName_, "_b_list() = ", b_list~{i}, ";"] ];
+            Parse[ StrCat[_MaterialName_, "_h_list() = ", h_list~{i}, ";"] ];
+            Call DefineBHFunctions;
+          Else // preset
+            _MaterialName_ = Str[ nonLinearMaterials(bh_preset~{i}-1) ];
+          EndIf
           mu[ Region[tag~{i}] ] = S2N[StrCat[_MaterialName_, "_mu"]][$1];
           dbdh_NL[ Region[tag~{i}] ] = S2N[StrCat[_MaterialName_, "_dbdh_NL"]][$1];
           nu[ Region[tag~{i}] ] = S2N[StrCat[_MaterialName_, "_nu"]][$1];
           dhdb_NL[ Region[tag~{i}] ] = S2N[StrCat[_MaterialName_, "_dhdb_NL"]][$1];
-        ElseIf(material~{i} == 6) // nonlinear, points
-          _MaterialName_ = Sprintf["UserMatPts%g", i];
-          Parse[ StrCat[_MaterialName_, "_b_list() = ", b_list~{i}, ";"] ];
-          Parse[ StrCat[_MaterialName_, "_h_list() = ", h_list~{i}, ";"] ];
-          Call DefineBHFunctions;
-          mu[ Region[tag~{i}] ] = S2N[StrCat[_MaterialName_, "_mu"]][$1];
-          dbdh_NL[ Region[tag~{i}] ] = S2N[StrCat[_MaterialName_, "_dbdh_NL"]][$1];
-          nu[ Region[tag~{i}] ] = S2N[StrCat[_MaterialName_, "_nu"]][$1];
-          dhdb_NL[ Region[tag~{i}] ] = S2N[StrCat[_MaterialName_, "_dhdb_NL"]][$1];
-        ElseIf(material~{i} == 7) // nonlinear, preset
-          mu[ Region[tag~{i}] ] =
-            S2N[StrCat[nonLinearMaterials(bh_preset~{i}-1), "_mu"]][$1];
-          dbdh_NL[ Region[tag~{i}] ] =
-            S2N[StrCat[nonLinearMaterials(bh_preset~{i}-1), "_dbdh_NL"]][$1];
-          nu[ Region[tag~{i}] ] =
-            S2N[StrCat[nonLinearMaterials(bh_preset~{i}-1), "_nu"]][$1];
-          dhdb_NL[ Region[tag~{i}] ] =
-            S2N[StrCat[nonLinearMaterials(bh_preset~{i}-1), "_dhdb_NL"]][$1];
         EndIf
       EndIf
     EndFor
