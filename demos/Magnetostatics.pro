@@ -143,10 +143,10 @@ Function{
           Else // preset
             _MaterialName_ = Str[ nonLinearMaterials(bh_preset~{i}-1) ];
           EndIf
-          mu[ Region[tag~{i}] ] = S2N[StrCat[_MaterialName_, "_mu"]][$1];
-          dbdh_NL[ Region[tag~{i}] ] = S2N[StrCat[_MaterialName_, "_dbdh_NL"]][$1];
-          nu[ Region[tag~{i}] ] = S2N[StrCat[_MaterialName_, "_nu"]][$1];
-          dhdb_NL[ Region[tag~{i}] ] = S2N[StrCat[_MaterialName_, "_dhdb_NL"]][$1];
+          Parse[ StrCat["mu[ Region[tag~{i}] ] = ", _MaterialName_, "_mu[$1];"] ];
+          Parse[ StrCat["dbdh_NL[ Region[tag~{i}] ] = ", _MaterialName_, "_dbdh_NL[$1];"] ];
+          Parse[ StrCat["nu[ Region[tag~{i}] ] = ", _MaterialName_, "_nu[$1];"] ];
+          Parse[ StrCat["dhdb_NL[ Region[tag~{i}] ] =", _MaterialName_, "_dhdb_NL[$1];"] ];
         EndIf
       EndIf
     EndFor
