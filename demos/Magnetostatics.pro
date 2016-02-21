@@ -2,6 +2,15 @@
 //
 // Magnetostatics - magnetic scalar potential (phi) and magnetic vector (a)
 // formulations
+//
+// Simply merge this file with Gmsh: you will be prompted to setup your
+// materials and boundary conditions for each physical group defined in your
+// geometrical model.
+
+DefineConstant[
+  Flag_AnalysisType = {1, Choices{0="Scalar potential", 1="Vector potential"},
+    Name "GetDP/Analysis"}
+];
 
 Group {
   // generic groups needed by the model
@@ -19,16 +28,14 @@ Group {
       dim~{i} = GetNumber[Sprintf["Gmsh/Physical group %g/Dimension", i]];
       name~{i} = GetString[Sprintf["Gmsh/Physical group %g/Name", i]];
       tag~{i} = GetNumber[Sprintf["Gmsh/Physical group %g/Number", i]];
-      // TODO: we could add some intelligence, and preset some values depending
-      // on the names :-)
       If(dim~{i} < modelDim)
         DefineConstant[
-          bc~{i} = {0, Choices{
-              0="Neumann",
-              1="Dirichlet"
+          bc~{i} = {0, ReadOnlyRange 1, Choices{
+              0=StrCat["Neumann: zero ", StrChoice[Flag_AnalysisType, "h.t", "b.n"]],
+              1=StrCat["Dirichlet: fixed ", StrChoice[Flag_AnalysisType, "b.n", "h.t"]]
             },
             Name StrCat["Parameters/Boundary conditions/", name~{i}, "/0Type"]}
-          bc_val~{i} = {0.,
+          bc_val~{i} = {0., Visible bc~{i},
             Name StrCat["Parameters/Boundary conditions/", name~{i}, "/1Value"]}
         ];
         If(bc~{i} == 1)
@@ -94,7 +101,7 @@ Function{
           mur_fct~{i} = {"1 * 1", Visible (material~{i} == 3),
             Name StrCat["Parameters/Materials/", name~{i}, "/mur function"],
             Label "μ_r", Help "Relative magnetic permeability"},
-          mur_preset~{i} = {1, Visible (material~{i} == 4),
+          mur_preset~{i} = {1, Visible (material~{i} == 4), ReadOnlyRange 1,
             Choices{ 1:#linearMagneticMaterials() = linearMagneticMaterials() },
             Name StrCat["Parameters/Materials/", name~{i}, "/mur preset"],
             Label "Name"}
@@ -114,7 +121,7 @@ Function{
             Name StrCat["Parameters/Materials/", name~{i}, "/3b values"]},
           h_list~{i} = {"{0,30,90,2e2,6e2,4e3,7e5}", Visible (material~{i} == 6),
             Name StrCat["Parameters/Materials/", name~{i}, "/2h values"]},
-          bh_preset~{i} = {1, Visible (material~{i} == 7),
+          bh_preset~{i} = {1, Visible (material~{i} == 7), ReadOnlyRange 1,
             Choices{ 1:#nonlinearMagneticMaterials() = nonlinearMagneticMaterials() },
             Name StrCat["Parameters/Materials/", name~{i}, "/bh preset"],
             Label "Name"}
@@ -175,9 +182,7 @@ Function{
   // constant parameters needed by the model
   DefineConstant[
     Val_Rint, Val_Rext, Val_Cx, Val_Cy, Val_Cz,
-    Nb_max_iter = 30, relaxation_factor = 1, stop_criterion = 1e-5,
-    Flag_AnalysisType = {1, Choices{0="Scalar potential", 1="Vector potential"},
-      Name "GetDP/Analysis"}
+    Nb_max_iter = 30, relaxation_factor = 1, stop_criterion = 1e-5
   ];
 }
 
