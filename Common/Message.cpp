@@ -385,9 +385,16 @@ void Message::Check(const char *fmt, ...)
   }
   else if(_onelabClient && _onelabClient->getName() != "GetDPServer"){
     buffer += str;
-    std::string::size_type n = buffer.find('\n');
-    if(n != std::string::npos){
-      buffer.replace(n, 1, "");
+    bool found = false;
+    std::string::size_type idx = 0;
+    while(1){
+      idx = buffer.find('\n');
+      if(idx == std::string::npos) break;
+      found = true;
+      buffer.replace(idx, 1, " ");
+      idx++;
+    }
+    if(found){
       _onelabClient->sendInfo(buffer);
       buffer.clear();
     }
