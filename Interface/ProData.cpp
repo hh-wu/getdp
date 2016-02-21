@@ -1860,7 +1860,7 @@ void  Print_ProblemStructure()
     Message::Info("Checking");
     Message::Direct("(1) Constants        (2) Groups          (3) Functions");
     Message::Direct("(4) Constraints      (5) Jacobians       (6) Integrations");
-    Message::Direct("(7) FunctionSpaces   (8) Formulations    (9) Resolution");
+    Message::Direct("(7) FunctionSpaces   (8) Formulations    (9) Resolutions");
     Message::Direct("(10) PostProcessings (11) PostOperations (other) Quit");
     Message::Check("Choice: ");
     fgets(buff, 128, stdin);

@@ -594,14 +594,19 @@ int MainLegacy(int argc, char *argv[])
     choose = 0;
   }
 
-  if(check)
-    Print_ProblemStructure();
-
   if(lres)
     Print_ListResolution(choose, lres, &Name_Resolution);
 
   if(lpos)
     Print_ListPostOperation(choose, lpos, Name_PostOperation);
+
+  if(check){
+    Print_ProblemStructure();
+  }
+  else{
+    check = Message::GetOnelabNumber("GetDP/]ModelCheck");
+    if(check) Print_Object(check - 1);
+  }
 
   if(Flag_PRE || Flag_CAL || Flag_POS)
     SolvingAnalyse();

@@ -1649,6 +1649,7 @@ void Init_ProblemStructure();
 void Read_ProblemStructure(const char *fileName);
 void Finalize_ProblemStructure();
 void Print_ProblemStructure();
+int Print_Object(int ichoice);
 void Free_ProblemStructure();
 
 std::string Fix_RelativePath(const char *fileName, const char *reference=0);

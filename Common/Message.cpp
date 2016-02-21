@@ -372,6 +372,7 @@ void Message::Direct(int level, const char *fmt, ...)
 
 void Message::Check(const char *fmt, ...)
 {
+  static std::string buffer;
   if(_commRank && _isCommWorld) return;
   char str[5000];
   va_list args;
@@ -383,7 +384,13 @@ void Message::Check(const char *fmt, ...)
     _client->Info(str);
   }
   else if(_onelabClient && _onelabClient->getName() != "GetDPServer"){
-    _onelabClient->sendInfo(str);
+    buffer += str;
+    std::string::size_type n = buffer.find('\n');
+    if(n != std::string::npos){
+      buffer.replace(n, 1, "");
+      _onelabClient->sendInfo(buffer);
+      buffer.clear();
+    }
   }
   else{
     fprintf(stdout, "%s", str);
@@ -1054,6 +1061,7 @@ void Message::FinalizeOnelab()
     _onelabClient->get(ps, name + "/Action");
     if(ps.size()){
       if(ps[0].getValue() != "initialize"){
+        // Compute commands
         _onelabClient->get(ps, name + "/9ComputeCommand");
         if(ps.empty()){ // only change value if none exists
           ps.resize(1);
@@ -1069,6 +1077,32 @@ void Message::FinalizeOnelab()
         choices.push_back("-solve -pos");
         ps[0].setChoices(choices);
         _onelabClient->set(ps[0]);
+        // Model checking
+        std::vector<onelab::number> pn;
+        _onelabClient->get(pn, name + "/]ModelCheck");
+        if(pn.empty()){ // only change value if none exists
+          pn.resize(1);
+          pn[0].setName(name + "/]ModelCheck");
+          pn[0].setValue(0);
+        }
+        pn[0].setLabel("Model check");
+        std::vector<double> nchoices;
+        std::vector<std::string> labels;
+        nchoices.push_back(0); labels.push_back("None");
+        nchoices.push_back(1); labels.push_back("Constants");
+        nchoices.push_back(2); labels.push_back("Groups");
+        nchoices.push_back(3); labels.push_back("Functions");
+        nchoices.push_back(4); labels.push_back("Constraints");
+        nchoices.push_back(5); labels.push_back("Jacobians");
+        nchoices.push_back(6); labels.push_back("Integrations");
+        nchoices.push_back(7); labels.push_back("FunctionSpaces");
+        nchoices.push_back(8); labels.push_back("Formulations");
+        nchoices.push_back(9); labels.push_back("Resolutions");
+        nchoices.push_back(10); labels.push_back("PostProcessings");
+        nchoices.push_back(11); labels.push_back("PostOperations");
+        pn[0].setChoices(nchoices);
+        pn[0].setChoiceLabels(labels);
+        _onelabClient->set(pn[0]);
       }
     }
     delete _onelabClient;
