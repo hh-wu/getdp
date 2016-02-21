@@ -7,7 +7,7 @@ Macro DefineMaterialFunctions
   // --------------------------------------------------------------
 
   If(Exists[StringToName[StrCat[n, "_mur"]]])
-    If(Exists[linearMagneticMaterials])
+    If(Exists[linearMagneticMaterials] && !StrFind[n, "UserMaterial"])
       linearMagneticMaterials() += Str[n];
     EndIf
   EndIf
@@ -63,7 +63,7 @@ Macro DefineMaterialFunctions
     // \frac{\partial\vec{b}}{\partial\vec{h}}|_\text{NL}
     Parse[ StrCat[n, "_dbdh_NL[] = 2 * ", n, "_dmudh2[$1#1] * SquDyadicProduct[#1];"] ];
 
-    If(Exists[nonlinearMagneticMaterials])
+    If(Exists[nonlinearMagneticMaterials] && !StrFind[n, "UserMaterial"])
       nonlinearMagneticMaterials() += Str[n];
     EndIf
   EndIf
