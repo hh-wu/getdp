@@ -5,7 +5,7 @@
 */
 
 Include "magnet_data.pro";
-Include "Materials.pro";
+Include "MaterialData.pro";
 
 Group {
   // AIR, AIR_INF, etc. are variables defined in core.txt, and correspond to the

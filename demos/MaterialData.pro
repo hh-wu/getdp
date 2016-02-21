@@ -1,5 +1,3 @@
-Include "MaterialsMacros.pro";
-
 Function{
   Materials() = Str[];
 
@@ -68,8 +66,13 @@ Function{
   SteelAnalytic_dnudb2[] = 18. * Exp[1.8*SquNorm[$1]] ;
   SteelAnalytic_mu[] = ***;
   SteelAnalytic_dmudh2[] = ***;
+}
 
-  // Automatically create all the missing functions
+// Create all the functions required by the formulations for each material
+
+Include "MaterialMacros.pro";
+
+Function{
   linearMagneticMaterials() = Str[];
   nonlinearMagneticMaterials() = Str[];
   For i In {1 : #Materials()}
