@@ -56,7 +56,7 @@ Group {
 }
 
 If(interactive)
-  Include "BH.pro"
+  Include "Materials.pro"
 EndIf
 
 Function{
@@ -86,7 +86,7 @@ Function{
             Name StrCat["Parameters/Materials/", name~{i}, "/mur function"],
             Label "μ_r", Help "Relative magnetic permeability"},
           mur_preset~{i} = {1, Visible (material~{i} == 4),
-            Choices{ 1:#linearMaterials() = linearMaterials() },
+            Choices{ 1:#linearMagneticMaterials() = linearMagneticMaterials() },
             Name StrCat["Parameters/Materials/", name~{i}, "/mur preset"],
             Label "Name"}
           nu_fct~{i} = {"100. + 10. * Exp[1.8*SquNorm[$1]]", Visible (material~{i} == 5),
@@ -106,7 +106,7 @@ Function{
           h_list~{i} = {"{0,30,90,2e2,6e2,4e3,7e5}", Visible (material~{i} == 6),
             Name StrCat["Parameters/Materials/", name~{i}, "/2h values"]},
           bh_preset~{i} = {1, Visible (material~{i} == 7),
-            Choices{ 1:#nonLinearMaterials() = nonLinearMaterials() },
+            Choices{ 1:#nonlinearMagneticMaterials() = nonlinearMagneticMaterials() },
             Name StrCat["Parameters/Materials/", name~{i}, "/bh preset"],
             Label "Name"}
         ];
@@ -125,23 +125,24 @@ Function{
           Parse[ StrCat["mu[ Region[tag~{i}] ] = (", mur_fct~{i}, ")*4*Pi*1e-7;"] ];
           Parse[ StrCat["nu[ Region[tag~{i}] ] = 1/((", mur_fct~{i}, ")*4*Pi*1e-7);"] ];
         ElseIf(material~{i} == 4) // linear, preset
-          mu[ Region[tag~{i}] ] = linearMaterialsVal(mur_preset~{i} - 1)*4*Pi*1e-7;
-          nu[ Region[tag~{i}] ] = 1/(linearMaterialsVal(mur_preset~{i} - 1)*4*Pi*1e-7);
+          _MaterialName_ = Str[ linearMagneticMaterials(mur_preset~{i} - 1) ];
+          Parse[ StrCat["mu[ Region[tag~{i}] ] = ", _MaterialName_, "_mur*4*Pi*1e-7;"] ];
+          Parse[ StrCat["nu[ Region[tag~{i}] ] = 1/(", _MaterialName_, "_mur*4*Pi*1e-7);"] ];
         ElseIf(material~{i} >= 5 && material~{i} <= 7) // nonlinear materials
           If(material~{i} == 5) // function
-            _MaterialName_ = Sprintf["UserMatFct%g", i];
+            _MaterialName_ = Sprintf["UserMaterialFct_%g", i];
             Parse[ StrCat[_MaterialName_, "_nu[] = ", nu_fct~{i}, ";"] ];
             Parse[ StrCat[_MaterialName_, "_dnudb2[] = ", dnudb2_fct~{i}, ";"] ];
             Parse[ StrCat[_MaterialName_, "_mu[] = ", nu_fct~{i}, ";"] ];
             Parse[ StrCat[_MaterialName_, "_dmudh2[] = ", dnudb2_fct~{i}, ";"] ];
-            Call DefineBHFunctions;
+            Call DefineMaterialFunctions;
           ElseIf(material~{i} == 6) // data points
-            _MaterialName_ = Sprintf["UserMatPts%g", i];
+            _MaterialName_ = Sprintf["UserMaterialPts_%g", i];
             Parse[ StrCat[_MaterialName_, "_b_list() = ", b_list~{i}, ";"] ];
             Parse[ StrCat[_MaterialName_, "_h_list() = ", h_list~{i}, ";"] ];
-            Call DefineBHFunctions;
+            Call DefineMaterialFunctions;
           Else // preset
-            _MaterialName_ = Str[ nonLinearMaterials(bh_preset~{i}-1) ];
+            _MaterialName_ = Str[ nonlinearMagneticMaterials(bh_preset~{i}-1) ];
           EndIf
           Parse[ StrCat["mu[ Region[tag~{i}] ] = ", _MaterialName_, "_mu[$1];"] ];
           Parse[ StrCat["dbdh_NL[ Region[tag~{i}] ] = ", _MaterialName_, "_dbdh_NL[$1];"] ];

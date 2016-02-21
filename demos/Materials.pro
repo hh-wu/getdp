@@ -1,26 +1,22 @@
-Include "BHMacros.pro";
+Include "MaterialsMacros.pro";
 
-// Definition of some linear materials
 Function{
-  linearMaterials() = Str[];
-  linearMaterialsVal() = {};
+  Materials() = Str[];
 
-  linearMaterials() += Str[ "Steel" ];
-  linearMaterialsVal() += 1000;
+  Materials() += Str[ "Air" ];
+  Air_mur = 1;
+  Air_sigma = 0;
+  Air_epsilonr = 1;
 
-  linearMaterials() += Str[ "Air" ];
-  linearMaterialsVal() += 1;
+  Materials() += Str[ "Copper" ];
+  Copper_mur = 1;
+  Copper_sigma = 5e7;
+  Copper_epsilonr = 1;
 
-  linearMaterials() += Str[ "Copper" ];
-  linearMaterialsVal() += 1;
-}
-
-// Definition of some nonlinear materials
-Function{
-  nonLinearMaterials() = Str[];
-
-  // Interpolated curve for inductor example
-  nonLinearMaterials() += Str[ "SteelInd" ];
+  Materials() += Str[ "SteelInd" ];
+  SteelInd_mur = 1000;
+  SteelInd_sigma = 2e6;
+  SteelInd_epsilonr = 1;
   SteelInd_h_list() = {
     0.0000e+00, 5.5023e+00, 1.1018e+01, 1.6562e+01, 2.2149e+01, 2.7798e+01, 3.3528e+01,
     3.9363e+01, 4.5335e+01, 5.1479e+01, 5.7842e+01, 6.4481e+01, 7.1470e+01, 7.8906e+01,
@@ -40,8 +36,10 @@ Function{
     2.1000e+00, 2.1500e+00, 2.2000e+00, 2.2500e+00, 2.3000e+00, 2.3500e+00, 2.4000e+00
   } ;
 
-  // Interpolated curve for 3kW induction machine
-  nonLinearMaterials() += Str[ "Steel3kW" ];
+  Materials() += Str[ "Steel3kW" ];
+  Steel3kW_mur = 1000;
+  Steel3kW_sigma = 2e6;
+  Steel3kW_epsilonr = 1;
   Steel3kW_h_list() = {
     0.0000e+00, 6.1465e+00, 1.2293e+01, 1.8440e+01, 2.4588e+01, 3.0736e+01, 3.6886e+01,
     4.3037e+01, 4.9190e+01, 5.5346e+01, 6.1507e+01, 6.7673e+01, 7.3848e+01, 8.0036e+01,
@@ -62,16 +60,20 @@ Function{
   } ;
 
   // Analytic b-h curve: nu(b) = 100. + 10. * exp (1.8 * b * b)
-  nonLinearMaterials() += Str[ "SteelAnalytic" ];
+  Materials() += Str[ "SteelAnalytic" ];
+  SteelAnalytic_mur = 1000;
+  SteelAnalytic_sigma = 2e6;
+  SteelAnalytic_epsilonr = 1;
   SteelAnalytic_nu[] = 100. + 10. * Exp[1.8*SquNorm[$1]];
   SteelAnalytic_dnudb2[] = 18. * Exp[1.8*SquNorm[$1]] ;
   SteelAnalytic_mu[] = ***;
   SteelAnalytic_dmudh2[] = ***;
 
   // Automatically create all the missing functions
-  For i In {1 : #nonLinearMaterials()}
-    _MaterialName_ = Str[ nonLinearMaterials(i - 1) ];
-    Printf(StrCat["Adding B-H curve for material: ", _MaterialName_]);
-    Call DefineBHFunctions;
+  linearMagneticMaterials() = Str[];
+  nonlinearMagneticMaterials() = Str[];
+  For i In {1 : #Materials()}
+    _MaterialName_ = Str[ Materials(i - 1) ];
+    Call DefineMaterialFunctions;
   EndFor
 }
