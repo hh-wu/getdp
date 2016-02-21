@@ -1,14 +1,20 @@
+// Magnetostatics.pro
+//
+// Magnetostatics - magnetic scalar potential (phi) and magnetic vector (a)
+// formulations
+
 Group {
   // generic groups needed by the model
-  DefineGroup[ Domain_M, Domain_S, Domain_Inf, Domain_NL, Domain_Mag];
+  DefineGroup[ Domain_M, Domain_S, Domain_Inf, Domain_NL, Domain_Mag,
+               Domain_Dirichlet ];
 
   // interactive model setup if no region currently defined
   interactive = !NbrRegions[];
+  modelDim = GetNumber["Gmsh/Model dimension"];
+  numPhysicals = GetNumber["Gmsh/Number of physical groups"];
 
   // interactive construction of groups with Gmsh
   If(interactive)
-    modelDim = GetNumber["Gmsh/Model dimension"];
-    numPhysicals = GetNumber["Gmsh/Number of physical groups"];
     For i In {1:numPhysicals}
       dim~{i} = GetNumber[Sprintf["Gmsh/Physical group %g/Dimension", i]];
       name~{i} = GetString[Sprintf["Gmsh/Physical group %g/Name", i]];
@@ -25,6 +31,9 @@ Group {
           bc_val~{i} = {0.,
             Name StrCat["Parameters/Boundary conditions/", name~{i}, "/1Value"]}
         ];
+        If(bc~{i} == 1)
+          Domain_Dirichlet += Region[tag~{i}];
+        EndIf
       Else
         DefineConstant[
           material~{i} = {2, Choices{
@@ -179,6 +188,7 @@ Integration {
         Case {
 	  { GeoElement Triangle; NumberOfPoints 4; }
 	  { GeoElement Quadrangle; NumberOfPoints 4; }
+          { GeoElement Tetrahedron  ; NumberOfPoints 4 ; }
 	}
       }
     }
@@ -213,6 +223,14 @@ If(interactive)
   }
 EndIf
 
+Constraint {
+  { Name GaugeCondition_a ; Type Assign ;
+    Case {
+      { Region Domain ; SubRegion Domain_Dirichlet ; Value 0. ; }
+    }
+  }
+}
+
 FunctionSpace {
   { Name Hgrad_phi; Type Form0;
     BasisFunction {
@@ -223,15 +241,29 @@ FunctionSpace {
       { NameOfCoef phin; EntityType NodesOf; NameOfConstraint phi; }
     }
   }
-  { Name Hcurl_a; Type Form1P;
-    BasisFunction {
-      { Name se; NameOfCoef ae; Function BF_PerpendicularEdge;
-        Support Domain; Entity NodesOf[ All ]; }
+  If(modelDim == 3)
+    { Name Hcurl_a; Type Form1;
+      BasisFunction {
+        { Name se; NameOfCoef ae; Function BF_Edge; Support Domain ;
+          Entity EdgesOf[ All ]; }
+      }
+      Constraint {
+        { NameOfCoef ae;  EntityType EdgesOf; NameOfConstraint a; }
+        { NameOfCoef ae;  EntityType EdgesOfTreeIn; EntitySubType StartingOn;
+          NameOfConstraint GaugeCondition_a ; }
+      }
     }
-    Constraint {
-      { NameOfCoef ae; EntityType NodesOf; NameOfConstraint a; }
+  Else
+    { Name Hcurl_a; Type Form1P;
+      BasisFunction {
+        { Name se; NameOfCoef ae; Function BF_PerpendicularEdge;
+          Support Domain; Entity NodesOf[ All ]; }
+      }
+      Constraint {
+        { NameOfCoef ae; EntityType NodesOf; NameOfConstraint a; }
+      }
     }
-  }
+  EndIf
 }
 
 Formulation {
@@ -254,13 +286,13 @@ Formulation {
     }
     Equation {
       Galerkin { [ nu[{d a}] * Dof{d a} , {d a} ];
-                 In Domain; Jacobian JVol; Integration I1; }
+        In Domain; Jacobian JVol; Integration I1; }
       Galerkin { JacNL [ dhdb_NL[{d a}] * Dof{d a} , {d a} ];
-                 In Domain_NL; Jacobian JVol; Integration I1; }
+        In Domain_NL; Jacobian JVol; Integration I1; }
       Galerkin { [ hc[] , {d a} ];
-                 In Domain_M; Jacobian JVol; Integration I1; }
+        In Domain_M; Jacobian JVol; Integration I1; }
       Galerkin { [ -js[] , {a} ];
-                 In Domain_S; Jacobian JVol; Integration I1; }
+        In Domain_S; Jacobian JVol; Integration I1; }
     }
   }
 }
