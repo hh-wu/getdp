@@ -56,7 +56,7 @@ Group {
 }
 
 If(interactive)
-  Include "MaterialData.pro"
+  Include "MaterialDatabase.pro"
 EndIf
 
 Function{
