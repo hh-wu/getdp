@@ -1,9 +1,9 @@
 
 DefineConstant[ Val_Rint = {0.15, Min 0.2, Max 1, Step 0.1,
-    Name "Parameters/Geometry/1Internal shell radius (m)"} ];
+    Name "Parameters/Geometry/1Internal shell radius"} ];
 
 DefineConstant[ Val_Rext = {0.25, Min Val_Rint, Max 0.5, Step 0.1,
-    Name "Parameters/Geometry/2External shell radius (m)"}];
+    Name "Parameters/Geometry/2External shell radius"}];
 
 AIR = 100;
 AIR_INF = 101;

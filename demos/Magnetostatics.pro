@@ -51,7 +51,8 @@ Group {
               4="Linear material (preset)",
               5="Nonlinear material (analytic)",
               6="Nonlinear material (data points)",
-              7="Nonlinear material (preset)"
+              7="Nonlinear material (preset)",
+              8="Infinite region (shell)"
             },
             Name StrCat["Parameters/Materials/", name~{i}, "/0Type"]}
         ];
@@ -63,6 +64,8 @@ Group {
           Domain_Mag += Region[tag~{i}];
         ElseIf(material~{i} == 5 || material~{i} == 6 || material~{i} == 7)
           Domain_NL += Region[tag~{i}];
+        ElseIf(material~{i} == 8)
+          Domain_Inf += Region[tag~{i}];
         EndIf
       EndIf
     EndFor
@@ -174,6 +177,9 @@ Function{
             "nu[ Region[tag~{i}] ] = ", _MaterialName_, "_nu[$1];",
             "dhdb_NL[ Region[tag~{i}] ] =", _MaterialName_, "_dhdb_NL[$1];"
           ] ];
+        ElseIf(material~{i} == 8) // infinite regions
+          mu[ Region[tag~{i}] ] = 4*Pi*1e-7;
+          nu[ Region[tag~{i}] ] = 1/(4*Pi*1e-7);
         EndIf
       EndIf
     EndFor
@@ -181,8 +187,16 @@ Function{
 
   // constant parameters needed by the model
   DefineConstant[
-    Val_Rint, Val_Rext, Val_Cx, Val_Cy, Val_Cz,
-    Nb_max_iter = 30, relaxation_factor = 1, stop_criterion = 1e-5
+    Val_Rint = {1, Visible NbrRegions[Domain_Inf],
+      Name "Parameters/Geometry/1Internal shell radius"},
+    Val_Rext = {2, Visible NbrRegions[Domain_Inf],
+      Name "Parameters/Geometry/2External shell radius"},
+    Val_Cx, Val_Cy, Val_Cz,
+    Nb_max_iter = {30, Visible NbrRegions[Domain_NL],
+      Name "Parameters/Nonlinear solver/Maximum number of iterations"},
+    relaxation_factor = 1,
+    stop_criterion = {1e-5, Visible NbrRegions[Domain_NL],
+      Name "Parameters/Nonlinear solver/Tolerance"}
   ];
 }
 
