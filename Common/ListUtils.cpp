@@ -289,6 +289,22 @@ List_T *ListOfDouble2ListOfInt(List_T *dList)
   return iList;
 }
 
+int List_Suppress(List_T *liste, void *data,
+		 int (*fcmp)(const void *a, const void *b))
+{
+  char *ptr;
+  int len;
+
+  ptr = (char*)List_PQuery(liste,data,fcmp) ;
+  if (ptr == NULL) return(0);
+
+  liste->n--;
+  len = liste->n - (((intptr_t)ptr - (intptr_t)liste->array) / liste->size);
+  if (len > 0) memmove(ptr, ptr + liste->size, len * liste->size);
+  return(1);
+}
+
+
 #endif
 
 // These are not defined in Gmsh:
@@ -354,21 +370,6 @@ int List_Query(List_T *liste, void *data,
 
   memcpy(data,ptr,liste->size);
   return (1);
-}
-
-int List_Suppress(List_T *liste, void *data,
-		 int (*fcmp)(const void *a, const void *b))
-{
-  char *ptr;
-  int len;
-
-  ptr = (char*)List_PQuery(liste,data,fcmp) ;
-  if (ptr == NULL) return(0);
-
-  liste->n--;
-  len = liste->n - (((intptr_t)ptr - (intptr_t)liste->array) / liste->size);
-  if (len > 0) memmove(ptr, ptr + liste->size, len * liste->size);
-  return(1);
 }
 
 void List_Insert(List_T *liste, void *data,
