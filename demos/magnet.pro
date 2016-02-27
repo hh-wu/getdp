@@ -5,7 +5,7 @@
 */
 
 Include "magnet_data.pro";
-Include "MaterialDatabase.pro";
+Include "../templates/MaterialDatabase.pro";
 
 Group {
   // AIR, AIR_INF, etc. are variables defined in core.txt, and correspond to the
@@ -79,7 +79,7 @@ Constraint {
   }
 }
 
-Include "Magnetostatics.pro"
+Include "../templates/Magnetostatics.pro"
 
 eps = 1.e-5;
 

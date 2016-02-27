@@ -3,9 +3,10 @@
 // Magnetostatics - magnetic scalar potential (phi) and magnetic vector (a)
 // formulations
 //
-// Simply merge this file with Gmsh: you will be prompted to setup your
-// materials and boundary conditions for each physical group defined in your
-// geometrical model.
+// You can either merge this file in an other problem description file (see
+// e.g. getdp/demos/magnet.pro), or open the file with Gmsh along with a
+// geometry: you will then be prompted to setup your materials and boundary
+// conditions for each physical group, interactively.
 
 DefineConstant[
   Flag_AnalysisType = {1, Choices{0="Scalar potential", 1="Vector potential"},
