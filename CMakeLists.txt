@@ -814,7 +814,8 @@ set(LICENSE_FILE ${CMAKE_CURRENT_SOURCE_DIR}/doc/LICENSE.txt)
 set(CREDITS_FILE ${CMAKE_CURRENT_SOURCE_DIR}/doc/CREDITS.txt)
 file(GLOB DEMO_FILES ${CMAKE_CURRENT_SOURCE_DIR}/demos/*.pro
                      ${CMAKE_CURRENT_SOURCE_DIR}/demos/*.geo
-                     ${CMAKE_CURRENT_SOURCE_DIR}/demos/*.msh)
+                     ${CMAKE_CURRENT_SOURCE_DIR}/demos/*.msh
+                     ${CMAKE_CURRENT_SOURCE_DIR}/templates/*.pro)
 file(GLOB DEMO_FILES_TMP ${CMAKE_CURRENT_SOURCE_DIR}/demos/*.pre
                          ${CMAKE_CURRENT_SOURCE_DIR}/demos/*.res
                          ${CMAKE_CURRENT_SOURCE_DIR}/demos/*.txt
@@ -880,6 +881,7 @@ install(FILES ${WELCOME_FILE} DESTINATION ${GETDP_DOC} RENAME README.txt)
 install(FILES ${LICENSE_FILE} DESTINATION ${GETDP_DOC})
 install(FILES ${CREDITS_FILE} DESTINATION ${GETDP_DOC})
 install(FILES ${DEMO_FILES} DESTINATION ${GETDP_DOC}/demos)
+install(FILES ${DEMO_FILES} DESTINATION ${GETDP_DOC}/templates)
 if(UNIX AND NOT CYGWIN)
   install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/doc/getdp.1 DESTINATION ${GETDP_MAN})
 endif(UNIX AND NOT CYGWIN)
@@ -1002,7 +1004,8 @@ include(CPack)
 
 include(CTest)
 file(GLOB_RECURSE TESTS
-     demos/magnet.pro 
+     templates/Magnetostatics.pro 
+     demos/magnet.pro
      benchmarks/academic_eigenvalues/main.pro
      benchmarks/acoustic_scattering/scattering.pro
      benchmarks/inductor/inductor.pro
