@@ -16,7 +16,7 @@ DefineConstant[
 Group {
   // generic groups needed by the model
   DefineGroup[ Domain_M, Domain_S, Domain_Inf, Domain_NL, Domain_Mag,
-               Domain_Dirichlet ];
+    Domain_Dirichlet ];
 
   // interactive model setup if no region currently defined
   interactive = !NbrRegions[];
@@ -45,27 +45,29 @@ Group {
       Else
         DefineConstant[
           material~{i} = {2, Choices{
-              0="Magnet",
-              1="Current source",
-              2="Linear material (constant)",
-              3="Linear material (function)",
-              4="Linear material (preset)",
-              5="Nonlinear material (analytic)",
-              6="Nonlinear material (data points)",
-              7="Nonlinear material (preset)",
-              8="Infinite region (shell)"
+              0="Magnet (constant)",
+              1="Magnet (function)",
+              2="Current source (constant)",
+              3="Current source (function)",
+              4="Linear material (constant)",
+              5="Linear material (function)",
+              6="Linear material (preset)",
+              7="Nonlinear material (analytic)",
+              8="Nonlinear material (data points)",
+              9="Nonlinear material (preset)",
+              10="Infinite region (shell)"
             },
             Name StrCat["Parameters/Materials/", name~{i}, "/0Type"]}
         ];
-        If(material~{i} == 0)
+        If(material~{i} == 0 || material~{i} == 1)
           Domain_M += Region[tag~{i}];
-        ElseIf(material~{i} == 1)
+        ElseIf(material~{i} == 2 || material~{i} == 3)
           Domain_S += Region[tag~{i}];
-        ElseIf(material~{i} == 2 || material~{i} == 3 || material~{i} == 4)
+        ElseIf(material~{i} == 4 || material~{i} == 5 || material~{i} == 6)
           Domain_Mag += Region[tag~{i}];
-        ElseIf(material~{i} == 5 || material~{i} == 6 || material~{i} == 7)
+        ElseIf(material~{i} == 7 || material~{i} == 8 || material~{i} == 9)
           Domain_NL += Region[tag~{i}];
-        ElseIf(material~{i} == 8)
+        ElseIf(material~{i} == 10)
           Domain_Inf += Region[tag~{i}];
         EndIf
       EndIf
@@ -98,64 +100,87 @@ Function{
           hcy~{i} = {0, Visible (material~{i} == 0),
             Name StrCat["Parameters/Materials/", name~{i}, "/hcy value"],
             Label "h_cy [A/m]", Help "Coercive magnetic field along y-axis"},
-          jsz~{i} = {0, Visible (material~{i} == 1),
+          hcz~{i} = {0, Visible (material~{i} == 0 && dim~{i} == 3),
+            Name StrCat["Parameters/Materials/", name~{i}, "/hcz value"],
+            Label "h_cz [A/m]", Help "Coercive magnetic field along z-axis"},
+          hc_fct~{i} = {"Vector[92000, 0, 0]", Visible (material~{i} == 1),
+            Name StrCat["Parameters/Materials/", name~{i}, "/hc function"],
+            Label "h_c [A/m]", Help "Coercive magnetic field"},
+          jsx~{i} = {0, Visible (material~{i} == 2 && dim~{i} == 3),
+            Name StrCat["Parameters/Materials/", name~{i}, "/jx value"],
+            Label "j_sx [A/m²]", Help "Current density along x-axis"},
+          jsy~{i} = {0, Visible (material~{i} == 2 && dim~{i} == 3),
+            Name StrCat["Parameters/Materials/", name~{i}, "/jy value"],
+            Label "j_sy [A/m²]", Help "Current density along y-axis"},
+          jsz~{i} = {1, Visible (material~{i} == 2),
             Name StrCat["Parameters/Materials/", name~{i}, "/jz value"],
             Label "j_sz [A/m²]", Help "Current density along z-axis"},
-          mur~{i} = {1, Visible (material~{i} == 2),
+          js_fct~{i} = {"Vector[0, 0, 1]", Visible (material~{i} == 3),
+            Name StrCat["Parameters/Materials/", name~{i}, "/js function"],
+            Label "j_s [A/m²]", Help "Current density"},
+          mur~{i} = {1, Visible (material~{i} == 4),
             Name StrCat["Parameters/Materials/", name~{i}, "/mur value"],
             Label "μ_r", Help "Relative magnetic permeability"},
-          mur_fct~{i} = {"1 * 1", Visible (material~{i} == 3),
+          mur_fct~{i} = {"1", Visible (material~{i} == 5),
             Name StrCat["Parameters/Materials/", name~{i}, "/mur function"],
             Label "μ_r", Help "Relative magnetic permeability"},
-          mur_preset~{i} = {1, Visible (material~{i} == 4), ReadOnlyRange 1,
+          mur_preset~{i} = {1, Visible (material~{i} == 6), ReadOnlyRange 1,
             Choices{ 1:#linearMagneticMaterials() = linearMagneticMaterials() },
             Name StrCat["Parameters/Materials/", name~{i}, "/mur preset"],
             Label "Name"}
-          nu_fct~{i} = {"100. + 10. * Exp[1.8*SquNorm[$1]]", Visible (material~{i} == 5),
+          nu_fct~{i} = {"100. + 10. * Exp[1.8*SquNorm[$1]]", Visible (material~{i} == 7),
             Name StrCat["Parameters/Materials/", name~{i}, "/2nu function"],
             Label "ν(b) [m/H]", Help "Magnetic reluctivity"},
-          dnudb2_fct~{i} = {"18. * Exp[1.8*SquNorm[$1]]", Visible (material~{i} == 5),
+          dnudb2_fct~{i} = {"18. * Exp[1.8*SquNorm[$1]]", Visible (material~{i} == 7),
             Name StrCat["Parameters/Materials/", name~{i}, "/3dnudb2 function"],
             Label "dν/db²"},
-          mu_fct~{i} = {"***", Visible (material~{i} == 5),
+          mu_fct~{i} = {"***", Visible (material~{i} == 7),
             Name StrCat["Parameters/Materials/", name~{i}, "/4mu function"],
             Label "μ(h) [H/m]", Help "Magnetic permeability"},
-          dmudh2_fct~{i} = {"***", Visible (material~{i} == 5),
+          dmudh2_fct~{i} = {"***", Visible (material~{i} == 7),
             Name StrCat["Parameters/Materials/", name~{i}, "/5dmudh2 function"],
             Label "dμ/dh²"},
-          b_list~{i} = {"{0,0.3,0.7,1,1.4,1.7,2.2}", Visible (material~{i} == 6),
+          b_list~{i} = {"{0,0.3,0.7,1,1.4,1.7,2.2}", Visible (material~{i} == 8),
             Name StrCat["Parameters/Materials/", name~{i}, "/3b values"]},
-          h_list~{i} = {"{0,30,90,2e2,6e2,4e3,7e5}", Visible (material~{i} == 6),
+          h_list~{i} = {"{0,30,90,2e2,6e2,4e3,7e5}", Visible (material~{i} == 8),
             Name StrCat["Parameters/Materials/", name~{i}, "/2h values"]},
-          bh_preset~{i} = {1, Visible (material~{i} == 7), ReadOnlyRange 1,
+          bh_preset~{i} = {1, Visible (material~{i} == 9), ReadOnlyRange 1,
             Choices{ 1:#nonlinearMagneticMaterials() = nonlinearMagneticMaterials() },
             Name StrCat["Parameters/Materials/", name~{i}, "/bh preset"],
             Label "Name"}
         ];
-        If(material~{i} == 0) // magnet
-          hc[ Region[tag~{i}] ] = Vector[hcx~{i}, hcy~{i}, 0];
+        If(material~{i} == 0) // magnet, constant
+          hc[ Region[tag~{i}] ] = Vector[hcx~{i}, hcy~{i}, hcz~{i}];
           mu[ Region[tag~{i}] ] = mu0;
           nu[ Region[tag~{i}] ] = 1/mu0;
-        ElseIf(material~{i} == 1) // current source
-          js[ Region[tag~{i}] ] = Vector[0, 0, jsz~{i}];
+        ElseIf(material~{i} == 1) // magnet, function
+          Parse[ StrCat["hc[ Region[tag~{i}] ] = ", hc_fct~{i}, ";"] ];
           mu[ Region[tag~{i}] ] = mu0;
           nu[ Region[tag~{i}] ] = 1/mu0;
-        ElseIf(material~{i} == 2) // linear, constant
+        ElseIf(material~{i} == 2) // current source, constant
+          js[ Region[tag~{i}] ] = Vector[jsx~{i}, jsy~{i}, jsz~{i}];
+          mu[ Region[tag~{i}] ] = mu0;
+          nu[ Region[tag~{i}] ] = 1/mu0;
+        ElseIf(material~{i} == 3) // current source, function
+          Parse[ StrCat["js[ Region[tag~{i}] ] = ", js_fct~{i}, ";"] ];
+          mu[ Region[tag~{i}] ] = mu0;
+          nu[ Region[tag~{i}] ] = 1/mu0;
+        ElseIf(material~{i} == 4) // linear, constant
           mu[ Region[tag~{i}] ] = mur~{i}*mu0;
           nu[ Region[tag~{i}] ] = 1/(mur~{i}*mu0);
-        ElseIf(material~{i} == 3) // linear, function
+        ElseIf(material~{i} == 5) // linear, function
           Parse[ StrCat[
             "mu[ Region[tag~{i}] ] = (", mur_fct~{i}, ")*mu0;",
             "nu[ Region[tag~{i}] ] = 1/((", mur_fct~{i}, ")*mu0);"
           ] ];
-        ElseIf(material~{i} == 4) // linear, preset
+        ElseIf(material~{i} == 6) // linear, preset
           _MaterialName_ = Str[ linearMagneticMaterials(mur_preset~{i} - 1) ];
           Parse[ StrCat[
             "mu[ Region[tag~{i}] ] = ", _MaterialName_, "_mur*mu0;",
             "nu[ Region[tag~{i}] ] = 1/(", _MaterialName_, "_mur*mu0);"
           ] ];
-        ElseIf(material~{i} >= 5 && material~{i} <= 7) // nonlinear materials
-          If(material~{i} == 5) // function
+        ElseIf(material~{i} >= 7 && material~{i} <= 9) // nonlinear materials
+          If(material~{i} == 7) // function
             _MaterialName_ = Sprintf["UserMaterialFct_%g", i];
             Parse[ StrCat[
               _MaterialName_, "_nu[] = ", nu_fct~{i}, ";",
@@ -164,7 +189,7 @@ Function{
               _MaterialName_, "_dmudh2[] = ", dnudb2_fct~{i}, ";"
             ] ];
             Call DefineMaterialFunctions;
-          ElseIf(material~{i} == 6) // data points
+          ElseIf(material~{i} == 8) // data points
             _MaterialName_ = Sprintf["UserMaterialPts_%g", i];
             Parse[ StrCat[
               _MaterialName_, "_b_list() = ", b_list~{i}, ";",
@@ -180,7 +205,7 @@ Function{
             "nu[ Region[tag~{i}] ] = ", _MaterialName_, "_nu[$1];",
             "dhdb_NL[ Region[tag~{i}] ] =", _MaterialName_, "_dhdb_NL[$1];"
           ] ];
-        ElseIf(material~{i} == 8) // infinite regions
+        ElseIf(material~{i} == 10) // infinite regions
           mu[ Region[tag~{i}] ] = mu0;
           nu[ Region[tag~{i}] ] = 1/mu0;
         EndIf
