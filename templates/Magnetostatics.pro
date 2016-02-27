@@ -80,6 +80,8 @@ If(interactive)
 EndIf
 
 Function{
+  DefineConstant[ mu0 = 4*Pi*1e-7 ];
+
   // generic functions needed by the model
   DefineFunction[ mu, nu, hc, js, dhdb_NL, dbdh_NL ];
 
@@ -132,25 +134,25 @@ Function{
         ];
         If(material~{i} == 0) // magnet
           hc[ Region[tag~{i}] ] = Vector[hcx~{i}, hcy~{i}, 0];
-          mu[ Region[tag~{i}] ] = 4*Pi*1e-7;
-          nu[ Region[tag~{i}] ] = 1/(4*Pi*1e-7);
+          mu[ Region[tag~{i}] ] = mu0;
+          nu[ Region[tag~{i}] ] = 1/mu0;
         ElseIf(material~{i} == 1) // current source
           js[ Region[tag~{i}] ] = Vector[0, 0, jsz~{i}];
-          mu[ Region[tag~{i}] ] = 4*Pi*1e-7;
-          nu[ Region[tag~{i}] ] = 1/(4*Pi*1e-7);
+          mu[ Region[tag~{i}] ] = mu0;
+          nu[ Region[tag~{i}] ] = 1/mu0;
         ElseIf(material~{i} == 2) // linear, constant
-          mu[ Region[tag~{i}] ] = mur~{i}*4*Pi*1e-7;
-          nu[ Region[tag~{i}] ] = 1/(mur~{i}*4*Pi*1e-7);
+          mu[ Region[tag~{i}] ] = mur~{i}*mu0;
+          nu[ Region[tag~{i}] ] = 1/(mur~{i}*mu0);
         ElseIf(material~{i} == 3) // linear, function
           Parse[ StrCat[
-            "mu[ Region[tag~{i}] ] = (", mur_fct~{i}, ")*4*Pi*1e-7;",
-            "nu[ Region[tag~{i}] ] = 1/((", mur_fct~{i}, ")*4*Pi*1e-7);"
+            "mu[ Region[tag~{i}] ] = (", mur_fct~{i}, ")*mu0;",
+            "nu[ Region[tag~{i}] ] = 1/((", mur_fct~{i}, ")*mu0);"
           ] ];
         ElseIf(material~{i} == 4) // linear, preset
           _MaterialName_ = Str[ linearMagneticMaterials(mur_preset~{i} - 1) ];
           Parse[ StrCat[
-            "mu[ Region[tag~{i}] ] = ", _MaterialName_, "_mur*4*Pi*1e-7;",
-            "nu[ Region[tag~{i}] ] = 1/(", _MaterialName_, "_mur*4*Pi*1e-7);"
+            "mu[ Region[tag~{i}] ] = ", _MaterialName_, "_mur*mu0;",
+            "nu[ Region[tag~{i}] ] = 1/(", _MaterialName_, "_mur*mu0);"
           ] ];
         ElseIf(material~{i} >= 5 && material~{i} <= 7) // nonlinear materials
           If(material~{i} == 5) // function
@@ -179,8 +181,8 @@ Function{
             "dhdb_NL[ Region[tag~{i}] ] =", _MaterialName_, "_dhdb_NL[$1];"
           ] ];
         ElseIf(material~{i} == 8) // infinite regions
-          mu[ Region[tag~{i}] ] = 4*Pi*1e-7;
-          nu[ Region[tag~{i}] ] = 1/(4*Pi*1e-7);
+          mu[ Region[tag~{i}] ] = mu0;
+          nu[ Region[tag~{i}] ] = 1/mu0;
         EndIf
       EndIf
     EndFor
