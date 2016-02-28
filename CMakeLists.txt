@@ -1004,7 +1004,6 @@ include(CPack)
 
 include(CTest)
 file(GLOB_RECURSE TESTS
-     templates/Magnetostatics.pro 
      demos/magnet.pro
      benchmarks/academic_eigenvalues/main.pro
      benchmarks/acoustic_scattering/scattering.pro
