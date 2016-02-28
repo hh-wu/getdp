@@ -41,7 +41,8 @@ Group {
           bc~{i} = {0, ReadOnlyRange 1, Choices{
               0="Neumann: zero d.n",
               1="Dirichlet: fixed v",
-              2="Floating potential: fixed q"
+              2="Floating conductor: fixed q",
+              3="Floating conductor: fixed v"
             },
             Name StrCat["Parameters/Boundary conditions/", name~{i}, "/0Type"]}
           bc_val~{i} = {0., Visible bc~{i},
@@ -49,7 +50,7 @@ Group {
         ];
         If(bc~{i} == 1)
           Domain_Dirichlet += Region[tag~{i}];
-        ElseIf(bc~{i} == 2)
+        ElseIf(bc~{i} == 2 || bc~{i} == 3)
           SkinDomainC_Ele += Region[tag~{i}];
         EndIf
       Else
@@ -112,7 +113,7 @@ Function{
             Label "Name"}
         ];
         If(material~{i} == 0) // charged, constant
-          rho[ Region[tag~{i}] ] = epsr~{i};
+          rho[ Region[tag~{i}] ] = rho~{i};
           epsr[ Region[tag~{i}] ] = 1;
         ElseIf(material~{i} == 1) // charged, function
           Parse[ StrCat["rho[ Region[tag~{i}] ] = ", rho_fct~{i}, ";"] ];
@@ -180,6 +181,13 @@ If(interactive)
     }
     { Name GlobalElectricPotential;
       Case {
+        For i In {1:numPhysicals}
+          If(dim~{i} < modelDim)
+            If(bc~{i} == 3)
+              { Region Region[tag~{i}]; Value bc_val~{i}; }
+            EndIf
+          EndIf
+        EndFor
       }
     }
     { Name GlobalElectricCharge;
