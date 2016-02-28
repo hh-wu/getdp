@@ -2,22 +2,43 @@
 
 mm = 1e-3;
 deg = Pi/180;
+po = "Output - Electromagnetics/";
+poI = StrCat[po,"0Current [A]/"];
+poV = StrCat[po,"1Voltage [V]/"];
+poF = StrCat[po,"2Flux linkage [Vs]/"];
+poJL = StrCat[po,"3Joule Losses [W]/"];
+po_mec = "Output - Mechanics/";
+po_mecT = StrCat[po_mec,"0Torque [Nm]/"];
+po_min = "Output/";
+ExtOnelabScal = ".onelabScal";
+ExtOnelabVec = ".onelabVec";  
 
 DefineConstant[
   pp = "Input/ConstructiveParameters/", 
-  NbrPoles = { 1, Choices {0,1}, Name "Number of poles in FE model",Visible 0},
-  lc = {.2,Name "Geo/Mesh Characteristic Length Factor",Visible 1},
+  NbrPoles = { 1, Choices {0,1}, Name "Number of poles in FE model", Visible 0},
+  lc = {.2,Name "Geo/Mesh Characteristic Length Factor", Visible 1},
+  Flag_IPM = {1, Choices {0,1},Name "Geo/Inner PM", Visible 1},
   modelpath = CurrentDir, 
   ResDir = StrCat[ modelpath, "res/" ],
   InitialRotorAngle_deg = {0, Name "Geo/Initial rotor position [mech. deg]", Visible 1},
   b_remanent = { 1.2, Name StrCat[pp,"Remanent induction[T]"] },
-  Flag_Degree = {0, Name StrCat[pp,"degree"], Label "deg 2 SF?", Choices {0,1} }  
+  // Design variables -> FIXME: write in py toolkit!
+  em = {0.7389*2.352*mm , Visible Flag_IPM, 
+    Name StrCat[pp,"Magnet length"], Visible 1, Closed 1},  
+  lm = {2.352*mm , 
+    Name StrCat[pp,"Magnet length"], Visible 1, Closed 1},  
+  Th_magnet = {32.67 *deg, 
+    Name StrCat[pp,"Magnet thickness"], Visible 1, Closed 1},
+  AxialLength = {35*mm,
+    Name StrCat[pp,"Axial length [m]"],Visible 1, Closed 1},
+  Gap = {(26.02-25.6)*mm,
+    Name StrCat[pp,"Airgap width [m]"], Visible 1, Closed 1}
 ];
+
 
 // Optimization problem specification
 Include "opt_data.geo";
 
-//--------------------------------------------------------------------------------
 NbrPolesInModel = 1;
 InitialRotorAngle = InitialRotorAngle_deg*deg ; // initial rotor angle, 0 if aligned
 NbrPolesTot = 8 ; // number of poles in complete cross-section
@@ -36,9 +57,15 @@ NbrSect = NbrSectStator;
 
 rRext = 25.6*mm;
 rR1 = 10.5*mm;
-rR2 = (rRext-lm); //23.243e-03;
-rR3 = (rRext-0.7389*lm); //23.862e-03;
-rR4 = (rRext-0.72278*lm); //23.9e-03;
+If(!Flag_IPM)
+  rR2 = (rRext-lm); //23.243e-03;
+  rR3 = (rRext-0.7389*lm); //23.862e-03;
+  rR4 = (rRext-0.72278*lm); //23.9e-03;
+Else
+  rR2 = (rRext-lm*2);
+  rR3 = (rRext-em); 
+  rR4 = (rRext-em);
+EndIf
 rR5 = rRext; //25.6e-03;
 
 rS1 = rR5 + Gap;     //rS1 = 26.02*mm;
@@ -76,6 +103,7 @@ Tnominal = 2.5 ; // Nominal torque
 // ----------------------------------------------------
 // Rotor
 ROTOR_FE     = 1000 ;
+ROTOR_FE_PM  = 5000 ;
 ROTOR_AIR    = 1001 ;
 ROTOR_AIRGAP = 1002 ;
 ROTOR_MAGNET = 1010 ; // Index for first Magnet (1/8 model->1; full model->8)

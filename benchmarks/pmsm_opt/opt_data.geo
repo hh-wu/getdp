@@ -8,69 +8,55 @@ ADJOINT_FIELD = 9;
 DES_VAR_FIELD = 21;
 
 DefineConstant[
-  pInOpt = "Input/OptParam/",
+  pInOpt = "Input/Optimization/",
 
   // Optimization 
-  Flag_opt = {1,
-    Name StrCat[pInOpt,"Optimization"],Choices {0,1}, Visible 1},
-
   Flag_optType = {"shape", 
     Choices {
       "shape",
       "topology"
-    }, Name StrCat[pInOpt,"Optimization Type"], Visible (Flag_opt==1)},
-
+    }, 
+    Name "Input/Optimization Type", Visible 1},
+  
   Flag_SysType = {"MagnetoStatic",
-    Choices{
-      "MagnetoStatic",
-      "LinearElast2D"
-    }, Name StrCat[pInOpt, "System Type"], Visible (Flag_opt == 1) },
-
-  // Design variables -> FIXME: write in py toolkit!
-  lm = {2.352*mm , 
-    Name StrCat[pInOpt,"x_0"], Visible ( !StrCmp(Flag_optType, "shape") ), Closed 1},  
-  Th_magnet = {32.67 *deg, 
-    Name StrCat[pInOpt,"x_1"], Visible ( !StrCmp(Flag_optType, "shape") ), Closed 1},
-  AxialLength = {35*mm,
-    Name StrCat[pp,"Axial length [m]"],Visible (!StrCmp(Flag_optType, "shape")),Closed 1},
-  Gap = {(26.02-25.6)*mm,
-    Name StrCat[pp,"Airgap width [m]"],Visible (!StrCmp(Flag_optType,"shape")), Closed 1},
+    Name StrCat[pInOpt, "System Type"], Visible 0 },
 
   // Velocity field (Mesh perturbation)
-  PerturbMesh = {0, Choices{0,1},
-    Name "Sensitivity/Compute perturbation velocity field", Visible (Flag_opt == 1)},
-  Perturbation = {1e-6,
-    Name "Sensitivity/Perturbation value", Visible (Flag_opt == 1)},
-  SensitivityParameter = { StrCat[pInOpt, "x_0"],
+  SensitivityParameter = { StrCat[pInOpt, "design variable/x_0"],
     Choices{
-      StrCat[pInOpt, "x_0"],
-      StrCat[pInOpt, "x_1"],
-      StrCat[pInOpt, "x_2"],
-      StrCat[pInOpt, "x_3"],
-      StrCat[pInOpt, "x_4"],
-      StrCat[pInOpt, "x_5"],
-      StrCat[pInOpt, "x_6"]
-    },
-    Name "Sensitivity/Parameter to perturb", Visible (Flag_opt == 1) }
+      StrCat[pInOpt, "design variable/x_0"],
+      StrCat[pInOpt, "design variable/x_1"],
+      StrCat[pInOpt, "design variable/x_2"],
+      StrCat[pInOpt, "design variable/x_3"],
+      StrCat[pInOpt, "design variable/x_4"],
+      StrCat[pInOpt, "design variable/x_5"],
+      StrCat[pInOpt, "design variable/x_6"]
+    },    
+    Name StrCat(pInOpt,"Parameter to perturb"), 
+    Visible (!StrCmp(Flag_optType,"shape")) },
+
+  // Velocity field (Mesh perturbation)
+  Flag_projFuncSpace_v = {0, Choices {0,1},
+    Name "Input/project velocity in func. space", Visible 1},
 
   // sensitivity analysis 
-  Flag_PerfType = {"None", 
+  Flag_PerfType = {"none", 
     Choices {
-      "None",  
       "BradialErrorInt",
       "TorqueVariance",
       "IronLoss",
       "Compliance",
       "Torque"
     },
-    Name StrCat[pInOpt,"Performance function"], Visible (Flag_opt == 1)},
+    Name StrCat[pInOpt,"Performance function"], 
+    Visible (StrCmp(Flag_optType,"none"))},
 
   Tnom = {90.0, Name "Input/OptParam/TorqueNominal"},
 
-  regionVar = {0, Name "Input/OptParam/regionVar",
-                  Label "Region of design variables", 
-                  Choices {0="Rotor Fe",1="Stator Fe",2="Rotor/Stator Fe"},
-                  Visible (!StrCmp(Flag_optType, "topology"))},
+  regionVar = {0, 
+    Name "Input/OptParam/regionVar",
+    Choices {0="Rotor Fe",1="Stator Fe",2="Rotor/Stator Fe"},
+    Visible (!StrCmp(Flag_optType, "topology"))},
 
   // Material law interpolation 
   Flag_InterpLaw = {"simp", 
@@ -83,8 +69,11 @@ DefineConstant[
     Visible (!StrCmp(Flag_optType,"topology"))},
 
   degree_SIMP = {3.0, 
-    Name StrCat[pInOpt,"Simp Degree"],Visible (!StrCmp(Flag_optType,"topology"))}
+    Name StrCat[pInOpt,"Simp Degree"],
+    Visible (!StrCmp(Flag_optType,"topology"))}
 
 ] ;
+
+
 
 

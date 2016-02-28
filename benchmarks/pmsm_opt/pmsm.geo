@@ -17,11 +17,12 @@ Include "pmsm_stator.geo";
 Geometry.AutoCoherence = 1;
 Geometry.OldNewReg = 1; 
 
-Hide { Point{ Point '*' }; }
-Hide { Line{ Line '*' }; }
-Show { Line{ nicepos_rotor[], nicepos_stator[] }; }
+//Hide { Point{ Point '*' }; }
+//Hide { Line{ Line '*' }; }
+//Show { Line{ nicepos_rotor[], nicepos_stator[] }; }
 
 // Velocity field for shape perturbation
-If(Flag_opt && !(StrCmp(Flag_optType,"shape")))
+If(!(StrCmp(Flag_optType,"shape")))
   Merge "../optimization/perturb.geo";
 EndIf
+
