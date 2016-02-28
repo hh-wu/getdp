@@ -50,7 +50,7 @@ Group {
         EndIf
       Else
         DefineConstant[
-          material~{i} = {2, Choices{
+          material~{i} = {4, Choices{
               0="Magnet (constant)",
               1="Magnet (function)",
               2="Current source (constant)",
