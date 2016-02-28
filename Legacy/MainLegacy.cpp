@@ -604,7 +604,7 @@ int MainLegacy(int argc, char *argv[])
     Print_ProblemStructure();
   }
   else{
-    check = Message::GetOnelabNumber("GetDP/]ModelCheck");
+    check = Message::GetOnelabNumber("GetDP/}ModelCheck");
     if(check) Print_Object(check - 1);
   }
 

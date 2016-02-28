@@ -1086,10 +1086,10 @@ void Message::FinalizeOnelab()
         _onelabClient->set(ps[0]);
         // Model checking
         std::vector<onelab::number> pn;
-        _onelabClient->get(pn, name + "/]ModelCheck");
+        _onelabClient->get(pn, name + "/}ModelCheck");
         if(pn.empty()){ // only change value if none exists
           pn.resize(1);
-          pn[0].setName(name + "/]ModelCheck");
+          pn[0].setName(name + "/}ModelCheck");
           pn[0].setValue(0);
         }
         pn[0].setLabel("Model check");
