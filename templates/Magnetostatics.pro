@@ -10,6 +10,12 @@
 
 DefineConstant[
   Flag_AnalysisType = {1, Choices{0="Scalar potential", 1="Vector potential"},
+    Help Str[
+      "Magnetostatic model definitions",
+      "h: magnetic field [A/m]",
+      "b: magnetic flux density [T]",
+      "phi: scalar magnetic potential (h = -grad phi) [A]",
+      "a: vector magnetic potential (b = curl a) [T.m]"],
     Name "GetDP/Analysis"}
 ];
 

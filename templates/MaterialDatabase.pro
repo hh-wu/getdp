@@ -75,6 +75,7 @@ Include "MaterialMacros.pro";
 Function{
   linearMagneticMaterials() = Str[];
   nonlinearMagneticMaterials() = Str[];
+  linearDielectricMaterials() = Str[];
   For i In {1 : #Materials()}
     _MaterialName_ = Str[ Materials(i - 1) ];
     Call DefineMaterialFunctions;

@@ -55,4 +55,14 @@ Macro DefineMaterialFunctions
     EndIf
   EndIf
 
+  // --------------------------------------------------------------
+  // Linear dielectric materials
+  // --------------------------------------------------------------
+
+  If(Exists[StringToName[StrCat[n, "_epsilonr"]]])
+    If(Exists[linearDielectricMaterials] && !StrFind[n, "UserMaterial"])
+      linearDielectricMaterials() += Str[n];
+    EndIf
+  EndIf
+
 Return
