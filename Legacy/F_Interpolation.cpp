@@ -41,6 +41,19 @@ void F_InterpolationLinear(F_ARG)
     yp =  y[up] + ( xp - x[up] ) * a ;
   }
 
+  // Using interpolation function also in multi-harmonic case
+  // Input is scalar, output is also scalar, rest of Val is set to zero...
+  // Not very elegant, but was already done like that for NbrHar=2...
+  // Should we add here a warning?
+  // Message::Warning("Function 'Interpolation' interpolates only real values, i.e. result is a real scalar");
+  V->Val[0] = yp;
+  if (Current.NbrHar != 1){
+    V->Val[MAX_DIM] = 0. ;
+    for (int k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2)
+      V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;
+  }
+
+  /*
   if (Current.NbrHar == 1)
     V->Val[0] = yp ;
   else if (Current.NbrHar == 2) {
@@ -50,6 +63,7 @@ void F_InterpolationLinear(F_ARG)
   else {
     Message::Error("Function 'Interpolation' not valid for Complex");
   }
+  */
 
   V->Type = SCALAR ;
 }
@@ -78,6 +92,15 @@ void F_dInterpolationLinear(F_ARG)
     dyp = (y[up] - y[lo]) / (x[up] - x[lo]) ;
   }
 
+  // Allowing interpolation of a real in multi-harmonic case (to change...)
+  V->Val[0] = dyp;
+  if (Current.NbrHar != 1){
+    V->Val[MAX_DIM] = 0. ;
+    for (int k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2)
+      V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;
+  }
+
+  /*
   if (Current.NbrHar == 1)
     V->Val[0] = dyp ;
   else if (Current.NbrHar == 2) {
@@ -87,6 +110,7 @@ void F_dInterpolationLinear(F_ARG)
   else {
     Message::Error("Function 'dInterpolation' not valid for Complex");
   }
+  */
   V->Type = SCALAR ;
 }
 
@@ -119,6 +143,14 @@ void F_dInterpolationLinear2(F_ARG)
     yp =  y[up] + ( xp - x[up] ) * a ;
   }
 
+  // Allowing interpolation of a real in multi-harmonic case (to change...)
+   V->Val[0] = yp;
+  if (Current.NbrHar != 1){
+    V->Val[MAX_DIM] = 0. ;
+    for (int k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2)
+      V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;
+  }
+  /*
   if (Current.NbrHar == 1)
     V->Val[0] = yp ;
   else if (Current.NbrHar == 2) {
@@ -128,6 +160,8 @@ void F_dInterpolationLinear2(F_ARG)
   else {
     Message::Error("Function 'dInterpolation' not valid for Complex");
   }
+  */
+
   V->Type = SCALAR ;
 }
 
@@ -164,6 +198,15 @@ void F_InterpolationAkima(F_ARG)
       + D->Case.Interpolation.di[lo] * a3 ;
   }
 
+  // Allowing interpolation of a real in multi-harmonic case (to change...)
+  V->Val[0] = yp;
+  if (Current.NbrHar != 1){
+    V->Val[MAX_DIM] = 0. ;
+    for (int k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2)
+      V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;
+  }
+
+  /*
   if (Current.NbrHar == 1)
     V->Val[0] = yp ;
   else if (Current.NbrHar == 2) {
@@ -173,6 +216,8 @@ void F_InterpolationAkima(F_ARG)
   else {
     Message::Error("Function 'InterpolationAkima' not valid for Complex");
   }
+  */
+
   V->Type = SCALAR ;
 }
 
@@ -206,6 +251,15 @@ void F_dInterpolationAkima(F_ARG)
       + D->Case.Interpolation.di[lo] * 3. * a2 ;
   }
 
+
+  // Extension to multi-harmonic case (to change...)
+  V->Val[0] = dyp;
+  if (Current.NbrHar != 1){
+    V->Val[MAX_DIM] = 0. ;
+    for (int k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2)
+      V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;
+  }
+  /*
   if (Current.NbrHar == 1)
     V->Val[0] = dyp ;
   else if (Current.NbrHar == 2) {
@@ -215,6 +269,7 @@ void F_dInterpolationAkima(F_ARG)
   else {
     Message::Error("Function 'dInterpolationAkima' not valid for Complex");
   }
+  */
   V->Type = SCALAR ;
 }
 
