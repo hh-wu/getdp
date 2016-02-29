@@ -6593,14 +6593,15 @@ PrintSubType :
     }
 
   /* should be generalized with a '{' RecursiveListOfFExpr '}' */
-  | tOnRegion GroupRHS
-    tWithArgument tSTRING '{' FExpr ',' FExpr '}'  '{' FExpr '}'
+| tOnRegion GroupRHS
+  tWithArgument tSTRING '{' FExpr ',' FExpr '}'  '{' FExpr '}'
     {
       PostSubOperation_S.SubType = PRINT_WITHARGUMENT;
 
       PostSubOperation_S.Case.WithArgument.RegionIndex =
 	Num_Group(&Group_S, (char*)"PO_On", $2);
       int i;
+
       if((i = List_ISearchSeq(Problem_S.Expression, $4, fcmp_Expression_Name)) < 0)
 	vyyerror("Unknown Name of Expression: %s", $4);
       Free($4);
@@ -6611,6 +6612,25 @@ PrintSubType :
       PostSubOperation_S.Case.WithArgument.n = (int)$11;
     }
 
+/* Just one value given for interpolating a function */
+| tOnRegion GroupRHS
+  tWithArgument tSTRING '{' FExpr '}'
+  {
+  PostSubOperation_S.SubType = PRINT_WITHARGUMENT;
+
+      PostSubOperation_S.Case.WithArgument.RegionIndex =
+	Num_Group(&Group_S, (char*)"PO_On", $2);
+      int i;
+
+      if((i = List_ISearchSeq(Problem_S.Expression, $4, fcmp_Expression_Name)) < 0)
+	vyyerror("Unknown Name of Expression: %s", $4);
+      Free($4);
+
+      PostSubOperation_S.Case.WithArgument.ArgumentIndex = i;
+      PostSubOperation_S.Case.WithArgument.x[0] = $6;
+      PostSubOperation_S.Case.WithArgument.x[1] = $6;
+      PostSubOperation_S.Case.WithArgument.n = 0;
+    }
  ;
 
 PrintOptions :
