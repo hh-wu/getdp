@@ -366,7 +366,6 @@ Resolution {
       { Name A; NameOfFormulation MagSta_phi; }
     }
     Operation {
-      CreateDir["res"];
       If(!NbrRegions[Domain_NL])
         Generate[A]; Solve[A];
       Else
@@ -382,7 +381,6 @@ Resolution {
       { Name A; NameOfFormulation MagSta_a; }
     }
     Operation {
-      CreateDir["res"];
       If(!NbrRegions[Domain_NL])
         Generate[A]; Solve[A];
       Else
@@ -402,7 +400,6 @@ Resolution {
       EndIf
     }
     Operation {
-      CreateDir["res"];
       If(!NbrRegions[Domain_NL])
         Generate[A]; Solve[A];
       Else
@@ -447,18 +444,18 @@ PostProcessing {
 PostOperation {
   { Name MagSta_phi; NameOfPostProcessing MagSta_phi;
     Operation {
-      Print[ b, OnElementsOf Domain, File "res/MagSta_phi_b.pos" ];
-      Print[ h, OnElementsOf Domain, File "res/MagSta_phi_h.pos" ];
-      Print[ hc, OnElementsOf Domain, File "res/MagSta_a_hc.pos" ];
-      Print[ phi, OnElementsOf Domain, File "res/MagSta_phi_phi.pos" ];
+      Print[ b, OnElementsOf Domain, File "MagSta_phi_b.pos" ];
+      Print[ h, OnElementsOf Domain, File "MagSta_phi_h.pos" ];
+      Print[ hc, OnElementsOf Domain, File "MagSta_a_hc.pos" ];
+      Print[ phi, OnElementsOf Domain, File "MagSta_phi_phi.pos" ];
     }
   }
   { Name MagSta_a; NameOfPostProcessing MagSta_a;
     Operation {
-      Print[ b, OnElementsOf Domain, File "res/MagSta_a_b.pos" ];
-      Print[ h, OnElementsOf Domain, File "res/MagSta_a_h.pos" ];
-      Print[ hc, OnElementsOf Domain, File "res/MagSta_a_hc.pos" ];
-      Print[ az, OnElementsOf Domain, File "res/MagSta_az_a.pos" ];
+      Print[ b, OnElementsOf Domain, File "MagSta_a_b.pos" ];
+      Print[ h, OnElementsOf Domain, File "MagSta_a_h.pos" ];
+      Print[ hc, OnElementsOf Domain, File "MagSta_a_hc.pos" ];
+      Print[ az, OnElementsOf Domain, File "MagSta_az_a.pos" ];
     }
   }
 }
