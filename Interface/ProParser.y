@@ -293,7 +293,7 @@ struct doubleXstring{
 %token        tOnGrid tOnSection tOnPoint tOnLine tOnPlane tOnBox
 %token        tWithArgument
 %token        tFile tDepth tDimension tComma tTimeStep tHarmonicToTime
-%token        tCosineTransform
+%token        tCosineTransform tTimeToHarmonic
 %token        tValueIndex tValueName
 %token        tFormat tHeader tFooter tSkin tSmoothing
 %token        tTarget tSort tIso tNoNewLine tNoTitle tDecomposeInSimplex tChangeOfValues
@@ -304,6 +304,7 @@ struct doubleXstring{
 %token        tStoreMaxZinRegister tStoreMinInRegister tStoreMinXinRegister
 %token        tStoreMinYinRegister tStoreMinZinRegister
 %token        tLastTimeStepOnly tAppendTimeStepToFileName tTimeValue tTimeImagValue
+%token        tTimeInterval
 %token        tAppendExpressionToFileName tAppendExpressionFormat
 %token        tOverrideTimeStepValue tNoMesh tSendToServer tColor
 %token        tDate tOnelabAction tFixRelativePath
@@ -6241,6 +6242,7 @@ PostSubOperations :
       PostSubOperation_S.Adapt = 0;
       PostSubOperation_S.Target = -1.;
       PostSubOperation_S.HarmonicToTime = 1;
+      PostSubOperation_S.TimeToHarmonic = 0;
       PostSubOperation_S.FourierTransform = 0;
       PostSubOperation_S.FrozenTimeStepList = 0;
       PostSubOperation_S.TimeStep_L = List_Create(10,10,sizeof(int));;
@@ -6290,7 +6292,10 @@ PostSubOperations :
       PostSubOperation_S.Label = NULL;
       PostSubOperation_S.TimeValue_L = NULL;
       PostSubOperation_S.TimeImagValue_L = NULL;
-    }
+      PostSubOperation_S.TimeInterval_Flag = 0;
+      PostSubOperation_S.TimeInterval[0] = 0.;
+      PostSubOperation_S.TimeInterval[1] = 0.;
+     }
     PostSubOperation
     {
       if(PostSubOperation_S.Type != POP_NONE) {
@@ -6707,6 +6712,10 @@ PrintOption :
     {
       PostSubOperation_S.HarmonicToTime = (int)$3;
     }
+  | ',' tTimeToHarmonic FExpr
+    {
+      PostSubOperation_S.TimeToHarmonic = (int)$3;
+    }
   | ',' tCosineTransform
     {
       PostSubOperation_S.FourierTransform = 2;
@@ -6762,6 +6771,12 @@ PrintOption :
   | ',' tTimeValue ListOfFExpr
     {
       PostSubOperation_S.TimeValue_L = $3;
+    }
+  | ',' tTimeInterval '{' FExpr ',' FExpr '}'
+    {
+      PostSubOperation_S.TimeInterval_Flag = 1;
+      PostSubOperation_S.TimeInterval[0] = $4;
+      PostSubOperation_S.TimeInterval[1] = $6;
     }
   | ',' tTimeImagValue ListOfFExpr
     {

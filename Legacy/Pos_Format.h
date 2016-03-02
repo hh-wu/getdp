@@ -21,7 +21,8 @@ void  Format_PostElement(struct PostSubOperation * PSO_P, int Contour, int Store
 			 int NbrHarmonics, int HarmonicToTime,
 			 double *Dummy, struct PostElement *PE);
 
-void  Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
+void  Format_PostValue(struct PostSubOperation *PSO_P,
+                       int Format, int Flag_Comma, int Group_FunctionType,
 		       int iTime, double Time, int NbrTimeStep,
                        int iRegion, int numRegion, int NbrRegion,
 		       int NbrHarmonics, int HarmonicToTime, int FourierTransform,
@@ -30,7 +31,7 @@ void  Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
 
 void Pos_FourierTransform(int NbrTimeStep, int NbrRegion,
                           double *Times, struct Value *TmpValues, int Size,
-                          int TypeOutput,
+                          int TypeOutput, int Nb_Freq_Select_0,
                           int *NbrFreq, double **Frequencies, struct Value **OutValues);
 
 #endif

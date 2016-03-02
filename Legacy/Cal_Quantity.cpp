@@ -964,7 +964,8 @@ void Cal_WholeQuantity(struct Element * Element,
         struct Value *FourierValues;
 
         Pos_FourierTransform(NbrTimeStep, 1, Times, TmpValues, Size,
-                             2, &NbrFreq, &Frequencies, &FourierValues);
+                             2, nbrFrequencyInFormula,
+                             &NbrFreq, &Frequencies, &FourierValues);
 
         /*
           we calculate the Sum for all frequencies of frequency_i^exponent_f *

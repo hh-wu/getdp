@@ -1467,7 +1467,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
         }
       }
 
-      Format_PostValue(PSO_P->Format, PSO_P->Comma,
+      Format_PostValue(PSO_P, PSO_P->Format, PSO_P->Comma,
 		       Group_FunctionType,
 		       iTime, Current.Time, NbrTimeStep,
                        i, Current.NumEntity, Nbr_Region,
@@ -1562,7 +1562,7 @@ void  Pos_PrintWithArgument(struct PostQuantity      *NCPQ_P,
     Cal_PostQuantity(NCPQ_P, DefineQuantity_P0, QuantityStorage_P0,
                      NULL, &Element, 0., 0., 0., &Value) ;
 
-    Format_PostValue(PSO_P->Format, PSO_P->Comma,
+    Format_PostValue(PSO_P, PSO_P->Format, PSO_P->Comma,
                      REGION,
                      0, x, 1,  0, 0, 1,
                      Current.NbrHar, PSO_P->HarmonicToTime,

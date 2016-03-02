@@ -1544,7 +1544,8 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
 /*  F o r m a t _ P o s t V a l u e                                         */
 /* ------------------------------------------------------------------------ */
 
-void Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
+void Format_PostValue(struct PostSubOperation *PSO_P,
+                      int Format, int Flag_Comma, int Group_FunctionType,
 		      int iTime, double Time, int NbrTimeStep,
                       int iRegion, int numRegion, int NbrRegion,
 		      int NbrHarmonics, int HarmonicToTime, int FourierTransform,
@@ -1559,7 +1560,7 @@ void Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
   static struct Value  TmpValue, *TmpValues ;
   static double *Times ;
 
-  flag_storeAllTimeResults = FourierTransform ;
+  flag_storeAllTimeResults = FourierTransform || PSO_P->TimeToHarmonic ;
   indexInTmpValues = flag_storeAllTimeResults? iTime * NbrRegion : 0 ;
 
   if(iRegion == 0){
@@ -1612,6 +1613,7 @@ void Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
   else if (Format == FORMAT_LOOP_ERROR) {
     StorePostOpResult(NbrHarmonics, Value);
   }
+  // else, for other FORMATs, e.g., FORMAT_FREQUENCY_TABLE
   else {
     if(iRegion == 0){
       if (!flag_storeAllTimeResults)
@@ -1685,7 +1687,7 @@ void Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
              iTime == NbrTimeStep-1 && iRegion == NbrRegion-1) {
 
       Pos_FourierTransform(NbrTimeStep, NbrRegion, Times, TmpValues, Size,
-                           1, NULL, NULL, NULL);
+                           1, PSO_P->TimeToHarmonic, NULL, NULL, NULL);
 
       Free(Times);
       Free(TmpValues) ;
@@ -1701,7 +1703,7 @@ void Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
 
 void Pos_FourierTransform(int NbrTimeStep, int NbrRegion,
                           double *Times, struct Value *TmpValues, int Size,
-                          int TypeOutput,
+                          int TypeOutput, int Nb_Freq_Select_0,
                           int *NbrFreq, double **Frequencies, struct Value **OutValues)
 {
 #if NEW_CODE
@@ -1773,6 +1775,8 @@ void Pos_FourierTransform(int NbrTimeStep, int NbrRegion,
 
   if(!PostStream) TypeOutput = 2;
 
+  int Nb_Freq_Select = (Nb_Freq_Select_0>0)? Nb_Freq_Select_0 : Nhalf-1;
+
   // Limited to cosine transform now
   if (TypeOutput == 2){
     *NbrFreq = Nhalf+1;
@@ -1781,7 +1785,7 @@ void Pos_FourierTransform(int NbrTimeStep, int NbrRegion,
   }
 
   //  for (k_fc=-Nhalf; k_fc<Nhalf; k_fc++){
-  for (k_fc=0; k_fc<Nhalf; k_fc++){
+  for (k_fc=0; k_fc<=Nb_Freq_Select; k_fc++){
     i_k = Nhalf+k_fc;
 
     if (TypeOutput == 1) {

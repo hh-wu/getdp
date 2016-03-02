@@ -1330,6 +1330,7 @@ struct PostSubOperation {
   int    PostQuantityIndex[2], PostQuantitySupport[2];
   int    Type, SubType, CombinationType;
   int    Depth, Skin, Smoothing, Dimension, Comma, HarmonicToTime, CatFile;
+  int    TimeToHarmonic;
   int    FourierTransform;
   int    Format, Adapt, Sort, Iso, NoNewLine, NoTitle, DecomposeInSimplex;
   int    NewCoordinates;
@@ -1352,6 +1353,8 @@ struct PostSubOperation {
   char   *FileOut;
   List_T *TimeStep_L, *Value_L, *Iso_L, *Frequency_L;
   List_T *TimeValue_L, *TimeImagValue_L;
+  int     TimeInterval_Flag;
+  double  TimeInterval[2];
   List_T *ChangeOfValues;
   List_T *EvaluationPoints;
   union {

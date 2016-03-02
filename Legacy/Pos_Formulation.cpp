@@ -142,6 +142,7 @@ void  Pos_FemFormulation(struct Formulation       *Formulation_P,
 int Pos_InitTimeSteps(struct PostSubOperation *PostSubOperation_P)
 {
   int iTime, NbTimeStep;
+  double TOL = 1.e-15;
 
   // last time step only
   if(PostSubOperation_P->LastTimeStepOnly ||
@@ -152,26 +153,35 @@ int Pos_InitTimeSteps(struct PostSubOperation *PostSubOperation_P)
     return 1;
   }
 
-  // specific time values
-  if(List_Nbr(PostSubOperation_P->TimeValue_L) ||
+  // specific time values or time interval
+  if(PostSubOperation_P->TimeInterval_Flag ||
+     List_Nbr(PostSubOperation_P->TimeValue_L) ||
      List_Nbr(PostSubOperation_P->TimeImagValue_L)){
     List_Reset(PostSubOperation_P->TimeStep_L);
     for(int i = 0; i < List_Nbr(Current.DofData->Solutions); i++){
       Solution *s = (struct Solution*)List_Pointer(Current.DofData->Solutions, i);
       int step = s->TimeStep;
       double time = s->Time, timeImag = s->TimeImag;
-      for(int j = 0; j < List_Nbr(PostSubOperation_P->TimeValue_L); j++){
-        double t;
-        List_Read(PostSubOperation_P->TimeValue_L, j, &t);
-        if(fabs(t - time) < 1.e-15){
-          List_Insert(PostSubOperation_P->TimeStep_L, &step, fcmp_double);
+      if(PostSubOperation_P->TimeInterval_Flag){
+        if((time >= PostSubOperation_P->TimeInterval[0]-TOL) &&
+           (time <= PostSubOperation_P->TimeInterval[1]+TOL)){
+          List_Insert(PostSubOperation_P->TimeStep_L, &step, fcmp_int);
         }
       }
-      for(int j = 0; j < List_Nbr(PostSubOperation_P->TimeImagValue_L); j++){
-        double t;
-        List_Read(PostSubOperation_P->TimeImagValue_L, j, &t);
-        if(fabs(t - timeImag) < 1.e-15)
-          List_Insert(PostSubOperation_P->TimeStep_L, &step, fcmp_double);
+      else{
+        for(int j = 0; j < List_Nbr(PostSubOperation_P->TimeValue_L); j++){
+          double t;
+          List_Read(PostSubOperation_P->TimeValue_L, j, &t);
+          if(fabs(t - time) < TOL){
+            List_Insert(PostSubOperation_P->TimeStep_L, &step, fcmp_int);
+          }
+        }
+        for(int j = 0; j < List_Nbr(PostSubOperation_P->TimeImagValue_L); j++){
+          double t;
+          List_Read(PostSubOperation_P->TimeImagValue_L, j, &t);
+          if(fabs(t - timeImag) < TOL)
+            List_Insert(PostSubOperation_P->TimeStep_L, &step, fcmp_int);
+        }
       }
     }
     NbTimeStep = List_Nbr(PostSubOperation_P->TimeStep_L);

@@ -1782,10 +1782,17 @@ void Print_PostOperation()
       if(PSO->HarmonicToTime > 1)
 	Message::Check(", HarmonicToTime %d", PSO->HarmonicToTime);
 
+      if(PSO->TimeToHarmonic)
+	Message::Check(", TimeToHarmonic %d", PSO->TimeToHarmonic);
+
       if(PSO->FourierTransform == 1)
 	Message::Check(", FourierTransform");
       if(PSO->FourierTransform == 2)
 	Message::Check(", CosineTransform");
+
+      if(PSO->TimeInterval_Flag)
+	Message::Check(", TimeInterval {%g, %g}",
+                       PSO->TimeInterval[0], PSO->TimeInterval[1]);
 
       if(PSO->Sort)
 	Message::Check(", Sort %s",
