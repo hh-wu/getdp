@@ -17,7 +17,8 @@ DefineConstant[
       "v: scalar electric potential (e = -grad v) [V]",
       "rho: charge density [C/m³]",
       "q: charge [C]"],
-    Name "GetDP/Analysis"}
+    Name "GetDP/Analysis"},
+  exportFile = "export.pro"
 ];
 
 Group {
@@ -27,18 +28,23 @@ Group {
 
   // interactive model setup if no region currently defined
   interactive = !NbrRegions[];
+  export = !StrCmp[OnelabAction, "compute"];
   modelDim = GetNumber["Gmsh/Model dimension"];
   numPhysicals = GetNumber["Gmsh/Number of physical groups"];
 
   // interactive construction of groups with Gmsh
   If(interactive)
+    If(export)
+      Printf('Group{') > Str[exportFile];
+    EndIf
     For i In {1:numPhysicals}
       dim~{i} = GetNumber[Sprintf["Gmsh/Physical group %g/Dimension", i]];
       name~{i} = GetString[Sprintf["Gmsh/Physical group %g/Name", i]];
       tag~{i} = GetNumber[Sprintf["Gmsh/Physical group %g/Number", i]];
+      reg = Sprintf["Region[%g]; ", tag~{i}]; str = "";
       If(dim~{i} < modelDim)
         DefineConstant[
-          bc~{i} = {0, ReadOnlyRange 1, Choices{
+          bc~{i} = {0, Choices{
               0="Neumann: zero d.n",
               1="Dirichlet: fixed v",
               2="Floating conductor: fixed q",
@@ -49,87 +55,115 @@ Group {
             Name StrCat["Parameters/Boundary conditions/", name~{i}, "/1Value"]}
         ];
         If(bc~{i} == 1)
-          Domain_Dirichlet += Region[tag~{i}];
+          str = StrCat["Domain_Dirichlet += ", reg];
         ElseIf(bc~{i} == 2 || bc~{i} == 3)
-          SkinDomainC_Ele += Region[tag~{i}];
+          str = StrCat["SkinDomainC_Ele += ", reg];
         EndIf
       Else
         DefineConstant[
-          material~{i} = {2, Choices{
-              0="Charged material (constant)",
-              1="Charged material (function)",
-              2="Linear material (constant)",
-              3="Linear material (function)",
-              4="Linear material (preset)",
-              5="Infinite region (shell)"
+          material~{i} = {1, Choices{
+              0="Charged dielectric",
+              1="Linear dielectric material",
+              2="Infinite air shell"
             },
             Name StrCat["Parameters/Materials/", name~{i}, "/0Type"]}
         ];
-        If(material~{i} == 0 || material~{i} == 1)
-          DomainQ_Ele += Region[tag~{i}];
-          DomainCC_Ele += Region[tag~{i}];
-        ElseIf(material~{i} == 2 || material~{i} == 3 || material~{i} == 4)
-          DomainCC_Ele += Region[tag~{i}];
-        ElseIf(material~{i} == 5)
-          Domain_Inf += Region[tag~{i}];
+        If(material~{i} == 0)
+          str = StrCat["DomainQ_Ele += ", reg, "DomainCC_Ele += ", reg];
+        ElseIf(material~{i} == 1)
+          str = StrCat["DomainCC_Ele += ", reg];
+        ElseIf(material~{i} == 2)
+          str = StrCat["Domain_Inf += ", reg];
         EndIf
       EndIf
+      Parse[str];
+      If(export && StrLen[str])
+        Printf(Str[str]) >> Str[exportFile];
+      EndIf
     EndFor
+    If(export)
+      Printf('}') >> Str[exportFile];
+    EndIf
   EndIf
 }
 
 If(interactive)
   Include "MaterialDatabase.pro"
+  If(export)
+    Printf('Include "MaterialDatabase.pro";') >> Str[exportFile];
+  EndIf
 EndIf
 
 Function{
-  DefineConstant[ eps0 = 8.854187818e-12 ];
-
   // generic functions needed by the model
   DefineFunction[ epsr, rho ];
 
   // interactive construction of material properties
   If(interactive)
+    If(export)
+      Printf('Function {') >> Str[exportFile];
+    EndIf
     For i In {1:numPhysicals}
       If(dim~{i} < modelDim)
         // nothing
       Else
         DefineConstant[
-          rho~{i} = {1, Visible (material~{i} == 0),
+          rho_preset~{i} = {0, Visible (material~{i} == 0),
+            Choices{ 0="Constant", 1="Function" },
+            Name StrCat["Parameters/Materials/", name~{i}, "/1rho preset"],
+            Label "Choice"},
+          rho~{i} = {1, Visible (material~{i} == 0 && rho_preset~{i} == 0),
             Name StrCat["Parameters/Materials/", name~{i}, "/rho value"],
             Label "ρ [C/m³]", Help "Charge density"},
-          rho_fct~{i} = {"1", Visible (material~{i} == 1),
+          rho_fct~{i} = {"1", Visible (material~{i} == 0 && rho_preset~{i} == 1),
             Name StrCat["Parameters/Materials/", name~{i}, "/rho function"],
             Label "ρ [C/m³]", Help "Charge density"},
-          epsr~{i} = {1, Visible (material~{i} == 2),
-            Name StrCat["Parameters/Materials/", name~{i}, "/epsr value"],
-            Label "ε_r", Help "Relative dielectric permittivity"},
-          epsr_fct~{i} = {"1", Visible (material~{i} == 3),
-            Name StrCat["Parameters/Materials/", name~{i}, "/epsr function"],
-            Label "ε_r", Help "Relative dielectric permittivity"},
-          epsr_preset~{i} = {1, Visible (material~{i} == 4), ReadOnlyRange 1,
+          epsr_preset~{i} = {0, Visible (material~{i} == 1),
             Choices{ 1:#linearDielectricMaterials() = linearDielectricMaterials() },
             Name StrCat["Parameters/Materials/", name~{i}, "/epsr preset"],
-            Label "Name"}
+            Label "Choice"}
+          epsr~{i} = {1, Visible (material~{i} == 1 && epsr_preset~{i} == 0),
+            Name StrCat["Parameters/Materials/", name~{i}, "/epsr value"],
+            Label "ε_r", Help "Relative dielectric permittivity"},
+          epsr_fct~{i} = {"1", Visible (material~{i} == 1 && epsr_preset~{i} == 1),
+            Name StrCat["Parameters/Materials/", name~{i}, "/epsr function"],
+            Label "ε_r", Help "Relative dielectric permittivity"}
         ];
-        If(material~{i} == 0) // charged, constant
-          rho[ Region[tag~{i}] ] = rho~{i};
-          epsr[ Region[tag~{i}] ] = 1;
-        ElseIf(material~{i} == 1) // charged, function
-          Parse[ StrCat["rho[ Region[tag~{i}] ] = ", rho_fct~{i}, ";"] ];
-          epsr[ Region[tag~{i}] ] = 1;
-        ElseIf(material~{i} == 2) // linear, constant
-          epsr[ Region[tag~{i}] ] = epsr~{i};
-        ElseIf(material~{i} == 3) // linear, function
-          Parse[ StrCat["epsr[ Region[tag~{i}] ] = ", epsr_fct~{i}, ";"] ];
-        ElseIf(material~{i} == 4) // linear, preset
-          Parse[ StrCat[ "epsr[ Region[tag~{i}] ] = ",
-            linearDielectricMaterials(epsr_preset~{i} - 1), "_epsilonr;"] ];
-        ElseIf(material~{i} == 5) // infinite regions
-          epsr[ Region[tag~{i}] ] = 1;
+        reg = Sprintf["[Region[%g]]", tag~{i}]; str = "";
+        If(material~{i} == 0 && rho_preset~{i} == 0) // charged, constant
+          str = StrCat[
+            "rho", reg, Sprintf[" = %g; ", rho~{i}], "epsr", reg, "= 1; "
+          ];
+        ElseIf(material~{i} == 0 && rho_preset~{i} == 1) // charged, function
+          str = StrCat[
+            "rho", reg, " = ", rho_fct~{i}, ";", "epsr", reg, " = 1; "
+          ];
+        ElseIf(material~{i} == 1 && epsr_preset~{i} == 0) // linear, constant
+          str = StrCat[
+            "epsr", reg, Sprintf[" = %g; ", epsr~{i}]
+          ];
+        ElseIf(material~{i} == 1 && epsr_preset~{i} == 1) // linear, function
+          str = StrCat[
+            "epsr", reg, " = ", epsr_fct~{i}, "; "
+          ];
+        ElseIf(material~{i} == 1 && epsr_preset~{i} > 1) // linear, preset
+          str = StrCat[
+            "epsr", reg, " = ", linearDielectricMaterials(epsr_preset~{i}), "_epsilonr;"
+          ];
+        ElseIf(material~{i} == 2) // infinite regions
+          str = StrCat[
+            "epsr", reg, " = 1; "
+          ];
+        EndIf
+        Parse[str];
+        If(export && StrLen[str])
+          Printf(Str[str]) >> Str[exportFile];
         EndIf
       EndIf
     EndFor
+    If(export)
+      Printf('}') >> Str[exportFile];
+    EndIf
   EndIf
 
   // constant parameters needed by the model
@@ -167,6 +201,7 @@ Integration {
 }
 
 If(interactive)
+  // FIXME: need to export constraints, too!
   Constraint {
     { Name ElectricScalarPotential;
       Case {

@@ -93,7 +93,7 @@ Group {
 If(interactive)
   Include "MaterialDatabase.pro"
   If(export)
-    Printf('Include "MaterialDatabase.pro";') > Str[exportFile];
+    Printf('Include "MaterialDatabase.pro";') >> Str[exportFile];
   EndIf
 EndIf
 
@@ -183,7 +183,7 @@ Function{
         reg = Sprintf["[Region[%g]]", tag~{i}]; str = ""; str2 = "";
         If(material~{i} == 0 && hc_preset~{i} == 0) // magnet, constant
           str = StrCat[
-            "hc", reg, " = ", Sprintf["Vector[%g, %g, %g]; ", hcx~{i}, hcy~{i}, hcz~{i}],
+            "hc", reg, Sprintf[" = Vector[%g, %g, %g]; ", hcx~{i}, hcy~{i}, hcz~{i}],
             "mu", reg, " = mu0; ", "nu", reg, " = 1/mu0; "
           ];
         ElseIf(material~{i} == 0 && hc_preset~{i} == 1) // magnet, function
