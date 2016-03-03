@@ -188,12 +188,9 @@ Function{
           str = StrCat["hc", reg, " = ", hc_fct~{i}, "; ", "mu", reg, " = mu0; ",
             "nu", reg, " = 1/mu0; "];
         ElseIf(material~{i} == 0 && hc_preset~{i} > 1) // magnet, preset
-          str = StrCat[
-            "_MaterialName_ = Str[ permanentMagnetMaterials(hc_preset~{i}) ]; ",
-            "hc", reg, " = ", _MaterialName_, "_hc; ",
-            "mu", reg, " = ", _MaterialName_, "_mur*mu0; ",
-            "nu", reg, " = 1/(", _MaterialName_, "_mur*mu0); "
-          ];
+          n = Str[ permanentMagnetMaterials(hc_preset~{i}) ];
+          str = StrCat["hc", reg, " = ", n, "_hc; ", "mu", reg, " = ", n,
+            "_mur*mu0; ", "nu", reg, " = 1/(", n, "_mur*mu0); "];
         ElseIf(material~{i} == 1 && js_preset~{i} == 0) // current source, constant
           str = StrCat["js", reg, " = ", Sprintf["Vector[%g, %g, %g]; ", jsx~{i},
             jsy~{i}, jsz~{i}], "mu", reg, " = mu0; ", "nu", reg, " = 1/mu0; "];
@@ -208,8 +205,8 @@ Function{
             " = 1/((", mur_fct~{i}, ")*mu0); "];
         ElseIf(material~{i} == 2 && mur_preset~{i} > 1) // linear material, preset
           n = Str[ linearMagneticMaterials(mur_preset~{i}) ];
-          str = StrCat["mu", reg, " = ", n, "_mur*mu0; ", "nu", reg,
-            " = 1/(", n, "_mur*mu0); "];
+          str = StrCat["mu", reg, " = ", n, "_mur*mu0; ", "nu", reg, " = 1/(",
+            n, "_mur*mu0); "];
         ElseIf(material~{i} == 3) // nonlinear material
           If(bh_preset~{i} == 0) // data points
             n = Sprintf["UserMaterialPts_%g", i];
@@ -218,9 +215,9 @@ Function{
               "'; Call DefineMaterialFunctions; "];
           ElseIf(bh_preset~{i} == 1) // function
             n = Sprintf["UserMaterialFct_%g", i];
-            str = StrCat[n, "_nu[] = ", nu_fct~{i}, "; ", n,
-              "_dnudb2[] = ", dnudb2_fct~{i}, "; ", n, "_mu[] = ", nu_fct~{i}, "; ",
-              n, "_dmudh2[] = ", dnudb2_fct~{i}, "; ", "_MaterialName_ = '", n,
+            str = StrCat[n, "_nu[] = ", nu_fct~{i}, "; ", n, "_dnudb2[] = ",
+              dnudb2_fct~{i}, "; ", n, "_mu[] = ", nu_fct~{i}, "; ", n,
+              "_dmudh2[] = ", dnudb2_fct~{i}, "; ", "_MaterialName_ = '", n,
               "'; Call DefineMaterialFunctions; "];
           Else // preset
             n = Str[ nonlinearMagneticMaterials(bh_preset~{i}) ];

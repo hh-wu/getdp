@@ -9,7 +9,7 @@
 // interactively.
 
 DefineConstant[
-  Flag_AnalysisType = {0, Choices{0="Scalar potential"},
+  analysisType = {0, Choices{0="Scalar potential"},
     Help Str[
       "Electrostatic model definitions",
       "e: electric field [V/m]",

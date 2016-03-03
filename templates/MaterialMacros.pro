@@ -59,7 +59,7 @@ Macro DefineMaterialFunctions
   // Permanent magnets
   // --------------------------------------------------------------
 
-  If(Exists[StringToName[StrCat[n, "_br"]]])
+  If(Exists[StringToName[StrCat[n, "_hc"]]])
     If(Exists[permanentMagnetMaterials] && !StrFind[n, "UserMaterial"])
       permanentMagnetMaterials() += Str[n];
     EndIf
