@@ -1,3 +1,8 @@
+DefineConstant[
+  mu0 = 4*Pi*1e-7,
+  eps0 = 8.854187818e-12
+];
+
 Function{
   Materials() = Str[];
 
@@ -66,6 +71,12 @@ Function{
   SteelAnalytic_dnudb2[] = 18. * Exp[1.8*SquNorm[$1]] ;
   SteelAnalytic_mu[] = ***;
   SteelAnalytic_dmudh2[] = ***;
+
+  // NdFeB magnet
+  Materials() += Str[ "NdFeB" ];
+  NdFeB_mur = 1;
+  NdFeB_sigma = 2e5;
+  NdFeB_hc = 1.85/mu0;
 }
 
 // Create all the functions required by the formulations for each material
@@ -73,9 +84,10 @@ Function{
 Include "MaterialMacros.pro";
 
 Function{
-  linearMagneticMaterials() = Str[];
-  nonlinearMagneticMaterials() = Str[];
-  linearDielectricMaterials() = Str[];
+  linearMagneticMaterials() = Str["Constant", "Function"];
+  nonlinearMagneticMaterials() = Str["Data points", "Function"];
+  permanentMagnetMaterials() = Str["Constant", "Function"];
+  linearDielectricMaterials() = Str["Constant", "Function"];
   For i In {1 : #Materials()}
     _MaterialName_ = Str[ Materials(i - 1) ];
     Call DefineMaterialFunctions;
