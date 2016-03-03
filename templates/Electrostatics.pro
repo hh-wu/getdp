@@ -131,29 +131,18 @@ Function{
         ];
         reg = Sprintf["[Region[%g]]", tag~{i}]; str = "";
         If(material~{i} == 0 && rho_preset~{i} == 0) // charged, constant
-          str = StrCat[
-            "rho", reg, Sprintf[" = %g; ", rho~{i}], "epsr", reg, "= 1; "
-          ];
+          str = StrCat["rho", reg, Sprintf[" = %g; ", rho~{i}], "epsr", reg, "= 1; "];
         ElseIf(material~{i} == 0 && rho_preset~{i} == 1) // charged, function
-          str = StrCat[
-            "rho", reg, " = ", rho_fct~{i}, ";", "epsr", reg, " = 1; "
-          ];
+          str = StrCat["rho", reg, " = ", rho_fct~{i}, ";", "epsr", reg, " = 1; "];
         ElseIf(material~{i} == 1 && epsr_preset~{i} == 0) // linear, constant
-          str = StrCat[
-            "epsr", reg, Sprintf[" = %g; ", epsr~{i}]
-          ];
+          str = StrCat["epsr", reg, Sprintf[" = %g; ", epsr~{i}]];
         ElseIf(material~{i} == 1 && epsr_preset~{i} == 1) // linear, function
-          str = StrCat[
-            "epsr", reg, " = ", epsr_fct~{i}, "; "
-          ];
+          str = StrCat["epsr", reg, " = ", epsr_fct~{i}, "; "];
         ElseIf(material~{i} == 1 && epsr_preset~{i} > 1) // linear, preset
-          str = StrCat[
-            "epsr", reg, " = ", linearDielectricMaterials(epsr_preset~{i}), "_epsilonr;"
-          ];
+          str = StrCat["epsr", reg, " = ", linearDielectricMaterials(epsr_preset~{i}),
+            "_epsilonr;"];
         ElseIf(material~{i} == 2) // infinite regions
-          str = StrCat[
-            "epsr", reg, " = 1; "
-          ];
+          str = StrCat["epsr", reg, " = 1; "];
         EndIf
         Parse[str];
         If(export && StrLen[str])

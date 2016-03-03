@@ -182,15 +182,11 @@ Function{
         ];
         reg = Sprintf["[Region[%g]]", tag~{i}]; str = ""; str2 = "";
         If(material~{i} == 0 && hc_preset~{i} == 0) // magnet, constant
-          str = StrCat[
-            "hc", reg, Sprintf[" = Vector[%g, %g, %g]; ", hcx~{i}, hcy~{i}, hcz~{i}],
-            "mu", reg, " = mu0; ", "nu", reg, " = 1/mu0; "
-          ];
+          str = StrCat["hc", reg, Sprintf[" = Vector[%g, %g, %g]; ", hcx~{i},
+            hcy~{i}, hcz~{i}], "mu", reg, " = mu0; ", "nu", reg, " = 1/mu0; "];
         ElseIf(material~{i} == 0 && hc_preset~{i} == 1) // magnet, function
-          str = StrCat[
-            "hc", reg, " = ", hc_fct~{i}, "; ",
-            "mu", reg, " = mu0; ", "nu", reg, " = 1/mu0; "
-          ];
+          str = StrCat["hc", reg, " = ", hc_fct~{i}, "; ", "mu", reg, " = mu0; ",
+            "nu", reg, " = 1/mu0; "];
         ElseIf(material~{i} == 0 && hc_preset~{i} > 1) // magnet, preset
           str = StrCat[
             "_MaterialName_ = Str[ permanentMagnetMaterials(hc_preset~{i}) ]; ",
@@ -199,55 +195,41 @@ Function{
             "nu", reg, " = 1/(", _MaterialName_, "_mur*mu0); "
           ];
         ElseIf(material~{i} == 1 && js_preset~{i} == 0) // current source, constant
-          str = StrCat[
-            "js", reg, " = ", Sprintf["Vector[%g, %g, %g]; ", jsx~{i}, jsy~{i}, jsz~{i}],
-            "mu", reg, " = mu0; ", "nu", reg, " = 1/mu0; "
-          ];
+          str = StrCat["js", reg, " = ", Sprintf["Vector[%g, %g, %g]; ", jsx~{i},
+            jsy~{i}, jsz~{i}], "mu", reg, " = mu0; ", "nu", reg, " = 1/mu0; "];
         ElseIf(material~{i} == 1 && js_preset~{i} == 1) // current source, function
-          str = StrCat[
-            "js", reg, " = ", js_fct~{i}, "; ",
-            "mu", reg, " = mu0; ", "nu", reg, " = 1/mu0; "
-          ];
+          str = StrCat["js", reg, " = ", js_fct~{i}, "; ", "mu", reg, " = mu0; ",
+            "nu", reg, " = 1/mu0; "];
         ElseIf(material~{i} == 2 && mur_preset~{i} == 0) // linear material, constant
-          str = StrCat[
-            "mu", reg, " = ", Sprintf["%g", mur~{i}], "*mu0; ",
-            "nu", reg, " = 1/(", Sprintf["%g", mur~{i}], "*mu0); "
-          ];
+          str = StrCat["mu", reg, " = ", Sprintf["%g", mur~{i}], "*mu0; ",
+            "nu", reg, " = 1/(", Sprintf["%g", mur~{i}], "*mu0); "];
         ElseIf(material~{i} == 2 && mur_preset~{i} == 1) // linear material, function
-          str = StrCat[
-            "mu", reg, " = (", mur_fct~{i}, ")*mu0; ",
-            "nu", reg, " = 1/((", mur_fct~{i}, ")*mu0); "
-          ];
+          str = StrCat["mu", reg, " = (", mur_fct~{i}, ")*mu0; ", "nu", reg,
+            " = 1/((", mur_fct~{i}, ")*mu0); "];
         ElseIf(material~{i} == 2 && mur_preset~{i} > 1) // linear material, preset
           n = Str[ linearMagneticMaterials(mur_preset~{i}) ];
-          str = StrCat[
-            "mu", reg, " = ", n, "_mur*mu0; ", "nu", reg, " = 1/(", n, "_mur*mu0); "
-          ];
+          str = StrCat["mu", reg, " = ", n, "_mur*mu0; ", "nu", reg,
+            " = 1/(", n, "_mur*mu0); "];
         ElseIf(material~{i} == 3) // nonlinear material
           If(bh_preset~{i} == 0) // data points
             n = Sprintf["UserMaterialPts_%g", i];
-            str = StrCat[
-              n, "_b_list() = ", b_list~{i}, "; ", n, "_h_list() = ", h_list~{i}, "; ",
-              "_MaterialName_ = '", n, "'; Call DefineMaterialFunctions; "
-            ];
+            str = StrCat[n, "_b_list() = ", b_list~{i}, "; ", n, "_h_list() = ",
+              h_list~{i}, "; ", "_MaterialName_ = '", n,
+              "'; Call DefineMaterialFunctions; "];
           ElseIf(bh_preset~{i} == 1) // function
             n = Sprintf["UserMaterialFct_%g", i];
-            str = StrCat[
-              n, "_nu[] = ", nu_fct~{i}, "; ", n, "_dnudb2[] = ", dnudb2_fct~{i}, "; ",
-              n, "_mu[] = ", nu_fct~{i}, "; ", n, "_dmudh2[] = ", dnudb2_fct~{i}, "; ",
-              "_MaterialName_ = '", n, "'; Call DefineMaterialFunctions; "
-            ];
+            str = StrCat[n, "_nu[] = ", nu_fct~{i}, "; ", n,
+              "_dnudb2[] = ", dnudb2_fct~{i}, "; ", n, "_mu[] = ", nu_fct~{i}, "; ",
+              n, "_dmudh2[] = ", dnudb2_fct~{i}, "; ", "_MaterialName_ = '", n,
+              "'; Call DefineMaterialFunctions; "];
           Else // preset
             n = Str[ nonlinearMagneticMaterials(bh_preset~{i}) ];
           EndIf
-          str2 = StrCat[
-            "mu", reg, " = ", n, "_mu[$1]; ", "dbdh_NL", reg, " = ", n, "_dbdh_NL[$1]; ",
-            "nu", reg, " = ", n, "_nu[$1]; ", "dhdb_NL", reg, " = ", n, "_dhdb_NL[$1]; "
-          ];
+          str2 = StrCat["mu", reg, " = ", n, "_mu[$1]; ", "dbdh_NL", reg, " = ",
+            n, "_dbdh_NL[$1]; ", "nu", reg, " = ", n, "_nu[$1]; ",
+            "dhdb_NL", reg, " = ", n, "_dhdb_NL[$1]; "];
         ElseIf(material~{i} == 4) // infinite regions
-          str = StrCat[
-            "mu", reg, " = mu0; ", "nu", reg, " = 1/mu0; "
-          ];
+          str = StrCat["mu", reg, " = mu0; ", "nu", reg, " = 1/mu0; "];
         EndIf
         Parse[str];
         If(export && StrLen[str])
