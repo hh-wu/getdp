@@ -180,7 +180,7 @@ struct doubleXstring{
 %type <l>  PostQuantities SubPostQuantities PostSubOperations
 %type <c>  NameForMathFunction NameForFunction CharExpr CharExprNoVar
 %type <c>  StrCat StringIndex String__Index CallArg
-%type <c>  LP RP
+%type <c>  LP RP SendToFile
 %type <t>  Quantity_Def
 %type <l>  TimeLoopAdaptiveSystems TimeLoopAdaptivePOs IterativeLoopSystems
 %type <l>  IterativeLoopPOs
@@ -189,7 +189,7 @@ struct doubleXstring{
 %token  tEND tDOTS
 %token  tStr
 %token  tStrCat tSprintf tPrintf tMPI_Printf tRead tPrintConstants
-%token  tStrCmp tStrFind
+%token  tStrCmp tStrFind tStrLen
 %token  tStrChoice tUpperCase tLowerCase tLowerCaseIn
 %token  tNbrRegions tGetRegion tStringToName tNameToString
 %token  tFor tEndFor tIf tElseIf tElse tEndIf tMacro tReturn tCall tCallTest
@@ -7260,6 +7260,17 @@ Printf :
  | tMPI_Printf { $$ = -3; }
 ;
 
+SendToFile :
+    '>'
+    {
+      $$ = (char*)"w";
+    }
+  | tGREATERGREATER
+    {
+      $$ = (char*)"a";
+    }
+;
+
 Affectation :
 
    tDefineConstant '[' DefineConstants ']' tEND
@@ -7544,6 +7555,21 @@ Affectation :
       Message::Direct($1, $3);
     }
 
+  | Printf LP CharExprNoVar RP SendToFile CharExpr tEND
+    {
+      std::string tmp = Fix_RelativePath($6);
+      FILE *fp = FOpen(tmp.c_str(), $5);
+      if(!fp){
+	vyyerror("Unable to open file '%s'", tmp.c_str());
+      }
+      else{
+	fprintf(fp, "%s\n", $3);
+	fclose(fp);
+      }
+      Free($3);
+      Free($6);
+    }
+
   | Printf String__Index tEND
     {
       Constant_S.Name = $2;
@@ -7576,6 +7602,30 @@ Affectation :
 	vyyerror("Too many arguments (%d) in Printf", i);
       else
 	Message::Direct($1, tmpstr);
+      Free($3);
+      List_Delete($5);
+    }
+
+  | Printf LP CharExprNoVar ',' RecursiveListOfFExpr RP SendToFile CharExpr tEND
+    {
+      std::string tmp = Fix_RelativePath($8);
+      FILE *fp = FOpen(tmp.c_str(), $7);
+      if(!fp){
+	vyyerror("Unable to open file '%s'", tmp.c_str());
+      }
+      else{
+        char tmpstr[256];
+        int i = Print_ListOfDouble($3, $5, tmpstr);
+        if(i < 0)
+          vyyerror("Too few arguments in Printf");
+        else if(i > 0)
+          vyyerror("Too many arguments (%d) in Printf", i);
+        else
+          fprintf(fp, "%s\n", $3);
+	fclose(fp);
+      }
+      Free($3);
+      Free($8);
       List_Delete($5);
     }
 
@@ -8939,6 +8989,18 @@ StrCmp :
       else {
 	vyyerror("Undefined argument for StrCmp function") ;  $$ = 1 ;
       }
+      Free($3);
+      Free($5);
+    }
+  | tStrLen LP CharExpr RP
+    {
+      if ($3 != NULL) {
+	$$ = strlen($3);
+      }
+      else {
+	vyyerror("Undefined argument for StrLen function") ;  $$ = 0 ;
+      }
+      Free($3);
     }
   | tStrFind LP CharExpr ',' CharExpr RP
     {
@@ -8947,7 +9009,8 @@ StrCmp :
         $$ = 1.;
       else
         $$ = 0.;
-      Free($3); Free($5);
+      Free($3);
+      Free($5);
     }
   ;
 

@@ -53,6 +53,7 @@ string     {alpha}({alpha}|{digit})*
 "/*"                         cStyleComments();
 "//"                         cxxStyleComments();
 "\""                         { parseString('\"'); return tBIGSTR; }
+"\'"                         { parseString('\''); return tBIGSTR; }
 "="                          return tDEF;
 "*^"                         return tCROSSPRODUCT;
 "/\\"                        return tCROSSPRODUCT;
@@ -381,6 +382,7 @@ StrCat                       return tStrCat;
 StrChoice                    return tStrChoice;
 StrCmp                       return tStrCmp;
 StrFind                      return tStrFind;
+StrLen                       return tStrLen;
 StringToName                 return tStringToName;
 S2N                          return tStringToName;
 SubFunction                  return tSubFunction;

@@ -1040,9 +1040,10 @@ purely constant expressions, denoted by the metasyntactic variable
   @var{math-function-id} [ < @var{expression-cst-list} > ] |
   #@var{constant-id}() |
   @var{constant-id}(@var{expression-cst}) |
-  StrFind[ @var{expression-char}, @var{expression-char}] |
-  StrCmp[ @var{expression-char}, @var{expression-char}] |
-  StringToName[@var{expression-char}] | S2N[@var{expression-char}] |
+  StrFind[ @var{expression-char}, @var{expression-char} ] |
+  StrCmp[ @var{expression-char}, @var{expression-char} ] |
+  StrLen[ @var{expression-char} ] |
+  StringToName[ @var{expression-char} ] | S2N[ @var{expression-char} ] |
   Exists[ @var{string} ] | NbrRegions [ @var{string} ] |
   GetNumber[ @var{expression-char} <, @var{expression-cst},> ]
 @end example
@@ -1051,10 +1052,11 @@ purely constant expressions, denoted by the metasyntactic variable
 occurrence of the second @var{expression-char}.  @code{StrCmp} compares
 the two strings (returns an integer greater than, equal to, or less than
 0, according as the first string is greater than, equal to, or less than
-the second string).  @code{StringToName} creates a name from the
-provided string. @code{Exists} checks for the existance of a constant or
-a function. @code{NbrRegions} counts the numbers of elementary regions
-in a group. @code{GetNumber} allows to get the value of a ONELAB number
+the second string).  @code{StrLen} returns the length of the
+string. @code{StringToName} creates a name from the provided
+string. @code{Exists} checks for the existance of a constant or a
+function. @code{NbrRegions} counts the numbers of elementary regions in
+a group. @code{GetNumber} allows to get the value of a ONELAB number
 variable (the optional second argument specifies the default value
 returned if the variable does not exist.)
 
@@ -1128,8 +1130,8 @@ for the definition of constants is:
   @var{constant-id} = DefineNumber[ @var{constant-def}, @var{onelab-options} ];
   @var{string-id} <()> = @var{string-def}; |
   @var{string-id} = DefineString[ @var{string-def}, @var{onelab-options} ]; |
-  Printf [ "@var{string}" ]; |
-  Printf [ "@var{string}", @var{expression-cst-list} ]; |
+  Printf [ "@var{string}" ] < > | >> @var{string-def} >; |
+  Printf [ "@var{string}", @var{expression-cst-list} ] < > | >> @var{string-def} >; |
   Read [ @var{constant-id} ] ; |
   Read [ @var{constant-id} , @var{expression-cst} ]; |
   UndefineConstant | Delete [ @var{constant-id} ] ;
