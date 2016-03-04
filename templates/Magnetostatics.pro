@@ -9,14 +9,14 @@
 // conditions for each physical group, interactively.
 
 DefineConstant[
-  analysisType = {1, Choices{0="Scalar potential", 1="Vector potential"},
+  formulationType = {1, Choices{0="Scalar potential", 1="Vector potential"},
     Help Str[
       "Magnetostatic model definitions",
       "h: magnetic field [A/m]",
       "b: magnetic flux density [T]",
       "phi: scalar magnetic potential (h = -grad phi) [A]",
       "a: vector magnetic potential (b = curl a) [T.m]"],
-    Name "GetDP/Analysis"},
+    Name "GetDP/Formulation"},
   exportFile = "export.pro"
 ];
 
@@ -44,8 +44,8 @@ Group {
       If(dim~{i} < modelDim)
         DefineConstant[
           bc~{i} = {0, ReadOnlyRange 1, Choices{
-              0=StrCat["Neumann: zero ", StrChoice[analysisType, "h.t", "b.n"]],
-              1=StrCat["Dirichlet: fixed ", StrChoice[analysisType, "b.n", "h.t"]]
+              0=StrCat["Neumann: zero ", StrChoice[formulationType, "h.t", "b.n"]],
+              1=StrCat["Dirichlet: fixed ", StrChoice[formulationType, "b.n", "h.t"]]
             },
             Name StrCat["Parameters/Boundary conditions/", name~{i}, "/0Type"]}
         ];
@@ -425,7 +425,7 @@ Resolution {
   }
   { Name Analysis;
     System {
-      If(analysisType == 0)
+      If(formulationType == 0)
         { Name A; NameOfFormulation MagSta_phi; }
       Else
         { Name A; NameOfFormulation MagSta_a; }
@@ -442,7 +442,7 @@ Resolution {
         }
       EndIf
       SaveSolution[A];
-      If(analysisType == 0)
+      If(formulationType == 0)
         PostOperation[MagSta_phi];
       Else
         PostOperation[MagSta_a];

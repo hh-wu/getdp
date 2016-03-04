@@ -9,7 +9,7 @@
 // interactively.
 
 DefineConstant[
-  analysisType = {0, Choices{0="Scalar potential"},
+  formulationType = {0, Choices{0="Scalar potential"},
     Help Str[
       "Electrostatic model definitions",
       "e: electric field [V/m]",
@@ -17,7 +17,7 @@ DefineConstant[
       "v: scalar electric potential (e = -grad v) [V]",
       "rho: charge density [C/m³]",
       "q: charge [C]"],
-    Name "GetDP/Analysis"},
+    Name "GetDP/Formulation"},
   exportFile = "export.pro"
 ];
 
