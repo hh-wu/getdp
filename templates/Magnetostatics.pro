@@ -287,35 +287,27 @@ Integration {
 }
 
 If(interactive)
-  // FIXME: need to export constraints, too!
-  Constraint {
-    { Name phi; // scalar magnetic potential
-      Case {
-        For i In {1:numPhysicals}
-          If(dim~{i} < modelDim)
-            If(bc~{i} == 1)
-              { Region Region[tag~{i}]; Value bc_val~{i}; }
-            EndIf
-          EndIf
-        EndFor
-      }
-    }
-    { Name a; // vector magnetic potential
-      Case {
-        For i In {1:numPhysicals}
-          If(dim~{i} < modelDim)
-            If(bc~{i} == 1)
-              { Region Region[tag~{i}]; Value bc_val~{i}; }
-            EndIf
-          EndIf
-        EndFor
-      }
-    }
-  }
-EndIf
-
-If(interactive && export)
-  Printf('Include "Magnetostatics.pro";') >> Str[exportFile];
+  constraintNames() = Str["phi", "a"];
+  constraintNum() = {1, 1};
+  For j In {0:#constraintNames()-1}
+    str = StrCat["Constraint { { Name ", constraintNames(j), "; Case { "];
+    For i In {1:numPhysicals}
+      If(dim~{i} < modelDim)
+        If(bc~{i} == constraintNum(j))
+          str = StrCat[str, Sprintf["{ Region Region[%g]; Value %g; } ",
+              tag~{i}, bc_val~{i}]];
+        EndIf
+      EndIf
+    EndFor
+    str = StrCat[str, "} } }"];
+    Parse[str];
+    If(export)
+      Printf(Str[str]) >> Str[exportFile];
+    EndIf
+  EndFor
+  If(export)
+    Printf('Include "Magnetostatics.pro";') >> Str[exportFile];
+  EndIf
 EndIf
 
 Constraint {
