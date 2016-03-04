@@ -51,8 +51,6 @@ Group {
               3="Floating conductor: fixed v"
             },
             Name StrCat["Parameters/Boundary conditions/", name~{i}, "/0Type"]}
-          bc_val~{i} = {0., Visible bc~{i},
-            Name StrCat["Parameters/Boundary conditions/", name~{i}, "/1Value"]}
         ];
         If(bc~{i} == 1)
           str = StrCat["Domain_Dirichlet += ", reg];
@@ -105,7 +103,10 @@ Function{
     EndIf
     For i In {1:numPhysicals}
       If(dim~{i} < modelDim)
-        // nothing
+        DefineConstant[
+          bc_val~{i} = {0., Visible bc~{i},
+            Name StrCat["Parameters/Boundary conditions/", name~{i}, "/1Value"]}
+        ];
       Else
         DefineConstant[
           rho_preset~{i} = {0, Visible (material~{i} == 0),

@@ -48,8 +48,6 @@ Group {
               1=StrCat["Dirichlet: fixed ", StrChoice[analysisType, "b.n", "h.t"]]
             },
             Name StrCat["Parameters/Boundary conditions/", name~{i}, "/0Type"]}
-          bc_val~{i} = {0., Visible bc~{i},
-            Name StrCat["Parameters/Boundary conditions/", name~{i}, "/1Value"]}
         ];
         If(bc~{i} == 1)
           str = StrCat["Domain_Dirichlet += ", reg];
@@ -108,7 +106,10 @@ Function{
     EndIf
     For i In {1:numPhysicals}
       If(dim~{i} < modelDim)
-        // nothing
+        DefineConstant[
+          bc_val~{i} = {0., Visible bc~{i},
+            Name StrCat["Parameters/Boundary conditions/", name~{i}, "/1Value"]}
+        ];
       Else
         DefineConstant[
           hc_preset~{i} = {0, Visible (material~{i} == 0),
