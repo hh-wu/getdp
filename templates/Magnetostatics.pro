@@ -112,7 +112,8 @@ Function{
         ];
       Else
         DefineConstant[
-          hc_preset~{i} = {0, Visible (material~{i} == 0),
+          hc_preset~{i} = {#permanentMagnetMaterials() > 2 ? 2 : 0,
+            Visible (material~{i} == 0),
             Choices{ 0:#permanentMagnetMaterials()-1 = permanentMagnetMaterials() },
             Name StrCat["Parameters/Materials/", name~{i}, "/1hc preset"],
             Label "Choice"},
@@ -146,7 +147,8 @@ Function{
             Visible (material~{i} == 1 && js_preset~{i} == 1),
             Name StrCat["Parameters/Materials/", name~{i}, "/js function"],
             Label "j_s [A/m²]", Help "Current density"},
-          mur_preset~{i} = {0, Visible (material~{i} == 2),
+          mur_preset~{i} = {#linearMagneticMaterials() > 2 ? 2 : 0,
+            Visible (material~{i} == 2),
             Choices{ 0:#linearMagneticMaterials()-1 = linearMagneticMaterials() },
             Name StrCat["Parameters/Materials/", name~{i}, "/1mur preset"],
             Label "Choice"}
@@ -156,7 +158,8 @@ Function{
           mur_fct~{i} = {"1", Visible (material~{i} == 2 && mur_preset~{i} == 1),
             Name StrCat["Parameters/Materials/", name~{i}, "/mur function"],
             Label "μ_r", Help "Relative magnetic permeability"},
-          bh_preset~{i} = {0, Visible (material~{i} == 3),
+          bh_preset~{i} = {#nonlinearMagneticMaterials() > 2 ? 2 : 0,
+            Visible (material~{i} == 3),
             Choices{ 0:#nonlinearMagneticMaterials()-1 = nonlinearMagneticMaterials() },
             Name StrCat["Parameters/Materials/", name~{i}, "/1bh preset"],
             Label "Choice"}
