@@ -192,42 +192,31 @@ Integration {
 }
 
 If(interactive)
-  // FIXME: need to export constraints, too!
-  Constraint {
-    { Name ElectricScalarPotential;
-      Case {
-        For i In {1:numPhysicals}
-          If(dim~{i} < modelDim)
-            If(bc~{i} == 1)
-              { Region Region[tag~{i}]; Value bc_val~{i}; }
-            EndIf
-          EndIf
-        EndFor
-      }
-    }
-    { Name GlobalElectricPotential;
-      Case {
-        For i In {1:numPhysicals}
-          If(dim~{i} < modelDim)
-            If(bc~{i} == 3)
-              { Region Region[tag~{i}]; Value bc_val~{i}; }
-            EndIf
-          EndIf
-        EndFor
-      }
-    }
-    { Name GlobalElectricCharge;
-      Case {
-        For i In {1:numPhysicals}
-          If(dim~{i} < modelDim)
-            If(bc~{i} == 2)
-              { Region Region[tag~{i}]; Value bc_val~{i}; }
-            EndIf
-          EndIf
-        EndFor
-      }
-    }
-  }
+  constraintNames() = Str[
+    "ElectricScalarPotential",
+    "GlobalElectricPotential",
+    "GlobalElectricCharge"
+  ];
+  constraintNum() = {1, 3, 2};
+  For j In {0:#constraintNames()-1}
+    str = StrCat["Constraint { { Name ", constraintNames(j), "; Case { "];
+    For i In {1:numPhysicals}
+      If(dim~{i} < modelDim)
+        If(bc~{i} == constraintNum(j))
+          str = StrCat[str, Sprintf["{ Region Region[%g]; Value %g; } ",
+              tag~{i}, bc_val~{i}]];
+        EndIf
+      EndIf
+    EndFor
+    str = StrCat[str, "} } }"];
+    Parse[str];
+    If(export)
+      Printf(Str[str]) >> Str[exportFile];
+    EndIf
+  EndFor
+  If(export)
+    Printf('Include "Electrostatics.pro";') >> Str[exportFile];
+  EndIf
 EndIf
 
 FunctionSpace {
