@@ -1,6 +1,6 @@
-2.8.0: new Parse[], {Set,Get}{Number,String}[] and OnPositiveSideOf commands;
-added support for lists of strings; various improvements and bug fixes for
-better interactive use with ONELAB.
+2.8.0 (March 5, 2016): new Parse[], {Set,Get}{Number,String}[] and
+OnPositiveSideOf commands; added support for lists of strings; various
+improvements and bug fixes for better interactive use with ONELAB.
 
 2.7.0 (November 7, 2015): new Else/ElseIf commands; new timing and memory
 reporting functions.
