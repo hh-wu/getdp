@@ -124,18 +124,22 @@ Function{
             Choices{ 0:#linearDielectricMaterials()-1 = linearDielectricMaterials() },
             Name StrCat["Parameters/Materials/", name~{i}, "/epsr preset"],
             Label "Choice"}
-          epsr~{i} = {1, Visible (material~{i} == 1 && epsr_preset~{i} == 0),
+          epsr~{i} = {1, Visible (material~{i} == 0 && rho_preset~{i} == 0) ||
+                                 (material~{i} == 1 && epsr_preset~{i} == 0),
             Name StrCat["Parameters/Materials/", name~{i}, "/epsr value"],
             Label "ε_r", Help "Relative dielectric permittivity"},
-          epsr_fct~{i} = {"1", Visible (material~{i} == 1 && epsr_preset~{i} == 1),
+          epsr_fct~{i} = {"1", Visible (material~{i} == 0 && rho_preset~{i} == 1) ||
+                                       (material~{i} == 1 && epsr_preset~{i} == 1),
             Name StrCat["Parameters/Materials/", name~{i}, "/epsr function"],
             Label "ε_r", Help "Relative dielectric permittivity"}
         ];
         reg = Sprintf["[Region[%g]]", tag~{i}]; str = "";
         If(material~{i} == 0 && rho_preset~{i} == 0) // charged, constant
-          str = StrCat["rho", reg, Sprintf[" = %g; ", rho~{i}], "epsr", reg, "= 1; "];
+          str = StrCat["rho", reg, Sprintf[" = %g; ", rho~{i}], "epsr", reg,
+            Sprintf[" = %g; ", epsr~{i}]];
         ElseIf(material~{i} == 0 && rho_preset~{i} == 1) // charged, function
-          str = StrCat["rho", reg, " = ", rho_fct~{i}, ";", "epsr", reg, " = 1; "];
+          str = StrCat["rho", reg, " = ", rho_fct~{i}, ";", "epsr", reg, " = ",
+            epsr_fct~{i}, "; "];
         ElseIf(material~{i} == 1 && epsr_preset~{i} == 0) // linear, constant
           str = StrCat["epsr", reg, Sprintf[" = %g; ", epsr~{i}]];
         ElseIf(material~{i} == 1 && epsr_preset~{i} == 1) // linear, function
@@ -143,7 +147,7 @@ Function{
         ElseIf(material~{i} == 1 && epsr_preset~{i} > 1) // linear, preset
           str = StrCat["epsr", reg, " = ", linearDielectricMaterials(epsr_preset~{i}),
             "_epsilonr;"];
-        ElseIf(material~{i} == 2) // infinite regions
+        ElseIf(material~{i} == 2) // infinite air region
           str = StrCat["epsr", reg, " = 1; "];
         EndIf
         Parse[str];
