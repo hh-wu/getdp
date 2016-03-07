@@ -494,7 +494,7 @@ void F_Complex(F_ARG)
 	Message::Error("Mixed type of arguments in function 'Complex'");
       V->Val[MAX_DIM*k] = (A+k)->Val[0] ;
     }
-    for (k = Current.NbrHar < NbrArg; k++) {
+    for (k = Current.NbrHar ; k < NbrArg ; k++) {
       V->Val[MAX_DIM*k] = 0. ;
     }
     break;
@@ -508,7 +508,7 @@ void F_Complex(F_ARG)
       V->Val[MAX_DIM*k+1] = (A+k)->Val[1] ;
       V->Val[MAX_DIM*k+2] = (A+k)->Val[2] ;
     }
-    for (k = Current.NbrHar < NbrArg; k++) {
+    for (k = Current.NbrHar ; k < NbrArg ; k++) {
       V->Val[MAX_DIM*k  ] = 0. ;
       V->Val[MAX_DIM*k+1] = 0. ;
       V->Val[MAX_DIM*k+2] = 0. ;
@@ -526,7 +526,7 @@ void F_Complex(F_ARG)
       V->Val[MAX_DIM*k+4] = (A+k)->Val[4] ;
       V->Val[MAX_DIM*k+5] = (A+k)->Val[5] ;
     }
-    for (k = Current.NbrHar < NbrArg; k++) {
+    for (k = Current.NbrHar ; k < NbrArg ; k++) {
       V->Val[MAX_DIM*k  ] = 0. ;
       V->Val[MAX_DIM*k+1] = 0. ;
       V->Val[MAX_DIM*k+2] = 0. ;
@@ -550,7 +550,7 @@ void F_Complex(F_ARG)
       V->Val[MAX_DIM*k+7] = (A+k)->Val[7] ;
       V->Val[MAX_DIM*k+8] = (A+k)->Val[8] ;
     }
-    for (k = Current.NbrHar < NbrArg; k++) {
+    for (k = Current.NbrHar ; k < NbrArg ; k++) {
       V->Val[MAX_DIM*k  ] = 0. ;
       V->Val[MAX_DIM*k+1] = 0. ;
       V->Val[MAX_DIM*k+2] = 0. ;
