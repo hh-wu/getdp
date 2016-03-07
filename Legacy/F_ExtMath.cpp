@@ -455,11 +455,36 @@ void F_Interval (F_ARG)
 
 void F_Complex(F_ARG)
 {
-  /* Warning: this function takes a variable number of arguments
-     (depending on Current.NbrHar). There is no test to check if this
-     number is correct (it just has to be a multiple of 2). */
+  int NbrPar = Fct->NbrParameters ;
+  int NbrArg = Fct->NbrArguments ;
+
+  if(NbrArg){
+    if(NbrArg > NBR_MAX_HARMONIC){
+      Message::Error("Too many arguments for Complex[]");
+      return;
+    }
+  }
+  else if(NbrPar){
+    if(NbrPar > NBR_MAX_HARMONIC){
+      Message::Error("Too many parameters for Complex[]");
+      return;
+    }
+  }
+  else{
+    Message::Error("Missing arguments or parameters for Complex[]");
+    return;
+  }
 
   int k ;
+
+  if(NbrPar){
+    for (k = 0 ; k < Current.NbrHar ; k++)
+      V->Val[MAX_DIM*k] = Fct->Para[k] ;
+    for (k = Current.NbrHar ; k < NbrPar ; k++)
+      V->Val[MAX_DIM*k] = 0. ;
+    V->Type = SCALAR;
+    return;
+  }
 
   switch(A->Type){
 
@@ -468,6 +493,9 @@ void F_Complex(F_ARG)
       if((A+k)->Type != A->Type)
 	Message::Error("Mixed type of arguments in function 'Complex'");
       V->Val[MAX_DIM*k] = (A+k)->Val[0] ;
+    }
+    for (k = Current.NbrHar < NbrArg; k++) {
+      V->Val[MAX_DIM*k] = 0. ;
     }
     break;
 
@@ -479,6 +507,11 @@ void F_Complex(F_ARG)
       V->Val[MAX_DIM*k  ] = (A+k)->Val[0] ;
       V->Val[MAX_DIM*k+1] = (A+k)->Val[1] ;
       V->Val[MAX_DIM*k+2] = (A+k)->Val[2] ;
+    }
+    for (k = Current.NbrHar < NbrArg; k++) {
+      V->Val[MAX_DIM*k  ] = 0. ;
+      V->Val[MAX_DIM*k+1] = 0. ;
+      V->Val[MAX_DIM*k+2] = 0. ;
     }
     break;
 
@@ -492,6 +525,14 @@ void F_Complex(F_ARG)
       V->Val[MAX_DIM*k+3] = (A+k)->Val[3] ;
       V->Val[MAX_DIM*k+4] = (A+k)->Val[4] ;
       V->Val[MAX_DIM*k+5] = (A+k)->Val[5] ;
+    }
+    for (k = Current.NbrHar < NbrArg; k++) {
+      V->Val[MAX_DIM*k  ] = 0. ;
+      V->Val[MAX_DIM*k+1] = 0. ;
+      V->Val[MAX_DIM*k+2] = 0. ;
+      V->Val[MAX_DIM*k+3] = 0. ;
+      V->Val[MAX_DIM*k+4] = 0. ;
+      V->Val[MAX_DIM*k+5] = 0. ;
     }
     break;
 
@@ -508,6 +549,17 @@ void F_Complex(F_ARG)
       V->Val[MAX_DIM*k+6] = (A+k)->Val[6] ;
       V->Val[MAX_DIM*k+7] = (A+k)->Val[7] ;
       V->Val[MAX_DIM*k+8] = (A+k)->Val[8] ;
+    }
+    for (k = Current.NbrHar < NbrArg; k++) {
+      V->Val[MAX_DIM*k  ] = 0. ;
+      V->Val[MAX_DIM*k+1] = 0. ;
+      V->Val[MAX_DIM*k+2] = 0. ;
+      V->Val[MAX_DIM*k+3] = 0. ;
+      V->Val[MAX_DIM*k+4] = 0. ;
+      V->Val[MAX_DIM*k+5] = 0. ;
+      V->Val[MAX_DIM*k+6] = 0. ;
+      V->Val[MAX_DIM*k+7] = 0. ;
+      V->Val[MAX_DIM*k+8] = 0. ;
     }
     break;
 

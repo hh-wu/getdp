@@ -937,7 +937,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"Period"            , (CAST)F_Period           ,   1,   1 },
   {"F_Period"          , (CAST)F_Period           ,   1,   1 },
   {"Interval"          , (CAST)F_Interval         ,   3,   3 },
-  {"Complex"           , (CAST)F_Complex          ,   0,  -2 },
+  {"Complex"           , (CAST)F_Complex          ,  -2,  -2 },
   {"Complex_MH"        , (CAST)F_Complex_MH       ,  -1,  -2 },
   {"Re"                , (CAST)F_Re               ,   0,   1 },
   {"Im"                , (CAST)F_Im               ,   0,   1 },
