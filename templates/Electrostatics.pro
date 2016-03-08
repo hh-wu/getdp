@@ -23,8 +23,13 @@ DefineConstant[
 
 Group {
   // generic groups needed by the model
-  DefineGroup[ DomainCC_Ele, DomainQ_Ele, SkinDomainC_Ele, Domain_Inf,
-    Domain_Dirichlet ];
+  DefineGroup[
+    DomainCC_Ele, // non-conducting domain
+    DomainQ_Ele, // domain with impose volume charge density
+    SkinDomainC_Ele, // boundary of conductors
+    Domain_Inf, // infinite region
+    Domain_Dirichlet // Dirichlet boundary conditions
+  ];
 
   // interactive model setup if no region currently defined
   interactive = !NbrRegions[];
@@ -94,7 +99,10 @@ EndIf
 
 Function{
   // generic functions needed by the model
-  DefineFunction[ epsr, rho ];
+  DefineFunction[
+    epsr, // relative permittivity
+    rho // charge density
+  ];
 
   // interactive construction of material properties
   If(interactive)

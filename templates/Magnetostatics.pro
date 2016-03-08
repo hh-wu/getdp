@@ -22,8 +22,14 @@ DefineConstant[
 
 Group {
   // generic groups needed by the model
-  DefineGroup[ Domain_M, Domain_S, Domain_Inf, Domain_NL, Domain_Mag,
-    Domain_Dirichlet ];
+  DefineGroup[
+    Domain_M, // magnets
+    Domain_S, // imposed current density
+    Domain_Inf, // infinite domains
+    Domain_NL, // nonlinear magnetic materials
+    Domain_Mag, // linear magnetic materials
+    Domain_Dirichlet // Dirichlet boundary conditions
+  ];
 
   // interactive model setup if no region currently defined
   interactive = !NbrRegions[];
@@ -97,7 +103,13 @@ EndIf
 
 Function{
   // generic functions needed by the model
-  DefineFunction[ mu, nu, hc, js, dhdb_NL, dbdh_NL ];
+  DefineFunction[
+    mu, // magnetic permeability
+    nu, // magnetic reluctivity (= 1/nu)
+    hc, // coercive magnetic field (in magnets)
+    js, // source current density
+    dhdb_NL, dbdh_NL // nonlinear parts of the Jacobian
+  ];
 
   // definition of these function in interactive mode
   If(interactive)
