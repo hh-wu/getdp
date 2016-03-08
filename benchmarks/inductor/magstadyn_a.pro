@@ -26,7 +26,7 @@ Function{
     Flag_NL = 0,
     Flag_NL_Newton_Raphson = {1, Choices{0,1}, Name "Input/41Newton-Raphson iteration",
       Visible Flag_NL},
-    po = "Output/"
+    po = "Output 2D/"
   ];
 
   DefineFunction[
@@ -47,8 +47,7 @@ Group {
   If(!Flag_ConductingCore)
     DomainCC = Region[ {Air, AirInf, Inds, Core} ];
     DomainC  = Region[ { } ];
-  EndIf
-  If(Flag_ConductingCore)
+  Else
     DomainCC = Region[ {Air, AirInf, Inds} ];
     DomainC  = Region[ {Core} ];
   EndIf
@@ -56,8 +55,7 @@ Group {
 
   If(!Flag_ConductingCore)
     DomainCC += Region[ {Core} ];
-  EndIf
-  If(Flag_ConductingCore)
+  Else
     DomainC += Region[ {Core} ];
   EndIf
 
@@ -132,7 +130,6 @@ Constraint {
 
   { Name Voltage_2D ;
     Case {
-      //{ Region Inds ; Value 1.3 ; TimeFunction IA[]; }
       If(Flag_ConductingCore)
         { Region Core ; Value 0; }
       EndIf
@@ -264,46 +261,26 @@ Resolution {
     Operation {
       CreateDir["res/"];
 
-      InitSolution[A] ;
-
-      PostOperation[Get_Analytical] ; // Values from magnetic circuit
-
       If(Flag_AnalysisType==0 || Flag_AnalysisType==2) // Static or Frequency-domain
         If(!Flag_NL)
           Generate[A] ; Solve[A] ;
-        EndIf
-        If(Flag_NL && Flag_SNES)
-          GenerateJac[A];
-          SolveNL[A];
-        EndIf
-        If(Flag_NL && !Flag_SNES)
+          Else
           IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
-            Test[ $Iteration == 1 || !Flag_NL_BFGS ]{
-              GenerateJac[A] ;
-            }
-            {
-              Error["implement GenerateJacBFGS"]; //GenerateJacBFGS[A] ;
-            }
-            SolveJac[A] ;
+              GenerateJac[A] ; SolveJac[A] ;
           }
         EndIf
         SaveSolution[A] ;
 
         PostOperation[Get_LocalFields] ;
         PostOperation[Get_GlobalQuantities] ;
-        /*
-        Test[ Fabs[$MagEnergy - 11.42] > 1 ]{
-          Error["Computed magnetic energy is out of confidence bound"];
-        }
-        */
       EndIf
 
       If(Flag_AnalysisType==1) // Time-domain
+      InitSolution[A] ;
         TimeLoopTheta[time0, timemax, delta_time, 1.]{ // Implicit Euler (theta=1)
           If(!Flag_NL)
             Generate[A]; Solve[A];
-          EndIf
-          If(Flag_NL)
+            Else
             IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor] {
               GenerateJac[A] ; SolveJac[A] ; }
           EndIf
@@ -345,11 +322,6 @@ PostProcessing {
 
       { Name jz ; Value {
           Term { [ CompZ[-sigma[]*(Dt[{a}]+{ur})] ]       ; In DomainC ; Jacobian Vol ; }
-        }
-      }
-
-      { Name dhdb ; Value {
-          Term { [ dhdb[{d a}] ] ; In DomainNL ; Jacobian Vol ; }
         }
       }
 
@@ -435,14 +407,14 @@ PostOperation Get_LocalFields UsingPost MagStaDyn_a_2D {
 
 
 PostOperation Get_GlobalQuantities UsingPost MagStaDyn_a_2D {
-  /*
+
   Print[ I, OnRegion Ind_1, Format Table,
     File > StrCat[Dir,"I",ExtGnuplot], LastTimeStepOnly,
     SendToServer StrCat[po,"20I [A]"], Color "LightYellow" ];
   Print[ U, OnRegion Ind_1, Format Table,
     File > StrCat[Dir,"U",ExtGnuplot], LastTimeStepOnly,
     SendToServer StrCat[po,"30U [V]"], Color "LightYellow" ];
-    */
+
   Print[ Flux[Inds], OnGlobal, Format TimeTable,
     File > StrCat[Dir,"Flux",ExtGnuplot], LastTimeStepOnly, StoreInVariable $Flux,
     SendToServer StrCat[po,"40Flux [Wb]"],  Color "LightYellow" ];

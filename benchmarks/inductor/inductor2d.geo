@@ -3,8 +3,10 @@
 // characteristic lengths
 lc0  = wcoil/nn_wcore;
 lc1  = ag/nn_airgap;
-lcri = Pi*Rint/2/nn_ri;
-lcro = Pi*Rext/2/nn_ro;
+lc2  = 2*lc1;
+
+lcri = Pi*Rint/4/nn_ri;
+lcro = Pi*Rext/4/nn_ro;
 
 // center of the model at (0,0)
 cen = newp; Point(newp) = {0,0,0, lc0};
@@ -15,8 +17,8 @@ pnt0[] += newp; Point(newp) = { wcoreE,         htot/2-hcoreE, 0, lc1};
 pnt0[] += newp; Point(newp) = { wcoreE+wcoil,   htot/2-hcoreE, 0, lc1};
 pnt0[] += newp; Point(newp) = { 2*wcoreE+wcoil, htot/2-hcoreE, 0, lc1};
 
-pnt1[] += newp; Point(newp) = { wcoreE,       htot/2-hcoreE+hcoil, 0, lc0};
-pnt1[] += newp; Point(newp) = { wcoreE+wcoil, htot/2-hcoreE+hcoil, 0, lc0};
+pnt1[] += newp; Point(newp) = { wcoreE,       htot/2-hcoreE+hcoil, 0, lc2};
+pnt1[] += newp; Point(newp) = { wcoreE+wcoil, htot/2-hcoreE+hcoil, 0, lc2};
 
 pnt2[] += newp; Point(newp) = { 0,             htot/2-hcoreE+hcoil+wcoreE, 0, lc0};
 pnt2[] += newp; Point(newp) = { 2*wcoreE+wcoil, htot/2-hcoreE+hcoil+wcoreE, 0, lc0};

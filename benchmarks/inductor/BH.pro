@@ -8,7 +8,7 @@ Function{
   dhdb_1a_NL[] = 2*dnudb2_1a[$1#1] * SquDyadicProduct[#1]  ;
 
   // interpolated
-  Mat1_h = {
+  Mat1_h() = {
     0.0000e+00, 5.5023e+00, 1.1018e+01, 1.6562e+01, 2.2149e+01, 2.7798e+01, 3.3528e+01,
     3.9363e+01, 4.5335e+01, 5.1479e+01, 5.7842e+01, 6.4481e+01, 7.1470e+01, 7.8906e+01,
     8.6910e+01, 9.5644e+01, 1.0532e+02, 1.1620e+02, 1.2868e+02, 1.4322e+02, 1.6050e+02,
@@ -17,7 +17,7 @@ Function{
     4.5110e+03, 6.3187e+03, 8.9478e+03, 1.2802e+04, 1.8500e+04, 2.6989e+04, 3.9739e+04,
     5.9047e+04, 8.8520e+04, 1.3388e+05, 2.0425e+05, 3.1434e+05, 4.8796e+05, 7.6403e+05
   } ;
-  Mat1_b = {
+  Mat1_b() = {
     0.0000e+00, 5.0000e-02, 1.0000e-01, 1.5000e-01, 2.0000e-01, 2.5000e-01, 3.0000e-01,
     3.5000e-01, 4.0000e-01, 4.5000e-01, 5.0000e-01, 5.5000e-01, 6.0000e-01, 6.5000e-01,
     7.0000e-01, 7.5000e-01, 8.0000e-01, 8.5000e-01, 9.0000e-01, 9.5000e-01, 1.0000e+00,
@@ -31,7 +31,7 @@ Function{
   Mat1_nu = Mat1_h() / Mat1_b();
   Mat1_nu(0) = Mat1_nu(1);
 
-  Mat1_nu_b2 = ListAlt[Mat1_b2(), Mat1_nu()] ;
+  Mat1_nu_b2() = ListAlt[Mat1_b2(), Mat1_nu()] ;
   nu_1[] = InterpolationLinear[ SquNorm[$1] ]{ Mat1_nu_b2() } ;
   dnudb2_1[] = dInterpolationLinear[SquNorm[$1]]{ Mat1_nu_b2() } ;
   h_1[] = nu_1[$1] * $1 ;
@@ -48,7 +48,7 @@ Function{
   dhdb_3kWa_NL[] = 2*dnudb2_3kWa[$1#1] * SquDyadicProduct[#1]  ;
 
   // interpolated
-  Mat3kW_h = {
+  Mat3kW_h() = {
     0.0000e+00, 6.1465e+00, 1.2293e+01, 1.8440e+01, 2.4588e+01, 3.0736e+01, 3.6886e+01,
     4.3037e+01, 4.9190e+01, 5.5346e+01, 6.1507e+01, 6.7673e+01, 7.3848e+01, 8.0036e+01,
     8.6241e+01, 9.2473e+01, 9.8745e+01, 1.0508e+02, 1.1150e+02, 1.1806e+02, 1.2485e+02,
@@ -57,7 +57,7 @@ Function{
     4.9870e+03, 9.3633e+03, 1.8037e+04, 3.5518e+04, 7.1329e+04, 1.4591e+05, 3.0380e+05,
     6.4363e+05, 1.3872e+06, 3.0413e+06, 6.7826e+06, 1.5386e+07, 3.5504e+07, 8.3338e+07
   } ;
-  Mat3kW_b = {
+  Mat3kW_b() = {
     0.0000e+00, 5.0000e-02, 1.0000e-01, 1.5000e-01, 2.0000e-01, 2.5000e-01, 3.0000e-01,
     3.5000e-01, 4.0000e-01, 4.5000e-01, 5.0000e-01, 5.5000e-01, 6.0000e-01, 6.5000e-01,
     7.0000e-01, 7.5000e-01, 8.0000e-01, 8.5000e-01, 9.0000e-01, 9.5000e-01, 1.0000e+00,
@@ -67,11 +67,11 @@ Function{
     2.1000e+00, 2.1500e+00, 2.2000e+00, 2.2500e+00, 2.3000e+00, 2.3500e+00, 2.4000e+00
   } ;
 
-  Mat3kW_b2 = Mat3kW_b()^2;
-  Mat3kW_nu = Mat3kW_h() / Mat3kW_b();
+  Mat3kW_b2() = Mat3kW_b()^2;
+  Mat3kW_nu() = Mat3kW_h() / Mat3kW_b();
   Mat3kW_nu(0) = Mat3kW_nu(1);
 
-  Mat3kW_nu_b2  = ListAlt[Mat3kW_b2(), Mat3kW_nu()] ;
+  Mat3kW_nu_b2()  = ListAlt[Mat3kW_b2(), Mat3kW_nu()] ;
   nu_3kW[] = InterpolationLinear[SquNorm[$1]]{ Mat3kW_nu_b2() } ;
   dnudb2_3kW[] = dInterpolationLinear[SquNorm[$1]]{ Mat3kW_nu_b2() } ;
   h_3kW[] = nu_3kW[$1] * $1 ;
@@ -80,7 +80,7 @@ Function{
 
   // BH-curve of team 20 problem
 
-  MatT20_h = {
+  MatT20_h() = {
     0.0000e+00,1.3341e+01,2.7000e+01,4.1681e+01,5.8000e+01,7.6769e+01,1.0000e+02,1.2720e+02,
     1.5300e+02,1.7218e+02,1.8500e+02,1.9445e+02,2.0500e+02,2.1877e+02,2.3300e+02,2.4418e+02,
     2.5500e+02,2.6852e+02,2.8500e+02,3.0253e+02,3.2000e+02,3.3647e+02,3.5500e+02,3.7763e+02,
@@ -92,7 +92,7 @@ Function{
     3.2900e+04,3.6855e+04,4.2700e+04,5.1268e+04,6.1700e+04,7.2615e+04,8.4300e+04,9.6947e+04,
     1.1000e+05,1.2262e+05,1.3500e+05,1.4730e+05} ;
 
-  MatT20_b = {
+  MatT20_b() = {
     0.0000e+00,4.6061e-03,1.0000e-02,1.6915e-02,2.5000e-02,3.4676e-02,5.0000e-02,7.2763e-02,
     1.0000e-01,1.2684e-01,1.5000e-01,1.7058e-01,2.0000e-01,2.4573e-01,3.0000e-01,3.5120e-01,
     4.0000e-01,4.4953e-01,5.0000e-01,5.4984e-01,6.0000e-01,6.4982e-01,7.0000e-01,7.4979e-01,
@@ -104,11 +104,11 @@ Function{
     2.0500e+00,2.0744e+00,2.1000e+00,2.1244e+00,2.1500e+00,2.1744e+00,2.2000e+00,2.2244e+00,
     2.2500e+00,2.2744e+00,2.3000e+00,2.3243e+00} ;
 
-  MatT20_b2 = MatT20_b()^2;
-  MatT20_nu = MatT20_h() / MatT20_b();
+  MatT20_b2() = MatT20_b()^2;
+  MatT20_nu() = MatT20_h() / MatT20_b();
   MatT20_nu(0) = MatT20_nu(1);
 
-  MatT20_nu_b2 = ListAlt[MatT20_b2(), MatT20_nu()] ;
+  MatT20_nu_b2() = ListAlt[MatT20_b2(), MatT20_nu()] ;
   nu_T20[] = InterpolationLinear[SquNorm[$1]]{ MatT20_nu_b2() } ;
   dnudb2_T20[] = dInterpolationLinear[SquNorm[$1]]{ MatT20_nu_b2() } ;
   h_T20[] = nu_T20[$1] * $1 ;
@@ -118,25 +118,25 @@ Function{
 
   // BH data EIcore
 
-  MatEIcore_h = {0.,
+  MatEIcore_h() = {0.,
     2.1827e+02,3.8272e+02,5.2036e+02,7.1167e+02,
     8.4921e+02,1.0405e+03,1.4741e+03,2.0409e+03,
     3.0109e+03,5.0572e+03,7.5335e+03,1.0037e+04,
     1.2486e+04,1.5015e+04,1.7464e+04,2.0021e+04,
     2.2040e+04,2.5000e+04} ;
 
-  MatEIcore_b = {0.,
+  MatEIcore_b() = {0.,
     2.0329e-01,4.0287e-01,6.0986e-01,8.0575e-01,
     1.0053e+00,1.1975e+00,1.4008e+00,1.5154e+00,
     1.5967e+00,1.6706e+00,1.7076e+00,1.7335e+00,
     1.7446e+00,1.7593e+00,1.7667e+00,1.7815e+00,
     1.7889e+00,1.7963e+00} ;
 
-  MatEIcore_b2 = MatEIcore_b()^2 ;
-  MatEIcore_nu = MatEIcore_h() / MatEIcore_b() ;
+  MatEIcore_b2() = MatEIcore_b()^2 ;
+  MatEIcore_nu() = MatEIcore_h() / MatEIcore_b() ;
   MatEIcore_nu(0) = MatEIcore_nu(1);
 
-  MatEIcore_nu_b2  = ListAlt[MatEIcore_b2(), MatEIcore_nu()] ;
+  MatEIcore_nu_b2()  = ListAlt[MatEIcore_b2(), MatEIcore_nu()] ;
   nu_EIcore[] = InterpolationLinear[SquNorm[$1]]{ MatEIcore_nu_b2() } ;
   dnudb2_EIcore[] = dInterpolationLinear[SquNorm[$1]]{ MatEIcore_nu_b2() } ;
   h_EIcore[] = nu_EIcore[$1] * $1 ;

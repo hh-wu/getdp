@@ -46,8 +46,7 @@ Group {
   If (Flag_3Dmodel==0)
     Ind_1_ = Region[{(COIL+1)}] ;
     Inds   = Region[ {Ind_1, Ind_1_} ];
-  EndIf
-  If (Flag_3Dmodel==1)
+    Else
     Inds  = Region[ {Ind_1} ];
     SkinInds = Region[ {SkinInd_1} ];
     If(Flag_ConductingCore)
@@ -64,8 +63,7 @@ Group {
 
   If(Flag_OpenCore)
     Air  += Region[ {AirGap} ];
-  EndIf
-  If(!Flag_OpenCore)
+    Else
     Core += Region[ {AirGap} ];
   EndIf
 
@@ -76,8 +74,7 @@ Group {
  If(Flag_Symmetry)
    If(Flag_3Dmodel==0)
      Surf_bn0 = Region[ {AXIS_Y} ];
-   EndIf
-   If(Flag_3Dmodel==1)
+     Else
      Surf_bn0 = Region[ {CUT_YZ, CUT_XY} ];
    EndIf
  EndIf
@@ -102,8 +99,7 @@ Function {
     Idir[#{COIL}]     =  1. ;
     Idir[#{(COIL+1)}] = -1. ;
     vDir[]   = Vector[ 0, 0, Idir[]] ;
-  EndIf
-  If(Flag_3Dmodel==1)
+    Else
     SurfCoil[] = SurfaceArea[]{SURF_ELEC0} ;
     vDir[] = (
       (Fabs[X[]]<=wcoreE && Z[]>= Lz/2) ? Vector [1, 0, 0]:
@@ -117,16 +113,14 @@ Function {
   EndIf
 
   pA = (Flag_AnalysisType==0) ? Pi/2: 0.;
-  IA[] = II * F_Sin_wt_p[]{2*Pi*Freq, pA} ;
-  js0[] = IA[]*NbWires[]/SurfCoil[] * vDir[] ; // DomainS
+  IA[]  = F_Sin_wt_p[]{2*Pi*Freq, pA} ;
+  js0[] = II*IA[]*NbWires[]/SurfCoil[] * vDir[] ; // DomainS
 
   // Material properties
   mu0 = 4.e-7 * Pi ;
 
   // Use if linear problem
   DefineConstant[
-    sigma_core = { 1e5/10, Label "Core conductivity [S/m]",
-                   Name "Input/44Core Conductivity", Highlight "AliceBlue", Visible Flag_ConductingCore},
     sigma_coil = { sigma_cu, Label "Conductivity [S/m]",
       Name "Input/4Coil Parameters/5Conductivity", Highlight "AliceBlue"},
     mur_fe = { 2000., Min 100, Max 2000, Step 100,
@@ -141,7 +135,6 @@ Function {
 
  If(Flag_3Dmodel==0)
    Include "magstadyn_a.pro" ;
- EndIf
- If(Flag_3Dmodel==1)
+   Else
    Include "magstadyn_av_js0_3d.pro" ;
  EndIf

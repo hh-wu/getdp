@@ -3,7 +3,7 @@
 cm = 1e-2; // Unit
 
 pp  = "Input/10Geometric dimensions/0";
-pp2 = "Input/10Geometric dimensions/01Shell radius/";
+pp2 = "Input/10Geometric dimensions/1Shell radius/";
 ppm = "Input/11Mesh control (Nbr of divisions)/";
 
 DefineConstant[
@@ -33,9 +33,9 @@ DefineConstant[
     Highlight Str[colorpp],Closed close_menu},
   hcoil  = {9*cm,  Name StrCat[pp, "4Coil height [m]"],
     Highlight Str[colorpp]},
-  wcoil  = {3*cm, Name StrCat[pp, "3Coil width [m]"],
-    Highlight Str[colorpp]},
-  hcoreE = {hcoil+wcoreE, Name StrCat[pp, "2E-core height of legs [m]"], ReadOnly 1,
+  wcoil  = {wcoreE, ReadOnly 1, Name StrCat[pp, "3Coil width [m]"],
+    Highlight Str[colorro]},
+  hcoreE = {hcoil+wcoreE, ReadOnly 1, Name StrCat[pp, "2E-core height of legs [m]"],
     Highlight Str[colorro]},
   ag     = {(TotalMemory <= 2048) ? 1*cm : 0.33*cm, Min 0.1*cm, Max 4*cm, Step 0.2*cm,
     ReadOnlyRange 1, Visible (Flag_OpenCore==1),
@@ -54,17 +54,16 @@ htot = hcoil + wcoreE + ag + wcoreE ; // Total height of EI-core, including gap
 // radious for surrounding air with transformation to infinity
 
 If(Flag_Infinity==1)
-  label_Rext = "Outer [m]";
-EndIf
-If(Flag_Infinity==0)
-  label_Rext = "[m]";
+  label_Rext = "1Outer [m]";
+  Else
+  label_Rext = "1[m]";
 EndIf
 
 DefineConstant[
   Rint = {20*cm, Min 0.15, Max 0.9, Step 0.1, Name StrCat[pp2, "0Inner [m]"],
     Visible (Flag_Infinity==1), Highlight Str[colorpp] },
   Rext = {28*cm, Min Rint, Max 1, Step 0.1, Name StrCat[pp2, StrCat["1", label_Rext]],
-    Label Str[label_Rext], Visible 1, Highlight Str[colorpp] }
+    Visible 1, Highlight Str[colorpp] }
 ];
 
 Val_Rint = Rint;
