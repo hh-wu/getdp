@@ -1,10 +1,14 @@
 //Flag_3Dmodel = 1;
 
+Mesh.Optimize = 1;
+
 // characteristic lengths
 lc0  = wcoil/nn_wcore;
 lc1  = ag/nn_airgap;
-lcri = Pi*Rint/2/nn_ri;
-lcro = Pi*Rext/2/nn_ro;
+lc2  = 2*lc1;
+
+lcri = Pi*Rint/4/nn_ri;
+lcro = Pi*Rext/4/nn_ro;
 
 // center of the model at (0,0)
 cen = newp; Point(newp) = {0,0,0, lc0};
@@ -15,9 +19,9 @@ pnt0[] += newp; Point(newp) = { wcoreE,         htot/2-hcoreE, 0, lc1};
 pnt0[] += newp; Point(newp) = { wcoreE+wcoil,   htot/2-hcoreE, 0, lc1};
 pnt0[] += newp; Point(newp) = { 2*wcoreE+wcoil, htot/2-hcoreE, 0, lc1};
 
-pnt1[] += newp; Point(newp) = { 0,           htot/2-hcoreE+hcoil, 0, lc0};
-pnt1[] += newp; Point(newp) = { wcoreE,       htot/2-hcoreE+hcoil, 0, lc0};
-pnt1[] += newp; Point(newp) = { wcoreE+wcoil, htot/2-hcoreE+hcoil, 0, lc0};
+pnt1[] += newp; Point(newp) = { 0,           htot/2-hcoreE+hcoil, 0, lc2};
+pnt1[] += newp; Point(newp) = { wcoreE,       htot/2-hcoreE+hcoil, 0, lc2};
+pnt1[] += newp; Point(newp) = { wcoreE+wcoil, htot/2-hcoreE+hcoil, 0, lc2};
 
 pnt2[] += newp; Point(newp) = { 0,             htot/2-hcoreE+hcoil+wcoreE, 0, lc0};
 pnt2[] += newp; Point(newp) = { 2*wcoreE+wcoil, htot/2-hcoreE+hcoil+wcoreE, 0, lc0};
@@ -188,30 +192,14 @@ EndIf
 // Some colors... for aesthetics :-)
 //=================================================
 
-all_surf_Coil[] = Boundary{Volume{vol_Coil[]};};
-all_surf_ECore[] = CombinedBoundary{Volume{vol_ECore[]};};
-all_surf_ICore[] = CombinedBoundary{Volume{vol_ICore[]};};
-
-all_surf_Airgap[] = Boundary{Volume{vol_Airgap[]};};
-all_surf_Air[] = Boundary{Volume{vol_Air[]};};
-all_surf_AirInf[] = Boundary{Volume{vol_AirInf[]};};
-
-Color SkyBlue {
-  Volume{vol_Air[], vol_AirInf[]}; Surface{all_surf_Air[],all_surf_AirInf[]};
-}
-Color SteelBlue {
-  Volume{ vol_ECore[], vol_ICore[]}; Surface{ all_surf_ECore[], all_surf_ICore[] };
-}
+Recursive Color SkyBlue { Volume{vol_Air[], vol_AirInf[]}; }
+Recursive Color SteelBlue {  Volume{ vol_ECore[], vol_ICore[]}; }
 If(Flag_OpenCore==1)
-  Color SkyBlue {Volume{vol_Airgap[]}; Surface{all_surf_Airgap[]}; }
+  Recursive Color SkyBlue {Volume{vol_Airgap[]}; }
+  Else
+  Recursive Color SteelBlue {Volume{vol_Airgap[]}; }
 EndIf
-If(Flag_OpenCore==0)
-  Color SteelBlue {Volume{vol_Airgap[]}; Surface{all_surf_Airgap[]};}
-EndIf
-
-Color Red {
-  Volume{vol_Coil[]}; Surface{all_surf_Coil[]};
-}
+Recursive Color Red { Volume{vol_Coil[]}; }
 
 //=================================================
 // Physical regions for FE analysis with GetDP
@@ -221,7 +209,7 @@ Physical Volume(ECORE) = vol_ECore[];
 Physical Volume(ICORE) = vol_ICore[];
 
 Physical Volume(COIL) = vol_Coil[];
-Physical Volume(LEG_INCOIL) = vol_in_Coil[];
+//Physical Volume(LEG_INCOIL) = vol_in_Coil[];
 
 bnd_surf_Coil[] = CombinedBoundary{Volume{vol_Coil[]};};
 If(Flag_Symmetry)
@@ -242,8 +230,8 @@ If(Flag_Symmetry)
   EndIf
 EndIf
 
-Physical Surface(SKINCOIL_) = bnd_surf_in_Coil[];
-Physical Surface(CUTCOIL) =   surf_cut_coil[];
+//Physical Surface(SKINCOIL_) = bnd_surf_in_Coil[];
+//Physical Surface(CUTCOIL) =   surf_cut_coil[];
 
 Physical Volume(AIRGAP) = vol_Airgap[]; //either Fe or air
 If(Flag_Infinity==0)
@@ -264,6 +252,8 @@ If(Flag_Symmetry)
   EndIf
 EndIf
 
+all_surf_ECore[] = CombinedBoundary{Volume{vol_ECore[]};};
+all_surf_ICore[] = CombinedBoundary{Volume{vol_ICore[]};};
 If(Flag_Symmetry)
   all_surf_ICore[] -= surf_cut_xy[];
   all_surf_ECore[] -= surf_cut_xy[];

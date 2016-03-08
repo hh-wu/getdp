@@ -22,11 +22,6 @@ Function{
     timemax = NbT*T,
     NbSteps = 100,
     delta_time = T/NbSteps,
-    FillFactor_Winding = {1, Name "Input/4Coil Parameters/3Fill factor",
-      Highlight "AliceBlue", Visible 1},
-    Factor_R_3DEffects = {1, Name "Input/4Coil Parameters/9fact", Label "3D factor",
-      Highlight "AliceBlue", Visible 1},
-    // Increasing the resistance by 50% == 1.5
     II, VV,
     Flag_NL = 0,
     Flag_NL_Newton_Raphson = {1, Choices{0,1}, Name "Input/41Newton-Raphson iteration",
@@ -91,8 +86,7 @@ Function {
   sigma[Core] = sigma_core ;
   rho[] = 1/sigma[] ;
 
-  Rb[] = Factor_R_3DEffects*FillFactor_Winding*Lz*NbWires[]^2/SurfCoil[]/sigma[] ;
-  Resistance[Inds] = Rb[] ;
+  Resistance[Inds] = Lz*NbWires[]^2/SurfCoil[]/sigma[] ;
 }
 
 //-------------------------------------------------------------------------------------
@@ -239,7 +233,7 @@ Formulation {
       Galerkin { DtDof [ Lz * NbWires[]/SurfCoil[] * Dof{a} , {ir} ] ;
         In DomainB ; Jacobian Vol ; Integration I1 ; }
       GlobalTerm { [ Dof{Ub}/SymmetryFactor , {Ib} ] ; In DomainB ; }
-      Galerkin { [ Rb[]/SurfCoil[]* Dof{ir} , {ir} ] ;
+      Galerkin { [ Resistance[]/SurfCoil[]* Dof{ir} , {ir} ] ;
         In DomainB ; Jacobian Vol ; Integration I1 ; } // Resistance term
 
       // GlobalTerm { [ Resistance[]  * Dof{Ib} , {Ib} ] ; In DomainB ; }
@@ -410,12 +404,6 @@ PostProcessing {
         }
       }
 
-      // Getting the value of some functions
-     For k In {0:NbAvailableMagCircuits-1}
-       { Name Reluctance~{k} ; Value { Term { Type Global; [ Reluctance~{k}[] ] ; In DomainDummy ; } } }
-       { Name Inductance~{k} ; Value { Term { Type Global; [ Inductance~{k}[] ] ; In DomainDummy ; } } }
-     EndFor
-
       { Name Inductance_from_Flux ; Value { Term { Type Global; [ $Flux * 1e3/II ] ; In DomainDummy ; } } }
       { Name Inductance_from_MagEnergy ; Value { Term { Type Global; [ 2 * $MagEnergy * 1e3/(II*II) ] ; In DomainDummy ; } } }
 
@@ -445,24 +433,16 @@ PostOperation Get_LocalFields UsingPost MagStaDyn_a_2D {
 
 }
 
-PostOperation Get_Analytical UsingPost MagStaDyn_a_2D {
-  For k In {0:NbAvailableMagCircuits-1}
-    Print[ Reluctance~{k}, OnRegion DomainDummy, Format Table, LastTimeStepOnly,
-      File StrCat[Dir,Sprintf("Reluctance%g",k),ExtGnuplot] ];
-    Print[ Inductance~{k}, OnRegion DomainDummy, Format Table, LastTimeStepOnly,
-      File StrCat[Dir, Sprintf("Inductance%g",k),ExtGnuplot],
-      SendToServer StrCat[po,Sprintf("6%gInductance Magnetic Circuit %g [mH]", k, k)], Color "LightYellow" ];
-  EndFor
-}
 
 PostOperation Get_GlobalQuantities UsingPost MagStaDyn_a_2D {
+  /*
   Print[ I, OnRegion Ind_1, Format Table,
     File > StrCat[Dir,"I",ExtGnuplot], LastTimeStepOnly,
     SendToServer StrCat[po,"20I [A]"], Color "LightYellow" ];
   Print[ U, OnRegion Ind_1, Format Table,
     File > StrCat[Dir,"U",ExtGnuplot], LastTimeStepOnly,
     SendToServer StrCat[po,"30U [V]"], Color "LightYellow" ];
-
+    */
   Print[ Flux[Inds], OnGlobal, Format TimeTable,
     File > StrCat[Dir,"Flux",ExtGnuplot], LastTimeStepOnly, StoreInVariable $Flux,
     SendToServer StrCat[po,"40Flux [Wb]"],  Color "LightYellow" ];

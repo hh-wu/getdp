@@ -12,6 +12,9 @@ EndIf
 ExtGmsh     = ".pos";
 ExtGnuplot  = ".dat";
 
+TREE_COTREE_GAUGE=0;
+COULOMB_GAUGE=1;
+
 DefineConstant[
   Flag_AnalysisType = { 0,  Choices{0="Static",  1="Time domain", 2="Frequency domain"},
     Name "Input/20Type of analysis",  Highlight "Blue",
@@ -27,6 +30,9 @@ DefineConstant[
               Name "Input/40Nonlinear BH-curve", ReadOnly (Flag_AnalysisType==2)}
   Flag_ConductingCore = { (Flag_AnalysisType==2), Choices{0,1},
     Name "Input/40Conducting core", ReadOnly (Flag_AnalysisType==0)}
+
+  Flag_GaugeType = { 1, Choices{0="Tree-cotree gauge", 1="Coulomb gauge"},
+    Name "Input/30Type of gauge", Highlight "Blue", Visible (Flag_3Dmodel==1) }
 ];
 
 Group {
@@ -35,24 +41,19 @@ Group {
   Core = Region[ {CoreE, CoreI} ];
 
   Ind_1      = Region[{COIL}] ;
+  SkinInd_1  = Region[{SKINCOIL}] ;
 
   If (Flag_3Dmodel==0)
     Ind_1_ = Region[{(COIL+1)}] ;
     Inds   = Region[ {Ind_1, Ind_1_} ];
   EndIf
   If (Flag_3Dmodel==1)
-    SkinInd_1  = Region[{SKINCOIL}] ;
-    SkinHole_1 = Region[{SKINCOIL_}] ;
-    ElecInd_1 = Region[{SURF_ELEC0}] ;
-    CutInd_1  = Region[{CUTCOIL}] ;
-    VolInInd_1  = Region[{LEG_INCOIL}] ;
-
-    SkinInds = Region[ {SkinInd_1} ];
     Inds  = Region[ {Ind_1} ];
+    SkinInds = Region[ {SkinInd_1} ];
     If(Flag_ConductingCore)
-      SkinCoreE = Region[ {SKINECORE} ];
-      SkinCoreI = Region[ {SKINICORE} ];
-      SkinCore = Region[{SkinCoreE, SkinCoreI}];
+      Skin_ECore = Region[ {SKINECORE} ];
+      Skin_ICore = Region[ {SKINICORE} ];
+      SkinCore = Region[{Skin_ECore, Skin_ICore}];
     EndIf
   EndIf
 
@@ -116,8 +117,8 @@ Function {
   EndIf
 
   pA = (Flag_AnalysisType==0) ? Pi/2: 0.;
-  IA[] = F_Sin_wt_p[]{2*Pi*Freq, pA}; // DomainB
-  js0[] = NbWires[]/SurfCoil[] * vDir[] ;
+  IA[] = II * F_Sin_wt_p[]{2*Pi*Freq, pA} ;
+  js0[] = IA[]*NbWires[]/SurfCoil[] * vDir[] ; // DomainS
 
   // Material properties
   mu0 = 4.e-7 * Pi ;
@@ -136,16 +137,11 @@ Function {
       Visible Flag_ConductingCore}
   ];
 
-  // Reluctance of the simplified magnetic circuit (neglecting leakage and frindging)
-  For k In {0:2}
-    Reluctance~{k}[] = Rm~{k};// [A/Wb]
-    Inductance~{k}[] = NbWires[]*NbWires[]/Reluctance~{k}[]*1e3;// [mH]
-  EndFor
- }
+}
 
  If(Flag_3Dmodel==0)
    Include "magstadyn_a.pro" ;
  EndIf
  If(Flag_3Dmodel==1)
-   Include "magstadyn_avs_3d.pro" ;
+   Include "magstadyn_av_js0_3d.pro" ;
  EndIf
