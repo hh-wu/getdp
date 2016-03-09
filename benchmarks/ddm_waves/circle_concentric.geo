@@ -56,6 +56,7 @@ If(StrCmp(OnelabAction, "check")) // only mesh if not in onelab check mode
       //Sigma_ij on left (iside == 0)
       // "left" = "interior" boundary (toward the center)
       Physical Line(3000 + idom) = {-l1[idom], -l2[idom], -l3[idom], -l4[idom]};
+         // negative sign to have the exterior normal
     EndIf
     If(idom < N_DOM-1)
       //Sigma_ij on right (iside == 1)

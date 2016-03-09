@@ -48,20 +48,18 @@ EndFor
 
 Macro PrintInfo
   If (MPI_Rank == 0)
-    Printf[StrCat["Starting ", StrChoice[ANALYSIS == 0, "Helmholtz", "Maxwell"],
+    Printf[StrCat["Starting ", StrChoice[ANALYSIS == 0, "Helmholtz",
+        StrChoice[ANALYSIS == 1, "Maxwell", "Elasticity"]],
         " DDM with %g subdomains / %g processes"], N_DOM, MPI_Size];
     If(TC_TYPE == 0)
       Printf[StrCat["Using 0-th order (", StrChoice[ANALYSIS == 0, "Sommerfeld/EMDA",
             "Silver-Muller"], ") transmission conditions"]];
-    EndIf
-    If(TC_TYPE == 1)
+    ElseIf(TC_TYPE == 1)
       Printf[StrCat["Using 2-nd order (", StrChoice[ANALYSIS == 0, "OO2",
             "J-F. Lee"], ") transmission conditions"]];
-    EndIf
-    If(TC_TYPE == 2)
+    ElseIf(TC_TYPE == 2)
       Printf["Using %g-th order Pade (OSRC) transmission conditions", NP_OSRC];
-    EndIf
-    If(TC_TYPE == 3)
+    ElseIf(TC_TYPE == 3)
       Printf["Using PML transmission conditions (nLayersTr %g, nLayersPml %g)",
         nLayersTr, nLayersPml];
     EndIf
@@ -110,10 +108,10 @@ Macro DisableArtificialSources
 Return
 
 Macro UpdateConstraints
-  // update Dirichlet constraints (only actually necessary for Helmholtz, as we
-  // currently use Lagrange multipliers to specify boundary conditions for
-  // Maxwell)
-  If(ANALYSIS == 0)
+  // update Dirichlet constraints (only actually necessary for Helmholtz and
+  // Elasticity, as we currently use Lagrange multipliers to specify boundary
+  // conditions for Maxwell)
+  If(ANALYSIS != 1)
     SetCommSelf;
     For ii In {0: #ListOfSubdomains()-1}
       idom = ListOfSubdomains(ii);
@@ -139,7 +137,6 @@ Macro SolveVolumePDE
 	GenerateRHSGroup[Vol~{idom}, Region[{Sigma~{idom},
 	      GammaD~{idom}, GammaPoint~{idom}}] ];
       }
-
     SolveAgain[Vol~{idom}];
     EndIf
     If(GenerateVolFlag~{idom} == 0)

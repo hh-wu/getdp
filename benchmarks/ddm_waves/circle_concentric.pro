@@ -2,7 +2,7 @@ Include "circle_concentric_data.geo";
 
 DefineConstant[ // allows to set these from outside
   // transmission boundary condition
-  TC_TYPE = {2, Name "Input/01Transmission condition",
+  TC_TYPE = {0, Name "Input/01Transmission condition",
     Choices {0="Order 0", 1="Order 2", 2="Pade (OSRC)"}},
   NP_OSRC = 4,
   PRECONDITIONER = {0, Name "Input/01Sweeping preconditioner", ReadOnly 1,
@@ -14,41 +14,51 @@ DefineConstant[ // allows to set these from outside
 
 Function {
   I[] = Complex[0, 1];
-  k = WAVENUMBER;
-  k[] = k;
 
-  // incidence angle
-  theta_inc = THETA_INC;
-  XYZdotTheta[] = X[] * Cos[theta_inc] + Y[] * Sin[theta_inc];
-  uinc[] = Complex[Cos[k*XYZdotTheta[]], Sin[k*XYZdotTheta[]]];
-  grad_uinc[] =  I[] * k * Vector[1,0,0] * uinc[];
-  dn_uinc[] = Normal[] * grad_uinc[];
+  If(ANALYSIS == 0) // Helmholtz
 
-  // parameter for ABC
-  kInf[] = k;
-  alphaBT[] = 1/(2*R_EXT) - I[]/(8*k*R_EXT^2*(1+I[]/(k*R_EXT)));
-  betaBT[] = - 1/(2*I[]*k*(1+I[]/(k*R_EXT)));
+    k = WAVENUMBER;
+    k[] = k;
 
-  // parameter for 0th order TC
-  kIBC[] = k + (2*Pi /-I[]);
+    // incidence angle
+    theta_inc = THETA_INC;
+    XYZdotTheta[] = X[] * Cos[theta_inc] + Y[] * Sin[theta_inc];
+    uinc[] = Complex[Cos[k*XYZdotTheta[]], Sin[k*XYZdotTheta[]]];
+    grad_uinc[] =  I[] * k * Vector[1,0,0] * uinc[];
+    dn_uinc[] = Normal[] * grad_uinc[];
 
-  // parameters for 2nd order TC
-  // OO2 Gander 2002, pp. 46-47
-  xsimin = 0;
-  xsimax = Pi / LC;
-  deltak[] = Pi / Norm[XYZ[]];
-  alphastar[] = I[] * ((k^2 - xsimin^2) * (k^2 - (k-deltak[])^2))^(1/4);
-  betastar[] = ((xsimax^2 - k^2) * ((k+deltak[])^2 - k^2))^(1/4);
-  a[] = - (alphastar[] * betastar[] - k^2) / (alphastar[] + betastar[]);
-  b[] = - 1 / (alphastar[] + betastar[]);
+    // parameter for ABC
+    kInf[] = k;
+    alphaBT[] = 1/(2*R_EXT) - I[]/(8*k*R_EXT^2*(1+I[]/(k*R_EXT)));
+    betaBT[] = - 1/(2*I[]*k*(1+I[]/(k*R_EXT)));
 
-  // parameters for Pade-type TC
-  keps[] = Complex[ k, 0.4 * k^(1/3) * Norm[XYZ[]]^(-2/3) ];
-  theta_branch = Pi/4;
+    // parameter for 0th order TC
+    kIBC[] = k + (2*Pi /-I[]);
 
-  // not ready yet for PMLs
-  D[] = 1;
-  E[] = 1;
+    // parameters for 2nd order TC
+    // OO2 Gander 2002, pp. 46-47
+    xsimin = 0;
+    xsimax = Pi / LC;
+    deltak[] = Pi / Norm[XYZ[]];
+    alphastar[] = I[] * ((k^2 - xsimin^2) * (k^2 - (k-deltak[])^2))^(1/4);
+    betastar[] = ((xsimax^2 - k^2) * ((k+deltak[])^2 - k^2))^(1/4);
+    a[] = - (alphastar[] * betastar[] - k^2) / (alphastar[] + betastar[]);
+    b[] = - 1 / (alphastar[] + betastar[]);
+
+    // parameters for Pade-type TC
+    keps[] = Complex[ k, 0.4 * k^(1/3) * Norm[XYZ[]]^(-2/3) ];
+    theta_branch = Pi/4;
+
+    // not ready yet for PMLs
+    D[] = 1;
+    E[] = 1;
+
+  Else  // Elastodynamics
+
+    uxinc[] =(w/cp)*Complex[Cos[kp*X[] + (Pi/2)],Sin[kp*X[]+(Pi/2)]];
+    uyinc[] = 0;
+
+  EndIf
 }
 
 Group{
@@ -93,5 +103,9 @@ Group{
 }
 
 Include "Decomposition.pro";
-Include "Helmholtz.pro" ;
+If(ANALYSIS == 0)
+  Include "Helmholtz.pro" ;
+Else
+  Include "Elasticity.pro" ;
+EndIf
 Include "Schwarz.pro" ;

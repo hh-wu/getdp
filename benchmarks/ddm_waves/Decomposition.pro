@@ -59,8 +59,7 @@ Function{
       If(ANALYSIS == 0) // Helmholtz (scalar-valued)
         g_in~{idom}~{0}[Sigma~{idom}~{0}] = ComplexScalarField[XYZ[]]{connectedFieldLeft()};
         g_in~{idom}~{1}[Sigma~{idom}~{1}] = ComplexScalarField[XYZ[]]{connectedFieldRight()};
-      EndIf
-      If(ANALYSIS == 1) // Maxwell (vector-valued)
+      ElseIf(ANALYSIS == 1 || ANALYSIS == 2) // Maxwell or Elasticity (vector-valued)
         g_in~{idom}~{0}[Sigma~{idom}~{0}] = ComplexVectorField[XYZ[]]{connectedFieldLeft()};
         g_in~{idom}~{1}[Sigma~{idom}~{1}] = ComplexVectorField[XYZ[]]{connectedFieldRight()};
       EndIf
