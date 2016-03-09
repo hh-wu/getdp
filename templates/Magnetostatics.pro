@@ -17,7 +17,9 @@ DefineConstant[
       "phi: scalar magnetic potential (h = -grad phi) [A]",
       "a: vector magnetic potential (b = curl a) [T.m]"],
     Name "GetDP/Formulation"},
-  exportFile = "export.pro"
+  modelPath = GetString["Gmsh/Model absolute path"],
+  resPath = StrCat[modelPath, "res/"],
+  exportFile = StrCat[modelPath, "export.pro"]
 ];
 
 Group {
@@ -402,6 +404,7 @@ Resolution {
       { Name A; NameOfFormulation MagSta_phi; }
     }
     Operation {
+      CreateDir[resPath];
       If(!NbrRegions[Domain_NL])
         Generate[A]; Solve[A];
       Else
@@ -417,6 +420,7 @@ Resolution {
       { Name A; NameOfFormulation MagSta_a; }
     }
     Operation {
+      CreateDir[resPath];
       If(!NbrRegions[Domain_NL])
         Generate[A]; Solve[A];
       Else
@@ -436,6 +440,7 @@ Resolution {
       EndIf
     }
     Operation {
+      CreateDir[resPath];
       If(!NbrRegions[Domain_NL])
         Generate[A]; Solve[A];
       Else
@@ -480,18 +485,18 @@ PostProcessing {
 PostOperation {
   { Name MagSta_phi; NameOfPostProcessing MagSta_phi;
     Operation {
-      Print[ b, OnElementsOf Domain, File "MagSta_phi_b.pos" ];
-      Print[ h, OnElementsOf Domain, File "MagSta_phi_h.pos" ];
-      Print[ hc, OnElementsOf Domain, File "MagSta_a_hc.pos" ];
-      Print[ phi, OnElementsOf Domain, File "MagSta_phi_phi.pos" ];
+      Print[ b, OnElementsOf Domain, File StrCat[resPath, "MagSta_phi_b.pos"] ];
+      Print[ h, OnElementsOf Domain, File StrCat[resPath, "MagSta_phi_h.pos"] ];
+      Print[ hc, OnElementsOf Domain, File StrCat[resPath, "MagSta_a_hc.pos"] ];
+      Print[ phi, OnElementsOf Domain, File StrCat[resPath, "MagSta_phi_phi.pos"] ];
     }
   }
   { Name MagSta_a; NameOfPostProcessing MagSta_a;
     Operation {
-      Print[ b, OnElementsOf Domain, File "MagSta_a_b.pos" ];
-      Print[ h, OnElementsOf Domain, File "MagSta_a_h.pos" ];
-      Print[ hc, OnElementsOf Domain, File "MagSta_a_hc.pos" ];
-      Print[ az, OnElementsOf Domain, File "MagSta_az_a.pos" ];
+      Print[ b, OnElementsOf Domain, File StrCat[resPath, "MagSta_a_b.pos"] ];
+      Print[ h, OnElementsOf Domain, File StrCat[resPath, "MagSta_a_h.pos"] ];
+      Print[ hc, OnElementsOf Domain, File StrCat[resPath, "MagSta_a_hc.pos"] ];
+      Print[ az, OnElementsOf Domain, File StrCat[resPath, "MagSta_az_a.pos"] ];
     }
   }
 }

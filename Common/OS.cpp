@@ -385,21 +385,44 @@ int CreateDirs(const std::string &dirName)
   return ret;
 }
 
-std::string GetDir(const std::string &fileName)
+static std::vector<std::string> splitFileName(const std::string &fileName)
+{
+  std::vector<std::string> s; s.resize(3);
+  if(fileName.size()){
+    // returns [path, baseName, extension]
+    int idot = (int)fileName.find_last_of('.');
+    int islash = (int)fileName.find_last_of("/\\");
+    if(idot == (int)std::string::npos) idot = -1;
+    if(islash == (int)std::string::npos) islash = -1;
+    if(idot > 0)
+      s[2] = fileName.substr(idot);
+    if(islash > 0)
+      s[0] = fileName.substr(0, islash + 1);
+    s[1] = fileName.substr(s[0].size(), fileName.size() - s[0].size() - s[2].size());
+  }
+  return s;
+}
+
+std::string GetDirName(const std::string &fileName)
+{
+  return splitFileName(fileName)[0];
+}
+
+std::string GetFullPath(const std::string &fileName)
 {
 #if defined(WIN32) && !defined(__CYGWIN__)
   setwbuf(0, fileName.c_str());
   wchar_t path[MAX_PATH];
   unsigned long size = GetFullPathNameW(wbuf[0], MAX_PATH, path, NULL);
-  char dst[MAX_PATH] = "";
-  if(size) utf8FromUtf16(dst, MAX_PATH, path, size);
+  if(size){
+    char dst[MAX_PATH];
+    utf8FromUtf16(dst, MAX_PATH, path, size);
+    return std::string(dst);
+  }
 #else
-  char dst[4096] = "";
-  if(!realpath(fileName.c_str(), dst))
-    dst[0] = '\0';
+  char path[4096];
+  if(realpath(fileName.c_str(), path))
+    return path;
 #endif
-  int i = strlen(dst);
-  while(i > 0 && dst[i-1] != '/' && dst[i-1] != '\\') i--;
-  dst[i] = '\0';
-  return dst;
+  return fileName;
 }

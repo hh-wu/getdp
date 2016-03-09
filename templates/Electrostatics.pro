@@ -18,7 +18,9 @@ DefineConstant[
       "rho: charge density [C/m³]",
       "q: charge [C]"],
     Name "GetDP/Formulation"},
-  exportFile = "export.pro"
+  modelPath = GetString["Gmsh/Model absolute path"],
+  resPath = StrCat[modelPath, "res/"],
+  exportFile = StrCat[modelPath, "export.pro"]
 ];
 
 Group {
@@ -291,6 +293,7 @@ Resolution {
       { Name Sys_Ele; NameOfFormulation Electrostatics_vf; }
     }
     Operation {
+      CreateDir[resPath];
       Generate[Sys_Ele]; Solve[Sys_Ele]; SaveSolution[Sys_Ele];
     }
   }
@@ -334,12 +337,12 @@ PostProcessing {
 PostOperation {
   { Name EleSta_v; NameOfPostProcessing EleSta_v;
     Operation {
-      Print[ e, OnElementsOf DomainCC_Ele, File "EleSta_v_e.pos" ];
-      Print[ v, OnElementsOf DomainCC_Ele, File "MagSta_v_v.pos" ];
+      Print[ e, OnElementsOf DomainCC_Ele, File StrCat[resPath, "EleSta_v_e.pos"] ];
+      Print[ v, OnElementsOf DomainCC_Ele, File StrCat[resPath, "MagSta_v_v.pos"] ];
       If(NbrRegions[SkinDomainC_Ele])
-        Print[ Q, OnRegion SkinDomainC_Ele, File "EleSta_v_q.txt",
+        Print[ Q, OnRegion SkinDomainC_Ele, File StrCat[resPath, "EleSta_v_q.txt"],
           Format Table, SendToServer "}Output/Floating charge [C]" ];
-        Print[ V, OnRegion SkinDomainC_Ele, File "EleSta_v_q.txt",
+        Print[ V, OnRegion SkinDomainC_Ele, File StrCat[resPath, "EleSta_v_q.txt"],
           Format Table, SendToServer "}Output/Floating potential [V]" ];
       EndIf
     }

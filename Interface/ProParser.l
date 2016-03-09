@@ -77,6 +77,7 @@ string     {alpha}({alpha}|{digit})*
 2D                           return t2D;
 3D                           return t3D;
 
+AbsolutePath                 return tAbsolutePath;
 ACos                         return tAcos;
 ASin                         return tAsin;
 Acos                         return tAcos;
@@ -149,6 +150,7 @@ deRham                       return tdeRham;
 DestinationSystem            return tDestinationSystem;
 dFunction                    return tdFunction;
 Dimension                    return tDimension;
+DirName                      return tDirName;
 DivisionCoefficient          return tDivisionCoefficient;
 DofValue                     return tDofValue;
 Dt                           return tDt;

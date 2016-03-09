@@ -203,7 +203,7 @@ struct doubleXstring{
 %token  tGetNumber tGetString
 
 %token  tPi tMPI_Rank tMPI_Size t0D t1D t2D t3D tTestLevel
-%token  tTotalMemory tCurrentDirectory
+%token  tTotalMemory tCurrentDirectory tAbsolutePath tDirName
 %token  tGETDP_MAJOR_VERSION tGETDP_MINOR_VERSION tGETDP_PATCH_VERSION
 
 %token  tExp tLog tLog10 tSqrt tSin tAsin tCos tAcos tTan
@@ -8855,9 +8855,21 @@ CharExprNoVar :
 
   | tCurrentDirectory
     {
-      std::string tmp = GetDir(getdp_yyname);
+      std::string tmp = GetDirName(GetFullPath(getdp_yyname));
       $$ = (char*)Malloc((tmp.size() + 1) * sizeof(char));
       strcpy($$, tmp.c_str());
+    }
+
+  | tAbsolutePath LP CharExpr RP
+    {
+      $$ = strSave(GetFullPath($3).c_str());
+      Free($3);
+    }
+
+  | tDirName LP CharExpr RP
+    {
+      $$ = strSave(GetDirName($3).c_str());
+      Free($3);
     }
 
   | tFixRelativePath LP CharExpr RP

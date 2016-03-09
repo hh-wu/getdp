@@ -1219,7 +1219,10 @@ Character expressions are defined as follows:
   Sprintf[ @var{expression-char}, @var{expression-cst-list} ] |
   NameToString ( @var{string} ) | N2S ( @var{string} ) |
   GetString[ @var{expression-char} <, @var{expression-char},> ] |
-  Date | CurrentDirectory | CurrentDir | OnelabAction
+  Date | CurrentDirectory | CurrentDir | 
+  AbsolutePath [ @var{expression-char} ] |
+  DirName [ @var{expression-char} ] |
+  OnelabAction
 @end example
 
 @noindent @code{StrCat} and @code{Str} permit to concatenate 
@@ -1237,8 +1240,10 @@ etc.).  @code{NameToString} converts a variable name into a string.
 (the optional second argument specifies the default value returned if
 the variable does not exist.)  @code{Date} permits to access the current
 date. @code{CurrentDirectory} and @code{CurrentDir} return the directory
-of the @code{.pro} file.  @code{OnelabAction} returns the current ONELAB
-action (e.g. @code{check} or @code{compute}).
+of the @code{.pro} file. @code{AbsolutePath} returns the absolute path
+of a file. @code{DirName} returns the directory of a
+file. @code{OnelabAction} returns the current ONELAB action
+(e.g. @code{check} or @code{compute}).
 
 List of character expressions are defined as:
 
