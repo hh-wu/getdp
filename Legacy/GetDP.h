@@ -10,5 +10,11 @@
 #include <vector>
 
 int GetDP(std::vector<std::string> &args, void *ptr=NULL);
+void GetDPClearNumbers();
+void GetDPSetNumber(const std::string &name, std::vector<double> &value);
+void GetDPGetNumber(const std::string &name, std::vector<double> &value);
+void GetDPClearStrings();
+void GetDPSetString(const std::string &name, std::vector<std::string> &value);
+void GetDPGetString(const std::string &name, std::vector<std::string> &value);
 
 #endif

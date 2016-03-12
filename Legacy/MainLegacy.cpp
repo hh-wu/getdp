@@ -182,7 +182,7 @@ static void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *
       else if (!strcmp(argv[i]+1, "setstring")) {
         i++;
 	if (i + 1 < argc && argv[i][0] != '-' && argv[i + 1][0] != '-') {
-          CommandLineStrings[argv[i]] = argv[i + 1];
+          CommandLineStrings[argv[i]] = std::vector<std::string>(1, argv[i + 1]);
           i += 2;
 	}
         else{
@@ -638,4 +638,36 @@ int GetDP(std::vector<std::string> &args, void *ptr)
   std::vector<char*> argv(argc + 1, (char*)0);
   for(int i = 0; i < argc; i++) argv[i] = (char*)args[i].c_str();
   return MainLegacy(argc, &argv[0]);
+}
+
+void GetDPClearNumbers()
+{
+  GetDPNumbers.clear();
+}
+
+void GetDPSetNumber(const std::string &name, std::vector<double> &value)
+{
+  GetDPNumbers[name] = value;
+  CommandLineNumbers[name] = value;
+}
+
+void GetDPGetNumber(const std::string &name, std::vector<double> &value)
+{
+  value = GetDPNumbers[name];
+}
+
+void GetDPClearStrings()
+{
+  GetDPStrings.clear();
+}
+
+void GetDPSetString(const std::string &name, std::vector<std::string> &value)
+{
+  GetDPStrings[name] = value;
+  CommandLineStrings[name] = value;
+}
+
+void GetDPGetString(const std::string &name, std::vector<std::string> &value)
+{
+  value = GetDPStrings[name];
 }

@@ -41,7 +41,9 @@ int getdp_yyincludenum = 0;
 int getdp_yyerrorlevel = 0;
 std::string getdp_yystring = "";
 std::map<std::string, std::vector<double> > CommandLineNumbers;
-std::map<std::string, std::string> CommandLineStrings;
+std::map<std::string, std::vector<std::string> > CommandLineStrings;
+std::map<std::string, std::vector<double> > GetDPNumbers;
+std::map<std::string, std::vector<std::string> > GetDPStrings;
 
 // Static parser variables (accessible only in this file)
 
@@ -9105,12 +9107,22 @@ void Alloc_ParserVariables()
       }
       Tree_Add(ConstantTable_L, &Constant_S);
     }
-    for(std::map<std::string, std::string>::iterator it = CommandLineStrings.begin();
+    for(std::map<std::string, std::vector<std::string> >::iterator it = CommandLineStrings.begin();
         it != CommandLineStrings.end(); it++){
-      Message::Info("Adding string %s = \"%s\"", it->first.c_str(), it->second.c_str());
+      std::vector<std::string> &v(it->second);
       Constant_S.Name = strdup(it->first.c_str());
-      Constant_S.Type = VAR_CHAR;
-      Constant_S.Value.Char = strdup(it->second.c_str());
+      if(v.size() == 1){
+        Message::Info("Adding string %s = \"%s\"", it->first.c_str(), v[0].c_str());
+        Constant_S.Type = VAR_CHAR;
+        Constant_S.Value.Char = strdup(v[0].c_str());
+      }
+      else{
+        Message::Info("Adding list of strings %s", it->first.c_str());
+        Constant_S.Type = VAR_LISTOFCHAR;
+        Constant_S.Value.List = List_Create(v.size(), 1, sizeof(char*));
+        for(unsigned int i = 0; i < v.size(); i ++)
+          List_Add(Constant_S.Value.List, strdup(v[i].c_str()));
+      }
       Tree_Add(ConstantTable_L, &Constant_S);
     }
     ListOfInt_L     = List_Create(20, 10, sizeof(int));
@@ -9125,6 +9137,45 @@ void Alloc_ParserVariables()
 
 void Free_ParserVariables()
 {
+  List_T *tmp = Tree2List(ConstantTable_L);
+  for(int i = 0; i < List_Nbr(tmp); i++){
+    Constant *Constant_P = (struct Constant*)List_Pointer(tmp, i);
+    std::string name = Constant_P->Name;
+    switch(Constant_P->Type){
+    case VAR_FLOAT:
+      if(!GetDPNumbers.count(name))
+        GetDPNumbers[name] = std::vector<double>(1, Constant_P->Value.Float);
+      break;
+    case VAR_LISTOFFLOAT:
+      if(!GetDPNumbers.count(name)){
+        std::vector<double> v;
+        for(int j = 0; j < List_Nbr(Constant_P->Value.List); j++){
+          double d;
+          List_Read(Constant_P->Value.List, j, &d);
+          v.push_back(d);
+        }
+        GetDPNumbers[name] = v;
+      }
+      break;
+    case VAR_CHAR:
+      if(!GetDPStrings.count(name))
+        GetDPStrings[name] = std::vector<std::string>(1, Constant_P->Value.Char);
+      break;
+    case VAR_LISTOFCHAR:
+      if(!GetDPStrings.count(name)){
+        std::vector<std::string> v;
+        for(int j = 0; j < List_Nbr(Constant_P->Value.List); j++){
+          char *s;
+          List_Read(Constant_P->Value.List, j, &s);
+          v.push_back(s);
+        }
+        GetDPStrings[name] = v;
+      }
+      break;
+    }
+  }
+  List_Delete(tmp);
+
   Tree_Delete(ConstantTable_L); ConstantTable_L = 0;
   List_Delete(ListOfInt_L); ListOfInt_L = 0;
   List_Delete(ListOfPointer_L); ListOfPointer_L = 0;

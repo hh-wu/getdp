@@ -36,7 +36,9 @@ extern int getdp_yycolnum;
 extern int getdp_yyincludenum;
 extern int getdp_yyerrorlevel;
 extern std::map<std::string, std::vector<double> > CommandLineNumbers;
-extern std::map<std::string, std::string> CommandLineStrings;
+extern std::map<std::string, std::vector<std::string> > CommandLineStrings;
+extern std::map<std::string, std::vector<double> > GetDPNumbers;
+extern std::map<std::string, std::vector<std::string> > GetDPStrings;
 
 int getdp_yyparse();
 void getdp_yyrestart(FILE*);
