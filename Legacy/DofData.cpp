@@ -685,33 +685,7 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
     return;
   }
 
-  char    FileCplx[256] ;
-  char    FileRe[256] ;
-  char    FileIm[256] ;
-
-  strcpy(FileCplx, Name_File) ; strcat(FileCplx, ".txt") ;
-  strcpy(FileRe, Name_File) ; strcat(FileRe, "_Re.txt") ;
-  strcpy(FileIm, Name_File) ; strcat(FileIm, "_Im.txt") ;
-
-  FILE *fp   = FOpen(FileCplx, "w");
-  if(!fp){
-    Message::Error("Unable to open file '%s'", FileCplx) ;
-    return;
-  }
-
-  FILE *fpRe = FOpen(FileRe, "w");
-  if(!fpRe){
-    Message::Error("Unable to open file '%s'", FileRe) ;
-    return;
-  }
-
-  FILE *fpIm = FOpen(FileIm, "w");
-  if(!fpIm){
-    Message::Error("Unable to open file '%s'", FileIm) ;
-    return;
-  }
-
-  std::map<int, std::complex<double> > unknowns;
+  std::map<int, std::map<int, std::complex<double> > > unknowns;
 
   List_T *l = !DofData_P->DofList ? Tree2List(DofData_P->DofTree) : 0;
   int N = l ? List_Nbr(l) : List_Nbr(DofData_P->DofList);
@@ -725,62 +699,90 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
       gScalar s;
       LinAlg_GetScalarInVector(&s, &DofData_P->CurrentSolution->x,
                                dof->Case.Unknown.NumDof - 1);
-      unknowns[dof->Entity] = s.s;
+      unknowns[dof->NumType][dof->Entity] = s.s;
     }
     if(saveFixed && dof->Type == DOF_FIXED){
-      unknowns[dof->Entity] = dof->Val.s;
+      unknowns[dof->NumType][dof->Entity] = dof->Val.s;
     }
   }
 
-  if(!Group_P){
-    fprintf(fpRe, "%d\n", N);//Needed for ListFromFile
-    fprintf(fpIm, "%d\n", N);
+  for(std::map<int, std::map<int, std::complex<double> > >::iterator it =
+        unknowns.begin(); it != unknowns.end(); it++){
 
-    for(std::map<int, std::complex<double> >::iterator it = unknowns.begin();
-        it != unknowns.end(); it++){
-      fprintf(fp  , "%d %.16g %.16g\n", it->first, it->second.real(), it->second.imag());
-      fprintf(fpRe, "%d %.16g\n", it->first, it->second.real());
-      fprintf(fpIm, "%d %.16g\n", it->first, it->second.imag());
+    char FileRe[256], FileIm[256] ;
+    if(unknowns.size() > 1){
+      sprintf(FileRe, "%s_%d", Name_File, it->first);
+      sprintf(FileIm, "%s_%d", Name_File, it->first);
     }
-  }
-  else{
-    Message::Info("Writing solution for all entities in group '%s'", Group_P->Name) ;
+    else{
+      strcpy(FileRe, Name_File);
+      strcpy(FileIm, Name_File);
+    }
+    if(Current.NbrHar > 1){
+      strcat(FileRe, "_Re.txt");
+      strcat(FileIm, "_Im.txt");
+    }
+    else{
+      strcat(FileRe, ".txt");
+      strcat(FileIm, ".txt");
+    }
+    FILE *fpRe = FOpen(FileRe, "w");
+    if(!fpRe){
+      Message::Error("Unable to open file '%s'", FileRe) ;
+      return;
+    }
+    FILE *fpIm = 0;
+    if(Current.NbrHar > 1){
+      FOpen(FileIm, "w");
+      if(!fpIm){
+        Message::Error("Unable to open file '%s'", FileIm) ;
+        return;
+      }
+    }
 
-    // force generation of extended list (necessary when using
-    // multiple meshes)
-    List_Delete(Group_P->ExtendedList);
-    Generate_ExtendedGroup(Group_P) ;
+    if(!Group_P){
+      fprintf(fpRe, "%d\n", (int)it->second.size()); // needed for ListFromFile
+      if(fpIm) fprintf(fpIm, "%d\n", (int)it->second.size());
+      for(std::map<int, std::complex<double> >::iterator it2 = it->second.begin();
+          it2 != it->second.end(); it2++){
+        fprintf(fpRe, "%d %.16g\n", it2->first, it2->second.real());
+        if(fpIm) fprintf(fpIm, "%d %.16g\n", it2->first, it2->second.imag());
+      }
+    }
+    else{
+      Message::Info("Writing solution for all entities in group '%s'", Group_P->Name) ;
 
-    fprintf(fpRe, "%d\n", List_Nbr(Group_P->ExtendedList));//Needed for ListFromFile
-    fprintf(fpIm, "%d\n", List_Nbr(Group_P->ExtendedList));
-
-    for(int i = 0; i < List_Nbr(Group_P->ExtendedList); i++){
-      int num;
-      List_Read(Group_P->ExtendedList, i, &num);
-      if(!Group_P->InitialSuppList ||
-         (!List_Search(Group_P->ExtendedSuppList, &num, fcmp_int))){
-        // SuppList assumed to be "Not"!
-        if(unknowns.count(num)){
-          std::complex<double> s = unknowns[num];
-          fprintf(fp, "%d %.16g %.16g\n", num, s.real(), s.imag());
-          fprintf(fpRe, "%d %.16g\n", num, s.real());
-          fprintf(fpIm, "%d %.16g\n", num, s.imag());
-        }
-        else{
-          // yes, write zero: that's on purpose for the iterative schemes
-          fprintf(fp, "%d 0 0\n", num);
-          fprintf(fpRe, "%d 0\n", num);
-          fprintf(fpIm, "%d 0\n", num);
+      // force generation of extended list (necessary when using multiple
+      // meshes)
+      List_Delete(Group_P->ExtendedList);
+      Generate_ExtendedGroup(Group_P) ;
+      fprintf(fpRe, "%d\n", List_Nbr(Group_P->ExtendedList));
+      if(fpIm) fprintf(fpIm, "%d\n", List_Nbr(Group_P->ExtendedList));
+      for(int i = 0; i < List_Nbr(Group_P->ExtendedList); i++){
+        int num;
+        List_Read(Group_P->ExtendedList, i, &num);
+        if(!Group_P->InitialSuppList ||
+           (!List_Search(Group_P->ExtendedSuppList, &num, fcmp_int))){
+          // SuppList assumed to be "Not"!
+          if(it->second.count(num)){
+            std::complex<double> s = it->second[num];
+            fprintf(fpRe, "%d %.16g\n", num, s.real());
+            if(fpIm) fprintf(fpIm, "%d %.16g\n", num, s.imag());
+          }
+          else{
+            // yes, write zero: that's on purpose for the iterative schemes
+            fprintf(fpRe, "%d 0\n", num);
+            if(fpIm) fprintf(fpIm, "%d 0\n", num);
+          }
         }
       }
     }
+    fclose(fpRe);
+    if(fpIm) fclose(fpIm);
   }
 
   List_Delete(l);
 
-  fclose(fp);
-  fclose(fpRe);
-  fclose(fpIm);
 }
 
 /* ------------------------------------------------------------------------ */
