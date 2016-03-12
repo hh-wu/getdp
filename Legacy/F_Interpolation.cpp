@@ -597,16 +597,19 @@ void F_ValueFromIndex (F_ARG)
 
   D = Fct->Active ;
 
-  IntDouble_P = (struct IntDouble *)
-    List_PQuery(D->Case.ValueFromIndex.Table, &Current.NumEntity, fcmp_int);
+  if (List_Nbr(D->Case.ValueFromIndex.Table)){
+    IntDouble_P = (struct IntDouble *)
+      List_PQuery(D->Case.ValueFromIndex.Table, &Current.NumEntity, fcmp_int);
+    if(IntDouble_P){
+      V->Val[0] = IntDouble_P->Double ;
+      V->Type = SCALAR ;
+      return;
+    }
+  }
 
-  if (!IntDouble_P)
-    Message::Error("Unknown Entity Index (%d) in ValueFromIndex Table",
-               Current.NumEntity);
-  /*
-  printf("==> search %d --> found %g\n", Current.NumEntity, IntDouble_P->Double);
-  */
-  V->Val[0] = IntDouble_P->Double ;
+  Message::Warning("Unknown entity index %d in ValueFromIndex table",
+                   Current.NumEntity);
+  V->Val[0] = 0. ;
   V->Type = SCALAR ;
 }
 
@@ -619,31 +622,23 @@ void F_VectorFromIndex(F_ARG)
 
   D = Fct->Active ;
 
-  /* printf("%d \n", List_Nbr(D->Case.ValueFromIndex.Table)); */
-
   if (List_Nbr(D->Case.ValueFromIndex.Table)){
-
     IntVector_P = (struct IntVector *)
       List_PQuery(D->Case.ValueFromIndex.Table, &Current.NumEntity, fcmp_int);
-
-    /*
-       if (!IntVector_P)  Message::Error("Unknown Entity Index in VectorFromIndex Table");
-       printf("==> search %d --> found %g\n", Current.NumEntity, IntVector_P->Double);
-    */
-
-    V->Val[0] = IntVector_P->Double[0] ;
-    V->Val[1] = IntVector_P->Double[1] ;
-    V->Val[2] = IntVector_P->Double[2] ;
-    V->Type = VECTOR;
+    if (IntVector_P){
+      V->Val[0] = IntVector_P->Double[0] ;
+      V->Val[1] = IntVector_P->Double[1] ;
+      V->Val[2] = IntVector_P->Double[2] ;
+      V->Type = VECTOR;
+      return;
+    }
   }
-  else{
-    V->Val[0] = 0.;
-    V->Val[1] = 0.;
-    V->Val[2] = 0.;
-    V->Type = VECTOR;
-    /* WARNING, "Table empty: Uninitialized data or Unknown Entity
-       Index in VectorFromIndex Table  */
-  }
+  Message::Warning("Unknown entity index %d in VectorFromIndex table",
+                   Current.NumEntity);
+  V->Val[0] = 0.;
+  V->Val[1] = 0.;
+  V->Val[2] = 0.;
+  V->Type = VECTOR;
 }
 
 void Fi_InitValueFromIndex(F_ARG)
@@ -652,17 +647,21 @@ void Fi_InitValueFromIndex(F_ARG)
   struct IntDouble IntDouble_s;
   struct FunctionActive  * D ;
 
-  N = (int)Fct->Para[0];
-
-  D = Fct->Active =
-    (struct FunctionActive *)Malloc(sizeof(struct FunctionActive)) ;
-
-  D->Case.ValueFromIndex.Table = List_Create(N, 1, sizeof(struct IntDouble));
-
-  for (i = 0 ; i < N ; i++) {
-    IntDouble_s.Int = (int)(Fct->Para[i*2+1]+0.1);
-    IntDouble_s.Double = Fct->Para[i*2+2];
-    List_Add(D->Case.ValueFromIndex.Table, &IntDouble_s);
+  if ((Fct->NbrParameters)){
+    N = (int)Fct->Para[0];
+    D = Fct->Active =
+      (struct FunctionActive *)Malloc(sizeof(struct FunctionActive)) ;
+    D->Case.ValueFromIndex.Table = List_Create(N + 1, 1, sizeof(struct IntDouble));
+    for (i = 0 ; i < N ; i++) {
+      IntDouble_s.Int = (int)(Fct->Para[i*2+1]+0.1);
+      IntDouble_s.Double = Fct->Para[i*2+2];
+      List_Add(D->Case.ValueFromIndex.Table, &IntDouble_s);
+    }
+  }
+  else{
+    D = Fct->Active =
+      (struct FunctionActive *)Malloc(sizeof(struct FunctionActive)) ;
+    D->Case.ValueFromIndex.Table = NULL;
   }
 }
 
@@ -673,14 +672,10 @@ void Fi_InitVectorFromIndex(F_ARG)
   struct FunctionActive  * D ;
 
   if ((Fct->NbrParameters)){
-
     N = (int)Fct->Para[0];
-
     D = Fct->Active =
       (struct FunctionActive *)Malloc(sizeof(struct FunctionActive)) ;
-
     D->Case.ValueFromIndex.Table = List_Create(N, 1, sizeof(struct IntVector[3]));
-
     for (i = 0 ; i < N ; i++) {
       IntVector_s.Int = (int)(Fct->Para[i*4+1]+0.1);
       IntVector_s.Double[0] = Fct->Para[i*4+2];
@@ -692,7 +687,6 @@ void Fi_InitVectorFromIndex(F_ARG)
   else{
     D = Fct->Active =
       (struct FunctionActive *)Malloc(sizeof(struct FunctionActive)) ;
-
     D->Case.ValueFromIndex.Table = NULL;
   }
 }
