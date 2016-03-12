@@ -8432,16 +8432,19 @@ MultiFExpr :
       Constant_S.Name = $1;
       if(!Tree_Query(ConstantTable_L, &Constant_S))
 	vyyerror("Unknown Constant: %s", $1);
-      else
-	if(Constant_S.Type != VAR_LISTOFFLOAT)
+      else{
+	if(Constant_S.Type != VAR_LISTOFFLOAT){
 	  /* vyyerror("Multi value Constant needed: %s", $1); */
 	  List_Add($$, &Constant_S.Value.Float);
-	else
+        }
+	else{
 	  for(int i = 0; i < List_Nbr(Constant_S.Value.List); i++) {
 	    double d;
 	    List_Read(Constant_S.Value.List, i, &d);
 	    List_Add($$, &d);
 	  }
+        }
+      }
     }
 
   // FIXME: Should replace tSTRING with String__Index in above rule, but this leads to
@@ -8686,11 +8689,11 @@ MultiFExpr :
     {
       Message::Barrier();
       FILE *File;
+      $$ = List_Create(100, 100, sizeof(double));
       if(!(File = FOpen(Fix_RelativePath($3).c_str(), "rb"))){
         Message::Warning("Could not open file '%s'", $3);
       }
       else{
-	$$ = List_Create(100,100,sizeof(double));
 	double d;
 	while(!feof(File))
 	  if(fscanf(File, "%lf", &d) != EOF)
