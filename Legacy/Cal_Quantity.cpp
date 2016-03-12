@@ -18,7 +18,7 @@
 #include "Get_FunctionValue.h"
 #include "MallocUtils.h"
 #include "Message.h"
-
+#include "ProParser.h"
 #include "Pos_Format.h"
 
 extern struct Problem Problem_S ;
@@ -1179,4 +1179,5 @@ void Cal_StoreInRegister(struct  Value  *Value, int RegisterIndex)
 void Cal_StoreInVariable(struct  Value  *Value, const char *name)
 {
   Cal_CopyValue(Value, &NamedValueSaved[name]) ;
+  Export_Value(Value, GetDPNumbers[name]);
 }

@@ -21,6 +21,7 @@
 #include "TreeUtils.h"
 #include "MallocUtils.h"
 #include "Message.h"
+#include "ProParser.h"
 #include "OS.h"
 
 #define TWO_PI             6.2831853071795865
@@ -709,6 +710,8 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
   for(std::map<int, std::map<int, std::complex<double> > >::iterator it =
         unknowns.begin(); it != unknowns.end(); it++){
 
+    std::vector<double> exportRe, exportIm;
+
     char FileRe[256], FileIm[256] ;
     if(unknowns.size() > 1){
       sprintf(FileRe, "%s_%d", Name_File, it->first);
@@ -741,12 +744,23 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
     }
 
     if(!Group_P){
-      fprintf(fpRe, "%d\n", (int)it->second.size()); // needed for ListFromFile
-      if(fpIm) fprintf(fpIm, "%d\n", (int)it->second.size());
+      int n = (int)it->second.size();
+      fprintf(fpRe, "%d\n", n);
+      exportRe.push_back(n);
+      if(fpIm){
+        fprintf(fpIm, "%d\n", n);
+        exportIm.push_back(n);
+      }
       for(std::map<int, std::complex<double> >::iterator it2 = it->second.begin();
           it2 != it->second.end(); it2++){
         fprintf(fpRe, "%d %.16g\n", it2->first, it2->second.real());
-        if(fpIm) fprintf(fpIm, "%d %.16g\n", it2->first, it2->second.imag());
+        exportRe.push_back(it2->first);
+        exportRe.push_back(it2->second.real());
+        if(fpIm){
+          fprintf(fpIm, "%d %.16g\n", it2->first, it2->second.imag());
+          exportIm.push_back(it2->first);
+          exportIm.push_back(it2->second.imag());
+        }
       }
     }
     else{
@@ -756,8 +770,13 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
       // meshes)
       List_Delete(Group_P->ExtendedList);
       Generate_ExtendedGroup(Group_P) ;
-      fprintf(fpRe, "%d\n", List_Nbr(Group_P->ExtendedList));
-      if(fpIm) fprintf(fpIm, "%d\n", List_Nbr(Group_P->ExtendedList));
+      int n = List_Nbr(Group_P->ExtendedList);
+      fprintf(fpRe, "%d\n", n);
+      exportRe.push_back(n);
+      if(fpIm){
+        fprintf(fpIm, "%d\n", n);
+        exportIm.push_back(n);
+      }
       for(int i = 0; i < List_Nbr(Group_P->ExtendedList); i++){
         int num;
         List_Read(Group_P->ExtendedList, i, &num);
@@ -767,18 +786,34 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
           if(it->second.count(num)){
             std::complex<double> s = it->second[num];
             fprintf(fpRe, "%d %.16g\n", num, s.real());
-            if(fpIm) fprintf(fpIm, "%d %.16g\n", num, s.imag());
+            exportRe.push_back(num);
+            exportRe.push_back(s.real());
+            if(fpIm){
+              fprintf(fpIm, "%d %.16g\n", num, s.imag());
+              exportIm.push_back(num);
+              exportIm.push_back(s.imag());
+            }
           }
           else{
             // yes, write zero: that's on purpose for the iterative schemes
             fprintf(fpRe, "%d 0\n", num);
-            if(fpIm) fprintf(fpIm, "%d 0\n", num);
+            exportRe.push_back(num);
+            exportRe.push_back(0);
+            if(fpIm){
+              fprintf(fpIm, "%d 0\n", num);
+              exportIm.push_back(num);
+              exportIm.push_back(0);
+            }
           }
         }
       }
     }
     fclose(fpRe);
-    if(fpIm) fclose(fpIm);
+    GetDPNumbers[FileRe] = exportRe;
+    if(fpIm){
+      fclose(fpIm);
+      GetDPNumbers[FileIm] = exportIm;
+    }
   }
 
   List_Delete(l);
