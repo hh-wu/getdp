@@ -15,6 +15,8 @@ Enable dynamic GetDP executable (linked with shared lib) (default: OFF)
 Enable Android NDK library target (experimental) (default: OFF)
 @item ENABLE_BUILD_IOS
 Enable iOS (ARM) library target (experimental) (default: OFF)
+@item ENABLE_ONELAB2
+Enable experimental ONELAB-Cloud solver interface (default: OFF)
 @item ENABLE_FORTRAN
 Enable Fortran (needed for Arpack/Sparskit/Zitsol & Bessel) (default: ON)
 @item ENABLE_GMSH
@@ -41,7 +43,11 @@ Enable PETSc linear solver (default: ON)
 Enable Python functions (default: ON)
 @item ENABLE_SLEPC
 Enable SLEPc eigensolver (default: ON)
+@item ENABLE_SMALLFEM
+Enable experimental SmallFem assembler (default: OFF)
 @item ENABLE_SPARSKIT
 Enable Sparskit solver instead of PETSc (requires Fortran) (default: ON)
+@item ENABLE_WRAP_PYTHON
+Build Python wrappers (default: OFF)
 @item ENABLE_ZITSOL
 Enable Zitsol solvers (requires PETSc and Fortran) (default: OFF)

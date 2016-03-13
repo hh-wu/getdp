@@ -1440,7 +1440,7 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
     return ;
   }
 
-  if(PSO_P->ChangeOfCoordinates && PSO_P->ChangeOfCoordinates[0] >= 0){
+  if(PSO_P->ChangeOfCoordinates[0] >= 0){
     for(i=0 ; i<PE->NbrNodes ; i++){
       Current.x = PE->x[i];
       Current.y = PE->y[i];
@@ -1660,7 +1660,7 @@ void Format_PostValue(struct PostSubOperation *PSO_P,
 	      fprintf(PostStream, " %.16g",
                       TmpValues[indexInTmpValues+iRegion].Val[MAX_DIM*k+j]) ;
 	  }
-	if (Flag_NoNewLine || 
+	if (Flag_NoNewLine ||
             Format == FORMAT_REGION_VALUE || Format == FORMAT_FREQUENCY_REGION_VALUE)
 	  fprintf(PostStream, " ") ;
 	else

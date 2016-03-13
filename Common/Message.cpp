@@ -51,6 +51,7 @@
 #endif
 
 #if defined(HAVE_PYTHON)
+#undef HAVE_DLOPEN
 #include <Python.h>
 #endif
 
