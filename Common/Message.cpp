@@ -144,7 +144,9 @@ void Message::Finalize()
   FinalizeSocket();
   FinalizeOnelab();
 #if defined(HAVE_PYTHON)
-  Py_Finalize();
+  // FIXME: this should be called, but it segfaults if the getdp lib is itself
+  // wrapped into python with swig
+  //Py_Finalize();
 #endif
 }
 
