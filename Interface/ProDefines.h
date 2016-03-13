@@ -134,8 +134,6 @@ struct StringXDefine  Constraint_Type[] = {
   {"Init"                 , INIT},
   {"AssignFromResolution" , ASSIGNFROMRESOLUTION},
   {"InitFromResolution"   , INITFROMRESOLUTION},
-  {"AssignLocalProjection", ASSIGN_LOCALPROJ},
-  {"InitLocalProjection"  , INIT_LOCALPROJ},
   {"Network"              , NETWORK},
   {"Link"                 , CST_LINK},
   {"LinkCplx"             , CST_LINKCPLX},

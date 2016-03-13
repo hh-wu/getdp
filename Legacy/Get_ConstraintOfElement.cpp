@@ -56,7 +56,6 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 
     case ASSIGN :                case INIT :
     case ASSIGNFROMRESOLUTION :  case INITFROMRESOLUTION :
-    case ASSIGN_LOCALPROJ :      case INIT_LOCALPROJ :
     case CST_LINK : case CST_LINKCPLX :
 
       switch(Constraint_P->QuantityType) {
@@ -101,11 +100,6 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 		 &QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].
 		 TimeFunctionIndex, KeepCurrentElement) ;
 	    }
-            else if (ConstraintPerRegion_P->Type == ASSIGN_LOCALPROJ ||
-                     ConstraintPerRegion_P->Type == INIT_LOCALPROJ) {
-              // nothing to do now (per entity): we will do the projection
-              // later, per element
-            }
 	    else if (ConstraintPerRegion_P->Type == CST_LINK ||
 		     ConstraintPerRegion_P->Type == CST_LINKCPLX) {
 	      Get_LinkForConstraint
@@ -192,8 +186,7 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 
       }
 
-      break ;  /* ASSIGN || INIT || ASSIGN_LOCALPROJ || INIT_LOCALPROJ ||
-                  ASSIGNFROMRESOLUTION || INITFROMRESOLUTION */
+      break ;  /* ASSIGN || INIT || ASSIGNFROMRESOLUTION || INITFROMRESOLUTION */
 
     default :
       Message::Error("Unknown type of Constraint");

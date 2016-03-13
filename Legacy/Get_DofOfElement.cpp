@@ -222,12 +222,6 @@ void  Get_DofOfElement(struct Element          * Element,
   }  /* for i ... */
 
   QuantityStorage_P->NbrElementaryBasisFunction = Nbr_ElementaryBF ;
-
-  // FIXME: just for testing - this should be called in a separate loop with
-  // appropriate initializations in Treatment_Formulation
-  if (TreatmentStatus == _PRE)
-    Treatment_ConstraintByLocalProjection(Element, FunctionSpace_P,
-                                          QuantityStorage_P);
 }
 
 /* ------------------------------------------------------------------------ */
