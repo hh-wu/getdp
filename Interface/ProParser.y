@@ -9092,7 +9092,7 @@ void Alloc_ParserVariables()
     for(std::map<std::string, std::vector<double> >::iterator it =
           CommandLineNumbers.begin(); it != CommandLineNumbers.end(); it++){
       std::vector<double> &v(it->second);
-      Constant_S.Name = strdup(it->first.c_str());
+      Constant_S.Name = strSave(it->first.c_str());
       if(v.size() == 1){
         Message::Info("Adding number %s = %g", it->first.c_str(), v[0]);
         Constant_S.Type = VAR_FLOAT;
@@ -9110,18 +9110,18 @@ void Alloc_ParserVariables()
     for(std::map<std::string, std::vector<std::string> >::iterator it = CommandLineStrings.begin();
         it != CommandLineStrings.end(); it++){
       std::vector<std::string> &v(it->second);
-      Constant_S.Name = strdup(it->first.c_str());
+      Constant_S.Name = strSave(it->first.c_str());
       if(v.size() == 1){
         Message::Info("Adding string %s = \"%s\"", it->first.c_str(), v[0].c_str());
         Constant_S.Type = VAR_CHAR;
-        Constant_S.Value.Char = strdup(v[0].c_str());
+        Constant_S.Value.Char = strSave(v[0].c_str());
       }
       else{
         Message::Info("Adding list of strings %s", it->first.c_str());
         Constant_S.Type = VAR_LISTOFCHAR;
         Constant_S.Value.List = List_Create(v.size(), 1, sizeof(char*));
         for(unsigned int i = 0; i < v.size(); i ++)
-          List_Add(Constant_S.Value.List, strdup(v[i].c_str()));
+          List_Add(Constant_S.Value.List, strSave(v[i].c_str()));
       }
       Tree_Add(ConstantTable_L, &Constant_S);
     }

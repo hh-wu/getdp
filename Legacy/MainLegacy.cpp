@@ -627,7 +627,7 @@ int MainLegacy(int argc, char *argv[])
   return Message::GetErrorCount();
 }
 
-int GetDP(std::vector<std::string> &args, void *ptr)
+int GetDP(const std::vector<std::string> &args, void *ptr)
 {
   onelab::server *onelabServer = (onelab::server*) ptr;
   if(onelabServer != NULL){
@@ -645,7 +645,7 @@ void GetDPClearNumbers()
   GetDPNumbers.clear();
 }
 
-void GetDPSetNumber(const std::string &name, std::vector<double> &value)
+void GetDPSetNumber(const std::string &name, const std::vector<double> &value)
 {
   GetDPNumbers[name] = value;
   CommandLineNumbers[name] = value;
@@ -661,7 +661,7 @@ void GetDPClearStrings()
   GetDPStrings.clear();
 }
 
-void GetDPSetString(const std::string &name, std::vector<std::string> &value)
+void GetDPSetString(const std::string &name, const std::vector<std::string> &value)
 {
   GetDPStrings[name] = value;
   CommandLineStrings[name] = value;
