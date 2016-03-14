@@ -347,7 +347,7 @@ void Cal_AssembleTerm_DtDt(struct Dof * Equ, struct Dof * Dof, double Val[])
 /* ------------------------------------------------- */
 /*  higher order Time Derivative for Polynomial EVP  */
 /* ------------------------------------------------- */
-void Cal_AssembleTerm_DtDtDtDof(struct Dof * Equ, struct Dof * Dof, double Val[]) 
+void Cal_AssembleTerm_DtDtDtDof(struct Dof * Equ, struct Dof * Dof, double Val[])
 {
   int k ;
   if(Current.TypeAssembly == ASSEMBLY_SEPARATE){
@@ -415,7 +415,7 @@ void Cal_AssembleTerm_DtDtDtDtDof(struct Dof * Equ, struct Dof * Dof, double Val
 
 void Cal_AssembleTerm_DtDtDtDtDtDof(struct Dof * Equ, struct Dof * Dof, double Val[])
 {
-  int k ;	
+  int k ;
   if(Current.TypeAssembly == ASSEMBLY_SEPARATE){
 		if (!Current.DofData->Flag_Init[6]) {
 			Current.DofData->Flag_Init[6] = 1 ;
@@ -531,7 +531,27 @@ void Cal_AssembleTerm_NeverDt(struct Dof * Equ, struct Dof * Dof, double Val[])
   int     k ;
 
   if(Current.TypeAssembly == ASSEMBLY_SEPARATE){
-    Message::Error("NeverDt not implemented for separate assembly");
+    if (!Current.DofData->Flag_Init[1]) {
+      Current.DofData->Flag_Init[1] = 1 ;
+      LinAlg_CreateMatrix(&Current.DofData->M1, &Current.DofData->Solver,
+			  Current.DofData->NbrDof, Current.DofData->NbrDof) ;
+      LinAlg_CreateVector(&Current.DofData->m1, &Current.DofData->Solver,
+			  Current.DofData->NbrDof) ;
+      LinAlg_ZeroMatrix(&Current.DofData->M1);
+      LinAlg_ZeroVector(&Current.DofData->m1);
+      Current.DofData->m1s = List_Create(10, 10, sizeof(gVector));
+      for(int i = 0; i < List_Nbr(Current.DofData->TimeFunctionIndex); i++){
+        gVector m;
+        LinAlg_CreateVector(&m, &Current.DofData->Solver,
+                            Current.DofData->NbrDof) ;
+        LinAlg_ZeroVector(&m);
+        List_Add(Current.DofData->m1s, &m);
+      }
+    }
+    for (k = 0 ; k < Current.NbrHar ; k += 2)
+      Dof_AssembleInMat(Equ+k, Dof+k, Current.NbrHar, &Val[k],
+			&Current.DofData->M1, &Current.DofData->m1,
+                        Current.DofData->m1s) ;
   }
   else{
     if (Current.NbrHar == 1) {
