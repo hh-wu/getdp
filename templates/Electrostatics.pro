@@ -93,7 +93,7 @@ Group {
 }
 
 If(interactive)
-  Include "MaterialDatabase.pro"
+  Include "MaterialDatabase.pro";
   If(export)
     Printf('Include "MaterialDatabase.pro";') >> Str[exportFile];
   EndIf
