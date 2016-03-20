@@ -913,6 +913,7 @@ static void _setStandardOptions(onelab::parameter *p, Message::fmap &fopt,
   if(fopt.count("Visible")) p->setVisible(fopt["Visible"][0] ? true : false);
   if(fopt.count("ReadOnly")) p->setReadOnly(fopt["ReadOnly"][0] ? true : false);
   if(fopt.count("NeverChanged")) p->setNeverChanged(fopt["NeverChanged"][0] ? true : false);
+  if(fopt.count("ChangedValue")) p->setChangedValue(fopt["ChangedValue"][0]);
   if(fopt.count("ReadOnlyRange"))
     p->setAttribute("ReadOnlyRange", fopt["ReadOnlyRange"][0] ? "1" : "0");
   if(fopt.count("AutoCheck"))

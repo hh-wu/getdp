@@ -27,7 +27,7 @@ Group {
   // generic groups needed by the model
   DefineGroup[
     DomainCC_Ele, // non-conducting domain
-    DomainQ_Ele, // domain with impose volume charge density
+    DomainQ_Ele, // domain with imposed volume charge density
     SkinDomainC_Ele, // boundary of conductors
     Domain_Inf, // infinite region
     Domain_Dirichlet // Dirichlet boundary conditions
