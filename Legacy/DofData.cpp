@@ -696,7 +696,7 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
       List_Read(l, i, &dof);
     else
       dof = (Dof*)List_Pointer(DofData_P->DofList, i);
-    if(dof->Type == DOF_UNKNOWN){
+    if(dof->Type == DOF_UNKNOWN || dof->Type == DOF_UNKNOWN_INIT){
       gScalar s;
       LinAlg_GetScalarInVector(&s, &DofData_P->CurrentSolution->x,
                                dof->Case.Unknown.NumDof - 1);
@@ -710,16 +710,18 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
   for(std::map<int, std::map<int, std::complex<double> > >::iterator it =
         unknowns.begin(); it != unknowns.end(); it++){
 
-    std::vector<double> exportRe, exportIm;
-
-    char FileRe[256], FileIm[256] ;
+    // create files that can be interpreted by ListFromFile and Value/VectorFromIndex
+    char FileRe[256], FileIm[256], FileNodes[256] ;
     if(unknowns.size() > 1){
       sprintf(FileRe, "%s_%d", Name_File, it->first);
       sprintf(FileIm, "%s_%d", Name_File, it->first);
+      sprintf(FileNodes, "%s_%d_Nodes.txt", Name_File, it->first);
     }
     else{
       strcpy(FileRe, Name_File);
       strcpy(FileIm, Name_File);
+      strcpy(FileNodes, Name_File);
+      strcat(FileNodes, "_Nodes.txt");
     }
     if(Current.NbrHar > 1){
       strcat(FileRe, "_Re.txt");
@@ -736,12 +738,23 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
     }
     FILE *fpIm = 0;
     if(Current.NbrHar > 1){
-      FOpen(FileIm, "w");
+      fpIm = FOpen(FileIm, "w");
       if(!fpIm){
         Message::Error("Unable to open file '%s'", FileIm) ;
         return;
       }
     }
+    FILE *fpNodes = 0;
+    if(Group_P && Group_P->FunctionType == NODESOF){
+      fpNodes = FOpen(FileNodes, "w");
+      if(!fpNodes){
+        Message::Error("Unable to open file '%s'", FileNodes) ;
+        return;
+      }
+    }
+
+    // create vectors that can be shared as lists
+    std::vector<double> exportRe, exportIm, exportNodes;
 
     if(!Group_P){
       int n = (int)it->second.size();
@@ -777,6 +790,10 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
         fprintf(fpIm, "%d\n", n);
         exportIm.push_back(n);
       }
+      if(fpNodes){
+        fprintf(fpNodes, "%d\n", n);
+        exportNodes.push_back(n);
+      }
       for(int i = 0; i < List_Nbr(Group_P->ExtendedList); i++){
         int num;
         List_Read(Group_P->ExtendedList, i, &num);
@@ -805,6 +822,14 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
               exportIm.push_back(0);
             }
           }
+          if(fpNodes){
+            Geo_Node *gn = Geo_GetGeoNodeOfNum(num);
+            fprintf(fpNodes, "%d %g %g %g\n", num, gn->x, gn->y, gn->z);
+            exportNodes.push_back(num);
+            exportNodes.push_back(gn->x);
+            exportNodes.push_back(gn->y);
+            exportNodes.push_back(gn->z);
+          }
         }
       }
     }
@@ -813,6 +838,10 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
     if(fpIm){
       fclose(fpIm);
       GetDPNumbers[FileIm] = exportIm;
+    }
+    if(fpNodes){
+      fclose(fpNodes);
+      GetDPNumbers[FileNodes] = exportNodes;
     }
   }
 
@@ -1944,7 +1973,8 @@ void Dof_GetDummies(struct DefineSystem * DefineSystem_P, struct DofData * DofDa
 	      }
 	    }
             if(ii)
-              Message::Info("Freq %4lg (%d/%d) Formulation %s Quantity %s (BF %d)  #DofsFreqSpectrum %d/%d",
+              Message::Info("Freq %4lg (%d/%d) Formulation %s Quantity %s "
+                            "(BF %d)  #DofsFreqSpectrum %d/%d",
                             Val_Pulsation[iHar/2]/TWO_PI, iHar/2, Current.NbrHar/2,
                             Formulation_P->Name, DefineQuantity_P->Name,
                             ((struct BasisFunction *)BasisFunction_P)->Num, ii, iit) ;
@@ -1965,10 +1995,11 @@ void Dof_GetDummies(struct DefineSystem * DefineSystem_P, struct DofData * DofDa
 	      }
 	    }
             if(ii)
-	    Message::Info("Freq %4lg (%d/%d) Formulation %s  GlobalQuantity %s  (BF %d)  #DofsWithSpectrum %d/%d",
-                          Val_Pulsation[iHar/2]/TWO_PI, iHar/2, Current.NbrHar/2,
-                          Formulation_P->Name, GlobalQuantity_P->Name,
-                          ((struct GlobalQuantity *)GlobalQuantity_P)->Num, ii, iit) ;
+              Message::Info("Freq %4lg (%d/%d) Formulation %s  GlobalQuantity %s "
+                            "(BF %d)  #DofsWithSpectrum %d/%d",
+                            Val_Pulsation[iHar/2]/TWO_PI, iHar/2, Current.NbrHar/2,
+                            Formulation_P->Name, GlobalQuantity_P->Name,
+                            ((struct GlobalQuantity *)GlobalQuantity_P)->Num, ii, iit) ;
 	  }
 
 	}   /*  end FrequencySpectrum in DofData */
