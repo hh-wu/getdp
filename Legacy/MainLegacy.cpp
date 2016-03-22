@@ -645,6 +645,12 @@ void GetDPClearNumbers()
   GetDPNumbers.clear();
 }
 
+void GetDPSetNumber(const std::string &name, double value)
+{
+  GetDPNumbers[name] = std::vector<double>(1, value);
+  CommandLineNumbers[name] = std::vector<double>(1, value);
+}
+
 void GetDPSetNumber(const std::string &name, const std::vector<double> &value)
 {
   GetDPNumbers[name] = value;
@@ -659,6 +665,12 @@ std::vector<double> &GetDPGetNumber(const std::string &name)
 void GetDPClearStrings()
 {
   GetDPStrings.clear();
+}
+
+void GetDPSetString(const std::string &name, const std::string &value)
+{
+  GetDPStrings[name] = std::vector<std::string>(1, value);
+  CommandLineStrings[name] = std::vector<std::string>(1, value);
 }
 
 void GetDPSetString(const std::string &name, const std::vector<std::string> &value)
