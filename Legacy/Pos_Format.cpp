@@ -14,6 +14,7 @@
 #include "GetDPConfig.h"
 #include "ProData.h"
 #include "ProDefine.h"
+#include "ProParser.h"
 #include "GeoData.h"
 #include "DofData.h"
 #include "Pos_Iso.h"
@@ -1362,6 +1363,17 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
           fprintf(PostStream, " %.16g", it->second[i]);
         fprintf(PostStream, "\n");
       }
+    }
+    {
+      std::vector<double> exp;
+      exp.push_back(NodeTable.size());
+      for(std::map<int, std::vector<double> >::iterator it = NodeTable.begin();
+          it != NodeTable.end(); it++){
+        exp.push_back(it->first);
+        for(unsigned int i = 0; i < it->second.size(); i++)
+          exp.push_back(it->second[i]);
+      }
+      GetDPNumbers[CurrentName] = exp;
     }
     break;
   case FORMAT_LOOP_ERROR :
