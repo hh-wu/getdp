@@ -406,7 +406,8 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
       strcat(PostFileName, PostSubOperation_P->AppendStringToFileName);
     }
 
-    if(Message::GetIsCommWorld() && Message::GetCommRank()){
+    if(!strlen(PostFileName) ||
+       (Message::GetIsCommWorld() && Message::GetCommRank())){
       // in parallel mode (SetCommWorld), only rank 0 prints output
       PostStream = NULL ;
     }
