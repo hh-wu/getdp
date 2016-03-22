@@ -711,17 +711,14 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
         unknowns.begin(); it != unknowns.end(); it++){
 
     // create files that can be interpreted by ListFromFile and Value/VectorFromIndex
-    char FileRe[256], FileIm[256], FileNodes[256] ;
+    char FileRe[256], FileIm[256] ;
     if(unknowns.size() > 1){
       sprintf(FileRe, "%s_%d", Name_File, it->first);
       sprintf(FileIm, "%s_%d", Name_File, it->first);
-      sprintf(FileNodes, "%s_%d_Nodes.txt", Name_File, it->first);
     }
     else{
       strcpy(FileRe, Name_File);
       strcpy(FileIm, Name_File);
-      strcpy(FileNodes, Name_File);
-      strcat(FileNodes, "_Nodes.txt");
     }
     if(Current.NbrHar > 1){
       strcat(FileRe, "_Re.txt");
@@ -744,17 +741,9 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
         return;
       }
     }
-    FILE *fpNodes = 0;
-    if(Group_P && Group_P->FunctionType == NODESOF){
-      fpNodes = FOpen(FileNodes, "w");
-      if(!fpNodes){
-        Message::Error("Unable to open file '%s'", FileNodes) ;
-        return;
-      }
-    }
 
     // create vectors that can be shared as lists
-    std::vector<double> exportRe, exportIm, exportNodes;
+    std::vector<double> exportRe, exportIm;
 
     if(!Group_P){
       int n = (int)it->second.size();
@@ -790,10 +779,6 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
         fprintf(fpIm, "%d\n", n);
         exportIm.push_back(n);
       }
-      if(fpNodes){
-        fprintf(fpNodes, "%d\n", n);
-        exportNodes.push_back(n);
-      }
       for(int i = 0; i < List_Nbr(Group_P->ExtendedList); i++){
         int num;
         List_Read(Group_P->ExtendedList, i, &num);
@@ -822,14 +807,6 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
               exportIm.push_back(0);
             }
           }
-          if(fpNodes){
-            Geo_Node *gn = Geo_GetGeoNodeOfNum(num);
-            fprintf(fpNodes, "%d %g %g %g\n", num, gn->x, gn->y, gn->z);
-            exportNodes.push_back(num);
-            exportNodes.push_back(gn->x);
-            exportNodes.push_back(gn->y);
-            exportNodes.push_back(gn->z);
-          }
         }
       }
     }
@@ -838,10 +815,6 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
     if(fpIm){
       fclose(fpIm);
       GetDPNumbers[FileIm] = exportIm;
-    }
-    if(fpNodes){
-      fclose(fpNodes);
-      GetDPNumbers[FileNodes] = exportNodes;
     }
   }
 
