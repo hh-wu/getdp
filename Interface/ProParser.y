@@ -8697,9 +8697,20 @@ MultiFExpr :
       }
       else{
 	double d;
-	while(!feof(File))
-	  if(fscanf(File, "%lf", &d) != EOF)
+	while(!feof(File)){
+          int ret = fscanf(File, "%lf", &d);
+	  if(ret == 1){
 	    List_Add($$, &d);
+          }
+          else if(ret == EOF){
+            break;
+          }
+          else{
+            char dummy[1024];
+            fscanf(File, "%s", dummy);
+            Message::Warning("Ignoring '%s' in file '%s'", dummy, $3);
+          }
+        }
 	fclose(File);
       }
       Free($3);
