@@ -1632,7 +1632,6 @@ void Dof_TransferSolutionToConstraint(struct DofData * DofData_P)
 
   Dof_P0 = (struct Dof *)List_Pointer(DofData_P->DofList, 0) ;
 
-
   for (i = 0 ; i < DofData_P->NbrAnyDof ; i++) {
     Dof_P = Dof_P0 + i ;
 
