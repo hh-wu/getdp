@@ -469,6 +469,8 @@ void Dof_ReadFilePRE(struct DofData * DofData_P)
     fscanf(File_PRE, "%d %d", &DofData_P->NbrAnyDof, &DofData_P->NbrDof) ;
 
     DofData_P->DofList = List_Create(DofData_P->NbrAnyDof, 1, sizeof(struct Dof)) ;
+    Tree_Delete(DofData_P->DofTree);
+    DofData_P->DofTree = NULL;
 
     for (i = 0 ; i < DofData_P->NbrAnyDof ; i++) {
 
@@ -691,9 +693,9 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
   List_T *l = !DofData_P->DofList ? Tree2List(DofData_P->DofTree) : 0;
   int N = l ? List_Nbr(l) : List_Nbr(DofData_P->DofList);
   for(int i = 0; i < N; i++){
-    Dof *dof;
+    struct Dof *dof;
     if(l)
-      List_Read(l, i, &dof);
+      dof = (Dof*)List_Pointer(l, i);
     else
       dof = (Dof*)List_Pointer(DofData_P->DofList, i);
     if(dof->Type == DOF_UNKNOWN || dof->Type == DOF_UNKNOWN_INIT){
@@ -1296,7 +1298,7 @@ struct Dof *Dof_GetDofStruct(struct DofData * DofData_P, int D1, int D2, int D3)
 /*  D o f _ U p d a t e A s s i g n F i x e d D o f                         */
 /* ------------------------------------------------------------------------ */
 
-void Dof_UpdateAssignFixedDof(int D1, int D2, int NbrHar, double *Val)
+void Dof_UpdateAssignFixedDof(int D1, int D2, int NbrHar, double *Val, double *Val2)
 {
   struct Dof  Dof, * Dof_P ;
   int         k ;
@@ -1310,6 +1312,7 @@ void Dof_UpdateAssignFixedDof(int D1, int D2, int NbrHar, double *Val)
     else
       Dof_P = (struct Dof *)List_PQuery(CurrentDofData->DofList, &Dof, fcmp_Dof);
     LinAlg_SetScalar(&Dof_P->Val, &Val[Dof_P->Harmonic]) ;
+    LinAlg_SetScalar(&Dof_P->Val2, &Val2[Dof_P->Harmonic]) ;
   }
 }
 

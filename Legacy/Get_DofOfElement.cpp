@@ -497,7 +497,6 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
                        FunctionSpace_P->Name);
         return;
       }
-
       CodeExist =
 	((Dof_P =
 	  Dof_GetDofStruct(FunctionSpace_P->DofData,
