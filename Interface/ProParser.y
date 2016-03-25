@@ -9203,6 +9203,7 @@ void Free_ParserVariables()
   getdp_yyerrorlevel = 0;
   CommandLineNumbers.clear();
   CommandLineStrings.clear();
+  Num_BasisFunction = 1;
 }
 
 /*  A d d _ G r o u p   &   C o .  */
