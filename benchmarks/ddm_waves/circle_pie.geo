@@ -6,6 +6,8 @@
 
 Include "circle_pie_data.geo";
 
+Solver.AutoMesh = -1; // the geometry script generates the mesh
+
 dLC = LC/10;
 angleRotate = 0;
 Point(1) = {0,0,0,LC};

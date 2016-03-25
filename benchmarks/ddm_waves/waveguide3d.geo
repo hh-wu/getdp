@@ -1,6 +1,6 @@
 Include "waveguide3d_data.geo";
 
-Solver.AutoMesh = 0;
+Solver.AutoMesh = -1; // the geometry script generates the mesh
 
 // For idom In {0:nDoms-1}
 If(MPI_Size == 1) // sequential meshing
@@ -35,7 +35,7 @@ For idom In {start:end}
   For i In {2:5}
     lateralSides += myExtrudedVolume[i] ;
   EndFor
-  
+
   pmlLeft[] = Extrude {-dBb*Cos(theta), -dBb*Sin(theta), 0} {
     Surface{myExtrudedSurface[1]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ;
   };

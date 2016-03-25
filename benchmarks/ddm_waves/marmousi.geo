@@ -1,12 +1,12 @@
 Include "marmousi_data.geo";
 
-lc=LC;
+Solver.AutoMesh = -1; // the geometry script generates the mesh
+
+LC;
 
 Ddom = D/N_DOM;
 iPoint = Ceil(xSource/Ddom); // source location
 Printf("iPoint: %g",iPoint);
-
-Solver.AutoMesh = 0;
 
 // For idom In {0:nDoms-1}
 If(MPI_Size == 1) // sequential meshing

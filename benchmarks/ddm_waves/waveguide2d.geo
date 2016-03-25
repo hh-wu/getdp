@@ -1,6 +1,6 @@
 Include "waveguide2d_data.geo";
 
-Solver.AutoMesh = 0;
+Solver.AutoMesh = -1; // the geometry script generates the mesh
 
 If(MPI_Size == 1) // sequential meshing
   start = 0;

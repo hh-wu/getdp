@@ -1,5 +1,7 @@
 Include "freespace_data.geo";
 
+Solver.AutoMesh = -1; // the geometry script generates the mesh
+
 lc=LC;
 
 Ddom = D/N_DOM;
@@ -7,9 +9,6 @@ Ddom = D/N_DOM;
 // iPoint = Ceil(xSource/Ddom) + Ceil((N_DOM-1)/2.+1); // source location
 iPoint = Ceil((xSource-shiftX)/Ddom); // source location
 Printf("iPoint: %g",iPoint);
-
-
-Solver.AutoMesh = 0;
 
 // For idom In {0:nDoms-1}
 If(MPI_Size == 1) // sequential meshing

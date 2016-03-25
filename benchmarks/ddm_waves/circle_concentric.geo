@@ -5,6 +5,8 @@
 
 Include "circle_concentric_data.geo";
 
+Solver.AutoMesh = -1; // the geometry script generates the mesh
+
 //Compute average area for every subdomain
 area = Pi/N_DOM*(R_EXT^2-R_INT^2);
 //vector of radius
@@ -38,7 +40,7 @@ For i In {0:N_DOM}
   EndIf
 EndFor
 
-If(StrCmp(OnelabAction, "check")) // only mesh if not in onelab check mode
+If(StrCmp(OnelabAction, "check"))
   Mesh 2;
   CreateDir Str(DIR);
   For idom In {0:N_DOM-1}

@@ -4,7 +4,7 @@
 
 Include "cobra_data.geo";
 
-Solver.AutoMesh = 0;
+Solver.AutoMesh = -1; // the geometry creates the mesh
 
 // For idom In {0:nDoms-1}
 If(MPI_Size == 1) // sequential meshing
@@ -40,14 +40,20 @@ For i In {0:nDomList[0]-1} // straight part on the left
   If ( (MPI_Size == 1 || MPI_Rank == i) && nLayersDom < 5 )
     Printf("WARNING: less than 5 layers (%g) in domain %g", nLayersDom, (i));
   EndIf
-  ext[] = Extrude{D1/nDomList[0],0,0}{ Surface{ls[i]}; Layers{ nLayersDom }; Recombine; };
+  ext[] = Extrude{D1/nDomList[0],0,0}{
+    Surface{ls[i]}; Layers{ nLayersDom }; Recombine;
+  };
   ls[] += ext[0];
   lv[] += ext[1];
   lSides[] += ext[{2:5}];
 
   idom = i;
-  pmlLeft~{idom} = Extrude {-dBb*Cos(theta), -dBb*Sin(theta), 0} {Surface{ls[i]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ; };
-  pmlRight~{idom} = Extrude {dBb*Cos(theta), dBb*Sin(theta), 0} {Surface{ls[i+1]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ; };
+  pmlLeft~{idom} = Extrude {-dBb*Cos(theta), -dBb*Sin(theta), 0} {
+    Surface{ls[i]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ;
+  };
+  pmlRight~{idom} = Extrude {dBb*Cos(theta), dBb*Sin(theta), 0} {
+    Surface{ls[i+1]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ;
+  };
 EndFor
 
 If (PARTS > 1)
@@ -57,15 +63,21 @@ If (PARTS > 1)
     If ( (MPI_Size == 1 || MPI_Rank == i) && nLayersDom < 5 )
       Printf("WARNING: less than 5 layers (%g) in domain %g", nLayersDom, (i));
     EndIf
-    ext[] = Extrude{{0,0,1}, {shiftX+D1,R+d1+shiftY,0}, alpha/nDomList[1]}{ Surface{ls[i]}; Layers{ nLayersDom }; Recombine; };
+    ext[] = Extrude{{0,0,1}, {shiftX+D1,R+d1+shiftY,0}, alpha/nDomList[1]}{
+      Surface{ls[i]}; Layers{ nLayersDom }; Recombine;
+    };
     ls[] += ext[0];
     lv[] += ext[1];
     lSides[] += ext[{2:5}];
 
     idom =i;
-    pmlLeft~{idom} = Extrude {-dBb*Cos(theta), -dBb*Sin(theta), 0} {Surface{ls[i]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ; };
+    pmlLeft~{idom} = Extrude {-dBb*Cos(theta), -dBb*Sin(theta), 0} {
+      Surface{ls[i]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ;
+    };
     theta += alpha/nDomList[1];
-    pmlRight~{idom} = Extrude {dBb*Cos(theta), dBb*Sin(theta), 0} {Surface{ls[i+1]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ; };
+    pmlRight~{idom} = Extrude {dBb*Cos(theta), dBb*Sin(theta), 0} {
+      Surface{ls[i+1]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ;
+    };
   EndFor
 EndIf
 
@@ -74,17 +86,23 @@ If (PARTS > 2)
     n += nDomList[1];
     For i In {n:n+nDomList[2]-1} // straight part in the middle
       nLayersDom = Ceil(D2/nDomList[2]/(LC*(1.+1e-6))); // perturbation of LC to help rounding
-    If ( (MPI_Size == 1 || MPI_Rank == i) && nLayersDom < 5 )
+      If ( (MPI_Size == 1 || MPI_Rank == i) && nLayersDom < 5 )
 	Printf("WARNING: less than 5 layers (%g) in domain %g", nLayersDom, (i));
       EndIf
-      ext[] = Extrude{D2/nDomList[2]*Cos(alpha), D2/nDomList[2]*Sin(alpha), 0}{ Surface{ls[i]}; Layers{ nLayersDom }; Recombine; };
+      ext[] = Extrude{D2/nDomList[2]*Cos(alpha), D2/nDomList[2]*Sin(alpha), 0}{
+        Surface{ls[i]}; Layers{ nLayersDom }; Recombine;
+      };
       ls[] += ext[0];
       lv[] += ext[1];
       lSides[] += ext[{2:5}];
 
       idom =i;
-      pmlLeft~{idom} = Extrude {-dBb*Cos(theta), -dBb*Sin(theta), 0} {Surface{ls[i]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ; };
-      pmlRight~{idom} = Extrude {dBb*Cos(theta), dBb*Sin(theta), 0} {Surface{ls[i+1]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ; };
+      pmlLeft~{idom} = Extrude {-dBb*Cos(theta), -dBb*Sin(theta), 0} {
+        Surface{ls[i]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ;
+      };
+      pmlRight~{idom} = Extrude {dBb*Cos(theta), dBb*Sin(theta), 0} {
+        Surface{ls[i+1]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ;
+      };
     EndFor
   EndIf
 EndIf
@@ -96,15 +114,23 @@ If (PARTS > 3)
     If ( (MPI_Size == 1 || MPI_Rank == i) && nLayersDom < 5 )
       Printf("WARNING: less than 5 layers (%g) in domain %g", nLayersDom, (i));
     EndIf
-    ext[] = Extrude{{0,0,1}, {shiftX+D1+(R+d1)*Sin[alpha]+D2*Cos(alpha)+R*Sin[alpha], shiftY+(R+d1)*(1-Cos[alpha])+D2*Sin[alpha]+R*(1-Cos[alpha])-R, 0}, -alpha/nDomList[3]}{ Surface{ls[i]}; Layers{ nLayersDom }; Recombine; };
+    ext[] = Extrude{{0,0,1}, {shiftX+D1+(R+d1)*Sin[alpha]+D2*Cos(alpha)+R*Sin[alpha],
+        shiftY+(R+d1)*(1-Cos[alpha])+D2*Sin[alpha]+R*(1-Cos[alpha])-R, 0},
+      -alpha/nDomList[3]}{
+      Surface{ls[i]}; Layers{ nLayersDom }; Recombine;
+    };
     ls[] += ext[0];
     lv[] += ext[1];
     lSides[] += ext[{2:5}];
 
     idom =i;
-    pmlLeft~{idom} = Extrude {-dBb*Cos(theta), -dBb*Sin(theta), 0} {Surface{ls[i]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ; };
+    pmlLeft~{idom} = Extrude {-dBb*Cos(theta), -dBb*Sin(theta), 0} {
+      Surface{ls[i]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ;
+    };
     theta -= alpha/nDomList[1];
-    pmlRight~{idom} = Extrude {dBb*Cos(theta), dBb*Sin(theta), 0} {Surface{ls[i+1]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ; };
+    pmlRight~{idom} = Extrude {dBb*Cos(theta), dBb*Sin(theta), 0} {
+      Surface{ls[i+1]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ;
+    };
   EndFor
 EndIf
 
@@ -115,14 +141,20 @@ If (PARTS > 4)
     If ( (MPI_Size == 1 || MPI_Rank == i) && nLayersDom < 5 )
       Printf("WARNING: less than 5 layers (%g) in domain %g", nLayersDom, (i));
     EndIf
-    ext[] = Extrude{D3/nDomList[4],0,0}{ Surface{ls[i]}; Layers{ nLayersDom }; Recombine; };
+    ext[] = Extrude{D3/nDomList[4],0,0}{
+      Surface{ls[i]}; Layers{ nLayersDom }; Recombine;
+    };
     ls[] += ext[0];
     lv[] += ext[1];
     lSides[] += ext[{2:5}];
 
     idom =i;
-    pmlLeft~{idom} = Extrude {-dBb*Cos(theta), -dBb*Sin(theta), 0} {Surface{ls[i]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ; };
-    pmlRight~{idom} = Extrude {dBb*Cos(theta), dBb*Sin(theta), 0} {Surface{ls[i+1]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ; };
+    pmlLeft~{idom} = Extrude {-dBb*Cos(theta), -dBb*Sin(theta), 0} {
+      Surface{ls[i]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ;
+    };
+    pmlRight~{idom} = Extrude {dBb*Cos(theta), dBb*Sin(theta), 0} {
+      Surface{ls[i+1]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ;
+    };
   EndFor
 EndIf
 n += nDomList[4];

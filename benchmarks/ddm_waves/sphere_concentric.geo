@@ -6,6 +6,7 @@
 
 Include "sphere_concentric_data.geo";
 
+Solver.AutoMesh = -1; // the geometry script generates the mesh
 Mesh.Optimize = 1;
 
 If(N_DOM < 1)
