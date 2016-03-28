@@ -137,7 +137,7 @@ void Pro_DefineQuantityIndex(List_T *WholeQuantity_L,int DefineQuantityIndexEqu,
 			     int **QuantityTraceGroupIndexTable);
 void Pro_DefineQuantityIndex_1(List_T *WholeQuantity_L, int TraceGroupIndex);
 void yyerror(const char *s);
-void vyyerror(const char *fmt, ...);
+void vyyerror(int level, const char *fmt, ...);
 
 struct doubleXstring{
   double d;
@@ -408,7 +408,7 @@ Group :
       if(List_Nbr($5) == 1)
         List_Read($5, 0, &j);
       else
-        vyyerror("Single region number expected for moving band definition");
+        vyyerror(0, "Single region number expected for moving band definition");
       Group_S.InitialList = List_Create(1, 1, sizeof(int));
       List_Add(Group_S.InitialList, &j);
       Group_S.Type = MOVINGBAND2D;
@@ -494,7 +494,7 @@ GroupRHS :
 	List_Read(Problem_S.Group, i, &Group_S); $$ = i;
       }
       else {
-	$$ = -2; vyyerror("Unknown Group: %s", $1);
+	$$ = -2; vyyerror(0, "Unknown Group: %s", $1);
       }
       Free($1);
     }
@@ -509,7 +509,7 @@ FunctionForGroup :
     { $$ = Get_DefineForString(FunctionForGroup_Type, $1, &FlagError);
       if(FlagError){
 	Get_Valid_SXD($1, FunctionForGroup_Type);
-	vyyerror("Unknown type of Function for Group: %s", $1);
+	vyyerror(0, "Unknown type of Function for Group: %s", $1);
       }
       Free($1);
     }
@@ -535,7 +535,7 @@ SuppListOfRegion :
         nb_SuppList++;
       }
       else
-        vyyerror("More than 2 supplementary lists of Regions not allowed");
+        vyyerror(0, "More than 2 supplementary lists of Regions not allowed");
     }
 
   | SuppListOfRegion Comma tInSupport String__Index
@@ -550,14 +550,14 @@ SuppListOfRegion :
             List_Add($$, &i);
             ListsOfRegion[nb_SuppList] = $$;
           }
-          else  vyyerror("Not a Support of Element Type: %s", $4);
+          else  vyyerror(0, "Not a Support of Element Type: %s", $4);
         }
-        else  vyyerror("Unknown Region for Support: %s", $4);
+        else  vyyerror(0, "Unknown Region for Support: %s", $4);
         Free($4);
         nb_SuppList++;
       }
       else
-        vyyerror("More than 2 supplementary lists of Regions not allowed");
+        vyyerror(0, "More than 2 supplementary lists of Regions not allowed");
     }
  ;
 
@@ -567,7 +567,7 @@ SuppListTypeForGroup :
     { $$ = Get_DefineForString(FunctionForGroup_SuppList, $1, &FlagError);
       if(FlagError){
 	Get_Valid_SXD($1, FunctionForGroup_SuppList);
-	vyyerror("Unknown type of Supplementary Region: %s", $1);
+	vyyerror(0, "Unknown type of Supplementary Region: %s", $1);
       }
       Free($1);
     }
@@ -628,7 +628,7 @@ IRegion :
     {
       List_Reset($$ = ListOfInt_L);
       if(!$5 || ($1 < $3 && $5 < 0) || ($1 > $3 && $5 > 0)){
-	vyyerror("Wrong increment in '%d : %d : %d'", $1, $3, $5);
+	vyyerror(0, "Wrong increment in '%d : %d : %d'", $1, $3, $5);
 	List_Add(ListOfInt_L, &($1));
       }
       else
@@ -643,7 +643,7 @@ IRegion :
 	// Si ce n'est pas un nom de groupe, est-ce un nom de constante ? :
 	Constant_S.Name = $1;
 	if(!Tree_Query(ConstantTable_L, &Constant_S)) {
-	  vyyerror("Unknown Constant: %s", $1);
+	  vyyerror(0, "Unknown Constant: %s", $1);
 	  i = 0;
 	  List_Reset(ListOfInt_L); List_Add($$ = ListOfInt_L, &i);
 	}
@@ -662,7 +662,7 @@ IRegion :
 	    }
 	  }
 	  else {
-	    vyyerror("Unknown type of Constant: %s", $1);
+	    vyyerror(0, "Unknown type of Constant: %s", $1);
 	    i = 0;
 	    List_Reset(ListOfInt_L); List_Add($$ = ListOfInt_L, &i);
 	  }
@@ -825,7 +825,7 @@ Function :
 	  ((struct Expression *)List_Pointer(Problem_S.Expression, i))->Name = $1;
 	  List_Pop(Problem_S.Expression);
 	}
-	else  { vyyerror("Redefinition of Function: %s", $1); }
+	else  { vyyerror(0, "Redefinition of Function: %s", $1); }
       }
       else {  /* new identifier */
 	Free(((struct Expression *)List_Pointer(Problem_S.Expression, $5))->Name);
@@ -856,7 +856,7 @@ Function :
 	  Expression_P->Case.PieceWiseFunction.NumLastRegion = -1;
 	}
 	else if(Expression_P->Type != PIECEWISEFUNCTION)
-	  vyyerror("Not piece-wise Expression: %s", $1);
+	  vyyerror(0, "Not piece-wise Expression: %s", $1);
 	Free($1);
       }
 
@@ -867,7 +867,7 @@ Function :
 
 	  if(List_Search(Expression_P->Case.PieceWiseFunction.ExpressionPerRegion,
 			  &ExpressionPerRegion_S.RegionIndex, fcmp_Integer))
-	    vyyerror("Redefinition of piece-wise Function: %s [%d]",
+	    vyyerror(0, "Redefinition of piece-wise Function: %s [%d]",
 		     Expression_P->Name, ExpressionPerRegion_S.RegionIndex);
 	  else
 	    List_Add(Expression_P->Case.PieceWiseFunction.ExpressionPerRegion,
@@ -875,7 +875,7 @@ Function :
 	}
 	if($3 == -1) { List_Delete(Group_S.InitialList); }
       }
-      else  vyyerror("Bad Group right hand side");
+      else  vyyerror(0, "Bad Group right hand side");
     }
 
   | Loop
@@ -942,7 +942,7 @@ Expression :
   | tFunction '[' tSTRING ']'
     { int i;
       if((i = List_ISearchSeq(Problem_S.Expression, $3, fcmp_Expression_Name)) < 0)
-	vyyerror("Unknown name of Expression: %s", $3);
+	vyyerror(0, "Unknown name of Expression: %s", $3);
       Free($3);  $$ = i;
     }
 
@@ -1250,7 +1250,7 @@ WholeQuantity_Single :
 	WholeQuantity_S.Type = WQ_EXPRESSION;
 	WholeQuantity_S.Case.Expression.Index = l;
 	WholeQuantity_S.Case.Expression.NbrArguments = $2;
-	if($2 < 0)  vyyerror("Uncompatible argument for Function: %s", $1);
+	if($2 < 0)  vyyerror(0, "Uncompatible argument for Function: %s", $1);
       }
 
       /* Built in functions */
@@ -1275,7 +1275,7 @@ WholeQuantity_Single :
 	      WholeQuantity_S.Case.Function.NbrArguments = $2;
 	    }
 	    else {
-	      vyyerror("Wrong number of arguments for Function '%s' (%d instead of %d)",
+	      vyyerror(0, "Wrong number of arguments for Function '%s' (%d instead of %d)",
 		       $1, $2, WholeQuantity_S.Case.Function.NbrArguments);
 	    }
 	  }
@@ -1288,11 +1288,11 @@ WholeQuantity_Single :
           WholeQuantity_S.Case.Function.String = StringForParameter;
 	  if(WholeQuantity_S.Case.Function.NbrParameters >= 0 &&
 	      WholeQuantity_S.Case.Function.NbrParameters != List_Nbr($3)) {
-	    vyyerror("Wrong number of parameters for Function '%s' (%d instead of %d)",
+	    vyyerror(0, "Wrong number of parameters for Function '%s' (%d instead of %d)",
 		     $1, List_Nbr($3), WholeQuantity_S.Case.Function.NbrParameters);
 	  }
 	  else if(WholeQuantity_S.Case.Function.NbrParameters == -2 && List_Nbr($3)%2 != 0) {
-	    vyyerror("Wrong number of parameters for Function '%s' (%d is not even)",
+	    vyyerror(0, "Wrong number of parameters for Function '%s' (%d is not even)",
 		     $1, List_Nbr($3));
 	  }
 	  else {
@@ -1309,7 +1309,7 @@ WholeQuantity_Single :
 	}
 
 	else {
-	  vyyerror("Unknown Function: %s", $1);
+	  vyyerror(0, "Unknown Function: %s", $1);
 	}
       }
 
@@ -1325,7 +1325,7 @@ WholeQuantity_Single :
 	Get_DefineForString(QuantityFromFS_Type, $1, &FlagError);
       if(FlagError){
 	Get_Valid_SXD($1, QuantityFromFS_Type);
-	vyyerror("Unknown type of discrete Quantity: %s", $1);
+	vyyerror(0, "Unknown type of discrete Quantity: %s", $1);
       }
       Free($1);
       WholeQuantity_S.Case.OperatorAndQuantity.TypeOperator = $2.Int1;
@@ -1336,17 +1336,17 @@ WholeQuantity_Single :
 	if(Current_DofIndexInWholeQuantity == -1)
 	  Current_DofIndexInWholeQuantity = List_Nbr(Current_WholeQuantity_L);
 	else if(Current_DofIndexInWholeQuantity == -2)
-	  vyyerror("Dof{} definition out of context");
+	  vyyerror(0, "Dof{} definition out of context");
 	else
-	  vyyerror("More than one Dof definition in Expression");
+	  vyyerror(0, "More than one Dof definition in Expression");
 	break;
       case QUANTITY_NODOF :
 	if(Current_DofIndexInWholeQuantity == -2)
-	  vyyerror("NoDof definition out of context");
+	  vyyerror(0, "NoDof definition out of context");
 	else if(Current_NoDofIndexInWholeQuantity == -1)
 	  Current_NoDofIndexInWholeQuantity = List_Nbr(Current_WholeQuantity_L);
 	else
-	  vyyerror("More than one NoDof definition in Expression");
+	  vyyerror(0, "More than one NoDof definition in Expression");
 	break;
       }
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -1364,7 +1364,7 @@ WholeQuantity_Single :
   | Quantity_Def ArgumentsForFunction
     {
       if($2 != 1 && $2 != 2 && $2 != 3 && $2 != 4)
-	vyyerror("Wrong number of arguments for discrete quantity evaluation (%d)", $2);
+	vyyerror(0, "Wrong number of arguments for discrete quantity evaluation (%d)", $2);
       WholeQuantity_S.Type = WQ_OPERATORANDQUANTITYEVAL;
       WholeQuantity_S.Case.OperatorAndQuantity.NbrArguments = $2;
       WholeQuantity_S.Case.OperatorAndQuantity.TypeQuantity = QUANTITY_SIMPLE;
@@ -1383,7 +1383,7 @@ WholeQuantity_Single :
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
 
       if(Current_DofIndexInWholeQuantity != Last_DofIndexInWholeQuantity)
-	vyyerror("Dof{} definition out of context");
+	vyyerror(0, "Dof{} definition out of context");
     }
 
   | tAtAnteriorTimeStep
@@ -1397,7 +1397,7 @@ WholeQuantity_Single :
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
 
       if(Current_DofIndexInWholeQuantity != Last_DofIndexInWholeQuantity)
-	vyyerror("Dof{} definition out of context");
+	vyyerror(0, "Dof{} definition out of context");
     }
 
   | tMaxOverTime
@@ -1413,7 +1413,7 @@ WholeQuantity_Single :
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
 
       if(Current_DofIndexInWholeQuantity != Last_DofIndexInWholeQuantity)
-	vyyerror("Dof{} definition out of context");
+	vyyerror(0, "Dof{} definition out of context");
     }
 
   | tFourierSteinmetz
@@ -1432,7 +1432,7 @@ WholeQuantity_Single :
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
 
       if(Current_DofIndexInWholeQuantity != Last_DofIndexInWholeQuantity)
-	vyyerror("Dof{} definition out of context");
+	vyyerror(0, "Dof{} definition out of context");
     }
 
   | tMHTransform
@@ -1442,9 +1442,9 @@ WholeQuantity_Single :
     {
       int i;
       if((i = List_ISearchSeq(Problem_S.Expression, $3, fcmp_Expression_Name)) < 0)
-	vyyerror("Undefined function '%s' used in MHTransform", $3);
+	vyyerror(0, "Undefined function '%s' used in MHTransform", $3);
       if(Current_DofIndexInWholeQuantity != Last_DofIndexInWholeQuantity)
-	vyyerror("Dof{} definition cannot be used in MHTransform");
+	vyyerror(0, "Dof{} definition cannot be used in MHTransform");
       WholeQuantity_S.Type = WQ_MHTRANSFORM;
       WholeQuantity_S.Case.MHTransform.Index = i;
       WholeQuantity_S.Case.MHTransform.WholeQuantity = $6;
@@ -1463,7 +1463,7 @@ WholeQuantity_Single :
         WholeQuantity_S.Case.MHTransform.FunctionType = WQ_EXPRESSION;
         WholeQuantity_S.Case.MHJacNL.NbrArguments = $4;
         WholeQuantity_S.Case.MHJacNL.NbrParameters = List_Nbr($5);
-        if($4 < 0)  vyyerror("Uncompatible argument for Function (in MHJacNL): %s", $3);
+        if($4 < 0)  vyyerror(0, "Uncompatible argument for Function (in MHJacNL): %s", $3);
       }
       /* Built in functions */
       else {
@@ -1487,7 +1487,7 @@ WholeQuantity_Single :
               WholeQuantity_S.Case.Function.NbrArguments = $4;
             }
             else {
-              vyyerror("Wrong number of arguments for Function (in MHJacNL) '%s' (%d instead of %d)",
+              vyyerror(0, "Wrong number of arguments for Function (in MHJacNL) '%s' (%d instead of %d)",
                        $3, $4, WholeQuantity_S.Case.Function.NbrArguments);
             }
           }
@@ -1501,11 +1501,11 @@ WholeQuantity_Single :
           WholeQuantity_S.Case.Function.String = StringForParameter;
 	  if(WholeQuantity_S.Case.Function.NbrParameters >= 0 &&
 	      WholeQuantity_S.Case.Function.NbrParameters != List_Nbr($5)) {
-	    vyyerror("Wrong number of parameters for Function '%s' (%d instead of %d)",
+	    vyyerror(0, "Wrong number of parameters for Function '%s' (%d instead of %d)",
 		     $3, List_Nbr($5), WholeQuantity_S.Case.Function.NbrParameters);
 	  }
 	  else if(WholeQuantity_S.Case.Function.NbrParameters == -2 && List_Nbr($5)%2 != 0) {
-	    vyyerror("Wrong number of parameters for Function '%s' (%d is not even)",
+	    vyyerror(0, "Wrong number of parameters for Function '%s' (%d is not even)",
 		     $3, List_Nbr($5));
 	  }
 	  else {
@@ -1520,7 +1520,7 @@ WholeQuantity_Single :
 	  }
 	}
 	else {
-	  vyyerror("Undefined function '%s' used in MHJacNL", $3);
+	  vyyerror(0, "Undefined function '%s' used in MHJacNL", $3);
 	}
       }
 
@@ -1554,7 +1554,7 @@ WholeQuantity_Single :
       WholeQuantity_S.Case.Trace.InIndex = Num_Group(&Group_S, (char*)"WQ_Trace_In", $6);
 
       if(Group_S.Type != ELEMENTLIST || Group_S.SuppListType != SUPPLIST_CONNECTEDTO)
-	vyyerror("Group for Trace should be of Type 'ElementsOf[x, ConnectedTo y]'");
+	vyyerror(0, "Group for Trace should be of Type 'ElementsOf[x, ConnectedTo y]'");
 
       WholeQuantity_S.Case.Trace.DofIndexInWholeQuantity = -1;
       if(Current_DofIndexInWholeQuantity != Last_DofIndexInWholeQuantity){
@@ -1569,7 +1569,7 @@ WholeQuantity_Single :
 	    }
 	}
 	if(Current_DofIndexInWholeQuantity != -4)
-	  vyyerror("Dof{} definition out of context in Trace operator");
+	  vyyerror(0, "Dof{} definition out of context in Trace operator");
       }
 
       List_Read(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1,
@@ -1588,7 +1588,7 @@ WholeQuantity_Single :
 	else if(!strcmp($2, "Complex"))
 	  WholeQuantity_S.Case.Cast.NbrHar = 2;
 	else
-	  vyyerror("Unknown Cast: %s", $2);
+	  vyyerror(0, "Unknown Cast: %s", $2);
       }
       else {
 	WholeQuantity_S.Case.Cast.NbrHar = 0;
@@ -1777,7 +1777,7 @@ JacobianCaseTerm :
 				&JacobianCase_S.NbrParameters);
       if(!FlagError) {
 	if(JacobianCase_S.NbrParameters == -2 && (List_Nbr($3))%2 != 0)
-	  vyyerror("Wrong number of parameters for Jacobian '%s' (%d is not even)",
+	  vyyerror(0, "Wrong number of parameters for Jacobian '%s' (%d is not even)",
 		   $2, List_Nbr($3));
 	if(JacobianCase_S.NbrParameters < 0)
 	  JacobianCase_S.NbrParameters = List_Nbr($3);
@@ -1790,12 +1790,12 @@ JacobianCaseTerm :
 	  }
 	}
 	else
-	  vyyerror("Wrong number of parameters for Jacobian '%s' (%d instead of %d)",
+	  vyyerror(0, "Wrong number of parameters for Jacobian '%s' (%d instead of %d)",
 		   $2, List_Nbr($3), JacobianCase_S.NbrParameters);
       }
       else{
 	Get_Valid_SXD1N($2, Jacobian_Type);
-	vyyerror("Unknown type of Jacobian: %s", $2);
+	vyyerror(0, "Unknown type of Jacobian: %s", $2);
       }
       Free($2);
       List_Delete($3);
@@ -1879,7 +1879,7 @@ IntegrationCaseTerm :
 	Get_DefineForString(Integration_Type, $2, &FlagError);
       if(FlagError){
 	Get_Valid_SXD($2, Integration_Type);
-	vyyerror("Unknown type of Integration method: %s", $2);
+	vyyerror(0, "Unknown type of Integration method: %s", $2);
       }
       Free($2);
     }
@@ -1889,7 +1889,7 @@ IntegrationCaseTerm :
 	Get_DefineForString(Integration_SubType, $2, &FlagError);
       if(FlagError){
 	Get_Valid_SXD($2, Integration_Type);
-	vyyerror("Unknown subtype of Integration method: %s", $2);
+	vyyerror(0, "Unknown subtype of Integration method: %s", $2);
       }
       Free($2);
     }
@@ -1931,7 +1931,7 @@ QuadratureCaseTerm :
     { QuadratureCase_S.ElementType = Get_DefineForString(Element_Type, $2, &FlagError);
       if(FlagError){
 	Get_Valid_SXD($2, Element_Type);
-	vyyerror("Unknown type of Element: %s", $2);
+	vyyerror(0, "Unknown type of Element: %s", $2);
       }
 
       switch(IntegrationCase_S.SubType) {
@@ -1949,7 +1949,7 @@ QuadratureCaseTerm :
 	     &FlagError, (void (**)())&QuadratureCase_S.Function);
 	  break;
 	default :
-	  vyyerror("Incompatible type of Integration method");
+	  vyyerror(0, "Incompatible type of Integration method");
 	  break;
 	}
 	break;
@@ -1962,16 +1962,16 @@ QuadratureCaseTerm :
 	     &FlagError, (void (**)())&QuadratureCase_S.Function);
 	  break;
 	default :
-	  vyyerror("Incompatible type of Integration method");
+	  vyyerror(0, "Incompatible type of Integration method");
 	  break;
 	}
 	break;
       default :
-	vyyerror("Incompatible type of Integration method");
+	vyyerror(0, "Incompatible type of Integration method");
 	break;
       }
 
-      if(FlagError)  vyyerror("Bad type of Integration method for Element: %s", $2);
+      if(FlagError)  vyyerror(0, "Bad type of Integration method for Element: %s", $2);
       Free($2);
     }
 
@@ -2042,7 +2042,7 @@ ConstraintTerm :
     { Constraint_S.Type = Get_DefineForString(Constraint_Type, $2, &FlagError);
       if(FlagError){
 	Get_Valid_SXD($2, Constraint_Type);
-	vyyerror("Unknown type of Constraint: %s", $2);
+	vyyerror(0, "Unknown type of Constraint: %s", $2);
       }
       Free($2);
     }
@@ -2110,7 +2110,7 @@ ConstraintCaseTerm :
 	Get_DefineForString(Constraint_Type, $2, &FlagError);
       if(FlagError){
 	Get_Valid_SXD($2, Constraint_Type);
-	vyyerror("Unknown type of Constraint: %s", $2);
+	vyyerror(0, "Unknown type of Constraint: %s", $2);
       }
       Free($2);
     }
@@ -2130,7 +2130,7 @@ ConstraintCaseTerm :
     {
       ConstraintPerRegion_S.TimeFunctionIndex = $2;
       if(Is_ExpressionPieceWiseDefined($2))
-        vyyerror("TimeFunction should never be piece-wise defined");
+        vyyerror(0, "TimeFunction should never be piece-wise defined");
     }
 
   | tValue Expression tEND
@@ -2140,7 +2140,7 @@ ConstraintCaseTerm :
 	ConstraintPerRegion_S.Case.Fixed.ExpressionIndex = $2;
 	ConstraintPerRegion_S.Case.Fixed.ExpressionIndex2 = -1;
       }
-      else  vyyerror("Value incompatible with Type");
+      else  vyyerror(0, "Value incompatible with Type");
     }
 
   | tValue '[' Expression ',' Expression ']' tEND
@@ -2150,7 +2150,7 @@ ConstraintCaseTerm :
 	ConstraintPerRegion_S.Case.Fixed.ExpressionIndex = $5;
         ConstraintPerRegion_S.Case.Fixed.ExpressionIndex2 = $3;
       }
-      else  vyyerror("Value incompatible with Type");
+      else  vyyerror(0, "Value incompatible with Type");
     }
 
   | tNameOfResolution String__Index tEND
@@ -2158,7 +2158,7 @@ ConstraintCaseTerm :
       if(ConstraintPerRegion_S.Type == ASSIGNFROMRESOLUTION ||
 	  ConstraintPerRegion_S.Type == INITFROMRESOLUTION)
 	ConstraintPerRegion_S.Case.Solve.ResolutionName = $2;
-      else  vyyerror("NameOfResolution incompatible with Type");
+      else  vyyerror(0, "NameOfResolution incompatible with Type");
     }
 
   | tBranch '{' OneFExpr Comma OneFExpr '}' tEND
@@ -2167,7 +2167,7 @@ ConstraintCaseTerm :
 	ConstraintPerRegion_S.Case.Network.Node1 = (int)$3;
 	ConstraintPerRegion_S.Case.Network.Node2 = (int)$5;
       }
-      else  vyyerror("Branch incompatible with Type");
+      else  vyyerror(0, "Branch incompatible with Type");
     }
 
   | tBranch '{' '(' FExpr ')' Comma '(' FExpr ')' '}' tEND
@@ -2176,7 +2176,7 @@ ConstraintCaseTerm :
 	ConstraintPerRegion_S.Case.Network.Node1 = (int)$4;
 	ConstraintPerRegion_S.Case.Network.Node2 = (int)$8;
       }
-      else  vyyerror("Branch incompatible with Type");
+      else  vyyerror(0, "Branch incompatible with Type");
     }
 
   | tRegionRef GroupRHS tEND
@@ -2195,7 +2195,7 @@ ConstraintCaseTerm :
 	ConstraintPerRegion_S.Case.Link.CoefIndex2 = -1;
 	ConstraintPerRegion_S.Case.Link.ToleranceFactor = 1.e-8;
       }
-      else  vyyerror("RegionRef incompatible with Type");
+      else  vyyerror(0, "RegionRef incompatible with Type");
     }
 
   | tSubRegionRef GroupRHS tEND
@@ -2204,7 +2204,7 @@ ConstraintCaseTerm :
 	  ConstraintPerRegion_S.Type == CST_LINKCPLX)
 	ConstraintPerRegion_S.Case.Link.SubRegionRefIndex =
 	  Num_Group(&Group_S, (char*)"CO_RegionRef", $2);
-      else  vyyerror("SubRegionRef incompatible with Type");
+      else  vyyerror(0, "SubRegionRef incompatible with Type");
     }
 
   | tFunction Expression tEND
@@ -2212,7 +2212,7 @@ ConstraintCaseTerm :
       if(ConstraintPerRegion_S.Type == CST_LINK ||
 	  ConstraintPerRegion_S.Type == CST_LINKCPLX)
 	ConstraintPerRegion_S.Case.Link.FunctionIndex = $2;
-      else  vyyerror("Function incompatible with Type");
+      else  vyyerror(0, "Function incompatible with Type");
     }
 
   | tCoefficient Expression tEND
@@ -2220,7 +2220,7 @@ ConstraintCaseTerm :
       if(ConstraintPerRegion_S.Type == CST_LINK ||
 	  ConstraintPerRegion_S.Type == CST_LINKCPLX)
 	ConstraintPerRegion_S.Case.Link.CoefIndex = $2;
-      else  vyyerror("Coefficient incompatible with Type");
+      else  vyyerror(0, "Coefficient incompatible with Type");
     }
 
   | tFilter Expression tEND
@@ -2230,7 +2230,7 @@ ConstraintCaseTerm :
 	ConstraintPerRegion_S.Case.Link.FilterIndex  = $2;
 	ConstraintPerRegion_S.Case.Link.FilterIndex2 = -1;
       }
-      else  vyyerror("Filter incompatible with Type");
+      else  vyyerror(0, "Filter incompatible with Type");
     }
 
   | tFunction '[' Expression ',' Expression ']' tEND
@@ -2240,7 +2240,7 @@ ConstraintCaseTerm :
 	ConstraintPerRegion_S.Case.Link.FunctionIndex  = $3;
 	ConstraintPerRegion_S.Case.Link.FunctionIndex2 = $5;
       }
-      else  vyyerror("Function incompatible with Type");
+      else  vyyerror(0, "Function incompatible with Type");
     }
 
   | tToleranceFactor FExpr tEND
@@ -2249,7 +2249,7 @@ ConstraintCaseTerm :
 	  ConstraintPerRegion_S.Type == CST_LINKCPLX) {
 	ConstraintPerRegion_S.Case.Link.ToleranceFactor  = $2;
       }
-      else  vyyerror("ToleranceFactor incompatible with Type");
+      else  vyyerror(0, "ToleranceFactor incompatible with Type");
     }
 
   | tCoefficient '[' Expression ',' Expression ']' tEND
@@ -2259,7 +2259,7 @@ ConstraintCaseTerm :
 	ConstraintPerRegion_S.Case.Link.CoefIndex  = $3;
 	ConstraintPerRegion_S.Case.Link.CoefIndex2 = $5;
       }
-      else  vyyerror("Coefficient incompatible with Type");
+      else  vyyerror(0, "Coefficient incompatible with Type");
     }
 
   | tFilter '[' Expression ',' Expression ']' tEND
@@ -2269,7 +2269,7 @@ ConstraintCaseTerm :
 	ConstraintPerRegion_S.Case.Link.FilterIndex  = $3;
 	ConstraintPerRegion_S.Case.Link.FilterIndex2 = $5;
       }
-      else  vyyerror("Filter incompatible with Type");
+      else  vyyerror(0, "Filter incompatible with Type");
     }
 
  ;
@@ -2329,7 +2329,7 @@ FunctionSpaceTerm :
     { FunctionSpace_S.Type = Get_DefineForString(Field_Type, $2, &FlagError);
       if(FlagError){
 	Get_Valid_SXD($2, Field_Type);
-	vyyerror("Unknown type of FunctionSpace: %s", $2);
+	vyyerror(0, "Unknown type of FunctionSpace: %s", $2);
       }
       Free($2);
     }
@@ -2422,7 +2422,7 @@ BasisFunctionTerm :
 	 &BasisFunction_S.ElementType, &BasisFunction_S.Orient);
       if(FlagError){
 	Get_Valid_SX3F3N($2, BF_Function);
-	vyyerror("Unknown Function for BasisFunction: %s", $2);
+	vyyerror(0, "Unknown Function for BasisFunction: %s", $2);
       }
       Free($2);
     }
@@ -2437,7 +2437,7 @@ BasisFunctionTerm :
 	 &BasisFunction_S.dFunction, &FunctionDummy, &FunctionDummy, &d, &i, &j);
       if(FlagError){
 	Get_Valid_SX3F3N($3, BF_Function);
-	vyyerror("Unknown dFunction (1) for BasisFunction: %s", $3);
+	vyyerror(0, "Unknown dFunction (1) for BasisFunction: %s", $3);
       }
       Free($3);
       Get_3Function3NbrForString
@@ -2445,7 +2445,7 @@ BasisFunctionTerm :
 	 &BasisFunction_S.dInvFunction, &FunctionDummy, &FunctionDummy, &d, &i, &j);
       if(FlagError){
 	Get_Valid_SX3F3N($5, BF_Function);
-	vyyerror("Unknown dFunction (2) for BasisFunction: %s", $5);
+	vyyerror(0, "Unknown dFunction (2) for BasisFunction: %s", $5);
       }
       Free($5);
     }
@@ -2460,7 +2460,7 @@ BasisFunctionTerm :
 	 &BasisFunction_S.dFunction, &FunctionDummy, &FunctionDummy, &d, &i, &j);
       if(FlagError){
 	Get_Valid_SX3F3N($3, BF_Function);
-	vyyerror("Unknown dFunction (1) for BasisFunction: %s", $3);
+	vyyerror(0, "Unknown dFunction (1) for BasisFunction: %s", $3);
       }
       Free($3);
       Get_3Function3NbrForString
@@ -2468,7 +2468,7 @@ BasisFunctionTerm :
 	 &BasisFunction_S.dInvFunction, &FunctionDummy, &FunctionDummy, &d, &i, &j);
       if(FlagError){
 	Get_Valid_SX3F3N($5, BF_Function);
-	vyyerror("Unknown dFunction (2) for BasisFunction: %s", $5);
+	vyyerror(0, "Unknown dFunction (2) for BasisFunction: %s", $5);
       }
       Free($5);
       Get_3Function3NbrForString
@@ -2476,7 +2476,7 @@ BasisFunctionTerm :
 	 &BasisFunction_S.dPlusFunction, &FunctionDummy, &FunctionDummy, &d, &i, &j);
       if(FlagError){
 	Get_Valid_SX3F3N($7, BF_Function);
-	vyyerror("Unknown dFunction (3) for BasisFunction: %s", $7);
+	vyyerror(0, "Unknown dFunction (3) for BasisFunction: %s", $7);
       }
       Free($7);
     }
@@ -2509,17 +2509,17 @@ BasisFunctionTerm :
 	    for(int k = 0; k < List_Nbr(Group_S.InitialList); k++)
 	      if(*((int*)List_Pointer(Group_S.InitialList, k)) !=
 		  *((int*)List_Pointer(BasisFunction_S.GlobalBasisFunction, k))) {
-		vyyerror("Bad correspondance between Group and Entity (elements differ)");
+		vyyerror(0, "Bad correspondance between Group and Entity (elements differ)");
 		break;
 	      }
 	  }
 	  else if(List_Nbr(Group_S.InitialList) != 0 ||
 		   GlobalBasisFunction_S.EntityIndex != -1)
-	    vyyerror("Bad correspondance between Group and Entity (#BF %d, #Global %d)",
+	    vyyerror(0, "Bad correspondance between Group and Entity (#BF %d, #Global %d)",
 		     List_Nbr(BasisFunction_S.GlobalBasisFunction),
 		     List_Nbr(Group_S.InitialList));
 	}
-	else  vyyerror("Bad correspondance between Group and Entity (Entity must be Global)");
+	else  vyyerror(0, "Bad correspondance between Group and Entity (Entity must be Global)");
       }
     }
  ;
@@ -2536,9 +2536,9 @@ OptionalParametersForBasisFunction :
     {
       int dim = $8;
       if(dim != $17)
-        vyyerror("Number of formulations different from number of resolutions");
+        vyyerror(0, "Number of formulations different from number of resolutions");
       if(List_Nbr(Group_S.InitialList) != dim)
-        vyyerror("Group sould have %d single regions", dim);
+        vyyerror(0, "Group sould have %d single regions", dim);
 
       BasisFunction_S.GlobalBasisFunction =
 	List_Create(dim, 1, sizeof(struct GlobalBasisFunction));
@@ -2558,20 +2558,20 @@ OptionalParametersForBasisFunction :
 				   fcmp_DefineQuantity_Name)) >= 0)
 	    GlobalBasisFunction_S.DefineQuantityIndex = i;
 	  else {
-	    vyyerror("Unknown Quantity '%s' in Formulation '%s'", $3,
+	    vyyerror(0, "Unknown Quantity '%s' in Formulation '%s'", $3,
 		     Formulation_S.Name);
 	    break;
 	  }
 	}
 	else
-	  vyyerror("Unknown Formulation: %s", tmpstr);
+	  vyyerror(0, "Unknown Formulation: %s", tmpstr);
 
 	sprintf(tmpstr, "%s_%d", $15, k+1);
 	if((i = List_ISearchSeq(Problem_S.Resolution, tmpstr,
                                 fcmp_Resolution_Name)) >= 0)
 	  GlobalBasisFunction_S.ResolutionIndex = i;
 	else
-	  vyyerror("Unknown Resolution: %s", tmpstr);
+	  vyyerror(0, "Unknown Resolution: %s", tmpstr);
 
 	GlobalBasisFunction_S.QuantityStorage = NULL;
 	List_Add(BasisFunction_S.GlobalBasisFunction, &GlobalBasisFunction_S);
@@ -2634,7 +2634,7 @@ ListOfBasisFunction :
       int i;
       if((i = List_ISearchSeq(Current_BasisFunction_L,
 			       $1, fcmp_BasisFunction_Name)) < 0)
-	vyyerror("Unknown BasisFunction: %s", $1);
+	vyyerror(0, "Unknown BasisFunction: %s", $1);
       else {
 	List_Add($$, &i);
 	int j = i+1;
@@ -2660,7 +2660,7 @@ RecursiveListOfBasisFunction :
       int i;
       if((i = List_ISearchSeq(Current_BasisFunction_L,
 			       $3, fcmp_BasisFunction_Name)) < 0)
-	vyyerror("Unknown BasisFunction: %s", $3);
+	vyyerror(0, "Unknown BasisFunction: %s", $3);
       else {
 	List_Add($1, &i);
 	int j = i+1;
@@ -2682,7 +2682,7 @@ ListOfBasisFunctionCoef :
       int i;
       if((i = List_ISearchSeq(Current_BasisFunction_L,
 			       $1, fcmp_BasisFunction_NameOfCoef)) < 0)
-	vyyerror("Unknown BasisFunctionCoef: %s", $1);
+	vyyerror(0, "Unknown BasisFunctionCoef: %s", $1);
       else {
 	List_Add($$, &i);
       }
@@ -2706,7 +2706,7 @@ RecursiveListOfBasisFunctionCoef :
       int i;
       if((i = List_ISearchSeq(Current_BasisFunction_L,
 			       $3, fcmp_BasisFunction_NameOfCoef)) < 0)
-	vyyerror("Unknown BasisFunctionCoef: %s", $3);
+	vyyerror(0, "Unknown BasisFunctionCoef: %s", $3);
       else {
 	List_Add($1, &i);
       }
@@ -2763,7 +2763,7 @@ GlobalQuantityTerm :
 	Get_DefineForString(GlobalQuantity_Type, $2, &FlagError);
       if(FlagError){
 	Get_Valid_SXD($2, GlobalQuantity_Type);
-	vyyerror("Unknown type of GlobalQuantity: %s", $2);
+	vyyerror(0, "Unknown type of GlobalQuantity: %s", $2);
       }
       Free($2);
     }
@@ -2773,7 +2773,7 @@ GlobalQuantityTerm :
       int i;
       if((i = List_ISearchSeq(FunctionSpace_S.BasisFunction, $2,
 			       fcmp_BasisFunction_NameOfCoef)) < 0)
-	vyyerror("Unknown NameOfCoef: %s", $2);
+	vyyerror(0, "Unknown NameOfCoef: %s", $2);
       else
 	GlobalQuantity_S.ReferenceIndex = i;
       Free($2);
@@ -2858,7 +2858,7 @@ ConstraintInFSTerm :
 			       fcmp_BasisFunction_NameOfCoef)) < 0) {
 	if((i = List_ISearchSeq(FunctionSpace_S.GlobalQuantity, $2,
 				 fcmp_GlobalQuantity_Name)) < 0)
-	  vyyerror("Unknown NameOfCoef: %s", $2);
+	  vyyerror(0, "Unknown NameOfCoef: %s", $2);
 	else {
 	  ConstraintInFS_S.QuantityType   = GLOBALQUANTITY;
 	  ConstraintInFS_S.ReferenceIndex = i;
@@ -2882,7 +2882,7 @@ ConstraintInFSTerm :
       Constraint_Index =
 	List_ISearchSeq(Problem_S.Constraint, $2, fcmp_Constraint_Name);
       if(Constraint_Index < 0)
-        Message::Warning("Constraint '%s' is not provided", $2);
+        vyyerror(1, "Constraint '%s' is not provided", $2);
       Free($2);
     }
  ;
@@ -2938,7 +2938,7 @@ FormulationTerm :
 	Get_DefineForString(Formulation_Type, $2, &FlagError);
       if(FlagError){
 	Get_Valid_SXD($2, Formulation_Type);
-	vyyerror("Unknown type of Formulation: %s", $2);
+	vyyerror(0, "Unknown type of Formulation: %s", $2);
       }
       Free($2);
     }
@@ -3007,7 +3007,7 @@ DefineQuantityTerm :
 	Get_DefineForString(DefineQuantity_Type, $2, &FlagError);
       if(FlagError){
 	Get_Valid_SXD($2, DefineQuantity_Type);
-	vyyerror("Unknown type of Quantity: %s", $2);
+	vyyerror(0, "Unknown type of Quantity: %s", $2);
       }
       Free($2);
     }
@@ -3021,7 +3021,7 @@ DefineQuantityTerm :
       int i;
       if((i = List_ISearchSeq(Problem_S.FunctionSpace, $2,
 			       fcmp_FunctionSpace_Name)) < 0)
-	vyyerror("Unknown FunctionSpace: %s", $2);
+	vyyerror(0, "Unknown FunctionSpace: %s", $2);
       else
 	DefineQuantity_S.FunctionSpaceIndex = i;
     }
@@ -3037,14 +3037,14 @@ DefineQuantityTerm :
 	    if((i = List_ISearchSeq(FunctionSpace_S.GlobalQuantity,
 				     DefineQuantity_S.Name,
 				     fcmp_GlobalQuantity_Name)) < 0) {
-	      vyyerror("Unknown GlobalQuantity: %s", DefineQuantity_S.Name);
+	      vyyerror(0, "Unknown GlobalQuantity: %s", DefineQuantity_S.Name);
 	    }
 	    else {
 	      DefineQuantity_S.IndexInFunctionSpace = List_Create(1, 1, sizeof(int));
 	      List_Add(DefineQuantity_S.IndexInFunctionSpace, &i);
 	    }
 	  }
-	  else  vyyerror("No Name pre-defined for GlobalQuantity");
+	  else  vyyerror(0, "No Name pre-defined for GlobalQuantity");
 	}
       }
 
@@ -3319,7 +3319,7 @@ DefineQuantityTerm :
 	 &DefineQuantity_S.IntegralQuantity.QuantityIndexTable,
 	 &DefineQuantity_S.IntegralQuantity.QuantityTraceGroupIndexTable);
       if(DefineQuantity_S.IntegralQuantity.NbrQuantityIndex > 1)
-	vyyerror("More than one LocalQuantity in IntegralQuantity");
+	vyyerror(0, "More than one LocalQuantity in IntegralQuantity");
 
     }
 
@@ -3333,7 +3333,7 @@ DefineQuantityTerm :
       int i;
       if((i = List_ISearchSeq(Problem_S.IntegrationMethod, $2,
 			       fcmp_IntegrationMethod_Name)) < 0)
-	vyyerror("Unknown Integration method: %s", $2);
+	vyyerror(0, "Unknown Integration method: %s", $2);
       else
 	DefineQuantity_S.IntegralQuantity.IntegrationMethodIndex = i;
       Free($2);
@@ -3344,7 +3344,7 @@ DefineQuantityTerm :
       int i;
       if((i = List_ISearchSeq(Problem_S.JacobianMethod, $2,
 			       fcmp_JacobianMethod_Name)) < 0)
-	vyyerror("Unknown Jacobian method: %s", $2);
+	vyyerror(0, "Unknown Jacobian method: %s", $2);
       else
 	DefineQuantity_S.IntegralQuantity.JacobianMethodIndex = i;
       Free($2);
@@ -3368,7 +3368,7 @@ IndexInFunctionSpace :
 		 List_Pointer(Problem_S.FunctionSpace,
 			      DefineQuantity_S.FunctionSpaceIndex))->SubSpace, $2,
 		fcmp_SubSpace_Name)) < 0)
-	    vyyerror("Unknown SubSpace: %s", $2);
+	    vyyerror(0, "Unknown SubSpace: %s", $2);
 	  else {
 	    DefineQuantity_S.IndexInFunctionSpace =
 	      ((struct SubSpace *)
@@ -3385,7 +3385,7 @@ IndexInFunctionSpace :
 	  int i;
 	  if((i = List_ISearchSeq(FunctionSpace_S.GlobalQuantity,
 				   $2, fcmp_GlobalQuantity_Name)) < 0) {
-	    vyyerror("Unknown GlobalQuantity: %s", $2);
+	    vyyerror(0, "Unknown GlobalQuantity: %s", $2);
 	  }
 	  else {
 	    DefineQuantity_S.IndexInFunctionSpace = List_Create(1, 1, sizeof(int));
@@ -3451,7 +3451,7 @@ GlobalEquationTerm :
 	Get_DefineForString(Constraint_Type, $2, &FlagError);
       if(FlagError){
 	Get_Valid_SXD($2, Constraint_Type);
-	vyyerror("Unknown type of GlobalEquation: %s", $2);
+	vyyerror(0, "Unknown type of GlobalEquation: %s", $2);
       }
       Free($2);
     }
@@ -3501,7 +3501,7 @@ GlobalEquationTermTermTerm :
       else if(!strcmp($1, "Equation"))
         GlobalEquationTerm_S.DefineQuantityIndexEqu  = $2.Int2;
       else
-        vyyerror("Unknown global equation term: %s", $1);
+        vyyerror(0, "Unknown global equation term: %s", $1);
       Free($1);
     }
   | tIn GroupRHS tEND
@@ -3634,7 +3634,7 @@ LocalTermTerm  :
 
       if(List_Nbr($7) == 1){
 	if((WholeQuantity_P+0)->Type != WQ_OPERATORANDQUANTITY)
-	  vyyerror("Missing Quantity in Equation");
+	  vyyerror(0, "Missing Quantity in Equation");
       }
       else if(List_Nbr($7) == 3 &&
 	       ((WholeQuantity_P+0)->Type == WQ_EXPRESSION &&
@@ -3657,7 +3657,7 @@ LocalTermTerm  :
 	  (WholeQuantity_P+1)->Case.Function.Fct;
       }
       else{
-	vyyerror("Unrecognized quantity structure in Equation");
+	vyyerror(0, "Unrecognized quantity structure in Equation");
       }
 
       Pro_DefineQuantityIndex
@@ -3689,7 +3689,7 @@ LocalTermTerm  :
       int i;
       if((i = List_ISearchSeq(Problem_S.JacobianMethod, $2,
 			       fcmp_JacobianMethod_Name)) < 0)
-	vyyerror("Unknown Jacobian method: %s",$2);
+	vyyerror(0, "Unknown Jacobian method: %s",$2);
       else
 	EquationTerm_S.Case.LocalTerm.JacobianMethodIndex = i;
       Free($2);
@@ -3700,7 +3700,7 @@ LocalTermTerm  :
       int i;
       if((i = List_ISearchSeq(Problem_S.IntegrationMethod, $2,
 			       fcmp_IntegrationMethod_Name)) < 0)
-	vyyerror("Unknown Integration method: %s", $2);
+	vyyerror(0, "Unknown Integration method: %s", $2);
       else
 	EquationTerm_S.Case.LocalTerm.IntegrationMethodIndex = i;
       Free($2);
@@ -3715,7 +3715,7 @@ LocalTermTerm  :
     { if($3 == 1 || $3 == 2 || $3 == 3)
 	EquationTerm_S.Case.LocalTerm.MatrixIndex = $3;
       else
-	vyyerror("Unknown Matrix123: %d", $3);
+	vyyerror(0, "Unknown Matrix123: %d", $3);
     }
 
   | tMetricTensor Expression tEND
@@ -3854,13 +3854,13 @@ Quantity_Def :
     { $$.Int1 = Get_DefineForString(Operator_Type, $2, &FlagError);
       if(FlagError){
 	Get_Valid_SXD($2, Operator_Type);
-	vyyerror("Unknown Operator for discrete Quantity: %s", $2);
+	vyyerror(0, "Unknown Operator for discrete Quantity: %s", $2);
       }
       Free($2);
       int i;
       if((i = List_ISearchSeq(Formulation_S.DefineQuantity, $3,
 			       fcmp_DefineQuantity_Name)) < 0)
-	vyyerror("Unknown discrete Quantity: %s", $3);
+	vyyerror(0, "Unknown discrete Quantity: %s", $3);
       $$.Int2 = i;
 
       /* the following should be suppressed as soon as the test
@@ -3876,7 +3876,7 @@ Quantity_Def :
       int i;
       if((i = List_ISearchSeq(Formulation_S.DefineQuantity, $2,
 			       fcmp_DefineQuantity_Name)) < 0)
-	vyyerror("Unknown discrete Quantity: %s", $2);
+	vyyerror(0, "Unknown discrete Quantity: %s", $2);
       $$.Int2 = i;
 
       /* the following should be suppressed as soon as the test
@@ -4007,7 +4007,7 @@ DefineSystemTerm :
     { DefineSystem_S.Type = Get_DefineForString(DefineSystem_Type, $2, &FlagError);
       if(FlagError){
 	Get_Valid_SXD($2, DefineSystem_Type);
-	vyyerror("Unknown type of System: %s", $2);
+	vyyerror(0, "Unknown type of System: %s", $2);
       }
       Free($2);
     }
@@ -4058,7 +4058,7 @@ ListOfFormulation :
       $$ = List_Create(1, 1, sizeof(int));
       int i;
       if((i = List_ISearchSeq(Problem_S.Formulation, $1, fcmp_Formulation_Name)) < 0)
-	vyyerror("Unknown Formulation: %s", $1);
+	vyyerror(0, "Unknown Formulation: %s", $1);
       else  List_Add($$, &i);
       Free($1);
     }
@@ -4077,7 +4077,7 @@ RecursiveListOfFormulation :
     {
       int i;
       if((i = List_ISearchSeq(Problem_S.Formulation, $3, fcmp_Formulation_Name)) < 0)
-	vyyerror("Unknown Formulation: %s", $3);
+	vyyerror(0, "Unknown Formulation: %s", $3);
       else
 	List_Add($1, &i);
       $$ = $1; Free($3);
@@ -4091,7 +4091,7 @@ ListOfSystem :
       $$ = List_Create(1, 1, sizeof(int));
       int i;
       if((i = List_ISearchSeq(Current_System_L, $1, fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $1);
+	vyyerror(0, "Unknown System: %s", $1);
       else
 	List_Add($$, &i);
       Free($1);
@@ -4110,7 +4110,7 @@ RecursiveListOfSystem :
     {
       int i;
       if((i = List_ISearchSeq(Current_System_L, $3, fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3);
+	vyyerror(0, "Unknown System: %s", $3);
       else
 	List_Add($1, &i);
       $$ = $1; Free($3);
@@ -4168,14 +4168,14 @@ OperationTerm :
       Operation_P->Type = Get_DefineForString(Operation_Type, $1, &FlagError);
       if(FlagError){
 	Get_Valid_SXD($1, Operation_Type);
-	vyyerror("Unknown type of Operation: %s", $1);
+	vyyerror(0, "Unknown type of Operation: %s", $1);
       }
       Free($1);
 
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $2,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $2);
+	vyyerror(0, "Unknown System: %s", $2);
       Free($2);
       Operation_P->DefineSystemIndex = i;
 
@@ -4232,13 +4232,13 @@ OperationTerm :
       Operation_P->Type = Get_DefineForString(Operation_Type, $1, &FlagError);
       if(FlagError){
 	Get_Valid_SXD($1, Operation_Type);
-	vyyerror("Unknown type of Operation: %s", $1);
+	vyyerror(0, "Unknown type of Operation: %s", $1);
       }
       Free($1);
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3);
+	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
       if(Operation_P->Type == OPERATION_GENERATE ||
@@ -4341,7 +4341,7 @@ OperationTerm :
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3);
+	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.SetFrequency.ExpressionIndex = $5;
@@ -4354,7 +4354,7 @@ OperationTerm :
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3);
+	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.GenerateOnly.MatrixIndex_L =
@@ -4376,7 +4376,7 @@ OperationTerm :
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3);
+	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.GenerateOnly.MatrixIndex_L =
@@ -4398,7 +4398,7 @@ OperationTerm :
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
                                fcmp_DefineSystem_Name)) < 0)
-        vyyerror("Unknown System: %s", $3);
+        vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.Update.ExpressionIndex = -1;
@@ -4411,7 +4411,7 @@ OperationTerm :
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
                                fcmp_DefineSystem_Name)) < 0)
-        vyyerror("Unknown System: %s", $3);
+        vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.Update.ExpressionIndex = $5;
@@ -4424,7 +4424,7 @@ OperationTerm :
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3);
+	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.UpdateConstraint.GroupIndex =
@@ -4433,7 +4433,7 @@ OperationTerm :
 	Get_DefineForString(Constraint_Type, $7, &FlagError);
       if(FlagError){
 	Get_Valid_SXD($7, Constraint_Type);
-	vyyerror("Unknown type of Constraint: %s", $7);
+	vyyerror(0, "Unknown type of Constraint: %s", $7);
       }
       Free($7);
     }
@@ -4445,7 +4445,7 @@ OperationTerm :
       int i;
       if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3) ;
+	vyyerror(0, "Unknown System: %s", $3) ;
       Free($3) ;
       Operation_P->DefineSystemIndex = i ;
       Operation_P->Case.UpdateConstraint.GroupIndex = -1;
@@ -4459,7 +4459,7 @@ OperationTerm :
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3);
+	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.GetResidual.VariableName = $6;
@@ -4468,7 +4468,7 @@ OperationTerm :
       NormType = Get_DefineForString(ErrorNorm_Type, $xx, &FlagError);
       if(FlagError){
         Get_Valid_SXD($xx, ErrorNorm_Type);
-        vyyerror("Unknown error norm type for residual calculation");
+        vyyerror(0, "Unknown error norm type for residual calculation");
       }
       */
     }
@@ -4480,7 +4480,7 @@ OperationTerm :
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3);
+	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.CreateSolution.CopyFromTimeStep = -1;
@@ -4493,7 +4493,7 @@ OperationTerm :
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3);
+	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.CreateSolution.CopyFromTimeStep = $5;
@@ -4506,12 +4506,12 @@ OperationTerm :
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3);
+	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->Case.FourierTransform.DefineSystemIndex[0] = i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $5,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $5);
+	vyyerror(0, "Unknown System: %s", $5);
       Free($5);
       Operation_P->Case.FourierTransform.DefineSystemIndex[1] = i;
       Operation_P->Case.FourierTransform.Frequency = $7;
@@ -4524,12 +4524,12 @@ OperationTerm :
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3);
+	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->Case.FourierTransform2.DefineSystemIndex[0] = i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $5,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $5);
+	vyyerror(0, "Unknown System: %s", $5);
       Free($5);
       Operation_P->Case.FourierTransform2.DefineSystemIndex[1] = i;
       Operation_P->Case.FourierTransform2.Period = $7;
@@ -4544,7 +4544,7 @@ OperationTerm :
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3);
+	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.Lanczos.Size = (int)$5;
@@ -4567,7 +4567,7 @@ OperationTerm :
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3);
+	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.EigenSolve.NumEigenvalues = (int)$5;
@@ -4584,7 +4584,7 @@ OperationTerm :
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3);
+	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.EigenSolve.NumEigenvalues = (int)$5;
@@ -4600,7 +4600,7 @@ OperationTerm :
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3);
+	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.EigenSolve.NumEigenvalues = (int)$5;
@@ -4623,7 +4623,7 @@ OperationTerm :
       int i;
       if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3) ;
+	vyyerror(0, "Unknown System: %s", $3) ;
       Free($3) ;
       Operation_P->DefineSystemIndex = i ;
       Operation_P->Case.SelectCorrection.Iteration = (int)$5 ;
@@ -4636,7 +4636,7 @@ OperationTerm :
       int i;
       if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3) ;
+	vyyerror(0, "Unknown System: %s", $3) ;
       Free($3) ;
       Operation_P->DefineSystemIndex = i ;
       Operation_P->Case.AddCorrection.Alpha = 1. ;
@@ -4649,7 +4649,7 @@ OperationTerm :
       int i;
       if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3) ;
+	vyyerror(0, "Unknown System: %s", $3) ;
       Free($3) ;
       Operation_P->DefineSystemIndex = i ;
       Operation_P->Case.AddCorrection.Alpha = $5 ;
@@ -4662,7 +4662,7 @@ OperationTerm :
       int i;
       if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3) ;
+	vyyerror(0, "Unknown System: %s", $3) ;
       Free($3) ;
       Operation_P->DefineSystemIndex = i ;
       Operation_P->Case.MultiplySolution.Alpha = $5 ;
@@ -4675,7 +4675,7 @@ OperationTerm :
       int i;
       if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3) ;
+	vyyerror(0, "Unknown System: %s", $3) ;
       Free($3) ;
       Operation_P->DefineSystemIndex = i ;
     }
@@ -4688,17 +4688,17 @@ OperationTerm :
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3);
+	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $5,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $5);
+	vyyerror(0, "Unknown System: %s", $5);
       Free($5);
       Operation_P->Case.Perturbation.DefineSystemIndex2 = i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $7,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $7);
+	vyyerror(0, "Unknown System: %s", $7);
       Free($7);
       Operation_P->Case.Perturbation.DefineSystemIndex3 = i;
       Operation_P->Case.Perturbation.Size = (int)$9;
@@ -4750,7 +4750,7 @@ OperationTerm :
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3);
+	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i ;
       Operation_P->Case.TimeLoopRungeKutta.Time0 = $5;
@@ -4987,7 +4987,7 @@ OperationTerm :
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3);
+	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.SolveJac_AdaptRelax.CheckAll = (int)$7;
@@ -5001,7 +5001,7 @@ OperationTerm :
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3);
+	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.SaveSolutionWithEntityNum.GroupIndex = -1;
@@ -5015,7 +5015,7 @@ OperationTerm :
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3);
+	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.SaveSolutionWithEntityNum.GroupIndex =
@@ -5030,7 +5030,7 @@ OperationTerm :
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3);
+	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.SaveSolutionExtendedMH.NbrFreq = (int)$5;
@@ -5044,7 +5044,7 @@ OperationTerm :
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3);
+	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.SaveSolutionMHtoTime.Time = $5;
@@ -5056,7 +5056,7 @@ OperationTerm :
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       int i;
       if((i = List_ISearchSeq(Problem_S.Group, $3, fcmp_Group_Name)) < 0)
-   	vyyerror("Unknown Group: %s", $3);
+   	vyyerror(0, "Unknown Group: %s", $3);
       Operation_P->Type = OPERATION_INIT_MOVINGBAND2D;
             Operation_P->Case.Init_MovingBand2D.GroupIndex = i;
       Free($3);
@@ -5067,7 +5067,7 @@ OperationTerm :
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       int i;
       if((i = List_ISearchSeq(Problem_S.Group, $3, fcmp_Group_Name)) < 0)
-    	vyyerror("Unknown Group: %s", $3);
+    	vyyerror(0, "Unknown Group: %s", $3);
       Operation_P->Type = OPERATION_MESH_MOVINGBAND2D;
       Operation_P->Case.Mesh_MovingBand2D.GroupIndex = i;
       Free($3);
@@ -5079,7 +5079,7 @@ OperationTerm :
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3);
+	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.SaveMesh.GroupIndex = Num_Group(&Group_S, (char*)"OP_SaveMesh", $5);
@@ -5094,7 +5094,7 @@ OperationTerm :
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3);
+	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.SaveMesh.GroupIndex = Num_Group(&Group_S, (char*)"OP_SaveMesh", $5);
@@ -5110,11 +5110,11 @@ OperationTerm :
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3);
+	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
       if((i = List_ISearchSeq(Problem_S.Group, $5, fcmp_Group_Name)) < 0)
-	vyyerror("Unknown Group: %s", $5);
+	vyyerror(0, "Unknown Group: %s", $5);
       Free($5);
       Operation_P->Type = OPERATION_GENERATE_MH_MOVING;
       Operation_P->Case.Generate_MH_Moving.GroupIndex = i;
@@ -5130,11 +5130,11 @@ OperationTerm :
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3);
+	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
       if((i = List_ISearchSeq(Problem_S.Group, $5, fcmp_Group_Name)) < 0)
-	vyyerror("Unknown Group: %s", $5);
+	vyyerror(0, "Unknown Group: %s", $5);
       Free($5);
       Operation_P->Type = OPERATION_GENERATE_MH_MOVING_S;
       Operation_P->Case.Generate_MH_Moving_S.GroupIndex = i;
@@ -5149,7 +5149,7 @@ OperationTerm :
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3);
+	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
       Operation_P->Type = OPERATION_ADDMHMOVING;
@@ -5162,7 +5162,7 @@ OperationTerm :
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3);
+	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.DeformeMesh.Quantity = $5;
@@ -5181,7 +5181,7 @@ OperationTerm :
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3);
+	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.DeformeMesh.Quantity = $5;
@@ -5198,7 +5198,7 @@ OperationTerm :
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3);
+	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.DeformeMesh.Quantity = $5;
@@ -5215,7 +5215,7 @@ OperationTerm :
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3);
+	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.DeformeMesh.Quantity = $5;
@@ -5232,7 +5232,7 @@ OperationTerm :
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3);
+	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.DeformeMesh.Quantity = $5;
@@ -5249,7 +5249,7 @@ OperationTerm :
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3);
+	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.DeformeMesh.Quantity = $5;
@@ -5267,7 +5267,7 @@ OperationTerm :
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
                               fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3);
+	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
       Operation_P->Type = $1;
@@ -5282,12 +5282,12 @@ OperationTerm :
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
                               fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3);
+	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $5,
                               fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $5);
+	vyyerror(0, "Unknown System: %s", $5);
       Free($5);
       Operation_P->Case.SolveAgainWithOther.DefineSystemIndex = i;
     }
@@ -5318,7 +5318,7 @@ PrintOperation :
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $1,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $1);
+	vyyerror(0, "Unknown System: %s", $1);
       Free($1);
       Operation_P->DefineSystemIndex = i;
     }
@@ -5433,14 +5433,14 @@ LTEdefinitions :
     {
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3, fcmp_DefineSystem_Name)) < 0)
-        vyyerror("Unknown System: %s", $3);
+        vyyerror(0, "Unknown System: %s", $3);
       TimeLoopAdaptiveSystem_S.SystemIndex = i;
       TimeLoopAdaptiveSystem_S.SystemLTEreltol = $5;
       TimeLoopAdaptiveSystem_S.SystemLTEabstol = $7;
       TimeLoopAdaptiveSystem_S.NormType = Get_DefineForString(ErrorNorm_Type, $9, &FlagError);
       if(FlagError){
         Get_Valid_SXD($9, ErrorNorm_Type);
-        vyyerror("Unknown error norm type of TimeLoopAdaptive system %s", $3);
+        vyyerror(0, "Unknown error norm type of TimeLoopAdaptive system %s", $3);
       }
       TimeLoopAdaptiveSystem_S.NormTypeString = $9;
       List_Add($$ = $1, &TimeLoopAdaptiveSystem_S);
@@ -5462,7 +5462,7 @@ LTEdefinitions :
       TimeLoopAdaptivePO_S.NormType = Get_DefineForString(ErrorNorm_Type, $9, &FlagError);
       if(FlagError){
         Get_Valid_SXD($9, ErrorNorm_Type);
-        vyyerror("Unknown error norm type of TimeLoopAdaptive PostOperation %s", $3);
+        vyyerror(0, "Unknown error norm type of TimeLoopAdaptive PostOperation %s", $3);
       }
       TimeLoopAdaptivePO_S.NormTypeString = $9;
       List_Add($$ = $1, &TimeLoopAdaptivePO_S);
@@ -5501,20 +5501,20 @@ IterativeLoopDefinitions :
     {
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3, fcmp_DefineSystem_Name)) < 0)
-        vyyerror("Unknown System: %s", $3);
+        vyyerror(0, "Unknown System: %s", $3);
       IterativeLoopSystem_S.SystemIndex = i;
       IterativeLoopSystem_S.SystemILreltol = $5;
       IterativeLoopSystem_S.SystemILabstol = $7;
       IterativeLoopSystem_S.NormOf = Get_DefineForString(NormOf_Type, $9, &FlagError);
       if(FlagError){
         Get_Valid_SXD($3, ChangeOfState_Type);
-        vyyerror("Unknown object for error norm of IterativeLoop system: %s", $3);
+        vyyerror(0, "Unknown object for error norm of IterativeLoop system: %s", $3);
       }
       IterativeLoopSystem_S.NormOfString = $9;
       IterativeLoopSystem_S.NormType = Get_DefineForString(ErrorNorm_Type, $10, &FlagError);
       if(FlagError){
         Get_Valid_SXD($10, ErrorNorm_Type);
-        vyyerror("Unknown error norm type of IterativeLoop system: %s", $3);
+        vyyerror(0, "Unknown error norm type of IterativeLoop system: %s", $3);
       }
       IterativeLoopSystem_S.NormTypeString = $10;
       List_Add($$ = $1, &IterativeLoopSystem_S);
@@ -5537,7 +5537,7 @@ IterativeLoopDefinitions :
       IterativeLoopPO_S.NormType = Get_DefineForString(ErrorNorm_Type, $9, &FlagError);
       if(FlagError){
         Get_Valid_SXD($9, ErrorNorm_Type);
-        vyyerror("Unknown error norm type of IterativeLoopN PostOperation %s", $3);
+        vyyerror(0, "Unknown error norm type of IterativeLoopN PostOperation %s", $3);
       }
       IterativeLoopPO_S.NormTypeString = $9;
       List_Add($$ = $1, &IterativeLoopPO_S);
@@ -5725,7 +5725,7 @@ IterativeTimeReductionTerm :
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $2,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $2);
+	vyyerror(0, "Unknown System: %s", $2);
       Free($2);
       Current_System = Operation_P->DefineSystemIndex = i;
     }
@@ -5783,7 +5783,7 @@ ChangeOfStateTerm :
 	Get_DefineForString(ChangeOfState_Type, $2, &FlagError);
       if(FlagError){
 	Get_Valid_SXD($2, ChangeOfState_Type);
-	vyyerror("Unknown type of ChangeOfState: %s", $2);
+	vyyerror(0, "Unknown type of ChangeOfState: %s", $2);
       }
       Free($2);
     }
@@ -5809,10 +5809,10 @@ ChangeOfStateTerm :
 	  ChangeOfState_S.QuantityIndex = i;
 	}
 	else
-	  vyyerror("Unknown discrete Quantity: %s", $2);
+	  vyyerror(0, "Unknown discrete Quantity: %s", $2);
       }
       else
-	vyyerror("System undefined for Quantity: %s", $2);
+	vyyerror(0, "System undefined for Quantity: %s", $2);
       Free($2);
     }
 
@@ -5834,7 +5834,7 @@ ChangeOfStateTerm :
     {
       int i;
       if((i = List_ISearchSeq(Problem_S.Expression, $2, fcmp_Expression_Name)) < 0)
-	vyyerror("Unknown name of expression for Flag: %s", $2);
+	vyyerror(0, "Unknown name of expression for Flag: %s", $2);
       Free($2);
       ChangeOfState_S.FlagIndex = i;
     }
@@ -5894,7 +5894,7 @@ PostProcessingTerm :
       int i;
       if((i = List_ISearchSeq(Problem_S.Formulation, $2,
 			       fcmp_Formulation_Name)) < 0){
-	vyyerror("Unknown Formulation: %s", $2);
+	vyyerror(0, "Unknown Formulation: %s", $2);
       }
       else {
 	PostProcessing_S.FormulationIndex = i;
@@ -5962,7 +5962,7 @@ SubPostQuantities :
 	Get_DefineForString(PostQuantityTerm_EvaluationType, $2, &FlagError);
       if(FlagError){
 	Get_Valid_SXD($2, PostQuantityTerm_EvaluationType);
-	vyyerror("Unknown EvaluationType for PostQuantityTerm: %s", $2);
+	vyyerror(0, "Unknown EvaluationType for PostQuantityTerm: %s", $2);
       }
       Free($2);
       List_Add($$ = $1, &PostQuantityTerm_S);
@@ -6016,7 +6016,7 @@ SubPostQuantityTerm :
 	  if(PostQuantityTerm_S.Type == 0)
 	    PostQuantityTerm_S.Type = j;
 	  else if(PostQuantityTerm_S.Type != j)
-	    vyyerror("Mixed discrete Quantity types in term (should be split in separate terms)");
+	    vyyerror(0, "Mixed discrete Quantity types in term (should be split in separate terms)");
 	}
 	if(PostQuantityTerm_S.Type == 0)  PostQuantityTerm_S.Type = LOCALQUANTITY;
       }
@@ -6029,7 +6029,7 @@ SubPostQuantityTerm :
        Get_DefineForString(DefineQuantity_Type, $2, &FlagError);
      if(FlagError){
        Get_Valid_SXD($2, DefineQuantity_Type);
-       vyyerror("Unknown type of Operation: %s", $2);
+       vyyerror(0, "Unknown type of Operation: %s", $2);
      }
      Free($2);
    }
@@ -6044,7 +6044,7 @@ SubPostQuantityTerm :
       int i;
       if((i = List_ISearchSeq(Problem_S.JacobianMethod, $2,
 			       fcmp_JacobianMethod_Name)) < 0)
-	vyyerror("Unknown Jacobian method: %s",$2);
+	vyyerror(0, "Unknown Jacobian method: %s",$2);
       else
 	PostQuantityTerm_S.JacobianMethodIndex = i;
       Free($2);
@@ -6055,7 +6055,7 @@ SubPostQuantityTerm :
       int i;
       if((i = List_ISearchSeq(Problem_S.IntegrationMethod, $2,
 			       fcmp_IntegrationMethod_Name)) < 0)
-	vyyerror("Unknown Integration method: %s",$2);
+	vyyerror(0, "Unknown Integration method: %s",$2);
       else
 	PostQuantityTerm_S.IntegrationMethodIndex = i;
       Free($2);
@@ -6122,7 +6122,7 @@ PostOperationTerm :
       int i;
       if((i = List_ISearchSeq(Problem_S.PostProcessing, $2,
 			       fcmp_PostProcessing_Name)) < 0)
-	vyyerror("Unknown PostProcessing: %s", $2);
+	vyyerror(0, "Unknown PostProcessing: %s", $2);
       else {
 	PostOperation_S.PostProcessingIndex = i;
 	List_Read(Problem_S.PostProcessing, i, &InteractivePostProcessing_S);
@@ -6136,7 +6136,7 @@ PostOperationTerm :
 	Get_DefineForString(PostSubOperation_Format, $2, &FlagError);
       if(FlagError){
 	Get_Valid_SXD($2, PostSubOperation_Format);
-	vyyerror("Unknown PostProcessing Format: %s", $2);
+	vyyerror(0, "Unknown PostProcessing Format: %s", $2);
       }
       Free($2);
     }
@@ -6209,7 +6209,7 @@ SeparatePostOperation :
       int i;
       if((i = List_ISearchSeq(Problem_S.PostProcessing, $4,
 			       fcmp_PostProcessing_Name)) < 0)
-	vyyerror("Unknown PostProcessing: %s", $4);
+	vyyerror(0, "Unknown PostProcessing: %s", $4);
       else {
 	PostOperation_S.PostProcessingIndex = i;
 	List_Read(Problem_S.PostProcessing, i, &InteractivePostProcessing_S);
@@ -6326,7 +6326,7 @@ PostSubOperation :
 
     tPlot '[' PostQuantitiesToPrint PrintSubType PrintOptions ']' tEND
     {
-      vyyerror("Plot has been superseded by Print (Plot OnRegion becomes Print OnElementsOf)");
+      vyyerror(0, "Plot has been superseded by Print (Plot OnRegion becomes Print OnElementsOf)");
     }
 
   | tPrint '[' PostQuantitiesToPrint PrintSubType PrintOptions ']' tEND
@@ -6394,7 +6394,7 @@ PostQuantitiesToPrint :
       int i;
       if((i = List_ISearchSeq(InteractivePostProcessing_S.PostQuantity, $1,
 			       fcmp_PostQuantity_Name)) < 0)
-	vyyerror("Unknown PostProcessing Quantity: %s", $1);
+	vyyerror(0, "Unknown PostProcessing Quantity: %s", $1);
       PostSubOperation_S.PostQuantityIndex[0] = i;
       PostSubOperation_S.PostQuantityIndex[1] = -1;
       PostSubOperation_S.PostQuantitySupport[0] = $2;
@@ -6404,22 +6404,22 @@ PostQuantitiesToPrint :
 
  |  String__Index  PostQuantitySupport Combination tSTRING  PostQuantitySupport ','
     {
-      Message::Warning("Combined post-quantities are deprecated: use registers instead");
+      vyyerror(1, "Combined post-quantities are deprecated: use registers instead");
       int i;
       if((i = List_ISearchSeq(InteractivePostProcessing_S.PostQuantity, $1,
 			       fcmp_PostQuantity_Name)) < 0)
-	vyyerror("Unknown PostProcessing Quantity: %s", $1);
+	vyyerror(0, "Unknown PostProcessing Quantity: %s", $1);
       PostSubOperation_S.PostQuantityIndex[0] = i;
       PostSubOperation_S.PostQuantitySupport[0] = $2;
       int j = -1;
       if((j = List_ISearchSeq(InteractivePostProcessing_S.PostQuantity, $4,
 			       fcmp_PostQuantity_Name)) < 0)
-	vyyerror("Unknown PostProcessing Quantity: %s", $4);
+	vyyerror(0, "Unknown PostProcessing Quantity: %s", $4);
       PostSubOperation_S.PostQuantityIndex[1] = j;
       PostSubOperation_S.PostQuantitySupport[1] = $5;
 
       if(($2 < 0 && $5 < 0) || ($2 >= 0 && $5 >= 0)) {
-	vyyerror("Postprocessing Quantities '%s' and '%s' of same type (%s)",
+	vyyerror(0, "Postprocessing Quantities '%s' and '%s' of same type (%s)",
 		 $1, $4, ($2>0)? "with Support":"without Support");
       }
       Free($1); Free($4);
@@ -6470,7 +6470,7 @@ PrintSubType :
     {
       PostSubOperation_S.SubType = PRINT_ONSECTION_2D;
       if(List_Nbr($4) != 3 || List_Nbr($7) != 3 || List_Nbr($10) != 3)
-	vyyerror("Expected {3}{3}{3} coordinates, got {%d}{%d}{%d}",
+	vyyerror(0, "Expected {3}{3}{3} coordinates, got {%d}{%d}{%d}",
 		 List_Nbr($4), List_Nbr($7), List_Nbr($10));
       else{
 	List_Read($4, 0, &PostSubOperation_S.Case.OnSection.x[0]);
@@ -6511,7 +6511,7 @@ PrintSubType :
     {
       PostSubOperation_S.SubType = PRINT_ONGRID_0D;
       if(List_Nbr($3) != 3)
-	vyyerror("Expected {3} coordinates, got {%d}", List_Nbr($3));
+	vyyerror(0, "Expected {3} coordinates, got {%d}", List_Nbr($3));
       else{
 	List_Read($3, 0, &PostSubOperation_S.Case.OnGrid.x[0]);
 	List_Read($3, 1, &PostSubOperation_S.Case.OnGrid.y[0]);
@@ -6525,7 +6525,7 @@ PrintSubType :
     {
       PostSubOperation_S.SubType = PRINT_ONGRID_1D;
       if(List_Nbr($4) != 3 || List_Nbr($7) != 3)
-	vyyerror("Expected {3}{3} coordinates, got {%d}{%d}",
+	vyyerror(0, "Expected {3}{3} coordinates, got {%d}{%d}",
 		 List_Nbr($4), List_Nbr($7));
       else{
 	List_Read($4, 0, &PostSubOperation_S.Case.OnGrid.x[0]);
@@ -6546,7 +6546,7 @@ PrintSubType :
     {
       PostSubOperation_S.SubType = PRINT_ONGRID_2D;
       if(List_Nbr($4) != 3 || List_Nbr($7) != 3 || List_Nbr($10) != 3)
-	vyyerror("Expected {3}{3}{3} coordinates, got {%d}{%d}{%d}",
+	vyyerror(0, "Expected {3}{3}{3} coordinates, got {%d}{%d}{%d}",
 		 List_Nbr($4), List_Nbr($7), List_Nbr($10));
       else{
 	List_Read($4, 0, &PostSubOperation_S.Case.OnGrid.x[0]);
@@ -6574,7 +6574,7 @@ PrintSubType :
       PostSubOperation_S.SubType = PRINT_ONGRID_3D;
       if(List_Nbr($4) != 3 || List_Nbr($7) != 3 ||
 	 List_Nbr($10) != 3 || List_Nbr($13) != 3)
-	vyyerror("Expected {3}{3}{3}{3} coordinates, got {%d}{%d}{%d}{%d}",
+	vyyerror(0, "Expected {3}{3}{3}{3} coordinates, got {%d}{%d}{%d}{%d}",
 		 List_Nbr($4), List_Nbr($7), List_Nbr($10), List_Nbr($13));
       else{
 	List_Read($4, 0, &PostSubOperation_S.Case.OnGrid.x[0]);
@@ -6610,7 +6610,7 @@ PrintSubType :
       int i;
 
       if((i = List_ISearchSeq(Problem_S.Expression, $4, fcmp_Expression_Name)) < 0)
-	vyyerror("Unknown Name of Expression: %s", $4);
+	vyyerror(0, "Unknown Name of Expression: %s", $4);
       Free($4);
 
       PostSubOperation_S.Case.WithArgument.ArgumentIndex = i;
@@ -6630,7 +6630,7 @@ PrintSubType :
       int i;
 
       if((i = List_ISearchSeq(Problem_S.Expression, $4, fcmp_Expression_Name)) < 0)
-	vyyerror("Unknown Name of Expression: %s", $4);
+	vyyerror(0, "Unknown Name of Expression: %s", $4);
       Free($4);
 
       PostSubOperation_S.Case.WithArgument.ArgumentIndex = i;
@@ -6732,7 +6732,7 @@ PrintOption :
 	Get_DefineForString(PostSubOperation_Format, $3, &FlagError);
       if(FlagError){
 	Get_Valid_SXD($3, PostSubOperation_Format);
-	vyyerror("Unknown PostProcessing Format: %s", $3);
+	vyyerror(0, "Unknown PostProcessing Format: %s", $3);
       }
       Free($3);
     }
@@ -6757,7 +6757,7 @@ PrintOption :
       if((int)$3 >= 1 && (int)$3 <= 3)
 	PostSubOperation_S.Dimension = (int)$3;
       else
-	vyyerror("Wrong Dimension in Print");
+	vyyerror(0, "Wrong Dimension in Print");
     }
   | ',' tTimeStep ListOfFExpr
     {
@@ -6790,7 +6790,7 @@ PrintOption :
 	Get_DefineForString(PostSubOperation_AdaptationType, $3, &FlagError);
       if(FlagError){
 	Get_Valid_SXD($3, PostSubOperation_AdaptationType);
-	vyyerror("Unknown Adaptation method: %s", $3);
+	vyyerror(0, "Unknown Adaptation method: %s", $3);
       }
     }
   | ',' tSort tSTRING
@@ -6799,7 +6799,7 @@ PrintOption :
 	Get_DefineForString(PostSubOperation_SortType, $3, &FlagError);
       if(FlagError){
 	Get_Valid_SXD($3, PostSubOperation_SortType);
-	vyyerror("Unknown Sort method: %s", $3);
+	vyyerror(0, "Unknown Sort method: %s", $3);
       }
     }
   | ',' tTarget FExpr
@@ -6807,7 +6807,7 @@ PrintOption :
       if($3 >= 0.)
 	PostSubOperation_S.Target = $3;
       else
-	vyyerror("Bad Target value");
+	vyyerror(0, "Bad Target value");
     }
   | ',' tValue ListOfFExpr
     {
@@ -6911,7 +6911,7 @@ PrintOption :
   | ',' tEvaluationPoints '{' RecursiveListOfFExpr '}'
     {
       if(List_Nbr($4)%3 != 0)
-	vyyerror("Expected 3n coordinates, got %d", List_Nbr($4));
+	vyyerror(0, "Expected 3n coordinates, got %d", List_Nbr($4));
       else {
 	PostSubOperation_S.EvaluationPoints = $4;
       }
@@ -7042,7 +7042,7 @@ Loop :
       else
 	ImbricatedLoop++;
       if(ImbricatedLoop > MAX_RECUR_LOOPS-1){
-	vyyerror("Reached maximum number of imbricated loops");
+	vyyerror(0, "Reached maximum number of imbricated loops");
 	ImbricatedLoop = MAX_RECUR_LOOPS-1;
       }
     }
@@ -7059,7 +7059,7 @@ Loop :
       else
 	ImbricatedLoop++;
       if(ImbricatedLoop > MAX_RECUR_LOOPS-1){
-	vyyerror("Reached maximum number of imbricated loops");
+	vyyerror(0, "Reached maximum number of imbricated loops");
 	ImbricatedLoop = MAX_RECUR_LOOPS-1;
       }
     }
@@ -7081,7 +7081,7 @@ Loop :
       else
 	ImbricatedLoop++;
       if(ImbricatedLoop > MAX_RECUR_LOOPS-1){
-	vyyerror("Reached maximum number of imbricated loops");
+	vyyerror(0, "Reached maximum number of imbricated loops");
 	ImbricatedLoop = MAX_RECUR_LOOPS-1;
       }
     }
@@ -7102,14 +7102,14 @@ Loop :
       else
 	ImbricatedLoop++;
       if(ImbricatedLoop > MAX_RECUR_LOOPS-1){
-	vyyerror("Reached maximum number of imbricated loops");
+	vyyerror(0, "Reached maximum number of imbricated loops");
 	ImbricatedLoop = MAX_RECUR_LOOPS-1;
       }
     }
   | tEndFor
     {
       if(ImbricatedLoop <= 0){
-	vyyerror("Invalid For/EndFor loop");
+	vyyerror(0, "Invalid For/EndFor loop");
 	ImbricatedLoop = 0;
       }
       else{
@@ -7125,7 +7125,7 @@ Loop :
 	    Constant_S.Type = VAR_FLOAT;
 	    Constant_S.Value.Float = LoopControlVariablesTab[ImbricatedLoop-1][0];
 	    if(!Tree_Search(ConstantTable_L, &Constant_S))
-	      vyyerror("Unknown For/EndFor loop control variable %s", Constant_S.Name);
+	      vyyerror(0, "Unknown For/EndFor loop control variable %s", Constant_S.Name);
 	    Tree_Replace(ConstantTable_L, &Constant_S);
 	  }
 	  fsetpos(getdp_yyin, &FposImbricatedLoopsTab[ImbricatedLoop-1]);
@@ -7147,7 +7147,7 @@ Loop :
     {
       if(!MacroManager::Instance()->createMacro
          (std::string($2), getdp_yyin, getdp_yyname, getdp_yylinenum + 1))
-        vyyerror("Redefinition of macro '%s'", $2);
+        vyyerror(0, "Redefinition of macro '%s'", $2);
       skipUntil(NULL, "Return");
       Free($2);
     }
@@ -7155,7 +7155,7 @@ Loop :
     {
       if(!MacroManager::Instance()->createMacro
          (std::string($2), getdp_yyin, getdp_yyname, getdp_yylinenum + 1))
-        vyyerror("Redefinition of macro '%s'", $2);
+        vyyerror(0, "Redefinition of macro '%s'", $2);
       skipUntil(NULL, "Return");
       Free($2);
     }
@@ -7163,13 +7163,13 @@ Loop :
     {
       if(!MacroManager::Instance()->leaveMacro
          (&getdp_yyin, getdp_yyname, getdp_yylinenum))
-	vyyerror("Error while exiting macro");
+	vyyerror(0, "Error while exiting macro");
     }
   | tCall CallArg tEND
     {
       if(!MacroManager::Instance()->enterMacro
          (std::string($2), &getdp_yyin, getdp_yyname, getdp_yylinenum))
-	vyyerror("Unknown macro '%s'", $2);
+	vyyerror(0, "Unknown macro '%s'", $2);
       Free($2);
     }
   | tCallTest '(' FExpr ')' CallArg tEND
@@ -7177,14 +7177,14 @@ Loop :
       if($3)
         if(!MacroManager::Instance()->enterMacro
            (std::string($5), &getdp_yyin, getdp_yyname, getdp_yylinenum))
-          vyyerror("Unknown macro '%s'", $5);
+          vyyerror(0, "Unknown macro '%s'", $5);
       Free($5);
     }
   | tIf '(' FExpr ')'
     {
       ImbricatedTest++;
       if(ImbricatedTest > MAX_RECUR_TESTS-1){
-        vyyerror("Reached maximum number of imbricated tests");
+        vyyerror(0, "Reached maximum number of imbricated tests");
         ImbricatedTest = MAX_RECUR_TESTS-1;
       }
 
@@ -7242,7 +7242,7 @@ Loop :
     {
       ImbricatedTest--;
       if(ImbricatedTest < 0)
-        Message::Warning("line %ld : Orphan EndIf", getdp_yylinenum);
+        vyyerror(1, "Orphan EndIf");
     }
   | tParse LP CharExpr RP tEND
     {
@@ -7340,14 +7340,14 @@ Affectation :
               *pd = d2;
             }
             else
-              vyyerror("Index %d out of range", idx);
+              vyyerror(0, "Index %d out of range", idx);
           }
         }
         else
-          vyyerror("Bad list sizes for affectation %d != %d", List_Nbr($3), List_Nbr($6));
+          vyyerror(0, "Bad list sizes for affectation %d != %d", List_Nbr($3), List_Nbr($6));
       }
       else
-	vyyerror("Unknown list Constant: %s", $1);
+	vyyerror(0, "Unknown list Constant: %s", $1);
       List_Delete($3);
       List_Delete($6);
     }
@@ -7368,14 +7368,14 @@ Affectation :
               *pd += d2;
             }
             else
-              vyyerror("Index %d out of range", idx);
+              vyyerror(0, "Index %d out of range", idx);
           }
         }
         else
-          vyyerror("Bad list sizes (%d, %d) for += operation", List_Nbr($3), List_Nbr($7));
+          vyyerror(0, "Bad list sizes (%d, %d) for += operation", List_Nbr($3), List_Nbr($7));
       }
       else
-	vyyerror("Unknown list Constant: %s", $1);
+	vyyerror(0, "Unknown list Constant: %s", $1);
       List_Delete($3);
       List_Delete($7);
     }
@@ -7396,14 +7396,14 @@ Affectation :
               *pd -= d2;
             }
             else
-              vyyerror("Index %d out of range", idx);
+              vyyerror(0, "Index %d out of range", idx);
           }
         }
         else
-          vyyerror("Bad list sizes (%d, %d) for -= operation", List_Nbr($3), List_Nbr($7));
+          vyyerror(0, "Bad list sizes (%d, %d) for -= operation", List_Nbr($3), List_Nbr($7));
       }
       else
-	vyyerror("Unknown list Constant: %s", $1);
+	vyyerror(0, "Unknown list Constant: %s", $1);
       List_Delete($3);
       List_Delete($7);
     }
@@ -7423,10 +7423,10 @@ Affectation :
             List_Add(c->Value.List, List_Pointer($4, i));
         }
         else
-          vyyerror("Cannot append list to float");
+          vyyerror(0, "Cannot append list to float");
       }
       else
-	vyyerror("Unknown Constant: %s", $1);
+	vyyerror(0, "Unknown Constant: %s", $1);
       List_Delete($4);
     }
 
@@ -7440,10 +7440,10 @@ Affectation :
             List_Add(c->Value.List, List_Pointer($6, i));
         }
         else
-          vyyerror("Cannot append list to float");
+          vyyerror(0, "Cannot append list to float");
       }
       else
-	vyyerror("Unknown Constant: %s", $1);
+	vyyerror(0, "Unknown Constant: %s", $1);
       List_Delete($6);
     }
 
@@ -7475,10 +7475,10 @@ Affectation :
             List_Add(c->Value.List, &tmp[i]);
         }
         else
-          vyyerror("Cannot erase list from float");
+          vyyerror(0, "Cannot erase list from float");
       }
       else
-	vyyerror("Unknown Constant: %s", $1);
+	vyyerror(0, "Unknown Constant: %s", $1);
       List_Delete($4);
     }
 
@@ -7505,10 +7505,10 @@ Affectation :
             List_Add(c->Value.List, &tmp[i]);
         }
         else
-          vyyerror("Cannot erase list from float");
+          vyyerror(0, "Cannot erase list from float");
       }
       else
-	vyyerror("Unknown Constant: %s", $1);
+	vyyerror(0, "Unknown Constant: %s", $1);
       List_Delete($6);
     }
 
@@ -7545,10 +7545,10 @@ Affectation :
             List_Add(c->Value.List, List_Pointer($8, i));
         }
         else
-          vyyerror("Cannot append string to non-list of strings");
+          vyyerror(0, "Cannot append string to non-list of strings");
       }
       else
-	vyyerror("Unknown Constant: %s", $1);
+	vyyerror(0, "Unknown Constant: %s", $1);
       List_Delete($8);
     }
 
@@ -7562,7 +7562,7 @@ Affectation :
       std::string tmp = Fix_RelativePath($6);
       FILE *fp = FOpen(tmp.c_str(), $5);
       if(!fp){
-	vyyerror("Unable to open file '%s'", tmp.c_str());
+	vyyerror(0, "Unable to open file '%s'", tmp.c_str());
       }
       else{
 	fprintf(fp, "%s\n", $3);
@@ -7576,7 +7576,7 @@ Affectation :
     {
       Constant_S.Name = $2;
       if(!Tree_Query(ConstantTable_L, &Constant_S))
-	vyyerror("Unknown Constant: %s", $2);
+	vyyerror(0, "Unknown Constant: %s", $2);
       else
 	if(Constant_S.Type != VAR_LISTOFFLOAT)
           Message::Direct($1, "%s: %g", $2, Constant_S.Value.Float);
@@ -7599,9 +7599,9 @@ Affectation :
       char tmpstr[256];
       int i = Print_ListOfDouble($3, $5, tmpstr);
       if(i < 0)
-	vyyerror("Too few arguments in Printf");
+	vyyerror(0, "Too few arguments in Printf");
       else if(i > 0)
-	vyyerror("Too many arguments (%d) in Printf", i);
+	vyyerror(0, "Too many arguments (%d) in Printf", i);
       else
 	Message::Direct($1, tmpstr);
       Free($3);
@@ -7613,15 +7613,15 @@ Affectation :
       std::string tmp = Fix_RelativePath($8);
       FILE *fp = FOpen(tmp.c_str(), $7);
       if(!fp){
-	vyyerror("Unable to open file '%s'", tmp.c_str());
+	vyyerror(0, "Unable to open file '%s'", tmp.c_str());
       }
       else{
         char tmpstr[256];
         int i = Print_ListOfDouble($3, $5, tmpstr);
         if(i < 0)
-          vyyerror("Too few arguments in Printf");
+          vyyerror(0, "Too few arguments in Printf");
         else if(i > 0)
-          vyyerror("Too many arguments (%d) in Printf", i);
+          vyyerror(0, "Too many arguments (%d) in Printf", i);
         else
           fprintf(fp, "%s\n", $3);
 	fclose(fp);
@@ -7709,7 +7709,7 @@ Enumeration :
       int n = List_Nbr($1);
       Constant_S.Name = $3;
       if(!Tree_Query(ConstantTable_L, &Constant_S))
-	vyyerror("Unknown Constant: %s", $3);
+	vyyerror(0, "Unknown Constant: %s", $3);
       else{
 	if(Constant_S.Type == VAR_LISTOFCHAR){
           int m = List_Nbr(Constant_S.Value.List);
@@ -7724,11 +7724,11 @@ Enumeration :
             }
           }
           else{
-            vyyerror("Size mismatch in enumeration: %d != %d", n, m);
+            vyyerror(0, "Size mismatch in enumeration: %d != %d", n, m);
           }
         }
 	else{
-          vyyerror("Enumeration requires list of strings");
+          vyyerror(0, "Enumeration requires list of strings");
         }
       }
       List_Delete($1);
@@ -7868,7 +7868,8 @@ DefineConstants :
       Free($3) ;
     }
   | DefineConstants Comma String__Index tDEF FExpr
-    { Constant_S.Name = $3; Constant_S.Type = VAR_FLOAT;
+    {
+      Constant_S.Name = $3; Constant_S.Type = VAR_FLOAT;
       if(!Tree_Search(ConstantTable_L, &Constant_S)){
         Constant_S.Value.Float = $5;
 	Tree_Replace(ConstantTable_L, &Constant_S);
@@ -7877,7 +7878,8 @@ DefineConstants :
   | DefineConstants Comma String__Index tDEF '{' ListOfFExpr
     { FloatOptions_S.clear(); CharOptions_S.clear(); }
     FloatParameterOptions '}'
-    { Constant_S.Name = $3;
+    {
+      Constant_S.Name = $3;
       if(List_Nbr($6) == 1){
         Constant_S.Type = VAR_FLOAT;
         if(!Tree_Search(ConstantTable_L, &Constant_S)){
@@ -7890,15 +7892,30 @@ DefineConstants :
         List_Delete($6);
       }
       else{
+	vyyerror(1, "List notation should be used to define list '%s[]'", $3);
         Constant_S.Type = VAR_LISTOFFLOAT;
         if(!Tree_Search(ConstantTable_L, &Constant_S)){
           Constant_S.Value.List = $6;
+          Message::ExchangeOnelabParameter(&Constant_S, FloatOptions_S, CharOptions_S);
           Tree_Replace(ConstantTable_L, &Constant_S);
         }
       }
     }
+  | DefineConstants Comma String__Index '(' ')' tDEF '{' ListOfFExpr
+    { FloatOptions_S.clear(); CharOptions_S.clear(); }
+    FloatParameterOptions '}'
+    {
+      Constant_S.Name = $3;
+      Constant_S.Type = VAR_LISTOFFLOAT;
+      if(!Tree_Search(ConstantTable_L, &Constant_S)){
+        Constant_S.Value.List = $8;
+        Message::ExchangeOnelabParameter(&Constant_S, FloatOptions_S, CharOptions_S);
+        Tree_Replace(ConstantTable_L, &Constant_S);
+      }
+    }
   | DefineConstants Comma String__Index tDEF CharExprNoVar
-    { Constant_S.Name = $3; Constant_S.Type = VAR_CHAR;
+    {
+      Constant_S.Name = $3; Constant_S.Type = VAR_CHAR;
       if(!Tree_Search(ConstantTable_L, &Constant_S)){
         Constant_S.Value.Char = $5;
 	Tree_Replace(ConstantTable_L, &Constant_S);
@@ -7907,7 +7924,8 @@ DefineConstants :
   | DefineConstants Comma String__Index tDEF '{' CharExprNoVar
     { FloatOptions_S.clear(); CharOptions_S.clear(); }
     CharParameterOptions '}'
-    { Constant_S.Name = $3; Constant_S.Type = VAR_CHAR;
+    {
+      Constant_S.Name = $3; Constant_S.Type = VAR_CHAR;
       if(!Tree_Search(ConstantTable_L, &Constant_S)){
         Constant_S.Value.Char = $6;
         Message::ExchangeOnelabParameter(&Constant_S, FloatOptions_S, CharOptions_S);
@@ -8069,13 +8087,13 @@ OneFExpr :
     {
       Constant_S.Name = $1;
       if(!Tree_Query(ConstantTable_L, &Constant_S)) {
-	vyyerror("Unknown Constant: %s", $1);  $$ = 0.;
+	vyyerror(0, "Unknown Constant: %s", $1);  $$ = 0.;
       }
       else  {
 	if(Constant_S.Type == VAR_FLOAT)
 	  $$ = Constant_S.Value.Float;
 	else {
-	  vyyerror("Single value Constant needed: %s", $1);  $$ = 0.;
+	  vyyerror(0, "Single value Constant needed: %s", $1);  $$ = 0.;
 	}
       }
       Free($1);
@@ -8086,7 +8104,7 @@ OneFExpr :
       Constant_S.Name = $2;
       int ret = 0;
       if(!Tree_Query(ConstantTable_L, &Constant_S))
-	vyyerror("Unknown Constant: %s", $2);
+	vyyerror(0, "Unknown Constant: %s", $2);
       else{
 	if(Constant_S.Type == VAR_LISTOFFLOAT ||
            Constant_S.Type == VAR_LISTOFCHAR)
@@ -8105,7 +8123,7 @@ OneFExpr :
       Constant_S.Name = $2;
       int ret = 0;
       if(!Tree_Query(ConstantTable_L, &Constant_S))
-	vyyerror("Unknown Constant: %s", $2);
+	vyyerror(0, "Unknown Constant: %s", $2);
       else{
 	if(Constant_S.Type == VAR_LISTOFFLOAT ||
            Constant_S.Type == VAR_LISTOFCHAR)
@@ -8113,7 +8131,7 @@ OneFExpr :
 	else if(Constant_S.Type == VAR_FLOAT)
           ret = 1;
         else
-          vyyerror("Float Constant needed: %s", $2);
+          vyyerror(0, "Float Constant needed: %s", $2);
       }
       $$ = ret;
       Free($2);
@@ -8126,7 +8144,7 @@ OneFExpr :
       Constant_S.Name = $4;
       int ret = 0;
       if(!Tree_Query(ConstantTable_L, &Constant_S))
-	vyyerror("Unknown Constant: %s", $4);
+	vyyerror(0, "Unknown Constant: %s", $4);
       else{
 	if(Constant_S.Type == VAR_LISTOFFLOAT ||
            Constant_S.Type == VAR_LISTOFCHAR)
@@ -8134,7 +8152,7 @@ OneFExpr :
 	else if(Constant_S.Type == VAR_FLOAT)
           ret = 1;
         else
-          vyyerror("Float Constant needed: %s", $4);
+          vyyerror(0, "Float Constant needed: %s", $4);
       }
       $$ = ret;
       Free($4);
@@ -8145,16 +8163,16 @@ OneFExpr :
       Constant_S.Name = $1;
       double ret = 0.;
       if(!Tree_Query(ConstantTable_L, &Constant_S))
-	vyyerror("Unknown Constant: %s", $1);
+	vyyerror(0, "Unknown Constant: %s", $1);
       else{
 	if(Constant_S.Type != VAR_LISTOFFLOAT)
-	  vyyerror("Multi value Constant needed: %s", $1);
+	  vyyerror(0, "Multi value Constant needed: %s", $1);
 	else{
           int j = (int)$3;
           if(j >= 0 && j < List_Nbr(Constant_S.Value.List))
             List_Read(Constant_S.Value.List, j, &ret);
           else
-            vyyerror("Index %d out of range", j);
+            vyyerror(0, "Index %d out of range", j);
         }
       }
       $$ = ret;
@@ -8168,16 +8186,16 @@ OneFExpr :
       Constant_S.Name = $1;
       double ret = 0.;
       if(!Tree_Query(ConstantTable_L, &Constant_S))
-	vyyerror("Unknown Constant: %s", $1);
+	vyyerror(0, "Unknown Constant: %s", $1);
       else{
 	if(Constant_S.Type != VAR_LISTOFFLOAT)
-	  vyyerror("Multi value Constant needed: %s", $1);
+	  vyyerror(0, "Multi value Constant needed: %s", $1);
 	else{
           int j = (int)$3;
           if(j >= 0 && j < List_Nbr(Constant_S.Value.List))
             List_Read(Constant_S.Value.List, j, &ret);
           else
-            vyyerror("Index %d out of range", j);
+            vyyerror(0, "Index %d out of range", j);
         }
       }
       $$ = ret;
@@ -8191,16 +8209,16 @@ OneFExpr :
       Constant_S.Name = $3;
       double ret = 0.;
       if(!Tree_Query(ConstantTable_L, &Constant_S))
-	vyyerror("Unknown Constant: %s", $3);
+	vyyerror(0, "Unknown Constant: %s", $3);
       else{
 	if(Constant_S.Type != VAR_LISTOFFLOAT)
-	  vyyerror("Multi value Constant needed: %s", $3);
+	  vyyerror(0, "Multi value Constant needed: %s", $3);
 	else{
           int j = (int)$6;
           if(j >= 0 && j < List_Nbr(Constant_S.Value.List))
             List_Read(Constant_S.Value.List, j, &ret);
           else
-            vyyerror("Index %d out of range", j);
+            vyyerror(0, "Index %d out of range", j);
         }
       }
       $$ = ret;
@@ -8359,7 +8377,7 @@ MultiFExpr :
         }
       }
       else
-        vyyerror("Wrong list sizes %d != %d", List_Nbr($$), List_Nbr($3));
+        vyyerror(0, "Wrong list sizes %d != %d", List_Nbr($$), List_Nbr($3));
       List_Delete($3);
     }
 
@@ -8374,7 +8392,7 @@ MultiFExpr :
         }
       }
       else
-        vyyerror("Wrong list sizes %d != %d", List_Nbr($$), List_Nbr($3));
+        vyyerror(0, "Wrong list sizes %d != %d", List_Nbr($$), List_Nbr($3));
       List_Delete($3);
     }
 
@@ -8389,7 +8407,7 @@ MultiFExpr :
         }
       }
       else
-        vyyerror("Wrong list sizes %d != %d", List_Nbr($$), List_Nbr($3));
+        vyyerror(0, "Wrong list sizes %d != %d", List_Nbr($$), List_Nbr($3));
       List_Delete($3);
     }
 
@@ -8404,7 +8422,7 @@ MultiFExpr :
         }
       }
       else
-        vyyerror("Wrong list sizes %d != %d", List_Nbr($$), List_Nbr($3));
+        vyyerror(0, "Wrong list sizes %d != %d", List_Nbr($$), List_Nbr($3));
       List_Delete($3);
     }
 
@@ -8420,7 +8438,7 @@ MultiFExpr :
     {
       $$ = List_Create(20,20,sizeof(double));
       if(!$5 || ($1<$3 && $5<0) || ($1>$3 && $5>0)){
-	vyyerror("Wrong increment in '%g : %g : %g'", $1, $3, $5);
+	vyyerror(0, "Wrong increment in '%g : %g : %g'", $1, $3, $5);
 	List_Add($$, &($1));
       }
       else
@@ -8433,10 +8451,10 @@ MultiFExpr :
       $$ = List_Create(20,20,sizeof(double));
       Constant_S.Name = $1;
       if(!Tree_Query(ConstantTable_L, &Constant_S))
-	vyyerror("Unknown Constant: %s", $1);
+	vyyerror(0, "Unknown Constant: %s", $1);
       else{
 	if(Constant_S.Type != VAR_LISTOFFLOAT){
-	  /* vyyerror("Multi value Constant needed: %s", $1); */
+	  /* vyyerror(0, "Multi value Constant needed: %s", $1); */
 	  List_Add($$, &Constant_S.Value.Float);
         }
 	else{
@@ -8456,10 +8474,10 @@ MultiFExpr :
       $$ = List_Create(20,20,sizeof(double));
       Constant_S.Name = $1;
       if(!Tree_Query(ConstantTable_L, &Constant_S))
-	vyyerror("Unknown Constant: %s", $1);
+	vyyerror(0, "Unknown Constant: %s", $1);
       else
 	if(Constant_S.Type != VAR_LISTOFFLOAT)
-	  /* vyyerror("Multi value Constant needed: %s", $1); */
+	  /* vyyerror(0, "Multi value Constant needed: %s", $1); */
 	  List_Add($$, &Constant_S.Value.Float);
 	else
 	  for(int i = 0; i < List_Nbr(Constant_S.Value.List); i++) {
@@ -8476,10 +8494,10 @@ MultiFExpr :
       $$ = List_Create(20,20,sizeof(double));
       Constant_S.Name = $3;
       if(!Tree_Query(ConstantTable_L, &Constant_S))
-	vyyerror("Unknown Constant: %s", $3);
+	vyyerror(0, "Unknown Constant: %s", $3);
       else
 	if(Constant_S.Type != VAR_LISTOFFLOAT)
-	  /* vyyerror("Multi value Constant needed: %s", $3); */
+	  /* vyyerror(0, "Multi value Constant needed: %s", $3); */
 	  List_Add($$, &Constant_S.Value.Float);
 	else
 	  for(int i = 0; i < List_Nbr(Constant_S.Value.List); i++) {
@@ -8495,10 +8513,10 @@ MultiFExpr :
       $$ = List_Create(20,20,sizeof(double));
       Constant_S.Name = $1;
       if(!Tree_Query(ConstantTable_L, &Constant_S))
-	vyyerror("Unknown Constant: %s", $1);
+	vyyerror(0, "Unknown Constant: %s", $1);
       else
 	if(Constant_S.Type != VAR_LISTOFFLOAT)
-	  /* vyyerror("Multi value Constant needed: %s", $1); */
+	  /* vyyerror(0, "Multi value Constant needed: %s", $1); */
 	  List_Add($$, &Constant_S.Value.Float);
 	else
 	  for(int i = 0; i < List_Nbr(Constant_S.Value.List); i++) {
@@ -8513,10 +8531,10 @@ MultiFExpr :
       $$ = List_Create(20,20,sizeof(double));
       Constant_S.Name = $1;
       if(!Tree_Query(ConstantTable_L, &Constant_S))
-	vyyerror("Unknown Constant: %s", $1);
+	vyyerror(0, "Unknown Constant: %s", $1);
       else
 	if(Constant_S.Type != VAR_LISTOFFLOAT)
-	  vyyerror("Multi value Constant needed: %s", $1);
+	  vyyerror(0, "Multi value Constant needed: %s", $1);
 	else
 	  for(int i = 0; i < List_Nbr($4); i++) {
             int j = (int)(*(double*)List_Pointer($4, i));
@@ -8526,7 +8544,7 @@ MultiFExpr :
 	      List_Add($$, &d);
 	    }
 	    else{
-              vyyerror("Index %d out of range", j);
+              vyyerror(0, "Index %d out of range", j);
 	      double d = 0.;
 	      List_Add($$, &d);
 	    }
@@ -8541,10 +8559,10 @@ MultiFExpr :
       $$ = List_Create(20,20,sizeof(double));
       Constant_S.Name = $1;
       if(!Tree_Query(ConstantTable_L, &Constant_S))
-	vyyerror("Unknown Constant: %s", $1);
+	vyyerror(0, "Unknown Constant: %s", $1);
       else
 	if(Constant_S.Type != VAR_LISTOFFLOAT)
-	  vyyerror("Multi value Constant needed: %s", $1);
+	  vyyerror(0, "Multi value Constant needed: %s", $1);
 	else
 	  for(int i = 0; i < List_Nbr($4); i++) {
             int j = (int)(*(double*)List_Pointer($4, i));
@@ -8554,7 +8572,7 @@ MultiFExpr :
 	      List_Add($$, &d);
 	    }
 	    else{
-              vyyerror("Index %d out of range", j);
+              vyyerror(0, "Index %d out of range", j);
 	      double d = 0.;
 	      List_Add($$, &d);
 	    }
@@ -8569,10 +8587,10 @@ MultiFExpr :
       $$ = List_Create(20,20,sizeof(double));
       Constant_S.Name = $3;
       if(!Tree_Query(ConstantTable_L, &Constant_S))
-	vyyerror("Unknown Constant: %s", $3);
+	vyyerror(0, "Unknown Constant: %s", $3);
       else
 	if(Constant_S.Type != VAR_LISTOFFLOAT)
-	  vyyerror("Multi value Constant needed: %s", $3);
+	  vyyerror(0, "Multi value Constant needed: %s", $3);
 	else
 	  for(int i = 0; i < List_Nbr($7); i++) {
             int j = (int)(*(double*)List_Pointer($7, i));
@@ -8582,7 +8600,7 @@ MultiFExpr :
 	      List_Add($$, &d);
 	    }
 	    else{
-              vyyerror("Index %d out of range", j);
+              vyyerror(0, "Index %d out of range", j);
 	      double d = 0.;
 	      List_Add($$, &d);
 	    }
@@ -8596,10 +8614,10 @@ MultiFExpr :
       $$ = List_Create(20,20,sizeof(double));
       Constant_S.Name = $3;
       if(!Tree_Query(ConstantTable_L, &Constant_S))
-	vyyerror("Unknown Constant: %s", $3);
+	vyyerror(0, "Unknown Constant: %s", $3);
       else
 	if(Constant_S.Type != VAR_LISTOFFLOAT)
-	  vyyerror("Multi value Constant needed: %s", $3);
+	  vyyerror(0, "Multi value Constant needed: %s", $3);
 	else
 	  for(int i = 0; i < List_Nbr(Constant_S.Value.List); i++) {
 	    double d;
@@ -8608,29 +8626,39 @@ MultiFExpr :
 	  }
     }
 
-  | tListAlt '[' tSTRING ',' tSTRING ']'
+  | tList '[' MultiFExpr ']'
+    {
+      $$ = $3;
+    }
+
+  | tList '[' '{' RecursiveListOfFExpr '}' ']'
+    {
+      $$ = $4;
+    }
+
+  | tListAlt '[' String__Index ',' String__Index ']'
     {
       $$ = List_Create(20,20,sizeof(double));
       Constant1_S.Name = $3; Constant2_S.Name = $5;
       if(!Tree_Query(ConstantTable_L, &Constant1_S)) {
-	vyyerror("Unknown Constant: %s", $3);
+	vyyerror(0, "Unknown Constant: %s", $3);
       }
       else
 	if(Constant1_S.Type != VAR_LISTOFFLOAT) {
-	  vyyerror("Multi value Constant needed: %s", $3);
+	  vyyerror(0, "Multi value Constant needed: %s", $3);
 	}
 	else {
 	  if(!Tree_Query(ConstantTable_L, &Constant2_S)) {
-	    vyyerror("Unknown Constant: %s", $5);
+	    vyyerror(0, "Unknown Constant: %s", $5);
 	  }
 	  else
 	    if(Constant2_S.Type != VAR_LISTOFFLOAT) {
-	      vyyerror("Multi value Constant needed: %s", $5);
+	      vyyerror(0, "Multi value Constant needed: %s", $5);
 	    }
 	    else {
 	      if(List_Nbr(Constant1_S.Value.List) !=
                  List_Nbr(Constant2_S.Value.List)) {
-		vyyerror("Different dimensions of Multi value Constants: "
+		vyyerror(0, "Different dimensions of Multi value Constants: "
 			 "%s {%d}, %s {%d}",
 			 $3, List_Nbr(Constant1_S.Value.List),
 			 $5, List_Nbr(Constant2_S.Value.List));
@@ -8653,7 +8681,7 @@ MultiFExpr :
     {
       $$ = List_Create(20,20,sizeof(double));
       if(List_Nbr($3) != List_Nbr($5)) {
-        vyyerror("Different dimensions of lists: %d != %d",
+        vyyerror(0, "Different dimensions of lists: %d != %d",
                  List_Nbr($3), List_Nbr($5));
       }
       else {
@@ -8693,7 +8721,7 @@ MultiFExpr :
       FILE *File;
       $$ = List_Create(100, 100, sizeof(double));
       if(!(File = FOpen(Fix_RelativePath($3).c_str(), "rb"))){
-        Message::Warning("Could not open file '%s'", $3);
+        vyyerror(1, "Could not open file '%s'", $3);
       }
       else{
 	double d;
@@ -8708,7 +8736,7 @@ MultiFExpr :
           else{
             char dummy[1024];
             fscanf(File, "%s", dummy);
-            Message::Warning("Ignoring '%s' in file '%s'", dummy, $3);
+            vyyerror(1, "Ignoring '%s' in file '%s'", dummy, $3);
           }
         }
 	fclose(File);
@@ -8838,11 +8866,11 @@ CharExprNoVar :
       char tmpstr[256];
       int i = Print_ListOfDouble($3,$5,tmpstr);
       if(i<0){
-	vyyerror("Too few arguments in Sprintf");
+	vyyerror(0, "Too few arguments in Sprintf");
 	$$ = $3;
       }
       else if(i>0){
-	vyyerror("Too many arguments (%d) in Sprintf", i);
+	vyyerror(0, "Too many arguments (%d) in Sprintf", i);
 	$$ = $3;
       }
       else{
@@ -8928,13 +8956,13 @@ CharExpr :
     {
       Constant_S.Name = $1;
       if(!Tree_Query(ConstantTable_L, &Constant_S)) {
-	vyyerror("Unknown Constant: %s", $1); $$ = NULL;
+	vyyerror(0, "Unknown Constant: %s", $1); $$ = NULL;
       }
       else  {
 	if(Constant_S.Type == VAR_CHAR)
 	  $$ = strSave(Constant_S.Value.Char);
 	else {
-	  vyyerror("String Constant needed: %s", $1); $$ = NULL;
+	  vyyerror(0, "String Constant needed: %s", $1); $$ = NULL;
 	}
       }
       Free($1);
@@ -8944,7 +8972,7 @@ CharExpr :
     {
       Constant_S.Name = $1;
       if(!Tree_Query(ConstantTable_L, &Constant_S)) {
-	vyyerror("Unknown Constant: %s", $1); $$ = NULL;
+	vyyerror(0, "Unknown Constant: %s", $1); $$ = NULL;
       }
       else  {
 	if(Constant_S.Type == VAR_LISTOFCHAR){
@@ -8955,11 +8983,11 @@ CharExpr :
             $$ = strSave(s);
           }
           else{
-            vyyerror("Index %d out of range", j); $$ = NULL;
+            vyyerror(0, "Index %d out of range", j); $$ = NULL;
           }
         }
 	else {
-	  vyyerror("List of string Constant needed: %s", $1); $$ = NULL;
+	  vyyerror(0, "List of string Constant needed: %s", $1); $$ = NULL;
 	}
       }
       Free($1);
@@ -9015,7 +9043,7 @@ StrCmp :
 	$$ = strcmp($3, $5);
       }
       else {
-	vyyerror("Undefined argument for StrCmp function") ;  $$ = 1 ;
+	vyyerror(0, "Undefined argument for StrCmp function") ;  $$ = 1 ;
       }
       Free($3);
       Free($5);
@@ -9026,7 +9054,7 @@ StrCmp :
 	$$ = strlen($3);
       }
       else {
-	vyyerror("Undefined argument for StrLen function") ;  $$ = 0 ;
+	vyyerror(0, "Undefined argument for StrLen function") ;  $$ = 0 ;
       }
       Free($3);
     }
@@ -9061,7 +9089,7 @@ NbrRegions :
 		      ->InitialList) ;
       }
       else {
-	vyyerror("Unknown Group: %s", $3) ;  $$ = 0 ;
+	vyyerror(0, "Unknown Group: %s", $3) ;  $$ = 0 ;
       }
     }
   | tGetRegion '[' String__Index ',' FExpr ']'
@@ -9077,14 +9105,14 @@ NbrRegions :
           $$ = j;
         }
         else {
-          vyyerror("GetRegion: Index out of range [1..%d]",
+          vyyerror(0, "GetRegion: Index out of range [1..%d]",
                    List_Nbr(((struct Group *)List_Pointer(Problem_S.Group, i))
                             ->InitialList)) ;
           $$ = 0 ;
         }
       }
       else {
-	vyyerror("Unknown Group: %s", $3) ;  $$ = 0 ;
+	vyyerror(0, "Unknown Group: %s", $3) ;  $$ = 0 ;
       }
     }
   ;
@@ -9249,7 +9277,7 @@ int  Num_Group(struct Group *Group_P, char *Name, int Num_Group)
 {
   if     (Num_Group >= 0)   /* OK */;
   else if(Num_Group == -1)  Num_Group = Add_Group(Group_P, Name, false, 1, 0);
-  else                      vyyerror("Bad Group right hand side");
+  else                      vyyerror(0, "Bad Group right hand side");
 
   return Num_Group;
 }
@@ -9301,7 +9329,7 @@ void Fill_GroupInitialListFromString(List_T *list, const char *str)
     }
   }
 
-  if(!found) vyyerror("Unknown Group '%s'", str);
+  if(!found) vyyerror(0, "Unknown Group '%s'", str);
 }
 
 /*  A d d _ E x p r e s s i o n   */
@@ -9441,7 +9469,7 @@ void  Check_NameOfStructNotExist(const char *Struct, List_T *List_L, void *data,
 				 int (*fcmp)(const void *a, const void *b))
 {
   if(List_ISearchSeq(List_L, data, fcmp) >= 0)
-    vyyerror("Redefinition of %s %s", Struct, (char*)data);
+    vyyerror(0, "Redefinition of %s %s", Struct, (char*)data);
 }
 
 
@@ -9561,14 +9589,20 @@ void yyerror(const char *s)
   getdp_yyerrorlevel = 1;
 }
 
-void vyyerror(const char *fmt, ...)
+void vyyerror(int level, const char *fmt, ...)
 {
   char str[256];
   va_list args;
   va_start(args, fmt);
   vsprintf(str, fmt, args);
   va_end(args);
-  Message::Error("'%s', line %ld : %s", getdp_yyname.c_str(),
-                 getdp_yylinenum, str);
-  getdp_yyerrorlevel = 1;
+  if(level == 0){
+    Message::Error("'%s', line %ld : %s", getdp_yyname.c_str(),
+                   getdp_yylinenum, str);
+    getdp_yyerrorlevel = 1;
+  }
+  else{
+    Message::Warning("'%s', line %ld : %s", getdp_yyname.c_str(),
+                     getdp_yylinenum, str);
+  }
 }

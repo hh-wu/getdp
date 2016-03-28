@@ -936,16 +936,38 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
     return;
   }
 
-  if(c->Type == VAR_FLOAT){
+  if(c->Type == VAR_FLOAT || c->Type == VAR_LISTOFFLOAT){
     std::vector<onelab::number> ps;
     _onelabClient->get(ps, name);
     bool noRange = true, noChoices = true, noLoop = true;
     bool noGraph = true, noClosed = true;
     if(ps.size()){
-      if(fopt.count("ReadOnly") && fopt["ReadOnly"][0])
-        ps[0].setValue(c->Value.Float); // use local value
-      else
-        c->Value.Float = ps[0].getValue(); // use value from server
+      if(fopt.count("ReadOnly") && fopt["ReadOnly"][0]){ // use local value
+        if(c->Type == VAR_FLOAT){
+          ps[0].setValue(c->Value.Float);
+        }
+        else{
+          std::vector<double> in;
+          for(int i = 0; i < List_Nbr(c->Value.List); i++){
+            double d;
+            List_Read(c->Value.List, i, &d);
+            in.push_back(d);
+          }
+          ps[0].setValues(in);
+        }
+      }
+      else{ // use value from server
+        if(c->Type == VAR_FLOAT){
+          c->Value.Float = ps[0].getValue();
+        }
+        else{
+          List_Reset(c->Value.List);
+          for(unsigned int i = 0; i < ps[0].getValues().size(); i++){
+            double d = ps[0].getValues()[i];
+            List_Add(c->Value.List, &d);
+          }
+        }
+      }
       // keep track of these attributes, which can be changed server-side
       // (unless they are not visible, or, for the range/choices, when
       // explicitely setting these attributes as ReadOnly)
@@ -964,7 +986,18 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
     else{
       ps.resize(1);
       ps[0].setName(name);
-      ps[0].setValue(c->Value.Float);
+      if(c->Type == VAR_FLOAT){
+        ps[0].setValue(c->Value.Float);
+      }
+      else{
+        std::vector<double> in;
+        for(int i = 0; i < List_Nbr(c->Value.List); i++){
+          double d;
+          List_Read(c->Value.List, i, &d);
+          in.push_back(d);
+        }
+        ps[0].setValues(in);
+      }
     }
     // send updated parameter to server
     if(noRange && fopt.count("Range") && fopt["Range"].size() == 2){
@@ -982,8 +1015,8 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
     if(noRange && fopt.count("Step")) ps[0].setStep(fopt["Step"][0]);
     // if no range/min/max/step info is provided, try to compute a reasonnable
     // range and step (this makes the gui much nicer to use)
-    if(noRange && !fopt.count("Range") && !fopt.count("Step") &&
-       !fopt.count("Min") && !fopt.count("Max")){
+    if(c->Type == VAR_FLOAT && noRange && !fopt.count("Range") &&
+       !fopt.count("Step") && !fopt.count("Min") && !fopt.count("Max")){
       bool isInteger = (floor(c->Value.Float) == c->Value.Float);
       double fact = isInteger ? 10. : 100.;
       if(c->Value.Float > 0){
