@@ -392,7 +392,7 @@ PostOperation {
           StoreInRegister (n*10+ActivePort),
           Format Table , File StrCat[myDir, "tmp.dat"]] ;
         Print [ S~{(n*10+ActivePort)}[Port~{n}], OnRegion Port~{n},
-          SendToServer StrCat[catOutput,StrCat["0S",Sprintf("%g",n*10+ActivePort)]],
+          SendToServerRealPart StrCat[catOutput,StrCat["0S",Sprintf("%g",n*10+ActivePort)]],
           Format Table , File StrCat[myDir, "tmp.dat"]] ;
       EndFor
     }

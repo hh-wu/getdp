@@ -361,12 +361,12 @@ PostOperation {
       Print[ exh,  OnElementsOf Region[{Domain,-Pml}], File StrCat[myDir,Sprintf("exh_pml%g.pos", !Flag_SilverMuller)] ];
 
       Print[ Yin[SkinFeed], OnGlobal, Format FrequencyTable, Store 7, File > StrCat[myDir,Sprintf("Yin_pml%g.dat", !Flag_SilverMuller)] ];
-      Print[ Gin, OnRegion SkinFeed, Format Table, SendToServer StrCat[ppe,"G=re(Y)"], Color "Ivory", File StrCat[myDir,"temp.dat"] ] ;
-      Print[ Bin, OnRegion SkinFeed, Format Table, SendToServer StrCat[ppe,"B=im(Y)"], Color "Ivory", File StrCat[myDir,"temp.dat"] ] ;
+      Print[ Gin, OnRegion SkinFeed, Format Table, SendToServerRealPart StrCat[ppe,"G=re(Y)"], Color "Ivory", File StrCat[myDir,"temp.dat"] ] ;
+      Print[ Bin, OnRegion SkinFeed, Format Table, SendToServerRealPart StrCat[ppe,"B=im(Y)"], Color "Ivory", File StrCat[myDir,"temp.dat"] ] ;
 
       Print[ Gam, OnRegion SkinFeed, Format FrequencyTable, Store 8, File > StrCat[myDir,Sprintf("Gamma_pml%g.dat", !Flag_SilverMuller)] ];
-      Print[ reGam, OnRegion SkinFeed, Format Table, SendToServer StrCat[ppe,"re(Gam)"], Color "Ivory", File StrCat[myDir,"temp.dat"] ] ;
-      Print[ imGam, OnRegion SkinFeed, Format Table, SendToServer StrCat[ppe,"im(Gam)"], Color "Ivory", File StrCat[myDir,"temp.dat"] ] ;
+      Print[ reGam, OnRegion SkinFeed, Format Table, SendToServerRealPart StrCat[ppe,"re(Gam)"], Color "Ivory", File StrCat[myDir,"temp.dat"] ] ;
+      Print[ imGam, OnRegion SkinFeed, Format Table, SendToServerRealPart StrCat[ppe,"im(Gam)"], Color "Ivory", File StrCat[myDir,"temp.dat"] ] ;
     }
   }
 
@@ -381,12 +381,12 @@ PostOperation {
       //Print[ a,  OnElementsOf #{Domain,-Feed}, StrCat[myDir, Sprintf("a_av_pml%g.pos", !Flag_SilverMuller)] ] ;
 
       Print[ Yin[SkinFeed], OnGlobal, Format FrequencyTable, Store 77, File > StrCat[myDir,Sprintf("Yin_av_pml%g.dat", !Flag_SilverMuller)] ];
-      Print[ Gin, OnRegion SkinFeed, Format Table, SendToServer StrCat[ppa,"G=re(Y)"], Color "Ivory", File StrCat[myDir,"temp.dat"] ] ;
-      Print[ Bin, OnRegion SkinFeed, Format Table, SendToServer StrCat[ppa,"B=im(Y)"], Color "Ivory", File StrCat[myDir,"temp.dat"] ] ;
+      Print[ Gin, OnRegion SkinFeed, Format Table, SendToServerRealPart StrCat[ppa,"G=re(Y)"], Color "Ivory", File StrCat[myDir,"temp.dat"] ] ;
+      Print[ Bin, OnRegion SkinFeed, Format Table, SendToServerRealPart StrCat[ppa,"B=im(Y)"], Color "Ivory", File StrCat[myDir,"temp.dat"] ] ;
 
       Print[ Gam, OnRegion SkinFeed, Format FrequencyTable, Store 88, File > StrCat[myDir,Sprintf("Gamma_av_pml%g.dat", !Flag_SilverMuller)] ];
-      Print[ reGam, OnRegion SkinFeed, Format Table, SendToServer StrCat[ppa,"re(Gam)"], Color "Ivory", File StrCat[myDir,"temp.dat"] ] ;
-      Print[ imGam, OnRegion SkinFeed, Format Table, SendToServer StrCat[ppa,"im(Gam)"], Color "Ivory", File StrCat[myDir,"temp.dat"] ] ;
+      Print[ reGam, OnRegion SkinFeed, Format Table, SendToServerRealPart StrCat[ppa,"re(Gam)"], Color "Ivory", File StrCat[myDir,"temp.dat"] ] ;
+      Print[ imGam, OnRegion SkinFeed, Format Table, SendToServerRealPart StrCat[ppa,"im(Gam)"], Color "Ivory", File StrCat[myDir,"temp.dat"] ] ;
     }
   }
 
