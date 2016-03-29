@@ -731,9 +731,9 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
     }
 
     Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Re(Omega)",
-                                   omega.re);
+                                   std::vector<double>(1, omega.re));
     Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Im(Omega)",
-                                   omega.im);
+                                   std::vector<double>(1, omega.im));
 
     if(newsol) {
       /* Create new solution */

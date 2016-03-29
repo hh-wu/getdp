@@ -103,9 +103,10 @@ class Message {
   static std::string GetOnelabString(std::string name, const std::string &defaultValue="",
                                      bool errorIfMissing=false);
   static std::string GetOnelabAction();
-  static void AddOnelabNumberChoice(std::string name, double val, const char *color=0);
+  static void AddOnelabNumberChoice(std::string name, const std::vector<double> &value,
+                                    const char *color=0);
   static void AddOnelabStringChoice(std::string name, std::string kind,
-                                    std::string choice);
+                                    std::string value);
   typedef std::map<std::string, std::vector<double> > fmap;
   typedef std::map<std::string, std::vector<std::string> > cmap;
   static void ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt);

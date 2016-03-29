@@ -925,7 +925,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                       MeanError, (int)Current.Iteration, ((int)Current.Iteration==1)?"":"s") ;
         if(Message::GetProgressMeterStep() > 0 && Message::GetProgressMeterStep() < 100)
           Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Residual",
-                                         MeanError);
+                                         std::vector<double>(1, MeanError));
 
 	Current.RelativeDifference +=
 	  MeanError * Operation_P->Case.AddCorrection.Alpha ;
@@ -1111,7 +1111,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
           Cal_StoreInVariable(&Value, Operation_P->Case.GetResidual.VariableName);
           if(Message::GetProgressMeterStep() > 0 && Message::GetProgressMeterStep() < 100)
             Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Residual",
-                                           residual);
+                                           std::vector<double>(1, residual));
         }
         else
           Message::Error("No current solution available");
@@ -1282,7 +1282,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                         (int)Current.Iteration, MeanError);
           if(Message::GetProgressMeterStep() > 0 && Message::GetProgressMeterStep() < 100)
             Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Residual",
-                                           MeanError);
+                                           std::vector<double>(1, MeanError));
         }
 
         Current.RelativeDifference += MeanError ;
@@ -1396,7 +1396,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       if(Message::GetProgressMeterStep() > 0 && Message::GetProgressMeterStep() < 100)
         Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Residual",
-                                       MeanError);
+                                       std::vector<double>(1, MeanError));
 
       Current.RelativeDifference = MeanError;
       Flag_CPU = 1 ;
@@ -2341,7 +2341,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                       (int)Current.TimeStep) ;
         if(Message::GetProgressMeterStep() > 0 && Message::GetProgressMeterStep() < 100)
           Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Time",
-                                         Current.Time);
+                                         std::vector<double>(1, Current.Time));
 
 	Save_Time = Current.Time ;
 
@@ -2395,7 +2395,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                       (int)Current.TimeStep) ;
         if(Message::GetProgressMeterStep() > 0 && Message::GetProgressMeterStep() < 100)
           Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Time",
-                                         Current.Time);
+                                         std::vector<double>(1, Current.Time));
 
 	Treatment_Operation(Resolution_P, Operation_P->Case.TimeLoopNewmark.Operation,
 			    DofData_P0, GeoData_P0, NULL, NULL) ;

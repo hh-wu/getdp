@@ -287,7 +287,8 @@ void Operation_IterativeLoopN(Resolution  *Resolution_P,
                   ((int)Current.Iteration == 1) ? "" : "s");
     if(Message::GetProgressMeterStep() > 0 && Message::GetProgressMeterStep() < 100)
       Message::AddOnelabNumberChoice(Message::GetOnelabClientName() +
-                                   "/IterativeLoop/ILmaxErrorRatio", MaxErrorRatio);
+                                   "/IterativeLoop/ILmaxErrorRatio",
+                                     std::vector<double>(1, MaxErrorRatio));
     if (MaxErrorRatio < 1.) {
       Message::Info(3, "IterativeLoopN converged (%d iterations, error ratio %g)",
                     (int)Current.Iteration, MaxErrorRatio);

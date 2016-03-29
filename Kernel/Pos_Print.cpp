@@ -1459,11 +1459,9 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
         if (PSO_P->StoreInVariable)
           Cal_StoreInVariable(&Value, PSO_P->StoreInVariable) ;
         if (PSO_P->SendToServer && strcmp(PSO_P->SendToServer, "No")){
-          if(Value.Type == SCALAR)
-            Message::AddOnelabNumberChoice(PSO_P->SendToServer,
-                                           Value.Val[0], PSO_P->Color);
-          else if(Message::UseOnelab())
-            Message::Warning("Cannot send non-scalar values to server (yet)");
+          std::vector<double> v;
+          Export_Value(&Value, v);
+          Message::AddOnelabNumberChoice(PSO_P->SendToServer, v, PSO_P->Color);
         }
       }
 
@@ -1494,11 +1492,9 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
       if (PSO_P->StoreInVariable)
         Cal_StoreInVariable(&ValueSummed, PSO_P->StoreInVariable) ;
       if (PSO_P->SendToServer && strcmp(PSO_P->SendToServer, "No")){
-        if(Value.Type == SCALAR)
-          Message::AddOnelabNumberChoice(PSO_P->SendToServer,
-                                         ValueSummed.Val[0], PSO_P->Color);
-        else if(Message::UseOnelab())
-          Message::Warning("Cannot send non-scalar values to server (yet)");
+        std::vector<double> v;
+        Export_Value(&ValueSummed, v);
+        Message::AddOnelabNumberChoice(PSO_P->SendToServer, v, PSO_P->Color);
       }
     }
   }

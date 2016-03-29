@@ -1468,7 +1468,7 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
   }
 
   if(PSO_P->ChangeOfValues && List_Nbr(PSO_P->ChangeOfValues) > 0){
-    for(i=0 ; i<PE->NbrNodes ; i++){
+    for(i=0 ; i < PE->NbrNodes ; i++){
       Current.x = PE->x[i];
       Current.y = PE->y[i];
       Current.z = PE->z[i];
@@ -1540,17 +1540,13 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
     Message::Error("Unknown format in Format_PostElement");
   }
 
-
-  if (PSO_P->SendToServer && strcmp(PSO_P->SendToServer, "No")){
-    if(PE->Value[0].Type == SCALAR)
-      Message::AddOnelabNumberChoice(PSO_P->SendToServer,
-                                     PE->Value[0].Val[0], PSO_P->Color);
-    else if(Message::UseOnelab())
-      Message::Warning("Cannot send non-scalar values to server (yet)");
+  if (PE->NbrNodes == 1 && PSO_P->Format != FORMAT_NODE_TABLE &&
+      PSO_P->SendToServer && strcmp(PSO_P->SendToServer, "No")){
+    std::vector<double> v;
+    Export_Value(&PE->Value[0], v);
+    Message::AddOnelabNumberChoice(PSO_P->SendToServer, v, PSO_P->Color);
   }
-
 }
-
 
 /* ------------------------------------------------------------------------ */
 /*  F o r m a t _ P o s t V a l u e                                         */

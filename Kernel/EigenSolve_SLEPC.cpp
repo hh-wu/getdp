@@ -196,9 +196,9 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv, EPS eps,
     }
 
     Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Re(Omega)",
-                                   ore);
+                                   std::vector<double>(1, ore));
     Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Im(Omega)",
-                                   oim);
+                                   std::vector<double>(1, oim));
 
     // create new solution vector if necessary
     if(newsol) {

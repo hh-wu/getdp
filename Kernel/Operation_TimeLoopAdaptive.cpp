@@ -763,9 +763,11 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
                   (int)Current.TimeStep, Try, Current.Time, Current.DTime, Order);
     if(Message::GetProgressMeterStep() > 0 && Message::GetProgressMeterStep() < 100){
       Message::AddOnelabNumberChoice(Message::GetOnelabClientName() +
-                                     "/TimeLoopAdaptive/Time", Current.Time);
+                                     "/TimeLoopAdaptive/Time",
+                                     std::vector<double>(1, Current.Time));
       Message::AddOnelabNumberChoice(Message::GetOnelabClientName() +
-                                     "/TimeLoopAdaptive/DTime", Current.DTime);
+                                     "/TimeLoopAdaptive/DTime",
+                                     std::vector<double>(1, Current.DTime));
     }
 
     // Calculate integration coefficients
@@ -833,7 +835,8 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
       else {
         if(Message::GetVerbosity() > 4)
           Message::AddOnelabNumberChoice(Message::GetOnelabClientName() +
-                                       "/TimeLoopAdaptive/LTEmaxErrorRatio", maxLTEratio);
+                                       "/TimeLoopAdaptive/LTEmaxErrorRatio",
+                                         std::vector<double>(1, maxLTEratio));
         if (maxLTEratio <= 1.0){
           TimeStepAccepted = true;
           Message::Info("Time step %d  Try %d  Time = %.8g s  accepted (max. LTE ratio = %.3g)",

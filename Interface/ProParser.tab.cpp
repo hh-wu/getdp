@@ -7153,7 +7153,7 @@ yyreduce:
 #line 1043 "ProParser.y" /* yacc.c:1646  */
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_TIME;
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_ProductValue;
 #endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -7165,7 +7165,7 @@ yyreduce:
 #line 1051 "ProParser.y" /* yacc.c:1646  */
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_CROSSPRODUCT;
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_CrossProductValue;
 #endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -7177,7 +7177,7 @@ yyreduce:
 #line 1059 "ProParser.y" /* yacc.c:1646  */
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_CROSSPRODUCT;
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_CrossProductValue;
 #endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -7189,7 +7189,7 @@ yyreduce:
 #line 1067 "ProParser.y" /* yacc.c:1646  */
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_DIVIDE;
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_DivideValue;
 #endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -7201,7 +7201,7 @@ yyreduce:
 #line 1075 "ProParser.y" /* yacc.c:1646  */
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_PLUS;
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_AddValue;
 #endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -7213,7 +7213,7 @@ yyreduce:
 #line 1083 "ProParser.y" /* yacc.c:1646  */
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_MINUS;
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_SubstractValue;
 #endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -7225,7 +7225,7 @@ yyreduce:
 #line 1091 "ProParser.y" /* yacc.c:1646  */
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_MODULO;
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_ModuloValue;
 #endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -7237,7 +7237,7 @@ yyreduce:
 #line 1099 "ProParser.y" /* yacc.c:1646  */
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_POWER;
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_PowerValue;
 #endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -7249,7 +7249,7 @@ yyreduce:
 #line 1107 "ProParser.y" /* yacc.c:1646  */
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_LESS;
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_LessValue;
 #endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -7261,7 +7261,7 @@ yyreduce:
 #line 1115 "ProParser.y" /* yacc.c:1646  */
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_GREATER;
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_GreaterValue;
 #endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -7273,7 +7273,7 @@ yyreduce:
 #line 1123 "ProParser.y" /* yacc.c:1646  */
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_LESSOREQUAL;
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_LessOrEqualValue;
 #endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -7285,7 +7285,7 @@ yyreduce:
 #line 1131 "ProParser.y" /* yacc.c:1646  */
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_GREATEROREQUAL;
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_GreaterOrEqualValue;
 #endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -7297,7 +7297,7 @@ yyreduce:
 #line 1139 "ProParser.y" /* yacc.c:1646  */
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_EQUAL;
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_EqualValue;
 #endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -7309,7 +7309,7 @@ yyreduce:
 #line 1148 "ProParser.y" /* yacc.c:1646  */
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_NOTEQUAL;
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_NotEqualValue;
 #endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -7321,7 +7321,7 @@ yyreduce:
 #line 1156 "ProParser.y" /* yacc.c:1646  */
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_APPROXEQUAL;
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_ApproxEqualValue;
 #endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -7333,7 +7333,7 @@ yyreduce:
 #line 1164 "ProParser.y" /* yacc.c:1646  */
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_AND;
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_AndValue;
 #endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -7345,7 +7345,7 @@ yyreduce:
 #line 1172 "ProParser.y" /* yacc.c:1646  */
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_OR;
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_OrValue;
 #endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -7367,7 +7367,7 @@ yyreduce:
 #line 1188 "ProParser.y" /* yacc.c:1646  */
     { WholeQuantity_S.Type = WQ_UNARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_NEG;
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_NegValue;
 #endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S); }
@@ -7378,7 +7378,7 @@ yyreduce:
 #line 1198 "ProParser.y" /* yacc.c:1646  */
     { WholeQuantity_S.Type = WQ_UNARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_NOT;
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_NotValue;
 #endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S); }
