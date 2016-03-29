@@ -1042,7 +1042,7 @@ WholeQuantity :
   | WholeQuantity '*' WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_TIME;
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_ProductValue;
 #endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -1050,7 +1050,7 @@ WholeQuantity :
   | WholeQuantity tCROSSPRODUCT WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_CROSSPRODUCT;
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_CrossProductValue;
 #endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -1058,7 +1058,7 @@ WholeQuantity :
   | tCrossProduct '[' WholeQuantity ',' WholeQuantity ']'
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_CROSSPRODUCT;
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_CrossProductValue;
 #endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -1066,7 +1066,7 @@ WholeQuantity :
   | WholeQuantity '/' WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_DIVIDE;
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_DivideValue;
 #endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -1074,7 +1074,7 @@ WholeQuantity :
   | WholeQuantity '+' WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_PLUS;
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_AddValue;
 #endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -1082,7 +1082,7 @@ WholeQuantity :
   | WholeQuantity '-' WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_MINUS;
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_SubstractValue;
 #endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -1090,7 +1090,7 @@ WholeQuantity :
   | WholeQuantity '%' WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_MODULO;
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_ModuloValue;
 #endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -1098,7 +1098,7 @@ WholeQuantity :
   | WholeQuantity '^' WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_POWER;
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_PowerValue;
 #endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -1106,7 +1106,7 @@ WholeQuantity :
   | WholeQuantity '<' WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_LESS;
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_LessValue;
 #endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -1114,7 +1114,7 @@ WholeQuantity :
   | WholeQuantity '>' WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_GREATER;
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_GreaterValue;
 #endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -1122,7 +1122,7 @@ WholeQuantity :
   | WholeQuantity tLESSOREQUAL WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_LESSOREQUAL;
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_LessOrEqualValue;
 #endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -1130,7 +1130,7 @@ WholeQuantity :
   | WholeQuantity tGREATEROREQUAL WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_GREATEROREQUAL;
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_GreaterOrEqualValue;
 #endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -1138,7 +1138,7 @@ WholeQuantity :
   | WholeQuantity tEQUAL WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_EQUAL;
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_EqualValue;
 #endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -1147,7 +1147,7 @@ WholeQuantity :
    | WholeQuantity tNOTEQUAL WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_NOTEQUAL;
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_NotEqualValue;
 #endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -1155,7 +1155,7 @@ WholeQuantity :
   | WholeQuantity tAPPROXEQUAL WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_APPROXEQUAL;
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_ApproxEqualValue;
 #endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -1163,7 +1163,7 @@ WholeQuantity :
   | WholeQuantity tAND WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_AND;
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_AndValue;
 #endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -1171,7 +1171,7 @@ WholeQuantity :
   | WholeQuantity tOR WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_OR;
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_OrValue;
 #endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -1187,7 +1187,7 @@ WholeQuantity :
   | '-' WholeQuantity %prec UNARYPREC
     { WholeQuantity_S.Type = WQ_UNARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_NEG;
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_NegValue;
 #endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S); }
@@ -1197,7 +1197,7 @@ WholeQuantity :
   | '!' WholeQuantity
     { WholeQuantity_S.Type = WQ_UNARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_NOT;
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_NotValue;
 #endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S); }
@@ -7892,7 +7892,7 @@ DefineConstants :
         List_Delete($6);
       }
       else{
-	vyyerror(1, "List notation should be used to define list '%s[]'", $3);
+	vyyerror(1, "List notation should be used to define list '%s()'", $3);
         Constant_S.Type = VAR_LISTOFFLOAT;
         if(!Tree_Search(ConstantTable_L, &Constant_S)){
           Constant_S.Value.List = $6;

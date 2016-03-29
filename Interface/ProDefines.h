@@ -9,7 +9,7 @@
 #include "GetDPConfig.h"
 #include "ProDefine.h"
 
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
 #include "Gauss.h"
 #include "F.h"
 #include "BF.h"
@@ -255,7 +255,7 @@ struct StringXDefine  NormOf_Type[] = {
 } ;
 
 struct StringXPointer  Current_Value[] = {
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
   {"Time"     , &Current.Time},       {"DTime"     , &Current.DTime},
   {"Theta"    , &Current.Theta},      {"TimeStep"  , &Current.TimeStep},
   {"Iteration", &Current.Iteration},  {"Iter"      , &Current.Iteration},
@@ -361,7 +361,7 @@ struct StringXDefine  PostSubOperation_SortType[] = {
 #define CAST  void(*)()
 
 struct DefineXFunction  FunctionForGauss[] = {
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
   {POINT          , (CAST)Gauss_Point},
   {LINE           , (CAST)Gauss_Line},
   {TRIANGLE       , (CAST)Gauss_Triangle},
@@ -379,7 +379,7 @@ struct DefineXFunction  FunctionForGauss[] = {
 } ;
 
 struct DefineXFunction  FunctionForSingularGauss[] = {
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
   {TRIANGLE       , (CAST)GaussSingularR_Triangle},
   {QUADRANGLE     , (CAST)GaussSingularR_Quadrangle},
 #endif
@@ -387,7 +387,7 @@ struct DefineXFunction  FunctionForSingularGauss[] = {
 } ;
 
 struct DefineXFunction  FunctionForGaussLegendre[] = {
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
   {POINT          , (CAST)Gauss_Point},
   {LINE           , (CAST)Gauss_Line},
   {TRIANGLE       , (CAST)GaussLegendre_Triangle},
@@ -409,7 +409,7 @@ struct DefineXFunction  FunctionForGaussLegendre[] = {
 #define ALL  POI|LIN|TRI|QUA|TET|HEX|PRI|PYR
 
 struct StringX3Function3Nbr  BF_Function[] = {
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
   // H^1 Basis Functions and their gradients
 
   {"BF_Node",    (CAST)BF_Node,
@@ -889,7 +889,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   /* #Par = -1 => free number of Parameters ; = -2 free even number */
   /* #Arg ... same */
 
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
   // F_Math
   {"Exp"               , (CAST)F_Exp              ,   0,   1 },
   {"Log"               , (CAST)F_Log              ,   0,   1 },
@@ -1160,7 +1160,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
 } ;
 
 struct FunctionXFunction  GF_Function[] = {
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
   {(CAST)GF_Laplace         , (CAST)GF_LaplacexForm        } ,
   {(CAST)GF_GradLaplace     , (CAST)GF_GradLaplacexForm    } ,
   {(CAST)GF_NPxGradLaplace  , (CAST)GF_NPxGradLaplacexForm } ,

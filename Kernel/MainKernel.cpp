@@ -504,7 +504,7 @@ static void Free_GlobalVariables()
   Free_ParserVariables();
 }
 
-int MainLegacy(int argc, char *argv[])
+int MainKernel(int argc, char *argv[])
 {
   if(argc < 2) Info(0, argv[0]);
 
@@ -637,7 +637,7 @@ int GetDP(const std::vector<std::string> &args, void *ptr)
   int argc = args.size();
   std::vector<char*> argv(argc + 1, (char*)0);
   for(int i = 0; i < argc; i++) argv[i] = (char*)args[i].c_str();
-  return MainLegacy(argc, &argv[0]);
+  return MainKernel(argc, &argv[0]);
 }
 
 void GetDPClearNumbers()

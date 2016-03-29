@@ -67,7 +67,7 @@ output format; new experimental SLEPc-based eigensolvers; various bug and
 performance fixes (missing face basis functions, slow PETSc assembly with global
 quantities, ...)
 
-2.0.0 (March 16, 2010): general code cleanup (separated interface from legacy
+2.0.0 (March 16, 2010): general code cleanup (separated interface from kernel
 code; removed various undocumented, unstable and otherwise experimental
 features; moved to C++); updated input file formats; default solvers are now
 based on PETSc; small bug fixes (binary .res read, Newmark -restart).

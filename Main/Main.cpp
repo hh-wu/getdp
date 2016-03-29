@@ -4,7 +4,7 @@
 // bugs and problems to the public mailing list <getdp@onelab.info>.
 
 #include <stdio.h>
-#include "MainLegacy.h"
+#include "MainKernel.h"
 #include "Message.h"
 #include "GetDP.h"
 
@@ -12,13 +12,13 @@ int main(int argc, char **argv)
 {
 #if 1
   Message::SetExitOnError(true);
-  MainLegacy(argc, argv);
+  MainKernel(argc, argv);
 #endif
 
 #if 0 // debug memory leaks
   for(int i = 0; i < 100; i++){
     printf("solving problem %d\n", i);
-    MainLegacy(argc, argv);
+    MainKernel(argc, argv);
   }
 #endif
 

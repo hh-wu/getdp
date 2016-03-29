@@ -3,9 +3,9 @@
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@onelab.info>.
 
-#ifndef _MAIN_LEGACY_H_
-#define _MAIN_LEGACY_H_
+#ifndef _MAIN_KERNEL_H_
+#define _MAIN_KERNEL_H_
 
-int MainLegacy(int argc, char *argv[]);
+int MainKernel(int argc, char *argv[]);
 
 #endif

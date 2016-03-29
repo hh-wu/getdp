@@ -38,7 +38,7 @@ opt(BUILD_IOS "Enable iOS (ARM) library target (experimental)" OFF)
 opt(FORTRAN "Enable Fortran (needed for Arpack/Sparskit/Zitsol & Bessel)" ${DEFAULT})
 opt(GMSH "Enable Gmsh functions (for field interpolation)" ${DEFAULT})
 opt(GSL "Enable GSL functions (for some built-in functions)" ${DEFAULT})
-opt(LEGACY "Use legacy assembler (required for actual computations)" ON)
+opt(KERNEL "Enable kernel (required for actual computations)" ON)
 opt(MPI "Enable MPI parallelization (with PETSc/SLEPc)" OFF)
 opt(MULTIHARMONIC "Enable multi-harmonic support" OFF)
 opt(NR "Enable NR functions (if GSL is unavailable)" ${DEFAULT})
@@ -71,7 +71,7 @@ set(GETDP_SHORT_LICENSE "GNU General Public License")
 set(GETDP_API
   ${CMAKE_CURRENT_BINARY_DIR}/Common/GetDPConfig.h
   ${CMAKE_CURRENT_BINARY_DIR}/Common/GetDPVersion.h
-  Legacy/GetDP.h
+  Kernel/GetDP.h
 )
 
 execute_process(COMMAND date "+%Y%m%d" OUTPUT_VARIABLE DATE
@@ -109,9 +109,9 @@ include(CheckFunctionExists)
 include(CheckIncludeFile)
 include(CheckCXXCompilerFlag)
 
-if(ENABLE_WRAP_PYTHON)
+if(ENABLE_WRAP_PYTHON AND NOT ENABLE_BUILD_SHARED)
   set(ENABLE_BUILD_DYNAMIC ON)
-endif(ENABLE_WRAP_PYTHON)
+endif(ENABLE_WRAP_PYTHON AND NOT ENABLE_BUILD_SHARED)
 
 if(MSVC)
   if(ENABLE_MSVC_STATIC_RUNTIME)
@@ -296,10 +296,10 @@ add_subdirectory(Common)
 add_subdirectory(Interface)
 add_subdirectory(Numeric)
 
-if(ENABLE_LEGACY)
-  add_subdirectory(Legacy)
-  set_config_option(HAVE_LEGACY "Legacy")
-endif(ENABLE_LEGACY)
+if(ENABLE_KERNEL)
+  add_subdirectory(Kernel)
+  set_config_option(HAVE_KERNEL "Kernel")
+endif(ENABLE_KERNEL)
 
 if(ENABLE_MPI)
   find_package(MPI)
@@ -626,7 +626,7 @@ endif(NOOPT)
 # force full warnings to encourage everybody to write clean(er) code
 check_cxx_compiler_flag("-Wall" WALL)
 if(WALL)
-  file(GLOB_RECURSE WALL_SRC Common/*.cpp Interface/*.cpp Legacy/*.cpp
+  file(GLOB_RECURSE WALL_SRC Common/*.cpp Interface/*.cpp Kernel/*.cpp
        Main/*.cpp Numeric/*.cpp)
   set_source_files_properties(${WALL_SRC} COMPILE_FLAGS "-Wall")
 endif(WALL)
@@ -695,7 +695,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 # we could specify include dirs more selectively, but this is simpler
-include_directories(Common Interface Legacy Numeric ${EXTERNAL_INCLUDES}
+include_directories(Common Interface Kernel Numeric ${EXTERNAL_INCLUDES}
                     ${CMAKE_CURRENT_BINARY_DIR}/Common)
 
 # set this for external codes that might include this CMakeList file
@@ -888,8 +888,8 @@ if(ENABLE_WRAP_PYTHON)
     include_directories(${PYTHON_INCLUDE_PATH})
     include_directories(${CMAKE_CURRENT_SOURCE_DIR})
     set(CMAKE_SWIG_FLAGS "")
-    set_source_files_properties(Legacy/GetDP.i PROPERTIES CPLUSPLUS ON)
-    swig_add_module(getdp python Legacy/GetDP.i)
+    set_source_files_properties(Kernel/GetDP.i PROPERTIES CPLUSPLUS ON)
+    swig_add_module(getdp python Kernel/GetDP.i)
     swig_link_libraries(getdp ${PYTHON_LIBRARIES} shared)
     if(APPLE)
       set_target_properties("_getdp" PROPERTIES LINK_FLAGS

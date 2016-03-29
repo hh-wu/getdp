@@ -15428,7 +15428,7 @@ yyreduce:
         List_Delete((yyvsp[-3].l));
       }
       else{
-	vyyerror(1, "List notation should be used to define list '%s[]'", (yyvsp[-6].c));
+	vyyerror(1, "List notation should be used to define list '%s()'", (yyvsp[-6].c));
         Constant_S.Type = VAR_LISTOFFLOAT;
         if(!Tree_Search(ConstantTable_L, &Constant_S)){
           Constant_S.Value.List = (yyvsp[-3].l);

@@ -14,7 +14,7 @@
 #include "Message.h"
 #include "MallocUtils.h"
 #include "OS.h"
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
 #include "Generate_Network.h"
 #endif
 
@@ -441,7 +441,7 @@ void Print_WholeQuantity(List_T *WholeQuantity, List_T *DQ_L)
 
     case WQ_BUILTINFUNCTION :
     case WQ_EXTERNBUILTINFUNCTION :
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
       Message::Check(" %s", Get_StringForFunction2Nbr(F_Function,
                                                       (WQ+k)->Case.Function.Fct));
 #endif
@@ -742,7 +742,7 @@ void Print_Constraint()
                          CPR->Case.Network.Node1, CPR->Case.Network.Node2);
 	  Message::Check(" }\n");
 	}
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
 	if (!MCPR_S.Active)
 	  MCPR_S.Active = Generate_Network(MCPR_S.Name, MCPR_S.ConstraintPerRegion);
 #endif
@@ -956,7 +956,7 @@ void Print_FunctionSpace()
       BF = (struct BasisFunction*)List_Pointer(BF_L, 0);
       for (i=0; i<Nbr; i++) {
 	Message::Check("    /* GlobalNum : %d */\n", BF->Num);
-#if defined(HAVE_LEGACY)
+#if defined(HAVE_KERNEL)
 	Message::Check("      Name %s; NameOfCoef %s; Function %s;\n",
                        BF->Name, BF->NameOfCoef,
                        Get_StringFor3Function3Nbr(BF_Function, BF->Function));

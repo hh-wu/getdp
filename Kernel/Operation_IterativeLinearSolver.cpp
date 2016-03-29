@@ -806,7 +806,7 @@ static PetscErrorCode BuildIterationMatrix(Mat A, Mat *IterationMatrix)
 static PetscErrorCode PrintMatrix(Mat A, const char* filename, const char* varname)
 {
   // This function is copy/paste of function LinAlg_PrintMatrix function located
-  // in Legacy/LinAlg_PETSC.cpp
+  // in Kernel/LinAlg_PETSC.cpp
 
   std::string tmp(filename);
   PetscInt m,n, m_max = 600;
@@ -878,7 +878,7 @@ static PetscErrorCode PrintVecSeq(Vec b, const char* filename, const char* varna
 static PetscErrorCode PrintVec(Vec b, const char* filename, const char* varname)
 {
   // This function is copy/paste of function LinAlg_PrintMatrix function
-  // located in Legacy/LinAlg_PETSC.cpp
+  // located in Kernel/LinAlg_PETSC.cpp
 
 #if (PETSC_VERSION_MAJOR == 0) || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 4))
   const char *type = "";

@@ -4,7 +4,7 @@
 # bugs and problems to the public mailing list <getdp@onelab.info>.
 
 set(SRC
-  MainLegacy.cpp
+  MainKernel.cpp
     F_Analytic.cpp F_BiotSavart.cpp F_Coord.cpp F_ExtMath.cpp
       F_Geometry.cpp F_Interpolation.cpp F_Hysteresis.cpp F_Math.cpp
       F_Misc.cpp F_MultiHar.cpp F_Raytracing.cpp
@@ -61,4 +61,4 @@ set(SRC
 )
 
 file(GLOB HDR RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.h)
-append_getdp_src(Legacy "${SRC};${HDR}")
+append_getdp_src(Kernel "${SRC};${HDR}")

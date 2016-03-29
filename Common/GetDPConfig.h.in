@@ -11,7 +11,7 @@
 #cmakedefine HAVE_GMSH
 #cmakedefine HAVE_GSL
 #cmakedefine HAVE_LAPACK
-#cmakedefine HAVE_LEGACY
+#cmakedefine HAVE_KERNEL
 #cmakedefine HAVE_MPI
 #cmakedefine HAVE_MULTIHARMONIC
 #cmakedefine HAVE_NO_FORTRAN
