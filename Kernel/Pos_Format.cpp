@@ -1374,6 +1374,8 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
           exp.push_back(it->second[i]);
       }
       GetDPNumbers[CurrentName] = exp;
+      if(PSO_P->SendToServer && strcmp(PSO_P->SendToServer, "No"))
+        Message::AddOnelabNumberChoice(PSO_P->SendToServer, exp, PSO_P->Color);
     }
     break;
   case FORMAT_LOOP_ERROR :
