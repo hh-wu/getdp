@@ -376,26 +376,27 @@ extern int getdp_yydebug;
     tOverrideTimeStepValue = 586,
     tNoMesh = 587,
     tSendToServer = 588,
-    tColor = 589,
-    tDate = 590,
-    tOnelabAction = 591,
-    tFixRelativePath = 592,
-    tNewCoordinates = 593,
-    tAppendToExistingFile = 594,
-    tAppendStringToFileName = 595,
-    tDEF = 596,
-    tOR = 597,
-    tAND = 598,
-    tEQUAL = 599,
-    tNOTEQUAL = 600,
-    tAPPROXEQUAL = 601,
-    tLESSOREQUAL = 602,
-    tGREATEROREQUAL = 603,
-    tLESSLESS = 604,
-    tGREATERGREATER = 605,
-    tCROSSPRODUCT = 606,
-    UNARYPREC = 607,
-    tSHOW = 608
+    tSendToServerRealPart = 589,
+    tColor = 590,
+    tDate = 591,
+    tOnelabAction = 592,
+    tFixRelativePath = 593,
+    tNewCoordinates = 594,
+    tAppendToExistingFile = 595,
+    tAppendStringToFileName = 596,
+    tDEF = 597,
+    tOR = 598,
+    tAND = 599,
+    tEQUAL = 600,
+    tNOTEQUAL = 601,
+    tAPPROXEQUAL = 602,
+    tLESSOREQUAL = 603,
+    tGREATEROREQUAL = 604,
+    tLESSLESS = 605,
+    tGREATERGREATER = 606,
+    tCROSSPRODUCT = 607,
+    UNARYPREC = 608,
+    tSHOW = 609
   };
 #endif
 
@@ -412,7 +413,7 @@ union YYSTYPE
   List_T  *l;
   struct TwoInt t;
 
-#line 416 "ProParser.tab.hpp" /* yacc.c:1909  */
+#line 417 "ProParser.tab.hpp" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

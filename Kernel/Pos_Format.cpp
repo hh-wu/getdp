@@ -1540,11 +1540,17 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
     Message::Error("Unknown format in Format_PostElement");
   }
 
-  if (PE->NbrNodes == 1 && PSO_P->Format != FORMAT_NODE_TABLE &&
-      PSO_P->SendToServer && strcmp(PSO_P->SendToServer, "No")){
-    std::vector<double> v;
-    Export_Value(&PE->Value[0], v);
-    Message::AddOnelabNumberChoice(PSO_P->SendToServer, v, PSO_P->Color);
+  if (PE->NbrNodes == 1 && PSO_P->Format != FORMAT_NODE_TABLE){
+    if(PSO_P->SendToServer && strcmp(PSO_P->SendToServer, "No")){
+      std::vector<double> v;
+      Export_Value(&PE->Value[0], v);
+      Message::AddOnelabNumberChoice(PSO_P->SendToServer, v, PSO_P->Color);
+    }
+    else if(PSO_P->SendToServerRealPart && strcmp(PSO_P->SendToServerRealPart, "No")){
+      std::vector<double> v;
+      Export_Value(&PE->Value[0], v, true);
+      Message::AddOnelabNumberChoice(PSO_P->SendToServerRealPart, v, PSO_P->Color);
+    }
   }
 }
 

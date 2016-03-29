@@ -1463,6 +1463,11 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
           Export_Value(&Value, v);
           Message::AddOnelabNumberChoice(PSO_P->SendToServer, v, PSO_P->Color);
         }
+        if (PSO_P->SendToServerRealPart && strcmp(PSO_P->SendToServerRealPart, "No")){
+          std::vector<double> v;
+          Export_Value(&Value, v, true);
+          Message::AddOnelabNumberChoice(PSO_P->SendToServerRealPart, v, PSO_P->Color);
+        }
       }
 
       Format_PostValue(PSO_P, PSO_P->Format, PSO_P->Comma,
@@ -1495,6 +1500,11 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
         std::vector<double> v;
         Export_Value(&ValueSummed, v);
         Message::AddOnelabNumberChoice(PSO_P->SendToServer, v, PSO_P->Color);
+      }
+      if (PSO_P->SendToServerRealPart && strcmp(PSO_P->SendToServerRealPart, "No")){
+        std::vector<double> v;
+        Export_Value(&ValueSummed, v, true);
+        Message::AddOnelabNumberChoice(PSO_P->SendToServerRealPart, v, PSO_P->Color);
       }
     }
   }

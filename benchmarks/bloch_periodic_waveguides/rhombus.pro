@@ -274,7 +274,7 @@ PostProcessing {
 PostOperation {
   { Name plot_step; NameOfPostProcessing Guide_h_2D;
     Operation {
-      Print[ step, OnPoint{0,0,0}, Format Table, File "res/step.txt", SendToServer "GetDP/Step" ] ;
+      Print[ step, OnPoint{0,0,0}, Format Table, File "res/step.txt", SendToServerRealPart "GetDP/Step" ] ;
     }
   }
 
