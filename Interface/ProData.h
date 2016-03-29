@@ -1341,7 +1341,7 @@ struct PostSubOperation {
   int    StoreInRegister, StoreMinInRegister, StoreMinXinRegister;
   int    StoreMinYinRegister, StoreMinZinRegister, StoreMaxInRegister;
   int    StoreMaxXinRegister, StoreMaxYinRegister, StoreMaxZinRegister;
-  char  *SendToServer, *SendToServerRealPart, *Color;
+  char  *SendToServer, *SendToServerReal, *SendToServerImag, *Color;
   int    StoreInField, StoreInMeshBasedField;
   int    Legend, FrozenTimeStepList;
   double LegendPosition[3];

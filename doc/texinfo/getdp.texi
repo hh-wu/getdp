@@ -5174,10 +5174,16 @@ mesh-based solution formats).
 Send the value to the Onelab server, using @var{expression-char} as the
 paramater name.
 
-@item SendToServerRealPart
+@item SendToServerReal
 @var{expression-char}
 
 Send the real part of the value to the Onelab server, using
+@var{expression-char} as the paramater name.
+
+@item SendToServerImag
+@var{expression-char}
+
+Send the imaginary part of the value to the Onelab server, using
 @var{expression-char} as the paramater name.
 
 @item Color

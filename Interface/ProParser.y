@@ -308,7 +308,8 @@ struct doubleXstring{
 %token        tLastTimeStepOnly tAppendTimeStepToFileName tTimeValue tTimeImagValue
 %token        tTimeInterval
 %token        tAppendExpressionToFileName tAppendExpressionFormat
-%token        tOverrideTimeStepValue tNoMesh tSendToServer tSendToServerRealPart tColor
+%token        tOverrideTimeStepValue tNoMesh tColor
+%token        tSendToServer tSendToServerReal tSendToServerImag
 %token        tDate tOnelabAction tFixRelativePath
 %token        tNewCoordinates tAppendToExistingFile tAppendStringToFileName
 
@@ -6288,7 +6289,8 @@ PostSubOperations :
       PostSubOperation_S.NoMesh = 0;
       PostSubOperation_S.CatFile = 0;
       PostSubOperation_S.SendToServer = NULL;
-      PostSubOperation_S.SendToServerRealPart = NULL;
+      PostSubOperation_S.SendToServerReal = NULL;
+      PostSubOperation_S.SendToServerImag = NULL;
       PostSubOperation_S.Color = NULL;
       PostSubOperation_S.ValueIndex = 0;
       PostSubOperation_S.ValueName = NULL;
@@ -7005,9 +7007,13 @@ PrintOption :
     {
       PostSubOperation_S.SendToServer = $3;
     }
-  | ',' tSendToServerRealPart CharExpr
+  | ',' tSendToServerReal CharExpr
     {
-      PostSubOperation_S.SendToServerRealPart = $3;
+      PostSubOperation_S.SendToServerReal = $3;
+    }
+  | ',' tSendToServerImag CharExpr
+    {
+      PostSubOperation_S.SendToServerImag = $3;
     }
   | ',' tColor CharExpr
     {

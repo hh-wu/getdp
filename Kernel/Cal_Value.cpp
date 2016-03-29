@@ -2595,32 +2595,40 @@ void Show_Value(struct Value *A)
   }
 }
 
-void Export_Value(struct Value *A, std::vector<double> &out, bool onlyRealPart)
+void Export_Value(struct Value *A, std::vector<double> &out, int harmonic)
 {
-  int har = onlyRealPart ? 1 : Current.NbrHar;
+  int k0 = 0, k1 = Current.NbrHar;
+  if(harmonic == 0){
+    k0 = 0;
+    k1 = 1;
+  }
+  else if(harmonic == 1){
+    k0 = 1;
+    k1 = 2;
+  }
 
   switch(A->Type){
 
   case SCALAR :
-    for(int k = 0; k < har; k++)
+    for(int k = k0; k < k1; k++)
       out.push_back(W(k, 0));
     break;
 
   case VECTOR :
   case TENSOR_DIAG :
-    for(int k = 0; k < har; k++)
+    for(int k = k0; k < k1; k++)
       for(int i = 0; i < 3; i++)
         out.push_back(W(k, i));
     break;
 
   case TENSOR :
-    for(int k = 0; k < har; k++)
+    for(int k = k0; k < k1; k++)
       for(int i = 0; i < 9; i++)
         out.push_back(W(k, i));
     break;
 
   case TENSOR_SYM :
-    for(int k = 0; k < har; k++)
+    for(int k = k0; k < k1; k++)
       for(int i = 0; i < 6; i++)
         out.push_back(W(k, i));
     break;
