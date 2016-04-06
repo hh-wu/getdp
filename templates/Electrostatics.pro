@@ -132,7 +132,7 @@ Function{
           epsr_preset~{i} = {#linearDielectricMaterials() > 2 ? 2 : 0,
             Visible (material~{i} == 1),
             Choices{ 0:#linearDielectricMaterials()-1 = linearDielectricMaterials() },
-            Name StrCat["Parameters/Materials/", name~{i}, "/epsr preset"],
+            Name StrCat["Parameters/Materials/", name~{i}, "/1epsr preset"],
             Label "Choice"}
           epsr~{i} = {1, Visible (material~{i} == 0 && rho_preset~{i} == 0) ||
                                  (material~{i} == 1 && epsr_preset~{i} == 0),
