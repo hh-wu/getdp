@@ -1138,6 +1138,8 @@ for the definition of constants is:
   Read [ @var{constant-id} , @var{expression-cst} ]; |
   UndefineConstant | Delete [ @var{constant-id} ] ;
   UndefineFunction [ @var{constant-id} ] ;
+  SetNumber[ @var{string} , @var{expression-cst} ];
+  SetString[ @var{string} , @var{string-def} ];
 @end example
 
 @noindent with
@@ -1201,7 +1203,9 @@ the ONELAB server. See
 information.
 @item
 @code{DefineNumber} and @code{DefineString} allow to define a ONELAB
-parameter. In this case the affectation always takes place.
+parameter. In this case the affectation always takes
+place. @code{SetNumber} and @code{SetString} allow the direct setting of
+ONELAB parameters without defining local variables.
 @end enumerate
 
 See @ref{Constant expression examples}, as well as @ref{Function examples}, for

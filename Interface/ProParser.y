@@ -202,7 +202,7 @@ struct doubleXstring{
 %token  tListFromFile
 %token  tChangeCurrentPosition
 %token  tDefineConstant tUndefineConstant tDefineNumber tDefineString
-%token  tGetNumber tGetString
+%token  tGetNumber tGetString tSetNumber tSetString
 
 %token  tPi tMPI_Rank tMPI_Size t0D t1D t2D t3D tTestLevel
 %token  tTotalMemory tCurrentDirectory tAbsolutePath tDirName
@@ -7292,25 +7292,38 @@ Affectation :
 
   | tUndefineFunction '[' UndefineFunctions ']' tEND
 
+  | tSetNumber LP CharExpr ',' FExpr RP tEND
+    {
+      Message::SetOnelabNumber($3, $5);
+      Free($3);
+    }
+
+  | tSetString LP CharExpr ',' CharExpr RP tEND
+    {
+      Message::SetOnelabString($3, $5);
+      Free($3);
+      Free($5);
+    }
+
   | tDelete String__Index tEND
-   {
-     Constant_S.Name = $2;
-     // FIXME: leak if constant is list or char; all Tree_Replace functions
-     // below also leak; correct fix is to replace all of this with a std::map
-     // like in Gmsh
-     Tree_Suppress(ConstantTable_L, &Constant_S);
-     Free($2);
-   }
+    {
+      Constant_S.Name = $2;
+      // FIXME: leak if constant is list or char; all Tree_Replace functions
+      // below also leak; correct fix is to replace all of this with a std::map
+      // like in Gmsh
+      Tree_Suppress(ConstantTable_L, &Constant_S);
+      Free($2);
+    }
 
   | tDelete '[' String__Index ']' tEND
-   {
-     Constant_S.Name = $3;
-     // FIXME: leak if constant is list or char; all Tree_Replace functions
-     // below also leak; correct fix is to replace all of this with a std::map
-     // like in Gmsh
-     Tree_Suppress(ConstantTable_L, &Constant_S);
-     Free($3);
-   }
+    {
+      Constant_S.Name = $3;
+      // FIXME: leak if constant is list or char; all Tree_Replace functions
+      // below also leak; correct fix is to replace all of this with a std::map
+      // like in Gmsh
+      Tree_Suppress(ConstantTable_L, &Constant_S);
+      Free($3);
+    }
 
   | String__Index tDEF ListOfFExpr tEND
     {
@@ -7640,6 +7653,12 @@ Affectation :
       Free($3);
       Free($8);
       List_Delete($5);
+    }
+
+  | tError '(' CharExpr ')' tEND
+    {
+      Message::Error($3);
+      Free($3);
     }
 
   // deprectated
