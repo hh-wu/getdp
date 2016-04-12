@@ -98,6 +98,7 @@ class Message {
   static bool UseOnelab(){ return _onelabClient ? true : false; }
   static std::string GetOnelabClientName();
   static void SetOnelabNumber(std::string name, double val, bool visible=true);
+  static void SetOnelabString(std::string name, std::string val, bool visible=true);
   static double GetOnelabNumber(std::string name, double defaultValue=0.,
                                 bool errorIfMissing=false);
   static std::string GetOnelabString(std::string name, const std::string &defaultValue="",

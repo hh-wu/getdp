@@ -825,6 +825,21 @@ void Message::SetOnelabNumber(std::string name, double val, bool visible)
   }
 }
 
+void Message::SetOnelabString(std::string name, std::string val, bool visible)
+{
+  if(_onelabClient){
+    std::vector<onelab::string> strings;
+    _onelabClient->get(strings, name);
+    if(strings.empty()){
+      strings.resize(1);
+      strings[0].setName(name);
+    }
+    strings[0].setValue(val);
+    strings[0].setVisible(visible);
+    _onelabClient->set(strings[0]);
+  }
+}
+
 double Message::GetOnelabNumber(std::string name, double defaultValue,
                                 bool errorIfMissing)
 {
