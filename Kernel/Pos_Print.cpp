@@ -1460,18 +1460,8 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
           Cal_StoreInVariable(&Value, PSO_P->StoreInVariable) ;
         if (PSO_P->SendToServer && strcmp(PSO_P->SendToServer, "No")){
           std::vector<double> v;
-          Export_Value(&Value, v);
+          Export_Value(&Value, v, PSO_P->SendToServerList);
           Message::AddOnelabNumberChoice(PSO_P->SendToServer, v, PSO_P->Color);
-        }
-        if (PSO_P->SendToServerReal && strcmp(PSO_P->SendToServerReal, "No")){
-          std::vector<double> v;
-          Export_Value(&Value, v, 0);
-          Message::AddOnelabNumberChoice(PSO_P->SendToServerReal, v, PSO_P->Color);
-        }
-        if (PSO_P->SendToServerImag && strcmp(PSO_P->SendToServerImag, "No")){
-          std::vector<double> v;
-          Export_Value(&Value, v, 1);
-          Message::AddOnelabNumberChoice(PSO_P->SendToServerImag, v, PSO_P->Color);
         }
       }
 
@@ -1503,18 +1493,8 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
         Cal_StoreInVariable(&ValueSummed, PSO_P->StoreInVariable) ;
       if (PSO_P->SendToServer && strcmp(PSO_P->SendToServer, "No")){
         std::vector<double> v;
-        Export_Value(&ValueSummed, v);
+        Export_Value(&ValueSummed, v, PSO_P->SendToServerList);
         Message::AddOnelabNumberChoice(PSO_P->SendToServer, v, PSO_P->Color);
-      }
-      if (PSO_P->SendToServerReal && strcmp(PSO_P->SendToServerReal, "No")){
-        std::vector<double> v;
-        Export_Value(&ValueSummed, v, 0);
-        Message::AddOnelabNumberChoice(PSO_P->SendToServerReal, v, PSO_P->Color);
-      }
-      if (PSO_P->SendToServerImag && strcmp(PSO_P->SendToServerImag, "No")){
-        std::vector<double> v;
-        Export_Value(&ValueSummed, v, 1);
-        Message::AddOnelabNumberChoice(PSO_P->SendToServerImag, v, PSO_P->Color);
       }
     }
   }

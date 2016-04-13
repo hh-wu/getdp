@@ -346,8 +346,6 @@ SaveSolutionWithEntityNum    return tSaveSolutionWithEntityNum;
 SelectCorrection             return tSelectCorrection ;
 SendMergeFileRequest         return tSendMergeFileRequest;
 SendToServer                 return tSendToServer;
-SendToServerReal             return tSendToServerReal;
-SendToServerImag             return tSendToServerImag;
 SetCommSelf                  return tSetCommSelf;
 SetCommWorld                 return tSetCommWorld;
 SetFrequency                 return tSetFrequency;

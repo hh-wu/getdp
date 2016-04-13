@@ -1545,18 +1545,8 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
   if (PE->NbrNodes == 1 && PSO_P->Format != FORMAT_NODE_TABLE){
     if(PSO_P->SendToServer && strcmp(PSO_P->SendToServer, "No")){
       std::vector<double> v;
-      Export_Value(&PE->Value[0], v);
+      Export_Value(&PE->Value[0], v, PSO_P->SendToServerList);
       Message::AddOnelabNumberChoice(PSO_P->SendToServer, v, PSO_P->Color);
-    }
-    if(PSO_P->SendToServerReal && strcmp(PSO_P->SendToServerReal, "No")){
-      std::vector<double> v;
-      Export_Value(&PE->Value[0], v, 0);
-      Message::AddOnelabNumberChoice(PSO_P->SendToServerReal, v, PSO_P->Color);
-    }
-    if(PSO_P->SendToServerImag && strcmp(PSO_P->SendToServerImag, "No")){
-      std::vector<double> v;
-      Export_Value(&PE->Value[0], v, 1);
-      Message::AddOnelabNumberChoice(PSO_P->SendToServerImag, v, PSO_P->Color);
     }
   }
 }

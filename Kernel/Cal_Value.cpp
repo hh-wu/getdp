@@ -2595,42 +2595,42 @@ void Show_Value(struct Value *A)
   }
 }
 
-void Export_Value(struct Value *A, std::vector<double> &out, int harmonic)
+void Export_Value(struct Value *A, std::vector<double> &out, List_T *harmonics)
 {
-  int k0 = 0, k1 = Current.NbrHar;
-  if(harmonic == 0){
-    k0 = 0;
-    k1 = 1;
+  std::vector<int> har;
+  if(harmonics){
+    for(int i = 0; i < List_Nbr(harmonics); i++)
+      har.push_back((int)*(double*)List_Pointer(harmonics, i));
   }
-  else if(harmonic == 1){
-    k0 = 1;
-    k1 = 2;
+  else{
+    for(int i = 0; i < Current.NbrHar; i++)
+      har.push_back(i);
   }
 
   switch(A->Type){
 
   case SCALAR :
-    for(int k = k0; k < k1; k++)
-      out.push_back(W(k, 0));
+    for(unsigned int k = 0; k < har.size(); k++)
+      out.push_back(W(har[k], 0));
     break;
 
   case VECTOR :
   case TENSOR_DIAG :
-    for(int k = k0; k < k1; k++)
+    for(unsigned int k = 0; k < har.size(); k++)
       for(int i = 0; i < 3; i++)
-        out.push_back(W(k, i));
+        out.push_back(W(har[k], i));
     break;
 
   case TENSOR :
-    for(int k = k0; k < k1; k++)
+    for(unsigned int k = 0; k < har.size(); k++)
       for(int i = 0; i < 9; i++)
-        out.push_back(W(k, i));
+        out.push_back(W(har[k], i));
     break;
 
   case TENSOR_SYM :
-    for(int k = k0; k < k1; k++)
+    for(unsigned int k = 0; k < har.size(); k++)
       for(int i = 0; i < 6; i++)
-        out.push_back(W(k, i));
+        out.push_back(W(har[k], i));
     break;
 
   default :

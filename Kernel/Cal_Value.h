@@ -53,6 +53,6 @@ std::string Print_Value_ToString(struct Value *A);
 void  Print_Value (struct Value *A, FILE *fp=0);
 void  Show_Value (struct Value *A);
 
-void Export_Value(struct Value *A, std::vector<double> &out, int harmonic=-1);
+void Export_Value(struct Value *A, std::vector<double> &out, List_T *harmonics=0);
 
 #endif

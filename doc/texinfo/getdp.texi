@@ -5178,16 +5178,10 @@ mesh-based solution formats).
 Send the value to the Onelab server, using @var{expression-char} as the
 paramater name.
 
-@item SendToServerReal
-@var{expression-char}
+@item SendToServer
+@var{expression-char}  @{ @var{expression-cst-list} @}
 
-Send the real part of the value to the Onelab server, using
-@var{expression-char} as the paramater name.
-
-@item SendToServerImag
-@var{expression-char}
-
-Send the imaginary part of the value to the Onelab server, using
+Send the requested harmonics of the value to the Onelab server, using
 @var{expression-char} as the paramater name.
 
 @item Color

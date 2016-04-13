@@ -345,8 +345,8 @@ If (Flag_CircuitCoupling)
   PostOperation U_av_circuit UsingPost MagDyn_av_2D {
     Print[ U, OnRegion #{Ein, Rc, Iout}, Format RegionTable ] ;
     Print[ I, OnRegion #{Ein, Rc, Iout}, Format RegionTable ] ;
-    Print[ AbsU, OnRegion #{Rc}, Format RegionTable, SendToServerReal "Output/|U| sec" ] ;
-    Print[ AbsI, OnRegion #{Rc}, Format RegionTable, SendToServerReal "Output/|I| sec" ] ;
+    Print[ AbsU, OnRegion #{Rc}, Format RegionTable, SendToServer "Output/|U| sec"{0} ] ;
+    Print[ AbsI, OnRegion #{Rc}, Format RegionTable, SendToServer "Output/|I| sec"{0} ] ;
   }
 EndIf
 
