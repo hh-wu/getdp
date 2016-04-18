@@ -2336,16 +2336,16 @@ FunctionSpaceTerm :
     }
 
   | tBasisFunction  '{' BasisFunctions '}'
-    { FunctionSpace_S.BasisFunction  = $3; }
+    { if(!FunctionSpace_S.BasisFunction ) FunctionSpace_S.BasisFunction  = $3; }
 
   | tSubSpace       '{' SubSpaces '}'
-    { FunctionSpace_S.SubSpace       = $3; }
+    { if(!FunctionSpace_S.SubSpace      ) FunctionSpace_S.SubSpace       = $3; }
 
   | tGlobalQuantity '{' GlobalQuantities '}'
-    { FunctionSpace_S.GlobalQuantity = $3; }
+    { if(!FunctionSpace_S.GlobalQuantity) FunctionSpace_S.GlobalQuantity = $3; }
 
   | tConstraint     '{' ConstraintInFSs '}'
-    { FunctionSpace_S.Constraint     = $3; }
+    { if(!FunctionSpace_S.Constraint    ) FunctionSpace_S.Constraint     = $3; }
  ;
 
 
@@ -2354,7 +2354,9 @@ BasisFunctions :
     /* none */
     {
       $$ = Current_BasisFunction_L =
-	List_Create(6, 6, sizeof (struct BasisFunction));
+        FunctionSpace_S.BasisFunction?
+        FunctionSpace_S.BasisFunction :
+        List_Create(6, 6, sizeof (struct BasisFunction));
     }
 
   | BasisFunctions  '{' BasisFunction '}'
@@ -2589,7 +2591,9 @@ SubSpaces :
     /* none */
     {
       $$ = Current_SubSpace_L =
-	List_Create(6, 6, sizeof (struct SubSpace));
+        FunctionSpace_S.SubSpace?
+        FunctionSpace_S.SubSpace :
+        List_Create(6, 6, sizeof (struct SubSpace));
     }
 
   | SubSpaces  '{' SubSpace '}'
@@ -2721,7 +2725,9 @@ GlobalQuantities :
     /* none */
     {
       $$ = Current_GlobalQuantity_L =
-	List_Create(6, 6, sizeof (struct GlobalQuantity));
+        FunctionSpace_S.GlobalQuantity?
+        FunctionSpace_S.GlobalQuantity :
+        List_Create(6, 6, sizeof (struct GlobalQuantity));
     }
 
   | GlobalQuantities  '{' GlobalQuantity '}'
@@ -2786,7 +2792,9 @@ ConstraintInFSs :
 
     /* none */
     {
-      $$ = List_Create(6, 6, sizeof (struct ConstraintInFS));
+      $$ = FunctionSpace_S.Constraint?
+        FunctionSpace_S.Constraint :
+        List_Create(6, 6, sizeof (struct ConstraintInFS));
     }
 
   | ConstraintInFSs '{' ConstraintInFS '}'
@@ -2922,6 +2930,8 @@ Formulation :
     }
 
   | Formulation  FormulationTerm
+
+  | Formulation  Loop
  ;
 
 
@@ -2948,7 +2958,7 @@ FormulationTerm :
 
   | tSTRING '{' Equations '}'
     {
-      Formulation_S.Equation = $3;
+      if(!Formulation_S.Equation) Formulation_S.Equation = $3;
       Free($1);
     }
  ;
@@ -2957,7 +2967,9 @@ FormulationTerm :
 DefineQuantities :
     /* none */
     {
-      Formulation_S.DefineQuantity = List_Create(6, 6, sizeof (struct DefineQuantity));
+      if (!Formulation_S.DefineQuantity)
+        Formulation_S.DefineQuantity =
+          List_Create(6, 6, sizeof (struct DefineQuantity));
     }
 
   | DefineQuantities  '{' DefineQuantity '}'
@@ -3403,7 +3415,9 @@ Equations :
 
     /* none */
     {
-      $$ = List_Create(6, 6, sizeof(struct EquationTerm));
+      $$ = Formulation_S.Equation?
+        Formulation_S.Equation :
+        List_Create(6, 6, sizeof(struct EquationTerm));
     }
 
   | Equations  EquationTerm
