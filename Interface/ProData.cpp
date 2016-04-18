@@ -1213,10 +1213,13 @@ void Print_Formulation()
       else if (FE->Type == GLOBALEQUATION) {
 	Message::Check("      GlobalEquation { Type %s; UsingConstraint %s;\n",
                        Get_StringForDefine(Constraint_Type, FE->Case.GlobalEquation.Type),
+                       (FE->Case.GlobalEquation.ConstraintIndex >= 0)?
                        ((struct Constraint *)
                         List_Pointer(Problem_S.Constraint,
-                                     FE->Case.GlobalEquation.ConstraintIndex))->Name);
-
+                                     FE->Case.GlobalEquation.ConstraintIndex))->Name
+                       :
+                       "undefined_constraint"
+                       );
 	Nbrk = List_Nbr(FE->Case.GlobalEquation.GlobalEquationTerm);
 	for (k = 0; k < Nbrk; k++) {
 	  GET = (struct GlobalEquationTerm*)
