@@ -1758,7 +1758,8 @@ JacobianCase :
 
     /* none */
     { JacobianCase_S.RegionIndex = -1;
-      JacobianCase_S.TypeJacobian = JACOBIAN_VOL; }
+      JacobianCase_S.TypeJacobian = JACOBIAN_VOL;
+      JacobianCase_S.CoefficientIndex = -1; }
 
   | JacobianCase JacobianCaseTerm
  ;
@@ -1801,6 +1802,9 @@ JacobianCaseTerm :
       Free($2);
       List_Delete($3);
     }
+
+  | tCoefficient Expression tEND
+    { JacobianCase_S.CoefficientIndex = $2; }
  ;
 
 

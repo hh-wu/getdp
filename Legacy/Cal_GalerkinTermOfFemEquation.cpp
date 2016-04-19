@@ -624,14 +624,6 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
   if (FI->Flag_ChangeCoord)
     Get_NodesCoordinatesOfElement(Element) ;
 
-  if (Element->JacobianCase->CoefficientIndex < 0){
-    FI->CoefJac = 1.;
-  }
-  else{
-    Get_ValueOfExpressionByIndex(Element->JacobianCase->CoefficientIndex,
-                                 NULL, 0., 0., 0., &CoefPhys) ;
-    FI->CoefJac = CoefPhys.Val[0];
-  }
 
   /*  ------------------------------------------------------------------------  */
   /*  ------------------------------------------------------------------------  */
@@ -786,8 +778,7 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 		    QuantityStorage_P0, QuantityStorageDof_P,
 		    Nbr_Dof, xFunctionBFDof, vBFxEqu, vBFxDof);
 
-	Factor = FI->CoefJac *
-          ((FI->Flag_ChangeCoord) ? weight * fabs(Element->DetJac) : weight) ;
+	Factor = (FI->Flag_ChangeCoord) ? weight * fabs(Element->DetJac) : weight ;
 
 	/* Product and assembly in elementary submatrix             (k?-1.:1.)*   */
 	if (FI->SymmetricalMatrix)

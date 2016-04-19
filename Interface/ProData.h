@@ -238,6 +238,7 @@ struct JacobianMethod {
 struct JacobianCase {
   int  RegionIndex, TypeJacobian;
   int  NbrParameters;  double *Para;
+  int  CoefficientIndex;
 };
 
 /* JacobianCase.TypeJacobian */
@@ -639,6 +640,7 @@ struct FemLocalTermActive {
   int     CriterionIndex;
   struct JacobianCase  *JacobianCase_P0;
   int    NbrJacobianCase, Flag_ChangeCoord, Flag_InvJac;
+  double CoefJac;
 
   void   (*xChangeOfCoordinatesEqu)();
   void   (*xChangeOfCoordinatesDof)();

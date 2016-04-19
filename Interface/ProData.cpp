@@ -861,7 +861,11 @@ void Print_Jacobian()
 	  Message::Check(" %.10g", JC->Para[k]);
 	}  Message::Check(" }");
       }
-      Message::Check("; }\n");
+      Message::Check(";");
+      if (JC->CoefficientIndex >= 0)
+	Message::Check(" Coefficient Exp[%s];",
+                       Get_ExpressionName(JC->CoefficientIndex));
+      Message::Check(" }\n");
     }
     Message::Check("    }\n");
     Message::Check("  }\n");
