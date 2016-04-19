@@ -15,7 +15,7 @@ DefineConstant[ // allows to set these from outside
     Choices{0="Unpreconditioned",
       1="Double sweep",
       2="SGS"}},
-  ListOfCuts = { {0, N_DOM-1} }
+  ListOfCuts() = { {0, N_DOM-1} }
 ];
 
 Function {

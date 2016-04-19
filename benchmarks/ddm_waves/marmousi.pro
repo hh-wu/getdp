@@ -10,7 +10,7 @@ DefineConstant[ // allows to set these from outside
     Choices{0="Unpreconditioned",
       1="Double sweep",
       2="SGS"}},
-  ListOfCuts = { {0, N_DOM-1} },
+  ListOfCuts() = { {0, N_DOM-1} },
   N_ON_TOP = {1, Name "Input/01Neumann condition on top",
 	      Choices{0,1}},
   EXTERNAL_VELOCITY_FIELD = {1, Name "Input/01Velocity Field",
