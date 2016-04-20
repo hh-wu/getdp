@@ -52,6 +52,7 @@ void Cal_SolutionErrorRatio(gVector *dx, gVector *x,
   }
 
   if ( Is_NaN_or_Inf ) {
+    //Message::Error("No valid solution found (NaN or Inf)!"); // kj+++
     Message::Warning("No valid solution found (NaN or Inf)!");
     *ErrorRatio = std::numeric_limits<double>::quiet_NaN();
   }
@@ -113,6 +114,7 @@ void Cal_SolutionError(gVector *dx, gVector *x, int diff, double *MeanError)
   int    i, n;
   double valx, valdx, valxi = 0., valdxi = 0.,errsqr = 0., xmoy = 0., dxmoy = 0.;
   double tol, nvalx, nvaldx ;
+  //bool    Is_NaN_or_Inf=0; // kj+++
 
   LinAlg_GetVectorSize(dx, &n);
 
@@ -138,6 +140,8 @@ void Cal_SolutionError(gVector *dx, gVector *x, int diff, double *MeanError)
 
   if (xmoy > 1.e-30) {
     tol = xmoy*1.e-10 ;
+    //tol = 1e200; // kj+++
+    //tol=(tol<1e-3)?1e-3:tol; // kj+++
     if (gSCALAR_SIZE == 1)
       for (i=0 ; i<n ; i++){
         LinAlg_GetAbsDoubleInVector(&valx, x, i) ;
@@ -178,5 +182,17 @@ void Cal_SolutionError(gVector *dx, gVector *x, int diff, double *MeanError)
     else
       *MeanError = 0. ;
   }
+
+  /* // kj+++
+  if ( *MeanError != *MeanError ||                                 // Solution is NaN
+       *MeanError == -std::numeric_limits<double>::infinity() ||   // Solution is -Inf
+       *MeanError ==  std::numeric_limits<double>::infinity() )    // Solution is Inf
+    Is_NaN_or_Inf = true;
+
+  if ( Is_NaN_or_Inf ) {
+    Message::Error("No valid solution found (NaN or Inf)!");
+    *MeanError = std::numeric_limits<double>::quiet_NaN(); 
+  }
+  */ 
 }
 

@@ -122,6 +122,9 @@ struct DofData {
   gMatrix   Jac ;
   gVector   res, dx ;
 
+  // Flag_Init[0] == 3 //kj+++
+  gVector   df;
+
   // Flag_Init[1,2,3,4,5,6] == 1
   gMatrix   M1, M2, M3, M4, M5, M6;
   gVector   m1, m2, m3, m4, m5, m6;

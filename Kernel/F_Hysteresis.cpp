@@ -17,6 +17,15 @@
 #define CUB(a) ((a)*(a)*(a))
 #define MU0 1.25663706144e-6
 
+#define FLAG_WARNING_INFO_INV         1
+#define FLAG_WARNING_INFO_ROOTFINDING 2
+#define FLAG_WARNING_INFO_MIN         3
+#define FLAG_WARNING_DISP_INV         11
+#define FLAG_WARNING_DISP_ROOTFINDING 12
+#define FLAG_WARNING_STOP_INV         101
+#define FLAG_WARNING_STOP_ROOTFINDING 102
+#define FLAG_WARNING_ITER             100
+
 /* ------------------------------------------------------------------------ */
 /*
   Vectorized Jiles-Atherton hysteresis model
@@ -79,8 +88,8 @@ void FV_dMandHe(double He[3], double Ms, double a, double dMandHe[6])
 }
 
 void FV_dMidHe(double He[3], double Man[3],
-	       double Mi[3], double dH[3], double k,
-	       double dMidHe[6])
+         double Mi[3], double dH[3], double k,
+         double dMidHe[6])
 {
   double dM = sqrt( (Man[0]-Mi[0])*(Man[0]-Mi[0]) + (Man[1]-Mi[1])*(Man[1]-Mi[1]) + (Man[2]-Mi[2])*(Man[2]-Mi[2]) ) ;
 
@@ -156,9 +165,9 @@ void Vector_dBdH(double H[3], double B[3], double dH[3],
   dMdH[4] = e[1]*f[2]+e[3]*f[4]+e[4]*f[5] ;
   dMdH[5] = e[2]*f[2]+e[4]*f[4]+e[5]*f[5] ;
 
-  dBdH[0] =  MU0 * (1.0 + dMdH[0]) ; // 100 for better convergence, forcing a bit of slope in NR iterations
-  dBdH[3] =  MU0 * (1.0 + dMdH[3]) ;
-  dBdH[5] =  MU0 * (1.0 + dMdH[5]) ;
+  dBdH[0] =  MU0 * (1e0 + dMdH[0]) ; // 100 for better convergence, forcing a bit of slope in NR iterations (slope forcing)
+  dBdH[3] =  MU0 * (1e0 + dMdH[3]) ;
+  dBdH[5] =  MU0 * (1e0 + dMdH[5]) ;
   dBdH[1] =  MU0 * dMdH[1] ;
   dBdH[2] =  MU0 * dMdH[2] ;
   dBdH[4] =  MU0 * dMdH[4] ;
@@ -166,7 +175,7 @@ void Vector_dBdH(double H[3], double B[3], double dH[3],
 
 void Vector_dHdB(double H[3], double B[3], double dH[3],
                  struct FunctionActive *D,
-		 double dHdB[6])
+     double dHdB[6])
 {
   double dBdH[6] ;
 
@@ -751,10 +760,97 @@ void F_dhdb_Vinch(F_ARG)
     V->Val[i] = dHdB[i] ;
 }
 
+//---------------------------------------------------------
+// SENSITIVE PARAMETERS SET AS GLOBAL VALUES
+//---------------------------------------------------------
+
+int    FLAG_INVMETHOD;
+int    FLAG_ROOTFINDING1D;
+int    FLAG_VARORDIFF;
+int    FLAG_MINMETHOD;
+int    FLAG_TANORLANG;
+int    FLAG_WARNING;
+double TOLERANCE_JS;
+double TOLERANCE_0;
+double TOLERANCE_NR;
+int    MAX_ITER_NR;
+double TOLERANCE_OM;
+int    MAX_ITER_OM ;
+int    FLAG_ANA ;
+double TOLERANCE_NJ ;
+double DELTA_0;
+
+void set_sensi_param(struct FunctionActive *D)
+{
+  int j = 11 ;
+  ::FLAG_INVMETHOD      = D->Case.Interpolation.x[j+1] ; 
+  /*
+  FLAG_INVMETHOD = 1 --> NR_ana (homemade)
+  FLAG_INVMETHOD = 2 --> NR_num (homemade)
+  FLAG_INVMETHOD = 3 --> bfgs (homemade)
+  FLAG_INVMETHOD = 4 --> hybridsj (gsl)
+  FLAG_INVMETHOD = 5 --> hybridj (gsl)
+  FLAG_INVMETHOD = 6 --> newton (gsl)
+  FLAG_INVMETHOD = 7 --> gnewton (gsl)
+  */
+  ::FLAG_ROOTFINDING1D  = D->Case.Interpolation.x[j+2] ; 
+  /*
+  FLAG_ROOTFINDING1D  = 0 --> Not done
+  FLAG_ROOTFINDING1D  = 1 --> (1D minimization) golden section (gsl)
+  FLAG_ROOTFINDING1D  = 2 --> (1D minimization) brent (gsl)
+  FLAG_ROOTFINDING1D  = 3 --> (1D minimization) quad golden (gsl)
+  FLAG_ROOTFINDING1D  = 4 --> (1D root bracketing) bisection (gsl)
+  FLAG_ROOTFINDING1D  = 5 --> (1D root bracketing) brent (gsl)
+  FLAG_ROOTFINDING1D  = 6 --> (1D root bracketing) falsepos (gsl)
+  FLAG_ROOTFINDING1D  = 7 --> (1D root finding with derivatives) newton (gsl)
+  FLAG_ROOTFINDING1D  = 8 --> (1D root finding with derivatives) secant (gsl)
+  FLAG_ROOTFINDING1D  = 9 --> (1D root finding with derivatives) steffenson (gsl)
+  */
+  ::FLAG_VARORDIFF      = D->Case.Interpolation.x[j+3] ; 
+  /*
+  FLAG_VARORDIFF = 1 --> variational approach (Jk)
+  FLAG_VARORDIFF = 2 --> differential approach (hrk)
+  */
+  ::FLAG_MINMETHOD      = D->Case.Interpolation.x[j+4] ; 
+  /*
+  FLAG_MINMETHOD = 1 --> steepest descent (homemade)
+  FLAG_MINMETHOD = 2 --> conjugate fr (gsl)
+  FLAG_MINMETHOD = 3 --> conjugate pr (gsl)
+  FLAG_MINMETHOD = 4 --> bfgs2 (gsl)
+  FLAG_MINMETHOD = 5 --> bfgs (gsl)
+  FLAG_MINMETHOD = 6 --> steepest descent (gsl)
+  */
+  ::FLAG_TANORLANG      = D->Case.Interpolation.x[j+5] ; 
+  /* 
+  FLAG_TANORLANG = 1 --> hyperbolic tangent
+  FLAG_TANORLANG = 2 --> double langevin function
+  */
+  ::FLAG_WARNING        = D->Case.Interpolation.x[j+6] ; 
+  /*
+  FLAG_WARNING   = 1 --> Inversion Loop
+
+  */
+  ::TOLERANCE_JS        = D->Case.Interpolation.x[j+7] ; // SENSITIVE_PARAM (1.e-3) // 1.e-4 
+  ::TOLERANCE_0         = D->Case.Interpolation.x[j+8] ; // SENSITIVE_PARAM (1.e-7)
+
+  ::TOLERANCE_NR        = D->Case.Interpolation.x[j+9] ; // SENSITIVE_PARAM (1.e-7) // 1.e-8 needed for diff with NR,1.e-5  
+  ::MAX_ITER_NR         = D->Case.Interpolation.x[j+10] ; // SENSITIVE_PARAM (200)
+
+  ::TOLERANCE_OM        = D->Case.Interpolation.x[j+11] ; // SENSITIVE_PARAM (1.e-11)// 1.e-15 allows to work for square if TOLERANCE_NJ=1.e-3 & DELTA_0=1.e-5 for numjac)
+  ::MAX_ITER_OM         = D->Case.Interpolation.x[j+12] ; // SENSITIVE_PARAM (700)
+
+  ::FLAG_ANA            = D->Case.Interpolation.x[j+13] ; // SENSITIVE_PARAM (0='only numerical jacobian')
+  ::TOLERANCE_NJ        = D->Case.Interpolation.x[j+14] ; // SENSITIVE_PARAM (1.e-5 for square;
+                                                          //                  1.e-3 for VinchT.pro & transfo.pro)
+  ::DELTA_0             = D->Case.Interpolation.x[j+15] ; // SENSITIVE_PARAM (1.e-3 for square; 
+                                                          //                  1.e0 for VinchT & transfo) 
+}
+//----------------------------------------------------------
+
 bool limiter(const double Js, double v[3])
 {
 
-  double max = 0.999*Js ; //0.9999 // SENSITIVE_PARAM (0.999)
+  double max = (1-::TOLERANCE_JS)*Js ;
   double mod = norm(v);
   if(mod >= max){
 
@@ -778,69 +874,88 @@ void F_Update_Jk(F_ARG)
 {
   Message::Error("F_Update_Jk requires the GSL");
 }
+void F_Update_Jk_sd(F_ARG)
+{
+  Message::Error("F_Update_Jk_sd requires the GSL");
+}
+void F_Update_Cell_K(F_ARG)
+{
+  Message::Error("F_Update_Cell_K requires the GSL");
+}
+void F_b_Vinch_K(F_ARG)
+{
+  Message::Error("F_b_Vinch_K requires the GSL");
+}
+void F_h_Vinch_K(F_ARG)
+{
+  Message::Error("F_dbdh_Vinch_K requires the GSL");
+}
+void F_dbdh_Vinch_K(F_ARG)
+{
+  Message::Error("F_Update_Cell_K requires the GSL");
+}
+void F_dhdb_Vinch_K(F_ARG)
+{
+  Message::Error("F_dhdb_Vinch_K requires the GSL");
+}
 #else
-
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_multiroots.h>
 #include <gsl/gsl_multimin.h>
+#include <gsl/gsl_errno.h>
+#include <gsl/gsl_math.h>
+#include <gsl/gsl_min.h>
+#include <gsl/gsl_roots.h>
+
 
 
 struct omega_f_context
 {
   double h[3], Jp[3];
-  double chi, Js, alpha;
+  double chi;
+  double Ja, ha, Jb, hb;
 } ;
 
 double omega_f(const gsl_vector *v, void *params)
 {
-  double J[3], dJ[3] ;
+  double J[3];
   struct omega_f_context * p = (struct omega_f_context *)params;
   double h[3]  = { p->h[0] , p->h[1] , p->h[2]  };
   double Jp[3] = { p->Jp[0], p->Jp[1], p->Jp[2] };
   double chi   = p->chi;
-  double Js    = p->Js;
-  double alpha = p->alpha;
+  double Ja    = p->Ja;
+  double ha    = p->ha;
+  double Jb    = p->Jb;
+  double hb    = p->hb;
 
   for (int i=0; i<3; i++) J[i] = gsl_vector_get(v, i);
-  limiter(Js, J) ;
+  limiter(Ja+Jb, J) ;
 
-  double nJ = norm(J);
-  for (int i=0; i<3; i++) dJ[i] = J[i]-Jp[i]; // J-Jp
-
-  double val =
-    Js*alpha*( nJ/Js*atanh(nJ/Js) + 0.5*log(1-SQU(nJ/Js)) ) // u(J)
-    - (J[0]*h[0] + J[1]*h[1] + J[2]*h[2]) // -J.h
-    + chi * norm(dJ); // chi | J-Jp |
-
-  return(val);
+  double omega = fct_omega(h, J, Jp, chi, Ja, ha,Jb,hb) ; 
+  return omega;
 }
 
 void omega_df (const gsl_vector *v, void *params, gsl_vector *df)
 {
-  double J[3], dJ[3] ;
+  double J[3] ;
   struct omega_f_context * p = (struct omega_f_context *)params;
   double h[3]  = {p->h[0] , p->h[1] , p->h[2] };
   double Jp[3] = {p->Jp[0], p->Jp[1], p->Jp[2]};
   double chi   = p->chi;
-  double Js    = p->Js;
-  double alpha = p->alpha;
+  double Ja    = p->Ja;
+  double ha    = p->ha;
+  double Jb    = p->Jb;
+  double hb    = p->hb;
 
-  double grad[3] = {0.,0.,0.};
+  double d_omega[3] = {0.,0.,0.};
 
   for (int i=0; i<3; i++) J[i] = gsl_vector_get(v, i);
-  limiter(Js, J);
+  limiter(Ja+Jb, J);
 
-  double nJ = norm(J);
-  for (int i=0; i<3; i++)  dJ[i] = J[i]-Jp[i]; // J-Jp
-  double ndJ = norm(dJ);
-
-  for (int i=0; i<3; i++) {
-    if (nJ)  grad[i] += alpha*atanh(nJ/Js)*J[i]/nJ;
-    grad[i] -= h[i];
-    if (ndJ) grad[i] += chi*dJ[i]/ndJ;
-    gsl_vector_set(df, i, grad[i]);
-  }
-
+  fct_d_omega (h, J, Jp, chi, 
+               Ja, ha, Jb, hb,
+               d_omega);
+  for (int i=0; i<3; i++) gsl_vector_set(df, i, d_omega[i]);
 }
 
 void omega_fdf (const gsl_vector *x, void *params, double *f, gsl_vector *df)
@@ -869,8 +984,8 @@ void F_Update_Jk(F_ARG)
   context.Jp[2] = (A+2)->Val[2];
 
   context.chi   = (A+3)->Val[0];
-  context.Js    = (A+4)->Val[0];
-  context.alpha = (A+5)->Val[0];
+  context.Ja    = (A+4)->Val[0];
+  context.ha = (A+5)->Val[0];
  //http://www.gnu.org/software/gsl/manual/html_node/Multimin-Algorithms-with-Derivatives.html
 
   const gsl_multimin_fdfminimizer_type *TYPE = gsl_multimin_fdfminimizer_conjugate_fr;
@@ -918,46 +1033,70 @@ void F_Update_Jk(F_ARG)
   gsl_vector_free (x);
 }
 
-#endif
-
 //===================================================
 // V. Francois original implementation with steepest descent
 //===================================================
 
-double fct_omega(double h[3], double Jk[3], double Jkp[3], double chi, double Js, double alpha)
+double fct_omega(double h[3], double Jk[3], double Jkp[3], double chi, 
+                 double Ja, double ha, double Jb, double hb)
 {
   double diff[3];
-  double nJk = norm(Jk); // magnetisation Jk assumed to be < the saturation magnetisation Js
+  double nJk = norm(Jk), u=0., nhr=0.; // magnetisation Jk assumed to be < the saturation magnetisation Js
   for (int n=0; n<3; n++)
     diff[n] = Jk[n]-Jkp[n]; // J-Jp
 
-  double g2     = alpha*Js *( nJk/Js*atanh(nJk/Js) + 0.5*log(fabs(SQU(nJk/Js)-1)) ); // magnetic energy u(J)
-  double g3     = Jk[0] * h[0] + Jk[1] * h[1] + Jk[2] * h[2]; // -J.h
+  switch(::FLAG_TANORLANG) {
+    case 1: // Hyperbolic Tangent Case
+      u     = u_J(nJk,Ja,ha); // magnetic energy u(J)
+    break;
+    case 2: // Double Langevin Function Case
+      nhr   = InvJanhy(nJk, Ja, ha, Jb, hb);
+      u     = u_hr(nhr,Ja,ha,Jb,hb); // magnetic energy u(J)
+    break;
+    default:
+      Message::Error("Invalid parameter (TanhorLang = 1 or 2) for function 'fct_omega'.");
+    break;
+  } 
+
+  double Jh     = Jk[0] * h[0] + Jk[1] * h[1] + Jk[2] * h[2]; // -J.h
   double Dissip = chi * norm(diff) ; // chi | J-Jp |
 
-  return(g2-g3+Dissip);
+  return(u-Jh+Dissip);
 }
 
-void fct_d_omega (double h[3], double Jk[3], double Jkp[3],
-                  double chi, double Js, double alpha, double *d_omega)
+void fct_d_omega (double h[3], double Jk[3], double Jkp[3], double chi, 
+                  double Ja, double ha, double Jb, double hb,
+                  double *d_omega)
 {
-
   d_omega[0] = d_omega[1] = d_omega[2] = 0.;
   double dJk[3];
   for (int n=0; n<3; n++) dJk[n] = Jk[n]-Jkp[n];
 
   double nJk  = norm(Jk);
   double ndJk = norm(dJk);
+  double nhr=0.;
+
+  switch(::FLAG_TANORLANG) {
+    case 1: // Hyperbolic Tangent Case
+      nhr   = InvJanhy(nJk, Ja, ha);
+    break;
+    case 2: // Double Langevin Function Case
+      nhr   = InvJanhy(nJk, Ja, ha, Jb, hb);
+    break;
+    default:
+      Message::Error("Invalid parameter (TanhorLang = 1 or 2) for function 'fct_d_omega'.");
+    break;
+  } 
 
   for (int n = 0; n < 3; n++) {
-    if(nJk) d_omega[n] += alpha * atanh(nJk/Js) * Jk[n]/nJk;
+    if(nJk) d_omega[n] += nhr * Jk[n]/nJk;
     d_omega[n] -= h[n];
     if(ndJk) d_omega[n] += chi * dJk[n]/ndJk ;
   }
 }
 
 //===================================================
-// K. Jacques modified function
+// K. Jacques adapted function
 //===================================================
 
 void F_Update_Jk_sd(F_ARG) {
@@ -986,59 +1125,59 @@ void F_Update_Jk_sd(F_ARG) {
     Jkp[n] = (A+2)->Val[n];
   }
   double chi  =(A+3)->Val[0];
-  double Js   =(A+4)->Val[0];
-  double alpha=(A+5)->Val[0];
+  double Ja   =(A+4)->Val[0];
+  double ha   =(A+5)->Val[0];
+  double Jb   = 0.;
+  double hb   = 0.;
 
-  Vector_Update_Jk_sd_K(h, Jk, Jkp, chi, Js, alpha);
+  Vector_Update_Jk_sd_K(h, Jk, Jkp, chi, Ja, ha, Jb, hb);   
 
   V->Type = VECTOR ;
   for (int n=0 ; n<3 ; n++) V->Val[n] = Jk[n];
 }
 
+void Vector_Update_Jk_sd_K(double h[3], double Jk[3], double Jkp[3], double chi, 
+                           double Ja, double ha, double Jb, double hb) 
+{
+switch(::FLAG_MINMETHOD) {
+  case 1:
+  { 
+    //-------------------------------------------------------------------
+    // Updating Jk with a steepest descent algorithm
+    //-------------------------------------------------------------------
 
-//===================================================
-// K. Jacques additional functions
-//===================================================
+    double min_Jk[3] ;
+    double d_omega[3] ;
+    double sdfactor  = 0.1; //suitable value of tol for most applications
+    double TOL = ::TOLERANCE_OM; 
+    double Js=(Ja+Jb);
+    //for (int n=0; n<3; n++) Jk[n] = 0; // INITIALIZATION (not done)
 
-void Vector_Update_Jk_sd_K(double h[3], double Jk[3], double Jkp[3], double chi, double Js, double alpha) {
+    limiter(Js, Jk ); // avoiding possible NaN with atanh
 
-  // Updating Jk with a steepest descent algorithm
+    fct_d_omega(h, Jk, Jkp, chi, Ja, ha,Jb,hb, d_omega) ;     // updating the derivative of omega
+    double omega = fct_omega(h, Jk, Jkp, chi, Ja, ha,Jb,hb) ; // updating omega
 
-  double min_Jk[3] ;
-  double d_omega[3] ;
-  double sdfactor  = 0.1; //suitable value of tol for most applications
-  double TOL = 1e-11; //11  SENSITIVE_PARAM (1e-11)
+    double min_omega = 1e+22 ;
 
-
-  limiter(Js, Jk ); // avoiding possible NaN with atanh
-  //limiter(Js, Jkp); // Ruth: Why doing it for previous step?
-
-  fct_d_omega(h, Jk, Jkp, chi, Js, alpha, d_omega) ;     // updating the derivative of omega
-  double omega = fct_omega(h, Jk, Jkp, chi, Js, alpha) ; // updating omega
-
-  double min_omega = 1e+22 ;
-
-  int iter = 0 ;
-  const int MAX_ITER = 700; // SENSITIVE_PARAM (700)
-  while( iter < MAX_ITER &&
-         (fabs(d_omega[0])/(1+fabs(omega))*sdfactor > TOL ||
-          fabs(d_omega[1])/(1+fabs(omega))*sdfactor > TOL ||
-          fabs(d_omega[2])/(1+fabs(omega))*sdfactor > TOL ))
+    int iter = 0 ;
+    const int MAX_ITER = ::MAX_ITER_OM; 
+    while( iter < MAX_ITER &&
+           (fabs(d_omega[0])/(1+fabs(omega))*sdfactor > TOL ||
+            fabs(d_omega[1])/(1+fabs(omega))*sdfactor > TOL ||
+            fabs(d_omega[2])/(1+fabs(omega))*sdfactor > TOL ))
     {
       for (int n = 0; n < 3; n++)
         min_Jk[n] = Jk[n] - sdfactor * d_omega[n] ; // gradient descent algorithm
 
       limiter(Js, min_Jk);
-      min_omega = fct_omega(h, min_Jk, Jkp, chi, Js, alpha); //updating omega
-      if (iter>MAX_ITER)
-        Message::Warning("iter %d : Too many iterations to find the minimum of omega: min_omega %g, omega-TOL/10 %g",
-                         iter, min_omega, omega-TOL/10);
+      min_omega = fct_omega(h, min_Jk, Jkp, chi, Ja, ha,Jb,hb); //updating omega
 
       if( min_omega < omega-TOL/10 && norm(min_Jk) < Js ){
-        fct_d_omega(h, min_Jk, Jkp, chi, Js, alpha, d_omega); //update the derivative d_omega
+        fct_d_omega(h, min_Jk, Jkp, chi, Ja, ha,Jb,hb, d_omega); //update the derivative d_omega
         omega = min_omega;
         //if(Jk[0]==Jkp[0] && Jk[1]==Jkp[1] && Jk[2]==Jkp[2])
-        if(fabs(Jk[0]-Jkp[0])<1e-16 && fabs(Jk[1]-Jkp[1])<1e-16 && fabs(Jk[2]-Jkp[2])<1e-16 )
+        if(fabs(Jk[0]-Jkp[0])<TOL && fabs(Jk[1]-Jkp[1])<TOL && fabs(Jk[2]-Jkp[2])<TOL ) //(diff zero)
           sdfactor=0.1; // re-initialize rfactor which may have become very small due to an angulous starting point
 
         for (int n=0; n<3; n++) Jk[n] = min_Jk[n];
@@ -1048,66 +1187,595 @@ void Vector_Update_Jk_sd_K(double h[3], double Jk[3], double Jkp[3], double chi,
       iter++ ;
     }
 
-  for (int n=0 ; n<3 ; n++)
-    Jk[n] = min_Jk[n];
-}
+    if (::FLAG_WARNING>=FLAG_WARNING_INFO_MIN && iter==MAX_ITER)
+      Message::Warning("\t\tMinimization status : the iteration has not converged yet, after %d iteration(s)", MAX_ITER);
 
-void Vector_b_Vinch_K(int N, double h[3], double alpha, double *Jk_all, double *Jkp_all, double *chi_all, double *Js_all, double b[3])
-{
-
-  double Jk[3], Jkp[3] ;
-  double chi, Js;
-
-  for (int n=0; n<3; n++)
-     b[n] = MU0 * h[n];
-
-  for (int k=0; k<N; k++) {
-    chi = chi_all[k];
-    Js  = Js_all[k];
-    for (int n=0; n<3; n++)  {
-      Jk[n]  = Jk_all[n+3*k];
-      Jkp[n] = Jkp_all[n+3*k];
-    }
-
-    Vector_Update_Jk_sd_K(h, Jk, Jkp, chi, Js, alpha);
-
-    for (int n=0; n<3; n++) {
-      b[n] += Jk[n];
-      Jk_all[n+3*k] = Jk[n];
+    for (int n=0 ; n<3 ; n++)
+    {
+      Jk[n] = min_Jk[n];
+      //When Jk is too small to be represented in normalized format (SUBNORMAL number)
+      //if (fpclassify(min_Jk[n]==FP_SUBNORMAL))
+      //  printf("Aaaa !!!!!!!!!!!!!!!!!!!\n");
+      //if(Jk[n]<1e-50)
+      //  Jk[n]=0;
     }
   }
+  break;
+  case 2: 
+  case 3:
+  case 4:
+  case 5:
+  case 6:
+  {
+
+    //-------------------------------------------------------------------
+    // Updating Jk with gnu gsl
+    //-------------------------------------------------------------------
+    const int MAX_ITER = ::MAX_ITER_OM;
+    int iter = 0, status;
+    double step_size = 0.01;   // 0.01 at basic
+    double TOL = ::TOLERANCE_OM; 
+    double tol = TOL; //(0.1 recommended for bfgs and steepest descent else tol=TOL)
+    double omegap;
+
+    struct omega_f_context context ;
+    context.h[0]  = h[0];
+    context.h[1]  = h[1];
+    context.h[2]  = h[2];
+
+    double J[3] = { Jk[0], Jk[1], Jk[2] };
+
+    context.Jp[0] = Jkp[0];
+    context.Jp[1] = Jkp[1];
+    context.Jp[2] = Jkp[2];
+
+    context.chi        = chi;
+    context.Ja         = Ja;
+    context.ha         = ha;
+    context.Jb         = Jb;
+    context.hb         = hb;
+    
+    //http://www.gnu.org/software/gsl/manual/html_node/Multimin-Algorithms-with-Derivatives.html
+    const gsl_multimin_fdfminimizer_type *TYPE;
+    switch(::FLAG_MINMETHOD) {
+      case 2:
+        TYPE = gsl_multimin_fdfminimizer_conjugate_fr;
+      break;
+      case 3:
+        TYPE = gsl_multimin_fdfminimizer_conjugate_pr;
+      break;
+      case 4:
+        TYPE = gsl_multimin_fdfminimizer_vector_bfgs2; // not work
+      break;
+      case 5:
+        TYPE = gsl_multimin_fdfminimizer_vector_bfgs;
+      break;
+      case 6:
+        // (The steepest descent method is inefficient and is included only for demonstration purposes)
+        TYPE = gsl_multimin_fdfminimizer_steepest_descent; 
+      break;
+      default:
+      break;
+    }
+
+
+    gsl_multimin_function_fdf my_func;
+
+    my_func.n      = 3;
+    my_func.f      = omega_f  ;
+    my_func.df     = omega_df ;
+    my_func.fdf    = omega_fdf;
+    my_func.params = &context;
+
+    gsl_vector* x = gsl_vector_alloc (3);
+    for (int i=0; i<3; i++) gsl_vector_set(x, i, J[i]) ; // initial value for the minimizer
+
+    gsl_multimin_fdfminimizer *solver = gsl_multimin_fdfminimizer_alloc(TYPE, 3);
+    gsl_multimin_fdfminimizer_set (solver, &my_func, x, step_size, tol);
+
+    do {
+      iter++;
+      omegap = solver->f;
+      status = gsl_multimin_fdfminimizer_iterate (solver);
+      if (status) break; // check if solver is stuck
+    }  while( fabs(solver->f-omegap)>TOL && iter < MAX_ITER);
+
+
+    if (::FLAG_WARNING>=FLAG_WARNING_INFO_MIN && iter==MAX_ITER)
+      Message::Warning("Minimization status : the iteration has not converged yet, after %d iteration(s)", iter);
+
+    for (int n=0 ; n<3 ; n++)
+      Jk[n] = gsl_vector_get (solver->x, n) ;
+
+    gsl_multimin_fdfminimizer_free (solver);
+    gsl_vector_free (x);
+  }
+  break;
+  default:
+    Message::Error("Invalid parameter (FLAG_MINMETHOD = 1,2,..6) for function 'Vector_Update_Jk_sd_K'.\n"
+                      "FLAG_MINMETHOD = 1 --> steepest descent (homemade)\n"
+                      "FLAG_MINMETHOD = 2 --> conjugate fr (gsl)\n"
+                      "FLAG_MINMETHOD = 3 --> conjugate pr (gsl)\n"
+                      "FLAG_MINMETHOD = 4 --> bfgs2 (gsl)\n"
+                      "FLAG_MINMETHOD = 5 --> bfgs (gsl)\n"
+                      "FLAG_MINMETHOD = 6 --> steepest descent (gsl)");
+  break; 
+}
+}
+
+//===================================================
+// K. Jacques additional functions
+//===================================================
+
+void F_Update_Cell_K(F_ARG) {
+
+  // Updating the Cell variable : Jk (for variationnal approach) or hrk (for differential approach)
+  // ---------------------------------------------
+  // input:
+  // (A+0)->Val = number corresponding to the cell studied -- k
+  // (A+1)->Val = magnetic field -- h
+  // (A+2)->Val = material magnetization (var) or reversible magnetic field (diff) -- xk
+  // (A+3)->Val = material magnetization (var) or reversible magnetic field (diff) at previous time step -- xkp
+  // Material parameters: e.g. param_EnergHyst = { dim, N, Ja, ha, w_1, chi_1, ..., w_N, chi_N};==> struct FunctionActive *D  
+  // ---------------------------------------------
+  // output: updated Jk
+
+  struct FunctionActive  * D ;
+  if (!Fct->Active)  Fi_InitListX (Fct, A, V) ;
+  D = Fct->Active ;
+  set_sensi_param(D);
+
+  int k         = ((A+0)->Val[0])-1;
+  //int N         = D->Case.Interpolation.x[1] ;
+  double Ja     = D->Case.Interpolation.x[2] ;
+  double ha     = D->Case.Interpolation.x[3] ;
+  double Jb     = D->Case.Interpolation.x[4] ;
+  double hb     = D->Case.Interpolation.x[5] ;
+  double Jak    = (D->Case.Interpolation.x[6+2*k])*Ja;
+  double Jbk    = (D->Case.Interpolation.x[6+2*k])*Jb;
+  double chi    = D->Case.Interpolation.x[7+2*k];
+
+
+  if( (A+0)->Type != SCALAR || 
+      (A+1)->Type != VECTOR || 
+      (A+2)->Type != VECTOR ||
+      (A+3)->Type != VECTOR )
+    Message::Error("Function 'Update_Cell_K' requires one scalar argument (n) and three vector arguments (h, Jk, Jkp)");
+
+  double h[3], xk[3], xkp[3] ;
+
+  for (int n=0; n<3; n++) {
+    h[n]   = (A+1)->Val[n];
+    xk[n]  = (A+2)->Val[n];
+    xkp[n] = (A+3)->Val[n];
+  }
+
+    switch(::FLAG_VARORDIFF) {
+    case 1: // Variationnal Case
+        Vector_Update_Jk_sd_K(h, xk, xkp, chi, Jak, ha, Jbk, hb); 
+      break;
+    case 2: // Differential Case
+        Vector_Update_hr_K(h, xkp, chi, xk);
+      break;
+    default:
+      Message::Error("Invalid parameter (VarorDiff = 1 or 2) for function 'Update_Cell_K'.");
+      break;
+    } 
+  V->Type = VECTOR ;
+  for (int n=0 ; n<3 ; n++) V->Val[n] = xk[n];
+}
+
+
+void Vector_Update_hr_K(double h[3], double hrp[3], double chi, double hr[3]) 
+{
+  double dhr[3];
+  for (int n=0; n<3; n++)
+    dhr[n] = h[n]-hrp[n];
+  double ndhr = norm(dhr);
+  if (ndhr >= chi) {
+    for (int n=0; n<3; n++)
+      hr[n]=(ndhr>0)? h[n]-chi*(dhr[n]/ndhr) : h[n];
+  }
+  else {
+    for (int n=0; n<3; n++)
+      hr[n]=hrp[n];
+  }
+}
+//----------------------------------------
+// Anhysteretic curve Characteristics :
+//----------------------------------------
+// 1. Hyperbolic tangent ( used parameters : Js, alpha)
+double Janhy(double nhr, double Js, double alpha)
+{
+    double y=nhr/alpha;
+   if (fabs(y)<(::TOLERANCE_0))
+      return Js*y;
+   else
+      return Js*tanh(y);
+
+}
+double dJanhy(double nhr, double Js, double alpha)
+{
+  double y=nhr/alpha;
+   if (fabs(y)<(::TOLERANCE_0)) 
+       return Js/alpha;
+   else if (fabs(y)>350) // otherwise overflow
+       return 0;
+   else
+       return Js/alpha*(1.-SQU(tanh(y)));
+}
+double Xanhy(double nhr,double Js, double alpha)
+{
+   double y=nhr/alpha;
+   if (fabs(y)<(::TOLERANCE_0)) 
+       return Js/alpha;
+   else 
+       return Js*tanh(y)/nhr;
+}
+
+double dXanhy(double nhr,double Js, double alpha)
+{
+   double y=nhr/alpha;
+   if (fabs(y)<(::TOLERANCE_0))
+       return 2./3.*Js*y/alpha;  // DOUBT : need to add .../ fxc ??
+   else 
+       return (dJanhy(nhr,Js,alpha)-Xanhy(nhr,Js,alpha))/nhr;
+}
+
+double IJanhy(double nhr, double Js, double alpha)  // = Co-energy
+{
+    double y=nhr/alpha;
+   if (fabs(y)<(::TOLERANCE_0))
+       return Js*alpha*SQU(y)/2.;
+   else    
+       return Js*alpha*log(cosh(y));
+}
+
+double InvJanhy(double nJ, double Js, double alpha) // = y + y^3/3 + y^5/5 + y^7/7
+{
+   double x=nJ/Js;
+   if (fabs(x)<(::TOLERANCE_0))
+       return alpha*x;
+   else 
+       return alpha*atanh(x);
+}
+
+double dInvJanhy(double nJ, double Js, double alpha) 
+{
+    double x=nJ/Js;     
+    return (alpha/Js)*(1/(1-SQU(x))); // Warning : case x -> 1 <=> J -> Js
+}
+
+
+// 2. Double Langevin function ( used parameters : Ja, ha, Jb, hb)
+double Lang(double nhr, double Ja, double ha) //Langevin function = x/3-x^3/45+2*x^5/945-x^7/4725+...
+{
+   double y=nhr/ha;
+   if (fabs(y)<(::TOLERANCE_0))
+       return Ja*y/3.;
+   else 
+       return Ja*(1./tanh(y)-1./y);
 
 }
 
-void Tensor_dbdh_Vinch_K(int dim, int N, double h[3], double alpha,
-                         double *Jk_all, double *Jkp_all, double *chi_all, double *Js_all,
+double dLang(double nhr, double Ja, double ha)
+{
+   double y=nhr/ha;
+   if (fabs(y)<(::TOLERANCE_0)) 
+       return Ja/ha/3. ;
+   else if (fabs(y)>350) // otherwise overflow
+       return 0 ;
+   else 
+       return Ja/ha*(1./SQU(y)-1./SQU(sinh(y))) ;
+}
+
+double LangOverx(double nhr, double Ja, double ha)
+{   double y=nhr/ha;
+   if (fabs(y)<(::TOLERANCE_0)) 
+       return Ja/ha/3.;
+   else 
+       return Ja*(1./tanh(y)-1./y)/nhr;
+}
+
+double dLangOverx(double nhr, double Ja, double ha)
+{
+   double y=nhr/ha;
+   if (fabs(y)<(::TOLERANCE_0))
+       return 2./45.*Ja*y/ha; // DOUBT : need to add .../ fxc ??
+   else 
+       return (dLang(nhr,Ja,ha)-LangOverx(nhr,Ja,ha))/nhr;
+}
+
+double ILang(double nhr, double Ja, double ha)
+{
+   double y=nhr/ha;
+   if (fabs(y)<(::TOLERANCE_0))
+       return Ja*ha*SQU(y)/6.;
+   else     // ILdx(x)=log(sinh(x)/x) gives infinity for x>~300
+       return Ja*ha*( y + log(1.-exp(-2.*y)) - log(2.*y) );
+}
+
+double Janhy(double nhr, double Ja, double ha, double Jb, double hb)
+{
+  return Lang(nhr,Ja,ha)+Lang(nhr,Jb,hb);
+}
+
+double dJanhy(double nhr, double Ja, double ha, double Jb, double hb)
+{
+  return dLang(nhr,Ja,ha)+dLang(nhr,Jb,hb);
+}
+
+double Xanhy(double nhr, double Ja, double ha, double Jb, double hb)
+{
+  return LangOverx(nhr,Ja,ha)+LangOverx(nhr,Jb,hb);
+}
+
+double dXanhy(double nhr, double Ja, double ha, double Jb, double hb)
+{
+  return dLangOverx(nhr,Ja,ha)+dLangOverx(nhr,Jb,hb);
+}
+
+double IJanhy(double nhr, double Ja, double ha, double Jb, double hb)  // = Co-energy
+{
+  return ILang(nhr,Ja,ha)+ILang(nhr,Jb,hb);
+}
+
+double InvJanhy(double nJ, double Ja, double ha, double Jb, double hb) 
+{
+    double y=nJ;
+    if (fabs(y)<(::TOLERANCE_0)) 
+        return y/dJanhy(0.,Ja,ha,Jb,hb);
+    int i=0; 
+    double x=2.0; 
+    double dx = (y-Janhy(x,Ja,ha,Jb,hb))/dJanhy(x,Ja,ha,Jb,hb);
+      while ( ((fabs(dx)/((1>fabs(x))?1:fabs(x))) > ::TOLERANCE_NR) && (i<20) ) 
+      {
+          dx = (y-Janhy(x,Ja,ha,Jb,hb))/dJanhy(x,Ja,ha,Jb,hb);
+          x +=  dx;
+          i++;
+      }
+      return x;
+
+}
+
+double dInvJanhy_hr(double nhr, double Ja, double ha, double Jb, double hb)
+{
+  double dJdhr=dJanhy(nhr, Ja, ha, Jb, hb);
+  if (dJdhr==0.)
+  {
+    Message::Warning("dJdhr is too small to be inverted in function 'dInvJanhy_hr'.");
+    return 1.;
+  }
+  else
+    return 1/dJdhr;
+} 
+
+
+double u_hr(double nhr, double Ja, double ha, double Jb, double hb)  // = Energy with hr as input
+{
+  return Janhy(nhr,Ja,ha,Jb,hb)*nhr - IJanhy(nhr,Ja,ha,Jb,hb);
+}
+
+double u_J(double nJ, double Js, double alpha) // = Energy with J as input = IInvJanhy
+{
+  return alpha*Js *( nJ/Js*atanh(nJ/Js) + 0.5*log(fabs(SQU(nJ/Js)-1)) );
+}
+
+void Vector_b_Vinch_K(double h[3], 
+                      double *xk_all, double *xkp_all, 
+                      struct FunctionActive *D,
+                      double b[3])
+{
+  //int dim       = D->Case.Interpolation.x[0] ;
+  int N         = D->Case.Interpolation.x[1] ;
+  double Ja     = D->Case.Interpolation.x[2] ;
+  double ha     = D->Case.Interpolation.x[3] ;
+  double Jb     = D->Case.Interpolation.x[4] ;
+  double hb     = D->Case.Interpolation.x[5] ;
+
+  double xk[3], xkp[3] ;
+  double chi, Jak, Jbk, Xan=0.;
+
+  for (int n=0; n<3; n++)
+     b[n] = 1e2* MU0 * h[n]; // Slope forcing
+
+  for (int k=0; k<N; k++) {
+    Jak  = (D->Case.Interpolation.x[6+2*k])*Ja;
+    Jbk  = (D->Case.Interpolation.x[6+2*k])*Jb;
+    chi = D->Case.Interpolation.x[7+2*k];
+    for (int n=0; n<3; n++)  {
+      xk[n]  = xk_all[n+3*k];
+      xkp[n] = xkp_all[n+3*k];
+    }
+
+    switch(::FLAG_VARORDIFF) {
+      case 1: // Variationnal Case
+      {
+        Vector_Update_Jk_sd_K(h, xk, xkp, chi, Jak, ha, Jbk, hb); 
+        for (int n=0; n<3; n++) {
+          xk_all[n+3*k] = xk[n];
+          b[n] += xk[n];
+        } 
+      }
+      break;
+      case 2: // Differential Case
+      {
+        Vector_Update_hr_K(h, xkp, chi, xk);
+        double nhr  = norm(xk);
+        switch(::FLAG_TANORLANG) {
+          case 1: // Hyperbolic Tangent Case
+              Xan = Xanhy(nhr, Jak, ha);
+          break;
+          case 2: // Double Langevin Function Case
+              Xan = Xanhy(nhr, Jak, ha, Jbk, hb);
+          break;
+          default:
+            Message::Error("Invalid parameter (TanhorLang = 1 or 2) for function 'Vector_b_Vinch_K'.");
+          break;
+        } 
+        for (int n=0; n<3; n++) {
+          xk_all[n+3*k] = xk[n];
+          b[n] += Xan*xk[n];
+        }
+      } 
+      break;
+      default:
+        Message::Error("Invalid parameter (VarorDiff = 1 or 2) for function 'Vector_b_Vinch_K'.");
+      break;
+    }
+  }
+}
+
+void Tensor_dhdb_Good_BGFS(int dim, double dx[3],double df[3],double dhdb[6])
+{
+
+  double iJn_1df[3], dfiJn_1[3];
+  iJn_1df[0]=dhdb[0]*df[0]+dhdb[1]*df[1]+dhdb[2]*df[2];
+  iJn_1df[1]=dhdb[1]*df[0]+dhdb[3]*df[1]+dhdb[4]*df[2];
+  iJn_1df[2]=dhdb[2]*df[0]+dhdb[4]*df[1]+dhdb[5]*df[2];
+
+  dfiJn_1[0]=df[0]*dhdb[0]+df[1]*dhdb[1]+df[2]*dhdb[2];
+  dfiJn_1[1]=df[0]*dhdb[1]+df[1]*dhdb[3]+df[2]*dhdb[4];
+  dfiJn_1[2]=df[0]*dhdb[2]+df[1]*dhdb[4]+df[2]*dhdb[5];
+
+  double dxdf, dfiJn_1df ;
+  dxdf      = dx[0]*df[0]+dx[1]*df[1]+dx[2]*df[2];
+  dfiJn_1df = df[0]*iJn_1df[0]+df[1]*iJn_1df[1]+df[2]*iJn_1df[2];
+
+    dhdb[0] = dhdb[0]+ ((dxdf + dfiJn_1df)/(SQU(dxdf)))*(dx[0]*dx[0]) -  ( iJn_1df[0]*dx[0] + dx[0]*dfiJn_1[0] )/dxdf ; //xx
+    dhdb[3] = dhdb[3]+ ((dxdf + dfiJn_1df)/(SQU(dxdf)))*(dx[1]*dx[1]) -  ( iJn_1df[1]*dx[1] + dx[1]*dfiJn_1[1] )/dxdf ; //yy
+    dhdb[1] = dhdb[1]+ ((dxdf + dfiJn_1df)/(SQU(dxdf)))*(dx[0]*dx[1]) -  ( iJn_1df[0]*dx[1] + dx[0]*dfiJn_1[1] )/dxdf ; //xy
+  switch(dim) {
+    case 2: // 2D case
+      dhdb[5] = 1.;
+      dhdb[2] = dhdb[4] = 0.;
+    break;
+    case 3: // 3D case
+      dhdb[5] = dhdb[5]+ ((dxdf + dfiJn_1df)/(SQU(dxdf)))*(dx[2]*dx[2]) -  ( iJn_1df[2]*dx[2] + dx[2]*dfiJn_1[2] )/dxdf ; //zz
+      dhdb[2] = dhdb[2]+ ((dxdf + dfiJn_1df)/(SQU(dxdf)))*(dx[0]*dx[2]) -  ( iJn_1df[0]*dx[2] + dx[0]*dfiJn_1[2] )/dxdf ; //xz
+      dhdb[4] = dhdb[4]+ ((dxdf + dfiJn_1df)/(SQU(dxdf)))*(dx[1]*dx[2]) -  ( iJn_1df[1]*dx[2] + dx[1]*dfiJn_1[2] )/dxdf ; //yz
+    break;
+    default:
+      Message::Error("Invalid parameter (dimension = 2 or 3) for function 'Tensor_dJkdh_Diff_K'. Analytic Jacobian computation.");
+    break;  
+  }
+}
+
+void Tensor_dbdh_Num(double h[3], 
+                     double *xk_all, double *xkp_all,
+                     struct FunctionActive *D,
+                     double dbdh[6])
+{
+  int dim = D->Case.Interpolation.x[0] ;
+
+  double EPSILON = 1 ; // PARAM (1) // 1e-8
+  double delta0  = ::DELTA_0 ; 
+
+  // Different following the different directions ??? TO CHECK
+  double delta[3] = { (fabs(h[0])>EPSILON) ? (fabs(h[0])) * delta0 : delta0,
+                      (fabs(h[1])>EPSILON) ? (fabs(h[1])) * delta0 : delta0,
+                      (fabs(h[2])>EPSILON) ? (fabs(h[2])) * delta0 : delta0 } ;
+  /*
+  double delta[3] = {((norm(h)>EPSILON) ? (norm(h)+1) * delta0 : delta0),
+                     ((norm(h)>EPSILON) ? (norm(h)+1) * delta0 : delta0),
+                     ((norm(h)>EPSILON) ? (norm(h)+1) * delta0 : delta0) } ;
+  */
+  /*
+  double delta[3] = {((norm(h)>EPSILON) ? norm(h) * delta0 : delta0),
+                     ((norm(h)>EPSILON) ? norm(h) * delta0 : delta0),
+                     ((norm(h)>EPSILON) ? norm(h) * delta0 : delta0) } ;
+  */
+  //double delta[3]={delta0,delta0,delta0};
+
+  double hxr[3]={h[0]+delta[0], h[1]          ,h[2]};          double hxl[3]={h[0]-delta[0], h[1],          h[2]};
+  double hyr[3]={h[0],          h[1]+delta[1] ,h[2]};          double hyl[3]={h[0],          h[1]-delta[1], h[2]};
+  double hzr[3]={h[0],          h[1]          ,h[2]+delta[2]}; double hzl[3]={h[0],          h[1],          h[2]-delta[2]};
+
+  double bxr[3]={0.,0.,0.};
+  double bxl[3]={0.,0.,0.};
+  double byr[3]={0.,0.,0.};
+  double byl[3]={0.,0.,0.};
+  double bzr[3]={0.,0.,0.};
+  double bzl[3]={0.,0.,0.};
+
+  Vector_b_Vinch_K(hxr, xk_all, xkp_all, D, bxr);
+  Vector_b_Vinch_K(hxl, xk_all, xkp_all, D, bxl);
+  Vector_b_Vinch_K(hyr, xk_all, xkp_all, D, byr);
+  Vector_b_Vinch_K(hyl, xk_all, xkp_all, D, byl);
+
+  // Symmetric tensor
+  dbdh[0]= (bxr[0]-bxl[0])/(2*delta[0]); //xx
+  dbdh[3]= (byr[1]-byl[1])/(2*delta[1]); //yy
+  dbdh[1]= (bxr[1]-bxl[1])/(2*delta[0]); //yx
+
+  switch(dim) {
+  case 2: // 2D case
+    dbdh[5] = 1.;
+    dbdh[2] = dbdh[4]= 0.;
+    break;
+  case 3: //3D case
+    Vector_b_Vinch_K(hzr, xk_all, xkp_all, D, bzr);
+    Vector_b_Vinch_K(hzl, xk_all, xkp_all, D, bzl);
+
+    dbdh[5]= (bzr[2]-bzl[2])/(2*delta[2]); //zz
+    dbdh[2]= (bxr[2]-bxl[2])/(2*delta[0]); //zx
+    dbdh[4]= (byr[2]-byl[2])/(2*delta[1]); //zy
+    break;
+  default:
+    Message::Error("Invalid parameter (dimension = 2 or 3) for function 'dbdh_Num'. Numeric Jacobian computation.");
+    break;
+  }
+}
+
+void Tensor_dbdh_Vinch_K(double h[3], 
+                         double *xk_all, double *xkp_all,
+                         struct FunctionActive *D,
                          double dbdh[6])
 {
-  double dJkdh[6];
-  double Jk[3], Jkp[3] ;
-  double chi, Js;
+  int dim       = D->Case.Interpolation.x[0] ;
+  int N         = D->Case.Interpolation.x[1] ;
+  double Ja     = D->Case.Interpolation.x[2] ;
+  double ha     = D->Case.Interpolation.x[3] ;
+  double Jb     = D->Case.Interpolation.x[4] ;
+  double hb     = D->Case.Interpolation.x[5] ;
 
-  dbdh[0] = dbdh[3] = dbdh[5] = MU0 ;
+
+  double dJkdh[6];
+  double xk[3], xkp[3] ;
+  double chi, Jak, Jbk;
+
+  dbdh[0] = dbdh[3] = dbdh[5] = 1e2*MU0 ; //Slope forcing
   dbdh[1] = dbdh[2] = dbdh[4] = 0. ;
 
   for (int k=0; k<N; k++) {
-    chi  = chi_all[k];
-    Js   = Js_all[k];
+    Jak   = (D->Case.Interpolation.x[6+2*k])*Ja;
+    Jbk   = (D->Case.Interpolation.x[6+2*k])*Jb;
+    chi  = D->Case.Interpolation.x[7+2*k];
     for (int n=0; n<3; n++)  {
-      Jk[n]  = Jk_all[n+3*k];
-      Jkp[n] = Jkp_all[n+3*k];
+      xk[n]  = xk_all[n+3*k];
+      xkp[n] = xkp_all[n+3*k];
     }
 
-    Tensor_dJkdh_Vinch_K(dim, h, Jk, Jkp, chi, Js, alpha, dJkdh);
+    switch(::FLAG_VARORDIFF) {
+      case 1: // Variationnal Case
+        Tensor_dJkdh_Vinch_K(dim, h, xk, xkp, chi, Jak, ha, Jbk, hb, dJkdh);
+      break;
+      case 2: // Differential Case
+        Tensor_dJkdh_Diff_K(dim, h, xk, xkp, chi, Jak, ha, Jbk, hb, dJkdh);
+      break;
+      default:
+        Message::Error("Invalid parameter (VarorDiff = 1 or 2) for function 'Tensor_dbdh_Vinch_K'.");
+      break;
+    }
     for (int n=0; n<6; n++)
       dbdh[n] += dJkdh[n] ;
   }
-
 }
 
-void Tensor_dJkdh_Vinch_K(int dim, double h[3], double Jk[3], double Jkp[3], double chi, double Js, double alpha, double dJkdh[6])
+void Tensor_dJkdh_Vinch_K(int dim, double h[3], double Jk[3], double Jkp[3], double chi, 
+                          double Ja, double ha, double Jb, double hb, 
+                          double dJkdh[6])
 {
-  double idJkdh[6];
   double dJk[3];
 
   for (int n=0; n<3; n++)
@@ -1116,42 +1784,59 @@ void Tensor_dJkdh_Vinch_K(int dim, double h[3], double Jk[3], double Jkp[3], dou
   double nJk  = norm(Jk);
   double ndJk = norm(dJk);
 
+  if ((::FLAG_ANA) && (nJk>(::TOLERANCE_NJ) && ndJk>(::TOLERANCE_NJ))){ 
+    Message::Debug("Analytical Jacobian Js=%g, nJk=%g and ndJk=%g",Ja+Jb, nJk, ndJk);
+    
+    double chiOverndJk = chi/ndJk;
+    double nhr=0.; double dhrdJkOvernJk2=0.; double nhrOvernJk=0.;
+    double idJkdh[6];
 
-  if (nJk && ndJk){ // analytical Jacobian exists
-    Message::Debug("Analytical Jacobian Js=%g, nJk=%g and ndJk=%g",Js, nJk, ndJk);
-    double a1 = alpha*(1/(1-SQU(nJk/Js)))*(1/Js)*(1/SQU(nJk));
-    double a2 = alpha*atanh(nJk/Js);
+    switch(::FLAG_TANORLANG) {
+      case 1: // Hyperbolic Tangent Case
+          nhr = InvJanhy(nJk, Ja, ha) ;
+          nhrOvernJk = nhr/nJk;
+          dhrdJkOvernJk2 = dInvJanhy(nJk, Ja, ha) /SQU(nJk);
+      break;
+      case 2: // Double Langevin Function Case
+          nhr = InvJanhy(nJk, Ja, ha, Jb, hb) ;
+          nhrOvernJk = nhr/nJk;
+          dhrdJkOvernJk2 = dInvJanhy_hr(nhr, Ja, ha, Jb, hb) /SQU(nJk);
+      break;
+      default:
+        Message::Error("Invalid parameter (TanhorLang = 1 or 2) for function 'Tensor_dJkdh_Vinch_K'.");
+      break;
+    } 
     /*
-    idJkdh[0] = a1 * (Jk[0]*Jk[0]) + a2 * ( (1/nJk) - (1/CUB(nJk))*(Jk[0]*Jk[0]) ) + chi * ( (1/ndJk) - (1/CUB(ndJk))*(dJk[0]*dJk[0])) ; //xx
-    idJkdh[1] = a1 * (Jk[1]*Jk[0]) + a2 * (         - (1/CUB(nJk))*(Jk[1]*Jk[0]) ) + chi * (          - (1/CUB(ndJk))*(dJk[1]*dJk[0])) ; //xy
-    idJkdh[2] = a1 * (Jk[2]*Jk[0]) + a2 * (         - (1/CUB(nJk))*(Jk[2]*Jk[0]) ) + chi * (          - (1/CUB(ndJk))*(dJk[2]*dJk[0])) ; //xz
+    idJkdh[0] = dhrdJkOvernJk2  * (Jk[0]*Jk[0]) + nhr * ( (1/nJk) - (1/CUB(nJk))*(Jk[0]*Jk[0]) ) + chi * ( (1/ndJk) - (1/CUB(ndJk))*(dJk[0]*dJk[0])) ; //xx
+    idJkdh[1] = dhrdJkOvernJk2  * (Jk[1]*Jk[0]) + nhr * (         - (1/CUB(nJk))*(Jk[1]*Jk[0]) ) + chi * (          - (1/CUB(ndJk))*(dJk[1]*dJk[0])) ; //xy
+    idJkdh[2] = dhrdJkOvernJk2  * (Jk[2]*Jk[0]) + nhr * (         - (1/CUB(nJk))*(Jk[2]*Jk[0]) ) + chi * (          - (1/CUB(ndJk))*(dJk[2]*dJk[0])) ; //xz
 
     idJkdh[3] = idJkdh[1]; //yx
-    idJkdh[4] = a1 * (Jk[1]*Jk[1]) + a2 * ( (1/nJk) - (1/CUB(nJk))*(Jk[1]*Jk[1]) ) + chi * ( (1/ndJk) - (1/CUB(ndJk))*(dJk[1]*dJk[1])) ; //yy
-    idJkdh[5] = a1 * (Jk[2]*Jk[1]) + a2 * (         - (1/CUB(nJk))*(Jk[2]*Jk[1]) ) + chi * (          - (1/CUB(ndJk))*(dJk[2]*dJk[1])) ; //yz
+    idJkdh[4] = dhrdJkOvernJk2  * (Jk[1]*Jk[1]) + nhr * ( (1/nJk) - (1/CUB(nJk))*(Jk[1]*Jk[1]) ) + chi * ( (1/ndJk) - (1/CUB(ndJk))*(dJk[1]*dJk[1])) ; //yy
+    idJkdh[5] = dhrdJkOvernJk2  * (Jk[2]*Jk[1]) + nhr * (         - (1/CUB(nJk))*(Jk[2]*Jk[1]) ) + chi * (          - (1/CUB(ndJk))*(dJk[2]*dJk[1])) ; //yz
 
     idJkdh[6] = idJkdh[2] ; //zx
     idJkdh[7] = idJkdh[5] ; //zy
-    idJkdh[8] = a1 * (Jk[2]*Jk[2]) + a2 * ( (1/nJk) - (1/CUB(nJk))*(Jk[2]*Jk[2]) ) + chi * ( (1/ndJk) - (1/CUB(ndJk))*(dJk[2]*dJk[2])) ; //zz
+    idJkdh[8] = dhrdJkOvernJk2  * (Jk[2]*Jk[2]) + nhr * ( (1/nJk) - (1/CUB(nJk))*(Jk[2]*Jk[2]) ) + chi * ( (1/ndJk) - (1/CUB(ndJk))*(dJk[2]*dJk[2])) ; //zz
     */
 
     // Symmetric tensor
-    idJkdh[0] = a1 * (Jk[0]*Jk[0]) + a2 * ((1/nJk) - (1/CUB(nJk))*(Jk[0]*Jk[0])) + chi * ((1/ndJk) - (1/CUB(ndJk))*(dJk[0]*dJk[0])) ; //xx
-    idJkdh[3] = a1 * (Jk[1]*Jk[1]) + a2 * ((1/nJk) - (1/CUB(nJk))*(Jk[1]*Jk[1])) + chi * ((1/ndJk) - (1/CUB(ndJk))*(dJk[1]*dJk[1])) ; //yy
-    idJkdh[1] = a1 * (Jk[1]*Jk[0]) + a2 * (        - (1/CUB(nJk))*(Jk[1]*Jk[0])) + chi * (          -(1/CUB(ndJk))*(dJk[1]*dJk[0])) ; //xy
+    idJkdh[0] = dhrdJkOvernJk2  * (Jk[0]*Jk[0]) + nhrOvernJk * (1. - (1/SQU(nJk))*(Jk[0]*Jk[0])) + chiOverndJk * (1. - (1/SQU(ndJk))*(dJk[0]*dJk[0])) ; //xx
+    idJkdh[3] = dhrdJkOvernJk2  * (Jk[1]*Jk[1]) + nhrOvernJk * (1. - (1/SQU(nJk))*(Jk[1]*Jk[1])) + chiOverndJk * (1. - (1/SQU(ndJk))*(dJk[1]*dJk[1])) ; //yy
+    idJkdh[1] = dhrdJkOvernJk2  * (Jk[1]*Jk[0]) + nhrOvernJk * (   - (1/SQU(nJk))*(Jk[1]*Jk[0])) + chiOverndJk * (   - (1/SQU(ndJk))*(dJk[1]*dJk[0])) ; //xy
 
     switch(dim) {
-    case 2: // 2D case
-      idJkdh[5] = 1.;
-      idJkdh[2] = idJkdh[4] = 0.;
+      case 2: // 2D case
+        idJkdh[5] = 1.;
+        idJkdh[2] = idJkdh[4] = 0.;
       break;
-    case 3: // 3D case
-      idJkdh[5]=a1 * (Jk[2]*Jk[2]) + a2 * ((1/nJk) - (1/CUB(nJk))*(Jk[2]*Jk[2])) + chi * ((1/ndJk) - (1/CUB(ndJk))*(dJk[2]*dJk[2])) ; //zz
-      idJkdh[2]=a1 * (Jk[2]*Jk[0]) + a2 * (        - (1/CUB(nJk))*(Jk[2]*Jk[0])) + chi * (         - (1/CUB(ndJk))*(dJk[2]*dJk[0])) ; //xz
-      idJkdh[4]=a1 * (Jk[2]*Jk[1]) + a2 * (        - (1/CUB(nJk))*(Jk[2]*Jk[1])) + chi * (         - (1/CUB(ndJk))*(dJk[2]*dJk[1])) ; //yz
+      case 3: // 3D case
+        idJkdh[5]=dhrdJkOvernJk2  * (Jk[2]*Jk[2]) + nhrOvernJk * (1. - (1/SQU(nJk))*(Jk[2]*Jk[2])) + chiOverndJk * (1. - (1/SQU(ndJk))*(dJk[2]*dJk[2])) ; //zz
+        idJkdh[2]=dhrdJkOvernJk2  * (Jk[2]*Jk[0]) + nhrOvernJk * (   - (1/SQU(nJk))*(Jk[2]*Jk[0])) + chiOverndJk * (   - (1/SQU(ndJk))*(dJk[2]*dJk[0])) ; //xz
+        idJkdh[4]=dhrdJkOvernJk2  * (Jk[2]*Jk[1]) + nhrOvernJk * (   - (1/SQU(nJk))*(Jk[2]*Jk[1])) + chiOverndJk * (   - (1/SQU(ndJk))*(dJk[2]*dJk[1])) ; //yz
       break;
-    default:
-      Message::Error("Invalid parameter (dimension = 2 or 3) for function 'dhdb_Vinch_'. Analytic Jacobian computation.");
+      default:
+        Message::Error("Invalid parameter (dimension = 2 or 3) for function 'dhdb_Vinch_'. Analytic Jacobian computation.");
       break;
     }
 
@@ -1159,22 +1844,19 @@ void Tensor_dJkdh_Vinch_K(int dim, double h[3], double Jk[3], double Jkp[3], dou
 
   }
   else{  // numerical Jacobian
-    Message::Debug("Numerical Jacobian Js=%g, nJk=%g and ndJk=%g",Js,nJk, ndJk);
-    double EPSILON = 1 ;//-8  // SENSITIVE_PARAM (1)
-    double delta0  = 1e-3 ;  // SENSITIVE_PARAM (1e-3)
+    Message::Debug("Numerical Jacobian Js=%g, nJk=%g and ndJk=%g",Ja+Jb,nJk, ndJk);
+    double EPSILON = 1 ; // PARAM (1) // 1e-8
+    double delta0  = ::DELTA_0 ; 
 
     // Different following the different directions ??? TO CHECK
     double delta[3] = { (fabs(h[0])>EPSILON) ? (fabs(h[0])) * delta0 : delta0,
                         (fabs(h[1])>EPSILON) ? (fabs(h[1])) * delta0 : delta0,
                         (fabs(h[2])>EPSILON) ? (fabs(h[2])) * delta0 : delta0 } ;
-
-
     /*
     double delta[3] = {((norm(h)>EPSILON) ? (norm(h)+1) * delta0 : delta0),
                        ((norm(h)>EPSILON) ? (norm(h)+1) * delta0 : delta0),
                        ((norm(h)>EPSILON) ? (norm(h)+1) * delta0 : delta0) } ;
     */
-
     /*
     double delta[3] = {((norm(h)>EPSILON) ? norm(h) * delta0 : delta0),
                        ((norm(h)>EPSILON) ? norm(h) * delta0 : delta0),
@@ -1186,14 +1868,17 @@ void Tensor_dJkdh_Vinch_K(int dim, double h[3], double Jk[3], double Jkp[3], dou
     double hyr[3]={h[0],          h[1]+delta[1] ,h[2]};          double hyl[3]={h[0],          h[1]-delta[1], h[2]};
     double hzr[3]={h[0],          h[1]          ,h[2]+delta[2]}; double hzl[3]={h[0],          h[1],          h[2]-delta[2]};
 
-    double Jkxr[3], Jkxl[3];
-    double Jkyr[3], Jkyl[3];
-    double Jkzr[3], Jkzl[3];
+    double Jkxr[3]={Jkp[0],Jkp[1],Jkp[2]};
+    double Jkxl[3]={Jkp[0],Jkp[1],Jkp[2]};
+    double Jkyr[3]={Jkp[0],Jkp[1],Jkp[2]};
+    double Jkyl[3]={Jkp[0],Jkp[1],Jkp[2]};
+    double Jkzr[3]={Jkp[0],Jkp[1],Jkp[2]};
+    double Jkzl[3]={Jkp[0],Jkp[1],Jkp[2]};
 
-    Vector_Update_Jk_sd_K(hxr, Jkxr, Jkp, chi, Js, alpha);
-    Vector_Update_Jk_sd_K(hxl, Jkxl, Jkp, chi, Js, alpha);
-    Vector_Update_Jk_sd_K(hyr, Jkyr, Jkp, chi, Js, alpha);
-    Vector_Update_Jk_sd_K(hyl, Jkyl, Jkp, chi, Js, alpha);
+    Vector_Update_Jk_sd_K(hxr, Jkxr, Jkp, chi, Ja, ha, Jb, hb); 
+    Vector_Update_Jk_sd_K(hxl, Jkxl, Jkp, chi, Ja, ha, Jb, hb);
+    Vector_Update_Jk_sd_K(hyr, Jkyr, Jkp, chi, Ja, ha, Jb, hb);
+    Vector_Update_Jk_sd_K(hyl, Jkyl, Jkp, chi, Ja, ha, Jb, hb);
 
     // Symmetric tensor
     dJkdh[0]= (Jkxr[0]-Jkxl[0])/(2*delta[0]); //xx
@@ -1204,23 +1889,122 @@ void Tensor_dJkdh_Vinch_K(int dim, double h[3], double Jk[3], double Jkp[3], dou
     case 2: // 2D case
       dJkdh[5] = 1.;
       dJkdh[2] = dJkdh[4]= 0.;
-      break;
+    break;
     case 3: //3D case
-      Vector_Update_Jk_sd_K(hzr, Jkzr, Jkp, chi, Js, alpha);
-      Vector_Update_Jk_sd_K(hzl, Jkzl, Jkp, chi, Js, alpha);
+      Vector_Update_Jk_sd_K(hzr, Jkzr, Jkp, chi, Ja, ha, Jb, hb); 
+      Vector_Update_Jk_sd_K(hzl, Jkzl, Jkp, chi, Ja, ha, Jb, hb);
 
       dJkdh[5]= (Jkzr[2]-Jkzl[2])/(2*delta[2]); //zz
       dJkdh[2]= (Jkxr[2]-Jkxl[2])/(2*delta[0]); //zx
       dJkdh[4]= (Jkyr[2]-Jkyl[2])/(2*delta[1]); //zy
-      break;
+    break;
     default:
       Message::Error("Invalid parameter (dimension = 2 or 3) for function 'dhdb_Vinch_'. Numeric Jacobian computation.");
-      break;
+    break;
     }
 
   }
-
 }
+
+void Tensor_dJkdh_Diff_K(int dim, double h[3], double hrk[3], double hrkp[3], double chi, 
+                            double Ja, double ha, double Jb, double hb, 
+                            double dJkdh[6])
+{
+    double dJkdhrk[6], dhrkdh[6];
+    double dhrk[3];
+    for (int n=0; n<3; n++)
+      dhrk[n] = h[n]-hrkp[n];
+
+    double nhrk     = norm(hrk);
+    double ndhrk    = norm(dhrk);
+
+    double Xan=0.;
+    double dXandH2=0.;
+
+    switch(::FLAG_TANORLANG) {
+      case 1: // Hyperbolic Tangent Case
+        Xan      = Xanhy(nhrk, Ja, ha);
+        dXandH2  = (nhrk>(::TOLERANCE_0)) ? (dXanhy(nhrk, Ja, ha)/(2*nhrk)) : 0. ;
+      break;
+      case 2: // Double Langevin Function Case
+        Xan      = Xanhy(nhrk, Ja, ha, Jb, hb);
+        dXandH2  = (nhrk>(::TOLERANCE_0)) ? (dXanhy(nhrk, Ja, ha, Jb, hb)/(2*nhrk)) : 0. ;
+      break;
+      default:
+        Message::Error("Invalid parameter (TanhorLang = 1 or 2) for function 'Tensor_dJkdh_Diff_K'.");
+      break;
+    } 
+
+    //--------------------------------
+    // Symmetric tensor
+    dJkdhrk[0] = Xan  + 2 * dXandH2 * ( hrk[0]* hrk[0] ) ;//xx
+    dJkdhrk[3] = Xan  + 2 * dXandH2 * ( hrk[1]* hrk[1] ); //yy
+    dJkdhrk[1] =        2 * dXandH2 * ( hrk[1]* hrk[0] ); //xy
+    switch(dim) {
+      case 2: // 2D case
+        dJkdhrk[5] = 1.;
+        dJkdhrk[2] = dJkdhrk[4] = 0.;
+      break;
+      case 3: // 3D case
+        dJkdhrk[5]= Xan  + 2 * dXandH2 * ( hrk[2]* hrk[2] ) ; //zz
+        dJkdhrk[2]=        2 * dXandH2 * ( hrk[2]* hrk[0] ) ; //xz
+        dJkdhrk[4]=        2 * dXandH2 * ( hrk[2]* hrk[1] ) ; //yz
+      break;
+      default:
+        Message::Error("Invalid parameter (dimension = 2 or 3) for function 'Tensor_dJkdh_Diff_K'. Analytic Jacobian computation.");
+      break;
+    }
+    if (chi==0.)
+    {
+      dhrkdh[0] = dhrkdh[3] = (ndhrk>=chi) ? 1. : 0.;//xx //yy
+      dhrkdh[1] =  0.; //xy
+      switch(dim) {
+        case 2: // 2D case
+          dhrkdh[5] = 1.;
+          dhrkdh[2] = dhrkdh[4] = 0.;
+        break;
+        case 3: // 3D case
+          dhrkdh[5]= (ndhrk>=chi) ? 1. : 0.; //zz
+          dhrkdh[2]= dhrkdh[4]=  0. ; //xz //yz
+        break;
+        default:
+          Message::Error("Invalid parameter (dimension = 2 or 3) for function 'Tensor_dJkdh_Diff_K'. Analytic Jacobian computation.");
+        break;
+      }
+    }
+    else
+    {
+      if (ndhrk>=chi)
+      {
+        dhrkdh[0] = (1-chi/ndhrk) + (chi/CUB(ndhrk))*(dhrk[0]*dhrk[0]) ;//xx
+        dhrkdh[3] = (1-chi/ndhrk) + (chi/CUB(ndhrk))*(dhrk[1]*dhrk[1]) ; //yy
+        dhrkdh[1] =                 (chi/CUB(ndhrk))*(dhrk[1]*dhrk[0]) ; //xy
+        switch(dim) {
+          case 2: // 2D case
+            dhrkdh[5] = 1.;
+            dhrkdh[2] = dhrkdh[4] = 0.;
+          break;
+          case 3: // 3D case
+            dhrkdh[5]= (1-chi/ndhrk) + (chi/CUB(ndhrk))*(dhrk[2]*dhrk[2]) ; //zz
+            dhrkdh[2]=                 (chi/CUB(ndhrk))*(dhrk[2]*dhrk[0]) ; //xz
+            dhrkdh[4]=                 (chi/CUB(ndhrk))*(dhrk[2]*dhrk[1]) ; //yz
+          break;
+          default:
+            Message::Error("Invalid parameter (dimension = 2 or 3) for function 'Tensor_dJkdh_Diff_K'. Analytic Jacobian computation.");
+          break;
+        }
+      }
+        else
+          dhrkdh[0] =dhrkdh[1] =dhrkdh[2] =dhrkdh[3] =dhrkdh[4] =dhrkdh[5] =0.;
+    }
+        dJkdh[0] =  dJkdhrk[0] * dhrkdh[0]+dJkdhrk[1] * dhrkdh[1]+dJkdhrk[2] * dhrkdh[2];
+        dJkdh[1] =  dJkdhrk[0] * dhrkdh[1]+dJkdhrk[1] * dhrkdh[3]+dJkdhrk[2] * dhrkdh[4];
+        dJkdh[2] =  dJkdhrk[0] * dhrkdh[2]+dJkdhrk[1] * dhrkdh[4]+dJkdhrk[2] * dhrkdh[5];
+        dJkdh[3] =  dJkdhrk[1] * dhrkdh[1]+dJkdhrk[3] * dhrkdh[3]+dJkdhrk[4] * dhrkdh[4];
+        dJkdh[4] =  dJkdhrk[1] * dhrkdh[2]+dJkdhrk[3] * dhrkdh[4]+dJkdhrk[4] * dhrkdh[5];
+        dJkdh[5] =  dJkdhrk[2] * dhrkdh[2]+dJkdhrk[4] * dhrkdh[4]+dJkdhrk[5] * dhrkdh[5];
+}
+
 
 void Inv_Tensor3x3_K(double T[9], double invT[9])
 {
@@ -1275,152 +2059,684 @@ void Inv_TensorSym3x3_K(int dim, double T[6], double invT[6])
     Message::Error("Invalid parameter for function 'dhdb_Vinch_'");
     break;
   }
-
 }
 
-void Vector_h_Vinch_K(int dim, int N, double b[3], double bc[3], double alpha,
-                      double *Jk_all, double *Jkp_all, double *chi_all, double *Js_all, double h[3] )
+struct multiroot_params
 {
-  double tempbc[3], tempJk_all[3*N], bprev[3];
-  double dh[3]  ;
-  double dbdh[6];
-  double dhdb[6];
+  struct FunctionActive  * D;
+  double b[3];
+  double Jk_all[9];
+  double Jkp_all[9];
+};
 
-  double TOL = 1e-7; //-8,-5  // SENSITIVE_PARAM (1e-7)
-  double sumchi = 0. ;
+int multiroot_f(const gsl_vector *v, void *params, gsl_vector *bc_b)
+{
+  struct multiroot_params *p 
+      = (struct multiroot_params *) params;
 
-  for (int n=0; n<3; n++)
-     tempbc[n] = bc[n];
+  struct FunctionActive  * D = p->D;
+  double b[3]  = {p->b[0] , p->b[1] , p->b[2] };
+  double Jk_all[9]={p->Jk_all[0] , p->Jk_all[1] , p->Jk_all[2],
+                    p->Jk_all[3] , p->Jk_all[4] , p->Jk_all[5],
+                    p->Jk_all[6] , p->Jk_all[7] , p->Jk_all[8]};
+  double Jkp_all[9]={p->Jkp_all[0] , p->Jkp_all[1] , p->Jkp_all[2],
+                    p->Jkp_all[3] , p->Jkp_all[4] , p->Jkp_all[5],
+                    p->Jkp_all[6] , p->Jkp_all[7] , p->Jkp_all[8]};
 
-  for (int k=0; k<N; k++){
-    sumchi += chi_all[k];
-    for (int n=0; n<3; n++){
-      tempJk_all[n+3*k]  = Jk_all[n+3*k];
+  double h[3];
+  for (int i=0; i<3; i++) h[i] = gsl_vector_get(v, i);
+
+  double bc[3]={0.,0.,0.};
+  Vector_b_Vinch_K(h, Jk_all, Jkp_all, D, bc); 
+
+  for (int i=0; i<3; i++) gsl_vector_set(bc_b, i, bc[i]-b[i]);
+
+  return GSL_SUCCESS;
+}
+
+int multiroot_df(const gsl_vector *v, void *params, gsl_matrix *J)
+{
+  struct multiroot_params *p 
+      = (struct multiroot_params *) params;
+
+  struct FunctionActive  * D = p->D;
+  //double b[3]  = {p->b[0] , p->b[1] , p->b[2] };
+  double Jk_all[9]={p->Jk_all[0] , p->Jk_all[1] , p->Jk_all[2],
+                    p->Jk_all[3] , p->Jk_all[4] , p->Jk_all[5],
+                    p->Jk_all[6] , p->Jk_all[7] , p->Jk_all[8]};
+  double Jkp_all[9]={p->Jkp_all[0] , p->Jkp_all[1] , p->Jkp_all[2],
+                    p->Jkp_all[3] , p->Jkp_all[4] , p->Jkp_all[5],
+                    p->Jkp_all[6] , p->Jkp_all[7] , p->Jkp_all[8]};
+
+  double h[3];
+  for (int i=0; i<3; i++) h[i] = gsl_vector_get(v, i);
+
+  double dbdh[6]={0.,0.,0.,0.,0.,0.};
+  Tensor_dbdh_Vinch_K(h, Jk_all, Jkp_all, D, dbdh);
+
+  gsl_matrix_set (J, 0, 0, dbdh[0]);
+  gsl_matrix_set (J, 0, 1, dbdh[1]);
+  gsl_matrix_set (J, 0, 2, dbdh[2]);
+  gsl_matrix_set (J, 1, 0, dbdh[1]);
+  gsl_matrix_set (J, 1, 1, dbdh[3]);
+  gsl_matrix_set (J, 1, 2, dbdh[4]);
+  gsl_matrix_set (J, 2, 0, dbdh[2]);
+  gsl_matrix_set (J, 2, 1, dbdh[4]);
+  gsl_matrix_set (J, 2, 2, dbdh[5]);
+
+  return GSL_SUCCESS;
+}
+
+int
+multiroot_fdf (const gsl_vector * x, void *params,
+                gsl_vector * f, gsl_matrix * J)
+{
+  multiroot_f (x, params, f);
+  multiroot_df (x, params, J);
+
+  return GSL_SUCCESS;
+}
+
+struct rootfinding1d_params
+{
+  struct FunctionActive  * D;
+  double h[3];
+  double b[3];
+  double dh[3];
+  double Jk_all[9];
+  double Jkp_all[9];
+};
+
+double rootfinding1d (double alpha, void *params)
+{
+  struct rootfinding1d_params *p 
+    = (struct rootfinding1d_params *) params;
+
+  struct FunctionActive  * D = p->D;
+
+  double h[3]  = {p->h[0] , p->h[1] , p->h[2] };
+  double b[3]  = {p->b[0] , p->b[1] , p->b[2] };
+  double dh[3] = {p->dh[0], p->dh[1], p->dh[2]};
+  double ba[3], ha[3]; //diffb[3];
+  double Jk_all[9]={p->Jk_all[0] , p->Jk_all[1] , p->Jk_all[2],
+                    p->Jk_all[3] , p->Jk_all[4] , p->Jk_all[5],
+                    p->Jk_all[6] , p->Jk_all[7] , p->Jk_all[8]};
+  double Jkp_all[9]={p->Jkp_all[0] , p->Jkp_all[1] , p->Jkp_all[2],
+                    p->Jkp_all[3] , p->Jkp_all[4] , p->Jkp_all[5],
+                    p->Jkp_all[6] , p->Jkp_all[7] , p->Jkp_all[8]};
+
+  for (int n=0 ; n<3 ; n++)
+    ha[n]=h[n]+alpha*dh[n];
+
+  Vector_b_Vinch_K(ha, Jk_all, Jkp_all, D, ba);  
+
+  switch(::FLAG_ROOTFINDING1D)
+  {
+    case 1:
+      double diffb[3];
+      for (int n=0 ; n<3 ; n++)
+        diffb[n]=(ba[n]-b[n]);///(1+fabs(b[n]));
+      return norm(diffb)/(1+norm(b));
+    break;
+    default:
+        return ((ba[0]-b[0])*dh[0]+(ba[1]-b[1])*dh[1]+(ba[1]-b[1])*dh[1])/norm(dh);
+    break;
+  }
+}
+
+double rootfinding1d_deriv (double alpha, void *params)
+{
+  struct rootfinding1d_params *p 
+    = (struct rootfinding1d_params *) params;
+
+  struct FunctionActive  * D = p->D;
+
+  double h[3]  = {p->h[0] , p->h[1] , p->h[2] };
+  //double b[3]  = {p->b[0] , p->b[1] , p->b[2] };
+  double dh[3] = {p->dh[0], p->dh[1], p->dh[2]};
+  double dbdha[6], ha[3], ba[3];//, diffb[3];
+  double Jk_all[9]={p->Jk_all[0] , p->Jk_all[1] , p->Jk_all[2],
+                    p->Jk_all[3] , p->Jk_all[4] , p->Jk_all[5],
+                    p->Jk_all[6] , p->Jk_all[7] , p->Jk_all[8]};
+  double Jkp_all[9]={p->Jkp_all[0] , p->Jkp_all[1] , p->Jkp_all[2],
+                    p->Jkp_all[3] , p->Jkp_all[4] , p->Jkp_all[5],
+                    p->Jkp_all[6] , p->Jkp_all[7] , p->Jkp_all[8]};
+
+  for (int n=0 ; n<3 ; n++)
+    ha[n]=h[n]+alpha*dh[n]; 
+
+  Vector_b_Vinch_K(ha, Jk_all, Jkp_all, D, ba); 
+/*
+  for (int n=0 ; n<3 ; n++)
+    diffb[n]=(ba[n]-b[n]);///(1+fabs(b[n]));
+*/
+  Tensor_dbdh_Vinch_K(ha, Jk_all, Jkp_all, D, dbdha); // eval dbdh
+
+/*
+  return ((diffb[0]*dbdha[0]+diffb[1]*dbdha[1]+diffb[2]*dbdha[2])*dh[0]+
+          (diffb[0]*dbdha[1]+diffb[1]*dbdha[3]+diffb[2]*dbdha[4])*dh[1]+
+          (diffb[0]*dbdha[2]+diffb[1]*dbdha[4]+diffb[2]*dbdha[5])*dh[2]   )/(norm(diffb)*(1+norm(b)));
+*/
+/*
+  return ((dbdha[0]*dh[0]+dbdha[1]*dh[1]+dbdha[2]*dh[2])+
+          (dbdha[1]*dh[0]+dbdha[3]*dh[1]+dbdha[4]*dh[2])+
+          (dbdha[2]*dh[0]+dbdha[4]*dh[1]+dbdha[5]*dh[2])  );
+*/
+  return ((dh[0]*dbdha[0]+dh[1]*dbdha[1]+dh[2]*dbdha[2])*dh[0]+
+          (dh[0]*dbdha[1]+dh[1]*dbdha[3]+dh[2]*dbdha[4])*dh[1]+
+          (dh[0]*dbdha[2]+dh[1]*dbdha[4]+dh[2]*dbdha[5])*dh[2]   )/(norm(dh));
+}
+
+void rootfinding1d_fdf (double alpha, void *params, 
+                        double *y, double *dy)
+{
+  *y  = rootfinding1d(alpha, params);
+  *dy = rootfinding1d_deriv(alpha, params);
+}
+
+void print_state_multi (size_t iter, gsl_multiroot_fdfsolver * s)
+{
+  if(::FLAG_WARNING>=FLAG_WARNING_DISP_INV && iter>=FLAG_WARNING_ITER){
+    printf ("iter = %3lu x = % .8f % .8f % .8f "
+            "f(x) = % .8e % .8e % .8e\n",
+            iter,
+            gsl_vector_get (s->x, 0), 
+            gsl_vector_get (s->x, 1),
+            gsl_vector_get (s->x, 2),
+            gsl_vector_get (s->f, 0), 
+            gsl_vector_get (s->f, 1),
+            gsl_vector_get (s->f, 2));
+  }
+}
+
+void print_state_1d (int iterb, const char *s_name, int status, 
+                    double al, double br, double alpha, double err)
+{
+  if(::FLAG_WARNING>=FLAG_WARNING_DISP_ROOTFINDING && iterb>=FLAG_WARNING_ITER){
+    if( iterb==FLAG_WARNING_ITER)
+    {
+      printf ("using %s method\n",
+              s_name);
+      printf ("%5s [%9s, %9s] %9s %9s\n",
+              "iter", "lower", "upper", "alpha", "err(est)");
+    }
+
+    if (status == GSL_SUCCESS)
+      printf ("Converged:\n");
+
+    printf ("%5d [%.7f, %.7f] "
+            "%.7f %.7f\n",
+            iterb, al, br,
+            alpha, err);  
+  }
+}
+
+void Vector_h_Vinch_K(double b[3], double bc[3],
+                      double *Jk_all, double *Jkp_all, 
+                      struct FunctionActive *D,
+                      double h[3] )
+{
+  int dim = D->Case.Interpolation.x[0] ;
+
+  double TOL = ::TOLERANCE_NR; 
+  const int MAX_ITER = ::MAX_ITER_NR;
+
+//*****************************************************************
+// MULTI DIMENSIONAL ROOT FINDING
+//*****************************************************************
+  switch(::FLAG_INVMETHOD) {
+    case 4: // multiroot
+    case 5:
+    case 6:
+    case 7:
+  {
+    const gsl_multiroot_fdfsolver_type *T;
+    gsl_multiroot_fdfsolver *s;
+    int status;
+    size_t iter = 0;
+
+    const size_t ndim = 3;
+    
+    struct multiroot_params params;
+    params.D= D;
+    for (int n=0 ; n<3 ; n++)
+      params.b[n]=b[n];
+    for (int n=0 ; n<9 ; n++)
+    {
+      params.Jk_all[n]=Jk_all[n];
+      params.Jkp_all[n]=Jkp_all[n];
+    }
+
+    gsl_multiroot_function_fdf f = {&multiroot_f, 
+                                    &multiroot_df,
+                                    &multiroot_fdf,  
+                                    ndim, &params};
+
+    gsl_vector *v = gsl_vector_alloc (ndim);
+
+    for (int n=0 ; n<3 ; n++) gsl_vector_set (v, n, h[n]);
+
+    switch(::FLAG_INVMETHOD) {
+      case 4:
+        T = gsl_multiroot_fdfsolver_hybridsj;
+      break;
+      case 5:
+        T = gsl_multiroot_fdfsolver_hybridj;
+      break;
+      case 6:
+        T = gsl_multiroot_fdfsolver_newton;
+      break;
+      case 7:
+        T = gsl_multiroot_fdfsolver_gnewton;
+      break;
+    }
+
+    s = gsl_multiroot_fdfsolver_alloc (T, ndim);
+    gsl_multiroot_fdfsolver_set (s, &f, v);
+
+    do
+      {
+        iter++;
+        status = gsl_multiroot_fdfsolver_iterate (s);
+
+        print_state_multi (iter, s);
+
+        if (status)   /* check if solver is stuck */
+          break;
+
+        status = 
+          gsl_multiroot_test_residual (s->f, TOL);
+          //gsl_multiroot_test_delta (s->dx, s->x, TOL, TOL);
+      }
+    while (status == GSL_CONTINUE && iter < MAX_ITER);
+
+    for (int n=0 ; n<3 ; n++) h[n]= gsl_vector_get (s->x, n);
+
+    if(::FLAG_WARNING>=FLAG_WARNING_INFO_INV && (status != GSL_SUCCESS || iter==MAX_ITER))
+    {
+    Message::Warning("Inversion status = %s, after %d iteration(s) :", gsl_strerror (status),iter);
+     if(::FLAG_WARNING>=FLAG_WARNING_DISP_INV){ 
+    Message::Warning("b_desired    : [%.10g, %.10g, %.10g]", b[0],b[1],b[2]);
+    Message::Warning("x    = h_get : [%.10g, %.10g, %.10g]", h[0],h[1],h[2]);
+    Message::Warning("f(x) = res   : [%.10g, %.10g, %.10g]", gsl_vector_get (s->f, 0),gsl_vector_get (s->f, 1),gsl_vector_get (s->f, 2));
+    if(::FLAG_WARNING>=FLAG_WARNING_STOP_INV)
+      {char c;c=getchar();}    
     }
   }
 
-  int iter = 0 ;
-  const int MAX_ITER = 200;  // SENSITIVE_PARAM (200)
+    gsl_multiroot_fdfsolver_free (s);
+    gsl_vector_free (v);
+  }
+  break;
+//*****************************************************************
+//*****************************************************************
+  case 1:
+  case 2:
+  case 3:
+  { 
+  double dh[3], dx[3], df[3],res[3] ;
+  double dbdh[6];
+  double dhdb[6];
+  int iter = 0 ; 
   while( iter < MAX_ITER &&
-         ((fabs(tempbc[0]-b[0])/(1+fabs(b[0]))) > TOL ||
-          (fabs(tempbc[1]-b[1])/(1+fabs(b[1]))) > TOL ||
-          (fabs(tempbc[2]-b[2])/(1+fabs(b[2]))) > TOL )){
+         ((fabs(bc[0]-b[0])/(1+fabs(b[0]))) > TOL ||
+          (fabs(bc[1]-b[1])/(1+fabs(b[1]))) > TOL ||
+          (fabs(bc[2]-b[2])/(1+fabs(b[2]))) > TOL )){
 
-    Tensor_dbdh_Vinch_K(dim, N, h, alpha, tempJk_all, Jkp_all, chi_all, Js_all, dbdh); // eval dbdh
-    Inv_TensorSym3x3_K(dim, dbdh, dhdb);                                               // eval (dbdh)^-1=dhdb
+    switch(::FLAG_INVMETHOD) {
+      case 1: // NR
+      {
+        Tensor_dbdh_Vinch_K(h, Jk_all, Jkp_all, D, dbdh); // eval dbdh
+        Inv_TensorSym3x3_K(dim, dbdh, dhdb);  
+      } 
+        break;
+      case 2: // NR_num
+      {
+        Tensor_dbdh_Num(h, Jk_all, Jkp_all, D, dbdh);
+        Inv_TensorSym3x3_K(dim, dbdh, dhdb);
+      }
+      case 3: // Good_BFGS
+        {
+          if (iter>0 )
+          //if ((iter%10)!=0)
+          //if ((iter%MAX_ITER)!=0)
+          {
+            Tensor_dhdb_Good_BGFS(dim, dx,df,dhdb);
+          }
+          else
+          {
+            Tensor_dbdh_Vinch_K(h, Jk_all, Jkp_all, D, dbdh); // eval dbdh analytically
+            //Tensor_dbdh_Num(h, Jk_all, Jkp_all, D, dbdh); // eval dbdh numerically
+            Inv_TensorSym3x3_K(dim, dbdh, dhdb);              
+          }
+        }
+        break;
+    }  
+    //printf("dbdh=[\t%g,%g,%g\n\t%g,%g,%g\n\t%g,%g,%g]\n",dbdh[0],dbdh[1],dbdh[2],dbdh[1],dbdh[3],dbdh[4],dbdh[2],dbdh[4],dbdh[5] );
+    //printf("dhdb=[\t%g,%g,%g\n\t%g,%g,%g\n\t%g,%g,%g]\n",dhdb[0],dhdb[1],dhdb[2],dhdb[1],dhdb[3],dhdb[4],dhdb[2],dhdb[4],dhdb[5] );
 
-    dh[0] = dhdb[0]*(b[0]-tempbc[0]) + dhdb[1]*(b[1]-tempbc[1]) + dhdb[2]*(b[2]-tempbc[2]);
-    dh[1] = dhdb[1]*(b[0]-tempbc[0]) + dhdb[3]*(b[1]-tempbc[1]) + dhdb[4]*(b[2]-tempbc[2]);
-    dh[2] = dhdb[2]*(b[0]-tempbc[0]) + dhdb[4]*(b[1]-tempbc[1]) + dhdb[5]*(b[2]-tempbc[2]);
+    dh[0] = dhdb[0]*(b[0]-bc[0]) + dhdb[1]*(b[1]-bc[1]) + dhdb[2]*(b[2]-bc[2]);
+    dh[1] = dhdb[1]*(b[0]-bc[0]) + dhdb[3]*(b[1]-bc[1]) + dhdb[4]*(b[2]-bc[2]);
+    dh[2] = dhdb[2]*(b[0]-bc[0]) + dhdb[4]*(b[1]-bc[1]) + dhdb[5]*(b[2]-bc[2]);
 
-    /*
+//*****************************************************************
+// ROOT FINDING 1D
+//*****************************************************************
+if((::FLAG_ROOTFINDING1D)!=0)
+{
+  int status;
+  int iterb = 0, max_iterb = ::MAX_ITER_NR;
+  struct rootfinding1d_params params;
+  params.D= D;
+  for (int n=0 ; n<3 ; n++)
+  {
+    params.h[n]=h[n];
+    params.b[n]=b[n];
+    params.dh[n]=dh[n];
+  }
+  for (int n=0 ; n<9 ; n++)
+  {
+    params.Jk_all[n]=Jk_all[n];
+    params.Jkp_all[n]=Jkp_all[n];
+  }
+  switch(::FLAG_ROOTFINDING1D)
+  {
+  //---------------------------------------------
+  // CASE 1 : 1D MINIMIZATION
+  //---------------------------------------------
+    case 1:
+    case 2:
+    case 3:
+    {
+    char solver_type[100]="'1D minimization' ";
+    const gsl_min_fminimizer_type *T;
+    gsl_min_fminimizer *s;
+    double m = 1.0; //m_expected = M_PI;
+    double al = -1e8, br = 1e8;
+    gsl_function F;
+
+    F.function = &rootfinding1d;
+    F.params = &params;
+
+    switch(::FLAG_ROOTFINDING1D)
+    {
+      case 1:
+        T = gsl_min_fminimizer_goldensection;
+      break;
+      case 2:
+        T = gsl_min_fminimizer_brent; // BEST
+      break;
+      case 3:
+        T = gsl_min_fminimizer_quad_golden;
+      break;
+    }
+
+    s = gsl_min_fminimizer_alloc (T);
+    gsl_min_fminimizer_set (s, &F, m, al, br);
+    strcat(solver_type,gsl_min_fminimizer_name(s));
+
+    do
+      {
+        iterb++;
+        status = gsl_min_fminimizer_iterate (s);
+
+        m = gsl_min_fminimizer_x_minimum (s);
+        al = gsl_min_fminimizer_x_lower (s);
+        br = gsl_min_fminimizer_x_upper (s);
+
+        status 
+          = gsl_min_test_interval (al, br, TOL, TOL);  
+        print_state_1d(iterb, solver_type, status, 
+                       al, br, m, br - al);         
+      }
+    while (status == GSL_CONTINUE && iterb < max_iterb);
+
+    gsl_min_fminimizer_free (s);
+
+    //printf("alpha_opt=%g\n",m );
+    for (int n=0 ; n<3 ; n++)
+      dh[n]=m*dh[n];
+    }
+    break;
+  //---------------------------------------------
+  // CASE 2 : 1D ROOT BRACKETING
+  //---------------------------------------------
+    case 4:
+    case 5:
+    case 6:
+    {
+    char solver_type[100]="'1D root bracketing' ";
+    const gsl_root_fsolver_type *T;
+    gsl_root_fsolver *s;
+    double r = 1.0; 
+    double al = -1e8, br = 1e8;
+    gsl_function F;
+
+    F.function = &rootfinding1d;
+    F.params = &params;
+
+    switch(::FLAG_ROOTFINDING1D)
+    {
+      case 4:
+        T = gsl_root_fsolver_bisection;
+      break;
+      case 5:
+        T = gsl_root_fsolver_brent; // BEST
+      break;
+      case 6:
+        T = gsl_root_fsolver_falsepos;
+      break;
+    }
+
+    s = gsl_root_fsolver_alloc (T);
+    gsl_root_fsolver_set (s, &F, al, br);
+    strcat(solver_type,gsl_root_fsolver_name(s));
+
+    do
+      {
+        iterb++;
+        status = gsl_root_fsolver_iterate (s);
+
+        r = gsl_root_fsolver_root (s);
+        al = gsl_root_fsolver_x_lower (s);
+        br = gsl_root_fsolver_x_upper (s);
+
+        status 
+          = gsl_root_test_interval (al, br, TOL, TOL);
+
+        print_state_1d(iterb, solver_type, 
+                       status, al, br, r, br - al); 
+      }
+    while (status == GSL_CONTINUE && iterb < max_iterb);
+
+    gsl_root_fsolver_free (s);
+
+    for (int n=0 ; n<3 ; n++)
+      dh[n]=r*dh[n];
+    }
+    break;
+  //---------------------------------------------
+  // CASE 3 : 1D ROOT FINDING WITH DERIVATIVES
+  //---------------------------------------------
+    case 7:
+    case 8:
+    case 9:
+    {
+    char solver_type[100]="'1D root finding with derivatives' ";
+    const gsl_root_fdfsolver_type *T;
+    gsl_root_fdfsolver *s;
+    double x0, x = 1.0; 
+    gsl_function_fdf FDF;
+
+    FDF.f = &rootfinding1d;
+    FDF.df = &rootfinding1d_deriv;
+    FDF.fdf = &rootfinding1d_fdf;
+    FDF.params = &params;
+
+    switch(::FLAG_ROOTFINDING1D)
+    {
+      case 7:
+        T = gsl_root_fdfsolver_newton;
+      break;
+      case 8:
+        T = gsl_root_fdfsolver_secant;
+      break;
+      case 9:
+        T = gsl_root_fdfsolver_steffenson; // BEST
+      break;
+    }
+
+    s = gsl_root_fdfsolver_alloc (T);
+    gsl_root_fdfsolver_set (s, &FDF, x);
+    strcat(solver_type,gsl_root_fdfsolver_name(s));
+
+    do
+      {
+        iterb++;
+        status = gsl_root_fdfsolver_iterate (s);
+        x0=x;
+        x = gsl_root_fdfsolver_root (s);
+        status = gsl_root_test_delta (x,x0, TOL, TOL);
+
+        print_state_1d(iterb, solver_type, 
+                       status, 0., 0., x, x - x0); 
+      }
+    while (status == GSL_CONTINUE && iterb < max_iterb);
+
+    gsl_root_fdfsolver_free (s);
+
+    for (int n=0 ; n<3 ; n++)
+      dh[n]=x*dh[n];
+    }
+    break;
+    default:
+    Message::Error("Invalid parameter (FLAG_ROOTFINDING1D = 0,1,2,..9) for function 'Vector_h_Vinch_K'.\n"
+                      "FLAG_ROOTFINDING1D  = 0 --> Not done\n"
+                      "FLAG_ROOTFINDING1D  = 1 --> (1D minimization) golden section (gsl)\n"
+                      "FLAG_ROOTFINDING1D  = 2 --> (1D minimization) brent (gsl)\n"
+                      "FLAG_ROOTFINDING1D  = 3 --> (1D minimization) quad golden (gsl)\n"
+                      "FLAG_ROOTFINDING1D  = 4 --> (1D root bracketing) bisection (gsl)\n"
+                      "FLAG_ROOTFINDING1D  = 5 --> (1D root bracketing) brent (gsl)\n"
+                      "FLAG_ROOTFINDING1D  = 6 --> (1D root bracketing) falsepos (gsl)\n"
+                      "FLAG_ROOTFINDING1D  = 7 --> (1D root finding with derivatives) newton (gsl)\n"
+                      "FLAG_ROOTFINDING1D  = 8 --> (1D root finding with derivatives) secant (gsl)\n"
+                      "FLAG_ROOTFINDING1D  = 9 --> (1D root finding with derivatives) steffenson (gsl)");
+    break;
+  }
+  if(::FLAG_WARNING>=FLAG_WARNING_INFO_ROOTFINDING && (status!=GSL_SUCCESS || iterb==max_iterb))
+    {Message::Warning("\tRootFinding status = %s, after %d iteration(s) :", gsl_strerror (status),iterb);
+    if(::FLAG_WARNING>=FLAG_WARNING_STOP_ROOTFINDING){  
+      char c;c=getchar();
+    }
+  }
+}
+//*****************************************************************
+//*****************************************************************
+
     //--------------------------------------------------------
     //    Méthodes de relaxation envisagées :
 
+    //for (int n=0 ; n<3 ; n++) dh[n]=dh[n]*(1*((MAX_ITER-iter)/MAX_ITER)+0.9*(iter/MAX_ITER)); // PARAM RELAX (not done)
+    /*
     if (norm(dh)>1e3*sumchi) {
     for (int n=0 ; n<3 ; n++) dh[n]=(1.0/(iter+1))*dh[n]; // Relaxation
     //Message::Warning("!!!!!!!!!!!!!!relax : before : dhx= %g, after : dhx=%g, bx=%g", (iter+1)*dh[0], dh[0], b[0]);
     }
-
+    */
+    /*
     if iter<8 {
     for (int n=0 ; n<3 ; n++) dh[n]=0.25*dh[n]; // Relaxation
     }
+    */
     //-------------------------------------------------------
-    */
-
-    for (int n=0 ; n<3 ; n++){
+    
+    for (int n=0 ; n<3 ; n++)
+    {
+      dx[n]= dh[n];
+      df[n] = -bc[n]; 
       h[n] += dh[n];
-      bprev[n] = tempbc[n];
     }
-    Vector_b_Vinch_K(N, h, alpha, tempJk_all, Jkp_all, chi_all, Js_all, tempbc); // Update bc, Jk_all
+  
+    Vector_b_Vinch_K(h, Jk_all, Jkp_all, D, bc); // Update bc, Jk_all
 
-    // Affichage de l'évolution de b et h à chaque itération :
-    /*
-    // if (iter>=MAX_ITER-1){
-    Message::Warning("At iter %d : b_desired = [%g, %g, %g]", iter, b[0],b[1],b[2]);
-    Message::Warning("At iter %d : b_get     = [%g, %g, %g]", iter, tempbc[0],tempbc[1],tempbc[2]);
-    Message::Warning("At iter %d : h_get     = [%g, %g, %g]", iter, h[0],h[1],h[2]);
+    for (int n=0 ; n<3 ; n++)
+      df[n] += bc[n];
+
+   if(::FLAG_WARNING>=FLAG_WARNING_DISP_INV && iter>=FLAG_WARNING_ITER)
+    {
+    //printf("dh(%d)=[%.8g,%.8g,%.8g];\t",iter,dh[0],dh[1],dh[2] );
+    printf("h(%d)=[%.8g,%.8g,%.8g];\t",iter,h[0],h[1],h[2] );
+    printf("b(%d)=[%.8g,%.8g,%.8g];\t",iter,bc[0],bc[1],bc[2] );
+    for (int n=0 ; n<3 ; n++)
+      res[n]=(fabs(bc[n]-b[n])/(1+fabs(b[n])));
+    printf("residu(%d) = %.8g ([%.8g,%.8g,%.8g])\n", iter, norm(res), res[0],res[1],res[2]);
     }
-    */
     iter++;
   }
 
-  // Affichage de b et h obtenu à la fin de la boucle de NR :
-  /*
-    Message::Warning("-------NR-loop in h_Vinch_K stopped after %d iteration(s) :-------",iter);
-    Message::Warning("b_desired : [%g, %g, %g]", b[0],b[1],b[2]);
-    Message::Warning("b_get     : [%g, %g, %g]",tempbc[0],tempbc[1],tempbc[2]);
-    Message::Warning("h_get     : [%g, %g, %g]", h[0],h[1],h[2]);
-  */
-
-  // Message d'erreur pour solution invalide (NaN ou Inf) :
-  /*
-    for (int i=0 ; i<3 ; i++){
-    if ( //iter==MAX_ITER ||
-    h[i] != h[i] ||                                       // Solution h is NaN
-    h[i] == -std::numeric_limits<double>::infinity() ||   // Solution h is -Inf
-    h[i] ==  std::numeric_limits<double>::infinity() ||   // Solution h is Inf
-    tempbc[i] != tempbc[i] ||                                  // Solution b is NaN
-    tempbc[i] == -std::numeric_limits<double>::infinity() ||   // Solution b is -Inf
-    tempbc[i] ==  std::numeric_limits<double>::infinity() )    // Solution b is Inf
-    {
-    Message::Warning("^^^^^^^^^^^^^^iter %d : dbdh : [%g, %g, %g; %g, %g, %g; %g, %g, %g]", iter, dbdh[0], dbdh[1],dbdh[2],dbdh[3], dbdh[4],dbdh[5],dbdh[6], dbdh[7],dbdh[8]);
-    Message::Warning("^^^^^^^^^^^^^^iter %d : dhdb : [%g, %g, %g; %g, %g, %g; %g, %g, %g]", iter, dhdb[0],  dhdb[1], dhdb[2],dhdb[3],  dhdb[4], dhdb[5],dhdb[6],  dhdb[7], dhdb[8]);
-      Message::Warning("--------------iter %d : J1_p : [%g, %g, %g]", iter, Jkp_all[0],Jkp_all[1],Jkp_all[2]);
-      Message::Warning("--------------iter %d : J2_p : [%g, %g, %g]", iter, Jkp_all[3],Jkp_all[4],Jkp_all[5]);
-      Message::Warning("--------------iter %d : J3_p : [%g, %g, %g]", iter, Jkp_all[6],Jkp_all[7],Jkp_all[8]);
-      Message::Warning(">>>>>>>>>>>>>>iter %d : J1   : [%g, %g, %g]", iter, tempJk_all[0],tempJk_all[1],tempJk_all[2]);
-      Message::Warning(">>>>>>>>>>>>>>iter %d : J2   : [%g, %g, %g]", iter, tempJk_all[3],tempJk_all[4],tempJk_all[5]);
-      Message::Warning(">>>>>>>>>>>>>>iter %d : J3   : [%g, %g, %g]", iter, tempJk_all[6],tempJk_all[7],tempJk_all[8]);
-      Message::Warning("''''''''''''''iter %d : b    : [%g, %g, %g]", iter, b[0],b[1],b[2]);
-      Message::Warning("''''''''''''''iter %d : b_get: [%g, %g, %g]", iter, tempbc[0],tempbc[1],tempbc[2]);
-      Message::Warning("''''''''''''''iter %d : h_get: [%g, %g, %g]", iter, h[0],h[1],h[2]);
-      Message::Warning("!!!!!!!!!!!!!!iter %d : dh   : [%g, %g, %g]", iter, dh[0],dh[1],dh[2]);
-      Message::Error("No valid solution found (NaN or Inf)! at Iteration %d of NR-loop in h_Vinch_K",iter);
-      }
+  
+  // Affichage de b et h obtenu à la fin de la boucle de NR : 
+  if (::FLAG_WARNING>=FLAG_WARNING_INFO_INV && iter==MAX_ITER)
+  {
+    Message::Warning("Inversion status = the iteration has not converged yet, after %d iteration(s)",iter);
+    if (::FLAG_WARNING>=FLAG_WARNING_DISP_INV){     
+      Message::Warning("b_desired : [%.10g, %.10g, %.10g]", b[0],b[1],b[2]);
+      Message::Warning("b_get     : [%.10g, %.10g, %.10g]", bc[0],bc[1],bc[2]);
+      Message::Warning("h_get     : [%.10g, %.10g, %.10g]", h[0],h[1],h[2]);
+      if (::FLAG_WARNING>=FLAG_WARNING_STOP_INV)
+      {char c;c=getchar();}
     }
-  */
-
+  }
+}
+break;
+default:
+Message::Error("Invalid parameter (FLAG_INVMETHOD = 1,2,..7) for function 'Vector_h_Vinch_K'.\n"
+                       "FLAG_INVMETHOD = 1 --> NR_ana (homemade)\n"
+                       "FLAG_INVMETHOD = 2 --> NR_num (homemade)\n"
+                       "FLAG_INVMETHOD = 3 --> bfgs (homemade)\n"
+                       "FLAG_INVMETHOD = 4 --> hybridsj (gsl)\n"
+                       "FLAG_INVMETHOD = 5 --> hybridj (gsl)\n"
+                       "FLAG_INVMETHOD = 6 --> newton (gsl)\n"
+                       "FLAG_INVMETHOD = 7 --> gnewton (gsl)");
+break;
+}
 }
 
 void F_h_Vinch_K(F_ARG)
 {
   // #define F_ARG   struct Function * Fct, struct Value * A, struct Value * V
   // input :
-  // (A+0)    ->Val = number of cells -- N
-  // (A+1)    ->Val = magnetic field at previous time step -- hp
-  // (A+2)    ->Val = magnetic induction -- b
-  // (A+3)    ->Val = magnetic induction at previous time step -- bp
-  // (A+4)    ->Val = characteristic magnetic field inversely proportional to the slope at origin -- alpha
-  // (A+5+4*k)->Val = material magnetization -- Jk
-  // (A+6+4*k)->Val = material magnetization at previous time step -- Jkp
-  // (A+7+4*k)->Val = limit force related to the dissipation -- chi
-  // (A+8+4*k)->Val = saturation magnetization -- Js
+  // (A+0)    ->Val = magnetic field at previous time step -- hp
+  // (A+1)    ->Val = magnetic induction -- b
+  // (A+2)    ->Val = magnetic induction at previous time step -- bp
+  // (A+3+2*k)->Val = material magnetization -- Jk
+  // (A+4+2*k)->Val = material magnetization at previous time step -- Jkp
+  // Material parameters: e.g. param_EnergHyst = { dim, N, Ja, ha, w_1, chi_1, ..., w_N, chi_N};==> struct FunctionActive *D
   // ---------------------------------------------
   // output: magnetic field -- h
 
-  int dim = Fct->Para[0];
+  //int dim = Fct->Para[0];
+  struct FunctionActive  * D ;
+  if (!Fct->Active)  Fi_InitListX (Fct, A, V) ;
+  D = Fct->Active ;
+  set_sensi_param(D);
 
-  int N        = (A+0)->Val[0];
-
-  double h[3], b[3], bc[3], Jk_all[3*N], Jkp_all[3*N], chi_all[N], Js_all[N] ;
+  int N = D->Case.Interpolation.x[1] ;
+  double h[3], b[3], bc[3], Jk_all[3*N], Jkp_all[3*N] ;
   for (int n=0; n<3; n++) {
-     h[n]  = (A+1)->Val[n];
-     b[n]  = (A+2)->Val[n];
-     bc[n] = (A+3)->Val[n];
+     h[n]  = (A+0)->Val[n]; // h is initialized at hp
+     b[n]  = (A+1)->Val[n]; 
+     bc[n] = (A+2)->Val[n]; // b computed, is initialized at bp
   }
-  double alpha = (A+4)->Val[0];
 
   for (int k=0; k<N; k++) {
-    chi_all[k]  =(A+7+4*k)->Val[0];
-    Js_all[k]   =(A+8+4*k)->Val[0];
     for (int n=0; n<3; n++)  {
-      Jk_all[n+3*k]  = (A+5+4*k)->Val[n];
-      Jkp_all[n+3*k] = (A+6+4*k)->Val[n];
+      Jk_all[n+3*k]  = (A+3+2*k)->Val[n];
+      Jkp_all[n+3*k] = (A+4+2*k)->Val[n];
     }
   }
 
-  Vector_h_Vinch_K(dim, N, b, bc, alpha, Jk_all, Jkp_all, chi_all, Js_all, h);
+  Vector_h_Vinch_K(b, bc, Jk_all, Jkp_all, D, h); // Update h
 
   V->Type = VECTOR ;
   for (int n=0 ; n<3 ; n++) V->Val[n] = h[n];
@@ -1430,77 +2746,85 @@ void F_b_Vinch_K(F_ARG)
 {
   // #define F_ARG   struct Function * Fct, struct Value * A, struct Value * V
   // input :
-  // (A+0)    ->Val = number of cells -- N
-  // (A+1)    ->Val = magnetic field  -- h
-  // (A+2)    ->Val = characteristic magnetic field inversely proportional to the slope at origin -- alpha
-  // (A+3+4*k)->Val = material magnetization -- Jk
-  // (A+4+4*k)->Val = material magnetization at previous time step -- Jkp
-  // (A+5+4*k)->Val = limit force related to the dissipation -- chi
-  // (A+6+4*k)->Val = saturation magnetization -- Js
+  // (A+0)    ->Val = magnetic field  -- h
+  // (A+1+2*k)->Val = material magnetization -- Jk
+  // (A+2+2*k)->Val = material magnetization at previous time step -- Jkp
+  // Material parameters: e.g. param_EnergHyst = { dim, N, Ja, ha, w_1, chi_1, ..., w_N, chi_N};==> struct FunctionActive *D
   // ---------------------------------------------
   // output: magnetic induction -- b
 
-  int N     = (A+0)->Val[0];
+  struct FunctionActive  * D ;
+  if (!Fct->Active)  Fi_InitListX (Fct, A, V) ;
+  D = Fct->Active ;
+  set_sensi_param(D);
 
-  double h[3], b[3], Jk_all[3*N], Jkp_all[3*N], chi_all[N], Js_all[N] ;
+  int N = D->Case.Interpolation.x[1] ;
 
-  double alpha = (A+2)->Val[0];
+  double h[3], b[3], Jk_all[3*N], Jkp_all[3*N];
 
   for (int n=0; n<3; n++)
-    h[n] = (A+1)->Val[n];
+    h[n] = (A+0)->Val[n];
 
   for (int k=0; k<N; k++) {
-    chi_all[k]  =(A+5+4*k)->Val[0];
-    Js_all[k]   =(A+6+4*k)->Val[0];
     for (int n=0; n<3; n++)  {
-      Jk_all[n+3*k]  = (A+3+4*k)->Val[n];
-      Jkp_all[n+3*k] = (A+4+4*k)->Val[n];
+      Jk_all[n+3*k]  = (A+1+2*k)->Val[n];
+      Jkp_all[n+3*k] = (A+2+2*k)->Val[n];
     }
   }
 
-  Vector_b_Vinch_K(N, h, alpha, Jk_all, Jkp_all, chi_all, Js_all, b);
-
+  Vector_b_Vinch_K(h, Jk_all, Jkp_all, D, b);
 
   V->Type = VECTOR ;
   for (int n=0 ; n<3 ; n++) V->Val[n] = b[n];
 }
 
-
 void F_dbdh_Vinch_K(F_ARG)
 {
   // #define F_ARG   struct Function * Fct, struct Value * A, struct Value * V
   // input :
-  // Fct->Para[0] = 2=> 2D problem; 3=>3D problem
-  // (A+0)    ->Val = number of cells -- N
-  // (A+1)    ->Val = magnetic field -- h
-  // (A+2)    ->Val = characteristic magnetic field inversely proportional to the slope at origin -- alpha
-  // (A+3+4*k)->Val = material magnetization -- Jk
-  // (A+4+4*k)->Val = material magnetization at previous time step -- Jkp
-  // (A+5+4*k)->Val = limit force related to the dissipation -- chi
-  // (A+6+4*k)->Val = saturation magnetization -- Js
+  // (A+0)    ->Val = magnetic field -- h
+  // (A+1+2*k)->Val = material magnetization -- Jk
+  // (A+2+2*k)->Val = material magnetization at previous time step -- Jkp
+  // Material parameters: e.g. param_EnergHyst = { dim, N, Ja, ha, w_1, chi_1, ..., w_N, chi_N};==> struct FunctionActive *D
   // ---------------------------------------------
   // output: differential reluctivity -- dbdh
 
-  int dim = Fct->Para[0];
-  int N      = (A+0)->Val[0];
-  double alpha  = (A+2)->Val[0];
+  struct FunctionActive  * D ;
+  if (!Fct->Active)  Fi_InitListX (Fct, A, V) ;
+  D = Fct->Active ;
+  set_sensi_param(D);
 
-  double h[3], Jk_all[3*N], Jkp_all[3*N], chi_all[N], Js_all[N] ;
+  int N = D->Case.Interpolation.x[1] ;
+  double h[3], Jk_all[3*N], Jkp_all[3*N] ;
   double dbdh[6];
 
   for (int n=0; n<3; n++)
-     h[n]  = (A+1)->Val[n];
+     h[n]  = (A+0)->Val[n];
 
   for (int k=0; k<N; k++) {
-    chi_all[k]  =(A+5+4*k)->Val[0];
-    Js_all[k]   =(A+6+4*k)->Val[0];
     for (int n=0; n<3; n++)  {
-      Jk_all[n+3*k]  = (A+3+4*k)->Val[n];
-      Jkp_all[n+3*k] = (A+4+4*k)->Val[n];
+      Jk_all[n+3*k]  = (A+1+2*k)->Val[n];
+      Jkp_all[n+3*k] = (A+2+2*k)->Val[n];
     }
   }
-
-  Tensor_dbdh_Vinch_K(dim, N, h, alpha, Jk_all, Jkp_all, chi_all, Js_all, dbdh);
+  switch(::FLAG_INVMETHOD) {
+      case 1: // NR
+      case 3:
+      case 4:
+      case 5:
+      case 6:
+      case 7:
+        Tensor_dbdh_Vinch_K(h, Jk_all, Jkp_all, D, dbdh); // eval dbdh
+      break;
+      case 2:
+        Tensor_dbdh_Num(h, Jk_all, Jkp_all, D, dbdh);
+      break;
+      default:
+        Message::Error("Invalid parameter (FLAG_INVMETHOD = 1,2,..7) for function 'F_dhdb_Vinch_K'.\n"
+                       "FLAG_INVMETHOD = 1=3=4=5=6=7 --> analytical dbdh\n"
+                       "FLAG_INVMETHOD = 2           --> numerical dbdh");
+      break;
+  }
 
   V->Type = TENSOR_SYM ;
   for (int k=0 ; k<6 ; k++)
@@ -1511,86 +2835,58 @@ void F_dhdb_Vinch_K(F_ARG)
 {
   // #define F_ARG   struct Function * Fct, struct Value * A, struct Value * V
   // input :
-  // Fct->Para[0] = 2=> 2D problem; 3=>3D problem
-  // (A+0)    ->Val = number of cells -- N
-  // (A+1)    ->Val = magnetic field -- h
-  // (A+2)    ->Val = characteristic magnetic field inversely proportional to the slope at origin -- alpha
-  // (A+3+4*k)->Val = material magnetization -- Jk
-  // (A+4+4*k)->Val = material magnetization at previous time step -- Jkp
-  // (A+5+4*k)->Val = limit force related to the dissipation -- chi
-  // (A+6+4*k)->Val = saturation magnetization -- Js
+  // (A+0)    ->Val = magnetic field -- h
+  // (A+1+2*k)->Val = material magnetization -- Jk
+  // (A+2+2*k)->Val = material magnetization at previous time step -- Jkp
+  // Material parameters: e.g. param_EnergHyst = { dim, N, Ja, ha, w_1, chi_1, ..., w_N, chi_N};==> struct FunctionActive *D
   // ---------------------------------------------
   // output: differential reluctivity -- dhdb
 
-  int dim = Fct->Para[0];
-  int N      = (A+0)->Val[0];
-  double alpha  = (A+2)->Val[0];
+  struct FunctionActive  * D ;
+  if (!Fct->Active)  Fi_InitListX (Fct, A, V) ;
+  D = Fct->Active ;
 
-  double h[3], Jk_all[3*N], Jkp_all[3*N], chi_all[N], Js_all[N] ;
+  set_sensi_param(D);
+
+  int dim = D->Case.Interpolation.x[0] ;
+  int N   = D->Case.Interpolation.x[1] ;
+
+  double h[3], Jk_all[3*N], Jkp_all[3*N];
   double dbdh[6], dhdb[6];
 
   for (int n=0; n<3; n++)
-     h[n]  = (A+1)->Val[n];
+     h[n]  = (A+0)->Val[n];
 
   for (int k=0; k<N; k++) {
-    chi_all[k]  =(A+5+4*k)->Val[0];
-    Js_all[k]   =(A+6+4*k)->Val[0];
     for (int n=0; n<3; n++)  {
-      Jk_all[n+3*k]  = (A+3+4*k)->Val[n];
-      Jkp_all[n+3*k] = (A+4+4*k)->Val[n];
+      Jk_all[n+3*k]  = (A+1+2*k)->Val[n];
+      Jkp_all[n+3*k] = (A+2+2*k)->Val[n];
     }
   }
 
-  Tensor_dbdh_Vinch_K(dim, N, h, alpha, Jk_all, Jkp_all, chi_all, Js_all, dbdh);
+  switch(::FLAG_INVMETHOD) {
+    case 1: // NR
+    case 3:
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+      Tensor_dbdh_Vinch_K(h, Jk_all, Jkp_all, D, dbdh); // eval dbdh
+    break;
+    case 2:
+      Tensor_dbdh_Num(h, Jk_all, Jkp_all, D, dbdh);
+    break;
+    default:
+      Message::Error("Invalid parameter (FLAG_INVMETHOD = 1,2,..7) for function 'F_dhdb_Vinch_K'.\n"
+                     "FLAG_INVMETHOD = 1=3=4=5=6=7 --> analytical dhdb\n"
+                     "FLAG_INVMETHOD = 2           --> numerical dhdb");
+    break;
+  }
+
   Inv_TensorSym3x3_K(dim, dbdh, dhdb); // dimension, T, invT
 
   V->Type = TENSOR_SYM ;
   for (int k=0 ; k<6 ; k++)
     V->Val[k] = dhdb[k] ;
 }
-
-void F_nu_Vinch_K(F_ARG) // NOT USED
-{
-  // #define F_ARG   struct Function * Fct, struct Value * A, struct Value * V
-  // input :
-  // (A+0)    ->Val = number of cells -- N
-  // (A+1)    ->Val = magnetic field at previous time step -- hp
-  // (A+2)    ->Val = magnetic induction -- b
-  // (A+3)    ->Val = magnetic induction at previous time step -- bp
-  // (A+4)    ->Val = characteristic magnetic field inversely proportional to the slope at origin -- alpha
-  // (A+5+4*k)->Val = material magnetization -- Jk
-  // (A+6+4*k)->Val = material magnetization at previous time step -- Jkp
-  // (A+7+4*k)->Val = limit force related to the dissipation -- chi
-  // (A+8+4*k)->Val = saturation magnetization -- Js
-  // ---------------------------------------------
-  // output: reluctivity -- nu
-
-  int dim = Fct->Para[0];
-
-  int N      = (A+0)->Val[0];
-  double alpha  = (A+4)->Val[0];
-
-  double h[3], b[3], bc[3], Jk_all[3*N], Jkp_all[3*N], chi_all[N], Js_all[N] ;
-
-  for (int n=0; n<3; n++) {
-     h[n]  = (A+1)->Val[n];
-     b[n]  = (A+2)->Val[n];
-     bc[n] = (A+3)->Val[n];
-  }
-
-  for (int k=0; k<N; k++) {
-    chi_all[k]  =(A+7+4*k)->Val[0];
-    Js_all[k]   =(A+8+4*k)->Val[0];
-    for (int n=0; n<3; n++)  {
-      Jk_all[n+3*k]  = (A+5+4*k)->Val[n];
-      Jkp_all[n+3*k] = (A+6+4*k)->Val[n];
-    }
-  }
-
-  Vector_h_Vinch_K(dim, N, b, bc, alpha, Jk_all, Jkp_all, chi_all, Js_all, h );
-
-  V->Type = TENSOR_SYM ;
-  V->Val[0] = (!b[0]) ? (1/(1e3*MU0)): h[0]/b[0]  ;  V->Val[1] = 0.0  ;  V->Val[2] = 0.0 ;
-  V->Val[3] = (!b[1]) ? (1/(1e3*MU0)): h[1]/b[1]  ;  V->Val[4] = 0.0 ;
-  V->Val[5] = (!b[2]) ? (1/(1e3*MU0)): h[2]/b[2]  ;
-}
+#endif

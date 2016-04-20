@@ -149,7 +149,9 @@ void LinAlg_ProdVectorScalar(gVector *V1, gScalar *S, gVector *V2);
 void LinAlg_ProdVectorDouble(gVector *V1, double d, gVector *V2);
 void LinAlg_ProdVectorComplex(gVector *V1, double d1, double d2, gVector *V2);
 void LinAlg_ProdVectorVector(gVector *V1, gVector *V2, double *d);
+void LinAlg_OuterProdVectorVector(gVector *V1, gVector *V2, gMatrix *M,  InsertMode addV); // kj+++
 void LinAlg_ProdMatrixVector(gMatrix *M, gVector *V1, gVector *V2);
+void LinAlg_ProdTransposedMatrixVector(gMatrix *M, gVector *V1, gVector *V2); // kj+++
 void LinAlg_ProdMatrixScalar(gMatrix *M1, gScalar *S, gMatrix *M2);
 void LinAlg_ProdMatrixDouble(gMatrix *M1, double d, gMatrix *M2);
 void LinAlg_ProdMatrixComplex(gMatrix *M1, double d1, double d2, gMatrix *M2);
