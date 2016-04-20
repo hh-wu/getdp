@@ -1840,7 +1840,7 @@ IntegrationMethod :
 
 IntegrationMethodTerm :
 
-    tName tSTRING tEND
+    tName String__Index tEND
     {
       Check_NameOfStructNotExist("IntegrationMethod", Problem_S.IntegrationMethod,
 				 $2, fcmp_IntegrationMethod_Name);
@@ -3714,7 +3714,7 @@ LocalTermTerm  :
       Free($2);
     }
 
-  | tIntegration tSTRING tEND
+  | tIntegration String__Index tEND
     {
       int i;
       if((i = List_ISearchSeq(Problem_S.IntegrationMethod, $2,
@@ -6069,7 +6069,7 @@ SubPostQuantityTerm :
       Free($2);
     }
 
-  | tIntegration tSTRING tEND
+  | tIntegration String__Index tEND
     {
       int i;
       if((i = List_ISearchSeq(Problem_S.IntegrationMethod, $2,
