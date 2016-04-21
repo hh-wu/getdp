@@ -783,7 +783,7 @@ double DELTA_0;
 void set_sensi_param(struct FunctionActive *D)
 {
   int j = 11 ;
-  ::FLAG_INVMETHOD      = D->Case.Interpolation.x[j+1] ; 
+  ::FLAG_INVMETHOD      = D->Case.Interpolation.x[j+1] ;
   /*
   FLAG_INVMETHOD = 1 --> NR_ana (homemade)
   FLAG_INVMETHOD = 2 --> NR_num (homemade)
@@ -793,7 +793,7 @@ void set_sensi_param(struct FunctionActive *D)
   FLAG_INVMETHOD = 6 --> newton (gsl)
   FLAG_INVMETHOD = 7 --> gnewton (gsl)
   */
-  ::FLAG_ROOTFINDING1D  = D->Case.Interpolation.x[j+2] ; 
+  ::FLAG_ROOTFINDING1D  = D->Case.Interpolation.x[j+2] ;
   /*
   FLAG_ROOTFINDING1D  = 0 --> Not done
   FLAG_ROOTFINDING1D  = 1 --> (1D minimization) golden section (gsl)
@@ -806,12 +806,12 @@ void set_sensi_param(struct FunctionActive *D)
   FLAG_ROOTFINDING1D  = 8 --> (1D root finding with derivatives) secant (gsl)
   FLAG_ROOTFINDING1D  = 9 --> (1D root finding with derivatives) steffenson (gsl)
   */
-  ::FLAG_VARORDIFF      = D->Case.Interpolation.x[j+3] ; 
+  ::FLAG_VARORDIFF      = D->Case.Interpolation.x[j+3] ;
   /*
   FLAG_VARORDIFF = 1 --> variational approach (Jk)
   FLAG_VARORDIFF = 2 --> differential approach (hrk)
   */
-  ::FLAG_MINMETHOD      = D->Case.Interpolation.x[j+4] ; 
+  ::FLAG_MINMETHOD      = D->Case.Interpolation.x[j+4] ;
   /*
   FLAG_MINMETHOD = 1 --> steepest descent (homemade)
   FLAG_MINMETHOD = 2 --> conjugate fr (gsl)
@@ -820,20 +820,20 @@ void set_sensi_param(struct FunctionActive *D)
   FLAG_MINMETHOD = 5 --> bfgs (gsl)
   FLAG_MINMETHOD = 6 --> steepest descent (gsl)
   */
-  ::FLAG_TANORLANG      = D->Case.Interpolation.x[j+5] ; 
-  /* 
+  ::FLAG_TANORLANG      = D->Case.Interpolation.x[j+5] ;
+  /*
   FLAG_TANORLANG = 1 --> hyperbolic tangent
   FLAG_TANORLANG = 2 --> double langevin function
   */
-  ::FLAG_WARNING        = D->Case.Interpolation.x[j+6] ; 
+  ::FLAG_WARNING        = D->Case.Interpolation.x[j+6] ;
   /*
   FLAG_WARNING   = 1 --> Inversion Loop
 
   */
-  ::TOLERANCE_JS        = D->Case.Interpolation.x[j+7] ; // SENSITIVE_PARAM (1.e-3) // 1.e-4 
+  ::TOLERANCE_JS        = D->Case.Interpolation.x[j+7] ; // SENSITIVE_PARAM (1.e-3) // 1.e-4
   ::TOLERANCE_0         = D->Case.Interpolation.x[j+8] ; // SENSITIVE_PARAM (1.e-7)
 
-  ::TOLERANCE_NR        = D->Case.Interpolation.x[j+9] ; // SENSITIVE_PARAM (1.e-7) // 1.e-8 needed for diff with NR,1.e-5  
+  ::TOLERANCE_NR        = D->Case.Interpolation.x[j+9] ; // SENSITIVE_PARAM (1.e-7) // 1.e-8 needed for diff with NR,1.e-5
   ::MAX_ITER_NR         = D->Case.Interpolation.x[j+10] ; // SENSITIVE_PARAM (200)
 
   ::TOLERANCE_OM        = D->Case.Interpolation.x[j+11] ; // SENSITIVE_PARAM (1.e-11)// 1.e-15 allows to work for square if TOLERANCE_NJ=1.e-3 & DELTA_0=1.e-5 for numjac)
@@ -842,8 +842,8 @@ void set_sensi_param(struct FunctionActive *D)
   ::FLAG_ANA            = D->Case.Interpolation.x[j+13] ; // SENSITIVE_PARAM (0='only numerical jacobian')
   ::TOLERANCE_NJ        = D->Case.Interpolation.x[j+14] ; // SENSITIVE_PARAM (1.e-5 for square;
                                                           //                  1.e-3 for VinchT.pro & transfo.pro)
-  ::DELTA_0             = D->Case.Interpolation.x[j+15] ; // SENSITIVE_PARAM (1.e-3 for square; 
-                                                          //                  1.e0 for VinchT & transfo) 
+  ::DELTA_0             = D->Case.Interpolation.x[j+15] ; // SENSITIVE_PARAM (1.e-3 for square;
+                                                          //                  1.e0 for VinchT & transfo)
 }
 //----------------------------------------------------------
 
@@ -931,7 +931,7 @@ double omega_f(const gsl_vector *v, void *params)
   for (int i=0; i<3; i++) J[i] = gsl_vector_get(v, i);
   limiter(Ja+Jb, J) ;
 
-  double omega = fct_omega(h, J, Jp, chi, Ja, ha,Jb,hb) ; 
+  double omega = fct_omega(h, J, Jp, chi, Ja, ha,Jb,hb) ;
   return omega;
 }
 
@@ -952,7 +952,7 @@ void omega_df (const gsl_vector *v, void *params, gsl_vector *df)
   for (int i=0; i<3; i++) J[i] = gsl_vector_get(v, i);
   limiter(Ja+Jb, J);
 
-  fct_d_omega (h, J, Jp, chi, 
+  fct_d_omega (h, J, Jp, chi,
                Ja, ha, Jb, hb,
                d_omega);
   for (int i=0; i<3; i++) gsl_vector_set(df, i, d_omega[i]);
@@ -1037,7 +1037,7 @@ void F_Update_Jk(F_ARG)
 // V. Francois original implementation with steepest descent
 //===================================================
 
-double fct_omega(double h[3], double Jk[3], double Jkp[3], double chi, 
+double fct_omega(double h[3], double Jk[3], double Jkp[3], double chi,
                  double Ja, double ha, double Jb, double hb)
 {
   double diff[3];
@@ -1056,7 +1056,7 @@ double fct_omega(double h[3], double Jk[3], double Jkp[3], double chi,
     default:
       Message::Error("Invalid parameter (TanhorLang = 1 or 2) for function 'fct_omega'.");
     break;
-  } 
+  }
 
   double Jh     = Jk[0] * h[0] + Jk[1] * h[1] + Jk[2] * h[2]; // -J.h
   double Dissip = chi * norm(diff) ; // chi | J-Jp |
@@ -1064,7 +1064,7 @@ double fct_omega(double h[3], double Jk[3], double Jkp[3], double chi,
   return(u-Jh+Dissip);
 }
 
-void fct_d_omega (double h[3], double Jk[3], double Jkp[3], double chi, 
+void fct_d_omega (double h[3], double Jk[3], double Jkp[3], double chi,
                   double Ja, double ha, double Jb, double hb,
                   double *d_omega)
 {
@@ -1086,7 +1086,7 @@ void fct_d_omega (double h[3], double Jk[3], double Jkp[3], double chi,
     default:
       Message::Error("Invalid parameter (TanhorLang = 1 or 2) for function 'fct_d_omega'.");
     break;
-  } 
+  }
 
   for (int n = 0; n < 3; n++) {
     if(nJk) d_omega[n] += nhr * Jk[n]/nJk;
@@ -1130,18 +1130,18 @@ void F_Update_Jk_sd(F_ARG) {
   double Jb   = 0.;
   double hb   = 0.;
 
-  Vector_Update_Jk_sd_K(h, Jk, Jkp, chi, Ja, ha, Jb, hb);   
+  Vector_Update_Jk_sd_K(h, Jk, Jkp, chi, Ja, ha, Jb, hb);
 
   V->Type = VECTOR ;
   for (int n=0 ; n<3 ; n++) V->Val[n] = Jk[n];
 }
 
-void Vector_Update_Jk_sd_K(double h[3], double Jk[3], double Jkp[3], double chi, 
-                           double Ja, double ha, double Jb, double hb) 
+void Vector_Update_Jk_sd_K(double h[3], double Jk[3], double Jkp[3], double chi,
+                           double Ja, double ha, double Jb, double hb)
 {
 switch(::FLAG_MINMETHOD) {
   case 1:
-  { 
+  {
     //-------------------------------------------------------------------
     // Updating Jk with a steepest descent algorithm
     //-------------------------------------------------------------------
@@ -1149,7 +1149,7 @@ switch(::FLAG_MINMETHOD) {
     double min_Jk[3] ;
     double d_omega[3] ;
     double sdfactor  = 0.1; //suitable value of tol for most applications
-    double TOL = ::TOLERANCE_OM; 
+    double TOL = ::TOLERANCE_OM;
     double Js=(Ja+Jb);
     //for (int n=0; n<3; n++) Jk[n] = 0; // INITIALIZATION (not done)
 
@@ -1161,7 +1161,7 @@ switch(::FLAG_MINMETHOD) {
     double min_omega = 1e+22 ;
 
     int iter = 0 ;
-    const int MAX_ITER = ::MAX_ITER_OM; 
+    const int MAX_ITER = ::MAX_ITER_OM;
     while( iter < MAX_ITER &&
            (fabs(d_omega[0])/(1+fabs(omega))*sdfactor > TOL ||
             fabs(d_omega[1])/(1+fabs(omega))*sdfactor > TOL ||
@@ -1201,7 +1201,7 @@ switch(::FLAG_MINMETHOD) {
     }
   }
   break;
-  case 2: 
+  case 2:
   case 3:
   case 4:
   case 5:
@@ -1214,7 +1214,7 @@ switch(::FLAG_MINMETHOD) {
     const int MAX_ITER = ::MAX_ITER_OM;
     int iter = 0, status;
     double step_size = 0.01;   // 0.01 at basic
-    double TOL = ::TOLERANCE_OM; 
+    double TOL = ::TOLERANCE_OM;
     double tol = TOL; //(0.1 recommended for bfgs and steepest descent else tol=TOL)
     double omegap;
 
@@ -1234,7 +1234,7 @@ switch(::FLAG_MINMETHOD) {
     context.ha         = ha;
     context.Jb         = Jb;
     context.hb         = hb;
-    
+
     //http://www.gnu.org/software/gsl/manual/html_node/Multimin-Algorithms-with-Derivatives.html
     const gsl_multimin_fdfminimizer_type *TYPE;
     switch(::FLAG_MINMETHOD) {
@@ -1252,7 +1252,7 @@ switch(::FLAG_MINMETHOD) {
       break;
       case 6:
         // (The steepest descent method is inefficient and is included only for demonstration purposes)
-        TYPE = gsl_multimin_fdfminimizer_steepest_descent; 
+        TYPE = gsl_multimin_fdfminimizer_steepest_descent;
       break;
       default:
       break;
@@ -1299,7 +1299,7 @@ switch(::FLAG_MINMETHOD) {
                       "FLAG_MINMETHOD = 4 --> bfgs2 (gsl)\n"
                       "FLAG_MINMETHOD = 5 --> bfgs (gsl)\n"
                       "FLAG_MINMETHOD = 6 --> steepest descent (gsl)");
-  break; 
+  break;
 }
 }
 
@@ -1316,7 +1316,7 @@ void F_Update_Cell_K(F_ARG) {
   // (A+1)->Val = magnetic field -- h
   // (A+2)->Val = material magnetization (var) or reversible magnetic field (diff) -- xk
   // (A+3)->Val = material magnetization (var) or reversible magnetic field (diff) at previous time step -- xkp
-  // Material parameters: e.g. param_EnergHyst = { dim, N, Ja, ha, w_1, chi_1, ..., w_N, chi_N};==> struct FunctionActive *D  
+  // Material parameters: e.g. param_EnergHyst = { dim, N, Ja, ha, w_1, chi_1, ..., w_N, chi_N};==> struct FunctionActive *D
   // ---------------------------------------------
   // output: updated Jk
 
@@ -1336,8 +1336,8 @@ void F_Update_Cell_K(F_ARG) {
   double chi    = D->Case.Interpolation.x[7+2*k];
 
 
-  if( (A+0)->Type != SCALAR || 
-      (A+1)->Type != VECTOR || 
+  if( (A+0)->Type != SCALAR ||
+      (A+1)->Type != VECTOR ||
       (A+2)->Type != VECTOR ||
       (A+3)->Type != VECTOR )
     Message::Error("Function 'Update_Cell_K' requires one scalar argument (n) and three vector arguments (h, Jk, Jkp)");
@@ -1352,7 +1352,7 @@ void F_Update_Cell_K(F_ARG) {
 
     switch(::FLAG_VARORDIFF) {
     case 1: // Variationnal Case
-        Vector_Update_Jk_sd_K(h, xk, xkp, chi, Jak, ha, Jbk, hb); 
+        Vector_Update_Jk_sd_K(h, xk, xkp, chi, Jak, ha, Jbk, hb);
       break;
     case 2: // Differential Case
         Vector_Update_hr_K(h, xkp, chi, xk);
@@ -1360,13 +1360,13 @@ void F_Update_Cell_K(F_ARG) {
     default:
       Message::Error("Invalid parameter (VarorDiff = 1 or 2) for function 'Update_Cell_K'.");
       break;
-    } 
+    }
   V->Type = VECTOR ;
   for (int n=0 ; n<3 ; n++) V->Val[n] = xk[n];
 }
 
 
-void Vector_Update_hr_K(double h[3], double hrp[3], double chi, double hr[3]) 
+void Vector_Update_hr_K(double h[3], double hrp[3], double chi, double hr[3])
 {
   double dhr[3];
   for (int n=0; n<3; n++)
@@ -1397,7 +1397,7 @@ double Janhy(double nhr, double Js, double alpha)
 double dJanhy(double nhr, double Js, double alpha)
 {
   double y=nhr/alpha;
-   if (fabs(y)<(::TOLERANCE_0)) 
+   if (fabs(y)<(::TOLERANCE_0))
        return Js/alpha;
    else if (fabs(y)>350) // otherwise overflow
        return 0;
@@ -1407,9 +1407,9 @@ double dJanhy(double nhr, double Js, double alpha)
 double Xanhy(double nhr,double Js, double alpha)
 {
    double y=nhr/alpha;
-   if (fabs(y)<(::TOLERANCE_0)) 
+   if (fabs(y)<(::TOLERANCE_0))
        return Js/alpha;
-   else 
+   else
        return Js*tanh(y)/nhr;
 }
 
@@ -1418,7 +1418,7 @@ double dXanhy(double nhr,double Js, double alpha)
    double y=nhr/alpha;
    if (fabs(y)<(::TOLERANCE_0))
        return 2./3.*Js*y/alpha;  // DOUBT : need to add .../ fxc ??
-   else 
+   else
        return (dJanhy(nhr,Js,alpha)-Xanhy(nhr,Js,alpha))/nhr;
 }
 
@@ -1427,7 +1427,7 @@ double IJanhy(double nhr, double Js, double alpha)  // = Co-energy
     double y=nhr/alpha;
    if (fabs(y)<(::TOLERANCE_0))
        return Js*alpha*SQU(y)/2.;
-   else    
+   else
        return Js*alpha*log(cosh(y));
 }
 
@@ -1436,13 +1436,13 @@ double InvJanhy(double nJ, double Js, double alpha) // = y + y^3/3 + y^5/5 + y^7
    double x=nJ/Js;
    if (fabs(x)<(::TOLERANCE_0))
        return alpha*x;
-   else 
+   else
        return alpha*atanh(x);
 }
 
-double dInvJanhy(double nJ, double Js, double alpha) 
+double dInvJanhy(double nJ, double Js, double alpha)
 {
-    double x=nJ/Js;     
+    double x=nJ/Js;
     return (alpha/Js)*(1/(1-SQU(x))); // Warning : case x -> 1 <=> J -> Js
 }
 
@@ -1453,7 +1453,7 @@ double Lang(double nhr, double Ja, double ha) //Langevin function = x/3-x^3/45+2
    double y=nhr/ha;
    if (fabs(y)<(::TOLERANCE_0))
        return Ja*y/3.;
-   else 
+   else
        return Ja*(1./tanh(y)-1./y);
 
 }
@@ -1461,19 +1461,19 @@ double Lang(double nhr, double Ja, double ha) //Langevin function = x/3-x^3/45+2
 double dLang(double nhr, double Ja, double ha)
 {
    double y=nhr/ha;
-   if (fabs(y)<(::TOLERANCE_0)) 
+   if (fabs(y)<(::TOLERANCE_0))
        return Ja/ha/3. ;
    else if (fabs(y)>350) // otherwise overflow
        return 0 ;
-   else 
+   else
        return Ja/ha*(1./SQU(y)-1./SQU(sinh(y))) ;
 }
 
 double LangOverx(double nhr, double Ja, double ha)
 {   double y=nhr/ha;
-   if (fabs(y)<(::TOLERANCE_0)) 
+   if (fabs(y)<(::TOLERANCE_0))
        return Ja/ha/3.;
-   else 
+   else
        return Ja*(1./tanh(y)-1./y)/nhr;
 }
 
@@ -1482,7 +1482,7 @@ double dLangOverx(double nhr, double Ja, double ha)
    double y=nhr/ha;
    if (fabs(y)<(::TOLERANCE_0))
        return 2./45.*Ja*y/ha; // DOUBT : need to add .../ fxc ??
-   else 
+   else
        return (dLang(nhr,Ja,ha)-LangOverx(nhr,Ja,ha))/nhr;
 }
 
@@ -1520,15 +1520,15 @@ double IJanhy(double nhr, double Ja, double ha, double Jb, double hb)  // = Co-e
   return ILang(nhr,Ja,ha)+ILang(nhr,Jb,hb);
 }
 
-double InvJanhy(double nJ, double Ja, double ha, double Jb, double hb) 
+double InvJanhy(double nJ, double Ja, double ha, double Jb, double hb)
 {
     double y=nJ;
-    if (fabs(y)<(::TOLERANCE_0)) 
+    if (fabs(y)<(::TOLERANCE_0))
         return y/dJanhy(0.,Ja,ha,Jb,hb);
-    int i=0; 
-    double x=2.0; 
+    int i=0;
+    double x=2.0;
     double dx = (y-Janhy(x,Ja,ha,Jb,hb))/dJanhy(x,Ja,ha,Jb,hb);
-      while ( ((fabs(dx)/((1>fabs(x))?1:fabs(x))) > ::TOLERANCE_NR) && (i<20) ) 
+      while ( ((fabs(dx)/((1>fabs(x))?1:fabs(x))) > ::TOLERANCE_NR) && (i<20) )
       {
           dx = (y-Janhy(x,Ja,ha,Jb,hb))/dJanhy(x,Ja,ha,Jb,hb);
           x +=  dx;
@@ -1548,7 +1548,7 @@ double dInvJanhy_hr(double nhr, double Ja, double ha, double Jb, double hb)
   }
   else
     return 1/dJdhr;
-} 
+}
 
 
 double u_hr(double nhr, double Ja, double ha, double Jb, double hb)  // = Energy with hr as input
@@ -1561,8 +1561,8 @@ double u_J(double nJ, double Js, double alpha) // = Energy with J as input = IIn
   return alpha*Js *( nJ/Js*atanh(nJ/Js) + 0.5*log(fabs(SQU(nJ/Js)-1)) );
 }
 
-void Vector_b_Vinch_K(double h[3], 
-                      double *xk_all, double *xkp_all, 
+void Vector_b_Vinch_K(double h[3],
+                      double *xk_all, double *xkp_all,
                       struct FunctionActive *D,
                       double b[3])
 {
@@ -1591,11 +1591,11 @@ void Vector_b_Vinch_K(double h[3],
     switch(::FLAG_VARORDIFF) {
       case 1: // Variationnal Case
       {
-        Vector_Update_Jk_sd_K(h, xk, xkp, chi, Jak, ha, Jbk, hb); 
+        Vector_Update_Jk_sd_K(h, xk, xkp, chi, Jak, ha, Jbk, hb);
         for (int n=0; n<3; n++) {
           xk_all[n+3*k] = xk[n];
           b[n] += xk[n];
-        } 
+        }
       }
       break;
       case 2: // Differential Case
@@ -1612,12 +1612,12 @@ void Vector_b_Vinch_K(double h[3],
           default:
             Message::Error("Invalid parameter (TanhorLang = 1 or 2) for function 'Vector_b_Vinch_K'.");
           break;
-        } 
+        }
         for (int n=0; n<3; n++) {
           xk_all[n+3*k] = xk[n];
           b[n] += Xan*xk[n];
         }
-      } 
+      }
       break;
       default:
         Message::Error("Invalid parameter (VarorDiff = 1 or 2) for function 'Vector_b_Vinch_K'.");
@@ -1657,11 +1657,11 @@ void Tensor_dhdb_Good_BGFS(int dim, double dx[3],double df[3],double dhdb[6])
     break;
     default:
       Message::Error("Invalid parameter (dimension = 2 or 3) for function 'Tensor_dJkdh_Diff_K'. Analytic Jacobian computation.");
-    break;  
+    break;
   }
 }
 
-void Tensor_dbdh_Num(double h[3], 
+void Tensor_dbdh_Num(double h[3],
                      double *xk_all, double *xkp_all,
                      struct FunctionActive *D,
                      double dbdh[6])
@@ -1669,7 +1669,7 @@ void Tensor_dbdh_Num(double h[3],
   int dim = D->Case.Interpolation.x[0] ;
 
   double EPSILON = 1 ; // PARAM (1) // 1e-8
-  double delta0  = ::DELTA_0 ; 
+  double delta0  = ::DELTA_0 ;
 
   // Different following the different directions ??? TO CHECK
   double delta[3] = { (fabs(h[0])>EPSILON) ? (fabs(h[0])) * delta0 : delta0,
@@ -1727,7 +1727,7 @@ void Tensor_dbdh_Num(double h[3],
   }
 }
 
-void Tensor_dbdh_Vinch_K(double h[3], 
+void Tensor_dbdh_Vinch_K(double h[3],
                          double *xk_all, double *xkp_all,
                          struct FunctionActive *D,
                          double dbdh[6])
@@ -1772,8 +1772,8 @@ void Tensor_dbdh_Vinch_K(double h[3],
   }
 }
 
-void Tensor_dJkdh_Vinch_K(int dim, double h[3], double Jk[3], double Jkp[3], double chi, 
-                          double Ja, double ha, double Jb, double hb, 
+void Tensor_dJkdh_Vinch_K(int dim, double h[3], double Jk[3], double Jkp[3], double chi,
+                          double Ja, double ha, double Jb, double hb,
                           double dJkdh[6])
 {
   double dJk[3];
@@ -1784,9 +1784,9 @@ void Tensor_dJkdh_Vinch_K(int dim, double h[3], double Jk[3], double Jkp[3], dou
   double nJk  = norm(Jk);
   double ndJk = norm(dJk);
 
-  if ((::FLAG_ANA) && (nJk>(::TOLERANCE_NJ) && ndJk>(::TOLERANCE_NJ))){ 
+  if ((::FLAG_ANA) && (nJk>(::TOLERANCE_NJ) && ndJk>(::TOLERANCE_NJ))){
     Message::Debug("Analytical Jacobian Js=%g, nJk=%g and ndJk=%g",Ja+Jb, nJk, ndJk);
-    
+
     double chiOverndJk = chi/ndJk;
     double nhr=0.; double dhrdJkOvernJk2=0.; double nhrOvernJk=0.;
     double idJkdh[6];
@@ -1805,7 +1805,7 @@ void Tensor_dJkdh_Vinch_K(int dim, double h[3], double Jk[3], double Jkp[3], dou
       default:
         Message::Error("Invalid parameter (TanhorLang = 1 or 2) for function 'Tensor_dJkdh_Vinch_K'.");
       break;
-    } 
+    }
     /*
     idJkdh[0] = dhrdJkOvernJk2  * (Jk[0]*Jk[0]) + nhr * ( (1/nJk) - (1/CUB(nJk))*(Jk[0]*Jk[0]) ) + chi * ( (1/ndJk) - (1/CUB(ndJk))*(dJk[0]*dJk[0])) ; //xx
     idJkdh[1] = dhrdJkOvernJk2  * (Jk[1]*Jk[0]) + nhr * (         - (1/CUB(nJk))*(Jk[1]*Jk[0]) ) + chi * (          - (1/CUB(ndJk))*(dJk[1]*dJk[0])) ; //xy
@@ -1846,7 +1846,7 @@ void Tensor_dJkdh_Vinch_K(int dim, double h[3], double Jk[3], double Jkp[3], dou
   else{  // numerical Jacobian
     Message::Debug("Numerical Jacobian Js=%g, nJk=%g and ndJk=%g",Ja+Jb,nJk, ndJk);
     double EPSILON = 1 ; // PARAM (1) // 1e-8
-    double delta0  = ::DELTA_0 ; 
+    double delta0  = ::DELTA_0 ;
 
     // Different following the different directions ??? TO CHECK
     double delta[3] = { (fabs(h[0])>EPSILON) ? (fabs(h[0])) * delta0 : delta0,
@@ -1875,7 +1875,7 @@ void Tensor_dJkdh_Vinch_K(int dim, double h[3], double Jk[3], double Jkp[3], dou
     double Jkzr[3]={Jkp[0],Jkp[1],Jkp[2]};
     double Jkzl[3]={Jkp[0],Jkp[1],Jkp[2]};
 
-    Vector_Update_Jk_sd_K(hxr, Jkxr, Jkp, chi, Ja, ha, Jb, hb); 
+    Vector_Update_Jk_sd_K(hxr, Jkxr, Jkp, chi, Ja, ha, Jb, hb);
     Vector_Update_Jk_sd_K(hxl, Jkxl, Jkp, chi, Ja, ha, Jb, hb);
     Vector_Update_Jk_sd_K(hyr, Jkyr, Jkp, chi, Ja, ha, Jb, hb);
     Vector_Update_Jk_sd_K(hyl, Jkyl, Jkp, chi, Ja, ha, Jb, hb);
@@ -1891,7 +1891,7 @@ void Tensor_dJkdh_Vinch_K(int dim, double h[3], double Jk[3], double Jkp[3], dou
       dJkdh[2] = dJkdh[4]= 0.;
     break;
     case 3: //3D case
-      Vector_Update_Jk_sd_K(hzr, Jkzr, Jkp, chi, Ja, ha, Jb, hb); 
+      Vector_Update_Jk_sd_K(hzr, Jkzr, Jkp, chi, Ja, ha, Jb, hb);
       Vector_Update_Jk_sd_K(hzl, Jkzl, Jkp, chi, Ja, ha, Jb, hb);
 
       dJkdh[5]= (Jkzr[2]-Jkzl[2])/(2*delta[2]); //zz
@@ -1906,8 +1906,8 @@ void Tensor_dJkdh_Vinch_K(int dim, double h[3], double Jk[3], double Jkp[3], dou
   }
 }
 
-void Tensor_dJkdh_Diff_K(int dim, double h[3], double hrk[3], double hrkp[3], double chi, 
-                            double Ja, double ha, double Jb, double hb, 
+void Tensor_dJkdh_Diff_K(int dim, double h[3], double hrk[3], double hrkp[3], double chi,
+                            double Ja, double ha, double Jb, double hb,
                             double dJkdh[6])
 {
     double dJkdhrk[6], dhrkdh[6];
@@ -1933,7 +1933,7 @@ void Tensor_dJkdh_Diff_K(int dim, double h[3], double hrk[3], double hrkp[3], do
       default:
         Message::Error("Invalid parameter (TanhorLang = 1 or 2) for function 'Tensor_dJkdh_Diff_K'.");
       break;
-    } 
+    }
 
     //--------------------------------
     // Symmetric tensor
@@ -2071,7 +2071,7 @@ struct multiroot_params
 
 int multiroot_f(const gsl_vector *v, void *params, gsl_vector *bc_b)
 {
-  struct multiroot_params *p 
+  struct multiroot_params *p
       = (struct multiroot_params *) params;
 
   struct FunctionActive  * D = p->D;
@@ -2087,7 +2087,7 @@ int multiroot_f(const gsl_vector *v, void *params, gsl_vector *bc_b)
   for (int i=0; i<3; i++) h[i] = gsl_vector_get(v, i);
 
   double bc[3]={0.,0.,0.};
-  Vector_b_Vinch_K(h, Jk_all, Jkp_all, D, bc); 
+  Vector_b_Vinch_K(h, Jk_all, Jkp_all, D, bc);
 
   for (int i=0; i<3; i++) gsl_vector_set(bc_b, i, bc[i]-b[i]);
 
@@ -2096,7 +2096,7 @@ int multiroot_f(const gsl_vector *v, void *params, gsl_vector *bc_b)
 
 int multiroot_df(const gsl_vector *v, void *params, gsl_matrix *J)
 {
-  struct multiroot_params *p 
+  struct multiroot_params *p
       = (struct multiroot_params *) params;
 
   struct FunctionActive  * D = p->D;
@@ -2149,7 +2149,7 @@ struct rootfinding1d_params
 
 double rootfinding1d (double alpha, void *params)
 {
-  struct rootfinding1d_params *p 
+  struct rootfinding1d_params *p
     = (struct rootfinding1d_params *) params;
 
   struct FunctionActive  * D = p->D;
@@ -2168,7 +2168,7 @@ double rootfinding1d (double alpha, void *params)
   for (int n=0 ; n<3 ; n++)
     ha[n]=h[n]+alpha*dh[n];
 
-  Vector_b_Vinch_K(ha, Jk_all, Jkp_all, D, ba);  
+  Vector_b_Vinch_K(ha, Jk_all, Jkp_all, D, ba);
 
   switch(::FLAG_ROOTFINDING1D)
   {
@@ -2186,7 +2186,7 @@ double rootfinding1d (double alpha, void *params)
 
 double rootfinding1d_deriv (double alpha, void *params)
 {
-  struct rootfinding1d_params *p 
+  struct rootfinding1d_params *p
     = (struct rootfinding1d_params *) params;
 
   struct FunctionActive  * D = p->D;
@@ -2203,9 +2203,9 @@ double rootfinding1d_deriv (double alpha, void *params)
                     p->Jkp_all[6] , p->Jkp_all[7] , p->Jkp_all[8]};
 
   for (int n=0 ; n<3 ; n++)
-    ha[n]=h[n]+alpha*dh[n]; 
+    ha[n]=h[n]+alpha*dh[n];
 
-  Vector_b_Vinch_K(ha, Jk_all, Jkp_all, D, ba); 
+  Vector_b_Vinch_K(ha, Jk_all, Jkp_all, D, ba);
 /*
   for (int n=0 ; n<3 ; n++)
     diffb[n]=(ba[n]-b[n]);///(1+fabs(b[n]));
@@ -2227,7 +2227,7 @@ double rootfinding1d_deriv (double alpha, void *params)
           (dh[0]*dbdha[2]+dh[1]*dbdha[4]+dh[2]*dbdha[5])*dh[2]   )/(norm(dh));
 }
 
-void rootfinding1d_fdf (double alpha, void *params, 
+void rootfinding1d_fdf (double alpha, void *params,
                         double *y, double *dy)
 {
   *y  = rootfinding1d(alpha, params);
@@ -2240,16 +2240,16 @@ void print_state_multi (size_t iter, gsl_multiroot_fdfsolver * s)
     printf ("iter = %3lu x = % .8f % .8f % .8f "
             "f(x) = % .8e % .8e % .8e\n",
             iter,
-            gsl_vector_get (s->x, 0), 
+            gsl_vector_get (s->x, 0),
             gsl_vector_get (s->x, 1),
             gsl_vector_get (s->x, 2),
-            gsl_vector_get (s->f, 0), 
+            gsl_vector_get (s->f, 0),
             gsl_vector_get (s->f, 1),
             gsl_vector_get (s->f, 2));
   }
 }
 
-void print_state_1d (int iterb, const char *s_name, int status, 
+void print_state_1d (int iterb, const char *s_name, int status,
                     double al, double br, double alpha, double err)
 {
   if(::FLAG_WARNING>=FLAG_WARNING_DISP_ROOTFINDING && iterb>=FLAG_WARNING_ITER){
@@ -2267,18 +2267,18 @@ void print_state_1d (int iterb, const char *s_name, int status,
     printf ("%5d [%.7f, %.7f] "
             "%.7f %.7f\n",
             iterb, al, br,
-            alpha, err);  
+            alpha, err);
   }
 }
 
 void Vector_h_Vinch_K(double b[3], double bc[3],
-                      double *Jk_all, double *Jkp_all, 
+                      double *Jk_all, double *Jkp_all,
                       struct FunctionActive *D,
                       double h[3] )
 {
   int dim = D->Case.Interpolation.x[0] ;
 
-  double TOL = ::TOLERANCE_NR; 
+  double TOL = ::TOLERANCE_NR;
   const int MAX_ITER = ::MAX_ITER_NR;
 
 //*****************************************************************
@@ -2296,7 +2296,7 @@ void Vector_h_Vinch_K(double b[3], double bc[3],
     size_t iter = 0;
 
     const size_t ndim = 3;
-    
+
     struct multiroot_params params;
     params.D= D;
     for (int n=0 ; n<3 ; n++)
@@ -2307,9 +2307,9 @@ void Vector_h_Vinch_K(double b[3], double bc[3],
       params.Jkp_all[n]=Jkp_all[n];
     }
 
-    gsl_multiroot_function_fdf f = {&multiroot_f, 
+    gsl_multiroot_function_fdf f = {&multiroot_f,
                                     &multiroot_df,
-                                    &multiroot_fdf,  
+                                    &multiroot_fdf,
                                     ndim, &params};
 
     gsl_vector *v = gsl_vector_alloc (ndim);
@@ -2344,7 +2344,7 @@ void Vector_h_Vinch_K(double b[3], double bc[3],
         if (status)   /* check if solver is stuck */
           break;
 
-        status = 
+        status =
           gsl_multiroot_test_residual (s->f, TOL);
           //gsl_multiroot_test_delta (s->dx, s->x, TOL, TOL);
       }
@@ -2355,12 +2355,12 @@ void Vector_h_Vinch_K(double b[3], double bc[3],
     if(::FLAG_WARNING>=FLAG_WARNING_INFO_INV && (status != GSL_SUCCESS || iter==MAX_ITER))
     {
     Message::Warning("Inversion status = %s, after %d iteration(s) :", gsl_strerror (status),iter);
-     if(::FLAG_WARNING>=FLAG_WARNING_DISP_INV){ 
+     if(::FLAG_WARNING>=FLAG_WARNING_DISP_INV){
     Message::Warning("b_desired    : [%.10g, %.10g, %.10g]", b[0],b[1],b[2]);
     Message::Warning("x    = h_get : [%.10g, %.10g, %.10g]", h[0],h[1],h[2]);
     Message::Warning("f(x) = res   : [%.10g, %.10g, %.10g]", gsl_vector_get (s->f, 0),gsl_vector_get (s->f, 1),gsl_vector_get (s->f, 2));
     if(::FLAG_WARNING>=FLAG_WARNING_STOP_INV)
-      {char c;c=getchar();}    
+      {char c;c=getchar();}
     }
   }
 
@@ -2373,11 +2373,11 @@ void Vector_h_Vinch_K(double b[3], double bc[3],
   case 1:
   case 2:
   case 3:
-  { 
+  {
   double dh[3], dx[3], df[3],res[3] ;
   double dbdh[6];
   double dhdb[6];
-  int iter = 0 ; 
+  int iter = 0 ;
   while( iter < MAX_ITER &&
          ((fabs(bc[0]-b[0])/(1+fabs(b[0]))) > TOL ||
           (fabs(bc[1]-b[1])/(1+fabs(b[1]))) > TOL ||
@@ -2387,8 +2387,8 @@ void Vector_h_Vinch_K(double b[3], double bc[3],
       case 1: // NR
       {
         Tensor_dbdh_Vinch_K(h, Jk_all, Jkp_all, D, dbdh); // eval dbdh
-        Inv_TensorSym3x3_K(dim, dbdh, dhdb);  
-      } 
+        Inv_TensorSym3x3_K(dim, dbdh, dhdb);
+      }
         break;
       case 2: // NR_num
       {
@@ -2407,11 +2407,11 @@ void Vector_h_Vinch_K(double b[3], double bc[3],
           {
             Tensor_dbdh_Vinch_K(h, Jk_all, Jkp_all, D, dbdh); // eval dbdh analytically
             //Tensor_dbdh_Num(h, Jk_all, Jkp_all, D, dbdh); // eval dbdh numerically
-            Inv_TensorSym3x3_K(dim, dbdh, dhdb);              
+            Inv_TensorSym3x3_K(dim, dbdh, dhdb);
           }
         }
         break;
-    }  
+    }
     //printf("dbdh=[\t%g,%g,%g\n\t%g,%g,%g\n\t%g,%g,%g]\n",dbdh[0],dbdh[1],dbdh[2],dbdh[1],dbdh[3],dbdh[4],dbdh[2],dbdh[4],dbdh[5] );
     //printf("dhdb=[\t%g,%g,%g\n\t%g,%g,%g\n\t%g,%g,%g]\n",dhdb[0],dhdb[1],dhdb[2],dhdb[1],dhdb[3],dhdb[4],dhdb[2],dhdb[4],dhdb[5] );
 
@@ -2467,7 +2467,8 @@ if((::FLAG_ROOTFINDING1D)!=0)
         T = gsl_min_fminimizer_brent; // BEST
       break;
       case 3:
-        T = gsl_min_fminimizer_quad_golden;
+        // FIXME: introduced in GSL 1.13
+        //T = gsl_min_fminimizer_quad_golden;
       break;
     }
 
@@ -2484,10 +2485,10 @@ if((::FLAG_ROOTFINDING1D)!=0)
         al = gsl_min_fminimizer_x_lower (s);
         br = gsl_min_fminimizer_x_upper (s);
 
-        status 
-          = gsl_min_test_interval (al, br, TOL, TOL);  
-        print_state_1d(iterb, solver_type, status, 
-                       al, br, m, br - al);         
+        status
+          = gsl_min_test_interval (al, br, TOL, TOL);
+        print_state_1d(iterb, solver_type, status,
+                       al, br, m, br - al);
       }
     while (status == GSL_CONTINUE && iterb < max_iterb);
 
@@ -2508,7 +2509,7 @@ if((::FLAG_ROOTFINDING1D)!=0)
     char solver_type[100]="'1D root bracketing' ";
     const gsl_root_fsolver_type *T;
     gsl_root_fsolver *s;
-    double r = 1.0; 
+    double r = 1.0;
     double al = -1e8, br = 1e8;
     gsl_function F;
 
@@ -2541,11 +2542,11 @@ if((::FLAG_ROOTFINDING1D)!=0)
         al = gsl_root_fsolver_x_lower (s);
         br = gsl_root_fsolver_x_upper (s);
 
-        status 
+        status
           = gsl_root_test_interval (al, br, TOL, TOL);
 
-        print_state_1d(iterb, solver_type, 
-                       status, al, br, r, br - al); 
+        print_state_1d(iterb, solver_type,
+                       status, al, br, r, br - al);
       }
     while (status == GSL_CONTINUE && iterb < max_iterb);
 
@@ -2565,7 +2566,7 @@ if((::FLAG_ROOTFINDING1D)!=0)
     char solver_type[100]="'1D root finding with derivatives' ";
     const gsl_root_fdfsolver_type *T;
     gsl_root_fdfsolver *s;
-    double x0, x = 1.0; 
+    double x0, x = 1.0;
     gsl_function_fdf FDF;
 
     FDF.f = &rootfinding1d;
@@ -2598,8 +2599,8 @@ if((::FLAG_ROOTFINDING1D)!=0)
         x = gsl_root_fdfsolver_root (s);
         status = gsl_root_test_delta (x,x0, TOL, TOL);
 
-        print_state_1d(iterb, solver_type, 
-                       status, 0., 0., x, x - x0); 
+        print_state_1d(iterb, solver_type,
+                       status, 0., 0., x, x - x0);
       }
     while (status == GSL_CONTINUE && iterb < max_iterb);
 
@@ -2625,7 +2626,7 @@ if((::FLAG_ROOTFINDING1D)!=0)
   }
   if(::FLAG_WARNING>=FLAG_WARNING_INFO_ROOTFINDING && (status!=GSL_SUCCESS || iterb==max_iterb))
     {Message::Warning("\tRootFinding status = %s, after %d iteration(s) :", gsl_strerror (status),iterb);
-    if(::FLAG_WARNING>=FLAG_WARNING_STOP_ROOTFINDING){  
+    if(::FLAG_WARNING>=FLAG_WARNING_STOP_ROOTFINDING){
       char c;c=getchar();
     }
   }
@@ -2649,14 +2650,14 @@ if((::FLAG_ROOTFINDING1D)!=0)
     }
     */
     //-------------------------------------------------------
-    
+
     for (int n=0 ; n<3 ; n++)
     {
       dx[n]= dh[n];
-      df[n] = -bc[n]; 
+      df[n] = -bc[n];
       h[n] += dh[n];
     }
-  
+
     Vector_b_Vinch_K(h, Jk_all, Jkp_all, D, bc); // Update bc, Jk_all
 
     for (int n=0 ; n<3 ; n++)
@@ -2674,12 +2675,12 @@ if((::FLAG_ROOTFINDING1D)!=0)
     iter++;
   }
 
-  
-  // Affichage de b et h obtenu à la fin de la boucle de NR : 
+
+  // Affichage de b et h obtenu à la fin de la boucle de NR :
   if (::FLAG_WARNING>=FLAG_WARNING_INFO_INV && iter==MAX_ITER)
   {
     Message::Warning("Inversion status = the iteration has not converged yet, after %d iteration(s)",iter);
-    if (::FLAG_WARNING>=FLAG_WARNING_DISP_INV){     
+    if (::FLAG_WARNING>=FLAG_WARNING_DISP_INV){
       Message::Warning("b_desired : [%.10g, %.10g, %.10g]", b[0],b[1],b[2]);
       Message::Warning("b_get     : [%.10g, %.10g, %.10g]", bc[0],bc[1],bc[2]);
       Message::Warning("h_get     : [%.10g, %.10g, %.10g]", h[0],h[1],h[2]);
@@ -2725,7 +2726,7 @@ void F_h_Vinch_K(F_ARG)
   double h[3], b[3], bc[3], Jk_all[3*N], Jkp_all[3*N] ;
   for (int n=0; n<3; n++) {
      h[n]  = (A+0)->Val[n]; // h is initialized at hp
-     b[n]  = (A+1)->Val[n]; 
+     b[n]  = (A+1)->Val[n];
      bc[n] = (A+2)->Val[n]; // b computed, is initialized at bp
   }
 

@@ -1039,132 +1039,12 @@ void LinAlg_ProdVectorVector(gVector *V1, gVector *V2, double *d)
 #endif
 }
 
-void LinAlg_OuterProdVectorVector(gVector *V1, gVector *V2, gMatrix *M,  InsertMode addV) // kj+++
-{
-    /*
-       for vectors a and b, computes a.transpose(b) and
-       adds/stores the resulting  outer-product matrix
-       to/in the matrix OP
-    */
-
-    PetscInt nRows = 0;   /* number of rows of OP matrix */
-    PetscInt nCols = 0;   /* number of columns of OP matrix */
-    PetscInt nA = 0;   /* length of vector a */
-    PetscInt nB = 0;   /* length of vector b */
-
-    PetscScalar *locAVals;   /* array to hold local vector a values */
-    PetscScalar *locSAVals;   /* array to hold scaled local vector a values
-*/
-    PetscScalar *locBVals;   /* array to hold local vector b values */
-    PetscScalar *bArr;   /* array to hold the entire vector b */
-
-    PetscInt aLow,aHigh,bLow,bHigh;   /* local index-range limits */
-    PetscInt ia,ib;   /* for-loop index variables for a and b vectors */
-    PetscInt * locRowIdxOP;   /* locally-set OP column indices for
-MatSetValues */
-
-    PetscScalar curBVal;   /* value of vector b's component with which to
-scale vector a */
-
-    /* get the dimension of vector a */
-    _try(VecGetSize(V1->V,&nA));
-    /* get the dimension of vector b */
-    _try(VecGetSize(V2->V,&nB));
-
-    /* get the dimensions of outer-product matrix */
-    _try(MatGetSize(M->M,&nRows,&nCols));
-
-    /* check for dimensional compatibility */
-    if ((nRows != nA) || (nCols != nB)) {
-        Message::Error("Error: LinAlg_OuterProdVectorVector: Dimensional Incompatibility!");
-    }
-    /* --------------------------------------------- */
-    /* first, convert vector b into array of scalars */
-    /* --------------------------------------------- */
-
-    /* allocate memory for array-representation of vector b */
-    _try(PetscMalloc((nB)*sizeof(PetscScalar),&bArr));
-
-    /* do local assignment from vector b values to array-representation */
-    /* first, obtain local range of vector b */
-    _try(VecGetOwnershipRange(V2->V,&bLow,&bHigh)); // bHigh is one more than highest local index
-    /* then, obtain pointer to local elements of vector b */
-    _try(VecGetArray(V2->V,&locBVals));
-    /* then, assign local values of vector b to corresponding locations in bArr */
-    for (ib = bLow; ib < bHigh; ib++) {
-        *(bArr + ib) = *(locBVals + ib - bLow);
-    } // end of b for loop
-    /* finally, restore local elements of vector b */
-    _try(VecRestoreArray(V2->V,&locBVals));
-
-    /* ------------------------------------------------- */
-    /* next, scale local values of vector a and add them */
-    /* to corresponding locations in the OP matrix       */
-    /* ------------------------------------------------- */
-
-    /* first, obtain local range of vector a */
-    _try(VecGetOwnershipRange(V1->V,&aLow,&aHigh)); // aHigh is one more than highest local index
-    /* then, obtain pointer to local elements of vector a */
-     //Message::Info("nRows = %d, nCols = %d,nA = %d, nB = %d, aLow= %d, aHigh = %d, bLow=%d, bHigh=%d",nRows,nCols, nA, nB, aLow, aHigh, bLow, bHigh);
-     Message::Info("nRows = %d, nCols = %d",nRows,nCols);
-    _try(VecGetArray(V1->V,&locAVals));
-    /* allocate memory for local array-of-scaled-vector-a-values */
-    _try(PetscMalloc((aHigh-aLow)*sizeof(PetscScalar),&locSAVals));
-    /* allocate memory for locally-set OP row indices */
-    _try(PetscMalloc((aHigh-aLow)*sizeof(PetscInt),&locRowIdxOP));
-
-    /* set locally-set OP row indices */
-    for (ia = 0; ia < aHigh-aLow; ia++) {
-        *(locRowIdxOP + ia) = ia + aLow;
-    } // end of for : set locally-set OP row indices
-
-    /* next, for each component of vector b (bArr), scale local vector a values */
-    /* and set them up in the corresponding locations in the OP matrix */
-    for (ib = 0; ib < nB; ib++) {
-        /* get component of vector b to scale with */
-        curBVal = *(bArr + ib);
-        /* scale vector a local values */
-        for (ia = 0; ia < aHigh-aLow; ia++) {
-            *(locSAVals + ia) = (*(locAVals + ia)) * curBVal;
-            //Message::Info("At component ib=%d; ia=%d",ib,ia);
-        } // end of for: scale local vector a values
-        /* set scaled values in appropriate locations in OP */
-      //Message::Info("At component ib=%d out of nB=%d",ib,nB);
-        _try(MatSetValues(M->M,aHigh-aLow,locRowIdxOP,1,&ib,locSAVals,addV));
-    } // end of for: set scaled values in OP matrix
-
-    /* next, restore local elements of vector a */
-    _try(VecRestoreArray(V1->V,&locAVals));
-    /* free memory for local row indices of OP */
-    _try(PetscFree(locRowIdxOP));
-    /* free memory for local scaled vector a values */
-    _try(PetscFree(locSAVals));
-    /* free memory for array representation of vector b */
-    _try(PetscFree(bArr));
-
-    /* ------------------------------- */
-    /* finally, assemble the OP matrix */
-    /* ------------------------------- */
-    _try(MatAssemblyBegin(M->M,MAT_FINAL_ASSEMBLY));
-    _try(MatAssemblyEnd(M->M,MAT_FINAL_ASSEMBLY));
-}
-
 void LinAlg_ProdMatrixVector(gMatrix *M, gVector *V1, gVector *V2)
 {
   if(V2 == V1)
     Message::Error("Wrong arguments in 'LinAlg_ProdMatrixVector'");
   else{
     _try(MatMult(M->M, V1->V, V2->V));
-    _fillseq(V2);
-  }
-}
-
-void LinAlg_ProdTransposedMatrixVector(gMatrix *M, gVector *V1, gVector *V2) // kj+++
-{
-  if(V2 == V1)
-    Message::Error("Wrong arguments in 'LinAlg_ProdMatrixVector'");
-  else{
-    _try(MatMultTranspose(M->M, V1->V, V2->V));
     _fillseq(V2);
   }
 }
@@ -1594,20 +1474,20 @@ static void _solveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R, gSolver *So
     PetscInt maxf    = 10000;  //(PETSC_DEFAULT=10000)
     _try(SNESSetTolerances(Solver->snes[solverIndex], abstol, rtol,
                            stol, maxit, maxf));
-    */     
+    */
     _try(SNESSetTolerances(Solver->snes[solverIndex], 1.e-12, PETSC_DEFAULT,
                            PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT));
 
     // override default options with those from database (if any)
     //_try(SNESSetType(Solver->snes[solverIndex],SNESNEWTONLS)); // kj+++
     //_try(SNESQNSetType(Solver->snes[solverIndex], SNES_QN_LBFGS)); // kj+++
-    _try(SNESSetFromOptions(Solver->snes[solverIndex])); 
+    _try(SNESSetFromOptions(Solver->snes[solverIndex]));
 
     /* //kj+++
-    SNESType mySNESType;  
+    SNESType mySNESType;
     _try(SNESGetType(Solver->snes[solverIndex],&mySNESType));
     //Message::Info("Try to show Type");
-    Message::Info("SNESType: %s", mySNESType); 
+    Message::Info("SNESType: %s", mySNESType);
     */
 
     PetscTruth fd_jacobian = PETSC_FALSE, snes_fd = PETSC_FALSE ;
