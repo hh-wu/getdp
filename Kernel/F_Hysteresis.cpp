@@ -8,6 +8,7 @@
 //
 
 #include <math.h>
+#include <string.h>
 #include "ProData.h"
 #include "F.h"
 #include "Message.h"
@@ -1245,7 +1246,8 @@ switch(::FLAG_MINMETHOD) {
         TYPE = gsl_multimin_fdfminimizer_conjugate_pr;
       break;
       case 4:
-        TYPE = gsl_multimin_fdfminimizer_vector_bfgs2; // not work
+        //FIXME: test GSL version (requires 1.?)
+        //TYPE = gsl_multimin_fdfminimizer_vector_bfgs2; // not work
       break;
       case 5:
         TYPE = gsl_multimin_fdfminimizer_vector_bfgs;
@@ -2467,7 +2469,7 @@ if((::FLAG_ROOTFINDING1D)!=0)
         T = gsl_min_fminimizer_brent; // BEST
       break;
       case 3:
-        // FIXME: introduced in GSL 1.13
+        // FIXME: test GSL version (requires 1.13)
         //T = gsl_min_fminimizer_quad_golden;
       break;
     }
