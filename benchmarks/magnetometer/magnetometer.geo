@@ -49,3 +49,12 @@ Physical Surface(VOLTAGE_LEFT) = {168, 190};
 Physical Surface(VOLTAGE_RIGHT) = {234, 212};
 Physical Surface(CLAMP_LEFT) = {168, 190};
 Physical Surface(CLAMP_RIGHT) = {234, 212};
+
+/* FIXME: show how we could select the mode ti visuzalize interactively without going through
+the whole option menu
+DefineConstant[
+  ts = { View.TimeStep, Name "Selected mode", Choices {0="Eigen mode 0", 1="Eigen mode 1"},
+    AutoCheck 0, GmshOption "View.TimeStep"
+  }
+];
+*/

@@ -187,7 +187,9 @@ PostProcessing {
 
       { Name um ; Value { Term { [Norm[{u}]] ;
             In Domain_Disp  ; Jacobian Vol; } } }
+
+      { Name eigenFrequency ; Value { Term { Type Global; [ $EigenvalueReal / (2*Pi) ] ;
+            In Domain_Disp  ; } } }
     }
   }
 }
-

@@ -206,6 +206,9 @@ PostOperation {
     Operation {
       If(Flag_AnalysisType == 0)
         Print[ u, OnElementsOf Domain_Disp, File "res/u.pos", EigenvalueLegend] ;
+        Print[ eigenFrequency, OnRegion Domain_Disp, Format Table, TimeStep 0,
+          File "res/fundamentaleigenfrequency.txt",
+          SendToServer "Output/Fundamental eigen frequency [Hz]" ];
       EndIf
       If(Flag_AnalysisType != 0)
         Print[ um, OnPoint {l/2,a/2,b/2}, Format Table, File "res/um_middle.txt",
