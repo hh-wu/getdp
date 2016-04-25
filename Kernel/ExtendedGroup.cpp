@@ -830,7 +830,7 @@ void GenEle_OnPositiveSideOf::add_Facets
     double x [NBR_MAX_NODES_IN_ELEMENT];
     double y [NBR_MAX_NODES_IN_ELEMENT];
     double z [NBR_MAX_NODES_IN_ELEMENT];
-    double X, Y, Z, val_XYZxNormal;
+    double X = 0., Y = 0., Z = 0., val_XYZxNormal;
 
     // For all facets of selected element
     for (i_Entity[0] = 0; i_Entity[0] < nbr_Entity[0]; i_Entity[0]++) {
