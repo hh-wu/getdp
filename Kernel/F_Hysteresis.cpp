@@ -2443,7 +2443,7 @@ void Vector_h_Vinch_K(double b[3], double bc[3],
           case 3:
             {
               char solver_type[100]="'1D minimization' ";
-              const gsl_min_fminimizer_type *T;
+              const gsl_min_fminimizer_type *T = 0;
               gsl_min_fminimizer *s;
               double m = 1.0; //m_expected = M_PI;
               double al = -1e8, br = 1e8;
