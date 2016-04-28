@@ -279,7 +279,7 @@ class GmshClient : public GmshSocket {
       // TCP/IP socket
       _sock = socket(AF_INET, SOCK_STREAM, 0);
       if(_sock < 0) return -1;
-      int one = 1;
+      char one = 1;
       setsockopt(_sock, IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one));
       // try to connect socket to host:port
       const char *port = strstr(sockname, ":");
@@ -371,8 +371,8 @@ class GmshServer : public GmshSocket{
       _portno = atoi(port + 1);
       // create a socket
       tmpsock = socket(AF_INET, SOCK_STREAM, 0);
-      int one = 1;
-      setsockopt(tmpsock, IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one));
+      char one = 1;
+      setsockopt(tmpsock, IPPROTO_TCP, TCP_NODELAY, (char*)&one, sizeof(one));
 
 #if !defined(WIN32) || defined(__CYGWIN__)
       if(tmpsock < 0)
@@ -441,7 +441,7 @@ class GmshServer : public GmshSocket{
       struct sockaddr_in from_in;
       socklen_t len = sizeof(from_in);
       _sock = accept(tmpsock, (struct sockaddr *)&from_in, &len);
-      int one = 1;
+      char one = 1;
       setsockopt(_sock, IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one));
     }
     CloseSocket(tmpsock);
