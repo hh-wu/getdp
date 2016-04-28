@@ -1,4 +1,4 @@
-// Gmsh - Copyright (C) 1997-2014 C. Geuzaine, J.-F. Remacle
+// Gmsh - Copyright (C) 1997-2016 C. Geuzaine, J.-F. Remacle
 //
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
@@ -326,13 +326,13 @@ class GmshServer : public GmshSocket{
  public:
   GmshServer() : GmshSocket(), _portno(-1) {}
   virtual ~GmshServer(){}
-  virtual int NonBlockingSystemCall(const char *exe, const char *args) = 0;
+  virtual int NonBlockingSystemCall(const std::string &exe, const std::string &args) = 0;
   virtual int NonBlockingWait(double waitint, double timeout, int socket=-1) = 0;
   // start the client by launching "exe args" (args is supposed to contain
   // '%s' where the socket name should appear)
-  int Start(const char *exe, const char *args, const char *sockname, double timeout)
+  int Start(const std::string &exe, const std::string &args, const std::string &sockname,
+            double timeout)
   {
-    if(!sockname) throw "Invalid (null) socket name";
     _sockname = sockname;
     int tmpsock;
     if(strstr(_sockname.c_str(), "/") || strstr(_sockname.c_str(), "\\") ||
@@ -395,9 +395,9 @@ class GmshServer : public GmshSocket{
       }
     }
 
-    if(exe && strlen(exe) && args && strlen(args)){
+    if(exe.size() || args.size()){
       char s[1024];
-      sprintf(s, args, _sockname.c_str());
+      sprintf(s, args.c_str(), _sockname.c_str());
       NonBlockingSystemCall(exe, s); // starts the solver
     }
     else{
