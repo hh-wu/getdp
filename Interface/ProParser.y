@@ -374,7 +374,7 @@ ProblemDefinition :
 
   | SeparatePostOperation
 
-  | Loop // contains For, EndFor, If, EndIf, Affectation
+  | Loop // contains For, EndFor, If, ElseIf, Else, EndIf, Macro, Return, Call, Parse, Affectation
 
   | tInclude CharExpr
     {
@@ -6225,6 +6225,7 @@ SeparatePostOperation :
       PostOperation_S.LastTimeStepOnly = 0;
       PostOperation_S.OverrideTimeStepValue = -1;
       PostOperation_S.NoMesh = 0;
+      PostOperation_S.CatFile = 0;
       int i;
       if((i = List_ISearchSeq(Problem_S.PostProcessing, $4,
 			       fcmp_PostProcessing_Name)) < 0)
@@ -7780,6 +7781,7 @@ Enumeration :
   ;
 
 FloatParameterOptions :
+    /* none */
   | FloatParameterOptions FloatParameterOption
  ;
 
@@ -7831,6 +7833,7 @@ FloatParameterOption :
  ;
 
 CharParameterOptions :
+    /* none */
   | CharParameterOptions CharParameterOption
  ;
 
@@ -7916,6 +7919,14 @@ DefineConstants :
       Constant_S.Name = $3; Constant_S.Type = VAR_FLOAT;
       if(!Tree_Search(ConstantTable_L, &Constant_S)){
         Constant_S.Value.Float = $5;
+	Tree_Replace(ConstantTable_L, &Constant_S);
+      }
+    }
+  | DefineConstants Comma String__Index '(' ')' tDEF '{' '}'
+    {
+      Constant_S.Name = $3; Constant_S.Type = VAR_LISTOFFLOAT;
+      if(!Tree_Search(ConstantTable_L, &Constant_S)){
+        Constant_S.Value.List = List_Create(2,20,sizeof(double));
 	Tree_Replace(ConstantTable_L, &Constant_S);
       }
     }
@@ -8291,11 +8302,8 @@ OneFExpr :
 
 ListOfFExpr :
 
-    /* none */
-    { $$ = NULL; }
-
-  | '{' '}'
-    { $$ = List_Create(1,1,sizeof(double)); }
+    '{' '}'
+    { $$ = List_Create(20,20,sizeof(double)); }
 
   | FExpr
     {
@@ -8521,7 +8529,7 @@ MultiFExpr :
 	vyyerror(0, "Unknown Constant: %s", $1);
       else
 	if(Constant_S.Type != VAR_LISTOFFLOAT)
-	  /* vyyerror(0, "Multi value Constant needed: %s", $1); */
+	  // vyyerror(0, "Multi value Constant needed: %s", $1);
 	  List_Add($$, &Constant_S.Value.Float);
 	else
 	  for(int i = 0; i < List_Nbr(Constant_S.Value.List); i++) {
