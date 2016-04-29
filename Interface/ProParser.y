@@ -69,6 +69,8 @@ static int TypeOperatorDofInTrace = 0, DefineQuantityIndexDofInTrace = 0;
 static int ImbricatedLoop = 0, ImbricatedTest = 0;
 static char *StringForParameter = 0;
 
+static int flag_Append = 0, index_Append = -1;
+
 #define MAX_RECUR_TESTS 100
 static int statusImbricatedTests[MAX_RECUR_TESTS];
 
@@ -124,8 +126,9 @@ int  getdp_yylex();
 
 // Forward function declarations
 void Alloc_ParserVariables();
-void Check_NameOfStructNotExist(const char *Struct, List_T *List_L, void *data,
-				int (*fcmp)(const void *a, const void *b));
+int Check_NameOfStructExist(const char *Struct, List_T *List_L, void *data,
+                            int (*fcmp)(const void *a, const void *b),
+                            int flag_Append);
 int  Add_Group(struct Group *Group_P, char *Name, bool Flag_Add,
                int Flag_Plus, int Num_Index);
 int  Num_Group(struct Group *Group_P, char *Name, int Num_Group);
@@ -167,6 +170,7 @@ struct doubleXstring{
 %type <l>  IRegion RecursiveListOfRegion Enumeration
 %type <i>  StrCmp NbrRegions CommaFExprOrNothing
 %type <i>  GmshOperation GenerateGroupOperation
+%type <i>  AppendOrNot
 %type <d>  FExpr OneFExpr
 %type <l>  MultiFExpr ListOfFExpr RecursiveListOfFExpr
 %type <l>  RecursiveListOfCharExpr ParametersForFunction
@@ -179,7 +183,7 @@ struct doubleXstring{
 %type <l>  DefineSystems Operation ChangeOfStates
 %type <l>  ListOfFormulation RecursiveListOfFormulation
 %type <l>  ListOfSystem RecursiveListOfSystem
-%type <l>  PostQuantities SubPostQuantities PostSubOperations
+%type <l>  SubPostQuantities PostSubOperations
 %type <c>  NameForMathFunction NameForFunction CharExpr CharExprNoVar
 %type <c>  StrCat StringIndex String__Index CallArg
 %type <c>  LP RP SendToFile
@@ -1719,14 +1723,22 @@ JacobianMethods :
 	  List_Create(5, 5, sizeof (struct JacobianMethod));
     }
   | JacobianMethods  '{' JacobianMethod '}'
-    { List_Add(Problem_S.JacobianMethod, &JacobianMethod_S); }
+    {
+      if (flag_Append && index_Append>=0)
+        List_Write(Problem_S.JacobianMethod, index_Append, &JacobianMethod_S);
+      else
+        List_Add(Problem_S.JacobianMethod, &JacobianMethod_S);
+    }
  ;
 
 
 JacobianMethod :
 
     /* none */
-    { JacobianMethod_S.Name = NULL; JacobianMethod_S.JacobianCase = NULL; }
+    {
+      JacobianMethod_S.Name = NULL; JacobianMethod_S.JacobianCase = NULL;
+      flag_Append = 0;
+    }
 
   | JacobianMethod  JacobianMethodTerm
  ;
@@ -1734,10 +1746,19 @@ JacobianMethod :
 
 JacobianMethodTerm :
 
-    tName String__Index tEND
-    { Check_NameOfStructNotExist("JacobianMethod", Problem_S.JacobianMethod,
-				 $2, fcmp_JacobianMethod_Name);
-      JacobianMethod_S.Name = $2; }
+    tAppend tEND
+    { flag_Append = 1; index_Append = -1; }
+
+  | tName String__Index tEND
+    {
+      index_Append =
+        Check_NameOfStructExist("JacobianMethod", Problem_S.JacobianMethod,
+                                $2, fcmp_JacobianMethod_Name, flag_Append);
+      if (index_Append<0)
+        JacobianMethod_S.Name = $2;
+      else
+        List_Read(Problem_S.JacobianMethod, index_Append, &JacobianMethod_S);
+    }
 
   | tCase '{' JacobianCases '}'
     { JacobianMethod_S.JacobianCase = $3; }
@@ -1821,7 +1842,12 @@ IntegrationMethods :
     }
 
   | IntegrationMethods  '{' IntegrationMethod '}'
-    { List_Add(Problem_S.IntegrationMethod, &IntegrationMethod_S); }
+    {
+      if (flag_Append && index_Append>=0)
+        List_Write(Problem_S.IntegrationMethod, index_Append, &IntegrationMethod_S);
+      else
+        List_Add(Problem_S.IntegrationMethod, &IntegrationMethod_S);
+    }
  ;
 
 
@@ -1832,6 +1858,7 @@ IntegrationMethod :
       IntegrationMethod_S.Name = NULL;
       IntegrationMethod_S.IntegrationCase = NULL;
       IntegrationMethod_S.CriterionIndex = -1;
+      flag_Append = 0;
     }
 
   | IntegrationMethod  IntegrationMethodTerm
@@ -1840,11 +1867,18 @@ IntegrationMethod :
 
 IntegrationMethodTerm :
 
-    tName String__Index tEND
+    tAppend tEND
+    { flag_Append = 1; index_Append = -1; }
+
+  | tName String__Index tEND
     {
-      Check_NameOfStructNotExist("IntegrationMethod", Problem_S.IntegrationMethod,
-				 $2, fcmp_IntegrationMethod_Name);
-      IntegrationMethod_S.Name = $2;
+      index_Append =
+        Check_NameOfStructExist("IntegrationMethod", Problem_S.IntegrationMethod,
+                                $2, fcmp_IntegrationMethod_Name, flag_Append);
+      if (index_Append<0)
+        IntegrationMethod_S.Name = $2;
+      else
+        List_Read(Problem_S.IntegrationMethod, index_Append, &IntegrationMethod_S);
     }
 
   | tCriterion Expression tEND
@@ -2015,7 +2049,10 @@ BracedConstraint :
 
     '{' Constraint '}'
     {
-      List_Add(Problem_S.Constraint, &Constraint_S);
+      if (flag_Append && index_Append>=0)
+        List_Write(Problem_S.Constraint, index_Append, &Constraint_S);
+      else
+        List_Add(Problem_S.Constraint, &Constraint_S);
     }
 
   | Loop
@@ -2028,6 +2065,7 @@ Constraint :
       Constraint_S.Type = ASSIGN;
       Constraint_S.ConstraintPerRegion = NULL;
       Constraint_S.MultiConstraintPerRegion = NULL;
+      flag_Append = 0;
     }
 
   | Constraint  ConstraintTerm
@@ -2036,11 +2074,18 @@ Constraint :
 
 ConstraintTerm :
 
-    tName String__Index tEND
+    tAppend tEND
+    { flag_Append = 1; index_Append = -1; }
+
+  | tName String__Index tEND
     {
-      Check_NameOfStructNotExist("Constraint", Problem_S.Constraint, $2,
-				 fcmp_Constraint_Name);
-      Constraint_S.Name = $2;
+      index_Append =
+        Check_NameOfStructExist("Constraint", Problem_S.Constraint,
+                                $2, fcmp_Constraint_Name, flag_Append);
+      if (index_Append<0)
+        Constraint_S.Name = $2;
+      else
+        List_Read(Problem_S.Constraint, index_Append, &Constraint_S);
     }
 
   | tType tSTRING tEND
@@ -2300,7 +2345,10 @@ BracedFunctionSpace :
 
     '{' FunctionSpace '}'
     {
-      List_Add(Problem_S.FunctionSpace, &FunctionSpace_S);
+      if (flag_Append && index_Append>=0)
+        List_Write(Problem_S.FunctionSpace, index_Append, &FunctionSpace_S);
+      else
+        List_Add(Problem_S.FunctionSpace, &FunctionSpace_S);
     }
 
   | Loop
@@ -2313,6 +2361,7 @@ FunctionSpace :
     { FunctionSpace_S.Name = NULL; FunctionSpace_S.Type = FORM0;
       FunctionSpace_S.BasisFunction = FunctionSpace_S.SubSpace =
 	FunctionSpace_S.GlobalQuantity = FunctionSpace_S.Constraint = NULL;
+      flag_Append = 0;
     }
 
   | FunctionSpace  FunctionSpaceTerm
@@ -2323,11 +2372,18 @@ FunctionSpace :
 
 FunctionSpaceTerm :
 
-    tName String__Index tEND
+    tAppend tEND
+    { flag_Append = 1; index_Append = -1; }
+
+  | tName String__Index tEND
     {
-      Check_NameOfStructNotExist("FunctionSpace", Problem_S.FunctionSpace,
-				 $2, fcmp_FunctionSpace_Name);
-      FunctionSpace_S.Name = $2;
+      index_Append =
+        Check_NameOfStructExist("FunctionSpace", Problem_S.FunctionSpace,
+                                $2, fcmp_FunctionSpace_Name, flag_Append);
+      if (index_Append<0)
+        FunctionSpace_S.Name = $2;
+      else
+        List_Read(Problem_S.FunctionSpace, index_Append, &FunctionSpace_S);
     }
 
   | tType tSTRING tEND
@@ -2367,7 +2423,7 @@ BasisFunctions :
     {
       int i;
       if((i = List_ISearchSeq($1, BasisFunction_S.Name,
-				fcmp_BasisFunction_Name)) < 0) {
+                              fcmp_BasisFunction_Name)) < 0) {
 	/*
 	  BasisFunction_S.Num = Num_BasisFunction++;
 	*/
@@ -2416,9 +2472,11 @@ BasisFunctionTerm :
     { BasisFunction_S.Name = $2; }
 
   | tNameOfCoef String__Index tEND
-    { Check_NameOfStructNotExist("NameOfCoef", Current_BasisFunction_L,
-				 $2, fcmp_BasisFunction_NameOfCoef);
-      BasisFunction_S.NameOfCoef = $2; BasisFunction_S.Dimension = 1; }
+    {
+      Check_NameOfStructExist("NameOfCoef", Current_BasisFunction_L,
+                              $2, fcmp_BasisFunction_NameOfCoef, 0);
+      BasisFunction_S.NameOfCoef = $2; BasisFunction_S.Dimension = 1;
+    }
 
   | tFunction tSTRING OptionalParametersForBasisFunction tEND
     {
@@ -2622,8 +2680,8 @@ SubSpaceTerm :
 
     tName tSTRING tEND
     {
-      Check_NameOfStructNotExist("SubSpace", Current_SubSpace_L,
-				 $2, fcmp_SubSpace_Name);
+      Check_NameOfStructExist("SubSpace", Current_SubSpace_L,
+                              $2, fcmp_SubSpace_Name, 0);
       SubSpace_S.Name = $2;
     }
 
@@ -2763,8 +2821,8 @@ GlobalQuantityTerm :
 
     tName String__Index tEND
     {
-      Check_NameOfStructNotExist("GlobalQuantity", Current_GlobalQuantity_L,
-				 $2, fcmp_GlobalQuantity_Name);
+      Check_NameOfStructExist("GlobalQuantity", Current_GlobalQuantity_L,
+                              $2, fcmp_GlobalQuantity_Name, 0);
       GlobalQuantity_S.Name = $2;
     }
 
@@ -2919,7 +2977,10 @@ BracedFormulation :
 
     '{' Formulation '}'
     {
-      List_Add(Problem_S.Formulation, &Formulation_S);
+      if (flag_Append && index_Append>=0)
+        List_Write(Problem_S.Formulation, index_Append, &Formulation_S);
+      else
+        List_Add(Problem_S.Formulation, &Formulation_S);
     }
 
   | Loop
@@ -2929,8 +2990,10 @@ BracedFormulation :
 Formulation :
 
     /* none */
-    { Formulation_S.Name = NULL; Formulation_S.Type = FEMEQUATION;
+    {
+      Formulation_S.Name = NULL; Formulation_S.Type = FEMEQUATION;
       Formulation_S.DefineQuantity = NULL; Formulation_S.Equation = NULL;
+      flag_Append = 0;
     }
 
   | Formulation  FormulationTerm
@@ -2941,11 +3004,18 @@ Formulation :
 
 FormulationTerm :
 
-    tName String__Index tEND
+    tAppend tEND
+    { flag_Append = 1; index_Append = -1; }
+
+  | tName String__Index tEND
     {
-      Check_NameOfStructNotExist("Formulation", Problem_S.Formulation,
-				 $2, fcmp_Formulation_Name);
-      Formulation_S.Name = $2;
+      index_Append =
+        Check_NameOfStructExist("Formulation", Problem_S.Formulation,
+                                $2, fcmp_Formulation_Name, flag_Append);
+      if (index_Append<0)
+        Formulation_S.Name = $2;
+      else
+        List_Read(Problem_S.Formulation, index_Append, &Formulation_S);
     }
 
   | tType tSTRING tEND
@@ -3926,7 +3996,10 @@ BracedResolution :
 
     '{' Resolution '}'
     {
-      List_Add(Problem_S.Resolution, &Resolution_S);
+      if (flag_Append && index_Append>=0)
+        List_Write(Problem_S.Resolution, index_Append, &Resolution_S);
+      else
+        List_Add(Problem_S.Resolution, &Resolution_S);
     }
 
   | Loop
@@ -3941,6 +4014,7 @@ Resolution :
       Resolution_S.Hidden = false;
       Resolution_S.DefineSystem = NULL;
       Resolution_S.Operation = NULL;
+      flag_Append = 0;
     }
 
   | Resolution  ResolutionTerm
@@ -3949,11 +4023,18 @@ Resolution :
 
 ResolutionTerm :
 
-    tName String__Index tEND
+    tAppend tEND
+    { flag_Append = 1; index_Append = -1; }
+
+  | tName String__Index tEND
     {
-      Check_NameOfStructNotExist("Resolution", Problem_S.Resolution,
-				 $2, fcmp_Resolution_Name);
-      Resolution_S.Name = $2;
+      index_Append =
+        Check_NameOfStructExist("Resolution", Problem_S.Resolution,
+                                $2, fcmp_Resolution_Name, flag_Append);
+      if (index_Append<0)
+        Resolution_S.Name = $2;
+      else
+        List_Read(Problem_S.Resolution, index_Append, &Resolution_S);
     }
 
   | tHidden FExpr tEND { Resolution_S.Hidden = $2 ? true : false; }
@@ -3973,7 +4054,10 @@ ResolutionTerm :
 DefineSystems :
     /* none */
     {
-      $$ = Current_System_L = List_Create(6, 6, sizeof (struct DefineSystem));
+      $$ = Current_System_L =
+        Resolution_S.DefineSystem?
+        Resolution_S.DefineSystem :
+        List_Create(6, 6, sizeof (struct DefineSystem));
     }
 
   | DefineSystems  '{' DefineSystem '}'
@@ -4140,7 +4224,9 @@ RecursiveListOfSystem :
 Operation :
     /* none */
     {
-      $$ = List_Create(6, 6, sizeof (struct Operation));
+      $$ = Resolution_S.Operation?
+        Resolution_S.Operation :
+        List_Create(6, 6, sizeof (struct Operation));
       Operation_S.Type = OPERATION_NONE;
       Operation_S.DefineSystemIndex = -1;
       Operation_S.Flag = -1;
@@ -5881,7 +5967,10 @@ BracedPostProcessing :
 
     '{' PostProcessing '}'
     {
-      List_Add(Problem_S.PostProcessing, &PostProcessing_S);
+      if (flag_Append && index_Append>=0)
+        List_Write(Problem_S.PostProcessing, index_Append, &PostProcessing_S);
+      else
+        List_Add(Problem_S.PostProcessing, &PostProcessing_S);
     }
 
   | Loop
@@ -5895,17 +5984,25 @@ PostProcessing :
       PostProcessing_S.OriginSystemIndex = NULL;
       PostProcessing_S.NameOfSystem = NULL;
       PostProcessing_S.PostQuantity = NULL;
+      flag_Append = 0;
     }
 
   | PostProcessing  PostProcessingTerm
  ;
 
 PostProcessingTerm :
-    tName String__Index tEND
+    tAppend tEND
+    { flag_Append = 1; index_Append = -1; }
+
+  | tName String__Index tEND
     {
-      Check_NameOfStructNotExist("PostProcessing", Problem_S.PostProcessing,
-				 $2, fcmp_PostProcessing_Name);
-      PostProcessing_S.Name = $2;
+      index_Append =
+        Check_NameOfStructExist("PostProcessing", Problem_S.PostProcessing,
+                                $2, fcmp_PostProcessing_Name, flag_Append);
+      if (index_Append<0)
+        PostProcessing_S.Name = $2;
+      else
+        List_Read(Problem_S.PostProcessing, index_Append, &PostProcessing_S);
     }
 
   | tNameOfFormulation String__Index tEND
@@ -5928,20 +6025,23 @@ PostProcessingTerm :
     }
 
   | tQuantity  '{' PostQuantities '}'
-    { PostProcessing_S.PostQuantity = $3; }
  ;
 
 
 PostQuantities :
     /* none */
-    { $$ = List_Create(5, 5, sizeof (struct PostQuantity)); }
+    {
+      if (!PostProcessing_S.PostQuantity)
+        PostProcessing_S.PostQuantity =
+          List_Create(6, 6, sizeof (struct PostQuantity));
+    }
 
   | PostQuantities '{' PostQuantity '}'
-    { List_Add($$ = $1, &PostQuantity_S); }
+    {
+      List_Add(PostProcessing_S.PostQuantity, &PostQuantity_S);
+    }
 
   | PostQuantities  Loop
-    { $$ = $1; }
-
  ;
 
 PostQuantity :
@@ -6101,7 +6201,12 @@ PostOperations :
 BracedPostOperation :
 
     '{' PostOperation '}'
-    { List_Add(Problem_S.PostOperation, &PostOperation_S); }
+    {
+      if (flag_Append && index_Append>=0)
+        List_Write(Problem_S.PostOperation, index_Append, &PostOperation_S);
+      else
+        List_Add(Problem_S.PostOperation, &PostOperation_S);
+    }
 
   | Loop
  ;
@@ -6121,17 +6226,26 @@ PostOperation :
       PostOperation_S.OverrideTimeStepValue = -1;
       PostOperation_S.NoMesh = 0;
       PostOperation_S.CatFile = 0;
+      PostOperation_S.PostSubOperation = NULL;
+      flag_Append = 0;
     }
 
   | PostOperation  PostOperationTerm
  ;
 
 PostOperationTerm :
-    tName String__Index tEND
+    tAppend tEND
+    { flag_Append = 1; index_Append = -1; }
+
+  | tName String__Index tEND
     {
-      Check_NameOfStructNotExist("PostOperation", Problem_S.PostOperation,
-				 $2, fcmp_PostOperation_Name);
-      PostOperation_S.Name = $2;
+      index_Append =
+        Check_NameOfStructExist("PostOperation", Problem_S.PostOperation,
+                                $2, fcmp_PostOperation_Name, flag_Append);
+      if (index_Append<0)
+        PostOperation_S.Name = $2;
+      else
+        List_Read(Problem_S.PostOperation, index_Append, &PostOperation_S);
     }
 
   | tHidden FExpr tEND { PostOperation_S.Hidden = $2 ? true : false; }
@@ -6212,8 +6326,15 @@ PostOperationTerm :
  ;
 
 
+AppendOrNot :
+    /* none */
+    { $$ = 0; }
+  | tAppend
+    { $$ = 1; }
+ ;
+
 SeparatePostOperation :
-    tPostOperation String__Index tUsingPost String__Index
+    tPostOperation AppendOrNot String__Index tUsingPost String__Index
     {
       PostOperation_S.Hidden = false;
       PostOperation_S.AppendString = NULL;
@@ -6226,31 +6347,49 @@ SeparatePostOperation :
       PostOperation_S.OverrideTimeStepValue = -1;
       PostOperation_S.NoMesh = 0;
       PostOperation_S.CatFile = 0;
+      PostOperation_S.PostSubOperation = NULL;
+      flag_Append = $2; index_Append = -1;
       int i;
-      if((i = List_ISearchSeq(Problem_S.PostProcessing, $4,
+      if((i = List_ISearchSeq(Problem_S.PostProcessing, $5,
 			       fcmp_PostProcessing_Name)) < 0)
-	vyyerror(0, "Unknown PostProcessing: %s", $4);
+	vyyerror(0, "Unknown PostProcessing: %s", $5);
       else {
 	PostOperation_S.PostProcessingIndex = i;
 	List_Read(Problem_S.PostProcessing, i, &InteractivePostProcessing_S);
 	if(!Problem_S.PostOperation)
 	  Problem_S.PostOperation = List_Create(5, 5, sizeof (struct PostOperation));
-	PostOperation_S.Name = $2;
+
+        index_Append =
+          Check_NameOfStructExist("PostOperation", Problem_S.PostOperation,
+                                  $3, fcmp_PostOperation_Name, flag_Append);
+        if (index_Append<0)
+          PostOperation_S.Name = $3;
+        else
+          List_Read(Problem_S.PostOperation, index_Append, &PostOperation_S);
       }
-      Free($4);
+      Free($5);
     }
     '{' PostSubOperations '}'
     {
-      PostOperation_S.PostSubOperation = $7;
-      if(PostOperation_S.PostProcessingIndex >= 0)
-	List_Add(Problem_S.PostOperation, &PostOperation_S);
+      if(!PostOperation_S.PostSubOperation) PostOperation_S.PostSubOperation = $8;
+      if(PostOperation_S.PostProcessingIndex >= 0){
+        if (flag_Append && index_Append>=0)
+          List_Write(Problem_S.PostOperation, index_Append, &PostOperation_S);
+        else
+          List_Add(Problem_S.PostOperation, &PostOperation_S);
+      }
     }
  ;
 
 
 PostSubOperations :
     /* none */
-    { $$ = List_Create(5, 5, sizeof (struct PostSubOperation)); }
+    {
+      $$ =
+        PostOperation_S.PostSubOperation?
+        PostOperation_S.PostSubOperation :
+        List_Create(5, 5, sizeof (struct PostSubOperation));
+    }
 
   | PostSubOperations
     {
@@ -9517,11 +9656,14 @@ void  Pro_DefineQuantityIndex(List_T *WholeQuantity_L,
 
 /* C h e c k _ N a m e O f S t r u c t N o t E x i s t   */
 
-void  Check_NameOfStructNotExist(const char *Struct, List_T *List_L, void *data,
-				 int (*fcmp)(const void *a, const void *b))
+int  Check_NameOfStructExist(const char *Struct, List_T *List_L, void *data,
+                             int (*fcmp)(const void *a, const void *b),
+                             int flag_Append)
 {
-  if(List_ISearchSeq(List_L, data, fcmp) >= 0)
+  int i;
+  if((i=List_ISearchSeq(List_L, data, fcmp)) >= 0 && !flag_Append)
     vyyerror(0, "Redefinition of %s %s", Struct, (char*)data);
+  return i;
 }
 
 
