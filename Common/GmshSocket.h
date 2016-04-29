@@ -280,6 +280,7 @@ class GmshClient : public GmshSocket {
       _sock = socket(AF_INET, SOCK_STREAM, 0);
       if(_sock < 0) return -1;
       char one = 1;
+      // disable Nagle's algorithm (very slow for many small messages)
       setsockopt(_sock, IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one));
       // try to connect socket to host:port
       const char *port = strstr(sockname, ":");
@@ -372,7 +373,7 @@ class GmshServer : public GmshSocket{
       // create a socket
       tmpsock = socket(AF_INET, SOCK_STREAM, 0);
       char one = 1;
-      setsockopt(tmpsock, IPPROTO_TCP, TCP_NODELAY, (char*)&one, sizeof(one));
+      setsockopt(tmpsock, IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one));
 
 #if !defined(WIN32) || defined(__CYGWIN__)
       if(tmpsock < 0)
