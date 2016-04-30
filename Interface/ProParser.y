@@ -53,8 +53,8 @@ static List_T *ListOfPointer_L = 0, *ListOfPointer2_L = 0, *ListOfChar_L = 0;
 static List_T *ListOfFormulation = 0, *ListOfBasisFunction = 0, *ListOfEntityIndex = 0;
 
 static List_T *Operation_L = 0;
-static List_T *Current_BasisFunction_L = 0, *Current_SubSpace_L = 0;
-static List_T *Current_GlobalQuantity_L = 0, *Current_WholeQuantity_L = 0;
+static List_T *Current_BasisFunction_L = 0;
+static List_T *Current_WholeQuantity_L = 0;
 static List_T *Current_System_L = 0;
 static int Num_BasisFunction = 1;
 static int FlagError = 0;
@@ -177,7 +177,6 @@ struct doubleXstring{
 %type <l>  RecursiveListOfCharExpr ParametersForFunction
 %type <l>  ListOfRegion ListOfRegionOrAll SuppListOfRegion
 %type <l>  ConstraintCases IntegrationCases QuadratureCases JacobianCases
-%type <l>  BasisFunctions SubSpaces GlobalQuantities ConstraintInFSs
 %type <l>  ListOfBasisFunction RecursiveListOfBasisFunction
 %type <l>  ListOfBasisFunctionCoef RecursiveListOfBasisFunctionCoef
 %type <l>  Equations WholeQuantityExpression
@@ -2132,8 +2131,6 @@ ConstraintTerm :
     }
 
    | ConstraintTerm Loop
-    {
-    }
 ;
 
 
@@ -2415,16 +2412,12 @@ FunctionSpaceTerm :
     }
 
   | tBasisFunction  '{' BasisFunctions '}'
-    { if(!FunctionSpace_S.BasisFunction ) FunctionSpace_S.BasisFunction  = $3; }
 
   | tSubSpace       '{' SubSpaces '}'
-    { if(!FunctionSpace_S.SubSpace      ) FunctionSpace_S.SubSpace       = $3; }
 
   | tGlobalQuantity '{' GlobalQuantities '}'
-    { if(!FunctionSpace_S.GlobalQuantity) FunctionSpace_S.GlobalQuantity = $3; }
 
   | tConstraint     '{' ConstraintInFSs '}'
-    { if(!FunctionSpace_S.Constraint    ) FunctionSpace_S.Constraint     = $3; }
  ;
 
 
@@ -2432,16 +2425,16 @@ BasisFunctions :
 
     /* none */
     {
-      $$ = Current_BasisFunction_L =
-        FunctionSpace_S.BasisFunction?
-        FunctionSpace_S.BasisFunction :
-        List_Create(6, 6, sizeof (struct BasisFunction));
+      if (!FunctionSpace_S.BasisFunction)
+        FunctionSpace_S.BasisFunction =
+          List_Create(6, 6, sizeof (struct BasisFunction));
+      Current_BasisFunction_L = FunctionSpace_S.BasisFunction;
     }
 
   | BasisFunctions  '{' BasisFunction '}'
     {
       int i;
-      if((i = List_ISearchSeq($1, BasisFunction_S.Name,
+      if((i = List_ISearchSeq(FunctionSpace_S.BasisFunction, BasisFunction_S.Name,
                               fcmp_BasisFunction_Name)) < 0) {
 	/*
 	  BasisFunction_S.Num = Num_BasisFunction++;
@@ -2451,15 +2444,13 @@ BasisFunctions :
 	  List_Nbr(BasisFunction_S.SubFunction) : 1;
       }
       else  /* BasisFunction definie par morceaux => meme Num */
-	BasisFunction_S.Num = ((struct BasisFunction *)List_Pointer($1, i))->Num;
+	BasisFunction_S.Num =
+          ((struct BasisFunction *)List_Pointer(FunctionSpace_S.BasisFunction, i))->Num;
 
-      List_Add($$ = $1, &BasisFunction_S);
+      List_Add(FunctionSpace_S.BasisFunction, &BasisFunction_S);
     }
 
   | BasisFunctions  Loop
-    {
-      $$ = $1;
-    }
  ;
 
 
@@ -2671,15 +2662,17 @@ SubSpaces :
 
     /* none */
     {
-      $$ = Current_SubSpace_L =
-        FunctionSpace_S.SubSpace?
-        FunctionSpace_S.SubSpace :
-        List_Create(6, 6, sizeof (struct SubSpace));
+      if (!FunctionSpace_S.SubSpace)
+        FunctionSpace_S.SubSpace =
+          List_Create(6, 6, sizeof (struct SubSpace));
     }
 
   | SubSpaces  '{' SubSpace '}'
     {
-      List_Add($$ = $1, &SubSpace_S);
+      if (level_Append_2 && index_Append_2>=0)
+        List_Write(FunctionSpace_S.SubSpace, index_Append_2, &SubSpace_S);
+      else
+        List_Add(FunctionSpace_S.SubSpace, &SubSpace_S);
     }
  ;
 
@@ -2689,6 +2682,8 @@ SubSpace :
     /* none */
     {
       SubSpace_S.Name = NULL; SubSpace_S.BasisFunction  = NULL;
+      level_Append_2 = (level_Append)? level_Append-1 : 0;
+      index_Append_2 = -1;
     }
 
   | SubSpace  SubSpaceTerm
@@ -2697,11 +2692,20 @@ SubSpace :
 
 SubSpaceTerm :
 
-    tName tSTRING tEND
+    Append tEND
     {
-      Check_NameOfStructExist("SubSpace", Current_SubSpace_L,
-                              $2, fcmp_SubSpace_Name, 0);
-      SubSpace_S.Name = $2;
+      level_Append_2 = $1; index_Append_2 = -1;
+    }
+
+  | tName tSTRING tEND
+    {
+      index_Append_2 =
+        Check_NameOfStructExist("SubSpace", FunctionSpace_S.SubSpace,
+                                $2, fcmp_SubSpace_Name, level_Append_2);
+      if (index_Append_2<0)
+        SubSpace_S.Name = $2;
+      else
+        List_Read(FunctionSpace_S.SubSpace, index_Append_2, &SubSpace_S);
     }
 
   | tNameOfBasisFunction ListOfBasisFunction tEND
@@ -2716,7 +2720,8 @@ ListOfBasisFunction :
 
     tSTRING
     {
-      $$ = List_Create(1, 1, sizeof(int));
+      $$ = SubSpace_S.BasisFunction?
+        SubSpace_S.BasisFunction : List_Create(1, 5, sizeof(int));
       int i;
       if((i = List_ISearchSeq(Current_BasisFunction_L,
 			       $1, fcmp_BasisFunction_Name)) < 0)
@@ -2739,13 +2744,17 @@ ListOfBasisFunction :
 
 RecursiveListOfBasisFunction :
 
-    /* none */    { $$ = List_Create(5, 5, sizeof(int)); }
+    /* none */
+    {
+      $$ = SubSpace_S.BasisFunction?
+        SubSpace_S.BasisFunction : List_Create(5, 5, sizeof(int));
+    }
 
   | RecursiveListOfBasisFunction Comma tSTRING
     {
       int i;
       if((i = List_ISearchSeq(Current_BasisFunction_L,
-			       $3, fcmp_BasisFunction_Name)) < 0)
+                              $3, fcmp_BasisFunction_Name)) < 0)
 	vyyerror(0, "Unknown BasisFunction: %s", $3);
       else {
 	List_Add($1, &i);
@@ -2764,7 +2773,8 @@ ListOfBasisFunctionCoef :
 
     tSTRING
     {
-      $$ = List_Create(1, 1, sizeof(int));
+      $$ = SubSpace_S.BasisFunction?
+        SubSpace_S.BasisFunction : List_Create(1, 5, sizeof(int));
       int i;
       if((i = List_ISearchSeq(Current_BasisFunction_L,
 			       $1, fcmp_BasisFunction_NameOfCoef)) < 0)
@@ -2784,7 +2794,8 @@ RecursiveListOfBasisFunctionCoef :
 
     /* none */
     {
-      $$ = List_Create(5, 5, sizeof(int));
+      $$ = SubSpace_S.BasisFunction?
+        SubSpace_S.BasisFunction : List_Create(5, 5, sizeof(int));
     }
 
   | RecursiveListOfBasisFunctionCoef Comma tSTRING
@@ -2805,22 +2816,18 @@ GlobalQuantities :
 
     /* none */
     {
-      $$ = Current_GlobalQuantity_L =
-        FunctionSpace_S.GlobalQuantity?
-        FunctionSpace_S.GlobalQuantity :
-        List_Create(6, 6, sizeof (struct GlobalQuantity));
+      if (!FunctionSpace_S.GlobalQuantity)
+        FunctionSpace_S.GlobalQuantity =
+          List_Create(6, 6, sizeof (struct GlobalQuantity));
     }
 
   | GlobalQuantities  '{' GlobalQuantity '}'
     {
       GlobalQuantity_S.Num = Num_BasisFunction++;
-      List_Add($$ = $1, &GlobalQuantity_S);
+      List_Add(FunctionSpace_S.GlobalQuantity, &GlobalQuantity_S);
     }
 
   | GlobalQuantities  Loop
-    {
-      $$ = $1;
-    }
  ;
 
 
@@ -2840,7 +2847,7 @@ GlobalQuantityTerm :
 
     tName String__Index tEND
     {
-      Check_NameOfStructExist("GlobalQuantity", Current_GlobalQuantity_L,
+      Check_NameOfStructExist("GlobalQuantity", FunctionSpace_S.GlobalQuantity,
                               $2, fcmp_GlobalQuantity_Name, 0);
       GlobalQuantity_S.Name = $2;
     }
@@ -2873,9 +2880,9 @@ ConstraintInFSs :
 
     /* none */
     {
-      $$ = FunctionSpace_S.Constraint?
-        FunctionSpace_S.Constraint :
-        List_Create(6, 6, sizeof (struct ConstraintInFS));
+      if (!FunctionSpace_S.Constraint)
+        FunctionSpace_S.Constraint =
+          List_Create(6, 6, sizeof (struct ConstraintInFS));
     }
 
   | ConstraintInFSs '{' ConstraintInFS '}'
@@ -2910,16 +2917,13 @@ ConstraintInFSs :
                                                      false, 1, 0);
 	    ConstraintInFS_S.ConstraintPerRegion = ConstraintPerRegion_P;
 
-	    List_Add($$ = $1, &ConstraintInFS_S);
+	    List_Add(FunctionSpace_S.Constraint, &ConstraintInFS_S);
 	  }
 	}
       }
     }
 
   | ConstraintInFSs  Loop
-    {
-      $$ = $1;
-    }
  ;
 
 
@@ -6109,11 +6113,9 @@ SubPostQuantities :
         List_Create(5, 5, sizeof (struct PostQuantityTerm));
 
       if (level_Append_2 < 0)
-        for(int i=0; i<-level_Append_2; i++){
+        for(int i=0; i<-level_Append_2; i++)
           List_Pop(PostQuantity_S.PostQuantityTerm);
-      //+++ TODO: to be refined for clean delete of existing data
-          Message::Warning("Size list %d", List_Nbr(PostQuantity_S.PostQuantityTerm));
-        }
+          //+++ TODO: to be refined for clean delete of existing data
     }
 
     /* Doit rester tant qu'on ne supprime pas l'association 'Integral <-> tGalerkin' */

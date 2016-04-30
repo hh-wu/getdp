@@ -2169,6 +2169,7 @@ and @ref{Function examples}, for some examples.
 @cindex Networks
 
 @tindex Constraint
+@tindex Append
 @tindex Name
 @tindex Type
 @tindex Case
@@ -2194,7 +2195,8 @@ The syntax for the definition of constraints is:
 
 @example
 Constraint @{
-  @{ Name @var{constraint-id}; Type @var{constraint-type};
+  @{ < Append < @var{expression-cst} >; >
+    Name @var{constraint-id}; Type @var{constraint-type};
     Case @{
       @{ Region @var{group-def}; < Type @var{constraint-type}; >
         < SubRegion @var{group-def}; > < TimeFunction @var{expression}; > 
@@ -2236,6 +2238,10 @@ Constraint @{
 @noindent Notes:
 @enumerate
 @item
+The optional @code{Append < @var{expression-cst} >} (when the optional level 
+@var{expression-cst} is strictly positive) permits to append an existing 
+@code{Constraint} of the same @code{Name} with additional @code{Case}s.
+@item
 The constraint type @var{constraint-type} defined outside the @code{Case}
 fields is applied to all the cases of the constraint, unless other types are
 explicitly given in these cases.  The default type is @code{Assign}.
@@ -2272,6 +2278,7 @@ See @ref{Types for Constraint}, for the complete list of options and
 @cindex Hierarchical basis functions
 
 @tindex FunctionSpace
+@tindex Append
 @tindex Name
 @tindex Type
 @tindex BasisFunction
@@ -2323,7 +2330,8 @@ The syntax for the definition of function spaces is:
 
 @example
 FunctionSpace @{
-  @{ Name @var{function-space-id};
+  @{ < Append < @var{expression-cst} >; >
+    Name @var{function-space-id};
     Type @var{function-space-type};
     BasisFunction @{ 
      @{ Name @var{basis-function-id}; NameOfCoef @var{coef-id}; 
@@ -2336,7 +2344,8 @@ FunctionSpace @{
        Support @var{group-def}; Entity @var{group-def}; @} @dots{}
     @}
   < SubSpace @{ 
-     @{ Name @var{sub-space-id}; 
+     @{ < Append < @var{expression-cst} >; >
+       Name @var{sub-space-id}; 
        NameOfBasisFunction @var{basis-function-list}; @} @dots{}
     @} >
   < GlobalQuantity @{ 
@@ -2386,6 +2395,16 @@ FunctionSpace @{
 @noindent Notes:
 @enumerate
 @item
+The optional @code{Append < @var{expression-cst} >} (when the optional level 
+@var{expression-cst} is strictly positive; its omission fixes it to a top 
+value) permits to append an existing 
+@code{FunctionSpace} of the same @code{Name} with additional 
+@code{BasisFunction}s, @code{SubSpace}s, @code{GlobalQuantity}'s and 
+@code{Constraint}s,
+or an existing @code{SubSpace} of the same @code{Name} with additional 
+@code{NameOfBasisFunction}'s. If the @code{Append} @code{FunctionSpace} level is 2, 
+the @code{Append} @code{SubSpace} level is automatically 1 if omitted.
+@item
 When the definition region of a function type group used as an @code{Entity} of 
 a @code{BasisFunction} is the same as that of the associated @code{Support}, 
 it is replaced by @code{All} for more efficient treatments during the 
@@ -2431,6 +2450,7 @@ See @ref{Types for FunctionSpace}, for the complete list of options and
 @cindex Axisymmetric, transformation
 
 @tindex Jacobian
+@tindex Append
 @tindex Name
 @tindex Case
 @tindex Region
@@ -2453,7 +2473,8 @@ The syntax for the definition of Jacobian methods is:
 
 @example
 Jacobian @{
-  @{ Name @var{jacobian-id};
+  @{ < Append < @var{expression-cst} >; >
+    Name @var{jacobian-id};
     Case @{ 
       @{ Region @var{group-def} | All; 
         Jacobian @var{jacobian-type} < @{ @var{expression-cst-list} @} >; @} @dots{}
@@ -2476,6 +2497,10 @@ Jacobian @{
 @noindent Note:
 @enumerate
 @item
+The optional @code{Append < @var{expression-cst} >} (when the optional level 
+@var{expression-cst} is strictly positive) permits to append an existing 
+@code{Jacobian} of the same @code{Name} with additional @code{Case}s.
+@item
 The default case of a @code{Jacobian} object is defined by @code{Region All} 
 and must follow all the other cases.
 @end enumerate
@@ -2496,6 +2521,7 @@ See @ref{Types for Jacobian}, for the complete list of options and
 @cindex Gauss, integration
 
 @tindex Integration
+@tindex Append
 @tindex Name
 @tindex Criterion
 @tindex Case
@@ -2521,7 +2547,8 @@ The syntax for the definition of integration methods is:
 
 @example
 Integration @{
-  @{ Name @var{integration-id}; < Criterion @var{expression}; >
+  @{ < Append < @var{expression-cst} >; >
+    Name @var{integration-id}; < Criterion @var{expression}; >
     Case @{ 
     < @{ Type @var{integration-type}; 
         Case @{ 
@@ -2546,6 +2573,15 @@ Integration @{
 @var{element-type}:
   Line | Triangle | Tetrahedron @var{etc} 
 @end example
+
+
+@noindent Note:
+@enumerate
+@item
+The optional @code{Append < @var{expression-cst} >} (when the optional level 
+@var{expression-cst} is strictly positive) permits to append an existing 
+@code{Integration} of the same @code{Name} with additional @code{Case}s.
+@end enumerate
 
 See @ref{Types for Integration}, for the complete list of options and
 @ref{Integration examples}, for some examples.
@@ -2572,6 +2608,7 @@ See @ref{Types for Integration}, for the complete list of options and
 @cindex Symmetry, integral kernel
 
 @tindex Formulation
+@tindex Append
 @tindex Name
 @tindex Type
 @tindex Quantity
@@ -2618,7 +2655,8 @@ The syntax for the definition of formulations is:
 
 @example
 Formulation @{
-  @{ Name @var{formulation-id}; Type @var{formulation-type}; 
+  @{ < Append < @var{expression-cst} >; >
+    Name @var{formulation-id}; Type @var{formulation-type}; 
     Quantity @{ 
       @{ Name @var{quantity-id}; Type @var{quantity-type}; 
         NameOfSpace @var{function-space-id} <@{@}>
@@ -2673,6 +2711,11 @@ Formulation @{
 @noindent Note:
 @enumerate
 @item
+The optional @code{Append < @var{expression-cst} >} (when the optional level 
+@var{expression-cst} is strictly positive) permits to append an existing 
+@code{Formulation} of the same @code{Name} with additional 
+@code{Quantity}'s and @code{Equation}s.
+@item
 @code{IndexOfSystem} permits to resolve ambiguous cases when several
 quantities belong to the same function space, but to different systems of
 equations. The @var{integer} parameter then specifies the index in the list
@@ -2714,6 +2757,7 @@ See @ref{Types for Formulation}, for the complete list of options and
 @cindex Complex-valued, system
 
 @tindex Resolution
+@tindex Append
 @tindex Name
 @tindex System
 @tindex NameOfFormulation
@@ -2745,7 +2789,8 @@ and a list of elementary operations:
 
 @example
 Resolution @{
-  @{ Name @var{resolution-id}; < Hidden @var{expression-cst}; >
+  @{ < Append < @var{expression-cst} >; >
+    Name @var{resolution-id}; < Hidden @var{expression-cst}; >
     System @{ 
       @{ Name @var{system-id}; NameOfFormulation @var{formulation-list}; 
         < Type @var{system-type}; >
@@ -2788,6 +2833,11 @@ Resolution @{
 @noindent Notes:
 @enumerate
 @item
+The optional @code{Append < @var{expression-cst} >} (when the optional level 
+@var{expression-cst} is strictly positive) permits to append an existing 
+@code{Resolution} of the same @code{Name} with additional 
+@code{System}s and @code{Operation}s.
+@item
 The default type for a system of equations is @code{Real}. A frequency
 domain analysis is defined through the definition of one or several
 frequencies (@code{Frequency @var{expression-cst-list-item} | Frequency @{
@@ -2825,6 +2875,7 @@ See @ref{Types for Resolution}, for the complete list of options and
 @cindex Results, exploitation
 
 @tindex PostProcessing
+@tindex Append
 @tindex Name
 @tindex NameOfFormulation
 @tindex NameOfSystem
@@ -2850,10 +2901,12 @@ interest:
 
 @example
 PostProcessing @{
-  @{ Name @var{post-processing-id}; 
+  @{ < Append < @var{expression-cst} >; >
+    Name @var{post-processing-id}; 
     NameOfFormulation @var{formulation-id} <@{@}>; < NameOfSystem @var{system-id}; >
     Quantity @{
-      @{ Name @var{post-quantity-id}; Value @{ @var{post-value} @dots{} @} @} @dots{}
+      @{ < Append < @var{expression-cst} >; > 
+        Name @var{post-quantity-id}; Value @{ @var{post-value} @dots{} @} @} @dots{}
       < @var{loop} > @dots{}
     @}
   @} @dots{}
@@ -2883,6 +2936,17 @@ PostProcessing @{
 
 @noindent Notes:
 @enumerate
+@item
+The optional @code{Append < @var{expression-cst} >} (when the optional level 
+@var{expression-cst} is strictly positive; its omission fixes it to a top 
+value) permits to append an existing 
+@code{PostProcessing} of the same @code{Name} with additional 
+@code{Value}s, 
+or an existing @code{Quantity} of the same @code{Name} with additional 
+@code{Quantity}'s. If the @code{Append} @code{PostProcessing} level is 2, 
+the @code{Append} @code{Quantity} level is automatically 1 if omitted.
+Fixing the @code{Append} @code{Quantity} level to @var{-n} suppresses the 
+@var{n} lastly defined @code{Quantity}'s before appending.
 @item
 The quantity defined with @var{integral-value} is piecewise defined over the
 elements of the mesh of @var{group-def}, and takes, in each element, the
@@ -2916,6 +2980,7 @@ See @ref{Types for PostProcessing}, for the complete list of options and
 @cindex Format, output
 
 @tindex PostOperation
+@tindex Append
 @tindex Name
 @tindex NameOfPostProcessing
 @tindex Format
@@ -2936,7 +3001,8 @@ user-defined plane, etc.), and outputs the results in several file formats.
 
 @example
 PostOperation @{
-  @{ Name @var{post-operation-id}; NameOfPostProcessing @var{post-processing-id}; 
+  @{ < Append < @var{expression-cst} >; >
+    Name @var{post-operation-id}; NameOfPostProcessing @var{post-processing-id}; 
     < Hidden @var{expression-cst}; >
     < Format @var{post-operation-fmt}; > < Append @var{expression-char}; >
     < TimeValue @var{expression-cst-list}; > < TimeImagValue @var{expression-cst-list}; >
@@ -2950,7 +3016,7 @@ PostOperation @{
   < @var{affectation} > @dots{}
   < @var{loop} > @dots{}
 @} |
-PostOperation @var{post-operation-id} UsingPost @var{post-processing-id} @{
+PostOperation < (Append < @var{expression-cst} >) > @var{post-operation-id} UsingPost @var{post-processing-id} @{
   < @var{post-operation-op}; > @dots{}
 @} @dots{}
 @end example
@@ -2984,6 +3050,11 @@ PostOperation @var{post-operation-id} UsingPost @var{post-processing-id} @{
 
 @noindent Notes:
 @enumerate
+@item
+The optional @code{Append < @var{expression-cst} >} (when the optional level 
+@var{expression-cst} is strictly positive) permits to append an existing 
+@code{PostOperation} of the same @code{Name} with additional 
+@code{Operation}s.
 @item
 Both @code{PostOperation} syntaxes are equivalent.  The first one conforms to
 the overall interface, but the second one is more concise.
