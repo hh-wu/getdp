@@ -1309,6 +1309,8 @@ or C++ programming languages.
 @tindex &&
 @tindex |
 @tindex &
+@tindex >>
+@tindex <<
 @tindex ?:
 
 @noindent
@@ -1363,6 +1365,10 @@ evaluated even if the first one is true.
 Binary `and'. 
 @item |
 Binary `or'.
+@item >>
+Bitwise right-shift operator. Shifts the bits of the first argument to the right by the number of bits specified by the second argument.
+@item <<
+Bitwise left-shift operator. Shifts the bits of the first argument to the left by the number of bits specified by the second argument.
 @end table
 
 @noindent
@@ -1408,7 +1414,7 @@ i.e., @code{^} has the highest evaluation priority). Parentheses
 @item /\
 @item *, /, %
 @item +, - 
-@item <, >, <=, >=
+@item <, >, <=, >=, <<, >>
 @item !=, ==
 @item &&, ||
 @item ?:
