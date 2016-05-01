@@ -7272,7 +7272,7 @@ Loop :
 	ImbricatedLoop = MAX_RECUR_LOOPS-1;
       }
     }
-  | tFor tSTRING tIn '{' FExpr tDOTS FExpr '}'
+  | tFor String__Index tIn '{' FExpr tDOTS FExpr '}'
     {
       LoopControlVariablesTab[ImbricatedLoop][0] = $5;
       LoopControlVariablesTab[ImbricatedLoop][1] = $7;
@@ -7294,7 +7294,7 @@ Loop :
 	ImbricatedLoop = MAX_RECUR_LOOPS-1;
       }
     }
-  | tFor tSTRING tIn '{' FExpr tDOTS FExpr tDOTS FExpr '}'
+  | tFor String__Index tIn '{' FExpr tDOTS FExpr tDOTS FExpr '}'
     {
       LoopControlVariablesTab[ImbricatedLoop][0] = $5;
       LoopControlVariablesTab[ImbricatedLoop][1] = $7;
