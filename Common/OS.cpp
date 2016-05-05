@@ -408,6 +408,11 @@ std::string GetDirName(const std::string &fileName)
   return splitFileName(fileName)[0];
 }
 
+std::string GetBaseName(const std::string &fileName)
+{
+  return splitFileName(fileName)[1];
+}
+
 std::string GetFullPath(const std::string &fileName)
 {
 #if defined(WIN32) && !defined(__CYGWIN__)

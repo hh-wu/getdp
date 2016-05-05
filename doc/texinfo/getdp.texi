@@ -1933,7 +1933,7 @@ if none of the @var{expression-cst} of the previous matching codes
 @item EndIf
 Ends a matching @code{If} command.
 
-@item TestLevel
+@item LevelTest
 Variable equal to the level of imbrication of a body in an 
 @code{If}-@code{EndIf} test.
 

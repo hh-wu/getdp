@@ -22,5 +22,6 @@ int CreateDir(const std::string &dirName);
 int CreateDirs(const std::string &dirName);
 std::string GetFullPath(const std::string &fileName);
 std::string GetDirName(const std::string &fileName);
+std::string GetBaseName(const std::string &fileName);
 
 #endif

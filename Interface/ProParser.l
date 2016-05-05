@@ -100,6 +100,7 @@ Atan                         return tAtan;
 Atan2                        return tAtan2;
 
 Barrier			     return tBarrier;
+BaseFileName                return tBaseFileName;
 BasisFunction                return tBasisFunction;
 Beta                         return tBeta;
 Branch                       return tBranch;
@@ -131,6 +132,7 @@ Cross                        return tCrossProduct;
 CrossProduct                 return tCrossProduct;
 CurrentDirectory             return tCurrentDirectory;
 CurrentDir                   return tCurrentDirectory;
+CurrentFileName              return tCurrentFileName;
 
 DTime                        return tDTime;
 Date                         return tDate;
@@ -254,6 +256,8 @@ Jacobian                     return tJacobian;
 
 Lanczos                      return tLanczos;
 LastTimeStepOnly             return tLastTimeStepOnly;
+LevelInclude                 return tLevelInclude;
+LevelTest                    return tLevelTest;
 LinSpace                     return tLinSpace;
 List                         return tList;
 ListAlt                      return tListAlt;
@@ -297,6 +301,7 @@ NoNewLine                    return tNoNewLine;
 NoTitle                      return tNoTitle;
 NumberOfDivisions            return tNumberOfDivisions;
 NumberOfPoints               return tNumberOfPoints;
+NumInclude                   return tNumInclude;
 
 OnBox                        return tOnBox;
 OnCut                        return tOnSection;
@@ -404,7 +409,6 @@ Tan                          return tTan;
 Tanh                         return tTanh;
 Target                       return tTarget;
 Test                         return tTest;
-TestLevel                    return tTestLevel;
 Theta                        return tTheta;
 Time0                        return tTime0;
 TimeFunction                 return tTimeFunction;

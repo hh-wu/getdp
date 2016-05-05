@@ -358,6 +358,8 @@ void Read_ProblemStructure(const char *name)
     if(getdp_yyerrorlevel) return;
   }
 
+  level_include--;
+
   getdp_yylinenum = Last_yylinenum;
   getdp_yyname = Last_yyname;
   getdp_yyerrorlevel = Last_ErrorLevel;

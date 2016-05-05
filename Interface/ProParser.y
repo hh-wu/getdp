@@ -47,6 +47,8 @@ std::map<std::string, std::vector<std::string> > GetDPStrings;
 
 // Static parser variables (accessible only in this file)
 
+int num_include = 0, level_include = 0;
+
 static Tree_T *ConstantTable_L = 0;
 static List_T *ListOfInt_L = 0;
 static List_T *ListOfPointer_L = 0, *ListOfPointer2_L = 0, *ListOfChar_L = 0;
@@ -201,15 +203,16 @@ struct doubleXstring{
 %token  tFor tEndFor tIf tElseIf tElse tEndIf tMacro tReturn tCall tCallTest
 %token  tTest tWhile tParse
 %token  tFlag tExists
-%token  tInclude
+%token  tInclude tLevelInclude
 %token  tConstant tList tListAlt tLinSpace tLogSpace
 %token  tListFromFile
 %token  tChangeCurrentPosition
 %token  tDefineConstant tUndefineConstant tDefineNumber tDefineString
 %token  tGetNumber tGetString tSetNumber tSetString
 
-%token  tPi tMPI_Rank tMPI_Size t0D t1D t2D t3D tTestLevel
-%token  tTotalMemory tCurrentDirectory tAbsolutePath tDirName
+%token  tPi tMPI_Rank tMPI_Size t0D t1D t2D t3D tLevelTest
+%token  tTotalMemory tNumInclude
+%token  tCurrentDirectory tAbsolutePath tDirName tBaseFileName tCurrentFileName
 %token  tGETDP_MAJOR_VERSION tGETDP_MINOR_VERSION tGETDP_PATCH_VERSION
 
 %token  tExp tLog tLog10 tSqrt tSin tAsin tCos tAcos tTan
@@ -384,6 +387,7 @@ ProblemDefinition :
 
   | tInclude CharExpr
     {
+      num_include++; level_include++;
       strcpy(getdp_yyincludename, $2); getdp_yyincludenum++; return(0);
     }
  ;
@@ -1758,8 +1762,10 @@ JacobianMethodTerm :
                                 $2, fcmp_JacobianMethod_Name, level_Append);
       if (index_Append<0)
         JacobianMethod_S.Name = $2;
-      else
+      else{
         List_Read(Problem_S.JacobianMethod, index_Append, &JacobianMethod_S);
+        Free($2);
+      }
     }
 
   | tCase '{' JacobianCases '}'
@@ -1883,8 +1889,10 @@ IntegrationMethodTerm :
                                 $2, fcmp_IntegrationMethod_Name, level_Append);
       if (index_Append<0)
         IntegrationMethod_S.Name = $2;
-      else
+      else{
         List_Read(Problem_S.IntegrationMethod, index_Append, &IntegrationMethod_S);
+        Free($2);
+      }
     }
 
   | tCriterion Expression tEND
@@ -2093,8 +2101,10 @@ ConstraintTerm :
                                 $2, fcmp_Constraint_Name, level_Append);
       if (index_Append<0)
         Constraint_S.Name = $2;
-      else
+      else{
         List_Read(Problem_S.Constraint, index_Append, &Constraint_S);
+        Free($2);
+      }
     }
 
   | tType tSTRING tEND
@@ -2398,8 +2408,10 @@ FunctionSpaceTerm :
                                 $2, fcmp_FunctionSpace_Name, level_Append);
       if (index_Append<0)
         FunctionSpace_S.Name = $2;
-      else
+      else{
         List_Read(Problem_S.FunctionSpace, index_Append, &FunctionSpace_S);
+        Free($2);
+      }
     }
 
   | tType tSTRING tEND
@@ -2433,21 +2445,28 @@ BasisFunctions :
 
   | BasisFunctions  '{' BasisFunction '}'
     {
+      /*
       int i;
       if((i = List_ISearchSeq(FunctionSpace_S.BasisFunction, BasisFunction_S.Name,
                               fcmp_BasisFunction_Name)) < 0) {
-	/*
-	  BasisFunction_S.Num = Num_BasisFunction++;
-	*/
+      */
+      if(index_Append_2 < 0) {
 	BasisFunction_S.Num = Num_BasisFunction;
 	Num_BasisFunction += (BasisFunction_S.SubFunction)?
 	  List_Nbr(BasisFunction_S.SubFunction) : 1;
       }
-      else  /* BasisFunction definie par morceaux => meme Num */
-	BasisFunction_S.Num =
-          ((struct BasisFunction *)List_Pointer(FunctionSpace_S.BasisFunction, i))->Num;
+      else
+        if(!level_Append_2){
+          // Region-wise BasisFunction => same Num
+          BasisFunction_S.Num =
+            ((struct BasisFunction *)
+             List_Pointer(FunctionSpace_S.BasisFunction, index_Append_2))->Num;
+        }
 
-      List_Add(FunctionSpace_S.BasisFunction, &BasisFunction_S);
+      if (level_Append_2 && index_Append_2>=0)
+        List_Write(FunctionSpace_S.BasisFunction, index_Append_2, &BasisFunction_S);
+      else
+        List_Add(FunctionSpace_S.BasisFunction, &BasisFunction_S);
     }
 
   | BasisFunctions  Loop
@@ -2470,6 +2489,8 @@ BasisFunction :
       BasisFunction_S.SubdFunction = NULL;
       BasisFunction_S.SupportIndex = -1;
       BasisFunction_S.EntityIndex  = -1;
+      level_Append_2 = (level_Append)? level_Append-1 : 0;
+      index_Append_2 = -1;
     }
 
   | BasisFunction  BasisFunctionTerm
@@ -2478,8 +2499,24 @@ BasisFunction :
 
 BasisFunctionTerm :
 
-    tName String__Index tEND
-    { BasisFunction_S.Name = $2; }
+    Append tEND
+    {
+      level_Append_2 = $1; index_Append_2 = -1;
+    }
+
+  | tName String__Index tEND
+    {
+      index_Append_2 =
+        Check_NameOfStructExist("BasisFunction", FunctionSpace_S.BasisFunction,
+                                $2, fcmp_BasisFunction_Name, 1);
+      // 1: already defined Name always possible for Region-wise basis functions
+      if (index_Append_2<0 || !level_Append_2)
+        BasisFunction_S.Name = $2;
+      else{
+        List_Read(FunctionSpace_S.BasisFunction, index_Append_2, &BasisFunction_S);
+        Free($2);
+      }
+    }
 
   | tNameOfCoef String__Index tEND
     {
@@ -2674,6 +2711,8 @@ SubSpaces :
       else
         List_Add(FunctionSpace_S.SubSpace, &SubSpace_S);
     }
+
+  | SubSpaces  Loop
  ;
 
 
@@ -2704,8 +2743,10 @@ SubSpaceTerm :
                                 $2, fcmp_SubSpace_Name, level_Append_2);
       if (index_Append_2<0)
         SubSpace_S.Name = $2;
-      else
+      else{
         List_Read(FunctionSpace_S.SubSpace, index_Append_2, &SubSpace_S);
+        Free($2);
+      }
     }
 
   | tNameOfBasisFunction ListOfBasisFunction tEND
@@ -3037,8 +3078,10 @@ FormulationTerm :
                                 $2, fcmp_Formulation_Name, level_Append);
       if (index_Append<0)
         Formulation_S.Name = $2;
-      else
+      else{
         List_Read(Problem_S.Formulation, index_Append, &Formulation_S);
+        Free($2);
+      }
     }
 
   | tType tSTRING tEND
@@ -4056,8 +4099,10 @@ ResolutionTerm :
                                 $2, fcmp_Resolution_Name, level_Append);
       if (index_Append<0)
         Resolution_S.Name = $2;
-      else
+      else{
         List_Read(Problem_S.Resolution, index_Append, &Resolution_S);
+        Free($2);
+      }
     }
 
   | tHidden FExpr tEND { Resolution_S.Hidden = $2 ? true : false; }
@@ -6024,8 +6069,10 @@ PostProcessingTerm :
                                 $2, fcmp_PostProcessing_Name, level_Append);
       if (index_Append<0)
         PostProcessing_S.Name = $2;
-      else
+      else{
         List_Read(Problem_S.PostProcessing, index_Append, &PostProcessing_S);
+        Free($2);
+      }
     }
 
   | tNameOfFormulation String__Index tEND
@@ -6096,8 +6143,10 @@ PostQuantityTerm :
                                 $2, fcmp_PostQuantity_Name, level_Append_2);
       if (index_Append_2<0)
         PostQuantity_S.Name = $2;
-      else
+      else{
         List_Read(PostProcessing_S.PostQuantity, index_Append_2, &PostQuantity_S);
+        Free($2);
+      }
     }
 
   | tValue '{' SubPostQuantities '}'
@@ -6294,8 +6343,10 @@ PostOperationTerm :
                                 $2, fcmp_PostOperation_Name, level_Append);
       if (index_Append<0)
         PostOperation_S.Name = $2;
-      else
+      else{
         List_Read(Problem_S.PostOperation, index_Append, &PostOperation_S);
+        Free($2);
+      }
     }
 
   | tHidden FExpr tEND { PostOperation_S.Hidden = $2 ? true : false; }
@@ -6408,8 +6459,10 @@ SeparatePostOperation :
                                   $3, fcmp_PostOperation_Name, level_Append);
         if (index_Append<0)
           PostOperation_S.Name = $3;
-        else
+        else{
           List_Read(Problem_S.PostOperation, index_Append, &PostOperation_S);
+          Free($3);
+        }
       }
       Free($5);
     }
@@ -8293,13 +8346,17 @@ OneFExpr :
   | t1D       { $$ = (double)_1D; }
   | t2D       { $$ = (double)_2D; }
   | t3D       { $$ = (double)_3D; }
-  | tTestLevel { $$ = (double)ImbricatedTest; }
   | tMPI_Rank { $$ = Message::GetCommRank(); }
   | tMPI_Size { $$ = Message::GetCommSize(); }
   | tGETDP_MAJOR_VERSION { $$ = GETDP_MAJOR_VERSION; }
   | tGETDP_MINOR_VERSION { $$ = GETDP_MINOR_VERSION; }
   | tGETDP_PATCH_VERSION { $$ = GETDP_PATCH_VERSION; }
   | tTotalMemory { $$ = GetTotalRam(); }
+
+  | tLevelTest { $$ = (double)ImbricatedTest; }
+  | tNumInclude { $$ = (double)num_include; }
+  | tLevelInclude { $$ = (double)level_include; }
+//  | tLevelInclude { $$ = (double)getdp_yyincludenum; }
 
   | tDefineNumber '[' FExpr
     { FloatOptions_S.clear(); CharOptions_S.clear(); }
@@ -9134,6 +9191,11 @@ CharExprNoVar :
       strcpy($$, action.c_str());
     }
 
+  | tCurrentFileName
+    {
+      $$ = strSave(getdp_yyname.c_str());
+    }
+
   | tCurrentDirectory
     {
       std::string tmp = GetDirName(GetFullPath(getdp_yyname));
@@ -9151,6 +9213,11 @@ CharExprNoVar :
     {
       $$ = strSave(GetDirName($3).c_str());
       Free($3);
+    }
+
+  | tBaseFileName
+    {
+      $$ = strSave(GetBaseName(getdp_yyname).c_str());
     }
 
   | tFixRelativePath LP CharExpr RP

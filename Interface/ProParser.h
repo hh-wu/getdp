@@ -34,6 +34,7 @@ extern char getdp_yyincludename[256];
 extern long int getdp_yylinenum;
 extern int getdp_yycolnum;
 extern int getdp_yyincludenum;
+extern int level_include;
 extern int getdp_yyerrorlevel;
 extern std::map<std::string, std::vector<double> > CommandLineNumbers;
 extern std::map<std::string, std::vector<std::string> > CommandLineStrings;
