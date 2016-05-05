@@ -3597,6 +3597,7 @@ GlobalEquation :
       EquationTerm_S.Case.GlobalEquation.GlobalEquationTerm = NULL;
     }
   | GlobalEquation GlobalEquationTerm
+  | GlobalEquation Loop
  ;
 
 GlobalEquationTerm :
