@@ -6057,6 +6057,8 @@ PostProcessing :
     }
 
   | PostProcessing  PostProcessingTerm
+
+  | PostProcessing  Loop
  ;
 
 PostProcessingTerm :
