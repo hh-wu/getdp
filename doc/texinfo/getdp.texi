@@ -1990,6 +1990,7 @@ the list of all available options.
 @tindex Group
 @tindex DefineGroup
 @tindex =
+@tindex All
 
 @vindex @var{group-id}
 @vindex @var{group-def}
@@ -2354,7 +2355,7 @@ FunctionSpace @{
     @} >
   < Constraint @{ 
      @{ NameOfCoef @var{coef-id};
-       EntityType @var{group-type}; < EntitySubType @var{group-sub-type}; >
+       EntityType Auto | @var{group-type}; < EntitySubType @var{group-sub-type}; >
        NameOfConstraint @var{constraint-id} <@{@}>; @} @dots{}
     @} >
   @} @dots{}
@@ -2416,7 +2417,9 @@ define piecewise basis functions; separate @code{NameOfCoef}s must be
 defined for those fields.
 @item
 A constraint is associated with geometrical entities defined by an
-automatically created @code{Group} of type @var{group-type}, using the
+automatically created @code{Group} of type @var{group-type}
+(@code{Auto} automatically fixes it as the @code{Entity} @var{group-def}
+type of the related @code{BasisFunction}), using the
 @code{Region} defined in a @code{Constraint} object as its main
 argument, and the optional @code{SubRegion} in the same object as a
 @var{group-sub-type} argument.

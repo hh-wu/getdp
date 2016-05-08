@@ -249,7 +249,7 @@ struct doubleXstring{
 %token      tNameOfCoef tFunction tdFunction tSubFunction tSubdFunction tSupport tEntity
 %token    tSubSpace tNameOfBasisFunction
 %token    tGlobalQuantity
-%token      tEntityType tEntitySubType tNameOfConstraint
+%token      tEntityType tAuto tEntitySubType tNameOfConstraint
 
 %token  tFormulation
 %token    tQuantity
@@ -2978,6 +2978,7 @@ ConstraintInFS :
       ConstraintInFS_S.Active.ResolutionIndex = -1;
       ConstraintInFS_S.Active.Active = NULL;
       Constraint_Index = -1;
+      Type_Function = 0;
     }
 
   | ConstraintInFS  ConstraintInFSTerm
@@ -2990,9 +2991,9 @@ ConstraintInFSTerm :
     {
       int i;
       if((i = List_ISearchSeq(FunctionSpace_S.BasisFunction, $2,
-			       fcmp_BasisFunction_NameOfCoef)) < 0) {
+                              fcmp_BasisFunction_NameOfCoef)) < 0) {
 	if((i = List_ISearchSeq(FunctionSpace_S.GlobalQuantity, $2,
-				 fcmp_GlobalQuantity_Name)) < 0)
+                                fcmp_GlobalQuantity_Name)) < 0)
 	  vyyerror(0, "Unknown NameOfCoef: %s", $2);
 	else {
 	  ConstraintInFS_S.QuantityType   = GLOBALQUANTITY;
@@ -3002,12 +3003,26 @@ ConstraintInFSTerm :
       else {
 	ConstraintInFS_S.QuantityType   = LOCALQUANTITY;
 	ConstraintInFS_S.ReferenceIndex = i;
+
+        // Auto selection of Type_Function
+        int entity_index =
+          ((struct BasisFunction *)
+           List_Pointer(FunctionSpace_S.BasisFunction, i))->EntityIndex;
+        if(entity_index<0)
+          vyyerror(0, "Undefined Entity for NameOfCoef %s", $2);
+        Type_Function =
+          ((struct Group *)List_Pointer(Problem_S.Group, entity_index))->FunctionType;
       }
       Free($2);
     }
 
   | tEntityType FunctionForGroup tEND
     { Type_Function = $2; }
+
+  | tEntityType tAuto tEND
+    {
+      // Auto selection already done
+    }
 
   | tEntitySubType SuppListTypeForGroup tEND
     { Type_SuppList = $2; }
@@ -9553,6 +9568,7 @@ void Free_ParserVariables()
   CommandLineNumbers.clear();
   CommandLineStrings.clear();
   Num_BasisFunction = 1;
+  num_include = 0; level_include = 0;
 }
 
 /*  A d d _ G r o u p   &   C o .  */

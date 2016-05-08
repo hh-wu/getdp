@@ -98,9 +98,10 @@ MaxOverTime                  return tMaxOverTime;
 FourierSteinmetz             return tFourierSteinmetz;
 Atan                         return tAtan;
 Atan2                        return tAtan2;
+Auto                         return tAuto;
 
 Barrier			     return tBarrier;
-BaseFileName                return tBaseFileName;
+BaseFileName                 return tBaseFileName;
 BasisFunction                return tBasisFunction;
 Beta                         return tBeta;
 Branch                       return tBranch;
