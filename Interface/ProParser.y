@@ -2989,7 +2989,7 @@ ConstraintInFSTerm :
 
     tNameOfCoef String__Index tEND
     {
-      int i;
+      int i, index_BF = -1;
       if((i = List_ISearchSeq(FunctionSpace_S.BasisFunction, $2,
                               fcmp_BasisFunction_NameOfCoef)) < 0) {
 	if((i = List_ISearchSeq(FunctionSpace_S.GlobalQuantity, $2,
@@ -2998,21 +2998,27 @@ ConstraintInFSTerm :
 	else {
 	  ConstraintInFS_S.QuantityType   = GLOBALQUANTITY;
 	  ConstraintInFS_S.ReferenceIndex = i;
+
+          index_BF =
+            ((struct GlobalQuantity *)
+             List_Pointer(FunctionSpace_S.GlobalQuantity, i))->ReferenceIndex;
 	}
       }
       else {
 	ConstraintInFS_S.QuantityType   = LOCALQUANTITY;
 	ConstraintInFS_S.ReferenceIndex = i;
-
-        // Auto selection of Type_Function
-        int entity_index =
-          ((struct BasisFunction *)
-           List_Pointer(FunctionSpace_S.BasisFunction, i))->EntityIndex;
-        if(entity_index<0)
-          vyyerror(0, "Undefined Entity for NameOfCoef %s", $2);
-        Type_Function =
-          ((struct Group *)List_Pointer(Problem_S.Group, entity_index))->FunctionType;
+        index_BF = i;
       }
+
+      // Auto selection of Type_Function
+      int entity_index =
+        ((struct BasisFunction *)
+         List_Pointer(FunctionSpace_S.BasisFunction, index_BF))->EntityIndex;
+      if(entity_index<0)
+        vyyerror(0, "Undefined Entity for NameOfCoef %s", $2);
+      Type_Function =
+        ((struct Group *)List_Pointer(Problem_S.Group, entity_index))->FunctionType;
+
       Free($2);
     }
 
