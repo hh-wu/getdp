@@ -202,7 +202,7 @@ struct doubleXstring{
 %token  tNbrRegions tGetRegion tStringToName tNameToString
 %token  tFor tEndFor tIf tElseIf tElse tEndIf tMacro tReturn tCall tCallTest
 %token  tTest tWhile tParse
-%token  tFlag tExists
+%token  tFlag tExists tGetForced
 %token  tInclude tLevelInclude
 %token  tConstant tList tListAlt tLinSpace tLogSpace
 %token  tListFromFile
@@ -8562,6 +8562,20 @@ OneFExpr :
         $$ = 1;
       else
         $$ = 0;
+      Free($3);
+    }
+
+  | tGetForced LP String__Index RP
+    {
+      Constant_S.Name = $3;
+      if(Tree_Query(ConstantTable_L, &Constant_S))
+	if(Constant_S.Type == VAR_FLOAT)
+	  $$ = Constant_S.Value.Float;
+	else {
+	  vyyerror(0, "Single value Constant needed: %s", $3);  $$ = 0.;
+	}
+      else
+        $$ = 0.;
       Free($3);
     }
 ;

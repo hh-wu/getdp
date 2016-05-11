@@ -216,6 +216,7 @@ GenerateOnlyJac              return tGenerateOnlyJac;
 GenerateRHSGroup             return tGenerateRHSGroup;
 GenerateRHSGroupCumulative   return tGenerateRHSGroupCumulative;
 GeoElement                   return tGeoElement;
+GetForced                    return tGetForced;
 GetNumber                    return tGetNumber;
 GetRegion                    return tGetRegion ;
 GetResidual                  return tGetResidual;

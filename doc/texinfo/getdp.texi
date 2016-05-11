@@ -1044,7 +1044,7 @@ purely constant expressions, denoted by the metasyntactic variable
   StrCmp[ @var{expression-char}, @var{expression-char} ] |
   StrLen[ @var{expression-char} ] |
   StringToName[ @var{expression-char} ] | S2N[ @var{expression-char} ] |
-  Exists[ @var{string} ] | NbrRegions [ @var{string} ] |
+  Exists[ @var{string} ] | GetForced[ @var{string} ] | NbrRegions [ @var{string} ] |
   GetNumber[ @var{expression-char} <, @var{expression-cst},> ]
 @end example
 
@@ -1054,8 +1054,9 @@ the two strings (returns an integer greater than, equal to, or less than
 0, according as the first string is greater than, equal to, or less than
 the second string).  @code{StrLen} returns the length of the
 string. @code{StringToName} creates a name from the provided
-string. @code{Exists} checks for the existance of a constant or a
-function. @code{NbrRegions} counts the numbers of elementary regions in
+string. @code{Exists} checks for the existence of a constant or a
+function. @code{GetForced} gets the value of a constant (zero if does not exist).
+@code{NbrRegions} counts the numbers of elementary regions in
 a group. @code{GetNumber} allows to get the value of a ONELAB number
 variable (the optional second argument specifies the default value
 returned if the variable does not exist.)
