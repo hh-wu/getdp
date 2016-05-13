@@ -9097,6 +9097,14 @@ StringIndex :
       Free($1);
     }
 
+  | tStringToName '[' CharExpr ']' '~' '{' FExpr '}'
+    {
+      char tmpstr[256];
+      sprintf(tmpstr, "_%d", (int)$7);
+      $$ = (char *)Malloc((strlen($3)+strlen(tmpstr)+1)*sizeof(char));
+      strcpy($$, $3); strcat($$, tmpstr);
+      Free($3);
+    }
  ;
 
 String__Index :
@@ -9110,7 +9118,6 @@ String__Index :
   // Create a name from any string
   | tStringToName '[' CharExpr ']'
     { $$ = $3; }
-
  ;
 
 CharExprNoVar :
