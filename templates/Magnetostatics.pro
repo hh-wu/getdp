@@ -478,6 +478,7 @@ PostProcessing {
       { Name h; Value { Local { [ nu[{d a}] * {d a} ]; In Domain; Jacobian JVol; }
                         Local { [ hc[] ]; In Domain_M; Jacobian JVol; } } }
       { Name hc; Value { Local { [ hc[] ]; In Domain_M; Jacobian JVol; } } }
+      { Name js; Value { Local { [ js[] ]; In Domain_S; Jacobian JVol; } } }
     }
   }
 }
@@ -485,18 +486,21 @@ PostProcessing {
 PostOperation {
   { Name MagSta_phi; NameOfPostProcessing MagSta_phi;
     Operation {
-      Print[ b, OnElementsOf Domain, File StrCat[resPath, "MagSta_phi_b.pos"] ];
-      Print[ h, OnElementsOf Domain, File StrCat[resPath, "MagSta_phi_h.pos"] ];
-      Print[ hc, OnElementsOf Domain, File StrCat[resPath, "MagSta_a_hc.pos"] ];
+      Print[ hc, OnElementsOf Domain_M, File StrCat[resPath, "MagSta_a_hc.pos"] ];
       Print[ phi, OnElementsOf Domain, File StrCat[resPath, "MagSta_phi_phi.pos"] ];
+      Print[ h, OnElementsOf Domain, File StrCat[resPath, "MagSta_phi_h.pos"] ];
+      Print[ b, OnElementsOf Domain, File StrCat[resPath, "MagSta_phi_b.pos"] ];
     }
   }
   { Name MagSta_a; NameOfPostProcessing MagSta_a;
     Operation {
-      Print[ b, OnElementsOf Domain, File StrCat[resPath, "MagSta_a_b.pos"] ];
+      Print[ hc, OnElementsOf Domain_M, File StrCat[resPath, "MagSta_a_hc.pos"] ];
+      Print[ js, OnElementsOf Domain_S, File StrCat[resPath, "MagSta_a_js.pos"] ];
+      If(modelDim == 2)
+        Print[ az, OnElementsOf Domain, File StrCat[resPath, "MagSta_a_az.pos"] ];
+      EndIf
       Print[ h, OnElementsOf Domain, File StrCat[resPath, "MagSta_a_h.pos"] ];
-      Print[ hc, OnElementsOf Domain, File StrCat[resPath, "MagSta_a_hc.pos"] ];
-      Print[ az, OnElementsOf Domain, File StrCat[resPath, "MagSta_az_a.pos"] ];
+      Print[ b, OnElementsOf Domain, File StrCat[resPath, "MagSta_a_b.pos"] ];
     }
   }
 }
