@@ -1852,9 +1852,11 @@ void Dof_InitDofForNoDof(struct Dof * DofForNoDof, int NbrHar)
   double Val[2] = {1.,0.} ;
 
   for (k=0 ; k<NbrHar ; k+=gSCALAR_SIZE) {
-    DofForNoDof[k].Type = DOF_FIXED ;
-    LinAlg_SetScalar(&DofForNoDof[k].Val, &Val[k%2]) ;
-    DofForNoDof[k].Case.FixedAssociate.TimeFunctionIndex = 0 ;
+    int incr = (gSCALAR_SIZE == 2) ? k / 2 : k;
+    struct Dof * D = DofForNoDof + incr;
+    D->Type = DOF_FIXED ;
+    LinAlg_SetScalar(&D->Val, &Val[k%2]) ;
+    D->Case.FixedAssociate.TimeFunctionIndex = 0 ;
   }
 }
 
