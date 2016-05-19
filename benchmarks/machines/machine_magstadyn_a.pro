@@ -961,164 +961,164 @@ PostOperation Get_GlobalQuantities UsingPost MagStaDyn_a_2D {
     If(!Flag_ParkTransformation)
       Print[ I, OnRegion PhaseA_pos, Format Table,
 	     File > StrCat[ResDir,"Ia",ExtGnuplot], LastTimeStepOnly,
-	     SendToServer StrCat[poI,"A"], Color "Pink" ];
+	     SendToServer StrCat[poI,"A"]{0}, Color "Pink" ];
       If(NbrPhases==3)
         Print[ I, OnRegion PhaseB_pos, Format Table,
 	       File > StrCat[ResDir,"Ib",ExtGnuplot], LastTimeStepOnly,
-	       SendToServer StrCat[poI,"B"], Color "Yellow" ];
+	       SendToServer StrCat[poI,"B"]{0}, Color "Yellow" ];
         Print[ I, OnRegion PhaseC_pos, Format Table,
 	       File > StrCat[ResDir,"Ic",ExtGnuplot], LastTimeStepOnly,
-	       SendToServer StrCat[poI,"C"], Color "LightGreen" ];
+	       SendToServer StrCat[poI,"C"]{0}, Color "LightGreen" ];
       EndIf
     EndIf
 
     Print[ U, OnRegion PhaseA_pos, Format Table,
 	   File > StrCat[ResDir,"Ua",ExtGnuplot], LastTimeStepOnly,
-	   SendToServer StrCat[poV,"A"], Color "Pink" ];
+	   SendToServer StrCat[poV,"A"]{0}, Color "Pink" ];
     If(NbrPhases==3)
       Print[ U, OnRegion PhaseB_pos, Format Table,
 	     File > StrCat[ResDir,"Ub",ExtGnuplot], LastTimeStepOnly,
-	     SendToServer StrCat[poV,"B"], Color "Yellow" ];
+	     SendToServer StrCat[poV,"B"]{0}, Color "Yellow" ];
       Print[ U, OnRegion PhaseC_pos, Format Table,
 	     File > StrCat[ResDir,"Uc",ExtGnuplot], LastTimeStepOnly,
-	     SendToServer StrCat[poV,"C"], Color "LightGreen" ];
+	     SendToServer StrCat[poV,"C"]{0}, Color "LightGreen" ];
     EndIf
   EndIf
   If(Flag_Cir && Flag_SrcType_StatorA==2)
     Print[ I, OnRegion Input1, Format Table,
 	   File > StrCat[ResDir,"Ia",ExtGnuplot], LastTimeStepOnly,
-	   SendToServer StrCat[poI,"A"], Color "Pink" ];
+	   SendToServer StrCat[poI,"A"]{0}, Color "Pink" ];
     Print[ U, OnRegion Input1, Format Table,
 	   File > StrCat[ResDir,"Ua",ExtGnuplot], LastTimeStepOnly,
-	   SendToServer StrCat[poV,"A"], Color "Pink" ];
+	   SendToServer StrCat[poV,"A"]{0}, Color "Pink" ];
   EndIf
   If(Flag_Cir && Flag_SrcType_StatorB==2)
     Print[ I, OnRegion Input2, Format Table,
 	   File > StrCat[ResDir,"Ib",ExtGnuplot], LastTimeStepOnly,
-	   SendToServer StrCat[poI,"B"], Color "Yellow" ];
+	   SendToServer StrCat[poI,"B"]{0}, Color "Yellow" ];
     Print[ U, OnRegion Input2, Format Table,
 	   File > StrCat[ResDir,"Ub",ExtGnuplot], LastTimeStepOnly,
-	   SendToServer StrCat[poV,"B"], Color "Yellow" ];
+	   SendToServer StrCat[poV,"B"]{0}, Color "Yellow" ];
   EndIf
   If(Flag_Cir && Flag_SrcType_StatorB==2)
     Print[ I, OnRegion Input3, Format Table,
 	   File > StrCat[ResDir,"Ic",ExtGnuplot], LastTimeStepOnly,
-	   SendToServer StrCat[poI,"C"], Color "LightGreen" ];
+	   SendToServer StrCat[poI,"C"]{0}, Color "LightGreen" ];
     Print[ U, OnRegion Input3, Format Table,
 	   File > StrCat[ResDir,"Uc",ExtGnuplot], LastTimeStepOnly,
-	   SendToServer StrCat[poV,"C"], Color "LightGreen" ];
+	   SendToServer StrCat[poV,"C"]{0}, Color "LightGreen" ];
   EndIf
   If(Flag_Cir && Flag_SrcType_StatorA==0)
     Print[ I, OnRegion R1, Format Table,
 	   File > StrCat[ResDir,"Ia",ExtGnuplot], LastTimeStepOnly,
-	   SendToServer StrCat[poI,"A"], Color "Pink" ];
+	   SendToServer StrCat[poI,"A"]{0}, Color "Pink" ];
     Print[ U, OnRegion R1, Format Table,
 	   File > StrCat[ResDir,"Ua",ExtGnuplot], LastTimeStepOnly,
-	   SendToServer StrCat[poV,"A"], Color "Pink" ];
+	   SendToServer StrCat[poV,"A"]{0}, Color "Pink" ];
   EndIf
   If(Flag_Cir && Flag_SrcType_StatorB==0)
     Print[ I, OnRegion R2, Format Table,
 	   File > StrCat[ResDir,"Ib",ExtGnuplot], LastTimeStepOnly,
-	   SendToServer StrCat[poI,"B"], Color "Yellow" ];
+	   SendToServer StrCat[poI,"B"]{0}, Color "Yellow" ];
     Print[ U, OnRegion R2, Format Table,
 	   File > StrCat[ResDir,"Ub",ExtGnuplot], LastTimeStepOnly,
-	   SendToServer StrCat[poV,"B"], Color "Yellow" ];
+	   SendToServer StrCat[poV,"B"]{0}, Color "Yellow" ];
   EndIf
   If(Flag_Cir && Flag_SrcType_StatorC==0)
     Print[ I, OnRegion R3, Format Table,
 	   File > StrCat[ResDir,"Ic",ExtGnuplot], LastTimeStepOnly,
-	   SendToServer StrCat[poI,"C"], Color "LightGreen" ];
+	   SendToServer StrCat[poI,"C"]{0}, Color "LightGreen" ];
     Print[ U, OnRegion R3, Format Table,
 	   File > StrCat[ResDir,"Uc",ExtGnuplot], LastTimeStepOnly,
-	   SendToServer StrCat[poV,"C"], Color "LightGreen" ];
+	   SendToServer StrCat[poV,"C"]{0}, Color "LightGreen" ];
   EndIf
 
   Print[ I, OnRegion RotorC, Format Table,
 	 File > StrCat[ResDir,"Irotor",ExtGnuplot], LastTimeStepOnly,
-	 SendToServer StrCat[poI,"rotor"], Color "LightCyan" ];
+	 SendToServer StrCat[poI,"rotor"]{0}, Color "LightCyan" ];
 
   If(Flag_SrcType_Stator)
     Print[ Flux[PhaseA], OnGlobal, Format TimeTable,
 	   File > StrCat[ResDir,"Flux_a",ExtGnuplot], LastTimeStepOnly,
-           StoreInVariable $Flux_a, SendToServer StrCat[poF,"A"],  Color "Pink" ];
+           StoreInVariable $Flux_a, SendToServer StrCat[poF,"A"]{0},  Color "Pink" ];
     If(NbrPhases==3)
       Print[ Flux[PhaseB], OnGlobal, Format TimeTable,
 	     File > StrCat[ResDir,"Flux_b",ExtGnuplot], LastTimeStepOnly,
-             StoreInVariable $Flux_b, SendToServer StrCat[poF,"B"],  Color "Yellow" ];
+             StoreInVariable $Flux_b, SendToServer StrCat[poF,"B"]{0},  Color "Yellow" ];
       Print[ Flux[PhaseC], OnGlobal, Format TimeTable,
 	     File > StrCat[ResDir,"Flux_c",ExtGnuplot], LastTimeStepOnly,
-             StoreInVariable $Flux_c, SendToServer StrCat[poF,"C"], Color "LightGreen"];
+             StoreInVariable $Flux_c, SendToServer StrCat[poF,"C"]{0}, Color "LightGreen"];
     EndIf
     If(Flag_ParkTransformation && Flag_SrcType_Stator)
       Print[ Flux_d, OnRegion DomainDummy, Format TimeTable,
 	     File > StrCat[ResDir,"Flux_d",ExtGnuplot], LastTimeStepOnly,
-	     SendToServer StrCat[poF,"d"], Color "LightYellow" ];
+	     SendToServer StrCat[poF,"d"]{0}, Color "LightYellow" ];
       Print[ Flux_q, OnRegion DomainDummy, Format TimeTable,
 	     File > StrCat[ResDir,"Flux_q",ExtGnuplot], LastTimeStepOnly,
-	     SendToServer StrCat[poF,"q"], Color "LightYellow" ];
+	     SendToServer StrCat[poF,"q"]{0}, Color "LightYellow" ];
       Print[ Flux_0, OnRegion DomainDummy, Format TimeTable,
 	     File > StrCat[ResDir,"Flux_0",ExtGnuplot], LastTimeStepOnly,
-	     SendToServer StrCat[poF,"0"], Color "LightYellow" ];
+	     SendToServer StrCat[poF,"0"]{0}, Color "LightYellow" ];
     EndIf
   EndIf
 
   Print[ JouleLosses[Rotor], OnGlobal, Format TimeTable,
 	 File > StrCat[ResDir,"JL",ExtGnuplot], LastTimeStepOnly,
-	 SendToServer StrCat[poJL,"rotor"], Color "LightYellow" ];
+	 SendToServer StrCat[poJL,"rotor"]{0}, Color "LightYellow" ];
   Print[ JouleLosses[Rotor_Fe], OnGlobal, Format TimeTable,
 	 File > StrCat[ResDir,"JL_Fe",ExtGnuplot], LastTimeStepOnly,
-	 SendToServer StrCat[poJL,"rotor_fe"], Color "LightYellow" ];
+	 SendToServer StrCat[poJL,"rotor_fe"]{0}, Color "LightYellow" ];
 }
 
 PostOperation Get_Torque UsingPost MagStaDyn_a_2D {
   Print[ Torque_Maxwell[Rotor_Airgap], OnGlobal, Format TimeTable,
     File > StrCat[ResDir,"Tr",ExtGnuplot], LastTimeStepOnly, StoreInVariable $Trotor,
-	 SendToServer StrCat[po_mecT, "rotor"], Color "Ivory" ];
+	 SendToServer StrCat[po_mecT, "rotor"]{0}, Color "Ivory" ];
   Print[ Torque_Maxwell[Stator_Airgap], OnGlobal, Format TimeTable,
     File > StrCat[ResDir,"Ts",ExtGnuplot], LastTimeStepOnly, StoreInVariable $Tstator,
-	 SendToServer StrCat[po_mecT, "stator"], Color "Ivory" ];
+	 SendToServer StrCat[po_mecT, "stator"]{0}, Color "Ivory" ];
 }
 
 PostOperation Get_Torque_cplx UsingPost MagStaDyn_a_2D {
   Print[ Torque_Maxwell_cplx[Rotor_Airgap], OnGlobal, Format TimeTable,
 	 File > StrCat[ResDir,"Tr",ExtGnuplot], StoreInVariable $Trotor,
-	 SendToServer StrCat[po_mecT, "rotor"], Color "Ivory" ];
+	 SendToServer StrCat[po_mecT, "rotor"]{0}, Color "Ivory" ];
   Print[ Torque_Maxwell_cplx[Stator_Airgap], OnGlobal, Format TimeTable,
 	 File > StrCat[ResDir,"Ts",ExtGnuplot], StoreInVariable $Tstator,
-	 SendToServer StrCat[po_mecT,"stator"], Color "Ivory" ];
+	 SendToServer StrCat[po_mecT,"stator"]{0}, Color "Ivory" ];
 }
 
 PostOperation Mechanical UsingPost Mechanical {
   Print[ P, OnRegion DomainKin, Format Table,
 	 File > StrCat[ResDir,"P", ExtGnuplot], LastTimeStepOnly, StoreInVariable $Position,
-	 SendToServer StrCat[po_mec,"11Position [rad]"], Color "Ivory"] ;
+	 SendToServer StrCat[po_mec,"11Position [rad]"]{0}, Color "Ivory"] ;
   Print[ Pdeg, OnRegion DomainKin, Format Table,
 	 File > StrCat[ResDir,"P_deg", ExtGnuplot], LastTimeStepOnly,
-	 SendToServer StrCat[po_mec,"10Position [deg]"], Color "Ivory"] ;
+	 SendToServer StrCat[po_mec,"10Position [deg]"]{0}, Color "Ivory"] ;
   Print[ V, OnRegion DomainKin, Format Table,
 	 File > StrCat[ResDir,"V", ExtGnuplot], LastTimeStepOnly,
-	 SendToServer StrCat[po_mec,"21Velocity [rad\s]"], Color "Ivory"] ;//MediumPurple1
+	 SendToServer StrCat[po_mec,"21Velocity [rad\s]"]{0}, Color "Ivory"] ;//MediumPurple1
   Print[ Vrpm, OnRegion DomainKin, Format Table,
 	 File > StrCat[ResDir,"Vrpm", ExtGnuplot], LastTimeStepOnly,
-	 SendToServer StrCat[po_mec,"20Velocity [rpm]"], Color "Ivory"] ;//MediumPurple1
+	 SendToServer StrCat[po_mec,"20Velocity [rpm]"]{0}, Color "Ivory"] ;//MediumPurple1
 }
 
 If (Flag_ParkTransformation)
 PostOperation ThetaPark_IABC UsingPost MagStaDyn_a_2D {
   Print[ RotorPosition_deg, OnRegion DomainDummy, Format Table, LastTimeStepOnly,
 	 File StrCat[ResDir, "temp",ExtGnuplot],
-	 SendToServer StrCat[po,"10Rotor position"], Color "LightYellow" ];
+	 SendToServer StrCat[po,"10Rotor position"]{0}, Color "LightYellow" ];
   Print[ Theta_Park_deg, OnRegion DomainDummy, Format Table, LastTimeStepOnly,
 	 File StrCat[ResDir, "temp",ExtGnuplot],
-	 SendToServer StrCat[po,"11Theta park"], Color "LightYellow" ];
+	 SendToServer StrCat[po,"11Theta park"]{0}, Color "LightYellow" ];
   Print[ IA, OnRegion DomainDummy, Format Table, LastTimeStepOnly,
 	 File StrCat[ResDir,"temp",ExtGnuplot],
-	 SendToServer StrCat[poI,"A"], Color "Pink" ];
+	 SendToServer StrCat[poI,"A"]{0}, Color "Pink" ];
   Print[ IB, OnRegion DomainDummy, Format Table, LastTimeStepOnly,
 	 File StrCat[ResDir,"temp",ExtGnuplot],
-	 SendToServer StrCat[poI,"B"], Color "Yellow" ];
+	 SendToServer StrCat[poI,"B"]{0}, Color "Yellow" ];
   Print[ IC, OnRegion DomainDummy, Format Table, LastTimeStepOnly,
 	 File StrCat[ResDir,"temp",ExtGnuplot],
-	 SendToServer StrCat[poI,"C"], Color "LightGreen"  ];
+	 SendToServer StrCat[poI,"C"]{0}, Color "LightGreen"  ];
 }
 EndIf
