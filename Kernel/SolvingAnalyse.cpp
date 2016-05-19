@@ -583,12 +583,13 @@ void SolvingAnalyse()
       Current.Time = Current.TimeImag = Current.TimeStep = 0. ;
     }
 
-    Current.NbrHar = 1 ; /* Bug : peut ne pas etre initialise si -cal sans
-			    -pre et evaluation d'expression sans init de systeme avant */
+    // FIXME: BUG: Current.NbrHar might not be initialized if -cal is called
+    // without -pre and we evaluate expressions without initizing a system
+    Current.NbrHar = 1 ;
     Current.TypeTime = TIME_STATIC ;
     Current.RelativeDifference = 0. ;
     Current.RelaxationFactor = 1. ;
-    Current.NbrSystem  = Nbr_DefineSystem ;  /* Attention: init for Dt[] */
+    Current.NbrSystem = Nbr_DefineSystem ;  /* Attention: init for Dt[] */
     Current.DofData_P0 = DofData_P0 ;
     Current.Breakpoint = -1;
 

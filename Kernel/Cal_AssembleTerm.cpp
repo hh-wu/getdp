@@ -46,10 +46,12 @@ void Cal_AssembleTerm_NoDt(struct Dof * Equ, struct Dof * Dof, double Val[])
         List_Add(Current.DofData->m1s, &m);
       }
     }
-    for (k = 0 ; k < Current.NbrHar ; k += 2)
-      Dof_AssembleInMat(Equ+k, Dof+k, Current.NbrHar, &Val[k],
+    for (k = 0 ; k < Current.NbrHar ; k += 2){
+      int incr = (gSCALAR_SIZE == 2) ? k / 2 : k;
+      Dof_AssembleInMat(Equ + incr, Dof + incr, Current.NbrHar, &Val[k],
 			&Current.DofData->M1, &Current.DofData->m1,
                         Current.DofData->m1s) ;
+    }
   }
   else {
     if (Current.NbrHar == 1) {
@@ -90,20 +92,11 @@ void Cal_AssembleTerm_NoDt(struct Dof * Equ, struct Dof * Dof, double Val[])
       }
     }
     else {
-      /*
-      for (k = 0 ; k < Current.NbrHar ; k += 2)
-	Dof_AssembleInMat(Equ+k, Dof+k, Current.NbrHar, &Val[k],
-			  &Current.DofData->A, &Current.DofData->b) ; // Ruth -> Current.NbrHar
-      */
-      for (k = 0 ; k < Current.NbrHar ; k += 2) {
-        tmp[0] = Val[k] ;
-        tmp[1] = Val[k+1] ;
-        //printf("Val[%d]= %g Val[%d]=%g\n",k, Val[k], k+1, Val[k+1]); // Ruth
-        Dof_AssembleInMat(Equ+k, Dof+k, 2, tmp,
-                          &Current.DofData->A, &Current.DofData->b) ;
-        /* If the Current.NbrHar > 2 we must indicate just the size of tmp for assembling, i.e. 2 instead of  Current.NbrHar*/
+      for (k = 0 ; k < Current.NbrHar ; k += 2){
+        int incr = (gSCALAR_SIZE == 2) ? k / 2 : k;
+	Dof_AssembleInMat(Equ + incr, Dof + incr, Current.NbrHar, &Val[k],
+			  &Current.DofData->A, &Current.DofData->b) ;
       }
-
     }
   }
 }
@@ -135,10 +128,12 @@ void Cal_AssembleTerm_DtDof(struct Dof * Equ, struct Dof * Dof, double Val[])
         List_Add(Current.DofData->m2s, &m);
       }
     }
-    for (k = 0 ; k < Current.NbrHar ; k += 2)
-      Dof_AssembleInMat(Equ+k, Dof+k, Current.NbrHar, &Val[k],
+    for (k = 0 ; k < Current.NbrHar ; k += 2){
+      int incr = (gSCALAR_SIZE == 2) ? k / 2 : k;
+      Dof_AssembleInMat(Equ + incr, Dof + incr, Current.NbrHar, &Val[k],
 			&Current.DofData->M2, &Current.DofData->m2,
                         Current.DofData->m2s) ;
+    }
   }
   else {
     if (Current.NbrHar == 1) {
@@ -191,9 +186,9 @@ void Cal_AssembleTerm_DtDof(struct Dof * Equ, struct Dof * Dof, double Val[])
       for (k = 0 ; k < Current.NbrHar ; k += 2) {
         tmp[0] = -Val[k+1] * Current.DofData->Val_Pulsation[k/2] ;
         tmp[1] =  Val[k] * Current.DofData->Val_Pulsation[k/2] ;
-        Dof_AssembleInMat(Equ+k, Dof+k, 2, tmp,
+        int incr = (gSCALAR_SIZE == 2) ? k / 2 : k;
+        Dof_AssembleInMat(Equ + incr, Dof + incr, Current.NbrHar, tmp,
                           &Current.DofData->A, &Current.DofData->b) ;
-        /* If the Current.NbrHar > 2 we must indicate just the size of tmp for assembling, i.e. 2 instead of  Current.NbrHar*/
       }
     }
   }
@@ -244,14 +239,6 @@ void Cal_AssembleTerm_DtNL(struct Dof * Equ, struct Dof * Dof, double Val[])
     }
     else {
       Message::Error("DtNL not implemented for separate assembly in harmonic analysis");
-      /*
-      for (k = 0 ; k < Current.NbrHar ; k += 2) {
-	tmp[0] = -Val[k+1] * Current.DofData->Val_Pulsation[k/2] ;
-	tmp[1] =  Val[k] * Current.DofData->Val_Pulsation[k/2] ;
-	Dof_AssembleInMat(Equ+k, Dof+k, Current.NbrHar, tmp,
-			  &Current.DofData->A, &Current.DofData->b) ;
-      }
-      */
     }
   }
 }
@@ -284,7 +271,8 @@ void Cal_AssembleTerm_DtDtDof(struct Dof * Equ, struct Dof * Dof, double Val[])
       }
     }
     for (k = 0 ; k < Current.NbrHar ; k += 2) {
-      Dof_AssembleInMat(Equ+k, Dof+k, Current.NbrHar, &Val[k],
+      int incr = (gSCALAR_SIZE == 2) ? k / 2 : k;
+      Dof_AssembleInMat(Equ + incr, Dof + incr, Current.NbrHar, &Val[k],
 			&Current.DofData->M3, &Current.DofData->m3,
                         Current.DofData->m3s) ;
     }
@@ -328,8 +316,9 @@ void Cal_AssembleTerm_DtDtDof(struct Dof * Equ, struct Dof * Dof, double Val[])
       for (k = 0 ; k < Current.NbrHar ; k += 2) {
 	tmp[0] = - Val[k]   * SQU(Current.DofData->Val_Pulsation[k/2]) ;
 	tmp[1] = - Val[k+1] * SQU(Current.DofData->Val_Pulsation[k/2]) ;
-	Dof_AssembleInMat(Equ+k, Dof+k, 2, tmp,
-			  &Current.DofData->A, &Current.DofData->b) ; // Current.NbrHar->2
+        int incr = (gSCALAR_SIZE == 2) ? k / 2 : k;
+	Dof_AssembleInMat(Equ + incr, Dof + incr, Current.NbrHar, tmp,
+			  &Current.DofData->A, &Current.DofData->b) ;
       }
     }
   }
@@ -369,15 +358,16 @@ void Cal_AssembleTerm_DtDtDtDof(struct Dof * Equ, struct Dof * Dof, double Val[]
       }
     }
     for (k = 0 ; k < Current.NbrHar ; k += 2) {
-      Dof_AssembleInMat(Equ+k, Dof+k, Current.NbrHar, &Val[k],
+      int incr = (gSCALAR_SIZE == 2) ? k / 2 : k;
+      Dof_AssembleInMat(Equ + incr, Dof + incr, Current.NbrHar, &Val[k],
 			&Current.DofData->M4, &Current.DofData->m4,
                         Current.DofData->m4s) ;
     }
   }
   else {
-        Message::Error("DtDtDtDof only available with GenerateSeparate");
-        return ;
-	}
+    Message::Error("DtDtDtDof only available with GenerateSeparate");
+    return ;
+  }
 }
 
 void Cal_AssembleTerm_DtDtDtDtDof(struct Dof * Equ, struct Dof * Dof, double Val[])
@@ -402,15 +392,16 @@ void Cal_AssembleTerm_DtDtDtDtDof(struct Dof * Equ, struct Dof * Dof, double Val
       }
     }
     for (k = 0 ; k < Current.NbrHar ; k += 2) {
-      Dof_AssembleInMat(Equ+k, Dof+k, Current.NbrHar, &Val[k],
+      int incr = (gSCALAR_SIZE == 2) ? k / 2 : k;
+      Dof_AssembleInMat(Equ + incr, Dof + incr, Current.NbrHar, &Val[k],
 			&Current.DofData->M5, &Current.DofData->m5,
                         Current.DofData->m5s) ;
     }
   }
   else {
-        Message::Error("DtDtDtDtDof only available with GenerateSeparate");
-        return ;
-	}
+    Message::Error("DtDtDtDtDof only available with GenerateSeparate");
+    return ;
+  }
 }
 
 void Cal_AssembleTerm_DtDtDtDtDtDof(struct Dof * Equ, struct Dof * Dof, double Val[])
@@ -435,15 +426,16 @@ void Cal_AssembleTerm_DtDtDtDtDtDof(struct Dof * Equ, struct Dof * Dof, double V
       }
     }
     for (k = 0 ; k < Current.NbrHar ; k += 2) {
-      Dof_AssembleInMat(Equ+k, Dof+k, Current.NbrHar, &Val[k],
+      int incr = (gSCALAR_SIZE == 2) ? k / 2 : k;
+      Dof_AssembleInMat(Equ + incr, Dof + incr, Current.NbrHar, &Val[k],
 			&Current.DofData->M6, &Current.DofData->m6,
                         Current.DofData->m6s) ;
     }
   }
   else {
-		Message::Error("DtDtDtDtDtDof only available with GenerateSeparate");
-		return ;
-	}
+    Message::Error("DtDtDtDtDtDof only available with GenerateSeparate");
+    return ;
+  }
 }
 
 /* ------------------------------------------------------------------------ */
@@ -475,9 +467,11 @@ void Cal_AssembleTerm_JacNL(struct Dof * Equ, struct Dof * Dof, double Val[])
       }
     }
     else {
-      for (k = 0 ; k < Current.NbrHar ; k += 2)
-	Dof_AssembleInMat(Equ+k, Dof+k, Current.NbrHar, &Val[k],
+      for (k = 0 ; k < Current.NbrHar ; k += 2){
+        int incr = (gSCALAR_SIZE == 2) ? k / 2 : k;
+	Dof_AssembleInMat(Equ + incr, Dof + incr, Current.NbrHar, &Val[k],
 			  &Current.DofData->Jac, NULL) ;
+      }
     }
   }
 }
@@ -518,7 +512,7 @@ void Cal_AssembleTerm_DtDofJacNL(struct Dof * Equ, struct Dof * Dof, double Val[
       }
     }
     else
-      Message::Error("DtDofJacNL not implemented for multi-harmonic analysis");
+      Message::Error("DtDofJacNL not implemented for harmonic analysis");
   }
 }
 
@@ -548,10 +542,12 @@ void Cal_AssembleTerm_NeverDt(struct Dof * Equ, struct Dof * Dof, double Val[])
         List_Add(Current.DofData->m1s, &m);
       }
     }
-    for (k = 0 ; k < Current.NbrHar ; k += 2)
-      Dof_AssembleInMat(Equ+k, Dof+k, Current.NbrHar, &Val[k],
+    for (k = 0 ; k < Current.NbrHar ; k += 2){
+      int incr = (gSCALAR_SIZE == 2) ? k / 2 : k;
+      Dof_AssembleInMat(Equ + incr, Dof + incr, Current.NbrHar, &Val[k],
 			&Current.DofData->M1, &Current.DofData->m1,
                         Current.DofData->m1s) ;
+    }
   }
   else{
     if (Current.NbrHar == 1) {
@@ -567,7 +563,8 @@ void Cal_AssembleTerm_NeverDt(struct Dof * Equ, struct Dof * Dof, double Val[])
     }
     else {
       for (k = 0 ; k < Current.NbrHar ; k += 2) {
-	Dof_AssembleInMat(Equ+k, Dof+k, Current.NbrHar, &Val[k],
+        int incr = (gSCALAR_SIZE == 2) ? k / 2 : k;
+	Dof_AssembleInMat(Equ + incr, Dof + incr, Current.NbrHar, &Val[k],
 			  &Current.DofData->A, &Current.DofData->b) ;
       }
     }
@@ -587,6 +584,8 @@ void Cal_AssembleTerm_MHMoving(struct Dof * Equ, struct Dof * Dof, double Val[])
   extern int MHMoving_assemblyType ;
   extern double ** MH_Moving_Matrix ;
   extern Tree_T  * DofTree_MH_moving ;
+
+  // FIXME: this needs to be updated depending on gSCALAR_SIZE
 
   if(MHMoving_assemblyType==1){
     for (int k = 0 ; k < Current.NbrHar ; k++)
