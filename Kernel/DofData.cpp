@@ -1018,12 +1018,14 @@ void Dof_AddPulsation(struct DofData * DofData_P, double Val_Pulsation)
 {
   if (DofData_P->Pulsation == NULL)
     DofData_P->Pulsation = List_Create(1, 2, sizeof(double)) ;
-
+  List_Add(DofData_P->Pulsation, &Val_Pulsation) ;
+  /*
   if (List_PQuery
       (DofData_P->Pulsation, &Val_Pulsation, fcmp_double) == NULL) {
     List_Add(DofData_P->Pulsation, &Val_Pulsation) ;
     List_Sort(DofData_P->Pulsation, fcmp_double) ;
   }
+  */
 }
 
 /* ------------------------------------------------------------------------ */
