@@ -184,6 +184,7 @@ void Cal_AssembleTerm_DtDof(struct Dof * Equ, struct Dof * Dof, double Val[])
     }
     else {
       for (k = 0 ; k < Current.NbrHar ; k += 2) {
+        //printf("====hola idiota=== k %d pul %g \n", k, Current.DofData->Val_Pulsation[k/2]);
         tmp[0] = -Val[k+1] * Current.DofData->Val_Pulsation[k/2] ;
         tmp[1] =  Val[k] * Current.DofData->Val_Pulsation[k/2] ;
         int incr = (gSCALAR_SIZE == 2) ? k / 2 : k;
@@ -585,14 +586,14 @@ void Cal_AssembleTerm_MHMoving(struct Dof * Equ, struct Dof * Dof, double Val[])
   extern double ** MH_Moving_Matrix ;
   extern Tree_T  * DofTree_MH_moving ;
 
-  // FIXME: this needs to be updated depending on gSCALAR_SIZE
+  // FIX to check!
 
   if(MHMoving_assemblyType==1){
     for (int k = 0 ; k < Current.NbrHar ; k++)
       for (int l = 0 ; l < Current.NbrHar ; l++) {
         double tmp = Val[0] * MH_Moving_Matrix[k][l] ;
         /* if (k==l) */
-        Dof_AssembleInMat(Equ+k, Dof+l, 1, &tmp,
+        Dof_AssembleInMat(Equ+k/2*gCOMPLEX_INCREMENT, Dof+l/2*gCOMPLEX_INCREMENT, 1, &tmp,
                           &Current.DofData->A, &Current.DofData->b) ;
       }
   }
@@ -602,7 +603,7 @@ void Cal_AssembleTerm_MHMoving(struct Dof * Equ, struct Dof * Dof, double Val[])
       for (int l = 0 ; l < Current.NbrHar ; l++) {
         double tmp = Val[0] * MH_Moving_Matrix[k][l] ;
         // if (k==l)
-        Dof_AssembleInMat(Equ+k, Dof+l, 1, &tmp,
+        Dof_AssembleInMat(Equ+k/2*gCOMPLEX_INCREMENT, Dof+l/2*gCOMPLEX_INCREMENT, 1, &tmp,
                           &Current.DofData->A_MH_moving, &Current.DofData->b_MH_moving) ;
       }
   }
