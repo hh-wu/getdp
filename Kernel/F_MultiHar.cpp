@@ -142,11 +142,19 @@ void MH_Get_InitData(int Case, int NbrPoints, int *NbrPointsX_P,
 
   Val_Pulsation = Current.DofData->Val_Pulsation;
   MaxPuls = 0. ; MinPuls = 1.e99 ;
+
   for (iPul = 0 ; iPul < NbrHar/2 ; iPul++) {
+    if (Val_Pulsation[iPul]){
+      MinPuls = std::min(Val_Pulsation[iPul], MinPuls);
+      MaxPuls = std::max(Val_Pulsation[iPul], MaxPuls);
+    }
+    /*
+    // Ruth: Previous implementation
     if (Val_Pulsation[iPul] &&  Val_Pulsation[iPul] < MinPuls)
       MinPuls = Val_Pulsation[iPul] ;
     if (Val_Pulsation[iPul] &&  Val_Pulsation[iPul] > MaxPuls)
       MaxPuls = Val_Pulsation[iPul] ;
+    */
   }
 
   if (Case != 3)
@@ -337,7 +345,8 @@ void MHTransform(struct Element * Element, struct QuantityStorage * QuantityStor
     }
 
     /* evaluation of the function */
-    Get_ValueOfExpression(Expression_P, QuantityStorage_P0, u, v, w, &t_Value, 1); //To generalize: Function in MHTransform (e.g. h[{d a}]) has 1 argument
+    Get_ValueOfExpression(Expression_P, QuantityStorage_P0, u, v, w, &t_Value, 1);
+    //To generalize: Function in MHTransform (e.g. h[{d a}]) has 1 argument
 
     if (!iTime) nVal2 = NbrValues_Type (t_Value.Type) ;
 
@@ -662,7 +671,7 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
       Get_ValueOfExpression(Expression_P, QuantityStorage_P0,
                             Current.u, Current.v, Current.w, &t_Value,
                             FI->MHJacNL_NbrArguments);
-			    //Current.u, Current.v, Current.w, &t_Value, 1); //To generalize: Function in MHJacNL has 1 argument (e.g. dhdb[{d a}])
+      //Current.u, Current.v, Current.w, &t_Value, 1); //To generalize: Function in MHJacNL has 1 argument (e.g. dhdb[{d a}])
 
       if (!iTime){
 	if (!i_IntPoint){
@@ -713,14 +722,16 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
       for (iHar = 0 ; iHar < NbrHar ; iHar++)
 	for (jHar = OFFSET ; jHar <= iHar ; jHar++){
 	  plus = plus0 = Factor * E_MH[iDof][jDof][iHar][jHar] ;
+
 	  if(jHar==DcHarmonic && iHar!=DcHarmonic) { plus0 *= 1. ; plus *= 2. ;}
-	  Dof_AssembleInMat(Dofi+iHar, Dofj+jHar, 1, &plus, Jac, NULL) ;
+
+          Dof_AssembleInMat(Dofi+iHar/2*gCOMPLEX_INCREMENT, Dofj+jHar/2*gCOMPLEX_INCREMENT, 1, &plus, Jac, NULL) ;
 	  if(iHar != jHar)
-	      Dof_AssembleInMat(Dofi+jHar, Dofj+iHar, 1, &plus0, Jac, NULL) ;
+	      Dof_AssembleInMat(Dofi+jHar/2*gCOMPLEX_INCREMENT, Dofj+iHar/2*gCOMPLEX_INCREMENT, 1, &plus0, Jac, NULL) ;
 	  if(iDof != jDof){
-	      Dof_AssembleInMat(Dofj+iHar, Dofi+jHar, 1, &plus, Jac, NULL) ;
+	      Dof_AssembleInMat(Dofj+iHar/2*gCOMPLEX_INCREMENT, Dofi+jHar/2*gCOMPLEX_INCREMENT, 1, &plus, Jac, NULL) ;
 	      if(iHar != jHar)
-		Dof_AssembleInMat(Dofj+jHar, Dofi+iHar, 1, &plus0, Jac, NULL) ;
+		Dof_AssembleInMat(Dofj+jHar/2*gCOMPLEX_INCREMENT, Dofi+iHar/2*gCOMPLEX_INCREMENT, 1, &plus0, Jac, NULL) ;
 	  }
 	}
     }
@@ -731,7 +742,7 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
 
   if (ZeroHarmonic) {
     for (iDof = 0 ; iDof < Nbr_Dof ; iDof++){
-      Dofi = QuantityStorage_P->BasisFunction[iDof].Dof + ZeroHarmonic ;
+      Dofi = QuantityStorage_P->BasisFunction[iDof].Dof + ZeroHarmonic/2*gCOMPLEX_INCREMENT ;
       Dof_AssembleInMat(Dofi, Dofi, 1, &one, Jac, NULL) ;
     }
   }
