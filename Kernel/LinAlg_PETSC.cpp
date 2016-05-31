@@ -71,7 +71,7 @@ static void _try(int ierr)
 
 static int SolverInitialized = 0;
 
-#if (PETSC_VERSION_RELEASE == 0)
+#if ((PETSC_VERSION_RELEASE == 0) || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 7)))
 #define PetscTruth PetscBool
 #define PetscOptionsGetTruth(A, B, C, D) PetscOptionsGetBool(A, NULL, B, C, D)
 #define PetscOptionsInsertFile(A, B, C) PetscOptionsInsertFile(A, NULL, B, C)
