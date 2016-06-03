@@ -2,6 +2,7 @@ Include "helix_data.pro";
 
 Group {
   Air = Region[AIR];
+  AirInf = Region[INF];
   Matrix = Region[MATRIX];
   BndMatrix = Region[BND_MATRIX];
   Filaments = Region[{}];
@@ -12,9 +13,9 @@ Group {
   EndFor
 
   OmegaC = Region[{Matrix, Filaments}]; // conducting domain
-  OmegaCC = Region[Air]; // non-conducting domain
+  OmegaCC = Region[{Air, AirInf}]; // non-conducting domain
   BndOmegaC = Region[BndMatrix]; // boundary of conducting domain
-  Cut = Region[(AIR + 1)]; // thick cut
+  Cut = Region[(INF + 1)]; // thick cut
   Omega = Region[{OmegaC, OmegaCC}]; // full domain
 }
 
@@ -73,7 +74,10 @@ Function {
 
 Jacobian {
   { Name Vol ;
-    Case { { Region All ; Jacobian Vol ; } }
+    Case {
+      { Region AirInf ; Jacobian VolCylShell{AirRadius, InfRadius} ; }
+      { Region All ; Jacobian Vol ; }
+    }
   }
 }
 

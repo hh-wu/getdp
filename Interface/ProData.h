@@ -257,6 +257,7 @@ struct JacobianCase {
 
 #define JACOBIAN_SUR_SPH_SHELL           30
 #define JACOBIAN_VOL_SPH_SHELL           31
+#define JACOBIAN_VOL_CYL_SHELL           32
 
 #define JACOBIAN_SUR_AXI_SPH_SHELL       40
 #define JACOBIAN_VOL_AXI_SPH_SHELL       41

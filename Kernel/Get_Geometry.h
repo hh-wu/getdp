@@ -51,6 +51,7 @@ double  JacobianVolAxiSquRectShell2D (JACOBIAN_ARG);
 
 double  JacobianVol3D (JACOBIAN_ARG);
 double  JacobianVolSphShell3D (JACOBIAN_ARG);
+double  JacobianVolCylShell3D (JACOBIAN_ARG);
 double  JacobianVolRectShell3D (JACOBIAN_ARG);
 
 /* Sur */

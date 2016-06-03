@@ -20,7 +20,11 @@ DefineConstant[
     (Preset == 3) ? 3 :
     1,
     ReadOnly Preset,
-    Name "Input/1Geometry/Layers"}
+    Name "Input/1Geometry/Layers"},
+  AirRadius = {0.8, ReadOnly Preset,
+    Name "Input/1Geometry/Radius of air domain [mm]"},
+  InfRadius = {1.2, ReadOnly Preset,
+    Name "Input/1Geometry/Radius of infinite air domain [mm]"}
 ];
 
 For i In {1:NumLayers}
@@ -46,3 +50,5 @@ MATRIX = 300000;
 BND_MATRIX = 200000;
 AIR = 310001;
 BND_AIR = 210001;
+INF = 320001;
+BND_INF = 220001;

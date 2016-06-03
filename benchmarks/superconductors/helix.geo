@@ -3,8 +3,6 @@ Include "helix_data.pro";
 DefineConstant[
   ThreeD = {0, Choices{0,1}, Highlight "LightYellow",
     Name "Input/1Geometry/0Three-dimensional model"},
-  AirRadius = {1, ReadOnly Preset,
-    Name "Input/1Geometry/Radius of air domain [mm]"},
   MatrixRadius = {(Preset == 3) ? 0.5 : 0.56419, ReadOnly Preset,
     Name "Input/1Geometry/Radius of conductive matrix [mm]"},
   FilamentShape = {(Preset == 4 || Preset == 5) ? 1 : 0,
@@ -169,6 +167,17 @@ For i In {0 : (ThreeD && TwistFraction) ? 1 : 0}
   l14~{i} = newl; Circle(l14~{i}) = {p14~{i}, p0~{i}, p11~{i}};
   ll11~{i} = newll; Line Loop(ll11~{i}) = {l11~{i}, l12~{i}, l13~{i}, l14~{i}};
   s11~{i} = news; Plane Surface(s11~{i}) = {ll11~{i}, ll1~{i}};
+
+  p111~{i} = newp; Point(p111~{i}) = {InfRadius*mm, 0, z, LcAir*mm};
+  p112~{i} = newp; Point(p112~{i}) = {0, InfRadius*mm, z, LcAir*mm};
+  p113~{i} = newp; Point(p113~{i}) = {-InfRadius*mm, 0, z, LcAir*mm};
+  p114~{i} = newp; Point(p114~{i}) = {0, -InfRadius*mm, z, LcAir*mm};
+  l111~{i} = newl; Circle(l111~{i}) = {p111~{i}, p0~{i}, p112~{i}};
+  l112~{i} = newl; Circle(l112~{i}) = {p112~{i}, p0~{i}, p113~{i}};
+  l113~{i} = newl; Circle(l113~{i}) = {p113~{i}, p0~{i}, p114~{i}};
+  l114~{i} = newl; Circle(l114~{i}) = {p114~{i}, p0~{i}, p111~{i}};
+  ll111~{i} = newll; Line Loop(ll111~{i}) = {l111~{i}, l112~{i}, l113~{i}, l114~{i}};
+  s111~{i} = news; Plane Surface(s111~{i}) = {ll111~{i}, ll11~{i}};
 EndFor
 
 If(ThreeD && TwistFraction)
@@ -208,15 +217,35 @@ If(ThreeD && TwistFraction)
   Physical Surface("Air lateral boundary", BND_AIR) = {s11, s12, s13, s14};
   Physical Surface("Air bottom boundary", BND_AIR + 1) = {s11_0};
   Physical Surface("Air top boundary", BND_AIR + 2) = {s11_1};
+  l111 = newl; Line(l111) = {p111_0, p111_1};
+  l112 = newl; Line(l112) = {p112_0, p112_1};
+  l113 = newl; Line(l113) = {p113_0, p113_1};
+  l114 = newl; Line(l114) = {p114_0, p114_1};
+  ll111 = newll; Line Loop(ll111) = {l111_0, l112, -l111_1, -l111};
+  s111 = news; Ruled Surface(s111) = {ll111};
+  ll112 = newll; Line Loop(ll112) = {l112_0, l113, -l112_1, -l112};
+  s112 = news; Ruled Surface(s112) = {ll112};
+  ll113 = newll; Line Loop(ll113) = {l113_0, l114, -l113_1, -l113};
+  s113 = news; Ruled Surface(s113) = {ll113};
+  ll114 = newll; Line Loop(ll114) = {l114_0, l111, -l114_1, -l114};
+  s114 = news; Ruled Surface(s114) = {ll114};
+  sl111 = newsl; Surface Loop(sl111) = {s111, s112, s113, s114, s111_0, s111_1, s11, s12, s13, s14};
+  v111 = newv; Volume(v111) = {sl111};
+  Physical Volume("Infinity", INF) = v111;
+  Physical Surface("Infinity lateral boundary", BND_INF) = {s111, s112, s113, s114};
+  Physical Surface("Infinity bottom boundary", BND_INF + 1) = {s111_0};
+  Physical Surface("Infinity top boundary", BND_INF + 2) = {s111_1};
 Else
   Physical Surface("Matrix", MATRIX) = s1_0;
   Physical Line("Matrix lateral boundary",  BND_MATRIX) = {l1_0, l2_0, l3_0, l4_0};
   Physical Surface("Air", AIR) = s11_0;
   Physical Line("Air lateral boundary", BND_AIR) = {l11_0, l12_0, l13_0, l14_0};
+  Physical Surface("Infinity", INF) = s111_0;
+  Physical Line("Infinity lateral boundary", BND_INF) = {l111_0, l112_0, l113_0, l114_0};
 EndIf
 
 // Cohomology computation for the H-Phi formulation
-Cohomology(1) {AIR, {}};
+Cohomology(1) {{AIR,INF}, {}};
 
 General.ExpertMode = 1; // Don't complain for hybrid structured/unstructured mesh
 Mesh.Algorithm = 6; // Use Frontal 2D algorithm

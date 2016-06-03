@@ -71,6 +71,7 @@ struct StringXDefine  FunctionForGroup_SuppList[] = {
 struct StringXDefine1Nbr  Jacobian_Type[] = {
   {"Vol"               , JACOBIAN_VOL                   , 0} ,
   {"VolSphShell"       , JACOBIAN_VOL_SPH_SHELL         , -1} ,
+  {"VolCylShell"       , JACOBIAN_VOL_CYL_SHELL         , -1} ,
   {"VolRectShell"      , JACOBIAN_VOL_RECT_SHELL        , -1} ,
   {"VolPlpdX"          , JACOBIAN_VOL_PLPD_X            , 2} ,
 

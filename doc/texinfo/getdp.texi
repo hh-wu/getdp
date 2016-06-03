@@ -539,14 +539,14 @@ free to join the project: we gladly accept all code contributions!
 @cindex E-mail, authors
 
 If you think you have found a bug in GetDP, you can report it by
-electronic mail to the GetDP mailing list at @email{getdp@@onelab.info}, or
-file it directly into our bug tracking system at
-@url{https://onelab.info/trac/getdp/report} (login: getdp, password:
-getdp).  Please send as precise a description of the problem as you can,
-including sample input files that produce the bug (problem definition
-and mesh files). Don't forget to mention both the version of GetDP and
-the version of your operation system (@pxref{Running GetDP} to see how
-to get this information).
+electronic mail to the GetDP mailing list at @email{getdp@@onelab.info},
+or file it directly into our bug tracking system at
+@url{https://onelab.info/trac/getdp/report/1} (User name:
+@code{anonymous}, Password: @code{onelab}).  Please send as precise a
+description of the problem as you can, including sample input files that
+produce the bug (problem definition and mesh files). Don't forget to
+mention both the version of GetDP and the version of your operation
+system (@pxref{Running GetDP} to see how to get this information).
 
 See @ref{Frequently asked questions}, and the bug tracking system to see
 which problems we already know about.
@@ -4209,6 +4209,16 @@ for 2-D regions in axisymmetrical geometries.
 @item VolSphShell
 Volume Jacobian with spherical shell transformation, 
 for @var{n}-D regions in @var{n}-D geometries, @var{n} = 2 or 3.
+
+@i{Parameters}: @var{radius-internal}, @var{radius-external}
+               <, @var{center-X}, @var{center-Y}, @var{center-Z},
+                  @var{power}, @var{1/infinity} >.
+
+@item VolCylShell
+Volume Jacobian with cylindrical shell transformation, for @var{n}-D
+regions in @var{n}-D geometries, @var{n} = 2 or 3. For @var{n}=2,
+@code{VolCylShell} is identical to @code{VolSphShell}. For @var{n}=3,
+the axis of the cylinder is supposed to be along the @var{z} axis.
 
 @i{Parameters}: @var{radius-internal}, @var{radius-external}
                <, @var{center-X}, @var{center-Y}, @var{center-Z},
