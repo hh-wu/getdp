@@ -28,7 +28,7 @@ int Get_FacetFunctionIndex(struct Element * Element, int NumEntity, int NumIndex
       j = 0 ;
       while(NumNodes[j]){
 	Element->SortedNodesByFacet[i][j].Int1 = NumNodes[j] ;
-	Element->SortedNodesByFacet[i][j].Int2 = 
+	Element->SortedNodesByFacet[i][j].Int2 =
 	  Element->GeoElement->NumNodes[NumNodes[j]-1] ;
 	j++ ;
       }
@@ -96,28 +96,28 @@ void BF_Edge_3F(struct Element * Element, int NumEntity, int Index,
 
   case TETRAHEDRON :
     switch(NumEntity) {
-    case 1  : 
+    case 1  :
       switch(Get_FacetFunctionIndex(Element, NumEntity, Index)){
       case 4: s[0] = 0. ; s[1] = 0. ; s[2] = u*(1.-u-v-w) ; break ;
       case 1: s[0] = -u*w ; s[1] = -u*w ; s[2] = -u*w ; break ;
       case 2: s[0] = (1.-u-v-w)*w ; s[1] = 0. ; s[2] = 0. ; break ;
       }
       break ;
-    case 2  : 
+    case 2  :
       switch(Get_FacetFunctionIndex(Element, NumEntity, Index)){
       case 2: s[0] = v*(1-u-v-w) ; s[1] = 0. ; s[2] = 0. ; break ;
       case 1: s[0] = -u*v ; s[1] = -u*v ; s[2] = -u*v ; break ;
       case 3: s[0] = 0. ; s[1] = u*(1.-u-v-w) ; s[2] = 0. ; break ;
       }
       break ;
-    case 3  : 
+    case 3  :
       switch(Get_FacetFunctionIndex(Element, NumEntity, Index)){
       case 3: s[0] = 0. ; s[1] = (1.-u-v-w)*w ; s[2] = 0. ; break ;
       case 1: s[0] = -v*w ; s[1] = -v*w ; s[2] = -v*w ; break ;
       case 4: s[0] = 0. ; s[1] = 0. ; s[2] = v*(1.-u-v-w) ; break ;
       }
       break ;
-    case 4  : 
+    case 4  :
       switch(Get_FacetFunctionIndex(Element, NumEntity, Index)){
       case 4: s[0] = 0. ; s[1] = 0. ; s[2] = u*v ; break ;
       case 2: s[0] = v*w ; s[1] = 0. ; s[2] = 0. ; break ;
@@ -155,19 +155,19 @@ void BF_Edge_3F(struct Element * Element, int NumEntity, int Index,
 
 #undef WrongNumEntity
 
-void BF_Edge_3F_a(struct Element * Element, int NumEntity, 
+void BF_Edge_3F_a(struct Element * Element, int NumEntity,
 		  double u, double v, double w, double s[])
 {
   BF_Edge_3F(Element, NumEntity, 1, u, v, w, s) ;
 }
 
-void BF_Edge_3F_b(struct Element * Element, int NumEntity, 
+void BF_Edge_3F_b(struct Element * Element, int NumEntity,
 		  double u, double v, double w, double s[])
 {
   BF_Edge_3F(Element, NumEntity, 2, u, v, w, s) ;
 }
 
-void BF_Edge_3F_c(struct Element * Element, int NumEntity, 
+void BF_Edge_3F_c(struct Element * Element, int NumEntity,
 		  double u, double v, double w, double s[])
 {
   BF_Edge_3F(Element, NumEntity, 3, u, v, w, s) ;
@@ -219,7 +219,7 @@ void BF_CurlEdge_3F(struct Element * Element, int NumEntity, int Index,
 
   case TRIANGLE :
     switch(NumEntity) {
-    case 1  : 
+    case 1  :
       switch(Get_FacetFunctionIndex(Element, NumEntity, Index)){
       case 3 : s[0] = 0. ; s[1] = 0. ; s[2] = -2.0*u+1.0-v ; break ;
       case 1 : s[0] = 0. ; s[1] = 0. ; s[2] = -v+u; break ;
@@ -238,21 +238,21 @@ void BF_CurlEdge_3F(struct Element * Element, int NumEntity, int Index,
 
   case TETRAHEDRON :
     switch(NumEntity) {
-    case 1  : 
+    case 1  :
       switch(Get_FacetFunctionIndex(Element, NumEntity, Index)){
       case 4: s[0] = -u ; s[1] = -1.+2.*u+v+w ; s[2] = 0. ; break ;
       case 1: s[0] = u ; s[1] = -u+w ; s[2] = -w ; break ;
       case 2: s[0] = 0. ; s[1] = 1.-u-v-2.*w ; s[2] = w ; break ;
       }
       break ;
-    case 2  : 
+    case 2  :
       switch(Get_FacetFunctionIndex(Element, NumEntity, Index)){
       case 2: s[0] = 0. ; s[1] = -v ; s[2] = -1.+u+2.*v+w ; break ;
       case 1: s[0] = -u ; s[1] = v ; s[2] = u-v ; break ;
       case 3: s[0] = u ; s[1] = 0. ; s[2] = 1.-2.*u-v-w ; break ;
       }
       break ;
-    case 3  : 
+    case 3  :
       switch(Get_FacetFunctionIndex(Element, NumEntity, Index)){
       case 3: s[0] = -1.+u+v+2.*w ; s[1] = 0. ; s[2] = -w ; break ;
       case 1: s[0] = v-w ; s[1] = -v ; s[2] = w ; break ;
@@ -272,7 +272,7 @@ void BF_CurlEdge_3F(struct Element * Element, int NumEntity, int Index,
 
   case HEXAHEDRON :
     switch(NumEntity) {
-    default : Message::Error("BF_CurlEdge_3F not ready for HAXAHEDRON");
+    default : Message::Error("BF_CurlEdge_3F not ready for HEXAHEDRON");
     }
     break ;
 

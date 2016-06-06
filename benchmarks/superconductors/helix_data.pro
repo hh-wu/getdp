@@ -21,9 +21,9 @@ DefineConstant[
     1,
     ReadOnly Preset,
     Name "Input/1Geometry/Layers"},
-  AirRadius = {0.8, ReadOnly Preset,
+  AirRadius = {1, ReadOnly Preset,
     Name "Input/1Geometry/Radius of air domain [mm]"},
-  InfRadius = {1.2, ReadOnly Preset,
+  InfRadius = {1.4, ReadOnly Preset,
     Name "Input/1Geometry/Radius of infinite air domain [mm]"}
 ];
 
