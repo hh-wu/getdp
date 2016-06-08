@@ -63,10 +63,10 @@ Function {
   rho[Matrix] = 1 / sigmaMatrix;
 
   // power law E(J) = rho(J) * J
-  rho[Filaments] = Ec / Jc^n * Norm[$1]^(n - 1);
+  rho[Filaments] = Ec / Jc * (Norm[$1]/Jc)^(n - 1);
   dEdJ[Filaments] =
-    Ec / Jc^n * Norm[$1]^(n - 1) * TensorDiag[1, 1, 1] +
-    Ec / Jc^n * (n - 1) * Norm[$1]^(n - 3) *
+    Ec / Jc * (Norm[$1]/Jc)^(n - 1) * TensorDiag[1, 1, 1] +
+    Ec / Jc^3 * (n - 1) * (Norm[$1]/Jc)^(n - 3) *
       Tensor[CompX[$1]^2, CompX[$1] * CompY[$1], CompX[$1] * CompZ[$1],
              CompY[$1] * CompX[$1], CompY[$1]^2, CompY[$1] * CompZ[$1],
              CompZ[$1] * CompX[$1], CompZ[$1] * CompY[$1], CompZ[$1]^2];
@@ -75,7 +75,7 @@ Function {
 Jacobian {
   { Name Vol ;
     Case {
-      { Region AirInf ; Jacobian VolCylShell{AirRadius, InfRadius} ; }
+      { Region AirInf ; Jacobian VolCylShell{AirRadius*mm, InfRadius*mm} ; }
       { Region All ; Jacobian Vol ; }
     }
   }

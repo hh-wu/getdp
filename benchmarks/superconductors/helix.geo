@@ -57,8 +57,6 @@ For i In {1:NumLayers}
   ];
 EndFor
 
-mm = 1e-3 * Scaling;
-
 phys_fil = {};
 phys_fil_top = {};
 phys_fil_bot = {};

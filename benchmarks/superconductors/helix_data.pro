@@ -1,12 +1,4 @@
 DefineConstant[
-  Scaling = {1000,
-    Help Str["All geometrical dimensions are multiplied by this factor",
-             "(Scaling = 1 corresponds to geometrical dimensions in meters),",
-             "and material characteristics modified accordingly.",
-             "Setting dimensions e.g. in mm (Scaling = 1000) will improve",
-             "numerical robustness by avoiding overflows in the power law",
-             "for large values of the exponent (e.g. n > 30)."],
-    Name "Input/1Geometry/0Scaling factor"},
   Preset = {(TotalMemory <= 2048) ? 1 : 0, Highlight "Blue",
     Choices{
       0="None",
@@ -40,6 +32,9 @@ For i In {1:NumLayers}
       Name Sprintf["Input/1Geometry/{Layer %g/Filaments", i]}
   ];
 EndFor
+
+Scaling = 1e3; // geometrical scaling
+mm = 1e-3 * Scaling;
 
 // i = layer, j = filament in layer
 FILAMENT = 30000; // + 1000 * i + j
