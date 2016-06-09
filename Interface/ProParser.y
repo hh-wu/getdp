@@ -7440,7 +7440,7 @@ Loop :
   | tMacro CharExprNoVar
     {
       if(!MacroManager::Instance()->createMacro
-         (std::string($2), getdp_yyin, getdp_yyname, getdp_yylinenum + 1))
+         (std::string($2), getdp_yyin, getdp_yyname, getdp_yylinenum + 0))
         vyyerror(0, "Redefinition of macro '%s'", $2);
       skipUntil(NULL, "Return");
       Free($2);

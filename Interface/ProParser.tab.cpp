@@ -15552,7 +15552,7 @@ yyreduce:
 #line 7441 "ProParser.y"
     {
       if(!MacroManager::Instance()->createMacro
-         (std::string((yyvsp[(2) - (2)].c)), getdp_yyin, getdp_yyname, getdp_yylinenum + 1))
+         (std::string((yyvsp[(2) - (2)].c)), getdp_yyin, getdp_yyname, getdp_yylinenum + 0))
         vyyerror(0, "Redefinition of macro '%s'", (yyvsp[(2) - (2)].c));
       skipUntil(NULL, "Return");
       Free((yyvsp[(2) - (2)].c));
