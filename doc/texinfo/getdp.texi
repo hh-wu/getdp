@@ -3447,7 +3447,7 @@ The first parameter represents the angular frequency and the second
 represents the phase. If the type of the current system is @code{Real},
 @code{F_Cos_wt_p[]@{w,p@}} is identical to @code{Cos[w*$Time+p]}. If the
 type of the current system is @code{Complex}, it is identical to
-@code{Complex[Cos[w],Sin[w]]}.
+@code{Complex[Cos[p],Sin[p]]}.
 
 @item Sin_wt_p
 @code{[]@{@var{expression-cst},@var{expression-cst}@}}
@@ -3456,7 +3456,7 @@ The first parameter represents the angular frequency and the second
 represents the phase. If the type of the current system is @code{Real},
 @code{F_Sin_wt_p[]@{w,p@}} is identical to @code{Sin[w*$Time+p]}. If the
 type of the current system is @code{Complex}, it is identical to
-@code{Complex[Sin[w],-Cos[w]]}.
+@code{Complex[Sin[p],-Cos[p]]}.
 
 @item Period
 @code{[@var{expression}]@{@var{expression-cst}@}}
