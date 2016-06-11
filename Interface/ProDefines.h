@@ -313,6 +313,7 @@ struct StringXDefine  PostSubOperation_Format[] = {
   {"FrequencyRegionValue", FORMAT_FREQUENCY_REGION_VALUE },
   {"HarmonicToTimeTable" , FORMAT_TIME_TABLE },   // a supprimer
   {"FrequencyTable"      , FORMAT_FREQUENCY_TABLE },
+  {"GetDP"               , FORMAT_GETDP},
   {"Gmsh"                , FORMAT_GMSH},
   {"GmshParsed"          , FORMAT_GMSH_PARSED},
   {"Unv"                 , FORMAT_UNV},

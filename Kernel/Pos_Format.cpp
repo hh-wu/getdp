@@ -1555,7 +1555,8 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
 /*  F o r m a t _ P o s t V a l u e                                         */
 /* ------------------------------------------------------------------------ */
 
-void Format_PostValue(struct PostSubOperation *PSO_P,
+void Format_PostValue(struct PostQuantity  *PQ_P,
+                      struct PostSubOperation *PSO_P,
                       int Format, int Flag_Comma, int Group_FunctionType,
 		      int iTime, double Time, int NbrTimeStep,
                       int iRegion, int numRegion, int NbrRegion,
@@ -1600,6 +1601,29 @@ void Format_PostValue(struct PostSubOperation *PSO_P,
 	sstream << " " << Value->Val[MAX_DIM*k+j] ;
       }
     }
+    if(PostStream == stdout || PostStream == stderr)
+      Message::Direct(sstream.str().c_str());
+    else if(PostStream)
+      fprintf(PostStream, "%s\n", sstream.str().c_str()) ;
+  }
+  else if (Format == FORMAT_GETDP) {
+    std::ostringstream sstream;
+    sstream.precision(16);
+    sstream << (PSO_P->ValueName? PSO_P->ValueName : PQ_P->Name);
+    if (numRegion != NO_REGION) sstream << "~{" << numRegion << "}";
+
+    if (NbrHarmonics >= 2 || Size > 1) sstream << "() = {";
+    else sstream << " =";
+
+    for (k = 0 ; k < NbrHarmonics ; k++) {
+      for(j = 0 ; j < Size ; j++) {
+	if (k || j) sstream << ",";
+	sstream << " " << Value->Val[MAX_DIM*k+j] ;
+      }
+    }
+
+    if (NbrHarmonics >= 2 || Size > 1) sstream << " };";
+
     if(PostStream == stdout || PostStream == stderr)
       Message::Direct(sstream.str().c_str());
     else if(PostStream)

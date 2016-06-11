@@ -21,7 +21,8 @@ void  Format_PostElement(struct PostSubOperation * PSO_P, int Contour, int Store
 			 int NbrHarmonics, int HarmonicToTime,
 			 double *Dummy, struct PostElement *PE);
 
-void  Format_PostValue(struct PostSubOperation *PSO_P,
+void  Format_PostValue(struct PostQuantity  *PQ_P,
+                       struct PostSubOperation *PSO_P,
                        int Format, int Flag_Comma, int Group_FunctionType,
 		       int iTime, double Time, int NbrTimeStep,
                        int iRegion, int numRegion, int NbrRegion,

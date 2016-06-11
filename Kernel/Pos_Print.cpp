@@ -1377,7 +1377,8 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 
       if (!PSO_P->NoTitle &&
           PSO_P->Format != FORMAT_SPACE_TABLE &&
-          PSO_P->Format != FORMAT_VALUE_ONLY) {
+          PSO_P->Format != FORMAT_VALUE_ONLY &&
+          PSO_P->Format != FORMAT_GETDP) {
         std::ostringstream sstream;
         if (PSO_P->Format == FORMAT_GMSH)
           sstream << "// ";
@@ -1465,7 +1466,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
         }
       }
 
-      Format_PostValue(PSO_P, PSO_P->Format, PSO_P->Comma,
+      Format_PostValue(PQ_P, PSO_P, PSO_P->Format, PSO_P->Comma,
 		       Group_FunctionType,
 		       iTime, Current.Time, NbrTimeStep,
                        i, Current.NumEntity, Nbr_Region,
@@ -1558,7 +1559,7 @@ void  Pos_PrintWithArgument(struct PostQuantity      *NCPQ_P,
     Cal_PostQuantity(NCPQ_P, DefineQuantity_P0, QuantityStorage_P0,
                      NULL, &Element, 0., 0., 0., &Value) ;
 
-    Format_PostValue(PSO_P, PSO_P->Format, PSO_P->Comma,
+    Format_PostValue(NCPQ_P, PSO_P, PSO_P->Format, PSO_P->Comma,
                      REGION,
                      0, x, 1,  0, 0, 1,
                      Current.NbrHar, PSO_P->HarmonicToTime,
