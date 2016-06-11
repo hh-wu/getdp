@@ -112,10 +112,13 @@ void LinAlg_InitializeSolver(int* argc, char*** argv)
 
 void LinAlg_FinalizeSolver()
 {
-  // this causes random crashes when doing several initialize/finalize calls
-  // (when using getdp as a library). Until we figure out what's happening,
-  // let's simply initialize petsc/slepc once, and never finalize.
+  // this causes random crashes with PETSC <= 3.6 when doing several
+  // initialize/finalize calls (when using getdp as a library). Until we figure
+  // out what's happening, let's simply initialize petsc/slepc once, and never
+  // finalize.
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR <= 6)
   return;
+#endif
 
   if(SolverInitialized){
 #if defined(HAVE_SLEPC)
@@ -424,7 +427,11 @@ void LinAlg_PrintVector(FILE *file, gVector *V, bool matlab,
   else{
     PetscViewer fd;
     _try(PetscViewerASCIIOpen(MyComm, fileName, &fd));
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 7)
+    _try(PetscViewerPushFormat(fd, PETSC_VIEWER_ASCII_MATLAB));
+#else
     _try(PetscViewerSetFormat(fd, PETSC_VIEWER_ASCII_MATLAB));
+#endif
     _try(PetscObjectSetName((PetscObject)V->V, varName));
     _try(VecView(V->V, fd));
 #if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
@@ -460,7 +467,11 @@ void LinAlg_PrintMatrix(FILE *file, gMatrix *M, bool matlab,
     // ASCII
     PetscViewer fd;
     _try(PetscViewerASCIIOpen(MyComm, fileName, &fd));
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 7)
+    _try(PetscViewerPushFormat(fd, PETSC_VIEWER_ASCII_MATLAB));
+#else
     _try(PetscViewerSetFormat(fd, PETSC_VIEWER_ASCII_MATLAB));
+#endif
     _try(PetscObjectSetName((PetscObject)M->M, varName));
     _try(MatView(M->M, fd));
 
@@ -468,7 +479,11 @@ void LinAlg_PrintMatrix(FILE *file, gMatrix *M, bool matlab,
     PetscViewer fd2;
     std::string tmp(fileName);
     _try(PetscViewerBinaryOpen(MyComm, (tmp + ".bin").c_str(), FILE_MODE_WRITE, &fd2));
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 7)
+    _try(PetscViewerPushFormat(fd, PETSC_VIEWER_DEFAULT));
+#else
     _try(PetscViewerSetFormat(fd2, PETSC_VIEWER_DEFAULT));
+#endif
     _try(MatView(M->M, fd2));
 
 #if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
