@@ -7,7 +7,10 @@
 #include "Message.h"
 #include "EigenSolve.h"
 
-#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
+#if ((PETSC_VERSION_RELEASE == 0) || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 7)))
+#define PetscTruth PetscBool
+#define PetscOptionsGetTruth(A, B, C, D) PetscOptionsGetBool(A, NULL, B, C, D)
+#elif ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2))
 #define PetscTruth PetscBool
 #define PetscOptionsGetTruth PetscOptionsGetBool
 #endif
