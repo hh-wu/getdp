@@ -154,6 +154,7 @@ struct Expression {
     List_T *WholeQuantity;
     struct {
       List_T *ExpressionPerRegion;
+      int ExpressionIndex_Default;
       int  NumLastRegion;  struct Expression *ExpressionForLastRegion;
     }  PieceWiseFunction;
   }  Case;

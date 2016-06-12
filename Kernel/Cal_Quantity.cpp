@@ -36,8 +36,6 @@ void  Get_ValueOfExpression(struct Expression * Expression_P,
 			    int    NbrArguments,
 			    char   *CallingExpressionName)
 {
-  int k ;
-  struct ExpressionPerRegion  * ExpressionPerRegion_P ;
   static char *Flag_WarningUndefined = NULL ;
 
   switch (Expression_P->Type) {
@@ -47,7 +45,7 @@ void  Get_ValueOfExpression(struct Expression * Expression_P,
       Value->Val[0] = Expression_P->Case.Constant ;
     }
     else {
-      for (k = 0 ; k < Current.NbrHar ; k += 2) {
+      for (int k = 0 ; k < Current.NbrHar ; k += 2) {
 	Value->Val[MAX_DIM* k   ] = Expression_P->Case.Constant ;
 	Value->Val[MAX_DIM*(k+1)] = 0. ;
       }
@@ -64,16 +62,30 @@ void  Get_ValueOfExpression(struct Expression * Expression_P,
     break ;
 
   case PIECEWISEFUNCTION :
-    if (Current.Region != Expression_P->Case.PieceWiseFunction.NumLastRegion) {
+    struct Expression * NextExpression_P;
+    struct ExpressionPerRegion  * ExpressionPerRegion_P ;
+
+    if (Current.Region == Expression_P->Case.PieceWiseFunction.NumLastRegion) {
+      NextExpression_P = Expression_P->Case.PieceWiseFunction.ExpressionForLastRegion; 
+    }
+    else {
       if ((ExpressionPerRegion_P = (struct ExpressionPerRegion*)
 	   List_PQuery(Expression_P->Case.PieceWiseFunction.ExpressionPerRegion,
 		       &Current.Region, fcmp_int))) {
 	Expression_P->Case.PieceWiseFunction.NumLastRegion = Current.Region ;
-	Expression_P->Case.PieceWiseFunction.ExpressionForLastRegion =
+	NextExpression_P =
+          Expression_P->Case.PieceWiseFunction.ExpressionForLastRegion =
 	  (struct Expression*)List_Pointer(Problem_S.Expression,
 					   ExpressionPerRegion_P->ExpressionIndex) ;
       }
+      else if (Expression_P->Case.PieceWiseFunction.ExpressionIndex_Default >= 0) {
+        NextExpression_P =
+	  (struct Expression*)
+          List_Pointer(Problem_S.Expression,
+                       Expression_P->Case.PieceWiseFunction.ExpressionIndex_Default) ;
+      }
       else {
+        NextExpression_P = NULL;
 	if(Current.Region == NO_REGION)
 	  Message::Error("Function '%s' undefined in expressions without support",
                          Expression_P->Name);
@@ -82,8 +94,9 @@ void  Get_ValueOfExpression(struct Expression * Expression_P,
                          Expression_P->Name, Current.Region);
       }
     }
+
     Get_ValueOfExpression
-      (Expression_P->Case.PieceWiseFunction.ExpressionForLastRegion,
+      (NextExpression_P,
        QuantityStorage_P0, u, v, w, Value, NbrArguments, Expression_P->Name) ;
     break ;
 

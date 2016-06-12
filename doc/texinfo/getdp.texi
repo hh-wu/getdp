@@ -2146,9 +2146,11 @@ Function @{
 @enumerate
 @item
 The optional @var{group-def} in brackets must be of @code{Region} type, and
-indicates on which region the (piecewise) function is defined. Warning: it
-is incorrect to write @code{f[reg1]=1; g[reg2]=f[]+1;} since the domains of
-definition of @code{f[]} and @code{g[]} don't match.
+indicates on which region the (piecewise) function is defined.
+A default piecewise function can be defined with @code{All} for @var{group-def}, 
+for all the other non-defined regions.
+Warning: it is incorrect to write @code{f[reg1]=1; g[reg2]=f[]+1;} since the 
+domains of definition of @code{f[]} and @code{g[]} don't match.
 @item
 One can also define initially empty functions inline by replacing the
 expression with @code{***}.

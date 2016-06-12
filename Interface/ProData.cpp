@@ -661,6 +661,12 @@ void Print_Expression()
                        EX->Name, EXPR->RegionIndex,
                        Get_ExpressionName(EXPR->ExpressionIndex));
       }
+      if (EX->Case.PieceWiseFunction.ExpressionIndex_Default >= 0) {
+	Message::
+          Check("  %s[All] = Exp[%s];\n",
+                EX->Name,
+                Get_ExpressionName(EX->Case.PieceWiseFunction.ExpressionIndex_Default));
+      }
       if (!List_Nbr(EX->Case.PieceWiseFunction.ExpressionPerRegion))
 	Message::Check("  DefineFunction[ %s ];\n", EX->Name);
       break;

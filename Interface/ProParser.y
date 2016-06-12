@@ -498,7 +498,7 @@ GroupRHS :
   | String__Index
     {
       int i;
-      if(!strcmp($1, "All")) {
+      if(!strcmp($1, "All")) { //+++ Never considered because token tAll exists!
 	$$ = -3;
       }
       else if((i = List_ISearchSeq(Problem_S.Group, $1, fcmp_Group_Name)) >= 0) {
@@ -508,6 +508,11 @@ GroupRHS :
 	$$ = -2; vyyerror(0, "Unknown Group: %s", $1);
       }
       Free($1);
+    }
+
+  | tAll
+    {
+      $$ = -3;
     }
  ;
 
@@ -854,6 +859,7 @@ Function :
 	Expression_S.Type = PIECEWISEFUNCTION;
 	Expression_S.Case.PieceWiseFunction.ExpressionPerRegion =
 	  List_Create(5, 5, sizeof(struct ExpressionPerRegion));
+	Expression_S.Case.PieceWiseFunction.ExpressionIndex_Default = -1;
 	Expression_S.Case.PieceWiseFunction.NumLastRegion = -1;
 	Add_Expression(&Expression_S, $1, 0);
 	Expression_P = (struct Expression*)List_Pointer(Problem_S.Expression, i);
@@ -864,6 +870,7 @@ Function :
 	  Expression_P->Type = PIECEWISEFUNCTION;
 	  Expression_P->Case.PieceWiseFunction.ExpressionPerRegion =
 	    List_Create(5, 5, sizeof(struct ExpressionPerRegion));
+          Expression_P->Case.PieceWiseFunction.ExpressionIndex_Default = -1;
 	  Expression_P->Case.PieceWiseFunction.NumLastRegion = -1;
 	}
 	else if(Expression_P->Type != PIECEWISEFUNCTION)
@@ -886,6 +893,9 @@ Function :
 	}
 	if($3 == -1) { List_Delete(Group_S.InitialList); }
       }
+      else if ($3 == -3) // Default Case when GroupRHS is 'All'
+        Expression_P->Case.PieceWiseFunction.ExpressionIndex_Default = $6;
+
       else  vyyerror(0, "Bad Group right hand side");
     }
 
@@ -1801,10 +1811,12 @@ JacobianCase :
 JacobianCaseTerm :
 
     tRegion GroupRHS tEND
-    { JacobianCase_S.RegionIndex = Num_Group(&Group_S, (char*)"JA_Region", $2); }
-
-  | tRegion tAll tEND
-    { JacobianCase_S.RegionIndex = -1; }
+    {
+      if ($2 >=0)
+        JacobianCase_S.RegionIndex = Num_Group(&Group_S, (char*)"JA_Region", $2);
+      else if ($2 == -3)
+        JacobianCase_S.RegionIndex = -1;
+    }
 
   | tJacobian String__Index ParametersForFunction tEND
     { JacobianCase_S.TypeJacobian =
