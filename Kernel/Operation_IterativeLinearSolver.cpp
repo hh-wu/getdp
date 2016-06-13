@@ -25,6 +25,11 @@ extern struct CurrentData Current ;
 #include <gmsh/PView.h>
 #include <gmsh/PViewData.h>
 
+
+#if ((PETSC_VERSION_RELEASE == 0) || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 7)))
+#define PetscViewerSetFormat(A, B) PetscViewerPushFormat(A, B)
+#endif
+
 static void _try(int ierr)
 {
   CHKERRCONTINUE(ierr);
