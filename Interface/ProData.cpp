@@ -667,7 +667,8 @@ void Print_Expression()
                 EX->Name,
                 Get_ExpressionName(EX->Case.PieceWiseFunction.ExpressionIndex_Default));
       }
-      if (!List_Nbr(EX->Case.PieceWiseFunction.ExpressionPerRegion))
+      if (!List_Nbr(EX->Case.PieceWiseFunction.ExpressionPerRegion) &&
+          EX->Case.PieceWiseFunction.ExpressionIndex_Default < 0)
 	Message::Check("  DefineFunction[ %s ];\n", EX->Name);
       break;
 
