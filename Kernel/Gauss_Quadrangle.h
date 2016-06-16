@@ -23,6 +23,8 @@ static double pq4[4] = {1.,1.,1.,1.};
 
 /* 7 integration points */
 
+// WARNING: It seems that there is a problem with the values with 7 integration points ! Geuzaine (16/06/2016)
+
 static double xq7[7] = {0.0,-0.683130051064,0.683130051064,0.890654421782,
 			-0.890654421782,0.374256642286,-0.374256642286};
 static double yq7[7] = {0.0,-0.683130051064,0.683130051064,-0.374256642286,0.374256642286,
