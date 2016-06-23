@@ -533,8 +533,24 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
   _try(PEPSetDimensions(pep, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
   _try(PEPSetTolerances(pep, 1.e-6, 100));
   _try(PEPSetType(pep, PEPLINEAR));
-  _try(PEPSetWhichEigenpairs(pep, PEP_SMALLEST_MAGNITUDE));
   _try(PEPMonitorSet(pep, _myPepMonitor, PETSC_NULL, PETSC_NULL));
+
+  // shift
+  PetscScalar shift = 0;
+  if(shift_r || shift_i){
+#if defined(PETSC_USE_COMPLEX)
+    shift = shift_r + PETSC_i * shift_i;
+#else
+    shift = shift_r;
+    if(shift_i)
+      Message::Warning("Imaginary part of shift discarded: use PETSc with complex numbers");
+#endif
+  }
+
+  if(shift_r || shift_i){
+    _try(PEPSetTarget(pep, shift));
+    _try(PEPSetWhichEigenpairs(pep, PEP_TARGET_MAGNITUDE));
+  }
 
   // if we linearize we can set additional options
   const char *type = "";
@@ -547,13 +563,6 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
     _try(EPSGetST(eps, &st));
     _try(STSetType(st, STSINVERT));
     if(shift_r || shift_i){
-#if defined(PETSC_USE_COMPLEX)
-      PetscScalar shift = shift_r + PETSC_i * shift_i;
-#else
-      PetscScalar shift = shift_r;
-      if(shift_i)
-        Message::Warning("Imaginary part of shift discarded: use PETSc with complex numbers");
-#endif
       _try(EPSSetTarget(eps, shift));
       _try(EPSSetWhichEigenpairs(eps, EPS_TARGET_MAGNITUDE));
     }
