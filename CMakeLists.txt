@@ -779,6 +779,13 @@ if(WIN32 AND NOT MSVC OR CYGWIN)
   endif(NOT ENABLE_BUILD_DYNAMIC)
 endif(WIN32 AND NOT MSVC OR CYGWIN)
 
+# code signing
+if(APPLE AND PACKAGER STREQUAL "geuzaine")
+  set(CODESIGN codesign --force --verify --verbose --sign
+      "Developer ID Application: Christophe Geuzaine")
+  add_custom_command(TARGET getdp POST_BUILD COMMAND ${CODESIGN} getdp)
+endif(APPLE AND PACKAGER STREQUAL "geuzaine")
+
 # parser target
 find_program(BISON bison)
 find_program(FLEX flex)

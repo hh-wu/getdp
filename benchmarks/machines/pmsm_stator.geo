@@ -213,5 +213,3 @@ nicepos_stator[] += {linStator[],linSlot[] };
 
 Color SteelBlue {Surface{sstator[]};}
 Color SkyBlue {Surface{sairslot[],sairgapS[]};}
-
-
