@@ -477,7 +477,7 @@ void SolvingAnalyse()
 
       Current.TypeTime = TIME_STATIC  ;
       Current.Time = 0. ; Current.TimeImag = 0. ; Current.TimeStep = 0. ;
-      Current.Iteration = 0 ;
+      Current.Iteration = 0 ; Current.Residual = 0;
       Current.RelativeDifference = 0. ; Current.RelaxationFactor = 1. ;
       Current.Breakpoint = -1;
 

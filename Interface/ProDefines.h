@@ -260,6 +260,7 @@ struct StringXPointer  Current_Value[] = {
   {"Time"     , &Current.Time},       {"DTime"     , &Current.DTime},
   {"Theta"    , &Current.Theta},      {"TimeStep"  , &Current.TimeStep},
   {"Iteration", &Current.Iteration},  {"Iter"      , &Current.Iteration},
+  {"Residual" , &Current.Residual},
   {"TimeImag" , &Current.TimeImag},   {"Eigenvalue", &Current.Time},
   {"EigenvalueReal" , &Current.Time}, {"EigenvalueImag" , &Current.TimeImag},
   {"ReOmega"  , &Current.Time},       {"ImOmega"   , &Current.TimeImag},

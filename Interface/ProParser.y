@@ -267,7 +267,8 @@ struct doubleXstring{
 %token      tNameOfFormulation tNameOfMesh tFrequency tSolver
 %token      tOriginSystem tDestinationSystem
 %token    tOperation tOperationEnd
-%token      tSetTime tSetTimeStep tDTime tSetFrequency tFourierTransform tFourierTransformJ
+%token      tSetTime tSetTimeStep tSetDTime tDTime tSetFrequency
+%token      tFourierTransform tFourierTransformJ
 %token      tLanczos tEigenSolve tEigenSolveJac tPerturbation
 %token      tUpdate tUpdateConstraint tBreak tGetResidual tCreateSolution
 %token      tEvaluate tSelectCorrection tAddCorrection tMultiplySolution
@@ -4467,6 +4468,13 @@ OperationTerm :
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_SETTIMESTEP;
+      Operation_P->Case.SetTime.ExpressionIndex = $3;
+    }
+
+  | tSetDTime '[' Expression ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_SETDTIME;
       Operation_P->Case.SetTime.ExpressionIndex = $3;
     }
 

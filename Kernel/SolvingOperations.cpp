@@ -1277,6 +1277,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
         Cal_SolutionError(&DofData_P->dx, &DofData_P->CurrentSolution->x, 0, &MeanError) ;
         //LinAlg_VectorNorm2(&DofData_P->dx, &MeanError);
+        Current.Residual = MeanError;
         if(!Flag_IterativeLoopN){
           Message::Info("%3ld Nonlinear Residual norm %14.12e",
                         (int)Current.Iteration, MeanError);
@@ -1372,6 +1373,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	LinAlg_VectorNorm2(&DofData_P->res, &Norm);
 	LinAlg_GetVectorSize(&DofData_P->res, &N);
 	Norm /= (double)N;
+        Current.Residual = Norm;
         if(Message::GetVerbosity() == 10)
           Message::Info(" adaptive relaxation factor = %8f Residual norm = %10.4e",
                         Frelax, Norm) ;
@@ -2259,6 +2261,15 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Current.Time = Value.Val[0] ;
       break ;
 
+      /*  -->  S e t D T i m e                        */
+      /*  ------------------------------------------  */
+
+    case OPERATION_SETDTIME :
+      Get_ValueOfExpressionByIndex(Operation_P->Case.SetTime.ExpressionIndex,
+				   NULL, 0., 0., 0., &Value) ;
+      Current.DTime = Value.Val[0] ;
+      break ;
+
       /*  -->  S e t T i m e S t e p                  */
       /*  ------------------------------------------  */
 
@@ -2318,37 +2329,53 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       else
 	Current.Time = Operation_P->Case.TimeLoopTheta.Time0 ;
 
+      Get_ValueOfExpressionByIndex(Operation_P->Case.TimeLoopTheta.ThetaIndex,
+                                   NULL, 0., 0., 0., &Value) ;
+      Current.Theta = Value.Val[0] ;
+      Get_ValueOfExpressionByIndex(Operation_P->Case.TimeLoopTheta.DTimeIndex,
+                                   NULL, 0., 0., 0., &Value) ;
+      Current.DTime = Value.Val[0] ;
+
       while (Current.Time < Operation_P->Case.TimeLoopTheta.TimeMax * 0.999999) {
 
         if(Message::GetOnelabAction() == "stop" || Message::GetErrorCount()) break;
 
+#define OLD
+
+#if defined(OLD)
 	if (!Flag_NextThetaFixed) { /* Attention: Test */
-	  Get_ValueOfExpressionByIndex(Operation_P->Case.TimeLoopTheta.ThetaIndex,
-				       NULL, 0., 0., 0., &Value) ;
-	  Current.Theta = Value.Val[0] ;
-	}
-	if (Flag_NextThetaFixed != 2) { /* Attention: Test */
-	  Get_ValueOfExpressionByIndex(Operation_P->Case.TimeLoopTheta.DTimeIndex,
-				       NULL, 0., 0., 0., &Value) ;
-	  Current.DTime = Value.Val[0] ;
-	}
+          Get_ValueOfExpressionByIndex(Operation_P->Case.TimeLoopTheta.ThetaIndex,
+                                       NULL, 0., 0., 0., &Value) ;
+          Current.Theta = Value.Val[0] ;
+        }
+        if (Flag_NextThetaFixed != 2) { /* Attention: Test */
+          Get_ValueOfExpressionByIndex(Operation_P->Case.TimeLoopTheta.DTimeIndex,
+	 			       NULL, 0., 0., 0., &Value) ;
+          Current.DTime = Value.Val[0] ;
+        }
 	Flag_NextThetaFixed = 0 ;
+#endif
 
 	Current.Time += Current.DTime ;
 	Current.TimeStep += 1. ;
 
+#if defined(OLD)
 	Message::Info(3, "Theta Time = %.8g s (TimeStep %d)", Current.Time,
                       (int)Current.TimeStep) ;
+#endif
         if(Message::GetProgressMeterStep() > 0 && Message::GetProgressMeterStep() < 100)
           Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Time",
                                          std::vector<double>(1, Current.Time));
-
+#if defined(OLD)
 	Save_Time = Current.Time ;
+#endif
 
 	Treatment_Operation(Resolution_P, Operation_P->Case.TimeLoopTheta.Operation,
 			    DofData_P0, GeoData_P0, NULL, NULL) ;
 
+#if defined(OLD)
 	Current.Time = Save_Time ;
+#endif
 
         if(Flag_Break){ Flag_Break = 0; break; }
       }

@@ -1239,6 +1239,7 @@ struct IterativeLoopSystem {
 #define OPERATION_SWAPSOLUTIONANDRHS       90
 #define OPERATION_SWAPSOLUTIONANDRESIDUAL  91
 #define OPERATION_CREATESOLUTION           92
+#define OPERATION_SETDTIME                 93
 
 /* ChangeOfState.Type */
 #define CHANGEOFSTATE_NOCHANGE              0
@@ -1515,7 +1516,7 @@ struct CurrentData {
 
   // For IterativeLoop
   double  Iteration, RelativeDifference, RelativeDifferenceOld;
-  double  RelaxationFactor;
+  double  RelaxationFactor, Residual;
 
   // Iterative linear system solvers
   double  KSPIts;

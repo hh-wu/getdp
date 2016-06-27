@@ -355,6 +355,7 @@ SendMergeFileRequest         return tSendMergeFileRequest;
 SendToServer                 return tSendToServer;
 SetCommSelf                  return tSetCommSelf;
 SetCommWorld                 return tSetCommWorld;
+SetDTime                     return tSetDTime;
 SetFrequency                 return tSetFrequency;
 SetGlobalSolverOptions       return tSetGlobalSolverOptions;
 SetNumber                    return tSetNumber;

@@ -199,6 +199,7 @@ void Init_ProblemStructure()
   Current.CorrErrorConst = 0.0;
   Current.Breakpoint = 0.0;
   Current.Iteration = 0.0;
+  Current.Residual = 0.0;
   Current.RelativeDifference = 0.0;
   Current.RelativeDifferenceOld = 0.0;
   Current.RelaxationFactor = 0.0;
