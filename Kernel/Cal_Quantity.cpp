@@ -66,7 +66,7 @@ void  Get_ValueOfExpression(struct Expression * Expression_P,
     struct ExpressionPerRegion  * ExpressionPerRegion_P ;
 
     if (Current.Region == Expression_P->Case.PieceWiseFunction.NumLastRegion) {
-      NextExpression_P = Expression_P->Case.PieceWiseFunction.ExpressionForLastRegion; 
+      NextExpression_P = Expression_P->Case.PieceWiseFunction.ExpressionForLastRegion;
     }
     else {
       if ((ExpressionPerRegion_P = (struct ExpressionPerRegion*)
@@ -120,13 +120,28 @@ void  Get_ValueOfExpression(struct Expression * Expression_P,
 /*  G e t _ V a l u e O f E x p r e s s i o n B y I n d e x                 */
 /* ------------------------------------------------------------------------ */
 
-void  Get_ValueOfExpressionByIndex(int Index_Expression,
-				   struct QuantityStorage * QuantityStorage_P0,
-				   double u, double v, double w,
-				   struct Value * Value) {
+void Get_ValueOfExpressionByIndex(int Index_Expression,
+                                  struct QuantityStorage * QuantityStorage_P0,
+                                  double u, double v, double w,
+                                  struct Value * Value) {
   Get_ValueOfExpression
     ((struct Expression *)List_Pointer(Problem_S.Expression, Index_Expression),
      QuantityStorage_P0,  u, v, w, Value) ;
+}
+
+bool Is_ExpressionConstant(struct Expression * Expression_P)
+{
+  if(Expression_P->Type == CONSTANT) return true;
+  if(Expression_P->Type == WHOLEQUANTITY){
+    for(int i = 0; i < List_Nbr(Expression_P->Case.WholeQuantity); i++){
+      struct WholeQuantity *WholeQuantity_P = (struct WholeQuantity*)
+        List_Pointer(Expression_P->Case.WholeQuantity, i);
+      if(WholeQuantity_P->Type != WQ_CONSTANT)
+        return false;
+    }
+    return true;
+  }
+  return false;
 }
 
 /* ------------------------------------------------------------------------ */

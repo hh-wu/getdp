@@ -32,4 +32,6 @@ void Cal_StoreInRegister(struct Value *Value, int RegisterIndex) ;
 
 void Cal_StoreInVariable(struct Value *Value, const char *name) ;
 
+bool Is_ExpressionConstant(struct Expression * Expression_P);
+
 #endif
