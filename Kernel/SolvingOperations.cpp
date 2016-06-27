@@ -2340,42 +2340,36 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
         if(Message::GetOnelabAction() == "stop" || Message::GetErrorCount()) break;
 
-#define OLD
-
-#if defined(OLD)
-	if (!Flag_NextThetaFixed) { /* Attention: Test */
+        if (!Flag_NextThetaFixed) { // Attention: Test
           Get_ValueOfExpressionByIndex(Operation_P->Case.TimeLoopTheta.ThetaIndex,
                                        NULL, 0., 0., 0., &Value) ;
           Current.Theta = Value.Val[0] ;
         }
-        if (Flag_NextThetaFixed != 2) { /* Attention: Test */
-          Get_ValueOfExpressionByIndex(Operation_P->Case.TimeLoopTheta.DTimeIndex,
-	 			       NULL, 0., 0., 0., &Value) ;
+
+        Expression *DTimeExpr = (struct Expression *)List_Pointer
+          (Problem_S.Expression, Operation_P->Case.TimeLoopTheta.DTimeIndex);
+        // don't reevaluate if constant (it could have been changed via SetDTime
+        // in a previous operation)
+        if(!Is_ExpressionConstant(DTimeExpr) && Flag_NextThetaFixed != 2) { // Attention: Test
+          Get_ValueOfExpression(DTimeExpr, NULL, 0., 0., 0., &Value) ;
           Current.DTime = Value.Val[0] ;
         }
 	Flag_NextThetaFixed = 0 ;
-#endif
 
 	Current.Time += Current.DTime ;
 	Current.TimeStep += 1. ;
 
-#if defined(OLD)
-	Message::Info(3, "Theta Time = %.8g s (TimeStep %d)", Current.Time,
+        Message::Info(3, "Theta Time = %.8g s (TimeStep %d)", Current.Time,
                       (int)Current.TimeStep) ;
-#endif
+
         if(Message::GetProgressMeterStep() > 0 && Message::GetProgressMeterStep() < 100)
           Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Time",
                                          std::vector<double>(1, Current.Time));
-#if defined(OLD)
-	Save_Time = Current.Time ;
-#endif
 
+        // Save_Time = Current.Time ; // removed: prevents using SetTime in the operation
 	Treatment_Operation(Resolution_P, Operation_P->Case.TimeLoopTheta.Operation,
 			    DofData_P0, GeoData_P0, NULL, NULL) ;
-
-#if defined(OLD)
-	Current.Time = Save_Time ;
-#endif
+	// Current.Time = Save_Time ; // removed: prevents using SetTime in the operation
 
         if(Flag_Break){ Flag_Break = 0; break; }
       }

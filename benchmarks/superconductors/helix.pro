@@ -47,7 +47,7 @@ Function {
       Min 5e-7, Max 5e-4, Step 1e-6,
       Name "Input/Solver/1Time step [s]"}
     theta = 1, // implicit Euler
-    tol_abs = {1e-6,
+    tol_abs = {1e-12,
       Name "Input/Solver/Absolute tolerance on nonlinear residual"},
     tol_rel = {1e-6,
       Name "Input/Solver/Relative tolerance on nonlinear residual"},
@@ -174,6 +174,8 @@ Formulation {
   }
 }
 
+NRMAX = 5;
+
 Resolution {
   { Name MagDynHTime;
     System {
@@ -182,20 +184,38 @@ Resolution {
     Operation {
       CreateDirectory["res"];
       InitSolution[A];
-      Evaluate[ $relax = 1 ];
+
       TimeLoopTheta[time0, time1, dt, theta] {
+
+        Evaluate[ $relax = 1 ];
+
+        Print[{$TimeStep, $Time, $DTime}, Format "*** Step = %g, Time = %g, DTime = %g ***"];
+
         Generate[A]; Solve[A];
         Generate[A]; GetResidual[A, $res0]; Evaluate[ $res = $res0, $it = 0 ];
         Print[{$it, $res, $res / $res0},
               Format "Residual %03g: abs %14.12e rel %14.12e"];
-        While[$res > tol_abs && $res / $res0 > tol_rel]{
+        While[$res > tol_abs && $res / $res0 > tol_rel && $it < NRMAX]{
           Solve[A];
           Generate[A]; GetResidual[A, $res]; Evaluate[ $it = $it + 1 ];
           Print[{$it, $res, $res / $res0},
                 Format "Residual %03g: abs %14.12e rel %14.12e"];
         }
-        SaveSolution[A];
-        Test[ GetNumberRunTime[visu]{"Input/Solver/Visu"} ]{ PostOperation[MagDynH]; }
+
+        Test[ $it < NRMAX ]{
+          SaveSolution[A];
+          Test[ GetNumberRunTime[visu]{"Input/Solver/Visu"} ]{ PostOperation[MagDynH]; }
+        }
+        {
+          Print[{$it}, Format "*** Too many NR its (%g): recomputing step with DT<-DT/3"];
+          SetTime[$Time - $DTime];
+          SetTimeStep[$TimeStep-1];
+          SetDTime[$DTime/3];
+        }
+        Test[ $res/$res0 < 1e-4 && $it < NRMAX/2 ]{
+          Print[{$it}, Format "*** Too fast NR (%g): DT<-DT*2"];
+          SetDTime[$DTime*2];
+        }
       }
     }
   }
