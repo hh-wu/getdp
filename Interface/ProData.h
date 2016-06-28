@@ -1240,6 +1240,7 @@ struct IterativeLoopSystem {
 #define OPERATION_SWAPSOLUTIONANDRESIDUAL  91
 #define OPERATION_CREATESOLUTION           92
 #define OPERATION_SETDTIME                 93
+#define OPERATION_REMOVELASTSOLUTION       94
 
 /* ChangeOfState.Type */
 #define CHANGEOFSTATE_NOCHANGE              0

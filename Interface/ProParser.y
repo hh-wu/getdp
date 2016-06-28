@@ -5526,6 +5526,7 @@ PrintOperation :
     ListOfExpression
     {
       Operation_P->Case.Print.Expressions = List_Copy(ListOfInt_L);
+      Operation_P->Case.Print.FormatString = NULL;
     }
 
   | String__Index
@@ -5536,6 +5537,13 @@ PrintOperation :
 	vyyerror(0, "Unknown System: %s", $1);
       Free($1);
       Operation_P->DefineSystemIndex = i;
+      Operation_P->Case.Print.FormatString = NULL;
+    }
+
+  | tBIGSTR
+    {
+      Operation_P->Case.Print.Expressions = List_Create(1,1,sizeof(int));
+      Operation_P->Case.Print.FormatString = $1;
     }
 
  ;
@@ -5545,7 +5553,6 @@ PrintOperationOptions :
       Operation_P->Case.Print.FileOut = NULL;
       Operation_P->Case.Print.TimeStep = NULL;
       Operation_P->Case.Print.DofNumber = NULL;
-      Operation_P->Case.Print.FormatString = NULL;
     }
   | PrintOperationOptions PrintOperationOption
  ;

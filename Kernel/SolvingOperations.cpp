@@ -2241,6 +2241,28 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       }
       break ;
 
+    case OPERATION_REMOVELASTSOLUTION :
+      Init_OperationOnSystem("RemoveLastSolution",
+			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+			     &DefineSystem_P, &DofData_P, Resolution2_P) ;
+      if(List_Nbr(DofData_P->Solutions)){
+        Solution_P = (struct Solution *)List_Pointer(DofData_P->Solutions,
+                                                     List_Nbr(DofData_P->Solutions) - 1);
+        if(Solution_P->SolutionExist){
+          Message::Info("Freeing Solution %d", Solution_P->TimeStep);
+          LinAlg_DestroyVector(&Solution_P->x);
+          Free(Solution_P->TimeFunctionValues) ;
+          Solution_P->SolutionExist = 0;
+        }
+        List_Pop(DofData_P->Solutions);
+        DofData_P->CurrentSolution = (struct Solution*)
+          List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions) - 1) ;
+      }
+      else{
+        DofData_P->CurrentSolution = 0;
+      }
+      break;
+
       /*  -->  E v a l u a t e                        */
       /*  ------------------------------------------  */
 
@@ -2359,8 +2381,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	Current.Time += Current.DTime ;
 	Current.TimeStep += 1. ;
 
-        Message::Info(3, "Theta Time = %.8g s (TimeStep %d)", Current.Time,
-                      (int)Current.TimeStep) ;
+        Message::Info(3, "Theta Time = %.8g s (TimeStep %d, DTime %g)", Current.Time,
+                      (int)Current.TimeStep, Current.DTime) ;
 
         if(Message::GetProgressMeterStep() > 0 && Message::GetProgressMeterStep() < 100)
           Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Time",
