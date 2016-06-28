@@ -20,7 +20,6 @@ Group {
 }
 
 Function {
-
   mu0 = 4*Pi*1e-7; // [Hm⁻¹]
 
   DefineConstant[
@@ -37,20 +36,22 @@ Function {
       Name "Input/4Materials/Exponent (n) value"},
     Freq = {50, Min 1, Max 100, Step 1,
       Name "Input/3Source/Frequency [Hz]"},
-    periods = {1.25, Min 0.1, Max 2.0, Step 0.05,
-      Name "Input/Solver/0Periods to simulate [s]"},
+    periods = {1., Min 0.1, Max 2.0, Step 0.05,
+      Name "Input/Solver/0Periods to simulate"},
     time0 = 0, // initial time
     time1 = periods * (1 / Freq), // final time
-    // n = 10 -> 20, dt = 5e-5
-    // n = 30, dt = 5e-6
-    dt = {(Preset == 3) ? 1e-5 : 5e-5, ReadOnly Preset,
-      Min 5e-7, Max 5e-4, Step 1e-6,
+    dt = {5e-5, Min 1e-7, Max 1e-3, Step 1e-6,
       Name "Input/Solver/1Time step [s]"}
-    theta = 1, // implicit Euler
+    adaptive = {0, Choices{0,1},
+      Name "Input/Solver/2Allow adaptive time step increase"},
+    dt_max = {0.1 * (1 / Freq), Visible adaptive,
+      Name "Input/Solver/2Maximum time step [s]"},
     tol_abs = {1e-6,
       Name "Input/Solver/Absolute tolerance on nonlinear residual"},
     tol_rel = {1e-6,
       Name "Input/Solver/Relative tolerance on nonlinear residual"},
+    iter_max = {12,
+      Name "Input/Solver/Maximum number of nonlinear iterations"},
     visu = {1, Choices{0, 1}, AutoCheck 0,
       Name "Input/Solver/Visu", Label "Real-time visualization"}
   ];
@@ -180,23 +181,58 @@ Resolution {
       { Name A; NameOfFormulation MagDynH; }
     }
     Operation {
+      // create directory to store result files
       CreateDirectory["res"];
+
+      // set some runtime variables
+      Evaluate[ $relax = 1, $syscount = 0 ];
+
+      // initialize the solution (initial condition)
       InitSolution[A];
-      Evaluate[ $relax = 1 ];
-      TimeLoopTheta[time0, time1, dt, theta] {
-        Generate[A]; Solve[A];
-        Generate[A]; GetResidual[A, $res0]; Evaluate[ $res = $res0, $it = 0 ];
-        Print[{$it, $res, $res / $res0},
+
+      // enter implicit Euler time-stepping loop
+      TimeLoopTheta[time0, time1, dt, 1] {
+
+        // compute initial solution and residual at step $TimeStep
+        Generate[A]; Solve[A]; Evaluate[ $syscount = $syscount + 1 ];
+        Generate[A]; GetResidual[A, $res0]; Evaluate[ $res = $res0, $iter = 0 ];
+        Print[{$iter, $res, $res / $res0},
               Format "Residual %03g: abs %14.12e rel %14.12e"];
-        While[$res > tol_abs && $res / $res0 > tol_rel]{
-          Solve[A];
-          Generate[A]; GetResidual[A, $res]; Evaluate[ $it = $it + 1 ];
-          Print[{$it, $res, $res / $res0},
+
+        // iterate until convergence
+        While[$res > tol_abs && $res / $res0 > tol_rel &&
+              $res / $res0 <= 1 && $iter < iter_max]{
+          Solve[A]; Evaluate[ $syscount = $syscount + 1 ];
+          Generate[A]; GetResidual[A, $res]; Evaluate[ $iter = $iter + 1 ];
+          Print[{$iter, $res, $res / $res0},
                 Format "Residual %03g: abs %14.12e rel %14.12e"];
         }
-        SaveSolution[A];
-        Test[ GetNumberRunTime[visu]{"Input/Solver/Visu"} ]{ PostOperation[MagDynH]; }
+
+        // save and visualize the solution if converged...
+        Test[ $iter < iter_max && $res / $res0 <= 1 ]{
+          SaveSolution[A];
+          Test[ GetNumberRunTime[visu]{"Input/Solver/Visu"} ]{ PostOperation[MagDynH]; }
+          // increase the step if we converged sufficiently "fast"
+          Test[ $iter < iter_max / 3 && $DTime < (adaptive ? dt_max : dt) ]{
+            Evaluate[ $dt_new = $DTime * 2 ];
+            Print[{$dt_new}, Format
+              "*** Fast convergence: increasing time step to %g"];
+            SetDTime[$dt_new];
+          }
+        }
+        // ...otherwise reduce the time step and try again
+        {
+          Evaluate[ $dt_new = $DTime / 3 ];
+          Print[{$iter, $dt_new}, Format
+            "*** Non convergence (iter %g): recomputing with reduced step %g"];
+          SetTime[$Time - $DTime];
+          SetTimeStep[$TimeStep - 1];
+          RemoveLastSolution[A];
+          SetDTime[$dt_new];
+        }
       }
+
+      Print[{$syscount}, Format "Total number of linear systems solved: %g"];
     }
   }
 
@@ -215,7 +251,7 @@ PostProcessing {
   { Name MagDynH; NameOfFormulation MagDynH;
     Quantity {
       { Name phi; Value{ Local{ [ {dInv h} ] ;
-	    In Omega; Jacobian Vol; } } }
+            In Omega; Jacobian Vol; } } }
       { Name h; Value{ Local{ [ {h} * Scaling ] ;
 	    In Omega; Jacobian Vol; } } }
       { Name j; Value{ Local{ [ {d h} * Scaling^2 ] ;
