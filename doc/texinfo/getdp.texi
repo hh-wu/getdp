@@ -4612,6 +4612,12 @@ Save all the solutions available for the system of equations
 @var{system-id}. This should be used with algorithms that generate more than
 one solution at once, e.g., @code{EigenSolve} or @code{FourierTransform}.
 
+@item RemoveLastSolution
+@code{[@var{system-id}]}
+
+Removes the last solution (i.e. associated with the last time step)
+associated with system @var{system-id}.
+
 @item TransferSolution
 @code{[@var{system-id}]}
 
@@ -4641,7 +4647,12 @@ Change the current time.
 @item SetTimeStep
 @code{[@var{expression}]}
 
-Change the current time step.
+Change the current time step number (1, 2, 3, ...)
+
+@item SetDTime
+@code{[@var{expression}]}
+
+Change the current time step value (dt).
 
 @item SetFrequency
 @code{[@var{system-id}, @var{expression}]}
