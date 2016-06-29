@@ -533,6 +533,14 @@ void Print_WholeQuantity(List_T *WholeQuantity, List_T *DQ_L)
       Message::Check(" #%d", (WQ+k)->Case.ValueSaved.Index + 1);
       break;
 
+    case WQ_SAVENAMEDVALUE :
+      Message::Check(" ->$%s", (WQ+k)->Case.NamedValue.Name);
+      break ;
+
+    case WQ_NAMEDVALUESAVED :
+      Message::Check(" $%s", (WQ+k)->Case.NamedValue.Name);
+      break ;
+
     case WQ_SHOWVALUE :
       Message::Check(" ->show with prefix #%d", (WQ+k)->Case.ShowValue.Index + 1);
       break;
