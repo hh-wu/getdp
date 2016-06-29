@@ -213,7 +213,9 @@ Resolution {
         // save and visualize the solution if converged...
         Test[ $iter < iter_max && $res / $res0 <= 1 ]{
           SaveSolution[A];
-          Test[ GetNumberRunTime[visu]{"Input/Solver/Visu"} ]{ PostOperation[MagDynH]; }
+          Test[ GetNumberRunTime[visu]{"Input/Solver/Visu"} ]{
+            PostOperation[MagDynH];
+          }
           // increase the step if we converged sufficiently "fast"
           Test[ $iter < iter_max / 4 && $DTime < dt_max ]{
             Evaluate[ $dt_new = Min[$DTime * 1.5, dt_max] ];
