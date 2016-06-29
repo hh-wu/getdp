@@ -46,15 +46,17 @@ Function {
       Name "Input/Solver/2Allow adaptive time step increase"},
     dt_max = {0.1 * (1 / Freq), Visible adaptive,
       Name "Input/Solver/2Maximum time step [s]"},
-    tol_abs = {1e-6,
-      Name "Input/Solver/Absolute tolerance on nonlinear residual"},
+    tol_abs = {1e-9,
+      Name "Input/Solver/3Absolute tolerance on nonlinear residual"},
     tol_rel = {1e-6,
-      Name "Input/Solver/Relative tolerance on nonlinear residual"},
+      Name "Input/Solver/3Relative tolerance on nonlinear residual"},
     iter_max = {12,
       Name "Input/Solver/Maximum number of nonlinear iterations"},
     visu = {1, Choices{0, 1}, AutoCheck 0,
       Name "Input/Solver/Visu", Label "Real-time visualization"}
   ];
+
+  dt_max = adaptive ? dt_max : dt;
 
   sigmaMatrix = sigmaMatrix / Scaling;
   Ec = Ec / Scaling;
@@ -213,18 +215,18 @@ Resolution {
           SaveSolution[A];
           Test[ GetNumberRunTime[visu]{"Input/Solver/Visu"} ]{ PostOperation[MagDynH]; }
           // increase the step if we converged sufficiently "fast"
-          Test[ $iter < iter_max / 3 && $DTime < (adaptive ? dt_max : dt) ]{
-            Evaluate[ $dt_new = $DTime * 2 ];
-            Print[{$dt_new}, Format
-              "*** Fast convergence: increasing time step to %g"];
+          Test[ $iter < iter_max / 4 && $DTime < dt_max ]{
+            Evaluate[ $dt_new = Min[$DTime * 1.5, dt_max] ];
+            Print[{$dt_new},
+              Format "*** Fast convergence: increasing time step to %g"];
             SetDTime[$dt_new];
           }
         }
         // ...otherwise reduce the time step and try again
         {
           Evaluate[ $dt_new = $DTime / 3 ];
-          Print[{$iter, $dt_new}, Format
-            "*** Non convergence (iter %g): recomputing with reduced step %g"];
+          Print[{$iter, $dt_new},
+            Format "*** Non convergence (iter %g): recomputing with reduced step %g"];
           SetTime[$Time - $DTime];
           SetTimeStep[$TimeStep - 1];
           RemoveLastSolution[A];
