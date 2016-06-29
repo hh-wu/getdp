@@ -100,6 +100,42 @@ void F_Sign(F_ARG)
 }
 
 /* ------------------------------------------------------------------------ */
+/*  Min, Max                                                                */
+/* ------------------------------------------------------------------------ */
+
+void F_Min(F_ARG)
+{
+  int     k;
+
+  if(A->Type != SCALAR || (A+1)->Type != SCALAR)
+    Message::Error("Non scalar argument(s) for function Min");
+
+  V->Val[0] = (A->Val[0] < (A+1)->Val[0]) ? A->Val[0] : (A+1)->Val[0];
+  if (Current.NbrHar != 1){
+    V->Val[MAX_DIM] = 0. ;
+    for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2)
+      V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;
+  }
+  V->Type = SCALAR;
+}
+
+void F_Max(F_ARG)
+{
+  int     k;
+
+  if(A->Type != SCALAR || (A+1)->Type != SCALAR)
+    Message::Error("Non scalar argument(s) for function Max");
+
+  V->Val[0] = (A->Val[0] > (A+1)->Val[0]) ? A->Val[0] : (A+1)->Val[0];
+  if (Current.NbrHar != 1){
+    V->Val[MAX_DIM] = 0. ;
+    for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2)
+      V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;
+  }
+  V->Type = SCALAR;
+}
+
+/* ------------------------------------------------------------------------ */
 /*  Bessel functions jn, yn and their derivatives                           */
 /* ------------------------------------------------------------------------ */
 

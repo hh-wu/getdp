@@ -3344,6 +3344,16 @@ Rounds upwards to the nearest integer that is not less than @var{expression}.
 Remainder of the division of the first @var{expression} by the second, with
 the sign of the first.
 
+@item Min
+@code{[@var{expression},@var{expression}]}
+
+Minimum of the two (scalar) expressions
+
+@item Max
+@code{[@var{expression},@var{expression}]}
+
+Maximum of the two (scalar) expressions
+
 @item Sign 
 @code{[@var{expression}]}
 
