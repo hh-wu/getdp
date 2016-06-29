@@ -1,8 +1,8 @@
-2.9.0: new ONELAB 1.2 protocol with native support for lists and TCP/IP
-communication speedup on Linux and Windows; simple C++ and Python API for
-exchanging (lists of) numbers and strings; extended .pro language for the
-construction of extensible problem definitions ("Append"); new VolCylShell
-transformation; small fixes.
+2.9.0: new ONELAB 1.2 protocol with native support for lists; simple C++ and
+Python API for exchanging (lists of) numbers and strings; extended .pro language
+for the construction of extensible problem definitions ("Append"); new
+VolCylShell transformation; new functions (Min, Max, SetDTime, ...); small
+fixes.
 
 2.8.0 (March 5, 2016): new Parse[], {Set,Get}{Number,String}[] and
 OnPositiveSideOf commands; added support for lists of strings; various

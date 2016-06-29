@@ -6366,7 +6366,6 @@ PostOperation :
     {
       PostOperation_S.Name = NULL;
       PostOperation_S.Hidden = false;
-      PostOperation_S.AppendString = NULL;
       PostOperation_S.Format = FORMAT_GMSH;
       PostOperation_S.PostProcessingIndex = -1;
       PostOperation_S.ResampleTime = false;
@@ -6441,12 +6440,11 @@ PostOperationTerm :
       PostOperation_S.LastTimeStepOnly = 1;
     }
 
-/* Not used??? If yes, change tAppend to tAppendStringToFileName? to avoid conflict with new Append
-  | tAppend CharExpr tEND
+  | tLastTimeStepOnly FExpr tEND
     {
-      PostOperation_S.AppendString = $2;
+      PostOperation_S.LastTimeStepOnly = (int)$2;
     }
-*/
+
   | tAppendToExistingFile FExpr tEND
     {
       PostOperation_S.CatFile = $2;
@@ -6483,7 +6481,6 @@ SeparatePostOperation :
     tPostOperation AppendOrNot String__Index tUsingPost String__Index
     {
       PostOperation_S.Hidden = false;
-      PostOperation_S.AppendString = NULL;
       PostOperation_S.Format = FORMAT_GMSH;
       PostOperation_S.PostProcessingIndex = -1;
       PostOperation_S.ResampleTime = false;
@@ -6634,7 +6631,8 @@ PostSubOperation :
 
     tPlot '[' PostQuantitiesToPrint PrintSubType PrintOptions ']' tEND
     {
-      vyyerror(0, "Plot has been superseded by Print (Plot OnRegion becomes Print OnElementsOf)");
+      vyyerror(0, "Plot has been superseded by Print "
+               "(Plot OnRegion becomes Print OnElementsOf)");
     }
 
   | tPrint '[' PostQuantitiesToPrint PrintSubType PrintOptions ']' tEND
@@ -6908,8 +6906,8 @@ PrintSubType :
     }
 
   /* should be generalized with a '{' RecursiveListOfFExpr '}' */
-| tOnRegion GroupRHS
-  tWithArgument tSTRING '{' FExpr ',' FExpr '}'  '{' FExpr '}'
+  | tOnRegion GroupRHS
+    tWithArgument tSTRING '{' FExpr ',' FExpr '}'  '{' FExpr '}'
     {
       PostSubOperation_S.SubType = PRINT_WITHARGUMENT;
 
@@ -6927,11 +6925,11 @@ PrintSubType :
       PostSubOperation_S.Case.WithArgument.n = (int)$11;
     }
 
-/* Just one value given for interpolating a function */
-| tOnRegion GroupRHS
-  tWithArgument tSTRING '{' FExpr '}'
-  {
-  PostSubOperation_S.SubType = PRINT_WITHARGUMENT;
+  /* Just one value given for interpolating a function */
+  | tOnRegion GroupRHS
+    tWithArgument tSTRING '{' FExpr '}'
+    {
+      PostSubOperation_S.SubType = PRINT_WITHARGUMENT;
 
       PostSubOperation_S.Case.WithArgument.RegionIndex =
 	Num_Group(&Group_S, (char*)"PO_On", $2);
@@ -6958,44 +6956,17 @@ PrintOptions :
 PrintOption :
     ',' tFile CharExpr
     {
-      if(!PostOperation_S.AppendString){
-	PostSubOperation_S.FileOut = $3;
-      }
-      else{
-	PostSubOperation_S.FileOut =
-	  (char *)Malloc((strlen($3)+strlen(PostOperation_S.AppendString)+1)*sizeof(char));
-	strcpy(PostSubOperation_S.FileOut, $3);
-	strcat(PostSubOperation_S.FileOut, PostOperation_S.AppendString);
-	Free($3);
-      }
+      PostSubOperation_S.FileOut = $3;
       PostSubOperation_S.CatFile = 0;
     }
   | ',' tFile '>' CharExpr
     {
-      if(!PostOperation_S.AppendString){
-	PostSubOperation_S.FileOut = $4;
-      }
-      else{
-	PostSubOperation_S.FileOut =
-	  (char *)Malloc((strlen($4)+strlen(PostOperation_S.AppendString)+1)*sizeof(char));
-	strcpy(PostSubOperation_S.FileOut, $4);
-	strcat(PostSubOperation_S.FileOut, PostOperation_S.AppendString);
-	Free($4);
-      }
+      PostSubOperation_S.FileOut = $4;
       PostSubOperation_S.CatFile = 1;
     }
   | ',' tFile tGREATERGREATER CharExpr
     {
-      if(!PostOperation_S.AppendString){
-	PostSubOperation_S.FileOut = $4;
-      }
-      else{
-	PostSubOperation_S.FileOut =
-	  (char *)Malloc((strlen($4)+strlen(PostOperation_S.AppendString)+1)*sizeof(char));
-	strcpy(PostSubOperation_S.FileOut, $4);
-	strcat(PostSubOperation_S.FileOut, PostOperation_S.AppendString);
-	Free($4);
-      }
+      PostSubOperation_S.FileOut = $4;
       PostSubOperation_S.CatFile = 2;
     }
   | ',' tAppendToExistingFile FExpr
@@ -7276,13 +7247,17 @@ PrintOption :
     {
       PostSubOperation_S.LastTimeStepOnly = 1;
     }
+  | ',' tLastTimeStepOnly FExpr
+    {
+      PostSubOperation_S.LastTimeStepOnly = (int)$3;
+    }
   | ',' tAppendTimeStepToFileName
     {
       PostSubOperation_S.AppendTimeStepToFileName = 1;
     }
   | ',' tAppendTimeStepToFileName FExpr
     {
-      PostSubOperation_S.AppendTimeStepToFileName = $3;
+      PostSubOperation_S.AppendTimeStepToFileName = (int)$3;
     }
   | ',' tAppendExpressionToFileName Expression
     {

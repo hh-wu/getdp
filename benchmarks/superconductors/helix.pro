@@ -277,7 +277,7 @@ PostProcessing {
 }
 
 PostOperation {
-  { Name MagDynH ; NameOfPostProcessing MagDynH ; LastTimeStepOnly ;
+  { Name MagDynH ; NameOfPostProcessing MagDynH ; LastTimeStepOnly visu ;
     Operation {
       Echo["General.Verbosity=3;", File "res/option.pos"];
       Print[ h, OnElementsOf Omega , File "res/h.pos", Name "h [Am⁻1]" ];
