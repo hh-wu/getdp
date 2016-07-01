@@ -424,6 +424,9 @@ void Print_WholeQuantity(List_T *WholeQuantity, List_T *DQ_L)
       case OP_GREATEROREQUAL : Message::Check(" >=");  break;
       case OP_EQUAL          : Message::Check(" ==");  break;
       case OP_NOTEQUAL       : Message::Check(" !=");  break;
+      case OP_APPROXEQUAL    : Message::Check(" ~=");  break;
+      case OP_AND            : Message::Check(" &&");  break;
+      case OP_OR             : Message::Check(" ||");  break;
       default                : Message::Check(" UnknownBinaryOperator[]");  break;
       }
       break;
