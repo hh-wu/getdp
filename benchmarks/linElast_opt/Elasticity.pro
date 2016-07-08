@@ -84,8 +84,8 @@ FunctionSpace{
         { NameOfCoef uxn ; EntityType NodesOf ; NameOfConstraint DisplacementX ; }
         { NameOfCoef uyn ; EntityType NodesOf ; NameOfConstraint DisplacementY ; }
         If (Flag_degree2)
-          { NameOfCoef uxn2;EntityType EdgesOf;NameOfConstraint DisplacementX ; }
-          { NameOfCoef uyn2;EntityType EdgesOf ; NameOfConstraint DisplacementY ; }
+          { NameOfCoef uxn2;EntityType EdgesOf; NameOfConstraint DisplacementX ; }
+          { NameOfCoef uyn2;EntityType EdgesOf; NameOfConstraint DisplacementY ; }
         EndIf
       }
     }
@@ -310,7 +310,7 @@ Resolution{
     }
     Operation{
       CreateDir[ResDir];
-      SetGlobalSolverOptions["-petsc_prealloc 500"];
+      SetGlobalSolverOptions["-petsc_prealloc 2500"];
       
       If(!StrCmp(Flag_optType,"topology") && !Flag_projFuncSpace_xe)
         GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD];

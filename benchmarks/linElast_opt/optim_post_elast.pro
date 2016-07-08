@@ -22,6 +22,13 @@ PostProcessing {
         }
       }
 
+      { Name dVolume;
+	Value {
+	  Integral{ [ dVolume[{d v_1},{d v_2},{d v_3}] ];
+	    In Domain; Jacobian Vol; Integration I1; }
+	}
+      }
+
       { Name dMass;
 	Value {
 	  Integral{ [ dMass[{d v_1},{d v_2},{d v_3}] ];
@@ -101,13 +108,52 @@ PostProcessing {
 //      }
 //    }
 //  }
+  { Name Direct_u_Mec ; NameOfFormulation Direct_u_Mec ;
+    PostQuantity {
+      { Name u ; Value { Term {[ {u} ] ; In Domain ; Jacobian Vol;}}}
+      { Name d_u ; Value { Term {[ {d_u} ] ; In Domain ; Jacobian Vol;}}}
+      { Name dVx;Value{Term{[ dV_x[{d v_1},{d v_2},{d v_3}] ];In Domain;Jacobian Vol;}}}
+      { Name dVy;Value{Term{[ dV_y[{d v_1},{d v_2},{d v_3}] ];In Domain;Jacobian Vol;}}}
+      { Name dVz;Value{Term{[ dV_z[{d v_1},{d v_2},{d v_3}] ];In Domain;Jacobian Vol;}}}
+
+      { Name AvmVarDomSensFrechet; 
+        Value { 
+          Integral { [ dFdb_Lie[ {D1 u} ] * D1_Eps_dudx[] /*{D1 d_u}*/ ];  
+            In DomainFunc ; Jacobian Vol ; Integration I1 ;}
+        } 
+      }
+
+      { Name AvmVarDomSensPartial; 
+        Value { 
+          Integral { [ dF_lie[ {D1 u},{D2 u},{d v_1}, {d v_2}, {d v_3} ] ];  
+            In DomainFunc ; Jacobian Vol ; Integration I1 ;}
+        } 
+      }
+
+      { Name AvmVarDomSens; 
+        Value { 
+          Integral { [ dFdb_Lie[ {D1 u} ] * /*D1_Eps_dudx[]*/ {D1 d_u} ];  
+            In DomainFunc ; Jacobian Vol ; Integration I1 ;}
+          Integral { [ dF_lie[ {D1 u},{D2 u},{d v_1}, {d v_2}, {d v_3} ] ];  
+            In DomainFunc ; Jacobian Vol ; Integration I1 ;}
+        } 
+      }
+
+//      { Name AvmVarDomSens; 
+//        Value { 
+//          Integral { [ dF_direct_lie[ {D1 u},{D2 u},{D1 d_u},{D2 d_u},
+//				{d v_1}, {d v_2}, {d v_3} ] ];  
+//            In DomainFunc ; Jacobian Vol ; Integration I1 ;}
+//        } 
+//      }
+    }
+  }
 
   { Name Adjoint_u_Mec ; NameOfFormulation Adjoint_u_Mec ;
     PostQuantity {
       { Name u ; Value { Term {[ {u} ] ; In Domain ; Jacobian Vol;}}}
       { Name Fadj ; Value { Term { [ dFdb[{D1 u},{D2 u}] ]; In DomainFunc ; } } }   
       { Name v; Value {Term{[velocity[{v_1},{v_2},{v_3}]];In Domain;Jacobian Vol;}}}
-      { Name v_1; Value {Term{[ {v_1} ];In Domain;Jacobian Vol;}}}
       { Name lambda ; Value { Term {[ {lambda} ] ; In Domain ; Jacobian Vol;}}}
  
       { Name bilinLamdaState; 
@@ -211,6 +257,21 @@ PostOperation {
     }
   EndFor
 
+  { Name Direct_u_Mec; NameOfPostProcessing Direct_u_Mec;
+    Operation{
+      Print[ u, OnElementsOf Domain,
+        File StrCat[ResDir, "u_direct", ExtGmsh], LastTimeStepOnly];
+      Print[ d_u, OnElementsOf Domain,
+        File StrCat[ResDir, "d_u_direct", ExtGmsh], LastTimeStepOnly];
+      Print[ dVx, OnElementsOf Domain,
+        File StrCat[ResDir, "dVx", ExtGmsh], LastTimeStepOnly];
+      Print[ dVy, OnElementsOf Domain,
+        File StrCat[ResDir, "dVy", ExtGmsh], LastTimeStepOnly];
+      Print[ dVz, OnElementsOf Domain,
+        File StrCat[ResDir, "dVz", ExtGmsh], LastTimeStepOnly];
+    }
+  }
+
   { Name Adjoint_u_Mec; NameOfPostProcessing Adjoint_u_Mec;
     Operation{
       Print[ lambda, OnElementsOf Domain,
@@ -221,6 +282,9 @@ PostOperation {
 
   { Name Analytic_Sens_u_Mec; NameOfPostProcessing Analytic_Sens_u_Mec;
     Operation{  
+     Print[ dVolume[Domain], OnGlobal, Format Table,
+       File StrCat[ResDir, StrCat["dVolume",ExtAnalyticSens]], LastTimeStepOnly,
+       SendToServer StrCat[po_min,"dVolume"], Color "LightYellow" ];
      Print[ dMass[Domain], OnGlobal, Format Table,
        File StrCat[ResDir, StrCat["dMass",ExtAnalyticSens]], LastTimeStepOnly,
        SendToServer StrCat[po_min,"dMass"], Color "LightYellow" ];
@@ -270,12 +334,24 @@ PostOperation {
     }
   }
 
+  { Name Lie_Direct_u_Mec; NameOfPostProcessing Direct_u_Mec;
+    Operation{
+       Print[ AvmVarDomSensFrechet[Domain], OnGlobal, Format Table,
+         File StrCat[ResDir, "sensDirectLieFrechet", ExtGnuplot], 
+         SendToServer StrCat[po_min,"sensDirectLieFrechet"], LastTimeStepOnly];
+       Print[ AvmVarDomSensPartial[Domain], OnGlobal, Format Table,
+         File StrCat[ResDir, "sensDirectLiePartial", ExtGnuplot], 
+         SendToServer StrCat[po_min,"sensDirectLiePartial"], LastTimeStepOnly];
+       Print[ AvmVarDomSens[Domain], OnGlobal, Format Table,
+         File StrCat[ResDir, "sensDirectLie", ExtGnuplot], 
+         SendToServer StrCat[po_min,"sensDirectLie"], LastTimeStepOnly];
+    }
+  } 
+
   { Name Lie_Adjoint_u_Mec; NameOfPostProcessing Adjoint_u_Mec;
     Operation{
        Print[ v, OnElementsOf Domain,
          File StrCat[ResDir, StrCat["velocitylieavm",ExtGmsh]], LastTimeStepOnly] ;
-       Print[ v_1, OnElementsOf Domain,
-         File StrCat[ResDir, StrCat["velocitylieavm_1",ExtGmsh]], LastTimeStepOnly] ;
 //       Print[ rho_sensF, OnElementsOf Domain,
 //	      File StrCat[ResDir, StrCat["rho_sensF",ExtGmsh]], LastTimeStepOnly] ;
 //       Print[ rho_sensK, OnElementsOf Domain,

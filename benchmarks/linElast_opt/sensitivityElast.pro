@@ -15,7 +15,7 @@ FunctionSpace{
     { Name H_fv~{i}; Type Form0;
       BasisFunction{
         { Name wn; NameOfCoef vn; Function BF_Node;
-          Support  Region[{Domain,SkinPerturb}]; Entity NodesOf[All];}
+          Support  Region[{Domain,SkinPerturb,SkinNonPerturb}]; Entity NodesOf[All];}
       }
       If ( !Flag_NeumanVel )
         Constraint{
@@ -58,10 +58,10 @@ FunctionSpace{
       BasisFunction {
         { Name sxn ; NameOfCoef uxn ; Function BF_NodeX ; 
           dFunction {BF_NodeX_D12, BF_Zero}; //??
-          Support Domain; Entity NodesOf[ All ] ; }
+          Support Region[{Domain,Domain_Force}]; Entity NodesOf[ All ] ; }
         { Name syn ; NameOfCoef uyn ; Function BF_NodeY ; 
           dFunction {BF_NodeY_D12, BF_Zero};
-          Support Domain; Entity NodesOf[ All ] ; }
+          Support Region[{Domain,Domain_Force}]; Entity NodesOf[ All ] ; }
       }
       Constraint {
         { NameOfCoef uxn ;
@@ -127,7 +127,7 @@ Formulation{
         Galerkin{ [Dof{d fv~{i}}, {d fv~{i}}];
           In Domain; Jacobian Vol; Integration I1;}
 //        If ( Flag_NeumanVel )
-//          Galerkin{ [-velocity~{i}[], {fv~{i}}];
+//          Galerkin{ [-(velocity~{i}[]), {fv~{i}}];
 //            In SkinPerturb; Jacobian Lin; Integration I1;}
 //        EndIf
       }
@@ -146,6 +146,18 @@ Formulation{
       Equation {
         Galerkin { [ C[]*Dof{D1 d_u}, {D1 d_u}] ; 
           In Domain; Jacobian Vol ; Integration I1 ; }
+        Galerkin { [ -C[]*d_D1[du[],dV[{d v_1},{d v_2},{d v_3}]], {D1 d_u} ]; 
+          In Domain; Jacobian Vol ; Integration I1 ; }
+        //Galerkin { [ -C[]*{D1 u}, d_D1[{d d_u},dV[{d v_1},{d v_2},{d v_3}]] ]; 
+        //  In Domain; Jacobian Vol ; Integration I1 ; }
+        Galerkin {[C[]*{D1 u}*TTrace[dV[{d v_1},{d v_2},{d v_3}]],{D1 d_u}]; 
+          In Domain; Jacobian Vol ; Integration I1 ; }
+        Galerkin{[-sigmaV[sigmaTensLie[{D1 u}]*dV[{d v_1},{d v_2},{d v_3}]],{D1 d_u}]; 
+          In Domain; Jacobian Vol ; Integration I1 ; }
+        For i In {1:3}
+          Galerkin { [ 0*Dof{v~{i}}, {v~{i}} ] ;
+            In Domain; Jacobian Vol ; Integration I1 ; }
+        EndFor
       }
     }
     { Name Adjoint_u_Mec ; Type FemEquation ;
@@ -194,20 +206,20 @@ Formulation{
     { Name Direct_u_Mec ; Type FemEquation ;
       Quantity {
         { Name u ; Type Local  ; NameOfSpace H_u ; }
-        { Name d_u ; Type Local  ; NameOfSpace H_dState_Mec ; }
+        { Name du ; Type Local  ; NameOfSpace H_dState_Mec ; }
         For i In {1:3}
           { Name v~{i} ; Type Local ; NameOfSpace H_v~{i};}
         EndFor
       }
       Equation {
         // u formulation
-       Galerkin { [ C11[] * Dof{D1 d_u}, {D1 d_u} ] ;
+       Galerkin { [ C11[] * Dof{D1 d_u}, {D1 du} ] ;
          In Domain ; Jacobian Vol ; Integration I1 ; }
-       Galerkin { [ C12[] * Dof{D2 d_u}, {D1 d_u} ] ;
+       Galerkin { [ C12[] * Dof{D2 d_u}, {D1 du} ] ;
          In Domain ; Jacobian Vol ; Integration I1 ; }
-       Galerkin { [ C21[] * Dof{D1 d_u}, {D2 d_u} ] ;
+       Galerkin { [ C21[] * Dof{D1 d_u}, {D2 du} ] ;
          In Domain ; Jacobian Vol ; Integration I1 ; }
-       Galerkin { [ C22[] * Dof{D2 d_u}, {D2 d_u} ] ;
+       Galerkin { [ C22[] * Dof{D2 d_u}, {D2 du} ] ;
          In Domain ; Jacobian Vol ; Integration I1 ; }
       }
     }
@@ -311,8 +323,10 @@ Resolution{
       If(!StrCmp(Flag_optType,"topology"))
         GmshRead[StrCat[ResDir0,"designVariable.pos"],DES_VAR_FIELD]; 
       EndIf
+      //generate useful coeff !!
+      GmshRead[StrCat[ResDir0,"u.pos"], STATE_FIELD]; 
       InitSolution[B];Generate[B];Solve[B];SaveSolution[B];
-      PostOperation[Post_Direct_u_Mec];
+      PostOperation[Direct_u_Mec];
     }
   }
    // provide "u_Mec" as input !!!
@@ -397,6 +411,36 @@ Resolution{
       PostOperation[Analytic_Sens_u_Mec_eig];
     }
   }
+
+  { Name Lie_Direct_u_Mec; 
+    System {
+      { Name A; NameOfFormulation u_Mec; } 
+      { Name B; NameOfFormulation Direct_u_Mec; }
+    }
+    Operation{
+      CreateDir[ResDir0];      
+      ReadSolution[A];ReadSolution[B]; 
+      GmshRead[StrCat[ResDir0,"u.pos"], STATE_FIELD];
+      GmshRead[StrCat[ResDir0,"d_u_direct.pos"], DIRECT_FIELD];
+      GmshRead[StrCat[ResDir0,"dudx_fd.pos"], 999999]; 
+      PostOperation[Lie_Direct_u_Mec];  
+    }
+  }
+
+  { Name Lie_Adjoint_u_Mec; 
+    System {
+      { Name A; NameOfFormulation u_Mec; } 
+      { Name B; NameOfFormulation Adjoint_u_Mec; }
+    }
+    Operation{
+      CreateDir[ResDir0];      
+      ReadSolution[A];ReadSolution[B]; 
+      GmshRead[StrCat[ResDir0,"u.pos"], STATE_FIELD];
+      GmshRead[StrCat[ResDir0,"lambda.pos"], ADJOINT_FIELD];
+      PostOperation[Lie_Adjoint_u_Mec];  
+    }
+  }
+
 
   { Name TO_Analytic_Sens_u_Mec_eig; 
     System {

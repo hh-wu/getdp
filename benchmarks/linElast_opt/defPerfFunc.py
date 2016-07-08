@@ -228,10 +228,27 @@ def opt_maxvonMises(x,data,parameters):
     input = {'f':ff,'df':df,'fmax':ffmax,'sign':sign,'f_name':ffname}
     return input
 
-def opt_complianceVolume(x,data,parameters):
+def shape_complianceVolume(x,data,parameters):
     """
         min (x) compl(x)
-        s.t. vol(x) <= volM
+        s.t.    vol(x) <= volM
+    """
+    compl = data['ComplianceElm'][0]
+    vol = data['Volume'][0]
+    print('compl:{}; vol:{}'.format(compl,vol))
+    input = {
+        'f':[compl,vol],
+        'df':['AdjointLie','AnalyticNotEplicit'],#['FiniteDifference']*2,
+        'fmax':[0, 5.27934539997*0.8],
+        'f_name':['Compliance','Volume'],
+        'sign':[1.0,1.0]
+    }
+    return input
+
+def topopt_complianceVolume(x,data,parameters):
+    """
+        min (x) compl(x)
+        s.t.    vol(x) <= volM
     """
     compl = data['ComplianceElm'][0]
     elemVol = data['ElementVolume'][0][:,1];vol = np.dot(x,elemVol)
@@ -239,10 +256,10 @@ def opt_complianceVolume(x,data,parameters):
     input = {
         'f':[compl,vol],
         'df':['SelfFixedDom',volumeSens],
-        'fmax':[0, 0.32],
+        'fmax':[0, 3.0],
         'f_name':['Compliance','Volume'],
         'sign':[1.0,1.0],
-        'filter':[]
+        'filter':[2,0]
     }
     return input
 

@@ -4,6 +4,7 @@
 TORQUE_VAR_FIELD = 20;
 STATE_FIELD = 8;
 ADJOINT_FIELD = 9;
+DIRECT_FIELD = 10;
 DES_VAR_FIELD = 21;
 
 DefineConstant[
@@ -38,7 +39,7 @@ DefineConstant[
   Flag_NeumanVel = {0, Choices{0,1},
     Name "Input/Filter Velocity", Visible 1},
 
-  SensitivityParameter = { StrCat(pp,"Hole Length"),
+  SensitivityParameter = { StrCat(pp,"R2"),
     Choices{
       StrCat(pp,"Hole Length"),
       StrCat(pp,"Magnet length")

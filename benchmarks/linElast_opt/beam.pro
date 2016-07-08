@@ -2,7 +2,7 @@
 Include "beam_data.geo";
 
 DefineConstant[
-  Flag_testBench = {7,  
+  Flag_testBench = {0,  
     Choices {
       0="Short Cantiler Beam", 
       1="MBB Beam",
@@ -12,9 +12,10 @@ DefineConstant[
       5="Rotor block-block",
       6="3-load case",
       7="L-bracket",
-      8="square-center"}, 
+      8="square-center",
+      9="bridge"}, 
     Name "Input/Loading/case",Visible 1},
-  E0  = {/*210e6*/100., Name "Input/Materials/ Young modulus",Visible 0},
+  E0  = {/*210e6*/1., Name "Input/Materials/ Young modulus",Visible 0},
   nu0 = {0.3, Name "Input/Materials/ Poisson coeficient",Visible 0},
   rh = {7850.,Name "Input/Materials/ Mass density",Visible 0}
 ];
@@ -71,6 +72,8 @@ Group {
     Domain_Force_Lin = Region[ {POINT_12} ];
   ElseIf(Flag_testBench == 8) //square-center
     Domain_Force_Lin = Region[ {POINT_CENTER} ];
+  ElseIf(Flag_testBench == 9) //bridge
+    Domain_Force_Lin = Region[{POINT_34}];
   EndIf
 
   Domain_Force = Region[{Domain_Force_Sur,Domain_Force_Lin}];
@@ -80,8 +83,9 @@ Group {
     DomainOpt = Region[{Rotor_Fe}];
     DomainFunc = Region[{Rotor_Fe}];    
   Else
-    SkinPerturb = Region[{HOLE,SURF_DROITE}];
-    SkinNonPerturb = Region[{LINE_NON_PERTURBED}];
+    SkinPerturb = Region[{HOLE}];//Region[{HOLE,SURF_DROITE}];
+    SkinNonPerturb = Region[{SURF_BAS,SURF_HAUT,SURF_DROITE,SURF_GAUCHE}]; 
+    //Region[{LINE_NON_PERTURBED}];
     DomainOpt = Region[{Domain}];
     DomainFunc = Region[{Domain}];    
   EndIf
@@ -126,6 +130,8 @@ Function {
   ElseIf ( Flag_testBench == 7 )
     force_mec[Domain_Force] = Vector[0.,-1.,0.]; 
   ElseIf ( Flag_testBench == 8 )
+    force_mec[Domain_Force] = Vector[0.,-1.,0.]; 
+  ElseIf ( Flag_testBench == 9 )
     force_mec[Domain_Force] = Vector[0.,-1.,0.]; 
   EndIf
 
@@ -226,6 +232,10 @@ Function {
       EndIf 
     EndIf
     sigma_lie[] = C[]*$1; //[sigma_11,sigma_22,sigma_12]
+    sigmaTensLie[] = Tensor[CompX[sigma_lie[$1]#1],CompZ[#1],0,
+                            CompZ[#1],CompY[#1],0,
+                            0,0,0];
+    sigmaV[] = Vector[CompXX[$1],CompYY[$1],CompXY[$1]];
     V1[] = TensorSym[1., -0.5, 0., 1., 0., 3.];
     sigmaVM[] = Sqrt[sigma[$1,$2,$3]#2 * ( V1[] * #2)];
     sigmaVM_lie[] = Sqrt[sigma_lie[$1,$2]#2 * ( V1[] * #2)];
@@ -264,11 +274,16 @@ Function {
     dV[] = Tensor[CompX[$1],CompX[$2],CompX[$3],
                   CompY[$1],CompY[$2],CompY[$3],
                   CompZ[$1],CompZ[$2],CompZ[$3]];
+    dV_x[] = Vector[CompX[$1],CompY[$1],CompZ[$1]];
+    dV_y[] = Vector[CompX[$2],CompY[$2],CompZ[$2]];
+    dV_z[] = Vector[CompX[$3],CompY[$3],CompZ[$3]];
+
     du[] = Transpose[GradVectorField[XYZ[],$TimeStep,1]{STATE_FIELD}]; 
+    //d_du[] = Tensor[Comp];
     dlam[] = Transpose[GradVectorField[XYZ[],0,1]{ADJOINT_FIELD}]; 
-    dEps[] = 0.5 * ( $2 * $1 + Transpose[$1] * Transpose[$2] );//$2:dV 
+    dEps[] = 0.5 * ( $2 * $1 + Transpose[$1] * Transpose[$2] );//$1:dU, $2:dV 
     If(Flag_2D)
-      d_D1[] = Vector[CompXX[dEps[$1,$2]#991],CompYY[#991],CompXY[#991]+CompYX[#991]];
+      d_D1[] = Vector[CompXX[dEps[$1,$2]#1],CompYY[#1],CompXY[#1]+CompYX[#1]]; 
     Else    
       d_D1[] = Vector[ CompXX[dEps[$1,$2]#1991], CompYY[#1991], CompZZ[#1991] ];
       d_D2[] = Vector[ CompXY[dEps[$1,$2]#993]+CompYX[#993], 
@@ -282,10 +297,15 @@ Function {
                     + rho[] * $1 * $1 * TTrace[ dV[] ]; 
 
     If(Flag_2D) // 2D 
-      //$1:{D1 u},$2:{D1 lambda}
+      dudx_fd[] = Transpose[GradVectorField[XYZ[],0,1]{999999}];
+      Eps_dudx[] = 0.5 * ( dudx_fd[] + Transpose[dudx_fd[]] );//$1:dU, $2:dV 
+      D1_Eps_dudx[] = Vector[CompXX[Eps_dudx[]],CompYY[Eps_dudx[]],CompXY[Eps_dudx[]]+CompYX[Eps_dudx[]]];
+      //$1:{D1 u},$2:{D1 lambda},$3:{D2 u},$4:{D2 lambda},
+      //$5:{d v_1},$6:{d v_2},$7:{d v_3}
       d_bilin_lie[] = -( C[] * d_D1[ du[], dV[$5,$6,$7] ] ) * $2 
-                      -( C[] * $1 ) * d_D1[ dlam[], dV[$5,$6,$7] ] 
-                      +( (C[] * $1) * $2 ) * TTrace[ dV[$5,$6,$7] ];
+                      /*-( C[] * $1 ) * d_D1[ dlam[], dV[$5,$6,$7] ]*/ 
+                      +( (C[] * $1) * $2 ) * TTrace[ dV[$5,$6,$7] ]
+		      - sigmaV[ sigmaTensLie[$1] * dV[$5,$6,$7] ] * $2;
       d_bilin[] = (d_C[$5] * $1) * $2; 
 
       //$1:{u},$2:{D1 u},$3:{D2 u}
@@ -370,13 +390,14 @@ Function {
         coeff[] = ($VM_P ^ (1./degVM -1.))/degVM;
         Func[] = sigmaVM[$1,$2,$3]^degVM; 
         Func_lie[] = sigmaVM_lie[$1,$2]^degVM;
-        dFdb[] = ( coeff[] * degVM * sigmaVM[$1,$2,$3]^(degVM-2) );
+        dFdb[] = ( coeff[] * degVM * sigmaVM[$1,$2,$3]^(degVM-2) )
 		 *( C[$3] * (V1[] * sigma[$1,$2,$3]) );
         dFdb_Lie[] = ( coeff[] * degVM * sigmaVM_lie[$1,$2]^(degVM-2) )
 		 *( C[] * (V1[] * sigma_lie[$1,$2]));
         dF_lie[] = -dFdb_Lie[$1,$2]*d_D1[du[],dV[$3,$4,$5]] 
                    +coeff[]*Func_lie[$1,$2] * TTrace[dV[$3,$4,$5]]; 
       EndIf
+      dF_direct_lie[] = dFdb_Lie[$1]*$3 + dF_lie[$1,$2,$5,$6,$7];
     Else // 3D
       //$1:{D1 u}, $2:{D1 lambda}, $3:{D2 u}, $4:{D2 lambda}
       d_bilin_lie[] = -( C11[]*d_D1[du[],dV[$5,$6,$7]]#1001)*$2 
@@ -434,8 +455,9 @@ Function {
                    +coeff[] * Func_lie[$1,$2] * TTrace[dV[$3,$4,$5]];  
       EndIf
     EndIf
-    dF_direct_lie[] = dFdb[$1#1]*$2 + dF_lie[#1,$3,$4,$5];
-    dMass[] = rho[] * TTrace[dV[$1,$2,$3]];
+    //dF_direct_lie[] = dFdb[$1#1]*$2 + dF_lie[#1,$3,$4,$5];
+    dVolume[] = TTrace[dV[$1,$2,$3]];
+    dMass[] = rho[] * dVolume[$1,$2,$3];
     d_eig[] = d_bilin_eig[$1,$2,$3,$4,$5,$6] - eig2[] * d_mass_eig[$1,$2,$3,$4,$5,$6];  
     d_eig_TO[] = d_bilin_eig_TO[$1,$2,$3] - eig2[] * d_mass_eig_TO[$1,$2,$3];  
   EndIf
@@ -487,6 +509,8 @@ Constraint{
         { Region #POINT_2;  Value 0.; }         
         { Region #POINT_3;  Value 0.; }
         { Region #POINT_4;  Value 0.; }  
+      ElseIf (Flag_testBench==9)
+        { Region #POINT_2;  Value 0.; } 
       EndIf
     }
   }
@@ -515,7 +539,10 @@ Constraint{
         { Region #POINT_1;  Value 0.; } 
         { Region #POINT_2;  Value 0.; }         
         { Region #POINT_3;  Value 0.; }
-        { Region #POINT_4;  Value 0.; }  
+        { Region #POINT_4;  Value 0.; }
+      ElseIf (Flag_testBench==9)
+        { Region #POINT_1;  Value 0.; }   
+        { Region #POINT_2;  Value 0.; }   
       EndIf
     }
   }

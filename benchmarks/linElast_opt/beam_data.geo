@@ -5,8 +5,8 @@ rad = 180. / Pi;   // rad -> deg
 //filePrefix = StrPrefix(StrRelative(General.FileName));
 
 DefineConstant[
-  pp = "Input/Constructive Parameters/"
-  ppC = "Input/0Cao/"
+  ppC = "Input/0Cao/",
+  pp = StrCat(ppC,"Constructive Parameters/"),
   ExtGmsh = ".pos",
   ExtGnuplot = ".dat",
   ExtAnalyticSens = ".analyticSens",
@@ -33,12 +33,12 @@ DefineConstant[
 If(!StrCmp(Flag_cao,"square"))
   Include "square_data.geo";
   Flag_2D = 1 - Flag_extrude;
-EndIf
-If(!StrCmp(Flag_cao,"rotor"))
+ElseIf(!StrCmp(Flag_cao,"rotor"))
   Include "v_data.geo";
   Flag_2D = 1;
 EndIf
 
 // Optimization problem specification
 Include "opt_data.geo";
+
 
