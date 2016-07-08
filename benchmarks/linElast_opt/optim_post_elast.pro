@@ -118,7 +118,7 @@ PostProcessing {
 
       { Name AvmVarDomSensFrechet; 
         Value { 
-          Integral { [ dFdb_Lie[ {D1 u} ] * D1_Eps_dudx[] /*{D1 d_u}*/ ];  
+          Integral { [ dFdb_Lie[ {D1 u} ] * {D1 d_u} /*D1_Eps_dudx[]*/ ];  
             In DomainFunc ; Jacobian Vol ; Integration I1 ;}
         } 
       }

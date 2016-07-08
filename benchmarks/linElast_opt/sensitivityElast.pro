@@ -146,6 +146,7 @@ Formulation{
       Equation {
         Galerkin { [ C[]*Dof{D1 d_u}, {D1 d_u}] ; 
           In Domain; Jacobian Vol ; Integration I1 ; }
+
         Galerkin { [ -C[]*d_D1[du[],dV[{d v_1},{d v_2},{d v_3}]], {D1 d_u} ]; 
           In Domain; Jacobian Vol ; Integration I1 ; }
         //Galerkin { [ -C[]*{D1 u}, d_D1[{d d_u},dV[{d v_1},{d v_2},{d v_3}]] ]; 
@@ -154,6 +155,13 @@ Formulation{
           In Domain; Jacobian Vol ; Integration I1 ; }
         Galerkin{[-sigmaV[sigmaTensLie[{D1 u}]*dV[{d v_1},{d v_2},{d v_3}]],{D1 d_u}]; 
           In Domain; Jacobian Vol ; Integration I1 ; }
+        Galerkin{[-0.5*sigmaV[sigmaTensLie[{D1 u}]
+	  *dV[{d v_1},{d v_2},{d v_3}]],{D1 d_u}]; 
+          In Domain; Jacobian Vol ; Integration I1 ; }
+        Galerkin{[-0.5*sigmaV[Transpose[dV[{d v_1},{d v_2},{d v_3}]]
+	  *sigmaTensLie[{D1 u}]],{D1 d_u}]; 
+          In Domain; Jacobian Vol ; Integration I1 ; }
+
         For i In {1:3}
           Galerkin { [ 0*Dof{v~{i}}, {v~{i}} ] ;
             In Domain; Jacobian Vol ; Integration I1 ; }

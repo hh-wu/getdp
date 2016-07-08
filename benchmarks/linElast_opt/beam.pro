@@ -305,7 +305,8 @@ Function {
       d_bilin_lie[] = -( C[] * d_D1[ du[], dV[$5,$6,$7] ] ) * $2 
                       /*-( C[] * $1 ) * d_D1[ dlam[], dV[$5,$6,$7] ]*/ 
                       +( (C[] * $1) * $2 ) * TTrace[ dV[$5,$6,$7] ]
-		      - sigmaV[ sigmaTensLie[$1] * dV[$5,$6,$7] ] * $2;
+		      - 0.5 * sigmaV[ sigmaTensLie[$1] * dV[$5,$6,$7] ] * $2
+                      - 0.5 * sigmaV[ Transpose[dV[$5,$6,$7]] * sigmaTensLie[$1] ] * $2;
       d_bilin[] = (d_C[$5] * $1) * $2; 
 
       //$1:{u},$2:{D1 u},$3:{D2 u}
