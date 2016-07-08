@@ -5,14 +5,12 @@
 
 Include "srm_data.geo";
 
-
-
 DefineConstant[
-  Flag_AnalysisType = {0,  Choices{0="Static",  1="Time domain"},
+  Flag_AnalysisType = {1,  Choices{0="Static",  1="Time domain"},
     Name "Input/19Type of analysis", Highlight "Blue",
     Help Str["- Use 'Static' to compute static fields created in the machine",
       "- Use 'Time domain' to compute the dynamic response of the machine"]} ,
-  Flag_SrcType_Stator = { 1, Choices{1="Current", 2="Voltage"},
+  Flag_SrcType_Stator = { 2, Choices{1="Current", 2="Voltage"},
     Name "Input/41Source type in stator", Highlight "Blue"},
   Flag_NL = { 0, Choices{0,1},
     Name "Input/60Nonlinear BH-curve", ReadOnly 0},
