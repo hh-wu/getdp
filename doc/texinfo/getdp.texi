@@ -21,7 +21,7 @@
 @c =========================================================================
 @c %**start of header
 @setfilename getdp.info
-@set GETDP-VERSION 2.8
+@set GETDP-VERSION 2.9
 @set COPYRIGHT @copyright{} 1997-2016 P. Dular and C. Geuzaine, University of Liege
 @settitle GetDP @value{GETDP-VERSION}
 @footnotestyle separate
