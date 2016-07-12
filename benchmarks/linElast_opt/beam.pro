@@ -236,6 +236,7 @@ Function {
                             CompZ[#1],CompY[#1],0,
                             0,0,0];
     sigmaV[] = Vector[CompXX[$1],CompYY[$1],CompXY[$1]];
+    epsilonV[] = Vector[CompXX[$1],CompYY[$1],CompXY[$1]+CompYX[$1]];
     V1[] = TensorSym[1., -0.5, 0., 1., 0., 3.];
     sigmaVM[] = Sqrt[sigma[$1,$2,$3]#2 * ( V1[] * #2)];
     sigmaVM_lie[] = Sqrt[sigma_lie[$1,$2]#2 * ( V1[] * #2)];
@@ -305,8 +306,7 @@ Function {
       d_bilin_lie[] = -( C[] * d_D1[ du[], dV[$5,$6,$7] ] ) * $2 
                       /*-( C[] * $1 ) * d_D1[ dlam[], dV[$5,$6,$7] ]*/ 
                       +( (C[] * $1) * $2 ) * TTrace[ dV[$5,$6,$7] ]
-		      - 0.5 * sigmaV[ sigmaTensLie[$1] * dV[$5,$6,$7] ] * $2
-                      - 0.5 * sigmaV[ Transpose[dV[$5,$6,$7]] * sigmaTensLie[$1] ] * $2;
+		      - sigmaV[ sigmaTensLie[$1] ]*epsilonV[dV[$5,$6,$7] * dlam[]];
       d_bilin[] = (d_C[$5] * $1) * $2; 
 
       //$1:{u},$2:{D1 u},$3:{D2 u}
