@@ -1145,24 +1145,26 @@ void Message::FinalizeOnelab()
           pn[0].setName(name + "/}ModelCheck");
           pn[0].setValue(0);
         }
-        pn[0].setLabel("Model check");
-        std::vector<double> nchoices;
-        std::vector<std::string> labels;
-        nchoices.push_back(0); labels.push_back("None");
-        nchoices.push_back(1); labels.push_back("Constants");
-        nchoices.push_back(2); labels.push_back("Groups");
-        nchoices.push_back(3); labels.push_back("Functions");
-        nchoices.push_back(4); labels.push_back("Constraints");
-        nchoices.push_back(5); labels.push_back("Jacobians");
-        nchoices.push_back(6); labels.push_back("Integrations");
-        nchoices.push_back(7); labels.push_back("FunctionSpaces");
-        nchoices.push_back(8); labels.push_back("Formulations");
-        nchoices.push_back(9); labels.push_back("Resolutions");
-        nchoices.push_back(10); labels.push_back("PostProcessings");
-        nchoices.push_back(11); labels.push_back("PostOperations");
-        pn[0].setChoices(nchoices);
-        pn[0].setChoiceLabels(labels);
-        _onelabClient->set(pn[0]);
+        if(pn[0].getVisible()){
+          pn[0].setLabel("Model check");
+          std::vector<double> nchoices;
+          std::vector<std::string> labels;
+          nchoices.push_back(0); labels.push_back("None");
+          nchoices.push_back(1); labels.push_back("Constants");
+          nchoices.push_back(2); labels.push_back("Groups");
+          nchoices.push_back(3); labels.push_back("Functions");
+          nchoices.push_back(4); labels.push_back("Constraints");
+          nchoices.push_back(5); labels.push_back("Jacobians");
+          nchoices.push_back(6); labels.push_back("Integrations");
+          nchoices.push_back(7); labels.push_back("FunctionSpaces");
+          nchoices.push_back(8); labels.push_back("Formulations");
+          nchoices.push_back(9); labels.push_back("Resolutions");
+          nchoices.push_back(10); labels.push_back("PostProcessings");
+          nchoices.push_back(11); labels.push_back("PostOperations");
+          pn[0].setChoices(nchoices);
+          pn[0].setChoiceLabels(labels);
+          _onelabClient->set(pn[0]);
+        }
       }
     }
     delete _onelabClient;

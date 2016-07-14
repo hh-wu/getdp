@@ -622,7 +622,6 @@ int MainKernel(int argc, char *argv[])
 
   Free_GlobalVariables();
   Free(sargv);
-
   Message::Finalize();
   return Message::GetErrorCount();
 }
