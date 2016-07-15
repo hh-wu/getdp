@@ -779,13 +779,6 @@ if(WIN32 AND NOT MSVC OR CYGWIN)
   endif(NOT ENABLE_BUILD_DYNAMIC)
 endif(WIN32 AND NOT MSVC OR CYGWIN)
 
-# code signing
-#if(APPLE AND PACKAGER STREQUAL "geuzaine")
-#  set(CODESIGN codesign --force --verify --verbose --sign
-#      "Developer ID Application: Christophe Geuzaine")
-#  add_custom_command(TARGET getdp POST_BUILD COMMAND ${CODESIGN} getdp)
-#endif(APPLE AND PACKAGER STREQUAL "geuzaine")
-
 # parser target
 find_program(BISON bison)
 find_program(FLEX flex)
@@ -1018,6 +1011,14 @@ if(WIN32 OR CYGWIN)
 else(WIN32 OR CYGWIN)
   set(CPACK_GENERATOR TGZ)
 endif(WIN32 OR CYGWIN)
+
+# code signing
+if(APPLE AND PACKAGER STREQUAL "geuzaine")
+  set(CODESIGN "codesign --force --verify --verbose --sign
+      \"Developer ID Application: Christophe Geuzaine\"")
+  set(APPDIR _CPack_Packages/Darwin/TGZ/getdp-${GETDP_VERSION}-MacOSX/bin)
+  install(CODE "execute_process(COMMAND ${CODESIGN} ${APPDIR}/getdp)")
+endif(APPLE AND PACKAGER STREQUAL "geuzaine")
 
 include(CPack)
 
