@@ -235,6 +235,9 @@ Function {
     sigmaTensLie[] = Tensor[CompX[sigma_lie[$1]#1],CompZ[#1],0,
                             CompZ[#1],CompY[#1],0,
                             0,0,0];
+    epsTensLie[] = Tensor[CompX[$1],0.5*CompZ[$1],0,
+                          0.5*CompZ[$1],CompY[$1],0,
+                          0,0,0];
     sigmaV[] = Vector[CompXX[$1],CompYY[$1],CompXY[$1]];
     epsilonV[] = Vector[CompXX[$1],CompYY[$1],CompXY[$1]+CompYX[$1]];
     V1[] = TensorSym[1., -0.5, 0., 1., 0., 3.];
@@ -303,10 +306,17 @@ Function {
       D1_Eps_dudx[] = Vector[CompXX[Eps_dudx[]],CompYY[Eps_dudx[]],CompXY[Eps_dudx[]]+CompYX[Eps_dudx[]]];
       //$1:{D1 u},$2:{D1 lambda},$3:{D2 u},$4:{D2 lambda},
       //$5:{d v_1},$6:{d v_2},$7:{d v_3}
-      d_bilin_lie[] = -( C[] * d_D1[ du[], dV[$5,$6,$7] ] ) * $2 
-                      /*-( C[] * $1 ) * d_D1[ dlam[], dV[$5,$6,$7] ]*/ 
-                      +( (C[] * $1) * $2 ) * TTrace[ dV[$5,$6,$7] ]
-		      - sigmaV[ sigmaTensLie[$1] ]*epsilonV[dV[$5,$6,$7] * dlam[]];
+//      d_bilin_lie[] = -( C[] * d_D1[ du[], dV[$5,$6,$7] ] ) * $2 
+//                      /*-( C[] * $1 ) * d_D1[ dlam[], dV[$5,$6,$7] ]*/ 
+//                      +( (C[] * $1) * $2 ) * TTrace[ dV[$5,$6,$7] ]
+//		      - 0.5*sigmaV[ sigmaTensLie[$1] ] * epsilonV[dV[$5,$6,$7]*dlam[]]
+//                      - 0.5*sigmaV[ sigmaTensLie[$1] ] 
+//			* epsilonV[Transpose[dlam[]]*Transpose[dV[$5,$6,$7]]];
+
+      d_bilin_lie[] = sigmaV[sigmaTensLie[$1]]*epsilonV[dlam[]]*TTrace[dV[$5,$6,$7]]
+		    - sigma_lie[epsilonV[dV[$5,$6,$7]*du[]]]*epsilonV[dlam[]]   
+                    - sigmaV[sigmaTensLie[$1]]*epsilonV[dV[$5,$6,$7]*dlam[]];
+
       d_bilin[] = (d_C[$5] * $1) * $2; 
 
       //$1:{u},$2:{D1 u},$3:{D2 u}
