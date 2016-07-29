@@ -250,7 +250,8 @@ void F_SurfaceArea(F_ARG)
 	Element.Num    = Element.GeoElement->Num ;
 	Element.Type   = Element.GeoElement->Type ;
 
-	if (Element.Type == TRIANGLE || Element.Type == QUADRANGLE) {
+	if (Element.Type == TRIANGLE || Element.Type == QUADRANGLE
+            || Element.Type == TRIANGLE_2) {
 
 	  Get_NodesCoordinatesOfElement(&Element) ;
 	  Get_BFGeoElement(&Element, 0., 0., 0.) ;
@@ -264,13 +265,13 @@ void F_SurfaceArea(F_ARG)
 	  }
 	  DetJac = c11 * c22 - c12 * c21 ;
 
-	  if (Element.Type == TRIANGLE)
+	  if (Element.Type == TRIANGLE || Element.Type == TRIANGLE_2)
 	    Val_Surface += fabs(DetJac) * 0.5 ;
 	  else if (Element.Type == QUADRANGLE)
 	    Val_Surface += fabs(DetJac) * 4. ;
 
 	}
-	else if (Element.Type == LINE) {
+	else if (Element.Type == LINE || Element.Type == LINE_2) {
 	  Get_NodesCoordinatesOfElement(&Element) ;
 	  Get_BFGeoElement(&Element, 0., 0., 0.) ;
 
