@@ -644,7 +644,7 @@ PostProcessing {
 
       { Name Flux ;
 	Value {
-	  Integral { [ SymmetryFactor*AxialLength*Idir[]*NbrWires[]/SurfCoil[]* CompZ[{a}] ] ;
+	  Integral{[SymmetryFactor*AxialLength*Idir[]*NbrWires[]/SurfCoil[]*CompZ[{a}]];
 	    In Inds  ; Jacobian Vol ; Integration I1 ; } } }
 
       { Name Force_vw ;
@@ -670,10 +670,10 @@ PostProcessing {
 	// Torque computation via Maxwell stress tensor
 	Value {
 	  Integral {
-	    [ CompZ [ XYZ[] /\ (T_max[{d a}] * XYZ[] ) ] * 2*Pi*AxialLength/SurfaceArea[]  ];
+	    [ CompZ[XYZ[]/\(T_max[{d a}]*XYZ[])] * 2*Pi*AxialLength/SurfaceArea[] ];
 	    //The above formula (and the subsequent frequency domain version
 	    //seem wrong to me. The correct expression is quite different:
-	    //[ CompZ [ XYZ[] /\ (T_max[{d a}] * Unit[XYZ[]] ) ]*AxialLength/AirGapLength ];
+	    //[ CompZ[XYZ[]/\(T_max[{d a}]*Unit[XYZ[]])]*AxialLength/AirGapLength ];
 	    In Domain ; Jacobian Vol  ; Integration I1; }
 	}
       }

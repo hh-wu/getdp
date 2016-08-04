@@ -1,98 +1,68 @@
+
 """
     Author: Erin Kuci
-    
-    Check the computation of sensitivity 
-    
+    Check the computation of sensitivity
 """
 import sys
 sys.path.append('../../benchmarks_kst/tool/')
-from tool import *
 from defPerfFunc import *
 from defPerfFuncSens import *
+from _checkDerivative import *
 
 # ************************************************************************
 # **** Input                                                         *****
 # ************************************************************************
-x = np.array([2.352e-03]) #0.57,np.array([2.352e-03])
-execMode = 1 #1:debug, 2:sensitivity, 2:plot
-lc = [1.0] #np.logspace(0.0, -0.9, num=10)
-step = [1.0e-08] #np.logspace(-16, -3, num=14)
-sensMeth = ['GlobalFiniteDifference','AdjointSemi','AdjointLie','DirectLie']
+pp = 'Input/Constructive Parameters/';mm=1.0e-03;deg=np.pi/180.0
+tagElem = [1000]
+angles = [0] #np.linspace(7.5,15.0,5)
+femParam = {
+    'OptType':['Input/Optimization Type','shape'],
+    'InnerPM':['Geo/Inner PM',0],
+    'NL':['Input/Finite Element/NonlinearSystem',0],
+    'Istat':['Input/Finite Element/50Id stator current',1.2],
+    'FEorder':['Input/Finite Element/FE order', 1],
+    'angle':['Input/ShiftMeshRotorPosition',angles],
+    'NbAngle':['Input/Optimization/NbAngle',len(angles)],
+    'MaterialInterpLaw':['Input/Optimization/Material Law','simp'],
+    'SimpDegree':['Input/Optimization/Simp Degree',2.0],
+    'DomOpt':['Input/Optimization/region TO',0],
+    'Tnom':['Input/Optimization/Tnom', 7.0]
+}
+parameters = {
+    'Print':10,
+    'file':'pmsm',
+    'analysis':['MagStaDyn_a_2D'],
+    'analysisPost':['MagStaDyn_a_2D'],
+    'adjoint':['Adjoint_MagStaDyn_a_2D'],
+    'semiPost':['Semi_Adjoint_MagStaDyn_a_2D'],
+    'direct':['Direct_MagStaDyn_a_2D'],
+    'defaultValue':femParam,
+    'variables':[pp+'Magnet thickness'],
+    #[pp+'Magnet length'],#[pp+'Airgap width [m]'],
+    'performance':Torque, #Compliance,Torque,TorqueVar,TorqueMean
+    'allowCentralFD':0,
+    'MeshRefine':1,
+    'project_xe':0,'TAG':tagElem,
+    'smoothVelocity':0,
+    'parallel':0,
+    'nbCPU':6
+}
+x = [32.67*deg]#[2.352*mm] #[(26.02-25.6)*mm]
+execMode = 'derivative' #derivative,plot
+Nlc = 1
+mesh=[]
+if Nlc==0: mesh = ['v4.msh'] #['v'+str(k)+'.msh' for k in range(5)]
+step = [1.0e-06] #np.logspace(-16, -2, num=14)
+sensMeth = ['FiniteDifference','DirectLie','AdjointLie','AdjointSemi']
+#'FiniteDifference','AdjointLie','AdjointFixedDom','AdjointSemi'
 pathSave = 'resSens'
 
 # ************************************************************************
-# **** Define parameters                                             ****
+# **** Derivative computation                                        *****
 # ************************************************************************
-parameters = {
-    'PrintOpt':99,
-    'fileName': 'pmsm',
-    'AnalysisModelType':'FEM',
-    'analysisType': ['static'],
-    'performance':[Compliance],
-    'allowCentralFD': 0,
-    'rotorAngles': np.array([0.001]),#np.linspace(7.5,15.0,5)
-    'defautValue': {'OptType':'shape','NLsys':0,'NLcurve': 1,'TorqueNominal':90.0}}
+main(x,execMode,sensMeth,step,Nlc,femParam,parameters,pathSave,mesh)
 
-# ************************************************************************
-# **** Instantiate the sensitivity module                            *****
-# ************************************************************************
-op = Sensitivity(parameters)
 
-# ************************************************************************
-# **** Compute sensitivity analysis                                  *****
-# ************************************************************************
-# Initialization
-if (not(os.path.exists(pathSave))):os.mkdir(pathSave, 0755)
 
-if ( execMode ): # check sensitivity
-    print('*'*80+'\n** df/dx with method [M1,...Mk] for (lc,step) **\n'+'*'*80)
-    sensMeth = np.array(sensMeth)
-    Nlc = len(lc);Nstep = len(step);nbMeth = len(sensMeth);n = len(x)
-    f = np.zeros(Nlc);dfdx = np.zeros([Nlc,Nstep,nbMeth,n]);relErr = np.copy(dfdx)
-    
-    # Compute df/dx
-    for j in range(Nlc): # loop over mesh quality (lc)
-        op.setScalarParameter('Geo/Mesh Characteristic Length Factor',lc[j])
-        op.MeshCao(x, op.parameters)
-        
-        for k in range(Nstep): # loop over perturbation step (step)
-            op.parameters['step'] = step[k]
-            
-            for l in range(nbMeth): # loop over sens. analysis methods
-                # compute f(x)
-                resAnalysis = op.Analysis(x,op.parameters)
-                f[j] = np.copy(resAnalysis['fj'][0])
-                
-                # compute df/dx(x)
-                op.parameters['SensitivityMethod'] = [sensMeth[l]]
-                t0 = time.time()
-                resSens = op.Sensitivity(x,resAnalysis['fj'],parameters=op.parameters)
-                tf = time.time()
-                dfdx[j,k,l] = resSens['dfjdx']
-                
-                # compute relative error wrt FD
-                relErr[j,k,l] = op.relError(dfdx[j,k,0],dfdx[j,k,l])
-                
-                # display result
-                print('-'*80)
-                print('method:{},lc:{},step:{}'.format(sensMeth[l],lc[j],step[k]))
-                print('f:{}\ndfdx:{}\nrelErr({},{}):{:.4E}\nTime(s):{:.4E}'.\
-                      format(f[j],dfdx[j,k,l],sensMeth[l],sensMeth[0],
-                             float(relErr[j,k,l]),float(tf-t0)))
-                print('-'*80)
-        # Save result
-        saveData(pathSave,f,dfdx,step,lc,relErr,sensMeth)
-
-else: #load data and plot
-    sensMeth,f,dfdx,step,lc,relErr = loadData(pathSave)
-    sensMeth = ['GlobalFiniteDifference','AdjointLie','DirectLie']
-    plotMultiVec(np.arange(len(lc)),np.abs(dfdx[:,0,0:3,0]),pathSave+'/dfdx_lc.pdf',
-        labelx='Mesh Density',labely=sensMeth,log=0,titleName='Derivative')
-#    plotMultiVec(np.arange(len(lc)),np.abs(relErr[:,0,1:,0]), pathSave+'/relErr_lc.pdf',
-#        labelx='Mesh Density', labely=sensMeth[1:],log=3,titleName='RelErr(.,FD)')
-#    plotMultiVec(step,np.abs(dfdx[0,:,:,0]),pathSave+'/dfdx_step.pdf',
-#                 labelx='perturbation step',labely=sensMeth,log=1)
-#    plotMultiVec(step,np.abs(relErr[:,0,1:,0][0]),pathSave+'/relErr_step.pdf',
-#                labelx='perturbation step', labely=sensMeth[1:])
 
 

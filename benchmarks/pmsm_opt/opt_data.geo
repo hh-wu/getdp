@@ -6,6 +6,8 @@ VELOCITY_FIELD = 7;
 STATE_FIELD = 8;
 ADJOINT_FIELD = 9;
 DES_VAR_FIELD = 21;
+SENS_FIELD = 22;
+SOURCE_FILT_FIELD = 99;
 
 DefineConstant[
   pInOpt = "Input/Optimization/",
@@ -40,23 +42,17 @@ DefineConstant[
     Name "Input/project velocity in func. space", Visible 1},
 
   // sensitivity analysis 
-  Flag_PerfType = {"none", 
+  Flag_PerfType = {"Compliance", 
     Choices {
       "BradialErrorInt",
       "TorqueVariance",
       "IronLoss",
       "Compliance",
       "Torque"
-    },
-    Name StrCat[pInOpt,"Performance function"], 
+    },Name StrCat[pInOpt,"Performance function"], 
     Visible (StrCmp(Flag_optType,"none"))},
 
-  Tnom = {90.0, Name "Input/OptParam/TorqueNominal"},
-
-  regionVar = {0, 
-    Name "Input/OptParam/regionVar",
-    Choices {0="Rotor Fe",1="Stator Fe",2="Rotor/Stator Fe"},
-    Visible (!StrCmp(Flag_optType, "topology"))},
+  Tnom = {90.0, Name StrCat[pInOpt,"Desired nominal torque"]},
 
   // Material law interpolation 
   Flag_InterpLaw = {"simp", 
@@ -68,7 +64,24 @@ DefineConstant[
     Name StrCat[pInOpt,"Material Interpo. Law"],
     Visible (!StrCmp(Flag_optType,"topology"))},
 
-  degree_SIMP = {3.0, 
+  regionTO = {"Rotor Fe-PM", 
+    Name StrCat[pInOpt,"TO domain"],
+    Choices {"Rotor Fe","Rotor Fe-PM","Stator Fe","Rotor,Stator Fe"},
+    Visible (!StrCmp(Flag_optType, "topology"))},
+
+  Flag_FilterMethod = {"none",
+    Choices{
+      "sensitivity",
+      "density"
+    },Name StrCat[pInOpt, "Filter"],
+    Visible (!StrCmp(Flag_optType,"topology"))},
+
+  Rmin = {0.001,
+    Name StrCat[pInOpt,"Radius"],
+    Visible (!StrCmp(Flag_FilterMethod,"sensitivity") 
+             || !StrCmp(Flag_FilterMethod,"density"))},
+
+  degree_SIMP = {2.0, 
     Name StrCat[pInOpt,"Simp Degree"],
     Visible (!StrCmp(Flag_optType,"topology"))}
 

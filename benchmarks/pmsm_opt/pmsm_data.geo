@@ -14,17 +14,17 @@ ExtOnelabScal = ".onelabScal";
 ExtOnelabVec = ".onelabVec";  
 
 DefineConstant[
-  pp = "Input/ConstructiveParameters/", 
+  pp = "Input/Constructive Parameters/", 
   NbrPoles = { 1, Choices {0,1}, Name "Number of poles in FE model", Visible 0},
   lc = {.2,Name "Geo/Mesh Characteristic Length Factor", Visible 1},
-  Flag_IPM = {1, Choices {0,1},Name "Geo/Inner PM", Visible 1},
+  Flag_IPM = {0, Choices {0,1},Name "Geo/Inner PM", Visible 1},
   modelpath = CurrentDir, 
   ResDir = StrCat[ modelpath, "res/" ],
   InitialRotorAngle_deg = {0, Name "Geo/Initial rotor position [mech. deg]", Visible 1},
   b_remanent = { 1.2, Name StrCat[pp,"Remanent induction[T]"] },
   // Design variables -> FIXME: write in py toolkit!
   em = {0.7389*2.352*mm , Visible Flag_IPM, 
-    Name StrCat[pp,"Magnet length"], Visible 1, Closed 1},  
+    Name StrCat[pp,"Magnet length 1"], Visible 1, Closed 1},  
   lm = {2.352*mm , 
     Name StrCat[pp,"Magnet length"], Visible 1, Closed 1},  
   Th_magnet = {32.67 *deg, 
