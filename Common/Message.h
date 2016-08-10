@@ -34,6 +34,8 @@ class Message {
   static int _verbosity;
   // step (in %) of the progress meter and current progress %
   static int _progressMeterStep, _progressMeterCurrent;
+  // report cpu time for each info message?
+  static bool _infoCpu;
   // starting time (gettimeofday at startup)
   static double _startTime;
   // timers
@@ -82,6 +84,7 @@ class Message {
   static void SetProgressMeterStep(int step){ _progressMeterStep = step; }
   static int GetProgressMeterStep(){ return _progressMeterStep; }
   static void ResetProgressMeter(){ if(!_commRank) _progressMeterCurrent = 0; }
+  static void SetInfoCpu(bool val){ _infoCpu = val; }
   static void PrintErrorCounter(const char *title);
   static void SetLastPETScError(int ierr){ _lastPETScError = ierr; }
   static int GetLastPETScError(){ return _lastPETScError; }

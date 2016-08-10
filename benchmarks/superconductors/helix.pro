@@ -65,7 +65,7 @@ Function {
   mu[Omega] =  mu0 / Scaling;
   rho[Matrix] = 1 / sigmaMatrix;
 
-  // power law E(J) = rho(J) * J
+  // power law E(J) = rho(J) * J, with rho(j) = Ec/Jc * (|J|/Jc)^(n-1)
   rho[Filaments] = Ec / Jc * (Norm[$1]/Jc)^(n - 1);
   dEdJ[Filaments] =
     Ec / Jc * (Norm[$1]/Jc)^(n - 1) * TensorDiag[1, 1, 1] +
@@ -167,9 +167,9 @@ Formulation {
 
       Galerkin { [ rho[{d h}] * {d h} , {d h} ];
         In Filaments; Integration Int; Jacobian Vol;  }
-      Galerkin { [ $relax * dEdJ[{d h}] * Dof{d h} , {d h} ];
+      Galerkin { [ dEdJ[{d h}] * Dof{d h} , {d h} ];
         In Filaments; Integration Int; Jacobian Vol;  }
-      Galerkin { [ - $relax * dEdJ[{d h}] * {d h} , {d h} ];
+      Galerkin { [ - dEdJ[{d h}] * {d h} , {d h} ];
         In Filaments ; Integration Int; Jacobian Vol;  }
 
       GlobalTerm { [ Dof{V1} , {I1} ] ; In Cut ; }
@@ -186,8 +186,10 @@ Resolution {
       // create directory to store result files
       CreateDirectory["res"];
 
-      // set some runtime variables
-      Evaluate[ $relax = 1, $syscount = 0 ];
+      // set a runtime variable to count the number of linear system solves (to
+      // compare the performance of adaptive vs. non-adaptive time stepping
+      // scheme)
+      Evaluate[ $syscount = 0 ];
 
       // initialize the solution (initial condition)
       InitSolution[A];
@@ -195,7 +197,7 @@ Resolution {
       // enter implicit Euler time-stepping loop
       TimeLoopTheta[time0, time1, dt, 1] {
 
-        // compute initial solution and residual at step $TimeStep
+        // compute first solution guess and residual at step $TimeStep
         Generate[A]; Solve[A]; Evaluate[ $syscount = $syscount + 1 ];
         Generate[A]; GetResidual[A, $res0]; Evaluate[ $res = $res0, $iter = 0 ];
         Print[{$iter, $res, $res / $res0},

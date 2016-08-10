@@ -65,6 +65,7 @@ bool Message::_operatingInTimeLoopAdaptive = false;
 int Message::_verbosity = 5;
 int Message::_progressMeterStep = 10;
 int Message::_progressMeterCurrent = 0;
+bool Message::_infoCpu = false;
 double Message::_startTime = 0.;
 std::map<std::string, double> Message::_timers;
 GmshClient* Message::_client = 0;
@@ -312,11 +313,17 @@ void Message::Info(const char *fmt, ...)
 void Message::Info(int level, const char *fmt, ...)
 {
   if((_commRank && _isCommWorld && level > 0) || _verbosity < abs(level)) return;
+
   char str[1024];
   va_list args;
   va_start(args, fmt);
   vsnprintf(str, sizeof(str), fmt, args);
   va_end(args);
+
+  if(_infoCpu){
+    Cpu(level, false, true, true, true, str);
+    return;
+  }
 
   if(_client){
     _client->Info(str);

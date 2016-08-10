@@ -784,6 +784,10 @@ Lets you check the problem structure interactively.
 Sets the verbosity level. A value of 0 means that no information will be
 displayed during the processing.
 
+@item -cpu
+
+Reports CPU times for all operations.
+
 @item -p
 @itemx -progress
 @var{integer}

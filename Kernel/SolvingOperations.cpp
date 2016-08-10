@@ -612,7 +612,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 {
   double  d, d1, d2, *Scales ;
   int     Nbr_Operation, Nbr_Sol, i_Operation, Num_Iteration ;
-  int     Flag_Jac, Flag_CPU, Flag_Binary = 0 ;
+  int     Flag_Jac, Flag_Binary = 0 ;
   int     Save_TypeTime ;
   double  Save_Time, Save_DTime ;
   double  Save_Iteration ;
@@ -671,7 +671,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   for (i_Operation = 0 ; i_Operation < Nbr_Operation ; i_Operation++) {
     Operation_P = (struct Operation*)List_Pointer(Operation_L, i_Operation) ;
 
-    Flag_CPU = 0 ;
     Flag_Jac = 0 ;
 
     if(Message::GetOnelabAction() == "stop" || Message::GetErrorCount()) break;
@@ -740,7 +739,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
           Generate_Group = NULL ;
 
         DofData_P->Flag_RHS = 0;
-        if(!Flag_Jac) Flag_CPU = 1 ;
 #ifdef TIMER
         double timer = MPI_Wtime() - tstart;
         if(Operation_P->Type == OPERATION_GENERATERHS)
@@ -769,7 +767,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Generate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac, 1) ;
 
       if (Operation_P->Case.Generate.GroupIndex >= 0) Generate_Group = NULL ;
-      Flag_CPU = 1 ;
       break ;
 
       /*  -->  G e n e r a t e O n l y                */
@@ -799,7 +796,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       Init_SystemData(DofData_P, Flag_Jac) ;
       Generate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac, 0) ;
-      if(!Flag_Jac) Flag_CPU = 1 ;
       break;
 
       /*  -->  U p d a t e                            */
@@ -811,7 +807,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
       Operation_Update(DefineSystem_P, DofData_P, DofData_P0,
                        Operation_P->Case.Update.ExpressionIndex) ;
-      Flag_CPU = 1 ;
       break ;
 
       /*  -->  U p d a t e C o n s t r a i n t        */
@@ -824,7 +819,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       UpdateConstraint_System(DefineSystem_P, DofData_P, DofData_P0,
 			      Operation_P->Case.UpdateConstraint.GroupIndex,
 			      Operation_P->Case.UpdateConstraint.Type, Flag_Jac) ;
-      Flag_CPU = 1 ;
       break ;
 
       /*  -->  S e l e c t C o r r e c t i o n        */
@@ -1024,7 +1018,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
           LinAlg_CopyVector(&DofData_P->b, &DofData_P->CurrentSolution->x);
         else
           Message::Error("No current solution available");
-        Flag_CPU = 1 ;
       }
       break ;
 
@@ -1040,7 +1033,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
           LinAlg_CopyVector(&DofData_P->CurrentSolution->x, &DofData_P->b);
         else
           Message::Error("No current solution available");
-        Flag_CPU = 1 ;
       }
       break ;
 
@@ -1055,7 +1047,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
           LinAlg_SwapVector(&DofData_P->CurrentSolution->x, &DofData_P->b);
         else
           Message::Error("No current solution available");
-        Flag_CPU = 1 ;
       }
       break ;
 
@@ -1068,7 +1059,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
           LinAlg_SwapVector(&DofData_P->CurrentSolution->x, &DofData_P->res);
         else
           Message::Error("No current solution available");
-        Flag_CPU = 1 ;
       }
       break ;
 
@@ -1087,7 +1077,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         }
         else
           Message::Error("No current solution available");
-        Flag_CPU = 1 ;
       }
       break ;
 
@@ -1115,7 +1104,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         }
         else
           Message::Error("No current solution available");
-        Flag_CPU = 1 ;
       }
       break ;
 
@@ -1185,7 +1173,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                             &DofData_P->CurrentSolution->x,
                             (Operation_P->Flag < 0) ? 0 : Operation_P->Flag) ;
         }
-        Flag_CPU = 1 ;
 #ifdef TIMER
         double timer = MPI_Wtime() - tstart;
         printf("Proc %d, time spent in %s %.16g\n", again ? "SolveAgain" : "Solve",
@@ -1204,7 +1191,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       LinAlg_SolveNL(&DofData_P->A, &DofData_P->b, &DofData_P->Jac, &DofData_P->res,
                      &DofData_P->Solver, &DofData_P->dx,
                      (Operation_P->Flag < 0) ? 0 : Operation_P->Flag) ;
-      Flag_CPU = 1 ;
       break ;
 
       /*
@@ -1308,7 +1294,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
         LinAlg_AddVectorVector(&DofData_P->CurrentSolution->x, &DofData_P->dx,
                                &DofData_P->CurrentSolution->x) ;
-        Flag_CPU = 1 ;
       }
       break ;
 
@@ -1333,8 +1318,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       }
 
       LinAlg_Solve(&DofData_P->Jac, &DofData_P->res, &DofData_P->Solver, &DofData_P->dx) ;
-
-      Message::Cpu("");
 
       /* save CurrentSolution */
       LinAlg_CreateVector(&x_Save, &DofData_P->Solver, DofData_P->NbrDof) ;
@@ -1401,7 +1384,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                                        std::vector<double>(1, MeanError));
 
       Current.RelativeDifference = MeanError;
-      Flag_CPU = 1 ;
       Flag_RHS = 0 ;
       LinAlg_DestroyVector(&x_Save);
       break ;
@@ -1417,7 +1399,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 		 Operation_P->Case.EigenSolve.Shift_r,
 		 Operation_P->Case.EigenSolve.Shift_i,
                  Operation_P->Case.EigenSolve.FilterExpressionIndex) ;
-      Flag_CPU = 1 ;
       break ;
 
       /*  -->  EigenSolveJac                             */
@@ -1433,7 +1414,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                  Operation_P->Case.EigenSolve.FilterExpressionIndex) ;
       /* Insert intelligent convergence test here :-) */
       Current.RelativeDifference = 1.0 ;
-      Flag_CPU = 1 ;
       break ;
 
       /*  -->  Perturbation                           */
@@ -1452,7 +1432,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 		   Operation_P->Case.Perturbation.Shift,
 		   Operation_P->Case.Perturbation.PertFreq) ;
       */
-      Flag_CPU = 1 ;
       break ;
 
       /*  -->  S e t C u r r e n t S y s t e m        */
@@ -1751,7 +1730,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       LinAlg_AssembleMatrix(&DofData_P->Jac) ;
 
       MHMoving_assemblyType = 0;
-      Message::Cpu("GenerateMHMoving (%d steps)", Operation_P->Case.Generate_MH_Moving.NbrStep);
       break ;
 
     case OPERATION_GENERATE_MH_MOVING_S :
@@ -1883,9 +1861,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       LinAlg_AssembleMatrix(&DofData_P->A_MH_moving) ;
       //LinAlg_AssembleVector(&DofData_P->b_MH_moving) ;
 
-      Message::Cpu("GenerateMHMovingSeparate (%d steps): Full matrix assembled",
-                   Operation_P->Case.Generate_MH_Moving.NbrStep);
-
       for (int k = 0; k < Current.NbrHar; k++) Free(MH_Moving_Matrix[k]) ;
       Free(MH_Moving_Matrix) ;
       MH_Moving_Matrix = NULL ;
@@ -1954,20 +1929,16 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       DofData_P->DummyDof = DummyDof ;
 
       MHMoving_assemblyType = 0;
-
-      Message::Cpu("GenerateMHMovingSeparate: MH Matrix in MHMovingGroup converted (%d nnz)", nnz__);
       break;
 
     case OPERATION_DOFSFREQUENCYSPECTRUM :
       Dof_GetDummies(DefineSystem_P, DofData_P);
       Message::Info("DofsFrequencySpectrum");
-      //Message::Cpu("DofsFrequencySpectrum");
       break ;
 
     case OPERATION_ADDMHMOVING :
       LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A_MH_moving, &DofData_P->A) ;
       Message::Info("AddMHMoving");
-      //Message::Cpu("AddMHMoving");
       break ;
 
       /*  -->  S a v e S o l u t i o n E x t e n d e d M H             */
@@ -3106,7 +3077,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       break ;
     }
 
-    if(Flag_CPU) Message::Cpu("");
   }
 
   Message::Barrier();

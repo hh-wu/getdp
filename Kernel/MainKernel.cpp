@@ -78,6 +78,7 @@ static void Info(int level, char *arg0)
 	    "Other options:\n"
 	    "  -check                    interactive check of problem structure\n"
 	    "  -v num                    set verbosity level (default: 5)\n"
+     	    "  -cpu                      report CPU times for all operations\n"
 	    "  -p num                    set progress indicator update (default: 10)\n"
 	    "  -onelab name [address]    communicate with ONELAB (file or server address)\n"
             "  -setnumber name value     set constant number name=value\n"
@@ -224,6 +225,10 @@ static void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *
 	else {
 	  Message::Error("Missing number");
 	}
+      }
+
+      else if (!strcmp(argv[i]+1, "cpu")) {
+        Message::SetInfoCpu(true); i++;
       }
 
       else if (!strcmp(argv[i]+1, "help")  || !strcmp(argv[i]+1, "h") ||
