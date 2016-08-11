@@ -111,7 +111,7 @@ PostProcessing {
   { Name Direct_u_Mec ; NameOfFormulation Direct_u_Mec ;
     PostQuantity {
       { Name u ; Value { Term {[ {u} ] ; In Domain ; Jacobian Vol;}}}
-      { Name d_u ; Value { Term {[ {d_u} ] ; In Domain ; Jacobian Vol;}}}
+      { Name du ; Value { Term {[ {d_u} ] ; In Domain ; Jacobian Vol;}}}
       { Name dVx;Value{Term{[ dV_x[{d v_1},{d v_2},{d v_3}] ];In Domain;Jacobian Vol;}}}
       { Name dVy;Value{Term{[ dV_y[{d v_1},{d v_2},{d v_3}] ];In Domain;Jacobian Vol;}}}
       { Name dVz;Value{Term{[ dV_z[{d v_1},{d v_2},{d v_3}] ];In Domain;Jacobian Vol;}}}
@@ -138,14 +138,6 @@ PostProcessing {
             In DomainFunc ; Jacobian Vol ; Integration I1 ;}
         } 
       }
-
-//      { Name AvmVarDomSens; 
-//        Value { 
-//          Integral { [ dF_direct_lie[ {D1 u},{D2 u},{D1 d_u},{D2 d_u},
-//				{d v_1}, {d v_2}, {d v_3} ] ];  
-//            In DomainFunc ; Jacobian Vol ; Integration I1 ;}
-//        } 
-//      }
     }
   }
 
@@ -261,8 +253,8 @@ PostOperation {
     Operation{
       Print[ u, OnElementsOf Domain,
         File StrCat[ResDir, "u_direct", ExtGmsh], LastTimeStepOnly];
-      Print[ d_u, OnElementsOf Domain,
-        File StrCat[ResDir, "d_u_direct", ExtGmsh], LastTimeStepOnly];
+      Print[ du, OnElementsOf Domain,
+        File StrCat[ResDir, "du_direct", ExtGmsh], LastTimeStepOnly];
       Print[ dVx, OnElementsOf Domain,
         File StrCat[ResDir, "dVx", ExtGmsh], LastTimeStepOnly];
       Print[ dVy, OnElementsOf Domain,

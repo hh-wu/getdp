@@ -17,8 +17,10 @@ ElseIf (Flag_sym==1)
 ElseIf (Flag_sym==2)
   p1 = newp; Point(p1) = {-Lx/2,0,-Lz/2, lc};
   p2 = newp; Point(p2) = { 0,0,-Lz/2, lc};
+  p_12 = newp; Point(p_12) = {-Lx/4,0,-Lz/2, lc};
   p3 = newp; Point(p3) = { 0, Ly/2,-Lz/2, lc};
   p4 = newp; Point(p4) = {-Lx/2, Ly/2,-Lz/2, lc};
+  p34 = newp; Point(p34) = {-Lx/4, Ly/2,-Lz/2, lc};
 EndIf
 If (!Flag_sym)
   If (Flag_addpad)
@@ -50,9 +52,14 @@ If (!Flag_sym)
   l4_2 = newl; Line(l4_2) = {p11,p1};
   ll1 = newll; Line Loop(ll1) = {l1_1,l1_2,l2_1,l2_2,l3_1,l3_2,l4_1,l4_2};
 ElseIf (Flag_sym==2)
-  l2 = newl; Line(l2) = {p2,p10,p3};
+  //l2 = newl; Line(l2) = {p2,p10,p3};
+  l2_10 = newl; Line(l2_10) = {p2,p10};
+  l10_3 = newl; Line(l10_3) = {p10,p3};
+  Printf("l2_10:%g",l2_10);
+  Printf("l10_3:%g",l10_3);
   l4 = newl; Line(l4) = {p4,p1};  
-  ll1 = newll; Line Loop(ll1) = {l1_1,l1_2,l2,l3_1,l3_2,l4};
+  //l_23 = newl; Line(l4) = {p12,p_e3};  
+  ll1 = newll; Line Loop(ll1) = {l1_1,l1_2,l2_10,l10_3,l3_1,l3_2,l4};
 EndIf
 
 ll_[] = {ll1};
@@ -82,6 +89,7 @@ If( Flag_hole == 1 ) //ellipse
     p_e2 = newp;Point(p_e2) = {0, hole_width/2, -Lz/2, lc};   //up
     p_e3 = newp;Point(p_e3) = {-hole_length/2, 0, -Lz/2, lc};  //left
     l_pe2_p3 = newl; Line(l_pe2_p3) = {p_e2,p3}; 
+    Printf("l_pe2_p3:%g",l_pe2_p3);
   EndIf
   Printf("p_ec:%g",p_ec);
   Printf("p_e2:%g",p_e2);
@@ -105,8 +113,16 @@ If( Flag_hole == 1 ) //ellipse
     Printf("ll_e:%g",ll_e);
     ll_[] = {ll_e};
   ElseIf(Flag_sym==2)
-    l1 = newl; Line(l1) = {p1,p_e3};
-    ll_e = newll;Line Loop(ll_e) = {l1,-l_e2,l_pe2_p3,l3_1,l3_2,l4};
+    //l1 = newl; Line(l1) = {p1,p_e3};
+    l1_3 = newl; Line(l1_3) = {p_12,p_e3};
+    Printf("p1:%g, p_e3:%g, l1:%g",p1,p_e3,l1_3);
+    Delete { Line{l1_2};}
+    Delete { Line{l2_10};}
+    Delete { Line{l10_3};}
+    Delete {Point{2};}
+    Delete {Point{7};}
+
+    ll_e = newll;Line Loop(ll_e) = {l1_1,l1_3,-l_e2,l_pe2_p3,l3_1,l3_2,l4};
     Printf("ll_e:%g",ll_e);
     ll_[] = {ll_e};
   EndIf
@@ -217,9 +233,9 @@ If(!Flag_extrude) //2D
     pNP[] = pl[];
     pNP[] -= {l_e2};
   EndIf
-  If(Flag_hole)
-    Physical Line(LINE_NON_PERTURBED) = { pNP[] };
-  EndIf
+  //If(Flag_hole)
+    //Physical Line(LINE_NON_PERTURBED) = { pNP[] };
+  //EndIf
 Else //3D
   Printf("pl:",pl[]);
   Printf("e1:",e1[]);

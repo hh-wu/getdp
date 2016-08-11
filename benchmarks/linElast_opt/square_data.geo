@@ -2,7 +2,7 @@
 nn = 1;
 DefineConstant[
   Flag_hole = {1, Name StrCat(ppC,"Hole"),Choices {0="no hole",1="ellipse",2="spline"}},
-  Flag_sym = {0, Name StrCat(ppC,"Symetry"),Choices {0,1,2}},
+  Flag_sym = {2, Name StrCat(ppC,"Symetry"),Choices {0,1,2}},
   NSpline = {6, Name StrCat(ppC,"nb points"), Visible (Flag_hole==2) },
   NbHole = {6, Name StrCat(ppC,"nb holes"), Visible (Flag_hole==2) },
   Flag_extrude = {0, Choices {0,1}, Name StrCat(ppC,"extrude?")},
@@ -30,7 +30,7 @@ DefineConstant[
 ];
 If (Flag_extrude) //3D
   DefineConstant[
-    Lz = {LL/10,Name StrCat(pp,"Z length [m]"), Visible (Flag_extrude), Closed 1}
+    Lz = {LL/4,Name StrCat(pp,"Z length [m]"), Visible (Flag_extrude), Closed 1}
   ];
 Else 
   Lz = 0;

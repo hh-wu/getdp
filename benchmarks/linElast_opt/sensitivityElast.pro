@@ -214,20 +214,20 @@ Formulation{
     { Name Direct_u_Mec ; Type FemEquation ;
       Quantity {
         { Name u ; Type Local  ; NameOfSpace H_u ; }
-        { Name du ; Type Local  ; NameOfSpace H_dState_Mec ; }
+        { Name d_u ; Type Local  ; NameOfSpace H_dState_Mec ; }
         For i In {1:3}
           { Name v~{i} ; Type Local ; NameOfSpace H_v~{i};}
         EndFor
       }
       Equation {
         // u formulation
-       Galerkin { [ C11[] * Dof{D1 d_u}, {D1 du} ] ;
+       Galerkin { [ C11[] * Dof{D1 d_u}, {D1 d_u} ] ;
          In Domain ; Jacobian Vol ; Integration I1 ; }
-       Galerkin { [ C12[] * Dof{D2 d_u}, {D1 du} ] ;
+       Galerkin { [ C12[] * Dof{D2 d_u}, {D1 d_u} ] ;
          In Domain ; Jacobian Vol ; Integration I1 ; }
-       Galerkin { [ C21[] * Dof{D1 d_u}, {D2 du} ] ;
+       Galerkin { [ C21[] * Dof{D1 d_u}, {D2 d_u} ] ;
          In Domain ; Jacobian Vol ; Integration I1 ; }
-       Galerkin { [ C22[] * Dof{D2 d_u}, {D2 du} ] ;
+       Galerkin { [ C22[] * Dof{D2 d_u}, {D2 d_u} ] ;
          In Domain ; Jacobian Vol ; Integration I1 ; }
       }
     }

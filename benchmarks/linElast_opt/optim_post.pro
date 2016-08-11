@@ -119,7 +119,7 @@ PostOperation {
    Operation{
 //     Print[ E, OnElementsOf Domain,File StrCat[ResDir,"E",ExtGmsh]] ;
 //     Print[ rho, OnElementsOf Domain,File StrCat[ResDir,"rho",ExtGmsh]] ;
-     Print[ u, OnElementsOf Domain,File StrCat[ResDir,"u",ExtGmsh]] ;
+     Print[ u, OnElementsOf Domain, File StrCat[ResDir,"u",ExtGmsh]];
 
 //     For i In {1:3}
 //       Print[ u~{i}, OnElementsOf Domain, Format NodeTable,
@@ -148,7 +148,7 @@ PostOperation {
        File StrCat[ResDir, StrCat["StressVM_pNorm",ExtOnelabScal]], LastTimeStepOnly,
        SendToServer StrCat[po_min,"StressVM_pNorm"], Color "LightYellow"];
 
-     Print[ Volume[Domain], OnGlobal, Format TimeTable, 
+     Print[ Volume[DomainFunc], OnGlobal, Format TimeTable, 
        File StrCat[ResDir,"Volume",ExtOnelabScal], LastTimeStepOnly, 
        SendToServer StrCat[po_min,"Volume"], Color "LightYellow"] ;
 

@@ -2,7 +2,7 @@
 Include "beam_data.geo";
 
 DefineConstant[
-  Flag_testBench = {0,  
+  Flag_testBench = {2,  
     Choices {
       0="Short Cantiler Beam", 
       1="MBB Beam",
@@ -99,7 +99,7 @@ Function {
     dV_x,dV_y,dV_z,du_x,du_y,du_z,
     rmin2,prod_x_dC,designVar,nu,nu_prime,
     mass_eig,d_eig,d_eig_TO,force_mec,
-    dFdb,dFdb2,dF_TO,dF_lie,dMass,d_bilin_eig_TO
+    dFdb,dFdb_Lie,dFdb2,dF_TO,dF_lie,dMass,d_bilin_eig_TO
   ];
   er[] = Unit[XYZ[]];
   et[] = Unit[Vector[-Sin[ Atan2[Y[],X[]] ], Cos[ Atan2[Y[],X[]] ], 0]];
@@ -112,13 +112,13 @@ Function {
     force_mec[Domain_Force] = Vector[0.0,-1e6,0.0]; 
   ElseIf ( Flag_testBench == 2 )
     If(!Flag_sym)
-      force_mec[#SURF_BAS] = Vector[0, -22.5e6, 0]; 
-      force_mec[#SURF_HAUT] = Vector[0, 22.5e6, 0]; 
-      force_mec[#SURF_DROITE] = Vector[45e6, 0, 0]; 
-      force_mec[#SURF_GAUCHE] = Vector[-45e6, 0, 0]; 
+      force_mec[#SURF_BAS] = Vector[0, -22.5e3, 0]; 
+      force_mec[#SURF_HAUT] = Vector[0, 22.5e3, 0]; 
+      force_mec[#SURF_DROITE] = Vector[45e3, 0, 0]; 
+      force_mec[#SURF_GAUCHE] = Vector[-45e3, 0, 0]; 
     Else
-      force_mec[#SURF_HAUT] = Vector[0, 22.5e6, 0]; 
-      force_mec[#SURF_GAUCHE] = Vector[-45e6, 0, 0]; 
+      force_mec[#SURF_HAUT] = Vector[0, 22.5e3, 0]; 
+      force_mec[#SURF_GAUCHE] = Vector[-45e3, 0, 0]; 
     EndIf
   ElseIf ( Flag_testBench == 3 )
     force_mec[Domain_Force] = 1e6*er[];
@@ -295,6 +295,7 @@ Function {
     EndIf
   EndIf
   If(!StrCmp(Flag_optType,"shape") || !StrCmp(Flag_optType,"topology") )
+    numPerf = 3;
     // Derivative of performance function
     d_mass_eig_TO[] = (d_rho[]*$1)*$1;
     d_mass_eig[] =  - 2.0 * rho[] * (Transpose[du[]] * velocity[] /*Field[]*/) * $1
@@ -362,7 +363,6 @@ Function {
       dF_vmPnorm_lie[] = -dFdb_vmPnorm_Lie[$1,$2]*d_D1[du[],dV[$3,$4,$5]] 
                    +coeff_vmPnorm[]*Func_vmPnorm_lie[$1,$2] * TTrace[dV[$3,$4,$5]]; 
 
-      numPerf = 3;
 //      dFdb[] =
 //        ($perf == 1) ? dFdb_compliance[$1,$2,$3] :
 //        ($perf == 2) ? dFdb_vmElem[$1,$2,$3] :
