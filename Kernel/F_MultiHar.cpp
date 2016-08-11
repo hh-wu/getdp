@@ -724,14 +724,16 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
 	  plus = plus0 = Factor * E_MH[iDof][jDof][iHar][jHar] ;
 
 	  if(jHar==DcHarmonic && iHar!=DcHarmonic) { plus0 *= 1. ; plus *= 2. ;}
-
-          Dof_AssembleInMat(Dofi+iHar/2*gCOMPLEX_INCREMENT, Dofj+jHar/2*gCOMPLEX_INCREMENT, 1, &plus, Jac, NULL) ;
+          // FIXME: this cannot work in complex arithmetic: AssembleInMat will
+          // need to assemble both real and imaginary parts at once -- See
+          // Cal_AssembleTerm for an example
+          Dof_AssembleInMat(Dofi+iHar, Dofj+jHar, 1, &plus, Jac, NULL) ;
 	  if(iHar != jHar)
-	      Dof_AssembleInMat(Dofi+jHar/2*gCOMPLEX_INCREMENT, Dofj+iHar/2*gCOMPLEX_INCREMENT, 1, &plus0, Jac, NULL) ;
+	      Dof_AssembleInMat(Dofi+jHar, Dofj+iHar, 1, &plus0, Jac, NULL) ;
 	  if(iDof != jDof){
-	      Dof_AssembleInMat(Dofj+iHar/2*gCOMPLEX_INCREMENT, Dofi+jHar/2*gCOMPLEX_INCREMENT, 1, &plus, Jac, NULL) ;
+	      Dof_AssembleInMat(Dofj+iHar, Dofi+jHar, 1, &plus, Jac, NULL) ;
 	      if(iHar != jHar)
-		Dof_AssembleInMat(Dofj+jHar/2*gCOMPLEX_INCREMENT, Dofi+iHar/2*gCOMPLEX_INCREMENT, 1, &plus0, Jac, NULL) ;
+		Dof_AssembleInMat(Dofj+jHar, Dofi+iHar, 1, &plus0, Jac, NULL) ;
 	  }
 	}
     }
@@ -742,7 +744,10 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
 
   if (ZeroHarmonic) {
     for (iDof = 0 ; iDof < Nbr_Dof ; iDof++){
-      Dofi = QuantityStorage_P->BasisFunction[iDof].Dof + ZeroHarmonic/2*gCOMPLEX_INCREMENT ;
+      Dofi = QuantityStorage_P->BasisFunction[iDof].Dof + ZeroHarmonic ;
+      // FIXME: this cannot work in complex arithmetic: AssembleInMat will
+      // need to assemble both real and imaginary parts at once -- See
+      // Cal_AssembleTerm for an example
       Dof_AssembleInMat(Dofi, Dofi, 1, &one, Jac, NULL) ;
     }
   }
