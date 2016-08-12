@@ -19,7 +19,6 @@ Group {
 
   // mechanical
   Domain_Disp = Region[{DomainC_Ele}];
-  Encastrement = Region[{CLAMP_LEFT, CLAMP_RIGHT}];
   Domain_Force = Region[{Domain_Disp}];
 
   // thermal
@@ -100,17 +99,20 @@ Constraint {
   }
   { Name DeplacementX ;
     Case {
-      { Region Encastrement ; Value 0. ; }
+      { Region Dirichlet0 ; Value 0. ; }
+      { Region Dirichlet1 ; Value 0. ; }
     }
   }
   { Name DeplacementY ;
     Case {
-      { Region Encastrement ; Value 0. ; }
+      { Region Dirichlet0 ; Value 0. ; }
+      { Region Dirichlet1 ; Value 0. ; }
     }
   }
   { Name DeplacementZ ;
     Case {
-      { Region Encastrement ; Value 0. ; }
+      { Region Dirichlet0 ; Value 0. ; }
+      { Region Dirichlet1 ; Value 0. ; }
     }
   }
   { Name Temperature ;

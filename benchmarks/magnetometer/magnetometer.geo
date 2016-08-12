@@ -47,8 +47,6 @@ Physical Volume(CONDUCTOR_LEFT) = {6, 7};
 Physical Volume(CONDUCTOR_RIGHT) = {8, 9};
 Physical Surface(VOLTAGE_LEFT) = {168, 190};
 Physical Surface(VOLTAGE_RIGHT) = {234, 212};
-Physical Surface(CLAMP_LEFT) = {168, 190};
-Physical Surface(CLAMP_RIGHT) = {234, 212};
 
 /* FIXME: show how we could select the mode ti visuzalize interactively without going through
 the whole option menu
