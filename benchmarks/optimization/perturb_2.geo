@@ -11,9 +11,9 @@ DefineConstant[
     Name StrCat(pInOpt,"Parameter to perturb"),
     Visible (!StrCmp(Flag_optType,"shape"))}
 ];
-
 If(PerturbMesh == 1)
-  Solver.AutoMesh = 0;
+  Solver.AutoMesh = -1;
+  Printf(OnelabAction);
   If(!StrCmp(OnelabAction, "compute")) 
     Printf("Perturbing parameter...");
     Printf(SensitivityParameter);
@@ -25,9 +25,7 @@ If(PerturbMesh == 1)
       modelpath,General.FileName," -setnumber PerturbMesh 2 -run"));
     SetNumber(Str(SensitivityParameter), ParamValue);
   EndIf
-EndIf
-
-If(PerturbMesh == 2)
+ElseIf(PerturbMesh == 2)
   SyncModel;
   Printf("Computing velocity field ...");
   Merge StrCat(modelpath,StrPrefix(StrRelative(General.FileName)), ".msh");
