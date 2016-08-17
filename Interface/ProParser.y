@@ -268,7 +268,7 @@ struct doubleXstring{
 %token      tOriginSystem tDestinationSystem
 %token    tOperation tOperationEnd
 %token      tSetTime tSetTimeStep tSetDTime tDTime tSetFrequency
-%token      tFourierTransform tFourierTransformJ
+%token      tFourierTransform tFourierTransformJ tCopySolution
 %token      tLanczos tEigenSolve tEigenSolveJac tPerturbation
 %token      tUpdate tUpdateConstraint tBreak tGetResidual tCreateSolution
 %token      tEvaluate tSelectCorrection tAddCorrection tMultiplySolution
@@ -5512,6 +5512,34 @@ OperationTerm :
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_SETGLOBALSOLVEROPTIONS;
       Operation_P->Case.SetGlobalSolverOptions.String = $3;
+    }
+
+  | tCopySolution '[' String__Index ',' CharExprNoVar ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      Operation_P->Type = OPERATION_COPYSOLUTION;
+      int i;
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror(0, "Unknown System: %s", $3) ;
+      Free($3) ;
+      Operation_P->DefineSystemIndex = i ;
+      Operation_P->Case.CopySolution.to = $5 ;
+      Operation_P->Case.CopySolution.from = 0 ;
+    }
+
+  | tCopySolution '[' CharExprNoVar ',' String__Index ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      Operation_P->Type = OPERATION_COPYSOLUTION;
+      int i;
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $5,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror(0, "Unknown System: %s", $5) ;
+      Free($5) ;
+      Operation_P->DefineSystemIndex = i ;
+      Operation_P->Case.CopySolution.to = 0 ;
+      Operation_P->Case.CopySolution.from = $3 ;
     }
 
   | Loop

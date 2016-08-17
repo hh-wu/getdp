@@ -122,6 +122,7 @@ Comma                        return tComma;
 Const                        return tConstant;
 Constant                     return tConstant;
 Constraint                   return tConstraint;
+CopySolution                 return tCopySolution;
 Cos                          return tCos;
 Cosh                         return tCosh;
 CosineTransform              return tCosineTransform;

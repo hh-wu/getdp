@@ -4613,7 +4613,19 @@ the @var{expression-cst}th solution in the solution list.
 @item Residual
 @code{[@var{system-id}]}
 
-@code{x <- b - Ax}
+@code{res <- b - Ax}
+
+@item CopySolution
+@code{[@var{system-id}, @var{char-expression}]}
+
+Copy the current solution @code{x} into a vector named @var{char-expression}.
+
+@item CopySolution
+@code{[@var{char-expression}, @var{system-id}]}
+
+Copy the vector named @var{char-expression} into the current solution @code{x}.
+
+@code{res <- b - Ax}
 
 @item SaveSolution
 @code{[@var{system-id}]}

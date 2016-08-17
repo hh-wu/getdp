@@ -641,6 +641,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   double Frelax, Frelax_Opt, Error_Prev;
   int istep;
 
+  // FIXME: this global map is never freed for now
+  static std::map<std::string, gVector> vectorMap;
+
   int Nbr_Formulation, Index_Formulation ;
   struct Formulation * Formulation_P ;
 
@@ -664,7 +667,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   static struct Dof ** Dof_MH_moving;
   gMatrix A_MH_moving_tmp ;
   //gVector b_MH_moving_tmp ;
-
 
   Nbr_Operation = List_Nbr(Operation_L) ;
 
@@ -1059,6 +1061,71 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
           LinAlg_SwapVector(&DofData_P->CurrentSolution->x, &DofData_P->res);
         else
           Message::Error("No current solution available");
+      }
+      break ;
+
+
+      /*  -->  C o p y S o l u t i o n              */
+      /*  ----------------------------------------  */
+    case OPERATION_COPYSOLUTION :
+      {
+        Init_OperationOnSystem("CopySolution",
+                               Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+                               &DefineSystem_P, &DofData_P, Resolution2_P) ;
+        if(DofData_P->CurrentSolution){
+          if(Operation_P->Case.CopySolution.from){
+            printf("copying from '%s'\n", Operation_P->Case.CopySolution.from);
+            std::map<std::string, gVector>::iterator it =
+              vectorMap.find(Operation_P->Case.CopySolution.from);
+
+              for(std::map<std::string, gVector>::iterator it = vectorMap.begin();
+                  it != vectorMap.end(); it++)
+                printf("I have '%s' before copying from\n", it->first.c_str());
+
+
+            if(it != vectorMap.end()){
+              int n1, n2;
+              LinAlg_GetVectorSize(&DofData_P->CurrentSolution->x, &n1);
+              LinAlg_GetVectorSize(&it->second, &n1);
+              if(n1 == n2)
+                LinAlg_CopyVector(&it->second, &DofData_P->CurrentSolution->x);
+              else
+                Message::Error("Incompatible sizes for vector copy (%d != %d)",
+                               n1, n2);
+            }
+            else
+              Message::Error("Non-existant vector `%s' to copy from",
+                             Operation_P->Case.CopySolution.from);
+          }
+          else if(Operation_P->Case.CopySolution.to){
+            printf("copying to '%s'\n", Operation_P->Case.CopySolution.to);
+            std::map<std::string, gVector>::iterator it =
+              vectorMap.find(Operation_P->Case.CopySolution.to);
+            if(it != vectorMap.end()){
+              int n1, n2;
+              LinAlg_GetVectorSize(&DofData_P->CurrentSolution->x, &n1);
+              LinAlg_GetVectorSize(&it->second, &n1);
+              if(n1 == n2)
+                LinAlg_CopyVector(&DofData_P->CurrentSolution->x, &it->second);
+              else
+                Message::Error("Incompatible sizes for vector copy (%d != %d)",
+                               n1, n2);
+            }
+            else{
+              gVector tmp;
+              LinAlg_CreateVector(&tmp, &DofData_P->Solver, DofData_P->NbrDof) ;
+              LinAlg_CopyVector(&DofData_P->CurrentSolution->x, &tmp);
+              vectorMap[Operation_P->Case.CopySolution.to] = tmp;
+              for(std::map<std::string, gVector>::iterator it = vectorMap.begin();
+                  it != vectorMap.end(); it++)
+                printf("I have '%s' \n", it->first.c_str());
+            }
+          }
+          else
+            Message::Error("No destination or origin to copy solution to/from");
+        }
+        else
+          Message::Error("No current solution available to copy");
       }
       break ;
 
