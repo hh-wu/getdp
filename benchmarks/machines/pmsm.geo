@@ -128,11 +128,12 @@ EndIf
 
 // test for sensitivity analysis
 DefineConstant[
+  pInOpt = "Optimization/",
   SensitivityParameter = { StrCat[pp, "Magnet height [m]"] ,
     Choices{
       StrCat[pp, "Magnet height [m]"],
       StrCat[pp, "Airgap width [m]"]
     },
-    Name "Sensitivity/Parameter to perturb" }
+    Name StrCat[pInOpt, "Parameter to perturb"] }
 ];
 Merge "perturb.geo";
