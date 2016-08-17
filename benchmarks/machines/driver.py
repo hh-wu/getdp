@@ -13,6 +13,11 @@ import onelab
 # create a new onelab client
 c = onelab.client()
 
+# get Gmsh and GetDP locations from Gmsh options
+mygmsh = c.getString('General.ExecutableFileName')
+mygetdp = c.getString('Solver.Executable0')
+print('Will use gmsh={0} and getdp={1}'.format(mygmsh, mygetdp))
+
 # create a onelab variable for the model name
 machine = c.defineString('Machine model', value='pmsm')
 
@@ -26,10 +31,10 @@ for angle in angles:
    c.setNumber('Input/21Start rotor angle [deg]', value=angle)
    
    # run gmsh as a subclient
-   c.runSubClient('myGmsh', 'gmsh ' + machine + '.geo -2 -v 2')
+   c.runSubClient('myGmsh', mygmsh + ' ' + machine + '.geo -2 -v 2')
    
    # run getdp as a subclient
-   c.runSubClient('myGetDP', 'getdp ' + machine + ' -msh ' + machine + '.msh ' +
+   c.runSubClient('myGetDP',  mygetdp + ' ' + machine + ' -msh ' + machine + '.msh ' +
                   '-setnumber Flag_PrintFields 0 ' +
                   '-solve Analysis -v 2')
    
