@@ -15,7 +15,18 @@ c = onelab.client()
 
 # get Gmsh and GetDP locations from Gmsh options
 mygmsh = c.getString('General.ExecutableFileName')
-mygetdp = c.getString('Solver.Executable0')
+mygetdp = ''
+for s in range(9):
+   n = c.getString('Solver.Name' + str(s))
+   if(n == 'GetDP'):
+      mygetdp = c.getString('Solver.Executable' + str(s))
+      break
+if(not len(mygetdp)):
+   c.sendError('This appears to be the first time you are trying to run GetDP')
+   c.sendError('Please run a GetDP model interactively once with Gmsh to ' +
+               'initialize the solver location')
+   exit(0)
+   
 print('Will use gmsh={0} and getdp={1}'.format(mygmsh, mygetdp))
 
 # create a onelab variable for the model name
