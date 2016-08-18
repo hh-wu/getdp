@@ -98,14 +98,14 @@ def setDesign(client, values, names):
 def mesh(client,opt,meshOut):
     client.runSubClient('MyGmsh',opt['gmsh']+' '
             + opt['file'] + '.geo'
-            +' -3 -parametric'
-            +' -o '+meshOut)
+            + ' -v 3 -3 -parametric'
+            + ' -o ' + meshOut)
 
 def fem(client,opt,msh):
-    client.runSubClient('myGetDP',opt['getdp']+' '
-            + opt['file']+'.pro'
-            + ' -v2 -solve '+opt['resolution']
-            + ' -msh '+msh)
+    client.runSubClient('myGetDP', opt['getdp'] + ' '
+            + opt['file'] + '.pro'
+            + ' -v 3 -v2 -solve '+ opt['resolution']
+            + ' -msh '+ msh)
 
 def getPerformanceFunctions(client, xval, opt):
     perfs = [opt['objective']]; perfs.extend(opt['constraints'])
@@ -159,81 +159,53 @@ def sensitivity(client,xval,fval,opt):
     
     return dfdx
 
-def printOptProblem(client,xval,xmin,xmax,fmax,opt):
+def printTerminal(client,s):
+    print(s)
+
+def printGmsh(client,s):
+    client.sendInfo(s)
+
+def printOptProblem(client,printf,xval,xmin,xmax,fmax,opt):
     if opt['printLevel'] >= 1:
-        client.sendInfo('='*80)
-        client.sendInfo('==='+str(' '*25)+'Optimization Problem'+str(' '*29)+'===')
-        client.sendInfo('='*80)
-        client.sendInfo('Model setting')
+        printf(client, '='*80)
+        printf(client, '==='+str(' '*25)+'Optimization Problem'+str(' '*29)+'===')
+        printf(client, '='*80)
+        printf(client, 'Model setting')
         for key,val in options['CADFEMOptions'].iteritems():
-            client.sendInfo('  * "{:50s}": {}'.format(key,val))
-        client.sendInfo('Design variables (n:{})'.format(len(xval)))
+            printf(client, '  * "{:50s}": {}'.format(key,val))
+        printf(client, 'Design variables (n:{})'.format(len(xval)))
         for k, xkName in enumerate(opt['designVariables']):
-            client.sendInfo('  * "{:50s}": {:.2e} <= {:.2e} <= {:.2e}'.\
+            printf(client, '  * "{:50s}": {:.2e} <= {:.2e} <= {:.2e}'.\
                   format(xkName,xmin[k],xval[k],xmax[k]))
-        client.sendInfo('Performance functions (m:{})'.format(len(fmax)))
-        client.sendInfo('  * {:20s}:"{}"'.\
+        printf(client, 'Performance functions (m:{})'.format(len(fmax)))
+        printf(client, '  * {:20s}:"{}"'.\
               format('Objective',opt['objective']))
         for k,(fmaxk,fkName) in enumerate(zip(fmax,opt['constraints'])):
-            client.sendInfo('  * {:20s}:"{:20s}" <= {:.3e}'.\
+            printf(client, '  * {:20s}:"{:20s}" <= {:.3e}'.\
                 format('Constraint',fkName,fmax[k]))
-        client.sendInfo('Stop critera')
-        client.sendInfo('  {:30s}: {}'.\
+        printf(client, 'Stop critera')
+        printf(client, '  {:30s}: {}'.\
             format('Design variables tol.',opt['tolDesignVariables']))
-        client.sendInfo('  {:30s}: {} '.\
+        printf(client, '  {:30s}: {} '.\
             format('Maximum number of iterations',opt['iterMax']))
-        client.sendInfo('='*80)
+        printf(client, '='*80)
 
-def printOptProblemTerminal(xval,xmin,xmax,fmax,opt):
+def printCurrIterate(client,printf,xval,fval,change,loop,opt):
     if opt['printLevel'] >= 1:
-        print('='*80)
-        print('==='+str(' '*25)+'Optimization Problem'+str(' '*29)+'===')
-        print('='*80)
-        print('Model setting')
-        for key,val in options['CADFEMOptions'].iteritems():
-            print('  * "{:50s}": {}'.format(key,val))
-        print('Design variables (n:{})'.format(len(xval)))
-        for k, xkName in enumerate(opt['designVariables']):
-            print('  * "{:50s}": {:.2e} <= {:.2e} <= {:.2e}'.\
-                  format(xkName,xmin[k],xval[k],xmax[k]))
-        print('Performance functions (m:{})'.format(len(fmax)))
-        print('  * {:20s}:"{}"'.\
-              format('Objective',opt['objective']))
-        for k,(fmaxk,fkName) in enumerate(zip(fmax,opt['constraints'])):
-            print('  * {:20s}:"{:20s}" <= {:.3e}'.\
-                  format('Constraint',fkName,fmax[k]))
-        print('Stop critera')
-        print('  {:30s}: {}'.\
-            format('Design variables tol.',opt['tolDesignVariables']))
-        print('  {:30s}: {} '.\
-            format('Maximum number of iterations',opt['iterMax']))
-        print('='*80)
-
-def printCurrIterateTerminal(xval,fval,change,loop,opt):
-    if opt['printLevel'] >= 1:
-        print('It. {:4d},'.format(loop)),
+        printf(client, '='*80)
+        printf(client, 'It. {:4d},'.format(loop))
         for k,xk in enumerate(xval):
-            print('x{}: {:.3e},'.format(k,xk)),
+            printf(client, 'x{}: {:.3e},'.format(k,xk))
         for k,fk in enumerate(fval):
-            print('f{}: {:.3e},'.format(k,fk)),
-        print('change: {:.3e}'.format(change))
-
-def printCurrIterate(client,xval,fval,change,loop,opt):
-    if opt['printLevel'] >= 1:
-        client.sendInfo('='*80)
-        client.sendInfo('It. {:4d},'.format(loop))
-        for k,xk in enumerate(xval):
-            client.sendInfo('x{}: {:.3e},'.format(k,xk))
-        for k,fk in enumerate(fval):
-            client.sendInfo('f{}: {:.3e},'.format(k,fk))
-        client.sendInfo('change: {:.3e}'.format(change))
-        client.sendInfo('='*80)
+            printf(client, 'f{}: {:.3e},'.format(k,fk))
+        printf(client, 'change: {:.3e}'.format(change))
+        printf(client, '='*80)
 
 def optimLoop(clientOnelab, clientOpt, xval, xmin, xmax, fmax, opt):
     
-    # Summary of the optimization problem (terminal and Gmsh for interactive mode)
-    printOptProblemTerminal(xval, xmin, xmax, fmax, opt)
-    printOptProblem(clientOnelab, xval, xmin, xmax, fmax, opt)
+    # Summary of the optimization problem
+    printOptProblem(clientOnelab, printTerminal, xval, xmin, xmax, fmax, opt)
+    printOptProblem(clientOnelab, printGmsh, xval, xmin, xmax, fmax, opt)
     
     # Set the CAD/FEM parameters
     setCADFEM(clientOnelab, options)
@@ -273,9 +245,9 @@ def optimLoop(clientOnelab, clientOpt, xval, xmin, xmax, fmax, opt):
         # compute residual
         change = np.linalg.norm(xmma-xval,np.inf)
         
-        # Print the current iterate (in terminal and Gmsh for interactive mode)
-        printCurrIterateTerminal(xval,fval,change,loop,opt)
-        printCurrIterate(clientOnelab, xval, fval, change, loop, opt)
+        # Print the current iterate
+        printCurrIterate(clientOnelab, printTerminal, xval, fval, change, loop, opt)
+        printCurrIterate(clientOnelab, printGmsh, xval, fval, change, loop, opt)
     
         # update design variables
         xold2 = np.copy(xold1)
@@ -283,9 +255,9 @@ def optimLoop(clientOnelab, clientOpt, xval, xmin, xmax, fmax, opt):
         xval = np.copy(xmma)
         loop = loop + 1
 
-    # print the final iteration (in terminal and Gmsh for interactive mode)
-    printCurrIterateTerminal(xval, fval, change, loop, opt)
-    printCurrIterate(clientOnelab, xval, fval, change, loop, opt)
+    # print the final iteration
+    printCurrIterate(clientOnelab, printTerminal, xval, fval, change, loop, opt)
+    printCurrIterate(clientOnelab, printGmsh, xval, fval, change, loop, opt)
     
     # output data
     xopt = np.copy(xval)
@@ -298,7 +270,7 @@ def optimLoop(clientOnelab, clientOpt, xval, xmin, xmax, fmax, opt):
 if __name__ == "__main__":
     
     # Create a onelab client
-    clientOnelab = onelab.client()
+    clientOnelab = onelab.client(__file__)
     if clientOnelab.action == 'check': exit(0)
 
     # Set options for both optimization problem and CAD/FEM model
@@ -307,7 +279,7 @@ if __name__ == "__main__":
             'Input/Geometry/00Mesh size factor':1,
             'Input/0Type of analysis':0,
             'Optimization/Desired natural frequency [Hz]':2.5e5},
-        'file':'magnetometer',
+        'file':clientOnelab.getPath('magnetometer'),
         'structuredGrid':1,
         'resolution':'Analysis',
         'objective':'Output/Objective',
