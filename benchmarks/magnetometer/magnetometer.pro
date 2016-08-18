@@ -94,7 +94,7 @@ Function {
     freq0Ref = {1e5,
       Name StrCat(pInOpt, "Desired natural frequency [Hz]")}
   ];
-  obj[] = Fabs[$EigenvalueReal/(2*Pi) - freq0Ref];
+  obj[] = SquNorm[$EigenvalueReal/2*Pi - freq0Ref];
 }
 
 Constraint {
@@ -214,16 +214,15 @@ PostOperation {
   { Name Mec ; NameOfPostProcessing Elasticity3D;
     Operation {
       If(Flag_AnalysisType == 0)
-        Print[ u, OnElementsOf Domain_Disp, File "res/u.pos", EigenvalueLegend] ;
+        Print[ u, OnElementsOf Domain_Disp, File "res/u.pos", EigenvalueLegend];
         Print[ eigenFrequency, OnRegion Domain_Disp, Format Table, TimeStep 0,
           File "res/fundamentaleigenfrequency.txt",
           SendToServer "Output/Fundamental eigen frequency [Hz]" ];
-        Print[ eigenFrequency1, OnRegion Domain_Disp, Format Table, TimeStep 0,
-          File "res/fundamentalW2.txt",
-          SendToServer "Output/eigen pulsation" ];
+        Print[ eigenFrequency, OnRegion Domain_Disp, Format Table, TimeStep 1,
+          File "res/fundamentaleigenfrequency.txt",
+          SendToServer "Output/Fundamental eigen frequency 1 [Hz]" ];
         Print[ eigenFrequencyObj, OnRegion Domain_Disp, Format Table, TimeStep 0,
-          File "res/fundamentalW3.txt",
-          SendToServer "Output/Objective" ];
+          File "res/fundamentalW3.txt",SendToServer "Output/Objective" ];
         Echo[ Str["l=PostProcessing.NbViews-1; View[l].VectorType=5; ",
             "View[l].DisplacementFactor = 5e-5;"],
           File "res/tmp.geo", LastTimeStepOnly] ;

@@ -35,24 +35,42 @@
 import onelab
 import mma
 import numpy as np
-import pprint
 
-# Useful functions
-def dummyConstraint(xval, opt):
-    # dummy constraint: Sum(xval) <= 1 + Sum(xvalMax)
-    return np.sum(xval)
+# Useful functions for optimization
 
-def mergeOptions(optionsModel,optionsOptimization,optionsOptimizer):
-    opt = {
-        'model':optionsModel,
-        'optimization':optionsOptimization,
-        'optimizer':optionsOptimizer
+def setOptions(clientOnelab, optdic):
+    opt_defaults = {
+        'gmsh':'',
+        'getdp':'',
+        'CADFEMOptions':{},
+        'file':'untitled',
+        'resolution':'res',
+        'structuredGrid':0,
+        'objective':'',
+        'constraints':[],
+        'designVariables':[],
+        'FDperturbStep':1e-8,
+        'tolDesignVariables':1e-2,
+        'iterMax':50,
+        'printLevel':1,
+        'n':1,
+        'm':1
     }
+    opt = {}
+    for (prop, default) in opt_defaults.iteritems():
+        opt[prop] = optdic.get(prop, default)
+
+    # set some additional parameters
+    opt['n'] = len(opt['designVariables'])
+    opt['m'] = len(opt['constraints'])
+    opt['gmsh'] = getPathGmsh(clientOnelab)
+    opt['getdp'] = getPathGetDP(clientOnelab)
     return opt
 
-def setOptionsPath(client,opt):
-    # get gmsh and getdp path
-    mygmsh = client.getString('General.ExecutableFileName')
+def getPathGmsh(client):
+    return client.getString('General.ExecutableFileName')+' '
+
+def getPathGetDP(client):
     mygetdp = ''
     for s in range(9):
         n = client.getString('Solver.Name' + str(s))
@@ -61,17 +79,13 @@ def setOptionsPath(client,opt):
             break
     if(not len(mygetdp)):
         client.sendError('This appears to be the first time you are trying to run GetDP')
-        client.sendError('Please run a GetDP model interactively once with Gmsh to ' +
-                'initialize the solver location')
+        client.sendError('Please run a GetDP model interactively once with Gmsh to ' + 'initialize the solver location')
         exit(0)
     else:
-        client.sendInfo('Will use gmsh={} and getdp={}'.format(mygmsh, mygetdp))
-        opt['optimization']['gmsh'] = mygmsh+' '
-        opt['optimization']['getdp'] = mygetdp+' '
-    return opt
+        return mygetdp + ' '
 
-def setModel(client,modelParam):
-    for key,val in zip(modelParam.keys(),modelParam.values()):
+def setCADFEM(client,options):
+    for key,val in options['CADFEMOptions'].iteritems():
         if (type(val) == str):
             client.setString(key,value=val)
         else:
@@ -82,15 +96,16 @@ def setDesign(client, values, names):
         client.setNumber(name,value=val)
 
 def mesh(client,opt,meshOut):
-    client.runSubClient('MyGmsh', opt['gmsh'] + ' '
-            + client.getPath(opt['file'] + '.geo')
-            +' -v 3 -3 -parametric -o ' + meshOut)
+    client.runSubClient('MyGmsh',opt['gmsh']+' '
+            + opt['file'] + '.geo'
+            +' -3 -parametric'
+            +' -o '+meshOut)
 
 def fem(client,opt,msh):
-    client.runSubClient('myGetDP', opt['getdp']+ ' '
-            + client.getPath(opt['file'] + '.pro')
-            + ' -v2 -v 3 -slepc -solve '+ opt['resolution']
-            + ' -msh '+ msh)
+    client.runSubClient('myGetDP',opt['getdp']+' '
+            + opt['file']+'.pro'
+            + ' -v2 -solve '+opt['resolution']
+            + ' -msh '+msh)
 
 def getPerformanceFunctions(client, xval, opt):
     perfs = [opt['objective']]; perfs.extend(opt['constraints'])
@@ -108,10 +123,10 @@ def analysis(client, xval, opt, meshName):
     return fval
 
 def relocalizeMesh(client, paramName, opt):
-    geoName = client.getPath(opt['file']+'.geo'); pp = opt['optimizationOnelabPath']
+    geoName = opt['file']+'.geo'; pp = 'Optimization/'
     client.setNumber(pp+'Structured grid?',value=opt['structuredGrid'])
     client.setNumber(pp+'Compute perturbation velocity field',value=1)
-    client.setNumber(pp+'Perturbation value', value=opt['perturbationStep'])
+    client.setNumber(pp+'Perturbation value', value=opt['FDperturbStep'])
     client.setString(pp+'Parameter to perturb',value=paramName)
     client.run('MyGmsh',opt['gmsh'] + ' ' + geoName + ' -run')
     client.setNumber(pp+'Compute perturbation velocity field',value=0)
@@ -126,50 +141,82 @@ def sensitivity(client,xval,fval,opt):
         relocalizeMesh(client, x0Name, opt)
         
         # forward perturbation of the CAD
-        xvalPert = xval; xvalPert[k] += opt['perturbationStep']
-        setDesign(client, [x0+opt['perturbationStep']], [x0Name])
+        xvalPert = xval; xvalPert[k] += opt['FDperturbStep']
+        setDesign(client, [x0+opt['FDperturbStep']], [x0Name])
         
         # analysis in the perturbed CAD
-        fem(client, opt, client.getPath(opt['file']+'Perturb.msh'))
+        fem(client, opt, opt['file']+'Perturb.msh')
         
         # extract pertrubed performance function
         dfunc = getPerformanceFunctions(client, xvalPert, opt)
         
         # sensitivity wrt xk
         for ll, (ff,dff) in enumerate(zip(fval,dfunc)):
-            dfdx[ll,k] = (dff-ff)/opt['perturbationStep']
+            dfdx[ll,k] = (dff-ff)/opt['FDperturbStep']
         
         # back to the initial CAD
-        setDesign(client, [x0-opt['perturbationStep']], [x0Name])
+        setDesign(client, [x0-opt['FDperturbStep']], [x0Name])
     
     return dfdx
 
 def printOptProblem(client,xval,xmin,xmax,fmax,opt):
-    if opt['optimization']['printLevel'] >= 1:
+    if opt['printLevel'] >= 1:
         client.sendInfo('='*80)
         client.sendInfo('==='+str(' '*25)+'Optimization Problem'+str(' '*29)+'===')
         client.sendInfo('='*80)
         client.sendInfo('Model setting')
-        for key,val in zip(opt['model'].keys(),opt['model'].values()):
+        for key,val in options['CADFEMOptions'].iteritems():
             client.sendInfo('  * "{:50s}": {}'.format(key,val))
         client.sendInfo('Design variables (n:{})'.format(len(xval)))
-        for k, xkName in enumerate(opt['optimization']['designVariables']):
+        for k, xkName in enumerate(opt['designVariables']):
             client.sendInfo('  * "{:50s}": {:.2e} <= {:.2e} <= {:.2e}'.\
                   format(xkName,xmin[k],xval[k],xmax[k]))
         client.sendInfo('Performance functions (m:{})'.format(len(fmax)))
         client.sendInfo('  * {:20s}:"{}"'.\
-              format('Objective',opt['optimization']['objective']))
-        for k,(fmaxk,fkName) in enumerate(zip(fmax,opt['optimization']['constraints'])):
+              format('Objective',opt['objective']))
+        for k,(fmaxk,fkName) in enumerate(zip(fmax,opt['constraints'])):
             client.sendInfo('  * {:20s}:"{:20s}" <= {:.3e}'.\
-                  format('Constraint',fkName,fmax[k]))
+                format('Constraint',fkName,fmax[k]))
         client.sendInfo('Stop critera')
         client.sendInfo('  {:30s}: {}'.\
-              format('Design variables tol.',
-                     opt['optimization']['tolDesignVariables']))
+            format('Design variables tol.',opt['tolDesignVariables']))
         client.sendInfo('  {:30s}: {} '.\
-              format('Maximum number of iterations',
-                     opt['optimization']['iterMax']))
+            format('Maximum number of iterations',opt['iterMax']))
         client.sendInfo('='*80)
+
+def printOptProblemTerminal(xval,xmin,xmax,fmax,opt):
+    if opt['printLevel'] >= 1:
+        print('='*80)
+        print('==='+str(' '*25)+'Optimization Problem'+str(' '*29)+'===')
+        print('='*80)
+        print('Model setting')
+        for key,val in options['CADFEMOptions'].iteritems():
+            print('  * "{:50s}": {}'.format(key,val))
+        print('Design variables (n:{})'.format(len(xval)))
+        for k, xkName in enumerate(opt['designVariables']):
+            print('  * "{:50s}": {:.2e} <= {:.2e} <= {:.2e}'.\
+                  format(xkName,xmin[k],xval[k],xmax[k]))
+        print('Performance functions (m:{})'.format(len(fmax)))
+        print('  * {:20s}:"{}"'.\
+              format('Objective',opt['objective']))
+        for k,(fmaxk,fkName) in enumerate(zip(fmax,opt['constraints'])):
+            print('  * {:20s}:"{:20s}" <= {:.3e}'.\
+                  format('Constraint',fkName,fmax[k]))
+        print('Stop critera')
+        print('  {:30s}: {}'.\
+            format('Design variables tol.',opt['tolDesignVariables']))
+        print('  {:30s}: {} '.\
+            format('Maximum number of iterations',opt['iterMax']))
+        print('='*80)
+
+def printCurrIterateTerminal(xval,fval,change,loop,opt):
+    if opt['printLevel'] >= 1:
+        print('It. {:4d},'.format(loop)),
+        for k,xk in enumerate(xval):
+            print('x{}: {:.3e},'.format(k,xk)),
+        for k,fk in enumerate(fval):
+            print('f{}: {:.3e},'.format(k,fk)),
+        print('change: {:.3e}'.format(change))
 
 def printCurrIterate(client,xval,fval,change,loop,opt):
     if opt['printLevel'] >= 1:
@@ -181,32 +228,38 @@ def printCurrIterate(client,xval,fval,change,loop,opt):
             client.sendInfo('f{}: {:.3e},'.format(k,fk))
         client.sendInfo('change: {:.3e}'.format(change))
         client.sendInfo('='*80)
-        
+
 def optimLoop(clientOnelab, clientOpt, xval, xmin, xmax, fmax, opt):
-    # Summary of the optimization problem
-    printOptProblem(clientOnelab,xval, xmin, xmax, fmax, opt)
+    
+    # Summary of the optimization problem (terminal and Gmsh for interactive mode)
+    printOptProblemTerminal(xval, xmin, xmax, fmax, opt)
+    printOptProblem(clientOnelab, xval, xmin, xmax, fmax, opt)
+    
+    # Set the CAD/FEM parameters
+    setCADFEM(clientOnelab, options)
 
     # Run the optimization loop ...
-    meshOut = clientOnelab.getPath(opt['optimization']['file']+'.msh')
+    meshOut = opt['file']+'.msh'
     xold1 = np.copy(xval); xold2 = np.copy(xval)
     low = np.array([]); upp = np.array([])
     change = 1.0; loop = 1;
-    while (change > opt['optimization']['tolDesignVariables'] \
-        and loop <= opt['optimization']['iterMax']):
+    while (change > opt['tolDesignVariables'] \
+        and loop <= opt['iterMax']):
         
         # set design variables at xval
-        setDesign(clientOnelab, xval, opt['optimization']['designVariables'])
+        setDesign(clientOnelab, xval, opt['designVariables'])
         
         # mesh the CAD model
-        mesh(clientOnelab, opt['optimization'], meshOut)
-        msh = clientOnelab.getPath(opt['optimization']['file']+'.msh')
+        mesh(clientOnelab, opt, meshOut)
         
         # compute performance functions at xval
-        fval = analysis(clientOnelab, xval, opt['optimization'], meshOut)
+        fval = analysis(clientOnelab, xval, opt, meshOut)
+        print clientOnelab.getNumber('Output/Fundamental eigen frequency [Hz]')
+        print clientOnelab.getNumber('Output/Fundamental eigen frequency 1 [Hz]')
         
         # sensitivity analysis of performance functions at xval
-        dfdx = sensitivity(clientOnelab, xval, fval, opt['optimization'])
-
+        dfdx = sensitivity(clientOnelab, xval, fval, opt)
+        
         # update xval: call optimizer
         ff0val = fval[0]; dff0dx = dfdx[0]
         ffval = fval[1:] - fmax; dffdx = dfdx[1:]
@@ -214,7 +267,7 @@ def optimLoop(clientOnelab, clientOpt, xval, xmin, xmax, fmax, opt):
         if loop == 1: ff0val0 = np.copy(ff0val); ffval0 = np.copy(fmax)
         ff0val /= np.abs(ff0val0); dff0dx /= np.abs(ff0val0)
         ffval /= np.abs(ffval0)
-        for k in range(m): dffdx[k] /= np.abs(ffval0[k])
+        for k in range(opt['m']): dffdx[k] /= np.abs(ffval0[k])
         xmma,y,z,lam,xsi,eta,mu,zet,s,low,upp,factor = \
             clientOpt.mma(xval,xold1,xold2,low,upp,\
                 ff0val,ffval,dff0dx,dffdx,loop)
@@ -222,17 +275,19 @@ def optimLoop(clientOnelab, clientOpt, xval, xmin, xmax, fmax, opt):
         # compute residual
         change = np.linalg.norm(xmma-xval,np.inf)
         
-        # Print the current iterate
-        printCurrIterate(clientOnelab,xval,fval,change,loop,opt['optimization'])
-
+        # Print the current iterate (in terminal and Gmsh for interactive mode)
+        printCurrIterateTerminal(xval,fval,change,loop,opt)
+        printCurrIterate(clientOnelab, xval, fval, change, loop, opt)
+    
         # update design variables
         xold2 = np.copy(xold1)
         xold1 = np.copy(xval)
         xval = np.copy(xmma)
         loop = loop + 1
 
-    # print the final iteration
-    printCurrIterate(clientOnelab,xval,fval,change,loop,opt['optimization'])
+    # print the final iteration (in terminal and Gmsh for interactive mode)
+    printCurrIterateTerminal(xval, fval, change, loop, opt)
+    printCurrIterate(clientOnelab, xval, fval, change, loop, opt)
     
     # output data
     xopt = np.copy(xval)
@@ -243,69 +298,48 @@ def optimLoop(clientOnelab, clientOpt, xval, xmin, xmax, fmax, opt):
 
 
 if __name__ == "__main__":
-    # Set options of onelab model
-    optionsModel = {
-        'Input/Geometry/00Mesh size factor': 1,
-        'Input/0Type of analysis':0,
-        'Optimization/Desired natural frequency [Hz]':2.5e5
-    }
     
-    # Set options of optimization problem
-    optionsOptimization = {
-        'file':'magnetometer',
-        'resolution':'Analysis',
-        'optimizationOnelabPath':'Optimization/',
-        'structuredGrid': 1,
-        'objective':'Output/Objective',
-        'constraints':[],
-        'designVariables':['Input/Geometry/5Support position [m]'],
-        'perturbationStep':1.0e-9,
-        'tolDesignVariables':1e-6,
-        'iterMax':50,
-        'printLevel':1
-    }
-
-    # Starting value of design variables
-    desVar = [0.224*500.*1.0e-6-0.5*2.*1.0e-6]
-
-    # Lower and upper bounds of design variables
-    lowerBoundDesVar = [desVar[0]*0.5]
-    upperBoundDesVar = [desVar[0]*1.8]
-
-    # Upper bound of constraints
-    upperBoundConstr = [] #[1.0+np.sum(upperBoundDesVar)]
-
-    # Set options of optimizer (mma)
-    m = len(optionsOptimization['constraints'])
-    n = len(optionsOptimization['designVariables'])
-    a0 = 1.0; aa = [0.]*m; cc = [1000.]*m; dd = [1.]*m
-    optionsOptimizer = {
-        'm':m,'n':n,
-        'xmin':np.array(lowerBoundDesVar),'xmax':np.array(upperBoundDesVar),
-        'a0':a0,'a':np.array(aa),'c':np.array(cc),'d':np.array(dd),'IP':1,
-        'epsimin':1e-07,'raa0':1.0e-05,'approx':'mma',
-        'asyinit':0.5,'asyincr':1.2,'asydecr':0.7,'albefa':0.1,'move':0.5
-    }
-
-    # Merge all options
-    opt = mergeOptions(optionsModel, optionsOptimization, optionsOptimizer)
-
     # Create a onelab client
-    clientOnelab = onelab.client(__file__)
+    clientOnelab = onelab.client()
     if clientOnelab.action == 'check': exit(0)
 
-    # Set Gmsh/GetDP paths
-    opt = setOptionsPath(clientOnelab, opt)
-    pp = pprint.PrettyPrinter(indent=4)
-    pp.pprint(opt)
+    # Set options for both optimization problem and CAD/FEM model
+    options = setOptions(clientOnelab,{
+        'CADFEMOptions':{
+            'Input/Geometry/00Mesh size factor':1,
+            'Input/0Type of analysis':0,
+            'Optimization/Desired natural frequency [Hz]':2.5e5},
+        'file':'magnetometer',
+        'structuredGrid':1,
+        'resolution':'Analysis',
+        'objective':'Output/Objective',
+        'constraints':[],
+        'designVariables':[
+            'Input/Geometry/3Support length [m]',
+            'Input/Geometry/5Support position [m]'],
+        'FDperturbStep':1.0e-8,
+        'tolDesignVariables':1e-6,
+        'iterMax':50
+    })
 
-    # Set the parameters of the FE model
-    setModel(clientOnelab, opt['model'])
+    # Starting value of design variables
+    desVar = [1.5e-05, 0.224*500.*1.0e-6-0.5*2.*1.0e-6]
+    
+    # Lower and upper bounds of design variables
+    lowerBoundDesVar = [desVar[0]*0.9, desVar[1]*0.5]
+    upperBoundDesVar = [desVar[0]*2.8, desVar[1]*1.8]
+    
+    # Upper bound of constraints
+    upperBoundConstr = []
 
-    # Create an optimizer client (with the optimzer parameters)
-    clientOpt = mma.mma(opt['optimizer'])
-
+    # Create an optimizer client
+    clientOpt = mma.mma({
+        'm':options['m'],
+        'xmin':lowerBoundDesVar,
+        'xmax':upperBoundDesVar
+    })
+    
     # Call the optimization routine (get the optimal value of design variables)
     xopt,objOpt,constrOpt = optimLoop(clientOnelab, clientOpt, desVar,
-        lowerBoundDesVar,upperBoundDesVar, upperBoundConstr, opt)
+        lowerBoundDesVar,upperBoundDesVar, upperBoundConstr, options)
 

@@ -21,7 +21,7 @@ import time
 
 class mma(object):
 
-    def __init__(self,parameters,timing=1):
+    def __init__(self,parameters):
         """ 
             This package performs one MMA-iteration and solves the nonlinear
             programming problem written in the form:
@@ -64,16 +64,57 @@ class mma(object):
                 move:"constant in the term update of low and upp"
             }
         """
-        _keys = ['m','n','asyinit','asyincr','asydecr','albefa','move',
-                 'epsimin','raa0','xmin','xmax','a0','a','c','d','IP']
-        _diff = list( set(_keys) - set(parameters.keys()) )
+        param_defaults = {
+            'm':1,
+            'n':1,
+            'asyinit':0.5,
+            'asyincr':1.2,
+            'asydecr':0.7,
+            'albefa':0.1,
+            'move':0.5,
+            'epsimin':1.0e-07,
+            'raa0':1.0e-05,
+            'xmin':[],
+            'xmax':[],
+            'a0':1.0,
+            'a':[],
+            'c':[],
+            'd':[],
+            'IP':0,
+            '_timing':1,
+            '_elapsedTime':{
+                'resKKT':-1,
+                'preCompute':-1,
+                'JacDual':-1,
+                'JacPrim':-1,
+                'RHSdual':-1,
+                'nlIterPerEpsilon':[],
+                'relaxPerNlIter':[],
+                'timeEpsilonLoop':[],
+                'mmasub':{
+                    'moveAsymp':-1,
+                    'moveLim':-1,
+                    'mmasubMat':-1,
+                    'all':-1
+                },
+                'subsolvIP':{
+                    'lin':-1,
+                    'relax':-1
+                }
+            }
+        }
         
-        if len(_diff) == 0:
-            [setattr(self, ii, parameters[ii]) for ii in parameters.keys()]
-        else:
-            for e in _diff: print('Missing {} parameter!'.format(e))
-        self.IP = 0
-        self._timing = timing; self.elapsedTime = {'mmasub':{},'subsolvIP':{}}
+        # create the attributes
+        for (prop, default) in param_defaults.iteritems():
+            setattr(self, prop, parameters.get(prop,default))
+        self.n = len(self.xmin)
+        self.xmin = np.array(self.xmin)
+        self.xmax = np.array(self.xmax)
+
+        # clasical configuration when parameters are unspecified
+        if len(self.a)== 0: self.a = np.array([0.]*self.m)
+        if len(self.c)== 0: self.c = np.array([1000.]*self.m)
+        if len(self.d)== 0: self.d = np.array([1.]*self.m)
 
     def iPrint(self,msgS,msg,level):
         if self.IP > level:
@@ -172,7 +213,7 @@ class mma(object):
         ind0=ind1;ind1 += self.m
         residu[ind0:ind1] = lam * s - epsi
         
-        if self._timing: self.elapsedTime['resKKT'] = time.time() - t0
+        if self._timing: self._elapsedTime['resKKT'] = time.time() - t0
         
         return residu
 
@@ -201,7 +242,7 @@ class mma(object):
         diagyinv = 1. / diagy
         diaglam = s / lam
         diaglamyi = diaglam + diagyinv
-        if self._timing: self.elapsedTime['preCompute'] = time.time() - t0
+        if self._timing: self._elapsedTime['preCompute'] = time.time() - t0
         
         return delx,dely,delz,dellam,diagx,diagy,diagxinv,diaglamyi,GG
 
@@ -219,7 +260,7 @@ class mma(object):
         jac[self.m,0:self.m] = self.a
         jac[self.m,self.m] = -zet/z
         jac[0:self.m,self.m] = self.a
-        if self._timing: self.elapsedTime['JacDual'] = time.time() - t0
+        if self._timing: self._elapsedTime['JacDual'] = time.time() - t0
     
         return jac
 
@@ -240,7 +281,7 @@ class mma(object):
         jac[self.n,0:self.n] = axz
         jac[self.n,self.n] = azz
         jac[0:self.n,self.n] = axz
-        if self._timing: self.elapsedTime['JacPrim'] = time.time() - t0
+        if self._timing: self._elapsedTime['JacPrim'] = time.time() - t0
         
         return jac
 
@@ -249,7 +290,7 @@ class mma(object):
         rhs = np.empty(shape=(self.m+1,), dtype=float)
         rhs[0:self.m] = dellam + dely/diagy - diagxinvGG.dot(delx)
         rhs[self.m] = delz
-        if self._timing: self.elapsedTime['RHSdual'] = time.time() - t0
+        if self._timing: self._elapsedTime['RHSdual'] = time.time() - t0
         return rhs
 
     def RHSprim(self,delx,delz,GG,dellamyi_diaglamyi):
@@ -257,7 +298,7 @@ class mma(object):
         rhs = np.empty(shape=(self.n+1,), dtype=float)
         rhs[0:self.n] = -(delx + np.dot(np.transpose(GG), dellamyi_diaglamyi))
         rhs[self.n] = -(delz - np.dot(self.a,dellamyi_diaglamyi))
-        if self._timing: self.elapsedTime['JacDual'] = time.time() - t0
+        if self._timing: self._elapsedTime['JacDual'] = time.time() - t0
         return rhs
 
     def getNewPoint(self,xold,yold,zold,lamold,xsiold,etaold,muold,zetold,sold,
@@ -272,7 +313,7 @@ class mma(object):
         mu  = muold  + step * dmu
         zet = zetold + step * dzet
         s   =   sold + step * ds
-        if self._timing: self.elapsedTime['JacDual'] = time.time() - t0
+        if self._timing: self._elapsedTime['JacDual'] = time.time() - t0
         
         return x,y,z,lam,xsi,eta,mu,zet,s
     
@@ -298,8 +339,9 @@ class mma(object):
         zet = 1;s = np.ones([self.m]);epsiIt = 1
         if self.IP > 0: print(str('*'*80))
         if self._timing:
-            self.elapsedTime['nlIterPerEpsilon']=[];self.elapsedTime['relaxPerNlIter']=[]
-            self.elapsedTime['timeEpsilonLoop'] = []
+            self._elapsedTime['nlIterPerEpsilon']=[];
+            self._elapsedTime['relaxPerNlIter']=[]
+            self._elapsedTime['timeEpsilonLoop'] = []
         
         while epsi > self.epsimin: # Loop over epsilon
             if self._timing: t0Eps = time.time()
@@ -329,7 +371,7 @@ class mma(object):
                     bb = self.RHSdual(dellam,delx,dely,delz,diagxinvGG,diagy,GG)
                     if self._timing:t0Solve = time.time()
                     solut = np.linalg.solve(AA, bb)
-                    if self._timing:self.elapsedTime['subsolvIP']['lin'] = time.time()-t0Solve
+                    if self._timing: self._elapsedTime['subsolvIP']['lin'] = time.time()-t0Solve
                     dlam = solut[0:self.m]
                     dz = solut[self.m]
                     #dx2 = - delx*diagxinv - np.transpose(GG).dot(dlam)/diagx
@@ -342,7 +384,7 @@ class mma(object):
                     if self._timing:t0Solve = time.time()
                     solut = np.linalg.solve(AA, bb)
                     if self._timing:
-                        self.elapsedTime['subsolvIP']['lin'] = time.time()-t0Solve
+                        self._elapsedTime['subsolvIP']['lin'] = time.time()-t0Solve
                     dx  = solut[0:self.n]
                     dz = solut[self.n]
                     dlam = np.dot(GG,dx)/diaglamyi-dz*(self.a/diaglamyi)\
@@ -394,7 +436,7 @@ class mma(object):
                     # update step
                     steg /= 2.0; itto += 1
                     if self._timing:
-                        self.elapsedTime['subsolvIP']['relax']=\
+                        self._elapsedTime['subsolvIP']['relax']=\
                             time.time()-t0_relax
 
                 if self._timing:relaxloopEpsi.append(itto)
@@ -405,9 +447,9 @@ class mma(object):
                 steg *= 2.0
                 it_NL += 1
             if self._timing:
-                self.elapsedTime['timeEpsilonLoop'].append(time.time()-t0Eps)
-                self.elapsedTime['nlIterPerEpsilon'].append(it_NL-1)
-                self.elapsedTime['relaxPerNlIter'].append([relaxloopEpsi])
+                self._elapsedTime['timeEpsilonLoop'].append(time.time()-t0Eps)
+                self._elapsedTime['nlIterPerEpsilon'].append(it_NL-1)
+                self._elapsedTime['relaxPerNlIter'].append([relaxloopEpsi])
             
             if it_NL>198: self.iPrint(['it limit','with epsilon'],[it_NL,epsi],0)
             epsi *= 0.1; epsiIt += 1
@@ -435,7 +477,7 @@ class mma(object):
             low = np.minimum(low,xval-0.01*(self.xmax-self.xmin))
             upp = np.minimum(upp,xval+10*(self.xmax-self.xmin))
             upp = np.maximum(upp,xval+0.01*(self.xmax-self.xmin))
-        if self._timing:self.elapsedTime['mmasub']['moveAsymp']=time.time()-t0
+        if self._timing:self._elapsedTime['mmasub']['moveAsymp']=time.time()-t0
         
         return low,upp
 
@@ -450,7 +492,7 @@ class mma(object):
         aa  = np.minimum(upp-self.albefa*(upp-xval),\
                          xval + self.move*(self.xmax-self.xmin))
         beta = np.minimum(aa,self.xmax)
-        if self._timing:self.elapsedTime['mmasub']['moveLim']=time.time()-t0
+        if self._timing:self._elapsedTime['mmasub']['moveLim']=time.time()-t0
         
         return alfa,beta,factor
     
@@ -483,7 +525,7 @@ class mma(object):
         ux1inv = 1./ux1
         xl1inv = 1./xl1
         b = np.dot(P,ux1inv) + np.dot(Q,xl1inv) - fval
-        if self._timing:self.elapsedTime['mmasub']['mmasubMat']=time.time()-t0
+        if self._timing:self._elapsedTime['mmasub']['mmasubMat']=time.time()-t0
         
         return p0,q0,P,Q,b
     
@@ -505,7 +547,7 @@ class mma(object):
         # Calculations of p0, q0, P, Q and b
         p0,q0,P,Q,b = self.mmasubMat(xval,low,upp,df0dx,fval,dfdx)
 
-        if self._timing: self.elapsedTime['mmasub']['all']=time.time()-t0
+        if self._timing: self._elapsedTime['mmasub']['all']=time.time()-t0
 
         return low,upp,alfa,beta,p0,q0,P,Q,b,factor
 
@@ -520,7 +562,7 @@ class mma(object):
         x,y,z,lam,xsi,eta,mu,zet,s = \
             self.subsolvIP(alfa,beta,low,upp,p0,q0,P,Q,b)
         
-        if self._timing: self.elapsedTime['mma']=time.time()-t0
+        if self._timing: self._elapsedTime['mma']=time.time()-t0
 
         return x,y,z,lam,xsi,eta,mu,zet,s,low,upp,factor
 
