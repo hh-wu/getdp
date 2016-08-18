@@ -1,7 +1,6 @@
 Include "magnetometer_data.geo";
 
 Solver.AutoShowLastStep=0;
-View.DisplacementFactor = 20 * b;
 
 DefineConstant[ s = {1, Name "Input/Geometry/00Mesh size factor",
                      Min 0.1, Max 2, Step 0.1} ];
@@ -48,8 +47,8 @@ Physical Volume(CONDUCTOR_RIGHT) = {8, 9};
 Physical Surface(VOLTAGE_LEFT) = {168, 190};
 Physical Surface(VOLTAGE_RIGHT) = {234, 212};
 
-/* FIXME: show how we could select the mode ti visuzalize interactively without going through
-the whole option menu
+/* FIXME: show how we could select the mode ti visuzalize interactively without
+   going through the whole option menu
 DefineConstant[
   ts = { View.TimeStep, Name "Selected mode", Choices {0="Eigen mode 0", 1="Eigen mode 1"},
     AutoCheck 0, GmshOption "View.TimeStep"
@@ -72,4 +71,3 @@ DefineConstant[
     Name StrCat(pInOpt,"Structured grid?"),Visible 0}
 ];
 Merge "perturb.geo";
-

@@ -171,15 +171,17 @@ def printOptProblem(xval,xmin,xmax,fmax,opt):
                      opt['optimization']['iterMax']))
         print('='*80)
 
-def printCurrIterate(xval,fval,change,loop,opt):
+def printCurrIterate(client,xval,fval,change,loop,opt):
     if opt['printLevel'] >= 1:
-        print('It. {:4d},'.format(loop)),
+        client.sendInfo('='*60)
+        client.sendInfo('It. {:4d},'.format(loop))
         for k,xk in enumerate(xval):
-            print('x{}: {:.3e},'.format(k,xk)),
+            client.sendInfo('x{}: {:.3e},'.format(k,xk))
         for k,fk in enumerate(fval):
-            print('f{}: {:.3e},'.format(k,fk)),
-        print('change: {:.3e}'.format(change))
-
+            client.sendInfo('f{}: {:.3e},'.format(k,fk))
+        client.sendInfo('change: {:.3e}'.format(change))
+        client.sendInfo('='*60)
+        
 def optimLoop(clientOnelab, clientOpt, xval, xmin, xmax, fmax, opt):
     # Summary of the optimization problem
     printOptProblem(xval, xmin, xmax, fmax, opt)
@@ -221,7 +223,7 @@ def optimLoop(clientOnelab, clientOpt, xval, xmin, xmax, fmax, opt):
         change = np.linalg.norm(xmma-xval,np.inf)
         
         # Print the current iterate
-        printCurrIterate(xval,fval,change,loop,opt['optimization'])
+        printCurrIterate(clientOnelab,xval,fval,change,loop,opt['optimization'])
 
         # update design variables
         xold2 = np.copy(xold1)
@@ -230,7 +232,7 @@ def optimLoop(clientOnelab, clientOpt, xval, xmin, xmax, fmax, opt):
         loop = loop + 1
 
     # print the final iteration
-    printCurrIterate(xval,fval,change,loop,opt['optimization'])
+    printCurrIterate(clientOnelab,xval,fval,change,loop,opt['optimization'])
     
     # output data
     xopt = np.copy(xval)
