@@ -27,7 +27,11 @@ if(not len(mygetdp)):
                'initialize the solver location')
    exit(0)
 
-print('Will use gmsh={0} and getdp={1}'.format(mygmsh, mygetdp))
+c.sendInfo('Will use gmsh={0} and getdp={1}'.format(mygmsh, mygetdp))
+
+# we're done if we don't do the actual calculation
+if c.action == 'check' :
+   exit(0)
 
 # create a onelab variable for the model name
 machine = c.defineString('Machine model', value='pmsm')
@@ -37,24 +41,20 @@ machine_geo = c.getPath(machine + '.geo')
 machine_msh = c.getPath(machine + '.msh')
 machine_pro = c.getPath(machine + '.pro')
 
-# we're done if we don't do the actual calculation
-if c.action == 'check' :
-   exit(0)
-
 # change the angle of the rotor and compute the torque for each one
 angles = [0, 10, 20, 30]
 for angle in angles:
    c.setNumber('Input/21Start rotor angle [deg]', value=angle)
    
    # run gmsh as a subclient
-   c.runSubClient('myGmsh', mygmsh + ' ' + machine_geo + ' -2 -v 2')
+   c.runSubClient('myGmsh', mygmsh + ' ' + machine_geo + ' -2 -v 3')
    
    # run getdp as a subclient
    c.runSubClient('myGetDP',  mygetdp + ' ' + machine_pro + ' -msh ' + machine_msh +
-                  ' -setnumber Flag_PrintFields 0 -solve Analysis -v 2')
+                  ' -setnumber Flag_PrintFields 0 -solve Analysis -v 3')
    
    # retrieve the torque
    torque = c.getNumber('Output - Mechanics/0Torque [Nm]/rotor')
 
-   print('Torque={0} for angle={1}'.format(torque, angle))
+   c.sendInfo('Torque={0} for angle={1}'.format(torque, angle))
    
