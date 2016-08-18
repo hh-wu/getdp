@@ -58,7 +58,7 @@ for angle in angles:
    tag = 'angle' + str(angle)
    machine_msh = c.getPath(machine + '_' + tag + '.msh')
    # run getdp as a non-blocking subclient
-   c.runNonBlockingSubClient('myGetDP', 'getdp -setstring ResId ' + tag + '/ ' +
+   c.runNonBlockingSubClient('myGetDP', mygetdp + ' -setstring ResId ' + tag + '/ ' +
                              machine_pro + ' -msh ' + machine_msh +
                              ' -setnumber Flag_PrintFields 0 ' +
                              ' -solve Analysis -v 2')
