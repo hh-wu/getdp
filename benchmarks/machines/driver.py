@@ -11,7 +11,7 @@
 import onelab
 
 # create a new onelab client
-c = onelab.client()
+c = onelab.client(__file__)
 
 # get Gmsh and GetDP locations from Gmsh options
 mygmsh = c.getString('General.ExecutableFileName')
@@ -26,11 +26,16 @@ if(not len(mygetdp)):
    c.sendError('Please run a GetDP model interactively once with Gmsh to ' +
                'initialize the solver location')
    exit(0)
-   
+
 print('Will use gmsh={0} and getdp={1}'.format(mygmsh, mygetdp))
 
 # create a onelab variable for the model name
 machine = c.defineString('Machine model', value='pmsm')
+
+# get model file names with correct path
+machine_geo = c.getPath(machine + '.geo')
+machine_msh = c.getPath(machine + '.msh')
+machine_pro = c.getPath(machine + '.pro')
 
 # we're done if we don't do the actual calculation
 if c.action == 'check' :
@@ -42,12 +47,11 @@ for angle in angles:
    c.setNumber('Input/21Start rotor angle [deg]', value=angle)
    
    # run gmsh as a subclient
-   c.runSubClient('myGmsh', mygmsh + ' ' + machine + '.geo -2 -v 2')
+   c.runSubClient('myGmsh', mygmsh + ' ' + machine_geo + ' -2 -v 2')
    
    # run getdp as a subclient
-   c.runSubClient('myGetDP',  mygetdp + ' ' + machine + ' -msh ' + machine + '.msh ' +
-                  '-setnumber Flag_PrintFields 0 ' +
-                  '-solve Analysis -v 2')
+   c.runSubClient('myGetDP',  mygetdp + ' ' + machine_pro + ' -msh ' + machine_msh +
+                  ' -setnumber Flag_PrintFields 0 -solve Analysis -v 2')
    
    # retrieve the torque
    torque = c.getNumber('Output - Mechanics/0Torque [Nm]/rotor')
