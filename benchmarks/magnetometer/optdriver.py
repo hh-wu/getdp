@@ -82,16 +82,15 @@ def setDesign(client, values, names):
         client.setNumber(name,value=val)
 
 def mesh(client,opt,meshOut):
-    client.runSubClient('MyGmsh',opt['gmsh']+' '
+    client.runSubClient('MyGmsh', opt['gmsh'] + ' '
             + client.getPath(opt['file'] + '.geo')
-            +' -3 -parametric'
-            +' -o '+meshOut)
+            +' -v 3 -3 -parametric -o ' + meshOut)
 
 def fem(client,opt,msh):
     client.runSubClient('myGetDP', opt['getdp']+ ' '
-            + client.getPath(opt['file']+'.pro')
-            + ' -v2 -solve -slepc '+ opt['resolution']
-            + ' -msh '+msh)
+            + client.getPath(opt['file'] + '.pro')
+            + ' -v2 -v 3 -slepc -solve '+ opt['resolution']
+            + ' -msh '+ msh)
 
 def getPerformanceFunctions(client, xval, opt):
     perfs = [opt['objective']]; perfs.extend(opt['constraints'])

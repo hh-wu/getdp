@@ -24,7 +24,7 @@ If(PerturbMesh == 1)
     ParamValue = GetNumber(Str(SensitivityParameter));
     SetNumber(Str(SensitivityParameter), ParamValue + Perturbation);
     OnelabRun("Gmsh_NoAutoRun", StrCat(General.ExecutableFileName, " ",
-      modelpath, General.FileName, " -setnumber PerturbMesh 2 -run"));
+      modelpath, General.FileName, " -v 3 -setnumber PerturbMesh 2 -run"));
     SetNumber(Str(SensitivityParameter), ParamValue);
   EndIf
 ElseIf(PerturbMesh == 2)
