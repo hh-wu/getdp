@@ -29,8 +29,8 @@ class Message {
   // should we exit on error?
   static bool _exitOnError, _operatingInTimeLoopAdaptive;
   // verbosity level (0: silent except fatal errors, 1: +errors, 2: +warnings,
-  // 3: +direct+important info, 4: +info+progress, 5: normal, 6: +matinfo, 10:
-  // elementary matrices, 99: debug)
+  // 3: +direct+important info, 4: +info+progress, 5 (=normal): +cpu, 6:
+  // +matinfo, 10: elementary matrices, 99: debug)
   static int _verbosity;
   // step (in %) of the progress meter and current progress %
   static int _progressMeterStep, _progressMeterCurrent;
