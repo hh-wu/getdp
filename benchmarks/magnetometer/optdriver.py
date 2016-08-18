@@ -254,9 +254,7 @@ def optimLoop(clientOnelab, clientOpt, xval, xmin, xmax, fmax, opt):
         
         # compute performance functions at xval
         fval = analysis(clientOnelab, xval, opt, meshOut)
-        print clientOnelab.getNumber('Output/Fundamental eigen frequency [Hz]')
-        print clientOnelab.getNumber('Output/Fundamental eigen frequency 1 [Hz]')
-        
+    
         # sensitivity analysis of performance functions at xval
         dfdx = sensitivity(clientOnelab, xval, fval, opt)
         
