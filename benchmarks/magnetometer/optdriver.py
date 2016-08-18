@@ -88,9 +88,9 @@ def mesh(client,opt,meshOut):
             +' -o '+meshOut)
 
 def fem(client,opt,msh):
-    client.runSubClient('myGetDP',opt['getdp']+' '
+    client.runSubClient('myGetDP', opt['getdp']+ ' '
             + client.getPath(opt['file']+'.pro')
-            + ' -v2 -solve '+opt['resolution']
+            + ' -v2 -solve -slepc '+ opt['resolution']
             + ' -msh '+msh)
 
 def getPerformanceFunctions(client, xval, opt):
