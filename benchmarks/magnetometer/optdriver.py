@@ -65,7 +65,7 @@ def setOptionsPath(client,opt):
                 'initialize the solver location')
         exit(0)
     else:
-        print('Will use gmsh={} and getdp={}'.format(mygmsh, mygetdp))
+        client.sendInfo('Will use gmsh={} and getdp={}'.format(mygmsh, mygetdp))
         opt['optimization']['gmsh'] = mygmsh+' '
         opt['optimization']['getdp'] = mygetdp+' '
     return opt
@@ -144,47 +144,47 @@ def sensitivity(client,xval,fval,opt):
     
     return dfdx
 
-def printOptProblem(xval,xmin,xmax,fmax,opt):
+def printOptProblem(client,xval,xmin,xmax,fmax,opt):
     if opt['optimization']['printLevel'] >= 1:
-        print('='*80)
-        print('==='+str(' '*25)+'Optimization Problem'+str(' '*29)+'===')
-        print('='*80)
-        print('Model setting')
+        client.sendInfo('='*80)
+        client.sendInfo('==='+str(' '*25)+'Optimization Problem'+str(' '*29)+'===')
+        client.sendInfo('='*80)
+        client.sendInfo('Model setting')
         for key,val in zip(opt['model'].keys(),opt['model'].values()):
-            print('  * "{:50s}": {}'.format(key,val))
-        print('Design variables (n:{})'.format(len(xval)))
+            client.sendInfo('  * "{:50s}": {}'.format(key,val))
+        client.sendInfo('Design variables (n:{})'.format(len(xval)))
         for k, xkName in enumerate(opt['optimization']['designVariables']):
-            print('  * "{:50s}": {:.2e} <= {:.2e} <= {:.2e}'.\
+            client.sendInfo('  * "{:50s}": {:.2e} <= {:.2e} <= {:.2e}'.\
                   format(xkName,xmin[k],xval[k],xmax[k]))
-        print('Performance functions (m:{})'.format(len(fmax)))
-        print('  * {:20s}:"{}"'.\
+        client.sendInfo('Performance functions (m:{})'.format(len(fmax)))
+        client.sendInfo('  * {:20s}:"{}"'.\
               format('Objective',opt['optimization']['objective']))
         for k,(fmaxk,fkName) in enumerate(zip(fmax,opt['optimization']['constraints'])):
-            print('  * {:20s}:"{:20s}" <= {:.3e}'.\
+            client.sendInfo('  * {:20s}:"{:20s}" <= {:.3e}'.\
                   format('Constraint',fkName,fmax[k]))
-        print('Stop critera')
-        print('  {:30s}: {}'.\
+        client.sendInfo('Stop critera')
+        client.sendInfo('  {:30s}: {}'.\
               format('Design variables tol.',
                      opt['optimization']['tolDesignVariables']))
-        print('  {:30s}: {} '.\
+        client.sendInfo('  {:30s}: {} '.\
               format('Maximum number of iterations',
                      opt['optimization']['iterMax']))
-        print('='*80)
+        client.sendInfo('='*80)
 
 def printCurrIterate(client,xval,fval,change,loop,opt):
     if opt['printLevel'] >= 1:
-        client.sendInfo('='*60)
+        client.sendInfo('='*80)
         client.sendInfo('It. {:4d},'.format(loop))
         for k,xk in enumerate(xval):
             client.sendInfo('x{}: {:.3e},'.format(k,xk))
         for k,fk in enumerate(fval):
             client.sendInfo('f{}: {:.3e},'.format(k,fk))
         client.sendInfo('change: {:.3e}'.format(change))
-        client.sendInfo('='*60)
+        client.sendInfo('='*80)
         
 def optimLoop(clientOnelab, clientOpt, xval, xmin, xmax, fmax, opt):
     # Summary of the optimization problem
-    printOptProblem(xval, xmin, xmax, fmax, opt)
+    printOptProblem(clientOnelab,xval, xmin, xmax, fmax, opt)
 
     # Run the optimization loop ...
     meshOut = clientOnelab.getPath(opt['optimization']['file']+'.msh')
