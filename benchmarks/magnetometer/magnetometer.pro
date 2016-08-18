@@ -1,7 +1,7 @@
 Include "magnetometer_data.geo";
 
 DefineConstant[
-  Flag_AnalysisType = {2, Name "Input/0Type of analysis",
+  Flag_AnalysisType = {0, Name "Input/0Type of analysis",
     Choices{0="Eigenmodes",
       1="Electrokinetics",
       2="Electro-mechanical (static)",
@@ -88,6 +88,13 @@ Function {
   rhoc[Domain_The] = 2.e6; // vol. mass * heat capacity
   h[] = 1.4; // convection coef (unused)
   TemperatureConv[] = 20;
+
+  // perfromance function
+  DefineConstant[
+    freq0Ref = {1e5,
+      Name StrCat(pInOpt, "Desired natural frequency [Hz]")}
+  ];
+  obj[] = Fabs[$EigenvalueReal/(2*Pi) - freq0Ref];
 }
 
 Constraint {
@@ -211,7 +218,14 @@ PostOperation {
         Print[ eigenFrequency, OnRegion Domain_Disp, Format Table, TimeStep 0,
           File "res/fundamentaleigenfrequency.txt",
           SendToServer "Output/Fundamental eigen frequency [Hz]" ];
-        Echo[ "View[PostProcessing.NbViews-1].VectorType=5;",
+        Print[ eigenFrequency1, OnRegion Domain_Disp, Format Table, TimeStep 0,
+          File "res/fundamentalW2.txt",
+          SendToServer "Output/eigen pulsation" ];
+        Print[ eigenFrequencyObj, OnRegion Domain_Disp, Format Table, TimeStep 0,
+          File "res/fundamentalW3.txt",
+          SendToServer "Output/Objective" ];
+        Echo[ Str["l=PostProcessing.NbViews-1; View[l].VectorType=5; ",
+            "View[l].DisplacementFactor = 5e-5;"],
           File "res/tmp.geo", LastTimeStepOnly] ;
       EndIf
       If(Flag_AnalysisType != 0)

@@ -56,3 +56,20 @@ DefineConstant[
   }
 ];
 */
+
+// test for sensitivity analysis
+DefineConstant[
+  SensitivityParameter = {"Input/Geometry/0Beam length [m]",
+    Choices{
+      "Input/Geometry/1Beam width [m]",
+      "Input/Geometry/2Beam thickness [m]",
+      "Input/Geometry/3Support length [m]",
+      "Input/Geometry/4Support width [m]",
+      "Input/Geometry/5Support position [m]"
+    },
+    Name StrCat(pInOpt, "Parameter to perturb")},
+  StructuredGrid = {1,
+    Name StrCat(pInOpt,"Structured grid?"),Visible 0}
+];
+Merge "perturb.geo";
+

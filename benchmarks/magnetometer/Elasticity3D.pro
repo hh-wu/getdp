@@ -190,6 +190,13 @@ PostProcessing {
 
       { Name eigenFrequency ; Value { Term { Type Global; [ $EigenvalueReal / (2*Pi) ] ;
             In Domain_Disp  ; } } }
+
+      { Name eigenFrequencyObj ; Value { Term { Type Global; [ obj[] ]; 
+	    In Domain_Disp  ; } } }
+
+      { Name eigenFrequency1; Value { Term { Type Global; 
+	    [ $EigenvalueReal^2 + $EigenvalueImag^2] ;
+            In Domain_Disp  ; } } }
     }
   }
 }
