@@ -29,12 +29,12 @@ if(not len(mygetdp)):
 
 c.sendInfo('Will use gmsh={0} and getdp={1}'.format(mygmsh, mygetdp))
 
+# create a onelab variable for the model name
+machine = c.defineString('Machine model', value='pmsm')
+
 # we're done if we don't do the actual calculation
 if c.action == 'check' :
    exit(0)
-
-# create a onelab variable for the model name
-machine = c.defineString('Machine model', value='pmsm')
 
 # get model file names with correct path
 machine_geo = c.getPath(machine + '.geo')
