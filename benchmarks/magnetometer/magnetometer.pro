@@ -94,7 +94,7 @@ Function {
     freq0Ref = {1e5,
       Name StrCat(pInOpt, "Desired natural frequency [Hz]")}
   ];
-  obj[] = SquNorm[$EigenvalueReal/2*Pi - freq0Ref];
+  obj[] = SquNorm[($EigenvalueReal/(2*Pi)) - freq0Ref];
 }
 
 Constraint {

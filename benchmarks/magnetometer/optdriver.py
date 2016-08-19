@@ -167,8 +167,8 @@ def printGmsh(client,s):
 
 def printOptProblem(client,printf,xval,xmin,xmax,fmax,opt):
     if opt['printLevel'] >= 1:
-        printf(client, '='*80)
-        printf(client, '==='+str(' '*25)+'Optimization Problem'+str(' '*29)+'===')
+        printf(client,'='*80)
+        printf(client,'==='+str(' '*25)+'Optimization Problem'+str(' '*29)+'===')
         printf(client, '='*80)
         printf(client, 'Model setting')
         for key,val in options['CADFEMOptions'].iteritems():
@@ -195,7 +195,7 @@ def printCurrIterate(client,printf,xval,fval,change,loop,opt):
         printf(client, '='*80)
         printf(client, 'It. {:4d},'.format(loop))
         for k,xk in enumerate(xval):
-            printf(client, 'x{}: {:.3e},'.format(k,xk))
+            printf(client, 'x{}: {:.3e},'.format(k,xk)),
         for k,fk in enumerate(fval):
             printf(client, 'f{}: {:.3e},'.format(k,fk))
         printf(client, 'change: {:.3e}'.format(change))
@@ -226,7 +226,7 @@ def optimLoop(clientOnelab, clientOpt, xval, xmin, xmax, fmax, opt):
         
         # compute performance functions at xval
         fval = analysis(clientOnelab, xval, opt, meshOut)
-    
+        
         # sensitivity analysis of performance functions at xval
         dfdx = sensitivity(clientOnelab, xval, fval, opt)
         
@@ -246,8 +246,8 @@ def optimLoop(clientOnelab, clientOpt, xval, xmin, xmax, fmax, opt):
         change = np.linalg.norm(xmma-xval,np.inf)
         
         # Print the current iterate
-        printCurrIterate(clientOnelab, printTerminal, xval, fval, change, loop, opt)
-        printCurrIterate(clientOnelab, printGmsh, xval, fval, change, loop, opt)
+        printCurrIterate(clientOnelab,printTerminal,xval,fval,change,loop,opt)
+        printCurrIterate(clientOnelab,printGmsh,xval,fval,change,loop,opt)
     
         # update design variables
         xold2 = np.copy(xold1)
@@ -278,7 +278,7 @@ if __name__ == "__main__":
         'CADFEMOptions':{
             'Input/Geometry/00Mesh size factor':1,
             'Input/0Type of analysis':0,
-            'Optimization/Desired natural frequency [Hz]':2.5e5},
+            'Optimization/Desired natural frequency [Hz]':2.5e05},
         'file':clientOnelab.getPath('magnetometer'),
         'structuredGrid':1,
         'resolution':'Analysis',
