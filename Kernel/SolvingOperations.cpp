@@ -1074,19 +1074,12 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                                &DefineSystem_P, &DofData_P, Resolution2_P) ;
         if(DofData_P->CurrentSolution){
           if(Operation_P->Case.CopySolution.from){
-            printf("copying from '%s'\n", Operation_P->Case.CopySolution.from);
             std::map<std::string, gVector>::iterator it =
               vectorMap.find(Operation_P->Case.CopySolution.from);
-
-              for(std::map<std::string, gVector>::iterator it = vectorMap.begin();
-                  it != vectorMap.end(); it++)
-                printf("I have '%s' before copying from\n", it->first.c_str());
-
-
             if(it != vectorMap.end()){
               int n1, n2;
               LinAlg_GetVectorSize(&DofData_P->CurrentSolution->x, &n1);
-              LinAlg_GetVectorSize(&it->second, &n1);
+              LinAlg_GetVectorSize(&it->second, &n2);
               if(n1 == n2)
                 LinAlg_CopyVector(&it->second, &DofData_P->CurrentSolution->x);
               else
@@ -1098,13 +1091,12 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                              Operation_P->Case.CopySolution.from);
           }
           else if(Operation_P->Case.CopySolution.to){
-            printf("copying to '%s'\n", Operation_P->Case.CopySolution.to);
             std::map<std::string, gVector>::iterator it =
               vectorMap.find(Operation_P->Case.CopySolution.to);
             if(it != vectorMap.end()){
               int n1, n2;
               LinAlg_GetVectorSize(&DofData_P->CurrentSolution->x, &n1);
-              LinAlg_GetVectorSize(&it->second, &n1);
+              LinAlg_GetVectorSize(&it->second, &n2);
               if(n1 == n2)
                 LinAlg_CopyVector(&DofData_P->CurrentSolution->x, &it->second);
               else
@@ -1116,9 +1108,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
               LinAlg_CreateVector(&tmp, &DofData_P->Solver, DofData_P->NbrDof) ;
               LinAlg_CopyVector(&DofData_P->CurrentSolution->x, &tmp);
               vectorMap[Operation_P->Case.CopySolution.to] = tmp;
-              for(std::map<std::string, gVector>::iterator it = vectorMap.begin();
-                  it != vectorMap.end(); it++)
-                printf("I have '%s' \n", it->first.c_str());
             }
           }
           else
