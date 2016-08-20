@@ -90,7 +90,7 @@ void LinAlg_CreateSolver(gSolver *Solver, const char *SolverDataFileName)
       strcpy(FileName, SolverDataFileName);
     }
     else{
-      // -> relative otherwise
+      // -> relative otherwise FIXME: wrong on Windows - see Fix_RelativePath
       strcat(FileName, SolverDataFileName);
     }
   }

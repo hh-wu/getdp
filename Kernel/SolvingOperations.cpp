@@ -2179,6 +2179,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
 			     &DefineSystem_P, &DofData_P, Resolution2_P) ;
 
+      // FIXME: wrong on Windows -- see Fix_RelativePath
       if(Operation_P->Case.SaveMesh.FileName[0] == '/' ||
 	 Operation_P->Case.SaveMesh.FileName[0] == '\\'){
 	strcpy(FileName, Operation_P->Case.SaveMesh.FileName);

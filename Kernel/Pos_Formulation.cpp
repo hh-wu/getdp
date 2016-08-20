@@ -374,14 +374,8 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
   }
 
   if(PostSubOperation_P->FileOut){
-    if(PostSubOperation_P->FileOut[0] == '/' ||
-       PostSubOperation_P->FileOut[0] == '\\'){
-      strcpy(PostFileName, PostSubOperation_P->FileOut);
-    }
-    else{
-      strcpy(PostFileName, Name_Path);
-      strcat(PostFileName, PostSubOperation_P->FileOut);
-    }
+    strcpy(PostFileName, Fix_RelativePath(PostSubOperation_P->FileOut,
+                                          Name_Path).c_str());
 
     if(PostSubOperation_P->AppendExpressionToFileName >= 0) {
       struct Value Value ;
@@ -558,15 +552,8 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
       }
 
       char NewCoordsFileName[256];
-      if(PostSubOperation_P->NewCoordinatesFile[0] == '/' ||
-         PostSubOperation_P->NewCoordinatesFile[0] == '\\'){
-        strcpy(NewCoordsFileName, PostSubOperation_P->NewCoordinatesFile);
-      }
-      else{
-        strcpy(NewCoordsFileName, Name_Path);
-        strcat(NewCoordsFileName, PostSubOperation_P->NewCoordinatesFile);
-      }
-
+      strcpy(NewCoordsFileName, Fix_RelativePath(PostSubOperation_P->NewCoordinatesFile,
+                                                 Name_Path).c_str());
       m->writeMSH(NewCoordsFileName);
       Message::Info("Wrote new coordinates in file %s", NewCoordsFileName);
       delete m;
