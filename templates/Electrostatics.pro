@@ -196,9 +196,14 @@ Integration {
     Case {
       { Type Gauss;
         Case {
-	  { GeoElement Triangle; NumberOfPoints 4; }
-	  { GeoElement Quadrangle; NumberOfPoints 4; }
-          { GeoElement Tetrahedron; NumberOfPoints 4; }
+          { GeoElement Point; NumberOfPoints  1; }
+          { GeoElement Line; NumberOfPoints  3; }
+          { GeoElement Triangle; NumberOfPoints  3; }
+          { GeoElement Quadrangle; NumberOfPoints  4; }
+          { GeoElement Tetrahedron; NumberOfPoints  4; }
+          { GeoElement Hexahedron; NumberOfPoints  6; }
+          { GeoElement Prism; NumberOfPoints  9; }
+          { GeoElement Pyramid; NumberOfPoints  8; }
 	}
       }
     }
