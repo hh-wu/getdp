@@ -117,7 +117,7 @@ Include "Jacobian_Lib.pro"
 Include "Integration_Lib.pro"
 
 Include "Electrokinetics.pro"
-Include "Elast3D.pro"
+Include "Elasticity.pro"
 Include "Thermal.pro"
 
 Resolution {
