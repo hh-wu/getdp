@@ -201,6 +201,25 @@ def printCurrIterate(client,printf,xval,fval,change,loop,opt):
         printf(client, 'change: {:.3e}'.format(change))
         printf(client, '='*80)
 
+def makeSurfaceResponse(client,xval,options):
+    # Set the CAD/FEM parameters
+    setCADFEM(clientOnelab, options)
+    
+    ff = []
+    for xx in xval:
+        # set design variables at xval
+        setDesign(clientOnelab, [xx], options['designVariables'])
+        
+        # mesh the CAD model
+        mesh(clientOnelab, options, options['file']+'.msh')
+        
+        # compute performance functions at xval
+        fval = analysis(clientOnelab, xx, options, options['file']+'.msh')
+        print client.getNumber('Output/Fundamental eigen frequency [Hz]')
+        ff.append(fval)
+    return fval
+
+
 def optimLoop(clientOnelab, clientOpt, xval, xmin, xmax, fmax, opt):
     
     # Summary of the optimization problem
@@ -282,10 +301,9 @@ if __name__ == "__main__":
         'file':clientOnelab.getPath('magnetometer'),
         'structuredGrid':1,
         'resolution':'Analysis',
-        'objective':'Output/Objective',
+        'objective':'Output/diffEigenFreqNorm',
         'constraints':[],
         'designVariables':[
-            'Input/Geometry/3Support length [m]',
             'Input/Geometry/5Support position [m]'],
         'FDperturbStep':1.0e-8,
         'tolDesignVariables':1e-6,
@@ -293,11 +311,11 @@ if __name__ == "__main__":
     })
 
     # Starting value of design variables
-    desVar = [1.5e-05, 0.224*500.*1.0e-6-0.5*2.*1.0e-6]
+    desVar = [1.5e-04]
     
     # Lower and upper bounds of design variables
-    lowerBoundDesVar = [desVar[0]*0.9, desVar[1]*0.5]
-    upperBoundDesVar = [desVar[0]*2.8, desVar[1]*1.8]
+    lowerBoundDesVar = [6.0e-05]
+    upperBoundDesVar = [2.0e-04]
     
     # Upper bound of constraints
     upperBoundConstr = []
@@ -305,11 +323,11 @@ if __name__ == "__main__":
     # Create an optimizer client
     clientOpt = mma.mma({
         'm':options['m'],
-        'xmin':lowerBoundDesVar,
-        'xmax':upperBoundDesVar
+        'xmin':lowerBoundDesVar,'xmax':upperBoundDesVar,
+        'asyinit':0.2,'asyincr':0.8,'asydecr':0.3
     })
-    
+        
     # Call the optimization routine (get the optimal value of design variables)
     xopt,objOpt,constrOpt = optimLoop(clientOnelab, clientOpt, desVar,
-        lowerBoundDesVar,upperBoundDesVar, upperBoundConstr, options)
+                lowerBoundDesVar,upperBoundDesVar, upperBoundConstr, options)
 

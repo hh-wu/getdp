@@ -77,7 +77,7 @@ Function {
     freq0Ref = {1e5,
       Name StrCat(pInOpt, "Desired natural frequency [Hz]")}
   ];
-  obj[] = SquNorm[($EigenvalueReal/(2*Pi)) - freq0Ref];
+  obj[] = SquNorm[$EigenvalueReal/(2*Pi) - freq0Ref];
 }
 
 Constraint {
@@ -204,8 +204,8 @@ PostOperation {
         Print[ eigenFrequency, OnRegion Domain_Disp, Format Table, TimeStep 1,
           File "res/fundamentaleigenfrequency.txt",
           SendToServer "Output/Fundamental eigen frequency 1 [Hz]" ];
-        Print[ eigenFrequencyObj, OnRegion Domain_Disp, Format Table, TimeStep 0,
-          File "res/fundamentalW3.txt",SendToServer "Output/Objective" ];
+        Print[ diffEigenFreqNorm, OnRegion Domain_Disp, Format Table, TimeStep 0,
+          File "res/diffEigenFreqNorm.txt",SendToServer "Output/diffEigenFreqNorm" ];
         Echo[ Str["l=PostProcessing.NbViews-1; View[l].VectorType=5; ",
             "View[l].DisplacementFactor = 5e-5;"],
           File "res/tmp.geo", LastTimeStepOnly] ;
