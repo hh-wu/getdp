@@ -44,7 +44,7 @@ Function {
   DefineConstant[
     young = {150e9, Name "Input/Materials/0Young modulus [Pa]",
       Visible (Flag_AnalysisType != 1)},
-    nu = {0.17, Name "Input/Materials/1Poisson coeficient",
+    poisson = {0.17, Name "Input/Materials/1Poisson coeficient",
       Visible (Flag_AnalysisType != 1)},
     rh = {4400, Name "Input/Materials/2Mass density", Label "Mass density [kg/m^3]",
       Visible (Flag_AnalysisType != 1)},
@@ -56,32 +56,15 @@ Function {
 
   //F[] = Vector[0, 0, 10];
   E[Domain_Disp] = young ;
-
-  //Cij = [ C11   C12
-  //        C21   C22];
-  //Cij = E/(1+nu)/(1-2nu)*
-  //[ 1-nu        nu         nu         0                  0                  0
-  //    nu      1-nu         nu         0                  0                  0
-  //    nu        nu       1-nu         0                  0                  0
-  //     0         0          0      (1-2nu)/2             0                  0
-  //     0         0          0         0               (1-2nu)/2             0
-  //     0         0          0         0                  0              (1-2nu)/2 ]
-
-  ff[] = E[]/(1+nu)/(1-2*nu);
-  c11 = 1-nu ;
-  c12 = nu ;
-  c44 = (1-2*nu)/2 ;
-  C_11[Domain_Disp] = ff[] * TensorSym[ c11, c12, c12, c11, c12, c11 ];
-  C_22[Domain_Disp] = ff[] * TensorSym[ c44, 0, 0, c44, 0, c44 ];
-  C_12[Domain_Disp] = Tensor[0,0,0, 0,0,0, 0,0,0];
-  C_21[Domain_Disp] = Tensor[0,0,0, 0,0,0, 0,0,0];
-
+  nu[] = poisson ;
   rho[] = rh; // vol. mas
+  gravity[] = 0;
 
-  coef_alpha =  0;//9.889460399076600e-11;
+  coef_alpha =  0;
+  coef_beta = 0;
+  //coef_alpha = 9.889460399076600e-11;
   //coef_beta = 68.413834898694205;
   //coef_beta = 101.1177515907109;
-  coef_beta = 0;
 
   // thermal
   lambda[Domain_The] = 237;
@@ -89,7 +72,7 @@ Function {
   h[] = 1.4; // convection coef (unused)
   TemperatureConv[] = 20;
 
-  // perfromance function
+  // performance function
   DefineConstant[
     freq0Ref = {1e5,
       Name StrCat(pInOpt, "Desired natural frequency [Hz]")}
@@ -104,19 +87,19 @@ Constraint {
       { Region Dirichlet1 ; Value V_imposed ; }
     }
   }
-  { Name DeplacementX ;
+  { Name Displacement_x ;
     Case {
       { Region Dirichlet0 ; Value 0. ; }
       { Region Dirichlet1 ; Value 0. ; }
     }
   }
-  { Name DeplacementY ;
+  { Name Displacement_y ;
     Case {
       { Region Dirichlet0 ; Value 0. ; }
       { Region Dirichlet1 ; Value 0. ; }
     }
   }
-  { Name DeplacementZ ;
+  { Name Displacement_z ;
     Case {
       { Region Dirichlet0 ; Value 0. ; }
       { Region Dirichlet1 ; Value 0. ; }
@@ -134,7 +117,7 @@ Include "Jacobian_Lib.pro"
 Include "Integration_Lib.pro"
 
 Include "Electrokinetics.pro"
-Include "Elasticity3D.pro"
+Include "Elast3D.pro"
 Include "Thermal.pro"
 
 Resolution {
@@ -228,9 +211,9 @@ PostOperation {
           File "res/tmp.geo", LastTimeStepOnly] ;
       EndIf
       If(Flag_AnalysisType != 0)
+        Print[ u, OnElementsOf Domain_Disp, File "res/u.pos"] ;
         Print[ um, OnPoint {l/2,a/2,b/2}, Format Table, File "res/um_middle.txt",
           SendToServer "Output/Middle diplacement [m]", Color "LightYellow" ];
-        Print[ u, OnElementsOf Domain_Disp, File "res/u.pos"] ;
         Echo[ Str["l=PostProcessing.NbViews-1; View[l].VectorType=5; ",
             "View[l].DisplacementFactor = 1e10;"],
           File "res/tmp.geo", LastTimeStepOnly] ;
