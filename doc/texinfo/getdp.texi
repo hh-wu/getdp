@@ -541,12 +541,12 @@ free to join the project: we gladly accept all code contributions!
 If you think you have found a bug in GetDP, you can report it by
 electronic mail to the GetDP mailing list at @email{getdp@@onelab.info},
 or file it directly into our bug tracking system at
-@url{https://onelab.info/trac/getdp/report/1} (User name:
-@code{anonymous}, Password: @code{onelab}).  Please send as precise a
-description of the problem as you can, including sample input files that
-produce the bug (problem definition and mesh files). Don't forget to
-mention both the version of GetDP and the version of your operation
-system (@pxref{Running GetDP} to see how to get this information).
+@url{https://onelab.info/trac/getdp/report/1} (User name and password:
+@code{getdp}).  Please send as precise a description of the problem as
+you can, including sample input files that produce the bug (problem
+definition and mesh files). Don't forget to mention both the version of
+GetDP and the version of your operation system (@pxref{Running GetDP} to
+see how to get this information).
 
 See @ref{Frequently asked questions}, and the bug tracking system to see
 which problems we already know about.
