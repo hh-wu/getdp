@@ -613,7 +613,7 @@ void SolvingAnalyse()
     Message::ProgressMeter(0, 0, "Post-processing");
 
     i = 0 ;
-    while(Name_PostOperation[i]){
+    while(Name_PostOperation[i] && strlen(Name_PostOperation[i])){
       if((Num = List_ISearchSeq(Problem_S.PostOperation, Name_PostOperation[i],
 				fcmp_PostOperation_Name)) < 0){
 	Message::Error("Unknown PostOperation (%s)", Name_PostOperation[i]) ;
