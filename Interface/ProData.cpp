@@ -2005,7 +2005,7 @@ void Print_ListPostOperation(int choose, int Flag_LPOS, char *name[NBR_MAX_POS])
         charOptions["Choices"] = choices;
         charOptions["Name"].push_back(Message::GetOnelabClientName() + "/2PostOperationChoices");
         charOptions["Label"].push_back("Post-processing");
-        charOptions["MultipleSelection"].push_back("1");
+        charOptions["MultipleSelection"].push_back("0");
         Message::ExchangeOnelabParameter(&c, floatOptions, charOptions);
         if(choose){
           std::string str(c.Value.Char);
