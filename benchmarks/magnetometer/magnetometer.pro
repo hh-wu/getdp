@@ -27,6 +27,19 @@ Group {
 }
 
 Function {
+  // desired fundamental frequency (onelab parameter)
+  DefineConstant[
+    f0d = {1e5, Name StrCat(pInOpt,"Desired fundamental frequency [Hz]")}
+  ];
+  
+  // fundamental frequency
+  f0[] = $EigenvalueReal/(2*Pi);
+
+  // objective function
+  objective[] = SquNorm[ f0[] - f0d];
+}
+
+Function {
   // electrical
   DefineConstant[
     sigm = {37e6, Name "Input/Materials/3Electric conductivity",
@@ -74,10 +87,10 @@ Function {
 
   // performance function
   DefineConstant[
-    freq0Ref = {1e5,
+    f0d = {1e5,
       Name StrCat(pInOpt, "Desired natural frequency [Hz]")}
   ];
-  obj[] = SquNorm[$EigenvalueReal/(2*Pi) - freq0Ref];
+  objjective[] = SquNorm[$EigenvalueReal/(2*Pi) - f0d];
 }
 
 Constraint {
@@ -194,6 +207,7 @@ PostOperation {
       Print[ f, OnElementsOf DomainC_Ele, File "res/f.pos"] ;
     }
   }
+
   { Name Mec ; NameOfPostProcessing Elasticity3D;
     Operation {
       If(Flag_AnalysisType == 0)
@@ -204,8 +218,8 @@ PostOperation {
         Print[ eigenFrequency, OnRegion Domain_Disp, Format Table, TimeStep 1,
           File "res/fundamentaleigenfrequency.txt",
           SendToServer "Output/Fundamental eigen frequency 1 [Hz]" ];
-        Print[ diffEigenFreqNorm, OnRegion Domain_Disp, Format Table, TimeStep 0,
-          File "res/diffEigenFreqNorm.txt",SendToServer "Output/diffEigenFreqNorm" ];
+        Print[ objective, OnRegion Domain_Disp, Format Table, TimeStep 0,
+          File "res/objective.txt",SendToServer "Output/diffEigenFreqNorm" ];
         Echo[ Str["l=PostProcessing.NbViews-1; View[l].VectorType=5; ",
             "View[l].DisplacementFactor = 5e-5;"],
           File "res/tmp.geo", LastTimeStepOnly] ;

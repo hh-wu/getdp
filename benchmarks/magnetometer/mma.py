@@ -19,7 +19,7 @@ import numpy as np
 from scipy.sparse import spdiags
 import time
 
-class mma(object):
+class client(object):
 
     def __init__(self,parameters):
         """ 

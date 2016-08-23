@@ -220,7 +220,7 @@ def makeSurfaceResponse(client,xval,options):
     return fval
 
 
-def optimLoop(clientOnelab, clientOpt, xval, xmin, xmax, fmax, opt):
+def optimize(clientOnelab, clientOpt, xval, xmin, xmax, fmax, opt):
     
     # Summary of the optimization problem
     printOptProblem(clientOnelab, printTerminal, xval, xmin, xmax, fmax, opt)
@@ -297,7 +297,7 @@ if __name__ == "__main__":
         'CADFEMOptions':{
             'Input/Geometry/00Mesh size factor':1,
             'Input/0Type of analysis':0,
-            'Optimization/Desired natural frequency [Hz]':2.5e05},
+            'Optimization/Desired fundamental frequency [Hz]':2.5e05},
         'file':clientOnelab.getPath('magnetometer'),
         'structuredGrid':1,
         'resolution':'Analysis',
@@ -321,13 +321,13 @@ if __name__ == "__main__":
     upperBoundConstr = []
 
     # Create an optimizer client
-    clientOpt = mma.mma({
+    clientOpt = mma.client({
         'm':options['m'],
         'xmin':lowerBoundDesVar,'xmax':upperBoundDesVar,
         'asyinit':0.2,'asyincr':0.8,'asydecr':0.3
     })
-        
+    
     # Call the optimization routine (get the optimal value of design variables)
-    xopt,objOpt,constrOpt = optimLoop(clientOnelab, clientOpt, desVar,
-                lowerBoundDesVar,upperBoundDesVar, upperBoundConstr, options)
+    xopt,objOpt,constrOpt = optimize(clientOnelab, clientOpt,
+        desVar,lowerBoundDesVar,upperBoundDesVar, upperBoundConstr, options)
 

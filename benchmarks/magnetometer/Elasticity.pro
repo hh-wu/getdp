@@ -239,7 +239,7 @@ PostProcessing {
       { Name eigenFrequency ; Value { Term { Type Global; [ $EigenvalueReal / (2*Pi) ] ;
             In Domain_Disp  ; } } }
 
-      { Name diffEigenFreqNorm ; Value { Term { Type Global; [ obj[] ];
+      { Name objective ; Value { Term { Type Global; [ objective[] ];
 	    In Domain_Disp  ; } } }
 
       { Name eigenFrequency1; Value { Term { Type Global;
