@@ -31,7 +31,7 @@ Function {
   DefineConstant[
     f0d = {1e5, Name StrCat(pInOpt,"Desired fundamental frequency [Hz]")}
   ];
-  
+
   // fundamental frequency
   f0[] = $EigenvalueReal/(2*Pi);
 
@@ -80,10 +80,19 @@ Function {
   //coef_beta = 101.1177515907109;
 
   // thermal
-  lambda[Domain_The] = 237;
-  rhoc[Domain_The] = 2.e6; // vol. mass * heat capacity
+  DefineConstant[
+    ambiant_temp = {20, Name "Input/92Ambiant temperature [C]",
+      Visible (Flag_AnalysisType == 4)},
+    lambda_temp = {237, Name "Input/Materials/Thermal conductivity",
+      Visible (Flag_AnalysisType == 4)},
+    rchoc_temp = {2e6, Name "Input/Materials/Density * heat capacity",
+      Visible (Flag_AnalysisType == 4)}
+  ];
+
+  lambda[Domain_The] = lambda_temp;
+  rhoc[Domain_The] = rchoc_temp; // vol. mass * heat capacity
+  TemperatureConv[] = ambiant_temp; // unused
   h[] = 1.4; // convection coef (unused)
-  TemperatureConv[] = 20;
 
   // performance function
   DefineConstant[
@@ -120,8 +129,8 @@ Constraint {
   }
   { Name Temperature ;
     Case {
-      { Region Dirichlet0 ; Value 20. ; }
-      { Region Dirichlet1 ; Value 20. ; }
+      { Region Dirichlet0 ; Value ambiant_temp ; }
+      { Region Dirichlet1 ; Value ambiant_temp ; }
     }
   }
 }
