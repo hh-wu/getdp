@@ -8,6 +8,7 @@
 //   Ruth Sabariego
 //
 
+#include <string.h>
 #include "ProData.h"
 #include "GeoData.h"
 #include "DofData.h"
