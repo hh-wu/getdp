@@ -137,7 +137,13 @@ namespace onelab{
     }
     std::string getShortName() const
     {
-      if(_label.size()) return _label;
+      std::string units = getAttribute("Units");
+      if(_label.size()){
+        if(units.empty())
+          return _label;
+        else
+          return _label + " [" + units + "]";
+      }
       std::string s = _name;
       // remove path
       std::string::size_type last = _name.find_last_of('/');
@@ -154,7 +160,10 @@ namespace onelab{
       // start'
       while(s.size() && s[0] >= '0' && s[0] <= '9')
         s = s.substr(1);
-      return s;
+      if(units.empty())
+        return s;
+      else
+        return s + " [" + units + "]";
     }
     int getChanged(const std::string &client="") const
     {
@@ -720,14 +729,24 @@ namespace onelab{
         if(!done) done = _clear(name, client, _strings);
       }
     }
-    bool set(const number &p,
-             const std::string &client=""){ return _set(p, client, _numbers); }
-    bool set(const string &p,
-             const std::string &client=""){ return _set(p, client, _strings); }
+    bool set(const number &p, const std::string &client="")
+    {
+      return _set(p, client, _numbers);
+    }
+    bool set(const string &p, const std::string &client="")
+    {
+      return _set(p, client, _strings);
+    }
     bool get(std::vector<number> &ps, const std::string &name="",
-             const std::string &client=""){ return _get(ps, name, client, _numbers); }
+             const std::string &client="")
+    {
+      return _get(ps, name, client, _numbers);
+    }
     bool get(std::vector<onelab::string> &ps, const std::string &name="",
-             const std::string &client=""){ return _get(ps, name, client, _strings); }
+             const std::string &client="")
+    {
+      return _get(ps, name, client, _strings);
+    }
     void getPtr(number **ptr, const std::string name, const std::string client="")
     {
       *ptr = _getPtr(name, client, _numbers);
@@ -1228,10 +1247,14 @@ namespace onelab{
     }
     virtual bool set(const number &p){ return _set(p); }
     virtual bool set(const string &p){ return _set(p); }
-    virtual bool get(std::vector<number> &ps,
-                     const std::string &name=""){ return _get(ps, name); }
-    virtual bool get(std::vector<onelab::string> &ps,
-                     const std::string &name=""){ return _get(ps, name); }
+    virtual bool get(std::vector<number> &ps, const std::string &name="")
+    {
+      return _get(ps, name);
+    }
+    virtual bool get(std::vector<onelab::string> &ps, const std::string &name="")
+    {
+      return _get(ps, name);
+    }
     void sendInfo(const std::string &msg)
     {
       if(_gmshClient) _gmshClient->Info(msg.c_str());
@@ -1263,7 +1286,10 @@ namespace onelab{
     void runNonBlockingSubClient(const std::string &name, const std::string &command)
     {
       if(!_gmshClient){
-        system(command.c_str());
+        int res = system(command.c_str());
+        if(res){
+          // report error
+        }
         return;
       }
       std::string msg = name + parameter::charSep() + command;
