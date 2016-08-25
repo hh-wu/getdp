@@ -385,27 +385,25 @@ extern int getdp_yydebug;
     tAppendExpressionFormat = 595,
     tOverrideTimeStepValue = 596,
     tNoMesh = 597,
-    tColor = 598,
-    tSendToServer = 599,
-    tDate = 600,
-    tOnelabAction = 601,
-    tFixRelativePath = 602,
-    tNewCoordinates = 603,
-    tAppendToExistingFile = 604,
-    tAppendStringToFileName = 605,
-    tDEF = 606,
-    tOR = 607,
-    tAND = 608,
-    tEQUAL = 609,
-    tNOTEQUAL = 610,
-    tAPPROXEQUAL = 611,
-    tLESSOREQUAL = 612,
-    tGREATEROREQUAL = 613,
-    tLESSLESS = 614,
-    tGREATERGREATER = 615,
-    tCROSSPRODUCT = 616,
-    UNARYPREC = 617,
-    tSHOW = 618
+    tSendToServer = 598,
+    tDate = 599,
+    tOnelabAction = 600,
+    tFixRelativePath = 601,
+    tAppendToExistingFile = 602,
+    tAppendStringToFileName = 603,
+    tDEF = 604,
+    tOR = 605,
+    tAND = 606,
+    tEQUAL = 607,
+    tNOTEQUAL = 608,
+    tAPPROXEQUAL = 609,
+    tLESSOREQUAL = 610,
+    tGREATEROREQUAL = 611,
+    tLESSLESS = 612,
+    tGREATERGREATER = 613,
+    tCROSSPRODUCT = 614,
+    UNARYPREC = 615,
+    tSHOW = 616
   };
 #endif
 
@@ -422,7 +420,7 @@ union YYSTYPE
   List_T  *l;
   struct TwoInt t;
 
-#line 426 "ProParser.tab.hpp" /* yacc.c:1909  */
+#line 424 "ProParser.tab.hpp" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

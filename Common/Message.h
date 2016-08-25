@@ -108,7 +108,7 @@ class Message {
                                      bool errorIfMissing=false);
   static std::string GetOnelabAction();
   static void AddOnelabNumberChoice(std::string name, const std::vector<double> &value,
-                                    const char *color=0);
+                                    const char *color=0, const char *units=0);
   static void AddOnelabStringChoice(std::string name, std::string kind,
                                     std::string value, bool updateValue=true,
                                     bool readOnly=false);

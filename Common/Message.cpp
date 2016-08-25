@@ -764,7 +764,7 @@ void Message::InitializeOnelab(std::string name, std::string sockname)
 }
 
 void Message::AddOnelabNumberChoice(std::string name, const std::vector<double> &value,
-                                    const char *color)
+                                    const char *color, const char *units)
 {
   if(_onelabClient){
     std::vector<double> choices;
@@ -779,6 +779,7 @@ void Message::AddOnelabNumberChoice(std::string name, const std::vector<double> 
       ps[0].setReadOnly(true);
     }
     if(color) ps[0].setAttribute("Highlight", color);
+    if(units) ps[0].setAttribute("Units", units);
     ps[0].setValues(value);
     choices.insert(choices.end(), value.begin(), value.end());
     ps[0].setChoices(choices);

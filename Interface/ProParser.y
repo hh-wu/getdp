@@ -318,10 +318,10 @@ struct doubleXstring{
 %token        tLastTimeStepOnly tAppendTimeStepToFileName tTimeValue tTimeImagValue
 %token        tTimeInterval
 %token        tAppendExpressionToFileName tAppendExpressionFormat
-%token        tOverrideTimeStepValue tNoMesh tColor
+%token        tOverrideTimeStepValue tNoMesh
 %token        tSendToServer
 %token        tDate tOnelabAction tFixRelativePath
-%token        tNewCoordinates tAppendToExistingFile tAppendStringToFileName
+%token        tAppendToExistingFile tAppendStringToFileName
 
 /* ------------------------------------------------------------------ */
 /* Operators (with ascending priority): cf. C language                */
@@ -6622,6 +6622,7 @@ PostSubOperations :
       PostSubOperation_S.SendToServer = NULL;
       PostSubOperation_S.SendToServerList = NULL;
       PostSubOperation_S.Color = NULL;
+      PostSubOperation_S.Units = NULL;
       PostSubOperation_S.ValueIndex = 0;
       PostSubOperation_S.ValueName = NULL;
       PostSubOperation_S.Label = NULL;
@@ -7320,14 +7321,20 @@ PrintOption :
       PostSubOperation_S.SendToServer = $3;
       PostSubOperation_S.SendToServerList = $5;
     }
-  | ',' tColor CharExpr
+  | ',' tSTRING CharExpr
     {
-      PostSubOperation_S.Color = $3;
-    }
-  | ',' tNewCoordinates CharExpr
-    {
-      PostSubOperation_S.NewCoordinates = 1;
-      PostSubOperation_S.NewCoordinatesFile = $3;
+      std::string cat($2);
+      Free($2);
+      if(cat == "Units"){
+        PostSubOperation_S.Units = $3;
+      }
+      else if(cat == "Color"){
+        PostSubOperation_S.Color = $3;
+      }
+      else if(cat == "NewCoordinates"){
+        PostSubOperation_S.NewCoordinates = 1;
+        PostSubOperation_S.NewCoordinatesFile = $3;
+      }
     }
  ;
 

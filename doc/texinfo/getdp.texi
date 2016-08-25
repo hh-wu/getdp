@@ -5321,6 +5321,12 @@ Send the requested harmonics of the value to the Onelab server, using
 Used with @code{SendToServer}, sets the color of the parameter in the
 Onelab server.
 
+@item Units
+@var{expression-char}
+
+Used with @code{SendToServer}, sets the units of the parameter in the
+Onelab server.
+
 @item Frequency
 @code{@var{expression-cst-list-item} | @{ @var{expression-cst-list} @}}
 
