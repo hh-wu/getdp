@@ -514,8 +514,8 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
         Message::SendMergeFileRequest(PostFileName);
       }
       // Add link to file
-      Message::AddOnelabStringChoice(Message::GetOnelabClientName() + "/9Output files",
-                                     "file", PostFileName);
+      Message::AddOnelabStringChoice(Message::GetOnelabClientName() + "/{Output files",
+                                     "file", PostFileName, true, true);
     }
 
     /* NewCoordinates print option: write a new mesh */

@@ -794,7 +794,8 @@ void Message::AddOnelabNumberChoice(std::string name, const std::vector<double> 
 }
 
 void Message::AddOnelabStringChoice(std::string name, std::string kind,
-                                    std::string value)
+                                    std::string value, bool updateValue,
+                                    bool readOnly)
 {
   if(_onelabClient){
     std::vector<std::string> choices;
@@ -804,15 +805,25 @@ void Message::AddOnelabStringChoice(std::string name, std::string kind,
       choices = ps[0].getChoices();
       if(std::find(choices.begin(), choices.end(), value) == choices.end())
         choices.push_back(value);
+      if(updateValue)
+        ps[0].setValue(value);
     }
     else{
       ps.resize(1);
       ps[0].setName(name);
       ps[0].setKind(kind);
+      ps[0].setValue(value);
       choices.push_back(value);
     }
-    ps[0].setValue(value);
     ps[0].setChoices(choices);
+    if(readOnly){
+      ps[0].setReadOnly(true);
+      ps[0].setAttribute("AutoCheck", "0");
+    }
+    else{
+      ps[0].setReadOnly(false);
+      ps[0].setAttribute("AutoCheck", "1");
+    }
     _onelabClient->set(ps[0]);
   }
 }

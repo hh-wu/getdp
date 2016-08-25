@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <string>
+#include <set>
 #include "GetDPConfig.h"
 #include "ProData.h"
 #include "ProDefine.h"
@@ -328,6 +329,9 @@ void Read_ProblemStructure(const char *name)
 
   Message::Info("Loading problem definition '%s'", AbsPath);
 
+  Message::AddOnelabStringChoice(Message::GetOnelabClientName() + "/{Input files",
+                                 "file", AbsPath, true, true);
+
   // opening the file in text mode messes up the loops (they use
   // fsetpos/fgetpos) on Windows without Cygwin; not sure why, but
   // opening the file in binary mode fixes the problem
@@ -372,8 +376,6 @@ void Finalize_ProblemStructure()
   for(unsigned int i = 0; i < openFiles.size(); i++)
     fclose(openFiles[i]);
   MacroManager::Instance()->clear();
-
-  // Here we should parse any ONELAB-defined functions (+ their context)
 }
 
 char *Get_ExpressionName(int Index)

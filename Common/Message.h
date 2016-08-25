@@ -110,7 +110,8 @@ class Message {
   static void AddOnelabNumberChoice(std::string name, const std::vector<double> &value,
                                     const char *color=0);
   static void AddOnelabStringChoice(std::string name, std::string kind,
-                                    std::string value);
+                                    std::string value, bool updateValue=true,
+                                    bool readOnly=false);
   typedef std::map<std::string, std::vector<double> > fmap;
   typedef std::map<std::string, std::vector<std::string> > cmap;
   static void ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt);
