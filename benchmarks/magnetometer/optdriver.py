@@ -67,8 +67,11 @@ def setOptions(clientOnelab, optdic):
     opt['getdp'] = getPathGetDP(clientOnelab)
     return opt
 
-def getPathGmsh(client):
-    return client.getString('General.ExecutableFileName')+' '
+def escapePath(path):
+    return '"' + path + '"'
+
+def getPathGmsh(client): # escape string if path contains white space
+    return escapePath(client.getString('General.ExecutableFileName'))
 
 def getPathGetDP(client):
     mygetdp = ''
@@ -82,7 +85,7 @@ def getPathGetDP(client):
         client.sendError('Please run a GetDP model interactively once with Gmsh to ' + 'initialize the solver location')
         exit(0)
     else:
-        return mygetdp + ' '
+        return escapePath(mygetdp)
 
 def setCADFEM(client,options):
     for key,val in options['CADFEMOptions'].iteritems():
@@ -96,14 +99,14 @@ def setDesign(client, values, names):
         client.setNumber(name,value=val)
 
 def mesh(client,opt,meshOut):
-    client.runSubClient('MyGmsh',opt['gmsh']+' '
-            + opt['file'] + '.geo'
+    client.runSubClient('MyGmsh', opt['gmsh'] + ' '
+            + escapePath(opt['file'] + '.geo')
             + ' -v 3 -3 -parametric'
             + ' -o ' + meshOut)
 
 def fem(client,opt,msh):
     client.runSubClient('myGetDP', opt['getdp'] + ' '
-            + opt['file'] + '.pro'
+            + escapePath(opt['file'] + '.pro')
             + ' -v 3 -v2 -solve '+ opt['resolution']
             + ' -msh '+ msh)
 
@@ -123,7 +126,7 @@ def analysis(client, xval, opt, meshName):
     return fval
 
 def relocalizeMesh(client, paramName, opt):
-    geoName = opt['file']+'.geo'; pp = 'Optimization/'
+    geoName = escapePath(opt['file']+'.geo'); pp = 'Optimization/'
     client.setNumber(pp+'Structured grid?',value=opt['structuredGrid'])
     client.setNumber(pp+'Compute perturbation velocity field',value=1)
     client.setNumber(pp+'Perturbation value', value=opt['FDperturbStep'])
@@ -145,7 +148,7 @@ def sensitivity(client,xval,fval,opt):
         setDesign(client, [x0+opt['FDperturbStep']], [x0Name])
         
         # analysis in the perturbed CAD
-        fem(client, opt, opt['file']+'Perturb.msh')
+        fem(client, opt, escapePath(opt['file']+'Perturb.msh'))
         
         # extract pertrubed performance function
         dfunc = getPerformanceFunctions(client, xvalPert, opt)
@@ -211,10 +214,10 @@ def makeSurfaceResponse(client,xval,options):
         setDesign(clientOnelab, [xx], options['designVariables'])
         
         # mesh the CAD model
-        mesh(clientOnelab, options, options['file']+'.msh')
+        mesh(clientOnelab, options, escapePath(options['file']+'.msh'))
         
         # compute performance functions at xval
-        fval = analysis(clientOnelab, xx, options, options['file']+'.msh')
+        fval = analysis(clientOnelab, xx, options, escapePath(options['file']+'.msh'))
         print client.getNumber('Output/Fundamental eigen frequency [Hz]')
         ff.append(fval)
     return fval
@@ -230,7 +233,7 @@ def optimize(clientOnelab, clientOpt, xval, xmin, xmax, fmax, opt):
     setCADFEM(clientOnelab, options)
 
     # Run the optimization loop ...
-    meshOut = opt['file']+'.msh'
+    meshOut = escapePath(opt['file']+'.msh')
     xold1 = np.copy(xval); xold2 = np.copy(xval)
     low = np.array([]); upp = np.array([])
     change = 1.0; loop = 1;
