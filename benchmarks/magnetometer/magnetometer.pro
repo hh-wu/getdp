@@ -93,13 +93,6 @@ Function {
   rhoc[Domain_The] = rchoc_temp; // vol. mass * heat capacity
   TemperatureConv[] = ambiant_temp; // unused
   h[] = 1.4; // convection coef (unused)
-
-  // performance function
-  DefineConstant[
-    f0d = {1e5,
-      Name StrCat(pInOpt, "Desired natural frequency [Hz]")}
-  ];
-  objjective[] = SquNorm[$EigenvalueReal/(2*Pi) - f0d];
 }
 
 Constraint {
