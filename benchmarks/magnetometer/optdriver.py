@@ -90,9 +90,9 @@ def getPathGetDP(client):
 def setCADFEM(client,options):
     for key,val in options['CADFEMOptions'].iteritems():
         if (type(val) == str):
-            client.setString(key,value=val)
+            client.defineString(key,value=val)
         else:
-            client.setNumber(key,value=val)
+            client.defineNumber(key,value=val)
 
 def setDesign(client, values, names):
     for name, val in zip(names, values):
