@@ -14,7 +14,7 @@ DefineConstant[
       7="L-bracket",
       8="square-center",
       9="bridge"}, 
-    Name "Input/Loading/case",Visible 1},
+    Name "Input/Loading",Visible 1},
   E0  = {/*210e6*/1., Name "Input/Materials/ Young modulus",Visible 0},
   nu0 = {0.3, Name "Input/Materials/ Poisson coeficient",Visible 0},
   rh = {7850.,Name "Input/Materials/ Mass density",Visible 0}
@@ -98,7 +98,7 @@ Function {
     du,dV,dlam,dEps,velocity,velocityField,d_D1,d_D2,
     dV_x,dV_y,dV_z,du_x,du_y,du_z,
     rmin2,prod_x_dC,designVar,nu,nu_prime,
-    mass_eig,d_eig,d_eig_TO,force_mec,
+    mass_eig,d_eig,d_eig_TO,force_mec,LieFunc,
     dFdb,dFdb_Lie,dFdb2,dF_TO,dF_lie,dMass,d_bilin_eig_TO
   ];
   er[] = Unit[XYZ[]];
@@ -263,17 +263,13 @@ Function {
   /* ----------------------------------------------------------------- 
      Optimization problem: 
      ----------------------------------------------------------------- */
+  
+  If( !StrCmp(Flag_optType,"shape") )
     // shape variation velocity field
     For i In {1:3}
-      If (Flag_projFuncSpace_v)
-        l_v~{i} = ListFromFile[Sprintf("res/velocity_%g.txt",i)];
-        velocity~{i}[] = ValueFromIndex[]{l_v~{i}()};
-      Else
-        velocity~{i}[] = 1.0;
-      EndIf
-    EndFor    
-
-  If( !StrCmp(Flag_optType,"shape") )
+      l_v~{i} = ListFromFile[Sprintf("velocity_%g.txt",i)];
+      velocity~{i}[] = ValueFromIndex[]{l_v~{i}()};
+    EndFor   
     velocity[] = Vector[$1,$2,$3];
     dV[] = Tensor[CompX[$1],CompX[$2],CompX[$3],
                   CompY[$1],CompY[$2],CompY[$3],
@@ -317,6 +313,10 @@ Function {
       d_bilin_lie[] = sigmaV[sigmaTensLie[$1]]*epsilonV[dlam[]]*TTrace[dV[$5,$6,$7]]
 		    - sigma_lie[epsilonV[dV[$5,$6,$7]*du[]]]*epsilonV[dlam[]]   
                     - sigmaV[sigmaTensLie[$1]]*epsilonV[dV[$5,$6,$7]*dlam[]];
+
+      d_bilin_lieSelf[] = sigmaV[sigmaTensLie[$1]]*epsilonV[du[]]*TTrace[dV[$5,$6,$7]]
+		    - sigma_lie[epsilonV[dV[$5,$6,$7]*du[]]]*epsilonV[du[]]   
+                    - sigmaV[sigmaTensLie[$1]]*epsilonV[dV[$5,$6,$7]*du[]];
 
       d_bilin[] = (d_C[$5] * $1) * $2; 
 
@@ -372,7 +372,7 @@ Function {
       // ----------------------
       //FIXME      
       If(!StrCmp[Flag_PerfType,"Compliance"])
-        Printf("compliance 2D");
+        Printf("performance function: Compliance");
         Func[] = 0.5 * bilin_uu[$1,$1,$3]; //F = C * {D1 u}^2
         Func_lie[] = 0.5 * bilin_uu_lie[$1]; //F = C * {D1 u}^2
         dFdb[] = C[$3] * $1; // derivative wrt state variable
@@ -380,8 +380,11 @@ Function {
         dF_TO[] = 0.5 * (d_C[$3]*$1)*$1; 
         dF_lie[] = - dFdb_Lie[$1]*d_D1[du[],dV[$3,$4,$5]]
                    + Func_lie[$1,$1]*TTrace[dV[$3,$4,$5]];
+      ElseIf(!StrCmp[Flag_PerfType,"Volume"])
+        Printf("performance function: Volume");
+	LieFunc[] = TTrace[$2];
       ElseIf(!StrCmp[Flag_PerfType,"vonMisesElem"])
-	Printf["von Mises Elem"];
+	Printf["performance function: VonMisesElem"];
         Func[] = sigmaVM[$1,$2,$3];
         If(!Flag_projFuncSpace_xe)
           dFdb[] = ((GetNumElement[]==elemNum)?1:0)
@@ -397,7 +400,7 @@ Function {
                 * (degStress * sigmaVM[$1,$2,$5])/($5 * ElementVol[]);
         EndIf
       ElseIf(!StrCmp[Flag_PerfType,"vonMises_Pnorm"])
-        Printf("pnorm von-Mises 2D");
+        Printf("performance function: pnormVon-Mises");
         coeff[] = ($VM_P ^ (1./degVM -1.))/degVM;
         Func[] = sigmaVM[$1,$2,$3]^degVM; 
         Func_lie[] = sigmaVM_lie[$1,$2]^degVM;
@@ -476,7 +479,14 @@ Function {
 
 Constraint{
   For i In {1:3}
-    { Name velocity~{i} ;
+    { Name velocity0~{i};
+      Case {
+      }
+    }
+  EndFor
+
+  For i In {1:3}
+    { Name velocity~{i};
       Case {
         { Region Domain ; Value velocity~{i}[]; }
       }

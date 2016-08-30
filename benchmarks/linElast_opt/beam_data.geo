@@ -5,7 +5,7 @@ rad = 180. / Pi;   // rad -> deg
 //filePrefix = StrPrefix(StrRelative(General.FileName));
 
 DefineConstant[
-  ppC = "Input/0Cao/",
+  ppC = "Input/0CAD model/",
   pp = StrCat(ppC,"Constructive Parameters/"),
   ExtGmsh = ".pos",
   ExtGnuplot = ".dat",
@@ -18,9 +18,11 @@ DefineConstant[
   po_min  = "Output/",
 
   //Flag_2D = {1, Choices {0,1}, Name "Input/1 2D?"},
-  ResId = {"",Name StrCat("Input/Cpu")},
+  ResId = {"",Name StrCat("Input/Cpu"),Visible 0},
   ResDir0 = StrCat[ modelpath, "res/"],
-  ResDir = StrCat[ modelpath, "res", ResId, "/"],
+  //ResDir = StrCat[ modelpath, "res", ResId, "/"],
+  ResDir = StrCat[ modelpath, "res/"],
+  ResDirVel = StrCat[ modelpath, ""],
   Flag_cao = {"square", Choices {"square","rotor"}, Name StrCat(ppC,"0 Cao?")},
   md = { 2., Name StrCat(ppC,"Mesh density")},
 

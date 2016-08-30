@@ -6,9 +6,10 @@ STATE_FIELD = 8;
 ADJOINT_FIELD = 9;
 DIRECT_FIELD = 10;
 DES_VAR_FIELD = 21;
+VELOCITY_FIELD = 99;
 
 DefineConstant[
-  pInOpt = "Input/Optimization/",
+  pInOpt = "Optimization/",
 
   // Optimization 
   Flag_optType = {"shape", 
@@ -22,24 +23,24 @@ DefineConstant[
       "noSystem",
       "adjoint",
       "direct"
-    }, Name StrCat[pInOpt, "Derivative Method"]},
+    }, Name StrCat[pInOpt, "Derivative Method"],Visible 0},
 
   Flag_SensitivityMethod = {"adjoint",
     Choices{
       "noSystem",
       "adjoint",
       "direct"
-    }, Name StrCat[pInOpt, "Derivative Method"]},
+    }, Name StrCat[pInOpt, "Derivative Method"],Visible 0},
 
   // Velocity field (Mesh perturbation)
   Flag_projFuncSpace_xe = {0,Choices {0,1}, 
-    Name "Input/project density in func. space", Visible 1},
-  Flag_projFuncSpace_v = {0, Choices {0,1},
-    Name "Input/project velocity in func. space", Visible 1},
+    Name StrCat[pInOpt,"project density in func. space"], Visible 1},
+  Flag_projFuncSpace_v = {1, Choices {0,1},
+    Name StrCat[pInOpt,"project velocity in func. space"], Visible 0},
   Flag_NeumanVel = {0, Choices{0,1},
-    Name "Input/Filter Velocity", Visible 1},
+    Name StrCat[pInOpt,"Filter Velocity"], Visible 1},
 
-  SensitivityParameter = { StrCat(pp,"R2"),
+  SensitivityParameter = { StrCat(pp,"R02"),
     Choices{
       StrCat(pp,"Hole Length"),
       StrCat(pp,"Magnet length")
@@ -51,9 +52,10 @@ DefineConstant[
   Flag_PerfType = {"Compliance", 
     Choices {
       "Compliance",
-      "vonMises",
-      "vonMises_Pnorm",
-      "vonMisesElem"
+      "VonMises",
+      "VonMises_Pnorm",
+      "VonMisesElem",
+      "Volume"
     },
     Name StrCat[pInOpt,"Performance function"], 
     Visible (StrCmp(Flag_optType,"none"))},
@@ -71,7 +73,7 @@ DefineConstant[
 
   optimIter = {1, 
     Name StrCat[pInOpt,"optimIter"], 
-    Visible (StrCmp(Flag_optType,"shape") || StrCmp(Flag_optType,"topology"))},
+    Visible 0/*(StrCmp(Flag_optType,"shape") || StrCmp(Flag_optType,"topology"))*/},
   
   
   // Material law interpolation 

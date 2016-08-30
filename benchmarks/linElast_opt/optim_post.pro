@@ -3,8 +3,8 @@ po_min  = "Output/";
 PostProcessing {
   { Name u_Mec ; NameOfFormulation u_Mec ;
     PostQuantity {
-      { Name v; Value {Term{[velocity[{v_1},{v_2},{v_3}]];In Domain;Jacobian Vol;}}}
-      { Name v_1; Value {Term{[ {v_1} ]; In Domain; Jacobian Vol;}}}
+//      { Name v; Value {Term{[velocity[{v_1},{v_2},{v_3}]];In Domain;Jacobian Vol;}}}
+//      { Name v_1; Value {Term{[ {v_1} ]; In Domain; Jacobian Vol;}}}
       { Name u; Value { Term { [ {u} ] ; In Domain ; } }} 
       { Name u_1; Value { Term { [ CompX[{u}] ] ; In Domain ; } }} 
       { Name u_2; Value { Term { [ CompY[{u}] ] ; In Domain ; } }} 

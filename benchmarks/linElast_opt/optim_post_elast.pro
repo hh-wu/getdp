@@ -1,12 +1,11 @@
 po_min  = "Output/";
 
 PostProcessing {
+
   For i In {1:3}
     { Name Filter_v~{i} ; NameOfFormulation Filter_v~{i} ;
       PostQuantity {
-        // Field quantities
-        { Name fv~{i}  ; Value { Term { [ {fv~{i}} ] ; In Domain ; Jacobian Vol ; }}}
-  
+        { Name fv~{i}  ; Value { Term { [ {fv~{i}} ] ; In Domain ; Jacobian Vol; }}}
       }
     }
   EndFor
@@ -22,26 +21,26 @@ PostProcessing {
         }
       }
 
-      { Name dVolume;
-	Value {
-	  Integral{ [ dVolume[{d v_1},{d v_2},{d v_3}] ];
-	    In Domain; Jacobian Vol; Integration I1; }
-	}
-      }
+//      { Name dVolume;
+//	Value {
+//	  Integral{ [ dVolume[{d v_1},{d v_2},{d v_3}] ];
+//	    In Domain; Jacobian Vol; Integration I1; }
+//	}
+//      }
 
-      { Name dMass;
-	Value {
-	  Integral{ [ dMass[{d v_1},{d v_2},{d v_3}] ];
-	    In Domain; Jacobian Vol; Integration I1; }
-	}
-      }
+//      { Name dMass;
+//	Value {
+//	  Integral{ [ dMass[{d v_1},{d v_2},{d v_3}] ];
+//	    In Domain; Jacobian Vol; Integration I1; }
+//	}
+//      }
 
-      { Name dMass2;
-	Value {
-	  Integral{ [ -dMass[{d v_1},{d v_2},{d v_3}] ];
-	    In Domain; Jacobian Vol; Integration I1; }
-	}
-      }
+//      { Name dMass2;
+//	Value {
+//	  Integral{ [ -dMass[{d v_1},{d v_2},{d v_3}] ];
+//	    In Domain; Jacobian Vol; Integration I1; }
+//	}
+//      }
 
     }
   }
@@ -108,7 +107,8 @@ PostProcessing {
 //      }
 //    }
 //  }
-  { Name Direct_u_Mec ; NameOfFormulation Direct_u_Mec ;
+
+  { Name Direct_u_Mec; NameOfFormulation Direct_u_Mec ;
     PostQuantity {
       { Name u ; Value { Term {[ {u} ] ; In Domain ; Jacobian Vol;}}}
       { Name du ; Value { Term {[ {d_u} ] ; In Domain ; Jacobian Vol;}}}
@@ -141,30 +141,48 @@ PostProcessing {
     }
   }
 
-  { Name Adjoint_u_Mec ; NameOfFormulation Adjoint_u_Mec ;
+  { Name Sensitivity_u_Mec; NameOfFormulation Sensitivity_u_Mec;
     PostQuantity {
-      { Name u ; Value { Term {[ {u} ] ; In Domain ; Jacobian Vol;}}}
-      { Name Fadj ; Value { Term { [ dFdb[{D1 u},{D2 u}] ]; In DomainFunc ; } } }   
-      { Name v; Value {Term{[velocity[{v_1},{v_2},{v_3}]];In Domain;Jacobian Vol;}}}
-      { Name lambda ; Value { Term {[ {lambda} ] ; In Domain ; Jacobian Vol;}}}
- 
-      { Name bilinLamdaState; 
-        Value {
-      	  Integral { [ bilin[{D1 u}, {D1 lambda}, {D2 u}, {D2 lambda},{xe}] ];
-	    In Domain ; Jacobian Vol  ; Integration I1; }   
-        }
+      { Name LieFunc;
+	Value {
+	  Integral{ [ LieFunc[velocity[{v_1},{v_2},{v_3}],dV[{d v_1},{d v_2},{d v_3}]]];
+	    In Domain; Jacobian Vol; Integration I1; }
+	}
       }
 
-      { Name loadLambda; 
-        Value {
-          Integral { [ force_mec[] * {lambda} ];
-	    In Domain_Force ; Jacobian SurLinVol  ; Integration I1; }
-        }
+      { Name LieFuncSelf; 
+        Value { 
+          Integral { [ dF_lie[ {D1 u},{D2 u}, {d v_1}, {d v_2}, {d v_3} ] ];  
+            In DomainFunc ; Jacobian Vol ; Integration I1 ;}
+          Integral { [ -d_bilin_lieSelf[ {D1 u},{D1 u},{D2 u},{D2 u},
+                                     {d v_1}, {d v_2}, {d v_3}] ];
+            In Domain ; Jacobian Vol ; Integration I1 ; }
+        } 
       }
 
-      { Name rho_sensF ; 
-          Value { Term { [ dF_lie[{D1 u},{D1 lambda},{D2 u},{D2 lambda}] ] ; 
-            In Domain ; Jacobian Vol ; }}}
+    }
+  }
+
+//  { Name SensitivitySelfAdjoint_u_Mec; NameOfFormulation SensitivitySelfAdjoint_u_Mec;
+//    PostQuantity {
+
+//      { Name LieFunc; 
+//        Value { 
+//          Integral { [ dF_lie[ {D1 u},{D2 u}, {d v_1}, {d v_2}, {d v_3} ] ];  
+//            In DomainFunc ; Jacobian Vol ; Integration I1 ;}
+//          Integral { [ -d_bilin_lieSelf[ {D1 u},{D1 u},{D2 u},{D2 u},
+//                                     {d v_1}, {d v_2}, {d v_3}] ];
+//            In Domain ; Jacobian Vol ; Integration I1 ; }
+//        } 
+//      }
+//    }
+//  }
+
+  { Name SensitivityAdjoint_u_Mec; NameOfFormulation SensitivityAdjoint_u_Mec;
+    PostQuantity {
+      { Name u; Value { Term {[ {u} ] ; In Domain ; Jacobian Vol;}}}
+      { Name lambda; Value { Term {[ {lambda} ] ; In Domain ; Jacobian Vol;}}}
+      { Name v; Value { Term {[Vector[{v_1},{v_2},{v_3}]]; In Domain; Jacobian Vol;}}}
 
       { Name rho_sensK ; 
           Value { Term { [ d_bilin_lie[{D1 u}, {D1 lambda}, {D2 u}, {D2 lambda},
@@ -196,6 +214,43 @@ PostProcessing {
         } 
       }
 
+      { Name LieFunc; 
+        Value { 
+          Integral { [ dF_lie[ {D1 u},{D2 u}, {d v_1}, {d v_2}, {d v_3} ] ];  
+            In DomainFunc ; Jacobian Vol ; Integration I1 ;}
+          Integral { [ -d_bilin_lie[ {D1 u},{D1 lambda},{D2 u},{D2 lambda},
+                                     {d v_1}, {d v_2}, {d v_3}] ];
+            In Domain ; Jacobian Vol ; Integration I1 ; }
+        } 
+      }
+    }
+  }
+
+  { Name Adjoint_u_Mec ; NameOfFormulation Adjoint_u_Mec ;
+    PostQuantity {
+      { Name u ; Value { Term {[ {u} ] ; In Domain ; Jacobian Vol;}}}
+      { Name Fadj ; Value { Term { [ dFdb[{D1 u},{D2 u}] ]; In DomainFunc ; } } }   
+      { Name lambda ; Value { Term {[ {lambda} ] ; In Domain ; Jacobian Vol;}}}
+ 
+      { Name bilinLamdaState; 
+        Value {
+      	  Integral { [ bilin[{D1 u}, {D1 lambda}, {D2 u}, {D2 lambda},{xe}] ];
+	    In Domain ; Jacobian Vol  ; Integration I1; }   
+        }
+      }
+
+      { Name loadLambda; 
+        Value {
+          Integral { [ force_mec[] * {lambda} ];
+	    In Domain_Force ; Jacobian SurLinVol  ; Integration I1; }
+        }
+      }
+
+      { Name rho_sensF ; 
+          Value { Term { [ dF_lie[{D1 u},{D1 lambda},{D2 u},{D2 lambda}] ] ; 
+            In Domain ; Jacobian Vol ; }}}
+
+
       { Name Sensitivity_AdjointMethod; 
         Value { 
           Integral {[ dF_TO[{D1 u},{D2 u},{D1 lambda},{D2 lambda},{xe}] ]; 
@@ -203,22 +258,7 @@ PostProcessing {
           Integral {[-d_bilin[{D1 u},{D1 lambda},{D2 u},{D2 lambda},{xe}]]; 
             In Domain ; Jacobian Vol  ; Integration I1; }
         }
-      }
-
-//      { Name Sensitivity_avm; 
-//        Value { 
-//          Integral {[ dF_TO[{D1 u},{D2 u}] ]; 
-//            In DomainFunc ; Jacobian Vol  ; Integration I1; }
-//          Integral { [ dF_lie[ {D1 u},{D2 u} ] ];  // d{f}/d{tau}(phi)
-//            In DomainFunc ; Jacobian Vol ; Integration I1 ;}
-//          Integral {[ -d_bilin[{D1 u},{D1 lambda},{D2 u},{D2 lambda}]]; 
-//            In Domain ; Jacobian Vol  ; Integration I1; }
-//          Integral {[ -d_bilin_lie[ {D1 u},{D1 lambda},{D2 u},{D2 lambda},
-//                                    {d v_1}, {d v_2}, {d v_3} ] ];
-//            In Domain ; Jacobian Vol ; Integration I1 ; }
-//        }
-//      }
-      
+      }  
     }
   }
 
@@ -238,6 +278,7 @@ PostProcessing {
 }
 
 PostOperation {
+
   For i In {1:3}
     { Name Filter_v~{i}; NameOfPostProcessing Filter_v~{i};
       Operation{
@@ -274,15 +315,15 @@ PostOperation {
 
   { Name Analytic_Sens_u_Mec; NameOfPostProcessing Analytic_Sens_u_Mec;
     Operation{  
-     Print[ dVolume[Domain], OnGlobal, Format Table,
-       File StrCat[ResDir, StrCat["dVolume",ExtAnalyticSens]], LastTimeStepOnly,
-       SendToServer StrCat[po_min,"dVolume"], Color "LightYellow" ];
-     Print[ dMass[Domain], OnGlobal, Format Table,
-       File StrCat[ResDir, StrCat["dMass",ExtAnalyticSens]], LastTimeStepOnly,
-       SendToServer StrCat[po_min,"dMass"], Color "LightYellow" ];
-     Print[ dMass2[Domain], OnGlobal, Format Table,
-       File StrCat[ResDir, StrCat["dMass2",ExtAnalyticSens]], LastTimeStepOnly,
-       SendToServer StrCat[po_min,"dMass2"], Color "LightYellow" ];
+//     Print[ dVolume[Domain], OnGlobal, Format Table,
+//       File StrCat[ResDir, StrCat["dVolume",ExtAnalyticSens]], LastTimeStepOnly,
+//       SendToServer StrCat[po_min,"dVolume"], Color "LightYellow" ];
+//     Print[ dMass[Domain], OnGlobal, Format Table,
+//       File StrCat[ResDir, StrCat["dMass",ExtAnalyticSens]], LastTimeStepOnly,
+//       SendToServer StrCat[po_min,"dMass"], Color "LightYellow" ];
+//     Print[ dMass2[Domain], OnGlobal, Format Table,
+//       File StrCat[ResDir, StrCat["dMass2",ExtAnalyticSens]], LastTimeStepOnly,
+//       SendToServer StrCat[po_min,"dMass2"], Color "LightYellow" ];
     }
   }
 
@@ -340,23 +381,40 @@ PostOperation {
     }
   } 
 
-  { Name Lie_Adjoint_u_Mec; NameOfPostProcessing Adjoint_u_Mec;
+  { Name Sensitivity_u_Mec; NameOfPostProcessing Sensitivity_u_Mec;
     Operation{
-       Print[ v, OnElementsOf Domain,
-         File StrCat[ResDir, StrCat["velocitylieavm",ExtGmsh]], LastTimeStepOnly] ;
-//       Print[ rho_sensF, OnElementsOf Domain,
-//	      File StrCat[ResDir, StrCat["rho_sensF",ExtGmsh]], LastTimeStepOnly] ;
-//       Print[ rho_sensK, OnElementsOf Domain,
-//	      File StrCat[ResDir, StrCat["rho_sensK",ExtGmsh]], LastTimeStepOnly] ;
-       Print[ sensF[DomainFunc], OnGlobal, Format Table, 
-         File StrCat[ResDir, "d_func", ExtGnuplot], 
-	 SendToServer StrCat[po_min,"d_func"], LastTimeStepOnly];
-       Print[ sensK[#{Domain,Domain_Force}], OnGlobal, Format Table,
-         File StrCat[ResDir, "d_bilin", ExtGnuplot],  
-         SendToServer StrCat[po_min,"d_bilin"], LastTimeStepOnly];
-       Print[ AvmVarDomSens[Domain], OnGlobal, Format Table,
-         File StrCat[ResDir, "AvmVarDomSens", ExtGnuplot], 
-         SendToServer StrCat[po_min,"AvmVarDomSens"], LastTimeStepOnly];
+//       Print[ u, OnElementsOf Domain,
+//         File StrCat[ResDir, StrCat["uSens",ExtGmsh]], LastTimeStepOnly];
+//       Print[ lambda, OnElementsOf Domain,
+//         File StrCat[ResDir, StrCat["lambdaSens",ExtGmsh]], LastTimeStepOnly];
+//       Print[ v, OnElementsOf Domain,
+//         File StrCat[ResDir, StrCat["velocitySens",ExtGmsh]], LastTimeStepOnly];
+
+       Print[ LieFunc[Domain], OnGlobal, Format Table,
+         File StrCat[ResDir, "LieDerivative", ExtGnuplot], 
+         SendToServer StrCat[po_min,"Lie derivative"], LastTimeStepOnly];
+    }
+  } 
+
+  { Name SensitivitySelfAdjoint_u_Mec; NameOfPostProcessing Sensitivity_u_Mec;
+    Operation{
+       Print[ LieFuncSelf[Domain], OnGlobal, Format Table,
+         File StrCat[ResDir, "LieDerivative", ExtGnuplot], 
+         SendToServer StrCat[po_min,"Lie derivative"], LastTimeStepOnly];
+    }
+  } 
+
+  { Name SensitivityAdjoint_u_Mec; NameOfPostProcessing SensitivityAdjoint_u_Mec;
+    Operation{
+//       Print[ u, OnElementsOf Domain,
+//         File StrCat[ResDir, StrCat["uSensAvm",ExtGmsh]], LastTimeStepOnly];
+//       Print[ lambda, OnElementsOf Domain,
+//         File StrCat[ResDir, StrCat["lambdaSensAvm",ExtGmsh]], LastTimeStepOnly];
+//       Print[ v, OnElementsOf Domain,
+//         File StrCat[ResDir, StrCat["velocitySensAvm",ExtGmsh]], LastTimeStepOnly];
+       Print[ LieFunc[Domain], OnGlobal, Format Table,
+         File StrCat[ResDir, "LieDerivative", ExtGnuplot], 
+         SendToServer StrCat[po_min,"Lie derivative"], LastTimeStepOnly];
     }
   } 
 

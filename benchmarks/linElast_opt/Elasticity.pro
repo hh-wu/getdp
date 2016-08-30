@@ -37,6 +37,18 @@ Integration {
 
 FunctionSpace{
   For i In {1:3}
+    { Name H0_v~{i}; Type Form0; 
+      BasisFunction {
+        { Name sn ; NameOfCoef un ; Function BF_Node ;
+          Support Domain; Entity NodesOf[ All ] ; }
+      }
+      Constraint {
+        { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint velocity0~{i}; }
+      }
+    }
+  EndFor
+
+  For i In {1:3}
     { Name H_v~{i}; Type Form0; 
       BasisFunction {
         { Name sn ; NameOfCoef un ; Function BF_Node ;
@@ -158,9 +170,9 @@ Formulation{
     { Name u_Mec ; Type FemEquation ;
       Quantity {
         { Name u ; Type Local ; NameOfSpace H_u ;}
-        For i In {1:3}
-          { Name v~{i} ; Type Local ; NameOfSpace H_v~{i};}
-        EndFor
+//        For i In {1:3}
+//          { Name v~{i} ; Type Local ; NameOfSpace H0_v~{i};}
+//        EndFor
         { Name xe ; Type Local ; NameOfSpace H_xe;}
       }
       Equation {
@@ -170,10 +182,10 @@ Formulation{
         Galerkin { [ -force_mec[], {u}];
           In Domain_Force ; Jacobian SurLinVol; Integration I1; }
  
-        For i In {1:3}
-          Galerkin { [ 0*Dof{v~{i}}, {v~{i}} ] ;
-            In Domain; Jacobian Vol ; Integration I1 ; }
-        EndFor
+        //For i In {1:3}
+        //  Galerkin { [ 0*Dof{v~{i}}, {v~{i}} ] ;
+        //    In Domain; Jacobian Vol ; Integration I1 ; }
+        //EndFor
         Galerkin { [ 0*Dof{xe}, {xe} ] ;
           In Domain; Jacobian Vol ; Integration I1 ; }
       }
@@ -297,14 +309,7 @@ Formulation{
 }
 
 Resolution{
-  // FIXME
-  // group  (direct,adjoint) -> Sens_u_Mec
-  // give "u_Mec" as input -> other resolutions depend on "u_Mec"
-  // gmsh read directly in command line !!! -> postpro without solve
-  // design variable
-
-  // state variable
-  { Name u_Mec; // mechanic 2D/3D
+  { Name u_Mec; 
     System {
       { Name A; NameOfFormulation u_Mec; }
     }
@@ -323,7 +328,8 @@ Resolution{
       EndIf
     }
   }
-  { Name u_Mec_eig ; // modal 2D/3D
+
+  { Name u_Mec_eig; 
     System {
       { Name A; NameOfFormulation u_Mec_eig; /*Type Complex;*/ }
     }
@@ -344,3 +350,5 @@ Resolution{
 If(!StrCmp(Flag_optType,"shape") || !StrCmp(Flag_optType,"topology") )
   Include "sensitivityElast.pro";
 EndIf
+
+
