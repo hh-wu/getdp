@@ -7,6 +7,7 @@ ADJOINT_FIELD = 9;
 DIRECT_FIELD = 10;
 DES_VAR_FIELD = 21;
 VELOCITY_FIELD = 99;
+SOURCE_FILT_FIELD = 199;
 
 DefineConstant[
   pInOpt = "Optimization/",
@@ -17,28 +18,35 @@ DefineConstant[
       "shape",
       "topology"
     }, Name "Input/Optimization Type", Visible 1},
+
+  SensitivityMethod = {"adjoint", 
+    Choices {
+      "direct",
+      "adjoint",
+      "self-adjoint",
+      "none"
+    }, Name StrCat[pInOpt,"Sensitivity method"], Visible 1},
   
-  SysName = {"u_Mec",
-    Choices{
-      "noSystem",
-      "adjoint",
-      "direct"
-    }, Name StrCat[pInOpt, "Derivative Method"],Visible 0},
-
-  Flag_SensitivityMethod = {"adjoint",
-    Choices{
-      "noSystem",
-      "adjoint",
-      "direct"
-    }, Name StrCat[pInOpt, "Derivative Method"],Visible 0},
-
   // Velocity field (Mesh perturbation)
   Flag_projFuncSpace_xe = {0,Choices {0,1}, 
     Name StrCat[pInOpt,"project density in func. space"], Visible 1},
   Flag_projFuncSpace_v = {1, Choices {0,1},
     Name StrCat[pInOpt,"project velocity in func. space"], Visible 0},
   Flag_NeumanVel = {0, Choices{0,1},
-    Name StrCat[pInOpt,"Filter Velocity"], Visible 1},
+    Name StrCat[pInOpt,"Filter Velocity"], Visible 0},
+
+  Flag_FilterMethod = {"none",
+    Choices{
+      "sensitivity",
+      "density"
+    },
+    Name StrCat[pInOpt, "Filter"],
+    Visible (!StrCmp(Flag_optType,"topology"))},
+
+  Rmin = {0.001,
+    Name StrCat[pInOpt,"Radius"],
+    Visible (!StrCmp(Flag_FilterMethod,"sensitivity")
+             || !StrCmp(Flag_FilterMethod,"density"))},
 
   SensitivityParameter = { StrCat(pp,"R02"),
     Choices{
@@ -60,9 +68,9 @@ DefineConstant[
     Name StrCat[pInOpt,"Performance function"], 
     Visible (StrCmp(Flag_optType,"none"))},
 
-  PerfsList = {"compliance", 
-    Name StrCat[pInOpt,"Performances"], 
-    Visible (StrCmp(Flag_optType,"none"))},
+/*  PerfsList = {"compliance", */
+/*    Name StrCat[pInOpt,"Performances"], */
+/*    Visible (StrCmp(Flag_optType,"none"))},*/
 
 //  numPerfFunctions = {2,
 //    Name "Number of performance functions"},

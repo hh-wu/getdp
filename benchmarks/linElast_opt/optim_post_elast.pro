@@ -49,8 +49,8 @@ PostProcessing {
     PostQuantity {
       { Name u_eig  ; Value { Term { [ {u} ]; In Domain  ; Jacobian Vol; } } }
 
-      { Name vel  ; Value { Term { [ velocityField[] ]; In Domain  ; Jacobian Vol; } } }
-      { Name d_D1  ; Value { Term { [ d_D1[du[]] ]; In Domain  ; Jacobian Vol; } } }
+//      { Name vel  ; Value { Term { [ velocityField[] ]; In Domain  ; Jacobian Vol; } } }
+//      { Name d_D1  ; Value { Term { [ d_D1[du[]] ]; In Domain  ; Jacobian Vol; } } }
       
       { Name mass_eig;  
         Value { 
@@ -58,33 +58,33 @@ PostProcessing {
             In Domain ; Jacobian Vol  ; Integration I1; }
         }
       }
-     { Name d_mass_eig;  
-        Value { 
-          Integral { [ d_mass_eig[{u},{D1 u},{D2 u},{d v_1},{d v_2},{d v_3}] ]; 
-            In Domain ; Jacobian Vol  ; Integration I1; }
-        }
-      }
+//     { Name d_mass_eig;  
+//        Value { 
+//          Integral { [ d_mass_eig[{u},{D1 u},{D2 u},{d v_1},{d v_2},{d v_3}] ]; 
+//            In Domain ; Jacobian Vol  ; Integration I1; }
+//        }
+//      }
 
-     { Name d_stiff_eig;  
-        Value { 
-          Integral { [ d_bilin_eig[{u},{D1 u},{D2 u},{d v_1},{d v_2},{d v_3}] ]; 
-            In Domain ; Jacobian Vol  ; Integration I1; }
-        }
-      }
+//     { Name d_stiff_eig;  
+//        Value { 
+//          Integral { [ d_bilin_eig[{u},{D1 u},{D2 u},{d v_1},{d v_2},{d v_3}] ]; 
+//            In Domain ; Jacobian Vol  ; Integration I1; }
+//        }
+//      }
 
-      { Name deig_noNorm;  
-        Value { 
-          Integral { [ d_eig[{u},{D1 u},{D2 u},{d v_1},{d v_2},{d v_3}] ]; 
-          In Domain ; Jacobian Vol  ; Integration I1; }
-        }
-      }
+//      { Name deig_noNorm;  
+//        Value { 
+//          Integral { [ d_eig[{u},{D1 u},{D2 u},{d v_1},{d v_2},{d v_3}] ]; 
+//          In Domain ; Jacobian Vol  ; Integration I1; }
+//        }
+//      }
 
-      { Name deig;  
-        Value { 
-          Integral { [ d_eig[{u},{D1 u},{D2 u},{d v_1},{d v_2},{d v_3}] / $MassEig ]; 
-            In Domain ; Jacobian Vol  ; Integration I1; }
-        }
-      }
+//      { Name deig;  
+//        Value { 
+//          Integral { [ d_eig[{u},{D1 u},{D2 u},{d v_1},{d v_2},{d v_3}] / $MassEig ]; 
+//            In Domain ; Jacobian Vol  ; Integration I1; }
+//        }
+//      }
       { Name d_eig_TO;  
         Value { 
           Integral { [ d_eig_TO[{u},{D1 u},{D2 u}] ]; 
@@ -141,88 +141,39 @@ PostProcessing {
     }
   }
 
-  { Name Sensitivity_u_Mec; NameOfFormulation Sensitivity_u_Mec;
+  { Name Sensitivity; NameOfFormulation Sensitivity;
     PostQuantity {
-      { Name LieFunc;
-	Value {
-	  Integral{ [ LieFunc[velocity[{v_1},{v_2},{v_3}],dV[{d v_1},{d v_2},{d v_3}]]];
-	    In Domain; Jacobian Vol; Integration I1; }
-	}
-      }
-
-      { Name LieFuncSelf; 
-        Value { 
-          Integral { [ dF_lie[ {D1 u},{D2 u}, {d v_1}, {d v_2}, {d v_3} ] ];  
-            In DomainFunc ; Jacobian Vol ; Integration I1 ;}
-          Integral { [ -d_bilin_lieSelf[ {D1 u},{D1 u},{D2 u},{D2 u},
-                                     {d v_1}, {d v_2}, {d v_3}] ];
-            In Domain ; Jacobian Vol ; Integration I1 ; }
-        } 
-      }
-
-    }
-  }
-
-//  { Name SensitivitySelfAdjoint_u_Mec; NameOfFormulation SensitivitySelfAdjoint_u_Mec;
-//    PostQuantity {
-
-//      { Name LieFunc; 
-//        Value { 
-//          Integral { [ dF_lie[ {D1 u},{D2 u}, {d v_1}, {d v_2}, {d v_3} ] ];  
-//            In DomainFunc ; Jacobian Vol ; Integration I1 ;}
-//          Integral { [ -d_bilin_lieSelf[ {D1 u},{D1 u},{D2 u},{D2 u},
-//                                     {d v_1}, {d v_2}, {d v_3}] ];
-//            In Domain ; Jacobian Vol ; Integration I1 ; }
-//        } 
-//      }
-//    }
-//  }
-
-  { Name SensitivityAdjoint_u_Mec; NameOfFormulation SensitivityAdjoint_u_Mec;
-    PostQuantity {
-      { Name u; Value { Term {[ {u} ] ; In Domain ; Jacobian Vol;}}}
-      { Name lambda; Value { Term {[ {lambda} ] ; In Domain ; Jacobian Vol;}}}
-      { Name v; Value { Term {[Vector[{v_1},{v_2},{v_3}]]; In Domain; Jacobian Vol;}}}
-
-      { Name rho_sensK ; 
-          Value { Term { [ d_bilin_lie[{D1 u}, {D1 lambda}, {D2 u}, {D2 lambda},
-				      {d v_1}, {d v_2}, {d v_3}]]  ; 
-            In Domain ; Jacobian Vol ; }}}
-
-      { Name sensF ; 
+      If (!StrCmp(SensitivityMethod,"direct"))
+	// TODO
+      ElseIf (!StrCmp(SensitivityMethod,"adjoint"))
+        { Name LieFunc; 
           Value { 
-            Integral{[dF_lie[{D1 u},{D2 u},{d v_1}, {d v_2}, {d v_3}]];
-              In Domain ; Jacobian Vol ; Integration I1;}
-          }
-      }
-
-      { Name sensK ; 
-        Value { 
-          Integral{[ d_bilin_lie[ {D1 u}, {D1 lambda},{D2 u},{D2 lambda},
- 				  {d v_1}, {d v_2}, {d v_3}] ];
-            In Domain; Jacobian Vol ; Integration I1;}
+            Integral { [ dF_lie[ {D1 u},{D2 u}, {d v_1}, {d v_2}, {d v_3} ] ];  
+              In DomainFunc ; Jacobian Vol ; Integration I1 ;}
+            Integral { [ -d_bilin_lie[ {D1 u},{D1 lambda},{D2 u},{D2 lambda},
+                                       {d v_1}, {d v_2}, {d v_3}] ];
+              In Domain ; Jacobian Vol ; Integration I1 ; }
+          } 
         }
-      }
-
-      { Name AvmVarDomSens; 
-        Value { 
-          Integral { [ dF_lie[ {D1 u},{D2 u}, {d v_1}, {d v_2}, {d v_3} ] ];  
-            In DomainFunc ; Jacobian Vol ; Integration I1 ;}
-          Integral { [ -d_bilin_lie[ {D1 u},{D1 lambda},{D2 u},{D2 lambda},
+      ElseIf (!StrCmp(SensitivityMethod,"self-adjoint"))
+        { Name LieFunc; 
+          Value { 
+            Integral { [ dF_lie[ {D1 u},{D2 u}, {d v_1}, {d v_2}, {d v_3} ] ];  
+              In DomainFunc ; Jacobian Vol ; Integration I1 ;}
+            Integral { [ -d_bilin_lieSelf[ {D1 u},{D1 u},{D2 u},{D2 u},
                                      {d v_1}, {d v_2}, {d v_3}] ];
-            In Domain ; Jacobian Vol ; Integration I1 ; }
-        } 
-      }
-
-      { Name LieFunc; 
-        Value { 
-          Integral { [ dF_lie[ {D1 u},{D2 u}, {d v_1}, {d v_2}, {d v_3} ] ];  
-            In DomainFunc ; Jacobian Vol ; Integration I1 ;}
-          Integral { [ -d_bilin_lie[ {D1 u},{D1 lambda},{D2 u},{D2 lambda},
-                                     {d v_1}, {d v_2}, {d v_3}] ];
-            In Domain ; Jacobian Vol ; Integration I1 ; }
-        } 
-      }
+              In Domain ; Jacobian Vol ; Integration I1 ; }
+          } 
+        }
+      Else
+        { Name LieFunc;
+	  Value {
+	    Integral{ [ LieFunc[velocity[{v_1},{v_2},{v_3}],
+              dV[{d v_1},{d v_2},{d v_3}]]];
+	    In Domain; Jacobian Vol; Integration I1; }
+	  }
+        }
+      EndIf
     }
   }
 
@@ -339,20 +290,20 @@ PostOperation {
   { Name Analytic_Sens_u_Mec_eig; NameOfPostProcessing Analytic_Sens_u_Mec_eig;
     Operation{
       Print[ u_eig, OnElementsOf Domain, File StrCat[ResDir,"u_eig.pos"]] ;
-      Print[ vel, OnElementsOf Domain, File StrCat[ResDir,"vel.pos"]] ;
-      Print[ d_D1, OnElementsOf Domain, File StrCat[ResDir,"d_D1.pos"]] ;
+//      Print[ vel, OnElementsOf Domain, File StrCat[ResDir,"vel.pos"]] ;
+//      Print[ d_D1, OnElementsOf Domain, File StrCat[ResDir,"d_D1.pos"]] ;
       Print[ mass_eig[Domain], OnGlobal, Format Table,
         File StrCat[ResDir, "mass_eig",ExtGmsh], StoreInVariable $MassEig,     
         SendToServer StrCat[po_min,"mass_eig"], Color "LightYellow"] ;
-      Print[ d_stiff_eig[Domain], OnGlobal,Format Table,
-        File StrCat[ResDir, "d_stiff_eig",ExtGmsh],
-        SendToServer StrCat[po_min,"d_stiff_eig"], Color "LightYellow"] ;
-      Print[ d_mass_eig[Domain], OnGlobal,Format Table,
-        File StrCat[ResDir, "d_mass_eig",ExtGmsh],
-        SendToServer StrCat[po_min,"d_mass_eig"], Color "LightYellow"] ;
-      Print[ deig_noNorm[Domain], OnGlobal,Format Table,
-        File StrCat[ResDir, "deig_noNorm",ExtGmsh],
-        SendToServer StrCat[po_min,"deig_noNorm"], Color "LightYellow"] ;
+//      Print[ d_stiff_eig[Domain], OnGlobal,Format Table,
+//        File StrCat[ResDir, "d_stiff_eig",ExtGmsh],
+//        SendToServer StrCat[po_min,"d_stiff_eig"], Color "LightYellow"] ;
+//      Print[ d_mass_eig[Domain], OnGlobal,Format Table,
+//        File StrCat[ResDir, "d_mass_eig",ExtGmsh],
+//        SendToServer StrCat[po_min,"d_mass_eig"], Color "LightYellow"] ;
+//      Print[ deig_noNorm[Domain], OnGlobal,Format Table,
+//        File StrCat[ResDir, "deig_noNorm",ExtGmsh],
+//        SendToServer StrCat[po_min,"deig_noNorm"], Color "LightYellow"] ;
     }
   }
 
@@ -381,37 +332,8 @@ PostOperation {
     }
   } 
 
-  { Name Sensitivity_u_Mec; NameOfPostProcessing Sensitivity_u_Mec;
+  { Name Sensitivity; NameOfPostProcessing Sensitivity;
     Operation{
-//       Print[ u, OnElementsOf Domain,
-//         File StrCat[ResDir, StrCat["uSens",ExtGmsh]], LastTimeStepOnly];
-//       Print[ lambda, OnElementsOf Domain,
-//         File StrCat[ResDir, StrCat["lambdaSens",ExtGmsh]], LastTimeStepOnly];
-//       Print[ v, OnElementsOf Domain,
-//         File StrCat[ResDir, StrCat["velocitySens",ExtGmsh]], LastTimeStepOnly];
-
-       Print[ LieFunc[Domain], OnGlobal, Format Table,
-         File StrCat[ResDir, "LieDerivative", ExtGnuplot], 
-         SendToServer StrCat[po_min,"Lie derivative"], LastTimeStepOnly];
-    }
-  } 
-
-  { Name SensitivitySelfAdjoint_u_Mec; NameOfPostProcessing Sensitivity_u_Mec;
-    Operation{
-       Print[ LieFuncSelf[Domain], OnGlobal, Format Table,
-         File StrCat[ResDir, "LieDerivative", ExtGnuplot], 
-         SendToServer StrCat[po_min,"Lie derivative"], LastTimeStepOnly];
-    }
-  } 
-
-  { Name SensitivityAdjoint_u_Mec; NameOfPostProcessing SensitivityAdjoint_u_Mec;
-    Operation{
-//       Print[ u, OnElementsOf Domain,
-//         File StrCat[ResDir, StrCat["uSensAvm",ExtGmsh]], LastTimeStepOnly];
-//       Print[ lambda, OnElementsOf Domain,
-//         File StrCat[ResDir, StrCat["lambdaSensAvm",ExtGmsh]], LastTimeStepOnly];
-//       Print[ v, OnElementsOf Domain,
-//         File StrCat[ResDir, StrCat["velocitySensAvm",ExtGmsh]], LastTimeStepOnly];
        Print[ LieFunc[Domain], OnGlobal, Format Table,
          File StrCat[ResDir, "LieDerivative", ExtGnuplot], 
          SendToServer StrCat[po_min,"Lie derivative"], LastTimeStepOnly];

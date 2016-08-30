@@ -12,6 +12,15 @@ Constraint{
 FunctionSpace{
 
   For i In {1:3}
+    { Name H_v~{i}; Type Form0; 
+      BasisFunction {
+        { Name sn ; NameOfCoef un ; Function BF_Node ;
+          Support Domain; Entity NodesOf[ All ] ; }
+      }
+      Constraint {
+        { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint velocity~{i}; }
+      }
+    }
     { Name H_fv~{i}; Type Form0;
       BasisFunction{
         { Name wn; NameOfCoef vn; Function BF_Node;
@@ -24,6 +33,14 @@ FunctionSpace{
       EndIf
     }
   EndFor
+
+  { Name H_psi ; Type Form0 ;
+    BasisFunction {
+      { Name sPsi ; NameOfCoef psi ; Function BF_Node ;
+        Support Region[{DomainOpt}] ; Entity NodesOf[ All ] ; }
+    }
+  }
+
 
   If (Flag_2D) 
     { Name H_lambda_Mec; Type Vector; 
@@ -131,6 +148,37 @@ Formulation{
     }
   EndFor
 
+ { Name FilterTopOpt ; Type FemEquation ;
+    Quantity {
+       { Name psi ; Type Local ; NameOfSpace H_psi;}
+      }
+    Equation {
+       Galerkin { [ Dof{d psi}*Rmin^2.0, {d psi} ] ;
+         In Domain; Jacobian Vol ; Integration I1 ; }
+
+       Galerkin { [ Dof{psi}, {psi} ] ;
+         In Domain; Jacobian Vol; Integration I1; }
+
+       Galerkin { [ -filtSource[], {psi} ] ;
+         In Domain; Jacobian Vol; Integration I1; }
+      }
+  }
+ { Name FilterTopOpt_dXdx ; Type FemEquation ;
+    Quantity {
+       { Name psi ; Type Local ; NameOfSpace H_psi;}
+      }
+    Equation {
+       Galerkin { [ Dof{d psi}*Rmin^2.0, {d psi} ] ;
+         In Domain; Jacobian Vol ; Integration I1 ; }
+
+       Galerkin { [ Dof{psi}, {psi} ] ;
+         In Domain; Jacobian Vol; Integration I1; }
+
+       Galerkin { [ -1.0, {psi} ] ;
+         In Domain; Jacobian Vol; Integration I1; }
+      }
+  }
+
   If (Flag_2D) 
     { Name Direct_u_Mec ; Type FemEquation ;
       Quantity {
@@ -187,9 +235,6 @@ Formulation{
         { Name u  ; Type Local  ; NameOfSpace H_u; }
         { Name lambda ; Type Local  ; NameOfSpace H_lambda_Mec; }
         { Name xe ; Type Local ; NameOfSpace H_xe;}
-        For i In {1:3}
-          { Name v~{i} ; Type Local ; NameOfSpace H_v~{i};}
-        EndFor
       }
       Equation {
         Galerkin { [ C11[{xe}] * Dof{D1 lambda}, {D1 lambda} ] ;
@@ -228,9 +273,14 @@ Formulation{
     }
   EndIf
 
-  { Name Sensitivity_u_Mec ; Type FemEquation;
+  { Name Sensitivity; Type FemEquation;
     Quantity {
       { Name u; Type Local; NameOfSpace H_u; }
+      If (!StrCmp(SensitivityMethod,"direct"))
+        { Name d_u ; Type Local  ; NameOfSpace H_dState_Mec ; }
+      ElseIf (!StrCmp(SensitivityMethod,"adjoint"))
+        { Name lambda; Type Local; NameOfSpace H_lambda_Mec;}
+      EndIf
       { Name xe; Type Local; NameOfSpace H_xe;}
       For i In {1:3}
         { Name v~{i}; Type Local; NameOfSpace H_v~{i};}
@@ -244,40 +294,6 @@ Formulation{
     }
   }
   
-  { Name SensitivityAdjoint_u_Mec ; Type FemEquation;
-    Quantity {
-      { Name u; Type Local; NameOfSpace H_u; }
-      { Name lambda; Type Local; NameOfSpace H_lambda_Mec; }
-      { Name xe; Type Local; NameOfSpace H_xe;}
-      For i In {1:3}
-        { Name v~{i}; Type Local; NameOfSpace H_v~{i};}
-      EndFor
-    } 
-    Equation {
-      For i In {1:3}
-        Galerkin { [ 0*Dof{v~{i}}, {v~{i}} ] ;
-          In Domain; Jacobian Vol ; Integration I1 ; }
-      EndFor
-    }
-  }
-
-  { Name SensitivityDirect_u_Mec ; Type FemEquation;
-    Quantity {
-      { Name u; Type Local; NameOfSpace H_u; }
-      { Name d_u ; Type Local  ; NameOfSpace H_dState_Mec ; }
-      { Name xe; Type Local; NameOfSpace H_xe;}
-      For i In {1:3}
-        { Name v~{i}; Type Local; NameOfSpace H_v~{i};}
-      EndFor
-    } 
-    Equation {
-      For i In {1:3}
-        Galerkin { [ 0*Dof{v~{i}}, {v~{i}} ] ;
-          In Domain; Jacobian Vol ; Integration I1 ; }
-      EndFor
-    }
-  }
-
 }
 
 Resolution{
@@ -295,6 +311,23 @@ Resolution{
       }
     }
   EndFor
+
+  { Name FilterTO; 
+    System {
+      { Name A; NameOfFormulation FilterTopOpt; } 
+      If (!StrCmp[Flag_FilterMethod, "density"])     
+        { Name A; NameOfFormulation Adjoint_u_Mec; }
+      EndIf
+    }
+    Operation{
+      CreateDir[ResDir];
+      GmshRead[StrCat[ResDir,"filterIn.pos"],SOURCE_FILT_FIELD];
+      Generate[A]; Solve[A]; SaveSolution[A];PostOperation[FilterTopOpt];
+      If(!StrCmp[Flag_FilterMethod,"density"])
+        Generate[B];Solve[B];SaveSolution[B];PostOperation[FilterTopOpt_dXdx];
+      EndIf
+    }
+  }
 
   // adjoint variable
   { Name Adjoint_u_Mec; 
@@ -325,43 +358,6 @@ Resolution{
       PostOperation[Adjoint_u_Mec];
     }
   }
-
-//  { Name Adjoint_u_Mec_2; 
-//    System {
-//      { Name A; NameOfFormulation u_Mec; } //more than 1!
-//      { Name B; NameOfFormulation Adjoint_u_Mec; }
-//    }
-//    Operation{
-//      CreateDir[ResDir];
-//      ReadSolution[A]; //Load state variable
-
-//      If(!StrCmp(Flag_optType,"topology") && !Flag_projFuncSpace_xe)
-//        GmshRead[StrCat[ResDir0,"designVariable.pos"],DES_VAR_FIELD]; 
-//      EndIf
-//      //generate useful coeff !!
-//      If(!StrCmp(Flag_optType,"topology"))
-//        PostOperation[u_TO];
-//      Else
-//        PostOperation[u_Mec];
-//      EndIf
-
-//      SetGlobalSolverOptions["-petsc_prealloc 500"];
-//      InitSolution[B];
-//      For i In {1:numPerf}
-//        Evaluate[ $perf = i ];
-//        If ( (i == 1 && StrFind[PerfsList, "compliance"]) ||
-//             (i == 2 && StrFind[PerfsList, "vonMisesElem"]) ||
-//             (i == 3 && StrFind[PerfsList, "vonMisesPnorm"]) )
-//          Printf[Sprintf["compute lambda %g", i]];
-//	  Generate[B]; SolveAgain[B]; SaveSolution[B];
-//          PostOperation[Adjoint_u_Mec];
-//          RenameFile["beam.res", Sprintf["beam_%g.res",i]];
-//          RenameFile[StrCat[ResDir,"lambda.pos"],
-//	    Sprintf[StrCat[ResDir,"lambda","_%g.pos"],i]];
-//        EndIf
-//      EndFor
-//    }
-//  }
 
   { Name Direct_u_Mec; 
     System {
@@ -418,61 +414,33 @@ Resolution{
     }
   }
 
-  { Name Sensitivity_u_Mec; // sensitivity of F(\tau)
+  // sensitivity of f_i(\tau_j, z*) wrt \tau_j 
+  // for a given z*, (lambda or direct) field
+  { Name Sensitivity; 
     System {
       { Name A; NameOfFormulation u_Mec; } 
-      { Name B; NameOfFormulation Sensitivity_u_Mec; }
+      If (!StrCmp(SensitivityMethod,"direct"))
+        { Name B; NameOfFormulation Direct_u_Mec; } 
+      ElseIf (!StrCmp(SensitivityMethod,"adjoint"))
+        { Name B; NameOfFormulation Adjoint_u_Mec; } 
+      EndIf
+      { Name C; NameOfFormulation Sensitivity; }
     }
     Operation{
-      CreateDir[ResDir0];
-      // Load the unknown field       
+      // Load the solution field of the physical problem       
       ReadSolution[A];
-
-      // Load fields (FIXME)
+      If (!StrCmp(SensitivityMethod,"adjoint") || !StrCmp(SensitivityMethod,"direct"))
+        ReadSolution[B];
+      EndIf
+      
+      // Load local fields (FIXME)
       GmshRead[StrCat[ResDir0,"u.pos"], STATE_FIELD];
-      GmshRead[StrCat[ResDir0,"lambda.pos"], ADJOINT_FIELD];
+      If (!StrCmp(SensitivityMethod,"adjoint"))
+        GmshRead[StrCat[ResDir0,"lambda.pos"], ADJOINT_FIELD];
+      EndIf
 
       // Compute the sensitivity wrt a given design variable (velocity field)
-      PostOperation[Sensitivity_u_Mec];  
-    }
-  }
-
-  { Name SensitivitySelfAdjoint_u_Mec; // sensitivity of F(\tau, z*) when self-adjoint
-    System {
-      { Name A; NameOfFormulation u_Mec; } 
-      { Name C; NameOfFormulation SensitivityAdjoint_u_Mec; }
-    }
-    Operation{
-      CreateDir[ResDir0];
-      // Load the unknown field       
-      ReadSolution[A];
-
-      // Load fields (FIXME)
-      GmshRead[StrCat[ResDir0,"u.pos"], STATE_FIELD];
-      GmshRead[StrCat[ResDir0,"lambda.pos"], ADJOINT_FIELD];
-
-      // Compute the sensitivity wrt a given design variable (velocity field)
-      PostOperation[SensitivitySelfAdjoint_u_Mec];  
-    }
-  }
-
-  { Name SensitivityAdjoint_u_Mec; // sensitivity of F(\tau, z*) with adjoint method
-    System {
-      { Name A; NameOfFormulation u_Mec; } 
-      { Name B; NameOfFormulation Adjoint_u_Mec; }
-      { Name C; NameOfFormulation SensitivityAdjoint_u_Mec; }
-    }
-    Operation{
-      CreateDir[ResDir0];
-      // Load the unknown field and the adjoint field      
-      ReadSolution[A];ReadSolution[B];
-
-      // Load fields (FIXME)
-      GmshRead[StrCat[ResDir0,"u.pos"], STATE_FIELD];
-      GmshRead[StrCat[ResDir0,"lambda.pos"], ADJOINT_FIELD];
-
-      // Compute the sensitivity wrt a given design variable (velocity field)
-      PostOperation[SensitivityAdjoint_u_Mec];  
+      CreateDir[ResDir0]; PostOperation[Sensitivity];  
     }
   }
 

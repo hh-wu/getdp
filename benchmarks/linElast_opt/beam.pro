@@ -291,6 +291,8 @@ Function {
     EndIf
   EndIf
   If(!StrCmp(Flag_optType,"shape") || !StrCmp(Flag_optType,"topology") )
+    filtSource[#{DomainOpt}] = ScalarField[XYZ[],0,1]{SOURCE_FILT_FIELD};
+
     numPerf = 3;
     // Derivative of performance function
     d_mass_eig_TO[] = (d_rho[]*$1)*$1;
@@ -595,7 +597,7 @@ Include "Elasticity.pro";
 Include "optim_post.pro";
 
 If( !StrCmp(Flag_optType,"shape") || !StrCmp(Flag_optType,"topology") )
-    Include "../optimization/sensitivity.pro";
+    //Include "../optimization/sensitivity.pro";
     Include "optim_post_elast.pro" ;//optim_post_sens.pro
 EndIf
 

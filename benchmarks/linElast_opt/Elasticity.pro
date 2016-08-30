@@ -36,29 +36,6 @@ Integration {
 }
 
 FunctionSpace{
-  For i In {1:3}
-    { Name H0_v~{i}; Type Form0; 
-      BasisFunction {
-        { Name sn ; NameOfCoef un ; Function BF_Node ;
-          Support Domain; Entity NodesOf[ All ] ; }
-      }
-      Constraint {
-        { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint velocity0~{i}; }
-      }
-    }
-  EndFor
-
-  For i In {1:3}
-    { Name H_v~{i}; Type Form0; 
-      BasisFunction {
-        { Name sn ; NameOfCoef un ; Function BF_Node ;
-          Support Domain; Entity NodesOf[ All ] ; }
-      }
-      Constraint {
-        { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint velocity~{i}; }
-      }
-    }
-  EndFor
 
   { Name H_xe ; Type Form3 ;
     BasisFunction {
@@ -169,10 +146,7 @@ Formulation{
   If (Flag_2D) // 2D formulation
     { Name u_Mec ; Type FemEquation ;
       Quantity {
-        { Name u ; Type Local ; NameOfSpace H_u ;}
-//        For i In {1:3}
-//          { Name v~{i} ; Type Local ; NameOfSpace H0_v~{i};}
-//        EndFor
+        { Name u ; Type Local ; NameOfSpace H_u;}
         { Name xe ; Type Local ; NameOfSpace H_xe;}
       }
       Equation {
@@ -182,10 +156,6 @@ Formulation{
         Galerkin { [ -force_mec[], {u}];
           In Domain_Force ; Jacobian SurLinVol; Integration I1; }
  
-        //For i In {1:3}
-        //  Galerkin { [ 0*Dof{v~{i}}, {v~{i}} ] ;
-        //    In Domain; Jacobian Vol ; Integration I1 ; }
-        //EndFor
         Galerkin { [ 0*Dof{xe}, {xe} ] ;
           In Domain; Jacobian Vol ; Integration I1 ; }
       }
@@ -194,9 +164,6 @@ Formulation{
     { Name u_Mec_eig ; Type FemEquation ;
       Quantity {
         { Name u ; Type Local ; NameOfSpace H_u ;}
-        For i In {1:3}
-          { Name v~{i} ; Type Local ; NameOfSpace H_v~{i};}
-        EndFor
         { Name xe ; Type Local ; NameOfSpace H_xe;}
       }
       Equation {
@@ -205,10 +172,6 @@ Formulation{
         Galerkin { [ C[] * Dof{D1 u}, {D1 u}] ;
           In Domain; Jacobian Vol ; Integration I1 ; }
 
-        For i In {1:3}
-          Galerkin { [ 0*Dof{v~{i}}, {v~{i}} ] ;
-            In Domain; Jacobian Vol ; Integration I1 ; }
-        EndFor
         Galerkin { [ 0*Dof{xe}, {xe} ] ;
           In Domain; Jacobian Vol ; Integration I1 ; }
       }
@@ -218,9 +181,6 @@ Formulation{
       Quantity {
         { Name ux; Type Local ; NameOfSpace H_ux_Mec ;}
         { Name uy; Type Local ; NameOfSpace H_uy_Mec ;}
-        For i In {1:3}
-          { Name v~{i} ; Type Local ; NameOfSpace H_v~{i};}
-        EndFor
         For i In {1:2}
           { Name u~{i} ; Type Local ; NameOfSpace H_u~{i};}
         EndFor
@@ -240,19 +200,12 @@ Formulation{
           In Domain_Force ; Jacobian SurLinVol; Integration I1; }
         Galerkin { [ -CompY[force_mec[]], {uy}] ;
           In Domain_Force ; Jacobian SurLinVol; Integration I1; }
-        For i In {1:3}
-          Galerkin { [ 0*Dof{v~{i}}, {v~{i}} ] ;
-            In Domain; Jacobian Vol ; Integration I1 ; }
-        EndFor
       }
     }
   Else // 3D formulation
     { Name u_Mec; Type FemEquation;
       Quantity{
         { Name u; Type Local; NameOfSpace H_u;}
-        For i In {1:3}
-          { Name v~{i} ; Type Local ; NameOfSpace H_v~{i};}
-        EndFor
         { Name xe ; Type Local ; NameOfSpace H_xe;}
       }
       Equation{
@@ -267,11 +220,6 @@ Formulation{
         Galerkin { [ -force_mec[], {u}] ;
           In Domain_Force ; Jacobian SurLinVol; Integration I1; }
 
-        For i In {1:3}
-          Galerkin { [ 0*Dof{v~{i}}, {v~{i}} ] ;
-            In Domain; Jacobian Vol ; Integration I1 ; }
-        EndFor
-
         Galerkin { [ 0*Dof{xe}, {xe} ] ;
           In Domain; Jacobian Vol ; Integration I1 ; }
       }
@@ -280,9 +228,6 @@ Formulation{
     { Name u_Mec_eig; Type FemEquation;
       Quantity{
         { Name u; Type Local; NameOfSpace H_u;}
-        For i In {1:3}
-          { Name v~{i} ; Type Local ; NameOfSpace H_v~{i};}
-        EndFor
         { Name xe ; Type Local ; NameOfSpace H_xe;}
       }
       Equation{
