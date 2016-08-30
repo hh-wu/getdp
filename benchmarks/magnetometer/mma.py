@@ -271,9 +271,9 @@ class client(object):
         """
         if self._timing: t0 = time.time()
         diaglamyiinv = 1. / diaglamyi;
-        Axx = sp.sparse.spdiags(diagx,0,self.n,self.n)\
+        Axx = spdiags(diagx,0,self.n,self.n)\
             + np.dot(np.transpose(GG),
-                sp.sparse.spdiags(diaglamyiinv,0,self.m,self.m)*GG)
+                spdiags(diaglamyiinv,0,self.m,self.m)*GG)
         azz = zet / z + np.dot(self.a,self.a*diaglamyiinv)
         axz = -np.dot(np.transpose(GG),self.a * diaglamyiinv)
         jac = np.empty(shape=(self.n+1, self.n+1), dtype=float)

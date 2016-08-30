@@ -16,21 +16,17 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+# This script shows how to create a python-based (un-)constrained optimization
+# solver for problems of the following form,
+# min_{x} Objective(x), s.t. Constraints(x) <= upperBoundConstr
+# driving a onelab client. The sensitivity of the "objective" and
+# "constraints" wrt design variables "x" required by the gradient-based
+# optimzer is obtained using finite differences. The script calls getdp/gmsh
+# from python with direct access to the onelab database.
+#
+# You should run the script by opening it with Gmsh: either interactively
+#     (with 'File->Open') or in batch mode (with 'gmsh optdriver.py -')
 
-"""
-    This script shows how to create a python-based (un-)constrained optimization
-    solver for problems of the following form,
-        min Objective(x)
-         x
-         st Constraints(x) <= upperBoundConstr
-    driving a onelab client. The sensitivity of the "objective" and 
-    "constraints" wrt design variables "x" required by the gradient-based
-    optimzer is obtained using finite differences. The script calls getdp/gmsh
-    from python with direct access to the onelab database.
-    
-    You should run the script by opening it with Gmsh: either interactively 
-    (with 'File->Open') or in batch mode (with 'gmsh optdriver.py -')
-"""
 # import interesting modules
 import onelab
 import mma
@@ -90,9 +86,10 @@ def getPathGetDP(client):
 def setCADFEM(client,options):
     for key,val in options['CADFEMOptions'].iteritems():
         if (type(val) == str):
-            client.defineString(key,value=val)
+            options['CADFEMOptions'][key] = client.defineString(key,value=val)
         else:
-            client.defineNumber(key,value=val)
+            options['CADFEMOptions'][key] = client.defineNumber(key,value=val)
+    return options
 
 def setDesign(client, values, names):
     for name, val in zip(names, values):
@@ -206,7 +203,7 @@ def printCurrIterate(client,printf,xval,fval,change,loop,opt):
 
 def makeSurfaceResponse(client,xval,options):
     # Set the CAD/FEM parameters
-    setCADFEM(clientOnelab, options)
+    options = setCADFEM(clientOnelab, options)
     
     ff = []
     for xx in xval:
@@ -225,20 +222,19 @@ def makeSurfaceResponse(client,xval,options):
 
 def optimize(clientOnelab, clientOpt, xval, xmin, xmax, fmax, opt):
     
+    # Set the CAD/FEM parameters
+    opt = setCADFEM(clientOnelab, opt)
+
     # Summary of the optimization problem
     printOptProblem(clientOnelab, printTerminal, xval, xmin, xmax, fmax, opt)
     printOptProblem(clientOnelab, printGmsh, xval, xmin, xmax, fmax, opt)
     
-    # Set the CAD/FEM parameters
-    setCADFEM(clientOnelab, options)
-
     # Run the optimization loop ...
     meshOut = escapePath(opt['file']+'.msh')
     xold1 = np.copy(xval); xold2 = np.copy(xval)
     low = np.array([]); upp = np.array([])
     change = 1.0; loop = 1;
-    while (change > opt['tolDesignVariables'] \
-        and loop <= opt['iterMax']):
+    while (change > opt['tolDesignVariables'] and loop <= opt['iterMax']):
         
         # set design variables at xval
         setDesign(clientOnelab, xval, opt['designVariables'])
