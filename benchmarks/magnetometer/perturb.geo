@@ -3,7 +3,7 @@ DefineConstant[
   ResDir = "",
   pInOpt = "",
   Flag_optType = "shape",
-  PerturbMesh = {0, Choices{0,1},
+  PerturbMesh = {0, Choices{0,1}, Closed 1,
     Name StrCat(pInOpt,"Compute perturbation velocity field"),
     Visible (!StrCmp(Flag_optType,"shape"))},
   StructuredGrid = {0, Choices{0,1},
