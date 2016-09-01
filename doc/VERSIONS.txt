@@ -1,3 +1,5 @@
+2.9.3: ONELAB usability improvements.
+
 2.9.2 (August 21, 2016): small bug fixes.
 
 2.9.1 (August 18, 2016): small improvements (CopySolution[], -cpu) and bug
