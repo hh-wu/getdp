@@ -14,6 +14,15 @@ PostProcessing {
       { Name E ; Value { Term { [ E[{xe}] ]; In Domain ; } } }
       { Name rho ; Value { Term { [ rho[{xe}] ]; In Domain ; } } }   
 
+      { Name residual; 
+        Value {
+          Integral { [ bilin[{D1 u}, {D1 u}, {D2 u}, {D2 u},{xe}] ];
+	    In Domain ; Jacobian Vol  ; Integration I1; }
+          Integral { [ -force_mec[] * {u} ];
+  	    In Domain_Force ; Jacobian SurLinVol  ; Integration I1; }
+        }
+      }
+
       { Name StressVM; Value { Term {[ sigmaVM[{D1 u},{D2 u},{xe}] ]; In Domain;}}}
       { Name StressVMInt; Value {
       	Integral { [ sigmaVM[{D1 u},{D2 u},{xe}]^degVM ];
@@ -117,6 +126,10 @@ PostOperation {
 
  { Name u_Mec; NameOfPostProcessing u_Mec;
    Operation{
+      Print[ residual[Domain], OnGlobal, Format Table,
+        File StrCat[ResDir, "residual", ExtGnuplot], 
+        SendToServer StrCat[po_min,"residual"], LastTimeStepOnly];
+
 //     Print[ E, OnElementsOf Domain,File StrCat[ResDir,"E",ExtGmsh]] ;
 //     Print[ rho, OnElementsOf Domain,File StrCat[ResDir,"rho",ExtGmsh]] ;
      Print[ u, OnElementsOf Domain, File StrCat[ResDir,"u",ExtGmsh]];

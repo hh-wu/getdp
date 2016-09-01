@@ -1,16 +1,4 @@
-Constraint{
-  For i In {1:3}
-    { Name Dir_v~{i}; Type Assign;
-      Case{ // FIXME: specify only skin
-        { Region SkinPerturb; Value velocity~{i}[]; }
-        { Region SkinNonPerturb; Value 0.; }
-      }
-    }
-  EndFor
-}
-
 FunctionSpace{
-
   For i In {1:3}
     { Name H_v~{i}; Type Form0; 
       BasisFunction {
@@ -26,11 +14,6 @@ FunctionSpace{
         { Name wn; NameOfCoef vn; Function BF_Node;
           Support  Region[{Domain,SkinPerturb,SkinNonPerturb}]; Entity NodesOf[All];}
       }
-      If ( !Flag_NeumanVel )
-        Constraint{
-	  { NameOfCoef vn; EntityType NodesOf; NameOfConstraint Dir_v~{i};}
-        }
-      EndIf
     }
   EndFor
 
@@ -40,7 +23,6 @@ FunctionSpace{
         Support Region[{DomainOpt}] ; Entity NodesOf[ All ] ; }
     }
   }
-
 
   If (Flag_2D) 
     { Name H_lambda_Mec; Type Vector; 
@@ -278,7 +260,8 @@ Formulation{
       { Name u; Type Local; NameOfSpace H_u; }
       If (!StrCmp(SensitivityMethod,"direct"))
         { Name d_u ; Type Local  ; NameOfSpace H_dState_Mec ; }
-      ElseIf (!StrCmp(SensitivityMethod,"adjoint"))
+      ElseIf (!StrCmp(SensitivityMethod,"adjoint") 
+        || !StrCmp(SensitivityMethod,"semi-adjoint"))
         { Name lambda; Type Local; NameOfSpace H_lambda_Mec;}
       EndIf
       { Name xe; Type Local; NameOfSpace H_xe;}
@@ -287,6 +270,8 @@ Formulation{
       EndFor
     } 
     Equation {
+      // DO NOT REMOVE!!!
+      // Keeping track of perturbation field Dofs in the domain 
       For i In {1:3}
         Galerkin { [ 0*Dof{v~{i}}, {v~{i}} ] ;
           In Domain; Jacobian Vol ; Integration I1 ; }
@@ -421,7 +406,8 @@ Resolution{
       { Name A; NameOfFormulation u_Mec; } 
       If (!StrCmp(SensitivityMethod,"direct"))
         { Name B; NameOfFormulation Direct_u_Mec; } 
-      ElseIf (!StrCmp(SensitivityMethod,"adjoint"))
+      ElseIf (!StrCmp(SensitivityMethod,"adjoint")
+        || !StrCmp(SensitivityMethod,"semi-adjoint"))
         { Name B; NameOfFormulation Adjoint_u_Mec; } 
       EndIf
       { Name C; NameOfFormulation Sensitivity; }
@@ -429,7 +415,9 @@ Resolution{
     Operation{
       // Load the solution field of the physical problem       
       ReadSolution[A];
-      If (!StrCmp(SensitivityMethod,"adjoint") || !StrCmp(SensitivityMethod,"direct"))
+      If (!StrCmp(SensitivityMethod,"adjoint")
+        || !StrCmp(SensitivityMethod,"semi-adjoint") 
+        || !StrCmp(SensitivityMethod,"direct"))
         ReadSolution[B];
       EndIf
       

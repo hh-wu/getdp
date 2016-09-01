@@ -17,13 +17,14 @@ DefineConstant[
     Choices {
       "shape",
       "topology"
-    }, Name "Input/Optimization Type", Visible 1},
+    }, Name StrCat[pInOpt,"Optimization Type"], Visible 1},
 
   SensitivityMethod = {"adjoint", 
     Choices {
       "direct",
       "adjoint",
       "self-adjoint",
+      "semi-adjoint",
       "none"
     }, Name StrCat[pInOpt,"Sensitivity method"], Visible 1},
   

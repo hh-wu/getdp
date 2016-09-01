@@ -155,6 +155,15 @@ PostProcessing {
               In Domain ; Jacobian Vol ; Integration I1 ; }
           } 
         }
+      ElseIf (!StrCmp(SensitivityMethod,"semi-adjoint"))
+        { Name residual; 
+          Value {
+            Integral { [ bilin[{D1 u}, {D1 lambda}, {D2 u}, {D2 lambda},{xe}] ];
+	      In Domain ; Jacobian Vol  ; Integration I1; }
+            Integral { [ -force_mec[] * {lambda} ];
+  	      In Domain_Force ; Jacobian SurLinVol  ; Integration I1; }
+          }
+        }
       ElseIf (!StrCmp(SensitivityMethod,"self-adjoint"))
         { Name LieFunc; 
           Value { 
@@ -165,12 +174,12 @@ PostProcessing {
               In Domain ; Jacobian Vol ; Integration I1 ; }
           } 
         }
-      Else
+       Else
         { Name LieFunc;
 	  Value {
 	    Integral{ [ LieFunc[velocity[{v_1},{v_2},{v_3}],
               dV[{d v_1},{d v_2},{d v_3}]]];
-	    In Domain; Jacobian Vol; Integration I1; }
+	    In DomainFunc; Jacobian Vol; Integration I1; }
 	  }
         }
       EndIf
@@ -183,6 +192,15 @@ PostProcessing {
       { Name Fadj ; Value { Term { [ dFdb[{D1 u},{D2 u}] ]; In DomainFunc ; } } }   
       { Name lambda ; Value { Term {[ {lambda} ] ; In Domain ; Jacobian Vol;}}}
  
+      { Name residual; 
+        Value {
+          Integral { [ bilin[{D1 u}, {D1 lambda}, {D2 u}, {D2 lambda},{xe}] ];
+	    In Domain ; Jacobian Vol  ; Integration I1; }
+          Integral { [ -force_mec[] * {lambda} ];
+  	    In Domain_Force ; Jacobian SurLinVol  ; Integration I1; }
+        }
+      }
+
       { Name bilinLamdaState; 
         Value {
       	  Integral { [ bilin[{D1 u}, {D1 lambda}, {D2 u}, {D2 lambda},{xe}] ];
@@ -260,7 +278,9 @@ PostOperation {
     Operation{
       Print[ lambda, OnElementsOf Domain,
         File StrCat[ResDir, "lambda", ExtGmsh], LastTimeStepOnly] ;
-      //Print[ Fadj, OnElementsOf Domain_Force,File StrCat[ResDir,"Fadj",ExtGmsh]] ;
+      Print[ residual[Domain], OnGlobal, Format Table,
+        File StrCat[ResDir, "residual", ExtGnuplot], 
+        SendToServer StrCat[po_min,"residual"], LastTimeStepOnly];
     }
   }
 
@@ -334,9 +354,15 @@ PostOperation {
 
   { Name Sensitivity; NameOfPostProcessing Sensitivity;
     Operation{
-       Print[ LieFunc[Domain], OnGlobal, Format Table,
-         File StrCat[ResDir, "LieDerivative", ExtGnuplot], 
-         SendToServer StrCat[po_min,"Lie derivative"], LastTimeStepOnly];
+      If (!StrCmp(SensitivityMethod,"semi-adjoint"))
+        Print[ residual[Domain], OnGlobal, Format Table,
+          File StrCat[ResDir, "residual", ExtGnuplot], 
+          SendToServer StrCat[po_min,"residual"], LastTimeStepOnly];
+      Else
+        Print[ LieFunc[Domain], OnGlobal, Format Table,
+          File StrCat[ResDir, "LieDerivative", ExtGnuplot], 
+          SendToServer StrCat[po_min,"Lie derivative"], LastTimeStepOnly];
+      EndIf
     }
   } 
 
