@@ -1226,6 +1226,53 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       }
       break ;
 
+    case OPERATION_COPYDOFS :
+      {
+        Init_OperationOnSystem
+          ("CopyDegreesOfFreedom",
+           Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+           &DefineSystem_P, &DofData_P, Resolution2_P) ;
+
+        if(!Operation_P->Case.Copy.useList ||
+           !Operation_P->Case.Copy.to){
+          Message::Error("Degrees of freedom can only be copied to a list") ;
+        }
+        else{
+          std::vector<double> v;
+          for(int i = 0; i < List_Nbr(DofData_P->DofList); i++){
+            Dof_P = (struct Dof *)List_Pointer(DofData_P->DofList, i) ;
+            v.push_back(Dof_P->NumType);
+            v.push_back(Dof_P->Entity);
+            v.push_back(Dof_P->Harmonic);
+            v.push_back(Dof_P->Type);
+            switch (Dof_P->Type) {
+            case DOF_UNKNOWN :
+              v.push_back(Dof_P->Case.Unknown.NumDof);
+              break;
+            case DOF_FIXEDWITHASSOCIATE :
+              v.push_back(Dof_P->Case.FixedAssociate.NumDof);
+              break ;
+            case DOF_FIXED :
+            case DOF_FIXED_SOLVE :
+              v.push_back(0);
+              break ;
+            case DOF_UNKNOWN_INIT :
+              v.push_back(Dof_P->Case.Unknown.NumDof);
+              break ;
+            case DOF_LINK :
+            case DOF_LINKCPLX :
+              v.push_back(Dof_P->Case.Link.EntityRef) ;
+              break ;
+            }
+          }
+
+          for(unsigned int i = 0; i < v.size(); i++)
+            printf("%g ", v[i]);
+          GetDPNumbers[Operation_P->Case.Copy.to] = v;
+        }
+      }
+      break;
+
       /*  -->  A p p l y                              */
       /*  ------------------------------------------  */
     case OPERATION_APPLY :
