@@ -4519,7 +4519,7 @@ Not documented yet.
 
 Not documented yet.
 
-@item GenerateRHSGroup
+@item GenerateRightHandSideGroup
 
 Not documented yet.
 
@@ -4560,10 +4560,10 @@ run-time variable $@var{variable-id}.
 
 Swap the solution @code{x} and residual @code{r} vectors.
 
-@item SwapSolutionAndRHS
+@item SwapSolutionAndRightHandSide
 @code{[@var{system-id}]}
 
-Swap the solution @code{x} and RHS @code{b} vectors.
+Swap the solution @code{x} and right-hand-side @code{b} vectors.
 
 @item InitSolution
 @code{[@var{system-id}]}
@@ -4600,12 +4600,12 @@ the @var{expression-cst}th solution in the solution list.
 
 @code{x <- Ax}
 
-@item SetSolutionAsRHS
+@item SetSolutionAsRightHandSide
 @code{[@var{system-id}]}
 
 @code{b <- x}
 
-@item SetRHSAsSolution
+@item SetRightHandSideAsSolution
 @code{[@var{system-id}]}
 
 @code{x <- b}
@@ -4616,16 +4616,40 @@ the @var{expression-cst}th solution in the solution list.
 @code{res <- b - Ax}
 
 @item CopySolution
-@code{[@var{system-id}, @var{char-expression}]}
+@code{[@var{system-id}, @var{char-expression} | @var{constant-id}() ]}
 
-Copy the current solution @code{x} into a vector named @var{char-expression}.
+Copy the current solution @code{x} into a vector named
+@var{char-expression} or into a list named @var{constant-id}.
 
 @item CopySolution
-@code{[@var{char-expression}, @var{system-id}]}
+@code{[@var{char-expression} | @var{constant-id}(), @var{system-id}]}
 
-Copy the vector named @var{char-expression} into the current solution @code{x}.
+Copy the vector named @var{char-expression} or the list named 
+@var{constant-id} into the current solution @code{x}.
 
-@code{res <- b - Ax}
+@item CopyRightHandSide
+@code{[@var{system-id}, @var{char-expression} | @var{constant-id}() ]}
+
+Copy the current right-hand side @code{b} into a vector named
+@var{char-expression} or into a list named @var{constant-id}.
+
+@item CopyRightHandSide
+@code{[@var{char-expression} | @var{constant-id}(), @var{system-id}]}
+
+Copy the vector named @var{char-expression} or the list named 
+@var{constant-id} into the current right-hand-side @code{b}.
+
+@item CopyResidual
+@code{[@var{system-id}, @var{char-expression} | @var{constant-id}() ]}
+
+Copy the current residual into a vector named @var{char-expression} or
+into a list named @var{constant-id}.
+
+@item CopyResidual
+@code{[@var{char-expression} | @var{constant-id}(), @var{system-id}]}
+
+Copy the vector named @var{char-expression} or the list named
+@var{constant-id} into the current residual.
 
 @item SaveSolution
 @code{[@var{system-id}]}

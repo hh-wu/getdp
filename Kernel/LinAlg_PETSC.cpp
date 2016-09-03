@@ -220,7 +220,6 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
   prealloc_full = (n < prealloc_full) ? n : prealloc_full;
 
   std::vector<PetscInt> nnz(n, prealloc);
-  //std::vector<PetscInt> nnz(n, n); // kj+++
 
   // preallocate non local equations as full lines (this is not
   // optimal, but preallocating too few elements leads to horrible

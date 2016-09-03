@@ -1104,8 +1104,9 @@ struct Operation {
       List_T  *FieldsToSkip;
     } BroadcastFields;
     struct {
+      int useList;
       char *from, *to;
-    } CopySolution;
+    } Copy;
   } Case;
 
 };
@@ -1245,6 +1246,9 @@ struct IterativeLoopSystem {
 #define OPERATION_SETDTIME                 93
 #define OPERATION_REMOVELASTSOLUTION       94
 #define OPERATION_COPYSOLUTION             95
+#define OPERATION_COPYRHS                  96
+#define OPERATION_COPYRESIDUAL             97
+#define OPERATION_COPYDOFS                 98
 
 /* ChangeOfState.Type */
 #define CHANGEOFSTATE_NOCHANGE              0

@@ -172,7 +172,7 @@ struct doubleXstring{
 %type <i>  PostQuantitySupport
 %type <l>  IRegion RecursiveListOfRegion Enumeration
 %type <i>  StrCmp NbrRegions CommaFExprOrNothing
-%type <i>  GmshOperation GenerateGroupOperation
+%type <i>  GmshOperation GenerateGroupOperation CopyOperation
 %type <i>  Append AppendOrNot
 %type <d>  FExpr OneFExpr
 %type <l>  MultiFExpr ListOfFExpr RecursiveListOfFExpr
@@ -268,7 +268,8 @@ struct doubleXstring{
 %token      tOriginSystem tDestinationSystem
 %token    tOperation tOperationEnd
 %token      tSetTime tSetTimeStep tSetDTime tDTime tSetFrequency
-%token      tFourierTransform tFourierTransformJ tCopySolution
+%token      tFourierTransform tFourierTransformJ
+%token      tCopySolution tCopyRHS tCopyResidual tCopyDofs
 %token      tLanczos tEigenSolve tEigenSolveJac tPerturbation
 %token      tUpdate tUpdateConstraint tBreak tGetResidual tCreateSolution
 %token      tEvaluate tSelectCorrection tAddCorrection tMultiplySolution
@@ -4366,6 +4367,12 @@ GenerateGroupOperation :
   | tGenerateJacGroupCumulative { $$ = OPERATION_GENERATEJAC_CUMULATIVE; }
   | tGenerateRHSGroupCumulative { $$ = OPERATION_GENERATERHS_CUMULATIVE; }
 
+CopyOperation :
+   tCopySolution { $$ = OPERATION_COPYSOLUTION; }
+ | tCopyRHS { $$ = OPERATION_COPYRHS; }
+ | tCopyResidual { $$ = OPERATION_COPYRESIDUAL; }
+ | tCopyDofs { $$ = OPERATION_COPYDOFS; }
+
 OperationTerm :
 
   /* OLD syntax */
@@ -5514,32 +5521,64 @@ OperationTerm :
       Operation_P->Case.SetGlobalSolverOptions.String = $3;
     }
 
-  | tCopySolution '[' String__Index ',' CharExprNoVar ']' tEND
+  | CopyOperation '[' String__Index ',' CharExprNoVar ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      Operation_P->Type = OPERATION_COPYSOLUTION;
+      Operation_P->Type = $1;
       int i;
       if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
 	vyyerror(0, "Unknown System: %s", $3) ;
       Free($3) ;
       Operation_P->DefineSystemIndex = i ;
-      Operation_P->Case.CopySolution.to = $5 ;
-      Operation_P->Case.CopySolution.from = 0 ;
+      Operation_P->Case.Copy.useList = 0 ;
+      Operation_P->Case.Copy.to = $5 ;
+      Operation_P->Case.Copy.from = 0 ;
     }
 
-  | tCopySolution '[' CharExprNoVar ',' String__Index ']' tEND
+  | CopyOperation '[' String__Index ',' String__Index '(' ')' ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      Operation_P->Type = OPERATION_COPYSOLUTION;
+      Operation_P->Type = $1;
+      int i;
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror(0, "Unknown System: %s", $3) ;
+      Free($3) ;
+      Operation_P->DefineSystemIndex = i ;
+      Operation_P->Case.Copy.useList = 1 ;
+      Operation_P->Case.Copy.to = $5 ;
+      Operation_P->Case.Copy.from = 0 ;
+    }
+
+  | CopyOperation '[' CharExprNoVar ',' String__Index ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      Operation_P->Type = $1;
       int i;
       if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $5,
 			       fcmp_DefineSystem_Name)) < 0)
 	vyyerror(0, "Unknown System: %s", $5) ;
       Free($5) ;
       Operation_P->DefineSystemIndex = i ;
-      Operation_P->Case.CopySolution.to = 0 ;
-      Operation_P->Case.CopySolution.from = $3 ;
+      Operation_P->Case.Copy.useList = 0 ;
+      Operation_P->Case.Copy.to = 0 ;
+      Operation_P->Case.Copy.from = $3 ;
+    }
+
+  | CopyOperation '[' String__Index '(' ')' ',' String__Index ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      Operation_P->Type = $1;
+      int i;
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $7,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror(0, "Unknown System: %s", $7) ;
+      Free($7) ;
+      Operation_P->DefineSystemIndex = i ;
+      Operation_P->Case.Copy.useList = 1 ;
+      Operation_P->Case.Copy.to = 0 ;
+      Operation_P->Case.Copy.from = $3 ;
     }
 
   | Loop
@@ -9929,7 +9968,7 @@ int Print_ListOfDouble(char *format, List_T *list, char *buffer)
   return 0;
 }
 
-void  Print_Constants()
+void Print_Constants()
 {
   struct Constant *Constant_P;
 
@@ -9982,6 +10021,11 @@ void  Print_Constants()
   List_Delete(tmp);
 }
 
+Constant *Get_ParserConstant(char *name)
+{
+  Constant_S.Name = name;
+  return (Constant*)Tree_PQuery(ConstantTable_L, &Constant_S);
+}
 
 /*  E r r o r   h a n d l i n g  */
 
