@@ -3,6 +3,9 @@
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@onelab.info>.
 
+#include <map>
+#include <string>
+#include <vector>
 #include "ProData.h"
 #include "ProParser.h"
 #include "DofData.h"
