@@ -641,9 +641,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   double Frelax, Frelax_Opt, Error_Prev;
   int istep;
 
-  // FIXME: this global map is never freed for now
-  static std::map<std::string, gVector> vectorMap;
-
   int Nbr_Formulation, Index_Formulation ;
   struct Formulation * Formulation_P ;
 
@@ -1065,211 +1062,55 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       break ;
 
 
-      /*  -->  C o p y                              */
+      /*  -->  C o p y V e c t o r                  */
       /*  ----------------------------------------  */
     case OPERATION_COPYSOLUTION :
     case OPERATION_COPYRHS :
     case OPERATION_COPYRESIDUAL :
-      {
-        Init_OperationOnSystem
-          ((Operation_P->Type == OPERATION_COPYSOLUTION) ? "CopySolution" :
-           (Operation_P->Type == OPERATION_COPYRHS) ? "CopyRightHandSide" :
-           (Operation_P->Type == OPERATION_COPYRESIDUAL) ? "CopyResidual" : "Copy",
-           Resolution_P, Operation_P, DofData_P0, GeoData_P0,
-           &DefineSystem_P, &DofData_P, Resolution2_P) ;
-
-        gVector *from = 0, *to = 0, tmp;
-
-        if(Operation_P->Case.Copy.useList)
-          LinAlg_CreateVector(&tmp, &DofData_P->Solver, DofData_P->NbrDof) ;
-
-        if(Operation_P->Type == OPERATION_COPYSOLUTION){
-          if(DofData_P->CurrentSolution){
-            if(Operation_P->Case.Copy.from)
-              to = &DofData_P->CurrentSolution->x;
-            else
-              from = &DofData_P->CurrentSolution->x;
-          }
-          else
-            Message::Error("No current solution available to copy");
-        }
-        else if(Operation_P->Type == OPERATION_COPYRHS){
-          if(Operation_P->Case.Copy.from)
-            to = &DofData_P->b;
-          else
-            from = &DofData_P->b;
-        }
-        else if(Operation_P->Type == OPERATION_COPYRESIDUAL){
-          if(Operation_P->Case.Copy.from)
-            to = &DofData_P->res;
-          else
-            from = &DofData_P->res;
-        }
-        else{
-          Message::Error("Copy operation not implemented yet");
-        }
-
-        if(Operation_P->Case.Copy.from){
-          if(Operation_P->Case.Copy.useList){
-            Constant *c = Get_ParserConstant(Operation_P->Case.Copy.from);
-            if(c && c->Type == VAR_LISTOFFLOAT){
-              if(List_Nbr(c->Value.List) == DofData_P->NbrDof){
-                for(int i = 0; i < List_Nbr(c->Value.List); i++){
-                  double d; List_Read(c->Value.List, i, &d);
-                  LinAlg_SetDoubleInVector(d, &tmp, i);
-                }
-                LinAlg_AssembleVector(&tmp);
-                from = &tmp;
-              }
-              else if(List_Nbr(c->Value.List) == 2 * DofData_P->NbrDof){
-                for(int i = 0; i < List_Nbr(c->Value.List); i += 2){
-                  double d1; List_Read(c->Value.List, i, &d1);
-                  double d2; List_Read(c->Value.List, i + 1, &d2);
-                  LinAlg_SetComplexInVector(d1, d2, &tmp, i, i);
-                }
-                LinAlg_AssembleVector(&tmp);
-                from = &tmp;
-              }
-              else{
-                Message::Error("Incompatible sizes for vector copy");
-              }
-            }
-            else if(GetDPNumbers.count(Operation_P->Case.Copy.from)){
-              std::vector<double> &v = GetDPNumbers[Operation_P->Case.Copy.from];
-              if(v.size() == DofData_P->NbrDof){
-                for(unsigned int i = 0; i < v.size(); i++){
-                  LinAlg_SetDoubleInVector(v[i], &tmp, i);
-                }
-                LinAlg_AssembleVector(&tmp);
-                from = &tmp;
-              }
-              else if(v.size() == 2 * DofData_P->NbrDof){
-                for(unsigned int i = 0; i < v.size(); i += 2){
-                  LinAlg_SetComplexInVector(v[i], v[i+1], &tmp, i/2, i/2);
-                }
-                LinAlg_AssembleVector(&tmp);
-                from = &tmp;
-              }
-              else{
-                Message::Error("Incompatible sizes for vector copy");
-              }
-            }
-            else{
-              Message::Error("Non-existant list `%s()' to copy from",
-                             Operation_P->Case.Copy.from);
-            }
-          }
-          else{
-            std::map<std::string, gVector>::iterator it =
-              vectorMap.find(Operation_P->Case.Copy.from);
-            if(it != vectorMap.end())
-              from = &it->second;
-            else
-              Message::Error("Non-existant vector `%s' to copy from",
-                             Operation_P->Case.Copy.from);
-          }
-        }
-
-        if(Operation_P->Case.Copy.to){
-          if(Operation_P->Case.Copy.useList){
-            to = &tmp;
-          }
-          else{
-            std::map<std::string, gVector>::iterator it =
-              vectorMap.find(Operation_P->Case.Copy.to);
-            if(it != vectorMap.end())
-              to = &it->second;
-            else{
-              gVector n;
-              LinAlg_CreateVector(&n, &DofData_P->Solver, DofData_P->NbrDof) ;
-              vectorMap[Operation_P->Case.Copy.to] = n;
-              to = &vectorMap[Operation_P->Case.Copy.to];
-            }
-          }
-        }
-
-        if(from && to){
-          int n1, n2;
-          LinAlg_GetVectorSize(from, &n1);
-          LinAlg_GetVectorSize(to, &n2);
-          if(n1 == n2)
-            LinAlg_CopyVector(from, to);
-          else
-            Message::Error("Incompatible sizes for vector copy (%d != %d)",
-                           n1, n2);
-        }
-        else{
-          Message::Error("Missing vector for copy");
-        }
-
-        if(Operation_P->Case.Copy.useList){
-          if(Operation_P->Case.Copy.to){
-            // create list directly in GetDPNumbers: using parser constants here
-            // is useless since we can never access it
-            std::vector<double> v;
-            for(int i = 0; i < DofData_P->NbrDof; i++){
-              gScalar s;
-              LinAlg_GetScalarInVector(&s, to, i);
-              if(gSCALAR_SIZE == 2){
-                double d1, d2; LinAlg_GetComplexInScalar(&d1, &d2, &s);
-                v.push_back(d1); v.push_back(d2);
-              }
-              else{
-                double d; LinAlg_GetDoubleInScalar(&d, &s);
-                v.push_back(d);
-              }
-            }
-            GetDPNumbers[Operation_P->Case.Copy.to] = v;
-          }
-          LinAlg_DestroyVector(&tmp) ;
-        }
-      }
+      Init_OperationOnSystem
+        ((Operation_P->Type == OPERATION_COPYSOLUTION) ? "CopySolution" :
+         (Operation_P->Type == OPERATION_COPYRHS) ? "CopyRightHandSide" :
+         "CopyResidual", Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+         &DefineSystem_P, &DofData_P, Resolution2_P) ;
+      Operation_CopyVector(Operation_P, DofData_P);
       break ;
 
+      /*  -->  C o p y D o f s                      */
+      /*  ----------------------------------------  */
     case OPERATION_COPYDOFS :
-      {
-        Init_OperationOnSystem
-          ("CopyDegreesOfFreedom",
-           Resolution_P, Operation_P, DofData_P0, GeoData_P0,
-           &DefineSystem_P, &DofData_P, Resolution2_P) ;
-
-        if(!Operation_P->Case.Copy.useList ||
-           !Operation_P->Case.Copy.to){
-          Message::Error("Degrees of freedom can only be copied to a list") ;
-        }
-        else{
-          std::vector<double> v;
-          for(int i = 0; i < List_Nbr(DofData_P->DofList); i++){
-            Dof_P = (struct Dof *)List_Pointer(DofData_P->DofList, i) ;
-            v.push_back(Dof_P->NumType);
-            v.push_back(Dof_P->Entity);
-            v.push_back(Dof_P->Harmonic);
-            v.push_back(Dof_P->Type);
-            switch (Dof_P->Type) {
-            case DOF_UNKNOWN :
-              v.push_back(Dof_P->Case.Unknown.NumDof);
-              break;
-            case DOF_FIXEDWITHASSOCIATE :
-              v.push_back(Dof_P->Case.FixedAssociate.NumDof);
-              break ;
-            case DOF_FIXED :
-            case DOF_FIXED_SOLVE :
-              v.push_back(0);
-              break ;
-            case DOF_UNKNOWN_INIT :
-              v.push_back(Dof_P->Case.Unknown.NumDof);
-              break ;
-            case DOF_LINK :
-            case DOF_LINKCPLX :
-              v.push_back(Dof_P->Case.Link.EntityRef) ;
-              break ;
-            }
+      Init_OperationOnSystem("CopyDegreesOfFreedom", Resolution_P,
+                             Operation_P, DofData_P0, GeoData_P0,
+                             &DefineSystem_P, &DofData_P, Resolution2_P) ;
+      if(!Operation_P->Case.Copy.useList || !Operation_P->Case.Copy.to){
+        Message::Error("Degrees of freedom can only be copied to a list") ;
+      }
+      else{
+        std::vector<double> v;
+        for(int i = 0; i < List_Nbr(DofData_P->DofList); i++){
+          Dof_P = (struct Dof *)List_Pointer(DofData_P->DofList, i) ;
+          v.push_back(Dof_P->NumType);  v.push_back(Dof_P->Entity);
+          v.push_back(Dof_P->Harmonic); v.push_back(Dof_P->Type);
+          switch (Dof_P->Type) {
+          case DOF_UNKNOWN :
+            v.push_back(Dof_P->Case.Unknown.NumDof);
+            break;
+          case DOF_FIXEDWITHASSOCIATE :
+            v.push_back(Dof_P->Case.FixedAssociate.NumDof);
+            break ;
+          case DOF_FIXED :
+          case DOF_FIXED_SOLVE :
+            v.push_back(0);
+            break ;
+          case DOF_UNKNOWN_INIT :
+            v.push_back(Dof_P->Case.Unknown.NumDof);
+            break ;
+          case DOF_LINK :
+          case DOF_LINKCPLX :
+            v.push_back(Dof_P->Case.Link.EntityRef) ;
+            break ;
           }
-
-          for(unsigned int i = 0; i < v.size(); i++)
-            printf("%g ", v[i]);
-          GetDPNumbers[Operation_P->Case.Copy.to] = v;
         }
+        GetDPNumbers[Operation_P->Case.Copy.to] = v;
       }
       break;
 

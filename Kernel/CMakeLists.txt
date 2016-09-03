@@ -32,7 +32,7 @@ set(SRC
       Operation_IterativeLoopN.cpp
       Operation_IterativeLinearSolver.cpp
       Operation_IterativeTimeReduction.cpp
-      Operation_Update.cpp
+      Operation_Update.cpp Operation_CopyVector.cpp
       Operation_ChangeOfCoordinates.cpp
 	  Operation_PostOperation.cpp
       Treatment_Formulation.cpp
