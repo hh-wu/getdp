@@ -75,14 +75,14 @@ void Operation_CopyVector(struct Operation *Operation_P,
       }
       else if(GetDPNumbers.count(Operation_P->Case.Copy.from)){
         std::vector<double> &v = GetDPNumbers[Operation_P->Case.Copy.from];
-        if(v.size() == DofData_P->NbrDof){
+        if((int)v.size() == DofData_P->NbrDof){
           for(unsigned int i = 0; i < v.size(); i++){
             LinAlg_SetDoubleInVector(v[i], &tmp, i);
           }
           LinAlg_AssembleVector(&tmp);
           from = &tmp;
         }
-        else if(v.size() == 2 * DofData_P->NbrDof){
+        else if((int)v.size() == 2 * DofData_P->NbrDof){
           for(unsigned int i = 0; i < v.size(); i += 2){
             LinAlg_SetComplexInVector(v[i], v[i+1], &tmp, i/2, i/2);
           }
