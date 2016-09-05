@@ -692,6 +692,10 @@ Resolution {
         InitMovingBand2D[MB];
         MeshMovingBand2D[MB];
         InitSolution[A];
+        SaveSolution[A];
+        If(Flag_PrintFields)
+          PostOperation[Get_LocalFields] ;
+        EndIf
 
         If(!Flag_ImposedSpeed) // Full dynamics
           InitSolution[M];
