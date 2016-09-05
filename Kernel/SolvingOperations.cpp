@@ -1067,10 +1067,12 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_COPYSOLUTION :
     case OPERATION_COPYRHS :
     case OPERATION_COPYRESIDUAL :
+    case OPERATION_COPYINCREMENT :
       Init_OperationOnSystem
         ((Operation_P->Type == OPERATION_COPYSOLUTION) ? "CopySolution" :
          (Operation_P->Type == OPERATION_COPYRHS) ? "CopyRightHandSide" :
-         "CopyResidual", Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+         (Operation_P->Type == OPERATION_COPYRESIDUAL) ? "CopyResidual" :
+         "CopyIncrement", Resolution_P, Operation_P, DofData_P0, GeoData_P0,
          &DefineSystem_P, &DofData_P, Resolution2_P) ;
       Operation_CopyVector(Operation_P, DofData_P);
       break ;

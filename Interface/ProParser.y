@@ -269,7 +269,7 @@ struct doubleXstring{
 %token    tOperation tOperationEnd
 %token      tSetTime tSetTimeStep tSetDTime tDTime tSetFrequency
 %token      tFourierTransform tFourierTransformJ
-%token      tCopySolution tCopyRHS tCopyResidual tCopyDofs
+%token      tCopySolution tCopyRHS tCopyResidual tCopyIncrement tCopyDofs
 %token      tLanczos tEigenSolve tEigenSolveJac tPerturbation
 %token      tUpdate tUpdateConstraint tBreak tGetResidual tCreateSolution
 %token      tEvaluate tSelectCorrection tAddCorrection tMultiplySolution
@@ -4371,6 +4371,7 @@ CopyOperation :
    tCopySolution { $$ = OPERATION_COPYSOLUTION; }
  | tCopyRHS { $$ = OPERATION_COPYRHS; }
  | tCopyResidual { $$ = OPERATION_COPYRESIDUAL; }
+ | tCopyIncrement { $$ = OPERATION_COPYINCREMENT; }
  | tCopyDofs { $$ = OPERATION_COPYDOFS; }
 
 OperationTerm :

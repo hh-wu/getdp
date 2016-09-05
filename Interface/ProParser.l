@@ -123,6 +123,7 @@ Constant                     return tConstant;
 Constraint                   return tConstraint;
 CopyDofs                     return tCopyDofs;
 CopyDegreesOfFreedom         return tCopyDofs;
+CopyIncrement                return tCopyIncrement;
 CopyResidual                 return tCopyResidual;
 CopyRHS                      return tCopyRHS;
 CopyRightHandSide            return tCopyRHS;

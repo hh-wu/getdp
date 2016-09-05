@@ -44,6 +44,12 @@ void Operation_CopyVector(struct Operation *Operation_P,
     else
       from = &DofData_P->res;
   }
+  else if(Operation_P->Type == OPERATION_COPYINCREMENT){
+    if(Operation_P->Case.Copy.from)
+      to = &DofData_P->dx;
+    else
+      from = &DofData_P->dx;
+  }
   else{
     Message::Error("Copy operation not implemented yet");
   }

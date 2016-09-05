@@ -1248,7 +1248,8 @@ struct IterativeLoopSystem {
 #define OPERATION_COPYSOLUTION             95
 #define OPERATION_COPYRHS                  96
 #define OPERATION_COPYRESIDUAL             97
-#define OPERATION_COPYDOFS                 98
+#define OPERATION_COPYINCREMENT            98
+#define OPERATION_COPYDOFS                 99
 
 /* ChangeOfState.Type */
 #define CHANGEOFSTATE_NOCHANGE              0
