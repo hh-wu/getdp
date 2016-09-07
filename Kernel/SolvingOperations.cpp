@@ -128,9 +128,11 @@ void  Init_SystemData(struct DofData * DofData_P, int Flag_Jac)
 			DofData_P->NbrDof, DofData_P->NbrDof) ;
     LinAlg_CreateVector(&DofData_P->b, &DofData_P->Solver, DofData_P->NbrDof) ;
     LinAlg_CreateVector(&DofData_P->res, &DofData_P->Solver, DofData_P->NbrDof) ;
+    LinAlg_CreateVector(&DofData_P->dx, &DofData_P->Solver, DofData_P->NbrDof) ;
   }
 
-  /* GenerateOnly: Taking advantage of the invariant parts of the matrix in every time-step */
+  /* GenerateOnly: Taking advantage of the invariant parts of the matrix in
+     every time-step */
 
   if(DofData_P->Flag_InitOnly[0] == 1){
     DofData_P->Flag_InitOnly[0] = 2;
@@ -160,7 +162,6 @@ void  Init_SystemData(struct DofData * DofData_P, int Flag_Jac)
     DofData_P->Flag_Init[0] = 2 ;
     LinAlg_CreateMatrix(&DofData_P->Jac, &DofData_P->Solver,
 			DofData_P->NbrDof, DofData_P->NbrDof) ;
-    LinAlg_CreateVector(&DofData_P->dx, &DofData_P->Solver, DofData_P->NbrDof) ;
   }
 }
 
