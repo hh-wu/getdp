@@ -169,6 +169,17 @@ macro(set_config_option VARNAME STRING)
   message(STATUS "Found " ${STRING})
 endmacro(set_config_option)
 
+macro(set_compile_flags LISTNAME FLAGS)
+  foreach(FILE ${${LISTNAME}})
+    get_source_file_property(PROP ${FILE} COMPILE_FLAGS)
+    if(PROP)
+      set_source_files_properties(${FILE} PROPERTIES COMPILE_FLAGS "${PROP} ${FLAGS}")
+    else(PROP)
+      set_source_files_properties(${FILE} PROPERTIES COMPILE_FLAGS "${FLAGS}")
+    endif(PROP)
+  endforeach(FILE)
+endmacro(set_compile_flags)
+
 # check if the machine is 64 bits (this is more reliable than using
 # CMAKE_SIZEOF_VOID_P, which does not seem to work e.g. on some Suse
 # machines)
@@ -485,7 +496,7 @@ if(ENABLE_FORTRAN)
     set_config_option(HAVE_SPARSKIT "Sparskit")
     file(GLOB_RECURSE SPARSKIT_SRC contrib/Sparskit/*.cpp contrib/Sparskit/*.f
          contrib/Sparskit/*.F)
-    set_source_files_properties(${SPARSKIT_SRC} COMPILE_FLAGS "-DHAVE_ILU_FLOAT")
+    set_compile_flags(SPARSKIT_SRC "-DHAVE_ILU_FLOAT")
   endif(ENABLE_SPARSKIT AND NOT HAVE_PETSC)
 
   if(ENABLE_ZITSOL AND HAVE_PETSC)
@@ -620,22 +631,27 @@ endif(WIN32 OR CYGWIN)
 check_cxx_compiler_flag("-O0" NOOPT)
 if(NOOPT)
   file(GLOB_RECURSE NON_OPTIMIZED_SRC contrib/NR/*.cpp)
-  set_source_files_properties(${NON_OPTIMIZED_SRC} COMPILE_FLAGS "-O0")
+  set_compile_flags(NON_OPTIMIZED_SRC "-O0")
 endif(NOOPT)
 
 # force full warnings to encourage everybody to write clean(er) code
 check_cxx_compiler_flag("-Wall" WALL)
-if(WALL)
+if(WALL AND NOT MSVC)
   file(GLOB_RECURSE WALL_SRC Common/*.cpp Interface/*.cpp Kernel/*.cpp
        Main/*.cpp Numeric/*.cpp)
-  set_source_files_properties(${WALL_SRC} COMPILE_FLAGS "-Wall")
-endif(WALL)
+  set(WF "-Wall")
+  check_cxx_compiler_flag("-Wmisleading-indentation" WIND)
+  if(WIND)
+    set(WF "${WF} -Wno-misleading-indentation")
+  endif(WIND)
+  set_compile_flags(WALL_SRC ${WF})
+endif(WALL AND NOT MSVC)
 
 # don't issue warnings for contributed libraries
 check_cxx_compiler_flag("-w" NOWARN)
 if(NOWARN)
   file(GLOB_RECURSE NOWARN_SRC contrib/*.cpp contrib/*.c contrib/*.f)
-  set_source_files_properties(${NOWARN_SRC} PROPERTIES COMPILE_FLAGS "-w")
+  set_compile_flags(NOWARN_SRC "-w")
 endif(NOWARN)
 
 list(SORT CONFIG_OPTIONS)
