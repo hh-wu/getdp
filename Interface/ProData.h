@@ -936,7 +936,7 @@ struct Operation {
     struct {
       char *VariableName;
       int NormType;
-    } GetResidual;
+    } GetNorm;
     struct {
       int CopyFromTimeStep;
     } CreateSolution;
@@ -1250,6 +1250,10 @@ struct IterativeLoopSystem {
 #define OPERATION_COPYRESIDUAL             97
 #define OPERATION_COPYINCREMENT            98
 #define OPERATION_COPYDOFS                 99
+#define OPERATION_GETNORMSOLUTION          100
+#define OPERATION_GETNORMRHS               101
+#define OPERATION_GETNORMRESIDUAL          102
+#define OPERATION_GETNORMINCREMENT         103
 
 /* ChangeOfState.Type */
 #define CHANGEOFSTATE_NOCHANGE              0

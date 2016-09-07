@@ -1090,7 +1090,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         std::vector<double> v;
         for(int i = 0; i < List_Nbr(DofData_P->DofList); i++){
           Dof_P = (struct Dof *)List_Pointer(DofData_P->DofList, i) ;
-          v.push_back(Dof_P->NumType);  v.push_back(Dof_P->Entity);
+          v.push_back(Dof_P->NumType); v.push_back(Dof_P->Entity);
           v.push_back(Dof_P->Harmonic); v.push_back(Dof_P->Type);
           switch (Dof_P->Type) {
           case DOF_UNKNOWN :
@@ -1116,21 +1116,32 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       }
       break;
 
-      /*  -->  A p p l y                              */
+      /*  -->  G e t N o r m                          */
       /*  ------------------------------------------  */
-    case OPERATION_APPLY :
+    case OPERATION_GETNORMSOLUTION :
+    case OPERATION_GETNORMRHS :
+    case OPERATION_GETNORMRESIDUAL :
+    case OPERATION_GETNORMINCREMENT :
       {
-        /*  Compute : x <- A x  */
-        Init_OperationOnSystem("Apply",
-                               Resolution_P, Operation_P, DofData_P0, GeoData_P0,
-                               &DefineSystem_P, &DofData_P, Resolution2_P) ;
-        if(DofData_P->CurrentSolution){
-          LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x,
-                                  &DofData_P->res);
-          LinAlg_CopyVector(&DofData_P->res, &DofData_P->CurrentSolution->x);
-        }
-        else
-          Message::Error("No current solution available");
+        Init_OperationOnSystem
+          ((Operation_P->Type == OPERATION_GETNORMSOLUTION) ? "GetNormSolution" :
+           (Operation_P->Type == OPERATION_GETNORMRHS) ? "GetNormRightHandSide" :
+           (Operation_P->Type == OPERATION_GETNORMRESIDUAL) ? "GetNormResidual" :
+           "GetNormIncrement", Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+           &DefineSystem_P, &DofData_P, Resolution2_P) ;
+        double norm = 0.;
+        if(DofData_P->CurrentSolution && Operation_P->Type == OPERATION_GETNORMSOLUTION)
+          LinAlg_VectorNorm2(&DofData_P->CurrentSolution->x, &norm);
+        else if(Operation_P->Type == OPERATION_GETNORMRESIDUAL)
+          LinAlg_VectorNorm2(&DofData_P->res, &norm);
+        else if(Operation_P->Type == OPERATION_GETNORMRHS)
+          LinAlg_VectorNorm2(&DofData_P->b, &norm);
+        else if(Operation_P->Type == OPERATION_GETNORMINCREMENT)
+          LinAlg_VectorNorm2(&DofData_P->dx, &norm);
+        Cal_ZeroValue(&Value);
+        Value.Type = SCALAR;
+        Value.Val[0] = norm;
+        Cal_StoreInVariable(&Value, Operation_P->Case.GetNorm.VariableName);
       }
       break ;
 
@@ -1138,7 +1149,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  ------------------------------------------  */
     case OPERATION_GETRESIDUAL :
       {
-        /*  Compute : b - A x  */
+        /*  Compute : res = b - A x and return ||res||_2 */
         Init_OperationOnSystem("GetResidual",
                                Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                                &DefineSystem_P, &DofData_P, Resolution2_P) ;
@@ -1151,10 +1162,28 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
           Cal_ZeroValue(&Value);
           Value.Type = SCALAR;
           Value.Val[0] = residual;
-          Cal_StoreInVariable(&Value, Operation_P->Case.GetResidual.VariableName);
+          Cal_StoreInVariable(&Value, Operation_P->Case.GetNorm.VariableName);
           if(Message::GetProgressMeterStep() > 0 && Message::GetProgressMeterStep() < 100)
             Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Residual",
                                            std::vector<double>(1, residual));
+        }
+        else
+          Message::Error("No current solution available");
+      }
+      break ;
+
+      /*  -->  A p p l y                              */
+      /*  ------------------------------------------  */
+    case OPERATION_APPLY :
+      {
+        /*  Compute : x <- A x  */
+        Init_OperationOnSystem("Apply",
+                               Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+                               &DefineSystem_P, &DofData_P, Resolution2_P) ;
+        if(DofData_P->CurrentSolution){
+          LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x,
+                                  &DofData_P->res);
+          LinAlg_CopyVector(&DofData_P->res, &DofData_P->CurrentSolution->x);
         }
         else
           Message::Error("No current solution available");

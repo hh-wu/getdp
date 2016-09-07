@@ -172,7 +172,8 @@ struct doubleXstring{
 %type <i>  PostQuantitySupport
 %type <l>  IRegion RecursiveListOfRegion Enumeration
 %type <i>  StrCmp NbrRegions CommaFExprOrNothing
-%type <i>  GmshOperation GenerateGroupOperation CopyOperation
+%type <i>  GmshOperation GenerateGroupOperation
+%type <i>  CopyOperation GetOperation
 %type <i>  Append AppendOrNot
 %type <d>  FExpr OneFExpr
 %type <l>  MultiFExpr ListOfFExpr RecursiveListOfFExpr
@@ -270,6 +271,7 @@ struct doubleXstring{
 %token      tSetTime tSetTimeStep tSetDTime tDTime tSetFrequency
 %token      tFourierTransform tFourierTransformJ
 %token      tCopySolution tCopyRHS tCopyResidual tCopyIncrement tCopyDofs
+%token      tGetNormSolution tGetNormResidual tGetNormRHS tGetNormIncrement
 %token      tLanczos tEigenSolve tEigenSolveJac tPerturbation
 %token      tUpdate tUpdateConstraint tBreak tGetResidual tCreateSolution
 %token      tEvaluate tSelectCorrection tAddCorrection tMultiplySolution
@@ -4374,6 +4376,13 @@ CopyOperation :
  | tCopyIncrement { $$ = OPERATION_COPYINCREMENT; }
  | tCopyDofs { $$ = OPERATION_COPYDOFS; }
 
+GetOperation :
+   tGetResidual { $$ = OPERATION_GETRESIDUAL; }
+ | tGetNormSolution { $$ = OPERATION_GETNORMSOLUTION; }
+ | tGetNormRHS { $$ = OPERATION_GETNORMRHS; }
+ | tGetNormResidual { $$ = OPERATION_GETNORMRESIDUAL; }
+ | tGetNormIncrement { $$ = OPERATION_GETNORMINCREMENT; }
+
 OperationTerm :
 
   /* OLD syntax */
@@ -4675,18 +4684,18 @@ OperationTerm :
       Operation_P->Case.UpdateConstraint.Type = ASSIGN;
     }
 
-  | tGetResidual '[' String__Index ',' '$' String__Index ']' tEND
+  | GetOperation '[' String__Index ',' '$' String__Index ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
-      Operation_P->Type = OPERATION_GETRESIDUAL;
+      Operation_P->Type = $1;
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
 	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
-      Operation_P->Case.GetResidual.VariableName = $6;
-      Operation_P->Case.GetResidual.NormType = L2NORM;
+      Operation_P->Case.GetNorm.VariableName = $6;
+      Operation_P->Case.GetNorm.NormType = L2NORM;
       /*
       NormType = Get_DefineForString(ErrorNorm_Type, $xx, &FlagError);
       if(FlagError){

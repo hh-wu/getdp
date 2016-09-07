@@ -4555,6 +4555,13 @@ Recompute the constraint of type @var{constraint-type} acting on
 Compute the residual @code{r = b - A x} and store its L2 norm in the
 run-time variable $@var{variable-id}.
 
+@item GetNormSolution | GetNormRightHandSide | GetNormResidual | GetNormIncrement
+@code{[@var{system-id}, $@var{variable-id}]}
+
+Compute the norm of the solution (resp. right-hand-side, residual or
+increment) and store its L2 norm in the run-time variable
+$@var{variable-id}.
+
 @item SwapSolutionAndResidual
 @code{[@var{system-id}]}
 
@@ -4570,7 +4577,7 @@ Swap the solution @code{x} and right-hand-side @code{b} vectors.
 
 Creates a new solution vector, adds it to the solution vector list for
 @var{system-id}, and initializes the solution. The values in the vector
-are initialized to the the values given in a @code{Constraint} of
+are initialized to the values given in a @code{Constraint} of
 @code{Init} type (if two values are given in @code{Init}, the second
 value is used). If no constraint is provided, the values are initialized
 to zero if the solution vector is the first in the solution list;
