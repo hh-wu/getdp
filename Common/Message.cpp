@@ -767,13 +767,9 @@ void Message::AddOnelabNumberChoice(std::string name, const std::vector<double> 
                                     const char *color, const char *units)
 {
   if(_onelabClient){
-    std::vector<double> choices;
     std::vector<onelab::number> ps;
-    _onelabClient->get(ps, name);
-    if(ps.size()){
-      choices = ps[0].getChoices();
-    }
-    else{
+    _onelabClient->getWithoutChoices(ps, name);
+    if(ps.empty()){
       ps.resize(1);
       ps[0].setName(name);
       ps[0].setReadOnly(true);
@@ -781,9 +777,8 @@ void Message::AddOnelabNumberChoice(std::string name, const std::vector<double> 
     if(color) ps[0].setAttribute("Highlight", color);
     if(units) ps[0].setAttribute("Units", units);
     ps[0].setValues(value);
-    choices.insert(choices.end(), value.begin(), value.end());
-    ps[0].setChoices(choices);
-    _onelabClient->set(ps[0]);
+    ps[0].setChoices(value);
+    _onelabClient->setAndAppendChoices(ps[0]);
 
 #if !defined(BUILD_ANDROID) // FIXME: understand why this leads to crashes
     // ask Gmsh to refresh

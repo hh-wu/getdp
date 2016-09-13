@@ -1,4 +1,4 @@
-2.9.3: ONELAB usability improvements.
+2.9.3: ONELAB 1.3 with usability and performance improvements.
 
 2.9.2 (August 21, 2016): small bug fixes.
 
