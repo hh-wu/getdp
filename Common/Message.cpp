@@ -321,7 +321,7 @@ void Message::Info(int level, const char *fmt, ...)
   va_end(args);
 
   if(_infoCpu){
-    Cpu(level, false, true, true, true, str);
+    Cpu(level, false, true, true, true, true, str);
     return;
   }
 
@@ -454,11 +454,11 @@ void Message::Cpu(const char *fmt, ...)
   vsnprintf(str, sizeof(str), fmt, args);
   va_end(args);
 
-  Cpu(5, false, true, true, true, str);
+  Cpu(5, false, true, true, true, true, str);
 }
 
 void Message::Cpu(int level, bool printDate, bool printWallTime, bool printCpu,
-                  bool printMem, const char *fmt, ...)
+                  bool printMem, bool printTraffic, const char *fmt, ...)
 {
   if(_verbosity < abs(level)) return;
 
@@ -480,6 +480,18 @@ void Message::Cpu(int level, bool printDate, bool printWallTime, bool printCpu,
 
   if(_commRank && _isCommWorld && level > 0) return;
 
+  if(!mem) printMem = false;
+
+  onelab::remoteNetworkClient *remote = 0;
+  if(_onelabClient){
+    remote = dynamic_cast<onelab::remoteNetworkClient*>(_onelabClient);
+    if(!remote || !remote->getGmshClient())
+      printTraffic = false;
+  }
+  else{
+    printTraffic = false;
+  }
+
   char str[1024];
   va_list args;
   va_start(args, fmt);
@@ -493,7 +505,7 @@ void Message::Cpu(int level, bool printDate, bool printWallTime, bool printCpu,
     time(&now);
     pdate = ctime(&now);
     pdate.resize(pdate.size() - 1);
-    if(printWallTime || printCpu || (printMem && mem))
+    if(printWallTime || printCpu || printMem || printTraffic)
       pdate += ", ";
   }
 
@@ -502,7 +514,7 @@ void Message::Cpu(int level, bool printDate, bool printWallTime, bool printCpu,
     char tmp[128];
     sprintf(tmp, "Wall = %gs", GetWallClockTime());
     pwall = tmp;
-    if(printCpu || (printMem && mem))
+    if(printCpu || printMem || printTraffic)
       pwall += ", ";
   }
 
@@ -514,7 +526,7 @@ void Message::Cpu(int level, bool printDate, bool printWallTime, bool printCpu,
     else
       sprintf(tmp, "CPU = %gs", max[0]);
     pcpu = tmp;
-    if(printMem && mem)
+    if(printMem || printTraffic)
       pcpu += ", ";
   }
 
@@ -526,11 +538,25 @@ void Message::Cpu(int level, bool printDate, bool printWallTime, bool printCpu,
     else
       sprintf(tmp, "Mem = %gMb", max[1]);
     pmem = tmp;
+    if(printTraffic)
+      pmem += ", ";
+  }
+
+  std::string ptraffic = "";
+  if(printTraffic){
+    unsigned long int r = remote->getGmshClient()->ReceivedBytes();
+    unsigned long int s = remote->getGmshClient()->SentBytes();
+    double rmb = (double)r / 1024. / 1024.;
+    double smb = (double)s / 1024. / 1024.;
+    char tmp[128];
+    sprintf(tmp, "Recv/Send = %g/%gMb", rmb, smb);
+    ptraffic = tmp;
   }
 
   char str2[256] = "";
-  if(pdate.size() || pwall.size() || pcpu.size() || pmem.size())
-    sprintf(str2, "(%s%s%s%s)", pdate.c_str(), pwall.c_str(), pcpu.c_str(), pmem.c_str());
+  if(pdate.size() || pwall.size() || pcpu.size() || pmem.size() || ptraffic.size())
+    sprintf(str2, "(%s%s%s%s%s)", pdate.c_str(), pwall.c_str(), pcpu.c_str(),
+            pmem.c_str(), ptraffic.c_str());
   strcat(str, str2);
 
   if(_client){
@@ -768,6 +794,25 @@ void Message::AddOnelabNumberChoice(std::string name, const std::vector<double> 
 {
   if(_onelabClient){
     std::vector<onelab::number> ps;
+
+#if 0 // full exchange
+    std::vector<double> choices;
+    _onelabClient->get(ps, name);
+    if(ps.size()){
+      choices = ps[0].getChoices();
+    }
+    else{
+      ps.resize(1);
+      ps[0].setName(name);
+      ps[0].setReadOnly(true);
+    }
+    if(color) ps[0].setAttribute("Highlight", color);
+    if(units) ps[0].setAttribute("Units", units);
+    ps[0].setValues(value);
+    choices.insert(choices.end(), value.begin(), value.end());
+    ps[0].setChoices(choices);
+    _onelabClient->set(ps[0]);
+#else // optimized exchange (without growing choice vector)
     _onelabClient->getWithoutChoices(ps, name);
     if(ps.empty()){
       ps.resize(1);
@@ -777,8 +822,8 @@ void Message::AddOnelabNumberChoice(std::string name, const std::vector<double> 
     if(color) ps[0].setAttribute("Highlight", color);
     if(units) ps[0].setAttribute("Units", units);
     ps[0].setValues(value);
-    ps[0].setChoices(value);
     _onelabClient->setAndAppendChoices(ps[0]);
+#endif
 
 #if !defined(BUILD_ANDROID) // FIXME: understand why this leads to crashes
     // ask Gmsh to refresh

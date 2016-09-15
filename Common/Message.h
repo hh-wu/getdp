@@ -78,7 +78,7 @@ class Message {
   static double GetWallClockTime();
   static void Cpu(const char *fmt, ...);
   static void Cpu(int level, bool printDate, bool printWallTime, bool printCpu,
-                  bool printMem, const char *fmt, ...);
+                  bool printMem, bool printTraffic, const char *fmt, ...);
   static void ProgressMeter(int n, int N, const char *fmt, ...);
   static void ProgressMeter(int n, int N){ ProgressMeter(n, N, ""); }
   static void SetProgressMeterStep(int step){ _progressMeterStep = step; }

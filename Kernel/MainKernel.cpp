@@ -533,7 +533,7 @@ int MainKernel(int argc, char *argv[])
   Message::Info("Running '%s' [GetDP %s, %d node%s]", cmdline.c_str(),
                 GETDP_VERSION, Message::GetCommSize(),
                 Message::GetCommSize() > 1 ? "s" : "");
-  Message::Cpu(3, true, true, true, true, "Started");
+  Message::Cpu(3, true, true, true, true, true, "Started");
 
   if(sargc > 1){
     std::string solveropt("");
@@ -620,7 +620,7 @@ int MainKernel(int argc, char *argv[])
   LinAlg_FinalizeSolver();
 
   Message::PrintErrorCounter("Run");
-  Message::Cpu(3, true, true, true, true, "Stopped");
+  Message::Cpu(3, true, true, true, true, true, "Stopped");
 
 #if defined(HAVE_GMSH)
   if(!Flag_CALLED_WITH_ONELAB_SERVER) GmshFinalize();
