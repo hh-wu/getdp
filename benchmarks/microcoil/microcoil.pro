@@ -154,10 +154,10 @@ PostOperation PostOp~{1} UsingPost MagDyn_av_3D {
 }
 
 PostOperation PostOp~{2} UsingPost Electrostatics_a0v0_v {
-  Print[ v,  OnElementsOf DomainCC, File StrCat[Dir, Sprintf("v_flag%g.dat", Flag_AnalysisType)] ] ;
-  Print[ v0, OnElementsOf DomainCC, File StrCat[Dir, Sprintf("v0_flag%g.dat", Flag_AnalysisType)] ] ;
-  Print[ v1, OnElementsOf DomainCC, File StrCat[Dir, Sprintf("v1_flag%g.dat", Flag_AnalysisType)] ] ;
-  Print[ e,  OnElementsOf DomainCC, File StrCat[Dir, Sprintf("e_flag%g.dat", Flag_AnalysisType)] ] ;
+  Print[ v,  OnElementsOf DomainCC, File StrCat[Dir, Sprintf("v_flag%g.pos", Flag_AnalysisType)] ] ;
+  Print[ v0, OnElementsOf DomainCC, File StrCat[Dir, Sprintf("v0_flag%g.pos", Flag_AnalysisType)] ] ;
+  Print[ v1, OnElementsOf DomainCC, File StrCat[Dir, Sprintf("v1_flag%g.pos", Flag_AnalysisType)] ] ;
+  Print[ e,  OnElementsOf DomainCC, File StrCat[Dir, Sprintf("e_flag%g.pos", Flag_AnalysisType)] ] ;
 
   Print[ Ipos_RL,   OnRegion ElecCoil, Format FrequencyTable ] ;
   Print[ Ipos_RLC,  OnRegion ElecCoil, Format FrequencyTable ] ; // all Ipos_wcapa
@@ -188,5 +188,3 @@ PostOperation PostOp~{3} UsingPost FullWave_av_3D {
 
   //Print[ Ipos[Domain], OnGlobal, Format FrequencyTable, File > Sprintf("I_flag%g.dat", Flag_FullWave)] ;
 }
-
-
