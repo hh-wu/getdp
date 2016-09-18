@@ -1030,8 +1030,7 @@ endif(WIN32 OR CYGWIN)
 
 # code signing
 if(APPLE AND PACKAGER STREQUAL "geuzaine FIXME")
-  set(CODESIGN "codesign --force --verify --verbose --sign
-      \"Developer ID Application: Christophe Geuzaine\"")
+  set(CODESIGN "codesign -v -s \"Developer ID Application: Christophe Geuzaine\"")
   set(APPDIR _CPack_Packages/Darwin/TGZ/getdp-${GETDP_VERSION}-MacOSX/bin)
   install(CODE "execute_process(COMMAND ${CODESIGN} ${APPDIR}/getdp)")
 endif(APPLE AND PACKAGER STREQUAL "geuzaine FIXME")
