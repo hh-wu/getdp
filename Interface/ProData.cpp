@@ -375,6 +375,7 @@ void Finalize_ProblemStructure()
 {
   for(unsigned int i = 0; i < openFiles.size(); i++)
     fclose(openFiles[i]);
+  openFiles.clear();
   MacroManager::Instance()->clear();
 }
 
