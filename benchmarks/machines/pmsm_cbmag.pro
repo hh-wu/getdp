@@ -5,7 +5,7 @@
 Include "pmsm_cbmag_data.geo";
 
 DefineConstant[
-  Flag_AnalysisType = {1,  Choices{0="Static",  1="Time domain"},
+  Flag_AnalysisType = {0,  Choices{0="Static",  1="Time domain"},
     Name "Input/19Type of analysis", Highlight "Blue",
     Help Str["- Use 'Static' to compute static fields created in the machine",
       "- Use 'Time domain' to compute the dynamic response of the machine"]} ,
@@ -129,7 +129,7 @@ Function {
 
   // supply at fixed position
   DefineConstant[ Freq = {wr*NbrPolePairs/(2*Pi), ReadOnly 1,
-      Name "Output/1Frequency", Highlight "LightYellow" } ];
+      Name "Output/1Frequency [Hz]", Highlight "LightYellow" } ];
 
   Omega = 2*Pi*Freq ;
   T = 1/Freq ;
