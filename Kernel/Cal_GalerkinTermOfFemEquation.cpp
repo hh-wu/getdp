@@ -67,17 +67,33 @@ void Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
     QuantityStorageNoDof->BasisFunction[0].Dof = DofForNoDof_P ;
   }
 
-  /* Warning: not correct if nonsymmetrical tensor in expression */
+  assDiag_done.clear();
+
+  // check for potentially symmetrical elementary matrix
   FI->SymmetricalMatrix =
     (EquationTerm_P->Case.LocalTerm.Term.DefineQuantityIndexEqu ==
      EquationTerm_P->Case.LocalTerm.Term.DefineQuantityIndexDof) &&
     (EquationTerm_P->Case.LocalTerm.Term.TypeOperatorEqu ==
      EquationTerm_P->Case.LocalTerm.Term.TypeOperatorDof) ;
 
-  assDiag_done.clear();
-
-  if(EquationTerm_P->Case.LocalTerm.Term.CanonicalWholeQuantity_Equ != CWQ_NONE)
-    FI->SymmetricalMatrix = 0 ;
+  if(FI->SymmetricalMatrix){
+    // nonsymmetric if we play with test functions
+    if(EquationTerm_P->Case.LocalTerm.Term.CanonicalWholeQuantity_Equ != CWQ_NONE){
+      FI->SymmetricalMatrix = 0 ;
+    }
+    else{
+      for(int i = 0; i < List_Nbr(EquationTerm_P->Case.LocalTerm.Term.WholeQuantity); i++){
+        struct WholeQuantity *WholeQuantity_P = (struct WholeQuantity*)List_Pointer
+          (EquationTerm_P->Case.LocalTerm.Term.WholeQuantity, i) ;
+        // be on the safe side if we have a (noncommutative) vector product;
+        // FIXME: we should only do this id one of the arguments is a Dof
+        if(WholeQuantity_P->Type == WQ_BINARYOPERATOR &&
+           WholeQuantity_P->Case.Operator.TypeOperator == OP_CROSSPRODUCT)
+          FI->SymmetricalMatrix = 0 ;
+        // FIXME: we should detect nonsymmetric tensors
+      }
+    }
+  }
 
   if (FI->SymmetricalMatrix) {
     FI->Type_FormDof = FI->Type_FormEqu ;
@@ -773,7 +789,6 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 	    vBFxEqu[i][0] = V2.Val[0];
 	    vBFxEqu[i][1] = V2.Val[1];
 	    vBFxEqu[i][2] = V2.Val[2];
-
 	  }
 
 	} /* for Nbr_Equ */
