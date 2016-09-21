@@ -67,10 +67,10 @@ void Operation_CopyVector(struct Operation *Operation_P,
           from = &tmp;
         }
         else if(List_Nbr(c->Value.List) == 2 * DofData_P->NbrDof){
-          for(int i = 0; i < List_Nbr(c->Value.List); i += 2){
+          for(int i = 0, j = 0; i < List_Nbr(c->Value.List); i += 2, j++){
             double d1; List_Read(c->Value.List, i, &d1);
             double d2; List_Read(c->Value.List, i + 1, &d2);
-            LinAlg_SetComplexInVector(d1, d2, &tmp, i, i);
+            LinAlg_SetComplexInVector(d1, d2, &tmp, j, j);
           }
           LinAlg_AssembleVector(&tmp);
           from = &tmp;
