@@ -88,6 +88,18 @@ macro(upload_package WEB ARCH EXTRA EXT1 EXT2)
     message("Build succeeded: uploading package to web site")
     file(GLOB FILE ${CTEST_BINARY_DIRECTORY}/getdp-*${EXT1})
     if(FILE)
+      get_filename_component(BASENAME ${FILE} NAME)
+      if(APPLE) # re-sign package on ace36 (MacOSX 10.7 is too old to produce v2 sigs)
+        message("Re-signing MacOS build on ace36")
+        execute_process(COMMAND scp -C ${FILE} ace@ace36.montefiore.ulg.ac.be:/tmp
+                        TIMEOUT 60)
+        execute_process(COMMAND ssh ace@ace36.montefiore.ulg.ac.be /Users/ace/re-sign.sh /tmp/${BASENAME}
+                        TIMEOUT 60)
+        execute_process(COMMAND scp -C ace@ace36.montefiore.ulg.ac.be:/tmp/${BASENAME} ${FILE}
+                        TIMEOUT 60)
+        message("Done re-signing MacOS build on ace36")
+      endif(APPLE)
+      message("Build succeeded: uploading package ${BASENAME} to web site")
       if(${FILE} MATCHES "-svn")
         execute_process(COMMAND scp -C ${FILE} ${WEB}/getdp-svn-${ARCH}${EXTRA}${EXT2}
                         TIMEOUT 60)
@@ -97,6 +109,7 @@ macro(upload_package WEB ARCH EXTRA EXT1 EXT2)
         execute_process(COMMAND scp -C ${FILE} ${WEB}/${BASE}${EXTRA}${EXT2}
                         TIMEOUT 60)
       endif(${FILE} MATCHES "-svn")
+      message("Done uploading package to web site")
     endif(FILE)
   endif($ENV{GETDP_BUILD_ERRORS} GREATER 0)
 endmacro(upload_package)
