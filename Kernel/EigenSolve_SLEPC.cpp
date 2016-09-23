@@ -577,6 +577,7 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
 #if (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
     _try(PCFactorSetMatSolverPackage(pc, "mumps"));
 #endif
+    _try(EPSSetFromOptions(eps));
   }
 
 #if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 6)
