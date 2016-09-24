@@ -34,19 +34,3 @@ Physical Line(NICEPOS) = {linStator[],linRotor[] } ;
 
 //-------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
-
-// test for sensitivity analysis
-DefineConstant[
-  SensitivityParameter = { StrCat[pp, "1Stator/Pole opening angle [deg]"],
-    Choices{
-      StrCat[pp, "1Stator/Pole opening angle [deg]"],
-      StrCat[pp, "1Stator/Outer radius [m]"],
-      StrCat[pp, "1Stator/Inner radius [m]"],
-      StrCat[pp, "1Stator/Yoke width [m]"],
-      StrCat[pp, "2Rotor/Pole opening angle [deg]"],
-      StrCat[pp, "2Rotor/Inner radius [m]"],
-      StrCat[pp, "2Rotor/Shaft radius [m]"]
-    },
-    Name "Sensitivity/Parameter to perturb" }
-];
-Merge "perturb.geo";

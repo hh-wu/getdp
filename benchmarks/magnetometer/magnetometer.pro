@@ -1,7 +1,7 @@
 Include "magnetometer_data.geo";
 
 DefineConstant[
-  Flag_AnalysisType = {0, Name "Input/0Type of analysis",
+  Flag_AnalysisType = {3, Name "Input/0Type of analysis",
     Choices{0="Eigenmodes",
       1="Electrokinetics",
       2="Electro-mechanical (static)",
