@@ -220,6 +220,7 @@ void F_SurfaceArea(F_ARG)
   double  c11, c21, c12, c22, DetJac ;
   int     i, k ;
 
+  // FIXME: TODO redo integration when parameters change!
   if (!Fct->Active) {
     Fct->Active = (struct FunctionActive *)Malloc(sizeof(struct FunctionActive)) ;
 
