@@ -100,10 +100,10 @@ For i In {0:NbrSect-1}
 
     If (NbrSectTot != NbrSect)
       If (i==0 && j==0)
-        RotorPeriod_Ref_[] = {dR+2,dR+3,dR+4};
+        RotorPeriod_Ref_[] = {/*dR+2,*/dR+3,dR+4};
       EndIf
       If (i == NbrSect-1  && j==1)
-        RotorPeriod_Dep_[] = {dR+2,dR+3,dR+4};
+        RotorPeriod_Dep_[] = {/*dR+2,*/dR+3,dR+4};
       EndIf
     EndIf
 
