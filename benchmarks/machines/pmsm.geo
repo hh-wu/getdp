@@ -92,39 +92,10 @@ If(Flag_AddInfo)
   xcc[0] = rr0*Cos(th_c) ; ycc[0] = rr0*Sin(th_c) ;
   xcc[1] = rr1*Cos(th_c) ; ycc[1] = rr1*Sin(th_c) ;
 
-
   Include "info_view.geo";
-
 EndIf
 
-DefineConstant[
-  NumSlices = {1, Name "Input/Multislice/Number of slices", Visible 0},
-  SlicePhysOffset = 100000,
-  SliceZOffset = 0.01
-];
-
-If(NumSlices > 1)
-  ps[] = Physical Surface "*";
-  For s In {0:#ps[]-1}
-    For slice In {1:NumSlices-1}
-      Physical Surface(ps[s] + SlicePhysOffset * slice) = {
-        Translate {0, 0, SliceZOffset * slice} {
-          Duplicata { Surface{ Physical Surface{ps[s]} }; }
-        }
-      };
-    EndFor
-  EndFor
-  pl[] = Physical Line "*";
-  For l In {0:#pl[]-1}
-    For slice In {1:NumSlices-1}
-      Physical Line(pl[l] + SlicePhysOffset * slice) = {
-        Translate {0, 0, SliceZOffset * slice} {
-          Duplicata { Line{ Physical Line{pl[l]} }; }
-        }
-      };
-    EndFor
-  EndFor
-EndIf
+//Include "generate_3d.geo";
 
 // test for sensitivity analysis
 DefineConstant[
