@@ -60,6 +60,7 @@ extern struct StringXDefine  Element_Type[];
 extern struct StringXDefine  GlobalQuantity_Type[];
 extern struct StringXDefine  Constraint_Type[];
 extern struct StringXDefine  Formulation_Type[];
+extern struct StringXDefine  Equation_SubType[];
 extern struct StringXDefine  DefineQuantity_Type[];
 extern struct StringXDefine  Operator_Type[];
 extern struct StringXDefine  QuantityFromFS_Type[];

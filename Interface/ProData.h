@@ -157,6 +157,11 @@ struct Expression {
       int ExpressionIndex_Default;
       int  NumLastRegion;  struct Expression *ExpressionForLastRegion;
     }  PieceWiseFunction;
+    struct {
+      List_T *ExpressionPerRegion;
+      int ExpressionIndex_Default;
+      int  NumLastRegion[2];  struct Expression *ExpressionForLastRegion;
+    }  PieceWiseFunction2;
   }  Case;
 };
 
@@ -164,11 +169,16 @@ struct ExpressionPerRegion {
   int  RegionIndex, ExpressionIndex;
 };
 
+struct ExpressionPerRegion2 {
+  int  RegionIndex[2], ExpressionIndex;
+};
+
 /* Expression.Type */
 #define UNDEFINED_EXP         0
 #define CONSTANT              1
 #define WHOLEQUANTITY         2
 #define PIECEWISEFUNCTION     3
+#define PIECEWISEFUNCTION2    4
 
 
 /* ------------------------------------------------------------------------ */
@@ -618,6 +628,8 @@ struct EquationTerm {
 	int     DefineQuantityIndexNoDof;
       } Term;
       int  InIndex;
+      int  SubType;
+      struct FemGlobalTermActive  *Active;
     } GlobalTerm;
 
 
@@ -664,6 +676,12 @@ struct FemLocalTermActive {
   double **Matrix;
 };
 
+struct FemGlobalTermActive {
+  struct QuantityStorage  *QuantityStorageEqu_P;
+  struct QuantityStorage  *QuantityStorageDof_P;
+  int flag_Dof;
+};
+
 struct GlobalQuantityStorage {
   int     NumEquation;
   int     NumDof;
@@ -688,6 +706,11 @@ struct GlobalEquationTerm {
 #define GLOBALTERM      2
 #define GLOBALEQUATION  3
 #define DERHAM          4
+
+/* EquationTerm.SubType */
+#define EQ_ST_SELF           1
+#define EQ_ST_MUTUAL         2
+#define EQ_ST_SELFANDMUTUAL  3
 
 /* Term.TypeOfTimeDerivative */
 #define NODT_           0
@@ -1647,6 +1670,7 @@ struct EntityInTree {
 /* ------------------------------------------------------------------------ */
 
 int fcmp_Integer                  (const void *a, const void *b);
+int fcmp_Integer2                 (const void *a, const void *b);
 int fcmp_Constant                 (const void *a, const void *b);
 int fcmp_Expression_Name          (const void *a, const void *b);
 int fcmp_Group_Name               (const void *a, const void *b);

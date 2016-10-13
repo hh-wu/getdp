@@ -278,7 +278,7 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
   struct Element           Element ;
 
   struct QuantityStorage   * QuantityStorage_P0, * QuantityStorage_P ;
-  struct QuantityStorage   QuantityStorage_S ;
+  struct QuantityStorage   QuantityStorage_S, QuantityStorage_GlobalEqu_S ;
   struct Dof               DofForNoDof_P [NBR_MAX_HARMONIC] ;
   struct EquationTerm      * EquationTerm_P0   , * EquationTerm_P ;
   struct GlobalQuantity    * GlobalQuantity_P ;
@@ -290,13 +290,16 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
   struct FemLocalTermActive  FemLocalTermActive_S ;
   List_T                   * QuantityStorage_L ;
 
+  struct FemGlobalTermActive FemGlobalTermActive_S;
+
   struct Group * GroupIn_P ;
 
   int    i, j, Nbr_Element, i_Element, Nbr_EquationTerm, i_EquTerm ;
   int    Index_DefineQuantity, 	TraceGroupIndex_DefineQuantity ;
 
   List_T  * InitialListInIndex_L ;
-  int     Nbr_Region, i_Region, Num_Region ;
+  int Nbr_Region, i_Region, Num_Region ;
+  int i_Region_Dof, Num_Region_Dof, i_Region_Dof_ini, i_Region_Dof_end, i_Region_Dof_skip;
 
   extern struct Group * Generate_Group ;
   extern double ** MH_Moving_Matrix ;
@@ -612,6 +615,8 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
 
     if (EquationTerm_P->Type == GLOBALTERM) {
 
+      EquationTerm_P->Case.GlobalTerm.Active = &FemGlobalTermActive_S;
+
       InitialListInIndex_L =
 	((struct Group *)List_Pointer(Problem_S.Group,
 				      EquationTerm_P->Case.GlobalTerm.InIndex))
@@ -627,61 +632,122 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
 	List_Read(InitialListInIndex_L, i_Region, &Num_Region) ;
 	Current.Region = Num_Region ;
 
-	/* ---------------------------------------------------------------- */
-	/* 3.1.1.   Loop on Quantities (test functions and shape functions) */
-	/* ---------------------------------------------------------------- */
+        switch (EquationTerm_P->Case.GlobalTerm.SubType) {
+        case EQ_ST_SELF:
+          i_Region_Dof_ini = i_Region; i_Region_Dof_end = i_Region+1;
+          i_Region_Dof_skip = -1;
+          break;
+        case EQ_ST_MUTUAL:
+          i_Region_Dof_ini = 0; i_Region_Dof_end = Nbr_Region;
+          i_Region_Dof_skip = i_Region;
+          break;
+        case EQ_ST_SELFANDMUTUAL:
+          i_Region_Dof_ini = 0; i_Region_Dof_end = Nbr_Region;
+          i_Region_Dof_skip = -1;
+          break;
+        }
 
-	for (i = 0 ; i < EquationTerm_P->Case.GlobalTerm.Term.NbrQuantityIndex ; i++) {
+        // Possible mutual terms (need of double-piece-wise Function fct[r1,r2])
+        for (i_Region_Dof = i_Region_Dof_ini; i_Region_Dof < i_Region_Dof_end;
+             i_Region_Dof++) {
 
-	  Index_DefineQuantity =
-	    EquationTerm_P->Case.GlobalTerm.Term.QuantityIndexTable[i] ;
-	  DefineQuantity_P  = DefineQuantity_P0  + Index_DefineQuantity ;
-	  QuantityStorage_P = QuantityStorage_P0 + Index_DefineQuantity ;
+          if (i_Region_Dof != i_Region_Dof_skip) {
 
-	  GlobalQuantity_P = (struct GlobalQuantity*)
-	    List_Pointer(QuantityStorage_P->FunctionSpace->GlobalQuantity,
-			 *(int*)List_Pointer(DefineQuantity_P->IndexInFunctionSpace, 0)) ;
+            List_Read(InitialListInIndex_L, i_Region_Dof, &Num_Region_Dof) ;
+            Current.SubRegion = Num_Region_Dof; // used in double-piece-wise Function
 
-	  /* Only one Function space analysis */
-	  /* -------------------------------- */
-	  if (QuantityStorage_P->NumLastElementForFunctionSpace != Num_Region) {
-	    QuantityStorage_P->NumLastElementForFunctionSpace = Num_Region ;
+            /* ---------------------------------------------------------------- */
+            /* 3.1.1.   Loop on Quantities (test functions and shape functions) */
+            /* ---------------------------------------------------------------- */
 
-	    switch (DefineQuantity_P->Type) {
-	    case GLOBALQUANTITY :
-	      Get_DofOfRegion
-		(Num_Region, GlobalQuantity_P,
-		 QuantityStorage_P->FunctionSpace, QuantityStorage_P) ;
-	      break ;
-	    default :
-	      Message::Error("Bad kind of Quantity in Formulation '%s'",
-                             Formulation_P->Name);
-	      break;
-	    }
-	  }
-	}  /* for i = 0, 1 ... */
+            for (i = 0 ; i < EquationTerm_P->Case.GlobalTerm.Term.NbrQuantityIndex ; i++) {
 
-	/* ------------------------------ */
-	/* 3.1.2.  Treatment of the term  */
-	/* ------------------------------ */
+              Index_DefineQuantity =
+                EquationTerm_P->Case.GlobalTerm.Term.QuantityIndexTable[i] ;
+              DefineQuantity_P  = DefineQuantity_P0  + Index_DefineQuantity ;
+              QuantityStorage_P = QuantityStorage_P0 + Index_DefineQuantity ;
+              GlobalQuantity_P = (struct GlobalQuantity*)
+                List_Pointer(QuantityStorage_P->FunctionSpace->GlobalQuantity,
+                             *(int*)List_Pointer(DefineQuantity_P->IndexInFunctionSpace, 0)) ;
 
-	switch (TreatmentStatus) {
-	case _PRE :
-	  Pre_GlobalTermOfFemEquation(Num_Region, EquationTerm_P,
-				      QuantityStorage_P0) ;
-	  break ;
-	case _CAL :
-	  Cal_GlobalTermOfFemEquation(Num_Region, EquationTerm_P,
-				      QuantityStorage_P0,
-				      &QuantityStorage_S, DofForNoDof_P) ;
-	  break ;
-	case _CST :
-	  Cst_GlobalTermOfFemEquation(Num_Region, EquationTerm_P,
-				      QuantityStorage_P0) ;
-	  break ;
-	}
+              /* Only one Function space analysis */
+              /* -------------------------------- */
+              if (QuantityStorage_P->NumLastElementForFunctionSpace != Num_Region_Dof) {
+                QuantityStorage_P->NumLastElementForFunctionSpace = Num_Region_Dof ;
 
-      }
+                switch (DefineQuantity_P->Type) {
+                case GLOBALQUANTITY :
+                  Get_DofOfRegion
+                    (Num_Region_Dof, GlobalQuantity_P,
+                     QuantityStorage_P->FunctionSpace, QuantityStorage_P) ;
+                  break ;
+                default :
+                  Message::Error("Bad kind of Quantity in Formulation '%s'",
+                                 Formulation_P->Name);
+                  break;
+                }
+              }
+
+              // Particular QuantityStorage for Equ
+              if (Num_Region != Num_Region_Dof &&
+                  Index_DefineQuantity ==
+                  EquationTerm_P->Case.GlobalTerm.Term.DefineQuantityIndexEqu) {
+                switch (DefineQuantity_P->Type) {
+                case GLOBALQUANTITY :
+                  Get_DofOfRegion
+                    (Num_Region, GlobalQuantity_P,
+                     QuantityStorage_P->FunctionSpace, &QuantityStorage_GlobalEqu_S) ;
+                  break ;
+                default :
+                  Message::Error("Bad kind of Quantity in Formulation '%s'",
+                                 Formulation_P->Name);
+                  break;
+                }
+              }
+
+            }  /* for i = 0, 1 ... */
+
+            // QuantityStorage for Equ and Dof (can differ for SubType Mutual)
+            EquationTerm_P->Case.GlobalTerm.Active->QuantityStorageEqu_P =
+              (Num_Region == Num_Region_Dof)?
+              QuantityStorage_P0 +
+              EquationTerm_P->Case.GlobalTerm.Term.DefineQuantityIndexEqu
+              :
+              &QuantityStorage_GlobalEqu_S
+              ;
+
+            EquationTerm_P->Case.GlobalTerm.Active->flag_Dof =
+              (EquationTerm_P->Case.GlobalTerm.Term.DefineQuantityIndexDof >= 0);
+
+            EquationTerm_P->Case.GlobalTerm.Active->QuantityStorageDof_P =
+              (EquationTerm_P->Case.GlobalTerm.Active->flag_Dof)?
+              QuantityStorage_P0 +
+              EquationTerm_P->Case.GlobalTerm.Term.DefineQuantityIndexDof
+              : NULL;
+
+            /* ------------------------------ */
+            /* 3.1.2.  Treatment of the term  */
+            /* ------------------------------ */
+
+            switch (TreatmentStatus) {
+            case _PRE :
+              Pre_GlobalTermOfFemEquation(Num_Region, EquationTerm_P,
+                                          QuantityStorage_P0) ;
+              break ;
+            case _CAL :
+              Cal_GlobalTermOfFemEquation(Num_Region, EquationTerm_P,
+                                          QuantityStorage_P0,
+                                          &QuantityStorage_S, DofForNoDof_P) ;
+              break ;
+            case _CST :
+              Cst_GlobalTermOfFemEquation(Num_Region, EquationTerm_P,
+                                          QuantityStorage_P0) ;
+              break ;
+            }
+
+          }
+        } // for i_Region_Dof
+      } // for i_Region
 
     }  /* if GLOBALTERM ... */
   }  /* for i_EquTerm ... */

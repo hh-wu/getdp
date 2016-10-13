@@ -285,12 +285,17 @@ void Pre_GlobalTermOfFemEquation(int  Num_Region,
 {
   struct QuantityStorage  * QuantityStorageEqu_P, * QuantityStorageDof_P ;
 
+  //+++ Num_Region, QuantityStorage_P0: not used any more
+  /*
   QuantityStorageEqu_P = QuantityStorage_P0 +
     EquationTerm_P->Case.GlobalTerm.Term.DefineQuantityIndexEqu ;
   QuantityStorageDof_P =
     (EquationTerm_P->Case.GlobalTerm.Term.DefineQuantityIndexDof >= 0)?
       QuantityStorage_P0 +
 	EquationTerm_P->Case.GlobalTerm.Term.DefineQuantityIndexDof : NULL ;
+  */
+  QuantityStorageEqu_P = EquationTerm_P->Case.GlobalTerm.Active->QuantityStorageEqu_P;
+  QuantityStorageDof_P = EquationTerm_P->Case.GlobalTerm.Active->QuantityStorageDof_P;
 
   if (QuantityStorageEqu_P->NbrElementaryBasisFunction == 1) {
 
@@ -426,12 +431,17 @@ void  Cst_GlobalTermOfFemEquation(int  Num_Region,
 {
   struct QuantityStorage  * QuantityStorageEqu_P, * QuantityStorageDof_P ;
 
+  //+++ Num_Region, QuantityStorage_P0: not used any more
+  /*
   QuantityStorageEqu_P = QuantityStorage_P0 +
     EquationTerm_P->Case.GlobalTerm.Term.DefineQuantityIndexEqu ;
   QuantityStorageDof_P =
     (EquationTerm_P->Case.GlobalTerm.Term.DefineQuantityIndexDof >= 0)?
       QuantityStorage_P0 +
 	EquationTerm_P->Case.GlobalTerm.Term.DefineQuantityIndexDof : NULL ;
+  */
+  QuantityStorageEqu_P = EquationTerm_P->Case.GlobalTerm.Active->QuantityStorageEqu_P;
+  QuantityStorageDof_P = EquationTerm_P->Case.GlobalTerm.Active->QuantityStorageDof_P;
 
   if (QuantityStorageEqu_P->NbrElementaryBasisFunction == 1) {
 

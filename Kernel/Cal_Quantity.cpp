@@ -100,6 +100,50 @@ void  Get_ValueOfExpression(struct Expression * Expression_P,
        QuantityStorage_P0, u, v, w, Value, NbrArguments, Expression_P->Name) ;
     break ;
 
+  case PIECEWISEFUNCTION2 :
+    //    struct Expression * NextExpression_P;
+    struct ExpressionPerRegion2  * ExpressionPerRegion2_P ;
+    int twoRegions[2];
+
+    if (Current.Region == Expression_P->Case.PieceWiseFunction2.NumLastRegion[0] &&
+        Current.SubRegion == Expression_P->Case.PieceWiseFunction2.NumLastRegion[1]) {
+      NextExpression_P = Expression_P->Case.PieceWiseFunction2.ExpressionForLastRegion;
+    }
+    else {
+      twoRegions[0] = Current.Region;
+      twoRegions[1] = Current.SubRegion;
+      if ((ExpressionPerRegion2_P = (struct ExpressionPerRegion2*)
+	   List_PQuery(Expression_P->Case.PieceWiseFunction2.ExpressionPerRegion,
+		       twoRegions, fcmp_Integer2))) {
+	Expression_P->Case.PieceWiseFunction2.NumLastRegion[0] = Current.Region ;
+	Expression_P->Case.PieceWiseFunction2.NumLastRegion[1] = Current.SubRegion ;
+	NextExpression_P =
+          Expression_P->Case.PieceWiseFunction2.ExpressionForLastRegion =
+	  (struct Expression*)List_Pointer(Problem_S.Expression,
+					   ExpressionPerRegion2_P->ExpressionIndex) ;
+      }
+      else if (Expression_P->Case.PieceWiseFunction.ExpressionIndex_Default >= 0) {
+        NextExpression_P =
+	  (struct Expression*)
+          List_Pointer(Problem_S.Expression,
+                       Expression_P->Case.PieceWiseFunction.ExpressionIndex_Default) ;
+      }
+      else {
+        NextExpression_P = NULL;
+	if(Current.Region == NO_REGION)
+	  Message::Error("Function '%s' undefined in expressions without support",
+                         Expression_P->Name);
+	else
+	  Message::Error("Function '%s' undefined in [ Region %d, SubRegion %d ]",
+                         Expression_P->Name, Current.Region, Current.SubRegion);
+      }
+    }
+
+    Get_ValueOfExpression
+      (NextExpression_P,
+       QuantityStorage_P0, u, v, w, Value, NbrArguments, Expression_P->Name) ;
+    break ;
+
   case UNDEFINED_EXP :
     if(!Flag_WarningUndefined || strcmp(Flag_WarningUndefined, Expression_P->Name)){
       Message::Warning("Undefined expression '%s' (assuming zero)", Expression_P->Name) ;

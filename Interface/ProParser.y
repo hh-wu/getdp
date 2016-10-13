@@ -50,7 +50,7 @@ std::map<std::string, std::vector<std::string> > GetDPStrings;
 int num_include = 0, level_include = 0;
 
 static Tree_T *ConstantTable_L = 0;
-static List_T *ListOfInt_L = 0;
+static List_T *ListOfInt_L = 0, *ListOfInt_Save_L = 0;
 static List_T *ListOfPointer_L = 0, *ListOfPointer2_L = 0, *ListOfChar_L = 0;
 static List_T *ListOfFormulation = 0, *ListOfBasisFunction = 0, *ListOfEntityIndex = 0;
 
@@ -86,6 +86,7 @@ static char *LoopControlVariablesNameTab[MAX_RECUR_LOOPS];
 static struct Constant               Constant_S, Constant1_S, Constant2_S;
 static struct Expression             Expression_S, *Expression_P;
 static struct ExpressionPerRegion      ExpressionPerRegion_S;
+static struct ExpressionPerRegion2      ExpressionPerRegion2_S;
 static struct Group                  Group_S;
 static struct Constraint             Constraint_S, *Constraint_P;
 static struct ConstraintPerRegion      ConstraintPerRegion_S, *ConstraintPerRegion_P;
@@ -899,6 +900,67 @@ Function :
       }
       else if ($3 == -3) // Default Case when GroupRHS is 'All'
         Expression_P->Case.PieceWiseFunction.ExpressionIndex_Default = $6;
+
+      else  vyyerror(0, "Bad Group right hand side");
+    }
+
+  | String__Index '[' GroupRHS
+    {
+      ListOfInt_Save_L = Group_S.InitialList;
+    }
+
+    ',' GroupRHS ']' tDEF Expression tEND
+    {
+      int i;
+      if((i = List_ISearchSeq
+	    (Problem_S.Expression, $1, fcmp_Expression_Name)) < 0) {
+	/* Si le nom n'existe pas : */
+	i = List_Nbr(Problem_S.Expression);
+	Expression_S.Type = PIECEWISEFUNCTION2;
+	Expression_S.Case.PieceWiseFunction2.ExpressionPerRegion =
+	  List_Create(25, 50, sizeof(struct ExpressionPerRegion2));
+	Expression_S.Case.PieceWiseFunction2.ExpressionIndex_Default = -1;
+	Expression_S.Case.PieceWiseFunction2.NumLastRegion[0] = -1;
+	Expression_S.Case.PieceWiseFunction2.NumLastRegion[1] = -1;
+	Add_Expression(&Expression_S, $1, 0);
+	Expression_P = (struct Expression*)List_Pointer(Problem_S.Expression, i);
+      }
+      else {
+	Expression_P = (struct Expression*)List_Pointer(Problem_S.Expression, i);
+	if(Expression_P->Type == UNDEFINED_EXP) {
+	  Expression_P->Type = PIECEWISEFUNCTION2;
+	  Expression_P->Case.PieceWiseFunction2.ExpressionPerRegion =
+	    List_Create(25, 50, sizeof(struct ExpressionPerRegion2));
+          Expression_P->Case.PieceWiseFunction2.ExpressionIndex_Default = -1;
+	  Expression_P->Case.PieceWiseFunction2.NumLastRegion[0] = -1;
+	  Expression_P->Case.PieceWiseFunction2.NumLastRegion[1] = -1;
+	}
+	else if(Expression_P->Type != PIECEWISEFUNCTION2)
+	  vyyerror(0, "Not double-piece-wise Expression: %s", $1);
+	Free($1);
+      }
+
+      if($3 >= 0 || $3 == -1) {
+	ExpressionPerRegion2_S.ExpressionIndex = $9;
+	for(int i = 0; i < List_Nbr(ListOfInt_Save_L); i++) {
+          List_Read(ListOfInt_Save_L, i, &ExpressionPerRegion2_S.RegionIndex[0]);
+          for(int j = 0; j < List_Nbr(Group_S.InitialList); j++) {
+            List_Read(Group_S.InitialList, i, &ExpressionPerRegion2_S.RegionIndex[1]);
+
+            if(List_Search(Expression_P->Case.PieceWiseFunction2.ExpressionPerRegion,
+                           &ExpressionPerRegion2_S.RegionIndex[0], fcmp_Integer2))
+              vyyerror(0, "Redefinition of piece-wise Function: %s [%d, %d]",
+                       Expression_P->Name, ExpressionPerRegion2_S.RegionIndex[0],
+                       ExpressionPerRegion2_S.RegionIndex[1]);
+            else
+              List_Add(Expression_P->Case.PieceWiseFunction2.ExpressionPerRegion,
+                       &ExpressionPerRegion2_S);
+          }
+        }
+	if($3 == -1) { List_Delete(Group_S.InitialList); }
+      }
+      else if ($3 == -3 && $6 == -3) // Default Case when GroupRHS is 'All' x2
+        Expression_P->Case.PieceWiseFunction2.ExpressionIndex_Default = $9;
 
       else  vyyerror(0, "Bad Group right hand side");
     }
@@ -3933,6 +3995,7 @@ GlobalTerm :
       EquationTerm_S.Case.GlobalTerm.Term.WholeQuantity = NULL;
       EquationTerm_S.Case.GlobalTerm.Term.DofIndexInWholeQuantity = -1;
       EquationTerm_S.Case.GlobalTerm.InIndex = -1;
+      EquationTerm_S.Case.GlobalTerm.SubType = EQ_ST_SELF;
     }
 
   | GlobalTerm  GlobalTermTerm
@@ -3943,6 +4006,17 @@ GlobalTermTerm :
     tIn GroupRHS tEND
     {
       EquationTerm_S.Case.GlobalTerm.InIndex = Num_Group(&Group_S, (char*)"FO_In", $2);
+    }
+
+  | tSubType tSTRING tEND
+    {
+      EquationTerm_S.Case.GlobalTerm.SubType =
+        Get_DefineForString(Equation_SubType, $2, &FlagError);
+      if(FlagError){
+	Get_Valid_SXD($2, Equation_SubType);
+	vyyerror(0, "Unknown sub-type of Equation: %s", $2);
+      }
+      Free($2);
     }
 
   |  TermOperator '['

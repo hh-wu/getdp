@@ -148,6 +148,14 @@ struct StringXDefine  Formulation_Type[] = {
   {NULL             , FEMEQUATION}
  } ;
 
+struct StringXDefine  Equation_SubType[] = {
+  {"Self"          , EQ_ST_SELF},
+  {"Mutual"        , EQ_ST_MUTUAL},
+  {"SelfAndMutual" , EQ_ST_SELFANDMUTUAL},
+  {"MutualAndSelf" , EQ_ST_SELFANDMUTUAL},
+  {NULL            , EQ_ST_SELF}
+ } ;
+
 struct StringXDefine  DefineQuantity_Type[] = {
   /* a supprimer */
   {"LocalQuantity"    , LOCALQUANTITY},

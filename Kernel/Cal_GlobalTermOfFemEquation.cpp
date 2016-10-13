@@ -31,6 +31,7 @@ void  Cal_GlobalTermOfFemEquation(int  Num_Region,
 				  struct QuantityStorage  * QuantityStorageNoDof,
 				  struct Dof              * DofForNoDof_P)
 {
+  struct FemGlobalTermActive  * FI ;
   struct QuantityStorage  * QuantityStorageEqu_P, * QuantityStorageDof_P ;
   struct Value              vBFxDof [1] ;
   struct Element  Element ;
@@ -58,6 +59,8 @@ void  Cal_GlobalTermOfFemEquation(int  Num_Region,
   gMatrix * Jac;
   struct QuantityStorage    * QuantityStorage_P;
 
+  FI = EquationTerm_P->Case.GlobalTerm.Active ;
+
   Element.Num = NO_ELEMENT ;
 
   switch (EquationTerm_P->Case.GlobalTerm.Term.TypeTimeDerivative) {
@@ -75,14 +78,10 @@ void  Cal_GlobalTermOfFemEquation(int  Num_Region,
   default 						:  Message::Error("Unknown type of operator for Global term"); return;
   }
 
-  QuantityStorageEqu_P = QuantityStorage_P0 +
-    EquationTerm_P->Case.GlobalTerm.Term.DefineQuantityIndexEqu ;
-
-  if (EquationTerm_P->Case.GlobalTerm.Term.DefineQuantityIndexDof >= 0) {
-    QuantityStorageDof_P = QuantityStorage_P0 +
-      EquationTerm_P->Case.GlobalTerm.Term.DefineQuantityIndexDof ;
-  }
-  else {
+  //+++ Num_Region, QuantityStorage_P0: not used any more
+  QuantityStorageEqu_P = FI->QuantityStorageEqu_P;
+  QuantityStorageDof_P = FI->QuantityStorageDof_P;
+  if (!QuantityStorageDof_P) {
     QuantityStorageDof_P = QuantityStorageNoDof ;
     Dof_InitDofForNoDof(DofForNoDof_P, Current.NbrHar) ;
     QuantityStorageDof_P->BasisFunction[0].Dof = DofForNoDof_P ;
@@ -97,12 +96,12 @@ void  Cal_GlobalTermOfFemEquation(int  Num_Region,
   if (i_WQ < List_Nbr(WholeQuantity_L) ) {
     if(Message::GetVerbosity() == 10)
       Message::Info("MHJacNL in Global term");
-    if (QuantityStorageEqu_P != QuantityStorageDof_P){
+    if (FI->QuantityStorageEqu_P != FI->QuantityStorageDof_P){
       Message::Error("Global term with MHJacNL is not symmetric ?!");
       return;
     }
 
-    QuantityStorage_P = QuantityStorageEqu_P ;
+    QuantityStorage_P = FI->QuantityStorageEqu_P ;
 
     if (List_Nbr(WholeQuantity_L) == 4){
       if (i_WQ != 1 ||
@@ -226,8 +225,8 @@ void  Cal_GlobalTermOfFemEquation(int  Num_Region,
       Coefficient[k] = vBFxDof[0].Val[MAX_DIM*k] ;
 
     Function_AssembleTerm
-      (QuantityStorageEqu_P->BasisFunction[0].Dof,
-       QuantityStorageDof_P->BasisFunction[0].Dof, Coefficient) ;
+      (FI->QuantityStorageEqu_P->BasisFunction[0].Dof,
+       FI->QuantityStorageDof_P->BasisFunction[0].Dof, Coefficient) ;
 
   }
 }

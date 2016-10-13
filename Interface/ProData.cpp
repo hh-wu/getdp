@@ -34,6 +34,13 @@ int fcmp_Integer(const void *a, const void *b)
   return(*(int*)a - *(int*)b );
 }
 
+int fcmp_Integer2(const void *a, const void *b)
+{
+  static int result ;
+  if ( ( result = (*(int*)a - *(int*)b ) ) != 0 )  return result ;
+  return (*((int*)a+1) - *((int*)b+1) );
+}
+
 int fcmp_Constant (const void *a, const void *b)
 {
   return ( strcmp(((struct Constant *)a)->Name, ((struct Constant *)b)->Name));
@@ -687,6 +694,27 @@ void Print_Expression()
 	Message::Check("  DefineFunction[ %s ];\n", EX->Name);
       break;
 
+    case PIECEWISEFUNCTION2 :
+      for (j = 0;
+	   j < List_Nbr(EX->Case.PieceWiseFunction2.ExpressionPerRegion); j++) {
+        struct ExpressionPerRegion2 *EXPR;
+	EXPR = (struct ExpressionPerRegion2*)
+	  List_Pointer(EX->Case.PieceWiseFunction2.ExpressionPerRegion, j);
+	Message::Check("  %s[%d,%d] = Exp[%s];\n",
+                       EX->Name, EXPR->RegionIndex[0], EXPR->RegionIndex[1],
+                       Get_ExpressionName(EXPR->ExpressionIndex));
+      }
+      if (EX->Case.PieceWiseFunction2.ExpressionIndex_Default >= 0) {
+	Message::
+          Check("  %s[All,All] = Exp[%s];\n",
+                EX->Name,
+                Get_ExpressionName(EX->Case.PieceWiseFunction.ExpressionIndex_Default));
+      }
+      if (!List_Nbr(EX->Case.PieceWiseFunction2.ExpressionPerRegion) &&
+          EX->Case.PieceWiseFunction2.ExpressionIndex_Default < 0)
+	Message::Check("  DefineFunction[ %s ];\n", EX->Name);
+      break;
+
     case UNDEFINED_EXP :
       Message::Check("  DefineFunction[ %s ];\n", EX->Name);
       break;
@@ -1220,6 +1248,10 @@ void Print_Formulation()
 	Message::Check("                 In %s;\n",
                        ((struct Group *)
                         List_Pointer(Problem_S.Group, FE->Case.GlobalTerm.InIndex))->Name );
+
+        if (FE->Case.GlobalTerm.SubType != EQ_ST_SELF)
+          Message::Check("                 SubType %s;\n",
+                         Get_StringForDefine(Equation_SubType, FE->Case.GlobalTerm.SubType));
 
 	Message::Check("      /* Inventaire des DQ (%d) [%d,%d] :",
                        FE->Case.GlobalTerm.Term.NbrQuantityIndex,

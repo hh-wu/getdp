@@ -2133,7 +2133,7 @@ definition of functions is:
 @example
 Function @{
   < DefineFunction [ @var{function-id} <,@dots{}> ]; > @dots{}
-  < @var{function-id} [ < @var{group-def} > ] = @var{expression}; > @dots{}
+  < @var{function-id} [ < @var{group-def} <, @var{group-def} > > ] = @var{expression}; > @dots{}
   < @var{affectation} > @dots{}
   < @var{loop} > @dots{}
 @}
@@ -2149,8 +2149,10 @@ Function @{
 @noindent Note:
 @enumerate
 @item
-The optional @var{group-def} in brackets must be of @code{Region} type, and
+The first optional @var{group-def} in brackets must be of @code{Region} type, and
 indicates on which region the (piecewise) function is defined.
+The second optional @var{group-def} in brackets, also of @code{Region} type, defines
+an association with a second region for mutual contributions.
 A default piecewise function can be defined with @code{All} for @var{group-def}, 
 for all the other non-defined regions.
 Warning: it is incorrect to write @code{f[reg1]=1; g[reg2]=f[]+1;} since the 
@@ -2683,7 +2685,7 @@ Formulation @{
            Integration @var{integration-id}; @} > @dots{}
      < GlobalTerm 
          @{ < @var{term-op-type} > [ @var{expression}, @var{expression} ]; 
-           In @var{group-def}; @} > @dots{}
+           In @var{group-def}; < SubType @var{equation-term-sub-type}; > @} > @dots{}
      < GlobalEquation 
          @{ Type Network; NameOfConstraint @var{constraint-id};
            @{ Node @var{expression}; Loop @var{expression}; Equation @var{expression};
@@ -2711,6 +2713,9 @@ Formulation @{
 @var{local-term-type}:
   Galerkin | deRham
 
+@var{equation-term-sub-type}:
+  Self (default) | Mutual | SelfAndMutual
+
 @var{quantity-type}:
   Local | Global | Integral
 
@@ -2732,8 +2737,10 @@ equations. The @var{integer} parameter then specifies the index in the list
 of an @code{OriginSystem} command (@pxref{Resolution}).
 @item
 A @code{GlobalTerm} defines a term to be assembled in an equation associated
-with a global quantity.  This equation is a finite element equation if that
-global quantity is linked with local quantities.
+with a global quantity. This equation is a finite element equation if that
+global quantity is linked with local quantities. The optional associated 
+@code{SubType} defines either self (default) or mutual contributions, or both.
+Mutual contributions need piecewise functions defined on pairs or regions.
 @item
 A @code{GlobalEquation} defines a global equation to be assembled in the
 matrix of the system.
