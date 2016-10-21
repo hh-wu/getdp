@@ -884,7 +884,7 @@ struct StringX3Function3Nbr  BF_Function[] = {
   {"BF_RegionY" , (CAST)BF_RegionY  , (CAST)BF_dRegionY , (CAST)BF_Zero , 0. , ALL, 0 },
   {"BF_RegionZ" , (CAST)BF_RegionZ  , (CAST)BF_dRegionZ , (CAST)BF_Zero , 0. , ALL, 0 },
 
-  {"BF_Global"  , (CAST)BF_Global   , (CAST)BF_dGlobal , (CAST)BF_Zero , 0. , ALL, 0 },
+  {"BF_Global"  , (CAST)BF_Global   , (CAST)BF_dGlobal , (CAST)BF_dInvGlobal , 0. , ALL, 0 },
   {"BF_dGlobal" , (CAST)BF_dGlobal  , (CAST)BF_Zero    , (CAST)BF_Global, 0. , ALL, 0 },
 #endif
 

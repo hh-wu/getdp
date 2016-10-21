@@ -179,11 +179,11 @@ void  BF_InitGlobal(struct GlobalBasisFunction * GlobalBasisFunction_P)
 }
 
 /* ------------------------------------------------------------------------ */
-/*  B F _ G l o b a l                                                       */
+/*  B F _ G l o b a l ,  B F _ d G l o b a l ,  B F _ d I n v G l o b a l   */
 /* ------------------------------------------------------------------------ */
 
-void  BF_Global(struct Element * Element, int NumGlobal, 
-		double u, double v, double w, double *s)
+void  BF_Global_OP(struct Element * Element, int NumGlobal, 
+                   double u, double v, double w, double *s, int type_OP)
 {
   struct Value  Value ;
   struct GlobalBasisFunction  * GlobalBasisFunction_P ;
@@ -211,7 +211,7 @@ void  BF_Global(struct Element * Element, int NumGlobal,
     (Element,
      NULL,
      GlobalBasisFunction_P->QuantityStorage,
-     QUANTITY_SIMPLE, NOOP, -1, 0,
+     QUANTITY_SIMPLE, type_OP, -1, 0,
      u, v, w, 0., 0., 0.,  Value.Val, &Value.Type, 0) ;
   Current.NbrHar = Save_NbrHar;
 
@@ -227,53 +227,22 @@ void  BF_Global(struct Element * Element, int NumGlobal,
   }
 }
 
+/* ------------------------------------------------------------------------ */
 
-/* ------------------------------------------------------------------------ */
-/*  B F _ d G l o b a l                                                     */
-/* ------------------------------------------------------------------------ */
+void  BF_Global(struct Element * Element, int NumGlobal, 
+		double u, double v, double w, double *s)
+{
+  BF_Global_OP(Element, NumGlobal, u, v, w, s, NOOP);
+}
 
 void  BF_dGlobal(struct Element * Element, int NumGlobal, 
-		 double u, double v, double w,  double *s ) {
+		 double u, double v, double w,  double *s )
+{
+  BF_Global_OP(Element, NumGlobal, u, v, w, s, EXTDER);
+}
 
-  struct Value  Value ;
-
-  struct GlobalBasisFunction  * GlobalBasisFunction_P ;
-  struct QuantityStorage  * QuantityStorage_P ;
-  int Save_NbrHar;
-
-  GlobalBasisFunction_P = Element->GlobalBasisFunction[NumGlobal-1] ;
-
-  if (!GlobalBasisFunction_P->QuantityStorage)
-    BF_InitGlobal(GlobalBasisFunction_P) ;  /* Init QuantityStorage */
-
-  QuantityStorage_P = GlobalBasisFunction_P->QuantityStorage ;
-  
-  if (QuantityStorage_P->NumLastElementForFunctionSpace != Element->Num) {
-    QuantityStorage_P->NumLastElementForFunctionSpace = Element->Num ;
-
-    Get_DofOfElement
-      (Element, QuantityStorage_P->FunctionSpace, QuantityStorage_P,
-       QuantityStorage_P->DefineQuantity->IndexInFunctionSpace) ;
-  }
-
-  Save_NbrHar = Current.NbrHar;
-  Current.NbrHar = 1; /* for real basis function */
-  Pos_FemInterpolation
-    (Element,
-     NULL,
-     GlobalBasisFunction_P->QuantityStorage,
-     QUANTITY_SIMPLE, EXTDER, -1, 0,
-     u, v, w, 0., 0., 0.,  Value.Val, &Value.Type, 0) ;
-  Current.NbrHar = Save_NbrHar;
-
-  switch (Value.Type) {
-  case SCALAR :
-    s[0] = Value.Val[0] ;
-    break ;
-  case VECTOR :
-    s[0] = Value.Val[0] ;  s[1] = Value.Val[1] ;  s[2] = Value.Val[2] ;
-    break ;
-  default :
-    Message::Error("Bad type of value for Global BasisFunction") ;
-  }
+void  BF_dInvGlobal(struct Element * Element, int NumGlobal, 
+                    double u, double v, double w,  double *s )
+{
+  BF_Global_OP(Element, NumGlobal, u, v, w, s, EXTDERINV);
 }

@@ -290,6 +290,7 @@ void  BF_dRegionZ(BF_ARG) ;
 
 void  BF_Global(BF_ARG) ;
 void  BF_dGlobal(BF_ARG) ;
+void  BF_dInvGlobal(BF_ARG) ;
 
 void BF_Wire(BF_ARG) ;
 void BF_DivWire(BF_ARG) ;
