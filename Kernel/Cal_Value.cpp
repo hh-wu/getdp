@@ -1835,7 +1835,7 @@ void Cal_RotateValue(struct Value *V1, struct Value *V2, struct Value *R)
   A.Val[5]= A2*A1*B0+A2*A4*B3+A2*A7*B6+A5*A1*B1+A5*A4*B4+A5*A7*B7+A8*A1*B2+A8*A4*B5+A8*A7*B8;	\
   A.Val[6]= A2*A0*B0+A0*A5*B3+A0*A8*B6+A3*A2*B1+A5*A3*B4+A3*A8*B7+A6*A2*B2+A6*A5*B5+A8*A6*B8;	\
   A.Val[7]= A2*A1*B0+A1*A5*B3+A1*A8*B6+A4*A2*B1+A5*A4*B4+A4*A8*B7+A7*A2*B2+A7*A5*B5+A8*A7*B8;	\
-  A.Val[8]= A2*A2*B0+A2*A5*B3+A2*A8*B6+A5*A2*B1+A5*A5*B4+A5*A8*B7+A8*A2*B2+A8*A5*B5+A8*A8*B8
+  A.Val[8]= A0*A2*B0+A0*A5*B3+A0*A8*B6+A5*A2*B1+A5*A5*B4+A5*A8*B7+A8*A2*B2+A8*A5*B5+A8*A8*B8
 
 #define COMPLEX_COMPUTE_A									\
   t0=A0*A0; t1=A0*A3; t2=A0*A6; t3=A3*A0; t4=A3*A3; t5=A3*A6; t6=A6*A0; t7=A6*A3; t8=A6*A6; 	\
@@ -1854,7 +1854,7 @@ void Cal_RotateValue(struct Value *V1, struct Value *V2, struct Value *R)
   AFFECT(6);											\
   t0=A2*A1; t1=A1*A5; t2=A1*A8; t3=A4*A2; t4=A5*A4; t5=A4*A8; t6=A7*A2; t7=A7*A5; t8=A8*A7; 	\
   AFFECT(7);											\
-  t0=A2*A2; t1=A2*A5; t2=A2*A8; t3=A5*A2; t4=A5*A5; t5=A5*A8; t6=A8*A2; t7=A8*A5; t8=A8*A8; 	\
+  t0=A0*A2; t1=A0*A5; t2=A0*A8; t3=A5*A2; t4=A5*A5; t5=A5*A8; t6=A8*A2; t7=A8*A5; t8=A8*A8; 	\
   AFFECT(8)
 
   case TENSOR_SYM :
