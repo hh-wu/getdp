@@ -162,6 +162,9 @@ Formulation {
       Galerkin { DtDof [ mu[] * Dof{h} , {h} ];
         In Omega; Integration Int; Jacobian Vol;  }
 
+      //Galerkin { [ mu[] * DtHs[] , {h} ];
+      //  In Omega; Integration Int; Jacobian Vol;  }
+
       Galerkin { [ rho[] * Dof{d h} , {d h} ];
         In Matrix; Integration Int; Jacobian Vol;  }
 
@@ -242,15 +245,6 @@ Resolution {
     }
   }
 
-  { Name MagDynHComplex;
-    System {
-      { Name A; NameOfFormulation MagDynH; Type ComplexValue; Frequency Freq;}
-    }
-    Operation {
-      CreateDirectory["res"];
-      Generate[A]; Solve[A]; SaveSolution[A];
-    }
-  }
 }
 
 PostProcessing {
@@ -261,6 +255,8 @@ PostProcessing {
       { Name h; Value{ Local{ [ {h} * Scaling ] ;
 	    In Omega; Jacobian Vol; } } }
       { Name j; Value{ Local{ [ {d h} * Scaling^2 ] ;
+	    In OmegaC; Jacobian Vol; } } }
+      { Name norm_j; Value{ Local{ [ Norm[{d h}] * Scaling^2 ] ;
 	    In OmegaC; Jacobian Vol; } } }
       { Name b; Value{ Local{ [ mu[]*{h} * Scaling] ;
             In Omega; Jacobian Vol; } } }
@@ -284,6 +280,7 @@ PostOperation {
       Echo["General.Verbosity=3;", File "res/option.pos"];
       Print[ h, OnElementsOf Omega , File "res/h.pos", Name "h [Am⁻1]" ];
       Print[ j, OnElementsOf OmegaC , File "res/j.pos", Name "j [Am⁻²]" ];
+      Print[ norm_j, OnElementsOf OmegaC , File "res/norm_j.pos", Name "|j| [Am⁻²]" ];
       Print[ Losses[OmegaC],  OnGlobal, Format TimeTable,
         File > "res/losses_total.txt", SendToServer "Output/Losses [W]"] ;
       Print[ Losses[Filaments], OnGlobal, Format TimeTable,
