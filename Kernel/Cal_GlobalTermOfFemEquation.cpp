@@ -96,12 +96,12 @@ void  Cal_GlobalTermOfFemEquation(int  Num_Region,
   if (i_WQ < List_Nbr(WholeQuantity_L) ) {
     if(Message::GetVerbosity() == 10)
       Message::Info("MHJacNL in Global term");
-    if (FI->QuantityStorageEqu_P != FI->QuantityStorageDof_P){
+    if (QuantityStorageEqu_P != QuantityStorageDof_P){
       Message::Error("Global term with MHJacNL is not symmetric ?!");
       return;
     }
 
-    QuantityStorage_P = FI->QuantityStorageEqu_P ;
+    QuantityStorage_P = QuantityStorageEqu_P ;
 
     if (List_Nbr(WholeQuantity_L) == 4){
       if (i_WQ != 1 ||
@@ -225,8 +225,8 @@ void  Cal_GlobalTermOfFemEquation(int  Num_Region,
       Coefficient[k] = vBFxDof[0].Val[MAX_DIM*k] ;
 
     Function_AssembleTerm
-      (FI->QuantityStorageEqu_P->BasisFunction[0].Dof,
-       FI->QuantityStorageDof_P->BasisFunction[0].Dof, Coefficient) ;
+      (QuantityStorageEqu_P->BasisFunction[0].Dof,
+       QuantityStorageDof_P->BasisFunction[0].Dof, Coefficient) ;
 
   }
 }
