@@ -756,9 +756,9 @@ struct GlobalEquationTerm {
 #define NSxCURL   17
 #define NSxDIV    18
 
-#define _D1       21
-#define _D2       22
-#define _D3       23
+#define OP_D1     21
+#define OP_D2     22
+#define OP_D3     23
 
 
 /* CanonicalWholeQuantity */
@@ -1277,6 +1277,7 @@ struct IterativeLoopSystem {
 #define OPERATION_GETNORMRHS               101
 #define OPERATION_GETNORMRESIDUAL          102
 #define OPERATION_GETNORMINCREMENT         103
+#define OPERATION_HPDDMSOLVE               104
 
 /* ChangeOfState.Type */
 #define CHANGEOFSTATE_NOCHANGE              0

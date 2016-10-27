@@ -54,8 +54,6 @@ extern struct CurrentData Current ;
 
 #if defined(HAVE_OCTAVE)
 
-#undef _D1
-#undef _D2
 #undef HAVE_ARPACK
 #include <octave/oct.h>
 #include <octave/parse.h>

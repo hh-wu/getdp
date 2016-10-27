@@ -214,7 +214,7 @@ void  Get_FunctionValue(int Nbr_Function,
     }
     break ;
 
-  case _D1 :
+  case OP_D1 :
     if (QuantityStorage_P->TypeQuantity == VECTOR) {
       *Type_Form = VECTOR ;
       for (i = 0 ; i < Nbr_Function ; i++)
@@ -227,7 +227,7 @@ void  Get_FunctionValue(int Nbr_Function,
     }
     break ;
 
-  case _D2 :
+  case OP_D2 :
     if (QuantityStorage_P->TypeQuantity == VECTOR) {
       *Type_Form = VECTOR ;
       for (i = 0 ; i < Nbr_Function ; i++)
@@ -240,7 +240,7 @@ void  Get_FunctionValue(int Nbr_Function,
     }
     break ;
 
-  case _D3 :
+  case OP_D3 :
     if (QuantityStorage_P->TypeQuantity == VECTOR) {
       *Type_Form = VECTOR ;
       for (i = 0 ; i < Nbr_Function ; i++)
@@ -318,9 +318,9 @@ void  Get_InitFunctionValue(int Type_Operator,
     else if (QuantityStorage_P->TypeQuantity == SCALAR)  *Type_Form = VECTOR ;
     break ;
 
-  case _D1 :
-  case _D2 :
-  case _D3 :
+  case OP_D1 :
+  case OP_D2 :
+  case OP_D3 :
     if (QuantityStorage_P->TypeQuantity == VECTOR)
       *Type_Form = VECTOR ;
     else

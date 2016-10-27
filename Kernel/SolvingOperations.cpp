@@ -1500,6 +1500,16 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Current.RelativeDifference = 1.0 ;
       break ;
 
+      /*  -->  H P D D M S o l v e                    */
+      /*  ------------------------------------------  */
+
+    case OPERATION_HPDDMSOLVE :
+      Init_OperationOnSystem("HPDDMSolve",
+			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+                             &DefineSystem_P, &DofData_P, Resolution2_P) ;
+      Operation_HPDDMSolve(Operation_P, DofData_P);
+      break;
+
       /*  -->  Perturbation                           */
       /*  ------------------------------------------  */
 

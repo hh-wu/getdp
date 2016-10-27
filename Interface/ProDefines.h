@@ -182,9 +182,9 @@ struct StringXDefine  Operator_Type[] = {
   {"NSxGrad" , NSxGRAD  } ,
   {"NPxGrad" , NPxGRAD  } ,
 
-  {"D1"      , _D1 } ,
-  {"D2"      , _D2 } ,
-  {"D3"      , _D3 } ,
+  {"D1"      , OP_D1 } ,
+  {"D2"      , OP_D2 } ,
+  {"D3"      , OP_D3 } ,
 
   {NULL      , NOOP }
 } ;
@@ -240,6 +240,7 @@ struct StringXDefine  Operation_Type[] = {
   {"SolveJacAgain"          , OPERATION_SOLVEJACAGAIN},
   {"SolveJac_AdaptRelax"    , OPERATION_SOLVEJACADAPTRELAX},
   {"SolveNL"                , OPERATION_SOLVENL},
+  {"HPDDMSolve"             , OPERATION_HPDDMSOLVE},
   {"TransferSolution"       , OPERATION_TRANSFERSOLUTION},
   {"Update"                 , OPERATION_UPDATE},
   {NULL                     , OPERATION_NONE}

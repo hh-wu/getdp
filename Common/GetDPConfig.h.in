@@ -10,6 +10,7 @@
 #cmakedefine HAVE_BLAS
 #cmakedefine HAVE_GMSH
 #cmakedefine HAVE_GSL
+#cmakedefine HAVE_HPDDM
 #cmakedefine HAVE_LAPACK
 #cmakedefine HAVE_KERNEL
 #cmakedefine HAVE_MPI
@@ -24,8 +25,6 @@
 #cmakedefine HAVE_OCTAVE
 #cmakedefine HAVE_PETSC
 #cmakedefine HAVE_PYTHON
-// FIXME HAVE_ONELAB2 from Gmsh
-#cmakedefine HAVE_ONELAB2
 #cmakedefine HAVE_SLEPC
 #cmakedefine HAVE_SMALLFEM
 #cmakedefine HAVE_SPARSKIT
