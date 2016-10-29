@@ -491,7 +491,7 @@ PostProcessing {
 PostOperation {
   { Name MagSta_phi; NameOfPostProcessing MagSta_phi;
     Operation {
-      Print[ hc, OnElementsOf Domain_M, File StrCat[resPath, "MagSta_a_hc.pos"] ];
+      Print[ hc, OnElementsOf Domain_M, File StrCat[resPath, "MagSta_phi_hc.pos"] ];
       Print[ phi, OnElementsOf Domain, File StrCat[resPath, "MagSta_phi_phi.pos"] ];
       Print[ h, OnElementsOf Domain, File StrCat[resPath, "MagSta_phi_h.pos"] ];
       Print[ b, OnElementsOf Domain, File StrCat[resPath, "MagSta_phi_b.pos"] ];
