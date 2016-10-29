@@ -31,7 +31,7 @@ DefineConstant[
   Flag_ConductingCore = { (Flag_AnalysisType==2), Choices{0,1},
     Name "Input/40Conducting core", ReadOnly (Flag_AnalysisType==0)}
 
-  Flag_GaugeType = { 1, Choices{0="Tree-cotree gauge", 1="Coulomb gauge"},
+  Flag_GaugeType = { 0, Choices{0="Tree-cotree gauge", 1="Coulomb gauge"},
     Name "Input/30Type of gauge", Highlight "Blue", Visible (Flag_3Dmodel==1) }
 ];
 
