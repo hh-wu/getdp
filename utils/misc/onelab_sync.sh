@@ -21,4 +21,5 @@ sudo rm -f ${DST}/templates.zip
 cd ${DST} && sudo zip -r ${DST}/templates.zip templates -x \*.svn\* -x \*.png
 
 # fix permissions
-sudo chown -R onelab:onelab ${DST}/
+#sudo chown -R onelab:onelab ${DST}/
+sudo chown -R geuzaine:geuzaine ${DST}/
