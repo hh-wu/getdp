@@ -1,4 +1,4 @@
-po_min  = "Output/";
+//po_min  = "Output/";
 
 PostProcessing {
   { Name u_Mec ; NameOfFormulation u_Mec ;
@@ -110,8 +110,8 @@ PostOperation {
      Print[ StressVM, OnElementsOf Domain,
        File StrCat[ResDir,"VM",ExtOnelabVec], OverrideTimeStepValue optimIter];
      Print[ Compliance[DomainFunc], OnGlobal, Format TimeTable,
-       File StrCat[ResDir, StrCat["ComplianceElm",ExtOnelabScal]], LastTimeStepOnly,
-       SendToServer StrCat[po_min,"ComplianceElm"], Color "LightYellow" ];
+       File StrCat[ResDir, StrCat["Compliance",ExtOnelabScal]], LastTimeStepOnly,
+       SendToServer StrCat[po,"Compliance"], Color "LightYellow" ];
      Print[ Volume, OnElementsOf Domain, 
        File StrCat[ResDir,"ElementVolume",ExtOnelabVec], LastTimeStepOnly] ;
 //     If (!Flag_projFuncSpace_xe)
@@ -128,7 +128,7 @@ PostOperation {
    Operation{
       Print[ residual[Domain], OnGlobal, Format Table,
         File StrCat[ResDir, "residual", ExtGnuplot], 
-        SendToServer StrCat[po_min,"residual"], LastTimeStepOnly];
+        SendToServer StrCat[po,"residual"], LastTimeStepOnly];
 
 //     Print[ E, OnElementsOf Domain,File StrCat[ResDir,"E",ExtGmsh]] ;
 //     Print[ rho, OnElementsOf Domain,File StrCat[ResDir,"rho",ExtGmsh]] ;
@@ -146,24 +146,24 @@ PostOperation {
 //     Print[ v, OnElementsOf Domain, File "res/v_an.pos", LastTimeStepOnly] ;
 //     Print[ v_1, OnElementsOf Domain, File "res/v_1_an.pos", LastTimeStepOnly] ;
      Print[ Compliance[DomainFunc], OnGlobal, Format TimeTable,
-       File StrCat[ResDir, StrCat["ComplianceElm",ExtOnelabScal]], LastTimeStepOnly,
-       SendToServer StrCat[po_min,"ComplianceElm"], Color "LightYellow" ];
+       File StrCat[ResDir, StrCat["Compliance",ExtOnelabScal]], LastTimeStepOnly,
+       SendToServer StrCat[po,"Compliance"], Color "LightYellow" ];
 
      Print[ Mass[DomainFunc], OnGlobal, Format TimeTable,
        File StrCat[ResDir, StrCat["Mass",ExtOnelabScal]], LastTimeStepOnly,
-       SendToServer StrCat[po_min,"Mass"], Color "LightYellow" ];
+       SendToServer StrCat[po,"Mass"], Color "LightYellow" ];
 
      Print[ StressVMInt[DomainFunc], OnGlobal, Format TimeTable,Color "LightYellow",
        File StrCat[ResDir, StrCat["StressVM",ExtOnelabScal]], LastTimeStepOnly,
-       StoreInVariable $VM_P,SendToServer StrCat[po_min,"StressVM"] ];
+       StoreInVariable $VM_P,SendToServer StrCat[po,"StressVM"] ];
 
      Print[ StressVM_pNorm, OnRegion DomainFunc, Format TimeTable,
        File StrCat[ResDir, StrCat["StressVM_pNorm",ExtOnelabScal]], LastTimeStepOnly,
-       SendToServer StrCat[po_min,"StressVM_pNorm"], Color "LightYellow"];
+       SendToServer StrCat[po,"StressVM_pNorm"], Color "LightYellow"];
 
      Print[ Volume[DomainFunc], OnGlobal, Format TimeTable, 
        File StrCat[ResDir,"Volume",ExtOnelabScal], LastTimeStepOnly, 
-       SendToServer StrCat[po_min,"Volume"], Color "LightYellow"] ;
+       SendToServer StrCat[po,"Volume"], Color "LightYellow"] ;
 
 //     Print[ Mass, OnElementsOf Domain, 
 //       File StrCat[ResDir,"ElementMass",ExtOnelabVec], LastTimeStepOnly] ;
@@ -185,7 +185,7 @@ PostOperation {
     Operation {
       Print[ eig2, OnRegion Domain, Format Table,
         File StrCat[ResDir,"eig2",ExtOnelabVec2],
-        SendToServer StrCat[po_min,"eig2"], Color "LightYellow"] ;
+        SendToServer StrCat[po,"eig2"], Color "LightYellow"] ;
 
       Print[ u, OnElementsOf Domain, File StrCat[ResDir,"u.pos"]] ;
 //      Echo[ Str["View[PostProcessing.NbViews-1].VectorType=5;",
@@ -195,11 +195,11 @@ PostOperation {
 
      Print[ mass_eig[DomainOpt], OnGlobal, Format Table,
        File StrCat[ResDir, "mass_eig",ExtOnelabVec2],     
-       SendToServer StrCat[po_min,"mass_eig"], Color "LightYellow"] ;
+       SendToServer StrCat[po,"mass_eig"], Color "LightYellow"] ;
 
      Print[ stiff_eig[DomainOpt], OnGlobal, Format Table,
        File StrCat[ResDir, "stiff_eig",ExtGmsh],     
-       SendToServer StrCat[po_min,"stiff_eig"], Color "LightYellow"] ;
+       SendToServer StrCat[po,"stiff_eig"], Color "LightYellow"] ;
 
      If(!StrCmp(Flag_optType,"topology"))
        Print[ d_eig_TO, OnElementsOf DomainOpt, 

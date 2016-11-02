@@ -137,10 +137,8 @@ Formulation{
     Equation {
        Galerkin { [ Dof{d psi}*Rmin^2.0, {d psi} ] ;
          In Domain; Jacobian Vol ; Integration I1 ; }
-
        Galerkin { [ Dof{psi}, {psi} ] ;
          In Domain; Jacobian Vol; Integration I1; }
-
        Galerkin { [ -filtSource[], {psi} ] ;
          In Domain; Jacobian Vol; Integration I1; }
       }
@@ -152,10 +150,8 @@ Formulation{
     Equation {
        Galerkin { [ Dof{d psi}*Rmin^2.0, {d psi} ] ;
          In Domain; Jacobian Vol ; Integration I1 ; }
-
        Galerkin { [ Dof{psi}, {psi} ] ;
          In Domain; Jacobian Vol; Integration I1; }
-
        Galerkin { [ -1.0, {psi} ] ;
          In Domain; Jacobian Vol; Integration I1; }
       }
@@ -301,7 +297,7 @@ Resolution{
     System {
       { Name A; NameOfFormulation FilterTopOpt; } 
       If (!StrCmp[Flag_FilterMethod, "density"])     
-        { Name A; NameOfFormulation Adjoint_u_Mec; }
+        { Name B; NameOfFormulation FilterTopOpt_dXdx; }
       EndIf
     }
     Operation{
@@ -314,7 +310,6 @@ Resolution{
     }
   }
 
-  // adjoint variable
   { Name Adjoint_u_Mec; 
     System {
       { Name A; NameOfFormulation u_Mec; } 

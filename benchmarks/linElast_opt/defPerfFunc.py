@@ -250,16 +250,18 @@ def topopt_complianceVolume(x,data,parameters):
         min (x) compl(x)
         s.t.    vol(x) <= volM
     """
-    compl = data['ComplianceElm'][0]
+    print data.keys()
+    compl = data['Compliance'][0]
     elemVol = data['ElementVolume'][0][:,1];vol = np.dot(x,elemVol)
+    #vol = np.sum(x)
     print('compl:{}; vol:{}'.format(compl,vol))
     input = {
         'f':[compl,vol],
         'df':['SelfFixedDom',volumeSens],
-        'fmax':[0, 3.0],
+        'fmax':[0, 1.0],
         'f_name':['Compliance','Volume'],
         'sign':[1.0,1.0],
-        'filter':[2,0]
+        'filter':[1,0]
     }
     return input
 

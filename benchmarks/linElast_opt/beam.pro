@@ -48,7 +48,7 @@ Group {
   Domain_Force_Lin = Region[ {} ];
   If(Flag_testBench==0) //short cantilever beam
     If(Flag_2D)
-      Domain_Force_Lin = Region[ POINT_2 ];
+      Domain_Force_Lin = Region[ POINT_5 ];
     Else 
       Domain_Force_Lin = Region[ LINE_BAS ];
     EndIf
@@ -151,19 +151,20 @@ Function {
     E[#{Domain,-DomainOpt}] = 210e09; 
     rho[#{Domain,-DomainOpt}] = 8100.0; 
     If (Flag_projFuncSpace_xe)
-      Printf["************** Flag_projFuncSpace_xe "];
+      // FIXME: can we provide xe at centroid of element instead of nodes?
+      Printf["Flag_projFuncSpace_xe "];
       l_xe = ListFromFile["res/designVariable.txt"];
       designVar[] = ValueFromIndex[]{l_xe()};
       rho[DomainOpt] = rh * $1; 
       d_rho[DomainOpt] = rh; 
     Else
-      Printf["************** NO Flag_projFuncSpace_xe "];
+      Printf["NO Flag_projFuncSpace_xe "];
       designVar[] = ScalarField[XYZ[],0,1]{DES_VAR_FIELD};
       rho[DomainOpt] = rh * designVar[]; // vol. mas
       d_rho[DomainOpt] = rh; // vol. mas
     EndIf
 
-    If(!StrCmp(Flag_InterpLaw,"simp")) // simp-law
+    If(!StrCmp(Flag_InterpLaw,"simp")) 
       Printf["simp law"];
       If(!Flag_projFuncSpace_xe)
         E[DomainOpt] = E0 * designVar[] ^ degree_SIMP;
@@ -172,8 +173,17 @@ Function {
         E[DomainOpt] = E0 * $1 ^ degree_SIMP;
         d_E[DomainOpt] = degree_SIMP * E0 * $1 ^ (degree_SIMP - 1.0);
       EndIf
-    EndIf
-    If(!StrCmp(Flag_InterpLaw,"polynomial")) // simp-law
+    ElseIf(!StrCmp(Flag_InterpLaw,"modif-simp"))
+      Printf["modified simp law"];
+      Emin = 1e-9;
+      If(!Flag_projFuncSpace_xe)
+        E[DomainOpt] = Emin + (E0-Emin) * designVar[] ^ degree_SIMP;
+        d_E[DomainOpt] = degree_SIMP * (E0-Emin) * designVar[] ^ (degree_SIMP - 1.0);
+      Else
+        E[DomainOpt] = Emin + (E0-Emin) * $1 ^ degree_SIMP;
+        d_E[DomainOpt] = degree_SIMP * (E0-Emin) * $1 ^ (degree_SIMP - 1.0);
+      EndIf
+    ElseIf(!StrCmp(Flag_InterpLaw,"polynomial")) 
       Printf["polynomial law"];
       alpha = 16.0;
       If(!Flag_projFuncSpace_xe)
@@ -487,13 +497,15 @@ Constraint{
     }
   EndFor
 
-  For i In {1:3}
-    { Name velocity~{i};
-      Case {
-        { Region Domain ; Value velocity~{i}[]; }
+  If( !StrCmp(Flag_optType,"shape") )
+    For i In {1:3}
+      { Name velocity~{i};
+        Case {
+          { Region Domain ; Value velocity~{i}[]; }
+        }
       }
-    }
-  EndFor
+    EndFor
+  EndIf
 
    // FIXME:ElementVol[] provides negative numbers 
   { Name constr_xe ;

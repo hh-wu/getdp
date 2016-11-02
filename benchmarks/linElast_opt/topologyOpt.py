@@ -9,19 +9,19 @@ from defPerfFunc import *
 from defPerfFuncSens import *
 #import defPerfFunc
 
-testCase = 9 #7:L-bracket
-ppC = 'Input/0Cao/';pIn = ppC+'Constructive Parameters/';cao = 'square'
-extrude=0;nz=10;hole=0;pl1=1.;pl2=1.;pl3=1.;pl4=1.
+testCase = 0 #7:L-bracket
+ppC = 'Input/0CAD model/';pp = ppC+'Constructive Parameters/'
+cao = 'square';extrude=0;nz=10;hole=0;pl1=1.;pl2=1.;pl3=1.;pl4=1.
 if testCase == 7:
     Lx = 0.4; Ly = 1.0
     nx = 25; ny = 75; nxPad = 75
 else:
-    Lx = 6.0; Ly = 1.0; nyPad = 1; nxPad = 1
-    if os.path.isfile('data.npy'):
-        data = np.load('data.npy')
-        nx=data[0];ny=data[1]
-    else:
-        ny=30;nx=ny*Lx/Ly
+    Lx = 2.0; Ly = 1.0; nyPad = 1; nxPad = 1
+    #if os.path.isfile('data.npy'):
+    #    data = np.load('data.npy')
+    #    nx=data[0];ny=data[1]
+    #else:
+    ny=30*3;nx=ny*Lx/Ly
 # ************************************************************************
 # ***** Create the parameters                                        *****
 # ************************************************************************
@@ -33,44 +33,44 @@ parameters = {
     'direct':['Direct_u_Mec'],
     'project_xe':1,
     'allowCentralFD':0,
-    'MeshRefine':0,
+    'MeshRefine':2,
     'defaultValue':{
-        'OptType':['Input/Optimization Type','topology'],
+        'OptType':['Optimization/Optimization Type','topology'],
         'Deg2':['Input/degree 2?',0],
         'cao':[ppC+'0 Cao?',cao],
-        'Pad':[ppC+'add pad',testCase==7],
-        'extrude':[ppC+'extrude?',extrude],
-        'load':['Input/Loading/case',testCase],
-        'MaterialInterpLaw':['Input/Optimization/Material Law','simp'],
-        'SimpDegree':['Input/Optimization/Simp Degree',3.0],
-        'StressDegree':['Input/Optimization/Stress Degree',0.5],
-        'Lx':[pIn+'X length [m]',Lx],
-        'Ly':[pIn+'Y length [m]',Ly],
-        'LxPad':[pIn+'X length pad [m]',0.6],
-        'LyPad':[pIn+'Y length pad [m]',0.4],
-        'Transfinite':[ppC+'transfinite?',1],
-        'Nx':[ppC+'Nx',nx],
-        'Ny':[ppC+'Ny',ny],
-        'Nz':[ppC+'Nz',nz],
-        'NxPad':[ppC+'Nx pad',nxPad],
-        'NyPad':[ppC+'Ny pad',ny],
-        'pl1':[ppC+'progression l1',pl1],
-        'pl2':[ppC+'progression l2',pl2],
-        'pl3':[ppC+'progression l3',pl3],
-        'pl4':[ppC+'progression l4',pl4],
-        'Hole':[ppC+'Hole',hole]
+        'Pad':[pp+'add pad',testCase==7],
+        'extrude':[pp+'extrude?',extrude],
+        'load':['Input/Loading',testCase],
+        'MaterialInterpLaw':['Optimization/Material Law','modif-simp'],
+        'SimpDegree':['Optimization/Simp Degree',3.0],
+        'StressDegree':['Optimization/Stress Degree',0.5],
+        'Lx':[pp+'X length [m]',Lx],
+        'Ly':[pp+'Y length [m]',Ly],
+        'LxPad':[pp+'X length pad [m]',0.6],
+        'LyPad':[pp+'Y length pad [m]',0.4],
+        'Transfinite':[pp+'transfinite?',0],
+        'Nx':[pp+'Nx',nx],
+        'Ny':[pp+'Ny',ny],
+        'Nz':[pp+'Nz',nz],
+        'NxPad':[pp+'Nx pad',nxPad],
+        'NyPad':[pp+'Ny pad',ny],
+        'pl1':[pp+'progression l1',pl1],
+        'pl2':[pp+'progression l2',pl2],
+        'pl3':[pp+'progression l3',pl3],
+        'pl4':[pp+'progression l4',pl4],
+        'Hole':[pp+'Hole',hole]
     },
     'archivate':1,
     'TAG':[1000], #1000,1001
     'performance':topopt_complianceVolume,
     #opt_VolumeVMelem,opt_maxBeta_eig
-    'rmin':1.5*Lx/nx,
-    'optimizer':'mmaDualNewton'#'mmaDualCG',
-    #'mma3','conlinFile','gcmma','openopt'
+    'rmin':3.5*Ly/ny,
+    'optimizer':'mma3',
+    #'mmaDualNewton',#'mmaDualCG','conlinFile','gcmma','openopt','mma3'
     'xtol':1.0e-02,
     'iterMax':1000,'parallel':0,'nbCPU':6}
 
-x = np.array([0.5]);xmax = np.array([1.0]);xmin = np.array([0.001])
+x = np.array([0.5]);xmax = np.array([1.0]);xmin = np.array([0.0])
 
 # ************************************************************************
 # ***** Instantiate the Model and the Optimizer                      *****
@@ -92,7 +92,7 @@ op = Optimization(parameters,xmin,xmax,x)
 
 # Call optimizer
 if parameters['optimizer'] == 'mma3':
-    a0 = 1.0; a=[0.]*op.m;c=[1000.]*op.m;d=[1.]*op.m
+    a0 = 1.0; a=[0.]*op.m;c=[1000.]*op.m;d=[0.]*op.m
     op.mmaPy(op.x,op.xmin,op.xmax,a0,a,c,d,op.parameters['performance'],0,1)
 elif parameters['optimizer'] in ['mmaDualNewton','mmaDualCG','mmaDualNewtonDiag']:
     mm = len(op.fjMax) - 1

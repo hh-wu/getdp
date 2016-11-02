@@ -23,13 +23,22 @@ Integration {
       { Type Gauss ;
 	Case {
 	  { GeoElement Point       ; NumberOfPoints  1 ; }
-	  { GeoElement Line        ; NumberOfPoints  4 ; }
-	  { GeoElement Triangle    ; NumberOfPoints  7 ; }
-	  { GeoElement Quadrangle  ; NumberOfPoints  4 ; }
-	  { GeoElement Tetrahedron ; NumberOfPoints  16; }
-          { GeoElement Hexahedron  ; NumberOfPoints  6 ; }
-	  { GeoElement Prism       ; NumberOfPoints  9 ; }
+	  { GeoElement Line        ; NumberOfPoints  1 ; }
+	  { GeoElement Triangle    ; NumberOfPoints  1 ; }
+	  { GeoElement Quadrangle  ; NumberOfPoints  1 ; }
+	  { GeoElement Tetrahedron ; NumberOfPoints  1; }
+          { GeoElement Hexahedron  ; NumberOfPoints  1 ; }
+	  { GeoElement Prism       ; NumberOfPoints  1 ; }
         }
+//	Case {
+//	  { GeoElement Point       ; NumberOfPoints  1 ; }
+//	  { GeoElement Line        ; NumberOfPoints  4 ; }
+//	  { GeoElement Triangle    ; NumberOfPoints  7 ; }
+//	  { GeoElement Quadrangle  ; NumberOfPoints  4 ; }
+//	  { GeoElement Tetrahedron ; NumberOfPoints  16; }
+//          { GeoElement Hexahedron  ; NumberOfPoints  6 ; }
+//	  { GeoElement Prism       ; NumberOfPoints  9 ; }
+//        }
      }
    }
  }
@@ -241,11 +250,6 @@ Formulation{
 	  In Domain ; Jacobian Vol ; Integration I1 ; }
         Galerkin { [ C22[] * Dof{D2 u} , {D2 u} ] ;
 	  In Domain ; Jacobian Vol ; Integration I1 ; }
-
-        For i In {1:3}
-          Galerkin { [ 0*Dof{v~{i}}, {v~{i}} ] ;
-            In Domain; Jacobian Vol ; Integration I1 ; }
-        EndFor
         Galerkin { [ 0*Dof{xe}, {xe} ] ;
           In Domain; Jacobian Vol ; Integration I1 ; }
       }

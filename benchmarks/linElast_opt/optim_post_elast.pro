@@ -1,4 +1,4 @@
-po_min  = "Output/";
+//po_min  = "Output/";
 
 PostProcessing {
 
@@ -94,19 +94,6 @@ PostProcessing {
 
     }
   }
-
-//  { Name TO_SelfAdjoint_u_Mec ; NameOfFormulation u_Mec ;
-//    PostQuantity {
-//      { Name Sensitivity_AdjointMethod; 
-//        Value { 
-//          Integral {[ dF_TO[{D1 u},{D2 u},{xe}] ]; 
-//            In DomainFunc ; Jacobian Vol  ; Integration I1; }
-//          Integral {[-d_bilin[{D1 u},{D1 u},{D2 u},{D2 u},{xe}]]; 
-//            In Domain ; Jacobian Vol  ; Integration I1; }
-//        }
-//      }
-//    }
-//  }
 
   { Name Direct_u_Mec; NameOfFormulation Direct_u_Mec ;
     PostQuantity {
@@ -233,7 +220,7 @@ PostProcessing {
 
   { Name FilterTopOpt; NameOfFormulation FilterTopOpt ;
     PostQuantity {
-      { Name filtSource; Value { Term { [ filtSource[] ]; In Domain ; Jacobian Vol;}}}
+      { Name filtIn; Value { Term { [ filtSource[] ]; In Domain ; Jacobian Vol;}}}
       { Name filtOut; Value { Term { [ {psi} ]; In Domain; Jacobian Vol; }}}
     }
   }
@@ -280,7 +267,7 @@ PostOperation {
         File StrCat[ResDir, "lambda", ExtGmsh], LastTimeStepOnly] ;
       Print[ residual[Domain], OnGlobal, Format Table,
         File StrCat[ResDir, "residual", ExtGnuplot], 
-        SendToServer StrCat[po_min,"residual"], LastTimeStepOnly];
+        SendToServer StrCat[po,"residual"], LastTimeStepOnly];
     }
   }
 
@@ -288,13 +275,13 @@ PostOperation {
     Operation{  
 //     Print[ dVolume[Domain], OnGlobal, Format Table,
 //       File StrCat[ResDir, StrCat["dVolume",ExtAnalyticSens]], LastTimeStepOnly,
-//       SendToServer StrCat[po_min,"dVolume"], Color "LightYellow" ];
+//       SendToServer StrCat[po,"dVolume"], Color "LightYellow" ];
 //     Print[ dMass[Domain], OnGlobal, Format Table,
 //       File StrCat[ResDir, StrCat["dMass",ExtAnalyticSens]], LastTimeStepOnly,
-//       SendToServer StrCat[po_min,"dMass"], Color "LightYellow" ];
+//       SendToServer StrCat[po,"dMass"], Color "LightYellow" ];
 //     Print[ dMass2[Domain], OnGlobal, Format Table,
 //       File StrCat[ResDir, StrCat["dMass2",ExtAnalyticSens]], LastTimeStepOnly,
-//       SendToServer StrCat[po_min,"dMass2"], Color "LightYellow" ];
+//       SendToServer StrCat[po,"dMass2"], Color "LightYellow" ];
     }
   }
 
@@ -302,7 +289,7 @@ PostOperation {
     Operation{
       Print[ mass_eig[Domain], OnGlobal, Format Table,
         File StrCat[ResDir, "mass_eig",ExtGmsh], StoreInVariable $MassEig,     
-        SendToServer StrCat[po_min,"mass_eig"], Color "LightYellow"] ;
+        SendToServer StrCat[po,"mass_eig"], Color "LightYellow"] ;
       Print[ d_eig_TO, OnElementsOf DomainOpt, File StrCat[ResDir,"d_eig_TO.pos"]] ;
     }
   }
@@ -314,16 +301,16 @@ PostOperation {
 //      Print[ d_D1, OnElementsOf Domain, File StrCat[ResDir,"d_D1.pos"]] ;
       Print[ mass_eig[Domain], OnGlobal, Format Table,
         File StrCat[ResDir, "mass_eig",ExtGmsh], StoreInVariable $MassEig,     
-        SendToServer StrCat[po_min,"mass_eig"], Color "LightYellow"] ;
+        SendToServer StrCat[po,"mass_eig"], Color "LightYellow"] ;
 //      Print[ d_stiff_eig[Domain], OnGlobal,Format Table,
 //        File StrCat[ResDir, "d_stiff_eig",ExtGmsh],
-//        SendToServer StrCat[po_min,"d_stiff_eig"], Color "LightYellow"] ;
+//        SendToServer StrCat[po,"d_stiff_eig"], Color "LightYellow"] ;
 //      Print[ d_mass_eig[Domain], OnGlobal,Format Table,
 //        File StrCat[ResDir, "d_mass_eig",ExtGmsh],
-//        SendToServer StrCat[po_min,"d_mass_eig"], Color "LightYellow"] ;
+//        SendToServer StrCat[po,"d_mass_eig"], Color "LightYellow"] ;
 //      Print[ deig_noNorm[Domain], OnGlobal,Format Table,
 //        File StrCat[ResDir, "deig_noNorm",ExtGmsh],
-//        SendToServer StrCat[po_min,"deig_noNorm"], Color "LightYellow"] ;
+//        SendToServer StrCat[po,"deig_noNorm"], Color "LightYellow"] ;
     }
   }
 
@@ -331,10 +318,10 @@ PostOperation {
     Operation{
       Print[ bilinLamdaState[Domain], OnGlobal, Format Table,
         File StrCat[ResDir, StrCat["lambda_K_A",ExtGnuplot]], LastTimeStepOnly,
-	SendToServer StrCat[po_min,"lambda_K_A"], Color "LightYellow" ];
+	SendToServer StrCat[po,"lambda_K_A"], Color "LightYellow" ];
       //Print[ loadLambda[Domain_Force],OnGlobal, Format Table,
 	//File StrCat[ResDir, StrCat["lambda_g",ExtGnuplot]], LastTimeStepOnly,
-	//SendToServer StrCat[po_min,"lambda_g"], Color "LightYellow" ];
+	//SendToServer StrCat[po,"lambda_g"], Color "LightYellow" ];
     }
   }
 
@@ -342,13 +329,13 @@ PostOperation {
     Operation{
        Print[ AvmVarDomSensFrechet[Domain], OnGlobal, Format Table,
          File StrCat[ResDir, "sensDirectLieFrechet", ExtGnuplot], 
-         SendToServer StrCat[po_min,"sensDirectLieFrechet"], LastTimeStepOnly];
+         SendToServer StrCat[po,"sensDirectLieFrechet"], LastTimeStepOnly];
        Print[ AvmVarDomSensPartial[Domain], OnGlobal, Format Table,
          File StrCat[ResDir, "sensDirectLiePartial", ExtGnuplot], 
-         SendToServer StrCat[po_min,"sensDirectLiePartial"], LastTimeStepOnly];
+         SendToServer StrCat[po,"sensDirectLiePartial"], LastTimeStepOnly];
        Print[ AvmVarDomSens[Domain], OnGlobal, Format Table,
          File StrCat[ResDir, "sensDirectLie", ExtGnuplot], 
-         SendToServer StrCat[po_min,"sensDirectLie"], LastTimeStepOnly];
+         SendToServer StrCat[po,"sensDirectLie"], LastTimeStepOnly];
     }
   } 
 
@@ -357,11 +344,11 @@ PostOperation {
       If (!StrCmp(SensitivityMethod,"semi-adjoint"))
         Print[ residual[Domain], OnGlobal, Format Table,
           File StrCat[ResDir, "residual", ExtGnuplot], 
-          SendToServer StrCat[po_min,"residual"], LastTimeStepOnly];
+          SendToServer StrCat[po,"residual"], LastTimeStepOnly];
       Else
         Print[ LieFunc[Domain], OnGlobal, Format Table,
           File StrCat[ResDir, "LieDerivative", ExtGnuplot], 
-          SendToServer StrCat[po_min,"Lie derivative"], LastTimeStepOnly];
+          SendToServer StrCat[po,"Lie derivative"], LastTimeStepOnly];
       EndIf
     }
   } 
@@ -374,8 +361,10 @@ PostOperation {
   }
   { Name TO_SelfAdjoint_u_Mec; NameOfPostProcessing Analytic_Sens_u_Mec;
     Operation{
-      Print[ Sensitivity_AdjointMethod, OnElementsOf DomainOpt,LastTimeStepOnly,
+      Print[ Sensitivity_AdjointMethod, OnElementsOf DomainOpt, Depth 0, Format Table,
         File StrCat[ResDir, StrCat["SensPerfAvmFixedDom",ExtGmsh]]] ;
+      Print[ Sensitivity_AdjointMethod, OnElementsOf DomainOpt, Depth 1,
+        File StrCat[ResDir, StrCat["SensPerfAvmFixedDom_1",ExtGmsh]]] ;
     }
   }
   { Name Get_SelfAvmFixedDomSens; NameOfPostProcessing Adjoint_u_Mec;//FIXME
@@ -390,14 +379,23 @@ PostOperation {
 
   { Name FilterTopOpt; NameOfPostProcessing FilterTopOpt;
     Operation {
-      Print [ filtSource, OnElementsOf DomainOpt,File StrCat[ResDir,"filtSource.pos"]];
-      Print [ filtOut, OnElementsOf DomainOpt, File StrCat[ResDir,"filtOut.pos"] ];
+      Print[filtIn, OnElementsOf DomainOpt,Depth 0,Format Table,
+        File StrCat[ResDir,"filtIn.pos"]];
+      Print[filtOut, OnElementsOf DomainOpt,Depth 0,Format Table,
+        File StrCat[ResDir,"filtOut.pos"] ];
+      Print[filtIn, OnElementsOf DomainOpt,Depth 1,
+        File StrCat[ResDir,"filtIn_1.pos"]];
+      Print[filtOut, OnElementsOf DomainOpt,Depth 1,
+        File StrCat[ResDir,"filtOut_1.pos"] ];
     }
   }
 
   { Name FilterTopOpt_dXdx; NameOfPostProcessing FilterTopOpt_dXdx;
     Operation {
-      Print [ dxFiltdx, OnElementsOf DomainOpt,File StrCat[ResDir,"dxFiltdx.pos"]];
+      Print[dxFiltdx,OnElementsOf DomainOpt,Depth 0, Format Table,
+        File StrCat[ResDir,"dxFiltdx.pos"]];
+      Print[dxFiltdx,OnElementsOf DomainOpt,Depth 1, 
+        File StrCat[ResDir,"dxFiltdx_1.pos"]];
     }
   }
   // --------------------------------------------------------------------------
