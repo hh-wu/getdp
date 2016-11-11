@@ -318,8 +318,10 @@ void Dof_ReadFilePRE0(int * Num_Resolution, int * Nbr_DofData)
   }
 
   do {
-    if(!fgets(String, sizeof(String), File_PRE)) break;
-    if(feof(File_PRE)){ Message::Error("Prematured end of file"); break; }
+    if(!fgets(String, sizeof(String), File_PRE) || feof(File_PRE)){
+      Message::Error("Premature end of file");
+      break;
+    }
   } while (String[0] != '$') ;
 }
 
@@ -523,8 +525,10 @@ void Dof_ReadFilePRE(struct DofData * DofData_P)
   }
 
   do {
-    if(!fgets(String, sizeof(String), File_PRE)) break;
-    if(feof(File_PRE)){ Message::Error("Prematured end of file"); break; }
+    if(!fgets(String, sizeof(String), File_PRE) || feof(File_PRE)){
+      Message::Error("Premature end of file");
+      break;
+    }
   } while (String[0] != '$') ;
 
   Dof_InitDofType(DofData_P) ;
@@ -880,10 +884,6 @@ void Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
 	Read = 0 ;
       }
 
-      printf("String = '%s'\n", String);
-
-      printf("will read ? %d  (time = %g, nbrdofs=%d)\n", Read, Val_Time, DofData_P->NbrDof);
-
       if(Read){
 	Solution_S.Time = Val_Time ;
 	Solution_S.TimeImag = Val_TimeImag ;
@@ -903,9 +903,8 @@ void Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
     }
 
     do {
-      if(!fgets(String, sizeof(String), File_RES)) break;
-      if(feof(File_RES)){
-	Message::Warning("Prematured end of file (Time Step %d)", Val_TimeStep);
+      if(!fgets(String, sizeof(String), File_RES) || feof(File_RES)){
+	Message::Warning("Premature end of file (Time Step %d)", Val_TimeStep);
         break;
       }
     } while (String[0] != '$') ;
