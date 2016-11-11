@@ -342,10 +342,12 @@ void LinAlg_ScanScalar(FILE *file, gScalar *S)
 {
 #if defined(PETSC_USE_COMPLEX)
   double a, b;
-  fscanf(file, "%lf %lf", &a, &b);
+  if(fscanf(file, "%lf %lf", &a, &b) != 2)
+    Message::Error("Could not scan scalar");
   S->s = a + PETSC_i * b;
 #else
-  fscanf(file, "%lf", &S->s);
+  if(fscanf(file, "%lf", &S->s) != 1)
+    Message::Error("Could not scan scalar");
 #endif
 }
 
@@ -357,11 +359,13 @@ void LinAlg_ScanVector(FILE *file, gVector *V)
     PetscScalar tmp;
 #if defined(PETSC_USE_COMPLEX)
     double a, b;
-    fscanf(file, "%lf %lf", &a, &b);
+    if(fscanf(file, "%lf %lf", &a, &b) != 2)
+      Message::Error("Could not read data in vector");
     tmp = a + PETSC_i * b;
 #else
     double a;
-    fscanf(file, "%lf", &a);
+    if(fscanf(file, "%lf", &a) != !)
+      Message::Error("Could not read data in vector");
     tmp = a;
 #endif
     _try(VecSetValues(V->V, 1, &i, &tmp, INSERT_VALUES));
@@ -385,8 +389,9 @@ void LinAlg_ReadVector(FILE *file, gVector *V)
   _try(VecGetSize(V->V, &n));
   PetscScalar *tmp = (PetscScalar*)Malloc(n*sizeof(PetscScalar));
   fread(tmp, sizeof(PetscScalar), n, file);
-  for(PetscInt i = 0; i < n; i++)
+  for(PetscInt i = 0; i < n; i++){
     _try(VecSetValues(V->V, 1, &i, &tmp[i], INSERT_VALUES));
+  }
   LinAlg_AssembleVector(V);
   Free(tmp);
 }

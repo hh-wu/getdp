@@ -37,9 +37,9 @@ int fcmp_Dof(const void * a, const void * b)
 {
   int Result ;
 
-  if ((Result = ((struct Dof *)a)->NumType  - ((struct Dof *)b)->NumType) != 0)
+  if((Result = ((struct Dof *)a)->NumType  - ((struct Dof *)b)->NumType) != 0)
     return Result ;
-  if ((Result = ((struct Dof *)a)->Entity   - ((struct Dof *)b)->Entity)  != 0)
+  if((Result = ((struct Dof *)a)->Entity   - ((struct Dof *)b)->Entity)  != 0)
     return Result ;
   return        ((struct Dof *)a)->Harmonic - ((struct Dof *)b)->Harmonic ;
 }
@@ -246,7 +246,7 @@ void Dof_OpenFile(int Type, char * Name, const char * Mode)
 
   strcpy(FileName, Name) ; strcat(FileName, Extension) ;
 
-  if (!(File_X = FOpen(FileName, Mode)))
+  if(!(File_X = FOpen(FileName, Mode)))
     Message::Error("Unable to open file '%s'", FileName) ;
 
   switch (Type) {
@@ -307,19 +307,19 @@ void Dof_ReadFilePRE0(int * Num_Resolution, int * Nbr_DofData)
   char  String[256] ;
 
   do {
-    fgets(String, sizeof(String), File_PRE) ;
-    if (feof(File_PRE))  break ;
-  } while (String[0] != '$') ;
+    if(!fgets(String, sizeof(String), File_PRE)) break;
+    if(feof(File_PRE))  break;
+  } while (String[0] != '$');
 
-  if (feof(File_PRE)){ Message::Error("$Resolution field not found in file"); return; }
+  if(feof(File_PRE)){ Message::Error("$Resolution field not found in file"); return; }
 
-  if (!strncmp(&String[1], "Resolution", 10)) {
+  if(!strncmp(&String[1], "Resolution", 10)) {
     fscanf(File_PRE, "%d %d", Num_Resolution, Nbr_DofData) ;
   }
 
   do {
-    fgets(String, sizeof(String), File_PRE) ;
-    if (feof(File_PRE)){ Message::Error("Prematured end of file"); return; }
+    if(!fgets(String, sizeof(String), File_PRE)) break;
+    if(feof(File_PRE)){ Message::Error("Prematured end of file"); break; }
   } while (String[0] != '$') ;
 }
 
@@ -341,14 +341,14 @@ void Dof_WriteFilePRE(struct DofData * DofData_P)
 
   Nbr_Index = List_Nbr(DofData_P->FunctionSpaceIndex) ;
   fprintf(File_PRE, "%d", Nbr_Index) ;
-  for (i = 0 ; i < Nbr_Index ; i++)
+  for(i = 0 ; i < Nbr_Index ; i++)
     fprintf(File_PRE, " %d",
 	    *((int *)List_Pointer(DofData_P->FunctionSpaceIndex, i))) ;
   fprintf(File_PRE, "\n") ;
 
   Nbr_Index = List_Nbr(DofData_P->TimeFunctionIndex) ;
   fprintf(File_PRE, "%d", Nbr_Index) ;
-  for (i = 0 ; i < Nbr_Index ; i++)
+  for(i = 0 ; i < Nbr_Index ; i++)
     fprintf(File_PRE, " %d",
 	    *((int *)List_Pointer(DofData_P->TimeFunctionIndex, i))) ;
   fprintf(File_PRE, "\n") ;
@@ -362,12 +362,12 @@ void Dof_WriteFilePRE(struct DofData * DofData_P)
 	  (DofData_P->DofTree)? Tree_Nbr(DofData_P->DofTree) : DofData_P->NbrAnyDof,
 	  DofData_P->NbrDof) ;
 
-  if (DofData_P->DofTree)
+  if(DofData_P->DofTree)
     Tree_Action(DofData_P->DofTree, Dof_WriteDofPRE) ;
   else {
-    if (DofData_P->NbrAnyDof){
+    if(DofData_P->NbrAnyDof){
       Dof_P0 = (struct Dof *)List_Pointer(DofData_P->DofList, 0) ;
-      for (i = 0 ; i < DofData_P->NbrAnyDof ; i++)
+      for(i = 0 ; i < DofData_P->NbrAnyDof ; i++)
 	Dof_WriteDofPRE(Dof_P0 + i, NULL) ;
     }
   }
@@ -437,27 +437,27 @@ void Dof_ReadFilePRE(struct DofData * DofData_P)
   char        String[256] ;
 
   do {
-    fgets(String, sizeof(String), File_PRE) ;
-    if (feof(File_PRE))  break ;
+    if(!fgets(String, sizeof(String), File_PRE)) break;
+    if(feof(File_PRE))  break;
   } while (String[0] != '$') ;
 
-  if (feof(File_PRE)){ Message::Error("$DofData field not found in file"); return; }
+  if(feof(File_PRE)){ Message::Error("$DofData field not found in file"); return; }
 
-  if (!strncmp(&String[1], "DofData", 7)) {
+  if(!strncmp(&String[1], "DofData", 7)) {
 
     fscanf(File_PRE, "%d %d",
 	   &DofData_P->ResolutionIndex, &DofData_P->SystemIndex) ;
 
     fscanf(File_PRE, "%d", &Nbr_Index) ;
     DofData_P->FunctionSpaceIndex = List_Create(Nbr_Index, 1, sizeof(int)) ;
-    for (i = 0 ; i < Nbr_Index ; i++) {
+    for(i = 0 ; i < Nbr_Index ; i++) {
       fscanf(File_PRE, "%d", &Int) ;
       List_Add(DofData_P->FunctionSpaceIndex, &Int) ;
     }
 
     fscanf(File_PRE, "%d", &Nbr_Index) ;
     DofData_P->TimeFunctionIndex = List_Create(Nbr_Index, 1, sizeof(int)) ;
-    for (i = 0 ; i < Nbr_Index ; i++) {
+    for(i = 0 ; i < Nbr_Index ; i++) {
       fscanf(File_PRE, "%d", &Int) ;
       List_Add(DofData_P->TimeFunctionIndex, &Int) ;
     }
@@ -472,7 +472,7 @@ void Dof_ReadFilePRE(struct DofData * DofData_P)
     Tree_Delete(DofData_P->DofTree);
     DofData_P->DofTree = NULL;
 
-    for (i = 0 ; i < DofData_P->NbrAnyDof ; i++) {
+    for(i = 0 ; i < DofData_P->NbrAnyDof ; i++) {
 
       fscanf(File_PRE, "%d %d %d %d",
 	     &Dof.NumType, &Dof.Entity, &Dof.Harmonic, &Dof.Type) ;
@@ -523,8 +523,8 @@ void Dof_ReadFilePRE(struct DofData * DofData_P)
   }
 
   do {
-    fgets(String, sizeof(String), File_PRE) ;
-    if (feof(File_PRE)){ Message::Error("Prematured end of file"); return; }
+    if(!fgets(String, sizeof(String), File_PRE)) break;
+    if(feof(File_PRE)){ Message::Error("Prematured end of file"); break; }
   } while (String[0] != '$') ;
 
   Dof_InitDofType(DofData_P) ;
@@ -573,7 +573,7 @@ void Dof_WriteFileRES_ExtendMH(char * Name_File, struct DofData * DofData_P,
 
   LinAlg_ZeroVector(&x) ;
 
-  for (i=0 ; i<DofData_P->NbrDof ; i++){
+  for(i=0 ; i<DofData_P->NbrDof ; i++){
     LinAlg_GetDoubleInVector(&d, &DofData_P->CurrentSolution->x, i);
     inew = (i / Current.NbrHar) * NbrH + i % Current.NbrHar;
     LinAlg_SetDoubleInVector(d, &x, inew);
@@ -620,9 +620,9 @@ void Dof_WriteFileRES_MHtoTime(char * Name_File, struct DofData * DofData_P,
 
     LinAlg_ZeroVector(&x) ;
 
-    for (i=0 ; i<DofData_P->NbrDof/Current.NbrHar ; i++) {
+    for(i=0 ; i<DofData_P->NbrDof/Current.NbrHar ; i++) {
       d = 0;
-      for (k=0 ; k<Current.NbrHar/2 ; k++) {
+      for(k=0 ; k<Current.NbrHar/2 ; k++) {
 	j = i * Current.NbrHar + 2*k ;
 	LinAlg_GetDoubleInVector(&d1, &DofData_P->CurrentSolution->x, j) ;
 	LinAlg_GetDoubleInVector(&d2, &DofData_P->CurrentSolution->x, j+1) ;
@@ -843,21 +843,21 @@ void Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
   while (1) {
 
     do {
-      fgets(String, sizeof(String), File_RES) ;
-      if (feof(File_RES))  break ;
+      if(!fgets(String, sizeof(String), File_RES)) break;
+      if(feof(File_RES))  break ;
     } while (String[0] != '$') ;
 
-    if (feof(File_RES))  break ;
+    if(feof(File_RES))  break ;
 
     /*  F o r m a t  */
 
-    if (!strncmp(&String[1], "ResFormat", 9)) {
+    if(!strncmp(&String[1], "ResFormat", 9)) {
       fscanf(File_RES, "%lf %d\n", &Version, &Format) ;
     }
 
     /*  S o l u t i o n  */
 
-    if (!strncmp(&String[1], "Solution", 8)) {
+    if(!strncmp(&String[1], "Solution", 8)) {
 
       /* don't use fscanf directly on the stream here: the data that
 	 follows can be binary, and the first character could be
@@ -870,15 +870,19 @@ void Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
 	sscanf(String, "%d %lf %lf %d", &Num_DofData, &Val_Time, &Val_TimeImag,
 	       &Val_TimeStep) ;
 
-      if (Read_DofData < 0){
+      if(Read_DofData < 0){
 	Read = 1 ; DofData_P = (struct DofData*)List_Pointer(DofData_L, Num_DofData) ;
       }
-      else if (Num_DofData == Read_DofData) {
+      else if(Num_DofData == Read_DofData) {
 	Read = 1 ; DofData_P = Read_DofData_P ;
       }
       else {
 	Read = 0 ;
       }
+
+      printf("String = '%s'\n", String);
+
+      printf("will read ? %d  (time = %g, nbrdofs=%d)\n", Read, Val_Time, DofData_P->NbrDof);
 
       if(Read){
 	Solution_S.Time = Val_Time ;
@@ -892,16 +896,18 @@ void Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
 	  LinAlg_ReadVector(File_RES, &Solution_S.x) :
 	  LinAlg_ScanVector(File_RES, &Solution_S.x) ;
 
-	if (DofData_P->Solutions == NULL)
+	if(DofData_P->Solutions == NULL)
 	  DofData_P->Solutions = List_Create( 20, 20, sizeof(struct Solution)) ;
 	List_Add(DofData_P->Solutions, &Solution_S) ;
       }
     }
 
     do {
-      fgets(String, sizeof(String), File_RES) ;
-      if (feof(File_RES))
+      if(!fgets(String, sizeof(String), File_RES)) break;
+      if(feof(File_RES)){
 	Message::Warning("Prematured end of file (Time Step %d)", Val_TimeStep);
+        break;
+      }
     } while (String[0] != '$') ;
 
   }   /* while 1 ... */
@@ -917,7 +923,7 @@ void Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
 
 void Dof_TransferDofTreeToList(struct DofData * DofData_P)
 {
-  if (DofData_P->DofTree) {
+  if(DofData_P->DofTree) {
     DofData_P->DofList = Tree2List(DofData_P->DofTree) ;
     Tree_Delete(DofData_P->DofTree) ;
     DofData_P->DofTree = NULL ;
@@ -936,13 +942,13 @@ void Dof_InitDofType(struct DofData * DofData_P)
   struct Dof  * Dof_P, * Dof_P0 ;
   int  i ;
 
-  if (!DofData_P->NbrAnyDof){
+  if(!DofData_P->NbrAnyDof){
     return;
   }
 
   Dof_P0 = (struct Dof *)List_Pointer(DofData_P->DofList, 0) ;
 
-  for (i = 0 ; i < DofData_P->NbrAnyDof ; i++) {
+  for(i = 0 ; i < DofData_P->NbrAnyDof ; i++) {
     Dof_P = Dof_P0 + i ;
 
     switch (Dof_P->Type) {
@@ -951,7 +957,7 @@ void Dof_InitDofType(struct DofData * DofData_P)
       Dof_P->Case.Link.Dof =
 	Dof_GetDofStruct(DofData_P, Dof_P->NumType,
 			 Dof_P->Case.Link.EntityRef, Dof_P->Harmonic) ;
-      if (Dof_P->Case.Link.Dof == NULL
+      if(Dof_P->Case.Link.Dof == NULL
           ||
           Dof_P->Case.Link.Dof ==
           Dof_GetDofStruct(DofData_P, Dof_P->NumType,
@@ -960,12 +966,12 @@ void Dof_InitDofType(struct DofData * DofData_P)
 	Dof_P->Case.Link.Dof = /* Attention: bricolage ... */
 	  Dof_GetDofStruct(DofData_P, Dof_P->NumType-1,
 			   Dof_P->Case.Link.EntityRef, Dof_P->Harmonic) ;
-	if (Dof_P->Case.Link.Dof == NULL)
+	if(Dof_P->Case.Link.Dof == NULL)
 	  Message::Error("Wrong Link Constraint: reference Dof (%d %d %d) does not exist",
                          Dof_P->NumType, Dof_P->Case.Link.EntityRef, Dof_P->Harmonic);
       }
       /*
-      if (Dof_P->Case.Link.Dof == NULL)
+      if(Dof_P->Case.Link.Dof == NULL)
 	Message::Error("Wrong Link Constraint: reference Dof (%d %d %d) does not exist",
 	               Dof_P->NumType, Dof_P->Case.Link.EntityRef, Dof_P->Harmonic);
       */
@@ -987,10 +993,10 @@ void Dof_InitDofType(struct DofData * DofData_P)
 
 void Dof_AddFunctionSpaceIndex(int Index_FunctionSpace)
 {
-  if (CurrentDofData->FunctionSpaceIndex == NULL)
+  if(CurrentDofData->FunctionSpaceIndex == NULL)
     CurrentDofData->FunctionSpaceIndex = List_Create(10, 5, sizeof(int)) ;
 
-  if (List_PQuery
+  if(List_PQuery
       (CurrentDofData->FunctionSpaceIndex, &Index_FunctionSpace, fcmp_int) == NULL) {
     List_Add(CurrentDofData->FunctionSpaceIndex, &Index_FunctionSpace) ;
     List_Sort(CurrentDofData->FunctionSpaceIndex, fcmp_int) ;
@@ -1003,7 +1009,7 @@ void Dof_AddFunctionSpaceIndex(int Index_FunctionSpace)
 
 void Dof_AddTimeFunctionIndex(int Index_TimeFunction)
 {
-  if (List_PQuery
+  if(List_PQuery
       (CurrentDofData->TimeFunctionIndex, &Index_TimeFunction, fcmp_int) == NULL) {
     List_Add(CurrentDofData->TimeFunctionIndex, &Index_TimeFunction) ;
     List_Sort(CurrentDofData->TimeFunctionIndex, fcmp_int) ;
@@ -1016,11 +1022,11 @@ void Dof_AddTimeFunctionIndex(int Index_TimeFunction)
 
 void Dof_AddPulsation(struct DofData * DofData_P, double Val_Pulsation)
 {
-  if (DofData_P->Pulsation == NULL)
+  if(DofData_P->Pulsation == NULL)
     DofData_P->Pulsation = List_Create(1, 2, sizeof(double)) ;
   List_Add(DofData_P->Pulsation, &Val_Pulsation) ;
   /*
-  if (List_PQuery
+  if(List_PQuery
       (DofData_P->Pulsation, &Val_Pulsation, fcmp_double) == NULL) {
     List_Add(DofData_P->Pulsation, &Val_Pulsation) ;
     List_Sort(DofData_P->Pulsation, fcmp_double) ;
@@ -1042,7 +1048,7 @@ void Dof_DefineAssignFixedDof(int D1, int D2, int NbrHar, double *Val,
 
   for(k=0 ; k<NbrHar ; k+=gSCALAR_SIZE){
     Dof.Harmonic = k ;
-    if (!(Dof_P = (struct Dof *)Tree_PQuery(CurrentDofData->DofTree, &Dof))) {
+    if(!(Dof_P = (struct Dof *)Tree_PQuery(CurrentDofData->DofTree, &Dof))) {
       Dof.Type = DOF_FIXED ;
       LinAlg_SetScalar(&Dof.Val, &Val[k]) ;
       Dof.Case.FixedAssociate.TimeFunctionIndex = Index_TimeFunction + 1 ;
@@ -1073,7 +1079,7 @@ void Dof_DefineAssignSolveDof(int D1, int D2, int NbrHar, int Index_TimeFunction
 
   for(k=0 ; k<NbrHar ; k+=gSCALAR_SIZE){
     Dof.Harmonic = k ;
-    if (!Tree_PQuery(CurrentDofData->DofTree, &Dof)) {
+    if(!Tree_PQuery(CurrentDofData->DofTree, &Dof)) {
       Dof.Type = DOF_FIXED_SOLVE ;
       Dof.Case.FixedAssociate.TimeFunctionIndex = Index_TimeFunction + 1 ;
       Dof_AddTimeFunctionIndex(Index_TimeFunction + 1) ;
@@ -1096,7 +1102,7 @@ void Dof_DefineInitFixedDof(int D1, int D2, int NbrHar, double *Val,
 
   for(k=0 ; k<NbrHar ; k+=gSCALAR_SIZE){
     Dof.Harmonic = k ;
-    if (!Tree_PQuery(CurrentDofData->DofTree, &Dof)) {
+    if(!Tree_PQuery(CurrentDofData->DofTree, &Dof)) {
       Dof.Type = DOF_UNKNOWN_INIT ;
       LinAlg_SetScalar(&Dof.Val, &Val[k]) ;
       LinAlg_SetScalar(&Dof.Val2, &Val2[k]) ;
@@ -1120,7 +1126,7 @@ void Dof_DefineInitSolveDof(int D1, int D2, int NbrHar)
 
   for(k=0 ; k<NbrHar ; k+=gSCALAR_SIZE){
     Dof.Harmonic = k ;
-    if (!Tree_PQuery(CurrentDofData->DofTree, &Dof)) {
+    if(!Tree_PQuery(CurrentDofData->DofTree, &Dof)) {
       Dof.Type = DOF_UNKNOWN_INIT ;
       Dof.Case.Unknown.NumDof = ++(CurrentDofData->NbrDof) ;
       Dof.Case.Unknown.NonLocal = false ;
@@ -1142,7 +1148,7 @@ void Dof_DefineLinkDof(int D1, int D2, int NbrHar, double Value[], int D2_Link)
 
   for(k=0 ; k<NbrHar ; k+=gSCALAR_SIZE){
     Dof.Harmonic = k ;
-    if (!Tree_PQuery(CurrentDofData->DofTree, &Dof)) {
+    if(!Tree_PQuery(CurrentDofData->DofTree, &Dof)) {
       Dof.Type = DOF_LINK ;
       Dof.Case.Link.Coef = Value[0] ;
       Dof.Case.Link.EntityRef = D2_Link ;
@@ -1161,7 +1167,7 @@ void Dof_DefineLinkCplxDof(int D1, int D2, int NbrHar, double Value[], int D2_Li
 
   for(k=0 ; k<NbrHar ; k+=gSCALAR_SIZE){
     Dof.Harmonic = k ;
-    if (!Tree_PQuery(CurrentDofData->DofTree, &Dof)) {
+    if(!Tree_PQuery(CurrentDofData->DofTree, &Dof)) {
       Dof.Type = DOF_LINKCPLX ;
       Dof.Case.Link.Coef = Value[0] ;
       Dof.Case.Link.Coef2 = Value[1] ;
@@ -1185,7 +1191,7 @@ void Dof_DefineUnknownDof(int D1, int D2, int NbrHar, bool NonLocal)
 
   for(k=0 ; k<NbrHar ; k+=gSCALAR_SIZE){
     Dof.Harmonic = k ;
-    if (!Tree_PQuery(CurrentDofData->DofTree, &Dof)) {
+    if(!Tree_PQuery(CurrentDofData->DofTree, &Dof)) {
       Dof.Type = DOF_UNKNOWN ;
       /* Dof.Case.Unknown.NumDof = ++(CurrentDofData->NbrDof) ; */
       Dof.Case.Unknown.NumDof = -1 ;
@@ -1231,7 +1237,7 @@ void Dof_DefineAssociateDof(int E1, int E2, int D1, int D2, int NbrHar,
 
   for(k=0 ; k<NbrHar ; k+=gSCALAR_SIZE){
     Equ.Harmonic = k ;
-    if ((Equ_P = (struct Dof*)Tree_PQuery(CurrentDofData->DofTree, &Equ))) {
+    if((Equ_P = (struct Dof*)Tree_PQuery(CurrentDofData->DofTree, &Equ))) {
       switch (Equ_P->Type) {
       case DOF_FIXED :
 	Equ_P->Type = DOF_FIXEDWITHASSOCIATE ;
@@ -1239,8 +1245,8 @@ void Dof_DefineAssociateDof(int E1, int E2, int D1, int D2, int NbrHar,
         /* To be modified (Patrick): strange to define a new NumDof for Equ if
            associate-Dof already exists */
 	Dof.NumType = D1 ; Dof.Entity = D2 ; Dof.Harmonic = k ;
-	if (!Tree_PQuery(CurrentDofData->DofTree, &Dof)) {
-          if (!init) {
+	if(!Tree_PQuery(CurrentDofData->DofTree, &Dof)) {
+          if(!init) {
             Dof.Type = DOF_UNKNOWN ;
           }
           else {
@@ -1257,8 +1263,8 @@ void Dof_DefineAssociateDof(int E1, int E2, int D1, int D2, int NbrHar,
 	Equ_P->Type = DOF_FIXEDWITHASSOCIATE_SOLVE ;
 	Equ_P->Case.FixedAssociate.NumDof = ++(CurrentDofData->NbrDof) ;
 	Dof.NumType = D1 ; Dof.Entity = D2 ; Dof.Harmonic = k ;
-	if (!Tree_PQuery(CurrentDofData->DofTree, &Dof)) {
-          if (!init) {
+	if(!Tree_PQuery(CurrentDofData->DofTree, &Dof)) {
+          if(!init) {
             Dof.Type = DOF_UNKNOWN ;
           }
           else {
@@ -1336,12 +1342,12 @@ void Dof_UpdateLinkDof(int D1, int D2, int NbrHar, double Value[], int D2_Link)
     else
       Dof_P = (struct Dof *)List_PQuery(CurrentDofData->DofList, &Dof, fcmp_Dof);
 
-    if (Dof_P->Type == DOF_LINK || Dof_P->Type == DOF_LINKCPLX) {
+    if(Dof_P->Type == DOF_LINK || Dof_P->Type == DOF_LINKCPLX) {
       /*
         fprintf(stderr,"===> %d %d %.16g\n", Dof_P->NumType, Dof_P->Entity, Value[0]) ;
       */
       Dof_P->Case.Link.Coef = Value[0] ;
-      if (Dof_P->Type == DOF_LINKCPLX)
+      if(Dof_P->Type == DOF_LINKCPLX)
 	Dof_P->Case.Link.Coef2 = Value[1] ;
       Dof_P->Case.Link.EntityRef = D2_Link ;
       Dof_P->Case.Link.Dof = NULL ;
@@ -1628,13 +1634,13 @@ void Dof_TransferSolutionToConstraint(struct DofData * DofData_P)
   struct Dof * Dof_P, * Dof_P0 ;
   int  i ;
 
-  if (!DofData_P->NbrAnyDof){
+  if(!DofData_P->NbrAnyDof){
     return;
   }
 
   Dof_P0 = (struct Dof *)List_Pointer(DofData_P->DofList, 0) ;
 
-  for (i = 0 ; i < DofData_P->NbrAnyDof ; i++) {
+  for(i = 0 ; i < DofData_P->NbrAnyDof ; i++) {
     Dof_P = Dof_P0 + i ;
 
     switch (Dof_P->Type) {
@@ -1710,7 +1716,7 @@ void Dof_GetRealDofValue(struct DofData * DofData_P, struct Dof * Dof_P, double 
 {
   gScalar tmp ;
 
-  if (Dof_P->Type == DOF_LINKCPLX) {
+  if(Dof_P->Type == DOF_LINKCPLX) {
     Message::Error("Cannot call Dof_GetRealDofValue for LinkCplx");
     return;
   }
@@ -1727,7 +1733,7 @@ void Dof_GetComplexDofValue(struct DofData * DofData_P, struct Dof * Dof_P,
 
   if(gSCALAR_SIZE == 1){
     if(Dof_P->Type == DOF_LINKCPLX) { /* Can only be done here */
-      if (Dof_P->Case.Link.Dof->Type == DOF_LINKCPLX) { /* recurse */
+      if(Dof_P->Case.Link.Dof->Type == DOF_LINKCPLX) { /* recurse */
 	Dof_GetComplexDofValue(DofData_P, Dof_P->Case.Link.Dof, d1, d2);
       }
       else{
@@ -1745,8 +1751,8 @@ void Dof_GetComplexDofValue(struct DofData * DofData_P, struct Dof * Dof_P,
     }
   }
   else{
-    if (Dof_P->Type == DOF_LINKCPLX) { /* Can only be done here */
-      if (Dof_P->Case.Link.Dof->Type == DOF_LINKCPLX) { /* recurse */
+    if(Dof_P->Type == DOF_LINKCPLX) { /* Can only be done here */
+      if(Dof_P->Case.Link.Dof->Type == DOF_LINKCPLX) { /* recurse */
 	Dof_GetComplexDofValue(DofData_P, Dof_P->Case.Link.Dof, d1, d2);
       }
       else{
@@ -1851,7 +1857,7 @@ void Dof_InitDofForNoDof(struct Dof * DofForNoDof, int NbrHar)
   int k ;
   double Val[2] = {1.,0.} ;
 
-  for (k=0 ; k<NbrHar ; k+=gSCALAR_SIZE) {
+  for(k=0 ; k<NbrHar ; k+=gSCALAR_SIZE) {
     int incr = (gSCALAR_SIZE == 2) ? k / 2 : k;
     struct Dof * D = DofForNoDof + incr;
     D->Type = DOF_FIXED ;
@@ -1908,45 +1914,45 @@ void Dof_GetDummies(struct DefineSystem * DefineSystem_P, struct DofData * DofDa
   int *DummyDof;
   double FrequencySpectrum, *Val_Pulsation;
 
-  if (!(Val_Pulsation = Current.DofData->Val_Pulsation)){
+  if(!(Val_Pulsation = Current.DofData->Val_Pulsation)){
     Message::Error("Dof_GetDummies can only be used for harmonic problems");
     return;
   }
 
   DummyDof = DofData_P->DummyDof = (int *)Malloc(DofData_P->NbrDof*sizeof(int));
-  for (iDof = 0 ; iDof < DofData_P->NbrDof ; iDof++) DummyDof[iDof]=0;
+  for(iDof = 0 ; iDof < DofData_P->NbrDof ; iDof++) DummyDof[iDof]=0;
 
   Nbr_Formulation = List_Nbr(DefineSystem_P->FormulationIndex) ;
 
-  for (i = 0 ; i < Nbr_Formulation ; i++) {
+  for(i = 0 ; i < Nbr_Formulation ; i++) {
     List_Read(DefineSystem_P->FormulationIndex, i, &Index_Formulation) ;
     Formulation_P = (struct Formulation*)
       List_Pointer(Problem_S.Formulation, Index_Formulation) ;
-    for (j = 0 ; j < List_Nbr(Formulation_P->DefineQuantity) ; j++) {
+    for(j = 0 ; j < List_Nbr(Formulation_P->DefineQuantity) ; j++) {
       DefineQuantity_P = (struct DefineQuantity*)
 	List_Pointer(Formulation_P->DefineQuantity, j) ;
-      for (l = 0 ; l < List_Nbr(DefineQuantity_P->FrequencySpectrum) ; l++) {
+      for(l = 0 ; l < List_Nbr(DefineQuantity_P->FrequencySpectrum) ; l++) {
 	FrequencySpectrum = *(double *)List_Pointer(DefineQuantity_P->FrequencySpectrum, l) ;
 
 	iHar=-1;
-	for (k = 0 ; k < Current.NbrHar/2 ; k++)
-	  if (fabs(Val_Pulsation[k]-TWO_PI*FrequencySpectrum) <= 1e-10*Val_Pulsation[k]) {
+	for(k = 0 ; k < Current.NbrHar/2 ; k++)
+	  if(fabs(Val_Pulsation[k]-TWO_PI*FrequencySpectrum) <= 1e-10*Val_Pulsation[k]) {
 	    iHar = 2*k; break;
 	  }
 	if(iHar>=0) {
 	  FunctionSpace_P = (struct FunctionSpace*)
 	    List_Pointer(Problem_S.FunctionSpace, DefineQuantity_P->FunctionSpaceIndex) ;
 
-	  for (k = 0 ; k < List_Nbr(FunctionSpace_P->BasisFunction) ; k++) {
+	  for(k = 0 ; k < List_Nbr(FunctionSpace_P->BasisFunction) ; k++) {
 	    BasisFunction_P = (struct BasisFunction *)
 	      List_Pointer(FunctionSpace_P->BasisFunction, k) ;
 	    iNum = ((struct BasisFunction *)BasisFunction_P)->Num;
 	    ii=iit=0;
-	    for (iDof = 0 ; iDof < List_Nbr(DofData_P->DofList) ; iDof++) {
+	    for(iDof = 0 ; iDof < List_Nbr(DofData_P->DofList) ; iDof++) {
 	      Dof_P = (struct Dof *)List_Pointer(DofData_P->DofList, iDof) ;
-	      if (Dof_P->Type == DOF_UNKNOWN && Dof_P->NumType == iNum) {
+	      if(Dof_P->Type == DOF_UNKNOWN && Dof_P->NumType == iNum) {
 		iit++;
-		if (Dof_P->Harmonic == iHar || Dof_P->Harmonic == iHar+1) {
+		if(Dof_P->Harmonic == iHar || Dof_P->Harmonic == iHar+1) {
 		  DummyDof[Dof_P->Case.Unknown.NumDof-1]=1; ii++;
 		}
 	      }
@@ -1959,16 +1965,16 @@ void Dof_GetDummies(struct DefineSystem * DefineSystem_P, struct DofData * DofDa
                             ((struct BasisFunction *)BasisFunction_P)->Num, ii, iit) ;
 	  }
 
-	  for (k = 0 ; k < List_Nbr(FunctionSpace_P->GlobalQuantity) ; k++) {
+	  for(k = 0 ; k < List_Nbr(FunctionSpace_P->GlobalQuantity) ; k++) {
 	    GlobalQuantity_P = (struct GlobalQuantity *)
 	      List_Pointer(FunctionSpace_P->GlobalQuantity, k) ;
 	    iNum = ((struct GlobalQuantity *)GlobalQuantity_P)->Num;
 	    ii=iit=0;
-	    for (iDof = 0 ; iDof < List_Nbr(DofData_P->DofList) ; iDof++) {
+	    for(iDof = 0 ; iDof < List_Nbr(DofData_P->DofList) ; iDof++) {
 	      Dof_P = (struct Dof *)List_Pointer(DofData_P->DofList, iDof) ;
-	      if (Dof_P->Type == DOF_UNKNOWN && Dof_P->NumType == iNum) {
+	      if(Dof_P->Type == DOF_UNKNOWN && Dof_P->NumType == iNum) {
 		iit++;
-		if (Dof_P->Harmonic == iHar || Dof_P->Harmonic == iHar+1) {
+		if(Dof_P->Harmonic == iHar || Dof_P->Harmonic == iHar+1) {
 		  DummyDof[Dof_P->Case.Unknown.NumDof-1]=1; ii++;
 		}
 	      }
@@ -1987,7 +1993,7 @@ void Dof_GetDummies(struct DefineSystem * DefineSystem_P, struct DofData * DofDa
   }   /* end Formulation */
 
   i=0;
-  for (iDof = 0 ; iDof < DofData_P->NbrDof ; iDof++) {
+  for(iDof = 0 ; iDof < DofData_P->NbrDof ; iDof++) {
     if(DummyDof[iDof]) i++;
 
     if(Message::GetVerbosity() == 99){
