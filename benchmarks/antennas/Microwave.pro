@@ -1,43 +1,39 @@
-ExtGnuplot = ".dat";
-ExtGmsh = ".pos";
-
 Group{
   DefineGroup[ Domain, DomainC, DomainCC, DomainS, DomainTot ] ;
-  DefineGroup[ SurBC, SurS, SkinFeed, SurfaceElec, SurfaceElecWithI ] ;
+  DefineGroup[ SurBC, SurS, SkinFeed ] ;
   TrGr = ElementsOf[ Domain, OnOneSideOf SkinFeed ];
 }
 
 Function{
   DefineFunction[ ks0, js0, nxh, BC_Fct_e, dR ];
-  DefineFunction[ epsilon, sigma, nu, eta];
+  DefineFunction[ epsilon, sigma, nu ];
   DefineConstant[ ZL ];
-  DefineConstant[ Flag_3Dmodel, Flag_Axisymmetry, Flag_SilverMuller ]; // PML or Silver Muller BC
+  DefineConstant[ Flag_3Dmodel, Flag_Axisymmetry, Flag_SilverMuller ];
 }
 
-If(Flag_3Dmodel==1)
+If(Flag_3Dmodel)
   myDir = "res3d/";
   ppe = "Output-e/Three-dimensional/";
   ppa = "Output-av/Three-dimensional/";
-EndIf
-
-If(Flag_Axisymmetry)
-  myDir = "res/";
+ElseIf(Flag_Axisymmetry)
+  myDir = "resAxi/";
   ppe = "Output-e/Axysymmetric/";
   ppa = "Output-av/Axysymmetric/";
-EndIf
-
-
-If(!Flag_Axisymmetry)
-  Jacobian {
-    { Name JVol ; Case { { Region All ; Jacobian Vol ; } } }
-    { Name JSur ; Case { { Region All ; Jacobian Sur ; } } }
-  }
+Else
+  myDir = "res2d/";
+  ppe = "Output-e/Axysymmetric/";
+  ppa = "Output-av/Axysymmetric/";
 EndIf
 
 If(Flag_Axisymmetry)
   Jacobian{
     { Name JVol ; Case { { Region All ; Jacobian VolAxiSqu ; } } } // or VolAxi
     { Name JSur ; Case { { Region All ; Jacobian SurAxi ; } } }
+  }
+Else
+  Jacobian {
+    { Name JVol ; Case { { Region All ; Jacobian Vol ; } } }
+    { Name JSur ; Case { { Region All ; Jacobian Sur ; } } }
   }
 EndIf
 
@@ -75,12 +71,6 @@ Integration {
   }
 
 }
-
-// -------------------------------------------------------------------------
-//   Microwave formulations
-//   2D and 3D
-//--------------------------------------------------------------------------
-
 
 FunctionSpace {
   //Electric field
@@ -121,7 +111,7 @@ FunctionSpace {
     }
   }
 
- // Electric scalar potential (v)
+  // Electric scalar potential (v)
   { Name Hgrad_v ; Type Form0 ;
     BasisFunction {
       { Name sn ; NameOfCoef vn ; Function BF_Node ;
@@ -243,7 +233,6 @@ Formulation {
 
 
 Resolution {
-
   { Name Microwave_e_BC; Hidden 1;
     System {
       { Name B; NameOfFormulation Microwave_e_BC; DestinationSystem A; }
@@ -252,7 +241,6 @@ Resolution {
       Generate B; Solve B; TransferSolution B;
     }
   }
-
   { Name Analysis;
     System {
       If(Flag_AnalysisType==0)
@@ -271,12 +259,10 @@ Resolution {
       If(Flag_AnalysisType==1)
         PostOperation[Microwave_av];
       EndIf
-
     }
   }
 
 }
-
 
 PostProcessing {
 
@@ -296,20 +282,20 @@ PostProcessing {
           Integral{ [ CoefGeo/delta_gap * 1/V0 * {h} * dR[] ] ;
             In SkinFeed ; Jacobian JSur ; Integration I2 ; } } }
 
-      { Name Zin ; Value {// Z = R Resistance + j X Reactance = \frac{V0}{\oint\vec{h}\cdot\vec{dl}}
-          Term{ Type Global; [ 1./#7 ] ;  In SkinFeed ; }
+      { Name Zin ; Value { // Z = R Resistance + j X Reactance = \frac{V0}{\oint\vec{h}\cdot\vec{dl}}
+          Term{ Type Global; [ 1./$Yin ] ;  In SkinFeed ; }
         }
       }
       { Name Gin ; Value { // G Conductance
-          Term{ Type Global; [ Re[#7] ] ; In SkinFeed ; } } }
+          Term{ Type Global; [ Re[$Yin] ] ; In SkinFeed ; } } }
       { Name Bin ; Value { // B Susceptance
-          Term{ Type Global; [ Im[#7] ] ; In SkinFeed ; } } }
+          Term{ Type Global; [ Im[$Yin] ] ; In SkinFeed ; } } }
 
       // Reflexion coefficient: Gamma = (Z_in-ZL) / (Zin+ZL) = (1-Yin*ZL) / (1 + Yin*ZL) ;
-      // with ZL= impedance load; vacuum impedance = Z0 = eta0 = 120 * Pi = Sqrt(mu0/eps0)
-      { Name Gam ; Value { Term { Type Global; [ (1-ZL*#7)/(1+ZL*#7) ] ; In SkinFeed ; } } } // Yin stored in register 7
-      { Name reGam ; Value { Term { Type Global; [ Re[#8] ] ; In SkinFeed ; } } }
-      { Name imGam ; Value { Term { Type Global; [ Im[#8] ] ; In SkinFeed ; } } }
+      // with ZL = impedance load; vacuum impedance = Z0 = 120 * Pi = Sqrt(mu0/eps0)
+      { Name Gam ; Value { Term { Type Global; [ (1-ZL*$Yin)/(1+ZL*$Yin) ] ; In SkinFeed ; } } }
+      { Name reGam ; Value { Term { Type Global; [ Re[$Gam] ] ; In SkinFeed ; } } }
+      { Name imGam ; Value { Term { Type Global; [ Im[$Gam] ] ; In SkinFeed ; } } }
     }
   }
 
@@ -328,28 +314,26 @@ PostProcessing {
           Local{ [ CrossProduct[ -Dt[{a}]-{d v}, Conj[nu[]*{d a}] ] ] ;
             In Domain ;  Jacobian JVol; } } }
 
-      { Name Yin ; Value { //Y Admitance = G Conductance + j B Susceptance = 1/Z ;
+      { Name Yin ; Value { // Y Admitance = G Conductance + j B Susceptance = 1/Z ;
           Integral{ [ CoefGeo/delta_gap * 1/V0 * {h} * dR[] ] ;
             In SkinFeed ; Jacobian JSur ; Integration I2 ; } } }
 
-      { Name Zin ; Value {// Z = R Resistance + j X Reactance = \frac{V0}{\oint\vec{h}\cdot\vec{dl}}
-          Term{ Type Global; [ 1./#77 ] ;  In SkinFeed ; } } }
+      { Name Zin ; Value { // Z = R Resistance + j X Reactance = \frac{V0}{\oint\vec{h}\cdot\vec{dl}}
+          Term{ Type Global; [ 1./$Yin ] ;  In SkinFeed ; } } }
       { Name Gin ; Value { // G Conductance
-          Term{ Type Global; [ Re[#77] ] ; In SkinFeed ; } } }
+          Term{ Type Global; [ Re[$Yin] ] ; In SkinFeed ; } } }
       { Name Bin ; Value { // B Susceptance
-          Term{ Type Global; [ Im[#77] ] ; In SkinFeed ; } } }
+          Term{ Type Global; [ Im[$Yin] ] ; In SkinFeed ; } } }
 
       // Reflexion coefficient: Gamma = (Z_in-ZL) / (Zin+ZL) = (1-Yin*ZL) / (1 + Yin*ZL) ;
-      // with ZL= impedance load; vacuum impedance = Z0 = eta0 = 120 * Pi = Sqrt(mu0/eps0)
-      { Name Gam ; Value { Term { Type Global; [ (1-ZL*#77)/(1+ZL*#77) ] ; In SkinFeed ; } } } // Yin stored in register 77
-      { Name reGam ; Value { Term { Type Global; [ Re[#88] ] ; In SkinFeed ; } } }
-      { Name imGam ; Value { Term { Type Global; [ Im[#88] ] ; In SkinFeed ; } } }
+      // with ZL = impedance load; vacuum impedance = Z0 = 120 * Pi = Sqrt(mu0/eps0)
+      { Name Gam ; Value { Term { Type Global; [ (1-ZL*$Yin)/(1+ZL*$Yin) ] ; In SkinFeed ; } } }
+      { Name reGam ; Value { Term { Type Global; [ Re[$Gam] ] ; In SkinFeed ; } } }
+      { Name imGam ; Value { Term { Type Global; [ Im[$Gam] ] ; In SkinFeed ; } } }
     }
   }
 
 }
-
-
 
 PostOperation {
 
@@ -359,11 +343,11 @@ PostOperation {
       Print[ h_from_e, OnElementsOf Region[{Domain,-Pml}], File StrCat[myDir,Sprintf("h_pml%g.pos", !Flag_SilverMuller)] ];
       Print[ exh,  OnElementsOf Region[{Domain,-Pml}], File StrCat[myDir,Sprintf("exh_pml%g.pos", !Flag_SilverMuller)] ];
 
-      Print[ Yin[SkinFeed], OnGlobal, Format FrequencyTable, Store 7, File > StrCat[myDir,Sprintf("Yin_pml%g.dat", !Flag_SilverMuller)] ];
+      Print[ Yin[SkinFeed], OnGlobal, Format FrequencyTable, StoreInVariable $Yin, File > StrCat[myDir,Sprintf("Yin_pml%g.dat", !Flag_SilverMuller)] ];
       Print[ Gin, OnRegion SkinFeed, Format Table, SendToServer StrCat[ppe,"G=re(Y)"]{0}, Color "Ivory", File StrCat[myDir,"temp.dat"] ] ;
       Print[ Bin, OnRegion SkinFeed, Format Table, SendToServer StrCat[ppe,"B=im(Y)"]{0}, Color "Ivory", File StrCat[myDir,"temp.dat"] ] ;
 
-      Print[ Gam, OnRegion SkinFeed, Format FrequencyTable, Store 8, File > StrCat[myDir,Sprintf("Gamma_pml%g.dat", !Flag_SilverMuller)] ];
+      Print[ Gam, OnRegion SkinFeed, Format FrequencyTable, StoreInVariable $Gam, File > StrCat[myDir,Sprintf("Gamma_pml%g.dat", !Flag_SilverMuller)] ];
       Print[ reGam, OnRegion SkinFeed, Format Table, SendToServer StrCat[ppe,"re(Gam)"]{0}, Color "Ivory", File StrCat[myDir,"temp.dat"] ] ;
       Print[ imGam, OnRegion SkinFeed, Format Table, SendToServer StrCat[ppe,"im(Gam)"]{0}, Color "Ivory", File StrCat[myDir,"temp.dat"] ] ;
     }
@@ -371,19 +355,18 @@ PostOperation {
 
   { Name Microwave_av ; NameOfPostProcessing Microwave_av ;
     Operation {
-      Print[ e,  OnElementsOf #{Domain,-Pml}, File StrCat[myDir, Sprintf("e_av_pml%g.pos", !Flag_SilverMuller)] ] ;
+      Print[ a,  OnElementsOf Region[{Domain,-Feed}], File StrCat[myDir, Sprintf("a_av_pml%g.pos", !Flag_SilverMuller)] ] ;
+      Print[ v,  OnElementsOf Region[{Domain,-Pml}], File StrCat[myDir, Sprintf("v_av_pml%g.pos", !Flag_SilverMuller)] ] ;
+
+      Print[ e,  OnElementsOf Region[{Domain,-Pml}], File StrCat[myDir, Sprintf("e_av_pml%g.pos", !Flag_SilverMuller)] ] ;
       Print[ h,  OnElementsOf Region[{Domain,-Pml}], File StrCat[myDir, Sprintf("h_av_pml%g.pos", !Flag_SilverMuller)] ] ;
       Print[ exh,  OnElementsOf Region[{Domain,-Pml}], File StrCat[myDir, Sprintf("exh_av_pml%g.pos", !Flag_SilverMuller)] ] ;
 
-      Print[ v,  OnElementsOf #{Domain,-Pml}, File StrCat[myDir, Sprintf("v_av_pml%g.pos", !Flag_SilverMuller)] ] ;
-
-      //Print[ a,  OnElementsOf #{Domain,-Feed}, StrCat[myDir, Sprintf("a_av_pml%g.pos", !Flag_SilverMuller)] ] ;
-
-      Print[ Yin[SkinFeed], OnGlobal, Format FrequencyTable, Store 77, File > StrCat[myDir,Sprintf("Yin_av_pml%g.dat", !Flag_SilverMuller)] ];
+      Print[ Yin[SkinFeed], OnGlobal, Format FrequencyTable, StoreInVariable $Yin, File > StrCat[myDir,Sprintf("Yin_av_pml%g.dat", !Flag_SilverMuller)] ];
       Print[ Gin, OnRegion SkinFeed, Format Table, SendToServer StrCat[ppa,"G=re(Y)"]{0}, Color "Ivory", File StrCat[myDir,"temp.dat"] ] ;
       Print[ Bin, OnRegion SkinFeed, Format Table, SendToServer StrCat[ppa,"B=im(Y)"]{0}, Color "Ivory", File StrCat[myDir,"temp.dat"] ] ;
 
-      Print[ Gam, OnRegion SkinFeed, Format FrequencyTable, Store 88, File > StrCat[myDir,Sprintf("Gamma_av_pml%g.dat", !Flag_SilverMuller)] ];
+      Print[ Gam, OnRegion SkinFeed, Format FrequencyTable, StoreInVariable $Gam, File > StrCat[myDir,Sprintf("Gamma_av_pml%g.dat", !Flag_SilverMuller)] ];
       Print[ reGam, OnRegion SkinFeed, Format Table, SendToServer StrCat[ppa,"re(Gam)"]{0}, Color "Ivory", File StrCat[myDir,"temp.dat"] ] ;
       Print[ imGam, OnRegion SkinFeed, Format Table, SendToServer StrCat[ppa,"im(Gam)"]{0}, Color "Ivory", File StrCat[myDir,"temp.dat"] ] ;
     }

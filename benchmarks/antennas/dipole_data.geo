@@ -63,7 +63,7 @@ DefineConstant[
 
   AngleWedge_deg = { 45, Choices{45, 90, 360}, Name "Input/02Wedge angle [deg]",
     Highlight "Ivory", Visible (Flag_3Dmodel==1 && Flag_PML_Cyl==0)},
-  AngleWedgeCyl_deg = { 30, Name "Input/02Wedge angle [deg]",
+  AngleWedgeCyl_deg = { 10, Name "Input/02Angle [deg]",
     Help Str["-Use angle smaller than 90 or modify geo file"],
     Highlight "Ivory", Visible (Flag_3Dmodel==1 && Flag_PML_Cyl==1)}
 ] ;
