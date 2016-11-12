@@ -182,8 +182,8 @@ Formulation {
         In TrGr; Jacobian JVol ; Integration I1 ; }
 
       If(Flag_SilverMuller)
-        // Silver-Muller ABC
-        Galerkin { [ I[] * k0 * nu[] * ( Normal[] /\ Dof{e} ) /\ Normal[]   , {e} ];
+        // Silver-Muller ABC (sqrt(eps0/mu0) n x e + n x (n x h) = 0)
+        Galerkin { DtDof [ Sqrt[epsilon[]*nu[]] * ( Normal[] /\ Dof{e} ) /\ Normal[]   , {e} ];
           In SigmaInf; Integration I1; Jacobian JSur;  }
       EndIf
     }
@@ -234,7 +234,7 @@ Formulation {
         In TrGr; Jacobian JVol ; Integration I1 ; }
 
       If(Flag_SilverMuller)
-        Galerkin { [  I[] * k0 * nu[] * ( Normal[] /\ Dof{a} ) /\ Normal[]   , {a} ];
+        Galerkin { DtDof [ Sqrt[epsilon[]*nu[]] * ( Normal[] /\ Dof{a} ) /\ Normal[]   , {a} ];
           In SigmaInf; Integration I1; Jacobian JSur;  }
       EndIf
     }
