@@ -364,7 +364,7 @@ void LinAlg_ScanVector(FILE *file, gVector *V)
     tmp = a + PETSC_i * b;
 #else
     double a;
-    if(fscanf(file, "%lf", &a) != !)
+    if(fscanf(file, "%lf", &a) != 1)
       Message::Error("Could not read data in vector");
     tmp = a;
 #endif
