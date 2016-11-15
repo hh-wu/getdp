@@ -1,0 +1,44 @@
+mm = 1.e-3 ;
+
+DefineConstant[
+  dw = {0.315*mm,
+    Name "Input/GeoParams/Winding/Wire diameter"}
+  Freq = {1e6,
+    Name "Input/GetdpParams/frequency", Visible 1}
+  sigma_Cu = {6e7,
+    Name "Input/GetdpParams/electric conductivity of copper"}
+  FeedGap = {0.2*mm, Min 0.2*mm, Max 0.4*mm,
+    Name "Input/GeoParams/Winding/InterElectrodes space"}
+  Yoffset = {0.1*mm,
+    Name "Input/GeoParams/Winding/Conds HalfInterspace"}
+  LvCoil = {1*mm, Min 5*mm, Max 6*mm,
+    Name "Input/GeoParams/Vertical HalfLength of Coil"}
+  RvCoil = {1*mm,
+    Name "Input/GeoParams/Winding/Up&Down Coil Curvature"}
+  RInf = {16*mm, Min 12*mm,
+    Name "Input/GeoParams/AirBox radius"}
+  HInf = {26*mm, Min 24*mm,
+    Name "Input/GeoParams/AirBox height"}
+  Turns = {1, Min 5, Max 16,
+    Name "Input/GeoParams/Winding/Nber of turns"}
+  StructuredMesh = {1, Choices{0,1},
+    Name "Input/GeoParams/Structured mesh of the coil?"}
+];
+
+DefineConstant[
+  C_ = {"-solve -v2 -pos -bin", Name "GetDP/9ComputeCommand"}
+];
+
+mu0 = 4e-7*Pi;
+r = dw/2;
+Delta = Sqrt[2/(2*Pi*Freq*sigma_Cu*mu0)];
+lc = r; lc2 = 30*lc;
+
+COIL = 1000;
+AIR = 1002;
+FEED = 2000;
+SKIN_COIL = 3000;
+SKIN_FEED = 4000;
+FEED_MINUS = 4002;
+FEED_PLUS = 4003;
+INF = 4004;
