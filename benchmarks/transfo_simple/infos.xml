@@ -2,7 +2,7 @@
 
 <models>
 	<model>
-		<title>Simple Transformer</title>
+		<title>Simple transformer</title>
 		<summary>2D model of simplified one-phase transformer</summary>
 		<file type="pro">transfo.pro</file>
 		<preview type="png">screenshot_transfo_128.png</preview>
