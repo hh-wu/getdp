@@ -1477,7 +1477,7 @@ struct PostOpSolutions {
 #define FORMAT_REGION_TABLE           16
 #define FORMAT_REGION_VALUE           17
 #define FORMAT_FREQUENCY_REGION_VALUE 18
-#define FORMAT_UNV                    19
+#define FORMAT_NXUNV                  19
 #define FORMAT_NODE_TABLE             20
 #define FORMAT_LOOP_ERROR             21
 #define FORMAT_GETDP                  22

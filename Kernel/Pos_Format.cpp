@@ -1093,7 +1093,7 @@ void  Format_PostHeader(struct PostSubOperation *PSO_P, int NbTimeStep,
       }
     }
     break ;
-  case FORMAT_UNV :
+  case FORMAT_NXUNV :
     if(PostStream) Unv_PrintHeader(PostStream, name, SubType, Time, TimeStep);
     break ;
   case FORMAT_GNUPLOT :
@@ -1350,7 +1350,7 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
   case FORMAT_ADAPT :
     if(PostStream) fprintf(PostStream, "$EndAdapt\n");
     break ;
-  case FORMAT_UNV :
+  case FORMAT_NXUNV :
     if(PostStream) Unv_PrintFooter(PostStream);
     break ;
   case FORMAT_NODE_TABLE :
@@ -1492,7 +1492,7 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
                             PE->Type, PE->NbrNodes, PE->x, PE->y, PE->z,
                             PE->Value) ;
     break ;
-  case FORMAT_UNV :
+  case FORMAT_NXUNV :
     if(PostStream) Unv_PrintElement(PostStream, Num_Element, PE->NbrNodes, PE->Value) ;
     break ;
   case FORMAT_GMSH :
@@ -1643,7 +1643,7 @@ void Format_PostValue(struct PostQuantity  *PQ_P,
                             POINT, 1, &x, &y, &z,
                             Value) ;
   }
-  else if (Format == FORMAT_UNV) {
+  else if (Format == FORMAT_NXUNV) {
     if(PostStream)
       Unv_PrintRegion(PostStream, Flag_Comma, numRegion, NbrHarmonics, Size, Value);
   }
