@@ -320,10 +320,12 @@ void Read_ProblemStructure(const char *name)
 
   char AbsPath[4096];
   int i;
+  bool absolute = false;
 
   if((strlen(name) > 0 && (name[0] == '/' || name[0] == '\\')) ||
      (strlen(name) > 3 && name[1] == ':' && (name[2] == '\\' || name[2] == '/'))){
     // name is an absolute path
+    absolute = true;
     strcpy(AbsPath, name);
   }
   else{
@@ -343,8 +345,29 @@ void Read_ProblemStructure(const char *name)
   // fsetpos/fgetpos) on Windows without Cygwin; not sure why, but
   // opening the file in binary mode fixes the problem
   if(!(getdp_yyin = FOpen(AbsPath, "rb"))){
-    Message::Error("Unable to open file '%s'", AbsPath);
-    return;
+    if(getdp_yyincludenum > 0 && !absolute){
+      // try to find included files in a standard directory
+      Message::Info("File `%s' not found, looking in $GETDP_TEMPLATES", AbsPath);
+      const char* template_dir = getenv("GETDP_TEMPLATES");
+      if(template_dir){
+        strcpy(AbsPath, template_dir);
+        strcat(AbsPath, "/");
+        strcat(AbsPath, name);
+        printf("trying to open %s\n", AbsPath);
+        if(!(getdp_yyin = FOpen(AbsPath, "rb"))){
+          Message::Error("Unable to open file '%s'", AbsPath);
+          return;
+        }
+      }
+      else{
+        Message::Error("No template directory defined");
+        return;
+      }
+    }
+    else{
+      Message::Error("Unable to open file '%s'", AbsPath);
+      return;
+    }
   }
 
   getdp_yyerrorlevel = 0;  getdp_yylinenum = 1; getdp_yyincludenum=0;

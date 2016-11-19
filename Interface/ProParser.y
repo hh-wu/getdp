@@ -204,7 +204,7 @@ struct doubleXstring{
 %token  tNbrRegions tGetRegion tStringToName tNameToString
 %token  tFor tEndFor tIf tElseIf tElse tEndIf tMacro tReturn tCall tCallTest
 %token  tTest tWhile tParse
-%token  tFlag tExists tGetForced
+%token  tFlag tExists tFileExists tGetForced
 %token  tInclude tLevelInclude
 %token  tConstant tList tListAlt tLinSpace tLogSpace
 %token  tListFromFile
@@ -8722,6 +8722,13 @@ OneFExpr :
         $$ = 1;
       else
         $$ = 0;
+      Free($3);
+    }
+
+  | tFileExists LP CharExpr RP
+    {
+      std::string tmp = Fix_RelativePath($3).c_str();
+      $$ = !StatusFile(tmp);
       Free($3);
     }
 

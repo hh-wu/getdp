@@ -191,6 +191,7 @@ Exp                          return tExp;
 
 Fabs                         return tFabs;
 File                         return tFile;
+FileExists                   return tFileExists;
 Filter                       return tFilter;
 FixRelativePath              return tFixRelativePath;
 Flag                         return tFlag;
