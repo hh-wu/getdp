@@ -18,6 +18,7 @@ void SleepSeconds(double s);
 int BlockingSystemCall(const char *command);
 int RemoveFile(const std::string &fileName);
 int RenameFile(const std::string &oldName, const std::string &newName);
+int StatusFile(const std::string &fileName);
 int CreateDir(const std::string &dirName);
 int CreateDirs(const std::string &dirName);
 std::string GetFullPath(const std::string &fileName);

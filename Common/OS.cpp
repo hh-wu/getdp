@@ -361,6 +361,19 @@ int RenameFile(const std::string &oldName, const std::string &newName)
 #endif
 }
 
+int StatusFile(const std::string &fileName)
+{
+#if defined(WIN32) && !defined(__CYGWIN__)
+  struct _stat buf;
+  setwbuf(0, fileName.c_str());
+  int ret = _wstat(wbuf[0], &buf);
+#else
+  struct stat buf;
+  int ret = stat(fileName.c_str(), &buf);
+#endif
+  return ret;
+}
+
 int CreateDir(const std::string &dirName)
 {
   if(dirName.empty()) return 1;
