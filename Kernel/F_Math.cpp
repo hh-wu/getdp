@@ -20,7 +20,8 @@ extern struct CurrentData Current ;
 									\
   if(A->Type != SCALAR)							\
     Message::Error("Non scalar argument for function '" string "'");	\
-									\
+  if(A->Val[MAX_DIM] != 0.)                                             \
+    Message::Error("Function '" string "' only accepts real arguments");\
   V->Val[0] = func(A->Val[0]) ;						\
   if (Current.NbrHar != 1){						\
     V->Val[MAX_DIM] = 0. ;						\
@@ -57,6 +58,8 @@ void F_Ceil  (F_ARG) { scalar_real_1_arg (ceil, "Ceil")  }
 									\
   if(A->Type != SCALAR || (A+1)->Type != SCALAR)			\
     Message::Error("Non scalar argument(s) for function '" string "'");	\
+  if(A->Val[MAX_DIM] != 0. || (A+1)->Val[MAX_DIM] != 0.)                \
+    Message::Error("Function '" string "' only accepts real arguments");\
 									\
   V->Val[0] = func(A->Val[0], (A+1)->Val[0]) ;				\
   if (Current.NbrHar != 1){						\
