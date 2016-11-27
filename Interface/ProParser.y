@@ -200,7 +200,7 @@ struct doubleXstring{
 %token  tStr
 %token  tStrCat tSprintf tPrintf tMPI_Printf tRead tPrintConstants
 %token  tStrCmp tStrFind tStrLen
-%token  tStrChoice tUpperCase tLowerCase tLowerCaseIn
+%token  tStrChoice tStrSub tUpperCase tLowerCase tLowerCaseIn
 %token  tNbrRegions tGetRegion tStringToName tNameToString
 %token  tFor tEndFor tIf tElseIf tElse tEndIf tMacro tReturn tCall tCallTest
 %token  tTest tWhile tParse
@@ -9360,6 +9360,24 @@ CharExprNoVar :
         $$ = $7;
         Free($5);
       }
+    }
+
+  | tStrSub LP CharExpr ',' FExpr ',' FExpr RP
+    {
+      std::string in = $3;
+      std::string out = in.substr((int)$5, (int)$7);
+      $$ = (char *)Malloc((out.size() + 1) * sizeof(char));
+      strcpy($$, out.c_str());
+      Free($3);
+    }
+
+  | tStrSub LP CharExpr ',' FExpr RP
+    {
+      std::string in = $3;
+      std::string out = in.substr((int)$5, std::string::npos);
+      $$ = (char *)Malloc((out.size() + 1) * sizeof(char));
+      strcpy($$, out.c_str());
+      Free($3);
     }
 
   | tSprintf LP CharExpr RP

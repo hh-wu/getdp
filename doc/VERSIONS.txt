@@ -43,7 +43,7 @@ version, improved EigenSolve (quadratic EVP with SLEPC, EVP on real matrices),
 new CosineTransform, MPI_Printf, SendMergeFileRequest parser commands, small
 improvements and bug fixes.
 
-2.4.3 (February 7, 2104): new mandatory 'Name' attribute to define onelab
+2.4.3 (February 7, 2014): new mandatory 'Name' attribute to define onelab
 variables in DefineConstant[] & co; minor bug fixes.
 
 2.4.2 (Septembre 27, 2013): fixed function arguments in nested expressions;

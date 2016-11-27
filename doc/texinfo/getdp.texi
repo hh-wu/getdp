@@ -1227,6 +1227,8 @@ Character expressions are defined as follows:
   StrCat[ @var{expression-char} <,@dots{}> ] |
   Str[ @var{expression-char} <,@dots{}> ]
   StrChoice[ @var{expression}, @var{expression-char}, @var{expression-char} ] |
+  StrSub[ @var{expression-char}, @var{expression}, @var{expression} ] |
+  StrSub[ @var{expression-char}, @var{expression} ] |
   UpperCase [ @var{expression-char} ] |
   Sprintf [ @var{expression-char} ] |
   Sprintf[ @var{expression-char}, @var{expression-cst-list} ] |
@@ -1243,18 +1245,22 @@ character expressions (@code{Str} adds a newline character after each
 string except the last) when creating a string. @code{Str} is also used
 to create string lists (when @var{string-id} is followed by
 @code{()}). @code{StrChoice} returns the first or second
-@var{expression-char} depending on the value of
-@var{expression}. @code{UpperCase} converts the @var{expression-char} to
-upper case. @code{Sprintf} is equivalent to the @code{sprintf} C
-function (where @var{expression-char} is a format string that can
-contain floating point formatting characters: @code{%e}, @code{%g},
-etc.).  @code{NameToString} converts a variable name into a string.
-@code{GetString} allows to get the value of a ONELAB string variable
-(the optional second argument specifies the default value returned if
-the variable does not exist.)  @code{Date} permits to access the current
-date. @code{CurrentDirectory} and @code{CurrentDir} return the directory
-of the @code{.pro} file. @code{AbsolutePath} returns the absolute path
-of a file. @code{DirName} returns the directory of a
+@var{expression-char} depending on the value of @var{expression}.
+@code{StrSub} returns the portion of the string that starts at the
+character position given by the first @var{expression} and spans the
+number of characters given by the second @var{expression} or until the
+end of the string (whichever comes first; or always if the second
+@var{expression} is not provided). @code{UpperCase} converts the
+@var{expression-char} to upper case. @code{Sprintf} is equivalent to the
+@code{sprintf} C function (where @var{expression-char} is a format
+string that can contain floating point formatting characters: @code{%e},
+@code{%g}, etc.).  @code{NameToString} converts a variable name into a
+string.  @code{GetString} allows to get the value of a ONELAB string
+variable (the optional second argument specifies the default value
+returned if the variable does not exist.)  @code{Date} permits to access
+the current date. @code{CurrentDirectory} and @code{CurrentDir} return
+the directory of the @code{.pro} file. @code{AbsolutePath} returns the
+absolute path of a file. @code{DirName} returns the directory of a
 file. @code{OnelabAction} returns the current ONELAB action
 (e.g. @code{check} or @code{compute}).
 
