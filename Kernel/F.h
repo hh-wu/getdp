@@ -54,6 +54,11 @@ void  F_OSRC_R0(F_ARG);
 void  F_OSRC_Aj(F_ARG);
 void  F_OSRC_Bj(F_ARG);
 
+/* F_PeWe */
+
+void  F_ElastodynamicsCylinderCavity(F_ARG);
+void  F_ElastodynamicsCylinderWall(F_ARG);
+
 /* F_Geometry */
 
 void  F_ProjectPointOnEllipse(F_ARG);

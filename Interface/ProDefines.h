@@ -1122,6 +1122,10 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"OSRC_Aj",   (CAST)F_OSRC_Aj, 3, 0},
   {"OSRC_Bj",   (CAST)F_OSRC_Bj, 3, 0},
 
+  // F_PeWe
+  {"ElastodynamicsCylinderCavity", (CAST)F_ElastodynamicsCylinderCavity, 5, 1},
+  {"ElastodynamicsCylinderWall", (CAST)F_ElastodynamicsCylinderWall, 5, 1},
+
   // F_Raytracing: ray tracing functions
   {"CylinderPhase",      (CAST)F_CylinderPhase, 0, 1 },
   {"DiamondPhase",       (CAST)F_DiamondPhase,  0, 1 },

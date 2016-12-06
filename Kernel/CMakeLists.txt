@@ -9,6 +9,7 @@ set(SRC
       F_Geometry.cpp F_Interpolation.cpp F_Hysteresis.cpp F_Math.cpp
       F_Misc.cpp F_MultiHar.cpp F_Raytracing.cpp
       F_Gmsh.cpp F_DiffGeom.cpp F_Octave.cpp F_Python.cpp
+      F_PeWe.cpp
     BF_Node.cpp BF_NodeXYZ.cpp BF_Node_2.cpp BF_Node_3.cpp
       BF_Edge.cpp BF_Edge_2.cpp BF_Edge_3.cpp BF_Edge_4.cpp
       BF_Facet.cpp BF_Volume.cpp BF_Region.cpp
