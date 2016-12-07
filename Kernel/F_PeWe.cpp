@@ -7,6 +7,7 @@
 #include "ProData.h"
 #include "F.h"
 #include "Message.h"
+#include "GetDPConfig.h"
 
 extern "C" {
   extern void cylindrical_cavity_(double *du, double *dv, double *dut, double *dvt,
@@ -28,7 +29,11 @@ void  F_ElastodynamicsCylinderCavity(F_ARG)
   double rho = Fct->Para[3];
   double a = Fct->Para[4];
   double du_re, dv_re, du_im, dv_im;
+#if defined(HAVE_PEWE)
   cylindrical_cavity_(&du_re,&dv_re,&du_im,&dv_im,&X,&Y,&t,&omega,&lambda,&mu,&rho,&a);
+#else
+  Message::Error("ElastodynamicsCylinderCavity requires PeWe");
+#endif
   V->Val[0] = du_re;
   V->Val[1] = dv_re;
   V->Val[MAX_DIM] = du_im;
@@ -47,7 +52,11 @@ void  F_ElastodynamicsCylinderWall(F_ARG)
   double rho = Fct->Para[3];
   double a = Fct->Para[4];
   double du_re, dv_re, du_im, dv_im;
+#if defined(HAVE_PEWE)
   cylindrical_wall_(&du_re,&dv_re,&du_im,&dv_im,&X,&Y,&t,&omega,&lambda,&mu,&rho,&a);
+#else
+  Message::Error("ElastodynamicsCylinderWall requires PeWe");
+#endif
   V->Val[0] = du_re;
   V->Val[1] = dv_re;
   V->Val[MAX_DIM] = du_im;
