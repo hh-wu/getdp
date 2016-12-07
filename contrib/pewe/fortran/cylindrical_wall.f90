@@ -74,7 +74,7 @@ subroutine cylindrical_wall(du,dv,dut,dvt,X,Y,t,omega,lambda,mu,rho,a)
   ! %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Series expansion of solution%%%%%%%%%%%
   ! disp('COMPUTING COEFICIENTS')
   n = 0
-  f_00 = -gamma*bessel_jn(1,gamma*a)
+  f_00 = -gamma*besjn(1,gamma*a)
 
   a_00 = -gamma*besselh(1,2,gamma*a)
 
@@ -91,11 +91,11 @@ subroutine cylindrical_wall(du,dv,dut,dvt,X,Y,t,omega,lambda,mu,rho,a)
 
   AB0(1) = 1.d0/(m11*m22 - m12*m21)*(m22*c01-m12*c02)
   AB0(2) = 1.d0/(m11*m22 - m12*m21)*(-m21*c01+m11*c02)
-  q = phi_0*epsilon_0*(-gamma)*bessel_jn(1,gamma*r) &
+  q = phi_0*epsilon_0*(-gamma)*besjn(1,gamma*r) &
        + AB0(1)*(-gamma)*(besselh(1,2,gamma*r))
   n = 1
-  f_10 = gamma/2.d0*(bessel_jn(0,gamma*a)-bessel_jn(2,gamma*a))
-  f_11 = -1.d0/a*bessel_jn(1,gamma*a)
+  f_10 = gamma/2.d0*(besjn(0,gamma*a)-besjn(2,gamma*a))
+  f_11 = -1.d0/a*besjn(1,gamma*a)
 
   a_10 = gamma/2.d0*(besselh(0,2,gamma*a)-besselh(2,2,gamma*a))
   a_11 = -1.d0/a*besselh(1,2,gamma*a)
@@ -115,12 +115,12 @@ subroutine cylindrical_wall(du,dv,dut,dvt,X,Y,t,omega,lambda,mu,rho,a)
   AB1(1) = 1.d0/(m11*m22 - m12*m21)*(m22*c11-m12*c12)
   AB1(2) = 1.d0/(m11*m22 - m12*m21)*(-m21*c11+m11*c12)
 
-  q = q + (phi_0*epsilon_1*(0.d0,-1.d0)*gamma/2.d0*(bessel_jn(0,gamma*r)&
-       -bessel_jn(2,gamma*r)) + AB1(1)*gamma/2.d0*(besselh(0,2,gamma*r)&
+  q = q + (phi_0*epsilon_1*(0.d0,-1.d0)*gamma/2.d0*(besjn(0,gamma*r)&
+       -besjn(2,gamma*r)) + AB1(1)*gamma/2.d0*(besselh(0,2,gamma*r)&
        -besselh(2,2,gamma*r)) + AB1(2)*besselh(1,2,eta*r)/r)*cos(theta)
 
 
-  v = (-phi_0*epsilon_1*(0.d0,-1.d0)*bessel_jn(1,gamma*r)/r&
+  v = (-phi_0*epsilon_1*(0.d0,-1.d0)*besjn(1,gamma*r)/r&
        - AB1(1)*besselh(1,2,gamma*r)/r &
        - AB1(2)*eta/2.d0*(besselh(0,2,eta*r)&
        -besselh(2,2,eta*r)))*sin(theta)
@@ -128,8 +128,8 @@ subroutine cylindrical_wall(du,dv,dut,dvt,X,Y,t,omega,lambda,mu,rho,a)
   ns = max(eta+30, gamma+30);
 
   do n = 2,ns
-     f_n0 = gamma/2.d0*(bessel_jn(n-1,gamma*a)-bessel_jn(n+1,gamma*a))
-     f_n1 = -dble(n)/a*bessel_jn(n,gamma*a)
+     f_n0 = gamma/2.d0*(besjn(n-1,gamma*a)-besjn(n+1,gamma*a))
+     f_n1 = -dble(n)/a*besjn(n,gamma*a)
 
      a_n0 = gamma/2.d0*(besselh(n-1,2,gamma*a)-besselh(n+1,2,gamma*a))
      a_n1 = -dble(n)/a*besselh(n,2,gamma*a)
@@ -150,11 +150,11 @@ subroutine cylindrical_wall(du,dv,dut,dvt,X,Y,t,omega,lambda,mu,rho,a)
      ABn(2) = 1.d0/(m11*m22 - m12*m21)*(-m21*cn1+m11*cn2)
      ! Make sure magnitude of coefficients are sufficiently small
      ! max(abs(ABn))
-     q = q+(phi_0*epsilon_n*(0.d0,-1.d0)**n*gamma/2.d0*(bessel_jn(n-1,gamma*r)&
-          -bessel_jn(n+1,gamma*r)) + ABn(1)*gamma/2.d0*(besselh(n-1,2,gamma*r)&
+     q = q+(phi_0*epsilon_n*(0.d0,-1.d0)**n*gamma/2.d0*(besjn(n-1,gamma*r)&
+          -besjn(n+1,gamma*r)) + ABn(1)*gamma/2.d0*(besselh(n-1,2,gamma*r)&
           -besselh(n+1,2,gamma*r)) &
           + ABn(2)*dble(n)*besselh(n,2,eta*r)/r)*cos(dble(n)*theta)
-     v = v + (-dble(n)*phi_0*epsilon_n*(0.d0,-1.d0)**n*bessel_jn(n,gamma*r)/r &
+     v = v + (-dble(n)*phi_0*epsilon_n*(0.d0,-1.d0)**n*besjn(n,gamma*r)/r &
           - ABn(1)*dble(n)*besselh(n,2,gamma*r)/r &
           - ABn(2)*eta/2.d0*(besselh(n-1,2,eta*r)&
           -besselh(n+1,2,eta*r)))*sin(dble(n)*theta);
