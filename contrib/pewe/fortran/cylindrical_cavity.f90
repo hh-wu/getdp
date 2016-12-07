@@ -20,6 +20,9 @@
 
 
 !  Modified by Steven Roman for inclusion in GetDP:
+!   - bessel_jn -> bessjn (for old gfortran versions)
+!   - 100 modes -> ns modes (depending on wavenumber)
+!   - return real and imag part
 
 subroutine cylindrical_cavity(du,dv,dut,dvt,X,Y,t,omega,lambda,mu,rho,a)
 
