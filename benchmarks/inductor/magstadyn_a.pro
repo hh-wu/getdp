@@ -411,6 +411,7 @@ PostOperation Get_GlobalQuantities UsingPost MagStaDyn_a_2D {
   Print[ I, OnRegion Ind_1, Format Table,
     File > StrCat[Dir,"I",ExtGnuplot], LastTimeStepOnly,
     SendToServer StrCat[po,"20I [A]"], Color "LightYellow" ];
+
   Print[ U, OnRegion Ind_1, Format Table,
     File > StrCat[Dir,"U",ExtGnuplot], LastTimeStepOnly,
     SendToServer StrCat[po,"30U [V]"], Color "LightYellow" ];

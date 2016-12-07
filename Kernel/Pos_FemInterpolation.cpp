@@ -179,29 +179,40 @@ void Pos_FemInterpolation(struct Element * Element,
      ---------------------- */
 
   if (Type_DefineQuantity == GLOBALQUANTITY) {
+
     if(Current.NbrHar==1){
-      if (Type_Quantity == QUANTITY_BF)
-	Val[0] = (QuantityStorage_P->BasisFunction[0].Dof->Entity ==
-		  Current.SubRegion)? 1. : 0. ;
+      if (QuantityStorage_P->NbrElementaryBasisFunction) {
+        if (Type_Quantity == QUANTITY_BF)
+          Val[0] = (QuantityStorage_P->BasisFunction[0].Dof->Entity ==
+                    Current.SubRegion)? 1. : 0. ;
+        else
+          Dof_GetRealDofValue
+            (QuantityStorage_P->FunctionSpace->DofData,
+             QuantityStorage_P->BasisFunction[0].Dof,
+             &Val[0]) ;
+      }
       else
-	Dof_GetRealDofValue
-	  (QuantityStorage_P->FunctionSpace->DofData,
-	   QuantityStorage_P->BasisFunction[0].Dof,
-	   &Val[0]) ;
+        Val[0] = 0.;
     }
     else{
       for (k = 0 ; k < Current.NbrHar ; k+=2) {
-	if (Type_Quantity == QUANTITY_BF) {
-	  Val[MAX_DIM*k] = (QuantityStorage_P->BasisFunction[0].Dof->Entity ==
-			    Current.SubRegion)? 1. : 0. ;
-	  Val[MAX_DIM*(k+1)] = 0. ;
-	}
-	else {
-	  Dof_GetComplexDofValue
-	    (QuantityStorage_P->FunctionSpace->DofData,
-	     QuantityStorage_P->BasisFunction[0].Dof + k/2*gCOMPLEX_INCREMENT,
-	     &Val[MAX_DIM*k], &Val[MAX_DIM*(k+1)]) ;
-	}
+        if (QuantityStorage_P->NbrElementaryBasisFunction) {
+          if (Type_Quantity == QUANTITY_BF) {
+            Val[MAX_DIM*k] = (QuantityStorage_P->BasisFunction[0].Dof->Entity ==
+                              Current.SubRegion)? 1. : 0. ;
+            Val[MAX_DIM*(k+1)] = 0. ;
+          }
+          else {
+            Dof_GetComplexDofValue
+              (QuantityStorage_P->FunctionSpace->DofData,
+               QuantityStorage_P->BasisFunction[0].Dof + k/2*gCOMPLEX_INCREMENT,
+               &Val[MAX_DIM*k], &Val[MAX_DIM*(k+1)]) ;
+          }
+        }
+        else {
+          Val[MAX_DIM*k]     = 0. ;
+          Val[MAX_DIM*(k+1)] = 0. ;
+        }
       }
     }
     *Type_Value = SCALAR ;
