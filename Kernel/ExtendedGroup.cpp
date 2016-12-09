@@ -572,8 +572,8 @@ public:
 
 class GenEle_OnPositiveSideOf : public GenEle {
 public:
-  GenEle_OnPositiveSideOf()
-    : _type_Dimension_Sur(-1), _nb_bubble(0)
+  GenEle_OnPositiveSideOf(int side = 1)
+    : _side(side), _type_Dimension_Sur(-1), _nb_bubble(0)
   {
     _bubble_perNum_P[0] = add_bubble(); // bubble #1
     _bubble_perNum_P[1] = add_bubble(); // bubble #2
@@ -598,6 +598,7 @@ private:
 
   void add_FacetsOnSur(struct Geo_Element * geoElement);
   void add_EdgesAndNodesOnSurBorder(struct Geo_Element * geoElement);
+  void add_EdgesOfStartingOn(struct Geo_Element * geoElement);
 
   void add_Facets
   (struct Geo_Element * geoElement, int nb_nodesOnSur,
@@ -609,9 +610,11 @@ private:
 
 
 private:
-  int _type_Dimension_Sur, _flag_SuppList2_Type_Not;
+  int _side, _type_Dimension_Sur;
+  int _type_SuppList2, _flag_SuppList2_Type_Not, _flag_selectBubbleLater;
   class Map<int, EntityOnSur> _facetsOnSur;
   std::set<int> _entitiesOnSurBorder[2];
+  std::set<int> _entitiesOnStartingOn;
 
   std::list<Bubble> _bubbles;
 
@@ -635,10 +638,12 @@ List_T* GenEle_OnPositiveSideOf::gen_ExtendedList
 
   if (List_Nbr(InitialSuppList)) {
 
-    // Create Facets (Edges/Nodes; depending of dimension) of InitialSuppList
+    // Create Facets (Edges/Nodes; depending on dimension) of InitialSuppList
 
     int type_Dimension;
+    _type_SuppList2 = Type_SuppList2;
     _flag_SuppList2_Type_Not = (Type_SuppList2 == SUPPLIST_NOT  && InitialSuppList2);
+    _flag_selectBubbleLater = (_type_SuppList2 == SUPPLIST_STARTINGON);
 
     for (i_Element = 0 ; i_Element < nb_Element ; i_Element++) {
       geoElement = Geo_GetGeoElement(i_Element) ;
@@ -667,6 +672,13 @@ List_T* GenEle_OnPositiveSideOf::gen_ExtendedList
             ("Dimension %d in 'Not' border incompatible with required dim. %d",
              type_Dimension, _type_Dimension_Sur-1);
         add_EdgesAndNodesOnSurBorder(geoElement);
+      }
+      else if (_type_SuppList2 == SUPPLIST_STARTINGON &&
+               List_Search(InitialSuppList2, &geoElement->Region, fcmp_int) ) {
+        Get_JacobianFunction (JACOBIAN_VOL, geoElement->Type, &type_Dimension);
+        if (type_Dimension != _1D)
+          Message::Error("Bad dimension (%d, 1 needed) for 'StartingOn' (border)", type_Dimension);
+        add_EdgesOfStartingOn(geoElement);
       }
     }
 
@@ -700,6 +712,7 @@ List_T* GenEle_OnPositiveSideOf::gen_ExtendedList
       }
     }
 
+    // Useless (never done up to now)
     if (!_flag_SuppList2_Type_Not) treat_ElementsOnBorder();
 
     List_Delete(ExtendedSuppList);
@@ -793,6 +806,20 @@ void GenEle_OnPositiveSideOf::add_EdgesAndNodesOnSurBorder
 }
 
 
+void GenEle_OnPositiveSideOf::add_EdgesOfStartingOn
+(struct Geo_Element * geoElement)
+{
+  int i_Entity, num_Entity;
+
+  // Edge on StartingOn (in general: nbr_Entity = 1)
+  if (geoElement->NbrEdges == 0)  Geo_CreateEdgesOfElement(geoElement) ;
+  for (i_Entity = 0; i_Entity < geoElement->NbrEdges; i_Entity++) {
+    num_Entity = abs(geoElement->NumEdges[i_Entity]) ;
+    _entitiesOnStartingOn.insert(num_Entity);
+  }
+}
+
+
 void GenEle_OnPositiveSideOf::add_Facets
 (struct Geo_Element * geoElement, int nb_nodesOnSur,
  K_ElementInBubble * k_elementInBubble_exist_P)
@@ -823,7 +850,8 @@ void GenEle_OnPositiveSideOf::add_Facets
 
   int flag_onSur = 0, flag_OnBorder = 0, i;
 
-  if (!k_elementInBubble_exist_P) {
+  // For a newly added element: study its position wrt reference surface
+  if (!_flag_selectBubbleLater && !k_elementInBubble_exist_P) {
 
     class EntityOnSur * entityOnSur_P;
     int flag_X_vol = 0;
@@ -883,10 +911,45 @@ void GenEle_OnPositiveSideOf::add_Facets
 
     if (flag_OnBorder) {
       // Element will be treated later (bubble connections): marked as negative
+      // -> no need to treat even later up to now
       k_elementInBubble_P->first *= -1;
       return;
     }
   }
+
+  //+++
+  if (_flag_selectBubbleLater && !k_elementInBubble_exist_P) {
+
+    // An Edge (for _type_Dimension_Sur == 1 or 0) of current element could be on StartingOn
+    for (i_Entity[0] = 0; i_Entity[0] < nbr_Entity[0]; i_Entity[0]++) {
+      num_Entity[0] = abs(num_Entities[0][i_Entity[0]]) ;
+      if (_type_Dimension_Sur == _1D) {
+        if (_entitiesOnStartingOn.find(num_Entity[0]) !=
+            _entitiesOnStartingOn.end()) {
+          sideOfSur_perEntity[i_Entity[0]] = 1; // Only one side (#1) is considered
+        }
+        else {
+          sideOfSur_perEntity[i_Entity[0]] = 0;
+        }
+      }
+      else if (_type_Dimension_Sur == _0D) {
+        if (geoElement->NbrEdges == 0)  Geo_CreateEdgesOfElement(geoElement) ;
+        if (geoElement->NbrEdges >= 1
+            &&
+            _entitiesOnStartingOn.find(abs(geoElement->NumEdges[0])) !=
+            _entitiesOnStartingOn.end()) {
+          sideOfSur_perEntity[i_Entity[0]] = 1; // Only one side (#1) is considered
+        }
+        else {
+          sideOfSur_perEntity[i_Entity[0]] = 0;
+        }
+      }
+      else
+        sideOfSur_perEntity[i_Entity[0]] = 0;
+    }
+
+  }
+
 
   int sideOfSur = 0;
   K_EntityInBubble k_bubble_exist[NBR_MAX_ENTITIES_IN_ELEMENT];
@@ -901,8 +964,9 @@ void GenEle_OnPositiveSideOf::add_Facets
   for (i_Entity[0] = 0; i_Entity[0] < nbr_Entity[0]; i_Entity[0]++) {
     num_Entity[0] = abs(num_Entities[0][i_Entity[0]]) ;
 
-    if (!k_elementInBubble_exist_P && sideOfSur_perEntity[i_Entity[0]]) {
-      // Facet on reference surface
+    if (!_flag_selectBubbleLater &&
+        !k_elementInBubble_exist_P && sideOfSur_perEntity[i_Entity[0]]) {
+      // Facet (of new element) on reference surface
       num_bubble_min = sideOfSur_perEntity[i_Entity[0]];
       if (!sideOfSur) {
         sideOfSur = num_bubble_min;
@@ -911,6 +975,17 @@ void GenEle_OnPositiveSideOf::add_Facets
         Message::Warning("OnPositiveSideOf: non-unique orientation of surface "
                          "or ambiguous orientation for multiple surfaces");
       }
+      bubble_min_P = _bubble_perNum_P[num_bubble_min-1];
+    }
+
+    else if (_flag_selectBubbleLater &&
+             _facetsOnSur.Find(num_Entity[0])) {
+      //+++ Nothing now
+    }
+
+    else if (_flag_selectBubbleLater &&
+             sideOfSur_perEntity[i_Entity[0]]) {
+      num_bubble_min = sideOfSur_perEntity[i_Entity[0]]; //+++
       bubble_min_P = _bubble_perNum_P[num_bubble_min-1];
     }
 
@@ -946,6 +1021,7 @@ void GenEle_OnPositiveSideOf::add_Facets
     if (k_bubble_exist[i].first != num_bubble_min
         && !(k_bubble_exist[i].first == 1 && num_bubble_min == 2)
         && !(k_bubble_exist[i].first == 2 && num_bubble_min == 1)
+        // ... means that bubble #1 cannot become #2, and bubble #2 cannot become #1
         ) {
       //Message::Info("===== Ele %d : %d/%d : old %d -> new %d", geoElement->Num, i+1, nb_k_bubble_exist, k_bubble_exist[i].first, num_bubble_min);
       k_bubble_exist[i].second.bubble_P->set_newBubble(bubble_min_P);
@@ -957,23 +1033,39 @@ void GenEle_OnPositiveSideOf::add_Facets
 
 List_T * GenEle_OnPositiveSideOf::select_ElementsInBubbleNum() {
   int num_bubble, nbrElementsInBubbleNum[2], nb_elements = 0;
+  int num_bubble_selected = 1; // bubble #1 selected
+  int num_bubble_other    = 2; // bubble #2 not selected
+
+  //+++
+  if (_flag_selectBubbleLater) {
+    num_bubble_selected = 1;
+    num_bubble_other    = -1;
+  }
+
   nbrElementsInBubbleNum[0] = nbrElementsInBubbleNum[1] = 0;
+
   for (std::list<K_ElementInBubble>::iterator it = _elementsInBubbles.begin();
        it != _elementsInBubbles.end(); ++it) {
     nb_elements++;
     num_bubble = it->second.bubble_P->get_numBubble();
-    if (num_bubble >= 1 && num_bubble <= 2)
-      nbrElementsInBubbleNum[num_bubble-1]++;
+    if (num_bubble == num_bubble_selected)
+      nbrElementsInBubbleNum[0]++;
+    else if (num_bubble == num_bubble_other)
+      nbrElementsInBubbleNum[1]++;
+    else if (num_bubble_other == -1) {
+      num_bubble_other = num_bubble;
+      nbrElementsInBubbleNum[1]++;
+    }
     else if (!_flag_SuppList2_Type_Not)
       Message::Warning
-        ("OnPositiveSideOf: unexpected bubble (%d) for element %d (not 1 nor 2)",
-         num_bubble, it->first);
+        ("OnPositiveSideOf: unexpected bubble (%d) for element %d (not %d nor %d)",
+         num_bubble, it->first, num_bubble_selected, num_bubble_other);
   }
 
   // For possible (later) compatibility with OnOneSideOf
   // num_bubble = (_nbrElementsInBubbleNum[1] == nb_elements)? 2 : 1;
-  num_bubble = 1; // bubble #1 selected
-  int Nb = nbrElementsInBubbleNum[num_bubble-1];
+  num_bubble = (_side>0)? num_bubble_selected : num_bubble_other;
+  int Nb = nbrElementsInBubbleNum[0];
   if (!Nb) Nb = 1;
 
   _elements_L = List_Create(Nb, 1, sizeof(int));
@@ -1013,7 +1105,7 @@ void  Generate_Elements(List_T * InitialList,
   Tree_T  * Entity_Tr ;
   struct  Geo_Element  * GeoElement, * GeoElement2 ;
   struct  TwoInt Pair ;
-  int     k ;
+  int     k, side = 1 ;
   int     Nbr_Element, i_Element, i_Element2, Nbr_Node, i_Node, i_Node2 ;
   List_T  * ExtendedSuppList ;
 
@@ -1047,9 +1139,11 @@ void  Generate_Elements(List_T * InitialList,
     Tree_Delete(Entity_Tr) ;
     break ;
 
+  case SUPPLIST_ONNEGATIVESIDEOF :
+    side = -1;
   case SUPPLIST_ONPOSITIVESIDEOF :
     {
-      class GenEle_OnPositiveSideOf genEle;
+      class GenEle_OnPositiveSideOf genEle(side);
       *ExtendedList =
         genEle.gen_ExtendedList
         (InitialList, Type_SuppList, InitialSuppList, Type_SuppList2, InitialSuppList2);

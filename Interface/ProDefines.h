@@ -63,6 +63,7 @@ struct StringXDefine  FunctionForGroup_SuppList[] = {
   {"StartingOn"      , SUPPLIST_STARTINGON},
   {"OnOneSideOf"     , SUPPLIST_ONONESIDEOF},
   {"OnPositiveSideOf", SUPPLIST_ONPOSITIVESIDEOF},
+  {"OnNegativeSideOf", SUPPLIST_ONNEGATIVESIDEOF},
   {"InSupport"       , SUPPLIST_INSUPPORT},
   {"ConnectedTo"     , SUPPLIST_CONNECTEDTO},
   {NULL              , 0}
