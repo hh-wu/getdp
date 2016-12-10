@@ -217,7 +217,7 @@ void F_SurfaceArea(F_ARG)
 
   int     Nbr_Element, i_Element ;
   double  Val_Surface ;
-  double  c11, c21, c12, c22, DetJac ;
+  double  c11, c21, c12, c22, c13, c23, DetJac ;
   int     i, k ;
 
   // FIXME: TODO redo integration when parameters change!
@@ -257,14 +257,18 @@ void F_SurfaceArea(F_ARG)
 	  Get_NodesCoordinatesOfElement(&Element) ;
 	  Get_BFGeoElement(&Element, 0., 0., 0.) ;
 
-	  c11 = c21 = c12 = c22 = 0. ;
+	  c11 = c21 = c12 = c22 = c13 = c23 = 0. ;
 	  for ( i = 0 ; i < Element.GeoElement->NbrNodes ; i++ ) {
 	    c11 += Element.x[i] * Element.dndu[i][0] ;
 	    c21 += Element.x[i] * Element.dndu[i][1] ;
 	    c12 += Element.y[i] * Element.dndu[i][0] ;
 	    c22 += Element.y[i] * Element.dndu[i][1] ;
+	    c13 += Element.z[i] * Element.dndu[i][0] ;
+	    c23 += Element.z[i] * Element.dndu[i][1] ;
 	  }
-	  DetJac = c11 * c22 - c12 * c21 ;
+          DetJac = sqrt( SQU(c11 * c22 - c12 * c21)
+                         + SQU(c13 * c21 - c11 * c23)
+                         + SQU(c12 * c23 - c13 * c22) );
 
 	  if (Element.Type == TRIANGLE || Element.Type == TRIANGLE_2)
 	    Val_Surface += fabs(DetJac) * 0.5 ;
@@ -276,11 +280,13 @@ void F_SurfaceArea(F_ARG)
 	  Get_NodesCoordinatesOfElement(&Element) ;
 	  Get_BFGeoElement(&Element, 0., 0., 0.) ;
 
-	  c11 = 0. ;
+	  c11 = c12 = c13 = 0. ;
 	  for ( i = 0 ; i < Element.GeoElement->NbrNodes ; i++ ) {
 	    c11 += Element.x[i] * Element.dndu[i][0] ;
+	    c12 += Element.y[i] * Element.dndu[i][0] ;
+	    c13 += Element.z[i] * Element.dndu[i][0] ;
 	  }
-	  DetJac = c11 ;
+          DetJac = sqrt(SQU(c11)+SQU(c12)+SQU(c13));
 
           Val_Surface += fabs(DetJac) * 2 ; // SurfaceArea of LINE x 1m
         }
