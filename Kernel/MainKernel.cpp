@@ -81,8 +81,8 @@ static void Info(int level, char *arg0)
      	    "  -cpu                      report CPU times for all operations\n"
 	    "  -p num                    set progress indicator update (default: 10)\n"
 	    "  -onelab name [address]    communicate with ONELAB (file or server address)\n"
-            "  -setnumber name value     set constant number name=value\n"
-            "  -setstring name value     set constant string name=value\n"
+            "  -setnumber name value     set constant number name=value (or -sn)\n"
+            "  -setstring name value     set constant string name=value (or -ss)\n"
 	    "  -version                  show version number\n"
 	    "  -info                     show detailed version information\n"
 	    "  -help                     show this message\n", arg0);
@@ -169,7 +169,8 @@ static void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *
         }
       }
 
-      else if (!strcmp(argv[i]+1, "setnumber")) {
+      else if (!strcmp(argv[i]+1, "setnumber") ||
+               !strcmp(argv[i]+1, "sn")) {
         i++;
 	if (i + 1 < argc && argv[i][0] != '-') {
           CommandLineNumbers[argv[i]] = std::vector<double>(1, atof(argv[i + 1]));
@@ -180,7 +181,8 @@ static void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *
         }
       }
 
-      else if (!strcmp(argv[i]+1, "setstring")) {
+      else if (!strcmp(argv[i]+1, "setstring") ||
+               !strcmp(argv[i]+1, "ss")) {
         i++;
 	if (i + 1 < argc && argv[i][0] != '-' && argv[i + 1][0] != '-') {
           CommandLineStrings[argv[i]] = std::vector<std::string>(1, argv[i + 1]);
