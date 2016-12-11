@@ -1826,11 +1826,7 @@ void Cal_RotateValue(struct Value *V1, struct Value *V2, struct Value *R)
     }
     break;
 
-    /*
-      COMPUTE_A:       R A R^T
-      COMPUTE_A_OLD: R^T A R
-
-#define COMPUTE_A_OLD										\
+#define COMPUTE_A                                                                               \
   A.Val[0]= A0*A0*B0+A0*A3*B3+A0*A6*B6+A3*A0*B1+A3*A3*B4+A3*A6*B7+A6*A0*B2+A6*A3*B5+A6*A6*B8;	\
   A.Val[1]= A1*A0*B0+A1*A3*B3+A1*A6*B6+A4*A0*B1+A4*A3*B4+A4*A6*B7+A7*A0*B2+A7*A3*B5+A7*A6*B8;	\
   A.Val[2]= A2*A0*B0+A2*A3*B3+A2*A6*B6+A5*A0*B1+A5*A3*B4+A5*A6*B7+A8*A0*B2+A8*A3*B5+A8*A6*B8;	\
@@ -1840,20 +1836,6 @@ void Cal_RotateValue(struct Value *V1, struct Value *V2, struct Value *R)
   A.Val[6]= A2*A0*B0+A0*A5*B3+A0*A8*B6+A3*A2*B1+A5*A3*B4+A3*A8*B7+A6*A2*B2+A6*A5*B5+A8*A6*B8;	\
   A.Val[7]= A2*A1*B0+A1*A5*B3+A1*A8*B6+A4*A2*B1+A5*A4*B4+A4*A8*B7+A7*A2*B2+A7*A5*B5+A8*A7*B8;	\
   A.Val[8]= A2*A2*B0+A2*A5*B3+A2*A8*B6+A5*A2*B1+A5*A5*B4+A5*A8*B7+A8*A2*B2+A8*A5*B5+A8*A8*B8
-
-     */
-
-#define COMPUTE_A 						       	\
-    A.Val[0]= A0*(A0*B0+A1*B3+A2*B6)+A1*(A0*B1+A1*B4+A2*B7)+A2*(A0*B2+A1*B5+A2*B8); \
-    A.Val[1]= A3*(A0*B0+A1*B3+A2*B6)+A4*(A0*B1+A1*B4+A2*B7)+A5*(A0*B2+A1*B5+A2*B8); \
-    A.Val[2]= A6*(A0*B0+A1*B3+A2*B6)+A7*(A0*B1+A1*B4+A2*B7)+A8*(A0*B2+A1*B5+A2*B8); \
-    A.Val[3]= A0*(A3*B0+A4*B3+A5*B6)+A1*(A3*B1+A4*B4+A5*B7)+A2*(A3*B2+A4*B5+A5*B8); \
-    A.Val[4]= A3*(A3*B0+A4*B3+A5*B6)+A4*(A3*B1+A4*B4+A5*B7)+A5*(A3*B2+A4*B5+A5*B8); \
-    A.Val[5]= A6*(A3*B0+A4*B3+A5*B6)+A7*(A3*B1+A4*B4+A5*B7)+A8*(A3*B2+A4*B5+A5*B8); \
-    A.Val[6]= A0*(A6*B0+A7*B3+A8*B6)+A1*(A6*B1+A7*B4+A8*B7)+A2*(A6*B2+A7*B5+A8*B8); \
-    A.Val[7]= A3*(A6*B0+A7*B3+A8*B6)+A4*(A6*B1+A7*B4+A8*B7)+A5*(A6*B2+A7*B5+A8*B8); \
-    A.Val[8]= A6*(A6*B0+A7*B3+A8*B6)+A7*(A6*B1+A7*B4+A8*B7)+A8*(A6*B2+A7*B5+A8*B8)
-
 
 #define COMPLEX_COMPUTE_A									\
   t0=A0*A0; t1=A0*A3; t2=A0*A6; t3=A3*A0; t4=A3*A3; t5=A3*A6; t6=A6*A0; t7=A6*A3; t8=A6*A6; 	\
