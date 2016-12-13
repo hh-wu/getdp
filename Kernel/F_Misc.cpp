@@ -11,6 +11,7 @@
 #include "F.h"
 #include "Message.h"
 #include "Cal_Value.h"
+#include "Cal_Quantity.h"
 #include "OS.h"
 
 extern struct CurrentData Current ;
@@ -125,6 +126,28 @@ void F_GetNumberRunTime (F_ARG)
   }
   if(Message::UseOnelab())
     V->Val[0] = Message::GetOnelabNumber(Fct->String);
+}
+
+void F_GetVariableRunTime (F_ARG)
+{
+  if(!Fct->String || Fct->String[0] != '$'){
+    Message::Error("Missing runtime variable name: use GetVariableRunTime[...]{\"$name\"}");
+    return;
+  }
+
+  char tmp[256];
+  strcpy(tmp, &Fct->String[1]);
+  for(int i = 0; i < Fct->NbrArguments; i++){
+    if((A+i)->Type != SCALAR){
+      Message::Error("Non-scalar argument in GetVariableRunTime");
+      return;
+    }
+    char tmp2[256];
+    sprintf(tmp2, "_%g", (A+i)->Val[0]);
+    strcat(tmp, tmp2);
+  }
+
+  Cal_GetValueSaved(V, tmp);
 }
 
 void F_VirtualWork (F_ARG)

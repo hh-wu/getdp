@@ -3963,6 +3963,13 @@ Gets the value of the @var{char-expression} ONELAB variable at
 run-time. If the optional @var{expression} is provided, it is used as a
 default value if ONELAB is not available.
 
+@item GetVariableRunTime
+@code{[ <@var{expression}> <,@dots{}> ]@{@var{char-expression}@}}
+
+Gets the value of the @var{char-expression} run-time variable (starting
+with a @code{$}). If the optional @var{expression}s are provided, they
+are appended to the variable name, separated by @code{_}.
+
 @end ftable
 
 @c -------------------------------------------------------------------------

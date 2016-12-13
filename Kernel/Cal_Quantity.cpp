@@ -1253,3 +1253,14 @@ void Cal_StoreInVariable(struct  Value  *Value, const char *name)
   Cal_CopyValue(Value, &NamedValueSaved[name]) ;
   Export_Value(Value, GetDPNumbers[name]);
 }
+
+void Cal_GetValueSaved(struct  Value  *Value, const char *name)
+{
+  if(NamedValueSaved.count(name))
+    Cal_CopyValue(&NamedValueSaved[name], Value) ;
+  else{
+    Message::Warning("Unknown current value '$%s': assuming zero value", name);
+    Cal_ZeroValue(Value);
+    Value->Type = SCALAR ;
+  }
+}
