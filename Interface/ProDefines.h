@@ -1029,9 +1029,9 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"GetWallClockTime"  , (CAST)F_GetWallClockTime ,   0,   0 },
   {"Memory"            , (CAST)F_GetMemory        ,   0,   0 },
   {"GetMemory"         , (CAST)F_GetMemory        ,   0,   0 },
-  {"SetNumberRunTime"  , (CAST)F_SetNumberRunTime ,   -1,   -1 },
-  {"GetNumberRunTime"  , (CAST)F_GetNumberRunTime ,   -1,   -1 },
-  {"GetVariableRunTime", (CAST)F_GetVariableRunTime , -1,   -1 },
+  {"SetNumberRunTime"  , (CAST)F_SetNumberRunTime ,  -1,  -1 },
+  {"GetNumberRunTime"  , (CAST)F_GetNumberRunTime ,  -1,  -1 },
+  {"GetVariable"       , (CAST)F_GetVariable      ,  -1,  -1 },
   {"VirtualWork"       , (CAST)F_VirtualWork      ,   0,   1 },
   {"Felec"	       , (CAST)F_Felec      	  ,   0,   1 },
 

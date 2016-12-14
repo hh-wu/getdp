@@ -1791,6 +1791,9 @@ ParametersForFunction :
   | '{' CharExprNoVar '}'
     { $$ = NULL; StringForParameter = $2; }
 
+  | '{' '$' String__Index '}'
+    { $$ = NULL; StringForParameter = $3; }
+
  ;
 
 /* ------------------------------------------------------------------------ */

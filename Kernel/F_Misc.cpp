@@ -128,10 +128,10 @@ void F_GetNumberRunTime (F_ARG)
     V->Val[0] = Message::GetOnelabNumber(Fct->String);
 }
 
-void F_GetVariableRunTime (F_ARG)
+void F_GetVariable (F_ARG)
 {
-  if(!Fct->String || Fct->String[0] != '$'){
-    Message::Error("Missing runtime variable name: use GetVariableRunTime[...]{\"$name\"}");
+  if(!Fct->String){
+    Message::Error("Missing runtime variable name: use GetVariableRunTime[...]{$name}");
     return;
   }
 
@@ -139,7 +139,7 @@ void F_GetVariableRunTime (F_ARG)
   strcpy(tmp, &Fct->String[1]);
   for(int i = 0; i < Fct->NbrArguments; i++){
     if((A+i)->Type != SCALAR){
-      Message::Error("Non-scalar argument in GetVariableRunTime");
+      Message::Error("Non-scalar argument in GetVariable");
       return;
     }
     char tmp2[256];

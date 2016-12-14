@@ -184,7 +184,7 @@ void  F_GetWallClockTime(F_ARG) ;
 void  F_GetMemory       (F_ARG) ;
 void  F_SetNumberRunTime(F_ARG) ;
 void  F_GetNumberRunTime(F_ARG) ;
-void  F_GetVariableRunTime(F_ARG) ;
+void  F_GetVariable     (F_ARG) ;
 void  F_VirtualWork     (F_ARG) ;
 
 void  F_Felec		(F_ARG) ;
