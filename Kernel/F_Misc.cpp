@@ -4,6 +4,7 @@
 // bugs and problems to the public mailing list <getdp@onelab.info>.
 
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 #include "GetDPConfig.h"
 #include "ProData.h"
