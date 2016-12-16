@@ -182,6 +182,7 @@ void *List_Pointer_Test(List_T * liste, int index)
 
 void List_Sort(List_T * liste, int (*fcmp) (const void *a, const void *b))
 {
+  if(!liste) return;
   qsort(liste->array, liste->n, liste->size, fcmp);
 }
 
@@ -397,6 +398,7 @@ int List_ISearch(List_T * liste, void *data,
 {
   void *ptr;
 
+  if (!liste)  return -1 ;
   if(liste->isorder != 1)
     List_Sort(liste, fcmp);
   liste->isorder = 1;

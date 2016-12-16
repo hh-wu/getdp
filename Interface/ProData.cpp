@@ -51,9 +51,14 @@ int fcmp_Expression_Name(const void *a, const void *b)
   return ( strcmp((char *)a, ((struct Expression *)b)->Name ) );
 }
 
-int fcmp_Group_Name(const void *a, const void *b)
+int fcmp_Group(const void *a, const void *b)
 {
-  return ( strcmp((char *)a, ((struct Group *)b)->Name ) );
+  return ( strcmp(((struct Group *)a)->Name, ((struct Group *)b)->Name ) );
+}
+
+int fcmp_Group_Index(const void *a, const void *b)
+{
+  return ( ((struct Group *)a)->Index - ((struct Group *)b)->Index );
 }
 
 int fcmp_Constraint_Name(const void *a, const void *b)
@@ -399,6 +404,7 @@ void Read_ProblemStructure(const char *name)
   getdp_yyname = Last_yyname;
   getdp_yyerrorlevel = Last_ErrorLevel;
   getdp_yyincludenum = Last_yyincludenum;
+
 }
 
 void Finalize_ProblemStructure()
@@ -407,6 +413,10 @@ void Finalize_ProblemStructure()
     fclose(openFiles[i]);
   openFiles.clear();
   MacroManager::Instance()->clear();
+
+  // sort by index
+  if(Problem_S.Group)
+    List_Sort(Problem_S.Group, fcmp_Group_Index);
 }
 
 char *Get_ExpressionName(int Index)

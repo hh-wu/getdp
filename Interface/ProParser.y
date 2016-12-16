@@ -133,9 +133,12 @@ void Alloc_ParserVariables();
 int Check_NameOfStructExist(const char *Struct, List_T *List_L, void *data,
                             int (*fcmp)(const void *a, const void *b),
                             int level_Append);
+int Check_NameOfStructExistSeq(const char *Struct, List_T *List_L, void *data,
+                               int (*fcmp)(const void *a, const void *b),
+                               int level_Append);
 int  Add_Group(struct Group *Group_P, char *Name, bool Flag_Add,
                int Flag_Plus, int Num_Index);
-int  Num_Group(struct Group *Group_P, char *Name, int Num_Group);
+int  Index_Group(struct Group *Group_P, char *Name, int Index_Group);
 void Fill_GroupInitialListFromString(List_T *list, const char *str);
 int  Add_Expression(struct Expression *Expression_P, char *Name, int Flag_Plus);
 bool Is_ExpressionPieceWiseDefined(int index);
@@ -502,12 +505,13 @@ GroupRHS :
 
   | String__Index
     {
+      Group_S.Name = $1;
       int i;
       if(!strcmp($1, "All")) { //+++ Never considered because token tAll exists!
 	$$ = -3;
       }
-      else if((i = List_ISearchSeq(Problem_S.Group, $1, fcmp_Group_Name)) >= 0) {
-	List_Read(Problem_S.Group, i, &Group_S); $$ = i;
+      else if((i = List_ISearch(Problem_S.Group, &Group_S, fcmp_Group)) >= 0) {
+	List_Read(Problem_S.Group, i, &Group_S); $$ = Group_S.Index;
       }
       else {
 	$$ = -2; vyyerror(0, "Unknown Group: %s", $1);
@@ -564,11 +568,12 @@ SuppListOfRegion :
       if (nb_SuppList+1 <= 2) {
         int i;
         Type_SuppLists[nb_SuppList] = SUPPLIST_INSUPPORT;
-        if((i = List_ISearchSeq(Problem_S.Group, $4, fcmp_Group_Name)) >= 0) {
-          if(((struct Group *)List_Pointer(Problem_S.Group, i))->Type ==
-	     ELEMENTLIST) {
+        Group_S.Name = $4;
+        if((i = List_ISearch(Problem_S.Group, &Group_S, fcmp_Group)) >= 0) {
+          struct Group *Group_P = (struct Group *)List_Pointer(Problem_S.Group, i);
+          if(Group_P->Type == ELEMENTLIST) {
             $$ = List_Create(1, 5, sizeof(int));
-            List_Add($$, &i);
+            List_Add($$, &Group_P->Index);
             ListsOfRegion[nb_SuppList] = $$;
           }
           else  vyyerror(0, "Not a Support of Element Type: %s", $4);
@@ -659,8 +664,9 @@ IRegion :
 
   | String__Index
     {
+      Group_S.Name = $1;
       int i;
-      if((i = List_ISearchSeq(Problem_S.Group, $1, fcmp_Group_Name)) < 0) {
+      if((i = List_ISearch(Problem_S.Group, &Group_S, fcmp_Group)) < 0) {
 	// Si ce n'est pas un nom de groupe, est-ce un nom de constante ? :
 	Constant_S.Name = $1;
 	if(!Tree_Query(ConstantTable_L, &Constant_S)) {
@@ -767,12 +773,12 @@ DefineGroups :
 
   | DefineGroups Comma String__Index
     {
-      int i;
-      if ( (i = List_ISearchSeq(Problem_S.Group, $3, fcmp_Group_Name)) < 0 ) {
+      Group_S.Name = $3;
+      if (List_ISearch(Problem_S.Group, &Group_S, fcmp_Group) < 0) {
 	Group_S.Type = REGIONLIST ; Group_S.FunctionType = REGION ;
 	Group_S.InitialList = List_Create( 5, 5, sizeof(int)) ;
 	Group_S.SuppListType = SUPPLIST_NONE ; Group_S.InitialSuppList = NULL ;
-	i = Add_Group(&Group_S, $3, false, 0, 0) ;
+	Add_Group(&Group_S, $3, false, 0, 0) ;
       }
       else  Free($3) ;
     }
@@ -781,8 +787,8 @@ DefineGroups :
     { FloatOptions_S.clear(); CharOptions_S.clear(); }
     '{' ListOfStringsForCharOptions '}' CharParameterOptions '}'
     {
-      int i;
-      if ( (i = List_ISearchSeq(Problem_S.Group, $3, fcmp_Group_Name)) < 0 ) {
+      Group_S.Name = $3;
+      if (List_ISearch(Problem_S.Group, &Group_S, fcmp_Group) < 0) {
         Group_S.Name = $3; // will be overwritten in Add_Group
 	Group_S.Type = REGIONLIST ; Group_S.FunctionType = REGION ;
 	Group_S.InitialList = List_Create( 5, 5, sizeof(int)) ;
@@ -792,7 +798,7 @@ DefineGroups :
             Fill_GroupInitialListFromString(Group_S.InitialList, vec[i].c_str());
         }
 	Group_S.SuppListType = SUPPLIST_NONE ; Group_S.InitialSuppList = NULL ;
-	i = Add_Group(&Group_S, $3, false, 0, 0) ;
+	Add_Group(&Group_S, $3, false, 0, 0) ;
       }
       else  Free($3) ;
     }
@@ -802,9 +808,8 @@ DefineGroups :
       for (int k = 0 ; k < (int)$5 ; k++) {
 	char tmpstr[256];
 	sprintf(tmpstr, "%s_%d", $3, k+1) ;
-	int i;
-	if ( (i = List_ISearchSeq(Problem_S.Group, tmpstr,
-				  fcmp_Group_Name)) < 0 ) {
+        Group_S.Name = tmpstr;
+	if (List_ISearch(Problem_S.Group, &Group_S, fcmp_Group) < 0) {
 	  Group_S.Type = REGIONLIST ; Group_S.FunctionType = REGION ;
 	  Group_S.SuppListType = SUPPLIST_NONE ; Group_S.InitialSuppList = NULL ;
 	  Group_S.InitialList = List_Create( 5, 5, sizeof(int)) ;
@@ -1638,7 +1643,7 @@ WholeQuantity_Single :
     '[' WholeQuantityExpression ',' GroupRHS ']'
     { WholeQuantity_S.Type = WQ_TRACE;
       WholeQuantity_S.Case.Trace.WholeQuantity = $4;
-      WholeQuantity_S.Case.Trace.InIndex = Num_Group(&Group_S, (char*)"WQ_Trace_In", $6);
+      WholeQuantity_S.Case.Trace.InIndex = Index_Group(&Group_S, (char*)"WQ_Trace_In", $6);
 
       if(Group_S.Type != ELEMENTLIST || Group_S.SuppListType != SUPPLIST_CONNECTEDTO)
 	vyyerror(0, "Group for Trace should be of Type 'ElementsOf[x, ConnectedTo y]'");
@@ -1784,7 +1789,7 @@ ParametersForFunction :
     { /* Attention: provisoire. Note: Impossible a mettre dans MultiFExpr
          car conflit avec Affectation dans Group */
       $$ = List_Create(2, 1, sizeof(double));
-      double d = (double)Num_Group(&Group_S, (char*)"PA_Region", $4);
+      double d = (double)Index_Group(&Group_S, (char*)"PA_Region", $4);
       List_Add($$, &d);
     }
 
@@ -1837,8 +1842,8 @@ JacobianMethodTerm :
   | tName String__Index tEND
     {
       index_Append =
-        Check_NameOfStructExist("JacobianMethod", Problem_S.JacobianMethod,
-                                $2, fcmp_JacobianMethod_Name, level_Append);
+        Check_NameOfStructExistSeq("JacobianMethod", Problem_S.JacobianMethod,
+                                   $2, fcmp_JacobianMethod_Name, level_Append);
       if (index_Append<0)
         JacobianMethod_S.Name = $2;
       else{
@@ -1882,7 +1887,7 @@ JacobianCaseTerm :
     tRegion GroupRHS tEND
     {
       if ($2 >=0)
-        JacobianCase_S.RegionIndex = Num_Group(&Group_S, (char*)"JA_Region", $2);
+        JacobianCase_S.RegionIndex = Index_Group(&Group_S, (char*)"JA_Region", $2);
       else if ($2 == -3)
         JacobianCase_S.RegionIndex = -1;
     }
@@ -1966,8 +1971,8 @@ IntegrationMethodTerm :
   | tName String__Index tEND
     {
       index_Append =
-        Check_NameOfStructExist("IntegrationMethod", Problem_S.IntegrationMethod,
-                                $2, fcmp_IntegrationMethod_Name, level_Append);
+        Check_NameOfStructExistSeq("IntegrationMethod", Problem_S.IntegrationMethod,
+                                   $2, fcmp_IntegrationMethod_Name, level_Append);
       if (index_Append<0)
         IntegrationMethod_S.Name = $2;
       else{
@@ -2178,8 +2183,8 @@ ConstraintTerm :
   | tName String__Index tEND
     {
       index_Append =
-        Check_NameOfStructExist("Constraint", Problem_S.Constraint,
-                                $2, fcmp_Constraint_Name, level_Append);
+        Check_NameOfStructExistSeq("Constraint", Problem_S.Constraint,
+                                   $2, fcmp_Constraint_Name, level_Append);
       if (index_Append<0)
         Constraint_S.Name = $2;
       else{
@@ -2274,13 +2279,13 @@ ConstraintCaseTerm :
 
   | tRegion GroupRHS tEND
     {
-      ConstraintPerRegion_S.RegionIndex = Num_Group(&Group_S, (char*)"CO_Region", $2);
+      ConstraintPerRegion_S.RegionIndex = Index_Group(&Group_S, (char*)"CO_Region", $2);
     }
 
   | tSubRegion GroupRHS tEND
     {
       ConstraintPerRegion_S.SubRegionIndex =
-	Num_Group(&Group_S, (char*)"CO_SubRegion", $2);
+	Index_Group(&Group_S, (char*)"CO_SubRegion", $2);
     }
 
   | tTimeFunction Expression tEND
@@ -2341,7 +2346,7 @@ ConstraintCaseTerm :
       if(ConstraintPerRegion_S.Type == CST_LINK ||
 	  ConstraintPerRegion_S.Type == CST_LINKCPLX) {
 	ConstraintPerRegion_S.Case.Link.RegionRefIndex =
-	  Num_Group(&Group_S, (char*)"CO_RegionRef", $2);
+	  Index_Group(&Group_S, (char*)"CO_RegionRef", $2);
 	ConstraintPerRegion_S.Case.Link.SubRegionRefIndex = -1;
 
 	ConstraintPerRegion_S.Case.Link.FilterIndex = -1;
@@ -2360,7 +2365,7 @@ ConstraintCaseTerm :
       if(ConstraintPerRegion_S.Type == CST_LINK ||
 	  ConstraintPerRegion_S.Type == CST_LINKCPLX)
 	ConstraintPerRegion_S.Case.Link.SubRegionRefIndex =
-	  Num_Group(&Group_S, (char*)"CO_RegionRef", $2);
+	  Index_Group(&Group_S, (char*)"CO_RegionRef", $2);
       else  vyyerror(0, "SubRegionRef incompatible with Type");
     }
 
@@ -2485,8 +2490,8 @@ FunctionSpaceTerm :
   | tName String__Index tEND
     {
       index_Append =
-        Check_NameOfStructExist("FunctionSpace", Problem_S.FunctionSpace,
-                                $2, fcmp_FunctionSpace_Name, level_Append);
+        Check_NameOfStructExistSeq("FunctionSpace", Problem_S.FunctionSpace,
+                                   $2, fcmp_FunctionSpace_Name, level_Append);
       if (index_Append<0)
         FunctionSpace_S.Name = $2;
       else{
@@ -2588,8 +2593,8 @@ BasisFunctionTerm :
   | tName String__Index tEND
     {
       index_Append_2 =
-        Check_NameOfStructExist("BasisFunction", FunctionSpace_S.BasisFunction,
-                                $2, fcmp_BasisFunction_Name, 1);
+        Check_NameOfStructExistSeq("BasisFunction", FunctionSpace_S.BasisFunction,
+                                   $2, fcmp_BasisFunction_Name, 1);
       // 1: already defined Name always possible for Region-wise basis functions
       if (index_Append_2<0 || !level_Append_2)
         BasisFunction_S.Name = $2;
@@ -2601,8 +2606,8 @@ BasisFunctionTerm :
 
   | tNameOfCoef String__Index tEND
     {
-      Check_NameOfStructExist("NameOfCoef", Current_BasisFunction_L,
-                              $2, fcmp_BasisFunction_NameOfCoef, 0);
+      Check_NameOfStructExistSeq("NameOfCoef", Current_BasisFunction_L,
+                                 $2, fcmp_BasisFunction_NameOfCoef, 0);
       BasisFunction_S.NameOfCoef = $2; BasisFunction_S.Dimension = 1;
     }
 
@@ -2686,12 +2691,12 @@ BasisFunctionTerm :
 
   | tSupport GroupRHS tEND
     {
-      BasisFunction_S.SupportIndex = Num_Group(&Group_S, (char*)"BF_Support", $2);
+      BasisFunction_S.SupportIndex = Index_Group(&Group_S, (char*)"BF_Support", $2);
     }
 
   | tEntity GroupRHS tEND
     {
-      BasisFunction_S.EntityIndex = Num_Group(&Group_S, (char*)"BF_Entity", $2);
+      BasisFunction_S.EntityIndex = Index_Group(&Group_S, (char*)"BF_Entity", $2);
       if(Group_S.InitialList)
 	List_Sort(Group_S.InitialList, fcmp_Integer);  /* Needed for Global Region */
 
@@ -2820,8 +2825,8 @@ SubSpaceTerm :
   | tName tSTRING tEND
     {
       index_Append_2 =
-        Check_NameOfStructExist("SubSpace", FunctionSpace_S.SubSpace,
-                                $2, fcmp_SubSpace_Name, level_Append_2);
+        Check_NameOfStructExistSeq("SubSpace", FunctionSpace_S.SubSpace,
+                                   $2, fcmp_SubSpace_Name, level_Append_2);
       if (index_Append_2<0)
         SubSpace_S.Name = $2;
       else{
@@ -2969,8 +2974,8 @@ GlobalQuantityTerm :
 
     tName String__Index tEND
     {
-      Check_NameOfStructExist("GlobalQuantity", FunctionSpace_S.GlobalQuantity,
-                              $2, fcmp_GlobalQuantity_Name, 0);
+      Check_NameOfStructExistSeq("GlobalQuantity", FunctionSpace_S.GlobalQuantity,
+                                 $2, fcmp_GlobalQuantity_Name, 0);
       GlobalQuantity_S.Name = $2;
     }
 
@@ -3025,6 +3030,7 @@ ConstraintInFSs :
 	    List_Pointer(Constraint_P->ConstraintPerRegion, i);
 
 	  if(ConstraintPerRegion_P->RegionIndex >= 0) {
+            List_Sort(Problem_S.Group, fcmp_Group_Index);
 	    Group_S.InitialList =
 	      ((struct Group *)
 	       List_Pointer(Problem_S.Group, ConstraintPerRegion_P->RegionIndex))
@@ -3038,7 +3044,7 @@ ConstraintInFSs :
 	    ConstraintInFS_S.EntityIndex = Add_Group(&Group_S, (char*)"CO_Entity",
                                                      false, 1, 0);
 	    ConstraintInFS_S.ConstraintPerRegion = ConstraintPerRegion_P;
-
+            List_Sort(Problem_S.Group, fcmp_Group); // sort by name
 	    List_Add(FunctionSpace_S.Constraint, &ConstraintInFS_S);
 	  }
 	}
@@ -3097,8 +3103,10 @@ ConstraintInFSTerm :
          List_Pointer(FunctionSpace_S.BasisFunction, index_BF))->EntityIndex;
       if(entity_index<0)
         vyyerror(0, "Undefined Entity for NameOfCoef %s", $2);
+      List_Sort(Problem_S.Group, fcmp_Group_Index);
       Type_Function =
         ((struct Group *)List_Pointer(Problem_S.Group, entity_index))->FunctionType;
+      List_Sort(Problem_S.Group, fcmp_Group);
 
       Free($2);
     }
@@ -3176,8 +3184,8 @@ FormulationTerm :
   | tName String__Index tEND
     {
       index_Append =
-        Check_NameOfStructExist("Formulation", Problem_S.Formulation,
-                                $2, fcmp_Formulation_Name, level_Append);
+        Check_NameOfStructExistSeq("Formulation", Problem_S.Formulation,
+                                   $2, fcmp_Formulation_Name, level_Append);
       if (index_Append<0)
         Formulation_S.Name = $2;
       else{
@@ -3580,7 +3588,7 @@ DefineQuantityTerm :
 
   | tIn GroupRHS tEND
     {
-      DefineQuantity_S.IntegralQuantity.InIndex = Num_Group(&Group_S, (char*)"IQ_In", $2);
+      DefineQuantity_S.IntegralQuantity.InIndex = Index_Group(&Group_S, (char*)"IQ_In", $2);
     }
 
   | tIntegration tSTRING tEND
@@ -3763,7 +3771,7 @@ GlobalEquationTermTermTerm :
       Free($1);
     }
   | tIn GroupRHS tEND
-  { GlobalEquationTerm_S.InIndex = Num_Group(&Group_S, (char*)"FO_In", $2); }
+  { GlobalEquationTerm_S.InIndex = Index_Group(&Group_S, (char*)"FO_In", $2); }
  ;
 
 
@@ -3939,7 +3947,7 @@ LocalTermTerm  :
 
   | tIn GroupRHS tEND
     {
-      EquationTerm_S.Case.LocalTerm.InIndex = Num_Group(&Group_S, (char*)"FO_In", $2);
+      EquationTerm_S.Case.LocalTerm.InIndex = Index_Group(&Group_S, (char*)"FO_In", $2);
     }
 
   | tJacobian String__Index tEND
@@ -4008,7 +4016,7 @@ GlobalTerm :
 GlobalTermTerm :
     tIn GroupRHS tEND
     {
-      EquationTerm_S.Case.GlobalTerm.InIndex = Num_Group(&Group_S, (char*)"FO_In", $2);
+      EquationTerm_S.Case.GlobalTerm.InIndex = Index_Group(&Group_S, (char*)"FO_In", $2);
     }
 
   | tSubType tSTRING tEND
@@ -4210,8 +4218,8 @@ ResolutionTerm :
   | tName String__Index tEND
     {
       index_Append =
-        Check_NameOfStructExist("Resolution", Problem_S.Resolution,
-                                $2, fcmp_Resolution_Name, level_Append);
+        Check_NameOfStructExistSeq("Resolution", Problem_S.Resolution,
+                                   $2, fcmp_Resolution_Name, level_Append);
       if (index_Append<0)
         Resolution_S.Name = $2;
       else{
@@ -4737,7 +4745,7 @@ OperationTerm :
       Free($3);
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.UpdateConstraint.GroupIndex =
-	Num_Group(&Group_S, (char*)"OP_UpdateCst", $5);
+	Index_Group(&Group_S, (char*)"OP_UpdateCst", $5);
       Operation_P->Case.UpdateConstraint.Type =
 	Get_DefineForString(Constraint_Type, $7, &FlagError);
       if(FlagError){
@@ -5190,7 +5198,7 @@ OperationTerm :
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_CHANGEOFCOORDINATES;
       Operation_P->Case.ChangeOfCoordinates.GroupIndex =
-	Num_Group(&Group_S, (char*)"OP_ChgCoord", $3);
+	Index_Group(&Group_S, (char*)"OP_ChgCoord", $3);
       Operation_P->Case.ChangeOfCoordinates.ExpressionIndex = $5;
       Operation_P->Case.ChangeOfCoordinates.ExpressionIndex2 = -1;
     }
@@ -5201,7 +5209,7 @@ OperationTerm :
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_CHANGEOFCOORDINATES;
       Operation_P->Case.ChangeOfCoordinates.GroupIndex =
-	Num_Group(&Group_S, (char*)"OP_ChgCoord", $3);
+	Index_Group(&Group_S, (char*)"OP_ChgCoord", $3);
       Operation_P->Case.ChangeOfCoordinates.ExpressionIndex = $5;
       Operation_P->Case.ChangeOfCoordinates.NumNode = (int)$7;
       Operation_P->Case.ChangeOfCoordinates.ExpressionIndex2 = $9;
@@ -5328,7 +5336,7 @@ OperationTerm :
       Free($3);
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.SaveSolutionWithEntityNum.GroupIndex =
-        Num_Group(&Group_S, (char*)"OP_SaveSolutionWithEntityNum", $5);
+        Index_Group(&Group_S, (char*)"OP_SaveSolutionWithEntityNum", $5);
       Operation_P->Case.SaveSolutionWithEntityNum.SaveFixed = ($6 >= 0) ? $6 : 0;
     }
 
@@ -5363,22 +5371,34 @@ OperationTerm :
   | tInitMovingBand2D  '[' String__Index ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
-      int i;
-      if((i = List_ISearchSeq(Problem_S.Group, $3, fcmp_Group_Name)) < 0)
-   	vyyerror(0, "Unknown Group: %s", $3);
+      Group_S.Name = $3;
+      struct Group *Group_P = (struct Group*)List_PQuery(Problem_S.Group, &Group_S,
+                                                         fcmp_Group);
+      if(!Group_P){
+        vyyerror(0, "Unknown Group: %s", $3);
+        Operation_P->Case.Init_MovingBand2D.GroupIndex = 0;
+      }
+      else{
+        Operation_P->Case.Init_MovingBand2D.GroupIndex = Group_P->Index;
+      }
       Operation_P->Type = OPERATION_INIT_MOVINGBAND2D;
-            Operation_P->Case.Init_MovingBand2D.GroupIndex = i;
       Free($3);
     }
 
   | tMeshMovingBand2D  '[' String__Index ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
-      int i;
-      if((i = List_ISearchSeq(Problem_S.Group, $3, fcmp_Group_Name)) < 0)
+      Group_S.Name = $3;
+      struct Group *Group_P = (struct Group*)List_PQuery(Problem_S.Group, &Group_S,
+                                                         fcmp_Group);
+      if(!Group_P){
     	vyyerror(0, "Unknown Group: %s", $3);
+        Operation_P->Case.Mesh_MovingBand2D.GroupIndex = 0;
+      }
+      else{
+        Operation_P->Case.Mesh_MovingBand2D.GroupIndex = Group_P->Index;
+      }
       Operation_P->Type = OPERATION_MESH_MOVINGBAND2D;
-      Operation_P->Case.Mesh_MovingBand2D.GroupIndex = i;
       Free($3);
     }
 
@@ -5391,7 +5411,7 @@ OperationTerm :
 	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
-      Operation_P->Case.SaveMesh.GroupIndex = Num_Group(&Group_S, (char*)"OP_SaveMesh", $5);
+      Operation_P->Case.SaveMesh.GroupIndex = Index_Group(&Group_S, (char*)"OP_SaveMesh", $5);
       Operation_P->Case.SaveMesh.FileName = $7;
       Operation_P->Case.SaveMesh.ExprIndex = $9;
       Operation_P->Type = OPERATION_SAVEMESH;
@@ -5406,7 +5426,7 @@ OperationTerm :
 	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
-      Operation_P->Case.SaveMesh.GroupIndex = Num_Group(&Group_S, (char*)"OP_SaveMesh", $5);
+      Operation_P->Case.SaveMesh.GroupIndex = Index_Group(&Group_S, (char*)"OP_SaveMesh", $5);
       Operation_P->Case.SaveMesh.FileName = $7;
       Operation_P->Case.SaveMesh.ExprIndex = -1;
       Operation_P->Type = OPERATION_SAVEMESH;
@@ -5422,11 +5442,18 @@ OperationTerm :
 	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
-      if((i = List_ISearchSeq(Problem_S.Group, $5, fcmp_Group_Name)) < 0)
+      Group_S.Name = $5;
+      struct Group *Group_P = (struct Group*)List_PQuery(Problem_S.Group, &Group_S,
+                                                         fcmp_Group);
+      if(!Group_P){
 	vyyerror(0, "Unknown Group: %s", $5);
-      Free($5);
+        Operation_P->Case.Generate_MH_Moving.GroupIndex = 0;
+      }
+      else{
+        Operation_P->Case.Generate_MH_Moving.GroupIndex = Group_P->Index;
+      }
       Operation_P->Type = OPERATION_GENERATE_MH_MOVING;
-      Operation_P->Case.Generate_MH_Moving.GroupIndex = i;
+      Free($5);
       Operation_P->Case.Generate_MH_Moving.Period  = $7;
       Operation_P->Case.Generate_MH_Moving.NbrStep = (int)$9;
       Operation_P->Case.Generate_MH_Moving.Operation = $12;
@@ -5442,8 +5469,16 @@ OperationTerm :
 	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
-      if((i = List_ISearchSeq(Problem_S.Group, $5, fcmp_Group_Name)) < 0)
+      Group_S.Name = $5;
+      struct Group *Group_P = (struct Group*)List_PQuery(Problem_S.Group, &Group_S,
+                                                         fcmp_Group);
+      if(!Group_P){
 	vyyerror(0, "Unknown Group: %s", $5);
+        Operation_P->Case.Generate_MH_Moving_S.GroupIndex = 0;
+      }
+      else{
+        Operation_P->Case.Generate_MH_Moving_S.GroupIndex = Group_P->Index;
+      }
       Free($5);
       Operation_P->Type = OPERATION_GENERATE_MH_MOVING_S;
       Operation_P->Case.Generate_MH_Moving_S.GroupIndex = i;
@@ -5479,7 +5514,7 @@ OperationTerm :
       Operation_P->Case.DeformeMesh.GeoDataIndex = -1;
       Operation_P->Case.DeformeMesh.Factor = $10;
       Operation_P->Case.DeformeMesh.GroupIndex =
-        Num_Group(&Group_S, (char*)"OP_DeformMesh", $12);
+        Index_Group(&Group_S, (char*)"OP_DeformMesh", $12);
       Operation_P->Type = OPERATION_DEFORMEMESH;
     }
 
@@ -5566,7 +5601,7 @@ OperationTerm :
       Operation_P->Case.DeformeMesh.GeoDataIndex = -1;
       Operation_P->Case.DeformeMesh.Factor = $7;
       Operation_P->Case.DeformeMesh.GroupIndex =
-        Num_Group(&Group_S, (char*)"OP_DeformMesh", $9);
+        Index_Group(&Group_S, (char*)"OP_DeformMesh", $9);
       Operation_P->Type = OPERATION_DEFORMEMESH;
     }
 
@@ -5581,7 +5616,7 @@ OperationTerm :
       Operation_P->DefineSystemIndex = i;
       Operation_P->Type = $1;
       Operation_P->Case.Generate.GroupIndex =
-        Num_Group(&Group_S, (char*)"OP_GenerateGroup", $5);
+        Index_Group(&Group_S, (char*)"OP_GenerateGroup", $5);
     }
 
   | tSolveAgainWithOther '[' String__Index ',' String__Index ']'  tEND
@@ -6193,7 +6228,7 @@ ChangeOfStateTerm :
     }
 
   | tIn GroupRHS tEND
-  { ChangeOfState_S.InIndex = Num_Group(&Group_S, (char*)"OP_In", $2); }
+  { ChangeOfState_S.InIndex = Index_Group(&Group_S, (char*)"OP_In", $2); }
 
   | tCriterion FExpr tEND
     { ChangeOfState_S.Criterion = $2; }
@@ -6270,8 +6305,8 @@ PostProcessingTerm :
   | tName String__Index tEND
     {
       index_Append =
-        Check_NameOfStructExist("PostProcessing", Problem_S.PostProcessing,
-                                $2, fcmp_PostProcessing_Name, level_Append);
+        Check_NameOfStructExistSeq("PostProcessing", Problem_S.PostProcessing,
+                                   $2, fcmp_PostProcessing_Name, level_Append);
       if (index_Append<0)
         PostProcessing_S.Name = $2;
       else{
@@ -6344,8 +6379,8 @@ PostQuantityTerm :
   | tName String__Index tEND
     {
       index_Append_2 =
-        Check_NameOfStructExist("PostQuantity", PostProcessing_S.PostQuantity,
-                                $2, fcmp_PostQuantity_Name, level_Append_2);
+        Check_NameOfStructExistSeq("PostQuantity", PostProcessing_S.PostQuantity,
+                                   $2, fcmp_PostQuantity_Name, level_Append_2);
       if (index_Append_2<0)
         PostQuantity_S.Name = $2;
       else{
@@ -6459,7 +6494,7 @@ SubPostQuantityTerm :
 
  | tIn GroupRHS tEND
    {
-     PostQuantityTerm_S.InIndex = Num_Group(&Group_S, (char*)"PQ_In", $2);
+     PostQuantityTerm_S.InIndex = Index_Group(&Group_S, (char*)"PQ_In", $2);
    }
 
   | tJacobian String__Index tEND
@@ -6543,8 +6578,8 @@ PostOperationTerm :
   | tName String__Index tEND
     {
       index_Append =
-        Check_NameOfStructExist("PostOperation", Problem_S.PostOperation,
-                                $2, fcmp_PostOperation_Name, level_Append);
+        Check_NameOfStructExistSeq("PostOperation", Problem_S.PostOperation,
+                                   $2, fcmp_PostOperation_Name, level_Append);
       if (index_Append<0)
         PostOperation_S.Name = $2;
       else{
@@ -6657,8 +6692,8 @@ SeparatePostOperation :
 	  Problem_S.PostOperation = List_Create(5, 5, sizeof (struct PostOperation));
 
         index_Append =
-          Check_NameOfStructExist("PostOperation", Problem_S.PostOperation,
-                                  $3, fcmp_PostOperation_Name, level_Append);
+          Check_NameOfStructExistSeq("PostOperation", Problem_S.PostOperation,
+                                     $3, fcmp_PostOperation_Name, level_Append);
         if (index_Append<0)
           PostOperation_S.Name = $3;
         else{
@@ -6826,13 +6861,13 @@ PostSubOperation :
     {
       PostSubOperation_S.Type = POP_GROUP;
       PostSubOperation_S.Case.Group.ExtendedGroupIndex =
-        Num_Group(&Group_S, (char*)"PO_Group", $3);
+        Index_Group(&Group_S, (char*)"PO_Group", $3);
       PostSubOperation_S.PostQuantityIndex[0] = -1;
     }
     ',' tIn GroupRHS PrintOptions ']' tEND
     {
       PostSubOperation_S.Case.Group.GroupIndex =
-        Num_Group(&Group_S, (char*)"PO_Group", $7);
+        Index_Group(&Group_S, (char*)"PO_Group", $7);
     }
 
   | tSendMergeFileRequest '[' CharExpr ']' tEND
@@ -6900,7 +6935,7 @@ PostQuantitySupport :
     /* none */
     { $$ = -1; }
   | '[' GroupRHS ']'
-  { $$ = Num_Group(&Group_S, (char*)"PO_Support", $2); }
+  { $$ = Index_Group(&Group_S, (char*)"PO_Support", $2); }
  ;
 
 PrintSubType :
@@ -6915,14 +6950,14 @@ PrintSubType :
     {
       PostSubOperation_S.SubType = PRINT_ONREGION;
       PostSubOperation_S.Case.OnRegion.RegionIndex =
-	Num_Group(&Group_S, (char*)"PO_OnRegion", $2);
+	Index_Group(&Group_S, (char*)"PO_OnRegion", $2);
     }
 
   | tOnElementsOf GroupRHS
     {
       PostSubOperation_S.SubType = PRINT_ONELEMENTSOF;
       PostSubOperation_S.Case.OnRegion.RegionIndex =
-	Num_Group(&Group_S, (char*)"PO_OnElementsOf", $2);
+	Index_Group(&Group_S, (char*)"PO_OnElementsOf", $2);
     }
 
   | tOnSection '{' '{' RecursiveListOfFExpr '}'
@@ -6953,7 +6988,7 @@ PrintSubType :
     {
       PostSubOperation_S.SubType = PRINT_ONGRID;
       PostSubOperation_S.Case.OnRegion.RegionIndex =
-	Num_Group(&Group_S, (char*)"PO_OnGrid", $2);
+	Index_Group(&Group_S, (char*)"PO_OnGrid", $2);
     }
 
   | tOnGrid '{' Expression ',' Expression ',' Expression '}'
@@ -7067,7 +7102,7 @@ PrintSubType :
       PostSubOperation_S.SubType = PRINT_WITHARGUMENT;
 
       PostSubOperation_S.Case.WithArgument.RegionIndex =
-	Num_Group(&Group_S, (char*)"PO_On", $2);
+	Index_Group(&Group_S, (char*)"PO_On", $2);
       int i;
 
       if((i = List_ISearchSeq(Problem_S.Expression, $4, fcmp_Expression_Name)) < 0)
@@ -7087,7 +7122,7 @@ PrintSubType :
       PostSubOperation_S.SubType = PRINT_WITHARGUMENT;
 
       PostSubOperation_S.Case.WithArgument.RegionIndex =
-	Num_Group(&Group_S, (char*)"PO_On", $2);
+	Index_Group(&Group_S, (char*)"PO_On", $2);
       int i;
 
       if((i = List_ISearchSeq(Problem_S.Expression, $4, fcmp_Expression_Name)) < 0)
@@ -9620,8 +9655,9 @@ NbrRegions :
     }
   | tNbrRegions '[' String__Index ']'
     {
+      Group_S.Name = $3;
       int i;
-      if ( (i = List_ISearchSeq(Problem_S.Group, $3, fcmp_Group_Name)) >= 0 ) {
+      if ( (i = List_ISearch(Problem_S.Group, &Group_S, fcmp_Group)) >= 0 ) {
 	$$ = List_Nbr(((struct Group *)List_Pointer(Problem_S.Group, i))
 		      ->InitialList) ;
       }
@@ -9633,7 +9669,8 @@ NbrRegions :
     {
       int i, j, indexInGroup;
       indexInGroup = (int)$5;
-      if ( (i = List_ISearchSeq(Problem_S.Group, $3, fcmp_Group_Name)) >= 0 ) {
+      Group_S.Name = $3;
+      if ( (i = List_ISearch(Problem_S.Group, &Group_S, fcmp_Group)) >= 0 ) {
         if (indexInGroup >= 1 &&
             indexInGroup <= List_Nbr(((struct Group *)List_Pointer(Problem_S.Group, i))
                                      ->InitialList)) {
@@ -9808,30 +9845,36 @@ int  Add_Group(struct Group *Group_P, char *Name, bool Flag_Add,
     Group_P->Name = Name;
   }
 
-  int i;
-  if((i = List_ISearchSeq(Problem_S.Group, Group_P->Name, fcmp_Group_Name)) < 0) {
-    i = Group_P->Num = List_Nbr(Problem_S.Group);
+  int i, index;
+  if((i = List_ISearch(Problem_S.Group, Group_P, fcmp_Group)) < 0) {
+    Group_P->Index = List_Nbr(Problem_S.Group);
     Group_P->ExtendedList = Group_P->ExtendedSuppList = Group_P->ExtendedSuppList2 = NULL;
     List_Add(Problem_S.Group, Group_P);
+    index = Group_P->Index;
   }
   else if(Flag_Add) {
+    index = ((struct Group *)List_Pointer(Problem_S.Group, i))->Index;
     List_T *InitialList = ((struct Group *)List_Pointer(Problem_S.Group, i))->InitialList;
     for(int j = 0; j < List_Nbr(Group_P->InitialList); j++) {
       List_Add(InitialList, (int *)List_Pointer(Group_P->InitialList, j));
     }
   }
-  else  List_Write(Problem_S.Group, i, Group_P);
+  else{
+    index = ((struct Group *)List_Pointer(Problem_S.Group, i))->Index;
+    Group_P->Index = index;
+    List_Write(Problem_S.Group, i, Group_P);
+  }
 
-  return i;
+  return index;
 }
 
-int  Num_Group(struct Group *Group_P, char *Name, int Num_Group)
+int  Index_Group(struct Group *Group_P, char *Name, int Index_Group)
 {
-  if     (Num_Group >= 0)   /* OK */;
-  else if(Num_Group == -1)  Num_Group = Add_Group(Group_P, Name, false, 1, 0);
+  if     (Index_Group >= 0)   /* OK */;
+  else if(Index_Group == -1)  Index_Group = Add_Group(Group_P, Name, false, 1, 0);
   else                      vyyerror(0, "Bad Group right hand side");
 
-  return Num_Group;
+  return Index_Group;
 }
 
 void Fill_GroupInitialListFromString(List_T *list, const char *str)
@@ -10017,16 +10060,25 @@ void  Pro_DefineQuantityIndex(List_T *WholeQuantity_L,
 
 /* C h e c k _ N a m e O f S t r u c t N o t E x i s t   */
 
+int  Check_NameOfStructExistSeq(const char *Struct, List_T *List_L, void *data,
+                                int (*fcmp)(const void *a, const void *b),
+                                int level_Append)
+{
+  int i;
+  if((i = List_ISearchSeq(List_L, data, fcmp)) >= 0 && !level_Append)
+    vyyerror(0, "Redefinition of %s %s", Struct, (char*)data);
+  return i;
+}
+
 int  Check_NameOfStructExist(const char *Struct, List_T *List_L, void *data,
                              int (*fcmp)(const void *a, const void *b),
                              int level_Append)
 {
   int i;
-  if((i=List_ISearchSeq(List_L, data, fcmp)) >= 0 && !level_Append)
+  if((i = List_ISearch(List_L, data, fcmp)) >= 0 && !level_Append)
     vyyerror(0, "Redefinition of %s %s", Struct, (char*)data);
   return i;
 }
-
 
 /* P r i n t _ C o n s t a n t  */
 
