@@ -956,12 +956,9 @@ void Alloc_ParserVariables();
 int Check_NameOfStructExist(const char *Struct, List_T *List_L, void *data,
                             int (*fcmp)(const void *a, const void *b),
                             int level_Append);
-int Check_NameOfStructExistSeq(const char *Struct, List_T *List_L, void *data,
-                               int (*fcmp)(const void *a, const void *b),
-                               int level_Append);
 int  Add_Group(struct Group *Group_P, char *Name, bool Flag_Add,
                int Flag_Plus, int Num_Index);
-int  Index_Group(struct Group *Group_P, char *Name, int Index_Group);
+int  Num_Group(struct Group *Group_P, char *Name, int Num_Group);
 void Fill_GroupInitialListFromString(List_T *list, const char *str);
 int  Add_Expression(struct Expression *Expression_P, char *Name, int Flag_Plus);
 bool Is_ExpressionPieceWiseDefined(int index);
@@ -999,7 +996,7 @@ struct doubleXstring{
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 160 "ProParser.y"
+#line 157 "ProParser.y"
 {
   char    *c;
   int     i;
@@ -1008,7 +1005,7 @@ typedef union YYSTYPE
   struct TwoInt t;
 }
 /* Line 193 of yacc.c.  */
-#line 1012 "ProParser.tab.cpp"
+#line 1009 "ProParser.tab.cpp"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -1021,7 +1018,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 1025 "ProParser.tab.cpp"
+#line 1022 "ProParser.tab.cpp"
 
 #ifdef short
 # undef short
@@ -1897,110 +1894,110 @@ static const yytype_int16 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   360,   360,   360,   370,   374,   373,   381,   382,   383,
-     384,   385,   386,   387,   388,   389,   390,   392,   394,   396,
-     409,   412,   418,   421,   425,   441,   424,   452,   454,   460,
-     459,   490,   501,   506,   522,   530,   533,   546,   547,   554,
-     556,   566,   592,   604,   611,   618,   622,   629,   640,   645,
-     653,   665,   703,   710,   724,   739,   743,   749,   756,   762,
-     770,   774,   787,   786,   806,   824,   824,   831,   834,   839,
-     841,   862,   913,   912,   973,   977,   980,   991,  1008,  1011,
-    1028,  1034,  1042,  1042,  1049,  1057,  1061,  1067,  1070,  1077,
-    1077,  1090,  1093,  1106,  1092,  1134,  1142,  1150,  1158,  1166,
-    1174,  1182,  1190,  1198,  1206,  1214,  1222,  1230,  1239,  1247,
-    1255,  1263,  1272,  1279,  1287,  1289,  1298,  1297,  1328,  1330,
-    1336,  1413,  1447,  1456,  1469,  1468,  1482,  1481,  1496,  1495,
-    1512,  1511,  1532,  1530,  1548,  1629,  1635,  1642,  1641,  1672,
-    1698,  1713,  1719,  1726,  1732,  1739,  1746,  1753,  1759,  1769,
-    1770,  1771,  1776,  1777,  1783,  1785,  1788,  1796,  1799,  1811,
-    1815,  1828,  1833,  1839,  1842,  1855,  1863,  1869,  1877,  1881,
-    1887,  1895,  1925,  1937,  1942,  1955,  1962,  1968,  1971,  1984,
-    1987,  1995,  2000,  2008,  2013,  2019,  2029,  2039,  2047,  2049,
-    2057,  2066,  2072,  2120,  2123,  2126,  2129,  2132,  2144,  2148,
-    2153,  2161,  2167,  2174,  2180,  2183,  2196,  2205,  2212,  2229,
-    2236,  2242,  2247,  2257,  2264,  2270,  2280,  2285,  2291,  2298,
-    2308,  2318,  2326,  2335,  2344,  2363,  2372,  2380,  2388,  2398,
-    2408,  2417,  2427,  2448,  2453,  2458,  2466,  2473,  2479,  2481,
-    2487,  2490,  2503,  2512,  2514,  2516,  2518,  2525,  2532,  2558,
-    2565,  2582,  2588,  2593,  2607,  2614,  2628,  2651,  2682,  2687,
-    2692,  2697,  2726,  2730,  2787,  2793,  2801,  2808,  2814,  2820,
-    2825,  2838,  2841,  2848,  2867,  2875,  2880,  2901,  2915,  2923,
-    2928,  2945,  2951,  2957,  2964,  2969,  2975,  2982,  2993,  3009,
-    3015,  3054,  3061,  3071,  3077,  3114,  3117,  3122,  3125,  3143,
-    3147,  3152,  3160,  3167,  3173,  3175,  3181,  3184,  3197,  3207,
-    3209,  3219,  3225,  3230,  3237,  3252,  3258,  3261,  3265,  3268,
-    3278,  3283,  3282,  3316,  3322,  3321,  3589,  3594,  3605,  3616,
-    3621,  3624,  3667,  3673,  3678,  3687,  3690,  3693,  3696,  3704,
-    3709,  3710,  3715,  3725,  3736,  3751,  3757,  3761,  3773,  3782,
-    3800,  3807,  3815,  3806,  3948,  3953,  3964,  3975,  3980,  3987,
-    3997,  4012,  4017,  4022,  4034,  4042,  4033,  4114,  4115,  4116,
-    4117,  4118,  4119,  4120,  4121,  4122,  4123,  4124,  4125,  4131,
-    4152,  4177,  4181,  4186,  4194,  4201,  4209,  4215,  4218,  4231,
-    4233,  4237,  4236,  4241,  4247,  4254,  4263,  4273,  4285,  4291,
-    4300,  4309,  4312,  4318,  4329,  4334,  4339,  4344,  4350,  4360,
-    4368,  4370,  4383,  4394,  4401,  4403,  4417,  4427,  4438,  4439,
-    4444,  4445,  4446,  4447,  4450,  4451,  4452,  4453,  4454,  4455,
-    4458,  4459,  4460,  4461,  4462,  4465,  4466,  4467,  4468,  4469,
-    4475,  4499,  4506,  4513,  4519,  4525,  4531,  4539,  4562,  4569,
-    4576,  4583,  4590,  4596,  4602,  4608,  4615,  4621,  4632,  4644,
-    4654,  4667,  4689,  4711,  4724,  4737,  4758,  4772,  4793,  4806,
-    4819,  4837,  4857,  4880,  4896,  4913,  4929,  4936,  4949,  4962,
-    4975,  4988,  5000,  5035,  5048,  5062,  5081,  5101,  5112,  5125,
-    5138,  5157,  5178,  5177,  5187,  5186,  5195,  5206,  5218,  5228,
-    5236,  5244,  5254,  5264,  5271,  5280,  5291,  5300,  5314,  5328,
-    5343,  5357,  5371,  5388,  5405,  5420,  5435,  5462,  5490,  5502,
-    5521,  5539,  5556,  5573,  5590,  5608,  5622,  5639,  5646,  5661,
-    5676,  5691,  5706,  5715,  5721,  5732,  5741,  5746,  5750,  5753,
-    5765,  5770,  5786,  5792,  5799,  5806,  5817,  5824,  5829,  5839,
-    5843,  5864,  5868,  5885,  5892,  5897,  5907,  5911,  5939,  5943,
-    5964,  5973,  5979,  5983,  5987,  5991,  5996,  6008,  6018,  6024,
-    6028,  6032,  6036,  6040,  6045,  6057,  6066,  6071,  6075,  6079,
-    6083,  6087,  6099,  6111,  6116,  6120,  6124,  6128,  6133,  6144,
-    6150,  6156,  6167,  6169,  6175,  6187,  6192,  6202,  6230,  6233,
-    6236,  6244,  6263,  6269,  6274,  6282,  6287,  6296,  6298,  6302,
-    6305,  6318,  6332,  6337,  6343,  6349,  6357,  6362,  6369,  6374,
-    6379,  6392,  6399,  6411,  6417,  6429,  6435,  6444,  6449,  6448,
-    6484,  6495,  6500,  6511,  6531,  6537,  6542,  6550,  6555,  6571,
-    6575,  6578,  6591,  6593,  6606,  6617,  6622,  6627,  6632,  6637,
-    6642,  6647,  6652,  6660,  6665,  6671,  6670,  6721,  6729,  6728,
-    6822,  6828,  6833,  6842,  6851,  6861,  6860,  6873,  6879,  6888,
-    6901,  6927,  6928,  6929,  6930,  6936,  6937,  6943,  6949,  6956,
-    6963,  6987,  6994,  7006,  7019,  7039,  7065,  7099,  7119,  7141,
-    7143,  7147,  7152,  7157,  7162,  7166,  7170,  7174,  7178,  7182,
-    7186,  7190,  7194,  7198,  7208,  7212,  7216,  7220,  7224,  7231,
-    7242,  7246,  7252,  7256,  7265,  7274,  7281,  7290,  7294,  7304,
-    7308,  7312,  7316,  7325,  7331,  7335,  7343,  7350,  7358,  7365,
-    7373,  7380,  7388,  7392,  7396,  7400,  7404,  7408,  7412,  7416,
-    7420,  7424,  7428,  7432,  7436,  7440,  7444,  7448,  7452,  7456,
-    7460,  7464,  7468,  7472,  7476,  7480,  7485,  7508,  7510,  7516,
-    7533,  7550,  7572,  7593,  7630,  7638,  7646,  7652,  7659,  7667,
-    7687,  7713,  7725,  7731,  7736,  7745,  7746,  7750,  7754,  7762,
-    7764,  7766,  7768,  7774,  7781,  7791,  7801,  7816,  7824,  7852,
-    7880,  7908,  7930,  7947,  7982,  8012,  8019,  8027,  8035,  8052,
-    8057,  8072,  8089,  8094,  8108,  8131,  8138,  8149,  8161,  8176,
-    8191,  8198,  8204,  8209,  8241,  8243,  8248,  8260,  8275,  8284,
-    8293,  8295,  8300,  8308,  8317,  8325,  8333,  8348,  8351,  8359,
-    8375,  8383,  8392,  8391,  8418,  8417,  8429,  8438,  8437,  8450,
-    8453,  8461,  8476,  8477,  8478,  8479,  8480,  8481,  8482,  8483,
-    8484,  8485,  8486,  8487,  8488,  8489,  8490,  8491,  8492,  8493,
-    8494,  8495,  8496,  8497,  8498,  8502,  8503,  8507,  8508,  8509,
-    8510,  8511,  8512,  8513,  8514,  8515,  8516,  8517,  8518,  8519,
-    8520,  8521,  8522,  8523,  8524,  8525,  8526,  8527,  8528,  8529,
-    8530,  8531,  8532,  8533,  8534,  8535,  8536,  8537,  8538,  8539,
-    8540,  8541,  8542,  8543,  8544,  8545,  8546,  8547,  8548,  8549,
-    8550,  8551,  8553,  8555,  8557,  8559,  8564,  8565,  8566,  8567,
-    8568,  8569,  8570,  8571,  8572,  8573,  8574,  8575,  8576,  8578,
-    8579,  8580,  8584,  8583,  8593,  8599,  8605,  8621,  8640,  8661,
-    8680,  8703,  8726,  8747,  8757,  8766,  8773,  8790,  8793,  8799,
-    8802,  8805,  8814,  8827,  8833,  8836,  8839,  8852,  8861,  8870,
-    8879,  8888,  8897,  8906,  8921,  8936,  8951,  8966,  8974,  8986,
-    9009,  9029,  9048,  9066,  9094,  9122,  9149,  9166,  9171,  9176,
-    9217,  9237,  9246,  9255,  9287,  9296,  9305,  9317,  9320,  9324,
-    9329,  9332,  9335,  9340,  9350,  9360,  9371,  9391,  9403,  9412,
-    9421,  9426,  9446,  9455,  9462,  9467,  9474,  9480,  9486,  9491,
-    9498,  9497,  9508,  9514,  9524,  9527,  9543,  9572,  9577,  9585,
-    9585,  9586,  9586,  9590,  9612,  9623,  9633,  9647,  9656,  9668,
-    9695,  9697,  9703,  9704
+       0,   357,   357,   357,   367,   371,   370,   378,   379,   380,
+     381,   382,   383,   384,   385,   386,   387,   389,   391,   393,
+     406,   409,   415,   418,   422,   438,   421,   449,   451,   457,
+     456,   487,   498,   503,   518,   526,   529,   542,   543,   550,
+     552,   562,   587,   599,   606,   613,   617,   624,   635,   640,
+     648,   660,   697,   704,   718,   733,   737,   743,   750,   756,
+     764,   768,   781,   780,   800,   819,   819,   826,   829,   834,
+     836,   857,   908,   907,   968,   972,   975,   986,  1003,  1006,
+    1023,  1029,  1037,  1037,  1044,  1052,  1056,  1062,  1065,  1072,
+    1072,  1085,  1088,  1101,  1087,  1129,  1137,  1145,  1153,  1161,
+    1169,  1177,  1185,  1193,  1201,  1209,  1217,  1225,  1234,  1242,
+    1250,  1258,  1267,  1274,  1282,  1284,  1293,  1292,  1323,  1325,
+    1331,  1408,  1442,  1451,  1464,  1463,  1477,  1476,  1491,  1490,
+    1507,  1506,  1527,  1525,  1543,  1624,  1630,  1637,  1636,  1667,
+    1693,  1708,  1714,  1721,  1727,  1734,  1741,  1748,  1754,  1764,
+    1765,  1766,  1771,  1772,  1778,  1780,  1783,  1791,  1794,  1806,
+    1810,  1823,  1828,  1834,  1837,  1850,  1858,  1864,  1872,  1876,
+    1882,  1890,  1920,  1932,  1937,  1950,  1957,  1963,  1966,  1979,
+    1982,  1990,  1995,  2003,  2008,  2014,  2024,  2034,  2042,  2044,
+    2052,  2061,  2067,  2115,  2118,  2121,  2124,  2127,  2139,  2143,
+    2148,  2156,  2162,  2169,  2175,  2178,  2191,  2200,  2207,  2224,
+    2231,  2237,  2242,  2252,  2259,  2265,  2275,  2280,  2286,  2293,
+    2303,  2313,  2321,  2330,  2339,  2358,  2367,  2375,  2383,  2393,
+    2403,  2412,  2422,  2443,  2448,  2453,  2461,  2468,  2474,  2476,
+    2482,  2485,  2498,  2507,  2509,  2511,  2513,  2520,  2527,  2553,
+    2560,  2577,  2583,  2588,  2602,  2609,  2623,  2646,  2677,  2682,
+    2687,  2692,  2721,  2725,  2782,  2788,  2796,  2803,  2809,  2815,
+    2820,  2833,  2836,  2843,  2862,  2870,  2875,  2896,  2910,  2918,
+    2923,  2940,  2946,  2952,  2959,  2964,  2970,  2977,  2988,  3004,
+    3010,  3048,  3055,  3065,  3071,  3106,  3109,  3114,  3117,  3135,
+    3139,  3144,  3152,  3159,  3165,  3167,  3173,  3176,  3189,  3199,
+    3201,  3211,  3217,  3222,  3229,  3244,  3250,  3253,  3257,  3260,
+    3270,  3275,  3274,  3308,  3314,  3313,  3581,  3586,  3597,  3608,
+    3613,  3616,  3659,  3665,  3670,  3679,  3682,  3685,  3688,  3696,
+    3701,  3702,  3707,  3717,  3728,  3743,  3749,  3753,  3765,  3774,
+    3792,  3799,  3807,  3798,  3940,  3945,  3956,  3967,  3972,  3979,
+    3989,  4004,  4009,  4014,  4026,  4034,  4025,  4106,  4107,  4108,
+    4109,  4110,  4111,  4112,  4113,  4114,  4115,  4116,  4117,  4123,
+    4144,  4169,  4173,  4178,  4186,  4193,  4201,  4207,  4210,  4223,
+    4225,  4229,  4228,  4233,  4239,  4246,  4255,  4265,  4277,  4283,
+    4292,  4301,  4304,  4310,  4321,  4326,  4331,  4336,  4342,  4352,
+    4360,  4362,  4375,  4386,  4393,  4395,  4409,  4419,  4430,  4431,
+    4436,  4437,  4438,  4439,  4442,  4443,  4444,  4445,  4446,  4447,
+    4450,  4451,  4452,  4453,  4454,  4457,  4458,  4459,  4460,  4461,
+    4467,  4491,  4498,  4505,  4511,  4517,  4523,  4531,  4554,  4561,
+    4568,  4575,  4582,  4588,  4594,  4600,  4607,  4613,  4624,  4636,
+    4646,  4659,  4681,  4703,  4716,  4729,  4750,  4764,  4785,  4798,
+    4811,  4829,  4849,  4872,  4888,  4905,  4921,  4928,  4941,  4954,
+    4967,  4980,  4992,  5027,  5040,  5054,  5073,  5093,  5104,  5117,
+    5130,  5149,  5170,  5169,  5179,  5178,  5187,  5198,  5210,  5220,
+    5228,  5236,  5246,  5256,  5263,  5272,  5283,  5292,  5306,  5320,
+    5335,  5349,  5363,  5374,  5385,  5400,  5415,  5435,  5455,  5467,
+    5486,  5504,  5521,  5538,  5555,  5573,  5587,  5604,  5611,  5626,
+    5641,  5656,  5671,  5680,  5686,  5697,  5706,  5711,  5715,  5718,
+    5730,  5735,  5751,  5757,  5764,  5771,  5782,  5789,  5794,  5804,
+    5808,  5829,  5833,  5850,  5857,  5862,  5872,  5876,  5904,  5908,
+    5929,  5938,  5944,  5948,  5952,  5956,  5961,  5973,  5983,  5989,
+    5993,  5997,  6001,  6005,  6010,  6022,  6031,  6036,  6040,  6044,
+    6048,  6052,  6064,  6076,  6081,  6085,  6089,  6093,  6098,  6109,
+    6115,  6121,  6132,  6134,  6140,  6152,  6157,  6167,  6195,  6198,
+    6201,  6209,  6228,  6234,  6239,  6247,  6252,  6261,  6263,  6267,
+    6270,  6283,  6297,  6302,  6308,  6314,  6322,  6327,  6334,  6339,
+    6344,  6357,  6364,  6376,  6382,  6394,  6400,  6409,  6414,  6413,
+    6449,  6460,  6465,  6476,  6496,  6502,  6507,  6515,  6520,  6536,
+    6540,  6543,  6556,  6558,  6571,  6582,  6587,  6592,  6597,  6602,
+    6607,  6612,  6617,  6625,  6630,  6636,  6635,  6686,  6694,  6693,
+    6787,  6793,  6798,  6807,  6816,  6826,  6825,  6838,  6844,  6853,
+    6866,  6892,  6893,  6894,  6895,  6901,  6902,  6908,  6914,  6921,
+    6928,  6952,  6959,  6971,  6984,  7004,  7030,  7064,  7084,  7106,
+    7108,  7112,  7117,  7122,  7127,  7131,  7135,  7139,  7143,  7147,
+    7151,  7155,  7159,  7163,  7173,  7177,  7181,  7185,  7189,  7196,
+    7207,  7211,  7217,  7221,  7230,  7239,  7246,  7255,  7259,  7269,
+    7273,  7277,  7281,  7290,  7296,  7300,  7308,  7315,  7323,  7330,
+    7338,  7345,  7353,  7357,  7361,  7365,  7369,  7373,  7377,  7381,
+    7385,  7389,  7393,  7397,  7401,  7405,  7409,  7413,  7417,  7421,
+    7425,  7429,  7433,  7437,  7441,  7445,  7450,  7473,  7475,  7481,
+    7498,  7515,  7537,  7558,  7595,  7603,  7611,  7617,  7624,  7632,
+    7652,  7678,  7690,  7696,  7701,  7710,  7711,  7715,  7719,  7727,
+    7729,  7731,  7733,  7739,  7746,  7756,  7766,  7781,  7789,  7817,
+    7845,  7873,  7895,  7912,  7947,  7977,  7984,  7992,  8000,  8017,
+    8022,  8037,  8054,  8059,  8073,  8096,  8103,  8114,  8126,  8141,
+    8156,  8163,  8169,  8174,  8206,  8208,  8213,  8225,  8240,  8249,
+    8258,  8260,  8265,  8273,  8282,  8290,  8298,  8313,  8316,  8324,
+    8340,  8348,  8357,  8356,  8383,  8382,  8394,  8403,  8402,  8415,
+    8418,  8426,  8441,  8442,  8443,  8444,  8445,  8446,  8447,  8448,
+    8449,  8450,  8451,  8452,  8453,  8454,  8455,  8456,  8457,  8458,
+    8459,  8460,  8461,  8462,  8463,  8467,  8468,  8472,  8473,  8474,
+    8475,  8476,  8477,  8478,  8479,  8480,  8481,  8482,  8483,  8484,
+    8485,  8486,  8487,  8488,  8489,  8490,  8491,  8492,  8493,  8494,
+    8495,  8496,  8497,  8498,  8499,  8500,  8501,  8502,  8503,  8504,
+    8505,  8506,  8507,  8508,  8509,  8510,  8511,  8512,  8513,  8514,
+    8515,  8516,  8518,  8520,  8522,  8524,  8529,  8530,  8531,  8532,
+    8533,  8534,  8535,  8536,  8537,  8538,  8539,  8540,  8541,  8543,
+    8544,  8545,  8549,  8548,  8558,  8564,  8570,  8586,  8605,  8626,
+    8645,  8668,  8691,  8712,  8722,  8731,  8738,  8755,  8758,  8764,
+    8767,  8770,  8779,  8792,  8798,  8801,  8804,  8817,  8826,  8835,
+    8844,  8853,  8862,  8871,  8886,  8901,  8916,  8931,  8939,  8951,
+    8974,  8994,  9013,  9031,  9059,  9087,  9114,  9131,  9136,  9141,
+    9182,  9202,  9211,  9220,  9252,  9261,  9270,  9282,  9285,  9289,
+    9294,  9297,  9300,  9305,  9315,  9325,  9336,  9356,  9368,  9377,
+    9386,  9391,  9411,  9420,  9427,  9432,  9439,  9445,  9451,  9456,
+    9463,  9462,  9473,  9479,  9489,  9492,  9508,  9537,  9542,  9550,
+    9550,  9551,  9551,  9555,  9577,  9588,  9598,  9612,  9621,  9632,
+    9658,  9660,  9666,  9667
 };
 #endif
 
@@ -8006,17 +8003,17 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 360 "ProParser.y"
+#line 357 "ProParser.y"
     { Alloc_ParserVariables(); ;}
     break;
 
   case 5:
-#line 374 "ProParser.y"
+#line 371 "ProParser.y"
     { Formulation_S.DefineQuantity = NULL; ;}
     break;
 
   case 19:
-#line 397 "ProParser.y"
+#line 394 "ProParser.y"
     {
       num_include++; level_include++;
       strcpy(getdp_yyincludename, (yyvsp[(2) - (2)].c)); getdp_yyincludenum++; return(0);
@@ -8024,17 +8021,17 @@ yyreduce:
     break;
 
   case 22:
-#line 419 "ProParser.y"
+#line 416 "ProParser.y"
     { Add_Group(&Group_S, (yyvsp[(1) - (4)].c), false, 0, 0); ;}
     break;
 
   case 23:
-#line 422 "ProParser.y"
+#line 419 "ProParser.y"
     { Add_Group(&Group_S, (yyvsp[(1) - (5)].c), true, 0, 0); ;}
     break;
 
   case 24:
-#line 425 "ProParser.y"
+#line 422 "ProParser.y"
     {
       int j = 0;
       if(List_Nbr((yyvsp[(5) - (5)].l)) == 1)
@@ -8053,7 +8050,7 @@ yyreduce:
     break;
 
   case 25:
-#line 441 "ProParser.y"
+#line 438 "ProParser.y"
     {
       Group_S.MovingBand2D->InitialList1 = (yyvsp[(8) - (8)].l);
       Group_S.MovingBand2D->ExtendedList1 = NULL;
@@ -8061,7 +8058,7 @@ yyreduce:
     break;
 
   case 26:
-#line 446 "ProParser.y"
+#line 443 "ProParser.y"
     {
       Group_S.MovingBand2D->InitialList2 = (yyvsp[(11) - (15)].l);
       Group_S.MovingBand2D->Period2 = (int)(yyvsp[(13) - (15)].d);
@@ -8070,7 +8067,7 @@ yyreduce:
     break;
 
   case 29:
-#line 460 "ProParser.y"
+#line 457 "ProParser.y"
     {
       Group_S.FunctionType = (yyvsp[(1) - (3)].i);
       switch (Group_S.FunctionType) {
@@ -8082,7 +8079,7 @@ yyreduce:
     break;
 
   case 30:
-#line 469 "ProParser.y"
+#line 466 "ProParser.y"
     {
       if (nb_SuppList >=1) {
         Group_S.SuppListType = Type_SuppLists[0];
@@ -8105,7 +8102,7 @@ yyreduce:
     break;
 
   case 31:
-#line 491 "ProParser.y"
+#line 488 "ProParser.y"
     {
       Group_S.FunctionType = REGION;  Group_S.Type = REGIONLIST;
       Group_S.InitialList = (yyvsp[(2) - (2)].l);
@@ -8115,22 +8112,21 @@ yyreduce:
     break;
 
   case 32:
-#line 502 "ProParser.y"
+#line 499 "ProParser.y"
     {
       (yyval.i) = (yyvsp[(1) - (1)].i);
     ;}
     break;
 
   case 33:
-#line 507 "ProParser.y"
+#line 504 "ProParser.y"
     {
-      Group_S.Name = (yyvsp[(1) - (1)].c);
       int i;
       if(!strcmp((yyvsp[(1) - (1)].c), "All")) { //+++ Never considered because token tAll exists!
 	(yyval.i) = -3;
       }
-      else if((i = List_ISearch(Problem_S.Group, &Group_S, fcmp_Group)) >= 0) {
-	List_Read(Problem_S.Group, i, &Group_S); (yyval.i) = Group_S.Index;
+      else if((i = List_ISearchSeq(Problem_S.Group, (yyvsp[(1) - (1)].c), fcmp_Group_Name)) >= 0) {
+	List_Read(Problem_S.Group, i, &Group_S); (yyval.i) = i;
       }
       else {
 	(yyval.i) = -2; vyyerror(0, "Unknown Group: %s", (yyvsp[(1) - (1)].c));
@@ -8140,19 +8136,19 @@ yyreduce:
     break;
 
   case 34:
-#line 523 "ProParser.y"
+#line 519 "ProParser.y"
     {
       (yyval.i) = -3;
     ;}
     break;
 
   case 35:
-#line 531 "ProParser.y"
+#line 527 "ProParser.y"
     { (yyval.i) = REGION; ;}
     break;
 
   case 36:
-#line 534 "ProParser.y"
+#line 530 "ProParser.y"
     { (yyval.i) = Get_DefineForString(FunctionForGroup_Type, (yyvsp[(1) - (1)].c), &FlagError);
       if(FlagError){
 	Get_Valid_SXD((yyvsp[(1) - (1)].c), FunctionForGroup_Type);
@@ -8163,22 +8159,22 @@ yyreduce:
     break;
 
   case 37:
-#line 546 "ProParser.y"
+#line 542 "ProParser.y"
     { (yyval.l) = (yyvsp[(1) - (1)].l); ;}
     break;
 
   case 38:
-#line 547 "ProParser.y"
+#line 543 "ProParser.y"
     { (yyval.l) = NULL; ;}
     break;
 
   case 39:
-#line 554 "ProParser.y"
+#line 550 "ProParser.y"
     { nb_SuppList = 0; /*Type_SuppList = SUPPLIST_NONE;*/  (yyval.l) = NULL; ;}
     break;
 
   case 40:
-#line 557 "ProParser.y"
+#line 553 "ProParser.y"
     {
       if (nb_SuppList+1 <= 2) {
         Type_SuppLists[nb_SuppList] = (yyvsp[(3) - (4)].i); (yyval.l) = (yyvsp[(4) - (4)].l); ListsOfRegion[nb_SuppList] = (yyvsp[(4) - (4)].l);
@@ -8190,17 +8186,16 @@ yyreduce:
     break;
 
   case 41:
-#line 567 "ProParser.y"
+#line 563 "ProParser.y"
     {
       if (nb_SuppList+1 <= 2) {
         int i;
         Type_SuppLists[nb_SuppList] = SUPPLIST_INSUPPORT;
-        Group_S.Name = (yyvsp[(4) - (4)].c);
-        if((i = List_ISearch(Problem_S.Group, &Group_S, fcmp_Group)) >= 0) {
-          struct Group *Group_P = (struct Group *)List_Pointer(Problem_S.Group, i);
-          if(Group_P->Type == ELEMENTLIST) {
+        if((i = List_ISearchSeq(Problem_S.Group, (yyvsp[(4) - (4)].c), fcmp_Group_Name)) >= 0) {
+          if(((struct Group *)List_Pointer(Problem_S.Group, i))->Type ==
+	     ELEMENTLIST) {
             (yyval.l) = List_Create(1, 5, sizeof(int));
-            List_Add((yyval.l), &Group_P->Index);
+            List_Add((yyval.l), &i);
             ListsOfRegion[nb_SuppList] = (yyval.l);
           }
           else  vyyerror(0, "Not a Support of Element Type: %s", (yyvsp[(4) - (4)].c));
@@ -8215,7 +8210,7 @@ yyreduce:
     break;
 
   case 42:
-#line 593 "ProParser.y"
+#line 588 "ProParser.y"
     { (yyval.i) = Get_DefineForString(FunctionForGroup_SuppList, (yyvsp[(1) - (1)].c), &FlagError);
       if(FlagError){
 	Get_Valid_SXD((yyvsp[(1) - (1)].c), FunctionForGroup_SuppList);
@@ -8226,7 +8221,7 @@ yyreduce:
     break;
 
   case 43:
-#line 605 "ProParser.y"
+#line 600 "ProParser.y"
     {
       (yyval.l) = List_Create(((List_Nbr((yyvsp[(1) - (1)].l)) > 0)? List_Nbr((yyvsp[(1) - (1)].l)) : 1), 5, sizeof(int));
       for(int i = 0; i < List_Nbr((yyvsp[(1) - (1)].l)); i++)
@@ -8235,19 +8230,19 @@ yyreduce:
     break;
 
   case 44:
-#line 612 "ProParser.y"
+#line 607 "ProParser.y"
     { (yyval.l) = (yyvsp[(2) - (3)].l); ;}
     break;
 
   case 45:
-#line 618 "ProParser.y"
+#line 613 "ProParser.y"
     {
       (yyval.l) = List_Create(5, 5, sizeof(int));
     ;}
     break;
 
   case 46:
-#line 623 "ProParser.y"
+#line 618 "ProParser.y"
     {
       (yyval.l) = (yyvsp[(1) - (3)].l);
       for(int i = 0; i < List_Nbr((yyvsp[(3) - (3)].l)); i++)
@@ -8256,7 +8251,7 @@ yyreduce:
     break;
 
   case 47:
-#line 630 "ProParser.y"
+#line 625 "ProParser.y"
     {
       (yyval.l) = (yyvsp[(1) - (4)].l);
       for(int i = 0; i < List_Nbr((yyvsp[(4) - (4)].l)); i++)
@@ -8265,14 +8260,14 @@ yyreduce:
     break;
 
   case 48:
-#line 641 "ProParser.y"
+#line 636 "ProParser.y"
     {
       List_Reset(ListOfInt_L); List_Add((yyval.l) = ListOfInt_L, &((yyvsp[(1) - (1)].i)));
     ;}
     break;
 
   case 49:
-#line 646 "ProParser.y"
+#line 641 "ProParser.y"
     {
       List_Reset((yyval.l) = ListOfInt_L);
       for(int j = (yyvsp[(1) - (3)].i); ((yyvsp[(1) - (3)].i) < (yyvsp[(3) - (3)].i)) ? (j <= (yyvsp[(3) - (3)].i)) : (j >= (yyvsp[(3) - (3)].i));
@@ -8282,7 +8277,7 @@ yyreduce:
     break;
 
   case 50:
-#line 654 "ProParser.y"
+#line 649 "ProParser.y"
     {
       List_Reset((yyval.l) = ListOfInt_L);
       if(!(yyvsp[(5) - (5)].i) || ((yyvsp[(1) - (5)].i) < (yyvsp[(3) - (5)].i) && (yyvsp[(5) - (5)].i) < 0) || ((yyvsp[(1) - (5)].i) > (yyvsp[(3) - (5)].i) && (yyvsp[(5) - (5)].i) > 0)){
@@ -8296,11 +8291,10 @@ yyreduce:
     break;
 
   case 51:
-#line 666 "ProParser.y"
+#line 661 "ProParser.y"
     {
-      Group_S.Name = (yyvsp[(1) - (1)].c);
       int i;
-      if((i = List_ISearch(Problem_S.Group, &Group_S, fcmp_Group)) < 0) {
+      if((i = List_ISearchSeq(Problem_S.Group, (yyvsp[(1) - (1)].c), fcmp_Group_Name)) < 0) {
 	// Si ce n'est pas un nom de groupe, est-ce un nom de constante ? :
 	Constant_S.Name = (yyvsp[(1) - (1)].c);
 	if(!Tree_Query(ConstantTable_L, &Constant_S)) {
@@ -8335,7 +8329,7 @@ yyreduce:
     break;
 
   case 52:
-#line 704 "ProParser.y"
+#line 698 "ProParser.y"
     {
       int i = (int)(yyvsp[(2) - (3)].d);
       List_Reset(ListOfInt_L); List_Add((yyval.l) = ListOfInt_L, &i);
@@ -8343,7 +8337,7 @@ yyreduce:
     break;
 
   case 53:
-#line 711 "ProParser.y"
+#line 705 "ProParser.y"
     {
       List_Reset(ListOfInt_L);
 
@@ -8358,7 +8352,7 @@ yyreduce:
     break;
 
   case 54:
-#line 725 "ProParser.y"
+#line 719 "ProParser.y"
     {
       List_Reset(ListOfInt_L);
 
@@ -8373,7 +8367,7 @@ yyreduce:
     break;
 
   case 56:
-#line 744 "ProParser.y"
+#line 738 "ProParser.y"
     {
       CharOptions_S["Strings"].push_back((yyvsp[(1) - (1)].c));
       Free((yyvsp[(1) - (1)].c));
@@ -8381,7 +8375,7 @@ yyreduce:
     break;
 
   case 57:
-#line 750 "ProParser.y"
+#line 744 "ProParser.y"
     {
       char tmp[128];
       sprintf(tmp, "%d", (yyvsp[(1) - (1)].i));
@@ -8390,7 +8384,7 @@ yyreduce:
     break;
 
   case 58:
-#line 757 "ProParser.y"
+#line 751 "ProParser.y"
     {
       CharOptions_S["Strings"].push_back((yyvsp[(3) - (3)].c));
       Free((yyvsp[(3) - (3)].c));
@@ -8398,7 +8392,7 @@ yyreduce:
     break;
 
   case 59:
-#line 763 "ProParser.y"
+#line 757 "ProParser.y"
     {
       char tmp[128];
       sprintf(tmp, "%d", (yyvsp[(3) - (3)].i));
@@ -8407,29 +8401,29 @@ yyreduce:
     break;
 
   case 61:
-#line 775 "ProParser.y"
+#line 769 "ProParser.y"
     {
-      Group_S.Name = (yyvsp[(3) - (3)].c);
-      if (List_ISearch(Problem_S.Group, &Group_S, fcmp_Group) < 0) {
+      int i;
+      if ( (i = List_ISearchSeq(Problem_S.Group, (yyvsp[(3) - (3)].c), fcmp_Group_Name)) < 0 ) {
 	Group_S.Type = REGIONLIST ; Group_S.FunctionType = REGION ;
 	Group_S.InitialList = List_Create( 5, 5, sizeof(int)) ;
 	Group_S.SuppListType = SUPPLIST_NONE ; Group_S.InitialSuppList = NULL ;
-	Add_Group(&Group_S, (yyvsp[(3) - (3)].c), false, 0, 0) ;
+	i = Add_Group(&Group_S, (yyvsp[(3) - (3)].c), false, 0, 0) ;
       }
       else  Free((yyvsp[(3) - (3)].c)) ;
     ;}
     break;
 
   case 62:
-#line 787 "ProParser.y"
+#line 781 "ProParser.y"
     { FloatOptions_S.clear(); CharOptions_S.clear(); ;}
     break;
 
   case 63:
-#line 789 "ProParser.y"
+#line 783 "ProParser.y"
     {
-      Group_S.Name = (yyvsp[(3) - (11)].c);
-      if (List_ISearch(Problem_S.Group, &Group_S, fcmp_Group) < 0) {
+      int i;
+      if ( (i = List_ISearchSeq(Problem_S.Group, (yyvsp[(3) - (11)].c), fcmp_Group_Name)) < 0 ) {
         Group_S.Name = (yyvsp[(3) - (11)].c); // will be overwritten in Add_Group
 	Group_S.Type = REGIONLIST ; Group_S.FunctionType = REGION ;
 	Group_S.InitialList = List_Create( 5, 5, sizeof(int)) ;
@@ -8439,20 +8433,21 @@ yyreduce:
             Fill_GroupInitialListFromString(Group_S.InitialList, vec[i].c_str());
         }
 	Group_S.SuppListType = SUPPLIST_NONE ; Group_S.InitialSuppList = NULL ;
-	Add_Group(&Group_S, (yyvsp[(3) - (11)].c), false, 0, 0) ;
+	i = Add_Group(&Group_S, (yyvsp[(3) - (11)].c), false, 0, 0) ;
       }
       else  Free((yyvsp[(3) - (11)].c)) ;
     ;}
     break;
 
   case 64:
-#line 807 "ProParser.y"
+#line 801 "ProParser.y"
     {
       for (int k = 0 ; k < (int)(yyvsp[(5) - (6)].d) ; k++) {
 	char tmpstr[256];
 	sprintf(tmpstr, "%s_%d", (yyvsp[(3) - (6)].c), k+1) ;
-        Group_S.Name = tmpstr;
-	if (List_ISearch(Problem_S.Group, &Group_S, fcmp_Group) < 0) {
+	int i;
+	if ( (i = List_ISearchSeq(Problem_S.Group, tmpstr,
+				  fcmp_Group_Name)) < 0 ) {
 	  Group_S.Type = REGIONLIST ; Group_S.FunctionType = REGION ;
 	  Group_S.SuppListType = SUPPLIST_NONE ; Group_S.InitialSuppList = NULL ;
 	  Group_S.InitialList = List_Create( 5, 5, sizeof(int)) ;
@@ -8464,7 +8459,7 @@ yyreduce:
     break;
 
   case 70:
-#line 842 "ProParser.y"
+#line 837 "ProParser.y"
     {
       int i;
       if((i = List_ISearchSeq
@@ -8487,7 +8482,7 @@ yyreduce:
     break;
 
   case 71:
-#line 863 "ProParser.y"
+#line 858 "ProParser.y"
     {
       int i;
       if((i = List_ISearchSeq
@@ -8539,14 +8534,14 @@ yyreduce:
     break;
 
   case 72:
-#line 913 "ProParser.y"
+#line 908 "ProParser.y"
     {
       ListOfInt_Save_L = Group_S.InitialList;
     ;}
     break;
 
   case 73:
-#line 918 "ProParser.y"
+#line 913 "ProParser.y"
     {
       int i;
       if((i = List_ISearchSeq
@@ -8604,7 +8599,7 @@ yyreduce:
     break;
 
   case 76:
-#line 981 "ProParser.y"
+#line 976 "ProParser.y"
     {
       int i;
       if ( (i = List_ISearchSeq
@@ -8617,7 +8612,7 @@ yyreduce:
     break;
 
   case 77:
-#line 992 "ProParser.y"
+#line 987 "ProParser.y"
     {
       for (int k = 0 ; k < (int)(yyvsp[(5) - (6)].d) ; k++) {
 	char tmpstr[256];
@@ -8634,7 +8629,7 @@ yyreduce:
     break;
 
   case 79:
-#line 1012 "ProParser.y"
+#line 1007 "ProParser.y"
     {
       int i = List_ISearchSeq(Problem_S.Expression, (yyvsp[(3) - (3)].c), fcmp_Expression_Name);
       if(i >= 0){
@@ -8646,14 +8641,14 @@ yyreduce:
     break;
 
   case 80:
-#line 1029 "ProParser.y"
+#line 1024 "ProParser.y"
     { Expression_S.Type = CONSTANT;  Expression_S.Case.Constant = (yyvsp[(3) - (4)].d);
       (yyval.i) = Add_Expression(&Expression_S, (char*)"Exp_Cst", 1);
     ;}
     break;
 
   case 81:
-#line 1035 "ProParser.y"
+#line 1030 "ProParser.y"
     { int i;
       if((i = List_ISearchSeq(Problem_S.Expression, (yyvsp[(3) - (4)].c), fcmp_Expression_Name)) < 0)
 	vyyerror(0, "Unknown name of Expression: %s", (yyvsp[(3) - (4)].c));
@@ -8662,55 +8657,55 @@ yyreduce:
     break;
 
   case 82:
-#line 1042 "ProParser.y"
+#line 1037 "ProParser.y"
     { Current_DofIndexInWholeQuantity = -2;
       List_Reset(ListOfPointer_L); List_Reset(ListOfPointer2_L); ;}
     break;
 
   case 83:
-#line 1045 "ProParser.y"
+#line 1040 "ProParser.y"
     { Expression_S.Type = WHOLEQUANTITY;  Expression_S.Case.WholeQuantity = (yyvsp[(2) - (2)].l);
       (yyval.i) = Add_Expression(&Expression_S, (char*)"Exp_Fct", 1); ;}
     break;
 
   case 84:
-#line 1050 "ProParser.y"
+#line 1045 "ProParser.y"
     { Expression_S.Type = UNDEFINED_EXP;
       (yyval.i) = Add_Expression(&Expression_S, (char*)"Exp_Undefined", 1);
     ;}
     break;
 
   case 85:
-#line 1057 "ProParser.y"
+#line 1052 "ProParser.y"
     { List_Reset(ListOfInt_L); ;}
     break;
 
   case 87:
-#line 1068 "ProParser.y"
+#line 1063 "ProParser.y"
     { List_Reset(ListOfInt_L);  List_Add(ListOfInt_L, &((yyvsp[(1) - (1)].i))); ;}
     break;
 
   case 88:
-#line 1071 "ProParser.y"
+#line 1066 "ProParser.y"
     { List_Add(ListOfInt_L, &((yyvsp[(3) - (3)].i))); ;}
     break;
 
   case 89:
-#line 1077 "ProParser.y"
+#line 1072 "ProParser.y"
     { Current_WholeQuantity_L = List_Create(5, 5, sizeof(struct WholeQuantity));
       List_Add(ListOfPointer_L, &Current_WholeQuantity_L);
     ;}
     break;
 
   case 90:
-#line 1081 "ProParser.y"
+#line 1076 "ProParser.y"
     { (yyval.l) = *((List_T **)List_Pointer(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1));
       List_Pop(ListOfPointer_L);
     ;}
     break;
 
   case 92:
-#line 1093 "ProParser.y"
+#line 1088 "ProParser.y"
     {
       WholeQuantity_S.Type = WQ_TEST;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -8726,7 +8721,7 @@ yyreduce:
     break;
 
   case 93:
-#line 1106 "ProParser.y"
+#line 1101 "ProParser.y"
     {
       WholeQuantity_P =
 	*((struct WholeQuantity**)
@@ -8743,7 +8738,7 @@ yyreduce:
     break;
 
   case 94:
-#line 1120 "ProParser.y"
+#line 1115 "ProParser.y"
     {
       WholeQuantity_P =
 	*((struct WholeQuantity**)
@@ -8760,7 +8755,7 @@ yyreduce:
     break;
 
   case 95:
-#line 1135 "ProParser.y"
+#line 1130 "ProParser.y"
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_TIME;
 #if defined(HAVE_KERNEL)
@@ -8771,7 +8766,7 @@ yyreduce:
     break;
 
   case 96:
-#line 1143 "ProParser.y"
+#line 1138 "ProParser.y"
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_CROSSPRODUCT;
 #if defined(HAVE_KERNEL)
@@ -8782,7 +8777,7 @@ yyreduce:
     break;
 
   case 97:
-#line 1151 "ProParser.y"
+#line 1146 "ProParser.y"
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_CROSSPRODUCT;
 #if defined(HAVE_KERNEL)
@@ -8793,7 +8788,7 @@ yyreduce:
     break;
 
   case 98:
-#line 1159 "ProParser.y"
+#line 1154 "ProParser.y"
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_DIVIDE;
 #if defined(HAVE_KERNEL)
@@ -8804,7 +8799,7 @@ yyreduce:
     break;
 
   case 99:
-#line 1167 "ProParser.y"
+#line 1162 "ProParser.y"
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_PLUS;
 #if defined(HAVE_KERNEL)
@@ -8815,7 +8810,7 @@ yyreduce:
     break;
 
   case 100:
-#line 1175 "ProParser.y"
+#line 1170 "ProParser.y"
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_MINUS;
 #if defined(HAVE_KERNEL)
@@ -8826,7 +8821,7 @@ yyreduce:
     break;
 
   case 101:
-#line 1183 "ProParser.y"
+#line 1178 "ProParser.y"
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_MODULO;
 #if defined(HAVE_KERNEL)
@@ -8837,7 +8832,7 @@ yyreduce:
     break;
 
   case 102:
-#line 1191 "ProParser.y"
+#line 1186 "ProParser.y"
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_POWER;
 #if defined(HAVE_KERNEL)
@@ -8848,7 +8843,7 @@ yyreduce:
     break;
 
   case 103:
-#line 1199 "ProParser.y"
+#line 1194 "ProParser.y"
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_LESS;
 #if defined(HAVE_KERNEL)
@@ -8859,7 +8854,7 @@ yyreduce:
     break;
 
   case 104:
-#line 1207 "ProParser.y"
+#line 1202 "ProParser.y"
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_GREATER;
 #if defined(HAVE_KERNEL)
@@ -8870,7 +8865,7 @@ yyreduce:
     break;
 
   case 105:
-#line 1215 "ProParser.y"
+#line 1210 "ProParser.y"
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_LESSOREQUAL;
 #if defined(HAVE_KERNEL)
@@ -8881,7 +8876,7 @@ yyreduce:
     break;
 
   case 106:
-#line 1223 "ProParser.y"
+#line 1218 "ProParser.y"
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_GREATEROREQUAL;
 #if defined(HAVE_KERNEL)
@@ -8892,7 +8887,7 @@ yyreduce:
     break;
 
   case 107:
-#line 1231 "ProParser.y"
+#line 1226 "ProParser.y"
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_EQUAL;
 #if defined(HAVE_KERNEL)
@@ -8903,7 +8898,7 @@ yyreduce:
     break;
 
   case 108:
-#line 1240 "ProParser.y"
+#line 1235 "ProParser.y"
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_NOTEQUAL;
 #if defined(HAVE_KERNEL)
@@ -8914,7 +8909,7 @@ yyreduce:
     break;
 
   case 109:
-#line 1248 "ProParser.y"
+#line 1243 "ProParser.y"
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_APPROXEQUAL;
 #if defined(HAVE_KERNEL)
@@ -8925,7 +8920,7 @@ yyreduce:
     break;
 
   case 110:
-#line 1256 "ProParser.y"
+#line 1251 "ProParser.y"
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_AND;
 #if defined(HAVE_KERNEL)
@@ -8936,7 +8931,7 @@ yyreduce:
     break;
 
   case 111:
-#line 1264 "ProParser.y"
+#line 1259 "ProParser.y"
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_OR;
 #if defined(HAVE_KERNEL)
@@ -8947,7 +8942,7 @@ yyreduce:
     break;
 
   case 112:
-#line 1273 "ProParser.y"
+#line 1268 "ProParser.y"
     {
       WholeQuantity_S.Type = WQ_SAVENAMEDVALUE;
       WholeQuantity_S.Case.NamedValue.Name = (yyvsp[(2) - (4)].c);
@@ -8956,7 +8951,7 @@ yyreduce:
     break;
 
   case 113:
-#line 1280 "ProParser.y"
+#line 1275 "ProParser.y"
     { WholeQuantity_S.Type = WQ_UNARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_NEG;
 #if defined(HAVE_KERNEL)
@@ -8966,7 +8961,7 @@ yyreduce:
     break;
 
   case 115:
-#line 1290 "ProParser.y"
+#line 1285 "ProParser.y"
     { WholeQuantity_S.Type = WQ_UNARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_NOT;
 #if defined(HAVE_KERNEL)
@@ -8976,7 +8971,7 @@ yyreduce:
     break;
 
   case 116:
-#line 1298 "ProParser.y"
+#line 1293 "ProParser.y"
     { WholeQuantity_S.Type = WQ_CHANGECURRENTPOSITION ;
 
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
@@ -8991,7 +8986,7 @@ yyreduce:
     break;
 
   case 117:
-#line 1310 "ProParser.y"
+#line 1305 "ProParser.y"
     {
       WholeQuantity_P =
 	*((struct WholeQuantity**)
@@ -9008,7 +9003,7 @@ yyreduce:
     break;
 
   case 119:
-#line 1331 "ProParser.y"
+#line 1326 "ProParser.y"
     { WholeQuantity_S.Type = WQ_CONSTANT;
       WholeQuantity_S.Case.Constant = (yyvsp[(1) - (1)].d);
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -9016,7 +9011,7 @@ yyreduce:
     break;
 
   case 120:
-#line 1337 "ProParser.y"
+#line 1332 "ProParser.y"
     {
       /* Expression */
 
@@ -9095,7 +9090,7 @@ yyreduce:
     break;
 
   case 121:
-#line 1414 "ProParser.y"
+#line 1409 "ProParser.y"
     { WholeQuantity_S.Type = WQ_OPERATORANDQUANTITY;
       WholeQuantity_S.Case.OperatorAndQuantity.NbrArguments = 0;
       WholeQuantity_S.Case.OperatorAndQuantity.TypeQuantity =
@@ -9131,7 +9126,7 @@ yyreduce:
     break;
 
   case 122:
-#line 1448 "ProParser.y"
+#line 1443 "ProParser.y"
     { WholeQuantity_S.Type = WQ_OPERATORANDQUANTITY;
       WholeQuantity_S.Case.OperatorAndQuantity.NbrArguments = 0;
       WholeQuantity_S.Case.OperatorAndQuantity.TypeQuantity = QUANTITY_SIMPLE;
@@ -9142,7 +9137,7 @@ yyreduce:
     break;
 
   case 123:
-#line 1457 "ProParser.y"
+#line 1452 "ProParser.y"
     {
       if((yyvsp[(2) - (2)].i) != 1 && (yyvsp[(2) - (2)].i) != 2 && (yyvsp[(2) - (2)].i) != 3 && (yyvsp[(2) - (2)].i) != 4)
 	vyyerror(0, "Wrong number of arguments for discrete quantity evaluation (%d)", (yyvsp[(2) - (2)].i));
@@ -9156,12 +9151,12 @@ yyreduce:
     break;
 
   case 124:
-#line 1469 "ProParser.y"
+#line 1464 "ProParser.y"
     { Last_DofIndexInWholeQuantity = Current_DofIndexInWholeQuantity; ;}
     break;
 
   case 125:
-#line 1471 "ProParser.y"
+#line 1466 "ProParser.y"
     { WholeQuantity_S.Type = WQ_TIMEDERIVATIVE;
       WholeQuantity_S.Case.TimeDerivative.WholeQuantity = (yyvsp[(4) - (5)].l);
       List_Read(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1,
@@ -9174,12 +9169,12 @@ yyreduce:
     break;
 
   case 126:
-#line 1482 "ProParser.y"
+#line 1477 "ProParser.y"
     { Last_DofIndexInWholeQuantity = Current_DofIndexInWholeQuantity; ;}
     break;
 
   case 127:
-#line 1484 "ProParser.y"
+#line 1479 "ProParser.y"
     { WholeQuantity_S.Type = WQ_ATANTERIORTIMESTEP;
       WholeQuantity_S.Case.AtAnteriorTimeStep.WholeQuantity = (yyvsp[(4) - (7)].l);
       WholeQuantity_S.Case.AtAnteriorTimeStep.TimeStep = (yyvsp[(6) - (7)].i);
@@ -9193,12 +9188,12 @@ yyreduce:
     break;
 
   case 128:
-#line 1496 "ProParser.y"
+#line 1491 "ProParser.y"
     { Last_DofIndexInWholeQuantity = Current_DofIndexInWholeQuantity; ;}
     break;
 
   case 129:
-#line 1498 "ProParser.y"
+#line 1493 "ProParser.y"
     { WholeQuantity_S.Type = WQ_MAXOVERTIME;
       WholeQuantity_S.Case.MaxOverTime.WholeQuantity = (yyvsp[(4) - (9)].l);
       WholeQuantity_S.Case.FourierSteinmetz.TimeInit = (yyvsp[(6) - (9)].d);
@@ -9214,12 +9209,12 @@ yyreduce:
     break;
 
   case 130:
-#line 1512 "ProParser.y"
+#line 1507 "ProParser.y"
     { Last_DofIndexInWholeQuantity = Current_DofIndexInWholeQuantity; ;}
     break;
 
   case 131:
-#line 1514 "ProParser.y"
+#line 1509 "ProParser.y"
     { WholeQuantity_S.Type = WQ_FOURIERSTEINMETZ;
       WholeQuantity_S.Case.FourierSteinmetz.WholeQuantity = (yyvsp[(4) - (15)].l);
       WholeQuantity_S.Case.FourierSteinmetz.TimeInit = (yyvsp[(6) - (15)].d);
@@ -9238,12 +9233,12 @@ yyreduce:
     break;
 
   case 132:
-#line 1532 "ProParser.y"
+#line 1527 "ProParser.y"
     { Last_DofIndexInWholeQuantity = Current_DofIndexInWholeQuantity; ;}
     break;
 
   case 133:
-#line 1534 "ProParser.y"
+#line 1529 "ProParser.y"
     {
       int i;
       if((i = List_ISearchSeq(Problem_S.Expression, (yyvsp[(3) - (11)].c), fcmp_Expression_Name)) < 0)
@@ -9260,7 +9255,7 @@ yyreduce:
     break;
 
   case 134:
-#line 1550 "ProParser.y"
+#line 1545 "ProParser.y"
     {
       int i;
       if((i = List_ISearchSeq(Problem_S.Expression, (yyvsp[(3) - (11)].c),fcmp_Expression_Name)) >= 0){
@@ -9341,7 +9336,7 @@ yyreduce:
     break;
 
   case 135:
-#line 1630 "ProParser.y"
+#line 1625 "ProParser.y"
     { WholeQuantity_S.Type = WQ_SOLIDANGLE;
       WholeQuantity_S.Case.OperatorAndQuantity.Index = (yyvsp[(3) - (4)].t).Int2;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -9349,7 +9344,7 @@ yyreduce:
     break;
 
   case 136:
-#line 1636 "ProParser.y"
+#line 1631 "ProParser.y"
     { WholeQuantity_S.Type = WQ_ORDER;
       WholeQuantity_S.Case.OperatorAndQuantity.Index = (yyvsp[(3) - (4)].t).Int2;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -9357,15 +9352,15 @@ yyreduce:
     break;
 
   case 137:
-#line 1642 "ProParser.y"
+#line 1637 "ProParser.y"
     { Last_DofIndexInWholeQuantity = Current_DofIndexInWholeQuantity; ;}
     break;
 
   case 138:
-#line 1644 "ProParser.y"
+#line 1639 "ProParser.y"
     { WholeQuantity_S.Type = WQ_TRACE;
       WholeQuantity_S.Case.Trace.WholeQuantity = (yyvsp[(4) - (7)].l);
-      WholeQuantity_S.Case.Trace.InIndex = Index_Group(&Group_S, (char*)"WQ_Trace_In", (yyvsp[(6) - (7)].i));
+      WholeQuantity_S.Case.Trace.InIndex = Num_Group(&Group_S, (char*)"WQ_Trace_In", (yyvsp[(6) - (7)].i));
 
       if(Group_S.Type != ELEMENTLIST || Group_S.SuppListType != SUPPLIST_CONNECTEDTO)
 	vyyerror(0, "Group for Trace should be of Type 'ElementsOf[x, ConnectedTo y]'");
@@ -9393,7 +9388,7 @@ yyreduce:
     break;
 
   case 139:
-#line 1673 "ProParser.y"
+#line 1668 "ProParser.y"
     { WholeQuantity_S.Type = WQ_CAST;
       WholeQuantity_S.Case.Cast.WholeQuantity = (yyvsp[(5) - (6)].l);
       int i;
@@ -9421,7 +9416,7 @@ yyreduce:
     break;
 
   case 140:
-#line 1699 "ProParser.y"
+#line 1694 "ProParser.y"
     { WholeQuantity_S.Type = WQ_CURRENTVALUE;
       Get_PointerForString(Current_Value, (yyvsp[(2) - (2)].c), &FlagError,
 			   (void **)&WholeQuantity_S.Case.CurrentValue.Value);
@@ -9437,7 +9432,7 @@ yyreduce:
     break;
 
   case 141:
-#line 1714 "ProParser.y"
+#line 1709 "ProParser.y"
     { WholeQuantity_S.Type = WQ_CURRENTVALUE;
       Get_PointerForString(Current_Value, "TimeStep", &FlagError,
 			   (void **)&WholeQuantity_S.Case.CurrentValue.Value);
@@ -9446,7 +9441,7 @@ yyreduce:
     break;
 
   case 142:
-#line 1720 "ProParser.y"
+#line 1715 "ProParser.y"
     { WholeQuantity_S.Type = WQ_CURRENTVALUE;
       Get_PointerForString(Current_Value, "DTime", &FlagError,
 			   (void **)&WholeQuantity_S.Case.CurrentValue.Value);
@@ -9455,7 +9450,7 @@ yyreduce:
     break;
 
   case 143:
-#line 1727 "ProParser.y"
+#line 1722 "ProParser.y"
     { WholeQuantity_S.Type = WQ_ARGUMENT;
       WholeQuantity_S.Case.Argument.Index = (yyvsp[(2) - (2)].i);
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -9463,7 +9458,7 @@ yyreduce:
     break;
 
   case 144:
-#line 1733 "ProParser.y"
+#line 1728 "ProParser.y"
     {
       WholeQuantity_S.Type = WQ_SAVEVALUE;
       WholeQuantity_S.Case.SaveValue.Index = (int)(yyvsp[(3) - (3)].d) - 1;
@@ -9472,7 +9467,7 @@ yyreduce:
     break;
 
   case 145:
-#line 1740 "ProParser.y"
+#line 1735 "ProParser.y"
     {
       WholeQuantity_S.Type = WQ_VALUESAVED;
       WholeQuantity_S.Case.ValueSaved.Index = (int)(yyvsp[(2) - (2)].d) - 1;
@@ -9481,7 +9476,7 @@ yyreduce:
     break;
 
   case 146:
-#line 1747 "ProParser.y"
+#line 1742 "ProParser.y"
     {
       WholeQuantity_S.Type = WQ_SHOWVALUE;
       WholeQuantity_S.Case.ShowValue.Index = (int)(yyvsp[(3) - (3)].d);
@@ -9490,7 +9485,7 @@ yyreduce:
     break;
 
   case 147:
-#line 1754 "ProParser.y"
+#line 1749 "ProParser.y"
     { WholeQuantity_S.Type = WQ_CONSTANT ;
       WholeQuantity_S.Case.Constant = (yyvsp[(1) - (1)].i) ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
@@ -9498,7 +9493,7 @@ yyreduce:
     break;
 
   case 148:
-#line 1760 "ProParser.y"
+#line 1755 "ProParser.y"
     { WholeQuantity_S.Type = WQ_CONSTANT ;
       WholeQuantity_S.Case.Constant = (yyvsp[(1) - (1)].i) ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
@@ -9506,62 +9501,62 @@ yyreduce:
     break;
 
   case 149:
-#line 1769 "ProParser.y"
+#line 1764 "ProParser.y"
     { (yyval.i) = -1; ;}
     break;
 
   case 150:
-#line 1770 "ProParser.y"
+#line 1765 "ProParser.y"
     { (yyval.i) = 0; ;}
     break;
 
   case 151:
-#line 1771 "ProParser.y"
+#line 1766 "ProParser.y"
     { (yyval.i) = (yyvsp[(2) - (3)].i); ;}
     break;
 
   case 152:
-#line 1776 "ProParser.y"
+#line 1771 "ProParser.y"
     { (yyval.i) = 1; ;}
     break;
 
   case 153:
-#line 1777 "ProParser.y"
+#line 1772 "ProParser.y"
     { (yyval.i) = (yyvsp[(1) - (3)].i) + 1; ;}
     break;
 
   case 154:
-#line 1783 "ProParser.y"
+#line 1778 "ProParser.y"
     { (yyval.l) = NULL; ;}
     break;
 
   case 155:
-#line 1786 "ProParser.y"
+#line 1781 "ProParser.y"
     { (yyval.l) = (yyvsp[(2) - (3)].l); ;}
     break;
 
   case 156:
-#line 1789 "ProParser.y"
+#line 1784 "ProParser.y"
     { /* Attention: provisoire. Note: Impossible a mettre dans MultiFExpr
          car conflit avec Affectation dans Group */
       (yyval.l) = List_Create(2, 1, sizeof(double));
-      double d = (double)Index_Group(&Group_S, (char*)"PA_Region", (yyvsp[(4) - (6)].i));
+      double d = (double)Num_Group(&Group_S, (char*)"PA_Region", (yyvsp[(4) - (6)].i));
       List_Add((yyval.l), &d);
     ;}
     break;
 
   case 157:
-#line 1797 "ProParser.y"
+#line 1792 "ProParser.y"
     { (yyval.l) = NULL; StringForParameter = (yyvsp[(2) - (3)].c); ;}
     break;
 
   case 158:
-#line 1800 "ProParser.y"
+#line 1795 "ProParser.y"
     { (yyval.l) = NULL; StringForParameter = (yyvsp[(3) - (4)].c); ;}
     break;
 
   case 159:
-#line 1811 "ProParser.y"
+#line 1806 "ProParser.y"
     { if(!Problem_S.JacobianMethod)
 	Problem_S.JacobianMethod =
 	  List_Create(5, 5, sizeof (struct JacobianMethod));
@@ -9569,7 +9564,7 @@ yyreduce:
     break;
 
   case 160:
-#line 1816 "ProParser.y"
+#line 1811 "ProParser.y"
     {
       if (level_Append && index_Append>=0)
         List_Write(Problem_S.JacobianMethod, index_Append, &JacobianMethod_S);
@@ -9579,7 +9574,7 @@ yyreduce:
     break;
 
   case 161:
-#line 1828 "ProParser.y"
+#line 1823 "ProParser.y"
     {
       JacobianMethod_S.Name = NULL; JacobianMethod_S.JacobianCase = NULL;
       level_Append = 0;
@@ -9587,16 +9582,16 @@ yyreduce:
     break;
 
   case 163:
-#line 1840 "ProParser.y"
+#line 1835 "ProParser.y"
     { level_Append = (yyvsp[(1) - (2)].i); index_Append = -1; ;}
     break;
 
   case 164:
-#line 1843 "ProParser.y"
+#line 1838 "ProParser.y"
     {
       index_Append =
-        Check_NameOfStructExistSeq("JacobianMethod", Problem_S.JacobianMethod,
-                                   (yyvsp[(2) - (3)].c), fcmp_JacobianMethod_Name, level_Append);
+        Check_NameOfStructExist("JacobianMethod", Problem_S.JacobianMethod,
+                                (yyvsp[(2) - (3)].c), fcmp_JacobianMethod_Name, level_Append);
       if (index_Append<0)
         JacobianMethod_S.Name = (yyvsp[(2) - (3)].c);
       else{
@@ -9607,12 +9602,12 @@ yyreduce:
     break;
 
   case 165:
-#line 1856 "ProParser.y"
+#line 1851 "ProParser.y"
     { JacobianMethod_S.JacobianCase = (yyvsp[(3) - (4)].l); ;}
     break;
 
   case 166:
-#line 1863 "ProParser.y"
+#line 1858 "ProParser.y"
     {
       (yyval.l) = JacobianMethod_S.JacobianCase?
         JacobianMethod_S.JacobianCase :
@@ -9621,29 +9616,29 @@ yyreduce:
     break;
 
   case 167:
-#line 1870 "ProParser.y"
+#line 1865 "ProParser.y"
     { List_Add((yyval.l) = (yyvsp[(1) - (4)].l), &JacobianCase_S); ;}
     break;
 
   case 168:
-#line 1877 "ProParser.y"
+#line 1872 "ProParser.y"
     { JacobianCase_S.RegionIndex = -1;
       JacobianCase_S.TypeJacobian = JACOBIAN_VOL;
       JacobianCase_S.CoefficientIndex = -1; ;}
     break;
 
   case 170:
-#line 1888 "ProParser.y"
+#line 1883 "ProParser.y"
     {
       if ((yyvsp[(2) - (3)].i) >=0)
-        JacobianCase_S.RegionIndex = Index_Group(&Group_S, (char*)"JA_Region", (yyvsp[(2) - (3)].i));
+        JacobianCase_S.RegionIndex = Num_Group(&Group_S, (char*)"JA_Region", (yyvsp[(2) - (3)].i));
       else if ((yyvsp[(2) - (3)].i) == -3)
         JacobianCase_S.RegionIndex = -1;
     ;}
     break;
 
   case 171:
-#line 1896 "ProParser.y"
+#line 1891 "ProParser.y"
     { JacobianCase_S.TypeJacobian =
 	Get_Define1NbrForString(Jacobian_Type, (yyvsp[(2) - (4)].c), &FlagError,
 				&JacobianCase_S.NbrParameters);
@@ -9675,12 +9670,12 @@ yyreduce:
     break;
 
   case 172:
-#line 1926 "ProParser.y"
+#line 1921 "ProParser.y"
     { JacobianCase_S.CoefficientIndex = (yyvsp[(2) - (3)].i); ;}
     break;
 
   case 173:
-#line 1937 "ProParser.y"
+#line 1932 "ProParser.y"
     { if(!Problem_S.IntegrationMethod)
 	Problem_S.IntegrationMethod =
 	  List_Create(5, 5, sizeof(struct IntegrationMethod));
@@ -9688,7 +9683,7 @@ yyreduce:
     break;
 
   case 174:
-#line 1943 "ProParser.y"
+#line 1938 "ProParser.y"
     {
       if (level_Append && index_Append>=0)
         List_Write(Problem_S.IntegrationMethod, index_Append, &IntegrationMethod_S);
@@ -9698,7 +9693,7 @@ yyreduce:
     break;
 
   case 175:
-#line 1955 "ProParser.y"
+#line 1950 "ProParser.y"
     {
       IntegrationMethod_S.Name = NULL;
       IntegrationMethod_S.IntegrationCase = NULL;
@@ -9708,16 +9703,16 @@ yyreduce:
     break;
 
   case 177:
-#line 1969 "ProParser.y"
+#line 1964 "ProParser.y"
     { level_Append = (yyvsp[(1) - (2)].i); index_Append = -1; ;}
     break;
 
   case 178:
-#line 1972 "ProParser.y"
+#line 1967 "ProParser.y"
     {
       index_Append =
-        Check_NameOfStructExistSeq("IntegrationMethod", Problem_S.IntegrationMethod,
-                                   (yyvsp[(2) - (3)].c), fcmp_IntegrationMethod_Name, level_Append);
+        Check_NameOfStructExist("IntegrationMethod", Problem_S.IntegrationMethod,
+                                (yyvsp[(2) - (3)].c), fcmp_IntegrationMethod_Name, level_Append);
       if (index_Append<0)
         IntegrationMethod_S.Name = (yyvsp[(2) - (3)].c);
       else{
@@ -9728,17 +9723,17 @@ yyreduce:
     break;
 
   case 179:
-#line 1985 "ProParser.y"
+#line 1980 "ProParser.y"
     { IntegrationMethod_S.CriterionIndex = (yyvsp[(2) - (3)].i);  ;}
     break;
 
   case 180:
-#line 1988 "ProParser.y"
+#line 1983 "ProParser.y"
     { IntegrationMethod_S.IntegrationCase = (yyvsp[(3) - (4)].l); ;}
     break;
 
   case 181:
-#line 1995 "ProParser.y"
+#line 1990 "ProParser.y"
     { (yyval.l) = IntegrationMethod_S.IntegrationCase?
         IntegrationMethod_S.IntegrationCase :
         List_Create(5, 5, sizeof (struct IntegrationCase));
@@ -9746,12 +9741,12 @@ yyreduce:
     break;
 
   case 182:
-#line 2001 "ProParser.y"
+#line 1996 "ProParser.y"
     { List_Add((yyval.l) = (yyvsp[(1) - (4)].l), &IntegrationCase_S); ;}
     break;
 
   case 183:
-#line 2008 "ProParser.y"
+#line 2003 "ProParser.y"
     {
       IntegrationCase_S.Type = GAUSS;
       IntegrationCase_S.SubType = STANDARD;
@@ -9759,7 +9754,7 @@ yyreduce:
     break;
 
   case 185:
-#line 2020 "ProParser.y"
+#line 2015 "ProParser.y"
     { IntegrationCase_S.Type =
 	Get_DefineForString(Integration_Type, (yyvsp[(2) - (3)].c), &FlagError);
       if(FlagError){
@@ -9771,7 +9766,7 @@ yyreduce:
     break;
 
   case 186:
-#line 2030 "ProParser.y"
+#line 2025 "ProParser.y"
     { IntegrationCase_S.SubType =
 	Get_DefineForString(Integration_SubType, (yyvsp[(2) - (3)].c), &FlagError);
       if(FlagError){
@@ -9783,22 +9778,22 @@ yyreduce:
     break;
 
   case 187:
-#line 2040 "ProParser.y"
+#line 2035 "ProParser.y"
     { IntegrationCase_S.Case = (yyvsp[(3) - (4)].l); ;}
     break;
 
   case 188:
-#line 2047 "ProParser.y"
+#line 2042 "ProParser.y"
     { (yyval.l) = List_Create(5, 5, sizeof (struct Quadrature)); ;}
     break;
 
   case 189:
-#line 2050 "ProParser.y"
+#line 2045 "ProParser.y"
     { List_Add((yyval.l) = (yyvsp[(1) - (4)].l), &QuadratureCase_S); ;}
     break;
 
   case 190:
-#line 2057 "ProParser.y"
+#line 2052 "ProParser.y"
     { QuadratureCase_S.ElementType = TRIANGLE;
       QuadratureCase_S.NumberOfPoints = 4;
       QuadratureCase_S.MaxNumberOfPoints = 4;
@@ -9810,7 +9805,7 @@ yyreduce:
     break;
 
   case 192:
-#line 2073 "ProParser.y"
+#line 2068 "ProParser.y"
     { QuadratureCase_S.ElementType = Get_DefineForString(Element_Type, (yyvsp[(2) - (3)].c), &FlagError);
       if(FlagError){
 	Get_Valid_SXD((yyvsp[(2) - (3)].c), Element_Type);
@@ -9860,39 +9855,39 @@ yyreduce:
     break;
 
   case 193:
-#line 2121 "ProParser.y"
+#line 2116 "ProParser.y"
     { QuadratureCase_S.NumberOfPoints = (int)(yyvsp[(2) - (3)].d); ;}
     break;
 
   case 194:
-#line 2124 "ProParser.y"
+#line 2119 "ProParser.y"
     { QuadratureCase_S.MaxNumberOfPoints = (int)(yyvsp[(2) - (3)].d); ;}
     break;
 
   case 195:
-#line 2127 "ProParser.y"
+#line 2122 "ProParser.y"
     { QuadratureCase_S.NumberOfDivisions = (int)(yyvsp[(2) - (3)].d); ;}
     break;
 
   case 196:
-#line 2130 "ProParser.y"
+#line 2125 "ProParser.y"
     { QuadratureCase_S.MaxNumberOfDivisions = (int)(yyvsp[(2) - (3)].d); ;}
     break;
 
   case 197:
-#line 2133 "ProParser.y"
+#line 2128 "ProParser.y"
     { QuadratureCase_S.StoppingCriterion = (yyvsp[(2) - (3)].d); ;}
     break;
 
   case 198:
-#line 2144 "ProParser.y"
+#line 2139 "ProParser.y"
     { if(!Problem_S.Constraint)
 	Problem_S.Constraint = List_Create(20, 20, sizeof (struct Constraint));
     ;}
     break;
 
   case 200:
-#line 2154 "ProParser.y"
+#line 2149 "ProParser.y"
     {
       if (level_Append && index_Append>=0)
         List_Write(Problem_S.Constraint, index_Append, &Constraint_S);
@@ -9902,7 +9897,7 @@ yyreduce:
     break;
 
   case 202:
-#line 2167 "ProParser.y"
+#line 2162 "ProParser.y"
     { Constraint_S.Name = NULL;
       Constraint_S.Type = ASSIGN;
       Constraint_S.ConstraintPerRegion = NULL;
@@ -9912,16 +9907,16 @@ yyreduce:
     break;
 
   case 204:
-#line 2181 "ProParser.y"
+#line 2176 "ProParser.y"
     { level_Append = (yyvsp[(1) - (2)].i); index_Append = -1; ;}
     break;
 
   case 205:
-#line 2184 "ProParser.y"
+#line 2179 "ProParser.y"
     {
       index_Append =
-        Check_NameOfStructExistSeq("Constraint", Problem_S.Constraint,
-                                   (yyvsp[(2) - (3)].c), fcmp_Constraint_Name, level_Append);
+        Check_NameOfStructExist("Constraint", Problem_S.Constraint,
+                                (yyvsp[(2) - (3)].c), fcmp_Constraint_Name, level_Append);
       if (index_Append<0)
         Constraint_S.Name = (yyvsp[(2) - (3)].c);
       else{
@@ -9932,7 +9927,7 @@ yyreduce:
     break;
 
   case 206:
-#line 2197 "ProParser.y"
+#line 2192 "ProParser.y"
     { Constraint_S.Type = Get_DefineForString(Constraint_Type, (yyvsp[(2) - (3)].c), &FlagError);
       if(FlagError){
 	Get_Valid_SXD((yyvsp[(2) - (3)].c), Constraint_Type);
@@ -9943,7 +9938,7 @@ yyreduce:
     break;
 
   case 207:
-#line 2206 "ProParser.y"
+#line 2201 "ProParser.y"
     {
       if (Constraint_S.Type == NETWORK)
         vyyerror(0, "Unnamed Case incompatible with Network Type");
@@ -9952,7 +9947,7 @@ yyreduce:
     break;
 
   case 208:
-#line 2213 "ProParser.y"
+#line 2208 "ProParser.y"
     {
       if (Constraint_S.Type != NETWORK)
         vyyerror(0, "Named Case incompatible with Type (only with Network type)");
@@ -9971,7 +9966,7 @@ yyreduce:
     break;
 
   case 210:
-#line 2236 "ProParser.y"
+#line 2231 "ProParser.y"
     {
       (yyval.l) = (Constraint_S.Type != NETWORK && Constraint_S.ConstraintPerRegion)?
         Constraint_S.ConstraintPerRegion :
@@ -9980,21 +9975,21 @@ yyreduce:
     break;
 
   case 211:
-#line 2243 "ProParser.y"
+#line 2238 "ProParser.y"
     {
       List_Add((yyval.l) = (yyvsp[(1) - (4)].l), &ConstraintPerRegion_S);
     ;}
     break;
 
   case 212:
-#line 2248 "ProParser.y"
+#line 2243 "ProParser.y"
     {
       (yyval.l) = (yyvsp[(1) - (2)].l);
     ;}
     break;
 
   case 213:
-#line 2257 "ProParser.y"
+#line 2252 "ProParser.y"
     {
       ConstraintPerRegion_S.Type = Constraint_S.Type;
       ConstraintPerRegion_S.RegionIndex = -1;
@@ -10004,7 +9999,7 @@ yyreduce:
     break;
 
   case 215:
-#line 2271 "ProParser.y"
+#line 2266 "ProParser.y"
     { ConstraintPerRegion_S.Type =
 	Get_DefineForString(Constraint_Type, (yyvsp[(2) - (3)].c), &FlagError);
       if(FlagError){
@@ -10016,22 +10011,22 @@ yyreduce:
     break;
 
   case 216:
-#line 2281 "ProParser.y"
+#line 2276 "ProParser.y"
     {
-      ConstraintPerRegion_S.RegionIndex = Index_Group(&Group_S, (char*)"CO_Region", (yyvsp[(2) - (3)].i));
+      ConstraintPerRegion_S.RegionIndex = Num_Group(&Group_S, (char*)"CO_Region", (yyvsp[(2) - (3)].i));
     ;}
     break;
 
   case 217:
-#line 2286 "ProParser.y"
+#line 2281 "ProParser.y"
     {
       ConstraintPerRegion_S.SubRegionIndex =
-	Index_Group(&Group_S, (char*)"CO_SubRegion", (yyvsp[(2) - (3)].i));
+	Num_Group(&Group_S, (char*)"CO_SubRegion", (yyvsp[(2) - (3)].i));
     ;}
     break;
 
   case 218:
-#line 2292 "ProParser.y"
+#line 2287 "ProParser.y"
     {
       ConstraintPerRegion_S.TimeFunctionIndex = (yyvsp[(2) - (3)].i);
       if(Is_ExpressionPieceWiseDefined((yyvsp[(2) - (3)].i)))
@@ -10040,7 +10035,7 @@ yyreduce:
     break;
 
   case 219:
-#line 2299 "ProParser.y"
+#line 2294 "ProParser.y"
     {
       if(ConstraintPerRegion_S.Type == ASSIGN ||
          ConstraintPerRegion_S.Type == INIT){
@@ -10052,7 +10047,7 @@ yyreduce:
     break;
 
   case 220:
-#line 2309 "ProParser.y"
+#line 2304 "ProParser.y"
     {
       if(ConstraintPerRegion_S.Type == ASSIGN ||
          ConstraintPerRegion_S.Type == INIT){
@@ -10064,7 +10059,7 @@ yyreduce:
     break;
 
   case 221:
-#line 2319 "ProParser.y"
+#line 2314 "ProParser.y"
     {
       if(ConstraintPerRegion_S.Type == ASSIGNFROMRESOLUTION ||
 	  ConstraintPerRegion_S.Type == INITFROMRESOLUTION)
@@ -10074,7 +10069,7 @@ yyreduce:
     break;
 
   case 222:
-#line 2327 "ProParser.y"
+#line 2322 "ProParser.y"
     {
       if(ConstraintPerRegion_S.Type == NETWORK) {
 	ConstraintPerRegion_S.Case.Network.Node1 = (int)(yyvsp[(3) - (7)].d);
@@ -10085,7 +10080,7 @@ yyreduce:
     break;
 
   case 223:
-#line 2336 "ProParser.y"
+#line 2331 "ProParser.y"
     {
       if(ConstraintPerRegion_S.Type == NETWORK) {
 	ConstraintPerRegion_S.Case.Network.Node1 = (int)(yyvsp[(4) - (11)].d);
@@ -10096,12 +10091,12 @@ yyreduce:
     break;
 
   case 224:
-#line 2345 "ProParser.y"
+#line 2340 "ProParser.y"
     {
       if(ConstraintPerRegion_S.Type == CST_LINK ||
 	  ConstraintPerRegion_S.Type == CST_LINKCPLX) {
 	ConstraintPerRegion_S.Case.Link.RegionRefIndex =
-	  Index_Group(&Group_S, (char*)"CO_RegionRef", (yyvsp[(2) - (3)].i));
+	  Num_Group(&Group_S, (char*)"CO_RegionRef", (yyvsp[(2) - (3)].i));
 	ConstraintPerRegion_S.Case.Link.SubRegionRefIndex = -1;
 
 	ConstraintPerRegion_S.Case.Link.FilterIndex = -1;
@@ -10117,18 +10112,18 @@ yyreduce:
     break;
 
   case 225:
-#line 2364 "ProParser.y"
+#line 2359 "ProParser.y"
     {
       if(ConstraintPerRegion_S.Type == CST_LINK ||
 	  ConstraintPerRegion_S.Type == CST_LINKCPLX)
 	ConstraintPerRegion_S.Case.Link.SubRegionRefIndex =
-	  Index_Group(&Group_S, (char*)"CO_RegionRef", (yyvsp[(2) - (3)].i));
+	  Num_Group(&Group_S, (char*)"CO_RegionRef", (yyvsp[(2) - (3)].i));
       else  vyyerror(0, "SubRegionRef incompatible with Type");
     ;}
     break;
 
   case 226:
-#line 2373 "ProParser.y"
+#line 2368 "ProParser.y"
     {
       if(ConstraintPerRegion_S.Type == CST_LINK ||
 	  ConstraintPerRegion_S.Type == CST_LINKCPLX)
@@ -10138,7 +10133,7 @@ yyreduce:
     break;
 
   case 227:
-#line 2381 "ProParser.y"
+#line 2376 "ProParser.y"
     {
       if(ConstraintPerRegion_S.Type == CST_LINK ||
 	  ConstraintPerRegion_S.Type == CST_LINKCPLX)
@@ -10148,7 +10143,7 @@ yyreduce:
     break;
 
   case 228:
-#line 2389 "ProParser.y"
+#line 2384 "ProParser.y"
     {
       if(ConstraintPerRegion_S.Type == CST_LINK ||
 	  ConstraintPerRegion_S.Type == CST_LINKCPLX) {
@@ -10160,7 +10155,7 @@ yyreduce:
     break;
 
   case 229:
-#line 2399 "ProParser.y"
+#line 2394 "ProParser.y"
     {
       if(ConstraintPerRegion_S.Type == CST_LINK ||
 	  ConstraintPerRegion_S.Type == CST_LINKCPLX) {
@@ -10172,7 +10167,7 @@ yyreduce:
     break;
 
   case 230:
-#line 2409 "ProParser.y"
+#line 2404 "ProParser.y"
     {
       if(ConstraintPerRegion_S.Type == CST_LINK ||
 	  ConstraintPerRegion_S.Type == CST_LINKCPLX) {
@@ -10183,7 +10178,7 @@ yyreduce:
     break;
 
   case 231:
-#line 2418 "ProParser.y"
+#line 2413 "ProParser.y"
     {
       if(ConstraintPerRegion_S.Type == CST_LINK ||
 	  ConstraintPerRegion_S.Type == CST_LINKCPLX) {
@@ -10195,7 +10190,7 @@ yyreduce:
     break;
 
   case 232:
-#line 2428 "ProParser.y"
+#line 2423 "ProParser.y"
     {
       if(ConstraintPerRegion_S.Type == CST_LINK ||
 	  ConstraintPerRegion_S.Type == CST_LINKCPLX) {
@@ -10207,7 +10202,7 @@ yyreduce:
     break;
 
   case 233:
-#line 2448 "ProParser.y"
+#line 2443 "ProParser.y"
     { if(!Problem_S.FunctionSpace)
 	Problem_S.FunctionSpace =
 	  List_Create(10, 5, sizeof (struct FunctionSpace));
@@ -10215,7 +10210,7 @@ yyreduce:
     break;
 
   case 235:
-#line 2459 "ProParser.y"
+#line 2454 "ProParser.y"
     {
       if (level_Append && index_Append>=0)
         List_Write(Problem_S.FunctionSpace, index_Append, &FunctionSpace_S);
@@ -10225,7 +10220,7 @@ yyreduce:
     break;
 
   case 237:
-#line 2473 "ProParser.y"
+#line 2468 "ProParser.y"
     { FunctionSpace_S.Name = NULL; FunctionSpace_S.Type = FORM0;
       FunctionSpace_S.BasisFunction = FunctionSpace_S.SubSpace =
 	FunctionSpace_S.GlobalQuantity = FunctionSpace_S.Constraint = NULL;
@@ -10234,16 +10229,16 @@ yyreduce:
     break;
 
   case 240:
-#line 2488 "ProParser.y"
+#line 2483 "ProParser.y"
     { level_Append = (yyvsp[(1) - (2)].i); index_Append = -1; ;}
     break;
 
   case 241:
-#line 2491 "ProParser.y"
+#line 2486 "ProParser.y"
     {
       index_Append =
-        Check_NameOfStructExistSeq("FunctionSpace", Problem_S.FunctionSpace,
-                                   (yyvsp[(2) - (3)].c), fcmp_FunctionSpace_Name, level_Append);
+        Check_NameOfStructExist("FunctionSpace", Problem_S.FunctionSpace,
+                                (yyvsp[(2) - (3)].c), fcmp_FunctionSpace_Name, level_Append);
       if (index_Append<0)
         FunctionSpace_S.Name = (yyvsp[(2) - (3)].c);
       else{
@@ -10254,7 +10249,7 @@ yyreduce:
     break;
 
   case 242:
-#line 2504 "ProParser.y"
+#line 2499 "ProParser.y"
     { FunctionSpace_S.Type = Get_DefineForString(Field_Type, (yyvsp[(2) - (3)].c), &FlagError);
       if(FlagError){
 	Get_Valid_SXD((yyvsp[(2) - (3)].c), Field_Type);
@@ -10265,7 +10260,7 @@ yyreduce:
     break;
 
   case 247:
-#line 2525 "ProParser.y"
+#line 2520 "ProParser.y"
     {
       if (!FunctionSpace_S.BasisFunction)
         FunctionSpace_S.BasisFunction =
@@ -10275,7 +10270,7 @@ yyreduce:
     break;
 
   case 248:
-#line 2533 "ProParser.y"
+#line 2528 "ProParser.y"
     {
       /*
       int i;
@@ -10303,7 +10298,7 @@ yyreduce:
     break;
 
   case 250:
-#line 2565 "ProParser.y"
+#line 2560 "ProParser.y"
     {
       BasisFunction_S.Name = NULL;
       BasisFunction_S.NameOfCoef = NULL;
@@ -10323,18 +10318,18 @@ yyreduce:
     break;
 
   case 252:
-#line 2589 "ProParser.y"
+#line 2584 "ProParser.y"
     {
       level_Append_2 = (yyvsp[(1) - (2)].i); index_Append_2 = -1;
     ;}
     break;
 
   case 253:
-#line 2594 "ProParser.y"
+#line 2589 "ProParser.y"
     {
       index_Append_2 =
-        Check_NameOfStructExistSeq("BasisFunction", FunctionSpace_S.BasisFunction,
-                                   (yyvsp[(2) - (3)].c), fcmp_BasisFunction_Name, 1);
+        Check_NameOfStructExist("BasisFunction", FunctionSpace_S.BasisFunction,
+                                (yyvsp[(2) - (3)].c), fcmp_BasisFunction_Name, 1);
       // 1: already defined Name always possible for Region-wise basis functions
       if (index_Append_2<0 || !level_Append_2)
         BasisFunction_S.Name = (yyvsp[(2) - (3)].c);
@@ -10346,16 +10341,16 @@ yyreduce:
     break;
 
   case 254:
-#line 2608 "ProParser.y"
+#line 2603 "ProParser.y"
     {
-      Check_NameOfStructExistSeq("NameOfCoef", Current_BasisFunction_L,
-                                 (yyvsp[(2) - (3)].c), fcmp_BasisFunction_NameOfCoef, 0);
+      Check_NameOfStructExist("NameOfCoef", Current_BasisFunction_L,
+                              (yyvsp[(2) - (3)].c), fcmp_BasisFunction_NameOfCoef, 0);
       BasisFunction_S.NameOfCoef = (yyvsp[(2) - (3)].c); BasisFunction_S.Dimension = 1;
     ;}
     break;
 
   case 255:
-#line 2615 "ProParser.y"
+#line 2610 "ProParser.y"
     {
       Get_3Function3NbrForString
 	(BF_Function, (yyvsp[(2) - (4)].c), &FlagError,
@@ -10371,7 +10366,7 @@ yyreduce:
     break;
 
   case 256:
-#line 2629 "ProParser.y"
+#line 2624 "ProParser.y"
     {
       void  (*FunctionDummy)();
       int i, j;
@@ -10396,7 +10391,7 @@ yyreduce:
     break;
 
   case 257:
-#line 2652 "ProParser.y"
+#line 2647 "ProParser.y"
     {
       void  (*FunctionDummy)();
       int i, j;
@@ -10429,30 +10424,30 @@ yyreduce:
     break;
 
   case 258:
-#line 2683 "ProParser.y"
+#line 2678 "ProParser.y"
     {
       BasisFunction_S.SubFunction = List_Copy(ListOfInt_L);
     ;}
     break;
 
   case 259:
-#line 2688 "ProParser.y"
+#line 2683 "ProParser.y"
     {
       BasisFunction_S.SubdFunction = List_Copy(ListOfInt_L);
     ;}
     break;
 
   case 260:
-#line 2693 "ProParser.y"
+#line 2688 "ProParser.y"
     {
-      BasisFunction_S.SupportIndex = Index_Group(&Group_S, (char*)"BF_Support", (yyvsp[(2) - (3)].i));
+      BasisFunction_S.SupportIndex = Num_Group(&Group_S, (char*)"BF_Support", (yyvsp[(2) - (3)].i));
     ;}
     break;
 
   case 261:
-#line 2698 "ProParser.y"
+#line 2693 "ProParser.y"
     {
-      BasisFunction_S.EntityIndex = Index_Group(&Group_S, (char*)"BF_Entity", (yyvsp[(2) - (3)].i));
+      BasisFunction_S.EntityIndex = Num_Group(&Group_S, (char*)"BF_Entity", (yyvsp[(2) - (3)].i));
       if(Group_S.InitialList)
 	List_Sort(Group_S.InitialList, fcmp_Integer);  /* Needed for Global Region */
 
@@ -10479,7 +10474,7 @@ yyreduce:
     break;
 
   case 263:
-#line 2734 "ProParser.y"
+#line 2729 "ProParser.y"
     {
       int dim = (yyvsp[(8) - (20)].d);
       if(dim != (yyvsp[(17) - (20)].d))
@@ -10530,7 +10525,7 @@ yyreduce:
     break;
 
   case 264:
-#line 2787 "ProParser.y"
+#line 2782 "ProParser.y"
     {
       if (!FunctionSpace_S.SubSpace)
         FunctionSpace_S.SubSpace =
@@ -10539,7 +10534,7 @@ yyreduce:
     break;
 
   case 265:
-#line 2794 "ProParser.y"
+#line 2789 "ProParser.y"
     {
       if (level_Append_2 && index_Append_2>=0)
         List_Write(FunctionSpace_S.SubSpace, index_Append_2, &SubSpace_S);
@@ -10549,7 +10544,7 @@ yyreduce:
     break;
 
   case 267:
-#line 2808 "ProParser.y"
+#line 2803 "ProParser.y"
     {
       SubSpace_S.Name = NULL; SubSpace_S.BasisFunction  = NULL;
       level_Append_2 = (level_Append)? level_Append-1 : 0;
@@ -10558,18 +10553,18 @@ yyreduce:
     break;
 
   case 269:
-#line 2821 "ProParser.y"
+#line 2816 "ProParser.y"
     {
       level_Append_2 = (yyvsp[(1) - (2)].i); index_Append_2 = -1;
     ;}
     break;
 
   case 270:
-#line 2826 "ProParser.y"
+#line 2821 "ProParser.y"
     {
       index_Append_2 =
-        Check_NameOfStructExistSeq("SubSpace", FunctionSpace_S.SubSpace,
-                                   (yyvsp[(2) - (3)].c), fcmp_SubSpace_Name, level_Append_2);
+        Check_NameOfStructExist("SubSpace", FunctionSpace_S.SubSpace,
+                                (yyvsp[(2) - (3)].c), fcmp_SubSpace_Name, level_Append_2);
       if (index_Append_2<0)
         SubSpace_S.Name = (yyvsp[(2) - (3)].c);
       else{
@@ -10580,17 +10575,17 @@ yyreduce:
     break;
 
   case 271:
-#line 2839 "ProParser.y"
+#line 2834 "ProParser.y"
     { SubSpace_S.BasisFunction = (yyvsp[(2) - (3)].l); ;}
     break;
 
   case 272:
-#line 2842 "ProParser.y"
+#line 2837 "ProParser.y"
     { SubSpace_S.BasisFunction = (yyvsp[(2) - (3)].l); ;}
     break;
 
   case 273:
-#line 2849 "ProParser.y"
+#line 2844 "ProParser.y"
     {
       (yyval.l) = SubSpace_S.BasisFunction?
         SubSpace_S.BasisFunction : List_Create(1, 5, sizeof(int));
@@ -10611,12 +10606,12 @@ yyreduce:
     break;
 
   case 274:
-#line 2868 "ProParser.y"
+#line 2863 "ProParser.y"
     { (yyval.l) = (yyvsp[(2) - (3)].l); ;}
     break;
 
   case 275:
-#line 2875 "ProParser.y"
+#line 2870 "ProParser.y"
     {
       (yyval.l) = SubSpace_S.BasisFunction?
         SubSpace_S.BasisFunction : List_Create(5, 5, sizeof(int));
@@ -10624,7 +10619,7 @@ yyreduce:
     break;
 
   case 276:
-#line 2881 "ProParser.y"
+#line 2876 "ProParser.y"
     {
       int i;
       if((i = List_ISearchSeq(Current_BasisFunction_L,
@@ -10643,7 +10638,7 @@ yyreduce:
     break;
 
   case 277:
-#line 2902 "ProParser.y"
+#line 2897 "ProParser.y"
     {
       (yyval.l) = SubSpace_S.BasisFunction?
         SubSpace_S.BasisFunction : List_Create(1, 5, sizeof(int));
@@ -10659,12 +10654,12 @@ yyreduce:
     break;
 
   case 278:
-#line 2916 "ProParser.y"
+#line 2911 "ProParser.y"
     { (yyval.l) = (yyvsp[(2) - (3)].l); ;}
     break;
 
   case 279:
-#line 2923 "ProParser.y"
+#line 2918 "ProParser.y"
     {
       (yyval.l) = SubSpace_S.BasisFunction?
         SubSpace_S.BasisFunction : List_Create(5, 5, sizeof(int));
@@ -10672,7 +10667,7 @@ yyreduce:
     break;
 
   case 280:
-#line 2929 "ProParser.y"
+#line 2924 "ProParser.y"
     {
       int i;
       if((i = List_ISearchSeq(Current_BasisFunction_L,
@@ -10686,7 +10681,7 @@ yyreduce:
     break;
 
   case 281:
-#line 2945 "ProParser.y"
+#line 2940 "ProParser.y"
     {
       if (!FunctionSpace_S.GlobalQuantity)
         FunctionSpace_S.GlobalQuantity =
@@ -10695,7 +10690,7 @@ yyreduce:
     break;
 
   case 282:
-#line 2952 "ProParser.y"
+#line 2947 "ProParser.y"
     {
       GlobalQuantity_S.Num = Num_BasisFunction++;
       List_Add(FunctionSpace_S.GlobalQuantity, &GlobalQuantity_S);
@@ -10703,7 +10698,7 @@ yyreduce:
     break;
 
   case 284:
-#line 2964 "ProParser.y"
+#line 2959 "ProParser.y"
     {
       GlobalQuantity_S.Name = NULL; GlobalQuantity_S.Num  = 0;
       GlobalQuantity_S.Type = ALIASOF; GlobalQuantity_S.ReferenceIndex = -1;
@@ -10711,16 +10706,16 @@ yyreduce:
     break;
 
   case 286:
-#line 2976 "ProParser.y"
+#line 2971 "ProParser.y"
     {
-      Check_NameOfStructExistSeq("GlobalQuantity", FunctionSpace_S.GlobalQuantity,
-                                 (yyvsp[(2) - (3)].c), fcmp_GlobalQuantity_Name, 0);
+      Check_NameOfStructExist("GlobalQuantity", FunctionSpace_S.GlobalQuantity,
+                              (yyvsp[(2) - (3)].c), fcmp_GlobalQuantity_Name, 0);
       GlobalQuantity_S.Name = (yyvsp[(2) - (3)].c);
     ;}
     break;
 
   case 287:
-#line 2983 "ProParser.y"
+#line 2978 "ProParser.y"
     {
       GlobalQuantity_S.Type =
 	Get_DefineForString(GlobalQuantity_Type, (yyvsp[(2) - (3)].c), &FlagError);
@@ -10733,7 +10728,7 @@ yyreduce:
     break;
 
   case 288:
-#line 2994 "ProParser.y"
+#line 2989 "ProParser.y"
     {
       int i;
       if((i = List_ISearchSeq(FunctionSpace_S.BasisFunction, (yyvsp[(2) - (3)].c),
@@ -10746,7 +10741,7 @@ yyreduce:
     break;
 
   case 289:
-#line 3009 "ProParser.y"
+#line 3004 "ProParser.y"
     {
       if (!FunctionSpace_S.Constraint)
         FunctionSpace_S.Constraint =
@@ -10755,7 +10750,7 @@ yyreduce:
     break;
 
   case 290:
-#line 3016 "ProParser.y"
+#line 3011 "ProParser.y"
     {
       Group_S.FunctionType = Type_Function;
       Group_S.SuppListType = Type_SuppList;
@@ -10773,7 +10768,6 @@ yyreduce:
 	    List_Pointer(Constraint_P->ConstraintPerRegion, i);
 
 	  if(ConstraintPerRegion_P->RegionIndex >= 0) {
-            List_Sort(Problem_S.Group, fcmp_Group_Index);
 	    Group_S.InitialList =
 	      ((struct Group *)
 	       List_Pointer(Problem_S.Group, ConstraintPerRegion_P->RegionIndex))
@@ -10787,7 +10781,7 @@ yyreduce:
 	    ConstraintInFS_S.EntityIndex = Add_Group(&Group_S, (char*)"CO_Entity",
                                                      false, 1, 0);
 	    ConstraintInFS_S.ConstraintPerRegion = ConstraintPerRegion_P;
-            List_Sort(Problem_S.Group, fcmp_Group); // sort by name
+
 	    List_Add(FunctionSpace_S.Constraint, &ConstraintInFS_S);
 	  }
 	}
@@ -10796,7 +10790,7 @@ yyreduce:
     break;
 
   case 292:
-#line 3061 "ProParser.y"
+#line 3055 "ProParser.y"
     {
       ConstraintInFS_S.QuantityType = LOCALQUANTITY;
       ConstraintInFS_S.ReferenceIndex = -1; ConstraintInFS_S.EntityIndex = -1;
@@ -10809,7 +10803,7 @@ yyreduce:
     break;
 
   case 294:
-#line 3078 "ProParser.y"
+#line 3072 "ProParser.y"
     {
       int i, index_BF = -1;
       if((i = List_ISearchSeq(FunctionSpace_S.BasisFunction, (yyvsp[(2) - (3)].c),
@@ -10838,34 +10832,32 @@ yyreduce:
          List_Pointer(FunctionSpace_S.BasisFunction, index_BF))->EntityIndex;
       if(entity_index<0)
         vyyerror(0, "Undefined Entity for NameOfCoef %s", (yyvsp[(2) - (3)].c));
-      List_Sort(Problem_S.Group, fcmp_Group_Index);
       Type_Function =
         ((struct Group *)List_Pointer(Problem_S.Group, entity_index))->FunctionType;
-      List_Sort(Problem_S.Group, fcmp_Group);
 
       Free((yyvsp[(2) - (3)].c));
     ;}
     break;
 
   case 295:
-#line 3115 "ProParser.y"
+#line 3107 "ProParser.y"
     { Type_Function = (yyvsp[(2) - (3)].i); ;}
     break;
 
   case 296:
-#line 3118 "ProParser.y"
+#line 3110 "ProParser.y"
     {
       // Auto selection already done
     ;}
     break;
 
   case 297:
-#line 3123 "ProParser.y"
+#line 3115 "ProParser.y"
     { Type_SuppList = (yyvsp[(2) - (3)].i); ;}
     break;
 
   case 298:
-#line 3126 "ProParser.y"
+#line 3118 "ProParser.y"
     {
       Constraint_Index =
 	List_ISearchSeq(Problem_S.Constraint, (yyvsp[(2) - (3)].c), fcmp_Constraint_Name);
@@ -10876,14 +10868,14 @@ yyreduce:
     break;
 
   case 299:
-#line 3143 "ProParser.y"
+#line 3135 "ProParser.y"
     { if(!Problem_S.Formulation)
 	Problem_S.Formulation = List_Create(10, 5, sizeof (struct Formulation));
     ;}
     break;
 
   case 301:
-#line 3153 "ProParser.y"
+#line 3145 "ProParser.y"
     {
       if (level_Append && index_Append>=0)
         List_Write(Problem_S.Formulation, index_Append, &Formulation_S);
@@ -10893,7 +10885,7 @@ yyreduce:
     break;
 
   case 303:
-#line 3167 "ProParser.y"
+#line 3159 "ProParser.y"
     {
       Formulation_S.Name = NULL; Formulation_S.Type = FEMEQUATION;
       Formulation_S.DefineQuantity = NULL; Formulation_S.Equation = NULL;
@@ -10902,16 +10894,16 @@ yyreduce:
     break;
 
   case 306:
-#line 3182 "ProParser.y"
+#line 3174 "ProParser.y"
     { level_Append = (yyvsp[(1) - (2)].i); index_Append = -1; ;}
     break;
 
   case 307:
-#line 3185 "ProParser.y"
+#line 3177 "ProParser.y"
     {
       index_Append =
-        Check_NameOfStructExistSeq("Formulation", Problem_S.Formulation,
-                                   (yyvsp[(2) - (3)].c), fcmp_Formulation_Name, level_Append);
+        Check_NameOfStructExist("Formulation", Problem_S.Formulation,
+                                (yyvsp[(2) - (3)].c), fcmp_Formulation_Name, level_Append);
       if (index_Append<0)
         Formulation_S.Name = (yyvsp[(2) - (3)].c);
       else{
@@ -10922,7 +10914,7 @@ yyreduce:
     break;
 
   case 308:
-#line 3198 "ProParser.y"
+#line 3190 "ProParser.y"
     { Formulation_S.Type =
 	Get_DefineForString(Formulation_Type, (yyvsp[(2) - (3)].c), &FlagError);
       if(FlagError){
@@ -10934,7 +10926,7 @@ yyreduce:
     break;
 
   case 310:
-#line 3210 "ProParser.y"
+#line 3202 "ProParser.y"
     {
       if(!Formulation_S.Equation) Formulation_S.Equation = (yyvsp[(3) - (4)].l);
       Free((yyvsp[(1) - (4)].c));
@@ -10942,7 +10934,7 @@ yyreduce:
     break;
 
   case 311:
-#line 3219 "ProParser.y"
+#line 3211 "ProParser.y"
     {
       if (!Formulation_S.DefineQuantity)
         Formulation_S.DefineQuantity =
@@ -10951,14 +10943,14 @@ yyreduce:
     break;
 
   case 312:
-#line 3226 "ProParser.y"
+#line 3218 "ProParser.y"
     {
       List_Add(Formulation_S.DefineQuantity, &DefineQuantity_S);
     ;}
     break;
 
   case 314:
-#line 3237 "ProParser.y"
+#line 3229 "ProParser.y"
     { DefineQuantity_S.Name = NULL;
       DefineQuantity_S.Type = LOCALQUANTITY;
       DefineQuantity_S.IndexInFunctionSpace = NULL;
@@ -10976,22 +10968,22 @@ yyreduce:
     break;
 
   case 316:
-#line 3259 "ProParser.y"
+#line 3251 "ProParser.y"
     { DefineQuantity_S.Name = (yyvsp[(2) - (3)].c); ;}
     break;
 
   case 317:
-#line 3262 "ProParser.y"
+#line 3254 "ProParser.y"
     { DefineQuantity_S.Type = GLOBALQUANTITY; ;}
     break;
 
   case 318:
-#line 3266 "ProParser.y"
+#line 3258 "ProParser.y"
     { DefineQuantity_S.Type = INTEGRALQUANTITY; ;}
     break;
 
   case 319:
-#line 3269 "ProParser.y"
+#line 3261 "ProParser.y"
     { DefineQuantity_S.Type =
 	Get_DefineForString(DefineQuantity_Type, (yyvsp[(2) - (3)].c), &FlagError);
       if(FlagError){
@@ -11003,13 +10995,13 @@ yyreduce:
     break;
 
   case 320:
-#line 3279 "ProParser.y"
+#line 3271 "ProParser.y"
     { DefineQuantity_S.FrequencySpectrum = (yyvsp[(2) - (3)].l);
     ;}
     break;
 
   case 321:
-#line 3283 "ProParser.y"
+#line 3275 "ProParser.y"
     {
       int i;
       if((i = List_ISearchSeq(Problem_S.FunctionSpace, (yyvsp[(2) - (2)].c),
@@ -11021,7 +11013,7 @@ yyreduce:
     break;
 
   case 322:
-#line 3292 "ProParser.y"
+#line 3284 "ProParser.y"
     {
       if(DefineQuantity_S.FunctionSpaceIndex >= 0) {
 	if(DefineQuantity_S.Type == GLOBALQUANTITY &&
@@ -11048,14 +11040,14 @@ yyreduce:
     break;
 
   case 323:
-#line 3317 "ProParser.y"
+#line 3309 "ProParser.y"
     {
       DefineQuantity_S.DofDataIndex = (int)(yyvsp[(2) - (3)].d);
     ;}
     break;
 
   case 324:
-#line 3322 "ProParser.y"
+#line 3314 "ProParser.y"
     {
       Current_DofIndexInWholeQuantity = -1;
       Current_NoDofIndexInWholeQuantity = -1;
@@ -11064,7 +11056,7 @@ yyreduce:
     break;
 
   case 325:
-#line 3328 "ProParser.y"
+#line 3320 "ProParser.y"
     {
       DefineQuantity_S.IntegralQuantity.WholeQuantity = (yyvsp[(3) - (5)].l);
       DefineQuantity_S.IntegralQuantity.DofIndexInWholeQuantity =
@@ -11328,14 +11320,14 @@ yyreduce:
     break;
 
   case 326:
-#line 3590 "ProParser.y"
+#line 3582 "ProParser.y"
     {
-      DefineQuantity_S.IntegralQuantity.InIndex = Index_Group(&Group_S, (char*)"IQ_In", (yyvsp[(2) - (3)].i));
+      DefineQuantity_S.IntegralQuantity.InIndex = Num_Group(&Group_S, (char*)"IQ_In", (yyvsp[(2) - (3)].i));
     ;}
     break;
 
   case 327:
-#line 3595 "ProParser.y"
+#line 3587 "ProParser.y"
     {
       int i;
       if((i = List_ISearchSeq(Problem_S.IntegrationMethod, (yyvsp[(2) - (3)].c),
@@ -11348,7 +11340,7 @@ yyreduce:
     break;
 
   case 328:
-#line 3606 "ProParser.y"
+#line 3598 "ProParser.y"
     {
       int i;
       if((i = List_ISearchSeq(Problem_S.JacobianMethod, (yyvsp[(2) - (3)].c),
@@ -11361,12 +11353,12 @@ yyreduce:
     break;
 
   case 329:
-#line 3617 "ProParser.y"
+#line 3609 "ProParser.y"
     { DefineQuantity_S.IntegralQuantity.Symmetry = (yyvsp[(2) - (3)].i); ;}
     break;
 
   case 331:
-#line 3625 "ProParser.y"
+#line 3617 "ProParser.y"
     {
       if(DefineQuantity_S.FunctionSpaceIndex >= 0) {
 	if(DefineQuantity_S.Type == LOCALQUANTITY) {
@@ -11406,7 +11398,7 @@ yyreduce:
     break;
 
   case 332:
-#line 3667 "ProParser.y"
+#line 3659 "ProParser.y"
     {
       (yyval.l) = Formulation_S.Equation?
         Formulation_S.Equation :
@@ -11415,41 +11407,41 @@ yyreduce:
     break;
 
   case 333:
-#line 3674 "ProParser.y"
+#line 3666 "ProParser.y"
     {
       List_Add((yyval.l) = (yyvsp[(1) - (2)].l), &EquationTerm_S);
     ;}
     break;
 
   case 334:
-#line 3679 "ProParser.y"
+#line 3671 "ProParser.y"
     {
       (yyval.l) = (yyvsp[(1) - (2)].l);
     ;}
     break;
 
   case 335:
-#line 3688 "ProParser.y"
+#line 3680 "ProParser.y"
     { EquationTerm_S.Type = GALERKIN; ;}
     break;
 
   case 336:
-#line 3691 "ProParser.y"
+#line 3683 "ProParser.y"
     { EquationTerm_S.Type = DERHAM; ;}
     break;
 
   case 337:
-#line 3694 "ProParser.y"
+#line 3686 "ProParser.y"
     { EquationTerm_S.Type = GLOBALTERM; ;}
     break;
 
   case 338:
-#line 3697 "ProParser.y"
+#line 3689 "ProParser.y"
     { EquationTerm_S.Type = GLOBALEQUATION; ;}
     break;
 
   case 339:
-#line 3704 "ProParser.y"
+#line 3696 "ProParser.y"
     {
       EquationTerm_S.Case.GlobalEquation.Type = NETWORK;
       EquationTerm_S.Case.GlobalEquation.ConstraintIndex = -1;
@@ -11458,7 +11450,7 @@ yyreduce:
     break;
 
   case 342:
-#line 3716 "ProParser.y"
+#line 3708 "ProParser.y"
     { EquationTerm_S.Case.GlobalEquation.Type =
 	Get_DefineForString(Constraint_Type, (yyvsp[(2) - (3)].c), &FlagError);
       if(FlagError){
@@ -11470,7 +11462,7 @@ yyreduce:
     break;
 
   case 343:
-#line 3726 "ProParser.y"
+#line 3718 "ProParser.y"
     {
       int i;
       if((i = List_ISearchSeq(Problem_S.Constraint, (yyvsp[(2) - (3)].c),
@@ -11483,7 +11475,7 @@ yyreduce:
     break;
 
   case 344:
-#line 3737 "ProParser.y"
+#line 3729 "ProParser.y"
     {
       if(!EquationTerm_S.Case.GlobalEquation.GlobalEquationTerm)
 	EquationTerm_S.Case.GlobalEquation.GlobalEquationTerm =
@@ -11494,7 +11486,7 @@ yyreduce:
     break;
 
   case 345:
-#line 3751 "ProParser.y"
+#line 3743 "ProParser.y"
     {
       GlobalEquationTerm_S.DefineQuantityIndexNode = -1;
       GlobalEquationTerm_S.DefineQuantityIndexLoop = -1;
@@ -11504,7 +11496,7 @@ yyreduce:
     break;
 
   case 347:
-#line 3762 "ProParser.y"
+#line 3754 "ProParser.y"
     {
       if(!strcmp((yyvsp[(1) - (3)].c), "Node"))
         GlobalEquationTerm_S.DefineQuantityIndexNode = (yyvsp[(2) - (3)].t).Int2;
@@ -11519,12 +11511,12 @@ yyreduce:
     break;
 
   case 348:
-#line 3774 "ProParser.y"
-    { GlobalEquationTerm_S.InIndex = Index_Group(&Group_S, (char*)"FO_In", (yyvsp[(2) - (3)].i)); ;}
+#line 3766 "ProParser.y"
+    { GlobalEquationTerm_S.InIndex = Num_Group(&Group_S, (char*)"FO_In", (yyvsp[(2) - (3)].i)); ;}
     break;
 
   case 349:
-#line 3782 "ProParser.y"
+#line 3774 "ProParser.y"
     { EquationTerm_S.Case.LocalTerm.Term.TypeTimeDerivative = NODT_;
       EquationTerm_S.Case.LocalTerm.Term.TypeOperatorEqu = NOOP;
       EquationTerm_S.Case.LocalTerm.Term.TypeOperatorDof = NOOP;
@@ -11545,7 +11537,7 @@ yyreduce:
     break;
 
   case 351:
-#line 3807 "ProParser.y"
+#line 3799 "ProParser.y"
     {
       EquationTerm_S.Case.LocalTerm.Term.TypeTimeDerivative = Type_TermOperator;
       Current_DofIndexInWholeQuantity = -1;
@@ -11555,7 +11547,7 @@ yyreduce:
     break;
 
   case 352:
-#line 3815 "ProParser.y"
+#line 3807 "ProParser.y"
     { EquationTerm_S.Case.LocalTerm.Term.WholeQuantity = (yyvsp[(4) - (4)].l);
 
       EquationTerm_S.Case.LocalTerm.Term.DofIndexInWholeQuantity =
@@ -11636,7 +11628,7 @@ yyreduce:
     break;
 
   case 353:
-#line 3894 "ProParser.y"
+#line 3886 "ProParser.y"
     {
       EquationTerm_S.Case.LocalTerm.Term.TypeOperatorEqu = Quantity_TypeOperator;
       EquationTerm_S.Case.LocalTerm.Term.DefineQuantityIndexEqu = Quantity_Index;
@@ -11693,14 +11685,14 @@ yyreduce:
     break;
 
   case 354:
-#line 3949 "ProParser.y"
+#line 3941 "ProParser.y"
     {
-      EquationTerm_S.Case.LocalTerm.InIndex = Index_Group(&Group_S, (char*)"FO_In", (yyvsp[(2) - (3)].i));
+      EquationTerm_S.Case.LocalTerm.InIndex = Num_Group(&Group_S, (char*)"FO_In", (yyvsp[(2) - (3)].i));
     ;}
     break;
 
   case 355:
-#line 3954 "ProParser.y"
+#line 3946 "ProParser.y"
     {
       int i;
       if((i = List_ISearchSeq(Problem_S.JacobianMethod, (yyvsp[(2) - (3)].c),
@@ -11713,7 +11705,7 @@ yyreduce:
     break;
 
   case 356:
-#line 3965 "ProParser.y"
+#line 3957 "ProParser.y"
     {
       int i;
       if((i = List_ISearchSeq(Problem_S.IntegrationMethod, (yyvsp[(2) - (3)].c),
@@ -11726,14 +11718,14 @@ yyreduce:
     break;
 
   case 357:
-#line 3976 "ProParser.y"
+#line 3968 "ProParser.y"
     {
       EquationTerm_S.Case.LocalTerm.Full_Matrix = 1;
     ;}
     break;
 
   case 358:
-#line 3981 "ProParser.y"
+#line 3973 "ProParser.y"
     { if((yyvsp[(3) - (5)].i) == 1 || (yyvsp[(3) - (5)].i) == 2 || (yyvsp[(3) - (5)].i) == 3)
 	EquationTerm_S.Case.LocalTerm.MatrixIndex = (yyvsp[(3) - (5)].i);
       else
@@ -11742,14 +11734,14 @@ yyreduce:
     break;
 
   case 359:
-#line 3988 "ProParser.y"
+#line 3980 "ProParser.y"
     {
       EquationTerm_S.Case.LocalTerm.ExpressionIndexForMetricTensor = (yyvsp[(2) - (3)].i);
     ;}
     break;
 
   case 360:
-#line 3997 "ProParser.y"
+#line 3989 "ProParser.y"
     { EquationTerm_S.Case.GlobalTerm.TypeTimeDerivative = NODT_;
       EquationTerm_S.Case.GlobalTerm.DefineQuantityIndex = -1;
 
@@ -11767,14 +11759,14 @@ yyreduce:
     break;
 
   case 362:
-#line 4018 "ProParser.y"
+#line 4010 "ProParser.y"
     {
-      EquationTerm_S.Case.GlobalTerm.InIndex = Index_Group(&Group_S, (char*)"FO_In", (yyvsp[(2) - (3)].i));
+      EquationTerm_S.Case.GlobalTerm.InIndex = Num_Group(&Group_S, (char*)"FO_In", (yyvsp[(2) - (3)].i));
     ;}
     break;
 
   case 363:
-#line 4023 "ProParser.y"
+#line 4015 "ProParser.y"
     {
       EquationTerm_S.Case.GlobalTerm.SubType =
         Get_DefineForString(Equation_SubType, (yyvsp[(2) - (3)].c), &FlagError);
@@ -11787,7 +11779,7 @@ yyreduce:
     break;
 
   case 364:
-#line 4034 "ProParser.y"
+#line 4026 "ProParser.y"
     {
       EquationTerm_S.Case.GlobalTerm.Term.TypeTimeDerivative = Type_TermOperator;
       Current_DofIndexInWholeQuantity = -1;
@@ -11797,7 +11789,7 @@ yyreduce:
     break;
 
   case 365:
-#line 4042 "ProParser.y"
+#line 4034 "ProParser.y"
     { EquationTerm_S.Case.GlobalTerm.Term.WholeQuantity = (yyvsp[(4) - (4)].l);
 
       EquationTerm_S.Case.GlobalTerm.Term.DofIndexInWholeQuantity =
@@ -11854,7 +11846,7 @@ yyreduce:
     break;
 
   case 366:
-#line 4097 "ProParser.y"
+#line 4089 "ProParser.y"
     { EquationTerm_S.Case.GlobalTerm.Term.TypeOperatorEqu = (yyvsp[(7) - (9)].t).Int1;
       EquationTerm_S.Case.GlobalTerm.Term.DefineQuantityIndexEqu = (yyvsp[(7) - (9)].t).Int2;
 
@@ -11868,67 +11860,67 @@ yyreduce:
     break;
 
   case 367:
-#line 4114 "ProParser.y"
+#line 4106 "ProParser.y"
     { Type_TermOperator = NODT_          ; ;}
     break;
 
   case 368:
-#line 4115 "ProParser.y"
+#line 4107 "ProParser.y"
     { Type_TermOperator = DT_            ; ;}
     break;
 
   case 369:
-#line 4116 "ProParser.y"
+#line 4108 "ProParser.y"
     { Type_TermOperator = DTDOF_         ; ;}
     break;
 
   case 370:
-#line 4117 "ProParser.y"
+#line 4109 "ProParser.y"
     { Type_TermOperator = DTDT_          ; ;}
     break;
 
   case 371:
-#line 4118 "ProParser.y"
+#line 4110 "ProParser.y"
     { Type_TermOperator = DTDTDOF_       ; ;}
     break;
 
   case 372:
-#line 4119 "ProParser.y"
+#line 4111 "ProParser.y"
     { Type_TermOperator = DTDTDTDOF_     ; ;}
     break;
 
   case 373:
-#line 4120 "ProParser.y"
+#line 4112 "ProParser.y"
     { Type_TermOperator = DTDTDTDTDOF_   ; ;}
     break;
 
   case 374:
-#line 4121 "ProParser.y"
+#line 4113 "ProParser.y"
     { Type_TermOperator = DTDTDTDTDTDOF_ ; ;}
     break;
 
   case 375:
-#line 4122 "ProParser.y"
+#line 4114 "ProParser.y"
     { Type_TermOperator = JACNL_         ; ;}
     break;
 
   case 376:
-#line 4123 "ProParser.y"
+#line 4115 "ProParser.y"
     { Type_TermOperator = DTDOFJACNL_    ; ;}
     break;
 
   case 377:
-#line 4124 "ProParser.y"
+#line 4116 "ProParser.y"
     { Type_TermOperator = NEVERDT_       ; ;}
     break;
 
   case 378:
-#line 4125 "ProParser.y"
+#line 4117 "ProParser.y"
     { Type_TermOperator = DTNL_          ; ;}
     break;
 
   case 379:
-#line 4132 "ProParser.y"
+#line 4124 "ProParser.y"
     { (yyval.t).Int1 = Get_DefineForString(Operator_Type, (yyvsp[(2) - (4)].c), &FlagError);
       if(FlagError){
 	Get_Valid_SXD((yyvsp[(2) - (4)].c), Operator_Type);
@@ -11951,7 +11943,7 @@ yyreduce:
     break;
 
   case 380:
-#line 4153 "ProParser.y"
+#line 4145 "ProParser.y"
     { (yyval.t).Int1 = NOOP;
       int i;
       if((i = List_ISearchSeq(Formulation_S.DefineQuantity, (yyvsp[(2) - (3)].c),
@@ -11969,14 +11961,14 @@ yyreduce:
     break;
 
   case 381:
-#line 4177 "ProParser.y"
+#line 4169 "ProParser.y"
     { if(!Problem_S.Resolution)
 	Problem_S.Resolution = List_Create(10, 5, sizeof (struct Resolution));
     ;}
     break;
 
   case 383:
-#line 4187 "ProParser.y"
+#line 4179 "ProParser.y"
     {
       if (level_Append && index_Append>=0)
         List_Write(Problem_S.Resolution, index_Append, &Resolution_S);
@@ -11986,7 +11978,7 @@ yyreduce:
     break;
 
   case 385:
-#line 4201 "ProParser.y"
+#line 4193 "ProParser.y"
     {
       Resolution_S.Name = NULL;
       Resolution_S.Hidden = false;
@@ -11997,16 +11989,16 @@ yyreduce:
     break;
 
   case 387:
-#line 4216 "ProParser.y"
+#line 4208 "ProParser.y"
     { level_Append = (yyvsp[(1) - (2)].i); index_Append = -1; ;}
     break;
 
   case 388:
-#line 4219 "ProParser.y"
+#line 4211 "ProParser.y"
     {
       index_Append =
-        Check_NameOfStructExistSeq("Resolution", Problem_S.Resolution,
-                                   (yyvsp[(2) - (3)].c), fcmp_Resolution_Name, level_Append);
+        Check_NameOfStructExist("Resolution", Problem_S.Resolution,
+                                (yyvsp[(2) - (3)].c), fcmp_Resolution_Name, level_Append);
       if (index_Append<0)
         Resolution_S.Name = (yyvsp[(2) - (3)].c);
       else{
@@ -12017,27 +12009,27 @@ yyreduce:
     break;
 
   case 389:
-#line 4231 "ProParser.y"
+#line 4223 "ProParser.y"
     { Resolution_S.Hidden = (yyvsp[(2) - (3)].d) ? true : false; ;}
     break;
 
   case 390:
-#line 4234 "ProParser.y"
+#line 4226 "ProParser.y"
     { Resolution_S.DefineSystem = (yyvsp[(3) - (4)].l); ;}
     break;
 
   case 391:
-#line 4237 "ProParser.y"
+#line 4229 "ProParser.y"
     { Operation_L = List_Create(5, 5, sizeof(struct Operation)); ;}
     break;
 
   case 392:
-#line 4239 "ProParser.y"
+#line 4231 "ProParser.y"
     { Resolution_S.Operation = (yyvsp[(4) - (5)].l);  List_Delete(Operation_L); ;}
     break;
 
   case 394:
-#line 4247 "ProParser.y"
+#line 4239 "ProParser.y"
     {
       (yyval.l) = Current_System_L =
         Resolution_S.DefineSystem?
@@ -12047,7 +12039,7 @@ yyreduce:
     break;
 
   case 395:
-#line 4255 "ProParser.y"
+#line 4247 "ProParser.y"
     {
       int i ;
       if ((i = List_ISearchSeq(Current_System_L, DefineSystem_S.Name, fcmp_DefineSystem_Name)) < 0)
@@ -12058,14 +12050,14 @@ yyreduce:
     break;
 
   case 396:
-#line 4264 "ProParser.y"
+#line 4256 "ProParser.y"
     {
        (yyval.l) = (yyvsp[(1) - (2)].l);
      ;}
     break;
 
   case 397:
-#line 4273 "ProParser.y"
+#line 4265 "ProParser.y"
     { DefineSystem_S.Name = NULL;
       DefineSystem_S.Type = VAL_REAL;
       DefineSystem_S.FormulationIndex = NULL;
@@ -12080,7 +12072,7 @@ yyreduce:
     break;
 
   case 399:
-#line 4292 "ProParser.y"
+#line 4284 "ProParser.y"
     {
       int i;
       if ((i = List_ISearchSeq(Current_System_L, (yyvsp[(2) - (3)].c), fcmp_DefineSystem_Name)) < 0)
@@ -12091,7 +12083,7 @@ yyreduce:
     break;
 
   case 400:
-#line 4301 "ProParser.y"
+#line 4293 "ProParser.y"
     { DefineSystem_S.Type = Get_DefineForString(DefineSystem_Type, (yyvsp[(2) - (3)].c), &FlagError);
       if(FlagError){
 	Get_Valid_SXD((yyvsp[(2) - (3)].c), DefineSystem_Type);
@@ -12102,12 +12094,12 @@ yyreduce:
     break;
 
   case 401:
-#line 4310 "ProParser.y"
+#line 4302 "ProParser.y"
     { DefineSystem_S.FormulationIndex = (yyvsp[(2) - (3)].l); ;}
     break;
 
   case 402:
-#line 4313 "ProParser.y"
+#line 4305 "ProParser.y"
     {
       DefineSystem_S.MeshName = strSave(Fix_RelativePath((yyvsp[(2) - (3)].c)).c_str());
       Free((yyvsp[(2) - (3)].c));
@@ -12115,7 +12107,7 @@ yyreduce:
     break;
 
   case 403:
-#line 4319 "ProParser.y"
+#line 4311 "ProParser.y"
     {
       if (!DefineSystem_S.OriginSystemIndex) {
 	DefineSystem_S.OriginSystemIndex = (yyvsp[(2) - (3)].l) ;
@@ -12128,28 +12120,28 @@ yyreduce:
     break;
 
   case 404:
-#line 4330 "ProParser.y"
+#line 4322 "ProParser.y"
     {
       DefineSystem_S.DestinationSystemName = (yyvsp[(2) - (3)].c);
     ;}
     break;
 
   case 405:
-#line 4335 "ProParser.y"
+#line 4327 "ProParser.y"
     { DefineSystem_S.FrequencyValue = (yyvsp[(2) - (3)].l);
       DefineSystem_S.Type = VAL_COMPLEX;
     ;}
     break;
 
   case 406:
-#line 4340 "ProParser.y"
+#line 4332 "ProParser.y"
     {
       DefineSystem_S.SolverDataFileName = (yyvsp[(2) - (3)].c);
     ;}
     break;
 
   case 408:
-#line 4351 "ProParser.y"
+#line 4343 "ProParser.y"
     {
       (yyval.l) = List_Create(1, 1, sizeof(int));
       int i;
@@ -12161,17 +12153,17 @@ yyreduce:
     break;
 
   case 409:
-#line 4361 "ProParser.y"
+#line 4353 "ProParser.y"
     { (yyval.l) = (yyvsp[(2) - (3)].l); ;}
     break;
 
   case 410:
-#line 4368 "ProParser.y"
+#line 4360 "ProParser.y"
     { (yyval.l) = List_Create(2, 2, sizeof(int)); ;}
     break;
 
   case 411:
-#line 4371 "ProParser.y"
+#line 4363 "ProParser.y"
     {
       int i;
       if((i = List_ISearchSeq(Problem_S.Formulation, (yyvsp[(3) - (3)].c), fcmp_Formulation_Name)) < 0)
@@ -12183,7 +12175,7 @@ yyreduce:
     break;
 
   case 412:
-#line 4384 "ProParser.y"
+#line 4376 "ProParser.y"
     {
       (yyval.l) = List_Create(1, 1, sizeof(int));
       int i;
@@ -12196,17 +12188,17 @@ yyreduce:
     break;
 
   case 413:
-#line 4395 "ProParser.y"
+#line 4387 "ProParser.y"
     { (yyval.l) = (yyvsp[(2) - (3)].l);  ;}
     break;
 
   case 414:
-#line 4401 "ProParser.y"
+#line 4393 "ProParser.y"
     { (yyval.l) = List_Create(2, 2, sizeof(int)); ;}
     break;
 
   case 415:
-#line 4404 "ProParser.y"
+#line 4396 "ProParser.y"
     {
       int i;
       if((i = List_ISearchSeq(Current_System_L, (yyvsp[(3) - (3)].c), fcmp_DefineSystem_Name)) < 0)
@@ -12218,7 +12210,7 @@ yyreduce:
     break;
 
   case 416:
-#line 4417 "ProParser.y"
+#line 4409 "ProParser.y"
     {
       (yyval.l) = Resolution_S.Operation?
         Resolution_S.Operation :
@@ -12231,7 +12223,7 @@ yyreduce:
     break;
 
   case 417:
-#line 4428 "ProParser.y"
+#line 4420 "ProParser.y"
     {
       if(((struct Operation*)
 	  List_Pointer(Operation_L, List_Nbr(Operation_L)-1))->Type != OPERATION_NONE){
@@ -12242,117 +12234,117 @@ yyreduce:
     break;
 
   case 418:
-#line 4438 "ProParser.y"
+#line 4430 "ProParser.y"
     { (yyval.i) = -1; ;}
     break;
 
   case 419:
-#line 4440 "ProParser.y"
+#line 4432 "ProParser.y"
     { (yyval.i) = (int)(yyvsp[(2) - (2)].d); ;}
     break;
 
   case 420:
-#line 4444 "ProParser.y"
+#line 4436 "ProParser.y"
     { (yyval.i) = OPERATION_GMSHREAD; ;}
     break;
 
   case 421:
-#line 4445 "ProParser.y"
+#line 4437 "ProParser.y"
     { (yyval.i) = OPERATION_GMSHOPEN; ;}
     break;
 
   case 422:
-#line 4446 "ProParser.y"
+#line 4438 "ProParser.y"
     { (yyval.i) = OPERATION_GMSHMERGE; ;}
     break;
 
   case 423:
-#line 4447 "ProParser.y"
+#line 4439 "ProParser.y"
     { (yyval.i) = OPERATION_GMSHWRITE; ;}
     break;
 
   case 424:
-#line 4450 "ProParser.y"
+#line 4442 "ProParser.y"
     { (yyval.i) = OPERATION_GENERATE; ;}
     break;
 
   case 425:
-#line 4451 "ProParser.y"
+#line 4443 "ProParser.y"
     { (yyval.i) = OPERATION_GENERATEJAC; ;}
     break;
 
   case 426:
-#line 4452 "ProParser.y"
+#line 4444 "ProParser.y"
     { (yyval.i) = OPERATION_GENERATERHS; ;}
     break;
 
   case 427:
-#line 4453 "ProParser.y"
+#line 4445 "ProParser.y"
     { (yyval.i) = OPERATION_GENERATE_CUMULATIVE; ;}
     break;
 
   case 428:
-#line 4454 "ProParser.y"
+#line 4446 "ProParser.y"
     { (yyval.i) = OPERATION_GENERATEJAC_CUMULATIVE; ;}
     break;
 
   case 429:
-#line 4455 "ProParser.y"
+#line 4447 "ProParser.y"
     { (yyval.i) = OPERATION_GENERATERHS_CUMULATIVE; ;}
     break;
 
   case 430:
-#line 4458 "ProParser.y"
+#line 4450 "ProParser.y"
     { (yyval.i) = OPERATION_COPYSOLUTION; ;}
     break;
 
   case 431:
-#line 4459 "ProParser.y"
+#line 4451 "ProParser.y"
     { (yyval.i) = OPERATION_COPYRHS; ;}
     break;
 
   case 432:
-#line 4460 "ProParser.y"
+#line 4452 "ProParser.y"
     { (yyval.i) = OPERATION_COPYRESIDUAL; ;}
     break;
 
   case 433:
-#line 4461 "ProParser.y"
+#line 4453 "ProParser.y"
     { (yyval.i) = OPERATION_COPYINCREMENT; ;}
     break;
 
   case 434:
-#line 4462 "ProParser.y"
+#line 4454 "ProParser.y"
     { (yyval.i) = OPERATION_COPYDOFS; ;}
     break;
 
   case 435:
-#line 4465 "ProParser.y"
+#line 4457 "ProParser.y"
     { (yyval.i) = OPERATION_GETRESIDUAL; ;}
     break;
 
   case 436:
-#line 4466 "ProParser.y"
+#line 4458 "ProParser.y"
     { (yyval.i) = OPERATION_GETNORMSOLUTION; ;}
     break;
 
   case 437:
-#line 4467 "ProParser.y"
+#line 4459 "ProParser.y"
     { (yyval.i) = OPERATION_GETNORMRHS; ;}
     break;
 
   case 438:
-#line 4468 "ProParser.y"
+#line 4460 "ProParser.y"
     { (yyval.i) = OPERATION_GETNORMRESIDUAL; ;}
     break;
 
   case 439:
-#line 4469 "ProParser.y"
+#line 4461 "ProParser.y"
     { (yyval.i) = OPERATION_GETNORMINCREMENT; ;}
     break;
 
   case 440:
-#line 4476 "ProParser.y"
+#line 4468 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = Get_DefineForString(Operation_Type, (yyvsp[(1) - (3)].c), &FlagError);
@@ -12378,7 +12370,7 @@ yyreduce:
     break;
 
   case 441:
-#line 4500 "ProParser.y"
+#line 4492 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_SETTIME;
@@ -12387,7 +12379,7 @@ yyreduce:
     break;
 
   case 442:
-#line 4507 "ProParser.y"
+#line 4499 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_SETTIMESTEP;
@@ -12396,7 +12388,7 @@ yyreduce:
     break;
 
   case 443:
-#line 4514 "ProParser.y"
+#line 4506 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_TIMELOOPTHETA;
@@ -12404,7 +12396,7 @@ yyreduce:
     break;
 
   case 444:
-#line 4520 "ProParser.y"
+#line 4512 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_TIMELOOPNEWMARK;
@@ -12412,7 +12404,7 @@ yyreduce:
     break;
 
   case 445:
-#line 4526 "ProParser.y"
+#line 4518 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_ITERATIVELOOP;
@@ -12420,7 +12412,7 @@ yyreduce:
     break;
 
   case 446:
-#line 4532 "ProParser.y"
+#line 4524 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_ITERATIVETIMEREDUCTION;
@@ -12428,7 +12420,7 @@ yyreduce:
     break;
 
   case 447:
-#line 4540 "ProParser.y"
+#line 4532 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = Get_DefineForString(Operation_Type, (yyvsp[(1) - (6)].c), &FlagError);
@@ -12453,7 +12445,7 @@ yyreduce:
     break;
 
   case 448:
-#line 4563 "ProParser.y"
+#line 4555 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_SETTIME;
@@ -12462,7 +12454,7 @@ yyreduce:
     break;
 
   case 449:
-#line 4570 "ProParser.y"
+#line 4562 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_SETTIMESTEP;
@@ -12471,7 +12463,7 @@ yyreduce:
     break;
 
   case 450:
-#line 4577 "ProParser.y"
+#line 4569 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_SETDTIME;
@@ -12480,7 +12472,7 @@ yyreduce:
     break;
 
   case 451:
-#line 4584 "ProParser.y"
+#line 4576 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_SLEEP;
@@ -12489,7 +12481,7 @@ yyreduce:
     break;
 
   case 452:
-#line 4591 "ProParser.y"
+#line 4583 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_SETCOMMSELF;
@@ -12497,7 +12489,7 @@ yyreduce:
     break;
 
   case 453:
-#line 4597 "ProParser.y"
+#line 4589 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_SETCOMMWORLD;
@@ -12505,7 +12497,7 @@ yyreduce:
     break;
 
   case 454:
-#line 4603 "ProParser.y"
+#line 4595 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_BARRIER;
@@ -12513,7 +12505,7 @@ yyreduce:
     break;
 
   case 455:
-#line 4609 "ProParser.y"
+#line 4601 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_BROADCASTFIELDS;
@@ -12522,7 +12514,7 @@ yyreduce:
     break;
 
   case 456:
-#line 4616 "ProParser.y"
+#line 4608 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_BREAK;
@@ -12530,7 +12522,7 @@ yyreduce:
     break;
 
   case 457:
-#line 4622 "ProParser.y"
+#line 4614 "ProParser.y"
     {
       List_Pop(Operation_L);
       Operation_P = (struct Operation*)
@@ -12543,7 +12535,7 @@ yyreduce:
     break;
 
   case 458:
-#line 4633 "ProParser.y"
+#line 4625 "ProParser.y"
     {
       List_Pop(Operation_L);
       List_Pop(Operation_L);
@@ -12557,7 +12549,7 @@ yyreduce:
     break;
 
   case 459:
-#line 4645 "ProParser.y"
+#line 4637 "ProParser.y"
     {
       List_Pop(Operation_L);
       Operation_P = (struct Operation*)
@@ -12569,7 +12561,7 @@ yyreduce:
     break;
 
   case 460:
-#line 4655 "ProParser.y"
+#line 4647 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_SETFREQUENCY;
@@ -12584,7 +12576,7 @@ yyreduce:
     break;
 
   case 461:
-#line 4668 "ProParser.y"
+#line 4660 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_GENERATEONLY;
@@ -12608,7 +12600,7 @@ yyreduce:
     break;
 
   case 462:
-#line 4690 "ProParser.y"
+#line 4682 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_GENERATEONLYJAC;
@@ -12632,7 +12624,7 @@ yyreduce:
     break;
 
   case 463:
-#line 4712 "ProParser.y"
+#line 4704 "ProParser.y"
     { Operation_P = (struct Operation*)
         List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_UPDATE;
@@ -12647,7 +12639,7 @@ yyreduce:
     break;
 
   case 464:
-#line 4725 "ProParser.y"
+#line 4717 "ProParser.y"
     { Operation_P = (struct Operation*)
         List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_UPDATE;
@@ -12662,7 +12654,7 @@ yyreduce:
     break;
 
   case 465:
-#line 4738 "ProParser.y"
+#line 4730 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_UPDATECONSTRAINT;
@@ -12673,7 +12665,7 @@ yyreduce:
       Free((yyvsp[(3) - (9)].c));
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.UpdateConstraint.GroupIndex =
-	Index_Group(&Group_S, (char*)"OP_UpdateCst", (yyvsp[(5) - (9)].i));
+	Num_Group(&Group_S, (char*)"OP_UpdateCst", (yyvsp[(5) - (9)].i));
       Operation_P->Case.UpdateConstraint.Type =
 	Get_DefineForString(Constraint_Type, (yyvsp[(7) - (9)].c), &FlagError);
       if(FlagError){
@@ -12685,7 +12677,7 @@ yyreduce:
     break;
 
   case 466:
-#line 4759 "ProParser.y"
+#line 4751 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_UPDATECONSTRAINT ;
@@ -12701,7 +12693,7 @@ yyreduce:
     break;
 
   case 467:
-#line 4773 "ProParser.y"
+#line 4765 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = (yyvsp[(1) - (8)].i);
@@ -12724,7 +12716,7 @@ yyreduce:
     break;
 
   case 468:
-#line 4794 "ProParser.y"
+#line 4786 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_CREATESOLUTION;
@@ -12739,7 +12731,7 @@ yyreduce:
     break;
 
   case 469:
-#line 4807 "ProParser.y"
+#line 4799 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_CREATESOLUTION;
@@ -12754,7 +12746,7 @@ yyreduce:
     break;
 
   case 470:
-#line 4820 "ProParser.y"
+#line 4812 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_FOURIERTRANSFORM;
@@ -12774,7 +12766,7 @@ yyreduce:
     break;
 
   case 471:
-#line 4838 "ProParser.y"
+#line 4830 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_FOURIERTRANSFORM2;
@@ -12796,7 +12788,7 @@ yyreduce:
     break;
 
   case 472:
-#line 4858 "ProParser.y"
+#line 4850 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_LANCZOS;
@@ -12821,7 +12813,7 @@ yyreduce:
     break;
 
   case 473:
-#line 4881 "ProParser.y"
+#line 4873 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_EIGENSOLVE;
@@ -12839,7 +12831,7 @@ yyreduce:
     break;
 
   case 474:
-#line 4898 "ProParser.y"
+#line 4890 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_EIGENSOLVE;
@@ -12857,7 +12849,7 @@ yyreduce:
     break;
 
   case 475:
-#line 4914 "ProParser.y"
+#line 4906 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_EIGENSOLVEJAC;
@@ -12875,7 +12867,7 @@ yyreduce:
     break;
 
   case 476:
-#line 4930 "ProParser.y"
+#line 4922 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_EVALUATE;
@@ -12884,7 +12876,7 @@ yyreduce:
     break;
 
   case 477:
-#line 4937 "ProParser.y"
+#line 4929 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_SELECTCORRECTION;
@@ -12899,7 +12891,7 @@ yyreduce:
     break;
 
   case 478:
-#line 4950 "ProParser.y"
+#line 4942 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_ADDCORRECTION;
@@ -12914,7 +12906,7 @@ yyreduce:
     break;
 
   case 479:
-#line 4963 "ProParser.y"
+#line 4955 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_ADDCORRECTION;
@@ -12929,7 +12921,7 @@ yyreduce:
     break;
 
   case 480:
-#line 4976 "ProParser.y"
+#line 4968 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_MULTIPLYSOLUTION;
@@ -12944,7 +12936,7 @@ yyreduce:
     break;
 
   case 481:
-#line 4989 "ProParser.y"
+#line 4981 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_ADDOPPOSITEFULLSOLUTION;
@@ -12958,7 +12950,7 @@ yyreduce:
     break;
 
   case 482:
-#line 5002 "ProParser.y"
+#line 4994 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_PERTURBATION;
@@ -12994,7 +12986,7 @@ yyreduce:
     break;
 
   case 483:
-#line 5037 "ProParser.y"
+#line 5029 "ProParser.y"
     { List_Pop(Operation_L);
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
@@ -13008,7 +13000,7 @@ yyreduce:
     break;
 
   case 484:
-#line 5050 "ProParser.y"
+#line 5042 "ProParser.y"
     { List_Pop(Operation_L);
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
@@ -13023,7 +13015,7 @@ yyreduce:
     break;
 
   case 485:
-#line 5064 "ProParser.y"
+#line 5056 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_TIMELOOPRUNGEKUTTA;
@@ -13043,7 +13035,7 @@ yyreduce:
     break;
 
   case 486:
-#line 5084 "ProParser.y"
+#line 5076 "ProParser.y"
     {
       List_Pop(Operation_L);
       List_Pop(Operation_L);
@@ -13063,7 +13055,7 @@ yyreduce:
     break;
 
   case 487:
-#line 5103 "ProParser.y"
+#line 5095 "ProParser.y"
     { List_Pop(Operation_L);
       Operation_P = (struct Operation*)
         List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
@@ -13075,7 +13067,7 @@ yyreduce:
     break;
 
   case 488:
-#line 5114 "ProParser.y"
+#line 5106 "ProParser.y"
     { List_Pop(Operation_L);
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
@@ -13089,7 +13081,7 @@ yyreduce:
     break;
 
   case 489:
-#line 5127 "ProParser.y"
+#line 5119 "ProParser.y"
     { List_Pop(Operation_L);
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
@@ -13103,7 +13095,7 @@ yyreduce:
     break;
 
   case 490:
-#line 5141 "ProParser.y"
+#line 5133 "ProParser.y"
     { List_Pop(Operation_L);
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
@@ -13122,7 +13114,7 @@ yyreduce:
     break;
 
   case 491:
-#line 5161 "ProParser.y"
+#line 5153 "ProParser.y"
     { List_Pop(Operation_L);
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
@@ -13141,7 +13133,7 @@ yyreduce:
     break;
 
   case 492:
-#line 5178 "ProParser.y"
+#line 5170 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_PRINT;
@@ -13151,7 +13143,7 @@ yyreduce:
     break;
 
   case 494:
-#line 5187 "ProParser.y"
+#line 5179 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_WRITE;
@@ -13161,26 +13153,26 @@ yyreduce:
     break;
 
   case 496:
-#line 5196 "ProParser.y"
+#line 5188 "ProParser.y"
     {
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_CHANGEOFCOORDINATES;
       Operation_P->Case.ChangeOfCoordinates.GroupIndex =
-	Index_Group(&Group_S, (char*)"OP_ChgCoord", (yyvsp[(3) - (7)].i));
+	Num_Group(&Group_S, (char*)"OP_ChgCoord", (yyvsp[(3) - (7)].i));
       Operation_P->Case.ChangeOfCoordinates.ExpressionIndex = (yyvsp[(5) - (7)].i);
       Operation_P->Case.ChangeOfCoordinates.ExpressionIndex2 = -1;
     ;}
     break;
 
   case 497:
-#line 5207 "ProParser.y"
+#line 5199 "ProParser.y"
     {
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_CHANGEOFCOORDINATES;
       Operation_P->Case.ChangeOfCoordinates.GroupIndex =
-	Index_Group(&Group_S, (char*)"OP_ChgCoord", (yyvsp[(3) - (11)].i));
+	Num_Group(&Group_S, (char*)"OP_ChgCoord", (yyvsp[(3) - (11)].i));
       Operation_P->Case.ChangeOfCoordinates.ExpressionIndex = (yyvsp[(5) - (11)].i);
       Operation_P->Case.ChangeOfCoordinates.NumNode = (int)(yyvsp[(7) - (11)].d);
       Operation_P->Case.ChangeOfCoordinates.ExpressionIndex2 = (yyvsp[(9) - (11)].i);
@@ -13188,7 +13180,7 @@ yyreduce:
     break;
 
   case 498:
-#line 5219 "ProParser.y"
+#line 5211 "ProParser.y"
     {
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
@@ -13200,7 +13192,7 @@ yyreduce:
     break;
 
   case 499:
-#line 5229 "ProParser.y"
+#line 5221 "ProParser.y"
     {
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
@@ -13210,7 +13202,7 @@ yyreduce:
     break;
 
   case 500:
-#line 5237 "ProParser.y"
+#line 5229 "ProParser.y"
     {
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
@@ -13220,7 +13212,7 @@ yyreduce:
     break;
 
   case 501:
-#line 5245 "ProParser.y"
+#line 5237 "ProParser.y"
     {
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
@@ -13232,7 +13224,7 @@ yyreduce:
     break;
 
   case 502:
-#line 5255 "ProParser.y"
+#line 5247 "ProParser.y"
     {
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
@@ -13244,7 +13236,7 @@ yyreduce:
     break;
 
   case 503:
-#line 5265 "ProParser.y"
+#line 5257 "ProParser.y"
     {
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
@@ -13253,7 +13245,7 @@ yyreduce:
     break;
 
   case 504:
-#line 5272 "ProParser.y"
+#line 5264 "ProParser.y"
     {
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
@@ -13264,7 +13256,7 @@ yyreduce:
     break;
 
   case 505:
-#line 5281 "ProParser.y"
+#line 5273 "ProParser.y"
     {
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
@@ -13277,7 +13269,7 @@ yyreduce:
     break;
 
   case 506:
-#line 5292 "ProParser.y"
+#line 5284 "ProParser.y"
     {
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
@@ -13288,7 +13280,7 @@ yyreduce:
     break;
 
   case 507:
-#line 5301 "ProParser.y"
+#line 5293 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_SOLVEJACADAPTRELAX;
@@ -13304,7 +13296,7 @@ yyreduce:
     break;
 
   case 508:
-#line 5315 "ProParser.y"
+#line 5307 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_SAVESOLUTION_WITH_ENTITY_NUM;
@@ -13320,7 +13312,7 @@ yyreduce:
     break;
 
   case 509:
-#line 5329 "ProParser.y"
+#line 5321 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_SAVESOLUTION_WITH_ENTITY_NUM;
@@ -13331,13 +13323,13 @@ yyreduce:
       Free((yyvsp[(3) - (8)].c));
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.SaveSolutionWithEntityNum.GroupIndex =
-        Index_Group(&Group_S, (char*)"OP_SaveSolutionWithEntityNum", (yyvsp[(5) - (8)].i));
+        Num_Group(&Group_S, (char*)"OP_SaveSolutionWithEntityNum", (yyvsp[(5) - (8)].i));
       Operation_P->Case.SaveSolutionWithEntityNum.SaveFixed = ((yyvsp[(6) - (8)].i) >= 0) ? (yyvsp[(6) - (8)].i) : 0;
     ;}
     break;
 
   case 510:
-#line 5344 "ProParser.y"
+#line 5336 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_SAVESOLUTIONEXTENDEDMH;
@@ -13353,7 +13345,7 @@ yyreduce:
     break;
 
   case 511:
-#line 5358 "ProParser.y"
+#line 5350 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_SAVESOLUTIONMHTOTIME;
@@ -13369,45 +13361,33 @@ yyreduce:
     break;
 
   case 512:
-#line 5372 "ProParser.y"
+#line 5364 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
-      Group_S.Name = (yyvsp[(3) - (5)].c);
-      struct Group *Group_P = (struct Group*)List_PQuery(Problem_S.Group, &Group_S,
-                                                         fcmp_Group);
-      if(!Group_P){
-        vyyerror(0, "Unknown Group: %s", (yyvsp[(3) - (5)].c));
-        Operation_P->Case.Init_MovingBand2D.GroupIndex = 0;
-      }
-      else{
-        Operation_P->Case.Init_MovingBand2D.GroupIndex = Group_P->Index;
-      }
+      int i;
+      if((i = List_ISearchSeq(Problem_S.Group, (yyvsp[(3) - (5)].c), fcmp_Group_Name)) < 0)
+   	vyyerror(0, "Unknown Group: %s", (yyvsp[(3) - (5)].c));
       Operation_P->Type = OPERATION_INIT_MOVINGBAND2D;
+            Operation_P->Case.Init_MovingBand2D.GroupIndex = i;
       Free((yyvsp[(3) - (5)].c));
     ;}
     break;
 
   case 513:
-#line 5389 "ProParser.y"
+#line 5375 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
-      Group_S.Name = (yyvsp[(3) - (5)].c);
-      struct Group *Group_P = (struct Group*)List_PQuery(Problem_S.Group, &Group_S,
-                                                         fcmp_Group);
-      if(!Group_P){
+      int i;
+      if((i = List_ISearchSeq(Problem_S.Group, (yyvsp[(3) - (5)].c), fcmp_Group_Name)) < 0)
     	vyyerror(0, "Unknown Group: %s", (yyvsp[(3) - (5)].c));
-        Operation_P->Case.Mesh_MovingBand2D.GroupIndex = 0;
-      }
-      else{
-        Operation_P->Case.Mesh_MovingBand2D.GroupIndex = Group_P->Index;
-      }
       Operation_P->Type = OPERATION_MESH_MOVINGBAND2D;
+      Operation_P->Case.Mesh_MovingBand2D.GroupIndex = i;
       Free((yyvsp[(3) - (5)].c));
     ;}
     break;
 
   case 514:
-#line 5406 "ProParser.y"
+#line 5386 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       int i;
@@ -13416,7 +13396,7 @@ yyreduce:
 	vyyerror(0, "Unknown System: %s", (yyvsp[(3) - (11)].c));
       Free((yyvsp[(3) - (11)].c));
       Operation_P->DefineSystemIndex = i;
-      Operation_P->Case.SaveMesh.GroupIndex = Index_Group(&Group_S, (char*)"OP_SaveMesh", (yyvsp[(5) - (11)].i));
+      Operation_P->Case.SaveMesh.GroupIndex = Num_Group(&Group_S, (char*)"OP_SaveMesh", (yyvsp[(5) - (11)].i));
       Operation_P->Case.SaveMesh.FileName = (yyvsp[(7) - (11)].c);
       Operation_P->Case.SaveMesh.ExprIndex = (yyvsp[(9) - (11)].i);
       Operation_P->Type = OPERATION_SAVEMESH;
@@ -13424,7 +13404,7 @@ yyreduce:
     break;
 
   case 515:
-#line 5421 "ProParser.y"
+#line 5401 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       int i;
@@ -13433,7 +13413,7 @@ yyreduce:
 	vyyerror(0, "Unknown System: %s", (yyvsp[(3) - (9)].c));
       Free((yyvsp[(3) - (9)].c));
       Operation_P->DefineSystemIndex = i;
-      Operation_P->Case.SaveMesh.GroupIndex = Index_Group(&Group_S, (char*)"OP_SaveMesh", (yyvsp[(5) - (9)].i));
+      Operation_P->Case.SaveMesh.GroupIndex = Num_Group(&Group_S, (char*)"OP_SaveMesh", (yyvsp[(5) - (9)].i));
       Operation_P->Case.SaveMesh.FileName = (yyvsp[(7) - (9)].c);
       Operation_P->Case.SaveMesh.ExprIndex = -1;
       Operation_P->Type = OPERATION_SAVEMESH;
@@ -13441,6 +13421,27 @@ yyreduce:
     break;
 
   case 516:
+#line 5417 "ProParser.y"
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      int i;
+      if((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[(3) - (13)].c),
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror(0, "Unknown System: %s", (yyvsp[(3) - (13)].c));
+      Free((yyvsp[(3) - (13)].c));
+      Operation_P->DefineSystemIndex = i;
+      if((i = List_ISearchSeq(Problem_S.Group, (yyvsp[(5) - (13)].c), fcmp_Group_Name)) < 0)
+	vyyerror(0, "Unknown Group: %s", (yyvsp[(5) - (13)].c));
+      Free((yyvsp[(5) - (13)].c));
+      Operation_P->Type = OPERATION_GENERATE_MH_MOVING;
+      Operation_P->Case.Generate_MH_Moving.GroupIndex = i;
+      Operation_P->Case.Generate_MH_Moving.Period  = (yyvsp[(7) - (13)].d);
+      Operation_P->Case.Generate_MH_Moving.NbrStep = (int)(yyvsp[(9) - (13)].d);
+      Operation_P->Case.Generate_MH_Moving.Operation = (yyvsp[(12) - (13)].l);
+    ;}
+    break;
+
+  case 517:
 #line 5437 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
@@ -13450,44 +13451,8 @@ yyreduce:
 	vyyerror(0, "Unknown System: %s", (yyvsp[(3) - (13)].c));
       Free((yyvsp[(3) - (13)].c));
       Operation_P->DefineSystemIndex = i;
-      Group_S.Name = (yyvsp[(5) - (13)].c);
-      struct Group *Group_P = (struct Group*)List_PQuery(Problem_S.Group, &Group_S,
-                                                         fcmp_Group);
-      if(!Group_P){
+      if((i = List_ISearchSeq(Problem_S.Group, (yyvsp[(5) - (13)].c), fcmp_Group_Name)) < 0)
 	vyyerror(0, "Unknown Group: %s", (yyvsp[(5) - (13)].c));
-        Operation_P->Case.Generate_MH_Moving.GroupIndex = 0;
-      }
-      else{
-        Operation_P->Case.Generate_MH_Moving.GroupIndex = Group_P->Index;
-      }
-      Operation_P->Type = OPERATION_GENERATE_MH_MOVING;
-      Free((yyvsp[(5) - (13)].c));
-      Operation_P->Case.Generate_MH_Moving.Period  = (yyvsp[(7) - (13)].d);
-      Operation_P->Case.Generate_MH_Moving.NbrStep = (int)(yyvsp[(9) - (13)].d);
-      Operation_P->Case.Generate_MH_Moving.Operation = (yyvsp[(12) - (13)].l);
-    ;}
-    break;
-
-  case 517:
-#line 5464 "ProParser.y"
-    { Operation_P = (struct Operation*)
-	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
-      int i;
-      if((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[(3) - (13)].c),
-			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror(0, "Unknown System: %s", (yyvsp[(3) - (13)].c));
-      Free((yyvsp[(3) - (13)].c));
-      Operation_P->DefineSystemIndex = i;
-      Group_S.Name = (yyvsp[(5) - (13)].c);
-      struct Group *Group_P = (struct Group*)List_PQuery(Problem_S.Group, &Group_S,
-                                                         fcmp_Group);
-      if(!Group_P){
-	vyyerror(0, "Unknown Group: %s", (yyvsp[(5) - (13)].c));
-        Operation_P->Case.Generate_MH_Moving_S.GroupIndex = 0;
-      }
-      else{
-        Operation_P->Case.Generate_MH_Moving_S.GroupIndex = Group_P->Index;
-      }
       Free((yyvsp[(5) - (13)].c));
       Operation_P->Type = OPERATION_GENERATE_MH_MOVING_S;
       Operation_P->Case.Generate_MH_Moving_S.GroupIndex = i;
@@ -13498,7 +13463,7 @@ yyreduce:
     break;
 
   case 518:
-#line 5491 "ProParser.y"
+#line 5456 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       int i;
@@ -13512,7 +13477,7 @@ yyreduce:
     break;
 
   case 519:
-#line 5504 "ProParser.y"
+#line 5469 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       int i;
@@ -13526,13 +13491,13 @@ yyreduce:
       Operation_P->Case.DeformeMesh.GeoDataIndex = -1;
       Operation_P->Case.DeformeMesh.Factor = (yyvsp[(10) - (14)].d);
       Operation_P->Case.DeformeMesh.GroupIndex =
-        Index_Group(&Group_S, (char*)"OP_DeformMesh", (yyvsp[(12) - (14)].i));
+        Num_Group(&Group_S, (char*)"OP_DeformMesh", (yyvsp[(12) - (14)].i));
       Operation_P->Type = OPERATION_DEFORMEMESH;
     ;}
     break;
 
   case 520:
-#line 5523 "ProParser.y"
+#line 5488 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       int i;
@@ -13551,7 +13516,7 @@ yyreduce:
     break;
 
   case 521:
-#line 5540 "ProParser.y"
+#line 5505 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       int i;
@@ -13570,7 +13535,7 @@ yyreduce:
     break;
 
   case 522:
-#line 5557 "ProParser.y"
+#line 5522 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       int i;
@@ -13589,7 +13554,7 @@ yyreduce:
     break;
 
   case 523:
-#line 5574 "ProParser.y"
+#line 5539 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       int i;
@@ -13608,7 +13573,7 @@ yyreduce:
     break;
 
   case 524:
-#line 5591 "ProParser.y"
+#line 5556 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       int i;
@@ -13622,13 +13587,13 @@ yyreduce:
       Operation_P->Case.DeformeMesh.GeoDataIndex = -1;
       Operation_P->Case.DeformeMesh.Factor = (yyvsp[(7) - (11)].d);
       Operation_P->Case.DeformeMesh.GroupIndex =
-        Index_Group(&Group_S, (char*)"OP_DeformMesh", (yyvsp[(9) - (11)].i));
+        Num_Group(&Group_S, (char*)"OP_DeformMesh", (yyvsp[(9) - (11)].i));
       Operation_P->Type = OPERATION_DEFORMEMESH;
     ;}
     break;
 
   case 525:
-#line 5609 "ProParser.y"
+#line 5574 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       int i;
@@ -13639,12 +13604,12 @@ yyreduce:
       Operation_P->DefineSystemIndex = i;
       Operation_P->Type = (yyvsp[(1) - (7)].i);
       Operation_P->Case.Generate.GroupIndex =
-        Index_Group(&Group_S, (char*)"OP_GenerateGroup", (yyvsp[(5) - (7)].i));
+        Num_Group(&Group_S, (char*)"OP_GenerateGroup", (yyvsp[(5) - (7)].i));
     ;}
     break;
 
   case 526:
-#line 5623 "ProParser.y"
+#line 5588 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_SOLVEAGAINWITHOTHER;
@@ -13663,7 +13628,7 @@ yyreduce:
     break;
 
   case 527:
-#line 5640 "ProParser.y"
+#line 5605 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_SETGLOBALSOLVEROPTIONS;
@@ -13672,7 +13637,7 @@ yyreduce:
     break;
 
   case 528:
-#line 5647 "ProParser.y"
+#line 5612 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = (yyvsp[(1) - (7)].i);
@@ -13689,7 +13654,7 @@ yyreduce:
     break;
 
   case 529:
-#line 5662 "ProParser.y"
+#line 5627 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = (yyvsp[(1) - (9)].i);
@@ -13706,7 +13671,7 @@ yyreduce:
     break;
 
   case 530:
-#line 5677 "ProParser.y"
+#line 5642 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = (yyvsp[(1) - (7)].i);
@@ -13723,7 +13688,7 @@ yyreduce:
     break;
 
   case 531:
-#line 5692 "ProParser.y"
+#line 5657 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = (yyvsp[(1) - (9)].i);
@@ -13740,7 +13705,7 @@ yyreduce:
     break;
 
   case 532:
-#line 5707 "ProParser.y"
+#line 5672 "ProParser.y"
     {
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
@@ -13749,7 +13714,7 @@ yyreduce:
     break;
 
   case 533:
-#line 5716 "ProParser.y"
+#line 5681 "ProParser.y"
     {
       Operation_P->Case.Print.Expressions = List_Copy(ListOfInt_L);
       Operation_P->Case.Print.FormatString = NULL;
@@ -13757,7 +13722,7 @@ yyreduce:
     break;
 
   case 534:
-#line 5722 "ProParser.y"
+#line 5687 "ProParser.y"
     {
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[(1) - (1)].c),
@@ -13770,7 +13735,7 @@ yyreduce:
     break;
 
   case 535:
-#line 5733 "ProParser.y"
+#line 5698 "ProParser.y"
     {
       Operation_P->Case.Print.Expressions = List_Create(1,1,sizeof(int));
       Operation_P->Case.Print.FormatString = (yyvsp[(1) - (1)].c);
@@ -13778,7 +13743,7 @@ yyreduce:
     break;
 
   case 536:
-#line 5741 "ProParser.y"
+#line 5706 "ProParser.y"
     {
       Operation_P->Case.Print.FileOut = NULL;
       Operation_P->Case.Print.TimeStep = NULL;
@@ -13787,12 +13752,12 @@ yyreduce:
     break;
 
   case 538:
-#line 5751 "ProParser.y"
+#line 5716 "ProParser.y"
     { Operation_P->Case.Print.FileOut = (yyvsp[(3) - (3)].c); ;}
     break;
 
   case 539:
-#line 5754 "ProParser.y"
+#line 5719 "ProParser.y"
     { Operation_P->Case.Print.TimeStep =
 	List_Create(List_Nbr((yyvsp[(3) - (3)].l)), 1, sizeof(int));
       for(int i = 0; i < List_Nbr((yyvsp[(3) - (3)].l)); i++){
@@ -13806,14 +13771,14 @@ yyreduce:
     break;
 
   case 540:
-#line 5766 "ProParser.y"
+#line 5731 "ProParser.y"
     {
       Operation_P->Case.Print.FormatString = (yyvsp[(3) - (3)].c);
     ;}
     break;
 
   case 541:
-#line 5771 "ProParser.y"
+#line 5736 "ProParser.y"
     { Operation_P->Case.Print.DofNumber =
 	List_Create(List_Nbr((yyvsp[(2) - (2)].l)), 1, sizeof(int));
       for(int i = 0; i < List_Nbr((yyvsp[(2) - (2)].l)); i++) {
@@ -13827,7 +13792,7 @@ yyreduce:
     break;
 
   case 542:
-#line 5786 "ProParser.y"
+#line 5751 "ProParser.y"
     {
       Operation_P->Case.TimeLoopAdaptive.LTEtarget = -1.;
       Operation_P->Case.TimeLoopAdaptive.DTimeMaxScal = -1.;
@@ -13836,7 +13801,7 @@ yyreduce:
     break;
 
   case 543:
-#line 5793 "ProParser.y"
+#line 5758 "ProParser.y"
     {
       Operation_P->Case.TimeLoopAdaptive.LTEtarget = (yyvsp[(2) - (2)].d);
       Operation_P->Case.TimeLoopAdaptive.DTimeMaxScal = -1.;
@@ -13845,7 +13810,7 @@ yyreduce:
     break;
 
   case 544:
-#line 5800 "ProParser.y"
+#line 5765 "ProParser.y"
     {
       Operation_P->Case.TimeLoopAdaptive.LTEtarget = (yyvsp[(2) - (4)].d);
       Operation_P->Case.TimeLoopAdaptive.DTimeMaxScal = (yyvsp[(4) - (4)].d);
@@ -13854,7 +13819,7 @@ yyreduce:
     break;
 
   case 545:
-#line 5807 "ProParser.y"
+#line 5772 "ProParser.y"
     {
       Operation_P->Case.TimeLoopAdaptive.LTEtarget = (yyvsp[(2) - (6)].d);
       Operation_P->Case.TimeLoopAdaptive.DTimeMaxScal = (yyvsp[(4) - (6)].d);
@@ -13863,7 +13828,7 @@ yyreduce:
     break;
 
   case 546:
-#line 5817 "ProParser.y"
+#line 5782 "ProParser.y"
     {
       Operation_P = (struct Operation*)
         List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
@@ -13873,28 +13838,28 @@ yyreduce:
     break;
 
   case 547:
-#line 5825 "ProParser.y"
+#line 5790 "ProParser.y"
     {
       Operation_P->Case.TimeLoopAdaptive.TimeLoopAdaptiveSystems_L = (yyvsp[(4) - (5)].l);
     ;}
     break;
 
   case 548:
-#line 5830 "ProParser.y"
+#line 5795 "ProParser.y"
     {
       Operation_P->Case.TimeLoopAdaptive.TimeLoopAdaptivePOs_L = (yyvsp[(4) - (5)].l);
     ;}
     break;
 
   case 549:
-#line 5839 "ProParser.y"
+#line 5804 "ProParser.y"
     {
       (yyval.l) = List_Create(4, 4, sizeof(struct TimeLoopAdaptiveSystem));
     ;}
     break;
 
   case 550:
-#line 5844 "ProParser.y"
+#line 5809 "ProParser.y"
     {
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[(3) - (10)].c), fcmp_DefineSystem_Name)) < 0)
@@ -13914,14 +13879,14 @@ yyreduce:
     break;
 
   case 551:
-#line 5864 "ProParser.y"
+#line 5829 "ProParser.y"
     {
       (yyval.l) = List_Create(4, 4, sizeof(struct LoopErrorPostOperation));
     ;}
     break;
 
   case 552:
-#line 5869 "ProParser.y"
+#line 5834 "ProParser.y"
     {
       TimeLoopAdaptivePO_S.PostOperationName = (yyvsp[(3) - (10)].c);
       TimeLoopAdaptivePO_S.PostOperationReltol = (yyvsp[(5) - (10)].d);
@@ -13937,7 +13902,7 @@ yyreduce:
     break;
 
   case 553:
-#line 5885 "ProParser.y"
+#line 5850 "ProParser.y"
     {
       Operation_P = (struct Operation*)
         List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
@@ -13947,28 +13912,28 @@ yyreduce:
     break;
 
   case 554:
-#line 5893 "ProParser.y"
+#line 5858 "ProParser.y"
     {
       Operation_P->Case.IterativeLoop.IterativeLoopSystems_L = (yyvsp[(4) - (5)].l);
     ;}
     break;
 
   case 555:
-#line 5898 "ProParser.y"
+#line 5863 "ProParser.y"
     {
       Operation_P->Case.IterativeLoop.IterativeLoopPOs_L = (yyvsp[(4) - (5)].l);
     ;}
     break;
 
   case 556:
-#line 5907 "ProParser.y"
+#line 5872 "ProParser.y"
     {
       (yyval.l) = List_Create(4, 4, sizeof(struct IterativeLoopSystem));
     ;}
     break;
 
   case 557:
-#line 5912 "ProParser.y"
+#line 5877 "ProParser.y"
     {
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[(3) - (11)].c), fcmp_DefineSystem_Name)) < 0)
@@ -13994,14 +13959,14 @@ yyreduce:
     break;
 
   case 558:
-#line 5939 "ProParser.y"
+#line 5904 "ProParser.y"
     {
       (yyval.l) = List_Create(4, 4, sizeof(struct LoopErrorPostOperation));
     ;}
     break;
 
   case 559:
-#line 5944 "ProParser.y"
+#line 5909 "ProParser.y"
     {
       IterativeLoopPO_S.PostOperationName = (yyvsp[(3) - (10)].c);
       IterativeLoopPO_S.PostOperationReltol = (yyvsp[(5) - (10)].d);
@@ -14017,7 +13982,7 @@ yyreduce:
     break;
 
   case 560:
-#line 5964 "ProParser.y"
+#line 5929 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Case.TimeLoopTheta.Time0   = 0.;
@@ -14029,35 +13994,35 @@ yyreduce:
     break;
 
   case 562:
-#line 5980 "ProParser.y"
+#line 5945 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Case.TimeLoopTheta.Time0   = (yyvsp[(2) - (3)].d); ;}
     break;
 
   case 563:
-#line 5984 "ProParser.y"
+#line 5949 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Case.TimeLoopTheta.TimeMax = (yyvsp[(2) - (3)].d); ;}
     break;
 
   case 564:
-#line 5988 "ProParser.y"
+#line 5953 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Case.TimeLoopTheta.DTimeIndex = (yyvsp[(2) - (3)].i); ;}
     break;
 
   case 565:
-#line 5992 "ProParser.y"
+#line 5957 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Case.TimeLoopTheta.ThetaIndex = (yyvsp[(2) - (3)].i); ;}
     break;
 
   case 566:
-#line 5997 "ProParser.y"
+#line 5962 "ProParser.y"
     { List_Pop(Operation_L);
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
@@ -14066,7 +14031,7 @@ yyreduce:
     break;
 
   case 567:
-#line 6008 "ProParser.y"
+#line 5973 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Case.TimeLoopNewmark.Time0   = 0.;
@@ -14079,42 +14044,42 @@ yyreduce:
     break;
 
   case 569:
-#line 6025 "ProParser.y"
+#line 5990 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Case.TimeLoopNewmark.Time0   = (yyvsp[(2) - (3)].d); ;}
     break;
 
   case 570:
-#line 6029 "ProParser.y"
+#line 5994 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Case.TimeLoopNewmark.TimeMax = (yyvsp[(2) - (3)].d); ;}
     break;
 
   case 571:
-#line 6033 "ProParser.y"
+#line 5998 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Case.TimeLoopNewmark.DTimeIndex = (yyvsp[(2) - (3)].i); ;}
     break;
 
   case 572:
-#line 6037 "ProParser.y"
+#line 6002 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Case.TimeLoopNewmark.Beta   = (yyvsp[(2) - (3)].d); ;}
     break;
 
   case 573:
-#line 6041 "ProParser.y"
+#line 6006 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Case.TimeLoopNewmark.Gamma   = (yyvsp[(2) - (3)].d); ;}
     break;
 
   case 574:
-#line 6046 "ProParser.y"
+#line 6011 "ProParser.y"
     { List_Pop(Operation_L);
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
@@ -14123,7 +14088,7 @@ yyreduce:
     break;
 
   case 575:
-#line 6057 "ProParser.y"
+#line 6022 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Case.IterativeLoop.NbrMaxIteration  = 20;
@@ -14135,35 +14100,35 @@ yyreduce:
     break;
 
   case 577:
-#line 6072 "ProParser.y"
+#line 6037 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Case.IterativeLoop.NbrMaxIteration = (int)(yyvsp[(2) - (3)].d); ;}
     break;
 
   case 578:
-#line 6076 "ProParser.y"
+#line 6041 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Case.IterativeLoop.Criterion = (yyvsp[(2) - (3)].d); ;}
     break;
 
   case 579:
-#line 6080 "ProParser.y"
+#line 6045 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Case.IterativeLoop.RelaxationFactorIndex = (yyvsp[(2) - (3)].i); ;}
     break;
 
   case 580:
-#line 6084 "ProParser.y"
+#line 6049 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Case.IterativeLoop.Flag = (int)(yyvsp[(2) - (3)].d); ;}
     break;
 
   case 581:
-#line 6088 "ProParser.y"
+#line 6053 "ProParser.y"
     { List_Pop(Operation_L);
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
@@ -14172,7 +14137,7 @@ yyreduce:
     break;
 
   case 582:
-#line 6099 "ProParser.y"
+#line 6064 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Case.IterativeTimeReduction.NbrMaxIteration     = 20;
@@ -14187,35 +14152,35 @@ yyreduce:
     break;
 
   case 584:
-#line 6117 "ProParser.y"
+#line 6082 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Case.IterativeTimeReduction.NbrMaxIteration = (int)(yyvsp[(2) - (3)].d); ;}
     break;
 
   case 585:
-#line 6121 "ProParser.y"
+#line 6086 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Case.IterativeTimeReduction.DivisionCoefficient = (yyvsp[(2) - (3)].d); ;}
     break;
 
   case 586:
-#line 6125 "ProParser.y"
+#line 6090 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Case.IterativeTimeReduction.Criterion = (yyvsp[(2) - (3)].d); ;}
     break;
 
   case 587:
-#line 6129 "ProParser.y"
+#line 6094 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Case.IterativeTimeReduction.Flag = (int)(yyvsp[(2) - (3)].d); ;}
     break;
 
   case 588:
-#line 6134 "ProParser.y"
+#line 6099 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       int i;
@@ -14228,7 +14193,7 @@ yyreduce:
     break;
 
   case 589:
-#line 6145 "ProParser.y"
+#line 6110 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Case.IterativeTimeReduction.ChangeOfState = (yyvsp[(3) - (4)].l);
@@ -14236,7 +14201,7 @@ yyreduce:
     break;
 
   case 590:
-#line 6151 "ProParser.y"
+#line 6116 "ProParser.y"
     { List_Pop(Operation_L);
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
@@ -14245,7 +14210,7 @@ yyreduce:
     break;
 
   case 591:
-#line 6157 "ProParser.y"
+#line 6122 "ProParser.y"
     { List_Pop(Operation_L);
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
@@ -14254,17 +14219,17 @@ yyreduce:
     break;
 
   case 592:
-#line 6167 "ProParser.y"
+#line 6132 "ProParser.y"
     { (yyval.l) = List_Create(3, 3, sizeof (struct ChangeOfState)); ;}
     break;
 
   case 593:
-#line 6170 "ProParser.y"
+#line 6135 "ProParser.y"
     { List_Add((yyval.l) = (yyvsp[(1) - (4)].l), &ChangeOfState_S); ;}
     break;
 
   case 594:
-#line 6175 "ProParser.y"
+#line 6140 "ProParser.y"
     {
       ChangeOfState_S.Type = CHANGEOFSTATE_CHANGESIGN;
       ChangeOfState_S.QuantityIndex       = -1;
@@ -14279,7 +14244,7 @@ yyreduce:
     break;
 
   case 596:
-#line 6193 "ProParser.y"
+#line 6158 "ProParser.y"
     { ChangeOfState_S.Type =
 	Get_DefineForString(ChangeOfState_Type, (yyvsp[(2) - (3)].c), &FlagError);
       if(FlagError){
@@ -14291,7 +14256,7 @@ yyreduce:
     break;
 
   case 597:
-#line 6203 "ProParser.y"
+#line 6168 "ProParser.y"
     {
       if(Current_System >= 0) {
 	List_T *ListOfInt_Lnew =
@@ -14321,17 +14286,17 @@ yyreduce:
     break;
 
   case 598:
-#line 6231 "ProParser.y"
-    { ChangeOfState_S.InIndex = Index_Group(&Group_S, (char*)"OP_In", (yyvsp[(2) - (3)].i)); ;}
+#line 6196 "ProParser.y"
+    { ChangeOfState_S.InIndex = Num_Group(&Group_S, (char*)"OP_In", (yyvsp[(2) - (3)].i)); ;}
     break;
 
   case 599:
-#line 6234 "ProParser.y"
+#line 6199 "ProParser.y"
     { ChangeOfState_S.Criterion = (yyvsp[(2) - (3)].d); ;}
     break;
 
   case 600:
-#line 6237 "ProParser.y"
+#line 6202 "ProParser.y"
     {
       if(ChangeOfState_S.ExpressionIndex < 0)
 	ChangeOfState_S.ExpressionIndex = (yyvsp[(2) - (3)].i);
@@ -14341,7 +14306,7 @@ yyreduce:
     break;
 
   case 601:
-#line 6245 "ProParser.y"
+#line 6210 "ProParser.y"
     {
       int i;
       if((i = List_ISearchSeq(Problem_S.Expression, (yyvsp[(2) - (3)].c), fcmp_Expression_Name)) < 0)
@@ -14352,7 +14317,7 @@ yyreduce:
     break;
 
   case 602:
-#line 6263 "ProParser.y"
+#line 6228 "ProParser.y"
     {
       if(!Problem_S.PostProcessing)
 	Problem_S.PostProcessing =
@@ -14361,7 +14326,7 @@ yyreduce:
     break;
 
   case 604:
-#line 6275 "ProParser.y"
+#line 6240 "ProParser.y"
     {
       if (level_Append && index_Append>=0)
         List_Write(Problem_S.PostProcessing, index_Append, &PostProcessing_S);
@@ -14371,7 +14336,7 @@ yyreduce:
     break;
 
   case 606:
-#line 6287 "ProParser.y"
+#line 6252 "ProParser.y"
     {
       PostProcessing_S.Name = NULL;
       PostProcessing_S.FormulationIndex = -1;
@@ -14383,16 +14348,16 @@ yyreduce:
     break;
 
   case 609:
-#line 6303 "ProParser.y"
+#line 6268 "ProParser.y"
     { level_Append = (yyvsp[(1) - (2)].i); index_Append = -1; ;}
     break;
 
   case 610:
-#line 6306 "ProParser.y"
+#line 6271 "ProParser.y"
     {
       index_Append =
-        Check_NameOfStructExistSeq("PostProcessing", Problem_S.PostProcessing,
-                                   (yyvsp[(2) - (3)].c), fcmp_PostProcessing_Name, level_Append);
+        Check_NameOfStructExist("PostProcessing", Problem_S.PostProcessing,
+                                (yyvsp[(2) - (3)].c), fcmp_PostProcessing_Name, level_Append);
       if (index_Append<0)
         PostProcessing_S.Name = (yyvsp[(2) - (3)].c);
       else{
@@ -14403,7 +14368,7 @@ yyreduce:
     break;
 
   case 611:
-#line 6319 "ProParser.y"
+#line 6284 "ProParser.y"
     {
       int i;
       if((i = List_ISearchSeq(Problem_S.Formulation, (yyvsp[(2) - (3)].c),
@@ -14419,14 +14384,14 @@ yyreduce:
     break;
 
   case 612:
-#line 6333 "ProParser.y"
+#line 6298 "ProParser.y"
     {
       PostProcessing_S.NameOfSystem = (yyvsp[(2) - (3)].c);
     ;}
     break;
 
   case 614:
-#line 6343 "ProParser.y"
+#line 6308 "ProParser.y"
     {
       if (!PostProcessing_S.PostQuantity)
         PostProcessing_S.PostQuantity =
@@ -14435,7 +14400,7 @@ yyreduce:
     break;
 
   case 615:
-#line 6350 "ProParser.y"
+#line 6315 "ProParser.y"
     {
       if (level_Append_2 && index_Append_2>=0)
         List_Write(PostProcessing_S.PostQuantity, index_Append_2, &PostQuantity_S);
@@ -14445,7 +14410,7 @@ yyreduce:
     break;
 
   case 617:
-#line 6362 "ProParser.y"
+#line 6327 "ProParser.y"
     {
       PostQuantity_S.Name = NULL;
       PostQuantity_S.PostQuantityTerm = NULL;
@@ -14455,18 +14420,18 @@ yyreduce:
     break;
 
   case 619:
-#line 6375 "ProParser.y"
+#line 6340 "ProParser.y"
     {
       level_Append_2 = (yyvsp[(1) - (2)].i); index_Append_2 = -1;
     ;}
     break;
 
   case 620:
-#line 6380 "ProParser.y"
+#line 6345 "ProParser.y"
     {
       index_Append_2 =
-        Check_NameOfStructExistSeq("PostQuantity", PostProcessing_S.PostQuantity,
-                                   (yyvsp[(2) - (3)].c), fcmp_PostQuantity_Name, level_Append_2);
+        Check_NameOfStructExist("PostQuantity", PostProcessing_S.PostQuantity,
+                                (yyvsp[(2) - (3)].c), fcmp_PostQuantity_Name, level_Append_2);
       if (index_Append_2<0)
         PostQuantity_S.Name = (yyvsp[(2) - (3)].c);
       else{
@@ -14477,12 +14442,12 @@ yyreduce:
     break;
 
   case 621:
-#line 6393 "ProParser.y"
+#line 6358 "ProParser.y"
     { PostQuantity_S.PostQuantityTerm = (yyvsp[(3) - (4)].l); ;}
     break;
 
   case 622:
-#line 6399 "ProParser.y"
+#line 6364 "ProParser.y"
     {
       (yyval.l) = PostQuantity_S.PostQuantityTerm?
         PostQuantity_S.PostQuantityTerm :
@@ -14496,7 +14461,7 @@ yyreduce:
     break;
 
   case 623:
-#line 6412 "ProParser.y"
+#line 6377 "ProParser.y"
     {
       PostQuantityTerm_S.EvaluationType = INTEGRAL;
       List_Add((yyval.l) = (yyvsp[(1) - (5)].l), &PostQuantityTerm_S);
@@ -14504,7 +14469,7 @@ yyreduce:
     break;
 
   case 624:
-#line 6418 "ProParser.y"
+#line 6383 "ProParser.y"
     {
       PostQuantityTerm_S.EvaluationType =
 	Get_DefineForString(PostQuantityTerm_EvaluationType, (yyvsp[(2) - (5)].c), &FlagError);
@@ -14518,12 +14483,12 @@ yyreduce:
     break;
 
   case 625:
-#line 6430 "ProParser.y"
+#line 6395 "ProParser.y"
     { (yyval.l) = (yyvsp[(1) - (2)].l) ; ;}
     break;
 
   case 626:
-#line 6435 "ProParser.y"
+#line 6400 "ProParser.y"
     {
       PostQuantityTerm_S.Type = 0;
       PostQuantityTerm_S.TypeTimeDerivative = NODT_;
@@ -14535,7 +14500,7 @@ yyreduce:
     break;
 
   case 628:
-#line 6449 "ProParser.y"
+#line 6414 "ProParser.y"
     {
       PostQuantityTerm_S.TypeTimeDerivative = Type_TermOperator;
       Current_DofIndexInWholeQuantity = -2;
@@ -14544,7 +14509,7 @@ yyreduce:
     break;
 
   case 629:
-#line 6456 "ProParser.y"
+#line 6421 "ProParser.y"
     { PostQuantityTerm_S.WholeQuantity = (yyvsp[(4) - (6)].l);
 
       Pro_DefineQuantityIndex
@@ -14575,7 +14540,7 @@ yyreduce:
     break;
 
   case 630:
-#line 6485 "ProParser.y"
+#line 6450 "ProParser.y"
     { /* force the Type */
      PostQuantityTerm_S.Type =
        Get_DefineForString(DefineQuantity_Type, (yyvsp[(2) - (3)].c), &FlagError);
@@ -14588,14 +14553,14 @@ yyreduce:
     break;
 
   case 631:
-#line 6496 "ProParser.y"
+#line 6461 "ProParser.y"
     {
-     PostQuantityTerm_S.InIndex = Index_Group(&Group_S, (char*)"PQ_In", (yyvsp[(2) - (3)].i));
+     PostQuantityTerm_S.InIndex = Num_Group(&Group_S, (char*)"PQ_In", (yyvsp[(2) - (3)].i));
    ;}
     break;
 
   case 632:
-#line 6501 "ProParser.y"
+#line 6466 "ProParser.y"
     {
       int i;
       if((i = List_ISearchSeq(Problem_S.JacobianMethod, (yyvsp[(2) - (3)].c),
@@ -14608,7 +14573,7 @@ yyreduce:
     break;
 
   case 633:
-#line 6512 "ProParser.y"
+#line 6477 "ProParser.y"
     {
       int i;
       if((i = List_ISearchSeq(Problem_S.IntegrationMethod, (yyvsp[(2) - (3)].c),
@@ -14621,7 +14586,7 @@ yyreduce:
     break;
 
   case 634:
-#line 6531 "ProParser.y"
+#line 6496 "ProParser.y"
     {
       if(!Problem_S.PostOperation)
 	Problem_S.PostOperation =
@@ -14630,7 +14595,7 @@ yyreduce:
     break;
 
   case 636:
-#line 6543 "ProParser.y"
+#line 6508 "ProParser.y"
     {
       if (level_Append && index_Append>=0)
         List_Write(Problem_S.PostOperation, index_Append, &PostOperation_S);
@@ -14640,7 +14605,7 @@ yyreduce:
     break;
 
   case 638:
-#line 6555 "ProParser.y"
+#line 6520 "ProParser.y"
     {
       PostOperation_S.Name = NULL;
       PostOperation_S.Hidden = false;
@@ -14659,16 +14624,16 @@ yyreduce:
     break;
 
   case 640:
-#line 6576 "ProParser.y"
+#line 6541 "ProParser.y"
     { level_Append = (yyvsp[(1) - (2)].i); index_Append = -1; ;}
     break;
 
   case 641:
-#line 6579 "ProParser.y"
+#line 6544 "ProParser.y"
     {
       index_Append =
-        Check_NameOfStructExistSeq("PostOperation", Problem_S.PostOperation,
-                                   (yyvsp[(2) - (3)].c), fcmp_PostOperation_Name, level_Append);
+        Check_NameOfStructExist("PostOperation", Problem_S.PostOperation,
+                                (yyvsp[(2) - (3)].c), fcmp_PostOperation_Name, level_Append);
       if (index_Append<0)
         PostOperation_S.Name = (yyvsp[(2) - (3)].c);
       else{
@@ -14679,12 +14644,12 @@ yyreduce:
     break;
 
   case 642:
-#line 6591 "ProParser.y"
+#line 6556 "ProParser.y"
     { PostOperation_S.Hidden = (yyvsp[(2) - (3)].d) ? true : false; ;}
     break;
 
   case 643:
-#line 6594 "ProParser.y"
+#line 6559 "ProParser.y"
     {
       int i;
       if((i = List_ISearchSeq(Problem_S.PostProcessing, (yyvsp[(2) - (3)].c),
@@ -14699,7 +14664,7 @@ yyreduce:
     break;
 
   case 644:
-#line 6607 "ProParser.y"
+#line 6572 "ProParser.y"
     {
       PostOperation_S.Format =
 	Get_DefineForString(PostSubOperation_Format, (yyvsp[(2) - (3)].c), &FlagError);
@@ -14712,56 +14677,56 @@ yyreduce:
     break;
 
   case 645:
-#line 6618 "ProParser.y"
+#line 6583 "ProParser.y"
     {
       PostOperation_S.TimeValue_L = (yyvsp[(2) - (3)].l);
     ;}
     break;
 
   case 646:
-#line 6623 "ProParser.y"
+#line 6588 "ProParser.y"
     {
       PostOperation_S.TimeImagValue_L = (yyvsp[(2) - (3)].l);
     ;}
     break;
 
   case 647:
-#line 6628 "ProParser.y"
+#line 6593 "ProParser.y"
     {
       PostOperation_S.LastTimeStepOnly = 1;
     ;}
     break;
 
   case 648:
-#line 6633 "ProParser.y"
+#line 6598 "ProParser.y"
     {
       PostOperation_S.LastTimeStepOnly = (int)(yyvsp[(2) - (3)].d);
     ;}
     break;
 
   case 649:
-#line 6638 "ProParser.y"
+#line 6603 "ProParser.y"
     {
       PostOperation_S.CatFile = (yyvsp[(2) - (3)].d);
     ;}
     break;
 
   case 650:
-#line 6643 "ProParser.y"
+#line 6608 "ProParser.y"
     {
       PostOperation_S.NoMesh = (yyvsp[(2) - (3)].d);
     ;}
     break;
 
   case 651:
-#line 6648 "ProParser.y"
+#line 6613 "ProParser.y"
     {
       PostOperation_S.OverrideTimeStepValue = (yyvsp[(2) - (3)].d);
     ;}
     break;
 
   case 652:
-#line 6653 "ProParser.y"
+#line 6618 "ProParser.y"
     {
       PostOperation_S.ResampleTime = true;
       PostOperation_S.ResampleTimeStart = (yyvsp[(3) - (9)].d);
@@ -14771,14 +14736,14 @@ yyreduce:
     break;
 
   case 653:
-#line 6661 "ProParser.y"
+#line 6626 "ProParser.y"
     {
       PostOperation_S.PostSubOperation = (yyvsp[(3) - (4)].l);
     ;}
     break;
 
   case 655:
-#line 6671 "ProParser.y"
+#line 6636 "ProParser.y"
     {
       PostOperation_S.Hidden = false;
       PostOperation_S.Format = FORMAT_GMSH;
@@ -14803,8 +14768,8 @@ yyreduce:
 	  Problem_S.PostOperation = List_Create(5, 5, sizeof (struct PostOperation));
 
         index_Append =
-          Check_NameOfStructExistSeq("PostOperation", Problem_S.PostOperation,
-                                     (yyvsp[(3) - (5)].c), fcmp_PostOperation_Name, level_Append);
+          Check_NameOfStructExist("PostOperation", Problem_S.PostOperation,
+                                  (yyvsp[(3) - (5)].c), fcmp_PostOperation_Name, level_Append);
         if (index_Append<0)
           PostOperation_S.Name = (yyvsp[(3) - (5)].c);
         else{
@@ -14817,7 +14782,7 @@ yyreduce:
     break;
 
   case 656:
-#line 6707 "ProParser.y"
+#line 6672 "ProParser.y"
     {
       if(!PostOperation_S.PostSubOperation) PostOperation_S.PostSubOperation = (yyvsp[(8) - (9)].l);
       if(PostOperation_S.PostProcessingIndex >= 0){
@@ -14830,7 +14795,7 @@ yyreduce:
     break;
 
   case 657:
-#line 6721 "ProParser.y"
+#line 6686 "ProParser.y"
     {
       (yyval.l) =
         PostOperation_S.PostSubOperation?
@@ -14840,7 +14805,7 @@ yyreduce:
     break;
 
   case 658:
-#line 6729 "ProParser.y"
+#line 6694 "ProParser.y"
     {
       PostSubOperation_S.Format = -1;
       PostSubOperation_S.FileOut = NULL;
@@ -14911,7 +14876,7 @@ yyreduce:
     break;
 
   case 659:
-#line 6797 "ProParser.y"
+#line 6762 "ProParser.y"
     {
       if(PostSubOperation_S.Type != POP_NONE) {
 	if(PostSubOperation_S.Format < 0)
@@ -14935,7 +14900,7 @@ yyreduce:
     break;
 
   case 660:
-#line 6823 "ProParser.y"
+#line 6788 "ProParser.y"
     {
       vyyerror(0, "Plot has been superseded by Print "
                "(Plot OnRegion becomes Print OnElementsOf)");
@@ -14943,14 +14908,14 @@ yyreduce:
     break;
 
   case 661:
-#line 6829 "ProParser.y"
+#line 6794 "ProParser.y"
     {
       PostSubOperation_S.Type = POP_PRINT;
     ;}
     break;
 
   case 662:
-#line 6834 "ProParser.y"
+#line 6799 "ProParser.y"
     {
       PostSubOperation_S.Type = POP_EXPRESSION;
       PostSubOperation_S.Case.Expression.String = (yyvsp[(3) - (8)].c);
@@ -14961,7 +14926,7 @@ yyreduce:
     break;
 
   case 663:
-#line 6843 "ProParser.y"
+#line 6808 "ProParser.y"
     {
       PostSubOperation_S.Type = POP_EXPRESSION;
       PostSubOperation_S.Case.Expression.String = (yyvsp[(3) - (11)].c);
@@ -14972,7 +14937,7 @@ yyreduce:
     break;
 
   case 664:
-#line 6852 "ProParser.y"
+#line 6817 "ProParser.y"
     {
       PostSubOperation_S.Type = POP_EXPRESSION;
       PostSubOperation_S.Case.Expression.String = (yyvsp[(3) - (6)].c);
@@ -14983,25 +14948,25 @@ yyreduce:
     break;
 
   case 665:
-#line 6861 "ProParser.y"
+#line 6826 "ProParser.y"
     {
       PostSubOperation_S.Type = POP_GROUP;
       PostSubOperation_S.Case.Group.ExtendedGroupIndex =
-        Index_Group(&Group_S, (char*)"PO_Group", (yyvsp[(3) - (3)].i));
+        Num_Group(&Group_S, (char*)"PO_Group", (yyvsp[(3) - (3)].i));
       PostSubOperation_S.PostQuantityIndex[0] = -1;
     ;}
     break;
 
   case 666:
-#line 6868 "ProParser.y"
+#line 6833 "ProParser.y"
     {
       PostSubOperation_S.Case.Group.GroupIndex =
-        Index_Group(&Group_S, (char*)"PO_Group", (yyvsp[(7) - (10)].i));
+        Num_Group(&Group_S, (char*)"PO_Group", (yyvsp[(7) - (10)].i));
     ;}
     break;
 
   case 667:
-#line 6874 "ProParser.y"
+#line 6839 "ProParser.y"
     {
       PostSubOperation_S.Type = POP_MERGE;
       PostSubOperation_S.FileOut = (yyvsp[(3) - (5)].c);
@@ -15009,14 +14974,14 @@ yyreduce:
     break;
 
   case 668:
-#line 6880 "ProParser.y"
+#line 6845 "ProParser.y"
     {
       PostSubOperation_S.Type = POP_NONE;
     ;}
     break;
 
   case 669:
-#line 6889 "ProParser.y"
+#line 6854 "ProParser.y"
     {
       int i;
       if((i = List_ISearchSeq(InteractivePostProcessing_S.PostQuantity, (yyvsp[(1) - (3)].c),
@@ -15031,7 +14996,7 @@ yyreduce:
     break;
 
   case 670:
-#line 6902 "ProParser.y"
+#line 6867 "ProParser.y"
     {
       vyyerror(1, "Combined post-quantities are deprecated: use registers instead");
       int i;
@@ -15056,37 +15021,37 @@ yyreduce:
     break;
 
   case 671:
-#line 6927 "ProParser.y"
+#line 6892 "ProParser.y"
     { PostSubOperation_S.CombinationType = MULTIPLICATION; ;}
     break;
 
   case 672:
-#line 6928 "ProParser.y"
+#line 6893 "ProParser.y"
     { PostSubOperation_S.CombinationType = DIVISION; ;}
     break;
 
   case 673:
-#line 6929 "ProParser.y"
+#line 6894 "ProParser.y"
     { PostSubOperation_S.CombinationType = ADDITION; ;}
     break;
 
   case 674:
-#line 6930 "ProParser.y"
+#line 6895 "ProParser.y"
     { PostSubOperation_S.CombinationType = SOUSTRACTION; ;}
     break;
 
   case 675:
-#line 6936 "ProParser.y"
+#line 6901 "ProParser.y"
     { (yyval.i) = -1; ;}
     break;
 
   case 676:
-#line 6938 "ProParser.y"
-    { (yyval.i) = Index_Group(&Group_S, (char*)"PO_Support", (yyvsp[(2) - (3)].i)); ;}
+#line 6903 "ProParser.y"
+    { (yyval.i) = Num_Group(&Group_S, (char*)"PO_Support", (yyvsp[(2) - (3)].i)); ;}
     break;
 
   case 677:
-#line 6944 "ProParser.y"
+#line 6909 "ProParser.y"
     {
       PostSubOperation_S.SubType = PRINT_ONREGION;
       PostSubOperation_S.Case.OnRegion.RegionIndex = -1;
@@ -15094,25 +15059,25 @@ yyreduce:
     break;
 
   case 678:
-#line 6950 "ProParser.y"
+#line 6915 "ProParser.y"
     {
       PostSubOperation_S.SubType = PRINT_ONREGION;
       PostSubOperation_S.Case.OnRegion.RegionIndex =
-	Index_Group(&Group_S, (char*)"PO_OnRegion", (yyvsp[(2) - (2)].i));
+	Num_Group(&Group_S, (char*)"PO_OnRegion", (yyvsp[(2) - (2)].i));
     ;}
     break;
 
   case 679:
-#line 6957 "ProParser.y"
+#line 6922 "ProParser.y"
     {
       PostSubOperation_S.SubType = PRINT_ONELEMENTSOF;
       PostSubOperation_S.Case.OnRegion.RegionIndex =
-	Index_Group(&Group_S, (char*)"PO_OnElementsOf", (yyvsp[(2) - (2)].i));
+	Num_Group(&Group_S, (char*)"PO_OnElementsOf", (yyvsp[(2) - (2)].i));
     ;}
     break;
 
   case 680:
-#line 6966 "ProParser.y"
+#line 6931 "ProParser.y"
     {
       PostSubOperation_S.SubType = PRINT_ONSECTION_2D;
       if(List_Nbr((yyvsp[(4) - (12)].l)) != 3 || List_Nbr((yyvsp[(7) - (12)].l)) != 3 || List_Nbr((yyvsp[(10) - (12)].l)) != 3)
@@ -15136,16 +15101,16 @@ yyreduce:
     break;
 
   case 681:
-#line 6988 "ProParser.y"
+#line 6953 "ProParser.y"
     {
       PostSubOperation_S.SubType = PRINT_ONGRID;
       PostSubOperation_S.Case.OnRegion.RegionIndex =
-	Index_Group(&Group_S, (char*)"PO_OnGrid", (yyvsp[(2) - (2)].i));
+	Num_Group(&Group_S, (char*)"PO_OnGrid", (yyvsp[(2) - (2)].i));
     ;}
     break;
 
   case 682:
-#line 6996 "ProParser.y"
+#line 6961 "ProParser.y"
     {
       PostSubOperation_S.SubType = PRINT_ONGRID_PARAM;
       PostSubOperation_S.Case.OnParamGrid.ExpressionIndex[0] = (yyvsp[(3) - (15)].i);
@@ -15158,7 +15123,7 @@ yyreduce:
     break;
 
   case 683:
-#line 7007 "ProParser.y"
+#line 6972 "ProParser.y"
     {
       PostSubOperation_S.SubType = PRINT_ONGRID_0D;
       if(List_Nbr((yyvsp[(3) - (4)].l)) != 3)
@@ -15173,7 +15138,7 @@ yyreduce:
     break;
 
   case 684:
-#line 7021 "ProParser.y"
+#line 6986 "ProParser.y"
     {
       PostSubOperation_S.SubType = PRINT_ONGRID_1D;
       if(List_Nbr((yyvsp[(4) - (12)].l)) != 3 || List_Nbr((yyvsp[(7) - (12)].l)) != 3)
@@ -15194,7 +15159,7 @@ yyreduce:
     break;
 
   case 685:
-#line 7042 "ProParser.y"
+#line 7007 "ProParser.y"
     {
       PostSubOperation_S.SubType = PRINT_ONGRID_2D;
       if(List_Nbr((yyvsp[(4) - (17)].l)) != 3 || List_Nbr((yyvsp[(7) - (17)].l)) != 3 || List_Nbr((yyvsp[(10) - (17)].l)) != 3)
@@ -15220,7 +15185,7 @@ yyreduce:
     break;
 
   case 686:
-#line 7069 "ProParser.y"
+#line 7034 "ProParser.y"
     {
       PostSubOperation_S.SubType = PRINT_ONGRID_3D;
       if(List_Nbr((yyvsp[(4) - (22)].l)) != 3 || List_Nbr((yyvsp[(7) - (22)].l)) != 3 ||
@@ -15252,12 +15217,12 @@ yyreduce:
     break;
 
   case 687:
-#line 7101 "ProParser.y"
+#line 7066 "ProParser.y"
     {
       PostSubOperation_S.SubType = PRINT_WITHARGUMENT;
 
       PostSubOperation_S.Case.WithArgument.RegionIndex =
-	Index_Group(&Group_S, (char*)"PO_On", (yyvsp[(2) - (12)].i));
+	Num_Group(&Group_S, (char*)"PO_On", (yyvsp[(2) - (12)].i));
       int i;
 
       if((i = List_ISearchSeq(Problem_S.Expression, (yyvsp[(4) - (12)].c), fcmp_Expression_Name)) < 0)
@@ -15272,12 +15237,12 @@ yyreduce:
     break;
 
   case 688:
-#line 7121 "ProParser.y"
+#line 7086 "ProParser.y"
     {
       PostSubOperation_S.SubType = PRINT_WITHARGUMENT;
 
       PostSubOperation_S.Case.WithArgument.RegionIndex =
-	Index_Group(&Group_S, (char*)"PO_On", (yyvsp[(2) - (7)].i));
+	Num_Group(&Group_S, (char*)"PO_On", (yyvsp[(2) - (7)].i));
       int i;
 
       if((i = List_ISearchSeq(Problem_S.Expression, (yyvsp[(4) - (7)].c), fcmp_Expression_Name)) < 0)
@@ -15292,13 +15257,13 @@ yyreduce:
     break;
 
   case 689:
-#line 7141 "ProParser.y"
+#line 7106 "ProParser.y"
     {
     ;}
     break;
 
   case 691:
-#line 7148 "ProParser.y"
+#line 7113 "ProParser.y"
     {
       PostSubOperation_S.FileOut = (yyvsp[(3) - (3)].c);
       PostSubOperation_S.CatFile = 0;
@@ -15306,7 +15271,7 @@ yyreduce:
     break;
 
   case 692:
-#line 7153 "ProParser.y"
+#line 7118 "ProParser.y"
     {
       PostSubOperation_S.FileOut = (yyvsp[(4) - (4)].c);
       PostSubOperation_S.CatFile = 1;
@@ -15314,7 +15279,7 @@ yyreduce:
     break;
 
   case 693:
-#line 7158 "ProParser.y"
+#line 7123 "ProParser.y"
     {
       PostSubOperation_S.FileOut = (yyvsp[(4) - (4)].c);
       PostSubOperation_S.CatFile = 2;
@@ -15322,70 +15287,70 @@ yyreduce:
     break;
 
   case 694:
-#line 7163 "ProParser.y"
+#line 7128 "ProParser.y"
     {
       PostSubOperation_S.CatFile = (yyvsp[(3) - (3)].d);
     ;}
     break;
 
   case 695:
-#line 7167 "ProParser.y"
+#line 7132 "ProParser.y"
     {
       PostSubOperation_S.Depth = (int)(yyvsp[(3) - (3)].d);
     ;}
     break;
 
   case 696:
-#line 7171 "ProParser.y"
+#line 7136 "ProParser.y"
     {
       PostSubOperation_S.Skin = 1;
     ;}
     break;
 
   case 697:
-#line 7175 "ProParser.y"
+#line 7140 "ProParser.y"
     {
       PostSubOperation_S.Smoothing = 1;
     ;}
     break;
 
   case 698:
-#line 7179 "ProParser.y"
+#line 7144 "ProParser.y"
     {
       PostSubOperation_S.Smoothing = (int)(yyvsp[(3) - (3)].d);
     ;}
     break;
 
   case 699:
-#line 7183 "ProParser.y"
+#line 7148 "ProParser.y"
     {
       PostSubOperation_S.HarmonicToTime = (int)(yyvsp[(3) - (3)].d);
     ;}
     break;
 
   case 700:
-#line 7187 "ProParser.y"
+#line 7152 "ProParser.y"
     {
       PostSubOperation_S.TimeToHarmonic = (int)(yyvsp[(3) - (3)].d);
     ;}
     break;
 
   case 701:
-#line 7191 "ProParser.y"
+#line 7156 "ProParser.y"
     {
       PostSubOperation_S.FourierTransform = 2;
     ;}
     break;
 
   case 702:
-#line 7195 "ProParser.y"
+#line 7160 "ProParser.y"
     {
       PostSubOperation_S.FourierTransform = 1;
     ;}
     break;
 
   case 703:
-#line 7199 "ProParser.y"
+#line 7164 "ProParser.y"
     {
       PostSubOperation_S.Format =
 	Get_DefineForString(PostSubOperation_Format, (yyvsp[(3) - (3)].c), &FlagError);
@@ -15398,35 +15363,35 @@ yyreduce:
     break;
 
   case 704:
-#line 7209 "ProParser.y"
+#line 7174 "ProParser.y"
     {
       PostSubOperation_S.Comma = 1;
     ;}
     break;
 
   case 705:
-#line 7213 "ProParser.y"
+#line 7178 "ProParser.y"
     {
       PostSubOperation_S.ValueIndex = (yyvsp[(3) - (3)].d);
     ;}
     break;
 
   case 706:
-#line 7217 "ProParser.y"
+#line 7182 "ProParser.y"
     {
       PostSubOperation_S.ValueName = (yyvsp[(3) - (3)].c);
     ;}
     break;
 
   case 707:
-#line 7221 "ProParser.y"
+#line 7186 "ProParser.y"
     {
       PostSubOperation_S.Label = (yyvsp[(3) - (3)].c);
     ;}
     break;
 
   case 708:
-#line 7225 "ProParser.y"
+#line 7190 "ProParser.y"
     {
       if((int)(yyvsp[(3) - (3)].d) >= 1 && (int)(yyvsp[(3) - (3)].d) <= 3)
 	PostSubOperation_S.Dimension = (int)(yyvsp[(3) - (3)].d);
@@ -15436,7 +15401,7 @@ yyreduce:
     break;
 
   case 709:
-#line 7232 "ProParser.y"
+#line 7197 "ProParser.y"
     {
       PostSubOperation_S.FrozenTimeStepList = 1;
       for(int i = 0; i < List_Nbr((yyvsp[(3) - (3)].l)); i++){
@@ -15450,14 +15415,14 @@ yyreduce:
     break;
 
   case 710:
-#line 7243 "ProParser.y"
+#line 7208 "ProParser.y"
     {
       PostSubOperation_S.TimeValue_L = (yyvsp[(3) - (3)].l);
     ;}
     break;
 
   case 711:
-#line 7247 "ProParser.y"
+#line 7212 "ProParser.y"
     {
       PostSubOperation_S.TimeInterval_Flag = 1;
       PostSubOperation_S.TimeInterval[0] = (yyvsp[(4) - (7)].d);
@@ -15466,14 +15431,14 @@ yyreduce:
     break;
 
   case 712:
-#line 7253 "ProParser.y"
+#line 7218 "ProParser.y"
     {
       PostSubOperation_S.TimeImagValue_L = (yyvsp[(3) - (3)].l);
     ;}
     break;
 
   case 713:
-#line 7257 "ProParser.y"
+#line 7222 "ProParser.y"
     {
       PostSubOperation_S.Adapt =
 	Get_DefineForString(PostSubOperation_AdaptationType, (yyvsp[(3) - (3)].c), &FlagError);
@@ -15485,7 +15450,7 @@ yyreduce:
     break;
 
   case 714:
-#line 7266 "ProParser.y"
+#line 7231 "ProParser.y"
     {
       PostSubOperation_S.Sort =
 	Get_DefineForString(PostSubOperation_SortType, (yyvsp[(3) - (3)].c), &FlagError);
@@ -15497,7 +15462,7 @@ yyreduce:
     break;
 
   case 715:
-#line 7275 "ProParser.y"
+#line 7240 "ProParser.y"
     {
       if((yyvsp[(3) - (3)].d) >= 0.)
 	PostSubOperation_S.Target = (yyvsp[(3) - (3)].d);
@@ -15507,7 +15472,7 @@ yyreduce:
     break;
 
   case 716:
-#line 7282 "ProParser.y"
+#line 7247 "ProParser.y"
     {
       for(int i = 0; i < List_Nbr((yyvsp[(3) - (3)].l)); i++){
 	double d;
@@ -15519,14 +15484,14 @@ yyreduce:
     break;
 
   case 717:
-#line 7291 "ProParser.y"
+#line 7256 "ProParser.y"
     {
       PostSubOperation_S.Iso = (int)(yyvsp[(3) - (3)].d);
     ;}
     break;
 
   case 718:
-#line 7295 "ProParser.y"
+#line 7260 "ProParser.y"
     {
       PostSubOperation_S.Iso = -1;
       for(int i = 0; i < List_Nbr((yyvsp[(4) - (5)].l)); i++){
@@ -15539,28 +15504,28 @@ yyreduce:
     break;
 
   case 719:
-#line 7305 "ProParser.y"
+#line 7270 "ProParser.y"
     {
       PostSubOperation_S.NoNewLine = 1;
     ;}
     break;
 
   case 720:
-#line 7309 "ProParser.y"
+#line 7274 "ProParser.y"
     {
       PostSubOperation_S.NoTitle = 1;
     ;}
     break;
 
   case 721:
-#line 7313 "ProParser.y"
+#line 7278 "ProParser.y"
     {
       PostSubOperation_S.DecomposeInSimplex = 1;
     ;}
     break;
 
   case 722:
-#line 7317 "ProParser.y"
+#line 7282 "ProParser.y"
     {
       for(int i = 0; i < List_Nbr((yyvsp[(3) - (3)].l)); i++){
 	double d;
@@ -15572,7 +15537,7 @@ yyreduce:
     break;
 
   case 723:
-#line 7326 "ProParser.y"
+#line 7291 "ProParser.y"
     {
       PostSubOperation_S.ChangeOfCoordinates[0] = (yyvsp[(4) - (9)].i);
       PostSubOperation_S.ChangeOfCoordinates[1] = (yyvsp[(6) - (9)].i);
@@ -15581,14 +15546,14 @@ yyreduce:
     break;
 
   case 724:
-#line 7332 "ProParser.y"
+#line 7297 "ProParser.y"
     {
       PostSubOperation_S.ChangeOfValues = List_Copy(ListOfInt_L);
     ;}
     break;
 
   case 725:
-#line 7336 "ProParser.y"
+#line 7301 "ProParser.y"
     {
       PostSubOperation_S.Legend = LEGEND_TIME;
       PostSubOperation_S.LegendPosition[0] = 1.e5;
@@ -15599,7 +15564,7 @@ yyreduce:
     break;
 
   case 726:
-#line 7344 "ProParser.y"
+#line 7309 "ProParser.y"
     {
       PostSubOperation_S.Legend = LEGEND_TIME;
       PostSubOperation_S.LegendPosition[0] = (yyvsp[(4) - (9)].d);
@@ -15609,7 +15574,7 @@ yyreduce:
     break;
 
   case 727:
-#line 7351 "ProParser.y"
+#line 7316 "ProParser.y"
     {
       PostSubOperation_S.Legend = LEGEND_FREQUENCY;
       PostSubOperation_S.LegendPosition[0] = 1.e5;
@@ -15620,7 +15585,7 @@ yyreduce:
     break;
 
   case 728:
-#line 7359 "ProParser.y"
+#line 7324 "ProParser.y"
     {
       PostSubOperation_S.Legend = LEGEND_FREQUENCY;
       PostSubOperation_S.LegendPosition[0] = (yyvsp[(4) - (9)].d);
@@ -15630,7 +15595,7 @@ yyreduce:
     break;
 
   case 729:
-#line 7366 "ProParser.y"
+#line 7331 "ProParser.y"
     {
       PostSubOperation_S.Legend = LEGEND_EIGENVALUES;
       PostSubOperation_S.LegendPosition[0] = 1.e5;
@@ -15641,7 +15606,7 @@ yyreduce:
     break;
 
   case 730:
-#line 7374 "ProParser.y"
+#line 7339 "ProParser.y"
     {
       PostSubOperation_S.Legend = LEGEND_EIGENVALUES;
       PostSubOperation_S.LegendPosition[0] = (yyvsp[(4) - (9)].d);
@@ -15651,7 +15616,7 @@ yyreduce:
     break;
 
   case 731:
-#line 7381 "ProParser.y"
+#line 7346 "ProParser.y"
     {
       if(List_Nbr((yyvsp[(4) - (5)].l))%3 != 0)
 	vyyerror(0, "Expected 3n coordinates, got %d", List_Nbr((yyvsp[(4) - (5)].l)));
@@ -15662,168 +15627,168 @@ yyreduce:
     break;
 
   case 732:
-#line 7389 "ProParser.y"
+#line 7354 "ProParser.y"
     {
       PostSubOperation_S.StoreInVariable = (yyvsp[(4) - (4)].c);
     ;}
     break;
 
   case 733:
-#line 7393 "ProParser.y"
+#line 7358 "ProParser.y"
     {
       PostSubOperation_S.StoreInRegister = (int)(yyvsp[(3) - (3)].d) - 1;
     ;}
     break;
 
   case 734:
-#line 7397 "ProParser.y"
+#line 7362 "ProParser.y"
     {
       PostSubOperation_S.StoreMinInRegister = (int)(yyvsp[(3) - (3)].d) - 1;
     ;}
     break;
 
   case 735:
-#line 7401 "ProParser.y"
+#line 7366 "ProParser.y"
     {
       PostSubOperation_S.StoreMinXinRegister = (int)(yyvsp[(3) - (3)].d) - 1;
     ;}
     break;
 
   case 736:
-#line 7405 "ProParser.y"
+#line 7370 "ProParser.y"
     {
       PostSubOperation_S.StoreMinYinRegister = (int)(yyvsp[(3) - (3)].d) - 1;
     ;}
     break;
 
   case 737:
-#line 7409 "ProParser.y"
+#line 7374 "ProParser.y"
     {
       PostSubOperation_S.StoreMinZinRegister = (int)(yyvsp[(3) - (3)].d) - 1;
     ;}
     break;
 
   case 738:
-#line 7413 "ProParser.y"
+#line 7378 "ProParser.y"
     {
       PostSubOperation_S.StoreMaxInRegister = (int)(yyvsp[(3) - (3)].d) - 1;
     ;}
     break;
 
   case 739:
-#line 7417 "ProParser.y"
+#line 7382 "ProParser.y"
     {
       PostSubOperation_S.StoreMaxXinRegister = (int)(yyvsp[(3) - (3)].d) - 1;
     ;}
     break;
 
   case 740:
-#line 7421 "ProParser.y"
+#line 7386 "ProParser.y"
     {
       PostSubOperation_S.StoreMaxYinRegister = (int)(yyvsp[(3) - (3)].d) - 1;
     ;}
     break;
 
   case 741:
-#line 7425 "ProParser.y"
+#line 7390 "ProParser.y"
     {
       PostSubOperation_S.StoreMaxZinRegister = (int)(yyvsp[(3) - (3)].d) - 1;
     ;}
     break;
 
   case 742:
-#line 7429 "ProParser.y"
+#line 7394 "ProParser.y"
     {
       PostSubOperation_S.StoreInField = (yyvsp[(3) - (3)].d);
     ;}
     break;
 
   case 743:
-#line 7433 "ProParser.y"
+#line 7398 "ProParser.y"
     {
       PostSubOperation_S.StoreInMeshBasedField = (yyvsp[(3) - (3)].d);
     ;}
     break;
 
   case 744:
-#line 7437 "ProParser.y"
+#line 7402 "ProParser.y"
     {
       PostSubOperation_S.LastTimeStepOnly = 1;
     ;}
     break;
 
   case 745:
-#line 7441 "ProParser.y"
+#line 7406 "ProParser.y"
     {
       PostSubOperation_S.LastTimeStepOnly = (int)(yyvsp[(3) - (3)].d);
     ;}
     break;
 
   case 746:
-#line 7445 "ProParser.y"
+#line 7410 "ProParser.y"
     {
       PostSubOperation_S.AppendTimeStepToFileName = 1;
     ;}
     break;
 
   case 747:
-#line 7449 "ProParser.y"
+#line 7414 "ProParser.y"
     {
       PostSubOperation_S.AppendTimeStepToFileName = (int)(yyvsp[(3) - (3)].d);
     ;}
     break;
 
   case 748:
-#line 7453 "ProParser.y"
+#line 7418 "ProParser.y"
     {
       PostSubOperation_S.AppendExpressionToFileName = (yyvsp[(3) - (3)].i);
     ;}
     break;
 
   case 749:
-#line 7457 "ProParser.y"
+#line 7422 "ProParser.y"
     {
       PostSubOperation_S.AppendExpressionFormat = (yyvsp[(3) - (3)].c);
     ;}
     break;
 
   case 750:
-#line 7461 "ProParser.y"
+#line 7426 "ProParser.y"
     {
       PostSubOperation_S.AppendStringToFileName = (yyvsp[(3) - (3)].c);
     ;}
     break;
 
   case 751:
-#line 7465 "ProParser.y"
+#line 7430 "ProParser.y"
     {
       PostSubOperation_S.OverrideTimeStepValue = (yyvsp[(3) - (3)].d);
     ;}
     break;
 
   case 752:
-#line 7469 "ProParser.y"
+#line 7434 "ProParser.y"
     {
       PostSubOperation_S.NoMesh = 1;
     ;}
     break;
 
   case 753:
-#line 7473 "ProParser.y"
+#line 7438 "ProParser.y"
     {
       PostSubOperation_S.NoMesh = (yyvsp[(3) - (3)].d);
     ;}
     break;
 
   case 754:
-#line 7477 "ProParser.y"
+#line 7442 "ProParser.y"
     {
       PostSubOperation_S.SendToServer = (yyvsp[(3) - (3)].c);
     ;}
     break;
 
   case 755:
-#line 7481 "ProParser.y"
+#line 7446 "ProParser.y"
     {
       PostSubOperation_S.SendToServer = (yyvsp[(3) - (6)].c);
       PostSubOperation_S.SendToServerList = (yyvsp[(5) - (6)].l);
@@ -15831,7 +15796,7 @@ yyreduce:
     break;
 
   case 756:
-#line 7486 "ProParser.y"
+#line 7451 "ProParser.y"
     {
       std::string cat((yyvsp[(2) - (3)].c));
       Free((yyvsp[(2) - (3)].c));
@@ -15849,17 +15814,17 @@ yyreduce:
     break;
 
   case 757:
-#line 7509 "ProParser.y"
+#line 7474 "ProParser.y"
     { (yyval.c) = (yyvsp[(1) - (1)].c); ;}
     break;
 
   case 758:
-#line 7511 "ProParser.y"
+#line 7476 "ProParser.y"
     { (yyval.c) = (yyvsp[(1) - (1)].c); ;}
     break;
 
   case 759:
-#line 7517 "ProParser.y"
+#line 7482 "ProParser.y"
     {
       LoopControlVariablesTab[ImbricatedLoop][0] = (yyvsp[(3) - (6)].d);
       LoopControlVariablesTab[ImbricatedLoop][1] = (yyvsp[(5) - (6)].d);
@@ -15879,7 +15844,7 @@ yyreduce:
     break;
 
   case 760:
-#line 7534 "ProParser.y"
+#line 7499 "ProParser.y"
     {
       LoopControlVariablesTab[ImbricatedLoop][0] = (yyvsp[(3) - (8)].d);
       LoopControlVariablesTab[ImbricatedLoop][1] = (yyvsp[(5) - (8)].d);
@@ -15899,7 +15864,7 @@ yyreduce:
     break;
 
   case 761:
-#line 7551 "ProParser.y"
+#line 7516 "ProParser.y"
     {
       LoopControlVariablesTab[ImbricatedLoop][0] = (yyvsp[(5) - (8)].d);
       LoopControlVariablesTab[ImbricatedLoop][1] = (yyvsp[(7) - (8)].d);
@@ -15924,7 +15889,7 @@ yyreduce:
     break;
 
   case 762:
-#line 7573 "ProParser.y"
+#line 7538 "ProParser.y"
     {
       LoopControlVariablesTab[ImbricatedLoop][0] = (yyvsp[(5) - (10)].d);
       LoopControlVariablesTab[ImbricatedLoop][1] = (yyvsp[(7) - (10)].d);
@@ -15948,7 +15913,7 @@ yyreduce:
     break;
 
   case 763:
-#line 7594 "ProParser.y"
+#line 7559 "ProParser.y"
     {
       if(ImbricatedLoop <= 0){
 	vyyerror(0, "Invalid For/EndFor loop");
@@ -15988,7 +15953,7 @@ yyreduce:
     break;
 
   case 764:
-#line 7631 "ProParser.y"
+#line 7596 "ProParser.y"
     {
       if(!MacroManager::Instance()->createMacro
          (std::string((yyvsp[(2) - (2)].c)), getdp_yyin, getdp_yyname, getdp_yylinenum + 1))
@@ -15999,7 +15964,7 @@ yyreduce:
     break;
 
   case 765:
-#line 7639 "ProParser.y"
+#line 7604 "ProParser.y"
     {
       if(!MacroManager::Instance()->createMacro
          (std::string((yyvsp[(2) - (2)].c)), getdp_yyin, getdp_yyname, getdp_yylinenum + 0))
@@ -16010,7 +15975,7 @@ yyreduce:
     break;
 
   case 766:
-#line 7647 "ProParser.y"
+#line 7612 "ProParser.y"
     {
       if(!MacroManager::Instance()->leaveMacro
          (&getdp_yyin, getdp_yyname, getdp_yylinenum))
@@ -16019,7 +15984,7 @@ yyreduce:
     break;
 
   case 767:
-#line 7653 "ProParser.y"
+#line 7618 "ProParser.y"
     {
       if(!MacroManager::Instance()->enterMacro
          (std::string((yyvsp[(2) - (3)].c)), &getdp_yyin, getdp_yyname, getdp_yylinenum))
@@ -16029,7 +15994,7 @@ yyreduce:
     break;
 
   case 768:
-#line 7660 "ProParser.y"
+#line 7625 "ProParser.y"
     {
       if((yyvsp[(3) - (6)].d))
         if(!MacroManager::Instance()->enterMacro
@@ -16040,7 +16005,7 @@ yyreduce:
     break;
 
   case 769:
-#line 7668 "ProParser.y"
+#line 7633 "ProParser.y"
     {
       ImbricatedTest++;
       if(ImbricatedTest > MAX_RECUR_TESTS-1){
@@ -16063,7 +16028,7 @@ yyreduce:
     break;
 
   case 770:
-#line 7688 "ProParser.y"
+#line 7653 "ProParser.y"
     {
       if(ImbricatedTest > 0){
         if (statusImbricatedTests[ImbricatedTest]){
@@ -16092,7 +16057,7 @@ yyreduce:
     break;
 
   case 771:
-#line 7714 "ProParser.y"
+#line 7679 "ProParser.y"
     {
       if(ImbricatedTest > 0){
         if(statusImbricatedTests[ImbricatedTest]){
@@ -16107,7 +16072,7 @@ yyreduce:
     break;
 
   case 772:
-#line 7726 "ProParser.y"
+#line 7691 "ProParser.y"
     {
       ImbricatedTest--;
       if(ImbricatedTest < 0)
@@ -16116,7 +16081,7 @@ yyreduce:
     break;
 
   case 773:
-#line 7732 "ProParser.y"
+#line 7697 "ProParser.y"
     {
       getdp_yystring = (yyvsp[(3) - (5)].c);
       Free((yyvsp[(3) - (5)].c));
@@ -16124,31 +16089,31 @@ yyreduce:
     break;
 
   case 775:
-#line 7745 "ProParser.y"
+#line 7710 "ProParser.y"
     { (yyval.i) = 3; ;}
     break;
 
   case 776:
-#line 7746 "ProParser.y"
+#line 7711 "ProParser.y"
     { (yyval.i) = -3; ;}
     break;
 
   case 777:
-#line 7751 "ProParser.y"
+#line 7716 "ProParser.y"
     {
       (yyval.c) = (char*)"w";
     ;}
     break;
 
   case 778:
-#line 7755 "ProParser.y"
+#line 7720 "ProParser.y"
     {
       (yyval.c) = (char*)"a";
     ;}
     break;
 
   case 782:
-#line 7769 "ProParser.y"
+#line 7734 "ProParser.y"
     {
       Message::SetOnelabNumber((yyvsp[(3) - (7)].c), (yyvsp[(5) - (7)].d));
       Free((yyvsp[(3) - (7)].c));
@@ -16156,7 +16121,7 @@ yyreduce:
     break;
 
   case 783:
-#line 7775 "ProParser.y"
+#line 7740 "ProParser.y"
     {
       Message::SetOnelabString((yyvsp[(3) - (7)].c), (yyvsp[(5) - (7)].c));
       Free((yyvsp[(3) - (7)].c));
@@ -16165,7 +16130,7 @@ yyreduce:
     break;
 
   case 784:
-#line 7782 "ProParser.y"
+#line 7747 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(2) - (3)].c);
       // FIXME: leak if constant is list or char; all Tree_Replace functions
@@ -16177,7 +16142,7 @@ yyreduce:
     break;
 
   case 785:
-#line 7792 "ProParser.y"
+#line 7757 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(3) - (5)].c);
       // FIXME: leak if constant is list or char; all Tree_Replace functions
@@ -16189,7 +16154,7 @@ yyreduce:
     break;
 
   case 786:
-#line 7802 "ProParser.y"
+#line 7767 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(1) - (4)].c);
       if(List_Nbr((yyvsp[(3) - (4)].l)) == 1){
@@ -16206,7 +16171,7 @@ yyreduce:
     break;
 
   case 787:
-#line 7817 "ProParser.y"
+#line 7782 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(1) - (6)].c);
       Constant_S.Type = VAR_LISTOFFLOAT;
@@ -16216,7 +16181,7 @@ yyreduce:
     break;
 
   case 788:
-#line 7825 "ProParser.y"
+#line 7790 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(1) - (7)].c);
       Constant *c = (Constant*)Tree_PQuery(ConstantTable_L, &Constant_S);
@@ -16246,7 +16211,7 @@ yyreduce:
     break;
 
   case 789:
-#line 7853 "ProParser.y"
+#line 7818 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(1) - (8)].c);
       Constant *c = (Constant*)Tree_PQuery(ConstantTable_L, &Constant_S);
@@ -16276,7 +16241,7 @@ yyreduce:
     break;
 
   case 790:
-#line 7881 "ProParser.y"
+#line 7846 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(1) - (8)].c);
       Constant *c = (Constant*)Tree_PQuery(ConstantTable_L, &Constant_S);
@@ -16306,7 +16271,7 @@ yyreduce:
     break;
 
   case 791:
-#line 7909 "ProParser.y"
+#line 7874 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(1) - (5)].c);
       Constant *c = (Constant*)Tree_PQuery(ConstantTable_L, &Constant_S);
@@ -16330,7 +16295,7 @@ yyreduce:
     break;
 
   case 792:
-#line 7931 "ProParser.y"
+#line 7896 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(1) - (7)].c);
       Constant *c = (Constant*)Tree_PQuery(ConstantTable_L, &Constant_S);
@@ -16349,7 +16314,7 @@ yyreduce:
     break;
 
   case 793:
-#line 7948 "ProParser.y"
+#line 7913 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(1) - (5)].c);
       Constant *c = (Constant*)Tree_PQuery(ConstantTable_L, &Constant_S);
@@ -16386,7 +16351,7 @@ yyreduce:
     break;
 
   case 794:
-#line 7983 "ProParser.y"
+#line 7948 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(1) - (7)].c);
       Constant *c = (Constant*)Tree_PQuery(ConstantTable_L, &Constant_S);
@@ -16418,7 +16383,7 @@ yyreduce:
     break;
 
   case 795:
-#line 8013 "ProParser.y"
+#line 7978 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(1) - (4)].c); Constant_S.Type = VAR_CHAR;
       Constant_S.Value.Char = (yyvsp[(3) - (4)].c);
@@ -16427,7 +16392,7 @@ yyreduce:
     break;
 
   case 796:
-#line 8020 "ProParser.y"
+#line 7985 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(1) - (8)].c);
       Constant_S.Type = VAR_LISTOFCHAR;
@@ -16437,7 +16402,7 @@ yyreduce:
     break;
 
   case 797:
-#line 8028 "ProParser.y"
+#line 7993 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(1) - (9)].c);
       Constant_S.Type = VAR_LISTOFCHAR;
@@ -16447,7 +16412,7 @@ yyreduce:
     break;
 
   case 798:
-#line 8036 "ProParser.y"
+#line 8001 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(1) - (10)].c);
       Constant *c = (Constant*)Tree_PQuery(ConstantTable_L, &Constant_S);
@@ -16466,14 +16431,14 @@ yyreduce:
     break;
 
   case 799:
-#line 8053 "ProParser.y"
+#line 8018 "ProParser.y"
     {
       Message::Direct((yyvsp[(1) - (5)].i), (yyvsp[(3) - (5)].c));
     ;}
     break;
 
   case 800:
-#line 8058 "ProParser.y"
+#line 8023 "ProParser.y"
     {
       std::string tmp = Fix_RelativePath((yyvsp[(6) - (7)].c));
       FILE *fp = FOpen(tmp.c_str(), (yyvsp[(5) - (7)].c));
@@ -16490,7 +16455,7 @@ yyreduce:
     break;
 
   case 801:
-#line 8073 "ProParser.y"
+#line 8038 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(2) - (3)].c);
       if(!Tree_Query(ConstantTable_L, &Constant_S))
@@ -16509,14 +16474,14 @@ yyreduce:
     break;
 
   case 802:
-#line 8090 "ProParser.y"
+#line 8055 "ProParser.y"
     {
       Message::Direct((yyvsp[(1) - (3)].i), "Line number: %d", getdp_yylinenum);
     ;}
     break;
 
   case 803:
-#line 8095 "ProParser.y"
+#line 8060 "ProParser.y"
     {
       char tmpstr[256];
       int i = Print_ListOfDouble((yyvsp[(3) - (7)].c), (yyvsp[(5) - (7)].l), tmpstr);
@@ -16532,7 +16497,7 @@ yyreduce:
     break;
 
   case 804:
-#line 8109 "ProParser.y"
+#line 8074 "ProParser.y"
     {
       std::string tmp = Fix_RelativePath((yyvsp[(8) - (9)].c));
       FILE *fp = FOpen(tmp.c_str(), (yyvsp[(7) - (9)].c));
@@ -16557,7 +16522,7 @@ yyreduce:
     break;
 
   case 805:
-#line 8132 "ProParser.y"
+#line 8097 "ProParser.y"
     {
       Message::Error((yyvsp[(3) - (5)].c));
       Free((yyvsp[(3) - (5)].c));
@@ -16565,7 +16530,7 @@ yyreduce:
     break;
 
   case 806:
-#line 8139 "ProParser.y"
+#line 8104 "ProParser.y"
     {
       Message::Info("? ");
       char tmpstr[256];
@@ -16578,7 +16543,7 @@ yyreduce:
     break;
 
   case 807:
-#line 8150 "ProParser.y"
+#line 8115 "ProParser.y"
     {
       Message::Info("? ");
       char tmpstr[256];
@@ -16591,7 +16556,7 @@ yyreduce:
     break;
 
   case 808:
-#line 8162 "ProParser.y"
+#line 8127 "ProParser.y"
     {
       Message::Info("[<return>=%g] ? ",(yyvsp[(6) - (8)].d));
       char tmpstr[256];
@@ -16608,7 +16573,7 @@ yyreduce:
     break;
 
   case 809:
-#line 8177 "ProParser.y"
+#line 8142 "ProParser.y"
     {
       Message::Info("[<return>=%g] ? ",(yyvsp[(5) - (7)].d));
       char tmpstr[256];
@@ -16625,14 +16590,14 @@ yyreduce:
     break;
 
   case 810:
-#line 8192 "ProParser.y"
+#line 8157 "ProParser.y"
     {
       Print_Constants();
     ;}
     break;
 
   case 811:
-#line 8199 "ProParser.y"
+#line 8164 "ProParser.y"
     {
       (yyval.l) = List_Create(20,20,sizeof(doubleXstring));
       doubleXstring v = {(yyvsp[(1) - (3)].d), (yyvsp[(3) - (3)].c)};
@@ -16641,7 +16606,7 @@ yyreduce:
     break;
 
   case 812:
-#line 8205 "ProParser.y"
+#line 8170 "ProParser.y"
     {
       doubleXstring v = {(yyvsp[(3) - (5)].d), (yyvsp[(5) - (5)].c)};
       List_Add((yyval.l), &v);
@@ -16649,7 +16614,7 @@ yyreduce:
     break;
 
   case 813:
-#line 8210 "ProParser.y"
+#line 8175 "ProParser.y"
     {
       (yyval.l) = List_Create(20,20,sizeof(doubleXstring));
       int n = List_Nbr((yyvsp[(1) - (5)].l));
@@ -16682,7 +16647,7 @@ yyreduce:
     break;
 
   case 816:
-#line 8249 "ProParser.y"
+#line 8214 "ProParser.y"
     {
       std::string key((yyvsp[(2) - (3)].c));
       for(int i = 0; i < List_Nbr((yyvsp[(3) - (3)].l)); i++){
@@ -16696,7 +16661,7 @@ yyreduce:
     break;
 
   case 817:
-#line 8261 "ProParser.y"
+#line 8226 "ProParser.y"
     {
       std::string key((yyvsp[(2) - (5)].c));
       for(int i = 0; i < List_Nbr((yyvsp[(4) - (5)].l)); i++){
@@ -16713,7 +16678,7 @@ yyreduce:
     break;
 
   case 818:
-#line 8276 "ProParser.y"
+#line 8241 "ProParser.y"
     {
       std::string key((yyvsp[(2) - (3)].c));
       std::string val((yyvsp[(3) - (3)].c));
@@ -16724,7 +16689,7 @@ yyreduce:
     break;
 
   case 819:
-#line 8285 "ProParser.y"
+#line 8250 "ProParser.y"
     {
       std::string key("Name");
       std::string val((yyvsp[(3) - (3)].c));
@@ -16734,7 +16699,7 @@ yyreduce:
     break;
 
   case 822:
-#line 8301 "ProParser.y"
+#line 8266 "ProParser.y"
     {
       std::string key((yyvsp[(2) - (3)].c));
       double val = (yyvsp[(3) - (3)].d);
@@ -16744,7 +16709,7 @@ yyreduce:
     break;
 
   case 823:
-#line 8309 "ProParser.y"
+#line 8274 "ProParser.y"
     {
       std::string key((yyvsp[(2) - (3)].c));
       std::string val((yyvsp[(3) - (3)].c));
@@ -16755,7 +16720,7 @@ yyreduce:
     break;
 
   case 824:
-#line 8318 "ProParser.y"
+#line 8283 "ProParser.y"
     {
       std::string key("Name");
       std::string val((yyvsp[(3) - (3)].c));
@@ -16765,7 +16730,7 @@ yyreduce:
     break;
 
   case 825:
-#line 8326 "ProParser.y"
+#line 8291 "ProParser.y"
     {
       std::string key("Macro");
       std::string val((yyvsp[(3) - (3)].c));
@@ -16775,7 +16740,7 @@ yyreduce:
     break;
 
   case 826:
-#line 8334 "ProParser.y"
+#line 8299 "ProParser.y"
     {
       std::string key((yyvsp[(2) - (5)].c));
       for(int i = 0; i < List_Nbr((yyvsp[(4) - (5)].l)); i++){
@@ -16791,7 +16756,7 @@ yyreduce:
     break;
 
   case 828:
-#line 8352 "ProParser.y"
+#line 8317 "ProParser.y"
     { Constant_S.Name = (yyvsp[(3) - (3)].c); Constant_S.Type = VAR_FLOAT;
       FloatOptions_S.clear(); CharOptions_S.clear();
       if(!Tree_Search(ConstantTable_L, &Constant_S)){
@@ -16802,7 +16767,7 @@ yyreduce:
     break;
 
   case 829:
-#line 8360 "ProParser.y"
+#line 8325 "ProParser.y"
     {
       Constant_S.Type = VAR_FLOAT ;
       FloatOptions_S.clear(); CharOptions_S.clear();
@@ -16821,7 +16786,7 @@ yyreduce:
     break;
 
   case 830:
-#line 8376 "ProParser.y"
+#line 8341 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(3) - (5)].c); Constant_S.Type = VAR_FLOAT;
       if(!Tree_Search(ConstantTable_L, &Constant_S)){
@@ -16832,7 +16797,7 @@ yyreduce:
     break;
 
   case 831:
-#line 8384 "ProParser.y"
+#line 8349 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(3) - (8)].c); Constant_S.Type = VAR_LISTOFFLOAT;
       if(!Tree_Search(ConstantTable_L, &Constant_S)){
@@ -16843,12 +16808,12 @@ yyreduce:
     break;
 
   case 832:
-#line 8392 "ProParser.y"
+#line 8357 "ProParser.y"
     { FloatOptions_S.clear(); CharOptions_S.clear(); ;}
     break;
 
   case 833:
-#line 8394 "ProParser.y"
+#line 8359 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(3) - (9)].c);
       if(List_Nbr((yyvsp[(6) - (9)].l)) == 1){
@@ -16875,12 +16840,12 @@ yyreduce:
     break;
 
   case 834:
-#line 8418 "ProParser.y"
+#line 8383 "ProParser.y"
     { FloatOptions_S.clear(); CharOptions_S.clear(); ;}
     break;
 
   case 835:
-#line 8420 "ProParser.y"
+#line 8385 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(3) - (11)].c);
       Constant_S.Type = VAR_LISTOFFLOAT;
@@ -16893,7 +16858,7 @@ yyreduce:
     break;
 
   case 836:
-#line 8430 "ProParser.y"
+#line 8395 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(3) - (5)].c); Constant_S.Type = VAR_CHAR;
       if(!Tree_Search(ConstantTable_L, &Constant_S)){
@@ -16904,12 +16869,12 @@ yyreduce:
     break;
 
   case 837:
-#line 8438 "ProParser.y"
+#line 8403 "ProParser.y"
     { FloatOptions_S.clear(); CharOptions_S.clear(); ;}
     break;
 
   case 838:
-#line 8440 "ProParser.y"
+#line 8405 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(3) - (9)].c); Constant_S.Type = VAR_CHAR;
       if(!Tree_Search(ConstantTable_L, &Constant_S)){
@@ -16921,7 +16886,7 @@ yyreduce:
     break;
 
   case 840:
-#line 8454 "ProParser.y"
+#line 8419 "ProParser.y"
     {
       // undefine the onelab parameter
       std::string name((yyvsp[(3) - (3)].c));
@@ -16931,7 +16896,7 @@ yyreduce:
     break;
 
   case 841:
-#line 8462 "ProParser.y"
+#line 8427 "ProParser.y"
     {
       // undefine the onelab parameter and the getdp constant
       std::string name((yyvsp[(3) - (3)].c));
@@ -16943,462 +16908,462 @@ yyreduce:
     break;
 
   case 842:
-#line 8476 "ProParser.y"
+#line 8441 "ProParser.y"
     { (yyval.c) = (char*)"Exp";    ;}
     break;
 
   case 843:
-#line 8477 "ProParser.y"
+#line 8442 "ProParser.y"
     { (yyval.c) = (char*)"Log";    ;}
     break;
 
   case 844:
-#line 8478 "ProParser.y"
+#line 8443 "ProParser.y"
     { (yyval.c) = (char*)"Log10";  ;}
     break;
 
   case 845:
-#line 8479 "ProParser.y"
+#line 8444 "ProParser.y"
     { (yyval.c) = (char*)"Sqrt";   ;}
     break;
 
   case 846:
-#line 8480 "ProParser.y"
+#line 8445 "ProParser.y"
     { (yyval.c) = (char*)"Sin";    ;}
     break;
 
   case 847:
-#line 8481 "ProParser.y"
+#line 8446 "ProParser.y"
     { (yyval.c) = (char*)"Asin";   ;}
     break;
 
   case 848:
-#line 8482 "ProParser.y"
+#line 8447 "ProParser.y"
     { (yyval.c) = (char*)"Cos";    ;}
     break;
 
   case 849:
-#line 8483 "ProParser.y"
+#line 8448 "ProParser.y"
     { (yyval.c) = (char*)"Acos";   ;}
     break;
 
   case 850:
-#line 8484 "ProParser.y"
+#line 8449 "ProParser.y"
     { (yyval.c) = (char*)"Tan";    ;}
     break;
 
   case 851:
-#line 8485 "ProParser.y"
+#line 8450 "ProParser.y"
     { (yyval.c) = (char*)"Atan";   ;}
     break;
 
   case 852:
-#line 8486 "ProParser.y"
+#line 8451 "ProParser.y"
     { (yyval.c) = (char*)"Atan2";  ;}
     break;
 
   case 853:
-#line 8487 "ProParser.y"
+#line 8452 "ProParser.y"
     { (yyval.c) = (char*)"Sinh";   ;}
     break;
 
   case 854:
-#line 8488 "ProParser.y"
+#line 8453 "ProParser.y"
     { (yyval.c) = (char*)"Cosh";   ;}
     break;
 
   case 855:
-#line 8489 "ProParser.y"
+#line 8454 "ProParser.y"
     { (yyval.c) = (char*)"Tanh";   ;}
     break;
 
   case 856:
-#line 8490 "ProParser.y"
+#line 8455 "ProParser.y"
     { (yyval.c) = (char*)"Fabs";   ;}
     break;
 
   case 857:
-#line 8491 "ProParser.y"
+#line 8456 "ProParser.y"
     { (yyval.c) = (char*)"Floor";  ;}
     break;
 
   case 858:
-#line 8492 "ProParser.y"
+#line 8457 "ProParser.y"
     { (yyval.c) = (char*)"Ceil";   ;}
     break;
 
   case 859:
-#line 8493 "ProParser.y"
+#line 8458 "ProParser.y"
     { (yyval.c) = (char*)"Round";  ;}
     break;
 
   case 860:
-#line 8494 "ProParser.y"
+#line 8459 "ProParser.y"
     { (yyval.c) = (char*)"Sign";   ;}
     break;
 
   case 861:
-#line 8495 "ProParser.y"
+#line 8460 "ProParser.y"
     { (yyval.c) = (char*)"Fmod";   ;}
     break;
 
   case 862:
-#line 8496 "ProParser.y"
+#line 8461 "ProParser.y"
     { (yyval.c) = (char*)"Modulo"; ;}
     break;
 
   case 863:
-#line 8497 "ProParser.y"
+#line 8462 "ProParser.y"
     { (yyval.c) = (char*)"Hypot";  ;}
     break;
 
   case 864:
-#line 8498 "ProParser.y"
+#line 8463 "ProParser.y"
     { (yyval.c) = (char*)"Rand";   ;}
     break;
 
   case 865:
-#line 8502 "ProParser.y"
+#line 8467 "ProParser.y"
     { (yyval.c) = (yyvsp[(1) - (1)].c); ;}
     break;
 
   case 866:
-#line 8503 "ProParser.y"
+#line 8468 "ProParser.y"
     { (yyval.c) = (yyvsp[(1) - (1)].c); ;}
     break;
 
   case 867:
-#line 8507 "ProParser.y"
+#line 8472 "ProParser.y"
     { (yyval.d) = (yyvsp[(1) - (1)].d);          ;}
     break;
 
   case 868:
-#line 8508 "ProParser.y"
+#line 8473 "ProParser.y"
     { (yyval.d) = (yyvsp[(2) - (3)].d);          ;}
     break;
 
   case 869:
-#line 8509 "ProParser.y"
+#line 8474 "ProParser.y"
     { (yyval.d) = -(yyvsp[(2) - (2)].d);         ;}
     break;
 
   case 870:
-#line 8510 "ProParser.y"
+#line 8475 "ProParser.y"
     { (yyval.d) = !(yyvsp[(2) - (2)].d);         ;}
     break;
 
   case 871:
-#line 8511 "ProParser.y"
+#line 8476 "ProParser.y"
     { (yyval.d) = (yyvsp[(1) - (3)].d) - (yyvsp[(3) - (3)].d);     ;}
     break;
 
   case 872:
-#line 8512 "ProParser.y"
+#line 8477 "ProParser.y"
     { (yyval.d) = (yyvsp[(1) - (3)].d) + (yyvsp[(3) - (3)].d);     ;}
     break;
 
   case 873:
-#line 8513 "ProParser.y"
+#line 8478 "ProParser.y"
     { (yyval.d) = (yyvsp[(1) - (3)].d) * (yyvsp[(3) - (3)].d);     ;}
     break;
 
   case 874:
-#line 8514 "ProParser.y"
+#line 8479 "ProParser.y"
     { (yyval.d) = (int)(yyvsp[(1) - (3)].d) | (int)(yyvsp[(3) - (3)].d);     ;}
     break;
 
   case 875:
-#line 8515 "ProParser.y"
+#line 8480 "ProParser.y"
     { (yyval.d) = (int)(yyvsp[(1) - (3)].d) & (int)(yyvsp[(3) - (3)].d);     ;}
     break;
 
   case 876:
-#line 8516 "ProParser.y"
+#line 8481 "ProParser.y"
     { (yyval.d) = (yyvsp[(1) - (3)].d) / (yyvsp[(3) - (3)].d);     ;}
     break;
 
   case 877:
-#line 8517 "ProParser.y"
+#line 8482 "ProParser.y"
     { (yyval.d) = (int)(yyvsp[(1) - (3)].d) % (int)(yyvsp[(3) - (3)].d);  ;}
     break;
 
   case 878:
-#line 8518 "ProParser.y"
+#line 8483 "ProParser.y"
     { (yyval.d) = pow((yyvsp[(1) - (3)].d),(yyvsp[(3) - (3)].d));  ;}
     break;
 
   case 879:
-#line 8519 "ProParser.y"
+#line 8484 "ProParser.y"
     { (yyval.d) = (yyvsp[(1) - (3)].d) < (yyvsp[(3) - (3)].d);     ;}
     break;
 
   case 880:
-#line 8520 "ProParser.y"
+#line 8485 "ProParser.y"
     { (yyval.d) = (yyvsp[(1) - (3)].d) > (yyvsp[(3) - (3)].d);     ;}
     break;
 
   case 881:
-#line 8521 "ProParser.y"
+#line 8486 "ProParser.y"
     { (yyval.d) = (yyvsp[(1) - (3)].d) <= (yyvsp[(3) - (3)].d);    ;}
     break;
 
   case 882:
-#line 8522 "ProParser.y"
+#line 8487 "ProParser.y"
     { (yyval.d) = (yyvsp[(1) - (3)].d) >= (yyvsp[(3) - (3)].d);    ;}
     break;
 
   case 883:
-#line 8523 "ProParser.y"
+#line 8488 "ProParser.y"
     { (yyval.d) = (yyvsp[(1) - (3)].d) == (yyvsp[(3) - (3)].d);    ;}
     break;
 
   case 884:
-#line 8524 "ProParser.y"
+#line 8489 "ProParser.y"
     { (yyval.d) = (yyvsp[(1) - (3)].d) != (yyvsp[(3) - (3)].d);    ;}
     break;
 
   case 885:
-#line 8525 "ProParser.y"
+#line 8490 "ProParser.y"
     { (yyval.d) = (yyvsp[(1) - (3)].d) && (yyvsp[(3) - (3)].d);    ;}
     break;
 
   case 886:
-#line 8526 "ProParser.y"
+#line 8491 "ProParser.y"
     { (yyval.d) = (yyvsp[(1) - (3)].d) || (yyvsp[(3) - (3)].d);    ;}
     break;
 
   case 887:
-#line 8527 "ProParser.y"
+#line 8492 "ProParser.y"
     { (yyval.d) = ((int)(yyvsp[(1) - (3)].d) >> (int)(yyvsp[(3) - (3)].d));  ;}
     break;
 
   case 888:
-#line 8528 "ProParser.y"
+#line 8493 "ProParser.y"
     { (yyval.d) = ((int)(yyvsp[(1) - (3)].d) << (int)(yyvsp[(3) - (3)].d));  ;}
     break;
 
   case 889:
-#line 8529 "ProParser.y"
+#line 8494 "ProParser.y"
     { (yyval.d) = exp((yyvsp[(3) - (4)].d));      ;}
     break;
 
   case 890:
-#line 8530 "ProParser.y"
+#line 8495 "ProParser.y"
     { (yyval.d) = log((yyvsp[(3) - (4)].d));      ;}
     break;
 
   case 891:
-#line 8531 "ProParser.y"
+#line 8496 "ProParser.y"
     { (yyval.d) = log10((yyvsp[(3) - (4)].d));    ;}
     break;
 
   case 892:
-#line 8532 "ProParser.y"
+#line 8497 "ProParser.y"
     { (yyval.d) = sqrt((yyvsp[(3) - (4)].d));     ;}
     break;
 
   case 893:
-#line 8533 "ProParser.y"
+#line 8498 "ProParser.y"
     { (yyval.d) = sin((yyvsp[(3) - (4)].d));      ;}
     break;
 
   case 894:
-#line 8534 "ProParser.y"
+#line 8499 "ProParser.y"
     { (yyval.d) = asin((yyvsp[(3) - (4)].d));     ;}
     break;
 
   case 895:
-#line 8535 "ProParser.y"
+#line 8500 "ProParser.y"
     { (yyval.d) = cos((yyvsp[(3) - (4)].d));      ;}
     break;
 
   case 896:
-#line 8536 "ProParser.y"
+#line 8501 "ProParser.y"
     { (yyval.d) = acos((yyvsp[(3) - (4)].d));     ;}
     break;
 
   case 897:
-#line 8537 "ProParser.y"
+#line 8502 "ProParser.y"
     { (yyval.d) = tan((yyvsp[(3) - (4)].d));      ;}
     break;
 
   case 898:
-#line 8538 "ProParser.y"
+#line 8503 "ProParser.y"
     { (yyval.d) = atan((yyvsp[(3) - (4)].d));     ;}
     break;
 
   case 899:
-#line 8539 "ProParser.y"
+#line 8504 "ProParser.y"
     { (yyval.d) = atan2((yyvsp[(3) - (6)].d),(yyvsp[(5) - (6)].d)); ;}
     break;
 
   case 900:
-#line 8540 "ProParser.y"
+#line 8505 "ProParser.y"
     { (yyval.d) = sinh((yyvsp[(3) - (4)].d));     ;}
     break;
 
   case 901:
-#line 8541 "ProParser.y"
+#line 8506 "ProParser.y"
     { (yyval.d) = cosh((yyvsp[(3) - (4)].d));     ;}
     break;
 
   case 902:
-#line 8542 "ProParser.y"
+#line 8507 "ProParser.y"
     { (yyval.d) = tanh((yyvsp[(3) - (4)].d));     ;}
     break;
 
   case 903:
-#line 8543 "ProParser.y"
+#line 8508 "ProParser.y"
     { (yyval.d) = fabs((yyvsp[(3) - (4)].d));     ;}
     break;
 
   case 904:
-#line 8544 "ProParser.y"
+#line 8509 "ProParser.y"
     { (yyval.d) = floor((yyvsp[(3) - (4)].d));    ;}
     break;
 
   case 905:
-#line 8545 "ProParser.y"
+#line 8510 "ProParser.y"
     { (yyval.d) = ceil((yyvsp[(3) - (4)].d));     ;}
     break;
 
   case 906:
-#line 8546 "ProParser.y"
+#line 8511 "ProParser.y"
     { (yyval.d) = floor((yyvsp[(3) - (4)].d) + 0.5);    ;}
     break;
 
   case 907:
-#line 8547 "ProParser.y"
+#line 8512 "ProParser.y"
     { (yyval.d) = (((yyvsp[(3) - (4)].d) > 0.) ? 1. : ((yyvsp[(3) - (4)].d) < 0.) ? -1. : 0.); ;}
     break;
 
   case 908:
-#line 8548 "ProParser.y"
+#line 8513 "ProParser.y"
     { (yyval.d) = fmod((yyvsp[(3) - (6)].d),(yyvsp[(5) - (6)].d));  ;}
     break;
 
   case 909:
-#line 8549 "ProParser.y"
+#line 8514 "ProParser.y"
     { (yyval.d) = fmod((yyvsp[(3) - (6)].d),(yyvsp[(5) - (6)].d));  ;}
     break;
 
   case 910:
-#line 8550 "ProParser.y"
+#line 8515 "ProParser.y"
     { (yyval.d) = sqrt((yyvsp[(3) - (6)].d)*(yyvsp[(3) - (6)].d)+(yyvsp[(5) - (6)].d)*(yyvsp[(5) - (6)].d));  ;}
     break;
 
   case 911:
-#line 8551 "ProParser.y"
+#line 8516 "ProParser.y"
     { (yyval.d) = (yyvsp[(3) - (4)].d) * (double)rand() / (double)RAND_MAX;  ;}
     break;
 
   case 912:
-#line 8553 "ProParser.y"
+#line 8518 "ProParser.y"
     { (yyval.d) = (yyvsp[(1) - (5)].d)? (yyvsp[(3) - (5)].d) : (yyvsp[(5) - (5)].d); ;}
     break;
 
   case 913:
-#line 8555 "ProParser.y"
+#line 8520 "ProParser.y"
     { (yyval.d) = (yyvsp[(1) - (1)].i); ;}
     break;
 
   case 914:
-#line 8557 "ProParser.y"
+#line 8522 "ProParser.y"
     { (yyval.d) = (yyvsp[(1) - (1)].i); ;}
     break;
 
   case 915:
-#line 8559 "ProParser.y"
+#line 8524 "ProParser.y"
     { Message::Direct("Value (line %ld) --> %.16g", getdp_yylinenum, (yyvsp[(1) - (2)].d)); ;}
     break;
 
   case 916:
-#line 8564 "ProParser.y"
+#line 8529 "ProParser.y"
     { (yyval.d) = (yyvsp[(1) - (1)].d); ;}
     break;
 
   case 917:
-#line 8565 "ProParser.y"
+#line 8530 "ProParser.y"
     { (yyval.d) = (double)(yyvsp[(1) - (1)].i); ;}
     break;
 
   case 918:
-#line 8566 "ProParser.y"
+#line 8531 "ProParser.y"
     { (yyval.d) = 3.1415926535897932; ;}
     break;
 
   case 919:
-#line 8567 "ProParser.y"
+#line 8532 "ProParser.y"
     { (yyval.d) = (double)_0D; ;}
     break;
 
   case 920:
-#line 8568 "ProParser.y"
+#line 8533 "ProParser.y"
     { (yyval.d) = (double)_1D; ;}
     break;
 
   case 921:
-#line 8569 "ProParser.y"
+#line 8534 "ProParser.y"
     { (yyval.d) = (double)_2D; ;}
     break;
 
   case 922:
-#line 8570 "ProParser.y"
+#line 8535 "ProParser.y"
     { (yyval.d) = (double)_3D; ;}
     break;
 
   case 923:
-#line 8571 "ProParser.y"
+#line 8536 "ProParser.y"
     { (yyval.d) = Message::GetCommRank(); ;}
     break;
 
   case 924:
-#line 8572 "ProParser.y"
+#line 8537 "ProParser.y"
     { (yyval.d) = Message::GetCommSize(); ;}
     break;
 
   case 925:
-#line 8573 "ProParser.y"
+#line 8538 "ProParser.y"
     { (yyval.d) = GETDP_MAJOR_VERSION; ;}
     break;
 
   case 926:
-#line 8574 "ProParser.y"
+#line 8539 "ProParser.y"
     { (yyval.d) = GETDP_MINOR_VERSION; ;}
     break;
 
   case 927:
-#line 8575 "ProParser.y"
+#line 8540 "ProParser.y"
     { (yyval.d) = GETDP_PATCH_VERSION; ;}
     break;
 
   case 928:
-#line 8576 "ProParser.y"
+#line 8541 "ProParser.y"
     { (yyval.d) = GetTotalRam(); ;}
     break;
 
   case 929:
-#line 8578 "ProParser.y"
+#line 8543 "ProParser.y"
     { (yyval.d) = (double)ImbricatedTest; ;}
     break;
 
   case 930:
-#line 8579 "ProParser.y"
+#line 8544 "ProParser.y"
     { (yyval.d) = (double)num_include; ;}
     break;
 
   case 931:
-#line 8580 "ProParser.y"
+#line 8545 "ProParser.y"
     { (yyval.d) = (double)level_include; ;}
     break;
 
   case 932:
-#line 8584 "ProParser.y"
+#line 8549 "ProParser.y"
     { FloatOptions_S.clear(); CharOptions_S.clear(); ;}
     break;
 
   case 933:
-#line 8586 "ProParser.y"
+#line 8551 "ProParser.y"
     {
       Constant_S.Name = (char*)""; Constant_S.Type = VAR_FLOAT;
       Constant_S.Value.Float = (yyvsp[(3) - (6)].d);
@@ -17408,7 +17373,7 @@ yyreduce:
     break;
 
   case 934:
-#line 8594 "ProParser.y"
+#line 8559 "ProParser.y"
     {
       (yyval.d) = Message::GetOnelabNumber((yyvsp[(3) - (4)].c), 0.);
       Free((yyvsp[(3) - (4)].c));
@@ -17416,7 +17381,7 @@ yyreduce:
     break;
 
   case 935:
-#line 8600 "ProParser.y"
+#line 8565 "ProParser.y"
     {
       (yyval.d) = Message::GetOnelabNumber((yyvsp[(3) - (6)].c), (yyvsp[(5) - (6)].d));
       Free((yyvsp[(3) - (6)].c));
@@ -17424,7 +17389,7 @@ yyreduce:
     break;
 
   case 936:
-#line 8606 "ProParser.y"
+#line 8571 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(1) - (1)].c);
       if(!Tree_Query(ConstantTable_L, &Constant_S)) {
@@ -17442,7 +17407,7 @@ yyreduce:
     break;
 
   case 937:
-#line 8622 "ProParser.y"
+#line 8587 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(2) - (4)].c);
       int ret = 0;
@@ -17461,7 +17426,7 @@ yyreduce:
     break;
 
   case 938:
-#line 8641 "ProParser.y"
+#line 8606 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(2) - (4)].c);
       int ret = 0;
@@ -17482,7 +17447,7 @@ yyreduce:
     break;
 
   case 939:
-#line 8662 "ProParser.y"
+#line 8627 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(4) - (7)].c);
       int ret = 0;
@@ -17503,7 +17468,7 @@ yyreduce:
     break;
 
   case 940:
-#line 8681 "ProParser.y"
+#line 8646 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(1) - (4)].c);
       double ret = 0.;
@@ -17526,7 +17491,7 @@ yyreduce:
     break;
 
   case 941:
-#line 8704 "ProParser.y"
+#line 8669 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(1) - (4)].c);
       double ret = 0.;
@@ -17549,7 +17514,7 @@ yyreduce:
     break;
 
   case 942:
-#line 8727 "ProParser.y"
+#line 8692 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(3) - (7)].c);
       double ret = 0.;
@@ -17572,7 +17537,7 @@ yyreduce:
     break;
 
   case 943:
-#line 8748 "ProParser.y"
+#line 8713 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(3) - (4)].c);
       if(Tree_Query(ConstantTable_L, &Constant_S))
@@ -17584,7 +17549,7 @@ yyreduce:
     break;
 
   case 944:
-#line 8758 "ProParser.y"
+#line 8723 "ProParser.y"
     {
       if(List_ISearchSeq(Problem_S.Expression, (yyvsp[(3) - (6)].c), fcmp_Expression_Name) >= 0)
         (yyval.d) = 1;
@@ -17595,7 +17560,7 @@ yyreduce:
     break;
 
   case 945:
-#line 8767 "ProParser.y"
+#line 8732 "ProParser.y"
     {
       std::string tmp = Fix_RelativePath((yyvsp[(3) - (4)].c)).c_str();
       (yyval.d) = !StatusFile(tmp);
@@ -17604,7 +17569,7 @@ yyreduce:
     break;
 
   case 946:
-#line 8774 "ProParser.y"
+#line 8739 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(3) - (4)].c);
       if(Tree_Query(ConstantTable_L, &Constant_S))
@@ -17620,12 +17585,12 @@ yyreduce:
     break;
 
   case 947:
-#line 8791 "ProParser.y"
+#line 8756 "ProParser.y"
     { (yyval.l) = List_Create(20,20,sizeof(double)); ;}
     break;
 
   case 948:
-#line 8794 "ProParser.y"
+#line 8759 "ProParser.y"
     {
       (yyval.l) = List_Create(1,1,sizeof(double));
       List_Add((yyval.l), &((yyvsp[(1) - (1)].d)));
@@ -17633,17 +17598,17 @@ yyreduce:
     break;
 
   case 949:
-#line 8800 "ProParser.y"
+#line 8765 "ProParser.y"
     { (yyval.l) = (yyvsp[(1) - (1)].l); ;}
     break;
 
   case 950:
-#line 8803 "ProParser.y"
+#line 8768 "ProParser.y"
     { (yyval.l) = (yyvsp[(2) - (3)].l); ;}
     break;
 
   case 951:
-#line 8806 "ProParser.y"
+#line 8771 "ProParser.y"
     {
       (yyval.l) = (yyvsp[(3) - (4)].l);
       for(int i = 0; i < List_Nbr((yyval.l)); i++){
@@ -17654,7 +17619,7 @@ yyreduce:
     break;
 
   case 952:
-#line 8815 "ProParser.y"
+#line 8780 "ProParser.y"
     {
       (yyval.l) = (yyvsp[(4) - (5)].l);
       for(int i = 0; i < List_Nbr((yyval.l)); i++){
@@ -17665,7 +17630,7 @@ yyreduce:
     break;
 
   case 953:
-#line 8828 "ProParser.y"
+#line 8793 "ProParser.y"
     {
       (yyval.l) = List_Create(20,20,sizeof(double));
       List_Add((yyval.l), &((yyvsp[(1) - (1)].d)));
@@ -17673,17 +17638,17 @@ yyreduce:
     break;
 
   case 954:
-#line 8834 "ProParser.y"
+#line 8799 "ProParser.y"
     { (yyval.l) = (yyvsp[(1) - (1)].l); ;}
     break;
 
   case 955:
-#line 8837 "ProParser.y"
+#line 8802 "ProParser.y"
     { List_Add((yyval.l), &((yyvsp[(3) - (3)].d))); ;}
     break;
 
   case 956:
-#line 8840 "ProParser.y"
+#line 8805 "ProParser.y"
     {
       for(int i = 0; i < List_Nbr((yyvsp[(3) - (3)].l)); i++){
 	double d;
@@ -17695,7 +17660,7 @@ yyreduce:
     break;
 
   case 957:
-#line 8853 "ProParser.y"
+#line 8818 "ProParser.y"
     {
       (yyval.l) = (yyvsp[(2) - (2)].l);
       for(int i = 0; i < List_Nbr((yyval.l)); i++){
@@ -17706,7 +17671,7 @@ yyreduce:
     break;
 
   case 958:
-#line 8862 "ProParser.y"
+#line 8827 "ProParser.y"
     {
       (yyval.l) = (yyvsp[(3) - (3)].l);
       for(int i = 0; i < List_Nbr((yyval.l)); i++){
@@ -17717,7 +17682,7 @@ yyreduce:
     break;
 
   case 959:
-#line 8871 "ProParser.y"
+#line 8836 "ProParser.y"
     {
       (yyval.l) = (yyvsp[(1) - (3)].l);
       for(int i = 0; i < List_Nbr((yyval.l)); i++){
@@ -17728,7 +17693,7 @@ yyreduce:
     break;
 
   case 960:
-#line 8880 "ProParser.y"
+#line 8845 "ProParser.y"
     {
       (yyval.l) = (yyvsp[(3) - (3)].l);
       for(int i = 0; i < List_Nbr((yyval.l)); i++){
@@ -17739,7 +17704,7 @@ yyreduce:
     break;
 
   case 961:
-#line 8889 "ProParser.y"
+#line 8854 "ProParser.y"
     {
       (yyval.l) = (yyvsp[(1) - (3)].l);
       for(int i = 0; i < List_Nbr((yyval.l)); i++){
@@ -17750,7 +17715,7 @@ yyreduce:
     break;
 
   case 962:
-#line 8898 "ProParser.y"
+#line 8863 "ProParser.y"
     {
       (yyval.l) = (yyvsp[(1) - (3)].l);
       for(int i = 0; i < List_Nbr((yyval.l)); i++){
@@ -17761,7 +17726,7 @@ yyreduce:
     break;
 
   case 963:
-#line 8907 "ProParser.y"
+#line 8872 "ProParser.y"
     {
       (yyval.l) = (yyvsp[(1) - (3)].l);
       if(List_Nbr((yyval.l)) == List_Nbr((yyvsp[(3) - (3)].l))){
@@ -17778,7 +17743,7 @@ yyreduce:
     break;
 
   case 964:
-#line 8922 "ProParser.y"
+#line 8887 "ProParser.y"
     {
       (yyval.l) = (yyvsp[(1) - (3)].l);
       if(List_Nbr((yyval.l)) == List_Nbr((yyvsp[(3) - (3)].l))){
@@ -17795,7 +17760,7 @@ yyreduce:
     break;
 
   case 965:
-#line 8937 "ProParser.y"
+#line 8902 "ProParser.y"
     {
       (yyval.l) = (yyvsp[(1) - (3)].l);
       if(List_Nbr((yyval.l)) == List_Nbr((yyvsp[(3) - (3)].l))){
@@ -17812,7 +17777,7 @@ yyreduce:
     break;
 
   case 966:
-#line 8952 "ProParser.y"
+#line 8917 "ProParser.y"
     {
       (yyval.l) = (yyvsp[(1) - (3)].l);
       if(List_Nbr((yyval.l)) == List_Nbr((yyvsp[(3) - (3)].l))){
@@ -17829,7 +17794,7 @@ yyreduce:
     break;
 
   case 967:
-#line 8967 "ProParser.y"
+#line 8932 "ProParser.y"
     {
       (yyval.l) = List_Create(20,20,sizeof(double));
       for(double d = (yyvsp[(1) - (3)].d); ((yyvsp[(1) - (3)].d) < (yyvsp[(3) - (3)].d)) ? (d <= (yyvsp[(3) - (3)].d)) : (d >= (yyvsp[(3) - (3)].d));
@@ -17839,7 +17804,7 @@ yyreduce:
     break;
 
   case 968:
-#line 8975 "ProParser.y"
+#line 8940 "ProParser.y"
     {
       (yyval.l) = List_Create(20,20,sizeof(double));
       if(!(yyvsp[(5) - (5)].d) || ((yyvsp[(1) - (5)].d)<(yyvsp[(3) - (5)].d) && (yyvsp[(5) - (5)].d)<0) || ((yyvsp[(1) - (5)].d)>(yyvsp[(3) - (5)].d) && (yyvsp[(5) - (5)].d)>0)){
@@ -17853,7 +17818,7 @@ yyreduce:
     break;
 
   case 969:
-#line 8987 "ProParser.y"
+#line 8952 "ProParser.y"
     {
       (yyval.l) = List_Create(20,20,sizeof(double));
       Constant_S.Name = (yyvsp[(1) - (3)].c);
@@ -17876,7 +17841,7 @@ yyreduce:
     break;
 
   case 970:
-#line 9010 "ProParser.y"
+#line 8975 "ProParser.y"
     {
       (yyval.l) = List_Create(20,20,sizeof(double));
       Constant_S.Name = (yyvsp[(1) - (3)].c);
@@ -17896,7 +17861,7 @@ yyreduce:
     break;
 
   case 971:
-#line 9030 "ProParser.y"
+#line 8995 "ProParser.y"
     {
       (yyval.l) = List_Create(20,20,sizeof(double));
       Constant_S.Name = (yyvsp[(3) - (6)].c);
@@ -17916,7 +17881,7 @@ yyreduce:
     break;
 
   case 972:
-#line 9049 "ProParser.y"
+#line 9014 "ProParser.y"
     {
       (yyval.l) = List_Create(20,20,sizeof(double));
       Constant_S.Name = (yyvsp[(1) - (3)].c);
@@ -17936,7 +17901,7 @@ yyreduce:
     break;
 
   case 973:
-#line 9067 "ProParser.y"
+#line 9032 "ProParser.y"
     {
       (yyval.l) = List_Create(20,20,sizeof(double));
       Constant_S.Name = (yyvsp[(1) - (6)].c);
@@ -17964,7 +17929,7 @@ yyreduce:
     break;
 
   case 974:
-#line 9095 "ProParser.y"
+#line 9060 "ProParser.y"
     {
       (yyval.l) = List_Create(20,20,sizeof(double));
       Constant_S.Name = (yyvsp[(1) - (6)].c);
@@ -17992,7 +17957,7 @@ yyreduce:
     break;
 
   case 975:
-#line 9123 "ProParser.y"
+#line 9088 "ProParser.y"
     {
       (yyval.l) = List_Create(20,20,sizeof(double));
       Constant_S.Name = (yyvsp[(3) - (9)].c);
@@ -18020,7 +17985,7 @@ yyreduce:
     break;
 
   case 976:
-#line 9150 "ProParser.y"
+#line 9115 "ProParser.y"
     {
       (yyval.l) = List_Create(20,20,sizeof(double));
       Constant_S.Name = (yyvsp[(3) - (4)].c);
@@ -18039,21 +18004,21 @@ yyreduce:
     break;
 
   case 977:
-#line 9167 "ProParser.y"
+#line 9132 "ProParser.y"
     {
       (yyval.l) = (yyvsp[(3) - (4)].l);
     ;}
     break;
 
   case 978:
-#line 9172 "ProParser.y"
+#line 9137 "ProParser.y"
     {
       (yyval.l) = (yyvsp[(4) - (6)].l);
     ;}
     break;
 
   case 979:
-#line 9177 "ProParser.y"
+#line 9142 "ProParser.y"
     {
       (yyval.l) = List_Create(20,20,sizeof(double));
       Constant1_S.Name = (yyvsp[(3) - (6)].c); Constant2_S.Name = (yyvsp[(5) - (6)].c);
@@ -18096,7 +18061,7 @@ yyreduce:
     break;
 
   case 980:
-#line 9218 "ProParser.y"
+#line 9183 "ProParser.y"
     {
       (yyval.l) = List_Create(20,20,sizeof(double));
       if(List_Nbr((yyvsp[(3) - (6)].l)) != List_Nbr((yyvsp[(5) - (6)].l))) {
@@ -18118,7 +18083,7 @@ yyreduce:
     break;
 
   case 981:
-#line 9238 "ProParser.y"
+#line 9203 "ProParser.y"
     {
       (yyval.l) = List_Create(20,20,sizeof(double));
       for(int i = 0; i < (int)(yyvsp[(7) - (8)].d); i++) {
@@ -18129,7 +18094,7 @@ yyreduce:
     break;
 
   case 982:
-#line 9247 "ProParser.y"
+#line 9212 "ProParser.y"
     {
       (yyval.l) = List_Create(20,20,sizeof(double));
       for(int i = 0; i < (int)(yyvsp[(7) - (8)].d); i++) {
@@ -18140,7 +18105,7 @@ yyreduce:
     break;
 
   case 983:
-#line 9256 "ProParser.y"
+#line 9221 "ProParser.y"
     {
       Message::Barrier();
       FILE *File;
@@ -18171,7 +18136,7 @@ yyreduce:
     break;
 
   case 984:
-#line 9288 "ProParser.y"
+#line 9253 "ProParser.y"
     {
       char tmpstr[256];
       sprintf(tmpstr, "_%d", (int)(yyvsp[(4) - (5)].d));
@@ -18182,7 +18147,7 @@ yyreduce:
     break;
 
   case 985:
-#line 9297 "ProParser.y"
+#line 9262 "ProParser.y"
     {
       char tmpstr[256];
       sprintf(tmpstr, "_%d", (int)(yyvsp[(4) - (5)].d));
@@ -18193,7 +18158,7 @@ yyreduce:
     break;
 
   case 986:
-#line 9306 "ProParser.y"
+#line 9271 "ProParser.y"
     {
       char tmpstr[256];
       sprintf(tmpstr, "_%d", (int)(yyvsp[(7) - (8)].d));
@@ -18204,39 +18169,39 @@ yyreduce:
     break;
 
   case 987:
-#line 9318 "ProParser.y"
+#line 9283 "ProParser.y"
     { (yyval.c) = (yyvsp[(1) - (1)].c); ;}
     break;
 
   case 988:
-#line 9321 "ProParser.y"
+#line 9286 "ProParser.y"
     { (yyval.c) = (yyvsp[(1) - (1)].c); ;}
     break;
 
   case 989:
-#line 9325 "ProParser.y"
+#line 9290 "ProParser.y"
     { (yyval.c) = (yyvsp[(3) - (4)].c); ;}
     break;
 
   case 990:
-#line 9330 "ProParser.y"
+#line 9295 "ProParser.y"
     { (yyval.c) = (yyvsp[(1) - (1)].c); ;}
     break;
 
   case 991:
-#line 9333 "ProParser.y"
+#line 9298 "ProParser.y"
     { (yyval.c) = (yyvsp[(3) - (4)].c); ;}
     break;
 
   case 992:
-#line 9336 "ProParser.y"
+#line 9301 "ProParser.y"
     {
       (yyval.c) = (yyvsp[(1) - (1)].c);
     ;}
     break;
 
   case 993:
-#line 9341 "ProParser.y"
+#line 9306 "ProParser.y"
     {
       int i = 0;
       while ((yyvsp[(3) - (4)].c)[i]) {
@@ -18248,7 +18213,7 @@ yyreduce:
     break;
 
   case 994:
-#line 9351 "ProParser.y"
+#line 9316 "ProParser.y"
     {
       int i = 0;
       while ((yyvsp[(3) - (4)].c)[i]) {
@@ -18260,7 +18225,7 @@ yyreduce:
     break;
 
   case 995:
-#line 9361 "ProParser.y"
+#line 9326 "ProParser.y"
     {
       int i=0;
       while ((yyvsp[(3) - (4)].c)[i]) {
@@ -18273,7 +18238,7 @@ yyreduce:
     break;
 
   case 996:
-#line 9372 "ProParser.y"
+#line 9337 "ProParser.y"
     {
       int size = 1;
       for(int i = 0; i < List_Nbr((yyvsp[(3) - (4)].l)); i++){
@@ -18295,7 +18260,7 @@ yyreduce:
     break;
 
   case 997:
-#line 9392 "ProParser.y"
+#line 9357 "ProParser.y"
     {
       if((yyvsp[(3) - (8)].d)){
         (yyval.c) = (yyvsp[(5) - (8)].c);
@@ -18309,7 +18274,7 @@ yyreduce:
     break;
 
   case 998:
-#line 9404 "ProParser.y"
+#line 9369 "ProParser.y"
     {
       std::string in = (yyvsp[(3) - (8)].c);
       std::string out = in.substr((int)(yyvsp[(5) - (8)].d), (int)(yyvsp[(7) - (8)].d));
@@ -18320,7 +18285,7 @@ yyreduce:
     break;
 
   case 999:
-#line 9413 "ProParser.y"
+#line 9378 "ProParser.y"
     {
       std::string in = (yyvsp[(3) - (6)].c);
       std::string out = in.substr((int)(yyvsp[(5) - (6)].d), std::string::npos);
@@ -18331,14 +18296,14 @@ yyreduce:
     break;
 
   case 1000:
-#line 9422 "ProParser.y"
+#line 9387 "ProParser.y"
     {
       (yyval.c) = (yyvsp[(3) - (4)].c);
     ;}
     break;
 
   case 1001:
-#line 9427 "ProParser.y"
+#line 9392 "ProParser.y"
     {
       char tmpstr[256];
       int i = Print_ListOfDouble((yyvsp[(3) - (6)].c),(yyvsp[(5) - (6)].l),tmpstr);
@@ -18360,7 +18325,7 @@ yyreduce:
     break;
 
   case 1002:
-#line 9447 "ProParser.y"
+#line 9412 "ProParser.y"
     {
       time_t date_info;
       time(&date_info);
@@ -18371,7 +18336,7 @@ yyreduce:
     break;
 
   case 1003:
-#line 9456 "ProParser.y"
+#line 9421 "ProParser.y"
     {
       std::string action = Message::GetOnelabAction();
       (yyval.c) = (char *)Malloc(action.size() + 1);
@@ -18380,14 +18345,14 @@ yyreduce:
     break;
 
   case 1004:
-#line 9463 "ProParser.y"
+#line 9428 "ProParser.y"
     {
       (yyval.c) = strSave(getdp_yyname.c_str());
     ;}
     break;
 
   case 1005:
-#line 9468 "ProParser.y"
+#line 9433 "ProParser.y"
     {
       std::string tmp = GetDirName(GetFullPath(getdp_yyname));
       (yyval.c) = (char*)Malloc((tmp.size() + 1) * sizeof(char));
@@ -18396,7 +18361,7 @@ yyreduce:
     break;
 
   case 1006:
-#line 9475 "ProParser.y"
+#line 9440 "ProParser.y"
     {
       (yyval.c) = strSave(GetFullPath((yyvsp[(3) - (4)].c)).c_str());
       Free((yyvsp[(3) - (4)].c));
@@ -18404,7 +18369,7 @@ yyreduce:
     break;
 
   case 1007:
-#line 9481 "ProParser.y"
+#line 9446 "ProParser.y"
     {
       (yyval.c) = strSave(GetDirName((yyvsp[(3) - (4)].c)).c_str());
       Free((yyvsp[(3) - (4)].c));
@@ -18412,14 +18377,14 @@ yyreduce:
     break;
 
   case 1008:
-#line 9487 "ProParser.y"
+#line 9452 "ProParser.y"
     {
       (yyval.c) = strSave(GetBaseName(getdp_yyname).c_str());
     ;}
     break;
 
   case 1009:
-#line 9492 "ProParser.y"
+#line 9457 "ProParser.y"
     {
       (yyval.c) = strSave(Fix_RelativePath((yyvsp[(3) - (4)].c)).c_str());
       Free((yyvsp[(3) - (4)].c));
@@ -18427,12 +18392,12 @@ yyreduce:
     break;
 
   case 1010:
-#line 9498 "ProParser.y"
+#line 9463 "ProParser.y"
     { FloatOptions_S.clear(); CharOptions_S.clear(); ;}
     break;
 
   case 1011:
-#line 9500 "ProParser.y"
+#line 9465 "ProParser.y"
     {
       Constant_S.Name = (char*)""; Constant_S.Type = VAR_CHAR;
       Constant_S.Value.Char = (yyvsp[(3) - (6)].c);
@@ -18443,7 +18408,7 @@ yyreduce:
     break;
 
   case 1012:
-#line 9509 "ProParser.y"
+#line 9474 "ProParser.y"
     {
       (yyval.c) = strSave(Message::GetOnelabString((yyvsp[(3) - (4)].c), "").c_str());
       Free((yyvsp[(3) - (4)].c));
@@ -18451,7 +18416,7 @@ yyreduce:
     break;
 
   case 1013:
-#line 9515 "ProParser.y"
+#line 9480 "ProParser.y"
     {
       (yyval.c) = strSave(Message::GetOnelabString((yyvsp[(3) - (6)].c), (yyvsp[(5) - (6)].c)).c_str());
       Free((yyvsp[(3) - (6)].c));
@@ -18460,12 +18425,12 @@ yyreduce:
     break;
 
   case 1014:
-#line 9525 "ProParser.y"
+#line 9490 "ProParser.y"
     { (yyval.c) = (yyvsp[(1) - (1)].c); ;}
     break;
 
   case 1015:
-#line 9528 "ProParser.y"
+#line 9493 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(1) - (1)].c);
       if(!Tree_Query(ConstantTable_L, &Constant_S)) {
@@ -18483,7 +18448,7 @@ yyreduce:
     break;
 
   case 1016:
-#line 9544 "ProParser.y"
+#line 9509 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(1) - (4)].c);
       if(!Tree_Query(ConstantTable_L, &Constant_S)) {
@@ -18510,7 +18475,7 @@ yyreduce:
     break;
 
   case 1017:
-#line 9573 "ProParser.y"
+#line 9538 "ProParser.y"
     {
       (yyval.l) = List_Create(20,20,sizeof(char*));
       List_Add((yyval.l), &((yyvsp[(1) - (1)].c)));
@@ -18518,32 +18483,32 @@ yyreduce:
     break;
 
   case 1018:
-#line 9578 "ProParser.y"
+#line 9543 "ProParser.y"
     { List_Add((yyval.l), &((yyvsp[(3) - (3)].c))); ;}
     break;
 
   case 1019:
-#line 9585 "ProParser.y"
+#line 9550 "ProParser.y"
     { (yyval.c) = (char*)"("; ;}
     break;
 
   case 1020:
-#line 9585 "ProParser.y"
+#line 9550 "ProParser.y"
     { (yyval.c) = (char*)"["; ;}
     break;
 
   case 1021:
-#line 9586 "ProParser.y"
+#line 9551 "ProParser.y"
     { (yyval.c) = (char*)")"; ;}
     break;
 
   case 1022:
-#line 9586 "ProParser.y"
+#line 9551 "ProParser.y"
     { (yyval.c) = (char*)"]"; ;}
     break;
 
   case 1023:
-#line 9591 "ProParser.y"
+#line 9556 "ProParser.y"
     {
       int size = 1;
       for(int i = 0; i < List_Nbr((yyvsp[(3) - (4)].l)); i++){
@@ -18564,7 +18529,7 @@ yyreduce:
     break;
 
   case 1024:
-#line 9613 "ProParser.y"
+#line 9578 "ProParser.y"
     {
       if ((yyvsp[(3) - (6)].c) != NULL && (yyvsp[(5) - (6)].c) != NULL) {
 	(yyval.i) = strcmp((yyvsp[(3) - (6)].c), (yyvsp[(5) - (6)].c));
@@ -18578,7 +18543,7 @@ yyreduce:
     break;
 
   case 1025:
-#line 9624 "ProParser.y"
+#line 9589 "ProParser.y"
     {
       if ((yyvsp[(3) - (4)].c) != NULL) {
 	(yyval.i) = strlen((yyvsp[(3) - (4)].c));
@@ -18591,7 +18556,7 @@ yyreduce:
     break;
 
   case 1026:
-#line 9634 "ProParser.y"
+#line 9599 "ProParser.y"
     {
       std::string s((yyvsp[(3) - (6)].c)), substr((yyvsp[(5) - (6)].c));
       if(s.find(substr) != std::string::npos)
@@ -18604,7 +18569,7 @@ yyreduce:
     break;
 
   case 1027:
-#line 9648 "ProParser.y"
+#line 9613 "ProParser.y"
     {
       int n = 0;
       for(int i = 0; i < List_Nbr(Problem_S.Group); i++) {
@@ -18616,11 +18581,10 @@ yyreduce:
     break;
 
   case 1028:
-#line 9657 "ProParser.y"
+#line 9622 "ProParser.y"
     {
-      Group_S.Name = (yyvsp[(3) - (4)].c);
       int i;
-      if ( (i = List_ISearch(Problem_S.Group, &Group_S, fcmp_Group)) >= 0 ) {
+      if ( (i = List_ISearchSeq(Problem_S.Group, (yyvsp[(3) - (4)].c), fcmp_Group_Name)) >= 0 ) {
 	(yyval.i) = List_Nbr(((struct Group *)List_Pointer(Problem_S.Group, i))
 		      ->InitialList) ;
       }
@@ -18631,12 +18595,11 @@ yyreduce:
     break;
 
   case 1029:
-#line 9669 "ProParser.y"
+#line 9633 "ProParser.y"
     {
       int i, j, indexInGroup;
       indexInGroup = (int)(yyvsp[(5) - (6)].d);
-      Group_S.Name = (yyvsp[(3) - (6)].c);
-      if ( (i = List_ISearch(Problem_S.Group, &Group_S, fcmp_Group)) >= 0 ) {
+      if ( (i = List_ISearchSeq(Problem_S.Group, (yyvsp[(3) - (6)].c), fcmp_Group_Name)) >= 0 ) {
         if (indexInGroup >= 1 &&
             indexInGroup <= List_Nbr(((struct Group *)List_Pointer(Problem_S.Group, i))
                                      ->InitialList)) {
@@ -18658,28 +18621,28 @@ yyreduce:
     break;
 
   case 1030:
-#line 9696 "ProParser.y"
+#line 9659 "ProParser.y"
     { (yyval.i) = 99; ;}
     break;
 
   case 1031:
-#line 9698 "ProParser.y"
+#line 9661 "ProParser.y"
     { (yyval.i) = (int)(yyvsp[(2) - (2)].d); ;}
     break;
 
   case 1032:
-#line 9703 "ProParser.y"
+#line 9666 "ProParser.y"
     { (yyval.i) = 0; ;}
     break;
 
   case 1033:
-#line 9705 "ProParser.y"
+#line 9668 "ProParser.y"
     { (yyval.i) = (yyvsp[(2) - (3)].i); ;}
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 18683 "ProParser.tab.cpp"
+#line 18646 "ProParser.tab.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -18893,7 +18856,7 @@ yyreturn:
 }
 
 
-#line 9708 "ProParser.y"
+#line 9671 "ProParser.y"
 
 
 // This is a hack... Bison redefines 'const' if !__cplusplus and !__STDC__
@@ -19034,36 +18997,30 @@ int  Add_Group(struct Group *Group_P, char *Name, bool Flag_Add,
     Group_P->Name = Name;
   }
 
-  int i, index;
-  if((i = List_ISearch(Problem_S.Group, Group_P, fcmp_Group)) < 0) {
-    Group_P->Index = List_Nbr(Problem_S.Group);
+  int i;
+  if((i = List_ISearchSeq(Problem_S.Group, Group_P->Name, fcmp_Group_Name)) < 0) {
+    i = Group_P->Num = List_Nbr(Problem_S.Group);
     Group_P->ExtendedList = Group_P->ExtendedSuppList = Group_P->ExtendedSuppList2 = NULL;
     List_Add(Problem_S.Group, Group_P);
-    index = Group_P->Index;
   }
   else if(Flag_Add) {
-    index = ((struct Group *)List_Pointer(Problem_S.Group, i))->Index;
     List_T *InitialList = ((struct Group *)List_Pointer(Problem_S.Group, i))->InitialList;
     for(int j = 0; j < List_Nbr(Group_P->InitialList); j++) {
       List_Add(InitialList, (int *)List_Pointer(Group_P->InitialList, j));
     }
   }
-  else{
-    index = ((struct Group *)List_Pointer(Problem_S.Group, i))->Index;
-    Group_P->Index = index;
-    List_Write(Problem_S.Group, i, Group_P);
-  }
+  else  List_Write(Problem_S.Group, i, Group_P);
 
-  return index;
+  return i;
 }
 
-int  Index_Group(struct Group *Group_P, char *Name, int Index_Group)
+int  Num_Group(struct Group *Group_P, char *Name, int Num_Group)
 {
-  if     (Index_Group >= 0)   /* OK */;
-  else if(Index_Group == -1)  Index_Group = Add_Group(Group_P, Name, false, 1, 0);
+  if     (Num_Group >= 0)   /* OK */;
+  else if(Num_Group == -1)  Num_Group = Add_Group(Group_P, Name, false, 1, 0);
   else                      vyyerror(0, "Bad Group right hand side");
 
-  return Index_Group;
+  return Num_Group;
 }
 
 void Fill_GroupInitialListFromString(List_T *list, const char *str)
@@ -19249,25 +19206,16 @@ void  Pro_DefineQuantityIndex(List_T *WholeQuantity_L,
 
 /* C h e c k _ N a m e O f S t r u c t N o t E x i s t   */
 
-int  Check_NameOfStructExistSeq(const char *Struct, List_T *List_L, void *data,
-                                int (*fcmp)(const void *a, const void *b),
-                                int level_Append)
-{
-  int i;
-  if((i = List_ISearchSeq(List_L, data, fcmp)) >= 0 && !level_Append)
-    vyyerror(0, "Redefinition of %s %s", Struct, (char*)data);
-  return i;
-}
-
 int  Check_NameOfStructExist(const char *Struct, List_T *List_L, void *data,
                              int (*fcmp)(const void *a, const void *b),
                              int level_Append)
 {
   int i;
-  if((i = List_ISearch(List_L, data, fcmp)) >= 0 && !level_Append)
+  if((i=List_ISearchSeq(List_L, data, fcmp)) >= 0 && !level_Append)
     vyyerror(0, "Redefinition of %s %s", Struct, (char*)data);
   return i;
 }
+
 
 /* P r i n t _ C o n s t a n t  */
 

@@ -406,7 +406,7 @@ void  Get_GroupOfRegionsForElement(struct Element * Element, int * StartingIndex
   if (!BasisFunction_P->SubFunction) {
     Element->NumSubFunction[1][Element->NbrGroupsOfEntities] = 0 ;
     Element->NumSubFunction[0][Element->NbrGroupsOfEntities] = -1 ;
-    Element->NumGroupsOfEntities[Element->NbrGroupsOfEntities++] = GroupEntity_P->Index ;
+    Element->NumGroupsOfEntities[Element->NbrGroupsOfEntities++] = GroupEntity_P->Num ;
   }
   else { /* For SubFunctions (basis functions for a global function) */
     Nbr_SubFunction = List_Nbr(BasisFunction_P->SubFunction) ;
@@ -418,7 +418,7 @@ void  Get_GroupOfRegionsForElement(struct Element * Element, int * StartingIndex
       if (BasisFunction_P->SubdFunction)
         Element->NumSubFunction[2][Element->NbrGroupsOfEntities] =
           *((int *)List_Pointer(BasisFunction_P->SubdFunction, i_SF)) ; /* Index Expression */
-      Element->NumGroupsOfEntities[Element->NbrGroupsOfEntities++] = GroupEntity_P->Index ;
+      Element->NumGroupsOfEntities[Element->NbrGroupsOfEntities++] = GroupEntity_P->Num ;
     }
   }
 }
@@ -581,7 +581,7 @@ void  Get_DofOfRegion(int  Num_Region,
     }
 
     if (GroupEntity_P->FunctionType == GROUPOFREGIONSOF)
-      Num_Entity = GroupEntity_P->Index;
+      Num_Entity = GroupEntity_P->Num;
     else
       Num_Entity = Num_Region;
 

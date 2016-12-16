@@ -79,7 +79,7 @@ struct Problem {
 
 struct Group {
   char   *Name;
-  int     Index,  Type, FunctionType, SuppListType, SuppListType2;
+  int     Num,  Type, FunctionType, SuppListType, SuppListType2;
   List_T *InitialList, *InitialSuppList, *InitialSuppList2;
   List_T *ExtendedList, *ExtendedSuppList, *ExtendedSuppList2;
   std::multimap<int, TwoInt> ExtendedListForSearch;
@@ -335,8 +335,9 @@ struct Quadrature {
 
 struct FunctionSpace {
   char    *Name;
-  int     Index, Type;
+  int     Type;
   List_T  *BasisFunction, *SubSpace, *GlobalQuantity, *Constraint;
+
   struct DofData  *DofData, *MainDofData;
 };
 
@@ -1674,8 +1675,7 @@ int fcmp_Integer                  (const void *a, const void *b);
 int fcmp_Integer2                 (const void *a, const void *b);
 int fcmp_Constant                 (const void *a, const void *b);
 int fcmp_Expression_Name          (const void *a, const void *b);
-int fcmp_Group                    (const void *a, const void *b);
-int fcmp_Group_Index              (const void *a, const void *b);
+int fcmp_Group_Name               (const void *a, const void *b);
 int fcmp_Constraint_Name          (const void *a, const void *b);
 int fcmp_JacobianMethod_Name      (const void *a, const void *b);
 int fcmp_IntegrationMethod_Name   (const void *a, const void *b);

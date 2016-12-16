@@ -120,13 +120,13 @@ void Generate_ExtendedGroup(struct Group * Group_P)
   case EDGESOFTREEIN :
     Geo_GenerateEdgesOfTree(Group_P->InitialList, Group_P->InitialSuppList,
 			    &Group_P->ExtendedList) ;
-    Geo_AddGroupForPRE(Group_P->Index) ;
+    Geo_AddGroupForPRE(Group_P->Num) ;
     break ;
 
   case FACETSOFTREEIN :
     Geo_GenerateFacetsOfTree(Group_P->InitialList, Group_P->InitialSuppList,
 			     &Group_P->ExtendedList) ;
-    Geo_AddGroupForPRE(Group_P->Index) ;
+    Geo_AddGroupForPRE(Group_P->Num) ;
     break ;
 
   default :
