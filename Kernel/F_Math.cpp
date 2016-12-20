@@ -4,6 +4,7 @@
 // bugs and problems to the public mailing list <getdp@onelab.info>.
 
 #include <math.h>
+#include <complex>
 #include "ProData.h"
 #include "F.h"
 #include "MallocUtils.h"
@@ -30,24 +31,56 @@ extern struct CurrentData Current ;
   }									\
   V->Type = SCALAR;
 
-void F_Exp   (F_ARG) { scalar_real_1_arg (exp,  "Exp")   }
-void F_Log   (F_ARG) { scalar_real_1_arg (log,  "Log")   }
-void F_Log10 (F_ARG) { scalar_real_1_arg (log10,"Log10") }
-void F_Sqrt  (F_ARG) { scalar_real_1_arg (sqrt, "Sqrt")  }
-void F_Sin   (F_ARG) { scalar_real_1_arg (sin,  "Sin")   }
-void F_Asin  (F_ARG) { scalar_real_1_arg (asin, "Asin")  }
-void F_Cos   (F_ARG) { scalar_real_1_arg (cos,  "Cos" )  }
-void F_Acos  (F_ARG) { scalar_real_1_arg (acos, "Acos")  }
-void F_Tan   (F_ARG) { scalar_real_1_arg (tan,  "Tan")   }
-void F_Atan  (F_ARG) { scalar_real_1_arg (atan, "Atan")  }
-void F_Sinh  (F_ARG) { scalar_real_1_arg (sinh, "Sinh")  }
-void F_Cosh  (F_ARG) { scalar_real_1_arg (cosh, "Cosh")  }
-void F_Tanh  (F_ARG) { scalar_real_1_arg (tanh, "Tanh")  }
-void F_Fabs  (F_ARG) { scalar_real_1_arg (fabs, "Fabs")  }
 void F_Floor (F_ARG) { scalar_real_1_arg (floor,"Floor") }
 void F_Ceil  (F_ARG) { scalar_real_1_arg (ceil, "Ceil")  }
 
 #undef scalar_real_1_arg
+
+/* ------------------------------------------------------------------------ */
+/*  C math functions (complex scalar, 1 argument)                           */
+/* ------------------------------------------------------------------------ */
+
+#define scalar_cmplx_1_arg(func, string)                                \
+  int                  k;                                               \
+  std::complex<double> tmp;                                             \
+                                                                        \
+  if(A->Type != SCALAR)                                                 \
+    Message::Error("Non scalar argument for function '" string "'");    \
+                                                                        \
+  switch(Current.NbrHar){                                               \
+  case 1:                                                               \
+    V->Val[0]       = func(A->Val[0]) ;                                 \
+    V->Val[MAX_DIM] = 0. ;                                              \
+    break ;                                                             \
+  case 2:                                                               \
+    tmp = std::complex<double>(A->Val[0], A->Val[MAX_DIM]);             \
+    tmp = func(tmp);                                                    \
+    V->Val[0]       = std::real(tmp);                                   \
+    V->Val[MAX_DIM] = std::imag(tmp);                                   \
+    break;                                                              \
+  default:                                                              \
+    V->Val[MAX_DIM] = 0. ;                                              \
+    for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2) \
+      V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;                  \
+  }                                                                     \
+  V->Type = SCALAR;                                                     \
+
+void F_Exp   (F_ARG) { scalar_cmplx_1_arg (exp,  "Exp")   }
+void F_Log   (F_ARG) { scalar_cmplx_1_arg (log,  "Log")   }
+void F_Log10 (F_ARG) { scalar_cmplx_1_arg (log10,"Log10") }
+void F_Sqrt  (F_ARG) { scalar_cmplx_1_arg (sqrt, "Sqrt")  }
+void F_Sin   (F_ARG) { scalar_cmplx_1_arg (sin,  "Sin")   }
+void F_Asin  (F_ARG) { scalar_cmplx_1_arg (asin, "Asin")  }
+void F_Cos   (F_ARG) { scalar_cmplx_1_arg (cos,  "Cos" )  }
+void F_Acos  (F_ARG) { scalar_cmplx_1_arg (acos, "Acos")  }
+void F_Tan   (F_ARG) { scalar_cmplx_1_arg (tan,  "Tan")   }
+void F_Atan  (F_ARG) { scalar_cmplx_1_arg (atan, "Atan")  }
+void F_Sinh  (F_ARG) { scalar_cmplx_1_arg (sinh, "Sinh")  }
+void F_Cosh  (F_ARG) { scalar_cmplx_1_arg (cosh, "Cosh")  }
+void F_Tanh  (F_ARG) { scalar_cmplx_1_arg (tanh, "Tanh")  }
+void F_Fabs  (F_ARG) { scalar_cmplx_1_arg (fabs, "Fabs")  }
+
+#undef scalar_cmplx_1_arg
 
 /* ------------------------------------------------------------------------ */
 /*  C math functions (scalar, 2 arguments, imaginary part set to zero)      */
