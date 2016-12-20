@@ -2582,6 +2582,11 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	(Resolution_P, Operation_P, DofData_P0, GeoData_P0) ;
       break;
 
+    case OPERATION_BROADCASTVARIABLES :
+      Message::Info("BroadCastVariables ...") ;
+      Message::Warning(" *** TODO: BroadCastVariables! ***");
+      break;
+
       /*  -->  I t e r a t i v e T i m e R e d u c t i o n  */
       /*  ------------------------------------------------  */
 

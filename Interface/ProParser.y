@@ -284,7 +284,8 @@ struct doubleXstring{
 %token      tIterativeLoop tIterativeLoopN tIterativeLinearSolver
 %token      tNbrMaxIteration tRelaxationFactor
 %token      tIterativeTimeReduction
-%token        tSetCommSelf tSetCommWorld tBarrier tBroadcastFields tSleep
+%token        tSetCommSelf tSetCommWorld tBarrier tBroadcastFields tBroadcastVariables
+%token      tSleep
 %token      tDivisionCoefficient tChangeOfState
 %token      tChangeOfCoordinates tChangeOfCoordinates2 tSystemCommand tError
 %token        tGmshRead tGmshMerge tGmshOpen tGmshWrite tGmshClearAll
@@ -4585,13 +4586,31 @@ OperationTerm :
       Operation_P->Type = OPERATION_SETCOMMSELF;
     }
 
+  | tSetCommSelf '[' ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_SETCOMMSELF;
+    }
+
   | tSetCommWorld tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_SETCOMMWORLD;
     }
 
+  | tSetCommWorld '[' ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_SETCOMMWORLD;
+    }
+
   | tBarrier tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_BARRIER;
+    }
+
+  | tBarrier '[' ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_BARRIER;
@@ -4604,7 +4623,19 @@ OperationTerm :
       Operation_P->Case.BroadcastFields.FieldsToSkip = $3;
     }
 
+  | tBroadcastVariables '[' ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_BROADCASTVARIABLES;
+    }
+
   | tBreak tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_BREAK;
+    }
+
+  | tBreak '[' ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_BREAK;
@@ -5254,6 +5285,13 @@ OperationTerm :
     }
 
   | tGmshClearAll tEND
+    {
+      Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_GMSHCLEARALL;
+    }
+
+  | tGmshClearAll '[' ']' tEND
     {
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);

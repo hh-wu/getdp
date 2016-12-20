@@ -284,8 +284,13 @@ LogSpace                     return tLogSpace;
 
 MHJacNL                      return tMHJacNL;
 MHTransform                  return tMHTransform;
+MPI_Barrier		     return tBarrier;
+MPI_BroadcastFields          return tBroadcastFields;
+MPI_BroadcastVariables       return tBroadcastVariables;
 MPI_Printf                   return tMPI_Printf;
 MPI_Rank                     return tMPI_Rank;
+MPI_SetCommSelf              return tSetCommSelf;
+MPI_SetCommWorld             return tSetCommWorld;
 MPI_Size                     return tMPI_Size;
 Macro                        return tMacro;
 MaxNumberOfDivisions         return tMaxNumberOfDivisions;
