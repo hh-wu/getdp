@@ -3258,10 +3258,11 @@ Dual volumes of elements of @var{R1}.
 
 @vindex @var{math-function-id}
 
-The following functions are the equivalent of the functions of the C math
-library, and always return real-valued expressions. These are the only
-functions allowed in constant expressions (@var{expression-cst}, see
-@ref{Constants}).
+The following functions are the equivalent of the functions of the C or
+C++ math library. Unless indicated otherwise, arguments to these
+functions can be real or complex valued when used in @var{expression}s.
+When used in constant expressions (@var{expression-cst}, see
+@ref{Constants}), only real-valued arguments are accepted.
 
 @noindent
 @var{math-function-id}:
@@ -3321,7 +3322,7 @@ Arc tangent (inverse tangent) of @var{expression} in [-Pi/2,Pi/2].
 @code{[@var{expression},@var{expression}]}
 
 Arc tangent (inverse tangent) of the first @var{expression} divided by the
-second, in [-Pi,Pi].
+second, in [-Pi,Pi] (real valued only).
 
 @item Sinh 
 @code{[@var{expression}]}
@@ -3346,62 +3347,73 @@ Hyperbolic tangent of a complex valued @var{expression}.
 @item Fabs 
 @code{[@var{expression}]}
 
+Absolute value of @var{expression} (real valued only).
+
+@item Abs 
+@code{[@var{expression}]}
+
 Absolute value of @var{expression}.
 
 @item Floor 
 @code{[@var{expression}]}
 
-Rounds downwards to the nearest integer that is not greater than @var{expression}.
+Rounds downwards to the nearest integer that is not greater than
+@var{expression} (real valued only).
 
 @item Ceil 
 @code{[@var{expression}]}
 
-Rounds upwards to the nearest integer that is not less than @var{expression}.
+Rounds upwards to the nearest integer that is not less than
+@var{expression} (real valued only).
 
 @item Fmod
 @code{[@var{expression},@var{expression}]}
 
-Remainder of the division of the first @var{expression} by the second, with
-the sign of the first.
+Remainder of the division of the first @var{expression} by the second,
+with the sign of the first (real valued only).
 
 @item Min
 @code{[@var{expression},@var{expression}]}
 
-Minimum of the two (scalar) expressions
+Minimum of the two (scalar) expressions (real valued only).
 
 @item Max
 @code{[@var{expression},@var{expression}]}
 
-Maximum of the two (scalar) expressions
+Maximum of the two (scalar) expressions (real valued only).
 
 @item Sign 
 @code{[@var{expression}]}
 
--1 for @var{expression} less than zero and 1 otherwise.
+-1 for @var{expression} less than zero and 1 otherwise (real valued only).
 
 @item Jn 
 @code{[@var{expression}]}
 
-Returns the Bessel function of the first kind of order given by the first
-@var{expression} for the value of the second @var{expression}.
+Returns the Bessel function of the first kind of order given by the
+first @var{expression} for the value of the second @var{expression}
+(real valued only).
 
 @item dJn 
 @code{[@var{expression}]}
 
 Returns the derivative of the Bessel function of the first kind of order
-given by the first @var{expression} for the value of the second @var{expression}.
+given by the first @var{expression} for the value of the second
+@var{expression} (real valued only).
 
 @item Yn 
 @code{[@var{expression}]}
 
-Returns the Bessel function of the second kind of order given by the first
-@var{expression} for the value of the second @var{expression}.
+Returns the Bessel function of the second kind of order given by the
+first @var{expression} for the value of the second @var{expression}
+(real valued only).
 
 @item dYn 
 @code{[@var{expression}]}
 
-Returns the derivative of the Bessel function of the second kind of order
-given by the first @var{expression} for the value of the second @var{expression}.
+Returns the derivative of the Bessel function of the second kind of
+order given by the first @var{expression} for the value of the second
+@var{expression} (real valued only).
 
 @end ftable
 
@@ -4769,6 +4781,7 @@ While @var{expression} is true (nonzero), perform the operations in
 @var{resolution-op}.
 
 @item Break
+@code{[]}
 
 Aborts an iterative loop, a time loop or a While loop.
 
@@ -4776,23 +4789,6 @@ Aborts an iterative loop, a time loop or a While loop.
 @code{[@var{expression}]}
 
 Sleeps for @var{expression} seconds;
-
-@item SetCommSelf
-
-Changes MPI communicator to self.
-
-@item SetCommWorld
-
-Changes MPI communicator to world.
-
-@item Barrier
-
-MPI barrier (blocks until all processes have reached this call).
-
-@item BroadcastFields
-@code{[ < @var{expression-list} > ]}
-
-Broadcast all fields over MPI (except those listed in the list).
 
 @item Print
 @code{[ @{ @var{expression-list} @} <, File @var{expression-char} > <, Format @var{expression-char} > ]}
@@ -4978,6 +4974,7 @@ retrieve the given field with the built-in @code{Field[]},
 Writes the a Gmsh field to disk. (The format is guessed from the file extension.)
 
 @item GmshClearAll
+@code{[]}
 
 Clears all Gmsh data (loaded with @code{GmshRead} and friends).
 
@@ -4995,6 +4992,31 @@ Rename a file.
 @code{[@var{expression-char}]}
 
 Create a directory.
+
+@item MPI_SetCommSelf
+@code{[]}
+
+Changes MPI communicator to self.
+
+@item MPI_SetCommWorld
+@code{[]}
+
+Changes MPI communicator to world.
+
+@item MPI_Barrier
+@code{[]}
+
+MPI barrier (blocks until all processes have reached this call).
+
+@item MPI_BroadcastFields
+@code{[ < @var{expression-list} > ]}
+
+Broadcast all fields over MPI (except those listed in the list).
+
+@item MPI_BroadcastVariables
+@code{[]}
+
+Broadcast all runtime variables over MPI.
 
 @c todo:
 

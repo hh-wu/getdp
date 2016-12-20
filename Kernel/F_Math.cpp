@@ -33,6 +33,7 @@ extern struct CurrentData Current ;
 
 void F_Floor (F_ARG) { scalar_real_1_arg (floor,"Floor") }
 void F_Ceil  (F_ARG) { scalar_real_1_arg (ceil, "Ceil")  }
+void F_Fabs  (F_ARG) { scalar_real_1_arg (fabs, "Fabs")  }
 
 #undef scalar_real_1_arg
 
@@ -78,7 +79,7 @@ void F_Atan  (F_ARG) { scalar_cmplx_1_arg (atan, "Atan")  }
 void F_Sinh  (F_ARG) { scalar_cmplx_1_arg (sinh, "Sinh")  }
 void F_Cosh  (F_ARG) { scalar_cmplx_1_arg (cosh, "Cosh")  }
 void F_Tanh  (F_ARG) { scalar_cmplx_1_arg (tanh, "Tanh")  }
-void F_Fabs  (F_ARG) { scalar_cmplx_1_arg (fabs, "Fabs")  }
+void F_Abs   (F_ARG) { scalar_cmplx_1_arg (std::abs, "Abs")  }
 
 #undef scalar_cmplx_1_arg
 
