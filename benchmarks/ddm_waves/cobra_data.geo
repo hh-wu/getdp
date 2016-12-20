@@ -4,7 +4,7 @@ DefineConstant[ // allows to set these from outside
   ANALYSIS = {0, Name "Input/00Type of analysis",
     Choices {0="Helmholtz", 1="Maxwell"}},
   // wavenumber
-  WAVENUMBER = {2*Pi*10, Name "Input/0Wavenumber"},
+  WAVENUMBER = {30*Pi, Name "Input/0Wavenumber"},
   LAMBDA = {2*Pi/WAVENUMBER, Name "Input/1Wavelength", ReadOnly 1},
   // number of points per wavelength
   N_DOM = {7, Min 7, Max 512, Step 1, Name "Input/04Number of subdomains"},
