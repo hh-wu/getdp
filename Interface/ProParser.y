@@ -201,7 +201,7 @@ struct doubleXstring{
 %token  tStrCat tSprintf tPrintf tMPI_Printf tRead tPrintConstants
 %token  tStrCmp tStrFind tStrLen
 %token  tStrChoice tStrSub tUpperCase tLowerCase tLowerCaseIn
-%token  tNbrRegions tGetRegion tStringToName tNameToString
+%token  tNbrRegions tGetRegion tGetRegions tStringToName tNameToString
 %token  tFor tEndFor tIf tElseIf tElse tEndIf tMacro tReturn tCall tCallTest
 %token  tTest tWhile tParse
 %token  tFlag tExists tFileExists tGetForced
@@ -8984,6 +8984,17 @@ MultiFExpr :
       else
 	for(double d = $1; ($5 > 0) ? (d <= $3) : (d >= $3); d += $5)
 	  List_Add($$, &d);
+    }
+
+  | tGetRegions '[' GroupRHS ']'
+    {
+      $$ = List_Create(List_Nbr(Group_S.InitialList),20,sizeof(double));
+      for(int k = 0; k < List_Nbr(Group_S.InitialList); k++) {
+        int j;
+        List_Read(Group_S.InitialList, k, &j);
+        double d = (double)j;
+        List_Add($$, &d);
+      }
     }
 
   | tSTRING '(' ')'

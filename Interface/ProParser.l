@@ -228,6 +228,7 @@ GeoElement                   return tGeoElement;
 GetForced                    return tGetForced;
 GetNumber                    return tGetNumber;
 GetRegion                    return tGetRegion ;
+GetRegions                   return tGetRegions ;
 GetResidual                  return tGetResidual;
 GetNormSolution              return tGetNormSolution;
 GetNormResidual              return tGetNormResidual;

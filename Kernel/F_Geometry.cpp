@@ -420,11 +420,22 @@ void F_GetNumElements(F_ARG)
 
   if (!Fct->Active) {
     Fct->Active = (struct FunctionActive *)Malloc(sizeof(struct FunctionActive)) ;
-    List_T  * InitialList_L = 0;
+    List_T  * InitialList_L;
     if (Fct->NbrParameters == 1) {
       int Index_Region = (int)(Fct->Para[0]) ;
       InitialList_L = List_Create(1, 1, sizeof(int));
       List_Add(InitialList_L, &Index_Region);
+    }
+    else if (Fct->NbrParameters > 1) {
+      InitialList_L = List_Create(Fct->NbrParameters,1,sizeof(int));
+      List_Reset(InitialList_L);
+      for (int i=0; i<Fct->NbrParameters; i++) {
+        int Index_Region = (int)(Fct->Para[i]) ;
+        List_Add(InitialList_L, &Index_Region);
+      }
+    }
+    else {
+      InitialList_L = NULL ;
     }
     int Count = 0. ;
     int Nbr_Element = Geo_GetNbrGeoElements() ;

@@ -1422,11 +1422,33 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
 			 int NbrHarmonics, int HarmonicToTime, double *Dummy,
 			 struct PostElement * PE)
 {
+  static int  Size ;
   int    i, j, k, l, Num_Element ;
   struct PostElement  * PE2 ;
   struct Value          Value ;
 
   static int Warning_FirstHarmonic = 0 ;
+
+  int flag_storeAllTimeResults; //, indexInTmpValues;
+  /* Added soon
+  static struct Value  TmpValue, *TmpValues ;
+  static double *Times ;
+  struct Value *FourierValues;
+  */
+
+  flag_storeAllTimeResults = PSO_P->TimeToHarmonic ;
+  //  indexInTmpValues = flag_storeAllTimeResults? iTime * NbrRegion : 0 ;
+
+  if(1){
+    switch(PE->Value[0].Type){
+    case SCALAR      : Size = 1 ; break ;
+    case VECTOR      : Size = 3 ; break ;
+    case TENSOR_DIAG : Size = 3 ; break ;
+    case TENSOR_SYM  : Size = 6 ; break ;
+    case TENSOR      : Size = 9 ; break ;
+    default          : Size = 9 ; break ;
+    }
+  }
 
   if(PE->Index != NO_ELEMENT)
     Num_Element = Geo_GetGeoElement(PE->Index)->Num ;
