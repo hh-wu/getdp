@@ -3838,9 +3838,10 @@ Integral type and only for line elements).
 Computes the element's volume.
 
 @item SurfaceArea
-@code{[]}
+@code{[]@{@var{expression-cst-list}@}}
 
-Computes the area of the actual surface.
+Computes the area of the physical surfaces in @var{expression-cst-list} 
+or of the actual surface if @var{expression-cst-list} is empty.
 
 @item GetVolume
 @code{[]}
@@ -3852,6 +3853,12 @@ Computes the volume of the actual physical group.
 
 Returns 0 if the current element and the current source element are
 identical.
+
+@item GetNumElements
+@code{[]@{@var{expression-cst-list}@}}
+
+Counts the elements of physical numbers in @var{expression-cst-list} 
+or of the actual region if @var{expression-cst-list} is empty.
 
 @item InterpolationLinear
 @code{[@var{expression}]@{@var{expression-cst-list}@}}
