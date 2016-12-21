@@ -3296,7 +3296,8 @@ Sine of @var{expression}.
 @item Asin 
 @code{[@var{expression}]}
 
-Arc sine (inverse sine) of @var{expression} in [-Pi/2,Pi/2], @var{expression} in [-1,1].
+Arc sine (inverse sine) of @var{expression} in [-Pi/2,Pi/2],
+@var{expression} in [-1,1] (real valued only).
 
 @item Cos  
 @code{[@var{expression}]}
@@ -3306,7 +3307,8 @@ Cosine of @var{expression}.
 @item Acos 
 @code{[@var{expression}]}
 
-Arc cosine (inverse cosine) of @var{expression} in [0,Pi], @var{expression} in [-1,1].
+Arc cosine (inverse cosine) of @var{expression} in [0,Pi],
+@var{expression} in [-1,1] (real valued only).
 
 @item Tan  
 @code{[@var{expression}]}
@@ -3316,7 +3318,8 @@ Tangent of @var{expression}.
 @item Atan 
 @code{[@var{expression}]}
 
-Arc tangent (inverse tangent) of @var{expression} in [-Pi/2,Pi/2].
+Arc tangent (inverse tangent) of @var{expression} in [-Pi/2,Pi/2] (real
+valued only).
 
 @item Atan2
 @code{[@var{expression},@var{expression}]}

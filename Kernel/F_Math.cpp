@@ -34,6 +34,9 @@ extern struct CurrentData Current ;
 void F_Floor (F_ARG) { scalar_real_1_arg (floor,"Floor") }
 void F_Ceil  (F_ARG) { scalar_real_1_arg (ceil, "Ceil")  }
 void F_Fabs  (F_ARG) { scalar_real_1_arg (fabs, "Fabs")  }
+void F_Asin  (F_ARG) { scalar_real_1_arg (asin, "Asin")  }
+void F_Acos  (F_ARG) { scalar_real_1_arg (acos, "Acos")  }
+void F_Atan  (F_ARG) { scalar_real_1_arg (atan, "Atan")  }
 
 #undef scalar_real_1_arg
 
@@ -71,11 +74,8 @@ void F_Log   (F_ARG) { scalar_cmplx_1_arg (log,  "Log")   }
 void F_Log10 (F_ARG) { scalar_cmplx_1_arg (log10,"Log10") }
 void F_Sqrt  (F_ARG) { scalar_cmplx_1_arg (sqrt, "Sqrt")  }
 void F_Sin   (F_ARG) { scalar_cmplx_1_arg (sin,  "Sin")   }
-void F_Asin  (F_ARG) { scalar_cmplx_1_arg (asin, "Asin")  }
 void F_Cos   (F_ARG) { scalar_cmplx_1_arg (cos,  "Cos" )  }
-void F_Acos  (F_ARG) { scalar_cmplx_1_arg (acos, "Acos")  }
 void F_Tan   (F_ARG) { scalar_cmplx_1_arg (tan,  "Tan")   }
-void F_Atan  (F_ARG) { scalar_cmplx_1_arg (atan, "Atan")  }
 void F_Sinh  (F_ARG) { scalar_cmplx_1_arg (sinh, "Sinh")  }
 void F_Cosh  (F_ARG) { scalar_cmplx_1_arg (cosh, "Cosh")  }
 void F_Tanh  (F_ARG) { scalar_cmplx_1_arg (tanh, "Tanh")  }
