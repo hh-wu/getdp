@@ -17900,8 +17900,8 @@ yyreduce:
 #line 8990 "ProParser.y"
     {
       (yyval.l) = List_Create(List_Nbr(Group_S.InitialList),20,sizeof(double));
+      int j;
       for(int k = 0; k < List_Nbr(Group_S.InitialList); k++) {
-        int j;
         List_Read(Group_S.InitialList, k, &j);
         double d = (double)j;
         List_Add((yyval.l), &d);

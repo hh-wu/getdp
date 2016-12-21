@@ -8989,8 +8989,8 @@ MultiFExpr :
   | tGetRegions '[' GroupRHS ']'
     {
       $$ = List_Create(List_Nbr(Group_S.InitialList),20,sizeof(double));
+      int j;
       for(int k = 0; k < List_Nbr(Group_S.InitialList); k++) {
-        int j;
         List_Read(Group_S.InitialList, k, &j);
         double d = (double)j;
         List_Add($$, &d);
