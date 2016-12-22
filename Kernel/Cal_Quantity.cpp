@@ -318,8 +318,8 @@ void Cal_SolidAngle(int Source, struct Element *Element,
 // There can be at max one "Dof{op qty}" per WholeQuantity, but as
 // many {op qty} as you want.
 
-static std::map<int, Value> ValueSaved ;
-static std::map<std::string, Value> NamedValueSaved ;
+static std::map<int, struct Value> ValueSaved ;
+static std::map<std::string, struct Value> NamedValueSaved ;
 
 void Cal_WholeQuantity(struct Element * Element,
 		       struct QuantityStorage * QuantityStorage_P0,
@@ -1263,4 +1263,9 @@ void Cal_GetValueSaved(struct  Value  *Value, const char *name)
     Cal_ZeroValue(Value);
     Value->Type = SCALAR ;
   }
+}
+
+std::map<std::string, struct Value> &Get_AllValueSaved()
+{
+  return NamedValueSaved;
 }

@@ -1280,6 +1280,7 @@ struct IterativeLoopSystem {
 #define OPERATION_GETNORMINCREMENT         103
 #define OPERATION_HPDDMSOLVE               104
 #define OPERATION_BROADCASTVARIABLES       105
+#define OPERATION_DEBUG                    106
 
 /* ChangeOfState.Type */
 #define CHANGEOFSTATE_NOCHANGE              0

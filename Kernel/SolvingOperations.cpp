@@ -2962,6 +2962,13 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Flag_Binary = 0;
       break;
 
+    case OPERATION_DEBUG :
+      Init_OperationOnSystem("Debug",
+			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+                             &DefineSystem_P, &DofData_P, Resolution2_P) ;
+      Operation_Debug(Operation_P, DofData_P);
+      break;
+
       /*  -->  C h a n g e O f C o o r d i n a t e s */
       /*  ------------------------------------------ */
 

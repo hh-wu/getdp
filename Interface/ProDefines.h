@@ -244,6 +244,7 @@ struct StringXDefine  Operation_Type[] = {
   {"HPDDMSolve"             , OPERATION_HPDDMSOLVE},
   {"TransferSolution"       , OPERATION_TRANSFERSOLUTION},
   {"Update"                 , OPERATION_UPDATE},
+  {"Debug"                  , OPERATION_DEBUG},
   {NULL                     , OPERATION_NONE}
 } ;
 
