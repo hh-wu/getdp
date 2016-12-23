@@ -129,15 +129,43 @@ void F_GetNumberRunTime (F_ARG)
     V->Val[0] = Message::GetOnelabNumber(Fct->String);
 }
 
+void F_SetVariable (F_ARG)
+{
+  if(!Fct->String){
+    Message::Error("Missing runtime variable name: use SetVariableR[...]{$name}");
+    return;
+  }
+
+  if(Fct->NbrArguments < 1){
+    Message::Error("Missing argument in SetVariable[...]{$name}");
+    return;
+  }
+
+  Cal_CopyValue(A, V);
+
+  char tmp[256];
+  strcpy(tmp, Fct->String);
+  for(int i = 1; i < Fct->NbrArguments; i++){
+    if((A+i)->Type != SCALAR){
+      Message::Error("Non-scalar argument in GetVariable");
+      return;
+    }
+    char tmp2[256];
+    sprintf(tmp2, "_%g", (A+i)->Val[0]);
+    strcat(tmp, tmp2);
+  }
+  Cal_StoreInVariable(V, tmp);
+}
+
 void F_GetVariable (F_ARG)
 {
   if(!Fct->String){
-    Message::Error("Missing runtime variable name: use GetVariableRunTime[...]{$name}");
+    Message::Error("Missing runtime variable name: use GetVariable[...]{$name}");
     return;
   }
 
   char tmp[256];
-  strcpy(tmp, &Fct->String[1]);
+  strcpy(tmp, Fct->String);
   for(int i = 0; i < Fct->NbrArguments; i++){
     if((A+i)->Type != SCALAR){
       Message::Error("Non-scalar argument in GetVariable");
