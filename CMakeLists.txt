@@ -1,4 +1,4 @@
-# GetDP - Copyright (C) 1997-2016 P. Dular and C. Geuzaine, University of Liege
+# GetDP - Copyright (C) 1997-2017 P. Dular and C. Geuzaine, University of Liege
 #
 # See the LICENSE.txt file for license information. Please report all
 # bugs and problems to the public mailing list <getdp@onelab.info>.
@@ -62,8 +62,8 @@ else(ENABLE_FORTRAN)
 endif(ENABLE_FORTRAN)
 
 set(GETDP_MAJOR_VERSION 2)
-set(GETDP_MINOR_VERSION 10)
-set(GETDP_PATCH_VERSION 1)
+set(GETDP_MINOR_VERSION 11)
+set(GETDP_PATCH_VERSION 0)
 set(GETDP_EXTRA_VERSION "" CACHE STRING "GetDP extra version string")
 
 set(GETDP_VERSION "${GETDP_MAJOR_VERSION}.${GETDP_MINOR_VERSION}")
