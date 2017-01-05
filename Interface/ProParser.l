@@ -419,6 +419,7 @@ StringToName                 return tStringToName;
 S2N                          return tStringToName;
 SubFunction                  return tSubFunction;
 SubRegion                    return tSubRegion;
+SubRegion2                   return tSubRegion2;
 SubRegionRef                 return tSubRegionRef;
 SubSpace                     return tSubSpace;
 SubType                      return tSubType;

@@ -60,7 +60,7 @@ static List_T *Current_WholeQuantity_L = 0;
 static List_T *Current_System_L = 0;
 static int Num_BasisFunction = 1;
 static int FlagError = 0;
-static int Type_TermOperator = 0, Type_Function = 0, Type_SuppList = 0;
+static int Type_TermOperator = 0, Type_Function = 0, Type_SuppList = 0, Type_SuppList2 = 0;
 static int nb_SuppList, Type_SuppLists[2];
 static List_T *ListsOfRegion[2];
 static int Quantity_TypeOperator = 0, Quantity_Index = 0;
@@ -230,7 +230,7 @@ struct doubleXstring{
 %token  tDefineFunction tUndefineFunction
 
 %token  tConstraint
-%token    tRegion tSubRegion tRegionRef tSubRegionRef
+%token    tRegion tSubRegion tSubRegion2 tRegionRef tSubRegionRef
 %token    tFilter tToleranceFactor tCoefficient tValue tTimeFunction
 %token    tBranch tNameOfResolution
 
@@ -2254,6 +2254,7 @@ ConstraintCase :
       ConstraintPerRegion_S.Type = Constraint_S.Type;
       ConstraintPerRegion_S.RegionIndex = -1;
       ConstraintPerRegion_S.SubRegionIndex = -1;
+      ConstraintPerRegion_S.SubRegion2Index = -1;
       ConstraintPerRegion_S.TimeFunctionIndex = -1;
     }
 
@@ -2282,6 +2283,12 @@ ConstraintCaseTerm :
     {
       ConstraintPerRegion_S.SubRegionIndex =
 	Num_Group(&Group_S, (char*)"CO_SubRegion", $2);
+    }
+
+  | tSubRegion2 GroupRHS tEND
+    {
+      ConstraintPerRegion_S.SubRegion2Index =
+	Num_Group(&Group_S, (char*)"CO_SubRegion2", $2);
     }
 
   | tTimeFunction Expression tEND
@@ -3012,6 +3019,7 @@ ConstraintInFSs :
     {
       Group_S.FunctionType = Type_Function;
       Group_S.SuppListType = Type_SuppList;
+      Group_S.SuppListType2 = Type_SuppList2;
       switch (Group_S.FunctionType) {
       case ELEMENTSOF :  Group_S.Type = ELEMENTLIST;  break;
       default :          Group_S.Type = REGIONLIST ;  break;
@@ -3035,6 +3043,12 @@ ConstraintInFSs :
 	      ((struct Group *)
 	       List_Pointer(Problem_S.Group,
 			    ConstraintPerRegion_P->SubRegionIndex))
+	      ->InitialList : NULL;
+	    Group_S.InitialSuppList2 =
+	      (ConstraintPerRegion_P->SubRegion2Index >= 0)?
+	      ((struct Group *)
+	       List_Pointer(Problem_S.Group,
+			    ConstraintPerRegion_P->SubRegion2Index))
 	      ->InitialList : NULL;
 	    ConstraintInFS_S.EntityIndex = Add_Group(&Group_S, (char*)"CO_Entity",
                                                      false, 1, 0);
@@ -3113,7 +3127,7 @@ ConstraintInFSTerm :
     }
 
   | tEntitySubType SuppListTypeForGroup tEND
-    { Type_SuppList = $2; }
+    { Type_SuppList = $2; Type_SuppList2 = $2; }
 
   | tNameOfConstraint String__Index tEND
     {

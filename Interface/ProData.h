@@ -194,7 +194,7 @@ struct Constraint {
 };
 
 struct ConstraintPerRegion {
-  int  Type, RegionIndex, SubRegionIndex, TimeFunctionIndex;
+  int  Type, RegionIndex, SubRegionIndex, SubRegion2Index, TimeFunctionIndex;
   union {
     struct { int  ExpressionIndex, ExpressionIndex2; } Fixed;
     struct { char *ResolutionName; } Solve;
