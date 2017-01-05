@@ -9466,6 +9466,19 @@ CharExprNoVar :
       $$[strlen($$)-1] = 0;
     }
 
+  | tDate LP CharExpr RP
+    {
+      char str_date[80];
+      time_t rawtime;
+      struct tm * timeinfo;
+
+      time (&rawtime);
+      timeinfo = localtime (&rawtime);
+      strftime (str_date, 80, $3, timeinfo);
+      $$ = (char *)Malloc((strlen(str_date)+1)*sizeof(char));
+      strcpy($$, str_date);
+    }
+
   | tOnelabAction
     {
       std::string action = Message::GetOnelabAction();

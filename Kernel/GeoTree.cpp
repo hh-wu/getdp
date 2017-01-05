@@ -15,6 +15,7 @@ static int  Tree_IndexToChange, Tree_NewIndex ;
 /* ------------------------------------------------------------------------ */
 
 void Geo_GenerateEdgesOfTree(List_T * InitialList, List_T * InitialSuppList,
+                             List_T * InitialSuppList2,
 			     List_T ** ExtendedList)
 {
   Tree_T  * EntitiesInTree_T ;
@@ -23,6 +24,8 @@ void Geo_GenerateEdgesOfTree(List_T * InitialList, List_T * InitialSuppList,
 
   EntitiesInTree_T = Tree_Create(2*sizeof(int), fcmp_int) ;
 
+  if (InitialSuppList2 != NULL)
+    Geo_GenerateEdgesOfSubTree(InitialSuppList2, *ExtendedList, EntitiesInTree_T) ;
   if (InitialSuppList != NULL)
     Geo_GenerateEdgesOfSubTree(InitialSuppList, *ExtendedList, EntitiesInTree_T) ;
   if (InitialList != NULL)
@@ -38,6 +41,7 @@ void Geo_GenerateEdgesOfTree(List_T * InitialList, List_T * InitialSuppList,
 /* ------------------------------------------------------------------------ */
 
 void Geo_GenerateFacetsOfTree(List_T * InitialList, List_T * InitialSuppList,
+                              List_T * InitialSuppList2,
 			      List_T ** ExtendedList)
 {
   Tree_T  * EntitiesInTree_T ;
@@ -46,6 +50,8 @@ void Geo_GenerateFacetsOfTree(List_T * InitialList, List_T * InitialSuppList,
 
   EntitiesInTree_T = Tree_Create(2*sizeof(int), fcmp_int) ;
 
+  if (InitialSuppList2 != NULL)
+    Geo_GenerateFacetsOfSubTree(InitialSuppList2, *ExtendedList, EntitiesInTree_T) ;
   if (InitialSuppList != NULL)
     Geo_GenerateFacetsOfSubTree(InitialSuppList, *ExtendedList, EntitiesInTree_T) ;
   if (InitialList != NULL)
@@ -136,7 +142,7 @@ void Geo_GenerateFacetsOfSubTree(List_T * InitialList, List_T * ExtendedList,
   int  i_Entity2, Num_Entity2, * D_Element, * Entity_P, Entity, Flag_Change ;
   struct EntityInTree  * EntitiesInTree_P[NBR_MAX_ENTITIES_IN_ELEMENT] ;
   struct EntityInTree  EntityInTree_S ;
-  
+
   Nbr_Element = Geo_GetNbrGeoElements() ;
   for (i_Element = 0 ; i_Element < Nbr_Element ; i_Element++) {
     Geo_Element = Geo_GetGeoElement(i_Element) ;
@@ -201,4 +207,3 @@ void Geo_ChangeTreeIndex(void * a, void * b)
   if (((struct EntityInTree *)a)->Index == Tree_IndexToChange)
     ((struct EntityInTree *)a)->Index = Tree_NewIndex ;
 }
-

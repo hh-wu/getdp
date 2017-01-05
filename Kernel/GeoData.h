@@ -100,8 +100,10 @@ void  Geo_CreateEntitiesOfElement
 
 
 void  Geo_GenerateEdgesOfTree(List_T * InitialList, List_T * InitialSuppList,
+                              List_T * InitialSuppList2,
 			      List_T ** ExtendedList) ;
 void  Geo_GenerateFacetsOfTree(List_T * InitialList, List_T * InitialSuppList,
+                               List_T * InitialSuppList2,
 			       List_T ** ExtendedList) ;
 void  Geo_GenerateEdgesOfSubTree(List_T * InitialList, List_T * ExtendedList,
 				 Tree_T * EntitiesInTree_T) ;
