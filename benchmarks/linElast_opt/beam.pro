@@ -400,7 +400,7 @@ Function {
         Func[] = sigmaVM[$1,$2,$3];
         If(!Flag_projFuncSpace_xe)
           dFdb[] = ((GetNumElement[]==elemNum)?1:0)
-               *((designVar[]^degStress)*(E0/(1-nu0^2))*(Cnu[]*(V1[]*sigma[$1,$2,$3]))) 
+              *((designVar[]^degStress)*(E0/(1-nu0^2))*(Cnu[]*(V1[]*sigma[$1,$2,$3]))) 
 	       / (sigmaVM[$1,$2,$3]*ElementVol[]);
           dF_TO[] = (((GetNumElement[]==elemNum)?1:0)
                 * (degStress * sigmaVM[$1,$2,$3])/(designVar[] * ElementVol[]));

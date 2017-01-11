@@ -49,7 +49,7 @@ parameters = {
     'step':1.0e-06,
     'allowCentralFD':0,
     'gmshRead':{8:'res/u.pos',9:'res/lambda.pos'},
-    'MeshRefine':2,
+    'MeshRefine':1,
     'iterMax':1000,
     'variables':var,
     'performance':shape_complianceVolume,

@@ -88,10 +88,8 @@ DefineConstant[
   // Material law interpolation 
   Flag_InterpLaw = {"simp", 
     Choices {
-      "simp",
-      "ramp",
-      "h-s",
-      "polynomial"},	
+      "simp","modif-simp",
+      "ramp","h-s","polynomial"},	
     Name StrCat[pInOpt,"Material Law"],
     Visible (!StrCmp(Flag_optType,"topology"))},
 

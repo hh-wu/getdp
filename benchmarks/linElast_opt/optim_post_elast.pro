@@ -355,7 +355,7 @@ PostOperation {
 
   { Name TO_Adjoint_u_Mec; NameOfPostProcessing Adjoint_u_Mec;
     Operation{
-      Print[ Sensitivity_AdjointMethod, OnElementsOf DomainOpt,LastTimeStepOnly,
+      Print[ Sensitivity_AdjointMethod, OnElementsOf DomainOpt,Depth 0, Format Table,
         File StrCat[ResDir, StrCat["SensPerfAvmFixedDom",ExtGmsh]]] ;
     }
   }
@@ -379,13 +379,13 @@ PostOperation {
 
   { Name FilterTopOpt; NameOfPostProcessing FilterTopOpt;
     Operation {
-      Print[filtIn, OnElementsOf DomainOpt,Depth 0,Format Table,
+      Print[filtIn, OnElementsOf DomainOpt,Depth 0, Format Table,
         File StrCat[ResDir,"filtIn.pos"]];
-      Print[filtOut, OnElementsOf DomainOpt,Depth 0,Format Table,
+      Print[filtOut, OnElementsOf DomainOpt,Depth 0, Format Table,
         File StrCat[ResDir,"filtOut.pos"] ];
-      Print[filtIn, OnElementsOf DomainOpt,Depth 1,
+      Print[filtIn, OnElementsOf DomainOpt, Depth 1,
         File StrCat[ResDir,"filtIn_1.pos"]];
-      Print[filtOut, OnElementsOf DomainOpt,Depth 1,
+      Print[filtOut, OnElementsOf DomainOpt, Depth 1,
         File StrCat[ResDir,"filtOut_1.pos"] ];
     }
   }

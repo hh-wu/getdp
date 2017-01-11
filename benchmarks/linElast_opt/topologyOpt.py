@@ -26,7 +26,7 @@ else:
 # ***** Create the parameters                                        *****
 # ************************************************************************
 parameters = {
-    'plot':1,'Print':2,'file':'beam',
+    'plot':1,'Print':0,'file':'beam',
     'analysis':['u_Mec'],
     'analysisPost':['u_Mec_Post'],
     'adjoint':['Adjoint_u_Mec'],
@@ -48,7 +48,7 @@ parameters = {
         'Ly':[pp+'Y length [m]',Ly],
         'LxPad':[pp+'X length pad [m]',0.6],
         'LyPad':[pp+'Y length pad [m]',0.4],
-        'Transfinite':[pp+'transfinite?',0],
+        'Transfinite':[pp+'transfinite?',1],
         'Nx':[pp+'Nx',nx],
         'Ny':[pp+'Ny',ny],
         'Nz':[pp+'Nz',nz],
@@ -65,9 +65,9 @@ parameters = {
     'performance':topopt_complianceVolume,
     #opt_VolumeVMelem,opt_maxBeta_eig
     'rmin':3.5*Ly/ny,
-    'optimizer':'mma3',
+    'optimizer':'mma',
     #'mmaDualNewton',#'mmaDualCG','conlinFile','gcmma','openopt','mma3'
-    'xtol':1.0e-02,
+    'xtol':1.0e-03,
     'iterMax':1000,'parallel':0,'nbCPU':6}
 
 x = np.array([0.5]);xmax = np.array([1.0]);xmin = np.array([0.0])
@@ -91,16 +91,17 @@ op = Optimization(parameters,xmin,xmax,x)
 #op.preprocessing(op.parameters)
 
 # Call optimizer
-if parameters['optimizer'] == 'mma3':
-    a0 = 1.0; a=[0.]*op.m;c=[1000.]*op.m;d=[0.]*op.m
-    op.mmaPy(op.x,op.xmin,op.xmax,a0,a,c,d,op.parameters['performance'],0,1)
-elif parameters['optimizer'] in ['mmaDualNewton','mmaDualCG','mmaDualNewtonDiag']:
-    mm = len(op.fjMax) - 1
-    cc = 1000.0*np.ones(mm)
-    aa = np.zeros(mm);#aa[0:3]=1.0
-    op.mmaSvanFortran07(op.x,op.xmax,op.xmin,op.fjMax,op.parameters,aa,cc,1)
-else:
-    op.OC(op.x,op.fjMax,op.parameters)
+op.mmaPy(op.x,op.xmin,op.xmax)
+#if parameters['optimizer'] == 'mma3':
+#    a0 = 1.0; a=[0.]*op.m;c=[1000.]*op.m;d=[0.]*op.m
+#    op.mmaPy(op.x,op.xmin,op.xmax,a0,a,c,d,op.parameters['performance'],0,1)
+#elif parameters['optimizer'] in ['mmaDualNewton','mmaDualCG','mmaDualNewtonDiag']:
+#    mm = len(op.fjMax) - 1
+#    cc = 1000.0*np.ones(mm)
+#    aa = np.zeros(mm);#aa[0:3]=1.0
+#    op.mmaSvanFortran07(op.x,op.xmax,op.xmin,op.fjMax,op.parameters,aa,cc,1)
+#else:
+#    op.OC(op.x,op.fjMax,op.parameters)
 
 #op.solveOpt(op.x,op.xmax,op.xmin,op.fjMax,2,op.parameters)
 #np.save('out_timing.npy',np.array([op.time]))

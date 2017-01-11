@@ -21,24 +21,24 @@ Integration {
   { Name I1 ;
     Case {
       { Type Gauss ;
-	Case {
-	  { GeoElement Point       ; NumberOfPoints  1 ; }
-	  { GeoElement Line        ; NumberOfPoints  1 ; }
-	  { GeoElement Triangle    ; NumberOfPoints  1 ; }
-	  { GeoElement Quadrangle  ; NumberOfPoints  1 ; }
-	  { GeoElement Tetrahedron ; NumberOfPoints  1; }
-          { GeoElement Hexahedron  ; NumberOfPoints  1 ; }
-	  { GeoElement Prism       ; NumberOfPoints  1 ; }
-        }
 //	Case {
 //	  { GeoElement Point       ; NumberOfPoints  1 ; }
-//	  { GeoElement Line        ; NumberOfPoints  4 ; }
-//	  { GeoElement Triangle    ; NumberOfPoints  7 ; }
-//	  { GeoElement Quadrangle  ; NumberOfPoints  4 ; }
-//	  { GeoElement Tetrahedron ; NumberOfPoints  16; }
-//          { GeoElement Hexahedron  ; NumberOfPoints  6 ; }
-//	  { GeoElement Prism       ; NumberOfPoints  9 ; }
+//	  { GeoElement Line        ; NumberOfPoints  1 ; }
+//	  { GeoElement Triangle    ; NumberOfPoints  1 ; }
+//	  { GeoElement Quadrangle  ; NumberOfPoints  1 ; }
+//	  { GeoElement Tetrahedron ; NumberOfPoints  1; }
+//          { GeoElement Hexahedron  ; NumberOfPoints  1 ; }
+//	  { GeoElement Prism       ; NumberOfPoints  1 ; }
 //        }
+	Case {
+	  { GeoElement Point       ; NumberOfPoints  1 ; }
+	  { GeoElement Line        ; NumberOfPoints  4 ; }
+	  { GeoElement Triangle    ; NumberOfPoints  7 ; }
+	  { GeoElement Quadrangle  ; NumberOfPoints  4 ; }
+	  { GeoElement Tetrahedron ; NumberOfPoints  16; }
+          { GeoElement Hexahedron  ; NumberOfPoints  6 ; }
+	  { GeoElement Prism       ; NumberOfPoints  9 ; }
+        }
      }
    }
  }
@@ -46,13 +46,13 @@ Integration {
 
 FunctionSpace{
 
-  { Name H_xe ; Type Form3 ;
+  { Name H_xe; Type Form3 ;
     BasisFunction {
       { Name sxn ; NameOfCoef uxn ; Function BF_Volume ;
         Support Region[{Domain}]; Entity VolumesOf[ All ] ; }
     }
     Constraint {
-      { NameOfCoef uxn ; EntityType VolumesOf ; NameOfConstraint constr_xe ; }
+      { NameOfCoef uxn; EntityType VolumesOf; NameOfConstraint constr_xe; }
     }
   }
 
@@ -118,37 +118,6 @@ FunctionSpace{
     }
   EndIf
 
-  For i In {1:2}
-    { Name H_u~{i} ; Type Form0 ;
-      BasisFunction {
-        { Name sn ; NameOfCoef un ; Function BF_Node ;
-          Support Region[{Domain,Domain_Force}]; Entity NodesOf[ All ] ; }
-      }
-      Constraint {
-        { NameOfCoef un ; EntityType NodesOf ; NameOfConstraint DisplacementX ; }
-      }
-    }
-  EndFor
-
-  { Name H_ux_Mec ; Type Form0 ;
-    BasisFunction {
-      { Name sxn ; NameOfCoef uxn ; Function BF_Node ;
-        Support Region[{Domain,Domain_Force}]; Entity NodesOf[ All ] ; }
-    }
-    Constraint {
-      { NameOfCoef uxn ; EntityType NodesOf ; NameOfConstraint DisplacementX ; }
-    }
-  }
-
-  { Name H_uy_Mec ; Type Form0 ;
-    BasisFunction {
-      { Name syn ; NameOfCoef uyn ; Function BF_Node ;
-        Support Region[{Domain,Domain_Force}]; Entity NodesOf[ All ] ; }
-    }
-    Constraint {
-      { NameOfCoef uyn ; EntityType NodesOf ; NameOfConstraint DisplacementY ; }
-    }
-  }
 }
 
 Formulation{
@@ -186,32 +155,8 @@ Formulation{
       }
     }
 
-    { Name u_Mec_Comp ; Type FemEquation ;
-      Quantity {
-        { Name ux; Type Local ; NameOfSpace H_ux_Mec ;}
-        { Name uy; Type Local ; NameOfSpace H_uy_Mec ;}
-        For i In {1:2}
-          { Name u~{i} ; Type Local ; NameOfSpace H_u~{i};}
-        EndFor
-      }
-      Equation {
-//        Galerkin { [ CompXX[C[]] * CompX[Dof{d ux}], CompX[{d ux}] ] ;
-//          In Domain; Jacobian Vol ; Integration I1 ; }
-//        Galerkin { [ CompXY[C[]] * CompY[Dof{d uy}], CompX[{d ux}] ] ;
-//          In Domain; Jacobian Vol ; Integration I1 ; }
-//        Galerkin { [ CompXZ[C[]] * (CompX[Dof{d uy}], CompX[{d ux}] ] ;
-//          In Domain; Jacobian Vol ; Integration I1 ; }
-//        Galerkin { [ CompXZ[C[]] * (CompY[Dof{d ux}], CompX[{d ux}] ] ;
-//          In Domain; Jacobian Vol ; Integration I1 ; }
-         // FIXME: complete...
-         // 
-        Galerkin { [ -CompX[force_mec[]], {ux}] ;
-          In Domain_Force ; Jacobian SurLinVol; Integration I1; }
-        Galerkin { [ -CompY[force_mec[]], {uy}] ;
-          In Domain_Force ; Jacobian SurLinVol; Integration I1; }
-      }
-    }
   Else // 3D formulation
+
     { Name u_Mec; Type FemEquation;
       Quantity{
         { Name u; Type Local; NameOfSpace H_u;}
@@ -255,6 +200,7 @@ Formulation{
       }
     }
   EndIf
+
 }
 
 Resolution{
@@ -266,10 +212,15 @@ Resolution{
       CreateDir[ResDir];
       SetGlobalSolverOptions["-petsc_prealloc 2500"];
       
+      // load density variables 
       If(!StrCmp(Flag_optType,"topology") && !Flag_projFuncSpace_xe)
         GmshRead[StrCat[ResDir,"designVariable.pos"],DES_VAR_FIELD];
       EndIf
+      
+      // solve linear elastic problem
       InitSolution[A];Generate[A];Solve[A];SaveSolution[A];
+
+      // do some post operations
       If(!StrCmp(Flag_optType,"topology"))
         PostOperation[u_TO];
       Else

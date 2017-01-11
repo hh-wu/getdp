@@ -676,6 +676,7 @@ Resolution {
         EndIf
         SaveSolution[A] ;
 
+        PostOperation[Get_LocalFields] ;
         If(Flag_PrintFields)
           PostOperation[Get_LocalFields] ;
         EndIf
@@ -943,6 +944,9 @@ PostOperation Get_LocalFields UsingPost MagStaDyn_a_2D {
 	 AppendTimeStepToFileName Flag_SaveAllSteps] ;
   Print[ jz, OnElementsOf DomainC,
 	 File StrCat[ResDir,"jz",ExtGmsh], LastTimeStepOnly,
+	 AppendTimeStepToFileName Flag_SaveAllSteps ] ;
+  Print[ js, OnElementsOf DomainS,
+	 File StrCat[ResDir,"js",ExtGmsh], LastTimeStepOnly,
 	 AppendTimeStepToFileName Flag_SaveAllSteps ] ;
   Print[ b,  OnElementsOf Domain,
 	 File StrCat[ResDir,"b",ExtGmsh], LastTimeStepOnly,

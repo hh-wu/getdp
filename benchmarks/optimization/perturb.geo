@@ -1,6 +1,5 @@
 DefineConstant[
   modelpath = "",
-  ResDir = "",
   pInOpt = "",
   Flag_optType = "shape",
   PerturbMesh = {0, Choices{0,1},
@@ -93,7 +92,8 @@ ElseIf(PerturbMesh == 2)
   Plugin(ModifyComponents).Run;
   View.Name = "velocity";
   Delete View[1];
-  CreateDir Str(ResDir);
-  Save View[0] StrCat(ResDir, "velocity.msh");
+  //CreateDir Str(ResDirVel);
+  Save View[0] StrCat(modelpath, "velocity.msh");
+
 EndIf
 

@@ -256,6 +256,12 @@ def optimize(clientOnelab, clientOpt, xval, xmin, xmax, fmax, opt):
         ff0val /= np.abs(ff0val0); dff0dx /= np.abs(ff0val0)
         ffval /= np.abs(ffval0)
         for k in range(opt['m']): dffdx[k] /= np.abs(ffval0[k])
+        # move limits
+        clientOpt.xmin = np.maximum(xmin, 1e-3*np.array(xval))
+        clientOpt.xmax = np.minimum(xmax, 1e3*np.array(xval))
+        print('{}'.format(xval))
+        print('{},{}'.format(xmin,clientOpt.xmin))
+        print('{},{}'.format(xmax,clientOpt.xmax))
         xmma,y,z,lam,xsi,eta,mu,zet,s,low,upp,factor = \
             clientOpt.mma(xval,xold1,xold2,low,upp,\
                 ff0val,ffval,dff0dx,dffdx,loop)
@@ -323,7 +329,7 @@ if __name__ == "__main__":
     clientOpt = mma.client({
         'm':options['m'],
         'xmin':lowerBoundDesVar,'xmax':upperBoundDesVar,
-        'asyinit':0.2,'asyincr':0.8,'asydecr':0.3
+        #'asyinit':0.2,'asyincr':0.8,'asydecr':0.3
     })
     
     # Call the optimization routine (get the optimal value of design variables)

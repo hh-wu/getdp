@@ -9,7 +9,7 @@ DefineConstant[
     Name "Input/19Type of analysis", Highlight "Blue",
     Help Str["- Use 'Static' to compute static fields created in the machine",
       "- Use 'Time domain' to compute the dynamic response of the machine"]} ,
-  Flag_SrcType_Stator = { 0, Choices{0="None",1="Current"},
+  Flag_SrcType_Stator = { 1, Choices{0="None",1="Current"},
     Name "Input/41Source type in stator", Highlight "Blue"},
   Flag_NL = { 0, Choices{0,1}, Name "Input/60Nonlinear BH-curve"},
 

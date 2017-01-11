@@ -85,7 +85,7 @@ DefineConstant[
 ];
 
 rpm_nominal = 500 ;
-Inominal = 3.9 ; // Nominal current
+Inominal = 10.9 ; // Nominal current
 Tnominal = 2.5 ; // Nominal torque
 
 // ----------------------------------------------------
