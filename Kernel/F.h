@@ -254,16 +254,16 @@ void  F_nu_Ducharne(F_ARG) ;
 double Fi_h_Ducharne (double *hi, double *bi, double *M, int NL,
                       int NC, double h0, double b0, double b);
 
-void  F_nu_Vinch (F_ARG) ;
-void  F_mu_Vinch (F_ARG) ;
+void  F_nu_Vinch (F_ARG) ; // NOT USED FOR NOW (26/06/2016)
+void  F_mu_Vinch (F_ARG) ; // NOT USED FOR NOW (26/06/2016)
 
-void  F_h_Vinch (F_ARG) ;
-void  F_dhdb_Vinch(F_ARG) ;
-void  F_dbdh_Vinch(F_ARG) ;
+void  F_h_Vinch (F_ARG) ; // NOT USED FOR NOW (26/06/2016)
+void  F_dhdb_Vinch(F_ARG) ; // NOT USED FOR NOW (26/06/2016)
+void  F_dbdh_Vinch(F_ARG) ; // NOT USED FOR NOW (26/06/2016)
 
 // kj+++
-void  F_Update_Jk (F_ARG) ;
-void  F_Update_Jk_sd (F_ARG) ;
+void  F_Update_Jk (F_ARG) ; // NOT USED FOR NOW (26/06/2016)
+void  F_Update_Jk_sd (F_ARG) ; // NOT USED FOR NOW (26/06/2016)
 void  F_Update_Cell_K (F_ARG) ;
 
 double Lang(double nhr, double Ja, double ha);
@@ -278,7 +278,7 @@ double Xanhy(double nhr,double Js, double alpha);
 double dXanhy(double nhr,double Js, double alpha);
 double IJanhy(double nhr, double Js, double alpha);
 double Xanhy(double nhr,double Js, double alpha);
-double InvJanhy(double nJ, double Js, double alpha);
+double InvJanhy(double nJ, double Js, double alpha); 
 double dInvJanhy(double nJ, double Js, double alpha) ;
 
 double Janhy(double nJ, double Ja, double ha, double Jb, double hb) ;
@@ -291,34 +291,42 @@ double InvJanhy(double nJ, double Ja, double ha, double Jb, double hb) ;
 double dInvJanhy_hr(double nhr, double Ja, double ha, double Jb, double hb);
 
 double u_hr(double nhr, double Ja, double ha, double Jb, double hb) ;
-double u_J(double nJ, double Js, double alpha);
+double u_J(double nJ, double Js, double alpha); 
 
-double fct_omega(double h[3], double Jk[3], double Jkp[3], double chi,
-                 double Ja, double ha, double Jb, double hb);
-void fct_d_omega (double h[3], double Jk[3], double Jkp[3], double chi,
-                  double Ja, double ha, double Jb, double hb,
+double fct_omega(const double h[3], double Jk[3], const double Jkp[3], const double chi, 
+                 const double Ja, const double ha, const double Jb, const double hb);
+void fct_d_omega (const double h[3], double Jk[3], const double Jkp[3], const double chi, 
+                  const double Ja, const double ha, const double Jb, const double hb,
                   double *d_omega);
 
-void Vector_Update_Jk_sd_K(double h[3], double Jk[3], double Jkp[3], double chi,
-                          double Ja, double ha, double Jb, double hb);
-void Vector_Update_hr_K   (double h[3], double hrp[3], double chi, double hr[3]) ;
-void Vector_b_Vinch_K     (double h[3], double *Jk_all,
-                           double *Jkp_all, struct FunctionActive *D,double b[3] ) ;
-void Vector_h_Vinch_K	  (double b[3], double bc[3], double *Jk_all,
-                           double *Jkp_all, struct FunctionActive *D, double h[3] );
-void Tensor_dbdh_Num(double h[3], double *xk_all, double *xkp_all,
-					 struct FunctionActive *D,double dbdh[6]);
-void Tensor_dhdb_Good_BGFS(int dim, double dx[3],double df[3],double dhdb[6]);
-void Tensor_dbdh_Vinch_K  ( double h[3],  double *Jk_all,
-                           double *Jkp_all,struct FunctionActive *D,  double dbdh[6]);
-void Tensor_dJkdh_Vinch_K(int dim, double h[3], double Jk[3], double Jkp[3], double chi,
-                          double Ja, double ha, double Jb, double hb,
-                          double dJkdh[6]);
-void Tensor_dJkdh_Diff_K(int dim, double h[3], double hrk[3], double hrkp[3], double chi,
-                            double Ja, double ha, double Jb, double hb,
-                            double dJkdh[6]);
-void Inv_Tensor3x3_K (double T[9], double invT[9]);
-void Inv_TensorSym3x3_K (int dim, double T[6], double invT[6]);
+//void FullDiff_hi(double x, double chi, double ex[3]);
+//double FullDiff_ff (double y, void *params);
+void Vector_Update_Jk_K(const double h[3], double Jk[3], const double Jkp[3], const double chi, 
+                        const double Ja, const double ha, const double Jb, const double hb);
+void Vector_Update_hr_K(const double h[3], double hr[3], const double hrp[3], const double chi, 
+                        const double Ja, const double ha, const double Jb, const double hb);
+void Vector_Update_Simple_hr_K   (const double h[3], double hr[3], const double hrp[3], const double chi) ;
+void Vector_b_Vinch_K     (const double h[3], double *Jk_all,
+                           const double *Jkp_all, struct FunctionActive *D,double b[3] ) ;
+void Vector_h_Vinch_K   (const double b[3], double bc[3], double *Jk_all,
+                           const double *Jkp_all, struct FunctionActive *D, double h[3] );
+void Tensor_dbdh_Num(const double h[3], double *xk_all, const double *xkp_all, 
+                      struct FunctionActive *D,double *dbdh);
+void Tensor_dhdb_Good_BFGS(const double dx[3],const double df[3],double *dhdb);
+void Tensor_dbdh_Vinch_K  ( const double h[3],  double *Jk_all,
+                           const double *Jkp_all, struct FunctionActive *D,  double *dbdh);
+void Tensor_dJkdh_Vinch_K(const double h[3], const double Jk[3], const double Jkp[3], const double chi, 
+                          const double Ja, const double ha, const double Jb, const double hb, 
+                          double *dJkdh);
+void Tensor_dJkdh_Diff_K( const double h[3], const double hrk[3], const double hrkp[3], const double chi, 
+                            const double Ja, const double ha, const double Jb, const double hb, 
+                            double *dJkdh);
+
+void Mul_TensorVec_K(const double *M, const double *v, double *Mv, const int transpose_M);
+void Mul_TensorSymTensorSym_K(double *A, double *B, double *C);
+double Mul_VecVec_K(const double *v1, const double *v2);
+void Inv_Tensor3x3_K (double *T, double *invT);
+void Inv_TensorSym3x3_K (double *T, double *invT);
 
 void F_b_Vinch_K(F_ARG);
 void F_h_Vinch_K(F_ARG);
