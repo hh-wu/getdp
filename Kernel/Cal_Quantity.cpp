@@ -1251,7 +1251,7 @@ void Cal_StoreInRegister(struct  Value  *Value, int RegisterIndex)
 void Cal_StoreInVariable(struct  Value  *Value, const char *name)
 {
   Cal_CopyValue(Value, &NamedValueSaved[name]) ;
-  Export_Value(Value, GetDPNumbers[name]);
+  Export_Value(Value, GetDPNumbers[name], 0, false); // don't append
 }
 
 void Cal_GetValueSaved(struct  Value  *Value, const char *name)

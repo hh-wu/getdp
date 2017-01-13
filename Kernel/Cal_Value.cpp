@@ -2595,7 +2595,8 @@ void Show_Value(struct Value *A)
   }
 }
 
-void Export_Value(struct Value *A, std::vector<double> &out, List_T *harmonics)
+void Export_Value(struct Value *A, std::vector<double> &out, List_T *harmonics,
+                  bool append)
 {
   std::vector<int> har;
   if(harmonics){
@@ -2606,6 +2607,8 @@ void Export_Value(struct Value *A, std::vector<double> &out, List_T *harmonics)
     for(int i = 0; i < Current.NbrHar; i++)
       har.push_back(i);
   }
+
+  if(!append) out.clear();
 
   switch(A->Type){
 
