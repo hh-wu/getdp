@@ -21,6 +21,8 @@ extern List_T  *PreResolutionIndex_L ;
 
 extern int  Nbr_ElementaryBF ;
 
+static double TOL ;
+
 /* ------------------------------------------------------------------------ */
 /*  T r e a t m e n t _ C o n s t r a i n t F o r E l e m e n t             */
 /* ------------------------------------------------------------------------ */
@@ -568,7 +570,7 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
 			 List_T * Couples_L)
 {
   int  Nbr_Entity, i, Nbr_EntityRef, Flag_Filter ;
-  double TOL ;
+  //  double TOL ;
   struct TwoIntOneDouble  TwoIntOneDouble ;
   struct NodeXYZ  NodeXYZ, NodeXYZRef ;
   List_T  * NodeXYZ_L, * NodeXYZRef_L ;
@@ -690,7 +692,7 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
 
 int fcmp_XYZ(const void * a, const void * b)
 {
-  double Result, TOL=Current.GeoData->CharacteristicLength * 1.e-8 ;
+  double Result; //, TOL=Current.GeoData->CharacteristicLength * 1.e-8 ;
 
   if (fabs(Result = ((struct NodeXYZ *)a)->x - ((struct NodeXYZ *)b)->x) > TOL)
     return (Result > 0.)? 1 : -1 ;
