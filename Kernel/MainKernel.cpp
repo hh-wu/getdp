@@ -569,10 +569,11 @@ int MainKernel(int argc, char *argv[])
 #if defined(HAVE_GMSH)
   Message::Info("Initializing Gmsh");
   GmshInitialize();
+  GmshMsg *msg = 0;
   if(!GmshGetMessageHandler() && !Flag_CALLED_WITH_ONELAB_SERVER){
     // do not set msg handler if one is provided (e.g. on Android/iOS)
-    GmshMsg c;
-    GmshSetMessageHandler(&c);
+    msg = new GmshMsg;
+    GmshSetMessageHandler(msg);
   }
   int j = 0;
   while(Name_GmshReadFile[j]){
@@ -630,6 +631,7 @@ int MainKernel(int argc, char *argv[])
 
   Free_GlobalVariables();
   Free(sargv);
+  if(msg) delete msg;
   Message::Finalize();
   return Message::GetErrorCount();
 }
