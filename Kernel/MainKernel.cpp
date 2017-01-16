@@ -627,11 +627,11 @@ int MainKernel(int argc, char *argv[])
 
 #if defined(HAVE_GMSH)
   if(!Flag_CALLED_WITH_ONELAB_SERVER) GmshFinalize();
+  if(msg) delete msg;
 #endif
 
   Free_GlobalVariables();
   Free(sargv);
-  if(msg) delete msg;
   Message::Finalize();
   return Message::GetErrorCount();
 }
