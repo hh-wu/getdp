@@ -83,7 +83,7 @@ Constraint{
     idom = ListOfSubdomains(ii);
     { Name Dirichlet_u~{idom};
       Case {
-        { Region GammaD~{idom}; Value $PhysicalSource ? uinc[] : 0.; }
+        { Region GammaD~{idom}; Value $PhysicalSource ? -uinc[] : 0.; }
       }
     }
     { Name Dirichlet_u0~{idom};
@@ -408,8 +408,7 @@ PostOperation {
         Print[ u~{idom}, OnElementsOf Omega~{idom},
           File StrCat(DIR, Sprintf("u_%g.pos",idom))];
         // Print[ u_tot~{idom}, OnElementsOf Omega~{idom},
-        //   File StrCat(DIR, Sprintf("u_tot_%g.pos",idom))];
-	// // save velocity field
+        //    File StrCat(DIR, Sprintf("u_tot_%g.pos",idom))];
 	// Print[ c~{idom}, OnElementsOf Omega~{idom},
         //   File StrCat(DIR, Sprintf("c_%g.pos",idom))];
       }
