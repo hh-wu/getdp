@@ -20,6 +20,8 @@ extern "C" {
 
 void  F_ElastodynamicsCylinderCavity(F_ARG)
 {
+  double du_re = 0., dv_re = 0., du_im = 0., dv_im = 0.;
+#if defined(HAVE_PEWE)
   double X = A->Val[0];
   double Y = A->Val[1];
   double t = 0.;
@@ -28,8 +30,6 @@ void  F_ElastodynamicsCylinderCavity(F_ARG)
   double mu = Fct->Para[2];
   double rho = Fct->Para[3];
   double a = Fct->Para[4];
-  double du_re, dv_re, du_im, dv_im;
-#if defined(HAVE_PEWE)
   cylindrical_cavity_(&du_re,&dv_re,&du_im,&dv_im,&X,&Y,&t,&omega,&lambda,&mu,&rho,&a);
 #else
   Message::Error("ElastodynamicsCylinderCavity requires PeWe");
@@ -43,6 +43,8 @@ void  F_ElastodynamicsCylinderCavity(F_ARG)
 
 void  F_ElastodynamicsCylinderWall(F_ARG)
 {
+  double du_re = 0., dv_re = 0., du_im = 0., dv_im = 0.;
+#if defined(HAVE_PEWE)
   double X = A->Val[0];
   double Y = A->Val[1];
   double t = 0.;
@@ -51,8 +53,6 @@ void  F_ElastodynamicsCylinderWall(F_ARG)
   double mu = Fct->Para[2];
   double rho = Fct->Para[3];
   double a = Fct->Para[4];
-  double du_re, dv_re, du_im, dv_im;
-#if defined(HAVE_PEWE)
   cylindrical_wall_(&du_re,&dv_re,&du_im,&dv_im,&X,&Y,&t,&omega,&lambda,&mu,&rho,&a);
 #else
   Message::Error("ElastodynamicsCylinderWall requires PeWe");
