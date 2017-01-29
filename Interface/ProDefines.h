@@ -1059,6 +1059,8 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"NodeForceDensity"  , (CAST)F_NodeForceDensity ,   0,   1 },
   {"AssDiag"           , (CAST)F_AssDiag          ,  -1,   0 },
 
+  {"AtIndex"           , (CAST)F_AtIndex          ,  -1,   1 },
+
   // F_Interpolation
   {"InterpolationLinear"   , (CAST)F_InterpolationLinear   ,  -2,   1 },
   {"dInterpolationLinear"  , (CAST)F_dInterpolationLinear  ,  -2,   1 },

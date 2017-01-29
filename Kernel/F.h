@@ -209,9 +209,10 @@ void  F_dWedxdv		(F_ARG) ;
 void  F_dWedydv		(F_ARG) ;
 void  F_dWedzdv		(F_ARG) ;
 
-
 void  F_NodeForceDensity(F_ARG) ;
 void  F_AssDiag         (F_ARG) ;  /* pour Patrick */
+
+void  F_AtIndex         (F_ARG) ;
 
 /* F_Interpolation */
 
@@ -278,7 +279,7 @@ double Xanhy(double nhr,double Js, double alpha);
 double dXanhy(double nhr,double Js, double alpha);
 double IJanhy(double nhr, double Js, double alpha);
 double Xanhy(double nhr,double Js, double alpha);
-double InvJanhy(double nJ, double Js, double alpha); 
+double InvJanhy(double nJ, double Js, double alpha);
 double dInvJanhy(double nJ, double Js, double alpha) ;
 
 double Janhy(double nJ, double Ja, double ha, double Jb, double hb) ;
@@ -291,35 +292,35 @@ double InvJanhy(double nJ, double Ja, double ha, double Jb, double hb) ;
 double dInvJanhy_hr(double nhr, double Ja, double ha, double Jb, double hb);
 
 double u_hr(double nhr, double Ja, double ha, double Jb, double hb) ;
-double u_J(double nJ, double Js, double alpha); 
+double u_J(double nJ, double Js, double alpha);
 
-double fct_omega(const double h[3], double Jk[3], const double Jkp[3], const double chi, 
+double fct_omega(const double h[3], double Jk[3], const double Jkp[3], const double chi,
                  const double Ja, const double ha, const double Jb, const double hb);
-void fct_d_omega (const double h[3], double Jk[3], const double Jkp[3], const double chi, 
+void fct_d_omega (const double h[3], double Jk[3], const double Jkp[3], const double chi,
                   const double Ja, const double ha, const double Jb, const double hb,
                   double *d_omega);
 
 //void FullDiff_hi(double x, double chi, double ex[3]);
 //double FullDiff_ff (double y, void *params);
-void Vector_Update_Jk_K(const double h[3], double Jk[3], const double Jkp[3], const double chi, 
+void Vector_Update_Jk_K(const double h[3], double Jk[3], const double Jkp[3], const double chi,
                         const double Ja, const double ha, const double Jb, const double hb);
-void Vector_Update_hr_K(const double h[3], double hr[3], const double hrp[3], const double chi, 
+void Vector_Update_hr_K(const double h[3], double hr[3], const double hrp[3], const double chi,
                         const double Ja, const double ha, const double Jb, const double hb);
 void Vector_Update_Simple_hr_K   (const double h[3], double hr[3], const double hrp[3], const double chi) ;
 void Vector_b_Vinch_K     (const double h[3], double *Jk_all,
                            const double *Jkp_all, struct FunctionActive *D,double b[3] ) ;
 void Vector_h_Vinch_K   (const double b[3], double bc[3], double *Jk_all,
                            const double *Jkp_all, struct FunctionActive *D, double h[3] );
-void Tensor_dbdh_Num(const double h[3], double *xk_all, const double *xkp_all, 
+void Tensor_dbdh_Num(const double h[3], double *xk_all, const double *xkp_all,
                       struct FunctionActive *D,double *dbdh);
 void Tensor_dhdb_Good_BFGS(const double dx[3],const double df[3],double *dhdb);
 void Tensor_dbdh_Vinch_K  ( const double h[3],  double *Jk_all,
                            const double *Jkp_all, struct FunctionActive *D,  double *dbdh);
-void Tensor_dJkdh_Vinch_K(const double h[3], const double Jk[3], const double Jkp[3], const double chi, 
-                          const double Ja, const double ha, const double Jb, const double hb, 
+void Tensor_dJkdh_Vinch_K(const double h[3], const double Jk[3], const double Jkp[3], const double chi,
+                          const double Ja, const double ha, const double Jb, const double hb,
                           double *dJkdh);
-void Tensor_dJkdh_Diff_K( const double h[3], const double hrk[3], const double hrkp[3], const double chi, 
-                            const double Ja, const double ha, const double Jb, const double hb, 
+void Tensor_dJkdh_Diff_K( const double h[3], const double hrk[3], const double hrkp[3], const double chi,
+                            const double Ja, const double ha, const double Jb, const double hb,
                             double *dJkdh);
 
 void Mul_TensorVec_K(const double *M, const double *v, double *Mv, const int transpose_M);

@@ -1416,3 +1416,30 @@ void F_AssDiag(F_ARG)
 
   V->Type = SCALAR ;
 }
+
+void F_AtIndex(F_ARG)
+{
+  int index = 0;
+  double ret = 0.;
+  if(A->Type != SCALAR){
+    Message::Error("Non scalar argument for function 'AtIndex");
+  }
+  else{
+    index = (int)A->Val[0];
+    if (index < 0 || index >= Fct->NbrParameters){
+      Message::Error("Wrong index in function 'AtIndex': %d not in [0,%d[",
+                     index, Fct->NbrParameters);
+    }
+    else{
+      ret = Fct->Para[index];
+    }
+  }
+
+  V->Type = SCALAR;
+  V->Val[0] = ret;
+  if (Current.NbrHar != 1){
+    V->Val[MAX_DIM] = 0. ;
+    for (int k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2)
+      V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;
+  }
+}
