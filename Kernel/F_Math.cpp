@@ -21,10 +21,10 @@ extern struct CurrentData Current ;
 									\
   if(A->Type != SCALAR)							\
     Message::Error("Non scalar argument for function '" string "'");	\
-  if(A->Val[MAX_DIM] != 0.)                                             \
+  if(Current.NbrHar > 1 && A->Val[MAX_DIM] != 0.)                       \
     Message::Error("Function '" string "' only accepts real arguments");\
   V->Val[0] = func(A->Val[0]) ;						\
-  if (Current.NbrHar != 1){						\
+  if (Current.NbrHar > 1){						\
     V->Val[MAX_DIM] = 0. ;						\
     for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2) \
       V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;			\
@@ -92,11 +92,12 @@ void F_Abs   (F_ARG) { scalar_cmplx_1_arg (std::abs, "Abs")  }
 									\
   if(A->Type != SCALAR || (A+1)->Type != SCALAR)			\
     Message::Error("Non scalar argument(s) for function '" string "'");	\
-  if(A->Val[MAX_DIM] != 0. || (A+1)->Val[MAX_DIM] != 0.)                \
+  if(Current.NbrHar > 1 && (A->Val[MAX_DIM] != 0. ||                    \
+                            (A+1)->Val[MAX_DIM] != 0.))                 \
     Message::Error("Function '" string "' only accepts real arguments");\
 									\
   V->Val[0] = func(A->Val[0], (A+1)->Val[0]) ;				\
-  if (Current.NbrHar != 1){						\
+  if (Current.NbrHar > 1){						\
     V->Val[MAX_DIM] = 0. ;						\
     for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2) \
       V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;			\
@@ -128,7 +129,7 @@ void F_Sign(F_ARG)
   else
     V->Val[0] = 0.;
 
-  if (Current.NbrHar != 1){
+  if (Current.NbrHar > 1){
     V->Val[MAX_DIM] = 0. ;
     for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2)
       V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;
@@ -148,7 +149,7 @@ void F_Min(F_ARG)
     Message::Error("Non scalar argument(s) for function Min");
 
   V->Val[0] = (A->Val[0] < (A+1)->Val[0]) ? A->Val[0] : (A+1)->Val[0];
-  if (Current.NbrHar != 1){
+  if (Current.NbrHar > 1){
     V->Val[MAX_DIM] = 0. ;
     for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2)
       V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;
@@ -164,7 +165,7 @@ void F_Max(F_ARG)
     Message::Error("Non scalar argument(s) for function Max");
 
   V->Val[0] = (A->Val[0] > (A+1)->Val[0]) ? A->Val[0] : (A+1)->Val[0];
-  if (Current.NbrHar != 1){
+  if (Current.NbrHar > 1){
     V->Val[MAX_DIM] = 0. ;
     for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2)
       V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;
@@ -188,7 +189,7 @@ void F_Jn(F_ARG)
 
   V->Val[0] = jn(n, x);
 
-  if (Current.NbrHar != 1){
+  if (Current.NbrHar > 1){
     V->Val[MAX_DIM] = 0. ;
     for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2)
       V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;
@@ -208,7 +209,7 @@ void F_Yn(F_ARG)
 
   V->Val[0] = yn(n, x);
 
-  if (Current.NbrHar != 1){
+  if (Current.NbrHar > 1){
     V->Val[MAX_DIM] = 0. ;
     for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2)
       V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;
@@ -245,7 +246,7 @@ void F_dJn(F_ARG)
   V->Val[0] = dBessel(jntab, n, x);
   Free(jntab);
 
-  if (Current.NbrHar != 1){
+  if (Current.NbrHar > 1){
     V->Val[MAX_DIM] = 0. ;
     for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2)
       V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;
@@ -271,7 +272,7 @@ void F_dYn(F_ARG)
   V->Val[0] = dBessel(yntab, n, x);
   Free(yntab);
 
-  if (Current.NbrHar != 1){
+  if (Current.NbrHar > 1){
     V->Val[MAX_DIM] = 0. ;
     for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2)
       V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;

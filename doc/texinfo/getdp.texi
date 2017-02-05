@@ -3860,6 +3860,12 @@ identical.
 Counts the elements of physical numbers in @var{expression-cst-list} 
 or of the actual region if @var{expression-cst-list} is empty.
 
+@item AtIndex
+@code{[@var{expression}]@{@var{expression-cst-list}@}}
+
+Returns the i-th entry of @var{expression-cst-list}. This can be used to
+get an element in a list, using an index that is computed at runtime.
+
 @item InterpolationLinear
 @code{[@var{expression}]@{@var{expression-cst-list}@}}
 
