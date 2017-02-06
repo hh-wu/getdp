@@ -71,6 +71,7 @@ void  F_SurfaceArea     (F_ARG) ;
 void  F_GetVolume       (F_ARG) ;
 void  F_GetNumElement   (F_ARG) ;
 void  F_GetNumElements  (F_ARG) ;
+void  F_GetNumNodes     (F_ARG) ;
 void  F_CellSize        (F_ARG) ;
 void  F_SquNormEdgeValues(F_ARG) ;
 

@@ -1016,6 +1016,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"GetVolume"         , (CAST)F_GetVolume        ,  -1,   0 },
   {"GetNumElement"     , (CAST)F_GetNumElement    ,   0,   0 },
   {"GetNumElements"    , (CAST)F_GetNumElements   ,  -1,   0 },
+  {"GetNumNodes"       , (CAST)F_GetNumNodes      ,   0,   0 },
   {"CellSize"          , (CAST)F_CellSize         ,  -1,   0 },
   {"ProjectPointOnEllipse", (CAST)F_ProjectPointOnEllipse,  2, 1 },
   {"SquNormEdgeValues" , (CAST)F_SquNormEdgeValues,   2,   0 },

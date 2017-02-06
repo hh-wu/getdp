@@ -437,14 +437,20 @@ void F_GetNumElements(F_ARG)
     else {
       InitialList_L = NULL ;
     }
+
     int Count = 0. ;
     int Nbr_Element = Geo_GetNbrGeoElements() ;
-    for (int i_Element = 0 ; i_Element < Nbr_Element; i_Element++) {
-      Element.GeoElement = Geo_GetGeoElement(i_Element) ;
-      if ((InitialList_L &&
-	   List_Search(InitialList_L, &(Element.GeoElement->Region), fcmp_int)) ||
-	  (!InitialList_L && Element.GeoElement->Region == Current.Region)) {
-	Count++;
+    if(!InitialList_L){
+      Count = Nbr_Element ;
+    }
+    else{
+      for (int i_Element = 0 ; i_Element < Nbr_Element; i_Element++) {
+        Element.GeoElement = Geo_GetGeoElement(i_Element) ;
+        if ((InitialList_L &&
+             List_Search(InitialList_L, &(Element.GeoElement->Region), fcmp_int)) ||
+            (!InitialList_L && Element.GeoElement->Region == Current.Region)) {
+          Count++;
+        }
       }
     }
     Fct->Active->Case.GetNumElements.Value = Count ;
@@ -454,6 +460,18 @@ void F_GetNumElements(F_ARG)
   V->Val[0] = Fct->Active->Case.GetNumElements.Value ;
   V->Val[MAX_DIM] = 0.;
 
+  for (int k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2) {
+    V->Val[MAX_DIM* k] = V->Val[0] ;
+    V->Val[MAX_DIM* (k+1)] = 0. ;
+  }
+}
+
+void F_GetNumNodes(F_ARG)
+{
+  // TODO: accept arguments to limit to some regions
+  V->Type = SCALAR ;
+  V->Val[0] = Geo_GetNbrGeoNodes() ;
+  V->Val[MAX_DIM] = 0.;
   for (int k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2) {
     V->Val[MAX_DIM* k] = V->Val[0] ;
     V->Val[MAX_DIM* (k+1)] = 0. ;
