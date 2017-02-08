@@ -11,6 +11,26 @@
 #include "DofData.h"
 #include "Message.h"
 
+/* TODO:
+
+      Copy[ x() , y() ];
+      Copy[ "x" , "y" ];
+      Copy[ "x" , y() ];
+      Copy[ x() , "y" ];
+      AXPY[ a, x() , y() ]; // urgent
+      AXPY[ a , "x", "y" ];// urgent
+      Norm2[ x(), $nrm2 ]; // urgent
+      Norm2[ "x", $nrm2 ];
+      Dot[ "x", "y", $dot ];
+      Dot[ x(), y(), $dot ]; // urgent
+
++
+
+1) clarify "from" and "to" in Operation_P->Case.Copy
+2) change "Operation_CopyVector" -> "Operation_CopySystemVector"
+
+*/
+
 void Operation_CopyVector(struct Operation *Operation_P,
                           struct DofData *DofData_P)
 {
