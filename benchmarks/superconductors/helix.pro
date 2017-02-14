@@ -6,16 +6,28 @@ Group {
   Matrix = Region[MATRIX];
   BndMatrix = Region[BND_MATRIX];
   Filaments = Region[{}];
+  BndFilaments = Region[{}];
   For i In {1:NumLayers}
     For j In {1:NumFilaments~{i}}
       Filaments += Region[(FILAMENT + 1000 * i + j)];
+      BndFilaments += Region[(BND_FILAMENT + 1200 * i + j)];
     EndFor
   EndFor
 
-  OmegaC = Region[{Matrix, Filaments}]; // conducting domain
-  OmegaCC = Region[{Air, AirInf}]; // non-conducting domain
-  BndOmegaC = Region[BndMatrix]; // boundary of conducting domain
-  Cut = Region[(INF + 1)]; // thick cut
+  If(ConductingMatrix)
+    OmegaC = Region[{Matrix, Filaments}]; // conducting domain
+    OmegaCC = Region[{Air, AirInf}]; // non-conducting domain
+    BndOmegaC = Region[BndMatrix]; // boundary of conducting domain
+    Cut = Region[(INF + 1)]; // thick cut
+  Else
+    If(NbrRegions[Filaments] > 1)
+      Error("Non conducting matrix case only coded for single filament!");
+    EndIf
+    OmegaC = Region[{Filaments}]; // conducting domain
+    OmegaCC = Region[{Air, Matrix}]; // non-conducting domain
+    BndOmegaC = Region[BndFilaments]; // boundary of conducting domain
+    Cut = Region[(INF + 1)]; // FIXME: handle multiple cuts if multiple filaments
+  EndIf
   Omega = Region[{OmegaC, OmegaCC}]; // full domain
 }
 
@@ -23,7 +35,7 @@ Function {
   mu0 = 4*Pi*1e-7; // [Hm⁻¹]
 
   DefineConstant[
-    sigmaMatrix = {6e7, Min 1e3, Max 6e7, Step 1e3,
+    sigmaMatrix = {6e7, Min 1e3, Max 6e7, Step 1e3, Visible ConductingMatrix,
       Name "Input/4Materials/Matrix conductivity [Sm⁻¹]"},
     Itot = {800/2, Min 100, Max 1000, Step 100,
       Name "Input/3Source/Total current [A]"},

@@ -243,7 +243,11 @@ Else
 EndIf
 
 // Cohomology computation for the H-Phi formulation
-Cohomology(1) {{AIR,INF}, {}};
+If(ConductingMatrix)
+  Cohomology(1) {{AIR,INF}, {}};
+Else
+  Cohomology(1) {{AIR,INF,MATRIX}, {}};
+EndIf
 
 General.ExpertMode = 1; // Don't complain for hybrid structured/unstructured mesh
 Mesh.Algorithm = 6; // Use Frontal 2D algorithm

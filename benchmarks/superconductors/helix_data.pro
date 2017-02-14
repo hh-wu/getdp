@@ -1,5 +1,5 @@
 DefineConstant[
-  Preset = {(TotalMemory <= 2048) ? 1 : 0, Highlight "Blue",
+  Preset = {1, Highlight "Blue",
     Choices{
       0="None",
       1="1 round filament (AK benchmark)",
@@ -16,7 +16,9 @@ DefineConstant[
   AirRadius = {1, ReadOnly Preset,
     Name "Input/1Geometry/Radius of air domain [mm]"},
   InfRadius = {1.4, ReadOnly Preset,
-    Name "Input/1Geometry/Radius of infinite air domain [mm]"}
+    Name "Input/1Geometry/Radius of infinite air domain [mm]"},
+  ConductingMatrix = {0, Choices{0,1},
+    Name "Input/4Materials/Conducting matrix?"}
 ];
 
 For i In {1:NumLayers}
