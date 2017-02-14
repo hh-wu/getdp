@@ -17,7 +17,7 @@ DefineConstant[
     Name "Input/1Geometry/Radius of air domain [mm]"},
   InfRadius = {1.4, ReadOnly Preset,
     Name "Input/1Geometry/Radius of infinite air domain [mm]"},
-  ConductingMatrix = {0, Choices{0,1},
+  ConductingMatrix = {1, Choices{0,1},
     Name "Input/4Materials/Conducting matrix?"}
 ];
 
