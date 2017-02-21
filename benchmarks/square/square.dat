@@ -1,0 +1,37 @@
+THICKNESS_00 = 1;
+NumEle_00 = 1;
+ha_00 = 100;
+phase_00 = 0*(18/180)*3.141592653589793;
+freq_00 = 1;
+nstep_00 = 100;
+tmax_00 = 1;
+//NL_NbrMaxIter_00 = 100;
+//NL_Eps_00 = 1e-4;
+//NL_Relax_00 = 1;
+hax = ha_00;
+haharmx = 0;
+hay = 0*ha_00;
+hay0 = 0;
+haharmy = 0;
+freqharm = 0;
+//proj_angle = 0;
+
+
+sigma_al = 3.72e7 ; // conductivity of aluminum [S/m]
+sigma_cu = 5.77e7  ; // conductivity of copper [S/m]
+
+// FeSi -- data for Jiles-Atherton model from Bastos paper
+// Oxz is the lamination plane, Oy is perpendicular to the lamination
+// Ox == transverse direction (Oy taken equal to Ox, as the field is negligible)
+Msat_x = 1.31e6;
+a_x = 233.78;
+k_x = 374.975;
+c_x = 0.736;
+alpha_x = 562e-6 ;
+
+// Oz == rolling direction
+Msat_z = 1.33e6;
+a_z = 172.856;
+k_z = 232.652;
+c_z = 0.652;
+alpha_z = 417e-6;
