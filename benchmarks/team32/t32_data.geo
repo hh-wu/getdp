@@ -79,6 +79,10 @@ c_z = 0.652;
 alpha_z = 417e-6;
 
 // Point for post-processing at (0,hcore/2-28.5*mm,0)
+num_postop_points=3;
+xpos_1 = 0;
+xpos_2 = 0;
+xpos_3 = 0;
 ypos_1 = hcore/2-20.5*mm;
 ypos_2 = hcore/2-28.5*mm;
 ypos_3 = 0;

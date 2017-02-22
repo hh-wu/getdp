@@ -137,7 +137,7 @@ lnh0[]+=newl; Line(newl) = {pnta[0], pnta_[0]};
 lnv0[]+=newl; Line(newl) = {pnta[1], pnta_[1]};
 
 Line Loop(newll) = {lnh0[6], ln_bnd[0], -lnv0[2], -ln_rin[0]};
-surf_AirInf[] += news; Ruled Surface(news) = {newll-1};
+surf_AirInf[] += news; Surface(news) = {newll-1};
 
 //Symmetry
 ln_bnd[] += Symmetry {1,0,0,0} { Duplicata{ Line{ln_bnd[{0}]};} };
@@ -387,15 +387,18 @@ EndIf
 
 
 // Post-processing point
-Point(newp) = {0, ypos_1, 0 }; // for visu
-Point(newp) = {0, ypos_2, 0 }; // for visu
-Point(newp) = {0, ypos_3, 0 }; // for visu
+For k In {1:num_postop_points}
+  Point(newp) = {xpos~{k},ypos~{k}, 0 }; // for visu
+EndFor
 
 If(PostProcessing.NbViews==0)
-  View "Label of Points 1,2,3" {
-  T3(0,ypos_1,0, TextAttributes("Align", "Left", "Font", "Helvetica")){ " 1 " };
-  T3(0,ypos_2,0, TextAttributes("Align", "Left", "Font", "Helvetica")){ " 2 " };
-  T3(0,ypos_3,0, TextAttributes("Align", "Left", "Font", "Helvetica")){ " 3 " };
+For k In {1:num_postop_points}
+  View Sprintf("Label of Point %g",k) {
+  T3(xpos~{k},ypos~{k}, 0, TextAttributes("Align", "Left", "Font", "Helvetica")){ Sprintf(" %g ",k)};
   };
+EndFor
 EndIf
+
+
+
 

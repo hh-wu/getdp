@@ -1,8 +1,11 @@
 Group {
   DefineGroup[
-    DomainM, DomainB, DomainS, DomainInf,
+    Core,
+    Inds, Ind_1, Ind_2, IndA_1, IndA_2,
+    DomainM, DomainB, DomainS, DomainInf, DomainC,
     DomainL, DomainNL,
-    Surf_bn0, Surf_Inf,
+    Boundary, Corner, 
+    SurfaceGe0, SurfaceGInf, Surf_bn0, Surf_Inf,
     // Circuit coupling
     DomainZt_Cir, DomainSource_Cir,
     Resistance_Cir, Inductance_Cir, Capacitance_Cir, Diode_Cir,
@@ -27,6 +30,7 @@ Function{
     timemax = NbT*T,
     NbSteps = 100,
     delta_time = T/NbSteps,
+    Rwinding,
     FillFactor_Winding = {1, Name "Input/4Coil Parameters/3Fill factor",
       Highlight "AliceBlue", Visible 0},
     Factor_R_3DEffects = {1, Name "Input/4Coil Parameters/9fact", Label "3D factor",
@@ -37,6 +41,11 @@ Function{
     Flag_CircuitCoupling = 0,
     Flag_NL = 0,
     Flag_PrintMaps =1,
+    Flag_Infinity = 0,
+    Flag_VoltageTransformer=0,
+    Flag_ConductingCore=0,
+    Flag_LiveLocalPostOp=1,
+    Flag_LiveGlobalPostOp=0,
     po = "Output_"
   ];
 
@@ -46,7 +55,8 @@ Function{
 
 
   DefineFunction[
-    dhdb_NL, dhdb, br, js0
+    dhdb_NL, dhdb, br, js0, I1, I2, Idir, nxh,
+    CoefGeos, NbWires, SurfCoil,
     relaxation_function
     // Circuit coupling
     Resistance, Inductance, Capacitance
@@ -97,15 +107,16 @@ Function {
     nu [#{Core}]  = 1/(mur_fe*mu0) ;
   EndIf
   If(Flag_NL)
-
-    // nu [ DomainNL ]      = nu_EIcore[$1] ;
-    // dhdb_NL [ DomainNL ] = dhdb_EIcore_NL[$1];
-    // dhdb [ DomainNL ]    = dhdb_EIcore[$1];
+/*  
+    nu [ DomainNL ]      = nu_EIcore[$1] ;
+    dhdb_NL [ DomainNL ] = dhdb_EIcore_NL[$1];
+    dhdb [ DomainNL ]    = dhdb_EIcore[$1];
+*/
 
     If(Flag_NL_law==NL_ANA ) // Using analytical law
       h[DomainNL]         = h_1a[$1]; // $1 => b ={d a}
       dhdb[DomainNL]      = dhdb_1a[$1];
-      nu[DomainNL] = nu_1a[$1] ;
+      nu[DomainNL]        = nu_1a[$1] ;
       dhdb_NL[DomainNL]   = dhdb_1a_NL[$1];
     EndIf
     If(Flag_NL_law==NL_ANA_JA) //Using anhysteretic curve from Jiles-Atherton model
@@ -160,7 +171,9 @@ Jacobian {
   { Name Vol;
     Case {
       { Region DomainInf ; Jacobian VolSphShell{Val_Rint, Val_Rext} ; }
-      { Region All ; Jacobian Vol; }
+      //{ Region All ; Jacobian Vol; } 
+      { Region Domain ; Jacobian Vol; }
+      { Region Boundary ;  Jacobian Sur ; }
     }
   }
 }
@@ -169,9 +182,9 @@ Integration {
   { Name I1 ; Case {
       { Type Gauss ;
         Case {
-          { GeoElement Triangle   ; NumberOfPoints  6 ; } 
-	  { GeoElement Quadrangle ; NumberOfPoints  4 ; }
-	  { GeoElement Line       ; NumberOfPoints  13 ; }
+          { GeoElement Triangle   ; NumberOfPoints  6 ; }  //6
+          { GeoElement Quadrangle ; NumberOfPoints  4 ; }  //4
+          { GeoElement Line       ; NumberOfPoints  13 ; } //13
         }
       }
     }
@@ -181,8 +194,8 @@ Integration {
       { Type Gauss ;
         Case {
           { GeoElement Triangle   ; NumberOfPoints  1 ; }
-	  { GeoElement Quadrangle ; NumberOfPoints  1 ; }
-	  { GeoElement Line       ; NumberOfPoints  1 ; }
+      	  { GeoElement Quadrangle ; NumberOfPoints  1 ; }
+      	  { GeoElement Line       ; NumberOfPoints  1 ; }
         }
       }
     }
@@ -196,6 +209,7 @@ Constraint {
 
   { Name MVP_2D ;
     Case {
+      { Region Corner ; Value 0.0 ; }
       { Region SurfaceGe0  ; Type Assign ; Value 0. ; }
       { Region SurfaceGInf ; Type Assign ; Value 0. ; }
     }
@@ -231,10 +245,10 @@ FunctionSpace {
   { Name Hcurl_a_2D ; Type Form1P ;
     BasisFunction {
       { Name se1 ; NameOfCoef ae1 ; Function BF_PerpendicularEdge ;
-        Support Region[{Domain}] ; Entity NodesOf [ All ] ; }
+        Support #{Domain, Boundary, Corner} ; Entity NodesOf [ All ] ; }
       If (Flag_Degree_a == 2)
         { Name se2 ; NameOfCoef ae2 ; Function BF_PerpendicularEdge_2E ;
-          Support Domain ; Entity EdgesOf[ All ] ; }
+          Support #{Domain, Boundary, Corner} ; Entity EdgesOf[ All ] ; }
       EndIf
    }
     Constraint {
@@ -464,6 +478,9 @@ Formulation {
       //*******************************************************
       //*******************************************************
 
+      Galerkin { [ nxh[], {a} ];    
+        In Boundary ; Jacobian Vol ; Integration I1 ; }
+
       Galerkin { [ -nu[] * br[] , {d a} ] ;
         In DomainM ; Jacobian Vol ; Integration I1 ; }
 
@@ -548,15 +565,17 @@ Resolution {
       CreateDir["res/"];
       DeleteFile[StrCat[Dir,"I1",ExtGnuplot]];
       DeleteFile[StrCat[Dir,"I2",ExtGnuplot]];
-       For k In{1:2}
+      DeleteFile[StrCat[Dir,"U1",ExtGnuplot]];
+      DeleteFile[StrCat[Dir,"U2",ExtGnuplot]];
+       For k In{1:num_postop_points}
         DeleteFile[StrCat[Dir,Sprintf("hbp_%g",k),ExtGnuplot]];
         DeleteFile[StrCat[Dir,Sprintf("bx_%g",k),ExtGnuplot]];
         DeleteFile[StrCat[Dir,Sprintf("by_%g",k),ExtGnuplot]];
         DeleteFile[StrCat[Dir,Sprintf("hx_%g",k),ExtGnuplot]];
         DeleteFile[StrCat[Dir,Sprintf("hy_%g",k),ExtGnuplot]];
-        DeleteFile[StrCat[Dir, StrCat["ItLoopInfo",ExtGnuplot]]];
       EndFor
-
+      DeleteFile[StrCat[Dir, StrCat["ItLoopInfo",ExtGnuplot]]];
+      
       // initialize the solution (initial condition)
       InitSolution[A] ;
 
@@ -569,8 +588,12 @@ Resolution {
             GenerateJac[A] ; SolveJac[A] ; }
         EndIf
         SaveSolution[A] ;
+        If (Flag_LiveLocalPostOp)
         PostOperation[Get_LocalFields] ;
-        PostOperation[Get_GlobalQuantities] ;
+        EndIf
+        If (Flag_LiveGlobalPostOp)
+          PostOperation[Get_GlobalQuantities];
+        EndIf
       EndIf // End Flag_AnalysisType==AN_STATIC (Static) Flag_AnalysisType==AN_FREQUENCY (Frequency)
 
       If(Flag_AnalysisType==AN_TIME)
@@ -583,8 +606,12 @@ Resolution {
 
         //Save TimeStep 0
         SaveSolution[A];
+        If (Flag_LiveLocalPostOp)
         PostOperation[Get_LocalFields] ;
-        PostOperation[Get_GlobalQuantities];
+        EndIf
+        If (Flag_LiveGlobalPostOp)
+          PostOperation[Get_GlobalQuantities];
+        EndIf
 
         TimeLoopTheta[time0, timemax, delta_time, 1.]{ // Euler implicit (1) -- Crank-Nicolson (0.5)
           If(!Flag_NL) // Linear case ...
@@ -615,9 +642,9 @@ Resolution {
               IterativeLoopN[ Nb_max_iter, RF_tuned[],
                 //*****Choose between one of the 3 following possibilities:*****
                 //System { { A , Reltol_Mag, Abstol_Mag, Residual MeanL2Norm }} ]{ //1)
-                //PostOperation { { a_only , Reltol_Mag, Abstol_Mag,  MeanL2Norm }} ]{ //2)
+                PostOperation { { az_only , Reltol_Mag, Abstol_Mag,  MeanL2Norm }} ]{ //2)
                 //PostOperation { { b_only , Reltol_Mag, Abstol_Mag,  MeanL2Norm }} ]{ //3) 
-                PostOperation { { h_only , Reltol_Mag, Abstol_Mag,  MeanL2Norm }} ]{ //4) 
+                //PostOperation { { h_only , Reltol_Mag, Abstol_Mag,  MeanL2Norm }} ]{ //4) 
                 //**************************************************************
                 GenerateJac[A] ; 
                 If (!Flag_AdaptRelax)
@@ -642,9 +669,13 @@ Resolution {
           EndIf
           
           SaveSolution[A];
+          If (Flag_LiveLocalPostOp)
           PostOperation[Get_LocalFields] ;
+          EndIf
           //Test[ $TimeStep > 1 ]{
-          PostOperation[Get_GlobalQuantities];
+          If (Flag_LiveGlobalPostOp)
+            PostOperation[Get_GlobalQuantities];
+          EndIf
           //}
         }
       EndIf // End Flag_AnalysisType==AN_TIME (Time domain)
@@ -714,7 +745,7 @@ PostProcessing {
       { Name rhoj2 ;
         Value {
           Term { [ sigma[]*SquNorm[ Dt[{a}]+{ur}] ] ; In Region[{DomainC}] ; Jacobian Vol ; }
-          // Term { [ 1./sigma[]*SquNorm[ IA[]*{ir} ] ] ; In Inds  ; Jacobian Vol ; }
+          //Term { [ 1./sigma[]*SquNorm[ IA[]*{ir} ] ] ; In Inds  ; Jacobian Vol ; }
         }
       }
 
@@ -722,7 +753,7 @@ PostProcessing {
         Value {
           Integral { [ SymmetryFactor*AxialLength*sigma[] * SquNorm[ Dt[{a}]+{ur} ] ];
             In Region[{DomainC}] ; Jacobian Vol ; Integration I1 ; }
-          // Integral { [ SymmetryFactor*AxialLength/sigma[]*SquNorm[ IA[]*{ir} ] ];
+          //Integral { [ SymmetryFactor*AxialLength/sigma[]*SquNorm[ IA[]*{ir} ] ];
           //  In Inds  ; Jacobian Vol ; Integration I1 ; }
         }
       }
@@ -797,22 +828,19 @@ PostOperation Get_LocalFields UsingPost MagStaDyn_a_2D {
     //Print[ nb,  OnElementsOf Domain, File StrCat[Dir,"nb",ExtGmsh], LastTimeStepOnly ] ;
     //Print[ dhdb, OnElementsOf DomainNL, File StrCat[Dir,"dhdb",ExtGmsh], LastTimeStepOnly ];
   EndIf
-  //If(Flag_NL_law == NL_JA)
-    For k In {1:3}
-      Print[ bx, OnPoint {0,ypos~{k},0}, Format TimeTable, LastTimeStepOnly,
-        File > StrCat[Dir,Sprintf("bx_%g",k),ExtGnuplot], SendToServer StrCat[po,Sprintf("Point_%g/",k),"bx [T]"], Color "LightGrey" ];
-      Print[ by, OnPoint {0,ypos~{k},0}, Format TimeTable, LastTimeStepOnly,
-        File > StrCat[Dir,Sprintf("by_%g",k),ExtGnuplot], SendToServer StrCat[po,Sprintf("Point_%g/",k),"by [T]"], Color "LightGrey" ];
-      Print[ hx, OnPoint {0,ypos~{k},0}, Format TimeTable, LastTimeStepOnly,
-        File > StrCat[Dir,Sprintf("hx_%g",k),ExtGnuplot], SendToServer StrCat[po,Sprintf("Point_%g/",k),"hx [A\m]"], Color "LightGrey" ];
-      Print[ hy, OnPoint {0,ypos~{k},0}, Format TimeTable, LastTimeStepOnly,
-        File > StrCat[Dir,Sprintf("hy_%g",k),ExtGnuplot], SendToServer StrCat[po,Sprintf("Point_%g/",k),"hy [A\m]"], Color "LightGrey" ];
+  For k In {1:num_postop_points}
+    Print[ bx, OnPoint {xpos~{k},ypos~{k},0}, Format TimeTable, LastTimeStepOnly,
+      File > StrCat[Dir,Sprintf("bx_%g",k),ExtGnuplot], SendToServer StrCat[po,Sprintf("Point_%g/",k),"bx [T]"], Color "LightGrey" ];
+    Print[ by, OnPoint {xpos~{k},ypos~{k},0}, Format TimeTable, LastTimeStepOnly,
+      File > StrCat[Dir,Sprintf("by_%g",k),ExtGnuplot], SendToServer StrCat[po,Sprintf("Point_%g/",k),"by [T]"], Color "LightGrey" ];
+    Print[ hx, OnPoint {xpos~{k},ypos~{k},0}, Format TimeTable, LastTimeStepOnly,
+      File > StrCat[Dir,Sprintf("hx_%g",k),ExtGnuplot], SendToServer StrCat[po,Sprintf("Point_%g/",k),"hx [A\m]"], Color "LightGrey" ];
+    Print[ hy, OnPoint {xpos~{k},ypos~{k},0}, Format TimeTable, LastTimeStepOnly,
+      File > StrCat[Dir,Sprintf("hy_%g",k),ExtGnuplot], SendToServer StrCat[po,Sprintf("Point_%g/",k),"hy [A\m]"], Color "LightGrey" ];
 
-      Print[ hb, OnPoint {0,ypos~{k},0}, Format TimeTable, LastTimeStepOnly,
-        File > StrCat[Dir,Sprintf("hbp_%g",k),ExtGnuplot] ];
-    EndFor
-
-  //EndIf
+    Print[ hb, OnPoint {xpos~{k},ypos~{k},0}, Format TimeTable, LastTimeStepOnly,
+      File > StrCat[Dir,Sprintf("hbp_%g",k),ExtGnuplot] ];
+  EndFor
 }
 
 PostOperation Get_GlobalQuantities UsingPost MagStaDyn_a_2D {
@@ -887,11 +915,10 @@ PostOperation Get_AllTS UsingPost MagStaDyn_a_2D {
   Print[ b,  OnElementsOf Domain, File StrCat[Dir,"b_all",ExtGmsh] ];
   Print[ h,  OnElementsOf Domain, File StrCat[Dir,"h_all",ExtGmsh] ];
 
-  If(Flag_NL_law == NL_JA )
-    For k In {1:3}
-      Print[ hb, OnPoint {0,ypos~{k},0}, Format TimeTable, File StrCat[Dir,Sprintf("hbp_%g_all",k),ExtGnuplot] ];
-    EndFor
-  EndIf
+  For k In {1:num_postop_points}
+    Print[ hb, OnPoint {xpos~{k},ypos~{k},0}, Format TimeTable, 
+      File StrCat[Dir,Sprintf("hbp_%g_all",k),ExtGnuplot] ];
+  EndFor
 
   Print[ I, OnRegion IndA_1, Format Table, File StrCat[Dir,"I1_all",ExtGnuplot] ];
   Print[ I, OnRegion IndA_2, Format Table, File StrCat[Dir,"I2_all",ExtGnuplot] ];

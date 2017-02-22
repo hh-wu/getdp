@@ -1,12 +1,5 @@
-mm = 1e-3;
+Include "square_data.geo";
 
-Include "square.dat";
-
-DefineConstant[ THICKNESS = {THICKNESS_00, Min 0.25*mm, Max 1*mm, Step 0.25*mm, Name "Lamination thickness (mm)"} ];
-DefineConstant[ NumEle = {NumEle_00, Min 20, Max 200, Step 60, Name "Number of elements"} ];
-
-//d = THICKNESS * mm;
-d = THICKNESS;
 lc = 1;
 
 Point(1) = {0,0,0,lc};
@@ -42,3 +35,19 @@ Physical Point(11) = {1};
 Physical Line(15) = {1,2,3,4};
 
 Physical Surface(16)={6};
+
+
+/*
+// Post-processing point
+For k In {1:num_postop_points}
+  Point(newp) = {xpos~{k},ypos~{k}, 0 }; // for visu
+EndFor
+
+If(PostProcessing.NbViews==0)
+For k In {1:num_postop_points}
+  View Sprintf("Label of Point %g",k) {
+  T3(xpos~{k},ypos~{k}, 0, TextAttributes("Align", "Left", "Font", "Helvetica")){ Sprintf(" %g ",k)};
+  };
+EndFor
+EndIf
+*/
