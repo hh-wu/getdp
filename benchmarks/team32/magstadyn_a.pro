@@ -40,12 +40,12 @@ Function{
     Flag_DomainCWithI = 0,
     Flag_CircuitCoupling = 0,
     Flag_NL = 0,
-    Flag_PrintMaps =1,
     Flag_Infinity = 0,
     Flag_VoltageTransformer=0,
     Flag_ConductingCore=0,
+    Flag_PrintMaps =1,
     Flag_LiveLocalPostOp=1,
-    Flag_LiveGlobalPostOp=0,
+    Flag_LiveGlobalPostOp=1,
     po = "Output_"
   ];
 

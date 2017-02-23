@@ -1,4 +1,7 @@
 /*
+//-------------------------------------------------------------------------
+// Info
+//-------------------------------------------------------------------------
 //--------- with command line (faster)
 // To mesh (create square.msh file):
 gmsh -2 square.geo 
@@ -43,57 +46,83 @@ gmsh res/*.pos
 
 // To draw a plot with gnuplot from a .dat file result
 gnuplot
-plot "res/hb.dat" u numcol:numcol w l
+plot "res/hbp_*.dat" u numcol:numcol w l
 0 Time x y z hx hy 0  bx by  0
 1 2    3 4 5 6  7  8  9  10  11
 
-plot "res/hbp_1_all.dat" u  6:9 w l  # to plot  bx(hx)
+Examples:
+plot "res/hbp_1_all.dat" u  6:9 w l   # to plot  bx(hx)
 plot "res/hbp_1_all.dat" u  7:10 w l  # to plot  by(hy)
-plot "res/hbp_1_all.dat" u  6:7 w l  # to plot  hy(hx)
+plot "res/hbp_1_all.dat" u  6:7 w l   # to plot  hy(hx)
 plot "res/hbp_1_all.dat" u  9:10 w l  # to plot  by(bx)
 */
 
+//-------------------------------------------------------------------------
+// Include Data
+//-------------------------------------------------------------------------
+
 Include "square_data.geo";
 
+//-------------------------------------------------------------------------
+// Output Directory
+//-------------------------------------------------------------------------
+Dir   = "res/";
 
+//-------------------------------------------------------------------------
+// Physical Groups
+//-------------------------------------------------------------------------
+Group {
+  Corner   = Region[{11}];
+  Air      = Region[{}];
+  AirInf   = Region[{}];
+  Inds     = Region[{}];
+  Boundary = Region[{15}];
+  Core     = Region[{16}];
+  //DummyR = #54321 ; // dummy group (for being able to use Store's)
+}
+
+//-------------------------------------------------------------------------
+// Imposed Source Function
+//-------------------------------------------------------------------------
 Function {
-
-
-  mu0 = 4.e-7 * Pi;
-
-  //sigma_al = 3.72e7 ; // conductivity of aluminum [S/m] (not used here)
-  //sigma_cu = 5.77e7  ; // conductivity of copper [S/m] (not used here)
-
-  // Hysteresis parameters with Jiles-Atherton hysteresis model
-
-  // FeSi -- data for Jiles-Atherton model from Bastos paper
-  // Oxz is the lamination plane, Oy is perpendicular to the lamination
-  // Ox == transverse direction (Oy taken equal to Ox, as the field is negligible)
-  Msat_x = 1.31e6;
-  a_x = 233.78;
-  k_x = 374.975;
-  c_x = 0.736;
-  alpha_x = 562e-6 ;
-
-  // Oz == rolling direction
-  Msat_z = 1.33e6;
-  a_z = 172.856;
-  k_z = 232.652;
-  c_z = 0.652;
-  alpha_z = 417e-6;
-
-  hyst_FeSi = { Msat_z, a_z, k_z, c_z, alpha_z}; // rolling direction
-  //hyst_FeSi = { Msat_x, a_x, k_x, c_x, alpha_x}; // transverse direction
-
-  sigma_core = 2.5e7/1000; 
-  sigma_coil = 5.9e7;
-  mur_fe     = 1000; // linear case
-
+  If (Flag_TestCase==0)
+  // CAS 0 (default)
+    hax     = hax_00; 
+    haharmx = haharmx_00;       
+    hay0    = hay0_00;  
+    hay     = hay_00;      
+    haharmy = haharmy_00;       
+    freqharm= freqharm_00;         
+    phase   = phase_00;
+  EndIf
+  If (Flag_TestCase==1)
+  // CAS 1 (1Dx)
+  hax = ha_00; haharmx = 0;       hay0 = 0;  hay = 0;      haharmy = 0;       freqharm = 0;         phase = 0;
+  EndIf
+  If (Flag_TestCase==2)
+  // CAS 2 (1Dx+harm)
+  hax = ha_00; haharmx = ha_00/2; hay0 = 0;  hay = 0;      haharmy = 0;       freqharm = 5*freq_00; phase = 0;
+  EndIf
+  If (Flag_TestCase==3)
+  // CAS 3 (1Dxy)
+  hax = ha_00; haharmx = 0;       hay0 = 0;  hay = ha_00;  haharmy = 0;       freqharm = 0;         phase = 0;
+  EndIf
+  If (Flag_TestCase==4)
+  // CAS 4 (1Dxy+harm)
+  hax = ha_00; haharmx = ha_00/2; hay0 = 0;  hay = ha_00;  haharmy = ha_00/2; freqharm = 5*freq_00; phase = 0;
+  EndIf
+  If (Flag_TestCase==5)
+  // CAS 5 (2D)
+  hax = ha_00; haharmx = 0;       hay0 = 0;  hay = ha_00;  haharmy = 0;       freqharm = 0;         phase = Pi/2;//(90/180)*3.141592653589793;
+  EndIf
+  If (Flag_TestCase==6)
+  // CAS 6 (2D+harm)
+  hax = ha_00; haharmx = ha_00/2; hay0 = 0;  hay = ha_00;  haharmy = ha_00/2; freqharm = 5*freq_00; phase = Pi/2;//(90/180)*3.141592653589793;
+  EndIf
 
   // With hysteresis: Damped start necessary
   Trelax = 1/Freq/8;
   Frelax[] = ($Time < Trelax) ? 0.5 * (1. - Cos [Pi*$Time/Trelax] ) : 1. ;
-  phase=phase_00;
 
   hx[] = Frelax[] * (  hax     * Cos[2*Pi*Freq*$Time]
                      + haharmx * Cos[2*Pi*freqharm*$Time]) ;
@@ -108,22 +137,11 @@ Function {
                      + haharmy * Complex_MH[Cos[phase],Sin[phase]]{freqharm});
 */
   hhh[] = Vector[hx[],hy[],0]   ;
-
   nxh[] = (Tangent[]*hhh[])*Vector[0,0,1] ; // Source magnetic field = current layer imposed on the outer boundary of the domain
-
 }
 
-
-Dir   = "res/";
-
-Group {
-  Corner   = Region[{11}];
-  Air=Region[{}];
-  AirInf=Region[{}];
-  Inds = Region[{}];
-  Boundary = Region[{15}];
-  Core     = Region[{16}];
-  //DummyR = #54321 ; // dummy group (for being able to use Store's)
-}
+//-------------------------------------------------------------------------
+// Include Formulation, Resolution, PostOperations, ... 
+//-------------------------------------------------------------------------
 
 Include "magstadyn_a.pro";

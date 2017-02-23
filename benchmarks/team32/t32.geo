@@ -392,11 +392,11 @@ For k In {1:num_postop_points}
 EndFor
 
 If(PostProcessing.NbViews==0)
-For k In {1:num_postop_points}
-  View Sprintf("Label of Point %g",k) {
-  T3(xpos~{k},ypos~{k}, 0, TextAttributes("Align", "Left", "Font", "Helvetica")){ Sprintf(" %g ",k)};
-  };
-EndFor
+  For k In {1:num_postop_points}
+    View Sprintf("Label of Point %g",k) {
+    T3(xpos~{k},ypos~{k}, 0, TextAttributes("Align", "Left", "Font", "Helvetica")){ Sprintf(" %g ",k)};
+    };
+  EndFor
 EndIf
 
 

@@ -37,7 +37,7 @@ Physical Line(15) = {1,2,3,4};
 Physical Surface(16)={6};
 
 
-/*
+
 // Post-processing point
 For k In {1:num_postop_points}
   Point(newp) = {xpos~{k},ypos~{k}, 0 }; // for visu
@@ -50,4 +50,4 @@ For k In {1:num_postop_points}
   };
 EndFor
 EndIf
-*/
+

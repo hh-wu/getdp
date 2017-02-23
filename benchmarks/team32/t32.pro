@@ -1,47 +1,71 @@
+/*
+//-------------------------------------------------------------------------
+// Info
+//-------------------------------------------------------------------------
+//--------- with command line (faster)
+// To mesh (create t32.msh file):
+gmsh -2 t32.geo 
+
+// To launch computation (create t32.pre & t32.res):
+getdp t32.pro -solve Analysis
+
+// Available PostOperations :
+(1) Get_LocalFields      LastTimeStepOnly
+(2) Get_GlobalQuantities LastTimeStepOnly
+(3) Get_AllTS            AllTimeStep
+(4) az_only              AllTimeStep
+(5) b_only               AllTimeStep
+(6) h_only               AllTimeStep
+
+// To do PostOp after the end of the simulation (create res/*.pos res/*dat)
+// use AlltimeStep postop type  
+// Example: 
+getdp t32.pro -pos Get_AllTS 
+
+// To launch computation and Then
+// do PostOp after the end of the simulation (create res/*.pos res/*dat)
+getdp t32.pro -solve Analysis -pos Get_AllTS 
+
+//---------
+
+//--------- with the graphical user interface (GUI) (slower)
+// To do PostOp at every Time step during simulation,
+// change in t32_data.geo:
+// Flag_LiveLocalPostOp_00 = 1 
+// or Flag_LiveGlobalPostOp_00 = 1;
+// Equivalent to Check the box "Real Time visu LocalPostOp" in the GUI
+
+// If these Flags are set to 1, launching this:
+getdp t32.pro -solve Analysis 
+// Equivalent to Click on Run in the GUI
+// will create PostOp results only from the LastTimeStep (create res/*.pos res/*dat)
+//---------
+
+// To visualize a .pos file result
+gmsh res/*.pos
+
+// To draw a plot with gnuplot from a .dat file result
+gnuplot
+plot "res/hbp_*.dat" u numcol:numcol w l
+0 Time x y z hx hy 0  bx by  0
+1 2    3 4 5 6  7  8  9  10  11
+
+Examples:
+plot "res/hbp_1_all.dat" u  6:9 w l   # to plot  bx(hx)
+plot "res/hbp_1_all.dat" u  7:10 w l  # to plot  by(hy)
+plot "res/hbp_1_all.dat" u  6:7 w l   # to plot  hy(hx)
+plot "res/hbp_1_all.dat" u  9:10 w l  # to plot  by(bx)
+*/
+
+//-------------------------------------------------------------------------
+// Include Data
+//-------------------------------------------------------------------------
+
 Include "t32_data.geo";
 
-//EnergHyst++:----------------- 
-Flag_TestCase00 = 3; //1: - case 1: windings series connected with sinusoidal supply,
-                     //2: - case 2: windings series connected with 5th harmonic added,
-                     //3: - case 3: rotational flux,
-                     //4: - case 4: secondary winding on load   
-
-
-Flag_NLRes00 = 0; // 0: use classical IterativeLoop to solve the NL (non linear) problem
-                  // 1: use IterativeLoopN to solve the NL (non linear) problem
-                  // 2: solve the NL (non linear) problem "by hand"
-
-// non linear loop default parameters
-Nb_max_iter00       = 50;
-stop_criterion00    = 1e-5;
-relaxation_factor00 = 1;
-Flag_AdaptRelax00   = 1; // set to 1 to test different relaxation factors
-relax_max00         = 1 ;
-relax_min00         = 0.1;
-relax_numtest00     = 10;
-TestAllFactors00    = 0; // 0 : stops when the residual goes up !!
-                       // 1 : try every relaxation factors and keep the optimal one
-Reltol_Mag00        = stop_criterion00; // 0 before with IterativeLoopN
-Abstol_Mag00        = stop_criterion00;
-Reltoldx_Mag00      = 1e-5*stop_criterion00;
-Abstoldx_Mag00      = 1e-3*stop_criterion00;
-
-// Useful Constant--------------
-NL_LIN = 0;
-NL_ANA = 1;
-NL_ANA_JA = 2;
-NL_JA = 3;
-NL_ENERGHYST = 4;
-
-NLRES_ITERATIVELOOP    = 0;
-NLRES_ITERATIVELOOPN   = 1;
-NLRES_ITERATIVELOOPPRO = 2;
-
-AN_STATIC    = 0;
-AN_TIME      = 1;
-AN_FREQUENCY = 2;
-//------------------------------
-
+//-------------------------------------------------------------------------
+// Output Directory
+//-------------------------------------------------------------------------
 If(Flag_3Dmodel==0)
   Dir="res/";
 EndIf
@@ -49,91 +73,9 @@ If(Flag_3Dmodel==1)
   Dir="res3d/";
 EndIf
 
-ExtGmsh     = ".pos";
-//ExtGnuplot  = "_Td.dat";// transverse direction
-ExtGnuplot  = ".dat";// rolling direction
-
-ppNL="Input/50NonLinear Iterations/";
-ppTC="Input/30Excitation Source/";
-ppAC="Input/40Analysis Set Up/";
-colNL1="Blue";
-colNL2="Blue2";
-colNL3="LightBlue4";
-colNL4 ="Blue4";
- 
-
-colAC1="Green2"; 
-colAC2 ="Green4";
-
-
-
-DefineConstant[
-  Flag_AnalysisType = { AN_TIME, Choices{AN_STATIC="Static", AN_TIME="Time domain", AN_FREQUENCY="Frequency domain"},
-    Name StrCat[ppAC, "2Type of analysis"], Highlight Str[colAC1],
-    Help Str["- Use 'Static' to compute static fields created in TFO",
-      "- Use 'Time domain' to compute the dynamic response of TFO",
-      "- Use 'Frequency domain' to compute the dynamic steady-state response of TFO"
-    ]},
-  Flag_ConductingCore     = {0, Choices{0,1}, Name "Input/Conducting core", Visible 0}
-  Flag_VoltageTransformer = {1, Choices{0,1}, Name StrCat[ppTC, "0Voltage transformer"],
-    Help Str["- 0: current fixed in each inductor",
-      "- 1: voltage fixed in Ind1, zero current in Ind2"]},
-  Flag_CircuitCoupling    = { (Flag_VoltageTransformer==1), Choices{0,1}, Name StrCat[ppTC, "1Circuit coupling"],
-    ReadOnly (Flag_VoltageTransformer==1)}
-
-  Flag_TestCase = {(!Flag_VoltageTransformer)?3:Flag_TestCase00, Choices {
-      1="CASE 1",
-      2="CASE 2",
-      3="CASE 3",
-      4="CASE 4"}, Name StrCat[ppTC, "20Test Case"], ReadOnly (!Flag_VoltageTransformer), Highlight "Red4",
-      Help Str[ "- case 1: windings series connected with sinusoidal supply",
-                "- case 2: windings series connected with 5th harmonic added",
-                "- case 3: rotational flux",
-                "- case 4: secondary winding on load"]}, 
-
-  Freq = {10., Name StrCat[ppAC, "Frequency"], Highlight Str[colAC2]}
-  NbT  = {2, Name StrCat[ppAC, "Number of periods"],  Highlight Str[colAC2],Visible (Flag_AnalysisType==AN_TIME)}
-  NbSteps = {(Flag_3Dmodel==0)?250:200, Name StrCat[ppAC, "Number of steps"], Highlight Str[colAC2], Visible (Flag_AnalysisType==AN_TIME)}
-
-  Flag_NL_law = { (Flag_AnalysisType==AN_FREQUENCY)?NL_LIN:NL_LIN , Choices{
-      NL_LIN="linear",
-      NL_ANA="analytical",
-      NL_ANA_JA="anhysteretic part of JA-model",
-      NL_JA="Jiles-Atherton hysteresis model",
-      NL_ENERGHYST="EnergHyst model"}, Name "Input/50Magnetic material law", ReadOnly (Flag_AnalysisType==2)}
-  Flag_NL = (Flag_NL_law!=0)
-
-// Non Linear Parameters ---------------------------------   
-  Flag_NLRes = { (Flag_AnalysisType!=AN_TIME)? NLRES_ITERATIVELOOP:Flag_NLRes00  , Choices {
-      NLRES_ITERATIVELOOP ="IterativeLoop",
-      NLRES_ITERATIVELOOPN ="IterativeLoopN",
-      NLRES_ITERATIVELOOPPRO ="IterativeLoopPro"}, Name StrCat[ppNL, "0Resolution type"], Highlight Str[colNL1], Visible Flag_NL ,ReadOnly (Flag_AnalysisType!=AN_TIME),
-      Help Str["- Use 'IterativeLoop' to solve the NL (non linear) problem with classical IterativeLoop Operation",
-               "- Use 'IterativeLoopN' to solve the NL (non linear) problem with IterativeLoopN Operation",
-               "- Use 'IterativeLoopPro' to solve the NL (non linear) problem 'by hand'"]},
-
-  Nb_max_iter = {Nb_max_iter00, Name StrCat[ppNL, "1Nb max iter"], Highlight Str[colNL4], Visible Flag_NL}
-  stop_criterion = {stop_criterion00, Name StrCat[ppNL, "2stop criterion"], Highlight Str[colNL2], Visible (Flag_NL && Flag_NLRes==NLRES_ITERATIVELOOP)}
-  Reltol_Mag = {Reltol_Mag00, Name StrCat[ppNL, "2Reltol"], Highlight Str[colNL2], Visible (Flag_NL && (Flag_NLRes==NLRES_ITERATIVELOOPN || Flag_NLRes==NLRES_ITERATIVELOOPPRO) && Flag_AnalysisType==AN_TIME)}
-  Abstol_Mag = {Abstol_Mag00, Name StrCat[ppNL, "2Abstol"], Highlight Str[colNL2], Visible (Flag_NL && (Flag_NLRes==NLRES_ITERATIVELOOPN || Flag_NLRes==NLRES_ITERATIVELOOPPRO) && Flag_AnalysisType==AN_TIME)}
-  Reltoldx_Mag = {Reltoldx_Mag00, Name StrCat[ppNL, "2Reltoldx"], Highlight Str[colNL2], Visible (Flag_NL && Flag_NLRes==NLRES_ITERATIVELOOPPRO  && Flag_AnalysisType==AN_TIME)}
-  Abstoldx_Mag = {Abstoldx_Mag00, Name StrCat[ppNL, "2Abstoldx"], Highlight Str[colNL2], Visible (Flag_NL && Flag_NLRes==NLRES_ITERATIVELOOPPRO  && Flag_AnalysisType==AN_TIME)}
-
-
-  Flag_AdaptRelax = {Flag_AdaptRelax00, Choices{0,1}, Name StrCat[ppNL, "3Adaptive Relaxation (or not)"], Highlight Str[colNL3], Visible (Flag_NL && Flag_AnalysisType==AN_TIME)}
-
-  relaxation_factor = {relaxation_factor00, Name StrCat[ppNL, "4relaxation factor"], Help Str["'1' = no relaxation"],Highlight Str[colNL3], Visible (Flag_NL && !Flag_AdaptRelax && Flag_AnalysisType==AN_TIME)}
-
-  relax_max = {relax_max00, Min 0.001, Max 1., Name StrCat[ppNL, "4maximal relaxation factor"], Highlight Str[colNL3], Visible (Flag_NL && Flag_AdaptRelax && Flag_AnalysisType==AN_TIME)}
-  relax_min = {relax_min00, Min 0.001, Max 1., Name StrCat[ppNL, "5minimal relaxation factor"], Highlight Str[colNL3], Visible (Flag_NL && Flag_AdaptRelax && Flag_AnalysisType==AN_TIME)}
-  relax_numtest = {relax_numtest00, Min 2, Max 100, Name StrCat[ppNL, "6number of relaxation factors to test"], Highlight Str[colNL3], Visible (Flag_NL && Flag_AdaptRelax && Flag_AnalysisType==AN_TIME)}
-
-  TestAllFactors = {TestAllFactors00, Choices{0,1}, Name StrCat[ppNL, "7Test All Factors (or not)"], Highlight Str[colNL3], Visible (Flag_NL && Flag_AdaptRelax && Flag_AnalysisType==AN_TIME),
-  Help Str["0: Keep the last factor that induced a decrease in the residual",
-           Sprintf("1: Test all %g factors and keep the optimal one", relax_numtest)]}
-];
-
-
+//-------------------------------------------------------------------------
+// Physical Groups
+//-------------------------------------------------------------------------
 Group{
   Core   = # CORE;
   Air    = # AIR;
@@ -171,25 +113,13 @@ Group{
   EndIf
 
   SurfaceGInf = #{SURF_AIROUT};
-
 }
 
-// --------------------------------------------------------------------------
+//-------------------------------------------------------------------------
+// Additional Functions
+//-------------------------------------------------------------------------
 
 Function {
-
-
-  mu0 = 4.e-7 * Pi;
-
-  // Hysteresis parameters with Jiles-Atherton hysteresis model
-
-  hyst_FeSi = { Msat_z, a_z, k_z, c_z, alpha_z}; // rolling direction
-  //hyst_FeSi = { Msat_x, a_x, k_x, c_x, alpha_x}; // transverse direction
-
-  sigma_core = 2.5e7/1000;
-  sigma_coil = 5.9e7;
-  mur_fe     = 1000; // linear case
-
   nb_wires = 90;
   If(Flag_3Dmodel==0)
     nbInductors =2;
@@ -235,40 +165,44 @@ Function {
 
   js0[] = NbWires[]/SurfCoil[]*vDir[] ;
 
+  // Resistance for circuits
+  Rp = 11.1;
+  Rs = 11.1; // useful for casse 3
+  Rwinding = 0.32; // Resistance of each of the windings is 0.32 (team32 measurements)
+  Rload = 0.05; //useful for case 4 only
+}
 
-    // Resistance for circuits
-    Rp = 11.1;
-    Rs = 11.1; // useful for casse 3
-    Rwinding = 0.32; // Resistance of each of the windings is 0.32 (team32 measurements)
-    Rload = 0.05; //useful for case 4 only
+//-------------------------------------------------------------------------
+// Imposed Source Functions
+//-------------------------------------------------------------------------
+Function {
+  // Phases
+  Phase_1 = 0.;
+  Phase_2 = Pi/2;
 
-    // Phase
-    Phase_1 = 0.;
-    Phase_2 = Pi/2;
+  // Applied voltage
+  If (Flag_TestCase==1 )
+    val_Voltage1 = 13.5 ; 
+  EndIf
+  If (Flag_TestCase==2)
+    val_Voltage1 = 11.8/2 ;  // 11.8 in problem32.pdf but division by 2 to be in agreement with measurements
+  EndIf
+  If (Flag_TestCase==3)
+    val_Voltage1 = 14.5 ; // 15 in problem32.pdf but 14.5 in measurements
+    val_Voltage2 = 14.5 ;
+  EndIf
+  If (Flag_TestCase==4 )
+    val_Voltage1 = 10.9 ; 
+  EndIf
 
-    // Applied voltage
-    If (Flag_TestCase==1 )
-      val_Voltage1 = 13.5 ; 
-    EndIf
-    If (Flag_TestCase==2)
-      val_Voltage1 = 11.8/2 ;  // 11.8 in problem32.pdf but division by 2 to be in agreement with measurements
-    EndIf
-    If (Flag_TestCase==3)
-      val_Voltage1 = 14.5 ; // 15 in problem32.pdf but 14.5 in measurements
-      val_Voltage2 = 14.5 ;
-    EndIf
-    If (Flag_TestCase==4 )
-      val_Voltage1 = 10.9 ; 
-    EndIf
+  // Harmonics
+  If (Flag_TestCase==2)
+    V5[] = F_Sin_wt_p[]{2*Pi*(5*Freq), Phase_1};
+  Else
+    V5[] = 0.;
+  EndIf
 
-    // Harmonics
-    If (Flag_TestCase==2)
-      V5[] = F_Sin_wt_p[]{2*Pi*(5*Freq), Phase_1};
-    Else
-      V5[] = 0.;
-    EndIf
-
-  // With hysteresis: Relaxation necessary
+  // With hysteresis: Damped start necessary
   Trelax = 1/Freq/8;
   Frelax[] = ($Time < Trelax) ? 0.5 * (1. - Cos [Pi*$Time/Trelax] ) : 1. ;
 
@@ -280,6 +214,10 @@ Function {
   I2[] = ((Flag_NL_law==NL_JA ||  Flag_NL_law==NL_ENERGHYST)? Frelax[]:1) * (F_Sin_wt_p[]{2*Pi*Freq, Phase_2}+V5[]);
 
 }
+
+//-------------------------------------------------------------------------
+// Include Formulation, Resolution, PostOperations, ... 
+//-------------------------------------------------------------------------
 
 If(Flag_3Dmodel==0)
   Include "magstadyn_a.pro" ;
