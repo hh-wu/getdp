@@ -43,7 +43,7 @@ ElseIf(Model3D == 2)
       pv~{slice}[] += ps~{slice-1}[s] + SlicePhysOffset * slice;
       ps~{slice}[] += ps~{slice-1}[s] + 2*SlicePhysOffset * slice;
       ele[] = Physical Surface{ps~{slice-1}[s]};
-      name = StrCat( Physical Surface{ps~{slice-1}[s]}, Sprintf(" (slice %g)", slice) );
+      name = StrCat( Physical Surface{ps~{0}[s]}, Sprintf(" (slice %g)", slice) );
       Physical Volume(pv~{slice}[s]) = {};
       Physical Surface(ps~{slice}[s]) = {};
       For e In {0:#ele[]-1}
@@ -58,7 +58,7 @@ ElseIf(Model3D == 2)
       psl~{slice}[] += pl~{slice-1}[l] + SlicePhysOffset * slice;
       pl~{slice}[] += pl~{slice-1}[l] + 2*SlicePhysOffset * slice;
       ele[] = Physical Line{pl~{slice-1}[l]};
-      name = StrCat( Physical Line{pl~{slice-1}[l]}, Sprintf(" (slice %g)", slice) );
+      name = StrCat( Physical Line{pl~{0}[l]}, Sprintf(" (slice %g)", slice) );
       Physical Surface(psl~{slice}[l]) = {};
       Physical Line(pl~{slice}[l]) = {};
       For e In {0:#ele[]-1}
