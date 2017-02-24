@@ -37,14 +37,14 @@ Include "pmsm_rotor.geo";
 Include "pmsm_stator.geo";
 
 // For nice visualisation...
-//Mesh.Light = 0 ;
-//Mesh.SurfaceFaces = 1; Mesh.SurfaceEdges=0;
+// Mesh.Light = 0 ;
+// Mesh.SurfaceFaces = 1; Mesh.SurfaceEdges=0;
 
 Hide { Point{ Point '*' }; }
 Hide { Line{ Line '*' }; }
 Show { Line{ nicepos_rotor[], nicepos_stator[] }; }
 
-Physical Line(NICEPOS) = { nicepos_rotor[], nicepos_stator[] };
+Physical Line("Nice view for post-processing", NICEPOS) = { nicepos_rotor[], nicepos_stator[] };
 
 //For post-processing...
 //View[0].Light = 0;
@@ -95,7 +95,7 @@ If(Flag_AddInfo)
   Include "info_view.geo";
 EndIf
 
-//Include "generate_3d.geo";
+// Include "generate_3d.geo";
 
 // test for sensitivity analysis
 DefineConstant[
