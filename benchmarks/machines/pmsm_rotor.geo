@@ -114,38 +114,38 @@ EndIf
 // Physical regions
 // -------------------------------------------------------------------------------
 
-Physical Surface(ROTOR_FE)     = {srotor[]};     // Rotor
+Physical Surface("rotor iron",ROTOR_FE)     = {srotor[]};     // Rotor
 
-Physical Surface(ROTOR_AIR)    = {sairrotor[]};  // AirRotor
-Physical Surface(ROTOR_AIRGAP) = {sairrotormb[]};// AirRotor for possible torque computation with Maxwell stress tensor
+Physical Surface("rotor air", ROTOR_AIR)    = {sairrotor[]};  // AirRotor
+Physical Surface("rotor airgap",ROTOR_AIRGAP) = {sairrotormb[]};// AirRotor for possible torque computation with Maxwell stress tensor
 
 NN = (Flag_Symmetry)?NbrPolesInModel:NbrPolesTot;
 For k In {0:NN-1}
-  Physical Surface(ROTOR_MAGNET+k) = {smagnet[k]}; // Magnets
+  Physical Surface(Sprintf("rotor magnet %g",k+1),ROTOR_MAGNET+k) = {smagnet[k]}; // Magnets
 EndFor
 
-Physical Line(SURF_INT) = {surfint[]}; // SurfInt
+Physical Line("inner boundary (rotor shaft)",SURF_INT) = {surfint[]}; // SurfInt
 
 If(Flag_Symmetry)  //Lines for symmetry link
-  Physical Line(ROTOR_BND_A0)  = linR0[];
-  Physical Line(ROTOR_BND_A1)  = linR1[];
+  Physical Line("rotor radial bnd (master)",ROTOR_BND_A0)  = linR0[];
+  Physical Line("rotor radial bnd (slave)",ROTOR_BND_A1)  = linR1[];
 EndIf
 
 lineMBrotor[] += lineMBrotoraux[] ;
 If(!Flag_Symmetry)
-  Physical Line(ROTOR_BND_MOVING_BAND)  = {lineMBrotor[]};
+  Physical Line("rotor bnd moving band 1", ROTOR_BND_MOVING_BAND)  = {lineMBrotor[]};
 EndIf
 If(Flag_Symmetry)
   nr = #lineMBrotor[];
   nnp = nr/(NbrPolesTot/NbrSect) ;
   For k In {1:Floor[NbrPolesTot/NbrSect]}
     kk= ((k*nnp-1) > nr) ? nr-1 : k*nnp-1 ;
-    Physical Line(ROTOR_BND_MOVING_BAND+k-1) = lineMBrotor[{(k-1)*nnp:kk}] ;
+    Physical Line(Sprintf("rotor bnd moving band %g",k),ROTOR_BND_MOVING_BAND+k-1) = lineMBrotor[{(k-1)*nnp:kk}] ;
   EndFor
   k1 = Floor[NbrPolesTot/NbrSect];
   k2 = Ceil[NbrPolesTot/NbrSect];
   If (k2 > k1)
-    Physical Line(ROTOR_BND_MOVING_BAND+k2-1) = lineMBrotor[{(k2-1)*nnp:#lineMBrotor[]-1}] ;
+    Physical Line(Sprintf("rotor bnd moving band %g",k2),ROTOR_BND_MOVING_BAND+k2-1) = lineMBrotor[{(k2-1)*nnp:#lineMBrotor[]-1}] ;
   EndIf
 EndIf
 
@@ -159,5 +159,5 @@ Color SteelBlue {Surface{srotor[]};}
 Color SkyBlue {Surface{sairrotor[], sairrotormb[]};}
 Color Orchid {Surface{smagnet[{0:#smagnet[]-1:2}]};}
 If(#smagnet[]>1)
-Color Purple {Surface{smagnet[{1:#smagnet[]-1:2}]};}
+  Color Purple {Surface{smagnet[{1:#smagnet[]-1:2}]};}
 EndIf
