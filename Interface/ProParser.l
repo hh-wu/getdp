@@ -38,7 +38,7 @@ extern std::string getdp_yystring;
 
 %}
 
-alpha      [a-zA-Z\_\.]
+alpha      [a-zA-Z\_]
 digit      [0-9]
 exp        [Ee][-+]?{digit}+
 string     {alpha}({alpha}|{digit})*
@@ -149,6 +149,7 @@ DefineFunction               return tDefineFunction;
 DefineGroup                  return tDefineGroup;
 DefineNumber                 return tDefineNumber;
 DefineString                 return tDefineString;
+DefineStruct                 return tDefineStruct;
 DefineVariable               return tDefineConstant;
 DeformMesh                   return tDeformMesh;
 DeformeMesh                  return tDeformMesh;
@@ -314,6 +315,7 @@ NameOfPostProcessing         return tNameOfPostProcessing;
 NameOfResolution             return tNameOfResolution;
 NameOfSpace                  return tNameOfSpace;
 NameOfSystem                 return tNameOfSystem;
+NameStruct                   return tNameStruct;
 NbrMaxIteration              return tNbrMaxIteration;
 NbrRegions                   return tNbrRegions ;
 NeverDt                      return tNeverDt;
@@ -499,6 +501,12 @@ int getdp_yywrap()
 char *strSave(const char *string)
 {
   return ((char *)strcpy((char *)Malloc(strlen(string)+1), string));
+}
+
+char *strEmpty()
+{
+  char* s = (char *)Malloc(1); *s = 0;
+  return s;
 }
 
 void cStyleComments()

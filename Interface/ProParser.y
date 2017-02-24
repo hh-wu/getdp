@@ -50,6 +50,9 @@ std::map<std::string, std::vector<std::string> > GetDPStrings;
 int num_include = 0, level_include = 0;
 
 static Tree_T *ConstantTable_L = 0;
+static std::map<std::string, Struct> StructTable_M;
+static char *Struct_Name = 0, *Struct_NameSpace = 0;
+static int flag_tSTRING_alloc = 0;
 static List_T *ListOfInt_L = 0, *ListOfInt_Save_L = 0;
 static List_T *ListOfPointer_L = 0, *ListOfPointer2_L = 0, *ListOfChar_L = 0;
 static List_T *ListOfFormulation = 0, *ListOfBasisFunction = 0, *ListOfEntityIndex = 0;
@@ -120,8 +123,8 @@ static struct PostQuantityTerm           PostQuantityTerm_S;
 static struct PostOperation          PostOperation_S;
 static struct PostSubOperation         PostSubOperation_S;
 
-static std::map<std::string, std::vector<double> > FloatOptions_S;
-static std::map<std::string, std::vector<std::string> > CharOptions_S;
+static std::map<std::string, std::vector<double> > floatOptions;
+static std::map<std::string, std::vector<std::string> > charOptions;
 
 // External lexer functions
 void hack_fsetpos();
@@ -176,7 +179,7 @@ struct doubleXstring{
 %type <i>  GmshOperation GenerateGroupOperation
 %type <i>  CopyOperation GetOperation
 %type <i>  Append AppendOrNot
-%type <d>  FExpr OneFExpr
+%type <d>  FExpr OneFExpr DefineStruct NameStruct_Arg
 %type <l>  MultiFExpr ListOfFExpr RecursiveListOfFExpr
 %type <l>  RecursiveListOfCharExpr ParametersForFunction
 %type <l>  ListOfRegion ListOfRegionOrAll SuppListOfRegion
@@ -190,7 +193,7 @@ struct doubleXstring{
 %type <l>  SubPostQuantities PostSubOperations
 %type <c>  NameForMathFunction NameForFunction CharExpr CharExprNoVar
 %type <c>  StrCat StringIndex String__Index CallArg
-%type <c>  LP RP SendToFile
+%type <c>  LP RP SendToFile tSTRING_Member_Float
 %type <t>  Quantity_Def
 %type <l>  TimeLoopAdaptiveSystems TimeLoopAdaptivePOs IterativeLoopSystems
 %type <l>  IterativeLoopPOs
@@ -210,6 +213,7 @@ struct doubleXstring{
 %token  tListFromFile
 %token  tChangeCurrentPosition
 %token  tDefineConstant tUndefineConstant tDefineNumber tDefineString
+%token  tDefineStruct tNameStruct
 %token  tGetNumber tGetString tSetNumber tSetString
 
 %token  tPi tMPI_Rank tMPI_Size t0D t1D t2D t3D tLevelTest
@@ -737,7 +741,7 @@ ListOfStringsForCharOptions :
 
   | tSTRING
     {
-      CharOptions_S["Strings"].push_back($1);
+      charOptions["Strings"].push_back($1);
       Free($1);
     }
 
@@ -745,12 +749,12 @@ ListOfStringsForCharOptions :
     {
       char tmp[128];
       sprintf(tmp, "%d", $1);
-      CharOptions_S["Strings"].push_back(tmp);
+      charOptions["Strings"].push_back(tmp);
     }
 
   | ListOfStringsForCharOptions ',' tSTRING
     {
-      CharOptions_S["Strings"].push_back($3);
+      charOptions["Strings"].push_back($3);
       Free($3);
     }
 
@@ -758,7 +762,7 @@ ListOfStringsForCharOptions :
     {
       char tmp[128];
       sprintf(tmp, "%d", $3);
-      CharOptions_S["Strings"].push_back(tmp);
+      charOptions["Strings"].push_back(tmp);
     }
  ;
 
@@ -779,7 +783,7 @@ DefineGroups :
     }
 
   | DefineGroups Comma String__Index tDEF '{'
-    { FloatOptions_S.clear(); CharOptions_S.clear(); }
+    { floatOptions.clear(); charOptions.clear(); }
     '{' ListOfStringsForCharOptions '}' CharParameterOptions '}'
     {
       int i;
@@ -787,8 +791,8 @@ DefineGroups :
         Group_S.Name = $3; // will be overwritten in Add_Group
 	Group_S.Type = REGIONLIST ; Group_S.FunctionType = REGION ;
 	Group_S.InitialList = List_Create( 5, 5, sizeof(int)) ;
-        if(CharOptions_S.count("Strings")){
-          std::vector<std::string> vec(CharOptions_S["Strings"]);
+        if(charOptions.count("Strings")){
+          std::vector<std::string> vec(charOptions["Strings"]);
           for(unsigned int i = 0; i < vec.size(); i++)
             Fill_GroupInitialListFromString(Group_S.InitialList, vec[i].c_str());
         }
@@ -7776,11 +7780,13 @@ SendToFile :
 
 Affectation :
 
-   tDefineConstant '[' DefineConstants ']' tEND
+    tDefineConstant '[' DefineConstants ']' tEND
 
   | tUndefineConstant '[' UndefineConstants ']' tEND
 
   | tUndefineFunction '[' UndefineFunctions ']' tEND
+
+  | DefineStruct tEND
 
   | tSetNumber LP CharExpr ',' FExpr RP tEND
     {
@@ -8268,7 +8274,7 @@ FloatParameterOption :
       for(int i = 0; i < List_Nbr($3); i++){
         double v;
         List_Read($3, i, &v);
-        FloatOptions_S[key].push_back(v);
+        floatOptions[key].push_back(v);
       }
       Free($2);
       List_Delete($3);
@@ -8280,8 +8286,8 @@ FloatParameterOption :
       for(int i = 0; i < List_Nbr($4); i++){
         doubleXstring v;
         List_Read($4, i, &v);
-        FloatOptions_S[key].push_back(v.d);
-        CharOptions_S[key].push_back(v.s);
+        floatOptions[key].push_back(v.d);
+        charOptions[key].push_back(v.s);
       }
       Free($2);
       for(int i = 0; i < List_Nbr($4); i++)
@@ -8293,7 +8299,7 @@ FloatParameterOption :
     {
       std::string key($2);
       std::string val($3);
-      CharOptions_S[key].push_back(val);
+      charOptions[key].push_back(val);
       Free($2);
       Free($3);
     }
@@ -8302,8 +8308,19 @@ FloatParameterOption :
     {
       std::string key("Name");
       std::string val($3);
-      CharOptions_S[key].push_back(val);
+      charOptions[key].push_back(val);
       Free($3);
+    }
+
+  | ',' tType ListOfFExpr
+    {
+      std::string key("Type");
+      for(int i = 0; i < List_Nbr($3); i++){
+        double v;
+        List_Read($3, i, &v);
+        floatOptions[key].push_back(v);
+      }
+      List_Delete($3);
     }
  ;
 
@@ -8318,7 +8335,7 @@ CharParameterOption :
     {
       std::string key($2);
       double val = $3;
-      FloatOptions_S[key].push_back(val);
+      floatOptions[key].push_back(val);
       Free($2);
     }
 
@@ -8326,7 +8343,7 @@ CharParameterOption :
     {
       std::string key($2);
       std::string val($3);
-      CharOptions_S[key].push_back(val);
+      charOptions[key].push_back(val);
       Free($2);
       Free($3);
     }
@@ -8335,7 +8352,7 @@ CharParameterOption :
     {
       std::string key("Name");
       std::string val($3);
-      CharOptions_S[key].push_back(val);
+      charOptions[key].push_back(val);
       Free($3);
     }
 
@@ -8343,7 +8360,7 @@ CharParameterOption :
     {
       std::string key("Macro");
       std::string val($3);
-      CharOptions_S[key].push_back(val);
+      charOptions[key].push_back(val);
       Free($3);
     }
 
@@ -8355,7 +8372,7 @@ CharParameterOption :
         List_Read($4, i, &s);
         std::string val(s);
         Free(s);
-        CharOptions_S[key].push_back(val);
+        charOptions[key].push_back(val);
       }
       Free($2);
       List_Delete($4);
@@ -8367,7 +8384,7 @@ DefineConstants :
     /* none */
   | DefineConstants Comma String__Index
     { Constant_S.Name = $3; Constant_S.Type = VAR_FLOAT;
-      FloatOptions_S.clear(); CharOptions_S.clear();
+      floatOptions.clear(); charOptions.clear();
       if(!Tree_Search(ConstantTable_L, &Constant_S)){
         Constant_S.Value.Float = 0.;
 	Tree_Replace(ConstantTable_L, &Constant_S);
@@ -8376,7 +8393,7 @@ DefineConstants :
   | DefineConstants Comma String__Index '{' FExpr '}'
     {
       Constant_S.Type = VAR_FLOAT ;
-      FloatOptions_S.clear(); CharOptions_S.clear();
+      floatOptions.clear(); charOptions.clear();
       for (int k = 0 ; k < (int)$5 ; k++) {
 	char tmpstr[256];
 	sprintf(tmpstr, "%s_%d", $3, k+1) ;
@@ -8406,7 +8423,7 @@ DefineConstants :
       }
     }
   | DefineConstants Comma String__Index tDEF '{' ListOfFExpr
-    { FloatOptions_S.clear(); CharOptions_S.clear(); }
+    { floatOptions.clear(); charOptions.clear(); }
     FloatParameterOptions '}'
     {
       Constant_S.Name = $3;
@@ -8416,7 +8433,7 @@ DefineConstants :
           double d;
           List_Read($6, 0, &d);
           Constant_S.Value.Float = d;
-          Message::ExchangeOnelabParameter(&Constant_S, FloatOptions_S, CharOptions_S);
+          Message::ExchangeOnelabParameter(&Constant_S, floatOptions, charOptions);
           Tree_Replace(ConstantTable_L, &Constant_S);
         }
         List_Delete($6);
@@ -8426,20 +8443,20 @@ DefineConstants :
         Constant_S.Type = VAR_LISTOFFLOAT;
         if(!Tree_Search(ConstantTable_L, &Constant_S)){
           Constant_S.Value.List = $6;
-          Message::ExchangeOnelabParameter(&Constant_S, FloatOptions_S, CharOptions_S);
+          Message::ExchangeOnelabParameter(&Constant_S, floatOptions, charOptions);
           Tree_Replace(ConstantTable_L, &Constant_S);
         }
       }
     }
   | DefineConstants Comma String__Index '(' ')' tDEF '{' ListOfFExpr
-    { FloatOptions_S.clear(); CharOptions_S.clear(); }
+    { floatOptions.clear(); charOptions.clear(); }
     FloatParameterOptions '}'
     {
       Constant_S.Name = $3;
       Constant_S.Type = VAR_LISTOFFLOAT;
       if(!Tree_Search(ConstantTable_L, &Constant_S)){
         Constant_S.Value.List = $8;
-        Message::ExchangeOnelabParameter(&Constant_S, FloatOptions_S, CharOptions_S);
+        Message::ExchangeOnelabParameter(&Constant_S, floatOptions, charOptions);
         Tree_Replace(ConstantTable_L, &Constant_S);
       }
     }
@@ -8452,13 +8469,13 @@ DefineConstants :
       }
     }
   | DefineConstants Comma String__Index tDEF '{' CharExprNoVar
-    { FloatOptions_S.clear(); CharOptions_S.clear(); }
+    { floatOptions.clear(); charOptions.clear(); }
     CharParameterOptions '}'
     {
       Constant_S.Name = $3; Constant_S.Type = VAR_CHAR;
       if(!Tree_Search(ConstantTable_L, &Constant_S)){
         Constant_S.Value.Char = $6;
-        Message::ExchangeOnelabParameter(&Constant_S, FloatOptions_S, CharOptions_S);
+        Message::ExchangeOnelabParameter(&Constant_S, floatOptions, charOptions);
 	Tree_Replace(ConstantTable_L, &Constant_S);
       }
     }
@@ -8598,13 +8615,35 @@ OneFExpr :
 //  | tLevelInclude { $$ = (double)getdp_yyincludenum; }
 
   | tDefineNumber '[' FExpr
-    { FloatOptions_S.clear(); CharOptions_S.clear(); }
+    { floatOptions.clear(); charOptions.clear(); }
     FloatParameterOptions ']'
     {
       Constant_S.Name = (char*)""; Constant_S.Type = VAR_FLOAT;
       Constant_S.Value.Float = $3;
-      Message::ExchangeOnelabParameter(&Constant_S, FloatOptions_S, CharOptions_S);
+      Message::ExchangeOnelabParameter(&Constant_S, floatOptions, charOptions);
       $$ = Constant_S.Value.Float;
+    }
+
+  | DefineStruct
+    { $$ = $1; }
+
+  | String__Index '.' tSTRING_Member_Float
+    {
+      std::string key($1);
+      if(StructTable_M.count(key)) {
+        std::string key2($3);
+        if(StructTable_M[key]._fopt.count(key2)) {
+	  $$ = StructTable_M[key]._fopt[key2][0];
+        }
+        else {
+	  vyyerror(0, "Unknown member '%s' of Struct %s", $3, $1);  $$ = 0.;
+	}
+      }
+      else  {
+	vyyerror(0, "Unknown Struct: %s", $1);  $$ = 0.;
+      }
+      Free($1);
+      if (flag_tSTRING_alloc) Free($3);
     }
 
   | tGetNumber LP CharExpr RP
@@ -8622,15 +8661,21 @@ OneFExpr :
   | String__Index
     {
       Constant_S.Name = $1;
-      if(!Tree_Query(ConstantTable_L, &Constant_S)) {
-	vyyerror(0, "Unknown Constant: %s", $1);  $$ = 0.;
-      }
-      else  {
+      if(Tree_Query(ConstantTable_L, &Constant_S)) {
 	if(Constant_S.Type == VAR_FLOAT)
 	  $$ = Constant_S.Value.Float;
 	else {
 	  vyyerror(0, "Single value Constant needed: %s", $1);  $$ = 0.;
 	}
+      }
+      else  {
+        std::string key($1);
+        if(StructTable_M.count(key)) {
+          $$ = (double)StructTable_M[key]._value;
+        }
+        else {
+          vyyerror(0, "Unknown Constant: %s", $1);  $$ = 0.;
+        }
       }
       Free($1);
     }
@@ -8799,6 +8844,43 @@ OneFExpr :
       else
         $$ = 0.;
       Free($3);
+    }
+;
+
+
+DefineStruct :
+    tDefineStruct Struct_FullName
+    { floatOptions.clear(); charOptions.clear(); }
+    Option_SaveStructNameInConstant
+    '[' FExpr FloatParameterOptions ']'
+    {
+      std::string key(Struct_Name);
+      StructTable_M[key] = Struct((int)$6, 1, floatOptions, charOptions);
+      $$ = $6;
+    }
+;
+
+Struct_FullName :
+    String__Index
+    { Struct_NameSpace = NULL; Struct_Name = $1; }
+  | String__Index tDOTS tDOTS String__Index
+    { Struct_NameSpace = $1; Struct_Name = $4; }
+;
+
+tSTRING_Member_Float :
+    tSTRING
+    { $$ = $1; flag_tSTRING_alloc = 1; }
+  | tType
+    { $$ = (char*)"Type"; flag_tSTRING_alloc = 0; }
+;
+
+Option_SaveStructNameInConstant :
+    // None
+ | '{' String__Index '}'
+    {
+      Constant_S.Name = $2; Constant_S.Type = VAR_CHAR;
+      Constant_S.Value.Char = Struct_Name;
+      Tree_Replace(ConstantTable_L, &Constant_S);
     }
 ;
 
@@ -9410,7 +9492,7 @@ CharExprNoVar :
         char *s;
         List_Read($3, i, &s);
         strcat($$, s);
-        Free(s);//FIXME
+        Free(s);//FIXME: DONE with added function strEmpty()
         if(i != List_Nbr($3) - 1) strcat($$, "\n");
       }
       List_Delete($3);
@@ -9536,12 +9618,12 @@ CharExprNoVar :
     }
 
   | tDefineString '[' CharExprNoVar
-    { FloatOptions_S.clear(); CharOptions_S.clear(); }
+    { floatOptions.clear(); charOptions.clear(); }
     CharParameterOptions ']'
     {
       Constant_S.Name = (char*)""; Constant_S.Type = VAR_CHAR;
       Constant_S.Value.Char = $3;
-      Message::ExchangeOnelabParameter(&Constant_S, FloatOptions_S, CharOptions_S);
+      Message::ExchangeOnelabParameter(&Constant_S, floatOptions, charOptions);
       $$ = strSave(Constant_S.Value.Char);
       Free($3);
     }
@@ -9558,7 +9640,31 @@ CharExprNoVar :
       Free($3);
       Free($5);
     }
- ;
+
+  | tNameStruct LP NameStruct_Arg RP
+    {
+      int val = (int)$3;
+      std::map<std::string, Struct>::iterator it;
+      for (it = StructTable_M.begin(); it != StructTable_M.end(); ++it )
+        if (it->second._value == val) break;
+
+      if (it != StructTable_M.end()) {
+        $$ = strSave(it->first.c_str());
+      }
+      else {
+        $$ = strEmpty();
+      }
+    }
+;
+
+
+NameStruct_Arg :
+    '#' FExpr
+    { Struct_NameSpace = NULL; $$ = $2; }
+  | String__Index tDOTS tDOTS '#' FExpr
+    { Struct_NameSpace = $1; $$ = $5; }
+;
+
 
 CharExpr :
 
@@ -9569,23 +9675,41 @@ CharExpr :
     {
       Constant_S.Name = $1;
       if(!Tree_Query(ConstantTable_L, &Constant_S)) {
-	vyyerror(0, "Unknown Constant: %s", $1); $$ = NULL;
+	vyyerror(0, "Unknown Constant: %s", $1); $$ = strEmpty();
       }
       else  {
 	if(Constant_S.Type == VAR_CHAR)
 	  $$ = strSave(Constant_S.Value.Char);
 	else {
-	  vyyerror(0, "String Constant needed: %s", $1); $$ = NULL;
+	  vyyerror(0, "String Constant needed: %s", $1); $$ = strEmpty();
 	}
       }
       Free($1);
+    }
+
+  | String__Index '.' tSTRING
+    {
+      std::string key($1);
+      if(StructTable_M.count(key)) {
+        std::string key2($3);
+	if(StructTable_M[key]._copt.count(key2)) {
+	  $$ = strSave(StructTable_M[key]._copt[key2][0].c_str());
+        }
+        else {
+	  vyyerror(0, "Unknown member '%s' of Struct %s", $3, $1);  $$ = strEmpty();
+	}
+      }
+      else  {
+	vyyerror(0, "Unknown Struct: %s", $1);  $$ = strEmpty();
+      }
+      Free($1); Free($3);
     }
 
   | String__Index '(' FExpr ')'
     {
       Constant_S.Name = $1;
       if(!Tree_Query(ConstantTable_L, &Constant_S)) {
-	vyyerror(0, "Unknown Constant: %s", $1); $$ = NULL;
+	vyyerror(0, "Unknown Constant: %s", $1); $$ = strEmpty();
       }
       else  {
 	if(Constant_S.Type == VAR_LISTOFCHAR){
@@ -9596,11 +9720,11 @@ CharExpr :
             $$ = strSave(s);
           }
           else{
-            vyyerror(0, "Index %d out of range", j); $$ = NULL;
+            vyyerror(0, "Index %d out of range", j); $$ = strEmpty();
           }
         }
 	else {
-	  vyyerror(0, "List of string Constant needed: %s", $1); $$ = NULL;
+	  vyyerror(0, "List of string Constant needed: %s", $1); $$ = strEmpty();
 	}
       }
       Free($1);
@@ -9791,6 +9915,7 @@ void Alloc_ParserVariables()
       }
       Tree_Add(ConstantTable_L, &Constant_S);
     }
+
     ListOfInt_L     = List_Create(20, 10, sizeof(int));
     ListOfPointer_L = List_Create(10, 10, sizeof(void *));
     ListOfPointer2_L= List_Create(10, 10, sizeof(void *));

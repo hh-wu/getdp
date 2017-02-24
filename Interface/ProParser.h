@@ -28,6 +28,22 @@ struct Constant {
 #define VAR_CHAR          3
 #define VAR_LISTOFCHAR    4
 
+class Struct {
+public:
+  Struct() {}
+  Struct(int value, int type,
+         std::map<std::string, std::vector<double> > fopt,
+         std::map<std::string, std::vector<std::string> > copt) :
+    _value(value), _type(type), _fopt(fopt), _copt(copt) {}
+  ~Struct() {}
+
+public:
+  int _value;
+  int _type;
+  std::map<std::string, std::vector<double> > _fopt;
+  std::map<std::string, std::vector<std::string> > _copt;
+};
+
 extern FILE *getdp_yyin;
 extern std::string getdp_yyname;
 extern char getdp_yyincludename[256];
@@ -45,6 +61,7 @@ int getdp_yyparse();
 void getdp_yyrestart(FILE*);
 void Free_ParserVariables();
 char *strSave(const char *string);
+char *strEmpty();
 void cStyleComments();
 void cxxStyleComments();
 void parseString(char endchar);

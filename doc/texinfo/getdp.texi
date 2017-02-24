@@ -1050,7 +1050,7 @@ purely constant expressions, denoted by the metasyntactic variable
   StringToName[ @var{expression-char} ] | S2N[ @var{expression-char} ] |
   Exists[ @var{string} ] | FileExists[ @var{string} ] |
   GetForced[ @var{string} ] | NbrRegions [ @var{string} ] |
-  GetNumber[ @var{expression-char} <, @var{expression-cst},> ]
+  GetNumber[ @var{expression-char} <, @var{expression-cst}> ]
 @end example
 
 @code{StrFind} searches the first @var{expression-char} for any
@@ -1065,7 +1065,7 @@ file. @code{GetForced} gets the value of a constant (zero if does not
 exist).  @code{NbrRegions} counts the numbers of elementary regions in a
 group. @code{GetNumber} allows to get the value of a ONELAB number
 variable (the optional second argument specifies the default value
-returned if the variable does not exist.)
+returned if the variable does not exist).
 
 List of constant expressions are defined as:
 
