@@ -150,22 +150,22 @@ EndIf
 // -------------------------------------------------------------------------------
 // -------------------------------------------------------------------------------
 
-Physical Surface(STATOR_FE)     = {sstator[]};  // Stator
-Physical Surface(STATOR_AIR)    = {sairslot[]}; // AirStator
-Physical Surface(STATOR_AIRGAP) = {sairgapS[]}; // AirStator for possible torque computation with Maxwell stress tensor
+Physical Surface("stator iron", STATOR_FE)     = {sstator[]};  // Stator
+Physical Surface("stator slots", STATOR_AIR)    = {sairslot[]}; // AirStator
+Physical Surface("stator airgap", STATOR_AIRGAP) = {sairgapS[]}; // AirStator for possible torque computation with Maxwell stress tensor
 
 NN = (Flag_Symmetry)?NbrSectStator:NbrSectTotStator;
 //For k In {0:NN-1}
 //  Physical Surface(STATOR_IND+k) = {sslot[k]}; //Inds
 //EndFor
 
-Physical Surface(STATOR_IND_AM) = {sslot[{0:NN-1:6}]};
-Physical Surface(STATOR_IND_CP) = {sslot[{1:NN-1:6}]};
-Physical Surface(STATOR_IND_BM) = {sslot[{2:NN-1:6}]};
+Physical Surface("stator phase A (-)", STATOR_IND_AM) = {sslot[{0:NN-1:6}]};
+Physical Surface("stator phase C (+)", STATOR_IND_CP) = {sslot[{1:NN-1:6}]};
+Physical Surface("stator phase B (-)", STATOR_IND_BM) = {sslot[{2:NN-1:6}]};
 If(NbrSectStator>2)
-  Physical Surface(STATOR_IND_AP) = {sslot[{3:NN-1:6}]};
-  Physical Surface(STATOR_IND_CM) = {sslot[{4:NN-1:6}]};
-  Physical Surface(STATOR_IND_BP) = {sslot[{5:NN-1:6}]};
+  Physical Surface("stator phase A (+)", STATOR_IND_AP) = {sslot[{3:NN-1:6}]};
+  Physical Surface("stator phase C (-)", STATOR_IND_CM) = {sslot[{4:NN-1:6}]};
+  Physical Surface("stator phase B (+)", STATOR_IND_BP) = {sslot[{5:NN-1:6}]};
 EndIf
 
 Color Pink         {Surface{ sslot[{0:NN-1:6}] };} // A-
@@ -178,29 +178,29 @@ Color Gold       {Surface{ sslot[{5:NN-1:6}] };} // B+
 EndIf
 
 
-Physical Line(SURF_EXT) = {cirS[]}; // SurfExt
+Physical Line("outer boundary", SURF_EXT) = {cirS[]}; // SurfExt
 
 If(Flag_Symmetry) //Lines for symmetry link
-  Physical Line(STATOR_BND_A0) = linS[{0,2}];
-  Physical Line(STATOR_BND_A1) = auxlink[] ;
+  Physical Line("stator radial bnd (master)",STATOR_BND_A0) = linS[{0,2}];
+  Physical Line("stator radial bnd (slave)",STATOR_BND_A1) = auxlink[] ;
 EndIf
 
 
 lineMBstator[] += lineMBstatoraux[] ;
 If(!Flag_Symmetry)
-  Physical Line(STATOR_BND_MOVING_BAND) = {lineMBstator[]};
+  Physical Line(Sprintf("stator bnd moving band %g",1),STATOR_BND_MOVING_BAND) = {lineMBstator[]};
 EndIf
 If(Flag_Symmetry)
 ns = #lineMBstator[];
 nns = ns/SymmetryFactor ;
 For k In {1:SymmetryFactor}
   kk= ((k*nns-1) > ns) ? ns-1 : k*nns-1 ;
-  Physical Line(STATOR_BND_MOVING_BAND+k-1) = {lineMBstator[{(k-1)*nns:kk}]};
+  Physical Line(Sprintf("stator bnd moving band %g",k),STATOR_BND_MOVING_BAND+k-1) = {lineMBstator[{(k-1)*nns:kk}]};
 EndFor
   k1 = Floor[NbrPolesTot/NbrSect];
   k2 = Ceil[NbrPolesTot/NbrSect];
   If (k2 > k1)
-    Physical Line(STATOR_BND_MOVING_BAND+k2-1) = lineMBstator[{(k2-1)*nns:#lineMBstator[]-1}] ;
+    Physical Line(Sprintf("stator bnd moving band %g",k2),STATOR_BND_MOVING_BAND+k2-1) = lineMBstator[{(k2-1)*nns:#lineMBstator[]-1}] ;
   EndIf
 EndIf
 
