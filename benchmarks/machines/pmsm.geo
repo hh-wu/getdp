@@ -95,7 +95,7 @@ If(Flag_AddInfo)
   Include "info_view.geo";
 EndIf
 
-// Include "generate_3d.geo";
+Include "generate_3d.geo";
 
 // test for sensitivity analysis
 DefineConstant[
