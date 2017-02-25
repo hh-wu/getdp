@@ -419,6 +419,7 @@ StrLen                       return tStrLen;
 StrSub                       return tStrSub;
 StringToName                 return tStringToName;
 S2N                          return tStringToName;
+Struct                       return tDefineStruct;
 SubFunction                  return tSubFunction;
 SubRegion                    return tSubRegion;
 SubRegion2                   return tSubRegion2;

@@ -8855,8 +8855,12 @@ DefineStruct :
     '[' FExpr FloatParameterOptions ']'
     {
       std::string key(Struct_Name);
-      StructTable_M[key] = Struct((int)$6, 1, floatOptions, charOptions);
+      StructTable_M[key] =
+        Struct((int)$6, 1,
+               Struct_NameSpace? Struct_NameSpace : std::string(""),
+               floatOptions, charOptions);
       $$ = $6;
+      // PD: TODO: automatic numbering instead of $6 inside each NameSpace
     }
 ;
 
@@ -10332,6 +10336,28 @@ void Print_Constants()
   }
 
   List_Delete(tmp);
+  Print_Struct();
+}
+
+void Print_Struct()
+{
+  for (std::map<std::string, Struct>::iterator it = StructTable_M.begin();
+       it != StructTable_M.end(); ++it ) {
+    Message::Check("Struct ");
+    if(it->second._namespace.size())
+      Message::Check("%s::", it->second._namespace.c_str());
+    Message::Check("%s [", it->first.c_str());
+    Message::Check(" %d", it->second._value);
+    for (std::map<std::string, std::vector<double> >::iterator
+           it2 = it->second._fopt.begin();
+         it2 != it->second._fopt.end(); ++it2 )
+      Message::Check(", %s %g", it2->first.c_str(), it2->second[0]);
+    for (std::map<std::string, std::vector<std::string> >::iterator
+           it2 = it->second._copt.begin();
+         it2 != it->second._copt.end(); ++it2 )
+      Message::Check(", %s \"%s\"", it2->first.c_str(), it2->second[0].c_str());
+    Message::Check(" ];\n", it->second._value);
+  }
 }
 
 Constant *Get_ParserConstant(char *name)

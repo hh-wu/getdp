@@ -27,19 +27,19 @@ struct Constant {
 #define VAR_LISTOFFLOAT   2
 #define VAR_CHAR          3
 #define VAR_LISTOFCHAR    4
-
+// PD: class will be refined soon (with member functions)
 class Struct {
 public:
   Struct() {}
-  Struct(int value, int type,
+  Struct(int value, int type, std::string nameSpace,
          std::map<std::string, std::vector<double> > fopt,
          std::map<std::string, std::vector<std::string> > copt) :
-    _value(value), _type(type), _fopt(fopt), _copt(copt) {}
+    _value(value), _type(type), _namespace(nameSpace), _fopt(fopt), _copt(copt) {}
   ~Struct() {}
 
 public:
-  int _value;
-  int _type;
+  int _value, _type;
+  std::string _namespace;
   std::map<std::string, std::vector<double> > _fopt;
   std::map<std::string, std::vector<std::string> > _copt;
 };
@@ -69,6 +69,7 @@ void skipUntil(const char *skip, const char *until);
 void skipUntil_test(const char *skip, const char *until,
                     const char *until2, int l_until2_sub, int *type_until2);
 void Print_Constants();
+void Print_Struct();
 int  Print_ListOfDouble(char *format, List_T *list, char *buffer);
 Constant *Get_ParserConstant(char *name);
 
