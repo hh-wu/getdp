@@ -50,8 +50,8 @@ std::map<std::string, std::vector<std::string> > GetDPStrings;
 int num_include = 0, level_include = 0;
 
 static Tree_T *ConstantTable_L = 0;
-static std::map<std::string, Struct> StructTable_M;
-static char *Struct_Name = 0, *Struct_NameSpace = 0;
+static NameSpaces nameSpaces;
+static std::string struct_name, struct_namespace;
 static int flag_tSTRING_alloc = 0;
 static List_T *ListOfInt_L = 0, *ListOfInt_Save_L = 0;
 static List_T *ListOfPointer_L = 0, *ListOfPointer2_L = 0, *ListOfChar_L = 0;
@@ -162,7 +162,8 @@ struct doubleXstring{
   int     i;
   double  d;
   List_T  *l;
-  struct TwoInt t;
+  struct TwoInt t ;
+  struct TwoChar c2;
 }
 
 %token <i> tINT
@@ -197,9 +198,9 @@ struct doubleXstring{
 %type <t>  Quantity_Def
 %type <l>  TimeLoopAdaptiveSystems TimeLoopAdaptivePOs IterativeLoopSystems
 %type <l>  IterativeLoopPOs
-
+%type <c2> Struct_FullName
 /* ------------------------------------------------------------------ */
-%token  tEND tDOTS
+%token  tEND tDOTS tSCOPE
 %token  tStr
 %token  tStrCat tSprintf tPrintf tMPI_Printf tRead tPrintConstants
 %token  tStrCmp tStrFind tStrLen
@@ -350,8 +351,10 @@ struct doubleXstring{
 %left    '|' '&'
 %right   '!' UNARYPREC
 %right   '^'
-%left    '(' ')' '[' ']' '.'
+%left    '(' ')' '[' ']' '{' '}' '.'
 %left    '#' '$' tSHOW
+%left    '~'
+%left    tSCOPE
 /* ------------------------------------------------------------------ */
 
 %start Stats
@@ -8627,22 +8630,31 @@ OneFExpr :
   | DefineStruct
     { $$ = $1; }
 
-  | String__Index '.' tSTRING_Member_Float
+  | Struct_FullName '.' tSTRING_Member_Float
     {
-      std::string key($1);
-      if(StructTable_M.count(key)) {
+      std::string struct_namespace($1.char1? $1.char1 : std::string("")),
+        struct_name($1.char2);
+      Free($1.char1); Free($1.char2);
+      if (nameSpaces.count(struct_namespace) &&
+          nameSpaces[struct_namespace].count(struct_name)) {
         std::string key2($3);
-        if(StructTable_M[key]._fopt.count(key2)) {
-	  $$ = StructTable_M[key]._fopt[key2][0];
+        /*
+        class Struct * st = &nameSpaces[struct_namespace][struct_name];
+        if (st->_fopt.count(key2)) {
+          $$ = st->_fopt[key2][0];
+        }
+        */
+        if (nameSpaces[struct_namespace][struct_name]._fopt.count(key2)) {
+	  $$ = nameSpaces[struct_namespace][struct_name]._fopt[key2][0];
         }
         else {
-	  vyyerror(0, "Unknown member '%s' of Struct %s", $3, $1);  $$ = 0.;
+	  vyyerror(0, "Unknown member '%s' of Struct %s", $3, struct_name.c_str());
+          $$ = 0.;
 	}
       }
       else  {
-	vyyerror(0, "Unknown Struct: %s", $1);  $$ = 0.;
+	vyyerror(0, "Unknown Struct: %s", struct_name.c_str());  $$ = 0.;
       }
-      Free($1);
       if (flag_tSTRING_alloc) Free($3);
     }
 
@@ -8658,26 +8670,29 @@ OneFExpr :
       Free($3);
     }
 
-  | String__Index
+  | Struct_FullName
     {
-      Constant_S.Name = $1;
+      std::string struct_namespace($1.char1? $1.char1 : std::string("")),
+        struct_name($1.char2);
+      Constant_S.Name = $1.char2;
       if(Tree_Query(ConstantTable_L, &Constant_S)) {
 	if(Constant_S.Type == VAR_FLOAT)
 	  $$ = Constant_S.Value.Float;
 	else {
-	  vyyerror(0, "Single value Constant needed: %s", $1);  $$ = 0.;
+	  vyyerror(0, "Single value Constant needed: %s", struct_name.c_str());
+          $$ = 0.;
 	}
       }
       else  {
-        std::string key($1);
-        if(StructTable_M.count(key)) {
-          $$ = (double)StructTable_M[key]._value;
+        if(nameSpaces.count(struct_namespace) &&
+           nameSpaces[struct_namespace].count(struct_name)) {
+          $$ = (double)nameSpaces[struct_namespace][struct_name]._index;
         }
         else {
-          vyyerror(0, "Unknown Constant: %s", $1);  $$ = 0.;
+          vyyerror(0, "Unknown Constant: %s", struct_name.c_str());  $$ = 0.;
         }
       }
-      Free($1);
+      Free($1.char1); Free($1.char2);
     }
 
   | '#' tSTRING '(' ')'
@@ -8849,26 +8864,40 @@ OneFExpr :
 
 
 DefineStruct :
-    tDefineStruct Struct_FullName
+    tDefineStruct Struct_FullName AppendOrNot
     { floatOptions.clear(); charOptions.clear(); }
-    Option_SaveStructNameInConstant
     '[' FExpr FloatParameterOptions ']'
     {
-      std::string key(Struct_Name);
-      StructTable_M[key] =
-        Struct((int)$6, 1,
-               Struct_NameSpace? Struct_NameSpace : std::string(""),
-               floatOptions, charOptions);
-      $$ = $6;
-      // PD: TODO: automatic numbering instead of $6 inside each NameSpace
+      std::string struct_namespace($2.char1? $2.char1 : std::string("")),
+        struct_name($2.char2);
+      Free($2.char1); Free($2.char2);
+      if (!$3)
+        if (!nameSpaces[struct_namespace].count(struct_name)) {
+          int index = (int)$6;
+          if (index < 0)
+            index = nameSpaces[struct_namespace].get().size()+1;
+          nameSpaces[struct_namespace][struct_name] =
+            Struct(index, floatOptions, charOptions);
+          $$ = (double)index;
+        }
+        else {
+          vyyerror(0, "Redefinition of Struct '%s::%s'",
+                   struct_namespace.c_str(), struct_name.c_str());
+          $$ = $6;
+        }
+      else {
+        nameSpaces[struct_namespace][struct_name].
+          append(floatOptions, charOptions);
+        $$ = (double)nameSpaces[struct_namespace][struct_name]._index;
+      }
     }
 ;
 
 Struct_FullName :
     String__Index
-    { Struct_NameSpace = NULL; Struct_Name = $1; }
-  | String__Index tDOTS tDOTS String__Index
-    { Struct_NameSpace = $1; Struct_Name = $4; }
+    { $$.char1 = NULL; $$.char2 = $1; }
+  | String__Index tSCOPE String__Index
+    { $$.char1 = $1; $$.char2 = $3; }
 ;
 
 tSTRING_Member_Float :
@@ -8878,15 +8907,6 @@ tSTRING_Member_Float :
     { $$ = (char*)"Type"; flag_tSTRING_alloc = 0; }
 ;
 
-Option_SaveStructNameInConstant :
-    // None
- | '{' String__Index '}'
-    {
-      Constant_S.Name = $2; Constant_S.Type = VAR_CHAR;
-      Constant_S.Value.Char = Struct_Name;
-      Tree_Replace(ConstantTable_L, &Constant_S);
-    }
-;
 
 ListOfFExpr :
 
@@ -9647,26 +9667,32 @@ CharExprNoVar :
 
   | tNameStruct LP NameStruct_Arg RP
     {
-      int val = (int)$3;
-      std::map<std::string, Struct>::iterator it;
-      for (it = StructTable_M.begin(); it != StructTable_M.end(); ++it )
-        if (it->second._value == val) break;
-
-      if (it != StructTable_M.end()) {
-        $$ = strSave(it->first.c_str());
-      }
-      else {
+      const std::string * key_struct = NULL;
+      switch (nameSpaces.get_key_struct_from_index((int)$3, key_struct,
+                                                   struct_namespace)) {
+      case 0:
+        $$ = strSave(key_struct->c_str());
+        break;
+      case 1:
+        vyyerror(1, "Unknown NameSpace '%s' of Struct", struct_namespace.c_str());
         $$ = strEmpty();
+        break;
+      case 2:
+        vyyerror(1, "Unknown Struct of index %d", index);
+        $$ = strEmpty();
+        break;
+      default:
+        $$ = strEmpty();
+        break;
       }
     }
 ;
 
-
 NameStruct_Arg :
     '#' FExpr
-    { Struct_NameSpace = NULL; $$ = $2; }
-  | String__Index tDOTS tDOTS '#' FExpr
-    { Struct_NameSpace = $1; $$ = $5; }
+    { struct_namespace = std::string(""); $$ = $2; }
+  | String__Index tSCOPE '#' FExpr
+    { struct_namespace = $1; Free($1); $$ = $4; }
 ;
 
 
@@ -9691,22 +9717,27 @@ CharExpr :
       Free($1);
     }
 
-  | String__Index '.' tSTRING
+  | Struct_FullName '.' tSTRING
     {
-      std::string key($1);
-      if(StructTable_M.count(key)) {
+      std::string struct_namespace($1.char1? $1.char1 : std::string("")),
+        struct_name($1.char2);
+      Free($1.char1); Free($1.char2);
+      if(nameSpaces.count(struct_namespace) &&
+         nameSpaces[struct_namespace].count(struct_name)) {
         std::string key2($3);
-	if(StructTable_M[key]._copt.count(key2)) {
-	  $$ = strSave(StructTable_M[key]._copt[key2][0].c_str());
+        if(nameSpaces[struct_namespace][struct_name]._copt.count(key2)) {
+	  $$ = strSave(nameSpaces[struct_namespace]
+                       [struct_name]._copt[key2][0].c_str());
         }
         else {
-	  vyyerror(0, "Unknown member '%s' of Struct %s", $3, $1);  $$ = strEmpty();
+	  vyyerror(0, "Unknown member '%s' of Struct %s", $3, struct_name.c_str());
+          $$ = strEmpty();
 	}
       }
       else  {
-	vyyerror(0, "Unknown Struct: %s", $1);  $$ = strEmpty();
+	vyyerror(0, "Unknown Struct: %s", struct_name.c_str()); $$ = strEmpty();
       }
-      Free($1); Free($3);
+      Free($3);
     }
 
   | String__Index '(' FExpr ')'
@@ -10341,23 +10372,7 @@ void Print_Constants()
 
 void Print_Struct()
 {
-  for (std::map<std::string, Struct>::iterator it = StructTable_M.begin();
-       it != StructTable_M.end(); ++it ) {
-    Message::Check("Struct ");
-    if(it->second._namespace.size())
-      Message::Check("%s::", it->second._namespace.c_str());
-    Message::Check("%s [", it->first.c_str());
-    Message::Check(" %d", it->second._value);
-    for (std::map<std::string, std::vector<double> >::iterator
-           it2 = it->second._fopt.begin();
-         it2 != it->second._fopt.end(); ++it2 )
-      Message::Check(", %s %g", it2->first.c_str(), it2->second[0]);
-    for (std::map<std::string, std::vector<std::string> >::iterator
-           it2 = it->second._copt.begin();
-         it2 != it->second._copt.end(); ++it2 )
-      Message::Check(", %s \"%s\"", it2->first.c_str(), it2->second[0].c_str());
-    Message::Check(" ];\n", it->second._value);
-  }
+  nameSpaces.print();
 }
 
 Constant *Get_ParserConstant(char *name)

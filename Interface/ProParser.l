@@ -68,6 +68,7 @@ string     {alpha}({alpha}|{digit})*
 "<<"                         return tLESSLESS;
 "..."                        return tDOTS;
 ":"                          return tDOTS;
+"::"                         return tSCOPE;
 "##"                         return tSHOW;
 
 #include                     return tInclude;
@@ -149,7 +150,6 @@ DefineFunction               return tDefineFunction;
 DefineGroup                  return tDefineGroup;
 DefineNumber                 return tDefineNumber;
 DefineString                 return tDefineString;
-DefineStruct                 return tDefineStruct;
 DefineVariable               return tDefineConstant;
 DeformMesh                   return tDeformMesh;
 DeformeMesh                  return tDeformMesh;
