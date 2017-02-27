@@ -9678,7 +9678,7 @@ CharExprNoVar :
         $$ = strEmpty();
         break;
       case 2:
-        vyyerror(1, "Unknown Struct of index %d", index);
+        vyyerror(1, "Unknown Struct of index %d", (int)$3);
         $$ = strEmpty();
         break;
       default:

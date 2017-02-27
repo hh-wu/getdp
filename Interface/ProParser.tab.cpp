@@ -19023,7 +19023,7 @@ yyreduce:
         (yyval.c) = strEmpty();
         break;
       case 2:
-        vyyerror(1, "Unknown Struct of index %d", index);
+        vyyerror(1, "Unknown Struct of index %d", (int)(yyvsp[(3) - (4)].d));
         (yyval.c) = strEmpty();
         break;
       default:
