@@ -351,9 +351,10 @@ struct doubleXstring{
 %left    '|' '&'
 %right   '!' UNARYPREC
 %right   '^'
-%left    '(' ')' '[' ']' '{' '}' '.'
-%left    '#' '$' tSHOW
+%left    '(' ')' '[' ']' '{' '}'
 %left    '~'
+%left    '.'
+%left    '#' '$' tSHOW
 %left    tSCOPE
 /* ------------------------------------------------------------------ */
 
@@ -8638,12 +8639,11 @@ OneFExpr :
       if (nameSpaces.count(struct_namespace) &&
           nameSpaces[struct_namespace].count(struct_name)) {
         std::string key2($3);
-        /*
-        class Struct * st = &nameSpaces[struct_namespace][struct_name];
-        if (st->_fopt.count(key2)) {
-          $$ = st->_fopt[key2][0];
-        }
-        */
+
+        //class Struct * st = &nameSpaces[struct_namespace][struct_name];
+        //if (st->_fopt.count(key2)) {
+        //  $$ = st->_fopt[key2][0];
+        //}
         if (nameSpaces[struct_namespace][struct_name]._fopt.count(key2)) {
 	  $$ = nameSpaces[struct_namespace][struct_name]._fopt[key2][0];
         }
@@ -8695,26 +8695,7 @@ OneFExpr :
       Free($1.char1); Free($1.char2);
     }
 
-  | '#' tSTRING '(' ')'
-    {
-      Constant_S.Name = $2;
-      int ret = 0;
-      if(!Tree_Query(ConstantTable_L, &Constant_S))
-	vyyerror(0, "Unknown Constant: %s", $2);
-      else{
-	if(Constant_S.Type == VAR_LISTOFFLOAT ||
-           Constant_S.Type == VAR_LISTOFCHAR)
-          ret = List_Nbr(Constant_S.Value.List);
-	else
-          ret = 1;
-      }
-      $$ = ret;
-      Free($2);
-    }
-
-  // FIXME: Should replace tSTRING with String__Index in above rule, but this leads to
-  // shift/reduce conflicts... don't know why
-  | '#' StringIndex '(' ')'
+  | '#' String__Index '(' ')'
     {
       Constant_S.Name = $2;
       int ret = 0;
@@ -8733,8 +8714,6 @@ OneFExpr :
       Free($2);
     }
 
-  // FIXME: Should replace tSTRING with String__Index in above rule, but this leads to
-  // shift/reduce conflicts... don't know why
   | '#' tStringToName '[' CharExpr ']' '(' ')'
     {
       Constant_S.Name = $4;
@@ -8754,7 +8733,7 @@ OneFExpr :
       Free($4);
     }
 
-  | tSTRING '(' FExpr ')'
+  | String__Index '(' FExpr ')'
     {
       Constant_S.Name = $1;
       double ret = 0.;
@@ -8775,31 +8754,6 @@ OneFExpr :
       Free($1);
     }
 
-  // FIXME: Should replace tSTRING with String__Index in above rule, but this leads to
-  // shift/reduce conflicts... don't know why
-  | StringIndex '(' FExpr ')'
-    {
-      Constant_S.Name = $1;
-      double ret = 0.;
-      if(!Tree_Query(ConstantTable_L, &Constant_S))
-	vyyerror(0, "Unknown Constant: %s", $1);
-      else{
-	if(Constant_S.Type != VAR_LISTOFFLOAT)
-	  vyyerror(0, "Multi value Constant needed: %s", $1);
-	else{
-          int j = (int)$3;
-          if(j >= 0 && j < List_Nbr(Constant_S.Value.List))
-            List_Read(Constant_S.Value.List, j, &ret);
-          else
-            vyyerror(0, "Index %d out of range", j);
-        }
-      }
-      $$ = ret;
-      Free($1);
-    }
-
-  // FIXME: Should replace tSTRING with String__Index in above rule, but this leads to
-  // shift/reduce conflicts... don't know why
   | tStringToName '[' CharExpr ']' '(' FExpr ')'
     {
       Constant_S.Name = $3;
@@ -9117,30 +9071,7 @@ MultiFExpr :
       }
     }
 
-  | tSTRING '(' ')'
-    {
-      $$ = List_Create(20,20,sizeof(double));
-      Constant_S.Name = $1;
-      if(!Tree_Query(ConstantTable_L, &Constant_S))
-	vyyerror(0, "Unknown Constant: %s", $1);
-      else{
-	if(Constant_S.Type != VAR_LISTOFFLOAT){
-	  /* vyyerror(0, "Multi value Constant needed: %s", $1); */
-	  List_Add($$, &Constant_S.Value.Float);
-        }
-	else{
-	  for(int i = 0; i < List_Nbr(Constant_S.Value.List); i++) {
-	    double d;
-	    List_Read(Constant_S.Value.List, i, &d);
-	    List_Add($$, &d);
-	  }
-        }
-      }
-    }
-
-  // FIXME: Should replace tSTRING with String__Index in above rule, but this leads to
-  // shift/reduce conflicts... don't know why
-  | StringIndex '(' ')'
+  | String__Index '(' ')'
     {
       $$ = List_Create(20,20,sizeof(double));
       Constant_S.Name = $1;
@@ -9158,8 +9089,6 @@ MultiFExpr :
 	  }
     }
 
-  // FIXME: Should replace tSTRING with String__Index in above rule, but this leads to
-  // shift/reduce conflicts... don't know why
   | tStringToName '[' CharExpr ']' '(' ')'
     {
       $$ = List_Create(20,20,sizeof(double));
@@ -9168,7 +9097,7 @@ MultiFExpr :
 	vyyerror(0, "Unknown Constant: %s", $3);
       else
 	if(Constant_S.Type != VAR_LISTOFFLOAT)
-	  /* vyyerror(0, "Multi value Constant needed: %s", $3); */
+	  // vyyerror(0, "Multi value Constant needed: %s", $3);
 	  List_Add($$, &Constant_S.Value.Float);
 	else
 	  for(int i = 0; i < List_Nbr(Constant_S.Value.List); i++) {
@@ -9178,26 +9107,7 @@ MultiFExpr :
 	  }
     }
 
-  // deprecated
-  | tSTRING '{' '}'
-    {
-      $$ = List_Create(20,20,sizeof(double));
-      Constant_S.Name = $1;
-      if(!Tree_Query(ConstantTable_L, &Constant_S))
-	vyyerror(0, "Unknown Constant: %s", $1);
-      else
-	if(Constant_S.Type != VAR_LISTOFFLOAT)
-	  /* vyyerror(0, "Multi value Constant needed: %s", $1); */
-	  List_Add($$, &Constant_S.Value.Float);
-	else
-	  for(int i = 0; i < List_Nbr(Constant_S.Value.List); i++) {
-	    double d;
-	    List_Read(Constant_S.Value.List, i, &d);
-	    List_Add($$, &d);
-	  }
-    }
-
-  | tSTRING '(' '{' RecursiveListOfFExpr '}' ')'
+  | String__Index '(' '{' RecursiveListOfFExpr '}' ')'
     {
       $$ = List_Create(20,20,sizeof(double));
       Constant_S.Name = $1;
@@ -9223,36 +9133,6 @@ MultiFExpr :
       List_Delete($4);
     }
 
-  // FIXME: Should replace tSTRING with String__Index in above rule, but this leads to
-  // shift/reduce conflicts... don't know why
-  | StringIndex '(' '{' RecursiveListOfFExpr '}' ')'
-    {
-      $$ = List_Create(20,20,sizeof(double));
-      Constant_S.Name = $1;
-      if(!Tree_Query(ConstantTable_L, &Constant_S))
-	vyyerror(0, "Unknown Constant: %s", $1);
-      else
-	if(Constant_S.Type != VAR_LISTOFFLOAT)
-	  vyyerror(0, "Multi value Constant needed: %s", $1);
-	else
-	  for(int i = 0; i < List_Nbr($4); i++) {
-            int j = (int)(*(double*)List_Pointer($4, i));
-	    if(j >= 0 && j < List_Nbr(Constant_S.Value.List)){
-	      double d;
-	      List_Read(Constant_S.Value.List, j, &d);
-	      List_Add($$, &d);
-	    }
-	    else{
-              vyyerror(0, "Index %d out of range", j);
-	      double d = 0.;
-	      List_Add($$, &d);
-	    }
-	  }
-      List_Delete($4);
-    }
-
-  // FIXME: Should replace tSTRING with String__Index in above rule, but this leads to
-  // shift/reduce conflicts... don't know why
   | tStringToName '[' CharExpr ']' '(' '{' RecursiveListOfFExpr '}' ')'
     {
       $$ = List_Create(20,20,sizeof(double));
