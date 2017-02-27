@@ -8713,7 +8713,7 @@ OneFExpr :
       $$ = ret;
       Free($2);
     }
-
+/*+++ already defined with String__Index
   | '#' tStringToName '[' CharExpr ']' '(' ')'
     {
       Constant_S.Name = $4;
@@ -8731,6 +8731,19 @@ OneFExpr :
       }
       $$ = ret;
       Free($4);
+    }
+*/
+
+  | '#' String__Index tSCOPE
+    {
+      std::string struct_namespace($2);
+      $$ = (double)nameSpaces[struct_namespace].size();
+      Free($2);
+    }
+  | '#' tSCOPE
+    {
+      std::string struct_namespace(std::string(""));
+      $$ = (double)nameSpaces[struct_namespace].size();
     }
 
   | String__Index '(' FExpr ')'
@@ -8829,7 +8842,7 @@ DefineStruct :
         if (!nameSpaces[struct_namespace].count(struct_name)) {
           int index = (int)$6;
           if (index < 0)
-            index = nameSpaces[struct_namespace].get().size()+1;
+            index = nameSpaces[struct_namespace].size()+1;
           nameSpaces[struct_namespace][struct_name] =
             Struct(index, floatOptions, charOptions);
           $$ = (double)index;
