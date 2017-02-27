@@ -100,9 +100,9 @@ Function{
       connectedFieldRight = {(2*(idom + 1 + N_DOM)+(0-1)) % (2*N_DOM)}; // left boundary of right neightbor
       // 2 "blocks"
       ListOfConnectedFields += 1;
-      ListOfConnectedFields += connectedFieldLeft{};
+      ListOfConnectedFields += connectedFieldLeft();
       ListOfConnectedFields += 1;
-      ListOfConnectedFields += connectedFieldRight{};
+      ListOfConnectedFields += connectedFieldRight();
 
       ListOfSubdomains += idom;
       ListOfFields += {myFieldLeft(), myFieldRight()};
