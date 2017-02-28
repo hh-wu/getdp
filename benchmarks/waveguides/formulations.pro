@@ -31,7 +31,6 @@ Function {
   //  DefineFunction[ ePort~{n}, hPort~{n} ];
   //EndFor
   DefineFunction[ ePort{NbPorts}, hPort{NbPorts} ];
-  aa[] = 3.14e20;
 }
 
 Jacobian {
@@ -153,7 +152,7 @@ Formulation {
     Equation {
       Galerkin { [ (1/muR[]) * Dof{d e} , {d e} ] ;
                  In Domain ; Integration I1 ; Jacobian Jac ; }
-               Galerkin { [ -k0^2 * epsR[] * Dof{e} /I[], I[]*{e} ] ;
+               Galerkin { [ -k0^2 * epsR[] * Dof{e}, {e} ] ;
                  In Domain ; Integration I1 ; Jacobian Jac ; }
 
 //      Galerkin { [ Normal[] /\ ( (1/muR[]) * Dof{d e} ) , {e} ] ;
