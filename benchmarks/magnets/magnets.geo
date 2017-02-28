@@ -48,7 +48,8 @@ For i In {1:NumMagnets}
   Rotate { {1,0,0}, {X~{i},Y~{i},Z~{i}}, Rx~{i} } { Volume{Magnet~{i}[]}; }
 
   Physical Volume(i) = Magnet~{i}[]; // magnet volume
-  Physical Surface(100+i) = CombinedBoundary{ Volume{Magnet~{i}[]}; }; // magnet skin
+  skin~{i}[] = CombinedBoundary{ Volume{Magnet~{i}[]}; };
+  Physical Surface(100+i) = skin~{i}[]; // magnet skin
 EndFor
 
 // create air box around magnets
@@ -69,7 +70,7 @@ ss[] = {e1[1],e2[0],e2[2],e2[3],e2[4],e2[5]};
 sl1 = newsl; Surface Loop(sl1) = {ss[]};
 vv[] = {sl1};
 For i In {1:NumMagnets}
-  sl~{i} = newsl; Surface Loop(sl~{i}) = CombinedBoundary{ Volume{Magnet~{i}[]}; };
+  sl~{i} = newsl; Surface Loop(sl~{i}) = skin~{i}[];
   vv[] += sl~{i};
 EndFor
 v1 = newv; Volume(v1) = {vv[]};
