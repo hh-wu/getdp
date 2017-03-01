@@ -51,14 +51,14 @@ lY_[]+=newl ; Circle(newl)={pntY_[1],cen,pntY_[2]};
 lY_[]+=newl ; Circle(newl)={pntY_[2],cen,pntY_[3]};
 
 // upper ring, left side and right side
-surf[] = Extrude Line {lY[1], {0,h2,0}};;
+surf[] = Extrude {0,h2,0}{ Line {lY[1]}; };
 sring[] += surf[1] ;
 pnts[]=Boundary{Line{surf[0]};}; Characteristic Length {pnts[]} = lyoke*2;
 surf[] = Translate{(w1+w2)/2, 0, 0}{ Duplicata{Surface{sring[0]};}} ;
 sring[] += surf[0] ;
 
 // lower ring, left side and right side
-surf[] = Extrude Line {lY_[1], {0,-h2,0}};;
+surf[] = Extrude {0,-h2,0}{ Line {lY_[1]}; };
 sring[] += surf[1] ;
 pnts[]=Boundary{Line{surf[0]};}; Characteristic Length {pnts[]} = lyoke*2;
 surf[] = Translate{-(w1+w2)/2, 0, 0}{ Duplicata{Surface{sring[2]};}} ;
@@ -73,7 +73,7 @@ pntY[]+=newp; Point(newp) = {-x2-w3-w4, h1, 0.,lw};
 
 // inner coil side
 Line(newl) = {pntY[5],pntY[6]};
-surf[] = Extrude Line {newl-1, {0,-2*h1,0}};;
+surf[] = Extrude {0,-2*h1,0}{ Line {newl-1}; };
 scoil[] += surf[1] ;
 
 // outer coil side
