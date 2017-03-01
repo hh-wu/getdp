@@ -73,32 +73,41 @@ surf_Airgap[] += news; Plane Surface(news) = {newll-1};
 
 //===========================================================
 // Extruding surfaces // Just 1/4 of the model!
-vol[] = Extrude Surface {surf_ECore[0], {0,0,-Lz/2}};;
-vol_ECore[] += vol[1];
-surf_cut_yz[]+=vol[5];
+vol[] = Extrude {0,0,-Lz/2} { Surface{surf_ECore[0]}; };
+vol_ECore[]  += vol[1];
+surf_cut_yz[]+= vol[5];
 surf_cut_coil[]    += vol[2];
 surf_cut_coil_up[] += vol[4];
 vol_in_Coil[] += vol[1];
 
-vol[] = Extrude Surface {surf_ECore[1], {0,0,-Lz/2}};;
+vol[] = Extrude {0,0,-Lz/2} { Surface {surf_ECore[1]}; };
 vol_ECore[] += vol[1]; surf_cut_yz[]+=vol[5];
 
-vol[] = Extrude Surface {surf_ICore[0], {0,0,-Lz/2}};;
+vol[] = Extrude {0,0,-Lz/2} { Surface{ surf_ICore[0]}; };
 vol_ICore[] = vol[1]; surf_cut_yz[]+=vol[5];
 
-vol[] = Extrude Surface {surf_Airgap[0], {0,0,-Lz/2}};;
+vol[] = Extrude {0,0,-Lz/2} { Surface{surf_Airgap[0]}; };
 vol_Airgap[] = vol[1]; surf_cut_yz[]+=vol[2];
 
-vol[] = Extrude Surface {surf_Coil[0], {0,0,-Lz/2}};;
+vol[] = Extrude {0,0,-Lz/2}{ Surface{surf_Coil[0]}; };
+
 vol_Coil[] += vol[1]; surf_Coil[] += vol[0];
 vol[] = Extrude {{0, 1, 0}, {wcoreE, 0, -Lz/2}, Pi/2}{ Surface{surf_Coil[1]}; };
 vol_Coil[] += vol[1]; surf_Coil[] += vol[0];
-vol[] = Extrude Surface {surf_Coil[2], {-wcoreE, 0, 0}};;
+
+vol[] = Extrude {-wcoreE, 0, 0} { Surface{surf_Coil[2]}; };
+
 vol_Coil[] += vol[1]; surf_Coil[] += vol[0];
 surf_cut_yz[]+=vol[0];
 
+
 aux_bnd[] = CombinedBoundary{ Surface{ surf_cut_yz[] };};
 bnd_cut_yz[]= aux_bnd[{4:11}]; // Everything but the axis
+
+ind_sgn() = {0,1,2,4};
+For k In {0:#ind_sgn()-1}
+  bnd_cut_yz[ind_sgn(k)] = -bnd_cut_yz[ind_sgn(k)];
+EndFor
 
 // Air around
 // Inner circle
@@ -114,8 +123,10 @@ lnaxis[]+=newl; Line(newl) = {pnta[0], pnt3[0]};
 lnaxis[]+=lnv[4];
 lnaxis[]+=newl; Line(newl) = {pnt2[0], pnta[2]};
 
+
 Line Loop(newll) = {-lnaxis[2], lnh2[0], -lnv[{4,6}], -lni[{1,0}], -lnaxis[0], ln_rin[{0,1}]};
 surf_Air[] += news; Plane Surface(news) = {newll-1};
+
 
 // Outer circle - Infinity
 pnta_[] += newp; Point(newp) = { 0,-Rext, 0, lcro};
@@ -139,6 +150,7 @@ surf_airinf_out[] = vol[{4,5}];
 surf_airinf_in[] = vol[{2,3}];
 bnd_cut_yz_airinf[] = Boundary{Surface{vol[0]};};
 
+
 // Symmetry YZ
 Line Loop(newll) = {lnaxis[2], bnd_cut_yz_airinf[{0,1}], lnaxis[0], bnd_cut_yz[]};
 surf_cut_yz[]+= news; Plane Surface(news) = {newll-1};
@@ -151,8 +163,6 @@ aux_surf[] -= {surf_ECore[{0,1}], surf_ICore[0], surf_Airgap[0], surf_Coil[{0}],
 
 Surface Loop(newsl) = {surf_Air[0], surf_cut_yz_air[0], surf_airinf_in[], aux_surf[]};
 vol_Air[]+=newv; Volume(newv) = {newsl-1};
-
-
 
 If(Flag_Symmetry<2)
   surf_airinf_out[]   += Symmetry {1,0,0,0} { Duplicata{Surface{surf_airinf_out[]};} }; // For convenience
