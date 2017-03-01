@@ -8719,26 +8719,6 @@ OneFExpr :
       $$ = ret;
       Free($2);
     }
-/*+++ already defined with String__Index
-  | '#' tStringToName '[' CharExpr ']' '(' ')'
-    {
-      Constant_S.Name = $4;
-      int ret = 0;
-      if(!Tree_Query(ConstantTable_L, &Constant_S))
-	vyyerror(0, "Unknown Constant: %s", $4);
-      else{
-	if(Constant_S.Type == VAR_LISTOFFLOAT ||
-           Constant_S.Type == VAR_LISTOFCHAR)
-          ret = List_Nbr(Constant_S.Value.List);
-	else if(Constant_S.Type == VAR_FLOAT)
-          ret = 1;
-        else
-          vyyerror(0, "Float Constant needed: %s", $4);
-      }
-      $$ = ret;
-      Free($4);
-    }
-*/
 
   | '#' String__Index tSCOPE
     {
@@ -8773,28 +8753,7 @@ OneFExpr :
       Free($1);
     }
 
-  | tStringToName '[' CharExpr ']' '(' FExpr ')'
-    {
-      Constant_S.Name = $3;
-      double ret = 0.;
-      if(!Tree_Query(ConstantTable_L, &Constant_S))
-	vyyerror(0, "Unknown Constant: %s", $3);
-      else{
-	if(Constant_S.Type != VAR_LISTOFFLOAT)
-	  vyyerror(0, "Multi value Constant needed: %s", $3);
-	else{
-          int j = (int)$6;
-          if(j >= 0 && j < List_Nbr(Constant_S.Value.List))
-            List_Read(Constant_S.Value.List, j, &ret);
-          else
-            vyyerror(0, "Index %d out of range", j);
-        }
-      }
-      $$ = ret;
-      Free($3);
-    }
-
-  | tExists LP String__Index RP
+| tExists LP String__Index RP
     {
       Constant_S.Name = $3;
       if(Tree_Query(ConstantTable_L, &Constant_S))
@@ -9108,24 +9067,6 @@ MultiFExpr :
 	  }
     }
 
-  | tStringToName '[' CharExpr ']' '(' ')'
-    {
-      $$ = List_Create(20,20,sizeof(double));
-      Constant_S.Name = $3;
-      if(!Tree_Query(ConstantTable_L, &Constant_S))
-	vyyerror(0, "Unknown Constant: %s", $3);
-      else
-	if(Constant_S.Type != VAR_LISTOFFLOAT)
-	  // vyyerror(0, "Multi value Constant needed: %s", $3);
-	  List_Add($$, &Constant_S.Value.Float);
-	else
-	  for(int i = 0; i < List_Nbr(Constant_S.Value.List); i++) {
-	    double d;
-	    List_Read(Constant_S.Value.List, i, &d);
-	    List_Add($$, &d);
-	  }
-    }
-
   | String__Index '(' '{' RecursiveListOfFExpr '}' ')'
     {
       $$ = List_Create(20,20,sizeof(double));
@@ -9150,32 +9091,6 @@ MultiFExpr :
 	    }
 	  }
       List_Delete($4);
-    }
-
-  | tStringToName '[' CharExpr ']' '(' '{' RecursiveListOfFExpr '}' ')'
-    {
-      $$ = List_Create(20,20,sizeof(double));
-      Constant_S.Name = $3;
-      if(!Tree_Query(ConstantTable_L, &Constant_S))
-	vyyerror(0, "Unknown Constant: %s", $3);
-      else
-	if(Constant_S.Type != VAR_LISTOFFLOAT)
-	  vyyerror(0, "Multi value Constant needed: %s", $3);
-	else
-	  for(int i = 0; i < List_Nbr($7); i++) {
-            int j = (int)(*(double*)List_Pointer($7, i));
-	    if(j >= 0 && j < List_Nbr(Constant_S.Value.List)){
-	      double d;
-	      List_Read(Constant_S.Value.List, j, &d);
-	      List_Add($$, &d);
-	    }
-	    else{
-              vyyerror(0, "Index %d out of range", j);
-	      double d = 0.;
-	      List_Add($$, &d);
-	    }
-	  }
-      List_Delete($7);
     }
 
   // same as tSTRING '(' ')'
