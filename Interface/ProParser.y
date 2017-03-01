@@ -3804,6 +3804,7 @@ LocalTerm :
       EquationTerm_S.Case.LocalTerm.Term.DofIndexInWholeQuantity = -1;
       EquationTerm_S.Case.LocalTerm.Term.DofInTrace = 0;
       EquationTerm_S.Case.LocalTerm.InIndex = -1;
+      EquationTerm_S.Case.LocalTerm.SubRegion = -1;
       EquationTerm_S.Case.LocalTerm.IntegrationMethodIndex = -1;
       EquationTerm_S.Case.LocalTerm.MatrixIndex = -1;
       EquationTerm_S.Case.LocalTerm.JacobianMethodIndex = -1;
@@ -3963,6 +3964,11 @@ LocalTermTerm  :
   | tIn GroupRHS tEND
     {
       EquationTerm_S.Case.LocalTerm.InIndex = Num_Group(&Group_S, (char*)"FO_In", $2);
+    }
+
+  | tSubRegion GroupRHS tEND
+    {
+      EquationTerm_S.Case.LocalTerm.SubRegion = Num_Group(&Group_S, (char*)"FO_In", $2);
     }
 
   | tJacobian String__Index tEND

@@ -468,6 +468,22 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
 
 	  Current.IntegrationSupportIndex = EquationTerm_P->Case.LocalTerm.InIndex ;
 
+          if (EquationTerm_P->Case.LocalTerm.SubRegion >=0) {
+            struct Group * GroupSubRegion_P = (struct Group *)
+              List_Pointer(Problem_S.Group,
+                           EquationTerm_P->Case.LocalTerm.SubRegion);
+            if (List_Nbr(GroupSubRegion_P->InitialList) == 1) {
+              List_Read(GroupSubRegion_P->InitialList, 0, &Current.SubRegion) ;
+            }
+            else {
+              Message::Error("One region allowed in SubRegion");
+              Current.SubRegion = -1;
+            }
+          }
+          else
+            Current.SubRegion = -1;
+
+
 	  /* ---------------------------------------------------------- */
 	  /* 2.1.1.  Loop on quantities (test fcts and shape functions) */
 	  /* ---------------------------------------------------------- */

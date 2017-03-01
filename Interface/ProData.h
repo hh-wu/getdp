@@ -599,7 +599,7 @@ struct EquationTerm {
 	int     DefineQuantityIndexNoDof, DofInTrace;
       } Term;
 
-      int  InIndex;
+      int  InIndex, SubRegion;
       int  Full_Matrix;
       int  IntegrationMethodIndex, JacobianMethodIndex;
 
