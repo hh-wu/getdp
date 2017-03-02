@@ -117,11 +117,10 @@ For i In {0:NbrSect-1}
     OuterShaft_[] += dR+18;
     RotorBoundary_[] += {dR+4,dR+5,dR+6,dR+9,dR+10,dR+11,dR+12,dR+18,dR+16,dR+17};
 
-    sgn = (j==0)?1.:-1.;// We need to change the sign only to constract the real MB
+    sgn = (j==0)?1.:-1.;// We need to change the sign only to construct the real MB
     InnerMB_[] += {sgn*(dR+19),sgn*(dR+20)};
-
-    allpntsInnerMB[] = Boundary{ Line{InnerMB_[]}; };
-    Characteristic Length{allpntsInnerMB[]}=pMB;
+    allpntsInnerMB[] = Boundary{ Line{Abs(InnerMB_[])}; };
+    Characteristic Length{allpntsInnerMB[]} = pMB;
 
     If (NbrSectTot != NbrSect)
       If (i==0 && j==0)
