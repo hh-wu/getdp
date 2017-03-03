@@ -45,8 +45,6 @@ bnddipole[] = CombinedBoundary{ Surface{surfdipole[]};} ;
 axisdipole[] = bnddipole[{1,3,6}] ;
 bnddipole[] -= axisdipole[];
 //Printf("bnddipole ",bnddipole[]);
-// changing sign of one line...
-bnddipole[3] = -bnddipole[3];
 
 //=================================================
 // Air and Pml

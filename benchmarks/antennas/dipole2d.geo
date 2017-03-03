@@ -39,8 +39,6 @@ p_[] = Boundary{Line{cutdipole3};};
 bnddipole[] = CombinedBoundary{ Surface{surfdipole[]};} ;
 axisdipole[] = bnddipole[{1,3,6}] ;
 bnddipole[] -= axisdipole[];
-// changing sign of one line...
-bnddipole[3] = -bnddipole[3];
 
 //Printf("bnddipole ",bnddipole[]);
 

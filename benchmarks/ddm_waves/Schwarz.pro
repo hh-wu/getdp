@@ -29,6 +29,8 @@ Resolution {
       Call SolveSurfacePDE;
       Call UpdateSurfaceFields;
 
+      Error["ABORT"];
+
       // launch distributed Krylov solver using artificial sources only.
       // IterativeLinearSolver solves (I-A) g = b: ListOfFields() initially
       // stores the local part of b; then stores each local part of iterate g^n.

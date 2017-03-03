@@ -104,11 +104,6 @@ surf_cut_yz[]+=vol[0];
 aux_bnd[] = CombinedBoundary{ Surface{ surf_cut_yz[] };};
 bnd_cut_yz[]= aux_bnd[{4:11}]; // Everything but the axis
 
-ind_sgn() = {0,1,2,4};
-For k In {0:#ind_sgn()-1}
-  bnd_cut_yz[ind_sgn(k)] = -bnd_cut_yz[ind_sgn(k)];
-EndFor
-
 // Air around
 // Inner circle
 pnta[] += newp; Point(newp) = { 0,-Rint, 0, lcri};
