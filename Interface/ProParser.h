@@ -52,6 +52,27 @@ public:
 
   inline int getTag() { return _tag; }
 
+  int getMember(std::string & key_member, double &out) {
+    std::map<std::string, std::vector<double> >::iterator it = _fopt.find(key_member);
+    if (it != _fopt.end()) {
+      out = it->second[0]; return 0;
+    }
+    else {
+      out = 0.; return 1; // Error: Unknown member of Struct
+    }
+  }
+
+  int getMember(std::string & key_member, std::string & out) {
+    std::map<std::string, std::vector<std::string> >::iterator
+      it = _copt.find(key_member);
+    if (it != _copt.end()) {
+      out = it->second[0]; return 0;
+    }
+    else {
+      out = std::string(""); return 1; // Error: Unknown member of Struct
+    }
+  }
+
   void print(const std::string & struct_name, const std::string & struct_namespace)
   {
     Message::Check("Struct ");
@@ -70,7 +91,7 @@ public:
     Message::Check(" ];\n");
   }
 
-public:
+private:
   int _tag;
   std::map<std::string, std::vector<double> > _fopt;
   std::map<std::string, std::vector<std::string> > _copt;
@@ -128,7 +149,7 @@ public:
   int get_key_struct_from_tag(int tag, const std::string * & key_struct) {
     Map_string_Struct::iterator it_st;
     for (it_st = this->get().begin(); it_st != this->get().end(); ++it_st )
-      if (it_st->second._tag == tag) break;
+      if (it_st->second.getTag() == tag) break;
     if (it_st != this->get().end()) {
       key_struct = &it_st->first;
       return 0;
@@ -142,7 +163,7 @@ public:
       it_st->second.print(it_st->first, struct_namespace);
   }
 
-public:
+private:
   int _max_tag;
 };
 
@@ -167,8 +188,54 @@ public:
     return 0;
   }
 
-  int get_key_struct_from_tag(int tag, const std::string * & key_struct,
-                                std::string & key_namespace) {
+  int getTag(std::string & key_namespace, std::string & key_name,
+             double & out) {
+
+    Structs * structs_P = this->Find(key_namespace);
+    Struct * struct_P = (structs_P)? structs_P->Find(key_name) : NULL;
+    if (structs_P && struct_P) {
+      out = (double)struct_P->getTag();
+    }
+    else  {
+      out = 0.; return 1; // Error: Unknown Struct
+    }
+    return 0;
+  }
+
+  int getMember(std::string & key_namespace, std::string & key_name,
+                std::string & key_member, double & out) {
+
+    Structs * structs_P = this->Find(key_namespace);
+    Struct * struct_P = (structs_P)? structs_P->Find(key_name) : NULL;
+    if (structs_P && struct_P) {
+      if (struct_P->getMember(key_member, out)) {
+        out = 0.; return 2; // Error: Unknown member of Struct
+      }
+    }
+    else  {
+      out = 0.; return 1; // Error: Unknown Struct
+    }
+    return 0;
+  }
+
+  int getMember(std::string & key_namespace, std::string & key_name,
+                std::string & key_member, std::string & out) {
+
+    Structs * structs_P = this->Find(key_namespace);
+    Struct * struct_P = (structs_P)? structs_P->Find(key_name) : NULL;
+    if (structs_P && struct_P) {
+      if (struct_P->getMember(key_member, out)) {
+        out = std::string(""); return 2; // Error: Unknown member of Struct
+      }
+    }
+    else  {
+      out = std::string(""); return 1; // Error: Unknown Struct
+    }
+    return 0;
+  }
+
+  int get_key_struct_from_tag(std::string & key_namespace,
+                              int tag, const std::string * & key_struct) {
     if (this->count(key_namespace))
       return (*this)[key_namespace].get_key_struct_from_tag(tag, key_struct);
     else return 1;

@@ -8655,24 +8655,17 @@ OneFExpr :
       std::string struct_namespace($1.char1? $1.char1 : std::string("")),
         struct_name($1.char2);
       Free($1.char1); Free($1.char2);
-      if (nameSpaces.count(struct_namespace) &&
-          nameSpaces[struct_namespace].count(struct_name)) {
-        std::string key2($3);
-
-        //class Struct * st = &nameSpaces[struct_namespace][struct_name];
-        //if (st->_fopt.count(key2)) {
-        //  $$ = st->_fopt[key2][0];
-        //}
-        if (nameSpaces[struct_namespace][struct_name]._fopt.count(key2)) {
-	  $$ = nameSpaces[struct_namespace][struct_name]._fopt[key2][0];
-        }
-        else {
-	  vyyerror(0, "Unknown member '%s' of Struct %s", $3, struct_name.c_str());
-          $$ = 0.;
-	}
-      }
-      else  {
-	vyyerror(0, "Unknown Struct: %s", struct_name.c_str());  $$ = 0.;
+      std::string key_member($3);
+      switch (nameSpaces.getMember
+              (struct_namespace, struct_name, key_member, $$)) {
+      case 0:
+        break;
+      case 1:
+	vyyerror(0, "Unknown Struct: %s", struct_name.c_str());
+        break;
+      case 2:
+        vyyerror(0, "Unknown member '%s' of Struct %s", $3, struct_name.c_str());
+        break;
       }
       if (flag_tSTRING_alloc) Free($3);
     }
@@ -8702,13 +8695,9 @@ OneFExpr :
           $$ = 0.;
 	}
       }
-      else  {
-        if(nameSpaces.count(struct_namespace) &&
-           nameSpaces[struct_namespace].count(struct_name)) {
-          $$ = (double)nameSpaces[struct_namespace][struct_name].getTag();
-        }
-        else {
-          vyyerror(0, "Unknown Constant: %s", struct_name.c_str());  $$ = 0.;
+      else {
+        if(nameSpaces.getTag(struct_namespace, struct_name, $$)) {
+          vyyerror(0, "Unknown Constant: %s", struct_name.c_str());
         }
       }
       Free($1.char1); Free($1.char2);
@@ -9482,8 +9471,8 @@ CharExprNoVar :
   | tNameStruct LP NameStruct_Arg RP
     {
       const std::string * key_struct = NULL;
-      switch (nameSpaces.get_key_struct_from_tag((int)$3, key_struct,
-                                                 struct_namespace)) {
+      switch (nameSpaces.get_key_struct_from_tag(struct_namespace,
+                                                 (int)$3, key_struct)) {
       case 0:
         $$ = strSave(key_struct->c_str());
         break;
@@ -9536,21 +9525,19 @@ CharExpr :
       std::string struct_namespace($1.char1? $1.char1 : std::string("")),
         struct_name($1.char2);
       Free($1.char1); Free($1.char2);
-      if(nameSpaces.count(struct_namespace) &&
-         nameSpaces[struct_namespace].count(struct_name)) {
-        std::string key2($3);
-        if(nameSpaces[struct_namespace][struct_name]._copt.count(key2)) {
-	  $$ = strSave(nameSpaces[struct_namespace]
-                       [struct_name]._copt[key2][0].c_str());
-        }
-        else {
-	  vyyerror(0, "Unknown member '%s' of Struct %s", $3, struct_name.c_str());
-          $$ = strEmpty();
-	}
+      std::string key_member($3), out;
+      switch (nameSpaces.getMember
+              (struct_namespace, struct_name, key_member, out)) {
+      case 0:
+        break;
+      case 1:
+	vyyerror(0, "Unknown Struct: %s", struct_name.c_str());
+        break;
+      case 2:
+        vyyerror(0, "Unknown member '%s' of Struct %s", $3, struct_name.c_str());
+        break;
       }
-      else  {
-	vyyerror(0, "Unknown Struct: %s", struct_name.c_str()); $$ = strEmpty();
-      }
+      $$ = strSave(out.c_str());
       Free($3);
     }
 
