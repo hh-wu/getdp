@@ -384,6 +384,21 @@ void Cal_PostQuantity(struct PostQuantity    *PostQuantity_P,
 				   PostQuantityTerm.InIndex);
     InRegion_L = Group_P ?  Group_P->InitialList : NULL ;
 
+    if (PostQuantityTerm.SubRegion >=0) {
+      struct Group * GroupSubRegion_P = (struct Group *)
+        List_Pointer(Problem_S.Group,
+                     PostQuantityTerm.SubRegion);
+      if (List_Nbr(GroupSubRegion_P->InitialList) == 1) {
+        List_Read(GroupSubRegion_P->InitialList, 0, &Current.SubRegion) ;
+      }
+      else {
+              Message::Error("One region allowed in SubRegion");
+              Current.SubRegion = -1;
+      }
+    }
+    else
+      Current.SubRegion = -1;
+
     Type_InRegion = Group_P ?  Group_P->FunctionType : REGION;
 
      /* Generating Extended Group if necessary */

@@ -6468,6 +6468,7 @@ SubPostQuantity :
       PostQuantityTerm_S.TypeTimeDerivative = NODT_;
       PostQuantityTerm_S.WholeQuantity = NULL;
       PostQuantityTerm_S.InIndex = -1;
+      PostQuantityTerm_S.SubRegion = -1;
       PostQuantityTerm_S.JacobianMethodIndex = -1;
       PostQuantityTerm_S.IntegrationMethodIndex = -1;
     }
@@ -6527,6 +6528,11 @@ SubPostQuantityTerm :
    {
      PostQuantityTerm_S.InIndex = Num_Group(&Group_S, (char*)"PQ_In", $2);
    }
+
+  | tSubRegion GroupRHS tEND
+    {
+      PostQuantityTerm_S.SubRegion = Num_Group(&Group_S, (char*)"PQ_SR", $2);
+    }
 
   | tJacobian String__Index tEND
     {
@@ -8290,6 +8296,13 @@ FloatParameterOption :
       List_Delete($3);
     }
 
+  | ',' tSTRING
+    {
+      std::string key($2);
+      floatOptions[key].push_back(0.);
+      Free($2);
+    }
+
   | ',' tSTRING '{' Enumeration '}'
     {
       std::string key($2);
@@ -8692,7 +8705,7 @@ OneFExpr :
       else  {
         if(nameSpaces.count(struct_namespace) &&
            nameSpaces[struct_namespace].count(struct_name)) {
-          $$ = (double)nameSpaces[struct_namespace][struct_name]._index;
+          $$ = (double)nameSpaces[struct_namespace][struct_name].getTag();
         }
         else {
           vyyerror(0, "Unknown Constant: %s", struct_name.c_str());  $$ = 0.;
@@ -8803,25 +8816,12 @@ DefineStruct :
       std::string struct_namespace($2.char1? $2.char1 : std::string("")),
         struct_name($2.char2);
       Free($2.char1); Free($2.char2);
-      if (!$3)
-        if (!nameSpaces[struct_namespace].count(struct_name)) {
-          int index = (int)$6;
-          if (index < 0)
-            index = nameSpaces[struct_namespace].size()+1;
-          nameSpaces[struct_namespace][struct_name] =
-            Struct(index, floatOptions, charOptions);
-          $$ = (double)index;
-        }
-        else {
-          vyyerror(0, "Redefinition of Struct '%s::%s'",
-                   struct_namespace.c_str(), struct_name.c_str());
-          $$ = $6;
-        }
-      else {
-        nameSpaces[struct_namespace][struct_name].
-          append(floatOptions, charOptions);
-        $$ = (double)nameSpaces[struct_namespace][struct_name]._index;
-      }
+      int tag_out;
+      if (nameSpaces.defStruct(struct_namespace, struct_name,
+                               floatOptions, charOptions, tag_out, $3))
+        vyyerror(0, "Redefinition of Struct '%s::%s'",
+                 struct_namespace.c_str(), struct_name.c_str());
+      $$ = (double)tag_out;
     }
 ;
 
@@ -9482,8 +9482,8 @@ CharExprNoVar :
   | tNameStruct LP NameStruct_Arg RP
     {
       const std::string * key_struct = NULL;
-      switch (nameSpaces.get_key_struct_from_index((int)$3, key_struct,
-                                                   struct_namespace)) {
+      switch (nameSpaces.get_key_struct_from_tag((int)$3, key_struct,
+                                                 struct_namespace)) {
       case 0:
         $$ = strSave(key_struct->c_str());
         break;

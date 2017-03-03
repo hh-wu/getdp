@@ -35,24 +35,29 @@ struct TwoChar { char *char1, *char2; };
 class Struct {
 public:
   Struct() {}
-  Struct(int index,
-         std::map<std::string, std::vector<double> > fopt,
-         std::map<std::string, std::vector<std::string> > copt) :
-    _index(index), _fopt(fopt), _copt(copt) {}
+  Struct(int tag,
+         std::map<std::string, std::vector<double> > & fopt,
+         std::map<std::string, std::vector<std::string> > & copt) :
+    _tag(tag), _fopt(fopt), _copt(copt) {}
   ~Struct() {}
 
-  void append(std::map<std::string, std::vector<double> > fopt,
-              std::map<std::string, std::vector<std::string> > copt) {
+  int append(int tag,
+             std::map<std::string, std::vector<double> > & fopt,
+             std::map<std::string, std::vector<std::string> > & copt) {
     this->_fopt.insert(fopt.begin(), fopt.end());
     this->_copt.insert(copt.begin(), copt.end());
+    if (tag >= 0) _tag = tag;
+    return _tag;
   }
+
+  inline int getTag() { return _tag; }
 
   void print(const std::string & struct_name, const std::string & struct_namespace)
   {
     Message::Check("Struct ");
     if (struct_namespace.size()) Message::Check("%s::", struct_namespace.c_str());
     Message::Check("%s [", struct_name.c_str());
-    Message::Check(" %d", this->_index);
+    Message::Check(" %d", this->_tag);
     for (std::map<std::string, std::vector<double> >::iterator
            it_attrib = this->_fopt.begin();
          it_attrib != this->_fopt.end(); ++it_attrib )
@@ -66,7 +71,7 @@ public:
   }
 
 public:
-  int _index;
+  int _tag;
   std::map<std::string, std::vector<double> > _fopt;
   std::map<std::string, std::vector<std::string> > _copt;
 };
@@ -98,13 +103,32 @@ typedef std::map<std::string, Struct> Map_string_Struct;
 
 class Structs : public Map<std::string, Struct> {
 public:
-  Structs() { _new_index = 1; }
+  Structs() { _max_tag = 0; }
   ~Structs() {}
 
-  int get_key_struct_from_index(int index, const std::string * & key_struct) {
+  int defStruct(std::string & struct_name,
+                std::map<std::string, std::vector<double> > & fopt,
+                std::map<std::string, std::vector<std::string> > & copt,
+                bool append = false) {
+    int tag;
+    std::map<std::string, std::vector<double> >::iterator it = fopt.find("Tag");
+    if (it != fopt.end()) {
+      tag = it->second[0]; // Tag forced
+      _max_tag = std::max(_max_tag, tag);
+    }
+    else
+      tag = (!append)? ++_max_tag : -1; // Tag auto
+    if (!append)
+      (*this)[struct_name] = Struct(tag, fopt, copt);
+    else
+      (*this)[struct_name].append(tag, fopt, copt);
+    return tag;
+  }
+
+  int get_key_struct_from_tag(int tag, const std::string * & key_struct) {
     Map_string_Struct::iterator it_st;
     for (it_st = this->get().begin(); it_st != this->get().end(); ++it_st )
-      if (it_st->second._index == index) break;
+      if (it_st->second._tag == tag) break;
     if (it_st != this->get().end()) {
       key_struct = &it_st->first;
       return 0;
@@ -119,7 +143,7 @@ public:
   }
 
 public:
-  int _new_index;
+  int _max_tag;
 };
 
 
@@ -130,10 +154,23 @@ public:
   NameSpaces() {}
   ~NameSpaces() {}
 
-  int get_key_struct_from_index(int index, const std::string * & key_struct,
+  int defStruct(std::string & key_namespace, std::string & key_name,
+                std::map<std::string, std::vector<double> > & fopt,
+                std::map<std::string, std::vector<std::string> > & copt,
+                int & tag_out, bool append = false) {
+    Structs * structs_P = &(*this)[key_namespace];
+    if (!append && structs_P->count(key_name)) {
+      tag_out = (*structs_P)[key_name].getTag();
+      return 1; // Error: Redefinition of Struct
+    }
+    tag_out = structs_P->defStruct(key_name, fopt, copt, append);
+    return 0;
+  }
+
+  int get_key_struct_from_tag(int tag, const std::string * & key_struct,
                                 std::string & key_namespace) {
     if (this->count(key_namespace))
-      return (*this)[key_namespace].get_key_struct_from_index(index, key_struct);
+      return (*this)[key_namespace].get_key_struct_from_tag(tag, key_struct);
     else return 1;
   }
 

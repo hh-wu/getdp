@@ -1341,7 +1341,7 @@ struct PostQuantityTerm {
   List_T  *WholeQuantity;
   int     NbrQuantityIndex, *QuantityIndexTable;
   int     *QuantityTraceGroupIndexTable;
-  int     InIndex, JacobianMethodIndex, IntegrationMethodIndex;
+  int     InIndex, SubRegion, JacobianMethodIndex, IntegrationMethodIndex;
 };
 
 /* PostQuantityTerm.Type */
