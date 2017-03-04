@@ -75,20 +75,27 @@ public:
 
   void print(const std::string & struct_name, const std::string & struct_namespace)
   {
-    Message::Check("Struct ");
-    if (struct_namespace.size()) Message::Check("%s::", struct_namespace.c_str());
-    Message::Check("%s [", struct_name.c_str());
-    Message::Check(" %d", this->_tag);
+    std::string str("Struct ");
+    if (struct_namespace.size()) str += struct_namespace + "::";
+    str += struct_name + " [ ";
+    bool flag_comma = false;
     for (std::map<std::string, std::vector<double> >::iterator
-           it_attrib = this->_fopt.begin();
-         it_attrib != this->_fopt.end(); ++it_attrib )
-      Message::Check(", %s %g", it_attrib->first.c_str(), it_attrib->second[0]);
+           it_attrib = _fopt.begin();
+         it_attrib != _fopt.end(); ++it_attrib ) {
+      if (!flag_comma && it_attrib != _fopt.begin()) flag_comma = true;
+      if (flag_comma) str += ", ";
+      str += it_attrib->first + " ";
+      char tmp[32]; sprintf(tmp, "%g", it_attrib->second[0]); str += tmp;
+    }
     for (std::map<std::string, std::vector<std::string> >::iterator
-           it_attrib = this->_copt.begin();
-         it_attrib != this->_copt.end(); ++it_attrib )
-      Message::Check(", %s \"%s\"",
-                     it_attrib->first.c_str(), it_attrib->second[0].c_str());
-    Message::Check(" ];\n");
+           it_attrib = _copt.begin();
+         it_attrib != _copt.end(); ++it_attrib ) {
+      if (!flag_comma && it_attrib != _copt.begin()) flag_comma = true;
+      if (flag_comma) str += ", ";
+      str += it_attrib->first + " \"" + it_attrib->second[0] + "\"";
+    }
+    str += " ];\n";
+    Message::Check(str.c_str());
   }
 
 private:
@@ -134,11 +141,13 @@ public:
     int tag;
     std::map<std::string, std::vector<double> >::iterator it = fopt.find("Tag");
     if (it != fopt.end()) {
-      tag = it->second[0]; // Tag forced
+      tag = (int)it->second[0]; // Tag forced
       _max_tag = std::max(_max_tag, tag);
     }
-    else
+    else {
       tag = (!append)? ++_max_tag : -1; // Tag auto
+      if (!append) fopt["Tag"].push_back((double)tag);
+    }
     if (!append)
       (*this)[struct_name] = Struct(tag, fopt, copt);
     else

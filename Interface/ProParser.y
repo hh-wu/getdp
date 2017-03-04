@@ -788,7 +788,7 @@ DefineGroups :
 
   | DefineGroups Comma String__Index tDEF '{'
     { floatOptions.clear(); charOptions.clear(); }
-    '{' ListOfStringsForCharOptions '}' CharParameterOptions '}'
+    '{' ListOfStringsForCharOptions '}' CharParameterOptionsOrNone '}'
     {
       int i;
       if ( (i = List_ISearchSeq(Problem_S.Group, $3, fcmp_Group_Name)) < 0 ) {
@@ -8277,128 +8277,143 @@ Enumeration :
     }
   ;
 
+FloatParameterOptionsOrNone :
+    // none
+  | ',' FloatParameterOptions
+ ;
+
+FloatParameterOptionsOrNone_NoComma :
+    // none
+  | FloatParameterOptions
+ ;
+
 FloatParameterOptions :
-    /* none */
-  | FloatParameterOptions FloatParameterOption
+    FloatParameterOption
+  | FloatParameterOptions ',' FloatParameterOption
  ;
 
 FloatParameterOption :
 
-    ',' tSTRING ListOfFExpr
+    tSTRING ListOfFExpr
     {
-      std::string key($2);
-      for(int i = 0; i < List_Nbr($3); i++){
+      std::string key($1);
+      for(int i = 0; i < List_Nbr($2); i++){
         double v;
-        List_Read($3, i, &v);
+        List_Read($2, i, &v);
         floatOptions[key].push_back(v);
       }
-      Free($2);
-      List_Delete($3);
+      Free($1);
+      List_Delete($2);
     }
 
-  | ',' tSTRING
+  | tSTRING
     {
-      std::string key($2);
+      std::string key($1);
       floatOptions[key].push_back(0.);
-      Free($2);
+      Free($1);
     }
 
-  | ',' tSTRING '{' Enumeration '}'
+  | tSTRING '{' Enumeration '}'
     {
-      std::string key($2);
-      for(int i = 0; i < List_Nbr($4); i++){
+      std::string key($1);
+      for(int i = 0; i < List_Nbr($3); i++){
         doubleXstring v;
-        List_Read($4, i, &v);
+        List_Read($3, i, &v);
         floatOptions[key].push_back(v.d);
         charOptions[key].push_back(v.s);
       }
-      Free($2);
-      for(int i = 0; i < List_Nbr($4); i++)
-        Free(((doubleXstring*)List_Pointer($4, i))->s);
-      List_Delete($4);
+      Free($1);
+      for(int i = 0; i < List_Nbr($3); i++)
+        Free(((doubleXstring*)List_Pointer($3, i))->s);
+      List_Delete($3);
     }
 
-  | ',' tSTRING CharExprNoVar
+  | tSTRING CharExprNoVar
     {
-      std::string key($2);
-      std::string val($3);
+      std::string key($1);
+      std::string val($2);
       charOptions[key].push_back(val);
+      Free($1);
       Free($2);
-      Free($3);
     }
 
-  | ',' tName CharExprNoVar
+  | tName CharExprNoVar
     {
       std::string key("Name");
-      std::string val($3);
+      std::string val($2);
       charOptions[key].push_back(val);
-      Free($3);
+      Free($2);
     }
 
-  | ',' tType ListOfFExpr
+  | tType ListOfFExpr
     {
       std::string key("Type");
-      for(int i = 0; i < List_Nbr($3); i++){
+      for(int i = 0; i < List_Nbr($2); i++){
         double v;
-        List_Read($3, i, &v);
+        List_Read($2, i, &v);
         floatOptions[key].push_back(v);
       }
-      List_Delete($3);
+      List_Delete($2);
     }
  ;
 
+CharParameterOptionsOrNone :
+    // none
+  | ',' CharParameterOptions
+ ;
+
 CharParameterOptions :
-    /* none */
-  | CharParameterOptions CharParameterOption
+    CharParameterOption
+  | CharParameterOptions ',' CharParameterOption
  ;
 
 CharParameterOption :
 
-    ',' tSTRING FExpr
+    tSTRING FExpr
     {
-      std::string key($2);
-      double val = $3;
+      std::string key($1);
+      double val = $2;
       floatOptions[key].push_back(val);
-      Free($2);
+      Free($1);
     }
 
-  | ',' tSTRING CharExprNoVar
+  | tSTRING CharExprNoVar
     {
-      std::string key($2);
-      std::string val($3);
+      std::string key($1);
+      std::string val($2);
       charOptions[key].push_back(val);
+      Free($1);
       Free($2);
-      Free($3);
     }
 
-  | ',' tName CharExprNoVar // Name is already a reserved GetDP keyword
+  | tName CharExprNoVar // Name is already a reserved GetDP keyword
     {
       std::string key("Name");
-      std::string val($3);
+      std::string val($2);
       charOptions[key].push_back(val);
-      Free($3);
+      Free($2);
     }
 
-  | ',' tMacro CharExprNoVar // Macro is already a reserved GetDP keyword
+  | tMacro CharExprNoVar // Macro is already a reserved GetDP keyword
     {
       std::string key("Macro");
-      std::string val($3);
+      std::string val($2);
       charOptions[key].push_back(val);
-      Free($3);
+      Free($2);
     }
 
-  | ',' tSTRING '{' RecursiveListOfCharExpr '}'
+  | tSTRING '{' RecursiveListOfCharExpr '}'
     {
-      std::string key($2);
-      for(int i = 0; i < List_Nbr($4); i++){
+      std::string key($1);
+      for(int i = 0; i < List_Nbr($3); i++){
         char *s;
-        List_Read($4, i, &s);
+        List_Read($3, i, &s);
         std::string val(s);
         Free(s);
         charOptions[key].push_back(val);
       }
-      Free($2);
-      List_Delete($4);
+      Free($1);
+      List_Delete($3);
     }
  ;
 
@@ -8447,7 +8462,7 @@ DefineConstants :
     }
   | DefineConstants Comma String__Index tDEF '{' ListOfFExpr
     { floatOptions.clear(); charOptions.clear(); }
-    FloatParameterOptions '}'
+    FloatParameterOptionsOrNone '}'
     {
       Constant_S.Name = $3;
       if(List_Nbr($6) == 1){
@@ -8473,7 +8488,7 @@ DefineConstants :
     }
   | DefineConstants Comma String__Index '(' ')' tDEF '{' ListOfFExpr
     { floatOptions.clear(); charOptions.clear(); }
-    FloatParameterOptions '}'
+    FloatParameterOptionsOrNone '}'
     {
       Constant_S.Name = $3;
       Constant_S.Type = VAR_LISTOFFLOAT;
@@ -8493,7 +8508,7 @@ DefineConstants :
     }
   | DefineConstants Comma String__Index tDEF '{' CharExprNoVar
     { floatOptions.clear(); charOptions.clear(); }
-    CharParameterOptions '}'
+    CharParameterOptionsOrNone '}'
     {
       Constant_S.Name = $3; Constant_S.Type = VAR_CHAR;
       if(!Tree_Search(ConstantTable_L, &Constant_S)){
@@ -8639,7 +8654,7 @@ OneFExpr :
 
   | tDefineNumber '[' FExpr
     { floatOptions.clear(); charOptions.clear(); }
-    FloatParameterOptions ']'
+    FloatParameterOptionsOrNone ']'
     {
       Constant_S.Name = (char*)""; Constant_S.Type = VAR_FLOAT;
       Constant_S.Value.Float = $3;
@@ -8800,7 +8815,7 @@ OneFExpr :
 DefineStruct :
     tDefineStruct Struct_FullName AppendOrNot
     { floatOptions.clear(); charOptions.clear(); }
-    '[' FExpr FloatParameterOptions ']'
+    '[' FloatParameterOptionsOrNone_NoComma ']'
     {
       std::string struct_namespace($2.char1? $2.char1 : std::string("")),
         struct_name($2.char2);
@@ -8836,7 +8851,7 @@ ListOfFExpr :
 
   | FExpr
     {
-      $$ = List_Create(1,1,sizeof(double));
+      $$ = List_Create(1,10,sizeof(double));
       List_Add($$, &($1));
     }
 
@@ -9446,7 +9461,7 @@ CharExprNoVar :
 
   | tDefineString '[' CharExprNoVar
     { floatOptions.clear(); charOptions.clear(); }
-    CharParameterOptions ']'
+    CharParameterOptionsOrNone ']'
     {
       Constant_S.Name = (char*)""; Constant_S.Type = VAR_CHAR;
       Constant_S.Value.Char = $3;
