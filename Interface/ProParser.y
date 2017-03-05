@@ -9496,7 +9496,7 @@ CharExprNoVar :
         $$ = strEmpty();
         break;
       case 2:
-        vyyerror(1, "Unknown Struct of index %d", (int)$3);
+        vyyerror(1, "Unknown Struct of Tag %d", (int)$3);
         $$ = strEmpty();
         break;
       default:
@@ -9540,7 +9540,8 @@ CharExpr :
       std::string struct_namespace($1.char1? $1.char1 : std::string("")),
         struct_name($1.char2);
       Free($1.char1); Free($1.char2);
-      std::string key_member($3), out;
+      std::string key_member($3);
+      const std::string * out = NULL;
       switch (nameSpaces.getMember
               (struct_namespace, struct_name, key_member, out)) {
       case 0:
@@ -9552,7 +9553,7 @@ CharExpr :
         vyyerror(0, "Unknown member '%s' of Struct %s", $3, struct_name.c_str());
         break;
       }
-      $$ = strSave(out.c_str());
+      $$ = strSave(out->c_str());
       Free($3);
     }
 
@@ -10188,7 +10189,9 @@ void Print_Constants()
 
 void Print_Struct()
 {
-  nameSpaces.print();
+  std::string str;
+  nameSpaces.sprint(str);
+  Message::Check(str.c_str());
 }
 
 Constant *Get_ParserConstant(char *name)

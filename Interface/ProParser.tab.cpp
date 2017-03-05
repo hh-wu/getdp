@@ -2023,8 +2023,8 @@ static const yytype_uint16 yyrline[] =
     9281,  9284,  9287,  9292,  9302,  9312,  9323,  9343,  9355,  9364,
     9373,  9378,  9398,  9407,  9420,  9427,  9432,  9439,  9445,  9451,
     9456,  9463,  9462,  9473,  9479,  9486,  9510,  9512,  9519,  9522,
-    9538,  9559,  9588,  9593,  9601,  9601,  9602,  9602,  9606,  9628,
-    9639,  9649,  9663,  9672,  9683,  9709,  9711,  9717,  9718
+    9538,  9560,  9589,  9594,  9602,  9602,  9603,  9603,  9607,  9629,
+    9640,  9650,  9664,  9673,  9684,  9710,  9712,  9718,  9719
 };
 #endif
 
@@ -18553,7 +18553,7 @@ yyreduce:
         (yyval.c) = strEmpty();
         break;
       case 2:
-        vyyerror(1, "Unknown Struct of index %d", (int)(yyvsp[(3) - (4)].d));
+        vyyerror(1, "Unknown Struct of Tag %d", (int)(yyvsp[(3) - (4)].d));
         (yyval.c) = strEmpty();
         break;
       default:
@@ -18602,7 +18602,8 @@ yyreduce:
       std::string struct_namespace((yyvsp[(1) - (3)].c2).char1? (yyvsp[(1) - (3)].c2).char1 : std::string("")),
         struct_name((yyvsp[(1) - (3)].c2).char2);
       Free((yyvsp[(1) - (3)].c2).char1); Free((yyvsp[(1) - (3)].c2).char2);
-      std::string key_member((yyvsp[(3) - (3)].c)), out;
+      std::string key_member((yyvsp[(3) - (3)].c));
+      const std::string * out = NULL;
       switch (nameSpaces.getMember
               (struct_namespace, struct_name, key_member, out)) {
       case 0:
@@ -18614,13 +18615,13 @@ yyreduce:
         vyyerror(0, "Unknown member '%s' of Struct %s", (yyvsp[(3) - (3)].c), struct_name.c_str());
         break;
       }
-      (yyval.c) = strSave(out.c_str());
+      (yyval.c) = strSave(out->c_str());
       Free((yyvsp[(3) - (3)].c));
     ;}
     break;
 
   case 1041:
-#line 9560 "ProParser.y"
+#line 9561 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(1) - (4)].c);
       if(!Tree_Query(ConstantTable_L, &Constant_S)) {
@@ -18647,7 +18648,7 @@ yyreduce:
     break;
 
   case 1042:
-#line 9589 "ProParser.y"
+#line 9590 "ProParser.y"
     {
       (yyval.l) = List_Create(20,20,sizeof(char*));
       List_Add((yyval.l), &((yyvsp[(1) - (1)].c)));
@@ -18655,32 +18656,32 @@ yyreduce:
     break;
 
   case 1043:
-#line 9594 "ProParser.y"
+#line 9595 "ProParser.y"
     { List_Add((yyval.l), &((yyvsp[(3) - (3)].c))); ;}
     break;
 
   case 1044:
-#line 9601 "ProParser.y"
+#line 9602 "ProParser.y"
     { (yyval.c) = (char*)"("; ;}
     break;
 
   case 1045:
-#line 9601 "ProParser.y"
+#line 9602 "ProParser.y"
     { (yyval.c) = (char*)"["; ;}
     break;
 
   case 1046:
-#line 9602 "ProParser.y"
+#line 9603 "ProParser.y"
     { (yyval.c) = (char*)")"; ;}
     break;
 
   case 1047:
-#line 9602 "ProParser.y"
+#line 9603 "ProParser.y"
     { (yyval.c) = (char*)"]"; ;}
     break;
 
   case 1048:
-#line 9607 "ProParser.y"
+#line 9608 "ProParser.y"
     {
       int size = 1;
       for(int i = 0; i < List_Nbr((yyvsp[(3) - (4)].l)); i++){
@@ -18701,7 +18702,7 @@ yyreduce:
     break;
 
   case 1049:
-#line 9629 "ProParser.y"
+#line 9630 "ProParser.y"
     {
       if ((yyvsp[(3) - (6)].c) != NULL && (yyvsp[(5) - (6)].c) != NULL) {
 	(yyval.i) = strcmp((yyvsp[(3) - (6)].c), (yyvsp[(5) - (6)].c));
@@ -18715,7 +18716,7 @@ yyreduce:
     break;
 
   case 1050:
-#line 9640 "ProParser.y"
+#line 9641 "ProParser.y"
     {
       if ((yyvsp[(3) - (4)].c) != NULL) {
 	(yyval.i) = strlen((yyvsp[(3) - (4)].c));
@@ -18728,7 +18729,7 @@ yyreduce:
     break;
 
   case 1051:
-#line 9650 "ProParser.y"
+#line 9651 "ProParser.y"
     {
       std::string s((yyvsp[(3) - (6)].c)), substr((yyvsp[(5) - (6)].c));
       if(s.find(substr) != std::string::npos)
@@ -18741,7 +18742,7 @@ yyreduce:
     break;
 
   case 1052:
-#line 9664 "ProParser.y"
+#line 9665 "ProParser.y"
     {
       int n = 0;
       for(int i = 0; i < List_Nbr(Problem_S.Group); i++) {
@@ -18753,7 +18754,7 @@ yyreduce:
     break;
 
   case 1053:
-#line 9673 "ProParser.y"
+#line 9674 "ProParser.y"
     {
       int i;
       if ( (i = List_ISearchSeq(Problem_S.Group, (yyvsp[(3) - (4)].c), fcmp_Group_Name)) >= 0 ) {
@@ -18767,7 +18768,7 @@ yyreduce:
     break;
 
   case 1054:
-#line 9684 "ProParser.y"
+#line 9685 "ProParser.y"
     {
       int i, j, indexInGroup;
       indexInGroup = (int)(yyvsp[(5) - (6)].d);
@@ -18793,28 +18794,28 @@ yyreduce:
     break;
 
   case 1055:
-#line 9710 "ProParser.y"
+#line 9711 "ProParser.y"
     { (yyval.i) = 99; ;}
     break;
 
   case 1056:
-#line 9712 "ProParser.y"
+#line 9713 "ProParser.y"
     { (yyval.i) = (int)(yyvsp[(2) - (2)].d); ;}
     break;
 
   case 1057:
-#line 9717 "ProParser.y"
+#line 9718 "ProParser.y"
     { (yyval.i) = 0; ;}
     break;
 
   case 1058:
-#line 9719 "ProParser.y"
+#line 9720 "ProParser.y"
     { (yyval.i) = (yyvsp[(2) - (3)].i); ;}
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 18818 "ProParser.tab.cpp"
+#line 18819 "ProParser.tab.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -19028,7 +19029,7 @@ yyreturn:
 }
 
 
-#line 9722 "ProParser.y"
+#line 9723 "ProParser.y"
 
 
 // This is a hack... Bison redefines 'const' if !__cplusplus and !__STDC__
@@ -19498,7 +19499,9 @@ void Print_Constants()
 
 void Print_Struct()
 {
-  nameSpaces.print();
+  std::string str;
+  nameSpaces.sprint(str);
+  Message::Check(str.c_str());
 }
 
 Constant *Get_ParserConstant(char *name)
