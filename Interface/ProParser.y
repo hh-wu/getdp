@@ -125,6 +125,13 @@ static struct PostSubOperation         PostSubOperation_S;
 
 static std::map<std::string, std::vector<double> > floatOptions;
 static std::map<std::string, std::vector<std::string> > charOptions;
+static int flag_Enum, member_ValMax;
+
+void init_Options(int member_ValMax_ = 0)
+{
+  floatOptions.clear(); charOptions.clear();
+  flag_Enum = 0; member_ValMax = member_ValMax_;
+}
 
 // External lexer functions
 void hack_fsetpos();
@@ -8301,6 +8308,7 @@ FloatParameterOption :
         double v;
         List_Read($2, i, &v);
         floatOptions[key].push_back(v);
+        if (flag_Enum && !i) { member_ValMax = (int)v; }
       }
       Free($1);
       List_Delete($2);
@@ -8309,7 +8317,14 @@ FloatParameterOption :
   | tSTRING
     {
       std::string key($1);
-      floatOptions[key].push_back(0.);
+      double v;
+      if (!flag_Enum) {
+        v = 1.;
+        if (key == "Enum") flag_Enum = 1;
+      }
+      else
+        v = (double)++member_ValMax;
+      floatOptions[key].push_back(v);
       Free($1);
     }
 
@@ -8422,7 +8437,7 @@ DefineConstants :
     /* none */
   | DefineConstants Comma String__Index
     { Constant_S.Name = $3; Constant_S.Type = VAR_FLOAT;
-      floatOptions.clear(); charOptions.clear();
+      init_Options();
       if(!Tree_Search(ConstantTable_L, &Constant_S)){
         Constant_S.Value.Float = 0.;
 	Tree_Replace(ConstantTable_L, &Constant_S);
@@ -8431,7 +8446,7 @@ DefineConstants :
   | DefineConstants Comma String__Index '{' FExpr '}'
     {
       Constant_S.Type = VAR_FLOAT ;
-      floatOptions.clear(); charOptions.clear();
+      init_Options();
       for (int k = 0 ; k < (int)$5 ; k++) {
 	char tmpstr[256];
 	sprintf(tmpstr, "%s_%d", $3, k+1) ;
@@ -8461,7 +8476,7 @@ DefineConstants :
       }
     }
   | DefineConstants Comma String__Index tDEF '{' ListOfFExpr
-    { floatOptions.clear(); charOptions.clear(); }
+    { init_Options(); }
     FloatParameterOptionsOrNone '}'
     {
       Constant_S.Name = $3;
@@ -8487,7 +8502,7 @@ DefineConstants :
       }
     }
   | DefineConstants Comma String__Index '(' ')' tDEF '{' ListOfFExpr
-    { floatOptions.clear(); charOptions.clear(); }
+    { init_Options(); }
     FloatParameterOptionsOrNone '}'
     {
       Constant_S.Name = $3;
@@ -8507,7 +8522,7 @@ DefineConstants :
       }
     }
   | DefineConstants Comma String__Index tDEF '{' CharExprNoVar
-    { floatOptions.clear(); charOptions.clear(); }
+    { init_Options(); }
     CharParameterOptionsOrNone '}'
     {
       Constant_S.Name = $3; Constant_S.Type = VAR_CHAR;
@@ -8653,7 +8668,7 @@ OneFExpr :
 //  | tLevelInclude { $$ = (double)getdp_yyincludenum; }
 
   | tDefineNumber '[' FExpr
-    { floatOptions.clear(); charOptions.clear(); }
+    { init_Options(); }
     FloatParameterOptionsOrNone ']'
     {
       Constant_S.Name = (char*)""; Constant_S.Type = VAR_FLOAT;
@@ -8814,7 +8829,12 @@ OneFExpr :
 
 DefineStruct :
     tDefineStruct Struct_FullName AppendOrNot
-    { floatOptions.clear(); charOptions.clear(); }
+    {
+      std::string struct_namespace($2.char1? $2.char1 : std::string("")),
+        struct_name($2.char2);
+      init_Options
+        (nameSpaces.getMember_ValMax(struct_namespace, struct_name));
+    }
     '[' FloatParameterOptionsOrNone_NoComma ']'
     {
       std::string struct_namespace($2.char1? $2.char1 : std::string("")),
@@ -8822,7 +8842,8 @@ DefineStruct :
       Free($2.char1); Free($2.char2);
       int tag_out;
       if (nameSpaces.defStruct(struct_namespace, struct_name,
-                               floatOptions, charOptions, tag_out, $3))
+                               floatOptions, charOptions,
+                               tag_out, member_ValMax, $3))
         vyyerror(0, "Redefinition of Struct '%s::%s'",
                  struct_namespace.c_str(), struct_name.c_str());
       $$ = (double)tag_out;
@@ -9460,7 +9481,7 @@ CharExprNoVar :
     }
 
   | tDefineString '[' CharExprNoVar
-    { floatOptions.clear(); charOptions.clear(); }
+    { init_Options(); }
     CharParameterOptionsOrNone ']'
     {
       Constant_S.Name = (char*)""; Constant_S.Type = VAR_CHAR;
