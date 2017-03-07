@@ -1823,15 +1823,23 @@ JacobianMethods :
 	Problem_S.JacobianMethod =
 	  List_Create(5, 5, sizeof (struct JacobianMethod));
     }
-  | JacobianMethods  '{' JacobianMethod '}'
+
+  | JacobianMethods  BracedJacobianMethod
+ ;
+
+
+BracedJacobianMethod :
+
+    '{' JacobianMethod '}'
     {
       if (level_Append && index_Append>=0)
         List_Write(Problem_S.JacobianMethod, index_Append, &JacobianMethod_S);
       else
         List_Add(Problem_S.JacobianMethod, &JacobianMethod_S);
     }
- ;
 
+  | Loop
+ ;
 
 JacobianMethod :
 
@@ -1840,8 +1848,8 @@ JacobianMethod :
       JacobianMethod_S.Name = NULL; JacobianMethod_S.JacobianCase = NULL;
       level_Append = 0;
     }
-
   | JacobianMethod  JacobianMethodTerm
+  | JacobianMethod  Loop
  ;
 
 
@@ -1876,9 +1884,9 @@ JacobianCases :
         JacobianMethod_S.JacobianCase :
         List_Create(5, 5, sizeof (struct JacobianCase));
     }
-
   | JacobianCases  '{' JacobianCase '}'
     { List_Add($$ = $1, &JacobianCase_S); }
+  | JacobianCases  Loop
  ;
 
 
@@ -1950,15 +1958,21 @@ IntegrationMethods :
 	  List_Create(5, 5, sizeof(struct IntegrationMethod));
     }
 
-  | IntegrationMethods  '{' IntegrationMethod '}'
+  | IntegrationMethods  BracedIntegrationMethod
+ ;
+
+BracedIntegrationMethod :
+
+    '{' IntegrationMethod '}'
     {
       if (level_Append && index_Append>=0)
         List_Write(Problem_S.IntegrationMethod, index_Append, &IntegrationMethod_S);
       else
         List_Add(Problem_S.IntegrationMethod, &IntegrationMethod_S);
     }
- ;
 
+  | Loop
+ ;
 
 IntegrationMethod :
 
@@ -1971,6 +1985,7 @@ IntegrationMethod :
     }
 
   | IntegrationMethod  IntegrationMethodTerm
+  | IntegrationMethod  Loop
  ;
 
 
@@ -2010,6 +2025,7 @@ IntegrationCases :
 
   | IntegrationCases '{' IntegrationCase '}'
     { List_Add($$ = $1, &IntegrationCase_S); }
+  | IntegrationCases Loop
  ;
 
 
