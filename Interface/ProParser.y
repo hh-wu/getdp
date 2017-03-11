@@ -8801,14 +8801,27 @@ OneFExpr :
       Free($1);
     }
 
-| tExists LP String__Index RP
+  | tExists LP Struct_FullName RP
     {
-      Constant_S.Name = $3;
+      std::string struct_namespace($3.char1? $3.char1 : std::string("")),
+        struct_name($3.char2);
+      Constant_S.Name = $3.char2;
       if(Tree_Query(ConstantTable_L, &Constant_S))
         $$ = 1;
       else
-        $$ = 0;
-      Free($3);
+        $$ = (nameSpaces.getTag(struct_namespace, struct_name, $$))? 0 : 1;
+      Free($3.char1); Free($3.char2);
+    }
+
+  | tExists LP Struct_FullName '.' tSTRING_Member_Float RP
+    {
+      std::string struct_namespace($3.char1? $3.char1 : std::string("")),
+        struct_name($3.char2);
+      Free($3.char1); Free($3.char2);
+      std::string key_member($5);
+      $$ = (nameSpaces.getMember
+            (struct_namespace, struct_name, key_member, $$))? 0 : 1;
+      if (flag_tSTRING_alloc) Free($5);
     }
 
   | tExists LP String__Index '[' ']' RP
