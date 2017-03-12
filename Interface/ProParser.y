@@ -7860,6 +7860,11 @@ Affectation :
       Free($3);
     }
 
+  | tDelete tDefineStruct tEND
+    {
+      nameSpaces.clear();
+    }
+
   | String__Index tDEF ListOfFExpr tEND
     {
       Constant_S.Name = $1;
