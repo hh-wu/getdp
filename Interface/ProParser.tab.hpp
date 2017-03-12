@@ -398,22 +398,23 @@
      tSendToServer = 614,
      tDate = 615,
      tOnelabAction = 616,
-     tFixRelativePath = 617,
-     tAppendToExistingFile = 618,
-     tAppendStringToFileName = 619,
-     tDEF = 620,
-     tOR = 621,
-     tAND = 622,
-     tAPPROXEQUAL = 623,
-     tNOTEQUAL = 624,
-     tEQUAL = 625,
-     tGREATERGREATER = 626,
-     tLESSLESS = 627,
-     tGREATEROREQUAL = 628,
-     tLESSOREQUAL = 629,
-     tCROSSPRODUCT = 630,
-     UNARYPREC = 631,
-     tSHOW = 632
+     tCodeName = 617,
+     tFixRelativePath = 618,
+     tAppendToExistingFile = 619,
+     tAppendStringToFileName = 620,
+     tDEF = 621,
+     tOR = 622,
+     tAND = 623,
+     tAPPROXEQUAL = 624,
+     tNOTEQUAL = 625,
+     tEQUAL = 626,
+     tGREATERGREATER = 627,
+     tLESSLESS = 628,
+     tGREATEROREQUAL = 629,
+     tLESSOREQUAL = 630,
+     tCROSSPRODUCT = 631,
+     UNARYPREC = 632,
+     tSHOW = 633
    };
 #endif
 /* Tokens.  */
@@ -776,22 +777,23 @@
 #define tSendToServer 614
 #define tDate 615
 #define tOnelabAction 616
-#define tFixRelativePath 617
-#define tAppendToExistingFile 618
-#define tAppendStringToFileName 619
-#define tDEF 620
-#define tOR 621
-#define tAND 622
-#define tAPPROXEQUAL 623
-#define tNOTEQUAL 624
-#define tEQUAL 625
-#define tGREATERGREATER 626
-#define tLESSLESS 627
-#define tGREATEROREQUAL 628
-#define tLESSOREQUAL 629
-#define tCROSSPRODUCT 630
-#define UNARYPREC 631
-#define tSHOW 632
+#define tCodeName 617
+#define tFixRelativePath 618
+#define tAppendToExistingFile 619
+#define tAppendStringToFileName 620
+#define tDEF 621
+#define tOR 622
+#define tAND 623
+#define tAPPROXEQUAL 624
+#define tNOTEQUAL 625
+#define tEQUAL 626
+#define tGREATERGREATER 627
+#define tLESSLESS 628
+#define tGREATEROREQUAL 629
+#define tLESSOREQUAL 630
+#define tCROSSPRODUCT 631
+#define UNARYPREC 632
+#define tSHOW 633
 
 
 
@@ -808,7 +810,7 @@ typedef union YYSTYPE
   struct TwoChar c2;
 }
 /* Line 1529 of yacc.c.  */
-#line 812 "ProParser.tab.hpp"
+#line 814 "ProParser.tab.hpp"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

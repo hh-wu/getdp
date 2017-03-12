@@ -337,7 +337,7 @@ struct doubleXstring{
 %token        tAppendExpressionToFileName tAppendExpressionFormat
 %token        tOverrideTimeStepValue tNoMesh
 %token        tSendToServer
-%token        tDate tOnelabAction tFixRelativePath
+%token        tDate tOnelabAction tCodeName tFixRelativePath
 %token        tAppendToExistingFile tAppendStringToFileName
 
 /* ------------------------------------------------------------------ */
@@ -8840,18 +8840,42 @@ OneFExpr :
       Free($3);
     }
 
-  | tGetForced LP String__Index RP
+  | tGetForced LP Struct_FullName RP
     {
-      Constant_S.Name = $3;
-      if(Tree_Query(ConstantTable_L, &Constant_S))
+      std::string struct_namespace($3.char1? $3.char1 : std::string("")),
+        struct_name($3.char2);
+      Constant_S.Name = $3.char2;
+      if(Tree_Query(ConstantTable_L, &Constant_S)) {
 	if(Constant_S.Type == VAR_FLOAT)
 	  $$ = Constant_S.Value.Float;
 	else {
 	  vyyerror(0, "Single value Constant needed: %s", $3);  $$ = 0.;
 	}
+      }
       else
+        if(nameSpaces.getTag(struct_namespace, struct_name, $$)) {
+          $$ = 0.;
+        }
+      Free($3.char1); Free($3.char2);
+    }
+;
+
+  | tGetForced LP Struct_FullName '.' tSTRING_Member_Float RP
+    {
+      std::string struct_namespace($3.char1? $3.char1 : std::string("")),
+        struct_name($3.char2);
+      Free($3.char1); Free($3.char2);
+      std::string key_member($5);
+      switch (nameSpaces.getMember
+              (struct_namespace, struct_name, key_member, $$)) {
+      case 0:
+        break;
+      case 1:
+      case 2:
         $$ = 0.;
-      Free($3);
+        break;
+      }
+      if (flag_tSTRING_alloc) Free($5);
     }
 ;
 
@@ -9472,6 +9496,11 @@ CharExprNoVar :
       std::string action = Message::GetOnelabAction();
       $$ = (char *)Malloc(action.size() + 1);
       strcpy($$, action.c_str());
+    }
+
+  | tCodeName
+    {
+      $$ = strSave((char*)"GetDP");
     }
 
   | tCurrentFileName

@@ -117,6 +117,7 @@ ChangeOfCoordinates          return tChangeOfCoordinates;
 ChangeOfCoordinates2         return tChangeOfCoordinates2;
 ChangeOfState                return tChangeOfState;
 ChangeOfValues               return tChangeOfValues;
+CodeName                     return tCodeName;
 Coefficient                  return tCoefficient;
 Comma                        return tComma;
 Const                        return tConstant;
