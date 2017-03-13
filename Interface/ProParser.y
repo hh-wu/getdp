@@ -10273,9 +10273,10 @@ void Print_Constants()
 
 void Print_Struct()
 {
-  std::string str;
-  nameSpaces.sprint(str);
-  Message::Check(str.c_str());
+  std::vector<std::string> strs;
+  nameSpaces.sprint(strs);
+  for(unsigned int i = 0; i < strs.size(); i++)
+    Message::Check(strs[i].c_str());
 }
 
 Constant *Get_ParserConstant(char *name)
