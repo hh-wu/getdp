@@ -192,6 +192,16 @@ public:
          it_st != this->get().end(); ++it_st )
       it_st->second.sprint(str, it_st->first, struct_namespace);
   }
+  void sprint(std::vector<std::string> & strs_out, const std::string & struct_namespace) const
+  {
+    std::string str;
+    for (Map_string_Struct::const_iterator it_st = this->get().begin();
+         it_st != this->get().end(); ++it_st ) {
+      str.clear();
+      it_st->second.sprint(str, it_st->first, struct_namespace);
+      strs_out.insert(strs_out.end(), str);
+    }
+  }
 
 private:
   int _max_tag;
@@ -287,6 +297,15 @@ public:
     for (Map_string_Structs::const_iterator it_ns = this->get().begin();
          it_ns != this->get().end(); ++it_ns )
       it_ns->second.sprint(str, it_ns->first);
+  }
+  void sprint(std::vector<std::string> & strs_out) const
+  {
+    std::vector<std::string> strs;
+    for (Map_string_Structs::const_iterator it_ns = this->get().begin();
+         it_ns != this->get().end(); ++it_ns ) {
+      it_ns->second.sprint(strs, it_ns->first);
+      strs_out.insert(strs_out.end(), strs.begin(), strs.end());
+    }
   }
 };
 
