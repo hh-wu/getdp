@@ -8826,6 +8826,11 @@ OneFExpr :
       std::string key_member($5);
       $$ = (nameSpaces.getMember
             (struct_namespace, struct_name, key_member, $$))? 0 : 1;
+      if (!$$) {
+        const std::string * out_dummy = NULL;
+        $$ = (nameSpaces.getMember
+              (struct_namespace, struct_name, key_member, out_dummy))? 0 : 1;
+      }
       if (flag_tSTRING_alloc) Free($5);
     }
 
