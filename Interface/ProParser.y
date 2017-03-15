@@ -156,6 +156,15 @@ void Pro_DefineQuantityIndex_1(List_T *WholeQuantity_L, int TraceGroupIndex);
 void yyerror(const char *s);
 void vyyerror(int level, const char *fmt, ...);
 
+double Treat_Struct_FullName_Float
+  (char* c1, char* c2, double val_default = 0., int type_treat = 0);
+double Treat_Struct_FullName_dot_tSTRING_Float
+  (char* c1, char* c2, char* c3, double val_default = 0., int type_treat = 0);
+char* Treat_Struct_FullName_String
+  (char* c1, char* c2, char* val_default = NULL, int type_treat = 0);
+char* Treat_Struct_FullName_dot_tSTRING_String
+  (char* c1, char* c2, char* c3, char* val_default = NULL, int type_treat = 0);
+
 struct doubleXstring{
   double d;
   char *s;
@@ -187,7 +196,7 @@ struct doubleXstring{
 %type <i>  GmshOperation GenerateGroupOperation
 %type <i>  CopyOperation GetOperation
 %type <i>  Append AppendOrNot
-%type <d>  FExpr OneFExpr DefineStruct NameStruct_Arg
+%type <d>  FExpr OneFExpr DefineStruct NameStruct_Arg GetForced_Default
 %type <l>  MultiFExpr ListOfFExpr RecursiveListOfFExpr
 %type <l>  RecursiveListOfCharExpr ParametersForFunction
 %type <l>  ListOfRegion ListOfRegionOrAll SuppListOfRegion
@@ -201,7 +210,7 @@ struct doubleXstring{
 %type <l>  SubPostQuantities PostSubOperations
 %type <c>  NameForMathFunction NameForFunction CharExpr CharExprNoVar
 %type <c>  StrCat StringIndex String__Index CallArg
-%type <c>  LP RP SendToFile tSTRING_Member_Float
+%type <c>  LP RP SendToFile tSTRING_Member_Float GetForcedStr_Default
 %type <t>  Quantity_Def
 %type <l>  TimeLoopAdaptiveSystems TimeLoopAdaptivePOs IterativeLoopSystems
 %type <l>  IterativeLoopPOs
@@ -215,7 +224,7 @@ struct doubleXstring{
 %token  tNbrRegions tGetRegion tGetRegions tStringToName tNameToString
 %token  tFor tEndFor tIf tElseIf tElse tEndIf tMacro tReturn tCall tCallTest
 %token  tTest tWhile tParse
-%token  tFlag tExists tFileExists tGetForced
+%token  tFlag tExists tFileExists tGetForced tGetForcedStr
 %token  tInclude tLevelInclude
 %token  tConstant tList tListAlt tLinSpace tLogSpace
 %token  tListFromFile
@@ -8703,22 +8712,7 @@ OneFExpr :
 
   | Struct_FullName '.' tSTRING_Member_Float
     {
-      std::string struct_namespace($1.char1? $1.char1 : std::string("")),
-        struct_name($1.char2);
-      Free($1.char1); Free($1.char2);
-      std::string key_member($3);
-      switch (nameSpaces.getMember
-              (struct_namespace, struct_name, key_member, $$)) {
-      case 0:
-        break;
-      case 1:
-	vyyerror(0, "Unknown Struct: %s", struct_name.c_str());
-        break;
-      case 2:
-        vyyerror(0, "Unknown member '%s' of Struct %s", $3, struct_name.c_str());
-        break;
-      }
-      if (flag_tSTRING_alloc) Free($3);
+      $$ = Treat_Struct_FullName_dot_tSTRING_Float($1.char1, $1.char2, $3);
     }
 
   | tGetNumber LP CharExpr RP
@@ -8735,23 +8729,7 @@ OneFExpr :
 
   | Struct_FullName
     {
-      std::string struct_namespace($1.char1? $1.char1 : std::string("")),
-        struct_name($1.char2);
-      Constant_S.Name = $1.char2;
-      if(Tree_Query(ConstantTable_L, &Constant_S)) {
-	if(Constant_S.Type == VAR_FLOAT)
-	  $$ = Constant_S.Value.Float;
-	else {
-	  vyyerror(0, "Single value Constant needed: %s", struct_name.c_str());
-          $$ = 0.;
-	}
-      }
-      else {
-        if(nameSpaces.getTag(struct_namespace, struct_name, $$)) {
-          vyyerror(0, "Unknown Constant: %s", struct_name.c_str());
-        }
-      }
-      Free($1.char1); Free($1.char2);
+      $$ = Treat_Struct_FullName_Float($1.char1, $1.char2);
     }
 
   | '#' String__Index '(' ')'
@@ -8808,30 +8786,12 @@ OneFExpr :
 
   | tExists LP Struct_FullName RP
     {
-      std::string struct_namespace($3.char1? $3.char1 : std::string("")),
-        struct_name($3.char2);
-      Constant_S.Name = $3.char2;
-      if(Tree_Query(ConstantTable_L, &Constant_S))
-        $$ = 1;
-      else
-        $$ = (nameSpaces.getTag(struct_namespace, struct_name, $$))? 0 : 1;
-      Free($3.char1); Free($3.char2);
+      $$ = Treat_Struct_FullName_Float($3.char1, $3.char2, 0., 1);
     }
 
   | tExists LP Struct_FullName '.' tSTRING_Member_Float RP
     {
-      std::string struct_namespace($3.char1? $3.char1 : std::string("")),
-        struct_name($3.char2);
-      Free($3.char1); Free($3.char2);
-      std::string key_member($5);
-      $$ = (nameSpaces.getMember
-            (struct_namespace, struct_name, key_member, $$))? 0 : 1;
-      if (!$$) {
-        const std::string * out_dummy = NULL;
-        $$ = (nameSpaces.getMember
-              (struct_namespace, struct_name, key_member, out_dummy))? 0 : 1;
-      }
-      if (flag_tSTRING_alloc) Free($5);
+      $$ = Treat_Struct_FullName_dot_tSTRING_Float($3.char1, $3.char2, $5, 0., 1);
     }
 
   | tExists LP String__Index '[' ']' RP
@@ -8843,52 +8803,37 @@ OneFExpr :
       Free($3);
     }
 
+  | tGetForced LP Struct_FullName GetForced_Default RP
+    {
+      $$ = Treat_Struct_FullName_Float($3.char1, $3.char2, $4, 2);
+    }
+
+  | tGetForced LP Struct_FullName '.' tSTRING_Member_Float GetForced_Default RP
+    {
+      $$ = Treat_Struct_FullName_dot_tSTRING_Float($3.char1, $3.char2, $5, $6, 2);
+    }
+
   | tFileExists LP CharExpr RP
     {
       std::string tmp = Fix_RelativePath($3).c_str();
       $$ = !StatusFile(tmp);
       Free($3);
     }
-
-  | tGetForced LP Struct_FullName RP
-    {
-      std::string struct_namespace($3.char1? $3.char1 : std::string("")),
-        struct_name($3.char2);
-      Constant_S.Name = $3.char2;
-      if(Tree_Query(ConstantTable_L, &Constant_S)) {
-	if(Constant_S.Type == VAR_FLOAT)
-	  $$ = Constant_S.Value.Float;
-	else {
-	  vyyerror(0, "Single value Constant needed: %s", $3);  $$ = 0.;
-	}
-      }
-      else
-        if(nameSpaces.getTag(struct_namespace, struct_name, $$)) {
-          $$ = 0.;
-        }
-      Free($3.char1); Free($3.char2);
-    }
 ;
 
-  | tGetForced LP Struct_FullName '.' tSTRING_Member_Float RP
-    {
-      std::string struct_namespace($3.char1? $3.char1 : std::string("")),
-        struct_name($3.char2);
-      Free($3.char1); Free($3.char2);
-      std::string key_member($5);
-      switch (nameSpaces.getMember
-              (struct_namespace, struct_name, key_member, $$)) {
-      case 0:
-        break;
-      case 1:
-      case 2:
-        $$ = 0.;
-        break;
-      }
-      if (flag_tSTRING_alloc) Free($5);
-    }
+GetForced_Default :
+    // none
+    { $$ = 0.; }
+  | ',' FExpr
+    { $$ = $2;}
 ;
 
+GetForcedStr_Default :
+    // none
+    { $$ = NULL; }
+  | ',' CharExpr
+    { $$ = $2;}
+;
 
 DefineStruct :
     tDefineStruct Struct_FullName AppendOrNot
@@ -9572,6 +9517,17 @@ CharExprNoVar :
       Free($5);
     }
 
+    //+++ No need to extend to Struct_FullName (a Tag is not a String), but...
+  | tGetForcedStr '(' Struct_FullName GetForcedStr_Default ')'
+    {
+      $$ = Treat_Struct_FullName_String(NULL, $3.char2, $4, 2);
+    }
+
+  | tGetForcedStr '(' Struct_FullName '.' tSTRING_Member_Float GetForcedStr_Default ')'
+    {
+      $$ = Treat_Struct_FullName_dot_tSTRING_String($3.char1, $3.char2, $5, $6, 2);
+    }
+
   | tNameStruct LP NameStruct_Arg RP
     {
       const std::string * key_struct = NULL;
@@ -9610,40 +9566,14 @@ CharExpr :
 
   | String__Index
     {
-      Constant_S.Name = $1;
-      if(!Tree_Query(ConstantTable_L, &Constant_S)) {
-	vyyerror(0, "Unknown Constant: %s", $1); $$ = strEmpty();
-      }
-      else  {
-	if(Constant_S.Type == VAR_CHAR)
-	  $$ = strSave(Constant_S.Value.Char);
-	else {
-	  vyyerror(0, "String Constant needed: %s", $1); $$ = strEmpty();
-	}
-      }
-      Free($1);
+      // No need to extend to Struct_FullName (a Tag is not a String)
+      $$ = Treat_Struct_FullName_String(NULL, $1);
     }
 
   | Struct_FullName '.' tSTRING
     {
-      std::string struct_namespace($1.char1? $1.char1 : std::string("")),
-        struct_name($1.char2);
-      Free($1.char1); Free($1.char2);
-      std::string key_member($3);
-      const std::string * out = NULL;
-      switch (nameSpaces.getMember
-              (struct_namespace, struct_name, key_member, out)) {
-      case 0:
-        break;
-      case 1:
-	vyyerror(0, "Unknown Struct: %s", struct_name.c_str());
-        break;
-      case 2:
-        vyyerror(0, "Unknown member '%s' of Struct %s", $3, struct_name.c_str());
-        break;
-      }
-      $$ = strSave(out->c_str());
-      Free($3);
+      flag_tSTRING_alloc = 1;
+      $$ = Treat_Struct_FullName_dot_tSTRING_String($1.char1, $1.char2, $3);
     }
 
   | String__Index '(' FExpr ')'
@@ -10316,4 +10246,118 @@ void vyyerror(int level, const char *fmt, ...)
     Message::Warning("'%s', line %ld : %s", getdp_yyname.c_str(),
                      getdp_yylinenum, str);
   }
+}
+
+//
+double Treat_Struct_FullName_Float
+(char* c1, char* c2, double val_default, int type_treat)
+{
+  double out;
+  Constant_S.Name = c2;
+  if(!c1 && Tree_Query(ConstantTable_L, &Constant_S)) {
+    if (type_treat == 1) out = 1.; // Exists (type_treat == 1)
+    else { // Get (0) or GetForced (2)
+      if(Constant_S.Type == VAR_FLOAT)
+        out = Constant_S.Value.Float;
+      else {
+        out = val_default;
+        if (type_treat == 0)
+          vyyerror(0, "Single value Constant needed: %s", struct_name.c_str());
+      }
+    }
+  }
+  else {
+    std::string struct_namespace(c1? c1 : std::string("")), struct_name(c2);
+    if(nameSpaces.getTag(struct_namespace, struct_name, out)) {
+      out = val_default;
+      if (type_treat == 0) vyyerror(0, "Unknown Constant: %s", struct_name.c_str());
+    }
+  }
+  Free(c1); Free(c2);
+  return out;
+}
+
+double Treat_Struct_FullName_dot_tSTRING_Float
+(char* c1, char* c2, char* c3, double val_default, int type_treat)
+{
+  double out;
+  std::string struct_namespace(c1? c1 : std::string("")), struct_name(c2);
+  std::string key_member(c3);
+  switch (nameSpaces.getMember
+          (struct_namespace, struct_name, key_member, out)) {
+  case 0:
+    if (type_treat == 1) out = 1.; // Exists (type_treat == 1)
+    break;
+  case 1:
+    out = val_default;
+    break;
+  case 2:
+    if (type_treat != 0) {
+      const std::string * out_dummy = NULL;
+      out = (nameSpaces.getMember
+             (struct_namespace, struct_name, key_member, out_dummy))?
+        val_default : 1.;
+    }
+    else {
+      out = val_default;
+      if (type_treat == 0)
+        vyyerror(0, "Unknown member '%s' of Struct %s", c3, struct_name.c_str());
+    }
+    break;
+  }
+  Free(c1); Free(c2);
+  if (flag_tSTRING_alloc) Free(c3);
+  return out;
+}
+
+char * Treat_Struct_FullName_String
+(char* c1, char* c2, char * val_default, int type_treat)
+{
+  const char * out = NULL;
+  Constant_S.Name = c2;
+  if(!c1 && Tree_Query(ConstantTable_L, &Constant_S)) {
+    if(Constant_S.Type == VAR_CHAR)
+      out = Constant_S.Value.Char;
+    else {
+      out = val_default;
+      if (type_treat == 0)
+        vyyerror(0, "String Constant needed: %s", c2);
+    }
+  }
+  else  {
+    out = val_default;
+    if (type_treat == 0)
+      vyyerror(0, "Unknown Constant: %s", c2);
+  }
+  char* out_c = strSave(out);
+  Free(c1); Free(c2);
+  return out_c;
+}
+
+char* Treat_Struct_FullName_dot_tSTRING_String
+(char* c1, char* c2, char* c3, char * val_default, int type_treat)
+{
+  std::string string_default(val_default? val_default : std::string(""));
+  const std::string * out = NULL;
+  std::string struct_namespace(c1? c1 : std::string("")), struct_name(c2);
+  std::string key_member(c3);
+  switch (nameSpaces.getMember
+          (struct_namespace, struct_name, key_member, out)) {
+  case 0:
+    break;
+  case 1:
+    out = &string_default;
+    if (type_treat == 0)
+      vyyerror(0, "Unknown Struct: %s", struct_name.c_str());
+    break;
+  case 2:
+    out = &string_default;
+    if (type_treat == 0)
+      vyyerror(0, "Unknown member '%s' of Struct %s", c3, struct_name.c_str());
+    break;
+  }
+  char* out_c = strSave(out->c_str());
+  Free(c1); Free(c2);
+  if (flag_tSTRING_alloc) Free(c3);
+  return out_c;
 }

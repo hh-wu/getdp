@@ -228,6 +228,7 @@ GenerateRHSGroupCumulative   return tGenerateRHSGroupCumulative;
 GenerateRightHandSideGroupCumulative return tGenerateRHSGroupCumulative;
 GeoElement                   return tGeoElement;
 GetForced                    return tGetForced;
+GetForcedStr                 return tGetForcedStr;
 GetNumber                    return tGetNumber;
 GetRegion                    return tGetRegion ;
 GetRegions                   return tGetRegions ;
