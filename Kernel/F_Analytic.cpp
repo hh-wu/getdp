@@ -2970,12 +2970,10 @@ void  F_Nnm(F_ARG)
 void F_Mnm(F_ARG)
 {
   Message::Error("Vector partial waves Mnm require GSL!");
-  break;
 }
 void F_Nnm(F_ARG)
 {
   Message::Error("Vector partial waves Nnm require GSL!");
-  break;
 }
 #endif
 
