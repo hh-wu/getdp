@@ -15,6 +15,9 @@
 #include "Bessel.h"
 #include "MallocUtils.h"
 #include "Message.h"
+#if defined(HAVE_GSL)
+#include <gsl/gsl_sf_bessel.h>
+#endif
 
 
 #define SQU(a)     ((a)*(a))
@@ -2234,4 +2237,817 @@ void F_OSRC_Bj(F_ARG)
   V->Type         = SCALAR;
 }
 
+/* --------------------------------------------------------------------- */
+/*  Vector spherical harmonics (aka Vector Partial Waves)                */
+/*  time sign : beware!                                                  */
+/*  Implemented following notations and conventions in :                 */
+/*      B. Stout, "Spherical  harmonic  Lattice  Sums  for  Gratings",   */
+/*        Ch. 6 of "Gratings: Theory and Numeric Applications",          */
+/*          (see Eq. (6.200), p.6.37) in Chap. 6 of                      */
+/*            "Gratings: Theory and Numeric Applications",               */
+/*              Ed. E. Popov (Institut Fresnel, CNRS, AMU, 2012)         */
+/*  See also Jackson, 3rd Ed., Chap. 9, p. 431...                        */
+/*  See also Chew, p. 185...                                             */
+/* --------------------------------------------------------------------- */
+
+double sph_pnm(int n, int m, double u)
+{
+  int     k, kn, km;
+  double  knf, kmf, **pmntab;
+
+  if(std::abs(m)>n)
+    Message::Error("|m|<=n for the normalized pnm's");
+  
+  pmntab = (double**)Malloc( (2*n+1) * sizeof(double *));
+  for (k = 0; k <= 2*n ; k++){
+    pmntab[k] = (double*)Malloc((n+1) * sizeof(double));
+  }
+  for (km = 0; km <= 2*n ; km++){
+    for (kn = 0; kn <= n ; kn++){
+      pmntab[km][kn]=0.;
+    }
+  }
+  
+  // initialize recur.
+  pmntab[n][0]=1./sqrt(4.*M_PI);
+
+  // fill diag and first diag
+  for (kn = 1; kn <= n ; kn++){
+    knf = (double)kn;
+    pmntab[n+kn][kn]   =  -sqrt((2.*knf+1.)/(2.*knf)) * sqrt(1.-pow(u,2)) 
+                            * pmntab[n+kn-1][kn-1];
+    pmntab[n+kn-1][kn] = u*sqrt(2.*knf+1.) * pmntab[n+kn-1][kn-1];
+  }
+  for (kn = 2; kn <= n ; kn++){
+    for (km = 0; km <= kn-2 ; km++){
+      knf = (double)kn;
+      kmf = (double)km;
+      pmntab[n+km][kn] = sqrt((4.*knf*knf-1.)/(pow(knf,2)-pow(kmf,2)))
+                          * pmntab[n+km][kn-1] * u
+                        - sqrt(((2.*knf+1.)*(pow(knf-1.,2)-pow(kmf,2)))
+                           / ((2.*knf-3.)*(pow(knf,2)-pow(kmf,2))))
+                           * pmntab[n+km][kn-2];
+    }
+  }
+  for (kn = 0; kn <= n ; kn++){
+    for (km = n-1; km >= 0 ; km--){
+      pmntab[km][kn] = pow(-1,n-km)*pmntab[2*n-km][kn];
+    }
+  }
+  double res = pmntab[n+m][n];
+  for (k = 0; k <= 2*n ; k++){
+    Free(pmntab[k]);
+  }
+  Free(pmntab);
+  return res;
+}
+
+double sph_unm(int n, int m, double u)
+{
+  int     k, kn, km;
+  double  knf, kmf, **umntab;
+
+  if(std::abs(m)>n)
+    Message::Error("|m|<=n for the normalized unm's");
+  umntab = (double**)Malloc( (2*n+1) * sizeof(double *));
+  for (k = 0; k <= 2*n ; k++){
+    umntab[k] = (double*)Malloc((n+1) * sizeof(double));
+  }
+
+  for (km = 0; km <= 2*n ; km++){
+    for (kn = 0; kn <= n ; kn++){
+      umntab[km][kn]=0.;
+    }
+  }
+  // initialize recur.
+  umntab[n][0]=0.;
+  umntab[n+1][1]=-0.25*sqrt(3./M_PI);
+  // fill diag and first diag
+  for (kn = 2; kn <= n ; kn++){
+    knf = (double)kn;
+    umntab[n+kn][kn]   = -sqrt((knf*(2.*knf+1.)) 
+                           /(2.*(knf+1.)*(knf-1.)))
+                         *sqrt(1.-pow(u,2))*umntab[n+kn-1][kn-1];
+    umntab[n+kn-1][kn] = sqrt((2.*knf+1.)*(knf-1.)/(knf+1.)) 
+                          *u* umntab[n+kn-1][kn-1];
+  }
+  for (kn = 2; kn <= n ; kn++){
+    for (km = 0; km <= kn-2 ; km++){
+      knf = (double)kn;
+      kmf = (double)km;
+      umntab[n+km][kn] = sqrt(((4.*pow(knf,2)-1.)*(knf-1.))
+                           /((pow(knf,2)-pow(kmf,2))*(knf+1.))) 
+                           *umntab[n+km][kn-1]*u
+                         -sqrt(((2.*knf+1.)*(knf-1.)*(knf-2.)
+                               *(knf-kmf-1.)*(knf+kmf-1.))
+                           /((2.*knf-3.)*(pow(knf,2)-pow(kmf,2))*knf*(knf+1.)))
+                           *umntab[n+km][kn-2];
+    }
+  }
+  for (kn = 0; kn <= n ; kn++){
+    for (km = n-1; km >= 0 ; km--){
+      umntab[km][kn] = pow(-1,n-km+1)*umntab[2*n-km][kn];
+    }
+  }
+  double res = umntab[n+m][n];
+  for (k = 0; k <= 2*n ; k++){
+    Free(umntab[k]);
+  }
+  Free(umntab);
+  return res;
+}
+
+double sph_snm(int n, int m, double u)
+{
+  int     k, kn, km;
+  double  knf, kmf, **umntab, **smntab;
+  if(std::abs(m)>n)
+    Message::Error("|m|<=n for the normalized snm's");
+  umntab = (double**)Malloc( (2*n+1) * sizeof(double *));
+  smntab = (double**)Malloc( (2*n+1) * sizeof(double *));
+  for (k = 0; k <= 2*n ; k++){
+    umntab[k] = (double*)Malloc((n+1) * sizeof(double));
+    smntab[k] = (double*)Malloc((n+1) * sizeof(double));
+  }
+  for (km = 0; km <= 2*n ; km++){
+    for (kn = 0; kn <= n ; kn++){
+      umntab[km][kn]=0.;
+      smntab[km][kn]=0.;
+    }
+  }
+
+  // initialize recur.
+  umntab[n][0]=0.;
+  umntab[n+1][1]=-0.25*sqrt(3./M_PI);
+  // fill diag and first diag
+  for (kn = 2; kn <= n ; kn++){
+    knf = (double)kn;
+    umntab[n+kn][kn]  =-sqrt((knf*(2.*knf+1.))/(2.*(knf+1.)*(knf-1.)))
+                       *sqrt(1.-pow(u,2))*umntab[n+kn-1][kn-1];
+    umntab[n+kn-1][kn]= sqrt((2.*knf+1.)*(knf-1.)/(knf+1.))
+                       *u*umntab[n+kn-1][kn-1];
+  }
+  for (kn = 2; kn <= n ; kn++){
+    for (km = 0; km <= kn-2 ; km++){
+      knf = (double)kn;
+      kmf = (double)km;
+      umntab[n+km][kn] = sqrt(((4.*pow(knf,2)-1.)*(knf-1.))
+                              /((pow(knf,2)-pow(kmf,2))*(knf+1.)))
+                            *umntab[n+km][kn-1]*u
+                        -sqrt(((2.*knf+1.)*(knf-1.)*(knf-2.)
+                              *(knf-kmf-1.)*(knf+kmf-1.))
+                              /((2.*knf-3.)*(pow(knf,2)
+                                -pow(kmf,2))*knf*(knf+1.)))
+                            *umntab[n+km][kn-2];
+    }
+  }
+  for (kn = 0; kn <= n ; kn++){
+    for (km = n-1; km >= 0 ; km--){
+      umntab[km][kn] = pow(-1,n-km+1)*umntab[2*n-km][kn];
+    }
+  }
+  for (kn = 0; kn <= n ; kn++){
+    km  = 0;
+    kmf = 0.;
+    knf = (double)kn;
+    smntab[n+km][kn]=1./(kmf+1)*sqrt((knf+kmf+1.)*(knf-kmf))
+                      *sqrt(1.-pow(u,2))* umntab[n+km+1][kn] 
+                      +u*umntab[n+km][kn];
+  }
+  for (kn = 1; kn <= n ; kn++){
+    for (km = 1; km <= kn ; km++){
+      knf = (double)kn;
+      kmf = (double)km;
+      smntab[n+km][kn] = knf/kmf*u*umntab[n+km][kn]-(kmf+knf)/kmf*
+                        sqrt(((2.*knf+1.)*(knf-kmf)*(knf-1.))
+                          /((2.*knf-1.)*(knf+kmf)*(knf+1.)))
+                        *umntab[n+km][kn-1];
+    }
+  }
+  for (kn = 0; kn <= n ; kn++){
+    for (km = n-1; km >= 0 ; km--){
+      smntab[km][kn] = pow(-1,n-km)*smntab[2*n-km][kn];
+    }
+  }
+  double res = smntab[n+m][n];
+  for (k = 0; k <= 2*n ; k++){
+    Free(umntab[k]);
+    Free(smntab[k]);
+  }
+  Free(smntab);
+  return res;
+}
+
+void F_pnm(F_ARG)
+{
+  int     n, m;
+  double  u;
+  if(A->Type != SCALAR || (A+1)->Type != SCALAR || (A+2)->Type != SCALAR)
+    Message::Error("Non scalar argument(s) for the normalized pnm's");
+  n = (int)A->Val[0];
+  m = (int)(A+1)->Val[0];
+  u = (A+2)->Val[0];
+  V->Val[0] = sph_pnm(n,m,u);
+  V->Type = SCALAR;
+}
+void F_unm(F_ARG)
+{
+  int     n, m;
+  double  u;
+  if(A->Type != SCALAR || (A+1)->Type != SCALAR || (A+2)->Type != SCALAR)
+    Message::Error("Non scalar argument(s) for the normalized unm's");
+  n = (int)A->Val[0];
+  m = (int)(A+1)->Val[0];  
+  u = (A+2)->Val[0];
+  V->Val[0] = sph_unm(n,m,u);
+  V->Type = SCALAR;
+}
+void F_snm(F_ARG)
+{
+  int     n, m;
+  double  u;
+  if(A->Type != SCALAR || (A+1)->Type != SCALAR || (A+2)->Type != SCALAR)
+    Message::Error("Non scalar argument(s) for the normalized snm's");
+  n = (int)A->Val[0];
+  m = (int)(A+1)->Val[0];
+  u = (A+2)->Val[0];
+  V->Val[0] = sph_snm(n,m,u);
+  V->Type = SCALAR;
+}
+
+void  F_Xnm(F_ARG)
+{
+  int     n, m;
+  double  x, y, z, k0;
+  double  r, theta, phi;
+  double Xnm_r_re,Xnm_r_im,Xnm_t_re,Xnm_t_im,Xnm_p_re,Xnm_p_im;
+  double Xnm_x_re,Xnm_x_im,Xnm_y_re,Xnm_y_im,Xnm_z_re,Xnm_z_im;
+  double costheta, pnm_costheta, unm_costheta, snm_costheta; 
+  double exp_jm_phi_re, exp_jm_phi_im;
+  double avoid_r_singularity = 1.E-13;
+  
+  if(   A->Type != SCALAR 
+    || (A+1)->Type != SCALAR 
+      || (A+2)->Type != SCALAR 
+        || (A+3)->Type != SCALAR 
+          || (A+4)->Type != SCALAR
+            || (A+5)->Type != SCALAR)
+    Message::Error("Non scalar argument(s) for the Mnm's");
+  n     = (int)A->Val[0]; 
+  m     = (int)(A+1)->Val[0];
+  x     = (A+2)->Val[0];
+  y     = (A+3)->Val[0];
+  z     = (A+4)->Val[0];
+  k0    = (A+5)->Val[0];
+  
+  if(n<0)       Message::Error("n should be a positive integer for the Xnm's");  
+  if(std::abs(m)>n) Message::Error("|m|<=n is required for the Xnm's");  
+  
+  r        = sqrt(pow(x,2)+pow(y,2)+pow(z,2));
+  if (r<avoid_r_singularity) r=avoid_r_singularity;
+  costheta = z/r;
+  theta    = acos(costheta);
+  phi      = atan2(-y,-x)+M_PI;
+  
+  pnm_costheta  = sph_pnm(n,m,costheta);
+  unm_costheta  = sph_unm(n,m,costheta);
+  snm_costheta  = sph_snm(n,m,costheta);
+  exp_jm_phi_re = cos( ((double)m) *phi);
+  exp_jm_phi_im = sin( ((double)m) *phi);
+
+  // in spherical coord
+  Xnm_r_re = 0.;
+  Xnm_r_im = 0.;
+  Xnm_t_re = -1.*unm_costheta * exp_jm_phi_im;
+  Xnm_t_im =     unm_costheta * exp_jm_phi_re;
+  Xnm_p_re = -1.*snm_costheta * exp_jm_phi_re;
+  Xnm_p_im = -1.*snm_costheta * exp_jm_phi_im;
+
+  // in cart coord
+  Xnm_x_re = sin(theta)*cos(phi)*Xnm_r_re 
+              + cos(theta)*cos(phi)*Xnm_t_re 
+                - sin(phi)*Xnm_p_re ;
+  Xnm_y_re = sin(theta)*sin(phi)*Xnm_r_re 
+              + cos(theta)*sin(phi)*Xnm_t_re 
+                + cos(phi)*Xnm_p_re ;
+  Xnm_z_re = cos(theta)*Xnm_r_re 
+              - sin(theta)*Xnm_t_re;
+  Xnm_x_im = sin(theta)*cos(phi)*Xnm_r_im 
+              + cos(theta)*cos(phi)*Xnm_t_im 
+                - sin(phi)*Xnm_p_im ;
+  Xnm_y_im = sin(theta)*sin(phi)*Xnm_r_im 
+              + cos(theta)*sin(phi)*Xnm_t_im 
+                + cos(phi)*Xnm_p_im ;
+  Xnm_z_im = cos(theta)*Xnm_r_im 
+              - sin(theta)*Xnm_t_im;
+
+  V->Type = VECTOR;
+  V->Val[0] = Xnm_x_re ; V->Val[MAX_DIM  ] = Xnm_x_im ;
+  V->Val[1] = Xnm_y_re ; V->Val[MAX_DIM+1] = Xnm_y_im ;
+  V->Val[2] = Xnm_z_re ; V->Val[MAX_DIM+2] = Xnm_z_im ;
+}
+void  F_Ynm(F_ARG)
+{
+  int     n, m;
+  double  x, y, z, k0;
+  double  r, theta, phi;
+  double Ynm_r_re,Ynm_r_im,Ynm_t_re,Ynm_t_im,Ynm_p_re,Ynm_p_im;
+  double Ynm_x_re,Ynm_x_im,Ynm_y_re,Ynm_y_im,Ynm_z_re,Ynm_z_im;
+  double costheta, pnm_costheta, unm_costheta, snm_costheta; 
+  double exp_jm_phi_re, exp_jm_phi_im;
+  double avoid_r_singularity = 1.E-13;
+  
+  if(   A->Type != SCALAR 
+    || (A+1)->Type != SCALAR 
+      || (A+2)->Type != SCALAR 
+        || (A+3)->Type != SCALAR 
+          || (A+4)->Type != SCALAR
+            || (A+5)->Type != SCALAR)
+    Message::Error("Non scalar argument(s) for the Mnm's");
+  n     = (int)A->Val[0]; 
+  m     = (int)(A+1)->Val[0];
+  x     = (A+2)->Val[0];
+  y     = (A+3)->Val[0];
+  z     = (A+4)->Val[0];
+  k0    = (A+5)->Val[0];
+
+  if(n<0)       Message::Error("n should be a positive integer for the Ynm's");  
+  if(std::abs(m)>n) Message::Error("|m|<=n is required for the Ynm's");  
+
+  r        = sqrt(pow(x,2)+pow(y,2)+pow(z,2));
+  if (r<avoid_r_singularity) r=avoid_r_singularity;
+  costheta = z/r;
+  theta    = acos(costheta);
+  phi      = atan2(-y,-x)+M_PI;
+  
+  pnm_costheta  = sph_pnm(n,m,costheta);
+  unm_costheta  = sph_unm(n,m,costheta);
+  snm_costheta  = sph_snm(n,m,costheta);
+  exp_jm_phi_re = cos( ((double)m) *phi);
+  exp_jm_phi_im = sin( ((double)m) *phi);
+  
+  Ynm_r_re = pnm_costheta * exp_jm_phi_re;
+  Ynm_r_im = pnm_costheta * exp_jm_phi_im;
+  Ynm_t_re = 0.;
+  Ynm_t_im = 0.;
+  Ynm_p_re = 0.;
+  Ynm_p_im = 0.;
+  
+  Ynm_x_re = sin(theta)*cos(phi)*Ynm_r_re 
+              + cos(theta)*cos(phi)*Ynm_t_re 
+                - sin(phi)*Ynm_p_re ;
+  Ynm_y_re = sin(theta)*sin(phi)*Ynm_r_re 
+              + cos(theta)*sin(phi)*Ynm_t_re 
+                + cos(phi)*Ynm_p_re ;
+  Ynm_z_re = cos(theta)         *Ynm_r_re 
+              - sin(theta)         *Ynm_t_re;
+  Ynm_x_im = sin(theta)*cos(phi)*Ynm_r_im 
+              + cos(theta)*cos(phi)*Ynm_t_im 
+                - sin(phi)*Ynm_p_im ;
+  Ynm_y_im = sin(theta)*sin(phi)*Ynm_r_im 
+              + cos(theta)*sin(phi)*Ynm_t_im 
+                + cos(phi)*Ynm_p_im ;
+  Ynm_z_im = cos(theta)         *Ynm_r_im 
+              - sin(theta)         *Ynm_t_im;
+    
+  V->Type = VECTOR;
+  V->Val[0] = Ynm_x_re ; V->Val[MAX_DIM  ] = Ynm_x_im ;
+  V->Val[1] = Ynm_y_re ; V->Val[MAX_DIM+1] = Ynm_y_im ;
+  V->Val[2] = Ynm_z_re ; V->Val[MAX_DIM+2] = Ynm_z_im ;  
+}
+void  F_Znm(F_ARG)
+{
+  int     n, m;
+  double  x, y, z, k0;
+  double  r, theta, phi;
+  double Znm_r_re,Znm_r_im,Znm_t_re,Znm_t_im,Znm_p_re,Znm_p_im;
+  double Znm_x_re,Znm_x_im,Znm_y_re,Znm_y_im,Znm_z_re,Znm_z_im;
+  double costheta, pnm_costheta, unm_costheta, snm_costheta; 
+  double exp_jm_phi_re, exp_jm_phi_im;
+  double avoid_r_singularity = 1.E-13;
+  
+  if(   A->Type != SCALAR 
+    || (A+1)->Type != SCALAR 
+      || (A+2)->Type != SCALAR 
+        || (A+3)->Type != SCALAR 
+          || (A+4)->Type != SCALAR
+            || (A+5)->Type != SCALAR)
+    Message::Error("Non scalar argument(s) for the Mnm's");
+  n     = (int)A->Val[0]; 
+  m     = (int)(A+1)->Val[0];
+  x     = (A+2)->Val[0];
+  y     = (A+3)->Val[0];
+  z     = (A+4)->Val[0];
+  k0    = (A+5)->Val[0];
+  
+  if(n<0) 
+    Message::Error("n should be a positive integer for the Znm's");  
+  if(std::abs(m)>n)
+    Message::Error("|m|<=n is required for the Znm's");  
+  
+  r = sqrt(pow(x,2)+pow(y,2)+pow(z,2));
+  if (r<avoid_r_singularity) r=avoid_r_singularity;
+  costheta = z/r;
+  theta    = acos(costheta);
+  phi      = atan2(-y,-x)+M_PI;
+  
+  pnm_costheta  = sph_pnm(n,m,costheta);
+  unm_costheta  = sph_unm(n,m,costheta);
+  snm_costheta  = sph_snm(n,m,costheta);
+  exp_jm_phi_re = cos( ((double)m) *phi);
+  exp_jm_phi_im = sin( ((double)m) *phi);
+    
+  Znm_r_re = 0.;
+  Znm_r_im = 0.;
+  Znm_t_re = snm_costheta * exp_jm_phi_re;
+  Znm_t_im = snm_costheta * exp_jm_phi_im;
+  Znm_p_re = -1.*unm_costheta * exp_jm_phi_im;
+  Znm_p_im =     unm_costheta * exp_jm_phi_re;
+  
+  Znm_x_re = sin(theta)*cos(phi)*Znm_r_re 
+              + cos(theta)*cos(phi)*Znm_t_re 
+                - sin(phi)*Znm_p_re ;
+  Znm_y_re = sin(theta)*sin(phi)*Znm_r_re 
+              + cos(theta)*sin(phi)*Znm_t_re 
+                + cos(phi)*Znm_p_re ;
+  Znm_z_re = cos(theta)*Znm_r_re 
+              - sin(theta)*Znm_t_re;
+  Znm_x_im = sin(theta)*cos(phi)*Znm_r_im 
+              + cos(theta)*cos(phi)*Znm_t_im 
+                - sin(phi)*Znm_p_im ;
+  Znm_y_im = sin(theta)*sin(phi)*Znm_r_im 
+              + cos(theta)*sin(phi)*Znm_t_im 
+                + cos(phi)*Znm_p_im ;
+  Znm_z_im = cos(theta)*Znm_r_im 
+              - sin(theta)*Znm_t_im;
+  
+  V->Type = VECTOR;
+  V->Val[0] = Znm_x_re ; V->Val[MAX_DIM  ] = Znm_x_im ;
+  V->Val[1] = Znm_y_re ; V->Val[MAX_DIM+1] = Znm_y_im ;
+  V->Val[2] = Znm_z_re ; V->Val[MAX_DIM+2] = Znm_z_im ;
+}
+
+#if defined(HAVE_GSL)
+void  F_Mnm(F_ARG)
+{
+  int     Mtype, n, m;
+  double  x, y, z, k0;
+  double  r=0., theta=0., phi=0.;
+  double Ynm_r_re,Ynm_r_im,Ynm_t_re,Ynm_t_im,Ynm_p_re,Ynm_p_im;
+  double Xnm_r_re,Xnm_r_im,Xnm_t_re,Xnm_t_im,Xnm_p_re,Xnm_p_im;
+  double Znm_r_re,Znm_r_im,Znm_t_re,Znm_t_im,Znm_p_re,Znm_p_im;
+  double Mnm_r_re,Mnm_r_im,Mnm_t_re,Mnm_t_im,Mnm_p_re,Mnm_p_im;
+  double Mnm_x_re,Mnm_x_im,Mnm_y_re,Mnm_y_im,Mnm_z_re,Mnm_z_im;
+  double costheta, pnm_costheta, unm_costheta, snm_costheta;
+  double exp_jm_phi_re, exp_jm_phi_im;
+  double sph_bessel_n_ofkr_re, sph_bessel_n_ofkr_im;
+  double avoid_r_singularity = 1.E-13;
+
+  if(   A->Type != SCALAR
+    || (A+1)->Type != SCALAR
+      || (A+2)->Type != SCALAR
+        || (A+3)->Type != VECTOR
+          || (A+4)->Type != SCALAR)
+    Message::Error("Check types of arguments for the Mnm's");
+  Mtype = (int)A->Val[0];
+  n     = (int)(A+1)->Val[0];
+  m     = (int)(A+2)->Val[0];
+  x     = (A+3)->Val[0];
+  y     = (A+3)->Val[1];
+  z     = (A+3)->Val[2];
+  k0    = (A+4)->Val[0];
+  
+  if(n<0)       Message::Error("n should be a positive integer for the Mnm's");
+  if(std::abs(m)>n) Message::Error("|m|<=n is required for the Mnm's");
+
+  r        = sqrt(pow(x,2)+pow(y,2)+pow(z,2));
+  if (r<avoid_r_singularity) r=avoid_r_singularity;
+  costheta = z/r;
+  theta    = acos(costheta);
+  phi      = atan2(-y,-x)+M_PI;
+
+  pnm_costheta  = sph_pnm(n,m,costheta);
+  unm_costheta  = sph_unm(n,m,costheta);
+  snm_costheta  = sph_snm(n,m,costheta);
+  exp_jm_phi_re = cos( ((double)m) *phi);
+  exp_jm_phi_im = sin( ((double)m) *phi);
+
+  Ynm_r_re = pnm_costheta * exp_jm_phi_re;
+  Ynm_r_im = pnm_costheta * exp_jm_phi_im;
+  Ynm_t_re = 0.;
+  Ynm_t_im = 0.;
+  Ynm_p_re = 0.;
+  Ynm_p_im = 0.;
+
+  Xnm_r_re = 0.;
+  Xnm_r_im = 0.;
+  Xnm_t_re = -1.*unm_costheta * exp_jm_phi_im;
+  Xnm_t_im =     unm_costheta * exp_jm_phi_re;
+  Xnm_p_re = -1.*snm_costheta * exp_jm_phi_re;
+  Xnm_p_im = -1.*snm_costheta * exp_jm_phi_im;
+
+  Znm_r_re = 0.;
+  Znm_r_im = 0.;
+  Znm_t_re = snm_costheta * exp_jm_phi_re;
+  Znm_t_im = snm_costheta * exp_jm_phi_im;
+  Znm_p_re = -1.*unm_costheta * exp_jm_phi_im;
+  Znm_p_im =     unm_costheta * exp_jm_phi_re;
+
+  switch (Mtype) {
+    case 1: // Spherical Bessel function of the first kind j_n
+      sph_bessel_n_ofkr_re = sqrt(M_PI/(2.*k0*r))
+                  *gsl_sf_bessel_Jnu((double)n+0.5,k0*r);
+      sph_bessel_n_ofkr_im = 0;
+      break;
+    case 2: // Spherical Bessel function of the second kind y_n
+      sph_bessel_n_ofkr_re = sqrt(M_PI/(2.*k0*r))
+                  *gsl_sf_bessel_Ynu((double)n+0.5,k0*r);
+      sph_bessel_n_ofkr_im = 0;
+      break;
+    case 3: // Spherical Hankel function of the first kind h^1_n
+      sph_bessel_n_ofkr_re = sqrt(M_PI/(2.*k0*r))
+                  *gsl_sf_bessel_Jnu((double)n+0.5,k0*r);
+      sph_bessel_n_ofkr_im = sqrt(M_PI/(2.*k0*r))
+                  *gsl_sf_bessel_Ynu((double)n+0.5,k0*r);
+      break;
+    case 4: // Spherical Hankel function of the second kind h^2_n
+      sph_bessel_n_ofkr_re = sqrt(M_PI/(2.*k0*r))
+                  *gsl_sf_bessel_Jnu((double)n+0.5,k0*r);
+      sph_bessel_n_ofkr_im =-sqrt(M_PI/(2.*k0*r))
+                  *gsl_sf_bessel_Ynu((double)n+0.5,k0*r);
+      break;
+    default:
+      sph_bessel_n_ofkr_re =0.;
+      sph_bessel_n_ofkr_im =0.;
+      Message::Error("First argument for Nnm's should be 1,2,3 or 4");
+      break;
+  }
+
+  Mnm_r_re = 0.;
+  Mnm_r_im = 0.;
+  Mnm_t_re = sph_bessel_n_ofkr_re*Xnm_t_re - sph_bessel_n_ofkr_im*Xnm_t_im;
+  Mnm_t_im = sph_bessel_n_ofkr_re*Xnm_t_im + sph_bessel_n_ofkr_im*Xnm_t_re;
+  Mnm_p_re = sph_bessel_n_ofkr_re*Xnm_p_re - sph_bessel_n_ofkr_im*Xnm_p_im;
+  Mnm_p_im = sph_bessel_n_ofkr_re*Xnm_p_im + sph_bessel_n_ofkr_im*Xnm_p_re;
+
+  Mnm_x_re = sin(theta)*cos(phi)*Mnm_r_re 
+              + cos(theta)*cos(phi)*Mnm_t_re 
+                - sin(phi)*Mnm_p_re ;
+  Mnm_y_re = sin(theta)*sin(phi)*Mnm_r_re 
+              + cos(theta)*sin(phi)*Mnm_t_re 
+                + cos(phi)*Mnm_p_re ;
+  Mnm_z_re = cos(theta)*Mnm_r_re 
+              - sin(theta)*Mnm_t_re;
+  Mnm_x_im = sin(theta)*cos(phi)*Mnm_r_im
+              + cos(theta)*cos(phi)*Mnm_t_im 
+                - sin(phi)*Mnm_p_im ;
+  Mnm_y_im = sin(theta)*sin(phi)*Mnm_r_im 
+              + cos(theta)*sin(phi)*Mnm_t_im 
+                + cos(phi)*Mnm_p_im ;
+  Mnm_z_im = cos(theta)*Mnm_r_im 
+              - sin(theta)*Mnm_t_im;
+  
+  V->Type = VECTOR;
+  V->Val[0] = Mnm_x_re ; V->Val[MAX_DIM  ] = Mnm_x_im ;
+  V->Val[1] = Mnm_y_re ; V->Val[MAX_DIM+1] = Mnm_y_im ;
+  V->Val[2] = Mnm_z_re ; V->Val[MAX_DIM+2] = Mnm_z_im ;
+}
+void  F_Nnm(F_ARG)
+{
+  int     Ntype, n, m;
+  double  x, y, z, k0;
+  double  r, theta, phi;
+  double Ynm_r_re,Ynm_r_im,Ynm_t_re,Ynm_t_im,Ynm_p_re,Ynm_p_im;
+  double Xnm_r_re,Xnm_r_im,Xnm_t_re,Xnm_t_im,Xnm_p_re,Xnm_p_im;
+  double Znm_r_re,Znm_r_im,Znm_t_re,Znm_t_im,Znm_p_re,Znm_p_im;
+  double Nnm_r_re,Nnm_t_re,Nnm_p_re,Nnm_r_im,Nnm_t_im,Nnm_p_im;
+  double Nnm_x_re,Nnm_y_re,Nnm_z_re,Nnm_x_im,Nnm_y_im,Nnm_z_im;
+  double costheta, pnm_costheta, unm_costheta, snm_costheta;
+  double exp_jm_phi_re, exp_jm_phi_im;
+  double sph_bessel_n_ofkr_re, sph_bessel_nminus1_ofkr_re, dRicatti_dx_ofkr_re;
+  double sph_bessel_n_ofkr_im, sph_bessel_nminus1_ofkr_im, dRicatti_dx_ofkr_im;
+  double avoid_r_singularity = 1.E-13;
+
+  if(   A->Type != SCALAR
+    || (A+1)->Type != SCALAR
+      || (A+2)->Type != SCALAR
+        || (A+3)->Type != VECTOR
+          || (A+4)->Type != SCALAR)
+    Message::Error("Check types of arguments for the Mnm's");
+  Ntype = (int)A->Val[0];
+  n     = (int)(A+1)->Val[0];
+  m     = (int)(A+2)->Val[0];
+  x     = (A+3)->Val[0];
+  y     = (A+3)->Val[1];
+  z     = (A+3)->Val[2];
+  k0    = (A+4)->Val[0];
+
+  if(n<0)       Message::Error("n should be a positive integer for the Nnm's");
+  if(std::abs(m)>n)  Message::Error("|m|<=n is required for the Nnm's");
+
+  r        = sqrt(pow(x,2)+pow(y,2)+pow(z,2));
+  if (r<avoid_r_singularity) r=avoid_r_singularity;
+  costheta = z/r;
+  theta    = acos(costheta);
+  phi      = atan2(-y,-x)+M_PI;
+
+  pnm_costheta  = sph_pnm(n,m,costheta);
+  unm_costheta  = sph_unm(n,m,costheta);
+  snm_costheta  = sph_snm(n,m,costheta);
+  exp_jm_phi_re = cos((double)m *phi);
+  exp_jm_phi_im = sin((double)m *phi);
+
+  Ynm_r_re = pnm_costheta * exp_jm_phi_re;
+  Ynm_r_im = pnm_costheta * exp_jm_phi_im;
+  Ynm_t_re = 0.;
+  Ynm_t_im = 0.;
+  Ynm_p_re = 0.;
+  Ynm_p_im = 0.;
+
+  Xnm_r_re = 0.;
+  Xnm_r_im = 0.;
+  Xnm_t_re = -1.*unm_costheta * exp_jm_phi_im;
+  Xnm_t_im =     unm_costheta * exp_jm_phi_re;
+  Xnm_p_re = -1.*snm_costheta * exp_jm_phi_re;
+  Xnm_p_im = -1.*snm_costheta * exp_jm_phi_im;
+
+  Znm_r_re = 0.;
+  Znm_r_im = 0.;
+  Znm_t_re = snm_costheta * exp_jm_phi_re;
+  Znm_t_im = snm_costheta * exp_jm_phi_im;
+  Znm_p_re = -1.*unm_costheta * exp_jm_phi_im;
+  Znm_p_im =     unm_costheta * exp_jm_phi_re;
+  switch (Ntype) {
+    case 1: // Spherical Bessel function of the first kind j_n
+      sph_bessel_n_ofkr_re       = sqrt(M_PI/(2.*k0*r))
+                                    *gsl_sf_bessel_Jnu((double)n   +0.5,k0*r);
+      sph_bessel_nminus1_ofkr_re = sqrt(M_PI/(2.*k0*r))
+                                    *gsl_sf_bessel_Jnu((double)n-1.+0.5,k0*r);
+      sph_bessel_n_ofkr_im       = 0;
+      sph_bessel_nminus1_ofkr_im = 0;
+      break;
+    case 2: // Spherical Bessel function of the second kind y_n
+      sph_bessel_n_ofkr_re       = sqrt(M_PI/(2.*k0*r))
+                                    *gsl_sf_bessel_Ynu((double)n   +0.5,k0*r);
+      sph_bessel_nminus1_ofkr_re = sqrt(M_PI/(2.*k0*r))
+                                    *gsl_sf_bessel_Ynu((double)n-1.+0.5,k0*r);
+      sph_bessel_n_ofkr_im       = 0;
+      sph_bessel_nminus1_ofkr_im = 0;
+      break;
+    case 3: // Spherical Hankel function of the first kind h^1_n
+      sph_bessel_n_ofkr_re       = sqrt(M_PI/(2.*k0*r))
+                                    *gsl_sf_bessel_Jnu((double)n   +0.5,k0*r);
+      sph_bessel_nminus1_ofkr_re = sqrt(M_PI/(2.*k0*r))
+                                    *gsl_sf_bessel_Jnu((double)n-1.+0.5,k0*r);
+      sph_bessel_n_ofkr_im       = sqrt(M_PI/(2.*k0*r))
+                                    *gsl_sf_bessel_Ynu((double)n   +0.5,k0*r);
+      sph_bessel_nminus1_ofkr_im = sqrt(M_PI/(2.*k0*r))
+                                    *gsl_sf_bessel_Ynu((double)n-1.+0.5,k0*r);
+      break;
+    case 4: // Spherical Hankel function of the second kind h^2_n
+      sph_bessel_n_ofkr_re       = sqrt(M_PI/(2.*k0*r))
+                                    *gsl_sf_bessel_Jnu((double)n   +0.5,k0*r);
+      sph_bessel_nminus1_ofkr_re = sqrt(M_PI/(2.*k0*r))
+                                    *gsl_sf_bessel_Jnu((double)n-1.+0.5,k0*r);
+      sph_bessel_n_ofkr_im       =-sqrt(M_PI/(2.*k0*r))
+                                    *gsl_sf_bessel_Ynu((double)n   +0.5,k0*r);
+      sph_bessel_nminus1_ofkr_im =-sqrt(M_PI/(2.*k0*r))
+                                    *gsl_sf_bessel_Ynu((double)n-1.+0.5,k0*r);
+      break;
+    default:
+      sph_bessel_n_ofkr_re       = 0.;
+      sph_bessel_nminus1_ofkr_re = 0.;
+      sph_bessel_n_ofkr_im       = 0.;
+      sph_bessel_nminus1_ofkr_im = 0.;
+      Message::Error("First argument for Nnm's should be 1,2,3 or 4");
+      break;
+  }
+
+  dRicatti_dx_ofkr_re = k0*r * (sph_bessel_nminus1_ofkr_re-
+                          (((double)n+1.)/(k0*r)) * sph_bessel_n_ofkr_re) 
+                        + sph_bessel_n_ofkr_re ;
+  dRicatti_dx_ofkr_im = k0*r * (sph_bessel_nminus1_ofkr_im-
+                          (((double)n+1.)/(k0*r)) * sph_bessel_n_ofkr_im) 
+                        + sph_bessel_n_ofkr_im ;
+
+  Nnm_r_re = 1./(k0*r) * sqrt((((double)n)*((double)n+1.))) 
+              *(sph_bessel_n_ofkr_re*Ynm_r_re - sph_bessel_n_ofkr_im*Ynm_r_im);
+  Nnm_r_im = 1./(k0*r) * sqrt( (((double)n)*((double)n+1.)) ) 
+              *(sph_bessel_n_ofkr_re*Ynm_r_im + sph_bessel_n_ofkr_im*Ynm_r_re);
+  Nnm_t_re = 1./(k0*r) 
+              *(dRicatti_dx_ofkr_re*Znm_t_re - dRicatti_dx_ofkr_im*Znm_t_im);
+  Nnm_t_im = 1./(k0*r) 
+              *(dRicatti_dx_ofkr_re*Znm_t_im + dRicatti_dx_ofkr_im*Znm_t_re);
+  Nnm_p_re = 1./(k0*r) 
+              *(dRicatti_dx_ofkr_re*Znm_p_re - dRicatti_dx_ofkr_im*Znm_p_im);
+  Nnm_p_im = 1./(k0*r) 
+              *(dRicatti_dx_ofkr_re*Znm_p_im + dRicatti_dx_ofkr_im*Znm_p_re);
+
+  Nnm_x_re = sin(theta)*cos(phi)*Nnm_r_re 
+              + cos(theta)*cos(phi)*Nnm_t_re 
+                - sin(phi)*Nnm_p_re ;
+  Nnm_y_re = sin(theta)*sin(phi)*Nnm_r_re 
+              + cos(theta)*sin(phi)*Nnm_t_re 
+                + cos(phi)*Nnm_p_re ;
+  Nnm_z_re = cos(theta)*Nnm_r_re 
+              - sin(theta)*Nnm_t_re;
+  Nnm_x_im = sin(theta)*cos(phi)*Nnm_r_im 
+              + cos(theta)*cos(phi)*Nnm_t_im 
+                - sin(phi)*Nnm_p_im ;
+  Nnm_y_im = sin(theta)*sin(phi)*Nnm_r_im 
+              + cos(theta)*sin(phi)*Nnm_t_im 
+                + cos(phi)*Nnm_p_im ;
+  Nnm_z_im = cos(theta)*Nnm_r_im 
+              - sin(theta)*Nnm_t_im;
+
+  V->Type = VECTOR;
+  V->Val[0] = Nnm_x_re ; V->Val[MAX_DIM  ] = Nnm_x_im ;
+  V->Val[1] = Nnm_y_re ; V->Val[MAX_DIM+1] = Nnm_y_im ;
+  V->Val[2] = Nnm_z_re ; V->Val[MAX_DIM+2] = Nnm_z_im ;
+}
+
+#else
+void F_Mnm(F_ARG)
+{
+  Message::Error("Vector partial waves Mnm require GSL!");
+  break;
+}
+void F_Nnm(F_ARG)
+{
+  Message::Error("Vector partial waves Nnm require GSL!");
+  break;
+}
+#endif
+
+/* ------------------------------------------------------------ */
+/*  Dyadic Green's Function for homogeneous lossless media)     */
+/*  See e.g. Chew, Chap. 7,  p. 375                             */
+/*  Basic usage :                                               */
+/*     Dyad_Green[] = DyadGreenHom[x_p,y_p,z_p,XYZ[],kb,siwt];  */
+/* ------------------------------------------------------------ */
+void  F_DyadGreenHom(F_ARG)
+{
+  double  x, y, z;
+  double  x_p, y_p, z_p;
+  double  kb, siwt;
+  double  normrr_p;
+  double RR_xx,RR_xy,RR_xz,RR_yx,RR_yy,RR_yz,RR_zx,RR_zy,RR_zz;
+  std::complex<double> Gsca,fact_diag,fact_glob;
+  std::complex<double> G_xx,G_xy,G_xz,G_yx,G_yy,G_yz,G_zx,G_zy,G_zz;
+  std::complex<double> I = std::complex<double>(0., 1.);
+
+  if(   A->Type != SCALAR
+    || (A+1)->Type != SCALAR
+      || (A+2)->Type != SCALAR
+        || (A+3)->Type != VECTOR
+          || (A+4)->Type != SCALAR
+            || (A+5)->Type != SCALAR)
+    Message::Error("Non scalar argument(s) for the GreenHom");
+  x_p       = A->Val[0];
+  y_p       = (A+1)->Val[0];
+  z_p       = (A+2)->Val[0];
+  x         = (A+3)->Val[0];
+  y         = (A+3)->Val[1];
+  z         = (A+3)->Val[2];
+  kb        = (A+4)->Val[0];
+  siwt      = (A+5)->Val[0];
+
+  normrr_p = std::sqrt(std::pow((x-x_p),2)+std::pow((y-y_p),2)+std::pow((z-z_p),2));
+  
+  Gsca      = std::exp(-1.*siwt*I*kb*normrr_p)/(4.*M_PI*normrr_p);
+  fact_diag = 1. + (I*kb*normrr_p-1.)/std::pow((kb*normrr_p),2);
+  fact_glob = (3.-3.*I*kb*normrr_p-std::pow((kb*normrr_p),2))/
+                 std::pow((kb*std::pow(normrr_p,2)),2);
+
+  RR_xx = (x-x_p)*(x-x_p);
+  RR_xy = (x-x_p)*(y-y_p);
+  RR_xz = (x-x_p)*(z-z_p);
+  RR_yx = (y-y_p)*(x-x_p);
+  RR_yy = (y-y_p)*(y-y_p);
+  RR_yz = (y-y_p)*(z-z_p);
+  RR_zx = (z-z_p)*(x-x_p);
+  RR_zy = (z-z_p)*(y-y_p);
+  RR_zz = (z-z_p)*(z-z_p);
+
+  G_xx = Gsca*(fact_glob*RR_xx+fact_diag);
+  G_xy = Gsca*(fact_glob*RR_xy);
+  G_xz = Gsca*(fact_glob*RR_xz);
+  G_yx = Gsca*(fact_glob*RR_yx);
+  G_yy = Gsca*(fact_glob*RR_yy+fact_diag);
+  G_yz = Gsca*(fact_glob*RR_yz);
+  G_zx = Gsca*(fact_glob*RR_zx);
+  G_zy = Gsca*(fact_glob*RR_zy);
+  G_zz = Gsca*(fact_glob*RR_zz+fact_diag);
+
+  V->Type = TENSOR;
+  V->Val[0] = G_xx.real() ; V->Val[MAX_DIM+0] = G_xx.imag() ;
+  V->Val[1] = G_xy.real() ; V->Val[MAX_DIM+1] = G_xy.imag() ;
+  V->Val[2] = G_xz.real() ; V->Val[MAX_DIM+2] = G_xz.imag() ;
+  V->Val[3] = G_yx.real() ; V->Val[MAX_DIM+3] = G_yx.imag() ;
+  V->Val[4] = G_yy.real() ; V->Val[MAX_DIM+4] = G_yy.imag() ;
+  V->Val[5] = G_yz.real() ; V->Val[MAX_DIM+5] = G_yz.imag() ;
+  V->Val[6] = G_zx.real() ; V->Val[MAX_DIM+6] = G_zx.imag() ;
+  V->Val[7] = G_zy.real() ; V->Val[MAX_DIM+7] = G_zy.imag() ;
+  V->Val[8] = G_zz.real() ; V->Val[MAX_DIM+8] = G_zz.imag() ;
+}
 #undef F_ARG

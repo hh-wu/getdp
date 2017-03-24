@@ -54,6 +54,17 @@ void  F_OSRC_R0(F_ARG);
 void  F_OSRC_Aj(F_ARG);
 void  F_OSRC_Bj(F_ARG);
 
+void  F_pnm             (F_ARG) ;
+void  F_unm             (F_ARG) ;
+void  F_snm             (F_ARG) ;
+void  F_Xnm             (F_ARG) ;
+void  F_Ynm             (F_ARG) ;
+void  F_Znm             (F_ARG) ;
+void  F_Mnm             (F_ARG) ;
+void  F_Nnm             (F_ARG) ;
+
+void  F_DyadGreenHom    (F_ARG) ;
+
 /* F_PeWe */
 
 void  F_ElastodynamicsCylinderCavity(F_ARG);

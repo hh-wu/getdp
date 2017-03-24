@@ -1129,6 +1129,17 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"OSRC_R0",   (CAST)F_OSRC_R0, 2, 0},
   {"OSRC_Aj",   (CAST)F_OSRC_Aj, 3, 0},
   {"OSRC_Bj",   (CAST)F_OSRC_Bj, 3, 0},
+  
+  {"pnm"               , (CAST)F_pnm              ,   0,   3 },
+  {"unm"               , (CAST)F_unm              ,   0,   3 },
+  {"snm"               , (CAST)F_snm              ,   0,   3 },
+  {"Xnm"               , (CAST)F_Xnm              ,   0,   4 },
+  {"Ynm"               , (CAST)F_Ynm              ,   0,   4 },
+  {"Znm"               , (CAST)F_Znm              ,   0,   4 },
+  {"Mnm"               , (CAST)F_Mnm              ,   0,   5 },
+  {"Nnm"               , (CAST)F_Nnm              ,   0,   5 },
+
+  {"DyadGreenHom"      , (CAST)F_DyadGreenHom     ,   0,   6 },
 
   // F_PeWe
   {"ElastodynamicsCylinderCavity", (CAST)F_ElastodynamicsCylinderCavity, 5, 1},
