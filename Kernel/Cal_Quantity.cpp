@@ -1185,7 +1185,7 @@ void Cal_WholeQuantity(struct Element * Element,
       else{
         if(TreatmentStatus != _PRE)
           Message::Warning("Empty register %d: assuming zero value",
-                           WholeQuantity_P->Case.ValueSaved.Index);
+                           WholeQuantity_P->Case.ValueSaved.Index + 1);
         Cal_ZeroValue(&Stack[0][Index]);
         Stack[0][Index].Type = SCALAR ;
       }
