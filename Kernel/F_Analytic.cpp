@@ -8,7 +8,8 @@
 //   Xavier Antoine
 //
 
-#include <cmath>
+#include <math.h>
+#include <stdlib.h>
 #include "ProData.h"
 #include "F.h"
 #include "Legendre.h"
@@ -2254,7 +2255,7 @@ double sph_pnm(int n, int m, double u)
   int     k, kn, km;
   double  knf, kmf, **pmntab;
 
-  if(std::abs(m) > n)
+  if(abs(m) > n)
     Message::Error("|m|<=n for the normalized pnm's");
 
   pmntab = (double**)Malloc( (2*n+1) * sizeof(double *));
@@ -2306,7 +2307,7 @@ double sph_unm(int n, int m, double u)
   int     k, kn, km;
   double  knf, kmf, **umntab;
 
-  if(std::abs(m)>n)
+  if(abs(m) > n)
     Message::Error("|m|<=n for the normalized unm's");
   umntab = (double**)Malloc( (2*n+1) * sizeof(double *));
   for (k = 0; k <= 2*n ; k++){
@@ -2360,7 +2361,7 @@ double sph_snm(int n, int m, double u)
 {
   int     k, kn, km;
   double  knf, kmf, **umntab, **smntab;
-  if(std::abs(m)>n)
+  if(abs(m) > n)
     Message::Error("|m|<=n for the normalized snm's");
   umntab = (double**)Malloc( (2*n+1) * sizeof(double *));
   smntab = (double**)Malloc( (2*n+1) * sizeof(double *));
@@ -2499,8 +2500,8 @@ void  F_Xnm(F_ARG)
   z     = (A+4)->Val[0];
   k0    = (A+5)->Val[0];
 
-  if(n<0)       Message::Error("n should be a positive integer for the Xnm's");
-  if(std::abs(m)>n) Message::Error("|m|<=n is required for the Xnm's");
+  if(n < 0)      Message::Error("n should be a positive integer for the Xnm's");
+  if(abs(m) > n) Message::Error("|m|<=n is required for the Xnm's");
 
   r        = sqrt(pow(x,2)+pow(y,2)+pow(z,2));
   if (r<avoid_r_singularity) r=avoid_r_singularity;
@@ -2570,8 +2571,8 @@ void  F_Ynm(F_ARG)
   z     = (A+4)->Val[0];
   k0    = (A+5)->Val[0];
 
-  if(n<0)       Message::Error("n should be a positive integer for the Ynm's");
-  if(std::abs(m)>n) Message::Error("|m|<=n is required for the Ynm's");
+  if(n < 0)      Message::Error("n should be a positive integer for the Ynm's");
+  if(abs(m) > n) Message::Error("|m|<=n is required for the Ynm's");
 
   r        = sqrt(pow(x,2)+pow(y,2)+pow(z,2));
   if (r<avoid_r_singularity) r=avoid_r_singularity;
@@ -2639,9 +2640,9 @@ void  F_Znm(F_ARG)
   z     = (A+4)->Val[0];
   k0    = (A+5)->Val[0];
 
-  if(n<0)
+  if(n < 0)
     Message::Error("n should be a positive integer for the Znm's");
-  if(std::abs(m)>n)
+  if(abs(m) > n)
     Message::Error("|m|<=n is required for the Znm's");
 
   r = sqrt(pow(x,2)+pow(y,2)+pow(z,2));
@@ -2716,8 +2717,8 @@ void  F_Mnm(F_ARG)
   z     = (A+3)->Val[2];
   k0    = (A+4)->Val[0];
 
-  if(n<0)       Message::Error("n should be a positive integer for the Mnm's");
-  if(std::abs(m)>n) Message::Error("|m|<=n is required for the Mnm's");
+  if(n < 0)      Message::Error("n should be a positive integer for the Mnm's");
+  if(abs(m) > n) Message::Error("|m|<=n is required for the Mnm's");
 
   r        = sqrt(pow(x,2)+pow(y,2)+pow(z,2));
   if (r<avoid_r_singularity) r=avoid_r_singularity;
@@ -2841,8 +2842,8 @@ void  F_Nnm(F_ARG)
   z     = (A+3)->Val[2];
   k0    = (A+4)->Val[0];
 
-  if(n<0)       Message::Error("n should be a positive integer for the Nnm's");
-  if(std::abs(m)>n)  Message::Error("|m|<=n is required for the Nnm's");
+  if(n < 0)      Message::Error("n should be a positive integer for the Nnm's");
+  if(abs(m) > n) Message::Error("|m|<=n is required for the Nnm's");
 
   r        = sqrt(pow(x,2)+pow(y,2)+pow(z,2));
   if (r<avoid_r_singularity) r=avoid_r_singularity;
