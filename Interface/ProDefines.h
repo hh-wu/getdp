@@ -1083,13 +1083,13 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"dhdb_Ducharne"         , (CAST)F_dhdb_Ducharne         ,  -1,   3 },
   {"h_Ducharne"            , (CAST)F_h_Ducharne            ,  -1,   3 },
   {"nu_Ducharne"           , (CAST)F_nu_Ducharne           ,  -1,   3 },
-  {"mu_Vinch"              , (CAST)F_mu_Vinch              ,  -1,   3 },
-  {"nu_Vinch"              , (CAST)F_nu_Vinch              ,  -1,   3 },
-  {"h_Vinch"               , (CAST)F_h_Vinch               ,  -1,   4 },
-  {"dhdb_Vinch"            , (CAST)F_dhdb_Vinch            ,  -1,   3 },
-  {"dbdh_Vinch"            , (CAST)F_dbdh_Vinch            ,  -1,   3 },
-  {"Update_Jk"             , (CAST)F_Update_Jk             ,  -1,   6 },  //kj+++
-  {"Update_Jk_sd"          , (CAST)F_Update_Jk_sd          ,  -1,   6 },  //kj+++
+  //{"mu_Vinch"              , (CAST)F_mu_Vinch              ,  -1,   3 }, // NOT USED FOR NOW (26/06/2016)
+  //{"nu_Vinch"              , (CAST)F_nu_Vinch              ,  -1,   3 }, // NOT USED FOR NOW (26/06/2016)
+  //{"h_Vinch"               , (CAST)F_h_Vinch               ,  -1,   4 }, // NOT USED FOR NOW (26/06/2016)
+  //{"dhdb_Vinch"            , (CAST)F_dhdb_Vinch            ,  -1,   3 }, // NOT USED FOR NOW (26/06/2016)
+  //{"dbdh_Vinch"            , (CAST)F_dbdh_Vinch            ,  -1,   3 }, // NOT USED FOR NOW (26/06/2016)
+  //{"Update_Jk"             , (CAST)F_Update_Jk             ,  -1,   6 },  //kj+++ // NOT USED FOR NOW (26/06/2016)
+  //{"Update_Jk_sd"          , (CAST)F_Update_Jk_sd          ,  -1,   6 },  //kj+++ // NOT USED FOR NOW (26/06/2016)
   {"Update_Cell_K"         , (CAST)F_Update_Cell_K         ,  -1,   4 },  //kj+++
   {"b_Vinch_K"             , (CAST)F_b_Vinch_K             ,  -1,   7 },  // 1+3*2=7 //kj+++
   {"h_Vinch_K"             , (CAST)F_h_Vinch_K             ,  -1,   9 },  // parameter is dimension {2},{3}, 3+3*2=9 //kj+++
