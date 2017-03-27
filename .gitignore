@@ -4,3 +4,5 @@ build*
 contrib/NR
 contrib/NX
 contrib/ZITSOL_1
+benchmarks_private
+benchmarks_kst
