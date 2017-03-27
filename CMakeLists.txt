@@ -841,8 +841,9 @@ if(UNIX)
 endif(UNIX)
 
 set(WELCOME_FILE ${CMAKE_CURRENT_SOURCE_DIR}/doc/WELCOME.txt)
-set(LICENSE_FILE ${CMAKE_CURRENT_SOURCE_DIR}/doc/LICENSE.txt)
-set(CREDITS_FILE ${CMAKE_CURRENT_SOURCE_DIR}/doc/CREDITS.txt)
+set(LICENSE_FILE ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt)
+set(CREDITS_FILE ${CMAKE_CURRENT_SOURCE_DIR}/CREDITS.txt)
+set(CHANGELOG_FILE ${CMAKE_CURRENT_SOURCE_DIR}/CHANGELOG.txt)
 file(GLOB DEMO_FILES ${CMAKE_CURRENT_SOURCE_DIR}/demos/*.pro
                      ${CMAKE_CURRENT_SOURCE_DIR}/demos/*.geo
                      ${CMAKE_CURRENT_SOURCE_DIR}/demos/*.msh)
@@ -887,6 +888,7 @@ if(WIN32 OR CYGWIN)
     unix2dos(WELCOME_FILE)
     unix2dos(LICENSE_FILE)
     unix2dos(CREDITS_FILE)
+    unix2dos(CHANGELOG_FILE)
     unix2dos(DEMO_FILES)
     unix2dos(TEMPLATE_FILES)
   endif(CYGWIN)
@@ -982,7 +984,7 @@ execute_process(COMMAND ${CMAKE_COMMAND} -E echo "${OPT_TEXI}"
 if(MAKEINFO AND TEXI2PDF)
   add_custom_target(doc COMMAND ${CMAKE_COMMAND} -E tar zcf
                     ${CMAKE_CURRENT_BINARY_DIR}/getdp-${GETDP_VERSION}-doc.tgz
-                    doc/CREDITS.txt doc/LICENSE.txt doc/VERSIONS.txt
+                    CREDITS.txt LICENSE.txt CHANGELOG.txt
                     doc/getdp.1 doc/getdp.bib doc/texinfo/getdp.html
                     doc/texinfo/getdp.info doc/texinfo/getdp.pdf doc/texinfo/getdp.txt
                     COMMAND ${CMAKE_COMMAND} -E remove ${TEX_OBJ}
