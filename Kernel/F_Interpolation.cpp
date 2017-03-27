@@ -805,7 +805,7 @@ void Fi_InitListMatrix3D(F_ARG)
   if (Fct->NbrParameters != sz)
     Message::Error("Bad size of input data (expected = %d ; found = %d). "
                        "List with format: x(NbrLines=%d), y(NbrLines=%d), z(NbrLines=%d), "
-                       "matrix(NbrLineX*NbrLineY*NbrLineZ=%d)",
+                       "matrix(NbrLinesX*NbrLinesY*NbrLinesZ=%d)",
                        sz, Fct->NbrParameters, NX, NY, NZ, NX*NY*NZ);
     
   // Initialize structure and allocate memory
@@ -820,7 +820,7 @@ void Fi_InitListMatrix3D(F_ARG)
   // Assign values
   for (k=0 ; k<NX ; ++k) D->Case.ListMatrix3D.x[k] = Fct->Para[i++];
   for (k=0 ; k<NY ; ++k) D->Case.ListMatrix3D.y[k] = Fct->Para[i++];
-  for (k=0 ; k<NZ ; ++k) D->Case.ListMatrix3D.y[k] = Fct->Para[i++];
+  for (k=0 ; k<NZ ; ++k) D->Case.ListMatrix3D.z[k] = Fct->Para[i++];
   for (k=0 ; k<NX*NY*NZ ; ++k) D->Case.ListMatrix3D.data[k] = Fct->Para[i++];
 }
 
