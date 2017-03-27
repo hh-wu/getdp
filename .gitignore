@@ -1,0 +1,6 @@
+bin*
+lib*
+build*
+contrib/NR
+contrib/NX
+contrib/ZITSOL_1

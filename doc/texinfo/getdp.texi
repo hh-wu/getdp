@@ -541,7 +541,7 @@ free to join the project: we gladly accept all code contributions!
 If you think you have found a bug in GetDP, you can report it by
 electronic mail to the GetDP mailing list at @email{getdp@@onelab.info},
 or file it directly into our bug tracking system at
-@url{https://onelab.info/trac/getdp/report/1} (User name and password:
+@url{http://gitlab.onelab.info/getdp/getdp/issues} (User name and password:
 @code{getdp}).  Please send as precise a description of the problem as
 you can, including sample input files that produce the bug (problem
 definition and mesh files). Don't forget to mention both the version of
@@ -1727,8 +1727,8 @@ iteration (or Picard method), where one simply plugs the value obtained
 at the previous iteration into the nonlinear equation (the previous
 value is known, and is accessed e.g. with @code{@{T@}} instead
 @code{Dof@{T@}}). The second is the Newton-Raphson iteration, where the
-Jacobian is specified with a @code{JacNL} equation term (see
-@url{https://onelab.info/trac/getdp} for an example).
+Jacobian is specified with a @code{JacNL} equation term.
+@c FIXME See @url{https://onelab.info/trac/getdp} for an example.
 
 @item BF
 Indicates that only a basis function will be used (only valid with basis
@@ -3881,15 +3881,15 @@ expressions in @var{expression-cst-list} must be even.
 @item InterpolationBilinear
 @code{[@var{expression},@var{expression}]@{@var{expression-cst-list}@}}
 
-Bilinear interpolation of a table based on two variables. See
-@url{https://onelab.info/trac/getdp/wiki/UsageOfTables} for an example.
+Bilinear interpolation of a table based on two variables. 
+@c FIXME See @url{https://onelab.info/trac/getdp/wiki/UsageOfTables} for an example.
 
 @item dInterpolationBilinear
 @code{[@var{expression},@var{expression}]@{@var{expression-cst-list}@}}
 
 Derivative of bilinear interpolation of a table based on two variables.
 The result is a vector. 
-See @url{https://onelab.info/trac/getdp/wiki/UsageOfTables} for an example.
+@c FIXME See @url{https://onelab.info/trac/getdp/wiki/UsageOfTables} for an example.
 
 @item InterpolationAkima
 @code{[@var{expression}]@{@var{expression-cst-list}@}}
@@ -4917,8 +4917,7 @@ MeanL2Norm, LinfNorm}.@*
 The first @var{resolution-op} is executed every time step. The second one is 
 only executed if the actual time step is accepted (LTE is in the specified range).
 E.g. @code{SaveSolution[]} is usually placed in the 2nd @var{resolution-op}.@*
-See @url{https://onelab.info/trac/getdp/wiki/TimeLoopAdaptive} for more details 
-and an example.
+@c FIXME See @url{https://onelab.info/trac/getdp/wiki/TimeLoopAdaptive} for more details and an example.
 
 @item IterativeLoop
 @code{[@var{expression-cst},@var{expression},@var{expression-cst}<,@var{expression-cst}>]}
@@ -4956,8 +4955,7 @@ Possible choices for @var{norm-type}: @code{L1Norm, MeanL1Norm, L2Norm,
 MeanL2Norm, LinfNorm}.@*
 @code{MeanL1Norm} and @code{MeanL2Norm} correspond to @code{L1Norm} and
 @code{L2Norm} divided by the number of degrees of freedom, respectively.@*
-See @url{https://onelab.info/trac/getdp/wiki/IterativeLoopN} for more details 
-and an example.
+@c FIXME See @url{https://onelab.info/trac/getdp/wiki/IterativeLoopN} for more details and an example.
 
 @item IterativeLinearSolver
 
@@ -7214,41 +7212,32 @@ the mesh files @file{mStrip.msh} and @file{Core.msh} used in the examples of
 @appendix Compiling the source code
 
 Stable releases and nightly source snapshots are available from
-@uref{http://getdp.info/src/}. You can also access the subversion
-repository directly:
+@uref{http://getdp.info/src/}. You can also access the Git repository
+directly:
 
 @enumerate
 @item
 The first time you want to download the latest full source, type:
 
 @example
-svn co https://onelab.info/svn/getdp/trunk getdp
+git clone @url{http://gitlab.onelab.info/getdp/getdp.git}
 @end example
-
-You will be asked to accept the security certificate and to provide your
-username and password. (Use getdp/getdp for read-only access.)
 
 @item
 To update your local version to the latest and greatest, go in the getdp
 directory and type:
 
 @example
-svn update
-@end example
-
-@item
-If you have write access, to commit your changes to the central
-repository, go in the getdp directory and type:
-
-@example
-svn commit
+git pull
 @end example
 
 @end enumerate
 
 Once you have the source code, you need to run CMake to configure your
-build (see the @file{README.txt} file in the top-level source directory
-for detailed information on how to run CMake). 
+build (see the
+@url{http://gitlab.onelab.info/getdp/getdp/tree/master/README.txt,README.txt}
+file in the top-level source directory for detailed information on how
+to run CMake).
 
 Each build can be configured using a series of options, to selectively
 enable optional modules or features. Here is the list of CMake options:
@@ -7335,7 +7324,8 @@ or higher; freely available from @url{http://sources.redhat.com/gsl}).
 
 You need cmake (@url{http://www.cmake.org}) and a C++ compiler (and a
 Fortran compiler depending on the modules/solvers you want to
-compile). See @ref{Compiling the source code} and the @file{README.txt}
+compile). See @ref{Compiling the source code} and the
+@url{http://gitlab.onelab.info/getdp/getdp/tree/master/README.txt,README.txt}
 file in the top-level source directory for more information.
 
 @item GetDP [from a binary distribution] complains about missing libraries.
@@ -7448,7 +7438,7 @@ available PostOperations.
 @cindex History, versions
 @cindex Changelog
 
-@verbatiminclude ../VERSIONS.txt
+@verbatiminclude ../../VERSIONS.txt
 
 @c =========================================================================
 @c Copyright and credits
@@ -7462,7 +7452,7 @@ available PostOperations.
 @cindex Contributors, list
 @cindex Credits 
 
-@verbatiminclude ../CREDITS.txt
+@verbatiminclude ../../CREDITS.txt
 
 @c =========================================================================
 @c License
@@ -7473,7 +7463,7 @@ available PostOperations.
 
 @cindex License
 
-@verbatiminclude ../LICENSE.txt
+@verbatiminclude ../../LICENSE.txt
 
 @c =========================================================================
 @c Concept Index (cindex)

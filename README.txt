@@ -2,7 +2,7 @@ This is GetDP, a General environment for the treatment of Discrete Problems.
 
 GetDP is copyright (C) 1997-2017 P. Dular and C. Geuzaine, University of Liege,
 and is distributed under the terms of the GNU General Public License, Version 2
-or later. See doc/LICENSE.txt and doc/CREDITS.txt for more information.
+or later. See LICENSE.txt and CREDITS.txt for more information.
 
 See the doc/ and demos/ directories for documentation. The reference manual is
 located in doc/texinfo/. See the web site http://getdp.info for additional
