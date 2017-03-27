@@ -1063,15 +1063,17 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"AtIndex"           , (CAST)F_AtIndex          ,  -1,   1 },
 
   // F_Interpolation
-  {"InterpolationLinear"   , (CAST)F_InterpolationLinear   ,  -2,   1 },
-  {"dInterpolationLinear"  , (CAST)F_dInterpolationLinear  ,  -2,   1 },
-  {"dInterpolationLinear2" , (CAST)F_dInterpolationLinear2 ,  -2,   1 },
-  {"InterpolationAkima"    , (CAST)F_InterpolationAkima    ,  -2,   1 },
-  {"dInterpolationAkima"   , (CAST)F_dInterpolationAkima   ,  -2,   1 },
-  {"InterpolationBilinear" , (CAST)F_InterpolationBilinear ,  -1,   2 },
-  {"dInterpolationBilinear", (CAST)F_dInterpolationBilinear,  -1,   2 },
-  {"ValueFromIndex"        , (CAST)F_ValueFromIndex        ,  -1,   0 },
-  {"VectorFromIndex"       , (CAST)F_VectorFromIndex       ,  -1,   0 },
+  {"InterpolationLinear"    , (CAST)F_InterpolationLinear    ,  -2,   1 },
+  {"dInterpolationLinear"   , (CAST)F_dInterpolationLinear   ,  -2,   1 },
+  {"dInterpolationLinear2"  , (CAST)F_dInterpolationLinear2  ,  -2,   1 },
+  {"InterpolationAkima"     , (CAST)F_InterpolationAkima     ,  -2,   1 },
+  {"dInterpolationAkima"    , (CAST)F_dInterpolationAkima    ,  -2,   1 },
+  {"InterpolationBilinear"  , (CAST)F_InterpolationBilinear  ,  -1,   2 },
+  {"dInterpolationBilinear" , (CAST)F_dInterpolationBilinear ,  -1,   2 },
+  {"InterpolationTrilinear" , (CAST)F_InterpolationTrilinear ,  -1,   3 },
+  {"dInterpolationTrilinear", (CAST)F_dInterpolationTrilinear,  -1,   3 },
+  {"ValueFromIndex"         , (CAST)F_ValueFromIndex         ,  -1,   0 },
+  {"VectorFromIndex"        , (CAST)F_VectorFromIndex        ,  -1,   0 },
 
   // F_Hysteresis
   {"dhdb_Jiles"            , (CAST)F_dhdb_Jiles            ,  -1,   3 },

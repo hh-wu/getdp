@@ -461,6 +461,11 @@ struct FunctionActive {
       double *x, *y ;
       double *data ;
     } ListMatrix;
+    struct {
+      int     NbrLinesX, NbrLinesY, NbrLinesZ;
+      double *x, *y, *z ;
+      double *data ;
+    } ListMatrix3D;
   } Case;
 };
 

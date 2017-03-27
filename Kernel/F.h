@@ -235,15 +235,22 @@ void  F_InterpolationAkima    (F_ARG) ;
 void  F_dInterpolationAkima   (F_ARG) ;
 void  F_InterpolationBilinear (F_ARG) ;
 void  F_dInterpolationBilinear (F_ARG) ;
+void  F_InterpolationTrilinear (F_ARG) ;
+void  F_dInterpolationTrilinear (F_ARG) ;
 bool  Fi_InterpolationBilinear (double *x, double *y, double *M, int NL, int NC,
                                 double xp, double yp, double *zp);
 bool  Fi_dInterpolationBilinear(double *x, double *y, double *M, int NL, int NC,
                                 double xp, double yp, double *dzp_dx, double *dzp_dy);
+bool  Fi_InterpolationTrilinear (double *x, double *y, double *z, double *M, int NX, int NY, int NZ,
+                                double xp, double yp, double zp, double *vp);
+bool  Fi_dInterpolationTrilinear (double *x, double *y, double *z, double *M, int NX, int NY, int NZ,
+                                 double xp, double yp, double zp, double *dvp_dx, double *dvp_dy, double *dvp_dz);
 void  Fi_InitListX      (F_ARG) ; // List
 void  Fi_InitListXY     (F_ARG) ; // ListAlt
 void  Fi_InitListXY2    (F_ARG) ;
 void  Fi_InitAkima      (F_ARG) ;
 void  Fi_InitListMatrix (F_ARG) ;
+void  Fi_InitListMatrix3D (F_ARG) ;
 void  F_ValueFromIndex (F_ARG) ;
 void  F_VectorFromIndex (F_ARG) ;
 void  Fi_InitValueFromIndex (F_ARG) ;
