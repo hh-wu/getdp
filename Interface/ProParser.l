@@ -161,6 +161,7 @@ deRham                       return tdeRham;
 DestinationSystem            return tDestinationSystem;
 dFunction                    return tdFunction;
 Dimension                    return tDimension;
+DimNameSpace                 return tDimNameSpace;
 DirName                      return tDirName;
 DivisionCoefficient          return tDivisionCoefficient;
 DofValue                     return tDofValue;

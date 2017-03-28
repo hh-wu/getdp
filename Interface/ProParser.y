@@ -157,13 +157,19 @@ void yyerror(const char *s);
 void vyyerror(int level, const char *fmt, ...);
 
 double Treat_Struct_FullName_Float
-  (char* c1, char* c2, double val_default = 0., int type_treat = 0);
+  (char* c1, char* c2, int type_var = 1, int index = 0,
+   double val_default = 0., int type_treat = 0);
 double Treat_Struct_FullName_dot_tSTRING_Float
-  (char* c1, char* c2, char* c3, double val_default = 0., int type_treat = 0);
+  (char* c1, char* c2, char* c3, int index = 0,
+   double val_default = 0., int type_treat = 0);
+int Treat_Struct_FullName_dot_tSTRING_Float_getDim
+  (char* c1, char* c2, char* c3);
 char* Treat_Struct_FullName_String
-  (char* c1, char* c2, char* val_default = NULL, int type_treat = 0);
+  (char* c1, char* c2, int type_var = 1, int index = 0,
+   char* val_default = NULL, int type_treat = 0);
 char* Treat_Struct_FullName_dot_tSTRING_String
-  (char* c1, char* c2, char* c3, char* val_default = NULL, int type_treat = 0);
+  (char* c1, char* c2, char* c3, int index = 0,
+   char* val_default = NULL, int type_treat = 0);
 
 struct doubleXstring{
   double d;
@@ -230,7 +236,7 @@ struct doubleXstring{
 %token  tListFromFile
 %token  tChangeCurrentPosition
 %token  tDefineConstant tUndefineConstant tDefineNumber tDefineString
-%token  tDefineStruct tNameStruct
+%token  tDefineStruct tNameStruct tDimNameSpace
 %token  tGetNumber tGetString tSetNumber tSetString
 
 %token  tPi tMPI_Rank tMPI_Size t0D t1D t2D t3D tLevelTest
@@ -682,14 +688,15 @@ IRegion :
 	  List_Add($$, &j);
     }
 
-  | String__Index
+  | Struct_FullName
     {
+      if ($1.char1) vyyerror(1, "NameSpace '%s' not used yet", $1.char1);
       int i;
-      if((i = List_ISearchSeq(Problem_S.Group, $1, fcmp_Group_Name)) < 0) {
+      if((i = List_ISearchSeq(Problem_S.Group, $1.char2, fcmp_Group_Name)) < 0) {
 	// Si ce n'est pas un nom de groupe, est-ce un nom de constante ? :
-	Constant_S.Name = $1;
+	Constant_S.Name = $1.char2;
 	if(!Tree_Query(ConstantTable_L, &Constant_S)) {
-	  vyyerror(0, "Unknown Constant: %s", $1);
+	  vyyerror(0, "Unknown Constant: %s", $1.char2);
 	  i = 0;
 	  List_Reset(ListOfInt_L); List_Add($$ = ListOfInt_L, &i);
 	}
@@ -708,14 +715,14 @@ IRegion :
 	    }
 	  }
 	  else {
-	    vyyerror(0, "Unknown type of Constant: %s", $1);
+	    vyyerror(0, "Unknown type of Constant: %s", $1.char2);
 	    i = 0;
 	    List_Reset(ListOfInt_L); List_Add($$ = ListOfInt_L, &i);
 	  }
       }
       else // Si c'est un nom de groupe :
 	$$ = ((struct Group *)List_Pointer(Problem_S.Group, i))->InitialList;
-      Free($1);
+      Free($1.char1); Free($1.char2);
     }
 
   // (.) used to access all the FExpr syntax
@@ -8715,6 +8722,11 @@ OneFExpr :
       $$ = Treat_Struct_FullName_dot_tSTRING_Float($1.char1, $1.char2, $3);
     }
 
+  | Struct_FullName '.' tSTRING_Member_Float '(' FExpr ')'
+    {
+      $$ = Treat_Struct_FullName_dot_tSTRING_Float($1.char1, $1.char2, $3, (int)$5);
+    }
+
   | tGetNumber LP CharExpr RP
     {
       $$ = Message::GetOnelabNumber($3, 0.);
@@ -8732,12 +8744,13 @@ OneFExpr :
       $$ = Treat_Struct_FullName_Float($1.char1, $1.char2);
     }
 
-  | '#' String__Index '(' ')'
+  | '#' Struct_FullName '(' ')'
     {
-      Constant_S.Name = $2;
+      if ($2.char1) vyyerror(1, "NameSpace '%s' not used yet", $2.char1);
+      Constant_S.Name = $2.char2;
       int ret = 0;
       if(!Tree_Query(ConstantTable_L, &Constant_S))
-	vyyerror(0, "Unknown Constant: %s", $2);
+	vyyerror(0, "Unknown Constant: %s", $2.char2);
       else{
 	if(Constant_S.Type == VAR_LISTOFFLOAT ||
            Constant_S.Type == VAR_LISTOFCHAR)
@@ -8745,53 +8758,42 @@ OneFExpr :
 	else if(Constant_S.Type == VAR_FLOAT)
           ret = 1;
         else
-          vyyerror(0, "Float Constant needed: %s", $2);
+          vyyerror(0, "Float Constant needed: %s", $2.char2);
       }
       $$ = ret;
-      Free($2);
+      Free($2.char1); Free($2.char2);
     }
 
-  | '#' String__Index tSCOPE
+  | '#' Struct_FullName '.' tSTRING_Member_Float '(' ')'
     {
-      std::string struct_namespace($2);
-      $$ = (double)nameSpaces[struct_namespace].size();
-      Free($2);
+      $$ = Treat_Struct_FullName_dot_tSTRING_Float_getDim($2.char1, $2.char2, $4);
     }
-  | '#' tSCOPE
+
+  | tDimNameSpace LP String__Index RP
+    {
+      std::string struct_namespace($3);
+      $$ = (double)nameSpaces[struct_namespace].size();
+      Free($3);
+    }
+  | tDimNameSpace LP RP
     {
       std::string struct_namespace(std::string(""));
       $$ = (double)nameSpaces[struct_namespace].size();
     }
 
-  | String__Index '(' FExpr ')'
+  | Struct_FullName '(' FExpr ')'
     {
-      Constant_S.Name = $1;
-      double ret = 0.;
-      if(!Tree_Query(ConstantTable_L, &Constant_S))
-	vyyerror(0, "Unknown Constant: %s", $1);
-      else{
-	if(Constant_S.Type != VAR_LISTOFFLOAT)
-	  vyyerror(0, "Multi value Constant needed: %s", $1);
-	else{
-          int j = (int)$3;
-          if(j >= 0 && j < List_Nbr(Constant_S.Value.List))
-            List_Read(Constant_S.Value.List, j, &ret);
-          else
-            vyyerror(0, "Index %d out of range", j);
-        }
-      }
-      $$ = ret;
-      Free($1);
+      $$ = Treat_Struct_FullName_Float($1.char1, $1.char2, 2, (int)$3);
     }
 
   | tExists LP Struct_FullName RP
     {
-      $$ = Treat_Struct_FullName_Float($3.char1, $3.char2, 0., 1);
+      $$ = Treat_Struct_FullName_Float($3.char1, $3.char2, 1, 0, 0., 1);
     }
 
   | tExists LP Struct_FullName '.' tSTRING_Member_Float RP
     {
-      $$ = Treat_Struct_FullName_dot_tSTRING_Float($3.char1, $3.char2, $5, 0., 1);
+      $$ = Treat_Struct_FullName_dot_tSTRING_Float($3.char1, $3.char2, $5, 0, 0., 1);
     }
 
   | tExists LP String__Index '[' ']' RP
@@ -8805,12 +8807,12 @@ OneFExpr :
 
   | tGetForced LP Struct_FullName GetForced_Default RP
     {
-      $$ = Treat_Struct_FullName_Float($3.char1, $3.char2, $4, 2);
+      $$ = Treat_Struct_FullName_Float($3.char1, $3.char2, 1, 0, $4, 2);
     }
 
   | tGetForced LP Struct_FullName '.' tSTRING_Member_Float GetForced_Default RP
     {
-      $$ = Treat_Struct_FullName_dot_tSTRING_Float($3.char1, $3.char2, $5, $6, 2);
+      $$ = Treat_Struct_FullName_dot_tSTRING_Float($3.char1, $3.char2, $5, 0, $6, 2);
     }
 
   | tFileExists LP CharExpr RP
@@ -9082,33 +9084,36 @@ MultiFExpr :
       }
     }
 
-  | String__Index '(' ')'
+  | Struct_FullName '(' ')'
     {
+      if ($1.char1) vyyerror(1, "NameSpace '%s' not used yet", $1.char1);
       $$ = List_Create(20,20,sizeof(double));
-      Constant_S.Name = $1;
+      Constant_S.Name = $1.char2;
       if(!Tree_Query(ConstantTable_L, &Constant_S))
-	vyyerror(0, "Unknown Constant: %s", $1);
+        vyyerror(0, "Unknown Constant: %s", $1.char2);
       else
-	if(Constant_S.Type != VAR_LISTOFFLOAT)
-	  // vyyerror(0, "Multi value Constant needed: %s", $1);
-	  List_Add($$, &Constant_S.Value.Float);
-	else
-	  for(int i = 0; i < List_Nbr(Constant_S.Value.List); i++) {
-	    double d;
-	    List_Read(Constant_S.Value.List, i, &d);
-	    List_Add($$, &d);
-	  }
+        if(Constant_S.Type != VAR_LISTOFFLOAT)
+          // vyyerror(0, "Multi value Constant needed: %s", $1.char2);
+          List_Add($$, &Constant_S.Value.Float);
+        else
+          for(int i = 0; i < List_Nbr(Constant_S.Value.List); i++) {
+            double d;
+            List_Read(Constant_S.Value.List, i, &d);
+            List_Add($$, &d);
+          }
+      Free($1.char1); Free($1.char2);
     }
 
-  | String__Index '(' '{' RecursiveListOfFExpr '}' ')'
+  | Struct_FullName '(' '{' RecursiveListOfFExpr '}' ')'
     {
+      if ($1.char1) vyyerror(1, "NameSpace '%s' not used yet", $1.char1);
       $$ = List_Create(20,20,sizeof(double));
-      Constant_S.Name = $1;
+      Constant_S.Name = $1.char2;
       if(!Tree_Query(ConstantTable_L, &Constant_S))
-	vyyerror(0, "Unknown Constant: %s", $1);
+	vyyerror(0, "Unknown Constant: %s", $1.char2);
       else
 	if(Constant_S.Type != VAR_LISTOFFLOAT)
-	  vyyerror(0, "Multi value Constant needed: %s", $1);
+	  vyyerror(0, "Multi value Constant needed: %s", $1.char2);
 	else
 	  for(int i = 0; i < List_Nbr($4); i++) {
             int j = (int)(*(double*)List_Pointer($4, i));
@@ -9124,6 +9129,7 @@ MultiFExpr :
 	    }
 	  }
       List_Delete($4);
+      Free($1.char1); Free($1.char2);
     }
 
   // same as tSTRING '(' ')'
@@ -9520,12 +9526,12 @@ CharExprNoVar :
     //+++ No need to extend to Struct_FullName (a Tag is not a String), but...
   | tGetForcedStr '(' Struct_FullName GetForcedStr_Default ')'
     {
-      $$ = Treat_Struct_FullName_String(NULL, $3.char2, $4, 2);
+      $$ = Treat_Struct_FullName_String(NULL, $3.char2, 1, 0, $4, 2);
     }
 
   | tGetForcedStr '(' Struct_FullName '.' tSTRING_Member_Float GetForcedStr_Default ')'
     {
-      $$ = Treat_Struct_FullName_dot_tSTRING_String($3.char1, $3.char2, $5, $6, 2);
+      $$ = Treat_Struct_FullName_dot_tSTRING_String($3.char1, $3.char2, $5, 0, $6, 2);
     }
 
   | tNameStruct LP NameStruct_Arg RP
@@ -9570,37 +9576,22 @@ CharExpr :
       $$ = Treat_Struct_FullName_String(NULL, $1);
     }
 
+  | Struct_FullName '(' FExpr ')'
+    {
+      $$ = Treat_Struct_FullName_String($1.char1, $1.char2, 2, (int)$3);
+    }
+
   | Struct_FullName '.' tSTRING
     {
       flag_tSTRING_alloc = 1;
       $$ = Treat_Struct_FullName_dot_tSTRING_String($1.char1, $1.char2, $3);
     }
 
-  | String__Index '(' FExpr ')'
+  | Struct_FullName '.' tSTRING '(' FExpr ')'
     {
-      Constant_S.Name = $1;
-      if(!Tree_Query(ConstantTable_L, &Constant_S)) {
-	vyyerror(0, "Unknown Constant: %s", $1); $$ = strEmpty();
-      }
-      else  {
-	if(Constant_S.Type == VAR_LISTOFCHAR){
-          int j = (int)$3;
-          if(j >= 0 && j < List_Nbr(Constant_S.Value.List)){
-            char *s;
-            List_Read(Constant_S.Value.List, j, &s);
-            $$ = strSave(s);
-          }
-          else{
-            vyyerror(0, "Index %d out of range", j); $$ = strEmpty();
-          }
-        }
-	else {
-	  vyyerror(0, "List of string Constant needed: %s", $1); $$ = strEmpty();
-	}
-      }
-      Free($1);
+      flag_tSTRING_alloc = 1;
+      $$ = Treat_Struct_FullName_dot_tSTRING_String($1.char1, $1.char2, $3, (int)$5);
     }
-
 ;
 
 RecursiveListOfCharExpr :
@@ -10250,27 +10241,53 @@ void vyyerror(int level, const char *fmt, ...)
 
 //
 double Treat_Struct_FullName_Float
-(char* c1, char* c2, double val_default, int type_treat)
+(char* c1, char* c2, int type_var, int index, double val_default, int type_treat)
 {
   double out;
   Constant_S.Name = c2;
   if(!c1 && Tree_Query(ConstantTable_L, &Constant_S)) {
     if (type_treat == 1) out = 1.; // Exists (type_treat == 1)
     else { // Get (0) or GetForced (2)
-      if(Constant_S.Type == VAR_FLOAT)
-        out = Constant_S.Value.Float;
+      if (type_var == 1) {
+        if(Constant_S.Type == VAR_FLOAT)
+          out = Constant_S.Value.Float;
+        else {
+          out = val_default;
+          if (type_treat == 0)
+            vyyerror(0, "Single value Constant needed: %s", struct_name.c_str());
+        }
+      }
+      else if (type_var == 2) {
+        if(Constant_S.Type == VAR_LISTOFFLOAT) {
+          if(index >= 0 && index < List_Nbr(Constant_S.Value.List))
+            List_Read(Constant_S.Value.List, index, &out);
+          else {
+            out = val_default;
+            vyyerror(0, "Index %d out of range", index);
+          }
+        }
+        else {
+          out = val_default;
+          if (type_treat == 0)
+            vyyerror(0, "Multi value Constant needed: %s", struct_name.c_str());
+        }
+      }
       else {
         out = val_default;
-        if (type_treat == 0)
-          vyyerror(0, "Single value Constant needed: %s", struct_name.c_str());
       }
     }
   }
   else {
-    std::string struct_namespace(c1? c1 : std::string("")), struct_name(c2);
-    if(nameSpaces.getTag(struct_namespace, struct_name, out)) {
+    if (type_var == 1) {
+      std::string struct_namespace(c1? c1 : std::string("")), struct_name(c2);
+      if(nameSpaces.getTag(struct_namespace, struct_name, out)) {
+        out = val_default;
+        if (type_treat == 0) vyyerror(0, "Unknown Constant: %s", struct_name.c_str());
+      }
+    }
+    else {
       out = val_default;
-      if (type_treat == 0) vyyerror(0, "Unknown Constant: %s", struct_name.c_str());
+      if (type_treat == 0) vyyerror(0, "Unknown Constant: %s(.)", c2);
     }
   }
   Free(c1); Free(c2);
@@ -10278,18 +10295,20 @@ double Treat_Struct_FullName_Float
 }
 
 double Treat_Struct_FullName_dot_tSTRING_Float
-(char* c1, char* c2, char* c3, double val_default, int type_treat)
+(char* c1, char* c2, char* c3, int index, double val_default, int type_treat)
 {
   double out;
   std::string struct_namespace(c1? c1 : std::string("")), struct_name(c2);
   std::string key_member(c3);
   switch (nameSpaces.getMember
-          (struct_namespace, struct_name, key_member, out)) {
+          (struct_namespace, struct_name, key_member, out, index)) {
   case 0:
     if (type_treat == 1) out = 1.; // Exists (type_treat == 1)
     break;
   case 1:
     out = val_default;
+    if (type_treat == 0)
+      vyyerror(0, "Unknown Struct: %s", struct_name.c_str());
     break;
   case 2:
     if (type_treat != 0) {
@@ -10304,6 +10323,35 @@ double Treat_Struct_FullName_dot_tSTRING_Float
         vyyerror(0, "Unknown member '%s' of Struct %s", c3, struct_name.c_str());
     }
     break;
+  case 3:
+    out = val_default;
+    if (type_treat == 0)
+      vyyerror(0, "Index %d out of range", index);
+    break;
+  }
+  Free(c1); Free(c2);
+  if (flag_tSTRING_alloc) Free(c3);
+  return out;
+}
+
+int Treat_Struct_FullName_dot_tSTRING_Float_getDim
+(char* c1, char* c2, char* c3)
+{
+  int out;
+  std::string struct_namespace(c1? c1 : std::string("")), struct_name(c2);
+  std::string key_member(c3);
+  switch (nameSpaces.getMember_Dim
+          (struct_namespace, struct_name, key_member, out)) {
+  case 0:
+    break;
+  case 1:
+    out = 0;
+    vyyerror(0, "Unknown Struct: %s", struct_name.c_str());
+    break;
+  case 2:
+    out = 0;
+    vyyerror(0, "Unknown member '%s' of Struct %s", c3, struct_name.c_str());
+    break;
   }
   Free(c1); Free(c2);
   if (flag_tSTRING_alloc) Free(c3);
@@ -10311,17 +10359,37 @@ double Treat_Struct_FullName_dot_tSTRING_Float
 }
 
 char * Treat_Struct_FullName_String
-(char* c1, char* c2, char * val_default, int type_treat)
+(char* c1, char* c2, int type_var, int index, char * val_default, int type_treat)
 {
   const char * out = NULL;
   Constant_S.Name = c2;
   if(!c1 && Tree_Query(ConstantTable_L, &Constant_S)) {
-    if(Constant_S.Type == VAR_CHAR)
-      out = Constant_S.Value.Char;
+    if (type_var == 1) {
+      if(Constant_S.Type == VAR_CHAR)
+        out = Constant_S.Value.Char;
+      else {
+        out = val_default;
+        if (type_treat == 0)
+          vyyerror(0, "String Constant needed: %s", c2);
+      }
+    }
+    else if (type_var == 2) {
+      if(Constant_S.Type == VAR_LISTOFCHAR) {
+        if(index >= 0 && index < List_Nbr(Constant_S.Value.List))
+          List_Read(Constant_S.Value.List, index, &out);
+        else {
+          out = val_default;
+          vyyerror(0, "Index %d out of range", index);
+        }
+      }
+      else {
+        out = val_default;
+        if (type_treat == 0)
+          vyyerror(0, "List of string Constant needed: %s", struct_name.c_str());
+      }
+    }
     else {
       out = val_default;
-      if (type_treat == 0)
-        vyyerror(0, "String Constant needed: %s", c2);
     }
   }
   else  {
@@ -10335,14 +10403,14 @@ char * Treat_Struct_FullName_String
 }
 
 char* Treat_Struct_FullName_dot_tSTRING_String
-(char* c1, char* c2, char* c3, char * val_default, int type_treat)
+(char* c1, char* c2, char* c3, int index, char * val_default, int type_treat)
 {
   std::string string_default(val_default? val_default : std::string(""));
   const std::string * out = NULL;
   std::string struct_namespace(c1? c1 : std::string("")), struct_name(c2);
   std::string key_member(c3);
   switch (nameSpaces.getMember
-          (struct_namespace, struct_name, key_member, out)) {
+          (struct_namespace, struct_name, key_member, out, index)) {
   case 0:
     break;
   case 1:
@@ -10354,6 +10422,11 @@ char* Treat_Struct_FullName_dot_tSTRING_String
     out = &string_default;
     if (type_treat == 0)
       vyyerror(0, "Unknown member '%s' of Struct %s", c3, struct_name.c_str());
+    break;
+  case 3:
+    out = &string_default;
+    if (type_treat == 0)
+      vyyerror(0, "Index %d out of range", index);
     break;
   }
   char* out_c = strSave(out->c_str());
