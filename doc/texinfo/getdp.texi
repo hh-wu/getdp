@@ -7438,7 +7438,7 @@ available PostOperations.
 @cindex History, versions
 @cindex Changelog
 
-@verbatiminclude ../../VERSIONS.txt
+@verbatiminclude ../../CHANGELOG.txt
 
 @c =========================================================================
 @c Copyright and credits
