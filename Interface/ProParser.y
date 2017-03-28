@@ -162,6 +162,8 @@ double Treat_Struct_FullName_Float
 double Treat_Struct_FullName_dot_tSTRING_Float
   (char* c1, char* c2, char* c3, int index = 0,
    double val_default = 0., int type_treat = 0);
+List_T * Treat_Struct_FullName_dot_tSTRING_ListOfFloat
+  (char* c1, char* c2, char* c3);
 int Treat_Struct_FullName_dot_tSTRING_Float_getDim
   (char* c1, char* c2, char* c3);
 char* Treat_Struct_FullName_String
@@ -9132,6 +9134,11 @@ MultiFExpr :
       Free($1.char1); Free($1.char2);
     }
 
+  | Struct_FullName '.' tSTRING_Member_Float LP RP
+    {
+      $$ = Treat_Struct_FullName_dot_tSTRING_ListOfFloat($1.char1, $1.char2, $3);
+    }
+
   // same as tSTRING '(' ')'
   | tList '[' String__Index ']'
     {
@@ -10327,6 +10334,36 @@ double Treat_Struct_FullName_dot_tSTRING_Float
     out = val_default;
     if (type_treat == 0)
       vyyerror(0, "Index %d out of range", index);
+    break;
+  }
+  Free(c1); Free(c2);
+  if (flag_tSTRING_alloc) Free(c3);
+  return out;
+}
+
+List_T * Treat_Struct_FullName_dot_tSTRING_ListOfFloat
+(char* c1, char* c2, char* c3)
+{
+  List_T * out, * val_default = NULL;
+  const std::vector<double> * out_vector; double val_;
+  std::string struct_namespace(c1? c1 : std::string("")), struct_name(c2);
+  std::string key_member(c3);
+  switch (nameSpaces.getMember_Vector
+          (struct_namespace, struct_name, key_member, out_vector)) {
+  case 0:
+    out = List_Create(out_vector->size(), 1, sizeof(double));
+    for(int i = 0; i < out_vector->size(); i++) {
+      val_ = out_vector->at(i);
+      List_Add(out, &val_);
+    }
+    break;
+  case 1:
+    vyyerror(0, "Unknown Struct: %s", struct_name.c_str());
+    out = val_default;
+    break;
+  case 2:
+    out = val_default;
+    vyyerror(0, "Unknown member '%s' of Struct %s", c3, struct_name.c_str());
     break;
   }
   Free(c1); Free(c2);
