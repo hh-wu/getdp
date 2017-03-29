@@ -419,6 +419,7 @@ StrChoice                    return tStrChoice;
 StrCmp                       return tStrCmp;
 StrFind                      return tStrFind;
 StrLen                       return tStrLen;
+StrList                      return tStrList;
 StrSub                       return tStrSub;
 StringToName                 return tStringToName;
 S2N                          return tStringToName;

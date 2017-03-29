@@ -172,6 +172,8 @@ char* Treat_Struct_FullName_String
 char* Treat_Struct_FullName_dot_tSTRING_String
   (char* c1, char* c2, char* c3, int index = 0,
    char* val_default = NULL, int type_treat = 0);
+List_T * Treat_Struct_FullName_dot_tSTRING_ListOfString
+  (char* c1, char* c2, char* c3);
 
 struct doubleXstring{
   double d;
@@ -206,7 +208,10 @@ struct doubleXstring{
 %type <i>  Append AppendOrNot
 %type <d>  FExpr OneFExpr DefineStruct NameStruct_Arg GetForced_Default
 %type <l>  MultiFExpr ListOfFExpr RecursiveListOfFExpr
-%type <l>  RecursiveListOfCharExpr ParametersForFunction
+%type <l>  MultiCharExpr
+%type <l>  RecursiveListOfCharExpr Str_BracedRecursiveListOfCharExpr
+%type <l>  BracedOrNotRecursiveListOfCharExpr BracedRecursiveListOfCharExpr
+%type <l>  ParametersForFunction
 %type <l>  ListOfRegion ListOfRegionOrAll SuppListOfRegion
 %type <l>  ConstraintCases IntegrationCases QuadratureCases JacobianCases
 %type <l>  ListOfBasisFunction RecursiveListOfBasisFunction
@@ -218,14 +223,14 @@ struct doubleXstring{
 %type <l>  SubPostQuantities PostSubOperations
 %type <c>  NameForMathFunction NameForFunction CharExpr CharExprNoVar
 %type <c>  StrCat StringIndex String__Index CallArg
-%type <c>  LP RP SendToFile tSTRING_Member_Float GetForcedStr_Default
+%type <c>  LP RP SendToFile tSTRING_Member GetForcedStr_Default
 %type <t>  Quantity_Def
 %type <l>  TimeLoopAdaptiveSystems TimeLoopAdaptivePOs IterativeLoopSystems
 %type <l>  IterativeLoopPOs
 %type <c2> Struct_FullName
 /* ------------------------------------------------------------------ */
 %token  tEND tDOTS tSCOPE
-%token  tStr
+%token  tStr tStrList
 %token  tStrCat tSprintf tPrintf tMPI_Printf tRead tPrintConstants
 %token  tStrCmp tStrFind tStrLen
 %token  tStrChoice tStrSub tUpperCase tLowerCase tLowerCaseIn
@@ -8109,7 +8114,7 @@ Affectation :
       Tree_Replace(ConstantTable_L, &Constant_S);
     }
 
-  | String__Index '(' ')' tDEF tStr '[' RecursiveListOfCharExpr ']' tEND
+  | String__Index '(' ')' tDEF tStr LP BracedOrNotRecursiveListOfCharExpr RP tEND
     {
       Constant_S.Name = $1;
       Constant_S.Type = VAR_LISTOFCHAR;
@@ -8117,7 +8122,7 @@ Affectation :
       Tree_Replace(ConstantTable_L, &Constant_S);
     }
 
-  | String__Index '(' ')' '+' tDEF tStr '[' RecursiveListOfCharExpr ']' tEND
+  | String__Index '(' ')' '+' tDEF tStr LP BracedOrNotRecursiveListOfCharExpr RP tEND
     {
       Constant_S.Name = $1;
       Constant *c = (Constant*)Tree_PQuery(ConstantTable_L, &Constant_S);
@@ -8391,6 +8396,18 @@ FloatParameterOption :
       Free($2);
     }
 
+  | tSTRING Str_BracedRecursiveListOfCharExpr
+    {
+      std::string key($1);
+      for(int i = 0; i < List_Nbr($2); i++){
+        char *v;
+        List_Read($2, i, &v);
+        charOptions[key].push_back(v);
+      }
+      Free($1);
+      List_Delete($2);
+    }
+
   | tName CharExprNoVar
     {
       std::string key("Name");
@@ -8456,18 +8473,32 @@ CharParameterOption :
       Free($2);
     }
 
-  | tSTRING '{' RecursiveListOfCharExpr '}'
+  | tSTRING BracedRecursiveListOfCharExpr
     {
       std::string key($1);
-      for(int i = 0; i < List_Nbr($3); i++){
+      for(int i = 0; i < List_Nbr($2); i++){
         char *s;
-        List_Read($3, i, &s);
+        List_Read($2, i, &s);
         std::string val(s);
         Free(s);
         charOptions[key].push_back(val);
       }
       Free($1);
-      List_Delete($3);
+      List_Delete($2);
+    }
+
+  | tSTRING Str_BracedRecursiveListOfCharExpr
+    {
+      std::string key($1);
+      for(int i = 0; i < List_Nbr($2); i++){
+        char *s;
+        List_Read($2, i, &s);
+        std::string val(s);
+        Free(s);
+        charOptions[key].push_back(val);
+      }
+      Free($1);
+      List_Delete($2);
     }
  ;
 
@@ -8719,12 +8750,12 @@ OneFExpr :
   | DefineStruct
     { $$ = $1; }
 
-  | Struct_FullName '.' tSTRING_Member_Float
+  | Struct_FullName '.' tSTRING_Member
     {
       $$ = Treat_Struct_FullName_dot_tSTRING_Float($1.char1, $1.char2, $3);
     }
 
-  | Struct_FullName '.' tSTRING_Member_Float '(' FExpr ')'
+  | Struct_FullName '.' tSTRING_Member '(' FExpr ')'
     {
       $$ = Treat_Struct_FullName_dot_tSTRING_Float($1.char1, $1.char2, $3, (int)$5);
     }
@@ -8766,7 +8797,7 @@ OneFExpr :
       Free($2.char1); Free($2.char2);
     }
 
-  | '#' Struct_FullName '.' tSTRING_Member_Float '(' ')'
+  | '#' Struct_FullName '.' tSTRING_Member '(' ')'
     {
       $$ = Treat_Struct_FullName_dot_tSTRING_Float_getDim($2.char1, $2.char2, $4);
     }
@@ -8793,7 +8824,7 @@ OneFExpr :
       $$ = Treat_Struct_FullName_Float($3.char1, $3.char2, 1, 0, 0., 1);
     }
 
-  | tExists LP Struct_FullName '.' tSTRING_Member_Float RP
+  | tExists LP Struct_FullName '.' tSTRING_Member RP
     {
       $$ = Treat_Struct_FullName_dot_tSTRING_Float($3.char1, $3.char2, $5, 0, 0., 1);
     }
@@ -8812,7 +8843,7 @@ OneFExpr :
       $$ = Treat_Struct_FullName_Float($3.char1, $3.char2, 1, 0, $4, 2);
     }
 
-  | tGetForced LP Struct_FullName '.' tSTRING_Member_Float GetForced_Default RP
+  | tGetForced LP Struct_FullName '.' tSTRING_Member GetForced_Default RP
     {
       $$ = Treat_Struct_FullName_dot_tSTRING_Float($3.char1, $3.char2, $5, 0, $6, 2);
     }
@@ -8869,7 +8900,7 @@ Struct_FullName :
     { $$.char1 = $1; $$.char2 = $3; }
 ;
 
-tSTRING_Member_Float :
+tSTRING_Member :
     tSTRING
     { $$ = $1; flag_tSTRING_alloc = 1; }
   | tType
@@ -9134,7 +9165,7 @@ MultiFExpr :
       Free($1.char1); Free($1.char2);
     }
 
-  | Struct_FullName '.' tSTRING_Member_Float LP RP
+  | Struct_FullName '.' tSTRING_Member '(' ')'
     {
       $$ = Treat_Struct_FullName_dot_tSTRING_ListOfFloat($1.char1, $1.char2, $3);
     }
@@ -9362,7 +9393,7 @@ CharExprNoVar :
       $$ = $3;
     }
 
-  | tStr '[' RecursiveListOfCharExpr ']'
+  | tStr LP RecursiveListOfCharExpr RP
     {
       int size = 1;
       for(int i = 0; i < List_Nbr($3); i++){
@@ -9536,7 +9567,7 @@ CharExprNoVar :
       $$ = Treat_Struct_FullName_String(NULL, $3.char2, 1, 0, $4, 2);
     }
 
-  | tGetForcedStr '(' Struct_FullName '.' tSTRING_Member_Float GetForcedStr_Default ')'
+  | tGetForcedStr '(' Struct_FullName '.' tSTRING_Member GetForcedStr_Default ')'
     {
       $$ = Treat_Struct_FullName_dot_tSTRING_String($3.char1, $3.char2, $5, 0, $6, 2);
     }
@@ -9577,10 +9608,11 @@ CharExpr :
     CharExprNoVar
     { $$ = $1; }
 
-  | String__Index
+  | Struct_FullName
     {
+      if ($1.char1) vyyerror(1, "NameSpace '%s' not used yet", $1.char1);
       // No need to extend to Struct_FullName (a Tag is not a String)
-      $$ = Treat_Struct_FullName_String(NULL, $1);
+      $$ = Treat_Struct_FullName_String(NULL, $1.char2);
     }
 
   | Struct_FullName '(' FExpr ')'
@@ -9588,29 +9620,80 @@ CharExpr :
       $$ = Treat_Struct_FullName_String($1.char1, $1.char2, 2, (int)$3);
     }
 
-  | Struct_FullName '.' tSTRING
+  | Struct_FullName '.' tSTRING_Member
     {
-      flag_tSTRING_alloc = 1;
       $$ = Treat_Struct_FullName_dot_tSTRING_String($1.char1, $1.char2, $3);
     }
 
-  | Struct_FullName '.' tSTRING '(' FExpr ')'
+  | Struct_FullName '.' tSTRING_Member '(' FExpr ')'
     {
-      flag_tSTRING_alloc = 1;
       $$ = Treat_Struct_FullName_dot_tSTRING_String($1.char1, $1.char2, $3, (int)$5);
     }
 ;
 
-RecursiveListOfCharExpr :
+Str_BracedRecursiveListOfCharExpr :
+    tStr LP BracedRecursiveListOfCharExpr RP
+    { $$ = $3; }
+ ;
 
+BracedOrNotRecursiveListOfCharExpr :
+    RecursiveListOfCharExpr
+    { $$ = $1; }
+  | BracedRecursiveListOfCharExpr
+    { $$ = $1; }
+ ;
+
+BracedRecursiveListOfCharExpr :
+    '{' RecursiveListOfCharExpr '}'
+    { $$ = $2; }
+ ;
+
+RecursiveListOfCharExpr :
     CharExpr
     {
       $$ = List_Create(20,20,sizeof(char*));
       List_Add($$, &($1));
     }
+  | MultiCharExpr
+    { $$ = $1; }
   | RecursiveListOfCharExpr ',' CharExpr
     { List_Add($$, &($3)); }
+  | RecursiveListOfCharExpr ',' MultiCharExpr
+    {
+      for(int i = 0; i < List_Nbr($3); i++){
+	char* c;
+	List_Read($3, i, &c);
+	List_Add($$, &c);
+      }
+      List_Delete($3);
+    }
  ;
+
+MultiCharExpr :
+    Struct_FullName '(' ')'
+    {
+      if ($1.char1) vyyerror(1, "NameSpace '%s' not used yet", $1.char1);
+      $$ = List_Create(20,20,sizeof(char *));
+      Constant_S.Name = $1.char2;
+      if(!Tree_Query(ConstantTable_L, &Constant_S))
+        vyyerror(0, "Unknown Constant: %s", $1.char2);
+      else
+        if(Constant_S.Type != VAR_LISTOFCHAR)
+          // vyyerror(0, "Multi string Constant needed: %s", $1.char2);
+          List_Add($$, &Constant_S.Value.Char);
+        else
+          for(int i = 0; i < List_Nbr(Constant_S.Value.List); i++) {
+            char * c;
+            List_Read(Constant_S.Value.List, i, &c);
+            List_Add($$, &c);
+          }
+      Free($1.char1); Free($1.char2);
+    }
+  | Struct_FullName '.' tSTRING_Member '(' ')'
+    {
+      $$ = Treat_Struct_FullName_dot_tSTRING_ListOfString($1.char1, $1.char2, $3);
+    }
+;
 
 
 // these are for compatibility with the syntax in Gmsh (parentheses instead of
@@ -10167,7 +10250,7 @@ void Print_Constants()
     case VAR_LISTOFFLOAT:
       {
         std::string str(Constant_P->Name);
-        str += " = {";
+        str += "() = {";
         for(int j = 0; j < List_Nbr(Constant_P->Value.List); j++){
           if(j) str += ",";
           double d;
@@ -10186,14 +10269,14 @@ void Print_Constants()
     case VAR_LISTOFCHAR:
       {
         std::string str(Constant_P->Name);
-        str += " = {";
+        str += "() = Str[{";
         for(int j = 0; j < List_Nbr(Constant_P->Value.List); j++){
           if(j) str += ",";
           char *s;
           List_Read(Constant_P->Value.List, j, &s);
-          str += s;
+          str += std::string("\"") + s + std::string("\"");
         }
-        str += "};\n";
+        str += "}];\n";
         Message::Check(str.c_str());
       }
       break;
@@ -10470,4 +10553,34 @@ char* Treat_Struct_FullName_dot_tSTRING_String
   Free(c1); Free(c2);
   if (flag_tSTRING_alloc) Free(c3);
   return out_c;
+}
+
+List_T * Treat_Struct_FullName_dot_tSTRING_ListOfString
+(char* c1, char* c2, char* c3)
+{
+  List_T * out, * val_default = NULL;
+  const std::vector<std::string> * out_vector; char * val_;
+  std::string struct_namespace(c1? c1 : std::string("")), struct_name(c2);
+  std::string key_member(c3);
+  switch (nameSpaces.getMember_Vector
+          (struct_namespace, struct_name, key_member, out_vector)) {
+  case 0:
+    out = List_Create(out_vector->size(), 1, sizeof(char *));
+    for(int i = 0; i < out_vector->size(); i++) {
+      val_ = strSave(out_vector->at(i).c_str());
+      List_Add(out, &val_);
+    }
+    break;
+  case 1:
+    vyyerror(0, "Unknown Struct: %s", struct_name.c_str());
+    out = val_default;
+    break;
+  case 2:
+    out = val_default;
+    vyyerror(0, "Unknown member '%s' of Struct %s", c3, struct_name.c_str());
+    break;
+  }
+  Free(c1); Free(c2);
+  if (flag_tSTRING_alloc) Free(c3);
+  return out;
 }

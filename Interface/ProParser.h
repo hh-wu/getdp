@@ -98,6 +98,25 @@ public:
       out = it->second.size(); return 0;
     }
     else {
+      std::map<std::string, std::vector<std::string> >::const_iterator
+        it = _copt.find(key_member);
+      if (it != _copt.end()) {
+        out = it->second.size(); return 0;
+      }
+      else {
+        out = 0; return 1; // Error: Unknown member of Struct
+      }
+    }
+  }
+
+  int getMember_String_Dim (std::string & key_member, int & out) const
+  {
+    std::map<std::string, std::vector<std::string> >::const_iterator
+      it = _copt.find(key_member);
+    if (it != _copt.end()) {
+      out = it->second.size(); return 0;
+    }
+    else {
       out = 0; return 1; // Error: Unknown member of Struct
     }
   }
@@ -107,6 +126,18 @@ public:
     std::map<std::string, std::vector<double> >::const_iterator
       it = _fopt.find(key_member);
     if (it != _fopt.end()) {
+      out_vector = &it->second; return 0;
+    }
+    else {
+      out_vector = NULL; return 1; // Error: Unknown member of Struct
+    }
+  }
+
+  int getMember_Vector (std::string & key_member, const std::vector<std::string> * & out_vector) const
+  {
+    std::map<std::string, std::vector<std::string> >::const_iterator
+      it = _copt.find(key_member);
+    if (it != _copt.end()) {
       out_vector = &it->second; return 0;
     }
     else {
@@ -144,12 +175,12 @@ public:
       if (!flag_comma && it_attrib != _copt.begin()) flag_comma = true;
       if (flag_comma) str += ", ";
       str += it_attrib->first + " ";
-      if (it_attrib->second.size() > 1) str += "{ ";
+      if (it_attrib->second.size() > 1) str += "Str[{ ";
       for (int i = 0; i < it_attrib->second.size(); i++) {
         if (i) str += ", ";
         str += "\"" + it_attrib->second[i] + "\"";
       }
-      if (it_attrib->second.size() > 1) str += "}";
+      if (it_attrib->second.size() > 1) str += "}]";
 
     }
     str += " ];\n";
@@ -355,6 +386,26 @@ public:
 
   int getMember_Vector(std::string & key_namespace, std::string & key_name,
                        std::string & key_member, const std::vector<double> * & out_vector) const {
+
+    const Structs * structs_P = this->Find(key_namespace);
+    const Struct * struct_P = (structs_P)? structs_P->Find(key_name) : NULL;
+    if (structs_P && struct_P) {
+      switch (struct_P->getMember_Vector(key_member, out_vector)) {
+      case 0:
+        break;
+      case 1:
+        out_vector = NULL; return 2; // 2: Error: Unknown member of Struct
+        break;
+      }
+    }
+    else  {
+      out_vector = NULL; return 1; // 1: Error: Unknown Struct
+    }
+    return 0; // 0: no error
+  }
+
+  int getMember_Vector(std::string & key_namespace, std::string & key_name,
+                       std::string & key_member, const std::vector<std::string> * & out_vector) const {
 
     const Structs * structs_P = this->Find(key_namespace);
     const Struct * struct_P = (structs_P)? structs_P->Find(key_name) : NULL;
