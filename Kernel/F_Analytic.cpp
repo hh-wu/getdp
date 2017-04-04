@@ -3048,4 +3048,59 @@ void  F_DyadGreenHom(F_ARG)
   V->Val[7] = G_zy.real() ; V->Val[MAX_DIM+7] = G_zy.imag() ;
   V->Val[8] = G_zz.real() ; V->Val[MAX_DIM+8] = G_zz.imag() ;
 }
+void  F_CurlDyadGreenHom(F_ARG)
+{
+  double  x, y, z;
+  double  x_p, y_p, z_p;
+  double  kb, siwt;
+  double  normrr_p;
+  std::complex<double> Gsca,dx_Gsca,dy_Gsca,dz_Gsca;
+  std::complex<double> curlG_xx,curlG_xy,curlG_xz,curlG_yx,curlG_yy,curlG_yz,curlG_zx,curlG_zy,curlG_zz;
+  std::complex<double> I = std::complex<double>(0., 1.);
+
+  if(   A->Type != SCALAR
+    || (A+1)->Type != SCALAR
+      || (A+2)->Type != SCALAR
+        || (A+3)->Type != VECTOR
+          || (A+4)->Type != SCALAR
+            || (A+5)->Type != SCALAR)
+    Message::Error("Non scalar argument(s) for the GreenHom");
+  x_p       = A->Val[0];
+  y_p       = (A+1)->Val[0];
+  z_p       = (A+2)->Val[0];
+  x         = (A+3)->Val[0];
+  y         = (A+3)->Val[1];
+  z         = (A+3)->Val[2];
+  kb        = (A+4)->Val[0];
+  siwt      = (A+5)->Val[0];
+
+  normrr_p = std::sqrt(std::pow((x-x_p),2)+std::pow((y-y_p),2)+std::pow((z-z_p),2));
+
+  Gsca      = std::exp(-1.*siwt*I*kb*normrr_p)/(4.*M_PI*normrr_p);
+  
+  dx_Gsca = (I*kb-1/normrr_p)*Gsca*(x-x_p);
+  dy_Gsca = (I*kb-1/normrr_p)*Gsca*(y-y_p);
+  dz_Gsca = (I*kb-1/normrr_p)*Gsca*(z-z_p);
+  
+  curlG_xx = 0.;
+  curlG_xy = -dz_Gsca;
+  curlG_xz =  dy_Gsca;
+  curlG_yx =  dz_Gsca;
+  curlG_yy = 0.;
+  curlG_yz = -dx_Gsca;
+  curlG_zx = -dy_Gsca;
+  curlG_zy =  dx_Gsca;
+  curlG_zz = 0.;
+
+  V->Type = TENSOR;
+  V->Val[0] = curlG_xx.real() ; V->Val[MAX_DIM+0] = curlG_xx.imag() ;
+  V->Val[1] = curlG_xy.real() ; V->Val[MAX_DIM+1] = curlG_xy.imag() ;
+  V->Val[2] = curlG_xz.real() ; V->Val[MAX_DIM+2] = curlG_xz.imag() ;
+  V->Val[3] = curlG_yx.real() ; V->Val[MAX_DIM+3] = curlG_yx.imag() ;
+  V->Val[4] = curlG_yy.real() ; V->Val[MAX_DIM+4] = curlG_yy.imag() ;
+  V->Val[5] = curlG_yz.real() ; V->Val[MAX_DIM+5] = curlG_yz.imag() ;
+  V->Val[6] = curlG_zx.real() ; V->Val[MAX_DIM+6] = curlG_zx.imag() ;
+  V->Val[7] = curlG_zy.real() ; V->Val[MAX_DIM+7] = curlG_zy.imag() ;
+  V->Val[8] = curlG_zz.real() ; V->Val[MAX_DIM+8] = curlG_zz.imag() ;
+}
 #undef F_ARG

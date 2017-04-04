@@ -63,7 +63,9 @@ void  F_Znm             (F_ARG) ;
 void  F_Mnm             (F_ARG) ;
 void  F_Nnm             (F_ARG) ;
 
-void  F_DyadGreenHom    (F_ARG) ;
+void  F_DyadGreenHom     (F_ARG) ;
+void  F_CurlDyadGreenHom (F_ARG) ;
+
 
 /* F_PeWe */
 

@@ -247,6 +247,7 @@ void Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
   case DTDTDTDOF_     : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_DtDtDtDof    ; break;
   case DTDTDTDTDOF_   : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_DtDtDtDtDof  ; break;
   case DTDTDTDTDTDOF_ : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_DtDtDtDtDtDof; break;
+  case NLEIGDOF_      : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_NLEigDof     ; break;// nleigchange
   case JACNL_         : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_JacNL        ; break;
   case DTDOFJACNL_    : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_DtDofJacNL   ; break;
   case NEVERDT_       : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_NeverDt      ; break;

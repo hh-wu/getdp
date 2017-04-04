@@ -172,6 +172,7 @@ DtDtDof                      return tDtDtDof;
 DtDtDtDof                    return tDtDtDtDof;
 DtDtDtDtDof                  return tDtDtDtDtDof;
 DtDtDtDtDtDof                return tDtDtDtDtDtDof;
+NLEigDof                     return tNLEigDof; /*nleigchange */
 DtNL                         return tDtNL;
 
 Echo                         return tEcho;

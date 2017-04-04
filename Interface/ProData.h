@@ -726,7 +726,9 @@ struct GlobalEquationTerm {
 #define DTDTDOF_        4
 #define DTDTDTDOF_      5
 #define DTDTDTDTDOF_    6
-#define DTDTDTDTDTDOF_  7
+#define DTDTDTDTDTDOF_  7 
+// nleigchange
+#define NLEIGDOF_       8
 #define JACNL_         10
 #define NEVERDT_       11
 #define DTNL_          12

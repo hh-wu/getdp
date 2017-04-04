@@ -279,7 +279,7 @@ struct doubleXstring{
 %token        tNameOfSpace tIndexOfSystem
 %token        tSymmetry
 %token    tGalerkin tdeRham tGlobalTerm tGlobalEquation
-%token        tDt tDtDof tDtDt tDtDtDof tDtDtDtDof tDtDtDtDtDof tDtDtDtDtDtDof
+%token        tDt tDtDof tDtDt tDtDtDof tDtDtDtDof tDtDtDtDtDof tDtDtDtDtDtDof tNLEigDof
 %token        tJacNL tDtDofJacNL tNeverDt tDtNL
 %token        tAtAnteriorTimeStep tMaxOverTime tFourierSteinmetz
 %token        tIn
@@ -4172,6 +4172,7 @@ TermOperator :
   | tDtDtDtDof     { Type_TermOperator = DTDTDTDOF_     ; }
   | tDtDtDtDtDof   { Type_TermOperator = DTDTDTDTDOF_   ; }
   | tDtDtDtDtDtDof { Type_TermOperator = DTDTDTDTDTDOF_ ; }
+  | tNLEigDof      { Type_TermOperator = NLEIGDOF_      ; } /*nleigchange */
   | tJacNL         { Type_TermOperator = JACNL_         ; }
   | tDtDofJacNL    { Type_TermOperator = DTDOFJACNL_    ; }
   | tNeverDt       { Type_TermOperator = NEVERDT_       ; }
