@@ -777,7 +777,7 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
   // SUBSET_NONZERO_PATTERN
   // DIFFERENT_NONZERO_PATTERN
   // SAME_NONZERO_PATTERN
-  _try(NEPSetSplitOperator(nep,2,A,funs,SAME_NONZERO_PATTERN));
+  _try(NEPSetSplitOperator(nep,2,A,funs,DIFFERENT_NONZERO_PATTERN));
   _try(NEPSetDimensions(nep, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
   _try(NEPSetTolerances(nep, 1.e-6, 100));
   _try(NEPSetType(nep, NEPNLEIGS));
@@ -827,9 +827,9 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
   // ignore additional eigenvalues if we get more than what we asked
   if(nconv > nev) nconv = nev;
 
-  // print eigenvalues and store eigenvectors in DofData
-  // TODO
-  _storeEigenVectors(DofData_P, nconv, PETSC_NULL, PETSC_NULL, nep, filterExpressionIndex);
+  // TODO : print eigenvalues and store eigenvectors in DofData
+  // TODO : _storeEigenVectors
+  //_storeEigenVectors(DofData_P, nconv, PETSC_NULL, PETSC_NULL, nep, filterExpressionIndex);
 
   _try(NEPDestroy(&nep));
 }
