@@ -444,11 +444,11 @@ void Cal_AssembleTerm_NLEigDof(struct Dof * Equ, struct Dof * Dof, double Val[])
 {
   int k ;
   if(Current.TypeAssembly == ASSEMBLY_SEPARATE){
-    if (!Current.DofData->Flag_Init[7]) {
-      Current.DofData->Flag_Init[7] = 1 ;
+		if (!Current.DofData->Flag_Init[7]) {
+			Current.DofData->Flag_Init[7] = 1 ;
       LinAlg_CreateMatrix(&Current.DofData->M7, &Current.DofData->Solver,
 			  Current.DofData->NbrDof, Current.DofData->NbrDof) ;
-      LinAlg_CreateVector(&Current.DofData->m7, &Current.DofData->Solver,
+			LinAlg_CreateVector(&Current.DofData->m7, &Current.DofData->Solver,
 			  Current.DofData->NbrDof) ;
       LinAlg_ZeroMatrix(&Current.DofData->M7);
       LinAlg_ZeroVector(&Current.DofData->m7);

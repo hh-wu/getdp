@@ -758,10 +758,10 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
   printf("A1 size %d %d\n",n2,m2);
   printf("PETSC_USE_COMPLEX %d\n",PETSC_USE_COMPLEX);
   
-  _try(MatAssemblyBegin(A[0],MAT_FINAL_ASSEMBLY));
-  _try(MatAssemblyEnd(A[0],MAT_FINAL_ASSEMBLY));
-  _try(MatAssemblyBegin(A[1],MAT_FINAL_ASSEMBLY));
-  _try(MatAssemblyEnd(A[1],MAT_FINAL_ASSEMBLY));
+  // _try(MatAssemblyBegin(A[0],MAT_FINAL_ASSEMBLY));
+  // _try(MatAssemblyEnd(A[0],MAT_FINAL_ASSEMBLY));
+  // _try(MatAssemblyBegin(A[1],MAT_FINAL_ASSEMBLY));
+  // _try(MatAssemblyEnd(A[1],MAT_FINAL_ASSEMBLY));
   
   
   _try(FNCreate(PETSC_COMM_WORLD,&funs[0]));
@@ -856,7 +856,7 @@ void EigenSolve_SLEPC(struct DofData * DofData_P, int numEigenValues,
   // GenerateSeparate[] can create up to six matrices M6, M5, M4, M3, M2, M1 such that
   // i*w^5 M6 x + w^4 M5 x + -iw^3 M4 x + -w^2 M3 x + iw M2 x + M1 x = 0
   // check Flag_Init[i] to see which operators exist.
-  if(!DofData_P->Flag_Init[11]){
+  if(!DofData_P->Flag_Init[7]){
     if(!DofData_P->Flag_Init[1] || !DofData_P->Flag_Init[3]){
       Message::Error("No System available for EigenSolve: check 'DtDt' and 'GenerateSeparate'");
       return;

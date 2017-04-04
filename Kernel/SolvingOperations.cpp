@@ -287,6 +287,13 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
       for(int i = 0; i < List_Nbr(DofData_P->m6s); i++)
         LinAlg_ZeroVector((gVector*)List_Pointer(DofData_P->m6s, i));
     }
+    if(Current.DofData->Flag_Init[7] && !Flag_Cumulative){
+      ZeroMatrix(&Current.DofData->M7, &Current.DofData->Solver,
+                 Current.DofData->NbrDof) ;
+      LinAlg_ZeroVector(&Current.DofData->m7);
+      for(int i = 0; i < List_Nbr(DofData_P->m7s); i++)
+        LinAlg_ZeroVector((gVector*)List_Pointer(DofData_P->m7s, i));
+    }
   }
   else{
     if(!Current.DofData->Flag_RHS && !Flag_Cumulative){
@@ -375,6 +382,12 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
       LinAlg_AssembleVector(&DofData_P->m6) ;
       for(int i = 0; i < List_Nbr(DofData_P->m6s); i++)
         LinAlg_AssembleVector((gVector*)List_Pointer(DofData_P->m6s, i));
+    }
+    if(DofData_P->Flag_Init[7]){
+      LinAlg_AssembleMatrix(&DofData_P->M7) ;
+      LinAlg_AssembleVector(&DofData_P->m7) ;
+      for(int i = 0; i < List_Nbr(DofData_P->m7s); i++)
+        LinAlg_AssembleVector((gVector*)List_Pointer(DofData_P->m7s, i));
     }
   }
   else{
@@ -2871,7 +2884,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                            DefineSystem_P->Name);
           if(DofData_P->Flag_Init[1] || DofData_P->Flag_Init[2] ||
              DofData_P->Flag_Init[3] || DofData_P->Flag_Init[4] ||
-             DofData_P->Flag_Init[5] || DofData_P->Flag_Init[6]){
+             DofData_P->Flag_Init[5] || DofData_P->Flag_Init[6] ||
+             DofData_P->Flag_Init[7]){
             if(DofData_P->Flag_Init[1]){
               std::string name1 = name + "1";
               LinAlg_PrintMatrix(fp, &DofData_P->M1, true,
