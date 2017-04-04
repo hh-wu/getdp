@@ -1495,7 +1495,11 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       EigenSolve(DofData_P, Operation_P->Case.EigenSolve.NumEigenvalues,
 		 Operation_P->Case.EigenSolve.Shift_r,
 		 Operation_P->Case.EigenSolve.Shift_i,
-                 Operation_P->Case.EigenSolve.FilterExpressionIndex) ;
+		 Operation_P->Case.EigenSolve.FilterExpressionIndex,
+     Operation_P->Case.EigenSolve.RationalDenCoef_im,
+     Operation_P->Case.EigenSolve.RationalDenCoef_re,
+     Operation_P->Case.EigenSolve.RationalNumCoef_im,
+     Operation_P->Case.EigenSolve.RationalNumCoef_re) ;
       break ;
 
       /*  -->  EigenSolveJac                             */
@@ -1508,8 +1512,12 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       EigenSolve(DofData_P, Operation_P->Case.EigenSolve.NumEigenvalues,
 		 Operation_P->Case.EigenSolve.Shift_r,
 		 Operation_P->Case.EigenSolve.Shift_i,
-                 Operation_P->Case.EigenSolve.FilterExpressionIndex) ;
-      /* Insert intelligent convergence test here :-) */
+     Operation_P->Case.EigenSolve.FilterExpressionIndex,
+     Operation_P->Case.EigenSolve.RationalDenCoef_im,
+     Operation_P->Case.EigenSolve.RationalDenCoef_re,
+     Operation_P->Case.EigenSolve.RationalNumCoef_im,
+     Operation_P->Case.EigenSolve.RationalNumCoef_re) ;
+     /* Insert intelligent convergence test here :-) */
       Current.RelativeDifference = 1.0 ;
       break ;
 

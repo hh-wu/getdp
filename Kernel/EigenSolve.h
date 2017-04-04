@@ -9,10 +9,14 @@
 #include "DofData.h"
 
 void EigenSolve(struct DofData * DofData_P, int NumEigenvalues,
-		double shift_r, double shift_i, int FilterExpressionIndex);
+		double shift_r, double shift_i, int FilterExpressionIndex, 
+    List_T *RationalNumCoef_re, List_T *RationalNumCoef_im, 
+    List_T *RationalDenCoef_re, List_T *RationalDenCoef_im);
 void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
                        double shift_r, double shift_i, int FilterExpressionIndex);
 void EigenSolve_SLEPC(struct DofData * DofData_P, int NumEigenvalues,
-                      double shift_r, double shift_i, int FilterExpressionIndex);
-
+                      double shift_r, double shift_i, int FilterExpressionIndex, 
+                      List_T *RationalNumCoef_re, List_T *RationalNumCoef_im, 
+                      List_T *RationalDenCoef_re, List_T *RationalDenCoef_im);
 #endif
+

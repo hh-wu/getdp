@@ -102,7 +102,7 @@ void  Cal_GlobalTermOfFemEquation(int  Num_Region,
       return;
     }
 
-    QuantityStorage_P = QuantityStorageEqu_P ;
+    QuantityStorage_P = QuantityStorageEqu_P;
 
     if (List_Nbr(WholeQuantity_L) == 4){
       if (i_WQ != 1 ||
