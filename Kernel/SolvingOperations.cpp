@@ -2926,6 +2926,15 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                                  (path + file + vec + name1 + ".m").c_str(),
                                  (vec + name1).c_str()) ;
             }
+            if(DofData_P->Flag_Init[7]){
+              std::string name1 = name + "7";
+              LinAlg_PrintMatrix(fp, &DofData_P->M7, true,
+                                 (path + file + mat + name1 + ".m").c_str(),
+                                 (mat + name1).c_str()) ;
+              LinAlg_PrintVector(fp, &DofData_P->m7, true,
+                                 (path + file + vec + name1 + ".m").c_str(),
+                                 (vec + name1).c_str()) ;
+            }
           }
           else{
             if(DofData_P->Flag_Init[0]){

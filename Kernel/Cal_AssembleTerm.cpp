@@ -444,28 +444,28 @@ void Cal_AssembleTerm_NLEigDof(struct Dof * Equ, struct Dof * Dof, double Val[])
 {
   int k ;
   if(Current.TypeAssembly == ASSEMBLY_SEPARATE){
-    if (!Current.DofData->Flag_Init[11]) {
-      Current.DofData->Flag_Init[11] = 1 ;
-      LinAlg_CreateMatrix(&Current.DofData->M11, &Current.DofData->Solver,
+    if (!Current.DofData->Flag_Init[7]) {
+      Current.DofData->Flag_Init[7] = 1 ;
+      LinAlg_CreateMatrix(&Current.DofData->M7, &Current.DofData->Solver,
 			  Current.DofData->NbrDof, Current.DofData->NbrDof) ;
-      LinAlg_CreateVector(&Current.DofData->m11, &Current.DofData->Solver,
+      LinAlg_CreateVector(&Current.DofData->m7, &Current.DofData->Solver,
 			  Current.DofData->NbrDof) ;
-      LinAlg_ZeroMatrix(&Current.DofData->M11);
-      LinAlg_ZeroVector(&Current.DofData->m11);
-      Current.DofData->m11s = List_Create(10, 10, sizeof(gVector));
+      LinAlg_ZeroMatrix(&Current.DofData->M7);
+      LinAlg_ZeroVector(&Current.DofData->m7);
+      Current.DofData->m7s = List_Create(10, 10, sizeof(gVector));
       for(int i = 0; i < List_Nbr(Current.DofData->TimeFunctionIndex); i++){
         gVector m;
         LinAlg_CreateVector(&m, &Current.DofData->Solver,
                             Current.DofData->NbrDof) ;
         LinAlg_ZeroVector(&m);
-        List_Add(Current.DofData->m11s, &m);
+        List_Add(Current.DofData->m7s, &m);
       }
     }
     for (k = 0 ; k < Current.NbrHar ; k += 2) {
       int incr = (gSCALAR_SIZE == 2) ? k / 2 : k;
       Dof_AssembleInMat(Equ + incr, Dof + incr, Current.NbrHar, &Val[k],
-			&Current.DofData->M11, &Current.DofData->m11,
-                        Current.DofData->m11s) ;
+			&Current.DofData->M7, &Current.DofData->m7,
+                        Current.DofData->m7s) ;
     }
   }
   else {

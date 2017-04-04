@@ -748,7 +748,7 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
   PetscScalar coeffs[1];
   Message::Info("Solving non-linear eigenvalue problem using slepc NEP");  
   _try(NEPCreate(PETSC_COMM_WORLD, &nep));
-  Mat A[2] = {DofData_P->M1.M, DofData_P->M11.M};
+  Mat A[2] = {DofData_P->M1.M, DofData_P->M7.M};
 
 
   PetscInt n1,m1,n2,m2;
