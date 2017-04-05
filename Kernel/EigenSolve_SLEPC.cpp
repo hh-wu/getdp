@@ -743,20 +743,32 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
                            double shift_r, double shift_i, int filterExpressionIndex,
                            double *RationalCoefsNum_re, double *RationalCoefsNum_im,
                            double *RationalCoefsDen_re, double *RationalCoefsDen_im,
-                           int *CoefsSizes = NULL)
+                           int *CoefsSizes)
 {
   NEP nep;
   NEPType        type;
   FN             funs[2];
-  PetscScalar coeffs[1];
-  Message::Info("Solving non-linear eigenvalue problem using slepc NEP");  
-  _try(NEPCreate(PETSC_COMM_WORLD, &nep));
-  Mat A[2] = {DofData_P->M1.M, DofData_P->M7.M};
-  
+  PetscScalar *coeffs_num;
+  PetscScalar *coeffs_den;
+  PetscScalar coeffs_cst[1];
   int nb_CoefsNum_re = CoefsSizes[0];
   int nb_CoefsNum_im = CoefsSizes[1];
   int nb_CoefsDen_re = CoefsSizes[2];
   int nb_CoefsDen_im = CoefsSizes[3];
+  
+  PetscScalar shift = shift_r + PETSC_i * shift_i;
+  
+  if(nb_CoefsNum_re!=nb_CoefsNum_im || nb_CoefsDen_re!=nb_CoefsDen_im){
+    Message::Error("Incompatible (re/im) sizes of non linear rational coefficients");
+  }
+
+  coeffs_num = (PetscScalar *)Malloc(nb_CoefsNum_re * sizeof(PetscScalar));
+  coeffs_den = (PetscScalar *)Malloc(nb_CoefsDen_re * sizeof(PetscScalar));
+  
+  Message::Info("Solving non-linear eigenvalue problem using slepc NEP");
+  _try(NEPCreate(PETSC_COMM_WORLD, &nep));
+  Mat A[2] = {DofData_P->M1.M, DofData_P->M7.M};
+  
   Message::Info("nleig - nb_CoefsNum_re=%d",nb_CoefsNum_re);
   Message::Info("nleig - nb_CoefsNum_im=%d",nb_CoefsNum_im);
   Message::Info("nleig - nb_CoefsDen_re=%d",nb_CoefsDen_re);
@@ -777,38 +789,46 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
   printf("A1 size %d %d\n",n2,m2);
   printf("PETSC_USE_COMPLEX %d\n",PETSC_USE_COMPLEX);
   
-  // _try(MatAssemblyBegin(A[0],MAT_FINAL_ASSEMBLY));
-  // _try(MatAssemblyEnd(A[0],MAT_FINAL_ASSEMBLY));
-  // _try(MatAssemblyBegin(A[1],MAT_FINAL_ASSEMBLY));
-  // _try(MatAssemblyEnd(A[1],MAT_FINAL_ASSEMBLY));
-  
+  for(int i=0; i<nb_CoefsNum_re; i++){
+    coeffs_num[i] = RationalCoefsNum_re[i] + PETSC_i * RationalCoefsNum_im[i];
+  }
+  for(int i=0; i<nb_CoefsDen_re; i++){
+    coeffs_den[i] = RationalCoefsDen_re[i] + PETSC_i * RationalCoefsDen_im[i];
+  }
+  printf("Numerator(w) = ");
+  for(int i=0; i<nb_CoefsNum_re; i++){
+    printf("(%.2e + %.2ei) * w^%d +",
+      PetscRealPart(coeffs_num[i]),PetscImaginaryPart(coeffs_num[i]),(nb_CoefsNum_re-1-i));
+  }
+  printf("\nDenominator(w) = ");
+  for(int i=0; i<nb_CoefsDen_re; i++){
+    printf("(%.2e + %.2ei) * w^%d +",
+      PetscRealPart(coeffs_den[i]),PetscImaginaryPart(coeffs_den[i]),(nb_CoefsDen_re-1-i));
+  }
+  printf("\n");
   
   _try(FNCreate(PETSC_COMM_WORLD,&funs[0]));
   _try(FNSetType(funs[0],FNRATIONAL));
-  coeffs[0] = 1.0;
-  _try(FNRationalSetNumerator(funs[0],1,coeffs));
-  
+  coeffs_cst[0]=1.0;
+  _try(FNRationalSetNumerator(funs[0],1,coeffs_cst));
+  // _try(FNRationalSetDenominator(funs[0],1,coeffs_cst));
+
   _try(FNCreate(PETSC_COMM_WORLD,&funs[1]));
   _try(FNSetType(funs[1],FNRATIONAL));
-  coeffs[0] = 1.0;
-  _try(FNRationalSetNumerator(funs[1],1,coeffs));
+  _try(FNRationalSetNumerator(funs[1],nb_CoefsNum_re,coeffs_num));
+  _try(FNRationalSetDenominator(funs[1],nb_CoefsDen_re,coeffs_den));
+  
   // _try(FNRationalSetDenominator(funs[1],1,coeffs));
   // SUBSET_NONZERO_PATTERN
   // DIFFERENT_NONZERO_PATTERN
   // SAME_NONZERO_PATTERN
-  _try(NEPSetSplitOperator(nep,2,A,funs,DIFFERENT_NONZERO_PATTERN));
+  _try(NEPSetSplitOperator(nep,2,A,funs,SUBSET_NONZERO_PATTERN));
   _try(NEPSetDimensions(nep, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
   _try(NEPSetTolerances(nep, 1.e-6, 100));
   _try(NEPSetType(nep, NEPNLEIGS));
   _try(NEPSetWhichEigenpairs(nep, NEP_LARGEST_MAGNITUDE));
   _try(NEPMonitorSet(nep, _myNepMonitor, PETSC_NULL, PETSC_NULL));
-#if defined(PETSC_USE_COMPLEX)
-  PetscScalar shift = shift_r + PETSC_i * shift_i;
-#else
-  PetscScalar shift = shift_r;
-#endif
-  _try(NEPSetTarget(nep, shift));
-  
+  _try(NEPSetTarget(nep, shift));  
   _try(NEPSetFromOptions(nep));
     
   // print info
@@ -908,10 +928,13 @@ void EigenSolve_SLEPC(struct DofData * DofData_P, int numEigenValues,
       Message::Error("Please upgrade to slepc >= 3.5.1 for non-linear EVP support!");
       return;
 #else
-      // the shift refers to w
+#if defined(PETSC_USE_COMPLEX)
       _nonlinearEVP(DofData_P, numEigenValues, shift_r, shift_i, FilterExpressionIndex,
               RationalCoefsNum_re, RationalCoefsNum_im,RationalCoefsDen_re, RationalCoefsDen_im,
               CoefsSizes);      
+#else
+      Message::Error("Please compile Petsc/Slepc with complex arithmetic for non linear EVP support!");
+#endif
 #endif    
   }
 }
