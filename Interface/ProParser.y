@@ -4979,6 +4979,7 @@ OperationTerm :
       Operation_P->Case.EigenSolve.RationalDenCoef_re = NULL;
       Operation_P->Case.EigenSolve.RationalNumCoef_im = NULL;
       Operation_P->Case.EigenSolve.RationalNumCoef_re = NULL;
+        
     }
 
   | tEigenSolve '[' String__Index ',' FExpr ',' FExpr ',' FExpr
@@ -5017,23 +5018,20 @@ OperationTerm :
         List_Create(List_Nbr($15), 1, sizeof(int));
         List_Create(List_Nbr($17), 1, sizeof(int));
         List_Create(List_Nbr($19), 1, sizeof(int));
+      	double d;
         for(int l = 0; l < List_Nbr($13); l++) {
-          double d;
         	List_Read($13, l, &d);
         	List_Add(Operation_P->Case.EigenSolve.RationalNumCoef_re, &d);
         }
         for(int l = 0; l < List_Nbr($15); l++) {
-          double d;
           List_Read($15, l, &d);
           List_Add(Operation_P->Case.EigenSolve.RationalNumCoef_im, &d);
         }
         for(int l = 0; l < List_Nbr($17); l++) {
-          double d;
           List_Read($17, l, &d);
           List_Add(Operation_P->Case.EigenSolve.RationalDenCoef_re, &d);
         }
         for(int l = 0; l < List_Nbr($19); l++) {
-          double d;
           List_Read($19, l, &d);
           List_Add(Operation_P->Case.EigenSolve.RationalDenCoef_im, &d);
         }
