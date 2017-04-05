@@ -296,7 +296,7 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv, EPS eps,
 #endif
 }
 
-static void _linearEVP(struct DofData * DofData_P, int NumEigenvalues,
+static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
                        double shift_r, double shift_i, int filterExpressionIndex)
 {
   Message::Info("Solving linear eigenvalue problem");
@@ -311,7 +311,7 @@ static void _linearEVP(struct DofData * DofData_P, int NumEigenvalues,
   _try(EPSSetProblemType(eps, EPS_GNHEP));
 
   // set some default options
-  _try(EPSSetDimensions(eps, NumEigenvalues, PETSC_DECIDE, PETSC_DECIDE));
+  _try(EPSSetDimensions(eps, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
   _try(EPSSetTolerances(eps, 1.e-6, 100));
   _try(EPSSetType(eps, EPSKRYLOVSCHUR));
   _try(EPSSetWhichEigenpairs(eps, EPS_SMALLEST_MAGNITUDE));
@@ -321,8 +321,8 @@ static void _linearEVP(struct DofData * DofData_P, int NumEigenvalues,
   _try(EPSSetFromOptions(eps));
 
   // force options specified directly as arguments
-  if(NumEigenvalues)
-    _try(EPSSetDimensions(eps, NumEigenvalues, PETSC_DECIDE, PETSC_DECIDE));
+  if(numEigenValues)
+    _try(EPSSetDimensions(eps, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
 
   ST st;
   _try(EPSGetST(eps, &st));
@@ -409,7 +409,7 @@ static void _linearEVP(struct DofData * DofData_P, int NumEigenvalues,
 #if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 5)
 // SLEPc < 3.5 interface using QEP
 
-static void _quadraticEVP(struct DofData * DofData_P, int NumEigenvalues,
+static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
                           double shift_r, double shift_i, int filterExpressionIndex)
 {
   Message::Info("Solving quadratic eigenvalue problem using QEP");
@@ -426,7 +426,7 @@ static void _quadraticEVP(struct DofData * DofData_P, int NumEigenvalues,
   _try(QEPSetProblemType(qep, QEP_GENERAL));
 
   // set some default options
-  _try(QEPSetDimensions(qep, NumEigenvalues, PETSC_DECIDE, PETSC_DECIDE));
+  _try(QEPSetDimensions(qep, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
   _try(QEPSetTolerances(qep, 1.e-6, 100));
   _try(QEPSetType(qep, QEPLINEAR));
   _try(QEPSetWhichEigenpairs(qep, QEP_SMALLEST_MAGNITUDE));
@@ -475,8 +475,8 @@ static void _quadraticEVP(struct DofData * DofData_P, int NumEigenvalues,
   _try(QEPSetFromOptions(qep));
 
   // force options specified directly as arguments
-  if(NumEigenvalues)
-    _try(QEPSetDimensions(qep, NumEigenvalues, PETSC_DECIDE, PETSC_DECIDE));
+  if(numEigenValues)
+    _try(QEPSetDimensions(qep, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
 
   // print info
   Message::Info("SLEPc solution method: %s", type);
@@ -525,7 +525,7 @@ static void _quadraticEVP(struct DofData * DofData_P, int NumEigenvalues,
 
 #else // SLEPc >= 3.5 interface using PEP
 
-static void _quadraticEVP(struct DofData * DofData_P, int NumEigenvalues,
+static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
                           double shift_r, double shift_i, int filterExpressionIndex)
 {
   Message::Info("Solving quadratic eigenvalue problem using PEP");
@@ -540,7 +540,7 @@ static void _quadraticEVP(struct DofData * DofData_P, int NumEigenvalues,
   _try(PEPSetProblemType(pep, PEP_GENERAL));
 
   // set some default options
-  _try(PEPSetDimensions(pep, NumEigenvalues, PETSC_DECIDE, PETSC_DECIDE));
+  _try(PEPSetDimensions(pep, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
   _try(PEPSetTolerances(pep, 1.e-6, 100));
   _try(PEPSetType(pep, PEPLINEAR));
   _try(PEPMonitorSet(pep, _myPepMonitor, PETSC_NULL, PETSC_NULL));
@@ -601,8 +601,8 @@ static void _quadraticEVP(struct DofData * DofData_P, int NumEigenvalues,
   _try(PEPSetFromOptions(pep));
 
   // force options specified directly as arguments
-  if(NumEigenvalues){
-    _try(PEPSetDimensions(pep, NumEigenvalues, PETSC_DECIDE, PETSC_DECIDE));
+  if(numEigenValues){
+    _try(PEPSetDimensions(pep, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
   }
 
   // print info
@@ -644,7 +644,7 @@ static void _quadraticEVP(struct DofData * DofData_P, int NumEigenvalues,
   _try(PEPDestroy(&pep));
 }
 
-static void _polynomialEVP(struct DofData * DofData_P, int NumEigenvalues,
+static void _polynomialEVP(struct DofData * DofData_P, int numEigenValues,
                            double shift_r, double shift_i, int filterExpressionIndex)
 {
   Message::Info("Solving polynomial eigenvalue problem using PEP");
@@ -674,7 +674,7 @@ static void _polynomialEVP(struct DofData * DofData_P, int NumEigenvalues,
   _try(PEPSetProblemType(pep, PEP_GENERAL));
 
   // set some default options
-  _try(PEPSetDimensions(pep, NumEigenvalues, PETSC_DECIDE, PETSC_DECIDE));
+  _try(PEPSetDimensions(pep, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
   _try(PEPSetTolerances(pep, 1.e-6, 100));
   _try(PEPSetType(pep, PEPTOAR));
   _try(PEPSetWhichEigenpairs(pep, PEP_SMALLEST_MAGNITUDE));
@@ -689,8 +689,8 @@ static void _polynomialEVP(struct DofData * DofData_P, int NumEigenvalues,
   _try(PEPSetFromOptions(pep));
 
   // force options specified directly as arguments
-  if(NumEigenvalues){
-    _try(PEPSetDimensions(pep, NumEigenvalues, PETSC_DECIDE, PETSC_DECIDE));
+  if(numEigenValues){
+    _try(PEPSetDimensions(pep, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
   }
 
   // print info
@@ -739,7 +739,7 @@ static void _polynomialEVP(struct DofData * DofData_P, int NumEigenvalues,
   _try(PEPDestroy(&pep));
 }
 //nleigchange
-static void _nonlinearEVP(struct DofData * DofData_P, int NumEigenvalues,
+static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
                            double shift_r, double shift_i, int filterExpressionIndex,
                            List_T *RationalNumCoef_re, List_T *RationalNumCoef_im, 
                            List_T *RationalDenCoef_re, List_T *RationalDenCoef_im)
@@ -748,17 +748,31 @@ static void _nonlinearEVP(struct DofData * DofData_P, int NumEigenvalues,
   NEPType        type;
   FN             funs[2];
   PetscScalar coeffs[1];
-  Message::Info("Solving non-linear eigenvalue problem using slepc NEP");  
-  _try(NEPCreate(PETSC_COMM_WORLD, &nep));
+  int numCoefNumCoef_re = List_Nbr(RationalNumCoef_re);
+  int numCoefNumCoef_im = List_Nbr(RationalNumCoef_im);
+  int numCoefDenCoef_re = List_Nbr(RationalDenCoef_re);
+  int numCoefDenCoef_im = List_Nbr(RationalDenCoef_im);
+  double d;
+  double RationalNumCoef[numCoefNumCoef_re];
+  double RationalDenCoef[numCoefDenCoef_re];
   Mat A[2] = {DofData_P->M1.M, DofData_P->M7.M};
-
-
+  
+  for(int l = 0; l < List_Nbr(RationalNumCoef_re); l++) {
+  	List_Read(RationalNumCoef_re, l, &d);
+    RationalNumCoef[l]=d;
+    printf("RationalNumCoef %d=%f\n",l,RationalNumCoef[l]);
+  }
+  
   PetscInt n1,m1,n2,m2;
   MatGetLocalSize(A[0],&n1,&m1);
   MatGetLocalSize(A[1],&n2,&m2);
   printf("A0 size %d %d\n",n1,m1);
   printf("A1 size %d %d\n",n2,m2);
   printf("PETSC_USE_COMPLEX %d\n",PETSC_USE_COMPLEX);
+  
+  Message::Info("Solving non-linear eigenvalue problem using slepc NEP");  
+  _try(NEPCreate(PETSC_COMM_WORLD, &nep));
+    
   
   // _try(MatAssemblyBegin(A[0],MAT_FINAL_ASSEMBLY));
   // _try(MatAssemblyEnd(A[0],MAT_FINAL_ASSEMBLY));
@@ -780,7 +794,7 @@ static void _nonlinearEVP(struct DofData * DofData_P, int NumEigenvalues,
   // DIFFERENT_NONZERO_PATTERN
   // SAME_NONZERO_PATTERN
   _try(NEPSetSplitOperator(nep,2,A,funs,DIFFERENT_NONZERO_PATTERN));
-  _try(NEPSetDimensions(nep, NumEigenvalues, PETSC_DECIDE, PETSC_DECIDE));
+  _try(NEPSetDimensions(nep, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
   _try(NEPSetTolerances(nep, 1.e-6, 100));
   _try(NEPSetType(nep, NEPNLEIGS));
   _try(NEPSetWhichEigenpairs(nep, NEP_TARGET_MAGNITUDE));
@@ -839,7 +853,7 @@ static void _nonlinearEVP(struct DofData * DofData_P, int NumEigenvalues,
 
 #endif
 
-void EigenSolve_SLEPC(struct DofData * DofData_P, int NumEigenvalues,
+void EigenSolve_SLEPC(struct DofData * DofData_P, int numEigenValues,
                       double shift_r, double shift_i, int FilterExpressionIndex, 
                       List_T *RationalNumCoef_re, List_T *RationalNumCoef_im, 
                       List_T *RationalDenCoef_re, List_T *RationalDenCoef_im)
@@ -868,11 +882,11 @@ void EigenSolve_SLEPC(struct DofData * DofData_P, int NumEigenvalues,
     if(!DofData_P->Flag_Init[4]&& !DofData_P->Flag_Init[5]&& !DofData_P->Flag_Init[6]){
       if(!DofData_P->Flag_Init[2]){
         // the shift refers to w^2
-        _linearEVP(DofData_P, NumEigenvalues, shift_r, shift_i, FilterExpressionIndex);
+        _linearEVP(DofData_P, numEigenValues, shift_r, shift_i, FilterExpressionIndex);
       }
       else{
         // the shift refers to w
-        _quadraticEVP(DofData_P, NumEigenvalues, shift_r, shift_i, FilterExpressionIndex);
+        _quadraticEVP(DofData_P, numEigenValues, shift_r, shift_i, FilterExpressionIndex);
       }
     }
     else{
@@ -881,7 +895,7 @@ void EigenSolve_SLEPC(struct DofData * DofData_P, int NumEigenvalues,
       return;
 #else
       // the shift refers to w
-      _polynomialEVP(DofData_P, NumEigenvalues, shift_r, shift_i, FilterExpressionIndex);
+      _polynomialEVP(DofData_P, numEigenValues, shift_r, shift_i, FilterExpressionIndex);
 #endif
     }
   }
@@ -891,7 +905,7 @@ void EigenSolve_SLEPC(struct DofData * DofData_P, int NumEigenvalues,
       return;
 #else
       // the shift refers to w
-      _nonlinearEVP(DofData_P, NumEigenvalues, shift_r, shift_i, FilterExpressionIndex,
+      _nonlinearEVP(DofData_P, numEigenValues, shift_r, shift_i, FilterExpressionIndex,
       RationalNumCoef_re, RationalNumCoef_im, RationalDenCoef_re, RationalDenCoef_im);
 #endif    
   }

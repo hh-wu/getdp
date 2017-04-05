@@ -15,7 +15,7 @@
 #define PetscOptionsGetTruth PetscOptionsGetBool
 #endif
 
-void EigenSolve(struct DofData * DofData_P, int NumEigenvalues,
+void EigenSolve(struct DofData * DofData_P, int numEigenValues,
 		double shift_r, double shift_i, int FilterExpressionIndex,
     List_T *RationalNumCoef_re, List_T *RationalNumCoef_im,
     List_T *RationalDenCoef_re, List_T *RationalDenCoef_im)
@@ -26,18 +26,18 @@ void EigenSolve(struct DofData * DofData_P, int NumEigenvalues,
   PetscTruth slepc = PETSC_FALSE, set;
   PetscOptionsGetTruth(PETSC_NULL, "-slepc", &slepc, &set);
   if(slepc)
-    EigenSolve_SLEPC(DofData_P, NumEigenvalues,
+    EigenSolve_SLEPC(DofData_P, numEigenValues,
                     shift_r, shift_i, FilterExpressionIndex, 
                     RationalNumCoef_re, RationalNumCoef_im, 
                     RationalDenCoef_re, RationalDenCoef_im);
   else
-    EigenSolve_ARPACK(DofData_P, NumEigenvalues, shift_r, shift_i,
+    EigenSolve_ARPACK(DofData_P, numEigenValues, shift_r, shift_i,
                       FilterExpressionIndex);
 #elif defined(HAVE_ARPACK)
-  EigenSolve_ARPACK(DofData_P, NumEigenvalues, shift_r, shift_i,
+  EigenSolve_ARPACK(DofData_P, numEigenValues, shift_r, shift_i,
                     FilterExpressionIndex);
 #elif defined(HAVE_SLEPC)
-  EigenSolve_SLEPC(DofData_P, NumEigenvalues,
+  EigenSolve_SLEPC(DofData_P, numEigenValues,
                   shift_r, shift_i, FilterExpressionIndex, 
                   RationalNumCoef_re, RationalNumCoef_im, 
                   RationalDenCoef_re, RationalDenCoef_im);
