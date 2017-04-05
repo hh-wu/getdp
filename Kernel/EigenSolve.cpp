@@ -16,9 +16,7 @@
 #endif
 
 void EigenSolve(struct DofData * DofData_P, int NumEigenvalues,
-		double shift_r, double shift_i, int FilterExpressionIndex,
-    List_T *RationalNumCoef_re, List_T *RationalNumCoef_im,
-    List_T *RationalDenCoef_re, List_T *RationalDenCoef_im)
+		double shift_r, double shift_i, int FilterExpressionIndex)
 {
 #if defined(HAVE_ARPACK) && defined(HAVE_SLEPC)
   // if both Arpack and SLEPC are available, use Arpack by default
@@ -26,10 +24,8 @@ void EigenSolve(struct DofData * DofData_P, int NumEigenvalues,
   PetscTruth slepc = PETSC_FALSE, set;
   PetscOptionsGetTruth(PETSC_NULL, "-slepc", &slepc, &set);
   if(slepc)
-    EigenSolve_SLEPC(DofData_P, NumEigenvalues,
-                    shift_r, shift_i, FilterExpressionIndex, 
-                    RationalNumCoef_re, RationalNumCoef_im, 
-                    RationalDenCoef_re, RationalDenCoef_im);
+    EigenSolve_SLEPC(DofData_P, NumEigenvalues, shift_r, shift_i,
+                     FilterExpressionIndex);
   else
     EigenSolve_ARPACK(DofData_P, NumEigenvalues, shift_r, shift_i,
                       FilterExpressionIndex);
@@ -37,10 +33,8 @@ void EigenSolve(struct DofData * DofData_P, int NumEigenvalues,
   EigenSolve_ARPACK(DofData_P, NumEigenvalues, shift_r, shift_i,
                     FilterExpressionIndex);
 #elif defined(HAVE_SLEPC)
-  EigenSolve_SLEPC(DofData_P, NumEigenvalues,
-                  shift_r, shift_i, FilterExpressionIndex, 
-                  RationalNumCoef_re, RationalNumCoef_im, 
-                  RationalDenCoef_re, RationalDenCoef_im);
+  EigenSolve_SLEPC(DofData_P, NumEigenvalues, shift_r, shift_i,
+                   FilterExpressionIndex);
 #else
   Message::Error("EigenSolve not available without SLEPC or ARPACK");
 #endif

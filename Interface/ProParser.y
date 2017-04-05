@@ -4975,11 +4975,6 @@ OperationTerm :
       Operation_P->Case.EigenSolve.Shift_r = $7;
       Operation_P->Case.EigenSolve.Shift_i = $9;
       Operation_P->Case.EigenSolve.FilterExpressionIndex = -1;
-      Operation_P->Case.EigenSolve.RationalDenCoef_im = NULL;
-      Operation_P->Case.EigenSolve.RationalDenCoef_re = NULL;
-      Operation_P->Case.EigenSolve.RationalNumCoef_im = NULL;
-      Operation_P->Case.EigenSolve.RationalNumCoef_re = NULL;
-        
     }
 
   | tEigenSolve '[' String__Index ',' FExpr ',' FExpr ',' FExpr
@@ -4997,54 +4992,7 @@ OperationTerm :
       Operation_P->Case.EigenSolve.Shift_r = $7;
       Operation_P->Case.EigenSolve.Shift_i = $9;
       Operation_P->Case.EigenSolve.FilterExpressionIndex = $11;
-      Operation_P->Case.EigenSolve.RationalDenCoef_im = NULL;
-      Operation_P->Case.EigenSolve.RationalDenCoef_re = NULL;
-      Operation_P->Case.EigenSolve.RationalNumCoef_im = NULL;
-      Operation_P->Case.EigenSolve.RationalNumCoef_re = NULL;
     }
-
-    | tEigenSolve '[' String__Index ',' FExpr ',' FExpr ',' FExpr
-                  ',' Expression ',' ListOfFExpr ',' ListOfFExpr 
-                  ',' ListOfFExpr ',' ListOfFExpr  ']' tEND
-      { Operation_P = (struct Operation*)
-  	    List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
-        Operation_P->Type = OPERATION_EIGENSOLVE;
-        int i;
-        if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
-  			       fcmp_DefineSystem_Name)) < 0)
-        vyyerror(0, "Unknown System: %s", $3);
-        Free($3);
-        List_Create(List_Nbr($13), 1, sizeof(int));
-        List_Create(List_Nbr($15), 1, sizeof(int));
-        List_Create(List_Nbr($17), 1, sizeof(int));
-        List_Create(List_Nbr($19), 1, sizeof(int));
-      	double d;
-        for(int l = 0; l < List_Nbr($13); l++) {
-        	List_Read($13, l, &d);
-        	List_Add(Operation_P->Case.EigenSolve.RationalNumCoef_re, &d);
-        }
-        for(int l = 0; l < List_Nbr($15); l++) {
-          List_Read($15, l, &d);
-          List_Add(Operation_P->Case.EigenSolve.RationalNumCoef_im, &d);
-        }
-        for(int l = 0; l < List_Nbr($17); l++) {
-          List_Read($17, l, &d);
-          List_Add(Operation_P->Case.EigenSolve.RationalDenCoef_re, &d);
-        }
-        for(int l = 0; l < List_Nbr($19); l++) {
-          List_Read($19, l, &d);
-          List_Add(Operation_P->Case.EigenSolve.RationalDenCoef_im, &d);
-        }
-        List_Delete($13);
-        List_Delete($15);
-        List_Delete($17);
-        List_Delete($19);
-        Operation_P->DefineSystemIndex = i;
-        Operation_P->Case.EigenSolve.NumEigenvalues = (int)$5;
-        Operation_P->Case.EigenSolve.Shift_r = $7;
-        Operation_P->Case.EigenSolve.Shift_i = $9;
-        Operation_P->Case.EigenSolve.FilterExpressionIndex = $11;
-      }
 
   | tEigenSolveJac '[' String__Index ',' FExpr ',' FExpr ',' FExpr ']' tEND
     { Operation_P = (struct Operation*)
