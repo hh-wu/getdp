@@ -992,6 +992,11 @@ struct Operation {
       int     NumEigenvalues;
       double  Shift_r, Shift_i;
       int     FilterExpressionIndex;
+      double *RationalCoefsNum_re;
+      double *RationalCoefsNum_im;
+      double *RationalCoefsDen_re;
+      double *RationalCoefsDen_im;
+      int CoefsSizes[4];
     } EigenSolve;
     struct {
       List_T  *Expressions;

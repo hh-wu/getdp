@@ -740,7 +740,10 @@ static void _polynomialEVP(struct DofData * DofData_P, int numEigenValues,
 }
 //nleigchange
 static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
-                           double shift_r, double shift_i, int filterExpressionIndex)
+                           double shift_r, double shift_i, int filterExpressionIndex,
+                           double *RationalCoefsNum_re, double *RationalCoefsNum_im,
+                           double *RationalCoefsDen_re, double *RationalCoefsDen_im,
+                           int *CoefsSizes = NULL)
 {
   NEP nep;
   NEPType        type;
@@ -749,8 +752,24 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
   Message::Info("Solving non-linear eigenvalue problem using slepc NEP");  
   _try(NEPCreate(PETSC_COMM_WORLD, &nep));
   Mat A[2] = {DofData_P->M1.M, DofData_P->M7.M};
-
-
+  
+  int nb_CoefsNum_re = CoefsSizes[0];
+  int nb_CoefsNum_im = CoefsSizes[1];
+  int nb_CoefsDen_re = CoefsSizes[2];
+  int nb_CoefsDen_im = CoefsSizes[3];
+  Message::Info("nleig - nb_CoefsNum_re=%d",nb_CoefsNum_re);
+  Message::Info("nleig - nb_CoefsNum_im=%d",nb_CoefsNum_im);
+  Message::Info("nleig - nb_CoefsDen_re=%d",nb_CoefsDen_re);
+  Message::Info("nleig - nb_CoefsDen_im=%d",nb_CoefsDen_im);
+  for(int i=0; i<nb_CoefsNum_re; i++){
+    Message::Info("nleig - RationalCoefsNum_re[%d]=%lf",i,RationalCoefsNum_re[i]);}
+  for(int i=0; i<nb_CoefsNum_im; i++){
+    Message::Info("nleig - RationalCoefsNum_im[%d]=%lf",i,RationalCoefsNum_im[i]);}
+  for(int i=0; i<nb_CoefsDen_re; i++){
+    Message::Info("nleig - RationalCoefsDen_re[%d]=%lf",i,RationalCoefsDen_re[i]);}
+  for(int i=0; i<nb_CoefsDen_im; i++){
+    Message::Info("nleig - RationalCoefsDen_im[%d]=%lf",i,RationalCoefsDen_im[i]);}
+  
   PetscInt n1,m1,n2,m2;
   MatGetLocalSize(A[0],&n1,&m1);
   MatGetLocalSize(A[1],&n2,&m2);
@@ -838,7 +857,10 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
 #endif
 
 void EigenSolve_SLEPC(struct DofData * DofData_P, int numEigenValues,
-                      double shift_r, double shift_i, int FilterExpressionIndex)
+                  double shift_r, double shift_i, int FilterExpressionIndex,
+                  double *RationalCoefsNum_re, double *RationalCoefsNum_im,
+                  double *RationalCoefsDen_re, double *RationalCoefsDen_im,
+                  int *CoefsSizes)
 {
   // Warn if we are not in harmonic regime (we won't be able to compute/store
   // complex eigenvectors).
@@ -887,7 +909,9 @@ void EigenSolve_SLEPC(struct DofData * DofData_P, int numEigenValues,
       return;
 #else
       // the shift refers to w
-      _nonlinearEVP(DofData_P, numEigenValues, shift_r, shift_i, FilterExpressionIndex);
+      _nonlinearEVP(DofData_P, numEigenValues, shift_r, shift_i, FilterExpressionIndex,
+              RationalCoefsNum_re, RationalCoefsNum_im,RationalCoefsDen_re, RationalCoefsDen_im,
+              CoefsSizes);      
 #endif    
   }
 }

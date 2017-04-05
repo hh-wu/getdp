@@ -1493,9 +1493,14 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
       EigenSolve(DofData_P, Operation_P->Case.EigenSolve.NumEigenvalues,
-		 Operation_P->Case.EigenSolve.Shift_r,
-		 Operation_P->Case.EigenSolve.Shift_i,
-                 Operation_P->Case.EigenSolve.FilterExpressionIndex) ;
+                 Operation_P->Case.EigenSolve.Shift_r,
+                 Operation_P->Case.EigenSolve.Shift_i,
+                 Operation_P->Case.EigenSolve.FilterExpressionIndex,
+                 Operation_P->Case.EigenSolve.RationalCoefsNum_re,
+                 Operation_P->Case.EigenSolve.RationalCoefsNum_im,
+                 Operation_P->Case.EigenSolve.RationalCoefsDen_re,
+                 Operation_P->Case.EigenSolve.RationalCoefsDen_im,
+                 Operation_P->Case.EigenSolve.CoefsSizes);
       break ;
 
       /*  -->  EigenSolveJac                             */
@@ -1506,9 +1511,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
       EigenSolve(DofData_P, Operation_P->Case.EigenSolve.NumEigenvalues,
-		 Operation_P->Case.EigenSolve.Shift_r,
-		 Operation_P->Case.EigenSolve.Shift_i,
-                 Operation_P->Case.EigenSolve.FilterExpressionIndex) ;
+                 Operation_P->Case.EigenSolve.Shift_r,
+                 Operation_P->Case.EigenSolve.Shift_i,
+                 Operation_P->Case.EigenSolve.FilterExpressionIndex,
+                 NULL,NULL,NULL,NULL,NULL) ;
       /* Insert intelligent convergence test here :-) */
       Current.RelativeDifference = 1.0 ;
       break ;
