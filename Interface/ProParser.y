@@ -8942,6 +8942,16 @@ ListOfFExpr :
 	(*pd) *= $1;
       }
     }
+/*++++D
+  | FExpr '+' '{' RecursiveListOfFExpr '}'
+    {
+      $$ = $4;
+      for(int i = 0; i < List_Nbr($$); i++){
+	double *pd = (double*)List_Pointer($$, i);
+	(*pd) += $1;
+      }
+    }
+*/
 ;
 
 
@@ -8990,12 +9000,12 @@ MultiFExpr :
       }
     }
 
-  | MultiFExpr '*' FExpr
+  | FExpr '+' MultiFExpr
     {
-      $$ = $1;
+      $$ = $3;
       for(int i = 0; i < List_Nbr($$); i++){
 	double *pd = (double*)List_Pointer($$, i);
-	*pd *= $3;
+	*pd += $1;
       }
     }
 
