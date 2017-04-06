@@ -116,14 +116,20 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv, EPS eps,
 
   // temporary (parallel) vectors to store real and imaginary part of eigenvectors
   Vec xr, xi;
+  if(!nep){
 #if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 6)
-  _try(MatGetVecs(DofData_P->M1.M, PETSC_NULL, &xr));
-  _try(MatGetVecs(DofData_P->M1.M, PETSC_NULL, &xi));
+    _try(MatGetVecs(DofData_P->M1.M, PETSC_NULL, &xr));
+    _try(MatGetVecs(DofData_P->M1.M, PETSC_NULL, &xi));
 #else
-  _try(MatCreateVecs(DofData_P->M1.M, PETSC_NULL, &xr));
-  _try(MatCreateVecs(DofData_P->M1.M, PETSC_NULL, &xi));
+    _try(MatCreateVecs(DofData_P->M1.M, PETSC_NULL, &xr));
+    _try(MatCreateVecs(DofData_P->M1.M, PETSC_NULL, &xi));
 #endif
-
+  }
+  else{
+    _try(MatCreateVecs(DofData_P->M7.M, PETSC_NULL, &xr));
+    _try(MatCreateVecs(DofData_P->M7.M, PETSC_NULL, &xi));
+  }
+Message::Info("jusqu'ici tout va bien...");
   // temporary sequential vectors to transfer eigenvectors to getdp
   Vec xr_seq, xi_seq;
   if(Message::GetCommSize() > 1){
@@ -146,27 +152,32 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv, EPS eps,
       _try(EPSComputeError(eps, i, EPS_ERROR_RELATIVE, &error));
 #endif
     }
-    else{
 #if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 5)
+    else if (qep){
       _try(QEPGetEigenpair(qep, i, &kr, &ki, xr, xi));
       _try(QEPComputeRelativeError(qep, i, &error));
+    }
 #else
+    else if (pep){
       _try(PEPGetEigenpair(pep, i, &kr, &ki, xr, xi));
-      // _try(NEPGetEigenpair(nep, i, &kr, &ki, xr, xi));
 #if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 6)
       _try(PEPComputeRelativeError(pep, i, &error));
-      // _try(NEPComputeRelativeError(nep, i, &error));
 #else
       _try(PEPComputeError(pep, i, PEP_ERROR_RELATIVE, &error));
 #endif
-#endif
     }
+#endif
+    else if(nep){
+      _try(NEPGetEigenpair(nep, i, &kr, &ki, xr, xi));
+      _try(NEPComputeError(nep, i, NEP_ERROR_RELATIVE, &error));
+    }
+    
 #if defined(PETSC_USE_COMPLEX)
     PetscReal re = PetscRealPart(kr), im = PetscImaginaryPart(kr);
 #else
     PetscReal re = kr, im = ki;
 #endif
-    double ore, oim;
+    double ore=0, oim=0;
     if(eps){
       Message::Info("EIG %03d w^2 = %s%.16e %s%.16e  %3.6e",
                     i, (re < 0) ? "" : " ", re, (im < 0) ? "" : " ", im, error);
@@ -179,10 +190,34 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv, EPS eps,
       Message::Info("          f = %s%.16e %s%.16e",
                     (fre < 0) ? "" : " ", fre, (fim < 0) ? "" : " ", fim);
     }
-    else{
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 5)
+    else if(qep){
       // lambda == iw
       ore = im;
       oim = -re;
+      Message::Info("EIG %03d   w = %s%.16e %s%.16e  %3.6e",
+                    i, (ore < 0) ? "" : " ", ore, (oim < 0) ? "" : " ", oim, error);
+      double fre = ore / 2. / M_PI, fim = oim / 2. / M_PI;
+      Message::Info("          f = %s%.16e %s%.16e",
+                    (fre < 0) ? "" : " ", fre, (fim < 0) ? "" : " ", fim);
+    }
+#else
+    else if (pep){
+      // lambda == iw
+      ore = im;
+      oim = -re;
+      Message::Info("EIG %03d   w = %s%.16e %s%.16e  %3.6e",
+                    i, (ore < 0) ? "" : " ", ore, (oim < 0) ? "" : " ", oim, error);
+      double fre = ore / 2. / M_PI, fim = oim / 2. / M_PI;
+      Message::Info("          f = %s%.16e %s%.16e",
+                    (fre < 0) ? "" : " ", fre, (fim < 0) ? "" : " ", fim);
+    }
+#endif
+    else if (nep){
+      // lambda != iw (!!! this is too misleading otherwise)
+      // lambda is lambda
+      ore = re;
+      oim = im;
       Message::Info("EIG %03d   w = %s%.16e %s%.16e  %3.6e",
                     i, (ore < 0) ? "" : " ", ore, (oim < 0) ? "" : " ", oim, error);
       double fre = ore / 2. / M_PI, fim = oim / 2. / M_PI;
@@ -952,7 +987,7 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
 
   // TODO : print eigenvalues and store eigenvectors in DofData
   // TODO : _storeEigenVectors
-  //_storeEigenVectors(DofData_P, nconv, PETSC_NULL, PETSC_NULL, nep, filterExpressionIndex);
+  _storeEigenVectors(DofData_P, nconv, PETSC_NULL, PETSC_NULL, nep, filterExpressionIndex);
 
   _try(NEPDestroy(&nep));
 }
