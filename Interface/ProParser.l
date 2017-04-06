@@ -172,7 +172,9 @@ DtDtDof                      return tDtDtDof;
 DtDtDtDof                    return tDtDtDtDof;
 DtDtDtDtDof                  return tDtDtDtDtDof;
 DtDtDtDtDtDof                return tDtDtDtDtDtDof;
-NLEigDof                     return tNLEigDof; /*nleigchange */
+NLEig1Dof                    return tNLEig1Dof; /*nleigchange */
+NLEig2Dof                    return tNLEig2Dof; /*nleigchange */
+NLEig3Dof                    return tNLEig3Dof; /*nleigchange */
 DtNL                         return tDtNL;
 
 Echo                         return tEcho;

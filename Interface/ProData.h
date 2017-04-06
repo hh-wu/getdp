@@ -727,12 +727,17 @@ struct GlobalEquationTerm {
 #define DTDTDTDOF_      5
 #define DTDTDTDTDOF_    6
 #define DTDTDTDTDTDOF_  7 
-// nleigchange
-#define NLEIGDOF_       8
 #define JACNL_         10
 #define NEVERDT_       11
 #define DTNL_          12
 #define DTDOFJACNL_    13
+
+// nleigchange
+#define NLEIG1DOF_     20
+#define NLEIG2DOF_     21
+#define NLEIG3DOF_     22
+
+
 
 /* Term.TypeOperator */
 #define NOOP       0
@@ -992,11 +997,19 @@ struct Operation {
       int     NumEigenvalues;
       double  Shift_r, Shift_i;
       int     FilterExpressionIndex;
-      double *RationalCoefsNum_re;
-      double *RationalCoefsNum_im;
-      double *RationalCoefsDen_re;
-      double *RationalCoefsDen_im;
-      int CoefsSizes[4];
+      double *RationalCoefs1Num_re;
+      double *RationalCoefs1Num_im;
+      double *RationalCoefs1Den_re;
+      double *RationalCoefs1Den_im;
+      double *RationalCoefs2Num_re;
+      double *RationalCoefs2Num_im;
+      double *RationalCoefs2Den_re;
+      double *RationalCoefs2Den_im;
+      double *RationalCoefs3Num_re;
+      double *RationalCoefs3Num_im;
+      double *RationalCoefs3Den_re;
+      double *RationalCoefs3Den_im;
+      int CoefsSizes[12];
     } EigenSolve;
     struct {
       List_T  *Expressions;

@@ -72,10 +72,12 @@ void  Cal_GlobalTermOfFemEquation(int  Num_Region,
   case DTDTDTDOF_     : Function_AssembleTerm = Cal_AssembleTerm_DtDtDtDof         ; break ;
   case DTDTDTDTDOF_   : Function_AssembleTerm = Cal_AssembleTerm_DtDtDtDtDof       ; break ;
   case DTDTDTDTDTDOF_ : Function_AssembleTerm = Cal_AssembleTerm_DtDtDtDtDtDof     ; break ;
-  case NLEIGDOF_      : Function_AssembleTerm = Cal_AssembleTerm_NLEigDof          ; break ;// nleigchange
   case NEVERDT_       : Function_AssembleTerm = Cal_AssembleTerm_NeverDt   			   ; break ;
   case JACNL_         : Function_AssembleTerm = Cal_AssembleTerm_JacNL     			   ; break ;
   case DTDOFJACNL_    : Function_AssembleTerm = Cal_AssembleTerm_DtDofJacNL			   ; break ;
+  case NLEIG1DOF_      : Function_AssembleTerm = Cal_AssembleTerm_NLEig1Dof          ; break ;// nleigchange
+  case NLEIG2DOF_      : Function_AssembleTerm = Cal_AssembleTerm_NLEig2Dof          ; break ;// nleigchange
+  case NLEIG3DOF_      : Function_AssembleTerm = Cal_AssembleTerm_NLEig3Dof          ; break ;// nleigchange
   default 						:  Message::Error("Unknown type of operator for Global term"); return;
   }
 
@@ -260,10 +262,12 @@ void  Cal_GlobalTermOfFemEquation_old(int  Num_Region,
   case DTDTDTDOF_    : Function_AssembleTerm = Cal_AssembleTerm_DtDtDtDof     ; break ; 
 	case DTDTDTDTDOF_  : Function_AssembleTerm = Cal_AssembleTerm_DtDtDtDtDof   ; break ; 
 	case DTDTDTDTDTDOF_: Function_AssembleTerm = Cal_AssembleTerm_DtDtDtDtDtDof ; break ; 
-  case NLEIGDOF_     : Function_AssembleTerm = Cal_AssembleTerm_NLEigDof      ; break ;// nleigchange
 	case NEVERDT_      : Function_AssembleTerm = Cal_AssembleTerm_NeverDt       ; break ;
   case JACNL_        : Function_AssembleTerm = Cal_AssembleTerm_JacNL         ; break ;
   case DTDOFJACNL_   : Function_AssembleTerm = Cal_AssembleTerm_DtDofJacNL    ; break ;
+  case NLEIG1DOF_     : Function_AssembleTerm = Cal_AssembleTerm_NLEig1Dof      ; break ;// nleigchange
+  case NLEIG2DOF_     : Function_AssembleTerm = Cal_AssembleTerm_NLEig2Dof      ; break ;// nleigchange
+  case NLEIG3DOF_     : Function_AssembleTerm = Cal_AssembleTerm_NLEig3Dof      ; break ;// nleigchange
   default : Message::Error("Unknown type of operator for Global term")        ; return ;
   }
 

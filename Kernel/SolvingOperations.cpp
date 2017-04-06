@@ -1487,7 +1487,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       /*  -->  EigenSolve                             */
       /*  ------------------------------------------  */
-
+    // nleigchange
     case OPERATION_EIGENSOLVE :
       Init_OperationOnSystem("EigenSolve",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
@@ -1496,10 +1496,18 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                  Operation_P->Case.EigenSolve.Shift_r,
                  Operation_P->Case.EigenSolve.Shift_i,
                  Operation_P->Case.EigenSolve.FilterExpressionIndex,
-                 Operation_P->Case.EigenSolve.RationalCoefsNum_re,
-                 Operation_P->Case.EigenSolve.RationalCoefsNum_im,
-                 Operation_P->Case.EigenSolve.RationalCoefsDen_re,
-                 Operation_P->Case.EigenSolve.RationalCoefsDen_im,
+                 Operation_P->Case.EigenSolve.RationalCoefs1Num_re,
+                 Operation_P->Case.EigenSolve.RationalCoefs1Num_im,
+                 Operation_P->Case.EigenSolve.RationalCoefs1Den_re,
+                 Operation_P->Case.EigenSolve.RationalCoefs1Den_im,
+                 Operation_P->Case.EigenSolve.RationalCoefs2Num_re,
+                 Operation_P->Case.EigenSolve.RationalCoefs2Num_im,
+                 Operation_P->Case.EigenSolve.RationalCoefs2Den_re,
+                 Operation_P->Case.EigenSolve.RationalCoefs2Den_im,
+                 Operation_P->Case.EigenSolve.RationalCoefs3Num_re,
+                 Operation_P->Case.EigenSolve.RationalCoefs3Num_im,
+                 Operation_P->Case.EigenSolve.RationalCoefs3Den_re,
+                 Operation_P->Case.EigenSolve.RationalCoefs3Den_im,
                  Operation_P->Case.EigenSolve.CoefsSizes);
       break ;
 
@@ -1514,7 +1522,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                  Operation_P->Case.EigenSolve.Shift_r,
                  Operation_P->Case.EigenSolve.Shift_i,
                  Operation_P->Case.EigenSolve.FilterExpressionIndex,
-                 NULL,NULL,NULL,NULL,NULL) ;
+                 NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL) ;
+                 // nleigchange
       /* Insert intelligent convergence test here :-) */
       Current.RelativeDifference = 1.0 ;
       break ;
