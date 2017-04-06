@@ -873,18 +873,24 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
 
   for(int i=0; i<nb_Coefs1Num_re; i++){
     coefs1_num[i] = RationalCoefs1Num_re[i] + PETSC_i * RationalCoefs1Num_im[i];
+    // tweak w is the eigenvalue (no longer iw, this is too misleading)!
+    coefs1_num[i]*=-1.0;
   }
   for(int i=0; i<nb_Coefs1Den_re; i++){
     coefs1_den[i] = RationalCoefs1Den_re[i] + PETSC_i * RationalCoefs1Den_im[i];
   }
   for(int i=0; i<nb_Coefs2Num_re; i++){
     coefs2_num[i] = RationalCoefs2Num_re[i] + PETSC_i * RationalCoefs2Num_im[i];
+    // tweak w is the eigenvalue (no longer iw, this is too misleading)!
+    coefs2_num[i]*=-1.0*PETSC_i;
   }
   for(int i=0; i<nb_Coefs2Den_re; i++){
     coefs2_den[i] = RationalCoefs2Den_re[i] + PETSC_i * RationalCoefs2Den_im[i];
   }
   for(int i=0; i<nb_Coefs3Num_re; i++){
     coefs3_num[i] = RationalCoefs3Num_re[i] + PETSC_i * RationalCoefs3Num_im[i];
+    // tweak w is the eigenvalue (no longer iw, this is too misleading)!
+    coefs3_num[i]*=-1.0;
   }
   for(int i=0; i<nb_Coefs3Den_re; i++){
     coefs3_den[i] = RationalCoefs3Den_re[i] + PETSC_i * RationalCoefs3Den_im[i];
