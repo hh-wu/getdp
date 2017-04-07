@@ -74,6 +74,7 @@ struct StringXDefine1Nbr  Jacobian_Type[] = {
   {"VolSphShell"       , JACOBIAN_VOL_SPH_SHELL         , -1} ,
   {"VolCylShell"       , JACOBIAN_VOL_CYL_SHELL         , -1} ,
   {"VolRectShell"      , JACOBIAN_VOL_RECT_SHELL        , -1} ,
+  {"VolUniDirShell"    , JACOBIAN_VOL_UNI_DIR_SHELL     , -1} ,
   {"VolPlpdX"          , JACOBIAN_VOL_PLPD_X            , 2} ,
 
   {"VolAxi"            , JACOBIAN_VOL_AXI               , 0} ,
@@ -1131,7 +1132,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"OSRC_R0",   (CAST)F_OSRC_R0, 2, 0},
   {"OSRC_Aj",   (CAST)F_OSRC_Aj, 3, 0},
   {"OSRC_Bj",   (CAST)F_OSRC_Bj, 3, 0},
-  
+
   {"pnm"               , (CAST)F_pnm              ,   0,   3 },
   {"unm"               , (CAST)F_unm              ,   0,   3 },
   {"snm"               , (CAST)F_snm              ,   0,   3 },
