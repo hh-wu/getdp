@@ -163,7 +163,7 @@ Message::Info("jusqu'ici tout va bien...");
 #if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 6)
       _try(PEPComputeRelativeError(pep, i, &error));
 #else
-      _try(PEPComputeError(pep, i, PEP_ERROR_RELATIVE, &error));
+      _try(PEPComputeError(pep, i, PEP_ERROR_BACKWARD, &error));
 #endif
     }
 #endif
@@ -958,11 +958,11 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
   Message::Info(str_coefs3Num);
   Message::Info(str_coefs3Den);
 
-  // tweak w is the eigenvalue (no longer iw, this is too misleading)!
-  for(int i=0; i<nb_Coefs1Num_re; i++){coefs1Num[i]*=-1.0;}
-  for(int i=0; i<nb_Coefs2Num_re; i++){coefs2Num[i]*=-1.0*PETSC_i;}
-  for(int i=0; i<nb_Coefs3Num_re; i++){coefs3Num[i]*=-1.0;}
-  Message::Warning("Experimental : In non-linear EVP, w is the eigenvalue (rather than iw)!");
+  // // tweak w is the eigenvalue (no longer iw, this is too misleading)!
+  // for(int i=0; i<nb_Coefs1Num_re; i++){coefs1Num[i]*=-1.0;}
+  // for(int i=0; i<nb_Coefs2Num_re; i++){coefs2Num[i]*=-1.0*PETSC_i;}
+  // for(int i=0; i<nb_Coefs3Num_re; i++){coefs3Num[i]*=-1.0;}
+  // Message::Warning("Experimental : In non-linear EVP, w is the eigenvalue (rather than iw)!");
 
   _try(FNCreate(PETSC_COMM_WORLD,&funs[0]));
   _try(FNSetType(funs[0],FNRATIONAL));
