@@ -204,8 +204,8 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
   PetscInt prealloc_full = n;
   int nonloc = Current.DofData->NonLocalEquations.size();
   // heuristic for preallocation of global rows: don't prelloc more than 500 Mb
-  long limit = (int)(500 * 1024 * 1024 / (gSCALAR_SIZE * sizeof(double)));
-  long estim = (long)nonloc * (long)n;
+  double limit = 500. * 1024. * 1024. / (gSCALAR_SIZE * sizeof(double));
+  double estim = (double)nonloc * (double)n;
   if(estim > limit){
     prealloc_full = (int)(limit / nonloc);
     Message::Debug("Heuristic -petsc_prealloc_full changed to %d", prealloc_full);
