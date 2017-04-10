@@ -102,6 +102,7 @@ if(APPLE)
   set(GETDP_OS "MacOSX")
 elseif(CYGWIN)
   set(GETDP_OS "Windows")
+  add_definitions(-DWIN32) # recent mingw compiler doesn't define it
 else(APPLE)
   set(GETDP_OS "${CMAKE_SYSTEM_NAME}")
 endif(APPLE)
@@ -641,14 +642,14 @@ if(NOT INTPTR_T_SIZE AND NOT ENABLE_BUILD_IOS)
   set_config_option(HAVE_NO_INTPTR_T "NoIntptrT")
 endif(NOT INTPTR_T_SIZE AND NOT ENABLE_BUILD_IOS)
 
-if(MSVC)
-  add_definitions(-D_USE_MATH_DEFINES -DNOMINMAX
-                  -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE)
-endif(MSVC)
-
 if(WIN32 OR CYGWIN)
+  add_definitions(-D_USE_MATH_DEFINES)
   list(APPEND EXTERNAL_LIBRARIES winmm wsock32 ws2_32 psapi)
 endif(WIN32 OR CYGWIN)
+
+if(MSVC)
+  add_definitions(-DNOMINMAX -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE)
+endif(MSVC)
 
 # disable compile optimization on some known problematic files
 check_cxx_compiler_flag("-O0" NOOPT)
