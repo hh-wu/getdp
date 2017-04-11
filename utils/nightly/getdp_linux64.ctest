@@ -3,7 +3,7 @@
 # See the LICENSE.txt file for license information. Please report all
 # bugs and problems to the public mailing list <getdp@onelab.info>.
 
-set(CTEST_CMAKE_COMMAND "cmake")
+set(CTEST_CMAKE_COMMAND "/usr/local/bin/cmake")
 
 set(WEB_BIN "geuzaine@onelab.info:/home/www/getdp.info/bin/Linux")
 
