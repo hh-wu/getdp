@@ -129,7 +129,6 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv, EPS eps,
     _try(MatCreateVecs(DofData_P->M7.M, PETSC_NULL, &xr));
     _try(MatCreateVecs(DofData_P->M7.M, PETSC_NULL, &xi));
   }
-Message::Info("jusqu'ici tout va bien...");
   // temporary sequential vectors to transfer eigenvectors to getdp
   Vec xr_seq, xi_seq;
   if(Message::GetCommSize() > 1){
@@ -216,8 +215,10 @@ Message::Info("jusqu'ici tout va bien...");
     else if (nep){
       // lambda != iw (!!! this is too misleading otherwise)
       // lambda is lambda
-      ore = re;
-      oim = im;
+      // ore = re;
+      // oim = im;
+      ore = im;
+      oim = -re;
       Message::Info("EIG %03d   w = %s%.16e %s%.16e  %3.6e",
                     i, (ore < 0) ? "" : " ", ore, (oim < 0) ? "" : " ", oim, error);
       double fre = ore / 2. / M_PI, fim = oim / 2. / M_PI;
@@ -902,52 +903,52 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
   strcpy(str_coefs3Den,"den3(w)=");
 
   for(int i=0; i<nb_Coefs1Num_re-1; i++){
-    sprintf(str_buff,"(%.2e + %.2ei) * w^%d +",
+    sprintf(str_buff," (%+.2e%+.2ej)*w^%d +",
       PetscRealPart(coefs1Num[i]),PetscImaginaryPart(coefs1Num[i]),(nb_Coefs1Num_re-1-i));
       strcat(str_coefs1Num,str_buff);
   }
-  sprintf(str_buff,"(%.2e + %.2ei) * w^%d",
+  sprintf(str_buff," (%+.2e%+.2ej)*w^%d",
     PetscRealPart(coefs1Num[nb_Coefs1Num_re-1]),PetscImaginaryPart(coefs1Num[nb_Coefs1Num_re-1]),0);
     strcat(str_coefs1Num,str_buff);
   for(int i=0; i<nb_Coefs1Den_re-1; i++){
-    sprintf(str_buff,"(%.2e + %.2ei) * w^%d +",
+    sprintf(str_buff," (%+.2e%+.2ej)*w^%d +",
       PetscRealPart(coefs1Den[i]),PetscImaginaryPart(coefs1Den[i]),(nb_Coefs1Den_re-1-i));
       strcat(str_coefs1Den,str_buff);
   }
-  sprintf(str_buff,"(%.2e + %.2ei) * w^%d",
+  sprintf(str_buff," (%+.2e%+.2ej)*w^%d",
     PetscRealPart(coefs1Den[nb_Coefs1Den_re-1]),PetscImaginaryPart(coefs1Den[nb_Coefs1Den_re-1]),0);
     strcat(str_coefs1Den,str_buff);
   for(int i=0; i<nb_Coefs2Num_re-1; i++){
-    sprintf(str_buff,"(%.2e + %.2ei) * w^%d +",
+    sprintf(str_buff," (%+.2e%+.2ej)*w^%d +",
       PetscRealPart(coefs2Num[i]),PetscImaginaryPart(coefs2Num[i]),(nb_Coefs2Num_re-1-i));
       strcat(str_coefs2Num,str_buff);
   }
-  sprintf(str_buff,"(%.2e + %.2ei) * w^%d",
+  sprintf(str_buff," (%+.2e%+.2ej)*w^%d",
     PetscRealPart(coefs2Num[nb_Coefs2Num_re-1]),PetscImaginaryPart(coefs2Num[nb_Coefs2Num_re-1]),0);
     strcat(str_coefs2Num,str_buff);
   for(int i=0; i<nb_Coefs2Den_re-1; i++){
-    sprintf(str_buff,"(%.2e + %.2ei) * w^%d +",
+    sprintf(str_buff," (%+.2e%+.2ej)*w^%d +",
       PetscRealPart(coefs2Den[i]),PetscImaginaryPart(coefs2Den[i]),(nb_Coefs2Den_re-1-i));
       strcat(str_coefs2Den,str_buff);
   }
-  sprintf(str_buff,"(%.2e + %.2ei) * w^%d",
+  sprintf(str_buff," (%+.2e%+.2ej)*w^%d",
     PetscRealPart(coefs2Den[nb_Coefs2Den_re-1]),PetscImaginaryPart(coefs2Den[nb_Coefs2Den_re-1]),0);
     strcat(str_coefs2Den,str_buff);
 
   for(int i=0; i<nb_Coefs3Num_re-1; i++){
-    sprintf(str_buff,"(%.2e + %.2ei) * w^%d +",
+    sprintf(str_buff," (%+.2e%+.2ej)*w^%d +",
       PetscRealPart(coefs3Num[i]),PetscImaginaryPart(coefs3Num[i]),(nb_Coefs3Num_re-1-i));
       strcat(str_coefs3Num,str_buff);
   }
-  sprintf(str_buff,"(%.2e + %.2ei) * w^%d",
+  sprintf(str_buff," (%+.2e%+.2ej)*w^%d",
     PetscRealPart(coefs3Num[nb_Coefs3Num_re-1]),PetscImaginaryPart(coefs3Num[nb_Coefs3Num_re-1]),0);
     strcat(str_coefs3Num,str_buff);
   for(int i=0; i<nb_Coefs3Den_re-1; i++){
-    sprintf(str_buff,"(%.2e + %.2ei) * w^%d +",
+    sprintf(str_buff," (%+.2e%+.2ej)*w^%d +",
       PetscRealPart(coefs3Den[i]),PetscImaginaryPart(coefs3Den[i]),(nb_Coefs3Den_re-1-i));
       strcat(str_coefs3Den,str_buff);
   }
-  sprintf(str_buff,"(%.2e + %.2ei) * w^%d",
+  sprintf(str_buff," (%+.2e%+.2ej)*w^%d",
     PetscRealPart(coefs3Den[nb_Coefs3Den_re-1]),PetscImaginaryPart(coefs3Den[nb_Coefs3Den_re-1]),0);
     strcat(str_coefs3Den,str_buff);
 
@@ -959,10 +960,10 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
   Message::Info(str_coefs3Den);
 
   // // tweak w is the eigenvalue (no longer iw, this is too misleading)!
+  // Message::Warning("Experimental : In non-linear EVP, w is the eigenvalue (rather than iw)!");
   // for(int i=0; i<nb_Coefs1Num_re; i++){coefs1Num[i]*=-1.0;}
   // for(int i=0; i<nb_Coefs2Num_re; i++){coefs2Num[i]*=-1.0*PETSC_i;}
   // for(int i=0; i<nb_Coefs3Num_re; i++){coefs3Num[i]*=-1.0;}
-  // Message::Warning("Experimental : In non-linear EVP, w is the eigenvalue (rather than iw)!");
 
   _try(FNCreate(PETSC_COMM_WORLD,&funs[0]));
   _try(FNSetType(funs[0],FNRATIONAL));
