@@ -19989,7 +19989,7 @@ List_T * Treat_Struct_FullName_dot_tSTRING_ListOfFloat
           (struct_namespace, struct_name, key_member, out_vector)) {
   case 0:
     out = List_Create(out_vector->size(), 1, sizeof(double));
-    for(int i = 0; i < out_vector->size(); i++) {
+    for(unsigned int i = 0; i < out_vector->size(); i++) {
       val_ = out_vector->at(i);
       List_Add(out, &val_);
     }
@@ -20120,7 +20120,7 @@ List_T * Treat_Struct_FullName_dot_tSTRING_ListOfString
           (struct_namespace, struct_name, key_member, out_vector)) {
   case 0:
     out = List_Create(out_vector->size(), 1, sizeof(char *));
-    for(int i = 0; i < out_vector->size(); i++) {
+    for(unsigned int i = 0; i < out_vector->size(); i++) {
       val_ = strSave(out_vector->at(i).c_str());
       List_Add(out, &val_);
     }
