@@ -912,7 +912,7 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
   for(int k=0;k<NumOperators;k++){
     sprintf(str_coefsNum[k],"num%d(iw)=",k+1);
     sprintf(str_coefsDen[k],"den%d(iw)=",k+1);
-    for(int i=0; i<CoefsSizes[k]; i++){
+    for(int i=0; i<CoefsSizes[k]-1; i++){
       sprintf(str_buff," (%+.2e)*(iw)^%d +",
               PetscRealPart(tabCoefsNum[k][i]),(CoefsSizes[k]-1-i));
       strcat(str_coefsNum[k],str_buff);
@@ -920,7 +920,7 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
     sprintf(str_buff," (%+.2e)",
             PetscRealPart(tabCoefsNum[k][CoefsSizes[k]-1]));
     strcat(str_coefsNum[k],str_buff);
-    for(int i=0; i<CoefsSizes[k+6]; i++){
+    for(int i=0; i<CoefsSizes[k+6]-1; i++){
       sprintf(str_buff," (%+.2e)*(iw)^%d +",
               PetscRealPart(tabCoefsDen[k][i]),(CoefsSizes[k+6]-1-i));
       strcat(str_coefsDen[k],str_buff);
