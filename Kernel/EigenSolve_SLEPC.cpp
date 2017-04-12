@@ -94,12 +94,6 @@ static PetscErrorCode _myPepMonitor(PEP pep, int its, int nconv, PetscScalar *ei
 {
   return _myMonitor("PEP", its, nconv, eigr, eigi, errest);
 }
-static PetscErrorCode _myNepMonitor(NEP nep, int its, int nconv, PetscScalar *eigr,
-                                    PetscScalar *eigi, PetscReal* errest, int nest,
-                                    void *mctx)
-{
-  return _myMonitor("NEP", its, nconv, eigr, eigi, errest);
-}
 
 #endif
 
@@ -170,7 +164,7 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv, EPS eps,
       _try(NEPGetEigenpair(nep, i, &kr, &ki, xr, xi));
       _try(NEPComputeError(nep, i, NEP_ERROR_RELATIVE, &error));
     }
-    
+
 #if defined(PETSC_USE_COMPLEX)
     PetscReal re = PetscRealPart(kr), im = PetscImaginaryPart(kr);
 #else
@@ -774,20 +768,30 @@ static void _polynomialEVP(struct DofData * DofData_P, int numEigenValues,
 
   _try(PEPDestroy(&pep));
 }
-//nleigchange
+
+#endif
+
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 7)
+
+static PetscErrorCode _myNepMonitor(NEP nep, int its, int nconv, PetscScalar *eigr,
+                                    PetscScalar *eigi, PetscReal* errest, int nest,
+                                    void *mctx)
+{
+  return _myMonitor("NEP", its, nconv, eigr, eigi, errest);
+}
 
 static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
                            double shift_r, double shift_i, int filterExpressionIndex,
                            double *RationalCoefs1Num, double *RationalCoefs1Den,
-                           double *RationalCoefs2Num, double *RationalCoefs2Den, 
-                           double *RationalCoefs3Num, double *RationalCoefs3Den, 
-                           double *RationalCoefs4Num, double *RationalCoefs4Den, 
-                           double *RationalCoefs5Num, double *RationalCoefs5Den, 
+                           double *RationalCoefs2Num, double *RationalCoefs2Den,
+                           double *RationalCoefs3Num, double *RationalCoefs3Den,
+                           double *RationalCoefs4Num, double *RationalCoefs4Den,
+                           double *RationalCoefs5Num, double *RationalCoefs5Den,
                            double *RationalCoefs6Num, double *RationalCoefs6Den,
                            int *CoefsSizes)
 {
   NEP nep;
-  NEPType type;    
+  NEPType type;
   int max_Nchar = 1000;
   char str_coefsNum[6][max_Nchar];
   char str_coefsDen[6][max_Nchar];
@@ -815,9 +819,9 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
   for(int i=0; i<CoefsSizes[9] ; i++){tabCoefsDen[3][i] = RationalCoefs4Den[i];}
   for(int i=0; i<CoefsSizes[10]; i++){tabCoefsDen[4][i] = RationalCoefs5Den[i];}
   for(int i=0; i<CoefsSizes[11]; i++){tabCoefsDen[5][i] = RationalCoefs6Den[i];}
-  
+
   _try(NEPCreate(PETSC_COMM_WORLD, &nep));
-  
+
   // NLEig1Dof and NLEig2Dof
   if(DofData_P->Flag_Init[7] &&  DofData_P->Flag_Init[6] &&
        !DofData_P->Flag_Init[5] && !DofData_P->Flag_Init[4] &&
@@ -853,7 +857,7 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
             DofData_P->Flag_Init[5] && DofData_P->Flag_Init[4] &&
               !DofData_P->Flag_Init[3] && !DofData_P->Flag_Init[2]){
     NumOperators = 4;
-    Mat A[4] = {DofData_P->M7.M, DofData_P->M6.M, DofData_P->M5.M, 
+    Mat A[4] = {DofData_P->M7.M, DofData_P->M6.M, DofData_P->M5.M,
                 DofData_P->M4.M, };
     FN funs[4];
     for(int i=0;i<4;i++){
@@ -901,7 +905,7 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
   else{
     Message::Info("Illegal use of NLEig1Dof or NLEig2Dof or...");
   }
-  
+
   Message::Info("Solving non-linear eigenvalue problem using slepc NEP");
   Message::Info("Number of Operators %d - Setting %d Rational functions :"
                 ,NumOperators,NumOperators);
@@ -925,9 +929,9 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
             PetscRealPart(tabCoefsDen[k][CoefsSizes[k+6]-1]));
     strcat(str_coefsDen[k],str_buff);
     Message::Info(str_coefsNum[k]);
-    Message::Info(str_coefsDen[k]);    
+    Message::Info(str_coefsDen[k]);
   }
-  
+
   // SUBSET_NONZERO_PATTERN
   // DIFFERENT_NONZERO_PATTERN
   // SAME_NONZERO_PATTERN
@@ -987,10 +991,10 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
 void EigenSolve_SLEPC(struct DofData * DofData_P, int numEigenValues,
                   double shift_r, double shift_i, int FilterExpressionIndex,
                   double *RationalCoefs1Num, double *RationalCoefs1Den,
-                  double *RationalCoefs2Num, double *RationalCoefs2Den, 
-                  double *RationalCoefs3Num, double *RationalCoefs3Den, 
-                  double *RationalCoefs4Num, double *RationalCoefs4Den, 
-                  double *RationalCoefs5Num, double *RationalCoefs5Den, 
+                  double *RationalCoefs2Num, double *RationalCoefs2Den,
+                  double *RationalCoefs3Num, double *RationalCoefs3Den,
+                  double *RationalCoefs4Num, double *RationalCoefs4Den,
+                  double *RationalCoefs5Num, double *RationalCoefs5Den,
                   double *RationalCoefs6Num, double *RationalCoefs6Den,
                   int *CoefsSizes)
 {
@@ -1036,26 +1040,25 @@ void EigenSolve_SLEPC(struct DofData * DofData_P, int numEigenValues,
     }
   }
   else{
-#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 5)
-      Message::Error("Please upgrade to slepc >= 3.5.1 for non-linear EVP support!");
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 7)
+      Message::Error("Please upgrade to slepc >= 3.7 for non-linear EVP support!");
       return;
 #else
 #if defined(PETSC_USE_COMPLEX)
       Message::Warning("Experimental : Non-linear EVP for real coefficients rational function!");
-      
       _nonlinearEVP(DofData_P, numEigenValues, shift_r, shift_i,
-                  FilterExpressionIndex,
-                  RationalCoefs1Num, RationalCoefs1Den,
-                  RationalCoefs2Num, RationalCoefs2Den, 
-                  RationalCoefs3Num, RationalCoefs3Den, 
-                  RationalCoefs4Num, RationalCoefs4Den, 
-                  RationalCoefs5Num, RationalCoefs5Den, 
-                  RationalCoefs6Num, RationalCoefs6Den,
-                  CoefsSizes);                  
+                    FilterExpressionIndex,
+                    RationalCoefs1Num, RationalCoefs1Den,
+                    RationalCoefs2Num, RationalCoefs2Den,
+                    RationalCoefs3Num, RationalCoefs3Den,
+                    RationalCoefs4Num, RationalCoefs4Den,
+                    RationalCoefs5Num, RationalCoefs5Den,
+                    RationalCoefs6Num, RationalCoefs6Den,
+                    CoefsSizes);
 #else
       Message::Error("Please compile Petsc/Slepc with complex arithmetic for non linear EVP support!");
 #endif
-#endif    
+#endif
   }
 }
 
