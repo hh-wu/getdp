@@ -913,16 +913,16 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
               PetscRealPart(tabCoefsNum[k][i]),(CoefsSizes[k]-1-i));
       strcat(str_coefsNum[k],str_buff);
     }
-    sprintf(str_buff," (%+.2e)*(iw)^%d",
-            PetscRealPart(tabCoefsNum[k][CoefsSizes[k]-1]),0);
+    sprintf(str_buff," (%+.2e)",
+            PetscRealPart(tabCoefsNum[k][CoefsSizes[k]-1]));
     strcat(str_coefsNum[k],str_buff);
     for(int i=0; i<CoefsSizes[k+6]; i++){
       sprintf(str_buff," (%+.2e)*(iw)^%d +",
               PetscRealPart(tabCoefsDen[k][i]),(CoefsSizes[k+6]-1-i));
       strcat(str_coefsDen[k],str_buff);
     }
-    sprintf(str_buff," (%+.2e)*(iw)^%d",
-            PetscRealPart(tabCoefsDen[k][CoefsSizes[k+6]-1]),0);
+    sprintf(str_buff," (%+.2e)",
+            PetscRealPart(tabCoefsDen[k][CoefsSizes[k+6]-1]));
     strcat(str_coefsDen[k],str_buff);
     Message::Info(str_coefsNum[k]);
     Message::Info(str_coefsDen[k]);    
@@ -1041,7 +1041,7 @@ void EigenSolve_SLEPC(struct DofData * DofData_P, int numEigenValues,
       return;
 #else
 #if defined(PETSC_USE_COMPLEX)
-      Message::Warning("Experimental : Non-linear EVP should be used with a combination of NLEig{1,2,3}Dof only!");
+      Message::Warning("Experimental : Non-linear EVP for real coefficients rational function!");
       
       _nonlinearEVP(DofData_P, numEigenValues, shift_r, shift_i,
                   FilterExpressionIndex,
