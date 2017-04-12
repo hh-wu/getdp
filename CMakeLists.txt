@@ -1059,7 +1059,7 @@ if(APPLE AND PACKAGER STREQUAL "geuzaine - removed: we sign on a separate machin
   set(CODESIGN "codesign -v -s \"Developer ID Application: Christophe Geuzaine\"")
   set(APPDIR _CPack_Packages/Darwin/TGZ/getdp-${GETDP_VERSION}-MacOSX/bin)
   install(CODE "execute_process(COMMAND ${CODESIGN} ${APPDIR}/getdp)")
-endif(APPLE AND PACKAGER STREQUAL "geuzaine")
+endif(APPLE AND PACKAGER STREQUAL "geuzaine - removed: we sign on a separate machine")
 
 include(CPack)
 
