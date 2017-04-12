@@ -911,7 +911,7 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
                 ,NumOperators,NumOperators);
   for(int k=0;k<NumOperators;k++){
     sprintf(str_coefsNum[k],"num%d(iw)=",k+1);
-    sprintf(str_coefsDen[k],"num%d(iw)=",k+1);
+    sprintf(str_coefsDen[k],"den%d(iw)=",k+1);
     for(int i=0; i<CoefsSizes[k]; i++){
       sprintf(str_buff," (%+.2e)*(iw)^%d +",
               PetscRealPart(tabCoefsNum[k][i]),(CoefsSizes[k]-1-i));
