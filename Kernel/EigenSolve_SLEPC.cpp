@@ -800,9 +800,8 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
     tabCoefsNum[i]=(PetscScalar *)Malloc(CoefsSizes[i]   * sizeof(PetscScalar));
     tabCoefsDen[i]=(PetscScalar *)Malloc(CoefsSizes[i+6] * sizeof(PetscScalar));
   }
-  PetscScalar shift = shift_r + PETSC_i * shift_i;
   int NumOperators=2;
-  _try(NEPCreate(PETSC_COMM_WORLD, &nep));
+  PetscScalar shift = shift_r + PETSC_i * shift_i;
 
   for(int i=0; i<CoefsSizes[0] ; i++){tabCoefsNum[0][i] = RationalCoefs1Num[i];}
   for(int i=0; i<CoefsSizes[1] ; i++){tabCoefsNum[1][i] = RationalCoefs2Num[i];}
@@ -817,10 +816,12 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
   for(int i=0; i<CoefsSizes[10]; i++){tabCoefsDen[4][i] = RationalCoefs5Den[i];}
   for(int i=0; i<CoefsSizes[11]; i++){tabCoefsDen[5][i] = RationalCoefs6Den[i];}
   
+  _try(NEPCreate(PETSC_COMM_WORLD, &nep));
+  
   // NLEig1Dof and NLEig2Dof
   if(DofData_P->Flag_Init[7] &&  DofData_P->Flag_Init[6] &&
-      !DofData_P->Flag_Init[5] && !DofData_P->Flag_Init[4] &&
-        !DofData_P->Flag_Init[3] && !DofData_P->Flag_Init[2]){
+       !DofData_P->Flag_Init[5] && !DofData_P->Flag_Init[4] &&
+         !DofData_P->Flag_Init[3] && !DofData_P->Flag_Init[2]){
     NumOperators = 2;
     Mat A[2] = {DofData_P->M7.M, DofData_P->M6.M};
     FN funs[2];
@@ -834,8 +835,8 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
   }
   // NLEig1Dof, NLEig2Dof and  NLEig3Dof
   else if(DofData_P->Flag_Init[7] &&  DofData_P->Flag_Init[6] &&
-       DofData_P->Flag_Init[5] && !DofData_P->Flag_Init[4] &&
-        !DofData_P->Flag_Init[3] && !DofData_P->Flag_Init[2]){
+            DofData_P->Flag_Init[5] && !DofData_P->Flag_Init[4] &&
+              !DofData_P->Flag_Init[3] && !DofData_P->Flag_Init[2]){
     NumOperators = 3;
     Mat A[3] = {DofData_P->M7.M, DofData_P->M6.M, DofData_P->M5.M};
     FN funs[3];
@@ -849,8 +850,8 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
   }
   // NLEig1Dof, NLEig2Dof, NLEig3Dof and NLEig4Dof
   else if(DofData_P->Flag_Init[7] &&  DofData_P->Flag_Init[6] &&
-       DofData_P->Flag_Init[5] && DofData_P->Flag_Init[4] &&
-        !DofData_P->Flag_Init[3] && !DofData_P->Flag_Init[2]){
+            DofData_P->Flag_Init[5] && DofData_P->Flag_Init[4] &&
+              !DofData_P->Flag_Init[3] && !DofData_P->Flag_Init[2]){
     NumOperators = 4;
     Mat A[4] = {DofData_P->M7.M, DofData_P->M6.M, DofData_P->M5.M, 
                 DofData_P->M4.M, };
@@ -866,8 +867,8 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
 
   // NLEig1Dof, NLEig2Dof, NLEig3Dof, NLEig4Dof and NLEig5Dof
   else if(DofData_P->Flag_Init[7] &&  DofData_P->Flag_Init[6] &&
-       DofData_P->Flag_Init[5] &&  DofData_P->Flag_Init[4] &&
-         DofData_P->Flag_Init[3] && !DofData_P->Flag_Init[2]){
+            DofData_P->Flag_Init[5] &&  DofData_P->Flag_Init[4] &&
+              DofData_P->Flag_Init[3] && !DofData_P->Flag_Init[2]){
     NumOperators = 5;
     Mat A[5] = {DofData_P->M7.M, DofData_P->M6.M, DofData_P->M5.M,
                 DofData_P->M4.M, DofData_P->M3.M};
@@ -883,10 +884,11 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
 
   // NLEig1Dof, NLEig2Dof, NLEig3Dof, NLEig4Dof, NLEig5Dof and NLEig6Dof
   else if(DofData_P->Flag_Init[7] &&  DofData_P->Flag_Init[6] &&
-       DofData_P->Flag_Init[5] &&  DofData_P->Flag_Init[4] &&
-         DofData_P->Flag_Init[3] &&  DofData_P->Flag_Init[2]){
+            DofData_P->Flag_Init[5] &&  DofData_P->Flag_Init[4] &&
+              DofData_P->Flag_Init[3] &&  DofData_P->Flag_Init[2]){
     NumOperators = 6;
-    Mat A[6] = {DofData_P->M7.M, DofData_P->M6.M, DofData_P->M5.M};
+    Mat A[6] = {DofData_P->M7.M, DofData_P->M6.M, DofData_P->M5.M,
+                DofData_P->M4.M, DofData_P->M3.M, DofData_P->M2.M};
     FN funs[6];
     for(int i=0;i<6;i++){
       _try(FNCreate(PETSC_COMM_WORLD,&funs[i]));
@@ -902,27 +904,26 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
   
   Message::Info("Solving non-linear eigenvalue problem using slepc NEP");
   Message::Info("Number of Operators %d - Setting %d Rational functions :"
-          ,NumOperators,NumOperators);
-  
+                ,NumOperators,NumOperators);
   for(int k=0;k<NumOperators;k++){
     sprintf(str_coefsNum[k],"num%d(iw)=",k+1);
     sprintf(str_coefsDen[k],"num%d(iw)=",k+1);
     for(int i=0; i<CoefsSizes[k]; i++){
       sprintf(str_buff," (%+.2e)*(iw)^%d +",
-        PetscRealPart(tabCoefsNum[k][i]),(CoefsSizes[k]-1-i));
-        strcat(str_coefsNum[k],str_buff);
+              PetscRealPart(tabCoefsNum[k][i]),(CoefsSizes[k]-1-i));
+      strcat(str_coefsNum[k],str_buff);
     }
     sprintf(str_buff," (%+.2e)*(iw)^%d",
-      PetscRealPart(tabCoefsNum[k][CoefsSizes[k]-1]),0);
-      strcat(str_coefsNum[k],str_buff);
+            PetscRealPart(tabCoefsNum[k][CoefsSizes[k]-1]),0);
+    strcat(str_coefsNum[k],str_buff);
     for(int i=0; i<CoefsSizes[k+6]; i++){
       sprintf(str_buff," (%+.2e)*(iw)^%d +",
-        PetscRealPart(tabCoefsDen[k][i]),(CoefsSizes[k+6]-1-i));
-        strcat(str_coefsDen[k],str_buff);
+              PetscRealPart(tabCoefsDen[k][i]),(CoefsSizes[k+6]-1-i));
+      strcat(str_coefsDen[k],str_buff);
     }
     sprintf(str_buff," (%+.2e)*(iw)^%d",
-      PetscRealPart(tabCoefsDen[k][CoefsSizes[k+6]-1]),0);
-      strcat(str_coefsDen[k],str_buff);
+            PetscRealPart(tabCoefsDen[k][CoefsSizes[k+6]-1]),0);
+    strcat(str_coefsDen[k],str_buff);
     Message::Info(str_coefsNum[k]);
     Message::Info(str_coefsDen[k]);    
   }
@@ -973,8 +974,6 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
   // ignore additional eigenvalues if we get more than what we asked
   if(nconv > nev) nconv = nev;
 
-  // TODO : print eigenvalues and store eigenvectors in DofData
-  // TODO : _storeEigenVectors
   _storeEigenVectors(DofData_P, nconv, PETSC_NULL, PETSC_NULL, nep, filterExpressionIndex);
 
   _try(NEPDestroy(&nep));
@@ -982,7 +981,6 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
   Free(tabCoefsNum);
   Free(tabCoefsDen);
 }
-
 
 #endif
 
