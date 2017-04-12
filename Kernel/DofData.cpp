@@ -78,6 +78,8 @@ void Dof_InitDofData(struct DofData * DofData_P, int Num,
   DofData_P->Flag_Init[4] = 0 ;
   DofData_P->Flag_Init[5] = 0 ;
   DofData_P->Flag_Init[6] = 0 ;
+  // nleigchange
+  DofData_P->Flag_Init[7] = 0 ;
 
   DofData_P->Flag_Only = 0 ;
   DofData_P->Flag_InitOnly[0] = 0 ;
@@ -183,6 +185,14 @@ void Dof_FreeDofData(struct DofData * DofData_P)
     for(int i = 0; i < List_Nbr(DofData_P->m6s); i++)
        LinAlg_DestroyVector((gVector*)List_Pointer(DofData_P->m6s, i));
     List_Delete(DofData_P->m6s);
+  }
+  //nleigchange
+  if(DofData_P->Flag_Init[7] == 1){
+    LinAlg_DestroyMatrix(&DofData_P->M7);
+    LinAlg_DestroyVector(&DofData_P->m7);
+    for(int i = 0; i < List_Nbr(DofData_P->m7s); i++)
+       LinAlg_DestroyVector((gVector*)List_Pointer(DofData_P->m7s, i));
+    List_Delete(DofData_P->m7s);
   }
 
   if(DofData_P->Flag_Only){

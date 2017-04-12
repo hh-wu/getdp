@@ -75,6 +75,13 @@ void  Cal_GlobalTermOfFemEquation(int  Num_Region,
   case NEVERDT_       : Function_AssembleTerm = Cal_AssembleTerm_NeverDt   			   ; break ;
   case JACNL_         : Function_AssembleTerm = Cal_AssembleTerm_JacNL     			   ; break ;
   case DTDOFJACNL_    : Function_AssembleTerm = Cal_AssembleTerm_DtDofJacNL			   ; break ;
+  // nleigchange
+  case NLEIG1DOF_      : Function_AssembleTerm = Cal_AssembleTerm_NLEig1Dof        ; break ;
+  case NLEIG2DOF_      : Function_AssembleTerm = Cal_AssembleTerm_NLEig2Dof        ; break ;
+  case NLEIG3DOF_      : Function_AssembleTerm = Cal_AssembleTerm_NLEig3Dof        ; break ;
+  case NLEIG4DOF_      : Function_AssembleTerm = Cal_AssembleTerm_NLEig4Dof        ; break ;
+  case NLEIG5DOF_      : Function_AssembleTerm = Cal_AssembleTerm_NLEig5Dof        ; break ;
+  case NLEIG6DOF_      : Function_AssembleTerm = Cal_AssembleTerm_NLEig6Dof        ; break ;
   default 						:  Message::Error("Unknown type of operator for Global term"); return;
   }
 
@@ -262,6 +269,13 @@ void  Cal_GlobalTermOfFemEquation_old(int  Num_Region,
 	case NEVERDT_      : Function_AssembleTerm = Cal_AssembleTerm_NeverDt       ; break ;
   case JACNL_        : Function_AssembleTerm = Cal_AssembleTerm_JacNL         ; break ;
   case DTDOFJACNL_   : Function_AssembleTerm = Cal_AssembleTerm_DtDofJacNL    ; break ;
+  // nleigchange
+  case NLEIG1DOF_     : Function_AssembleTerm = Cal_AssembleTerm_NLEig1Dof    ; break ;
+  case NLEIG2DOF_     : Function_AssembleTerm = Cal_AssembleTerm_NLEig2Dof    ; break ;
+  case NLEIG3DOF_     : Function_AssembleTerm = Cal_AssembleTerm_NLEig3Dof    ; break ;
+  case NLEIG4DOF_     : Function_AssembleTerm = Cal_AssembleTerm_NLEig4Dof    ; break ;
+  case NLEIG5DOF_     : Function_AssembleTerm = Cal_AssembleTerm_NLEig5Dof    ; break ;
+  case NLEIG6DOF_     : Function_AssembleTerm = Cal_AssembleTerm_NLEig6Dof    ; break ;
   default : Message::Error("Unknown type of operator for Global term")        ; return ;
   }
 

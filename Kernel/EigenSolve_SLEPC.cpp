@@ -45,6 +45,7 @@
 #include <slepcqep.h>
 #else
 #include <slepcpep.h>
+#include <slepcnep.h> //nleigchange
 #endif
 
 extern struct CurrentData Current ;
@@ -93,6 +94,12 @@ static PetscErrorCode _myPepMonitor(PEP pep, int its, int nconv, PetscScalar *ei
 {
   return _myMonitor("PEP", its, nconv, eigr, eigi, errest);
 }
+static PetscErrorCode _myNepMonitor(NEP nep, int its, int nconv, PetscScalar *eigr,
+                                    PetscScalar *eigi, PetscReal* errest, int nest,
+                                    void *mctx)
+{
+  return _myMonitor("NEP", its, nconv, eigr, eigi, errest);
+}
 
 #endif
 
@@ -101,6 +108,7 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv, EPS eps,
                                QEP qep,
 #else
                                PEP pep,
+                               NEP nep,
 #endif
                                int filterExpressionIndex)
 {
@@ -108,14 +116,19 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv, EPS eps,
 
   // temporary (parallel) vectors to store real and imaginary part of eigenvectors
   Vec xr, xi;
+  if(!nep){
 #if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 6)
-  _try(MatGetVecs(DofData_P->M1.M, PETSC_NULL, &xr));
-  _try(MatGetVecs(DofData_P->M1.M, PETSC_NULL, &xi));
+    _try(MatGetVecs(DofData_P->M1.M, PETSC_NULL, &xr));
+    _try(MatGetVecs(DofData_P->M1.M, PETSC_NULL, &xi));
 #else
-  _try(MatCreateVecs(DofData_P->M1.M, PETSC_NULL, &xr));
-  _try(MatCreateVecs(DofData_P->M1.M, PETSC_NULL, &xi));
+    _try(MatCreateVecs(DofData_P->M1.M, PETSC_NULL, &xr));
+    _try(MatCreateVecs(DofData_P->M1.M, PETSC_NULL, &xi));
 #endif
-
+  }
+  else{
+    _try(MatCreateVecs(DofData_P->M7.M, PETSC_NULL, &xr));
+    _try(MatCreateVecs(DofData_P->M7.M, PETSC_NULL, &xi));
+  }
   // temporary sequential vectors to transfer eigenvectors to getdp
   Vec xr_seq, xi_seq;
   if(Message::GetCommSize() > 1){
@@ -138,25 +151,32 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv, EPS eps,
       _try(EPSComputeError(eps, i, EPS_ERROR_RELATIVE, &error));
 #endif
     }
-    else{
 #if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 5)
+    else if (qep){
       _try(QEPGetEigenpair(qep, i, &kr, &ki, xr, xi));
       _try(QEPComputeRelativeError(qep, i, &error));
+    }
 #else
+    else if (pep){
       _try(PEPGetEigenpair(pep, i, &kr, &ki, xr, xi));
 #if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 6)
       _try(PEPComputeRelativeError(pep, i, &error));
 #else
-      _try(PEPComputeError(pep, i, PEP_ERROR_RELATIVE, &error));
-#endif
+      _try(PEPComputeError(pep, i, PEP_ERROR_BACKWARD, &error));
 #endif
     }
+#endif
+    else if(nep){
+      _try(NEPGetEigenpair(nep, i, &kr, &ki, xr, xi));
+      _try(NEPComputeError(nep, i, NEP_ERROR_RELATIVE, &error));
+    }
+    
 #if defined(PETSC_USE_COMPLEX)
     PetscReal re = PetscRealPart(kr), im = PetscImaginaryPart(kr);
 #else
     PetscReal re = kr, im = ki;
 #endif
-    double ore, oim;
+    double ore=0, oim=0;
     if(eps){
       Message::Info("EIG %03d w^2 = %s%.16e %s%.16e  %3.6e",
                     i, (re < 0) ? "" : " ", re, (im < 0) ? "" : " ", im, error);
@@ -169,8 +189,34 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv, EPS eps,
       Message::Info("          f = %s%.16e %s%.16e",
                     (fre < 0) ? "" : " ", fre, (fim < 0) ? "" : " ", fim);
     }
-    else{
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 5)
+    else if(qep){
       // lambda == iw
+      ore = im;
+      oim = -re;
+      Message::Info("EIG %03d   w = %s%.16e %s%.16e  %3.6e",
+                    i, (ore < 0) ? "" : " ", ore, (oim < 0) ? "" : " ", oim, error);
+      double fre = ore / 2. / M_PI, fim = oim / 2. / M_PI;
+      Message::Info("          f = %s%.16e %s%.16e",
+                    (fre < 0) ? "" : " ", fre, (fim < 0) ? "" : " ", fim);
+    }
+#else
+    else if (pep){
+      // lambda == iw
+      ore = im;
+      oim = -re;
+      Message::Info("EIG %03d   w = %s%.16e %s%.16e  %3.6e",
+                    i, (ore < 0) ? "" : " ", ore, (oim < 0) ? "" : " ", oim, error);
+      double fre = ore / 2. / M_PI, fim = oim / 2. / M_PI;
+      Message::Info("          f = %s%.16e %s%.16e",
+                    (fre < 0) ? "" : " ", fre, (fim < 0) ? "" : " ", fim);
+    }
+#endif
+    else if (nep){
+      // lambda != iw (!!! this is too misleading otherwise)
+      // lambda is lambda
+      // ore = re;
+      // oim = im;
       ore = im;
       oim = -re;
       Message::Info("EIG %03d   w = %s%.16e %s%.16e  %3.6e",
@@ -387,7 +433,7 @@ static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
   if(nconv > nev) nconv = nev;
 
   // print eigenvalues and store eigenvectors in DofData
-  _storeEigenVectors(DofData_P, nconv, eps, PETSC_NULL, filterExpressionIndex);
+  _storeEigenVectors(DofData_P, nconv, eps, PETSC_NULL,PETSC_NULL , filterExpressionIndex);
 
 #if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
   _try(EPSDestroy(&eps));
@@ -504,7 +550,7 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
   if(nconv > nev) nconv = nev;
 
   // print eigenvalues and store eigenvectors in DofData
-  _storeEigenVectors(DofData_P, nconv, PETSC_NULL, qep, filterExpressionIndex);
+  _storeEigenVectors(DofData_P, nconv, PETSC_NULL, qep, PETSC_NULL, filterExpressionIndex);
 
 #if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
   _try(QEPDestroy(&qep));
@@ -629,7 +675,7 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
   if(nconv > nev) nconv = nev;
 
   // print eigenvalues and store eigenvectors in DofData
-  _storeEigenVectors(DofData_P, nconv, PETSC_NULL, pep, filterExpressionIndex);
+  _storeEigenVectors(DofData_P, nconv, PETSC_NULL, pep, PETSC_NULL, filterExpressionIndex);
 
   _try(PEPDestroy(&pep));
 }
@@ -678,21 +724,6 @@ static void _polynomialEVP(struct DofData * DofData_P, int numEigenValues,
   // _try(PEPSetScale(pep,PEP_SCALE_BOTH,PETSC_DECIDE,PETSC_DECIDE,PETSC_DECIDE));
   _try(PEPSetFromOptions(pep));
 
-  // -pc_factor_shift_type NONZERO -pc_factor_shift_amount [amount]
-  //     or
-  // '-pc_factor_shift_type POSITIVE_DEFINITE'
-  // '-[level]_pc_factor_shift_type NONZERO -pc_factor_shift_amount [amount]'
-  //    or
-  // '-[level]_pc_factor_shift_type POSITIVE_DEFINITE' to prevent the zero pivot.
-  //    [level] is "sub" when lu, ilu, cholesky, or icc are employed in each
-  //    individual block of the bjacobi or ASM preconditioner; and
-  //    [level] is "mg_levels" or "mg_coarse" when lu, ilu, cholesky, or icc are
-  //    used insi
-
-  // Message::Info("Polynomial eigenvalue problem solved using PEP using the "
-  //               "following options:");
-  // _try(PEPView(pep, PETSC_VIEWER_STDOUT_SELF));
-
   // force options specified directly as arguments
   if(numEigenValues){
     _try(PEPSetDimensions(pep, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
@@ -739,15 +770,229 @@ static void _polynomialEVP(struct DofData * DofData_P, int numEigenValues,
   if(nconv > nev) nconv = nev;
 
   // print eigenvalues and store eigenvectors in DofData
-  _storeEigenVectors(DofData_P, nconv, PETSC_NULL, pep, filterExpressionIndex);
+  _storeEigenVectors(DofData_P, nconv, PETSC_NULL, pep, PETSC_NULL, filterExpressionIndex);
 
   _try(PEPDestroy(&pep));
+}
+//nleigchange
+
+static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
+                           double shift_r, double shift_i, int filterExpressionIndex,
+                           double *RationalCoefs1Num, double *RationalCoefs1Den,
+                           double *RationalCoefs2Num, double *RationalCoefs2Den, 
+                           double *RationalCoefs3Num, double *RationalCoefs3Den, 
+                           double *RationalCoefs4Num, double *RationalCoefs4Den, 
+                           double *RationalCoefs5Num, double *RationalCoefs5Den, 
+                           double *RationalCoefs6Num, double *RationalCoefs6Den,
+                           int *CoefsSizes)
+{
+  NEP nep;
+  NEPType type;    
+  int max_Nchar = 1000;
+  char str_coefsNum[6][max_Nchar];
+  char str_coefsDen[6][max_Nchar];
+  char str_buff[50];
+  PetscScalar **tabCoefsNum;
+  PetscScalar **tabCoefsDen;
+  tabCoefsNum = (PetscScalar **)Malloc(6 * sizeof(PetscScalar *));
+  tabCoefsDen = (PetscScalar **)Malloc(6 * sizeof(PetscScalar *));
+  for(int i=0;i<6;i++){
+    tabCoefsNum[i]=(PetscScalar *)Malloc(CoefsSizes[i]   * sizeof(PetscScalar));
+    tabCoefsDen[i]=(PetscScalar *)Malloc(CoefsSizes[i+6] * sizeof(PetscScalar));
+  }
+  int NumOperators=2;
+  PetscScalar shift = shift_r + PETSC_i * shift_i;
+
+  for(int i=0; i<CoefsSizes[0] ; i++){tabCoefsNum[0][i] = RationalCoefs1Num[i];}
+  for(int i=0; i<CoefsSizes[1] ; i++){tabCoefsNum[1][i] = RationalCoefs2Num[i];}
+  for(int i=0; i<CoefsSizes[2] ; i++){tabCoefsNum[2][i] = RationalCoefs3Num[i];}
+  for(int i=0; i<CoefsSizes[3] ; i++){tabCoefsNum[3][i] = RationalCoefs4Num[i];}
+  for(int i=0; i<CoefsSizes[4] ; i++){tabCoefsNum[4][i] = RationalCoefs5Num[i];}
+  for(int i=0; i<CoefsSizes[5] ; i++){tabCoefsNum[5][i] = RationalCoefs6Num[i];}
+  for(int i=0; i<CoefsSizes[6] ; i++){tabCoefsDen[0][i] = RationalCoefs1Den[i];}
+  for(int i=0; i<CoefsSizes[7] ; i++){tabCoefsDen[1][i] = RationalCoefs2Den[i];}
+  for(int i=0; i<CoefsSizes[8] ; i++){tabCoefsDen[2][i] = RationalCoefs3Den[i];}
+  for(int i=0; i<CoefsSizes[9] ; i++){tabCoefsDen[3][i] = RationalCoefs4Den[i];}
+  for(int i=0; i<CoefsSizes[10]; i++){tabCoefsDen[4][i] = RationalCoefs5Den[i];}
+  for(int i=0; i<CoefsSizes[11]; i++){tabCoefsDen[5][i] = RationalCoefs6Den[i];}
+  
+  _try(NEPCreate(PETSC_COMM_WORLD, &nep));
+  
+  // NLEig1Dof and NLEig2Dof
+  if(DofData_P->Flag_Init[7] &&  DofData_P->Flag_Init[6] &&
+       !DofData_P->Flag_Init[5] && !DofData_P->Flag_Init[4] &&
+         !DofData_P->Flag_Init[3] && !DofData_P->Flag_Init[2]){
+    NumOperators = 2;
+    Mat A[2] = {DofData_P->M7.M, DofData_P->M6.M};
+    FN funs[2];
+    for(int i=0;i<2;i++){
+      _try(FNCreate(PETSC_COMM_WORLD,&funs[i]));
+      _try(FNSetType(funs[i],FNRATIONAL));
+      _try(FNRationalSetNumerator(funs[i],CoefsSizes[i],tabCoefsNum[i]));
+      _try(FNRationalSetDenominator(funs[i],CoefsSizes[i+6],tabCoefsDen[i]));
+    }
+    _try(NEPSetSplitOperator(nep,2,A,funs,SUBSET_NONZERO_PATTERN));
+  }
+  // NLEig1Dof, NLEig2Dof and  NLEig3Dof
+  else if(DofData_P->Flag_Init[7] &&  DofData_P->Flag_Init[6] &&
+            DofData_P->Flag_Init[5] && !DofData_P->Flag_Init[4] &&
+              !DofData_P->Flag_Init[3] && !DofData_P->Flag_Init[2]){
+    NumOperators = 3;
+    Mat A[3] = {DofData_P->M7.M, DofData_P->M6.M, DofData_P->M5.M};
+    FN funs[3];
+    for(int i=0;i<3;i++){
+      _try(FNCreate(PETSC_COMM_WORLD,&funs[i]));
+      _try(FNSetType(funs[i],FNRATIONAL));
+      _try(FNRationalSetNumerator(funs[i],CoefsSizes[i],tabCoefsNum[i]));
+      _try(FNRationalSetDenominator(funs[i],CoefsSizes[i+6],tabCoefsDen[i]));
+    }
+    _try(NEPSetSplitOperator(nep,3,A,funs,SUBSET_NONZERO_PATTERN));
+  }
+  // NLEig1Dof, NLEig2Dof, NLEig3Dof and NLEig4Dof
+  else if(DofData_P->Flag_Init[7] &&  DofData_P->Flag_Init[6] &&
+            DofData_P->Flag_Init[5] && DofData_P->Flag_Init[4] &&
+              !DofData_P->Flag_Init[3] && !DofData_P->Flag_Init[2]){
+    NumOperators = 4;
+    Mat A[4] = {DofData_P->M7.M, DofData_P->M6.M, DofData_P->M5.M, 
+                DofData_P->M4.M, };
+    FN funs[4];
+    for(int i=0;i<4;i++){
+      _try(FNCreate(PETSC_COMM_WORLD,&funs[i]));
+      _try(FNSetType(funs[i],FNRATIONAL));
+      _try(FNRationalSetNumerator(funs[i],CoefsSizes[i],tabCoefsNum[i]));
+      _try(FNRationalSetDenominator(funs[i],CoefsSizes[i+6],tabCoefsDen[i]));
+    }
+    _try(NEPSetSplitOperator(nep,4,A,funs,SUBSET_NONZERO_PATTERN));
+  }
+
+  // NLEig1Dof, NLEig2Dof, NLEig3Dof, NLEig4Dof and NLEig5Dof
+  else if(DofData_P->Flag_Init[7] &&  DofData_P->Flag_Init[6] &&
+            DofData_P->Flag_Init[5] &&  DofData_P->Flag_Init[4] &&
+              DofData_P->Flag_Init[3] && !DofData_P->Flag_Init[2]){
+    NumOperators = 5;
+    Mat A[5] = {DofData_P->M7.M, DofData_P->M6.M, DofData_P->M5.M,
+                DofData_P->M4.M, DofData_P->M3.M};
+    FN funs[5];
+    for(int i=0;i<5;i++){
+      _try(FNCreate(PETSC_COMM_WORLD,&funs[i]));
+      _try(FNSetType(funs[i],FNRATIONAL));
+      _try(FNRationalSetNumerator(funs[i],CoefsSizes[i],tabCoefsNum[i]));
+      _try(FNRationalSetDenominator(funs[i],CoefsSizes[i+6],tabCoefsDen[i]));
+    }
+    _try(NEPSetSplitOperator(nep,5,A,funs,SUBSET_NONZERO_PATTERN));
+  }
+
+  // NLEig1Dof, NLEig2Dof, NLEig3Dof, NLEig4Dof, NLEig5Dof and NLEig6Dof
+  else if(DofData_P->Flag_Init[7] &&  DofData_P->Flag_Init[6] &&
+            DofData_P->Flag_Init[5] &&  DofData_P->Flag_Init[4] &&
+              DofData_P->Flag_Init[3] &&  DofData_P->Flag_Init[2]){
+    NumOperators = 6;
+    Mat A[6] = {DofData_P->M7.M, DofData_P->M6.M, DofData_P->M5.M,
+                DofData_P->M4.M, DofData_P->M3.M, DofData_P->M2.M};
+    FN funs[6];
+    for(int i=0;i<6;i++){
+      _try(FNCreate(PETSC_COMM_WORLD,&funs[i]));
+      _try(FNSetType(funs[i],FNRATIONAL));
+      _try(FNRationalSetNumerator(funs[i],CoefsSizes[i],tabCoefsNum[i]));
+      _try(FNRationalSetDenominator(funs[i],CoefsSizes[i+6],tabCoefsDen[i]));
+    }
+    _try(NEPSetSplitOperator(nep,6,A,funs,SUBSET_NONZERO_PATTERN));
+  }
+  else{
+    Message::Info("Illegal use of NLEig1Dof or NLEig2Dof or...");
+  }
+  
+  Message::Info("Solving non-linear eigenvalue problem using slepc NEP");
+  Message::Info("Number of Operators %d - Setting %d Rational functions :"
+                ,NumOperators,NumOperators);
+  for(int k=0;k<NumOperators;k++){
+    sprintf(str_coefsNum[k],"num%d(iw)=",k+1);
+    sprintf(str_coefsDen[k],"num%d(iw)=",k+1);
+    for(int i=0; i<CoefsSizes[k]; i++){
+      sprintf(str_buff," (%+.2e)*(iw)^%d +",
+              PetscRealPart(tabCoefsNum[k][i]),(CoefsSizes[k]-1-i));
+      strcat(str_coefsNum[k],str_buff);
+    }
+    sprintf(str_buff," (%+.2e)",
+            PetscRealPart(tabCoefsNum[k][CoefsSizes[k]-1]));
+    strcat(str_coefsNum[k],str_buff);
+    for(int i=0; i<CoefsSizes[k+6]; i++){
+      sprintf(str_buff," (%+.2e)*(iw)^%d +",
+              PetscRealPart(tabCoefsDen[k][i]),(CoefsSizes[k+6]-1-i));
+      strcat(str_coefsDen[k],str_buff);
+    }
+    sprintf(str_buff," (%+.2e)",
+            PetscRealPart(tabCoefsDen[k][CoefsSizes[k+6]-1]));
+    strcat(str_coefsDen[k],str_buff);
+    Message::Info(str_coefsNum[k]);
+    Message::Info(str_coefsDen[k]);    
+  }
+  
+  // SUBSET_NONZERO_PATTERN
+  // DIFFERENT_NONZERO_PATTERN
+  // SAME_NONZERO_PATTERN
+  _try(NEPSetDimensions(nep, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
+  _try(NEPSetTolerances(nep, 1.e-6, PETSC_DEFAULT));
+  _try(NEPSetType(nep, NEPNLEIGS));
+  _try(NEPSetWhichEigenpairs(nep, NEP_LARGEST_MAGNITUDE));
+  _try(NEPMonitorSet(nep, _myNepMonitor, PETSC_NULL, PETSC_NULL));
+  _try(NEPSetTarget(nep, shift));
+  _try(NEPSetFromOptions(nep));
+
+  // print info
+  _try(NEPGetType(nep, &type));
+  Message::Info("SLEPc solution method: %s", type);
+  PetscInt nev;
+  _try(NEPGetDimensions(nep, &nev, PETSC_NULL, PETSC_NULL));
+  Message::Info("SLEPc number of requested eigenvalues: %d", nev);
+  PetscReal tol;
+  PetscInt maxit;
+  _try(NEPGetTolerances(nep, &tol, &maxit));
+  Message::Info("SLEPc stopping condition: tol=%g, maxit=%d", tol, maxit);
+
+  // solve
+  _try(NEPSolve(nep));
+
+  // check convergence
+  int its;
+  _try(NEPGetIterationNumber(nep, &its));
+  NEPConvergedReason reason;
+  _try(NEPGetConvergedReason(nep, &reason));
+  if(reason == NEP_CONVERGED_TOL)
+    Message::Info("SLEPc converged in %d iterations", its);
+  else if(reason == NEP_DIVERGED_ITS)
+    Message::Error("SLEPc diverged after %d iterations", its);
+  else if(reason == NEP_DIVERGED_BREAKDOWN)
+    Message::Error("SLEPc generic breakdown in method");
+  _try(NEPView(nep, PETSC_VIEWER_STDOUT_SELF));
+
+  // get number of converged approximate eigenpairs
+  PetscInt nconv;
+  _try(NEPGetConverged(nep, &nconv));
+  Message::Info("SLEPc number of converged eigenpairs: %d", nconv);
+
+  // ignore additional eigenvalues if we get more than what we asked
+  if(nconv > nev) nconv = nev;
+
+  _storeEigenVectors(DofData_P, nconv, PETSC_NULL, PETSC_NULL, nep, filterExpressionIndex);
+
+  _try(NEPDestroy(&nep));
+  for(int i=0;i<6;i++){Free(tabCoefsNum[i]);Free(tabCoefsDen[i]);}
+  Free(tabCoefsNum);
+  Free(tabCoefsDen);
 }
 
 #endif
 
 void EigenSolve_SLEPC(struct DofData * DofData_P, int numEigenValues,
-                      double shift_r, double shift_i, int FilterExpressionIndex)
+                  double shift_r, double shift_i, int FilterExpressionIndex,
+                  double *RationalCoefs1Num, double *RationalCoefs1Den,
+                  double *RationalCoefs2Num, double *RationalCoefs2Den, 
+                  double *RationalCoefs3Num, double *RationalCoefs3Den, 
+                  double *RationalCoefs4Num, double *RationalCoefs4Den, 
+                  double *RationalCoefs5Num, double *RationalCoefs5Den, 
+                  double *RationalCoefs6Num, double *RationalCoefs6Den,
+                  int *CoefsSizes)
 {
   // Warn if we are not in harmonic regime (we won't be able to compute/store
   // complex eigenvectors).
@@ -765,29 +1010,52 @@ void EigenSolve_SLEPC(struct DofData * DofData_P, int numEigenValues,
   // GenerateSeparate[] can create up to six matrices M6, M5, M4, M3, M2, M1 such that
   // i*w^5 M6 x + w^4 M5 x + -iw^3 M4 x + -w^2 M3 x + iw M2 x + M1 x = 0
   // check Flag_Init[i] to see which operators exist.
-  if(!DofData_P->Flag_Init[1] || !DofData_P->Flag_Init[3]){
-    Message::Error("No System available for EigenSolve: check 'DtDt' and 'GenerateSeparate'");
-    return;
-  }
-
-  if(!DofData_P->Flag_Init[4]&& !DofData_P->Flag_Init[5]&& !DofData_P->Flag_Init[6]){
-    if(!DofData_P->Flag_Init[2]){
-      // the shift refers to w^2
-      _linearEVP(DofData_P, numEigenValues, shift_r, shift_i, FilterExpressionIndex);
+  if(!DofData_P->Flag_Init[7]){
+    if(!DofData_P->Flag_Init[1] || !DofData_P->Flag_Init[3]){
+      Message::Error("No System available for EigenSolve: check 'DtDt' and 'GenerateSeparate'");
+      return;
+    }
+    if(!DofData_P->Flag_Init[4]&& !DofData_P->Flag_Init[5]&& !DofData_P->Flag_Init[6]){
+      if(!DofData_P->Flag_Init[2]){
+        // the shift refers to w^2
+        _linearEVP(DofData_P, numEigenValues, shift_r, shift_i, FilterExpressionIndex);
+      }
+      else{
+        // the shift refers to w
+        _quadraticEVP(DofData_P, numEigenValues, shift_r, shift_i, FilterExpressionIndex);
+      }
     }
     else{
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 5)
+      Message::Error("Please upgrade to slepc >= 3.5.1 for polynomial EVP support!");
+      return;
+#else
       // the shift refers to w
-      _quadraticEVP(DofData_P, numEigenValues, shift_r, shift_i, FilterExpressionIndex);
+      _polynomialEVP(DofData_P, numEigenValues, shift_r, shift_i, FilterExpressionIndex);
+#endif
     }
   }
   else{
 #if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 5)
-    Message::Error("Please upgrade to slepc >= 3.5.1 for polynomial EVP support!");
-    return;
+      Message::Error("Please upgrade to slepc >= 3.5.1 for non-linear EVP support!");
+      return;
 #else
-    // the shift refers to w
-    _polynomialEVP(DofData_P, numEigenValues, shift_r, shift_i, FilterExpressionIndex);
+#if defined(PETSC_USE_COMPLEX)
+      Message::Warning("Experimental : Non-linear EVP for real coefficients rational function!");
+      
+      _nonlinearEVP(DofData_P, numEigenValues, shift_r, shift_i,
+                  FilterExpressionIndex,
+                  RationalCoefs1Num, RationalCoefs1Den,
+                  RationalCoefs2Num, RationalCoefs2Den, 
+                  RationalCoefs3Num, RationalCoefs3Den, 
+                  RationalCoefs4Num, RationalCoefs4Den, 
+                  RationalCoefs5Num, RationalCoefs5Den, 
+                  RationalCoefs6Num, RationalCoefs6Den,
+                  CoefsSizes);                  
+#else
+      Message::Error("Please compile Petsc/Slepc with complex arithmetic for non linear EVP support!");
 #endif
+#endif    
   }
 }
 

@@ -16,6 +16,14 @@ void Cal_AssembleTerm_DtDtDof(struct Dof * Equ, struct Dof * Dof, double Val[]);
 void Cal_AssembleTerm_DtDtDtDof(struct Dof * Equ, struct Dof * Dof, double Val[]); 
 void Cal_AssembleTerm_DtDtDtDtDof(struct Dof * Equ, struct Dof * Dof, double Val[]); 
 void Cal_AssembleTerm_DtDtDtDtDtDof(struct Dof * Equ, struct Dof * Dof, double Val[]); 
+// nleigchange
+void Cal_AssembleTerm_NLEig1Dof(struct Dof * Equ, struct Dof * Dof, double Val[]);
+void Cal_AssembleTerm_NLEig2Dof(struct Dof * Equ, struct Dof * Dof, double Val[]);
+void Cal_AssembleTerm_NLEig3Dof(struct Dof * Equ, struct Dof * Dof, double Val[]);
+void Cal_AssembleTerm_NLEig4Dof(struct Dof * Equ, struct Dof * Dof, double Val[]);
+void Cal_AssembleTerm_NLEig5Dof(struct Dof * Equ, struct Dof * Dof, double Val[]);
+void Cal_AssembleTerm_NLEig6Dof(struct Dof * Equ, struct Dof * Dof, double Val[]);
+
 void Cal_AssembleTerm_DtDt(struct Dof * Equ, struct Dof * Dof, double Val[]);
 void Cal_AssembleTerm_JacNL(struct Dof * Equ, struct Dof * Dof, double Val[]);
 void Cal_AssembleTerm_DtDofJacNL(struct Dof * Equ, struct Dof * Dof, double Val[]);

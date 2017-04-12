@@ -287,6 +287,13 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
       for(int i = 0; i < List_Nbr(DofData_P->m6s); i++)
         LinAlg_ZeroVector((gVector*)List_Pointer(DofData_P->m6s, i));
     }
+    if(Current.DofData->Flag_Init[7] && !Flag_Cumulative){
+      ZeroMatrix(&Current.DofData->M7, &Current.DofData->Solver,
+                 Current.DofData->NbrDof) ;
+      LinAlg_ZeroVector(&Current.DofData->m7);
+      for(int i = 0; i < List_Nbr(DofData_P->m7s); i++)
+        LinAlg_ZeroVector((gVector*)List_Pointer(DofData_P->m7s, i));
+    }
   }
   else{
     if(!Current.DofData->Flag_RHS && !Flag_Cumulative){
@@ -375,6 +382,12 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
       LinAlg_AssembleVector(&DofData_P->m6) ;
       for(int i = 0; i < List_Nbr(DofData_P->m6s); i++)
         LinAlg_AssembleVector((gVector*)List_Pointer(DofData_P->m6s, i));
+    }
+    if(DofData_P->Flag_Init[7]){
+      LinAlg_AssembleMatrix(&DofData_P->M7) ;
+      LinAlg_AssembleVector(&DofData_P->m7) ;
+      for(int i = 0; i < List_Nbr(DofData_P->m7s); i++)
+        LinAlg_AssembleVector((gVector*)List_Pointer(DofData_P->m7s, i));
     }
   }
   else{
@@ -1474,15 +1487,28 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       /*  -->  EigenSolve                             */
       /*  ------------------------------------------  */
-
+    // nleigchange
     case OPERATION_EIGENSOLVE :
       Init_OperationOnSystem("EigenSolve",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
       EigenSolve(DofData_P, Operation_P->Case.EigenSolve.NumEigenvalues,
-		 Operation_P->Case.EigenSolve.Shift_r,
-		 Operation_P->Case.EigenSolve.Shift_i,
-                 Operation_P->Case.EigenSolve.FilterExpressionIndex) ;
+                 Operation_P->Case.EigenSolve.Shift_r,
+                 Operation_P->Case.EigenSolve.Shift_i,
+                 Operation_P->Case.EigenSolve.FilterExpressionIndex,
+                 Operation_P->Case.EigenSolve.RationalCoefs1Num,
+                 Operation_P->Case.EigenSolve.RationalCoefs1Den,
+                 Operation_P->Case.EigenSolve.RationalCoefs2Num,
+                 Operation_P->Case.EigenSolve.RationalCoefs2Den,
+                 Operation_P->Case.EigenSolve.RationalCoefs3Num,
+                 Operation_P->Case.EigenSolve.RationalCoefs3Den,
+                 Operation_P->Case.EigenSolve.RationalCoefs4Num,
+                 Operation_P->Case.EigenSolve.RationalCoefs4Den,
+                 Operation_P->Case.EigenSolve.RationalCoefs5Num,
+                 Operation_P->Case.EigenSolve.RationalCoefs5Den,
+                 Operation_P->Case.EigenSolve.RationalCoefs6Num,
+                 Operation_P->Case.EigenSolve.RationalCoefs6Den,
+                 Operation_P->Case.EigenSolve.CoefsSizes);
       break ;
 
       /*  -->  EigenSolveJac                             */
@@ -1493,9 +1519,11 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
       EigenSolve(DofData_P, Operation_P->Case.EigenSolve.NumEigenvalues,
-		 Operation_P->Case.EigenSolve.Shift_r,
-		 Operation_P->Case.EigenSolve.Shift_i,
-                 Operation_P->Case.EigenSolve.FilterExpressionIndex) ;
+                 Operation_P->Case.EigenSolve.Shift_r,
+                 Operation_P->Case.EigenSolve.Shift_i,
+                 Operation_P->Case.EigenSolve.FilterExpressionIndex,
+                 NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL) ;
+                 // nleigchange
       /* Insert intelligent convergence test here :-) */
       Current.RelativeDifference = 1.0 ;
       break ;
@@ -2871,7 +2899,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                            DefineSystem_P->Name);
           if(DofData_P->Flag_Init[1] || DofData_P->Flag_Init[2] ||
              DofData_P->Flag_Init[3] || DofData_P->Flag_Init[4] ||
-             DofData_P->Flag_Init[5] || DofData_P->Flag_Init[6]){
+             DofData_P->Flag_Init[5] || DofData_P->Flag_Init[6] ||
+             DofData_P->Flag_Init[7]){
             if(DofData_P->Flag_Init[1]){
               std::string name1 = name + "1";
               LinAlg_PrintMatrix(fp, &DofData_P->M1, true,
@@ -2923,6 +2952,15 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                                  (path + file + mat + name1 + ".m").c_str(),
                                  (mat + name1).c_str()) ;
               LinAlg_PrintVector(fp, &DofData_P->m6, true,
+                                 (path + file + vec + name1 + ".m").c_str(),
+                                 (vec + name1).c_str()) ;
+            }
+            if(DofData_P->Flag_Init[7]){
+              std::string name1 = name + "7";
+              LinAlg_PrintMatrix(fp, &DofData_P->M7, true,
+                                 (path + file + mat + name1 + ".m").c_str(),
+                                 (mat + name1).c_str()) ;
+              LinAlg_PrintVector(fp, &DofData_P->m7, true,
                                  (path + file + vec + name1 + ".m").c_str(),
                                  (vec + name1).c_str()) ;
             }

@@ -1143,6 +1143,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"Nnm"               , (CAST)F_Nnm              ,   0,   5 },
 
   {"DyadGreenHom"      , (CAST)F_DyadGreenHom     ,   0,   6 },
+  {"CurlDyadGreenHom"  , (CAST)F_CurlDyadGreenHom ,   0,   6 },
 
   // F_PeWe
   {"ElastodynamicsCylinderCavity", (CAST)F_ElastodynamicsCylinderCavity, 5, 1},

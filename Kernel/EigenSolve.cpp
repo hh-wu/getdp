@@ -16,7 +16,14 @@
 #endif
 
 void EigenSolve(struct DofData * DofData_P, int NumEigenvalues,
-		double shift_r, double shift_i, int FilterExpressionIndex)
+		double shift_r, double shift_i, int FilterExpressionIndex,
+    double *RationalCoefs1Num, double *RationalCoefs1Den,
+    double *RationalCoefs2Num, double *RationalCoefs2Den, 
+    double *RationalCoefs3Num, double *RationalCoefs3Den, 
+    double *RationalCoefs4Num, double *RationalCoefs4Den, 
+    double *RationalCoefs5Num, double *RationalCoefs5Den, 
+    double *RationalCoefs6Num, double *RationalCoefs6Den,
+    int *CoefsSizes)
 {
 #if defined(HAVE_ARPACK) && defined(HAVE_SLEPC)
   // if both Arpack and SLEPC are available, use Arpack by default
@@ -25,7 +32,14 @@ void EigenSolve(struct DofData * DofData_P, int NumEigenvalues,
   PetscOptionsGetTruth(PETSC_NULL, "-slepc", &slepc, &set);
   if(slepc)
     EigenSolve_SLEPC(DofData_P, NumEigenvalues, shift_r, shift_i,
-                     FilterExpressionIndex);
+                     FilterExpressionIndex,
+                     RationalCoefs1Num, RationalCoefs1Den,
+                     RationalCoefs2Num, RationalCoefs2Den, 
+                     RationalCoefs3Num, RationalCoefs3Den, 
+                     RationalCoefs4Num, RationalCoefs4Den, 
+                     RationalCoefs5Num, RationalCoefs5Den, 
+                     RationalCoefs6Num, RationalCoefs6Den,
+                     CoefsSizes);
   else
     EigenSolve_ARPACK(DofData_P, NumEigenvalues, shift_r, shift_i,
                       FilterExpressionIndex);
@@ -34,7 +48,14 @@ void EigenSolve(struct DofData * DofData_P, int NumEigenvalues,
                     FilterExpressionIndex);
 #elif defined(HAVE_SLEPC)
   EigenSolve_SLEPC(DofData_P, NumEigenvalues, shift_r, shift_i,
-                   FilterExpressionIndex);
+                   FilterExpressionIndex,
+                   RationalCoefs1Num, RationalCoefs1Den,
+                   RationalCoefs2Num, RationalCoefs2Den, 
+                   RationalCoefs3Num, RationalCoefs3Den, 
+                   RationalCoefs4Num, RationalCoefs4Den, 
+                   RationalCoefs5Num, RationalCoefs5Den, 
+                   RationalCoefs6Num, RationalCoefs6Den,
+                   CoefsSizes);
 #else
   Message::Error("EigenSolve not available without SLEPC or ARPACK");
 #endif

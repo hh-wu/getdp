@@ -439,6 +439,211 @@ void Cal_AssembleTerm_DtDtDtDtDtDof(struct Dof * Equ, struct Dof * Dof, double V
   }
 }
 
+// nleigchange
+void Cal_AssembleTerm_NLEig1Dof(struct Dof * Equ, struct Dof * Dof, double Val[])
+{
+  int k ;
+  if(Current.TypeAssembly == ASSEMBLY_SEPARATE){
+		if (!Current.DofData->Flag_Init[7]) {
+			Current.DofData->Flag_Init[7] = 1 ;
+      LinAlg_CreateMatrix(&Current.DofData->M7, &Current.DofData->Solver,
+			  Current.DofData->NbrDof, Current.DofData->NbrDof) ;
+			LinAlg_CreateVector(&Current.DofData->m7, &Current.DofData->Solver,
+			  Current.DofData->NbrDof) ;
+      LinAlg_ZeroMatrix(&Current.DofData->M7);
+      LinAlg_ZeroVector(&Current.DofData->m7);
+      Current.DofData->m7s = List_Create(10, 10, sizeof(gVector));
+      for(int i = 0; i < List_Nbr(Current.DofData->TimeFunctionIndex); i++){
+        gVector m;
+        LinAlg_CreateVector(&m, &Current.DofData->Solver,
+                            Current.DofData->NbrDof) ;
+        LinAlg_ZeroVector(&m);
+        List_Add(Current.DofData->m7s, &m);
+      }
+    }
+    for (k = 0 ; k < Current.NbrHar ; k += 2) {
+      int incr = (gSCALAR_SIZE == 2) ? k / 2 : k;
+      Dof_AssembleInMat(Equ + incr, Dof + incr, Current.NbrHar, &Val[k],
+			&Current.DofData->M7, &Current.DofData->m7,
+                        Current.DofData->m7s) ;
+    }
+  }
+  else {
+    Message::Error("NLEig1Dof only available with GenerateSeparate");
+    return ;
+  }
+}
+
+void Cal_AssembleTerm_NLEig2Dof(struct Dof * Equ, struct Dof * Dof, double Val[])
+{
+  int k ;
+  if(Current.TypeAssembly == ASSEMBLY_SEPARATE){
+		if (!Current.DofData->Flag_Init[6]) {
+			Current.DofData->Flag_Init[6] = 1 ;
+      LinAlg_CreateMatrix(&Current.DofData->M6, &Current.DofData->Solver,
+			  Current.DofData->NbrDof, Current.DofData->NbrDof) ;
+			LinAlg_CreateVector(&Current.DofData->m6, &Current.DofData->Solver,
+			  Current.DofData->NbrDof) ;
+      LinAlg_ZeroMatrix(&Current.DofData->M6);
+      LinAlg_ZeroVector(&Current.DofData->m6);
+      Current.DofData->m6s = List_Create(10, 10, sizeof(gVector));
+      for(int i = 0; i < List_Nbr(Current.DofData->TimeFunctionIndex); i++){
+        gVector m;
+        LinAlg_CreateVector(&m, &Current.DofData->Solver,
+                            Current.DofData->NbrDof) ;
+        LinAlg_ZeroVector(&m);
+        List_Add(Current.DofData->m6s, &m);
+      }
+    }
+    for (k = 0 ; k < Current.NbrHar ; k += 2) {
+      int incr = (gSCALAR_SIZE == 2) ? k / 2 : k;
+      Dof_AssembleInMat(Equ + incr, Dof + incr, Current.NbrHar, &Val[k],
+			&Current.DofData->M6, &Current.DofData->m6,
+                        Current.DofData->m6s) ;
+    }
+  }
+  else {
+    Message::Error("NLEig3Dof only available with GenerateSeparate");
+    return ;
+  }
+}
+
+void Cal_AssembleTerm_NLEig3Dof(struct Dof * Equ, struct Dof * Dof, double Val[])
+{
+  int k ;
+  if(Current.TypeAssembly == ASSEMBLY_SEPARATE){
+		if (!Current.DofData->Flag_Init[5]) {
+			Current.DofData->Flag_Init[5] = 1 ;
+      LinAlg_CreateMatrix(&Current.DofData->M5, &Current.DofData->Solver,
+			  Current.DofData->NbrDof, Current.DofData->NbrDof) ;
+			LinAlg_CreateVector(&Current.DofData->m5, &Current.DofData->Solver,
+			  Current.DofData->NbrDof) ;
+      LinAlg_ZeroMatrix(&Current.DofData->M5);
+      LinAlg_ZeroVector(&Current.DofData->m5);
+      Current.DofData->m5s = List_Create(10, 10, sizeof(gVector));
+      for(int i = 0; i < List_Nbr(Current.DofData->TimeFunctionIndex); i++){
+        gVector m;
+        LinAlg_CreateVector(&m, &Current.DofData->Solver,
+                            Current.DofData->NbrDof) ;
+        LinAlg_ZeroVector(&m);
+        List_Add(Current.DofData->m5s, &m);
+      }
+    }
+    for (k = 0 ; k < Current.NbrHar ; k += 2) {
+      int incr = (gSCALAR_SIZE == 2) ? k / 2 : k;
+      Dof_AssembleInMat(Equ + incr, Dof + incr, Current.NbrHar, &Val[k],
+			&Current.DofData->M5, &Current.DofData->m5,
+                        Current.DofData->m5s) ;
+    }
+  }
+  else {
+    Message::Error("NLEig3Dof only available with GenerateSeparate");
+    return ;
+  }
+}
+
+void Cal_AssembleTerm_NLEig4Dof(struct Dof * Equ, struct Dof * Dof, double Val[])
+{
+  int k ;
+  if(Current.TypeAssembly == ASSEMBLY_SEPARATE){
+		if (!Current.DofData->Flag_Init[4]) {
+			Current.DofData->Flag_Init[4] = 1 ;
+      LinAlg_CreateMatrix(&Current.DofData->M4, &Current.DofData->Solver,
+			  Current.DofData->NbrDof, Current.DofData->NbrDof) ;
+			LinAlg_CreateVector(&Current.DofData->m4, &Current.DofData->Solver,
+			  Current.DofData->NbrDof) ;
+      LinAlg_ZeroMatrix(&Current.DofData->M4);
+      LinAlg_ZeroVector(&Current.DofData->m4);
+      Current.DofData->m4s = List_Create(10, 10, sizeof(gVector));
+      for(int i = 0; i < List_Nbr(Current.DofData->TimeFunctionIndex); i++){
+        gVector m;
+        LinAlg_CreateVector(&m, &Current.DofData->Solver,
+                            Current.DofData->NbrDof) ;
+        LinAlg_ZeroVector(&m);
+        List_Add(Current.DofData->m4s, &m);
+      }
+    }
+    for (k = 0 ; k < Current.NbrHar ; k += 2) {
+      int incr = (gSCALAR_SIZE == 2) ? k / 2 : k;
+      Dof_AssembleInMat(Equ + incr, Dof + incr, Current.NbrHar, &Val[k],
+			&Current.DofData->M4, &Current.DofData->m4,
+                        Current.DofData->m4s) ;
+    }
+  }
+  else {
+    Message::Error("NLEig4Dof only available with GenerateSeparate");
+    return ;
+  }
+}
+
+void Cal_AssembleTerm_NLEig5Dof(struct Dof * Equ, struct Dof * Dof, double Val[])
+{
+  int k ;
+  if(Current.TypeAssembly == ASSEMBLY_SEPARATE){
+		if (!Current.DofData->Flag_Init[3]) {
+			Current.DofData->Flag_Init[3] = 1 ;
+      LinAlg_CreateMatrix(&Current.DofData->M3, &Current.DofData->Solver,
+			  Current.DofData->NbrDof, Current.DofData->NbrDof) ;
+			LinAlg_CreateVector(&Current.DofData->m3, &Current.DofData->Solver,
+			  Current.DofData->NbrDof) ;
+      LinAlg_ZeroMatrix(&Current.DofData->M3);
+      LinAlg_ZeroVector(&Current.DofData->m3);
+      Current.DofData->m3s = List_Create(10, 10, sizeof(gVector));
+      for(int i = 0; i < List_Nbr(Current.DofData->TimeFunctionIndex); i++){
+        gVector m;
+        LinAlg_CreateVector(&m, &Current.DofData->Solver,
+                            Current.DofData->NbrDof) ;
+        LinAlg_ZeroVector(&m);
+        List_Add(Current.DofData->m3s, &m);
+      }
+    }
+    for (k = 0 ; k < Current.NbrHar ; k += 2) {
+      int incr = (gSCALAR_SIZE == 2) ? k / 2 : k;
+      Dof_AssembleInMat(Equ + incr, Dof + incr, Current.NbrHar, &Val[k],
+			&Current.DofData->M3, &Current.DofData->m3,
+                        Current.DofData->m3s) ;
+    }
+  }
+  else {
+    Message::Error("NLEig5Dof only available with GenerateSeparate");
+    return ;
+  }
+}
+
+void Cal_AssembleTerm_NLEig6Dof(struct Dof * Equ, struct Dof * Dof, double Val[])
+{
+  int k ;
+  if(Current.TypeAssembly == ASSEMBLY_SEPARATE){
+		if (!Current.DofData->Flag_Init[2]) {
+			Current.DofData->Flag_Init[2] = 1 ;
+      LinAlg_CreateMatrix(&Current.DofData->M2, &Current.DofData->Solver,
+			  Current.DofData->NbrDof, Current.DofData->NbrDof) ;
+			LinAlg_CreateVector(&Current.DofData->m2, &Current.DofData->Solver,
+			  Current.DofData->NbrDof) ;
+      LinAlg_ZeroMatrix(&Current.DofData->M2);
+      LinAlg_ZeroVector(&Current.DofData->m2);
+      Current.DofData->m2s = List_Create(10, 10, sizeof(gVector));
+      for(int i = 0; i < List_Nbr(Current.DofData->TimeFunctionIndex); i++){
+        gVector m;
+        LinAlg_CreateVector(&m, &Current.DofData->Solver,
+                            Current.DofData->NbrDof) ;
+        LinAlg_ZeroVector(&m);
+        List_Add(Current.DofData->m2s, &m);
+      }
+    }
+    for (k = 0 ; k < Current.NbrHar ; k += 2) {
+      int incr = (gSCALAR_SIZE == 2) ? k / 2 : k;
+      Dof_AssembleInMat(Equ + incr, Dof + incr, Current.NbrHar, &Val[k],
+			&Current.DofData->M2, &Current.DofData->m2,
+                        Current.DofData->m2s) ;
+    }
+  }
+  else {
+    Message::Error("NLEig6Dof only available with GenerateSeparate");
+    return ;
+  }
+}
+
 /* ------------------------------------------------------------------------ */
 /*  Jacobian NonLinear                                                      */
 /* ------------------------------------------------------------------------ */
