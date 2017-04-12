@@ -775,215 +775,161 @@ static void _polynomialEVP(struct DofData * DofData_P, int numEigenValues,
   _try(PEPDestroy(&pep));
 }
 //nleigchange
+
 static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
                            double shift_r, double shift_i, int filterExpressionIndex,
-                           double *RationalCoefs1Num_re, double *RationalCoefs1Num_im,
-                           double *RationalCoefs1Den_re, double *RationalCoefs1Den_im,
-                           double *RationalCoefs2Num_re, double *RationalCoefs2Num_im,
-                           double *RationalCoefs2Den_re, double *RationalCoefs2Den_im,
-                           double *RationalCoefs3Num_re, double *RationalCoefs3Num_im,
-                           double *RationalCoefs3Den_re, double *RationalCoefs3Den_im,
+                           double *RationalCoefs1Num, double *RationalCoefs1Den,
+                           double *RationalCoefs2Num, double *RationalCoefs2Den, 
+                           double *RationalCoefs3Num, double *RationalCoefs3Den, 
+                           double *RationalCoefs4Num, double *RationalCoefs4Den, 
+                           double *RationalCoefs5Num, double *RationalCoefs5Den, 
+                           double *RationalCoefs6Num, double *RationalCoefs6Den,
                            int *CoefsSizes)
 {
   NEP nep;
-  NEPType        type;
-  FN             funs[3];
-  PetscScalar *coefs1Num;
-  PetscScalar *coefs1Den;
-  PetscScalar *coefs2Num;
-  PetscScalar *coefs2Den;
-  PetscScalar *coefs3Num;
-  PetscScalar *coefs3Den;
-  int nb_Coefs1Num_re = CoefsSizes[0];
-  int nb_Coefs1Num_im = CoefsSizes[1];
-  int nb_Coefs1Den_re = CoefsSizes[2];
-  int nb_Coefs1Den_im = CoefsSizes[3];
-  int nb_Coefs2Num_re = CoefsSizes[4];
-  int nb_Coefs2Num_im = CoefsSizes[5];
-  int nb_Coefs2Den_re = CoefsSizes[6];
-  int nb_Coefs2Den_im = CoefsSizes[7];
-  int nb_Coefs3Num_re = CoefsSizes[8];
-  int nb_Coefs3Num_im = CoefsSizes[9];
-  int nb_Coefs3Den_re = CoefsSizes[10];
-  int nb_Coefs3Den_im = CoefsSizes[11];
-
-  PetscScalar shift = shift_r + PETSC_i * shift_i;
-
-  if(nb_Coefs1Num_re!=nb_Coefs1Num_im || nb_Coefs1Den_re!=nb_Coefs1Den_im ||
-     nb_Coefs2Num_re!=nb_Coefs2Num_im || nb_Coefs2Den_re!=nb_Coefs2Den_im ||
-     nb_Coefs3Num_re!=nb_Coefs3Num_im || nb_Coefs3Den_re!=nb_Coefs3Den_im){
-    Message::Error("Incompatible (re/im) sizes of non linear rational coefficients");
-  }
-
-  coefs1Num = (PetscScalar *)Malloc(nb_Coefs1Num_re * sizeof(PetscScalar));
-  coefs1Den = (PetscScalar *)Malloc(nb_Coefs1Den_re * sizeof(PetscScalar));
-  coefs2Num = (PetscScalar *)Malloc(nb_Coefs2Num_re * sizeof(PetscScalar));
-  coefs2Den = (PetscScalar *)Malloc(nb_Coefs2Den_re * sizeof(PetscScalar));
-  coefs3Num = (PetscScalar *)Malloc(nb_Coefs3Num_re * sizeof(PetscScalar));
-  coefs3Den = (PetscScalar *)Malloc(nb_Coefs3Den_re * sizeof(PetscScalar));
-
-  Message::Info("Solving non-linear eigenvalue problem using slepc NEP");
-  _try(NEPCreate(PETSC_COMM_WORLD, &nep));
-  Mat A[3] = {DofData_P->M7.M, DofData_P->M6.M, DofData_P->M5.M};
-  
-  // Message::Info("nleig - nb_Coefs1Num_re=%d",nb_Coefs1Num_re);
-  // Message::Info("nleig - nb_Coefs1Num_im=%d",nb_Coefs1Num_im);
-  // Message::Info("nleig - nb_Coefs1Den_re=%d",nb_Coefs1Den_re);
-  // Message::Info("nleig - nb_Coefs1Den_im=%d",nb_Coefs1Den_im);
-  // Message::Info("nleig - nb_Coefs2Num_re=%d",nb_Coefs2Num_re);
-  // Message::Info("nleig - nb_Coefs2Num_im=%d",nb_Coefs2Num_im);
-  // Message::Info("nleig - nb_Coefs2Den_re=%d",nb_Coefs2Den_re);
-  // Message::Info("nleig - nb_Coefs2Den_im=%d",nb_Coefs2Den_im);
-  // Message::Info("nleig - nb_Coefs3Num_re=%d",nb_Coefs3Num_re);
-  // Message::Info("nleig - nb_Coefs3Num_im=%d",nb_Coefs3Num_im);
-  // Message::Info("nleig - nb_Coefs3Den_re=%d",nb_Coefs3Den_re);
-  // Message::Info("nleig - nb_Coefs3Den_im=%d",nb_Coefs3Den_im);
-  // for(int i=0; i<nb_Coefs1Num_re; i++){
-  //   Message::Info("nleig - RationalCoefs1Num_re[%d]=%lf",i,RationalCoefs1Num_re[i]);}
-  // for(int i=0; i<nb_Coefs1Num_im; i++){
-  //   Message::Info("nleig - RationalCoefs1Num_im[%d]=%lf",i,RationalCoefs1Num_im[i]);}
-  // for(int i=0; i<nb_Coefs1Den_re; i++){
-  //   Message::Info("nleig - RationalCoefs1Den_re[%d]=%lf",i,RationalCoefs1Den_re[i]);}
-  // for(int i=0; i<nb_Coefs1Den_im; i++){
-  //   Message::Info("nleig - RationalCoefs1Den_im[%d]=%lf",i,RationalCoefs1Den_im[i]);}
-  // for(int i=0; i<nb_Coefs2Num_re; i++){
-  //   Message::Info("nleig - RationalCoefs2Num_re[%d]=%lf",i,RationalCoefs2Num_re[i]);}
-  // for(int i=0; i<nb_Coefs2Num_im; i++){
-  //   Message::Info("nleig - RationalCoefs2Num_im[%d]=%lf",i,RationalCoefs2Num_im[i]);}
-  // for(int i=0; i<nb_Coefs2Den_re; i++){
-  //   Message::Info("nleig - RationalCoefs2Den_re[%d]=%lf",i,RationalCoefs2Den_re[i]);}
-  // for(int i=0; i<nb_Coefs2Den_im; i++){
-  //   Message::Info("nleig - RationalCoefs2Den_im[%d]=%lf",i,RationalCoefs2Den_im[i]);}
-  // for(int i=0; i<nb_Coefs3Num_re; i++){
-  //   Message::Info("nleig - RationalCoefs3Num_re[%d]=%lf",i,RationalCoefs3Num_re[i]);}
-  // for(int i=0; i<nb_Coefs3Num_im; i++){
-  //   Message::Info("nleig - RationalCoefs3Num_im[%d]=%lf",i,RationalCoefs3Num_im[i]);}
-  // for(int i=0; i<nb_Coefs3Den_re; i++){
-  //   Message::Info("nleig - RationalCoefs3Den_re[%d]=%lf",i,RationalCoefs3Den_re[i]);}
-  // for(int i=0; i<nb_Coefs3Den_im; i++){
-  //   Message::Info("nleig - RationalCoefs3Den_im[%d]=%lf",i,RationalCoefs3Den_im[i]);}
-  
-  PetscInt n1,m1,n2,m2,n3,m3;
-  MatGetLocalSize(A[0],&n1,&m1);
-  MatGetLocalSize(A[1],&n2,&m2);
-  MatGetLocalSize(A[2],&n3,&m3);
-  Message::Info("Checking A0 size %dx%d",n1,m1);
-  Message::Info("Checking A1 size %dx%d",n2,m2);
-  Message::Info("Checking A3 size %dx%d",n3,m3);
-  Message::Info("Checking if PETSC_USE_COMPLEX %d",PETSC_USE_COMPLEX);
-
-  for(int i=0; i<nb_Coefs1Num_re; i++){
-    coefs1Num[i] = RationalCoefs1Num_re[i] + PETSC_i * RationalCoefs1Num_im[i];}
-  for(int i=0; i<nb_Coefs1Den_re; i++){
-    coefs1Den[i] = RationalCoefs1Den_re[i] + PETSC_i * RationalCoefs1Den_im[i];}
-  for(int i=0; i<nb_Coefs2Num_re; i++){
-    coefs2Num[i] = RationalCoefs2Num_re[i] + PETSC_i * RationalCoefs2Num_im[i];}
-  for(int i=0; i<nb_Coefs2Den_re; i++){
-    coefs2Den[i] = RationalCoefs2Den_re[i] + PETSC_i * RationalCoefs2Den_im[i];}
-  for(int i=0; i<nb_Coefs3Num_re; i++){
-    coefs3Num[i] = RationalCoefs3Num_re[i] + PETSC_i * RationalCoefs3Num_im[i];}
-  for(int i=0; i<nb_Coefs3Den_re; i++){
-    coefs3Den[i] = RationalCoefs3Den_re[i] + PETSC_i * RationalCoefs3Den_im[i];
-  }
-  
+  NEPType type;    
   int max_Nchar = 1000;
-  char str_coefs1Num[max_Nchar];
-  char str_coefs1Den[max_Nchar];
-  char str_coefs2Num[max_Nchar];
-  char str_coefs2Den[max_Nchar];
-  char str_coefs3Num[max_Nchar];
-  char str_coefs3Den[max_Nchar];
+  char str_coefsNum[6][max_Nchar];
+  char str_coefsDen[6][max_Nchar];
   char str_buff[50];
-
-  strcpy(str_coefs1Num,"num1(w)=");
-  strcpy(str_coefs1Den,"den1(w)=");
-  strcpy(str_coefs2Num,"num2(w)=");
-  strcpy(str_coefs2Den,"den2(w)=");
-  strcpy(str_coefs3Num,"num3(w)=");
-  strcpy(str_coefs3Den,"den3(w)=");
-
-  for(int i=0; i<nb_Coefs1Num_re-1; i++){
-    sprintf(str_buff," (%+.2e%+.2ej)*w^%d +",
-      PetscRealPart(coefs1Num[i]),PetscImaginaryPart(coefs1Num[i]),(nb_Coefs1Num_re-1-i));
-      strcat(str_coefs1Num,str_buff);
+  PetscScalar **tabCoefsNum;
+  PetscScalar **tabCoefsDen;
+  tabCoefsNum = (PetscScalar **)Malloc(6 * sizeof(PetscScalar *));
+  tabCoefsDen = (PetscScalar **)Malloc(6 * sizeof(PetscScalar *));
+  for(int i=0;i<6;i++){
+    tabCoefsNum[i]=(PetscScalar *)Malloc(CoefsSizes[i]   * sizeof(PetscScalar));
+    tabCoefsDen[i]=(PetscScalar *)Malloc(CoefsSizes[i+6] * sizeof(PetscScalar));
   }
-  sprintf(str_buff," (%+.2e%+.2ej)*w^%d",
-    PetscRealPart(coefs1Num[nb_Coefs1Num_re-1]),PetscImaginaryPart(coefs1Num[nb_Coefs1Num_re-1]),0);
-    strcat(str_coefs1Num,str_buff);
-  for(int i=0; i<nb_Coefs1Den_re-1; i++){
-    sprintf(str_buff," (%+.2e%+.2ej)*w^%d +",
-      PetscRealPart(coefs1Den[i]),PetscImaginaryPart(coefs1Den[i]),(nb_Coefs1Den_re-1-i));
-      strcat(str_coefs1Den,str_buff);
+  PetscScalar shift = shift_r + PETSC_i * shift_i;
+  int NumOperators=2;
+  _try(NEPCreate(PETSC_COMM_WORLD, &nep));
+
+  for(int i=0; i<CoefsSizes[0] ; i++){tabCoefsNum[0][i] = RationalCoefs1Num[i];}
+  for(int i=0; i<CoefsSizes[1] ; i++){tabCoefsNum[1][i] = RationalCoefs2Num[i];}
+  for(int i=0; i<CoefsSizes[2] ; i++){tabCoefsNum[2][i] = RationalCoefs3Num[i];}
+  for(int i=0; i<CoefsSizes[3] ; i++){tabCoefsNum[3][i] = RationalCoefs4Num[i];}
+  for(int i=0; i<CoefsSizes[4] ; i++){tabCoefsNum[4][i] = RationalCoefs5Num[i];}
+  for(int i=0; i<CoefsSizes[5] ; i++){tabCoefsNum[5][i] = RationalCoefs6Num[i];}
+  for(int i=0; i<CoefsSizes[6] ; i++){tabCoefsDen[0][i] = RationalCoefs1Den[i];}
+  for(int i=0; i<CoefsSizes[7] ; i++){tabCoefsDen[1][i] = RationalCoefs2Den[i];}
+  for(int i=0; i<CoefsSizes[8] ; i++){tabCoefsDen[2][i] = RationalCoefs3Den[i];}
+  for(int i=0; i<CoefsSizes[9] ; i++){tabCoefsDen[3][i] = RationalCoefs4Den[i];}
+  for(int i=0; i<CoefsSizes[10]; i++){tabCoefsDen[4][i] = RationalCoefs5Den[i];}
+  for(int i=0; i<CoefsSizes[11]; i++){tabCoefsDen[5][i] = RationalCoefs6Den[i];}
+  
+  // NLEig1Dof and NLEig2Dof
+  if(DofData_P->Flag_Init[7] &&  DofData_P->Flag_Init[6] &&
+      !DofData_P->Flag_Init[5] && !DofData_P->Flag_Init[4] &&
+        !DofData_P->Flag_Init[3] && !DofData_P->Flag_Init[2]){
+    NumOperators = 2;
+    Mat A[2] = {DofData_P->M7.M, DofData_P->M6.M};
+    FN funs[2];
+    for(int i=0;i<2;i++){
+      _try(FNCreate(PETSC_COMM_WORLD,&funs[i]));
+      _try(FNSetType(funs[i],FNRATIONAL));
+      _try(FNRationalSetNumerator(funs[i],CoefsSizes[i],tabCoefsNum[i]));
+      _try(FNRationalSetDenominator(funs[i],CoefsSizes[i+6],tabCoefsDen[i]));
+    }
+    _try(NEPSetSplitOperator(nep,2,A,funs,SUBSET_NONZERO_PATTERN));
   }
-  sprintf(str_buff," (%+.2e%+.2ej)*w^%d",
-    PetscRealPart(coefs1Den[nb_Coefs1Den_re-1]),PetscImaginaryPart(coefs1Den[nb_Coefs1Den_re-1]),0);
-    strcat(str_coefs1Den,str_buff);
-  for(int i=0; i<nb_Coefs2Num_re-1; i++){
-    sprintf(str_buff," (%+.2e%+.2ej)*w^%d +",
-      PetscRealPart(coefs2Num[i]),PetscImaginaryPart(coefs2Num[i]),(nb_Coefs2Num_re-1-i));
-      strcat(str_coefs2Num,str_buff);
+  // NLEig1Dof, NLEig2Dof and  NLEig3Dof
+  else if(DofData_P->Flag_Init[7] &&  DofData_P->Flag_Init[6] &&
+       DofData_P->Flag_Init[5] && !DofData_P->Flag_Init[4] &&
+        !DofData_P->Flag_Init[3] && !DofData_P->Flag_Init[2]){
+    NumOperators = 3;
+    Mat A[3] = {DofData_P->M7.M, DofData_P->M6.M, DofData_P->M5.M};
+    FN funs[3];
+    for(int i=0;i<3;i++){
+      _try(FNCreate(PETSC_COMM_WORLD,&funs[i]));
+      _try(FNSetType(funs[i],FNRATIONAL));
+      _try(FNRationalSetNumerator(funs[i],CoefsSizes[i],tabCoefsNum[i]));
+      _try(FNRationalSetDenominator(funs[i],CoefsSizes[i+6],tabCoefsDen[i]));
+    }
+    _try(NEPSetSplitOperator(nep,3,A,funs,SUBSET_NONZERO_PATTERN));
   }
-  sprintf(str_buff," (%+.2e%+.2ej)*w^%d",
-    PetscRealPart(coefs2Num[nb_Coefs2Num_re-1]),PetscImaginaryPart(coefs2Num[nb_Coefs2Num_re-1]),0);
-    strcat(str_coefs2Num,str_buff);
-  for(int i=0; i<nb_Coefs2Den_re-1; i++){
-    sprintf(str_buff," (%+.2e%+.2ej)*w^%d +",
-      PetscRealPart(coefs2Den[i]),PetscImaginaryPart(coefs2Den[i]),(nb_Coefs2Den_re-1-i));
-      strcat(str_coefs2Den,str_buff);
+  // NLEig1Dof, NLEig2Dof, NLEig3Dof and NLEig4Dof
+  else if(DofData_P->Flag_Init[7] &&  DofData_P->Flag_Init[6] &&
+       DofData_P->Flag_Init[5] && DofData_P->Flag_Init[4] &&
+        !DofData_P->Flag_Init[3] && !DofData_P->Flag_Init[2]){
+    NumOperators = 4;
+    Mat A[4] = {DofData_P->M7.M, DofData_P->M6.M, DofData_P->M5.M, 
+                DofData_P->M4.M, };
+    FN funs[4];
+    for(int i=0;i<4;i++){
+      _try(FNCreate(PETSC_COMM_WORLD,&funs[i]));
+      _try(FNSetType(funs[i],FNRATIONAL));
+      _try(FNRationalSetNumerator(funs[i],CoefsSizes[i],tabCoefsNum[i]));
+      _try(FNRationalSetDenominator(funs[i],CoefsSizes[i+6],tabCoefsDen[i]));
+    }
+    _try(NEPSetSplitOperator(nep,4,A,funs,SUBSET_NONZERO_PATTERN));
   }
-  sprintf(str_buff," (%+.2e%+.2ej)*w^%d",
-    PetscRealPart(coefs2Den[nb_Coefs2Den_re-1]),PetscImaginaryPart(coefs2Den[nb_Coefs2Den_re-1]),0);
-    strcat(str_coefs2Den,str_buff);
 
-  for(int i=0; i<nb_Coefs3Num_re-1; i++){
-    sprintf(str_buff," (%+.2e%+.2ej)*w^%d +",
-      PetscRealPart(coefs3Num[i]),PetscImaginaryPart(coefs3Num[i]),(nb_Coefs3Num_re-1-i));
-      strcat(str_coefs3Num,str_buff);
+  // NLEig1Dof, NLEig2Dof, NLEig3Dof, NLEig4Dof and NLEig5Dof
+  else if(DofData_P->Flag_Init[7] &&  DofData_P->Flag_Init[6] &&
+       DofData_P->Flag_Init[5] &&  DofData_P->Flag_Init[4] &&
+         DofData_P->Flag_Init[3] && !DofData_P->Flag_Init[2]){
+    NumOperators = 5;
+    Mat A[5] = {DofData_P->M7.M, DofData_P->M6.M, DofData_P->M5.M,
+                DofData_P->M4.M, DofData_P->M3.M};
+    FN funs[5];
+    for(int i=0;i<5;i++){
+      _try(FNCreate(PETSC_COMM_WORLD,&funs[i]));
+      _try(FNSetType(funs[i],FNRATIONAL));
+      _try(FNRationalSetNumerator(funs[i],CoefsSizes[i],tabCoefsNum[i]));
+      _try(FNRationalSetDenominator(funs[i],CoefsSizes[i+6],tabCoefsDen[i]));
+    }
+    _try(NEPSetSplitOperator(nep,5,A,funs,SUBSET_NONZERO_PATTERN));
   }
-  sprintf(str_buff," (%+.2e%+.2ej)*w^%d",
-    PetscRealPart(coefs3Num[nb_Coefs3Num_re-1]),PetscImaginaryPart(coefs3Num[nb_Coefs3Num_re-1]),0);
-    strcat(str_coefs3Num,str_buff);
-  for(int i=0; i<nb_Coefs3Den_re-1; i++){
-    sprintf(str_buff," (%+.2e%+.2ej)*w^%d +",
-      PetscRealPart(coefs3Den[i]),PetscImaginaryPart(coefs3Den[i]),(nb_Coefs3Den_re-1-i));
-      strcat(str_coefs3Den,str_buff);
+
+  // NLEig1Dof, NLEig2Dof, NLEig3Dof, NLEig4Dof, NLEig5Dof and NLEig6Dof
+  else if(DofData_P->Flag_Init[7] &&  DofData_P->Flag_Init[6] &&
+       DofData_P->Flag_Init[5] &&  DofData_P->Flag_Init[4] &&
+         DofData_P->Flag_Init[3] &&  DofData_P->Flag_Init[2]){
+    NumOperators = 6;
+    Mat A[6] = {DofData_P->M7.M, DofData_P->M6.M, DofData_P->M5.M};
+    FN funs[6];
+    for(int i=0;i<6;i++){
+      _try(FNCreate(PETSC_COMM_WORLD,&funs[i]));
+      _try(FNSetType(funs[i],FNRATIONAL));
+      _try(FNRationalSetNumerator(funs[i],CoefsSizes[i],tabCoefsNum[i]));
+      _try(FNRationalSetDenominator(funs[i],CoefsSizes[i+6],tabCoefsDen[i]));
+    }
+    _try(NEPSetSplitOperator(nep,6,A,funs,SUBSET_NONZERO_PATTERN));
   }
-  sprintf(str_buff," (%+.2e%+.2ej)*w^%d",
-    PetscRealPart(coefs3Den[nb_Coefs3Den_re-1]),PetscImaginaryPart(coefs3Den[nb_Coefs3Den_re-1]),0);
-    strcat(str_coefs3Den,str_buff);
-
-  Message::Info(str_coefs1Num);
-  Message::Info(str_coefs1Den);
-  Message::Info(str_coefs2Num);
-  Message::Info(str_coefs2Den);
-  Message::Info(str_coefs3Num);
-  Message::Info(str_coefs3Den);
-
-  // // tweak w is the eigenvalue (no longer iw, this is too misleading)!
-  // Message::Warning("Experimental : In non-linear EVP, w is the eigenvalue (rather than iw)!");
-  // for(int i=0; i<nb_Coefs1Num_re; i++){coefs1Num[i]*=-1.0;}
-  // for(int i=0; i<nb_Coefs2Num_re; i++){coefs2Num[i]*=-1.0*PETSC_i;}
-  // for(int i=0; i<nb_Coefs3Num_re; i++){coefs3Num[i]*=-1.0;}
-
-  _try(FNCreate(PETSC_COMM_WORLD,&funs[0]));
-  _try(FNSetType(funs[0],FNRATIONAL));
-  _try(FNRationalSetNumerator(funs[0],nb_Coefs1Num_re,coefs1Num));
-  _try(FNRationalSetDenominator(funs[0],nb_Coefs1Den_re,coefs1Den));
-
-  _try(FNCreate(PETSC_COMM_WORLD,&funs[1]));
-  _try(FNSetType(funs[1],FNRATIONAL));
-  _try(FNRationalSetNumerator(funs[1],nb_Coefs2Num_re,coefs2Num));
-  _try(FNRationalSetDenominator(funs[1],nb_Coefs2Den_re,coefs2Den));
-
-  _try(FNCreate(PETSC_COMM_WORLD,&funs[2]));
-  _try(FNSetType(funs[2],FNRATIONAL));
-  _try(FNRationalSetNumerator(funs[2],nb_Coefs3Num_re,coefs3Num));
-  _try(FNRationalSetDenominator(funs[2],nb_Coefs3Den_re,coefs3Den));
-
+  else{
+    Message::Info("Illegal use of NLEig1Dof or NLEig2Dof or...");
+  }
+  
+  Message::Info("Solving non-linear eigenvalue problem using slepc NEP");
+  Message::Info("Number of Operators %d - Setting %d Rational functions :"
+          ,NumOperators,NumOperators);
+  
+  for(int k=0;k<NumOperators;k++){
+    sprintf(str_coefsNum[k],"num%d(iw)=",k+1);
+    sprintf(str_coefsDen[k],"num%d(iw)=",k+1);
+    for(int i=0; i<CoefsSizes[k]; i++){
+      sprintf(str_buff," (%+.2e)*(iw)^%d +",
+        PetscRealPart(tabCoefsNum[k][i]),(CoefsSizes[k]-1-i));
+        strcat(str_coefsNum[k],str_buff);
+    }
+    sprintf(str_buff," (%+.2e)*(iw)^%d",
+      PetscRealPart(tabCoefsNum[k][CoefsSizes[k]-1]),0);
+      strcat(str_coefsNum[k],str_buff);
+    for(int i=0; i<CoefsSizes[k+6]; i++){
+      sprintf(str_buff," (%+.2e)*(iw)^%d +",
+        PetscRealPart(tabCoefsDen[k][i]),(CoefsSizes[k+6]-1-i));
+        strcat(str_coefsDen[k],str_buff);
+    }
+    sprintf(str_buff," (%+.2e)*(iw)^%d",
+      PetscRealPart(tabCoefsDen[k][CoefsSizes[k+6]-1]),0);
+      strcat(str_coefsDen[k],str_buff);
+    Message::Info(str_coefsNum[k]);
+    Message::Info(str_coefsDen[k]);    
+  }
+  
   // SUBSET_NONZERO_PATTERN
   // DIFFERENT_NONZERO_PATTERN
   // SAME_NONZERO_PATTERN
-  _try(NEPSetSplitOperator(nep,3,A,funs,SUBSET_NONZERO_PATTERN));
   _try(NEPSetDimensions(nep, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
   _try(NEPSetTolerances(nep, 1.e-6, PETSC_DEFAULT));
   _try(NEPSetType(nep, NEPNLEIGS));
@@ -1032,6 +978,9 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
   _storeEigenVectors(DofData_P, nconv, PETSC_NULL, PETSC_NULL, nep, filterExpressionIndex);
 
   _try(NEPDestroy(&nep));
+  for(int i=0;i<6;i++){Free(tabCoefsNum[i]);Free(tabCoefsDen[i]);}
+  Free(tabCoefsNum);
+  Free(tabCoefsDen);
 }
 
 
@@ -1039,12 +988,12 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
 
 void EigenSolve_SLEPC(struct DofData * DofData_P, int numEigenValues,
                   double shift_r, double shift_i, int FilterExpressionIndex,
-                  double *RationalCoefs1Num_re, double *RationalCoefs1Num_im,
-                  double *RationalCoefs1Den_re, double *RationalCoefs1Den_im,
-                  double *RationalCoefs2Num_re, double *RationalCoefs2Num_im,
-                  double *RationalCoefs2Den_re, double *RationalCoefs2Den_im,
-                  double *RationalCoefs3Num_re, double *RationalCoefs3Num_im,
-                  double *RationalCoefs3Den_re, double *RationalCoefs3Den_im,
+                  double *RationalCoefs1Num, double *RationalCoefs1Den,
+                  double *RationalCoefs2Num, double *RationalCoefs2Den, 
+                  double *RationalCoefs3Num, double *RationalCoefs3Den, 
+                  double *RationalCoefs4Num, double *RationalCoefs4Den, 
+                  double *RationalCoefs5Num, double *RationalCoefs5Den, 
+                  double *RationalCoefs6Num, double *RationalCoefs6Den,
                   int *CoefsSizes)
 {
   // Warn if we are not in harmonic regime (we won't be able to compute/store
@@ -1098,12 +1047,12 @@ void EigenSolve_SLEPC(struct DofData * DofData_P, int numEigenValues,
       
       _nonlinearEVP(DofData_P, numEigenValues, shift_r, shift_i,
                   FilterExpressionIndex,
-                  RationalCoefs1Num_re, RationalCoefs1Num_im,
-                  RationalCoefs1Den_re, RationalCoefs1Den_im,
-                  RationalCoefs2Num_re, RationalCoefs2Num_im,
-                  RationalCoefs2Den_re, RationalCoefs2Den_im,
-                  RationalCoefs3Num_re, RationalCoefs3Num_im,
-                  RationalCoefs3Den_re, RationalCoefs3Den_im,
+                  RationalCoefs1Num, RationalCoefs1Den,
+                  RationalCoefs2Num, RationalCoefs2Den, 
+                  RationalCoefs3Num, RationalCoefs3Den, 
+                  RationalCoefs4Num, RationalCoefs4Den, 
+                  RationalCoefs5Num, RationalCoefs5Den, 
+                  RationalCoefs6Num, RationalCoefs6Den,
                   CoefsSizes);                  
 #else
       Message::Error("Please compile Petsc/Slepc with complex arithmetic for non linear EVP support!");

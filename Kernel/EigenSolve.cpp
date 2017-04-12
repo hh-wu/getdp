@@ -17,12 +17,12 @@
 
 void EigenSolve(struct DofData * DofData_P, int NumEigenvalues,
 		double shift_r, double shift_i, int FilterExpressionIndex,
-    double *RationalCoefs1Num_re, double *RationalCoefs1Num_im,
-    double *RationalCoefs1Den_re, double *RationalCoefs1Den_im,
-    double *RationalCoefs2Num_re, double *RationalCoefs2Num_im,
-    double *RationalCoefs2Den_re, double *RationalCoefs2Den_im,
-    double *RationalCoefs3Num_re, double *RationalCoefs3Num_im,
-    double *RationalCoefs3Den_re, double *RationalCoefs3Den_im,
+    double *RationalCoefs1Num, double *RationalCoefs1Den,
+    double *RationalCoefs2Num, double *RationalCoefs2Den, 
+    double *RationalCoefs3Num, double *RationalCoefs3Den, 
+    double *RationalCoefs4Num, double *RationalCoefs4Den, 
+    double *RationalCoefs5Num, double *RationalCoefs5Den, 
+    double *RationalCoefs6Num, double *RationalCoefs6Den,
     int *CoefsSizes)
 {
 #if defined(HAVE_ARPACK) && defined(HAVE_SLEPC)
@@ -33,12 +33,12 @@ void EigenSolve(struct DofData * DofData_P, int NumEigenvalues,
   if(slepc)
     EigenSolve_SLEPC(DofData_P, NumEigenvalues, shift_r, shift_i,
                      FilterExpressionIndex,
-                     RationalCoefs1Num_re, RationalCoefs1Num_im,
-                     RationalCoefs1Den_re, RationalCoefs1Den_im,
-                     RationalCoefs2Num_re, RationalCoefs2Num_im,
-                     RationalCoefs2Den_re, RationalCoefs2Den_im,
-                     RationalCoefs3Num_re, RationalCoefs3Num_im,
-                     RationalCoefs3Den_re, RationalCoefs3Den_im,
+                     RationalCoefs1Num, RationalCoefs1Den,
+                     RationalCoefs2Num, RationalCoefs2Den, 
+                     RationalCoefs3Num, RationalCoefs3Den, 
+                     RationalCoefs4Num, RationalCoefs4Den, 
+                     RationalCoefs5Num, RationalCoefs5Den, 
+                     RationalCoefs6Num, RationalCoefs6Den,
                      CoefsSizes);
   else
     EigenSolve_ARPACK(DofData_P, NumEigenvalues, shift_r, shift_i,
@@ -49,12 +49,12 @@ void EigenSolve(struct DofData * DofData_P, int NumEigenvalues,
 #elif defined(HAVE_SLEPC)
   EigenSolve_SLEPC(DofData_P, NumEigenvalues, shift_r, shift_i,
                    FilterExpressionIndex,
-                   RationalCoefs1Num_re, RationalCoefs1Num_im,
-                   RationalCoefs1Den_re, RationalCoefs1Den_im,
-                   RationalCoefs2Num_re, RationalCoefs2Num_im,
-                   RationalCoefs2Den_re, RationalCoefs2Den_im,
-                   RationalCoefs3Num_re, RationalCoefs3Num_im,
-                   RationalCoefs3Den_re, RationalCoefs3Den_im,
+                   RationalCoefs1Num, RationalCoefs1Den,
+                   RationalCoefs2Num, RationalCoefs2Den, 
+                   RationalCoefs3Num, RationalCoefs3Den, 
+                   RationalCoefs4Num, RationalCoefs4Den, 
+                   RationalCoefs5Num, RationalCoefs5Den, 
+                   RationalCoefs6Num, RationalCoefs6Den,
                    CoefsSizes);
 #else
   Message::Error("EigenSolve not available without SLEPC or ARPACK");

@@ -251,9 +251,13 @@ void Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
   case DTDOFJACNL_    : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_DtDofJacNL   ; break;
   case NEVERDT_       : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_NeverDt      ; break;
   case DTNL_          : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_DtNL         ; break;
-  case NLEIG1DOF_      : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_NLEig1Dof     ; break;// nleigchange
-  case NLEIG2DOF_      : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_NLEig2Dof     ; break;// nleigchange
-  case NLEIG3DOF_      : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_NLEig3Dof     ; break;// nleigchange
+  // nleigchange
+  case NLEIG1DOF_      : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_NLEig1Dof   ; break;
+  case NLEIG2DOF_      : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_NLEig2Dof   ; break;
+  case NLEIG3DOF_      : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_NLEig3Dof   ; break;
+  case NLEIG4DOF_      : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_NLEig4Dof   ; break;
+  case NLEIG5DOF_      : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_NLEig5Dof   ; break;
+  case NLEIG6DOF_      : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_NLEig6Dof   ; break;
 
   default             :
     Message::Error("Unknown type of Operator for Galerkin term (%d)",

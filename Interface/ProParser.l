@@ -175,6 +175,9 @@ DtDtDtDtDtDof                return tDtDtDtDtDtDof;
 NLEig1Dof                    return tNLEig1Dof; /*nleigchange */
 NLEig2Dof                    return tNLEig2Dof; /*nleigchange */
 NLEig3Dof                    return tNLEig3Dof; /*nleigchange */
+NLEig4Dof                    return tNLEig4Dof; /*nleigchange */
+NLEig5Dof                    return tNLEig5Dof; /*nleigchange */
+NLEig6Dof                    return tNLEig6Dof; /*nleigchange */
 DtNL                         return tDtNL;
 
 Echo                         return tEcho;

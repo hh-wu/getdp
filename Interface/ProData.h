@@ -736,6 +736,9 @@ struct GlobalEquationTerm {
 #define NLEIG1DOF_     20
 #define NLEIG2DOF_     21
 #define NLEIG3DOF_     22
+#define NLEIG4DOF_     23
+#define NLEIG5DOF_     24
+#define NLEIG6DOF_     25
 
 
 
@@ -997,18 +1000,18 @@ struct Operation {
       int     NumEigenvalues;
       double  Shift_r, Shift_i;
       int     FilterExpressionIndex;
-      double *RationalCoefs1Num_re;
-      double *RationalCoefs1Num_im;
-      double *RationalCoefs1Den_re;
-      double *RationalCoefs1Den_im;
-      double *RationalCoefs2Num_re;
-      double *RationalCoefs2Num_im;
-      double *RationalCoefs2Den_re;
-      double *RationalCoefs2Den_im;
-      double *RationalCoefs3Num_re;
-      double *RationalCoefs3Num_im;
-      double *RationalCoefs3Den_re;
-      double *RationalCoefs3Den_im;
+      double *RationalCoefs1Num;
+      double *RationalCoefs1Den;
+      double *RationalCoefs2Num;
+      double *RationalCoefs2Den;
+      double *RationalCoefs3Num;
+      double *RationalCoefs3Den;
+      double *RationalCoefs4Num;
+      double *RationalCoefs4Den;
+      double *RationalCoefs5Num;
+      double *RationalCoefs5Den;
+      double *RationalCoefs6Num;
+      double *RationalCoefs6Den;            
       int CoefsSizes[12];
     } EigenSolve;
     struct {
