@@ -805,7 +805,12 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
     tabCoefsDen[i]=(PetscScalar *)Malloc(CoefsSizes[i+6] * sizeof(PetscScalar));
   }
   int NumOperators=2;
+#if defined(PETSC_USE_COMPLEX)
   PetscScalar shift = shift_r + PETSC_i * shift_i;
+#else
+  Message::Warning("Discarding imaginary part in shift");
+  PetscScalar shift = shift_r;
+#endif
 
   for(int i=0; i<CoefsSizes[0] ; i++){tabCoefsNum[0][i] = RationalCoefs1Num[i];}
   for(int i=0; i<CoefsSizes[1] ; i++){tabCoefsNum[1][i] = RationalCoefs2Num[i];}
