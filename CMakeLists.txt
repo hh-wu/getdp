@@ -1035,8 +1035,8 @@ set(CPACK_PACKAGE_EXECUTABLE "getdp;GetDP")
 set(CPACK_STRIP_FILES TRUE)
 set(CPACK_SOURCE_PACKAGE_FILE_NAME getdp-${GETDP_VERSION}-source)
 set(CPACK_SOURCE_GENERATOR TGZ)
-set(CPACK_SOURCE_IGNORE_FILES "${CMAKE_CURRENT_BINARY_DIR}" "/CVS/" "/.svn" "~$"
-    "DS_Store$" "GetDPConfig.h$" "GetDPVersion.h$" "/benchmarks*" "/tmp/"
+set(CPACK_SOURCE_IGNORE_FILES "${CMAKE_CURRENT_BINARY_DIR}" "/CVS/" "/.svn" "/.git"
+    "~$" "DS_Store$" "GetDPConfig.h$" "GetDPVersion.h$" "/benchmarks*" "/tmp/"
     "/bin/" "/lib/" "/nightly/" "GPATH" "GRTAGS" "GSYMS" "GTAGS" "/HTML/"
     "/contrib/NR/" "/contrib/NX/" "/contrib/ZITSOL_1/")
 
