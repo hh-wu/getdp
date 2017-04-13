@@ -250,8 +250,8 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
 #endif
 
   /* Sanity checks */
-  if(!DofData_P->Flag_Init[7] || DofData_P->Flag_Init[6] ||
-      !DofData_P->Flag_Init[5] || DofData_P->Flag_Init[4]){
+  if(DofData_P->Flag_Init[7] || DofData_P->Flag_Init[6] ||
+     DofData_P->Flag_Init[5] || DofData_P->Flag_Init[4]){
     Message::Error("High order polynomial and non-linear EVP only available with SLEPc");
     return;
   }
