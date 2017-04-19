@@ -47,13 +47,20 @@
 // - MAX_STACK_SIZE controls the size of the stack used in the evaluation of
 // expressions ; keep this large enough by default to allow for complex expressions
 
+// - MAX_STACK_SIZE0 controls the size of the stack used in the evaluation of expressions;
+// equals 8 by default (tensors), reduced to 2 in multiharmonic case for allowing to go up
+// in the number of harmonics... Put back to 8 if you need tensors!
+
 #if !defined(HAVE_MULTIHARMONIC)
 #define NBR_MAX_HARMONIC    2
+#define MAX_STACK_SIZE0     8
+#define MAX_STACK_SIZE     40
 #else
-#define NBR_MAX_HARMONIC  100
+#define NBR_MAX_HARMONIC  202
+#define MAX_STACK_SIZE0     2
+#define MAX_STACK_SIZE    202
 #endif
 
-#define MAX_STACK_SIZE     40
 
 struct Value {
   int     Type;
@@ -728,7 +735,7 @@ struct GlobalEquationTerm {
 #define DTDTDOF_        4
 #define DTDTDTDOF_      5
 #define DTDTDTDTDOF_    6
-#define DTDTDTDTDTDOF_  7 
+#define DTDTDTDTDTDOF_  7
 #define JACNL_         10
 #define NEVERDT_       11
 #define DTNL_          12
@@ -1013,7 +1020,7 @@ struct Operation {
       double *RationalCoefs5Num;
       double *RationalCoefs5Den;
       double *RationalCoefs6Num;
-      double *RationalCoefs6Den;            
+      double *RationalCoefs6Den;
       int CoefsSizes[12];
     } EigenSolve;
     struct {
