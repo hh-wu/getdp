@@ -1157,9 +1157,9 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
 	  Pos_InitAllSolutions(PSO_P->TimeStep_L, i) ;
 	  for (j = 0 ; j < Current.NbrHar ; j+=2) {
 	    freq = 0.5*Current.DofData->Val_Pulsation[j/2]/M_PI ;
-	    sprintf(tmp, "%g Hz (Real Part: COSINUS)", freq);
+	    sprintf(tmp, "%g Hz (real part: COSINUS)", freq);
 	    Gmsh_StringAdd(PSO_P->Format, (!i && !j), tmp);
-	    sprintf(tmp, "%g Hz (Imaginary Part: -SINUS)", freq);
+	    sprintf(tmp, "%g Hz (imag part: -SINUS)", freq);
 	    Gmsh_StringAdd(PSO_P->Format, 0, tmp);
 	  }
 	}
@@ -1868,7 +1868,8 @@ void Pos_FourierTransform(int NbrTimeStep, int NbrRegion,
           val_r =  2 * val_FourierComps[(2*i_k+0)*MAX_DIM + j];
           val_i = -2 * val_FourierComps[(2*i_k+1)*MAX_DIM + j];
           norm = sqrt(SQU(val_r) + SQU(val_i));
-          val = (k==0)? norm : -asin(val_i/norm);
+          // val = (k==0)? norm : -asin(val_i/norm); // Phase for CosineTransform
+          val = (k==0)? norm : atan2(val_i,val_r); // Phase for FourierTransform
         }
         else {
           val = (k==0)? val_FourierComps[(2*i_k+k)*MAX_DIM + j] : 0.;

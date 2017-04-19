@@ -76,6 +76,11 @@ int MHMoving_assemblyType = 0 ;
 
 Tree_T  * DofTree_MH_moving ;
 
+// For Cal_SolutionErrorRatio...
+// Changed in OPERATION_ITERATIVELOOP
+// double reltol = 1e-7;
+// double abstol = 1e-5;
+
 /* ------------------------------------------------------------------------ */
 /*  F r e e _ U n u s e d S o l u t i o n s                                 */
 /* ------------------------------------------------------------------------ */
@@ -91,7 +96,7 @@ void Free_UnusedSolutions(struct DofData * DofData_P)
     switch (Current.TypeTime) {
     case TIME_THETA :
       index = List_Nbr(DofData_P->Solutions)-4 ;
-      // Fore TimeLoopAdaptive (Trapezoidal) we need 3 past solutions for the predictor
+      // For TimeLoopAdaptive (Trapezoidal) we need 3 past solutions for the predictor
       index = Message::GetOperatingInTimeLoopAdaptive() ? index - 1 : index;
       break;
     case TIME_GEAR :
@@ -1359,14 +1364,24 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
           LinAlg_SolveAgain(&DofData_P->Jac, &DofData_P->res, &DofData_P->Solver, &DofData_P->dx) ;
 
         Cal_SolutionError(&DofData_P->dx, &DofData_P->CurrentSolution->x, 0, &MeanError) ;
+        // NormType: 1=LINFNORM, 2=L1NORM, 3=MEANL1NORM, 4=L2NORM, 5=MEANL2NORM
+        // Closest behaviour to old function Cal_SolutionError with MEANL2NORM
+        // Cal_SolutionErrorRatio(&DofData_P->dx, &DofData_P->CurrentSolution->x,
+        //                       reltol, abstol, MEANL2NORM, &MeanError) ;
+
         //LinAlg_VectorNorm2(&DofData_P->dx, &MeanError);
         Current.Residual = MeanError;
         if(!Flag_IterativeLoopN){
-          Message::Info("%3ld Nonlinear Residual norm %14.12e",
-                        (int)Current.Iteration, MeanError);
-          if(Message::GetProgressMeterStep() > 0 && Message::GetProgressMeterStep() < 100)
-            Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Residual",
-                                           std::vector<double>(1, MeanError));
+          if (MeanError != MeanError){
+            Message::Warning("No valid solution found (NaN or Inf)!");
+          }
+          else{
+            Message::Info("%3ld Nonlinear Residual norm %14.12e",
+                          (int)Current.Iteration, MeanError);
+            if(Message::GetProgressMeterStep() > 0 && Message::GetProgressMeterStep() < 100)
+              Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Residual",
+                                             std::vector<double>(1, MeanError));
+          }
         }
 
         Current.RelativeDifference += MeanError ;
@@ -1377,7 +1392,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         else {  // Attention: phase test ... Technique bricolee ... provisoire
           if (Current.Iteration == 1. || MeanError < Current.RelativeDifferenceOld){
             LinAlg_ProdVectorDouble(&DofData_P->dx, Current.RelaxationFactor, &DofData_P->dx) ;
-            printf("hooooola\n");}
+          }
           else {
             RelFactor_Modified = Current.RelaxationFactor /
               (MeanError / Current.RelativeDifferenceOld) ;
@@ -1855,6 +1870,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       break ;
 
     case OPERATION_GENERATE_MH_MOVING_S :
+      Flag_Jac = 1 ;// +++ fixing MH routines with movement and nonlinearity
+                    // not needed if linear case => TO FIX
       Init_OperationOnSystem("GenerateMHMovingSeparate",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
@@ -1938,10 +1955,11 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  LinAlg_CreateMatrix(&DofData_P->A_MH_moving, &DofData_P->Solver,
 			      NbrDof_MH_moving*Current.NbrHar,
                               NbrDof_MH_moving*Current.NbrHar) ;
+          LinAlg_ZeroMatrix(&DofData_P->A_MH_moving) ;
+
           //  LinAlg_CreateVector(&DofData_P->b_MH_moving, &DofData_P->Solver,
           //			      NbrDof_MH_moving*Current.NbrHar) ;
-          LinAlg_ZeroMatrix(&DofData_P->A_MH_moving) ;
-	  //LinAlg_ZeroVector(&DofData_P->b_MH_moving) ;
+	  //  LinAlg_ZeroVector(&DofData_P->b_MH_moving) ;
 	}
         if(Message::GetVerbosity() == 10)
           Message::Info("GenerateMHMovingSeparate : Step %d/%d (Time = %e  DTime %e)",
@@ -2055,11 +2073,17 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
     case OPERATION_DOFSFREQUENCYSPECTRUM :
       Dof_GetDummies(DefineSystem_P, DofData_P);
-      Message::Info("DofsFrequencySpectrum");
+      Message::Info("DofsFrequencySpectrum... DummyDofs");
+      // FIXME: Name is misleading
+      // what is taken care of by this function is the Dofs linked to the harmonics that are not considered
+      // in a particular region (e.g. when rotor and stator have different spectrum)
+      // dummy == DOFSNOTINFREQUENCYSPECTRUM
       break ;
 
     case OPERATION_ADDMHMOVING :
-      LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A_MH_moving, &DofData_P->A) ;
+      // LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A_MH_moving, &DofData_P->A) ;
+      // FIX TO CHECK: Old assembly for IterativeLoop done in A, now in Jac (keep it + addition of Jac?)
+      LinAlg_AddMatrixMatrix(&DofData_P->Jac, &DofData_P->A_MH_moving, &DofData_P->Jac) ;
       Message::Info("AddMHMoving");
       break ;
 
@@ -2068,7 +2092,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
     case OPERATION_SAVESOLUTIONEXTENDEDMH :
       if (Current.NbrHar == 1) {
-	Message::Warning("ExtendSolutionMH can only to be used with multi-harmonics") ;
+	Message::Warning("ExtendSolutionMH can only be used with multi-harmonics") ;
 	break ;
       }
       else if (!List_Nbr(DofData_P->Solutions)) {
@@ -2552,6 +2576,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       Save_Iteration = Current.Iteration ;
 
+      // abstol = Operation_P->Case.IterativeLoop.Criterion ;
+      // reltol = Operation_P->Case.IterativeLoop.Criterion/100 ;
+
       for (Num_Iteration = 1 ;
 	   Num_Iteration <= Operation_P->Case.IterativeLoop.NbrMaxIteration ;
 	   Num_Iteration++) {
@@ -2576,7 +2603,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
  	Treatment_Operation(Resolution_P, Operation_P->Case.IterativeLoop.Operation,
 			    DofData_P0, GeoData_P0, Resolution2_P, DofData2_P0) ;
 
-	if (Current.RelativeDifference <= Operation_P->Case.IterativeLoop.Criterion)
+	if ( (Current.RelativeDifference <= Operation_P->Case.IterativeLoop.Criterion) ||
+             (Current.RelativeDifference != Current.RelativeDifference) ) // NaN or Inf
 	  break ;
 
         if(Flag_Break){ Flag_Break = 0; break; }
@@ -2584,11 +2612,16 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	Current.RelativeDifferenceOld = Current.RelativeDifference ; /* Attention: pt */
       }
 
-      if (Num_Iteration > Operation_P->Case.IterativeLoop.NbrMaxIteration){
-	Num_Iteration = Operation_P->Case.IterativeLoop.NbrMaxIteration ;
+      if ( (Num_Iteration > Operation_P->Case.IterativeLoop.NbrMaxIteration)
+           || (Current.RelativeDifference != Current.RelativeDifference) ) // NaN or Inf
+        {
+          // Num_Iteration = Operation_P->Case.IterativeLoop.NbrMaxIteration ;
         Flag_IterativeLoopConverged = 0;
-	Message::Info(3, "IterativeLoop did NOT converge (%d iterations, residual %g)",
+	//Message::Info(3, "IterativeLoop did NOT converge (%d iterations, residual %g)",
+        Message::Warning("IterativeLoop did NOT converge (%d iterations, residual %g)",
                       Num_Iteration, Current.RelativeDifference);
+         // Either it has reached the max num of iterations or a NaN at a given iteration
+        Num_Iteration = Operation_P->Case.IterativeLoop.NbrMaxIteration ;
       }
       else{
 	Message::Info(3, "IterativeLoop converged (%d iteration%s, residual %g)",

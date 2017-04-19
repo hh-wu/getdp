@@ -570,7 +570,7 @@ void Dof_WriteFileRES_ExtendMH(char * Name_File, struct DofData * DofData_P,
   if(Message::GetIsCommWorld() && Message::GetCommRank()) return;
 
   if(!DofData_P->CurrentSolution){
-    Message::Warning("No solution to save");
+    Message::Warning("No ExtendMH solution to save");
     return;
   }
 
