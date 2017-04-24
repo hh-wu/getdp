@@ -1012,21 +1012,19 @@ double  JacobianVolUniDirShell3D(struct Element * Element, MATRIX3x3 * Jac)
 /*  J a c o b i a n S u r                                                   */
 /* ------------------------------------------------------------------------ */
 
-void prodve(double a[3], double b[3], double c[3])
+static void prodve(double a[3], double b[3], double c[3])
 {
   c[2] = a[0] * b[1] - a[1] * b[0];
   c[1] = -a[0] * b[2] + a[2] * b[0];
   c[0] = a[1] * b[2] - a[2] * b[1];
 }
-void prosca(double a[3], double b[3], double *c)
-{
-  *c = a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-}
-double norm3(double a[3])
+
+static double norm3(double a[3])
 {
   return sqrt(a[0] * a[0] + a[1] * a[1] + a[2] * a[2]);
 }
-double norme(double a[3])
+
+static double norme(double a[3])
 {
   const double mod = norm3(a);
   if(mod != 0.0){
