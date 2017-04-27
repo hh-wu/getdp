@@ -396,8 +396,8 @@ void Cal_PostQuantity(struct PostQuantity    *PostQuantity_P,
               Current.SubRegion = -1;
       }
     }
-    else
-      Current.SubRegion = -1;
+    //+++ Not in pos!!!    else
+    //      Current.SubRegion = -1;
 
     Type_InRegion = Group_P ?  Group_P->FunctionType : REGION;
 
