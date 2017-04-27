@@ -292,7 +292,7 @@ struct doubleXstring{
 %token        tNameOfSpace tIndexOfSystem
 %token        tSymmetry
 %token    tGalerkin tdeRham tGlobalTerm tGlobalEquation
-%token        tDt tDtDof tDtDt tDtDtDof tDtDtDtDof tDtDtDtDtDof tDtDtDtDtDtDof 
+%token        tDt tDtDof tDtDt tDtDtDof tDtDtDtDof tDtDtDtDtDof tDtDtDtDtDtDof
 %token        tNLEig1Dof tNLEig2Dof tNLEig3Dof tNLEig4Dof tNLEig5Dof tNLEig6Dof
 %token        tJacNL tDtDofJacNL tNeverDt tDtNL
 %token        tAtAnteriorTimeStep tMaxOverTime tFourierSteinmetz
@@ -5014,12 +5014,12 @@ OperationTerm :
       Operation_P->Case.EigenSolve.Shift_i = $9;
       Operation_P->Case.EigenSolve.FilterExpressionIndex = $11;
     }
-    
+
   | tEigenSolve '[' String__Index ',' FExpr ',' FExpr ',' FExpr
-                ',' Expression ',' ListOfFExpr ',' ListOfFExpr 
+                ',' Expression ',' ListOfFExpr ',' ListOfFExpr
                 ',' ListOfFExpr ',' ListOfFExpr ',' ListOfFExpr
                 ',' ListOfFExpr ',' ListOfFExpr ',' ListOfFExpr
-                ',' ListOfFExpr ',' ListOfFExpr ',' ListOfFExpr  
+                ',' ListOfFExpr ',' ListOfFExpr ',' ListOfFExpr
                 ',' ListOfFExpr ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
@@ -8936,6 +8936,15 @@ OneFExpr :
     {
       $$ = Treat_Struct_FullName_dot_tSTRING_Float($3.char1, $3.char2, $5, 0, $6, 2);
     }
+  | tGetForced LP Struct_FullName '(' FExpr ')' GetForced_Default RP
+    {
+      $$ = Treat_Struct_FullName_Float($3.char1, $3.char2, 2, (int)$5, $7, 2);
+    }
+
+  | tGetForced LP Struct_FullName '.' tSTRING_Member '(' FExpr ')' GetForced_Default RP
+    {
+      $$ = Treat_Struct_FullName_dot_tSTRING_Float($3.char1, $3.char2, $5, (int)$7, $9, 2);
+    }
 
   | tFileExists LP CharExpr RP
     {
@@ -10452,7 +10461,8 @@ double Treat_Struct_FullName_Float
             List_Read(Constant_S.Value.List, index, &out);
           else {
             out = val_default;
-            vyyerror(0, "Index %d out of range", index);
+            if (type_treat == 0)
+              vyyerror(0, "Index %d out of range", index);
           }
         }
         else {
