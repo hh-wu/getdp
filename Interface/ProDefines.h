@@ -1116,6 +1116,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"CurrentPerfectlyConductingSphereMwt",(CAST)F_CurrentPerfectlyConductingSphereMwt,  3, 1 },
 
   {"AcousticFieldSoftSphere",         (CAST)F_AcousticFieldSoftSphere,  2, 1 },
+  {"AcousticFieldSoftSphereABC",      (CAST)F_AcousticFieldSoftSphereABC, 5, 1 },
   {"DrAcousticFieldSoftSphere",       (CAST)F_DrAcousticFieldSoftSphere, 2, 1 },
   {"RCSSoftSphere",                   (CAST)F_RCSSoftSphere,  2, 1 },
   {"AcousticFieldHardSphere",         (CAST)F_AcousticFieldHardSphere,  2, 1 },
