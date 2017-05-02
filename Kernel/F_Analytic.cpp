@@ -1213,7 +1213,105 @@ void  F_AcousticFieldSoftSphere(F_ARG)
 
 cplx Dhn_Spherical(cplx *hntab, int n, double x)
 {
-  return Csub( Cprodr( (double)n/x, hntab[n] ) , hntab[n+1] );
+    return Csub( Cprodr( (double)n/x, hntab[n] ) , hntab[n+1] );
+}
+
+/* Scattering by acoustically soft circular sphere of radius R0,
+ under plane wave incidence e^{ikx}, with artificial boundary
+ condition at R1. Returns exact solution of the (interior!) problem
+ between R0 and R1. */
+
+void F_AcousticFieldSoftSphereABC(F_ARG)
+{
+    cplx I = {0.,1.}, tmp, alpha1, alpha2, delta, am, bm, lambda, coef;
+    cplx h1nkR0, *h1nkR1tab, *h2nkR1tab, h1nkr, alphaBT, betaBT, keps = {0., 0.};
+    
+    double k, R0, R1, r, kr, kR0, kR1, theta, cosfact, sinfact, fact, kappa ;
+    int n, ns, ABCtype, SingleMode ;
+    
+    r = sqrt(A->Val[0]*A->Val[0] + A->Val[1]*A->Val[1] + A->Val[2]*A->Val[2]) ;
+    theta = acos(A->Val[0] / r); // angle between position vector and (1,0,0)
+    
+    k = Fct->Para[0] ;
+    R0 = Fct->Para[1] ;
+    R1 = Fct->Para[2] ;
+    ABCtype = (int)Fct->Para[3] ;
+    SingleMode = (int)Fct->Para[4] ;
+    kr = k * r;
+    kR0 = k * R0;
+    kR1 = k * R1;
+    
+    if(ABCtype == 1){  /* Sommerfeld */
+        lambda = Cprodr(-k, I);
+    }
+    else{
+        Message::Error("ABC type not yet implemented");
+    }
+    
+    V->Val[0] = 0.;
+    V->Val[MAX_DIM] = 0. ;
+    
+    ns = (int)k + 10;
+    
+    h1nkR1tab = (cplx*)Malloc(ns * sizeof(cplx));
+    for (n = 0 ; n < ns ; n++){
+        h1nkR1tab[n].r = Spherical_j_n(n, kR1);
+        h1nkR1tab[n].i = Spherical_y_n(n, kR1);
+    }
+    
+    h2nkR1tab = (cplx*)Malloc(ns * sizeof(cplx));
+    for (n = 0 ; n < ns ; n++){
+        h2nkR1tab[n] = Cconj(h1nkR1tab[n]);
+    }
+    
+    for (n = 0 ; n < ns ; n++){
+        if(SingleMode >= 0 && SingleMode != n) continue;
+        
+        h1nkR0.r = Spherical_j_n(n, kR0);
+        h1nkR0.i = Spherical_y_n(n, kR0);
+        
+        h1nkr.r = Spherical_j_n(n,kr);
+        h1nkr.i = Spherical_y_n(n,kr);
+        
+        alpha1 = Csum( Cprodr(k, Dhn_Spherical(h1nkR1tab, n, kR1)) ,
+                      Cprod(lambda, h1nkR1tab[n]) );
+        alpha2 = Csum( Cprodr(k, Dhn_Spherical(h2nkR1tab, n, kR1)) ,
+                      Cprod(lambda, h2nkR1tab[n]) );
+        delta = Csub( Cprod( alpha1 , Cconj(h1nkR0) ) ,
+                     Cprod( alpha2 , h1nkR0 ) );
+        
+        if(Cmodu(delta) < 1.e-6) break;
+        
+        am = Cdiv( Cprodr(h1nkR0.r, alpha2) ,
+                  delta );
+        bm = Cdiv( Cprodr(-h1nkR0.r, alpha1) ,
+                  delta );
+        
+        if(SingleMode >= 0 && SingleMode == n){
+            tmp = Csum( Cprod( am , h1nkr ) , Cprod( bm , Cconj(h1nkr) ) );
+            cosfact = (2*n+1) * Legendre(n, 0, cos(theta));
+            sinfact = (2*n+1) * Legendre(n, 0, sin(theta));
+            V->Val[0] += cosfact * tmp.r - sinfact * tmp.i;
+            V->Val[MAX_DIM] += cosfact * tmp.i + sinfact * tmp.r;
+        }
+        else{
+            tmp = Cprod( Cpow(I,n) , Csum( Cprod( am , h1nkr ) ,
+                                          Cprod( bm , Cconj(h1nkr) ) ) );
+            fact = (2*n+1) * Legendre(n, 0, cos(theta));
+            V->Val[0] += fact * tmp.r;
+            V->Val[MAX_DIM] += fact * tmp.i;
+        }
+    }
+    
+    Free(h1nkR1tab);
+    Free(h2nkR1tab);
+    
+    if(SingleMode < 0){
+        V->Val[0] *= 1;
+        V->Val[MAX_DIM] *= 1;
+    }
+    
+    V->Type = SCALAR ;
 }
 
 /* Scattering by an acoustically soft sphere (exterior Dirichlet problem) of
