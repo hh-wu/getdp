@@ -1251,7 +1251,7 @@ void F_AcousticFieldSoftSphereABC(F_ARG)
     V->Val[0] = 0.;
     V->Val[MAX_DIM] = 0. ;
     
-    ns = (int)k + 10;
+    ns = (int)k + 11;
     
     h1nkR1tab = (cplx*)Malloc(ns * sizeof(cplx));
     for (n = 0 ; n < ns ; n++){
@@ -1264,7 +1264,7 @@ void F_AcousticFieldSoftSphereABC(F_ARG)
         h2nkR1tab[n] = Cconj(h1nkR1tab[n]);
     }
     
-    for (n = 0 ; n < ns ; n++){
+    for (n = 0 ; n < ns-1 ; n++){
         if(SingleMode >= 0 && SingleMode != n) continue;
         
         h1nkR0.r = Spherical_j_n(n, kR0);
