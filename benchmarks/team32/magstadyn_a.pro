@@ -343,6 +343,7 @@ Formulation {
   { Name MagStaDyn_a_2D ; Type FemEquation ;
     Quantity {
       { Name a  ; Type Local  ; NameOfSpace Hcurl_a_2D ; }
+      { Name ap  ; Type Local  ; NameOfSpace Hcurl_a_2D ; } // "ap = aprime usefull to avoid auto-symmetrization of JacNL tensor with getdp"
       { Name ur ; Type Local  ; NameOfSpace Hregion_u_Mag_2D ; }
       { Name I  ; Type Global ; NameOfSpace Hregion_u_Mag_2D [I] ; }
       { Name U  ; Type Global ; NameOfSpace Hregion_u_Mag_2D [U] ; }
@@ -372,7 +373,7 @@ Formulation {
         Galerkin { [ nu[{d a}] * Dof{d a}  , {d a} ] ;
           In Domain ; Jacobian Vol ; Integration I1 ; }
         If(Flag_NLRes!=NLRES_ITERATIVELOOPPRO)
-          Galerkin { JacNL [ dhdb_NL[{d a}] * Dof{d a} , {d a} ] ;
+          Galerkin { JacNL [ dhdb_NL[{d a}] * Dof{d a} , {d ap} ] ;
             In DomainNL ; Jacobian Vol ; Integration I1 ; }
         Else
           Galerkin { [ (1/$relax)  *  (SetVariable[(dhdb_NL[{d a}]), 
@@ -406,7 +407,7 @@ Formulation {
         If(Flag_NLRes!=NLRES_ITERATIVELOOPPRO)
           Galerkin { JacNL[ dhdb_Jiles[ {h}       , 
                                         {d a}     , 
-                                        {h}-{h}[1] ]{List[hyst_FeSi]} * Dof{d a} , {d a} ] ;
+                                        {h}-{h}[1] ]{List[hyst_FeSi]} * Dof{d a} , {d ap} ] ;
             In DomainNL ; Jacobian Vol ; Integration I1p ; } // kj modif I1 --> I1p here
         Else
           Galerkin { [ (1/$relax)  * (SetVariable[(dhdb_Jiles[{h}       , 
@@ -461,7 +462,7 @@ Formulation {
           Galerkin { JacNL[ (dhdb_Vinch_K[ (GetVariable[ QuadraturePointIndex[]]{$h_Vinch_temp}),
                                             {J_1},{J_1}[1], 
                                             {J_2},{J_2}[1], 
-                                            {J_3},{J_3}[1]]{List[param_EnergHyst]}) * Dof{d a} , {d a} ] ;  
+                                            {J_3},{J_3}[1]]{List[param_EnergHyst]}) * Dof{d a} , {d ap} ] ;  
             In DomainNL  ; Jacobian Vol ; Integration I1p ; }
         Else
           Galerkin { [ (1/$relax) * (SetVariable[(dhdb_Vinch_K[ (GetVariable[ QuadraturePointIndex[]]{$h_Vinch_temp}),
@@ -642,9 +643,9 @@ Resolution {
               IterativeLoopN[ Nb_max_iter, RF_tuned[],
                 //*****Choose between one of the 3 following possibilities:*****
                 //System { { A , Reltol_Mag, Abstol_Mag, Residual MeanL2Norm }} ]{ //1)
-                PostOperation { { az_only , Reltol_Mag, Abstol_Mag,  MeanL2Norm }} ]{ //2)
+                //PostOperation { { az_only , Reltol_Mag, Abstol_Mag,  MeanL2Norm }} ]{ //2)
                 //PostOperation { { b_only , Reltol_Mag, Abstol_Mag,  MeanL2Norm }} ]{ //3) 
-                //PostOperation { { h_only , Reltol_Mag, Abstol_Mag,  MeanL2Norm }} ]{ //4) 
+                PostOperation { { h_only , Reltol_Mag, Abstol_Mag,  MeanL2Norm }} ]{ //4) 
                 //**************************************************************
                 GenerateJac[A] ; 
                 If (!Flag_AdaptRelax)
@@ -834,9 +835,9 @@ PostOperation Get_LocalFields UsingPost MagStaDyn_a_2D {
     Print[ by, OnPoint {xpos~{k},ypos~{k},0}, Format TimeTable, LastTimeStepOnly,
       File > StrCat[Dir,Sprintf("by_%g",k),ExtGnuplot], SendToServer StrCat[po,Sprintf("Point_%g/",k),"by [T]"], Color "LightGrey" ];
     Print[ hx, OnPoint {xpos~{k},ypos~{k},0}, Format TimeTable, LastTimeStepOnly,
-      File > StrCat[Dir,Sprintf("hx_%g",k),ExtGnuplot], SendToServer StrCat[po,Sprintf("Point_%g/",k),"hx [A\m]"], Color "LightGrey" ];
+      File > StrCat[Dir,Sprintf("hx_%g",k),ExtGnuplot], SendToServer StrCat[po,Sprintf("Point_%g/",k),"hx [Am-1]"], Color "LightGrey" ];
     Print[ hy, OnPoint {xpos~{k},ypos~{k},0}, Format TimeTable, LastTimeStepOnly,
-      File > StrCat[Dir,Sprintf("hy_%g",k),ExtGnuplot], SendToServer StrCat[po,Sprintf("Point_%g/",k),"hy [A\m]"], Color "LightGrey" ];
+      File > StrCat[Dir,Sprintf("hy_%g",k),ExtGnuplot], SendToServer StrCat[po,Sprintf("Point_%g/",k),"hy [Am-1]"], Color "LightGrey" ];
 
     Print[ hb, OnPoint {xpos~{k},ypos~{k},0}, Format TimeTable, LastTimeStepOnly,
       File > StrCat[Dir,Sprintf("hbp_%g",k),ExtGnuplot] ];
