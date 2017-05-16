@@ -400,8 +400,8 @@ bool  Fi_InterpolationTrilinear (double *x, double *y, double *z, double *M, int
     
     if (zp < z[0]) zp = z[0];
     else if (zp > z[NZ-1]) zp = z[NZ-1];
-    for (k=0 ; k<NZ-1 ; ++k) if (y[j+1] >= yp  &&  yp >= y[j]) break;
-    j = (j >= NZ) ? NZ-1 : j;
+    for (k=0 ; k<NZ-1 ; ++k) if (z[k+1] >= zp  &&  zp >= z[k]) break;
+    k = (k >= NZ) ? NZ-1 : k;
     
     
     a111 = M[   i  + NX * j     + NX * NY * k    ];
@@ -487,8 +487,8 @@ bool  Fi_dInterpolationTrilinear (double *x, double *y, double *z, double *M, in
     
     if (zp < z[0]) zp = z[0];
     else if (zp > z[NZ-1]) zp = z[NZ-1];
-    for (k=0 ; k<NZ-1 ; ++k) if (y[j+1] >= yp  &&  yp >= y[j]) break;
-    j = (j >= NZ) ? NZ-1 : j;
+    for (k=0 ; k<NZ-1 ; ++k) if (z[k+1] >= zp  &&  zp >= z[j]) break;
+    k = (k >= NZ) ? NZ-1 : k;
     
     
     a111 = M[   i  + NX * j     + NX * NY * k    ];
@@ -632,7 +632,7 @@ void F_dInterpolationBilinear(F_ARG)
 void F_InterpolationTrilinear(F_ARG)
 {
   /*
-     It performs a bilinear interpolation at point (xp,yp,zp) based
+     It performs a trilinear interpolation at point (xp,yp,zp) based
      on a three-dimensional table (sorted grid).
      
      Input parameters:
