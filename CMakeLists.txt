@@ -798,6 +798,8 @@ if(ENABLE_BUILD_ANDROID)
   add_library(androidGetdp SHARED ${GETDP_SRC})
   set_target_properties(androidGetdp PROPERTIES OUTPUT_NAME GetDP)
   target_link_libraries(androidGetdp ${LINK_LIBRARIES} ${LIBRARY_DEPS})
+  add_custom_command(TARGET androidGetdp POST_BUILD COMMAND
+                     ${CMAKE_STRIP} ${LIBRARY_OUTPUT_PATH}/libGetDP.so)
 endif(ENABLE_BUILD_ANDROID)
 
 # binary target
