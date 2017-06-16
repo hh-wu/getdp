@@ -511,6 +511,76 @@ static void Free_GlobalVariables()
   Free_ParserVariables();
 }
 
+void GetDPPrintNumbers()
+{
+  for(std::map<std::string, std::vector<double> >::iterator
+        it = GetDPNumbers.begin(); it != GetDPNumbers.end(); it++){
+    printf("%s() = {", it->first.c_str());
+    for(unsigned int i = 0; i < it->second.size(); i++){
+      if(i) printf(", ");
+      printf("%g", it->second[i]);
+    }
+    printf("};\n");
+  }
+}
+
+void GetDPPrintStrings()
+{
+  for(std::map<std::string, std::vector<std::string> >::iterator
+        it = GetDPStrings.begin(); it != GetDPStrings.end(); it++){
+    printf("%s() = {", it->first.c_str());
+    for(unsigned int i = 0; i < it->second.size(); i++){
+      if(i) printf(", ");
+      printf("%s", it->second[i].c_str());
+    }
+    printf("};\n");
+  }
+}
+
+void GetDPClearNumbers()
+{
+  GetDPNumbers.clear();
+}
+
+void GetDPSetNumber(const std::string &name, double value)
+{
+  GetDPNumbers[name] = std::vector<double>(1, value);
+  CommandLineNumbers[name] = std::vector<double>(1, value);
+}
+
+void GetDPSetNumber(const std::string &name, const std::vector<double> &value)
+{
+  GetDPNumbers[name] = value;
+  CommandLineNumbers[name] = value;
+}
+
+std::vector<double> &GetDPGetNumber(const std::string &name)
+{
+  return GetDPNumbers[name];
+}
+
+void GetDPClearStrings()
+{
+  GetDPStrings.clear();
+}
+
+void GetDPSetString(const std::string &name, const std::string &value)
+{
+  GetDPStrings[name] = std::vector<std::string>(1, value);
+  CommandLineStrings[name] = std::vector<std::string>(1, value);
+}
+
+void GetDPSetString(const std::string &name, const std::vector<std::string> &value)
+{
+  GetDPStrings[name] = value;
+  CommandLineStrings[name] = value;
+}
+
+std::vector<std::string> &GetDPGetString(const std::string &name)
+{
+  return GetDPStrings[name];
+}
+
 int MainKernel(int argc, char *argv[])
 {
   if(argc < 2) Info(0, argv[0]);
@@ -625,6 +695,11 @@ int MainKernel(int argc, char *argv[])
   Message::PrintErrorCounter("Run");
   Message::Cpu(3, true, true, true, true, true, "Stopped");
 
+  if(Message::GetVerbosity() == 99){ // debug
+    GetDPPrintNumbers();
+    GetDPPrintStrings();
+  }
+
 #if defined(HAVE_GMSH)
   if(!Flag_CALLED_WITH_ONELAB_SERVER) GmshFinalize();
   if(msg) delete msg;
@@ -647,48 +722,4 @@ int GetDP(const std::vector<std::string> &args, void *ptr)
   std::vector<char*> argv(argc + 1, (char*)0);
   for(int i = 0; i < argc; i++) argv[i] = (char*)args[i].c_str();
   return MainKernel(argc, &argv[0]);
-}
-
-void GetDPClearNumbers()
-{
-  GetDPNumbers.clear();
-}
-
-void GetDPSetNumber(const std::string &name, double value)
-{
-  GetDPNumbers[name] = std::vector<double>(1, value);
-  CommandLineNumbers[name] = std::vector<double>(1, value);
-}
-
-void GetDPSetNumber(const std::string &name, const std::vector<double> &value)
-{
-  GetDPNumbers[name] = value;
-  CommandLineNumbers[name] = value;
-}
-
-std::vector<double> &GetDPGetNumber(const std::string &name)
-{
-  return GetDPNumbers[name];
-}
-
-void GetDPClearStrings()
-{
-  GetDPStrings.clear();
-}
-
-void GetDPSetString(const std::string &name, const std::string &value)
-{
-  GetDPStrings[name] = std::vector<std::string>(1, value);
-  CommandLineStrings[name] = std::vector<std::string>(1, value);
-}
-
-void GetDPSetString(const std::string &name, const std::vector<std::string> &value)
-{
-  GetDPStrings[name] = value;
-  CommandLineStrings[name] = value;
-}
-
-std::vector<std::string> &GetDPGetString(const std::string &name)
-{
-  return GetDPStrings[name];
 }
