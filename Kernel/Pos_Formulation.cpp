@@ -414,23 +414,13 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
       }
     }
     else {
-        //Peter Binde: Writing NX binary unv files requires read AND write and fopen64
-        if(PostSubOperation_P->Format == FORMAT_NXUNV){
-            if((PostStream = fopen64(PostFileName, Flag_BIN ? "r+b" : "a")))
-                Message::Direct(4, "          >> '%s'", PostFileName) ;
-            else{
-                Message::Error("Unable to open file '%s'", PostFileName) ;
-                PostStream = stdout ;
-            }
-        }
-        else{
-            if((PostStream = FOpen(PostFileName, Flag_BIN ? "ab" : "a")))
-               Message::Direct(4, "          >> '%s'", PostFileName) ;
-            else{
-               Message::Error("Unable to open file '%s'", PostFileName) ;
-               PostStream = stdout ;
-            }
-        }
+      if((PostStream = FOpen(PostFileName,
+                             Flag_BIN ? (FORMAT_NXUNV ? "r+b" : "ab") : "a")))
+        Message::Direct(4, "          >> '%s'", PostFileName) ;
+      else{
+        Message::Error("Unable to open file '%s'", PostFileName) ;
+        PostStream = stdout ;
+      }
     }
   }
   else{
