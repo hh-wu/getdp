@@ -1,3 +1,5 @@
+2.11.2 (June 23, 2017): 
+
 2.11.1 (May 13, 2017): small bug fixes and improvements.
 
 2.11.0 (January 3, 2017): small improvements (complex math functions, mutual
