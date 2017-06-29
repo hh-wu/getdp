@@ -47,6 +47,7 @@ subroutine cylindrical_wall(du,dv,dut,dvt,X,Y,t,omega,lambda,mu,rho,a)
   integer :: n
   double precision , parameter :: pi = acos(-1.d0)
 
+  ! for GetDP
   integer :: ns
   
   double complex, external :: besselh
@@ -125,8 +126,10 @@ subroutine cylindrical_wall(du,dv,dut,dvt,X,Y,t,omega,lambda,mu,rho,a)
        - AB1(2)*eta/2.d0*(besselh(0,2,eta*r)&
        -besselh(2,2,eta*r)))*sin(theta)
 
-  ns = max(eta+30, gamma+30);
-
+  ! for GetDP
+  ns = max(eta*a+30, gamma*a+30);
+  
+  ! for GetDP: instead of 2:24
   do n = 2,ns
      f_n0 = gamma/2.d0*(besjn(n-1,gamma*a)-besjn(n+1,gamma*a))
      f_n1 = -dble(n)/a*besjn(n,gamma*a)
