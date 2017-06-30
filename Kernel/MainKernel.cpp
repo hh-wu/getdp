@@ -238,7 +238,7 @@ static void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *
         if(argv[i])
           Message::SetNumThreads(atoi(argv[i++]));
         else
-          Msg::Error("Missing number");
+          Message::Error("Missing number");
       }
 
       else if (!strcmp(argv[i]+1, "help")  || !strcmp(argv[i]+1, "h") ||
