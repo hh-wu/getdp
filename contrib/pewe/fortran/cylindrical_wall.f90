@@ -130,6 +130,7 @@ subroutine cylindrical_wall(du,dv,dut,dvt,X,Y,t,omega,lambda,mu,rho,a)
   ns = max(eta*a+30, gamma*a+30);
   
   ! for GetDP: instead of 2:24
+!$OMP PARALLEL DO PRIVATE(f_n0,f_n1,a_n0,a_n1,b_n0,b_n1,epsilon_n,m11,m12,m21,m22,cn1,cn2,ABn) REDUCTION(+:q,v)
   do n = 2,ns
      f_n0 = gamma/2.d0*(besjn(n-1,gamma*a)-besjn(n+1,gamma*a))
      f_n1 = -dble(n)/a*besjn(n,gamma*a)
@@ -165,6 +166,7 @@ subroutine cylindrical_wall(du,dv,dut,dvt,X,Y,t,omega,lambda,mu,rho,a)
      ! if(maxval(abs(abn)) .lt. 1.0d-16) exit
      !if(maxval(abs(abn)) .lt. 1.0d-16) exit
   end do
+!$OMP END PARALLEL DO
   ! disp('DONE COMPUTING COEFICIENTS')
   du = dreal(exp(omega*(0.d0,1.d0)*t)*(cos(theta)*q-sin(theta)*v))
   dv = dreal(exp(omega*(0.d0,1.d0)*t)*(sin(theta)*q+cos(theta)*v))

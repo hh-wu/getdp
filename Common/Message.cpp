@@ -100,6 +100,7 @@ static void gslErrorHandler(const char *reason, const char *file, int line,
 
 void Message::Initialize(int argc, char **argv)
 {
+  SetNumThreads(1);
   _startTime = GetTimeOfDay();
   _errorCount = 0;
 #if defined(HAVE_PETSC)
@@ -1250,12 +1251,14 @@ void Message::Barrier()
 #include <omp.h>
 
 int Message::GetNumThreads(){ return omp_get_num_threads(); }
+void Message::SetNumThreads(int num){ omp_set_num_threads(num); }
 int Message::GetMaxThreads(){ return omp_get_max_threads(); }
 int Message::GetThreadNum(){ return omp_get_thread_num(); }
 
 #else
 
 int Message::GetNumThreads(){ return 1; }
+void Message::SetNumThreads(int num){ }
 int Message::GetMaxThreads(){ return 1; }
 int Message::GetThreadNum(){ return 0; }
 

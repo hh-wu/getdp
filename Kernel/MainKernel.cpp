@@ -233,6 +233,14 @@ static void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *
         Message::SetInfoCpu(true); i++;
       }
 
+      else if(!strcmp(argv[i] + 1, "nt")) {
+        i++;
+        if(argv[i])
+          Message::SetNumThreads(atoi(argv[i++]));
+        else
+          Msg::Error("Missing number");
+      }
+
       else if (!strcmp(argv[i]+1, "help")  || !strcmp(argv[i]+1, "h") ||
 	       !strcmp(argv[i]+1, "-help") || !strcmp(argv[i]+1, "-h")) {
 	Info(0, argv[0]);
@@ -602,9 +610,10 @@ int MainKernel(int argc, char *argv[])
     Message::Finalize();
     return Message::GetErrorCount();
   }
-  Message::Info("Running '%s' [GetDP %s, %d node%s]", cmdline.c_str(),
-                GETDP_VERSION, Message::GetCommSize(),
-                Message::GetCommSize() > 1 ? "s" : "");
+  Message::Info("Running '%s' [GetDP %s, %d node%s, max. %d thread%s]",
+                cmdline.c_str(), GETDP_VERSION,
+                Message::GetCommSize(), Message::GetCommSize() > 1 ? "s" : "",
+                Message::GetMaxThreads(), Message::GetMaxThreads() > 1 ? "s" : "");
   Message::Cpu(3, true, true, true, true, true, "Started");
 
   if(sargc > 1){
