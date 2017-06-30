@@ -1225,13 +1225,13 @@ void F_AcousticFieldSoftSphereABC(F_ARG)
 {
     cplx I = {0.,1.}, tmp, alpha1, alpha2, delta, am, bm, lambda, coef;
     cplx h1nkR0, *h1nkR1tab, *h2nkR1tab, h1nkr, alphaBT, betaBT, keps = {0., 0.};
-    
+
     double k, R0, R1, r, kr, kR0, kR1, theta, cosfact, sinfact, fact, kappa ;
     int n, ns, ABCtype, SingleMode ;
-    
+
     r = sqrt(A->Val[0]*A->Val[0] + A->Val[1]*A->Val[1] + A->Val[2]*A->Val[2]) ;
     theta = acos(A->Val[0] / r); // angle between position vector and (1,0,0)
-    
+
     k = Fct->Para[0] ;
     R0 = Fct->Para[1] ;
     R1 = Fct->Para[2] ;
@@ -1240,53 +1240,53 @@ void F_AcousticFieldSoftSphereABC(F_ARG)
     kr = k * r;
     kR0 = k * R0;
     kR1 = k * R1;
-    
+
     if(ABCtype == 1){  /* Sommerfeld */
         lambda = Cprodr(-k, I);
     }
     else{
         Message::Error("ABC type not yet implemented");
     }
-    
+
     V->Val[0] = 0.;
     V->Val[MAX_DIM] = 0. ;
-    
+
     ns = (int)k + 11;
-    
+
     h1nkR1tab = (cplx*)Malloc(ns * sizeof(cplx));
     for (n = 0 ; n < ns ; n++){
         h1nkR1tab[n].r = Spherical_j_n(n, kR1);
         h1nkR1tab[n].i = Spherical_y_n(n, kR1);
     }
-    
+
     h2nkR1tab = (cplx*)Malloc(ns * sizeof(cplx));
     for (n = 0 ; n < ns ; n++){
         h2nkR1tab[n] = Cconj(h1nkR1tab[n]);
     }
-    
+
     for (n = 0 ; n < ns-1 ; n++){
         if(SingleMode >= 0 && SingleMode != n) continue;
-        
+
         h1nkR0.r = Spherical_j_n(n, kR0);
         h1nkR0.i = Spherical_y_n(n, kR0);
-        
+
         h1nkr.r = Spherical_j_n(n,kr);
         h1nkr.i = Spherical_y_n(n,kr);
-        
+
         alpha1 = Csum( Cprodr(k, Dhn_Spherical(h1nkR1tab, n, kR1)) ,
                       Cprod(lambda, h1nkR1tab[n]) );
         alpha2 = Csum( Cprodr(k, Dhn_Spherical(h2nkR1tab, n, kR1)) ,
                       Cprod(lambda, h2nkR1tab[n]) );
         delta = Csub( Cprod( alpha1 , Cconj(h1nkR0) ) ,
                      Cprod( alpha2 , h1nkR0 ) );
-        
+
         if(Cmodu(delta) < 1.e-6) break;
-        
+
         am = Cdiv( Cprodr(h1nkR0.r, alpha2) ,
                   delta );
         bm = Cdiv( Cprodr(-h1nkR0.r, alpha1) ,
                   delta );
-        
+
         if(SingleMode >= 0 && SingleMode == n){
             tmp = Csum( Cprod( am , h1nkr ) , Cprod( bm , Cconj(h1nkr) ) );
             cosfact = (2*n+1) * Legendre(n, 0, cos(theta));
@@ -1302,15 +1302,15 @@ void F_AcousticFieldSoftSphereABC(F_ARG)
             V->Val[MAX_DIM] += fact * tmp.i;
         }
     }
-    
+
     Free(h1nkR1tab);
     Free(h2nkR1tab);
-    
+
     if(SingleMode < 0){
         V->Val[0] *= 1;
         V->Val[MAX_DIM] *= 1;
     }
-    
+
     V->Type = SCALAR ;
 }
 
@@ -1641,42 +1641,28 @@ void F_JFIE_TransZPolCyl(F_ARG)
 
 void F_AcousticFieldSoftCylinder(F_ARG)
 {
-  cplx I = {0.,1.}, HnkR, Hnkr, tmp;
-  double k, R, r, kr, kR, theta, cost ;
-  int n, ns ;
-
-  theta = atan2(A->Val[1], A->Val[0]) ;
-  r = sqrt(A->Val[0]*A->Val[0] + A->Val[1]*A->Val[1]) ;
-
-  k = Fct->Para[0] ;
-  R = Fct->Para[1] ;
-  kr = k*r;
-  kR = k*R;
-
-  V->Val[0] = 0.;
-  V->Val[MAX_DIM] = 0. ;
-
-  ns = (int)k + 10;
-
-  for (n = 0 ; n < ns ; n++){
-
-    HnkR.r = jn(n,kR);
-    HnkR.i = yn(n,kR);
-
-    Hnkr.r = jn(n,kr);
-    Hnkr.i = yn(n,kr);
-
-    tmp = Cdiv( Cprod( Cpow(I,n) , Cprodr( HnkR.r, Hnkr) ) , HnkR );
-
-    cost = cos(n*theta);
-
-    V->Val[0] +=  cost * tmp.r * (!n ? 0.5 : 1.);
-    V->Val[MAX_DIM] += cost * tmp.i * (!n ? 0.5 : 1.);
+  cplx I = {0.,1.};
+  double theta = atan2(A->Val[1], A->Val[0]) ;
+  double r = sqrt(A->Val[0]*A->Val[0] + A->Val[1]*A->Val[1]) ;
+  double k = Fct->Para[0] ;
+  double R = Fct->Para[1] ;
+  double kr = k*r;
+  double kR = k*R;
+  int ns = (int)k + 10;
+  double vr = 0., vi = 0.;
+#if defined(_OPENMP)
+#pragma omp parallel for reduction(+: vr,vi)
+#endif
+  for(int n = 0 ; n < ns ; n++){
+    cplx HnkR = {jn(n,kR), yn(n,kR)};
+    cplx Hnkr = {jn(n,kr), yn(n,kr)};
+    cplx tmp = Cdiv( Cprod( Cpow(I,n) , Cprodr( HnkR.r, Hnkr) ) , HnkR );
+    double cost = cos(n*theta);
+    vr +=  cost * tmp.r * (!n ? 0.5 : 1.);
+    vi += cost * tmp.i * (!n ? 0.5 : 1.);
   }
-
-  V->Val[0] *= -2;
-  V->Val[MAX_DIM] *= -2;
-
+  V->Val[0] = -2 * vr;
+  V->Val[MAX_DIM] = -2 * vi;
   V->Type = SCALAR ;
 }
 
@@ -2223,7 +2209,8 @@ static double bj(int j, int N)
   return SQU(cos((double)j * M_PI/(2.*N + 1.))) ;
 }
 
-static std::complex<double> padeC0(int N, double theta){
+static std::complex<double> padeC0(int N, double theta)
+{
   std::complex<double> sum = std::complex<double>(1, 0);
   std::complex<double> one = std::complex<double>(1, 0);
   std::complex<double> z   = std::complex<double>(cos(-theta) - 1, sin(-theta));
@@ -2236,7 +2223,8 @@ static std::complex<double> padeC0(int N, double theta){
   return sum * z;
 }
 
-static std::complex<double> padeA(int j, int N, double theta){
+static std::complex<double> padeA(int j, int N, double theta)
+{
   std::complex<double> one = std::complex<double>(1, 0);
   std::complex<double> res;
   std::complex<double> z;
@@ -2250,7 +2238,8 @@ static std::complex<double> padeA(int j, int N, double theta){
   return res;
 }
 
-static std::complex<double> padeB(int j, int N, double theta){
+static std::complex<double> padeB(int j, int N, double theta)
+{
   std::complex<double> one = std::complex<double>(1, 0);
   std::complex<double> res;
   std::complex<double> z;
@@ -2264,7 +2253,8 @@ static std::complex<double> padeB(int j, int N, double theta){
   return res;
 }
 
-static std::complex<double> padeR0(int N, double theta){
+static std::complex<double> padeR0(int N, double theta)
+{
   std::complex<double> sum = padeC0(N, theta);
 
   for(int j = 1; j <= N; j++)
@@ -2560,6 +2550,7 @@ void F_unm(F_ARG)
   V->Val[0] = sph_unm(n,m,u);
   V->Type = SCALAR;
 }
+
 void F_snm(F_ARG)
 {
   int     n, m;
@@ -2713,6 +2704,7 @@ void  F_Ynm(F_ARG)
   V->Val[1] = Ynm_y_re ; V->Val[MAX_DIM+1] = Ynm_y_im ;
   V->Val[2] = Ynm_z_re ; V->Val[MAX_DIM+2] = Ynm_z_im ;
 }
+
 void  F_Znm(F_ARG)
 {
   int     n, m;
@@ -2910,6 +2902,7 @@ void  F_Mnm(F_ARG)
   V->Val[1] = Mnm_y_re ; V->Val[MAX_DIM+1] = Mnm_y_im ;
   V->Val[2] = Mnm_z_re ; V->Val[MAX_DIM+2] = Mnm_z_im ;
 }
+
 void  F_Nnm(F_ARG)
 {
   int     Ntype, n, m;
@@ -3175,11 +3168,11 @@ void  F_CurlDyadGreenHom(F_ARG)
   normrr_p = std::sqrt(std::pow((x-x_p),2)+std::pow((y-y_p),2)+std::pow((z-z_p),2));
 
   Gsca      = std::exp(-1.*siwt*I*kb*normrr_p)/(4.*M_PI*normrr_p);
-  
+
   dx_Gsca = (I*kb-1/normrr_p)*Gsca*(x-x_p);
   dy_Gsca = (I*kb-1/normrr_p)*Gsca*(y-y_p);
   dz_Gsca = (I*kb-1/normrr_p)*Gsca*(z-z_p);
-  
+
   curlG_xx = 0.;
   curlG_xy = -dz_Gsca;
   curlG_xz =  dy_Gsca;
