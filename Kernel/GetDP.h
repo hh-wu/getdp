@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-int GetDP(const std::vector<std::string> &args, void *ptr=NULL);
+int GetDP(const std::vector<std::string> &args, const std::string &action="all", void *ptr=NULL);
 void GetDPClearNumbers();
 void GetDPSetNumber(const std::string &name, double value);
 void GetDPSetNumber(const std::string &name, const std::vector<double> &value);

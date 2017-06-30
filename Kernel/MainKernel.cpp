@@ -589,7 +589,7 @@ std::vector<std::string> &GetDPGetString(const std::string &name)
   return GetDPStrings[name];
 }
 
-int MainKernel(int argc, char *argv[])
+static int KernelInitialize(int argc, char *argv[])
 {
   if(argc < 2) Info(0, argv[0]);
 
@@ -670,6 +670,7 @@ int MainKernel(int argc, char *argv[])
 
   IncreaseStackSize();
   LinAlg_InitializeSolver(&sargc, &sargv);
+  Free(sargv);
 
   Init_ProblemStructure();
   Read_ProblemStructure(pro);
@@ -695,10 +696,18 @@ int MainKernel(int argc, char *argv[])
       (Message::GetOnelabClientName() + "/}ModelCheck");
     if(check) Print_Object(check - 1);
   }
+  return Message::GetErrorCount();
+}
 
+static int KernelRun(void)
+{
   if(Flag_PRE || Flag_CAL || Flag_POS)
     SolvingAnalyse();
+  return Message::GetErrorCount();
+}
 
+static int KernelFinalize(void)
+{
   LinAlg_FinalizeSolver();
 
   Message::PrintErrorCounter("Run");
@@ -711,24 +720,70 @@ int MainKernel(int argc, char *argv[])
 
 #if defined(HAVE_GMSH)
   if(!Flag_CALLED_WITH_ONELAB_SERVER) GmshFinalize();
+  GmshMessage* msg = GmshGetMessageHandler();
   if(msg) delete msg;
+  GmshSetMessageHandler(NULL);
 #endif
 
   Free_GlobalVariables();
-  Free(sargv);
   Message::Finalize();
   return Message::GetErrorCount();
 }
 
-int GetDP(const std::vector<std::string> &args, void *ptr)
+int MainKernel(int argc, char *argv[])
 {
+  int err;
+  err = KernelInitialize(argc, argv); if(err) return err;
+  err = KernelRun();                  if(err) return err;
+  err = KernelFinalize();             if(err) return err;
+  return 0;
+}
+
+int GetDP(const std::vector<std::string> &args, const std::string &action, void *ptr)
+{
+  // Action
+  int doInitialize = 0, doRun = 0, doFinalize = 0;
+  if(action.compare("all") == 0){
+    doInitialize = 1;
+    doRun        = 1;
+    doFinalize   = 1;
+  }
+  else if(action.compare("initialize") == 0)
+    doInitialize = 1;
+  else if(action.compare("run") == 0)
+    doRun = 1;
+  else if(action.compare("finalize") == 0)
+    doFinalize = 1;
+  else
+    Message::Error("GetDP: unknown action: %s", action.c_str());
+
+  // Onelab
   onelab::server *onelabServer = (onelab::server*) ptr;
   if(onelabServer != NULL){
     onelab::server::setInstance(onelabServer);
     Flag_CALLED_WITH_ONELAB_SERVER = 1;
   }
+
+  // Arguments
   int argc = args.size();
   std::vector<char*> argv(argc + 1, (char*)0);
   for(int i = 0; i < argc; i++) argv[i] = (char*)args[i].c_str();
-  return MainKernel(argc, &argv[0]);
+
+  // GetDP
+  int err;
+  if(doInitialize){
+    err = KernelInitialize(argc, &argv[0]);
+    if(err) return err;
+  }
+  if(doRun){
+    err = KernelRun();
+    if(err) return err;
+  }
+  if(doFinalize){
+    err = KernelFinalize();
+    if(err) return err;
+  }
+
+  // Done
+  return 0;
 }
