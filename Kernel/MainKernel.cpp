@@ -670,10 +670,22 @@ static int KernelInitialize(int argc, char *argv[])
 
   IncreaseStackSize();
   LinAlg_InitializeSolver(&sargc, &sargv);
+
+  Free(sargv);
+  return Message::GetErrorCount();
+}
+
+static int KernelRun(int argc, char *argv[])
+{
+  char pro[256];
+  char **sargv = (char**)Malloc(256 * sizeof(char*));
+  int sargc, lres = 0, lpos = 0, check = 0;
+  Get_Options(argc, argv, &sargc, sargv, pro, &lres, &lpos, &check);
   Free(sargv);
 
   Init_ProblemStructure();
   Read_ProblemStructure(pro);
+  Free_ParserVariables();
   Finalize_ProblemStructure();
 
   int choose = 1;
@@ -696,17 +708,14 @@ static int KernelInitialize(int argc, char *argv[])
       (Message::GetOnelabClientName() + "/}ModelCheck");
     if(check) Print_Object(check - 1);
   }
-  return Message::GetErrorCount();
-}
 
-static int KernelRun(void)
-{
   if(Flag_PRE || Flag_CAL || Flag_POS)
     SolvingAnalyse();
+
   return Message::GetErrorCount();
 }
 
-static int KernelFinalize(void)
+static int KernelFinalize(int argc, char *argv[])
 {
   LinAlg_FinalizeSolver();
 
@@ -734,8 +743,8 @@ int MainKernel(int argc, char *argv[])
 {
   int err;
   err = KernelInitialize(argc, argv); if(err) return err;
-  err = KernelRun();                  if(err) return err;
-  err = KernelFinalize();             if(err) return err;
+  err = KernelRun(argc, argv);        if(err) return err;
+  err = KernelFinalize(argc, argv);   if(err) return err;
   return 0;
 }
 
@@ -776,11 +785,11 @@ int GetDP(const std::vector<std::string> &args, const std::string &action, void 
     if(err) return err;
   }
   if(doRun){
-    err = KernelRun();
+    err = KernelRun(argc, &argv[0]);
     if(err) return err;
   }
   if(doFinalize){
-    err = KernelFinalize();
+    err = KernelFinalize(argc, &argv[0]);
     if(err) return err;
   }
 
