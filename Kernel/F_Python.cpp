@@ -119,8 +119,8 @@ void F_Python(F_ARG)
           for(int i = 0; i < size; i++){
             PyObject *item = PyList_GetItem(out, i);
             if(PyComplex_Check(item)){
-              double re = PyComplex_RealAsDouble(out);
-              double im = PyComplex_ImagAsDouble(out);
+              double re = PyComplex_RealAsDouble(item);
+              double im = PyComplex_ImagAsDouble(item);
               V->Val[i] = re;
               V->Val[MAX_DIM + i] = im;
             }
