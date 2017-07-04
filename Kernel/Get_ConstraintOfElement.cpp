@@ -107,8 +107,7 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 	      Get_LinkForConstraint
 		(Constraint_P,
 		 abs(Num_Entity[i_Entity]),
-		 &QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].
-		 CodeEntity_Link,
+		 &QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].CodeEntity_Link,
                  QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].BasisFunction->Orient,
 		 QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Value) ;
 	      if (abs(Num_Entity[i_Entity]) ==
@@ -1052,10 +1051,6 @@ void  Generate_LinkFacets(struct ConstraintInFS * Constraint_P,
     Message::Error("Constraint Link: strange...") ;
     return;
   }
-
-  Message::Debug("(ajout) Image: f%d, n%d - n%d - n%d", FacetNNN.NumFacet,
-                 FacetNNN.Node1, FacetNNN.Node2, FacetNNN.Node3) ;
-
 
   for (i = 0 ; i < Nbr_Entity ; i++) {
     List_Read(ExtendedList_L, i, &FacetNNN) ;
