@@ -1487,7 +1487,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       /*  -->  EigenSolve                             */
       /*  ------------------------------------------  */
-    // nleigchange
+
     case OPERATION_EIGENSOLVE :
       Init_OperationOnSystem("EigenSolve",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
@@ -1496,19 +1496,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                  Operation_P->Case.EigenSolve.Shift_r,
                  Operation_P->Case.EigenSolve.Shift_i,
                  Operation_P->Case.EigenSolve.FilterExpressionIndex,
-                 Operation_P->Case.EigenSolve.RationalCoefs1Num,
-                 Operation_P->Case.EigenSolve.RationalCoefs1Den,
-                 Operation_P->Case.EigenSolve.RationalCoefs2Num,
-                 Operation_P->Case.EigenSolve.RationalCoefs2Den,
-                 Operation_P->Case.EigenSolve.RationalCoefs3Num,
-                 Operation_P->Case.EigenSolve.RationalCoefs3Den,
-                 Operation_P->Case.EigenSolve.RationalCoefs4Num,
-                 Operation_P->Case.EigenSolve.RationalCoefs4Den,
-                 Operation_P->Case.EigenSolve.RationalCoefs5Num,
-                 Operation_P->Case.EigenSolve.RationalCoefs5Den,
-                 Operation_P->Case.EigenSolve.RationalCoefs6Num,
-                 Operation_P->Case.EigenSolve.RationalCoefs6Den,
-                 Operation_P->Case.EigenSolve.CoefsSizes);
+                 Operation_P->Case.EigenSolve.RationalCoefsNum,
+                 Operation_P->Case.EigenSolve.RationalCoefsDen);
       break ;
 
       /*  -->  EigenSolveJac                             */
@@ -1522,8 +1511,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                  Operation_P->Case.EigenSolve.Shift_r,
                  Operation_P->Case.EigenSolve.Shift_i,
                  Operation_P->Case.EigenSolve.FilterExpressionIndex,
-                 NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL) ;
-                 // nleigchange
+                 NULL, NULL);
       /* Insert intelligent convergence test here :-) */
       Current.RelativeDifference = 1.0 ;
       break ;
