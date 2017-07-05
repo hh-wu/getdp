@@ -208,7 +208,7 @@ struct doubleXstring{
 %type <i>  Append AppendOrNot
 %type <d>  FExpr OneFExpr DefineStruct NameStruct_Arg GetForced_Default
 %type <l>  MultiFExpr ListOfFExpr RecursiveListOfFExpr
-%type <l>  MultiCharExpr
+%type <l>  MultiCharExpr RecursiveListOfListOfFExpr
 %type <l>  RecursiveListOfCharExpr Str_BracedRecursiveListOfCharExpr
 %type <l>  BracedOrNotRecursiveListOfCharExpr BracedRecursiveListOfCharExpr
 %type <l>  ParametersForFunction
@@ -254,7 +254,7 @@ struct doubleXstring{
 %token  tExp tLog tLog10 tSqrt tSin tAsin tCos tAcos tTan
 %token    tAtan tAtan2 tSinh tCosh tTanh tFabs tFloor tCeil tRound tSign
 %token    tFmod tModulo tHypot tRand
-%token    tSolidAngle tTrace tOrder tCrossProduct tDofValue
+%token    tSolidAngle tTrace tOrder tCrossProduct tDofValue tRational
 %token    tMHTransform tMHJacNL
 
 %token  tAppend
@@ -294,7 +294,7 @@ struct doubleXstring{
 %token    tGalerkin tdeRham tGlobalTerm tGlobalEquation
 %token        tDt tDtDof tDtDt tDtDtDof tDtDtDtDof tDtDtDtDtDof tDtDtDtDtDtDof
 %token        tNLEig1Dof tNLEig2Dof tNLEig3Dof tNLEig4Dof tNLEig5Dof tNLEig6Dof
-%token        tJacNL tDtDofJacNL tNeverDt tDtNL
+%token        tJacNL tDtDofJacNL tNeverDt tDtNL tEig
 %token        tAtAnteriorTimeStep tMaxOverTime tFourierSteinmetz
 %token        tIn
 %token        tFull_Matrix
@@ -3676,8 +3676,9 @@ DefineQuantityTerm :
     }
 
   | tSymmetry tINT tEND
-    { DefineQuantity_S.IntegralQuantity.Symmetry = $2; }
-
+    {
+      DefineQuantity_S.IntegralQuantity.Symmetry = $2;
+    }
  ;
 
 IndexInFunctionSpace :
@@ -4049,12 +4050,25 @@ LocalTermTerm  :
     { if($3 == 1 || $3 == 2 || $3 == 3)
 	EquationTerm_S.Case.LocalTerm.MatrixIndex = $3;
       else
-	vyyerror(0, "Unknown Matrix123: %d", $3);
+	vyyerror(0, "Wrong MatrixIndex: %d", $3);
     }
 
   | tMetricTensor Expression tEND
     {
       EquationTerm_S.Case.LocalTerm.ExpressionIndexForMetricTensor = $2;
+    }
+
+  | tOrder FExpr tEND
+    {
+      vyyerror(0, "TODO Eig Order!");
+      if(EquationTerm_S.Case.LocalTerm.Term.TypeTimeDerivative == EIG_){
+      }
+    }
+  | tRational FExpr tEND
+    {
+      vyyerror(0, "TODO Eig Rational!");
+      if(EquationTerm_S.Case.LocalTerm.Term.TypeTimeDerivative == EIG_){
+      }
     }
  ;
 
@@ -4191,12 +4205,13 @@ TermOperator :
   | tDtDofJacNL    { Type_TermOperator = DTDOFJACNL_    ; }
   | tNeverDt       { Type_TermOperator = NEVERDT_       ; }
   | tDtNL          { Type_TermOperator = DTNL_          ; }
-  | tNLEig1Dof     { Type_TermOperator = NLEIG1DOF_     ; } /*nleigchange */
-  | tNLEig2Dof     { Type_TermOperator = NLEIG2DOF_     ; } /*nleigchange */
-  | tNLEig3Dof     { Type_TermOperator = NLEIG3DOF_     ; } /*nleigchange */
-  | tNLEig4Dof     { Type_TermOperator = NLEIG4DOF_     ; } /*nleigchange */
-  | tNLEig5Dof     { Type_TermOperator = NLEIG5DOF_     ; } /*nleigchange */
-  | tNLEig6Dof     { Type_TermOperator = NLEIG6DOF_     ; } /*nleigchange */
+  | tEig           { Type_TermOperator = EIG_           ; }
+  | tNLEig1Dof     { Type_TermOperator = NLEIG1DOF_     ; }
+  | tNLEig2Dof     { Type_TermOperator = NLEIG2DOF_     ; }
+  | tNLEig3Dof     { Type_TermOperator = NLEIG3DOF_     ; }
+  | tNLEig4Dof     { Type_TermOperator = NLEIG4DOF_     ; }
+  | tNLEig5Dof     { Type_TermOperator = NLEIG5DOF_     ; }
+  | tNLEig6Dof     { Type_TermOperator = NLEIG6DOF_     ; }
 
  ;
 
@@ -4996,6 +5011,8 @@ OperationTerm :
       Operation_P->Case.EigenSolve.Shift_r = $7;
       Operation_P->Case.EigenSolve.Shift_i = $9;
       Operation_P->Case.EigenSolve.FilterExpressionIndex = -1;
+      Operation_P->Case.EigenSolve.RationalCoefsNum = 0;
+      Operation_P->Case.EigenSolve.RationalCoefsDen = 0;
     }
 
   | tEigenSolve '[' String__Index ',' FExpr ',' FExpr ',' FExpr
@@ -5013,14 +5030,13 @@ OperationTerm :
       Operation_P->Case.EigenSolve.Shift_r = $7;
       Operation_P->Case.EigenSolve.Shift_i = $9;
       Operation_P->Case.EigenSolve.FilterExpressionIndex = $11;
+      Operation_P->Case.EigenSolve.RationalCoefsNum = 0;
+      Operation_P->Case.EigenSolve.RationalCoefsDen = 0;
     }
 
   | tEigenSolve '[' String__Index ',' FExpr ',' FExpr ',' FExpr
-                ',' Expression ',' ListOfFExpr ',' ListOfFExpr
-                ',' ListOfFExpr ',' ListOfFExpr ',' ListOfFExpr
-                ',' ListOfFExpr ',' ListOfFExpr ',' ListOfFExpr
-                ',' ListOfFExpr ',' ListOfFExpr ',' ListOfFExpr
-                ',' ListOfFExpr ']' tEND
+                ',' Expression ',' '{' RecursiveListOfListOfFExpr '}' ','
+                                   '{' RecursiveListOfListOfFExpr '}' ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_EIGENSOLVE;
@@ -5034,66 +5050,8 @@ OperationTerm :
       Operation_P->Case.EigenSolve.Shift_r = $7;
       Operation_P->Case.EigenSolve.Shift_i = $9;
       Operation_P->Case.EigenSolve.FilterExpressionIndex = $11;
-      Operation_P->Case.EigenSolve.RationalCoefs1Num = (double *)Malloc
-        (List_Nbr($13) * sizeof(double));
-      Operation_P->Case.EigenSolve.RationalCoefs1Den = (double *)Malloc
-        (List_Nbr($15) * sizeof(double));
-      Operation_P->Case.EigenSolve.RationalCoefs2Num = (double *)Malloc
-        (List_Nbr($17) * sizeof(double));
-      Operation_P->Case.EigenSolve.RationalCoefs2Den = (double *)Malloc
-        (List_Nbr($19) * sizeof(double));
-      Operation_P->Case.EigenSolve.RationalCoefs3Num = (double *)Malloc
-        (List_Nbr($21) * sizeof(double));
-      Operation_P->Case.EigenSolve.RationalCoefs3Den = (double *)Malloc
-        (List_Nbr($23) * sizeof(double));
-      Operation_P->Case.EigenSolve.RationalCoefs4Num = (double *)Malloc
-        (List_Nbr($25) * sizeof(double));
-      Operation_P->Case.EigenSolve.RationalCoefs4Den = (double *)Malloc
-        (List_Nbr($27) * sizeof(double));
-      Operation_P->Case.EigenSolve.RationalCoefs5Num = (double *)Malloc
-        (List_Nbr($29) * sizeof(double));
-      Operation_P->Case.EigenSolve.RationalCoefs5Den = (double *)Malloc
-        (List_Nbr($31) * sizeof(double));
-      Operation_P->Case.EigenSolve.RationalCoefs6Num = (double *)Malloc
-        (List_Nbr($33) * sizeof(double));
-      Operation_P->Case.EigenSolve.RationalCoefs6Den = (double *)Malloc
-        (List_Nbr($35) * sizeof(double));
-      for(int i = 0; i < List_Nbr($13); i++){
-        List_Read($13,i,&Operation_P->Case.EigenSolve.RationalCoefs1Num[i]);}
-      for(int i = 0; i < List_Nbr($15); i++){
-        List_Read($15,i,&Operation_P->Case.EigenSolve.RationalCoefs1Den[i]);}
-      for(int i = 0; i < List_Nbr($17); i++){
-        List_Read($17,i,&Operation_P->Case.EigenSolve.RationalCoefs2Num[i]);}
-      for(int i = 0; i < List_Nbr($19); i++){
-        List_Read($19,i,&Operation_P->Case.EigenSolve.RationalCoefs2Den[i]);}
-      for(int i = 0; i < List_Nbr($21); i++){
-        List_Read($21,i,&Operation_P->Case.EigenSolve.RationalCoefs3Num[i]);}
-      for(int i = 0; i < List_Nbr($23); i++){
-        List_Read($23,i,&Operation_P->Case.EigenSolve.RationalCoefs3Den[i]);}
-      for(int i = 0; i < List_Nbr($25); i++){
-        List_Read($25,i,&Operation_P->Case.EigenSolve.RationalCoefs4Num[i]);}
-      for(int i = 0; i < List_Nbr($27); i++){
-        List_Read($27,i,&Operation_P->Case.EigenSolve.RationalCoefs4Den[i]);}
-      for(int i = 0; i < List_Nbr($29); i++){
-        List_Read($29,i,&Operation_P->Case.EigenSolve.RationalCoefs5Num[i]);}
-      for(int i = 0; i < List_Nbr($31); i++){
-        List_Read($31,i,&Operation_P->Case.EigenSolve.RationalCoefs5Den[i]);}
-      for(int i = 0; i < List_Nbr($33); i++){
-        List_Read($33,i,&Operation_P->Case.EigenSolve.RationalCoefs6Num[i]);}
-      for(int i = 0; i < List_Nbr($35); i++){
-        List_Read($35,i,&Operation_P->Case.EigenSolve.RationalCoefs6Den[i]);}
-      Operation_P->Case.EigenSolve.CoefsSizes[0]=List_Nbr($13);
-      Operation_P->Case.EigenSolve.CoefsSizes[1]=List_Nbr($17);
-      Operation_P->Case.EigenSolve.CoefsSizes[2]=List_Nbr($21);
-      Operation_P->Case.EigenSolve.CoefsSizes[3]=List_Nbr($25);
-      Operation_P->Case.EigenSolve.CoefsSizes[4]=List_Nbr($29);
-      Operation_P->Case.EigenSolve.CoefsSizes[5]=List_Nbr($33);
-      Operation_P->Case.EigenSolve.CoefsSizes[6]=List_Nbr($15);
-      Operation_P->Case.EigenSolve.CoefsSizes[7]=List_Nbr($19);
-      Operation_P->Case.EigenSolve.CoefsSizes[8]=List_Nbr($23);
-      Operation_P->Case.EigenSolve.CoefsSizes[9]=List_Nbr($27);
-      Operation_P->Case.EigenSolve.CoefsSizes[10]=List_Nbr($31);
-      Operation_P->Case.EigenSolve.CoefsSizes[11]=List_Nbr($35);
+      Operation_P->Case.EigenSolve.RationalCoefsNum = $14;
+      Operation_P->Case.EigenSolve.RationalCoefsDen = $18;
     }
 
   | tEigenSolveJac '[' String__Index ',' FExpr ',' FExpr ',' FExpr ']' tEND
@@ -5110,6 +5068,8 @@ OperationTerm :
       Operation_P->Case.EigenSolve.Shift_r = $7;
       Operation_P->Case.EigenSolve.Shift_i = $9;
       Operation_P->Case.EigenSolve.FilterExpressionIndex = -1;
+      Operation_P->Case.EigenSolve.RationalCoefsNum = 0;
+      Operation_P->Case.EigenSolve.RationalCoefsDen = 0;
     }
 
   | tEvaluate '[' RecursiveListOfExpression ']' tEND
@@ -9005,9 +8965,19 @@ tSTRING_Member :
     { $$ = (char*)"Type"; flag_tSTRING_alloc = 0; }
 ;
 
+RecursiveListOfListOfFExpr :
+    ListOfFExpr
+    {
+      $$ = List_Create(2, 1, sizeof(List_T*));
+      List_Add($$, &($1));
+    }
+  | RecursiveListOfListOfFExpr ',' ListOfFExpr
+    {
+      List_Add($$, &($3));
+    }
+;
 
 ListOfFExpr :
-
     '{' '}'
     { $$ = List_Create(20,20,sizeof(double)); }
 
