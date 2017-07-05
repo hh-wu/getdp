@@ -293,7 +293,6 @@ struct doubleXstring{
 %token        tSymmetry
 %token    tGalerkin tdeRham tGlobalTerm tGlobalEquation
 %token        tDt tDtDof tDtDt tDtDtDof tDtDtDtDof tDtDtDtDtDof tDtDtDtDtDtDof
-%token        tNLEig1Dof tNLEig2Dof tNLEig3Dof tNLEig4Dof tNLEig5Dof tNLEig6Dof
 %token        tJacNL tDtDofJacNL tNeverDt tDtNL tEig
 %token        tAtAnteriorTimeStep tMaxOverTime tFourierSteinmetz
 %token        tIn
@@ -4060,14 +4059,45 @@ LocalTermTerm  :
 
   | tOrder FExpr tEND
     {
-      vyyerror(0, "TODO Eig Order!");
       if(EquationTerm_S.Case.LocalTerm.Term.TypeTimeDerivative == EIG_){
+        if($2 == 1)
+          EquationTerm_S.Case.LocalTerm.Term.TypeTimeDerivative = DTDOF_;
+        else if($2 == 2)
+          EquationTerm_S.Case.LocalTerm.Term.TypeTimeDerivative = DTDTDOF_;
+        else if($2 == 3)
+          EquationTerm_S.Case.LocalTerm.Term.TypeTimeDerivative = DTDTDTDOF_;
+        else if($2 == 4)
+          EquationTerm_S.Case.LocalTerm.Term.TypeTimeDerivative = DTDTDTDTDOF_;
+        else if($2 == 5)
+          EquationTerm_S.Case.LocalTerm.Term.TypeTimeDerivative = DTDTDTDTDTDOF_;
+        else
+          vyyerror(0, "Order should be >= 1 and <= 5");
+      }
+      else{
+        vyyerror(0, "Order can only be applied with Eig term");
       }
     }
+
   | tRational FExpr tEND
     {
-      vyyerror(0, "TODO Eig Rational!");
       if(EquationTerm_S.Case.LocalTerm.Term.TypeTimeDerivative == EIG_){
+        if($2 == 1)
+          EquationTerm_S.Case.LocalTerm.Term.TypeTimeDerivative = NLEIG1DOF_;
+        else if($2 == 2)
+          EquationTerm_S.Case.LocalTerm.Term.TypeTimeDerivative = NLEIG2DOF_;
+        else if($2 == 3)
+          EquationTerm_S.Case.LocalTerm.Term.TypeTimeDerivative = NLEIG3DOF_;
+        else if($2 == 4)
+          EquationTerm_S.Case.LocalTerm.Term.TypeTimeDerivative = NLEIG4DOF_;
+        else if($2 == 5)
+          EquationTerm_S.Case.LocalTerm.Term.TypeTimeDerivative = NLEIG5DOF_;
+        else if($2 == 6)
+          EquationTerm_S.Case.LocalTerm.Term.TypeTimeDerivative = NLEIG6DOF_;
+        else
+          vyyerror(0, "Rational should be >= 1 and <= 6");
+      }
+      else{
+        vyyerror(0, "Rational can only be applied with Eig term");
       }
     }
  ;
@@ -4206,15 +4236,8 @@ TermOperator :
   | tNeverDt       { Type_TermOperator = NEVERDT_       ; }
   | tDtNL          { Type_TermOperator = DTNL_          ; }
   | tEig           { Type_TermOperator = EIG_           ; }
-  | tNLEig1Dof     { Type_TermOperator = NLEIG1DOF_     ; }
-  | tNLEig2Dof     { Type_TermOperator = NLEIG2DOF_     ; }
-  | tNLEig3Dof     { Type_TermOperator = NLEIG3DOF_     ; }
-  | tNLEig4Dof     { Type_TermOperator = NLEIG4DOF_     ; }
-  | tNLEig5Dof     { Type_TermOperator = NLEIG5DOF_     ; }
-  | tNLEig6Dof     { Type_TermOperator = NLEIG6DOF_     ; }
 
  ;
-
 
 Quantity_Def :
 
