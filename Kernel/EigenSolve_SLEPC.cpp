@@ -810,7 +810,7 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
     List_Read(RationalCoefsNum, i, &coefs);
     for(int j = 0; j < List_Nbr(coefs); j++){
       double c; List_Read(coefs, j, &c);
-      tabCoefsNum[i][j] = c;
+      tabCoefsNum[i].push_back(c);
     }
   }
   for(int i = 0; i < List_Nbr(RationalCoefsDen); i++){
@@ -818,7 +818,7 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
     List_Read(RationalCoefsDen, i, &coefs);
     for(int j = 0; j < List_Nbr(coefs); j++){
       double c; List_Read(coefs, j, &c);
-      tabCoefsDen[i][j] = c;
+      tabCoefsDen[i].push_back(c);
     }
   }
 
