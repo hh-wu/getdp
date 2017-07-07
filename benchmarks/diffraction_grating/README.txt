@@ -1,4 +1,4 @@
-{{metamodelGetDP|grating2D}}
+{{metamodelGetDP|diffraction_grating}}
 
 == Additional information ==
 
@@ -14,4 +14,4 @@ This model applies to so-called mono-dimensional grating, i.e. structures having
 
 </references>
 
-{{metamodelfooter|grating2D}}
+{{metamodelfooter|diffraction_grating}}

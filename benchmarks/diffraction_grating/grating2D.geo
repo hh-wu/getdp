@@ -183,51 +183,48 @@ last_surf_list={};
 phys_rod_list={};
 
 If(Flag_glue_rod_subs==0)
-  phys_plot_bnd={14,18,22,26};
-  For k1 In {0:N_rods-1:1}
-    last_surf_list[k1]  = istart+k1;
-    phys_rod_list[k1] = istart+k1;
-    phys_plot_bnd[5+4*k1+0]=istart+4*k1+0;
-    phys_plot_bnd[5+4*k1+1]=istart+4*k1+1;
-    phys_plot_bnd[5+4*k1+2]=istart+4*k1+2;
-    phys_plot_bnd[5+4*k1+3]=istart+4*k1+3;
-  EndFor
-  last_surf_list[N_rods] = 70;
-  Plane Surface(72) = last_surf_list[];
+phys_plot_bnd={14,18,22,26};
+For k1 In {0:N_rods-1:1}
+last_surf_list[k1]  = istart+k1;
+phys_rod_list[k1] = istart+k1;
+phys_plot_bnd[5+4*k1+0]=istart+4*k1+0;
+phys_plot_bnd[5+4*k1+1]=istart+4*k1+1;
+phys_plot_bnd[5+4*k1+2]=istart+4*k1+2;
+phys_plot_bnd[5+4*k1+3]=istart+4*k1+3;
+EndFor
+last_surf_list[N_rods] = 70;
+Plane Surface(72) = last_surf_list[];
 EndIf
-
 If(Flag_glue_rod_subs==1)
   If(Shape_rod==0)
-    phys_plot_bnd={14,90,101,91,22,26};
-    For k1 In {1:N_rods-1:1}
-      last_surf_list[k1-1]  = istart+k1;
-    EndFor
-    For k1 In {0:N_rods-1:1}
-      phys_rod_list[k1] = istart+k1;
-      phys_plot_bnd[7+4*k1+0]=istart+4*k1+0;
-      phys_plot_bnd[7+4*k1+1]=istart+4*k1+1;
-      phys_plot_bnd[7+4*k1+2]=istart+4*k1+2;
-      phys_plot_bnd[7+4*k1+3]=istart+4*k1+3;
-    EndFor
-    last_surf_list[N_rods-1] = 70;
-    Plane Surface(72) =-last_surf_list[];	
-  EndIf
-  If(Shape_rod==1)
-    phys_plot_bnd={14,90,91,22,26};
-    For k1 In {0:N_rods-1:1}
-    last_surf_list[k1]  = istart+k1;
-    phys_rod_list[k1] = istart+k1;
-    phys_plot_bnd[6+4*k1+0]=istart+4*k1+0;
-    phys_plot_bnd[6+4*k1+1]=istart+4*k1+1;
-    phys_plot_bnd[6+4*k1+2]=istart+4*k1+2;
-    phys_plot_bnd[6+4*k1+3]=istart+4*k1+3;
-    EndFor
-    last_surf_list[N_rods] = 70;
-    Plane Surface(72) = last_surf_list[];
-  EndIf
+  phys_plot_bnd={14,90,101,91,22,26};
+For k1 In {1:N_rods-1:1}
+last_surf_list[k1-1]  = istart+k1;
+EndFor
+For k1 In {0:N_rods-1:1}
+phys_rod_list[k1] = istart+k1;
+phys_plot_bnd[7+4*k1+0]=istart+4*k1+0;
+phys_plot_bnd[7+4*k1+1]=istart+4*k1+1;
+phys_plot_bnd[7+4*k1+2]=istart+4*k1+2;
+phys_plot_bnd[7+4*k1+3]=istart+4*k1+3;
+EndFor
+last_surf_list[N_rods-1] = 70;
+Plane Surface(72) =-last_surf_list[];	
 EndIf
-
-Periodic Line {8,1,16,20,24,28,32} = {1,2,3,4,5,6,7} Translate {d,0,0} ;
+If(Shape_rod==1)
+  phys_plot_bnd={14,90,91,22,26};
+For k1 In {0:N_rods-1:1}
+last_surf_list[k1]  = istart+k1;
+phys_rod_list[k1] = istart+k1;
+phys_plot_bnd[6+4*k1+0]=istart+4*k1+0;
+phys_plot_bnd[6+4*k1+1]=istart+4*k1+1;
+phys_plot_bnd[6+4*k1+2]=istart+4*k1+2;
+phys_plot_bnd[6+4*k1+3]=istart+4*k1+3;
+EndFor
+last_surf_list[N_rods] = 70;
+Plane Surface(72) = last_surf_list[];
+EndIf
+EndIf
 
 Physical Line(SURF_BLOCH_X_LEFT)  = {1, 2, 3, 4, 5, 6, 7}; // Bloch_LeftX-
 Physical Line(SURF_BLOCH_X_RIGHT) = {8,12,16,20,24,28,32}; // Bloch_RightX+
@@ -235,20 +232,36 @@ Physical Line(SURF_INTEG_SUP1) = {30};                     // super/pml cut
 Physical Line(SURF_INTEG_SUP2) = {26};                     // super/grooves cut
 Physical Line(SURF_INTEG_SUB1) = {10};                     // subs/pml cut
 Physical Line(SURF_INTEG_SUB2) = {14};                     // cov/subs cut
+// If(Flag_glue_rod_subs==0)
+// 	Physical Line(SURF_INTEG_SUB2) = {18};                   // subs/grooves cut
+// EndIf
+// If(Flag_glue_rod_subs==1)
+// 	If(Shape_rod==0)
+// 	EndIf
+// 	If(Shape_rod==1)
+// 		Physical Line(SURF_INTEG_SUB2) = {90,91};              // subs/grooves cut
+// 	EndIf
+// EndIf
 Physical Line(SURF_PLOT) = phys_plot_bnd[];                // final plot
 
-Physical Surface(PMLBOT)   = {36}; // pmlbot
-Physical Surface(SUB)      = {38}; // sub
-Physical Surface(LAYERDEP) = {40}; // layer_dep
-Physical Surface(RODOUT)   = {72}; // rod_out
+Physical Surface(PMLBOT)   = {36};          // pmlbot
+Physical Surface(SUB)      = {38};          // sub
+Physical Surface(LAYERDEP) = {40};          // layer_dep
+Physical Surface(RODOUT) = {72};          // rod_out
 For k2 In {0:N_rods-1:1}
 Physical Surface(ROD~{k2})={istart+k2}; //rod i
 EndFor
-Physical Surface(LAYERCOV) = {44}; // layer_cov
-Physical Surface(SUP)      = {46}; // sup
-Physical Surface(PMLTOP)   = {48}; // pmltop
+Physical Surface(LAYERCOV) = {44};          // layer_cov
+Physical Surface(SUP)      = {46};          // sup
+Physical Surface(PMLTOP)   = {48};          // pmltop
 
 Physical Point(PRINT_POINT) = {1};
+
+// Field[1]=Box; Field[1].YMin=-h_sub                       ;Field[1].YMax = 0                                  ;Field[1].VIn=lc_sub      ; Field[1].XMin = -d/2; Field[1].XMax = d/2;
+// Field[2]=Box; Field[2].YMin=0                            ;Field[2].YMax = h_layer_dep                        ;Field[2].VIn=lc_layer_dep; Field[2].XMin = -d/2; Field[2].XMax = d/2;
+// Field[3]=Box; Field[3].YMin=h_layer_dep                  ;Field[3].YMax = h_layer_dep+h_pc                   ;Field[3].VIn=lc_rod_out; Field[3].XMin = -d/2; Field[3].XMax = d/2;
+// Field[4]=Box; Field[4].YMin=h_layer_dep+h_pc             ;Field[4].YMax = h_layer_dep+h_pc+h_layer_cov       ;Field[4].VIn=lc_layer_cov; Field[4].XMin = -d/2; Field[4].XMax = d/2;
+// Field[5]=Box; Field[5].YMin=h_layer_dep+h_pc+h_layer_cov ;Field[5].YMax = h_layer_dep+h_pc+h_layer_cov+h_sup ;Field[5].VIn=lc_sup      ; Field[5].XMin = -d/2; Field[5].XMax = d/2;
 
 Solver.AutoMesh=1;
 Geometry.Points = 0;

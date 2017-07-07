@@ -79,7 +79,7 @@ DefineConstant[
 
   h_pmltop                    = {lambda_max, Name StrCat[pp3, "0top PML size [nm]"] ,  ReadOnly 1, Highlight Str[colorro]},
   h_pmlbot                    = {lambda_max, Name StrCat[pp3, "1bottom PML size [nm]"] ,  ReadOnly 1, Highlight Str[colorro]}  
-  paramaille                  = {20 , Name StrCat[pp3, "2nb of mesh elements per wavelength [-]"   ] , ReadOnly 0, Highlight Str[colorpp]},
+  paramaille                  = {15 , Name StrCat[pp3, "2nb of mesh elements per wavelength [-]"   ] , ReadOnly 0, Highlight Str[colorpp]},
   paramaille_scale_sub        = {1  , Name StrCat[pp3, "3Custom mesh parameters/refine substrate [-]"    ] , ReadOnly 0, Highlight Str[colorpp], Closed 1},
   paramaille_scale_layer_dep  = {1  , Name StrCat[pp3, "3Custom mesh parameters/refine deposit layer [-]"] , ReadOnly 0, Highlight Str[colorpp], Closed 1},
   paramaille_scale_rod_out    = {1  , Name StrCat[pp3, "3Custom mesh parameters/refine embedding [-]"    ] , ReadOnly 0, Highlight Str[colorpp], Closed 1},
