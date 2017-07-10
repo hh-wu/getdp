@@ -277,7 +277,8 @@ struct StringXPointer  Current_Value[] = {
 #if defined(HAVE_KERNEL)
   {"Time"     , &Current.Time},       {"DTime"     , &Current.DTime},
   {"Theta"    , &Current.Theta},      {"TimeStep"  , &Current.TimeStep},
-  {"Iteration", &Current.Iteration},  {"Iter"      , &Current.Iteration},
+  {"Iter"      , &Current.Iteration},
+  {"Iteration", &Current.Iteration},  {"NLIteration", &Current.Iteration},
   {"Residual" , &Current.Residual},   {"NLResidual" , &Current.Residual},
   {"TimeImag" , &Current.TimeImag},   {"Eigenvalue", &Current.Time},
   {"EigenvalueReal" , &Current.Time}, {"EigenvalueImag" , &Current.TimeImag},
