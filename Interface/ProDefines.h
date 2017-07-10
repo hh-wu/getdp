@@ -278,12 +278,12 @@ struct StringXPointer  Current_Value[] = {
   {"Time"     , &Current.Time},       {"DTime"     , &Current.DTime},
   {"Theta"    , &Current.Theta},      {"TimeStep"  , &Current.TimeStep},
   {"Iteration", &Current.Iteration},  {"Iter"      , &Current.Iteration},
-  {"Residual" , &Current.Residual},
+  {"Residual" , &Current.Residual},   {"NLResidual" , &Current.Residual},
   {"TimeImag" , &Current.TimeImag},   {"Eigenvalue", &Current.Time},
   {"EigenvalueReal" , &Current.Time}, {"EigenvalueImag" , &Current.TimeImag},
   {"ReOmega"  , &Current.Time},       {"ImOmega"   , &Current.TimeImag},
   {"wr"       , &Current.Time},       {"wi"        , &Current.TimeImag},
-  {"Breakpoint" , &Current.Breakpoint},
+  {"Breakpoint", &Current.Breakpoint},
 
   {"X"  , &Current.x}, {"Y"  , &Current.y},  {"Z"  , &Current.z},
   {"XS" , &Current.xs},{"YS" , &Current.ys}, {"ZS" , &Current.zs},
@@ -301,7 +301,9 @@ struct StringXPointer  Current_Value[] = {
   {"QuadraturePointIndex",  &Current.QuadraturePointIndex},
   {"QP",                    &Current.QuadraturePointIndex},
 
-  {"KSPIts", &Current.KSPIts},
+  {"KSPIterations", &Current.KSPIterations}, {"KSPIts", &Current.KSPIterations},
+  {"KSPIteration", &Current.KSPIteration},
+  {"KSPResidual", &Current.KSPResidual},
 #endif
   {NULL       , NULL}
 } ;

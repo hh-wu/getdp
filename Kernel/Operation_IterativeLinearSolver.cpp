@@ -986,6 +986,8 @@ static int KspMonitor(KSP ksp, PetscInt it, PetscReal rnorm, void *mctx)
 {
   Message::Cpu(3, false, true, true, true, false, "%3ld KSP Residual norm %14.12e",
                (long)it, rnorm);
+  Current.KSPIteration = it;
+  Current.KSPResidual = rnorm;
   return 0;
 }
 
@@ -1162,7 +1164,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
 
     PetscInt its;
     _try(KSPGetIterationNumber(ksp, &its));
-    Current.KSPIts = its;
+    Current.KSPIterations = its;
 
 #if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
     _try(KSPDestroy(&ksp));

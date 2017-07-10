@@ -1575,7 +1575,7 @@ struct CurrentData {
   double  RelaxationFactor, Residual;
 
   // Iterative linear system solvers
-  double  KSPIts;
+  double  KSPIterations, KSPIteration, KSPResidual;
 };
 
 /* ------------------------------------------------------------------------ */
