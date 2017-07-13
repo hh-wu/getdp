@@ -1,0 +1,87 @@
+
+
+k = PostProcessing.NbViews;
+
+If (k<2)
+lc = GetValue("What is the characteristic length of the initial mesh?", 1.0);
+EndIf
+
+Plugin(MathEval).Expression0= "1";
+Plugin(MathEval).View=k-1;
+Plugin(MathEval).Run;
+View[k].Name = "Unity";
+
+Plugin(Integrate).View=k;
+Plugin(Integrate).Run;
+View[k+1].Name = "Volume";
+Vol = View[k+1].Max;
+
+Plugin(MathEval).Expression0= "v0^2";
+Plugin(MathEval).View=k-1;
+Plugin(MathEval).Run;
+View[k+2].Name = "Energy density";
+
+Plugin(Integrate).View=k+2;
+Plugin(Integrate).Run;
+View[k+3].Name = "Energy";
+Energy = View[k+3].Max;
+
+Plugin(MathEval).Expression0= "v0";
+Plugin(MathEval).View=k-1;
+Plugin(MathEval).Run;
+View[k+4].Name = "Smoothed";
+Plugin(Smooth).View=k+4;
+Plugin(Smooth).Run;
+
+Plugin(MathEval).Expression0= "(v0-w0)^2";
+Plugin(MathEval).View=k+4;
+Plugin(MathEval).OtherView=k-1;
+Plugin(MathEval).Run;
+View[k+5].Name = "dEnergy density";
+
+Plugin(Integrate).View=k+5;
+Plugin(Integrate).Run;
+View[k+6].Name = "dEnergy";
+dEnergy = View[k+6].Max;
+
+Plugin(Smooth).View=k+5;
+Plugin(Smooth).Run;
+
+RelErr = dEnergy/Energy;
+target = GetValue(Sprintf("Error = %.3e. Target error?", RelErr), RelErr/3.);
+
+d0 = target  * Sqrt( Energy / Vol );
+
+Printf("Energy = %e, d0 = %e", Energy, d0);
+Printf("dEnergy = %e, error = %e", dEnergy, RelErr);
+
+degree = 2;
+
+Plugin(MathEval).Expression0=Sprintf("max(1,(Sqrt(v0)/%f)^(1/%f))",d0,degree);
+Plugin(MathEval).View=k+5;
+Plugin(MathEval).Run;
+View[k+7].Name = "Correction factor";
+
+If(k<2)
+Plugin(MathEval).Expression0= Sprintf("%f/v0",lc);
+Plugin(MathEval).View=k+7;
+Plugin(MathEval).Run;
+View[k+8].Name = "Size map";
+Save View[k+8] "size.pos";
+Else
+Plugin(MathEval).Expression0= "v0/max(1,w0)";
+Plugin(MathEval).View=0;
+Plugin(MathEval).OtherView=k+7;
+Plugin(MathEval).ForceInterpolation=1;
+Plugin(MathEval).Run;
+View[k+8].Name = "Size map";
+Save View[k+8] "size_new.pos";
+EndIf
+
+
+For k In { 0 : PostProcessing.NbViews-1 }
+View[k].Light=0;
+View[k].Visible=0;
+EndFor
+View[PostProcessing.NbViews-1].Visible=1;
+
