@@ -791,14 +791,16 @@ void Cal_AssembleTerm_MHMoving(struct Dof * Equ, struct Dof * Dof, double Val[])
   extern double ** MH_Moving_Matrix ;
   extern Tree_T  * DofTree_MH_moving ;
 
-  // FIX to check! => It doesn't work with complex arithmetic... fix is a bit more complicated
+  // FIXME: this cannot work in complex arithmetic: AssembleInMat will
+  // need to assemble both real and imaginary parts at once -- See
+  // Cal_AssembleTerm for an example
 
   if(MHMoving_assemblyType==1){
     for (int k = 0 ; k < Current.NbrHar ; k++)
       for (int l = 0 ; l < Current.NbrHar ; l++) {
         double tmp = Val[0] * MH_Moving_Matrix[k][l] ;
         // if (k==l)
-        Dof_AssembleInMat(Equ+k/2*gCOMPLEX_INCREMENT, Dof+l/2*gCOMPLEX_INCREMENT, 1, &tmp,
+        Dof_AssembleInMat(Equ+k, Dof+l, 1, &tmp,
                           &Current.DofData->A, &Current.DofData->b) ;
       }
   }
@@ -808,7 +810,7 @@ void Cal_AssembleTerm_MHMoving(struct Dof * Equ, struct Dof * Dof, double Val[])
       for (int l = 0 ; l < Current.NbrHar ; l++) {
         double tmp = Val[0] * MH_Moving_Matrix[k][l] ;
         // if (k==l)
-        Dof_AssembleInMat(Equ+k/2*gCOMPLEX_INCREMENT, Dof+l/2*gCOMPLEX_INCREMENT, 1, &tmp,
+        Dof_AssembleInMat(Equ+k, Dof+l, 1, &tmp,
                           &Current.DofData->A_MH_moving, &Current.DofData->b_MH_moving) ;
       }
   }
