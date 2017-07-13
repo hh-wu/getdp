@@ -73,6 +73,7 @@ int Flag_RHS = 0, *DummyDof ;
 double **MH_Moving_Matrix = NULL ;
 
 int MHMoving_assemblyType = 0 ;
+int Flag_AddMHMoving = 0 ; //one more :-)
 
 Tree_T  * DofTree_MH_moving ;
 
@@ -682,7 +683,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   static int *NumDof_MH_moving;
   static struct Dof ** Dof_MH_moving;
   gMatrix A_MH_moving_tmp ;
-  //gVector b_MH_moving_tmp ;
+  gVector b_MH_moving_tmp ;
 
   Nbr_Operation = List_Nbr(Operation_L) ;
 
@@ -711,6 +712,15 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       /*  -->  G e n e r a t e                        */
       /*  ------------------------------------------  */
+    case OPERATION_ADDMHMOVING : Flag_AddMHMoving = 1;
+      // printf("===================> Flag_AddMHMoving %d\n", Flag_AddMHMoving);
+      // LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A_MH_moving, &DofData_P->A) ;
+      // FIX TO CHECK: Old assembly for IterativeLoop done in A, now in Jac (keep it + addition of Jac?)
+
+      //LinAlg_AddMatrixMatrix(&DofData_P->Jac, &DofData_P->A_MH_moving, &DofData_P->Jac); // first trial
+
+      Message::Info("AddMHMoving: contribution of moving band precalculated");
+      break ;
 
     case OPERATION_GENERATEJAC :  Flag_Jac = 1 ;
     case OPERATION_GENERATEJAC_CUMULATIVE :  Flag_Jac = 1 ;
@@ -745,8 +755,12 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                         cumulative) ;
 
         if(Flag_Jac && !DofData_P->Flag_Only){
+          if(Flag_AddMHMoving){
+            LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A_MH_moving, &DofData_P->A) ;
+          }
           // compute full Jacobian J = A + JacNL, and store it in Jac
           LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->Jac, &DofData_P->Jac) ;
+
           // res = b(xn)-A(xn)*xn
           LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x, &DofData_P->res) ;
           LinAlg_SubVectorVector(&DofData_P->b, &DofData_P->res, &DofData_P->res) ;
@@ -1460,6 +1474,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	/* calculate residual with trial solution */
 
 	ReGenerate_System(DefineSystem_P, DofData_P, DofData_P0) ;
+        if(Flag_AddMHMoving){// Contribution of the moving band (precalculated)
+          // Jac does not change (Flag_Jac = 0, default argument of ReGenerate_System)
+          LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A_MH_moving, &DofData_P->A) ;
+        }
 	LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x,
                                 &DofData_P->res) ;
 	LinAlg_SubVectorVector(&DofData_P->b, &DofData_P->res, &DofData_P->res) ;
@@ -1468,6 +1486,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	LinAlg_VectorNorm2(&DofData_P->res, &Norm);
 	LinAlg_GetVectorSize(&DofData_P->res, &N);
 	Norm /= (double)N;
+
         Current.Residual = Norm;
         if(Message::GetVerbosity() == 10)
           Message::Info(" adaptive relaxation factor = %8f Residual norm = %10.4e",
@@ -1870,7 +1889,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       break ;
 
     case OPERATION_GENERATE_MH_MOVING_S :
-      Flag_Jac = 1 ;// +++ fixing MH routines with movement and nonlinearity
+      // Flag_Jac = 1 ;// +++ fixing MH routines with movement and nonlinearity
                     // not needed if linear case => TO FIX
       Init_OperationOnSystem("GenerateMHMovingSeparate",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
@@ -1957,9 +1976,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                               NbrDof_MH_moving*Current.NbrHar) ;
           LinAlg_ZeroMatrix(&DofData_P->A_MH_moving) ;
 
-          //  LinAlg_CreateVector(&DofData_P->b_MH_moving, &DofData_P->Solver,
-          //			      NbrDof_MH_moving*Current.NbrHar) ;
-	  //  LinAlg_ZeroVector(&DofData_P->b_MH_moving) ;
+          LinAlg_CreateVector(&DofData_P->b_MH_moving, &DofData_P->Solver,
+          			      NbrDof_MH_moving*Current.NbrHar) ;
+          LinAlg_ZeroVector(&DofData_P->b_MH_moving) ;
 	}
         if(Message::GetVerbosity() == 10)
           Message::Info("GenerateMHMovingSeparate : Step %d/%d (Time = %e  DTime %e)",
@@ -1999,7 +2018,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       } /* for iTime */
 
       LinAlg_AssembleMatrix(&DofData_P->A_MH_moving) ;
-      //LinAlg_AssembleVector(&DofData_P->b_MH_moving) ;
+      LinAlg_AssembleVector(&DofData_P->b_MH_moving) ;
 
       for (int k = 0; k < Current.NbrHar; k++) Free(MH_Moving_Matrix[k]) ;
       Free(MH_Moving_Matrix) ;
@@ -2014,10 +2033,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       LinAlg_CreateMatrix(&A_MH_moving_tmp, &DofData_P->Solver,
       			  DofData_P->NbrDof, DofData_P->NbrDof) ;
-      //LinAlg_CreateVector(&b_MH_moving_tmp, &DofData_P->Solver,
-      //                    Current.DofData->NbrDof) ;
+      LinAlg_CreateVector(&b_MH_moving_tmp, &DofData_P->Solver,
+                          Current.DofData->NbrDof) ;
       LinAlg_ZeroMatrix(&A_MH_moving_tmp) ;
-      //LinAlg_ZeroVector(&b_MH_moving_tmp) ;
+      LinAlg_ZeroVector(&b_MH_moving_tmp) ;
 
 
       nnz__=0;
@@ -2025,9 +2044,11 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	for (int k = 0; k < Current.NbrHar; k++) {
 	  row_old = Current.NbrHar*i+k ;
 	  row_new = NumDof_MH_moving[i]+k-1 ;
-	  //LinAlg_GetDoubleInVector(&d, &DofData_P->b_MH_moving,  row_old) ;
-          //LinAlg_SetDoubleInVector( d, &b_MH_moving_tmp, row_new) ;
-	  for (int j = 0; j < NbrDof_MH_moving; j++) {
+          //+++ Ruth (begin uncomment)
+          LinAlg_GetDoubleInVector(&d, &DofData_P->b_MH_moving,  row_old) ;
+          LinAlg_SetDoubleInVector( d, &b_MH_moving_tmp, row_new) ;
+          //+++ Ruth (end uncomment)
+          for (int j = 0; j < NbrDof_MH_moving; j++) {
 	    for (int l = 0; l < Current.NbrHar; l++) {
 	      col_old = Current.NbrHar*j+l ;
 	      col_new = NumDof_MH_moving[j]+l-1 ;
@@ -2055,12 +2076,15 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       }
 
       LinAlg_DestroyMatrix(&DofData_P->A_MH_moving);
-      //LinAlg_DestroyVector(&DofData_P->b_MH_moving);
+      LinAlg_DestroyVector(&DofData_P->b_MH_moving);
+
       DofData_P->A_MH_moving = A_MH_moving_tmp;
-      //DofData_P->b_MH_moving = b_MH_moving_tmp;
+      DofData_P->b_MH_moving = b_MH_moving_tmp;
 
       LinAlg_AssembleMatrix(&DofData_P->A_MH_moving);
-      //LinAlg_AssembleVector(&DofData_P->b_MH_moving);
+      LinAlg_AssembleVector(&DofData_P->b_MH_moving);
+
+      	/* LinAlg_PrintVector(stdout, &DofData_P->b_MH_moving); */
 
       Current.Time = Save_Time;
       Current.DTime = Save_DTime;
@@ -2074,17 +2098,11 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_DOFSFREQUENCYSPECTRUM :
       Dof_GetDummies(DefineSystem_P, DofData_P);
       Message::Info("DofsFrequencySpectrum... DummyDofs");
+
       // FIXME: Name is misleading
       // what is taken care of by this function is the Dofs linked to the harmonics that are not considered
       // in a particular region (e.g. when rotor and stator have different spectrum)
-      // dummy == DOFSNOTINFREQUENCYSPECTRUM
-      break ;
-
-    case OPERATION_ADDMHMOVING :
-      // LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A_MH_moving, &DofData_P->A) ;
-      // FIX TO CHECK: Old assembly for IterativeLoop done in A, now in Jac (keep it + addition of Jac?)
-      LinAlg_AddMatrixMatrix(&DofData_P->Jac, &DofData_P->A_MH_moving, &DofData_P->Jac) ;
-      Message::Info("AddMHMoving");
+      // dummydofs == DOFS_NOT_IN_FREQUENCYSPECTRUM_OF_QUANTITY
       break ;
 
       /*  -->  S a v e S o l u t i o n E x t e n d e d M H             */
