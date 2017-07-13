@@ -56,10 +56,15 @@
 #define MAX_STACK_SIZE0     8
 #define MAX_STACK_SIZE     40
 #else
-#define NBR_MAX_HARMONIC  202
+#define NBR_MAX_HARMONIC   80
 #define MAX_STACK_SIZE0     2
-#define MAX_STACK_SIZE    202
+#define MAX_STACK_SIZE     80
 #endif
+
+// Hereafter, values used for NL circuit + homog (a bit too much for other cases)
+// #define NBR_MAX_HARMONIC  202
+// #define MAX_STACK_SIZE0     2
+// #define MAX_STACK_SIZE    202
 
 
 struct Value {
