@@ -47,13 +47,25 @@
 // - MAX_STACK_SIZE controls the size of the stack used in the evaluation of
 // expressions ; keep this large enough by default to allow for complex expressions
 
+// - MAX_STACK_SIZE0 controls the size of the stack used in the evaluation of expressions;
+// equals 8 by default (tensors), reduced to 2 in multiharmonic case for allowing to go up
+// in the number of harmonics... Put back to 8 if you need tensors!
+
 #if !defined(HAVE_MULTIHARMONIC)
 #define NBR_MAX_HARMONIC    2
+#define MAX_STACK_SIZE0     8
+#define MAX_STACK_SIZE     40
 #else
-#define NBR_MAX_HARMONIC  100
+#define NBR_MAX_HARMONIC   40
+#define MAX_STACK_SIZE0     2
+#define MAX_STACK_SIZE     40
 #endif
 
-#define MAX_STACK_SIZE     40
+// Hereafter, values used for NL circuit + homog (a bit too much for other cases)
+// #define NBR_MAX_HARMONIC  202
+// #define MAX_STACK_SIZE0     2
+// #define MAX_STACK_SIZE    202
+
 
 struct Value {
   int     Type;

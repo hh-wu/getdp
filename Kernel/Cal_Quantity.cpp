@@ -346,7 +346,13 @@ void Cal_WholeQuantity(struct Element * Element,
 
   // we could make this dynamic (with std::vector) to reduce stack usage, but
   // the performance hit is important
-  struct Value Stack[8][MAX_STACK_SIZE] ;
+
+  // ==> forcing a reduced size of stack for MH case...
+  // MAX_STACK_SIZE0 = 8 by default, 2 for MH
+  // segmentation violation and out of memory with high number of harmonics
+  // MAX_STACK_SIZE at least MAX_HAR_SIZE if harmonic function in formulation term
+  struct Value Stack[MAX_STACK_SIZE0][MAX_STACK_SIZE] ;
+
 
   WholeQuantity_P0 = (struct WholeQuantity*)List_Pointer(WholeQuantity_L, 0) ;
 
@@ -356,7 +362,7 @@ void Cal_WholeQuantity(struct Element * Element,
   for (i_WQ = 0 ; i_WQ < List_Nbr(WholeQuantity_L) ; i_WQ++) {
 
     if(Index >= MAX_STACK_SIZE){
-      Message::Error("Stack size exceeded (%d)", MAX_STACK_SIZE);
+      Message::Error("Stack size exceeded (%d>%d)", Index, MAX_STACK_SIZE);
       return;
     }
 
