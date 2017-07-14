@@ -54,19 +54,40 @@ contour[] += newl; Line(newl) = {12,13};
 contour[] += newl; Circle(newl) = {13,2,1};
 llext=newll; Line Loop(llext) = { contour[] };
 
-c1 = 0.15*in;
-c2 = 2*in;
-c3 = 4.5*in;
-c4 = 0.10*in;
-Point(14) = {c2*Cos[theta]+c1*Sin[theta], -c2*Sin[theta]+c1*Cos[theta], 0, lc};
-Point(15) = {c3*Cos[theta]+c4*Sin[theta], -c3*Sin[theta]+c4*Cos[theta], 0, lc};
-Point(16) = {c3*Cos[theta]-c4*Sin[theta], -c3*Sin[theta]-c4*Cos[theta], 0, lc};
-Point(17) = {c2*Cos[theta]-c1*Sin[theta], -c2*Sin[theta]-c1*Cos[theta], 0, lc};
+d1 = 2*in;
+d2 = 5*in;
+r1 = 0.07*in;
+r2 = 0.17*in;
+thet1 = Atan2[d2-d1, r2-r1];
+thet2 = Pi-thet1;
 
-BSpline(13) = {14, 15, 16, 17, 14};
-llint=newll; Line Loop(llint) = {13};
+Point(14) = {d1*Cos[theta], -d1*Sin[theta], 0, lc};
+Point(15) = {(d1-r1)*Cos[theta], -(d1-r1)*Sin[theta], 0, lc};
+Point(16) = { d1*Cos[theta]+r1*Cos[thet1-theta], 
+	     -d1*Sin[theta]+r1*Sin[thet1-theta], 0, lc};
+Point(17) = { d1*Cos[theta]+r1*Cos[thet1+theta], 
+	     -d1*Sin[theta]-r1*Sin[thet1+theta], 0, lc};
+
+Point(18) = {d2*Cos[theta], -d2*Sin[theta], 0, lc};
+Point(19) = {(d2+r2)*Cos[theta], -(d2+r2)*Sin[theta], 0, lc};
+Point(20) = { d2*Cos[theta]+r2*Cos[thet2-theta], 
+	     -d2*Sin[theta]+r2*Sin[thet2-theta], 0, lc};
+Point(21) = { d2*Cos[theta]+r2*Cos[thet2+theta], 
+	     -d2*Sin[theta]-r2*Sin[thet2+theta], 0, lc};
+
+contour[] = {};
+contour[] += newl; Circle(newl) = {15,14,16};
+contour[] += newl; Line(newl) = {16,20};
+contour[] += newl; Circle(newl) = {20,18,19};
+contour[] += newl; Circle(newl) = {19,18,21};
+contour[] += newl; Line(newl) = {21,17}; 
+contour[] += newl; Circle(newl) = {17,14,15};
+
+llint=newll; Line Loop(llint) = { contour[] };
 
 wrench=news; Plane Surface(wrench) = {-llext, -llint}; 
+// contours are oriented "aire a droite"
+
 If(Recomb==1)
   Recombine Surface{wrench};
 EndIf
@@ -77,21 +98,13 @@ If(Model3D==0)
   Physical Line(3)= {cl2};
 EndIf
 
-Coherence;
-
 If(Model3D==1)
   Physical Surface(10)= wrench;
-//Extrude{0,0,0.01}{ Surface{wrench}; Recombine; Layers{3}; }
-Extrude{0,0,Thickness}{ Point{14 ... 17} ; }
-//Extrude{0,0,Thickness}{ Line{13} ; }
-Extrude{0,0,Thickness}{ Surface{wrench} ; }
-
-
-/*
+  //Extrude{0,0,0.01}{ Surface{wrench}; Recombine; Layers{3}; }
+  Extrude{0,0,Thickness}{ Surface{wrench} ; }
   Physical Volume(1) = 1;
-  Physical Surface(2) = {39,67};
-  Physical Surface(3) = 51;
-*/
+Physical Surface(2) = {52,80};
+  Physical Surface(3) = 68;
 EndIf
 
 
