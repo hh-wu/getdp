@@ -277,13 +277,14 @@ struct StringXPointer  Current_Value[] = {
 #if defined(HAVE_KERNEL)
   {"Time"     , &Current.Time},       {"DTime"     , &Current.DTime},
   {"Theta"    , &Current.Theta},      {"TimeStep"  , &Current.TimeStep},
-  {"Iteration", &Current.Iteration},  {"Iter"      , &Current.Iteration},
-  {"Residual" , &Current.Residual},
+  {"Iter"      , &Current.Iteration},
+  {"Iteration", &Current.Iteration},  {"NLIteration", &Current.Iteration},
+  {"Residual" , &Current.Residual},   {"NLResidual" , &Current.Residual},
   {"TimeImag" , &Current.TimeImag},   {"Eigenvalue", &Current.Time},
   {"EigenvalueReal" , &Current.Time}, {"EigenvalueImag" , &Current.TimeImag},
   {"ReOmega"  , &Current.Time},       {"ImOmega"   , &Current.TimeImag},
   {"wr"       , &Current.Time},       {"wi"        , &Current.TimeImag},
-  {"Breakpoint" , &Current.Breakpoint},
+  {"Breakpoint", &Current.Breakpoint},
 
   {"X"  , &Current.x}, {"Y"  , &Current.y},  {"Z"  , &Current.z},
   {"XS" , &Current.xs},{"YS" , &Current.ys}, {"ZS" , &Current.zs},
@@ -301,7 +302,9 @@ struct StringXPointer  Current_Value[] = {
   {"QuadraturePointIndex",  &Current.QuadraturePointIndex},
   {"QP",                    &Current.QuadraturePointIndex},
 
-  {"KSPIts", &Current.KSPIts},
+  {"KSPIterations", &Current.KSPIterations}, {"KSPIts", &Current.KSPIterations},
+  {"KSPIteration", &Current.KSPIteration},
+  {"KSPResidual", &Current.KSPResidual},
 #endif
   {NULL       , NULL}
 } ;
@@ -1116,6 +1119,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"CurrentPerfectlyConductingSphereMwt",(CAST)F_CurrentPerfectlyConductingSphereMwt,  3, 1 },
 
   {"AcousticFieldSoftSphere",         (CAST)F_AcousticFieldSoftSphere,  2, 1 },
+  {"AcousticFieldSoftSphereABC",      (CAST)F_AcousticFieldSoftSphereABC, 5, 1 },
   {"DrAcousticFieldSoftSphere",       (CAST)F_DrAcousticFieldSoftSphere, 2, 1 },
   {"RCSSoftSphere",                   (CAST)F_RCSSoftSphere,  2, 1 },
   {"AcousticFieldHardSphere",         (CAST)F_AcousticFieldHardSphere,  2, 1 },

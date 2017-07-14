@@ -771,8 +771,6 @@ static void _polynomialEVP(struct DofData * DofData_P, int numEigenValues,
 
 #endif
 
-#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 7)
-
 static PetscErrorCode _myNepMonitor(NEP nep, int its, int nconv, PetscScalar *eigr,
                                     PetscScalar *eigi, PetscReal* errest, int nest,
                                     void *mctx)
@@ -781,30 +779,19 @@ static PetscErrorCode _myNepMonitor(NEP nep, int its, int nconv, PetscScalar *ei
 }
 
 static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
-                           double shift_r, double shift_i, int filterExpressionIndex,
-                           double *RationalCoefs1Num, double *RationalCoefs1Den,
-                           double *RationalCoefs2Num, double *RationalCoefs2Den,
-                           double *RationalCoefs3Num, double *RationalCoefs3Den,
-                           double *RationalCoefs4Num, double *RationalCoefs4Den,
-                           double *RationalCoefs5Num, double *RationalCoefs5Den,
-                           double *RationalCoefs6Num, double *RationalCoefs6Den,
-                           int *CoefsSizes)
+                          double shift_r, double shift_i, int filterExpressionIndex,
+                          List_T *RationalCoefsNum, List_T *RationalCoefsDen)
 {
+#if (PETSC_VERSION_RELEASE != 0)
+  Message::Error("You need PETSc/SLEPc dev for nonlinear EVP support!");
+#else
   NEP nep;
   NEPType type;
   int max_Nchar = 1000;
   char str_coefsNum[6][max_Nchar];
   char str_coefsDen[6][max_Nchar];
   char str_buff[50];
-  PetscScalar **tabCoefsNum;
-  PetscScalar **tabCoefsDen;
-  tabCoefsNum = (PetscScalar **)Malloc(6 * sizeof(PetscScalar *));
-  tabCoefsDen = (PetscScalar **)Malloc(6 * sizeof(PetscScalar *));
-  for(int i=0;i<6;i++){
-    tabCoefsNum[i]=(PetscScalar *)Malloc(CoefsSizes[i]   * sizeof(PetscScalar));
-    tabCoefsDen[i]=(PetscScalar *)Malloc(CoefsSizes[i+6] * sizeof(PetscScalar));
-  }
-  int NumOperators=2;
+  int NumOperators = 2;
 #if defined(PETSC_USE_COMPLEX)
   PetscScalar shift = shift_r + PETSC_i * shift_i;
 #else
@@ -812,72 +799,82 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
   PetscScalar shift = shift_r;
 #endif
 
-  for(int i=0; i<CoefsSizes[0] ; i++){tabCoefsNum[0][i] = RationalCoefs1Num[i];}
-  for(int i=0; i<CoefsSizes[1] ; i++){tabCoefsNum[1][i] = RationalCoefs2Num[i];}
-  for(int i=0; i<CoefsSizes[2] ; i++){tabCoefsNum[2][i] = RationalCoefs3Num[i];}
-  for(int i=0; i<CoefsSizes[3] ; i++){tabCoefsNum[3][i] = RationalCoefs4Num[i];}
-  for(int i=0; i<CoefsSizes[4] ; i++){tabCoefsNum[4][i] = RationalCoefs5Num[i];}
-  for(int i=0; i<CoefsSizes[5] ; i++){tabCoefsNum[5][i] = RationalCoefs6Num[i];}
-  for(int i=0; i<CoefsSizes[6] ; i++){tabCoefsDen[0][i] = RationalCoefs1Den[i];}
-  for(int i=0; i<CoefsSizes[7] ; i++){tabCoefsDen[1][i] = RationalCoefs2Den[i];}
-  for(int i=0; i<CoefsSizes[8] ; i++){tabCoefsDen[2][i] = RationalCoefs3Den[i];}
-  for(int i=0; i<CoefsSizes[9] ; i++){tabCoefsDen[3][i] = RationalCoefs4Den[i];}
-  for(int i=0; i<CoefsSizes[10]; i++){tabCoefsDen[4][i] = RationalCoefs5Den[i];}
-  for(int i=0; i<CoefsSizes[11]; i++){tabCoefsDen[5][i] = RationalCoefs6Den[i];}
+  if(List_Nbr(RationalCoefsNum) > 6 || List_Nbr(RationalCoefsDen) > 6){
+    Message::Error("Too many rational terms in nonlinear eigenvalue problem (max = 6)");
+    return;
+  }
+
+  std::vector<PetscScalar> tabCoefsNum[6], tabCoefsDen[6];
+  for(int i = 0; i < List_Nbr(RationalCoefsNum); i++){
+    List_T *coefs;
+    List_Read(RationalCoefsNum, i, &coefs);
+    for(int j = 0; j < List_Nbr(coefs); j++){
+      double c; List_Read(coefs, j, &c);
+      tabCoefsNum[i].push_back(c);
+    }
+  }
+  for(int i = 0; i < List_Nbr(RationalCoefsDen); i++){
+    List_T *coefs;
+    List_Read(RationalCoefsDen, i, &coefs);
+    for(int j = 0; j < List_Nbr(coefs); j++){
+      double c; List_Read(coefs, j, &c);
+      tabCoefsDen[i].push_back(c);
+    }
+  }
 
   _try(NEPCreate(PETSC_COMM_WORLD, &nep));
 
   // NLEig1Dof and NLEig2Dof
   if(DofData_P->Flag_Init[7] &&  DofData_P->Flag_Init[6] &&
-       !DofData_P->Flag_Init[5] && !DofData_P->Flag_Init[4] &&
-         !DofData_P->Flag_Init[3] && !DofData_P->Flag_Init[2]){
+     !DofData_P->Flag_Init[5] && !DofData_P->Flag_Init[4] &&
+     !DofData_P->Flag_Init[3] && !DofData_P->Flag_Init[2]){
     NumOperators = 2;
     Mat A[2] = {DofData_P->M7.M, DofData_P->M6.M};
     FN funs[2];
     for(int i=0;i<2;i++){
-      _try(FNCreate(PETSC_COMM_WORLD,&funs[i]));
-      _try(FNSetType(funs[i],FNRATIONAL));
-      _try(FNRationalSetNumerator(funs[i],CoefsSizes[i],tabCoefsNum[i]));
-      _try(FNRationalSetDenominator(funs[i],CoefsSizes[i+6],tabCoefsDen[i]));
+      _try(FNCreate(PETSC_COMM_WORLD, &funs[i]));
+      _try(FNSetType(funs[i], FNRATIONAL));
+      _try(FNRationalSetNumerator(funs[i], tabCoefsNum[i].size(), &tabCoefsNum[i][0]));
+      _try(FNRationalSetDenominator(funs[i], tabCoefsDen[i].size(), &tabCoefsDen[i][0]));
     }
     _try(NEPSetSplitOperator(nep,2,A,funs,SUBSET_NONZERO_PATTERN));
   }
   // NLEig1Dof, NLEig2Dof and  NLEig3Dof
   else if(DofData_P->Flag_Init[7] &&  DofData_P->Flag_Init[6] &&
-            DofData_P->Flag_Init[5] && !DofData_P->Flag_Init[4] &&
-              !DofData_P->Flag_Init[3] && !DofData_P->Flag_Init[2]){
+          DofData_P->Flag_Init[5] && !DofData_P->Flag_Init[4] &&
+          !DofData_P->Flag_Init[3] && !DofData_P->Flag_Init[2]){
     NumOperators = 3;
     Mat A[3] = {DofData_P->M7.M, DofData_P->M6.M, DofData_P->M5.M};
     FN funs[3];
     for(int i=0;i<3;i++){
       _try(FNCreate(PETSC_COMM_WORLD,&funs[i]));
       _try(FNSetType(funs[i],FNRATIONAL));
-      _try(FNRationalSetNumerator(funs[i],CoefsSizes[i],tabCoefsNum[i]));
-      _try(FNRationalSetDenominator(funs[i],CoefsSizes[i+6],tabCoefsDen[i]));
+      _try(FNRationalSetNumerator(funs[i], tabCoefsNum[i].size(), &tabCoefsNum[i][0]));
+      _try(FNRationalSetDenominator(funs[i], tabCoefsDen[i].size(), &tabCoefsDen[i][0]));
     }
     _try(NEPSetSplitOperator(nep,3,A,funs,SUBSET_NONZERO_PATTERN));
   }
   // NLEig1Dof, NLEig2Dof, NLEig3Dof and NLEig4Dof
   else if(DofData_P->Flag_Init[7] &&  DofData_P->Flag_Init[6] &&
-            DofData_P->Flag_Init[5] && DofData_P->Flag_Init[4] &&
-              !DofData_P->Flag_Init[3] && !DofData_P->Flag_Init[2]){
+          DofData_P->Flag_Init[5] && DofData_P->Flag_Init[4] &&
+          !DofData_P->Flag_Init[3] && !DofData_P->Flag_Init[2]){
     NumOperators = 4;
     Mat A[4] = {DofData_P->M7.M, DofData_P->M6.M, DofData_P->M5.M,
-                DofData_P->M4.M, };
+                DofData_P->M4.M};
     FN funs[4];
     for(int i=0;i<4;i++){
       _try(FNCreate(PETSC_COMM_WORLD,&funs[i]));
       _try(FNSetType(funs[i],FNRATIONAL));
-      _try(FNRationalSetNumerator(funs[i],CoefsSizes[i],tabCoefsNum[i]));
-      _try(FNRationalSetDenominator(funs[i],CoefsSizes[i+6],tabCoefsDen[i]));
+      _try(FNRationalSetNumerator(funs[i], tabCoefsNum[i].size(), &tabCoefsNum[i][0]));
+      _try(FNRationalSetDenominator(funs[i], tabCoefsDen[i].size(), &tabCoefsDen[i][0]));
     }
     _try(NEPSetSplitOperator(nep,4,A,funs,SUBSET_NONZERO_PATTERN));
   }
 
   // NLEig1Dof, NLEig2Dof, NLEig3Dof, NLEig4Dof and NLEig5Dof
   else if(DofData_P->Flag_Init[7] &&  DofData_P->Flag_Init[6] &&
-            DofData_P->Flag_Init[5] &&  DofData_P->Flag_Init[4] &&
-              DofData_P->Flag_Init[3] && !DofData_P->Flag_Init[2]){
+          DofData_P->Flag_Init[5] &&  DofData_P->Flag_Init[4] &&
+          DofData_P->Flag_Init[3] && !DofData_P->Flag_Init[2]){
     NumOperators = 5;
     Mat A[5] = {DofData_P->M7.M, DofData_P->M6.M, DofData_P->M5.M,
                 DofData_P->M4.M, DofData_P->M3.M};
@@ -885,16 +882,16 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
     for(int i=0;i<5;i++){
       _try(FNCreate(PETSC_COMM_WORLD,&funs[i]));
       _try(FNSetType(funs[i],FNRATIONAL));
-      _try(FNRationalSetNumerator(funs[i],CoefsSizes[i],tabCoefsNum[i]));
-      _try(FNRationalSetDenominator(funs[i],CoefsSizes[i+6],tabCoefsDen[i]));
+      _try(FNRationalSetNumerator(funs[i], tabCoefsNum[i].size(), &tabCoefsNum[i][0]));
+      _try(FNRationalSetDenominator(funs[i], tabCoefsDen[i].size(), &tabCoefsDen[i][0]));
     }
     _try(NEPSetSplitOperator(nep,5,A,funs,SUBSET_NONZERO_PATTERN));
   }
 
   // NLEig1Dof, NLEig2Dof, NLEig3Dof, NLEig4Dof, NLEig5Dof and NLEig6Dof
-  else if(DofData_P->Flag_Init[7] &&  DofData_P->Flag_Init[6] &&
-            DofData_P->Flag_Init[5] &&  DofData_P->Flag_Init[4] &&
-              DofData_P->Flag_Init[3] &&  DofData_P->Flag_Init[2]){
+  else if(DofData_P->Flag_Init[7] && DofData_P->Flag_Init[6] &&
+          DofData_P->Flag_Init[5] && DofData_P->Flag_Init[4] &&
+          DofData_P->Flag_Init[3] && DofData_P->Flag_Init[2]){
     NumOperators = 6;
     Mat A[6] = {DofData_P->M7.M, DofData_P->M6.M, DofData_P->M5.M,
                 DofData_P->M4.M, DofData_P->M3.M, DofData_P->M2.M};
@@ -902,8 +899,8 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
     for(int i=0;i<6;i++){
       _try(FNCreate(PETSC_COMM_WORLD,&funs[i]));
       _try(FNSetType(funs[i],FNRATIONAL));
-      _try(FNRationalSetNumerator(funs[i],CoefsSizes[i],tabCoefsNum[i]));
-      _try(FNRationalSetDenominator(funs[i],CoefsSizes[i+6],tabCoefsDen[i]));
+      _try(FNRationalSetNumerator(funs[i], tabCoefsNum[i].size(), &tabCoefsNum[i][0]));
+      _try(FNRationalSetDenominator(funs[i], tabCoefsDen[i].size(), &tabCoefsDen[i][0]));
     }
     _try(NEPSetSplitOperator(nep,6,A,funs,SUBSET_NONZERO_PATTERN));
   }
@@ -912,27 +909,27 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
   }
 
   Message::Info("Solving non-linear eigenvalue problem using slepc NEP");
-  Message::Info("Number of Operators %d - Setting %d Rational functions :"
-                ,NumOperators,NumOperators);
-  for(int k=0;k<NumOperators;k++){
-    sprintf(str_coefsNum[k],"num%d(iw)=",k+1);
-    sprintf(str_coefsDen[k],"den%d(iw)=",k+1);
-    for(int i=0; i<CoefsSizes[k]-1; i++){
+  Message::Info("Number of Operators %d - Setting %d Rational functions :",
+                NumOperators, NumOperators);
+  for(int k = 0; k < NumOperators; k++){
+    sprintf(str_coefsNum[k],"num%d(iw)=", k + 1);
+    sprintf(str_coefsDen[k],"den%d(iw)=", k + 1);
+    for(unsigned int i = 0; i < tabCoefsNum[k].size() - 1; i++){
       sprintf(str_buff," (%+.2e)*(iw)^%d +",
-              PetscRealPart(tabCoefsNum[k][i]),(CoefsSizes[k]-1-i));
+              PetscRealPart(tabCoefsNum[k][i]), (tabCoefsNum[k].size()-1-i));
       strcat(str_coefsNum[k],str_buff);
     }
     sprintf(str_buff," (%+.2e)",
-            PetscRealPart(tabCoefsNum[k][CoefsSizes[k]-1]));
+            PetscRealPart(tabCoefsNum[k][tabCoefsNum[k].size()-1]));
     strcat(str_coefsNum[k],str_buff);
-    for(int i=0; i<CoefsSizes[k+6]-1; i++){
+    for(unsigned int i = 0; i < tabCoefsDen[k].size() - 1; i++){
       sprintf(str_buff," (%+.2e)*(iw)^%d +",
-              PetscRealPart(tabCoefsDen[k][i]),(CoefsSizes[k+6]-1-i));
+              PetscRealPart(tabCoefsDen[k][i]), (tabCoefsDen[k].size()-1-i));
       strcat(str_coefsDen[k],str_buff);
     }
     sprintf(str_buff," (%+.2e)",
-            PetscRealPart(tabCoefsDen[k][CoefsSizes[k+6]-1]));
-    strcat(str_coefsDen[k],str_buff);
+            PetscRealPart(tabCoefsDen[k][tabCoefsDen[k].size() - 1]));
+    strcat(str_coefsDen[k], str_buff);
     Message::Info(str_coefsNum[k]);
     Message::Info(str_coefsDen[k]);
   }
@@ -986,22 +983,12 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
   _storeEigenVectors(DofData_P, nconv, PETSC_NULL, PETSC_NULL, nep, filterExpressionIndex);
 
   _try(NEPDestroy(&nep));
-  for(int i=0;i<6;i++){Free(tabCoefsNum[i]);Free(tabCoefsDen[i]);}
-  Free(tabCoefsNum);
-  Free(tabCoefsDen);
+#endif
 }
 
-#endif
-
 void EigenSolve_SLEPC(struct DofData * DofData_P, int numEigenValues,
-                  double shift_r, double shift_i, int FilterExpressionIndex,
-                  double *RationalCoefs1Num, double *RationalCoefs1Den,
-                  double *RationalCoefs2Num, double *RationalCoefs2Den,
-                  double *RationalCoefs3Num, double *RationalCoefs3Den,
-                  double *RationalCoefs4Num, double *RationalCoefs4Den,
-                  double *RationalCoefs5Num, double *RationalCoefs5Den,
-                  double *RationalCoefs6Num, double *RationalCoefs6Den,
-                  int *CoefsSizes)
+                      double shift_r, double shift_i, int FilterExpressionIndex,
+                      List_T *RationalCoefsNum, List_T *RationalCoefsDen)
 {
   // Warn if we are not in harmonic regime (we won't be able to compute/store
   // complex eigenvectors).
@@ -1045,24 +1032,12 @@ void EigenSolve_SLEPC(struct DofData * DofData_P, int numEigenValues,
     }
   }
   else{
-#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 7)
-      Message::Error("Please upgrade to slepc >= 3.7 for non-linear EVP support!");
-      return;
-#else
 #if defined(PETSC_USE_COMPLEX)
-      Message::Warning("Experimental : Non-linear EVP for real coefficients rational function!");
-      _nonlinearEVP(DofData_P, numEigenValues, shift_r, shift_i,
-                    FilterExpressionIndex,
-                    RationalCoefs1Num, RationalCoefs1Den,
-                    RationalCoefs2Num, RationalCoefs2Den,
-                    RationalCoefs3Num, RationalCoefs3Den,
-                    RationalCoefs4Num, RationalCoefs4Den,
-                    RationalCoefs5Num, RationalCoefs5Den,
-                    RationalCoefs6Num, RationalCoefs6Den,
-                    CoefsSizes);
+    Message::Warning("Experimental: Non-linear EVP for real coefficients rational function!");
+    _nonlinearEVP(DofData_P, numEigenValues, shift_r, shift_i,
+                  FilterExpressionIndex, RationalCoefsNum, RationalCoefsDen);
 #else
-      Message::Error("Please compile Petsc/Slepc with complex arithmetic for non linear EVP support!");
-#endif
+    Message::Error("Please compile Petsc/Slepc with complex arithmetic for non linear EVP support!");
 #endif
   }
 }

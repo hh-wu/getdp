@@ -36,6 +36,7 @@ void  F_ExactOsrcSolutionPerfectlyConductingSphereMwt(F_ARG);
 void  F_CurrentPerfectlyConductingSphereMwt(F_ARG);
 
 void  F_AcousticFieldSoftSphere(F_ARG) ;
+void  F_AcousticFieldSoftSphereABC(F_ARG) ;
 void  F_DrAcousticFieldSoftSphere(F_ARG) ;
 void  F_RCSSoftSphere(F_ARG) ;
 void  F_AcousticFieldHardSphere(F_ARG) ;

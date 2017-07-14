@@ -57,6 +57,7 @@ class Message {
   static int GetIsCommWorld(){return _isCommWorld; }
   static void SetIsCommWorld(int val){ _isCommWorld = val; }
   static int GetNumThreads();
+  static void SetNumThreads(int num);
   static int GetMaxThreads();
   static int GetThreadNum();
   static void SetVerbosity(int val){ _verbosity = val; }

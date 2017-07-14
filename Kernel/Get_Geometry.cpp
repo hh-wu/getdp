@@ -500,8 +500,54 @@ double Transformation(int Dim, int Type, struct Element * Element, MATRIX3x3 * J
   if(L) B = (B*B-A*A*L)/(B-A*L);
 
   if(Type == JACOBIAN_VOL_UNI_DIR_SHELL){
-    Message::Warning("Let's go Loic!");
-    DetJac = 1;
+
+	/* R is the distance from the plane whose normal vector is parallel to the 
+	axis and which contains the origin (0,0,0) */
+	
+    switch(Axis) {
+      case 1: R = fabs(X);  break;
+      case 2: R = fabs(Y);  break;
+      case 3: R = fabs(Z);  break;
+      default: Message::Error("Bad axis specification: 1 for X, 2 for Y and 3 for Z");
+      }
+	  
+	  if ( (fabs(R) > fabs(B) + 1.e-2*fabs(B)) || 
+	       (fabs(R) < fabs(A) - 1.e-2*fabs(A)) ){
+      Message::Error("Bad parameters for unidirectional transformation Jacobian:" "Rint=%g, Rext=%g, R=%g", A, B, R);
+    }
+	
+	 if (B == R) {
+      Jac->c11 = 1.; Jac->c12 = 0.; Jac->c13 = 0.;
+      Jac->c21 = 0.; Jac->c22 = 1.; Jac->c23 = 0.;
+      Jac->c31 = 0.; Jac->c32 = 0.; Jac->c33 = 1.;
+      return(1.);
+    }
+	
+	f     = power((A*(B-A))/(R*(B-R)), p);
+    theta = p * (B-2.*R) / (B-R);
+	
+	switch(Axis) {
+      case 1: 	Jac->c11 = f * (1.0 - theta) ; Jac->c12 = 0.0 ; Jac->c13 = 0.0 ;
+		Jac->c21 = 0.0 ;               Jac->c22 = 1.0 ; Jac->c23 = 0.0 ;
+		Jac->c31 = 0.0 ;               Jac->c32 = 0.0 ; Jac->c33 = 1.0 ;
+				
+		DetJac =  f * (1.0 - theta) ;
+	  break;
+	  
+      case 2: 	Jac->c11 = 1.0 ; Jac->c12 = 0.0 ;               Jac->c13 = 0.0 ;
+		Jac->c21 = 0.0 ; Jac->c22 = f * (1.0 - theta) ; Jac->c23 = 0.0 ;
+		Jac->c31 = 0.0 ; Jac->c32 = 0.0 ;               Jac->c33 = 1.0 ;
+				
+		DetJac =  f * (1.0 - theta) ;
+	  break;
+	  
+      case 3: 	Jac->c11 = 1.0 ; Jac->c12 = 0.0 ; Jac->c13 = 0.0 ;
+		Jac->c21 = 0.0 ; Jac->c22 = 1.0 ; Jac->c23 = 0.0 ;
+		Jac->c31 = 0.0 ; Jac->c32 = 0.0 ; Jac->c33 = f * (1.0 - theta) ;
+				
+		DetJac =  f * (1.0 - theta) ;
+	  break;
+      }
   }
   else{
     if(Type == JACOBIAN_SPH){
@@ -1012,21 +1058,19 @@ double  JacobianVolUniDirShell3D(struct Element * Element, MATRIX3x3 * Jac)
 /*  J a c o b i a n S u r                                                   */
 /* ------------------------------------------------------------------------ */
 
-void prodve(double a[3], double b[3], double c[3])
+static void prodve(double a[3], double b[3], double c[3])
 {
   c[2] = a[0] * b[1] - a[1] * b[0];
   c[1] = -a[0] * b[2] + a[2] * b[0];
   c[0] = a[1] * b[2] - a[2] * b[1];
 }
-void prosca(double a[3], double b[3], double *c)
-{
-  *c = a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-}
-double norm3(double a[3])
+
+static double norm3(double a[3])
 {
   return sqrt(a[0] * a[0] + a[1] * a[1] + a[2] * a[2]);
 }
-double norme(double a[3])
+
+static double norme(double a[3])
 {
   const double mod = norm3(a);
   if(mod != 0.0){

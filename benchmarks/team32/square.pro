@@ -33,7 +33,7 @@ getdp square.pro -solve Analysis -pos Get_AllTS
 // change in square_data.geo:
 // Flag_LiveLocalPostOp_00 = 1 
 // (or Flag_LiveGlobalPostOp_00 = 1; (not useful for square case))
-// Equivalent to Check the box "Real Time visu LocalPostOp" in the GUI
+// Equivalent to Check the box "Real Time visu *PostOp" in the GUI
 
 // If these Flags are set to 1, launching this:
 getdp square.pro -solve Analysis 
@@ -121,13 +121,13 @@ Function {
   EndIf
 
   // With hysteresis: Damped start necessary
-  Trelax = 1/Freq/8;
+  Trelax = 1/Freq/4;
   Frelax[] = ($Time < Trelax) ? 0.5 * (1. - Cos [Pi*$Time/Trelax] ) : 1. ;
 
-  hx[] = Frelax[] * (  hax     * Cos[2*Pi*Freq*$Time]
+  hx[] = Frelax[] * (  hax     * Cos[2*Pi*Freq    *$Time]
                      + haharmx * Cos[2*Pi*freqharm*$Time]) ;
   hy[] = Frelax[] * (  hay0 
-                     + hay     * (Cos[phase]*Cos[2*Pi*Freq*$Time] + Sin[phase]*Sin[2*Pi*Freq*$Time])
+                     + hay     * (Cos[phase]*Cos[2*Pi*Freq    *$Time] + Sin[phase]*Sin[2*Pi*Freq    *$Time])
                      + haharmy * (Cos[phase]*Cos[2*Pi*freqharm*$Time] + Sin[phase]*Sin[2*Pi*freqharm*$Time]) );
 /*
   hx[] = Frelax[] * (  hax     * Complex_MH[1,0]{Freq} 

@@ -219,7 +219,9 @@ static void setwbuf(int i, const char *f)
 
 FILE *FOpen(const char *f, const char *mode)
 {
-#if defined (WIN32) && !defined(__CYGWIN__)
+#if defined(HAVE_NX) && !defined(__APPLE__)
+  return fopen64(f, mode);
+#elif defined (WIN32) && !defined(__CYGWIN__)
   setwbuf(0, f);
   setwbuf(1, mode);
   return _wfopen(wbuf[0], wbuf[1]);

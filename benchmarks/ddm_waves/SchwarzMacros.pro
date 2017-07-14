@@ -46,6 +46,19 @@ For ii In {0: #ListOfSubdomains()-1}
   ];
 EndFor
 
+Macro Init
+//Reset variables.
+For ii In {0: #ListOfSubdomains()-1}
+  idom = ListOfSubdomains(ii);
+  GenerateVolFlag~{idom} = 0;
+  GenerateSurFlag~{idom}~{0} = 0 ;
+  GenerateSurFlag~{idom}~{1} = 0;
+  GenerateSurPcFlag~{idom}~{0} = 0 ;
+  GenerateSurPcFlag~{idom}~{1} = 0 ;
+EndFor
+Return
+
+
 Macro PrintInfo
   If (MPI_Rank == 0)
     Printf[StrCat["Starting ", StrChoice[ANALYSIS == 0, "Helmholtz",

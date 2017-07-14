@@ -1534,8 +1534,10 @@ Number of the current time step in a time stepping algorithm.
 In case of a breakpoint hit in TimeLoopAdaptive it is the number of the
 current breakpoint. In the other case when $Time corresponds not to a
 breakpoint the value is -1.
-@item $Iteration
-Number of the current iteration in a nonlinear loop.
+@item $Iteration, $NLIteration
+Current iteration in a nonlinear loop.
+@item $Residual, $NLResidual
+Current residual in a nonlinear loop.
 @item $EigenvalueReal
 Real part of the current eigenvalue.
 @item $EigenvalueImag
@@ -1549,6 +1551,14 @@ Value of the current (destination or source) Z-coordinate.
 @item $A, $B, $C
 Value of the current parametric coordinates used in the parametric
 @code{OnGrid} @code{PostOperation} (@pxref{Types for PostOperation}).
+@item $QuadraturePointIndex
+Index of the current quadrature point.
+@item $KSPIteration
+Current iteration in a Krylov subspace solver.
+@item $KSPResidual
+Current residual in a Krylov subspace solver.
+@item $KSPIterations
+Total number of iterations of Krylov subspace solver.
 @end table
 
 @noindent Note:

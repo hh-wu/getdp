@@ -173,15 +173,10 @@ DtDtDof                      return tDtDtDof;
 DtDtDtDof                    return tDtDtDtDof;
 DtDtDtDtDof                  return tDtDtDtDtDof;
 DtDtDtDtDtDof                return tDtDtDtDtDtDof;
-NLEig1Dof                    return tNLEig1Dof; /*nleigchange */
-NLEig2Dof                    return tNLEig2Dof; /*nleigchange */
-NLEig3Dof                    return tNLEig3Dof; /*nleigchange */
-NLEig4Dof                    return tNLEig4Dof; /*nleigchange */
-NLEig5Dof                    return tNLEig5Dof; /*nleigchange */
-NLEig6Dof                    return tNLEig6Dof; /*nleigchange */
 DtNL                         return tDtNL;
 
 Echo                         return tEcho;
+Eig                          return tEig;
 EigenSolve                   return tEigenSolve;
 EigenSolveJac                return tEigenSolveJac;
 EigenvalueLegend             return tEigenvalueLegend;
@@ -366,6 +361,7 @@ Printf                       return tPrintf;
 Quantity                     return tQuantity;
 
 Rand                         return tRand;
+Rational                     return tRational;
 Read                         return tRead;
 Region                       return tRegion;
 RegionRef                    return tRegionRef;

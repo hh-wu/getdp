@@ -383,6 +383,7 @@ Formulation {
   { Name MagStaDyn_a_3D ; Type FemEquation ;
     Quantity {
       { Name a  ; Type Local ; NameOfSpace Hcurl_a_3D ; }
+      { Name ap  ; Type Local ; NameOfSpace Hcurl_a_3D ; } // "ap = aprime usefull to avoid auto-symmetrization of JacNL tensor with getdp"
 
       { Name v  ; Type Local ; NameOfSpace Hregion_u_3D ; } //Massive conductor
       { Name U  ; Type Global ; NameOfSpace Hregion_u_3D [U] ; }
@@ -413,7 +414,7 @@ Formulation {
         Galerkin { [ nu[{d a}] * Dof{d a} , {d a} ] ;
           In Domain ; Jacobian Vol ; Integration II ; }
         If(Flag_NLRes!=NLRES_ITERATIVELOOPPRO)
-          Galerkin { JacNL [ dhdb_NL[{d a}] * Dof{d a} , {d a} ] ;
+          Galerkin { JacNL [ dhdb_NL[{d a}] * Dof{d a} , {d ap} ] ;
             In DomainNL ; Jacobian Vol ; Integration II ; }
         Else
           Galerkin { [ (1/$relax)  *  (SetVariable[(dhdb_NL[{d a}]), 
@@ -447,7 +448,7 @@ Formulation {
         If(Flag_NLRes!=NLRES_ITERATIVELOOPPRO)
           Galerkin { JacNL[ dhdb_Jiles[{h}       , 
                                        {d a}     , 
-                                       {h}-{h}[1] ]{List[hyst_FeSi]} * Dof{d a} , {d a} ] ;
+                                       {h}-{h}[1] ]{List[hyst_FeSi]} * Dof{d a} , {d ap} ] ;
             In DomainNL ; Jacobian Vol ; Integration II ; }
         Else
           Galerkin { [ (1/$relax)  * (SetVariable[(dhdb_Jiles[{h}       , 
@@ -502,7 +503,7 @@ Formulation {
           Galerkin { JacNL[ (dhdb_Vinch_K[ (GetVariable[ QuadraturePointIndex[]]{$h_Vinch_temp}),
                                             {J_1},{J_1}[1], 
                                             {J_2},{J_2}[1], 
-                                            {J_3},{J_3}[1]]{List[param_EnergHyst]}) * Dof{d a} , {d a} ] ;  
+                                            {J_3},{J_3}[1]]{List[param_EnergHyst]}) * Dof{d a} , {d ap} ] ;  
             In DomainNL  ; Jacobian Vol ; Integration II1p ; } // Integration with II1p or II ???
         Else
           Galerkin { [ (1/$relax) * (SetVariable[(dhdb_Vinch_K[ (GetVariable[ QuadraturePointIndex[]]{$h_Vinch_temp}),

@@ -56,9 +56,9 @@
 #define MAX_STACK_SIZE0     8
 #define MAX_STACK_SIZE     40
 #else
-#define NBR_MAX_HARMONIC   80
+#define NBR_MAX_HARMONIC   40
 #define MAX_STACK_SIZE0     2
-#define MAX_STACK_SIZE     80
+#define MAX_STACK_SIZE     40
 #endif
 
 // Hereafter, values used for NL circuit + homog (a bit too much for other cases)
@@ -745,16 +745,13 @@ struct GlobalEquationTerm {
 #define NEVERDT_       11
 #define DTNL_          12
 #define DTDOFJACNL_    13
-
-// nleigchange
+#define EIG_           14
 #define NLEIG1DOF_     20
 #define NLEIG2DOF_     21
 #define NLEIG3DOF_     22
 #define NLEIG4DOF_     23
 #define NLEIG5DOF_     24
 #define NLEIG6DOF_     25
-
-
 
 /* Term.TypeOperator */
 #define NOOP       0
@@ -1014,19 +1011,7 @@ struct Operation {
       int     NumEigenvalues;
       double  Shift_r, Shift_i;
       int     FilterExpressionIndex;
-      double *RationalCoefs1Num;
-      double *RationalCoefs1Den;
-      double *RationalCoefs2Num;
-      double *RationalCoefs2Den;
-      double *RationalCoefs3Num;
-      double *RationalCoefs3Den;
-      double *RationalCoefs4Num;
-      double *RationalCoefs4Den;
-      double *RationalCoefs5Num;
-      double *RationalCoefs5Den;
-      double *RationalCoefs6Num;
-      double *RationalCoefs6Den;
-      int CoefsSizes[12];
+      List_T *RationalCoefsNum, *RationalCoefsDen;
     } EigenSolve;
     struct {
       List_T  *Expressions;
@@ -1602,7 +1587,7 @@ struct CurrentData {
   double  RelaxationFactor, Residual;
 
   // Iterative linear system solvers
-  double  KSPIts;
+  double  KSPIterations, KSPIteration, KSPResidual;
 };
 
 /* ------------------------------------------------------------------------ */

@@ -1,0 +1,8 @@
+ubuntu16.04:
+  image : onelab/ubuntu16.04
+  script:
+    - mkdir build
+    - cd build
+    - cmake ..
+    - make -j 4
+    - ctest --output-on-failure

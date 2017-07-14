@@ -414,10 +414,11 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
       }
     }
     else {
-      if((PostStream = FOpen(PostFileName, Flag_BIN ? "ab" : "a")))
-	Message::Direct(4, "          >> '%s'", PostFileName) ;
+      if((PostStream = FOpen(PostFileName,
+                             Flag_BIN ? (FORMAT_NXUNV ? "r+b" : "ab") : "a")))
+        Message::Direct(4, "          >> '%s'", PostFileName) ;
       else{
-	Message::Error("Unable to open file '%s'", PostFileName) ;
+        Message::Error("Unable to open file '%s'", PostFileName) ;
         PostStream = stdout ;
       }
     }
