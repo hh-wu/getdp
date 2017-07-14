@@ -810,8 +810,8 @@ void Cal_AssembleTerm_MHMoving(struct Dof * Equ, struct Dof * Dof, double Val[])
       for (int l = 0 ; l < Current.NbrHar ; l++) {
         double tmp = Val[0] * MH_Moving_Matrix[k][l] ;
         // if (k==l)
-        Dof_AssembleInMat(Equ+k, Dof+l, 1, &tmp,
-                          &Current.DofData->A_MH_moving, &Current.DofData->b_MH_moving) ;
+        Dof_AssembleInMat(Equ+k, Dof+l, 1, &tmp, &Current.DofData->A_MH_moving, NULL);
+                          // &Current.DofData->A_MH_moving, &Current.DofData->b_MH_moving) ;
       }
   }
 
