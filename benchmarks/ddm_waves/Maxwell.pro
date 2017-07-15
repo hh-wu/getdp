@@ -415,7 +415,7 @@ Formulation {
           Galerkin { [ Dof{g_out~{i}~{j}} , {g_out~{i}~{j}} ];
             In Sigma~{i}~{j}; Integration I1; Jacobian JSur; }
 
-	  Galerkin{[ - ComplexVectorField[XYZ[]]{( (2*(i+N_DOM)+(j-1))%(2*N_DOM) ) },
+	  Galerkin{[ - ComplexVectorField[XYZ[]]{( tag_g~{i}~{j} ) },
               {g_out~{i}~{j}}];
 	    In Sigma~{i}~{j}; Jacobian JSur; Integration I1; }
 
