@@ -19,6 +19,8 @@ Resolution {
       EndFor
     }
     Operation {
+      // Reset parameters
+      Call Init;
       // output parameters
       Call PrintInfo;
 

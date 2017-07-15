@@ -41,13 +41,26 @@ For ii In {0: #myD()-1}
   i = myD(ii);
   DefineConstant[GenerateVolFlag~{i} = 0];
   For jj In {0: #myD~{i}()-1}
-      j = myD~{i}(jj);
-      DefineConstant[
-      GenerateSurFlag~{i}~{j} = 0, GenerateSurFlag~{i}~{j} = 0,
-      GenerateSurPcFlag~{i}~{j} = 0, GenerateSurPcFlag~{i}~{j} = 0
-      ];
-      EndFor
+    j = myD~{i}(jj);
+    DefineConstant[GenerateSurFlag~{i}~{j} = 0, GenerateSurFlag~{i}~{j} = 0, GenerateSurPcFlag~{i}~{j} = 0, GenerateSurPcFlag~{i}~{j} = 0];
+  EndFor
 EndFor
+
+Macro Init
+//Reset variables.
+  For ii In {0: #myD()-1}
+    i = myD(ii);
+    GenerateVolFlag~{i} = 0;
+    For jj In {0: #myD~{i}()-1}
+      j = myD~{i}(jj);
+      GenerateSurFlag~{i}~{j} = 0 ;
+      GenerateSurFlag~{i}~{j} = 0;
+      GenerateSurPcFlag~{i}~{j} = 0 ;
+      GenerateSurPcFlag~{i}~{j} = 0 ;
+    EndFor
+  EndFor
+Return
+
 
 Macro PrintInfo
   If (MPI_Rank == 0)
