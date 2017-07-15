@@ -23,145 +23,157 @@ Integration {
 }
 
 Function{
-  For idom In {0:N_DOM-1}
-    If (idom % MPI_Size == MPI_Rank)
-      // g_in_c~{idom}~{0}[Sigma~{idom}~{0}] =
-      //   (1 ? ComplexVectorField[XYZ[]]{4*N_DOM+2*idom-2} : 0.);
-      // g_in_c~{idom}~{1}[Sigma~{idom}~{1}] =
-      //   (1 ? ComplexVectorField[XYZ[]]{4*N_DOM+2*idom+1} : 0.);
+  For i In {0:N_DOM-1}
+    If (i % MPI_Size == MPI_Rank)
+      // g_in_c~{i}~{0}[Sigma~{i}~{0}] =
+      //   (1 ? ComplexVectorField[XYZ[]]{4*N_DOM+2*i-2} : 0.);
+      // g_in_c~{i}~{1}[Sigma~{i}~{1}] =
+      //   (1 ? ComplexVectorField[XYZ[]]{4*N_DOM+2*i+1} : 0.);
 
       // this variant converges slightly faster since it is even more
       // 'Gauss-Seidel oriented': it is not using a copy of the input data, but
       // rather data updated by the other sweep after the sweeps have crossed;
       // hence behaves differently when used sequentially since the sweeps are
       // performed sequentially, thus the backward sweep uses only updated data
-      g_in_c~{idom}~{0}[Sigma~{idom}~{0}] = g_in~{idom}~{0}[];
-      g_in_c~{idom}~{1}[Sigma~{idom}~{1}] = g_in~{idom}~{1}[];
+      For jj In {0:#myD~{i}()-1}
+          j = myD~{i}(jj);
+          g_in_c~{i}~{j}[Sigma~{i}~{j}] = g_in~{i}~{j}[];
+      EndFor
     EndIf
   EndFor
 }
 
 Group{
-  For ii In {0: #ListOfSubdomains()-1}
-    idom = ListOfSubdomains(ii);
-    DefineGroup[ GammaPoint~{idom} ];
-    TrOmegaGammaD~{idom} = ElementsOf[ Omega~{idom}, OnOneSideOf GammaD~{idom} ];
-    For iSide In {0:1}
-      DefineGroup [ Pml~{idom}~{iSide}, PmlD0~{idom}~{iSide}, PmlInf~{idom}~{iSide} ];
-      BndSigmaInf~{idom}~{iSide} = Region[BndSigma~{idom}~{iSide},
-                                          Not {GammaN~{idom}, GammaD~{idom}}];
-      TrPmlSigma~{idom}~{iSide} = ElementsOf[ Pml~{idom}~{iSide},
-        OnOneSideOf Sigma~{idom}~{iSide} ];
-      TrBndPmlSigma~{idom}~{iSide} = ElementsOf[ PmlInf~{idom}~{iSide},
-        OnOneSideOf Sigma~{idom}~{iSide} ];
+  For ii In {0: #myD()-1}
+    i = myD(ii);
+    DefineGroup[ GammaPoint~{i} ];
+    TrOmegaGammaD~{i} = ElementsOf[ Omega~{i}, OnOneSideOf GammaD~{i} ];
+    For jj In {0:#myD~{i}()-1}
+      j = myD~{i}(jj);
+      DefineGroup [ Pml~{i}~{j}, PmlD0~{i}~{j}, PmlInf~{i}~{j} ];
+      BndSigmaInf~{i}~{j} = Region[BndSigma~{i}~{j},
+                                          Not {GammaN~{i}, GammaD~{i}}];
+      TrPmlSigma~{i}~{j} = ElementsOf[ Pml~{i}~{j},
+        OnOneSideOf Sigma~{i}~{j} ];
+      TrBndPmlSigma~{i}~{j} = ElementsOf[ PmlInf~{i}~{j},
+        OnOneSideOf Sigma~{i}~{j} ];
     EndFor
-    Pml~{idom} = Region[{Pml~{idom}~{0}, Pml~{idom}~{1}}];
-    PmlInf~{idom} = Region[{PmlInf~{idom}~{0}, PmlInf~{idom}~{1}}];
+    For jj In {0:#myD~{i}()-1}
+      j = myD~{i}(jj);
+      Pml~{i} += Region[{Pml~{i}~{j}}];
+      PmlInf~{i} += Region[{PmlInf~{i}~{j}}];
+      BndSigmaInf~{i} += Region[{BndSigmaInf~{i}~{j}}];
+    EndFor
   EndFor
 }
 
 Constraint{
-  For ii In {0: #ListOfSubdomains()-1}
-    idom = ListOfSubdomains(ii);
-    { Name Dirichlet_e0~{idom};
+  For ii In {0: #myD()-1}
+    i = myD(ii);
+    { Name Dirichlet_e0~{i};
       Case {
-        { Region GammaD0~{idom}; Type Assign; Value 0.; }
-        { Region PmlD0~{idom}~{0}; Type Assign; Value 0.; }
-        { Region PmlD0~{idom}~{1}; Type Assign; Value 0.; }
-      }
+        { Region GammaD0~{i}; Type Assign; Value 0.; }
+        For jj In {0:#myD~{i}()-1}
+            j = myD~{i}(jj);
+            { Region PmlD0~{i}~{j}; Value 0.; }
+            EndFor
+        }
     }
   EndFor
 }
 
 FunctionSpace {
-  For ii In {0: #ListOfSubdomains()-1}
-    idom = ListOfSubdomains(ii);
-    { Name Hcurl_e~{idom}; Type Form1;
+  For ii In {0: #myD()-1}
+    i = myD(ii);
+    { Name Hcurl_e~{i}; Type Form1;
       BasisFunction {
         { Name se; NameOfCoef ee; Function BF_Edge;
-          Support Region[{Omega~{idom}, GammaD~{idom}, GammaInf~{idom}, Sigma~{idom},
-              Pml~{idom}, PmlInf~{idom}, GammaD0~{idom}}];
+          Support Region[{Omega~{i}, GammaD~{i}, GammaInf~{i}, Sigma~{i},
+              Pml~{i}, PmlInf~{i}, GammaD0~{i}}];
           Entity EdgesOf[All]; }
       }
       Constraint {
-        { NameOfCoef ee; EntityType EdgesOf; NameOfConstraint Dirichlet_e0~{idom}; }
+        { NameOfCoef ee; EntityType EdgesOf; NameOfConstraint Dirichlet_e0~{i}; }
       }
     }
 
-    { Name Hcurl_h~{idom}; Type Form1;
+    { Name Hcurl_h~{i}; Type Form1;
       BasisFunction {
         { Name sh; NameOfCoef he; Function BF_Edge;
-          Support Region[{Omega~{idom}, GammaD~{idom}, GammaInf~{idom}, Sigma~{idom}}];
+          Support Region[{Omega~{i}, GammaD~{i}, GammaInf~{i}, Sigma~{i}}];
           Entity EdgesOf[All]; }
       }
     }
 
-    { Name Hcurl_lambda~{idom}; Type Form1;
+    { Name Hcurl_lambda~{i}; Type Form1;
       BasisFunction {
         { Name se; NameOfCoef ee; Function BF_Edge;
-          Support Region[{GammaD~{idom}}]; Entity EdgesOf[All]; }
+          Support Region[{GammaD~{i}}]; Entity EdgesOf[All]; }
       }
       Constraint {
-        { NameOfCoef ee; EntityType EdgesOf; NameOfConstraint Dirichlet_e0~{idom}; }
+        { NameOfCoef ee; EntityType EdgesOf; NameOfConstraint Dirichlet_e0~{i}; }
       }
     }
 
-    For iSide In {0:1}
-      { Name Hcurl_g_out~{idom}~{iSide}; Type Form1;
+    For jj In {0:#myD~{i}()-1}
+    j = myD~{i}(jj);
+      { Name Hcurl_g_out~{i}~{j}; Type Form1;
         BasisFunction {
           { Name se; NameOfCoef ee; Function BF_Edge;
-            Support Region[{Sigma~{idom}~{iSide}, TrPmlSigma~{idom}~{iSide},
-                TrBndPmlSigma~{idom}~{iSide}}];
-            Entity EdgesOf[Sigma~{idom}~{iSide},
-              Not {GammaD~{idom}, GammaD0~{idom}, GammaInf~{idom}}]; }
+            Support Region[{Sigma~{i}~{j}, TrPmlSigma~{i}~{j},
+                TrBndPmlSigma~{i}~{j}}];
+            Entity EdgesOf[Sigma~{i}~{j},
+              Not {GammaD~{i}, GammaD0~{i}, GammaInf~{i}}]; }
         }
       }
     EndFor
 
     If(TC_TYPE == 1)
-      For iSide In {0:1}
-        { Name Hcurl_r~{idom}~{iSide}; Type Form1;
+      For jj In {0:#myD~{i}()-1}
+      j = myD~{i}(jj);
+        { Name Hcurl_r~{i}~{j}; Type Form1;
           BasisFunction {
             { Name sph1; NameOfCoef eph1; Function BF_Edge;
-              Support Region[{Sigma~{idom}~{iSide}}];
-              Entity EdgesOf[Sigma~{idom}~{iSide}, Not {GammaD~{idom}, GammaD0~{idom}}]; }
+              Support Region[{Sigma~{i}~{j}}];
+              Entity EdgesOf[Sigma~{i}~{j}, Not {GammaD~{i}, GammaD0~{i}}]; }
           }
         }
-        { Name Hgrad_rho~{idom}~{iSide}; Type Form0;
+        { Name Hgrad_rho~{i}~{j}; Type Form0;
           BasisFunction {
             { Name srh1; NameOfCoef erh1; Function BF_Node;
-              Support Region[{Sigma~{idom}~{iSide}}];
-              Entity NodesOf[Sigma~{idom}~{iSide}, Not {GammaD~{idom}, GammaD0~{idom}}]; }
+              Support Region[{Sigma~{i}~{j}}];
+              Entity NodesOf[Sigma~{i}~{j}, Not {GammaD~{i}, GammaD0~{i}}]; }
           }
         }
       EndFor
     EndIf
 
     If(TC_TYPE == 2)
-      For iSide In {0:1}
-        { Name Hcurl_r~{idom}~{iSide}; Type Form1;
+      For jj In {0:#myD~{i}()-1}
+      j = myD~{i}(jj);
+        { Name Hcurl_r~{i}~{j}; Type Form1;
           BasisFunction {
             { Name ser1; NameOfCoef eer1; Function BF_Edge;
-              Support Region[{Sigma~{idom}~{iSide}}];
-              Entity EdgesOf[Sigma~{idom}~{iSide},
-                             Not {GammaD~{idom}, GammaD0~{idom}, GammaInf~{idom}}]; }
+              Support Region[{Sigma~{i}~{j}}];
+              Entity EdgesOf[Sigma~{i}~{j},
+                             Not {GammaD~{i}, GammaD0~{i}, GammaInf~{i}}]; }
           }
         }
-        For j In {1:NP_OSRC}
-          { Name Hcurl_phi~{j}~{idom}~{iSide}; Type Form1;
+        For h In {1:NP_OSRC}
+          { Name Hcurl_phi~{h}~{i}~{j}; Type Form1;
             BasisFunction {
               { Name sph1; NameOfCoef eph1; Function BF_Edge;
-                Support Region[{Sigma~{idom}~{iSide}}];
-                Entity EdgesOf[Sigma~{idom}~{iSide},
-                               Not {GammaD~{idom}, GammaD0~{idom}, GammaInf~{idom}}]; }
+                Support Region[{Sigma~{i}~{j}}];
+                Entity EdgesOf[Sigma~{i}~{j},
+                               Not {GammaD~{i}, GammaD0~{i}, GammaInf~{i}}]; }
             }
           }
-          { Name Hgrad_rho~{j}~{idom}~{iSide}; Type Form0;
+          { Name Hgrad_rho~{h}~{i}~{j}; Type Form0;
             BasisFunction {
               { Name srh1; NameOfCoef erh1; Function BF_Node;
-                Support Region[{Sigma~{idom}~{iSide}}];
-                Entity NodesOf[Sigma~{idom}~{iSide},
-                               Not {GammaD~{idom}, GammaD0~{idom}, GammaInf~{idom}}]; }
+                Support Region[{Sigma~{i}~{j}}];
+                Entity NodesOf[Sigma~{i}~{j},
+                               Not {GammaD~{i}, GammaD0~{i}, GammaInf~{i}}]; }
             }
           }
         EndFor
@@ -173,262 +185,269 @@ FunctionSpace {
 
 Formulation {
 
-  For ii In {0: #ListOfSubdomains()-1}
-    idom = ListOfSubdomains(ii);
-    { Name Vol~{idom}; Type FemEquation;
+  For ii In {0: #myD()-1}
+    i = myD(ii);
+    { Name Vol~{i}; Type FemEquation;
       Quantity {
-        { Name e~{idom}; Type Local; NameOfSpace Hcurl_e~{idom}; }
-        { Name h~{idom}; Type Local; NameOfSpace Hcurl_h~{idom}; }
-        { Name lambda~{idom}; Type Local; NameOfSpace Hcurl_lambda~{idom}; }
+        { Name e~{i}; Type Local; NameOfSpace Hcurl_e~{i}; }
+        { Name h~{i}; Type Local; NameOfSpace Hcurl_h~{i}; }
+        { Name lambda~{i}; Type Local; NameOfSpace Hcurl_lambda~{i}; }
         If(TC_TYPE == 1)
-          For iSide In {0:1}
-            { Name r~{idom}~{iSide}; Type Local; NameOfSpace Hcurl_r~{idom}~{iSide};}
-            { Name rho~{idom}~{iSide}; Type Local; NameOfSpace Hgrad_rho~{idom}~{iSide};}
+          For jj In {0:#myD~{i}()-1}
+          j = myD~{i}(jj);
+            { Name r~{i}~{j}; Type Local; NameOfSpace Hcurl_r~{i}~{j};}
+            { Name rho~{i}~{j}; Type Local; NameOfSpace Hgrad_rho~{i}~{j};}
           EndFor
         EndIf
         If(TC_TYPE == 2)
-          For iSide In {0:1}
-          { Name r~{idom}~{iSide}; Type Local; NameOfSpace Hcurl_r~{idom}~{iSide};}
-            For j In {1:NP_OSRC}
-              { Name phi~{j}~{idom}~{iSide}; Type Local; NameOfSpace Hcurl_phi~{j}~{idom}~{iSide};}
-              { Name rho~{j}~{idom}~{iSide}; Type Local; NameOfSpace Hgrad_rho~{j}~{idom}~{iSide};}
+          For jj In {0:#myD~{i}()-1}
+          j = myD~{i}(jj);
+          { Name r~{i}~{j}; Type Local; NameOfSpace Hcurl_r~{i}~{j};}
+            For h In {1:NP_OSRC}
+              { Name phi~{h}~{i}~{j}; Type Local; NameOfSpace Hcurl_phi~{h}~{i}~{j};}
+              { Name rho~{h}~{i}~{j}; Type Local; NameOfSpace Hgrad_rho~{h}~{i}~{j};}
             EndFor
           EndFor
         EndIf
       }
       Equation {
         // volume terms
-        Galerkin { [ Dof{d e~{idom}}, {d e~{idom}} ];
-          In Omega~{idom}; Integration I1; Jacobian JVol; }
-        Galerkin { [ -k[]^2 * Dof{e~{idom}} , {e~{idom}} ];
-          In Omega~{idom}; Integration I1; Jacobian JVol; }
-        Galerkin { [ -I[] * kInf[] * N[] /\ (Dof{e~{idom}} /\ N[]) , {e~{idom}} ];
-          In GammaInf~{idom}; Integration I1; Jacobian JSur; }
+        Galerkin { [ Dof{d e~{i}}, {d e~{i}} ];
+          In Omega~{i}; Integration I1; Jacobian JVol; }
+        Galerkin { [ -k[]^2 * Dof{e~{i}} , {e~{i}} ];
+          In Omega~{i}; Integration I1; Jacobian JVol; }
+        Galerkin { [ -I[] * kInf[] * N[] /\ (Dof{e~{i}} /\ N[]) , {e~{i}} ];
+          In GammaInf~{i}; Integration I1; Jacobian JSur; }
 
         // boundary condition using Lagrange multiplier
-        Galerkin { [ Dof{lambda~{idom}} , {e~{idom}} ];
-          In GammaD~{idom}; Jacobian JSur; Integration I1; }
-        Galerkin { [ 0*Dof{lambda~{idom}} , {lambda~{idom}} ]; // don't remove this
-          In GammaD~{idom}; Jacobian JSur; Integration I1; }
-        Galerkin { [ Dof{e~{idom}} , {lambda~{idom}} ];
-          In GammaD~{idom}; Jacobian JSur; Integration I1; }
-        Galerkin { [ ($PhysicalSource ? einc[]: Vector[0,0,0]), {lambda~{idom}} ];
-          In GammaD~{idom}; Jacobian JSur; Integration I1; }
+        Galerkin { [ Dof{lambda~{i}} , {e~{i}} ];
+          In GammaD~{i}; Jacobian JSur; Integration I1; }
+        Galerkin { [ 0*Dof{lambda~{i}} , {lambda~{i}} ]; // don't remove this
+          In GammaD~{i}; Jacobian JSur; Integration I1; }
+        Galerkin { [ Dof{e~{i}} , {lambda~{i}} ];
+          In GammaD~{i}; Jacobian JSur; Integration I1; }
+        Galerkin { [ ($PhysicalSource ? einc[]: Vector[0,0,0]), {lambda~{i}} ];
+          In GammaD~{i}; Jacobian JSur; Integration I1; }
 
-        // artificial sources on transmission boundaries (iSide split only
+        // artificial sources on transmission boundaries (j split only
         // useful for sweeping-type preconditioners)
-        For iSide In {0:1}
-          Galerkin { [ $ArtificialSource~{iSide} ? g_in~{idom}~{iSide}[] : Vector[0,0,0] ,
-              {e~{idom}} ];
-            In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
+        For jj In {0:#myD~{i}()-1}
+        j = myD~{i}(jj);
+          Galerkin { [ $ArtificialSource~{j} ? g_in~{i}~{j}[] : Vector[0,0,0] ,
+              {e~{i}} ];
+            In Sigma~{i}~{j}; Integration I1; Jacobian JSur; }
 	  // same story, modified for SGS
-	  Galerkin { [ ($ArtificialSourceSGS~{iSide} ? g_in_c~{idom}~{iSide}[] : 0), {e~{idom}} ];
-	    In Sigma~{idom}~{iSide}; Jacobian JSur; Integration I1; }
+	  Galerkin { [ ($ArtificialSourceSGS~{j} ? g_in_c~{i}~{j}[] : 0), {e~{i}} ];
+	    In Sigma~{i}~{j}; Jacobian JSur; Integration I1; }
         EndFor
 
         // transmission condition
         If(TC_TYPE == 0)
-	  Galerkin { [ -I[] * kIBC[] * N[] /\ (Dof{e~{idom}} /\ N[]), {e~{idom}} ];
-            In Sigma~{idom}; Integration I1; Jacobian JSur; }
+	  Galerkin { [ -I[] * kIBC[] * N[] /\ (Dof{e~{i}} /\ N[]), {e~{i}} ];
+            In Sigma~{i}; Integration I1; Jacobian JSur; }
         EndIf
 
         If(TC_TYPE == 1)
-          For iSide In {0:1}
-            Galerkin { [ -I[] * k[] * Dof{r~{idom}~{iSide}} , {e~{idom}} ];
-              In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
+          For jj In {0:#myD~{i}()-1}
+            j = myD~{i}(jj);
+            Galerkin { [ -I[] * k[] * Dof{r~{i}~{j}} , {e~{i}} ];
+              In Sigma~{i}~{j}; Integration I1; Jacobian JSur; }
 
-            Galerkin { [ aa[]/k[]^2 * Dof{d rho~{idom}~{iSide}} , {r~{idom}~{iSide}} ];
-              In Sigma~{idom}~{iSide}; Integration I1; Jacobian  JSur; }
-            Galerkin { [ Dof{r~{idom}~{iSide}} , {r~{idom}~{iSide}} ];
-              In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
-            Galerkin { [ -Dof{e~{idom}} , {r~{idom}~{iSide}} ];
-              In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
-            Galerkin { [ bb[]/k[]^2 * Dof{d e~{idom}} , {d r~{idom}~{iSide}} ];
-              In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
+            Galerkin { [ aa[]/k[]^2 * Dof{d rho~{i}~{j}} , {r~{i}~{j}} ];
+              In Sigma~{i}~{j}; Integration I1; Jacobian  JSur; }
+            Galerkin { [ Dof{r~{i}~{j}} , {r~{i}~{j}} ];
+              In Sigma~{i}~{j}; Integration I1; Jacobian JSur; }
+            Galerkin { [ -Dof{e~{i}} , {r~{i}~{j}} ];
+              In Sigma~{i}~{j}; Integration I1; Jacobian JSur; }
+            Galerkin { [ bb[]/k[]^2 * Dof{d e~{i}} , {d r~{i}~{j}} ];
+              In Sigma~{i}~{j}; Integration I1; Jacobian JSur; }
 
-            Galerkin { [ Dof{rho~{idom}~{iSide}} , {rho~{idom}~{iSide}} ];
-              In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
-            Galerkin { [ Dof{r~{idom}~{iSide}} , {d rho~{idom}~{iSide}} ];
-              In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
+            Galerkin { [ Dof{rho~{i}~{j}} , {rho~{i}~{j}} ];
+              In Sigma~{i}~{j}; Integration I1; Jacobian JSur; }
+            Galerkin { [ Dof{r~{i}~{j}} , {d rho~{i}~{j}} ];
+              In Sigma~{i}~{j}; Integration I1; Jacobian JSur; }
           EndFor
         EndIf
 
         If(TC_TYPE == 2)
-          For iSide In {0:1}
-            Galerkin { [ -I[] * k[] * Dof{r~{idom}~{iSide}} , {e~{idom}} ];
-              In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
+          For jj In {0:#myD~{i}()-1}
+            j = myD~{i}(jj);
+            Galerkin { [ -I[] * k[] * Dof{r~{i}~{j}} , {e~{i}} ];
+              In Sigma~{i}~{j}; Integration I1; Jacobian JSur; }
 
-            Galerkin { [ - Dof{e~{idom}} , {r~{idom}~{iSide}} ];
-              In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
-            Galerkin { [ 1/keps[]^2 * Dof{d e~{idom}} , {d r~{idom}~{iSide}} ];
-              In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
-            Galerkin { [ OSRC_C0[]{NP_OSRC,theta_branch} * Dof{r~{idom}~{iSide}},
-                {r~{idom}~{iSide}} ];
-              In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
+            Galerkin { [ - Dof{e~{i}} , {r~{i}~{j}} ];
+              In Sigma~{i}~{j}; Integration I1; Jacobian JSur; }
+            Galerkin { [ 1/keps[]^2 * Dof{d e~{i}} , {d r~{i}~{j}} ];
+              In Sigma~{i}~{j}; Integration I1; Jacobian JSur; }
+            Galerkin { [ OSRC_C0[]{NP_OSRC,theta_branch} * Dof{r~{i}~{j}},
+                {r~{i}~{j}} ];
+              In Sigma~{i}~{j}; Integration I1; Jacobian JSur; }
 
-            For j In{1:NP_OSRC}
+            For h In{1:NP_OSRC}
               Galerkin { [ OSRC_Aj[]{j,NP_OSRC,theta_branch} *
-                  Dof{d rho~{j}~{idom}~{iSide}}, {r~{idom}~{iSide}} ];
-                In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
+                  Dof{d rho~{h}~{i}~{j}}, {r~{i}~{j}} ];
+                In Sigma~{i}~{j}; Integration I1; Jacobian JSur; }
               Galerkin { [ -OSRC_Aj[]{j,NP_OSRC,theta_branch} / keps[]^2 *
-                  Dof{d phi~{j}~{idom}~{iSide}}, {d r~{idom}~{iSide}} ];
-              In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
+                  Dof{d phi~{h}~{i}~{j}}, {d r~{i}~{j}} ];
+              In Sigma~{i}~{j}; Integration I1; Jacobian JSur; }
 
-              Galerkin { [ Dof{phi~{j}~{idom}~{iSide}}, {phi~{j}~{idom}~{iSide}} ];
-                In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
+              Galerkin { [ Dof{phi~{h}~{i}~{j}}, {phi~{h}~{i}~{j}} ];
+                In Sigma~{i}~{j}; Integration I1; Jacobian JSur; }
               Galerkin { [ OSRC_Bj[]{j,NP_OSRC,theta_branch} *
-                  Dof{d rho~{j}~{idom}~{iSide}}, {phi~{j}~{idom}~{iSide}} ];
-                In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
+                  Dof{d rho~{h}~{i}~{j}}, {phi~{h}~{i}~{j}} ];
+                In Sigma~{i}~{j}; Integration I1; Jacobian JSur; }
               Galerkin { [ -OSRC_Bj[]{j,NP_OSRC,theta_branch} / keps[]^2 *
-                  Dof{d phi~{j}~{idom}~{iSide}}, {d phi~{j}~{idom}~{iSide}} ];
-                In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
-              Galerkin { [ - Dof{r~{idom}~{iSide}}, {phi~{j}~{idom}~{iSide}} ];
-                In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
+                  Dof{d phi~{h}~{i}~{j}}, {d phi~{h}~{i}~{j}} ];
+                In Sigma~{i}~{j}; Integration I1; Jacobian JSur; }
+              Galerkin { [ - Dof{r~{i}~{j}}, {phi~{h}~{i}~{j}} ];
+                In Sigma~{i}~{j}; Integration I1; Jacobian JSur; }
 
-              Galerkin { [ Dof{rho~{j}~{idom}~{iSide}} , {rho~{j}~{idom}~{iSide}} ];
-                In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
-              Galerkin { [ 1/keps[]^2 * Dof{phi~{j}~{idom}~{iSide}} , {d rho~{j}~{idom}~{iSide}} ];
-                In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
+              Galerkin { [ Dof{rho~{h}~{i}~{j}} , {rho~{h}~{i}~{j}} ];
+                In Sigma~{i}~{j}; Integration I1; Jacobian JSur; }
+              Galerkin { [ 1/keps[]^2 * Dof{phi~{h}~{i}~{j}} , {d rho~{h}~{i}~{j}} ];
+                In Sigma~{i}~{j}; Integration I1; Jacobian JSur; }
             EndFor
           EndFor
         EndIf
 
 	If (TC_TYPE == 3)
-          For iSide In {0:1}
-            Galerkin { [ nu[] * Dof{d e~{idom}}, {d e~{idom}} ];
-              In Pml~{idom}~{iSide}; Jacobian JVol; Integration I1;}
-            Galerkin { [ - eps[] * (kPml~{idom}~{iSide}[])^2*Dof{e~{idom}}, {e~{idom}} ];
-              In Pml~{idom}~{iSide}; Jacobian JVol; Integration I1;}
-	    Galerkin { [ I[] * kIBC[] * (N[]) /\ ( N[] /\ Dof{e~{idom}} ) , {e~{idom}} ];
-              In PmlInf~{idom}~{iSide}; Jacobian JSur; Integration I1; }
+        For jj In {0:#myD~{i}()-1}
+          j = myD~{i}(jj);
+            Galerkin { [ nu[] * Dof{d e~{i}}, {d e~{i}} ];
+              In Pml~{i}~{j}; Jacobian JVol; Integration I1;}
+            Galerkin { [ - eps[] * (kPml~{i}~{j}[])^2*Dof{e~{i}}, {e~{i}} ];
+              In Pml~{i}~{j}; Jacobian JVol; Integration I1;}
+	    Galerkin { [ I[] * kIBC[] * (N[]) /\ ( N[] /\ Dof{e~{i}} ) , {e~{i}} ];
+              In PmlInf~{i}~{j}; Jacobian JSur; Integration I1; }
           EndFor
         EndIf
 
         // store magnetic field on layer of elements touching the boundary
-        Galerkin { [ Dof{h~{idom}} , {h~{idom}} ];
-          In TrOmegaGammaD~{idom}; Jacobian JVol; Integration I1; }
-        Galerkin { [ 1/(I[]*om[]*mu[]) * Dof{d e~{idom}}, {h~{idom}} ];
-          In TrOmegaGammaD~{idom}; Jacobian JVol; Integration I1; }
+        Galerkin { [ Dof{h~{i}} , {h~{i}} ];
+          In TrOmegaGammaD~{i}; Jacobian JVol; Integration I1; }
+        Galerkin { [ 1/(I[]*om[]*mu[]) * Dof{d e~{i}}, {h~{i}} ];
+          In TrOmegaGammaD~{i}; Jacobian JVol; Integration I1; }
       }
     }
 
-    For iSide In{0:1}
-      { Name Sur~{idom}~{iSide}; Type FemEquation;
+    For jj In {0:#myD~{i}()-1}
+      j = myD~{i}(jj);
+      { Name Sur~{i}~{j}; Type FemEquation;
         Quantity {
-          { Name g_out~{idom}~{iSide}; Type Local;  NameOfSpace Hcurl_g_out~{idom}~{iSide}; }
+          { Name g_out~{i}~{j}; Type Local;  NameOfSpace Hcurl_g_out~{i}~{j}; }
           If(TC_TYPE == 0)
-            { Name e~{idom}; Type Local;  NameOfSpace Hcurl_e~{idom}; }
+            { Name e~{i}; Type Local;  NameOfSpace Hcurl_e~{i}; }
           EndIf
           If(TC_TYPE == 1)
-            { Name rho~{idom}~{iSide}; Type Local; NameOfSpace Hgrad_rho~{idom}~{iSide};}
-            { Name r~{idom}~{iSide}; Type Local; NameOfSpace Hcurl_r~{idom}~{iSide};}
+            { Name rho~{i}~{j}; Type Local; NameOfSpace Hgrad_rho~{i}~{j};}
+            { Name r~{i}~{j}; Type Local; NameOfSpace Hcurl_r~{i}~{j};}
           EndIf
           If(TC_TYPE == 2)
-            { Name r~{idom}~{iSide}; Type Local;  NameOfSpace Hcurl_r~{idom}~{iSide};}
-            For j In {1:NP_OSRC}
-              { Name rho~{j}~{idom}~{iSide}; Type Local;  NameOfSpace Hgrad_rho~{j}~{idom}~{iSide};}
-              { Name phi~{j}~{idom}~{iSide}; Type Local;  NameOfSpace Hcurl_phi~{j}~{idom}~{iSide};}
+            { Name r~{i}~{j}; Type Local;  NameOfSpace Hcurl_r~{i}~{j};}
+            For h In {1:NP_OSRC}
+              { Name rho~{h}~{i}~{j}; Type Local;  NameOfSpace Hgrad_rho~{h}~{i}~{j};}
+              { Name phi~{h}~{i}~{j}; Type Local;  NameOfSpace Hcurl_phi~{h}~{i}~{j};}
             EndFor
           EndIf
           If(TC_TYPE == 3)
-	    { Name e~{idom}; Type Local; NameOfSpace Hcurl_e~{idom}; }
+	    { Name e~{i}; Type Local; NameOfSpace Hcurl_e~{i}; }
 	  EndIf
         }
         Equation {
-          Galerkin { [ Dof{g_out~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ];
-            In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
+          Galerkin { [ Dof{g_out~{i}~{j}} , {g_out~{i}~{j}} ];
+            In Sigma~{i}~{j}; Integration I1; Jacobian JSur; }
 
-          Galerkin { [ ($PhysicalSource ? Vector[0,0,0] : g_in~{idom}~{iSide}[]) ,
-              {g_out~{idom}~{iSide}} ];
-            In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
+          Galerkin { [ ($PhysicalSource ? Vector[0,0,0] : g_in~{i}~{j}[]) ,
+              {g_out~{i}~{j}} ];
+            In Sigma~{i}~{j}; Integration I1; Jacobian JSur; }
 
           If(TC_TYPE == 0)
-            Galerkin { [ -2 * I[] * kIBC[] * N[] /\ ({e~{idom}} /\ N[]) , {g_out~{idom}~{iSide}} ];
-              In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
+            Galerkin { [ -2 * I[] * kIBC[] * N[] /\ ({e~{i}} /\ N[]) , {g_out~{i}~{j}} ];
+              In Sigma~{i}~{j}; Integration I1; Jacobian JSur; }
           EndIf
 
           If(TC_TYPE == 1)
-            Galerkin { [ -2 * I[] * kIBC[] * {r~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ];
-              In Sigma~{idom}~{iSide}; Jacobian JSur; Integration I1; }
+            Galerkin { [ -2 * I[] * kIBC[] * {r~{i}~{j}} , {g_out~{i}~{j}} ];
+              In Sigma~{i}~{j}; Jacobian JSur; Integration I1; }
           EndIf
 
           If(TC_TYPE == 2)
-            Galerkin { [ -2 * I[] * kIBC[] * {r~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ];
-              In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
+            Galerkin { [ -2 * I[] * kIBC[] * {r~{i}~{j}} , {g_out~{i}~{j}} ];
+              In Sigma~{i}~{j}; Integration I1; Jacobian JSur; }
           EndIf
 
 	  If (TC_TYPE == 3)
-            Galerkin { [ 2 * nu[] *  {d e~{idom}}, {d g_out~{idom}~{iSide}}];
-              In TrPmlSigma~{idom}~{iSide}; Jacobian JVol; Integration I1;}
-            Galerkin { [ -2 * eps[] * (kPml~{idom}~{iSide}[])^2 * {e~{idom}}, {g_out~{idom}~{iSide}}];
-              In TrPmlSigma~{idom}~{iSide}; Jacobian JVol; Integration I1;}
+            Galerkin { [ 2 * nu[] *  {d e~{i}}, {d g_out~{i}~{j}}];
+              In TrPmlSigma~{i}~{j}; Jacobian JVol; Integration I1;}
+            Galerkin { [ -2 * eps[] * (kPml~{i}~{j}[])^2 * {e~{i}}, {g_out~{i}~{j}}];
+              In TrPmlSigma~{i}~{j}; Jacobian JVol; Integration I1;}
 
             // FIXME: check if sign is correct
-            // Galerkin { [ 2 * I[] * kIBC[] * (N[]) /\ ( N[] /\ Dof{e~{idom}} ) , {e~{idom}} ];
-            //   In TrBndPmlSigma~{idom}~{iSide}; Jacobian JSur; Integration I1; }
+            // Galerkin { [ 2 * I[] * kIBC[] * (N[]) /\ ( N[] /\ Dof{e~{i}} ) , {e~{i}} ];
+            //   In TrBndPmlSigma~{i}~{j}; Jacobian JSur; Integration I1; }
           EndIf
         }
       }
 
-      { Name SurPc~{idom}~{iSide}; Type FemEquation;
+      { Name SurPc~{i}~{j}; Type FemEquation;
         Quantity {
-          { Name g_out~{idom}~{iSide}; Type Local;  NameOfSpace Hcurl_g_out~{idom}~{iSide}; }
+          { Name g_out~{i}~{j}; Type Local;  NameOfSpace Hcurl_g_out~{i}~{j}; }
           If(TC_TYPE == 0)
-            { Name e~{idom}; Type Local;  NameOfSpace Hcurl_e~{idom}; }
+            { Name e~{i}; Type Local;  NameOfSpace Hcurl_e~{i}; }
           EndIf
           If(TC_TYPE == 1)
-            { Name rho~{idom}~{iSide}; Type Local; NameOfSpace Hgrad_rho~{idom}~{iSide};}
-            { Name r~{idom}~{iSide}; Type Local; NameOfSpace Hcurl_r~{idom}~{iSide};}
+            { Name rho~{i}~{j}; Type Local; NameOfSpace Hgrad_rho~{i}~{j};}
+            { Name r~{i}~{j}; Type Local; NameOfSpace Hcurl_r~{i}~{j};}
           EndIf
           If(TC_TYPE == 2)
-            { Name r~{idom}~{iSide}; Type Local;  NameOfSpace Hcurl_r~{idom}~{iSide};}
-            For j In {1:NP_OSRC}
-              { Name rho~{j}~{idom}~{iSide}; Type Local;  NameOfSpace Hgrad_rho~{j}~{idom}~{iSide};}
-              { Name phi~{j}~{idom}~{iSide}; Type Local;  NameOfSpace Hcurl_phi~{j}~{idom}~{iSide};}
+            { Name r~{i}~{j}; Type Local;  NameOfSpace Hcurl_r~{i}~{j};}
+            For h In {1:NP_OSRC}
+              { Name rho~{h}~{i}~{j}; Type Local;  NameOfSpace Hgrad_rho~{h}~{i}~{j};}
+              { Name phi~{h}~{i}~{j}; Type Local;  NameOfSpace Hcurl_phi~{h}~{i}~{j};}
             EndFor
           EndIf
           If(TC_TYPE == 3)
-	    { Name e~{idom}; Type Local; NameOfSpace Hcurl_e~{idom}; }
+	    { Name e~{i}; Type Local; NameOfSpace Hcurl_e~{i}; }
 	  EndIf
 
         }
         Equation {
-          Galerkin { [ Dof{g_out~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ];
-            In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
+          Galerkin { [ Dof{g_out~{i}~{j}} , {g_out~{i}~{j}} ];
+            In Sigma~{i}~{j}; Integration I1; Jacobian JSur; }
 
-	  Galerkin{[ - ComplexVectorField[XYZ[]]{( (2*(idom+N_DOM)+(iSide-1))%(2*N_DOM) ) },
-              {g_out~{idom}~{iSide}}];
-	    In Sigma~{idom}~{iSide}; Jacobian JSur; Integration I1; }
+	  Galerkin{[ - ComplexVectorField[XYZ[]]{( (2*(i+N_DOM)+(j-1))%(2*N_DOM) ) },
+              {g_out~{i}~{j}}];
+	    In Sigma~{i}~{j}; Jacobian JSur; Integration I1; }
 
-	  Galerkin{[ ( $ArtificialSourceSGS~{iSide} ? g_in_c~{idom}~{iSide}[] : 0. ),
-              {g_out~{idom}~{iSide}}];
-            In Sigma~{idom}~{iSide}; Jacobian JSur; Integration I1; }
+	  Galerkin{[ ( $ArtificialSourceSGS~{j} ? g_in_c~{i}~{j}[] : 0. ),
+              {g_out~{i}~{j}}];
+            In Sigma~{i}~{j}; Jacobian JSur; Integration I1; }
 
           If(TC_TYPE == 0)
-            Galerkin { [ -2 * I[] * kIBC[] * N[] /\ ({e~{idom}} /\ N[]) , {g_out~{idom}~{iSide}} ];
-              In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
+            Galerkin { [ -2 * I[] * kIBC[] * N[] /\ ({e~{i}} /\ N[]) , {g_out~{i}~{j}} ];
+              In Sigma~{i}~{j}; Integration I1; Jacobian JSur; }
           EndIf
 
           If(TC_TYPE == 1)
-            Galerkin { [ -2 * I[] * kIBC[] * {r~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ];
-              In Sigma~{idom}~{iSide}; Jacobian JSur; Integration I1; }
+            Galerkin { [ -2 * I[] * kIBC[] * {r~{i}~{j}} , {g_out~{i}~{j}} ];
+              In Sigma~{i}~{j}; Jacobian JSur; Integration I1; }
           EndIf
 
           If(TC_TYPE == 2)
-            Galerkin { [ -2 * I[] * kIBC[] * {r~{idom}~{iSide}} , {g_out~{idom}~{iSide}} ];
-              In Sigma~{idom}~{iSide}; Integration I1; Jacobian JSur; }
+            Galerkin { [ -2 * I[] * kIBC[] * {r~{i}~{j}} , {g_out~{i}~{j}} ];
+              In Sigma~{i}~{j}; Integration I1; Jacobian JSur; }
           EndIf
 
 	  If (TC_TYPE == 3)
-            Galerkin { [ 2 * nu[] *  {d e~{idom}}, {d g_out~{idom}~{iSide}}];
-              In TrPmlSigma~{idom}~{iSide}; Jacobian JVol; Integration I1;}
-            Galerkin { [ -2 * eps[] * (kPml~{idom}~{iSide}[])^2 * {e~{idom}},
-                {g_out~{idom}~{iSide}}];
-              In TrPmlSigma~{idom}~{iSide}; Jacobian JVol; Integration I1;}
+            Galerkin { [ 2 * nu[] *  {d e~{i}}, {d g_out~{i}~{j}}];
+              In TrPmlSigma~{i}~{j}; Jacobian JVol; Integration I1;}
+            Galerkin { [ -2 * eps[] * (kPml~{i}~{j}[])^2 * {e~{i}},
+                {g_out~{i}~{j}}];
+              In TrPmlSigma~{i}~{j}; Jacobian JVol; Integration I1;}
 
             // FIXME: check if sign is correct
-            // Galerkin { [ 2 * I[] * kIBC[] * (N[]) /\ ( N[] /\ Dof{e~{idom}} ) , {e~{idom}} ];
-            //   In TrBndPmlSigma~{idom}~{iSide}; Jacobian JSur; Integration I1; }
+            // Galerkin { [ 2 * I[] * kIBC[] * (N[]) /\ ( N[] /\ Dof{e~{i}} ) , {e~{i}} ];
+            //   In TrBndPmlSigma~{i}~{j}; Jacobian JSur; Integration I1; }
           EndIf
         }
       }
@@ -438,39 +457,40 @@ Formulation {
 }
 
 PostProcessing {
-  For ii In {0: #ListOfSubdomains()-1}
-    idom = ListOfSubdomains(ii);
-    { Name Vol~{idom}; NameOfFormulation Vol~{idom};
+  For ii In {0: #myD()-1}
+    i = myD(ii);
+    { Name Vol~{i}; NameOfFormulation Vol~{i};
       Quantity {
-        { Name e~{idom}; Value { Local { [ {e~{idom}}];
-              In Omega~{idom}; Jacobian JVol; } } }
-        { Name e_tot~{idom}; Value { Local { [ {e~{idom}} + einc[]];
-              In Omega~{idom}; Jacobian JVol; } } }
-        { Name norm_e~{idom}; Value { Local { [ Norm[{e~{idom}}] ];
-              In Omega~{idom}; Jacobian JVol; } } }
-        { Name norm_e_tot~{idom}; Value { Local { [ Norm[{e~{idom}} + einc[]]];
-              In Omega~{idom}; Jacobian JVol; } } }
-        { Name h~{idom}; Value { Local { [ {h~{idom}} ];
-              In GammaD~{idom}; Jacobian JSur; } } }
-        { Name j~{idom}; Value { Local { [ N[] /\ ({h~{idom}}) ];
-              In GammaD~{idom}; Jacobian JSur; } } }
+        { Name e~{i}; Value { Local { [ {e~{i}}];
+              In Omega~{i}; Jacobian JVol; } } }
+        { Name e_tot~{i}; Value { Local { [ {e~{i}} + einc[]];
+              In Omega~{i}; Jacobian JVol; } } }
+        { Name norm_e~{i}; Value { Local { [ Norm[{e~{i}}] ];
+              In Omega~{i}; Jacobian JVol; } } }
+        { Name norm_e_tot~{i}; Value { Local { [ Norm[{e~{i}} + einc[]]];
+              In Omega~{i}; Jacobian JVol; } } }
+        { Name h~{i}; Value { Local { [ {h~{i}} ];
+              In GammaD~{i}; Jacobian JSur; } } }
+        { Name j~{i}; Value { Local { [ N[] /\ ({h~{i}}) ];
+              In GammaD~{i}; Jacobian JSur; } } }
       }
     }
-    For iSide In{0:1}
-      { Name Sur~{idom}~{iSide}; NameOfFormulation Sur~{idom}~{iSide};
+    For jj In {0:#myD~{i}()-1}
+      j = myD~{i}(jj);
+      { Name Sur~{i}~{j}; NameOfFormulation Sur~{i}~{j};
         Quantity {
-          { Name g_out~{idom}~{iSide};
-            Value { Local { [ {g_out~{idom}~{iSide}} ];
-                In Sigma~{idom}~{iSide}; Jacobian JSur; } } }
+          { Name g_out~{i}~{j};
+            Value { Local { [ {g_out~{i}~{j}} ];
+                In Sigma~{i}~{j}; Jacobian JSur; } } }
       }
     }
     // name of formulation is used only for convenience; no data from that
     // function space is actually used
-    { Name g_copy~{idom}~{iSide}; NameOfFormulation Sur~{idom}~{iSide};
+    { Name g_copy~{i}~{j}; NameOfFormulation Sur~{i}~{j};
       PostQuantity {
-	{ Name g~{idom}~{iSide};
-          Value { Local { [ ( $ArtificialSourceSGS~{iSide} ? g_in~{idom}~{iSide}[] : 0. ) ];
-              In Sigma~{idom}~{iSide}; Jacobian JSur; } } }
+	{ Name g~{i}~{j};
+          Value { Local { [ ( $ArtificialSourceSGS~{j} ? g_in~{i}~{j}[] : 0. ) ];
+              In Sigma~{i}~{j}; Jacobian JSur; } } }
       }
     }
     EndFor
@@ -478,35 +498,36 @@ PostProcessing {
 }
 
 PostOperation {
-  For ii In {0: #ListOfSubdomains()-1}
-    idom = ListOfSubdomains(ii);
-    { Name DDM~{idom}; NameOfPostProcessing Vol~{idom};
+  For ii In {0: #myD()-1}
+    i = myD(ii);
+    { Name DDM~{i}; NameOfPostProcessing Vol~{i};
       Operation{
-         Print[ e~{idom}, OnElementsOf Omega~{idom},
-           File StrCat(DIR, Sprintf("e_%g.pos",idom))];
-         Print[ e_tot~{idom}, OnElementsOf Omega~{idom},
-           File StrCat(DIR, Sprintf("e_tot_%g.pos",idom))];
-         Print[ norm_e_tot~{idom}, OnElementsOf Omega~{idom},
-           File StrCat(DIR, Sprintf("norm_e_tot_%g.pos",idom))];
-        // Print[ h~{idom}, OnElementsOf GammaD~{idom},
-        //   File StrCat(DIR, Sprintf("h_%g.pos",idom))];
-        // Print[ j~{idom}, OnElementsOf GammaD~{idom},
-        //   File StrCat(DIR, Sprintf("j_%g.pos", idom))];
+         Print[ e~{i}, OnElementsOf Omega~{i},
+           File StrCat(DIR, Sprintf("e_%g.pos",i))];
+         Print[ e_tot~{i}, OnElementsOf Omega~{i},
+           File StrCat(DIR, Sprintf("e_tot_%g.pos",i))];
+         Print[ norm_e_tot~{i}, OnElementsOf Omega~{i},
+           File StrCat(DIR, Sprintf("norm_e_tot_%g.pos",i))];
+        // Print[ h~{i}, OnElementsOf GammaD~{i},
+        //   File StrCat(DIR, Sprintf("h_%g.pos",i))];
+        // Print[ j~{i}, OnElementsOf GammaD~{i},
+        //   File StrCat(DIR, Sprintf("j_%g.pos", i))];
       }
     }
-    For iSide In{0:1}
-    { Name g_out~{idom}~{iSide}; NameOfPostProcessing Sur~{idom}~{iSide};
+    For jj In {0:#myD~{i}()-1}
+    j = myD~{i}(jj);
+    { Name g_out~{i}~{j}; NameOfPostProcessing Sur~{i}~{j};
       Operation{
-        Print[ g_out~{idom}~{iSide}, OnElementsOf Sigma~{idom}~{iSide},
-          StoreInField (2*(idom+N_DOM)+(iSide-1))%(2*N_DOM)
-          //, File Sprintf("gg%g_%g.pos",idom, jdom)
+        Print[ g_out~{i}~{j}, OnElementsOf Sigma~{i}~{j},
+          StoreInField tag_g~{i}~{j}
+          //, File Sprintf("gg%g_%g.pos",i, jdom)
         ];
       }
     }
-    { Name g_copy~{idom}~{iSide}; NameOfPostProcessing g_copy~{idom}~{iSide};
+    { Name g_copy~{i}~{j}; NameOfPostProcessing g_copy~{i}~{j};
       Operation {
-	Print[ g~{idom}~{iSide}, OnElementsOf Sigma~{idom}~{iSide},
-	       StoreInField 4*N_DOM+(2*(idom+N_DOM)-2+3*iSide)%(2*N_DOM)];
+	Print[ g~{i}~{j}, OnElementsOf Sigma~{i}~{j},
+	       StoreInField 4*N_DOM+(2*(i+N_DOM)-2+3*j)%(2*N_DOM)];
       }
     }
     EndFor

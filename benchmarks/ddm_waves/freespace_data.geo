@@ -36,16 +36,16 @@ LC = LAMBDA/N_LAMBDA;
 
 tPml = 20*LC;
 
-D = 2. + 2*tPml;
-d = 2. + 2*tPml ;
+DGeo = 2. + 2*tPml;
+dGeo = 2. + 2*tPml ;
 
 shiftX = 0;
 shiftY = 0;
-shiftX = -D/2.;
-shiftY = d/2.;
+shiftX = -DGeo/2.;
+shiftY = dGeo/2.;
 
-xSource = (D/2.+shiftX) - 0*2*D/N_DOM; // last term is a shift from the center of the domain
-ySource = (-d/2.+shiftY) - 0*.1;
+xSource = (DGeo/2.+shiftX) - 0*2*DGeo/N_DOM; // last term is a shift from the center of the domain
+ySource = (-dGeo/2.+shiftY) - 0*.1;
 
 nDoms = N_DOM;
 
@@ -53,4 +53,4 @@ dTr = nLayersTr*LC;
 dPml = nLayersPml*LC;
 dBb = (nLayersPml+nLayersTr)*LC;
 
-dDom = D/nDoms;
+dDom = DGeo/nDoms;
