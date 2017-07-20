@@ -97,7 +97,7 @@ double CalcMaxErrorRatio(Resolution  *Resolution_P,
     else if (ErrorRatio > MaxErrorRatio)
       MaxErrorRatio = ErrorRatio;
 
-    Current.Residual = ErrorRatio; //should be commented here QQQ?
+    //Current.Residual = ErrorRatio; //should be commented here QQQ?
     if (Message::GetVerbosity() > 5) {
       Message::Info("IterativeLoopN: %s of %s error ratio from system %s:  %.3g",
           ILsystem.NormTypeString, ILsystem.NormOfString, DefineSystem_P->Name,

@@ -1268,7 +1268,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
           LinAlg_AssembleVector(&DofData_P->b) ;
         }
 
-        //LinAlg_CopyVector(&DofData_P->CurrentSolution->x, &DofData_P->dx); //In prevision to build 'dx' in the following (needed for "IterativeLoopPro") QQQ?
+        LinAlg_CopyVector(&DofData_P->CurrentSolution->x, &DofData_P->dx); //In prevision to build 'dx' in the following (needed for "IterativeLoopPro") QQQ?
 
         if(!again){
           LinAlg_Solve(&DofData_P->A, &DofData_P->b, &DofData_P->Solver,
@@ -1283,7 +1283,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                             (Operation_P->Flag < 0) ? 0 : Operation_P->Flag) ;
         }
 
-        //LinAlg_SubVectorVector(&DofData_P->CurrentSolution->x, &DofData_P->dx, &DofData_P->dx) ; //In order to build 'dx' (needed for "IterativeLoopPro") QQQ?
+        LinAlg_SubVectorVector(&DofData_P->CurrentSolution->x, &DofData_P->dx, &DofData_P->dx) ; //In order to build 'dx' (needed for "IterativeLoopPro") QQQ?
 #ifdef TIMER
         double timer = MPI_Wtime() - tstart;
         printf("Proc %d, time spent in %s %.16g\n", again ? "SolveAgain" : "Solve",
@@ -1372,7 +1372,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         else
           LinAlg_SolveAgain(&DofData_P->Jac, &DofData_P->res, &DofData_P->Solver, &DofData_P->dx) ;
 
-        //............... The following lines (*) are not needed here because ..............
+        /*//............... The following lines (*) are not needed here because ..............
         //           Current.Residual is only needed when Flag_IterativeLoopN==0 QQQ?
         Cal_SolutionError(&DofData_P->dx, &DofData_P->CurrentSolution->x, 0, &MeanError) ;
         // NormType: 1=LINFNORM, 2=L1NORM, 3=MEANL1NORM, 4=L2NORM, 5=MEANL2NORM
@@ -1382,8 +1382,17 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         //LinAlg_VectorNorm2(&DofData_P->dx, &MeanError);
         Current.Residual = MeanError; // NB: Residual computed for classical IterativeLoop using SolveJac
         //.................................................................................
+        */
         if(!Flag_IterativeLoopN){
           //............... previous lines (*) should be placed here QQQ? ..................
+          Cal_SolutionError(&DofData_P->dx, &DofData_P->CurrentSolution->x, 0, &MeanError) ;
+          // NormType: 1=LINFNORM, 2=L1NORM, 3=MEANL1NORM, 4=L2NORM, 5=MEANL2NORM
+          // Closest behaviour to old function Cal_SolutionError with MEANL2NORM
+          // Cal_SolutionErrorRatio(&DofData_P->dx, &DofData_P->CurrentSolution->x,
+          //                       reltol, abstol, MEANL2NORM, &MeanError) ;
+          //LinAlg_VectorNorm2(&DofData_P->dx, &MeanError);
+          Current.Residual = MeanError; // NB: Residual computed for classical IterativeLoop using SolveJac
+          //.................................................................................
           if (MeanError != MeanError){
             Message::Warning("No valid solution found (NaN or Inf)!");
           }
@@ -1512,7 +1521,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       MeanError = Error_Prev ;
       Current.RelaxFac = Frelax_Opt; // +++
-      //Current.Residual = MeanError; // QQQ?  Residual computed here with SolveJacAdapt (usefull to test stop criterion in classical IterativeLoop then)
+      Current.Residual = MeanError; // QQQ?  Residual computed here with SolveJacAdapt (usefull to test stop criterion in classical IterativeLoop then)
       Message::Info("%3ld Nonlinear Residual norm %14.12e (optimal relaxation factor = %f)",
                     (int)Current.Iteration, MeanError, Frelax_Opt);
       //if(Current.Iteration==1) Current.Residual_Iter1=MeanError; //to compute a relative residual (relative to residual at iter 1) in SolveJacAdapt //QQQ?

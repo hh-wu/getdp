@@ -543,9 +543,9 @@ Formulation {
 
 //-----------------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------
-If(Flag_NLRes==NLRES_ITERATIVELOOPPRO)
-  Include "MyItLoopPro.pro";
-EndIf
+//If(Flag_NLRes==NLRES_ITERATIVELOOPPRO)
+Include "MyItLoopPro.pro";
+//EndIf
 //-----------------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------
 
@@ -620,9 +620,11 @@ Resolution {
           EndIf
 
           If(Flag_NL) // NonLinear Case ...
+            Evaluate[$relax=relax_max];
             If(Flag_NLRes==NLRES_ITERATIVELOOP)  
           // I T E R A T I V E . L O O P ...................................
               IterativeLoop[ Nb_max_iter, stop_criterion, RF_tuned[]] {
+
                 GenerateJac[A] ; 
                 If (!Flag_AdaptRelax)
                   SolveJac[A] ; 
@@ -630,7 +632,10 @@ Resolution {
                 Else
                   SolveJac_AdaptRelax[A, List[RelaxFac_Lin],TestAllFactors ] ; 
                   Evaluate[$relaxcount=$NbrTestedFac];
-                EndIf    
+                EndIf 
+
+                Evaluate[$res  = $Residual, $resL = $Residual,$resN = $ResidualN, $iter = $Iteration];  
+                Call DisplayRunTimeVar;
               }
               Evaluate[$syscount = $syscount + 1 ];
               Evaluate[$relaxcounttot=$relaxcounttot+$relaxcount];
@@ -647,6 +652,12 @@ Resolution {
                 //PostOperation { { b_only , Reltol_Mag, Abstol_Mag,  MeanL2Norm }} ]{ //3) 
                 PostOperation { { h_only , Reltol_Mag, Abstol_Mag,  MeanL2Norm }} ]{ //4) 
                 //**************************************************************
+
+                Evaluate[$res  = $ResidualN, $resL = $Residual,$resN = $ResidualN,$iter = $Iteration-1]; 
+                Test[ $iter>0]{
+                  Call DisplayRunTimeVar;
+                }
+
                 GenerateJac[A] ; 
                 If (!Flag_AdaptRelax)
                   SolveJac[A] ;       
@@ -659,6 +670,9 @@ Resolution {
               Evaluate[$syscount = $syscount + 1 ];
               Evaluate[$relaxcounttot=$relaxcounttot+$relaxcount];
               Evaluate[$relax= $RelaxFac];
+
+              Evaluate[$res  = $ResidualN, $resL = $Residual, $resN = $ResidualN, $iter = $iter+1];      
+              Call DisplayRunTimeVar;
           //...............................................................
             EndIf
 
@@ -667,6 +681,16 @@ Resolution {
               Call MyItLoopPro;
           //...............................................................
             EndIf
+
+          Test[ (Flag_NLRes==NLRES_ITERATIVELOOPPRO && $iter == Nb_max_iter) || 
+                (Flag_NLRes==NLRES_ITERATIVELOOP    && $res > Abstol_Mag   ) ||
+                (Flag_NLRes==NLRES_ITERATIVELOOPN   && $res > 1.           ) ]{
+            Print[{$Time, $TimeStep, $DTime, $relax, $iter}, Format
+              "*** Non convergence at Theta Time = %g s (TimeStep %g, DTime %g, relax %g) (iter %g)"];
+            Print["--> Save bad solution and move to the next time step"];
+            Evaluate[$dnccount=$dnccount+1];
+          }
+          
           EndIf
           
           SaveSolution[A];
