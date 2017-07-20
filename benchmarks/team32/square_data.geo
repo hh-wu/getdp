@@ -11,13 +11,13 @@ Flag_3Dmodel = 0;
 
 // SIMU parameters -------------------------------------------------------------
 freq_00 = 1; // frequency (no impact as there is no dynamic effect)
-nstep_00 = 200; // number of time step per period (without Flexible DT)
+nstep_00 = 600; // number of time step per period (without Flexible DT)
 NbT_00 = 2; //number of periods
 tmax_00 = 1; // final time of simulation
 
 // SOURCE parameters -------------------------------------------------------------
 ha_00 = 100; // maximal amplitude of the imposed magnetic field
-Flag_TestCase_00 = 1; // 0: CASE 0 (Default)
+Flag_TestCase_00 = 6; // 0: CASE 0 (Default)
                       // 1: CASE 1 (1Dx)
                       // 2: CASE 2 (1Dx+harm)
                       // 3: CASE 3 (1Dxy)
@@ -42,7 +42,7 @@ Flag_NL_law00 = 4;  // 0: "linear",
                     // 3: "Jiles-Atherton hysteresis model",
                     // 4: "EnergHyst model"
 
-Flag_NLRes00 = 2; // 0: use classical IterativeLoop to solve the NL (non linear) problem
+Flag_NLRes00 = 0; // 0: use classical IterativeLoop to solve the NL (non linear) problem
                   // 1: use IterativeLoopN to solve the NL (non linear) problem
                   // 2: solve the NL (non linear) problem "by hand"
 
@@ -55,7 +55,7 @@ Flag_AdaptRelax00   = 1; // set to 1 to test different relaxation factors
 relax_max00         = 1 ;
 relax_min00         = 0.1;
 relax_numtest00     = 10;
-TestAllFactors00    = 1; // 0 : stops when the residual goes up !!
+TestAllFactors00    = 0; // 0 : stops when the residual goes up !!
                        // 1 : try every relaxation factors and keep the optimal one
 Reltol_Mag00        = stop_criterion00; // 0 before with IterativeLoopN
 Abstol_Mag00        = stop_criterion00;
