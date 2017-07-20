@@ -208,9 +208,13 @@ void Init_ProblemStructure()
   Current.Breakpoint = 0.0;
   Current.Iteration = 0.0;
   Current.Residual = 0.0;
+  Current.ResidualN = 0.0; //+++
+  Current.Residual_Iter1 = 1.0; //+++
   Current.RelativeDifference = 0.0;
   Current.RelativeDifferenceOld = 0.0;
   Current.RelaxationFactor = 0.0;
+  Current.RelaxFac = 0.0; //+++
+  Current.NbrTestedFac = 0.0; //+++
   Current.KSPIterations = 0.0;
   Current.KSPIteration = 0.0;
   Current.KSPResidual = 0.0;

@@ -1584,7 +1584,8 @@ struct CurrentData {
 
   // For IterativeLoop
   double  Iteration, RelativeDifference, RelativeDifferenceOld;
-  double  RelaxationFactor, Residual;
+  double  RelaxationFactor, Residual, ResidualN, Residual_Iter1; //+++
+  double  RelaxFac, NbrTestedFac; //+++
 
   // Iterative linear system solvers
   double  KSPIterations, KSPIteration, KSPResidual;

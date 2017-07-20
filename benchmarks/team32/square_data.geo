@@ -11,13 +11,13 @@ Flag_3Dmodel = 0;
 
 // SIMU parameters -------------------------------------------------------------
 freq_00 = 1; // frequency (no impact as there is no dynamic effect)
-nstep_00 = 600; // number of time step per period (without Flexible DT)
+nstep_00 = 200; // number of time step per period (without Flexible DT)
 NbT_00 = 2; //number of periods
 tmax_00 = 1; // final time of simulation
 
 // SOURCE parameters -------------------------------------------------------------
 ha_00 = 100; // maximal amplitude of the imposed magnetic field
-Flag_TestCase_00 = 6; // 0: CASE 0 (Default)
+Flag_TestCase_00 = 1; // 0: CASE 0 (Default)
                       // 1: CASE 1 (1Dx)
                       // 2: CASE 2 (1Dx+harm)
                       // 3: CASE 3 (1Dxy)
@@ -25,12 +25,12 @@ Flag_TestCase_00 = 6; // 0: CASE 0 (Default)
                       // 5: CASE 5 (2D)
                       // 6: CASE 6 (2D+harm)
 // CASE 0 (default)
-hax = ha_00; // maximal amplitude of the x component of the magnetic field
-haharmx = 0; // maximal amplitude of the x component of the harmonic magnetic field
-hay0 = 0; // DC contribution on the y component of the magnetic field
-hay = ha_00; // maximal amplitude of the y component of the magnetic field
-haharmy = 0; // maximal amplitude of the y component of the harmonic magnetic field
-freqharm = 0; // frequency of harmonics if one wants to add harmonics
+hax_00 = ha_00; // maximal amplitude of the x component of the magnetic field
+haharmx_00 = 0; // maximal amplitude of the x component of the harmonic magnetic field
+hay0_00 = 0; // DC contribution on the y component of the magnetic field
+hay_00 = ha_00; // maximal amplitude of the y component of the magnetic field
+haharmy_00 = 0; // maximal amplitude of the y component of the harmonic magnetic field
+freqharm_00 = 0; // frequency of harmonics if one wants to add harmonics
 phase_00 = 0*(90/180)*3.141592653589793; // phase angle between hx and hy, if one wants to impose rotational field
                      // 0 = unidirectional 
                      // Pi = purely rotational
@@ -42,7 +42,7 @@ Flag_NL_law00 = 4;  // 0: "linear",
                     // 3: "Jiles-Atherton hysteresis model",
                     // 4: "EnergHyst model"
 
-Flag_NLRes00 = 0; // 0: use classical IterativeLoop to solve the NL (non linear) problem
+Flag_NLRes00 = 2; // 0: use classical IterativeLoop to solve the NL (non linear) problem
                   // 1: use IterativeLoopN to solve the NL (non linear) problem
                   // 2: solve the NL (non linear) problem "by hand"
 
@@ -55,7 +55,7 @@ Flag_AdaptRelax00   = 1; // set to 1 to test different relaxation factors
 relax_max00         = 1 ;
 relax_min00         = 0.1;
 relax_numtest00     = 10;
-TestAllFactors00    = 0; // 0 : stops when the residual goes up !!
+TestAllFactors00    = 1; // 0 : stops when the residual goes up !!
                        // 1 : try every relaxation factors and keep the optimal one
 Reltol_Mag00        = stop_criterion00; // 0 before with IterativeLoopN
 Abstol_Mag00        = stop_criterion00;

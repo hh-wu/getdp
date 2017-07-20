@@ -653,12 +653,12 @@ Resolution {
                   Evaluate[$relaxcount=1];                                      
                 Else
                   SolveJac_AdaptRelax[A, List[RelaxFac_Lin],TestAllFactors ] ; 
-                  Evaluate[$relaxcount=$NbrTestedFac_kj];
+                  Evaluate[$relaxcount=$NbrTestedFac];
                 EndIf    
               }
               Evaluate[$syscount = $syscount + 1 ];
               Evaluate[$relaxcounttot=$relaxcounttot+$relaxcount];
-              Evaluate[$relax= $RelaxFac_kj];
+              Evaluate[$relax= $RelaxFac];
           //...............................................................       
             EndIf
 
@@ -677,12 +677,12 @@ Resolution {
                   Evaluate[$relaxcount=1];                                   
                 Else
                   SolveJac_AdaptRelax[A, List[RelaxFac_Lin],TestAllFactors ] ; 
-                  Evaluate[$relaxcount=$NbrTestedFac_kj];
+                  Evaluate[$relaxcount=$NbrTestedFac];
                 EndIf
               }
               Evaluate[$syscount = $syscount + 1 ];
               Evaluate[$relaxcounttot=$relaxcounttot+$relaxcount];
-              Evaluate[$relax= $RelaxFac_kj];
+              Evaluate[$relax= $RelaxFac];
           //...............................................................
             EndIf
 

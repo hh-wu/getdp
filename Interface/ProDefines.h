@@ -280,6 +280,10 @@ struct StringXPointer  Current_Value[] = {
   {"Iter"      , &Current.Iteration},
   {"Iteration", &Current.Iteration},  {"NLIteration", &Current.Iteration},
   {"Residual" , &Current.Residual},   {"NLResidual" , &Current.Residual},
+  {"RelaxFac" , &Current.RelaxFac}, //+++
+  {"ResidualN" , &Current.ResidualN}, //+++
+  {"Residual_Iter1" , &Current.Residual_Iter1}, //+++
+  {"NbrTestedFac" , &Current.NbrTestedFac}, //+++
   {"TimeImag" , &Current.TimeImag},   {"Eigenvalue", &Current.Time},
   {"EigenvalueReal" , &Current.Time}, {"EigenvalueImag" , &Current.TimeImag},
   {"ReOmega"  , &Current.Time},       {"ImOmega"   , &Current.TimeImag},
