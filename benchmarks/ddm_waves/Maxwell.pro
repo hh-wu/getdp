@@ -236,14 +236,14 @@ Formulation {
           Galerkin { [ $ArtificialSource~{j} ? g_in~{i}~{j}[] : Vector[0,0,0] ,
               {e~{i}} ];
             In Sigma~{i}~{j}; Integration I1; Jacobian JSur; }
-	  // same story, modified for SGS
-	  Galerkin { [ ($ArtificialSourceSGS~{j} ? g_in_c~{i}~{j}[] : 0), {e~{i}} ];
-	    In Sigma~{i}~{j}; Jacobian JSur; Integration I1; }
+          // same story, modified for SGS
+          Galerkin { [ ($ArtificialSourceSGS~{j} ? g_in_c~{i}~{j}[] : 0), {e~{i}} ];
+            In Sigma~{i}~{j}; Jacobian JSur; Integration I1; }
         EndFor
 
         // transmission condition
         If(TC_TYPE == 0)
-	  Galerkin { [ -I[] * kIBC[] * N[] /\ (Dof{e~{i}} /\ N[]), {e~{i}} ];
+          Galerkin { [ -I[] * kIBC[] * N[] /\ (Dof{e~{i}} /\ N[]), {e~{i}} ];
             In Sigma~{i}; Integration I1; Jacobian JSur; }
         EndIf
 
@@ -284,19 +284,19 @@ Formulation {
               In Sigma~{i}~{j}; Integration I1; Jacobian JSur; }
 
             For h In{1:NP_OSRC}
-              Galerkin { [ OSRC_Aj[]{j,NP_OSRC,theta_branch} *
+              Galerkin { [ OSRC_Aj[]{h,NP_OSRC,theta_branch} *
                   Dof{d rho~{h}~{i}~{j}}, {r~{i}~{j}} ];
                 In Sigma~{i}~{j}; Integration I1; Jacobian JSur; }
-              Galerkin { [ -OSRC_Aj[]{j,NP_OSRC,theta_branch} / keps[]^2 *
+              Galerkin { [ -OSRC_Aj[]{h,NP_OSRC,theta_branch} / keps[]^2 *
                   Dof{d phi~{h}~{i}~{j}}, {d r~{i}~{j}} ];
               In Sigma~{i}~{j}; Integration I1; Jacobian JSur; }
 
               Galerkin { [ Dof{phi~{h}~{i}~{j}}, {phi~{h}~{i}~{j}} ];
                 In Sigma~{i}~{j}; Integration I1; Jacobian JSur; }
-              Galerkin { [ OSRC_Bj[]{j,NP_OSRC,theta_branch} *
+              Galerkin { [ OSRC_Bj[]{h,NP_OSRC,theta_branch} *
                   Dof{d rho~{h}~{i}~{j}}, {phi~{h}~{i}~{j}} ];
                 In Sigma~{i}~{j}; Integration I1; Jacobian JSur; }
-              Galerkin { [ -OSRC_Bj[]{j,NP_OSRC,theta_branch} / keps[]^2 *
+              Galerkin { [ -OSRC_Bj[]{h,NP_OSRC,theta_branch} / keps[]^2 *
                   Dof{d phi~{h}~{i}~{j}}, {d phi~{h}~{i}~{j}} ];
                 In Sigma~{i}~{j}; Integration I1; Jacobian JSur; }
               Galerkin { [ - Dof{r~{i}~{j}}, {phi~{h}~{i}~{j}} ];
@@ -317,7 +317,7 @@ Formulation {
               In Pml~{i}~{j}; Jacobian JVol; Integration I1;}
             Galerkin { [ - eps[] * (kPml~{i}~{j}[])^2*Dof{e~{i}}, {e~{i}} ];
               In Pml~{i}~{j}; Jacobian JVol; Integration I1;}
-	    Galerkin { [ I[] * kIBC[] * (N[]) /\ ( N[] /\ Dof{e~{i}} ) , {e~{i}} ];
+            Galerkin { [ I[] * kIBC[] * (N[]) /\ ( N[] /\ Dof{e~{i}} ) , {e~{i}} ];
               In PmlInf~{i}~{j}; Jacobian JSur; Integration I1; }
           EndFor
         EndIf
