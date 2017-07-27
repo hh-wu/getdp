@@ -70,8 +70,8 @@ Group{
     GammaN~{idom} = Region[{}];
     GammaInf~{idom} = Region[{(2000 + idom)}];
 
-    Sigma~{idom}~{left} = Region[{(3000 + idom)}];
-    Sigma~{idom}~{right} = Region[{(4000 + idom)}];
+    Sigma~{idom}~{right} = Region[{(3000 + idom)}];
+    Sigma~{idom}~{left} = Region[{(4000 + idom)}];
     Sigma~{idom} = Region[{Sigma~{idom}~{left}, Sigma~{idom}~{right}}] ;
 
     BndGammaD~{idom}~{left} = Region[{(5000 + idom)}];
