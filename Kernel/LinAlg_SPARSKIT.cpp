@@ -483,6 +483,8 @@ void LinAlg_AddMatrixMatrix(gMatrix *M1, gMatrix *M2, gMatrix *M3)
 {
   if(M3 == M1)
     add_matrix_matrix(&M1->M, &M2->M) ;
+  else if(M3 == M2)
+    add_matrix_matrix(&M2->M, &M1->M) ;
   else
     Message::Error("Wrong arguments in 'LinAlg_AddMatrixMatrix'");
 }
