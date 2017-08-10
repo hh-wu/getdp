@@ -104,7 +104,11 @@ void Message::Initialize(int argc, char **argv)
   _startTime = GetTimeOfDay();
   _errorCount = 0;
 #if defined(HAVE_PETSC)
-  MPI_Init(&argc, &argv);
+  int initialized;
+  MPI_Initialized(&initialized);
+  if(!initialized)
+    MPI_Init(&argc, &argv);
+
   MPI_Comm_rank(MPI_COMM_WORLD, &_commRank);
   MPI_Comm_size(MPI_COMM_WORLD, &_commSize);
   MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
