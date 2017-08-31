@@ -1142,12 +1142,12 @@ struct Operation {
       int     ExprIndex;
     } SaveMesh;
     struct {
-      char    *Quantity;
+      char    *Quantity, *Quantity2, *Quantity3;
       char    *Name_MshFile;
       int     GeoDataIndex;
       double  Factor;
       int     GroupIndex;
-    } DeformeMesh;
+    } DeformMesh;
     struct {
       char    *String;
     } SetGlobalSolverOptions;
@@ -1212,7 +1212,7 @@ struct IterativeLoopSystem {
 #define OPERATION_CHANGEOFCOORDINATES       8
 #define OPERATION_CHANGEOFCOORDINATES2      9
 #define OPERATION_CREATEDIR                10
-#define OPERATION_DEFORMEMESH              11
+#define OPERATION_DEFORMMESH               11
 #define OPERATION_DELETEFILE               12
 #define OPERATION_DOFSFREQUENCYSPECTRUM    13
 #define OPERATION_EIGENSOLVE               14
@@ -1415,6 +1415,7 @@ struct PostSubOperation {
   int    StoreMinYinRegister, StoreMinZinRegister, StoreMaxInRegister;
   int    StoreMaxXinRegister, StoreMaxYinRegister, StoreMaxZinRegister;
   char  *SendToServer, *Color, *Units;
+  bool   Visible;
   List_T *SendToServerList;
   int    StoreInField, StoreInMeshBasedField;
   int    Legend, FrozenTimeStepList;

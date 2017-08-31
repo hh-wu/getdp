@@ -3639,12 +3639,26 @@ Creates a vector from 3 scalars.
 
 @code{@var{expression},@var{expression},@var{expression}]}
 
-Creates a second-rank tensor of order 3 from 9 scalars.
+Creates a second-rank tensor of order 3 from 9 scalars, by row: 
+@smallexample
+@group
+    [ scalar0 scalar1 scalar2 ]   [ CompXX CompXY CompXZ ]   
+T = [ scalar3 scalar4 scalar5 ] = [ CompYX CompYY CompYZ ]
+    [ scalar6 scalar7 scalar8 ]   [ CompZX CompZY CompZZ ]  
+@end group
+@end smallexample
 
 @item TensorV
 @code{[@var{expression},@var{expression},@var{expression}]}
 
-Creates a second-rank tensor of order 3 from 3 vectors.
+Creates a second-rank tensor of order 3 from 3 row vectors:
+@smallexample
+@group
+    [ vector0 ]
+T = [ vector1 ]
+    [ vector2 ]
+@end group
+@end smallexample
 
 @item TensorSym
 @code{[@var{expression},@var{expression},@var{expression},@var{expression},@var{expression},@var{expression}]}
@@ -5058,7 +5072,7 @@ Broadcast all runtime variables over MPI.
 
 @c @item SaveMesh
 
-@c @item DeformeMesh
+@c @item DeformMesh
 
 @c @item IterativeTimeReduction
 @c @{ @var{iterative-time-reduction-arg}; @}
@@ -5323,11 +5337,12 @@ Appends the result to the file specified with @code{File}. (Same
 behavior as @code{>} if @var{expression-cst} = 1; same behavior as
 @code{>>} if @var{expression-cst} = 2.)
 
-@item Name
+@item Name | Label
 @code{@var{expression-char}}
 
 For formats that support it, sets the label of the output field to
-@var{expression-char}.
+@var{expression-char} (also used with with @code{SendToServer} to force
+the label).
 
 @item Depth
 @var{expression-cst}
@@ -5414,19 +5429,24 @@ mesh-based solution formats).
 @var{expression-char}
 
 Send the value to the Onelab server, using @var{expression-char} as the
-paramater name.
+parameter name.
 
 @item SendToServer
 @var{expression-char}  @{ @var{expression-cst-list} @}
 
 Send the requested harmonics of the value to the Onelab server, using
-@var{expression-char} as the paramater name.
+@var{expression-char} as the parameter name.
 
 @item Color
 @var{expression-char}
 
 Used with @code{SendToServer}, sets the color of the parameter in the
 Onelab server.
+
+@item Hidden
+< @var{expression-cst} >
+
+Used with @code{SendToServer}, selects the visibility of the exchanged value.
 
 @item Units
 @var{expression-char}
