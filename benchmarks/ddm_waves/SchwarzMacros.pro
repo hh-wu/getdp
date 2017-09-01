@@ -37,25 +37,26 @@ If(RESTART > MAXIT || RESTART == 0)
   RESTART = MAXIT;
 EndIf
 
-For ii In {0: #ListOfSubdomains()-1}
-  idom = ListOfSubdomains(ii);
-  DefineConstant[
-    GenerateVolFlag~{idom} = 0,
-    GenerateSurFlag~{idom}~{0} = 0, GenerateSurFlag~{idom}~{1} = 0,
-    GenerateSurPcFlag~{idom}~{0} = 0, GenerateSurPcFlag~{idom}~{1} = 0
-  ];
+For ii In {0: #myD()-1}
+  i = myD(ii);
+  DefineConstant[GenerateVolFlag~{i} = 0];
+  For jj In {0: #myD~{i}()-1}
+    j = myD~{i}(jj);
+    DefineConstant[GenerateSurFlag~{i}~{j} = 0, GenerateSurPcFlag~{i}~{j} = 0];
+  EndFor
 EndFor
 
 Macro Init
-//Reset variables.
-For ii In {0: #ListOfSubdomains()-1}
-  idom = ListOfSubdomains(ii);
-  GenerateVolFlag~{idom} = 0;
-  GenerateSurFlag~{idom}~{0} = 0 ;
-  GenerateSurFlag~{idom}~{1} = 0;
-  GenerateSurPcFlag~{idom}~{0} = 0 ;
-  GenerateSurPcFlag~{idom}~{1} = 0 ;
-EndFor
+  //Reset variables.
+  For ii In {0: #myD()-1}
+    i = myD(ii);
+    GenerateVolFlag~{i} = 0;
+    For jj In {0: #myD~{i}()-1}
+      j = myD~{i}(jj);
+      GenerateSurFlag~{i}~{j} = 0 ;
+      GenerateSurPcFlag~{i}~{j} = 0 ;
+    EndFor
+  EndFor
 Return
 
 
@@ -109,14 +110,22 @@ Macro DisablePhysicalSources
 Return
 
 Macro EnableArtificialSources
-  For iSide In {0:1}
-    Evaluate[$ArtificialSource~{iSide} = 1, $ArtificialSourceSGS~{iSide} = 0];
+  For ii In {0: #myD()-1}
+    i = myD(ii);
+      For jj In {0:#myD~{i}()-1}
+        j = myD~{i}(jj);
+        Evaluate[$ArtificialSource~{j} = 1, $ArtificialSourceSGS~{j} = 0];
+      EndFor
   EndFor
 Return
 
 Macro DisableArtificialSources
-  For iSide In {0:1}
-    Evaluate[$ArtificialSource~{iSide} = 0, $ArtificialSourceSGS~{iSide} = 0];
+  For ii In {0: #myD()-1}
+    i = myD(ii);
+      For jj In {0:#myD~{i}()-1}
+        j = myD~{i}(jj);
+        Evaluate[$ArtificialSource~{j} = 0, $ArtificialSourceSGS~{j} = 0];
+      EndFor
   EndFor
 Return
 
@@ -126,9 +135,9 @@ Macro UpdateConstraints
   // conditions for Maxwell)
   If(ANALYSIS != 1)
     SetCommSelf;
-    For ii In {0: #ListOfSubdomains()-1}
-      idom = ListOfSubdomains(ii);
-      UpdateConstraint[Vol~{idom}, GammaD~{idom}, Assign];
+    For ii In {0: #myD()-1}
+      i = myD(ii);
+      UpdateConstraint[Vol~{i}, GammaD~{i}, Assign];
     EndFor
     SetCommWorld;
   EndIf
@@ -137,25 +146,23 @@ Return
 Macro SolveVolumePDE
   // work on own cpu
   SetCommSelf;
-  For ii In {0: #ListOfSubdomains()-1}
-    idom = ListOfSubdomains(ii);
+  For ii In {0: #myD()-1}
+    i = myD(ii);
     // solve the volume PDE on each subdomain
-    If(GenerateVolFlag~{idom})
+    If(GenerateVolFlag~{i})
       // the matrix is already factorized, only regenerate the RHS
       Test[ $PhysicalSource == 1 ]{
-	GenerateRHSGroup[Vol~{idom}, Region[{Sigma~{idom}, TrOmegaGammaD~{idom},
-	      GammaD~{idom}, GammaPoint~{idom}}] ];
+        GenerateRHSGroup[Vol~{i}, Region[{Sigma~{i}, TrOmegaGammaD~{i}, GammaD~{i}, GammaPoint~{i}}] ];
       }
       {
-	GenerateRHSGroup[Vol~{idom}, Region[{Sigma~{idom},
-	      GammaD~{idom}, GammaPoint~{idom}}] ];
+        GenerateRHSGroup[Vol~{i}, Region[{Sigma~{i}, GammaD~{i}, GammaPoint~{i}}] ];
       }
-    SolveAgain[Vol~{idom}];
+    SolveAgain[Vol~{i}];
     EndIf
-    If(GenerateVolFlag~{idom} == 0)
+    If(GenerateVolFlag~{i} == 0)
       // first time generation and factorization of the matrix
-      Generate[Vol~{idom}]; Solve[Vol~{idom}];
-      GenerateVolFlag~{idom} = 1;
+      Generate[Vol~{i}]; Solve[Vol~{i}];
+      GenerateVolFlag~{i} = 1;
     EndIf
   EndFor
   // go back to parallel mode
@@ -165,22 +172,21 @@ Return
 Macro SolveSurfacePDE
   SetCommSelf;
   // compute g_in for next iteration
-  For ii In {0: #ListOfSubdomains()-1}
-    idom = ListOfSubdomains(ii);
+  For ii In {0: #myD()-1}
+    i = myD(ii);
     // solve the surface PDE on the boundaries of each subdomain
-    For iSide In {0:1}
-      If(NbrRegions[Sigma~{idom}~{iSide}])
-        If(GenerateSurFlag~{idom}~{iSide})
+    For jj In {0:#myD~{i}()-1}
+      j = myD~{i}(jj);
+      If(NbrRegions[Sigma~{i}~{j}])
+        If(GenerateSurFlag~{i}~{j})
           // the matrix is already factorized, only regenerate the RHS
-          GenerateRHSGroup[Sur~{idom}~{iSide}, Region[{Sigma~{idom}~{iSide},
-                TrPmlSigma~{idom}~{iSide}, TrBndPmlSigma~{idom}~{iSide},
-                BndSigmaInf~{idom}~{iSide}}]];
-          SolveAgain[Sur~{idom}~{iSide}];
+          GenerateRHSGroup[Sur~{i}~{j}, Region[{Sigma~{i}~{j}, TrPmlSigma~{i}~{j}, TrBndPmlSigma~{i}~{j}, BndSigmaInf~{i}~{j}}] ];
+          SolveAgain[Sur~{i}~{j}];
         EndIf
-        If(GenerateSurFlag~{idom}~{iSide} == 0)
+        If(GenerateSurFlag~{i}~{j} == 0)
           // first time generation and factorization of the matrix
-          Generate[Sur~{idom}~{iSide}]; Solve[Sur~{idom}~{iSide}];
-          GenerateSurFlag~{idom}~{iSide} = 1;
+          Generate[Sur~{i}~{j}]; Solve[Sur~{i}~{j}];
+          GenerateSurFlag~{i}~{j} = 1;
         EndIf
 
       EndIf
@@ -192,10 +198,11 @@ Return
 Macro UpdateSurfaceFields
   SetCommSelf;
   // store g in ListOfFields()
-  For ii In {0: #ListOfSubdomains()-1}
-    idom = ListOfSubdomains(ii);
-    For iSide In {0:1}
-      PostOperation[g_out~{idom}~{iSide}];
+  For ii In {0: #myD()-1}
+    i = myD(ii);
+    For jj In {0:#myD~{i}()-1}
+      j = myD~{i}(jj);
+      PostOperation[g_out~{i}~{j}];
     EndFor
   EndFor
   SetCommWorld;
@@ -205,9 +212,9 @@ Macro SaveVolumeSolutions
   If(SAVE_SOLUTION)
     SetCommSelf;
     // compute the volume solution
-    For ii In {0: #ListOfSubdomains()-1}
-      idom = ListOfSubdomains(ii);
-      PostOperation[DDM~{idom}];
+    For ii In {0: #myD()-1}
+      i = myD(ii);
+      PostOperation[DDM~{i}];
     EndFor
     SetCommWorld;
   EndIf
@@ -215,18 +222,19 @@ Return
 
 Macro CopySurfaceFields
   SetCommSelf;
-  For ii In {0:#ListOfSubdomains()-1}
-    idom = ListOfSubdomains(ii);
-    For iSide In {0:1}
+  For ii In {0:#myD()-1}
+    i = myD(ii);
+    For jj In {0:#myD~{i}()-1}
+      j = myD~{i}(jj);
       If (PRECONDITIONER == 2)
-        PostOperation[g_copy~{idom}~{iSide}];
+        PostOperation[g_copy~{i}~{j}];
       EndIf
       // do the Generate if necessary
-      If (GenerateSurPcFlag~{idom}~{iSide} == 0) // FIXME: to this separately ?
-        If( NbrRegions[Sigma~{idom}~{iSide}] )
-          Generate[SurPc~{idom}~{iSide}];
+      If (GenerateSurPcFlag~{i}~{j} == 0) // FIXME: to this separately ?
+        If( NbrRegions[Sigma~{i}~{j}] )
+          Generate[SurPc~{i}~{j}];
         EndIf
-        GenerateSurPcFlag~{idom}~{iSide} = 1;
+        GenerateSurPcFlag~{i}~{j} = 1;
       EndIf
     EndFor
   EndFor
@@ -235,110 +243,115 @@ Return
 
 Macro SolveAndStepForward
   SetCommSelf;
-  If( proc == MPI_Rank && ProcOwnsDomain(idom_f) )
-    Evaluate[$ArtificialSource~{0} = 1, $ArtificialSource~{1} = 0];
-    Evaluate[$ArtificialSourceSGS~{0} = 0, $ArtificialSourceSGS~{1} = (PRECONDITIONER == 2)];
+  If( proc == MPI_Rank && ProcOwnsDomain(i_f) )
+    left = (i_f-1)%N_DOM; // left boundary
+    right = (i_f+1)%N_DOM; // right boundary
+    
+    Evaluate[$ArtificialSource~{left} = 1, $ArtificialSource~{right} = 0];
+    Evaluate[$ArtificialSourceSGS~{left} = 0, $ArtificialSourceSGS~{right} = (PRECONDITIONER == 2)];
 
-    skipList = {2*idom_f, (2*(idom_f + N_DOM)+1)%(2*N_DOM)}; // right
+    skipList = {2*i_f, (2*(i_f + N_DOM)+1)%(2*N_DOM)}; // right
     BroadcastFields[skipList()];
 
     Evaluate[ $t1pf = GetWallClockTime[], $t1pfc = GetCpuTime[] ];
 
     // compute u on Omega_i (fast way)
-    GenerateRHSGroup[Vol~{idom_f}, Region[{Sigma~{idom_f}}]];
-    SolveAgain[Vol~{idom_f}];
+    GenerateRHSGroup[Vol~{i_f}, Region[{Sigma~{i_f}}] ];
+    SolveAgain[Vol~{i_f}];
 
     // compute the new g_out (fast way)
-    If( NbrRegions[Sigma~{idom_f}~{1}] )
-      GenerateRHSGroup[SurPc~{idom_f}~{1}, Region[{Sigma~{idom_f}~{1},
-            TrPmlSigma~{idom_f}~{1}, BndSigma~{idom_f}~{1},
-            TrBndPmlSigma~{idom_f}~{1}}]];
-      SolveAgain[SurPc~{idom_f}~{1}];
+    If( NbrRegions[Sigma~{i_f}~{right}] )
+      GenerateRHSGroup[SurPc~{i_f}~{right}, Region[{Sigma~{i_f}~{right}, TrPmlSigma~{i_f}~{right}, BndSigma~{i_f}~{right}, TrBndPmlSigma~{i_f}~{right}}]];
+      SolveAgain[SurPc~{i_f}~{right}];
     EndIf
-    PostOperation[g_out~{idom_f}~{1}];
+    PostOperation[g_out~{i_f}~{right}];
 
     Evaluate[ $t2pf = GetWallClockTime[], $t2pfc = GetCpuTime[] ];
     If(TIMING)
       Print[{$t2pf-$t1pf, $t2pfc-$t1pfc}, Format "WALL (FORWARD) subroblem solve in preconditioner = %gs ; CPU = %gs"];
     EndIf
 
-    skipList = {(2*(idom_f + N_DOM)-1)%(2*N_DOM), (2*(idom_f + N_DOM)-2)%(2*N_DOM)}; // left
+    skipList = {(2*(i_f + N_DOM)-1)%(2*N_DOM), (2*(i_f + N_DOM)-2)%(2*N_DOM)}; // left
     BroadcastFields[skipList()];
 
-    Evaluate[$ArtificialSource~{0} = 1, $ArtificialSource~{1} = 1];
-    Evaluate[$ArtificialSourceSGS~{0} = 0, $ArtificialSourceSGS~{1} = 0];
+    Evaluate[$ArtificialSource~{left} = 1, $ArtificialSource~{right} = 1];
+    Evaluate[$ArtificialSourceSGS~{left} = 0, $ArtificialSourceSGS~{right} = 0];
   EndIf
   SetCommWorld;
 Return
 
 Macro SolveAndStepBackward
   SetCommSelf;
-  If( proc == MPI_Rank && ProcOwnsDomain(idom_b) )
-    Evaluate[$ArtificialSource~{0} = 0, $ArtificialSource~{1} = 1];
-    Evaluate[$ArtificialSourceSGS~{0} = (PRECONDITIONER == 2), $ArtificialSourceSGS~{1} = 0];
+  If( proc == MPI_Rank && ProcOwnsDomain(i_b) )
+    left = (i_b-1)%N_DOM; // left boundary
+    right = (i_b+1)%N_DOM; // right boundary
+  
+    Evaluate[$ArtificialSource~{left} = 0, $ArtificialSource~{right} = 1];
+    Evaluate[$ArtificialSourceSGS~{left} = (PRECONDITIONER == 2), $ArtificialSourceSGS~{right} = 0];
 
-    skipList = {(2*(idom_b + N_DOM)-1)%(2*N_DOM), (2*(idom_b + N_DOM)-2)%(2*N_DOM)}; // left
+    skipList = {(2*(i_b + N_DOM)-1)%(2*N_DOM), (2*(i_b + N_DOM)-2)%(2*N_DOM)}; // left
     BroadcastFields[skipList()];
 
     Evaluate[ $t1pb = GetWallClockTime[], $t1pbc = GetCpuTime[] ];
 
     // compute u on Omega_i (fast way)
-    GenerateRHSGroup[Vol~{idom_b}, Region[{Sigma~{idom_b}}]];
-    SolveAgain[Vol~{idom_b}];
+    GenerateRHSGroup[Vol~{i_b}, Region[{Sigma~{i_b}}] ];
+    SolveAgain[Vol~{i_b}];
 
     // compute the new g_out (fast way)
-    If( NbrRegions[Sigma~{idom_b}~{0}] )
-      GenerateRHSGroup[SurPc~{idom_b}~{0}, Region[{Sigma~{idom_b}~{0},
-            TrPmlSigma~{idom_b}~{0}, BndSigma~{idom_b}~{0},
-            TrBndPmlSigma~{idom_b}~{0}}]];
-      SolveAgain[SurPc~{idom_b}~{0}];
+    If( NbrRegions[Sigma~{i_b}~{left}] )
+      GenerateRHSGroup[SurPc~{i_b}~{left}, Region[{Sigma~{i_b}~{left}, TrPmlSigma~{i_b}~{left}, BndSigma~{i_b}~{left}, TrBndPmlSigma~{i_b}~{left}}]];
+      SolveAgain[SurPc~{i_b}~{left}];
     EndIf
-    PostOperation[g_out~{idom_b}~{0}];
+    PostOperation[g_out~{i_b}~{left}];
 
     Evaluate[ $t2pb = GetWallClockTime[], $t2pbc = GetCpuTime[] ];
 
     If(TIMING)
       Print[{$t2pb-$t1pb, $t2pbc-$t1pbc}, Format "WALL (BACKWARD) subroblem solve in preconditioner = %gs ; CPU = %gs"];
     EndIf
-    skipList = {2*idom_b, (2*(idom_b + N_DOM)+1)%(2*N_DOM)}; // right
+    skipList = {2*i_b, (2*(i_b + N_DOM)+1)%(2*N_DOM)}; // right
     BroadcastFields[skipList()];
 
-    Evaluate[$ArtificialSource~{0} = 1, $ArtificialSource~{1} = 1];
-    Evaluate[$ArtificialSourceSGS~{0} = 0, $ArtificialSourceSGS~{1} = 0];
+    Evaluate[$ArtificialSource~{left} = 1, $ArtificialSource~{right} = 1];
+    Evaluate[$ArtificialSourceSGS~{left} = 0, $ArtificialSourceSGS~{right} = 0];
   EndIf
   SetCommWorld;
 Return
 
 Macro InitSweep
   SetCommSelf;
-  If( proc == MPI_Rank && ProcOwnsDomain(idom) )
+  If( proc == MPI_Rank && ProcOwnsDomain(i) )
     If (PRECONDITIONER == 2)
-      Evaluate[$ArtificialSource~{0} = (PRECONDITIONER == 2), $ArtificialSource~{1} = (PRECONDITIONER == 2)];
-      Evaluate[$ArtificialSourceSGS~{0} = 0, $ArtificialSourceSGS~{1} = 0];
+      left = (i-1)%N_DOM; // left boundary
+      right = (i+1)%N_DOM; // right boundary
+    
+      Evaluate[$ArtificialSource~{left} = (PRECONDITIONER == 2), $ArtificialSource~{right} = (PRECONDITIONER == 2)];
+      Evaluate[$ArtificialSourceSGS~{left} = 0, $ArtificialSourceSGS~{right} = 0];
 
       Evaluate[ $t1pi = GetWallClockTime[], $t1pic = GetCpuTime[] ];
 
       // compute u on Omega_i (fast way)
-      GenerateRHSGroup[Vol~{idom}, Region[{Sigma~{idom}}]];
-      SolveAgain[Vol~{idom}];
+      GenerateRHSGroup[Vol~{i}, Region[{Sigma~{i}}] ];
+      SolveAgain[Vol~{i}];
 
       // compute the new g_out (fast way), on both sides
-      For iSide In{0:1}
-        If( NbrRegions[Sigma~{idom}~{iSide}] )
-          GenerateRHSGroup[SurPc~{idom}~{iSide}, Region[{Sigma~{idom}~{iSide},
-                TrPmlSigma~{idom}~{iSide}}]];
-          SolveAgain[SurPc~{idom}~{iSide}];
+      For jj In {0:#myD~{i}()-1}
+        j = myD~{i}(jj);
+        If( NbrRegions[Sigma~{i}~{j}] )
+          GenerateRHSGroup[SurPc~{i}~{j}, Region[{Sigma~{i}~{j}, TrPmlSigma~{i}~{j}}] ];
+          SolveAgain[SurPc~{i}~{j}];
         EndIf
-        PostOperation[g_out~{idom}~{iSide}];
+        PostOperation[g_out~{i}~{j}];
       EndFor
 
       Evaluate[ $t2pi = GetWallClockTime[], $t2pic = GetCpuTime[] ];
       If(TIMING)
-	Print[{$t2pi-$t1pi, $t2pic-$t1pic}, Format "WALL (INIT SGS) subproblem solve in preconditioner = %gs ; CPU = %gs"];
+        Print[{$t2pi-$t1pi, $t2pic-$t1pic}, Format "WALL (INIT SGS) subproblem solve in preconditioner = %gs ; CPU = %gs"];
       EndIf
 
     EndIf
-    BroadcastFields[];
+    BroadcastFields[{}];
   EndIf
   SetCommWorld;
 Return
@@ -346,7 +359,7 @@ Return
 Macro FinalizeSweep
   SetCommSelf;
   If ( proc == MPI_Rank && ProcOwnsDomain(ListOfCuts(iCut)) ) // first of cut
-    BroadcastFields[];
+    BroadcastFields[{}];
   EndIf
   SetCommWorld;
 Return

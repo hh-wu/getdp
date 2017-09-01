@@ -146,15 +146,16 @@ If (PRECONDITIONER)
 EndIf
 
 Group{
+  D() = {};
   For idom In {0:N_DOM-1}
+    left = (idom-1)%N_DOM; // left boundary
+    right = (idom+1)%N_DOM; // right boundary
+  
+    D() += idom;
+  
     Omega~{idom} = Region[((idom+1)*1000+200)];
     GammaD0~{idom} = Region[{}];
-    Pml~{idom}~{0} = Region[{}];
-    Pml~{idom}~{1} = Region[{}];
-    PmlD0~{idom}~{0} = Region[{}];
-    PmlD0~{idom}~{1} = Region[{}];
-    PmlInf~{idom}~{0} = Region[{}];
-    PmlInf~{idom}~{1} = Region[{}];
+    
     If(WALLS == 1)
       GammaD0~{idom} += Region[ ((idom+1)*1000+202) ];
     EndIf
@@ -165,64 +166,99 @@ Group{
     GammaN~{idom} = Region[{}];
 
     If (idom == 0)
-      Sigma~{idom}~{0} = Region[{}];
-      Sigma~{idom}~{1} = Region[ ((idom+1)*1000+20) ];
+      D~{idom} = {right};
+      
+      Pml~{idom}~{right} = Region[{}];
+      PmlD0~{idom}~{right} = Region[{}];
+      PmlInf~{idom}~{right} = Region[{}];
+    
+      Sigma~{idom}~{right} = Region[ ((idom+1)*1000+20) ];
+      Sigma~{idom} = Region[{Sigma~{idom}~{right}}] ;
+      
       GammaD~{idom} = Region[ ((idom+1)*1000+10) ];
-      Pml~{idom}~{1} += Region[ ((idom+1)*1000+300) ];
+      Pml~{idom}~{right} += Region[ ((idom+1)*1000+300) ];
       If(WALLS == 1)
-        PmlD0~{idom}~{1} += Region[ ((idom+1)*1000+302) ];
+        PmlD0~{idom}~{right} += Region[ ((idom+1)*1000+302) ];
       EndIf
       If(WALLS == 0)
-        PmlInf~{idom}~{1} += Region[ ((idom+1)*1000+302) ];
+        PmlInf~{idom}~{right} += Region[ ((idom+1)*1000+302) ];
       EndIf
-      PmlInf~{idom}~{1} += Region[ ((idom+1)*1000+4) ];
+      PmlInf~{idom}~{right} += Region[ ((idom+1)*1000+4) ];
+      
+      BndSigma~{idom}~{right} = Region[{}];
+      BndSigma~{idom} = Region[{BndSigma~{idom}~{right}}] ;
+      
+      BndGammaInf~{idom}~{right} = Region[{}];
+      BndGammaInf~{idom} = Region[{BndGammaInf~{idom}~{right}}] ;
     EndIf
     If (idom == N_DOM-1)
-      Sigma~{idom}~{0} = Region[ ((idom+1)*1000+10) ];
-      Sigma~{idom}~{1} = Region[{}];
+      D~{idom} = {left};
+      
+      Pml~{idom}~{left} = Region[{}];
+      PmlD0~{idom}~{left} = Region[{}];
+      PmlInf~{idom}~{left} = Region[{}];
+    
+      Sigma~{idom}~{left} = Region[ ((idom+1)*1000+10) ];
+      Sigma~{idom} = Region[{Sigma~{idom}~{left}}] ;
+      
       If (OPEN_ENDED)
-	GammaInf~{idom} += Region[ ((idom+1)*1000+20) ];
+        GammaInf~{idom} += Region[ ((idom+1)*1000+20) ];
       EndIf
       If (!OPEN_ENDED)
-	GammaD0~{idom} += Region[ ((idom+1)*1000+20) ];
+        GammaD0~{idom} += Region[ ((idom+1)*1000+20) ];
       EndIf
       GammaD~{idom} = Region[{}];
-      Pml~{idom}~{0} += Region[ ((idom+1)*1000+100) ];
+      Pml~{idom}~{left} += Region[ ((idom+1)*1000+100) ];
       If(WALLS == 1)
-        PmlD0~{idom}~{0} += Region[ ((idom+1)*1000+102) ];
+        PmlD0~{idom}~{left} += Region[ ((idom+1)*1000+102) ];
       EndIf
       If(WALLS == 0)
-        PmlInf~{idom}~{0} += Region[ ((idom+1)*1000+102) ];
+        PmlInf~{idom}~{left} += Region[ ((idom+1)*1000+102) ];
       EndIf
-      PmlInf~{idom}~{0} += Region[ ((idom+1)*1000+1) ];
+      PmlInf~{idom}~{left} += Region[ ((idom+1)*1000+1) ];
+      
+      BndSigma~{idom}~{left} = Region[{}];
+      BndSigma~{idom} = Region[{BndSigma~{idom}~{left}}] ;
+      
+      BndGammaInf~{idom}~{left} = Region[{}];
+      BndGammaInf~{idom} = Region[{BndGammaInf~{idom}~{left}}] ;
     EndIf
     If (idom >= 1 && idom < N_DOM-1)
-      Sigma~{idom}~{0} = Region[ ((idom+1)*1000+10) ];
-      Sigma~{idom}~{1} = Region[ ((idom+1)*1000+20) ];
+      D~{idom} = {left, right};
+      
+      Pml~{idom}~{left} = Region[{}];
+      Pml~{idom}~{right} = Region[{}];
+      PmlD0~{idom}~{left} = Region[{}];
+      PmlD0~{idom}~{right} = Region[{}];
+      PmlInf~{idom}~{left} = Region[{}];
+      PmlInf~{idom}~{right} = Region[{}];
+    
+      Sigma~{idom}~{left} = Region[ ((idom+1)*1000+10) ];
+      Sigma~{idom}~{right} = Region[ ((idom+1)*1000+20) ];
+      Sigma~{idom} = Region[{Sigma~{idom}~{left}, Sigma~{idom}~{right}}] ;
+      
       GammaD~{idom} = Region[{}];
-      Pml~{idom}~{0} += Region[ ((idom+1)*1000+100) ];
-      Pml~{idom}~{1} += Region[ ((idom+1)*1000+300) ];
+      Pml~{idom}~{left} += Region[ ((idom+1)*1000+100) ];
+      Pml~{idom}~{right} += Region[ ((idom+1)*1000+300) ];
       If(WALLS == 1)
-        PmlD0~{idom}~{0} += Region[ ((idom+1)*1000+102) ];
-        PmlD0~{idom}~{1} += Region[ ((idom+1)*1000+302) ];
+        PmlD0~{idom}~{left} += Region[ ((idom+1)*1000+102) ];
+        PmlD0~{idom}~{right} += Region[ ((idom+1)*1000+302) ];
       EndIf
       If(WALLS == 0)
-        PmlInf~{idom}~{0} += Region[ ((idom+1)*1000+102) ];
-        PmlInf~{idom}~{1} += Region[ ((idom+1)*1000+302) ];
+        PmlInf~{idom}~{left} += Region[ ((idom+1)*1000+102) ];
+        PmlInf~{idom}~{right} += Region[ ((idom+1)*1000+302) ];
       EndIf
-      PmlInf~{idom}~{0} += Region[ ((idom+1)*1000+1) ];
-      PmlInf~{idom}~{1} += Region[ ((idom+1)*1000+4) ];
+      PmlInf~{idom}~{left} += Region[ ((idom+1)*1000+1) ];
+      PmlInf~{idom}~{right} += Region[ ((idom+1)*1000+4) ];
+      
+      BndSigma~{idom}~{left} = Region[{}];
+      BndSigma~{idom}~{right} = Region[{}];
+      BndSigma~{idom} = Region[{BndSigma~{idom}~{left}, BndSigma~{idom}~{right}}] ;
+      
+      BndGammaInf~{idom}~{left} = Region[{}];
+      BndGammaInf~{idom}~{right} = Region[{}];
+      BndGammaInf~{idom} = Region[{BndGammaInf~{idom}~{left}, BndGammaInf~{idom}~{right}}] ;
     EndIf
-
-    Sigma~{idom} = Region[{Sigma~{idom}~{0}, Sigma~{idom}~{1}}] ;
-
-    BndSigma~{idom}~{0} = Region[{}];
-    BndSigma~{idom}~{1} = Region[{}];
-    BndSigma~{idom} = Region[{BndSigma~{idom}~{0}, BndSigma~{idom}~{1}}] ;
-
-    BndGammaInf~{idom}~{0} = Region[{}];
-    BndGammaInf~{idom}~{1} = Region[{}];
-    BndGammaInf~{idom} = Region[{BndGammaInf~{idom}~{0}, BndGammaInf~{idom}~{1}}] ;
   EndFor
 }
 
@@ -230,8 +266,11 @@ Include "Decomposition.pro";
 
 Function{
   For idom In {0:N_DOM-1}
-    distSigma~{idom}~{0}[] = (X[]-xBaseList(idom))*Cos[-thetaList(idom)] - (Y[]-yBaseList(idom))*Sin[-thetaList(idom)];
-    distSigma~{idom}~{1}[] = (X[]-xBaseList(idom+1))*Cos[-thetaList(idom+1)] - (Y[]-yBaseList(idom+1))*Sin[-thetaList(idom+1)];
+    left = (idom-1)%N_DOM; // left boundary
+    right = (idom+1)%N_DOM; // right boundary
+  
+    distSigma~{idom}~{left}[] = (X[]-xBaseList(idom))*Cos[-thetaList(idom)] - (Y[]-yBaseList(idom))*Sin[-thetaList(idom)];
+    distSigma~{idom}~{right}[] = (X[]-xBaseList(idom+1))*Cos[-thetaList(idom+1)] - (Y[]-yBaseList(idom+1))*Sin[-thetaList(idom+1)];
   EndFor
 }
 
@@ -239,27 +278,47 @@ Function {
   // Damping functions of the PML: equal to 0 inside the propagation domain
   // and on the intern boundary of the PML (Boundary in common with the Propagation domain).
   // Sigma is (here) linear.
-  For ii In {0: #ListOfSubdomains()-1}
-    idom = ListOfSubdomains(ii);
+  For ii In {0: #myD()-1}
+    i = myD(ii);
 
-    For jdom In {0:1}
-      // kPml~{idom}~{jdom}[] = k[ Vector[xSigma~{idom}~{jdom},Y[],Z[]] ] ;
-      kPml~{idom}~{jdom}[] = k[ XYZ[] ] ; // FIXME: would fail if non-homogeneous
-      // kPml~{idom}~{jdom}[] = k[ Rotate[Vector[xSigma~{idom}~{jdom},Y[],Z[]], 0., 0., -theta] ] ;
+    For jj In {0:#myD~{i}()-1}
+      j = myD~{i}(jj);
+      // kPml~{i}~{j}[] = k[ Vector[xSigma~{i}~{j},Y[],Z[]] ] ;
+      kPml~{i}~{j}[] = k[ XYZ[] ] ; // FIXME: would fail if non-homogeneous
+      // kPml~{i}~{j}[] = k[ Rotate[Vector[xSigma~{i}~{j},Y[],Z[]], 0., 0., -theta] ] ;
     EndFor
   EndFor
 
-  For ii In {0: #ListOfSubdomains()-1}
-    idom = ListOfSubdomains(ii);
-    SigmaX[Omega~{idom}] = 0.;
-    SigmaX[Pml~{idom}~{1}] = distSigma~{idom}~{1}[] > dTr ? c[]/(dBb-distSigma~{idom}~{1}[]) : 0; // Bermudez
-    SigmaX[Pml~{idom}~{0}] = -distSigma~{idom}~{0}[] > dTr ? c[]/Fabs[(dBb+distSigma~{idom}~{0}[])] : 0 ;
-    // SigmaX[OmegaPml~{idom}~{1}] = distSigma~{idom}~{1}[] > dTr ? c[]/(dBb-distSigma~{idom}~{1}[])-c[]/(dBb-dTr) : 0; // Bermudez -- no jump
-    // SigmaX[OmegaPml~{idom}~{0}] = -distSigma~{idom}~{0}[] > dTr ? c[]/Fabs[(dBb+distSigma~{idom}~{0}[])]-c[]/Fabs[(dBb-dTr)] : 0 ;
-    // SigmaX[OmegaPml~{idom}~{1}] = distSigma~{idom}~{1}[] > dTr ? 7000*(distSigma~{idom}~{1}[]-dTr)^2*om[] : 0; // Quadratic
-    // SigmaX[OmegaPml~{idom}~{0}] = -distSigma~{idom}~{0}[] > dTr ? 7000*Fabs[(distSigma~{idom}~{0}[]+dTr)]^2*om[] : 0 ;
-    // SigmaX[OmegaPml~{idom}~{1}] = distSigma~{idom}~{1}[] > dTr ? c[]/dPml : 0; // Constant
-    // SigmaX[OmegaPml~{idom}~{0}] = -distSigma~{idom}~{0}[] > dTr ? c[]/dPml : 0 ;
+  For ii In {0: #myD()-1}
+    i = myD(ii);
+    
+    left = (i-1)%N_DOM; // left boundary
+    right = (i+1)%N_DOM; // right boundary
+    
+    SigmaX[Omega~{i}] = 0.;
+    
+    If (i == 0)
+      SigmaX[Pml~{i}~{right}] = distSigma~{i}~{right}[] > dTr ? c[]/(dBb-distSigma~{i}~{right}[]) : 0; // Bermudez
+      // SigmaX[OmegaPml~{idom}~{right}] = distSigma~{idom}~{right}[] > dTr ? c[]/(dBb-distSigma~{idom}~{right}[])-c[]/(dBb-dTr) : 0; // Bermudez -- no jump
+      // SigmaX[OmegaPml~{idom}~{right}] = distSigma~{idom}~{right}[] > dTr ? 7000*(distSigma~{idom}~{right}[]-dTr)^2*om[] : 0; // Quadratic
+      // SigmaX[OmegaPml~{idom}~{right}] = distSigma~{idom}~{right}[] > dTr ? c[]/dPml : 0; // Constant
+    EndIf
+    If (i == N_DOM-1)
+      SigmaX[Pml~{i}~{left}] = -distSigma~{i}~{left}[] > dTr ? c[]/Fabs[(dBb+distSigma~{i}~{left}[])] : 0 ;
+      // SigmaX[OmegaPml~{idom}~{left}] = -distSigma~{idom}~{left}[] > dTr ? c[]/ Fabs[(dBb+distSigma~{idom}~{left}[])]-c[]/Fabs[(dBb-dTr)] : 0 ;
+      // SigmaX[OmegaPml~{idom}~{left}] = -distSigma~{idom}~{left}[] > dTr ? 7000*Fabs[(distSigma~{idom}~{left}[]+dTr)]^2*om[] : 0 ;
+      // SigmaX[OmegaPml~{idom}~{left}] = -distSigma~{idom}~{left}[] > dTr ? c[]/dPml : 0 ;
+    EndIf
+    If (i >= 1 && i < N_DOM-1)
+      SigmaX[Pml~{i}~{right}] = distSigma~{i}~{right}[] > dTr ? c[]/(dBb-distSigma~{i}~{right}[]) : 0; // Bermudez
+      SigmaX[Pml~{i}~{left}] = -distSigma~{i}~{left}[] > dTr ? c[]/Fabs[(dBb+distSigma~{i}~{left}[])] : 0 ;
+      // SigmaX[OmegaPml~{idom}~{right}] = distSigma~{idom}~{right}[] > dTr ? c[]/(dBb-distSigma~{idom}~{right}[])-c[]/(dBb-dTr) : 0; // Bermudez -- no jump
+      // SigmaX[OmegaPml~{idom}~{left}] = -distSigma~{idom}~{left}[] > dTr ? c[]/ Fabs[(dBb+distSigma~{idom}~{left}[])]-c[]/Fabs[(dBb-dTr)] : 0 ;
+      // SigmaX[OmegaPml~{idom}~{right}] = distSigma~{idom}~{right}[] > dTr ? 7000*(distSigma~{idom}~{right}[]-dTr)^2*om[] : 0; // Quadratic
+      // SigmaX[OmegaPml~{idom}~{left}] = -distSigma~{idom}~{left}[] > dTr ? 7000*Fabs[(distSigma~{idom}~{left}[]+dTr)]^2*om[] : 0 ;
+      // SigmaX[OmegaPml~{idom}~{right}] = distSigma~{idom}~{right}[] > dTr ? c[]/dPml : 0; // Constant
+      // SigmaX[OmegaPml~{idom}~{left}] = -distSigma~{idom}~{left}[] > dTr ? c[]/dPml : 0 ;
+    EndIf
   EndFor
   SigmaY[] = 0.;
   SigmaZ[] = 0.;
@@ -268,15 +327,29 @@ Function {
   Ky[] = Complex[1, SigmaY[]/om[]];
   Kz[] = Complex[1, SigmaZ[]/om[]];
 
-  For ii In {0: #ListOfSubdomains()-1}
-    idom = ListOfSubdomains(ii);
+  For ii In {0: #myD()-1}
+    i = myD(ii);
+    
+    left = (i-1)%N_DOM; // left boundary
+    right = (i+1)%N_DOM; // right boundary
+    
+    If (i == 0)
+      D[Pml~{i}~{right}] = Rotate[TensorDiag[Ky[]*Kz[]/Kx[], Kx[]*Kz[]/Ky[], Kx[]*Ky[]/Kz[]], 0., 0., -thetaList(i+1) ];
+      E[Pml~{i}~{right}] = Kx[]*Ky[]*Kz[];
+    EndIf
+    If (i == N_DOM-1)
+      D[Pml~{i}~{left}] = Rotate[TensorDiag[Ky[]*Kz[]/Kx[], Kx[]*Kz[]/Ky[], Kx[]*Ky[]/Kz[]], 0., 0., -thetaList(i) ];
+      E[Pml~{i}~{left}] = Kx[]*Ky[]*Kz[];
+    EndIf
+    If (i >= 1 && i < N_DOM-1)
+      D[Pml~{i}~{left}] = Rotate[TensorDiag[Ky[]*Kz[]/Kx[], Kx[]*Kz[]/Ky[], Kx[]*Ky[]/Kz[]], 0., 0., -thetaList(i) ];
+      D[Pml~{i}~{right}] = Rotate[TensorDiag[Ky[]*Kz[]/Kx[], Kx[]*Kz[]/Ky[], Kx[]*Ky[]/Kz[]], 0., 0., -thetaList(i+1) ];
+      E[Pml~{i}~{left}] = Kx[]*Ky[]*Kz[];
+      E[Pml~{i}~{right}] = Kx[]*Ky[]*Kz[];
+    EndIf
 
-    D[Pml~{idom}~{0}] = Rotate[TensorDiag[Ky[]*Kz[]/Kx[], Kx[]*Kz[]/Ky[], Kx[]*Ky[]/Kz[]], 0., 0., -thetaList(idom) ];
-    D[Pml~{idom}~{1}] = Rotate[TensorDiag[Ky[]*Kz[]/Kx[], Kx[]*Kz[]/Ky[], Kx[]*Ky[]/Kz[]], 0., 0., -thetaList(idom+1) ];
-    D[Omega~{idom}] = 1.;
-    E[Pml~{idom}~{0}] = Kx[]*Ky[]*Kz[];
-    E[Pml~{idom}~{1}] = Kx[]*Ky[]*Kz[];
-    E[Omega~{idom}] = 1.;
+    D[Omega~{i}] = 1.;
+    E[Omega~{i}] = 1.;
   EndFor
 
   nu[] = 1./D[];

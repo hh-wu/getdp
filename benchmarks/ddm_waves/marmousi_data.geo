@@ -36,8 +36,8 @@ WAVENUMBER = kMax ;
 LAMBDA = 2*Pi/WAVENUMBER ;
 LC = LAMBDA/N_LAMBDA;
 
-D = 9192.000000 ;
-d = 2904.000000 ;
+DGeo = 9192.000000 ;
+dGeo = 2904.000000 ;
 
 nDoms = N_DOM;
 
@@ -45,4 +45,4 @@ dTr = nLayersTr*LC;
 dPml = nLayersPml*LC;
 dBb = (nLayersPml+nLayersTr)*LC;
 
-dDom = D/nDoms;
+dDom = DGeo/nDoms;
