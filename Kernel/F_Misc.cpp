@@ -147,7 +147,7 @@ void F_SetVariable (F_ARG)
   strcpy(tmp, Fct->String);
   for(int i = 1; i < Fct->NbrArguments; i++){
     if((A+i)->Type != SCALAR){
-      Message::Error("Non-scalar argument in GetVariable");
+      Message::Error("Non-scalar argument in SetVariable");
       return;
     }
     char tmp2[256];
@@ -156,6 +156,36 @@ void F_SetVariable (F_ARG)
   }
   Cal_StoreInVariable(V, tmp);
 }
+
+void F_SetCumulativeVariable (F_ARG)
+{
+  if(Fct->NbrArguments < 1){
+    Message::Error("Missing argument in SetCumulativeVariable[...]{$name}");
+    return;
+  }
+
+  Cal_CopyValue(A, V);
+
+  char tmp[256];
+  strcpy(tmp, Fct->String);
+  for(int i = 1; i < Fct->NbrArguments; i++){
+    if((A+i)->Type != SCALAR){
+      Message::Error("Non-scalar argument in SetCumulativeVariable");
+      return;
+    }
+    char tmp2[256];
+    sprintf(tmp2, "_%g", (A+i)->Val[0]);
+    strcat(tmp, tmp2);
+  }
+
+  struct Value V_saved ;
+  Cal_GetValueSaved(&V_saved, tmp);
+  Cal_AddValue(V, &V_saved, V);
+
+  Cal_StoreInVariable(V, tmp);
+}
+
+
 
 void F_GetVariable (F_ARG)
 {

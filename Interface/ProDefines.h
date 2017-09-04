@@ -1043,6 +1043,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"SetNumberRunTime"  , (CAST)F_SetNumberRunTime ,  -1,  -1 },
   {"GetNumberRunTime"  , (CAST)F_GetNumberRunTime ,  -1,  -1 },
   {"SetVariable"       , (CAST)F_SetVariable      ,  -1,  -1 },
+  {"SetCumulativeVariable" , (CAST)F_SetCumulativeVariable ,  -1,  -1 },
   {"GetVariable"       , (CAST)F_GetVariable      ,  -1,  -1 },
   {"VirtualWork"       , (CAST)F_VirtualWork      ,   0,   1 },
   {"Felec"	       , (CAST)F_Felec      	  ,   0,   1 },
