@@ -4,7 +4,7 @@ Solver.AutoMesh = -1; // the geometry script generates the mesh
 
 lc=LC;
 
-Ddom = D/N_DOM;
+Ddom = DGeo/N_DOM;
 // iPoint = Ceil(xSource/Ddom); // source location
 // iPoint = Ceil(xSource/Ddom) + Ceil((N_DOM-1)/2.+1); // source location
 iPoint = Ceil((xSource-shiftX)/Ddom); // source location
@@ -25,19 +25,19 @@ For i In {start+1:end+1}
 
   If (i!=iPoint)
 
-    Point(1) = {(i-1)*Ddom+shiftX,-d+shiftY,0,lc};
-    Point(2) = {i*Ddom+shiftX,-d+shiftY,0,lc};
+    Point(1) = {(i-1)*Ddom+shiftX,-dGeo+shiftY,0,lc};
+    Point(2) = {i*Ddom+shiftX,-dGeo+shiftY,0,lc};
     Point(3) = {i*Ddom+shiftX,0+shiftY,0,lc};
     Point(4) = {(i-1)*Ddom+shiftX,0+shiftY,0,lc};
 
     Point(7) = {i*Ddom+shiftX,ySource+0*shiftY,0,lc};
     Point(9) = {(i-1)*Ddom+shiftX,ySource+0*shiftY,0,lc};
 
-    Point(52) = {(i)*Ddom+dBb+shiftX,-d+shiftY,0,lc};
+    Point(52) = {(i)*Ddom+dBb+shiftX,-dGeo+shiftY,0,lc};
     Point(57) = {(i)*Ddom+dBb+shiftX,ySource+0*shiftY,0,lc};
     Point(53) = {(i)*Ddom+dBb+shiftX,0+shiftY,0,lc};
 
-    Point(51) = {(i-1)*Ddom-dBb+shiftX,-d+shiftY,0,lc};
+    Point(51) = {(i-1)*Ddom-dBb+shiftX,-dGeo+shiftY,0,lc};
     Point(59) = {(i-1)*Ddom-dBb+shiftX,ySource+0*shiftY,0,lc};
     Point(54) = {(i-1)*Ddom-dBb+shiftX,0+shiftY,0,lc};
 
@@ -77,7 +77,7 @@ For i In {start+1:end+1}
 
 
     Transfinite Line{10,16,13} = (Ddom)/lc+1 Using Progression 1;
-    Transfinite Line{77,15,11,62} = (d+ySource-shiftY)/lc+1 Using Progression 1;
+    Transfinite Line{77,15,11,62} = (dGeo+ySource-shiftY)/lc+1 Using Progression 1;
     Transfinite Line{76,14,12,63} = (-ySource+shiftY)/lc+1 Using Progression 1;
     Transfinite Line{78,65,75,61,79,64} = (nLayersTr+nLayersPml+1) Using Progression 1;
 
@@ -108,23 +108,23 @@ For i In {start+1:end+1}
   EndIf
 
   If (i == iPoint)
-    Point(1) = {(i-1)*Ddom+shiftX,-d+shiftY,0,lc};
-    Point(2) = {i*Ddom+shiftX,-d+shiftY,0,lc};
+    Point(1) = {(i-1)*Ddom+shiftX,-dGeo+shiftY,0,lc};
+    Point(2) = {i*Ddom+shiftX,-dGeo+shiftY,0,lc};
     Point(3) = {i*Ddom+shiftX,0+shiftY,0,lc};
     Point(4) = {(i-1)*Ddom+shiftX,0+shiftY,0,lc};
 
     Point(5) = {xSource,ySource,0,lc};
 
-    Point(6) = {xSource,-d+shiftY,0,lc};
+    Point(6) = {xSource,-dGeo+shiftY,0,lc};
     Point(7) = {i*Ddom+shiftX,ySource+0*shiftY,0,lc};
     Point(8) = {xSource,0+shiftY,0,lc};
     Point(9) = {(i-1)*Ddom+shiftX,ySource+0*shiftY,0,lc};
 
-    Point(52) = {(i)*Ddom+dBb+shiftX,-d+shiftY,0,lc};
+    Point(52) = {(i)*Ddom+dBb+shiftX,-dGeo+shiftY,0,lc};
     Point(57) = {(i)*Ddom+dBb+shiftX,ySource+0*shiftY,0,lc};
     Point(53) = {(i)*Ddom+dBb+shiftX,0+shiftY,0,lc};
 
-    Point(51) = {(i-1)*Ddom-dBb+shiftX,-d+shiftY,0,lc};
+    Point(51) = {(i-1)*Ddom-dBb+shiftX,-dGeo+shiftY,0,lc};
     Point(59) = {(i-1)*Ddom-dBb+shiftX,ySource+0*shiftY,0,lc};
     Point(54) = {(i-1)*Ddom-dBb+shiftX,0+shiftY,0,lc};
 
@@ -173,7 +173,7 @@ For i In {start+1:end+1}
 
     Transfinite Line{10,15,21} = (xSource-(i-1)*Ddom-shiftX)/lc+1 Using Progression 1;
     Transfinite Line{11,14,19} = (i*Ddom-xSource+shiftX)/lc+1 Using Progression 1;
-    Transfinite Line{12,17,18,77,62} = (d+ySource-shiftY)/lc+1 Using Progression 1;
+    Transfinite Line{12,17,18,77,62} = (dGeo+ySource-shiftY)/lc+1 Using Progression 1;
     Transfinite Line{13,16,20,76,63} = (-ySource+shiftY)/lc+1 Using Progression 1;
 
     // Transfinite Line{78,65,75,61,79,64} = (dBb)/lc+1 Using Progression 1;
@@ -218,4 +218,4 @@ For i In {start+1:end+1}
 
 EndFor
 
-BoundingBox {0+shiftX, D+shiftX, -d+shiftY, 0+shiftY, 0, 0};
+BoundingBox {0+shiftX, DGeo+shiftX, -dGeo+shiftY, 0+shiftY, 0, 0};

@@ -1398,7 +1398,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
         Current.RelativeDifference += MeanError ;
         //NB: Current.RelativeDifference is what is used for classical IterativeLoop stop criterion
-        //NB: Current.RelativeDifference is reset to 0 at the begin of every iter in iterloop 
+        //NB: Current.RelativeDifference is reset to 0 at the begin of every iter in iterloop
         //NB: if only one SolveJac is done: Current.RelativeDifference = MeanError = Current.Residual
 
         if (!Flag_IterativeLoop) {
@@ -2592,7 +2592,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Message::Info("IterativeLoop ...") ;
 
       Save_Iteration = Current.Iteration ;
-      
+
       //Current.Residual_Iter1=1.0; //to compute a relative residual (relative to residual at iter 1) QQQ?
       // abstol = Operation_P->Case.IterativeLoop.Criterion ;
       // reltol = Operation_P->Case.IterativeLoop.Criterion/100 ;
@@ -2624,7 +2624,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   //if (Current.Iteration==1) Current.Residual_Iter1=Current.RelativeDifference; //to compute a relative residual (relative to residual at iter 1) QQQ?
 
   //NB: Current.RelativeDifference is what is used for classical IterativeLoop stop criterion
-  //NB: In SolveJac: (Current.RelativeDifference+=Current.Residual) 
+  //NB: In SolveJac: (Current.RelativeDifference+=Current.Residual)
   //NB: In SolveJacAdapt: (Current.RelativeDifference=Current.Residual)
 	if (   (Current.RelativeDifference <= Operation_P->Case.IterativeLoop.Criterion) ||
        //(Current.RelativeDifference/Current.Residual_Iter1 <= Operation_P->Case.IterativeLoop.Criterion) || //to compute a relative residual (relative to residual at iter 1) QQQ?
@@ -3090,26 +3090,26 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  -->  D e f o r m e M e s h                 */
       /*  ------------------------------------------ */
 
-    case OPERATION_DEFORMEMESH :
+    case OPERATION_DEFORMMESH :
       {
-        if (Operation_P->Case.DeformeMesh.Name_MshFile == NULL)
-          Operation_P->Case.DeformeMesh.Name_MshFile = Name_MshFile ;
-        Message::Info("DeformeMesh[%s, %s, '%s']",
+        if (Operation_P->Case.DeformMesh.Name_MshFile == NULL)
+          Operation_P->Case.DeformMesh.Name_MshFile = Name_MshFile ;
+        Message::Info("DeformMesh[%s, %s, '%s']",
                       ((struct DefineSystem *)
                        List_Pointer(Resolution_P->DefineSystem,
                                     Operation_P->DefineSystemIndex))->Name,
-                      Operation_P->Case.DeformeMesh.Quantity,
-                      Operation_P->Case.DeformeMesh.Name_MshFile) ;
+                      Operation_P->Case.DeformMesh.Quantity,
+                      Operation_P->Case.DeformMesh.Name_MshFile) ;
         int i;
-        if ((i = List_ISearchSeq(GeoData_L, Operation_P->Case.DeformeMesh.Name_MshFile,
+        if ((i = List_ISearchSeq(GeoData_L, Operation_P->Case.DeformMesh.Name_MshFile,
                                  fcmp_GeoData_Name)) < 0){
-          Message::Error("DeformeMesh: Wrong NameOfMeshFile %s",
-                         Operation_P->Case.DeformeMesh.Name_MshFile);
+          Message::Error("DeformMesh: Wrong NameOfMeshFile %s",
+                         Operation_P->Case.DeformMesh.Name_MshFile);
           break;
         }
-        Operation_P->Case.DeformeMesh.GeoDataIndex = i ;
+        Operation_P->Case.DeformMesh.GeoDataIndex = i ;
 
-        Operation_DeformeMesh
+        Operation_DeformMesh
           (Resolution_P, Operation_P, DofData_P0, GeoData_P0) ;
       }
       break;

@@ -1564,12 +1564,20 @@ void Print_Operation(struct Resolution *RE, List_T *Operation_L)
                       List_Pointer(RE->DefineSystem, OPE->DefineSystemIndex))->Name);
       break;
 
-    case OPERATION_DEFORMEMESH :
-      Message::Check("      DeformeMesh [%s, %s,  '%s']; \n",
-                     ((struct DefineSystem *)
-                      List_Pointer(RE->DefineSystem, OPE->DefineSystemIndex))->Name,
-                     OPE->Case.DeformeMesh.Quantity,
-                     OPE->Case.DeformeMesh.Name_MshFile);
+    case OPERATION_DEFORMMESH :
+      if(OPE->Case.DeformMesh.Quantity && OPE->Case.DeformMesh.Quantity2 &&
+         OPE->Case.DeformMesh.Quantity3)
+        Message::Check("      DeformMesh [%s, {%s, %s, %s}, '%s']; \n",
+                       ((struct DefineSystem *)
+                        List_Pointer(RE->DefineSystem, OPE->DefineSystemIndex))->Name,
+                       OPE->Case.DeformMesh.Quantity, OPE->Case.DeformMesh.Quantity2,
+                       OPE->Case.DeformMesh.Quantity3, OPE->Case.DeformMesh.Name_MshFile);
+      else
+        Message::Check("      DeformMesh [%s, %s, '%s']; \n",
+                       ((struct DefineSystem *)
+                        List_Pointer(RE->DefineSystem, OPE->DefineSystemIndex))->Name,
+                       OPE->Case.DeformMesh.Quantity,
+                       OPE->Case.DeformMesh.Name_MshFile);
       break;
 
     case OPERATION_GMSHREAD :

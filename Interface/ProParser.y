@@ -5658,13 +5658,15 @@ OperationTerm :
 	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
-      Operation_P->Case.DeformeMesh.Quantity = $5;
-      Operation_P->Case.DeformeMesh.Name_MshFile = $8;
-      Operation_P->Case.DeformeMesh.GeoDataIndex = -1;
-      Operation_P->Case.DeformeMesh.Factor = $10;
-      Operation_P->Case.DeformeMesh.GroupIndex =
+      Operation_P->Case.DeformMesh.Quantity = $5;
+      Operation_P->Case.DeformMesh.Quantity2 = 0;
+      Operation_P->Case.DeformMesh.Quantity3 = 0;
+      Operation_P->Case.DeformMesh.Name_MshFile = $8;
+      Operation_P->Case.DeformMesh.GeoDataIndex = -1;
+      Operation_P->Case.DeformMesh.Factor = $10;
+      Operation_P->Case.DeformMesh.GroupIndex =
         Num_Group(&Group_S, (char*)"OP_DeformMesh", $12);
-      Operation_P->Type = OPERATION_DEFORMEMESH;
+      Operation_P->Type = OPERATION_DEFORMMESH;
     }
 
   | tDeformMesh  '[' String__Index ',' String__Index ',' tNameOfMesh CharExpr ','
@@ -5677,12 +5679,14 @@ OperationTerm :
 	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
-      Operation_P->Case.DeformeMesh.Quantity = $5;
-      Operation_P->Case.DeformeMesh.Name_MshFile = $8;
-      Operation_P->Case.DeformeMesh.GeoDataIndex = -1;
-      Operation_P->Case.DeformeMesh.Factor = $10;
-      Operation_P->Case.DeformeMesh.GroupIndex = -1;
-      Operation_P->Type = OPERATION_DEFORMEMESH;
+      Operation_P->Case.DeformMesh.Quantity = $5;
+      Operation_P->Case.DeformMesh.Quantity2 = 0;
+      Operation_P->Case.DeformMesh.Quantity3 = 0;
+      Operation_P->Case.DeformMesh.Name_MshFile = $8;
+      Operation_P->Case.DeformMesh.GeoDataIndex = -1;
+      Operation_P->Case.DeformMesh.Factor = $10;
+      Operation_P->Case.DeformMesh.GroupIndex = -1;
+      Operation_P->Type = OPERATION_DEFORMMESH;
     }
 
   | tDeformMesh  '[' String__Index ',' String__Index ',' tNameOfMesh CharExpr ']' tEND
@@ -5694,12 +5698,14 @@ OperationTerm :
 	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
-      Operation_P->Case.DeformeMesh.Quantity = $5;
-      Operation_P->Case.DeformeMesh.Name_MshFile = $8;
-      Operation_P->Case.DeformeMesh.GeoDataIndex = -1;
-      Operation_P->Case.DeformeMesh.Factor = 1;
-      Operation_P->Case.DeformeMesh.GroupIndex = -1;
-      Operation_P->Type = OPERATION_DEFORMEMESH;
+      Operation_P->Case.DeformMesh.Quantity = $5;
+      Operation_P->Case.DeformMesh.Quantity2 = 0;
+      Operation_P->Case.DeformMesh.Quantity3 = 0;
+      Operation_P->Case.DeformMesh.Name_MshFile = $8;
+      Operation_P->Case.DeformMesh.GeoDataIndex = -1;
+      Operation_P->Case.DeformMesh.Factor = 1;
+      Operation_P->Case.DeformMesh.GroupIndex = -1;
+      Operation_P->Type = OPERATION_DEFORMMESH;
     }
 
   | tDeformMesh  '[' String__Index ',' String__Index ']' tEND
@@ -5711,12 +5717,14 @@ OperationTerm :
 	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
-      Operation_P->Case.DeformeMesh.Quantity = $5;
-      Operation_P->Case.DeformeMesh.Name_MshFile = NULL;
-      Operation_P->Case.DeformeMesh.GeoDataIndex = -1;
-      Operation_P->Case.DeformeMesh.Factor = 1;
-      Operation_P->Case.DeformeMesh.GroupIndex = -1;
-      Operation_P->Type = OPERATION_DEFORMEMESH;
+      Operation_P->Case.DeformMesh.Quantity = $5;
+      Operation_P->Case.DeformMesh.Quantity2 = 0;
+      Operation_P->Case.DeformMesh.Quantity3 = 0;
+      Operation_P->Case.DeformMesh.Name_MshFile = NULL;
+      Operation_P->Case.DeformMesh.GeoDataIndex = -1;
+      Operation_P->Case.DeformMesh.Factor = 1;
+      Operation_P->Case.DeformMesh.GroupIndex = -1;
+      Operation_P->Type = OPERATION_DEFORMMESH;
     }
 
   | tDeformMesh  '[' String__Index ',' String__Index ',' FExpr ']' tEND
@@ -5728,12 +5736,33 @@ OperationTerm :
 	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
-      Operation_P->Case.DeformeMesh.Quantity = $5;
-      Operation_P->Case.DeformeMesh.Name_MshFile = NULL;
-      Operation_P->Case.DeformeMesh.GeoDataIndex = -1;
-      Operation_P->Case.DeformeMesh.Factor = $7;
-      Operation_P->Case.DeformeMesh.GroupIndex = -1;
-      Operation_P->Type = OPERATION_DEFORMEMESH;
+      Operation_P->Case.DeformMesh.Quantity = $5;
+      Operation_P->Case.DeformMesh.Quantity2 = 0;
+      Operation_P->Case.DeformMesh.Quantity3 = 0;
+      Operation_P->Case.DeformMesh.Name_MshFile = NULL;
+      Operation_P->Case.DeformMesh.GeoDataIndex = -1;
+      Operation_P->Case.DeformMesh.Factor = $7;
+      Operation_P->Case.DeformMesh.GroupIndex = -1;
+      Operation_P->Type = OPERATION_DEFORMMESH;
+    }
+
+  | tDeformMesh  '[' String__Index ',' '{' String__Index ',' String__Index ',' String__Index '}' ',' FExpr ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      int i;
+      if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror(0, "Unknown System: %s", $3);
+      Free($3);
+      Operation_P->DefineSystemIndex = i;
+      Operation_P->Case.DeformMesh.Quantity = $6;
+      Operation_P->Case.DeformMesh.Quantity2 = $8;
+      Operation_P->Case.DeformMesh.Quantity3 = $10;
+      Operation_P->Case.DeformMesh.Name_MshFile = NULL;
+      Operation_P->Case.DeformMesh.GeoDataIndex = -1;
+      Operation_P->Case.DeformMesh.Factor = $13;
+      Operation_P->Case.DeformMesh.GroupIndex = -1;
+      Operation_P->Type = OPERATION_DEFORMMESH;
     }
 
   | tDeformMesh  '[' String__Index ',' String__Index ',' FExpr ',' GroupRHS ']' tEND
@@ -5745,13 +5774,15 @@ OperationTerm :
 	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
-      Operation_P->Case.DeformeMesh.Quantity = $5;
-      Operation_P->Case.DeformeMesh.Name_MshFile = NULL;
-      Operation_P->Case.DeformeMesh.GeoDataIndex = -1;
-      Operation_P->Case.DeformeMesh.Factor = $7;
-      Operation_P->Case.DeformeMesh.GroupIndex =
+      Operation_P->Case.DeformMesh.Quantity = $5;
+      Operation_P->Case.DeformMesh.Quantity2 = 0;
+      Operation_P->Case.DeformMesh.Quantity3 = 0;
+      Operation_P->Case.DeformMesh.Name_MshFile = NULL;
+      Operation_P->Case.DeformMesh.GeoDataIndex = -1;
+      Operation_P->Case.DeformMesh.Factor = $7;
+      Operation_P->Case.DeformMesh.GroupIndex =
         Num_Group(&Group_S, (char*)"OP_DeformMesh", $9);
-      Operation_P->Type = OPERATION_DEFORMEMESH;
+      Operation_P->Type = OPERATION_DEFORMMESH;
     }
 
   | GenerateGroupOperation  '[' String__Index ',' GroupRHS ']'  tEND
@@ -6939,6 +6970,7 @@ PostSubOperations :
       PostSubOperation_S.SendToServerList = NULL;
       PostSubOperation_S.Color = NULL;
       PostSubOperation_S.Units = NULL;
+      PostSubOperation_S.Visible = true;
       PostSubOperation_S.ValueIndex = 0;
       PostSubOperation_S.ValueName = NULL;
       PostSubOperation_S.Label = NULL;
@@ -7637,12 +7669,23 @@ PrintOption :
       PostSubOperation_S.SendToServer = $3;
       PostSubOperation_S.SendToServerList = $5;
     }
+  | ',' tHidden
+    {
+      PostSubOperation_S.Visible = false;
+    }
+  | ',' tHidden FExpr
+    {
+      PostSubOperation_S.Visible = $3 ? false : true;
+    }
   | ',' tSTRING CharExpr
     {
       std::string cat($2);
       Free($2);
       if(cat == "Units"){
         PostSubOperation_S.Units = $3;
+      }
+      else if(cat == "Label"){
+        PostSubOperation_S.Label = $3;
       }
       else if(cat == "Color"){
         PostSubOperation_S.Color = $3;
