@@ -1149,6 +1149,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   // F_PeWe
   {"ElastodynamicsCylinderCavity", (CAST)F_ElastodynamicsCylinderCavity, 5, 1},
   {"ElastodynamicsCylinderWall", (CAST)F_ElastodynamicsCylinderWall, 5, 1},
+  {"ElastodynamicsCylinderWallS", (CAST)F_ElastodynamicsCylinderWallS, 5, 1},
 
   // F_Raytracing: ray tracing functions
   {"CylinderPhase",      (CAST)F_CylinderPhase, 0, 1 },
