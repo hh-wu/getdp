@@ -7,6 +7,8 @@ set(SRC
     fortran/besselh.f90
     fortran/cylindrical_cavity.f90
     fortran/cylindrical_wall.f90
+    fortran/cylindrical_walls.f90
+
    )
 
 file(GLOB HDR RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.h)
