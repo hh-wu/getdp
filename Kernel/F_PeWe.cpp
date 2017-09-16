@@ -19,9 +19,6 @@ extern "C" {
   extern void cylindrical_walls_(double *du, double *dv, double *dut, double *dvt,
                                 double *X, double *Y, double *t, double *omega,
                                 double *lambda, double *mu, double *rho, double *a);
-  extern void cylindrical_walls2_(double *du, double *dv, double *dut, double *dvt,
-                                double *X, double *Y, double *t, double *omega,
-                                double *lambda, double *mu, double *rho, double *a);
 }
 
 void  F_ElastodynamicsCylinderCavity(F_ARG)
