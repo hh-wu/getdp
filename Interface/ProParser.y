@@ -342,7 +342,7 @@ struct doubleXstring{
 %token      tPlot tPrint tPrintGroup tEcho tSendMergeFileRequest tWrite tAdapt
 %token        tOnGlobal tOnRegion tOnElementsOf
 %token        tOnGrid tOnSection tOnPoint tOnLine tOnPlane tOnBox
-%token        tWithArgument
+%token        tWithArgument tClosed
 %token        tFile tDepth tDimension tComma tTimeStep tHarmonicToTime
 %token        tCosineTransform tTimeToHarmonic
 %token        tValueIndex tValueName
@@ -6971,6 +6971,7 @@ PostSubOperations :
       PostSubOperation_S.Color = NULL;
       PostSubOperation_S.Units = NULL;
       PostSubOperation_S.Visible = true;
+      PostSubOperation_S.Closed = false;
       PostSubOperation_S.ValueIndex = 0;
       PostSubOperation_S.ValueName = NULL;
       PostSubOperation_S.Label = NULL;
@@ -7676,6 +7677,14 @@ PrintOption :
   | ',' tHidden FExpr
     {
       PostSubOperation_S.Visible = $3 ? false : true;
+    }
+  | ',' tClosed
+    {
+      PostSubOperation_S.Closed = true;
+    }
+  | ',' tClosed FExpr
+    {
+      PostSubOperation_S.Closed = $3 ? true : false;
     }
   | ',' tSTRING CharExpr
     {
