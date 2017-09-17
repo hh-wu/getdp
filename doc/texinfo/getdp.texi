@@ -5449,7 +5449,7 @@ Onelab server.
 Used with @code{SendToServer}, selects the visibility of the exchanged value.
 
 @item Closed
-< @var{expression-cst} >
+@var{expression-char}
 
 Used with @code{SendToServer}, closes (or opens) the subtree containing
 the parameter.

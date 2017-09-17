@@ -342,7 +342,7 @@ struct doubleXstring{
 %token      tPlot tPrint tPrintGroup tEcho tSendMergeFileRequest tWrite tAdapt
 %token        tOnGlobal tOnRegion tOnElementsOf
 %token        tOnGrid tOnSection tOnPoint tOnLine tOnPlane tOnBox
-%token        tWithArgument tClosed
+%token        tWithArgument
 %token        tFile tDepth tDimension tComma tTimeStep tHarmonicToTime
 %token        tCosineTransform tTimeToHarmonic
 %token        tValueIndex tValueName
@@ -7678,20 +7678,15 @@ PrintOption :
     {
       PostSubOperation_S.Visible = $3 ? false : true;
     }
-  | ',' tClosed
-    {
-      PostSubOperation_S.Closed = true;
-    }
-  | ',' tClosed FExpr
-    {
-      PostSubOperation_S.Closed = $3 ? true : false;
-    }
   | ',' tSTRING CharExpr
     {
-      std::string cat($2);
+      std::string cat($2), val($3);
       Free($2);
       if(cat == "Units"){
         PostSubOperation_S.Units = $3;
+      }
+      else if(cat == "Closed"){
+        PostSubOperation_S.Closed = (val == "1") ? true : false;
       }
       else if(cat == "Label"){
         PostSubOperation_S.Label = $3;
