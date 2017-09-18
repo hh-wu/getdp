@@ -1376,7 +1376,8 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
       GetDPNumbers[CurrentName] = exp;
       if(PSO_P->SendToServer && strcmp(PSO_P->SendToServer, "No"))
         Message::AddOnelabNumberChoice(PSO_P->SendToServer, exp, PSO_P->Color,
-                                       PSO_P->Units, PSO_P->Label, PSO_P->Visible);
+                                       PSO_P->Units, PSO_P->Label, PSO_P->Visible,
+                                       PSO_P->Closed);
     }
     break;
   case FORMAT_LOOP_ERROR :
@@ -1570,7 +1571,8 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
       std::vector<double> v;
       Export_Value(&PE->Value[0], v, PSO_P->SendToServerList);
       Message::AddOnelabNumberChoice(PSO_P->SendToServer, v, PSO_P->Color,
-                                     PSO_P->Units, PSO_P->Label, PSO_P->Visible);
+                                     PSO_P->Units, PSO_P->Label, PSO_P->Visible,
+                                     PSO_P->Closed);
     }
   }
 }

@@ -72,6 +72,7 @@ void  F_CurlDyadGreenHom (F_ARG) ;
 
 void  F_ElastodynamicsCylinderCavity(F_ARG);
 void  F_ElastodynamicsCylinderWall(F_ARG);
+void  F_ElastodynamicsCylinderWallS(F_ARG);
 
 /* F_Geometry */
 

@@ -6971,6 +6971,7 @@ PostSubOperations :
       PostSubOperation_S.Color = NULL;
       PostSubOperation_S.Units = NULL;
       PostSubOperation_S.Visible = true;
+      PostSubOperation_S.Closed = false;
       PostSubOperation_S.ValueIndex = 0;
       PostSubOperation_S.ValueName = NULL;
       PostSubOperation_S.Label = NULL;
@@ -7679,10 +7680,13 @@ PrintOption :
     }
   | ',' tSTRING CharExpr
     {
-      std::string cat($2);
+      std::string cat($2), val($3);
       Free($2);
       if(cat == "Units"){
         PostSubOperation_S.Units = $3;
+      }
+      else if(cat == "Closed"){
+        PostSubOperation_S.Closed = (val == "1") ? true : false;
       }
       else if(cat == "Label"){
         PostSubOperation_S.Label = $3;

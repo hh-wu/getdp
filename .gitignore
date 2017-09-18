@@ -1,6 +1,9 @@
-bin*
-lib*
-build*
+bin/
+bin_*/
+build/
+build_*/
+lib/
+lib_*/
 contrib/NR
 contrib/NX
 contrib/ZITSOL_1

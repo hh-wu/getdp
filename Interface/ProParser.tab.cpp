@@ -2051,49 +2051,49 @@ static const yytype_uint16 yyrline[] =
     6629,  6665,  6676,  6681,  6686,  6697,  6717,  6723,  6728,  6736,
     6741,  6757,  6761,  6764,  6777,  6779,  6792,  6803,  6808,  6813,
     6818,  6823,  6828,  6833,  6838,  6846,  6851,  6857,  6856,  6907,
-    6915,  6914,  7009,  7015,  7020,  7029,  7038,  7048,  7047,  7060,
-    7066,  7075,  7088,  7114,  7115,  7116,  7117,  7123,  7124,  7130,
-    7136,  7143,  7150,  7174,  7181,  7193,  7206,  7226,  7252,  7286,
-    7306,  7328,  7330,  7334,  7339,  7344,  7349,  7353,  7357,  7361,
-    7365,  7369,  7373,  7377,  7381,  7385,  7395,  7399,  7403,  7407,
-    7411,  7418,  7429,  7433,  7439,  7443,  7452,  7461,  7468,  7477,
-    7481,  7491,  7495,  7499,  7503,  7512,  7518,  7522,  7530,  7537,
-    7545,  7552,  7560,  7567,  7575,  7579,  7583,  7587,  7591,  7595,
-    7599,  7603,  7607,  7611,  7615,  7619,  7623,  7627,  7631,  7635,
-    7639,  7643,  7647,  7651,  7655,  7659,  7663,  7667,  7672,  7676,
-    7680,  7706,  7708,  7714,  7731,  7748,  7770,  7791,  7828,  7836,
-    7844,  7850,  7857,  7865,  7885,  7911,  7923,  7929,  7934,  7943,
-    7944,  7948,  7952,  7960,  7962,  7964,  7966,  7968,  7974,  7981,
-    7991,  8001,  8006,  8021,  8029,  8057,  8085,  8113,  8135,  8152,
-    8187,  8217,  8224,  8232,  8240,  8257,  8262,  8277,  8294,  8299,
-    8313,  8336,  8343,  8354,  8366,  8381,  8396,  8403,  8409,  8414,
-    8446,  8448,  8451,  8453,  8457,  8458,  8463,  8476,  8490,  8505,
-    8514,  8526,  8534,  8546,  8548,  8552,  8553,  8558,  8566,  8575,
-    8583,  8591,  8605,  8620,  8623,  8631,  8647,  8655,  8664,  8663,
-    8690,  8689,  8701,  8710,  8709,  8722,  8725,  8733,  8748,  8749,
-    8750,  8751,  8752,  8753,  8754,  8755,  8756,  8757,  8758,  8759,
-    8760,  8761,  8762,  8763,  8764,  8765,  8766,  8767,  8768,  8769,
-    8770,  8774,  8775,  8779,  8780,  8781,  8782,  8783,  8784,  8785,
-    8786,  8787,  8788,  8789,  8790,  8791,  8792,  8793,  8794,  8795,
-    8796,  8797,  8798,  8799,  8800,  8801,  8802,  8803,  8804,  8805,
-    8806,  8807,  8808,  8809,  8810,  8811,  8812,  8813,  8814,  8815,
-    8816,  8817,  8818,  8819,  8820,  8821,  8822,  8823,  8825,  8827,
-    8829,  8831,  8836,  8837,  8838,  8839,  8840,  8841,  8842,  8843,
-    8844,  8845,  8846,  8847,  8848,  8850,  8851,  8852,  8856,  8855,
-    8865,  8868,  8873,  8878,  8884,  8890,  8895,  8915,  8920,  8926,
-    8932,  8937,  8942,  8947,  8956,  8961,  8965,  8970,  8975,  8985,
-    8986,  8992,  8993,  8999,  8998,  9021,  9023,  9028,  9030,  9035,
-    9040,  9047,  9050,  9056,  9059,  9062,  9071,  9094,  9100,  9103,
-    9106,  9119,  9128,  9137,  9146,  9155,  9164,  9173,  9188,  9203,
-    9218,  9233,  9241,  9253,  9264,  9284,  9312,  9318,  9335,  9340,
-    9345,  9386,  9406,  9415,  9424,  9456,  9465,  9474,  9486,  9489,
-    9493,  9498,  9501,  9504,  9509,  9519,  9529,  9540,  9560,  9572,
-    9581,  9590,  9595,  9615,  9624,  9637,  9644,  9649,  9654,  9661,
-    9667,  9673,  9678,  9685,  9684,  9695,  9701,  9709,  9714,  9719,
-    9743,  9745,  9752,  9755,  9762,  9767,  9772,  9779,  9784,  9786,
-    9791,  9796,  9801,  9803,  9805,  9817,  9836,  9846,  9846,  9847,
-    9847,  9851,  9873,  9884,  9894,  9908,  9917,  9928,  9954,  9956,
-    9962,  9963
+    6915,  6914,  7010,  7016,  7021,  7030,  7039,  7049,  7048,  7061,
+    7067,  7076,  7089,  7115,  7116,  7117,  7118,  7124,  7125,  7131,
+    7137,  7144,  7151,  7175,  7182,  7194,  7207,  7227,  7253,  7287,
+    7307,  7329,  7331,  7335,  7340,  7345,  7350,  7354,  7358,  7362,
+    7366,  7370,  7374,  7378,  7382,  7386,  7396,  7400,  7404,  7408,
+    7412,  7419,  7430,  7434,  7440,  7444,  7453,  7462,  7469,  7478,
+    7482,  7492,  7496,  7500,  7504,  7513,  7519,  7523,  7531,  7538,
+    7546,  7553,  7561,  7568,  7576,  7580,  7584,  7588,  7592,  7596,
+    7600,  7604,  7608,  7612,  7616,  7620,  7624,  7628,  7632,  7636,
+    7640,  7644,  7648,  7652,  7656,  7660,  7664,  7668,  7673,  7677,
+    7681,  7710,  7712,  7718,  7735,  7752,  7774,  7795,  7832,  7840,
+    7848,  7854,  7861,  7869,  7889,  7915,  7927,  7933,  7938,  7947,
+    7948,  7952,  7956,  7964,  7966,  7968,  7970,  7972,  7978,  7985,
+    7995,  8005,  8010,  8025,  8033,  8061,  8089,  8117,  8139,  8156,
+    8191,  8221,  8228,  8236,  8244,  8261,  8266,  8281,  8298,  8303,
+    8317,  8340,  8347,  8358,  8370,  8385,  8400,  8407,  8413,  8418,
+    8450,  8452,  8455,  8457,  8461,  8462,  8467,  8480,  8494,  8509,
+    8518,  8530,  8538,  8550,  8552,  8556,  8557,  8562,  8570,  8579,
+    8587,  8595,  8609,  8624,  8627,  8635,  8651,  8659,  8668,  8667,
+    8694,  8693,  8705,  8714,  8713,  8726,  8729,  8737,  8752,  8753,
+    8754,  8755,  8756,  8757,  8758,  8759,  8760,  8761,  8762,  8763,
+    8764,  8765,  8766,  8767,  8768,  8769,  8770,  8771,  8772,  8773,
+    8774,  8778,  8779,  8783,  8784,  8785,  8786,  8787,  8788,  8789,
+    8790,  8791,  8792,  8793,  8794,  8795,  8796,  8797,  8798,  8799,
+    8800,  8801,  8802,  8803,  8804,  8805,  8806,  8807,  8808,  8809,
+    8810,  8811,  8812,  8813,  8814,  8815,  8816,  8817,  8818,  8819,
+    8820,  8821,  8822,  8823,  8824,  8825,  8826,  8827,  8829,  8831,
+    8833,  8835,  8840,  8841,  8842,  8843,  8844,  8845,  8846,  8847,
+    8848,  8849,  8850,  8851,  8852,  8854,  8855,  8856,  8860,  8859,
+    8869,  8872,  8877,  8882,  8888,  8894,  8899,  8919,  8924,  8930,
+    8936,  8941,  8946,  8951,  8960,  8965,  8969,  8974,  8979,  8989,
+    8990,  8996,  8997,  9003,  9002,  9025,  9027,  9032,  9034,  9039,
+    9044,  9051,  9054,  9060,  9063,  9066,  9075,  9098,  9104,  9107,
+    9110,  9123,  9132,  9141,  9150,  9159,  9168,  9177,  9192,  9207,
+    9222,  9237,  9245,  9257,  9268,  9288,  9316,  9322,  9339,  9344,
+    9349,  9390,  9410,  9419,  9428,  9460,  9469,  9478,  9490,  9493,
+    9497,  9502,  9505,  9508,  9513,  9523,  9533,  9544,  9564,  9576,
+    9585,  9594,  9599,  9619,  9628,  9641,  9648,  9653,  9658,  9665,
+    9671,  9677,  9682,  9689,  9688,  9699,  9705,  9713,  9718,  9723,
+    9747,  9749,  9756,  9759,  9766,  9771,  9776,  9783,  9788,  9790,
+    9795,  9800,  9805,  9807,  9809,  9821,  9840,  9850,  9850,  9851,
+    9851,  9855,  9877,  9888,  9898,  9912,  9921,  9932,  9958,  9960,
+    9966,  9967
 };
 #endif
 
@@ -15568,6 +15568,7 @@ yyreduce:
       PostSubOperation_S.Color = NULL;
       PostSubOperation_S.Units = NULL;
       PostSubOperation_S.Visible = true;
+      PostSubOperation_S.Closed = false;
       PostSubOperation_S.ValueIndex = 0;
       PostSubOperation_S.ValueName = NULL;
       PostSubOperation_S.Label = NULL;
@@ -15580,7 +15581,7 @@ yyreduce:
     break;
 
   case 681:
-#line 6984 "ProParser.y"
+#line 6985 "ProParser.y"
     {
       if(PostSubOperation_S.Type != POP_NONE) {
 	if(PostSubOperation_S.Format < 0)
@@ -15604,7 +15605,7 @@ yyreduce:
     break;
 
   case 682:
-#line 7010 "ProParser.y"
+#line 7011 "ProParser.y"
     {
       vyyerror(0, "Plot has been superseded by Print "
                "(Plot OnRegion becomes Print OnElementsOf)");
@@ -15612,14 +15613,14 @@ yyreduce:
     break;
 
   case 683:
-#line 7016 "ProParser.y"
+#line 7017 "ProParser.y"
     {
       PostSubOperation_S.Type = POP_PRINT;
     ;}
     break;
 
   case 684:
-#line 7021 "ProParser.y"
+#line 7022 "ProParser.y"
     {
       PostSubOperation_S.Type = POP_EXPRESSION;
       PostSubOperation_S.Case.Expression.String = (yyvsp[(3) - (8)].c);
@@ -15630,7 +15631,7 @@ yyreduce:
     break;
 
   case 685:
-#line 7030 "ProParser.y"
+#line 7031 "ProParser.y"
     {
       PostSubOperation_S.Type = POP_EXPRESSION;
       PostSubOperation_S.Case.Expression.String = (yyvsp[(3) - (11)].c);
@@ -15641,7 +15642,7 @@ yyreduce:
     break;
 
   case 686:
-#line 7039 "ProParser.y"
+#line 7040 "ProParser.y"
     {
       PostSubOperation_S.Type = POP_EXPRESSION;
       PostSubOperation_S.Case.Expression.String = (yyvsp[(3) - (6)].c);
@@ -15652,7 +15653,7 @@ yyreduce:
     break;
 
   case 687:
-#line 7048 "ProParser.y"
+#line 7049 "ProParser.y"
     {
       PostSubOperation_S.Type = POP_GROUP;
       PostSubOperation_S.Case.Group.ExtendedGroupIndex =
@@ -15662,7 +15663,7 @@ yyreduce:
     break;
 
   case 688:
-#line 7055 "ProParser.y"
+#line 7056 "ProParser.y"
     {
       PostSubOperation_S.Case.Group.GroupIndex =
         Num_Group(&Group_S, (char*)"PO_Group", (yyvsp[(7) - (10)].i));
@@ -15670,7 +15671,7 @@ yyreduce:
     break;
 
   case 689:
-#line 7061 "ProParser.y"
+#line 7062 "ProParser.y"
     {
       PostSubOperation_S.Type = POP_MERGE;
       PostSubOperation_S.FileOut = (yyvsp[(3) - (5)].c);
@@ -15678,14 +15679,14 @@ yyreduce:
     break;
 
   case 690:
-#line 7067 "ProParser.y"
+#line 7068 "ProParser.y"
     {
       PostSubOperation_S.Type = POP_NONE;
     ;}
     break;
 
   case 691:
-#line 7076 "ProParser.y"
+#line 7077 "ProParser.y"
     {
       int i;
       if((i = List_ISearchSeq(InteractivePostProcessing_S.PostQuantity, (yyvsp[(1) - (3)].c),
@@ -15700,7 +15701,7 @@ yyreduce:
     break;
 
   case 692:
-#line 7089 "ProParser.y"
+#line 7090 "ProParser.y"
     {
       vyyerror(1, "Combined post-quantities are deprecated: use registers instead");
       int i;
@@ -15725,37 +15726,37 @@ yyreduce:
     break;
 
   case 693:
-#line 7114 "ProParser.y"
+#line 7115 "ProParser.y"
     { PostSubOperation_S.CombinationType = MULTIPLICATION; ;}
     break;
 
   case 694:
-#line 7115 "ProParser.y"
+#line 7116 "ProParser.y"
     { PostSubOperation_S.CombinationType = DIVISION; ;}
     break;
 
   case 695:
-#line 7116 "ProParser.y"
+#line 7117 "ProParser.y"
     { PostSubOperation_S.CombinationType = ADDITION; ;}
     break;
 
   case 696:
-#line 7117 "ProParser.y"
+#line 7118 "ProParser.y"
     { PostSubOperation_S.CombinationType = SOUSTRACTION; ;}
     break;
 
   case 697:
-#line 7123 "ProParser.y"
+#line 7124 "ProParser.y"
     { (yyval.i) = -1; ;}
     break;
 
   case 698:
-#line 7125 "ProParser.y"
+#line 7126 "ProParser.y"
     { (yyval.i) = Num_Group(&Group_S, (char*)"PO_Support", (yyvsp[(2) - (3)].i)); ;}
     break;
 
   case 699:
-#line 7131 "ProParser.y"
+#line 7132 "ProParser.y"
     {
       PostSubOperation_S.SubType = PRINT_ONREGION;
       PostSubOperation_S.Case.OnRegion.RegionIndex = -1;
@@ -15763,7 +15764,7 @@ yyreduce:
     break;
 
   case 700:
-#line 7137 "ProParser.y"
+#line 7138 "ProParser.y"
     {
       PostSubOperation_S.SubType = PRINT_ONREGION;
       PostSubOperation_S.Case.OnRegion.RegionIndex =
@@ -15772,7 +15773,7 @@ yyreduce:
     break;
 
   case 701:
-#line 7144 "ProParser.y"
+#line 7145 "ProParser.y"
     {
       PostSubOperation_S.SubType = PRINT_ONELEMENTSOF;
       PostSubOperation_S.Case.OnRegion.RegionIndex =
@@ -15781,7 +15782,7 @@ yyreduce:
     break;
 
   case 702:
-#line 7153 "ProParser.y"
+#line 7154 "ProParser.y"
     {
       PostSubOperation_S.SubType = PRINT_ONSECTION_2D;
       if(List_Nbr((yyvsp[(4) - (12)].l)) != 3 || List_Nbr((yyvsp[(7) - (12)].l)) != 3 || List_Nbr((yyvsp[(10) - (12)].l)) != 3)
@@ -15805,7 +15806,7 @@ yyreduce:
     break;
 
   case 703:
-#line 7175 "ProParser.y"
+#line 7176 "ProParser.y"
     {
       PostSubOperation_S.SubType = PRINT_ONGRID;
       PostSubOperation_S.Case.OnRegion.RegionIndex =
@@ -15814,7 +15815,7 @@ yyreduce:
     break;
 
   case 704:
-#line 7183 "ProParser.y"
+#line 7184 "ProParser.y"
     {
       PostSubOperation_S.SubType = PRINT_ONGRID_PARAM;
       PostSubOperation_S.Case.OnParamGrid.ExpressionIndex[0] = (yyvsp[(3) - (15)].i);
@@ -15827,7 +15828,7 @@ yyreduce:
     break;
 
   case 705:
-#line 7194 "ProParser.y"
+#line 7195 "ProParser.y"
     {
       PostSubOperation_S.SubType = PRINT_ONGRID_0D;
       if(List_Nbr((yyvsp[(3) - (4)].l)) != 3)
@@ -15842,7 +15843,7 @@ yyreduce:
     break;
 
   case 706:
-#line 7208 "ProParser.y"
+#line 7209 "ProParser.y"
     {
       PostSubOperation_S.SubType = PRINT_ONGRID_1D;
       if(List_Nbr((yyvsp[(4) - (12)].l)) != 3 || List_Nbr((yyvsp[(7) - (12)].l)) != 3)
@@ -15863,7 +15864,7 @@ yyreduce:
     break;
 
   case 707:
-#line 7229 "ProParser.y"
+#line 7230 "ProParser.y"
     {
       PostSubOperation_S.SubType = PRINT_ONGRID_2D;
       if(List_Nbr((yyvsp[(4) - (17)].l)) != 3 || List_Nbr((yyvsp[(7) - (17)].l)) != 3 || List_Nbr((yyvsp[(10) - (17)].l)) != 3)
@@ -15889,7 +15890,7 @@ yyreduce:
     break;
 
   case 708:
-#line 7256 "ProParser.y"
+#line 7257 "ProParser.y"
     {
       PostSubOperation_S.SubType = PRINT_ONGRID_3D;
       if(List_Nbr((yyvsp[(4) - (22)].l)) != 3 || List_Nbr((yyvsp[(7) - (22)].l)) != 3 ||
@@ -15921,7 +15922,7 @@ yyreduce:
     break;
 
   case 709:
-#line 7288 "ProParser.y"
+#line 7289 "ProParser.y"
     {
       PostSubOperation_S.SubType = PRINT_WITHARGUMENT;
 
@@ -15941,7 +15942,7 @@ yyreduce:
     break;
 
   case 710:
-#line 7308 "ProParser.y"
+#line 7309 "ProParser.y"
     {
       PostSubOperation_S.SubType = PRINT_WITHARGUMENT;
 
@@ -15961,13 +15962,13 @@ yyreduce:
     break;
 
   case 711:
-#line 7328 "ProParser.y"
+#line 7329 "ProParser.y"
     {
     ;}
     break;
 
   case 713:
-#line 7335 "ProParser.y"
+#line 7336 "ProParser.y"
     {
       PostSubOperation_S.FileOut = (yyvsp[(3) - (3)].c);
       PostSubOperation_S.CatFile = 0;
@@ -15975,7 +15976,7 @@ yyreduce:
     break;
 
   case 714:
-#line 7340 "ProParser.y"
+#line 7341 "ProParser.y"
     {
       PostSubOperation_S.FileOut = (yyvsp[(4) - (4)].c);
       PostSubOperation_S.CatFile = 1;
@@ -15983,7 +15984,7 @@ yyreduce:
     break;
 
   case 715:
-#line 7345 "ProParser.y"
+#line 7346 "ProParser.y"
     {
       PostSubOperation_S.FileOut = (yyvsp[(4) - (4)].c);
       PostSubOperation_S.CatFile = 2;
@@ -15991,70 +15992,70 @@ yyreduce:
     break;
 
   case 716:
-#line 7350 "ProParser.y"
+#line 7351 "ProParser.y"
     {
       PostSubOperation_S.CatFile = (yyvsp[(3) - (3)].d);
     ;}
     break;
 
   case 717:
-#line 7354 "ProParser.y"
+#line 7355 "ProParser.y"
     {
       PostSubOperation_S.Depth = (int)(yyvsp[(3) - (3)].d);
     ;}
     break;
 
   case 718:
-#line 7358 "ProParser.y"
+#line 7359 "ProParser.y"
     {
       PostSubOperation_S.Skin = 1;
     ;}
     break;
 
   case 719:
-#line 7362 "ProParser.y"
+#line 7363 "ProParser.y"
     {
       PostSubOperation_S.Smoothing = 1;
     ;}
     break;
 
   case 720:
-#line 7366 "ProParser.y"
+#line 7367 "ProParser.y"
     {
       PostSubOperation_S.Smoothing = (int)(yyvsp[(3) - (3)].d);
     ;}
     break;
 
   case 721:
-#line 7370 "ProParser.y"
+#line 7371 "ProParser.y"
     {
       PostSubOperation_S.HarmonicToTime = (int)(yyvsp[(3) - (3)].d);
     ;}
     break;
 
   case 722:
-#line 7374 "ProParser.y"
+#line 7375 "ProParser.y"
     {
       PostSubOperation_S.TimeToHarmonic = (int)(yyvsp[(3) - (3)].d);
     ;}
     break;
 
   case 723:
-#line 7378 "ProParser.y"
+#line 7379 "ProParser.y"
     {
       PostSubOperation_S.FourierTransform = 2;
     ;}
     break;
 
   case 724:
-#line 7382 "ProParser.y"
+#line 7383 "ProParser.y"
     {
       PostSubOperation_S.FourierTransform = 1;
     ;}
     break;
 
   case 725:
-#line 7386 "ProParser.y"
+#line 7387 "ProParser.y"
     {
       PostSubOperation_S.Format =
 	Get_DefineForString(PostSubOperation_Format, (yyvsp[(3) - (3)].c), &FlagError);
@@ -16067,35 +16068,35 @@ yyreduce:
     break;
 
   case 726:
-#line 7396 "ProParser.y"
+#line 7397 "ProParser.y"
     {
       PostSubOperation_S.Comma = 1;
     ;}
     break;
 
   case 727:
-#line 7400 "ProParser.y"
+#line 7401 "ProParser.y"
     {
       PostSubOperation_S.ValueIndex = (yyvsp[(3) - (3)].d);
     ;}
     break;
 
   case 728:
-#line 7404 "ProParser.y"
+#line 7405 "ProParser.y"
     {
       PostSubOperation_S.ValueName = (yyvsp[(3) - (3)].c);
     ;}
     break;
 
   case 729:
-#line 7408 "ProParser.y"
+#line 7409 "ProParser.y"
     {
       PostSubOperation_S.Label = (yyvsp[(3) - (3)].c);
     ;}
     break;
 
   case 730:
-#line 7412 "ProParser.y"
+#line 7413 "ProParser.y"
     {
       if((int)(yyvsp[(3) - (3)].d) >= 1 && (int)(yyvsp[(3) - (3)].d) <= 3)
 	PostSubOperation_S.Dimension = (int)(yyvsp[(3) - (3)].d);
@@ -16105,7 +16106,7 @@ yyreduce:
     break;
 
   case 731:
-#line 7419 "ProParser.y"
+#line 7420 "ProParser.y"
     {
       PostSubOperation_S.FrozenTimeStepList = 1;
       for(int i = 0; i < List_Nbr((yyvsp[(3) - (3)].l)); i++){
@@ -16119,14 +16120,14 @@ yyreduce:
     break;
 
   case 732:
-#line 7430 "ProParser.y"
+#line 7431 "ProParser.y"
     {
       PostSubOperation_S.TimeValue_L = (yyvsp[(3) - (3)].l);
     ;}
     break;
 
   case 733:
-#line 7434 "ProParser.y"
+#line 7435 "ProParser.y"
     {
       PostSubOperation_S.TimeInterval_Flag = 1;
       PostSubOperation_S.TimeInterval[0] = (yyvsp[(4) - (7)].d);
@@ -16135,14 +16136,14 @@ yyreduce:
     break;
 
   case 734:
-#line 7440 "ProParser.y"
+#line 7441 "ProParser.y"
     {
       PostSubOperation_S.TimeImagValue_L = (yyvsp[(3) - (3)].l);
     ;}
     break;
 
   case 735:
-#line 7444 "ProParser.y"
+#line 7445 "ProParser.y"
     {
       PostSubOperation_S.Adapt =
 	Get_DefineForString(PostSubOperation_AdaptationType, (yyvsp[(3) - (3)].c), &FlagError);
@@ -16154,7 +16155,7 @@ yyreduce:
     break;
 
   case 736:
-#line 7453 "ProParser.y"
+#line 7454 "ProParser.y"
     {
       PostSubOperation_S.Sort =
 	Get_DefineForString(PostSubOperation_SortType, (yyvsp[(3) - (3)].c), &FlagError);
@@ -16166,7 +16167,7 @@ yyreduce:
     break;
 
   case 737:
-#line 7462 "ProParser.y"
+#line 7463 "ProParser.y"
     {
       if((yyvsp[(3) - (3)].d) >= 0.)
 	PostSubOperation_S.Target = (yyvsp[(3) - (3)].d);
@@ -16176,7 +16177,7 @@ yyreduce:
     break;
 
   case 738:
-#line 7469 "ProParser.y"
+#line 7470 "ProParser.y"
     {
       for(int i = 0; i < List_Nbr((yyvsp[(3) - (3)].l)); i++){
 	double d;
@@ -16188,14 +16189,14 @@ yyreduce:
     break;
 
   case 739:
-#line 7478 "ProParser.y"
+#line 7479 "ProParser.y"
     {
       PostSubOperation_S.Iso = (int)(yyvsp[(3) - (3)].d);
     ;}
     break;
 
   case 740:
-#line 7482 "ProParser.y"
+#line 7483 "ProParser.y"
     {
       PostSubOperation_S.Iso = -1;
       for(int i = 0; i < List_Nbr((yyvsp[(4) - (5)].l)); i++){
@@ -16208,28 +16209,28 @@ yyreduce:
     break;
 
   case 741:
-#line 7492 "ProParser.y"
+#line 7493 "ProParser.y"
     {
       PostSubOperation_S.NoNewLine = 1;
     ;}
     break;
 
   case 742:
-#line 7496 "ProParser.y"
+#line 7497 "ProParser.y"
     {
       PostSubOperation_S.NoTitle = 1;
     ;}
     break;
 
   case 743:
-#line 7500 "ProParser.y"
+#line 7501 "ProParser.y"
     {
       PostSubOperation_S.DecomposeInSimplex = 1;
     ;}
     break;
 
   case 744:
-#line 7504 "ProParser.y"
+#line 7505 "ProParser.y"
     {
       for(int i = 0; i < List_Nbr((yyvsp[(3) - (3)].l)); i++){
 	double d;
@@ -16241,7 +16242,7 @@ yyreduce:
     break;
 
   case 745:
-#line 7513 "ProParser.y"
+#line 7514 "ProParser.y"
     {
       PostSubOperation_S.ChangeOfCoordinates[0] = (yyvsp[(4) - (9)].i);
       PostSubOperation_S.ChangeOfCoordinates[1] = (yyvsp[(6) - (9)].i);
@@ -16250,14 +16251,14 @@ yyreduce:
     break;
 
   case 746:
-#line 7519 "ProParser.y"
+#line 7520 "ProParser.y"
     {
       PostSubOperation_S.ChangeOfValues = List_Copy(ListOfInt_L);
     ;}
     break;
 
   case 747:
-#line 7523 "ProParser.y"
+#line 7524 "ProParser.y"
     {
       PostSubOperation_S.Legend = LEGEND_TIME;
       PostSubOperation_S.LegendPosition[0] = 1.e5;
@@ -16268,7 +16269,7 @@ yyreduce:
     break;
 
   case 748:
-#line 7531 "ProParser.y"
+#line 7532 "ProParser.y"
     {
       PostSubOperation_S.Legend = LEGEND_TIME;
       PostSubOperation_S.LegendPosition[0] = (yyvsp[(4) - (9)].d);
@@ -16278,7 +16279,7 @@ yyreduce:
     break;
 
   case 749:
-#line 7538 "ProParser.y"
+#line 7539 "ProParser.y"
     {
       PostSubOperation_S.Legend = LEGEND_FREQUENCY;
       PostSubOperation_S.LegendPosition[0] = 1.e5;
@@ -16289,7 +16290,7 @@ yyreduce:
     break;
 
   case 750:
-#line 7546 "ProParser.y"
+#line 7547 "ProParser.y"
     {
       PostSubOperation_S.Legend = LEGEND_FREQUENCY;
       PostSubOperation_S.LegendPosition[0] = (yyvsp[(4) - (9)].d);
@@ -16299,7 +16300,7 @@ yyreduce:
     break;
 
   case 751:
-#line 7553 "ProParser.y"
+#line 7554 "ProParser.y"
     {
       PostSubOperation_S.Legend = LEGEND_EIGENVALUES;
       PostSubOperation_S.LegendPosition[0] = 1.e5;
@@ -16310,7 +16311,7 @@ yyreduce:
     break;
 
   case 752:
-#line 7561 "ProParser.y"
+#line 7562 "ProParser.y"
     {
       PostSubOperation_S.Legend = LEGEND_EIGENVALUES;
       PostSubOperation_S.LegendPosition[0] = (yyvsp[(4) - (9)].d);
@@ -16320,7 +16321,7 @@ yyreduce:
     break;
 
   case 753:
-#line 7568 "ProParser.y"
+#line 7569 "ProParser.y"
     {
       if(List_Nbr((yyvsp[(4) - (5)].l))%3 != 0)
 	vyyerror(0, "Expected 3n coordinates, got %d", List_Nbr((yyvsp[(4) - (5)].l)));
@@ -16331,168 +16332,168 @@ yyreduce:
     break;
 
   case 754:
-#line 7576 "ProParser.y"
+#line 7577 "ProParser.y"
     {
       PostSubOperation_S.StoreInVariable = (yyvsp[(4) - (4)].c);
     ;}
     break;
 
   case 755:
-#line 7580 "ProParser.y"
+#line 7581 "ProParser.y"
     {
       PostSubOperation_S.StoreInRegister = (int)(yyvsp[(3) - (3)].d) - 1;
     ;}
     break;
 
   case 756:
-#line 7584 "ProParser.y"
+#line 7585 "ProParser.y"
     {
       PostSubOperation_S.StoreMinInRegister = (int)(yyvsp[(3) - (3)].d) - 1;
     ;}
     break;
 
   case 757:
-#line 7588 "ProParser.y"
+#line 7589 "ProParser.y"
     {
       PostSubOperation_S.StoreMinXinRegister = (int)(yyvsp[(3) - (3)].d) - 1;
     ;}
     break;
 
   case 758:
-#line 7592 "ProParser.y"
+#line 7593 "ProParser.y"
     {
       PostSubOperation_S.StoreMinYinRegister = (int)(yyvsp[(3) - (3)].d) - 1;
     ;}
     break;
 
   case 759:
-#line 7596 "ProParser.y"
+#line 7597 "ProParser.y"
     {
       PostSubOperation_S.StoreMinZinRegister = (int)(yyvsp[(3) - (3)].d) - 1;
     ;}
     break;
 
   case 760:
-#line 7600 "ProParser.y"
+#line 7601 "ProParser.y"
     {
       PostSubOperation_S.StoreMaxInRegister = (int)(yyvsp[(3) - (3)].d) - 1;
     ;}
     break;
 
   case 761:
-#line 7604 "ProParser.y"
+#line 7605 "ProParser.y"
     {
       PostSubOperation_S.StoreMaxXinRegister = (int)(yyvsp[(3) - (3)].d) - 1;
     ;}
     break;
 
   case 762:
-#line 7608 "ProParser.y"
+#line 7609 "ProParser.y"
     {
       PostSubOperation_S.StoreMaxYinRegister = (int)(yyvsp[(3) - (3)].d) - 1;
     ;}
     break;
 
   case 763:
-#line 7612 "ProParser.y"
+#line 7613 "ProParser.y"
     {
       PostSubOperation_S.StoreMaxZinRegister = (int)(yyvsp[(3) - (3)].d) - 1;
     ;}
     break;
 
   case 764:
-#line 7616 "ProParser.y"
+#line 7617 "ProParser.y"
     {
       PostSubOperation_S.StoreInField = (yyvsp[(3) - (3)].d);
     ;}
     break;
 
   case 765:
-#line 7620 "ProParser.y"
+#line 7621 "ProParser.y"
     {
       PostSubOperation_S.StoreInMeshBasedField = (yyvsp[(3) - (3)].d);
     ;}
     break;
 
   case 766:
-#line 7624 "ProParser.y"
+#line 7625 "ProParser.y"
     {
       PostSubOperation_S.LastTimeStepOnly = 1;
     ;}
     break;
 
   case 767:
-#line 7628 "ProParser.y"
+#line 7629 "ProParser.y"
     {
       PostSubOperation_S.LastTimeStepOnly = (int)(yyvsp[(3) - (3)].d);
     ;}
     break;
 
   case 768:
-#line 7632 "ProParser.y"
+#line 7633 "ProParser.y"
     {
       PostSubOperation_S.AppendTimeStepToFileName = 1;
     ;}
     break;
 
   case 769:
-#line 7636 "ProParser.y"
+#line 7637 "ProParser.y"
     {
       PostSubOperation_S.AppendTimeStepToFileName = (int)(yyvsp[(3) - (3)].d);
     ;}
     break;
 
   case 770:
-#line 7640 "ProParser.y"
+#line 7641 "ProParser.y"
     {
       PostSubOperation_S.AppendExpressionToFileName = (yyvsp[(3) - (3)].i);
     ;}
     break;
 
   case 771:
-#line 7644 "ProParser.y"
+#line 7645 "ProParser.y"
     {
       PostSubOperation_S.AppendExpressionFormat = (yyvsp[(3) - (3)].c);
     ;}
     break;
 
   case 772:
-#line 7648 "ProParser.y"
+#line 7649 "ProParser.y"
     {
       PostSubOperation_S.AppendStringToFileName = (yyvsp[(3) - (3)].c);
     ;}
     break;
 
   case 773:
-#line 7652 "ProParser.y"
+#line 7653 "ProParser.y"
     {
       PostSubOperation_S.OverrideTimeStepValue = (yyvsp[(3) - (3)].d);
     ;}
     break;
 
   case 774:
-#line 7656 "ProParser.y"
+#line 7657 "ProParser.y"
     {
       PostSubOperation_S.NoMesh = 1;
     ;}
     break;
 
   case 775:
-#line 7660 "ProParser.y"
+#line 7661 "ProParser.y"
     {
       PostSubOperation_S.NoMesh = (yyvsp[(3) - (3)].d);
     ;}
     break;
 
   case 776:
-#line 7664 "ProParser.y"
+#line 7665 "ProParser.y"
     {
       PostSubOperation_S.SendToServer = (yyvsp[(3) - (3)].c);
     ;}
     break;
 
   case 777:
-#line 7668 "ProParser.y"
+#line 7669 "ProParser.y"
     {
       PostSubOperation_S.SendToServer = (yyvsp[(3) - (6)].c);
       PostSubOperation_S.SendToServerList = (yyvsp[(5) - (6)].l);
@@ -16500,26 +16501,29 @@ yyreduce:
     break;
 
   case 778:
-#line 7673 "ProParser.y"
+#line 7674 "ProParser.y"
     {
       PostSubOperation_S.Visible = false;
     ;}
     break;
 
   case 779:
-#line 7677 "ProParser.y"
+#line 7678 "ProParser.y"
     {
       PostSubOperation_S.Visible = (yyvsp[(3) - (3)].d) ? false : true;
     ;}
     break;
 
   case 780:
-#line 7681 "ProParser.y"
+#line 7682 "ProParser.y"
     {
-      std::string cat((yyvsp[(2) - (3)].c));
+      std::string cat((yyvsp[(2) - (3)].c)), val((yyvsp[(3) - (3)].c));
       Free((yyvsp[(2) - (3)].c));
       if(cat == "Units"){
         PostSubOperation_S.Units = (yyvsp[(3) - (3)].c);
+      }
+      else if(cat == "Closed"){
+        PostSubOperation_S.Closed = (val == "1") ? true : false;
       }
       else if(cat == "Label"){
         PostSubOperation_S.Label = (yyvsp[(3) - (3)].c);
@@ -16535,17 +16539,17 @@ yyreduce:
     break;
 
   case 781:
-#line 7707 "ProParser.y"
+#line 7711 "ProParser.y"
     { (yyval.c) = (yyvsp[(1) - (1)].c); ;}
     break;
 
   case 782:
-#line 7709 "ProParser.y"
+#line 7713 "ProParser.y"
     { (yyval.c) = (yyvsp[(1) - (1)].c); ;}
     break;
 
   case 783:
-#line 7715 "ProParser.y"
+#line 7719 "ProParser.y"
     {
       LoopControlVariablesTab[ImbricatedLoop][0] = (yyvsp[(3) - (6)].d);
       LoopControlVariablesTab[ImbricatedLoop][1] = (yyvsp[(5) - (6)].d);
@@ -16565,7 +16569,7 @@ yyreduce:
     break;
 
   case 784:
-#line 7732 "ProParser.y"
+#line 7736 "ProParser.y"
     {
       LoopControlVariablesTab[ImbricatedLoop][0] = (yyvsp[(3) - (8)].d);
       LoopControlVariablesTab[ImbricatedLoop][1] = (yyvsp[(5) - (8)].d);
@@ -16585,7 +16589,7 @@ yyreduce:
     break;
 
   case 785:
-#line 7749 "ProParser.y"
+#line 7753 "ProParser.y"
     {
       LoopControlVariablesTab[ImbricatedLoop][0] = (yyvsp[(5) - (8)].d);
       LoopControlVariablesTab[ImbricatedLoop][1] = (yyvsp[(7) - (8)].d);
@@ -16610,7 +16614,7 @@ yyreduce:
     break;
 
   case 786:
-#line 7771 "ProParser.y"
+#line 7775 "ProParser.y"
     {
       LoopControlVariablesTab[ImbricatedLoop][0] = (yyvsp[(5) - (10)].d);
       LoopControlVariablesTab[ImbricatedLoop][1] = (yyvsp[(7) - (10)].d);
@@ -16634,7 +16638,7 @@ yyreduce:
     break;
 
   case 787:
-#line 7792 "ProParser.y"
+#line 7796 "ProParser.y"
     {
       if(ImbricatedLoop <= 0){
 	vyyerror(0, "Invalid For/EndFor loop");
@@ -16674,7 +16678,7 @@ yyreduce:
     break;
 
   case 788:
-#line 7829 "ProParser.y"
+#line 7833 "ProParser.y"
     {
       if(!MacroManager::Instance()->createMacro
          (std::string((yyvsp[(2) - (2)].c)), getdp_yyin, getdp_yyname, getdp_yylinenum + 1))
@@ -16685,7 +16689,7 @@ yyreduce:
     break;
 
   case 789:
-#line 7837 "ProParser.y"
+#line 7841 "ProParser.y"
     {
       if(!MacroManager::Instance()->createMacro
          (std::string((yyvsp[(2) - (2)].c)), getdp_yyin, getdp_yyname, getdp_yylinenum + 0))
@@ -16696,7 +16700,7 @@ yyreduce:
     break;
 
   case 790:
-#line 7845 "ProParser.y"
+#line 7849 "ProParser.y"
     {
       if(!MacroManager::Instance()->leaveMacro
          (&getdp_yyin, getdp_yyname, getdp_yylinenum))
@@ -16705,7 +16709,7 @@ yyreduce:
     break;
 
   case 791:
-#line 7851 "ProParser.y"
+#line 7855 "ProParser.y"
     {
       if(!MacroManager::Instance()->enterMacro
          (std::string((yyvsp[(2) - (3)].c)), &getdp_yyin, getdp_yyname, getdp_yylinenum))
@@ -16715,7 +16719,7 @@ yyreduce:
     break;
 
   case 792:
-#line 7858 "ProParser.y"
+#line 7862 "ProParser.y"
     {
       if((yyvsp[(3) - (6)].d))
         if(!MacroManager::Instance()->enterMacro
@@ -16726,7 +16730,7 @@ yyreduce:
     break;
 
   case 793:
-#line 7866 "ProParser.y"
+#line 7870 "ProParser.y"
     {
       ImbricatedTest++;
       if(ImbricatedTest > MAX_RECUR_TESTS-1){
@@ -16749,7 +16753,7 @@ yyreduce:
     break;
 
   case 794:
-#line 7886 "ProParser.y"
+#line 7890 "ProParser.y"
     {
       if(ImbricatedTest > 0){
         if (statusImbricatedTests[ImbricatedTest]){
@@ -16778,7 +16782,7 @@ yyreduce:
     break;
 
   case 795:
-#line 7912 "ProParser.y"
+#line 7916 "ProParser.y"
     {
       if(ImbricatedTest > 0){
         if(statusImbricatedTests[ImbricatedTest]){
@@ -16793,7 +16797,7 @@ yyreduce:
     break;
 
   case 796:
-#line 7924 "ProParser.y"
+#line 7928 "ProParser.y"
     {
       ImbricatedTest--;
       if(ImbricatedTest < 0)
@@ -16802,7 +16806,7 @@ yyreduce:
     break;
 
   case 797:
-#line 7930 "ProParser.y"
+#line 7934 "ProParser.y"
     {
       getdp_yystring = (yyvsp[(3) - (5)].c);
       Free((yyvsp[(3) - (5)].c));
@@ -16810,31 +16814,31 @@ yyreduce:
     break;
 
   case 799:
-#line 7943 "ProParser.y"
+#line 7947 "ProParser.y"
     { (yyval.i) = 3; ;}
     break;
 
   case 800:
-#line 7944 "ProParser.y"
+#line 7948 "ProParser.y"
     { (yyval.i) = -3; ;}
     break;
 
   case 801:
-#line 7949 "ProParser.y"
+#line 7953 "ProParser.y"
     {
       (yyval.c) = (char*)"w";
     ;}
     break;
 
   case 802:
-#line 7953 "ProParser.y"
+#line 7957 "ProParser.y"
     {
       (yyval.c) = (char*)"a";
     ;}
     break;
 
   case 807:
-#line 7969 "ProParser.y"
+#line 7973 "ProParser.y"
     {
       Message::SetOnelabNumber((yyvsp[(3) - (7)].c), (yyvsp[(5) - (7)].d));
       Free((yyvsp[(3) - (7)].c));
@@ -16842,7 +16846,7 @@ yyreduce:
     break;
 
   case 808:
-#line 7975 "ProParser.y"
+#line 7979 "ProParser.y"
     {
       Message::SetOnelabString((yyvsp[(3) - (7)].c), (yyvsp[(5) - (7)].c));
       Free((yyvsp[(3) - (7)].c));
@@ -16851,7 +16855,7 @@ yyreduce:
     break;
 
   case 809:
-#line 7982 "ProParser.y"
+#line 7986 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(2) - (3)].c);
       // FIXME: leak if constant is list or char; all Tree_Replace functions
@@ -16863,7 +16867,7 @@ yyreduce:
     break;
 
   case 810:
-#line 7992 "ProParser.y"
+#line 7996 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(3) - (5)].c);
       // FIXME: leak if constant is list or char; all Tree_Replace functions
@@ -16875,14 +16879,14 @@ yyreduce:
     break;
 
   case 811:
-#line 8002 "ProParser.y"
+#line 8006 "ProParser.y"
     {
       nameSpaces.clear();
     ;}
     break;
 
   case 812:
-#line 8007 "ProParser.y"
+#line 8011 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(1) - (4)].c);
       if(List_Nbr((yyvsp[(3) - (4)].l)) == 1){
@@ -16899,7 +16903,7 @@ yyreduce:
     break;
 
   case 813:
-#line 8022 "ProParser.y"
+#line 8026 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(1) - (6)].c);
       Constant_S.Type = VAR_LISTOFFLOAT;
@@ -16909,7 +16913,7 @@ yyreduce:
     break;
 
   case 814:
-#line 8030 "ProParser.y"
+#line 8034 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(1) - (7)].c);
       Constant *c = (Constant*)Tree_PQuery(ConstantTable_L, &Constant_S);
@@ -16939,7 +16943,7 @@ yyreduce:
     break;
 
   case 815:
-#line 8058 "ProParser.y"
+#line 8062 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(1) - (8)].c);
       Constant *c = (Constant*)Tree_PQuery(ConstantTable_L, &Constant_S);
@@ -16969,7 +16973,7 @@ yyreduce:
     break;
 
   case 816:
-#line 8086 "ProParser.y"
+#line 8090 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(1) - (8)].c);
       Constant *c = (Constant*)Tree_PQuery(ConstantTable_L, &Constant_S);
@@ -16999,7 +17003,7 @@ yyreduce:
     break;
 
   case 817:
-#line 8114 "ProParser.y"
+#line 8118 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(1) - (5)].c);
       Constant *c = (Constant*)Tree_PQuery(ConstantTable_L, &Constant_S);
@@ -17023,7 +17027,7 @@ yyreduce:
     break;
 
   case 818:
-#line 8136 "ProParser.y"
+#line 8140 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(1) - (7)].c);
       Constant *c = (Constant*)Tree_PQuery(ConstantTable_L, &Constant_S);
@@ -17042,7 +17046,7 @@ yyreduce:
     break;
 
   case 819:
-#line 8153 "ProParser.y"
+#line 8157 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(1) - (5)].c);
       Constant *c = (Constant*)Tree_PQuery(ConstantTable_L, &Constant_S);
@@ -17079,7 +17083,7 @@ yyreduce:
     break;
 
   case 820:
-#line 8188 "ProParser.y"
+#line 8192 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(1) - (7)].c);
       Constant *c = (Constant*)Tree_PQuery(ConstantTable_L, &Constant_S);
@@ -17111,7 +17115,7 @@ yyreduce:
     break;
 
   case 821:
-#line 8218 "ProParser.y"
+#line 8222 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(1) - (4)].c); Constant_S.Type = VAR_CHAR;
       Constant_S.Value.Char = (yyvsp[(3) - (4)].c);
@@ -17120,7 +17124,7 @@ yyreduce:
     break;
 
   case 822:
-#line 8225 "ProParser.y"
+#line 8229 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(1) - (8)].c);
       Constant_S.Type = VAR_LISTOFCHAR;
@@ -17130,7 +17134,7 @@ yyreduce:
     break;
 
   case 823:
-#line 8233 "ProParser.y"
+#line 8237 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(1) - (9)].c);
       Constant_S.Type = VAR_LISTOFCHAR;
@@ -17140,7 +17144,7 @@ yyreduce:
     break;
 
   case 824:
-#line 8241 "ProParser.y"
+#line 8245 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(1) - (10)].c);
       Constant *c = (Constant*)Tree_PQuery(ConstantTable_L, &Constant_S);
@@ -17159,14 +17163,14 @@ yyreduce:
     break;
 
   case 825:
-#line 8258 "ProParser.y"
+#line 8262 "ProParser.y"
     {
       Message::Direct((yyvsp[(1) - (5)].i), (yyvsp[(3) - (5)].c));
     ;}
     break;
 
   case 826:
-#line 8263 "ProParser.y"
+#line 8267 "ProParser.y"
     {
       std::string tmp = Fix_RelativePath((yyvsp[(6) - (7)].c));
       FILE *fp = FOpen(tmp.c_str(), (yyvsp[(5) - (7)].c));
@@ -17183,7 +17187,7 @@ yyreduce:
     break;
 
   case 827:
-#line 8278 "ProParser.y"
+#line 8282 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(2) - (3)].c);
       if(!Tree_Query(ConstantTable_L, &Constant_S))
@@ -17202,14 +17206,14 @@ yyreduce:
     break;
 
   case 828:
-#line 8295 "ProParser.y"
+#line 8299 "ProParser.y"
     {
       Message::Direct((yyvsp[(1) - (3)].i), "Line number: %d", getdp_yylinenum);
     ;}
     break;
 
   case 829:
-#line 8300 "ProParser.y"
+#line 8304 "ProParser.y"
     {
       char tmpstr[256];
       int i = Print_ListOfDouble((yyvsp[(3) - (7)].c), (yyvsp[(5) - (7)].l), tmpstr);
@@ -17225,7 +17229,7 @@ yyreduce:
     break;
 
   case 830:
-#line 8314 "ProParser.y"
+#line 8318 "ProParser.y"
     {
       std::string tmp = Fix_RelativePath((yyvsp[(8) - (9)].c));
       FILE *fp = FOpen(tmp.c_str(), (yyvsp[(7) - (9)].c));
@@ -17250,7 +17254,7 @@ yyreduce:
     break;
 
   case 831:
-#line 8337 "ProParser.y"
+#line 8341 "ProParser.y"
     {
       Message::Error((yyvsp[(3) - (5)].c));
       Free((yyvsp[(3) - (5)].c));
@@ -17258,7 +17262,7 @@ yyreduce:
     break;
 
   case 832:
-#line 8344 "ProParser.y"
+#line 8348 "ProParser.y"
     {
       Message::Info("? ");
       char tmpstr[256];
@@ -17271,7 +17275,7 @@ yyreduce:
     break;
 
   case 833:
-#line 8355 "ProParser.y"
+#line 8359 "ProParser.y"
     {
       Message::Info("? ");
       char tmpstr[256];
@@ -17284,7 +17288,7 @@ yyreduce:
     break;
 
   case 834:
-#line 8367 "ProParser.y"
+#line 8371 "ProParser.y"
     {
       Message::Info("[<return>=%g] ? ",(yyvsp[(6) - (8)].d));
       char tmpstr[256];
@@ -17301,7 +17305,7 @@ yyreduce:
     break;
 
   case 835:
-#line 8382 "ProParser.y"
+#line 8386 "ProParser.y"
     {
       Message::Info("[<return>=%g] ? ",(yyvsp[(5) - (7)].d));
       char tmpstr[256];
@@ -17318,14 +17322,14 @@ yyreduce:
     break;
 
   case 836:
-#line 8397 "ProParser.y"
+#line 8401 "ProParser.y"
     {
       Print_Constants();
     ;}
     break;
 
   case 837:
-#line 8404 "ProParser.y"
+#line 8408 "ProParser.y"
     {
       (yyval.l) = List_Create(20,20,sizeof(doubleXstring));
       doubleXstring v = {(yyvsp[(1) - (3)].d), (yyvsp[(3) - (3)].c)};
@@ -17334,7 +17338,7 @@ yyreduce:
     break;
 
   case 838:
-#line 8410 "ProParser.y"
+#line 8414 "ProParser.y"
     {
       doubleXstring v = {(yyvsp[(3) - (5)].d), (yyvsp[(5) - (5)].c)};
       List_Add((yyval.l), &v);
@@ -17342,7 +17346,7 @@ yyreduce:
     break;
 
   case 839:
-#line 8415 "ProParser.y"
+#line 8419 "ProParser.y"
     {
       (yyval.l) = List_Create(20,20,sizeof(doubleXstring));
       int n = List_Nbr((yyvsp[(1) - (5)].l));
@@ -17375,7 +17379,7 @@ yyreduce:
     break;
 
   case 846:
-#line 8464 "ProParser.y"
+#line 8468 "ProParser.y"
     {
       std::string key((yyvsp[(1) - (2)].c));
       for(int i = 0; i < List_Nbr((yyvsp[(2) - (2)].l)); i++){
@@ -17390,7 +17394,7 @@ yyreduce:
     break;
 
   case 847:
-#line 8477 "ProParser.y"
+#line 8481 "ProParser.y"
     {
       std::string key((yyvsp[(1) - (1)].c));
       double v;
@@ -17406,7 +17410,7 @@ yyreduce:
     break;
 
   case 848:
-#line 8491 "ProParser.y"
+#line 8495 "ProParser.y"
     {
       std::string key((yyvsp[(1) - (4)].c));
       for(int i = 0; i < List_Nbr((yyvsp[(3) - (4)].l)); i++){
@@ -17423,7 +17427,7 @@ yyreduce:
     break;
 
   case 849:
-#line 8506 "ProParser.y"
+#line 8510 "ProParser.y"
     {
       std::string key((yyvsp[(1) - (2)].c));
       std::string val((yyvsp[(2) - (2)].c));
@@ -17434,7 +17438,7 @@ yyreduce:
     break;
 
   case 850:
-#line 8515 "ProParser.y"
+#line 8519 "ProParser.y"
     {
       std::string key((yyvsp[(1) - (2)].c));
       for(int i = 0; i < List_Nbr((yyvsp[(2) - (2)].l)); i++){
@@ -17448,7 +17452,7 @@ yyreduce:
     break;
 
   case 851:
-#line 8527 "ProParser.y"
+#line 8531 "ProParser.y"
     {
       std::string key("Name");
       std::string val((yyvsp[(2) - (2)].c));
@@ -17458,7 +17462,7 @@ yyreduce:
     break;
 
   case 852:
-#line 8535 "ProParser.y"
+#line 8539 "ProParser.y"
     {
       std::string key("Type");
       for(int i = 0; i < List_Nbr((yyvsp[(2) - (2)].l)); i++){
@@ -17471,7 +17475,7 @@ yyreduce:
     break;
 
   case 857:
-#line 8559 "ProParser.y"
+#line 8563 "ProParser.y"
     {
       std::string key((yyvsp[(1) - (2)].c));
       double val = (yyvsp[(2) - (2)].d);
@@ -17481,7 +17485,7 @@ yyreduce:
     break;
 
   case 858:
-#line 8567 "ProParser.y"
+#line 8571 "ProParser.y"
     {
       std::string key((yyvsp[(1) - (2)].c));
       std::string val((yyvsp[(2) - (2)].c));
@@ -17492,7 +17496,7 @@ yyreduce:
     break;
 
   case 859:
-#line 8576 "ProParser.y"
+#line 8580 "ProParser.y"
     {
       std::string key("Name");
       std::string val((yyvsp[(2) - (2)].c));
@@ -17502,7 +17506,7 @@ yyreduce:
     break;
 
   case 860:
-#line 8584 "ProParser.y"
+#line 8588 "ProParser.y"
     {
       std::string key("Macro");
       std::string val((yyvsp[(2) - (2)].c));
@@ -17512,7 +17516,7 @@ yyreduce:
     break;
 
   case 861:
-#line 8592 "ProParser.y"
+#line 8596 "ProParser.y"
     {
       std::string key((yyvsp[(1) - (2)].c));
       for(int i = 0; i < List_Nbr((yyvsp[(2) - (2)].l)); i++){
@@ -17528,7 +17532,7 @@ yyreduce:
     break;
 
   case 862:
-#line 8606 "ProParser.y"
+#line 8610 "ProParser.y"
     {
       std::string key((yyvsp[(1) - (2)].c));
       for(int i = 0; i < List_Nbr((yyvsp[(2) - (2)].l)); i++){
@@ -17544,7 +17548,7 @@ yyreduce:
     break;
 
   case 864:
-#line 8624 "ProParser.y"
+#line 8628 "ProParser.y"
     { Constant_S.Name = (yyvsp[(3) - (3)].c); Constant_S.Type = VAR_FLOAT;
       init_Options();
       if(!Tree_Search(ConstantTable_L, &Constant_S)){
@@ -17555,7 +17559,7 @@ yyreduce:
     break;
 
   case 865:
-#line 8632 "ProParser.y"
+#line 8636 "ProParser.y"
     {
       Constant_S.Type = VAR_FLOAT ;
       init_Options();
@@ -17574,7 +17578,7 @@ yyreduce:
     break;
 
   case 866:
-#line 8648 "ProParser.y"
+#line 8652 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(3) - (5)].c); Constant_S.Type = VAR_FLOAT;
       if(!Tree_Search(ConstantTable_L, &Constant_S)){
@@ -17585,7 +17589,7 @@ yyreduce:
     break;
 
   case 867:
-#line 8656 "ProParser.y"
+#line 8660 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(3) - (8)].c); Constant_S.Type = VAR_LISTOFFLOAT;
       if(!Tree_Search(ConstantTable_L, &Constant_S)){
@@ -17596,12 +17600,12 @@ yyreduce:
     break;
 
   case 868:
-#line 8664 "ProParser.y"
+#line 8668 "ProParser.y"
     { init_Options(); ;}
     break;
 
   case 869:
-#line 8666 "ProParser.y"
+#line 8670 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(3) - (9)].c);
       if(List_Nbr((yyvsp[(6) - (9)].l)) == 1){
@@ -17628,12 +17632,12 @@ yyreduce:
     break;
 
   case 870:
-#line 8690 "ProParser.y"
+#line 8694 "ProParser.y"
     { init_Options(); ;}
     break;
 
   case 871:
-#line 8692 "ProParser.y"
+#line 8696 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(3) - (11)].c);
       Constant_S.Type = VAR_LISTOFFLOAT;
@@ -17646,7 +17650,7 @@ yyreduce:
     break;
 
   case 872:
-#line 8702 "ProParser.y"
+#line 8706 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(3) - (5)].c); Constant_S.Type = VAR_CHAR;
       if(!Tree_Search(ConstantTable_L, &Constant_S)){
@@ -17657,12 +17661,12 @@ yyreduce:
     break;
 
   case 873:
-#line 8710 "ProParser.y"
+#line 8714 "ProParser.y"
     { init_Options(); ;}
     break;
 
   case 874:
-#line 8712 "ProParser.y"
+#line 8716 "ProParser.y"
     {
       Constant_S.Name = (yyvsp[(3) - (9)].c); Constant_S.Type = VAR_CHAR;
       if(!Tree_Search(ConstantTable_L, &Constant_S)){
@@ -17674,7 +17678,7 @@ yyreduce:
     break;
 
   case 876:
-#line 8726 "ProParser.y"
+#line 8730 "ProParser.y"
     {
       // undefine the onelab parameter
       std::string name((yyvsp[(3) - (3)].c));
@@ -17684,7 +17688,7 @@ yyreduce:
     break;
 
   case 877:
-#line 8734 "ProParser.y"
+#line 8738 "ProParser.y"
     {
       // undefine the onelab parameter and the getdp constant
       std::string name((yyvsp[(3) - (3)].c));
@@ -17696,462 +17700,462 @@ yyreduce:
     break;
 
   case 878:
-#line 8748 "ProParser.y"
+#line 8752 "ProParser.y"
     { (yyval.c) = (char*)"Exp";    ;}
     break;
 
   case 879:
-#line 8749 "ProParser.y"
+#line 8753 "ProParser.y"
     { (yyval.c) = (char*)"Log";    ;}
     break;
 
   case 880:
-#line 8750 "ProParser.y"
+#line 8754 "ProParser.y"
     { (yyval.c) = (char*)"Log10";  ;}
     break;
 
   case 881:
-#line 8751 "ProParser.y"
+#line 8755 "ProParser.y"
     { (yyval.c) = (char*)"Sqrt";   ;}
     break;
 
   case 882:
-#line 8752 "ProParser.y"
+#line 8756 "ProParser.y"
     { (yyval.c) = (char*)"Sin";    ;}
     break;
 
   case 883:
-#line 8753 "ProParser.y"
+#line 8757 "ProParser.y"
     { (yyval.c) = (char*)"Asin";   ;}
     break;
 
   case 884:
-#line 8754 "ProParser.y"
+#line 8758 "ProParser.y"
     { (yyval.c) = (char*)"Cos";    ;}
     break;
 
   case 885:
-#line 8755 "ProParser.y"
+#line 8759 "ProParser.y"
     { (yyval.c) = (char*)"Acos";   ;}
     break;
 
   case 886:
-#line 8756 "ProParser.y"
+#line 8760 "ProParser.y"
     { (yyval.c) = (char*)"Tan";    ;}
     break;
 
   case 887:
-#line 8757 "ProParser.y"
+#line 8761 "ProParser.y"
     { (yyval.c) = (char*)"Atan";   ;}
     break;
 
   case 888:
-#line 8758 "ProParser.y"
+#line 8762 "ProParser.y"
     { (yyval.c) = (char*)"Atan2";  ;}
     break;
 
   case 889:
-#line 8759 "ProParser.y"
+#line 8763 "ProParser.y"
     { (yyval.c) = (char*)"Sinh";   ;}
     break;
 
   case 890:
-#line 8760 "ProParser.y"
+#line 8764 "ProParser.y"
     { (yyval.c) = (char*)"Cosh";   ;}
     break;
 
   case 891:
-#line 8761 "ProParser.y"
+#line 8765 "ProParser.y"
     { (yyval.c) = (char*)"Tanh";   ;}
     break;
 
   case 892:
-#line 8762 "ProParser.y"
+#line 8766 "ProParser.y"
     { (yyval.c) = (char*)"Fabs";   ;}
     break;
 
   case 893:
-#line 8763 "ProParser.y"
+#line 8767 "ProParser.y"
     { (yyval.c) = (char*)"Floor";  ;}
     break;
 
   case 894:
-#line 8764 "ProParser.y"
+#line 8768 "ProParser.y"
     { (yyval.c) = (char*)"Ceil";   ;}
     break;
 
   case 895:
-#line 8765 "ProParser.y"
+#line 8769 "ProParser.y"
     { (yyval.c) = (char*)"Round";  ;}
     break;
 
   case 896:
-#line 8766 "ProParser.y"
+#line 8770 "ProParser.y"
     { (yyval.c) = (char*)"Sign";   ;}
     break;
 
   case 897:
-#line 8767 "ProParser.y"
+#line 8771 "ProParser.y"
     { (yyval.c) = (char*)"Fmod";   ;}
     break;
 
   case 898:
-#line 8768 "ProParser.y"
+#line 8772 "ProParser.y"
     { (yyval.c) = (char*)"Modulo"; ;}
     break;
 
   case 899:
-#line 8769 "ProParser.y"
+#line 8773 "ProParser.y"
     { (yyval.c) = (char*)"Hypot";  ;}
     break;
 
   case 900:
-#line 8770 "ProParser.y"
+#line 8774 "ProParser.y"
     { (yyval.c) = (char*)"Rand";   ;}
     break;
 
   case 901:
-#line 8774 "ProParser.y"
+#line 8778 "ProParser.y"
     { (yyval.c) = (yyvsp[(1) - (1)].c); ;}
     break;
 
   case 902:
-#line 8775 "ProParser.y"
+#line 8779 "ProParser.y"
     { (yyval.c) = (yyvsp[(1) - (1)].c); ;}
     break;
 
   case 903:
-#line 8779 "ProParser.y"
+#line 8783 "ProParser.y"
     { (yyval.d) = (yyvsp[(1) - (1)].d);          ;}
     break;
 
   case 904:
-#line 8780 "ProParser.y"
+#line 8784 "ProParser.y"
     { (yyval.d) = (yyvsp[(2) - (3)].d);          ;}
     break;
 
   case 905:
-#line 8781 "ProParser.y"
+#line 8785 "ProParser.y"
     { (yyval.d) = -(yyvsp[(2) - (2)].d);         ;}
     break;
 
   case 906:
-#line 8782 "ProParser.y"
+#line 8786 "ProParser.y"
     { (yyval.d) = !(yyvsp[(2) - (2)].d);         ;}
     break;
 
   case 907:
-#line 8783 "ProParser.y"
+#line 8787 "ProParser.y"
     { (yyval.d) = (yyvsp[(1) - (3)].d) - (yyvsp[(3) - (3)].d);     ;}
     break;
 
   case 908:
-#line 8784 "ProParser.y"
+#line 8788 "ProParser.y"
     { (yyval.d) = (yyvsp[(1) - (3)].d) + (yyvsp[(3) - (3)].d);     ;}
     break;
 
   case 909:
-#line 8785 "ProParser.y"
+#line 8789 "ProParser.y"
     { (yyval.d) = (yyvsp[(1) - (3)].d) * (yyvsp[(3) - (3)].d);     ;}
     break;
 
   case 910:
-#line 8786 "ProParser.y"
+#line 8790 "ProParser.y"
     { (yyval.d) = (int)(yyvsp[(1) - (3)].d) | (int)(yyvsp[(3) - (3)].d);     ;}
     break;
 
   case 911:
-#line 8787 "ProParser.y"
+#line 8791 "ProParser.y"
     { (yyval.d) = (int)(yyvsp[(1) - (3)].d) & (int)(yyvsp[(3) - (3)].d);     ;}
     break;
 
   case 912:
-#line 8788 "ProParser.y"
+#line 8792 "ProParser.y"
     { (yyval.d) = (yyvsp[(1) - (3)].d) / (yyvsp[(3) - (3)].d);     ;}
     break;
 
   case 913:
-#line 8789 "ProParser.y"
+#line 8793 "ProParser.y"
     { (yyval.d) = (int)(yyvsp[(1) - (3)].d) % (int)(yyvsp[(3) - (3)].d);  ;}
     break;
 
   case 914:
-#line 8790 "ProParser.y"
+#line 8794 "ProParser.y"
     { (yyval.d) = pow((yyvsp[(1) - (3)].d),(yyvsp[(3) - (3)].d));  ;}
     break;
 
   case 915:
-#line 8791 "ProParser.y"
+#line 8795 "ProParser.y"
     { (yyval.d) = (yyvsp[(1) - (3)].d) < (yyvsp[(3) - (3)].d);     ;}
     break;
 
   case 916:
-#line 8792 "ProParser.y"
+#line 8796 "ProParser.y"
     { (yyval.d) = (yyvsp[(1) - (3)].d) > (yyvsp[(3) - (3)].d);     ;}
     break;
 
   case 917:
-#line 8793 "ProParser.y"
+#line 8797 "ProParser.y"
     { (yyval.d) = (yyvsp[(1) - (3)].d) <= (yyvsp[(3) - (3)].d);    ;}
     break;
 
   case 918:
-#line 8794 "ProParser.y"
+#line 8798 "ProParser.y"
     { (yyval.d) = (yyvsp[(1) - (3)].d) >= (yyvsp[(3) - (3)].d);    ;}
     break;
 
   case 919:
-#line 8795 "ProParser.y"
+#line 8799 "ProParser.y"
     { (yyval.d) = (yyvsp[(1) - (3)].d) == (yyvsp[(3) - (3)].d);    ;}
     break;
 
   case 920:
-#line 8796 "ProParser.y"
+#line 8800 "ProParser.y"
     { (yyval.d) = (yyvsp[(1) - (3)].d) != (yyvsp[(3) - (3)].d);    ;}
     break;
 
   case 921:
-#line 8797 "ProParser.y"
+#line 8801 "ProParser.y"
     { (yyval.d) = (yyvsp[(1) - (3)].d) && (yyvsp[(3) - (3)].d);    ;}
     break;
 
   case 922:
-#line 8798 "ProParser.y"
+#line 8802 "ProParser.y"
     { (yyval.d) = (yyvsp[(1) - (3)].d) || (yyvsp[(3) - (3)].d);    ;}
     break;
 
   case 923:
-#line 8799 "ProParser.y"
+#line 8803 "ProParser.y"
     { (yyval.d) = ((int)(yyvsp[(1) - (3)].d) >> (int)(yyvsp[(3) - (3)].d));  ;}
     break;
 
   case 924:
-#line 8800 "ProParser.y"
+#line 8804 "ProParser.y"
     { (yyval.d) = ((int)(yyvsp[(1) - (3)].d) << (int)(yyvsp[(3) - (3)].d));  ;}
     break;
 
   case 925:
-#line 8801 "ProParser.y"
+#line 8805 "ProParser.y"
     { (yyval.d) = exp((yyvsp[(3) - (4)].d));      ;}
     break;
 
   case 926:
-#line 8802 "ProParser.y"
+#line 8806 "ProParser.y"
     { (yyval.d) = log((yyvsp[(3) - (4)].d));      ;}
     break;
 
   case 927:
-#line 8803 "ProParser.y"
+#line 8807 "ProParser.y"
     { (yyval.d) = log10((yyvsp[(3) - (4)].d));    ;}
     break;
 
   case 928:
-#line 8804 "ProParser.y"
+#line 8808 "ProParser.y"
     { (yyval.d) = sqrt((yyvsp[(3) - (4)].d));     ;}
     break;
 
   case 929:
-#line 8805 "ProParser.y"
+#line 8809 "ProParser.y"
     { (yyval.d) = sin((yyvsp[(3) - (4)].d));      ;}
     break;
 
   case 930:
-#line 8806 "ProParser.y"
+#line 8810 "ProParser.y"
     { (yyval.d) = asin((yyvsp[(3) - (4)].d));     ;}
     break;
 
   case 931:
-#line 8807 "ProParser.y"
+#line 8811 "ProParser.y"
     { (yyval.d) = cos((yyvsp[(3) - (4)].d));      ;}
     break;
 
   case 932:
-#line 8808 "ProParser.y"
+#line 8812 "ProParser.y"
     { (yyval.d) = acos((yyvsp[(3) - (4)].d));     ;}
     break;
 
   case 933:
-#line 8809 "ProParser.y"
+#line 8813 "ProParser.y"
     { (yyval.d) = tan((yyvsp[(3) - (4)].d));      ;}
     break;
 
   case 934:
-#line 8810 "ProParser.y"
+#line 8814 "ProParser.y"
     { (yyval.d) = atan((yyvsp[(3) - (4)].d));     ;}
     break;
 
   case 935:
-#line 8811 "ProParser.y"
+#line 8815 "ProParser.y"
     { (yyval.d) = atan2((yyvsp[(3) - (6)].d),(yyvsp[(5) - (6)].d)); ;}
     break;
 
   case 936:
-#line 8812 "ProParser.y"
+#line 8816 "ProParser.y"
     { (yyval.d) = sinh((yyvsp[(3) - (4)].d));     ;}
     break;
 
   case 937:
-#line 8813 "ProParser.y"
+#line 8817 "ProParser.y"
     { (yyval.d) = cosh((yyvsp[(3) - (4)].d));     ;}
     break;
 
   case 938:
-#line 8814 "ProParser.y"
+#line 8818 "ProParser.y"
     { (yyval.d) = tanh((yyvsp[(3) - (4)].d));     ;}
     break;
 
   case 939:
-#line 8815 "ProParser.y"
+#line 8819 "ProParser.y"
     { (yyval.d) = fabs((yyvsp[(3) - (4)].d));     ;}
     break;
 
   case 940:
-#line 8816 "ProParser.y"
+#line 8820 "ProParser.y"
     { (yyval.d) = floor((yyvsp[(3) - (4)].d));    ;}
     break;
 
   case 941:
-#line 8817 "ProParser.y"
+#line 8821 "ProParser.y"
     { (yyval.d) = ceil((yyvsp[(3) - (4)].d));     ;}
     break;
 
   case 942:
-#line 8818 "ProParser.y"
+#line 8822 "ProParser.y"
     { (yyval.d) = floor((yyvsp[(3) - (4)].d) + 0.5);    ;}
     break;
 
   case 943:
-#line 8819 "ProParser.y"
+#line 8823 "ProParser.y"
     { (yyval.d) = (((yyvsp[(3) - (4)].d) > 0.) ? 1. : ((yyvsp[(3) - (4)].d) < 0.) ? -1. : 0.); ;}
     break;
 
   case 944:
-#line 8820 "ProParser.y"
+#line 8824 "ProParser.y"
     { (yyval.d) = fmod((yyvsp[(3) - (6)].d),(yyvsp[(5) - (6)].d));  ;}
     break;
 
   case 945:
-#line 8821 "ProParser.y"
+#line 8825 "ProParser.y"
     { (yyval.d) = fmod((yyvsp[(3) - (6)].d),(yyvsp[(5) - (6)].d));  ;}
     break;
 
   case 946:
-#line 8822 "ProParser.y"
+#line 8826 "ProParser.y"
     { (yyval.d) = sqrt((yyvsp[(3) - (6)].d)*(yyvsp[(3) - (6)].d)+(yyvsp[(5) - (6)].d)*(yyvsp[(5) - (6)].d));  ;}
     break;
 
   case 947:
-#line 8823 "ProParser.y"
+#line 8827 "ProParser.y"
     { (yyval.d) = (yyvsp[(3) - (4)].d) * (double)rand() / (double)RAND_MAX;  ;}
     break;
 
   case 948:
-#line 8825 "ProParser.y"
+#line 8829 "ProParser.y"
     { (yyval.d) = (yyvsp[(1) - (5)].d)? (yyvsp[(3) - (5)].d) : (yyvsp[(5) - (5)].d); ;}
     break;
 
   case 949:
-#line 8827 "ProParser.y"
+#line 8831 "ProParser.y"
     { (yyval.d) = (yyvsp[(1) - (1)].i); ;}
     break;
 
   case 950:
-#line 8829 "ProParser.y"
+#line 8833 "ProParser.y"
     { (yyval.d) = (yyvsp[(1) - (1)].i); ;}
     break;
 
   case 951:
-#line 8831 "ProParser.y"
+#line 8835 "ProParser.y"
     { Message::Direct("Value (line %ld) --> %.16g", getdp_yylinenum, (yyvsp[(1) - (2)].d)); ;}
     break;
 
   case 952:
-#line 8836 "ProParser.y"
+#line 8840 "ProParser.y"
     { (yyval.d) = (yyvsp[(1) - (1)].d); ;}
     break;
 
   case 953:
-#line 8837 "ProParser.y"
+#line 8841 "ProParser.y"
     { (yyval.d) = (double)(yyvsp[(1) - (1)].i); ;}
     break;
 
   case 954:
-#line 8838 "ProParser.y"
+#line 8842 "ProParser.y"
     { (yyval.d) = 3.1415926535897932; ;}
     break;
 
   case 955:
-#line 8839 "ProParser.y"
+#line 8843 "ProParser.y"
     { (yyval.d) = (double)_0D; ;}
     break;
 
   case 956:
-#line 8840 "ProParser.y"
+#line 8844 "ProParser.y"
     { (yyval.d) = (double)_1D; ;}
     break;
 
   case 957:
-#line 8841 "ProParser.y"
+#line 8845 "ProParser.y"
     { (yyval.d) = (double)_2D; ;}
     break;
 
   case 958:
-#line 8842 "ProParser.y"
+#line 8846 "ProParser.y"
     { (yyval.d) = (double)_3D; ;}
     break;
 
   case 959:
-#line 8843 "ProParser.y"
+#line 8847 "ProParser.y"
     { (yyval.d) = Message::GetCommRank(); ;}
     break;
 
   case 960:
-#line 8844 "ProParser.y"
+#line 8848 "ProParser.y"
     { (yyval.d) = Message::GetCommSize(); ;}
     break;
 
   case 961:
-#line 8845 "ProParser.y"
+#line 8849 "ProParser.y"
     { (yyval.d) = GETDP_MAJOR_VERSION; ;}
     break;
 
   case 962:
-#line 8846 "ProParser.y"
+#line 8850 "ProParser.y"
     { (yyval.d) = GETDP_MINOR_VERSION; ;}
     break;
 
   case 963:
-#line 8847 "ProParser.y"
+#line 8851 "ProParser.y"
     { (yyval.d) = GETDP_PATCH_VERSION; ;}
     break;
 
   case 964:
-#line 8848 "ProParser.y"
+#line 8852 "ProParser.y"
     { (yyval.d) = GetTotalRam(); ;}
     break;
 
   case 965:
-#line 8850 "ProParser.y"
+#line 8854 "ProParser.y"
     { (yyval.d) = (double)ImbricatedTest; ;}
     break;
 
   case 966:
-#line 8851 "ProParser.y"
+#line 8855 "ProParser.y"
     { (yyval.d) = (double)num_include; ;}
     break;
 
   case 967:
-#line 8852 "ProParser.y"
+#line 8856 "ProParser.y"
     { (yyval.d) = (double)level_include; ;}
     break;
 
   case 968:
-#line 8856 "ProParser.y"
+#line 8860 "ProParser.y"
     { init_Options(); ;}
     break;
 
   case 969:
-#line 8858 "ProParser.y"
+#line 8862 "ProParser.y"
     {
       Constant_S.Name = (char*)""; Constant_S.Type = VAR_FLOAT;
       Constant_S.Value.Float = (yyvsp[(3) - (6)].d);
@@ -18161,26 +18165,26 @@ yyreduce:
     break;
 
   case 970:
-#line 8866 "ProParser.y"
+#line 8870 "ProParser.y"
     { (yyval.d) = (yyvsp[(1) - (1)].d); ;}
     break;
 
   case 971:
-#line 8869 "ProParser.y"
+#line 8873 "ProParser.y"
     {
       (yyval.d) = Treat_Struct_FullName_dot_tSTRING_Float((yyvsp[(1) - (3)].c2).char1, (yyvsp[(1) - (3)].c2).char2, (yyvsp[(3) - (3)].c));
     ;}
     break;
 
   case 972:
-#line 8874 "ProParser.y"
+#line 8878 "ProParser.y"
     {
       (yyval.d) = Treat_Struct_FullName_dot_tSTRING_Float((yyvsp[(1) - (6)].c2).char1, (yyvsp[(1) - (6)].c2).char2, (yyvsp[(3) - (6)].c), (int)(yyvsp[(5) - (6)].d));
     ;}
     break;
 
   case 973:
-#line 8879 "ProParser.y"
+#line 8883 "ProParser.y"
     {
       (yyval.d) = Message::GetOnelabNumber((yyvsp[(3) - (4)].c), 0.);
       Free((yyvsp[(3) - (4)].c));
@@ -18188,7 +18192,7 @@ yyreduce:
     break;
 
   case 974:
-#line 8885 "ProParser.y"
+#line 8889 "ProParser.y"
     {
       (yyval.d) = Message::GetOnelabNumber((yyvsp[(3) - (6)].c), (yyvsp[(5) - (6)].d));
       Free((yyvsp[(3) - (6)].c));
@@ -18196,14 +18200,14 @@ yyreduce:
     break;
 
   case 975:
-#line 8891 "ProParser.y"
+#line 8895 "ProParser.y"
     {
       (yyval.d) = Treat_Struct_FullName_Float((yyvsp[(1) - (1)].c2).char1, (yyvsp[(1) - (1)].c2).char2);
     ;}
     break;
 
   case 976:
-#line 8896 "ProParser.y"
+#line 8900 "ProParser.y"
     {
       if ((yyvsp[(2) - (4)].c2).char1) vyyerror(1, "NameSpace '%s' not used yet", (yyvsp[(2) - (4)].c2).char1);
       Constant_S.Name = (yyvsp[(2) - (4)].c2).char2;
@@ -18225,14 +18229,14 @@ yyreduce:
     break;
 
   case 977:
-#line 8916 "ProParser.y"
+#line 8920 "ProParser.y"
     {
       (yyval.d) = Treat_Struct_FullName_dot_tSTRING_Float_getDim((yyvsp[(2) - (6)].c2).char1, (yyvsp[(2) - (6)].c2).char2, (yyvsp[(4) - (6)].c));
     ;}
     break;
 
   case 978:
-#line 8921 "ProParser.y"
+#line 8925 "ProParser.y"
     {
       std::string struct_namespace((yyvsp[(3) - (4)].c));
       (yyval.d) = (double)nameSpaces[struct_namespace].size();
@@ -18241,7 +18245,7 @@ yyreduce:
     break;
 
   case 979:
-#line 8927 "ProParser.y"
+#line 8931 "ProParser.y"
     {
       std::string struct_namespace(std::string(""));
       (yyval.d) = (double)nameSpaces[struct_namespace].size();
@@ -18249,28 +18253,28 @@ yyreduce:
     break;
 
   case 980:
-#line 8933 "ProParser.y"
+#line 8937 "ProParser.y"
     {
       (yyval.d) = Treat_Struct_FullName_Float((yyvsp[(1) - (4)].c2).char1, (yyvsp[(1) - (4)].c2).char2, 2, (int)(yyvsp[(3) - (4)].d));
     ;}
     break;
 
   case 981:
-#line 8938 "ProParser.y"
+#line 8942 "ProParser.y"
     {
       (yyval.d) = Treat_Struct_FullName_Float((yyvsp[(3) - (4)].c2).char1, (yyvsp[(3) - (4)].c2).char2, 1, 0, 0., 1);
     ;}
     break;
 
   case 982:
-#line 8943 "ProParser.y"
+#line 8947 "ProParser.y"
     {
       (yyval.d) = Treat_Struct_FullName_dot_tSTRING_Float((yyvsp[(3) - (6)].c2).char1, (yyvsp[(3) - (6)].c2).char2, (yyvsp[(5) - (6)].c), 0, 0., 1);
     ;}
     break;
 
   case 983:
-#line 8948 "ProParser.y"
+#line 8952 "ProParser.y"
     {
       if(List_ISearchSeq(Problem_S.Expression, (yyvsp[(3) - (6)].c), fcmp_Expression_Name) >= 0)
         (yyval.d) = 1;
@@ -18281,35 +18285,35 @@ yyreduce:
     break;
 
   case 984:
-#line 8957 "ProParser.y"
+#line 8961 "ProParser.y"
     {
       (yyval.d) = Treat_Struct_FullName_Float((yyvsp[(3) - (5)].c2).char1, (yyvsp[(3) - (5)].c2).char2, 1, 0, (yyvsp[(4) - (5)].d), 2);
     ;}
     break;
 
   case 985:
-#line 8962 "ProParser.y"
+#line 8966 "ProParser.y"
     {
       (yyval.d) = Treat_Struct_FullName_dot_tSTRING_Float((yyvsp[(3) - (7)].c2).char1, (yyvsp[(3) - (7)].c2).char2, (yyvsp[(5) - (7)].c), 0, (yyvsp[(6) - (7)].d), 2);
     ;}
     break;
 
   case 986:
-#line 8966 "ProParser.y"
+#line 8970 "ProParser.y"
     {
       (yyval.d) = Treat_Struct_FullName_Float((yyvsp[(3) - (8)].c2).char1, (yyvsp[(3) - (8)].c2).char2, 2, (int)(yyvsp[(5) - (8)].d), (yyvsp[(7) - (8)].d), 2);
     ;}
     break;
 
   case 987:
-#line 8971 "ProParser.y"
+#line 8975 "ProParser.y"
     {
       (yyval.d) = Treat_Struct_FullName_dot_tSTRING_Float((yyvsp[(3) - (10)].c2).char1, (yyvsp[(3) - (10)].c2).char2, (yyvsp[(5) - (10)].c), (int)(yyvsp[(7) - (10)].d), (yyvsp[(9) - (10)].d), 2);
     ;}
     break;
 
   case 988:
-#line 8976 "ProParser.y"
+#line 8980 "ProParser.y"
     {
       std::string tmp = Fix_RelativePath((yyvsp[(3) - (4)].c)).c_str();
       (yyval.d) = !StatusFile(tmp);
@@ -18318,27 +18322,27 @@ yyreduce:
     break;
 
   case 989:
-#line 8985 "ProParser.y"
+#line 8989 "ProParser.y"
     { (yyval.d) = 0.; ;}
     break;
 
   case 990:
-#line 8987 "ProParser.y"
+#line 8991 "ProParser.y"
     { (yyval.d) = (yyvsp[(2) - (2)].d);;}
     break;
 
   case 991:
-#line 8992 "ProParser.y"
+#line 8996 "ProParser.y"
     { (yyval.c) = NULL; ;}
     break;
 
   case 992:
-#line 8994 "ProParser.y"
+#line 8998 "ProParser.y"
     { (yyval.c) = (yyvsp[(2) - (2)].c);;}
     break;
 
   case 993:
-#line 8999 "ProParser.y"
+#line 9003 "ProParser.y"
     {
       std::string struct_namespace((yyvsp[(2) - (3)].c2).char1? (yyvsp[(2) - (3)].c2).char1 : std::string("")),
         struct_name((yyvsp[(2) - (3)].c2).char2);
@@ -18348,7 +18352,7 @@ yyreduce:
     break;
 
   case 994:
-#line 9006 "ProParser.y"
+#line 9010 "ProParser.y"
     {
       std::string struct_namespace((yyvsp[(2) - (7)].c2).char1? (yyvsp[(2) - (7)].c2).char1 : std::string("")),
         struct_name((yyvsp[(2) - (7)].c2).char2);
@@ -18364,27 +18368,27 @@ yyreduce:
     break;
 
   case 995:
-#line 9022 "ProParser.y"
+#line 9026 "ProParser.y"
     { (yyval.c2).char1 = NULL; (yyval.c2).char2 = (yyvsp[(1) - (1)].c); ;}
     break;
 
   case 996:
-#line 9024 "ProParser.y"
+#line 9028 "ProParser.y"
     { (yyval.c2).char1 = (yyvsp[(1) - (3)].c); (yyval.c2).char2 = (yyvsp[(3) - (3)].c); ;}
     break;
 
   case 997:
-#line 9029 "ProParser.y"
+#line 9033 "ProParser.y"
     { (yyval.c) = (yyvsp[(1) - (1)].c); flag_tSTRING_alloc = 1; ;}
     break;
 
   case 998:
-#line 9031 "ProParser.y"
+#line 9035 "ProParser.y"
     { (yyval.c) = (char*)"Type"; flag_tSTRING_alloc = 0; ;}
     break;
 
   case 999:
-#line 9036 "ProParser.y"
+#line 9040 "ProParser.y"
     {
       (yyval.l) = List_Create(2, 1, sizeof(List_T*));
       List_Add((yyval.l), &((yyvsp[(1) - (1)].l)));
@@ -18392,19 +18396,19 @@ yyreduce:
     break;
 
   case 1000:
-#line 9041 "ProParser.y"
+#line 9045 "ProParser.y"
     {
       List_Add((yyval.l), &((yyvsp[(3) - (3)].l)));
     ;}
     break;
 
   case 1001:
-#line 9048 "ProParser.y"
+#line 9052 "ProParser.y"
     { (yyval.l) = List_Create(20,20,sizeof(double)); ;}
     break;
 
   case 1002:
-#line 9051 "ProParser.y"
+#line 9055 "ProParser.y"
     {
       (yyval.l) = List_Create(1,10,sizeof(double));
       List_Add((yyval.l), &((yyvsp[(1) - (1)].d)));
@@ -18412,17 +18416,17 @@ yyreduce:
     break;
 
   case 1003:
-#line 9057 "ProParser.y"
+#line 9061 "ProParser.y"
     { (yyval.l) = (yyvsp[(1) - (1)].l); ;}
     break;
 
   case 1004:
-#line 9060 "ProParser.y"
+#line 9064 "ProParser.y"
     { (yyval.l) = (yyvsp[(2) - (3)].l); ;}
     break;
 
   case 1005:
-#line 9063 "ProParser.y"
+#line 9067 "ProParser.y"
     {
       (yyval.l) = (yyvsp[(3) - (4)].l);
       for(int i = 0; i < List_Nbr((yyval.l)); i++){
@@ -18433,7 +18437,7 @@ yyreduce:
     break;
 
   case 1006:
-#line 9072 "ProParser.y"
+#line 9076 "ProParser.y"
     {
       (yyval.l) = (yyvsp[(4) - (5)].l);
       for(int i = 0; i < List_Nbr((yyval.l)); i++){
@@ -18444,7 +18448,7 @@ yyreduce:
     break;
 
   case 1007:
-#line 9095 "ProParser.y"
+#line 9099 "ProParser.y"
     {
       (yyval.l) = List_Create(20,20,sizeof(double));
       List_Add((yyval.l), &((yyvsp[(1) - (1)].d)));
@@ -18452,17 +18456,17 @@ yyreduce:
     break;
 
   case 1008:
-#line 9101 "ProParser.y"
+#line 9105 "ProParser.y"
     { (yyval.l) = (yyvsp[(1) - (1)].l); ;}
     break;
 
   case 1009:
-#line 9104 "ProParser.y"
+#line 9108 "ProParser.y"
     { List_Add((yyval.l), &((yyvsp[(3) - (3)].d))); ;}
     break;
 
   case 1010:
-#line 9107 "ProParser.y"
+#line 9111 "ProParser.y"
     {
       for(int i = 0; i < List_Nbr((yyvsp[(3) - (3)].l)); i++){
 	double d;
@@ -18474,7 +18478,7 @@ yyreduce:
     break;
 
   case 1011:
-#line 9120 "ProParser.y"
+#line 9124 "ProParser.y"
     {
       (yyval.l) = (yyvsp[(2) - (2)].l);
       for(int i = 0; i < List_Nbr((yyval.l)); i++){
@@ -18485,7 +18489,7 @@ yyreduce:
     break;
 
   case 1012:
-#line 9129 "ProParser.y"
+#line 9133 "ProParser.y"
     {
       (yyval.l) = (yyvsp[(3) - (3)].l);
       for(int i = 0; i < List_Nbr((yyval.l)); i++){
@@ -18496,7 +18500,7 @@ yyreduce:
     break;
 
   case 1013:
-#line 9138 "ProParser.y"
+#line 9142 "ProParser.y"
     {
       (yyval.l) = (yyvsp[(3) - (3)].l);
       for(int i = 0; i < List_Nbr((yyval.l)); i++){
@@ -18507,7 +18511,7 @@ yyreduce:
     break;
 
   case 1014:
-#line 9147 "ProParser.y"
+#line 9151 "ProParser.y"
     {
       (yyval.l) = (yyvsp[(3) - (3)].l);
       for(int i = 0; i < List_Nbr((yyval.l)); i++){
@@ -18518,7 +18522,7 @@ yyreduce:
     break;
 
   case 1015:
-#line 9156 "ProParser.y"
+#line 9160 "ProParser.y"
     {
       (yyval.l) = (yyvsp[(1) - (3)].l);
       for(int i = 0; i < List_Nbr((yyval.l)); i++){
@@ -18529,7 +18533,7 @@ yyreduce:
     break;
 
   case 1016:
-#line 9165 "ProParser.y"
+#line 9169 "ProParser.y"
     {
       (yyval.l) = (yyvsp[(1) - (3)].l);
       for(int i = 0; i < List_Nbr((yyval.l)); i++){
@@ -18540,7 +18544,7 @@ yyreduce:
     break;
 
   case 1017:
-#line 9174 "ProParser.y"
+#line 9178 "ProParser.y"
     {
       (yyval.l) = (yyvsp[(1) - (3)].l);
       if(List_Nbr((yyval.l)) == List_Nbr((yyvsp[(3) - (3)].l))){
@@ -18557,7 +18561,7 @@ yyreduce:
     break;
 
   case 1018:
-#line 9189 "ProParser.y"
+#line 9193 "ProParser.y"
     {
       (yyval.l) = (yyvsp[(1) - (3)].l);
       if(List_Nbr((yyval.l)) == List_Nbr((yyvsp[(3) - (3)].l))){
@@ -18574,7 +18578,7 @@ yyreduce:
     break;
 
   case 1019:
-#line 9204 "ProParser.y"
+#line 9208 "ProParser.y"
     {
       (yyval.l) = (yyvsp[(1) - (3)].l);
       if(List_Nbr((yyval.l)) == List_Nbr((yyvsp[(3) - (3)].l))){
@@ -18591,7 +18595,7 @@ yyreduce:
     break;
 
   case 1020:
-#line 9219 "ProParser.y"
+#line 9223 "ProParser.y"
     {
       (yyval.l) = (yyvsp[(1) - (3)].l);
       if(List_Nbr((yyval.l)) == List_Nbr((yyvsp[(3) - (3)].l))){
@@ -18608,7 +18612,7 @@ yyreduce:
     break;
 
   case 1021:
-#line 9234 "ProParser.y"
+#line 9238 "ProParser.y"
     {
       (yyval.l) = List_Create(20,20,sizeof(double));
       for(double d = (yyvsp[(1) - (3)].d); ((yyvsp[(1) - (3)].d) < (yyvsp[(3) - (3)].d)) ? (d <= (yyvsp[(3) - (3)].d)) : (d >= (yyvsp[(3) - (3)].d));
@@ -18618,7 +18622,7 @@ yyreduce:
     break;
 
   case 1022:
-#line 9242 "ProParser.y"
+#line 9246 "ProParser.y"
     {
       (yyval.l) = List_Create(20,20,sizeof(double));
       if(!(yyvsp[(5) - (5)].d) || ((yyvsp[(1) - (5)].d)<(yyvsp[(3) - (5)].d) && (yyvsp[(5) - (5)].d)<0) || ((yyvsp[(1) - (5)].d)>(yyvsp[(3) - (5)].d) && (yyvsp[(5) - (5)].d)>0)){
@@ -18632,7 +18636,7 @@ yyreduce:
     break;
 
   case 1023:
-#line 9254 "ProParser.y"
+#line 9258 "ProParser.y"
     {
       (yyval.l) = List_Create(List_Nbr(Group_S.InitialList),20,sizeof(double));
       int j;
@@ -18645,7 +18649,7 @@ yyreduce:
     break;
 
   case 1024:
-#line 9265 "ProParser.y"
+#line 9269 "ProParser.y"
     {
       if ((yyvsp[(1) - (3)].c2).char1) vyyerror(1, "NameSpace '%s' not used yet", (yyvsp[(1) - (3)].c2).char1);
       (yyval.l) = List_Create(20,20,sizeof(double));
@@ -18667,7 +18671,7 @@ yyreduce:
     break;
 
   case 1025:
-#line 9285 "ProParser.y"
+#line 9289 "ProParser.y"
     {
       if ((yyvsp[(1) - (6)].c2).char1) vyyerror(1, "NameSpace '%s' not used yet", (yyvsp[(1) - (6)].c2).char1);
       (yyval.l) = List_Create(20,20,sizeof(double));
@@ -18697,14 +18701,14 @@ yyreduce:
     break;
 
   case 1026:
-#line 9313 "ProParser.y"
+#line 9317 "ProParser.y"
     {
       (yyval.l) = Treat_Struct_FullName_dot_tSTRING_ListOfFloat((yyvsp[(1) - (5)].c2).char1, (yyvsp[(1) - (5)].c2).char2, (yyvsp[(3) - (5)].c));
     ;}
     break;
 
   case 1027:
-#line 9319 "ProParser.y"
+#line 9323 "ProParser.y"
     {
       (yyval.l) = List_Create(20,20,sizeof(double));
       Constant_S.Name = (yyvsp[(3) - (4)].c);
@@ -18723,21 +18727,21 @@ yyreduce:
     break;
 
   case 1028:
-#line 9336 "ProParser.y"
+#line 9340 "ProParser.y"
     {
       (yyval.l) = (yyvsp[(3) - (4)].l);
     ;}
     break;
 
   case 1029:
-#line 9341 "ProParser.y"
+#line 9345 "ProParser.y"
     {
       (yyval.l) = (yyvsp[(4) - (6)].l);
     ;}
     break;
 
   case 1030:
-#line 9346 "ProParser.y"
+#line 9350 "ProParser.y"
     {
       (yyval.l) = List_Create(20,20,sizeof(double));
       Constant1_S.Name = (yyvsp[(3) - (6)].c); Constant2_S.Name = (yyvsp[(5) - (6)].c);
@@ -18780,7 +18784,7 @@ yyreduce:
     break;
 
   case 1031:
-#line 9387 "ProParser.y"
+#line 9391 "ProParser.y"
     {
       (yyval.l) = List_Create(20,20,sizeof(double));
       if(List_Nbr((yyvsp[(3) - (6)].l)) != List_Nbr((yyvsp[(5) - (6)].l))) {
@@ -18802,7 +18806,7 @@ yyreduce:
     break;
 
   case 1032:
-#line 9407 "ProParser.y"
+#line 9411 "ProParser.y"
     {
       (yyval.l) = List_Create(20,20,sizeof(double));
       for(int i = 0; i < (int)(yyvsp[(7) - (8)].d); i++) {
@@ -18813,7 +18817,7 @@ yyreduce:
     break;
 
   case 1033:
-#line 9416 "ProParser.y"
+#line 9420 "ProParser.y"
     {
       (yyval.l) = List_Create(20,20,sizeof(double));
       for(int i = 0; i < (int)(yyvsp[(7) - (8)].d); i++) {
@@ -18824,7 +18828,7 @@ yyreduce:
     break;
 
   case 1034:
-#line 9425 "ProParser.y"
+#line 9429 "ProParser.y"
     {
       Message::Barrier();
       FILE *File;
@@ -18855,7 +18859,7 @@ yyreduce:
     break;
 
   case 1035:
-#line 9457 "ProParser.y"
+#line 9461 "ProParser.y"
     {
       char tmpstr[256];
       sprintf(tmpstr, "_%d", (int)(yyvsp[(4) - (5)].d));
@@ -18866,7 +18870,7 @@ yyreduce:
     break;
 
   case 1036:
-#line 9466 "ProParser.y"
+#line 9470 "ProParser.y"
     {
       char tmpstr[256];
       sprintf(tmpstr, "_%d", (int)(yyvsp[(4) - (5)].d));
@@ -18877,7 +18881,7 @@ yyreduce:
     break;
 
   case 1037:
-#line 9475 "ProParser.y"
+#line 9479 "ProParser.y"
     {
       char tmpstr[256];
       sprintf(tmpstr, "_%d", (int)(yyvsp[(7) - (8)].d));
@@ -18888,39 +18892,39 @@ yyreduce:
     break;
 
   case 1038:
-#line 9487 "ProParser.y"
+#line 9491 "ProParser.y"
     { (yyval.c) = (yyvsp[(1) - (1)].c); ;}
     break;
 
   case 1039:
-#line 9490 "ProParser.y"
+#line 9494 "ProParser.y"
     { (yyval.c) = (yyvsp[(1) - (1)].c); ;}
     break;
 
   case 1040:
-#line 9494 "ProParser.y"
+#line 9498 "ProParser.y"
     { (yyval.c) = (yyvsp[(3) - (4)].c); ;}
     break;
 
   case 1041:
-#line 9499 "ProParser.y"
+#line 9503 "ProParser.y"
     { (yyval.c) = (yyvsp[(1) - (1)].c); ;}
     break;
 
   case 1042:
-#line 9502 "ProParser.y"
+#line 9506 "ProParser.y"
     { (yyval.c) = (yyvsp[(3) - (4)].c); ;}
     break;
 
   case 1043:
-#line 9505 "ProParser.y"
+#line 9509 "ProParser.y"
     {
       (yyval.c) = (yyvsp[(1) - (1)].c);
     ;}
     break;
 
   case 1044:
-#line 9510 "ProParser.y"
+#line 9514 "ProParser.y"
     {
       int i = 0;
       while ((yyvsp[(3) - (4)].c)[i]) {
@@ -18932,7 +18936,7 @@ yyreduce:
     break;
 
   case 1045:
-#line 9520 "ProParser.y"
+#line 9524 "ProParser.y"
     {
       int i = 0;
       while ((yyvsp[(3) - (4)].c)[i]) {
@@ -18944,7 +18948,7 @@ yyreduce:
     break;
 
   case 1046:
-#line 9530 "ProParser.y"
+#line 9534 "ProParser.y"
     {
       int i=0;
       while ((yyvsp[(3) - (4)].c)[i]) {
@@ -18957,7 +18961,7 @@ yyreduce:
     break;
 
   case 1047:
-#line 9541 "ProParser.y"
+#line 9545 "ProParser.y"
     {
       int size = 1;
       for(int i = 0; i < List_Nbr((yyvsp[(3) - (4)].l)); i++){
@@ -18979,7 +18983,7 @@ yyreduce:
     break;
 
   case 1048:
-#line 9561 "ProParser.y"
+#line 9565 "ProParser.y"
     {
       if((yyvsp[(3) - (8)].d)){
         (yyval.c) = (yyvsp[(5) - (8)].c);
@@ -18993,7 +18997,7 @@ yyreduce:
     break;
 
   case 1049:
-#line 9573 "ProParser.y"
+#line 9577 "ProParser.y"
     {
       std::string in = (yyvsp[(3) - (8)].c);
       std::string out = in.substr((int)(yyvsp[(5) - (8)].d), (int)(yyvsp[(7) - (8)].d));
@@ -19004,7 +19008,7 @@ yyreduce:
     break;
 
   case 1050:
-#line 9582 "ProParser.y"
+#line 9586 "ProParser.y"
     {
       std::string in = (yyvsp[(3) - (6)].c);
       std::string out = in.substr((int)(yyvsp[(5) - (6)].d), std::string::npos);
@@ -19015,14 +19019,14 @@ yyreduce:
     break;
 
   case 1051:
-#line 9591 "ProParser.y"
+#line 9595 "ProParser.y"
     {
       (yyval.c) = (yyvsp[(3) - (4)].c);
     ;}
     break;
 
   case 1052:
-#line 9596 "ProParser.y"
+#line 9600 "ProParser.y"
     {
       char tmpstr[256];
       int i = Print_ListOfDouble((yyvsp[(3) - (6)].c),(yyvsp[(5) - (6)].l),tmpstr);
@@ -19044,7 +19048,7 @@ yyreduce:
     break;
 
   case 1053:
-#line 9616 "ProParser.y"
+#line 9620 "ProParser.y"
     {
       time_t date_info;
       time(&date_info);
@@ -19055,7 +19059,7 @@ yyreduce:
     break;
 
   case 1054:
-#line 9625 "ProParser.y"
+#line 9629 "ProParser.y"
     {
       char str_date[80];
       time_t rawtime;
@@ -19070,7 +19074,7 @@ yyreduce:
     break;
 
   case 1055:
-#line 9638 "ProParser.y"
+#line 9642 "ProParser.y"
     {
       std::string action = Message::GetOnelabAction();
       (yyval.c) = (char *)Malloc(action.size() + 1);
@@ -19079,21 +19083,21 @@ yyreduce:
     break;
 
   case 1056:
-#line 9645 "ProParser.y"
+#line 9649 "ProParser.y"
     {
       (yyval.c) = strSave((char*)"GetDP");
     ;}
     break;
 
   case 1057:
-#line 9650 "ProParser.y"
+#line 9654 "ProParser.y"
     {
       (yyval.c) = strSave(getdp_yyname.c_str());
     ;}
     break;
 
   case 1058:
-#line 9655 "ProParser.y"
+#line 9659 "ProParser.y"
     {
       std::string tmp = GetDirName(GetFullPath(getdp_yyname));
       (yyval.c) = (char*)Malloc((tmp.size() + 1) * sizeof(char));
@@ -19102,7 +19106,7 @@ yyreduce:
     break;
 
   case 1059:
-#line 9662 "ProParser.y"
+#line 9666 "ProParser.y"
     {
       (yyval.c) = strSave(GetFullPath((yyvsp[(3) - (4)].c)).c_str());
       Free((yyvsp[(3) - (4)].c));
@@ -19110,7 +19114,7 @@ yyreduce:
     break;
 
   case 1060:
-#line 9668 "ProParser.y"
+#line 9672 "ProParser.y"
     {
       (yyval.c) = strSave(GetDirName((yyvsp[(3) - (4)].c)).c_str());
       Free((yyvsp[(3) - (4)].c));
@@ -19118,14 +19122,14 @@ yyreduce:
     break;
 
   case 1061:
-#line 9674 "ProParser.y"
+#line 9678 "ProParser.y"
     {
       (yyval.c) = strSave(GetBaseName(getdp_yyname).c_str());
     ;}
     break;
 
   case 1062:
-#line 9679 "ProParser.y"
+#line 9683 "ProParser.y"
     {
       (yyval.c) = strSave(Fix_RelativePath((yyvsp[(3) - (4)].c)).c_str());
       Free((yyvsp[(3) - (4)].c));
@@ -19133,12 +19137,12 @@ yyreduce:
     break;
 
   case 1063:
-#line 9685 "ProParser.y"
+#line 9689 "ProParser.y"
     { init_Options(); ;}
     break;
 
   case 1064:
-#line 9687 "ProParser.y"
+#line 9691 "ProParser.y"
     {
       Constant_S.Name = (char*)""; Constant_S.Type = VAR_CHAR;
       Constant_S.Value.Char = (yyvsp[(3) - (6)].c);
@@ -19149,7 +19153,7 @@ yyreduce:
     break;
 
   case 1065:
-#line 9696 "ProParser.y"
+#line 9700 "ProParser.y"
     {
       (yyval.c) = strSave(Message::GetOnelabString((yyvsp[(3) - (4)].c), "").c_str());
       Free((yyvsp[(3) - (4)].c));
@@ -19157,7 +19161,7 @@ yyreduce:
     break;
 
   case 1066:
-#line 9702 "ProParser.y"
+#line 9706 "ProParser.y"
     {
       (yyval.c) = strSave(Message::GetOnelabString((yyvsp[(3) - (6)].c), (yyvsp[(5) - (6)].c)).c_str());
       Free((yyvsp[(3) - (6)].c));
@@ -19166,21 +19170,21 @@ yyreduce:
     break;
 
   case 1067:
-#line 9710 "ProParser.y"
+#line 9714 "ProParser.y"
     {
       (yyval.c) = Treat_Struct_FullName_String(NULL, (yyvsp[(3) - (5)].c2).char2, 1, 0, (yyvsp[(4) - (5)].c), 2);
     ;}
     break;
 
   case 1068:
-#line 9715 "ProParser.y"
+#line 9719 "ProParser.y"
     {
       (yyval.c) = Treat_Struct_FullName_dot_tSTRING_String((yyvsp[(3) - (7)].c2).char1, (yyvsp[(3) - (7)].c2).char2, (yyvsp[(5) - (7)].c), 0, (yyvsp[(6) - (7)].c), 2);
     ;}
     break;
 
   case 1069:
-#line 9720 "ProParser.y"
+#line 9724 "ProParser.y"
     {
       const std::string * key_struct = NULL;
       switch (nameSpaces.get_key_struct_from_tag(struct_namespace,
@@ -19204,22 +19208,22 @@ yyreduce:
     break;
 
   case 1070:
-#line 9744 "ProParser.y"
+#line 9748 "ProParser.y"
     { struct_namespace = std::string(""); (yyval.d) = (yyvsp[(2) - (2)].d); ;}
     break;
 
   case 1071:
-#line 9746 "ProParser.y"
+#line 9750 "ProParser.y"
     { struct_namespace = (yyvsp[(1) - (4)].c); Free((yyvsp[(1) - (4)].c)); (yyval.d) = (yyvsp[(4) - (4)].d); ;}
     break;
 
   case 1072:
-#line 9753 "ProParser.y"
+#line 9757 "ProParser.y"
     { (yyval.c) = (yyvsp[(1) - (1)].c); ;}
     break;
 
   case 1073:
-#line 9756 "ProParser.y"
+#line 9760 "ProParser.y"
     {
       if ((yyvsp[(1) - (1)].c2).char1) vyyerror(1, "NameSpace '%s' not used yet", (yyvsp[(1) - (1)].c2).char1);
       // No need to extend to Struct_FullName (a Tag is not a String)
@@ -19228,48 +19232,48 @@ yyreduce:
     break;
 
   case 1074:
-#line 9763 "ProParser.y"
+#line 9767 "ProParser.y"
     {
       (yyval.c) = Treat_Struct_FullName_String((yyvsp[(1) - (4)].c2).char1, (yyvsp[(1) - (4)].c2).char2, 2, (int)(yyvsp[(3) - (4)].d));
     ;}
     break;
 
   case 1075:
-#line 9768 "ProParser.y"
+#line 9772 "ProParser.y"
     {
       (yyval.c) = Treat_Struct_FullName_dot_tSTRING_String((yyvsp[(1) - (3)].c2).char1, (yyvsp[(1) - (3)].c2).char2, (yyvsp[(3) - (3)].c));
     ;}
     break;
 
   case 1076:
-#line 9773 "ProParser.y"
+#line 9777 "ProParser.y"
     {
       (yyval.c) = Treat_Struct_FullName_dot_tSTRING_String((yyvsp[(1) - (6)].c2).char1, (yyvsp[(1) - (6)].c2).char2, (yyvsp[(3) - (6)].c), (int)(yyvsp[(5) - (6)].d));
     ;}
     break;
 
   case 1077:
-#line 9780 "ProParser.y"
+#line 9784 "ProParser.y"
     { (yyval.l) = (yyvsp[(3) - (4)].l); ;}
     break;
 
   case 1078:
-#line 9785 "ProParser.y"
+#line 9789 "ProParser.y"
     { (yyval.l) = (yyvsp[(1) - (1)].l); ;}
     break;
 
   case 1079:
-#line 9787 "ProParser.y"
+#line 9791 "ProParser.y"
     { (yyval.l) = (yyvsp[(1) - (1)].l); ;}
     break;
 
   case 1080:
-#line 9792 "ProParser.y"
+#line 9796 "ProParser.y"
     { (yyval.l) = (yyvsp[(2) - (3)].l); ;}
     break;
 
   case 1081:
-#line 9797 "ProParser.y"
+#line 9801 "ProParser.y"
     {
       (yyval.l) = List_Create(20,20,sizeof(char*));
       List_Add((yyval.l), &((yyvsp[(1) - (1)].c)));
@@ -19277,17 +19281,17 @@ yyreduce:
     break;
 
   case 1082:
-#line 9802 "ProParser.y"
+#line 9806 "ProParser.y"
     { (yyval.l) = (yyvsp[(1) - (1)].l); ;}
     break;
 
   case 1083:
-#line 9804 "ProParser.y"
+#line 9808 "ProParser.y"
     { List_Add((yyval.l), &((yyvsp[(3) - (3)].c))); ;}
     break;
 
   case 1084:
-#line 9806 "ProParser.y"
+#line 9810 "ProParser.y"
     {
       for(int i = 0; i < List_Nbr((yyvsp[(3) - (3)].l)); i++){
 	char* c;
@@ -19299,7 +19303,7 @@ yyreduce:
     break;
 
   case 1085:
-#line 9818 "ProParser.y"
+#line 9822 "ProParser.y"
     {
       if ((yyvsp[(1) - (3)].c2).char1) vyyerror(1, "NameSpace '%s' not used yet", (yyvsp[(1) - (3)].c2).char1);
       (yyval.l) = List_Create(20,20,sizeof(char *));
@@ -19321,34 +19325,34 @@ yyreduce:
     break;
 
   case 1086:
-#line 9837 "ProParser.y"
+#line 9841 "ProParser.y"
     {
       (yyval.l) = Treat_Struct_FullName_dot_tSTRING_ListOfString((yyvsp[(1) - (5)].c2).char1, (yyvsp[(1) - (5)].c2).char2, (yyvsp[(3) - (5)].c));
     ;}
     break;
 
   case 1087:
-#line 9846 "ProParser.y"
+#line 9850 "ProParser.y"
     { (yyval.c) = (char*)"("; ;}
     break;
 
   case 1088:
-#line 9846 "ProParser.y"
+#line 9850 "ProParser.y"
     { (yyval.c) = (char*)"["; ;}
     break;
 
   case 1089:
-#line 9847 "ProParser.y"
+#line 9851 "ProParser.y"
     { (yyval.c) = (char*)")"; ;}
     break;
 
   case 1090:
-#line 9847 "ProParser.y"
+#line 9851 "ProParser.y"
     { (yyval.c) = (char*)"]"; ;}
     break;
 
   case 1091:
-#line 9852 "ProParser.y"
+#line 9856 "ProParser.y"
     {
       int size = 1;
       for(int i = 0; i < List_Nbr((yyvsp[(3) - (4)].l)); i++){
@@ -19369,7 +19373,7 @@ yyreduce:
     break;
 
   case 1092:
-#line 9874 "ProParser.y"
+#line 9878 "ProParser.y"
     {
       if ((yyvsp[(3) - (6)].c) != NULL && (yyvsp[(5) - (6)].c) != NULL) {
 	(yyval.i) = strcmp((yyvsp[(3) - (6)].c), (yyvsp[(5) - (6)].c));
@@ -19383,7 +19387,7 @@ yyreduce:
     break;
 
   case 1093:
-#line 9885 "ProParser.y"
+#line 9889 "ProParser.y"
     {
       if ((yyvsp[(3) - (4)].c) != NULL) {
 	(yyval.i) = strlen((yyvsp[(3) - (4)].c));
@@ -19396,7 +19400,7 @@ yyreduce:
     break;
 
   case 1094:
-#line 9895 "ProParser.y"
+#line 9899 "ProParser.y"
     {
       std::string s((yyvsp[(3) - (6)].c)), substr((yyvsp[(5) - (6)].c));
       if(s.find(substr) != std::string::npos)
@@ -19409,7 +19413,7 @@ yyreduce:
     break;
 
   case 1095:
-#line 9909 "ProParser.y"
+#line 9913 "ProParser.y"
     {
       int n = 0;
       for(int i = 0; i < List_Nbr(Problem_S.Group); i++) {
@@ -19421,7 +19425,7 @@ yyreduce:
     break;
 
   case 1096:
-#line 9918 "ProParser.y"
+#line 9922 "ProParser.y"
     {
       int i;
       if ( (i = List_ISearchSeq(Problem_S.Group, (yyvsp[(3) - (4)].c), fcmp_Group_Name)) >= 0 ) {
@@ -19435,7 +19439,7 @@ yyreduce:
     break;
 
   case 1097:
-#line 9929 "ProParser.y"
+#line 9933 "ProParser.y"
     {
       int i, j, indexInGroup;
       indexInGroup = (int)(yyvsp[(5) - (6)].d);
@@ -19461,28 +19465,28 @@ yyreduce:
     break;
 
   case 1098:
-#line 9955 "ProParser.y"
+#line 9959 "ProParser.y"
     { (yyval.i) = 99; ;}
     break;
 
   case 1099:
-#line 9957 "ProParser.y"
+#line 9961 "ProParser.y"
     { (yyval.i) = (int)(yyvsp[(2) - (2)].d); ;}
     break;
 
   case 1100:
-#line 9962 "ProParser.y"
+#line 9966 "ProParser.y"
     { (yyval.i) = 0; ;}
     break;
 
   case 1101:
-#line 9964 "ProParser.y"
+#line 9968 "ProParser.y"
     { (yyval.i) = (yyvsp[(2) - (3)].i); ;}
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 19486 "ProParser.tab.cpp"
+#line 19490 "ProParser.tab.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -19696,7 +19700,7 @@ yyreturn:
 }
 
 
-#line 9967 "ProParser.y"
+#line 9971 "ProParser.y"
 
 
 // This is a hack... Bison redefines 'const' if !__cplusplus and !__STDC__
