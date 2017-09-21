@@ -790,6 +790,7 @@ if(ENABLE_BUILD_IOS)
   if(NOT CMAKE_TOOLCHAIN_FILE)
     message(FATAL_ERROR "Cannot compile GetDP for iOS without a toolchain")
   endif(NOT CMAKE_TOOLCHAIN_FILE)
+  add_definitions(-DBUILD_IOS)
 endif(ENABLE_BUILD_IOS)
 
 if(ENABLE_BUILD_ANDROID)

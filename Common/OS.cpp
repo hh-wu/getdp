@@ -332,6 +332,8 @@ int BlockingSystemCall(const char *command)
   CloseHandle(prInfo.hProcess);
   CloseHandle(prInfo.hThread);
   return 0;
+#elif(BUILD_IOS)
+  Message::Warning("SystemCall is not supported on iOS");
 #else
   if(!system(NULL)) {
     Message::Error("Could not find /bin/sh: aborting system call");
