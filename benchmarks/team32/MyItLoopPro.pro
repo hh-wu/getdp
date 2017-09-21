@@ -214,7 +214,7 @@ Return
 Macro DisplayRunTimeVar
 
     If(Flag_NLRes!=NLRES_ITERATIVELOOPPRO) 
-      Print[{$TimeStep, $iter, $res, $resL, $resN, $relax, $relaxcount,$relaxcounttot, $syscount}, Format
+      Print[{$TimeStep, $iter, $res, $resL, $resN, $relax, $relaxcount}, Format
       "*** ts=%05g, it=%03g, res_used=%1.5e, (res = %1.5e, resN=%1.5e), relaxopt = %1.3g, relaxcount=%02g ***"];
     EndIf
     

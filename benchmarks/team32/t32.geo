@@ -17,6 +17,13 @@ lc0  = wcore/5;
 lc1  = wcore/5;
 lc2  = wcore/5;
 
+
+/*
+lc0=lc0/2;
+lc1=lc1/2;
+lc2=lc2/2;
+*/
+
 lcri = lc0*4; // Pi*Rint/30;
 lcro = lc0*4; // Pi*Rext/30;
 
@@ -137,7 +144,7 @@ lnh0[]+=newl; Line(newl) = {pnta[0], pnta_[0]};
 lnv0[]+=newl; Line(newl) = {pnta[1], pnta_[1]};
 
 Line Loop(newll) = {lnh0[6], ln_bnd[0], -lnv0[2], -ln_rin[0]};
-surf_AirInf[] += news; Surface(news) = {newll-1};
+surf_AirInf[] += news; Ruled Surface(news) = {newll-1};
 
 //Symmetry
 ln_bnd[] += Symmetry {1,0,0,0} { Duplicata{ Line{ln_bnd[{0}]};} };
