@@ -1765,7 +1765,7 @@ int multiroot_df(const gsl_vector *v, void *params, gsl_matrix *J)  // not in F.
 
   ///* New: Deal with Symmetrical or Asymmetrical Tensor consideration (10/06/2016)-------------
   int ncomp = ::NCOMP;
-  double *dbdh=(double *) malloc(ncomp*sizeof(double));
+  double *dbdh; dbdh = new double[ncomp];
   for (int n=0; n<ncomp; n++) dbdh[n]=0.;
   Tensor_dbdh_Vinch_K(h, Jk_all, Jkp_all, D, dbdh);
 
@@ -1794,7 +1794,7 @@ int multiroot_df(const gsl_vector *v, void *params, gsl_matrix *J)  // not in F.
       Message::Error("Invalid parameter (FLAG_SYM = 0 or 1) for function 'multiroot_df'.\n");
     break;
   }
-  free(dbdh);
+  delete [] dbdh;
  //*///-------------------------------------------------------------------------------------------
   return GSL_SUCCESS;
 }
@@ -1897,7 +1897,7 @@ double rootfinding1d_deriv (double alpha, void *params)  // not in F.h
   */
   ///* New: Deal with Symmetrical or Asymmetrical Tensor consideration (13/06/2016)-------------
   int ncomp = ::NCOMP;
-  double *dbdha=(double *) malloc(ncomp*sizeof(double));
+  double *dbdha; dbdha = new double[ncomp];
   for (int n=0; n<ncomp; n++) dbdha[n]=0.;
   //*///-------------------------------------------------------------------------------------------
 
@@ -1945,7 +1945,7 @@ double rootfinding1d_deriv (double alpha, void *params)  // not in F.h
       return 0;
     break;
   }
-  free(dbdha);
+  delete [] dbdha;
    //*///-------------------------------------------------------------------------------------------
 }
 
@@ -2025,7 +2025,7 @@ void Vector_Update_Jk_K(const double h[3], double Jk[3], const double Jkp[3], co
   //for (int n=0; n<3; n++) J0[n] = Jkp[n]; // NEW INITIALIZATION (not tried yet, proposed 13/06/2016)
   for (int n=0; n<3; n++) J0[n] = Jk_simple[n]; // NEW INITIALIZATION (not tried yet, proposed 13/10/2016)
 
-/*  printf("hr =%.18f %.18f %.18f\n",hr[0],hr[1],hr[2]);
+  /*  printf("hr =%.18f %.18f %.18f\n",hr[0],hr[1],hr[2]);
   printf("hrp=%.18f %.18f %.18f\n",hrp[0],hrp[1],hrp[2]);
   printf("Jk_simple=%.18f %.18f %.18f\n",Jk_simple[0],Jk_simple[1],Jk_simple[2]);
   printf("Jkp      =%.18f %.18f %.18f\n",Jkp[0],Jkp[1],Jkp[2]);*/
@@ -2143,8 +2143,7 @@ void Vector_Update_Jk_K(const double h[3], double Jk[3], const double Jkp[3], co
 
 
       int ncomp=::NCOMP;
-      double *ddfdJ2=(double *) malloc(ncomp*sizeof(double));
-
+      double *ddfdJ2; ddfdJ2 = new double[ncomp];
 
       int k = 1 ;
       const int MAX_ITER = ::MAX_ITER_OM;
@@ -2318,7 +2317,7 @@ void Vector_Update_Jk_K(const double h[3], double Jk[3], const double Jkp[3], co
             fct_d_omega(h, xk, Jkp, chi, Ja, ha,Jb,hb, gfk); //update the derivative d_omega
             fct_dd_omega(h, xk, Jkp, chi, Ja, ha,Jb,hb, ddfdJ2);
             int ncomp = ::NCOMP;
-            double *iddfdJ2=(double *) malloc(ncomp*sizeof(double));
+            double *iddfdJ2; iddfdJ2 = new double[ncomp];
             switch(::FLAG_SYM)
             {
               case 1: // Symmetric tensor
@@ -2339,7 +2338,7 @@ void Vector_Update_Jk_K(const double h[3], double Jk[3], const double Jkp[3], co
             }
             //alpha_k=1;
 
-            free(iddfdJ2);
+            delete [] iddfdJ2;
           }
           break;
           default:
@@ -2349,7 +2348,7 @@ void Vector_Update_Jk_K(const double h[3], double Jk[3], const double Jkp[3], co
         pknorm=norm(pk);
         k++;
       } // end second while
-      free(ddfdJ2);
+      delete [] ddfdJ2;
       /*
       if (k>::MAX_ITER_OM/2)
       {
@@ -2860,8 +2859,8 @@ void Vector_h_Vinch_K(const double b[3], double bc[3],
       double Ib_bcI;
       
       int ncomp = ::NCOMP;
-      double *dbdh=(double *) malloc(ncomp*sizeof(double));
-      double *dhdb=(double *) malloc(ncomp*sizeof(double));
+      double *dbdh; dbdh = new double[ncomp];
+      double *dhdb; dhdb = new double[ncomp];
       for (int n=0; n<ncomp; n++) {dbdh[n]=0.; dhdb[n]=0.;}
 
       for (int n=0; n<3; n++) dh[n]=::DELTA_0; //KJNEW DELTA_00 +++
@@ -3275,8 +3274,8 @@ void Vector_h_Vinch_K(const double b[3], double bc[3],
         }
       }
 
-      free(dbdh);
-      free(dhdb);
+      delete [] dbdh;
+      delete [] dhdb;
     }
     break;
   default:
@@ -3312,7 +3311,7 @@ void Tensor_dJkdh_Var(const double h[3], const double Jk[3], const double Jkp[3]
     Message::Debug("Analytical Jacobian Js=%g, nJk=%g and ndJk=%g",Ja+Jb, nJk, ndJk);
 
     int ncomp = ::NCOMP;
-    double *idJkdh=(double *) malloc(ncomp*sizeof(double));
+    double *idJkdh; idJkdh = new double[ncomp];
     fct_dd_omega(h, Jk, Jkp,  chi, Ja, ha,Jb, hb, idJkdh); //KJNEW TODO
 
     switch(::FLAG_SYM)
@@ -3327,7 +3326,7 @@ void Tensor_dJkdh_Var(const double h[3], const double Jk[3], const double Jkp[3]
         Message::Error("Invalid parameter (FLAG_SYM = 0 or 1) for function 'Tensor_dJkdh_Var'.\n");
       break;
     }
-    free(idJkdh);
+    delete [] idJkdh;
   }
   else{  // numerical Jacobian
     Tensor_dJkdh_Var_Num(h,Jk, Jkp, chi,Ja,  ha,  Jb,  hb, dJkdh); 
@@ -4258,8 +4257,8 @@ void Tensor_dbdh_Vinch_K(const double h[3],
     break;
   }
 
-  double *dJkdh=(double *) malloc(ncomp*sizeof(double));
-  double *dJtotdh=(double *) malloc(ncomp*sizeof(double));
+  double *dJkdh; dJkdh = new double[ncomp];
+  double *dJtotdh; dJtotdh = new double[ncomp];
   for (int n=0; n<ncomp; n++) {
     dJkdh[n]=0.;
     dJtotdh[n]=0.;
@@ -4394,8 +4393,8 @@ void Tensor_dbdh_Vinch_K(const double h[3],
     for (int n=0; n<9; n++) 
       dbdh[n] += dJtotdh[n];
   }
-  free(dJkdh);
-  free(dJtotdh);
+  delete [] dJkdh;
+  delete [] dJtotdh;
 }
 
 void Tensor_dbdh_Num(const double h[3],
@@ -4618,11 +4617,7 @@ void Tensor_dhdb_Good_BFGS(const double dx[3],const double df[3], double *dhdb)
   //*///-------------------------------------------------------------------------------------------
 }
 
-
 //*///-------------------------------------------------------------------------------------------
-#endif
-
-
 
 //************************************************
 // Functions usable in a .pro file
@@ -4803,7 +4798,7 @@ void F_dbdh_Vinch_K(F_ARG)
       Message::Error("Invalid parameter (FLAG_SYM = 0 or 1) for function 'F_dhdb_Vinch_K'.\n");
     break;
   }
-  double *dbdh=(double *) malloc(ncomp*sizeof(double));
+  double *dbdh; dbdh = new double[ncomp];
   for (int n=0; n<ncomp; n++) dbdh[n]=0.;
 
   for (int n=0; n<3; n++)
@@ -4837,7 +4832,7 @@ void F_dbdh_Vinch_K(F_ARG)
   for (int k=0 ; k<ncomp ; k++)
     V->Val[k] = dbdh[k] ;
 
-  free(dbdh);
+  delete [] dbdh;
 }
 
 void F_dhdb_Vinch_K(F_ARG)
@@ -4876,8 +4871,8 @@ void F_dhdb_Vinch_K(F_ARG)
     break;
   }
 
-  double *dbdh=(double *) malloc(ncomp*sizeof(double));
-  double *dhdb=(double *) malloc(ncomp*sizeof(double));
+  double *dbdh; dbdh = new double[ncomp];
+  double *dhdb; dhdb = new double[ncomp];
   for (int n=0; n<ncomp; n++) {dbdh[n]=0.; dhdb[n]=0.;}
 
   for (int n=0; n<3; n++)
@@ -4926,6 +4921,8 @@ void F_dhdb_Vinch_K(F_ARG)
   for (int k=0 ; k<ncomp ; k++)
     V->Val[k] = dhdb[k] ;
 
-  free(dhdb);
-  free(dbdh);
+  delete [] dhdb;
+  delete [] dbdh;
 }
+
+#endif
