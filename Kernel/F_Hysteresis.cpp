@@ -1029,6 +1029,15 @@ void F_dhdb_Vinch_K(F_ARG)
 {
   Message::Error("F_dhdb_Vinch_K requires the GSL");
 }
+void F_hr_Vinch_K(F_ARG)
+{
+  Message::Error("F_hr_Vinch_K requires the GSL"); //Not True 
+}
+void F_Jr_Vinch_K(F_ARG)
+{
+  Message::Error("F_Jr_Vinch_K requires the GSL"); //Not True
+}
+
 #else
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_multiroots.h>
