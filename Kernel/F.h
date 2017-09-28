@@ -391,6 +391,8 @@ void Tensor_dhdb_Good_BFGS(const double dx[3],const double df[3],double *dhdb);
 //Energy-Based Model - GetDP Functions:
 void F_Update_Cell_K (F_ARG) ;
 void F_b_Vinch_K(F_ARG);
+void F_hr_Vinch_K(F_ARG);
+void F_Jr_Vinch_K(F_ARG);
 void F_h_Vinch_K(F_ARG);
 void F_dbdh_Vinch_K(F_ARG);
 void F_dhdb_Vinch_K(F_ARG);

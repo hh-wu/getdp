@@ -632,6 +632,13 @@ void set_sensi_param(struct FunctionActive *D)
   ::SLOPE_FACTOR        = 1e2;
   ::FLAG_HOMO           = D->Case.Interpolation.x[j+16] ; // 
 
+  /*
+  int LenX= D->Case.ListMatrix.NbrLines-(j+17);
+  printf("oh my: %d\n", LenX   );
+  for (int n=0; n<LenX;n++)
+   printf("h(%d): %g\n", n, D->Case.Interpolation.x[j+17+n]   );
+  getchar();
+  */
 
   switch(::FLAG_SYM)
   {
@@ -4764,6 +4771,118 @@ void F_b_Vinch_K(F_ARG)
 
   V->Type = VECTOR ;
   for (int n=0 ; n<3 ; n++) V->Val[n] = b[n];
+}
+
+void F_hr_Vinch_K(F_ARG)
+{
+  // #define F_ARG   struct Function * Fct, struct Value * A, struct Value * V
+  // input :
+  // (A+0)->Val = number corresponding to the cell studied -- k
+  // (A+1+1*k)->Val = magnetic material field variable xk (either J if Var approach or hr if Diff approach)
+  // Material parameters: e.g. param_EnergHyst = { dim, N, Ja, ha, w_1, chi_1, ..., w_N, chi_N};==> struct FunctionActive *D
+  // ---------------------------------------------
+  // output: reversible magnetic field -- hr
+
+  struct FunctionActive  * D ;
+  if (!Fct->Active)  Fi_InitListX (Fct, A, V) ;
+  D = Fct->Active ;
+  set_sensi_param(D);
+
+  int k         = ((A+0)->Val[0])-1;
+  int N = D->Case.Interpolation.x[1] ;
+  double Ja     = D->Case.Interpolation.x[2] ;
+  double ha     = D->Case.Interpolation.x[3] ;
+  double Jb     = D->Case.Interpolation.x[4] ;
+  double hb     = D->Case.Interpolation.x[5] ;
+  double wk=1., Jak, Jbk;
+
+  double hrk[3], xk[3];
+
+  if (k>=0 && k<N)
+    wk = D->Case.Interpolation.x[6+2*k];
+
+  Jak    = wk*Ja;
+  Jbk    = wk*Jb;
+
+  switch(::FLAG_VARORDIFF) {
+    case 1:
+        for (int n=0; n<3; n++)  
+          xk[n]  = (A+1)->Val[n];
+        Vector_Find_hrk_K(xk,Jak, ha, Jbk, hb, hrk);
+    break;
+    case 2:
+    case 3:
+      for (int n=0; n<3; n++)  
+        hrk[n]  = (A+1)->Val[n];
+    break;
+    default:
+      Message::Error("Invalid parameter (VarorDiff = 1,2 or 3) for function 'F_hr_Vinch_K'.\n"
+                      "FLAG_VARORDIFF = 1 --> Variational Approach\n"
+                      "FLAG_VARORDIFF = 2 --> Simple Differential Approach\n"
+                      "FLAG_VARORDIFF = 3 --> Full Differential Approach");
+    break;
+  }
+
+
+  V->Type = VECTOR ;
+  for (int n=0 ; n<3 ; n++) V->Val[n] = hrk[n];
+}
+
+void F_Jr_Vinch_K(F_ARG)
+{
+  // #define F_ARG   struct Function * Fct, struct Value * A, struct Value * V
+  // input :
+  // (A+0)->Val = number corresponding to the cell studied -- k
+  // (A+1+1*k)->Val = magnetic material field variable xk (either J if Var approach or hr if Diff approach)
+  // Material parameters: e.g. param_EnergHyst = { dim, N, Ja, ha, w_1, chi_1, ..., w_N, chi_N};==> struct FunctionActive *D
+  // ---------------------------------------------
+  // output: magnetic magnetization -- J
+
+  struct FunctionActive  * D ;
+  if (!Fct->Active)  Fi_InitListX (Fct, A, V) ;
+  D = Fct->Active ;
+  set_sensi_param(D);
+
+  int k         = ((A+0)->Val[0])-1;
+  int N = D->Case.Interpolation.x[1] ;
+  double Ja     = D->Case.Interpolation.x[2] ;
+  double ha     = D->Case.Interpolation.x[3] ;
+  double Jb     = D->Case.Interpolation.x[4] ;
+  double hb     = D->Case.Interpolation.x[5] ;
+  double wk=1., Jak, Jbk;
+
+  double Jk[3], xk[3];
+
+  if (k>=0 && k<N)
+    wk = D->Case.Interpolation.x[6+2*k];
+  else
+    wk = 1;
+  
+  Jak    = wk*Ja;
+  Jbk    = wk*Jb;
+
+  switch(::FLAG_VARORDIFF) {
+    case 1:
+      for (int n=0; n<3; n++)  
+        Jk[n]  = (A+1)->Val[n];
+    break;
+    case 2:
+    case 3:
+        for (int n=0; n<3; n++)  
+          xk[n]  = (A+1)->Val[n];
+        Vector_Find_Jk_K(xk,Jak, ha, Jbk, hb, Jk);
+    break;
+    default:
+      Message::Error("Invalid parameter (VarorDiff = 1,2 or 3) for function 'F_Jr_Vinch_K'.\n"
+                      "FLAG_VARORDIFF = 1 --> Variational Approach\n"
+                      "FLAG_VARORDIFF = 2 --> Simple Differential Approach\n"
+                      "FLAG_VARORDIFF = 3 --> Full Differential Approach");
+    break;
+  }
+
+
+  V->Type = VECTOR ;
+  for (int n=0 ; n<3 ; n++) V->Val[n] = Jk[n];
 }
 
 void F_dbdh_Vinch_K(F_ARG)
