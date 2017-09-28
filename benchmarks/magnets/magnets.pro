@@ -22,20 +22,24 @@ Group{
 
 Function{
   mu0 = 4*Pi*1e-7;
-  mu[] = mu0;
-  nu[] = 1.0/mu[];
+  mu[Air] = mu0;
+  nu[Air] = 1.0/mu0;
 
   For i In {1:NumMagnets}
     // coercive field of magnets
     DefineConstant[
-      HC~{i} = {800e3,
+      HC~{i} = {800e3, Min 0, Max 1e5, Step 1e3,
         Name Sprintf("Parameters/Magnet %g/0Coercive magnetic field [Am^-1]", i)},
       BR~{i} = {mu0 * HC~{i},
         Name Sprintf("Parameters/Magnet %g/0Remnant magnetic flux density [T]", i),
-        ReadOnly 1}
+        ReadOnly 1},
+      MUR~{i} = {1, Min 1, Max 1000, Step 10,
+        Name Sprintf("Parameters/Magnet %g/01Relative permeability", i)}
     ];
     hc[Magnet~{i}] = Rotate[Vector[0, HC~{i}, 0], Rx~{i}, Ry~{i}, Rz~{i}];
     br[Magnet~{i}] = Rotate[Vector[0, BR~{i}, 0], Rx~{i}, Ry~{i}, Rz~{i}];
+    mu[Magnet~{i}] = MUR~{i} * mu0;
+    nu[Magnet~{i}] = 1.0/(MUR~{i} * mu0);
   EndFor
 
   // Maxwell stress tensor
@@ -252,6 +256,8 @@ PostOperation {
   { Name MagSta_phi ; NameOfPostProcessing MagSta_phi;
     Operation {
       Print[ b, OnElementsOf Domain, File "b.pos" ] ;
+      Print[ b, OnPlane{ {-0.1,-0.1,0} {0.1,-0.1,0} {-0.1,0.1,0} } {50, 50},
+        File "b_cut1.pos" ];
       //Print[ h, OnElementsOf Domain, File "h.pos" ] ;
       //Print[ hc, OnElementsOf Domain, File "hc.pos" ] ;
       For i In {1:NumMagnets}
@@ -269,6 +275,8 @@ PostOperation {
   { Name MagSta_a ; NameOfPostProcessing MagSta_a ;
     Operation {
       Print[ b,  OnElementsOf Domain,  File "b.pos" ];
+      Print[ b, OnPlane{ {-0.1,-0.1,0} {0.1,-0.1,0} {-0.1,0.1,0} } {50, 50},
+        File "b_cut1.pos" ];
       //Print[ br,  OnElementsOf Domain_M,  File "br.pos" ];
       //Print[ a,  OnElementsOf Domain,  File "a.pos" ];
       For i In {1:NumMagnets}
