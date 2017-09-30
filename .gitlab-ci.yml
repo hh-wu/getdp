@@ -1,8 +1,19 @@
-ubuntu16.04:
-  image : onelab/ubuntu16.04
+linux64_gcc:
+  image: onelab/ubuntu16.04
+  tags:
+    - linux
   script:
     - mkdir build
     - cd build
     - cmake ..
     - make -j 4
-    - ctest --output-on-failure
+    - ctest -j 4 --output-on-failure
+
+windows64_msvc:
+  tags:
+    - windows
+  script:
+    - md build
+    - cd build
+    - cmake ..
+    - msbuild package.vcxproj
