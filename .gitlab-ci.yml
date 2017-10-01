@@ -9,11 +9,3 @@ linux64_gcc:
     - make -j 4
     - ctest -j 4 --output-on-failure
 
-windows64_msvc:
-  tags:
-    - windows
-  script:
-    - md build
-    - cd build
-    - cmake -DENABLE_FORTRAN=0 ..
-    - msbuild package.vcxproj
