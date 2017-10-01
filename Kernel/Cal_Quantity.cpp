@@ -1108,16 +1108,20 @@ void Cal_WholeQuantity(struct Element * Element,
         Multi[Index] = 0 ;
         Index++ ;
       }
-
       Index -= NbrArguments ;
-      Cal_WholeQuantity(Element, QuantityStorage_P0,
-			WholeQuantity_P->Case.MHTransform.WholeQuantity,
-			u, v, w, -1, 0, &Stack[0][Index], NbrArguments, ExpressionName) ;
-
-      MHTransform(Element, QuantityStorage_P0, u, v, w, &Stack[0][Index],
-		  (struct Expression *)List_Pointer(Problem_S.Expression,
-						    WholeQuantity_P->Case.MHTransform.Index),
-		  WholeQuantity_P->Case.MHTransform.NbrPoints) ;
+      {
+        int N = List_Nbr(WholeQuantity_P->Case.MHTransform.WholeQuantity_L);
+        std::vector<struct Value> MH_Values(N);
+        for(int j = 0; j < N; j++){
+          List_T *WQ; List_Read(WholeQuantity_P->Case.MHTransform.WholeQuantity_L, j, &WQ);
+          Cal_WholeQuantity(Element, QuantityStorage_P0, WQ, u, v, w, -1, 0,
+                            &MH_Values[j], NbrArguments, ExpressionName) ;
+        }
+        MHTransform(Element, QuantityStorage_P0, u, v, w, MH_Values,
+                    (struct Expression *)List_Pointer(Problem_S.Expression,
+                                                      WholeQuantity_P->Case.MHTransform.Index),
+                    WholeQuantity_P->Case.MHTransform.NbrPoints, Stack[0][Index]) ;
+      }
       Multi[Index] = 0 ;
       Index++ ;
       break ;

@@ -216,7 +216,7 @@ struct doubleXstring{
 %type <l>  ConstraintCases IntegrationCases QuadratureCases JacobianCases
 %type <l>  ListOfBasisFunction RecursiveListOfBasisFunction
 %type <l>  ListOfBasisFunctionCoef RecursiveListOfBasisFunctionCoef
-%type <l>  Equations WholeQuantityExpression
+%type <l>  Equations WholeQuantityExpression RecursiveListOfWholeQuantityExpression
 %type <l>  DefineSystems Operation ChangeOfStates
 %type <l>  ListOfFormulation RecursiveListOfFormulation
 %type <l>  ListOfSystem RecursiveListOfSystem
@@ -1115,9 +1115,20 @@ WholeQuantityExpression :
     { $$ = *((List_T **)List_Pointer(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1));
       List_Pop(ListOfPointer_L);
     }
-
  ;
 
+RecursiveListOfWholeQuantityExpression :
+
+    WholeQuantityExpression
+    {
+      $$ = List_Create(5, 5, sizeof(List_T*));
+      List_Add($$, &$1);
+    }
+  | RecursiveListOfWholeQuantityExpression ',' WholeQuantityExpression
+    {
+      List_Add($$, &$3);
+    }
+ ;
 
 WholeQuantity :
 
@@ -1564,7 +1575,7 @@ WholeQuantity_Single :
   | tMHTransform
     '[' NameForFunction
      { Last_DofIndexInWholeQuantity = Current_DofIndexInWholeQuantity; }
-    '[' WholeQuantityExpression ']' ']' '{' FExpr '}'
+    '[' RecursiveListOfWholeQuantityExpression ']' ']' '{' FExpr '}'
     {
       int i;
       if((i = List_ISearchSeq(Problem_S.Expression, $3, fcmp_Expression_Name)) < 0)
@@ -1573,7 +1584,7 @@ WholeQuantity_Single :
 	vyyerror(0, "Dof{} definition cannot be used in MHTransform");
       WholeQuantity_S.Type = WQ_MHTRANSFORM;
       WholeQuantity_S.Case.MHTransform.Index = i;
-      WholeQuantity_S.Case.MHTransform.WholeQuantity = $6;
+      WholeQuantity_S.Case.MHTransform.WholeQuantity_L = $6;
       WholeQuantity_S.Case.MHTransform.NbrPoints = (int)$10;
       List_Read(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1, &Current_WholeQuantity_L);
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -1586,7 +1597,7 @@ WholeQuantity_Single :
       if((i = List_ISearchSeq(Problem_S.Expression, $3,fcmp_Expression_Name)) >= 0){
         WholeQuantity_S.Type = WQ_MHJACNL;
         WholeQuantity_S.Case.MHJacNL.Index = i;
-        WholeQuantity_S.Case.MHTransform.FunctionType = WQ_EXPRESSION;
+        WholeQuantity_S.Case.MHJacNL.FunctionType = WQ_EXPRESSION;
         WholeQuantity_S.Case.MHJacNL.NbrArguments = $4;
         WholeQuantity_S.Case.MHJacNL.NbrParameters = List_Nbr($5);
         if($4 < 0)  vyyerror(0, "Uncompatible argument for Function (in MHJacNL): %s", $3);
@@ -10256,8 +10267,11 @@ void  Pro_DefineQuantityIndex_1(List_T *WholeQuantity_L, int TraceGroupIndex,
       }
       break;
     case WQ_MHTRANSFORM  :
-      Pro_DefineQuantityIndex_1
-      	((WholeQuantity_P+i)->Case.MHTransform.WholeQuantity, TraceGroupIndex, pairs);
+      for(int j = 0; j < List_Nbr((WholeQuantity_P+i)->Case.MHTransform.WholeQuantity_L); j++){
+        List_T *WQ; List_Read((WholeQuantity_P+i)->Case.MHTransform.WholeQuantity_L, j, &WQ);
+        Pro_DefineQuantityIndex_1(WQ, TraceGroupIndex, pairs);
+      }
+      break;
     case WQ_TIMEDERIVATIVE :
       Pro_DefineQuantityIndex_1
 	((WholeQuantity_P+i)->Case.TimeDerivative.WholeQuantity, TraceGroupIndex, pairs);
