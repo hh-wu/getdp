@@ -15,5 +15,5 @@ windows64_msvc:
   script:
     - md build
     - cd build
-    - cmake ..
+    - cmake -DENABLE_FORTRAN=0 ..
     - msbuild package.vcxproj
