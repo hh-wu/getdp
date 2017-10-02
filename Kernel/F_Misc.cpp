@@ -132,7 +132,7 @@ void F_GetNumberRunTime (F_ARG)
 void F_SetVariable (F_ARG)
 {
   if(!Fct->String){
-    Message::Error("Missing runtime variable name: use SetVariableR[...]{$name}");
+    Message::Error("Missing runtime variable name: use SetVariable[...]{$name}");
     return;
   }
 

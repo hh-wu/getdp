@@ -216,7 +216,7 @@ struct doubleXstring{
 %type <l>  ConstraintCases IntegrationCases QuadratureCases JacobianCases
 %type <l>  ListOfBasisFunction RecursiveListOfBasisFunction
 %type <l>  ListOfBasisFunctionCoef RecursiveListOfBasisFunctionCoef
-%type <l>  Equations WholeQuantityExpression
+%type <l>  Equations WholeQuantityExpression RecursiveListOfWholeQuantityExpression
 %type <l>  DefineSystems Operation ChangeOfStates
 %type <l>  ListOfFormulation RecursiveListOfFormulation
 %type <l>  ListOfSystem RecursiveListOfSystem
@@ -1115,9 +1115,20 @@ WholeQuantityExpression :
     { $$ = *((List_T **)List_Pointer(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1));
       List_Pop(ListOfPointer_L);
     }
-
  ;
 
+RecursiveListOfWholeQuantityExpression :
+
+    WholeQuantityExpression
+    {
+      $$ = List_Create(5, 5, sizeof(List_T*));
+      List_Add($$, &$1);
+    }
+  | RecursiveListOfWholeQuantityExpression ',' WholeQuantityExpression
+    {
+      List_Add($$, &$3);
+    }
+ ;
 
 WholeQuantity :
 
@@ -1564,7 +1575,7 @@ WholeQuantity_Single :
   | tMHTransform
     '[' NameForFunction
      { Last_DofIndexInWholeQuantity = Current_DofIndexInWholeQuantity; }
-    '[' WholeQuantityExpression ']' ']' '{' FExpr '}'
+    '[' RecursiveListOfWholeQuantityExpression ']' ']' '{' FExpr '}'
     {
       int i;
       if((i = List_ISearchSeq(Problem_S.Expression, $3, fcmp_Expression_Name)) < 0)
@@ -1573,7 +1584,7 @@ WholeQuantity_Single :
 	vyyerror(0, "Dof{} definition cannot be used in MHTransform");
       WholeQuantity_S.Type = WQ_MHTRANSFORM;
       WholeQuantity_S.Case.MHTransform.Index = i;
-      WholeQuantity_S.Case.MHTransform.WholeQuantity = $6;
+      WholeQuantity_S.Case.MHTransform.WholeQuantity_L = $6;
       WholeQuantity_S.Case.MHTransform.NbrPoints = (int)$10;
       List_Read(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1, &Current_WholeQuantity_L);
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
@@ -1586,7 +1597,7 @@ WholeQuantity_Single :
       if((i = List_ISearchSeq(Problem_S.Expression, $3,fcmp_Expression_Name)) >= 0){
         WholeQuantity_S.Type = WQ_MHJACNL;
         WholeQuantity_S.Case.MHJacNL.Index = i;
-        WholeQuantity_S.Case.MHTransform.FunctionType = WQ_EXPRESSION;
+        WholeQuantity_S.Case.MHJacNL.FunctionType = WQ_EXPRESSION;
         WholeQuantity_S.Case.MHJacNL.NbrArguments = $4;
         WholeQuantity_S.Case.MHJacNL.NbrParameters = List_Nbr($5);
         if($4 < 0)  vyyerror(0, "Uncompatible argument for Function (in MHJacNL): %s", $3);
@@ -5658,13 +5669,15 @@ OperationTerm :
 	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
-      Operation_P->Case.DeformeMesh.Quantity = $5;
-      Operation_P->Case.DeformeMesh.Name_MshFile = $8;
-      Operation_P->Case.DeformeMesh.GeoDataIndex = -1;
-      Operation_P->Case.DeformeMesh.Factor = $10;
-      Operation_P->Case.DeformeMesh.GroupIndex =
+      Operation_P->Case.DeformMesh.Quantity = $5;
+      Operation_P->Case.DeformMesh.Quantity2 = 0;
+      Operation_P->Case.DeformMesh.Quantity3 = 0;
+      Operation_P->Case.DeformMesh.Name_MshFile = $8;
+      Operation_P->Case.DeformMesh.GeoDataIndex = -1;
+      Operation_P->Case.DeformMesh.Factor = $10;
+      Operation_P->Case.DeformMesh.GroupIndex =
         Num_Group(&Group_S, (char*)"OP_DeformMesh", $12);
-      Operation_P->Type = OPERATION_DEFORMEMESH;
+      Operation_P->Type = OPERATION_DEFORMMESH;
     }
 
   | tDeformMesh  '[' String__Index ',' String__Index ',' tNameOfMesh CharExpr ','
@@ -5677,12 +5690,14 @@ OperationTerm :
 	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
-      Operation_P->Case.DeformeMesh.Quantity = $5;
-      Operation_P->Case.DeformeMesh.Name_MshFile = $8;
-      Operation_P->Case.DeformeMesh.GeoDataIndex = -1;
-      Operation_P->Case.DeformeMesh.Factor = $10;
-      Operation_P->Case.DeformeMesh.GroupIndex = -1;
-      Operation_P->Type = OPERATION_DEFORMEMESH;
+      Operation_P->Case.DeformMesh.Quantity = $5;
+      Operation_P->Case.DeformMesh.Quantity2 = 0;
+      Operation_P->Case.DeformMesh.Quantity3 = 0;
+      Operation_P->Case.DeformMesh.Name_MshFile = $8;
+      Operation_P->Case.DeformMesh.GeoDataIndex = -1;
+      Operation_P->Case.DeformMesh.Factor = $10;
+      Operation_P->Case.DeformMesh.GroupIndex = -1;
+      Operation_P->Type = OPERATION_DEFORMMESH;
     }
 
   | tDeformMesh  '[' String__Index ',' String__Index ',' tNameOfMesh CharExpr ']' tEND
@@ -5694,12 +5709,14 @@ OperationTerm :
 	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
-      Operation_P->Case.DeformeMesh.Quantity = $5;
-      Operation_P->Case.DeformeMesh.Name_MshFile = $8;
-      Operation_P->Case.DeformeMesh.GeoDataIndex = -1;
-      Operation_P->Case.DeformeMesh.Factor = 1;
-      Operation_P->Case.DeformeMesh.GroupIndex = -1;
-      Operation_P->Type = OPERATION_DEFORMEMESH;
+      Operation_P->Case.DeformMesh.Quantity = $5;
+      Operation_P->Case.DeformMesh.Quantity2 = 0;
+      Operation_P->Case.DeformMesh.Quantity3 = 0;
+      Operation_P->Case.DeformMesh.Name_MshFile = $8;
+      Operation_P->Case.DeformMesh.GeoDataIndex = -1;
+      Operation_P->Case.DeformMesh.Factor = 1;
+      Operation_P->Case.DeformMesh.GroupIndex = -1;
+      Operation_P->Type = OPERATION_DEFORMMESH;
     }
 
   | tDeformMesh  '[' String__Index ',' String__Index ']' tEND
@@ -5711,12 +5728,14 @@ OperationTerm :
 	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
-      Operation_P->Case.DeformeMesh.Quantity = $5;
-      Operation_P->Case.DeformeMesh.Name_MshFile = NULL;
-      Operation_P->Case.DeformeMesh.GeoDataIndex = -1;
-      Operation_P->Case.DeformeMesh.Factor = 1;
-      Operation_P->Case.DeformeMesh.GroupIndex = -1;
-      Operation_P->Type = OPERATION_DEFORMEMESH;
+      Operation_P->Case.DeformMesh.Quantity = $5;
+      Operation_P->Case.DeformMesh.Quantity2 = 0;
+      Operation_P->Case.DeformMesh.Quantity3 = 0;
+      Operation_P->Case.DeformMesh.Name_MshFile = NULL;
+      Operation_P->Case.DeformMesh.GeoDataIndex = -1;
+      Operation_P->Case.DeformMesh.Factor = 1;
+      Operation_P->Case.DeformMesh.GroupIndex = -1;
+      Operation_P->Type = OPERATION_DEFORMMESH;
     }
 
   | tDeformMesh  '[' String__Index ',' String__Index ',' FExpr ']' tEND
@@ -5728,12 +5747,33 @@ OperationTerm :
 	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
-      Operation_P->Case.DeformeMesh.Quantity = $5;
-      Operation_P->Case.DeformeMesh.Name_MshFile = NULL;
-      Operation_P->Case.DeformeMesh.GeoDataIndex = -1;
-      Operation_P->Case.DeformeMesh.Factor = $7;
-      Operation_P->Case.DeformeMesh.GroupIndex = -1;
-      Operation_P->Type = OPERATION_DEFORMEMESH;
+      Operation_P->Case.DeformMesh.Quantity = $5;
+      Operation_P->Case.DeformMesh.Quantity2 = 0;
+      Operation_P->Case.DeformMesh.Quantity3 = 0;
+      Operation_P->Case.DeformMesh.Name_MshFile = NULL;
+      Operation_P->Case.DeformMesh.GeoDataIndex = -1;
+      Operation_P->Case.DeformMesh.Factor = $7;
+      Operation_P->Case.DeformMesh.GroupIndex = -1;
+      Operation_P->Type = OPERATION_DEFORMMESH;
+    }
+
+  | tDeformMesh  '[' String__Index ',' '{' String__Index ',' String__Index ',' String__Index '}' ',' FExpr ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      int i;
+      if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror(0, "Unknown System: %s", $3);
+      Free($3);
+      Operation_P->DefineSystemIndex = i;
+      Operation_P->Case.DeformMesh.Quantity = $6;
+      Operation_P->Case.DeformMesh.Quantity2 = $8;
+      Operation_P->Case.DeformMesh.Quantity3 = $10;
+      Operation_P->Case.DeformMesh.Name_MshFile = NULL;
+      Operation_P->Case.DeformMesh.GeoDataIndex = -1;
+      Operation_P->Case.DeformMesh.Factor = $13;
+      Operation_P->Case.DeformMesh.GroupIndex = -1;
+      Operation_P->Type = OPERATION_DEFORMMESH;
     }
 
   | tDeformMesh  '[' String__Index ',' String__Index ',' FExpr ',' GroupRHS ']' tEND
@@ -5745,13 +5785,15 @@ OperationTerm :
 	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
-      Operation_P->Case.DeformeMesh.Quantity = $5;
-      Operation_P->Case.DeformeMesh.Name_MshFile = NULL;
-      Operation_P->Case.DeformeMesh.GeoDataIndex = -1;
-      Operation_P->Case.DeformeMesh.Factor = $7;
-      Operation_P->Case.DeformeMesh.GroupIndex =
+      Operation_P->Case.DeformMesh.Quantity = $5;
+      Operation_P->Case.DeformMesh.Quantity2 = 0;
+      Operation_P->Case.DeformMesh.Quantity3 = 0;
+      Operation_P->Case.DeformMesh.Name_MshFile = NULL;
+      Operation_P->Case.DeformMesh.GeoDataIndex = -1;
+      Operation_P->Case.DeformMesh.Factor = $7;
+      Operation_P->Case.DeformMesh.GroupIndex =
         Num_Group(&Group_S, (char*)"OP_DeformMesh", $9);
-      Operation_P->Type = OPERATION_DEFORMEMESH;
+      Operation_P->Type = OPERATION_DEFORMMESH;
     }
 
   | GenerateGroupOperation  '[' String__Index ',' GroupRHS ']'  tEND
@@ -6939,6 +6981,8 @@ PostSubOperations :
       PostSubOperation_S.SendToServerList = NULL;
       PostSubOperation_S.Color = NULL;
       PostSubOperation_S.Units = NULL;
+      PostSubOperation_S.Visible = true;
+      PostSubOperation_S.Closed = false;
       PostSubOperation_S.ValueIndex = 0;
       PostSubOperation_S.ValueName = NULL;
       PostSubOperation_S.Label = NULL;
@@ -7637,12 +7681,26 @@ PrintOption :
       PostSubOperation_S.SendToServer = $3;
       PostSubOperation_S.SendToServerList = $5;
     }
+  | ',' tHidden
+    {
+      PostSubOperation_S.Visible = false;
+    }
+  | ',' tHidden FExpr
+    {
+      PostSubOperation_S.Visible = $3 ? false : true;
+    }
   | ',' tSTRING CharExpr
     {
-      std::string cat($2);
+      std::string cat($2), val($3);
       Free($2);
       if(cat == "Units"){
         PostSubOperation_S.Units = $3;
+      }
+      else if(cat == "Closed"){
+        PostSubOperation_S.Closed = (val == "1") ? true : false;
+      }
+      else if(cat == "Label"){
+        PostSubOperation_S.Label = $3;
       }
       else if(cat == "Color"){
         PostSubOperation_S.Color = $3;
@@ -10209,8 +10267,11 @@ void  Pro_DefineQuantityIndex_1(List_T *WholeQuantity_L, int TraceGroupIndex,
       }
       break;
     case WQ_MHTRANSFORM  :
-      Pro_DefineQuantityIndex_1
-      	((WholeQuantity_P+i)->Case.MHTransform.WholeQuantity, TraceGroupIndex, pairs);
+      for(int j = 0; j < List_Nbr((WholeQuantity_P+i)->Case.MHTransform.WholeQuantity_L); j++){
+        List_T *WQ; List_Read((WholeQuantity_P+i)->Case.MHTransform.WholeQuantity_L, j, &WQ);
+        Pro_DefineQuantityIndex_1(WQ, TraceGroupIndex, pairs);
+      }
+      break;
     case WQ_TIMEDERIVATIVE :
       Pro_DefineQuantityIndex_1
 	((WholeQuantity_P+i)->Case.TimeDerivative.WholeQuantity, TraceGroupIndex, pairs);

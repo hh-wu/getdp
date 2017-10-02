@@ -69,39 +69,75 @@ Function {
 }
 
 Group{
+  D() = {};
   For idom In {0:N_DOM-1}
+    left = (idom-1)%N_DOM; // left boundary
+    right = (idom+1)%N_DOM; // right boundary
+  
+    D() += idom;
+  
     Omega~{idom} = Region[( 6001 + idom )];
     GammaD0~{idom} = Region[{}];
     GammaN~{idom} = Region[{}];
 
     If(idom == 0)
-      Sigma~{idom}~{0} = Region[{}];
-      Sigma~{idom}~{1} = Region[{5000}];
+      D~{idom} = {right};
+      
       GammaD~{idom} = Region[{1001}];
       GammaInf~{idom} = Region[{}];
+      
+      Sigma~{idom}~{right} = Region[{5000}];
+      Sigma~{idom} = Region[{Sigma~{idom}~{right}}] ;
+      
+      BndGammaD~{idom}~{right} = Region[{}];
+      BndGammaD~{idom} = Region[{BndGammaD~{idom}~{right}}] ;
+      
+      BndGammaInf~{idom}~{right} = Region[{}];
+      BndGammaInf~{idom} = Region[{BndGammaD~{idom}~{right}}] ;
+      
+      BndSigma~{idom}~{right} = Region[{}];
+      BndSigma~{idom} = Region[{BndGammaD~{idom}~{right}}] ;
     EndIf
     If(idom == N_DOM-1)
-      Sigma~{idom}~{0} = Region[{(1000*(4+idom))}];
-      Sigma~{idom}~{1} = Region[{}];
+      D~{idom} = {left};
+      
       GammaD~{idom} = Region[{}];
       GammaInf~{idom} = Region[{(2000+N_DOM)}];
+      
+      Sigma~{idom}~{left} = Region[{(1000*(4+idom))}];
+      Sigma~{idom} = Region[{Sigma~{idom}~{left}}] ;
+      
+      BndGammaD~{idom}~{left} = Region[{}];
+      BndGammaD~{idom} = Region[{BndGammaD~{idom}~{left}}] ;
+      
+      BndGammaInf~{idom}~{left} = Region[{}];
+      BndGammaInf~{idom} = Region[{BndGammaD~{idom}~{left}}] ;
+      
+      BndSigma~{idom}~{left} = Region[{}];
+      BndSigma~{idom} = Region[{BndGammaD~{idom}~{left}}] ;
     EndIf
     If(idom > 0 && idom < N_DOM-1)
-      Sigma~{idom}~{0} = Region[{(1000*(4+idom))}];
-      Sigma~{idom}~{1} = Region[{(1000*(5+idom))}];
+      D~{idom} = {right, left};
+      
       GammaD~{idom} = Region[{}];
       GammaInf~{idom} = Region[{}];
+      
+      Sigma~{idom}~{left} = Region[{(1000*(4+idom))}];
+      Sigma~{idom}~{right} = Region[{(1000*(5+idom))}];
+      Sigma~{idom} = Region[{Sigma~{idom}~{left}, Sigma~{idom}~{right}}] ;
+      
+      BndGammaD~{idom}~{left} = Region[{}];
+      BndGammaD~{idom}~{right} = Region[{}];
+      BndGammaD~{idom} = Region[{BndGammaD~{idom}~{left}, BndGammaD~{idom}~{right}}] ;
+      
+      BndGammaInf~{idom}~{left} = Region[{}];
+      BndGammaInf~{idom}~{right} = Region[{}];
+      BndGammaInf~{idom} = Region[{BndGammaD~{idom}~{left}, BndGammaD~{idom}~{right}}] ;
+      
+      BndSigma~{idom}~{left} = Region[{}];
+      BndSigma~{idom}~{right} = Region[{}];
+      BndSigma~{idom} = Region[{BndGammaD~{idom}~{left}, BndGammaD~{idom}~{right}}] ;
     EndIf
-
-    Sigma~{idom} = Region[{Sigma~{idom}~{0}, Sigma~{idom}~{1}}];
-
-    BndSigma~{idom}~{0} = Region[{}];
-    BndSigma~{idom}~{1} = Region[{}];
-    BndSigma~{idom} = Region[{BndSigma~{idom}~{0}, BndSigma~{idom}~{1}}] ;
-
-    BndGammaInf~{idom}~{0} = Region[{}];
-    BndGammaInf~{idom}~{1} = Region[{}];
-    BndGammaInf~{idom} = Region[{BndGammaInf~{idom}~{0}, BndGammaInf~{idom}~{1}}] ;
   EndFor
 }
 

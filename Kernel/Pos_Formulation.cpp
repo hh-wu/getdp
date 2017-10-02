@@ -414,8 +414,9 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
       }
     }
     else {
-      if((PostStream = FOpen(PostFileName,
-                             Flag_BIN ? (FORMAT_NXUNV ? "r+b" : "ab") : "a")))
+      if((PostStream = FOpen(PostFileName, Flag_BIN ?
+                             (PostSubOperation_P->Format == FORMAT_NXUNV ? "r+b" : "ab") :
+                             "a")))
         Message::Direct(4, "          >> '%s'", PostFileName) ;
       else{
         Message::Error("Unable to open file '%s'", PostFileName) ;

@@ -6,6 +6,7 @@
 #ifndef _F_H_
 #define _F_H_
 
+#include <vector>
 #include "ProData.h"
 
 /* ------------------------------------------------------------------------ */
@@ -72,6 +73,7 @@ void  F_CurlDyadGreenHom (F_ARG) ;
 
 void  F_ElastodynamicsCylinderCavity(F_ARG);
 void  F_ElastodynamicsCylinderWall(F_ARG);
+void  F_ElastodynamicsCylinderWallS(F_ARG);
 
 /* F_Geometry */
 
@@ -271,11 +273,18 @@ void  F_dbdh_Jiles      (F_ARG) ;
 void  F_h_Jiles         (F_ARG) ;
 void  F_b_Jiles         (F_ARG) ;
 
-void  F_dhdb_Ducharne   (F_ARG) ;
-void  F_h_Ducharne      (F_ARG) ;
-void  F_nu_Ducharne     (F_ARG) ;
+void  F_dhdb_Ducharne(F_ARG) ;
+void  F_h_Ducharne (F_ARG) ;
+void  F_nu_Ducharne(F_ARG) ;
 double Fi_h_Ducharne (double *hi, double *bi, double *M, int NL,
                       int NC, double h0, double b0, double b);
+
+void  F_nu_Vinch (F_ARG) ; // NOT USED FOR NOW (26/06/2016)
+void  F_mu_Vinch (F_ARG) ; // NOT USED FOR NOW (26/06/2016)
+
+void  F_h_Vinch (F_ARG) ; // NOT USED FOR NOW (26/06/2016)
+void  F_dhdb_Vinch(F_ARG) ; // NOT USED FOR NOW (26/06/2016)
+void  F_dbdh_Vinch(F_ARG) ; // NOT USED FOR NOW (26/06/2016)
 
 // kj+++
 //Usefull Mathematical functions:
@@ -410,9 +419,9 @@ void  Fi_MHTimeIntegration(int TypePsi, int NbrTimePoint,
 			   struct Value *ValueOut) ;
 void  F_MHToTime0 (int init, struct Value * A, struct Value * V,
 		   int iTime, int NbrTimePoint, double * TimeMH) ;/* OJO!!! int *init */
-void  MHTransform(struct Element * Element, struct QuantityStorage * QuantityStorage_P0,
-		  double u, double v, double w, struct Value *MH_Value,
-		  struct Expression * Expression_P, int NbrPoints);
+void MHTransform(struct Element * Element, struct QuantityStorage * QuantityStorage_P0,
+		 double u, double v, double w, std::vector<struct Value> &MH_Inputs,
+		 struct Expression * Expression_P, int NbrPoints, struct Value &MH_Output);
 
 /* F_BiotSavart */
 void  F_BiotSavart (F_ARG) ;

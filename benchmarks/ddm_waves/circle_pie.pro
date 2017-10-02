@@ -53,76 +53,41 @@ Function {
 }
 
 Group{
+  D() = {};
   For idom In {0:N_DOM-1}
+    left = (idom+1)%N_DOM; // left boundary (if looking to the center from infinity)
+    right = (idom-1)%N_DOM; // right boundary
+    If(right < 0)
+      right = N_DOM-1;
+    EndIf
+    
+    D() += idom;
+    D~{idom} = {left, right};
+  
     Omega~{idom} = Region[(idom)];
     GammaD0~{idom} = Region[{}];
     GammaD~{idom} = Region[{(1000 + idom)}];
     GammaN~{idom} = Region[{}];
     GammaInf~{idom} = Region[{(2000 + idom)}];
 
-    Sigma~{idom}~{0} = Region[{(3000 + idom)}]; // left boundary (if looking to the center from infinity)
-    Sigma~{idom}~{1} = Region[{(4000 + idom)}]; // right boundary
-    Sigma~{idom} = Region[{Sigma~{idom}~{0}, Sigma~{idom}~{1}}] ;
+    Sigma~{idom}~{right} = Region[{(3000 + idom)}];
+    Sigma~{idom}~{left} = Region[{(4000 + idom)}];
+    Sigma~{idom} = Region[{Sigma~{idom}~{left}, Sigma~{idom}~{right}}] ;
 
-    BndGammaD~{idom}~{0} = Region[{(5000 + idom)}];
-    BndGammaD~{idom}~{1} = Region[{}];
-    BndGammaD~{idom} = Region[{BndGammaD~{idom}~{0}, BndGammaD~{idom}~{1}}] ;
+    BndGammaD~{idom}~{left} = Region[{(5000 + idom)}];
+    BndGammaD~{idom}~{right} = Region[{}];
+    BndGammaD~{idom} = Region[{BndGammaD~{idom}~{left}, BndGammaD~{idom}~{right}}] ;
 
-    BndGammaInf~{idom}~{0} = Region[{(6000 + idom)}];
-    BndGammaInf~{idom}~{1} = Region[{}];
-    BndGammaInf~{idom} = Region[{BndGammaInf~{idom}~{0}, BndGammaInf~{idom}~{1}}] ;
+    BndGammaInf~{idom}~{left} = Region[{(6000 + idom)}];
+    BndGammaInf~{idom}~{right} = Region[{}];
+    BndGammaInf~{idom} = Region[{BndGammaInf~{idom}~{left}, BndGammaInf~{idom}~{right}}] ;
 
-    BndSigma~{idom}~{0} = Region[{(7000 + idom)}];
-    BndSigma~{idom}~{1} = Region[{(8000 + idom)}];
-    BndSigma~{idom} = Region[{BndSigma~{idom}~{0}, BndSigma~{idom}~{1}}] ;
+    BndSigma~{idom}~{left} = Region[{(7000 + idom)}];
+    BndSigma~{idom}~{right} = Region[{(8000 + idom)}];
+    BndSigma~{idom} = Region[{BndSigma~{idom}~{left}, BndSigma~{idom}~{right}}] ;
   EndFor
 }
 
-Function{
-  // definitions for parallel (MPI) runs:
-
-  ListOfSubdomains = {} ; // the domains that I'm in charge of
-  ListOfFields = {}; // my fields
-  ListOfConnectedFields = {}; // my neighbors
-
-  // this describes a layered (1-d like) decomposition (domain 0 and N-1 are adjacent)
-  //         +--------+------+------+---...---+------------+
-  //  field: |2N-1   0|1    2|3    4|5    2N-4|2N-3    2N-2|
-  //   idom: |    0   |   1  |   2  |         |    N-1     |
-  //         +--------+------+------+---...---+------------+
-
-  For idom In {0:N_DOM-1}
-    If (idom % MPI_Size == MPI_Rank)
-      // my fields
-      myFieldLeft  = {(2*(idom + N_DOM) + (0-1)) % (2*N_DOM)};
-      myFieldRight = {(2*(idom + N_DOM) + (1-1)) % (2*N_DOM)};
-      connectedFieldLeft  = {(2*(idom - 1 + N_DOM)+(1-1)) % (2*N_DOM)}; // right boundary of left neightbor
-      connectedFieldRight = {(2*(idom + 1 + N_DOM)+(0-1)) % (2*N_DOM)}; // left boundary of right neightbor
-      // 2 "blocks"
-      ListOfConnectedFields += 1;
-      ListOfConnectedFields += connectedFieldLeft();
-      ListOfConnectedFields += 1;
-      ListOfConnectedFields += connectedFieldRight();
-
-      ListOfSubdomains += idom;
-      ListOfFields += {myFieldLeft(), myFieldRight()};
-      If(ANALYSIS == 0)
-        g_in~{idom}~{0}[Sigma~{idom}~{0}] = ComplexScalarField[XYZ[]]{connectedFieldLeft()};
-        g_in~{idom}~{1}[Sigma~{idom}~{1}] = ComplexScalarField[XYZ[]]{connectedFieldRight()};
-      EndIf
-      If(ANALYSIS == 1)
-        g_in~{idom}~{0}[Sigma~{idom}~{0}] = ComplexVectorField[XYZ[]]{connectedFieldLeft()};
-        g_in~{idom}~{1}[Sigma~{idom}~{1}] = ComplexVectorField[XYZ[]]{connectedFieldRight()};
-      EndIf
-    EndIf
-  EndFor
-
-  /*
-  MPI_Printf["ListOfSubdomains = ", ListOfSubdomains()];
-  MPI_Printf["ListOfFields = ", ListOfFields()];
-  MPI_Printf["ListOfConnectedFields = ", ListOfConnectedFields()];
-  */
-}
-
+Include "Decomposition.pro";
 Include "Helmholtz.pro" ;
 Include "Schwarz.pro" ;

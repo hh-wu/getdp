@@ -76,8 +76,12 @@ set(GETDP_API
   Kernel/GetDP.h
 )
 
-execute_process(COMMAND date "+%Y%m%d" OUTPUT_VARIABLE DATE
-                OUTPUT_STRIP_TRAILING_WHITESPACE)
+if(${CMAKE_MAJOR_VERSION} GREATER 2)
+  string(TIMESTAMP DATE "%Y%m%d")
+else(${CMAKE_MAJOR_VERSION} GREATER 2)
+  execute_process(COMMAND date "+%Y%m%d" OUTPUT_VARIABLE DATE
+                  OUTPUT_STRIP_TRAILING_WHITESPACE)
+endif(${CMAKE_MAJOR_VERSION} GREATER 2)
 execute_process(COMMAND hostname OUTPUT_VARIABLE HOSTNAME
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 execute_process(COMMAND whoami OUTPUT_VARIABLE PACKAGER
@@ -321,13 +325,11 @@ if(ENABLE_MPI)
   find_package(MPI)
   if(MPI_FOUND)
     set_config_option(HAVE_MPI "MPI")
-    list(APPEND EXTERNAL_INCLUDES ${MPI_INCLUDE_DIR})
-    list(APPEND EXTERNAL_LIBRARIES ${MPI_LIBRARIES})
-    include(CMakeForceCompiler)
-    # Warning: this actually requires cmake >= 2.8.5
-    cmake_force_c_compiler(${MPI_C_COMPILER} "MPI C Compiler")
-    cmake_force_cxx_compiler(${MPI_CXX_COMPILER} "MPI C++ Compiler")
-    cmake_force_fortran_compiler(${MPI_Fortran_COMPILER} "MPI Fortran Compiler")
+    list(APPEND EXTERNAL_INCLUDES ${MPI_CXX_INCLUDE_PATH})
+    list(APPEND EXTERNAL_LIBRARIES ${MPI_CXX_LIBRARIES})
+    set(CMAKE_C_COMPILER ${MPI_C_COMPILER})
+    set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
+    set(CMAKE_Fortran_COMPILER ${MPI_Fortran_COMPILER})
   endif(MPI_FOUND)
 endif(ENABLE_MPI)
 
@@ -786,6 +788,7 @@ if(ENABLE_BUILD_IOS)
   if(NOT CMAKE_TOOLCHAIN_FILE)
     message(FATAL_ERROR "Cannot compile GetDP for iOS without a toolchain")
   endif(NOT CMAKE_TOOLCHAIN_FILE)
+  add_definitions(-DBUILD_IOS)
 endif(ENABLE_BUILD_IOS)
 
 if(ENABLE_BUILD_ANDROID)

@@ -795,29 +795,12 @@ void Message::InitializeOnelab(std::string name, std::string sockname)
 }
 
 void Message::AddOnelabNumberChoice(std::string name, const std::vector<double> &value,
-                                    const char *color, const char *units)
+                                    const char *color, const char *units,
+                                    const char *label, bool visible, bool closed)
 {
   if(_onelabClient){
     std::vector<onelab::number> ps;
-
-#if 0 // full exchange
-    std::vector<double> choices;
-    _onelabClient->get(ps, name);
-    if(ps.size()){
-      choices = ps[0].getChoices();
-    }
-    else{
-      ps.resize(1);
-      ps[0].setName(name);
-      ps[0].setReadOnly(true);
-    }
-    if(color) ps[0].setAttribute("Highlight", color);
-    if(units) ps[0].setAttribute("Units", units);
-    ps[0].setValues(value);
-    choices.insert(choices.end(), value.begin(), value.end());
-    ps[0].setChoices(choices);
-    _onelabClient->set(ps[0]);
-#else // optimized exchange (without growing choice vector)
+    // optimized exchange (without growing choice vector)
     _onelabClient->getWithoutChoices(ps, name);
     if(ps.empty()){
       ps.resize(1);
@@ -826,9 +809,11 @@ void Message::AddOnelabNumberChoice(std::string name, const std::vector<double> 
     }
     if(color) ps[0].setAttribute("Highlight", color);
     if(units) ps[0].setAttribute("Units", units);
+    if(label) ps[0].setLabel(label);
+    ps[0].setAttribute("Closed", closed ? "1" : "0");
     ps[0].setValues(value);
+    ps[0].setVisible(visible);
     _onelabClient->setAndAppendChoices(ps[0]);
-#endif
 
 #if !defined(BUILD_ANDROID) // FIXME: understand why this leads to crashes
     // ask Gmsh to refresh

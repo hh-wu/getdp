@@ -16,8 +16,8 @@ Flag_Symmetry2D_00 = 1; // Use symmetry
 Flag_Symmetry3D_00 = 1; // Symmetry type (1="1/4 model",2="1/2 model")
 
 // SIMU parameters .............................
-freq_00 = 10; // frequency
-nstep_00 = 1000; // number of time step per period (without Flexible DT)
+freq_00 = 1; // frequency
+nstep_00 = 100; // number of time step per period (without Flexible DT)
 NbT_00 = 2; //number of periods
 
 // SOURCE parameters ............................
@@ -27,14 +27,14 @@ Flag_TestCase00 = 3; //1: - case 1: windings series connected with sinusoidal su
                      //4: - case 4: secondary winding on load  
 
 // RESOLUTION parameters .........................
-Flag_NL_law00 = 4;  // 0: "linear",
+Flag_NL_law00 = 0;  // 0: "linear",
                     // 1: "analytical",
                     // 2: "anhysteretic part of JA-model",
                     // 3: "Jiles-Atherton hysteresis model",
                     // 4: "EnergHyst model"
 
 // non linear loop default parameters
-Flag_NLRes00 = 1; // 0: use classical IterativeLoop to solve the NL (non linear) problem
+Flag_NLRes00 = 0; // 0: use classical IterativeLoop to solve the NL (non linear) problem
                   // 1: use IterativeLoopN to solve the NL (non linear) problem
                   // 2: solve the NL (non linear) problem "by hand"
 Nb_max_iter00       = 50; // maximum number of NL (non linear) iterations
@@ -44,7 +44,7 @@ Flag_AdaptRelax00   = 1; // set to 1 to test different relaxation factors
 relax_max00         = 1 ;
 relax_min00         = 0.1;
 relax_numtest00     = 10;
-TestAllFactors00    = 1; // 0 : stops when the residual goes up !!
+TestAllFactors00    = 0; // 0 : stops when the residual goes up !!
                        // 1 : try every relaxation factors and keep the optimal one
 Reltol_Mag00        = stop_criterion00; // 0 before with IterativeLoopN
 Abstol_Mag00        = stop_criterion00;
@@ -176,7 +176,7 @@ DefineConstant[
     Highlight Str[colAC2]}
   NbT  = {NbT_00, Name StrCat[ppAC, "Number of periods"],  
     Highlight Str[colAC2],Visible (Flag_AnalysisType==AN_TIME)}
-  NbSteps = {nstep_00, Name StrCat[ppAC, "Number of steps"], 
+  NbSteps = {(Flag_3Dmodel==0)?250:200, Name StrCat[ppAC, "Number of steps"], 
     Highlight Str[colAC2], Visible (Flag_AnalysisType==AN_TIME)}
 ];
 

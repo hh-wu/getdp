@@ -423,7 +423,7 @@ Formulation {
       //*******************************************************
       //--------Hysteresis law with EnergHyst model---------- 
       //*******************************************************
-      If(Flag_NL_law==NL_ENERGHYST && N!=5) //EnergHyst model law
+      If(Flag_NL_law==NL_ENERGHYST ) //EnergHyst model law
 
         Galerkin { [ nu[] * Dof{d a} , {d a} ] ; 
           In DomainL ; Jacobian Vol ; Integration I1 ; }
@@ -469,66 +469,6 @@ Formulation {
                                                                   {J_1},{J_1}[1], 
                                                                   {J_2},{J_2}[1], 
                                                                   {J_3},{J_3}[1]]{List[param_EnergHyst]}) , 
-                                                  QuadraturePointIndex[]]{$dhdb_Vinch_temp}) * Dof{d a} , {d a} ];  
-            In DomainNL  ; Jacobian Vol ; Integration I1p ; }
-          Galerkin { [ -(1/$relax) * (GetVariable[QuadraturePointIndex[]]{$dhdb_Vinch_temp}) * {d a} , {d a} ];  
-            In DomainNL  ; Jacobian Vol ; Integration I1p ; }     
-        EndIf
-
-      EndIf  
-      //*******************************************************
-      If(Flag_NL_law==NL_ENERGHYST && N==5) //EnergHyst model law  // FOR NOW {J_4} and {J_5} have to be added by hand
-
-        Galerkin { [ nu[] * Dof{d a} , {d a} ] ; 
-          In DomainL ; Jacobian Vol ; Integration I1 ; }
-
-        // update h
-        // saving h_Vinch_K in local quantity h
-        // BF is constant per element (Vector + BF_Volume) => 1 integration point is enough
-        Galerkin { [  Dof{h}  , {h} ] ; 
-          In DomainNL  ; Jacobian Vol ; Integration I1p ; } 
-        Galerkin { [  - (SetVariable[(h_Vinch_K[  {h}[1]         , 
-                                                  {d a}, {d a}[1],
-                                                  {J_1}, {J_1}[1], 
-                                                  {J_2}, {J_2}[1], 
-                                                  {J_3}, {J_3}[1], 
-                                                  {J_4}, {J_4}[1], 
-                                                  {J_5}, {J_5}[1] ]{List[param_EnergHyst]}),
-                                      QuadraturePointIndex[]]{$h_Vinch_temp}), {h} ] ; 
-          In DomainNL  ; Jacobian Vol ; Integration I1p ; } 
-
-        // update Jk
-        // saving Update_Cell_K in local quantity Jk
-        // BF is constant per element (Vector + BF_Volume) => 1 integration point is enough
-        For iSub In {1:N}
-          Galerkin { [ Dof{J~{iSub}} ,{J~{iSub}} ] ; 
-            In DomainNL ; Jacobian Vol ; Integration I1p ; }
-          Galerkin { [ - Update_Cell_K[ iSub         , 
-                                        (GetVariable[QuadraturePointIndex[]]{$h_Vinch_temp}),
-                                        {J~{iSub}}   , 
-                                        {J~{iSub}}[1] ]{List[param_EnergHyst]}, {J~{iSub}} ] ; 
-            In DomainNL ; Jacobian Vol ; Integration I1p ; }
-        EndFor
-
-        // NL part ...
-        Galerkin { [ (GetVariable[ QuadraturePointIndex[]]{$h_Vinch_temp}), {d a} ];  
-          In DomainNL  ; Jacobian Vol ; Integration I1p ; }
-        
-        If(Flag_NLRes!=NLRES_ITERATIVELOOPPRO)
-          Galerkin { JacNL[ (dhdb_Vinch_K[ (GetVariable[ QuadraturePointIndex[]]{$h_Vinch_temp}),
-                                            {J_1},{J_1}[1], 
-                                            {J_2},{J_2}[1], 
-                                            {J_3},{J_3}[1], 
-                                            {J_4},{J_4}[1], 
-                                            {J_5},{J_5}[1]]{List[param_EnergHyst]}) * Dof{d a} , {d ap} ] ;  
-            In DomainNL  ; Jacobian Vol ; Integration I1p ; }
-        Else
-          Galerkin { [ (1/$relax) * (SetVariable[(dhdb_Vinch_K[ (GetVariable[ QuadraturePointIndex[]]{$h_Vinch_temp}),
-                                                                  {J_1},{J_1}[1], 
-                                                                  {J_2},{J_2}[1], 
-                                                                  {J_3},{J_3}[1], 
-                                                                  {J_4},{J_4}[1], 
-                                                                  {J_5},{J_5}[1]]{List[param_EnergHyst]}) , 
                                                   QuadraturePointIndex[]]{$dhdb_Vinch_temp}) * Dof{d a} , {d a} ];  
             In DomainNL  ; Jacobian Vol ; Integration I1p ; }
           Galerkin { [ -(1/$relax) * (GetVariable[QuadraturePointIndex[]]{$dhdb_Vinch_temp}) * {d a} , {d a} ];  
@@ -603,9 +543,9 @@ Formulation {
 
 //-----------------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------
-//If(Flag_NLRes==NLRES_ITERATIVELOOPPRO)
-Include "MyItLoopPro.pro";
-//EndIf
+If(Flag_NLRes==NLRES_ITERATIVELOOPPRO)
+  Include "MyItLoopPro.pro";
+EndIf
 //-----------------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------
 
@@ -623,7 +563,7 @@ Resolution {
     Operation {
 
 
-      CreateDir[Dir];
+      CreateDir["res/"];
       DeleteFile[StrCat[Dir,"I1",ExtGnuplot]];
       DeleteFile[StrCat[Dir,"I2",ExtGnuplot]];
       DeleteFile[StrCat[Dir,"U1",ExtGnuplot]];
@@ -664,7 +604,6 @@ Resolution {
         Evaluate[$relaxcount=0];
         Evaluate[$relaxcounttot=0];
         Evaluate[$dnccount=0];
-        Evaluate[$itertot=0];
 
         //Save TimeStep 0
         SaveSolution[A];
@@ -681,11 +620,9 @@ Resolution {
           EndIf
 
           If(Flag_NL) // NonLinear Case ...
-            Evaluate[$relax=relax_max];
             If(Flag_NLRes==NLRES_ITERATIVELOOP)  
           // I T E R A T I V E . L O O P ...................................
               IterativeLoop[ Nb_max_iter, stop_criterion, RF_tuned[]] {
-
                 GenerateJac[A] ; 
                 If (!Flag_AdaptRelax)
                   SolveJac[A] ; 
@@ -693,43 +630,23 @@ Resolution {
                 Else
                   SolveJac_AdaptRelax[A, List[RelaxFac_Lin],TestAllFactors ] ; 
                   Evaluate[$relaxcount=$NbrTestedFac];
-                EndIf 
-
-                Evaluate[$res  = $Residual, $resL = $Residual,$resN = $ResidualN, $iter = $Iteration];  
-                Evaluate[$syscount = $syscount + 1 ];
-                Evaluate[$relaxcounttot=$relaxcounttot+$relaxcount];
-                Evaluate[$relax= $RelaxFac];
-                Call DisplayRunTimeVar;
+                EndIf    
               }
+              Evaluate[$syscount = $syscount + 1 ];
+              Evaluate[$relaxcounttot=$relaxcounttot+$relaxcount];
+              Evaluate[$relax= $RelaxFac];
           //...............................................................       
             EndIf
 
             If(Flag_NLRes==NLRES_ITERATIVELOOPN) 
           // I T E R A T I V E . L O O P . N ..............................
-                // INIT for h_only case::::::::::::
-                /*
-                GenerateJac[A] ; 
-                If (!Flag_AdaptRelax)
-                  SolveJac[A] ;                                       
-                Else
-                  SolveJac_AdaptRelax[A, List[RelaxFac_Lin],TestAllFactors ] ; 
-                EndIf
-                //*/
-                //:::::::::::::::::::::::::::::::::
-
               IterativeLoopN[ Nb_max_iter, RF_tuned[],
                 //*****Choose between one of the 3 following possibilities:*****
                 //System { { A , Reltol_Mag, Abstol_Mag, Residual MeanL2Norm }} ]{ //1)
                 //PostOperation { { az_only , Reltol_Mag, Abstol_Mag,  MeanL2Norm }} ]{ //2)
                 //PostOperation { { b_only , Reltol_Mag, Abstol_Mag,  MeanL2Norm }} ]{ //3) 
-                PostOperation { { h_only , Reltol_Mag, Abstol_Mag,  MeanL2Norm }} ]{ //4)  //Need the above "INIT" for square with EnergHyst or JA because h_only = 0 at iter 1 
+                PostOperation { { h_only , Reltol_Mag, Abstol_Mag,  MeanL2Norm }} ]{ //4) 
                 //**************************************************************
-
-                Evaluate[$res  = $ResidualN, $resL = $Residual,$resN = $ResidualN,$iter = $Iteration-1]; 
-                Test[ $iter>0]{
-                  Call DisplayRunTimeVar;
-                }
-
                 GenerateJac[A] ; 
                 If (!Flag_AdaptRelax)
                   SolveJac[A] ;       
@@ -738,13 +655,10 @@ Resolution {
                   SolveJac_AdaptRelax[A, List[RelaxFac_Lin],TestAllFactors ] ; 
                   Evaluate[$relaxcount=$NbrTestedFac];
                 EndIf
-
-                Evaluate[$syscount = $syscount + 1 ];
-                Evaluate[$relaxcounttot=$relaxcounttot+$relaxcount];
-                Evaluate[$relax= $RelaxFac];
               }
-              Evaluate[$res  = $ResidualN, $resL = $Residual, $resN = $ResidualN, $iter = $iter+1];      
-              Call DisplayRunTimeVar;
+              Evaluate[$syscount = $syscount + 1 ];
+              Evaluate[$relaxcounttot=$relaxcounttot+$relaxcount];
+              Evaluate[$relax= $RelaxFac];
           //...............................................................
             EndIf
 
@@ -753,17 +667,6 @@ Resolution {
               Call MyItLoopPro;
           //...............................................................
             EndIf
-
-          Evaluate[$itertot  = $itertot+$iter];        
-          Test[ (Flag_NLRes==NLRES_ITERATIVELOOPPRO && $iter == Nb_max_iter) || 
-                (Flag_NLRes==NLRES_ITERATIVELOOP    && $res > Abstol_Mag   ) ||
-                (Flag_NLRes==NLRES_ITERATIVELOOPN   && $res > 1.           ) ]{
-            Print[{$Time, $TimeStep, $DTime, $relax, $iter}, Format
-              "*** Non convergence at Theta Time = %g s (TimeStep %g, DTime %g, relax %g) (iter %g)"];
-            Print["--> Save bad solution and move to the next time step"];
-            Evaluate[$dnccount=$dnccount+1];
-          }
-          
           EndIf
           
           SaveSolution[A];
@@ -776,13 +679,8 @@ Resolution {
           EndIf
           //}
         }
-      Print["--------------------------------------------------------------"];
-      Print[{$syscount}, Format "Total number of linear systems solved: %g"];
-      Print[{$relaxcounttot}, Format "Total number of relaxation factor tested: %g"];
-      Print[{$itertot/$TimeStep}, Format "Mean number of NR iter at FE level: %g"];
-      Print[{$dnccount}, Format "Total number of non converged TimeStep: %g"];
-      Print["--------------------------------------------------------------"];      
       EndIf // End Flag_AnalysisType==AN_TIME (Time domain)
+
     }
   }
 }

@@ -1,4 +1,4 @@
-// Gmsh - Copyright (C) 1997-2016 C. Geuzaine, J.-F. Remacle
+// Gmsh - Copyright (C) 1997-2017 C. Geuzaine, J.-F. Remacle
 //
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
@@ -104,10 +104,10 @@ class GmshSocket{
   int _SendData(const void *buffer, int bytes)
   {
     const char *buf = (const char *)buffer;
-    int sofar = 0;
-    int remaining = bytes;
+    long int sofar = 0;
+    long int remaining = bytes;
     do {
-      int len = send(_sock, buf + sofar, remaining, 0);
+      long int len = send(_sock, buf + sofar, remaining, 0);
       if(len < 0) return -1; // error
       sofar += len;
       remaining -= len;
@@ -119,10 +119,10 @@ class GmshSocket{
   int _ReceiveData(void *buffer, int bytes)
   {
     char *buf = (char *)buffer;
-    int sofar = 0;
-    int remaining = bytes;
+    long int sofar = 0;
+    long int remaining = bytes;
     do {
-      int len = recv(_sock, buf + sofar, remaining, 0);
+      long int len = recv(_sock, buf + sofar, remaining, 0);
       if(len == 0) break; // we're done!
       if(len < 0) return -1; // error
       sofar += len;
