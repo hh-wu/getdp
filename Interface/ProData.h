@@ -848,10 +848,8 @@ struct WholeQuantity {
              int InIndex, DofIndexInWholeQuantity; }             Trace;
     struct { char *SystemName; int DefineSystemIndex;
              int DofNumber; }                                    DofValue;
-    struct { List_T *WholeQuantity; // I think this is not used...
-      int Index, FunctionType, NbrArguments, NbrParameters, NbrPoints; } MHTransform;
-    struct { List_T *WholeQuantity; // I think this is not used...
-      int Index, FunctionType, NbrArguments, NbrParameters, NbrPoints, FreqOffSet; } MHJacNL;
+    struct { List_T *WholeQuantity_L; int Index, NbrPoints; }    MHTransform;
+    struct { int Index, FunctionType, NbrArguments, NbrParameters, NbrPoints, FreqOffSet; } MHJacNL;
   } Case;
 
 };

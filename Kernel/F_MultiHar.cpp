@@ -317,52 +317,49 @@ void  F_MHToTime (struct Function * Fct, struct Value * A, struct Value * V) {
 /* ------------------------------------------------------------------------ */
 
 void MHTransform(struct Element * Element, struct QuantityStorage * QuantityStorage_P0,
-		 double u, double v, double w, struct Value *MH_Value,
-		 struct Expression * Expression_P, int NbrPoints)
+		 double u, double v, double w, std::vector<struct Value> &MH_Inputs,
+		 struct Expression * Expression_P, int NbrPoints, struct Value &MH_Output)
 {
   double **H, ***HH, *t, *weight ;
-  int NbrHar;
-  struct Value t_Value, MH_Value_Tr;
-  int NbrPointsX, iVal, nVal1, nVal2 = 0, iHar, iTime;
-
+  int NbrPointsX;
   MH_Get_InitData(1, NbrPoints, &NbrPointsX, &H, &HH, &t, &weight);
 
-  nVal1 = NbrValues_Type (MH_Value->Type) ;
-  t_Value.Type = MH_Value_Tr.Type = MH_Value->Type;
+  int NbrHar = Current.NbrHar; // save NbrHar
+  Current.NbrHar = 1; // evaluation in time domain!
 
-  NbrHar = Current.NbrHar;   /* save NbrHar */
-  Current.NbrHar = 1;        /* evaluation in time domain ! */
+  for (int iVal = 0 ; iVal < MAX_DIM ; iVal++)
+    for (int iHar = 0 ; iHar < NbrHar ; iHar++)
+      MH_Output.Val[iHar*MAX_DIM+iVal] = 0. ;
 
-  for (iVal = 0 ; iVal < MAX_DIM ; iVal++)  for (iHar = 0 ; iHar < NbrHar ; iHar++)
-    MH_Value_Tr.Val[iHar*MAX_DIM+iVal] = 0. ;
+  int N = MH_Inputs.size(), nVal2 = 0;
+  std::vector<struct Value> t_Values(N + 1); // in case N==0
 
-  for (iTime = 0 ; iTime < NbrPointsX ; iTime++) {
-
-    for (iVal = 0 ; iVal < nVal1 ; iVal++){ /* evaluation of MH_Value at iTime-th time point */
-      t_Value.Val[iVal] = 0;
-      for (iHar = 0 ; iHar < NbrHar ; iHar++)
-	t_Value.Val[iVal] += H[iTime][iHar] * MH_Value->Val[iHar*MAX_DIM+iVal] ;
+  for (int iTime = 0 ; iTime < NbrPointsX ; iTime++) {
+    // evaluate MH_Inputs at iTime-th time point
+    for(int j = 0; j < N; j++){
+      int nVal1 = NbrValues_Type(MH_Inputs[j].Type);
+      t_Values[j].Type = MH_Inputs[j].Type;
+      for (int iVal = 0 ; iVal < nVal1 ; iVal++){
+        t_Values[j].Val[iVal] = 0.;
+        for (int iHar = 0 ; iHar < NbrHar ; iHar++)
+          t_Values[j].Val[iVal] += H[iTime][iHar] * MH_Inputs[j].Val[iHar*MAX_DIM+iVal] ;
+      }
     }
 
-    /* evaluation of the function */
-    Get_ValueOfExpression(Expression_P, QuantityStorage_P0, u, v, w, &t_Value, 1);
-    //To generalize: Function in MHTransform (e.g. h[{d a}]) has 1 argument
+    // evaluate the function, passing the N time-domain values as arguments
+    Get_ValueOfExpression(Expression_P, QuantityStorage_P0, u, v, w, &t_Values[0], N);
 
-    if (!iTime) nVal2 = NbrValues_Type (t_Value.Type) ;
+    if(!iTime){
+      nVal2 = NbrValues_Type(t_Values[0].Type) ;
+      MH_Output.Type = t_Values[0].Type;
+    }
+    for (int iVal = 0 ; iVal < nVal2 ; iVal++)
+      for (int iHar = 0 ; iHar < NbrHar ; iHar++)
+        MH_Output.Val[iHar*MAX_DIM+iVal] +=
+          weight[iHar] * H[iTime][iHar] * t_Values[0].Val[iVal] ;
+  }
 
-    for (iVal = 0 ; iVal < nVal2 ; iVal++)
-      for (iHar = 0 ; iHar < NbrHar ; iHar++)
-        MH_Value_Tr.Val[iHar*MAX_DIM+iVal] +=
-          weight[iHar] * H[iTime][iHar] * t_Value.Val[iVal] ;
-    /* weight[iTime] * H[iTime][iHar] * t_Value.Val[iVal] ; */
-
-  } /*  for iTime  */
-
-  for (iVal = 0 ; iVal < nVal2 ; iVal++)  for (iHar = 0 ; iHar < NbrHar ; iHar++)
-    MH_Value->Val[iHar*MAX_DIM+iVal] = MH_Value_Tr.Val[iHar*MAX_DIM+iVal] ;
-  MH_Value->Type = t_Value.Type ;
-
-  Current.NbrHar = NbrHar ;
+  Current.NbrHar = NbrHar ; // reset NbrHar
 }
 
 /* ----------------------------------------------------------------------------------- */
