@@ -505,12 +505,14 @@ void Print_WholeQuantity(List_T *WholeQuantity, List_T *DQ_L)
       Message::Check(" %.8g", (WQ+k)->Case.Constant);
       break;
 
-    case WQ_MHTRANSFORM : //****
+    case WQ_MHTRANSFORM :
       Message::Check(" MHTransform[ ");
-      Message::Check("%s",
-                     Get_ExpressionName((WQ+k)->Case.MHTransform.Index));
+      Message::Check("%s", Get_ExpressionName((WQ+k)->Case.MHTransform.Index));
       Message::Check("[");
-      Print_WholeQuantity((WQ+k)->Case.MHTransform.WholeQuantity, DQ_L);
+      for(int i = 0; i < List_Nbr((WQ+k)->Case.MHTransform.WholeQuantity_L); i++){
+        List_T *wq; List_Read((WQ+k)->Case.MHTransform.WholeQuantity_L, i, &wq);
+        Print_WholeQuantity(wq, DQ_L);
+      }
       Message::Check(" ] ]{ %d }", (WQ+k)->Case.MHTransform.NbrPoints);
      break;
 
@@ -518,9 +520,6 @@ void Print_WholeQuantity(List_T *WholeQuantity, List_T *DQ_L)
       Message::Check(" MHJacNL[ ");
       Message::Check("%s",
                      Get_ExpressionName((WQ+k)->Case.MHJacNL.Index));
-      //Message::Check("[");
-      //Print_WholeQuantity((WQ+k)->Case.MHTransform.WholeQuantity, DQ_L);
-      //Message::Check("] ]{ %d, %d}", (WQ+k)->Case.MHJacNL.NbrPoints, (WQ+k)->Case.MHJacNL.FreqOffSet);
       Message::Check("]{ %d, %d}", (WQ+k)->Case.MHJacNL.NbrPoints, (WQ+k)->Case.MHJacNL.FreqOffSet);
       break;
 
