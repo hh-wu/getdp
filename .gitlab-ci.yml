@@ -8,3 +8,4 @@ linux64_gcc:
     - cmake ..
     - make -j 4
     - ctest -j 4 --output-on-failure
+
