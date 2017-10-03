@@ -119,9 +119,9 @@ include(CheckCXXCompilerFlag)
 # append 32/64 to the build name on Linux and Windows
 if(NOT APPLE)
   if(HAVE_64BIT_SIZE_T)
-    set(GMSH_OS "${GMSH_OS}64")
+    set(GETDP_OS "${GETDP_OS}64")
   else(HAVE_64BIT_SIZE_T)
-    set(GMSH_OS "${GMSH_OS}32")
+    set(GETDP_OS "${GETDP_OS}32")
   endif(HAVE_64BIT_SIZE_T)
 endif(NOT APPLE)
 
