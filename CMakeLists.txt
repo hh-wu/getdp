@@ -116,6 +116,12 @@ include(CheckFunctionExists)
 include(CheckIncludeFile)
 include(CheckCXXCompilerFlag)
 
+macro(set_config_option VARNAME STRING)
+  set(${VARNAME} TRUE)
+  list(APPEND CONFIG_OPTIONS ${STRING})
+  message(STATUS "Found " ${STRING})
+endmacro(set_config_option)
+
 # check if the machine is 64 bits (this is more reliable than using
 # CMAKE_SIZEOF_VOID_P, which does not seem to work e.g. on some Suse
 # machines)
@@ -150,12 +156,6 @@ if(MSVC)
     endforeach(VAR)
   endif(ENABLE_MSVC_STATIC_RUNTIME)
 endif(MSVC)
-
-macro(set_config_option VARNAME STRING)
-  set(${VARNAME} TRUE)
-  list(APPEND CONFIG_OPTIONS ${STRING})
-  message(STATUS "Found " ${STRING})
-endmacro(set_config_option)
 
 if(ENABLE_OPENMP)
   find_package(OpenMP)
