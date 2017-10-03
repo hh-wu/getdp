@@ -116,6 +116,15 @@ include(CheckFunctionExists)
 include(CheckIncludeFile)
 include(CheckCXXCompilerFlag)
 
+# append 32/64 to the build name on Linux and Windows
+if(NOT APPLE)
+  if(HAVE_64BIT_SIZE_T)
+    set(GMSH_OS "${GMSH_OS}64")
+  else(HAVE_64BIT_SIZE_T)
+    set(GMSH_OS "${GMSH_OS}32")
+  endif(HAVE_64BIT_SIZE_T)
+endif(NOT APPLE)
+
 if(ENABLE_WRAP_PYTHON AND NOT ENABLE_BUILD_SHARED)
   set(ENABLE_BUILD_DYNAMIC ON)
 endif(ENABLE_WRAP_PYTHON AND NOT ENABLE_BUILD_SHARED)
@@ -1033,7 +1042,11 @@ set(CPACK_PACKAGE_VERSION_PATCH ${GETDP_PATCH_VERSION})
 set(CPACK_PACKAGE_DESCRIPTION_FILE ${WELCOME_FILE})
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
     "General Environment for the Treatment of Discrete Problems")
-set(CPACK_PACKAGE_FILE_NAME getdp-${GETDP_VERSION}-${GETDP_OS})
+if(GETDP_EXTRA_VERSION MATCHES "-git") # so that we'll overwrite the archives
+  set(CPACK_PACKAGE_FILE_NAME getdp-git-${GETDP_OS})
+else(GETDP_EXTRA_VERSION MATCHES "-git") # so that we'll overwrite the archives
+  set(CPACK_PACKAGE_FILE_NAME getdp-${GETDP_VERSION}-${GETDP_OS})
+endif(GETDP_EXTRA_VERSION MATCHES "-git") # so that we'll overwrite the archives
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "GetDP")
 set(CPACK_RESOURCE_FILE_LICENSE ${LICENSE_FILE})
 set(CPACK_RESOURCE_FILE_README ${WELCOME_FILE})
