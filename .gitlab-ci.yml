@@ -24,7 +24,7 @@ build_official_linux64_gcc_petsc_real:
     - /usr/local/bin/cmake -DGETDP_EXTRA_VERSION=$EXTRA_VERSION -DCMAKE_PREFIX_PATH=/usr/local -DENABLE_SPARSKIT=0 -DENABLE_PETSC=1 -DPETSC_ARCH=real_mumps_seq -DPETSC_DIR=/home/geuzaine/src/petsc-3.7.5 -DSLEPC_DIR=/home/geuzaine/src/slepc-3.7.3 ..
     - make package -j 2
     - /usr/local/bin/ctest -j 2 --output-on-failure
-    - PKG=IN=getdp-*.tar*; scp -o StrictHostKeyChecking=no -i /home/gitlab-runner/.ssh/id_rsa ${PKG} geuzaine@getdp.info:.wwwgetdp/beta/${PKG/\.tar\.gz/r\.tgz}
+    - PKG=getdp-*.tar*; scp -o StrictHostKeyChecking=no -i /home/gitlab-runner/.ssh/id_rsa ${PKG} geuzaine@getdp.info:.wwwgetdp/beta/${PKG/\.tar\.gz/r\.tgz}
 
 build_official_linux64_gcc_petsc_real_mh:
   tags:
@@ -38,7 +38,7 @@ build_official_linux64_gcc_petsc_real_mh:
     - /usr/local/bin/cmake -DGETDP_EXTRA_VERSION=$EXTRA_VERSION -DCMAKE_PREFIX_PATH=/usr/local -DENABLE_SPARSKIT=0 -DENABLE_PETSC=1 -DPETSC_ARCH=real_mumps_seq -DPETSC_DIR=/home/geuzaine/src/petsc-3.7.5 -DSLEPC_DIR=/home/geuzaine/src/slepc-3.7.3 -DENABLE_MULTIHARMONIC=1 ..
     - make package -j 2
     - /usr/local/bin/ctest -j 2 --output-on-failure
-    - PKG=IN=getdp-*.tar*; scp -o StrictHostKeyChecking=no -i /home/gitlab-runner/.ssh/id_rsa ${PKG} geuzaine@getdp.info:.wwwgetdp/beta/${PKG/\.tar\.gz/r-MH\.tgz}
+    - PKG=getdp-*.tar*; scp -o StrictHostKeyChecking=no -i /home/gitlab-runner/.ssh/id_rsa ${PKG} geuzaine@getdp.info:.wwwgetdp/beta/${PKG/\.tar\.gz/r-MH\.tgz}
 
 build_official_windows64_gcc_petsc_real:
   tags:
