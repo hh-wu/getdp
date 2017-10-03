@@ -12,6 +12,20 @@ build_docker_linux64_gcc:
 variables:
   EXTRA_VERSION: "-git"
 
+build_official_linux64_gcc_petsc_real:
+  tags:
+    - linux
+    - official
+  only:
+    - master
+  script:
+    - md build
+    - cd build
+    - bash -c "/usr/bin/cmake -DGETDP_EXTRA_VERSION=$EXTRA_VERSION -DCMAKE_PREFIX_PATH=/usr/local -DENABLE_SPARSKIT=0 -DENABLE_PETSC=1 -DPETSC_ARCH=real_mumps_seq -DPETSC_DIR=/home/geuzaine/src/petsc-3.7.5 -DSLEPC_DIR=/home/geuzaine/src/slepc-3.7.3 .."
+    - bash -c "/usr/bin/make package -j 2"
+    - bash -c "/usr/bin/ctest -j 2 --output-on-failure"
+    - bash -c "/usr/bin/scp -o StrictHostKeyChecking=no -i /home/geuzaine/.ssh/id_rsa getdp-*.tar* geuzaine@gmsh.info:.wwwgetdp/beta/"
+
 build_official_windows64_gcc_petsc_real:
   tags:
     - windows
