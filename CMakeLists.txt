@@ -116,6 +116,14 @@ include(CheckFunctionExists)
 include(CheckIncludeFile)
 include(CheckCXXCompilerFlag)
 
+# check if the machine is 64 bits (this is more reliable than using
+# CMAKE_SIZEOF_VOID_P, which does not seem to work e.g. on some Suse
+# machines)
+check_type_size("void*" SIZEOF_VOID_P)
+if(SIZEOF_VOID_P EQUAL 8)
+  set_config_option(HAVE_64BIT_SIZE_T "64Bit")
+endif(SIZEOF_VOID_P EQUAL 8)
+
 # append 32/64 to the build name on Linux and Windows
 if(NOT APPLE)
   if(HAVE_64BIT_SIZE_T)
@@ -197,14 +205,6 @@ macro(set_compile_flags LISTNAME FLAGS)
     endif(PROP)
   endforeach(FILE)
 endmacro(set_compile_flags)
-
-# check if the machine is 64 bits (this is more reliable than using
-# CMAKE_SIZEOF_VOID_P, which does not seem to work e.g. on some Suse
-# machines)
-check_type_size("void*" SIZEOF_VOID_P)
-if(SIZEOF_VOID_P EQUAL 8)
-  set_config_option(HAVE_64BIT_SIZE_T "64Bit")
-endif(SIZEOF_VOID_P EQUAL 8)
 
 if(ENABLE_BLAS_LAPACK)
   if(BLAS_LAPACK_LIBRARIES)
