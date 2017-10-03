@@ -1,4 +1,4 @@
-linux64_gcc:
+build_docker_linux64_gcc:
   image: onelab/ubuntu16.04
   tags:
     - linux
@@ -9,3 +9,19 @@ linux64_gcc:
     - make -j 4
     - ctest -j 4 --output-on-failure
 
+variables:
+  EXTRA_VERSION: "-git"
+
+build_official_windows64_gcc_petsc_real:
+  tags:
+    - windows
+    - official
+  only:
+    - master
+  script:
+    - md build
+    - cd build
+    - bash -c "/usr/bin/cmake -DGETDP_EXTRA_VERSION=$EXTRA_VERSION -DCMAKE_PREFIX_PATH='/usr/local;/usr/x86_64-w64-mingw32/sys-root/mingw' -DCMAKE_C_COMPILER=/usr/bin/x86_64-w64-mingw32-gcc.exe -DCMAKE_CXX_COMPILER=/usr/bin/x86_64-w64-mingw32-g++.exe -DCMAKE_Fortran_COMPILER=/usr/bin/x86_64-w64-mingw32-gfortran.exe -DCMAKE_RC_COMPILER=/usr/bin/x86_64-w64-mingw32-windres.exe -DENABLE_SPARSKIT=0 -DENABLE_PETSC=1 -DPETSC_ARCH=win64_real_mumps_seq -DPETSC_DIR=/home/geuzaine/src/petsc-3.7.5 -DSLEPC_DIR=/home/geuzaine/src/slepc-3.7.3 .."
+    - bash -c "/usr/bin/make package -j 2"
+    - bash -c "/usr/bin/ctest -j 2 --output-on-failure"
+    - bash -c "/usr/bin/scp -o StrictHostKeyChecking=no -i /home/geuzaine/.ssh/id_rsa getdp-*.zip geuzaine@gmsh.info:.wwwgetdp/beta/"
