@@ -628,7 +628,7 @@ void set_sensi_param(struct FunctionActive *D)
                                                           //                  1.e-3 for VinchT.pro & transfo.pro)
   ::DELTA_0             = D->Case.Interpolation.x[j+15] ; // SENSITIVE_PARAM (1.e-3 for square;
                                                           //                  1.e0 for VinchT & transfo)
-  ::DELTAJ_0            = 1e-3;
+  ::DELTAJ_0            = 1e-3; //only used with VAR approach when a Numerical approx of the hessian dd_omega is called in Taylor approx
   ::SLOPE_FACTOR        = 1e2;
   ::FLAG_HOMO           = D->Case.Interpolation.x[j+16] ; // 
 
