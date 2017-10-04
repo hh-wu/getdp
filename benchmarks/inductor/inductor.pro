@@ -31,7 +31,7 @@ DefineConstant[
   Flag_ConductingCore = { (Flag_AnalysisType==2), Choices{0,1},
     Name "Input/40Conducting core", ReadOnly (Flag_AnalysisType==0)}
 
-  Flag_GaugeType = { 1, Choices{0="Tree-cotree gauge", 1="Coulomb gauge"},
+  Flag_GaugeType = { 0, Choices{0="Tree-cotree gauge", 1="Coulomb gauge"},
     Name "Input/30Type of gauge", Highlight "Blue", Visible (Flag_3Dmodel==1) }
 ];
 
@@ -40,15 +40,15 @@ Group {
   CoreI = Region[ {ICORE} ];
   Core = Region[ {CoreE, CoreI} ];
 
-  Ind_1      = Region[{COIL}] ;
-  SkinInd_1  = Region[{SKINCOIL}] ;
+  Ind_1     = Region[{COIL}] ;
+  SkinInd_1 = Region[{SKINCOIL}] ;
+
+  Inds      = Region[{Ind_1}] ;
+  SkinInds  = Region[{SkinInd_1}] ;
 
   If (Flag_3Dmodel==0)
-    Ind_1_ = Region[{(COIL+1)}] ;
-    Inds   = Region[ {Ind_1, Ind_1_} ];
-    Else
-    Inds  = Region[ {Ind_1} ];
-    SkinInds = Region[ {SkinInd_1} ];
+    Inds += Region[{(COIL+1)}] ;
+  Else
     If(Flag_ConductingCore)
       Skin_ECore = Region[ {SKINECORE} ];
       Skin_ICore = Region[ {SKINICORE} ];
@@ -63,7 +63,7 @@ Group {
 
   If(Flag_OpenCore)
     Air  += Region[ {AirGap} ];
-    Else
+  Else
     Core += Region[ {AirGap} ];
   EndIf
 
@@ -74,7 +74,7 @@ Group {
  If(Flag_Symmetry)
    If(Flag_3Dmodel==0)
      Surf_bn0 = Region[ {AXIS_Y} ];
-     Else
+   Else
      Surf_bn0 = Region[ {CUT_YZ, CUT_XY} ];
    EndIf
  EndIf
@@ -99,16 +99,16 @@ Function {
     Idir[#{COIL}]     =  1. ;
     Idir[#{(COIL+1)}] = -1. ;
     vDir[]   = Vector[ 0, 0, Idir[]] ;
-    Else
-    SurfCoil[] = SurfaceArea[]{SURF_ELEC0} ;
-    vDir[] = (
-      (Fabs[X[]]<=wcoreE && Z[]>= Lz/2) ? Vector [1, 0, 0]:
+  Else
+    SurfCoil[] = (!Flag_boolean) ? SurfaceArea[]{SURF_ELEC0} : hcoil * wcoil ; // second definition is always valid
+    vDir[] = -( // change of sign for coherence with 2D model
+      (Fabs[X[]]<=wcoreE && Z[]>= Lz/2) ? Vector [ 1, 0, 0]:
       (Fabs[X[]]<=wcoreE && Z[]<=-Lz/2) ? Vector [ -1, 0, 0]:
       (Fabs[Z[]]<=Lz/2   && X[]>= wcoreE) ? Vector [ 0, 0, -1]:
       (Fabs[Z[]]<=Lz/2   && X[]<=-wcoreE) ? Vector [ 0, 0,  1]:
-      (X[]>wcoreE && Z[]>Lz/2)  ? Vector [Sin[Atan2[Z[]-Lz/2,X[]-wcoreE]#1], 0, -Cos[#1]]:
-      (X[]>wcoreE && Z[]<-Lz/2) ? Vector [Sin[Atan2[Z[]+Lz/2,X[]-wcoreE]#1], 0, -Cos[#1]]:
-      (X[]<-wcoreE && Z[]>Lz/2) ? Vector [Sin[Atan2[Z[]-Lz/2,X[]+wcoreE]#1], 0, -Cos[#1]]:
+      (X[]>wcoreE && Z[]>Lz/2)  ? Vector[ Sin[Atan2[Z[]-Lz/2,X[]-wcoreE]#1], 0, -Cos[#1]]:
+      (X[]>wcoreE && Z[]<-Lz/2) ? Vector[ Sin[Atan2[Z[]+Lz/2,X[]-wcoreE]#1], 0, -Cos[#1]]:
+      (X[]<-wcoreE && Z[]>Lz/2) ? Vector[ Sin[Atan2[Z[]-Lz/2,X[]+wcoreE]#1], 0, -Cos[#1]]:
       Vector [Sin[Atan2[Z[]+Lz/2,X[]+wcoreE]#1], 0, -Cos[#1]] );
   EndIf
 
@@ -135,6 +135,6 @@ Function {
 
  If(Flag_3Dmodel==0)
    Include "magstadyn_a.pro" ;
-   Else
+ Else
    Include "magstadyn_av_js0_3d.pro" ;
  EndIf
