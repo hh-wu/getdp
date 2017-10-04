@@ -116,6 +116,29 @@ include(CheckFunctionExists)
 include(CheckIncludeFile)
 include(CheckCXXCompilerFlag)
 
+macro(set_config_option VARNAME STRING)
+  set(${VARNAME} TRUE)
+  list(APPEND CONFIG_OPTIONS ${STRING})
+  message(STATUS "Found " ${STRING})
+endmacro(set_config_option)
+
+# check if the machine is 64 bits (this is more reliable than using
+# CMAKE_SIZEOF_VOID_P, which does not seem to work e.g. on some Suse
+# machines)
+check_type_size("void*" SIZEOF_VOID_P)
+if(SIZEOF_VOID_P EQUAL 8)
+  set_config_option(HAVE_64BIT_SIZE_T "64Bit")
+endif(SIZEOF_VOID_P EQUAL 8)
+
+# append 32/64 to the build name on Linux and Windows
+if(NOT APPLE)
+  if(HAVE_64BIT_SIZE_T)
+    set(GETDP_OS "${GETDP_OS}64")
+  else(HAVE_64BIT_SIZE_T)
+    set(GETDP_OS "${GETDP_OS}32")
+  endif(HAVE_64BIT_SIZE_T)
+endif(NOT APPLE)
+
 if(ENABLE_WRAP_PYTHON AND NOT ENABLE_BUILD_SHARED)
   set(ENABLE_BUILD_DYNAMIC ON)
 endif(ENABLE_WRAP_PYTHON AND NOT ENABLE_BUILD_SHARED)
@@ -133,12 +156,6 @@ if(MSVC)
     endforeach(VAR)
   endif(ENABLE_MSVC_STATIC_RUNTIME)
 endif(MSVC)
-
-macro(set_config_option VARNAME STRING)
-  set(${VARNAME} TRUE)
-  list(APPEND CONFIG_OPTIONS ${STRING})
-  message(STATUS "Found " ${STRING})
-endmacro(set_config_option)
 
 if(ENABLE_OPENMP)
   find_package(OpenMP)
@@ -188,14 +205,6 @@ macro(set_compile_flags LISTNAME FLAGS)
     endif(PROP)
   endforeach(FILE)
 endmacro(set_compile_flags)
-
-# check if the machine is 64 bits (this is more reliable than using
-# CMAKE_SIZEOF_VOID_P, which does not seem to work e.g. on some Suse
-# machines)
-check_type_size("void*" SIZEOF_VOID_P)
-if(SIZEOF_VOID_P EQUAL 8)
-  set_config_option(HAVE_64BIT_SIZE_T "64Bit")
-endif(SIZEOF_VOID_P EQUAL 8)
 
 if(ENABLE_BLAS_LAPACK)
   if(BLAS_LAPACK_LIBRARIES)
@@ -1033,7 +1042,11 @@ set(CPACK_PACKAGE_VERSION_PATCH ${GETDP_PATCH_VERSION})
 set(CPACK_PACKAGE_DESCRIPTION_FILE ${WELCOME_FILE})
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
     "General Environment for the Treatment of Discrete Problems")
-set(CPACK_PACKAGE_FILE_NAME getdp-${GETDP_VERSION}-${GETDP_OS})
+if(GETDP_EXTRA_VERSION MATCHES "-git") # so that we'll overwrite the archives
+  set(CPACK_PACKAGE_FILE_NAME getdp-git-${GETDP_OS})
+else(GETDP_EXTRA_VERSION MATCHES "-git") # so that we'll overwrite the archives
+  set(CPACK_PACKAGE_FILE_NAME getdp-${GETDP_VERSION}-${GETDP_OS})
+endif(GETDP_EXTRA_VERSION MATCHES "-git") # so that we'll overwrite the archives
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "GetDP")
 set(CPACK_RESOURCE_FILE_LICENSE ${LICENSE_FILE})
 set(CPACK_RESOURCE_FILE_README ${WELCOME_FILE})
