@@ -1,7 +1,14 @@
-build_docker_linux_gcc:
+variables:
+  EXTRA_VERSION: "-git"
+
+# -----------------------------
+# Docker build for all branches
+# -----------------------------
+
+linux64_docker:
   image: onelab/ubuntu16.04
   tags:
-    - linux
+    - linux64
   script:
     - mkdir build
     - cd build
@@ -9,13 +16,11 @@ build_docker_linux_gcc:
     - make -j 4
     - ctest -j 4 --output-on-failure
 
-variables:
-  EXTRA_VERSION: "-git"
+# ------------------------------------------
+# Official Linux builds (master branch only)
+# ------------------------------------------
 
-build_official_linux_gcc_petsc_complex:
-  tags:
-    - linux
-    - official
+.linux_official_petsc_complex: &ref_linux_official_petsc_complex
   only:
     - master
   script:
@@ -26,10 +31,7 @@ build_official_linux_gcc_petsc_complex:
     - /usr/local/bin/ctest -D Experimental -j 2 --output-on-failure
     - PKG=`ls getdp-*.tar*`; scp -o StrictHostKeyChecking=no -i /home/gitlab-runner/.ssh/id_rsa ${PKG} geuzaine@getdp.info:.wwwgetdp/beta/${PKG/\.tar\.gz/c\.tgz}
 
-build_official_linux_gcc_petsc_real:
-  tags:
-    - linux
-    - official
+.linux_official_petsc_real: &ref_linux_official_petsc_real
   only:
     - master
   script:
@@ -40,10 +42,7 @@ build_official_linux_gcc_petsc_real:
     - /usr/local/bin/ctest -D Experimental -j 2 --output-on-failure
     - PKG=`ls getdp-*.tar*`; scp -o StrictHostKeyChecking=no -i /home/gitlab-runner/.ssh/id_rsa ${PKG} geuzaine@getdp.info:.wwwgetdp/beta/${PKG/\.tar\.gz/r\.tgz}
 
-build_official_linux_gcc_petsc_real_mh:
-  tags:
-    - linux
-    - official
+.linux_official_petsc_real_mh: &ref_linux_official_petsc_real_mh
   only:
     - master
   script:
@@ -54,10 +53,47 @@ build_official_linux_gcc_petsc_real_mh:
     - /usr/local/bin/ctest -D Experimental -j 2 --output-on-failure
     - PKG=`ls getdp-*.tar*`; scp -o StrictHostKeyChecking=no -i /home/gitlab-runner/.ssh/id_rsa ${PKG} geuzaine@getdp.info:.wwwgetdp/beta/${PKG/\.tar\.gz/r-MH\.tgz}
 
-build_official_windows_gcc_petsc_complex:
+linux64_official_petsc_complex:
+  <<: *ref_linux_official_petsc_complex
   tags:
-    - windows
+    - linux64
     - official
+
+linux64_official_petsc_real:
+  <<: *ref_linux_official_petsc_real
+  tags:
+    - linux64
+    - official
+
+linux64_official_petsc_real_mh:
+  <<: *ref_linux_official_petsc_real_mh
+  tags:
+    - linux64
+    - official
+
+.linux32_official_petsc_complex:
+  <<: *ref_linux_official_petsc_complex
+  tags:
+    - linux32
+    - official
+
+.linux32_official_petsc_real:
+  <<: *ref_linux_official_petsc_real
+  tags:
+    - linux32
+    - official
+
+.linux32_official_petsc_real_mh:
+  <<: *ref_linux_official_petsc_real_mh
+  tags:
+    - linux32
+    - official
+
+# --------------------------------------------
+# Official Windows builds (master branch only)
+# --------------------------------------------
+
+.windows_official_petsc_complex:
   only:
     - master
   script:
@@ -68,10 +104,7 @@ build_official_windows_gcc_petsc_complex:
     - bash -c "/usr/bin/ctest -D Experimental -j 2 --output-on-failure"
     - bash -c "PKG=`ls getdp-*.zip`; /usr/bin/scp -o StrictHostKeyChecking=no -i /home/geuzaine/.ssh/id_rsa ${PKG} geuzaine@getdp.info:.wwwgetdp/beta/${PKG/\.zip/c\.zip}"
 
-build_official_windows_gcc_petsc_real:
-  tags:
-    - windows
-    - official
+.windows_official_petsc_real:
   only:
     - master
   script:
@@ -82,10 +115,7 @@ build_official_windows_gcc_petsc_real:
     - bash -c "/usr/bin/ctest -D Experimental -j 2 --output-on-failure"
     - bash -c "PKG=`ls getdp-*.zip`; /usr/bin/scp -o StrictHostKeyChecking=no -i /home/geuzaine/.ssh/id_rsa ${PKG} geuzaine@getdp.info:.wwwgetdp/beta/${PKG/\.zip/r\.zip}"
 
-build_official_windows_gcc_petsc_real_mh:
-  tags:
-    - windows
-    - official
+.windows_official_petsc_real_mh:
   only:
     - master
   script:
@@ -95,3 +125,39 @@ build_official_windows_gcc_petsc_real_mh:
     - bash -c "/usr/bin/make package -j 2"
     - bash -c "/usr/bin/ctest -D Experimental -j 2 --output-on-failure"
     - bash -c "PKG=`ls getdp-*.zip`; /usr/bin/scp -o StrictHostKeyChecking=no -i /home/geuzaine/.ssh/id_rsa ${PKG} geuzaine@getdp.info:.wwwgetdp/beta/${PKG/\.zip/r-MH\.zip}"
+
+windows64_official_petsc_complex:
+  <<: *ref_windows_official_petsc_complex
+  tags:
+    - windows64
+    - official
+
+windows64_official_petsc_real:
+  <<: *ref_windows_official_petsc_real
+  tags:
+    - windows64
+    - official
+
+windows64_official_petsc_real_mh:
+  <<: *ref_windows_official_petsc_real_mh
+  tags:
+    - windows64
+    - official
+
+windows32_official_petsc_complex:
+  <<: *ref_windows_official_petsc_complex
+  tags:
+    - windows32
+    - official
+
+windows32_official_petsc_real:
+  <<: *ref_windows_official_petsc_real
+  tags:
+    - windows32
+    - official
+
+windows32_official_petsc_real_mh:
+  <<: *ref_windows_official_petsc_real_mh
+  tags:
+    - windows32
+    - official
