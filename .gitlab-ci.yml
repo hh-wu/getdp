@@ -63,7 +63,7 @@ build_official_windows64_gcc_petsc_complex:
   script:
     - md build
     - cd build
-    - bash -c "/usr/bin/cmake -DGETDP_EXTRA_VERSION=$EXTRA_VERSION -DCMAKE_PREFIX_PATH='/usr/local;/usr/x86_64-w64-mingw32/sys-root/mingw' -DCMAKE_C_COMPILER=/usr/bin/x86_64-w64-mingw32-gcc.exe -DCMAKE_CXX_COMPILER=/usr/bin/x86_64-w64-mingw32-g++.exe -DCMAKE_Fortran_COMPILER=/usr/bin/x86_64-w64-mingw32-gfortran.exe -DCMAKE_RC_COMPILER=/usr/bin/x86_64-w64-mingw32-windres.exe -DENABLE_SPARSKIT=0 -DENABLE_PETSC=1 -DPETSC_ARCH=win64_complex_mumps_seq -DPETSC_DIR=/home/geuzaine/src/petsc-3.7.5 -DSLEPC_DIR=/home/geuzaine/src/slepc-3.7.3 .."
+    - bash -c "/usr/bin/cmake -DGETDP_EXTRA_VERSION=$EXTRA_VERSION -DCMAKE_PREFIX_PATH='/usr/local;/usr/x86_64-w64-mingw32/sys-root/mingw' -DCMAKE_C_COMPILER=/usr/bin/x86_64-w64-mingw32-gcc.exe -DCMAKE_CXX_COMPILER=/usr/bin/x86_64-w64-mingw32-g++.exe -DCMAKE_Fortran_COMPILER=/usr/bin/x86_64-w64-mingw32-gfortran.exe -DCMAKE_RC_COMPILER=/usr/bin/x86_64-w64-mingw32-windres.exe -DENABLE_SPARSKIT=0 -DENABLE_PETSC=1 -DPETSC_ARCH=complex_mumps_seq -DPETSC_DIR=/home/geuzaine/src/petsc-3.7.5 -DSLEPC_DIR=/home/geuzaine/src/slepc-3.7.3 .."
     - bash -c "/usr/bin/make package -j 2"
     - bash -c "/usr/bin/ctest -j 2 --output-on-failure"
     - bash -c "PKG=`ls getdp-*.zip`; /usr/bin/scp -o StrictHostKeyChecking=no -i /home/geuzaine/.ssh/id_rsa ${PKG} geuzaine@getdp.info:.wwwgetdp/beta/${PKG/\.zip/c\.zip}"
@@ -77,7 +77,7 @@ build_official_windows64_gcc_petsc_real:
   script:
     - md build
     - cd build
-    - bash -c "/usr/bin/cmake -DGETDP_EXTRA_VERSION=$EXTRA_VERSION -DCMAKE_PREFIX_PATH='/usr/local;/usr/x86_64-w64-mingw32/sys-root/mingw' -DCMAKE_C_COMPILER=/usr/bin/x86_64-w64-mingw32-gcc.exe -DCMAKE_CXX_COMPILER=/usr/bin/x86_64-w64-mingw32-g++.exe -DCMAKE_Fortran_COMPILER=/usr/bin/x86_64-w64-mingw32-gfortran.exe -DCMAKE_RC_COMPILER=/usr/bin/x86_64-w64-mingw32-windres.exe -DENABLE_SPARSKIT=0 -DENABLE_PETSC=1 -DPETSC_ARCH=win64_real_mumps_seq -DPETSC_DIR=/home/geuzaine/src/petsc-3.7.5 -DSLEPC_DIR=/home/geuzaine/src/slepc-3.7.3 .."
+    - bash -c "/usr/bin/cmake -DGETDP_EXTRA_VERSION=$EXTRA_VERSION -DCMAKE_PREFIX_PATH='/usr/local;/usr/x86_64-w64-mingw32/sys-root/mingw' -DCMAKE_C_COMPILER=/usr/bin/x86_64-w64-mingw32-gcc.exe -DCMAKE_CXX_COMPILER=/usr/bin/x86_64-w64-mingw32-g++.exe -DCMAKE_Fortran_COMPILER=/usr/bin/x86_64-w64-mingw32-gfortran.exe -DCMAKE_RC_COMPILER=/usr/bin/x86_64-w64-mingw32-windres.exe -DENABLE_SPARSKIT=0 -DENABLE_PETSC=1 -DPETSC_ARCH=real_mumps_seq -DPETSC_DIR=/home/geuzaine/src/petsc-3.7.5 -DSLEPC_DIR=/home/geuzaine/src/slepc-3.7.3 .."
     - bash -c "/usr/bin/make package -j 2"
     - bash -c "/usr/bin/ctest -j 2 --output-on-failure"
     - bash -c "PKG=`ls getdp-*.zip`; /usr/bin/scp -o StrictHostKeyChecking=no -i /home/geuzaine/.ssh/id_rsa ${PKG} geuzaine@getdp.info:.wwwgetdp/beta/${PKG/\.zip/r\.zip}"
@@ -91,7 +91,7 @@ build_official_windows64_gcc_petsc_real_mh:
   script:
     - md build
     - cd build
-    - bash -c "/usr/bin/cmake -DGETDP_EXTRA_VERSION=$EXTRA_VERSION -DCMAKE_PREFIX_PATH='/usr/local;/usr/x86_64-w64-mingw32/sys-root/mingw' -DCMAKE_C_COMPILER=/usr/bin/x86_64-w64-mingw32-gcc.exe -DCMAKE_CXX_COMPILER=/usr/bin/x86_64-w64-mingw32-g++.exe -DCMAKE_Fortran_COMPILER=/usr/bin/x86_64-w64-mingw32-gfortran.exe -DCMAKE_RC_COMPILER=/usr/bin/x86_64-w64-mingw32-windres.exe -DENABLE_SPARSKIT=0 -DENABLE_PETSC=1 -DPETSC_ARCH=win64_real_mumps_seq -DPETSC_DIR=/home/geuzaine/src/petsc-3.7.5 -DSLEPC_DIR=/home/geuzaine/src/slepc-3.7.3 -DENABLE_MULTIHARMONIC=1 .."
+    - bash -c "/usr/bin/cmake -DGETDP_EXTRA_VERSION=$EXTRA_VERSION -DCMAKE_PREFIX_PATH='/usr/local;/usr/x86_64-w64-mingw32/sys-root/mingw' -DCMAKE_C_COMPILER=/usr/bin/x86_64-w64-mingw32-gcc.exe -DCMAKE_CXX_COMPILER=/usr/bin/x86_64-w64-mingw32-g++.exe -DCMAKE_Fortran_COMPILER=/usr/bin/x86_64-w64-mingw32-gfortran.exe -DCMAKE_RC_COMPILER=/usr/bin/x86_64-w64-mingw32-windres.exe -DENABLE_SPARSKIT=0 -DENABLE_PETSC=1 -DPETSC_ARCH=real_mumps_seq -DPETSC_DIR=/home/geuzaine/src/petsc-3.7.5 -DSLEPC_DIR=/home/geuzaine/src/slepc-3.7.3 -DENABLE_MULTIHARMONIC=1 .."
     - bash -c "/usr/bin/make package -j 2"
     - bash -c "/usr/bin/ctest -j 2 --output-on-failure"
     - bash -c "PKG=`ls getdp-*.zip`; /usr/bin/scp -o StrictHostKeyChecking=no -i /home/geuzaine/.ssh/id_rsa ${PKG} geuzaine@getdp.info:.wwwgetdp/beta/${PKG/\.zip/r-MH\.zip}"
