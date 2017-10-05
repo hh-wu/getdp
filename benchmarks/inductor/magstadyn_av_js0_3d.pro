@@ -1,7 +1,7 @@
 Group {
   DefineGroup[
     Domain, DomainCC, DomainC, DomainL, DomainNL,
-    DomainS, DomainB, DomainInf,
+    DomainS, DomainInf,
     SkinDomainC,
     Surf_elec, Surf_bn0, Surf_Inf, Surf_FixedMVP
   ] ;
@@ -37,6 +37,8 @@ Include "BH.pro"; // nonlinear BH caracteristic of magnetic material
 
 Group {
 
+  SkinDomainS = Region[ {SkinInds} ]; // needed for div j=0 weakly imposed... required for correct solution with js0[] directly imposed
+
   If(!Flag_ConductingCore)
     DomainCC = Region[ {Air, AirInf, Core} ];
     DomainC  = Region[ { } ];
@@ -49,7 +51,7 @@ Group {
   //--------------------------------------------------------------
 
   DomainS = Region[ {Inds} ];
-  DomainCC += Region[ {DomainS, DomainB} ];
+  DomainCC += Region[ {DomainS} ];
 
   //--------------------------------------------------------------
 
@@ -65,7 +67,7 @@ Group {
   EndIf
   DomainDummy = Region[ 12345 ] ; // Dummy region number for postpro with functions
 
-  Surf_FixedMVP = Region[{ Surf_bn0, Surf_Inf }];
+  Surf_FixedMVP = Region[{ Surf_bn0, Surf_Inf}];
 
 }
 
@@ -74,7 +76,7 @@ Function {
 
   If(!Flag_NL)
     nu [Core]  = 1/(mur_fe*mu0) ;
-    Else
+  Else
     nu [ DomainNL ] = nu_EIcore[$1] ;
     dhdb_NL [ DomainNL ] = dhdb_EIcore_NL[$1];
   EndIf
@@ -148,8 +150,8 @@ Constraint {
 
   { Name GaugeCondition_a ; Type Assign ;
     Case {
-      If(Flag_GaugeType==TREE_COTREE_GAUGE)
-        { Region DomainCC ; SubRegion Surf_a_NoGauge ; Value 0. ; }
+      If (Flag_GaugeType==TREE_COTREE_GAUGE)
+        { Region Region[{DomainCC}] ; SubRegion Surf_a_NoGauge ; Value 0. ; }
       EndIf
     }
   }
@@ -176,8 +178,10 @@ FunctionSpace {
     Constraint {
       { NameOfCoef ae  ; EntityType EdgesOf ; NameOfConstraint MVP_3D ; }
       { NameOfCoef ae2 ; EntityType EdgesOf ; NameOfConstraint MVP_3D ; }
-      { NameOfCoef ae  ; EntityType EdgesOfTreeIn ; EntitySubType StartingOn ;
-	NameOfConstraint GaugeCondition_a ; }
+      If(Flag_GaugeType==TREE_COTREE_GAUGE)
+        { NameOfCoef ae  ; EntityType EdgesOfTreeIn ; EntitySubType StartingOn ;
+          NameOfConstraint GaugeCondition_a ; }
+      EndIf
     }
   }
 
@@ -208,6 +212,15 @@ FunctionSpace {
     }
   }
 
+  { Name H_xi_divj0 ; Type Form0 ;
+    BasisFunction {
+      { Name sn ; NameOfCoef an ; Function BF_Node ;
+        Support Region[{DomainS, SkinDomainS}] ; Entity NodesOf[ All ] ; }
+    }
+    Constraint {
+      { NameOfCoef an ; EntityType NodesOf ; NameOfConstraint xi_fixed ; }
+    }
+  }
 
 }
 
@@ -215,10 +228,24 @@ FunctionSpace {
 
 Formulation {
 
+  { Name DivJ_0_weak ; Type FemEquation ;
+    Quantity {
+      { Name xi0; Type Local ; NameOfSpace H_xi_divj0 ; }
+    }
+    Equation {
+      Galerkin { [ js0[] , {d xi0} ] ;
+        In Domain ; Jacobian Vol ; Integration II ; }
+      Galerkin { [ -Dof{d xi0} , {d xi0} ] ;
+        In Domain ; Jacobian Vol ; Integration II ; }
+    }
+  }
+
+
   { Name MagStaDyn_av_js0_3D ; Type FemEquation ;
     Quantity {
-      { Name a  ; Type Local ; NameOfSpace Hcurl_a_3D ; }
-      { Name xi ; Type Local ; NameOfSpace H_xi ; }
+      { Name a  ;  Type Local ; NameOfSpace Hcurl_a_3D ; }
+      { Name xi ;  Type Local ; NameOfSpace H_xi ; } // Coulomb gauging
+      { Name xi0 ; Type Local ; NameOfSpace H_xi_divj0 ; } // div j = 0
 
       { Name v  ; Type Local ; NameOfSpace Hregion_u_3D ; } //Massive conductor
       { Name U  ; Type Global ; NameOfSpace Hregion_u_3D [U] ; }
@@ -243,11 +270,11 @@ Formulation {
       GlobalTerm { [ Dof{I}*SymmetryFactor, {U} ] ; In Surf_elec ; }
 
       Galerkin { [ -js0[], {a} ] ;
-        In DomainS ; Jacobian Vol ; Integration II ; }
-
-
-      // Galerkin { [ Dof{d xi}, {a} ] ; // div j = 0
-      //  In  Domain ; Jacobian Vol ; Integration II ; }
+          In DomainS ; Jacobian Vol ; Integration II ; }
+      If ( Flag_DivJ_Zero==DIVJ0_WEAK )
+        Galerkin { [ {d xi0}, {a} ] ; // div j = 0
+          In Domain ; Jacobian Vol ; Integration II ; }
+      EndIf
 
       If(Flag_GaugeType==COULOMB_GAUGE)
         Galerkin { [ Dof{a}, {d xi} ] ;
@@ -268,16 +295,25 @@ Resolution {
     System {
       If(Flag_AnalysisType==2)
          { Name Sys ; NameOfFormulation MagStaDyn_av_js0_3D ; Type ComplexValue ; Frequency Freq ; }
+         If (Flag_DivJ_Zero==DIVJ0_WEAK)
+           { Name Sys_DivJ ; NameOfFormulation DivJ_0_weak ;  Type ComplexValue ; Frequency Freq ; }
+         EndIf
       EndIf
       If(Flag_AnalysisType<2)
         { Name Sys ; NameOfFormulation MagStaDyn_av_js0_3D ; }
+        If (Flag_DivJ_Zero==DIVJ0_WEAK)
+          { Name Sys_DivJ ; NameOfFormulation DivJ_0_weak ; }
+        EndIf
       EndIf
     }
     Operation {
       CreateDir["res3d/"] ;
 
-      InitSolution[Sys] ;
+      If (Flag_DivJ_Zero==DIVJ0_WEAK)
+        Generate[Sys_DivJ] ; Solve[Sys_DivJ] ; SaveSolution[Sys_DivJ] ;
+      EndIf
 
+      InitSolution[Sys] ;
       If(Flag_AnalysisType==0 || Flag_AnalysisType==2) // Static or Frequency-domain
         If(!Flag_NL)
           Generate[Sys] ; Solve[Sys] ;
@@ -364,6 +400,9 @@ PostProcessing {
 
       { Name xi ; Value { Term { [ {xi} ] ; In Domain ; Jacobian Vol ; } } }
 
+      { Name xi0 ; Value { Term { [ {xi0} ] ; In Domain ; Jacobian Vol ; } } }
+      { Name dxi0 ; Value { Term { [ {d xi0} ] ; In Domain ; Jacobian Vol ; } } }
+      { Name js_dxi0 ; Value { Term { [ js0[]-{d xi0} ]      ; In DomainS ; Jacobian Vol ; } } }
     }
   }
 }
@@ -371,6 +410,11 @@ PostProcessing {
 //-----------------------------------------------------------------------------------------------
  PostOperation Get_LocalFields UsingPost MagStaDyn_av_js0_3D {
    Print[ js, OnElementsOf DomainS, File StrCat[Dir, "js", ExtGmsh], LastTimeStepOnly ] ;
+   If(Flag_DivJ_Zero==DIVJ0_WEAK)
+     Print[ xi0, OnElementsOf DomainS, File StrCat[Dir, "xi0",ExtGmsh ], LastTimeStepOnly ] ;
+     Print[ dxi0, OnElementsOf DomainS, File StrCat[Dir, "grad_xi0",ExtGmsh ], LastTimeStepOnly ] ;
+     Print[ js_dxi0, OnElementsOf DomainS, File StrCat[Dir, "js0_corrected",ExtGmsh ], LastTimeStepOnly ] ;
+   EndIf
    Print[ a, OnElementsOf Domain, File StrCat[Dir, "a", ExtGmsh], LastTimeStepOnly ] ;
    If(Flag_GaugeType==COULOMB_GAUGE)
      Print[ xi, OnElementsOf Domain, File StrCat[Dir, "xi",ExtGmsh ], LastTimeStepOnly ] ;

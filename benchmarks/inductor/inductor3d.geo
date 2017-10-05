@@ -1,6 +1,5 @@
-//Flag_3Dmodel = 1;
-
-Mesh.Optimize = 1;
+// Flag_3Dmodel = 1;
+// Mesh.Optimize = 1;
 
 // characteristic lengths
 lc0  = wcoil/nn_wcore;
@@ -9,6 +8,7 @@ lc2  = 2*lc1;
 
 lcri = Pi*Rint/4/nn_ri;
 lcro = Pi*Rext/4/nn_ro;
+
 
 // center of the model at (0,0)
 cen = newp; Point(newp) = {0,0,0, lc0};
@@ -74,7 +74,8 @@ surf_Airgap[] += news; Plane Surface(news) = {newll-1};
 //===========================================================
 // Extruding surfaces // Just 1/4 of the model!
 
-vol[] = Extrude {0,0,-Lz/2} { Surface{surf_ECore[0]}; };
+vol[] = Extrude {0,0,-Lz/2} { Surface{surf_ECore[0]};};
+surf_in_coil = vol[0];
 vol_ECore[]  += vol[1];
 surf_cut_yz[]+= vol[5];
 surf_cut_coil[]    += vol[2];
@@ -97,9 +98,13 @@ vol[] = Extrude {{0, 1, 0}, {wcoreE, 0, -Lz/2}, Pi/2}{ Surface{surf_Coil[1]}; };
 vol_Coil[] += vol[1]; surf_Coil[] += vol[0];
 
 vol[] = Extrude {-wcoreE, 0, 0} { Surface{surf_Coil[2]}; };
-
 vol_Coil[] += vol[1]; surf_Coil[] += vol[0];
 surf_cut_yz[]+=vol[0];
+
+// changing the sense, wcoil=wcoreE
+// vol[] = Extrude {0,0,-wcoreE} { Surface{surf_in_coil}; };
+// vol_Coil[] += vol[1]; surf_Coil[] += vol[0];
+// surf_cut_yz[]+=vol[5];
 
 
 aux_bnd[] = CombinedBoundary{ Surface{ surf_cut_yz[] };};
@@ -145,7 +150,6 @@ vol_AirInf[] = vol[1]; surf_cut_yz[]+= vol[0];
 surf_airinf_out[] = vol[{4,5}];
 surf_airinf_in[] = vol[{2,3}];
 bnd_cut_yz_airinf[] = Boundary{Surface{vol[0]};};
-
 
 // Symmetry YZ
 Line Loop(newll) = {lnaxis[2], bnd_cut_yz_airinf[{0,1}], lnaxis[0], bnd_cut_yz[]};
@@ -225,10 +229,9 @@ Physical Volume(ICORE) = vol_ICore[];
 
 Physical Volume(COIL) = vol_Coil[];
 
-bnd_surf_Coil[] = Abs(CombinedBoundary{Volume{vol_Coil[]};});
-bnd_surf_Coil[] -= {surf_cut_xy[], surf_cut_yz[]} ; // list empty if no symmetry
-Physical Surface(SKINCOIL) = bnd_surf_Coil[];
-
+bnd_Coil[] = Abs(CombinedBoundary{Volume{vol_Coil[]};});
+bnd_Coil[] -= {surf_cut_xy[], surf_cut_yz[]} ; // list empty if no symmetry
+Physical Surface(SKINCOIL) = bnd_Coil[];
 
 Physical Volume(AIRGAP) = vol_Airgap[]; //either Fe or air
 If(Flag_Infinity==0)
@@ -247,7 +250,6 @@ all_surf_ECore[] -= {surf_cut_xy[], surf_cut_yz[]};
 
 all_surf_ICore[] = Abs(CombinedBoundary{Volume{vol_ICore[]};});
 all_surf_ICore[] -= {surf_cut_xy[], surf_cut_yz[]};
-
 
 Physical Surface(SKINECORE) = all_surf_ECore[];
 Physical Surface(SKINICORE) = all_surf_ICore[];

@@ -12,8 +12,13 @@ EndIf
 ExtGmsh     = ".pos";
 ExtGnuplot  = ".dat";
 
-TREE_COTREE_GAUGE=0;
-COULOMB_GAUGE=1;
+TREE_COTREE_GAUGE = 0;
+COULOMB_GAUGE = 1;
+
+DIVJ0_NONE = 0;
+DIVJ0_WEAK = 1;
+// DIVJ0_STRONG = 2; // Not in this file
+
 
 DefineConstant[
   Flag_AnalysisType = { 0,  Choices{0="Static",  1="Time domain", 2="Frequency domain"},
@@ -31,8 +36,13 @@ DefineConstant[
   Flag_ConductingCore = { (Flag_AnalysisType==2), Choices{0,1},
     Name "Input/40Conducting core", ReadOnly (Flag_AnalysisType==0)}
 
-  Flag_GaugeType = { 0, Choices{0="Tree-cotree gauge", 1="Coulomb gauge"},
+  Flag_GaugeType = { TREE_COTREE_GAUGE, Choices{0="Tree-cotree gauge",1="Coulomb gauge"},
     Name "Input/30Type of gauge", Highlight "Blue", Visible (Flag_3Dmodel==1) }
+
+  Flag_DivJ_Zero = { DIVJ0_WEAK, Choices{0="None",1="Weak"},
+    Name "Input/31Constraint div j = 0", Highlight "Blue", Visible (Flag_3Dmodel==1),
+    Help Str["- Strong: Hcurl source field hs with curl hs = j, for div j = 0",
+             "- Weak: correcting scalar potential xsi for weak div j = 0."]}
 ];
 
 Group {
@@ -101,7 +111,7 @@ Function {
     vDir[]   = Vector[ 0, 0, Idir[]] ;
   Else
     SurfCoil[] = (!Flag_boolean) ? SurfaceArea[]{SURF_ELEC0} : hcoil * wcoil ; // second definition is always valid
-    vDir[] = -( // change of sign for coherence with 2D model
+  vDir[] = -( // change of sign for coherence with 2D model
       (Fabs[X[]]<=wcoreE && Z[]>= Lz/2) ? Vector [ 1, 0, 0]:
       (Fabs[X[]]<=wcoreE && Z[]<=-Lz/2) ? Vector [ -1, 0, 0]:
       (Fabs[Z[]]<=Lz/2   && X[]>= wcoreE) ? Vector [ 0, 0, -1]:
