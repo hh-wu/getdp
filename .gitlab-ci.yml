@@ -93,7 +93,7 @@ linux64_official_petsc_real_mh:
 # Official Windows builds (master branch only)
 # --------------------------------------------
 
-.windows_official_petsc_complex:
+.windows_official_petsc_complex: &ref_windows_official_petsc_complex
   only:
     - master
   script:
@@ -104,7 +104,7 @@ linux64_official_petsc_real_mh:
     - bash -c "/usr/bin/ctest -D Experimental -j 2 --output-on-failure"
     - bash -c "PKG=`ls getdp-*.zip`; /usr/bin/scp -o StrictHostKeyChecking=no -i /home/geuzaine/.ssh/id_rsa ${PKG} geuzaine@getdp.info:.wwwgetdp/beta/${PKG/\.zip/c\.zip}"
 
-.windows_official_petsc_real:
+.windows_official_petsc_real: &ref_windows_official_petsc_real
   only:
     - master
   script:
@@ -115,7 +115,7 @@ linux64_official_petsc_real_mh:
     - bash -c "/usr/bin/ctest -D Experimental -j 2 --output-on-failure"
     - bash -c "PKG=`ls getdp-*.zip`; /usr/bin/scp -o StrictHostKeyChecking=no -i /home/geuzaine/.ssh/id_rsa ${PKG} geuzaine@getdp.info:.wwwgetdp/beta/${PKG/\.zip/r\.zip}"
 
-.windows_official_petsc_real_mh:
+.windows_official_petsc_real_mh: &ref_windows_official_petsc_real_mh
   only:
     - master
   script:
