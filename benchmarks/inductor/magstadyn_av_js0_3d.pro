@@ -29,8 +29,6 @@ Function {
     delta_time = T/NbSteps,
     II, VV,
     Flag_NL = 0,
-    Flag_NL_Newton_Raphson = {1, Choices{0,1}, Name "Input/41Newton-Raphson iteration",
-      Visible Flag_NL},
     po = "Output 3D/"
   ] ;
 
@@ -53,7 +51,7 @@ Group {
   DomainS = Region[ {Inds} ];
   SkinDomainS = Region[ {SkinInds} ];
 
-  DomainCC += Region[ {DomainS, DomainB} ];
+  DomainCC += Region[ {DomainS} ];
 
   //--------------------------------------------------------------
 
@@ -246,8 +244,8 @@ Formulation {
   { Name MagStaDyn_av_js0_3D ; Type FemEquation ;
     Quantity {
       { Name a  ; Type Local ; NameOfSpace Hcurl_a_3D ; }
-      { Name xi ; Type Local ; NameOfSpace H_xi ; }
-      { Name xis ; Type Local ; NameOfSpace H_xi_divj0 ; }
+      { Name xi ; Type Local ; NameOfSpace H_xi ; } // Coulomb gauge
+      { Name xis ; Type Local ; NameOfSpace H_xi_divj0 ; } // div j=0
 
       { Name v  ; Type Local ; NameOfSpace Hregion_u_3D ; } //Massive conductor
       { Name U  ; Type Global ; NameOfSpace Hregion_u_3D [U] ; }
@@ -257,10 +255,9 @@ Formulation {
     Equation {
       Galerkin { [ nu[{d a}] * Dof{d a} , {d a} ] ;
         In Domain ; Jacobian Vol ; Integration II ; }
-      If(Flag_NL_Newton_Raphson)
       Galerkin { JacNL [ dhdb_NL[{d a}] * Dof{d a} , {d a} ] ;
         In DomainNL ; Jacobian Vol ; Integration II ; }
-      EndIf
+
       Galerkin { DtDof[ sigma[] * Dof{a} , {a} ] ;
         In DomainC ; Jacobian Vol ; Integration II ; }
       Galerkin { [ sigma[] * Dof{d v}/SymmetryFactor , {a} ] ;
