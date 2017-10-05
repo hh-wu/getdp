@@ -1,4 +1,4 @@
-build_docker_linux64_gcc:
+build_docker_linux_gcc:
   image: onelab/ubuntu16.04
   tags:
     - linux
