@@ -15,6 +15,10 @@ ExtGnuplot  = ".dat";
 TREE_COTREE_GAUGE=0;
 COULOMB_GAUGE=1;
 
+DIVJ0_NONE   = 0;
+DIVJ0_WEAK   = 1;
+
+
 DefineConstant[
   Flag_AnalysisType = { 0,  Choices{0="Static",  1="Time domain", 2="Frequency domain"},
     Name "Input/20Type of analysis",  Highlight "Blue",
@@ -33,6 +37,12 @@ DefineConstant[
 
   Flag_GaugeType = { 0, Choices{0="Tree-cotree gauge", 1="Coulomb gauge"},
     Name "Input/30Type of gauge", Highlight "Blue", Visible (Flag_3Dmodel==1) }
+
+  Flag_DivJ_Zero = { DIVJ0_WEAK, Choices{ DIVJ0_NONE = "None", DIVJ0_WEAK = "Weak"},
+    Name "Input/30Constraint div j = 0",
+    Help Str["Strong: Hcurl source field hs with curl hs = j, for div j = 0;",
+      "Weak: correcting scalar potential xsi for weak div j = 0."],
+    Highlight "Blue", Visible (Flag_3Dmodel==1) }
 ];
 
 Group {
