@@ -1,8 +1,8 @@
 Group {
   DefineGroup[
     Domain, DomainCC, DomainC, DomainL, DomainNL,
-    DomainS, DomainB, DomainInf,
-    SkinDomainC,
+    DomainS, DomainInf,
+    SkinDomainS, SkinDomainC,
     Surf_elec, Surf_bn0, Surf_Inf, Surf_FixedMVP
   ] ;
 }
@@ -29,6 +29,8 @@ Function {
     delta_time = T/NbSteps,
     II, VV,
     Flag_NL = 0,
+    Flag_NL_Newton_Raphson = {1, Choices{0,1}, Name "Input/41Newton-Raphson iteration",
+      Visible Flag_NL},
     po = "Output 3D/"
   ] ;
 
@@ -123,7 +125,6 @@ Integration {
 
 Constraint {
 
-  // av - formulation
   { Name MVP_3D ;
     Case {
       { Region Surf_bn0 ; Type Assign ; Value 0. ; }
@@ -135,6 +136,7 @@ Constraint {
     Case {
     }
   }
+
   { Name I_3D ;
     Case {
     }
@@ -201,7 +203,7 @@ FunctionSpace {
     }
   }
 
-  // scalar potential for Coulomb gauge: a orthogonal to grad(xi)
+  // scalar potential for Coulomb gauge: orthogonal to grad(xi)
   { Name H_xi ; Type Form0 ;
     BasisFunction {
       { Name sn ; NameOfCoef an ; Function BF_Node ;
@@ -212,6 +214,7 @@ FunctionSpace {
     }
   }
 
+  // correcting source interpolation js0[] so that (weakly) div j = 0
   { Name H_xi_divj0 ; Type Form0 ;
     BasisFunction {
       { Name sn ; NameOfCoef an ; Function BF_Node ;
@@ -255,9 +258,10 @@ Formulation {
     Equation {
       Galerkin { [ nu[{d a}] * Dof{d a} , {d a} ] ;
         In Domain ; Jacobian Vol ; Integration II ; }
-      Galerkin { JacNL [ dhdb_NL[{d a}] * Dof{d a} , {d a} ] ;
-        In DomainNL ; Jacobian Vol ; Integration II ; }
-
+      If(Flag_NL_Newton_Raphson)
+        Galerkin { JacNL [ dhdb_NL[{d a}] * Dof{d a} , {d a} ] ;
+          In DomainNL ; Jacobian Vol ; Integration II ; }
+      EndIf
       Galerkin { DtDof[ sigma[] * Dof{a} , {a} ] ;
         In DomainC ; Jacobian Vol ; Integration II ; }
       Galerkin { [ sigma[] * Dof{d v}/SymmetryFactor , {a} ] ;
@@ -270,19 +274,19 @@ Formulation {
       GlobalTerm { [ Dof{I}*SymmetryFactor, {U} ] ; In Surf_elec ; }
 
       Galerkin { [ -js0[], {a} ] ;
-        In  DomainS ; Jacobian Vol ; Integration II ; }
+        In DomainS ; Jacobian Vol ; Integration II ; }
+
       If(Flag_DivJ_Zero == DIVJ0_WEAK)
         Galerkin { [ {d xis}, {a} ] ;
-          In  Domain ; Jacobian Vol ; Integration II ; }
+          In Domain ; Jacobian Vol ; Integration II ; }
       EndIf
 
       If(Flag_GaugeType==COULOMB_GAUGE)
         Galerkin { [ Dof{a}, {d xi} ] ;
-          In  Domain ; Jacobian Vol ; Integration II ; }
+          In Domain ; Jacobian Vol ; Integration II ; }
         Galerkin { [ Dof{d xi}, {a} ] ;
-          In  Domain ; Jacobian Vol ; Integration II ; }
+          In Domain ; Jacobian Vol ; Integration II ; }
       EndIf
-
     }
   }
 
@@ -411,6 +415,7 @@ PostProcessing {
  PostOperation Get_LocalFields UsingPost MagStaDyn_av_js0_3D {
    Print[ js, OnElementsOf DomainS, File StrCat[Dir, "js", ExtGmsh], LastTimeStepOnly ] ;
    Print[ a, OnElementsOf Domain, File StrCat[Dir, "a", ExtGmsh], LastTimeStepOnly ] ;
+
    If(Flag_DivJ_Zero == DIVJ0_WEAK)
      Print[ xis, OnElementsOf DomainS, File StrCat[Dir, "xis",ExtGmsh ], LastTimeStepOnly ] ;
      Print[ dxis, OnElementsOf DomainS, File StrCat[Dir, "grad_xis",ExtGmsh ], LastTimeStepOnly ] ;
