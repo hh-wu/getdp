@@ -29,6 +29,8 @@ Function {
     delta_time = T/NbSteps,
     II, VV,
     Flag_NL = 0,
+    Flag_NL_Newton_Raphson = {1, Choices{0,1}, Name "Input/41Newton-Raphson iteration",
+      Visible Flag_NL},
     po = "Output 3D/"
   ] ;
 
@@ -37,7 +39,6 @@ Include "BH.pro"; // nonlinear BH caracteristic of magnetic material
 
 Group {
 
-  SkinDomainS = Region[ {SkinInds} ]; // needed for div j=0 weakly imposed... required for correct solution with js0[] directly imposed
 
   If(!Flag_ConductingCore)
     DomainCC = Region[ {Air, AirInf, Core} ];
@@ -51,6 +52,8 @@ Group {
   //--------------------------------------------------------------
 
   DomainS = Region[ {Inds} ];
+  SkinDomainS = Region[ {SkinInds} ];
+
   DomainCC += Region[ {DomainS} ];
 
   //--------------------------------------------------------------
@@ -408,9 +411,6 @@ PostProcessing {
       { Name dxis ; Value { Term { [ {d xis} ] ; In Domain ; Jacobian Vol ; } } }
       { Name js0_dxis ; Value { Term { [ js0[]-{d xis} ] ; In Domain ; Jacobian Vol ; } } }
 
-      { Name xi0 ; Value { Term { [ {xi0} ] ; In Domain ; Jacobian Vol ; } } }
-      { Name dxi0 ; Value { Term { [ {d xi0} ] ; In Domain ; Jacobian Vol ; } } }
-      { Name js_dxi0 ; Value { Term { [ js0[]-{d xi0} ]      ; In DomainS ; Jacobian Vol ; } } }
     }
   }
 }
@@ -418,11 +418,6 @@ PostProcessing {
 //-----------------------------------------------------------------------------------------------
  PostOperation Get_LocalFields UsingPost MagStaDyn_av_js0_3D {
    Print[ js, OnElementsOf DomainS, File StrCat[Dir, "js", ExtGmsh], LastTimeStepOnly ] ;
-   If(Flag_DivJ_Zero==DIVJ0_WEAK)
-     Print[ xi0, OnElementsOf DomainS, File StrCat[Dir, "xi0",ExtGmsh ], LastTimeStepOnly ] ;
-     Print[ dxi0, OnElementsOf DomainS, File StrCat[Dir, "grad_xi0",ExtGmsh ], LastTimeStepOnly ] ;
-     Print[ js_dxi0, OnElementsOf DomainS, File StrCat[Dir, "js0_corrected",ExtGmsh ], LastTimeStepOnly ] ;
-   EndIf
    Print[ a, OnElementsOf Domain, File StrCat[Dir, "a", ExtGmsh], LastTimeStepOnly ] ;
 
    If(Flag_DivJ_Zero == DIVJ0_WEAK)
