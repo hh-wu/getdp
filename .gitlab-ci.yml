@@ -15,7 +15,7 @@ linux64_docker:
   script:
     - mkdir build
     - cd build
-    - cmake ..
+    - cmake -DGETDP_EXTRA_VERSION=$EXTRA_VERSION ..
     - make -j 4
     - ctest -j 4 --output-on-failure
   tags:
