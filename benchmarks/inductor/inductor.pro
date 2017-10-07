@@ -20,6 +20,10 @@ DIVJ0_WEAK = 1;
 // DIVJ0_STRONG = 2; // Not in this file
 
 
+DIVJ0_NONE   = 0;
+DIVJ0_WEAK   = 1;
+DIVJ0_STRONG = 2; // Not in this file
+
 DefineConstant[
   Flag_AnalysisType = { 0,  Choices{0="Static",  1="Time domain", 2="Frequency domain"},
     Name "Input/20Type of analysis",  Highlight "Blue",
@@ -36,13 +40,15 @@ DefineConstant[
   Flag_ConductingCore = { (Flag_AnalysisType==2), Choices{0,1},
     Name "Input/40Conducting core", ReadOnly (Flag_AnalysisType==0)}
 
-  Flag_GaugeType = { TREE_COTREE_GAUGE, Choices{0="Tree-cotree gauge",1="Coulomb gauge"},
+  Flag_GaugeType = { TREE_COTREE_GAUGE, Choices{TREE_COTREE_GAUGE="Tree-cotree gauge", COULOMB_GAUGE="Coulomb gauge"},
     Name "Input/30Type of gauge", Highlight "Blue", Visible (Flag_3Dmodel==1) }
 
-  Flag_DivJ_Zero = { DIVJ0_WEAK, Choices{0="None",1="Weak"},
-    Name "Input/31Constraint div j = 0", Highlight "Blue", Visible (Flag_3Dmodel==1),
-    Help Str["- Strong: Hcurl source field hs with curl hs = j, for div j = 0",
-             "- Weak: correcting scalar potential xsi for weak div j = 0."]}
+  Flag_DivJ_Zero = { DIVJ0_WEAK, Choices{ DIVJ0_NONE = "None", DIVJ0_WEAK = "Weak"},
+    Name "Input/30Constraint div j = 0",
+    Help Str["None: direct interpolation of js0[]",
+      "Weak: Use scalar potential xis for weakly ensuring div j = 0.",
+      "Strong: Use Hcurl source field hs with curl hs = j, for div j = 0;"],
+    Highlight "Blue", Visible (Flag_3Dmodel==1) }
 ];
 
 Group {
@@ -79,7 +85,7 @@ Group {
 
  // Surfaces for imposing boundary conditions
  If(Flag_BC_Type==1)
-   Surf_Inf = Region[ SURF_AIROUT ];
+   Surf_Inf = Region[ {SURF_AIROUT} ];
  EndIf
  If(Flag_Symmetry)
    If(Flag_3Dmodel==0)
@@ -110,16 +116,16 @@ Function {
     Idir[#{(COIL+1)}] = -1. ;
     vDir[]   = Vector[ 0, 0, Idir[]] ;
   Else
-    SurfCoil[] = (!Flag_boolean) ? SurfaceArea[]{SURF_ELEC0} : hcoil * wcoil ; // second definition is always valid
-  vDir[] = -( // change of sign for coherence with 2D model
-      (Fabs[X[]]<=wcoreE && Z[]>= Lz/2) ? Vector [ 1, 0, 0]:
-      (Fabs[X[]]<=wcoreE && Z[]<=-Lz/2) ? Vector [ -1, 0, 0]:
-      (Fabs[Z[]]<=Lz/2   && X[]>= wcoreE) ? Vector [ 0, 0, -1]:
-      (Fabs[Z[]]<=Lz/2   && X[]<=-wcoreE) ? Vector [ 0, 0,  1]:
+    SurfCoil[] = (!Flag_boolean) ? SurfaceArea[]{SURF_ELEC0} : hcoil * wcoil ; // second definition is always valid (2D & 3D)
+    vDir[] = -( // change of sign for coherence with 2D model
+      (Fabs[X[]]<=wcoreE && Z[]>= Lz/2) ? Vector[ 1, 0, 0]:
+      (Fabs[X[]]<=wcoreE && Z[]<=-Lz/2) ? Vector[-1, 0, 0]:
+      (Fabs[Z[]]<=Lz/2   && X[]>= wcoreE) ? Vector[ 0, 0, -1]:
+      (Fabs[Z[]]<=Lz/2   && X[]<=-wcoreE) ? Vector[ 0, 0,  1]:
       (X[]>wcoreE && Z[]>Lz/2)  ? Vector[ Sin[Atan2[Z[]-Lz/2,X[]-wcoreE]#1], 0, -Cos[#1]]:
       (X[]>wcoreE && Z[]<-Lz/2) ? Vector[ Sin[Atan2[Z[]+Lz/2,X[]-wcoreE]#1], 0, -Cos[#1]]:
       (X[]<-wcoreE && Z[]>Lz/2) ? Vector[ Sin[Atan2[Z[]-Lz/2,X[]+wcoreE]#1], 0, -Cos[#1]]:
-      Vector [Sin[Atan2[Z[]+Lz/2,X[]+wcoreE]#1], 0, -Cos[#1]] );
+      Vector[ Sin[Atan2[Z[]+Lz/2,X[]+wcoreE]#1], 0, -Cos[#1]] );
   EndIf
 
   pA = (Flag_AnalysisType==0) ? Pi/2: 0.;
@@ -129,7 +135,6 @@ Function {
   // Material properties
   mu0 = 4.e-7 * Pi ;
 
-  // Use if linear problem
   DefineConstant[
     sigma_coil = { sigma_cu, Label "Conductivity [S/m]",
       Name "Input/4Coil Parameters/5Conductivity", Highlight "AliceBlue"},

@@ -19,7 +19,7 @@ pnt0[] += newp; Point(newp) = { wcoreE,         htot/2-hcoreE, 0, lc1};
 pnt0[] += newp; Point(newp) = { wcoreE+wcoil,   htot/2-hcoreE, 0, lc1};
 pnt0[] += newp; Point(newp) = { 2*wcoreE+wcoil, htot/2-hcoreE, 0, lc1};
 
-pnt1[] += newp; Point(newp) = { 0,           htot/2-hcoreE+hcoil, 0, lc2};
+pnt1[] += newp; Point(newp) = { 0,           htot/2-hcoreE+hcoil, 0, lc0};
 pnt1[] += newp; Point(newp) = { wcoreE,       htot/2-hcoreE+hcoil, 0, lc2};
 pnt1[] += newp; Point(newp) = { wcoreE+wcoil, htot/2-hcoreE+hcoil, 0, lc2};
 
@@ -165,13 +165,13 @@ Surface Loop(newsl) = {surf_Air[0], surf_cut_yz_air[0], surf_airinf_in[], aux_su
 vol_Air[]+=newv; Volume(newv) = {newsl-1};
 
 If(Flag_Symmetry<2)
-  surf_airinf_out[]   += Symmetry {1,0,0,0} { Duplicata{Surface{surf_airinf_out[]};} }; // For convenience
-  surf_cut_coil[] += Symmetry {1,0,0,0} { Duplicata{Surface{surf_cut_coil[]};} };
+  surf_airinf_out[]  += Symmetry {1,0,0,0} { Duplicata{Surface{surf_airinf_out[]};} }; // For convenience
+  surf_cut_coil[]    += Symmetry {1,0,0,0} { Duplicata{Surface{surf_cut_coil[]};} };
   surf_cut_coil_up[] += Symmetry {1,0,0,0} { Duplicata{Surface{surf_cut_coil_up[]};} };
-  surf_cut_xy[] += Symmetry {1,0,0,0} { Duplicata{Surface{surf_cut_xy[]};} };
+  surf_cut_xy[]      += Symmetry {1,0,0,0} { Duplicata{Surface{surf_cut_xy[]};} };
 
   vol_ECore[]  += Symmetry {1,0,0,0} { Duplicata{Volume{vol_ECore[]};} };
-  vol_in_Coil[] += vol_ECore[2];
+  vol_in_Coil[]+= vol_ECore[2];
 
   vol_ICore[]  += Symmetry {1,0,0,0} { Duplicata{Volume{vol_ICore[]};} };
   vol_Coil[]   += Symmetry {1,0,0,0} { Duplicata{Volume{vol_Coil[]};} };
@@ -180,12 +180,12 @@ If(Flag_Symmetry<2)
   vol_AirInf[] += Symmetry {1,0,0,0} { Duplicata{Volume{vol_AirInf[]};} };
 
   If(!Flag_Symmetry) // Full model
-    surf_airinf_out[]   += Symmetry {0,0,1,0} { Duplicata{Surface{surf_airinf_out[]};} };// For convenience
-    surf_cut_coil[] += Symmetry {0,0,1,0} { Duplicata{Surface{surf_cut_coil[]};} };
+    surf_airinf_out[]  += Symmetry {0,0,1,0} { Duplicata{Surface{surf_airinf_out[]};} };// For convenience
+    surf_cut_coil[]    += Symmetry {0,0,1,0} { Duplicata{Surface{surf_cut_coil[]};} };
     surf_cut_coil_up[] += Symmetry {0,0,1,0} { Duplicata{Surface{surf_cut_coil_up[]};} };
 
     vol_ECore[]  += Symmetry {0,0,1,0} { Duplicata{Volume{vol_ECore[]};} };
-    vol_in_Coil[] += vol_ECore[{4,6}];
+    vol_in_Coil[]+= vol_ECore[{4,6}];
 
     vol_ICore[]  += Symmetry {0,0,1,0} { Duplicata{Volume{vol_ICore[]};} };
     vol_Coil[]   += Symmetry {0,0,1,0} { Duplicata{Volume{vol_Coil[]};} };
@@ -195,8 +195,8 @@ If(Flag_Symmetry<2)
   EndIf
 EndIf
 
-
-
+Characteristic Length { PointsOf{ Volume{vol_Coil[]}; } } = lc2;
+Characteristic Length { PointsOf{ Volume{vol_Airgap[]}; } } = lc1;
 
 //=================================================
 // Some colors... for aesthetics :-)
