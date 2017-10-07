@@ -185,3 +185,20 @@ macos64_official_petsc_real_mh:
   tags:
     - macos64
     - official
+
+# ----------------------------------------------
+# Official source snapshots (master branch only)
+# ----------------------------------------------
+
+source_official:
+  only:
+    - master
+  script:
+    - mkdir build_src
+    - cd build_src
+    - /usr/local/bin/cmake -DGETDP_EXTRA_VERSION=$EXTRA_VERSION ..
+    - make package_source
+    - PKG=`ls getdp-*.tar*`; scp -o StrictHostKeyChecking=no -i /home/gitlab-runner/.ssh/id_rsa ${PKG} geuzaine@getdp.info:.wwwgetdp/src/${PKG/\.tar\.gz/\.tgz}
+  tags:
+    - linux64
+    - official
