@@ -7247,7 +7247,7 @@ the mesh files @file{mStrip.msh} and @file{Core.msh} used in the examples of
 @node Compiling the source code, Frequently asked questions, Gmsh examples, Top
 @appendix Compiling the source code
 
-Stable releases and nightly source snapshots are available from
+Stable releases and source snapshots are available from
 @uref{http://getdp.info/src/}. You can also access the Git repository
 directly:
 

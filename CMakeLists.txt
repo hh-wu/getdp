@@ -92,11 +92,13 @@ if(NOT DATE)
 endif(NOT DATE)
 set(GETDP_DATE "${DATE}")
 
-if(NOT HOSTNAME)
-  set(HOSTNAME "unknown")
-endif(NOT HOSTNAME)
-set(GETDP_HOST "${HOSTNAME}")
-
+if(NOT GETDP_HOST)
+  if(NOT HOSTNAME)
+    set(HOSTNAME "unknown")
+  endif(NOT HOSTNAME)
+  set(GETDP_HOST "${HOSTNAME}")
+endif(NOT GETDP_HOST)
+    
 if(NOT PACKAGER)
   set(PACKAGER "unknown")
 endif(NOT PACKAGER)
