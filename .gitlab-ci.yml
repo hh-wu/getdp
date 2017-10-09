@@ -4,7 +4,7 @@
 # bugs and problems to the public mailing list <getdp@onelab.info>.
 
 variables:
-  EXTRA_VERSION: "-git"
+  EXTRA_VERSION: "-git-$CI_COMMIT_SHA"
 
 # ------------------------------
 # Docker builds for all branches
