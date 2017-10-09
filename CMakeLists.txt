@@ -1046,8 +1046,10 @@ set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
     "General Environment for the Treatment of Discrete Problems")
 if(GETDP_EXTRA_VERSION MATCHES "-git") # so that we'll overwrite the archives
   set(CPACK_PACKAGE_FILE_NAME getdp-git-${GETDP_OS})
+  set(CPACK_SOURCE_PACKAGE_FILE_NAME getdp-git-source)
 else(GETDP_EXTRA_VERSION MATCHES "-git") # so that we'll overwrite the archives
   set(CPACK_PACKAGE_FILE_NAME getdp-${GETDP_VERSION}-${GETDP_OS})
+  set(CPACK_SOURCE_PACKAGE_FILE_NAME getdp-${GETDP_VERSION}-source)
 endif(GETDP_EXTRA_VERSION MATCHES "-git") # so that we'll overwrite the archives
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "GetDP")
 set(CPACK_RESOURCE_FILE_LICENSE ${LICENSE_FILE})
@@ -1055,7 +1057,6 @@ set(CPACK_RESOURCE_FILE_README ${WELCOME_FILE})
 set(CPACK_RESOURCE_FILE_WELCOME ${WELCOME_FILE})
 set(CPACK_PACKAGE_EXECUTABLE "getdp;GetDP")
 set(CPACK_STRIP_FILES TRUE)
-set(CPACK_SOURCE_PACKAGE_FILE_NAME getdp-${GETDP_VERSION}-source)
 set(CPACK_SOURCE_GENERATOR TGZ)
 set(CPACK_SOURCE_IGNORE_FILES "${CMAKE_CURRENT_BINARY_DIR}" "/CVS/" "/.svn" "/.git"
     "~$" "DS_Store$" "GetDPConfig.h$" "GetDPVersion.h$" "/benchmarks*" "/tmp/"
