@@ -1044,13 +1044,13 @@ set(CPACK_PACKAGE_VERSION_PATCH ${GETDP_PATCH_VERSION})
 set(CPACK_PACKAGE_DESCRIPTION_FILE ${WELCOME_FILE})
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
     "General Environment for the Treatment of Discrete Problems")
-if(GETDP_EXTRA_VERSION MATCHES "-git") # so that we'll overwrite the archives
+if(GETDP_EXTRA_VERSION MATCHES "-git.*") # so that we'll overwrite the archives
   set(CPACK_PACKAGE_FILE_NAME getdp-git-${GETDP_OS})
   set(CPACK_SOURCE_PACKAGE_FILE_NAME getdp-git-source)
-else(GETDP_EXTRA_VERSION MATCHES "-git") # so that we'll overwrite the archives
+else(GETDP_EXTRA_VERSION MATCHES "-git.*") # so that we'll overwrite the archives
   set(CPACK_PACKAGE_FILE_NAME getdp-${GETDP_VERSION}-${GETDP_OS})
   set(CPACK_SOURCE_PACKAGE_FILE_NAME getdp-${GETDP_VERSION}-source)
-endif(GETDP_EXTRA_VERSION MATCHES "-git") # so that we'll overwrite the archives
+endif(GETDP_EXTRA_VERSION MATCHES "-git.*") # so that we'll overwrite the archives
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "GetDP")
 set(CPACK_RESOURCE_FILE_LICENSE ${LICENSE_FILE})
 set(CPACK_RESOURCE_FILE_README ${WELCOME_FILE})
