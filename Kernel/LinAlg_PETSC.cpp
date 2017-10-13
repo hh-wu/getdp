@@ -202,7 +202,7 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
 {
 
   PetscInt prealloc = 100. ;
-  PetscInt prealloc_full = (NBR_MAX_HARMONIC>2) ? ceil(2*n/Current.NbrHar) : n ; // MH case modified, too slow otherwise...
+  PetscInt prealloc_full = n ;
   int nonloc = Current.DofData->NonLocalEquations.size();
   // heuristic for preallocation of global rows: don't prelloc more than 500 Mb
   double limit = 500. * 1024. * 1024. / (gSCALAR_SIZE * sizeof(double));
