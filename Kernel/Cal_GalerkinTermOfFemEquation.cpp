@@ -281,6 +281,9 @@ void Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
   }
 */
 
+  // TODO: if JACNL_, say to Cal_Init to assemble later in Jac, otherwise
+  // assemble in the system matrix
+
   /*  initialisation of MHJacNL-term (nonlinear multi-harmonics) if necessary */
   Cal_InitGalerkinTermOfFemEquation_MHJacNL(EquationTerm_P);
 

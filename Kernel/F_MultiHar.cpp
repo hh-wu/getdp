@@ -425,6 +425,8 @@ void Cal_InitGalerkinTermOfFemEquation_MHJacNL(struct EquationTerm  * EquationTe
     Message::Error("MHJacNL can only be used with JACNL") ;
   */
 
+  // TODO: store here the list of WQ's that will be passed as supplementary
+  // arguments to the expression (index)
   FI->MHJacNL = 1 ;
   FI->MHJacNL_Index  = (WholeQuantity_P0 + i_WQ)->Case.MHJacNL.Index ; /* index of function for jacobian, e.g. dhdb[{d a}] */
   FI->MHJacNL_NbrArguments = (WholeQuantity_P0 + i_WQ)->Case.MHJacNL.NbrArguments ; /* number of arguments of function for jacobian */
@@ -621,6 +623,9 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
 			  &Element->Jac, &Element->InvJac) ;
     }
 
+    // TODO: here evaluate the supplementary arguments (WQ's) at the Gauss
+    // point, and store in MH_Inputs
+
     /* Test and shape Functions (are the same) */
 
     for (i = 0 ; i < Nbr_Dof ; i++) {
@@ -658,7 +663,9 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
     /* time integration over fundamental period */
     for (iTime = 0 ; iTime < NbrPointsX ; iTime++) {
 
+      // TODO: t_value should be a vector, or size 1 + #suppl_args
       t_Value.Type = Type1 ;
+      // TODO: loop over all suppl args
       for (iVal1 = 0 ; iVal1 < nVal1 ; iVal1++){
 	t_Value.Val[iVal1] = 0;
 	for (iHar = 0 ; iHar < NbrHar ; iHar++)
@@ -708,6 +715,9 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
   /*  --------------------------------------------------------------------  */
   /*  A d d   c o n t r i b u t i o n   t o  J a c o b i a n   M a t r i x  */
   /*  --------------------------------------------------------------------  */
+
+  // TODO: we should be able to choose the matrix into which the elementary
+  // matrix is assembled
 
   Jac = &Current.DofData->Jac;
 
