@@ -12,8 +12,13 @@ EndIf
 ExtGmsh     = ".pos";
 ExtGnuplot  = ".dat";
 
-TREE_COTREE_GAUGE=0;
-COULOMB_GAUGE=1;
+TREE_COTREE_GAUGE = 0;
+COULOMB_GAUGE = 1;
+
+DIVJ0_NONE = 0;
+DIVJ0_WEAK = 1;
+// DIVJ0_STRONG = 2; // Not in this file
+
 
 DIVJ0_NONE   = 0;
 DIVJ0_WEAK   = 1;

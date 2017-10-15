@@ -39,6 +39,7 @@ Include "BH.pro"; // nonlinear BH caracteristic of magnetic material
 
 Group {
 
+
   If(!Flag_ConductingCore)
     DomainCC = Region[ {Air, AirInf, Core} ];
     DomainC  = Region[ { } ];
@@ -69,7 +70,7 @@ Group {
   EndIf
   DomainDummy = Region[ 12345 ] ; // Dummy region number for postpro with functions
 
-  Surf_FixedMVP = Region[{ Surf_bn0, Surf_Inf }];
+  Surf_FixedMVP = Region[{ Surf_bn0, Surf_Inf}];
 
 }
 
@@ -152,8 +153,8 @@ Constraint {
 
   { Name GaugeCondition_a ; Type Assign ;
     Case {
-      If(Flag_GaugeType==TREE_COTREE_GAUGE)
-        { Region DomainCC ; SubRegion Surf_a_NoGauge ; Value 0. ; }
+      If (Flag_GaugeType==TREE_COTREE_GAUGE)
+        { Region Region[{DomainCC}] ; SubRegion Surf_a_NoGauge ; Value 0. ; }
       EndIf
     }
   }
@@ -180,10 +181,11 @@ FunctionSpace {
     Constraint {
       { NameOfCoef ae  ; EntityType EdgesOf ; NameOfConstraint MVP_3D ; }
       { NameOfCoef ae2 ; EntityType EdgesOf ; NameOfConstraint MVP_3D ; }
-       If(Flag_GaugeType==TREE_COTREE_GAUGE)
-         { NameOfCoef ae  ; EntityType EdgesOfTreeIn ; EntitySubType StartingOn ;
-           NameOfConstraint GaugeCondition_a ; }
-       EndIf
+
+      If(Flag_GaugeType==TREE_COTREE_GAUGE)
+        { NameOfCoef ae  ; EntityType EdgesOfTreeIn ; EntitySubType StartingOn ;
+          NameOfConstraint GaugeCondition_a ; }
+      EndIf
     }
   }
 
@@ -214,6 +216,7 @@ FunctionSpace {
     }
   }
 
+
   // correcting source interpolation js0[] so that (weakly) div j = 0
   { Name H_xi_divj0 ; Type Form0 ;
     BasisFunction {
@@ -224,7 +227,6 @@ FunctionSpace {
       { NameOfCoef an ; EntityType NodesOf ; NameOfConstraint xi_fixed ; }
     }
   }
-
 
 }
 
@@ -258,10 +260,12 @@ Formulation {
     Equation {
       Galerkin { [ nu[{d a}] * Dof{d a} , {d a} ] ;
         In Domain ; Jacobian Vol ; Integration II ; }
+
       If(Flag_NL_Newton_Raphson)
         Galerkin { JacNL [ dhdb_NL[{d a}] * Dof{d a} , {d a} ] ;
           In DomainNL ; Jacobian Vol ; Integration II ; }
       EndIf
+
       Galerkin { DtDof[ sigma[] * Dof{a} , {a} ] ;
         In DomainC ; Jacobian Vol ; Integration II ; }
       Galerkin { [ sigma[] * Dof{d v}/SymmetryFactor , {a} ] ;
