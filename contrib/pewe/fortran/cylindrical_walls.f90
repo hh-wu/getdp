@@ -97,45 +97,55 @@ subroutine cylindrical_walls(du,dv,dut,dvt,X,Y,t,omega,lambda,mu,rho,a)
 
   ! for GetDP
   ns = max(eta*a+30, 2*eta);
-  
+  epsilon_1 = 2.d0
   ! for GetDP: instead of 2:24
-!$OMP PARALLEL DO PRIVATE(f_n0,f_n1,a_n0,a_n1,b_n0,b_n1,epsilon_n,m11,m12,m21,m22,cn1,cn2,ABn) REDUCTION(+:q,v)
-  do n = 1,ns
-     f_n0 = -dble(n)/a*besjn(n,eta*a)
-     f_n1 = -eta/2.d0*(besjn(n-1,eta*a)-besjn(n+1,eta*a))
 
-     a_n0 = gamma/2.d0*(besselh(n-1,2,gamma*a)-besselh(n+1,2,gamma*a))
-     a_n1 = dble(n)/a*besselh(n,2,gamma*a)
+  do n = 1,1
+     f_n0 = psi_0*epsilon_1*((0.d0,-1.d0)**n)*(dble(n)/a)*besjn(n,eta*a)
+     f_n1 = psi_0*epsilon_1*((0.d0,-1.d0)**n)*(eta/2.d0)*(besjn(n-1,eta*a)-besjn(n+1,eta*a))
 
-     b_n0 = -dble(n)/a*besselh(n,2,eta*a)
-     b_n1 = -eta/2.d0*(besselh(n-1,2,eta*a)-besselh(n+1,2,eta*a))
+     m11 = (gamma/2.d0)*(besselh(n-1,2,gamma*a)-besselh(n+1,2,gamma*a))
+     m12 = -(dble(n)/a)*(besselh(int(n),2,eta*a))
+     m21 =  (dble(n)/a)*besselh(int(n),2,gamma*a)
+     m22 = -(eta/2.d0)*(besselh(n-1,2,eta*a)-besselh(n+1,2,eta*a))
 
-     epsilon_n = 2.d0
-     m11 = a_n0
-     m12 = b_n0
-     m21 = a_n1
-     m22 = b_n1
+     ABn(1) = (1.d0/(m11*m22 - m12*m21))*(m22*f_n0-m12*f_n1)
+     ABn(2) = (1.d0/(m11*m22 - m12*m21))*(-m21*f_n0+m11*f_n1)
 
-     cn1 = -psi_0*epsilon_n*(0.d0,-1.d0)**n * f_n0
-     cn2 = -psi_0*epsilon_n*(0.d0,-1.d0)**n * f_n1
-
-     ABn(1) = 1.d0/(m11*m22 - m12*m21)*(m22*cn1-m12*cn2)
-     ABn(2) = 1.d0/(m11*m22 - m12*m21)*(-m21*cn1+m11*cn2)
-     ! Make sure magnitude of coefficients are sufficiently small
-     ! max(abs(ABn))
-     q = q+(-psi_0*epsilon_n*(0.d0,-1.d0)**n*(Dble(n)/r)*besjn(n,eta*r)&
-           + ABn(1)*gamma/2.d0*(besselh(n-1,2,gamma*r)&
+     q = q+(-psi_0*epsilon_1*((0.d0,-1.d0)**n)*(dble(n)/r)*besjn(n,eta*r)&
+           + ABn(1)*(gamma/2.d0)*(besselh(n-1,2,gamma*r)&
           -besselh(n+1,2,gamma*r)) &
-          - ABn(2)*dble(n)*(besselh(n,2,eta*r)/r))*sin(dble(n)*theta)
+          - ABn(2)*(dble(n)/r)*besselh(int(n),2,eta*r))*sin(dble(n)*theta)
 
-     v = v + (-psi_0*epsilon_n*(0.d0,-1.d0)**n*(eta/2.d0)*( besjn(n-1,eta*r) &
+     v = v + (-psi_0*epsilon_1*((0.d0,-1.d0)**n)*(eta/2.d0)*( besjn(n-1,eta*r) &
           -besjn(n+1,eta*r)) &
-          + ABn(1)*dble(n)*besselh(n,2,gamma*r)/r &
-          - ABn(2)*eta/2.d0*(besselh(n-1,2,eta*r)&
-          -besselh(n+1,2,eta*r)))*cos(dble(n)*theta);
+          + ABn(1)*(dble(n)/r)*besselh(int(n),2,gamma*r) &
+          - ABn(2)*(eta/2.d0)*(besselh(n-1,2,eta*r)&
+          -besselh(n+1,2,eta*r)))*cos(dble(n)*theta)
+  end do
+!$OMP PARALLEL DO PRIVATE(f_n0,f_n1,a_n0,a_n1,b_n0,b_n1,epsilon_n,m11,m12,m21,m22,cn1,cn2,ABn) REDUCTION(+:q,v)
+  do n = 2,ns
+     f_n0 = psi_0*epsilon_1*((0.d0,-1.d0)**n)*(dble(n)/a)*besjn(n,eta*a)
+     f_n1 = psi_0*epsilon_1*((0.d0,-1.d0)**n)*(eta/2.d0)*(besjn(n-1,eta*a)-besjn(n+1,eta*a))
 
-     ! if(maxval(abs(abn)) .lt. 1.0d-16) exit
-     !if(maxval(abs(abn)) .lt. 1.0d-16) exit
+     m11 = (gamma/2.d0)*(besselh(n-1,2,gamma*a)-besselh(n+1,2,gamma*a))
+     m12 = -(dble(n)/a)*(besselh(int(n),2,eta*a))
+     m21 =  (dble(n)/a)*besselh(int(n),2,gamma*a)
+     m22 = -(eta/2.d0)*(besselh(n-1,2,eta*a)-besselh(n+1,2,eta*a))
+
+     ABn(1) = (1.d0/(m11*m22 - m12*m21))*(m22*f_n0-m12*f_n1)
+     ABn(2) = (1.d0/(m11*m22 - m12*m21))*(-m21*f_n0+m11*f_n1)
+
+     q = q+(-psi_0*epsilon_1*((0.d0,-1.d0)**n)*(dble(n)/r)*besjn(n,eta*r)&
+           + ABn(1)*(gamma/2.d0)*(besselh(n-1,2,gamma*r)&
+          -besselh(n+1,2,gamma*r)) &
+          - ABn(2)*(dble(n)/r)*besselh(int(n),2,eta*r))*sin(dble(n)*theta)
+
+     v = v + (-psi_0*epsilon_1*((0.d0,-1.d0)**n)*(eta/2.d0)*( besjn(n-1,eta*r) &
+          -besjn(n+1,eta*r)) &
+          + ABn(1)*(dble(n)/r)*besselh(int(n),2,gamma*r) &
+          - ABn(2)*(eta/2.d0)*(besselh(n-1,2,eta*r)&
+          -besselh(n+1,2,eta*r)))*cos(dble(n)*theta)
   end do
 !$OMP END PARALLEL DO
   ! disp('DONE COMPUTING COEFICIENTS')
