@@ -329,8 +329,14 @@ Formulation {
 	In Omega_c2; Integration Int; Jacobian Vol;  }
       Galerkin { DtDof [ rho[]*c[] * Dof{t} , {t} ];
 	In Omega_c2; Integration Int; Jacobian Vol;  }
-      Galerkin { [ -1./sigma[]*( Re[{d h}]*Re[{d h}] + Im[{d h}]*Im[{d h}]), {t} ];
-	In Omega_c2; Integration Int; Jacobian Vol;  }
+
+      Galerkin { [ -0.5/sigma[]*<h>[Re[{d h}]*Re[{d h}] + Im[{d h}]*Im[{d h}]], {t} ];
+      	In Omega_c2; Integration Int; Jacobian Vol;  }
+
+      // Identical to:
+      // Galerkin { [ -0.5/sigma[]*<h>[SquNorm[{d h}]], {t} ];
+      // In Omega_c2; Integration Int; Jacobian Vol;  }
+
 
       Galerkin { [ h[]*Dof{t} , {t} ] ;
 	In BdOmega_c2; Jacobian Sur ; Integration Int ; }
