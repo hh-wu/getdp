@@ -20,7 +20,7 @@
 !
 
 
-!  Modified by Steven Roman for inclusion in GetDP:
+!  Modified by Vanessa Mattesi for inclusion in GetDP:
 !
 !  Exact solution for a cylindrical wall (zero displacement on the
 !  boundary).
@@ -67,14 +67,11 @@ subroutine cylindrical_walloutabc2(du,dv,dut,dvt,X,Y,t,omega,lambda,mu,rho,a,b)
   ! Amplitude of incomming wave
   phi_0 = 1
   ! %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Series expansion of solution%%%%%%%%%%%
-  ! disp('COMPUTING COEFICIENTS')
   n = 0
   epsilon_0 = 1
 
   F(1) = phi_0*epsilon_0*kp*besjn(1,kp*a)
   F(2) = 0
-  !F(2) = (lambda+2*mu) * (phi_0 * epsilon_0 * ((kp**2)/2.d0) *(besjn(0,kp*b) - besjn(2,kp*b) ))&
-  !     + ((lambda/dble(b))-i*kp*(lambda+2*mu))*phi_0*epsilon_0*kp*besjn(1,kp*b)
 
   M(1,1) = -kp*besselh(1,1,kp*a)
   M(1,2) = -kp*besselh(1,2,kp*a)
@@ -218,14 +215,11 @@ subroutine cylindrical_walloutabc2(du,dv,dut,dvt,X,Y,t,omega,lambda,mu,rho,a,b)
        - (dble(n)/r)*AB(2)*besselh(int(n),2,kp*r) - AB(3)*(ks/2.d0)*(besselh(n-1,1,ks*r)&
        -besselh(n+1,1,ks*r)) - AB(4)*(ks/2.d0)*(besselh(n-1,2,ks*r)-besselh(n+1,2,ks*r)) )*sin(dble(n)*theta)
   end do
-
+  a0_n = 1
+  a1_n = 2
   ! for GetDP: instead of 2:24
-!$OMP PARALLEL DO PRIVATE(f_n0,f_n1,a_n0,a_n1,b_n0,b_n1,epsilon_n,m11,m12,m21,m22,cn1,cn2,ABn) REDUCTION(+:q,v)
+!$OMP PARALLEL DO PRIVATE(n,xip,xis,det,detinv,M,Minv,F,AB) REDUCTION(+:p,q)
  do n = 2,ns
-
-    a0_n = 1
-    a1_n = 2
-
     xip = (1.0d0/kp) * ( 1.0d0/(sqrt(1-(dble(n)**2/((kpeps**2)* b**2 )) ) ));
     xis = (1.0d0/ks) * ( 1.0d0/(sqrt(1-(dble(n)**2/((kseps**2)* b**2 )) ) ));
 

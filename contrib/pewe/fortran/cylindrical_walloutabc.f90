@@ -138,11 +138,6 @@ subroutine cylindrical_walloutabc(du,dv,dut,dvt,X,Y,t,omega,lambda,mu,rho,a,b)
 
     F(3) = 0
     F(4) = 0
-    !F(3) = (phi_0*epsilon_1* (-i)**n) * (-(lambda+2*mu) * (kp**2/4.d0) * (-a1_n*besjn(n,ks*b)+besjn(n+2,ks*b))&
-    !     + (lambda*dble(n)**2/b**2) * besjn(n,kp*b)&
-    !     - ((lambda/b)-i*kp*(lambda+2*mu))* (kp/2.d0) * (besjn(n-1,kp*b)-besjn(n+1,kp*b)) )
-    !F(4) = (phi_0*epsilon_1* (-i)**n) * ((mu*dble(n)/b) * kp * (besjn(n-1,kp*b)-besjn(n+1,kp*b))&
-    !     - ((mu/b)-i*ks*mu)* (dble(n)/b)* besjn(n,kp*b) )
 
     ! Calculate the inverse determinant of the matrix
     detinv = &
@@ -205,13 +200,11 @@ subroutine cylindrical_walloutabc(du,dv,dut,dvt,X,Y,t,omega,lambda,mu,rho,a,b)
        -besselh(n+1,1,ks*r)) - AB(4)*(ks/2.d0)*(besselh(n-1,2,ks*r)-besselh(n+1,2,ks*r)) )*sin(dble(n)*theta)
   end do
 
-  ! for GetDP: instead of 2:24
-!$OMP PARALLEL DO PRIVATE(f_n0,f_n1,a_n0,a_n1,b_n0,b_n1,epsilon_n,m11,m12,m21,m22,cn1,cn2,ABn) REDUCTION(+:q,v)
- do n = 2,ns
-
     a0_n = 1
     a1_n = 2
-
+  ! for GetDP: instead of 2:24
+!$OMP PARALLEL DO PRIVATE(n,M,Minv,detinv,AB,F) REDUCTION(+:p,q)
+  do n = 2,ns
     M(1,1) = (kp/2.d0) * ( besselh(n-1,1,kp*a)-besselh(n+1,1,kp*a) )
     M(1,2) = (kp/2.d0) * ( besselh(n-1,2,kp*a)-besselh(n+1,2,kp*a) )
     M(1,3) = ( dble(n)/a) * besselh(int(n),1,ks*a)
@@ -257,11 +250,6 @@ subroutine cylindrical_walloutabc(du,dv,dut,dvt,X,Y,t,omega,lambda,mu,rho,a,b)
 
     F(3) = 0
     F(4) = 0
-    !F(3) = (phi_0*epsilon_1* (-i)**n) * (-(lambda+2*mu) * (kp**2/4.d0) * (a0_n*besjn(n-2,ks*b)-a1_n*besjn(n,ks*b)+besjn(n+2,ks*b))&
-    !     + (lambda*dble(n)**2/b**2) * besjn(n,kp*b)&
-    !     - ((lambda/b)-i*kp*(lambda+2*mu))* (kp/2.d0) * (besjn(n-1,kp*b)-besjn(n+1,kp*b)) )
-    !F(4) = (phi_0*epsilon_1* (-i)**n) * ((mu*dble(n)/b) * kp * (besjn(n-1,kp*b)-besjn(n+1,kp*b))&
-    !     - ((mu/b)-i*ks*mu)* (dble(n)/b)* besjn(n,kp*b) )
 
     ! Calculate the inverse determinant of the matrix
     detinv = &
