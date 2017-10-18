@@ -1008,7 +1008,9 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
     bool noRange = true, noChoices = true, noLoop = true;
     bool noGraph = true, noClosed = true;
     if(ps.size()){
-      if(fopt.count("ReadOnly") && fopt["ReadOnly"][0]){ // use local value
+      bool useLocalValue = ps[0].getReadOnly();
+      if(fopt.count("ReadOnly")) useLocalValue = fopt["ReadOnly"][0];
+      if(useLocalValue){
         if(c->Type == VAR_FLOAT){
           ps[0].setValue(c->Value.Float);
         }
@@ -1124,7 +1126,9 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
     _onelabClient->get(ps, name);
     bool noClosed = true, noMultipleSelection = true;
     if(ps.size()){
-      if(fopt.count("ReadOnly") && fopt["ReadOnly"][0])
+      bool useLocalValue = ps[0].getReadOnly();
+      if(fopt.count("ReadOnly")) useLocalValue = fopt["ReadOnly"][0];
+      if(useLocalValue)
         ps[0].setValue(c->Value.Char); // use local value
       else
 	c->Value.Char = strSave(ps[0].getValue().c_str()); // use value from server
