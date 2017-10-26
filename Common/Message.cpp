@@ -55,6 +55,15 @@
 #include <Python.h>
 #endif
 
+#if defined(HAVE_HPDDM)
+#define MUMPSSUB // direct mumps solver for subdomain solves
+#define DMUMPS // direct mumps solver for the coarse solves
+#define HPDDM_NUMBERING 'C' // 0-based numering
+#define HPDDM_NO_REGEX
+#undef NONE
+#include <HPDDM.hpp>
+#endif
+
 int Message::_commRank = 0;
 int Message::_commSize = 1;
 int Message::_isCommWorld = 1; // is the communicator set to WORLD (==1) or SELF (!=1)
@@ -131,6 +140,10 @@ void Message::Initialize(int argc, char **argv)
   Py_InitializeEx(0);
   PySys_SetArgv(argc, &wargv[0]);
 #endif
+#endif
+#if defined(HAVE_HPDDM)
+  HPDDM::Option& opt = *HPDDM::Option::get();
+  opt.parse(argc, argv, _commRank == 0);
 #endif
 }
 

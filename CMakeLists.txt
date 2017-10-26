@@ -512,14 +512,10 @@ if(ENABLE_HPDDM)
   if(HPDDM_INC)
     list(APPEND EXTERNAL_INCLUDES ${HPDDM_INC})
     set_config_option(HAVE_HPDDM "HPDDM")
-    get_source_file_property(PROP Kernel/Operation_HPDDM.cpp COMPILE_FLAGS)
-    if(PROP)
-      set_source_files_properties(Kernel/Operation_HPDDM.cpp PROPERTIES
-                                  COMPILE_FLAGS "${PROP} -std=c++11")
-    else(PROP)
-      set_source_files_properties(Kernel/Operation_HPDDM.cpp PROPERTIES
-                                  COMPILE_FLAGS "-std=c++11")
-    endif(PROP)
+    check_cxx_compiler_flag("-std=c++11" STDCXX11)
+    if(STDCXX11)
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+    endif(STDCXX11)
   endif(HPDDM_INC)
 endif(ENABLE_HPDDM)
 
