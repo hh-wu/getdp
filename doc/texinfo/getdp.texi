@@ -2738,7 +2738,7 @@ Formulation @{
   Local | Global | Integral
 
 @var{term-op-type}:
-  DtDof | DtDtDof | JacNL | @var{etc}
+  DtDof | DtDtDof | Eig | JacNL | @var{etc}
 @end example
 
 @noindent Note:
@@ -4506,6 +4506,14 @@ equation. (Not implemented yet.)
 @item DtDtDof
 Time derivative of 2nd order applied only to the @code{Dof@{@}} term of the 
 equation.
+
+@item Eig
+The term is multiplied by (a certain function of) the eigenvalue.  This
+is to be used with the @code{GenerateSeparate} and @code{EigenSolve}
+@code{Resolution} operations. An optional @code{Order @var{expression};}
+or @code{Rational @var{expression};} statement can be added in the term
+to specify the eigenvalue function. Full documentation of this feature
+is not available yet.
 
 @item JacNL
 Nonlinear part of the Jacobian matrix (tangent stiffness matrix) to be
