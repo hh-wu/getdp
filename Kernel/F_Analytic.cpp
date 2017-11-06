@@ -1648,7 +1648,7 @@ void F_AcousticFieldSoftCylinder(F_ARG)
   double R = Fct->Para[1] ;
   double kr = k*r;
   double kR = k*R;
-  int ns = (int)k + 10;
+  int ns = (int)(k*R) + 10;
   double vr = 0., vi = 0.;
 #if defined(_OPENMP)
 #pragma omp parallel for reduction(+: vr,vi)
