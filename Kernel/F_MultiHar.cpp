@@ -726,7 +726,6 @@ void  Cal_GalerkinTermOfFemEquation_MHBilinear(struct Element          * Element
     }
   }
 
-
   /* dummy 1's on the diagonal for sinus-term of dc-component */
 
   if (ZeroHarmonic) {
