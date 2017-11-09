@@ -683,11 +683,10 @@ struct FemLocalTermActive {
 
   struct IntegralQuantityActive  IntegralQuantityActive;
 
-
-  int MHJacNL, MHJacNL_Index, MHJacNL_NbrPointsX, MHJacNL_HarOffSet;
-  int MHJacNL_NbrArguments;
-  double MHJacNL_Factor;
-  double **MHJacNL_H, ***MHJacNL_HH, *MHJacNL_t, *MHJacNL_w;
+  int MHBilinear, MHBilinear_Index, MHBilinear_NbrPointsX, MHBilinear_HarOffSet;
+  int MHBilinear_JacNL;
+  List_T *MHBilinear_WholeQuantity_L;
+  double **MHBilinear_H, ***MHBilinear_HH, *MHBilinear_t, *MHBilinear_w;
 
   int Full_Matrix;
   int NbrEqu, NbrHar, *NumEqu, *NumDof;
@@ -849,7 +848,7 @@ struct WholeQuantity {
     struct { char *SystemName; int DefineSystemIndex;
              int DofNumber; }                                    DofValue;
     struct { List_T *WholeQuantity_L; int Index, NbrPoints; }    MHTransform;
-    struct { int Index, FunctionType, NbrArguments, NbrParameters, NbrPoints, FreqOffSet; } MHJacNL;
+    struct { List_T *WholeQuantity_L; int Index, NbrPoints, FreqOffSet; } MHBilinear;
   } Case;
 
 };
@@ -876,8 +875,7 @@ struct WholeQuantity {
 #define WQ_MHTIMEINTEGRATION       19
 #define WQ_MHTRANSFORM             20
 #define WQ_SHOWVALUE               21
-#define WQ_MHTIMEEVAL              22
-#define WQ_MHJACNL                 23
+#define WQ_MHBILINEAR              23
 #define WQ_POSTSAVE                24
 #define WQ_ATANTERIORTIMESTEP      25
 #define WQ_CHANGECURRENTPOSITION   26

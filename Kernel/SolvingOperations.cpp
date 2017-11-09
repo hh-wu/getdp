@@ -1451,7 +1451,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       LinAlg_CopyVector(&DofData_P->CurrentSolution->x, &x_Save);
 
       Flag_RHS = 1;
-      /* MHJacNL-terms do not contribute to the RHS and residu, and are thus disregarded */
+      /* MHBilinear-terms do not contribute to the RHS and residual, and are thus disregarded */
 
       Error_Prev = 1e99 ;  Frelax_Opt = 1. ;
       //if(Current.Iteration==1) Current.Residual_Iter1=1.0;  //to compute a relative residual (relative to residual at iter 1) in SolveJacAdapt //QQQ?

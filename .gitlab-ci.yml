@@ -10,7 +10,7 @@ variables:
 # Docker builds for all branches
 # ------------------------------
 
-linux64_docker:
+linux64_docker_ci:
   image: onelab/ubuntu16.04
   script:
     - mkdir build
@@ -21,12 +21,14 @@ linux64_docker:
   tags:
     - linux64
     - docker
+  except:
+    - tags
 
 # ------------------------------------------
 # Official Linux builds (master branch only)
 # ------------------------------------------
 
-linux64_official_petsc_complex:
+.linux64_official_petsc_complex: &linux64_official_petsc_complex
   only:
     - master
   script:
@@ -40,7 +42,7 @@ linux64_official_petsc_complex:
     - linux64
     - official
 
-linux64_official_petsc_real:
+.linux64_official_petsc_real: &linux64_official_petsc_real
   only:
     - master
   script:
@@ -54,7 +56,7 @@ linux64_official_petsc_real:
     - linux64
     - official
 
-linux64_official_petsc_real_mh:
+.linux64_official_petsc_real_mh: &linux64_official_petsc_real_mh
   only:
     - master
   script:
@@ -68,11 +70,47 @@ linux64_official_petsc_real_mh:
     - linux64
     - official
 
+linux64_official_petsc_complex_snapshot:
+  <<: *linux64_official_petsc_complex
+  except:
+    - tags
+ 
+linux64_official_petsc_complex_release:
+  variables:
+    EXTRA_VERSION: ""
+  <<: *linux64_official_petsc_complex
+  only:
+    - /^getdp_.*$/
+
+linux64_official_petsc_real_snapshot:
+  <<: *linux64_official_petsc_real
+  except:
+    - tags
+ 
+linux64_official_petsc_real_release:
+  variables:
+    EXTRA_VERSION: ""
+  <<: *linux64_official_petsc_real
+  only:
+    - /^getdp_.*$/
+
+linux64_official_petsc_real_mh_snapshot:
+  <<: *linux64_official_petsc_real_mh
+  except:
+    - tags
+ 
+linux64_official_petsc_real_mh_release:
+  variables:
+    EXTRA_VERSION: ""
+  <<: *linux64_official_petsc_real_mh
+  only:
+    - /^getdp_.*$/
+
 # --------------------------------------------
 # Official Windows builds (master branch only)
 # --------------------------------------------
 
-.windows_official_petsc_complex: &ref_windows_official_petsc_complex
+.windows_official_petsc_complex: &windows_official_petsc_complex
   only:
     - master
   script:
@@ -83,7 +121,7 @@ linux64_official_petsc_real_mh:
     - bash -c "PKG=`ls getdp-*.zip`; /usr/bin/scp -o StrictHostKeyChecking=no -i /home/geuzaine/.ssh/id_rsa ${PKG} geuzaine@getdp.info:.wwwgetdp/bin/Windows/${PKG/\.zip/c\.zip}"
     - bash -c "/usr/bin/ctest -D Experimental -j 1 --output-on-failure"
 
-.windows_official_petsc_real: &ref_windows_official_petsc_real
+.windows_official_petsc_real: &windows_official_petsc_real
   only:
     - master
   script:
@@ -94,7 +132,7 @@ linux64_official_petsc_real_mh:
     - bash -c "PKG=`ls getdp-*.zip`; /usr/bin/scp -o StrictHostKeyChecking=no -i /home/geuzaine/.ssh/id_rsa ${PKG} geuzaine@getdp.info:.wwwgetdp/bin/Windows/${PKG/\.zip/r\.zip}"
     - bash -c "/usr/bin/ctest -D Experimental -j 1 --output-on-failure"
 
-.windows_official_petsc_real_mh: &ref_windows_official_petsc_real_mh
+.windows_official_petsc_real_mh: &windows_official_petsc_real_mh
   only:
     - master
   script:
@@ -105,47 +143,119 @@ linux64_official_petsc_real_mh:
     - bash -c "PKG=`ls getdp-*.zip`; /usr/bin/scp -o StrictHostKeyChecking=no -i /home/geuzaine/.ssh/id_rsa ${PKG} geuzaine@getdp.info:.wwwgetdp/bin/Windows/${PKG/\.zip/r-MH\.zip}"
     - bash -c "/usr/bin/ctest -D Experimental -j 1 --output-on-failure"
 
-windows64_official_petsc_complex:
-  <<: *ref_windows_official_petsc_complex
+windows64_official_petsc_complex_snapshot:
+  <<: *windows_official_petsc_complex
   tags:
     - windows64
     - official
+  except:
+    - tags
 
-windows64_official_petsc_real:
-  <<: *ref_windows_official_petsc_real
+windows64_official_petsc_complex_release:
+  variables:
+    EXTRA_VERSION: ""
+  <<: *windows_official_petsc_complex
   tags:
     - windows64
     - official
+  only:
+    - /^getdp_.*$/
 
-windows64_official_petsc_real_mh:
-  <<: *ref_windows_official_petsc_real_mh
+windows64_official_petsc_real_snapshot:
+  <<: *windows_official_petsc_real
   tags:
     - windows64
     - official
+  except:
+    - tags
 
-windows32_official_petsc_complex:
-  <<: *ref_windows_official_petsc_complex
+windows64_official_petsc_real_release:
+  variables:
+    EXTRA_VERSION: ""
+  <<: *windows_official_petsc_real
+  tags:
+    - windows64
+    - official
+  only:
+    - /^getdp_.*$/
+
+windows64_official_petsc_real_mh_snapshot:
+  <<: *windows_official_petsc_real_mh
+  tags:
+    - windows64
+    - official
+  except:
+    - tags
+
+windows64_official_petsc_real_mh_release:
+  variables:
+    EXTRA_VERSION: ""
+  <<: *windows_official_petsc_real_mh
+  tags:
+    - windows64
+    - official
+  only:
+    - /^getdp_.*$/
+
+windows32_official_petsc_complex_snapshot:
+  <<: *windows_official_petsc_complex
   tags:
     - windows32
     - official
+  except:
+    - tags
 
-windows32_official_petsc_real:
-  <<: *ref_windows_official_petsc_real
+windows32_official_petsc_complex_release:
+  variables:
+    EXTRA_VERSION: ""
+  <<: *windows_official_petsc_complex
   tags:
     - windows32
     - official
+  only:
+    - /^getdp_.*$/
 
-windows32_official_petsc_real_mh:
-  <<: *ref_windows_official_petsc_real_mh
+windows32_official_petsc_real_snapshot:
+  <<: *windows_official_petsc_real
   tags:
     - windows32
     - official
+  except:
+    - tags
+
+windows32_official_petsc_real_release:
+  variables:
+    EXTRA_VERSION: ""
+  <<: *windows_official_petsc_real
+  tags:
+    - windows32
+    - official
+  only:
+    - /^getdp_.*$/
+
+windows32_official_petsc_real_mh_snapshot:
+  <<: *windows_official_petsc_real_mh
+  tags:
+    - windows32
+    - official
+  except:
+    - tags
+
+windows32_official_petsc_real_mh_release:
+  variables:
+    EXTRA_VERSION: ""
+  <<: *windows_official_petsc_real_mh
+  tags:
+    - windows32
+    - official
+  only:
+    - /^getdp_.*$/
 
 # ------------------------------------------
 # Official MacOS builds (master branch only)
 # ------------------------------------------
 
-macos64_official_petsc_complex:
+.macos64_official_petsc_complex: &macos64_official_petsc_complex
   only:
     - master
   script:
@@ -163,7 +273,7 @@ macos64_official_petsc_complex:
     - macos64
     - official
 
-macos64_official_petsc_real:
+.macos64_official_petsc_real: &macos64_official_petsc_real
   only:
     - master
   script:
@@ -181,7 +291,7 @@ macos64_official_petsc_real:
     - macos64
     - official
 
-macos64_official_petsc_real_mh:
+.macos64_official_petsc_real_mh: &macos64_official_petsc_real_mh
   only:
     - master
   script:
@@ -199,11 +309,47 @@ macos64_official_petsc_real_mh:
     - macos64
     - official
 
+macos64_official_petsc_complex_snapshot:
+  <<: *macos64_official_petsc_complex
+  except:
+    - tags
+ 
+macos64_official_petsc_complex_release:
+  variables:
+    EXTRA_VERSION: ""
+  <<: *macos64_official_petsc_complex
+  only:
+    - /^getdp_.*$/
+
+macos64_official_petsc_real_snapshot:
+  <<: *macos64_official_petsc_real
+  except:
+    - tags
+ 
+macos64_official_petsc_real_release:
+  variables:
+    EXTRA_VERSION: ""
+  <<: *macos64_official_petsc_real
+  only:
+    - /^getdp_.*$/
+
+macos64_official_petsc_real_mh_snapshot:
+  <<: *macos64_official_petsc_real_mh
+  except:
+    - tags
+ 
+macos64_official_petsc_real_mh_release:
+  variables:
+    EXTRA_VERSION: ""
+  <<: *macos64_official_petsc_real_mh
+  only:
+    - /^getdp_.*$/
+
 # ----------------------------------------------
 # Official source snapshots (master branch only)
 # ----------------------------------------------
 
-source_official:
+.source_official: &source_official
   only:
     - master
   script:
@@ -215,3 +361,15 @@ source_official:
   tags:
     - linux64
     - official
+
+source_official_snapshot:
+  <<: *source_official
+  except:
+    - tags
+
+source_official_release:
+  variables:
+    EXTRA_VERSION: ""
+  <<: *source_official
+  only:
+    - /^getdp_.*$/
