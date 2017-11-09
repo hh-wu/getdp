@@ -188,7 +188,7 @@
      tDofValue = 369,
      tRational = 370,
      tMHTransform = 371,
-     tMHJacNL = 372,
+     tMHBilinear = 372,
      tAppend = 373,
      tGroup = 374,
      tDefineGroup = 375,
@@ -572,7 +572,7 @@
 #define tDofValue 369
 #define tRational 370
 #define tMHTransform 371
-#define tMHJacNL 372
+#define tMHBilinear 372
 #define tAppend 373
 #define tGroup 374
 #define tDefineGroup 375
@@ -2124,7 +2124,7 @@ static const char *const yytname[] =
   "tTan", "tAtan", "tAtan2", "tSinh", "tCosh", "tTanh", "tFabs", "tFloor",
   "tCeil", "tRound", "tSign", "tFmod", "tModulo", "tHypot", "tRand",
   "tSolidAngle", "tTrace", "tOrder", "tCrossProduct", "tDofValue",
-  "tRational", "tMHTransform", "tMHJacNL", "tAppend", "tGroup",
+  "tRational", "tMHTransform", "tMHBilinear", "tAppend", "tGroup",
   "tDefineGroup", "tAll", "tInSupport", "tMovingBand2D", "tDefineFunction",
   "tUndefineFunction", "tConstraint", "tRegion", "tSubRegion",
   "tSubRegion2", "tRegionRef", "tSubRegionRef", "tFilter",

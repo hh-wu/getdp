@@ -255,7 +255,7 @@ struct doubleXstring{
 %token    tAtan tAtan2 tSinh tCosh tTanh tFabs tFloor tCeil tRound tSign
 %token    tFmod tModulo tHypot tRand
 %token    tSolidAngle tTrace tOrder tCrossProduct tDofValue tRational
-%token    tMHTransform tMHJacNL
+%token    tMHTransform tMHBilinear
 
 %token  tAppend
 
@@ -1590,7 +1590,7 @@ WholeQuantity_Single :
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
 
-  | tMHJacNL
+  | tMHBilinear
     '[' NameForFunction
      { Last_DofIndexInWholeQuantity = Current_DofIndexInWholeQuantity; }
     '[' RecursiveListOfWholeQuantityExpression ']' ']' '{' FExpr ',' FExpr '}'
