@@ -400,19 +400,8 @@ void Cal_InitGalerkinTermOfFemEquation_MHJacNL(struct EquationTerm  * EquationTe
 	(WholeQuantity_P0 + 3)->Type != WQ_BINARYOPERATOR ||
 	(WholeQuantity_P0 + 3)->Case.Operator.TypeOperator != OP_TIME)
       Message::Error("Not allowed expression in Galerkin term with MHJacNL");
-    FI->MHJacNL_Factor = 1.;
-  } else if (List_Nbr(WholeQuantity_L) == 6){
-    if ((WholeQuantity_P0 + 0)->Type != WQ_CONSTANT ||
-	i_WQ != 2 ||
-	(WholeQuantity_P0 + 3)->Type != WQ_BINARYOPERATOR ||
-	(WholeQuantity_P0 + 3)->Case.Operator.TypeOperator != OP_TIME ||
-	EquationTerm_P->Case.LocalTerm.Term.DofIndexInWholeQuantity != 3 ||
-	(WholeQuantity_P0 + 5)->Type != WQ_BINARYOPERATOR ||
-	(WholeQuantity_P0 + 5)->Case.Operator.TypeOperator != OP_TIME)
-      Message::Error("Not allowed expression in Galerkin term with MHJacNL");
-    FI->MHJacNL_Factor = WholeQuantity_P0->Case.Constant ;
-    /* printf(" Factor = %e \n" , FI->MHJacNL_Factor); */
-  } else {
+  }
+  else {
     Message::Error("Not allowed expression in Galerkin term with MHJacNL (%d terms) ",
                    List_Nbr(WholeQuantity_L));
   }
@@ -429,7 +418,6 @@ void Cal_InitGalerkinTermOfFemEquation_MHJacNL(struct EquationTerm  * EquationTe
   // arguments to the expression (index)
   FI->MHJacNL = 1 ;
   FI->MHJacNL_Index  = (WholeQuantity_P0 + i_WQ)->Case.MHJacNL.Index ; /* index of function for jacobian, e.g. dhdb[{d a}] */
-  FI->MHJacNL_NbrArguments = (WholeQuantity_P0 + i_WQ)->Case.MHJacNL.NbrArguments ; /* number of arguments of function for jacobian */
 
   if(Message::GetVerbosity() == 10)
     Message::Info("FreqOffSet in 'MHJacNL' == %d ", (WholeQuantity_P0 + i_WQ)->Case.MHJacNL.FreqOffSet) ;
@@ -469,7 +457,7 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
 
   int     i, j, k, Type_Dimension,  Nbr_IntPoints, i_IntPoint ;
   int     iTime, iDof, jDof, iHar, jHar, nVal1, nVal2 = 0, iVal1, iVal2, Type1;
-  double **H, ***HH, Factor, plus, plus0, weightIntPoint;
+  double **H, ***HH, plus, plus0, weightIntPoint;
   int NbrPointsX, OffSet;
   struct Expression * Expression_P;
   struct Dof * Dofi, *Dofj;
@@ -584,7 +572,6 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
   H            = FI->MHJacNL_H ;
   Expression_P = (struct Expression*)List_Pointer(Problem_S.Expression, FI->MHJacNL_Index);
   OffSet       = FI->MHJacNL_HarOffSet;
-  Factor       = FI->MHJacNL_Factor;
 
 
 
@@ -674,7 +661,7 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
 
       Get_ValueOfExpression(Expression_P, QuantityStorage_P0,
                             Current.u, Current.v, Current.w, &t_Value,
-                            FI->MHJacNL_NbrArguments);
+                            1);
       //Current.u, Current.v, Current.w, &t_Value, 1); //To generalize: Function in MHJacNL has 1 argument (e.g. dhdb[{d a}])
 
       if (!iTime){
@@ -728,7 +715,7 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
 
       for (iHar = 0 ; iHar < NbrHar ; iHar++)
 	for (jHar = OFFSET ; jHar <= iHar ; jHar++){
-	  plus = plus0 = Factor * E_MH[iDof][jDof][iHar][jHar] ;
+	  plus = plus0 = E_MH[iDof][jDof][iHar][jHar] ;
 
 	  if(jHar==DcHarmonic && iHar!=DcHarmonic) { plus0 *= 1. ; plus *= 2. ;}
           // FIXME: this cannot work in complex arithmetic: AssembleInMat will

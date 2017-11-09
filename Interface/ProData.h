@@ -685,8 +685,7 @@ struct FemLocalTermActive {
 
 
   int MHJacNL, MHJacNL_Index, MHJacNL_NbrPointsX, MHJacNL_HarOffSet;
-  int MHJacNL_NbrArguments;
-  double MHJacNL_Factor;
+  // TODO: need to store here the list of WQ to be transformed (in addition to the Dof)
   double **MHJacNL_H, ***MHJacNL_HH, *MHJacNL_t, *MHJacNL_w;
 
   int Full_Matrix;
@@ -849,7 +848,7 @@ struct WholeQuantity {
     struct { char *SystemName; int DefineSystemIndex;
              int DofNumber; }                                    DofValue;
     struct { List_T *WholeQuantity_L; int Index, NbrPoints; }    MHTransform;
-    struct { int Index, FunctionType, NbrArguments, NbrParameters, NbrPoints, FreqOffSet; } MHJacNL;
+    struct { List_T *WholeQuantity_L; int Index, NbrPoints, FreqOffSet; } MHJacNL;
   } Case;
 
 };
