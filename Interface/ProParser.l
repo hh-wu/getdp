@@ -290,6 +290,7 @@ Log10                        return tLog10;
 LogSpace                     return tLogSpace;
 
 MHBilinear                   return tMHBilinear;
+MHJacNL                      return tMHBilinear;
 MHTransform                  return tMHTransform;
 MPI_Barrier		     return tBarrier;
 MPI_BroadcastFields          return tBroadcastFields;

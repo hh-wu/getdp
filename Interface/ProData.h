@@ -684,7 +684,8 @@ struct FemLocalTermActive {
   struct IntegralQuantityActive  IntegralQuantityActive;
 
   int MHBilinear, MHBilinear_Index, MHBilinear_NbrPointsX, MHBilinear_HarOffSet;
-  // TODO: need to store here the list of WQ to be transformed (in addition to the Dof)
+  int MHBilinear_JacNL;
+  List_T *MHBilinear_WholeQuantity_L;
   double **MHBilinear_H, ***MHBilinear_HH, *MHBilinear_t, *MHBilinear_w;
 
   int Full_Matrix;

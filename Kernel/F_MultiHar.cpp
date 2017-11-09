@@ -391,8 +391,6 @@ void Cal_InitGalerkinTermOfFemEquation_MHBilinear(struct EquationTerm  * Equatio
 
   if(EquationTerm_P->Case.LocalTerm.Term.CanonicalWholeQuantity_Equ != CWQ_NONE)
     Message::Error("Not allowed expression in Galerkin term with MHBilinear");
-  if(EquationTerm_P->Case.LocalTerm.Term.TypeTimeDerivative != JACNL_)
-    Message::Error("MHBilinear can only be used with JACNL") ;
 
   if (List_Nbr(WholeQuantity_L) == 3){
     if (i_WQ != 0 ||
@@ -406,21 +404,20 @@ void Cal_InitGalerkinTermOfFemEquation_MHBilinear(struct EquationTerm  * Equatio
                    List_Nbr(WholeQuantity_L));
   }
 
-  // TODO: store here the list of WQ's that will be passed as supplementary
-  // arguments to the expression (index)
   FI->MHBilinear = 1 ;
-  FI->MHBilinear_Index  = (WholeQuantity_P0 + i_WQ)->Case.MHBilinear.Index ; // index of function, e.g. dhdb[{d a}]
-  //FI->MHBilinear_Index  = (WholeQuantity_P0 + i_WQ)->Case.MHBilinear.Index ;
-
+  // index of function, e.g. dhdb[{d a}]
+  FI->MHBilinear_Index = (WholeQuantity_P0 + i_WQ)->Case.MHBilinear.Index ;
+  // list of quantities to transform (arguments of the function)
+  FI->MHBilinear_WholeQuantity_L = (WholeQuantity_P0 + i_WQ)->Case.MHBilinear.WholeQuantity_L ;
   if(Message::GetVerbosity() == 10)
     Message::Info("FreqOffSet in 'MHBilinear' == %d ", (WholeQuantity_P0 + i_WQ)->Case.MHBilinear.FreqOffSet) ;
-
   FI->MHBilinear_HarOffSet = 2 * (WholeQuantity_P0 + i_WQ)->Case.MHBilinear.FreqOffSet ;
   if (FI->MHBilinear_HarOffSet > Current.NbrHar-2){
     Message::Warning("FreqOffSet in 'MHBilinear' cannot exceed %d => set to %d ",
                      Current.NbrHar/2-1, Current.NbrHar/2-1) ;
     FI->MHBilinear_HarOffSet = Current.NbrHar-2 ;
   }
+  FI->MHBilinear_JacNL = (EquationTerm_P->Case.LocalTerm.Term.TypeTimeDerivative == JACNL_);
 
   MH_Get_InitData(2, (WholeQuantity_P0 + i_WQ)->Case.MHBilinear.NbrPoints,
 		  &FI->MHBilinear_NbrPointsX, &FI->MHBilinear_H, &FI->MHBilinear_HH,
@@ -435,8 +432,8 @@ void Cal_InitGalerkinTermOfFemEquation_MHBilinear(struct EquationTerm  * Equatio
 
 void  Cal_GalerkinTermOfFemEquation_MHBilinear(struct Element          * Element,
 					    struct EquationTerm     * EquationTerm_P,
-					    struct QuantityStorage  * QuantityStorage_P0) {
-
+					    struct QuantityStorage  * QuantityStorage_P0)
+{
   struct FemLocalTermActive * FI ;
   struct QuantityStorage    * QuantityStorage_P;
   struct IntegrationCase    * IntegrationCase_P ;
@@ -454,14 +451,9 @@ void  Cal_GalerkinTermOfFemEquation_MHBilinear(struct Element          * Element
   int NbrPointsX, OffSet;
   struct Expression * Expression_P;
   struct Dof * Dofi, *Dofj;
-  struct Value t_Value;
-  gMatrix * Jac;
 
   double one=1.0 ;
   int iPul, ZeroHarmonic, DcHarmonic;
-
-  // test!
-  //double E_MH[NBR_MAX_BASISFUNCTIONS][NBR_MAX_BASISFUNCTIONS][NBR_MAX_HARMONIC][NBR_MAX_HARMONIC];
   double E_D[NBR_MAX_HARMONIC][NBR_MAX_HARMONIC][MAX_DIM];
 
   void (*xFunctionBFDof[NBR_MAX_BASISFUNCTIONS])
@@ -506,10 +498,7 @@ void  Cal_GalerkinTermOfFemEquation_MHBilinear(struct Element          * Element
 	 QuantityStorage_P->BasisFunction[j].Dof + k/2*gCOMPLEX_INCREMENT,
 	 &Val_Dof[j][k], &Val_Dof[j][k+1]) ;
 
-  /* printf("Type1 = %d\n",  FI->Type_FormDof); */
   nVal1 = NbrValues_Type (Type1 = Get_ValueFromForm(FI->Type_FormDof)) ;
-
-
 
   /*  -------------------------------------------------------------------  */
   /*  G e t   J a c o b i a n   M e t h o d                                */
@@ -531,8 +520,6 @@ void  Cal_GalerkinTermOfFemEquation_MHBilinear(struct Element          * Element
 			 Element->Type, &Type_Dimension) ;
 
   if (FI->Flag_ChangeCoord) Get_NodesCoordinatesOfElement(Element) ;
-
-
 
   /*  integration in space  */
 
@@ -565,8 +552,6 @@ void  Cal_GalerkinTermOfFemEquation_MHBilinear(struct Element          * Element
   H            = FI->MHBilinear_H ;
   Expression_P = (struct Expression*)List_Pointer(Problem_S.Expression, FI->MHBilinear_Index);
   OffSet       = FI->MHBilinear_HarOffSet;
-
-
 
   /*  ------------------------------------------------------------------------  */
   /*  ------------------------------------------------------------------------  */
@@ -603,11 +588,7 @@ void  Cal_GalerkinTermOfFemEquation_MHBilinear(struct Element          * Element
 			  &Element->Jac, &Element->InvJac) ;
     }
 
-    // TODO: here evaluate the supplementary arguments (WQ's) at the Gauss
-    // point, and store in MH_Inputs
-
-    /* Test and shape Functions (are the same) */
-
+    // Test and shape Functions (are the same)
     for (i = 0 ; i < Nbr_Dof ; i++) {
       xFunctionBFDof[i]
 	(Element,
@@ -637,31 +618,49 @@ void  Cal_GalerkinTermOfFemEquation_MHBilinear(struct Element          * Element
       break ;
     }
 
+    // evaluate additional (multi-harmonic) arguments
+    int N = List_Nbr(FI->MHBilinear_WholeQuantity_L);
+
+    std::vector<struct Value> MH_Values(N);
+    for(int j = 1; j < N; j++){
+      List_T *WQ; List_Read(FI->MHBilinear_WholeQuantity_L, j, &WQ);
+      Cal_WholeQuantity(Element, QuantityStorage_P0, WQ, Current.u, Current.v, Current.w, -1, 0,
+                        &MH_Values[j]) ;
+    }
 
     Current.NbrHar = 1;  /* evaluation in time domain */
 
-    /* time integration over fundamental period */
+    std::vector<struct Value> t_Values(N + 1); // in case N==0
+
+    // time integration over fundamental period
     for (iTime = 0 ; iTime < NbrPointsX ; iTime++) {
 
-      // TODO: t_value should be a vector, or size 1 + #suppl_args
-      t_Value.Type = Type1 ;
-      // TODO: loop over all suppl args
+      t_Values[0].Type = Type1 ;
       for (iVal1 = 0 ; iVal1 < nVal1 ; iVal1++){
-	t_Value.Val[iVal1] = 0;
+	t_Values[0].Val[iVal1] = 0;
 	for (iHar = 0 ; iHar < NbrHar ; iHar++)
-	  t_Value.Val[iVal1] += H[iTime][iHar] * Val[iHar*nVal1+iVal1] ;
+	  t_Values[0].Val[iVal1] += H[iTime][iHar] * Val[iHar*nVal1+iVal1] ;
+      }
+      for(int j = 1; j < N; j++){
+
+        printf("**** WTF!?!?\n");
+        int nVal1 = NbrValues_Type(MH_Values[j].Type);
+        t_Values[j].Type = MH_Values[j].Type;
+        for (int iVal = 0 ; iVal < nVal1 ; iVal++){
+          t_Values[j].Val[iVal] = 0.;
+          for (int iHar = 0 ; iHar < NbrHar ; iHar++)
+            t_Values[j].Val[iVal] += H[iTime][iHar] * MH_Values[j].Val[iHar*MAX_DIM+iVal] ;
+        }
       }
 
       Get_ValueOfExpression(Expression_P, QuantityStorage_P0,
-                            Current.u, Current.v, Current.w, &t_Value,
-                            1);
-      //Current.u, Current.v, Current.w, &t_Value, 1); //To generalize: Function in MHBilinear has 1 argument (e.g. dhdb[{d a}])
+                            Current.u, Current.v, Current.w, &t_Values[0], N);
 
       if (!iTime){
 	if (!i_IntPoint){
-	  nVal2 = NbrValues_Type (t_Value.Type) ;
+	  nVal2 = NbrValues_Type (t_Values[0].Type) ;
 	  Get_Product = (double(*)(double*,double*,double*))
-	    Get_RealProductFunction_Type1xType2xType1 (Type1, t_Value.Type) ;
+	    Get_RealProductFunction_Type1xType2xType1 (Type1, t_Values[0].Type) ;
 	}
 	for (iHar = 0 ; iHar < NbrHar ; iHar++)
 	  for (jHar = OFFSET ; jHar <= iHar ; jHar++)
@@ -672,7 +671,7 @@ void  Cal_GalerkinTermOfFemEquation_MHBilinear(struct Element          * Element
       for (iHar = 0 ; iHar < NbrHar ; iHar++)
 	for (jHar = OFFSET  ; jHar <= iHar ; jHar++){
 	  for (iVal2 = 0 ; iVal2 < nVal2 ; iVal2++)
-	    E_D[iHar][jHar][iVal2] += HH[iTime][iHar][jHar] * t_Value.Val[iVal2] ;
+	    E_D[iHar][jHar][iVal2] += HH[iTime][iHar][jHar] * t_Values[0].Val[iVal2] ;
 	}
 
     } /* for iTime ... */
@@ -696,10 +695,11 @@ void  Cal_GalerkinTermOfFemEquation_MHBilinear(struct Element          * Element
   /*  A d d   c o n t r i b u t i o n   t o  J a c o b i a n   M a t r i x  */
   /*  --------------------------------------------------------------------  */
 
-  // TODO: we should be able to choose the matrix into which the elementary
-  // matrix is assembled
-
-  Jac = &Current.DofData->Jac;
+  gMatrix * matrix;
+  if(FI->MHBilinear_JacNL)
+    matrix = &Current.DofData->Jac;
+  else
+    matrix = &Current.DofData->A;
 
   for (iDof = 0 ; iDof < Nbr_Dof ; iDof++){
     Dofi = QuantityStorage_P->BasisFunction[iDof].Dof ;
@@ -714,13 +714,13 @@ void  Cal_GalerkinTermOfFemEquation_MHBilinear(struct Element          * Element
           // FIXME: this cannot work in complex arithmetic: AssembleInMat will
           // need to assemble both real and imaginary parts at once -- See
           // Cal_AssembleTerm for an example
-          Dof_AssembleInMat(Dofi+iHar, Dofj+jHar, 1, &plus, Jac, NULL) ;
+          Dof_AssembleInMat(Dofi+iHar, Dofj+jHar, 1, &plus, matrix, NULL) ;
 	  if(iHar != jHar)
-	      Dof_AssembleInMat(Dofi+jHar, Dofj+iHar, 1, &plus0, Jac, NULL) ;
+	      Dof_AssembleInMat(Dofi+jHar, Dofj+iHar, 1, &plus0, matrix, NULL) ;
 	  if(iDof != jDof){
-	      Dof_AssembleInMat(Dofj+iHar, Dofi+jHar, 1, &plus, Jac, NULL) ;
+	      Dof_AssembleInMat(Dofj+iHar, Dofi+jHar, 1, &plus, matrix, NULL) ;
 	      if(iHar != jHar)
-		Dof_AssembleInMat(Dofj+jHar, Dofi+iHar, 1, &plus0, Jac, NULL) ;
+		Dof_AssembleInMat(Dofj+jHar, Dofi+iHar, 1, &plus0, matrix, NULL) ;
 	  }
 	}
     }
@@ -735,7 +735,7 @@ void  Cal_GalerkinTermOfFemEquation_MHBilinear(struct Element          * Element
       // FIXME: this cannot work in complex arithmetic: AssembleInMat will
       // need to assemble both real and imaginary parts at once -- See
       // Cal_AssembleTerm for an example
-      Dof_AssembleInMat(Dofi, Dofi, 1, &one, Jac, NULL) ;
+      Dof_AssembleInMat(Dofi, Dofi, 1, &one, matrix, NULL) ;
     }
   }
 }
