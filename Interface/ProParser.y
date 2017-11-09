@@ -1600,11 +1600,11 @@ WholeQuantity_Single :
 	vyyerror(0, "Undefined function '%s' used in MHBilinear", $3);
       if(Current_DofIndexInWholeQuantity != Last_DofIndexInWholeQuantity)
 	vyyerror(0, "Dof{} definition cannot be used in MHBilinear");
-      WholeQuantity_S.Type = WQ_MHJACNL;
-      WholeQuantity_S.Case.MHJacNL.Index = i;
-      WholeQuantity_S.Case.MHJacNL.WholeQuantity_L = $6;
-      WholeQuantity_S.Case.MHJacNL.NbrPoints = (int)$10;
-      WholeQuantity_S.Case.MHJacNL.FreqOffSet = (int)$12;
+      WholeQuantity_S.Type = WQ_MHBILINEAR;
+      WholeQuantity_S.Case.MHBilinear.Index = i;
+      WholeQuantity_S.Case.MHBilinear.WholeQuantity_L = $6;
+      WholeQuantity_S.Case.MHBilinear.NbrPoints = (int)$10;
+      WholeQuantity_S.Case.MHBilinear.FreqOffSet = (int)$12;
       List_Read(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1, &Current_WholeQuantity_L);
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }

@@ -284,8 +284,8 @@ void Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
   // TODO: if JACNL_, say to Cal_Init to assemble later in Jac, otherwise
   // assemble in the system matrix
 
-  /*  initialisation of MHJacNL-term (nonlinear multi-harmonics) if necessary */
-  Cal_InitGalerkinTermOfFemEquation_MHJacNL(EquationTerm_P);
+  /*  initialisation of MHBilinear-term (nonlinear multi-harmonics) if necessary */
+  Cal_InitGalerkinTermOfFemEquation_MHBilinear(EquationTerm_P);
 
   /* Full_Matrix */
   if (EquationTerm_P->Case.LocalTerm.Full_Matrix) {
@@ -542,13 +542,13 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 
   FI = EquationTerm_P->Case.LocalTerm.Active ;
 
-  /* treatment of MHJacNL-term in separate routine */
-  if (FI->MHJacNL) {
+  /* treatment of MHBilinear-term in separate routine */
+  if (FI->MHBilinear) {
     /* if only the RHS of the system is to be calculated
        (in case of adaptive relaxation of the Newton-Raphson scheme)
        the (expensive and redundant) calculation of this term can be skipped */
     if (!Flag_RHS)
-      Cal_GalerkinTermOfFemEquation_MHJacNL(Element, EquationTerm_P, QuantityStorage_P0) ;
+      Cal_GalerkinTermOfFemEquation_MHBilinear(Element, EquationTerm_P, QuantityStorage_P0) ;
     return;
   }
 

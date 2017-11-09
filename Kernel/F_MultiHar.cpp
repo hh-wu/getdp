@@ -108,7 +108,7 @@ void  *Get_RealProductFunction_Type1xType2xType1 (int Type1, int Type2)
 /*
   Case = 1 : MHTransform       NbrPoints (samples per smallest period) is given,
                                NbrPointsX (samples per fundamental period) is derived
-  Case = 2 : MHJacNL           NbrPoints given,  NbrPointsX derived
+  Case = 2 : MHBilinear           NbrPoints given,  NbrPointsX derived
   Case = 3 : HarmonicToTime    NbrPointsX given,  NbrPoints derived
 */
 
@@ -166,7 +166,7 @@ void MH_Get_InitData(int Case, int NbrPoints, int *NbrPointsX_P,
     Message::Info("MH_Get_InitData (MHTransform) => NbrHar = %d  NbrPoints = %d|%d",
                   NbrHar, NbrPoints, NbrPointsX);
   if(Case==2)
-    Message::Info("MH_Get_InitData (MHJacNL) => NbrHar = %d  NbrPoints = %d|%d",
+    Message::Info("MH_Get_InitData (MHBilinear) => NbrHar = %d  NbrPoints = %d|%d",
                   NbrHar, NbrPoints, NbrPointsX);
   if(Case==3)
     Message::Info("MH_Get_InitData (HarmonicToTime) => NbrHar = %d  NbrPoints = %d|%d",
@@ -366,7 +366,7 @@ void MHTransform(struct Element * Element, struct QuantityStorage * QuantityStor
 /*  C a l _ I n i t G a l e r k i n T e r m O f F e m E q u a t i o n _ M H J a c N L  */
 /* ----------------------------------------------------------------------------------- */
 
-void Cal_InitGalerkinTermOfFemEquation_MHJacNL(struct EquationTerm  * EquationTerm_P)
+void Cal_InitGalerkinTermOfFemEquation_MHBilinear(struct EquationTerm  * EquationTerm_P)
 {
   struct FemLocalTermActive  * FI ;
   List_T * WholeQuantity_L;
@@ -374,64 +374,57 @@ void Cal_InitGalerkinTermOfFemEquation_MHJacNL(struct EquationTerm  * EquationTe
   int i_WQ ;
 
   FI = EquationTerm_P->Case.LocalTerm.Active ;
-  FI->MHJacNL = 0 ;
+  FI->MHBilinear = 0 ;
 
-  /* search for MHJacNL-term(s) */
+  /* search for MHBilinear-term(s) */
   WholeQuantity_L  = EquationTerm_P->Case.LocalTerm.Term.WholeQuantity ;
   WholeQuantity_P0 = (struct WholeQuantity*)List_Pointer(WholeQuantity_L, 0) ;
   i_WQ = 0 ; while ( i_WQ < List_Nbr(WholeQuantity_L) &&
-		     (WholeQuantity_P0 + i_WQ)->Type != WQ_MHJACNL) i_WQ++ ;
+		     (WholeQuantity_P0 + i_WQ)->Type != WQ_MHBILINEAR) i_WQ++ ;
 
   if (i_WQ == List_Nbr(WholeQuantity_L) )
-    return;   /* no MHJacNL stuff, let's get the hell out of here ! */
+    return;   /* no MHBilinear stuff, let's get the hell out of here ! */
 
   /* check if Galerkin term produces symmetrical contribution to system matrix */
   if (!FI->SymmetricalMatrix)
-     Message::Error("Galerkin term with MHJacNL must be symmetrical");
+     Message::Error("Galerkin term with MHBilinear must be symmetrical");
 
   if(EquationTerm_P->Case.LocalTerm.Term.CanonicalWholeQuantity_Equ != CWQ_NONE)
-    Message::Error("Not allowed expression in Galerkin term with MHJacNL");
+    Message::Error("Not allowed expression in Galerkin term with MHBilinear");
   if(EquationTerm_P->Case.LocalTerm.Term.TypeTimeDerivative != JACNL_)
-    Message::Error("MHJacNL can only be used with JACNL") ;
+    Message::Error("MHBilinear can only be used with JACNL") ;
 
   if (List_Nbr(WholeQuantity_L) == 3){
     if (i_WQ != 0 ||
 	EquationTerm_P->Case.LocalTerm.Term.DofIndexInWholeQuantity != 1 ||
 	(WholeQuantity_P0 + 2)->Type != WQ_BINARYOPERATOR ||
 	(WholeQuantity_P0 + 2)->Case.Operator.TypeOperator != OP_TIME)
-      Message::Error("Not allowed expression in Galerkin term with MHJacNL");
+      Message::Error("Not allowed expression in Galerkin term with MHBilinear");
   }
   else {
-    Message::Error("Not allowed expression in Galerkin term with MHJacNL (%d terms) ",
+    Message::Error("Not allowed expression in Galerkin term with MHBilinear (%d terms) ",
                    List_Nbr(WholeQuantity_L));
   }
-  /*
-  // Moving this check up...
-  if(EquationTerm_P->Case.LocalTerm.Term.CanonicalWholeQuantity_Equ != CWQ_NONE)
-    Message::Error("Not allowed expression in Galerkin term with MHJacNL");
-
-  if (EquationTerm_P->Case.LocalTerm.Term.TypeTimeDerivative != JACNL_)
-    Message::Error("MHJacNL can only be used with JACNL") ;
-  */
 
   // TODO: store here the list of WQ's that will be passed as supplementary
   // arguments to the expression (index)
-  FI->MHJacNL = 1 ;
-  FI->MHJacNL_Index  = (WholeQuantity_P0 + i_WQ)->Case.MHJacNL.Index ; /* index of function for jacobian, e.g. dhdb[{d a}] */
+  FI->MHBilinear = 1 ;
+  FI->MHBilinear_Index  = (WholeQuantity_P0 + i_WQ)->Case.MHBilinear.Index ; // index of function, e.g. dhdb[{d a}]
+  //FI->MHBilinear_Index  = (WholeQuantity_P0 + i_WQ)->Case.MHBilinear.Index ;
 
   if(Message::GetVerbosity() == 10)
-    Message::Info("FreqOffSet in 'MHJacNL' == %d ", (WholeQuantity_P0 + i_WQ)->Case.MHJacNL.FreqOffSet) ;
+    Message::Info("FreqOffSet in 'MHBilinear' == %d ", (WholeQuantity_P0 + i_WQ)->Case.MHBilinear.FreqOffSet) ;
 
-  FI->MHJacNL_HarOffSet = 2 * (WholeQuantity_P0 + i_WQ)->Case.MHJacNL.FreqOffSet ;
-  if (FI->MHJacNL_HarOffSet > Current.NbrHar-2){
-    Message::Warning("FreqOffSet in 'MHJacNL' cannot exceed %d => set to %d ",
+  FI->MHBilinear_HarOffSet = 2 * (WholeQuantity_P0 + i_WQ)->Case.MHBilinear.FreqOffSet ;
+  if (FI->MHBilinear_HarOffSet > Current.NbrHar-2){
+    Message::Warning("FreqOffSet in 'MHBilinear' cannot exceed %d => set to %d ",
                      Current.NbrHar/2-1, Current.NbrHar/2-1) ;
-    FI->MHJacNL_HarOffSet = Current.NbrHar-2 ;
+    FI->MHBilinear_HarOffSet = Current.NbrHar-2 ;
   }
 
-  MH_Get_InitData(2, (WholeQuantity_P0 + i_WQ)->Case.MHJacNL.NbrPoints,
-		  &FI->MHJacNL_NbrPointsX, &FI->MHJacNL_H, &FI->MHJacNL_HH,
-		  &FI->MHJacNL_t, &FI->MHJacNL_w) ;
+  MH_Get_InitData(2, (WholeQuantity_P0 + i_WQ)->Case.MHBilinear.NbrPoints,
+		  &FI->MHBilinear_NbrPointsX, &FI->MHBilinear_H, &FI->MHBilinear_HH,
+		  &FI->MHBilinear_t, &FI->MHBilinear_w) ;
 }
 
 #define OFFSET (iHar < NbrHar-OffSet)? 0 : iHar-NbrHar+OffSet+2-iHar%2
@@ -440,7 +433,7 @@ void Cal_InitGalerkinTermOfFemEquation_MHJacNL(struct EquationTerm  * EquationTe
 /*  C a l _ G a l e r k i n T e r m O f F e m E q u a t i o n _ M H J a c N L  */
 /* --------------------------------------------------------------------------- */
 
-void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
+void  Cal_GalerkinTermOfFemEquation_MHBilinear(struct Element          * Element,
 					    struct EquationTerm     * EquationTerm_P,
 					    struct QuantityStorage  * QuantityStorage_P0) {
 
@@ -548,7 +541,7 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
 
   switch (IntegrationCase_P->Type) {
   case ANALYTIC :
-    Message::Error("Analytical integration not implemented for MHJacNL");
+    Message::Error("Analytical integration not implemented for MHBilinear");
   }
 
   Quadrature_P = (struct Quadrature*)
@@ -567,11 +560,11 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
 
   /*  integration in fundamental time period  */
 
-  NbrPointsX   = FI->MHJacNL_NbrPointsX;
-  HH           = FI->MHJacNL_HH;
-  H            = FI->MHJacNL_H ;
-  Expression_P = (struct Expression*)List_Pointer(Problem_S.Expression, FI->MHJacNL_Index);
-  OffSet       = FI->MHJacNL_HarOffSet;
+  NbrPointsX   = FI->MHBilinear_NbrPointsX;
+  HH           = FI->MHBilinear_HH;
+  H            = FI->MHBilinear_H ;
+  Expression_P = (struct Expression*)List_Pointer(Problem_S.Expression, FI->MHBilinear_Index);
+  OffSet       = FI->MHBilinear_HarOffSet;
 
 
 
@@ -662,7 +655,7 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
       Get_ValueOfExpression(Expression_P, QuantityStorage_P0,
                             Current.u, Current.v, Current.w, &t_Value,
                             1);
-      //Current.u, Current.v, Current.w, &t_Value, 1); //To generalize: Function in MHJacNL has 1 argument (e.g. dhdb[{d a}])
+      //Current.u, Current.v, Current.w, &t_Value, 1); //To generalize: Function in MHBilinear has 1 argument (e.g. dhdb[{d a}])
 
       if (!iTime){
 	if (!i_IntPoint){

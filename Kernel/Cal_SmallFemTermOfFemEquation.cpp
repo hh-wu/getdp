@@ -106,13 +106,13 @@ void Cal_SmallFemTermOfFemEquation(struct Element*         Element,
   struct FemLocalTermActive* FI = EquationTerm_P->Case.LocalTerm.Active;
   Current.flagAssDiag = 0; /*+++prov*/
 
-  /* treatment of MHJacNL-term in separate routine */
-  if(FI->MHJacNL){
+  /* treatment of MHBilinear-term in separate routine */
+  if(FI->MHBilinear){
     /* if only the RHS of the system is to be calculated
        (in case of adaptive relaxation of the Newton-Raphson scheme)
        the (expensive and redundant) calculation of this term can be skipped */
     if(!Flag_RHS)
-      Message::Error("MHJacNL not in SmallFEM");
+      Message::Error("MHBilinear not in SmallFEM");
     return;
   }
 
