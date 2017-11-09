@@ -394,11 +394,11 @@ void Cal_InitGalerkinTermOfFemEquation_MHJacNL(struct EquationTerm  * EquationTe
   if(EquationTerm_P->Case.LocalTerm.Term.TypeTimeDerivative != JACNL_)
     Message::Error("MHJacNL can only be used with JACNL") ;
 
-  if (List_Nbr(WholeQuantity_L) == 4){
-    if (i_WQ != 1 ||
-	EquationTerm_P->Case.LocalTerm.Term.DofIndexInWholeQuantity != 2 ||
-	(WholeQuantity_P0 + 3)->Type != WQ_BINARYOPERATOR ||
-	(WholeQuantity_P0 + 3)->Case.Operator.TypeOperator != OP_TIME)
+  if (List_Nbr(WholeQuantity_L) == 3){
+    if (i_WQ != 0 ||
+	EquationTerm_P->Case.LocalTerm.Term.DofIndexInWholeQuantity != 1 ||
+	(WholeQuantity_P0 + 2)->Type != WQ_BINARYOPERATOR ||
+	(WholeQuantity_P0 + 2)->Case.Operator.TypeOperator != OP_TIME)
       Message::Error("Not allowed expression in Galerkin term with MHJacNL");
   }
   else {
