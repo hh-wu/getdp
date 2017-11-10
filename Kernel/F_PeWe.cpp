@@ -19,6 +19,24 @@ extern "C" {
   extern void cylindrical_walls_(double *du, double *dv, double *dut, double *dvt,
                                 double *X, double *Y, double *t, double *omega,
                                 double *lambda, double *mu, double *rho, double *a);
+
+  extern void cylindrical_wallout_(double *du, double *dv, double *dut, double *dvt,
+                                double *X, double *Y, double *t, double *omega,
+                                double *lambda, double *mu, double *rho, double *a);
+
+  extern void cylindrical_wallsout_(double *du, double *dv, double *dut, double *dvt,
+                                double *X, double *Y, double *t, double *omega,
+                                double *lambda, double *mu, double *rho, double *a);
+
+  extern void cylindrical_walloutabc_(double *du, double *dv, double *dut, double *dvt,
+                                double *X, double *Y, double *t, double *omega,
+                                double *lambda, double *mu, double *rho, double *a,
+                                double *b);
+
+  extern void cylindrical_walloutabc2_(double *du, double *dv, double *dut, double *dvt,
+                                double *X, double *Y, double *t, double *omega,
+                                double *lambda, double *mu, double *rho, double *a,
+                                double *b);
 }
 
 void  F_ElastodynamicsCylinderCavity(F_ARG)
@@ -82,6 +100,102 @@ void  F_ElastodynamicsCylinderWallS(F_ARG)
   cylindrical_walls_(&du_re,&dv_re,&du_im,&dv_im,&X,&Y,&t,&omega,&lambda,&mu,&rho,&a);
 #else
   Message::Error("ElastodynamicsCylinderWallS requires PeWe");
+#endif
+  V->Val[0] = du_re;
+  V->Val[1] = dv_re;
+  V->Val[MAX_DIM] = du_im;
+  V->Val[MAX_DIM+1] = dv_im;
+  V->Type = VECTOR ;
+}
+
+void  F_ElastodynamicsCylinderWallOut(F_ARG)
+{
+  double du_re = 0., dv_re = 0., du_im = 0., dv_im = 0.;
+#if defined(HAVE_PEWE)
+  double X = A->Val[0];
+  double Y = A->Val[1];
+  double t = 0.;
+  double omega = Fct->Para[0];
+  double lambda = Fct->Para[1];
+  double mu = Fct->Para[2];
+  double rho = Fct->Para[3];
+  double a = Fct->Para[4];
+  cylindrical_wallout_(&du_re,&dv_re,&du_im,&dv_im,&X,&Y,&t,&omega,&lambda,&mu,&rho,&a);
+#else
+  Message::Error("ElastodynamicsCylinderWallOut requires PeWe");
+#endif
+  V->Val[0] = du_re;
+  V->Val[1] = dv_re;
+  V->Val[MAX_DIM] = du_im;
+  V->Val[MAX_DIM+1] = dv_im;
+  V->Type = VECTOR ;
+}
+
+void  F_ElastodynamicsCylinderWallsOut(F_ARG)
+{
+  double du_re = 0., dv_re = 0., du_im = 0., dv_im = 0.;
+#if defined(HAVE_PEWE)
+  double X = A->Val[0];
+  double Y = A->Val[1];
+  double t = 0.;
+  double omega = Fct->Para[0];
+  double lambda = Fct->Para[1];
+  double mu = Fct->Para[2];
+  double rho = Fct->Para[3];
+  double a = Fct->Para[4];
+  cylindrical_wallsout_(&du_re,&dv_re,&du_im,&dv_im,&X,&Y,&t,&omega,&lambda,&mu,&rho,&a);
+#else
+  Message::Error("ElastodynamicsCylinderWallSOut requires PeWe");
+#endif
+  V->Val[0] = du_re;
+  V->Val[1] = dv_re;
+  V->Val[MAX_DIM] = du_im;
+  V->Val[MAX_DIM+1] = dv_im;
+  V->Type = VECTOR ;
+}
+
+void  F_ElastoCylinderWallOutAbc(F_ARG)
+{
+  double du_re = 0., dv_re = 0., du_im = 0., dv_im = 0.;
+#if defined(HAVE_PEWE)
+  double X = A->Val[0];
+  double Y = A->Val[1];
+  double t = 0.;
+  double omega = Fct->Para[0];
+  double lambda = Fct->Para[1];
+  double mu = Fct->Para[2];
+  double rho = Fct->Para[3];
+  double a = Fct->Para[4];
+  double b = Fct->Para[5];
+  cylindrical_walloutabc_(&du_re,&dv_re,&du_im,&dv_im,&X,&Y,&t,&omega,
+&lambda,&mu,&rho,&a,&b);
+#else
+  Message::Error("ElastodynamicsCylinderWallOutABC requires PeWe");
+#endif
+  V->Val[0] = du_re;
+  V->Val[1] = dv_re;
+  V->Val[MAX_DIM] = du_im;
+  V->Val[MAX_DIM+1] = dv_im;
+  V->Type = VECTOR ;
+}
+
+void  F_ElastoCylinderWallOutAbc2(F_ARG)
+{
+  double du_re = 0., dv_re = 0., du_im = 0., dv_im = 0.;
+#if defined(HAVE_PEWE)
+  double X = A->Val[0];
+  double Y = A->Val[1];
+  double t = 0.;
+  double omega = Fct->Para[0];
+  double lambda = Fct->Para[1];
+  double mu = Fct->Para[2];
+  double rho = Fct->Para[3];
+  double a = Fct->Para[4];
+  double b = Fct->Para[5];
+  cylindrical_walloutabc2_(&du_re,&dv_re,&du_im,&dv_im,&X,&Y,&t,&omega,
+&lambda,&mu,&rho,&a,&b);
+#else
+  Message::Error("ElastodynamicsCylinderWallOutABC2 requires PeWe");
 #endif
   V->Val[0] = du_re;
   V->Val[1] = dv_re;
