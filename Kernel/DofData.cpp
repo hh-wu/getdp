@@ -570,7 +570,7 @@ void Dof_WriteFileRES_ExtendMH(char * Name_File, struct DofData * DofData_P,
   if(Message::GetIsCommWorld() && Message::GetCommRank()) return;
 
   if(!DofData_P->CurrentSolution){
-    Message::Warning("No solution to save");
+    Message::Warning("No ExtendMH solution to save");
     return;
   }
 
@@ -1968,7 +1968,7 @@ void Dof_GetDummies(struct DefineSystem * DefineSystem_P, struct DofData * DofDa
 	    }
             if(ii)
               Message::Info("Freq %4lg (%d/%d) Formulation %s Quantity %s "
-                            "(BF %d)  #DofsFreqSpectrum %d/%d",
+                            "(BF %d)  #DofsNotInFreqSpectrum %d/%d",
                             Val_Pulsation[iHar/2]/TWO_PI, iHar/2, Current.NbrHar/2,
                             Formulation_P->Name, DefineQuantity_P->Name,
                             ((struct BasisFunction *)BasisFunction_P)->Num, ii, iit) ;
@@ -1990,7 +1990,7 @@ void Dof_GetDummies(struct DefineSystem * DefineSystem_P, struct DofData * DofDa
 	    }
             if(ii)
               Message::Info("Freq %4lg (%d/%d) Formulation %s  GlobalQuantity %s "
-                            "(BF %d)  #DofsWithSpectrum %d/%d",
+                            "(BF %d)  #DofsNotInFrequencySpectrum %d/%d",
                             Val_Pulsation[iHar/2]/TWO_PI, iHar/2, Current.NbrHar/2,
                             Formulation_P->Name, GlobalQuantity_P->Name,
                             ((struct GlobalQuantity *)GlobalQuantity_P)->Num, ii, iit) ;

@@ -1,6 +1,5 @@
-//Flag_3Dmodel = 1;
-
-Mesh.Optimize = 1;
+// Flag_3Dmodel = 1;
+// Mesh.Optimize = 1;
 
 // characteristic lengths
 lc0  = wcoil/nn_wcore;
@@ -9,6 +8,7 @@ lc2  = 2*lc1;
 
 lcri = Pi*Rint/4/nn_ri;
 lcro = Pi*Rext/4/nn_ro;
+
 
 // center of the model at (0,0)
 cen = newp; Point(newp) = {0,0,0, lc0};
@@ -19,7 +19,7 @@ pnt0[] += newp; Point(newp) = { wcoreE,         htot/2-hcoreE, 0, lc1};
 pnt0[] += newp; Point(newp) = { wcoreE+wcoil,   htot/2-hcoreE, 0, lc1};
 pnt0[] += newp; Point(newp) = { 2*wcoreE+wcoil, htot/2-hcoreE, 0, lc1};
 
-pnt1[] += newp; Point(newp) = { 0,           htot/2-hcoreE+hcoil, 0, lc2};
+pnt1[] += newp; Point(newp) = { 0,           htot/2-hcoreE+hcoil, 0, lc0};
 pnt1[] += newp; Point(newp) = { wcoreE,       htot/2-hcoreE+hcoil, 0, lc2};
 pnt1[] += newp; Point(newp) = { wcoreE+wcoil, htot/2-hcoreE+hcoil, 0, lc2};
 
@@ -73,7 +73,9 @@ surf_Airgap[] += news; Plane Surface(news) = {newll-1};
 
 //===========================================================
 // Extruding surfaces // Just 1/4 of the model!
-vol[] = Extrude {0,0,-Lz/2} { Surface{surf_ECore[0]}; };
+
+vol[] = Extrude {0,0,-Lz/2} { Surface{surf_ECore[0]};};
+surf_in_coil = vol[0];
 vol_ECore[]  += vol[1];
 surf_cut_yz[]+= vol[5];
 surf_cut_coil[]    += vol[2];
@@ -96,9 +98,13 @@ vol[] = Extrude {{0, 1, 0}, {wcoreE, 0, -Lz/2}, Pi/2}{ Surface{surf_Coil[1]}; };
 vol_Coil[] += vol[1]; surf_Coil[] += vol[0];
 
 vol[] = Extrude {-wcoreE, 0, 0} { Surface{surf_Coil[2]}; };
-
 vol_Coil[] += vol[1]; surf_Coil[] += vol[0];
 surf_cut_yz[]+=vol[0];
+
+// changing the sense, wcoil=wcoreE
+// vol[] = Extrude {0,0,-wcoreE} { Surface{surf_in_coil}; };
+// vol_Coil[] += vol[1]; surf_Coil[] += vol[0];
+// surf_cut_yz[]+=vol[5];
 
 
 aux_bnd[] = CombinedBoundary{ Surface{ surf_cut_yz[] };};
@@ -145,7 +151,6 @@ surf_airinf_out[] = vol[{4,5}];
 surf_airinf_in[] = vol[{2,3}];
 bnd_cut_yz_airinf[] = Boundary{Surface{vol[0]};};
 
-
 // Symmetry YZ
 Line Loop(newll) = {lnaxis[2], bnd_cut_yz_airinf[{0,1}], lnaxis[0], bnd_cut_yz[]};
 surf_cut_yz[]+= news; Plane Surface(news) = {newll-1};
@@ -153,20 +158,20 @@ surf_cut_yz_air[] = news-1;
 
 surf_cut_xy[] = {surf_ECore[{0,1}], surf_ICore[0], surf_Airgap[0], surf_Air[0], surf_AirInf[0], surf_Coil[{0}]} ;
 
-aux_surf[] = CombinedBoundary{Volume{ vol_ECore[], vol_ICore[], vol_Coil[], vol_Airgap[]};};
+aux_surf[] = Abs(CombinedBoundary{ Volume{vol_ECore[], vol_ICore[], vol_Coil[], vol_Airgap[]}; });
 aux_surf[] -= {surf_ECore[{0,1}], surf_ICore[0], surf_Airgap[0], surf_Coil[{0}], surf_cut_yz[]};
 
 Surface Loop(newsl) = {surf_Air[0], surf_cut_yz_air[0], surf_airinf_in[], aux_surf[]};
 vol_Air[]+=newv; Volume(newv) = {newsl-1};
 
 If(Flag_Symmetry<2)
-  surf_airinf_out[]   += Symmetry {1,0,0,0} { Duplicata{Surface{surf_airinf_out[]};} }; // For convenience
-  surf_cut_coil[] += Symmetry {1,0,0,0} { Duplicata{Surface{surf_cut_coil[]};} };
+  surf_airinf_out[]  += Symmetry {1,0,0,0} { Duplicata{Surface{surf_airinf_out[]};} }; // For convenience
+  surf_cut_coil[]    += Symmetry {1,0,0,0} { Duplicata{Surface{surf_cut_coil[]};} };
   surf_cut_coil_up[] += Symmetry {1,0,0,0} { Duplicata{Surface{surf_cut_coil_up[]};} };
-  surf_cut_xy[] += Symmetry {1,0,0,0} { Duplicata{Surface{surf_cut_xy[]};} };
+  surf_cut_xy[]      += Symmetry {1,0,0,0} { Duplicata{Surface{surf_cut_xy[]};} };
 
   vol_ECore[]  += Symmetry {1,0,0,0} { Duplicata{Volume{vol_ECore[]};} };
-  vol_in_Coil[] += vol_ECore[2];
+  vol_in_Coil[]+= vol_ECore[2];
 
   vol_ICore[]  += Symmetry {1,0,0,0} { Duplicata{Volume{vol_ICore[]};} };
   vol_Coil[]   += Symmetry {1,0,0,0} { Duplicata{Volume{vol_Coil[]};} };
@@ -175,12 +180,12 @@ If(Flag_Symmetry<2)
   vol_AirInf[] += Symmetry {1,0,0,0} { Duplicata{Volume{vol_AirInf[]};} };
 
   If(!Flag_Symmetry) // Full model
-    surf_airinf_out[]   += Symmetry {0,0,1,0} { Duplicata{Surface{surf_airinf_out[]};} };// For convenience
-    surf_cut_coil[] += Symmetry {0,0,1,0} { Duplicata{Surface{surf_cut_coil[]};} };
+    surf_airinf_out[]  += Symmetry {0,0,1,0} { Duplicata{Surface{surf_airinf_out[]};} };// For convenience
+    surf_cut_coil[]    += Symmetry {0,0,1,0} { Duplicata{Surface{surf_cut_coil[]};} };
     surf_cut_coil_up[] += Symmetry {0,0,1,0} { Duplicata{Surface{surf_cut_coil_up[]};} };
 
     vol_ECore[]  += Symmetry {0,0,1,0} { Duplicata{Volume{vol_ECore[]};} };
-    vol_in_Coil[] += vol_ECore[{4,6}];
+    vol_in_Coil[]+= vol_ECore[{4,6}];
 
     vol_ICore[]  += Symmetry {0,0,1,0} { Duplicata{Volume{vol_ICore[]};} };
     vol_Coil[]   += Symmetry {0,0,1,0} { Duplicata{Volume{vol_Coil[]};} };
@@ -190,8 +195,8 @@ If(Flag_Symmetry<2)
   EndIf
 EndIf
 
-
-
+Characteristic Length { PointsOf{ Volume{vol_Coil[]}; } } = lc2;
+Characteristic Length { PointsOf{ Volume{vol_Airgap[]}; } } = lc1;
 
 //=================================================
 // Some colors... for aesthetics :-)
@@ -201,7 +206,7 @@ Recursive Color SkyBlue { Volume{vol_Air[], vol_AirInf[]}; }
 Recursive Color SteelBlue {  Volume{ vol_ECore[], vol_ICore[]}; }
 If(Flag_OpenCore==1)
   Recursive Color SkyBlue {Volume{vol_Airgap[]}; }
-  Else
+Else
   Recursive Color SteelBlue {Volume{vol_Airgap[]}; }
 EndIf
 Recursive Color Red { Volume{vol_Coil[]}; }
@@ -210,33 +215,23 @@ Recursive Color Red { Volume{vol_Coil[]}; }
 // Physical regions for FE analysis with GetDP
 //=================================================
 
+// Emptying cut list if no symmetry considered
+If(Flag_Symmetry==0)
+  surf_cut_xy[] = {};
+  surf_cut_yz[] = {};
+EndIf
+If(Flag_Symmetry==1)
+  surf_cut_yz[] = {};
+EndIf
+
 Physical Volume(ECORE) = vol_ECore[];
 Physical Volume(ICORE) = vol_ICore[];
 
 Physical Volume(COIL) = vol_Coil[];
-//Physical Volume(LEG_INCOIL) = vol_in_Coil[];
 
-bnd_surf_Coil[] = CombinedBoundary{Volume{vol_Coil[]};};
-If(Flag_Symmetry)
-  bnd_surf_Coil[] -= surf_cut_xy[] ;
-  If(Flag_Symmetry==2) // Half
-    bnd_surf_Coil[] -= surf_cut_yz[] ;
-  EndIf
-EndIf
-
-Physical Surface(SKINCOIL) = bnd_surf_Coil[];
-
-bnd_surf_in_Coil[] = CombinedBoundary{Volume{vol_in_Coil[]};};
-bnd_surf_in_Coil[] -= {surf_cut_coil[], surf_cut_coil_up[]};
-If(Flag_Symmetry)
-  bnd_surf_in_Coil[] -= surf_cut_xy[] ;
-  If(Flag_Symmetry==2) // Half
-    bnd_surf_in_Coil[] -= surf_cut_yz[] ;
-  EndIf
-EndIf
-
-//Physical Surface(SKINCOIL_) = bnd_surf_in_Coil[];
-//Physical Surface(CUTCOIL) =   surf_cut_coil[];
+bnd_Coil[] = Abs(CombinedBoundary{Volume{vol_Coil[]};});
+bnd_Coil[] -= {surf_cut_xy[], surf_cut_yz[]} ; // list empty if no symmetry
+Physical Surface(SKINCOIL) = bnd_Coil[];
 
 Physical Volume(AIRGAP) = vol_Airgap[]; //either Fe or air
 If(Flag_Infinity==0)
@@ -250,22 +245,14 @@ Physical Surface(SURF_AIROUT) = surf_airinf_out[];
 
 Physical Surface(SURF_ELEC0) = surf_Coil[{0}];
 
-If(Flag_Symmetry)
-  Physical Surface(CUT_XY) = {surf_cut_xy[]};
-  If(Flag_Symmetry==2) // Half
-    Physical Surface(CUT_YZ) = {surf_cut_yz[]}; // BC if symmetry
-  EndIf
-EndIf
+all_surf_ECore[] = Abs(CombinedBoundary{Volume{vol_ECore[]};});
+all_surf_ECore[] -= {surf_cut_xy[], surf_cut_yz[]};
 
-all_surf_ECore[] = CombinedBoundary{Volume{vol_ECore[]};};
-all_surf_ICore[] = CombinedBoundary{Volume{vol_ICore[]};};
-If(Flag_Symmetry)
-  all_surf_ICore[] -= surf_cut_xy[];
-  all_surf_ECore[] -= surf_cut_xy[];
-  If(Flag_Symmetry==2) // Half
-    all_surf_ICore[] -= surf_cut_yz[];
-    all_surf_ECore[] -= surf_cut_yz[];
-  EndIf
-EndIf
+all_surf_ICore[] = Abs(CombinedBoundary{Volume{vol_ICore[]};});
+all_surf_ICore[] -= {surf_cut_xy[], surf_cut_yz[]};
+
 Physical Surface(SKINECORE) = all_surf_ECore[];
 Physical Surface(SKINICORE) = all_surf_ICore[];
+
+Physical Surface(CUT_XY) = {surf_cut_xy[]};
+Physical Surface(CUT_YZ) = {surf_cut_yz[]};

@@ -277,13 +277,18 @@ struct StringXPointer  Current_Value[] = {
 #if defined(HAVE_KERNEL)
   {"Time"     , &Current.Time},       {"DTime"     , &Current.DTime},
   {"Theta"    , &Current.Theta},      {"TimeStep"  , &Current.TimeStep},
-  {"Iteration", &Current.Iteration},  {"Iter"      , &Current.Iteration},
-  {"Residual" , &Current.Residual},
+  {"Iter"      , &Current.Iteration},
+  {"Iteration", &Current.Iteration},  {"NLIteration", &Current.Iteration},
+  {"Residual" , &Current.Residual},   {"NLResidual" , &Current.Residual},
+  {"RelaxFac" , &Current.RelaxFac}, //+++
+  {"ResidualN" , &Current.ResidualN}, //+++
+  {"Residual_Iter1" , &Current.Residual_Iter1}, //+++
+  {"NbrTestedFac" , &Current.NbrTestedFac}, //+++
   {"TimeImag" , &Current.TimeImag},   {"Eigenvalue", &Current.Time},
   {"EigenvalueReal" , &Current.Time}, {"EigenvalueImag" , &Current.TimeImag},
   {"ReOmega"  , &Current.Time},       {"ImOmega"   , &Current.TimeImag},
   {"wr"       , &Current.Time},       {"wi"        , &Current.TimeImag},
-  {"Breakpoint" , &Current.Breakpoint},
+  {"Breakpoint", &Current.Breakpoint},
 
   {"X"  , &Current.x}, {"Y"  , &Current.y},  {"Z"  , &Current.z},
   {"XS" , &Current.xs},{"YS" , &Current.ys}, {"ZS" , &Current.zs},
@@ -301,7 +306,9 @@ struct StringXPointer  Current_Value[] = {
   {"QuadraturePointIndex",  &Current.QuadraturePointIndex},
   {"QP",                    &Current.QuadraturePointIndex},
 
-  {"KSPIts", &Current.KSPIts},
+  {"KSPIterations", &Current.KSPIterations}, {"KSPIts", &Current.KSPIterations},
+  {"KSPIteration", &Current.KSPIteration},
+  {"KSPResidual", &Current.KSPResidual},
 #endif
   {NULL       , NULL}
 } ;
@@ -1036,6 +1043,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"SetNumberRunTime"  , (CAST)F_SetNumberRunTime ,  -1,  -1 },
   {"GetNumberRunTime"  , (CAST)F_GetNumberRunTime ,  -1,  -1 },
   {"SetVariable"       , (CAST)F_SetVariable      ,  -1,  -1 },
+  {"SetCumulativeVariable" , (CAST)F_SetCumulativeVariable ,  -1,  -1 },
   {"GetVariable"       , (CAST)F_GetVariable      ,  -1,  -1 },
   {"VirtualWork"       , (CAST)F_VirtualWork      ,   0,   1 },
   {"Felec"	       , (CAST)F_Felec      	  ,   0,   1 },

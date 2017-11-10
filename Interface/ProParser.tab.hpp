@@ -153,7 +153,7 @@
      tDofValue = 369,
      tRational = 370,
      tMHTransform = 371,
-     tMHJacNL = 372,
+     tMHBilinear = 372,
      tAppend = 373,
      tGroup = 374,
      tDefineGroup = 375,
@@ -537,7 +537,7 @@
 #define tDofValue 369
 #define tRational 370
 #define tMHTransform 371
-#define tMHJacNL 372
+#define tMHBilinear 372
 #define tAppend 373
 #define tGroup 374
 #define tDefineGroup 375

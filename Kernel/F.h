@@ -6,6 +6,7 @@
 #ifndef _F_H_
 #define _F_H_
 
+#include <vector>
 #include "ProData.h"
 
 /* ------------------------------------------------------------------------ */
@@ -206,6 +207,7 @@ void  F_GetMemory       (F_ARG) ;
 void  F_SetNumberRunTime(F_ARG) ;
 void  F_GetNumberRunTime(F_ARG) ;
 void  F_SetVariable     (F_ARG) ;
+void  F_SetCumulativeVariable (F_ARG) ;
 void  F_GetVariable     (F_ARG) ;
 void  F_VirtualWork     (F_ARG) ;
 
@@ -374,9 +376,9 @@ void  Fi_MHTimeIntegration(int TypePsi, int NbrTimePoint,
 			   struct Value *ValueOut) ;
 void  F_MHToTime0 (int init, struct Value * A, struct Value * V,
 		   int iTime, int NbrTimePoint, double * TimeMH) ;/* OJO!!! int *init */
-void  MHTransform(struct Element * Element, struct QuantityStorage * QuantityStorage_P0,
-		  double u, double v, double w, struct Value *MH_Value,
-		  struct Expression * Expression_P, int NbrPoints);
+void MHTransform(struct Element * Element, struct QuantityStorage * QuantityStorage_P0,
+		 double u, double v, double w, std::vector<struct Value> &MH_Inputs,
+		 struct Expression * Expression_P, int NbrPoints, struct Value &MH_Output);
 
 /* F_BiotSavart */
 void  F_BiotSavart (F_ARG) ;

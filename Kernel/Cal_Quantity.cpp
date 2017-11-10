@@ -346,7 +346,13 @@ void Cal_WholeQuantity(struct Element * Element,
 
   // we could make this dynamic (with std::vector) to reduce stack usage, but
   // the performance hit is important
-  struct Value Stack[8][MAX_STACK_SIZE] ;
+
+  // ==> forcing a reduced size of stack for MH case...
+  // MAX_STACK_SIZE0 = 8 by default, 2 for MH
+  // segmentation violation and out of memory with high number of harmonics
+  // MAX_STACK_SIZE at least MAX_HAR_SIZE if harmonic function in formulation term
+  struct Value Stack[MAX_STACK_SIZE0][MAX_STACK_SIZE] ;
+
 
   WholeQuantity_P0 = (struct WholeQuantity*)List_Pointer(WholeQuantity_L, 0) ;
 
@@ -356,7 +362,7 @@ void Cal_WholeQuantity(struct Element * Element,
   for (i_WQ = 0 ; i_WQ < List_Nbr(WholeQuantity_L) ; i_WQ++) {
 
     if(Index >= MAX_STACK_SIZE){
-      Message::Error("Stack size exceeded (%d)", MAX_STACK_SIZE);
+      Message::Error("Stack size exceeded (%d>%d)", Index, MAX_STACK_SIZE);
       return;
     }
 
@@ -1102,16 +1108,20 @@ void Cal_WholeQuantity(struct Element * Element,
         Multi[Index] = 0 ;
         Index++ ;
       }
-
       Index -= NbrArguments ;
-      Cal_WholeQuantity(Element, QuantityStorage_P0,
-			WholeQuantity_P->Case.MHTransform.WholeQuantity,
-			u, v, w, -1, 0, &Stack[0][Index], NbrArguments, ExpressionName) ;
-
-      MHTransform(Element, QuantityStorage_P0, u, v, w, &Stack[0][Index],
-		  (struct Expression *)List_Pointer(Problem_S.Expression,
-						    WholeQuantity_P->Case.MHTransform.Index),
-		  WholeQuantity_P->Case.MHTransform.NbrPoints) ;
+      {
+        int N = List_Nbr(WholeQuantity_P->Case.MHTransform.WholeQuantity_L);
+        std::vector<struct Value> MH_Values(N);
+        for(int j = 0; j < N; j++){
+          List_T *WQ; List_Read(WholeQuantity_P->Case.MHTransform.WholeQuantity_L, j, &WQ);
+          Cal_WholeQuantity(Element, QuantityStorage_P0, WQ, u, v, w, -1, 0,
+                            &MH_Values[j], NbrArguments, ExpressionName) ;
+        }
+        MHTransform(Element, QuantityStorage_P0, u, v, w, MH_Values,
+                    (struct Expression *)List_Pointer(Problem_S.Expression,
+                                                      WholeQuantity_P->Case.MHTransform.Index),
+                    WholeQuantity_P->Case.MHTransform.NbrPoints, Stack[0][Index]) ;
+      }
       Multi[Index] = 0 ;
       Index++ ;
       break ;

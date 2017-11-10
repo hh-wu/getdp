@@ -63,7 +63,7 @@ endif(ENABLE_FORTRAN)
 
 set(GETDP_MAJOR_VERSION 2)
 set(GETDP_MINOR_VERSION 11)
-set(GETDP_PATCH_VERSION 3)
+set(GETDP_PATCH_VERSION 4)
 set(GETDP_EXTRA_VERSION "" CACHE STRING "GetDP extra version string")
 
 set(GETDP_VERSION "${GETDP_MAJOR_VERSION}.${GETDP_MINOR_VERSION}")
@@ -76,8 +76,12 @@ set(GETDP_API
   Kernel/GetDP.h
 )
 
-execute_process(COMMAND date "+%Y%m%d" OUTPUT_VARIABLE DATE
-                OUTPUT_STRIP_TRAILING_WHITESPACE)
+if(${CMAKE_MAJOR_VERSION} GREATER 2)
+  string(TIMESTAMP DATE "%Y%m%d")
+else(${CMAKE_MAJOR_VERSION} GREATER 2)
+  execute_process(COMMAND date "+%Y%m%d" OUTPUT_VARIABLE DATE
+                  OUTPUT_STRIP_TRAILING_WHITESPACE)
+endif(${CMAKE_MAJOR_VERSION} GREATER 2)
 execute_process(COMMAND hostname OUTPUT_VARIABLE HOSTNAME
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 execute_process(COMMAND whoami OUTPUT_VARIABLE PACKAGER
@@ -88,11 +92,13 @@ if(NOT DATE)
 endif(NOT DATE)
 set(GETDP_DATE "${DATE}")
 
-if(NOT HOSTNAME)
-  set(HOSTNAME "unknown")
-endif(NOT HOSTNAME)
-set(GETDP_HOST "${HOSTNAME}")
-
+if(NOT GETDP_HOST)
+  if(NOT HOSTNAME)
+    set(HOSTNAME "unknown")
+  endif(NOT HOSTNAME)
+  set(GETDP_HOST "${HOSTNAME}")
+endif(NOT GETDP_HOST)
+    
 if(NOT PACKAGER)
   set(PACKAGER "unknown")
 endif(NOT PACKAGER)
@@ -112,6 +118,29 @@ include(CheckFunctionExists)
 include(CheckIncludeFile)
 include(CheckCXXCompilerFlag)
 
+macro(set_config_option VARNAME STRING)
+  set(${VARNAME} TRUE)
+  list(APPEND CONFIG_OPTIONS ${STRING})
+  message(STATUS "Found " ${STRING})
+endmacro(set_config_option)
+
+# check if the machine is 64 bits (this is more reliable than using
+# CMAKE_SIZEOF_VOID_P, which does not seem to work e.g. on some Suse
+# machines)
+check_type_size("void*" SIZEOF_VOID_P)
+if(SIZEOF_VOID_P EQUAL 8)
+  set_config_option(HAVE_64BIT_SIZE_T "64Bit")
+endif(SIZEOF_VOID_P EQUAL 8)
+
+# append 32/64 to the build name on Linux and Windows
+if(NOT APPLE)
+  if(HAVE_64BIT_SIZE_T)
+    set(GETDP_OS "${GETDP_OS}64")
+  else(HAVE_64BIT_SIZE_T)
+    set(GETDP_OS "${GETDP_OS}32")
+  endif(HAVE_64BIT_SIZE_T)
+endif(NOT APPLE)
+
 if(ENABLE_WRAP_PYTHON AND NOT ENABLE_BUILD_SHARED)
   set(ENABLE_BUILD_DYNAMIC ON)
 endif(ENABLE_WRAP_PYTHON AND NOT ENABLE_BUILD_SHARED)
@@ -129,12 +158,6 @@ if(MSVC)
     endforeach(VAR)
   endif(ENABLE_MSVC_STATIC_RUNTIME)
 endif(MSVC)
-
-macro(set_config_option VARNAME STRING)
-  set(${VARNAME} TRUE)
-  list(APPEND CONFIG_OPTIONS ${STRING})
-  message(STATUS "Found " ${STRING})
-endmacro(set_config_option)
 
 if(ENABLE_OPENMP)
   find_package(OpenMP)
@@ -184,14 +207,6 @@ macro(set_compile_flags LISTNAME FLAGS)
     endif(PROP)
   endforeach(FILE)
 endmacro(set_compile_flags)
-
-# check if the machine is 64 bits (this is more reliable than using
-# CMAKE_SIZEOF_VOID_P, which does not seem to work e.g. on some Suse
-# machines)
-check_type_size("void*" SIZEOF_VOID_P)
-if(SIZEOF_VOID_P EQUAL 8)
-  set_config_option(HAVE_64BIT_SIZE_T "64Bit")
-endif(SIZEOF_VOID_P EQUAL 8)
 
 if(ENABLE_BLAS_LAPACK)
   if(BLAS_LAPACK_LIBRARIES)
@@ -321,13 +336,11 @@ if(ENABLE_MPI)
   find_package(MPI)
   if(MPI_FOUND)
     set_config_option(HAVE_MPI "MPI")
-    list(APPEND EXTERNAL_INCLUDES ${MPI_INCLUDE_DIR})
-    list(APPEND EXTERNAL_LIBRARIES ${MPI_LIBRARIES})
-    include(CMakeForceCompiler)
-    # Warning: this actually requires cmake >= 2.8.5
-    cmake_force_c_compiler(${MPI_C_COMPILER} "MPI C Compiler")
-    cmake_force_cxx_compiler(${MPI_CXX_COMPILER} "MPI C++ Compiler")
-    cmake_force_fortran_compiler(${MPI_Fortran_COMPILER} "MPI Fortran Compiler")
+    list(APPEND EXTERNAL_INCLUDES ${MPI_CXX_INCLUDE_PATH})
+    list(APPEND EXTERNAL_LIBRARIES ${MPI_CXX_LIBRARIES})
+    set(CMAKE_C_COMPILER ${MPI_C_COMPILER})
+    set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
+    set(CMAKE_Fortran_COMPILER ${MPI_Fortran_COMPILER})
   endif(MPI_FOUND)
 endif(ENABLE_MPI)
 
@@ -499,14 +512,10 @@ if(ENABLE_HPDDM)
   if(HPDDM_INC)
     list(APPEND EXTERNAL_INCLUDES ${HPDDM_INC})
     set_config_option(HAVE_HPDDM "HPDDM")
-    get_source_file_property(PROP Kernel/Operation_HPDDM.cpp COMPILE_FLAGS)
-    if(PROP)
-      set_source_files_properties(Kernel/Operation_HPDDM.cpp PROPERTIES
-                                  COMPILE_FLAGS "${PROP} -std=c++11")
-    else(PROP)
-      set_source_files_properties(Kernel/Operation_HPDDM.cpp PROPERTIES
-                                  COMPILE_FLAGS "-std=c++11")
-    endif(PROP)
+    check_cxx_compiler_flag("-std=c++11" STDCXX11)
+    if(STDCXX11)
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+    endif(STDCXX11)
   endif(HPDDM_INC)
 endif(ENABLE_HPDDM)
 
@@ -786,6 +795,7 @@ if(ENABLE_BUILD_IOS)
   if(NOT CMAKE_TOOLCHAIN_FILE)
     message(FATAL_ERROR "Cannot compile GetDP for iOS without a toolchain")
   endif(NOT CMAKE_TOOLCHAIN_FILE)
+  add_definitions(-DBUILD_IOS)
 endif(ENABLE_BUILD_IOS)
 
 if(ENABLE_BUILD_ANDROID)
@@ -1030,14 +1040,19 @@ set(CPACK_PACKAGE_VERSION_PATCH ${GETDP_PATCH_VERSION})
 set(CPACK_PACKAGE_DESCRIPTION_FILE ${WELCOME_FILE})
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
     "General Environment for the Treatment of Discrete Problems")
-set(CPACK_PACKAGE_FILE_NAME getdp-${GETDP_VERSION}-${GETDP_OS})
+if(GETDP_EXTRA_VERSION MATCHES "-git.*") # so that we'll overwrite the archives
+  set(CPACK_PACKAGE_FILE_NAME getdp-git-${GETDP_OS})
+  set(CPACK_SOURCE_PACKAGE_FILE_NAME getdp-git-source)
+else(GETDP_EXTRA_VERSION MATCHES "-git.*") # so that we'll overwrite the archives
+  set(CPACK_PACKAGE_FILE_NAME getdp-${GETDP_VERSION}-${GETDP_OS})
+  set(CPACK_SOURCE_PACKAGE_FILE_NAME getdp-${GETDP_VERSION}-source)
+endif(GETDP_EXTRA_VERSION MATCHES "-git.*") # so that we'll overwrite the archives
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "GetDP")
 set(CPACK_RESOURCE_FILE_LICENSE ${LICENSE_FILE})
 set(CPACK_RESOURCE_FILE_README ${WELCOME_FILE})
 set(CPACK_RESOURCE_FILE_WELCOME ${WELCOME_FILE})
 set(CPACK_PACKAGE_EXECUTABLE "getdp;GetDP")
 set(CPACK_STRIP_FILES TRUE)
-set(CPACK_SOURCE_PACKAGE_FILE_NAME getdp-${GETDP_VERSION}-source)
 set(CPACK_SOURCE_GENERATOR TGZ)
 set(CPACK_SOURCE_IGNORE_FILES "${CMAKE_CURRENT_BINARY_DIR}" "/CVS/" "/.svn" "/.git"
     "~$" "DS_Store$" "GetDPConfig.h$" "GetDPVersion.h$" "/benchmarks*" "/tmp/"

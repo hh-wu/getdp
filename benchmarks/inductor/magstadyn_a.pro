@@ -205,8 +205,8 @@ Formulation {
       Galerkin { [ nu[{d a}] * Dof{d a}  , {d a} ] ;
         In Domain ; Jacobian Vol ; Integration I1 ; }
       If(Flag_NL_Newton_Raphson)
-      Galerkin { JacNL [ dhdb_NL[{d a}] * Dof{d a} , {d a} ] ;
-        In DomainNL ; Jacobian Vol ; Integration I1 ; }
+        Galerkin { JacNL [ dhdb_NL[{d a}] * Dof{d a} , {d a} ] ;
+          In DomainNL ; Jacobian Vol ; Integration I1 ; }
       EndIf
       Galerkin { [ -nu[] * br[] , {d a} ] ;
         In DomainM ; Jacobian Vol ; Integration I1 ; }

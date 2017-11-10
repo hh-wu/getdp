@@ -208,10 +208,16 @@ void Init_ProblemStructure()
   Current.Breakpoint = 0.0;
   Current.Iteration = 0.0;
   Current.Residual = 0.0;
+  Current.ResidualN = 0.0; //+++
+  Current.Residual_Iter1 = 1.0; //+++
   Current.RelativeDifference = 0.0;
   Current.RelativeDifferenceOld = 0.0;
   Current.RelaxationFactor = 0.0;
-  Current.KSPIts = 0.0;
+  Current.RelaxFac = 0.0; //+++
+  Current.NbrTestedFac = 0.0; //+++
+  Current.KSPIterations = 0.0;
+  Current.KSPIteration = 0.0;
+  Current.KSPResidual = 0.0;
 }
 
 // FIXME: TODO to remove parser memory leaks!
@@ -499,23 +505,22 @@ void Print_WholeQuantity(List_T *WholeQuantity, List_T *DQ_L)
       Message::Check(" %.8g", (WQ+k)->Case.Constant);
       break;
 
-    case WQ_MHTRANSFORM : //****
+    case WQ_MHTRANSFORM :
       Message::Check(" MHTransform[ ");
-      Message::Check("%s",
-                     Get_ExpressionName((WQ+k)->Case.MHTransform.Index));
+      Message::Check("%s", Get_ExpressionName((WQ+k)->Case.MHTransform.Index));
       Message::Check("[");
-      Print_WholeQuantity((WQ+k)->Case.MHTransform.WholeQuantity, DQ_L);
+      for(int i = 0; i < List_Nbr((WQ+k)->Case.MHTransform.WholeQuantity_L); i++){
+        List_T *wq; List_Read((WQ+k)->Case.MHTransform.WholeQuantity_L, i, &wq);
+        Print_WholeQuantity(wq, DQ_L);
+      }
       Message::Check(" ] ]{ %d }", (WQ+k)->Case.MHTransform.NbrPoints);
      break;
 
-    case WQ_MHJACNL :
-      Message::Check(" MHJacNL[ ");
+    case WQ_MHBILINEAR :
+      Message::Check(" MHBilinear[ ");
       Message::Check("%s",
-                     Get_ExpressionName((WQ+k)->Case.MHJacNL.Index));
-      //Message::Check("[");
-      //Print_WholeQuantity((WQ+k)->Case.MHTransform.WholeQuantity, DQ_L);
-      //Message::Check("] ]{ %d, %d}", (WQ+k)->Case.MHJacNL.NbrPoints, (WQ+k)->Case.MHJacNL.FreqOffSet);
-      Message::Check("]{ %d, %d}", (WQ+k)->Case.MHJacNL.NbrPoints, (WQ+k)->Case.MHJacNL.FreqOffSet);
+                     Get_ExpressionName((WQ+k)->Case.MHBilinear.Index));
+      Message::Check("]{ %d, %d}", (WQ+k)->Case.MHBilinear.NbrPoints, (WQ+k)->Case.MHBilinear.FreqOffSet);
       break;
 
     case WQ_TIMEDERIVATIVE :
@@ -1558,12 +1563,20 @@ void Print_Operation(struct Resolution *RE, List_T *Operation_L)
                       List_Pointer(RE->DefineSystem, OPE->DefineSystemIndex))->Name);
       break;
 
-    case OPERATION_DEFORMEMESH :
-      Message::Check("      DeformeMesh [%s, %s,  '%s']; \n",
-                     ((struct DefineSystem *)
-                      List_Pointer(RE->DefineSystem, OPE->DefineSystemIndex))->Name,
-                     OPE->Case.DeformeMesh.Quantity,
-                     OPE->Case.DeformeMesh.Name_MshFile);
+    case OPERATION_DEFORMMESH :
+      if(OPE->Case.DeformMesh.Quantity && OPE->Case.DeformMesh.Quantity2 &&
+         OPE->Case.DeformMesh.Quantity3)
+        Message::Check("      DeformMesh [%s, {%s, %s, %s}, '%s']; \n",
+                       ((struct DefineSystem *)
+                        List_Pointer(RE->DefineSystem, OPE->DefineSystemIndex))->Name,
+                       OPE->Case.DeformMesh.Quantity, OPE->Case.DeformMesh.Quantity2,
+                       OPE->Case.DeformMesh.Quantity3, OPE->Case.DeformMesh.Name_MshFile);
+      else
+        Message::Check("      DeformMesh [%s, %s, '%s']; \n",
+                       ((struct DefineSystem *)
+                        List_Pointer(RE->DefineSystem, OPE->DefineSystemIndex))->Name,
+                       OPE->Case.DeformMesh.Quantity,
+                       OPE->Case.DeformMesh.Name_MshFile);
       break;
 
     case OPERATION_GMSHREAD :

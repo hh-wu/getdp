@@ -200,8 +200,9 @@ static void _fillseq(gVector *V)
 
 void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
 {
-  PetscInt prealloc = 100;
-  PetscInt prealloc_full = n;
+
+  PetscInt prealloc = 100. ;
+  PetscInt prealloc_full = n ;
   int nonloc = Current.DofData->NonLocalEquations.size();
   // heuristic for preallocation of global rows: don't prelloc more than 500 Mb
   double limit = 500. * 1024. * 1024. / (gSCALAR_SIZE * sizeof(double));
@@ -1219,7 +1220,7 @@ static void _zitsol(gMatrix *A, gVector *B, gVector *X)
   else
     Message::Info("Converged in %d iterations", its);
 
-  Current.KSPIts = its;
+  Current.KSPIterations = its;
 
   for(PetscInt i = 0; i < n; i++){
     PetscScalar d;
@@ -1242,7 +1243,8 @@ static void _zitsol(gMatrix *A, gVector *B, gVector *X)
 static PetscErrorCode _myKspMonitor(KSP ksp, PetscInt it, PetscReal rnorm, void *mctx)
 {
   Message::Info("%3ld KSP Residual norm %14.12e", (long)it, rnorm);
-  // Current.KSPResidual = rnorm;
+  Current.KSPIteration = it;
+  Current.KSPResidual = rnorm;
   return 0;
 }
 
@@ -1358,7 +1360,7 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
   if(!Message::GetCommRank() || !Message::GetIsCommWorld()){
     if(its > 1) Message::Info("%d iterations", its);
   }
-  Current.KSPIts = its;
+  Current.KSPIterations = its;
 }
 
 void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,

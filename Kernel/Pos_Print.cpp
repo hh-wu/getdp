@@ -1463,7 +1463,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
           std::vector<double> v;
           Export_Value(&Value, v, PSO_P->SendToServerList);
           Message::AddOnelabNumberChoice(PSO_P->SendToServer, v, PSO_P->Color,
-                                         PSO_P->Units);
+                                         PSO_P->Units, PSO_P->Label);
         }
       }
 
@@ -1497,7 +1497,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
         std::vector<double> v;
         Export_Value(&ValueSummed, v, PSO_P->SendToServerList);
         Message::AddOnelabNumberChoice(PSO_P->SendToServer, v, PSO_P->Color,
-                                       PSO_P->Units);
+                                       PSO_P->Units, PSO_P->Label);
       }
     }
   }

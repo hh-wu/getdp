@@ -1,0 +1,9 @@
+k = PostProcessing.NbViews -1;
+
+Mesh.SurfaceEdges = 0;
+View[k].VectorType = 5;
+View[k].DisplacementFactor = 100;
+View[k].ExternalView = k-3;
+View[k].Light = 0;
+
+

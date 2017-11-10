@@ -460,18 +460,18 @@ void F_Complex(F_ARG)
 
   if(NbrArg){
     if(NbrArg > NBR_MAX_HARMONIC){
-      Message::Error("Too many arguments for Complex[]");
+      Message::Error("Too many arguments for Complex[expression-list]{}");
       return;
     }
   }
   else if(NbrPar){
     if(NbrPar > NBR_MAX_HARMONIC){
-      Message::Error("Too many parameters for Complex[]");
+      Message::Error("Too many parameters for Complex[]{expression-cst-list}");
       return;
     }
   }
   else{
-    Message::Error("Missing arguments or parameters for Complex[]");
+    Message::Error("Missing arguments or parameters for Complex[expression-list]{expression-cst-list}");
     return;
   }
 
@@ -717,7 +717,7 @@ void  F_Im(F_ARG)
     break;
 
   default :
-    Message::Error("Unknown type of arguments in function 'Re'");
+    Message::Error("Unknown type of arguments in function 'Im'");
     break;
   }
 

@@ -210,6 +210,7 @@ FourierTransformJ            return tFourierTransformJ;
 Frequency                    return tFrequency;
 FrequencyLegend              return tFrequencyLegend;
 FrequencySpectrum            return tFrequencySpectrum;
+DummyFrequencies             return tFrequencySpectrum;
 Full_Matrix                  return tFull_Matrix;
 Function                     return tFunction;
 FunctionSpace                return tFunctionSpace;
@@ -288,7 +289,9 @@ Log                          return tLog;
 Log10                        return tLog10;
 LogSpace                     return tLogSpace;
 
-MHJacNL                      return tMHJacNL;
+MHBilinear                   return tMHBilinear;
+MHJacNL                      return tMHBilinear;
+MHLinear                     return tMHTransform;
 MHTransform                  return tMHTransform;
 MPI_Barrier		     return tBarrier;
 MPI_BroadcastFields          return tBroadcastFields;

@@ -55,6 +55,15 @@
 #include <Python.h>
 #endif
 
+#if defined(HAVE_HPDDM)
+#define MUMPSSUB // direct mumps solver for subdomain solves
+#define DMUMPS // direct mumps solver for the coarse solves
+#define HPDDM_NUMBERING 'C' // 0-based numering
+#define HPDDM_NO_REGEX
+#undef NONE
+#include <HPDDM.hpp>
+#endif
+
 int Message::_commRank = 0;
 int Message::_commSize = 1;
 int Message::_isCommWorld = 1; // is the communicator set to WORLD (==1) or SELF (!=1)
@@ -131,6 +140,10 @@ void Message::Initialize(int argc, char **argv)
   Py_InitializeEx(0);
   PySys_SetArgv(argc, &wargv[0]);
 #endif
+#endif
+#if defined(HAVE_HPDDM)
+  HPDDM::Option& opt = *HPDDM::Option::get();
+  opt.parse(argc, argv, _commRank == 0);
 #endif
 }
 
@@ -795,29 +808,12 @@ void Message::InitializeOnelab(std::string name, std::string sockname)
 }
 
 void Message::AddOnelabNumberChoice(std::string name, const std::vector<double> &value,
-                                    const char *color, const char *units)
+                                    const char *color, const char *units,
+                                    const char *label, bool visible, bool closed)
 {
   if(_onelabClient){
     std::vector<onelab::number> ps;
-
-#if 0 // full exchange
-    std::vector<double> choices;
-    _onelabClient->get(ps, name);
-    if(ps.size()){
-      choices = ps[0].getChoices();
-    }
-    else{
-      ps.resize(1);
-      ps[0].setName(name);
-      ps[0].setReadOnly(true);
-    }
-    if(color) ps[0].setAttribute("Highlight", color);
-    if(units) ps[0].setAttribute("Units", units);
-    ps[0].setValues(value);
-    choices.insert(choices.end(), value.begin(), value.end());
-    ps[0].setChoices(choices);
-    _onelabClient->set(ps[0]);
-#else // optimized exchange (without growing choice vector)
+    // optimized exchange (without growing choice vector)
     _onelabClient->getWithoutChoices(ps, name);
     if(ps.empty()){
       ps.resize(1);
@@ -826,9 +822,11 @@ void Message::AddOnelabNumberChoice(std::string name, const std::vector<double> 
     }
     if(color) ps[0].setAttribute("Highlight", color);
     if(units) ps[0].setAttribute("Units", units);
+    if(label) ps[0].setLabel(label);
+    ps[0].setAttribute("Closed", closed ? "1" : "0");
     ps[0].setValues(value);
+    ps[0].setVisible(visible);
     _onelabClient->setAndAppendChoices(ps[0]);
-#endif
 
 #if !defined(BUILD_ANDROID) // FIXME: understand why this leads to crashes
     // ask Gmsh to refresh
@@ -986,6 +984,7 @@ static void _setStandardOptions(onelab::parameter *p, Message::fmap &fopt,
   if(copt.count("Highlight")) p->setAttribute("Highlight", copt["Highlight"][0]);
   if(copt.count("Macro")) p->setAttribute("Macro", copt["Macro"][0]);
   if(copt.count("GmshOption")) p->setAttribute("GmshOption", copt["GmshOption"][0]);
+  if(copt.count("ServerAction")) p->setAttribute("ServerAction", copt["ServerAction"][0]);
   if(copt.count("Units")) p->setAttribute("Units", copt["Units"][0]);
   if(copt.count("AutoCheck")) // for backward compatibility
     p->setAttribute("AutoCheck", copt["AutoCheck"][0]);
@@ -1023,7 +1022,9 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
     bool noRange = true, noChoices = true, noLoop = true;
     bool noGraph = true, noClosed = true;
     if(ps.size()){
-      if(fopt.count("ReadOnly") && fopt["ReadOnly"][0]){ // use local value
+      bool useLocalValue = ps[0].getReadOnly();
+      if(fopt.count("ReadOnly")) useLocalValue = fopt["ReadOnly"][0];
+      if(useLocalValue){
         if(c->Type == VAR_FLOAT){
           ps[0].setValue(c->Value.Float);
         }
@@ -1139,7 +1140,9 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
     _onelabClient->get(ps, name);
     bool noClosed = true, noMultipleSelection = true;
     if(ps.size()){
-      if(fopt.count("ReadOnly") && fopt["ReadOnly"][0])
+      bool useLocalValue = ps[0].getReadOnly();
+      if(fopt.count("ReadOnly")) useLocalValue = fopt["ReadOnly"][0];
+      if(useLocalValue)
         ps[0].setValue(c->Value.Char); // use local value
       else
 	c->Value.Char = strSave(ps[0].getValue().c_str()); // use value from server

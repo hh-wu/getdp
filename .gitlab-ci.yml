@@ -1,8 +1,375 @@
-ubuntu16.04:
-  image : onelab/ubuntu16.04
+# GetDP - Copyright (C) 1997-2017 P. Dular and C. Geuzaine, University of Liege
+#
+# See the LICENSE.txt file for license information. Please report all
+# bugs and problems to the public mailing list <getdp@onelab.info>.
+
+variables:
+  EXTRA_VERSION: "-git-$CI_COMMIT_SHA"
+
+# ------------------------------
+# Docker builds for all branches
+# ------------------------------
+
+linux64_docker_ci:
+  image: onelab/ubuntu16.04
   script:
     - mkdir build
     - cd build
-    - cmake ..
+    - cmake -DGETDP_EXTRA_VERSION=${EXTRA_VERSION:0:13} ..
     - make -j 4
-    - ctest --output-on-failure
+    - ctest -j 4 --output-on-failure
+  tags:
+    - linux64
+    - docker
+  except:
+    - tags
+
+# ------------------------------------------
+# Official Linux builds (master branch only)
+# ------------------------------------------
+
+.linux64_official_petsc_complex: &linux64_official_petsc_complex
+  only:
+    - master
+  script:
+    - mkdir build
+    - cd build
+    - /usr/local/bin/cmake -DGETDP_EXTRA_VERSION=${EXTRA_VERSION:0:13} -DGETDP_EXTRA_BUILD_NAME=-PetscComplex -DGETDP_HOST=getdp.info -DCMAKE_PREFIX_PATH=/usr/local -DENABLE_SPARSKIT=0 -DENABLE_PETSC=1 -DPETSC_ARCH=complex_mumps_seq -DPETSC_DIR=/home/geuzaine/src/petsc-3.7.5 -DSLEPC_DIR=/home/geuzaine/src/slepc-3.7.3 ..
+    - make package -j 1
+    - PKG=`ls getdp-*.tar*`; scp -o StrictHostKeyChecking=no -i /home/gitlab-runner/.ssh/id_rsa ${PKG} geuzaine@getdp.info:.wwwgetdp/bin/Linux/${PKG/\.tar\.gz/c\.tgz}
+    - /usr/local/bin/ctest -D Experimental -j 1 --output-on-failure
+  tags:
+    - linux64
+    - official
+
+.linux64_official_petsc_real: &linux64_official_petsc_real
+  only:
+    - master
+  script:
+    - mkdir build
+    - cd build
+    - /usr/local/bin/cmake -DGETDP_EXTRA_VERSION=${EXTRA_VERSION:0:13} -DGETDP_EXTRA_BUILD_NAME=-PetscReal -DGETDP_HOST=getdp.info -DCMAKE_PREFIX_PATH=/usr/local -DENABLE_SPARSKIT=0 -DENABLE_PETSC=1 -DPETSC_ARCH=real_mumps_seq -DPETSC_DIR=/home/geuzaine/src/petsc-3.7.5 -DSLEPC_DIR=/home/geuzaine/src/slepc-3.7.3 ..
+    - make package -j 1
+    - PKG=`ls getdp-*.tar*`; scp -o StrictHostKeyChecking=no -i /home/gitlab-runner/.ssh/id_rsa ${PKG} geuzaine@getdp.info:.wwwgetdp/bin/Linux/${PKG/\.tar\.gz/r\.tgz}
+    - /usr/local/bin/ctest -D Experimental -j 1 --output-on-failure
+  tags:
+    - linux64
+    - official
+
+.linux64_official_petsc_real_mh: &linux64_official_petsc_real_mh
+  only:
+    - master
+  script:
+    - mkdir build
+    - cd build
+    - /usr/local/bin/cmake -DGETDP_EXTRA_VERSION=${EXTRA_VERSION:0:13} -DGETDP_EXTRA_BUILD_NAME=-PetscRealMH -DGETDP_HOST=getdp.info -DCMAKE_PREFIX_PATH=/usr/local -DENABLE_SPARSKIT=0 -DENABLE_PETSC=1 -DPETSC_ARCH=real_mumps_seq -DPETSC_DIR=/home/geuzaine/src/petsc-3.7.5 -DSLEPC_DIR=/home/geuzaine/src/slepc-3.7.3 -DENABLE_MULTIHARMONIC=1 ..
+    - make package -j 1
+    - PKG=`ls getdp-*.tar*`; scp -o StrictHostKeyChecking=no -i /home/gitlab-runner/.ssh/id_rsa ${PKG} geuzaine@getdp.info:.wwwgetdp/bin/Linux/${PKG/\.tar\.gz/r-MH\.tgz}
+    - /usr/local/bin/ctest -D Experimental -j 1 --output-on-failure
+  tags:
+    - linux64
+    - official
+
+linux64_official_petsc_complex_snapshot:
+  <<: *linux64_official_petsc_complex
+  except:
+    - tags
+ 
+linux64_official_petsc_complex_release:
+  variables:
+    EXTRA_VERSION: ""
+  <<: *linux64_official_petsc_complex
+  only:
+    - /^getdp_.*$/
+
+linux64_official_petsc_real_snapshot:
+  <<: *linux64_official_petsc_real
+  except:
+    - tags
+ 
+linux64_official_petsc_real_release:
+  variables:
+    EXTRA_VERSION: ""
+  <<: *linux64_official_petsc_real
+  only:
+    - /^getdp_.*$/
+
+linux64_official_petsc_real_mh_snapshot:
+  <<: *linux64_official_petsc_real_mh
+  except:
+    - tags
+ 
+linux64_official_petsc_real_mh_release:
+  variables:
+    EXTRA_VERSION: ""
+  <<: *linux64_official_petsc_real_mh
+  only:
+    - /^getdp_.*$/
+
+# --------------------------------------------
+# Official Windows builds (master branch only)
+# --------------------------------------------
+
+.windows_official_petsc_complex: &windows_official_petsc_complex
+  only:
+    - master
+  script:
+    - md build
+    - cd build
+    - bash -c "/usr/bin/cmake -DGETDP_EXTRA_VERSION=${EXTRA_VERSION:0:13} -DGETDP_EXTRA_BUILD_NAME=-PetscComplex -DGETDP_HOST=getdp.info -DCMAKE_PREFIX_PATH='/usr/local;/usr/mingw32/sys-root/mingw' -DCMAKE_C_COMPILER=/usr/bin/mingw32-gcc.exe -DCMAKE_CXX_COMPILER=/usr/bin/mingw32-g++.exe -DCMAKE_Fortran_COMPILER=/usr/bin/mingw32-gfortran.exe -DCMAKE_RC_COMPILER=/usr/bin/mingw32-windres.exe -DENABLE_SPARSKIT=0 -DENABLE_PETSC=1 -DPETSC_ARCH=complex_mumps_seq -DPETSC_DIR=/home/geuzaine/src/petsc-3.7.5 -DSLEPC_DIR=/home/geuzaine/src/slepc-3.7.3 .."
+    - bash -c "/usr/bin/make package -j 1"
+    - bash -c "PKG=`ls getdp-*.zip`; /usr/bin/scp -o StrictHostKeyChecking=no -i /home/geuzaine/.ssh/id_rsa ${PKG} geuzaine@getdp.info:.wwwgetdp/bin/Windows/${PKG/\.zip/c\.zip}"
+    - bash -c "/usr/bin/ctest -D Experimental -j 1 --output-on-failure"
+
+.windows_official_petsc_real: &windows_official_petsc_real
+  only:
+    - master
+  script:
+    - md build
+    - cd build
+    - bash -c "/usr/bin/cmake -DGETDP_EXTRA_VERSION=${EXTRA_VERSION:0:13} -DGETDP_EXTRA_BUILD_NAME=-PetscReal -DGETDP_HOST=getdp.info -DCMAKE_PREFIX_PATH='/usr/local;/usr/mingw32/sys-root/mingw' -DCMAKE_C_COMPILER=/usr/bin/mingw32-gcc.exe -DCMAKE_CXX_COMPILER=/usr/bin/mingw32-g++.exe -DCMAKE_Fortran_COMPILER=/usr/bin/mingw32-gfortran.exe -DCMAKE_RC_COMPILER=/usr/bin/mingw32-windres.exe -DENABLE_SPARSKIT=0 -DENABLE_PETSC=1 -DPETSC_ARCH=real_mumps_seq -DPETSC_DIR=/home/geuzaine/src/petsc-3.7.5 -DSLEPC_DIR=/home/geuzaine/src/slepc-3.7.3 .."
+    - bash -c "/usr/bin/make package -j 1"
+    - bash -c "PKG=`ls getdp-*.zip`; /usr/bin/scp -o StrictHostKeyChecking=no -i /home/geuzaine/.ssh/id_rsa ${PKG} geuzaine@getdp.info:.wwwgetdp/bin/Windows/${PKG/\.zip/r\.zip}"
+    - bash -c "/usr/bin/ctest -D Experimental -j 1 --output-on-failure"
+
+.windows_official_petsc_real_mh: &windows_official_petsc_real_mh
+  only:
+    - master
+  script:
+    - md build
+    - cd build
+    - bash -c "/usr/bin/cmake -DGETDP_EXTRA_VERSION=${EXTRA_VERSION:0:13} -DGETDP_EXTRA_BUILD_NAME=-PetscRealMH -DGETDP_HOST=getdp.info -DCMAKE_PREFIX_PATH='/usr/local;/usr/mingw32/sys-root/mingw' -DCMAKE_C_COMPILER=/usr/bin/mingw32-gcc.exe -DCMAKE_CXX_COMPILER=/usr/bin/mingw32-g++.exe -DCMAKE_Fortran_COMPILER=/usr/bin/mingw32-gfortran.exe -DCMAKE_RC_COMPILER=/usr/bin/mingw32-windres.exe -DENABLE_SPARSKIT=0 -DENABLE_PETSC=1 -DPETSC_ARCH=real_mumps_seq -DPETSC_DIR=/home/geuzaine/src/petsc-3.7.5 -DSLEPC_DIR=/home/geuzaine/src/slepc-3.7.3 -DENABLE_MULTIHARMONIC=1 .."
+    - bash -c "/usr/bin/make package -j 1"
+    - bash -c "PKG=`ls getdp-*.zip`; /usr/bin/scp -o StrictHostKeyChecking=no -i /home/geuzaine/.ssh/id_rsa ${PKG} geuzaine@getdp.info:.wwwgetdp/bin/Windows/${PKG/\.zip/r-MH\.zip}"
+    - bash -c "/usr/bin/ctest -D Experimental -j 1 --output-on-failure"
+
+windows64_official_petsc_complex_snapshot:
+  <<: *windows_official_petsc_complex
+  tags:
+    - windows64
+    - official
+  except:
+    - tags
+
+windows64_official_petsc_complex_release:
+  variables:
+    EXTRA_VERSION: ""
+  <<: *windows_official_petsc_complex
+  tags:
+    - windows64
+    - official
+  only:
+    - /^getdp_.*$/
+
+windows64_official_petsc_real_snapshot:
+  <<: *windows_official_petsc_real
+  tags:
+    - windows64
+    - official
+  except:
+    - tags
+
+windows64_official_petsc_real_release:
+  variables:
+    EXTRA_VERSION: ""
+  <<: *windows_official_petsc_real
+  tags:
+    - windows64
+    - official
+  only:
+    - /^getdp_.*$/
+
+windows64_official_petsc_real_mh_snapshot:
+  <<: *windows_official_petsc_real_mh
+  tags:
+    - windows64
+    - official
+  except:
+    - tags
+
+windows64_official_petsc_real_mh_release:
+  variables:
+    EXTRA_VERSION: ""
+  <<: *windows_official_petsc_real_mh
+  tags:
+    - windows64
+    - official
+  only:
+    - /^getdp_.*$/
+
+windows32_official_petsc_complex_snapshot:
+  <<: *windows_official_petsc_complex
+  tags:
+    - windows32
+    - official
+  except:
+    - tags
+
+windows32_official_petsc_complex_release:
+  variables:
+    EXTRA_VERSION: ""
+  <<: *windows_official_petsc_complex
+  tags:
+    - windows32
+    - official
+  only:
+    - /^getdp_.*$/
+
+windows32_official_petsc_real_snapshot:
+  <<: *windows_official_petsc_real
+  tags:
+    - windows32
+    - official
+  except:
+    - tags
+
+windows32_official_petsc_real_release:
+  variables:
+    EXTRA_VERSION: ""
+  <<: *windows_official_petsc_real
+  tags:
+    - windows32
+    - official
+  only:
+    - /^getdp_.*$/
+
+windows32_official_petsc_real_mh_snapshot:
+  <<: *windows_official_petsc_real_mh
+  tags:
+    - windows32
+    - official
+  except:
+    - tags
+
+windows32_official_petsc_real_mh_release:
+  variables:
+    EXTRA_VERSION: ""
+  <<: *windows_official_petsc_real_mh
+  tags:
+    - windows32
+    - official
+  only:
+    - /^getdp_.*$/
+
+# ------------------------------------------
+# Official MacOS builds (master branch only)
+# ------------------------------------------
+
+.macos64_official_petsc_complex: &macos64_official_petsc_complex
+  only:
+    - master
+  script:
+    - mkdir build
+    - cd build
+    - /usr/local/bin/cmake -DGETDP_EXTRA_VERSION=${EXTRA_VERSION:0:13} -DGETDP_EXTRA_BUILD_NAME=-PetscComplex -DGETDP_HOST=getdp.info -DCMAKE_PREFIX_PATH=/usr/local -DCMAKE_C_COMPILER=/usr/bin/gcc -DCMAKE_CXX_COMPILER=/usr/bin/g++ -DCMAKE_Fortran_COMPILER=/usr/local/bin/gfortran -DENABLE_SPARSKIT=0 -DENABLE_PETSC=1 -DPETSC_ARCH=complex_mumps_seq -DPETSC_DIR=/Users/geuzaine/src/petsc-3.7.5 -DSLEPC_DIR=/Users/geuzaine/src/slepc-3.7.3 -DBLAS_LAPACK_LIBRARIES=/usr/local/lib/libopenblas.a ..
+    - make package -j 1
+    - PKG=`ls getdp-*.tar*`
+    - scp ${PKG} ace@ace36.montefiore.ulg.ac.be:/tmp
+    - ssh ace@ace36.montefiore.ulg.ac.be /Users/ace/re-sign.sh /tmp/${PKG}
+    - scp ace@ace36.montefiore.ulg.ac.be:/tmp/${PKG} .
+    - scp ${PKG} geuzaine@getdp.info:.wwwgetdp/bin/MacOSX/${PKG/\.tar\.gz/c\.tgz}
+    - /usr/local/bin/ctest -D Experimental -j 1 --output-on-failure
+  tags:
+    - macos64
+    - official
+
+.macos64_official_petsc_real: &macos64_official_petsc_real
+  only:
+    - master
+  script:
+    - mkdir build
+    - cd build
+    - /usr/local/bin/cmake -DGETDP_EXTRA_VERSION=${EXTRA_VERSION:0:13} -DGETDP_EXTRA_BUILD_NAME=-PetscReal -DGETDP_HOST=getdp.info -DCMAKE_PREFIX_PATH=/usr/local -DCMAKE_C_COMPILER=/usr/bin/gcc -DCMAKE_CXX_COMPILER=/usr/bin/g++ -DCMAKE_Fortran_COMPILER=/usr/local/bin/gfortran -DENABLE_SPARSKIT=0 -DENABLE_PETSC=1 -DPETSC_ARCH=real_mumps_seq -DPETSC_DIR=/Users/geuzaine/src/petsc-3.7.5 -DSLEPC_DIR=/Users/geuzaine/src/slepc-3.7.3 -DBLAS_LAPACK_LIBRARIES=/usr/local/lib/libopenblas.a ..
+    - make package -j 1
+    - PKG=`ls getdp-*.tar*`
+    - scp ${PKG} ace@ace36.montefiore.ulg.ac.be:/tmp
+    - ssh ace@ace36.montefiore.ulg.ac.be /Users/ace/re-sign.sh /tmp/${PKG}
+    - scp ace@ace36.montefiore.ulg.ac.be:/tmp/${PKG} .
+    - scp ${PKG} geuzaine@getdp.info:.wwwgetdp/bin/MacOSX/${PKG/\.tar\.gz/r\.tgz}
+    - /usr/local/bin/ctest -D Experimental -j 1 --output-on-failure
+  tags:
+    - macos64
+    - official
+
+.macos64_official_petsc_real_mh: &macos64_official_petsc_real_mh
+  only:
+    - master
+  script:
+    - mkdir build
+    - cd build
+    - /usr/local/bin/cmake -DGETDP_EXTRA_VERSION=${EXTRA_VERSION:0:13} -DGETDP_EXTRA_BUILD_NAME=-PetscRealMH -DGETDP_HOST=getdp.info -DCMAKE_PREFIX_PATH=/usr/local -DCMAKE_C_COMPILER=/usr/bin/gcc -DCMAKE_CXX_COMPILER=/usr/bin/g++ -DCMAKE_Fortran_COMPILER=/usr/local/bin/gfortran -DENABLE_SPARSKIT=0 -DENABLE_PETSC=1 -DPETSC_ARCH=real_mumps_seq -DPETSC_DIR=/Users/geuzaine/src/petsc-3.7.5 -DSLEPC_DIR=/Users/geuzaine/src/slepc-3.7.3 -DENABLE_MULTIHARMONIC=1 -DBLAS_LAPACK_LIBRARIES=/usr/local/lib/libopenblas.a ..
+    - make package -j 1
+    - PKG=`ls getdp-*.tar*`
+    - scp ${PKG} ace@ace36.montefiore.ulg.ac.be:/tmp
+    - ssh ace@ace36.montefiore.ulg.ac.be /Users/ace/re-sign.sh /tmp/${PKG}
+    - scp ace@ace36.montefiore.ulg.ac.be:/tmp/${PKG} .
+    - scp ${PKG} geuzaine@getdp.info:.wwwgetdp/bin/MacOSX/${PKG/\.tar\.gz/r-MH\.tgz}
+    - /usr/local/bin/ctest -D Experimental -j 1 --output-on-failure
+  tags:
+    - macos64
+    - official
+
+macos64_official_petsc_complex_snapshot:
+  <<: *macos64_official_petsc_complex
+  except:
+    - tags
+ 
+macos64_official_petsc_complex_release:
+  variables:
+    EXTRA_VERSION: ""
+  <<: *macos64_official_petsc_complex
+  only:
+    - /^getdp_.*$/
+
+macos64_official_petsc_real_snapshot:
+  <<: *macos64_official_petsc_real
+  except:
+    - tags
+ 
+macos64_official_petsc_real_release:
+  variables:
+    EXTRA_VERSION: ""
+  <<: *macos64_official_petsc_real
+  only:
+    - /^getdp_.*$/
+
+macos64_official_petsc_real_mh_snapshot:
+  <<: *macos64_official_petsc_real_mh
+  except:
+    - tags
+ 
+macos64_official_petsc_real_mh_release:
+  variables:
+    EXTRA_VERSION: ""
+  <<: *macos64_official_petsc_real_mh
+  only:
+    - /^getdp_.*$/
+
+# ----------------------------------------------
+# Official source snapshots (master branch only)
+# ----------------------------------------------
+
+.source_official: &source_official
+  only:
+    - master
+  script:
+    - mkdir build_src
+    - cd build_src
+    - /usr/local/bin/cmake -DGETDP_EXTRA_VERSION=${EXTRA_VERSION:0:13} ..
+    - make package_source
+    - PKG=`ls getdp-*.tar*`; scp -o StrictHostKeyChecking=no -i /home/gitlab-runner/.ssh/id_rsa ${PKG} geuzaine@getdp.info:.wwwgetdp/src/${PKG/\.tar\.gz/\.tgz}
+  tags:
+    - linux64
+    - official
+
+source_official_snapshot:
+  <<: *source_official
+  except:
+    - tags
+
+source_official_release:
+  variables:
+    EXTRA_VERSION: ""
+  <<: *source_official
+  only:
+    - /^getdp_.*$/

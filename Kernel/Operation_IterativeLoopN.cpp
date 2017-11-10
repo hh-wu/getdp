@@ -97,7 +97,7 @@ double CalcMaxErrorRatio(Resolution  *Resolution_P,
     else if (ErrorRatio > MaxErrorRatio)
       MaxErrorRatio = ErrorRatio;
 
-    Current.Residual = ErrorRatio;
+    Current.Residual = ErrorRatio; //should be commented here QQQ?
     if (Message::GetVerbosity() > 5) {
       Message::Info("IterativeLoopN: %s of %s error ratio from system %s:  %.3g",
           ILsystem.NormTypeString, ILsystem.NormOfString, DefineSystem_P->Name,
@@ -124,9 +124,9 @@ double CalcMaxErrorRatio(Resolution  *Resolution_P,
     // Vector of errors: xError = xCurrent - xPrevious
     LinAlg_CopyVector(xCurrent_P, &xError);
     LinAlg_SubVectorVector(&xError, xPrevious_P, &xError);
-    Cal_SolutionErrorRatio(&xError, xCurrent_P, ILPostOp.PostOperationReltol,
-                           ILPostOp.PostOperationAbstol, ILPostOp.NormType,
-                           &ErrorRatio);
+    Cal_SolutionErrorRatio(&xError, xCurrent_P, 
+                           ILPostOp.PostOperationReltol, ILPostOp.PostOperationAbstol, 
+                           ILPostOp.NormType, &ErrorRatio);
 
     LinAlg_DestroyVector(&xError);
 
@@ -143,7 +143,7 @@ double CalcMaxErrorRatio(Resolution  *Resolution_P,
           ErrorRatio);
     }
   }
-
+  Current.ResidualN =  MaxErrorRatio ; //+++ Residual computed here for IterativeLoopN
   return MaxErrorRatio;
 }
 
@@ -230,6 +230,7 @@ void Operation_IterativeLoopN(Resolution  *Resolution_P,
     Current.Iteration = (double)Num_Iteration;
     Get_ValueOfExpressionByIndex(RelaxationFactorIndex, NULL, 0., 0., 0., &Value);
     Current.RelaxationFactor = Value.Val[0];
+    Current.RelaxFac =  Current.RelaxationFactor ; // +++
 
     // Store the current solutions in xPrevious_L
     for(int i = 0; i < List_Nbr(ILsystems_L); i++){
@@ -259,6 +260,7 @@ void Operation_IterativeLoopN(Resolution  *Resolution_P,
     Message::Info("IterativeLoopN: Non linear iteration %d (Relaxation = %g)",
                   (int)Current.Iteration, Current.RelaxationFactor) ;
 
+    //NB: SolveJac OR SolveJacAdapt are called here
     Treatment_Operation(Resolution_P, Operation_P->Case.IterativeLoop.Operation,
                         DofData_P0, GeoData_P0, Resolution2_P, DofData2_P0) ;
     if(*Flag_Break) {
@@ -290,6 +292,8 @@ void Operation_IterativeLoopN(Resolution  *Resolution_P,
       Message::AddOnelabNumberChoice(Message::GetOnelabClientName() +
                                    "/IterativeLoop/ILmaxErrorRatio",
                                      std::vector<double>(1, MaxErrorRatio));
+
+    //NB: MaxErrorRatio is what is used for IterativeLoopN stop criterion  
     if (MaxErrorRatio < 1.) {
       Message::Info(3, "IterativeLoopN converged (%d iterations, error ratio %g)",
                     (int)Current.Iteration, MaxErrorRatio);

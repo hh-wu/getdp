@@ -1534,8 +1534,10 @@ Number of the current time step in a time stepping algorithm.
 In case of a breakpoint hit in TimeLoopAdaptive it is the number of the
 current breakpoint. In the other case when $Time corresponds not to a
 breakpoint the value is -1.
-@item $Iteration
-Number of the current iteration in a nonlinear loop.
+@item $Iteration, $NLIteration
+Current iteration in a nonlinear loop.
+@item $Residual, $NLResidual
+Current residual in a nonlinear loop.
 @item $EigenvalueReal
 Real part of the current eigenvalue.
 @item $EigenvalueImag
@@ -1549,6 +1551,14 @@ Value of the current (destination or source) Z-coordinate.
 @item $A, $B, $C
 Value of the current parametric coordinates used in the parametric
 @code{OnGrid} @code{PostOperation} (@pxref{Types for PostOperation}).
+@item $QuadraturePointIndex
+Index of the current quadrature point.
+@item $KSPIteration
+Current iteration in a Krylov subspace solver.
+@item $KSPResidual
+Current residual in a Krylov subspace solver.
+@item $KSPIterations
+Total number of iterations of Krylov subspace solver.
 @end table
 
 @noindent Note:
@@ -2728,7 +2738,7 @@ Formulation @{
   Local | Global | Integral
 
 @var{term-op-type}:
-  DtDof | DtDtDof | JacNL | @var{etc}
+  DtDof | DtDtDof | Eig | JacNL | @var{etc}
 @end example
 
 @noindent Note:
@@ -3629,12 +3639,26 @@ Creates a vector from 3 scalars.
 
 @code{@var{expression},@var{expression},@var{expression}]}
 
-Creates a second-rank tensor of order 3 from 9 scalars.
+Creates a second-rank tensor of order 3 from 9 scalars, by row: 
+@smallexample
+@group
+    [ scalar0 scalar1 scalar2 ]   [ CompXX CompXY CompXZ ]   
+T = [ scalar3 scalar4 scalar5 ] = [ CompYX CompYY CompYZ ]
+    [ scalar6 scalar7 scalar8 ]   [ CompZX CompZY CompZZ ]  
+@end group
+@end smallexample
 
 @item TensorV
 @code{[@var{expression},@var{expression},@var{expression}]}
 
-Creates a second-rank tensor of order 3 from 3 vectors.
+Creates a second-rank tensor of order 3 from 3 row vectors:
+@smallexample
+@group
+    [ vector0 ]
+T = [ vector1 ]
+    [ vector2 ]
+@end group
+@end smallexample
 
 @item TensorSym
 @code{[@var{expression},@var{expression},@var{expression},@var{expression},@var{expression},@var{expression}]}
@@ -4483,6 +4507,14 @@ equation. (Not implemented yet.)
 Time derivative of 2nd order applied only to the @code{Dof@{@}} term of the 
 equation.
 
+@item Eig
+The term is multiplied by (a certain function of) the eigenvalue.  This
+is to be used with the @code{GenerateSeparate} and @code{EigenSolve}
+@code{Resolution} operations. An optional @code{Order @var{expression};}
+or @code{Rational @var{expression};} statement can be added in the term
+to specify the eigenvalue function. Full documentation of this feature
+is not available yet.
+
 @item JacNL
 Nonlinear part of the Jacobian matrix (tangent stiffness matrix) to be
 assembled for nonlinear analysis.
@@ -5048,7 +5080,7 @@ Broadcast all runtime variables over MPI.
 
 @c @item SaveMesh
 
-@c @item DeformeMesh
+@c @item DeformMesh
 
 @c @item IterativeTimeReduction
 @c @{ @var{iterative-time-reduction-arg}; @}
@@ -5313,11 +5345,12 @@ Appends the result to the file specified with @code{File}. (Same
 behavior as @code{>} if @var{expression-cst} = 1; same behavior as
 @code{>>} if @var{expression-cst} = 2.)
 
-@item Name
+@item Name | Label
 @code{@var{expression-char}}
 
 For formats that support it, sets the label of the output field to
-@var{expression-char}.
+@var{expression-char} (also used with with @code{SendToServer} to force
+the label).
 
 @item Depth
 @var{expression-cst}
@@ -5404,19 +5437,30 @@ mesh-based solution formats).
 @var{expression-char}
 
 Send the value to the Onelab server, using @var{expression-char} as the
-paramater name.
+parameter name.
 
 @item SendToServer
 @var{expression-char}  @{ @var{expression-cst-list} @}
 
 Send the requested harmonics of the value to the Onelab server, using
-@var{expression-char} as the paramater name.
+@var{expression-char} as the parameter name.
 
 @item Color
 @var{expression-char}
 
 Used with @code{SendToServer}, sets the color of the parameter in the
 Onelab server.
+
+@item Hidden
+< @var{expression-cst} >
+
+Used with @code{SendToServer}, selects the visibility of the exchanged value.
+
+@item Closed
+@var{expression-char}
+
+Used with @code{SendToServer}, closes (or opens) the subtree containing
+the parameter.
 
 @item Units
 @var{expression-char}
@@ -7211,7 +7255,7 @@ the mesh files @file{mStrip.msh} and @file{Core.msh} used in the examples of
 @node Compiling the source code, Frequently asked questions, Gmsh examples, Top
 @appendix Compiling the source code
 
-Stable releases and nightly source snapshots are available from
+Stable releases and source snapshots are available from
 @uref{http://getdp.info/src/}. You can also access the Git repository
 directly:
 

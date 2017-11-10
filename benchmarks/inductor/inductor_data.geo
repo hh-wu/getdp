@@ -8,12 +8,14 @@ ppm = "Input/11Mesh control (Nbr of divisions)/";
 
 DefineConstant[
   Flag_3Dmodel = {0, Choices{0="2D",1="3D"},
-    Name "Input/00FE model", Highlight "Blue"},
+    Name "Input/00FE model", Highlight "Blue"}
+  Flag_boolean = {0, Choices{0,1},
+    Name "Input/00OpenCASCADE model?", Visible Flag_3Dmodel, Highlight "Blue"}
   Flag_Symmetry2D = {1, Choices{0="Full",1="Half"},
     Name "Input/00Symmetry type", Highlight "Blue", Visible (Flag_3Dmodel==0)},
   Flag_Symmetry3D = {2, Choices{0="Full",1="Half",2="One fourth"},
     Name "Input/01Symmetry type", Highlight "Blue", Visible (Flag_3Dmodel==1)},
-  Flag_OpenCore = {1, Choices{0,1},
+  Flag_OpenCore = {1, Choices{0,1}, ReadOnly Flag_boolean,
     Name "Input/02Core with air gap"},
   Flag_Infinity = {1, Choices{0,1},
     Name "Input/01Use shell transformation to infinity"}
@@ -104,10 +106,8 @@ SKINECORE = 11110;
 SKINICORE = 11111;
 
 COIL  = 2000;
-LEG_INCOIL = 2100;
 SKINCOIL = 2222;
 SKINCOIL_ = 2223;
-
 
 SURF_ELEC0 = 2333;
 SURF_ELEC1 = 2444;

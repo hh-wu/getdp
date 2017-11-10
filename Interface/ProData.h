@@ -47,13 +47,25 @@
 // - MAX_STACK_SIZE controls the size of the stack used in the evaluation of
 // expressions ; keep this large enough by default to allow for complex expressions
 
+// - MAX_STACK_SIZE0 controls the size of the stack used in the evaluation of expressions;
+// equals 8 by default (tensors), reduced to 2 in multiharmonic case for allowing to go up
+// in the number of harmonics... Put back to 8 if you need tensors!
+
 #if !defined(HAVE_MULTIHARMONIC)
 #define NBR_MAX_HARMONIC    2
+#define MAX_STACK_SIZE0     8
+#define MAX_STACK_SIZE     40
 #else
-#define NBR_MAX_HARMONIC  100
+#define NBR_MAX_HARMONIC   40
+#define MAX_STACK_SIZE0     2
+#define MAX_STACK_SIZE     40
 #endif
 
-#define MAX_STACK_SIZE     40
+// Hereafter, values used for NL circuit + homog (a bit too much for other cases)
+// #define NBR_MAX_HARMONIC  202
+// #define MAX_STACK_SIZE0     2
+// #define MAX_STACK_SIZE    202
+
 
 struct Value {
   int     Type;
@@ -671,11 +683,10 @@ struct FemLocalTermActive {
 
   struct IntegralQuantityActive  IntegralQuantityActive;
 
-
-  int MHJacNL, MHJacNL_Index, MHJacNL_NbrPointsX, MHJacNL_HarOffSet;
-  int MHJacNL_NbrArguments;
-  double MHJacNL_Factor;
-  double **MHJacNL_H, ***MHJacNL_HH, *MHJacNL_t, *MHJacNL_w;
+  int MHBilinear, MHBilinear_Index, MHBilinear_NbrPointsX, MHBilinear_HarOffSet;
+  int MHBilinear_JacNL;
+  List_T *MHBilinear_WholeQuantity_L;
+  double **MHBilinear_H, ***MHBilinear_HH, *MHBilinear_t, *MHBilinear_w;
 
   int Full_Matrix;
   int NbrEqu, NbrHar, *NumEqu, *NumDof;
@@ -836,10 +847,8 @@ struct WholeQuantity {
              int InIndex, DofIndexInWholeQuantity; }             Trace;
     struct { char *SystemName; int DefineSystemIndex;
              int DofNumber; }                                    DofValue;
-    struct { List_T *WholeQuantity; // I think this is not used...
-      int Index, FunctionType, NbrArguments, NbrParameters, NbrPoints; } MHTransform;
-    struct { List_T *WholeQuantity; // I think this is not used...
-      int Index, FunctionType, NbrArguments, NbrParameters, NbrPoints, FreqOffSet; } MHJacNL;
+    struct { List_T *WholeQuantity_L; int Index, NbrPoints; }    MHTransform;
+    struct { List_T *WholeQuantity_L; int Index, NbrPoints, FreqOffSet; } MHBilinear;
   } Case;
 
 };
@@ -866,8 +875,7 @@ struct WholeQuantity {
 #define WQ_MHTIMEINTEGRATION       19
 #define WQ_MHTRANSFORM             20
 #define WQ_SHOWVALUE               21
-#define WQ_MHTIMEEVAL              22
-#define WQ_MHJACNL                 23
+#define WQ_MHBILINEAR              23
 #define WQ_POSTSAVE                24
 #define WQ_ATANTERIORTIMESTEP      25
 #define WQ_CHANGECURRENTPOSITION   26
@@ -1130,12 +1138,12 @@ struct Operation {
       int     ExprIndex;
     } SaveMesh;
     struct {
-      char    *Quantity;
+      char    *Quantity, *Quantity2, *Quantity3;
       char    *Name_MshFile;
       int     GeoDataIndex;
       double  Factor;
       int     GroupIndex;
-    } DeformeMesh;
+    } DeformMesh;
     struct {
       char    *String;
     } SetGlobalSolverOptions;
@@ -1200,7 +1208,7 @@ struct IterativeLoopSystem {
 #define OPERATION_CHANGEOFCOORDINATES       8
 #define OPERATION_CHANGEOFCOORDINATES2      9
 #define OPERATION_CREATEDIR                10
-#define OPERATION_DEFORMEMESH              11
+#define OPERATION_DEFORMMESH               11
 #define OPERATION_DELETEFILE               12
 #define OPERATION_DOFSFREQUENCYSPECTRUM    13
 #define OPERATION_EIGENSOLVE               14
@@ -1403,6 +1411,7 @@ struct PostSubOperation {
   int    StoreMinYinRegister, StoreMinZinRegister, StoreMaxInRegister;
   int    StoreMaxXinRegister, StoreMaxYinRegister, StoreMaxZinRegister;
   char  *SendToServer, *Color, *Units;
+  bool   Visible, Closed;
   List_T *SendToServerList;
   int    StoreInField, StoreInMeshBasedField;
   int    Legend, FrozenTimeStepList;
@@ -1572,10 +1581,11 @@ struct CurrentData {
 
   // For IterativeLoop
   double  Iteration, RelativeDifference, RelativeDifferenceOld;
-  double  RelaxationFactor, Residual;
+  double  RelaxationFactor, Residual, ResidualN, Residual_Iter1; //+++
+  double  RelaxFac, NbrTestedFac; //+++
 
   // Iterative linear system solvers
-  double  KSPIts;
+  double  KSPIterations, KSPIteration, KSPResidual;
 };
 
 /* ------------------------------------------------------------------------ */
