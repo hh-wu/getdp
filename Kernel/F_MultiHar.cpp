@@ -642,8 +642,6 @@ void  Cal_GalerkinTermOfFemEquation_MHBilinear(struct Element          * Element
 	  t_Values[0].Val[iVal1] += H[iTime][iHar] * Val[iHar*nVal1+iVal1] ;
       }
       for(int j = 1; j < N; j++){
-
-        printf("**** WTF!?!?\n");
         int nVal1 = NbrValues_Type(MH_Values[j].Type);
         t_Values[j].Type = MH_Values[j].Type;
         for (int iVal = 0 ; iVal < nVal1 ; iVal++){

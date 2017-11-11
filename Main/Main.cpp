@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include "MainKernel.h"
 #include "Message.h"
-#include "GetDP.h"
+#include "getdp.h"
 
 int main(int argc, char **argv)
 {

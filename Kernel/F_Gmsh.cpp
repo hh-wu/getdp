@@ -12,7 +12,7 @@ extern struct CurrentData Current ;
 
 #if defined(HAVE_GMSH)
 
-#include <gmsh/Gmsh.h>
+#include <gmsh/GmshGlobal.h>
 #include <gmsh/PView.h>
 #include <gmsh/PViewData.h>
 

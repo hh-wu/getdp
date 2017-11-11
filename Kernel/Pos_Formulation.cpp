@@ -16,7 +16,7 @@
 #include "Message.h"
 #include "OS.h"
 #if defined(HAVE_GMSH)
-#include <gmsh/Gmsh.h>
+#include <gmsh/GmshGlobal.h>
 #include <gmsh/MVertex.h>
 #include <gmsh/GModel.h>
 #include <gmsh/PView.h>

@@ -36,7 +36,7 @@
 #endif
 
 #if defined(HAVE_GMSH)
-#include <gmsh/Gmsh.h>
+#include <gmsh/GmshGlobal.h>
 #include <gmsh/GmshConfig.h>
 #include <gmsh/GmshMessage.h>
 #endif

@@ -21,7 +21,7 @@ extern struct CurrentData Current ;
 #if defined(HAVE_PETSC) && defined(HAVE_GMSH)
 
 #include "petscksp.h"
-#include <gmsh/Gmsh.h>
+#include <gmsh/GmshGlobal.h>
 #include <gmsh/PView.h>
 #include <gmsh/PViewData.h>
 
