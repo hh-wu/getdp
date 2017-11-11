@@ -347,8 +347,7 @@ endif(ENABLE_MPI)
 
 if(ENABLE_GMSH)
   find_library(GMSH_LIB gmsh PATH_SUFFIXES lib)
-  # This will be changed once we switch to the official Gmsh API
-  find_path(GMSH_INC "gmsh/Gmsh.h" PATH_SUFFIXES include)
+  find_path(GMSH_INC "gmsh/GmshGlobal.h" PATH_SUFFIXES include)
   if(GMSH_LIB AND GMSH_INC)
     list(APPEND EXTERNAL_LIBRARIES ${GMSH_LIB})
     list(APPEND EXTERNAL_INCLUDES ${GMSH_INC})
