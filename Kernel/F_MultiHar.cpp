@@ -693,11 +693,15 @@ void  Cal_GalerkinTermOfFemEquation_MHBilinear(struct Element          * Element
   /*  A d d   c o n t r i b u t i o n   t o  J a c o b i a n   M a t r i x  */
   /*  --------------------------------------------------------------------  */
 
-  gMatrix * matrix;
-  if(FI->MHBilinear_JacNL)
+  gMatrix *matrix;
+  gVector *rhs = NULL;
+  if(FI->MHBilinear_JacNL){
     matrix = &Current.DofData->Jac;
-  else
+  }
+  else{
     matrix = &Current.DofData->A;
+    rhs = &Current.DofData->b;
+  }
 
   for (iDof = 0 ; iDof < Nbr_Dof ; iDof++){
     Dofi = QuantityStorage_P->BasisFunction[iDof].Dof ;
@@ -712,13 +716,13 @@ void  Cal_GalerkinTermOfFemEquation_MHBilinear(struct Element          * Element
           // FIXME: this cannot work in complex arithmetic: AssembleInMat will
           // need to assemble both real and imaginary parts at once -- See
           // Cal_AssembleTerm for an example
-          Dof_AssembleInMat(Dofi+iHar, Dofj+jHar, 1, &plus, matrix, NULL) ;
+          Dof_AssembleInMat(Dofi+iHar, Dofj+jHar, 1, &plus, matrix, rhs) ;
 	  if(iHar != jHar)
-	      Dof_AssembleInMat(Dofi+jHar, Dofj+iHar, 1, &plus0, matrix, NULL) ;
+	      Dof_AssembleInMat(Dofi+jHar, Dofj+iHar, 1, &plus0, matrix, rhs) ;
 	  if(iDof != jDof){
-	      Dof_AssembleInMat(Dofj+iHar, Dofi+jHar, 1, &plus, matrix, NULL) ;
+	      Dof_AssembleInMat(Dofj+iHar, Dofi+jHar, 1, &plus, matrix, rhs) ;
 	      if(iHar != jHar)
-		Dof_AssembleInMat(Dofj+jHar, Dofi+iHar, 1, &plus0, matrix, NULL) ;
+		Dof_AssembleInMat(Dofj+jHar, Dofi+iHar, 1, &plus0, matrix, rhs) ;
 	  }
 	}
     }
@@ -732,7 +736,7 @@ void  Cal_GalerkinTermOfFemEquation_MHBilinear(struct Element          * Element
       // FIXME: this cannot work in complex arithmetic: AssembleInMat will
       // need to assemble both real and imaginary parts at once -- See
       // Cal_AssembleTerm for an example
-      Dof_AssembleInMat(Dofi, Dofi, 1, &one, matrix, NULL) ;
+      Dof_AssembleInMat(Dofi, Dofi, 1, &one, matrix, rhs) ;
     }
   }
 }
