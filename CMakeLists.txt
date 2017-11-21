@@ -39,7 +39,7 @@ opt(FORTRAN "Enable Fortran (needed for Arpack/Sparskit/Zitsol & Bessel)" ${DEFA
 opt(GMSH "Enable Gmsh functions (for field interpolation)" ${DEFAULT})
 opt(GSL "Enable GSL functions (for some built-in functions)" ${DEFAULT})
 opt(HPDDM "Enable HPDDM support" ${DEFAULT})
-opt(INTERNAL_DEVELOPER_API "Enable internal developer API (will be off be default)" ON)
+opt(INTERNAL_DEVELOPER_API "Enable internal developer API (will be off be default)" OFF)
 opt(KERNEL "Enable kernel (required for actual computations)" ON)
 opt(MPI "Enable MPI parallelization (with PETSc/SLEPc)" OFF)
 opt(MULTIHARMONIC "Enable multi-harmonic support" OFF)
@@ -73,9 +73,11 @@ set(GETDP_SHORT_LICENSE "GNU General Public License")
 
 set(GETDP_API Kernel/getdp.h)
 
-set(GETDP_INTERNAL_DEVELOPER_API Kernel/getdp.h
-  ${CMAKE_CURRENT_BINARY_DIR}/Common/GetDPConfig.h
-  ${CMAKE_CURRENT_BINARY_DIR}/Common/GetDPVersion.h)
+if(ENABLE_INTERNAL_DEVELOPER_API)
+  set(GETDP_INTERNAL_DEVELOPER_API Kernel/getdp.h
+    ${CMAKE_CURRENT_BINARY_DIR}/Common/GetDPConfig.h
+    ${CMAKE_CURRENT_BINARY_DIR}/Common/GetDPVersion.h)
+endif(ENABLE_INTERNAL_DEVELOPER_API)
 
 if(${CMAKE_MAJOR_VERSION} GREATER 2)
   string(TIMESTAMP DATE "%Y%m%d")
@@ -347,6 +349,8 @@ endif(ENABLE_MPI)
 
 if(ENABLE_GMSH)
   find_library(GMSH_LIB gmsh PATH_SUFFIXES lib)
+  # Currently GetDP uses the internal Gmsh developer API; this will be fixed 
+  # as we move to the stable API.
   find_path(GMSH_INC "gmsh/GmshGlobal.h" PATH_SUFFIXES include)
   if(GMSH_LIB AND GMSH_INC)
     list(APPEND EXTERNAL_LIBRARIES ${GMSH_LIB})
