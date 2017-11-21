@@ -81,6 +81,13 @@ double Product_VECTORxSCALARxVECTOR (double *V1, double *V2, double *V3)
   return V2[0] * (V1[0] * V3[0] + V1[1] * V3[1] + V1[2] * V3[2]) ;
 }
 
+double Product_VECTORxTENSORxVECTOR (double *V1, double *V2, double *V3)
+{
+  return V3[0] * (V1[0] * V2[0] + V1[1] * V2[3] + V1[2] * V2[6]) +
+         V3[1] * (V1[0] * V2[1] + V1[1] * V2[4] + V1[2] * V2[7]) +
+         V3[2] * (V1[0] * V2[2] + V1[1] * V2[5] + V1[2] * V2[8]) ;
+}
+
 void  *Get_RealProductFunction_Type1xType2xType1 (int Type1, int Type2)
 {
   if (Type1 == SCALAR && Type2 == SCALAR) {
@@ -92,8 +99,11 @@ void  *Get_RealProductFunction_Type1xType2xType1 (int Type1, int Type2)
   else if (Type1 == VECTOR && Type2 == TENSOR_DIAG) {
     return (void *)Product_VECTORxTENSOR_DIAGxVECTOR;
   }
-  else if (Type1 == VECTOR && Type1 == SCALAR) {
+  else if (Type1 == VECTOR && Type2 == SCALAR) {
     return (void *)Product_VECTORxSCALARxVECTOR;
+  }
+  else if (Type1 == VECTOR && Type2 == TENSOR) {
+    return (void *)Product_VECTORxTENSORxVECTOR;
   }
   else {
     Message::Error("Not allowed types in Get_RealProductFunction_Type1xType2xType1");
