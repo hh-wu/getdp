@@ -10210,6 +10210,12 @@ void  Pro_DefineQuantityIndex_1(List_T *WholeQuantity_L, int TraceGroupIndex,
         Pro_DefineQuantityIndex_1(WQ, TraceGroupIndex, pairs);
       }
       break;
+    case WQ_MHBILINEAR  :
+      for(int j = 0; j < List_Nbr((WholeQuantity_P+i)->Case.MHBilinear.WholeQuantity_L); j++){
+        List_T *WQ; List_Read((WholeQuantity_P+i)->Case.MHBilinear.WholeQuantity_L, j, &WQ);
+        Pro_DefineQuantityIndex_1(WQ, TraceGroupIndex, pairs);
+      }
+      break;
     case WQ_TIMEDERIVATIVE :
       Pro_DefineQuantityIndex_1
 	((WholeQuantity_P+i)->Case.TimeDerivative.WholeQuantity, TraceGroupIndex, pairs);
