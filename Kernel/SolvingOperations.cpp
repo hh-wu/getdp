@@ -544,6 +544,9 @@ void  UpdateConstraint_System(struct DefineSystem * DefineSystem_P,
   int Nbr_Formulation, Index_Formulation,  Save_TreatmentStatus ;
   struct Formulation    * Formulation_P ;
 
+  // Incrementing Current.SubTimeStep, so that Generate_Link is re-triggered
+  Current.SubTimeStep++;
+
   Save_TreatmentStatus = TreatmentStatus ;
   TreatmentStatus = _CST ;
 

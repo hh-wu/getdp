@@ -429,7 +429,6 @@ void  Get_LinkForConstraint(struct ConstraintInFS * Constraint_P,
   else if (Constraint_P->Active.Active->SubTimeStep != Current.SubTimeStep)
     Generate_Link(Constraint_P, 0) ; /* +++ */
 
-
   TwoIntOneDouble_P = (struct TwoIntOneDouble *)
     ((Couples_L = Constraint_P->Active.Active->Case.Link.Couples)?
      List_PQuery(Couples_L, &Num_Entity, fcmp_absint) : NULL) ;
