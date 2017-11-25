@@ -348,7 +348,7 @@ windows32_official_petsc_real_mh_release:
     - scp ${PKG} geuzaine@getdp.info:.wwwgetdp/bin/MacOSX/${PKG/\.tar\.gz/r\.tgz}
     - /usr/local/bin/ctest -D Experimental -j 1 --output-on-failure
 
-.macos64_official_petsc_real_mh: &macos64_official_petsc_real_mh
+.macos64_official_petsc_real_mh: &macos_official_petsc_real_mh
   only:
     - master
   script:
