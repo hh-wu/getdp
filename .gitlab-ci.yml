@@ -28,7 +28,7 @@ linux64_docker_ci:
 # Official Linux builds (master branch only)
 # ------------------------------------------
 
-.linux64_official_petsc_complex: &linux64_official_petsc_complex
+.linux_official_petsc_complex: &linux_official_petsc_complex
   only:
     - master
   script:
@@ -38,11 +38,8 @@ linux64_docker_ci:
     - make package -j 1
     - PKG=`ls getdp-*.tar*`; scp -o StrictHostKeyChecking=no -i /home/gitlab-runner/.ssh/id_rsa ${PKG} geuzaine@getdp.info:.wwwgetdp/bin/Linux/${PKG/\.tar\.gz/c\.tgz}
     - /usr/local/bin/ctest -D Experimental -j 1 --output-on-failure
-  tags:
-    - linux64
-    - official
 
-.linux64_official_petsc_real: &linux64_official_petsc_real
+.linux_official_petsc_real: &linux_official_petsc_real
   only:
     - master
   script:
@@ -52,11 +49,8 @@ linux64_docker_ci:
     - make package -j 1
     - PKG=`ls getdp-*.tar*`; scp -o StrictHostKeyChecking=no -i /home/gitlab-runner/.ssh/id_rsa ${PKG} geuzaine@getdp.info:.wwwgetdp/bin/Linux/${PKG/\.tar\.gz/r\.tgz}
     - /usr/local/bin/ctest -D Experimental -j 1 --output-on-failure
-  tags:
-    - linux64
-    - official
 
-.linux64_official_petsc_real_mh: &linux64_official_petsc_real_mh
+.linux_official_petsc_real_mh: &linux_official_petsc_real_mh
   only:
     - master
   script:
@@ -66,43 +60,112 @@ linux64_docker_ci:
     - make package -j 1
     - PKG=`ls getdp-*.tar*`; scp -o StrictHostKeyChecking=no -i /home/gitlab-runner/.ssh/id_rsa ${PKG} geuzaine@getdp.info:.wwwgetdp/bin/Linux/${PKG/\.tar\.gz/r-MH\.tgz}
     - /usr/local/bin/ctest -D Experimental -j 1 --output-on-failure
+
+linux64_official_petsc_complex_snapshot:
+  <<: *linux_official_petsc_complex
   tags:
     - linux64
     - official
-
-linux64_official_petsc_complex_snapshot:
-  <<: *linux64_official_petsc_complex
   except:
     - tags
  
 linux64_official_petsc_complex_release:
   variables:
     EXTRA_VERSION: ""
-  <<: *linux64_official_petsc_complex
+  <<: *linux_official_petsc_complex
+  tags:
+    - linux64
+    - official
   only:
     - /^getdp_.*$/
 
 linux64_official_petsc_real_snapshot:
-  <<: *linux64_official_petsc_real
+  <<: *linux_official_petsc_real
+  tags:
+    - linux64
+    - official
   except:
     - tags
  
 linux64_official_petsc_real_release:
   variables:
     EXTRA_VERSION: ""
-  <<: *linux64_official_petsc_real
+  <<: *linux_official_petsc_real
+  tags:
+    - linux64
+    - official
   only:
     - /^getdp_.*$/
 
 linux64_official_petsc_real_mh_snapshot:
-  <<: *linux64_official_petsc_real_mh
+  <<: *linux_official_petsc_real_mh
+  tags:
+    - linux64
+    - official
   except:
     - tags
  
 linux64_official_petsc_real_mh_release:
   variables:
     EXTRA_VERSION: ""
-  <<: *linux64_official_petsc_real_mh
+  <<: *linux_official_petsc_real_mh
+  tags:
+    - linux64
+    - official
+  only:
+    - /^getdp_.*$/
+
+linux32_official_petsc_complex_snapshot:
+  <<: *linux_official_petsc_complex
+  tags:
+    - linux32
+    - official
+  except:
+    - tags
+
+linux32_official_petsc_complex_release:
+  variables:
+    EXTRA_VERSION: ""
+  <<: *linux_official_petsc_complex
+  tags:
+    - linux32
+    - official
+  only:
+    - /^getdp_.*$/
+
+linux32_official_petsc_real_snapshot:
+  <<: *linux_official_petsc_real
+  tags:
+    - linux32
+    - official
+  except:
+    - tags
+
+linux32_official_petsc_real_release:
+  variables:
+    EXTRA_VERSION: ""
+  <<: *linux_official_petsc_real
+  tags:
+    - linux32
+    - official
+  only:
+    - /^getdp_.*$/
+
+linux32_official_petsc_real_mh_snapshot:
+  <<: *linux_official_petsc_real_mh
+  tags:
+    - linux32
+    - official
+  except:
+    - tags
+
+linux32_official_petsc_real_mh_release:
+  variables:
+    EXTRA_VERSION: ""
+  <<: *linux_official_petsc_real_mh
+  tags:
+    - linux32
+    - official
   only:
     - /^getdp_.*$/
 
@@ -255,7 +318,7 @@ windows32_official_petsc_real_mh_release:
 # Official MacOS builds (master branch only)
 # ------------------------------------------
 
-.macos64_official_petsc_complex: &macos64_official_petsc_complex
+.macos_official_petsc_complex: &macos_official_petsc_complex
   only:
     - master
   script:
@@ -269,11 +332,8 @@ windows32_official_petsc_real_mh_release:
     - scp ace@ace36.montefiore.ulg.ac.be:/tmp/${PKG} .
     - scp ${PKG} geuzaine@getdp.info:.wwwgetdp/bin/MacOSX/${PKG/\.tar\.gz/c\.tgz}
     - /usr/local/bin/ctest -D Experimental -j 1 --output-on-failure
-  tags:
-    - macos64
-    - official
 
-.macos64_official_petsc_real: &macos64_official_petsc_real
+.macos_official_petsc_real: &macos_official_petsc_real
   only:
     - master
   script:
@@ -287,9 +347,6 @@ windows32_official_petsc_real_mh_release:
     - scp ace@ace36.montefiore.ulg.ac.be:/tmp/${PKG} .
     - scp ${PKG} geuzaine@getdp.info:.wwwgetdp/bin/MacOSX/${PKG/\.tar\.gz/r\.tgz}
     - /usr/local/bin/ctest -D Experimental -j 1 --output-on-failure
-  tags:
-    - macos64
-    - official
 
 .macos64_official_petsc_real_mh: &macos64_official_petsc_real_mh
   only:
@@ -305,43 +362,58 @@ windows32_official_petsc_real_mh_release:
     - scp ace@ace36.montefiore.ulg.ac.be:/tmp/${PKG} .
     - scp ${PKG} geuzaine@getdp.info:.wwwgetdp/bin/MacOSX/${PKG/\.tar\.gz/r-MH\.tgz}
     - /usr/local/bin/ctest -D Experimental -j 1 --output-on-failure
+
+macos64_official_petsc_complex_snapshot:
+  <<: *macos_official_petsc_complex
   tags:
     - macos64
     - official
-
-macos64_official_petsc_complex_snapshot:
-  <<: *macos64_official_petsc_complex
   except:
     - tags
  
 macos64_official_petsc_complex_release:
   variables:
     EXTRA_VERSION: ""
-  <<: *macos64_official_petsc_complex
+  <<: *macos_official_petsc_complex
+  tags:
+    - macos64
+    - official
   only:
     - /^getdp_.*$/
 
 macos64_official_petsc_real_snapshot:
-  <<: *macos64_official_petsc_real
+  <<: *macos_official_petsc_real
+  tags:
+    - macos64
+    - official
   except:
     - tags
  
 macos64_official_petsc_real_release:
   variables:
     EXTRA_VERSION: ""
-  <<: *macos64_official_petsc_real
+  <<: *macos_official_petsc_real
+  tags:
+    - macos64
+    - official
   only:
     - /^getdp_.*$/
 
 macos64_official_petsc_real_mh_snapshot:
-  <<: *macos64_official_petsc_real_mh
+  <<: *macos_official_petsc_real_mh
+  tags:
+    - macos64
+    - official
   except:
     - tags
  
 macos64_official_petsc_real_mh_release:
   variables:
     EXTRA_VERSION: ""
-  <<: *macos64_official_petsc_real_mh
+  <<: *macos_official_petsc_real_mh
+  tags:
+    - macos64
+    - official
   only:
     - /^getdp_.*$/
 
@@ -358,12 +430,12 @@ macos64_official_petsc_real_mh_release:
     - /usr/local/bin/cmake -DGETDP_EXTRA_VERSION=${EXTRA_VERSION:0:13} ..
     - make package_source
     - PKG=`ls getdp-*.tar*`; scp -o StrictHostKeyChecking=no -i /home/gitlab-runner/.ssh/id_rsa ${PKG} geuzaine@getdp.info:.wwwgetdp/src/${PKG/\.tar\.gz/\.tgz}
-  tags:
-    - linux64
-    - official
 
 source_official_snapshot:
   <<: *source_official
+  tags:
+    - linux64
+    - official
   except:
     - tags
 
@@ -371,5 +443,8 @@ source_official_release:
   variables:
     EXTRA_VERSION: ""
   <<: *source_official
+  tags:
+    - linux64
+    - official
   only:
     - /^getdp_.*$/
