@@ -30,7 +30,7 @@ linux64_docker_ci:
 
 .linux_official_petsc_complex: &linux_official_petsc_complex
   only:
-    - master
+    - master@getdp/getdp
   script:
     - mkdir build
     - cd build
@@ -41,7 +41,7 @@ linux64_docker_ci:
 
 .linux_official_petsc_real: &linux_official_petsc_real
   only:
-    - master
+    - master@getdp/getdp
   script:
     - mkdir build
     - cd build
@@ -52,7 +52,7 @@ linux64_docker_ci:
 
 .linux_official_petsc_real_mh: &linux_official_petsc_real_mh
   only:
-    - master
+    - master@getdp/getdp
   script:
     - mkdir build
     - cd build
@@ -175,7 +175,7 @@ linux32_official_petsc_real_mh_release:
 
 .windows_official_petsc_complex: &windows_official_petsc_complex
   only:
-    - master
+    - master@getdp/getdp
   script:
     - md build
     - cd build
@@ -186,7 +186,7 @@ linux32_official_petsc_real_mh_release:
 
 .windows_official_petsc_real: &windows_official_petsc_real
   only:
-    - master
+    - master@getdp/getdp
   script:
     - md build
     - cd build
@@ -197,7 +197,7 @@ linux32_official_petsc_real_mh_release:
 
 .windows_official_petsc_real_mh: &windows_official_petsc_real_mh
   only:
-    - master
+    - master@getdp/getdp
   script:
     - md build
     - cd build
@@ -320,7 +320,7 @@ windows32_official_petsc_real_mh_release:
 
 .macos_official_petsc_complex: &macos_official_petsc_complex
   only:
-    - master
+    - master@getdp/getdp
   script:
     - mkdir build
     - cd build
@@ -335,7 +335,7 @@ windows32_official_petsc_real_mh_release:
 
 .macos_official_petsc_real: &macos_official_petsc_real
   only:
-    - master
+    - master@getdp/getdp
   script:
     - mkdir build
     - cd build
@@ -350,7 +350,7 @@ windows32_official_petsc_real_mh_release:
 
 .macos64_official_petsc_real_mh: &macos_official_petsc_real_mh
   only:
-    - master
+    - master@getdp/getdp
   script:
     - mkdir build
     - cd build
@@ -423,7 +423,7 @@ macos64_official_petsc_real_mh_release:
 
 .source_official: &source_official
   only:
-    - master
+    - master@getdp/getdp
   script:
     - mkdir build_src
     - cd build_src
