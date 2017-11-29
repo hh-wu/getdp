@@ -15,6 +15,8 @@ DefineConstant[ e = {5e-3, Min 5e-4, Max d, Step 1e-3,
 DefineConstant[ ha = {0.03, Min 0.01, Max 0.1, Step 0.01,
     Name "Parameters/Geometry/Magnet height (m)"} ] ;
 
+Solver.AutoMesh = 1; // use mesh on disk if available
+
 lc0 = d / 5 ;
 lc1 = e / 2 ;
 lc2 = (Val_Rext - Val_Rint) / 8. ;
