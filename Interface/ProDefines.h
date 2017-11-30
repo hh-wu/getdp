@@ -1130,6 +1130,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"AcousticFieldHardSphere",         (CAST)F_AcousticFieldHardSphere,  2, 1 },
   {"RCSHardSphere",                   (CAST)F_RCSHardSphere,  2, 1 },
   {"AcousticFieldSoftCylinder",       (CAST)F_AcousticFieldSoftCylinder, 2, 1 },
+  {"AcousticFieldSoftCylinderByMode", (CAST)F_AcousticFieldSoftCylinderByMode, 3, 1 },
   {"AcousticFieldSoftCylinderABC",    (CAST)F_AcousticFieldSoftCylinderABC, 5, 1 },
   {"DrAcousticFieldSoftCylinder",     (CAST)F_DrAcousticFieldSoftCylinder, 2, 1 },
   {"RCSSoftCylinder",                 (CAST)F_RCSSoftCylinder,  2, 1 },
