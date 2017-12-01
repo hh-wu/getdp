@@ -1636,6 +1636,31 @@ void F_JFIE_TransZPolCyl(F_ARG)
 }
 
 /* Scattering by acoustically soft circular cylinder of radius R,
+   under plane wave incidence e^{ikx}. Returns the mode 'm' of
+   the scatterered field outside */
+
+void F_AcousticFieldSoftCylinderByMode(F_ARG)
+{
+  double theta = atan2(A->Val[1], A->Val[0]) ;
+  double r = sqrt(A->Val[0]*A->Val[0] + A->Val[1]*A->Val[1]) ;
+  double k = Fct->Para[0] ;
+  double R = Fct->Para[1] ;
+  int mode = Fct->Para[2] ;
+  double kr = k*r;
+  double kR = k*R;
+  std::complex<double> I(0,1);
+  std::complex<double> HnkR( jn(mode,kR), yn(mode,kR) );
+  std::complex<double> Hnkr( jn(mode,kr), yn(mode,kr) );
+  std::complex<double> tmp1 = std::pow(I,mode) * std::real(HnkR) * Hnkr/HnkR;
+  double tmp2 = - (!mode ? 1 : 2.) * cos(mode*theta);
+  double vr = tmp2 * std::real(tmp1);
+  double vi = tmp2 * std::imag(tmp1);
+  V->Val[0]       = vr;
+  V->Val[MAX_DIM] = vi;
+  V->Type = SCALAR ;
+}
+
+/* Scattering by acoustically soft circular cylinder of radius R,
    under plane wave incidence e^{ikx}. Returns scatterered field
    outside */
 
