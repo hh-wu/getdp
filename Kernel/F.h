@@ -43,6 +43,7 @@ void  F_RCSSoftSphere(F_ARG) ;
 void  F_AcousticFieldHardSphere(F_ARG) ;
 void  F_RCSHardSphere(F_ARG) ;
 void  F_AcousticFieldSoftCylinder(F_ARG) ;
+void  F_AcousticFieldSoftCylinderByMode(F_ARG) ;
 void  F_AcousticFieldSoftCylinderABC(F_ARG) ;
 void  F_DrAcousticFieldSoftCylinder(F_ARG) ;
 void  F_RCSSoftCylinder(F_ARG) ;
