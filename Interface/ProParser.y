@@ -316,6 +316,7 @@ struct doubleXstring{
 %token        tTime0 tTimeMax tTheta
 %token        tBeta tGamma
 %token      tIterativeLoop tIterativeLoopN tIterativeLinearSolver
+%token      tHPDDMSolve
 %token      tNbrMaxIteration tRelaxationFactor
 %token      tIterativeTimeReduction
 %token        tSetCommSelf tSetCommWorld tBarrier tBroadcastFields tBroadcastVariables
@@ -5291,6 +5292,15 @@ OperationTerm :
       Operation_P->Case.IterativeLinearSolver.Operations_Ax = $20;
       Operation_P->Case.IterativeLinearSolver.Operations_Mx = $23;
     }
+
+  | tHPDDMSolve '[' ListOfFExpr ']' tEND
+  { //List_Pop(Operation_L);
+      Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_HPDDMSOLVE;
+      Operation_P->Case.HPDDMSolve.D = $3;
+    }
+
 
   | tPrint
     { Operation_P = (struct Operation*)

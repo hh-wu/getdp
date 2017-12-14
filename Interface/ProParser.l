@@ -258,6 +258,7 @@ GETDP_PATCH_VERSION          return tGETDP_PATCH_VERSION;
 HarmonicToTime               return tHarmonicToTime;
 Header                       return tHeader;
 Hidden                       return tHidden;
+HPDDMSolve                   return tHPDDMSolve;
 Hypot                        return tHypot;
 
 If                           return tIf;

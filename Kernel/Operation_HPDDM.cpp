@@ -26,7 +26,7 @@ typedef std::complex<double> K;
 //typedef double K;
 
 void Operation_HPDDMSolve(struct Operation *Operation_P,
-                          struct DofData *DofData_P)
+                            struct DofData *DofData_P)
 {
   // in: idom (will always be == MPI_COMM_RANK currently, but it would be nice
   //     to generalize)
@@ -37,12 +37,18 @@ void Operation_HPDDMSolve(struct Operation *Operation_P,
   // in: Optional: B~{idom} same as A~{idom} but with optimized BCs
   // in: mapping of indices from common Dofs between A~{idom} and neighbors A~{D~{idom}()}
 
-  // TODO BT: get info from getdp list D~{idom}()
-  std::vector<int> o(1);
-  if(Message::GetCommRank() == 1)
-    o.push_back(2);
-  else
-    o.push_back(1);
+  //Get info from getdp list D~{idom}()
+  //Right now, assume that D is only for idom...
+  int mpi_comm_size = Message::GetCommSize();
+  int mpi_comm_rank = Message::GetCommRank();
+  int n_connections = List_Nbr(Operation_P->Case.HPDDMSolve.D);
+  std::vector<int> o;
+  o.reserve(n_connections);
+  for(int iConnect = 0; iConnect < n_connections; iConnect++){
+    double d;
+    List_Read(Operation_P->Case.HPDDMSolve.D, iConnect, &d);
+    o.push_back(static_cast<int>(d));
+  }
 
   // TODO CG: contruct mapping and store somewhere
   std::vector<std::vector<int> > mapping(o.size());
@@ -80,7 +86,7 @@ void Operation_HPDDMSolve(struct Operation *Operation_P,
   S->callNumfact(); // if B~{idom} provided, add it here
   int mu = 1; // #rhs
   int it = HPDDM::IterativeMethod::solve(*S, b, sol, mu, S->getCommunicator());
-
+  
   // TODO: FETI et BDDM
 }
 
