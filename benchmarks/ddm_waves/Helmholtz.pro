@@ -50,7 +50,7 @@ Group{
   gPml = 1.;
 
   For ii In {0: #myD()-1}
-    i = D(ii);
+    i = myD(ii);
     DefineGroup[ GammaPoint~{i} ];
     TrOmegaGammaD~{i} = ElementsOf[ Omega~{i}, OnOneSideOf GammaD~{i} ];
     For jj In {0:#myD~{i}()-1}
