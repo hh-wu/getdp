@@ -1,0 +1,26 @@
+// Flags
+//======
+Flag_TransFinite = 1; // Used to get a transfinite mesh
+Flag_Dynamic = 0; // Can be used in the presence of mechanical waves (this is unused for the moment)
+Flag_ExternalForce = 0; // Set to "True" if the external force is considered
+Flag_DEGRE2 = 0; // Used to solve using 2nd order basis functions
+Flag_LagrangeMultiplier = 1;
+Flag_Plasticity = 1;
+Flag_DeformMesh = 0;
+// Geometry and the mesh
+//======================
+DIRICHLET_MECHANICS_1 = 1000;
+DIRICHLET_MECHANICS_2 = 1001;
+DIRICHLET_THERMAL = 1002;
+CONVECTION_THERMAL = 1003;
+DIRICHLET_ELEMAG = 1004;
+ALL_BOUNDARY = 1005;
+
+ELEMAG_CUTS_1 = 1006;
+ELEMAG_CUTS_2 = 1007;
+ELEMAG_CUTS_3 = 1008;
+ELEMAG_CUTS_4 = 1009;
+
+DOMAIN_TUBE = 2000;
+DOMAIN_TISSUE = 2001;
+

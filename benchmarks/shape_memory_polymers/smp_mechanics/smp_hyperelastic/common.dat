@@ -1,0 +1,41 @@
+// Data about the geometry
+//========================
+COIL = 1000;
+TUBE = 1001;
+AIR = 1002;
+SKIN_COIL = 2000;
+SKIN_TUBE = 2001;
+IN = 2002;
+OUT = 2003;
+INF = 2004;
+//DIRICHLET_MECHANICS = 2010;
+//SURF_MEC = 2011;
+//VOLUME_MEC = 2012;
+DIRICHLET_THERMAL = 2009;
+CONVECTION_THERMAL = 2010;
+
+DefineConstant[
+    turns = {10, Name "Geometry/Number of coil turns"},
+    r = {15.0e-3, Name "Geometry/Coil radius"},
+    rc = {1.0e-3/2, Name "Geometry/Coil wire radius"},
+    hc = {0.030, Name "Geometry/Coil height"},
+    ht = {20.0e-3, Name "Geometry/Tube height"},
+    L = {20.0e-3, Name "Geometry/Tube height"},
+    rt1 = {9.5e-3, Name "Geometry/Tube internal radius"},
+    rt2 = {10.0e-3, Name "Geometry/Tube external radius"},
+    lb = {200e-3, Name "Geometry/Infinite box width"}
+    l_square_m = {0.30, Name "Geometry/Length rectangular box"}
+    w_square_m = {0.02, Name "Geometry/Width rectangular box"}
+    ws = {0.12, Name "Geometry/Width rectangular box"}
+    gap_m = {0.05, Name "Geometry/Gap between coil and hinge"}
+    left = {1, Choices{0,1}, Name "Geometry/Terminals on the left?"}
+];
+
+
+Dir_Mech  = StrCat("", "res_mech/");
+Dir_Elec  = StrCat("", "res_elec/");
+Dir_Therm = StrCat("", "res_therm/");
+
+Flag_Complex = 1;
+Flag_TransFinite = 0;
+Flag_SMP_Stent = 0;
