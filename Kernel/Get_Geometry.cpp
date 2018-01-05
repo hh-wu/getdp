@@ -483,7 +483,7 @@ double Transformation(int Dim, int Type, struct Element * Element, MATRIX3x3 * J
                      "Valid parameters: Radius1 Radius2 CenterX CenterY CenterZ Power 1/Infinity");
     }
   }
-  else if(Type == JACOBIAN_CYL){
+  else if(Type == JACOBIAN_CYL_SHELL){
     if(Element->JacobianCase->NbrParameters >= 3)
       Axis = (int)Element->JacobianCase->Para[2];
     if(Element->JacobianCase->NbrParameters >= 4)
@@ -501,7 +501,7 @@ double Transformation(int Dim, int Type, struct Element * Element, MATRIX3x3 * J
                      "Valid parameters: Radius1 Radius2 Axis CenterX CenterY CenterZ Power 1/Infinity");
     }
   }
-  else if(Type == JACOBIAN_VOL_UNI_DIR){
+  else if(Type == JACOBIAN_VOL_UNI_DIR_SHELL){
     if(Element->JacobianCase->NbrParameters >= 3)
       Axis = (int)Element->JacobianCase->Para[2];
     if(Element->JacobianCase->NbrParameters >= 4)
@@ -520,7 +520,7 @@ double Transformation(int Dim, int Type, struct Element * Element, MATRIX3x3 * J
 
   if(L) B = (B*B-A*A*L)/(B-A*L);
 
-  if(Type == JACOBIAN_VOL_UNI_DIR){
+  if(Type == JACOBIAN_VOL_UNI_DIR_SHELL){
 
 	/* R is the distance from the plane whose normal vector is parallel to the 
 	axis and which contains the point (Ca,0,0),(0,Ca,0) or (0,0,Ca), for Axis 
@@ -571,7 +571,7 @@ double Transformation(int Dim, int Type, struct Element * Element, MATRIX3x3 * J
       break;
       }
   }
-  else if(Type == JACOBIAN_CYL){
+  else if(Type == JACOBIAN_CYL_SHELL){
 	  switch(Axis) {
 	  case 1: R = sqrt(SQU(Y-Cy)+SQU(Z-Cz)); YR = (Y-Cy)/R; ZR = (Z-Cz)/R; dRdy = (Y-Cy)/R; dRdz = (Z-Cz)/R; break;
 	  case 2: R = sqrt(SQU(X-Cx)+SQU(Z-Cz)); XR = (X-Cx)/R; ZR = (Z-Cz)/R; dRdx = (X-Cx)/R; dRdz = (Z-Cz)/R; break;
@@ -1084,7 +1084,7 @@ double  JacobianVolCylShell3D(struct Element * Element, MATRIX3x3 * Jac)
   double     DetJac1, DetJac2;
 
   DetJac1 = JacobianVol3D(Element, &Jac1);
-  DetJac2 = Transformation(_3D, JACOBIAN_CYL, Element, &Jac2);
+  DetJac2 = Transformation(_3D, JACOBIAN_CYL_SHELL, Element, &Jac2);
 
   Get_ProductMatrix(_3D, &Jac1, &Jac2, Jac);
 
@@ -1110,7 +1110,7 @@ double  JacobianVolUniDirShell3D(struct Element * Element, MATRIX3x3 * Jac)
   double     DetJac1, DetJac2;
 
   DetJac1 = JacobianVol3D(Element, &Jac1);
-  DetJac2 = Transformation(_3D, JACOBIAN_VOL_UNI_DIR, Element, &Jac2);
+  DetJac2 = Transformation(_3D, JACOBIAN_VOL_UNI_DIR_SHELL, Element, &Jac2);
 
   Get_ProductMatrix(_3D, &Jac1, &Jac2, Jac);
 
