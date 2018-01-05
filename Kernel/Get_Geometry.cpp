@@ -598,21 +598,21 @@ double Transformation(int Dim, int Type, struct Element * Element, MATRIX3x3 * J
 		  Jac->c21 = 0.0; Jac->c22 = f * (1.0 - theta * YR * dRdy); Jac->c23 = f * (   - theta * YR * dRdz);
 		  Jac->c31 = 0.0; Jac->c32 = f * (    - theta * ZR * dRdy); Jac->c33 = f * (1.0- theta * ZR * dRdz);
 				
-		  DetJac =  f * (1.0 - theta);
+		  DetJac =  f * f * (1.0 - theta);
 	  break;
 	  
           case 2: Jac->c11 = f * (1.0 - theta * XR * dRdx); Jac->c12 = 0.0; Jac->c13 = f * (    - theta * XR * dRdz);
 	  	  Jac->c21 = 0.0;                           Jac->c22 = 1.0; Jac->c23 = 0.0;
 		  Jac->c31 = f * (    - theta * ZR * dRdx); Jac->c32 = 0.0; Jac->c33 = f * (1.0 - theta * ZR * dRdz);
 				
-		  DetJac =  f * (1.0 - theta);
+		  DetJac =  f * f * (1.0 - theta);
 	  break;
 	  
           case 3: Jac->c11 = f * (1.0 - theta * XR *dRdx); Jac->c12 = f * (    - theta * XR * dRdy); Jac->c13 = 0.0;
 		  Jac->c21 = f * (    - theta * YR *dRdx); Jac->c22 = f * (1.0 - theta * YR * dRdy); Jac->c23 = 0.0;
 		  Jac->c31 = 0.0;                          Jac->c32 = 0.0;                           Jac->c33 = 1.0;
 				
-		  DetJac =  f * (1.0 - theta);
+		  DetJac =  f * f * (1.0 - theta);
 	  break;
          }
   }
