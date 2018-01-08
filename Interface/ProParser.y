@@ -307,6 +307,7 @@ struct doubleXstring{
 %token      tFourierTransform tFourierTransformJ
 %token      tCopySolution tCopyRHS tCopyResidual tCopyIncrement tCopyDofs
 %token      tGetNormSolution tGetNormResidual tGetNormRHS tGetNormIncrement
+%token      tOptimizerInitialize tOptimizerUpdate
 %token      tLanczos tEigenSolve tEigenSolveJac tPerturbation
 %token      tUpdate tUpdateConstraint tBreak tGetResidual tCreateSolution
 %token      tEvaluate tSelectCorrection tAddCorrection tMultiplySolution
@@ -5830,6 +5831,40 @@ OperationTerm :
       Operation_P->Case.Copy.useList = 1 ;
       Operation_P->Case.Copy.to = 0 ;
       Operation_P->Case.Copy.from = $3 ;
+    }
+
+  | tOptimizerInitialize '[' FExpr ',' ListOfFExpr ',' ListOfFExpr ']' tEND
+    {
+      Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      Operation_P->Type = OPERATION_OPTIMIZER_INITIALIZE;
+      Operation_P->Case.OptimizerInitialize.numConstraints = (int)$3;
+      Operation_P->Case.OptimizerInitialize.lowerBounds = $5;
+      Operation_P->Case.OptimizerInitialize.upperBounds = $7;
+    }
+
+  | tOptimizerUpdate '[' '$' String__Index ',' '$' String__Index ','
+                         '$' String__Index ']' tEND
+    {
+      Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      Operation_P->Type = OPERATION_OPTIMIZER_UPDATE;
+      Operation_P->Case.OptimizerUpdate.performanceVariable = $4;
+      Operation_P->Case.OptimizerUpdate.sensitivityVariable = $7;
+      Operation_P->Case.OptimizerUpdate.residualVariable = $10;
+      Operation_P->Case.OptimizerUpdate.sensitivityField = -1;
+    }
+
+  | tOptimizerUpdate '[' '$' String__Index ',' FExpr ','
+                         '$' String__Index ']' tEND
+    {
+      Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      Operation_P->Type = OPERATION_OPTIMIZER_UPDATE;
+      Operation_P->Case.OptimizerUpdate.performanceVariable = $4;
+      Operation_P->Case.OptimizerUpdate.sensitivityVariable = 0;
+      Operation_P->Case.OptimizerUpdate.residualVariable = $9;
+      Operation_P->Case.OptimizerUpdate.sensitivityField = $6;
     }
 
   | Loop

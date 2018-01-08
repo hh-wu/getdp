@@ -13,6 +13,7 @@
 #cmakedefine HAVE_HPDDM
 #cmakedefine HAVE_LAPACK
 #cmakedefine HAVE_KERNEL
+#cmakedefine HAVE_MMA
 #cmakedefine HAVE_MPI
 #cmakedefine HAVE_MULTIHARMONIC
 #cmakedefine HAVE_NO_FORTRAN
