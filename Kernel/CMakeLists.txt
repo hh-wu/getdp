@@ -37,6 +37,7 @@ set(SRC
       Operation_ChangeOfCoordinates.cpp
       Operation_PostOperation.cpp
       Operation_HPDDM.cpp Operation_Debug.cpp
+      Operation_Optimizer.cpp
       Treatment_Formulation.cpp
         Get_DofOfElement.cpp
         Get_ConstraintOfElement.cpp

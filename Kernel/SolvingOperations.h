@@ -101,6 +101,10 @@ void Cal_SolutionErrorRatio(gVector *dx,
                             int NormType,
                             double *ErrorRatio) ;
 
+void Operation_OptimizerInitialize(struct Operation *Operation_P);
+
+void Operation_OptimizerUpdate(struct Operation *Operation_P);
+
 void Cal_SolutionError(gVector *dx, gVector *x, int diff, double *MeanError);
 
 void Free_UnusedSolutions(struct DofData * DofData_P);

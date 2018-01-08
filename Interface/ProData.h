@@ -1154,6 +1154,14 @@ struct Operation {
       int useList;
       char *from, *to;
     } Copy;
+    struct {
+      int numConstraints;
+      List_T *lowerBounds, *upperBounds;
+    } OptimizerInitialize;
+    struct {
+      char *performanceVariable, *sensitivityVariable, *residualVariable;
+      int sensitivityField;
+    } OptimizerUpdate;
   } Case;
 
 };
@@ -1304,6 +1312,8 @@ struct IterativeLoopSystem {
 #define OPERATION_HPDDMSOLVE               104
 #define OPERATION_BROADCASTVARIABLES       105
 #define OPERATION_DEBUG                    106
+#define OPERATION_OPTIMIZER_INITIALIZE     107
+#define OPERATION_OPTIMIZER_UPDATE         108
 
 /* ChangeOfState.Type */
 #define CHANGEOFSTATE_NOCHANGE              0

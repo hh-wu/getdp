@@ -3286,6 +3286,17 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 #endif
       break ;
 
+      /*  -->  O p t i m i z e r                      */
+      /*  ------------------------------------------  */
+
+    case OPERATION_OPTIMIZER_INITIALIZE :
+      Operation_OptimizerInitialize(Operation_P);
+      break ;
+
+    case OPERATION_OPTIMIZER_UPDATE :
+      Operation_OptimizerUpdate(Operation_P);
+      break ;
+
       /*  -->  O t h e r                              */
       /*  ------------------------------------------  */
 

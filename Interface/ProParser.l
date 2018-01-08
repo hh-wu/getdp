@@ -346,6 +346,8 @@ OnRegion                     return tOnRegion;
 OnSection                    return tOnSection;
 Operation                    return tOperation;
 OperationEnd                 return tOperationEnd;
+OptimizerInitialize          return tOptimizerInitialize;
+OptimizerUpdate              return tOptimizerUpdate;
 Order                        return tOrder;
 OriginSystem                 return tOriginSystem;
 OverrideTimeStepValue        return tOverrideTimeStepValue;
