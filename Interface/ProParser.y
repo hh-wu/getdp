@@ -5833,14 +5833,16 @@ OperationTerm :
       Operation_P->Case.Copy.from = $3 ;
     }
 
-  | tOptimizerInitialize '[' FExpr ',' ListOfFExpr ',' ListOfFExpr ']' tEND
+  | tOptimizerInitialize '[' CharExpr ',' FExpr ','
+                             ListOfFExpr ',' ListOfFExpr ']' tEND
     {
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_OPTIMIZER_INITIALIZE;
-      Operation_P->Case.OptimizerInitialize.numConstraints = (int)$3;
-      Operation_P->Case.OptimizerInitialize.lowerBounds = $5;
-      Operation_P->Case.OptimizerInitialize.upperBounds = $7;
+      Operation_P->Case.OptimizerInitialize.algorithm = $3;
+      Operation_P->Case.OptimizerInitialize.numConstraints = (int)$5;
+      Operation_P->Case.OptimizerInitialize.lowerBounds = $7;
+      Operation_P->Case.OptimizerInitialize.upperBounds = $9;
     }
 
   | tOptimizerUpdate '[' '$' String__Index ',' '$' String__Index ','

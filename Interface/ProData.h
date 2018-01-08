@@ -1155,6 +1155,7 @@ struct Operation {
       char *from, *to;
     } Copy;
     struct {
+      char *algorithm;
       int numConstraints;
       List_T *lowerBounds, *upperBounds;
     } OptimizerInitialize;
