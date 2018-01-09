@@ -1519,6 +1519,7 @@ struct PostOpSolutions {
 #define FORMAT_NODE_TABLE             20
 #define FORMAT_LOOP_ERROR             21
 #define FORMAT_GETDP                  22
+#define FORMAT_ELEMENT_TABLE          23
 
 /* PostSubOperation.Sort */
 #define SORT_BY_POSITION      1

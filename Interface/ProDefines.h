@@ -332,6 +332,7 @@ struct StringXDefine  PostSubOperation_Format[] = {
   {"Table"               , FORMAT_SPACE_TABLE },
   {"SimpleTable"         , FORMAT_SIMPLE_SPACE_TABLE },
   {"NodeTable"           , FORMAT_NODE_TABLE },
+  {"ElementTable"        , FORMAT_ELEMENT_TABLE },
   {"ValueOnly"           , FORMAT_VALUE_ONLY },
   {"TimeTable"           , FORMAT_TIME_TABLE },
   {"RegionTable"         , FORMAT_REGION_TABLE },
