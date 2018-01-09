@@ -465,6 +465,7 @@ extern std::map<std::string, std::vector<double> > CommandLineNumbers;
 extern std::map<std::string, std::vector<std::string> > CommandLineStrings;
 extern std::map<std::string, std::vector<double> > GetDPNumbers;
 extern std::map<std::string, std::vector<std::string> > GetDPStrings;
+extern std::map<std::string, std::map<int, std::vector<double> > > GetDPNumbersMap;
 
 int getdp_yyparse();
 void getdp_yyrestart(FILE*);

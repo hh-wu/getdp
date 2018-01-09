@@ -9,6 +9,7 @@
 #include "GetDPConfig.h"
 #include "ProData.h"
 #include "ProDefine.h"
+#include "ProParser.h"
 #include "F.h"
 #include "Message.h"
 #include "Cal_Value.h"
@@ -207,6 +208,42 @@ void F_GetVariable (F_ARG)
   }
 
   Cal_GetValueSaved(V, tmp);
+}
+
+void F_ValueFromTable (F_ARG)
+{
+  if(!Fct->String){
+    Message::Error("Missing ElementTable or NodeTable name: use ValueFromTable[...]{name}");
+    return;
+  }
+
+  std::map<int, std::vector<double> > &table(GetDPNumbersMap[Fct->String]);
+  std::vector<double> &val(table[Current.NumEntity]);
+  if(val.size() == 1){
+    V->Val[0] = val[0];
+    V->Type = SCALAR ;
+    return;
+  }
+
+  Message::Debug("Unknown entity index %d in ValueFromTable",
+                 Current.NumEntity);
+
+  for(int i = 0; i < Fct->NbrArguments; i++){
+    if(i != 0){
+      Message::Warning("Ignoring %d-th argument in ValueFromTable");
+      continue;
+    }
+    if((A+i)->Type != SCALAR){
+      Message::Error("Non-scalar default argument in ValueFromTable");
+      return;
+    }
+    Cal_CopyValue(A + i, V);
+    return;
+  }
+
+  Message::Warning("Missing table data or default value in ValueFromTable");
+  V->Val[0] = 0. ;
+  V->Type = SCALAR ;
 }
 
 void F_VirtualWork (F_ARG)

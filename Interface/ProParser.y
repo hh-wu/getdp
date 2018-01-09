@@ -44,6 +44,7 @@ std::map<std::string, std::vector<double> > CommandLineNumbers;
 std::map<std::string, std::vector<std::string> > CommandLineStrings;
 std::map<std::string, std::vector<double> > GetDPNumbers;
 std::map<std::string, std::vector<std::string> > GetDPStrings;
+std::map<std::string, std::map<int, std::vector<double> > > GetDPNumbersMap;
 
 // Static parser variables (accessible only in this file)
 
@@ -1782,7 +1783,6 @@ ParametersForFunction :
 
   | '{' '$' String__Index '}'
     { $$ = NULL; StringForParameter = $3; }
-
  ;
 
 /* ------------------------------------------------------------------------ */
@@ -5833,40 +5833,28 @@ OperationTerm :
       Operation_P->Case.Copy.from = $3 ;
     }
 
-  | tOptimizerInitialize '[' CharExpr ',' FExpr ','
-                             ListOfFExpr ',' ListOfFExpr ']' tEND
+  | tOptimizerInitialize '[' CharExpr ',' ListOfFExpr ',' ListOfFExpr ']' tEND
     {
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_OPTIMIZER_INITIALIZE;
       Operation_P->Case.OptimizerInitialize.algorithm = $3;
-      Operation_P->Case.OptimizerInitialize.numConstraints = (int)$5;
-      Operation_P->Case.OptimizerInitialize.lowerBounds = $7;
-      Operation_P->Case.OptimizerInitialize.upperBounds = $9;
+      Operation_P->Case.OptimizerInitialize.currentPointLowerBounds = $5;
+      Operation_P->Case.OptimizerInitialize.currentPointUpperBounds = $7;
     }
 
-  | tOptimizerUpdate '[' '$' String__Index ',' '$' String__Index ','
-                         '$' String__Index ']' tEND
+  | tOptimizerUpdate '[' CharExpr ',' CharExpr ',' CharExpr ','
+                         CharExpr ',' CharExpr ',' '$' String__Index ']' tEND
     {
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_OPTIMIZER_UPDATE;
-      Operation_P->Case.OptimizerUpdate.performanceVariable = $4;
-      Operation_P->Case.OptimizerUpdate.sensitivityVariable = $7;
-      Operation_P->Case.OptimizerUpdate.residualVariable = $10;
-      Operation_P->Case.OptimizerUpdate.sensitivityField = -1;
-    }
-
-  | tOptimizerUpdate '[' '$' String__Index ',' FExpr ','
-                         '$' String__Index ']' tEND
-    {
-      Operation_P = (struct Operation*)
-	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      Operation_P->Type = OPERATION_OPTIMIZER_UPDATE;
-      Operation_P->Case.OptimizerUpdate.performanceVariable = $4;
-      Operation_P->Case.OptimizerUpdate.sensitivityVariable = 0;
-      Operation_P->Case.OptimizerUpdate.residualVariable = $9;
-      Operation_P->Case.OptimizerUpdate.sensitivityField = $6;
+      Operation_P->Case.OptimizerUpdate.currentPoint = $3;
+      Operation_P->Case.OptimizerUpdate.objective = $5;
+      Operation_P->Case.OptimizerUpdate.constraints = $7;
+      Operation_P->Case.OptimizerUpdate.objectiveSensitivity = $9;
+      Operation_P->Case.OptimizerUpdate.constraintsSensitivity = $11;
+      Operation_P->Case.OptimizerUpdate.residual = $14;
     }
 
   | Loop

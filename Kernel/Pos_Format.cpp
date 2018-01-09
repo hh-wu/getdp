@@ -1421,6 +1421,7 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
           exp.push_back(it->second[i]);
       }
       GetDPNumbers[CurrentName] = exp;
+      GetDPNumbersMap[CurrentName] = NodeTable;
       if(PSO_P->SendToServer && strcmp(PSO_P->SendToServer, "No"))
         Message::AddOnelabNumberChoice(PSO_P->SendToServer, exp, PSO_P->Color,
                                        PSO_P->Units, PSO_P->Label, PSO_P->Visible,
@@ -1448,6 +1449,7 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
           exp.push_back(it->second[i]);
       }
       GetDPNumbers[CurrentName] = exp;
+      GetDPNumbersMap[CurrentName] = ElementTable;
       if(PSO_P->SendToServer && strcmp(PSO_P->SendToServer, "No"))
         Message::AddOnelabNumberChoice(PSO_P->SendToServer, exp, PSO_P->Color,
                                        PSO_P->Units, PSO_P->Label, PSO_P->Visible,
