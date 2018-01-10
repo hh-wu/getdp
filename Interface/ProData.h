@@ -1160,8 +1160,8 @@ struct Operation {
     } OptimizerInitialize;
     struct {
       char *currentPoint; // input and ouput
-      char *objective, *constraints; // input
-      char *objectiveSensitivity, *constraintsSensitivity; // input
+      char *objective, *objectiveSensitivity; // input
+      List_T *constraints, *constraintsSensitivity; // input
       char *residual;
     } OptimizerUpdate;
   } Case;

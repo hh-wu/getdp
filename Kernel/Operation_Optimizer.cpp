@@ -74,12 +74,17 @@ void Operation_OptimizerUpdate(struct Operation *Operation_P)
 {
   printf("Opti update:\n");
 
-  debugInput("currentPoint", Operation_P->Case.OptimizerUpdate.currentPoint);
+  debugInput("current point", Operation_P->Case.OptimizerUpdate.currentPoint);
   debugInput("objective", Operation_P->Case.OptimizerUpdate.objective);
-  debugInput("constraints", Operation_P->Case.OptimizerUpdate.constraints);
-  debugInput("objectiveSensitivity", Operation_P->Case.OptimizerUpdate.objectiveSensitivity);
-  debugInput("constraintsSensitivity", Operation_P->Case.OptimizerUpdate.constraintsSensitivity);
-
+  for(int i = 0; i < List_Nbr(Operation_P->Case.OptimizerUpdate.constraints); i++){
+    char *c; List_Read(Operation_P->Case.OptimizerUpdate.constraints, i, &c);
+    debugInput("constraint", c);
+  }
+  debugInput("objective sensitivity", Operation_P->Case.OptimizerUpdate.objectiveSensitivity);
+  for(int i = 0; i < List_Nbr(Operation_P->Case.OptimizerUpdate.constraintsSensitivity); i++){
+    char *c; List_Read(Operation_P->Case.OptimizerUpdate.constraintsSensitivity, i, &c);
+    debugInput("constraint sensitivity", c);
+  }
   Value v;
   v.Type = SCALAR;
   v.Val[0] = 1e-12;

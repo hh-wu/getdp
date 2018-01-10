@@ -5843,8 +5843,10 @@ OperationTerm :
       Operation_P->Case.OptimizerInitialize.currentPointUpperBounds = $7;
     }
 
-  | tOptimizerUpdate '[' CharExpr ',' CharExpr ',' CharExpr ','
-                         CharExpr ',' CharExpr ',' '$' String__Index ']' tEND
+  | tOptimizerUpdate '[' CharExpr ','
+                         CharExpr ',' BracedRecursiveListOfCharExpr ','
+                         CharExpr ',' BracedRecursiveListOfCharExpr ','
+                         '$' String__Index ']' tEND
     {
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
