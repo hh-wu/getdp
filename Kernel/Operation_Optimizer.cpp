@@ -450,4 +450,5 @@ void Operation_OptimizerUpdate(struct Operation *Operation_P)
   Message::Error("This version of GetDP is not compiled with MMA support");
 }
 
+
 #endif
