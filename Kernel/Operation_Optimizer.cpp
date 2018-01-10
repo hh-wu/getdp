@@ -16,6 +16,10 @@
 
 #if defined(HAVE_MMA) && defined(HAVE_PETSC)
 
+class optimizerContext;
+
+static optimizerContext *context = 0;
+
 void Operation_OptimizerInitialize(struct Operation *Operation_P)
 {
   printf("Opti init:\n");
@@ -72,6 +76,8 @@ static void debugInput(const std::string &type, const std::string &name)
 
 void Operation_OptimizerUpdate(struct Operation *Operation_P)
 {
+  // test context to verify that the initialization has been performed.
+
   printf("Opti update:\n");
 
   debugInput("current point", Operation_P->Case.OptimizerUpdate.currentPoint);
