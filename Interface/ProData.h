@@ -1164,6 +1164,8 @@ struct Operation {
     struct {
       char *residual;
     } OptimizerUpdate;
+    struct {
+    } OptimizerFinalize;
   } Case;
 
 };
