@@ -225,8 +225,6 @@ void F_ValueFromTable (F_ARG)
     return;
   }
   
-  printf("ValueFromTable: V->Val[0]:%g \n",V->Val[0]);
-
   Message::Debug("Unknown entity index %d in ValueFromTable",
                  Current.NumEntity);
 
@@ -240,7 +238,6 @@ void F_ValueFromTable (F_ARG)
       return;
     }
     Cal_CopyValue(A + i, V);
-    printf("ValueFromTable 2: V:%g \n",V->Val[0]);
     return;
   }
 

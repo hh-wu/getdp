@@ -131,7 +131,7 @@ class optimizerContext
 
     // FIXME: get actual number of constraints
     mcon = constraints.size();
-
+      
     // Lower bounds of the current point
     CreateVector(LowerBounds, nvar);
     if(List_Nbr(currentPointLowerBounds) == 1){
@@ -162,11 +162,11 @@ class optimizerContext
 
     // Create the subproblem
     subProblem = new MMA_MAT(mcon, nvar, LowerBounds, UpperBounds);
-    subProblem->verbosity = 10;
+    //subProblem->verbosity = 10;
 
     // Create the solver of the subproblem
     subProblemSolver = new MMA_PRIMALDUAL_INTERIORPOINT(subProblem);
-    subProblemSolver->verbosity = 10;
+    //subProblemSolver->verbosity = 10;
 
     printInfo();
   }
@@ -175,8 +175,8 @@ class optimizerContext
     Message::Info("Optimizer algorithm: %s", algorithm.c_str());
     Message::Info("Optimizer Number of design variables: %i", nvar);
     Message::Info("Optimizer Number of constraints %i", mcon);
-    VecView(LowerBounds, PETSC_VIEWER_STDOUT_WORLD);
-    VecView(UpperBounds, PETSC_VIEWER_STDOUT_WORLD);
+    //VecView(LowerBounds, PETSC_VIEWER_STDOUT_WORLD);
+    //VecView(UpperBounds, PETSC_VIEWER_STDOUT_WORLD);
   }
 };
 
@@ -195,7 +195,7 @@ static void UpdateCurrentPointList(const std::string &name, const Vec &data)
       GetValueVector(datav, ii, data);
       for(unsigned int i = 0; i < it->second.size(); i++){
         it->second[i] = datav;
-        printf("%g ", it->second[i]);
+        //printf("%g ", it->second[i]);
       }
       ii++;
     }
@@ -208,7 +208,7 @@ static void UpdateCurrentPointList(const std::string &name, const Vec &data)
       for(unsigned int i = 0; i < its->second.size(); i++){
         GetValueVector(datav, i, data);
         its->second[i] = datav;
-        printf("%g ", its->second[i]);
+        //printf("%g ", its->second[i]);
       }
     }
     else{
@@ -314,12 +314,12 @@ void Operation_OptimizerUpdate(struct Operation *Operation_P)
 
   UpdateVecFromInput("currentPoint", context->currentPoint, context->xval_pt);
   AssembleVector(context->xval_pt);
-  VecView(context->xval_pt, PETSC_VIEWER_STDOUT_WORLD);
+  //VecView(context->xval_pt, PETSC_VIEWER_STDOUT_WORLD);
 
   UpdateVecFromInput("objectiveSensitivity", context->objectiveSensitivity,
                      context->GradOfObjective);
   AssembleVector(context->GradOfObjective);
-  VecView(context->GradOfObjective, PETSC_VIEWER_STDOUT_WORLD);
+  //VecView(context->GradOfObjective, PETSC_VIEWER_STDOUT_WORLD);
 
   // FIXME: constraints are not in the same order as they have been declared
   // => Maybe their sensitivity are in a different order => mix
@@ -328,26 +328,26 @@ void Operation_OptimizerUpdate(struct Operation *Operation_P)
                        context->Constraints, i);
   }
   AssembleVector(context->Constraints);
-  VecView(context->Constraints, PETSC_VIEWER_STDOUT_WORLD);
+  //VecView(context->Constraints, PETSC_VIEWER_STDOUT_WORLD);
 
   for(unsigned int i = 0; i < context->constraintsSensitivity.size(); i++){
     UpdateMatFromInput("constraint sensitivity", context->constraintsSensitivity[i],
                        context->GradOfConstraints, i);
   }
   AssembleMatrix(context->GradOfConstraints);
-  MatView(context->GradOfConstraints, PETSC_VIEWER_STDOUT_WORLD);
-
-  Value v;
-  v.Type = SCALAR;
-  v.Val[0] = 1e-12;
-  Cal_StoreInVariable(&v, Operation_P->Case.OptimizerUpdate.residual);
+  //MatView(context->GradOfConstraints, PETSC_VIEWER_STDOUT_WORLD);
 
   // Call the optimizer to update the current point
   context->subProblemSolver->UpdateCurrentPoint(context->xval_pt,
                                                 context->GradOfObjective,
                                                 context->Constraints,
                                                 context->GradOfConstraints);
-  VecView(context->xval_pt, PETSC_VIEWER_STDOUT_WORLD);
+  //VecView(context->xval_pt, PETSC_VIEWER_STDOUT_WORLD);
+
+  Value v;
+  v.Type = SCALAR;
+  context->subProblem->DesignChange(context->xval_pt, v.Val[0]);
+  Cal_StoreInVariable(&v, Operation_P->Case.OptimizerUpdate.residual);
 
   // Update the list of design variables
   UpdateCurrentPointList(context->currentPoint, context->xval_pt);
