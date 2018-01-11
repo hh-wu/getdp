@@ -1156,12 +1156,12 @@ struct Operation {
     } Copy;
     struct {
       char *algorithm;
-      List_T *currentPointLowerBounds, *currentPointUpperBounds;
-    } OptimizerInitialize;
-    struct {
       char *currentPoint; // input and ouput
+      List_T *currentPointLowerBounds, *currentPointUpperBounds;
       char *objective, *objectiveSensitivity; // input
       List_T *constraints, *constraintsSensitivity; // input
+    } OptimizerInitialize;
+    struct {
       char *residual;
     } OptimizerUpdate;
   } Case;

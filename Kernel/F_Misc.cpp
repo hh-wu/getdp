@@ -224,6 +224,8 @@ void F_ValueFromTable (F_ARG)
     V->Type = SCALAR ;
     return;
   }
+  
+  printf("ValueFromTable: V->Val[0]:%g \n",V->Val[0]);
 
   Message::Debug("Unknown entity index %d in ValueFromTable",
                  Current.NumEntity);
@@ -238,12 +240,14 @@ void F_ValueFromTable (F_ARG)
       return;
     }
     Cal_CopyValue(A + i, V);
+    printf("ValueFromTable 2: V:%g \n",V->Val[0]);
     return;
   }
 
   Message::Warning("Missing table data or default value in ValueFromTable");
   V->Val[0] = 0. ;
   V->Type = SCALAR ;
+
 }
 
 void F_VirtualWork (F_ARG)

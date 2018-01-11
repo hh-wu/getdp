@@ -19,9 +19,28 @@
 #include "mma_mat.h"
 #include "mma_primaldual.h"
 
-class optimizerContext;
+class optimizerContext
+{
+  public:
+    optimizerContext(){};
 
-static optimizerContext *context = 0;
+    PetscInt nvar, mcon;
+    Vec xval_pt,LowerBounds,UpperBounds,GradOfObjective,Constraints;
+    Mat GradOfConstraints;
+
+    struct Operation *Operation_P;
+    
+    // subproblem
+    MMA_MAT *subProblem;
+    
+    // subproblem solver
+    MMA_PRIMALDUAL_INTERIORPOINT *subProblemSolver;
+
+};
+
+//static optimizerContext *context = 0;
+static optimizerContext *context;
+//static optimizerContext *context = new optimizerContext();
 
 // some vector operations
 static void CreateVector(Vec& Vector, PetscInt nn)
@@ -296,14 +315,16 @@ void Operation_OptimizerInitialize(struct Operation *Operation_P)
   printf("Opti init:\n");
 
   printf(" - algorithm: %s\n", Operation_P->Case.OptimizerInitialize.algorithm);
-    
-  PetscInt nbDesVar=22;
-  PetscInt nbConstr=1;
 
-  Vec LowerBounds, UpperBounds;
-  CreateVector(LowerBounds, nbDesVar);
-  CreateVector(UpperBounds, nbDesVar);
+  // Number of design variables
+  GetNumberOfDesignVariables(Operation_P, context->nvar);
+  printf("Number of design variables: %i\n", context->nvar);
 
+  // Number of constraints
+  GetNumberOfConstraints(Operation_P, context->mcon);
+  printf("Number of constraints: %i\n", context->mcon);
+
+  // Lower bounds of the current point
   List_T *lb = Operation_P->Case.OptimizerInitialize.currentPointLowerBounds;
   printf(" - lower bounds: ");
   for(int i = 0; i < List_Nbr(lb); i++){
@@ -312,7 +333,14 @@ void Operation_OptimizerInitialize(struct Operation *Operation_P)
     printf("%g ", d);
   }
   printf("\n");
-
+  CreateVector(context->LowerBounds, context->nvar);
+  AssembleVector(context->LowerBounds);
+  double low;
+  List_Read(lb, 0, &low);
+  VecSet(context->LowerBounds, val_lb);
+  VecView(context->LowerBounds, PETSC_VIEWER_STDOUT_WORLD);
+    
+  // Upper bounds of the current point
   List_T *ub = Operation_P->Case.OptimizerInitialize.currentPointUpperBounds;
   printf(" - upper bounds: ");
   for(int i = 0; i < List_Nbr(ub); i++){
@@ -321,83 +349,67 @@ void Operation_OptimizerInitialize(struct Operation *Operation_P)
     printf("%g ", d);
   }
   printf("\n");
-    
-  // fill the vector
-  double low, upp;
-  List_Read(lb, 0, &low);
+  CreateVector(context->UpperBounds, context->nvar);
+  AssembleVector(context->UpperBounds);
+  double upp;
   List_Read(ub, 0, &upp);
+  VecSet(context->UpperBounds, val_ub);
+  VecView(context->UpperBounds, PETSC_VIEWER_STDOUT_WORLD);
+  
+  // Create all the useful vectors/matrices
+  CreateVector(context->xval_pt, context->nvar);
+  CreateVector(context->GradOfObjective, context->nvar);
+  CreateVector(context->Constraints, context->mcon);
+  CreateMatrix(context->GradOfConstraints, context->mcon, context->nvar);
+    
+  // Create the subproblem
+  context->subProblem = new MMA_MAT(context->mcon,context->nvar,context->LowerBounds,context->UpperBounds);
+  context->subProblem->verbosity = 10;
+    
+  // Create the solver of the subproblem
+  context->subProblemSolver = new MMA_PRIMALDUAL_INTERIORPOINT(context->subProblem);
+  context->subProblemSolver->verbosity = 10;
 
-  for(int i = 0; i < nbDesVar; i++){
-    UpdateVector(low, i, LowerBounds);
-    UpdateVector(upp, i, UpperBounds);
-  }
-
-  AssembleVector(LowerBounds);
-  AssembleVector(UpperBounds);
-
-  //VecView(LowerBounds, PETSC_VIEWER_STDOUT_WORLD);
-  //VecView(UpperBounds, PETSC_VIEWER_STDOUT_WORLD);
-
-//  // Create the subproblem
-//  MMA_MAT *subProblem = new MMA_MAT(nbConstr,nbDesVar,LowerBounds,UpperBounds);
-//  subProblem->verbosity = 10;
-//    
-//  // Create the solver of the subproblem
-//  MMA_PRIMALDUAL_INTERIORPOINT *subProblemSolver = new MMA_PRIMALDUAL_INTERIORPOINT(subProblem);
-//  subProblemSolver->verbosity = 10;
-
+  // Keep track of the problem
+  context->Operation_P = Operation_P;
+    
 }
 
 void Operation_OptimizerUpdate(struct Operation *Operation_P)
 {
-  // test context to verify that the initialization has been performed.
-    
-
   //subProblem->nvar
   printf("Opti update:\n");
-    
 
-  PetscInt nvar;
-  GetNumberOfDesignVariables(Operation_P, nvar);
-  printf("Number of design variables: %i\n", nvar);
+  // Update the vectors
     
-  PetscInt mcon;
-  GetNumberOfConstraints(Operation_P, mcon);
-  printf("Number of constraints: %i\n", mcon);
+  UpdateVecFromInput("currentPoint",
+    context->Operation_P->Case.OptimizerInitialize.currentPoint, xval_pt);
+  AssembleVector(context->xval_pt);
+  VecView(context->xval_pt, PETSC_VIEWER_STDOUT_WORLD);
     
-  Vec xval_pt;
-  CreateVector(xval_pt, nvar); // create in Problem()
-  UpdateVecFromInput("currentPoint", Operation_P->Case.OptimizerUpdate.currentPoint, xval_pt);
-  AssembleVector(xval_pt);
-  //VecView(xval_pt, PETSC_VIEWER_STDOUT_WORLD);
-    
-  Vec GradOfObjective;
-  CreateVector(GradOfObjective, nvar);
-  UpdateVecFromInput("objectiveSensitivity", Operation_P->Case.OptimizerUpdate.objectiveSensitivity, GradOfObjective);
-  AssembleVector(GradOfObjective);
-  //VecView(GradOfObjective, PETSC_VIEWER_STDOUT_WORLD);
+  UpdateVecFromInput("objectiveSensitivity",
+    context->Operation_P->Case.OptimizerInitialize.objectiveSensitivity, GradOfObjective);
+  AssembleVector(context->GradOfObjective);
+  VecView(context->GradOfObjective, PETSC_VIEWER_STDOUT_WORLD);
 
-  Vec Constraints;
-  CreateVector(Constraints, mcon);
-  for(int i = 0; i < List_Nbr(Operation_P->Case.OptimizerUpdate.constraints); i++){
-    char *c; List_Read(Operation_P->Case.OptimizerUpdate.constraints, i, &c);
-    UpdateVecFromInput("constraints", c, Constraints, i);
+  // FIXME: constraints are not in the same order as they have been declared
+  // => Maybe their sensitivity are in a different order => mix
+  for(int i = 0; i < List_Nbr(context->Operation_P->Case.OptimizerInitialize.constraints); i++){
+    char *c; List_Read(context->Operation_P->Case.OptimizerInitialize.constraints, i, &c);
+    UpdateVecFromInput("constraints", c, context->Constraints, i);
   }
-  AssembleVector(Constraints);
-  //VecView(Constraints, PETSC_VIEWER_STDOUT_WORLD);
+  AssembleVector(context->Constraints);
+  VecView(context->Constraints, PETSC_VIEWER_STDOUT_WORLD);
     
-  Mat GradOfConstraints;
-  CreateMatrix(GradOfConstraints, mcon, nvar);
-  for(int i = 0; i < List_Nbr(Operation_P->Case.OptimizerUpdate.constraintsSensitivity); i++){
-    char *c; List_Read(Operation_P->Case.OptimizerUpdate.constraintsSensitivity, i, &c);
+  for(int i = 0; i < List_Nbr(context->Operation_P->Case.OptimizerInitialize.constraintsSensitivity); i++){
+    char *c; List_Read(context->Operation_P->Case.OptimizerInitialize.constraintsSensitivity, i, &c);
     //debugInput("constraint sensitivity", c);
-    UpdateMatFromInput("constraint sensitivity", c, GradOfConstraints, i);
+    UpdateMatFromInput("constraint sensitivity", c, context->GradOfConstraints, i);
   }
-  AssembleMatrix(GradOfConstraints);
-  //MatView(GradOfConstraints, PETSC_VIEWER_STDOUT_WORLD);
+  AssembleMatrix(context->GradOfConstraints);
+  MatView(context->GradOfConstraints, PETSC_VIEWER_STDOUT_WORLD);
     
   // debug
-    
 //  debugInput("current point", Operation_P->Case.OptimizerUpdate.currentPoint);
 //  debugInput("objective", Operation_P->Case.OptimizerUpdate.objective);
 //  for(int i = 0; i < List_Nbr(Operation_P->Case.OptimizerUpdate.constraints); i++){
@@ -409,34 +421,33 @@ void Operation_OptimizerUpdate(struct Operation *Operation_P)
 //    char *c; List_Read(Operation_P->Case.OptimizerUpdate.constraintsSensitivity, i, &c);
 //    debugInput("constraint sensitivity", c);
 //  }
+
   Value v;
   v.Type = SCALAR;
   v.Val[0] = 1e-12;
   Cal_StoreInVariable(&v, Operation_P->Case.OptimizerUpdate.residual);
-    
-  Vec LowerBounds, UpperBounds;
-  CreateVector(LowerBounds, nvar);
-  CreateVector(UpperBounds, nvar);
-  AssembleVector(LowerBounds);
-  AssembleVector(UpperBounds);
-  VecSet(LowerBounds, 0.0);
-  VecSet(UpperBounds, 1.0);
-    
-  // Create the subproblem
-  MMA_MAT *subProblem = new MMA_MAT(mcon,nvar,LowerBounds,UpperBounds);
-  subProblem->verbosity = 10;
-    
-  // Create the solver of the subproblem
-  MMA_PRIMALDUAL_INTERIORPOINT *subProblemSolver = new MMA_PRIMALDUAL_INTERIORPOINT(subProblem);
-  subProblemSolver->verbosity = 10;
-    
-  subProblemSolver->UpdateCurrentPoint(xval_pt,GradOfObjective,Constraints,GradOfConstraints);
-  VecView(xval_pt, PETSC_VIEWER_STDOUT_WORLD);
+
+  // Call the optimizer to update the current point
+  context->subProblemSolver->UpdateCurrentPoint(context->xval_pt,
+                                                context->GradOfObjective,
+                                                context->Constraints,
+                                                context->GradOfConstraints);
+  VecView(context->xval_pt, PETSC_VIEWER_STDOUT_WORLD);
     
   // Update the list of design variables
-  UpdateCurrentPointList(Operation_P->Case.OptimizerUpdate.currentPoint, xval_pt);
+  UpdateCurrentPointList(Operation_P->Case.OptimizerUpdate.currentPoint, context->xval_pt);
 
 }
+
+//void Operation_OptimizerFinalize(struct Operation *Operation_P)
+//{
+//    VecDestroy(&context->xval_pt);
+//    VecDestroy(&context->LowerBounds);
+//    VecDestroy(&context->UpperBounds);
+//    VecDestroy(&context->GradOfObjective);
+//    VecDestroy(&context->Constraints);
+//    MatDestroy(&context->GradOfConstraints);
+//}
 
 #else
 
