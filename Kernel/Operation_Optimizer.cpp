@@ -162,11 +162,11 @@ class optimizerContext
 
     // Create the subproblem
     subProblem = new MMA_MAT(mcon, nvar, LowerBounds, UpperBounds);
-    //subProblem->verbosity = 10;
+    subProblem->verbosity = 0;
 
     // Create the solver of the subproblem
     subProblemSolver = new MMA_PRIMALDUAL_INTERIORPOINT(subProblem);
-    //subProblemSolver->verbosity = 10;
+    subProblemSolver->verbosity = 0;
 
     printInfo();
   }
@@ -325,7 +325,7 @@ void Operation_OptimizerUpdate(struct Operation *Operation_P)
   // => Maybe their sensitivity are in a different order => mix
   for(unsigned int i = 0; i < context->constraints.size(); i++){
     UpdateVecFromInput("constraints", context->constraints[i],
-                       context->Constraints, i);
+        context->Constraints, i);
   }
   AssembleVector(context->Constraints);
   //VecView(context->Constraints, PETSC_VIEWER_STDOUT_WORLD);
