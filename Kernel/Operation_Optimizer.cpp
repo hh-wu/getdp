@@ -64,25 +64,34 @@ static void UpdateMatrixRowFromVector(double* myvecvals, int vecsize,
                                       PetscInt row, Mat& Matrix)
 {
   // Count the number of nonzero elements in the vector:
-  int numnonzero = 0;
-  for (int i = 0; i < vecsize; i++){if (myvecvals[i] != 0){numnonzero++;}}
+  //int numnonzero = 0;
+  //for (int i = 0; i < vecsize; i++){if (myvecvals[i] != 0){numnonzero++;}}
 
   // Get the adresses and values of the nonzeros:
-  int nonzeroadresses[numnonzero];
-  double nonzerovalues[numnonzero];
-  int index = 0;
+  //int nonzeroadresses[numnonzero];
+  //double nonzerovalues[numnonzero];
+  //int index = 0;
+  //for (int i = 0; i < vecsize; i++){
+  //    if (myvecvals[i] != 0){
+  //        nonzeroadresses[index] = i;
+  //        nonzerovalues[index] = myvecvals[i];
+  //        index++;
+  //    }
+  //}
+  int nonzeroadresses[vecsize];
+  double nonzerovalues[vecsize];
   for (int i = 0; i < vecsize; i++){
-    if (myvecvals[i] != 0){
-      nonzeroadresses[index] = i;
-      nonzerovalues[index] = myvecvals[i];
-      index++;
-    }
+    nonzeroadresses[i] = i;
+    nonzerovalues[i] = myvecvals[i];
   }
 
   // fill the matrix
   PetscInt row_vec[1] = {row};
-  MatSetValues(Matrix,1,row_vec,numnonzero,nonzeroadresses,nonzerovalues,
-               INSERT_VALUES);
+  MatSetValues(Matrix,1,row_vec,vecsize,nonzeroadresses,nonzerovalues,
+                INSERT_VALUES);
+
+//  MatSetValues(Matrix,1,row_vec,numnonzero,nonzeroadresses,nonzerovalues,
+//    INSERT_VALUES);
 }
 
 static void AssembleMatrix(const Mat& Matrix)
