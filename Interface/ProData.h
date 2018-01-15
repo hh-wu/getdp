@@ -1164,8 +1164,6 @@ struct Operation {
     struct {
       char *residual;
     } OptimizerUpdate;
-    struct {
-    } OptimizerFinalize;
   } Case;
 
 };
@@ -1318,6 +1316,7 @@ struct IterativeLoopSystem {
 #define OPERATION_DEBUG                    106
 #define OPERATION_OPTIMIZER_INITIALIZE     107
 #define OPERATION_OPTIMIZER_UPDATE         108
+#define OPERATION_OPTIMIZER_FINALIZE       109
 
 /* ChangeOfState.Type */
 #define CHANGEOFSTATE_NOCHANGE              0

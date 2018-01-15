@@ -3297,6 +3297,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Operation_OptimizerUpdate(Operation_P);
       break ;
 
+    case OPERATION_OPTIMIZER_FINALIZE :
+      Operation_OptimizerFinalize(Operation_P);
+      break ;
+
       /*  -->  O t h e r                              */
       /*  ------------------------------------------  */
 

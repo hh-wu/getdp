@@ -308,7 +308,7 @@ struct doubleXstring{
 %token      tFourierTransform tFourierTransformJ
 %token      tCopySolution tCopyRHS tCopyResidual tCopyIncrement tCopyDofs
 %token      tGetNormSolution tGetNormResidual tGetNormRHS tGetNormIncrement
-%token      tOptimizerInitialize tOptimizerUpdate tOptimizerFinalize 
+%token      tOptimizerInitialize tOptimizerUpdate tOptimizerFinalize
 %token      tLanczos tEigenSolve tEigenSolveJac tPerturbation
 %token      tUpdate tUpdateConstraint tBreak tGetResidual tCreateSolution
 %token      tEvaluate tSelectCorrection tAddCorrection tMultiplySolution
@@ -5834,7 +5834,7 @@ OperationTerm :
     }
 
   | tOptimizerInitialize '[' CharExpr ',' CharExpr ','
-                             ListOfFExpr ',' ListOfFExpr ',' 
+                             ListOfFExpr ',' ListOfFExpr ','
                              CharExpr ',' BracedRecursiveListOfCharExpr ','
                              CharExpr ',' BracedRecursiveListOfCharExpr ']' tEND
     {
@@ -5863,6 +5863,7 @@ OperationTerm :
     {
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      Operation_P->Type = OPERATION_OPTIMIZER_FINALIZE;
      }
 
   | Loop
