@@ -224,9 +224,12 @@ void F_ValueFromTable (F_ARG)
     V->Type = SCALAR ;
     return;
   }
-  
-  Message::Debug("Unknown entity index %d in ValueFromTable",
-                 Current.NumEntity);
+
+  if(GetDPNumbersMap.size()){
+    Message::Warning("No element or node table found with name %s, or "
+                     "no entity index %d in the table", Fct->String,
+                     Current.NumEntity);
+  }
 
   for(int i = 0; i < Fct->NbrArguments; i++){
     if(i != 0){
