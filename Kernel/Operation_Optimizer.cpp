@@ -34,7 +34,9 @@ static void UpdateVector(const PetscReal value, const PetscInt row, Vec& vector)
 
 static void GetValueVector(double &value, const PetscInt id, const Vec& vector)
 {
-  VecGetValues(vector, 1, &id, &value);
+  PetscScalar val;
+  VecGetValues(vector, 1, &id, &val);
+  value = PetscRealPart(val);
 }
 
 static void AssembleVector(const Vec& vector)
@@ -79,10 +81,10 @@ static void UpdateMatrixRowFromVector(double* myvecvals, int vecsize,
   //    }
   //}
   int nonzeroadresses[vecsize];
-  double nonzerovalues[vecsize];
+  PetscScalar nonzerovalues[vecsize];
   for (int i = 0; i < vecsize; i++){
     nonzeroadresses[i] = i;
-    nonzerovalues[i] = myvecvals[i];
+    nonzerovalues[i] = (PetscScalar)myvecvals[i];
   }
 
   // fill the matrix
