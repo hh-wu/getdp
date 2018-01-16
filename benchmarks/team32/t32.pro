@@ -73,6 +73,11 @@ If(Flag_3Dmodel==1)
   Dir="res3d/";
 EndIf
 
+//Include "param_EnergHyst.dat";
+//Dir   = Sprintf("res_msh2_N%g_C%g/",N00,Flag_TestCase00);
+//Dir   = Sprintf("res_JA_C%g_TD/",Flag_TestCase00);
+
+
 //-------------------------------------------------------------------------
 // Physical Groups
 //-------------------------------------------------------------------------

@@ -1102,10 +1102,12 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   //{"Update_Jk"             , (CAST)F_Update_Jk             ,  -1,   6 },  //kj+++ // NOT USED FOR NOW (26/06/2016)
   //{"Update_Jk_sd"          , (CAST)F_Update_Jk_sd          ,  -1,   6 },  //kj+++ // NOT USED FOR NOW (26/06/2016)
   {"Update_Cell_K"         , (CAST)F_Update_Cell_K         ,  -1,   4 },  //kj+++
-  {"b_Vinch_K"             , (CAST)F_b_Vinch_K             ,  -1,   7 },  // 1+3*2=7 //kj+++
-  {"h_Vinch_K"             , (CAST)F_h_Vinch_K             ,  -1,   9 },  // parameter is dimension {2},{3}, 3+3*2=9 //kj+++
-  {"dbdh_Vinch_K"          , (CAST)F_dbdh_Vinch_K          ,  -1,   7 },  // parameter is dimension {2},{3}, 1+3*2=7 //kj+++
-  {"dhdb_Vinch_K"          , (CAST)F_dhdb_Vinch_K          ,  -1,   7 },  // parameter is dimension {2},{3}, 1+3*2=7 //kj+++
+  {"b_Vinch_K"             , (CAST)F_b_Vinch_K             ,  -1,   -1 },  // 1+3*2=7 //kj+++
+  {"hr_Vinch_K"            , (CAST)F_hr_Vinch_K            ,  -1,   -1 },  // 1+3*1=4 //kj+++
+  {"Jr_Vinch_K"            , (CAST)F_Jr_Vinch_K            ,  -1,   -1 },  // 1+3*1=4 //kj+++
+  {"h_Vinch_K"             , (CAST)F_h_Vinch_K             ,  -1,   -1 },  // parameter is dimension {2},{3}, 3+3*2=9 //kj+++
+  {"dbdh_Vinch_K"          , (CAST)F_dbdh_Vinch_K          ,  -1,   -1 },  // parameter is dimension {2},{3}, 1+3*2=7 //kj+++
+  {"dhdb_Vinch_K"          , (CAST)F_dhdb_Vinch_K          ,  -1,   -1 },  // parameter is dimension {2},{3}, 1+3*2=7 //kj+++
 
   // F_MultiHar
   {"MHToTime"          , (CAST)F_MHToTime         ,   0,   2 },

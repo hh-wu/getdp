@@ -69,6 +69,7 @@ void Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
 
   assDiag_done.clear();
 
+ //kj+++ // brutal approach: comment this to avoid auto-symmetrization of JacNL tensor with getdp (comment all this bloc)
   // check for potentially symmetrical elementary matrix
   FI->SymmetricalMatrix =
     (EquationTerm_P->Case.LocalTerm.Term.DefineQuantityIndexEqu ==
@@ -94,6 +95,8 @@ void Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
       }
     }
   }
+//*/ //kj+++
+//FI->SymmetricalMatrix = 0; //kj+++ // brutal approach: uncomment this to avoid auto-symmetrization of JacNL tensor with getdp QQQ (uncomment this)
 
   if (FI->SymmetricalMatrix) {
     FI->Type_FormDof = FI->Type_FormEqu ;
