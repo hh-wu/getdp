@@ -1,3 +1,6 @@
+2.11.3 (November 5, 2017): new 'Eig' operator for general eigenvalue problems
+(polynomial, rational); small improvements and bug fixes.
+
 2.11.2 (June 23, 2017): minor build system changes.
 
 2.11.1 (May 13, 2017): small bug fixes and improvements.

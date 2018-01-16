@@ -1,4 +1,4 @@
-# GetDP - Copyright (C) 1997-2017 P. Dular and C. Geuzaine, University of Liege
+# GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
 #
 # See the LICENSE.txt file for license information. Please report all
 # bugs and problems to the public mailing list <getdp@onelab.info>.
@@ -39,7 +39,9 @@ opt(FORTRAN "Enable Fortran (needed for Arpack/Sparskit/Zitsol & Bessel)" ${DEFA
 opt(GMSH "Enable Gmsh functions (for field interpolation)" ${DEFAULT})
 opt(GSL "Enable GSL functions (for some built-in functions)" ${DEFAULT})
 opt(HPDDM "Enable HPDDM support" ${DEFAULT})
+opt(INTERNAL_DEVELOPER_API "Enable internal developer API (will be off be default)" OFF)
 opt(KERNEL "Enable kernel (required for actual computations)" ON)
+opt(MMA "Enable MMA optimizer" ${DEFAULT})
 opt(MPI "Enable MPI parallelization (with PETSc/SLEPc)" OFF)
 opt(MULTIHARMONIC "Enable multi-harmonic support" OFF)
 opt(NR "Enable NR functions (if GSL is unavailable)" ${DEFAULT})
@@ -63,18 +65,20 @@ endif(ENABLE_FORTRAN)
 
 set(GETDP_MAJOR_VERSION 2)
 set(GETDP_MINOR_VERSION 11)
-set(GETDP_PATCH_VERSION 3)
+set(GETDP_PATCH_VERSION 4)
 set(GETDP_EXTRA_VERSION "" CACHE STRING "GetDP extra version string")
 
 set(GETDP_VERSION "${GETDP_MAJOR_VERSION}.${GETDP_MINOR_VERSION}")
 set(GETDP_VERSION "${GETDP_VERSION}.${GETDP_PATCH_VERSION}${GETDP_EXTRA_VERSION}")
 set(GETDP_SHORT_LICENSE "GNU General Public License")
 
-set(GETDP_API
-  ${CMAKE_CURRENT_BINARY_DIR}/Common/GetDPConfig.h
-  ${CMAKE_CURRENT_BINARY_DIR}/Common/GetDPVersion.h
-  Kernel/GetDP.h
-)
+set(GETDP_API Kernel/getdp.h)
+
+if(ENABLE_INTERNAL_DEVELOPER_API)
+  set(GETDP_INTERNAL_DEVELOPER_API Kernel/getdp.h
+    ${CMAKE_CURRENT_BINARY_DIR}/Common/GetDPConfig.h
+    ${CMAKE_CURRENT_BINARY_DIR}/Common/GetDPVersion.h)
+endif(ENABLE_INTERNAL_DEVELOPER_API)
 
 if(${CMAKE_MAJOR_VERSION} GREATER 2)
   string(TIMESTAMP DATE "%Y%m%d")
@@ -92,11 +96,13 @@ if(NOT DATE)
 endif(NOT DATE)
 set(GETDP_DATE "${DATE}")
 
-if(NOT HOSTNAME)
-  set(HOSTNAME "unknown")
-endif(NOT HOSTNAME)
-set(GETDP_HOST "${HOSTNAME}")
-
+if(NOT GETDP_HOST)
+  if(NOT HOSTNAME)
+    set(HOSTNAME "unknown")
+  endif(NOT HOSTNAME)
+  set(GETDP_HOST "${HOSTNAME}")
+endif(NOT GETDP_HOST)
+    
 if(NOT PACKAGER)
   set(PACKAGER "unknown")
 endif(NOT PACKAGER)
@@ -116,6 +122,29 @@ include(CheckFunctionExists)
 include(CheckIncludeFile)
 include(CheckCXXCompilerFlag)
 
+macro(set_config_option VARNAME STRING)
+  set(${VARNAME} TRUE)
+  list(APPEND CONFIG_OPTIONS ${STRING})
+  message(STATUS "Found " ${STRING})
+endmacro(set_config_option)
+
+# check if the machine is 64 bits (this is more reliable than using
+# CMAKE_SIZEOF_VOID_P, which does not seem to work e.g. on some Suse
+# machines)
+check_type_size("void*" SIZEOF_VOID_P)
+if(SIZEOF_VOID_P EQUAL 8)
+  set_config_option(HAVE_64BIT_SIZE_T "64Bit")
+endif(SIZEOF_VOID_P EQUAL 8)
+
+# append 32/64 to the build name on Linux and Windows
+if(NOT APPLE)
+  if(HAVE_64BIT_SIZE_T)
+    set(GETDP_OS "${GETDP_OS}64")
+  else(HAVE_64BIT_SIZE_T)
+    set(GETDP_OS "${GETDP_OS}32")
+  endif(HAVE_64BIT_SIZE_T)
+endif(NOT APPLE)
+
 if(ENABLE_WRAP_PYTHON AND NOT ENABLE_BUILD_SHARED)
   set(ENABLE_BUILD_DYNAMIC ON)
 endif(ENABLE_WRAP_PYTHON AND NOT ENABLE_BUILD_SHARED)
@@ -133,12 +162,6 @@ if(MSVC)
     endforeach(VAR)
   endif(ENABLE_MSVC_STATIC_RUNTIME)
 endif(MSVC)
-
-macro(set_config_option VARNAME STRING)
-  set(${VARNAME} TRUE)
-  list(APPEND CONFIG_OPTIONS ${STRING})
-  message(STATUS "Found " ${STRING})
-endmacro(set_config_option)
 
 if(ENABLE_OPENMP)
   find_package(OpenMP)
@@ -188,14 +211,6 @@ macro(set_compile_flags LISTNAME FLAGS)
     endif(PROP)
   endforeach(FILE)
 endmacro(set_compile_flags)
-
-# check if the machine is 64 bits (this is more reliable than using
-# CMAKE_SIZEOF_VOID_P, which does not seem to work e.g. on some Suse
-# machines)
-check_type_size("void*" SIZEOF_VOID_P)
-if(SIZEOF_VOID_P EQUAL 8)
-  set_config_option(HAVE_64BIT_SIZE_T "64Bit")
-endif(SIZEOF_VOID_P EQUAL 8)
 
 if(ENABLE_BLAS_LAPACK)
   if(BLAS_LAPACK_LIBRARIES)
@@ -334,8 +349,10 @@ if(ENABLE_MPI)
 endif(ENABLE_MPI)
 
 if(ENABLE_GMSH)
-  find_library(GMSH_LIB Gmsh PATH_SUFFIXES lib)
-  find_path(GMSH_INC "gmsh/Gmsh.h" PATH_SUFFIXES include)
+  find_library(GMSH_LIB gmsh PATH_SUFFIXES lib)
+  # Currently GetDP uses the internal Gmsh developer API; this will be fixed 
+  # as we move to the stable API.
+  find_path(GMSH_INC "gmsh/GmshGlobal.h" PATH_SUFFIXES include)
   if(GMSH_LIB AND GMSH_INC)
     list(APPEND EXTERNAL_LIBRARIES ${GMSH_LIB})
     list(APPEND EXTERNAL_INCLUDES ${GMSH_INC})
@@ -501,14 +518,10 @@ if(ENABLE_HPDDM)
   if(HPDDM_INC)
     list(APPEND EXTERNAL_INCLUDES ${HPDDM_INC})
     set_config_option(HAVE_HPDDM "HPDDM")
-    get_source_file_property(PROP Kernel/Operation_HPDDM.cpp COMPILE_FLAGS)
-    if(PROP)
-      set_source_files_properties(Kernel/Operation_HPDDM.cpp PROPERTIES
-                                  COMPILE_FLAGS "${PROP} -std=c++11")
-    else(PROP)
-      set_source_files_properties(Kernel/Operation_HPDDM.cpp PROPERTIES
-                                  COMPILE_FLAGS "-std=c++11")
-    endif(PROP)
+    check_cxx_compiler_flag("-std=c++11" STDCXX11)
+    if(STDCXX11)
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+    endif(STDCXX11)
   endif(HPDDM_INC)
 endif(ENABLE_HPDDM)
 
@@ -573,6 +586,14 @@ if(ENABLE_NX)
     set_config_option(HAVE_NX "NX")
   endif(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/NX/Unv_Format.cpp)
 endif(ENABLE_NX)
+
+if(ENABLE_MMA)
+  if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/mma/cpp/src/mma.cpp)
+    add_subdirectory(contrib/mma)
+    include_directories(contrib/mma/cpp/src)
+    set_config_option(HAVE_MMA "MMA")
+  endif(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/mma/cpp/src/mma.cpp)
+endif(ENABLE_MMA)
 
 if(ENABLE_GSL)
   find_library(GSL_LIB gsl PATH_SUFFIXES lib)
@@ -757,7 +778,7 @@ endforeach(DIR)
 # static library target
 if(ENABLE_BUILD_LIB)
   add_library(lib STATIC ${GETDP_SRC})
-  set_target_properties(lib PROPERTIES OUTPUT_NAME GetDP)
+  set_target_properties(lib PROPERTIES OUTPUT_NAME getdp)
   if(MSVC)
     set_target_properties(lib PROPERTIES DEBUG_POSTFIX d)
     if(ENABLE_MSVC_STATIC_RUNTIME)
@@ -769,7 +790,7 @@ endif(ENABLE_BUILD_LIB)
 # shared library target
 if(ENABLE_BUILD_SHARED OR ENABLE_BUILD_DYNAMIC)
   add_library(shared SHARED ${GETDP_SRC})
-  set_target_properties(shared PROPERTIES OUTPUT_NAME GetDP)
+  set_target_properties(shared PROPERTIES OUTPUT_NAME getdp)
   set_target_properties(shared PROPERTIES 
     VERSION ${GETDP_MAJOR_VERSION}.${GETDP_MINOR_VERSION}.${GETDP_PATCH_VERSION}
     SOVERSION ${GETDP_MAJOR_VERSION}.${GETDP_MINOR_VERSION})
@@ -801,10 +822,10 @@ if(ENABLE_BUILD_ANDROID)
   set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/libs/)
   add_definitions(-DBUILD_ANDROID)
   add_library(androidGetdp SHARED ${GETDP_SRC})
-  set_target_properties(androidGetdp PROPERTIES OUTPUT_NAME GetDP)
+  set_target_properties(androidGetdp PROPERTIES OUTPUT_NAME getdp)
   target_link_libraries(androidGetdp ${LINK_LIBRARIES} ${LIBRARY_DEPS})
   add_custom_command(TARGET androidGetdp POST_BUILD COMMAND
-                     ${CMAKE_STRIP} ${LIBRARY_OUTPUT_PATH}/libGetDP.so)
+                     ${CMAKE_STRIP} ${LIBRARY_OUTPUT_PATH}/libgetdp.so)
 endif(ENABLE_BUILD_ANDROID)
 
 # binary target
@@ -891,8 +912,10 @@ if(WIN32 OR CYGWIN)
   set(GETDP_LIB .)
   set(GETDP_DOC .)
   set(GETDP_MAN .)
+  set(GETDP_INC .)
   if(CYGWIN)
     unix2dos(GETDP_API)
+    unix2dos(GETDP_INTERNAL_DEVELOPER_API)
     unix2dos(WELCOME_FILE)
     unix2dos(LICENSE_FILE)
     unix2dos(CREDITS_FILE)
@@ -901,10 +924,12 @@ if(WIN32 OR CYGWIN)
     unix2dos(TEMPLATE_FILES)
   endif(CYGWIN)
 else(WIN32 OR CYGWIN)
-  set(GETDP_BIN bin)
-  set(GETDP_LIB lib)
-  set(GETDP_DOC share/doc/getdp)
-  set(GETDP_MAN share/man/man1)
+  include(GNUInstallDirs)
+  set(GETDP_BIN ${CMAKE_INSTALL_BINDIR})
+  set(GETDP_LIB ${CMAKE_INSTALL_LIBDIR})
+  set(GETDP_DOC ${CMAKE_INSTALL_DOCDIR})
+  set(GETDP_MAN ${CMAKE_INSTALL_MANDIR}/man1)
+  set(GETDP_INC ${CMAKE_INSTALL_INCLUDEDIR})
 endif(WIN32 OR CYGWIN)
 
 # mark targets as optional so we can install them separately if needed
@@ -917,7 +942,10 @@ if(ENABLE_BUILD_SHARED OR ENABLE_BUILD_DYNAMIC)
   install(TARGETS shared DESTINATION ${GETDP_LIB} OPTIONAL)
 endif(ENABLE_BUILD_SHARED OR ENABLE_BUILD_DYNAMIC)
 if(ENABLE_BUILD_LIB OR ENABLE_BUILD_SHARED OR ENABLE_BUILD_DYNAMIC)
-  install(FILES ${GETDP_API} DESTINATION include/getdp)
+  install(FILES ${GETDP_API} DESTINATION ${GETDP_INC})
+  if(ENABLE_INTERNAL_DEVELOPER_API)
+    install(FILES ${GETDP_INTERNAL_DEVELOPER_API} DESTINATION ${GETDP_INC}/getdp)
+  endif(ENABLE_INTERNAL_DEVELOPER_API)
 endif(ENABLE_BUILD_LIB OR ENABLE_BUILD_SHARED OR ENABLE_BUILD_DYNAMIC)
 install(FILES ${WELCOME_FILE} DESTINATION ${GETDP_DOC} RENAME README.txt)
 install(FILES ${LICENSE_FILE} DESTINATION ${GETDP_DOC})
@@ -937,8 +965,8 @@ if(ENABLE_WRAP_PYTHON)
     include_directories(${PYTHON_INCLUDE_PATH})
     include_directories(${CMAKE_CURRENT_SOURCE_DIR})
     set(CMAKE_SWIG_FLAGS "")
-    set_source_files_properties(Kernel/GetDP.i PROPERTIES CPLUSPLUS ON)
-    swig_add_module(getdp python Kernel/GetDP.i)
+    set_source_files_properties(Kernel/getdp.i PROPERTIES CPLUSPLUS ON)
+    swig_add_module(getdp python Kernel/getdp.i)
     swig_link_libraries(getdp ${PYTHON_LIBRARIES} shared)
     if(APPLE)
       set_target_properties("_getdp" PROPERTIES LINK_FLAGS
@@ -954,9 +982,16 @@ add_custom_target(get_headers
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 foreach(FILE ${GETDP_API})
   add_custom_command(TARGET get_headers POST_BUILD COMMAND ${CMAKE_COMMAND}
-    -E copy_if_different ${FILE} ${CMAKE_CURRENT_BINARY_DIR}/Headers/getdp/
+    -E copy_if_different ${FILE} ${CMAKE_CURRENT_BINARY_DIR}/Headers/
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 endforeach(FILE)
+if(ENABLE_INTERNAL_DEVELOPER_API)
+  foreach(FILE ${GETDP_INTERNAL_DEVELOPER_API})
+    add_custom_command(TARGET get_headers POST_BUILD COMMAND ${CMAKE_COMMAND}
+      -E copy_if_different ${FILE} ${CMAKE_CURRENT_BINARY_DIR}/Headers/getdp/
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+  endforeach(FILE)
+endif(ENABLE_INTERNAL_DEVELOPER_API)
 
 find_program(MAKEINFO makeinfo)
 if(MAKEINFO)
@@ -1012,18 +1047,25 @@ if(APPLE AND ENABLE_BUILD_LIB)
   get_target_property(LIBNAME lib LOCATION)
   #set(LIBNAME $<TARGET_FILE:lib>) # FIXME: use this in the future
   add_custom_target(framework DEPENDS lib
-    COMMAND ${CMAKE_COMMAND} -E remove_directory GetDP.framework
-    COMMAND ${CMAKE_COMMAND} -E make_directory GetDP.framework/Headers
-    COMMAND ${CMAKE_COMMAND} -E make_directory GetDP.framework/Resources
-    COMMAND ${CMAKE_COMMAND} -E copy ${LIBNAME} GetDP.framework/GetDP
+    COMMAND ${CMAKE_COMMAND} -E remove_directory getdp.framework
+    COMMAND ${CMAKE_COMMAND} -E make_directory getdp.framework/Headers
+    COMMAND ${CMAKE_COMMAND} -E make_directory getdp.framework/Resources
+    COMMAND ${CMAKE_COMMAND} -E copy ${LIBNAME} getdp.framework/getdp
     COMMAND ${CMAKE_COMMAND} -E copy Info_framework.plist
-                                     GetDP.framework/Resources/Info.plist
+                                     getdp.framework/Resources/Info.plist
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
   foreach(FILE ${GETDP_API})
     add_custom_command(TARGET framework POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy
-        ${FILE} ${CMAKE_CURRENT_BINARY_DIR}/GetDP.framework/Headers/
+        ${FILE} ${CMAKE_CURRENT_BINARY_DIR}/getdp.framework/Headers/
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
   endforeach(FILE)
+  if(ENABLE_INTERNAL_DEVELOPER_API)
+    foreach(FILE ${GETDP_INTERNAL_DEVELOPER_API})
+      add_custom_command(TARGET framework POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy
+          ${FILE} ${CMAKE_CURRENT_BINARY_DIR}/getdp.framework/Headers/
+          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    endforeach(FILE)
+  endif(ENABLE_INTERNAL_DEVELOPER_API)
 endif(APPLE AND ENABLE_BUILD_LIB)
 
 set(CPACK_PACKAGE_VENDOR "Patrick Dular and Christophe Geuzaine")
@@ -1033,14 +1075,19 @@ set(CPACK_PACKAGE_VERSION_PATCH ${GETDP_PATCH_VERSION})
 set(CPACK_PACKAGE_DESCRIPTION_FILE ${WELCOME_FILE})
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
     "General Environment for the Treatment of Discrete Problems")
-set(CPACK_PACKAGE_FILE_NAME getdp-${GETDP_VERSION}-${GETDP_OS})
-set(CPACK_PACKAGE_INSTALL_DIRECTORY "GetDP")
+if(GETDP_EXTRA_VERSION MATCHES "-git.*") # so that we'll overwrite the archives
+  set(CPACK_PACKAGE_FILE_NAME getdp-git-${GETDP_OS})
+  set(CPACK_SOURCE_PACKAGE_FILE_NAME getdp-git-source)
+else(GETDP_EXTRA_VERSION MATCHES "-git.*") # so that we'll overwrite the archives
+  set(CPACK_PACKAGE_FILE_NAME getdp-${GETDP_VERSION}-${GETDP_OS})
+  set(CPACK_SOURCE_PACKAGE_FILE_NAME getdp-${GETDP_VERSION}-source)
+endif(GETDP_EXTRA_VERSION MATCHES "-git.*") # so that we'll overwrite the archives
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "getdp")
 set(CPACK_RESOURCE_FILE_LICENSE ${LICENSE_FILE})
 set(CPACK_RESOURCE_FILE_README ${WELCOME_FILE})
 set(CPACK_RESOURCE_FILE_WELCOME ${WELCOME_FILE})
-set(CPACK_PACKAGE_EXECUTABLE "getdp;GetDP")
+set(CPACK_PACKAGE_EXECUTABLE "getdp")
 set(CPACK_STRIP_FILES TRUE)
-set(CPACK_SOURCE_PACKAGE_FILE_NAME getdp-${GETDP_VERSION}-source)
 set(CPACK_SOURCE_GENERATOR TGZ)
 set(CPACK_SOURCE_IGNORE_FILES "${CMAKE_CURRENT_BINARY_DIR}" "/CVS/" "/.svn" "/.git"
     "~$" "DS_Store$" "GetDPConfig.h$" "GetDPVersion.h$" "/benchmarks*" "/tmp/"

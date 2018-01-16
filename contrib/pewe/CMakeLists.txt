@@ -1,4 +1,4 @@
-# GetDP - Copyright (C) 1997-2017 P. Dular and C. Geuzaine, University of Liege
+# GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
 #
 # See the LICENSE.txt file for license information. Please report all
 # bugs and problems to the public mailing list <getdp@onelab.info>.
@@ -8,6 +8,10 @@ set(SRC
     fortran/cylindrical_cavity.f90
     fortran/cylindrical_wall.f90
     fortran/cylindrical_walls.f90
+    fortran/cylindrical_wallout.f90
+    fortran/cylindrical_wallsout.f90
+    fortran/cylindrical_walloutabc.f90
+    fortran/cylindrical_walloutabc2.f90
 
    )
 

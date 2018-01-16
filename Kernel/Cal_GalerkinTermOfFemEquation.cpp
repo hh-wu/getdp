@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2017 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@onelab.info>.
@@ -69,7 +69,7 @@ void Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
 
   assDiag_done.clear();
 
-/* //kj+++
+ //QQQ??? // brutal approach: comment this to avoid auto-symmetrization of JacNL tensor with getdp QQQ (comment all this)
   // check for potentially symmetrical elementary matrix
   FI->SymmetricalMatrix =
     (EquationTerm_P->Case.LocalTerm.Term.DefineQuantityIndexEqu ==
@@ -95,8 +95,8 @@ void Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
       }
     }
   }
-*/ //kj +++
- FI->SymmetricalMatrix = 0; //kj+++
+//*/ //QQQ???
+//FI->SymmetricalMatrix = 0; //QQQ??? // brutal approach: uncomment this to avoid auto-symmetrization of JacNL tensor with getdp QQQ (uncomment this)
 
   if (FI->SymmetricalMatrix) {
     FI->Type_FormDof = FI->Type_FormEqu ;
@@ -284,8 +284,11 @@ void Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
   }
 */
 
-  /*  initialisation of MHJacNL-term (nonlinear multi-harmonics) if necessary */
-  Cal_InitGalerkinTermOfFemEquation_MHJacNL(EquationTerm_P);
+  // TODO: if JACNL_, say to Cal_Init to assemble later in Jac, otherwise
+  // assemble in the system matrix
+
+  /*  initialisation of MHBilinear-term (nonlinear multi-harmonics) if necessary */
+  Cal_InitGalerkinTermOfFemEquation_MHBilinear(EquationTerm_P);
 
   /* Full_Matrix */
   if (EquationTerm_P->Case.LocalTerm.Full_Matrix) {
@@ -542,13 +545,13 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 
   FI = EquationTerm_P->Case.LocalTerm.Active ;
 
-  /* treatment of MHJacNL-term in separate routine */
-  if (FI->MHJacNL) {
+  /* treatment of MHBilinear-term in separate routine */
+  if (FI->MHBilinear) {
     /* if only the RHS of the system is to be calculated
        (in case of adaptive relaxation of the Newton-Raphson scheme)
        the (expensive and redundant) calculation of this term can be skipped */
     if (!Flag_RHS)
-      Cal_GalerkinTermOfFemEquation_MHJacNL(Element, EquationTerm_P, QuantityStorage_P0) ;
+      Cal_GalerkinTermOfFemEquation_MHBilinear(Element, EquationTerm_P, QuantityStorage_P0) ;
     return;
   }
 

@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2017 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@onelab.info>.
@@ -683,11 +683,10 @@ struct FemLocalTermActive {
 
   struct IntegralQuantityActive  IntegralQuantityActive;
 
-
-  int MHJacNL, MHJacNL_Index, MHJacNL_NbrPointsX, MHJacNL_HarOffSet;
-  int MHJacNL_NbrArguments;
-  double MHJacNL_Factor;
-  double **MHJacNL_H, ***MHJacNL_HH, *MHJacNL_t, *MHJacNL_w;
+  int MHBilinear, MHBilinear_Index, MHBilinear_NbrPointsX, MHBilinear_HarOffSet;
+  int MHBilinear_JacNL;
+  List_T *MHBilinear_WholeQuantity_L;
+  double **MHBilinear_H, ***MHBilinear_HH, *MHBilinear_t, *MHBilinear_w;
 
   int Full_Matrix;
   int NbrEqu, NbrHar, *NumEqu, *NumDof;
@@ -849,7 +848,7 @@ struct WholeQuantity {
     struct { char *SystemName; int DefineSystemIndex;
              int DofNumber; }                                    DofValue;
     struct { List_T *WholeQuantity_L; int Index, NbrPoints; }    MHTransform;
-    struct { int Index, FunctionType, NbrArguments, NbrParameters, NbrPoints, FreqOffSet; } MHJacNL;
+    struct { List_T *WholeQuantity_L; int Index, NbrPoints, FreqOffSet; } MHBilinear;
   } Case;
 
 };
@@ -876,8 +875,7 @@ struct WholeQuantity {
 #define WQ_MHTIMEINTEGRATION       19
 #define WQ_MHTRANSFORM             20
 #define WQ_SHOWVALUE               21
-#define WQ_MHTIMEEVAL              22
-#define WQ_MHJACNL                 23
+#define WQ_MHBILINEAR              23
 #define WQ_POSTSAVE                24
 #define WQ_ATANTERIORTIMESTEP      25
 #define WQ_CHANGECURRENTPOSITION   26
@@ -1156,6 +1154,16 @@ struct Operation {
       int useList;
       char *from, *to;
     } Copy;
+    struct {
+      char *algorithm;
+      List_T *currentPointLowerBounds, *currentPointUpperBounds;
+    } OptimizerInitialize;
+    struct {
+      char *currentPoint; // input and ouput
+      char *objective, *objectiveSensitivity; // input
+      List_T *constraints, *constraintsSensitivity; // input
+      char *residual;
+    } OptimizerUpdate;
   } Case;
 
 };
@@ -1306,6 +1314,8 @@ struct IterativeLoopSystem {
 #define OPERATION_HPDDMSOLVE               104
 #define OPERATION_BROADCASTVARIABLES       105
 #define OPERATION_DEBUG                    106
+#define OPERATION_OPTIMIZER_INITIALIZE     107
+#define OPERATION_OPTIMIZER_UPDATE         108
 
 /* ChangeOfState.Type */
 #define CHANGEOFSTATE_NOCHANGE              0
@@ -1510,6 +1520,7 @@ struct PostOpSolutions {
 #define FORMAT_NODE_TABLE             20
 #define FORMAT_LOOP_ERROR             21
 #define FORMAT_GETDP                  22
+#define FORMAT_ELEMENT_TABLE          23
 
 /* PostSubOperation.Sort */
 #define SORT_BY_POSITION      1
@@ -1596,7 +1607,7 @@ struct CurrentData {
 
 #define NBR_MAX_NODES_IN_ELEMENT       60
 #define NBR_MAX_ENTITIES_IN_ELEMENT    60
-#define NBR_MAX_GROUPS_IN_ELEMENT      60
+#define NBR_MAX_GROUPS_IN_ELEMENT      600
 #define NBR_MAX_SUBENTITIES_IN_ELEMENT  5
 
 struct IntxList { int Int ; List_T * List ; } ;

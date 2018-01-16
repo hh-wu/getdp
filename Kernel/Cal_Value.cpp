@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2017 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@onelab.info>.
@@ -776,6 +776,28 @@ void Cal_ProductValue(struct Value * V1, struct Value * V2, struct Value * R)
 	CPUT3(0,1,2,0);
 	CPUT3(3,4,5,1);
 	CPUT3(6,7,8,2);
+      }
+    }
+    R->Type = VECTOR ;
+  }
+  
+  else if (V1->Type == VECTOR && V2->Type == TENSOR) {
+    if (Current.NbrHar == 1) {
+      a1[0] = V1->Val[0]*V2->Val[0] + V1->Val[1]*V2->Val[3] + V1->Val[2]*V2->Val[6];
+      a1[1] = V1->Val[0]*V2->Val[1] + V1->Val[1]*V2->Val[4] + V1->Val[2]*V2->Val[7];
+      a1[2] = V1->Val[0]*V2->Val[2] + V1->Val[1]*V2->Val[5] + V1->Val[2]*V2->Val[8];
+      R->Val[0] = a1[0];
+      R->Val[1] = a1[1];
+      R->Val[2] = a1[2];
+    }
+    else {
+      for (k = 0 ; k < Current.NbrHar ; k += 2) {
+        CMULT(0,0,0); CMULT(0,1,1); CMULT(0,2,2);
+        CMULT(1,3,3); CMULT(1,4,4); CMULT(1,5,5);
+        CMULT(2,6,6); CMULT(2,7,7); CMULT(2,8,8);
+        CPUT3(0,3,6,0);
+        CPUT3(1,4,7,1);
+        CPUT3(2,5,8,2);
       }
     }
     R->Type = VECTOR ;

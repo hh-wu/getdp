@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2017 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@onelab.info>.
@@ -19,7 +19,7 @@
 #include "Message.h"
 
 #if defined(HAVE_GMSH)
-#include <gmsh/Gmsh.h>
+#include <gmsh/GmshGlobal.h>
 #include <gmsh/GmshVersion.h>
 #include <gmsh/GmshConfig.h>
 #include <gmsh/PView.h>
@@ -43,7 +43,7 @@ static void Info(int level, char *arg0)
   case 0 :
     fprintf(stderr,
 	    "GetDP, a General environment for the treatment of Discrete Problems\n"
-	    "Copyright (C) 1997-2017 P. Dular and C. Geuzaine, University of Liege\n"
+	    "Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege\n"
 	    "Usage: %s [file] [options]\n"
 	    "Processing options:\n"
 	    "  -pre 'Resolution'         pre-processing\n"
@@ -519,7 +519,7 @@ static void Free_GlobalVariables()
   Free_ParserVariables();
 }
 
-void GetDPPrintNumbers()
+void getdpPrintNumbers()
 {
   for(std::map<std::string, std::vector<double> >::iterator
         it = GetDPNumbers.begin(); it != GetDPNumbers.end(); it++){
@@ -532,7 +532,7 @@ void GetDPPrintNumbers()
   }
 }
 
-void GetDPPrintStrings()
+void getdpPrintStrings()
 {
   for(std::map<std::string, std::vector<std::string> >::iterator
         it = GetDPStrings.begin(); it != GetDPStrings.end(); it++){
@@ -545,46 +545,46 @@ void GetDPPrintStrings()
   }
 }
 
-void GetDPClearNumbers()
+void getdpClearNumbers()
 {
   GetDPNumbers.clear();
 }
 
-void GetDPSetNumber(const std::string &name, double value)
+void getdpSetNumber(const std::string &name, double value)
 {
   GetDPNumbers[name] = std::vector<double>(1, value);
   CommandLineNumbers[name] = std::vector<double>(1, value);
 }
 
-void GetDPSetNumber(const std::string &name, const std::vector<double> &value)
+void getdpSetNumber(const std::string &name, const std::vector<double> &value)
 {
   GetDPNumbers[name] = value;
   CommandLineNumbers[name] = value;
 }
 
-std::vector<double> &GetDPGetNumber(const std::string &name)
+std::vector<double> &getdpGetNumber(const std::string &name)
 {
   return GetDPNumbers[name];
 }
 
-void GetDPClearStrings()
+void getdpClearStrings()
 {
   GetDPStrings.clear();
 }
 
-void GetDPSetString(const std::string &name, const std::string &value)
+void getdpSetString(const std::string &name, const std::string &value)
 {
   GetDPStrings[name] = std::vector<std::string>(1, value);
   CommandLineStrings[name] = std::vector<std::string>(1, value);
 }
 
-void GetDPSetString(const std::string &name, const std::vector<std::string> &value)
+void getdpSetString(const std::string &name, const std::vector<std::string> &value)
 {
   GetDPStrings[name] = value;
   CommandLineStrings[name] = value;
 }
 
-std::vector<std::string> &GetDPGetString(const std::string &name)
+std::vector<std::string> &getdpGetString(const std::string &name)
 {
   return GetDPStrings[name];
 }
@@ -705,8 +705,8 @@ int MainKernel(int argc, char *argv[])
   Message::Cpu(3, true, true, true, true, true, "Stopped");
 
   if(Message::GetVerbosity() == 99){ // debug
-    GetDPPrintNumbers();
-    GetDPPrintStrings();
+    getdpPrintNumbers();
+    getdpPrintStrings();
   }
 
 #if defined(HAVE_GMSH)
@@ -720,7 +720,7 @@ int MainKernel(int argc, char *argv[])
   return Message::GetErrorCount();
 }
 
-int GetDP(const std::vector<std::string> &args, void *ptr)
+int getdp(const std::vector<std::string> &args, void *ptr)
 {
   onelab::server *onelabServer = (onelab::server*) ptr;
   if(onelabServer != NULL){

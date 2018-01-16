@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2017 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@onelab.info>.
@@ -516,11 +516,11 @@ void Print_WholeQuantity(List_T *WholeQuantity, List_T *DQ_L)
       Message::Check(" ] ]{ %d }", (WQ+k)->Case.MHTransform.NbrPoints);
      break;
 
-    case WQ_MHJACNL :
-      Message::Check(" MHJacNL[ ");
+    case WQ_MHBILINEAR :
+      Message::Check(" MHBilinear[ ");
       Message::Check("%s",
-                     Get_ExpressionName((WQ+k)->Case.MHJacNL.Index));
-      Message::Check("]{ %d, %d}", (WQ+k)->Case.MHJacNL.NbrPoints, (WQ+k)->Case.MHJacNL.FreqOffSet);
+                     Get_ExpressionName((WQ+k)->Case.MHBilinear.Index));
+      Message::Check("]{ %d, %d}", (WQ+k)->Case.MHBilinear.NbrPoints, (WQ+k)->Case.MHBilinear.FreqOffSet);
       break;
 
     case WQ_TIMEDERIVATIVE :

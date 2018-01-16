@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2017 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@onelab.info>.
@@ -27,7 +27,7 @@
 #include "OS.h"
 #include "Message.h"
 #if defined(HAVE_GMSH)
-#include <gmsh/Gmsh.h>
+#include <gmsh/GmshGlobal.h>
 #include <gmsh/PView.h>
 #endif
 
@@ -543,6 +543,9 @@ void  UpdateConstraint_System(struct DefineSystem * DefineSystem_P,
   // Update constraints, i.e. new preprocessing of _CST type
   int Nbr_Formulation, Index_Formulation,  Save_TreatmentStatus ;
   struct Formulation    * Formulation_P ;
+
+  // Incrementing Current.SubTimeStep, so that Generate_Link is re-triggered
+  Current.SubTimeStep++;
 
   Save_TreatmentStatus = TreatmentStatus ;
   TreatmentStatus = _CST ;
@@ -1268,7 +1271,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
           LinAlg_AssembleVector(&DofData_P->b) ;
         }
 
-        LinAlg_CopyVector(&DofData_P->CurrentSolution->x, &DofData_P->dx); //In prevision to build 'dx' in the following (needed for "IterativeLoopPro") QQQ?
+        //LinAlg_CopyVector(&DofData_P->CurrentSolution->x, &DofData_P->dx); //In prevision to build 'dx' in the following (needed for "IterativeLoopPro") QQQ??? (uncomment this)
 
         if(!again){
           LinAlg_Solve(&DofData_P->A, &DofData_P->b, &DofData_P->Solver,
@@ -1283,7 +1286,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                             (Operation_P->Flag < 0) ? 0 : Operation_P->Flag) ;
         }
 
-        LinAlg_SubVectorVector(&DofData_P->CurrentSolution->x, &DofData_P->dx, &DofData_P->dx) ; //In order to build 'dx' (needed for "IterativeLoopPro") QQQ?
+        //LinAlg_SubVectorVector(&DofData_P->CurrentSolution->x, &DofData_P->dx, &DofData_P->dx) ; //In order to build 'dx' (needed for "IterativeLoopPro") QQQ? (uncomment this)
 #ifdef TIMER
         double timer = MPI_Wtime() - tstart;
         printf("Proc %d, time spent in %s %.16g\n", again ? "SolveAgain" : "Solve",
@@ -1372,8 +1375,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         else
           LinAlg_SolveAgain(&DofData_P->Jac, &DofData_P->res, &DofData_P->Solver, &DofData_P->dx) ;
 
-        /*//............... The following lines (*) are not needed here because ..............
-        //           Current.Residual is only needed when Flag_IterativeLoopN==0 QQQ?
+        //............... The following lines (*) are not needed here because ..............
+        //           Current.Residual is only needed when Flag_IterativeLoopN==0 QQQ (move this)
         Cal_SolutionError(&DofData_P->dx, &DofData_P->CurrentSolution->x, 0, &MeanError) ;
         // NormType: 1=LINFNORM, 2=L1NORM, 3=MEANL1NORM, 4=L2NORM, 5=MEANL2NORM
         // Closest behaviour to old function Cal_SolutionError with MEANL2NORM
@@ -1382,17 +1385,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         //LinAlg_VectorNorm2(&DofData_P->dx, &MeanError);
         Current.Residual = MeanError; // NB: Residual computed for classical IterativeLoop using SolveJac
         //.................................................................................
-        */
         if(!Flag_IterativeLoopN){
-          //............... previous lines (*) should be placed here QQQ? ..................
-          Cal_SolutionError(&DofData_P->dx, &DofData_P->CurrentSolution->x, 0, &MeanError) ;
-          // NormType: 1=LINFNORM, 2=L1NORM, 3=MEANL1NORM, 4=L2NORM, 5=MEANL2NORM
-          // Closest behaviour to old function Cal_SolutionError with MEANL2NORM
-          // Cal_SolutionErrorRatio(&DofData_P->dx, &DofData_P->CurrentSolution->x,
-          //                       reltol, abstol, MEANL2NORM, &MeanError) ;
-          //LinAlg_VectorNorm2(&DofData_P->dx, &MeanError);
-          Current.Residual = MeanError; // NB: Residual computed for classical IterativeLoop using SolveJac
-          //.................................................................................
+          //............... previous lines (*) should be placed here QQQ (here)..................
           if (MeanError != MeanError){
             Message::Warning("No valid solution found (NaN or Inf)!");
           }
@@ -1407,7 +1401,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
         Current.RelativeDifference += MeanError ;
         //NB: Current.RelativeDifference is what is used for classical IterativeLoop stop criterion
-        //NB: Current.RelativeDifference is reset to 0 at the begin of every iter in iterloop 
+        //NB: Current.RelativeDifference is reset to 0 at the begin of every iter in iterloop
         //NB: if only one SolveJac is done: Current.RelativeDifference = MeanError = Current.Residual
 
         if (!Flag_IterativeLoop) {
@@ -1460,10 +1454,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       LinAlg_CopyVector(&DofData_P->CurrentSolution->x, &x_Save);
 
       Flag_RHS = 1;
-      /* MHJacNL-terms do not contribute to the RHS and residu, and are thus disregarded */
+      /* MHBilinear-terms do not contribute to the RHS and residual, and are thus disregarded */
 
       Error_Prev = 1e99 ;  Frelax_Opt = 1. ;
-      //if(Current.Iteration==1) Current.Residual_Iter1=1.0;  //to compute a relative residual (relative to residual at iter 1) in SolveJacAdapt //QQQ?
+      //if(Current.Iteration==1) Current.Residual_Iter1=1.0;  //to compute a relative residual (relative to residual at iter 1) in SolveJacAdapt //QQQ? (not necessary)
 
       if (!(NbrSteps_relax = List_Nbr(Operation_P->Case.SolveJac_AdaptRelax.Factor_L))){
         Message::Error("No factors provided for Adaptive Relaxation");
@@ -1497,7 +1491,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	LinAlg_VectorNorm2(&DofData_P->res, &Norm);
 	LinAlg_GetVectorSize(&DofData_P->res, &N);
 	Norm /= (double)N;
-  //Norm /= Current.Residual_Iter1; //to compute a relative residual (relative to residual at iter 1) in SolveJacAdapt //QQQ?
+  //Norm /= Current.Residual_Iter1; //to compute a relative residual (relative to residual at iter 1) in SolveJacAdapt //QQQ? (not necessary)
 
         Current.Residual = Norm;
         if(Message::GetVerbosity() == 10)
@@ -1521,10 +1515,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       MeanError = Error_Prev ;
       Current.RelaxFac = Frelax_Opt; // +++
-      Current.Residual = MeanError; // QQQ?  Residual computed here with SolveJacAdapt (usefull to test stop criterion in classical IterativeLoop then)
+      //Current.Residual = MeanError; // QQQ? Residual computed here with SolveJacAdapt (usefull to test stop criterion in classical IterativeLoop then) //QQQ (uncomment this)
       Message::Info("%3ld Nonlinear Residual norm %14.12e (optimal relaxation factor = %f)",
                     (int)Current.Iteration, MeanError, Frelax_Opt);
-      //if(Current.Iteration==1) Current.Residual_Iter1=MeanError; //to compute a relative residual (relative to residual at iter 1) in SolveJacAdapt //QQQ?
+      //if(Current.Iteration==1) Current.Residual_Iter1=MeanError; //to compute a relative residual (relative to residual at iter 1) in SolveJacAdapt //QQQ? (not necessary)
       if(Message::GetProgressMeterStep() > 0 && Message::GetProgressMeterStep() < 100)
         Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Residual",
                                        std::vector<double>(1, MeanError));
@@ -2601,8 +2595,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Message::Info("IterativeLoop ...") ;
 
       Save_Iteration = Current.Iteration ;
-      
-      //Current.Residual_Iter1=1.0; //to compute a relative residual (relative to residual at iter 1) QQQ?
+
+      //Current.Residual_Iter1=1.0; //to compute a relative residual (relative to residual at iter 1) QQQ? (not necessary)
       // abstol = Operation_P->Case.IterativeLoop.Criterion ;
       // reltol = Operation_P->Case.IterativeLoop.Criterion/100 ;
 
@@ -2630,13 +2624,13 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         // TransferSolution of a nonlinear resolution
  	Treatment_Operation(Resolution_P, Operation_P->Case.IterativeLoop.Operation,
 			    DofData_P0, GeoData_P0, Resolution2_P, DofData2_P0) ;
-  //if (Current.Iteration==1) Current.Residual_Iter1=Current.RelativeDifference; //to compute a relative residual (relative to residual at iter 1) QQQ?
+  //if (Current.Iteration==1) Current.Residual_Iter1=Current.RelativeDifference; //to compute a relative residual (relative to residual at iter 1) QQQ? (not necessary)
 
   //NB: Current.RelativeDifference is what is used for classical IterativeLoop stop criterion
-  //NB: In SolveJac: (Current.RelativeDifference+=Current.Residual) 
+  //NB: In SolveJac: (Current.RelativeDifference+=Current.Residual)
   //NB: In SolveJacAdapt: (Current.RelativeDifference=Current.Residual)
 	if (   (Current.RelativeDifference <= Operation_P->Case.IterativeLoop.Criterion) ||
-       //(Current.RelativeDifference/Current.Residual_Iter1 <= Operation_P->Case.IterativeLoop.Criterion) || //to compute a relative residual (relative to residual at iter 1) QQQ?
+       //(Current.RelativeDifference/Current.Residual_Iter1 <= Operation_P->Case.IterativeLoop.Criterion) || //to compute a relative residual (relative to residual at iter 1) QQQ? (not necessary)
          (Current.RelativeDifference != Current.RelativeDifference) ) // NaN or Inf
 	  break ;
 
@@ -2661,7 +2655,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                       Num_Iteration, Num_Iteration > 1 ? "s" : "",
                       Current.RelativeDifference);
       }
-      /* QQQ?
+      /* QQQ? (not necessary)
       Message::Info(3, "IterativeLoop did NOT converge (%d iterations, residual %g)\n rel %g",
                         Num_Iteration, Current.RelativeDifference, Current.RelativeDifference/Current.Residual_Iter1_kj);
           // Either it has reached the max num of iterations or a NaN at a given iteration
@@ -3123,7 +3117,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       }
       break;
 
-
       /*  -->  P o s t O p e r a t i o n  */
       /*  ------------------------------- */
 
@@ -3291,6 +3284,17 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       MPI_Barrier(PETSC_COMM_WORLD);
       Message::Info("Barrier: let's continue");
 #endif
+      break ;
+
+      /*  -->  O p t i m i z e r                      */
+      /*  ------------------------------------------  */
+
+    case OPERATION_OPTIMIZER_INITIALIZE :
+      Operation_OptimizerInitialize(Operation_P);
+      break ;
+
+    case OPERATION_OPTIMIZER_UPDATE :
+      Operation_OptimizerUpdate(Operation_P);
       break ;
 
       /*  -->  O t h e r                              */

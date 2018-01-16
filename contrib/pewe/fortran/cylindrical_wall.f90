@@ -127,7 +127,7 @@ subroutine cylindrical_wall(du,dv,dut,dvt,X,Y,t,omega,lambda,mu,rho,a)
        -besselh(2,2,eta*r)))*sin(theta)
 
   ! for GetDP
-  ns = max(eta*a+30, gamma*a+30);
+  ns = max(eta*a+30, 2*eta);
   
   ! for GetDP: instead of 2:24
 !$OMP PARALLEL DO PRIVATE(f_n0,f_n1,a_n0,a_n1,b_n0,b_n1,epsilon_n,m11,m12,m21,m22,cn1,cn2,ABn) REDUCTION(+:q,v)

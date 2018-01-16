@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2017 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@onelab.info>.
@@ -36,7 +36,7 @@
 #endif
 
 #if defined(HAVE_GMSH)
-#include <gmsh/Gmsh.h>
+#include <gmsh/GmshGlobal.h>
 #include <gmsh/GmshConfig.h>
 #include <gmsh/GmshMessage.h>
 #endif
@@ -53,6 +53,15 @@
 #if defined(HAVE_PYTHON)
 #undef HAVE_DLOPEN
 #include <Python.h>
+#endif
+
+#if defined(HAVE_HPDDM)
+#define MUMPSSUB // direct mumps solver for subdomain solves
+#define DMUMPS // direct mumps solver for the coarse solves
+#define HPDDM_NUMBERING 'C' // 0-based numering
+#define HPDDM_NO_REGEX
+#undef NONE
+#include <HPDDM.hpp>
 #endif
 
 int Message::_commRank = 0;
@@ -131,6 +140,10 @@ void Message::Initialize(int argc, char **argv)
   Py_InitializeEx(0);
   PySys_SetArgv(argc, &wargv[0]);
 #endif
+#endif
+#if defined(HAVE_HPDDM)
+  HPDDM::Option& opt = *HPDDM::Option::get();
+  opt.parse(argc, argv, _commRank == 0);
 #endif
 }
 
@@ -971,6 +984,7 @@ static void _setStandardOptions(onelab::parameter *p, Message::fmap &fopt,
   if(copt.count("Highlight")) p->setAttribute("Highlight", copt["Highlight"][0]);
   if(copt.count("Macro")) p->setAttribute("Macro", copt["Macro"][0]);
   if(copt.count("GmshOption")) p->setAttribute("GmshOption", copt["GmshOption"][0]);
+  if(copt.count("ServerAction")) p->setAttribute("ServerAction", copt["ServerAction"][0]);
   if(copt.count("Units")) p->setAttribute("Units", copt["Units"][0]);
   if(copt.count("AutoCheck")) // for backward compatibility
     p->setAttribute("AutoCheck", copt["AutoCheck"][0]);
@@ -1008,7 +1022,9 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
     bool noRange = true, noChoices = true, noLoop = true;
     bool noGraph = true, noClosed = true;
     if(ps.size()){
-      if(fopt.count("ReadOnly") && fopt["ReadOnly"][0]){ // use local value
+      bool useLocalValue = ps[0].getReadOnly();
+      if(fopt.count("ReadOnly")) useLocalValue = fopt["ReadOnly"][0];
+      if(useLocalValue){
         if(c->Type == VAR_FLOAT){
           ps[0].setValue(c->Value.Float);
         }
@@ -1124,7 +1140,9 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
     _onelabClient->get(ps, name);
     bool noClosed = true, noMultipleSelection = true;
     if(ps.size()){
-      if(fopt.count("ReadOnly") && fopt["ReadOnly"][0])
+      bool useLocalValue = ps[0].getReadOnly();
+      if(fopt.count("ReadOnly")) useLocalValue = fopt["ReadOnly"][0];
+      if(useLocalValue)
         ps[0].setValue(c->Value.Char); // use local value
       else
 	c->Value.Char = strSave(ps[0].getValue().c_str()); // use value from server

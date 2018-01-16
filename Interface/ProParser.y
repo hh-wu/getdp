@@ -44,6 +44,7 @@ std::map<std::string, std::vector<double> > CommandLineNumbers;
 std::map<std::string, std::vector<std::string> > CommandLineStrings;
 std::map<std::string, std::vector<double> > GetDPNumbers;
 std::map<std::string, std::vector<std::string> > GetDPStrings;
+std::map<std::string, std::map<int, std::vector<double> > > GetDPNumbersMap;
 
 // Static parser variables (accessible only in this file)
 
@@ -255,7 +256,7 @@ struct doubleXstring{
 %token    tAtan tAtan2 tSinh tCosh tTanh tFabs tFloor tCeil tRound tSign
 %token    tFmod tModulo tHypot tRand
 %token    tSolidAngle tTrace tOrder tCrossProduct tDofValue tRational
-%token    tMHTransform tMHJacNL
+%token    tMHTransform tMHBilinear
 
 %token  tAppend
 
@@ -307,6 +308,7 @@ struct doubleXstring{
 %token      tFourierTransform tFourierTransformJ
 %token      tCopySolution tCopyRHS tCopyResidual tCopyIncrement tCopyDofs
 %token      tGetNormSolution tGetNormResidual tGetNormRHS tGetNormIncrement
+%token      tOptimizerInitialize tOptimizerUpdate
 %token      tLanczos tEigenSolve tEigenSolveJac tPerturbation
 %token      tUpdate tUpdateConstraint tBreak tGetResidual tCreateSolution
 %token      tEvaluate tSelectCorrection tAddCorrection tMultiplySolution
@@ -1590,86 +1592,24 @@ WholeQuantity_Single :
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
 
-  | tMHJacNL
-    '[' NameForFunction ArgumentsForFunction ParametersForFunction ']' '{' FExpr ',' FExpr '}'
+  | tMHBilinear
+    '[' NameForFunction
+     { Last_DofIndexInWholeQuantity = Current_DofIndexInWholeQuantity; }
+    '[' RecursiveListOfWholeQuantityExpression ']' ']' '{' FExpr ',' FExpr '}'
     {
       int i;
-      if((i = List_ISearchSeq(Problem_S.Expression, $3,fcmp_Expression_Name)) >= 0){
-        WholeQuantity_S.Type = WQ_MHJACNL;
-        WholeQuantity_S.Case.MHJacNL.Index = i;
-        WholeQuantity_S.Case.MHJacNL.FunctionType = WQ_EXPRESSION;
-        WholeQuantity_S.Case.MHJacNL.NbrArguments = $4;
-        WholeQuantity_S.Case.MHJacNL.NbrParameters = List_Nbr($5);
-        if($4 < 0)  vyyerror(0, "Uncompatible argument for Function (in MHJacNL): %s", $3);
-      }
-      /* Built in functions */
-      else {
-        Get_Function2NbrForString(F_Function, $3, &FlagError,
-				  &WholeQuantity_S.Case.Function.Fct,
-				  &WholeQuantity_S.Case.Function.NbrParameters,
-				  &WholeQuantity_S.Case.Function.NbrArguments);
-	WholeQuantity_S.Case.Function.Active = NULL;
-	if(!FlagError) {
-          WholeQuantity_S.Type = WQ_MHJACNL;
-
-          // arguments
-          if($4 >= 0) {
-            if($4 == WholeQuantity_S.Case.Function.NbrArguments) {
-              WholeQuantity_S.Case.MHJacNL.FunctionType =WQ_BUILTINFUNCTION;
-            }
-            else if(WholeQuantity_S.Case.Function.NbrArguments == -1  ||
-                    (WholeQuantity_S.Case.Function.NbrArguments == -2)) {
-	      // && ($4)%2 == 0)) {
-              WholeQuantity_S.Case.MHJacNL.FunctionType = WQ_BUILTINFUNCTION ;
-              WholeQuantity_S.Case.Function.NbrArguments = $4;
-            }
-            else {
-              vyyerror(0, "Wrong number of arguments for Function (in MHJacNL) '%s' (%d instead of %d)",
-                       $3, $4, WholeQuantity_S.Case.Function.NbrArguments);
-            }
-          }
-          else {
-            WholeQuantity_S.Case.MHJacNL.FunctionType = WQ_EXTERNBUILTINFUNCTION;
-	    //WholeQuantity_S.Type = WQ_EXTERNBUILTINFUNCTION;
-	  }
-
-	  // parameters
-          WholeQuantity_S.Case.Function.Para = 0;
-          WholeQuantity_S.Case.Function.String = StringForParameter;
-	  if(WholeQuantity_S.Case.Function.NbrParameters >= 0 &&
-	      WholeQuantity_S.Case.Function.NbrParameters != List_Nbr($5)) {
-	    vyyerror(0, "Wrong number of parameters for Function '%s' (%d instead of %d)",
-		     $3, List_Nbr($5), WholeQuantity_S.Case.Function.NbrParameters);
-	  }
-	  else if(WholeQuantity_S.Case.Function.NbrParameters == -2 && List_Nbr($5)%2 != 0) {
-	    vyyerror(0, "Wrong number of parameters for Function '%s' (%d is not even)",
-		     $3, List_Nbr($5));
-	  }
-	  else {
-	    WholeQuantity_S.Case.Function.NbrParameters = List_Nbr($5);
-	    if(WholeQuantity_S.Case.Function.NbrParameters > 0) {
-	      WholeQuantity_S.Case.Function.Para =
-		(double *)Malloc
-		(WholeQuantity_S.Case.Function.NbrParameters * sizeof(double));
-	      for(int i = 0; i < WholeQuantity_S.Case.Function.NbrParameters; i++)
-		List_Read($5, i, &WholeQuantity_S.Case.Function.Para[i]);
-	    }
-	  }
-	}
-	else {
-	  vyyerror(0, "Undefined function '%s' used in MHJacNL", $3);
-	}
-      }
-
-      WholeQuantity_S.Case.MHJacNL.NbrPoints  = (int)$8;
-      WholeQuantity_S.Case.MHJacNL.FreqOffSet = (int)$10;
+      if((i = List_ISearchSeq(Problem_S.Expression, $3,fcmp_Expression_Name)) < 0)
+	vyyerror(0, "Undefined function '%s' used in MHBilinear", $3);
+      if(Current_DofIndexInWholeQuantity != Last_DofIndexInWholeQuantity)
+	vyyerror(0, "Dof{} definition cannot be used in MHBilinear");
+      WholeQuantity_S.Type = WQ_MHBILINEAR;
+      WholeQuantity_S.Case.MHBilinear.Index = i;
+      WholeQuantity_S.Case.MHBilinear.WholeQuantity_L = $6;
+      WholeQuantity_S.Case.MHBilinear.NbrPoints = (int)$10;
+      WholeQuantity_S.Case.MHBilinear.FreqOffSet = (int)$12;
       List_Read(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1, &Current_WholeQuantity_L);
-
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
-      List_Delete($5);
-      StringForParameter = 0;
     }
-
 
   | tSolidAngle '[' Quantity_Def ']'
     { WholeQuantity_S.Type = WQ_SOLIDANGLE;
@@ -1843,7 +1783,6 @@ ParametersForFunction :
 
   | '{' '$' String__Index '}'
     { $$ = NULL; StringForParameter = $3; }
-
  ;
 
 /* ------------------------------------------------------------------------ */
@@ -5892,6 +5831,32 @@ OperationTerm :
       Operation_P->Case.Copy.useList = 1 ;
       Operation_P->Case.Copy.to = 0 ;
       Operation_P->Case.Copy.from = $3 ;
+    }
+
+  | tOptimizerInitialize '[' CharExpr ',' ListOfFExpr ',' ListOfFExpr ']' tEND
+    {
+      Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      Operation_P->Type = OPERATION_OPTIMIZER_INITIALIZE;
+      Operation_P->Case.OptimizerInitialize.algorithm = $3;
+      Operation_P->Case.OptimizerInitialize.currentPointLowerBounds = $5;
+      Operation_P->Case.OptimizerInitialize.currentPointUpperBounds = $7;
+    }
+
+  | tOptimizerUpdate '[' CharExpr ','
+                         CharExpr ',' BracedRecursiveListOfCharExpr ','
+                         CharExpr ',' BracedRecursiveListOfCharExpr ','
+                         '$' String__Index ']' tEND
+    {
+      Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      Operation_P->Type = OPERATION_OPTIMIZER_UPDATE;
+      Operation_P->Case.OptimizerUpdate.currentPoint = $3;
+      Operation_P->Case.OptimizerUpdate.objective = $5;
+      Operation_P->Case.OptimizerUpdate.constraints = $7;
+      Operation_P->Case.OptimizerUpdate.objectiveSensitivity = $9;
+      Operation_P->Case.OptimizerUpdate.constraintsSensitivity = $11;
+      Operation_P->Case.OptimizerUpdate.residual = $14;
     }
 
   | Loop
@@ -10269,6 +10234,12 @@ void  Pro_DefineQuantityIndex_1(List_T *WholeQuantity_L, int TraceGroupIndex,
     case WQ_MHTRANSFORM  :
       for(int j = 0; j < List_Nbr((WholeQuantity_P+i)->Case.MHTransform.WholeQuantity_L); j++){
         List_T *WQ; List_Read((WholeQuantity_P+i)->Case.MHTransform.WholeQuantity_L, j, &WQ);
+        Pro_DefineQuantityIndex_1(WQ, TraceGroupIndex, pairs);
+      }
+      break;
+    case WQ_MHBILINEAR  :
+      for(int j = 0; j < List_Nbr((WholeQuantity_P+i)->Case.MHBilinear.WholeQuantity_L); j++){
+        List_T *WQ; List_Read((WholeQuantity_P+i)->Case.MHBilinear.WholeQuantity_L, j, &WQ);
         Pro_DefineQuantityIndex_1(WQ, TraceGroupIndex, pairs);
       }
       break;

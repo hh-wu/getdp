@@ -1,8 +1,8 @@
 Group {
   DefineGroup[
     Domain, DomainCC, DomainC, DomainL, DomainNL,
-    DomainS, DomainB, DomainInf,
-    SkinDomainC,
+    DomainS, DomainInf,
+    SkinDomainS, SkinDomainC,
     Surf_elec, Surf_bn0, Surf_Inf, Surf_FixedMVP
   ] ;
 }
@@ -39,10 +39,11 @@ Include "BH.pro"; // nonlinear BH caracteristic of magnetic material
 
 Group {
 
+
   If(!Flag_ConductingCore)
     DomainCC = Region[ {Air, AirInf, Core} ];
     DomainC  = Region[ { } ];
-    Else
+  Else
     DomainCC = Region[ {Air, AirInf} ];
     DomainC  = Region[ {Core} ];
     SkinDomainC = Region[ {SkinCore} ];
@@ -51,7 +52,9 @@ Group {
   //--------------------------------------------------------------
 
   DomainS = Region[ {Inds} ];
-  DomainCC += Region[ {DomainS, DomainB} ];
+  SkinDomainS = Region[ {SkinInds} ];
+
+  DomainCC += Region[ {DomainS} ];
 
   //--------------------------------------------------------------
 
@@ -67,7 +70,7 @@ Group {
   EndIf
   DomainDummy = Region[ 12345 ] ; // Dummy region number for postpro with functions
 
-  Surf_FixedMVP = Region[{ Surf_bn0, Surf_Inf }];
+  Surf_FixedMVP = Region[{ Surf_bn0, Surf_Inf}];
 
 }
 
@@ -76,7 +79,7 @@ Function {
 
   If(!Flag_NL)
     nu [Core]  = 1/(mur_fe*mu0) ;
-    Else
+  Else
     nu [ DomainNL ] = nu_EIcore[$1] ;
     dhdb_NL [ DomainNL ] = dhdb_EIcore_NL[$1];
   EndIf
@@ -123,7 +126,6 @@ Integration {
 
 Constraint {
 
-  // av - formulation
   { Name MVP_3D ;
     Case {
       { Region Surf_bn0 ; Type Assign ; Value 0. ; }
@@ -135,6 +137,7 @@ Constraint {
     Case {
     }
   }
+
   { Name I_3D ;
     Case {
     }
@@ -150,8 +153,8 @@ Constraint {
 
   { Name GaugeCondition_a ; Type Assign ;
     Case {
-      If(Flag_GaugeType==TREE_COTREE_GAUGE)
-        { Region DomainCC ; SubRegion Surf_a_NoGauge ; Value 0. ; }
+      If (Flag_GaugeType==TREE_COTREE_GAUGE)
+        { Region Region[{DomainCC}] ; SubRegion Surf_a_NoGauge ; Value 0. ; }
       EndIf
     }
   }
@@ -178,8 +181,11 @@ FunctionSpace {
     Constraint {
       { NameOfCoef ae  ; EntityType EdgesOf ; NameOfConstraint MVP_3D ; }
       { NameOfCoef ae2 ; EntityType EdgesOf ; NameOfConstraint MVP_3D ; }
-      { NameOfCoef ae  ; EntityType EdgesOfTreeIn ; EntitySubType StartingOn ;
-	NameOfConstraint GaugeCondition_a ; }
+
+      If(Flag_GaugeType==TREE_COTREE_GAUGE)
+        { NameOfCoef ae  ; EntityType EdgesOfTreeIn ; EntitySubType StartingOn ;
+          NameOfConstraint GaugeCondition_a ; }
+      EndIf
     }
   }
 
@@ -199,7 +205,7 @@ FunctionSpace {
     }
   }
 
-  // scalar potential for Coulomb gauge: a orthogonal to grad(xi)
+  // scalar potential for Coulomb gauge: orthogonal to grad(xi)
   { Name H_xi ; Type Form0 ;
     BasisFunction {
       { Name sn ; NameOfCoef an ; Function BF_Node ;
@@ -211,16 +217,40 @@ FunctionSpace {
   }
 
 
+  // correcting source interpolation js0[] so that (weakly) div j = 0
+  { Name H_xi_divj0 ; Type Form0 ;
+    BasisFunction {
+      { Name sn ; NameOfCoef an ; Function BF_Node ;
+        Support Region[{DomainS, SkinDomainS}] ; Entity NodesOf[ All ] ; }
+    }
+    Constraint {
+      { NameOfCoef an ; EntityType NodesOf ; NameOfConstraint xi_fixed ; }
+    }
+  }
+
 }
 
 //---------------------------------------------------------------------------------------------
 
 Formulation {
 
+  { Name DivJ0 ; Type FemEquation ;
+    Quantity {
+      { Name xi; Type Local ; NameOfSpace H_xi_divj0 ; }
+    }
+    Equation {
+      Galerkin { [ js0[] , {d xi} ] ;
+        In Domain ; Jacobian Vol ; Integration II ; }
+      Galerkin { [ -Dof{d xi} , {d xi} ] ;
+        In Domain ; Jacobian Vol ; Integration II ; }
+    }
+  }
+
   { Name MagStaDyn_av_js0_3D ; Type FemEquation ;
     Quantity {
       { Name a  ; Type Local ; NameOfSpace Hcurl_a_3D ; }
-      { Name xi ; Type Local ; NameOfSpace H_xi ; }
+      { Name xi ; Type Local ; NameOfSpace H_xi ; } // Coulomb gauge
+      { Name xis ; Type Local ; NameOfSpace H_xi_divj0 ; } // div j=0
 
       { Name v  ; Type Local ; NameOfSpace Hregion_u_3D ; } //Massive conductor
       { Name U  ; Type Global ; NameOfSpace Hregion_u_3D [U] ; }
@@ -230,10 +260,12 @@ Formulation {
     Equation {
       Galerkin { [ nu[{d a}] * Dof{d a} , {d a} ] ;
         In Domain ; Jacobian Vol ; Integration II ; }
+
       If(Flag_NL_Newton_Raphson)
-      Galerkin { JacNL [ dhdb_NL[{d a}] * Dof{d a} , {d a} ] ;
-        In DomainNL ; Jacobian Vol ; Integration II ; }
+        Galerkin { JacNL [ dhdb_NL[{d a}] * Dof{d a} , {d a} ] ;
+          In DomainNL ; Jacobian Vol ; Integration II ; }
       EndIf
+
       Galerkin { DtDof[ sigma[] * Dof{a} , {a} ] ;
         In DomainC ; Jacobian Vol ; Integration II ; }
       Galerkin { [ sigma[] * Dof{d v}/SymmetryFactor , {a} ] ;
@@ -246,15 +278,19 @@ Formulation {
       GlobalTerm { [ Dof{I}*SymmetryFactor, {U} ] ; In Surf_elec ; }
 
       Galerkin { [ -js0[], {a} ] ;
-        In  DomainS ; Jacobian Vol ; Integration II ; }
+        In DomainS ; Jacobian Vol ; Integration II ; }
+
+      If(Flag_DivJ_Zero == DIVJ0_WEAK)
+        Galerkin { [ {d xis}, {a} ] ;
+          In Domain ; Jacobian Vol ; Integration II ; }
+      EndIf
 
       If(Flag_GaugeType==COULOMB_GAUGE)
         Galerkin { [ Dof{a}, {d xi} ] ;
-          In  Domain ; Jacobian Vol ; Integration II ; }
+          In Domain ; Jacobian Vol ; Integration II ; }
         Galerkin { [ Dof{d xi}, {a} ] ;
-          In  Domain ; Jacobian Vol ; Integration II ; }
+          In Domain ; Jacobian Vol ; Integration II ; }
       EndIf
-
     }
   }
 
@@ -267,16 +303,25 @@ Resolution {
     System {
       If(Flag_AnalysisType==2)
          { Name Sys ; NameOfFormulation MagStaDyn_av_js0_3D ; Type ComplexValue ; Frequency Freq ; }
+         If(Flag_DivJ_Zero == DIVJ0_WEAK)
+           { Name Sys_DivJ0 ; NameOfFormulation DivJ0 ; Type ComplexValue ; Frequency Freq ; }
+         EndIf
       EndIf
       If(Flag_AnalysisType<2)
         { Name Sys ; NameOfFormulation MagStaDyn_av_js0_3D ; }
+        If(Flag_DivJ_Zero == DIVJ0_WEAK)
+          { Name Sys_DivJ0 ; NameOfFormulation DivJ0 ; }
+        EndIf
       EndIf
     }
     Operation {
       CreateDir["res3d/"] ;
 
-      InitSolution[Sys] ;
+      If(Flag_DivJ_Zero == DIVJ0_WEAK)
+        Generate[Sys_DivJ0] ; Solve[Sys_DivJ0] ; SaveSolution[Sys_DivJ0];
+      EndIf
 
+      InitSolution[Sys] ;
       If(Flag_AnalysisType==0 || Flag_AnalysisType==2) // Static or Frequency-domain
         If(!Flag_NL)
           Generate[Sys] ; Solve[Sys] ;
@@ -362,6 +407,9 @@ PostProcessing {
       { Name Inductance_from_MagEnergy ; Value { Term { Type Global; [ 2 * $MagEnergy * 1e3/(II*II) ] ; In DomainDummy ; } } }
 
       { Name xi ; Value { Term { [ {xi} ] ; In Domain ; Jacobian Vol ; } } }
+      { Name xis ; Value { Term { [ {xis} ] ; In Domain ; Jacobian Vol ; } } }
+      { Name dxis ; Value { Term { [ {d xis} ] ; In Domain ; Jacobian Vol ; } } }
+      { Name js0_dxis ; Value { Term { [ js0[]-{d xis} ] ; In Domain ; Jacobian Vol ; } } }
 
     }
   }
@@ -371,6 +419,13 @@ PostProcessing {
  PostOperation Get_LocalFields UsingPost MagStaDyn_av_js0_3D {
    Print[ js, OnElementsOf DomainS, File StrCat[Dir, "js", ExtGmsh], LastTimeStepOnly ] ;
    Print[ a, OnElementsOf Domain, File StrCat[Dir, "a", ExtGmsh], LastTimeStepOnly ] ;
+
+   If(Flag_DivJ_Zero == DIVJ0_WEAK)
+     Print[ xis, OnElementsOf DomainS, File StrCat[Dir, "xis",ExtGmsh ], LastTimeStepOnly ] ;
+     Print[ dxis, OnElementsOf DomainS, File StrCat[Dir, "grad_xis",ExtGmsh ], LastTimeStepOnly ] ;
+     Print[ js0_dxis, OnElementsOf DomainS, File StrCat[Dir, "js0_corrected",ExtGmsh ], LastTimeStepOnly ] ;
+   EndIf
+
    If(Flag_GaugeType==COULOMB_GAUGE)
      Print[ xi, OnElementsOf Domain, File StrCat[Dir, "xi",ExtGmsh ], LastTimeStepOnly ] ;
    EndIf

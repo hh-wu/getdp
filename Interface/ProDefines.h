@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2017 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@onelab.info>.
@@ -332,6 +332,7 @@ struct StringXDefine  PostSubOperation_Format[] = {
   {"Table"               , FORMAT_SPACE_TABLE },
   {"SimpleTable"         , FORMAT_SIMPLE_SPACE_TABLE },
   {"NodeTable"           , FORMAT_NODE_TABLE },
+  {"ElementTable"        , FORMAT_ELEMENT_TABLE },
   {"ValueOnly"           , FORMAT_VALUE_ONLY },
   {"TimeTable"           , FORMAT_TIME_TABLE },
   {"RegionTable"         , FORMAT_REGION_TABLE },
@@ -1043,7 +1044,9 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"SetNumberRunTime"  , (CAST)F_SetNumberRunTime ,  -1,  -1 },
   {"GetNumberRunTime"  , (CAST)F_GetNumberRunTime ,  -1,  -1 },
   {"SetVariable"       , (CAST)F_SetVariable      ,  -1,  -1 },
+  {"SetCumulativeVariable" , (CAST)F_SetCumulativeVariable ,  -1,  -1 },
   {"GetVariable"       , (CAST)F_GetVariable      ,  -1,  -1 },
+  {"ValueFromTable"    , (CAST)F_ValueFromTable   ,  -1,  -1 },
   {"VirtualWork"       , (CAST)F_VirtualWork      ,   0,   1 },
   {"Felec"	       , (CAST)F_Felec      	  ,   0,   1 },
 
@@ -1131,6 +1134,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"AcousticFieldHardSphere",         (CAST)F_AcousticFieldHardSphere,  2, 1 },
   {"RCSHardSphere",                   (CAST)F_RCSHardSphere,  2, 1 },
   {"AcousticFieldSoftCylinder",       (CAST)F_AcousticFieldSoftCylinder, 2, 1 },
+  {"AcousticFieldSoftCylinderByMode", (CAST)F_AcousticFieldSoftCylinderByMode, 3, 1 },
   {"AcousticFieldSoftCylinderABC",    (CAST)F_AcousticFieldSoftCylinderABC, 5, 1 },
   {"DrAcousticFieldSoftCylinder",     (CAST)F_DrAcousticFieldSoftCylinder, 2, 1 },
   {"RCSSoftCylinder",                 (CAST)F_RCSSoftCylinder,  2, 1 },
@@ -1159,6 +1163,10 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"ElastodynamicsCylinderCavity", (CAST)F_ElastodynamicsCylinderCavity, 5, 1},
   {"ElastodynamicsCylinderWall", (CAST)F_ElastodynamicsCylinderWall, 5, 1},
   {"ElastodynamicsCylinderWallS", (CAST)F_ElastodynamicsCylinderWallS, 5, 1},
+  {"ElastodynamicsCylinderWallOut", (CAST)F_ElastodynamicsCylinderWallOut, 5, 1},
+  {"ElastodynamicsCylinderWallsOut", (CAST)F_ElastodynamicsCylinderWallsOut, 5, 1},
+  {"ElastoCylinderWallOutAbc",(CAST)F_ElastoCylinderWallOutAbc, 6, 1},
+  {"ElastoCylinderWallOutAbc2",(CAST)F_ElastoCylinderWallOutAbc2, 6, 1},
 
   // F_Raytracing: ray tracing functions
   {"CylinderPhase",      (CAST)F_CylinderPhase, 0, 1 },

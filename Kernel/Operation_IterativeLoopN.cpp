@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2017 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@onelab.info>.
@@ -97,7 +97,7 @@ double CalcMaxErrorRatio(Resolution  *Resolution_P,
     else if (ErrorRatio > MaxErrorRatio)
       MaxErrorRatio = ErrorRatio;
 
-    //Current.Residual = ErrorRatio; //should be commented here QQQ?
+    Current.Residual = ErrorRatio; //should be commented here QQQ?
     if (Message::GetVerbosity() > 5) {
       Message::Info("IterativeLoopN: %s of %s error ratio from system %s:  %.3g",
           ILsystem.NormTypeString, ILsystem.NormOfString, DefineSystem_P->Name,
@@ -304,8 +304,12 @@ void Operation_IterativeLoopN(Resolution  *Resolution_P,
   if (Num_Iteration > NbrMaxIteration) {
     Num_Iteration = NbrMaxIteration;
     Flag_IterativeLoopConverged = 0;
+    Message::Info(3, "IterativeLoopN did NOT converge (%d iterations, error ratio %g)",
+                  (int)Current.Iteration, MaxErrorRatio);
+    /* //QQQ??? (uncomment the following and comment the previous Message)
     Message::Warning("IterativeLoopN did NOT converge (%d iterations, error ratio %g)",
                   (int)Current.Iteration, MaxErrorRatio);
+    */
   }
   Current.Iteration = Save_Iteration ;
   Flag_IterativeLoopN = 0;

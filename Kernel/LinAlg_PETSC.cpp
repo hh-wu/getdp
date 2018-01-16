@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2017 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@onelab.info>.
@@ -202,7 +202,7 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
 {
 
   PetscInt prealloc = 100. ;
-  PetscInt prealloc_full = (NBR_MAX_HARMONIC>2) ? ceil(2*n/Current.NbrHar) : n ; // MH case modified, too slow otherwise...
+  PetscInt prealloc_full = n ;
   int nonloc = Current.DofData->NonLocalEquations.size();
   // heuristic for preallocation of global rows: don't prelloc more than 500 Mb
   double limit = 500. * 1024. * 1024. / (gSCALAR_SIZE * sizeof(double));

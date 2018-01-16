@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2017 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@onelab.info>.
@@ -428,7 +428,6 @@ void  Get_LinkForConstraint(struct ConstraintInFS * Constraint_P,
     Generate_Link(Constraint_P, 0) ;
   else if (Constraint_P->Active.Active->SubTimeStep != Current.SubTimeStep)
     Generate_Link(Constraint_P, 0) ; /* +++ */
-
 
   TwoIntOneDouble_P = (struct TwoIntOneDouble *)
     ((Couples_L = Constraint_P->Active.Active->Case.Link.Couples)?

@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2017 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@onelab.info>.
@@ -43,6 +43,7 @@ void  F_RCSSoftSphere(F_ARG) ;
 void  F_AcousticFieldHardSphere(F_ARG) ;
 void  F_RCSHardSphere(F_ARG) ;
 void  F_AcousticFieldSoftCylinder(F_ARG) ;
+void  F_AcousticFieldSoftCylinderByMode(F_ARG) ;
 void  F_AcousticFieldSoftCylinderABC(F_ARG) ;
 void  F_DrAcousticFieldSoftCylinder(F_ARG) ;
 void  F_RCSSoftCylinder(F_ARG) ;
@@ -74,6 +75,10 @@ void  F_CurlDyadGreenHom (F_ARG) ;
 void  F_ElastodynamicsCylinderCavity(F_ARG);
 void  F_ElastodynamicsCylinderWall(F_ARG);
 void  F_ElastodynamicsCylinderWallS(F_ARG);
+void  F_ElastodynamicsCylinderWallOut(F_ARG);
+void  F_ElastodynamicsCylinderWallsOut(F_ARG);
+void  F_ElastoCylinderWallOutAbc(F_ARG);
+void  F_ElastoCylinderWallOutAbc2(F_ARG);
 
 /* F_Geometry */
 
@@ -203,7 +208,9 @@ void  F_GetMemory       (F_ARG) ;
 void  F_SetNumberRunTime(F_ARG) ;
 void  F_GetNumberRunTime(F_ARG) ;
 void  F_SetVariable     (F_ARG) ;
+void  F_SetCumulativeVariable (F_ARG) ;
 void  F_GetVariable     (F_ARG) ;
+void  F_ValueFromTable  (F_ARG) ;
 void  F_VirtualWork     (F_ARG) ;
 
 void  F_Felec		(F_ARG) ;
@@ -287,17 +294,10 @@ void  F_dhdb_Vinch(F_ARG) ; // NOT USED FOR NOW (26/06/2016)
 void  F_dbdh_Vinch(F_ARG) ; // NOT USED FOR NOW (26/06/2016)
 
 // kj+++
-//Usefull Mathematical functions:
-double Mul_VecVec_K(const double *v1, const double *v2);
-void Mul_TensorVec_K(const double *M, const double *v, double *Mv, const int transpose_M);
-void Mul_TensorSymTensorSym_K(double *A, double *B, double *C);
-void Mul_TensorNonSymTensorNonSym_K(double *A, double *B, double *C);
-void Mul_TensorNonSymTensorSym_K(double *A, double *B, double *C);
-void Mul_TensorSymTensorNonSym_K(double *A, double *B, double *C);
-void Inv_Tensor3x3_K (double *T, double *invT);
-void Inv_TensorSym3x3_K (double *T, double *invT);
+void  F_Update_Jk (F_ARG) ; // NOT USED FOR NOW (26/06/2016)
+void  F_Update_Jk_sd (F_ARG) ; // NOT USED FOR NOW (26/06/2016)
+void  F_Update_Cell_K (F_ARG) ;
 
-//Anhysteretic curve Characteristics:
 double Lang(double nhr, double Ja, double ha);
 double dLang(double nhr, double Ja, double ha);
 double LangOverx(double nhr, double Ja, double ha);
@@ -309,6 +309,7 @@ double dJanhy(double nhr,double Js, double alpha);
 double Xanhy(double nhr,double Js, double alpha);
 double dXanhy(double nhr,double Js, double alpha);
 double IJanhy(double nhr, double Js, double alpha);
+double Xanhy(double nhr,double Js, double alpha);
 double InvJanhy(double nJ, double Js, double alpha);
 double dInvJanhy(double nJ, double Js, double alpha) ;
 
@@ -317,91 +318,49 @@ double dJanhy(double nJ, double Ja, double ha, double Jb, double hb) ;
 double Xanhy(double nJ, double Ja, double ha, double Jb, double hb) ;
 double dXanhy(double nJ, double Ja, double ha, double Jb, double hb) ;
 double IJanhy(double nJ, double Ja, double ha, double Jb, double hb) ;
+double Xanhy(double nJ, double Ja, double ha, double Jb, double hb) ;
 double InvJanhy(double nJ, double Ja, double ha, double Jb, double hb) ;
 double dInvJanhy_hr(double nhr, double Ja, double ha, double Jb, double hb);
 
 double u_hr(double nhr, double Ja, double ha, double Jb, double hb) ;
 double u_J(double nJ, double Js, double alpha);
 
-
-void Vector_Find_Jk_K (const double hrk[3],
-                       const double Ja, const double ha, const double Jb, const double hb,
-                       double Jk[3]);
-void Vector_Find_hrk_K(const double Jk[3],
-                       const double Ja, const double ha, const double Jb, const double hb,
-                       double hrk[3]);
-void Tensor_dJkdhrk_K(const double hr[3], 
-                      const double Ja, const double ha, const double Jb, const double hb,
-                      double mutg[6]);
-
-//Pseudo-Potential Functional Characteristics:
-double fct_omega(const double h[3], const double Jk[3], const double Jkp[3], const double chi,
+double fct_omega(const double h[3], double Jk[3], const double Jkp[3], const double chi,
                  const double Ja, const double ha, const double Jb, const double hb);
-void fct_d_omega (const double h[3], const double Jk[3], const double Jkp[3], const double chi,
+void fct_d_omega (const double h[3], double Jk[3], const double Jkp[3], const double chi,
                   const double Ja, const double ha, const double Jb, const double hb,
                   double *d_omega);
-void fct_dd_omega(const double h[3], const double Jk[3], const double Jkp[3], const double chi,
-                  const double Ja, const double ha, const double Jb, const double hb,
-                  double *ddfdJ2);
-void fct_dd_omega_Num(const double h[3], const double Jk[3], const double Jkp[3], const double chi,
-                  const double Ja, const double ha, const double Jb, const double hb,
-                  double *ddfdJ2);
 
-//Usefull Functions for the Full Differential Approach:
-void FullDiff_hi(double x, double chi, double ex[3]);
-void FullDiff_xup(double x, double chi, double h[3], double xup[3]);
-double FullDiff_ff_new (double y, void *params);
-double FullDiff_ff (double y, void *params);
-
-//Energy-Based Model - Vector Update:
+//void FullDiff_hi(double x, double chi, double ex[3]);
+//double FullDiff_ff (double y, void *params);
 void Vector_Update_Jk_K(const double h[3], double Jk[3], const double Jkp[3], const double chi,
                         const double Ja, const double ha, const double Jb, const double hb);
 void Vector_Update_hr_K(const double h[3], double hr[3], const double hrp[3], const double chi,
                         const double Ja, const double ha, const double Jb, const double hb);
 void Vector_Update_Simple_hr_K   (const double h[3], double hr[3], const double hrp[3], const double chi) ;
-
 void Vector_b_Vinch_K     (const double h[3], double *Jk_all,
                            const double *Jkp_all, struct FunctionActive *D,double b[3] ) ;
 void Vector_h_Vinch_K   (const double b[3], double bc[3], double *Jk_all,
                            const double *Jkp_all, struct FunctionActive *D, double h[3] );
-
-//Energy-Based Model - Tensor Construction:
-void Tensor_dJkdh_Var(const double h[3], const double Jk[3], const double Jkp[3], const double chi,
-                      const double Ja, const double ha, const double Jb, const double hb,
-                      double *dJkdh);
-void Tensor_dJkdh_Var_Num(const double h[3], const double Jk[3], const double Jkp[3], const double chi,
+void Tensor_dbdh_Num(const double h[3], double *xk_all, const double *xkp_all,
+                      struct FunctionActive *D,double *dbdh);
+void Tensor_dhdb_Good_BFGS(const double dx[3],const double df[3],double *dhdb);
+void Tensor_dbdh_Vinch_K  ( const double h[3],  double *Jk_all,
+                           const double *Jkp_all, struct FunctionActive *D,  double *dbdh);
+void Tensor_dJkdh_Vinch_K(const double h[3], const double Jk[3], const double Jkp[3], const double chi,
                           const double Ja, const double ha, const double Jb, const double hb,
                           double *dJkdh);
 void Tensor_dJkdh_Diff_K( const double h[3], const double hrk[3], const double hrkp[3], const double chi,
                             const double Ja, const double ha, const double Jb, const double hb,
                             double *dJkdh);
-void Tensor_dhrkdh_Diff_ana(const double h[3], const double hrk[3], const double hrkp[3], const double chi,
-                              const double Ja, const double ha, const double Jb, const double hb,
-                              const double dJkdhrk[6],
-                              double *dhrkdh);
-void Tensor_dhrkdh_Simple_ana(const double h[3], const double hrkp[3], const double chi,
-                              const double Ja, const double ha, const double Jb, const double hb,
-                              double *dhrkdh);
-void Tensor_dhrkdh_Num(const double h[3], const double xkp[3], const double chi,
-                       const double Ja, const double ha, const double Jb, const double hb,
-                       double *dhrkdh);
-void Tensor_dhrkdh_Simple_Num(const double h[3], const double xkp[3], const double chi,
-                              double *dhrkdh); //NOT USE FOR NOW
-void Tensor_dJkdh_Diff_K_old( const double h[3], const double hrk[3], const double hrkp[3], const double chi,
-                          const double Ja, const double ha, const double Jb, const double hb,
-                            double *dJkdh); //NOT USE FOR NOW
 
-void Tensor_dbdh_Vinch_K  ( const double h[3],  const double *Jk_all,
-                           const double *Jkp_all, struct FunctionActive *D,  double *dbdh);
-void Tensor_dbdh_Num(const double h[3], double *xk_all, const double *xkp_all,
-                      struct FunctionActive *D,double *dbdh);
-void Tensor_dhdb_Good_BFGS(const double dx[3],const double df[3],double *dhdb);
+void Mul_TensorVec_K(const double *M, const double *v, double *Mv, const int transpose_M);
+void Mul_TensorSymTensorSym_K(double *A, double *B, double *C);
+double Mul_VecVec_K(const double *v1, const double *v2);
+void Inv_Tensor3x3_K (double *T, double *invT);
+void Inv_TensorSym3x3_K (double *T, double *invT);
 
-//Energy-Based Model - GetDP Functions:
-void F_Update_Cell_K (F_ARG) ;
 void F_b_Vinch_K(F_ARG);
-void F_hr_Vinch_K(F_ARG);
-void F_Jr_Vinch_K(F_ARG);
 void F_h_Vinch_K(F_ARG);
 void F_dbdh_Vinch_K(F_ARG);
 void F_dhdb_Vinch_K(F_ARG);
