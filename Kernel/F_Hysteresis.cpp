@@ -1007,38 +1007,8 @@ void Inv_TensorSym3x3_K(double *T, double *invT)
 // #define F_ARG   struct Function * Fct, struct Value * A, struct Value * V
 // http://www.gnu.org/software/gsl/manual/html_node/Multimin-Examples.html
 
-#if !defined(HAVE_GSL)
 
-void F_Update_Cell_K(F_ARG)
-{
-  Message::Error("F_Update_Cell_K requires the GSL");
-}
-void F_b_Vinch_K(F_ARG)
-{
-  Message::Error("F_b_Vinch_K requires the GSL");
-}
-void F_h_Vinch_K(F_ARG)
-{
-  Message::Error("F_dbdh_Vinch_K requires the GSL");
-}
-void F_dbdh_Vinch_K(F_ARG)
-{
-  Message::Error("F_Update_Cell_K requires the GSL");
-}
-void F_dhdb_Vinch_K(F_ARG)
-{
-  Message::Error("F_dhdb_Vinch_K requires the GSL");
-}
-void F_hr_Vinch_K(F_ARG)
-{
-  Message::Error("F_hr_Vinch_K requires the GSL"); //Not True 
-}
-void F_Jr_Vinch_K(F_ARG)
-{
-  Message::Error("F_Jr_Vinch_K requires the GSL"); //Not True
-}
-
-#else
+#if defined(HAVE_GSL)
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_multiroots.h>
 #include <gsl/gsl_multimin.h>
@@ -1046,7 +1016,7 @@ void F_Jr_Vinch_K(F_ARG)
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_min.h>
 #include <gsl/gsl_roots.h>
-
+#endif
 
 //************************************************
 // Anhysteretic curve Characteristics :
@@ -1331,6 +1301,7 @@ void Tensor_dJkdhrk_K(const double hr[3],
 // Pseudo-Potential Functional Characteristics :
 //************************************************
 
+#if defined(HAVE_GSL)
 struct omega_f_context
 {
   double h[3], Jp[3];
@@ -1385,6 +1356,7 @@ void omega_fdf (const gsl_vector *x, void *params, double *f, gsl_vector *df)  /
   *f = omega_f(x, params);
   omega_df(x, params, df);
 }
+#endif
 
 
 double fct_omega(const double h[3], const double Jk[3], const double Jkp[3], const double chi,
@@ -1714,6 +1686,7 @@ double FullDiff_ff (double y, void *params)
 // Multidimensional Root-Finding Usefull Functions
 //************************************************
 
+#if defined(HAVE_GSL)
 struct multiroot_params
 {
   struct FunctionActive  * D;
@@ -1994,6 +1967,7 @@ void print_state_1d (int iterb, const char *s_name, int status,
             alpha, err);
   }
 }
+#endif
 
 
 //************************************************
@@ -2397,10 +2371,27 @@ void Vector_Update_Jk_K(const double h[3], double Jk[3], const double Jkp[3], co
     case 5:
     case 6:
     {
-
       //-------------------------------------------------------------------
       // Updating Jk with gnu gsl
       //-------------------------------------------------------------------
+
+#if !defined(HAVE_GSL)
+      Message::Error("FLAG_MINMETHOD = %d requires the GSL in function 'Vector_Update_Jk_K'.\n"
+                        "FLAG_MINMETHOD = 1 --> steepest descent (homemade)\n"
+                        "FLAG_MINMETHOD = 2 --> conjugate fr (gsl)\n"
+                        "FLAG_MINMETHOD = 3 --> conjugate pr (gsl)\n"
+                        "FLAG_MINMETHOD = 4 --> bfgs2 (gsl)\n"
+                        "FLAG_MINMETHOD = 5 --> bfgs (gsl)\n"
+                        "FLAG_MINMETHOD = 6 --> steepest descent (gsl)\n"
+                        "FLAG_MINMETHOD = 11   --> steepest descent (homemade)\n"
+                        "FLAG_MINMETHOD = 22   --> conjugate Fletcher-Reeves (homemade)\n"
+                        "FLAG_MINMETHOD = 33   --> conjugate Polak-Ribiere (homemade)\n"
+                        "FLAG_MINMETHOD = 333  --> conjugate Polak-Ribiere+ (homemade)\n"
+                        "FLAG_MINMETHOD = 1999 --> conjugate Dai Yuan 1999 (p.85) (homemade)\n"
+                        "FLAG_MINMETHOD = 2005 --> conjugate Hager Zhang 2005 (p.161) (homemade)\n"
+                        "FLAG_MINMETHOD = 77   --> newton (homemade)\n", ::FLAG_MINMETHOD);
+#else
+
       const int MAX_ITER = ::MAX_ITER_OM;
       int iter = 0, status;
       double step_size = 0.01;   // 0.01 at basic
@@ -2480,6 +2471,7 @@ void Vector_Update_Jk_K(const double h[3], double Jk[3], const double Jkp[3], co
 
       gsl_multimin_fdfminimizer_free (solver);
       gsl_vector_free (x);
+#endif
     }
     break;
     default:
@@ -2504,6 +2496,12 @@ void Vector_Update_Jk_K(const double h[3], double Jk[3], const double Jkp[3], co
 void Vector_Update_hr_K(const double h[3], double hr[3], const double hrp[3], const double chi,
                         const double Ja, const double ha, const double Jb, const double hb)
 {
+#if !defined(HAVE_GSL)
+  Message::Error("FLAG_VARORDIFF = %d requires the GSL for the moment in Vector_Update_hr_K\n"
+                      "FLAG_VARORDIFF = 1 --> Variational Approach\n"
+                      "FLAG_VARORDIFF = 2 --> Simple Differential Approach\n"
+                      "FLAG_VARORDIFF = 3 --> Full Differential Approach (gsl)", ::FLAG_VARORDIFF);
+#else
   // Full Differential Case
   double TOL = ::TOLERANCE_OM;
   double tmp[3];
@@ -2611,6 +2609,7 @@ void Vector_Update_hr_K(const double h[3], double hr[3], const double hrp[3], co
     for (int n=0; n<3; n++)
       hr[n]=hrp[n];
   }
+#endif
 }
 
 void Vector_Update_Simple_hr_K(const double h[3], double hr[3], const double hrp[3], const double chi)
@@ -2745,7 +2744,7 @@ void Vector_b_Vinch_K(const double h[3],
         Message::Error("Invalid parameter (VarorDiff = 1,2 or 3) for function 'Vector_b_Vinch_K'.\n"
                       "FLAG_VARORDIFF = 1 --> Variational Approach\n"
                       "FLAG_VARORDIFF = 2 --> Simple Differential Approach\n"
-                      "FLAG_VARORDIFF = 3 --> Full Differential Approach");
+                      "FLAG_VARORDIFF = 3 --> Full Differential Approach (gsl)");
       break;
     }
    // printf("xk_all at k=%d : [%g,%g,%g,%g,%g,%g,%g,%g,%g ]\n",k,xk_all[0], xk_all[1],xk_all[2],xk_all[3], xk_all[4],xk_all[5],xk_all[6], xk_all[7],xk_all[8]);
@@ -2779,6 +2778,16 @@ void Vector_h_Vinch_K(const double b[3], double bc[3],
   case 6:
   case 7:
     {
+#if !defined(HAVE_GSL)
+      Message::Error("FLAG_INVMETHOD = %d requires the GSL in function 'Vector_h_Vinch_K'.\n"
+                     "FLAG_INVMETHOD = 1 --> NR_ana (homemade)\n"
+                     "FLAG_INVMETHOD = 2 --> NR_num (homemade)\n"
+                     "FLAG_INVMETHOD = 3 --> bfgs (homemade)\n"
+                     "FLAG_INVMETHOD = 4 --> hybridsj (gsl)\n"
+                     "FLAG_INVMETHOD = 5 --> hybridj (gsl)\n"
+                     "FLAG_INVMETHOD = 6 --> newton (gsl)\n"
+                     "FLAG_INVMETHOD = 7 --> gnewton (gsl)",::FLAG_INVMETHOD);
+#else
       const gsl_multiroot_fdfsolver_type *T = 0;
       gsl_multiroot_fdfsolver *s = 0;
       int status;
@@ -2855,6 +2864,7 @@ void Vector_h_Vinch_K(const double b[3], double bc[3],
 
       gsl_multiroot_fdfsolver_free (s);
       gsl_vector_free (v);
+#endif
     }
     break;
     //*****************************************************************
@@ -2984,6 +2994,19 @@ void Vector_h_Vinch_K(const double b[3], double bc[3],
         //*****************************************************************
         if((::FLAG_ROOTFINDING1D)!=0)
         {
+#if !defined(HAVE_GSL)
+          Message::Error("FLAG_ROOTFINDING1D=%d requires the GSL in function 'Vector_h_Vinch_K'.\n"
+                                     "FLAG_ROOTFINDING1D  = 0 --> Not done\n"
+                                     "FLAG_ROOTFINDING1D  = 1 --> (1D minimization) golden section (gsl)\n"
+                                     "FLAG_ROOTFINDING1D  = 2 --> (1D minimization) brent (gsl)\n"
+                                     "FLAG_ROOTFINDING1D  = 3 --> (1D minimization) quad golden (gsl)\n"
+                                     "FLAG_ROOTFINDING1D  = 4 --> (1D root bracketing) bisection (gsl)\n"
+                                     "FLAG_ROOTFINDING1D  = 5 --> (1D root bracketing) brent (gsl)\n"
+                                     "FLAG_ROOTFINDING1D  = 6 --> (1D root bracketing) falsepos (gsl)\n"
+                                     "FLAG_ROOTFINDING1D  = 7 --> (1D root finding with derivatives) newton (gsl)\n"
+                                     "FLAG_ROOTFINDING1D  = 8 --> (1D root finding with derivatives) secant (gsl)\n"
+                                     "FLAG_ROOTFINDING1D  = 9 --> (1D root finding with derivatives) steffenson (gsl)",::FLAG_ROOTFINDING1D);
+#else
           int status = 0;
           int iterb = 0, max_iterb = ::MAX_ITER_NR;
           struct rootfinding1d_params params;
@@ -3194,7 +3217,12 @@ void Vector_h_Vinch_K(const double b[3], double bc[3],
               char c;c=getchar();
             }
           }
-        }
+#endif
+        } // End 1D Root Finding if((::FLAG_ROOTFINDING1D)!=0)
+
+
+
+
         //*****************************************************************
         //*****************************************************************
 
@@ -3525,7 +3553,7 @@ void Tensor_dJkdh_Diff_K( const double h[3], const double hrk[3], const double h
       default:
         Message::Error("Invalid parameter (VarorDiff = 2 or 3) for function 'Tensor_dJkdh_Diff_K'.\n"
                       "FLAG_VARORDIFF = 2 --> Simple Differential Approach\n"
-                      "FLAG_VARORDIFF = 3 --> Full Differential Approach");
+                      "FLAG_VARORDIFF = 3 --> Full Differential Approach (gsl)");
       break;
     }
     
@@ -3706,7 +3734,7 @@ void Tensor_dhrkdh_Num(const double h[3], const double xkp[3], const double chi,
       default:
         Message::Error("Invalid parameter (VarorDiff = 2 or 3) for function 'Tensor_dhrkdh_Num'.\n"
                       "FLAG_VARORDIFF = 2 --> Simple Differential Approach\n"
-                      "FLAG_VARORDIFF = 3 --> Full Differential Approach");
+                      "FLAG_VARORDIFF = 3 --> Full Differential Approach (gsl)");
       break;
     }
 
@@ -3733,7 +3761,7 @@ void Tensor_dhrkdh_Num(const double h[3], const double xkp[3], const double chi,
         default:
           Message::Error("Invalid parameter (VarorDiff = 2 or 3) for function 'Tensor_dhrkdh_Num'.\n"
                         "FLAG_VARORDIFF = 2 --> Simple Differential Approach\n"
-                        "FLAG_VARORDIFF = 3 --> Full Differential Approach");
+                        "FLAG_VARORDIFF = 3 --> Full Differential Approach (gsl)");
         break;
       }
 
@@ -3751,7 +3779,7 @@ void Tensor_dhrkdh_Num(const double h[3], const double xkp[3], const double chi,
         default:
           Message::Error("Invalid parameter (VarorDiff = 2 or 3) for function 'Tensor_dhrkdh_Num'.\n"
                         "FLAG_VARORDIFF = 2 --> Simple Differential Approach\n"
-                        "FLAG_VARORDIFF = 3 --> Full Differential Approach");
+                        "FLAG_VARORDIFF = 3 --> Full Differential Approach (gsl)");
         break;
       }
 
@@ -3786,7 +3814,7 @@ void Tensor_dhrkdh_Num(const double h[3], const double xkp[3], const double chi,
         default:
           Message::Error("Invalid parameter (VarorDiff = 2 or 3) for function 'Tensor_dhrkdh_Num'.\n"
                         "FLAG_VARORDIFF = 2 --> Simple Differential Approach\n"
-                        "FLAG_VARORDIFF = 3 --> Full Differential Approach");
+                        "FLAG_VARORDIFF = 3 --> Full Differential Approach (gsl)");
         break;
       }
 
@@ -3806,7 +3834,7 @@ void Tensor_dhrkdh_Num(const double h[3], const double xkp[3], const double chi,
             default:
               Message::Error("Invalid parameter (VarorDiff = 2 or 3) for function 'Tensor_dhrkdh_Num'.\n"
                             "FLAG_VARORDIFF = 2 --> Simple Differential Approach\n"
-                            "FLAG_VARORDIFF = 3 --> Full Differential Approach");
+                            "FLAG_VARORDIFF = 3 --> Full Differential Approach (gsl)");
             break;
           }
 
@@ -4122,7 +4150,7 @@ void Tensor_dJkdh_Diff_K_old( const double h[3], const double hrk[3], const doub
               default:
                 Message::Error("Invalid parameter (VarorDiff = 2 or 3) for function 'Tensor_dJkdh_Diff_K'.\n"
                               "FLAG_VARORDIFF = 2 --> Simple Differential Approach\n"
-                              "FLAG_VARORDIFF = 3 --> Full Differential Approach");
+                              "FLAG_VARORDIFF = 3 --> Full Differential Approach (gsl)");
               break;
             }
           }
@@ -4327,7 +4355,7 @@ void Tensor_dbdh_Vinch_K(const double h[3],
             Message::Error("Invalid parameter (VarorDiff = 1,2 or 3) for function 'Tensor_dbdh_Vinch_K'.\n"
                           "FLAG_VARORDIFF = 1 --> Variational Approach\n"
                           "FLAG_VARORDIFF = 2 --> Simple Differential Approach\n"
-                          "FLAG_VARORDIFF = 3 --> Full Differential Approach");
+                          "FLAG_VARORDIFF = 3 --> Full Differential Approach (gsl)");
           break;
         }
         for (int n=0; n<ncomp; n++)
@@ -4375,7 +4403,7 @@ void Tensor_dbdh_Vinch_K(const double h[3],
               default:
                 Message::Error("Invalid parameter (VarorDiff = 2 or 3) for function 'Tensor_dJkdh_Diff_K'.\n"
                               "FLAG_VARORDIFF = 2 --> Simple Differential Approach\n"
-                              "FLAG_VARORDIFF = 3 --> Full Differential Approach");
+                              "FLAG_VARORDIFF = 3 --> Full Differential Approach (gsl)");
               break;
             }
             //dhrtotdh=dhrtotdh+ cc.w*dhrkdh 
@@ -4387,7 +4415,7 @@ void Tensor_dbdh_Vinch_K(const double h[3],
             Message::Error("Invalid parameter (VarorDiff = 1,2 or 3) for function 'Tensor_dbdh_Vinch_K'.\n"
                           "FLAG_VARORDIFF = 1 --> Variational Approach\n"
                           "FLAG_VARORDIFF = 2 --> Simple Differential Approach\n"
-                          "FLAG_VARORDIFF = 3 --> Full Differential Approach");
+                          "FLAG_VARORDIFF = 3 --> Full Differential Approach (gsl)");
           break;
         }
       }
@@ -4691,14 +4719,14 @@ void F_Update_Cell_K(F_ARG) {
       case 2: // Simplified Differential Case
         Vector_Update_Simple_hr_K(h, xk, xkp, chi);
       break;
-      case 3:
+      case 3: // Full Differential Case
         Vector_Update_hr_K(h, xk, xkp, chi, Jak, ha, Jbk, hb);
       break;
       default:
         Message::Error("Invalid parameter (VarorDiff = 1,2 or 3) for function 'Update_Cell_K'.\n"
                       "FLAG_VARORDIFF = 1 --> Variational Approach\n"
                       "FLAG_VARORDIFF = 2 --> Simple Differential Approach\n"
-                      "FLAG_VARORDIFF = 3 --> Full Differential Approach");
+                      "FLAG_VARORDIFF = 3 --> Full Differential Approach (gsl)");
       break;
     }
   V->Type = VECTOR ;
@@ -4828,7 +4856,7 @@ void F_hr_Vinch_K(F_ARG)
       Message::Error("Invalid parameter (VarorDiff = 1,2 or 3) for function 'F_hr_Vinch_K'.\n"
                       "FLAG_VARORDIFF = 1 --> Variational Approach\n"
                       "FLAG_VARORDIFF = 2 --> Simple Differential Approach\n"
-                      "FLAG_VARORDIFF = 3 --> Full Differential Approach");
+                      "FLAG_VARORDIFF = 3 --> Full Differential Approach (gsl)");
     break;
   }
 
@@ -4885,7 +4913,7 @@ void F_Jr_Vinch_K(F_ARG)
       Message::Error("Invalid parameter (VarorDiff = 1,2 or 3) for function 'F_Jr_Vinch_K'.\n"
                       "FLAG_VARORDIFF = 1 --> Variational Approach\n"
                       "FLAG_VARORDIFF = 2 --> Simple Differential Approach\n"
-                      "FLAG_VARORDIFF = 3 --> Full Differential Approach");
+                      "FLAG_VARORDIFF = 3 --> Full Differential Approach (gsl)");
     break;
   }
 
@@ -5052,5 +5080,3 @@ void F_dhdb_Vinch_K(F_ARG)
   delete [] dhdb;
   delete [] dbdh;
 }
-
-#endif
