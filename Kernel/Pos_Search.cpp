@@ -446,7 +446,7 @@ void xyz2uvwInAnElement (struct Element *Element,
 
   *u = *v = *w = 0.0;
 
-  if(Element->Type & (TETRAHEDRON|HEXAHEDRON|PRISM|PYRAMID))
+  if(Element->Type & (TETRAHEDRON|TETRAHEDRON_2|HEXAHEDRON|PRISM|PYRAMID))
     ChainDim = _3D;
   else if(Element->Type & (TRIANGLE|QUADRANGLE|TRIANGLE_2|QUADRANGLE_2))
     ChainDim = _2D;

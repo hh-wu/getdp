@@ -158,6 +158,23 @@ void BF_Node(struct Element * Element, int NumNode,
     }
     break ;
 
+  case TETRAHEDRON_2 :
+    r = 1.-u-v-w ;
+    switch(NumNode) {
+    case 1  : *s = r*(2.*r-1.) ; break ;
+    case 2  : *s = u*(2.*u-1.) ; break ;
+    case 3  : *s = v*(2.*v-1.) ; break ;
+    case 4  : *s = w*(2.*w-1.) ; break ;
+    case 5  : *s = 4.*r*u ; break ;
+    case 6  : *s = 4.*r*v ; break ;
+    case 7  : *s = 4.*r*w ; break ;
+    case 8  : *s = 4.*u*v ; break ;
+    case 9  : *s = 4.*u*w ; break ;
+    case 10 : *s = 4.*v*w ; break ;
+    default : WrongNumNode ;
+    }
+    break ;
+
   default :
     Message::Error("Unknown type of Element in BF_Node");
     break;
@@ -368,6 +385,23 @@ void BF_GradNode(struct Element * Element, int NumNode,
     case 6  : s[0] =    0.5 * (1.-v*v)          ; s[1] =        -(1.+u)  *  v       ; s[2] = 0. ; break ;
     case 7  : s[0] =         -(1.+v) *  u       ; s[1] =   0.5 * (1.-u*u)           ; s[2] = 0. ; break ;
     case 8  : s[0] =   -0.5 * (1.-v*v)          ; s[1] =        -(1.-u)  *  v       ; s[2] = 0. ; break ;
+    default : WrongNumNode ;
+    }
+    break ;
+
+  case TETRAHEDRON_2 :
+    r = 1.-u-v-w ;
+    switch(NumNode) {
+    case 1  : s[0] = -(4.*r-1) ; s[1] = -(4.*r-1) ; s[2] = -(4.*r-1) ; break ;
+    case 2  : s[0] = (4.*u-1)  ; s[1] = 0         ; s[2] = 0         ; break ;
+    case 3  : s[0] = 0         ; s[1] = (4.*v-1)  ; s[2] = 0         ; break ;
+    case 4  : s[0] = 0         ; s[1] = 0         ; s[2] = (4.*w-1)  ; break ;
+    case 5  : s[0] = 4.*(r-u)  ; s[1] = -4.*u     ; s[2] = -4.*u     ; break ;
+    case 6  : s[0] = -4.*v     ; s[1] = 4.*(r-v)  ; s[2] = -4.*v     ; break ;
+    case 7  : s[0] = -4.*w     ; s[1] = -4.*w     ; s[2] = 4.*(r-w)  ; break ;
+    case 8  : s[0] = 4.*v      ; s[1] = 4.*u      ; s[2] = 0         ; break ;
+    case 9  : s[0] = 4.*w      ; s[1] = 0         ; s[2] = 4.*u      ; break ;
+    case 10 : s[0] = 0         ; s[1] = 4.*w      ; s[2] = 4.*v      ; break ;
     default : WrongNumNode ;
     }
     break ;

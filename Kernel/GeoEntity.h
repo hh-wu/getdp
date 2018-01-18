@@ -331,6 +331,57 @@ static int  Dfn_Tetrahedron [] [NBR_MAX_SUBENTITIES_IN_ELEMENT]
       { 1, 4, 3, 0}, { 2, 3, 4, 0} } ;
 
 /* ------------------------------------------------------------------------
+   TETRAHEDRON_2  edge 1: nodes 1 -> 2
+   v                   2:       1 -> 3
+   |                   3:       1 -> 4
+   |                   4:       2 -> 3
+   |                   5:       2 -> 4
+   3                   6:       3 -> 4
+   |\
+   | \            facet 1: edges  1 -3  5  nodes 1 2 4
+   |__\2_____u          2:       -1  2 -4        1 3 2
+   1\ /                 3:       -2  3 -6        1 4 3
+     \4                 4:        4 -5  6        2 3 4
+      \
+       w
+   ------------------------------------------------------------------------ */
+
+static int  NbrNodes_Tetrahedron_2  = 10 ;
+static int  NbrEdges_Tetrahedron_2  = 6 ;
+static int  NbrFacets_Tetrahedron_2 = 4 ;
+
+static double  Nodes_Tetrahedron_2 [][3]
+  = { {0., 0., 0.}, {1., 0., 0.}, {0., 1., 0.}, {0., 0., 1.},
+      {0.5, 0., 0.}, {0., 0.5, 0.}, {0., 0., 0.5},
+      {0.5, 0.5, 0.}, {0.5, 0., 0.5}, {0., 0.5, 0.5} } ;
+
+static int  Den_Tetrahedron_2 [] [NBR_MAX_SUBENTITIES_IN_ELEMENT]
+  = { { 1, -2, 0}, { 1, -3, 0}, { 1, -4, 0},
+      { 2, -3, 0}, { 2, -4, 0}, { 3, -4, 0} } ;
+
+static int  Den_Tetrahedron_2_Xp []
+  = { -1, 1, 0, 0,
+      -1, 0, 1, 0,
+      -1, 0, 0, 1,
+       0,-1, 1, 0,
+       0,-1, 0, 1,
+       0, 0,-1, 1 } ;
+
+static int  Dfe_Tetrahedron_2 [] [NBR_MAX_SUBENTITIES_IN_ELEMENT]
+  = { {  1, -3,  5, 0}, { -1,  2, -4, 0},
+      { -2,  3, -6, 0}, {  4, -5,  6, 0} } ;
+
+static int  Dfe_Tetrahedron_2_Xp []
+  = { 1, 0,-1, 0, 1, 0,
+     -1, 1, 0,-1, 0, 0,
+      0,-1, 1, 0, 0,-1,
+      0, 0, 0, 1,-1, 1 } ;
+
+static int  Dfn_Tetrahedron_2 [] [NBR_MAX_SUBENTITIES_IN_ELEMENT]
+  = { { 1, 2, 4, 0}, { 1, 3, 2, 0},
+      { 1, 4, 3, 0}, { 2, 3, 4, 0} } ;
+
+/* ------------------------------------------------------------------------
    HEXAHEDRON         edge 1: nodes 1 -> 2
         v                  2:       1 -> 4
         |                  3:       1 -> 5

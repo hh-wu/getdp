@@ -342,7 +342,7 @@ void F_GetVolume(F_ARG)
 	Element.Num    = Element.GeoElement->Num ;
 	Element.Type   = Element.GeoElement->Type ;
 
-	if (Element.Type == TETRAHEDRON ||
+	if (Element.Type == TETRAHEDRON || Element.Type == TETRAHEDRON_2 ||
             Element.Type == HEXAHEDRON ||
             Element.Type == PRISM) {
 
@@ -370,6 +370,7 @@ void F_GetVolume(F_ARG)
 
           switch(Element.Type){
           case TETRAHEDRON:
+          case TETRAHEDRON_2:
             Val_Volume += 1./6. * fabs(DetJac);
             break;
           case HEXAHEDRON:
