@@ -246,6 +246,7 @@ static void GmshParsed_PrintElement(double Time, int TimeStep, int NbTimeStep, i
       case TRIANGLE_2  : fprintf(PostStream, "ST("); break;
       case QUADRANGLE_2: fprintf(PostStream, "SQ("); break;
       case QUADRANGLE_2_8N: fprintf(PostStream, "SQ("); break;
+      case TETRAHEDRON_2 : fprintf(PostStream, "SS("); break;
       }
       for(i = 0 ; i < NbrNodes ; i++){
 	if(i) fprintf(PostStream, ",");
@@ -295,6 +296,7 @@ static void GmshParsed_PrintElement(double Time, int TimeStep, int NbTimeStep, i
       case TRIANGLE_2  : fprintf(PostStream, "VT("); break;
       case QUADRANGLE_2: fprintf(PostStream, "VQ("); break;
       case QUADRANGLE_2_8N: fprintf(PostStream, "VQ("); break;
+      case TETRAHEDRON_2 : fprintf(PostStream, "VS("); break;
       }
       for(i = 0 ; i < NbrNodes ; i++){
 	if(i) fprintf(PostStream, ",");
@@ -352,6 +354,7 @@ static void GmshParsed_PrintElement(double Time, int TimeStep, int NbTimeStep, i
       case TRIANGLE_2  : fprintf(PostStream, "TT("); break;
       case QUADRANGLE_2: fprintf(PostStream, "TQ("); break;
       case QUADRANGLE_2_8N: fprintf(PostStream, "TQ("); break;
+      case TETRAHEDRON_2 : fprintf(PostStream, "TS("); break;
       }
       for(i = 0 ; i < NbrNodes ; i++){
 	if(i) fprintf(PostStream, ",");
@@ -449,6 +452,7 @@ static void Gmsh_PrintElement(double Time, int TimeStep, int NbTimeStep, int NbH
       case TRIANGLE_2  : Current_L = &ST ; NbST++ ; break ;
       case QUADRANGLE_2: Current_L = &SQ ; NbSQ++ ; break ;
       case QUADRANGLE_2_8N: Current_L = &SQ ; NbSQ++ ; break ;
+      case TETRAHEDRON_2 : Current_L = &SS ; NbSS++ ; break ;
       }
       if(Flag_GMSH_VERSION != 2){
         for(i = 0 ; i < NbrNodes ; i++) Current_L->push_back(x[i]);
@@ -492,6 +496,7 @@ static void Gmsh_PrintElement(double Time, int TimeStep, int NbTimeStep, int NbH
       case TRIANGLE_2  : Current_L = &VT ; NbVT++ ; break ;
       case QUADRANGLE_2: Current_L = &VQ ; NbVQ++ ; break ;
       case QUADRANGLE_2_8N: Current_L = &VQ ; NbVQ++ ; break ;
+      case TETRAHEDRON_2 : Current_L = &VS ; NbVS++ ; break ;
       }
       if(Flag_GMSH_VERSION != 2){
         for(i = 0 ; i < NbrNodes ; i++) Current_L->push_back(x[i]);
@@ -539,6 +544,7 @@ static void Gmsh_PrintElement(double Time, int TimeStep, int NbTimeStep, int NbH
       case TRIANGLE_2  : Current_L = &TT ; NbTT++ ; break ;
       case QUADRANGLE_2: Current_L = &TQ ; NbTQ++ ; break ;
       case QUADRANGLE_2_8N: Current_L = &TQ ; NbTQ++ ; break ;
+      case TETRAHEDRON_2 : Current_L = &TS1 ; NbTS++ ; break ;
       }
       if(Flag_GMSH_VERSION != 2){
         for(i = 0 ; i < NbrNodes ; i++) Current_L->push_back(x[i]);

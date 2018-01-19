@@ -120,6 +120,7 @@ void Cal_Iso(struct PostElement *PE, List_T *list,
     }
     break ;
   case TETRAHEDRON :
+  case TETRAHEDRON_2 :
     Cal_IsoTetrahedron(PE->x, PE->y, PE->z, PE->Value, 
 		       val, vmin, vmax, x, y, z, &nb) ;
 
