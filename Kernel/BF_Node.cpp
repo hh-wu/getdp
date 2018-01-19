@@ -166,11 +166,11 @@ void BF_Node(struct Element * Element, int NumNode,
     case 3  : *s = v*(2.*v-1.) ; break ;
     case 4  : *s = w*(2.*w-1.) ; break ;
     case 5  : *s = 4.*r*u ; break ;
-    case 6  : *s = 4.*r*v ; break ;
-    case 7  : *s = 4.*r*w ; break ;
-    case 8  : *s = 4.*u*v ; break ;
-    case 9  : *s = 4.*u*w ; break ;
-    case 10 : *s = 4.*v*w ; break ;
+    case 6  : *s = 4.*u*v ; break ;
+    case 7  : *s = 4.*r*v ; break ;
+    case 8  : *s = 4.*r*w ; break ;
+    case 9  : *s = 4.*v*w ; break ;
+    case 10 : *s = 4.*u*w ; break ;
     default : WrongNumNode ;
     }
     break ;
@@ -397,11 +397,11 @@ void BF_GradNode(struct Element * Element, int NumNode,
     case 3  : s[0] = 0         ; s[1] = (4.*v-1)  ; s[2] = 0         ; break ;
     case 4  : s[0] = 0         ; s[1] = 0         ; s[2] = (4.*w-1)  ; break ;
     case 5  : s[0] = 4.*(r-u)  ; s[1] = -4.*u     ; s[2] = -4.*u     ; break ;
-    case 6  : s[0] = -4.*v     ; s[1] = 4.*(r-v)  ; s[2] = -4.*v     ; break ;
-    case 7  : s[0] = -4.*w     ; s[1] = -4.*w     ; s[2] = 4.*(r-w)  ; break ;
-    case 8  : s[0] = 4.*v      ; s[1] = 4.*u      ; s[2] = 0         ; break ;
-    case 9  : s[0] = 4.*w      ; s[1] = 0         ; s[2] = 4.*u      ; break ;
-    case 10 : s[0] = 0         ; s[1] = 4.*w      ; s[2] = 4.*v      ; break ;
+    case 6  : s[0] = 4.*v      ; s[1] = 4.*u      ; s[2] = 0         ; break ;
+    case 7  : s[0] = -4.*v     ; s[1] = 4.*(r-v)  ; s[2] = -4.*v     ; break ;
+    case 8  : s[0] = -4.*w     ; s[1] = -4.*w     ; s[2] = 4.*(r-w)  ; break ;
+    case 9  : s[0] = 0         ; s[1] = 4.*w      ; s[2] = 4.*v      ; break ;
+    case 10 : s[0] = 4.*w      ; s[1] = 0         ; s[2] = 4.*u      ; break ;
     default : WrongNumNode ;
     }
     break ;
