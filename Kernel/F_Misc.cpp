@@ -225,8 +225,11 @@ void F_ValueFromTable (F_ARG)
     return;
   }
 
-  Message::Debug("Unknown entity index %d in ValueFromTable",
-                 Current.NumEntity);
+  //if(GetDPNumbersMap.size()){
+  //  Message::Warning("No element or node table found with name %s, or "
+  //                   "no entity index %d in the table", Fct->String,
+  //                   Current.NumEntity);
+  //}
 
   for(int i = 0; i < Fct->NbrArguments; i++){
     if(i != 0){
@@ -244,6 +247,7 @@ void F_ValueFromTable (F_ARG)
   Message::Warning("Missing table data or default value in ValueFromTable");
   V->Val[0] = 0. ;
   V->Type = SCALAR ;
+
 }
 
 void F_VirtualWork (F_ARG)

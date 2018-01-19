@@ -1156,12 +1156,12 @@ struct Operation {
     } Copy;
     struct {
       char *algorithm;
-      List_T *currentPointLowerBounds, *currentPointUpperBounds;
-    } OptimizerInitialize;
-    struct {
       char *currentPoint; // input and ouput
+      List_T *currentPointLowerBounds, *currentPointUpperBounds;
       char *objective, *objectiveSensitivity; // input
       List_T *constraints, *constraintsSensitivity; // input
+    } OptimizerInitialize;
+    struct {
       char *residual;
     } OptimizerUpdate;
   } Case;
@@ -1316,6 +1316,7 @@ struct IterativeLoopSystem {
 #define OPERATION_DEBUG                    106
 #define OPERATION_OPTIMIZER_INITIALIZE     107
 #define OPERATION_OPTIMIZER_UPDATE         108
+#define OPERATION_OPTIMIZER_FINALIZE       109
 
 /* ChangeOfState.Type */
 #define CHANGEOFSTATE_NOCHANGE              0
