@@ -111,6 +111,7 @@ class optimizerContext
   std::string objective, objectiveSensitivity;
   std::vector<std::string> constraints, constraintsSensitivity;
   // internal petsc data
+  PetscReal objscale;
   PetscInt nvar, mcon;
   Vec xval_pt, LowerBounds, UpperBounds, GradOfObjective, Constraints;
   Mat GradOfConstraints;
@@ -125,7 +126,8 @@ class optimizerContext
                    List_T *nameConstraints, List_T *nameConstraintsSensitivity,
                    List_T *currentPointLowerBounds, List_T *currentPointUpperBounds)
     : algorithm(nameAlgorithm), currentPoint(nameCurrentPoint),
-      objective(nameObjective), objectiveSensitivity(nameObjectiveSensitivity)
+      objective(nameObjective), objectiveSensitivity(nameObjectiveSensitivity),
+      objscale(1)
   {
     // names of GetDP exchange variables
     for(int i = 0; i < List_Nbr(nameConstraints); i++){
@@ -141,7 +143,35 @@ class optimizerContext
     nvar = itv->second.size();
 
     // FIXME: get actual number of constraints
-    mcon = constraints.size();
+    //mcon = constraints.size();
+    GetNumberOfConstraints(constraints, mcon);
+      
+//    // ***********
+//    for(unsigned int i = 0; i < constraints.size(); i++){
+//
+//        std::map<std::string, std::map<int, std::vector<double> > >::iterator itv =
+//            GetDPNumbersMap.find(constraints[i]);
+//        
+//        
+//        if(itv != GetDPNumbersMap.end()){
+//            printf(" - constraint: table\n");
+//            printf("   nb comp: %i\n", itv->second.size());
+//        }
+//        else{
+//            std::map<std::string, std::vector<double> >::iterator its =
+//            GetDPNumbers.find(constraints[i]);
+//            if(its != GetDPNumbers.end()){
+//                printf("- constraint: scalar\n");
+//                printf("   nb comp: %i\n", its->second.size());
+//            }
+//            else{
+//                Message::Warning("Unknown %s", constraints[i].c_str());
+//            }
+//        }
+//    }
+//
+//      
+//    //************
       
     // Lower bounds of the current point
     CreateVector(LowerBounds, nvar);
@@ -173,11 +203,12 @@ class optimizerContext
 
     // Create the subproblem
     subProblem = new MMA_MAT(mcon, nvar, LowerBounds, UpperBounds);
+    //subProblem = new MMA_MAT(mcon, nvar, LowerBounds, UpperBounds,0.1, 1.0, 0.95, 0.8, 0.1);
     subProblem->verbosity = 0;
 
     // Create the solver of the subproblem
     subProblemSolver = new MMA_PRIMALDUAL_INTERIORPOINT(subProblem);
-    subProblemSolver->verbosity = 0;
+    subProblemSolver->verbosity = 3;
 
     printInfo();
   }
@@ -189,6 +220,32 @@ class optimizerContext
     //VecView(LowerBounds, PETSC_VIEWER_STDOUT_WORLD);
     //VecView(UpperBounds, PETSC_VIEWER_STDOUT_WORLD);
   }
+    
+  void GetNumberOfConstraints(const std::vector<std::string> &constraintsLabel, int &nbcon)
+  {
+    nbcon = 0;
+
+    for(unsigned int i = 0; i < constraintsLabel.size(); i++){
+        
+      std::map<std::string, std::map<int, std::vector<double> > >::iterator itv =
+        GetDPNumbersMap.find(constraintsLabel[i]);
+        
+      if(itv != GetDPNumbersMap.end()){
+         nbcon += itv->second.size();
+      }
+      else{
+        std::map<std::string, std::vector<double> >::iterator its =
+          GetDPNumbers.find(constraintsLabel[i]);
+        if(its != GetDPNumbers.end()){
+          nbcon += its->second.size();
+        }
+        else{
+          Message::Warning("Unknown %s", constraintsLabel[i].c_str());
+        }
+      }
+    }
+  }
+    
 };
 
 static optimizerContext *context = 0;
@@ -199,15 +256,21 @@ static void UpdateCurrentPointList(const std::string &name, const Vec &data)
   std::map<std::string, std::map<int, std::vector<double> > >::iterator itv =
     GetDPNumbersMap.find(name);
   if(itv != GetDPNumbersMap.end()){
-    printf(" - table Current Point \n");
+    printf(" - table Current Point Update \n");
     int ii = 0;
     for(std::map<int, std::vector<double> >::iterator it = itv->second.begin();
         it != itv->second.end(); it++){
       GetValueVector(datav, ii, data);
       for(unsigned int i = 0; i < it->second.size(); i++){
-        it->second[i] = datav;
+        if (i==0){
+          it->second[i] = datav;
+        }
+        else{
+            it->second[i] = 0.0;
+        }
         //printf("%g ", it->second[i]);
       }
+      //printf("\n");
       ii++;
     }
   }
@@ -215,16 +278,27 @@ static void UpdateCurrentPointList(const std::string &name, const Vec &data)
     std::map<std::string, std::vector<double> >::iterator its =
       GetDPNumbers.find(name);
     if(its != GetDPNumbers.end()){
-      printf(" - scalar Current Point \n");
+      //printf(" - scalar Current Point Update \n");
       for(unsigned int i = 0; i < its->second.size(); i++){
         GetValueVector(datav, i, data);
         its->second[i] = datav;
-        //printf("%g ", its->second[i]);
+        //printf("%g\n", its->second[i]);
       }
     }
     else{
       Message::Warning("Unknown %s", name.c_str());
     }
+  }
+}
+
+static void GetObjective(const std::string &type, const std::string &name,
+                         double &val)
+{
+  std::map<std::string, std::vector<double> >::iterator its =
+  GetDPNumbers.find(name);
+  if(its != GetDPNumbers.end()){
+    val = its->second[0];
+    printf("%s: %g\n", type.c_str(), val);
   }
 }
 
@@ -234,7 +308,7 @@ static void UpdateVecFromInput(const std::string &type, const std::string &name,
   std::map<std::string, std::map<int, std::vector<double> > >::iterator itv =
     GetDPNumbersMap.find(name);
   if(itv != GetDPNumbersMap.end()){
-    printf(" - table %s:\n", type.c_str());
+    //printf(" - table %s:\n", type.c_str());
     int ii = 0;
     for(std::map<int, std::vector<double> >::iterator it = itv->second.begin();
         it != itv->second.end(); it++){
@@ -251,7 +325,7 @@ static void UpdateVecFromInput(const std::string &type, const std::string &name,
     std::map<std::string, std::vector<double> >::iterator its =
       GetDPNumbers.find(name);
     if(its != GetDPNumbers.end()){
-      printf(" - scalar variable %s: \n", type.c_str());
+      //printf(" - scalar variable %s: \n", type.c_str());
       for(unsigned int i = 0; i < its->second.size(); i++){
         UpdateVector(its->second[i], idGlobal+i, vv);
       }
@@ -348,11 +422,25 @@ void Operation_OptimizerUpdate(struct Operation *Operation_P)
   AssembleMatrix(context->GradOfConstraints);
   //MatView(context->GradOfConstraints, PETSC_VIEWER_STDOUT_WORLD);
 
+  // Scale the objective function
+  if (context->subProblem->outerIteration == 0){
+      double Objective=1.0;
+      GetObjective("objective", context->objective, Objective);
+      context->objscale = 1.0/Objective;
+      printf("obj. scale: %g\n",context->objscale);
+  }
+  VecScale(context->GradOfObjective, context->objscale);
+  //VecView(context->GradOfObjective, PETSC_VIEWER_STDOUT_WORLD);
+
+  // Use outer move-limits (update )
+  context->subProblem->SetOuterMovelimit(0.0,1.0,0.25,context->xval_pt);
+
   // Call the optimizer to update the current point
   context->subProblemSolver->UpdateCurrentPoint(context->xval_pt,
                                                 context->GradOfObjective,
                                                 context->Constraints,
                                                 context->GradOfConstraints);
+  //printf("updated current point\n");
   //VecView(context->xval_pt, PETSC_VIEWER_STDOUT_WORLD);
 
   Value v;

@@ -219,7 +219,7 @@ void F_ValueFromTable (F_ARG)
 
   std::map<int, std::vector<double> > &table(GetDPNumbersMap[Fct->String]);
   std::vector<double> &val(table[Current.NumEntity]);
-  if(val.size() == 1){
+  if(val.size() >= 1){  // FIXME
     V->Val[0] = val[0];
     V->Type = SCALAR ;
     return;
