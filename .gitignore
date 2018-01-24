@@ -13,3 +13,6 @@ benchmarks_kst
 *.pre
 *.pos
 *.db*
+*.msh
+*~
+*#
