@@ -74,7 +74,8 @@ void Operation_CopyVector(struct Operation *Operation_P,
                           struct DofData   *DofData_P);
 
 void Operation_HPDDMSolve(struct Operation *Operation_P,
-                          struct DofData   *DofData_P);
+                          struct DofData   *DofData_P,
+                          struct Resolution  *Resolution_P);
 
 void Operation_Debug(struct Operation *Operation_P,
                      struct DofData   *DofData_P);

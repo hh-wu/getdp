@@ -26,7 +26,8 @@ typedef std::complex<double> K;
 //typedef double K;
 
 void Operation_HPDDMSolve(struct Operation *Operation_P,
-                            struct DofData *DofData_P)
+                          struct DofData *DofData_P,
+                          struct Resolution  *Resolution_P)
 {
   // in: idom (will always be == MPI_COMM_RANK currently, but it would be nice
   //     to generalize)
@@ -50,8 +51,13 @@ void Operation_HPDDMSolve(struct Operation *Operation_P,
     o.push_back(static_cast<int>(d));
   }
 
-  // TODO CG: contruct mapping and store somewhere
+  // TODO CG: contruct mapping:
   std::vector<std::vector<int> > mapping(o.size());
+  // 1) get the neighboring define systems from Resolution_P, given the define
+  //    system indices stored in Operation->HPDDMSolve->NeighborDefineSystems
+  // 2) Identify common Dofs (through eneity key) between DofData_P and the
+  //    DofData's of the neighbors (make this efficient later using groups)
+  // 3) store the list of unknown_num that are common
 
   // For PETSc ; more interfaces will follow :-)
   Mat PetscA = DofData_P->A.M;
@@ -86,14 +92,15 @@ void Operation_HPDDMSolve(struct Operation *Operation_P,
   S->callNumfact(); // if B~{idom} provided, add it here
   int mu = 1; // #rhs
   int it = HPDDM::IterativeMethod::solve(*S, b, sol, mu, S->getCommunicator());
-  
+
   // TODO: FETI et BDDM
 }
 
 #else
 
 void Operation_HPDDMSolve(struct Operation *Operation_P,
-                          struct DofData *DofData_P)
+                          struct DofData *DofData_P,
+                          struct Resolution  *Resolution_P)
 {
   Message::Error("This version of GetDP is not compiled with HPDDM support");
 }

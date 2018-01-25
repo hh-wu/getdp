@@ -1568,7 +1568,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Init_OperationOnSystem("HPDDMSolve",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
-      Operation_HPDDMSolve(Operation_P, DofData_P);
+      Operation_HPDDMSolve(Operation_P, DofData_P, Resolution_P);
       break;
 
       /*  -->  Perturbation                           */

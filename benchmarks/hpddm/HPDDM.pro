@@ -28,8 +28,8 @@ Resolution {
 	Generate[Vol~{idom}];
       EndFor
       SetCommWorld;
-      
-      HPDDMSolve[{myD~{myD(0)}()}];
+
+      HPDDMSolve[Vol~{idom}, Vol~{myD~{myD(0)}()}];
 
     }
   }

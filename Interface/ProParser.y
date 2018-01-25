@@ -5293,14 +5293,30 @@ OperationTerm :
       Operation_P->Case.IterativeLinearSolver.Operations_Mx = $23;
     }
 
-  | tHPDDMSolve '[' ListOfFExpr ']' tEND
-  { //List_Pop(Operation_L);
+  | tHPDDMSolve '[' String__Index ',' tSTRING '~' '{' RecursiveListOfFExpr '}' ']' tEND
+  {
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_HPDDMSOLVE;
-      Operation_P->Case.HPDDMSolve.D = $3;
+      int i;
+      if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror(0, "Unknown System: %s", $3);
+      Free($3);
+      Operation_P->DefineSystemIndex = i ;
+      Operation_P->Case.HPDDMSolve.D = $8;
+      List_T *l = List_Create(10, 10, sizeof(int));
+      for(int i = 0; i < List_Nbr($8); i++){
+        int j; List_Read($8, i, &j);
+        char tmp[128]; sprintf(tmp, "%s_%d", $5, j);
+        int k;
+        if((k = List_ISearchSeq(Resolution_S.DefineSystem, tmp,
+                                fcmp_DefineSystem_Name)) < 0)
+          vyyerror(0, "Unknown System: %s", tmp);
+        List_Add(l, &k);
+      }
+      Operation_P->Case.HPDDMSolve.NeighborDefineSystems = l;
     }
-
 
   | tPrint
     { Operation_P = (struct Operation*)

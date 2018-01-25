@@ -1077,7 +1077,7 @@ struct Operation {
       List_T *Operations_Ax, *Operations_Mx;
     } IterativeLinearSolver;
     struct {
-      List_T *D;
+      List_T *D, *NeighborDefineSystems;
     } HPDDMSolve;
     struct {
       int     ExpressionIndex;
