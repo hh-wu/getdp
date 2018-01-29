@@ -1686,7 +1686,7 @@ void F_AcousticFieldSoftCylinder(F_ARG)
   std::complex<double> I(0,1);
   std::complex<double> val = 0;
 #if defined(_OPENMP)
-#pragma omp parallel for reduction(+: vr,vi)
+//#pragma omp parallel for reduction(+: vr,vi)
 #endif
   for(int n = nStart ; n < nEnd ; n++){
     std::complex<double> HnkR( jn(n,kR), yn(n,kR) );

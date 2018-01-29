@@ -20,7 +20,7 @@
 !
 
 
-!  Modified by Steven Roman for inclusion in GetDP:
+!  Modified by Vanessa Mattesi for inclusion in GetDP:
 !
 !  Exact solution for a cylindrical wall (zero displacement on the
 !  boundary).
@@ -32,7 +32,7 @@ subroutine cylindrical_walloutabc(du,dv,dut,dvt,X,Y,t,omega,lambda,mu,rho,a,b)
   double precision :: r,theta
   double precision :: lambda,mu,rho
   double precision :: cp,cs,omega,kp,ks,a,b
-  double precision :: phi_0,epsilon_0,epsilon_1
+  double precision :: phi_0,epsilon_n,C1
 
   double precision :: a0_n,a1_n
   double complex M(4,4)
@@ -40,19 +40,26 @@ subroutine cylindrical_walloutabc(du,dv,dut,dvt,X,Y,t,omega,lambda,mu,rho,a,b)
   double complex AB(4)
   double complex F(4)
   double complex   :: i,p,q,detinv
-
+  double complex   :: C2
+  double complex   :: C3
   integer :: n
   double precision , parameter :: pi = acos(-1.d0)
 
   ! for GetDP
   integer :: ns
  
-  double complex, external :: besselh
+  double complex, external :: besselh  !besselh(order n,kind 1 or 2,k*r) Hankel function of order n of the first or second kind of argument (kr)
+  double complex, external :: dr_h     !dr_h(kind 1 or 2,k,r,n) derivative of the Hankel function of order n of the first or second kind of argument (kr)
+  double complex, external :: dr2_h    !dr2_h(kind 1 or 2,k,r,n) second derivative of the Hankel function of order n of the first or second kind of argument (kr)
+  double complex, external :: dr_j     !dr_j(k,r,n) derivative of the bessel function of first kind of order n of argument (kr)
+
   t=0
   i = (0.d0,1.d0)
   ! Compute radius r and angle theta
   r = sqrt(X**2+Y**2)
   theta = atan2(Y,X)
+  C1 = lambda+2*mu
+
 
   ! P and S wave speeds
   cp = sqrt((lambda+2.d0*mu)/rho)
@@ -63,78 +70,59 @@ subroutine cylindrical_walloutabc(du,dv,dut,dvt,X,Y,t,omega,lambda,mu,rho,a,b)
 
   ! Amplitude of incomming wave
   phi_0 = 1
-  ! %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Series expansion of solution%%%%%%%%%%%
-  ! disp('COMPUTING COEFICIENTS')
-  n = 0
-  epsilon_0 = 1
-
-  F(1) = phi_0*epsilon_0*kp*besjn(1,kp*a)
-  F(2) = 0
-  !F(2) = (lambda+2*mu) * (phi_0 * epsilon_0 * ((kp**2)/2.d0) *(besjn(0,kp*b) - besjn(2,kp*b) ))&
-  !     + ((lambda/dble(b))-i*kp*(lambda+2*mu))*phi_0*epsilon_0*kp*besjn(1,kp*b)
-
-  M(1,1) = -kp*besselh(1,1,kp*a)
-  M(1,2) = -kp*besselh(1,2,kp*a)
-  M(2,1) = -(lambda+2*mu) * ((kp**2)/2.0d0) * (besselh(0,1,kp*b) - besselh(2,1,kp*b) )&
-         - ((lambda/dble(b)) - i*kp*(lambda+2*mu))*kp*besselh(1,1,kp*b)
-  M(2,2) = -(lambda+2*mu) * ((kp**2)/2.0d0) * (besselh(0,2,kp*b) - besselh(2,2,kp*b) )&
-         - ((lambda/dble(b)) - i*kp*(lambda+2*mu))*kp*besselh(1,2,kp*b) 
-
-  AB(1) = 1.0d0/(M(1,1)*M(2,2) - M(1,2)*M(2,1))*( M(2,2)*F(1)-M(1,2)*F(2))
-  AB(2) = 1.0d0/(M(1,1)*M(2,2) - M(1,2)*M(2,1))*(-M(2,1)*F(1)+M(1,1)*F(2))
-
-  p = -kp*AB(1)*besselh(1,1,kp*r) - kp*AB(2)*besselh(1,2,kp*r)
-
-  q=0
-  epsilon_1 = 2.0d0
-  ! for GetDP
-  ns = max(ks*a+30, 2*ks);
-
-  do n = 1,1
-
-    a0_n = 0
-    a1_n = 3
-
-    M(1,1) = (kp/2.d0) * ( besselh(n-1,1,kp*a)-besselh(n+1,1,kp*a) )
-    M(1,2) = (kp/2.d0) * ( besselh(n-1,2,kp*a)-besselh(n+1,2,kp*a) )
+  ns = 2*floor(omega);
+  !-------------------------------
+  ! Series expansion of solution -
+  !-------------------------------
+  ! initialisation of the radial and azimutal part of the solution
+  p=0.d0
+  q=0.d0
+!$OMP PARALLEL DO PRIVATE(epsilon_n,n,M,Minv,detinv,AB,F) REDUCTION(+:p,q)
+  do n = 0,ns
+    If(n.eq.0) Then
+      epsilon_n = 1.d0;
+      elseIf (n>0) Then
+      epsilon_n = 2.d0;
+    Endif
+    C2 = cmplx((lambda/b),-kp*(lambda+2*mu))
+    C3 = cmplx((mu/b), ks*mu)
+    M(1,1) = dr_h(1,kp,a,n)
+    M(1,2) = dr_h(2,kp,a,n)
     M(1,3) = ( dble(n)/a) * besselh(int(n),1,ks*a)
     M(1,4) = ( dble(n)/a) * besselh(int(n),2,ks*a)
 
     M(2,1) = (-dble(n)/a)  * besselh(int(n),1,kp*a)
     M(2,2) = (-dble(n)/a)  * besselh(int(n),2,kp*a)
-    M(2,3) = (-ks/2.d0) * ( besselh(n-1,1,ks*a)-besselh(n+1,1,ks*a) )
-    M(2,4) = (-ks/2.d0) * ( besselh(n-1,2,ks*a)-besselh(n+1,2,ks*a) )
+    M(2,3) = -dr_h(1,ks,a,n)
+    M(2,4) = -dr_h(2,ks,a,n)
 
-    M(3,1) = (lambda + 2*mu) * ((kp**2)/4.d0) * (- a1_n*besselh(int(n),1,kp*b)+besselh(n+2,1,kp*b))&
-           - (lambda*(n**2)/(b**2)) * besselh(int(n),1,kp*b)&
-           + ((lambda/dble(b))-i*kp*(lambda+2*mu))*(kp/2.d0)*(besselh(n-1,1,kp*b)-besselh(n+1,1,kp*b))
-    M(3,2) = (lambda + 2*mu) * (kp**2/4.d0) * (- a1_n*besselh(int(n),2,kp*b)+besselh(n+2,2,kp*b))&
-           - (lambda*(n**2)/b**2) * besselh(int(n),2,kp*b)&
-           + ((lambda/dble(b))-i*kp*(lambda+2*mu))*(kp/2.d0)*(besselh(n-1,2,kp*b)-besselh(n+1,2,kp*b))
-    M(3,3) = (lambda+2*mu) * (-(dble(n)/(b**2))*besselh(int(n),1,ks*b)&
-           + (dble(n)/b)* (ks/2.d0) * (besselh(n-1,1,ks*b)-besselh(n+1,1,ks*b)) )&
-           - (lambda*n*ks)/(b*2.d0) * (besselh(n-1,1,ks*b)-besselh(n+1,1,ks*b) )&
-           + ((lambda/dble(b))-i*kp*(lambda+2*mu))*(dble(n)/b)*besselh(int(n),1,ks*b) 
-    M(3,4) = (lambda+2*mu) * (-(dble(n)/(b**2))*besselh(int(n),2,ks*b)&
-           + (dble(n)/b)* (ks/2.d0) * (besselh(n-1,2,ks*b)-besselh(n+1,2,ks*b)) )&
-           - (lambda*n*ks)/(b*2.d0) * (besselh(n-1,2,ks*b)-besselh(n+1,2,ks*b) )&
-           + ((lambda/dble(b))-i*kp*(lambda+2*mu))*(dble(n)/b)*besselh(int(n),2,ks*b)   
+    M(3,1) = C1 * dr2_h(1,kp,b,int(n)) - (lambda*(n**2)/b**2) * besselh(int(n),1,kp*b)&
+           + C2* dr_h(1,kp,b,n)    
 
-    M(4,1) = (-(mu*dble(n)*kp)/b) * (besselh(n-1,1,kp*b) - besselh(n+1,1,kp*b))&
-           + (mu*dble(n)/b**2) * besselh(int(n),1,kp*b)&
-           + ((mu/b) + i*ks*mu)*(dble(n)/b) * besselh(int(n),1,kp*b)
-    M(4,2) = (-(mu*dble(n)*kp)/b) * (besselh(n-1,2,kp*b) - besselh(n+1,2,kp*b))&
-           + (mu*dble(n)/b**2) * besselh(int(n),2,kp*b)&
-           + ((mu/b) + i*ks*mu)*(dble(n)/b) * besselh(int(n),2,kp*b) 
-    M(4,3) = (-mu*dble(n)**2/b**2) * besselh(int(n),1,ks*b)&
-           - (mu*ks**2/4.d0) * (-a1_n*besselh(int(n),1,ks*b)+besselh(n+2,1,ks*b))&
-           + ((mu/b) + i*ks*mu) * (ks/2.d0) * (besselh(n-1,1,ks*b)-besselh(n+1,1,ks*b))
-    M(4,4) = (-mu*dble(n)**2/b**2) * besselh(int(n),2,ks*b)&
-           - (mu*ks**2/4.d0) * (-a1_n*besselh(int(n),2,ks*b)+besselh(n+2,2,ks*b))&
-           + ((mu/b) + i*ks*mu) * (ks/2.d0) * (besselh(n-1,2,ks*b)-besselh(n+1,2,ks*b))
+    M(3,2) = C1* dr2_h(2,kp,b,int(n)) - (lambda*(n**2)/b**2) * besselh(int(n),2,kp*b)&
+           + C2* dr_h(2,kp,b,n)
 
-    F(1) = -phi_0*epsilon_1* (0.d0,-1.d0)**n * (kp/2.d0) * (besjn(n-1,kp*a)-besjn(n+1,kp*a))
-    F(2) = (dble(n)/a) * phi_0 * epsilon_1* (0.d0,-1.d0)**n *besjn(n,kp*a)
+    M(3,3) = C1 * (-(dble(n)/b**2)*besselh(int(n),1,ks*b)+ (dble(n)/b)* dr_h(1,ks,b,int(n)) )&
+           - (lambda*n)/(b) * dr_h(1,ks,b,int(n)) + C2*(dble(n)/b)*besselh(int(n),1,ks*b) 
+
+    M(3,4) = C1 * (-(dble(n)/b**2)*besselh(int(n),2,ks*b)+ (dble(n)/b)* dr_h(2,ks,b,int(n)) )&
+           - (lambda*n)/(b) * dr_h(2,ks,b,int(n)) + C2*(dble(n)/b)*besselh(int(n),2,ks*b)   
+
+    M(4,1) = -mu*(-(dble(n)/b**2)*besselh(int(n),1,kp*b))&
+           - 2*mu*(dble(n)/b)* dr_h(1,kp,b,int(n)) + C3 *(dble(n)/b)* besselh(int(n),1,kp*b)
+
+    M(4,2) = -mu*(-(dble(n)/b**2)*besselh(int(n),2,kp*b))&
+           - 2*mu*(dble(n)/b)* dr_h(2,kp,b,int(n)) + C3*(dble(n)/b)* besselh(int(n),2,kp*b)
+
+
+    M(4,3) = -mu*((dble(n)/b)**2) * besselh(int(n),1,ks*b) - mu* dr2_h(1,ks,b,int(n))&
+           + C3 * dr_h(1,ks,b,int(n))
+
+    M(4,4) = -mu*((dble(n)/b)**2) * besselh(int(n),2,ks*b) - mu* dr2_h(2,ks,b,int(n))&
+           + C3 * dr_h(2,ks,b,int(n))
+
+    F(1) = -phi_0*epsilon_n * (0.d0,-1.d0)**n * dr_j(kp,a,int(n))
+    F(2) = (dble(n)/a) * phi_0 * epsilon_n* (0.d0,-1.d0)**n *besjn(int(n),kp*a)
 
     F(3) = 0
     F(4) = 0
@@ -191,125 +179,14 @@ subroutine cylindrical_walloutabc(du,dv,dut,dvt,X,Y,t,omega,lambda,mu,rho,a,b)
     AB(4) = Minv(4,1)*F(1) + Minv(4,2)*F(2) + Minv(4,3)*F(3) + Minv(4,4)*F(4)  
 
     ! Compute p and q
-    p = p + ( AB(1)*(kp/2.d0)*(besselh(n-1,1,kp*r)-besselh(n+1,1,kp*r))&
-      + AB(2)*(kp/2.d0)*(besselh(n-1,2,kp*r)-besselh(n+1,2,kp*r))&
-      + (dble(n)/r)*AB(3)*besselh(int(n),1,ks*r) + (dble(n)/r)*AB(4)*besselh(int(n),2,ks*r) )*cos(dble(n)*theta)
+    p = p + (AB(1)*dr_h(1,kp,r,int(n)) + AB(2)*dr_h(2,kp,r,int(n))&
+ + (dble(n)/r)*AB(3)*besselh(int(n),1,ks*r)&
+      + (dble(n)/r)*AB(4)*besselh(int(n),2,ks*r) )*dcos(n*theta)
 
-    q = q + ( - (dble(n)/r)*AB(1)*besselh(int(n),1,kp*r) &
-       - (dble(n)/r)*AB(2)*besselh(int(n),2,kp*r) - AB(3)*(ks/2.d0)*(besselh(n-1,1,ks*r)&
-       -besselh(n+1,1,ks*r)) - AB(4)*(ks/2.d0)*(besselh(n-1,2,ks*r)-besselh(n+1,2,ks*r)) )*sin(dble(n)*theta)
-  end do
+    q = q + (- (dble(n)/r)*AB(1)*besselh(int(n),1,kp*r)&
+ - (dble(n)/r)*AB(2)*besselh(int(n),2,kp*r)&
+      - AB(3)*dr_h(1,ks,r,int(n))- AB(4)*dr_h(2,ks,r,int(n)) )*dsin(n*theta)
 
-    a0_n = 1
-    a1_n = 2
-  ! for GetDP: instead of 2:24
-!$OMP PARALLEL DO PRIVATE(n,M,Minv,detinv,AB,F) REDUCTION(+:p,q)
-  do n = 2,ns
-    M(1,1) = (kp/2.d0) * ( besselh(n-1,1,kp*a)-besselh(n+1,1,kp*a) )
-    M(1,2) = (kp/2.d0) * ( besselh(n-1,2,kp*a)-besselh(n+1,2,kp*a) )
-    M(1,3) = ( dble(n)/a) * besselh(int(n),1,ks*a)
-    M(1,4) = ( dble(n)/a) * besselh(int(n),2,ks*a)
-
-    M(2,1) = (-dble(n)/a)  * besselh(int(n),1,kp*a)
-    M(2,2) = (-dble(n)/a)  * besselh(int(n),2,kp*a)
-    M(2,3) = (-ks/2.d0) * ( besselh(n-1,1,ks*a)-besselh(n+1,1,ks*a) )
-    M(2,4) = (-ks/2.d0) * ( besselh(n-1,2,ks*a)-besselh(n+1,2,ks*a) )
-
-    M(3,1) = (lambda + 2*mu) * (kp**2/4.d0) * (a0_n*besselh(n-2,1,kp*b)&
-           - a1_n*besselh(int(n),1,kp*b)+besselh(n+2,1,kp*b))&
-           - (lambda*(n**2)/b**2) * besselh(int(n),1,kp*b)&
-           + ((lambda/b)-i*kp*(lambda+2*mu))*(kp/2.d0)*(besselh(n-1,1,kp*b)-besselh(n+1,1,kp*b))
-    M(3,2) = (lambda + 2*mu) * (kp**2/4.d0) * (a0_n*besselh(n-2,2,kp*b)&
-           - a1_n*besselh(int(n),2,kp*b)+besselh(n+2,2,kp*b))&
-           - (lambda*(n**2)/b**2) * besselh(int(n),2,kp*b)&
-           + ((lambda/b)-i*kp*(lambda+2*mu))*(kp/2.d0)*(besselh(n-1,2,kp*b)-besselh(n+1,2,kp*b))
-    M(3,3) = (lambda+2*mu) * (-(dble(n)/b**2)*besselh(int(n),1,ks*b)&
-           + (dble(n)/b)* (ks/2.d0) * (besselh(n-1,1,ks*b)-besselh(n+1,1,ks*b)) )&
-           - (lambda*n*ks)/(b*2.d0) * (besselh(n-1,1,ks*b)-besselh(n+1,1,ks*b) )&
-           + ((lambda/b)-i*kp*(lambda+2*mu))*(dble(n)/b)*besselh(int(n),1,ks*b) 
-    M(3,4) = (lambda+2*mu) * (-(dble(n)/b**2)*besselh(int(n),2,ks*b)&
-           + (dble(n)/b)* (ks/2.d0) * (besselh(n-1,2,ks*b)-besselh(n+1,2,ks*b)) )&
-           - (lambda*n*ks)/(b*2.d0) * (besselh(n-1,2,ks*b)-besselh(n+1,2,ks*b) )&
-           + ((lambda/dble(b))-i*kp*(lambda+2*mu))*(dble(n)/b)*besselh(int(n),2,ks*b)   
-
-    M(4,1) = (-(mu*dble(n)*kp)/b) * (besselh(n-1,1,kp*b) - besselh(n+1,1,kp*b))&
-           + (mu*dble(n)/b**2) * besselh(int(n),1,kp*b)&
-           + ((mu/b) + i*ks*mu)*(dble(n)/b) * besselh(int(n),1,kp*b)
-    M(4,2) = (-(mu*dble(n)*kp)/b) * (besselh(n-1,2,kp*b) - besselh(n+1,2,kp*b))&
-           + (mu*dble(n)/b**2) * besselh(int(n),2,kp*b)&
-           + ((mu/b) + i*ks*mu)*(dble(n)/b) * besselh(int(n),2,kp*b) 
-    M(4,3) = (-mu*dble(n)**2/b**2) * besselh(int(n),1,ks*b)&
-           - (mu*ks**2/4.d0) * (a0_n*besselh(n-2,1,ks*b)-a1_n*besselh(int(n),1,ks*b)+besselh(n+2,1,ks*b))&
-           + ((mu/b) + i*ks*mu) * (ks/2.d0) * (besselh(n-1,1,ks*b)-besselh(n+1,1,ks*b))
-    M(4,4) = (-mu*dble(n)**2/b**2) * besselh(int(n),2,ks*b)&
-           - (mu*ks**2/4.d0) * (a0_n*besselh(n-2,2,ks*b)-a1_n*besselh(int(n),2,ks*b)+besselh(n+2,2,ks*b))&
-           + ((mu/dble(b)) + i*ks*mu) * (ks/2.d0) * (besselh(n-1,2,ks*b)-besselh(n+1,2,ks*b))
-
-    F(1) = -phi_0*epsilon_1* (0.d0,-1.d0)**n * (kp/2.d0) * (besjn(n-1,kp*a)-besjn(n+1,kp*a))
-    F(2) = (dble(n)/a) * phi_0 * epsilon_1* (0.d0,-1.d0)**n *besjn(n,kp*a)
-
-    F(3) = 0
-    F(4) = 0
-
-    ! Calculate the inverse determinant of the matrix
-    detinv = &
-      1/(M(1,1)*(M(2,2)*(M(3,3)*M(4,4)-M(3,4)*M(4,3))+M(2,3)&
-      *(M(3,4)*M(4,2)-M(3,2)*M(4,4))+M(2,4)*(M(3,2)*M(4,3)-M(3,3)*M(4,2)))&
-       - M(1,2)*(M(2,1)*(M(3,3)*M(4,4)-M(3,4)*M(4,3))+M(2,3)&
-      *(M(3,4)*M(4,1)-M(3,1)*M(4,4))+M(2,4)*(M(3,1)*M(4,3)-M(3,3)*M(4,1)))&
-       + M(1,3)*(M(2,1)*(M(3,2)*M(4,4)-M(3,4)*M(4,2))+M(2,2)&
-      *(M(3,4)*M(4,1)-M(3,1)*M(4,4))+M(2,4)*(M(3,1)*M(4,2)-M(3,2)*M(4,1)))&
-       - M(1,4)*(M(2,1)*(M(3,2)*M(4,3)-M(3,3)*M(4,2))+M(2,2)&
-      *(M(3,3)*M(4,1)-M(3,1)*M(4,3))+M(2,3)*(M(3,1)*M(4,2)-M(3,2)*M(4,1))))
-
-    ! Calculate the inverse of the matrix B=M^{-1}
-    Minv(1,1) = detinv*(M(2,2)*(M(3,3)*M(4,4)-M(3,4)*M(4,3))&
-     +M(2,3)*(M(3,4)*M(4,2)-M(3,2)*M(4,4))+M(2,4)*(M(3,2)*M(4,3)-M(3,3)*M(4,2)))
-    Minv(2,1) = detinv*(M(2,1)*(M(3,4)*M(4,3)-M(3,3)*M(4,4))&
-     +M(2,3)*(M(3,1)*M(4,4)-M(3,4)*M(4,1))+M(2,4)*(M(3,3)*M(4,1)-M(3,1)*M(4,3)))
-    Minv(3,1) = detinv*(M(2,1)*(M(3,2)*M(4,4)-M(3,4)*M(4,2))&
-     +M(2,2)*(M(3,4)*M(4,1)-M(3,1)*M(4,4))+M(2,4)*(M(3,1)*M(4,2)-M(3,2)*M(4,1)))
-    Minv(4,1) = detinv*(M(2,1)*(M(3,3)*M(4,2)-M(3,2)*M(4,3))&
-     +M(2,2)*(M(3,1)*M(4,3)-M(3,3)*M(4,1))+M(2,3)*(M(3,2)*M(4,1)-M(3,1)*M(4,2)))
-    Minv(1,2) = detinv*(M(1,2)*(M(3,4)*M(4,3)-M(3,3)*M(4,4))&
-     +M(1,3)*(M(3,2)*M(4,4)-M(3,4)*M(4,2))+M(1,4)*(M(3,3)*M(4,2)-M(3,2)*M(4,3)))
-    Minv(2,2) = detinv*(M(1,1)*(M(3,3)*M(4,4)-M(3,4)*M(4,3))&
-     +M(1,3)*(M(3,4)*M(4,1)-M(3,1)*M(4,4))+M(1,4)*(M(3,1)*M(4,3)-M(3,3)*M(4,1)))
-    Minv(3,2) = detinv*(M(1,1)*(M(3,4)*M(4,2)-M(3,2)*M(4,4))&
-     +M(1,2)*(M(3,1)*M(4,4)-M(3,4)*M(4,1))+M(1,4)*(M(3,2)*M(4,1)-M(3,1)*M(4,2)))
-    Minv(4,2) = detinv*(M(1,1)*(M(3,2)*M(4,3)-M(3,3)*M(4,2))&
-     +M(1,2)*(M(3,3)*M(4,1)-M(3,1)*M(4,3))+M(1,3)*(M(3,1)*M(4,2)-M(3,2)*M(4,1)))
-    Minv(1,3) = detinv*(M(1,2)*(M(2,3)*M(4,4)-M(2,4)*M(4,3))&
-     +M(1,3)*(M(2,4)*M(4,2)-M(2,2)*M(4,4))+M(1,4)*(M(2,2)*M(4,3)-M(2,3)*M(4,2)))
-    Minv(2,3) = detinv*(M(1,1)*(M(2,4)*M(4,3)-M(2,3)*M(4,4))&
-     +M(1,3)*(M(2,1)*M(4,4)-M(2,4)*M(4,1))+M(1,4)*(M(2,3)*M(4,1)-M(2,1)*M(4,3)))
-    Minv(3,3) = detinv*(M(1,1)*(M(2,2)*M(4,4)-M(2,4)*M(4,2))&
-     +M(1,2)*(M(2,4)*M(4,1)-M(2,1)*M(4,4))+M(1,4)*(M(2,1)*M(4,2)-M(2,2)*M(4,1)))
-    Minv(4,3) = detinv*(M(1,1)*(M(2,3)*M(4,2)-M(2,2)*M(4,3))&
-     +M(1,2)*(M(2,1)*M(4,3)-M(2,3)*M(4,1))+M(1,3)*(M(2,2)*M(4,1)-M(2,1)*M(4,2)))
-    Minv(1,4) = detinv*(M(1,2)*(M(2,4)*M(3,3)-M(2,3)*M(3,4))&
-     +M(1,3)*(M(2,2)*M(3,4)-M(2,4)*M(3,2))+M(1,4)*(M(2,3)*M(3,2)-M(2,2)*M(3,3)))
-    Minv(2,4) = detinv*(M(1,1)*(M(2,3)*M(3,4)-M(2,4)*M(3,3))&
-     +M(1,3)*(M(2,4)*M(3,1)-M(2,1)*M(3,4))+M(1,4)*(M(2,1)*M(3,3)-M(2,3)*M(3,1)))
-    Minv(3,4) = detinv*(M(1,1)*(M(2,4)*M(3,2)-M(2,2)*M(3,4))&
-     +M(1,2)*(M(2,1)*M(3,4)-M(2,4)*M(3,1))+M(1,4)*(M(2,2)*M(3,1)-M(2,1)*M(3,2)))
-    Minv(4,4) = detinv*(M(1,1)*(M(2,2)*M(3,3)-M(2,3)*M(3,2))&
-     +M(1,2)*(M(2,3)*M(3,1)-M(2,1)*M(3,3))+M(1,3)*(M(2,1)*M(3,2)-M(2,2)*M(3,1)))
-
-    ! Compute AB = M^{-1}F
-    AB(1) = Minv(1,1)*F(1) + Minv(1,2)*F(2) + Minv(1,3)*F(3) + Minv(1,4)*F(4)
-    AB(2) = Minv(2,1)*F(1) + Minv(2,2)*F(2) + Minv(2,3)*F(3) + Minv(2,4)*F(4)
-    AB(3) = Minv(3,1)*F(1) + Minv(3,2)*F(2) + Minv(3,3)*F(3) + Minv(3,4)*F(4)
-    AB(4) = Minv(4,1)*F(1) + Minv(4,2)*F(2) + Minv(4,3)*F(3) + Minv(4,4)*F(4)  
-
-    ! Compute p and q
-    p = p + (AB(1)*(kp/2.d0)*(besselh(n-1,1,kp*r)-besselh(n+1,1,kp*r))&
-      + AB(2)*(kp/2.d0)*(besselh(n-1,2,kp*r)-besselh(n+1,2,kp*r))&
-      + (dble(n)/r)*AB(3)*besselh(int(n),1,ks*r) + (dble(n)/r)*AB(4)*besselh(int(n),2,ks*r) )*cos(dble(n)*theta)
-
-    q = q + (- (dble(n)/r)*AB(1)*besselh(int(n),1,kp*r) &
-       - (dble(n)/r)*AB(2)*besselh(int(n),2,kp*r) - AB(3)*(ks/2.d0)*(besselh(n-1,1,ks*r)&
-       -besselh(n+1,1,ks*r)) - AB(4)*(ks/2.d0)*(besselh(n-1,2,ks*r)-besselh(n+1,2,ks*r)) )*sin(dble(n)*theta)
   end do
 !$OMP END PARALLEL DO
 

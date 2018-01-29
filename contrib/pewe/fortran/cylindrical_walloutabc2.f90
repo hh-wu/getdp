@@ -88,7 +88,7 @@ subroutine cylindrical_walloutabc2(du,dv,dut,dvt,X,Y,t,omega,lambda,mu,rho,a,b)
   q=0
   epsilon_1 = 2.0d0
   ! for GetDP
-  ns = max(ks*a+30, 3*ks);
+  ns = 55;
 
   do n = 1,1
 
