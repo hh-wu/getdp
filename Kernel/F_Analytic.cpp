@@ -1684,7 +1684,7 @@ void F_AcousticFieldSoftCylinder(F_ARG)
   }
   
   std::complex<double> I(0,1);
-  std::complex<double> val = 0;
+  double vr=0, vi=0;
 #if defined(_OPENMP)
 #pragma omp parallel for reduction(+: vr,vi)
 #endif
@@ -1693,10 +1693,12 @@ void F_AcousticFieldSoftCylinder(F_ARG)
     std::complex<double> Hnkr( jn(n,kr), yn(n,kr) );
     std::complex<double> tmp1 = std::pow(I,n) * Hnkr/HnkR;
     double tmp2 = - (!n ? 1. : 2.) * cos(n*theta) * std::real(HnkR);
-    val += tmp1 * tmp2;
+    std::complex<double> val = tmp1 * tmp2;
+    vr += std::real(val);
+    vi += std::imag(val);
   }
-  V->Val[0]       = std::real(val);
-  V->Val[MAX_DIM] = std::imag(val);
+  V->Val[0]       = vr;
+  V->Val[MAX_DIM] = vi;
   V->Type = SCALAR;
 }
 
