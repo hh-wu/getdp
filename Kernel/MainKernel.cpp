@@ -672,6 +672,7 @@ int MainKernel(int argc, char *argv[])
   LinAlg_InitializeSolver(&sargc, &sargv);
 
   Init_ProblemStructure();
+  Read_ProblemPreamble();
   Read_ProblemStructure(pro);
   Finalize_ProblemStructure();
 

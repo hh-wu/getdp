@@ -1880,13 +1880,17 @@ Macros are defined as follows:
 @ftable @code
 
 @item Macro @var{string} | @var{expression-char}
-Begins the declaration of a user-defined macro named @var{string}. The
-body of the macro starts on the line after `@code{Macro
-@var{string}}', and can contain any GetDP command.
+Begins the declaration of a user-defined file macro named
+@var{string}. The body of the macro starts on the line after
+`@code{Macro @var{string}}', and can contain any GetDP command.
 
 @item Return
-Ends the body of the current user-defined macro. Macro declarations
+Ends the body of the current user-defined file macro. Macro declarations
 cannot be imbricated, and must be made outside any GetDP object.
+
+@item Macro ( @var{expression-char} , @var{expression-char} ) ;
+Begins the declaration of a user-defined string macro. The body of the
+macro is given explicitly as the second argument.
 
 @end ftable
 

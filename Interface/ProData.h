@@ -1734,6 +1734,7 @@ int fcmp_PostQuantity_Name        (const void *a, const void *b);
 int fcmp_PostOperation_Name       (const void *a, const void *b);
 
 void Init_ProblemStructure();
+void Read_ProblemPreamble();
 void Read_ProblemStructure(const char *fileName);
 void Finalize_ProblemStructure();
 void Print_ProblemStructure();
