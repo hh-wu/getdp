@@ -9,6 +9,7 @@ Resolution {
 	{ Name Vol~{i}; NameOfFormulation Vol~{i};
 	  Type Complex     ; NameOfMesh Sprintf[StrCat[MSH_NAME, "%g.msh"], i];
 	}
+	/*
         For jj In {0:#myD~{i}()-1}
           j = myD~{i}(jj);
           { Name Sur~{i}~{j}; NameOfFormulation Sur~{i}~{j};
@@ -17,7 +18,7 @@ Resolution {
             { Name SurPc~{i}~{j}; NameOfFormulation SurPc~{i}~{j};
               Type Complex; NameOfMesh Sprintf[StrCat[MSH_NAME, "%g.msh"], i]; }
           EndIf
-        EndFor
+        EndFor*/
       EndFor
     }
     Operation {
