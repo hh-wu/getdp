@@ -15,18 +15,24 @@ class mymap;
 
 class MacroManager
 {
-  mymap *macros;
-  mystack *calls;
-  MacroManager ();
-  static MacroManager *instance;
+ private:
+  mymap *_macros;
+  mystack *_calls;
+  MacroManager();
+  static MacroManager *_instance;
  public :
-  static MacroManager* Instance();
+  static MacroManager *Instance();
   void clear();
+  // macro in a file that is (being) parsed
   int createMacro(const std::string &name, FILE *f,
                   const std::string &filename, long int lineno);
+  int leaveMacro(FILE **f, std::string &filename, long int &lineno);
   int enterMacro(const std::string &name, FILE **f,
                  std::string &filename, long int &lineno) const;
-  int leaveMacro(FILE **f, std::string &filename, long int &lineno);
+
+  // explicit macro as a string
+  int createStringMacro(const std::string &name, const std::string &value);
+  int enterStringMacro(const std::string &name) const;
 };
 
 #endif

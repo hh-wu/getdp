@@ -19,6 +19,8 @@
 #include "Message.h"
 
 #if defined(HAVE_GMSH)
+#include <gmsh.h>
+// these will disappear
 #include <gmsh/GmshGlobal.h>
 #include <gmsh/GmshVersion.h>
 #include <gmsh/GmshConfig.h>
@@ -647,7 +649,7 @@ int MainKernel(int argc, char *argv[])
 
 #if defined(HAVE_GMSH)
   Message::Info("Initializing Gmsh");
-  GmshInitialize();
+  gmsh::initialize();
   GmshMsg *msg = 0;
   if(!GmshGetMessageHandler() && !Flag_CALLED_WITH_ONELAB_SERVER){
     // do not set msg handler if one is provided (e.g. on Android/iOS)
@@ -672,6 +674,7 @@ int MainKernel(int argc, char *argv[])
   LinAlg_InitializeSolver(&sargc, &sargv);
 
   Init_ProblemStructure();
+  Read_ProblemPreamble();
   Read_ProblemStructure(pro);
   Finalize_ProblemStructure();
 

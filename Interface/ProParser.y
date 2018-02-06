@@ -7834,19 +7834,31 @@ Loop :
          (&getdp_yyin, getdp_yyname, getdp_yylinenum))
 	vyyerror(0, "Error while exiting macro");
     }
+  | tMacro LP CharExpr ',' CharExpr RP tEND
+    {
+      if(!MacroManager::Instance()->createStringMacro($3, $5))
+        vyyerror(0, "Redefinition of macro '%s'", $2);
+      Free($3);
+      Free($5);
+    }
   | tCall CallArg tEND
     {
       if(!MacroManager::Instance()->enterMacro
-         (std::string($2), &getdp_yyin, getdp_yyname, getdp_yylinenum))
-	vyyerror(0, "Unknown macro '%s'", $2);
+         (std::string($2), &getdp_yyin, getdp_yyname, getdp_yylinenum)){
+        if(!MacroManager::Instance()->enterStringMacro(std::string($2)))
+          vyyerror(0, "Unknown macro '%s'", $2);
+      }
       Free($2);
     }
   | tCallTest '(' FExpr ')' CallArg tEND
     {
-      if($3)
+      if($3){
         if(!MacroManager::Instance()->enterMacro
-           (std::string($5), &getdp_yyin, getdp_yyname, getdp_yylinenum))
-          vyyerror(0, "Unknown macro '%s'", $5);
+           (std::string($5), &getdp_yyin, getdp_yyname, getdp_yylinenum)){
+          if(!MacroManager::Instance()->enterStringMacro(std::string($5)))
+            vyyerror(0, "Unknown macro '%s'", $5);
+        }
+      }
       Free($5);
     }
   | tIf '(' FExpr ')'

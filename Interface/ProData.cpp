@@ -315,6 +315,14 @@ std::string Fix_RelativePath(const char *name, const char *reference)
   }
 }
 
+#if !defined(HAVE_NX)
+void Read_ProblemPreamble()
+{
+  // no-op ; could be used to fill getdp_yystring in order to parse some
+  // definitions before the actuel .pro file processing starts.
+}
+#endif
+
 static std::vector<FILE*> openFiles;
 
 void Read_ProblemStructure(const char *name)
