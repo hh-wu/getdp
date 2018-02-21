@@ -5546,6 +5546,36 @@ OperationTerm :
       Operation_P->Type = OPERATION_SAVEMESH;
     }
 
+  | tSaveMesh  '[' String__Index ',' GroupRHS ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      int i;
+      if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror(0, "Unknown System: %s", $3);
+      Free($3);
+      Operation_P->DefineSystemIndex = i;
+      Operation_P->Case.SaveMesh.GroupIndex = Num_Group(&Group_S, (char*)"OP_SaveMesh", $5);
+      Operation_P->Case.SaveMesh.FileName = 0;
+      Operation_P->Case.SaveMesh.ExprIndex = -1;
+      Operation_P->Type = OPERATION_SAVEMESH;
+    }
+
+  | tSaveMesh  '[' String__Index ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      int i;
+      if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror(0, "Unknown System: %s", $3);
+      Free($3);
+      Operation_P->DefineSystemIndex = i;
+      Operation_P->Case.SaveMesh.GroupIndex = -1;
+      Operation_P->Case.SaveMesh.FileName = 0;
+      Operation_P->Case.SaveMesh.ExprIndex = -1;
+      Operation_P->Type = OPERATION_SAVEMESH;
+    }
+
   | tGenerateMHMoving  '[' String__Index ',' String__Index ',' FExpr ',' FExpr ']'
                          '{' Operation '}'
     { Operation_P = (struct Operation*)

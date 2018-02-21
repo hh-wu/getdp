@@ -334,7 +334,7 @@ void Geo_ReverseElement(Geo_Element *Geo_Element)
 
 void Geo_SaveMesh(struct GeoData * GeoData_P, List_T * InitialList, char * FileName)
 {
-  FILE * file;
+  FILE * file = 0;
   struct Geo_Node     Geo_Node ;
   struct Geo_Node   * Geo_Node_P ;
   struct Geo_Element  Geo_Element ;
@@ -343,10 +343,13 @@ void Geo_SaveMesh(struct GeoData * GeoData_P, List_T * InitialList, char * FileN
   int  fcmp_int(const void * a, const void * b);
 
   GeoData.Nodes    = List_Create(1000, 1000, sizeof(struct Geo_Node)) ;
-  GeoData.Elements = List_Create(1000, 1000, sizeof(struct Geo_Node)) ;
+  GeoData.Elements = List_Create(1000, 1000, sizeof(struct Geo_Element)) ;
+
+  int maxdim = 0;
 
   for (i = 0 ; i < List_Nbr(GeoData_P->Elements) ; i++) {
     List_Read(GeoData_P->Elements, i, &Geo_Element) ;
+    maxdim = std::max(maxdim, Geo_GetDimOfElement(Geo_Element.Type));
     if (List_Search(InitialList, &Geo_Element.Region, fcmp_int) ) {
       List_Add(GeoData.Elements, &Geo_Element) ;
       for (j = 0 ; j < Geo_Element.NbrNodes ; j++)
@@ -357,16 +360,30 @@ void Geo_SaveMesh(struct GeoData * GeoData_P, List_T * InitialList, char * FileN
     }
   }
 
-  file = FOpen(FileName,"w");
-  Message::Info("Saving mesh in file \"%s\" (%d nodes, %d elements)",
-                FileName, List_Nbr(GeoData.Nodes), List_Nbr(GeoData.Elements));
+  if(FileName){
+    file = FOpen(FileName,"w");
+    if(file){
+      Message::Error("Could not open file '%s'", FileName);
+      return;
+    }
+    Message::Info("Saving mesh in file \"%s\" (%d nodes, %d elements)",
+                  FileName, List_Nbr(GeoData.Nodes), List_Nbr(GeoData.Elements));
+    fprintf(file, "$NOD\n%d\n", List_Nbr(GeoData.Nodes));
+  }
 
-  fprintf(file, "$NOD\n%d\n", List_Nbr(GeoData.Nodes));
-
+  std::vector<int> vertexTags(List_Nbr(GeoData.Nodes));
+  std::vector<double> vertexCoord(3 * List_Nbr(GeoData.Nodes));
   for (i = 0 ; i < List_Nbr(GeoData.Nodes) ; i++) {
     List_Read(GeoData.Nodes, i, &Geo_Node) ;
-    fprintf(file, "%d %.16g %.16g %.16g\n",
-	   Geo_Node.Num, Geo_Node.x, Geo_Node.y, Geo_Node.z) ;
+    if(file)
+      fprintf(file, "%d %.16g %.16g %.16g\n",
+              Geo_Node.Num, Geo_Node.x, Geo_Node.y, Geo_Node.z) ;
+    else{
+      vertexTags[i] = Geo_Node.Num;
+      vertexCoord[3 * i + 0] = Geo_Node.x;
+      vertexCoord[3 * i + 1] = Geo_Node.y;
+      vertexCoord[3 * i + 2] = Geo_Node.z;
+    }
   }
 
   fprintf(file, "$ENDNOD\n$ELM\n%d\n", List_Nbr(GeoData.Elements));
@@ -377,14 +394,17 @@ void Geo_SaveMesh(struct GeoData * GeoData_P, List_T * InitialList, char * FileN
     fprintf(file, "%d %d %d %d %d ",
 	    Geo_Element.Num, Type, Geo_Element.Region,
 	    Geo_Element.Region, Geo_Element.NbrNodes) ;
-    for (j = 0 ; j < Geo_Element.NbrNodes ; j++)
-      fprintf(file, "%d ", Geo_Element.NumNodes[j]) ;
-    fprintf(file, "\n") ;
+    if(file){
+      for (j = 0 ; j < Geo_Element.NbrNodes ; j++)
+        fprintf(file, "%d ", Geo_Element.NumNodes[j]) ;
+      fprintf(file, "\n") ;
+    }
   }
 
-  fprintf(file, "$ENDELM\n");
-
-  fclose(file);
+  if(file){
+    fprintf(file, "$ENDELM\n");
+    fclose(file);
+  }
   List_Delete(GeoData.Nodes);
   List_Delete(GeoData.Elements);
 }

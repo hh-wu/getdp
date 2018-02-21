@@ -49,7 +49,7 @@ ElseIf(PerturbMesh == 2)
   Merge StrCat(modelpath, modelName, ".msh");
 
   // create a view with the original node coordinates as a vector dataset
-  Plugin(NewView).Dimension = 3;
+  Plugin(NewView).NumComp = 3;
   Plugin(NewView).Run;
   Plugin(ModifyComponents).View = 0;
   Plugin(ModifyComponents).Expression0 = "x";
@@ -72,7 +72,7 @@ ElseIf(PerturbMesh == 2)
   EndIf
 
   // Create a view with the perturbed node coordinates as vector dataset
-  Plugin(NewView).Dimension = 3;
+  Plugin(NewView).NumComp = 3;
   Plugin(NewView).Run;
   Plugin(ModifyComponents).View = 1;
   Plugin(ModifyComponents).Expression0 = "x";
