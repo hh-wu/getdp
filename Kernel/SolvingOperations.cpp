@@ -186,6 +186,98 @@ static void  ZeroMatrix(gMatrix *M, gSolver *S, int N)
   LinAlg_CreateMatrix(M, S, N, N);
 }
 
+void ExtrapolatingPolynomial(int degreewanted,struct DofData * DofData_P,
+                            struct Solution * Solution_S)
+{
+    // Build Lagrange Interpolating Polynomial to predict current solution
+    // ...
+    // Polynomial degree:
+    // degree 0 ==> initialization at the previous Time Solution
+    // degree 1 ==> linear extrapolation from the 2 previous Time Solutions
+    // degree 2 ==> quadratic extrapolation from the 3 previous Time Solutions
+    // ...
+    // NB: The more data points that are used in the interpolation, 
+    // the higher the degree of the resulting polynomial, 
+    // thus the greater oscillation it will exhibit between the data points,
+    // and therefore the poorest the prediction may be ...
+
+    double * xi;
+    int * jvalid;
+    double Pj=1., x = Solution_S->Time;
+
+    //Vector to save the valid previous Time Solutions that will be iterpolated
+    xi = new double[degreewanted+1];  
+    jvalid = new int[degreewanted+1]; 
+
+    //Select the last Time Solution => degree 0 is achieved at least
+    xi[0]=((struct Solution *) 
+      List_Pointer(DofData_P->Solutions, 
+      List_Nbr(DofData_P->Solutions)-1))->Time;   
+    jvalid[0]=0;
+    Message::Info("ExtrapolatingPolynomial: Selected "
+                  "Theta Time = %g s (TimeStep %d)",
+                  xi[0],Solution_S->TimeStep-1-jvalid[0]);
+    int degree=0, j=1;
+
+    //Found other valid Time Solutions in order to reach 
+    //the desired polynomial degree [degreewanted] (if possible)
+    while(degree<degreewanted && j<=List_Nbr(DofData_P->Solutions)-1) {  
+      xi[degree+1]=((struct Solution *) 
+        List_Pointer(DofData_P->Solutions, 
+        List_Nbr(DofData_P->Solutions)-1-j))->Time;  
+      if (xi[degree+1]<xi[degree]){
+        jvalid[degree+1]=j;
+        degree++;
+        Message::Info("ExtrapolatingPolynomial: Selected "
+                      "Theta Time = %g s (TimeStep %d)",
+                      xi[degree],Solution_S->TimeStep-1-jvalid[degree]);
+      }
+      else{
+        Message::Info("ExtrapolatingPolynomial: Skip "
+                      "Theta Time = %g s (TimeStep %d) [Redundant]"
+                      ,xi[degree+1],Solution_S->TimeStep-1-j);
+      }
+      j++;
+    }
+
+    if (degree < degreewanted) {
+      Message::Warning("ExtrapolatingPolynomial: "
+                       "Impossible to build polynomial of degree %d "
+                       "(%d usable previous solution%s found "
+                       "while %d needed for degree %d)" 
+                       ,degreewanted, degree+1
+                       ,((degree+1)==1)?"":"s"
+                       ,degreewanted+1,degreewanted) ;
+    }
+
+    Message::Info("ExtrapolatingPolynomial: "
+                  ">> Polynomial of degree %d "
+                  "based on %d previous solution%s (out of %d existing)" 
+                  ,degree, degree+1
+                  , ((degree+1)==1)?"":"s"
+                  , List_Nbr(DofData_P->Solutions)) ;
+
+    // Build Lagrange Interpolating Polynomial
+    // http://mathworld.wolfram.com/LagrangeInterpolatingPolynomial.html
+    LinAlg_ZeroVector(&Solution_S->x) ;
+    for (int j=0; j<=degree; j++) {
+      Pj=1.;
+      for (int k=0;k<=degree; k++) {
+        if (j !=k){
+            Pj=Pj*(x-xi[k])/(xi[j]-xi[k]);
+        }
+      }
+    LinAlg_AddVectorProdVectorDouble(&Solution_S->x, 
+      &((struct Solution *)
+        List_Pointer(DofData_P->Solutions,
+               List_Nbr(DofData_P->Solutions)-1-jvalid[j]))->x, 
+      Pj, &Solution_S->x);
+    }
+
+    delete [] xi;
+    delete [] jvalid;
+}
+
 void  Generate_System(struct DefineSystem * DefineSystem_P,
 		      struct DofData * DofData_P,
 		      struct DofData * DofData_P0,
@@ -215,10 +307,13 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
     Solution_S.SolutionExist = 1 ;
     LinAlg_CreateVector(&Solution_S.x, &DofData_P->Solver, DofData_P->NbrDof) ;
     if (List_Nbr(DofData_P->Solutions)) {
+      /*
       LinAlg_CopyVector(&((struct Solution *)
 			  List_Pointer(DofData_P->Solutions,
 				       List_Nbr(DofData_P->Solutions)-1))->x,
 			&Solution_S.x) ;
+      */
+      ExtrapolatingPolynomial(2,DofData_P,&Solution_S);
     }
     else {
       LinAlg_ZeroVector(&Solution_S.x) ;
