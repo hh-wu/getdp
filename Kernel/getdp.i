@@ -1,6 +1,6 @@
 %module getdp
 %{
-  #include "GetDP.h"
+  #include "getdp.h"
 %}
 
 %include std_string.i
@@ -11,4 +11,4 @@ namespace std {
   %template(StringVector) vector<string>;
 }
 
-%include "GetDP.h"
+%include "getdp.h"
