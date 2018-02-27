@@ -32,6 +32,7 @@
 #endif
 
 #define TWO_PI     6.2831853071795865
+#define GOLDENRATIO 1.6180339887498948482
 
 // for performance tests
 #if !defined(WIN32)
@@ -205,7 +206,7 @@ void ExtrapolatingPolynomial(int degreewanted,struct DofData * DofData_P,
     int * jvalid;
     double Pj=1., x = Solution_S->Time;
 
-    //Vector to save the valid previous Time Solutions that will be iterpolated
+    //Vector to save the valid previous Time Solutions that will be interpolated
     xi = new double[degreewanted+1];  
     jvalid = new int[degreewanted+1]; 
 
@@ -257,7 +258,7 @@ void ExtrapolatingPolynomial(int degreewanted,struct DofData * DofData_P,
                   , ((degree+1)==1)?"":"s"
                   , List_Nbr(DofData_P->Solutions)) ;
 
-    // Build Lagrange Interpolating Polynomial
+    // Build Lagrange Interpolating Polynomial Coefficients
     // http://mathworld.wolfram.com/LagrangeInterpolatingPolynomial.html
     LinAlg_ZeroVector(&Solution_S->x) ;
     for (int j=0; j<=degree; j++) {
@@ -756,7 +757,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   gVector x_Save;
   int NbrSteps_relax;
   double  Norm;
-  double Frelax, Frelax_Opt, Error_Prev;
+  double Frelax, Frelax_Opt, Error_Prev, Frelax_Prev, Fratio;
   int istep;
 
   int Nbr_Formulation, Index_Formulation ;
@@ -1529,12 +1530,14 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_SOLVEJACADAPTRELAX :
       /*  get increment dx by solving : J(xn) dx = b(xn) - A(xn) xn */
       Flag_Jac = 1 ;
+      Fratio   = GOLDENRATIO;
+      //Fratio   = 2;
       Init_OperationOnSystem("SolveJacAdaptRelax",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
 
       if(DofData_P->Flag_Init[0] < 2){
-	Message::Error("Jacobian system not initialized (missing GenerateJac?)");
+	      Message::Error("Jacobian system not initialized (missing GenerateJac?)");
         break;
       }
 
@@ -1552,6 +1555,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Flag_RHS = 1;
       /* MHBilinear-terms do not contribute to the RHS and residual, and are thus disregarded */
 
+      /* init dummy values */
       Error_Prev = 1e99 ;  Frelax_Opt = 1. ;
       //if(Current.Iteration==1) Current.Residual_Iter1=1.0;  //kj+++ to compute a relative residual (relative to residual at iter 1) in SolveJacAdapt (not necessary)
 
@@ -1560,46 +1564,133 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         break;
       }
 
+      /*===============================================================================
+        CheckAll Meaning:
+          0 : try first relaxation factors (from the list) and stops when the residual goes up 
+          1 : try every relaxation factors (from the list) and keep the optimal one
+          2 : find the maximum relaxation factor that decreases the residual:
+              - start with the relaxation factor from the previous time step or from the previous iteration
+              - the relaxation factor is multiplied by a ratio as long as the residual decreases
+              - the relaxation factor is decreased by a ratio until a decreasing residual is found
+      =================================================================================*/
+
+      /* init Frelax for CheckAll==2: */
+      if (Operation_P->Case.SolveJac_AdaptRelax.CheckAll==2) {  
+        if(Current.Iteration>1) { 
+          // if a first iteration has been done ...
+          // ==> Take the Residual from the previous iteration
+          Error_Prev=Current.Residual;
+          // ==> Take the RelaxFactor from the previous iteration
+          Frelax=((struct Solution *) 
+            List_Pointer(DofData_P->Solutions, 
+            List_Nbr(DofData_P->Solutions)-1))->RelaxFacOpt;
+          /*Message::Warning("Init SolveJacAdapt: Start with RelaxFactor "
+                           "from the previous iteration = %g",Frelax);//*/
+        }
+        else {
+          // if at the first iteration ...
+          if (Current.Residual>0) {
+            // if the residual is not 0, a previous time step  has been done
+            // ==> Take the RelaxFactor from the previous TimeStep
+            Frelax=((struct Solution *) 
+              List_Pointer(DofData_P->Solutions, 
+              List_Nbr(DofData_P->Solutions)-2))->RelaxFacOpt;
+            /*
+            Message::Warning("Init SolveJacAdapt: Start with RelaxFactor "
+                             "from the previous TimeStep = %g",Frelax);//*/
+          }
+          else{
+            // At first TimeStep, at first iteration ...
+            // ==> Init a RelaxFac
+            Frelax= 1.;
+            /*Message::Warning("Init SolveJacAdapt: Start with "
+                             "a fixed RelaxFactor = %g",Frelax);//*/
+          }
+        }
+        Frelax_Opt = Frelax; Frelax_Prev = Frelax;
+      }
+
       for( istep = 0 ; istep < NbrSteps_relax ; istep++ ){
 
         if(Message::GetOnelabAction() == "stop" || Message::GetErrorCount()) break;
 
-	List_Read(Operation_P->Case.SolveJac_AdaptRelax.Factor_L, istep, &Frelax);
+        /* set Frelax : */
+        if (Operation_P->Case.SolveJac_AdaptRelax.CheckAll!=2)
+      	   List_Read(Operation_P->Case.SolveJac_AdaptRelax.Factor_L, istep, &Frelax);
 
-	/* new trial solution = x + Frelax * dx */
-	LinAlg_CopyVector(&x_Save, &DofData_P->CurrentSolution->x);
-	LinAlg_AddVectorProdVectorDouble(&DofData_P->CurrentSolution->x, &DofData_P->dx,
-					 Frelax, &DofData_P->CurrentSolution->x);
-	/* LinAlg_PrintVector(stdout, &DofData_P->CurrentSolution->x); */
+      	/* new trial solution = x + Frelax * dx */
+      	LinAlg_CopyVector(&x_Save, &DofData_P->CurrentSolution->x);
+      	LinAlg_AddVectorProdVectorDouble(&DofData_P->CurrentSolution->x, &DofData_P->dx,
+      					 Frelax, &DofData_P->CurrentSolution->x);
+      	/* LinAlg_PrintVector(stdout, &DofData_P->CurrentSolution->x); */
 
-	/* calculate residual with trial solution */
+      	/* calculate residual with trial solution */
 
-	ReGenerate_System(DefineSystem_P, DofData_P, DofData_P0) ;
-        if(Flag_AddMHMoving){// Contribution of the moving band (precalculated)
-          // Jac does not change (Flag_Jac = 0, default argument of ReGenerate_System)
-          LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A_MH_moving, &DofData_P->A) ;
-        }
-	LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x,
-                                &DofData_P->res) ;
-	LinAlg_SubVectorVector(&DofData_P->b, &DofData_P->res, &DofData_P->res) ;
+      	ReGenerate_System(DefineSystem_P, DofData_P, DofData_P0) ;
+              if(Flag_AddMHMoving){// Contribution of the moving band (precalculated)
+                // Jac does not change (Flag_Jac = 0, default argument of ReGenerate_System)
+                LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A_MH_moving, &DofData_P->A) ;
+              }
+      	LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x,
+                                      &DofData_P->res) ;
+      	LinAlg_SubVectorVector(&DofData_P->b, &DofData_P->res, &DofData_P->res) ;
 
-	/* check whether norm of residual is smaller than previous ones */
-	LinAlg_VectorNorm2(&DofData_P->res, &Norm);
-	LinAlg_GetVectorSize(&DofData_P->res, &N);
-	Norm /= (double)N;
-  //Norm /= Current.Residual_Iter1; //kj+++ to compute a relative residual (relative to residual at iter 1) in SolveJacAdapt (not necessary)
+      	/* check whether norm of residual is smaller than previous ones */
+      	LinAlg_VectorNorm2(&DofData_P->res, &Norm);
+      	LinAlg_GetVectorSize(&DofData_P->res, &N);
+      	Norm /= (double)N;
+        //Norm /= Current.Residual_Iter1; //kj+++ to compute a relative residual (relative to residual at iter 1) in SolveJacAdapt (not necessary)
 
         Current.Residual = Norm;
-        if(Message::GetVerbosity() == 10)
-          Message::Info(" adaptive relaxation factor = %8f Residual norm = %10.4e",
-                        Frelax, Norm) ;
+        Current.NbrTestedFac=istep+1; //+++
 
-  Current.NbrTestedFac=istep+1; //+++
-	if (Norm < Error_Prev) {
-	  Error_Prev = Norm;
-	  Frelax_Opt = Frelax;
-	} else if ( !Operation_P->Case.SolveJac_AdaptRelax.CheckAll && istep > 0 ) break ;
+        /*
+        if (Norm < Error_Prev ) 
+            Message::Warning("SolveJacAdapt: relaxation factor = %8f" 
+                             " Residual norm = %10.4e"
+                             " (BETTER than %10.4e)",
+                             Frelax, Norm, Error_Prev) ;
+        else
+            Message::Warning("SolveJacAdapt: relaxation factor = %8f" 
+                             " Residual norm = %10.4e"
+                             " (WORST  than %10.4e)",
+                             Frelax, Norm, Error_Prev) ;  
+        */
 
+      	if (Norm < Error_Prev ) { 
+        // if the residual has decreased ...............................
+          // save the current relaxation factor as optimal
+      	  Error_Prev = Norm;
+          Frelax_Opt = Frelax;
+          if ( Operation_P->Case.SolveJac_AdaptRelax.CheckAll==2 ){
+          /* for CheckAll==2: */
+            if ( Frelax<Frelax_Prev && istep > 0) 
+              // if the factor has been decreased ...
+              // and a decreasing residual has been found => break
+              break; 
+            // if the factor has been increased ...
+            // => increase the factor (as long as the residual decreases)
+            Frelax_Prev=Frelax;
+            Frelax=Frelax*Fratio;  
+          }
+      	}
+        else if ( Operation_P->Case.SolveJac_AdaptRelax.CheckAll==2 ) {
+        /* for CheckAll==2: */
+        // if the residual has increased ...............................
+          if ( Frelax>Frelax_Prev && istep > 0) 
+            // if the factor has been increased ...
+            // but the residual has increased => break
+            break; 
+          // if the factor has been decreased ...
+          // => decrease the factor (until a decreasing residual is found)
+          Frelax_Prev=Frelax;
+          Frelax=Frelax/Fratio; 
+        }
+        else if (Operation_P->Case.SolveJac_AdaptRelax.CheckAll==0 && istep > 0 )  
+        /* for CheckAll==0: */
+        // if the residual has increased ...............................
+          // => break
+          break ;   
       }
 
       //Message::Info(" => optimal relaxation factor = %f", Frelax_Opt) ;
@@ -1610,7 +1701,12 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 				       Frelax_Opt, &DofData_P->CurrentSolution->x);
 
       MeanError = Error_Prev ;
+
       Current.RelaxFac = Frelax_Opt; //kj+++
+      ((struct Solution *) 
+        List_Pointer(DofData_P->Solutions, 
+        List_Nbr(DofData_P->Solutions)-1))->RelaxFacOpt= Frelax_Opt; //kj+++
+
       Current.Residual = MeanError; //kj+++ Residual computed here with SolveJacAdapt (usefull to test stop criterion in classical IterativeLoop then) 
       Message::Info("%3ld Nonlinear Residual norm %14.12e (optimal relaxation factor = %f)",
                     (int)Current.Iteration, MeanError, Frelax_Opt);
