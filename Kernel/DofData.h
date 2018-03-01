@@ -18,7 +18,7 @@
 struct Solution {
   int       TimeStep ; /* Must be first member of struct (for
 			  searching purposes) */
-  double    Time, TimeImag, RelaxFacOpt ;
+  double    Time, TimeImag ;
   int       SolutionExist ;
   double  * TimeFunctionValues, ExplicitTimeFunctionValue ;
   gVector   x ;

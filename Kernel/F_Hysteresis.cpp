@@ -28,6 +28,11 @@
 #define FLAG_WARNING_STOP_ROOTFINDING 102
 #define FLAG_WARNING_ITER             100
 
+#define MIN(a,b) (((a)<(b))?(a):(b))
+#define MAX(a,b) (((a)>(b))?(a):(b))
+
+extern struct CurrentData Current ;
+
 /* ------------------------------------------------------------------------ */
 /*
   Vectorized Jiles-Atherton hysteresis model
@@ -661,7 +666,6 @@ void set_sensi_param(struct FunctionActive *D)
 
 bool limiter(const double Js, double v[3])
 {
-
   double max = (1-::TOLERANCE_JS)*Js ;
   double mod = norm(v);
   if(mod >= max){
@@ -672,6 +676,36 @@ bool limiter(const double Js, double v[3])
     //Message::Warning("Js=%g, norm(J)=%g", Js, mod);
   }
   return false;
+}
+
+void DlalaAdaptation(double *M)
+{
+  int diagcoord[3];
+  switch(::FLAG_SYM)
+  {
+    case 1:
+      diagcoord[0]=0;
+      diagcoord[1]=3;
+      diagcoord[2]=5;
+    break;
+    case 0:
+      diagcoord[0]=0;
+      diagcoord[1]=4;
+      diagcoord[2]=8;
+    break;
+    default:
+      Message::Error("Invalid parameter for function 'DlalaAdaptation'");
+    break;
+  }
+
+  double mindiag=MIN(MIN(M[diagcoord[0]],M[diagcoord[1]]),M[diagcoord[2]]);
+  double maxdiag=MAX(MAX(M[diagcoord[0]],M[diagcoord[1]]),M[diagcoord[2]]);
+  double avediag=0.5*(mindiag+maxdiag);
+
+  for (int k=0; k<6; k++)
+    M[k]=0.;
+  for (int k=0; k<3; k++)
+    M[diagcoord[k]]=avediag;
 }
 
 double Mul_VecVec_K(const double *v1, const double *v2)
@@ -4985,6 +5019,16 @@ void F_dbdh_Vinch_K(F_ARG)
       break;
   }
 
+
+  //---------------------------------------------------------------
+  //If the line search algorithm fails (Current.SolveJacAdaptFailed=1)
+  //==> Newton-Raphson has converged to a local minimum
+  //==> Continue with Dlala's optimal fixed point method
+  //    for the current time step
+  if(Current.SolveJacAdaptFailed)
+    DlalaAdaptation(dbdh);
+  //---------------------------------------------------------------
+
   for (int k=0 ; k<ncomp ; k++)
     V->Val[k] = dbdh[k] ;
 
@@ -5073,9 +5117,19 @@ void F_dhdb_Vinch_K(F_ARG)
     break;
   }
 
+  //---------------------------------------------------------------
+  //If the line search algorithm fails (Current.SolveJacAdaptFailed=1)
+  //==> Newton-Raphson has converged to a local minimum
+  //==> Continue with Dlala's optimal fixed point method
+  //    for the current time step
+  if(Current.SolveJacAdaptFailed)
+    DlalaAdaptation(dhdb);
+  //---------------------------------------------------------------
+
 
   for (int k=0 ; k<ncomp ; k++)
     V->Val[k] = dhdb[k] ;
+
 
   delete [] dhdb;
   delete [] dbdh;

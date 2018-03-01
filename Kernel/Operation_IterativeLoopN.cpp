@@ -230,7 +230,6 @@ void Operation_IterativeLoopN(Resolution  *Resolution_P,
     Current.Iteration = (double)Num_Iteration;
     Get_ValueOfExpressionByIndex(RelaxationFactorIndex, NULL, 0., 0., 0., &Value);
     Current.RelaxationFactor = Value.Val[0];
-    Current.RelaxFac =  Current.RelaxationFactor ; // +++
 
     // Store the current solutions in xPrevious_L
     for(int i = 0; i < List_Nbr(ILsystems_L); i++){
@@ -263,6 +262,12 @@ void Operation_IterativeLoopN(Resolution  *Resolution_P,
     //NB: SolveJac OR SolveJacAdapt are called here
     Treatment_Operation(Resolution_P, Operation_P->Case.IterativeLoop.Operation,
                         DofData_P0, GeoData_P0, Resolution2_P, DofData2_P0) ;
+
+    if (Current.RelaxFac==0) 
+      // SolveJacAdapt has not been called
+      // ==> Copy the default RelaxationFactor in RelaxFac
+      Current.RelaxFac =  Current.RelaxationFactor ; // +++
+
     if(*Flag_Break) {
       *Flag_Break = 0;
       Message::Info("Flag Break detected. Aborting IterativeLoop");
