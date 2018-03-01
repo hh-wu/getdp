@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2017 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@onelab.info>.
@@ -33,6 +33,7 @@ double * Geo_GetNodes_uvw(int Type, int *nbn)
   case TRIANGLE_2  : *nbn = NbrNodes_Triangle_2 ;  return(*Nodes_Triangle_2) ;
   case QUADRANGLE_2: *nbn = NbrNodes_Quadrangle_2 ;return(*Nodes_Quadrangle_2) ;
   case QUADRANGLE_2_8N: *nbn = NbrNodes_Quadrangle_2_8N ;return(*Nodes_Quadrangle_2_8N);
+  case TETRAHEDRON_2: *nbn = NbrNodes_Tetrahedron_2; return(*Nodes_Tetrahedron_2) ;
   default :
     Message::Error("Unknown type of Element in Geo_GetNodes_uvw") ; return(NULL) ;
   }
@@ -116,6 +117,7 @@ int *Geo_GetIM_Den(int Type_Element, int * Nbe)
   case TRIANGLE_2 :  *Nbe = NbrEdges_Triangle_2  ; return(*Den_Triangle_2) ;
   case QUADRANGLE_2 :*Nbe = NbrEdges_Quadrangle_2; return(*Den_Quadrangle_2) ;
   case QUADRANGLE_2_8N :*Nbe = NbrEdges_Quadrangle_2_8N; return(*Den_Quadrangle_2_8N) ;
+  case TETRAHEDRON_2 : *Nbe = NbrEdges_Tetrahedron_2; return(*Den_Tetrahedron_2) ;
   default :
     Message::Error("Unknown incidence matrix for element type %d", Type_Element);
     return(NULL) ;
@@ -141,6 +143,7 @@ int *Geo_GetIM_Dfe(int Type_Element, int * Nbf)
   case TRIANGLE_2 :  *Nbf = NbrFacets_Triangle_2  ; return(*Dfe_Triangle_2) ;
   case QUADRANGLE_2 :*Nbf = NbrFacets_Quadrangle_2; return(*Dfe_Quadrangle_2) ;
   case QUADRANGLE_2_8N :*Nbf = NbrFacets_Quadrangle_2_8N; return(*Dfe_Quadrangle_2_8N) ;
+  case TETRAHEDRON_2 : *Nbf = NbrFacets_Tetrahedron_2; return(*Dfe_Tetrahedron_2);
   default :
     Message::Error("Unknown incidence matrix for element type %d", Type_Element);
     return(NULL) ;
@@ -166,6 +169,7 @@ int *Geo_GetIM_Dfn(int Type_Element, int * Nbf)
   case TRIANGLE_2 : *Nbf = NbrFacets_Triangle_2  ; return(*Dfn_Triangle_2) ;
   case QUADRANGLE_2:*Nbf = NbrFacets_Quadrangle_2; return(*Dfn_Quadrangle_2) ;
   case QUADRANGLE_2_8N:*Nbf = NbrFacets_Quadrangle_2_8N; return(*Dfn_Quadrangle_2_8N) ;
+  case TETRAHEDRON_2: *Nbf = NbrFacets_Tetrahedron_2; return(*Dfn_Tetrahedron_2);
   default :
     Message::Error("Unknown incidence matrix for element type %d", Type_Element);
     return(NULL) ;
@@ -215,6 +219,9 @@ int * Geo_GetIM_Den_Xp(int Type_Element, int * Nbe, int * Nbn)
   case QUADRANGLE_2_8N :
     *Nbe = NbrEdges_Quadrangle_2_8N ; *Nbn = NbrNodes_Quadrangle_2_8N ;
     return(Den_Quadrangle_2_8N_Xp) ;
+  case TETRAHEDRON_2 :
+    *Nbe = NbrEdges_Tetrahedron_2 ; *Nbn = NbrNodes_Tetrahedron_2 ;
+    return(Den_Tetrahedron_2_Xp) ;
   default :
     Message::Error("Unknown incidence matrix for element type %d", Type_Element);
     return(NULL) ;
@@ -264,6 +271,9 @@ int * Geo_GetIM_Dfe_Xp(int Type_Element, int * nbf, int * nbe)
   case QUADRANGLE_2_8N :
     *nbf = NbrFacets_Quadrangle_2_8N ; *nbe = NbrEdges_Quadrangle_2_8N ;
     return(Dfe_Quadrangle_2_8N_Xp) ;
+  case TETRAHEDRON_2 :
+    *nbf = NbrFacets_Tetrahedron_2 ; *nbe = NbrEdges_Tetrahedron_2 ;
+    return(Dfe_Tetrahedron_2_Xp) ;
   default :
     Message::Error("Unknown incidence matrix for element type %d", Type_Element);
     return(NULL) ;

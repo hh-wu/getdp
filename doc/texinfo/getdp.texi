@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c GetDP - Copyright (C) 1997-2017 P. Dular and C. Geuzaine, University of Liege
+@c GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
 @c
 @c See the LICENSE.txt file for license information. Please report all
 @c bugs and problems to the public mailing list <getdp@onelab.info>.
@@ -22,7 +22,7 @@
 @c %**start of header
 @setfilename getdp.info
 @set GETDP-VERSION 2.11
-@set COPYRIGHT @copyright{} 1997-2017 P. Dular and C. Geuzaine, University of Liege
+@set COPYRIGHT @copyright{} 1997-2018 P. Dular and C. Geuzaine, University of Liege
 @settitle GetDP @value{GETDP-VERSION}
 @footnotestyle separate
 @setchapternewpage odd
@@ -1880,13 +1880,17 @@ Macros are defined as follows:
 @ftable @code
 
 @item Macro @var{string} | @var{expression-char}
-Begins the declaration of a user-defined macro named @var{string}. The
-body of the macro starts on the line after `@code{Macro
-@var{string}}', and can contain any GetDP command.
+Begins the declaration of a user-defined file macro named
+@var{string}. The body of the macro starts on the line after
+`@code{Macro @var{string}}', and can contain any GetDP command.
 
 @item Return
-Ends the body of the current user-defined macro. Macro declarations
+Ends the body of the current user-defined file macro. Macro declarations
 cannot be imbricated, and must be made outside any GetDP object.
+
+@item Macro ( @var{expression-char} , @var{expression-char} ) ;
+Begins the declaration of a user-defined string macro. The body of the
+macro is given explicitly as the second argument.
 
 @end ftable
 
@@ -4030,6 +4034,28 @@ Gets the value of the runtime variable @code{$@var{variable-id}}. If
 the optional @var{expression}s are provided, they are appended to the
 variable name, separated by @code{_}.
 
+@item ValueFromIndex
+@code{[ ]@{ @var{expression-cst-list} @}}
+
+Treats @var{expression-cst-list} as a map of (@var{entity}, @var{value})
+pairs. Useful to specify nodal or element-wise constraints, where
+@var{entity} is the node (mesh vertex) or element number (tag).
+
+@item VectorFromIndex
+@code{[ ]@{ @var{expression-cst-list} @}}
+
+Same @code{ValueFromIndex}, but with 3 scalar values per @var{entity}.
+
+@item ValueFromTable
+@code{[ @var{expression} ]@{ @var{char-expression} @}}
+
+Accesses the map @var{char-expression} created by a @code{NodeTable} or
+@code{ElementTable} @code{PostOperation}. If the map is not available
+(e.g. in pre-processing), or if the entity is not found in the map, use
+@var{expression} as default value. Useful to specify nodal or
+element-wise constraints, where @var{entity} is the node (mesh vertex)
+or element number (tag).
+
 @end ftable
 
 @c -------------------------------------------------------------------------
@@ -5640,9 +5666,22 @@ Graph, etc. The columns are: @var{time-step} @var{time} @var{x-coord}
 @dots{} @var{value}.
 
 @item NodeTable
-Table of node values. The first value corresponds to the number of listed
-nodes. The columns of the following lines are: @var{node-number}
-@var{node-value}(s)
+Table of nodal values, in the form @var{node-number}
+@var{node-value}(s). When exported to a file, the total number of nodal
+values is printed first. The data is automatically exported as a
+run-time accessible list as well as a ONELAB variable, with the name of
+the @code{PostOperation} quantity. The values are also directly usable
+by the @code{ValueFromTable} function, which allows to use them as
+values in a nodal @code{Constraint}.
+
+@item ElementTable
+Table of element values, in the form @var{element-number}
+@var{element-node-value}(s). When exported to a file, the total number
+of element values is printed first. The data is automatically exported
+as a run-time accessible list as well as a ONELAB variable, with the
+name of the @code{PostOperation} quantity. The values are also directly
+usable by the @code{ValueFromTable} function, which allows to use them
+as values in an element-wise @code{Constraint}.
 
 @item Gnuplot
 Space oriented column output similar to the @code{Table} format, except that

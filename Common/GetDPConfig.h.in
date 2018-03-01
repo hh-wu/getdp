@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2017 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@onelab.info>.
@@ -13,6 +13,7 @@
 #cmakedefine HAVE_HPDDM
 #cmakedefine HAVE_LAPACK
 #cmakedefine HAVE_KERNEL
+#cmakedefine HAVE_MMA
 #cmakedefine HAVE_MPI
 #cmakedefine HAVE_MULTIHARMONIC
 #cmakedefine HAVE_NO_FORTRAN

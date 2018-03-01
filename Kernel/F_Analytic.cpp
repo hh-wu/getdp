@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2017 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@onelab.info>.
@@ -1223,10 +1223,10 @@ cplx Dhn_Spherical(cplx *hntab, int n, double x)
 
 void F_AcousticFieldSoftSphereABC(F_ARG)
 {
-    cplx I = {0.,1.}, tmp, alpha1, alpha2, delta, am, bm, lambda, coef;
-    cplx h1nkR0, *h1nkR1tab, *h2nkR1tab, h1nkr, alphaBT, betaBT, keps = {0., 0.};
+    cplx I = {0.,1.}, tmp, alpha1, alpha2, delta, am, bm, lambda;
+    cplx h1nkR0, *h1nkR1tab, *h2nkR1tab, h1nkr;
 
-    double k, R0, R1, r, kr, kR0, kR1, theta, cosfact, sinfact, fact, kappa ;
+    double k, R0, R1, r, kr, kR0, kR1, theta, cosfact, sinfact, fact;
     int n, ns, ABCtype, SingleMode ;
 
     r = sqrt(A->Val[0]*A->Val[0] + A->Val[1]*A->Val[1] + A->Val[2]*A->Val[2]) ;
@@ -1635,28 +1635,23 @@ void F_JFIE_TransZPolCyl(F_ARG)
   V->Type = SCALAR ;
 }
 
-/* Scattering by acoustically soft circular cylinder of radius R,
-   under plane wave incidence e^{ikx}. Returns the mode 'm' of
-   the scatterered field outside */
+/* Cylindrical harmonics normalized by the max. value at radius R.
+   Returns the mode 'm' */
 
-void F_AcousticFieldSoftCylinderByMode(F_ARG)
+void F_CylindricalHarmonic(F_ARG)
 {
-  double theta = atan2(A->Val[1], A->Val[0]) ;
-  double r = sqrt(A->Val[0]*A->Val[0] + A->Val[1]*A->Val[1]) ;
-  double k = Fct->Para[0] ;
-  double R = Fct->Para[1] ;
-  int mode = Fct->Para[2] ;
+  double theta = atan2(A->Val[1], A->Val[0]);
+  double r = sqrt(A->Val[0]*A->Val[0] + A->Val[1]*A->Val[1]);
+  double k = Fct->Para[0];
+  double R = Fct->Para[1];
+  int m = Fct->Para[2];
   double kr = k*r;
   double kR = k*R;
-  std::complex<double> I(0,1);
-  std::complex<double> HnkR( jn(mode,kR), yn(mode,kR) );
-  std::complex<double> Hnkr( jn(mode,kr), yn(mode,kr) );
-  std::complex<double> tmp1 = std::pow(I,mode) * std::real(HnkR) * Hnkr/HnkR;
-  double tmp2 = - (!mode ? 1 : 2.) * cos(mode*theta);
-  double vr = tmp2 * std::real(tmp1);
-  double vi = tmp2 * std::imag(tmp1);
-  V->Val[0]       = vr;
-  V->Val[MAX_DIM] = vi;
+  std::complex<double> HnkR( jn(m,kR), yn(m,kR) );
+  std::complex<double> Hnkr( jn(m,kr), yn(m,kr) );
+  std::complex<double> val = cos(m*theta) * Hnkr/HnkR;
+  V->Val[0]       = std::real(val);
+  V->Val[MAX_DIM] = std::imag(val);
   V->Type = SCALAR ;
 }
 
@@ -1666,29 +1661,45 @@ void F_AcousticFieldSoftCylinderByMode(F_ARG)
 
 void F_AcousticFieldSoftCylinder(F_ARG)
 {
-  cplx I = {0.,1.};
-  double theta = atan2(A->Val[1], A->Val[0]) ;
-  double r = sqrt(A->Val[0]*A->Val[0] + A->Val[1]*A->Val[1]) ;
-  double k = Fct->Para[0] ;
-  double R = Fct->Para[1] ;
+  double theta = atan2(A->Val[1], A->Val[0]);
+  double r = sqrt(A->Val[0]*A->Val[0] + A->Val[1]*A->Val[1]);
+  double k = Fct->Para[0];
+  double R = Fct->Para[1];
   double kr = k*r;
   double kR = k*R;
-  int ns = (int)(k*R) + 10;
-  double vr = 0., vi = 0.;
+  
+  if(Fct->NbrParameters > 2){
+    double thetaInc = Fct->Para[2];
+    theta += thetaInc;
+  }
+  
+  int nStart = 0;
+  int nEnd = (int)(kR) + 10;
+  if(Fct->NbrParameters > 3){
+    double mode = Fct->Para[3];
+    if(mode >= 0){
+      nStart = mode;
+      nEnd = mode+1;
+    }
+  }
+  
+  std::complex<double> I(0,1);
+  double vr=0, vi=0;
 #if defined(_OPENMP)
 #pragma omp parallel for reduction(+: vr,vi)
 #endif
-  for(int n = 0 ; n < ns ; n++){
-    cplx HnkR = {jn(n,kR), yn(n,kR)};
-    cplx Hnkr = {jn(n,kr), yn(n,kr)};
-    cplx tmp = Cdiv( Cprod( Cpow(I,n) , Cprodr( HnkR.r, Hnkr) ) , HnkR );
-    double cost = cos(n*theta);
-    vr +=  cost * tmp.r * (!n ? 0.5 : 1.);
-    vi += cost * tmp.i * (!n ? 0.5 : 1.);
+  for(int n = nStart ; n < nEnd ; n++){
+    std::complex<double> HnkR( jn(n,kR), yn(n,kR) );
+    std::complex<double> Hnkr( jn(n,kr), yn(n,kr) );
+    std::complex<double> tmp1 = std::pow(I,n) * Hnkr/HnkR;
+    double tmp2 = - (!n ? 1. : 2.) * cos(n*theta) * std::real(HnkR);
+    std::complex<double> val = tmp1 * tmp2;
+    vr += std::real(val);
+    vi += std::imag(val);
   }
-  V->Val[0] = -2 * vr;
-  V->Val[MAX_DIM] = -2 * vi;
-  V->Type = SCALAR ;
+  V->Val[0]       = vr;
+  V->Val[MAX_DIM] = vi;
+  V->Type = SCALAR;
 }
 
 cplx DHn(cplx *Hnkrtab, int n, double x)

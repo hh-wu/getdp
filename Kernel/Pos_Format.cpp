@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2017 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@onelab.info>.
@@ -246,6 +246,7 @@ static void GmshParsed_PrintElement(double Time, int TimeStep, int NbTimeStep, i
       case TRIANGLE_2  : fprintf(PostStream, "ST("); break;
       case QUADRANGLE_2: fprintf(PostStream, "SQ("); break;
       case QUADRANGLE_2_8N: fprintf(PostStream, "SQ("); break;
+      case TETRAHEDRON_2 : fprintf(PostStream, "SS("); break;
       }
       for(i = 0 ; i < NbrNodes ; i++){
 	if(i) fprintf(PostStream, ",");
@@ -295,6 +296,7 @@ static void GmshParsed_PrintElement(double Time, int TimeStep, int NbTimeStep, i
       case TRIANGLE_2  : fprintf(PostStream, "VT("); break;
       case QUADRANGLE_2: fprintf(PostStream, "VQ("); break;
       case QUADRANGLE_2_8N: fprintf(PostStream, "VQ("); break;
+      case TETRAHEDRON_2 : fprintf(PostStream, "VS("); break;
       }
       for(i = 0 ; i < NbrNodes ; i++){
 	if(i) fprintf(PostStream, ",");
@@ -352,6 +354,7 @@ static void GmshParsed_PrintElement(double Time, int TimeStep, int NbTimeStep, i
       case TRIANGLE_2  : fprintf(PostStream, "TT("); break;
       case QUADRANGLE_2: fprintf(PostStream, "TQ("); break;
       case QUADRANGLE_2_8N: fprintf(PostStream, "TQ("); break;
+      case TETRAHEDRON_2 : fprintf(PostStream, "TS("); break;
       }
       for(i = 0 ; i < NbrNodes ; i++){
 	if(i) fprintf(PostStream, ",");
@@ -449,6 +452,7 @@ static void Gmsh_PrintElement(double Time, int TimeStep, int NbTimeStep, int NbH
       case TRIANGLE_2  : Current_L = &ST ; NbST++ ; break ;
       case QUADRANGLE_2: Current_L = &SQ ; NbSQ++ ; break ;
       case QUADRANGLE_2_8N: Current_L = &SQ ; NbSQ++ ; break ;
+      case TETRAHEDRON_2 : Current_L = &SS ; NbSS++ ; break ;
       }
       if(Flag_GMSH_VERSION != 2){
         for(i = 0 ; i < NbrNodes ; i++) Current_L->push_back(x[i]);
@@ -492,6 +496,7 @@ static void Gmsh_PrintElement(double Time, int TimeStep, int NbTimeStep, int NbH
       case TRIANGLE_2  : Current_L = &VT ; NbVT++ ; break ;
       case QUADRANGLE_2: Current_L = &VQ ; NbVQ++ ; break ;
       case QUADRANGLE_2_8N: Current_L = &VQ ; NbVQ++ ; break ;
+      case TETRAHEDRON_2 : Current_L = &VS ; NbVS++ ; break ;
       }
       if(Flag_GMSH_VERSION != 2){
         for(i = 0 ; i < NbrNodes ; i++) Current_L->push_back(x[i]);
@@ -539,6 +544,7 @@ static void Gmsh_PrintElement(double Time, int TimeStep, int NbTimeStep, int NbH
       case TRIANGLE_2  : Current_L = &TT ; NbTT++ ; break ;
       case QUADRANGLE_2: Current_L = &TQ ; NbTQ++ ; break ;
       case QUADRANGLE_2_8N: Current_L = &TQ ; NbTQ++ ; break ;
+      case TETRAHEDRON_2 : Current_L = &TS1 ; NbTS++ ; break ;
       }
       if(Flag_GMSH_VERSION != 2){
         for(i = 0 ; i < NbrNodes ; i++) Current_L->push_back(x[i]);
@@ -857,6 +863,50 @@ static void NodeTable_PrintElement(int TimeStep, int NbTimeStep, int NbrHarmonic
 }
 
 /* ------------------------------------------------------------------------ */
+/*  ElementTable format                                                        */
+/* ------------------------------------------------------------------------ */
+
+// global static map for element table output (cannot be saved incrementally for
+// each element)
+static int ElementTable_StartNew = 0;
+static std::map<int, std::vector<double> > ElementTable;
+
+static void ElementTable_PrintElement(int TimeStep, int NbTimeStep, int NbrHarmonics,
+                                      struct PostElement *PE)
+{
+  if(ElementTable_StartNew){
+    ElementTable_StartNew = 0 ;
+    ElementTable.clear();
+  }
+  int numEle = -1;
+  if(PE->Index >= 0 && PE->Index < Geo_GetNbrGeoElements()){
+    numEle = Geo_GetGeoElement(PE->Index)->Num;
+    int Size = 0;
+    switch(PE->Value[0].Type){
+    case SCALAR      : Size = 1 ; break ;
+    case VECTOR      : Size = 3 ; break ;
+    case TENSOR_DIAG : Size = 3 ; break ;
+    case TENSOR_SYM  : Size = 6 ; break ;
+    case TENSOR      : Size = 9 ; break ;
+    }
+    if(Size){
+      ElementTable[numEle].resize
+        (NbTimeStep * PE->NbrNodes * NbrHarmonics * Size, 0.);
+      for(int i = 0 ; i < PE->NbrNodes ; i++){
+        for(int k = 0 ; k < NbrHarmonics ; k++){
+          for(int j = 0 ; j < Size ; j++){
+            double val = PE->Value[i].Val[MAX_DIM * k + j];
+            int idx = TimeStep * PE->NbrNodes * NbrHarmonics * Size +
+              i * NbrHarmonics * Size + k * Size + j;
+            ElementTable[numEle][idx] = val;
+          }
+        }
+      }
+    }
+  }
+}
+
+/* ------------------------------------------------------------------------ */
 /*  S t o r e P o s t O p R e s u l t                                       */
 /* ------------------------------------------------------------------------ */
 
@@ -1104,6 +1154,9 @@ void  Format_PostHeader(struct PostSubOperation *PSO_P, int NbTimeStep,
     break ;
   case FORMAT_NODE_TABLE :
     NodeTable_StartNew = 1 ;
+    break ;
+  case FORMAT_ELEMENT_TABLE :
+    ElementTable_StartNew = 1 ;
     break ;
   case FORMAT_ADAPT :
     if(PostStream) fprintf(PostStream, "$Adapt /* %s */\n", name) ;
@@ -1374,6 +1427,35 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
           exp.push_back(it->second[i]);
       }
       GetDPNumbers[CurrentName] = exp;
+      GetDPNumbersMap[CurrentName] = NodeTable;
+      if(PSO_P->SendToServer && strcmp(PSO_P->SendToServer, "No"))
+        Message::AddOnelabNumberChoice(PSO_P->SendToServer, exp, PSO_P->Color,
+                                       PSO_P->Units, PSO_P->Label, PSO_P->Visible,
+                                       PSO_P->Closed);
+    }
+    break;
+  case FORMAT_ELEMENT_TABLE :
+    if(PostStream){
+      fprintf(PostStream, "%d\n", (int)ElementTable.size());
+      for(std::map<int, std::vector<double> >::iterator it = ElementTable.begin();
+          it != ElementTable.end(); it++){
+        fprintf(PostStream, "%d", it->first);
+        for(unsigned int i = 0; i < it->second.size(); i++)
+          fprintf(PostStream, " %.16g", it->second[i]);
+        fprintf(PostStream, "\n");
+      }
+    }
+    {
+      std::vector<double> exp;
+      exp.push_back(ElementTable.size());
+      for(std::map<int, std::vector<double> >::iterator it = ElementTable.begin();
+          it != ElementTable.end(); it++){
+        exp.push_back(it->first);
+        for(unsigned int i = 0; i < it->second.size(); i++)
+          exp.push_back(it->second[i]);
+      }
+      GetDPNumbers[CurrentName] = exp;
+      GetDPNumbersMap[CurrentName] = ElementTable;
       if(PSO_P->SendToServer && strcmp(PSO_P->SendToServer, "No"))
         Message::AddOnelabNumberChoice(PSO_P->SendToServer, exp, PSO_P->Color,
                                        PSO_P->Units, PSO_P->Label, PSO_P->Visible,
@@ -1551,6 +1633,9 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
     break ;
   case FORMAT_NODE_TABLE :
     NodeTable_PrintElement(TimeStep, NbTimeStep, NbrHarmonics, PE);
+    break;
+  case FORMAT_ELEMENT_TABLE :
+    ElementTable_PrintElement(TimeStep, NbTimeStep, NbrHarmonics, PE);
     break;
   case FORMAT_LOOP_ERROR :
     StorePostOpResult(NbrHarmonics, PE);

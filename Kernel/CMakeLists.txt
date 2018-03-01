@@ -1,4 +1,4 @@
-# GetDP - Copyright (C) 1997-2017 P. Dular and C. Geuzaine, University of Liege
+# GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
 #
 # See the LICENSE.txt file for license information. Please report all
 # bugs and problems to the public mailing list <getdp@onelab.info>.
@@ -37,6 +37,7 @@ set(SRC
       Operation_ChangeOfCoordinates.cpp
       Operation_PostOperation.cpp
       Operation_HPDDM.cpp Operation_Debug.cpp
+      Operation_Optimizer.cpp
       Treatment_Formulation.cpp
         Get_DofOfElement.cpp
         Get_ConstraintOfElement.cpp

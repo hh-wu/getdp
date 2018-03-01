@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2017 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@onelab.info>.
@@ -120,6 +120,7 @@ void Cal_Iso(struct PostElement *PE, List_T *list,
     }
     break ;
   case TETRAHEDRON :
+  case TETRAHEDRON_2 :
     Cal_IsoTetrahedron(PE->x, PE->y, PE->z, PE->Value, 
 		       val, vmin, vmax, x, y, z, &nb) ;
 

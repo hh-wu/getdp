@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2017 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@onelab.info>.
@@ -352,7 +352,7 @@ bool Fi_dInterpolationBilinear(double *x, double *y, double *M, int NL, int NC,
 bool  Fi_InterpolationTrilinear (double *x, double *y, double *z, double *M, int NX, int NY, int NZ,
                                  double xp, double yp, double zp, double *vp)
 {
-    /*                                  
+    /*
      *
      *       a122  **************************** a222
      *           * |                        * *
@@ -375,62 +375,62 @@ bool  Fi_InterpolationTrilinear (double *x, double *y, double *z, double *M, int
      *     ****************************
      *    a111                       a211
      */
-    
+
     double a111, a121, a211, a221, a112, a122, a212, a222;
     int i, j, k;
-    
+
     // Interpolate point (xp,yp,zp) in a regular grid
     // x[i] <= xp < x[i+1]
     // y[j] <= yp < y[j+1]
     // z[k] <= zp < z[k+1]
-    
+
     *vp = 0.0 ;
-    
+
     // When (xp,yp,zp) lays outside the boundaries of the table:
     // the nearest border is taken
     if (xp < x[0]) xp = x[0];
     else if (xp > x[NX-1]) xp = x[NX-1];
     for (i=0 ; i<NX-1 ; ++i) if (x[i+1] >= xp  &&  xp >= x[i]) break;
     i = (i >= NX) ? NX-1 : i;
-    
+
     if (yp < y[0]) yp = y[0];
     else if (yp > y[NY-1]) yp = y[NY-1];
     for (j=0 ; j<NY-1 ; ++j) if (y[j+1] >= yp  &&  yp >= y[j]) break;
     j = (j >= NY) ? NY-1 : j;
-    
+
     if (zp < z[0]) zp = z[0];
     else if (zp > z[NZ-1]) zp = z[NZ-1];
     for (k=0 ; k<NZ-1 ; ++k) if (z[k+1] >= zp  &&  zp >= z[k]) break;
     k = (k >= NZ) ? NZ-1 : k;
-    
-    
+
+
     a111 = M[   i  + NX * j     + NX * NY * k    ];
     a211 = M[(1+i) + NX * j     + NX * NY * k    ];
     a121 = M[   i  + NX * (1+j) + NX * NY * k    ];
     a221 = M[(1+i) + NX * (1+j) + NX * NY * k    ];
-    
+
     a112 = M[   i  + NX * j     + NX * NY * (k+1)];
     a212 = M[(1+i) + NX * j     + NX * NY * (k+1)];
     a122 = M[   i  + NX * (1+j) + NX * NY * (k+1)];
     a222 = M[(1+i) + NX * (1+j) + NX * NY * (k+1)];
-    
+
     double xd, yd, zd;
     xd = (xp-x[i])/(x[i+1]-x[i]);
     yd = (yp-y[j])/(y[j+1]-y[j]);
     zd = (zp-z[k])/(z[k+1]-z[k]);
-    
+
     double a11, a12, a21, a22;
     a11 = a111*(1-xd) + a211*xd;
     a12 = a112*(1-xd) + a212*xd;
     a21 = a121*(1-xd) + a221*xd;
     a22 = a122*(1-xd) + a222*xd;
-    
+
     double a1, a2;
     a1 = a11*(1-yd) + a21*yd;
     a2 = a12*(1-yd) + a22*yd;
-    
+
     *vp = a1*(1-zd) + a2*zd;
-    
+
     return true ;
 }
 
@@ -460,57 +460,57 @@ bool  Fi_dInterpolationTrilinear (double *x, double *y, double *z, double *M, in
      *     ****************************
      *    a111                       a211
      */
-    
+
     double a111, a121, a211, a221, a112, a122, a212, a222;
     int i, j, k;
-    
+
     // Interpolate point (xp,yp,zp) in a regular grid
     // x[i] <= xp < x[i+1]
     // y[j] <= yp < y[j+1]
     // z[k] <= zp < z[k+1]
-    
+
     *dvp_dx = 0.0 ;
     *dvp_dy = 0.0 ;
     *dvp_dz = 0.0 ;
-    
+
     // When (xp,yp,zp) lays outside the boundaries of the table:
     // the nearest border is taken
     if (xp < x[0]) xp = x[0];
     else if (xp > x[NX-1]) xp = x[NX-1];
     for (i=0 ; i<NX-1 ; ++i) if (x[i+1] >= xp  &&  xp >= x[i]) break;
     i = (i >= NX) ? NX-1 : i;
-    
+
     if (yp < y[0]) yp = y[0];
     else if (yp > y[NY-1]) yp = y[NY-1];
     for (j=0 ; j<NY-1 ; ++j) if (y[j+1] >= yp  &&  yp >= y[j]) break;
     j = (j >= NY) ? NY-1 : j;
-    
+
     if (zp < z[0]) zp = z[0];
     else if (zp > z[NZ-1]) zp = z[NZ-1];
     for (k=0 ; k<NZ-1 ; ++k) if (z[k+1] >= zp  &&  zp >= z[j]) break;
     k = (k >= NZ) ? NZ-1 : k;
-    
-    
+
+
     a111 = M[   i  + NX * j     + NX * NY * k    ];
     a211 = M[(1+i) + NX * j     + NX * NY * k    ];
     a121 = M[   i  + NX * (1+j) + NX * NY * k    ];
     a221 = M[(1+i) + NX * (1+j) + NX * NY * k    ];
-    
+
     a112 = M[   i  + NX * j     + NX * NY * (k+1)];
     a212 = M[(1+i) + NX * j     + NX * NY * (k+1)];
     a122 = M[   i  + NX * (1+j) + NX * NY * (k+1)];
     a222 = M[(1+i) + NX * (1+j) + NX * NY * (k+1)];
-    
+
     double xd, yd, zd;
     xd = (xp-x[i])/(x[i+1]-x[i]);
     yd = (yp-y[j])/(y[j+1]-y[j]);
     zd = (zp-z[k])/(z[k+1]-z[k]);
-    
+
     double dxd, dyd, dzd;
     dxd = 1./(x[i+1]-x[i]);
     dyd = 1./(y[j+1]-y[j]);
     dzd = 1./(z[k+1]-z[k]);
-    
+
     double a11, a12, a21, a22, dxa11, dxa12, dxa21, dxa22;
     a11 = a111*(1-xd) + a211*xd;
     a12 = a112*(1-xd) + a212*xd;
@@ -520,7 +520,7 @@ bool  Fi_dInterpolationTrilinear (double *x, double *y, double *z, double *M, in
     dxa12 = -a112*dxd + a212*dxd;
     dxa21 = -a121*dxd + a221*dxd;
     dxa22 = -a122*dxd + a222*dxd;
-    
+
     double a1, a2, dya1, dya2, dxa1, dxa2;
     a1 = a11*(1-yd) + a21*yd;
     a2 = a12*(1-yd) + a22*yd;
@@ -528,11 +528,11 @@ bool  Fi_dInterpolationTrilinear (double *x, double *y, double *z, double *M, in
     dya2 = -a12*dyd + a22*dyd;
     dxa1 = dxa11*(1-yd) + dxa21*yd;
     dxa2 = dxa12*(1-yd) + dxa22*yd;
-    
+
     *dvp_dx = dxa1*(1-zd) + dxa2*zd;
     *dvp_dy = dya1*(1-zd) + dya2*zd;
     *dvp_dz = -a1*dzd + a2*dzd;
-    
+
     return true ;
 }
 
@@ -634,7 +634,7 @@ void F_InterpolationTrilinear(F_ARG)
   /*
      It performs a trilinear interpolation at point (xp,yp,zp) based
      on a three-dimensional table (sorted grid).
-     
+
      Input parameters:
      NX  Number of lines X
      NY  Number of lines Y
@@ -643,40 +643,40 @@ void F_InterpolationTrilinear(F_ARG)
      y   values (ascending order) linked to the NY lines of the table
      z   values (ascending order) linked to the NZ lines of the table
      M   Matrix M(x,y,z) = M[x+NX*y+NX*NY*z]
-     
+
      xp  x coordinate of interpolation point
      yp  y coordinate of interpolation point
      zp  z coordinate of interpolation point
-     
+
      A. Royer
   */
-    
+
   int     NX, NY, NZ;
   double  xp, yp, zp, vp=0., *x, *y, *z, *M;
   struct FunctionActive  * D;
-    
+
   if( (A+0)->Type != SCALAR || (A+1)->Type != SCALAR || (A+2)->Type != SCALAR)
     Message::Error("Three Scalar arguments required!");
-    
+
   if (!Fct->Active)  Fi_InitListMatrix3D (Fct, A, V) ;
-    
+
   D = Fct->Active ;
   NX = D->Case.ListMatrix3D.NbrLinesX ;
   NY = D->Case.ListMatrix3D.NbrLinesY ;
   NZ = D->Case.ListMatrix3D.NbrLinesZ ;
-    
+
   x = D->Case.ListMatrix3D.x ;
   y = D->Case.ListMatrix3D.y ;
   z = D->Case.ListMatrix3D.z ;
   M = D->Case.ListMatrix3D.data ;
-    
+
   xp = (A+0)->Val[0] ;
   yp = (A+1)->Val[0] ;
   zp = (A+2)->Val[0] ;
-    
+
   bool IsInGrid = Fi_InterpolationTrilinear (x, y, z, M, NX, NY, NZ, xp, yp, zp, &vp);
   if (!IsInGrid) Message::Error("Extrapolation not allowed (xp=%g ; yp=%g, zp=%g)", xp, yp, zp) ;
-    
+
   V->Type = SCALAR ;
   V->Val[0] = vp ;
 }
@@ -686,7 +686,7 @@ void F_dInterpolationTrilinear(F_ARG)
   /*
      It delivers the derivative of the bilinear interpolation at point (xp, yp, zp)
      based on a three-dimensional table (sorted grid).
-     
+
      Input parameters:
      NX  Number of lines X
      NY  Number of lines Y
@@ -695,40 +695,40 @@ void F_dInterpolationTrilinear(F_ARG)
      y   values (ascending order) linked to the NY lines of the table
      z   values (ascending order) linked to the NZ lines of the table
      M   Matrix M(x,y,z) = M[x+NX*y+NX*NY*z]
-     
+
      xp  x coordinate of interpolation point
      yp  y coordinate of interpolation point
      zp  z coordinate of interpolation point
-     
+
      A. Royer
   */
-    
+
   int     NX, NY, NZ;
   double  xp, yp, zp, dvp_dx =0., dvp_dy =0., dvp_dz =0., *x, *y, *z, *M;
   struct FunctionActive  * D;
-    
+
   if( (A+0)->Type != SCALAR || (A+1)->Type != SCALAR || (A+2)->Type != SCALAR)
     Message::Error("Three Scalar arguments required!");
-    
+
   if (!Fct->Active)  Fi_InitListMatrix3D (Fct, A, V) ;
-    
+
   D = Fct->Active ;
   NX = D->Case.ListMatrix3D.NbrLinesX ;
   NY = D->Case.ListMatrix3D.NbrLinesY ;
   NZ = D->Case.ListMatrix3D.NbrLinesZ ;
-    
+
   x = D->Case.ListMatrix3D.x ;
   y = D->Case.ListMatrix3D.y ;
   z = D->Case.ListMatrix3D.z ;
   M = D->Case.ListMatrix3D.data ;
-    
+
   xp = (A+0)->Val[0] ;
   yp = (A+1)->Val[0] ;
   zp = (A+2)->Val[0] ;
-    
+
   bool IsInGrid = Fi_dInterpolationTrilinear (x, y, z, M, NX, NY, NZ, xp, yp, zp, &dvp_dx, &dvp_dy, &dvp_dz);
   if (!IsInGrid) Message::Error("Extrapolation not allowed (xp=%g ; yp=%g, zp=%g)", xp, yp, zp) ;
-    
+
   V->Type = VECTOR ;
   V->Val[0] = dvp_dx ;
   V->Val[1] = dvp_dy ;
@@ -786,28 +786,28 @@ void Fi_InitListMatrix3D(F_ARG)
 {
   int     i=0, k, NX, NY, NZ, sz ;
   struct FunctionActive  * D ;
-    
+
   /*
      The original table structure data(i,j,k) is furnished with the following format:
      [ NX, NY, NZ, x(1..NX), y(1..NY), y(1..NZ), data(1..NX*NY*NZ) ]
-     
+
      A. Royer
   */
-    
+
   D = Fct->Active =
   (struct FunctionActive *)Malloc(sizeof(struct FunctionActive)) ;
-    
+
   NX = Fct->Para[i++];
   NY = Fct->Para[i++];
   NZ = Fct->Para[i++];
-    
+
   sz = 3 + NX + NY + NZ + NX*NY*NZ ; // expected size of list matrix
   if (Fct->NbrParameters != sz)
     Message::Error("Bad size of input data (expected = %d ; found = %d). "
                        "List with format: x(NbrLines=%d), y(NbrLines=%d), z(NbrLines=%d), "
                        "matrix(NbrLinesX*NbrLinesY*NbrLinesZ=%d)",
                        sz, Fct->NbrParameters, NX, NY, NZ, NX*NY*NZ);
-    
+
   // Initialize structure and allocate memory
   D->Case.ListMatrix3D.NbrLinesX = NX;
   D->Case.ListMatrix3D.NbrLinesY = NY;
@@ -816,7 +816,7 @@ void Fi_InitListMatrix3D(F_ARG)
   D->Case.ListMatrix3D.y = (double *) malloc (sizeof(double)*NY);
   D->Case.ListMatrix3D.z = (double *) malloc (sizeof(double)*NZ);
   D->Case.ListMatrix3D.data = (double *) malloc (sizeof(double)*NX*NY*NZ);
-    
+
   // Assign values
   for (k=0 ; k<NX ; ++k) D->Case.ListMatrix3D.x[k] = Fct->Para[i++];
   for (k=0 ; k<NY ; ++k) D->Case.ListMatrix3D.y[k] = Fct->Para[i++];

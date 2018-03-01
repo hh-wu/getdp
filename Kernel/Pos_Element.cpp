@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2017 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@onelab.info>.
@@ -233,6 +233,7 @@ void Cut_PostElement(struct PostElement * PE, struct Geo_Element * GE,
       break;
 
     case TETRAHEDRON :
+    case TETRAHEDRON_2 :
       u01 = .5 * (PE->u[0] + PE->u[1]); u02 = .5 * (PE->u[0] + PE->u[2]);
       v01 = .5 * (PE->v[0] + PE->v[1]);	v02 = .5 * (PE->v[0] + PE->v[2]);
       w01 = .5 * (PE->w[0] + PE->w[1]);	w02 = .5 * (PE->w[0] + PE->w[2]);
@@ -369,7 +370,8 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
     case QUADRANGLE  :
     case QUADRANGLE_2:
     case QUADRANGLE_2_8N: PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 0.   ; break ;
-    case TETRAHEDRON : PE->u[0] = 0.25 ; PE->v[0] = 0.25 ; PE->w[0] = 0.25 ; break ;
+    case TETRAHEDRON :
+    case TETRAHEDRON_2 : PE->u[0] = 0.25 ; PE->v[0] = 0.25 ; PE->w[0] = 0.25 ; break ;
     case HEXAHEDRON  : PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 0.   ; break ;
     case PRISM       : PE->u[0] = 1./3.; PE->v[0] = 1./3.; PE->w[0] = 0.   ; break ;
     case PYRAMID     : PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 1./3.; break ;
@@ -460,6 +462,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	break ;
 
       case TETRAHEDRON :
+      case TETRAHEDRON_2 :
 	PE = Create_PostElement(Index, TETRAHEDRON, 4, 1) ; /* nodes 1 2 3 4 */
 	PE->NumNodes[0] = GE->NumNodes[0] ;
 	PE->NumNodes[1] = GE->NumNodes[1] ;

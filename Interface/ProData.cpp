@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2017 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@onelab.info>.
@@ -314,6 +314,14 @@ std::string Fix_RelativePath(const char *name, const char *reference)
     return std::string(AbsPath) + in;
   }
 }
+
+#if !defined(HAVE_NX)
+void Read_ProblemPreamble()
+{
+  // no-op ; could be used to fill getdp_yystring in order to parse some
+  // definitions before the actuel .pro file processing starts.
+}
+#endif
 
 static std::vector<FILE*> openFiles;
 

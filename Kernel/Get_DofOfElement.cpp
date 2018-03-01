@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2017 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@onelab.info>.
@@ -238,6 +238,9 @@ void  Get_GroupsOfElementaryEntitiesOfElement
 
   int            i, j, Num_Entity, Nbr_SubFunction, i_SF ;
   struct TwoInt  * Key_P ;
+
+  // FIXME: we should check when we do Element->NbrGroupsOfEntities++ that we
+  // won't exceed NBR_MAX_GROUPS_IN_ELEMENT - this is dynamic and can happen
 
   if (Element->NumLastElementForGroupsOfEntities != Element->Num) {
     Element->NumLastElementForGroupsOfEntities = Element->Num ;

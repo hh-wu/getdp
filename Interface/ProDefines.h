@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2017 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@onelab.info>.
@@ -116,6 +116,7 @@ struct StringXDefine  Element_Type[] = {
   {"Triangle"       , TRIANGLE},
   {"Quadrangle"     , QUADRANGLE},
   {"Tetrahedron"    , TETRAHEDRON},
+  {"Tetrahedron2"   , TETRAHEDRON_2},
   {"Hexahedron"     , HEXAHEDRON},
   {"Prism"          , PRISM},
   {"Pyramid"        , PYRAMID},
@@ -332,6 +333,7 @@ struct StringXDefine  PostSubOperation_Format[] = {
   {"Table"               , FORMAT_SPACE_TABLE },
   {"SimpleTable"         , FORMAT_SIMPLE_SPACE_TABLE },
   {"NodeTable"           , FORMAT_NODE_TABLE },
+  {"ElementTable"        , FORMAT_ELEMENT_TABLE },
   {"ValueOnly"           , FORMAT_VALUE_ONLY },
   {"TimeTable"           , FORMAT_TIME_TABLE },
   {"RegionTable"         , FORMAT_REGION_TABLE },
@@ -396,6 +398,7 @@ struct DefineXFunction  FunctionForGauss[] = {
   {TRIANGLE       , (CAST)Gauss_Triangle},
   {QUADRANGLE     , (CAST)Gauss_Quadrangle},
   {TETRAHEDRON    , (CAST)Gauss_Tetrahedron},
+  {TETRAHEDRON_2  , (CAST)Gauss_Tetrahedron},
   {HEXAHEDRON     , (CAST)Gauss_Hexahedron},
   {PRISM          , (CAST)Gauss_Prism},
   {PYRAMID        , (CAST)Gauss_Pyramid},
@@ -1045,6 +1048,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"SetVariable"       , (CAST)F_SetVariable      ,  -1,  -1 },
   {"SetCumulativeVariable" , (CAST)F_SetCumulativeVariable ,  -1,  -1 },
   {"GetVariable"       , (CAST)F_GetVariable      ,  -1,  -1 },
+  {"ValueFromTable"    , (CAST)F_ValueFromTable   ,  -1,  -1 },
   {"VirtualWork"       , (CAST)F_VirtualWork      ,   0,   1 },
   {"Felec"	       , (CAST)F_Felec      	  ,   0,   1 },
 
@@ -1100,10 +1104,12 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   //{"Update_Jk"             , (CAST)F_Update_Jk             ,  -1,   6 },  //kj+++ // NOT USED FOR NOW (26/06/2016)
   //{"Update_Jk_sd"          , (CAST)F_Update_Jk_sd          ,  -1,   6 },  //kj+++ // NOT USED FOR NOW (26/06/2016)
   {"Update_Cell_K"         , (CAST)F_Update_Cell_K         ,  -1,   4 },  //kj+++
-  {"b_Vinch_K"             , (CAST)F_b_Vinch_K             ,  -1,   7 },  // 1+3*2=7 //kj+++
-  {"h_Vinch_K"             , (CAST)F_h_Vinch_K             ,  -1,   9 },  // parameter is dimension {2},{3}, 3+3*2=9 //kj+++
-  {"dbdh_Vinch_K"          , (CAST)F_dbdh_Vinch_K          ,  -1,   7 },  // parameter is dimension {2},{3}, 1+3*2=7 //kj+++
-  {"dhdb_Vinch_K"          , (CAST)F_dhdb_Vinch_K          ,  -1,   7 },  // parameter is dimension {2},{3}, 1+3*2=7 //kj+++
+  {"b_Vinch_K"             , (CAST)F_b_Vinch_K             ,  -1,   -1 },  // 1+3*2=7 //kj+++
+  {"hr_Vinch_K"            , (CAST)F_hr_Vinch_K            ,  -1,   -1 },  // 1+3*1=4 //kj+++
+  {"Jr_Vinch_K"            , (CAST)F_Jr_Vinch_K            ,  -1,   -1 },  // 1+3*1=4 //kj+++
+  {"h_Vinch_K"             , (CAST)F_h_Vinch_K             ,  -1,   -1 },  // parameter is dimension {2},{3}, 3+3*2=9 //kj+++
+  {"dbdh_Vinch_K"          , (CAST)F_dbdh_Vinch_K          ,  -1,   -1 },  // parameter is dimension {2},{3}, 1+3*2=7 //kj+++
+  {"dhdb_Vinch_K"          , (CAST)F_dhdb_Vinch_K          ,  -1,   -1 },  // parameter is dimension {2},{3}, 1+3*2=7 //kj+++
 
   // F_MultiHar
   {"MHToTime"          , (CAST)F_MHToTime         ,   0,   2 },
@@ -1129,8 +1135,8 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"RCSSoftSphere",                   (CAST)F_RCSSoftSphere,  2, 1 },
   {"AcousticFieldHardSphere",         (CAST)F_AcousticFieldHardSphere,  2, 1 },
   {"RCSHardSphere",                   (CAST)F_RCSHardSphere,  2, 1 },
-  {"AcousticFieldSoftCylinder",       (CAST)F_AcousticFieldSoftCylinder, 2, 1 },
-  {"AcousticFieldSoftCylinderByMode", (CAST)F_AcousticFieldSoftCylinderByMode, 3, 1 },
+  {"AcousticFieldSoftCylinder",       (CAST)F_AcousticFieldSoftCylinder, -1, 1 },
+  {"CylindricalHarmonic",             (CAST)F_CylindricalHarmonic, 3, 1 },
   {"AcousticFieldSoftCylinderABC",    (CAST)F_AcousticFieldSoftCylinderABC, 5, 1 },
   {"DrAcousticFieldSoftCylinder",     (CAST)F_DrAcousticFieldSoftCylinder, 2, 1 },
   {"RCSSoftCylinder",                 (CAST)F_RCSSoftCylinder,  2, 1 },

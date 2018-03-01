@@ -44,6 +44,7 @@ std::map<std::string, std::vector<double> > CommandLineNumbers;
 std::map<std::string, std::vector<std::string> > CommandLineStrings;
 std::map<std::string, std::vector<double> > GetDPNumbers;
 std::map<std::string, std::vector<std::string> > GetDPStrings;
+std::map<std::string, std::map<int, std::vector<double> > > GetDPNumbersMap;
 
 // Static parser variables (accessible only in this file)
 
@@ -307,6 +308,7 @@ struct doubleXstring{
 %token      tFourierTransform tFourierTransformJ
 %token      tCopySolution tCopyRHS tCopyResidual tCopyIncrement tCopyDofs
 %token      tGetNormSolution tGetNormResidual tGetNormRHS tGetNormIncrement
+%token      tOptimizerInitialize tOptimizerUpdate tOptimizerFinalize
 %token      tLanczos tEigenSolve tEigenSolveJac tPerturbation
 %token      tUpdate tUpdateConstraint tBreak tGetResidual tCreateSolution
 %token      tEvaluate tSelectCorrection tAddCorrection tMultiplySolution
@@ -1781,7 +1783,6 @@ ParametersForFunction :
 
   | '{' '$' String__Index '}'
     { $$ = NULL; StringForParameter = $3; }
-
  ;
 
 /* ------------------------------------------------------------------------ */
@@ -5545,6 +5546,36 @@ OperationTerm :
       Operation_P->Type = OPERATION_SAVEMESH;
     }
 
+  | tSaveMesh  '[' String__Index ',' GroupRHS ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      int i;
+      if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror(0, "Unknown System: %s", $3);
+      Free($3);
+      Operation_P->DefineSystemIndex = i;
+      Operation_P->Case.SaveMesh.GroupIndex = Num_Group(&Group_S, (char*)"OP_SaveMesh", $5);
+      Operation_P->Case.SaveMesh.FileName = 0;
+      Operation_P->Case.SaveMesh.ExprIndex = -1;
+      Operation_P->Type = OPERATION_SAVEMESH;
+    }
+
+  | tSaveMesh  '[' String__Index ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      int i;
+      if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror(0, "Unknown System: %s", $3);
+      Free($3);
+      Operation_P->DefineSystemIndex = i;
+      Operation_P->Case.SaveMesh.GroupIndex = -1;
+      Operation_P->Case.SaveMesh.FileName = 0;
+      Operation_P->Case.SaveMesh.ExprIndex = -1;
+      Operation_P->Type = OPERATION_SAVEMESH;
+    }
+
   | tGenerateMHMoving  '[' String__Index ',' String__Index ',' FExpr ',' FExpr ']'
                          '{' Operation '}'
     { Operation_P = (struct Operation*)
@@ -5831,6 +5862,39 @@ OperationTerm :
       Operation_P->Case.Copy.to = 0 ;
       Operation_P->Case.Copy.from = $3 ;
     }
+
+  | tOptimizerInitialize '[' CharExpr ',' CharExpr ','
+                             ListOfFExpr ',' ListOfFExpr ','
+                             CharExpr ',' BracedRecursiveListOfCharExpr ','
+                             CharExpr ',' BracedRecursiveListOfCharExpr ']' tEND
+    {
+      Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      Operation_P->Type = OPERATION_OPTIMIZER_INITIALIZE;
+      Operation_P->Case.OptimizerInitialize.algorithm = $3;
+      Operation_P->Case.OptimizerInitialize.currentPoint = $5;
+      Operation_P->Case.OptimizerInitialize.currentPointLowerBounds = $7;
+      Operation_P->Case.OptimizerInitialize.currentPointUpperBounds = $9;
+      Operation_P->Case.OptimizerInitialize.objective = $11;
+      Operation_P->Case.OptimizerInitialize.constraints = $13;
+      Operation_P->Case.OptimizerInitialize.objectiveSensitivity = $15;
+      Operation_P->Case.OptimizerInitialize.constraintsSensitivity = $17;
+    }
+
+  | tOptimizerUpdate '[' '$' String__Index ']' tEND
+    {
+      Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      Operation_P->Type = OPERATION_OPTIMIZER_UPDATE;
+      Operation_P->Case.OptimizerUpdate.residual = $4;
+    }
+
+  | tOptimizerFinalize '[' ']' tEND
+    {
+      Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      Operation_P->Type = OPERATION_OPTIMIZER_FINALIZE;
+     }
 
   | Loop
     {
@@ -7800,19 +7864,31 @@ Loop :
          (&getdp_yyin, getdp_yyname, getdp_yylinenum))
 	vyyerror(0, "Error while exiting macro");
     }
+  | tMacro LP CharExpr ',' CharExpr RP tEND
+    {
+      if(!MacroManager::Instance()->createStringMacro($3, $5))
+        vyyerror(0, "Redefinition of macro '%s'", $2);
+      Free($3);
+      Free($5);
+    }
   | tCall CallArg tEND
     {
       if(!MacroManager::Instance()->enterMacro
-         (std::string($2), &getdp_yyin, getdp_yyname, getdp_yylinenum))
-	vyyerror(0, "Unknown macro '%s'", $2);
+         (std::string($2), &getdp_yyin, getdp_yyname, getdp_yylinenum)){
+        if(!MacroManager::Instance()->enterStringMacro(std::string($2)))
+          vyyerror(0, "Unknown macro '%s'", $2);
+      }
       Free($2);
     }
   | tCallTest '(' FExpr ')' CallArg tEND
     {
-      if($3)
+      if($3){
         if(!MacroManager::Instance()->enterMacro
-           (std::string($5), &getdp_yyin, getdp_yyname, getdp_yylinenum))
-          vyyerror(0, "Unknown macro '%s'", $5);
+           (std::string($5), &getdp_yyin, getdp_yyname, getdp_yylinenum)){
+          if(!MacroManager::Instance()->enterStringMacro(std::string($5)))
+            vyyerror(0, "Unknown macro '%s'", $5);
+        }
+      }
       Free($5);
     }
   | tIf '(' FExpr ')'

@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2017 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@onelab.info>.
@@ -1271,7 +1271,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
           LinAlg_AssembleVector(&DofData_P->b) ;
         }
 
-        //LinAlg_CopyVector(&DofData_P->CurrentSolution->x, &DofData_P->dx); //In prevision to build 'dx' in the following (needed for "IterativeLoopPro") QQQ?
+        LinAlg_CopyVector(&DofData_P->CurrentSolution->x, &DofData_P->dx); //kj+++ In prevision to build 'dx' in the following (needed for "IterativeLoopPro")
 
         if(!again){
           LinAlg_Solve(&DofData_P->A, &DofData_P->b, &DofData_P->Solver,
@@ -1286,7 +1286,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                             (Operation_P->Flag < 0) ? 0 : Operation_P->Flag) ;
         }
 
-        //LinAlg_SubVectorVector(&DofData_P->CurrentSolution->x, &DofData_P->dx, &DofData_P->dx) ; //In order to build 'dx' (needed for "IterativeLoopPro") QQQ?
+        LinAlg_SubVectorVector(&DofData_P->CurrentSolution->x, &DofData_P->dx, &DofData_P->dx) ; //kj+++ In order to build 'dx' (needed for "IterativeLoopPro")
 #ifdef TIMER
         double timer = MPI_Wtime() - tstart;
         printf("Proc %d, time spent in %s %.16g\n", again ? "SolveAgain" : "Solve",
@@ -1375,18 +1375,19 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         else
           LinAlg_SolveAgain(&DofData_P->Jac, &DofData_P->res, &DofData_P->Solver, &DofData_P->dx) ;
 
-        //............... The following lines (*) are not needed here because ..............
-        //           Current.Residual is only needed when Flag_IterativeLoopN==0 QQQ?
-        Cal_SolutionError(&DofData_P->dx, &DofData_P->CurrentSolution->x, 0, &MeanError) ;
-        // NormType: 1=LINFNORM, 2=L1NORM, 3=MEANL1NORM, 4=L2NORM, 5=MEANL2NORM
-        // Closest behaviour to old function Cal_SolutionError with MEANL2NORM
-        // Cal_SolutionErrorRatio(&DofData_P->dx, &DofData_P->CurrentSolution->x,
-        //                       reltol, abstol, MEANL2NORM, &MeanError) ;
-        //LinAlg_VectorNorm2(&DofData_P->dx, &MeanError);
-        Current.Residual = MeanError; // NB: Residual computed for classical IterativeLoop using SolveJac
-        //.................................................................................
+
         if(!Flag_IterativeLoopN){
-          //............... previous lines (*) should be placed here QQQ? ..................
+          //kj+++ (the following lines were outside the condition (!Flag_IterativeLoopN) but
+          //       Current.Residual is only needed when Flag_IterativeLoopN==0)
+          //.........................................................................................
+          Cal_SolutionError(&DofData_P->dx, &DofData_P->CurrentSolution->x, 0, &MeanError) ;
+          // NormType: 1=LINFNORM, 2=L1NORM, 3=MEANL1NORM, 4=L2NORM, 5=MEANL2NORM
+          // Closest behaviour to old function Cal_SolutionError with MEANL2NORM
+          // Cal_SolutionErrorRatio(&DofData_P->dx, &DofData_P->CurrentSolution->x,
+          //                       reltol, abstol, MEANL2NORM, &MeanError) ;
+          //LinAlg_VectorNorm2(&DofData_P->dx, &MeanError);
+          Current.Residual = MeanError; // NB: Residual computed for classical IterativeLoop using SolveJac
+          //.........................................................................................
           if (MeanError != MeanError){
             Message::Warning("No valid solution found (NaN or Inf)!");
           }
@@ -1457,7 +1458,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /* MHBilinear-terms do not contribute to the RHS and residual, and are thus disregarded */
 
       Error_Prev = 1e99 ;  Frelax_Opt = 1. ;
-      //if(Current.Iteration==1) Current.Residual_Iter1=1.0;  //to compute a relative residual (relative to residual at iter 1) in SolveJacAdapt //QQQ?
+      //if(Current.Iteration==1) Current.Residual_Iter1=1.0;  //kj+++ to compute a relative residual (relative to residual at iter 1) in SolveJacAdapt (not necessary)
 
       if (!(NbrSteps_relax = List_Nbr(Operation_P->Case.SolveJac_AdaptRelax.Factor_L))){
         Message::Error("No factors provided for Adaptive Relaxation");
@@ -1491,7 +1492,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	LinAlg_VectorNorm2(&DofData_P->res, &Norm);
 	LinAlg_GetVectorSize(&DofData_P->res, &N);
 	Norm /= (double)N;
-  //Norm /= Current.Residual_Iter1; //to compute a relative residual (relative to residual at iter 1) in SolveJacAdapt //QQQ?
+  //Norm /= Current.Residual_Iter1; //kj+++ to compute a relative residual (relative to residual at iter 1) in SolveJacAdapt (not necessary)
 
         Current.Residual = Norm;
         if(Message::GetVerbosity() == 10)
@@ -1514,11 +1515,11 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 				       Frelax_Opt, &DofData_P->CurrentSolution->x);
 
       MeanError = Error_Prev ;
-      Current.RelaxFac = Frelax_Opt; // +++
-      //Current.Residual = MeanError; // QQQ?  Residual computed here with SolveJacAdapt (usefull to test stop criterion in classical IterativeLoop then)
+      Current.RelaxFac = Frelax_Opt; //kj+++
+      Current.Residual = MeanError; //kj+++ Residual computed here with SolveJacAdapt (usefull to test stop criterion in classical IterativeLoop then) 
       Message::Info("%3ld Nonlinear Residual norm %14.12e (optimal relaxation factor = %f)",
                     (int)Current.Iteration, MeanError, Frelax_Opt);
-      //if(Current.Iteration==1) Current.Residual_Iter1=MeanError; //to compute a relative residual (relative to residual at iter 1) in SolveJacAdapt //QQQ?
+      //if(Current.Iteration==1) Current.Residual_Iter1=MeanError; //kj+++ to compute a relative residual (relative to residual at iter 1) in SolveJacAdapt (not necessary)
       if(Message::GetProgressMeterStep() > 0 && Message::GetProgressMeterStep() < 100)
         Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Residual",
                                        std::vector<double>(1, MeanError));
@@ -2596,7 +2597,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       Save_Iteration = Current.Iteration ;
 
-      //Current.Residual_Iter1=1.0; //to compute a relative residual (relative to residual at iter 1) QQQ?
+      //Current.Residual_Iter1=1.0; //kj+++ to compute a relative residual (relative to residual at iter 1) (not necessary)
       // abstol = Operation_P->Case.IterativeLoop.Criterion ;
       // reltol = Operation_P->Case.IterativeLoop.Criterion/100 ;
 
@@ -2624,13 +2625,13 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         // TransferSolution of a nonlinear resolution
  	Treatment_Operation(Resolution_P, Operation_P->Case.IterativeLoop.Operation,
 			    DofData_P0, GeoData_P0, Resolution2_P, DofData2_P0) ;
-  //if (Current.Iteration==1) Current.Residual_Iter1=Current.RelativeDifference; //to compute a relative residual (relative to residual at iter 1) QQQ?
+  //if (Current.Iteration==1) Current.Residual_Iter1=Current.RelativeDifference; //kj+++ to compute a relative residual (relative to residual at iter 1) (not necessary)
 
   //NB: Current.RelativeDifference is what is used for classical IterativeLoop stop criterion
   //NB: In SolveJac: (Current.RelativeDifference+=Current.Residual)
   //NB: In SolveJacAdapt: (Current.RelativeDifference=Current.Residual)
 	if (   (Current.RelativeDifference <= Operation_P->Case.IterativeLoop.Criterion) ||
-       //(Current.RelativeDifference/Current.Residual_Iter1 <= Operation_P->Case.IterativeLoop.Criterion) || //to compute a relative residual (relative to residual at iter 1) QQQ?
+       //(Current.RelativeDifference/Current.Residual_Iter1 <= Operation_P->Case.IterativeLoop.Criterion) || //kj+++ to compute a relative residual (relative to residual at iter 1) (not necessary)
          (Current.RelativeDifference != Current.RelativeDifference) ) // NaN or Inf
 	  break ;
 
@@ -2655,16 +2656,16 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                       Num_Iteration, Num_Iteration > 1 ? "s" : "",
                       Current.RelativeDifference);
       }
-      /* QQQ?
+      /* kj+++ to compute a relative residual (relative to residual at iter 1) (not necessary)
       Message::Info(3, "IterativeLoop did NOT converge (%d iterations, residual %g)\n rel %g",
-                        Num_Iteration, Current.RelativeDifference, Current.RelativeDifference/Current.Residual_Iter1_kj);
+                        Num_Iteration, Current.RelativeDifference, Current.RelativeDifference/Current.Residual_Iter1);
           // Either it has reached the max num of iterations or a NaN at a given iteration
           Num_Iteration = Operation_P->Case.IterativeLoop.NbrMaxIteration ;
         }
         else{
       Message::Info(3, "IterativeLoop converged (%d iteration%s, residual %g)\n rel %g",
                         Num_Iteration, Num_Iteration > 1 ? "s" : "",
-                        Current.RelativeDifference, Current.RelativeDifference/Current.Residual_Iter1_kj);
+                        Current.RelativeDifference, Current.RelativeDifference/Current.Residual_Iter1);
       }
       */
       Current.Iteration = Save_Iteration ;
@@ -3284,6 +3285,21 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       MPI_Barrier(PETSC_COMM_WORLD);
       Message::Info("Barrier: let's continue");
 #endif
+      break ;
+
+      /*  -->  O p t i m i z e r                      */
+      /*  ------------------------------------------  */
+
+    case OPERATION_OPTIMIZER_INITIALIZE :
+      Operation_OptimizerInitialize(Operation_P);
+      break ;
+
+    case OPERATION_OPTIMIZER_UPDATE :
+      Operation_OptimizerUpdate(Operation_P);
+      break ;
+
+    case OPERATION_OPTIMIZER_FINALIZE :
+      Operation_OptimizerFinalize(Operation_P);
       break ;
 
       /*  -->  O t h e r                              */

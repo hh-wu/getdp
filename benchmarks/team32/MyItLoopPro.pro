@@ -4,15 +4,28 @@ Group{
 
 Function{
 
-  GetItLoopInfo[]=Tensor[ $iter, 
-                          $res, 
-                          $res/$res0, 
-                          $inc, 
-                          $relax, 
-                          $relaxcount, 
-                          $relaxcounttot, 
-                          $syscount, 
-                          $dnccount];
+  If(Flag_NLRes==NLRES_ITERATIVELOOPPRO)
+    GetItLoopInfo[]=Tensor[ $iter, 
+                            $res, 
+                            $res/$res0, 
+                            $inc, 
+                            $relax, 
+                            $relaxcount, 
+                            $relaxcounttot, 
+                            $syscount, 
+                            $dnccount];
+  Else
+    GetItLoopInfo[]=Tensor[ $iter, 
+                            $res, 
+                            $resL, 
+                            $resN, 
+                            $relax, 
+                            $relaxcount, 
+                            $relaxcounttot, 
+                            $syscount, 
+                            $dnccount];
+  EndIf
+
 
 //--------------------------------------
 // M Y . I T L O O P P R O -------------
@@ -63,9 +76,8 @@ Macro MyItLoopPro
 
     GetNormIncrement[A, $inc]; //Check the new increment
     GetNormSolution[A, $sol]; //Check the new solution
-    Print[{$TimeStep, $iter, $res, $res/$res0, $inc, $relax, $relaxcount}, Format
-      "*** ts=%05g, it=%03g, abs=%1.5e, rel=%1.5e, dx=%1.5e, relaxopt = %1.3g, relaxcount=%02g ***"];
-    PostOperation[PostOpItLoop_a];
+    
+    Call DisplayRunTimeVar;
   }
 Return
 //...............................................................
@@ -192,6 +204,26 @@ Macro MySolveJac_AdaptRelax
   CopySolution[A,'x_Prev']; //SET : save solution from the previous converged iteration              
   Evaluate[$relax=$relax_Opt,
            $res=$res_Prev];
+Return
+//...............................................................
+
+
+//--------------------------------------------------------
+// D I S P L A Y . R U N . T I M E . V A R ---------------
+//--------------------------------------------------------
+Macro DisplayRunTimeVar
+
+    If(Flag_NLRes!=NLRES_ITERATIVELOOPPRO) 
+      Print[{$TimeStep, $iter, $res, $resL, $resN, $relax, $relaxcount}, Format
+      "*** ts=%05g, it=%03g, res_used=%1.5e, (res = %1.5e, resN=%1.5e), relaxopt = %1.3g, relaxcount=%02g ***"];
+    EndIf
+    
+    If(Flag_NLRes==NLRES_ITERATIVELOOPPRO) 
+      Print[{$TimeStep, $iter, $res, $res/$res0, $inc, $relax, $relaxcount}, Format
+        "*** ts=%05g, it=%03g, abs=%1.5e, rel=%1.5e, dx=%1.5e, relaxopt = %1.3g, relaxcount=%02g ***"];
+    EndIf
+
+    PostOperation[PostOpItLoop_a];
 Return
 //...............................................................
 }

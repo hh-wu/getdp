@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2017 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@onelab.info>.
@@ -19,6 +19,8 @@
 #include "Message.h"
 
 #if defined(HAVE_GMSH)
+#include <gmsh.h>
+// these will disappear
 #include <gmsh/GmshGlobal.h>
 #include <gmsh/GmshVersion.h>
 #include <gmsh/GmshConfig.h>
@@ -43,7 +45,7 @@ static void Info(int level, char *arg0)
   case 0 :
     fprintf(stderr,
 	    "GetDP, a General environment for the treatment of Discrete Problems\n"
-	    "Copyright (C) 1997-2017 P. Dular and C. Geuzaine, University of Liege\n"
+	    "Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege\n"
 	    "Usage: %s [file] [options]\n"
 	    "Processing options:\n"
 	    "  -pre 'Resolution'         pre-processing\n"
@@ -647,7 +649,7 @@ int MainKernel(int argc, char *argv[])
 
 #if defined(HAVE_GMSH)
   Message::Info("Initializing Gmsh");
-  GmshInitialize();
+  gmsh::initialize();
   GmshMsg *msg = 0;
   if(!GmshGetMessageHandler() && !Flag_CALLED_WITH_ONELAB_SERVER){
     // do not set msg handler if one is provided (e.g. on Android/iOS)
@@ -672,6 +674,7 @@ int MainKernel(int argc, char *argv[])
   LinAlg_InitializeSolver(&sargc, &sargv);
 
   Init_ProblemStructure();
+  Read_ProblemPreamble();
   Read_ProblemStructure(pro);
   Finalize_ProblemStructure();
 

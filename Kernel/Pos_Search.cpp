@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2017 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@onelab.info>.
@@ -446,7 +446,7 @@ void xyz2uvwInAnElement (struct Element *Element,
 
   *u = *v = *w = 0.0;
 
-  if(Element->Type & (TETRAHEDRON|HEXAHEDRON|PRISM|PYRAMID))
+  if(Element->Type & (TETRAHEDRON|TETRAHEDRON_2|HEXAHEDRON|PRISM|PYRAMID))
     ChainDim = _3D;
   else if(Element->Type & (TRIANGLE|QUADRANGLE|TRIANGLE_2|QUADRANGLE_2))
     ChainDim = _2D;

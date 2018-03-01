@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2017 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@onelab.info>.
@@ -32,6 +32,7 @@ void BF_Edge(struct Element * Element, int NumEdge,
     break ;
 
   case TRIANGLE :
+  case TRIANGLE_2 :
     switch(NumEdge) {
     case 1  : s[0] = 1.-v ; s[1] = u    ; s[2] = 0.  ; break ;
     case 2  : s[0] = v    ; s[1] = 1.-u ; s[2] = 0.  ; break ;
@@ -207,6 +208,7 @@ void BF_CurlEdge(struct Element * Element, int NumEdge,
     break ;
 
   case TRIANGLE :
+  case TRIANGLE_2 :
     switch(NumEdge) {
     case 1  : s[0] = 0. ; s[1] = 0. ; s[2] =  2. ; break ;
     case 2  : s[0] = 0. ; s[1] = 0. ; s[2] = -2. ; break ;

@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2017 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@onelab.info>.
@@ -1154,6 +1154,16 @@ struct Operation {
       int useList;
       char *from, *to;
     } Copy;
+    struct {
+      char *algorithm;
+      char *currentPoint; // input and ouput
+      List_T *currentPointLowerBounds, *currentPointUpperBounds;
+      char *objective, *objectiveSensitivity; // input
+      List_T *constraints, *constraintsSensitivity; // input
+    } OptimizerInitialize;
+    struct {
+      char *residual;
+    } OptimizerUpdate;
   } Case;
 
 };
@@ -1304,6 +1314,9 @@ struct IterativeLoopSystem {
 #define OPERATION_HPDDMSOLVE               104
 #define OPERATION_BROADCASTVARIABLES       105
 #define OPERATION_DEBUG                    106
+#define OPERATION_OPTIMIZER_INITIALIZE     107
+#define OPERATION_OPTIMIZER_UPDATE         108
+#define OPERATION_OPTIMIZER_FINALIZE       109
 
 /* ChangeOfState.Type */
 #define CHANGEOFSTATE_NOCHANGE              0
@@ -1508,6 +1521,7 @@ struct PostOpSolutions {
 #define FORMAT_NODE_TABLE             20
 #define FORMAT_LOOP_ERROR             21
 #define FORMAT_GETDP                  22
+#define FORMAT_ELEMENT_TABLE          23
 
 /* PostSubOperation.Sort */
 #define SORT_BY_POSITION      1
@@ -1720,6 +1734,7 @@ int fcmp_PostQuantity_Name        (const void *a, const void *b);
 int fcmp_PostOperation_Name       (const void *a, const void *b);
 
 void Init_ProblemStructure();
+void Read_ProblemPreamble();
 void Read_ProblemStructure(const char *fileName);
 void Finalize_ProblemStructure();
 void Print_ProblemStructure();

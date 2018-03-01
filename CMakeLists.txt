@@ -1,4 +1,4 @@
-# GetDP - Copyright (C) 1997-2017 P. Dular and C. Geuzaine, University of Liege
+# GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
 #
 # See the LICENSE.txt file for license information. Please report all
 # bugs and problems to the public mailing list <getdp@onelab.info>.
@@ -41,6 +41,7 @@ opt(GSL "Enable GSL functions (for some built-in functions)" ${DEFAULT})
 opt(HPDDM "Enable HPDDM support" ${DEFAULT})
 opt(INTERNAL_DEVELOPER_API "Enable internal developer API (will be off be default)" OFF)
 opt(KERNEL "Enable kernel (required for actual computations)" ON)
+opt(MMA "Enable MMA optimizer" ${DEFAULT})
 opt(MPI "Enable MPI parallelization (with PETSc/SLEPc)" OFF)
 opt(MULTIHARMONIC "Enable multi-harmonic support" OFF)
 opt(NR "Enable NR functions (if GSL is unavailable)" ${DEFAULT})
@@ -585,6 +586,14 @@ if(ENABLE_NX)
     set_config_option(HAVE_NX "NX")
   endif(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/NX/Unv_Format.cpp)
 endif(ENABLE_NX)
+
+if(ENABLE_MMA)
+  if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/mma/cpp/src/mma.cpp)
+    add_subdirectory(contrib/mma)
+    include_directories(contrib/mma/cpp/src)
+    set_config_option(HAVE_MMA "MMA")
+  endif(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/mma/cpp/src/mma.cpp)
+endif(ENABLE_MMA)
 
 if(ENABLE_GSL)
   find_library(GSL_LIB gsl PATH_SUFFIXES lib)

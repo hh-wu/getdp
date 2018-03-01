@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2017 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@onelab.info>.
@@ -100,6 +100,12 @@ void Cal_SolutionErrorRatio(gVector *dx,
                             double abstol,
                             int NormType,
                             double *ErrorRatio) ;
+
+void Operation_OptimizerInitialize(struct Operation *Operation_P);
+
+void Operation_OptimizerUpdate(struct Operation *Operation_P);
+
+void Operation_OptimizerFinalize(struct Operation *Operation_P);
 
 void Cal_SolutionError(gVector *dx, gVector *x, int diff, double *MeanError);
 

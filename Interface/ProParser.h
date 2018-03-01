@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2017 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@onelab.info>.
@@ -465,6 +465,7 @@ extern std::map<std::string, std::vector<double> > CommandLineNumbers;
 extern std::map<std::string, std::vector<std::string> > CommandLineStrings;
 extern std::map<std::string, std::vector<double> > GetDPNumbers;
 extern std::map<std::string, std::vector<std::string> > GetDPStrings;
+extern std::map<std::string, std::map<int, std::vector<double> > > GetDPNumbersMap;
 
 int getdp_yyparse();
 void getdp_yyrestart(FILE*);

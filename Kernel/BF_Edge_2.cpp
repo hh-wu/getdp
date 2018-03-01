@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2017 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@onelab.info>.
@@ -16,7 +16,7 @@
 
 #define WrongNumEntity   Message::Error("Wrong Edge number in 'BF_Edge_2E'")
 
-void BF_Edge_2E(struct Element * Element, int NumEntity, 
+void BF_Edge_2E(struct Element * Element, int NumEntity,
 		double u, double v, double w,  double s[])
 {
   switch (Element->Type) {
@@ -26,8 +26,9 @@ void BF_Edge_2E(struct Element * Element, int NumEntity,
     default : WrongNumEntity ;
     }
     break ;
-    
+
   case TRIANGLE :
+  case TRIANGLE_2 :
     switch(NumEntity) {
     case 1  : s[0] = -2.0*u+1.0-v ; s[1] = -u           ; s[2] = 0. ; break ;
     case 2  : s[0] = -v           ; s[1] = -2.0*v+1.0-u ; s[2] = 0. ; break ;
@@ -86,7 +87,7 @@ void BF_Edge_2E(struct Element * Element, int NumEntity,
 
 #define WrongNumEntity   Message::Error("Wrong Face number in 'BF_Edge_2F'")
 
-void BF_Edge_2F(struct Element * Element, int NumEntity, 
+void BF_Edge_2F(struct Element * Element, int NumEntity,
 		double u, double v, double w,  double s[])
 {
   Message::Error("You should never end up here!") ;
@@ -98,7 +99,7 @@ void BF_Edge_2F(struct Element * Element, int NumEntity,
 /*  Volume  */
 /* -------- */
 
-void BF_Edge_2V(struct Element * Element, int NumEntity, 
+void BF_Edge_2V(struct Element * Element, int NumEntity,
 		double u, double v, double w,  double s[])
 {
   Message::Error("You should never end up here!") ;
@@ -112,28 +113,28 @@ void BF_Edge_2V(struct Element * Element, int NumEntity,
 /*  Edges  */
 /* ------- */
 
-void BF_CurlEdge_2E(struct Element * Element, int NumEntity, 
+void BF_CurlEdge_2E(struct Element * Element, int NumEntity,
 		    double u, double v, double w,  double s[])
 {
-  s[0] = 0. ; s[1] = 0. ; s[2] = 0. ; 
+  s[0] = 0. ; s[1] = 0. ; s[2] = 0. ;
 }
 
 /* ------- */
 /*  Faces  */
 /* ------- */
 
-void BF_CurlEdge_2F(struct Element * Element, int NumEntity, 
+void BF_CurlEdge_2F(struct Element * Element, int NumEntity,
 		    double u, double v, double w,  double s[])
 {
-  s[0] = 0. ; s[1] = 0. ; s[2] = 0. ; 
+  s[0] = 0. ; s[1] = 0. ; s[2] = 0. ;
 }
 
 /* -------- */
 /*  Volume  */
 /* -------- */
 
-void BF_CurlEdge_2V(struct Element * Element, int NumEntity, 
+void BF_CurlEdge_2V(struct Element * Element, int NumEntity,
 		    double u, double v, double w,  double s[])
 {
-  s[0] = 0. ; s[1] = 0. ; s[2] = 0. ; 
+  s[0] = 0. ; s[1] = 0. ; s[2] = 0. ;
 }
