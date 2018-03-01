@@ -3,6 +3,8 @@
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@onelab.info>.
 
+#include <iostream> 
+
 #include <math.h>
 #include "ProData.h"
 #include "GeoData.h"
@@ -568,7 +570,6 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
 			 List_T * Couples_L)
 {
   int  Nbr_Entity, i, Nbr_EntityRef, Flag_Filter ;
-  //  double TOL ;
   struct TwoIntOneDouble  TwoIntOneDouble ;
   struct NodeXYZ  NodeXYZ, NodeXYZRef ;
   List_T  * NodeXYZ_L, * NodeXYZRef_L ;
@@ -577,9 +578,12 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
 
   TOL = Current.GeoData->CharacteristicLength * ToleranceFactor ;
   // by default, ToleranceFactor is 1.e-8 (to be defined with ToleranceFactor value; in the Link constraint
+  // It is stored in a static variable (scope=routines defined in this file). 
 
-  /* Nodes with Constraint */
-
+  /* Create the list of nodes on the slave surface (Region)
+     Exclude nodes on the slave subsurface (SubRegion)
+     Apply Function to the coordinates of the nodes
+     Store them in NodeXYZ_L */
   Nbr_Entity = List_Nbr(ExtendedList_L) ;
   NodeXYZ_L = List_Create(Nbr_Entity, 1, sizeof(struct NodeXYZ)) ;
   for (i = 0 ; i < Nbr_Entity ; i++) {
@@ -589,25 +593,28 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
       Geo_GetNodesCoordinates( 1, &NodeXYZ.NumNode,
 			       &Current.x, &Current.y, &Current.z) ;
       Get_ValueOfExpressionByIndex(Index_Function, NULL, 0., 0., 0., &Value) ;
-
-      Current.x = Value.Val[0] ; Current.y = Value.Val[1] ;
+      Current.x = Value.Val[0] ; 
+      Current.y = Value.Val[1] ;
       Current.z = Value.Val[2] ;
-      if (Index_Filter < 0)  Flag_Filter = 1 ;
+      if (Index_Filter < 0)  
+	Flag_Filter = 1 ;
       else {
 	Get_ValueOfExpressionByIndex(Index_Filter, NULL, 0., 0., 0., &Value) ;
 	Flag_Filter = (int)Value.Val[0] ;
       }
-
       if (Flag_Filter) {
-	NodeXYZ.x = Current.x ; NodeXYZ.y = Current.y ; NodeXYZ.z = Current.z ;
+	NodeXYZ.x = Current.x ; 
+	NodeXYZ.y = Current.y ; 
+	NodeXYZ.z = Current.z ;
 	List_Add(NodeXYZ_L, &NodeXYZ) ;
       }
     }
   }
   Nbr_Entity = List_Nbr(NodeXYZ_L) ;
 
-  /* Nodes of reference (Link) */
-
+  /* Create the list of nodes on the master surface (RegionRef)
+     Exclude nodes on the master subsurface (SubRegionRef)
+     Store them in NodeXYZRef_L */
   Generate_ElementaryEntities
     (RegionRef_P->InitialList, &ExtendedListRef_L, NODESOF) ;
   if (SubRegionRef_P)
@@ -624,14 +631,15 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
 	  List_Search(ExtendedSuppListRef_L, &NodeXYZRef.NumNode, fcmp_int))) {
       Geo_GetNodesCoordinates( 1, &NodeXYZRef.NumNode,
 			       &Current.x, &Current.y, &Current.z) ;
-      if (Index_Filter < 0)  Flag_Filter = 1 ;
+      if (Index_Filter < 0) 
+	Flag_Filter = 1 ;
       else {
 	Get_ValueOfExpressionByIndex(Index_Filter, NULL, 0., 0., 0., &Value) ;
 	Flag_Filter = (int)Value.Val[0] ;
       }
-
       if (Flag_Filter) {
-	NodeXYZRef.x = Current.x ; NodeXYZRef.y = Current.y ;
+	NodeXYZRef.x = Current.x ; 
+	NodeXYZRef.y = Current.y ;
 	NodeXYZRef.z = Current.z ;
 	List_Add(NodeXYZRef_L, &NodeXYZRef) ;
       }
@@ -654,16 +662,15 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
     List_Read(NodeXYZ_L, i, &NodeXYZ) ;
     List_Read(NodeXYZRef_L, i, &NodeXYZRef) ;
 
-    /* Attention: tolerance !!! */
     if ((fabs(NodeXYZ.x-NodeXYZRef.x) > TOL) ||
 	(fabs(NodeXYZ.y-NodeXYZRef.y) > TOL) ||
 	(fabs(NodeXYZ.z-NodeXYZRef.z) > TOL)){
-      Message::Error("Constraint Link: bad correspondance of Nodes (%d, %d)"
-                       " (%e %e %e), TOL=%g",
-                       NodeXYZ.NumNode, NodeXYZRef.NumNode,
-                       fabs(NodeXYZ.x-NodeXYZRef.x), fabs(NodeXYZ.y-NodeXYZRef.y),
-                       fabs(NodeXYZ.z-NodeXYZRef.z), TOL) ;
-      return;
+      // Message::Warning("Constraint Link: bad correspondance of Nodes (%d, %d)"
+      // 		     " (%e %e %e), TOL=%g",
+      // 		     NodeXYZ.NumNode, NodeXYZRef.NumNode,
+      // 		     fabs(NodeXYZ.x-NodeXYZRef.x), fabs(NodeXYZ.y-NodeXYZRef.y),
+      // 		     fabs(NodeXYZ.z-NodeXYZRef.z), TOL) ;
+      // return;
     }
 
     TwoIntOneDouble.Int1 = NodeXYZ.NumNode ;
@@ -681,8 +688,16 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
 
     List_Add(Couples_L, &TwoIntOneDouble) ;
 
-    Message::Debug("%d %d : coef %e %e", NodeXYZ.NumNode, NodeXYZRef.NumNode,
-                   TwoIntOneDouble.Double, TwoIntOneDouble.Double2) ;
+    Message::Debug("Constraint Link: Master slave map (M=%d, S=%d)"
+		   " (%e %e) z=%e %e Coef=%f %f",
+		   NodeXYZRef.NumNode, NodeXYZ.NumNode,
+		   atan2(NodeXYZRef.y, NodeXYZRef.x)/3.14159265359*180.,
+		   atan2(NodeXYZ.y, NodeXYZ.x)/3.14159265359*180.,
+		   NodeXYZRef.z, NodeXYZ.z, 
+		   TwoIntOneDouble.Double, TwoIntOneDouble.Double2) ;
+
+    // Message::Debug("%d %d : coef %e %e", NodeXYZ.NumNode, NodeXYZRef.NumNode,
+    //                TwoIntOneDouble.Double, TwoIntOneDouble.Double2) ;
   }
 
   List_Delete(NodeXYZ_L) ;  List_Delete(NodeXYZRef_L) ;
@@ -721,12 +736,24 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
   struct TwoIntOneDouble *TwoIntOneDouble_P, *TwoIntOneDouble2_P, TwoIntOneDouble ;
 
   List_T  * ExtendedList_L ;
-  int  Save_Num, Flag_Filter ;
+  int  Flag_Filter ;
 
   /* Couples of nodes */
 
   Generate_ElementaryEntities
     (Group_P->InitialList, &ExtendedListNodes_L, NODESOF) ;
+
+  List_T  * ExtendedListNodesRef_L, * ExtendedSuppListNodesRef_L ;
+  Generate_ElementaryEntities
+    (Group_P->ExtendedList, &ExtendedListNodesRef_L, NODESOF) ;
+  if( Group_P->ExtendedSuppList )
+    Generate_ElementaryEntities
+      (Group_P->ExtendedSuppList, &ExtendedSuppListNodesRef_L, NODESOF) ;
+  else 
+    ExtendedSuppListNodesRef_L=NULL;
+  std::cout << "Nb nodes in ExtendedListNodes_L = " << List_Nbr( ExtendedListNodes_L) << std::endl ;
+  std::cout << "Nb nodes in ExtendedListNodesRef_L = " << List_Nbr( ExtendedListNodesRef_L) << std::endl ;
+  std::cout << "Nb nodes in ExtendedSuppListNodesRef = " << List_Nbr( ExtendedSuppListNodesRef_L ) << std::endl;
 
   if ((Nbr_Entity = List_Nbr(ExtendedListNodes_L)))
     CouplesOfNodes_L = List_Create(Nbr_Entity, 1, sizeof(struct TwoIntOneDouble)) ;
@@ -737,7 +764,9 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
   if (Constraint_P->ConstraintPerRegion->Case.Link.FilterIndex2 < 0) {
     Flag_Filter = 0 ;
     CouplesOfNodes2_L = NULL ;
-    Generate_LinkNodes(Constraint_P, ExtendedListNodes_L, NULL, RegionRef_P, NULL,
+    Generate_LinkNodes(Constraint_P, 
+		       ExtendedListNodesRef_L, ExtendedSuppListNodesRef_L,
+		       RegionRef_P, SubRegionRef_P,
 		       Constraint_P->ConstraintPerRegion->Case.Link.FilterIndex,
 		       Constraint_P->ConstraintPerRegion->Case.Link.FunctionIndex,
 		       Constraint_P->ConstraintPerRegion->Case.Link.CoefIndex,
@@ -762,14 +791,10 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
 		       CouplesOfNodes2_L) ;
   }
 
-  /* Couples of edges */
-
   Message::Info("== Couples of edges ==") ;
 
   /* Edges with Constraint */
-
   Nbr_Entity = List_Nbr(Group_P->ExtendedList) ;
-
   Generate_ElementaryEntities_EdgeNN
     (Group_P->InitialList, &ExtendedList_L, EDGESOF) ;
   if (Group_P->InitialSuppList)
@@ -791,8 +816,9 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
 	  List_Search(ExtendedSuppListRef_L, &EdgeNN.NumEdge, fcmp_int))) {
 
       if (EdgeNN.Node2 < EdgeNN.Node1) {
-	Save_Num = EdgeNN.Node2 ;
-	EdgeNN.Node2 = EdgeNN.Node1 ;  EdgeNN.Node1 = Save_Num ;
+	int Save_Num = EdgeNN.Node2 ;
+	EdgeNN.Node2 = EdgeNN.Node1 ;  
+	EdgeNN.Node1 = Save_Num ;
       }
 
       Message::Debug("Image %d: a%d, n%d - n%d",
@@ -819,25 +845,24 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
 
       EdgeNN.Node1 = TwoIntOneDouble_P->Int2 ;
       EdgeNN.Node2 = TwoIntOneDouble2_P->Int2 ;
-
       if (fabs(TwoIntOneDouble_P->Double - TwoIntOneDouble2_P->Double) > 1.e-18){
 	Message::Error("Constraint Link: Bad Coefficient for Edges") ;
         return;
       }
-
       EdgeNN.Coef = TwoIntOneDouble_P->Double ;
       EdgeNN.Coef2 = TwoIntOneDouble_P->Double2 ; /* LinkCplx */
 
       if (EdgeNN.Node2 < EdgeNN.Node1) {
-	Save_Num = EdgeNN.Node2 ;
-	EdgeNN.Node2 = EdgeNN.Node1 ;  EdgeNN.Node1 = Save_Num ;
+	int Save_Num = EdgeNN.Node2 ;
+	EdgeNN.Node2 = EdgeNN.Node1 ;  
+	EdgeNN.Node1 = Save_Num ;
 	EdgeNN.NumEdge *= -1 ;
       }
 
       List_Add(EdgeNN_L, &EdgeNN) ;
 
-      Message::Debug("                         --- (whose source is) --->  a%d, n%d - n%d",
-                     EdgeNN.NumEdge, EdgeNN.Node1, EdgeNN.Node2) ;
+      // Message::Debug("                         --- (whose source is) --->  a%d, n%d - n%d",
+      //                EdgeNN.NumEdge, EdgeNN.Node1, EdgeNN.Node2) ;
 
     }
   }
@@ -862,8 +887,9 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
     if (!(ExtendedSuppListRef_L &&
 	  List_Search(ExtendedSuppListRef_L, &EdgeNNRef.NumEdge, fcmp_int))) {
       if (EdgeNNRef.Node2 < EdgeNNRef.Node1) {
-	Save_Num = EdgeNNRef.Node2 ;
-	EdgeNNRef.Node2 = EdgeNNRef.Node1 ;  EdgeNNRef.Node1 = Save_Num ;
+	int Save_Num = EdgeNNRef.Node2 ;
+	EdgeNNRef.Node2 = EdgeNNRef.Node1 ;  
+	EdgeNNRef.Node1 = Save_Num ;
       }
       List_Add(EdgeNNRef_L, &EdgeNNRef) ;
 
@@ -886,10 +912,10 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
     List_Read(EdgeNN_L, i, &EdgeNN) ;
     List_Read(EdgeNNRef_L, i, &EdgeNNRef) ;
 
-    Message::Debug("Final : %d: a%d, n%d - n%d (%.16g + %.16g i) / a%d, n%d - n%d",
-                   i,
-                   EdgeNN.NumEdge, EdgeNN.Node1, EdgeNN.Node2, EdgeNN.Coef, EdgeNN.Coef2,
-                   EdgeNNRef.NumEdge, EdgeNNRef.Node1, EdgeNNRef.Node2) ;
+    // Message::Debug("Final : %d: a%d, n%d - n%d (%.16g + %.16g i) / a%d, n%d - n%d",
+    //                i,
+    //                EdgeNN.NumEdge, EdgeNN.Node1, EdgeNN.Node2, EdgeNN.Coef, EdgeNN.Coef2,
+    //                EdgeNNRef.NumEdge, EdgeNNRef.Node1, EdgeNNRef.Node2) ;
 
     if (EdgeNN.Node1 != EdgeNNRef.Node1 ||
 	EdgeNN.Node2 != EdgeNNRef.Node2){
