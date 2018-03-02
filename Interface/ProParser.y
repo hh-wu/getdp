@@ -7031,12 +7031,21 @@ PostSubOperation :
       PostSubOperation_S.Type = POP_PRINT;
     }
 
-  | tPrint '[' tBIGSTR ',' Expression PrintOptions ']' tEND
+  | tPrint '[' tBIGSTR ',' ListOfExpression PrintOptions ']' tEND
     {
       PostSubOperation_S.Type = POP_EXPRESSION;
       PostSubOperation_S.Case.Expression.String = $3;
+      PostSubOperation_S.Case.Expression.String2 = strSave("unformatted");
+      PostSubOperation_S.Case.Expression.Expressions = List_Copy(ListOfInt_L);
+      PostSubOperation_S.PostQuantityIndex[0] = -1;
+    }
+
+  | tPrint '[' ListOfExpression ',' tFormat CharExpr PrintOptions ']' tEND
+    {
+      PostSubOperation_S.Type = POP_EXPRESSION;
+      PostSubOperation_S.Case.Expression.String = $6;
       PostSubOperation_S.Case.Expression.String2 = NULL;
-      PostSubOperation_S.Case.Expression.ExpressionIndex = $5;
+      PostSubOperation_S.Case.Expression.Expressions = List_Copy(ListOfInt_L);
       PostSubOperation_S.PostQuantityIndex[0] = -1;
     }
 
@@ -7045,7 +7054,7 @@ PostSubOperation :
       PostSubOperation_S.Type = POP_EXPRESSION;
       PostSubOperation_S.Case.Expression.String = $3;
       PostSubOperation_S.Case.Expression.String2 = $7;
-      PostSubOperation_S.Case.Expression.ExpressionIndex = -1;
+      PostSubOperation_S.Case.Expression.Expressions = 0;
       PostSubOperation_S.PostQuantityIndex[0] = -1;
     }
 
@@ -7054,7 +7063,7 @@ PostSubOperation :
       PostSubOperation_S.Type = POP_EXPRESSION;
       PostSubOperation_S.Case.Expression.String = $3;
       PostSubOperation_S.Case.Expression.String2 = NULL;
-      PostSubOperation_S.Case.Expression.ExpressionIndex = -1;
+      PostSubOperation_S.Case.Expression.Expressions = 0;
       PostSubOperation_S.PostQuantityIndex[0] = -1;
     }
 

@@ -1445,7 +1445,7 @@ struct PostSubOperation {
     struct { double x[3], y[3], z[3]; } OnSection;
     struct { int RegionIndex, ArgumentIndex; double x[2]; int n; } WithArgument;
     struct { int ExtendedGroupIndex, GroupIndex; } Group;
-    struct { char *String; char *String2; int ExpressionIndex; } Expression;
+    struct { char *String; char *String2; List_T *Expressions; } Expression;
   } Case;
 };
 
