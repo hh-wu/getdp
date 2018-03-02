@@ -8851,7 +8851,7 @@ FExpr :
   | tSinh   '[' FExpr ']'            { $$ = sinh($3);     }
   | tCosh   '[' FExpr ']'            { $$ = cosh($3);     }
   | tTanh   '[' FExpr ']'            { $$ = tanh($3);     }
-  | tATanh  '[' FExpr ']'            { $$ = atanh($3);    }
+  | tAtanh  '[' FExpr ']'            { $$ = atanh($3);    }
   | tFabs   '[' FExpr ']'            { $$ = fabs($3);     }
   | tFloor  '[' FExpr ']'            { $$ = floor($3);    }
   | tCeil   '[' FExpr ']'            { $$ = ceil($3);     }
