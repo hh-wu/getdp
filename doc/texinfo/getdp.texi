@@ -3070,9 +3070,7 @@ PostOperation < (Append < @var{expression-cst} >) > @var{post-operation-id} Usin
 
 @var{post-operation-op}:
   Print[ @var{post-quantity-id} <[@var{group-def}]>, @var{print-support} <,@var{print-option}> @dots{} ] |
-  Print[ "@var{string}", @var{expression} <,@var{print-option}> @dots{} ] |
-  Print[ "@var{string}", Str[ @var{expression-char} ] <,@var{print-option}> @dots{} ] |
-  Echo[ "@var{string}" <,@var{print-option}> @dots{} ] |
+  Print[ @var{expression-list}, Format "@var{string}" <,@var{print-option}> @dots{} ] |
   PrintGroup[ @var{group-id}, @var{print-support} <,@var{print-option}> @dots{} ] |
   SendMergeFileRequest[ @var{expression-char} ] |
   < @var{loop} > @dots{}
