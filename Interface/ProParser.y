@@ -253,7 +253,7 @@ struct doubleXstring{
 %token  tGETDP_MAJOR_VERSION tGETDP_MINOR_VERSION tGETDP_PATCH_VERSION
 
 %token  tExp tLog tLog10 tSqrt tSin tAsin tCos tAcos tTan
-%token    tAtan tAtan2 tSinh tCosh tTanh tFabs tFloor tCeil tRound tSign
+%token    tAtan tAtan2 tSinh tCosh tTanh tAtanh tFabs tFloor tCeil tRound tSign
 %token    tFmod tModulo tHypot tRand
 %token    tSolidAngle tTrace tOrder tCrossProduct tDofValue tRational
 %token    tMHTransform tMHBilinear
@@ -8797,6 +8797,7 @@ NameForMathFunction :
   | tSinh    { $$ = (char*)"Sinh";   }
   | tCosh    { $$ = (char*)"Cosh";   }
   | tTanh    { $$ = (char*)"Tanh";   }
+  | tAtanh   { $$ = (char*)"Atanh";  }
   | tFabs    { $$ = (char*)"Fabs";   }
   | tFloor   { $$ = (char*)"Floor";  }
   | tCeil    { $$ = (char*)"Ceil";   }
@@ -8850,6 +8851,7 @@ FExpr :
   | tSinh   '[' FExpr ']'            { $$ = sinh($3);     }
   | tCosh   '[' FExpr ']'            { $$ = cosh($3);     }
   | tTanh   '[' FExpr ']'            { $$ = tanh($3);     }
+  | tATanh  '[' FExpr ']'            { $$ = atanh($3);    }
   | tFabs   '[' FExpr ']'            { $$ = fabs($3);     }
   | tFloor  '[' FExpr ']'            { $$ = floor($3);    }
   | tCeil   '[' FExpr ']'            { $$ = ceil($3);     }

@@ -936,6 +936,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"Sinh"              , (CAST)F_Sinh             ,   0,   1 },
   {"Cosh"              , (CAST)F_Cosh             ,   0,   1 },
   {"Tanh"              , (CAST)F_Tanh             ,   0,   1 },
+  {"Atanh"             , (CAST)F_Atanh            ,   0,   1 },
   {"Fabs"              , (CAST)F_Fabs             ,   0,   1 },
   {"Abs"               , (CAST)F_Abs              ,   0,   1 },
   {"Floor"             , (CAST)F_Floor            ,   0,   1 },
