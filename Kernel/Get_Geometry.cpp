@@ -498,7 +498,8 @@ double Transformation(int Dim, int Type, struct Element * Element, MATRIX3x3 * J
       L = Element->JacobianCase->Para[7];
     if(Element->JacobianCase->NbrParameters >= 9){
       Message::Error("Too many parameters for cylindrical transformation Jacobian. "
-                     "Valid parameters: Radius1 Radius2 Axis CenterX CenterY CenterZ Power 1/Infinity");
+                     "Valid parameters: Radius1 Radius2 Axis CenterX CenterY CenterZ "
+                     "Power 1/Infinity");
     }
   }
   else if(Type == JACOBIAN_VOL_UNI_DIR_SHELL){
@@ -521,100 +522,101 @@ double Transformation(int Dim, int Type, struct Element * Element, MATRIX3x3 * J
   if(L) B = (B*B-A*A*L)/(B-A*L);
 
   if(Type == JACOBIAN_VOL_UNI_DIR_SHELL){
+    /* R is the distance from the plane whose normal vector is parallel to the
+       axis and which contains the point (Ca,0,0),(0,Ca,0) or (0,0,Ca), for Axis
+       equal to 1, 2, 3 respectively*/
 
-	/* R is the distance from the plane whose normal vector is parallel to the 
-	axis and which contains the point (Ca,0,0),(0,Ca,0) or (0,0,Ca), for Axis 
-	equal to 1, 2, 3 respectively*/
-	
-      switch(Axis) {
-      case 1: R = fabs(X-Ca); break; 
-      case 2: R = fabs(Y-Ca); break;
-      case 3: R = fabs(Z-Ca); break;
-      default: Message::Error("Bad axis specification: 1 for X, 2 for Y and 3 for Z");
-      }
-	  
-      if ( (fabs(R) > fabs(B) + 1.e-2*fabs(B)) || 
+    switch(Axis) {
+    case 1: R = fabs(X-Ca); break;
+    case 2: R = fabs(Y-Ca); break;
+    case 3: R = fabs(Z-Ca); break;
+    default: Message::Error("Bad axis specification: 1 for X, 2 for Y and 3 for Z");
+    }
+
+    if ( (fabs(R) > fabs(B) + 1.e-2*fabs(B)) ||
 	 (fabs(R) < fabs(A) - 1.e-2*fabs(A)) ){
-      Message::Error("Bad parameters for unidirectional transformation Jacobian:" "Rint=%g, Rext=%g, R=%g", A, B, R);
-      }
-	
-      if (B == R) {
+      Message::Error("Bad parameters for unidirectional transformation Jacobian:"
+                     "Rint=%g, Rext=%g, R=%g", A, B, R);
+    }
+
+    if (B == R) {
       Jac->c11 = 1.; Jac->c12 = 0.; Jac->c13 = 0.;
       Jac->c21 = 0.; Jac->c22 = 1.; Jac->c23 = 0.;
       Jac->c31 = 0.; Jac->c32 = 0.; Jac->c33 = 1.;
       return(1.);
-      }
-	
-      f = power((A*(B-A))/(R*(B-R)), p);
-      theta = p * (B-2.*R) / (B-R);
-	
-      switch(Axis) {
-      case 1: Jac->c11 = f * (1.0 - theta); Jac->c12 = 0.0; Jac->c13 = 0.0;
-              Jac->c21 = 0.0;               Jac->c22 = 1.0; Jac->c23 = 0.0;
-              Jac->c31 = 0.0;               Jac->c32 = 0.0; Jac->c33 = 1.0;
-				
-              DetJac =  f * (1.0 - theta);
+    }
+
+    f = power((A*(B-A))/(R*(B-R)), p);
+    theta = p * (B-2.*R) / (B-R);
+
+    switch(Axis) {
+    case 1: Jac->c11 = f * (1.0 - theta); Jac->c12 = 0.0; Jac->c13 = 0.0;
+      Jac->c21 = 0.0;               Jac->c22 = 1.0; Jac->c23 = 0.0;
+      Jac->c31 = 0.0;               Jac->c32 = 0.0; Jac->c33 = 1.0;
+
+      DetJac =  f * (1.0 - theta);
       break;
-	  
-      case 2: Jac->c11 = 1.0; Jac->c12 = 0.0;               Jac->c13 = 0.0;
-              Jac->c21 = 0.0; Jac->c22 = f * (1.0 - theta); Jac->c23 = 0.0;
-	      Jac->c31 = 0.0; Jac->c32 = 0.0;               Jac->c33 = 1.0;
-				
-	      DetJac =  f * (1.0 - theta);
+
+    case 2: Jac->c11 = 1.0; Jac->c12 = 0.0;               Jac->c13 = 0.0;
+      Jac->c21 = 0.0; Jac->c22 = f * (1.0 - theta); Jac->c23 = 0.0;
+      Jac->c31 = 0.0; Jac->c32 = 0.0;               Jac->c33 = 1.0;
+
+      DetJac =  f * (1.0 - theta);
       break;
-	  
-      case 3: Jac->c11 = 1.0; Jac->c12 = 0.0; Jac->c13 = 0.0;
-	      Jac->c21 = 0.0; Jac->c22 = 1.0; Jac->c23 = 0.0;
-	      Jac->c31 = 0.0; Jac->c32 = 0.0; Jac->c33 = f * (1.0 - theta);
-				
-	      DetJac =  f * (1.0 - theta);
+
+    case 3: Jac->c11 = 1.0; Jac->c12 = 0.0; Jac->c13 = 0.0;
+      Jac->c21 = 0.0; Jac->c22 = 1.0; Jac->c23 = 0.0;
+      Jac->c31 = 0.0; Jac->c32 = 0.0; Jac->c33 = f * (1.0 - theta);
+
+      DetJac =  f * (1.0 - theta);
       break;
-      }
+    }
   }
   else if(Type == JACOBIAN_VOL_CYL_SHELL){
-	  switch(Axis) {
-	  case 1: R = sqrt(SQU(Y-Cy)+SQU(Z-Cz)); YR = (Y-Cy)/R; ZR = (Z-Cz)/R; dRdy = (Y-Cy)/R; dRdz = (Z-Cz)/R; break;
-	  case 2: R = sqrt(SQU(X-Cx)+SQU(Z-Cz)); XR = (X-Cx)/R; ZR = (Z-Cz)/R; dRdx = (X-Cx)/R; dRdz = (Z-Cz)/R; break;
-	  case 3: R = sqrt(SQU(X-Cx)+SQU(Y-Cy)); XR = (X-Cx)/R; YR = (Y-Cy)/R; dRdx = (X-Cx)/R; dRdy = (Y-Cy)/R; break;
-	  default: Message::Error("Bad axis specification : 1 for X, 2 for Y, 3 for Z");
-	  }
-	  if ( (fabs(R) > fabs(B) + 1.e-2*fabs(B)) || 
-	       (fabs(R) < fabs(A) - 1.e-2*fabs(A)) ){
-               Message::Error("Bad parameters for cylindrical transformation Jacobian:" "Rint=%g, Rext=%g, R=%g", A, B, R);
-          }
-	
-	  if (B == R) {
-             Jac->c11 = 1.; Jac->c12 = 0.; Jac->c13 = 0.;
-             Jac->c21 = 0.; Jac->c22 = 1.; Jac->c23 = 0.;
-             Jac->c31 = 0.; Jac->c32 = 0.; Jac->c33 = 1.;
-             return(1.);
-          }
-	
-	  f = power((A*(B-A))/(R*(B-R)), p);
-          theta = p * (B-2.*R) / (B-R);
-	
-	  switch(Axis) {
-          case 1: Jac->c11 = 1.0; Jac->c12 = 0.0;                           Jac->c13 = 0.0;
-		  Jac->c21 = 0.0; Jac->c22 = f * (1.0 - theta * YR * dRdy); Jac->c23 = f * (   - theta * YR * dRdz);
-		  Jac->c31 = 0.0; Jac->c32 = f * (    - theta * ZR * dRdy); Jac->c33 = f * (1.0- theta * ZR * dRdz);
-				
-		  DetJac =  f * f * (1.0 - theta);
-	  break;
-	  
-          case 2: Jac->c11 = f * (1.0 - theta * XR * dRdx); Jac->c12 = 0.0; Jac->c13 = f * (    - theta * XR * dRdz);
-	  	  Jac->c21 = 0.0;                           Jac->c22 = 1.0; Jac->c23 = 0.0;
-		  Jac->c31 = f * (    - theta * ZR * dRdx); Jac->c32 = 0.0; Jac->c33 = f * (1.0 - theta * ZR * dRdz);
-				
-		  DetJac =  f * f * (1.0 - theta);
-	  break;
-	  
-          case 3: Jac->c11 = f * (1.0 - theta * XR *dRdx); Jac->c12 = f * (    - theta * XR * dRdy); Jac->c13 = 0.0;
-		  Jac->c21 = f * (    - theta * YR *dRdx); Jac->c22 = f * (1.0 - theta * YR * dRdy); Jac->c23 = 0.0;
-		  Jac->c31 = 0.0;                          Jac->c32 = 0.0;                           Jac->c33 = 1.0;
-				
-		  DetJac =  f * f * (1.0 - theta);
-	  break;
-         }
+    if(!Axis) Axis = 3; // usual 2D case
+    switch(Axis) {
+    case 1: R = sqrt(SQU(Y-Cy)+SQU(Z-Cz)); YR = (Y-Cy)/R; ZR = (Z-Cz)/R; dRdy = (Y-Cy)/R; dRdz = (Z-Cz)/R; break;
+    case 2: R = sqrt(SQU(X-Cx)+SQU(Z-Cz)); XR = (X-Cx)/R; ZR = (Z-Cz)/R; dRdx = (X-Cx)/R; dRdz = (Z-Cz)/R; break;
+    case 3: R = sqrt(SQU(X-Cx)+SQU(Y-Cy)); XR = (X-Cx)/R; YR = (Y-Cy)/R; dRdx = (X-Cx)/R; dRdy = (Y-Cy)/R; break;
+    default: Message::Error("Bad axis specification : 1 for X, 2 for Y, 3 for Z");
+    }
+    if ( (fabs(R) > fabs(B) + 1.e-2*fabs(B)) ||
+         (fabs(R) < fabs(A) - 1.e-2*fabs(A)) ){
+      Message::Error("Bad parameters for cylindrical transformation Jacobian:" "Rint=%g, Rext=%g, R=%g", A, B, R);
+    }
+
+    if (B == R) {
+      Jac->c11 = 1.; Jac->c12 = 0.; Jac->c13 = 0.;
+      Jac->c21 = 0.; Jac->c22 = 1.; Jac->c23 = 0.;
+      Jac->c31 = 0.; Jac->c32 = 0.; Jac->c33 = 1.;
+      return(1.);
+    }
+
+    f = power((A*(B-A))/(R*(B-R)), p);
+    theta = p * (B-2.*R) / (B-R);
+
+    switch(Axis) {
+    case 1: Jac->c11 = 1.0; Jac->c12 = 0.0;                           Jac->c13 = 0.0;
+      Jac->c21 = 0.0; Jac->c22 = f * (1.0 - theta * YR * dRdy); Jac->c23 = f * (   - theta * YR * dRdz);
+      Jac->c31 = 0.0; Jac->c32 = f * (    - theta * ZR * dRdy); Jac->c33 = f * (1.0- theta * ZR * dRdz);
+
+      DetJac =  f * f * (1.0 - theta);
+      break;
+
+    case 2: Jac->c11 = f * (1.0 - theta * XR * dRdx); Jac->c12 = 0.0; Jac->c13 = f * (    - theta * XR * dRdz);
+      Jac->c21 = 0.0;                           Jac->c22 = 1.0; Jac->c23 = 0.0;
+      Jac->c31 = f * (    - theta * ZR * dRdx); Jac->c32 = 0.0; Jac->c33 = f * (1.0 - theta * ZR * dRdz);
+
+      DetJac =  f * f * (1.0 - theta);
+      break;
+
+    case 3: Jac->c11 = f * (1.0 - theta * XR *dRdx); Jac->c12 = f * (    - theta * XR * dRdy); Jac->c13 = 0.0;
+      Jac->c21 = f * (    - theta * YR *dRdx); Jac->c22 = f * (1.0 - theta * YR * dRdy); Jac->c23 = 0.0;
+      Jac->c31 = 0.0;                          Jac->c32 = 0.0;                           Jac->c33 = 1.0;
+
+      DetJac =  f * f * (1.0 - theta);
+      break;
+    }
   }
   else{
     if(Type == JACOBIAN_SPH){
