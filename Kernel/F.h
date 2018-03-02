@@ -116,6 +116,7 @@ void  F_Atan            (F_ARG) ;
 void  F_Sinh            (F_ARG) ;
 void  F_Cosh            (F_ARG) ;
 void  F_Tanh            (F_ARG) ;
+void  F_Atanh           (F_ARG) ;
 void  F_Fabs            (F_ARG) ;
 void  F_Abs             (F_ARG) ;
 void  F_Floor           (F_ARG) ;
