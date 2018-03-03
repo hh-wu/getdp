@@ -1117,37 +1117,15 @@ endif(APPLE AND PACKAGER STREQUAL "geuzaine - removed: we sign on a separate mac
 
 include(CPack)
 
+# comprehensive getdp testing is done through in the onelab documentation
+# project (as it also requires Gmsh)
 include(CTest)
-file(GLOB_RECURSE TESTS
-     demos/magnet.pro
-     benchmarks/academic_eigenvalues/main.pro
-     benchmarks/acoustic_scattering/scattering.pro
-     benchmarks/inductor/inductor.pro
-     benchmarks/machines/pmsm.pro
-     benchmarks/magnetometer/magnetometer.pro
-     benchmarks/magnets/magnets.pro
-     benchmarks/thermal_conduction/contact.pro
-     benchmarks/transfo_simple/transfo.pro
-     benchmarks/waveguides/waveguide3D_rectangle.pro)
-if(HAVE_PETSC)
-  file(GLOB_RECURSE TESTS_PETSC
-       benchmarks/ddm_waves/main.pro)
-endif(HAVE_PETSC)
-find_program(TEST_BIN ../../gmsh/bin/gmsh)
-if(TEST_BIN)
-  message(STATUS "Will test GetDP with Gmsh through ONELAB")
-  set(TEST_FLAG -)
-else(TEST_BIN)
-  message(STATUS "Will test GetDP stand-alone")
-  set(TEST_BIN getdp)
-  set(TEST_FLAG)
-endif(TEST_BIN)
-
-foreach(TESTFILE ${TESTS} ${TESTS_PETSC})
+file(GLOB_RECURSE TESTS demos/magnet.pro)
+foreach(TESTFILE ${TESTS})
   # use relative path for cygwin/mingw (the pure win exe built with the mingw 
   # compilers does not understand a full cygwin-style path)
   FILE(RELATIVE_PATH TEST ${CMAKE_CURRENT_BINARY_DIR} ${TESTFILE})
-  add_test(${TEST} ${TEST_BIN} ${TEST} ${TEST_FLAG})
+  add_test(${TEST} getdp ${TEST} -solve \#1 -pos \#1)
 endforeach(TESTFILE)
 
 message(STATUS "")
