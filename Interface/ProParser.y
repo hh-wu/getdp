@@ -7086,6 +7086,18 @@ PostSubOperation :
       PostSubOperation_S.FileOut = $3;
     }
 
+  | tDeleteFile '[' CharExpr ']' tEND
+    {
+      PostSubOperation_S.Type = POP_DELETEFILE;
+      PostSubOperation_S.FileOut = $3;
+    }
+
+  | tCreateDir '[' CharExpr ']' tEND
+    {
+      PostSubOperation_S.Type = POP_CREATEDIR;
+      PostSubOperation_S.FileOut = $3;
+    }
+
   | Loop
     {
       PostSubOperation_S.Type = POP_NONE;

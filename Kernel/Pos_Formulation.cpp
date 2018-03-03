@@ -373,6 +373,18 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
     return;
   }
 
+  if(PostSubOperation_P->Type == POP_DELETEFILE){
+    Message::Info("DeleteFile[%s]", PostSubOperation_P->FileOut) ;
+    RemoveFile(PostSubOperation_P->FileOut);
+    return;
+  }
+
+  if(PostSubOperation_P->Type == POP_CREATEDIR){
+    Message::Info("CreateDir[%s]", PostSubOperation_P->FileOut) ;
+    CreateDirs(PostSubOperation_P->FileOut);
+    return;
+  }
+
   if(PostSubOperation_P->FileOut){
     strcpy(PostFileName, Fix_RelativePath(PostSubOperation_P->FileOut,
                                           Name_Path).c_str());

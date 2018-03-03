@@ -3073,6 +3073,8 @@ PostOperation < (Append < @var{expression-cst} >) > @var{post-operation-id} Usin
   Print[ @var{expression-list}, Format "@var{string}" <,@var{print-option}> @dots{} ] |
   PrintGroup[ @var{group-id}, @var{print-support} <,@var{print-option}> @dots{} ] |
   Echo[ "@var{string}" <,@var{print-option}> @dots{} ] |
+  CreateDir [ "@var{string}" ] |
+  DeleteFile [ "@var{string}" ] |
   SendMergeFileRequest[ @var{expression-char} ] |
   < @var{loop} > @dots{}
   @var{etc}

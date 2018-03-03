@@ -79,6 +79,7 @@ Constraint {
   }
 }
 
+modelPath = CurrentDirectory;
 Include "../templates/Magnetostatics.pro"
 
 eps = 1.e-5;
