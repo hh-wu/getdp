@@ -99,6 +99,7 @@ MaxOverTime                  return tMaxOverTime;
 FourierSteinmetz             return tFourierSteinmetz;
 Atan                         return tAtan;
 Atan2                        return tAtan2;
+Atanh                        return tAtanh;
 Auto                         return tAuto;
 
 Barrier			     return tBarrier;

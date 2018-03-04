@@ -7,6 +7,7 @@
 #include <string.h>
 #include <math.h>
 #include "ProData.h"
+#include "ProParser.h"
 #include "GeoData.h"
 #include "DofData.h"
 #include "Cal_PostQuantity.h"
@@ -1581,33 +1582,53 @@ void  Pos_PrintExpression(struct PostSubOperation *PSO_P)
   struct Value Value;
   char *str = PSO_P->Case.Expression.String;
   char *str2 = PSO_P->Case.Expression.String2;
-  int expr = PSO_P->Case.Expression.ExpressionIndex;
+  List_T *expr = PSO_P->Case.Expression.Expressions;
 
-  if((!str || !strlen(str)) && (!str2 || !strlen(str2)) && expr < 0)
+  if((!str || !strlen(str)) && (!str2 || !strlen(str2)) && !List_Nbr(expr))
     return; // nothing to print; useful to request merging an existing file
-
-  if(!PostStream) return;
 
   NbrTimeStep = Pos_InitTimeSteps(PSO_P);
 
   for(iTime = 0; iTime < NbrTimeStep; iTime++){
     Pos_InitAllSolutions(PSO_P->TimeStep_L, iTime) ;
-    if(expr >= 0){
-      Get_ValueOfExpressionByIndex(expr, NULL, 0., 0., 0., &Value) ;
-      if(str) fprintf(PostStream, "%s", str);
-      fprintf(PostStream, "%s", Print_Value_ToString(&Value).c_str());
+    if(List_Nbr(expr) && str2){ // old style, unformatted single expession output
+      int j; List_Read(expr, 0, &j);
+      Get_ValueOfExpressionByIndex(j, NULL, 0., 0., 0., &Value) ;
+      if(PostStream){
+        if(str) fprintf(PostStream, "%s", str);
+        fprintf(PostStream, "%s", Print_Value_ToString(&Value).c_str());
+      }
+    }
+    else if(List_Nbr(expr) && str){ // new style, same syntax as in resolution operations
+      List_T *list = List_Create(10, 10, sizeof(double));
+      for(int i = 0; i < List_Nbr(expr); i++){
+        int j; List_Read(expr, i, &j) ;
+        Get_ValueOfExpressionByIndex(j, NULL, 0., 0., 0., &Value) ;
+        List_Add(list, &Value.Val[0]);
+      }
+      char buffer[1024];
+      Print_ListOfDouble(str, list, buffer);
+      if(PostStream)
+        fprintf(PostStream, "%s", buffer);
+      List_Delete(list);
     }
     else if(str2){
-      if(str) fprintf(PostStream, "%s", str);
-      fprintf(PostStream, "%s", str2);
+      if(PostStream){
+        if(str) fprintf(PostStream, "%s", str);
+        fprintf(PostStream, "%s", str2);
+      }
     }
     else if(str){
-      fprintf(PostStream, "%s", str);
+      if(PostStream)
+        fprintf(PostStream, "%s", str);
     }
-    if(PSO_P->NoNewLine)
-      fprintf(PostStream, " ") ;
-    else
-      fprintf(PostStream, "\n") ;
+
+    if(PostStream){
+      if(PSO_P->NoNewLine)
+        fprintf(PostStream, " ") ;
+      else
+        fprintf(PostStream, "\n") ;
+    }
   }
 }
 

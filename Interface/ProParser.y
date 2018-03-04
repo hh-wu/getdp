@@ -253,7 +253,7 @@ struct doubleXstring{
 %token  tGETDP_MAJOR_VERSION tGETDP_MINOR_VERSION tGETDP_PATCH_VERSION
 
 %token  tExp tLog tLog10 tSqrt tSin tAsin tCos tAcos tTan
-%token    tAtan tAtan2 tSinh tCosh tTanh tFabs tFloor tCeil tRound tSign
+%token    tAtan tAtan2 tSinh tCosh tTanh tAtanh tFabs tFloor tCeil tRound tSign
 %token    tFmod tModulo tHypot tRand
 %token    tSolidAngle tTrace tOrder tCrossProduct tDofValue tRational
 %token    tMHTransform tMHBilinear
@@ -7031,12 +7031,21 @@ PostSubOperation :
       PostSubOperation_S.Type = POP_PRINT;
     }
 
-  | tPrint '[' tBIGSTR ',' Expression PrintOptions ']' tEND
+  | tPrint '[' tBIGSTR ',' ListOfExpression PrintOptions ']' tEND
     {
       PostSubOperation_S.Type = POP_EXPRESSION;
       PostSubOperation_S.Case.Expression.String = $3;
+      PostSubOperation_S.Case.Expression.String2 = strSave("unformatted");
+      PostSubOperation_S.Case.Expression.Expressions = List_Copy(ListOfInt_L);
+      PostSubOperation_S.PostQuantityIndex[0] = -1;
+    }
+
+  | tPrint '[' ListOfExpression ',' tFormat CharExpr PrintOptions ']' tEND
+    {
+      PostSubOperation_S.Type = POP_EXPRESSION;
+      PostSubOperation_S.Case.Expression.String = $6;
       PostSubOperation_S.Case.Expression.String2 = NULL;
-      PostSubOperation_S.Case.Expression.ExpressionIndex = $5;
+      PostSubOperation_S.Case.Expression.Expressions = List_Copy(ListOfInt_L);
       PostSubOperation_S.PostQuantityIndex[0] = -1;
     }
 
@@ -7045,7 +7054,7 @@ PostSubOperation :
       PostSubOperation_S.Type = POP_EXPRESSION;
       PostSubOperation_S.Case.Expression.String = $3;
       PostSubOperation_S.Case.Expression.String2 = $7;
-      PostSubOperation_S.Case.Expression.ExpressionIndex = -1;
+      PostSubOperation_S.Case.Expression.Expressions = 0;
       PostSubOperation_S.PostQuantityIndex[0] = -1;
     }
 
@@ -7054,7 +7063,7 @@ PostSubOperation :
       PostSubOperation_S.Type = POP_EXPRESSION;
       PostSubOperation_S.Case.Expression.String = $3;
       PostSubOperation_S.Case.Expression.String2 = NULL;
-      PostSubOperation_S.Case.Expression.ExpressionIndex = -1;
+      PostSubOperation_S.Case.Expression.Expressions = 0;
       PostSubOperation_S.PostQuantityIndex[0] = -1;
     }
 
@@ -7074,6 +7083,18 @@ PostSubOperation :
   | tSendMergeFileRequest '[' CharExpr ']' tEND
     {
       PostSubOperation_S.Type = POP_MERGE;
+      PostSubOperation_S.FileOut = $3;
+    }
+
+  | tDeleteFile '[' CharExpr ']' tEND
+    {
+      PostSubOperation_S.Type = POP_DELETEFILE;
+      PostSubOperation_S.FileOut = $3;
+    }
+
+  | tCreateDir '[' CharExpr ']' tEND
+    {
+      PostSubOperation_S.Type = POP_CREATEDIR;
       PostSubOperation_S.FileOut = $3;
     }
 
@@ -8788,6 +8809,7 @@ NameForMathFunction :
   | tSinh    { $$ = (char*)"Sinh";   }
   | tCosh    { $$ = (char*)"Cosh";   }
   | tTanh    { $$ = (char*)"Tanh";   }
+  | tAtanh   { $$ = (char*)"Atanh";  }
   | tFabs    { $$ = (char*)"Fabs";   }
   | tFloor   { $$ = (char*)"Floor";  }
   | tCeil    { $$ = (char*)"Ceil";   }
@@ -8841,6 +8863,7 @@ FExpr :
   | tSinh   '[' FExpr ']'            { $$ = sinh($3);     }
   | tCosh   '[' FExpr ']'            { $$ = cosh($3);     }
   | tTanh   '[' FExpr ']'            { $$ = tanh($3);     }
+  | tAtanh  '[' FExpr ']'            { $$ = atanh($3);    }
   | tFabs   '[' FExpr ']'            { $$ = fabs($3);     }
   | tFloor  '[' FExpr ']'            { $$ = floor($3);    }
   | tCeil   '[' FExpr ']'            { $$ = ceil($3);     }

@@ -79,6 +79,7 @@ Constraint {
   }
 }
 
+modelPath = CurrentDirectory;
 Include "../templates/Magnetostatics.pro"
 
 eps = 1.e-5;
@@ -86,7 +87,6 @@ eps = 1.e-5;
 PostOperation {
   { Name phi ; NameOfPostProcessing MagSta_phi;
     Operation {
-      Print[ phi, OnElementsOf Domain, Format ElementTable, Depth 1] ;
       Print[ phi, OnElementsOf Domain, File "phi.pos" ] ;
       Print[ hc, OnElementsOf Domain, File "hc.pos" ] ;
       Print[ b, OnElementsOf Domain, File "b_phi.pos" ] ;
