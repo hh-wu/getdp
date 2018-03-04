@@ -49,7 +49,6 @@ Flag_NLRes00 = 0; // 0: use classical IterativeLoop to solve the NL (non linear)
                   // 1: use IterativeLoopN to solve the NL (non linear) problem
                   // 2: solve the NL (non linear) problem "by hand"
 
-
 // non linear loop default parameters
 Nb_max_iter00       = 50; // maximum number of NL (non linear) iterations
 stop_criterion00    = 1e-5;  // strop criterion for the NL (non linear) iteration
@@ -58,8 +57,13 @@ Flag_AdaptRelax00   = 1; // set to 1 to test different relaxation factors
 relax_max00         = 1 ;
 relax_min00         = 0.1;
 relax_numtest00     = 10;
-TestAllFactors00    = 0; // 0 : stops when the residual goes up !!
-                         // 1 : try every relaxation factors and keep the optimal one
+TestAllFactors00    = 2;  // 0 : try first relaxation factors (from the list) and stops when the residual goes up 
+                          // 1 : try every relaxation factors (from the list) and keep the optimal one
+                          // 2 : find the maximum relaxation factor that decreases the residual:
+                          //     - start with the relaxation factor from the previous time step or from the previous iteration
+                          //     - the relaxation factor is multiplied by a ratio as long as the residual decreases
+                          //     - the relaxation factor is decreased by a ratio until a decreasing residual is found
+                          // [3 : Build a parabola based on three relaxation factors and deduce a minimizing relaxation factor (NOT WORKING!!)]
 Reltol_Mag00        = stop_criterion00; // 0 before with IterativeLoopN
 Abstol_Mag00        = stop_criterion00;
 Reltoldx_Mag00      = 1e-5*stop_criterion00;

@@ -2800,6 +2800,33 @@ void Vector_h_Vinch_K(const double b[3], double bc[3],
 {
   //int dim = D->Case.Interpolation.x[0] ;
 
+  // Use an Inversion Method to deduce the h associated to b.
+
+  // KJ NEW since  2/3/2018. 
+  Vector_b_Vinch_K(h, Jk_all, Jkp_all, D, bc);
+  // * This recompute the bc (and Jkall) from h to start the NR
+  // (instead of taking the bc (and Jkall) given in argument...
+  // thus, the bc and Jkall given in argument are not necessary now.)
+
+  // * h can be {h}[1], ie. the h found at the last timestep. (original approach)
+  // in this case, bc={b}[1] could be used also 
+  // in order to avoid the re-evaluation of Vector_b_Vinch_K.
+  // However, this is not totally correct because 
+  // bc=b_Vinch({h[1]}) and {b}[1] are not exactly the same
+  // but are as close as the stopping criterion defined for
+  // the NR process allows to tolerate.
+
+  // * h can be {h}, ie. the h from the last iteration, (new since 2/3/2018)
+  // Note: this works because there is a small lag through iterations
+  // between the dof{h} that depends on {b} and dof{b} that depends on dof{h} 
+  // as can be seen in the formulation in magstadyna.pro (a-v formulation).
+  // Therefore the arguments b={b} and bc=b_Vinch({h}) are different, 
+  // otherwise the NR stop criterion would be directly satisfied.
+
+  // * This is even more recommended when ExtrapolatePolynomial
+  // is activated to init the next generated Timestep, because
+  // bc=b_Vinch({h}) has not yet been computed with the new predicted {h} 
+
   double TOL = ::TOLERANCE_NR;
   const int MAX_ITER = ::MAX_ITER_NR;
 

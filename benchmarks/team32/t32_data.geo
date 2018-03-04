@@ -44,8 +44,13 @@ Flag_AdaptRelax00   = 1; // set to 1 to test different relaxation factors
 relax_max00         = 1 ;
 relax_min00         = 0.1;
 relax_numtest00     = 10;
-TestAllFactors00    = 1; // 0 : stops when the residual goes up !!
-                       // 1 : try every relaxation factors and keep the optimal one
+TestAllFactors00    = 1;  // 0 : try first relaxation factors (from the list) and stops when the residual goes up 
+                          // 1 : try every relaxation factors (from the list) and keep the optimal one
+                          // 2 : find the maximum relaxation factor that decreases the residual:
+                          //     - start with the relaxation factor from the previous time step or from the previous iteration
+                          //     - the relaxation factor is multiplied by a ratio as long as the residual decreases
+                          //     - the relaxation factor is decreased by a ratio until a decreasing residual is found
+                          // [3 : Build a parabola based on three relaxation factors and deduce a minimizing relaxation factor (NOT WORKING!!)]
 Reltol_Mag00        = stop_criterion00; // 0 before with IterativeLoopN
 Abstol_Mag00        = stop_criterion00;
 Reltoldx_Mag00      = 1e-5*stop_criterion00;

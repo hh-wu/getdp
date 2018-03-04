@@ -338,6 +338,24 @@ Label_FLAG_ANA="...";
   If (FLAG_MINMETHOD == 11 && FLAG_VARORDIFF==1)
   Label_FLAG_MINMETHOD ="FLAG_MINMETHOD=11    --> NEW steepest descent naive (homemade)";
   EndIf
+  If (FLAG_MINMETHOD == 22 && FLAG_VARORDIFF==1)
+  Label_FLAG_MINMETHOD ="FLAG_MINMETHOD=11    --> NEW conjugate Fletcher-Reeves (homemade)";
+  EndIf
+  If (FLAG_MINMETHOD == 33 && FLAG_VARORDIFF==1)
+  Label_FLAG_MINMETHOD ="FLAG_MINMETHOD=11    --> NEW conjugate Polak-Ribiere (homemade)";
+  EndIf
+  If (FLAG_MINMETHOD == 333 && FLAG_VARORDIFF==1)
+  Label_FLAG_MINMETHOD ="FLAG_MINMETHOD=11    --> NEW conjugate Polak-Ribiere+ (homemade)";
+  EndIf
+  If (FLAG_MINMETHOD == 1999 && FLAG_VARORDIFF==1)
+  Label_FLAG_MINMETHOD ="FLAG_MINMETHOD=11    --> NEW conjugate Dai Yuan 1999 (p.85) (homemade)";
+  EndIf
+  If (FLAG_MINMETHOD == 2005 && FLAG_VARORDIFF==1)
+  Label_FLAG_MINMETHOD ="FLAG_MINMETHOD=11    --> NEW conjugate Hager Zhang 2005 (p.161) (homemade)";
+  EndIf
+  If (FLAG_MINMETHOD == 77 && FLAG_VARORDIFF==1)
+  Label_FLAG_MINMETHOD ="FLAG_MINMETHOD=11    --> NEW newton (homemade)";
+  EndIf
   If (FLAG_MINMETHOD == 2 && FLAG_VARORDIFF==1)
   Label_FLAG_MINMETHOD ="FLAG_MINMETHOD=2     --> conjugate fr (gsl)";
   EndIf

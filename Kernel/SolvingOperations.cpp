@@ -215,7 +215,7 @@ void ExtrapolatingPolynomial(int degreewanted,struct DofData * DofData_P,
       List_Pointer(DofData_P->Solutions, 
       List_Nbr(DofData_P->Solutions)-1))->Time;   
     jvalid[0]=0;
-    Message::Info("ExtrapolatingPolynomial: Selected "
+    Message::Info("ExtrapolatingPolynomial: Using previous "
                   "Theta Time = %g s (TimeStep %d)",
                   xi[0],Solution_S->TimeStep-1-jvalid[0]);
     int degree=0, j=1;
@@ -229,12 +229,12 @@ void ExtrapolatingPolynomial(int degreewanted,struct DofData * DofData_P,
       if (xi[degree+1]<xi[degree]){
         jvalid[degree+1]=j;
         degree++;
-        Message::Info("ExtrapolatingPolynomial: Selected "
+        Message::Info("ExtrapolatingPolynomial: Using previous "
                       "Theta Time = %g s (TimeStep %d)",
                       xi[degree],Solution_S->TimeStep-1-jvalid[degree]);
       }
       else{
-        Message::Info("ExtrapolatingPolynomial: Skip "
+        Message::Info("ExtrapolatingPolynomial: Skipping previous "
                       "Theta Time = %g s (TimeStep %d) [Redundant]"
                       ,xi[degree+1],Solution_S->TimeStep-1-j);
       }
