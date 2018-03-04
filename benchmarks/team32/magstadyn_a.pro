@@ -70,6 +70,8 @@ Include "BH.pro"; // nonlinear BH caracteristic of magnetic material
 Include "BH_anhysteretic.pro";
 If(Flag_NL_law==NL_ENERGHYST)
   Include "param_EnergHyst.pro";
+Else
+  N=0;
 EndIf
 
 
@@ -209,11 +211,19 @@ Constraint {
 
   { Name MVP_2D ;
     Case {
-      { Region Corner ; Value 0.0 ; }
+      { Region Corner ; Value 0. ; }
       { Region SurfaceGe0  ; Type Assign ; Value 0. ; }
       { Region SurfaceGInf ; Type Assign ; Value 0. ; }
     }
   }
+
+  For i_ In {0:1}
+    { Name Dirichlet~{i_}  ; Type Assign ;
+      Case {
+        { Region Boundary ; Type Assign; Value 0. * i_ ;   }
+      }
+    }
+  EndFor
 
   { Name Current_2D ;
     Case {
@@ -255,7 +265,8 @@ FunctionSpace {
       { NameOfCoef ae1 ; EntityType NodesOf ; NameOfConstraint MVP_2D ; }
       If (Flag_Degree_a == 2)
 	{ NameOfCoef ae2 ; // Only OK if homogeneous BC, otherwise specify zero-BC
-          EntityType EdgesOf ; NameOfConstraint MagneticVectorPotential_2D ; }
+          //EntityType EdgesOf ; NameOfConstraint MagneticVectorPotential_2D ; }
+          EntityType EdgesOf ; NameOfConstraint Dirichlet_0 ; }
       EndIf
     }
   }
@@ -433,7 +444,8 @@ Formulation {
         // BF is constant per element (Vector + BF_Volume) => 1 integration point is enough
         Galerkin { [  Dof{h}  , {h} ] ; 
           In DomainNL  ; Jacobian Vol ; Integration I1p ; } 
-        Galerkin { [  - (SetVariable[(h_Vinch_K[  {h}[1]         , 
+        //Galerkin { [  -0*Vector[X[],Y[],Z[]]  , {h} ] ; In DomainNL  ; Jacobian Vol ; Integration I1p ; } //For Debug
+        Galerkin { [  - (SetVariable[(h_Vinch_K[  {h}            , // new since 2/3/2018: use {h} instead of {h}[1] here (need to init bc by recomputing b from {h} in h_Vinch_K)
                                                   {d a}, {d a}[1],
                                                   {J_1}, {J_1}[1], 
                                                   {J_2}, {J_2}[1], 
@@ -719,7 +731,9 @@ Resolution {
 
               IterativeLoopN[ Nb_max_iter, RF_tuned[],
                 //*****Choose between one of the 3 following possibilities:*****
-                //System { { A , Reltol_Mag, Abstol_Mag, Residual MeanL2Norm }} ]{ //1)
+                //System { { A , Reltol_Mag, Abstol_Mag, Solution MeanL2Norm }} ]{ //1a)  //dx=x-xp; x=x
+                //System { { A , Reltol_Mag, Abstol_Mag, RecalcResidual MeanL2Norm }} ]{ //1b)  //dx=res=b-Ax; x=b
+                //System { { A , Reltol_Mag, Abstol_Mag, Residual MeanL2Norm }} ]{ //1c)  //dx=res=b-Ax; x=b #DEFAULT
                 //PostOperation { { az_only , Reltol_Mag, Abstol_Mag,  MeanL2Norm }} ]{ //2)
                 //PostOperation { { b_only , Reltol_Mag, Abstol_Mag,  MeanL2Norm }} ]{ //3) 
                 PostOperation { { h_only , Reltol_Mag, Abstol_Mag,  MeanL2Norm }} ]{ //4)  //Need the above "INIT" for square with EnergHyst or JA because h_only = 0 at iter 1 

@@ -285,6 +285,7 @@ struct StringXPointer  Current_Value[] = {
   {"ResidualN" , &Current.ResidualN}, //+++
   {"Residual_Iter1" , &Current.Residual_Iter1}, //+++
   {"NbrTestedFac" , &Current.NbrTestedFac}, //+++
+  {"SolveJacAdaptFailed" , &Current.SolveJacAdaptFailed}, //+++
   {"TimeImag" , &Current.TimeImag},   {"Eigenvalue", &Current.Time},
   {"EigenvalueReal" , &Current.Time}, {"EigenvalueImag" , &Current.TimeImag},
   {"ReOmega"  , &Current.Time},       {"ImOmega"   , &Current.TimeImag},
