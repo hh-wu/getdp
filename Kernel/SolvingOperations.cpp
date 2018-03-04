@@ -242,7 +242,7 @@ void ExtrapolatingPolynomial(int degreewanted,struct DofData * DofData_P,
     }
 
     if (degree < degreewanted) {
-      Message::Warning("ExtrapolatingPolynomial: "
+      Message::Info("ExtrapolatingPolynomial: "
                        "Impossible to build polynomial of degree %d "
                        "(%d usable previous solution%s found "
                        "while %d needed for degree %d)" 
