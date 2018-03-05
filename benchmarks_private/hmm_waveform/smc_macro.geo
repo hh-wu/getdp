@@ -85,11 +85,6 @@ Transfinite Line{-li[8],li[10]}   = Lay1 Using Progression Pro1; // Prog1
 Transfinite Surface{surfind[]};
 Recombine Surface{surfind[]};
 
-Hide{ Line{li[{5}], li[{7}]}; }
-If(Flag_3D)
-Hide{ Line{li[{2}]}; }
-EndIf
-
 laxis[] += li[9];
 lind_middle[] += li[0];
 bndind[] += CombinedBoundary{Surface{surfind[]};};
@@ -133,7 +128,7 @@ surfair_out[]+= news ; Plane Surface(news) = {newll-1};
 Line Loop(newll) = {lair[{3:5}], -lair[{1}]};
 surf_Inf[]+= news ; Plane Surface(news) = {newll-1};
 
-Physical Line(GAMMA_INF)    = {lair[{0, 3:4}], lind_middle[], lines_sym[], lair[0] };
+Physical Line(GAMMA_INF)    = {lair[4]};
 Physical Surface(CONDUCTOR) = {surfIron[]} ;
 
 If(!Flag_3D)
@@ -147,4 +142,15 @@ EndIf
 
 Physical Surface(OMEGA_INF) = {surf_Inf[]} ;
 Physical Line(SYMMETRY_X0) = {3, 29, 20, 34, 37} ;
-Physical Line(SYMMETRY_Y0) = {2, 28, 7, 32, 35} ;
+Physical Line(SYMMETRY_Y0) = {lair[{0, 3}], lind_middle[], lines_sym[], lair[0] };
+
+
+
+
+ppplll0[] += newp; Point(newp) = {xlam + rla_ind/4, 1 * ylam/4, 0, plam};
+ppplll0[] += newp; Point(newp) = {xlam + rla_ind/4, 2 * ylam/4, 0, plam};
+ppplll0[] += newp; Point(newp) = {xlam + rla_ind/4, 3 * ylam/4, 0, plam};
+
+ppplll0[] += newp; Point(newp) = {1 * xlam/4, ylam + rla_ind/4, 0, plam};
+ppplll0[] += newp; Point(newp) = {2 * xlam/4, ylam + rla_ind/4, 0, plam};
+ppplll0[] += newp; Point(newp) = {3 * xlam/4, ylam + rla_ind/4, 0, plam};

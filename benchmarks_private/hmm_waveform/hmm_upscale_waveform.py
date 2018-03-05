@@ -1,6 +1,10 @@
-key = (input[0], input[1]) # element num, quadrature point index
+Time = round(input[2]+5e-13, 11) 
 
-field = input[2]
+
+#key = (input[0], input[1], input[2]) # element num, quadrature point index
+key = (input[0], input[1], Time) # element num, quadrature point index
+
+field = input[3]
 
 if field == 0:
     output = [ hx_table[key], hy_table[key], hz_table[key] ];
