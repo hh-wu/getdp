@@ -2950,7 +2950,7 @@ void Vector_h_Vinch_K(const double b[3], double bc[3],
       double *dhdb; dhdb = new double[ncomp];
       for (int n=0; n<ncomp; n++) {dbdh[n]=0.; dhdb[n]=0.;}
 
-      for (int n=0; n<3; n++) dh[n]=::DELTA_0; //KJNEW DELTA_00 +++
+      for (int n=0; n<3; n++) dh[n]=10.*::DELTA_0; //KJNEW DELTA_00 +++
       //*///-------------------------------------------------------------------------------------------
 
       int iter = 0 ;
