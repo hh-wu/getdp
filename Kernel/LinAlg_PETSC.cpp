@@ -1289,7 +1289,9 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
     // native PETSc LU)
     _try(KSPSetType(Solver->ksp[kspIndex], "preonly"));
     _try(PCSetType(pc, PCLU));
-#if (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
+#if (PETSC_VERSION_RELEASE == 0)
+    _try(PCFactorSetMatSolverType(pc, "mumps"));
+#elif (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
     _try(PCFactorSetMatSolverPackage(pc, "mumps"));
 #elif (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MKL_PARDISO)
     _try(PCFactorSetMatSolverPackage(pc, "mkl_pardiso"));
@@ -1324,7 +1326,10 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
       _try(PCGetType(pc, &pctype));
 #endif
 
-#if (PETSC_VERSION_MAJOR > 2)
+#if (PETSC_VERSION_RELEASE == 0)
+      MatSolverType stype;
+      _try(PCFactorGetMatSolverType(pc, &stype));
+#elif (PETSC_VERSION_MAJOR > 2)
       const MatSolverPackage stype;
       _try(PCFactorGetMatSolverPackage(pc, &stype));
 #else
@@ -1530,7 +1535,9 @@ static void _solveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R, gSolver *So
   _try(KSPGetPC(ksp, &pc));
   _try(KSPSetType(ksp, "preonly"));
   _try(PCSetType(pc, PCLU));
-#if (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
+#if (PETSC_VERSION_RELEASE == 0)
+  _try(PCFactorSetMatSolverType(pc, "mumps"));
+#elif (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
   _try(PCFactorSetMatSolverPackage(pc, "mumps"));
 #endif
   _try(SNESSolve(Solver->snes[solverIndex], PETSC_NULL, X->V));
