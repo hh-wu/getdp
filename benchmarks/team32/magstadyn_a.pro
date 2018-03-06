@@ -499,7 +499,7 @@ Formulation {
         // BF is constant per element (Vector + BF_Volume) => 1 integration point is enough
         Galerkin { [  Dof{h}  , {h} ] ; 
           In DomainNL  ; Jacobian Vol ; Integration I1p ; } 
-        Galerkin { [  - (SetVariable[(h_Vinch_K[  {h}[1]         , 
+        Galerkin { [  - (SetVariable[(h_Vinch_K[  {h}            , // new since 2/3/2018: use {h} instead of {h}[1] here (need to init bc by recomputing b from {h} in h_Vinch_K)
                                                   {d a}, {d a}[1],
                                                   {J_1}, {J_1}[1], 
                                                   {J_2}, {J_2}[1], 
