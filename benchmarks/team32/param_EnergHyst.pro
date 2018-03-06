@@ -82,7 +82,7 @@ FLAG_MINMETHOD = 6 --> steepest descent (gsl)
   EndIf
   If(FLAG_TANORLANG==2)
 /* 
-    // Material M23535A 
+    // Material M23535A (default for square) #CHECK here
     Ja   = 0.595;
     ha   = 4100;
     Jb   = 1.375;
@@ -100,7 +100,7 @@ FLAG_MINMETHOD = 6 --> steepest descent (gsl)
     Jb=0.549518 ; 
     hb=188.516; 
 //*/
-///*   //FH(xini=400) // NEW 1/9/2017
+///*   //FH(xini=400) // NEW 1/9/2017 (default for t32) #CHECK here
     Ja   = 0.792234;  
     ha   = 9.082095; 
     Jb   = 0.790993; 
@@ -115,7 +115,7 @@ hb   = 399.474553851
   EndIf
   If(N==3)
 ///*
-  // Material M25050A
+  // Material M25050A (default for square) #CHECK here
     Js_1  = 0.11;
     Js_2  = 0.8;
     Js_3  = 0.31;
@@ -149,7 +149,7 @@ hb   = 399.474553851
     Js_2  = w_2*(Ja+Jb);
     Js_3  = w_3*(Ja+Jb);
 //*/
-/*    //FH(xini=400) // NEW 1/9/2017 (chamonix)
+/*    //FH(xini=400) // NEW 1/9/2017 (chamonix) (default for t32) #CHECK here
     chi_1 = 0.;
     chi_2 = 53.789872;
     chi_3 = 233.910892;
@@ -337,6 +337,24 @@ Label_FLAG_ANA="...";
   EndIf
   If (FLAG_MINMETHOD == 11 && FLAG_VARORDIFF==1)
   Label_FLAG_MINMETHOD ="FLAG_MINMETHOD=11    --> NEW steepest descent naive (homemade)";
+  EndIf
+  If (FLAG_MINMETHOD == 22 && FLAG_VARORDIFF==1)
+  Label_FLAG_MINMETHOD ="FLAG_MINMETHOD=11    --> NEW conjugate Fletcher-Reeves (homemade)";
+  EndIf
+  If (FLAG_MINMETHOD == 33 && FLAG_VARORDIFF==1)
+  Label_FLAG_MINMETHOD ="FLAG_MINMETHOD=11    --> NEW conjugate Polak-Ribiere (homemade)";
+  EndIf
+  If (FLAG_MINMETHOD == 333 && FLAG_VARORDIFF==1)
+  Label_FLAG_MINMETHOD ="FLAG_MINMETHOD=11    --> NEW conjugate Polak-Ribiere+ (homemade)";
+  EndIf
+  If (FLAG_MINMETHOD == 1999 && FLAG_VARORDIFF==1)
+  Label_FLAG_MINMETHOD ="FLAG_MINMETHOD=11    --> NEW conjugate Dai Yuan 1999 (p.85) (homemade)";
+  EndIf
+  If (FLAG_MINMETHOD == 2005 && FLAG_VARORDIFF==1)
+  Label_FLAG_MINMETHOD ="FLAG_MINMETHOD=11    --> NEW conjugate Hager Zhang 2005 (p.161) (homemade)";
+  EndIf
+  If (FLAG_MINMETHOD == 77 && FLAG_VARORDIFF==1)
+  Label_FLAG_MINMETHOD ="FLAG_MINMETHOD=11    --> NEW newton (homemade)";
   EndIf
   If (FLAG_MINMETHOD == 2 && FLAG_VARORDIFF==1)
   Label_FLAG_MINMETHOD ="FLAG_MINMETHOD=2     --> conjugate fr (gsl)";

@@ -215,6 +215,7 @@ void Init_ProblemStructure()
   Current.RelaxationFactor = 0.0;
   Current.RelaxFac = 0.0; //+++
   Current.NbrTestedFac = 0.0; //+++
+  Current.SolveJacAdaptFailed = 0.0; //+++
   Current.KSPIterations = 0.0;
   Current.KSPIteration = 0.0;
   Current.KSPResidual = 0.0;

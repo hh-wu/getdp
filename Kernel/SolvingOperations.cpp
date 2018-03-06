@@ -32,6 +32,7 @@
 #endif
 
 #define TWO_PI     6.2831853071795865
+#define GOLDENRATIO 1.6180339887498948482
 
 // for performance tests
 #if !defined(WIN32)
@@ -186,6 +187,98 @@ static void  ZeroMatrix(gMatrix *M, gSolver *S, int N)
   LinAlg_CreateMatrix(M, S, N, N);
 }
 
+void ExtrapolatingPolynomial(int degreewanted,struct DofData * DofData_P,
+                            struct Solution * Solution_S)
+{
+    // Build Lagrange Interpolating Polynomial to predict current solution
+    // ...
+    // Polynomial degree:
+    // degree 0 ==> initialization at the previous Time Solution
+    // degree 1 ==> linear extrapolation from the 2 previous Time Solutions
+    // degree 2 ==> quadratic extrapolation from the 3 previous Time Solutions
+    // ...
+    // NB: The more data points that are used in the interpolation, 
+    // the higher the degree of the resulting polynomial, 
+    // thus the greater oscillation it will exhibit between the data points,
+    // and therefore the poorest the prediction may be ...
+
+    double * xi;
+    int * jvalid;
+    double Pj=1., x = Solution_S->Time;
+
+    //Vector to save the valid previous Time Solutions that will be interpolated
+    xi = new double[degreewanted+1];  
+    jvalid = new int[degreewanted+1]; 
+
+    //Select the last Time Solution => degree 0 is achieved at least
+    xi[0]=((struct Solution *) 
+      List_Pointer(DofData_P->Solutions, 
+      List_Nbr(DofData_P->Solutions)-1))->Time;   
+    jvalid[0]=0;
+    Message::Info("ExtrapolatingPolynomial: Using previous "
+                  "Theta Time = %g s (TimeStep %d)",
+                  xi[0],Solution_S->TimeStep-1-jvalid[0]);
+    int degree=0, j=1;
+
+    //Found other valid Time Solutions in order to reach 
+    //the desired polynomial degree [degreewanted] (if possible)
+    while(degree<degreewanted && j<=List_Nbr(DofData_P->Solutions)-1) {  
+      xi[degree+1]=((struct Solution *) 
+        List_Pointer(DofData_P->Solutions, 
+        List_Nbr(DofData_P->Solutions)-1-j))->Time;  
+      if (xi[degree+1]<xi[degree]){
+        jvalid[degree+1]=j;
+        degree++;
+        Message::Info("ExtrapolatingPolynomial: Using previous "
+                      "Theta Time = %g s (TimeStep %d)",
+                      xi[degree],Solution_S->TimeStep-1-jvalid[degree]);
+      }
+      else{
+        Message::Info("ExtrapolatingPolynomial: Skipping previous "
+                      "Theta Time = %g s (TimeStep %d) [Redundant]"
+                      ,xi[degree+1],Solution_S->TimeStep-1-j);
+      }
+      j++;
+    }
+
+    if (degree < degreewanted) {
+      Message::Info("ExtrapolatingPolynomial: "
+                       "Impossible to build polynomial of degree %d "
+                       "(%d usable previous solution%s found "
+                       "while %d needed for degree %d)" 
+                       ,degreewanted, degree+1
+                       ,((degree+1)==1)?"":"s"
+                       ,degreewanted+1,degreewanted) ;
+    }
+
+    Message::Info("ExtrapolatingPolynomial: "
+                  ">> Polynomial of degree %d "
+                  "based on %d previous solution%s (out of %d existing)" 
+                  ,degree, degree+1
+                  , ((degree+1)==1)?"":"s"
+                  , List_Nbr(DofData_P->Solutions)) ;
+
+    // Build Lagrange Interpolating Polynomial Coefficients
+    // http://mathworld.wolfram.com/LagrangeInterpolatingPolynomial.html
+    LinAlg_ZeroVector(&Solution_S->x) ;
+    for (int j=0; j<=degree; j++) {
+      Pj=1.;
+      for (int k=0;k<=degree; k++) {
+        if (j !=k){
+            Pj=Pj*(x-xi[k])/(xi[j]-xi[k]);
+        }
+      }
+    LinAlg_AddVectorProdVectorDouble(&Solution_S->x, 
+      &((struct Solution *)
+        List_Pointer(DofData_P->Solutions,
+               List_Nbr(DofData_P->Solutions)-1-jvalid[j]))->x, 
+      Pj, &Solution_S->x);
+    }
+
+    delete [] xi;
+    delete [] jvalid;
+}
+
 void  Generate_System(struct DefineSystem * DefineSystem_P,
 		      struct DofData * DofData_P,
 		      struct DofData * DofData_P0,
@@ -215,10 +308,13 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
     Solution_S.SolutionExist = 1 ;
     LinAlg_CreateVector(&Solution_S.x, &DofData_P->Solver, DofData_P->NbrDof) ;
     if (List_Nbr(DofData_P->Solutions)) {
+      /*
       LinAlg_CopyVector(&((struct Solution *)
 			  List_Pointer(DofData_P->Solutions,
 				       List_Nbr(DofData_P->Solutions)-1))->x,
 			&Solution_S.x) ;
+      */
+      ExtrapolatingPolynomial(2,DofData_P,&Solution_S);
     }
     else {
       LinAlg_ZeroVector(&Solution_S.x) ;
@@ -661,7 +757,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   gVector x_Save;
   int NbrSteps_relax;
   double  Norm;
-  double Frelax, Frelax_Opt, Error_Prev;
+  double Frelax, Frelax_Opt, Error_Prev, Frelax_Prev, Fratio;
   int istep;
 
   int Nbr_Formulation, Index_Formulation ;
@@ -1434,12 +1530,14 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_SOLVEJACADAPTRELAX :
       /*  get increment dx by solving : J(xn) dx = b(xn) - A(xn) xn */
       Flag_Jac = 1 ;
+      Fratio   = GOLDENRATIO;
+      //Fratio   = 2;
       Init_OperationOnSystem("SolveJacAdaptRelax",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
 
       if(DofData_P->Flag_Init[0] < 2){
-	Message::Error("Jacobian system not initialized (missing GenerateJac?)");
+	      Message::Error("Jacobian system not initialized (missing GenerateJac?)");
         break;
       }
 
@@ -1457,6 +1555,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Flag_RHS = 1;
       /* MHBilinear-terms do not contribute to the RHS and residual, and are thus disregarded */
 
+      /* init dummy values */
       Error_Prev = 1e99 ;  Frelax_Opt = 1. ;
       //if(Current.Iteration==1) Current.Residual_Iter1=1.0;  //kj+++ to compute a relative residual (relative to residual at iter 1) in SolveJacAdapt (not necessary)
 
@@ -1465,49 +1564,227 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         break;
       }
 
+      /*===============================================================================
+        CheckAll Meaning:
+          0 : try first relaxation factors (from the list) and stops when the residual goes up 
+          1 : try every relaxation factors (from the list) and keep the optimal one
+          2 : find the maximum relaxation factor that decreases the residual:
+              - start with the relaxation factor from the previous time step or from the previous iteration
+              - the relaxation factor is multiplied by a ratio as long as the residual decreases
+              - the relaxation factor is decreased by a ratio until a decreasing residual is found
+          [3 : Build a parabola based on three relaxation factors and deduce a minimizing relaxation factor (NOT WORKING!)]
+      =================================================================================*/
+
+      /* init Frelax for CheckAll==2: */
+      if (Operation_P->Case.SolveJac_AdaptRelax.CheckAll==2) {  
+        if (Current.Residual>0) {
+          // if the residual is not 0, a previous TimeStep or iteration has been done
+          // ==> Take the last RelaxFactor used from the previous TimeStep or iteration
+          Frelax=Current.RelaxFac;
+          /*Message::Warning("Init SolveJacAdapt: Start with RelaxFactor "
+                           "from the last iteration (or TimeStep) = %g",Frelax);//*/
+        }
+        else {
+          // At first TimeStep, at first iteration ...
+          // ==> Init a RelaxFac
+          Frelax=1;
+          /*Message::Warning("Init SolveJacAdapt: Start with "
+                           "a fixed RelaxFactor = %g",Frelax);//*/
+        }
+        if(Current.Iteration>1) {
+          // if a first iteration has been done ...
+          // ==> Take the Residual from the previous iteration
+          Error_Prev=Current.Residual;
+        }
+        Frelax_Opt = Frelax; Frelax_Prev = Frelax;
+      }
+
+      /* >>>>>>>>>>>>>for printing Error(Frelax) curve : <<<<<<<<<<<<<<<*/
+      /*
+      double *FrelaxAll; FrelaxAll = new double[NbrSteps_relax];
+      double *ErrorAll; ErrorAll = new double[NbrSteps_relax];
+      for( istep = 0 ; istep < NbrSteps_relax ; istep++ ){
+        FrelaxAll[istep]=0.;
+        ErrorAll[istep]=0.;
+      }
+      //>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+      //*/
+
+      /* >>>>>>>>>>>>>test for CheckAll==3(NOT WORKING!): <<<<<<<<<<<<<<<*/
+      /*
+      Frelax=1.;
+      //double Frelax3[3]={Frelax/Fratio, Frelax, Frelax*Fratio};
+      double Frelax3[3]={0, 1e-3, Frelax*Fratio};
+      //double Frelax3[3]={0., 1e-1, Fratio};
+      //List_Read(Operation_P->Case.SolveJac_AdaptRelax.Factor_L, NbrSteps_relax-1, &Frelax3[1]);
+      //List_Read(Operation_P->Case.SolveJac_AdaptRelax.Factor_L, 0, &Frelax3[2]);
+      double Error3[3]={0,0,0};
+      double para=1., parb=1.;
+      double xopt;
+
+      //if (Operation_P->Case.SolveJac_AdaptRelax.CheckAll==3)
+      //  NbrSteps_relax=4;
+      //>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+      //*/
+
       for( istep = 0 ; istep < NbrSteps_relax ; istep++ ){
 
         if(Message::GetOnelabAction() == "stop" || Message::GetErrorCount()) break;
 
-	List_Read(Operation_P->Case.SolveJac_AdaptRelax.Factor_L, istep, &Frelax);
-
-	/* new trial solution = x + Frelax * dx */
-	LinAlg_CopyVector(&x_Save, &DofData_P->CurrentSolution->x);
-	LinAlg_AddVectorProdVectorDouble(&DofData_P->CurrentSolution->x, &DofData_P->dx,
-					 Frelax, &DofData_P->CurrentSolution->x);
-	/* LinAlg_PrintVector(stdout, &DofData_P->CurrentSolution->x); */
-
-	/* calculate residual with trial solution */
-
-	ReGenerate_System(DefineSystem_P, DofData_P, DofData_P0) ;
-        if(Flag_AddMHMoving){// Contribution of the moving band (precalculated)
-          // Jac does not change (Flag_Jac = 0, default argument of ReGenerate_System)
-          LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A_MH_moving, &DofData_P->A) ;
+        /* >>>>>>>>>>>>>test for CheckAll==3(NOT WORKING!): <<<<<<<<<<<<<<<*/
+        /*
+        if (Operation_P->Case.SolveJac_AdaptRelax.CheckAll==3) {
+          if (istep<3)
+            Frelax=Frelax3[istep];
+          else if (istep>3)
+            List_Read(Operation_P->Case.SolveJac_AdaptRelax.Factor_L, istep, &Frelax);
         }
-	LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x,
-                                &DofData_P->res) ;
-	LinAlg_SubVectorVector(&DofData_P->b, &DofData_P->res, &DofData_P->res) ;
+        //>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        //*/
 
-	/* check whether norm of residual is smaller than previous ones */
-	LinAlg_VectorNorm2(&DofData_P->res, &Norm);
-	LinAlg_GetVectorSize(&DofData_P->res, &N);
-	Norm /= (double)N;
-  //Norm /= Current.Residual_Iter1; //kj+++ to compute a relative residual (relative to residual at iter 1) in SolveJacAdapt (not necessary)
+        /* set Frelax : */
+        if (Operation_P->Case.SolveJac_AdaptRelax.CheckAll<2 )
+      	   List_Read(Operation_P->Case.SolveJac_AdaptRelax.Factor_L, istep, &Frelax);
+
+      	/* new trial solution = x + Frelax * dx */
+      	LinAlg_CopyVector(&x_Save, &DofData_P->CurrentSolution->x);
+      	LinAlg_AddVectorProdVectorDouble(&DofData_P->CurrentSolution->x, &DofData_P->dx,
+      					 Frelax, &DofData_P->CurrentSolution->x);
+      	/* LinAlg_PrintVector(stdout, &DofData_P->CurrentSolution->x); */
+
+      	/* calculate residual with trial solution */
+
+      	ReGenerate_System(DefineSystem_P, DofData_P, DofData_P0) ;
+              if(Flag_AddMHMoving){// Contribution of the moving band (precalculated)
+                // Jac does not change (Flag_Jac = 0, default argument of ReGenerate_System)
+                LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A_MH_moving, &DofData_P->A) ;
+              }
+      	LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x,
+                                      &DofData_P->res) ;
+      	LinAlg_SubVectorVector(&DofData_P->b, &DofData_P->res, &DofData_P->res) ;
+
+      	/* check whether norm of residual is smaller than previous ones */
+      	LinAlg_VectorNorm2(&DofData_P->res, &Norm);
+      	LinAlg_GetVectorSize(&DofData_P->res, &N);
+      	Norm /= (double)N;
+        //Norm /= Current.Residual_Iter1; //kj+++ to compute a relative residual (relative to residual at iter 1) in SolveJacAdapt (not necessary)
 
         Current.Residual = Norm;
-        if(Message::GetVerbosity() == 10)
-          Message::Info(" adaptive relaxation factor = %8f Residual norm = %10.4e",
-                        Frelax, Norm) ;
+        Current.NbrTestedFac=istep+1; //+++
 
-  Current.NbrTestedFac=istep+1; //+++
-	if (Norm < Error_Prev) {
-	  Error_Prev = Norm;
-	  Frelax_Opt = Frelax;
-	} else if ( !Operation_P->Case.SolveJac_AdaptRelax.CheckAll && istep > 0 ) break ;
+        /*
+        if (Norm < Error_Prev ) 
+            Message::Warning("SolveJacAdapt: relaxation factor = %8f" 
+                             " Residual norm = %10.4e"
+                             " (BETTER than %10.4e)",
+                             Frelax, Norm, Error_Prev) ;
+        else
+            Message::Warning("SolveJacAdapt: relaxation factor = %8f" 
+                             " Residual norm = %10.4e"
+                             " (WORST  than %10.4e)",
+                             Frelax, Norm, Error_Prev) ;
+        //*/  
 
+        /* >>>>>>>>>>>>>for printing Error(Frelax) curve : <<<<<<<<<<<<<<<*/
+        /*
+        ErrorAll[istep]=Norm;
+        FrelaxAll[istep]=Frelax;
+        //>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        //*/
+
+      	if (Norm < Error_Prev ) { 
+        // if the residual has decreased ...............................
+          // save the current relaxation factor as optimal
+      	  Error_Prev = Norm;
+          Frelax_Opt = Frelax;
+          if ( Operation_P->Case.SolveJac_AdaptRelax.CheckAll==2 ){
+          /* for CheckAll==2: */
+            if ( Frelax<Frelax_Prev && istep > 0) 
+              // if the factor has been decreased ...
+              // and a decreasing residual has been found => break
+              break; 
+            // if the factor has been increased ...
+            // => increase the factor (as long as the residual decreases)
+            Frelax_Prev=Frelax;
+            Frelax=Frelax*Fratio;  
+          }
+      	}
+        else if ( Operation_P->Case.SolveJac_AdaptRelax.CheckAll==2 ) {
+        /* for CheckAll==2: */
+        // if the residual has increased ...............................
+          if ( Frelax>Frelax_Prev && istep > 0) 
+            // if the factor has been increased ...
+            // but the residual has increased => break
+            break; 
+          // if the factor has been decreased ...
+          // => decrease the factor (until a decreasing residual is found)
+          Frelax_Prev=Frelax;
+          Frelax=Frelax/Fratio; 
+        }
+        else if (Operation_P->Case.SolveJac_AdaptRelax.CheckAll==0 && istep > 0 )  
+        /* for CheckAll==0: */
+        // if the residual has increased ...............................
+          // => break
+          break ;
+
+        /* >>>>>>>>>>>>>test for CheckAll==3(NOT WORKING!): <<<<<<<<<<<<<<<*/
+        /*
+        if ( Operation_P->Case.SolveJac_AdaptRelax.CheckAll==3 && istep<3){
+          Error3[istep]=Norm;
+          if (istep==2) { 
+            // find Frelax "Opt" and compute corresponding Error
+            para=(Error3[2]-Error3[0])/((Frelax3[2]-Frelax3[0])*(Frelax3[2]-Frelax3[1]))
+                  -(Error3[1]-Error3[0])/((Frelax3[1]-Frelax3[0])*(Frelax3[2]-Frelax3[1]));
+            parb=(Error3[1]-Error3[0])/(Frelax3[1]-Frelax3[0])
+                  -para*(Frelax3[1]+Frelax3[0]);
+            Frelax=-parb/(2*para);
+            xopt=Frelax;
+            if (para<0 || Frelax<0) {
+              //Something has to be done...
+              //Frelax=Frelax_Opt;
+              //Frelax=0.1;
+            }
+          }
+        }
+        //>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        //*/ 
+
+        if (istep==NbrSteps_relax-1 && Operation_P->Case.SolveJac_AdaptRelax.CheckAll!=1) {
+          Message::Warning("SolveJacAdapt: LineSearch failed at TimeStep %g iter %g",Current.TimeStep,Current.Iteration) ; 
+          Current.SolveJacAdaptFailed=1;
+          //getchar();
+        }
       }
-
       //Message::Info(" => optimal relaxation factor = %f", Frelax_Opt) ;
+
+      /* >>>>>>>>>>>>>for printing Error(Frelax) curve : <<<<<<<<<<<<<<<*/
+      /*
+      if ( Operation_P->Case.SolveJac_AdaptRelax.CheckAll==3){
+        printf("xi=[%.g,%g,%g];\n",Frelax3[0],Frelax3[1],Frelax3[2]);
+        printf("yi=[%.18g,%.18g,%.18g];\n",Error3[0],Error3[1],Error3[2]);
+        printf("xoptpara=[%g];\n",xopt);
+      }
+      printf("xtaken=[%g];\n",Frelax_Opt);
+      printf("xx=[%g",FrelaxAll[0]);
+      for( istep = 1 ; istep < NbrSteps_relax ; istep++ ){
+        printf(",%g",FrelaxAll[istep]);
+        if(istep%10==0)
+          printf("...\n");
+      }
+      printf("];\n");
+      printf("yy=[%g",ErrorAll[0]);
+      for( istep = 1 ; istep < NbrSteps_relax ; istep++ ){
+        printf(",%g",ErrorAll[istep]);
+        if(istep%10==0)
+          printf("...\n");
+      }
+      printf("];\n");
+      //if (xopt<0 || xopt>2)
+      //  getchar();
+      delete [] ErrorAll;
+      delete [] FrelaxAll;
+      //>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+      //*/
 
       /*  solution = x + Frelax_Opt * dx */
       LinAlg_CopyVector(&x_Save, &DofData_P->CurrentSolution->x);
@@ -1515,7 +1792,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 				       Frelax_Opt, &DofData_P->CurrentSolution->x);
 
       MeanError = Error_Prev ;
+
       Current.RelaxFac = Frelax_Opt; //kj+++
+
       Current.Residual = MeanError; //kj+++ Residual computed here with SolveJacAdapt (usefull to test stop criterion in classical IterativeLoop then) 
       Message::Info("%3ld Nonlinear Residual norm %14.12e (optimal relaxation factor = %f)",
                     (int)Current.Iteration, MeanError, Frelax_Opt);
@@ -2519,6 +2798,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
 	Current.Time += Current.DTime ;
 	Current.TimeStep += 1. ;
+  Current.SolveJacAdaptFailed = 0;
 
         Message::Info(3, "Theta Time = %.8g s (TimeStep %d, DTime %g)", Current.Time,
                       (int)Current.TimeStep, Current.DTime) ;
@@ -2572,6 +2852,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         Current.DTime = Value.Val[0] ;
 	Current.Time += Current.DTime ;
 	Current.TimeStep += 1. ;
+  Current.SolveJacAdaptFailed = 0 ;
 
 	Message::Info(3, "Newmark Time = %.8g s (TimeStep %d)", Current.Time,
                       (int)Current.TimeStep) ;
@@ -2625,6 +2906,11 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         // TransferSolution of a nonlinear resolution
  	Treatment_Operation(Resolution_P, Operation_P->Case.IterativeLoop.Operation,
 			    DofData_P0, GeoData_P0, Resolution2_P, DofData2_P0) ;
+
+  if (Current.RelaxFac==0) 
+    // SolveJacAdapt has not been called
+    // ==> Copy the default RelaxationFactor in RelaxFac
+    Current.RelaxFac =  Current.RelaxationFactor ; // +++
   //if (Current.Iteration==1) Current.Residual_Iter1=Current.RelativeDifference; //kj+++ to compute a relative residual (relative to residual at iter 1) (not necessary)
 
   //NB: Current.RelativeDifference is what is used for classical IterativeLoop stop criterion
