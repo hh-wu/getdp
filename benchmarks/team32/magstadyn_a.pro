@@ -733,10 +733,10 @@ Resolution {
                 //*****Choose between one of the 3 following possibilities:*****
                 //System { { A , Reltol_Mag, Abstol_Mag, Solution MeanL2Norm }} ]{ //1a)  //dx=x-xp; x=x
                 //System { { A , Reltol_Mag, Abstol_Mag, RecalcResidual MeanL2Norm }} ]{ //1b)  //dx=res=b-Ax; x=b
-                //System { { A , Reltol_Mag, Abstol_Mag, Residual MeanL2Norm }} ]{ //1c)  //dx=res=b-Ax; x=b #DEFAULT
+                //System { { A , Reltol_Mag, Abstol_Mag, Residual MeanL2Norm }} ]{ //1c)  //dx=res=b-Ax; x=b #(default for square) #CHECK here
                 //PostOperation { { az_only , Reltol_Mag, Abstol_Mag,  MeanL2Norm }} ]{ //2)
                 //PostOperation { { b_only , Reltol_Mag, Abstol_Mag,  MeanL2Norm }} ]{ //3) 
-                PostOperation { { h_only , Reltol_Mag, Abstol_Mag,  MeanL2Norm }} ]{ //4)  //Need the above "INIT" for square with EnergHyst or JA because h_only = 0 at iter 1 
+                PostOperation { { h_only , Reltol_Mag, Abstol_Mag,  MeanL2Norm }} ]{ //4) //(default for t32) #CHECK here //Need the above "INIT" for square with EnergHyst or JA because h_only = 0 at iter 1 
                 //**************************************************************
 
                 Evaluate[$res  = $ResidualN, $resL = $Residual,$resN = $ResidualN,$iter = $Iteration-1]; 
