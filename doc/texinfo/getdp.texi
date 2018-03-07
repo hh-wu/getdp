@@ -1206,8 +1206,8 @@ messages produced when references to undefined quantities are made).
 
 When @var{onelab-options} are provided, the parameter is exchanged with
 the ONELAB server. See
-@uref{http://onelab.info/wiki/ONELAB_Syntax_for_Gmsh_and_GetDP} for more
-information.
+@uref{https://gitlab.onelab.info/doc/tutorials/wikis/ONELAB-syntax-for-Gmsh-and-GetDP}
+for more information.
 @item
 @code{DefineNumber} and @code{DefineString} allow to define a ONELAB
 parameter. In this case the affectation always takes
