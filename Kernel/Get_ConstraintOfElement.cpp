@@ -707,7 +707,7 @@ void  Generate_GeoLinkNodes(struct ConstraintInFS * Constraint_P,
   
   int Index_Filter = Constraint_P->ConstraintPerRegion->Case.Link.FilterIndex ;
   int Index_Function = Constraint_P->ConstraintPerRegion->Case.Link.FunctionIndex ;
-  int Index_Function2 = Constraint_P->ConstraintPerRegion->Case.Link.FunctionIndex2 ;
+  int Index_FunctionRef = Constraint_P->ConstraintPerRegion->Case.Link.FunctionRefIndex ;
  
   double ToleranceFactor = Constraint_P->ConstraintPerRegion->Case.Link.ToleranceFactor ;
   TOL = Current.GeoData->CharacteristicLength * ToleranceFactor ;
@@ -731,21 +731,25 @@ void  Generate_GeoLinkNodes(struct ConstraintInFS * Constraint_P,
     Geo_GetNodesCoordinates(1, &nodeLoc.Num,
 			    &Current.x, &Current.y, &Current.z) ;
     Get_ValueOfExpressionByIndex(Index_Function, NULL, 0., 0., 0., &Value) ;
-    Current.x = Value.Val[0] ; 
-    Current.y = Value.Val[1] ;
-    Current.z = Value.Val[2] ;
-    if (Index_Filter < 0)  
-      Flag_Filter = 1 ;
-    else {
-      Get_ValueOfExpressionByIndex(Index_Filter, NULL, 0., 0., 0., &Value) ;
-      Flag_Filter = (int)Value.Val[0] ;
-    }
-    if (Flag_Filter) {
-      nodeLoc.x = Current.x ; 
-      nodeLoc.y = Current.y ; 
-      nodeLoc.z = Current.z ;
-      List_Add(nodeLoc_L, &nodeLoc) ;
-    }
+    // Current.x = Value.Val[0] ; 
+    // Current.y = Value.Val[1] ;
+    // Current.z = Value.Val[2] ;
+    // if (Index_Filter < 0)  
+    //   Flag_Filter = 1 ;
+    // else {
+    //   Get_ValueOfExpressionByIndex(Index_Filter, NULL, 0., 0., 0., &Value) ;
+    //   Flag_Filter = (int)Value.Val[0] ;
+    // }
+    // if (Flag_Filter) {
+    //   nodeLoc.x = Current.x ; 
+    //   nodeLoc.y = Current.y ; 
+    //   nodeLoc.z = Current.z ;
+    //   List_Add(nodeLoc_L, &nodeLoc) ;
+    // }
+    nodeLoc.x = Value.Val[0] ;
+    nodeLoc.y = Value.Val[1] ; 
+    nodeLoc.z = Value.Val[2] ;
+    List_Add(nodeLoc_L, &nodeLoc) ;
   }
 
   printf("#nodes on Master: %d (%d)\n", 
@@ -756,8 +760,6 @@ void  Generate_GeoLinkNodes(struct ConstraintInFS * Constraint_P,
   if(List_Nbr( ExtendedSuppList_L) != List_Nbr( ExtendedSuppListRef_L))
     printf("#nodes on Master and Slave do not match\n"); 
 
-
-
   nodeLoc.Master = true;
   for (i = 0 ; i < List_Nbr(ExtendedListRef_L) ; i++) {
     List_Read(ExtendedListRef_L, i, &nodeLoc.Num) ;
@@ -766,11 +768,15 @@ void  Generate_GeoLinkNodes(struct ConstraintInFS * Constraint_P,
 
     Geo_GetNodesCoordinates( 1, &nodeLoc.Num,
 			     &Current.x, &Current.y, &Current.z) ;
-    if (Index_Function2 > 0){ 
-      Get_ValueOfExpressionByIndex(Index_Function2, NULL, 0., 0., 0., &Value) ;
+    if (Index_FunctionRef > 0){ 
+      Get_ValueOfExpressionByIndex(Index_Function, NULL, 0., 0., 0., &Value) ;
       Current.x = Value.Val[0] ; 
       Current.y = Value.Val[1] ;
       Current.z = Value.Val[2] ;
+      Get_ValueOfExpressionByIndex(Index_FunctionRef, NULL, 0., 0., 0., &Value) ;
+      Current.x += Value.Val[0] ; 
+      Current.y += Value.Val[1] ;
+      Current.z += Value.Val[2] ;
     }
     if (Index_Filter < 0) 
       Flag_Filter = 1 ;
@@ -992,7 +998,7 @@ void  NowGenerate_LinkEdges(struct ConstraintInFS * Constraint_P,
 	coefR = nodePairs_P[0]->coefR ; 
 	if( coefR != nodePairs_P[0]->coefR ) printf("Bizarre coefs are different\n");
 	coefI = nodePairs_P[0]->coefI ; 
-	TwoIntOneDouble.Double =  coefR * isgn(masterEdge.NumEdge) * isgn(slaveEdge_P->NumEdge) ;
+	TwoIntOneDouble.Double =  -coefR * isgn(masterEdge.NumEdge) * isgn(slaveEdge_P->NumEdge) ;
 	TwoIntOneDouble.Double2 = coefI * isgn(masterEdge.NumEdge) * isgn(slaveEdge_P->NumEdge) ;
 	TwoIntOneDouble.Int1 = abs(slaveEdge_P->NumEdge) ;
 	TwoIntOneDouble.Int2 = abs(masterEdge.NumEdge) ;
@@ -1014,7 +1020,7 @@ void  NowGenerate_LinkEdges(struct ConstraintInFS * Constraint_P,
 	   List_PQuery(slaveEdges_L, &slaveEdge, fcmp_NN)) ) {
 	coefR = nodePairs_P[0]->coefR ; 
 	coefI = nodePairs_P[0]->coefI ; 
-	TwoIntOneDouble.Double =  coefR * isgn(masterEdge.NumEdge) * isgn(slaveEdge_P->NumEdge) ;
+	TwoIntOneDouble.Double =  -coefR * isgn(masterEdge.NumEdge) * isgn(slaveEdge_P->NumEdge) ;
 	TwoIntOneDouble.Double2 = coefI * isgn(masterEdge.NumEdge) * isgn(slaveEdge_P->NumEdge) ;
 	TwoIntOneDouble.Int1 = abs( slaveEdge_P->NumEdge ) ;
 	TwoIntOneDouble.Int2 = abs( masterEdge.NumEdge ) ;
@@ -1040,7 +1046,7 @@ void  NowGenerate_LinkEdges(struct ConstraintInFS * Constraint_P,
 	swapEdge(slaveEdge) ;
 	if( (slaveEdge_P =  (struct EdgeNN *)
 	     List_PQuery(slaveEdges_L, &slaveEdge, fcmp_NN)) ) {
-	  TwoIntOneDouble.Double =  coefR * isgn(masterEdge.NumEdge) * isgn(slaveEdge_P->NumEdge) ;
+	  TwoIntOneDouble.Double =  -coefR * isgn(masterEdge.NumEdge) * isgn(slaveEdge_P->NumEdge) ;
 	  TwoIntOneDouble.Double2 = coefI * isgn(masterEdge.NumEdge) * isgn(slaveEdge_P->NumEdge) ;
 	  TwoIntOneDouble.Int1 = abs( slaveEdge_P->NumEdge ) ;
 	  TwoIntOneDouble.Int2 = abs( masterEdge.NumEdge )  ;
@@ -1062,7 +1068,7 @@ void  NowGenerate_LinkEdges(struct ConstraintInFS * Constraint_P,
       coefI = nodePairs_P[0]->coefI ; 
       swapEdge(slaveEdge) ;
       if (List_Search(slaveEdges_L, &slaveEdge, fcmp_NN)){
-	TwoIntOneDouble.Double =  coefR * isgn(masterEdge.NumEdge) * isgn(slaveEdge_P->NumEdge) ;
+	TwoIntOneDouble.Double =  -coefR * isgn(masterEdge.NumEdge) * isgn(slaveEdge_P->NumEdge) ;
 	TwoIntOneDouble.Double2 = coefI * isgn(masterEdge.NumEdge) * isgn(slaveEdge_P->NumEdge) ;
 	TwoIntOneDouble.Int1 = abs( slaveEdge_P->NumEdge ) ;
 	TwoIntOneDouble.Int2 = abs( masterEdge.NumEdge ) ;

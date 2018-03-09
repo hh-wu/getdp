@@ -213,6 +213,7 @@ FrequencySpectrum            return tFrequencySpectrum;
 DummyFrequencies             return tFrequencySpectrum;
 Full_Matrix                  return tFull_Matrix;
 Function                     return tFunction;
+FunctionRef                  return tFunctionRef;
 FunctionSpace                return tFunctionSpace;
 
 Galerkin                     return tGalerkin;
