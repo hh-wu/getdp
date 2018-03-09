@@ -1,5 +1,5 @@
 // GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
-// ahah
+// 
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@onelab.info>.
 
@@ -453,9 +453,27 @@ void  Get_LinkForConstraint(struct ConstraintInFS * Constraint_P,
 /* Data... */
 
 struct NodeXYZ { int NumNode ; double x, y, z ; } ;
+struct nodePair { int  Master, Slave ; bool subMaster, subSlave ; double coefR, coefI ; } ;
+
 struct EdgeNN { int NumEdge ; int Node1, Node2 ; double Coef, Coef2 ; } ;
 struct FacetNNN { int NumFacet ; int Node1, Node2, Node3 ; double Coef, Coef2 ; } ;
 
+int fcmp_XYZ(const void * a, const void * b) ;
+int fcmp_NN(const void * a, const void * b) ;
+int fcmp_NNN(const void * a, const void * b) ;
+
+// new version
+struct CoincidentNodes { int  Master, Slave ; bool subMaster, subSlave ; } ;
+void  Generate_GeoLinkNodes(struct ConstraintInFS * Constraint_P,
+			    List_T * ExtendedList_L,
+			    List_T * ExtendedSuppList_L,
+			    List_T * ExtendedListRef_L,
+			    List_T * ExtendedSuppListRef_L,
+			    List_T * nodePairs_L);
+void  NowGenerate_LinkNodes(struct ConstraintInFS * Constraint_P,
+			    List_T * nodePairs_L,
+			    List_T * Couples_L) ;
+//old version
 void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
 			 List_T * ExtendedList_L, 
 			 List_T * ExtendedSuppList_L,
@@ -464,19 +482,27 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
 			 int Index_Filter, int Index_Function, int Index_Coef,
                          double ToleranceFactor,
 			 List_T * Couples_L) ;
+
 void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
 			 struct Group * Group_P,
-			 struct Group * RegionRef_P, struct Group * SubRegionRef_P,
+			 struct Group * RegionRef_P, 
+			 struct Group * SubRegionRef_P,
 			 List_T * Couples_L) ;
+
+void  NowGenerate_LinkEdges(struct ConstraintInFS * Constraint_P,
+			    List_T * ExtendedList_L,
+			    List_T * ExtendedSuppList_L,
+			    List_T * ExtendedListRef_L,
+			    List_T * ExtendedSuppListRef_L,
+			    List_T * nodePairs_L,
+			    List_T * Couples_L) ;
+
 void  Generate_LinkFacets(struct ConstraintInFS * Constraint_P,
 			  struct Group * Group_P,
 			  struct Group * RegionRef_P, 
 			  struct Group * SubRegionRef_P,
 			  List_T * Couples_L) ;
 
-int fcmp_XYZ(const void * a, const void * b) ;
-int fcmp_NN(const void * a, const void * b) ;
-int fcmp_NNN(const void * a, const void * b) ;
 void  Generate_LinkRegions(struct ConstraintInFS * Constraint_P,
 			   List_T * Region_L, List_T * RegionRef_L,
 			   int Index_Coef, List_T * Couples_L) ;
@@ -534,24 +560,80 @@ void  Generate_Link(struct ConstraintInFS * Constraint_P, int Flag_New)
     return ;
   }
 
+  List_T  * nodePairs_L;
+  List_T  * ListNodes_L=NULL, * SuppListNodes_L=NULL ;
+  List_T  * ListNodesRef_L=NULL, * SuppListNodesRef_L=NULL ;
+  List_T  * ExtendedListRef_L=NULL, * ExtendedSuppListRef_L=NULL ;
+  List_T  * ExtendedList_L=NULL, * ExtendedSuppList_L=NULL ;
+  int NumNodePairs=0;
+
   switch (Group_P->FunctionType) {
+
   case NODESOF :
-    Generate_LinkNodes(Constraint_P,
+    NumNodePairs = List_Nbr(Group_P->ExtendedList) + List_Nbr(Group_P->ExtendedSuppList);
+    nodePairs_L = List_Create(NumNodePairs, 1, sizeof(struct nodePair)) ;
+
+    Generate_ElementaryEntities
+      (RegionRef_P->InitialList, &ExtendedListRef_L, NODESOF) ;
+    if (SubRegionRef_P)
+      Generate_ElementaryEntities
+	(SubRegionRef_P->InitialList, &ExtendedSuppListRef_L, NODESOF) ;
+
+    Generate_GeoLinkNodes(Constraint_P,
 		       Group_P->ExtendedList, 
 		       Group_P->ExtendedSuppList,
-		       RegionRef_P, 
-		       SubRegionRef_P,
-		       Constraint_P->ConstraintPerRegion->Case.Link.FilterIndex,
-		       Constraint_P->ConstraintPerRegion->Case.Link.FunctionIndex,
-		       Constraint_P->ConstraintPerRegion->Case.Link.CoefIndex,
-		       Constraint_P->ConstraintPerRegion->Case.Link.ToleranceFactor,
-		       Active->Case.Link.Couples) ;
+		       ExtendedListRef_L, 
+		       ExtendedSuppListRef_L,
+		       nodePairs_L) ;
+    NowGenerate_LinkNodes(Constraint_P,
+			  nodePairs_L,
+			  Active->Case.Link.Couples) ;
     break ;
+
   case EDGESOF :
-    Generate_LinkEdges(Constraint_P, Group_P,
-		       RegionRef_P, SubRegionRef_P,
-		       Active->Case.Link.Couples) ;
+    NumNodePairs = List_Nbr(Group_P->ExtendedList) + List_Nbr(Group_P->ExtendedSuppList);
+    nodePairs_L = List_Create(NumNodePairs, 1, sizeof(struct nodePair)) ;
+
+    Generate_ElementaryEntities
+      (Group_P->InitialList, &ListNodes_L, NODESOF) ;
+    if( Group_P->InitialSuppList )
+      Generate_ElementaryEntities
+	(Group_P->InitialSuppList, &SuppListNodes_L, NODESOF) ;
+
+    Generate_ElementaryEntities
+      (RegionRef_P->InitialList, &ListNodesRef_L, NODESOF) ;
+    if (SubRegionRef_P)
+      Generate_ElementaryEntities
+	(SubRegionRef_P->InitialList, &SuppListNodesRef_L, NODESOF) ;
+
+    Generate_GeoLinkNodes(Constraint_P,
+			  ListNodes_L, 
+			  SuppListNodes_L,
+			  ListNodesRef_L, 
+			  SuppListNodesRef_L,
+			  nodePairs_L) ;
+ 
+    Generate_ElementaryEntities_EdgeNN
+      (Group_P->InitialList, &ExtendedList_L, EDGESOF) ;
+    if (Group_P->InitialSuppList)
+      Generate_ElementaryEntities_EdgeNN
+	(Group_P->InitialSuppList, &ExtendedSuppList_L, EDGESOF) ;
+
+    Generate_ElementaryEntities_EdgeNN
+      (RegionRef_P->InitialList, &ExtendedListRef_L, EDGESOF) ;
+    if (SubRegionRef_P)
+      Generate_ElementaryEntities_EdgeNN
+	(SubRegionRef_P->InitialList, &ExtendedSuppListRef_L, EDGESOF) ;
+
+    NowGenerate_LinkEdges(Constraint_P,
+			  ExtendedList_L, 
+			  ExtendedSuppList_L,    
+			  ExtendedListRef_L, 
+			  ExtendedSuppListRef_L,
+			  nodePairs_L,
+			  Active->Case.Link.Couples) ;
     break ;
+
   case FACETSOF :
     Generate_LinkFacets(Constraint_P, Group_P,
 		        RegionRef_P, SubRegionRef_P,
@@ -574,56 +656,78 @@ void  Generate_Link(struct ConstraintInFS * Constraint_P, int Flag_New)
 
 
 // associates to a location in space a Master/slave node number
-struct nodeLoc { int Num ; bool Master ; double x, y, z; } ;
+struct nodeLoc { int Num ; bool Master, Sub ; double x, y, z; } ;
 
 int fcmp_nodeLoc(const void * a, const void * b)
 {
-  double Result; //, TOL=Current.GeoData->CharacteristicLength * 1.e-8 ;
-
+  double Result;
   if (fabs(Result = ((struct nodeLoc *)a)->x - ((struct nodeLoc *)b)->x) > TOL)
     return (Result > 0.)? 1 : -1 ;
   if (fabs(Result = ((struct nodeLoc *)a)->y - ((struct nodeLoc *)b)->y) > TOL)
     return (Result > 0.)? 1 : -1 ;
   if (fabs(Result = ((struct nodeLoc *)a)->z - ((struct nodeLoc *)b)->z) > TOL)
     return (Result > 0.)? 1 : -1 ;
-  return 0 ;
+  int iResult;
+  if( (iResult = ((struct nodeLoc *)a)->Sub - ((struct nodeLoc *)b)->Sub) ) 
+    return (iResult > 0)? 1 : -1 ;
+  return ((struct nodeLoc *)a)->Master - ((struct nodeLoc *)b)->Master ;
 }
+
+int fcmp_nodePair(const void * a, const void * b)
+{
+  int iResult ;
+  if ((iResult = ((struct nodePair *)a)->Master - ((struct nodePair *)b)->Master) != 0)
+    return iResult ;
+  return ((struct nodePair *)a)->subSlave - ((struct nodePair *)b)->subSlave ;
+}
+
 
 /*  G e n e r a t e _ L i n k N o d e s  */
 
-void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
-			 List_T * ExtendedList_L, 
-			 List_T * ExtendedSuppList_L,
-			 struct Group * RegionRef_P, 
-			 struct Group * SubRegionRef_P,
-			 int Index_Filter, int Index_Function, int Index_Coef,
-                         double ToleranceFactor,
-			 List_T * Couples_L)
-{
-  int  Nbr_Entity, i, Nbr_EntityRef, Flag_Filter ;
-  struct TwoIntOneDouble  TwoIntOneDouble ;
-  struct NodeXYZ  NodeXYZ, NodeXYZRef ;
-  List_T  * NodeXYZ_L, * NodeXYZRef_L ;
-  List_T  * ExtendedListRef_L, * ExtendedSuppListRef_L ;
-  struct Value  Value ;
+struct nodePair makeNodePair(const nodeLoc &master,  const nodeLoc &slave, 
+			     const double coefR, const double coefI) {
+  struct nodePair x;
+  x.Master = master.Num;
+  x.Slave  = slave.Num;
+  x.subMaster = master.Sub;
+  x.subSlave  = slave.Sub;
+  x.coefR = coefR ;
+  x.coefI = coefI ;
+  return x;
+}
 
+void  Generate_GeoLinkNodes(struct ConstraintInFS * Constraint_P,
+			 List_T * ExtendedList_L,
+			 List_T * ExtendedSuppList_L,
+			 List_T * ExtendedListRef_L,
+			 List_T * ExtendedSuppListRef_L,
+			 List_T * nodePairs_L)
+{
+  int i,j, Flag_Filter;
+  
+  int Index_Filter = Constraint_P->ConstraintPerRegion->Case.Link.FilterIndex ;
+  int Index_Function = Constraint_P->ConstraintPerRegion->Case.Link.FunctionIndex ;
+  int Index_Function2 = Constraint_P->ConstraintPerRegion->Case.Link.FunctionIndex2 ;
+ 
+  double ToleranceFactor = Constraint_P->ConstraintPerRegion->Case.Link.ToleranceFactor ;
   TOL = Current.GeoData->CharacteristicLength * ToleranceFactor ;
   // by default, ToleranceFactor is 1.e-8 
   // (to be defined with ToleranceFactor value; in the Link constraint.
   // It is stored in a static variable (scope=routines defined in this file). 
 
-
-  std::cout << "Nb nodes in ExtendedList_L (Slave) = " 
-	    << List_Nbr( ExtendedList_L) << std::endl ;
-  std::cout << "Nb nodes in ExtendedSuppList_L (Slave) = " 
-	    << List_Nbr( ExtendedSuppList_L) << std::endl ;
+  struct Value  Value ;
+ 
+  printf("#nodes on Slave: %d (%d)\n", 
+	 List_Nbr( ExtendedList_L), List_Nbr( ExtendedSuppList_L) );
 
   List_T  * nodeLoc_L;
   nodeLoc_L = List_Create(2*List_Nbr(ExtendedList_L), 1, sizeof(struct nodeLoc)) ;
   struct nodeLoc nodeLoc;
-  nodeLoc.Master = false; 
+  nodeLoc.Master = false;
   for (i = 0 ; i < List_Nbr(ExtendedList_L) ; i++) {
     List_Read(ExtendedList_L, i, &nodeLoc.Num) ;
+    nodeLoc.Sub = (ExtendedSuppList_L &&
+		   List_Search(ExtendedSuppList_L, &nodeLoc.Num, fcmp_int));
     Geo_GetNodesCoordinates(1, &nodeLoc.Num,
 			    &Current.x, &Current.y, &Current.z) ;
     Get_ValueOfExpressionByIndex(Index_Function, NULL, 0., 0., 0., &Value) ;
@@ -643,8 +747,405 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
       List_Add(nodeLoc_L, &nodeLoc) ;
     }
   }
-  int NbrNode_Slave = List_Nbr(nodeLoc_L) ;
 
+  printf("#nodes on Master: %d (%d)\n", 
+	 List_Nbr( ExtendedListRef_L), List_Nbr( ExtendedSuppListRef_L) );
+
+  if(List_Nbr( ExtendedList_L) != List_Nbr( ExtendedListRef_L))
+    printf("#nodes on Master and Slave do not match\n"); 
+  if(List_Nbr( ExtendedSuppList_L) != List_Nbr( ExtendedSuppListRef_L))
+    printf("#nodes on Master and Slave do not match\n"); 
+
+
+
+  nodeLoc.Master = true;
+  for (i = 0 ; i < List_Nbr(ExtendedListRef_L) ; i++) {
+    List_Read(ExtendedListRef_L, i, &nodeLoc.Num) ;
+    nodeLoc.Sub = (ExtendedSuppListRef_L &&
+		   List_Search(ExtendedSuppListRef_L, &nodeLoc.Num, fcmp_int));
+
+    Geo_GetNodesCoordinates( 1, &nodeLoc.Num,
+			     &Current.x, &Current.y, &Current.z) ;
+    if (Index_Function2 > 0){ 
+      Get_ValueOfExpressionByIndex(Index_Function2, NULL, 0., 0., 0., &Value) ;
+      Current.x = Value.Val[0] ; 
+      Current.y = Value.Val[1] ;
+      Current.z = Value.Val[2] ;
+    }
+    if (Index_Filter < 0) 
+      Flag_Filter = 1 ;
+    else {
+      Get_ValueOfExpressionByIndex(Index_Filter, NULL, 0., 0., 0., &Value) ;
+      Flag_Filter = (int)Value.Val[0] ;
+    }
+    if (Flag_Filter) {
+      nodeLoc.x = Current.x ; 
+      nodeLoc.y = Current.y ;
+      nodeLoc.z = Current.z ;
+      List_Add(nodeLoc_L, &nodeLoc) ;
+    }
+  }
+
+  //Message::Debug("Constraint Link: ") ;
+
+  List_Sort(nodeLoc_L, fcmp_nodeLoc) ;
+  for (i = 0 ; i < List_Nbr(nodeLoc_L) ; i++) {
+    List_Read(nodeLoc_L, i, &nodeLoc) ;
+    printf("%d %d %5d %10.7f %10.7f %10.7f\n", nodeLoc.Master, nodeLoc.Sub, 
+	   nodeLoc.Num, nodeLoc.x, nodeLoc.y, nodeLoc.z);
+  }
+
+  Message::Debug("==> List of link for nodes") ;
+
+  struct nodeLoc coincident[4];
+  struct nodePair nodePair ;  
+  bool test;
+  i=0;
+  do{
+    j=0;
+    do {
+      List_Read(nodeLoc_L, i,  &coincident[j]) ;
+      test = (j==0 ? true : !fcmp_XYZ(&coincident[0], &coincident[j]));
+      if(test) {i++; j++;}
+    } while(i<List_Nbr(nodeLoc_L) && test);
+
+
+    double coefR, coefI; 
+    Current.x = coincident[0].x ;
+    Current.y = coincident[0].y ;
+    Current.z = coincident[0].z ;
+    int Index_Coef = Constraint_P->ConstraintPerRegion->Case.Link.CoefIndex ;
+    Get_ValueOfExpressionByIndex(Index_Coef, NULL, 0., 0., 0., &Value) ;
+    coefR = Value.Val[0] ;
+    coefI = (Current.NbrHar == 1) ? 0. : Value.Val[MAX_DIM] ;
+
+    if(j==2) {
+      nodePair = makeNodePair(coincident[1], coincident[0], coefR, coefI) ;
+      List_Add(nodePairs_L, &nodePair);
+    }
+    else if (j==3){
+      nodePair = makeNodePair(coincident[1], coincident[0], coefR, coefI) ;
+      List_Add(nodePairs_L, &nodePair);
+      if(coincident[2].Master)
+	nodePair = makeNodePair(coincident[2], coincident[0], coefR, coefI) ;
+      else
+	nodePair = makeNodePair(coincident[1], coincident[2], coefR, coefI) ;
+      List_Add(nodePairs_L, &nodePair);
+    }
+    else if (j==4){
+      nodePair = makeNodePair(coincident[1], coincident[0], coefR, coefI) ;
+      List_Add(nodePairs_L, &nodePair);
+      nodePair = makeNodePair(coincident[3], coincident[2], coefR, coefI) ;
+      List_Add(nodePairs_L, &nodePair);
+      nodePair = makeNodePair(coincident[1], coincident[2], coefR, coefI) ;
+      List_Add(nodePairs_L, &nodePair);
+      // this one is redundant but useful for LinkEdges
+      nodePair = makeNodePair(coincident[3], coincident[0], coefR, coefI) ;
+      List_Add(nodePairs_L, &nodePair);
+    }
+    else
+      printf("Bizarre j=%d\n", j);
+  } while(i<List_Nbr(nodeLoc_L));
+
+  for (i = 0 ; i < List_Nbr(nodePairs_L) ; i++) {
+    List_Read(nodePairs_L, i, &nodePair) ;
+    printf("%5d %1d %5d %1d %5.2f %5.2f\n", nodePair.Master, nodePair.subMaster, 
+	   nodePair.Slave, nodePair.subSlave, nodePair.coefR, nodePair.coefI);
+  }
+
+  std::cout << "Nb Pairs = " << List_Nbr( nodePairs_L) << std::endl ;
+  std::cout << "Expected = " << 
+    List_Nbr( ExtendedListRef_L) +List_Nbr( ExtendedSuppListRef_L)  << std::endl ;
+
+  List_Delete(nodeLoc_L) ;  
+  return;
+}
+
+void  NowGenerate_LinkNodes(struct ConstraintInFS * Constraint_P,
+			    List_T * nodePairs_L,
+			    List_T * Couples_L)
+{
+  struct TwoIntOneDouble  TwoIntOneDouble ;  
+  struct nodePair nodePair;
+
+  for (int i = 0 ; i < List_Nbr(nodePairs_L) ; i++) {
+    List_Read(nodePairs_L, i, &nodePair) ;
+
+    if( !nodePair.subMaster && !nodePair.subSlave){
+      TwoIntOneDouble.Int1 = nodePair.Slave;
+      TwoIntOneDouble.Int2 = nodePair.Master ;
+      TwoIntOneDouble.Double = nodePair.coefR ;
+      TwoIntOneDouble.Double2 = nodePair.coefI ;
+      List_Add(Couples_L, &TwoIntOneDouble) ;
+      printf("%5d %5d %10.7f\n", TwoIntOneDouble.Int1, TwoIntOneDouble.Int2, 
+	     TwoIntOneDouble.Double);
+    }
+  }
+  std::cout << "Nb Couples = " << List_Nbr( Couples_L) << std::endl ;
+}
+
+int swapEdge(EdgeNN &a){
+  if( a.Node2 < a.Node1) {
+    int Save_Num = a.Node2 ;
+    a.Node2 = a.Node1 ;  
+    a.Node1 = Save_Num ;
+    a.NumEdge *= -1;
+    return true;
+  }
+  return false;
+}
+
+int isgn(int v) {
+  return (v > 0) - (v < 0);
+}
+
+void  NowGenerate_LinkEdges(struct ConstraintInFS * Constraint_P,
+			    List_T * ExtendedList_L,
+			    List_T * ExtendedSuppList_L,
+			    List_T * ExtendedListRef_L,
+			    List_T * ExtendedSuppListRef_L,
+			    List_T * nodePairs_L,
+			    List_T * Couples_L)
+{
+
+  int  i ;
+
+  Message::Info("== Couples of edges ==") ;
+
+  printf("#edges on Master: %d (%d)\n", 
+	 List_Nbr( ExtendedListRef_L), List_Nbr( ExtendedSuppListRef_L) );
+  printf("#edges on Slave: %d (%d)\n", 
+	 List_Nbr( ExtendedList_L), List_Nbr( ExtendedSuppList_L) );
+
+
+  if ( List_Nbr(ExtendedList_L) != List_Nbr(ExtendedListRef_L)){
+    Message::Error("Constraint Link: strange...") ;
+    return;
+  }
+  int NumEdge =  List_Nbr(ExtendedList_L) ;
+
+  struct EdgeNN  masterEdge, slaveEdge, *slaveEdge_P ;
+  List_T  * slaveEdges_L, * masterEdges_L ;
+  slaveEdges_L = List_Create(NumEdge, 1, sizeof(struct EdgeNN)) ;
+  masterEdges_L = List_Create(NumEdge, 1, sizeof(struct EdgeNN)) ;
+
+  for (i = 0 ; i < NumEdge ; i++) {
+    List_Read(ExtendedListRef_L, i, &masterEdge) ;
+    swapEdge(masterEdge) ;
+    List_Add(masterEdges_L, &masterEdge) ;
+  }
+
+  for (i = 0 ; i < NumEdge ; i++) {
+    List_Read(ExtendedList_L, i, &slaveEdge) ;
+    swapEdge(slaveEdge) ;
+    List_Add(slaveEdges_L, &slaveEdge) ;
+  }
+
+  List_Sort(slaveEdges_L, fcmp_NN) ;
+  //List_Sort(masterEdges_L, fcmp_NN) ;
+  List_Sort(nodePairs_L, fcmp_nodePair);
+
+  struct TwoIntOneDouble TwoIntOneDouble ;
+  struct nodePair nodePair, *nodePairs_P[4] ;
+  double coefR, coefI ;
+
+  for (i = 0 ; i < NumEdge ; i++) {
+    List_Read(masterEdges_L, i, &masterEdge) ;
+
+    int j = 0;
+
+    nodePair.Master = masterEdge.Node1;
+    nodePair.subSlave = false;
+    if( (nodePairs_P[j] =  (struct nodePair *)
+	 List_PQuery(nodePairs_L, &nodePair, fcmp_nodePair)) ) j++ ;
+
+    nodePair.Master = masterEdge.Node2;
+    nodePair.subSlave = false;
+    if( (nodePairs_P[j] =  (struct nodePair *)
+	 List_PQuery(nodePairs_L, &nodePair, fcmp_nodePair)) ) j++ ;
+  
+    if ( j != 2) printf("Bizarre j should be 2 and is %d\n", j);
+
+    nodePair.Master = masterEdge.Node1;
+    nodePair.subSlave = true;
+    if( (nodePairs_P[j] =  (struct nodePair *)
+	 List_PQuery(nodePairs_L, &nodePair, fcmp_nodePair)) ) j++ ;
+
+    nodePair.Master = masterEdge.Node2;
+    nodePair.subSlave = true;
+    if( (nodePairs_P[j] =  (struct nodePair *)
+	 List_PQuery(nodePairs_L, &nodePair, fcmp_nodePair)) ) j++ ;
+
+    // Let MN denote the master Subregion and SN the slave Subregion. 
+    // Let M0 and S0 be their respective image by the (inverse) symmetry map.
+
+    // No link for Master Edges in MN
+    if( nodePairs_P[0]->subMaster && nodePairs_P[1]->subMaster ) 
+      continue ;
+
+    if( j == 2 ) {
+      slaveEdge.Node1 = nodePairs_P[0]->Slave;
+      slaveEdge.Node2 = nodePairs_P[1]->Slave;
+      swapEdge(slaveEdge) ;
+      if( (slaveEdge_P =  (struct EdgeNN *)
+	   List_PQuery(slaveEdges_L, &slaveEdge, fcmp_NN)) ) {
+	coefR = nodePairs_P[0]->coefR ; 
+	if( coefR != nodePairs_P[0]->coefR ) printf("Bizarre coefs are different\n");
+	coefI = nodePairs_P[0]->coefI ; 
+	TwoIntOneDouble.Double =  coefR * isgn(masterEdge.NumEdge) * isgn(slaveEdge_P->NumEdge) ;
+	TwoIntOneDouble.Double2 = coefI * isgn(masterEdge.NumEdge) * isgn(slaveEdge_P->NumEdge) ;
+	TwoIntOneDouble.Int1 = abs(slaveEdge_P->NumEdge) ;
+	TwoIntOneDouble.Int2 = abs(masterEdge.NumEdge) ;
+	List_Add(Couples_L, &TwoIntOneDouble) ;
+	printf("LinkEdges %d %5d %5d %5.3f %5.3f\n", 
+	       j, TwoIntOneDouble.Int1, TwoIntOneDouble.Int2, TwoIntOneDouble.Double, TwoIntOneDouble.Double2);
+      }
+      else
+	printf("Not found slave edge %5d %5d\n", slaveEdge.Node1, slaveEdge.Node2);
+    }
+    else if( j == 3 ) { 
+      // Slave edge has exactly one node in SN or S0
+      // One has to search for the two possible slave edges
+
+      slaveEdge.Node1 = nodePairs_P[0]->Slave;
+      slaveEdge.Node2 = nodePairs_P[1]->Slave;
+      swapEdge(slaveEdge) ;
+      if( (slaveEdge_P =  (struct EdgeNN *)
+	   List_PQuery(slaveEdges_L, &slaveEdge, fcmp_NN)) ) {
+	coefR = nodePairs_P[0]->coefR ; 
+	coefI = nodePairs_P[0]->coefI ; 
+	TwoIntOneDouble.Double =  coefR * isgn(masterEdge.NumEdge) * isgn(slaveEdge_P->NumEdge) ;
+	TwoIntOneDouble.Double2 = coefI * isgn(masterEdge.NumEdge) * isgn(slaveEdge_P->NumEdge) ;
+	TwoIntOneDouble.Int1 = abs( slaveEdge_P->NumEdge ) ;
+	TwoIntOneDouble.Int2 = abs( masterEdge.NumEdge ) ;
+	List_Add(Couples_L, &TwoIntOneDouble) ;
+	printf("LinkEdges %d %5d %5d %5.3f %5.3f\n", 
+	       j, TwoIntOneDouble.Int1, TwoIntOneDouble.Int2, TwoIntOneDouble.Double, TwoIntOneDouble.Double2);
+      }
+      else {
+	if( nodePairs_P[2]->Master != nodePairs_P[0]->Master ) {
+	  slaveEdge.Node1 = nodePairs_P[2]->Slave;
+	  slaveEdge.Node2 = nodePairs_P[0]->Slave;
+	  coefR = nodePairs_P[1]->coefR ; 
+	  coefI = nodePairs_P[1]->coefI ; 
+	}
+	else if( nodePairs_P[2]->Master != nodePairs_P[1]->Master ) {
+	  slaveEdge.Node1 = nodePairs_P[2]->Slave;
+	  slaveEdge.Node2 = nodePairs_P[1]->Slave;
+	  coefR = nodePairs_P[0]->coefR ; 
+	  coefI = nodePairs_P[0]->coefI ; 
+	}
+	else
+	  Message::Error("Link Edge failed") ;
+	swapEdge(slaveEdge) ;
+	if( (slaveEdge_P =  (struct EdgeNN *)
+	     List_PQuery(slaveEdges_L, &slaveEdge, fcmp_NN)) ) {
+	  TwoIntOneDouble.Double =  coefR * isgn(masterEdge.NumEdge) * isgn(slaveEdge_P->NumEdge) ;
+	  TwoIntOneDouble.Double2 = coefI * isgn(masterEdge.NumEdge) * isgn(slaveEdge_P->NumEdge) ;
+	  TwoIntOneDouble.Int1 = abs( slaveEdge_P->NumEdge ) ;
+	  TwoIntOneDouble.Int2 = abs( masterEdge.NumEdge )  ;
+	  List_Add(Couples_L, &TwoIntOneDouble) ;
+	  printf("LinkEdges %d %5d %5d %5.3f %5.3f\n", 
+		 j, TwoIntOneDouble.Int1, TwoIntOneDouble.Int2, TwoIntOneDouble.Double, TwoIntOneDouble.Double2);
+	}
+	else
+	  printf("Not found slave edge %5d %5d\n", slaveEdge.Node1, slaveEdge.Node2);
+      }
+    }
+    else if( j == 4 ) { 
+      // Master Edge has 2 corresponding slave edges. 
+      // One in Slave Subregion (SN), ans one in S0. 
+      // No link for that in SN.
+      slaveEdge.Node1 = nodePairs_P[0]->Slave;
+      slaveEdge.Node2 = nodePairs_P[1]->Slave;
+      coefR = nodePairs_P[0]->coefR ; 
+      coefI = nodePairs_P[0]->coefI ; 
+      swapEdge(slaveEdge) ;
+      if (List_Search(slaveEdges_L, &slaveEdge, fcmp_NN)){
+	TwoIntOneDouble.Double =  coefR * isgn(masterEdge.NumEdge) * isgn(slaveEdge_P->NumEdge) ;
+	TwoIntOneDouble.Double2 = coefI * isgn(masterEdge.NumEdge) * isgn(slaveEdge_P->NumEdge) ;
+	TwoIntOneDouble.Int1 = abs( slaveEdge_P->NumEdge ) ;
+	TwoIntOneDouble.Int2 = abs( masterEdge.NumEdge ) ;
+	List_Add(Couples_L, &TwoIntOneDouble) ;
+	printf("LinkEdges %d %5d %5d %5.3f %5.3f\n", 
+	       j, TwoIntOneDouble.Int1, TwoIntOneDouble.Int2, TwoIntOneDouble.Double, TwoIntOneDouble.Double2);
+      }
+      else
+	printf("Not found slave edge %5d %5d\n", slaveEdge.Node1, slaveEdge.Node2);
+    }
+    else
+      Message::Error("Link Edge failed") ;
+  }
+
+  std::cout << "Nb Couples = " << List_Nbr( Couples_L) << std::endl ;
+  std::cout << "Expected = " << 
+    NumEdge - List_Nbr( ExtendedSuppListRef_L)  << std::endl ;
+
+  //List_Delete(EdgeNN_L) ;  List_Delete(EdgeNNRef_L) ;
+  //List_Delete(CouplesOfNodes_L) ;  List_Delete(CouplesOfNodes2_L) ;
+
+  Message::Info("====> End Link Edge") ;
+}
+
+
+
+// ancienne version de Generate_LinkNodes
+void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
+			 List_T * ExtendedList_L, 
+			 List_T * ExtendedSuppList_L,
+			 struct Group * RegionRef_P, 
+			 struct Group * SubRegionRef_P,
+			 int Index_Filter, int Index_Function, int Index_Coef,
+                         double ToleranceFactor,
+			 List_T * Couples_L)
+{
+  int i,j, Flag_Filter;
+  struct TwoIntOneDouble  TwoIntOneDouble ;  
+
+  int  Nbr_Entity, Nbr_EntityRef ;
+  struct NodeXYZ  NodeXYZ, NodeXYZRef ;
+  List_T  * NodeXYZ_L, * NodeXYZRef_L ;
+  
+  struct Value  Value ;
+
+  TOL = Current.GeoData->CharacteristicLength * ToleranceFactor ;
+  // by default, ToleranceFactor is 1.e-8 
+  // (to be defined with ToleranceFactor value; in the Link constraint.
+  // It is stored in a static variable (scope=routines defined in this file). 
+
+  printf("#nodes on Slave: %d (%d)\n", 
+	 List_Nbr( ExtendedList_L), List_Nbr( ExtendedSuppList_L) );
+
+
+  List_T  * nodeLoc_L;
+  nodeLoc_L = List_Create(2*List_Nbr(ExtendedList_L), 1, sizeof(struct nodeLoc)) ;
+  struct nodeLoc nodeLoc;
+  nodeLoc.Master = false;
+  for (i = 0 ; i < List_Nbr(ExtendedList_L) ; i++) {
+    List_Read(ExtendedList_L, i, &nodeLoc.Num) ;
+    nodeLoc.Sub = (ExtendedSuppList_L &&
+		   List_Search(ExtendedSuppList_L, &nodeLoc.Num, fcmp_int));
+    Geo_GetNodesCoordinates(1, &nodeLoc.Num,
+			    &Current.x, &Current.y, &Current.z) ;
+    Get_ValueOfExpressionByIndex(Index_Function, NULL, 0., 0., 0., &Value) ;
+    Current.x = Value.Val[0] ; 
+    Current.y = Value.Val[1] ;
+    Current.z = Value.Val[2] ;
+    if (Index_Filter < 0)  
+      Flag_Filter = 1 ;
+    else {
+      Get_ValueOfExpressionByIndex(Index_Filter, NULL, 0., 0., 0., &Value) ;
+      Flag_Filter = (int)Value.Val[0] ;
+    }
+    if (Flag_Filter) {
+      nodeLoc.x = Current.x ; 
+      nodeLoc.y = Current.y ; 
+      nodeLoc.z = Current.z ;
+      List_Add(nodeLoc_L, &nodeLoc) ;
+    }
+  }
+
+  List_T  * ExtendedListRef_L, * ExtendedSuppListRef_L ;
   Generate_ElementaryEntities
     (RegionRef_P->InitialList, &ExtendedListRef_L, NODESOF) ;
   if (SubRegionRef_P)
@@ -653,16 +1154,20 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
   else
     ExtendedSuppListRef_L = NULL ;
 
-  std::cout << "Nb nodes in ExtendedListRef_L (Master) = " 
-	    << List_Nbr( ExtendedListRef_L) << std::endl ;
-  std::cout << "Nb nodes in ExtendedSuppListRef_L (Master) = " 
-	    << List_Nbr( ExtendedSuppListRef_L) << std::endl ;
+  printf("#nodes on Master: %d (%d)\n", 
+	 List_Nbr( ExtendedListRef_L), List_Nbr( ExtendedSuppListRef_L) );
 
-  //  if( Nbr_Entity != List_Nbr(ExtendedListRef_L))
-  //  Message::Error("Constraint Link: Master and Slave have different numbers of nodes") ;
-  nodeLoc.Master = true; 
+  if(List_Nbr( ExtendedList_L) != List_Nbr( ExtendedListRef_L))
+    printf("#nodes on Master and Slave do not match"); 
+  if(List_Nbr( ExtendedSuppList_L) != List_Nbr( ExtendedSuppListRef_L))
+    printf("#nodes on Master and Slave do not match"); 
+
+  nodeLoc.Master = true;
   for (i = 0 ; i < List_Nbr(ExtendedListRef_L) ; i++) {
     List_Read(ExtendedListRef_L, i, &nodeLoc.Num) ;
+    nodeLoc.Sub = (ExtendedSuppListRef_L &&
+		   List_Search(ExtendedSuppListRef_L, &nodeLoc.Num, fcmp_int));
+
     Geo_GetNodesCoordinates( 1, &nodeLoc.Num,
 			     &Current.x, &Current.y, &Current.z) ;
     if (Index_Filter < 0) 
@@ -678,15 +1183,63 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
       List_Add(nodeLoc_L, &nodeLoc) ;
     }
   }
-  int NbrNode_Master = List_Nbr(nodeLoc_L) - NbrNode_Slave ;
 
-  List_Sort(nodeLoc_L, fcmp_XYZ) ;
+  //Message::Debug("Constraint Link: ") ;
 
+  List_Sort(nodeLoc_L, fcmp_nodeLoc) ;
   for (i = 0 ; i < List_Nbr(nodeLoc_L) ; i++) {
     List_Read(nodeLoc_L, i, &nodeLoc) ;
-    printf("%d %5d %10.7f %10.7f %10.7f\n", nodeLoc.Master, nodeLoc.Num, 
-	   nodeLoc.x, nodeLoc.y, nodeLoc.z);
+    printf("%d %d %5d %10.7f %10.7f %10.7f\n", nodeLoc.Master, nodeLoc.Sub, 
+	   nodeLoc.Num, nodeLoc.x, nodeLoc.y, nodeLoc.z);
   }
+
+  Message::Debug("==> List of link for nodes") ;
+
+  struct nodeLoc coincident[3];
+  bool test;
+  i=0;
+  do{
+    j=0;
+    do {
+      List_Read(nodeLoc_L, i,  &coincident[j]) ;
+      test = (j==0 ? true : !fcmp_nodeLoc(&coincident[0], &coincident[j]));
+      if(test) {i++; j++;}
+    } while(i<List_Nbr(nodeLoc_L) && test);
+
+    if(j==1 && !coincident[0].Sub) printf("Bizarre\n");
+    if(j>=2) {
+      if(coincident[0].Master){
+	TwoIntOneDouble.Int1 = coincident[1].Num ;
+	TwoIntOneDouble.Int2 = coincident[0].Num ;
+	Geo_GetNodesCoordinates(1, &coincident[0].Num,
+				&Current.x, &Current.y, &Current.z) ;
+      }
+      else{
+	TwoIntOneDouble.Int1 = coincident[0].Num ;
+	TwoIntOneDouble.Int2 = coincident[1].Num ;
+	Geo_GetNodesCoordinates(1, &coincident[1].Num,
+				&Current.x, &Current.y, &Current.z) ;
+      }
+
+      // Geo_GetNodesCoordinates(1, &TwoIntOneDouble.Int1,
+      // 				&Current.x, &Current.y, &Current.z) ;
+      Get_ValueOfExpressionByIndex(Index_Coef, NULL, 0., 0., 0., &Value) ;
+      TwoIntOneDouble.Double = Value.Val[0] ;
+      if (Current.NbrHar == 1)
+	TwoIntOneDouble.Double2 = 0. ;
+      else // complex case
+	TwoIntOneDouble.Double2 = Value.Val[MAX_DIM] ;
+
+      List_Add(Couples_L, &TwoIntOneDouble) ;
+      printf("%5d %5d %10.7f\n", TwoIntOneDouble.Int1, TwoIntOneDouble.Int2, 
+	   TwoIntOneDouble.Double);
+    }
+  } while(i<List_Nbr(nodeLoc_L));
+
+  std::cout << "Nb Couples = " << List_Nbr( Couples_L) << std::endl ;
+  List_Delete(nodeLoc_L) ;  
+
+  return;
 
 /* Create the list of nodes on the slave surface (Region)
      Exclude nodes on the slave subsurface (SubRegion)
@@ -795,6 +1348,8 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
       TwoIntOneDouble.Double2 = Value.Val[MAX_DIM] ;
 
     List_Add(Couples_L, &TwoIntOneDouble) ;
+    printf("old %5d %5d %10.7f\n", TwoIntOneDouble.Int1, TwoIntOneDouble.Int2, 
+	   TwoIntOneDouble.Double);
 
     Message::Debug("Constraint Link: Master slave map (M=%d, S=%d)"
 		   " (%e %e) z=%e %e Coef=%f %f",
@@ -809,11 +1364,12 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
   }
 
   List_Delete(NodeXYZ_L) ;  List_Delete(NodeXYZRef_L) ;
+
 }
 
 int fcmp_XYZ(const void * a, const void * b)
 {
-  double Result; //, TOL=Current.GeoData->CharacteristicLength * 1.e-8 ;
+  double Result; // TOL=Current.GeoData->CharacteristicLength * 1.e-8 ;
 
   if (fabs(Result = ((struct NodeXYZ *)a)->x - ((struct NodeXYZ *)b)->x) > TOL)
     return (Result > 0.)? 1 : -1 ;
@@ -834,7 +1390,7 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
 {
   int  Nbr_Entity, Nbr_EntityRef ;
 
-  List_T  * CouplesOfNodes_L, * CouplesOfNodes2_L ;
+  
   struct EdgeNN  EdgeNN, EdgeNNRef ;
   List_T  * EdgeNN_L, * EdgeNNRef_L ;
   List_T  * ExtendedListRef_L, * ExtendedSuppListRef_L ;
@@ -845,10 +1401,22 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
 
   /* Couples of nodes */
 
-  List_T  * ExtendedListNodes_L ;
+  List_T  *ExtendedListNodes_L=NULL, *ExtendedSuppListNodes_L=NULL ;
   Generate_ElementaryEntities
     (Group_P->InitialList, &ExtendedListNodes_L, NODESOF) ;
+  if( Group_P->InitialSuppList )
+    Generate_ElementaryEntities
+      (Group_P->InitialSuppList, &ExtendedSuppListNodes_L, NODESOF) ;
 
+  List_T  *ExtendedListNodesRef_L=NULL, *ExtendedSuppListNodesRef_L=NULL ;
+  Generate_ElementaryEntities
+    (RegionRef_P->InitialList, &ExtendedListNodesRef_L, NODESOF) ;
+  if (SubRegionRef_P)
+    Generate_ElementaryEntities
+      (SubRegionRef_P->InitialList, &ExtendedSuppListNodesRef_L, NODESOF) ;
+
+
+  /*
   List_T  * ExtendedListNodesRef_L, * ExtendedSuppListNodesRef_L ;
   Generate_ElementaryEntities
     (Group_P->ExtendedList, &ExtendedListNodesRef_L, NODESOF) ;
@@ -857,39 +1425,40 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
       (Group_P->ExtendedSuppList, &ExtendedSuppListNodesRef_L, NODESOF) ;
   else 
     ExtendedSuppListNodesRef_L=NULL;
-
-  // debug
-  std::cout << "Nb nodes in ExtendedListNodes_L = " 
-	    << List_Nbr( ExtendedListNodes_L) << std::endl ;
-  std::cout << "Nb nodes in ExtendedListNodesRef_L = " 
-	    << List_Nbr( ExtendedListNodesRef_L) << std::endl ;
-  std::cout << "Nb nodes in ExtendedSuppListNodesRef = " 
-	    << List_Nbr( ExtendedSuppListNodesRef_L ) << std::endl;
+ 
 
   if ((Nbr_Entity = List_Nbr(ExtendedListNodes_L)))
     CouplesOfNodes_L = List_Create(Nbr_Entity, 1, sizeof(struct TwoIntOneDouble)) ;
-  else {
+  else
     return ;
-  }
+  */
+
+  Nbr_Entity = List_Nbr(ExtendedListNodes_L);
+  List_T  *CouplesOfNodes_L=NULL, *CouplesOfNodes2_L=NULL;
+  CouplesOfNodes_L = List_Create(Nbr_Entity, 1, sizeof(struct TwoIntOneDouble)) ;
+
 
   if (Constraint_P->ConstraintPerRegion->Case.Link.FilterIndex2 < 0) {
     Flag_Filter = 0 ;
-    CouplesOfNodes2_L = NULL ;
+    std::cout << "Nb nodes in ExtendedListNodes_L (aaaa) = " 
+	      << List_Nbr( ExtendedListNodes_L) << std::endl ;
+
     Generate_LinkNodes(Constraint_P, 
-		       ExtendedListNodesRef_L, ExtendedSuppListNodesRef_L,
+		       ExtendedListNodes_L, ExtendedSuppListNodes_L,
 		       RegionRef_P, SubRegionRef_P,
 		       Constraint_P->ConstraintPerRegion->Case.Link.FilterIndex,
 		       Constraint_P->ConstraintPerRegion->Case.Link.FunctionIndex,
 		       Constraint_P->ConstraintPerRegion->Case.Link.CoefIndex,
                        Constraint_P->ConstraintPerRegion->Case.Link.ToleranceFactor,
 		       CouplesOfNodes_L) ;
+ 
   }
   else {
     Flag_Filter = 1 ;
     CouplesOfNodes2_L = List_Create(Nbr_Entity, 1, sizeof(struct TwoIntOneDouble)) ;
 
     Generate_LinkNodes(Constraint_P, 
-		       ExtendedListNodes_L, ExtendedSuppListNodesRef_L,
+		       ExtendedListNodes_L, ExtendedSuppListNodes_L,
 		       RegionRef_P, SubRegionRef_P,
 		       Constraint_P->ConstraintPerRegion->Case.Link.FilterIndex,
 		       Constraint_P->ConstraintPerRegion->Case.Link.FunctionIndex,
@@ -897,7 +1466,7 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
                        Constraint_P->ConstraintPerRegion->Case.Link.ToleranceFactor,
 		       CouplesOfNodes_L) ;
     Generate_LinkNodes(Constraint_P, 
-		       ExtendedListNodes_L, ExtendedSuppListNodesRef_L,
+		       ExtendedListNodes_L, ExtendedSuppListNodes_L,
 		       RegionRef_P, SubRegionRef_P,
 		       Constraint_P->ConstraintPerRegion->Case.Link.FilterIndex2,
 		       Constraint_P->ConstraintPerRegion->Case.Link.FunctionIndex2,
@@ -1056,7 +1625,6 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
 int fcmp_NN(const void * a, const void * b)
 {
   int Result ;
-
   if ((Result = ((struct EdgeNN *)a)->Node1 - ((struct EdgeNN *)b)->Node1) != 0)
     return Result ;
   return        ((struct EdgeNN *)a)->Node2 - ((struct EdgeNN *)b)->Node2 ;
