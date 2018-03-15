@@ -4590,6 +4590,12 @@ Solve the system of equations @var{system-id}.
 Save as @code{Solve}, but reuses the preconditionner when called
 multiple times.
 
+@item SetGlobalSolverOptions
+@code{[@var{char-expression}]}
+
+Set global PETSc solver options (with the same syntax as PETSc options
+specified on the command line, e.g. @code{"-ksp_type gmres -pc_type ilu"}).
+
 @item GenerateJac
 @code{[@var{system-id}]}
 
@@ -7450,10 +7456,12 @@ by Gmsh.
 It depends on which linear solver toolkit was enabled when GetDP was
 compiled (PETSc or Sparskit).
 
-With PETSc-based linear solvers you can either specify options directly
-on the command line (e.g. with @code{-ksp_type gmres -pc_type ilu}),
-through a specific option file (with @code{-solver file}), or through
-the @file{.petscrc} file located in your home directly.
+With PETSc-based linear solvers you can either specify options on the
+command line (e.g. with @code{-ksp_type gmres -pc_type ilu}), through a
+specific option file (with @code{-solver file}), through the
+@file{.petscrc} file located in your home directly, or directly in the
+@code{Resolution} field using the @code{SetGlobalSolverOptions[]}
+command.
 
 With Sparskit-based linear solvers can either specify options directly
 on command line (e.g. with @code{-Nb_Fill 200}), specify an option file
