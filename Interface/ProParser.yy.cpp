@@ -3136,7 +3136,7 @@ return tFunctionSpace;
 case 161:
 YY_RULE_SETUP
 #line 219 "ProParser.l"
-return tGalerkin;
+return tIntegral;
 	YY_BREAK
 case 162:
 YY_RULE_SETUP
@@ -3381,7 +3381,7 @@ return tInitMovingBand2D;
 case 210:
 YY_RULE_SETUP
 #line 270 "ProParser.l"
-return tGalerkin;
+return tIntegral;
 	YY_BREAK
 case 211:
 YY_RULE_SETUP

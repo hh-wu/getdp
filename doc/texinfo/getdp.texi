@@ -1720,16 +1720,16 @@ and should therefore not be considered as already computed.
 An @code{Equation} term must be linear with respect to the
 @code{Dof}. Thus, for example, a nonlinear term like 
 @example
-Galerkin @{ [ f[] * Dof@{T@}^4 , @{T@} ]; @dots{} @}
+Integral @{ [ f[] * Dof@{T@}^4 , @{T@} ]; @dots{} @}
 @end example
 must first be linearized; and while
 @example
-Galerkin @{ [ f[] * Dof@{T@} , @{T@} ]; @dots{} @}
-Galerkin @{ [ -f[] * 12 , @{T@} ]; @dots{} @}
+Integral @{ [ f[] * Dof@{T@} , @{T@} ]; @dots{} @}
+Integral @{ [ -f[] * 12 , @{T@} ]; @dots{} @}
 @end example
 is valid, the following, which is affine but not linear, is not:
 @example
-Galerkin @{ [ f[] * (Dof@{T@} - 12) , @{T@} ]; @dots{} @}
+Integral @{ [ f[] * (Dof@{T@} - 12) , @{T@} ]; @dots{} @}
 @end example
 
 GetDP supports two linearization techniques. The first is functional
@@ -2733,7 +2733,7 @@ Formulation @{
   FemEquation | @var{etc}
 
 @var{local-term-type}:
-  Galerkin | deRham
+  Integral | deRham
 
 @var{equation-term-sub-type}:
   Self (default) | Mutual | SelfAndMutual
@@ -4486,8 +4486,8 @@ Finite element method formulation (all methods of moments, integral methods).
 @var{local-term-type}:
 @ftable @code
 
-@item Galerkin
-Integral of Galerkin type.
+@item Integral
+Integral of Galerkin or Petrov-Galerkin type.
 
 @item deRham
 deRham projection (collocation).
@@ -4937,12 +4937,12 @@ they are provided using the @code{TimeFunction} mechanism in an
 @code{Assign}-type @code{Constraint} (@pxref{Constraint}). However,
 GetDP cannot automatically transform general time-dependent source terms
 in weak formulations (time-dependent functions written in a
-@code{Galerkin} term). Such source terms will be correctly treated only
-for implicit Euler, as the expression in the @code{Galerkin} term is
+@code{Integral} term). Such source terms will be correctly treated only
+for implicit Euler, as the expression in the @code{Integral} term is
 evaluated at the current time step. For other schemes, the source term
 should be written explicitly, by splitting it in two (@code{theta f_n+1
 + (1-theta) f_n}), making use of the @code{AtAnteriorTimeStep[]} for the
-second part, and specifying @code{NeverDt} in the @code{Galerkin} term.
+second part, and specifying @code{NeverDt} in the @code{Integral} term.
 
 @item TimeLoopNewmark
 @code{[@var{expression-cst},@var{expression-cst},@var{expression},@var{expression-cst},@var{expression-cst}]}@*
@@ -6449,7 +6449,7 @@ Formulation @{
       @{ Name v; Type Local; NameOfSpace Hgrad_v; @}
     @}
     Equation @{ 
-      Galerkin @{ [ epsr[] * Dof@{Grad v@} , @{Grad v@} ];
+      Integral @{ [ epsr[] * Dof@{Grad v@} , @{Grad v@} ];
                  In Domain; Jacobian Vol; Integration Int_1; @}
     @}
   @}
@@ -6457,7 +6457,7 @@ Formulation @{
 @end example
 
 @noindent
-The density of the @code{Galerkin} term is a copy of the symbolic form of
+The density of the @code{Integral} term is a copy of the symbolic form of
 the formulation, i.e., the product of a relative permittivity function
 @code{epsr[]} by a vector of degrees of freedom (@code{Dof@{.@}}); the
 scalar product of this with the gradient of test function @code{v} results
@@ -6494,7 +6494,7 @@ Formulation @{
         NameOfSpace Hgrad_v_floating [GlobalElectricCharge]; @}
     @}
     Equation @{ 
-      Galerkin @{ [ epsr[] * Dof@{Grad v@} , @{Grad v@} ];
+      Integral @{ [ epsr[] * Dof@{Grad v@} , @{Grad v@} ];
                  In Domain; Jacobian Vol; Integration Int_1; @}
       GlobalTerm @{ [ - Dof@{Q@}/eps0 , @{V@} ]; In SkinDomainC; @}
     @}
@@ -6536,9 +6536,9 @@ Formulation @{
       @{ Name a; Type Local; NameOfSpace Hcurl_a_Gauge; @}
     @}
     Equation @{ 
-      Galerkin @{ [ nu[] * Dof@{Curl a@} , @{Curl a@} ];
+      Integral @{ [ nu[] * Dof@{Curl a@} , @{Curl a@} ];
                  In Domain; Jacobian Vol; Integration Int_1; @}
-      Galerkin @{ [ - SourceCurrentDensity[] , @{a@} ];
+      Integral @{ [ - SourceCurrentDensity[] , @{a@} ];
                  In DomainWithSourceCurrentDensity;
                  Jacobian Vol; Integration Int_1; @}
     @}
@@ -6585,9 +6585,9 @@ Formulation @{
       @{ Name h; Type Local; NameOfSpace Hcurl_hphi; @}
     @}
     Equation @{ 
-      Galerkin @{ Dt [ mu[] * Dof@{h@} , @{h@} ];
+      Integral @{ Dt [ mu[] * Dof@{h@} , @{h@} ];
                  In Domain; Jacobian Vol; Integration Int_1; @}
-      Galerkin @{ [ rho[] * Dof@{Curl h@} , @{Curl h@} ];
+      Integral @{ [ rho[] * Dof@{Curl h@} , @{Curl h@} ];
                  In DomainC; Jacobian Vol; Integration Int_1; @}
     @}
   @}

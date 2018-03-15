@@ -92,8 +92,8 @@ something like this:
         { Name v; Type Local; NameOfSpace H1; }
       }
       Equation {
-        Galerkin { [ a[] * Dof{d v}, {d v} ] ; In D; Jacobian V; Integration I; }
-        Galerkin { [ f[], {v} ] ; In D; Jacobian V; Integration I; }
+        Integral { [ a[] * Dof{d v}, {d v} ] ; In D; Jacobian V; Integration I; }
+        Integral { [ f[], {v} ] ; In D; Jacobian V; Integration I; }
       }
     }
   }

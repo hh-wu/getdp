@@ -246,7 +246,7 @@
      tNameOfSpace = 427,
      tIndexOfSystem = 428,
      tSymmetry = 429,
-     tGalerkin = 430,
+     tIntegral = 430,
      tdeRham = 431,
      tGlobalTerm = 432,
      tGlobalEquation = 433,
@@ -634,7 +634,7 @@
 #define tNameOfSpace 427
 #define tIndexOfSystem 428
 #define tSymmetry 429
-#define tGalerkin 430
+#define tIntegral 430
 #define tdeRham 431
 #define tGlobalTerm 432
 #define tGlobalEquation 433
@@ -2157,7 +2157,7 @@ static const char *const yytname[] =
   "tSubFunction", "tSubdFunction", "tSupport", "tEntity", "tSubSpace",
   "tNameOfBasisFunction", "tGlobalQuantity", "tEntityType", "tAuto",
   "tEntitySubType", "tNameOfConstraint", "tFormulation", "tQuantity",
-  "tNameOfSpace", "tIndexOfSystem", "tSymmetry", "tGalerkin", "tdeRham",
+  "tNameOfSpace", "tIndexOfSystem", "tSymmetry", "tIntegral", "tdeRham",
   "tGlobalTerm", "tGlobalEquation", "tDt", "tDtDof", "tDtDt", "tDtDtDof",
   "tDtDtDtDof", "tDtDtDtDtDof", "tDtDtDtDtDtDof", "tJacNL", "tDtDofJacNL",
   "tNeverDt", "tDtNL", "tEig", "tAtAnteriorTimeStep", "tMaxOverTime",

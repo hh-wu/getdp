@@ -378,11 +378,11 @@ Formulation {
       { Name phi; Type Local; NameOfSpace Hgrad_phi; }
     }
     Equation {
-      Galerkin { [ - mu[-{d phi}] * Dof{d phi} , {d phi} ];
+      Integral { [ - mu[-{d phi}] * Dof{d phi} , {d phi} ];
         In Domain; Jacobian JVol; Integration I1; }
-      Galerkin { JacNL [ - dbdh_NL[-{d phi}] * Dof{d phi} , {d phi} ];
+      Integral { JacNL [ - dbdh_NL[-{d phi}] * Dof{d phi} , {d phi} ];
         In Domain_NL; Jacobian JVol; Integration I1; }
-      Galerkin { [ - mu[] * hc[] , {d phi} ];
+      Integral { [ - mu[] * hc[] , {d phi} ];
         In Domain_M; Jacobian JVol; Integration I1; }
     }
   }
@@ -391,13 +391,13 @@ Formulation {
       { Name a; Type Local; NameOfSpace Hcurl_a; }
     }
     Equation {
-      Galerkin { [ nu[{d a}] * Dof{d a} , {d a} ];
+      Integral { [ nu[{d a}] * Dof{d a} , {d a} ];
         In Domain; Jacobian JVol; Integration I1; }
-      Galerkin { JacNL [ dhdb_NL[{d a}] * Dof{d a} , {d a} ];
+      Integral { JacNL [ dhdb_NL[{d a}] * Dof{d a} , {d a} ];
         In Domain_NL; Jacobian JVol; Integration I1; }
-      Galerkin { [ hc[] , {d a} ];
+      Integral { [ hc[] , {d a} ];
         In Domain_M; Jacobian JVol; Integration I1; }
-      Galerkin { [ -js[] , {a} ];
+      Integral { [ -js[] , {a} ];
         In Domain_S; Jacobian JVol; Integration I1; }
     }
   }

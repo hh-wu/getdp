@@ -216,7 +216,7 @@ Full_Matrix                  return tFull_Matrix;
 Function                     return tFunction;
 FunctionSpace                return tFunctionSpace;
 
-Galerkin                     return tGalerkin;
+Galerkin                     return tIntegral;
 Gamma                        return tGamma;
 GenerateGroup                return tGenerateGroup;
 GenerateGroupCumulative      return tGenerateGroupCumulative;
@@ -267,7 +267,7 @@ InSupport                    return tInSupport;
 Include                      return tInclude;
 IndexOfSystem                return tIndexOfSystem;
 InitMovingBand2D             return tInitMovingBand2D;
-Integral                     return tGalerkin;
+Integral                     return tIntegral;
 Integration                  return tIntegration;
 Iso                          return tIso;
 IterativeLinearSolver        return tIterativeLinearSolver;

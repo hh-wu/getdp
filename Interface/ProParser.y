@@ -292,7 +292,7 @@ struct doubleXstring{
 %token    tQuantity
 %token        tNameOfSpace tIndexOfSystem
 %token        tSymmetry
-%token    tGalerkin tdeRham tGlobalTerm tGlobalEquation
+%token    tIntegral tdeRham tGlobalTerm tGlobalEquation
 %token        tDt tDtDof tDtDt tDtDtDof tDtDtDtDof tDtDtDtDtDof tDtDtDtDtDtDof
 %token        tJacNL tDtDofJacNL tNeverDt tDtNL tEig
 %token        tAtAnteriorTimeStep tMaxOverTime tFourierSteinmetz
@@ -3272,8 +3272,8 @@ DefineQuantityTerm :
   | tType tGlobalQuantity tEND
     { DefineQuantity_S.Type = GLOBALQUANTITY; }
 
-    /* Doit rester tant qu'on ne supprime pas l'association 'Integral <-> tGalerkin' */
-  | tType tGalerkin tEND
+   // required as long as 'tIntegral' is a token
+  | tType tIntegral tEND
     { DefineQuantity_S.Type = INTEGRALQUANTITY; }
 
   | tType tSTRING tEND
@@ -3696,7 +3696,7 @@ Equations :
 
 EquationTerm :
 
-    tGalerkin  '{' LocalTerm '}'
+    tIntegral  '{' LocalTerm '}'
     { EquationTerm_S.Type = GALERKIN; }
 
   | tdeRham  '{' LocalTerm '}'
@@ -6600,8 +6600,8 @@ SubPostQuantities :
           //+++ TODO: to be refined for clean delete of existing data
     }
 
-    /* Doit rester tant qu'on ne supprime pas l'association 'Integral <-> tGalerkin' */
-  | SubPostQuantities tGalerkin '{' SubPostQuantity '}'
+   // required as long as 'tIntegral' is a token
+  | SubPostQuantities tIntegral '{' SubPostQuantity '}'
     {
       PostQuantityTerm_S.EvaluationType = INTEGRAL;
       List_Add($$ = $1, &PostQuantityTerm_S);
