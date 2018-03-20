@@ -85,6 +85,14 @@ Macro Lib_EleSta_v_interactive
           bc_val~{i} = {0.,
             Name StrCat["Parameters/Boundary conditions/", name~{i}, "/1Value"]}
         ];
+        reg = Sprintf["[Region[%g]]", tag~{i}]; str = "";
+        If(bc~{i} == 0)
+          str = StrCat["dn", reg, Sprintf[" = %g; ", bc_val~{i}]];
+        EndIf
+        Parse[str];
+        If(export && StrLen[str])
+          Printf(StrCat["  ", str]) >> Str[exportFile];
+        EndIf
       Else
         DefineConstant[
           rho_preset~{i} = {0, Visible (material~{i} == 0),
