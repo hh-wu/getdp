@@ -1,46 +1,25 @@
-// Magnetostatics.pro
+// This script allows to use Lib_MagSta_a_phi.pro to setup a magnetostatic model
+// interactively:
 //
-// Magnetostatics - magnetic scalar potential (phi) and magnetic vector (a)
-// formulations
-//
-// You can either merge this file in an other problem description file (see
-// e.g. getdp/demos/magnet.pro), or open the file with Gmsh along with a
-// geometry: you will then be prompted to setup your materials and boundary
-// conditions for each physical group, interactively.
+// 1) Create a geometry with Gmsh
+// 1) Merge this file with File->Merge
+// 2) You will be prompted to setup your materials and boundary conditions for
+//    each physical group, interactively
+// 3) Everytime you click on "Run", an "export.pro" file will be created,
+//    which will contain all your choices for later non-interactive use
 
-DefineConstant[
-  formulationType = {1, Choices{0="Scalar potential", 1="Vector potential"},
-    Help Str[
-      "Magnetostatic model definitions",
-      "h: magnetic field [A/m]",
-      "b: magnetic flux density [T]",
-      "phi: scalar magnetic potential (h = -grad phi) [A]",
-      "a: vector magnetic potential (b = curl a) [T.m]"],
-    Name "GetDP/Formulation"},
-  modelPath = GetString["Gmsh/Model absolute path"],
-  resPath = StrCat[modelPath, "res/"],
-  exportFile = StrCat[modelPath, "export.pro"]
-];
+interactive = !NbrRegions[]; // interactive mode if no region currently defined
+export = !StrCmp[OnelabAction, "compute"]; // dump export file on each "Run"
+modelDim = GetNumber["Gmsh/Model dimension"]; // 1D, 2D or 3D geometry
+numPhysicals = GetNumber["Gmsh/Number of physical groups"];
+modelPath = GetString["Gmsh/Model absolute path"];
+exportFile = StrCat[modelPath, "export.pro"];
 
-Group {
-  // generic groups needed by the model
-  DefineGroup[
-    Domain_M, // magnets
-    Domain_S, // imposed current density
-    Domain_Inf, // infinite domains
-    Domain_NL, // nonlinear magnetic materials
-    Domain_Mag, // linear magnetic materials
-    Domain_Dirichlet // Dirichlet boundary conditions
-  ];
+// this macro will be called in Lib_EleSta_v.pro if we are in interactive mode
+Macro Lib_MagSta_a_phi_interactive
 
-  // interactive model setup if no region currently defined
-  interactive = !NbrRegions[];
-  export = !StrCmp[OnelabAction, "compute"];
-  modelDim = GetNumber["Gmsh/Model dimension"];
-  numPhysicals = GetNumber["Gmsh/Number of physical groups"];
-
-  // interactive construction of groups with Gmsh
-  If(interactive)
+  // interactive construction of groups
+  Group {
     If(export)
       Printf('Group{') > Str[exportFile];
     EndIf
@@ -52,13 +31,15 @@ Group {
       If(dim~{i} < modelDim)
         DefineConstant[
           bc~{i} = {0, ReadOnlyRange 1, Choices{
-              0=StrCat["Neumann: zero ", StrChoice[formulationType, "h.t", "b.n"]],
-              1=StrCat["Dirichlet: fixed ", StrChoice[formulationType, "b.n", "h.t"]]
+              0=StrCat["Neumann: fixed ", StrChoice[formulationType, "n x h", "n . b"]],
+              1=StrCat["Dirichlet: fixed ", StrChoice[formulationType, "n . b", "n x h"]]
             },
             Name StrCat["Parameters/Boundary conditions/", name~{i}, "/0Type"]}
         ];
-        If(bc~{i} == 1)
-          str = StrCat["Domain_Dirichlet += ", reg];
+        If(bc~{i} == 0)
+          str = StrCat["Sur_Neu_Mag += ", reg];
+        ElseIf(bc~{i} == 1)
+          str = StrCat["Sur_Dir_Mag += ", reg];
         EndIf
       Else
         DefineConstant[
@@ -72,56 +53,40 @@ Group {
             Name StrCat["Parameters/Materials/", name~{i}, "/0Type"]}
         ];
         If(material~{i} == 0)
-          str = StrCat["Domain_M += ", reg];
+          str = StrCat["Vol_M_Mag += ", reg];
         ElseIf(material~{i} == 1)
-          str = StrCat["Domain_S += ", reg];
+          str = StrCat["Vol_S0_Mag += ", reg];
         ElseIf(material~{i} == 2)
-          str = StrCat["Domain_Mag += ", reg];
+          str = StrCat["Vol_L_Mag += ", reg];
         ElseIf(material~{i} == 3)
-          str = StrCat["Domain_NL += ", reg];
+          str = StrCat["Vol_NL_Mag += ", reg];
         ElseIf(material~{i} == 4)
-          str = StrCat["Domain_Inf += ", reg];
+          str = StrCat["Vol_Inf_Mag += ", reg];
         EndIf
       EndIf
       Parse[str];
       If(export && StrLen[str])
-        Printf(Str[str]) >> Str[exportFile];
+        Printf(Strcat["  ", str]) >> Str[exportFile];
       EndIf
     EndFor
     If(export)
       Printf('}') >> Str[exportFile];
     EndIf
-  EndIf
+  }
 
-  Domain = Region[{Domain_Mag, Domain_NL, Domain_M, Domain_S, Domain_Inf}];
-}
-
-If(interactive)
-  Include "MaterialDatabase.pro";
+  // interactive setting of material properties
+  Include "Lib_Materials.pro";
   If(export)
-    Printf('Include "MaterialDatabase.pro";') >> Str[exportFile];
+    Printf('Include "Lib_Materials.pro";') >> Str[exportFile];
   EndIf
-EndIf
-
-Function{
-  // generic functions needed by the model
-  DefineFunction[
-    mu, // magnetic permeability
-    nu, // magnetic reluctivity (= 1/nu)
-    hc, // coercive magnetic field (in magnets)
-    js, // source current density
-    dhdb_NL, dbdh_NL // nonlinear parts of the Jacobian
-  ];
-
-  // definition of these function in interactive mode
-  If(interactive)
+  Function{
     If(export)
       Printf('Function {') >> Str[exportFile];
     EndIf
     For i In {1:numPhysicals}
       If(dim~{i} < modelDim)
         DefineConstant[
-          bc_val~{i} = {0., Visible bc~{i},
+          bc_val~{i} = {0.,
             Name StrCat["Parameters/Boundary conditions/", name~{i}, "/1Value"]}
         ];
       Else
@@ -248,64 +213,20 @@ Function{
         EndIf
         Parse[str];
         If(export && StrLen[str])
-          Printf(Str[str]) >> Str[exportFile];
+          Printf(StrCat["  ", str]) >> Str[exportFile];
         EndIf
         Parse[str2];
         If(export && StrLen[str2])
-          Printf(Str[str2]) >> Str[exportFile];
+          Printf(StrCat["  ", str2]) >> Str[exportFile];
         EndIf
       EndIf
     EndFor
     If(export)
       Printf('}') >> Str[exportFile];
     EndIf
-  EndIf
-
-  // other constant parameters needed by the model
-  DefineConstant[
-    Val_Rint = {1, Visible NbrRegions[Domain_Inf],
-      Name "Parameters/Geometry/1Internal shell radius"},
-    Val_Rext = {2, Visible NbrRegions[Domain_Inf],
-      Name "Parameters/Geometry/2External shell radius"},
-    Val_Cx, Val_Cy, Val_Cz,
-    Nb_max_iter = {30, Visible NbrRegions[Domain_NL],
-      Name "Parameters/Nonlinear solver/Maximum number of iterations"},
-    relaxation_factor = 1,
-    stop_criterion = {1e-5, Visible NbrRegions[Domain_NL],
-      Name "Parameters/Nonlinear solver/Tolerance"}
-  ];
-}
-
-Jacobian {
-  { Name JVol;
-    Case {
-      { Region Domain_Inf;
-        Jacobian VolSphShell{Val_Rint, Val_Rext, Val_Cx, Val_Cy, Val_Cz}; }
-      { Region All; Jacobian Vol; }
-    }
   }
-}
 
-Integration {
-  { Name I1;
-    Case {
-      { Type Gauss;
-        Case {
-          { GeoElement Point; NumberOfPoints  1; }
-          { GeoElement Line; NumberOfPoints  3; }
-          { GeoElement Triangle; NumberOfPoints  3; }
-          { GeoElement Quadrangle; NumberOfPoints  4; }
-          { GeoElement Tetrahedron; NumberOfPoints  4; }
-          { GeoElement Hexahedron; NumberOfPoints  6; }
-          { GeoElement Prism; NumberOfPoints  9; }
-          { GeoElement Pyramid; NumberOfPoints  8; }
-	}
-      }
-    }
-  }
-}
-
-If(interactive)
+  // interactive setting of constraints
   constraintNames() = Str["phi", "a"];
   constraintNum() = {1, 1};
   For j In {0:#constraintNames()-1}
@@ -324,118 +245,30 @@ If(interactive)
       Printf(Str[str]) >> Str[exportFile];
     EndIf
   EndFor
+
   If(export)
-    Printf('Include "Magnetostatics.pro";') >> Str[exportFile];
+    Printf('Include "Lib_MagSta_a_phi.pro";') >> Str[exportFile];
   EndIf
-EndIf
 
-Constraint {
-  { Name GaugeCondition_a ; Type Assign ;
-    Case {
-      { Region Domain ; SubRegion Domain_Dirichlet ; Value 0. ; }
-    }
-  }
-}
+Return
 
-FunctionSpace {
-  { Name Hgrad_phi; Type Form0;
-    BasisFunction {
-      { Name sn; NameOfCoef phin; Function BF_Node;
-        Support Domain; Entity NodesOf[ All ]; }
-    }
-    Constraint {
-      { NameOfCoef phin; EntityType NodesOf; NameOfConstraint phi; }
-    }
-  }
-  If(modelDim == 3)
-    { Name Hcurl_a; Type Form1;
-      BasisFunction {
-        { Name se; NameOfCoef ae; Function BF_Edge; Support Domain ;
-          Entity EdgesOf[ All ]; }
-      }
-      Constraint {
-        { NameOfCoef ae;  EntityType EdgesOf; NameOfConstraint a; }
-        { NameOfCoef ae;  EntityType EdgesOfTreeIn; EntitySubType StartingOn;
-          NameOfConstraint GaugeCondition_a ; }
-      }
-    }
-  Else
-    { Name Hcurl_a; Type Form1P;
-      BasisFunction {
-        { Name se; NameOfCoef ae; Function BF_PerpendicularEdge;
-          Support Domain; Entity NodesOf[ All ]; }
-      }
-      Constraint {
-        { NameOfCoef ae; EntityType NodesOf; NameOfConstraint a; }
-      }
-    }
-  EndIf
-}
+Include "Lib_MagSta_a_phi.pro";
 
-Formulation {
-  { Name MagSta_phi; Type FemEquation;
-    Quantity {
-      { Name phi; Type Local; NameOfSpace Hgrad_phi; }
-    }
-    Equation {
-      Integral { [ - mu[-{d phi}] * Dof{d phi} , {d phi} ];
-        In Domain; Jacobian JVol; Integration I1; }
-      Integral { JacNL [ - dbdh_NL[-{d phi}] * Dof{d phi} , {d phi} ];
-        In Domain_NL; Jacobian JVol; Integration I1; }
-      Integral { [ - mu[] * hc[] , {d phi} ];
-        In Domain_M; Jacobian JVol; Integration I1; }
-    }
-  }
-  { Name MagSta_a; Type FemEquation;
-    Quantity {
-      { Name a; Type Local; NameOfSpace Hcurl_a; }
-    }
-    Equation {
-      Integral { [ nu[{d a}] * Dof{d a} , {d a} ];
-        In Domain; Jacobian JVol; Integration I1; }
-      Integral { JacNL [ dhdb_NL[{d a}] * Dof{d a} , {d a} ];
-        In Domain_NL; Jacobian JVol; Integration I1; }
-      Integral { [ hc[] , {d a} ];
-        In Domain_M; Jacobian JVol; Integration I1; }
-      Integral { [ -js[] , {a} ];
-        In Domain_S; Jacobian JVol; Integration I1; }
-    }
-  }
-}
+DefineConstant[
+  formulationType = {1, Choices{0="Scalar potential", 1="Vector potential"},
+    Help Str[
+      "Magnetostatic model definitions",
+      "h: magnetic field [A/m]",
+      "b: magnetic flux density [T]",
+      "phi: scalar magnetic potential (h = -grad phi) [A]",
+      "a: vector magnetic potential (b = curl a) [T.m]"],
+    Name "GetDP/Formulation"},
+  R_ = {"Analysis", Name "GetDP/1ResolutionChoices", Visible 0},
+  C_ = {"-solve -v2", Name "GetDP/9ComputeCommand", Visible 0},
+  P_ = {"", Name "GetDP/2PostOperationChoices", Visible 0}
+];
 
-Resolution {
-  { Name MagSta_phi;
-    System {
-      { Name A; NameOfFormulation MagSta_phi; }
-    }
-    Operation {
-      CreateDir[resPath];
-      If(!NbrRegions[Domain_NL])
-        Generate[A]; Solve[A];
-      Else
-        IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
-          GenerateJac[A]; SolveJac[A];
-        }
-      EndIf
-      SaveSolution[A];
-    }
-  }
-  { Name MagSta_a;
-    System {
-      { Name A; NameOfFormulation MagSta_a; }
-    }
-    Operation {
-      CreateDir[resPath];
-      If(!NbrRegions[Domain_NL])
-        Generate[A]; Solve[A];
-      Else
-        IterativeLoop[Nb_max_iter, stop_criterion, relaxation_factor]{
-          GenerateJac[A]; SolveJac[A];
-        }
-      EndIf
-      SaveSolution[A];
-    }
-  }
+Resolution{
   { Name Analysis;
     System {
       If(formulationType == 0)
@@ -445,8 +278,7 @@ Resolution {
       EndIf
     }
     Operation {
-      CreateDir[resPath];
-      If(!NbrRegions[Domain_NL])
+      If(!NbrRegions[Vol_NL_Mag])
         Generate[A]; Solve[A];
       Else
         //IterativeLoopN[ Nb_max_iter, relaxation_factor,
@@ -464,54 +296,3 @@ Resolution {
     }
   }
 }
-
-PostProcessing {
-  { Name MagSta_phi; NameOfFormulation MagSta_phi;
-    Quantity {
-      { Name b; Value { Local { [ - mu[-{d phi}] * {d phi} ]; In Domain; Jacobian JVol; }
-                        Local { [ - mu[] * hc[] ]; In Domain_M; Jacobian JVol; } } }
-      { Name h; Value { Local { [ - {d phi} ]; In Domain; Jacobian JVol; } } }
-      { Name hc; Value { Local { [ hc[] ]; In Domain_M; Jacobian JVol; } } }
-      { Name phi; Value { Local { [ {phi} ]; In Domain; Jacobian JVol; } } }
-    }
-  }
-  { Name MagSta_a; NameOfFormulation MagSta_a;
-    Quantity {
-      { Name az; Value { Local { [ CompZ[{a}] ]; In Domain; Jacobian JVol; } } }
-      { Name b; Value { Local { [ {d a} ]; In Domain; Jacobian JVol; } } }
-      { Name a; Value { Local { [ {a} ]; In Domain; Jacobian JVol; } } }
-      { Name h; Value { Local { [ nu[{d a}] * {d a} ]; In Domain; Jacobian JVol; }
-                        Local { [ hc[] ]; In Domain_M; Jacobian JVol; } } }
-      { Name hc; Value { Local { [ hc[] ]; In Domain_M; Jacobian JVol; } } }
-      { Name js; Value { Local { [ js[] ]; In Domain_S; Jacobian JVol; } } }
-    }
-  }
-}
-
-PostOperation {
-  { Name MagSta_phi; NameOfPostProcessing MagSta_phi;
-    Operation {
-      Print[ hc, OnElementsOf Domain_M, File StrCat[resPath, "MagSta_phi_hc.pos"] ];
-      Print[ phi, OnElementsOf Domain, File StrCat[resPath, "MagSta_phi_phi.pos"] ];
-      Print[ h, OnElementsOf Domain, File StrCat[resPath, "MagSta_phi_h.pos"] ];
-      Print[ b, OnElementsOf Domain, File StrCat[resPath, "MagSta_phi_b.pos"] ];
-    }
-  }
-  { Name MagSta_a; NameOfPostProcessing MagSta_a;
-    Operation {
-      Print[ hc, OnElementsOf Domain_M, File StrCat[resPath, "MagSta_a_hc.pos"] ];
-      Print[ js, OnElementsOf Domain_S, File StrCat[resPath, "MagSta_a_js.pos"] ];
-      If(modelDim == 2)
-        Print[ az, OnElementsOf Domain, File StrCat[resPath, "MagSta_a_az.pos"] ];
-      EndIf
-      Print[ h, OnElementsOf Domain, File StrCat[resPath, "MagSta_a_h.pos"] ];
-      Print[ b, OnElementsOf Domain, File StrCat[resPath, "MagSta_a_b.pos"] ];
-    }
-  }
-}
-
-DefineConstant[
-  R_ = {"Analysis", Name "GetDP/1ResolutionChoices", Visible 0},
-  C_ = {"-solve -v2", Name "GetDP/9ComputeCommand", Visible 0},
-  P_ = {"", Name "GetDP/2PostOperationChoices", Visible 0}
-];

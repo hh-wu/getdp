@@ -1,46 +1,25 @@
-// Electrostatics.pro
+// This script allows to use Lib_EleSta_v.pro to setup an electrostatic model
+// interactively:
 //
-// Electrostatics - scalar electric potential (v) formulation, with floating
-// potential
-//
-// You can either merge this file in an other problem description file, or open
-// the file with Gmsh along with a geometry: you will then be prompted to setup
-// your materials and boundary conditions for each physical group,
-// interactively.
+// 1) Create a geometry with Gmsh
+// 1) Merge this file with File->Merge
+// 2) You will be prompted to setup your materials and boundary conditions for
+//    each physical group, interactively
+// 3) Everytime you click on "Run", an "export.pro" file will be created,
+//    which will contain all your choices for later non-interactive use
 
-DefineConstant[
-  formulationType = {0, Choices{0="Scalar potential"},
-    Help Str[
-      "Electrostatic model definitions",
-      "e: electric field [V/m]",
-      "d: electric flux density [C/m²]",
-      "v: scalar electric potential (e = -grad v) [V]",
-      "rho: charge density [C/m³]",
-      "q: charge [C]"],
-    Name "GetDP/Formulation"},
-  modelPath = GetString["Gmsh/Model absolute path"],
-  resPath = StrCat[modelPath, "res/"],
-  exportFile = StrCat[modelPath, "export.pro"]
-];
+interactive = !NbrRegions[]; // interactive mode if no region currently defined
+export = !StrCmp[OnelabAction, "compute"]; // dump export file on each "Run"
+modelDim = GetNumber["Gmsh/Model dimension"]; // 1D, 2D or 3D geometry
+numPhysicals = GetNumber["Gmsh/Number of physical groups"];
+modelPath = GetString["Gmsh/Model absolute path"];
+exportFile = StrCat[modelPath, "export.pro"];
 
-Group {
-  // generic groups needed by the model
-  DefineGroup[
-    DomainCC_Ele, // non-conducting domain
-    DomainQ_Ele, // domain with imposed volume charge density
-    SkinDomainC_Ele, // boundary of conductors
-    Domain_Inf, // infinite region
-    Domain_Dirichlet // Dirichlet boundary conditions
-  ];
+// this macro will be called in Lib_EleSta_v.pro if we are in interactive mode
+Macro Lib_EleSta_v_interactive
 
-  // interactive model setup if no region currently defined
-  interactive = !NbrRegions[];
-  export = !StrCmp[OnelabAction, "compute"];
-  modelDim = GetNumber["Gmsh/Model dimension"];
-  numPhysicals = GetNumber["Gmsh/Number of physical groups"];
-
-  // interactive construction of groups with Gmsh
-  If(interactive)
+  // interactive construction of groups
+  Group {
     If(export)
       Printf('Group{') > Str[exportFile];
     EndIf
@@ -52,17 +31,17 @@ Group {
       If(dim~{i} < modelDim)
         DefineConstant[
           bc~{i} = {0, Choices{
-              0="Neumann: zero d.n",
+              0="Neumann: fixed n . d",
               1="Dirichlet: fixed v",
               2="Floating conductor: fixed q",
               3="Floating conductor: fixed v"
             },
             Name StrCat["Parameters/Boundary conditions/", name~{i}, "/0Type"]}
         ];
-        If(bc~{i} == 1)
-          str = StrCat["Domain_Dirichlet += ", reg];
+        If(bc~{i} == 0)
+          str = StrCat["Sur_Neu_Ele += ", reg];
         ElseIf(bc~{i} == 2 || bc~{i} == 3)
-          str = StrCat["SkinDomainC_Ele += ", reg];
+          str = StrCat["Sur_C_Ele += ", reg];
         EndIf
       Else
         DefineConstant[
@@ -74,47 +53,36 @@ Group {
             Name StrCat["Parameters/Materials/", name~{i}, "/0Type"]}
         ];
         If(material~{i} == 0)
-          str = StrCat["DomainQ_Ele += ", reg, "DomainCC_Ele += ", reg];
+          str = StrCat["Vol_Q_Ele += ", reg, "Vol_Ele += ", reg];
         ElseIf(material~{i} == 1)
-          str = StrCat["DomainCC_Ele += ", reg];
+          str = StrCat["Vol_Ele += ", reg];
         ElseIf(material~{i} == 2)
-          str = StrCat["Domain_Inf += ", reg];
+          str = StrCat["Vol_Inf_Ele += ", reg];
         EndIf
       EndIf
       Parse[str];
       If(export && StrLen[str])
-        Printf(Str[str]) >> Str[exportFile];
+        Printf(StrCat["  ", str]) >> Str[exportFile];
       EndIf
     EndFor
     If(export)
       Printf('}') >> Str[exportFile];
     EndIf
-  EndIf
-}
+  }
 
-If(interactive)
-  Include "MaterialDatabase.pro";
+  // interactive setting of material properties
+  Include "Lib_Materials.pro";
   If(export)
-    Printf('Include "MaterialDatabase.pro";') >> Str[exportFile];
+    Printf('Include "Lib_Materials.pro";') >> Str[exportFile];
   EndIf
-EndIf
-
-Function{
-  // generic functions needed by the model
-  DefineFunction[
-    epsr, // relative permittivity
-    rho // charge density
-  ];
-
-  // interactive construction of material properties
-  If(interactive)
+  Function {
     If(export)
       Printf('Function {') >> Str[exportFile];
     EndIf
     For i In {1:numPhysicals}
       If(dim~{i} < modelDim)
         DefineConstant[
-          bc_val~{i} = {0., Visible bc~{i},
+          bc_val~{i} = {0.,
             Name StrCat["Parameters/Boundary conditions/", name~{i}, "/1Value"]}
         ];
       Else
@@ -162,55 +130,16 @@ Function{
         EndIf
         Parse[str];
         If(export && StrLen[str])
-          Printf(Str[str]) >> Str[exportFile];
+          Printf(StrCat["  ", str]) >> Str[exportFile];
         EndIf
       EndIf
     EndFor
     If(export)
       Printf('}') >> Str[exportFile];
     EndIf
-  EndIf
-
-  // constant parameters needed by the model
-  DefineConstant[
-    Val_Rint = {1, Visible NbrRegions[Domain_Inf],
-      Name "Parameters/Geometry/1Internal shell radius"},
-    Val_Rext = {2, Visible NbrRegions[Domain_Inf],
-      Name "Parameters/Geometry/2External shell radius"},
-    Val_Cx, Val_Cy, Val_Cz
-  ];
-}
-
-Jacobian {
-  { Name Vol;
-    Case {
-      { Region Domain_Inf;
-        Jacobian VolSphShell{Val_Rint, Val_Rext, Val_Cx, Val_Cy, Val_Cz}; }
-      { Region All; Jacobian Vol; }
-    }
   }
-}
 
-Integration {
-  { Name GradGrad;
-    Case {
-      { Type Gauss;
-        Case {
-          { GeoElement Point; NumberOfPoints  1; }
-          { GeoElement Line; NumberOfPoints  3; }
-          { GeoElement Triangle; NumberOfPoints  3; }
-          { GeoElement Quadrangle; NumberOfPoints  4; }
-          { GeoElement Tetrahedron; NumberOfPoints  4; }
-          { GeoElement Hexahedron; NumberOfPoints  6; }
-          { GeoElement Prism; NumberOfPoints  9; }
-          { GeoElement Pyramid; NumberOfPoints  8; }
-	}
-      }
-    }
-  }
-}
-
-If(interactive)
+  // interactive setting of constraints
   constraintNames() = Str[
     "ElectricScalarPotential",
     "GlobalElectricPotential",
@@ -233,128 +162,25 @@ If(interactive)
       Printf(Str[str]) >> Str[exportFile];
     EndIf
   EndFor
+
   If(export)
-    Printf('Include "Electrostatics.pro";') >> Str[exportFile];
+    Printf('Include "Lib_EleSta_v.pro";') >> Str[exportFile];
   EndIf
-EndIf
 
-FunctionSpace {
-  { Name Hgrad_vf_Ele; Type Form0;
-    BasisFunction {
-      // v = v  s  + v    s
-      //      n  n    c,k  c,k
-      { Name sn; NameOfCoef vn; Function BF_Node;
-        Support DomainCC_Ele; Entity NodesOf[ All, Not SkinDomainC_Ele ]; }
-      { Name sck; NameOfCoef vck; Function BF_GroupOfNodes;
-        Support DomainCC_Ele; Entity GroupsOfNodesOf[ SkinDomainC_Ele ]; }
-    }
-    SubSpace { // only for a PostOperation
-      { Name vf; NameOfBasisFunction sck; }
-    }
-    GlobalQuantity {
-      { Name GlobalElectricPotential; Type AliasOf; NameOfCoef vck; }
-      { Name GlobalElectricCharge; Type AssociatedWith; NameOfCoef vck; }
-    }
-    Constraint {
-      { NameOfCoef vn;
-        EntityType NodesOf; NameOfConstraint ElectricScalarPotential; }
+Return
 
-      { NameOfCoef GlobalElectricPotential;
-        EntityType GroupsOfNodesOf; NameOfConstraint GlobalElectricPotential; }
-      { NameOfCoef GlobalElectricCharge;
-        EntityType GroupsOfNodesOf; NameOfConstraint GlobalElectricCharge; }
-    }
-  }
-}
-
-Formulation {
-  { Name Electrostatics_vf; Type FemEquation;
-    Quantity {
-      { Name v; Type Local; NameOfSpace Hgrad_vf_Ele; }
-      { Name Q; Type Global;
-        NameOfSpace Hgrad_vf_Ele [GlobalElectricCharge]; }
-      { Name V; Type Global;
-        NameOfSpace Hgrad_vf_Ele [GlobalElectricPotential]; }
-
-      // only for a PostOperation
-      { Name vf; Type Local; NameOfSpace Hgrad_vf_Ele [vf]; }
-    }
-    Equation {
-      Integral { [ epsr[] * eps0 * Dof{Grad v} , {Grad v} ];
-        In DomainCC_Ele; Jacobian Vol; Integration GradGrad; }
-
-      Integral { [ - rho[], {v} ];
-        In DomainQ_Ele; Jacobian Vol; Integration GradGrad; }
-
-      GlobalTerm { [ - Dof{Q}, {V} ];
-        In SkinDomainC_Ele; }
-    }
-  }
-}
-
-Resolution {
-  { Name EleSta_v;
-    System {
-      { Name Sys_Ele; NameOfFormulation Electrostatics_vf; }
-    }
-    Operation {
-      CreateDir[resPath];
-      Generate[Sys_Ele]; Solve[Sys_Ele]; SaveSolution[Sys_Ele];
-    }
-  }
-}
-
-PostProcessing {
-  { Name EleSta_v; NameOfFormulation Electrostatics_vf;
-    PostQuantity {
-      { Name v; Value { Term { [ {v} ]; In DomainCC_Ele; Jacobian Vol; } } }
-      { Name e; Value { Term { [ -{d v} ]; In DomainCC_Ele; Jacobian Vol; } } }
-      { Name d; Value { Term { [ -eps0*epsr[] * {d v} ]; In DomainCC_Ele; Jacobian Vol; } } }
-
-      { Name Q; Value { Term { [ {Q} ]; In SkinDomainC_Ele; } } }
-      { Name V; Value { Term { [ {V} ]; In SkinDomainC_Ele; } } }
-      { Name C; Value { Term { [ {Q}/{V} ]; In SkinDomainC_Ele; } } }
-
-      { Name vf; Value { Term { [ {vf} ]; In DomainCC_Ele; Jacobian Vol; } } }
-
-      { Name force;
-        Value { Integral { Type Global;
-            [ eps0*epsr[] / 2. * VirtualWork[{Grad v}] ];
-	    //In DomainCC_Ele; // restrict support to speed-up search
-            In ElementsOf[DomainCC_Ele, OnOneSideOf SkinDomainC_Ele];
-            Jacobian Vol; Integration GradGrad;
-	  }
-	}
-      }
-
-      { Name energy;
-        Value { Integral { Type Global;
-	    [ eps0*epsr[] / 2. * SquNorm[{Grad v}] ];
-	    In DomainCC_Ele; Jacobian Vol; Integration GradGrad;
-	  }
-	}
-      }
-
-    }
-  }
-}
-
-PostOperation {
-  { Name EleSta_v; NameOfPostProcessing EleSta_v;
-    Operation {
-      Print[ e, OnElementsOf DomainCC_Ele, File StrCat[resPath, "EleSta_v_e.pos"] ];
-      Print[ v, OnElementsOf DomainCC_Ele, File StrCat[resPath, "MagSta_v_v.pos"] ];
-      If(NbrRegions[SkinDomainC_Ele])
-        Print[ Q, OnRegion SkinDomainC_Ele, File StrCat[resPath, "EleSta_v_q.txt"],
-          Format Table, SendToServer "}Output/Floating charge [C]" ];
-        Print[ V, OnRegion SkinDomainC_Ele, File StrCat[resPath, "EleSta_v_q.txt"],
-          Format Table, SendToServer "}Output/Floating potential [V]" ];
-      EndIf
-    }
-  }
-}
+Include "Lib_EleSta_v.pro";
 
 DefineConstant[
+  formulationType = {0, Choices{0="Scalar potential"},
+    Help Str[
+      "Electrostatic model definitions",
+      "e: electric field [V/m]",
+      "d: electric flux density [C/m²]",
+      "v: scalar electric potential (e = -grad v) [V]",
+      "rho: charge density [C/m³]",
+      "q: charge [C]"],
+    Name "GetDP/Formulation"},
   R_ = {"EleSta_v", Name "GetDP/1ResolutionChoices", Visible 0},
   C_ = {"-solve -pos -v2", Name "GetDP/9ComputeCommand", Visible 0},
   P_ = {"EleSta_v", Name "GetDP/2PostOperationChoices", Visible 0}

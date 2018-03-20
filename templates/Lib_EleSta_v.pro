@@ -1,0 +1,207 @@
+// Lib_EleSta_v.pro
+//
+// Template library for electrostatics using a scalar electric potential (v)
+// formulation, with floating potentials
+
+DefineConstant[
+  modelPath = GetString["Gmsh/Model absolute path"],
+  resPath = StrCat[modelPath, "res/"],
+  eps0 = 8.854187818e-12,
+  interactive = 0
+];
+
+Group {
+  DefineGroup[
+    Vol_Ele, // dielectric domain
+    Vol_Q_Ele, // domain with imposed volume charge density
+    Vol_Inf_Ele, // infinite region
+    Sur_Neu_Ele, // Non-homogeneous Neumann boundary conditions (n.d)
+    Sur_C_Ele // boundary of conductors
+  ];
+}
+
+Function{
+  DefineFunction[
+    epsr, // relative permittivity
+    rho, // charge density in Vol_Q_Ele
+    dn // normal displacement on Sur_Neu_Ele
+  ];
+}
+
+CallTest(interactive) Lib_EleSta_v_interactive;
+
+DefineConstant[
+  Val_Rint = {1, Visible NbrRegions[Vol_Inf_Ele],
+    Name "Parameters/Geometry/1Internal shell radius"},
+  Val_Rext = {2, Visible NbrRegions[Vol_Inf_Ele],
+    Name "Parameters/Geometry/2External shell radius"},
+  Val_Cx = 0,
+  Val_Cy = 0,
+  Val_Cz = 0
+];
+
+Jacobian {
+  { Name Vol;
+    Case {
+      { Region Vol_Inf_Ele;
+        Jacobian VolSphShell{Val_Rint, Val_Rext, Val_Cx, Val_Cy, Val_Cz}; }
+      { Region All; Jacobian Vol; }
+    }
+  }
+  { Name Sur;
+    Case {
+      { Region All; Jacobian Sur; }
+    }
+  }
+}
+
+Integration {
+  { Name GradGrad;
+    Case {
+      { Type Gauss;
+        Case {
+          { GeoElement Point; NumberOfPoints  1; }
+          { GeoElement Line; NumberOfPoints  3; }
+          { GeoElement Triangle; NumberOfPoints  3; }
+          { GeoElement Quadrangle; NumberOfPoints  4; }
+          { GeoElement Tetrahedron; NumberOfPoints  4; }
+          { GeoElement Hexahedron; NumberOfPoints  6; }
+          { GeoElement Prism; NumberOfPoints  9; }
+          { GeoElement Pyramid; NumberOfPoints  8; }
+	}
+      }
+    }
+  }
+}
+
+FunctionSpace {
+  { Name Hgrad_vf_Ele; Type Form0;
+    BasisFunction {
+      // v = v  s  + v    s
+      //      n  n    c,k  c,k
+      { Name sn; NameOfCoef vn; Function BF_Node;
+        Support Region[{Vol_Ele, Sur_Neu_Ele}]; Entity NodesOf[ All, Not Sur_C_Ele ]; }
+      { Name sck; NameOfCoef vck; Function BF_GroupOfNodes;
+        Support Vol_Ele; Entity GroupsOfNodesOf[ Sur_C_Ele ]; }
+    }
+    SubSpace { // only for a PostOperation
+      { Name vf; NameOfBasisFunction sck; }
+    }
+    GlobalQuantity {
+      { Name GlobalElectricPotential; Type AliasOf; NameOfCoef vck; }
+      { Name GlobalElectricCharge; Type AssociatedWith; NameOfCoef vck; }
+    }
+    Constraint {
+      { NameOfCoef vn;
+        EntityType NodesOf; NameOfConstraint ElectricScalarPotential; }
+
+      { NameOfCoef GlobalElectricPotential;
+        EntityType GroupsOfNodesOf; NameOfConstraint GlobalElectricPotential; }
+      { NameOfCoef GlobalElectricCharge;
+        EntityType GroupsOfNodesOf; NameOfConstraint GlobalElectricCharge; }
+    }
+  }
+}
+
+Formulation {
+  { Name Electrostatics_vf; Type FemEquation;
+    Quantity {
+      { Name v; Type Local; NameOfSpace Hgrad_vf_Ele; }
+      { Name Q; Type Global;
+        NameOfSpace Hgrad_vf_Ele [GlobalElectricCharge]; }
+      { Name V; Type Global;
+        NameOfSpace Hgrad_vf_Ele [GlobalElectricPotential]; }
+
+      // only for a PostOperation
+      { Name vf; Type Local; NameOfSpace Hgrad_vf_Ele [vf]; }
+    }
+    Equation {
+      Integral { [ epsr[] * eps0 * Dof{Grad v} , {Grad v} ];
+        In Vol_Ele; Jacobian Vol; Integration GradGrad; }
+
+      Integral { [ - rho[], {v} ];
+        In Vol_Q_Ele; Jacobian Vol; Integration GradGrad; }
+
+      Integral { [ dn[] , {v} ];
+        In Sur_Neu_Ele; Jacobian Sur; Integration GradGrad; }
+
+      GlobalTerm { [ - Dof{Q}, {V} ]; In Sur_C_Ele; }
+    }
+  }
+}
+
+Resolution {
+  { Name EleSta_v;
+    System {
+      { Name Sys_Ele; NameOfFormulation Electrostatics_vf; }
+    }
+    Operation {
+      Generate[Sys_Ele]; Solve[Sys_Ele]; SaveSolution[Sys_Ele];
+    }
+  }
+}
+
+PostProcessing {
+  { Name EleSta_v; NameOfFormulation Electrostatics_vf;
+    PostQuantity {
+      { Name v; Value {
+          Term { [ {v} ]; In Vol_Ele; Jacobian Vol; }
+        }
+      }
+      { Name e; Value {
+          Term { [ -{d v} ]; In Vol_Ele; Jacobian Vol; }
+        }
+      }
+      { Name d; Value {
+          Term { [ -eps0*epsr[] * {d v} ]; In Vol_Ele; Jacobian Vol; }
+        }
+      }
+      { Name Q; Value {
+          Term { [ {Q} ]; In Sur_C_Ele; }
+        }
+      }
+      { Name V; Value {
+          Term { [ {V} ]; In Sur_C_Ele; }
+        }
+      }
+      { Name C; Value {
+          Term { [ {Q}/{V} ]; In Sur_C_Ele; }
+        }
+      }
+      { Name vf; Value {
+          Term { [ {vf} ]; In Vol_Ele; Jacobian Vol; }
+        }
+      }
+      { Name force; Value {
+          Integral { [ eps0*epsr[] / 2. * VirtualWork[{Grad v}] ];
+            //In Vol_Ele; // restrict support to speed-up search
+            In ElementsOf[Vol_Ele, OnOneSideOf Sur_C_Ele];
+            Jacobian Vol; Integration GradGrad;
+	  }
+	}
+      }
+      { Name energy; Value {
+          Integral {  [ eps0*epsr[] / 2. * SquNorm[{Grad v}] ];
+	    In Vol_Ele; Jacobian Vol; Integration GradGrad;
+          }
+        }
+      }
+    }
+  }
+}
+
+PostOperation {
+  { Name EleSta_v; NameOfPostProcessing EleSta_v;
+    Operation {
+      CreateDir[resPath];
+      Print[ e, OnElementsOf Vol_Ele, File StrCat[resPath, "EleSta_v_e.pos"] ];
+      Print[ v, OnElementsOf Vol_Ele, File StrCat[resPath, "EleSta_v_v.pos"] ];
+      If(NbrRegions[Sur_C_Ele])
+        Print[ Q, OnRegion Sur_C_Ele, File StrCat[resPath, "EleSta_v_q.txt"],
+          Format Table, SendToServer "}Output/Floating charge [C]" ];
+        Print[ V, OnRegion Sur_C_Ele, File StrCat[resPath, "EleSta_v_q.txt"],
+          Format Table, SendToServer "}Output/Floating potential [V]" ];
+      EndIf
+    }
+  }
+}

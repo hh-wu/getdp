@@ -5,7 +5,7 @@
 */
 
 Include "magnet_data.pro";
-Include "../templates/MaterialDatabase.pro";
+Include "../templates/Lib_Materials.pro";
 
 Group {
   // AIR, AIR_INF, etc. are variables defined in core.txt, and correspond to the
@@ -15,11 +15,8 @@ Group {
   Core    = Region[ CORE ];
   AirGap  = Region[ AIR_GAP ];
   Magnet  = Region[ MAGNET ];
-
-  // These are the generic group names that are used in "Magnetostatics.pro"
-  Domain_S = Region[ {} ] ;
-  Domain_Inf = Region[ AirInf ] ;
-  Domain_M   = Region[ Magnet ] ;
+  Dirichlet_a_0   = Region[ LINE_INF ] ;
+  Dirichlet_phi_0 = Region[ {LINE_X, LINE_INF} ] ;
 
   // This defines a constant ('Flag_NL') with a default value (0), and a way to
   // change it from outside getdp with ONELAB, using the given parameter name
@@ -28,19 +25,19 @@ Group {
     Flag_NL = { 0, Choices{0,1}, Name "Parameters/Materials/1Nonlinear BH-curve"}
   ];
 
-  Domain_NL = Region[ {} ] ;
+  // These are the generic group names that are used in "Magnetostatics.pro"
+  Vol_Inf_Mag = Region[ AirInf ] ;
+  Vol_M_Mag   = Region[ Magnet ] ;
+  Vol_L_Mag = Region[ {Air, AirInf, AirGap} ] ;
+  Vol_NL_Mag = Region[ {} ] ;
   If(Flag_NL)
-    Domain_NL += Region[ {Core} ] ;
+    Vol_NL_Mag += Region[ {Core} ] ;
+  Else
+    Vol_L_Mag += Region[ {Core} ] ;
   EndIf
-
-  Domain_Mag = Region[ {Air, AirInf, Core, AirGap} ] ;
-  Dirichlet_a_0   = Region[ LINE_INF ] ;
-  Dirichlet_phi_0 = Region[ {LINE_X, LINE_INF} ] ;
 }
 
 Function {
-  mu0 = 4.e-7 * Pi ;
-
   // Another parameter that can be changed interactively; but is only visible
   // when it makes sense (if we don't perform a nonlinear analysis)
   DefineConstant[ murCore = {200., Min 1, Max 1000, Step 10, Visible !Flag_NL,
@@ -80,24 +77,24 @@ Constraint {
 }
 
 modelPath = CurrentDirectory;
-Include "../templates/Magnetostatics.pro"
+Include "../templates/Lib_MagSta_a_phi.pro"
 
 eps = 1.e-5;
 
 PostOperation {
   { Name phi ; NameOfPostProcessing MagSta_phi;
     Operation {
-      Print[ phi, OnElementsOf Domain, File "phi.pos" ] ;
-      Print[ hc, OnElementsOf Domain, File "hc.pos" ] ;
-      Print[ b, OnElementsOf Domain, File "b_phi.pos" ] ;
+      Print[ phi, OnElementsOf Vol_Mag, File "phi.pos" ] ;
+      Print[ hc, OnElementsOf Vol_Mag, File "hc.pos" ] ;
+      Print[ b, OnElementsOf Vol_Mag, File "b_phi.pos" ] ;
       Print[ b, OnLine {{-0.07,eps,0}{0.09,eps,0}} {500}, File "b_phi.txt", Format Table ] ;
     }
   }
   { Name a ; NameOfPostProcessing MagSta_a;
     Operation {
-      Print[ az, OnElementsOf Domain, File "az.pos"] ;
-      Print[ b, OnElementsOf Domain, File "b_a.pos" ] ;
-      Print[ h, OnElementsOf Domain, File "h_a.pos" ] ;
+      Print[ az, OnElementsOf Vol_Mag, File "az.pos"] ;
+      Print[ b, OnElementsOf Vol_Mag, File "b_a.pos" ] ;
+      Print[ h, OnElementsOf Vol_Mag, File "h_a.pos" ] ;
       Print[ b, OnLine {{-0.07,eps,0}{0.09,eps,0}} {500}, File "b_a.txt" , Format Table ] ;
     }
   }
