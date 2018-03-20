@@ -473,7 +473,15 @@ void  Generate_GeoLinkNodes(struct ConstraintInFS * Constraint_P,
 void  NowGenerate_LinkNodes(struct ConstraintInFS * Constraint_P,
 			    List_T * nodePairs_L,
 			    List_T * Couples_L) ;
-//old version
+void  NowGenerate_LinkEdges(struct ConstraintInFS * Constraint_P,
+			    List_T * ExtendedList_L,
+			    List_T * ExtendedSuppList_L,
+			    List_T * ExtendedListRef_L,
+			    List_T * ExtendedSuppListRef_L,
+			    List_T * nodePairs_L,
+			    List_T * Couples_L) ;
+
+//old versions
 void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
 			 List_T * ExtendedList_L, 
 			 List_T * ExtendedSuppList_L,
@@ -488,14 +496,6 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
 			 struct Group * RegionRef_P, 
 			 struct Group * SubRegionRef_P,
 			 List_T * Couples_L) ;
-
-void  NowGenerate_LinkEdges(struct ConstraintInFS * Constraint_P,
-			    List_T * ExtendedList_L,
-			    List_T * ExtendedSuppList_L,
-			    List_T * ExtendedListRef_L,
-			    List_T * ExtendedSuppListRef_L,
-			    List_T * nodePairs_L,
-			    List_T * Couples_L) ;
 
 void  Generate_LinkFacets(struct ConstraintInFS * Constraint_P,
 			  struct Group * Group_P,
@@ -696,6 +696,7 @@ struct nodePair makeNodePair(const nodeLoc &master,  const nodeLoc &slave,
   return x;
 }
 
+
 void  Generate_GeoLinkNodes(struct ConstraintInFS * Constraint_P,
 			 List_T * ExtendedList_L,
 			 List_T * ExtendedSuppList_L,
@@ -703,9 +704,8 @@ void  Generate_GeoLinkNodes(struct ConstraintInFS * Constraint_P,
 			 List_T * ExtendedSuppListRef_L,
 			 List_T * nodePairs_L)
 {
-  int i,j, Flag_Filter;
-  
-  int Index_Filter = Constraint_P->ConstraintPerRegion->Case.Link.FilterIndex ;
+  int i,j;
+  //int Index_Filter = Constraint_P->ConstraintPerRegion->Case.Link.FilterIndex ;
   int Index_Function = Constraint_P->ConstraintPerRegion->Case.Link.FunctionIndex ;
   int Index_FunctionRef = Constraint_P->ConstraintPerRegion->Case.Link.FunctionRefIndex ;
  
@@ -713,7 +713,7 @@ void  Generate_GeoLinkNodes(struct ConstraintInFS * Constraint_P,
   TOL = Current.GeoData->CharacteristicLength * ToleranceFactor ;
   // by default, ToleranceFactor is 1.e-8 
   // (to be defined with ToleranceFactor value; in the Link constraint.
-  // It is stored in a static variable (scope=routines defined in this file). 
+  // It is stored in a static variable (scope = routines defined in this file). 
 
   struct Value  Value ;
  
@@ -731,21 +731,6 @@ void  Generate_GeoLinkNodes(struct ConstraintInFS * Constraint_P,
     Geo_GetNodesCoordinates(1, &nodeLoc.Num,
 			    &Current.x, &Current.y, &Current.z) ;
     Get_ValueOfExpressionByIndex(Index_Function, NULL, 0., 0., 0., &Value) ;
-    // Current.x = Value.Val[0] ; 
-    // Current.y = Value.Val[1] ;
-    // Current.z = Value.Val[2] ;
-    // if (Index_Filter < 0)  
-    //   Flag_Filter = 1 ;
-    // else {
-    //   Get_ValueOfExpressionByIndex(Index_Filter, NULL, 0., 0., 0., &Value) ;
-    //   Flag_Filter = (int)Value.Val[0] ;
-    // }
-    // if (Flag_Filter) {
-    //   nodeLoc.x = Current.x ; 
-    //   nodeLoc.y = Current.y ; 
-    //   nodeLoc.z = Current.z ;
-    //   List_Add(nodeLoc_L, &nodeLoc) ;
-    // }
     nodeLoc.x = Value.Val[0] ;
     nodeLoc.y = Value.Val[1] ; 
     nodeLoc.z = Value.Val[2] ;
@@ -756,9 +741,9 @@ void  Generate_GeoLinkNodes(struct ConstraintInFS * Constraint_P,
 	 List_Nbr( ExtendedListRef_L), List_Nbr( ExtendedSuppListRef_L) );
 
   if(List_Nbr( ExtendedList_L) != List_Nbr( ExtendedListRef_L))
-    printf("#nodes on Master and Slave do not match\n"); 
+    printf("#nodes on Master and Slave regions do not match\n"); 
   if(List_Nbr( ExtendedSuppList_L) != List_Nbr( ExtendedSuppListRef_L))
-    printf("#nodes on Master and Slave do not match\n"); 
+    printf("#nodes on Master and Slave subregions do not match\n"); 
 
   nodeLoc.Master = true;
   for (i = 0 ; i < List_Nbr(ExtendedListRef_L) ; i++) {
@@ -768,6 +753,7 @@ void  Generate_GeoLinkNodes(struct ConstraintInFS * Constraint_P,
 
     Geo_GetNodesCoordinates( 1, &nodeLoc.Num,
 			     &Current.x, &Current.y, &Current.z) ;
+    printf("#Index_Function = %d Index_FunctionRef = %d\n", Index_Function, Index_FunctionRef); 
     if (Index_FunctionRef > 0){ 
       Get_ValueOfExpressionByIndex(Index_Function, NULL, 0., 0., 0., &Value) ;
       Current.x = Value.Val[0] ; 
@@ -778,18 +764,10 @@ void  Generate_GeoLinkNodes(struct ConstraintInFS * Constraint_P,
       Current.y += Value.Val[1] ;
       Current.z += Value.Val[2] ;
     }
-    if (Index_Filter < 0) 
-      Flag_Filter = 1 ;
-    else {
-      Get_ValueOfExpressionByIndex(Index_Filter, NULL, 0., 0., 0., &Value) ;
-      Flag_Filter = (int)Value.Val[0] ;
-    }
-    if (Flag_Filter) {
-      nodeLoc.x = Current.x ; 
-      nodeLoc.y = Current.y ;
-      nodeLoc.z = Current.z ;
-      List_Add(nodeLoc_L, &nodeLoc) ;
-    }
+    nodeLoc.x = Current.x ; 
+    nodeLoc.y = Current.y ;
+    nodeLoc.z = Current.z ;
+    List_Add(nodeLoc_L, &nodeLoc) ;
   }
 
   //Message::Debug("Constraint Link: ") ;
