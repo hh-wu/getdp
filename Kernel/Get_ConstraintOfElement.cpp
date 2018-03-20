@@ -815,7 +815,6 @@ void  Generate_GeoLinkNodes(struct ConstraintInFS * Constraint_P,
       if(test) {i++; j++;}
     } while(i<List_Nbr(nodeLoc_L) && test);
 
-
     double coefR, coefI; 
     Current.x = coincident[0].x ;
     Current.y = coincident[0].y ;
