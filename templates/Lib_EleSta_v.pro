@@ -3,11 +3,18 @@
 // Template library for electrostatics using a scalar electric potential (v)
 // formulation, with floating potentials
 
+// Default definitions of constants, groups and functions that can/should be
+// redefined from outside the template:
+
 DefineConstant[
-  modelPath = GetString["Gmsh/Model absolute path"],
-  resPath = StrCat[modelPath, "res/"],
-  eps0 = 8.854187818e-12,
-  interactive = 0
+  modelPath = "", // default path of the model
+  resPath = StrCat[modelPath, "res/"], // path for post-operation files
+  eps0 = 8.854187818e-12, // permittivity of vacuum
+  Val_Rint = 0, // internal radius of Vol_Inf_Ele annulus
+  Val_Rext = 0, // external radius of Vol_Inf_Ele annulus
+  Val_Cx = 0, // x-coordinate of center of Vol_Inf_Ele
+  Val_Cy = 0, // y-coordinate of center of Vol_Inf_Ele
+  Val_Cz = 0 // z-coordinate of center of Vol_Inf_Ele
 ];
 
 Group {
@@ -18,6 +25,7 @@ Group {
     Sur_Neu_Ele, // Non-homogeneous Neumann boundary conditions (n.d)
     Sur_C_Ele // boundary of conductors
   ];
+  Dom_Ele = Region[ {Vol_Ele, Sur_Neu_Ele} ];
 }
 
 Function{
@@ -28,17 +36,7 @@ Function{
   ];
 }
 
-CallTest(interactive) Lib_EleSta_v_interactive;
-
-DefineConstant[
-  Val_Rint = {1, Visible NbrRegions[Vol_Inf_Ele],
-    Name "Parameters/Geometry/1Internal shell radius"},
-  Val_Rext = {2, Visible NbrRegions[Vol_Inf_Ele],
-    Name "Parameters/Geometry/2External shell radius"},
-  Val_Cx = 0,
-  Val_Cy = 0,
-  Val_Cz = 0
-];
+// End of default definitions.
 
 Jacobian {
   { Name Vol;
@@ -80,7 +78,7 @@ FunctionSpace {
       // v = v  s  + v    s
       //      n  n    c,k  c,k
       { Name sn; NameOfCoef vn; Function BF_Node;
-        Support Region[{Vol_Ele, Sur_Neu_Ele}]; Entity NodesOf[ All, Not Sur_C_Ele ]; }
+        Support Dom_Ele; Entity NodesOf[ All, Not Sur_C_Ele ]; }
       { Name sck; NameOfCoef vck; Function BF_GroupOfNodes;
         Support Vol_Ele; Entity GroupsOfNodesOf[ Sur_C_Ele ]; }
     }
