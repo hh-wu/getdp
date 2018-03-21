@@ -13,7 +13,7 @@ DefineConstant[
     Help Str[
       "Electrostatic model definitions",
       "e: electric field [V/m]",
-      "d: electric flux density [C/m²]",
+      "d: electric displacement field [C/m²]",
       "v: scalar electric potential (e = -grad v) [V]",
       "rho: charge density [C/m³]",
       "q: charge [C]"],
