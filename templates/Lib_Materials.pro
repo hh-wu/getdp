@@ -4,23 +4,28 @@ DefineConstant[
 ];
 
 Function{
+  // List of all material names - to add your own simply follow the same
+  // philosophy as what is being done below:
   Materials() = Str[];
 
+  // Air
   Materials() += Str[ "Air" ];
   Air_mur = 1;
   Air_sigma = 0;
   Air_epsilonr = 1;
 
+  // Copper
   Materials() += Str[ "Copper" ];
   Copper_mur = 1;
   Copper_sigma = 5e7;
   Copper_epsilonr = 1;
 
-  Materials() += Str[ "SteelInd" ];
-  SteelInd_mur = 1000;
-  SteelInd_sigma = 2e6;
-  SteelInd_epsilonr = 1;
-  SteelInd_h_list() = {
+  // Generic steel
+  Materials() += Str[ "SteelGeneric" ];
+  SteelGeneric_mur = 1000;
+  SteelGeneric_sigma = 2e6;
+  SteelGeneric_epsilonr = 1;
+  SteelGeneric_h_list() = {
     0.0000e+00, 5.5023e+00, 1.1018e+01, 1.6562e+01, 2.2149e+01, 2.7798e+01, 3.3528e+01,
     3.9363e+01, 4.5335e+01, 5.1479e+01, 5.7842e+01, 6.4481e+01, 7.1470e+01, 7.8906e+01,
     8.6910e+01, 9.5644e+01, 1.0532e+02, 1.1620e+02, 1.2868e+02, 1.4322e+02, 1.6050e+02,
@@ -29,7 +34,7 @@ Function{
     4.5110e+03, 6.3187e+03, 8.9478e+03, 1.2802e+04, 1.8500e+04, 2.6989e+04, 3.9739e+04,
     5.9047e+04, 8.8520e+04, 1.3388e+05, 2.0425e+05, 3.1434e+05, 4.8796e+05, 7.6403e+05
   } ;
-  SteelInd_b_list() = {
+  SteelGeneric_b_list() = {
     0.0000e+00, 5.0000e-02, 1.0000e-01, 1.5000e-01, 2.0000e-01, 2.5000e-01, 3.0000e-01,
     3.5000e-01, 4.0000e-01, 4.5000e-01, 5.0000e-01, 5.5000e-01, 6.0000e-01, 6.5000e-01,
     7.0000e-01, 7.5000e-01, 8.0000e-01, 8.5000e-01, 9.0000e-01, 9.5000e-01, 1.0000e+00,
@@ -39,6 +44,7 @@ Function{
     2.1000e+00, 2.1500e+00, 2.2000e+00, 2.2500e+00, 2.3000e+00, 2.3500e+00, 2.4000e+00
   } ;
 
+  // Steel from 3kW induction machine benchmark
   Materials() += Str[ "Steel3kW" ];
   Steel3kW_mur = 1000;
   Steel3kW_sigma = 2e6;
@@ -62,7 +68,7 @@ Function{
     2.1000e+00, 2.1500e+00, 2.2000e+00, 2.2500e+00, 2.3000e+00, 2.3500e+00, 2.4000e+00
   } ;
 
-  // Analytic b-h curve: nu(b) = 100. + 10. * exp (1.8 * b * b)
+  // Analytic Steel (nu(b) = 100. + 10. * exp (1.8 * b * b))
   Materials() += Str[ "SteelAnalytic" ];
   SteelAnalytic_mur = 1000;
   SteelAnalytic_sigma = 2e6;
@@ -79,27 +85,21 @@ Function{
   NdFeB_hc = 1.85/mu0;
 }
 
-// Create all the functions required by the formulations for each material
-
+// The following macro automatically creates all the functions required by the
+// formulations, for the material _materialName.
 Macro DefineMaterialFunctions
 
-  n = Str[_MaterialName_];
+  n = Str[_materialName];
 
-  // --------------------------------------------------------------
-  // Linear magnetic materials
-  // --------------------------------------------------------------
-
+  // Linear magnetic materials:
   If(Exists[StringToName[StrCat[n, "_mur"]]])
     If(Exists[linearMagneticMaterials] && !StrFind[n, "UserMaterial"])
       linearMagneticMaterials() += Str[n];
     EndIf
   EndIf
 
-  // --------------------------------------------------------------
-  // Nonlinear magnetic materials
-  // --------------------------------------------------------------
-
-  // create intermediate lists and functions for interpolation of point data
+  // Nonlinear magnetic materials:
+  // * create intermediate lists and functions for interpolation of point data
   If(Exists[StringToName[StrCat[n, "_b_list"]]] &&
      Exists[StringToName[StrCat[n, "_h_list"]]])
     Parse[ StrCat[
@@ -117,8 +117,7 @@ Macro DefineMaterialFunctions
       n, "_dmudh2[] = dInterpolationLinear[SquNorm[$1]]{", n, "_mu_h2_list()};"
     ] ];
   EndIf
-
-  // create h[], dhdb[], dhdb_NL[], b[], dbdh[] and dbdh_NL[] functions
+  // * create h[], dhdb[], dhdb_NL[], b[], dbdh[] and dbdh_NL[] functions
   If(Exists[StringToName[StrCat[n, "_nu"]][]] &&
      Exists[StringToName[StrCat[n, "_dnudb2"]][]] &&
      Exists[StringToName[StrCat[n, "_mu"]][]] &&
@@ -138,20 +137,14 @@ Macro DefineMaterialFunctions
     EndIf
   EndIf
 
-  // --------------------------------------------------------------
-  // Permanent magnets
-  // --------------------------------------------------------------
-
+  // Permanent magnets:
   If(Exists[StringToName[StrCat[n, "_hc"]]])
     If(Exists[permanentMagnetMaterials] && !StrFind[n, "UserMaterial"])
       permanentMagnetMaterials() += Str[n];
     EndIf
   EndIf
 
-  // --------------------------------------------------------------
-  // Linear dielectric materials
-  // --------------------------------------------------------------
-
+  // Linear dielectric materials:
   If(Exists[StringToName[StrCat[n, "_epsilonr"]]])
     If(Exists[linearDielectricMaterials] && !StrFind[n, "UserMaterial"])
       linearDielectricMaterials() += Str[n];
@@ -161,12 +154,13 @@ Macro DefineMaterialFunctions
 Return
 
 Function{
+  // create lists of available material names of various types:
   linearMagneticMaterials() = Str["Constant", "Function"];
   nonlinearMagneticMaterials() = Str["Data points", "Function"];
   permanentMagnetMaterials() = Str["Constant", "Function"];
   linearDielectricMaterials() = Str["Constant", "Function"];
   For i In {1 : #Materials()}
-    _MaterialName_ = Str[ Materials(i - 1) ];
+    _materialName = Str[ Materials(i - 1) ];
     Call DefineMaterialFunctions;
   EndFor
 }

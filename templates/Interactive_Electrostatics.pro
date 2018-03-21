@@ -2,10 +2,10 @@
 // interactively:
 //
 // 1) Create a geometry with Gmsh
-// 2) Merge this file with File->Merge
+// 2) Merge this file with Gmsh using File->Merge
 // 3) You will be prompted to setup your materials and boundary conditions for
 //    each physical group, interactively
-// 4) Everytime you click on "Run", an "export.pro" file will be created,
+// 4) Everytime you click on "Run", an "export.pro" file will also be created,
 //    which will contain all your choices for later non-interactive use
 
 DefineConstant[

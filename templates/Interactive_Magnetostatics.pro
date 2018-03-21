@@ -2,10 +2,10 @@
 // interactively:
 //
 // 1) Create a geometry with Gmsh
-// 2) Merge this file with File->Merge
+// 2) Merge this file with Gmsh using File->Merge
 // 3) You will be prompted to setup your materials and boundary conditions for
 //    each physical group, interactively
-// 4) Everytime you click on "Run", an "export.pro" file will be created,
+// 4) Everytime you click on "Run", an "export.pro" file will also be created,
 //    which will contain all your choices for later non-interactive use
 
 DefineConstant[
@@ -223,13 +223,13 @@ Function{
         If(bh_preset~{i} == 0) // data points
           n = Sprintf["UserMaterialPts_%g", i];
           str = StrCat[n, "_b_list() = ", b_list~{i}, "; ", n, "_h_list() = ",
-            h_list~{i}, "; ", "_MaterialName_ = '", n,
+            h_list~{i}, "; ", "_materialName = '", n,
             "'; Call DefineMaterialFunctions; "];
         ElseIf(bh_preset~{i} == 1) // function
           n = Sprintf["UserMaterialFct_%g", i];
           str = StrCat[n, "_nu[] = ", nu_fct~{i}, "; ", n, "_dnudb2[] = ",
             dnudb2_fct~{i}, "; ", n, "_mu[] = ", nu_fct~{i}, "; ", n,
-            "_dmudh2[] = ", dnudb2_fct~{i}, "; ", "_MaterialName_ = '", n,
+            "_dmudh2[] = ", dnudb2_fct~{i}, "; ", "_materialName = '", n,
             "'; Call DefineMaterialFunctions; "];
         Else // preset
           n = Str[ nonlinearMagneticMaterials(bh_preset~{i}) ];
