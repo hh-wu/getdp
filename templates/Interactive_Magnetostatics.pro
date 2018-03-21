@@ -17,15 +17,16 @@ DefineConstant[
       "phi: scalar magnetic potential (h = -grad phi) [A]",
       "a: vector magnetic potential (b = curl a) [T.m]"],
     Name "GetDP/Formulation"},
-  export = !StrCmp[OnelabAction, "compute"],
   modelDim = GetNumber["Gmsh/Model dimension"],
-  numPhysicals = GetNumber["Gmsh/Number of physical groups"],
   modelPath = GetString["Gmsh/Model absolute path"],
+  export = !StrCmp[OnelabAction, "compute"],
   exportFile = StrCat[modelPath, "export.pro"],
   R_ = {"Analysis", Name "GetDP/1ResolutionChoices", Visible 0},
   C_ = {"-solve -bin", Name "GetDP/9ComputeCommand", Visible 0},
   P_ = {"", Name "GetDP/2PostOperationChoices", Visible 0}
 ];
+
+numPhysicals = GetNumber["Gmsh/Number of physical groups"];
 
 // interactive definition of groups
 Group {
@@ -107,20 +108,16 @@ Function{
     Printf('Function {') >> Str[exportFile];
   EndIf
   For i In {1:numPhysicals}
+    reg = Sprintf["[Region[%g]]", tag~{i}]; str = ""; str2 = "";
     If(dim~{i} < modelDim)
       DefineConstant[
         bc_val~{i} = {0.,
           Name StrCat["Parameters/Boundary conditions/", name~{i}, "/1Value"]}
       ];
-      reg = Sprintf["[Region[%g]]", tag~{i}]; str = "";
       If(bc~{i} == 0 && formulationType == 0)
         str = StrCat["bn", reg, Sprintf[" = %g; ", bc_val~{i}]];
       ElseIf(bc~{i} == 0 && formulationType == 1)
         str = StrCat["nxh", reg, Sprintf[" = %g; ", bc_val~{i}]];
-      EndIf
-      Parse[str];
-      If(export && StrLen[str])
-        Printf(StrCat["  ", str]) >> Str[exportFile];
       EndIf
     Else
       DefineConstant[
@@ -196,7 +193,6 @@ Function{
           Name StrCat["Parameters/Materials/", name~{i}, "/5dmudh2 function"],
           Label "dμ/dh²"}
       ];
-      reg = Sprintf["[Region[%g]]", tag~{i}]; str = ""; str2 = "";
       If(material~{i} == 0 && hc_preset~{i} == 0) // magnet, constant
         str = StrCat["hc", reg, Sprintf[" = Vector[%g, %g, %g]; ", hcx~{i},
             hcy~{i}, hcz~{i}], "mu", reg, " = mu0; ", "nu", reg, " = 1/mu0; "];
@@ -244,14 +240,14 @@ Function{
       ElseIf(material~{i} == 4) // infinite regions
         str = StrCat["mu", reg, " = mu0; ", "nu", reg, " = 1/mu0; "];
       EndIf
-      Parse[str];
-      If(export && StrLen[str])
-        Printf(StrCat["  ", str]) >> Str[exportFile];
-      EndIf
-      Parse[str2];
-      If(export && StrLen[str2])
-        Printf(StrCat["  ", str2]) >> Str[exportFile];
-      EndIf
+    EndIf
+    Parse[str];
+    If(export && StrLen[str])
+      Printf(StrCat["  ", str]) >> Str[exportFile];
+    EndIf
+    Parse[str2];
+    If(export && StrLen[str2])
+      Printf(StrCat["  ", str2]) >> Str[exportFile];
     EndIf
   EndFor
   If(export)

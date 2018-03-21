@@ -18,15 +18,16 @@ DefineConstant[
       "rho: charge density [C/m³]",
       "q: charge [C]"],
     Name "GetDP/Formulation"},
-  export = !StrCmp[OnelabAction, "compute"],
   modelDim = GetNumber["Gmsh/Model dimension"],
-  numPhysicals = GetNumber["Gmsh/Number of physical groups"],
   modelPath = GetString["Gmsh/Model absolute path"],
+  export = !StrCmp[OnelabAction, "compute"],
   exportFile = StrCat[modelPath, "export.pro"],
   R_ = {"EleSta_v", Name "GetDP/1ResolutionChoices", Visible 0},
   C_ = {"-solve -pos -bin", Name "GetDP/9ComputeCommand", Visible 0},
   P_ = {"EleSta_v", Name "GetDP/2PostOperationChoices", Visible 0}
 ];
+
+numPhysicals = GetNumber["Gmsh/Number of physical groups"];
 
 // interactive definition of groups
 Group {
@@ -52,7 +53,7 @@ Group {
       If(bc~{i} == 0)
         str = StrCat["Sur_Neu_Ele += ", reg];
       ElseIf(bc~{i} == 2 || bc~{i} == 3)
-          str = StrCat["Sur_C_Ele += ", reg];
+        str = StrCat["Sur_C_Ele += ", reg];
       EndIf
     Else
       DefineConstant[
@@ -102,18 +103,14 @@ Function {
     Printf('Function {') >> Str[exportFile];
   EndIf
   For i In {1:numPhysicals}
+    reg = Sprintf["[Region[%g]]", tag~{i}]; str = "";
     If(dim~{i} < modelDim)
       DefineConstant[
         bc_val~{i} = {0.,
           Name StrCat["Parameters/Boundary conditions/", name~{i}, "/1Value"]}
       ];
-      reg = Sprintf["[Region[%g]]", tag~{i}]; str = "";
       If(bc~{i} == 0)
         str = StrCat["dn", reg, Sprintf[" = %g; ", bc_val~{i}]];
-      EndIf
-      Parse[str];
-      If(export && StrLen[str])
-        Printf(StrCat["  ", str]) >> Str[exportFile];
       EndIf
     Else
       DefineConstant[
@@ -141,7 +138,6 @@ Function {
           Name StrCat["Parameters/Materials/", name~{i}, "/epsr function"],
           Label "ε_r", Help "Relative dielectric permittivity"}
       ];
-      reg = Sprintf["[Region[%g]]", tag~{i}]; str = "";
       If(material~{i} == 0 && rho_preset~{i} == 0) // charged, constant
         str = StrCat["rho", reg, Sprintf[" = %g; ", rho~{i}], "epsr", reg,
           Sprintf[" = %g; ", epsr~{i}]];
@@ -158,10 +154,10 @@ Function {
       ElseIf(material~{i} == 2) // infinite air region
         str = StrCat["epsr", reg, " = 1; "];
       EndIf
-      Parse[str];
-      If(export && StrLen[str])
-        Printf(StrCat["  ", str]) >> Str[exportFile];
-      EndIf
+    EndIf
+    Parse[str];
+    If(export && StrLen[str])
+      Printf(StrCat["  ", str]) >> Str[exportFile];
     EndIf
   EndFor
   If(export)
