@@ -430,7 +430,7 @@ void  Get_LinkForConstraint(struct ConstraintInFS * Constraint_P,
   else if (Constraint_P->Active.Active->TimeStep != (int)Current.TimeStep)
     Generate_Link(Constraint_P, 0) ;
   else if (Constraint_P->Active.Active->SubTimeStep != Current.SubTimeStep)
-    Generate_Link(Constraint_P, 0) ; /* +++ */
+    Generate_Link(Constraint_P, 0) ; 
 
   TwoIntOneDouble_P = (struct TwoIntOneDouble *)
     ((Couples_L = Constraint_P->Active.Active->Case.Link.Couples) ?
@@ -439,9 +439,12 @@ void  Get_LinkForConstraint(struct ConstraintInFS * Constraint_P,
   if (TwoIntOneDouble_P) {
     *CodeEntity_Link = abs(TwoIntOneDouble_P->Int2) ;
     Value[0] = TwoIntOneDouble_P->Double ;
-    if (Orient && TwoIntOneDouble_P->Int1 < 0)  Value[0] *= -1. ;
-    Value[1] = TwoIntOneDouble_P->Double2 ;  /* LinkCplx */
-    if (Orient && TwoIntOneDouble_P->Int1 < 0)  Value[1] *= -1. ;
+    Value[1] = TwoIntOneDouble_P->Double2 ;
+    if (Orient && TwoIntOneDouble_P->Int1 < 0){
+      Value[0] *= -1. ;
+      Value[1] *= -1. ;
+      std::cout << "Swapped coef for " << TwoIntOneDouble_P->Int1  << std::endl;
+    }
   }
 
   Current.Element = old;
@@ -467,7 +470,7 @@ void  Get_LinkForConstraint(struct ConstraintInFS * Constraint_P,
 
    "nodeLoc" associates a node number to a location {x,y,z} in space 
    keeping track of whether the node belongs to the Master or Slave (sub)region. 
-   With these two boleans, "nodeLoc's" are unique, and sorted unambiguously 
+   With these two booleans, "nodeLoc's" are unique, and sorted unambiguously 
    by the "fcmpNodeLoc" comparison fonction. 
 
    "nodePair" is a coincident Master-Slave node pair 
@@ -492,8 +495,15 @@ struct EdgeNN { int NumEdge ; int Node1, Node2 ; double Coef, Coef2 ; } ;
 struct FacetNNN { int NumFacet ; int Node1, Node2, Node3 ; double Coef, Coef2 ; } ;
 
 int fcmp_XYZ(const void * a, const void * b) ;
-int fcmp_NN(const void * a, const void * b) ;
 int fcmp_NNN(const void * a, const void * b) ;
+
+int fcmp_NN(const void * a, const void * b)
+{
+  int Result ;
+  if ((Result = ((struct EdgeNN *)a)->Node1 - ((struct EdgeNN *)b)->Node1) != 0)
+    return Result ;
+  return        ((struct EdgeNN *)a)->Node2 - ((struct EdgeNN *)b)->Node2 ;
+}
 
 int fcmp_nodeLoc(const void * a, const void * b)
 {
@@ -578,9 +588,6 @@ void  Generate_ElementaryEntities_EdgeNN
   (List_T * InitialList, List_T ** ExtendedList, int Type_Entity) ;
 void  Generate_ElementaryEntities_FacetNNN
   (List_T * InitialList, List_T ** ExtendedList, int Type_Entity) ;
-
-/* ----- */
-
 
 void  Generate_Link(struct ConstraintInFS * Constraint_P, int Flag_New)
 {
@@ -727,9 +734,6 @@ void  Generate_Link(struct ConstraintInFS * Constraint_P, int Flag_New)
 }
 
 
-
-
-
 void  Generate_GeoLinkNodes(struct ConstraintInFS * Constraint_P,
 			 List_T * ExtendedList_L,
 			 List_T * ExtendedSuppList_L,
@@ -765,12 +769,10 @@ void  Generate_GeoLinkNodes(struct ConstraintInFS * Constraint_P,
     List_Add(nodeLoc_L, &nodeLoc) ;
   }
 
-  if(Message::GetVerbosity() == 101) {
-    printf("#nodes on Slave (sub)region : %d (%d)\n", 
+  Message::Info("GeoLinkNodes: found %d (%d) nodes on Slave (sub)region", 
 	   List_Nbr( ExtendedList_L), List_Nbr( ExtendedSuppList_L) );
-    printf("#nodes on Master (sub)region: %d (%d)\n", 
+  Message::Info("GeolinkNodes: found %d (%d) nodes on Master (sub)region", 
 	   List_Nbr( ExtendedListRef_L), List_Nbr( ExtendedSuppListRef_L) );
-  }
   if(List_Nbr( ExtendedList_L) != List_Nbr( ExtendedListRef_L))
     Message::Error("#nodes on Master and Slave regions do not match"); 
   if(List_Nbr( ExtendedSuppList_L) != List_Nbr( ExtendedSuppListRef_L))
@@ -873,11 +875,11 @@ void  Generate_GeoLinkNodes(struct ConstraintInFS * Constraint_P,
     List_Read(nodePairs_L, i, &nodePair) ;
     if( nodePair.Master == nodePair.Slave ) NumSelfImageNodes++;
     if(Message::GetVerbosity() == 101) {
-      printf("%5d %1d %5d %1d %5.2f %5.2f\n", nodePair.Master, nodePair.subMaster, 
+      printf("%7d %3d %7d %3d %5.2f %5.2f\n", nodePair.Master, nodePair.subMaster, 
 	     nodePair.Slave, nodePair.subSlave, nodePair.coefR, nodePair.coefI);
     }
   }
-  Message::Info("GeoLinkNodes: found %d node pairs, expected %d, self images %d", 
+  Message::Info("GeoLinkNodes: made %d node pairs, expected %d, self-images %d", 
 		List_Nbr( nodePairs_L), ExpectedNumNodePairs, NumSelfImageNodes) ;
 
   List_Delete(nodeLoc_L) ;  
@@ -894,14 +896,16 @@ void  NowGenerate_LinkNodes(struct ConstraintInFS * Constraint_P,
   for (int i = 0 ; i < List_Nbr(nodePairs_L) ; i++) {
     List_Read(nodePairs_L, i, &nodePair) ;
 
-    if( !nodePair.subMaster && !nodePair.subSlave){
-      // no link for node in subMaster or subSlave
-      TwoIntOneDouble.Int1 = nodePair.Slave;
-      TwoIntOneDouble.Int2 = nodePair.Master ;
-      TwoIntOneDouble.Double = nodePair.coefR ;
-      TwoIntOneDouble.Double2 = nodePair.coefI ;
-      List_Add(Couples_L, &TwoIntOneDouble) ;
-    }
+    if( nodePair.subMaster || nodePair.subSlave)
+      continue ; // no link for node in subMaster or subSlave
+    if( nodePair.Master == nodePair.Slave)
+      continue ; // no link for self-imaged nodes
+    
+    TwoIntOneDouble.Int1 = nodePair.Slave;
+    TwoIntOneDouble.Int2 = nodePair.Master ;
+    TwoIntOneDouble.Double = nodePair.coefR ;
+    TwoIntOneDouble.Double2 = nodePair.coefI ;
+    List_Add(Couples_L, &TwoIntOneDouble) ;
   }
 
   if(Message::GetVerbosity() == 101) {
@@ -914,7 +918,7 @@ void  NowGenerate_LinkNodes(struct ConstraintInFS * Constraint_P,
   Message::Info("LinkNodes: wrote %d links ", List_Nbr( Couples_L) ) ;
 }
 
-int swapEdge(EdgeNN &a){
+bool swapEdge(EdgeNN &a){
   if( a.Node2 < a.Node1) {
     int Save_Num = a.Node2 ;
     a.Node2 = a.Node1 ;  
@@ -937,14 +941,13 @@ void  NowGenerate_LinkEdges(struct ConstraintInFS * Constraint_P,
 			    List_T * nodePairs_L,
 			    List_T * Couples_L)
 {
-  int  i ;
+  int  i;
+  int vCount[4] = {0,0,0,0}; 
 
-  if(Message::GetVerbosity() == 101) {
-    printf("#edges on Master (sub)region: %d (%d)\n", 
-	   List_Nbr( ExtendedListRef_L), List_Nbr( ExtendedSuppListRef_L) );
-    printf("#edges on Slave (sub)region: %d (%d)\n", 
+  Message::Info("LinkEdges: found  %d (%d) edges on Master (sub)region", 
+	   List_Nbr( ExtendedListRef_L), List_Nbr(ExtendedSuppListRef_L) );
+  Message::Info("LinkEdges: found  %d (%d) edges on Slave (sub)region", 
 	   List_Nbr( ExtendedList_L), List_Nbr( ExtendedSuppList_L) );
-  }
 
   if ( List_Nbr(ExtendedList_L) != List_Nbr(ExtendedListRef_L)){
     Message::Error("LinkEdges: number of edges of Master/Slave regions do not match (%d!=%d)",
@@ -956,6 +959,7 @@ void  NowGenerate_LinkEdges(struct ConstraintInFS * Constraint_P,
   }
 
   int NumEdge =  List_Nbr(ExtendedList_L) ;
+  //int NumEdgeSupp =  List_Nbr(ExtendedSuppList_L) ;
 
   struct EdgeNN  masterEdge, slaveEdge, *slaveEdge_P ;
   List_T  * slaveEdges_L, * masterEdges_L ;
@@ -982,9 +986,24 @@ void  NowGenerate_LinkEdges(struct ConstraintInFS * Constraint_P,
   struct nodePair nodePair, *nodePairs_P[4] ;
   double coefR, coefI ;
 
+    /* A typical situation for reference :
+       Master = [M0 ... MN[  
+       subMaster = {MN}
+       Slave = [S0 ... SN[ 
+       subSlave = {SN}
+
+       M0    coef2   S3 
+       M1    coef2   .
+       M2    coef2   .
+       .     coef2   SN-1
+       Mk    coef1   S0 and SN
+       .     coef1   S1
+       MN-1  coef1   S2
+       MN   (coef2)  S3
+    */
+
   for (i = 0 ; i < NumEdge ; i++) {
     List_Read(masterEdges_L, i, &masterEdge) ;
-
     int j = 0;
 
     nodePair.Master = masterEdge.Node1;
@@ -993,7 +1012,7 @@ void  NowGenerate_LinkEdges(struct ConstraintInFS * Constraint_P,
 	 List_PQuery(nodePairs_L, &nodePair, fcmp_nodePair)) ) 
       j++ ;
     else 
-      Message::Error("LinkEdges: Master node %d has no non-sub image on Slave",
+      Message::Error("LinkEdges: Master node %d has no image on Slave",
 		     nodePair.Master);
 
     nodePair.Master = masterEdge.Node2;
@@ -1002,141 +1021,129 @@ void  NowGenerate_LinkEdges(struct ConstraintInFS * Constraint_P,
 	 List_PQuery(nodePairs_L, &nodePair, fcmp_nodePair)) ) 
       j++ ;
     else 
-      Message::Error("LinkEdges: Master node %d has no non-sub image on Slave",
+      Message::Error("LinkEdges: Master node %d has no image on Slave",
 		     nodePair.Master);
   
     // j is 2
-    // Look now for possible additional images of both masterEdge nodes 
-    // in the Slave subregion (subSlave=true)
+    // Check whether one the edge nodes are connected with SN 
+    // (as Mk is in the example)
+
+    nodePair.subSlave = true;
 
     nodePair.Master = masterEdge.Node1;
-    nodePair.subSlave = true;
     if( (nodePairs_P[j] =  (struct nodePair *)
 	 List_PQuery(nodePairs_L, &nodePair, fcmp_nodePair)) ) j++ ;
 
     nodePair.Master = masterEdge.Node2;
-    nodePair.subSlave = true;
     if( (nodePairs_P[j] =  (struct nodePair *)
 	 List_PQuery(nodePairs_L, &nodePair, fcmp_nodePair)) ) j++ ;
 
     // now j is 2, 3 or 4
-    // So we have up to 4 nodePairs connected to the 2 nodesl of MasterEdge.
-
-    /* A typical situation 
-      M0   c2  S3 
-      M1   c2  .
-      M2   c2  .
-      .    c2  SN-1
-      Mk   c1  S0 and SN
-      .    c1  S1
-      MN-1 c1  S2
-      MN   c1  S3
-     */
+    // So we have up to 4 nodePairs connected to the 2 nodes of MasterEdge.
    
+    vCount[j-1]++;
+
     // No link if masterEdge has both nodes in subMaster
     if( nodePairs_P[0]->subMaster && nodePairs_P[1]->subMaster ) 
       continue ;
 
     if( j == 2 ) {
-      slaveEdge.Node1 = nodePairs_P[0]->Slave;
-      slaveEdge.Node2 = nodePairs_P[1]->Slave;
-      swapEdge(slaveEdge) ;
       // slaveEdge has no node in subSlave 
       // The coefficient to be considered for the link 
       // is that of a masterEdge node not in subMaster.
+      slaveEdge.Node1 = nodePairs_P[0]->Slave;
+      slaveEdge.Node2 = nodePairs_P[1]->Slave;
+      swapEdge(slaveEdge) ;
+
       if( (slaveEdge_P =  (struct EdgeNN *)
 	   List_PQuery(slaveEdges_L, &slaveEdge, fcmp_NN)) ) {
-	// 
 	if( !nodePairs_P[0]->subMaster ){
 	  coefR = nodePairs_P[0]->coefR ;
 	  coefI = nodePairs_P[0]->coefI ;
 	}
-	else{ // !nodePairs_P[1]->subMaster == true
+	else if( !nodePairs_P[1]->subMaster ){
 	  coefR = nodePairs_P[1]->coefR ;
 	  coefI = nodePairs_P[1]->coefI ;
 	}
-
-	TwoIntOneDouble.Int1 = abs(slaveEdge_P->NumEdge) ;
-	TwoIntOneDouble.Int2 = abs(masterEdge.NumEdge) ;
-	TwoIntOneDouble.Double  = coefR * isgn(masterEdge.NumEdge) * isgn(slaveEdge_P->NumEdge) ;
-	TwoIntOneDouble.Double2 = coefI * isgn(masterEdge.NumEdge) * isgn(slaveEdge_P->NumEdge) ;
-	List_Add(Couples_L, &TwoIntOneDouble) ;
-	if(Message::GetVerbosity() == 101) {
-	  printf("LinkEdges %d %5d %5d %5.3f %5.3f\n", 
-	         j, TwoIntOneDouble.Int1, TwoIntOneDouble.Int2, 
-		 TwoIntOneDouble.Double, TwoIntOneDouble.Double2);
+	else{
+	  Message::Error("LinkEdges: This should never happen");
 	}
+
+	// TwoIntOneDouble.Int1 = /**/abs(slaveEdge_P->NumEdge) ;
+	// TwoIntOneDouble.Int2 = /**/abs(masterEdge.NumEdge) ;
+	// TwoIntOneDouble.Double  = coefR * isgn(masterEdge.NumEdge) * isgn(slaveEdge_P->NumEdge) ;
+	// TwoIntOneDouble.Double2 = coefI * isgn(masterEdge.NumEdge) * isgn(slaveEdge_P->NumEdge) ;
+	TwoIntOneDouble.Int1 = slaveEdge_P->NumEdge ;
+	TwoIntOneDouble.Int2 = masterEdge.NumEdge ;
+	TwoIntOneDouble.Double  = coefR ;
+	TwoIntOneDouble.Double2 = coefI ;
+	List_Add(Couples_L, &TwoIntOneDouble) ;
       }
       else
 	Message::Error("LinkEdges: Not found slave edge %5d %5d", 
 		       slaveEdge.Node1, slaveEdge.Node2);
     }
     else if( j == 3 ) { 
-
+      // One masterEdge node (cf Mk) is paired with two slave nodes instead of one.
+      // These two slaves nodes are then necessarily SN and S0.
+      // The sought slave edge is thus either Edge [ S0 - S1 ] with coef2
+      //                                   or Edge [ SN - SN-1 ] with coef1.
+      // The coefficient to be considered for the link 
+      // is that of the other node of masterEdge.
       slaveEdge.Node1 = nodePairs_P[0]->Slave;
       slaveEdge.Node2 = nodePairs_P[1]->Slave;
       swapEdge(slaveEdge) ;
-      // One masterEdge node is paired with two slave nodes: SN (in subSlave) and S0.
-      // One has to search which one of the two possible slave edges exists: 
-      //      S0 - S1, or SN - SN-1
-      // The coefficient to be considered for the link 
-      // is that of the other node of masterEdge.
 
       if( (slaveEdge_P =  (struct EdgeNN *)
 	   List_PQuery(slaveEdges_L, &slaveEdge, fcmp_NN)) ) {
+	// We have found Edge[ S0 - S1 ]
 	coefR = nodePairs_P[0]->coefR ; 
 	coefI = nodePairs_P[0]->coefI ; 
-	TwoIntOneDouble.Double  = coefR * isgn(masterEdge.NumEdge) * isgn(slaveEdge_P->NumEdge) ;
-	TwoIntOneDouble.Double2 = coefI * isgn(masterEdge.NumEdge) * isgn(slaveEdge_P->NumEdge) ;
-	TwoIntOneDouble.Int1 = abs( slaveEdge_P->NumEdge ) ;
-	TwoIntOneDouble.Int2 = abs( masterEdge.NumEdge ) ;
+	TwoIntOneDouble.Int1 = slaveEdge_P->NumEdge ;
+	TwoIntOneDouble.Int2 = masterEdge.NumEdge ;
+	TwoIntOneDouble.Double  = coefR ;
+	TwoIntOneDouble.Double2 = coefI ;
 	List_Add(Couples_L, &TwoIntOneDouble) ;
-	if(Message::GetVerbosity() == 101) {
-	  printf("LinkEdges %d %5d %5d %5.3f %5.3f\n", 
-	         j, TwoIntOneDouble.Int1, TwoIntOneDouble.Int2, 
-		 TwoIntOneDouble.Double, TwoIntOneDouble.Double2);
-	}
       }
       else { 
+	// nodePairs_P[2]->Master is equal to nodePairs_P[0]->Master
+	// or to nodePairs_P[1]->Master
+	// 
 	if( nodePairs_P[2]->Master != nodePairs_P[0]->Master ) {
-	  slaveEdge.Node1 = nodePairs_P[2]->Slave;
-	  slaveEdge.Node2 = nodePairs_P[0]->Slave;
-	  coefR = nodePairs_P[1]->coefR ; 
-	  coefI = nodePairs_P[1]->coefI ; 
+	  slaveEdge.Node1 = nodePairs_P[0]->Slave;
+	  slaveEdge.Node2 = nodePairs_P[2]->Slave;
+	  coefR = nodePairs_P[0]->coefR ; 
+	  coefI = nodePairs_P[0]->coefI ; 
 	}
 	else if( nodePairs_P[2]->Master != nodePairs_P[1]->Master ) {
 	  slaveEdge.Node1 = nodePairs_P[2]->Slave;
 	  slaveEdge.Node2 = nodePairs_P[1]->Slave;
-	  coefR = nodePairs_P[0]->coefR ; 
-	  coefI = nodePairs_P[0]->coefI ; 
+	  coefR = nodePairs_P[1]->coefR ; 
+	  coefI = nodePairs_P[1]->coefI ; 
 	}
-	else
+	else{
 	  Message::Error("LinkEdges: found 3(>2) nodePairs for Master node %d",
 			 nodePairs_P[2]->Master) ;
+	}
 	swapEdge(slaveEdge) ;
 	if( (slaveEdge_P =  (struct EdgeNN *)
 	     List_PQuery(slaveEdges_L, &slaveEdge, fcmp_NN)) ) {
-	  TwoIntOneDouble.Int1 = abs( slaveEdge_P->NumEdge ) ;
-	  TwoIntOneDouble.Int2 = abs( masterEdge.NumEdge )  ;
-	  TwoIntOneDouble.Double  = coefR * isgn(masterEdge.NumEdge) * isgn(slaveEdge_P->NumEdge) ;
-	  TwoIntOneDouble.Double2 = coefI * isgn(masterEdge.NumEdge) * isgn(slaveEdge_P->NumEdge) ;
+	  TwoIntOneDouble.Int1 = slaveEdge_P->NumEdge ;
+	  TwoIntOneDouble.Int2 = masterEdge.NumEdge ;
+	  TwoIntOneDouble.Double  = coefR ;
+	  TwoIntOneDouble.Double2 = coefI ;
 	  List_Add(Couples_L, &TwoIntOneDouble) ;
-	  if(Message::GetVerbosity() == 101) {
-	    printf("LinkEdges %d %5d %5d %5.3f %5.3f\n", 
-		   j, TwoIntOneDouble.Int1, TwoIntOneDouble.Int2, 
-		   TwoIntOneDouble.Double, TwoIntOneDouble.Double2);
-	  }
 	}
 	else
 	  Message::Error("LinkEdges: Not found slave edge %5d %5d\n", 
 			 slaveEdge.Node1, slaveEdge.Node2);
       }
     }
-    else if( j == 4 ) { 
-      // masterEdge has 2 paired slave edges. One in subSlave and the other not. 
-      // No link to be written for the forme.
+    else if( j == 4 ) {
+      // masterEdge has 2 paired slave edges. One in Slave, and one in subSlave. 
+      // No link to be written for the latter.
       // Since nodePairs are also sorted on subSlave (see fcmp_nodePairs())
-      // the paired slave nodes not in subSlave (nodePairs_P[2]->Slave == false)
+      // the paired slave nodes in Slave (nodePairs_P[2]->subSlave == false)
       // are the first two nodePairs.
       slaveEdge.Node1 = nodePairs_P[0]->Slave;
       slaveEdge.Node2 = nodePairs_P[1]->Slave;
@@ -1144,16 +1151,11 @@ void  NowGenerate_LinkEdges(struct ConstraintInFS * Constraint_P,
       coefI = nodePairs_P[0]->coefI ; 
       swapEdge(slaveEdge) ;
       if (List_Search(slaveEdges_L, &slaveEdge, fcmp_NN)){
-	TwoIntOneDouble.Int1 = abs( slaveEdge_P->NumEdge ) ;
-	TwoIntOneDouble.Int2 = abs( masterEdge.NumEdge ) ;
-	TwoIntOneDouble.Double  = coefR * isgn(masterEdge.NumEdge) * isgn(slaveEdge_P->NumEdge);
-	TwoIntOneDouble.Double2 = coefI * isgn(masterEdge.NumEdge) * isgn(slaveEdge_P->NumEdge) ;
+	TwoIntOneDouble.Int1 = slaveEdge_P->NumEdge ;
+	TwoIntOneDouble.Int2 = masterEdge.NumEdge ;
+	TwoIntOneDouble.Double  = coefR ;
+	TwoIntOneDouble.Double2 = coefI ;
 	List_Add(Couples_L, &TwoIntOneDouble) ;
-	if(Message::GetVerbosity() == 101) {
-	  printf("LinkEdges %d %5d %5d %5.3f %5.3f\n", 
-	         j, TwoIntOneDouble.Int1, TwoIntOneDouble.Int2, 
-		 TwoIntOneDouble.Double, TwoIntOneDouble.Double2);
-	}
       }
       else
 	Message::Error("LinkEdges: Not found slave edge %5d %5d\n", 
@@ -1163,15 +1165,39 @@ void  NowGenerate_LinkEdges(struct ConstraintInFS * Constraint_P,
       Message::Error("Link Edge failed") ;
   }
 
-  if(Message::GetVerbosity() == 101) {
+  /*
+    int iCount=0;
     for (int i = 0 ; i < List_Nbr(Couples_L) ; i++) {
-      List_Read(Couples_L, i, &TwoIntOneDouble) ;
-      printf("LinkEdges: %8d %8d %10.7f %10.7f\n", TwoIntOneDouble.Int1, TwoIntOneDouble.Int2, 
-	     TwoIntOneDouble.Double, TwoIntOneDouble.Double2);
+    List_Read(Couples_L, i, &TwoIntOneDouble) ;
+    if(Message::GetVerbosity() == 101) {
+    printf("LinkEdges: %8d %8d %10.7f %10.7f\n", TwoIntOneDouble.Int1, TwoIntOneDouble.Int2, 
+    TwoIntOneDouble.Double, TwoIntOneDouble.Double2);
+    }
+    if (TwoIntOneDouble.Double == -1) iCount++;
+    }
+  */
+
+  int iCount=0;
+  struct TwoIntOneDouble * TwoIntOneDouble_P ;
+  for (int i = 0 ; i < List_Nbr(Couples_L) ; i++) {
+    TwoIntOneDouble_P = ( struct TwoIntOneDouble *) List_Pointer(Couples_L, i) ;
+    if (TwoIntOneDouble_P->Double == -1) iCount++;
+    //FIXME: Why does one nedd this minus sign here ? 
+    TwoIntOneDouble_P->Double  = -coefR * isgn(TwoIntOneDouble_P->Int1) * isgn(TwoIntOneDouble_P->Int2) ;
+    TwoIntOneDouble_P->Double2 = -coefI * isgn(TwoIntOneDouble_P->Int1) * isgn(TwoIntOneDouble_P->Int2) ;
+    TwoIntOneDouble_P->Int1 = abs(TwoIntOneDouble_P->Int1) ;
+    TwoIntOneDouble_P->Int2 = abs(TwoIntOneDouble_P->Int2) ;
+    if(Message::GetVerbosity() == 101) {
+      printf("LinkEdges: %8d %8d %10.7f %10.7f\n", TwoIntOneDouble_P->Int1, TwoIntOneDouble_P->Int2, 
+	     TwoIntOneDouble_P->Double, TwoIntOneDouble_P->Double2);
     }
   }
+ 
   Message::Info("LinkEdges: wrote %d links, expected %d-%d ", 
 		List_Nbr( Couples_L), NumEdge, List_Nbr( ExtendedSuppListRef_L) ) ;
+  Message::Info("Linkedges: %d links with coefficient -1", iCount);
+  Message::Info("Linkedges: vCount[j==2,3,4]= %d, %d, %d", 
+		vCount[1], vCount[2], vCount[3]);
 
   //List_Delete(??) ;
 }
@@ -1179,6 +1205,8 @@ void  NowGenerate_LinkEdges(struct ConstraintInFS * Constraint_P,
 
 
 // ancienne version de Generate_LinkNodes
+
+
 void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
 			 List_T * ExtendedList_L, 
 			 List_T * ExtendedSuppList_L,
@@ -1711,13 +1739,6 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
   Message::Info("====> End Link Edge") ;
 }
 
-int fcmp_NN(const void * a, const void * b)
-{
-  int Result ;
-  if ((Result = ((struct EdgeNN *)a)->Node1 - ((struct EdgeNN *)b)->Node1) != 0)
-    return Result ;
-  return        ((struct EdgeNN *)a)->Node2 - ((struct EdgeNN *)b)->Node2 ;
-}
 
 void  Generate_ElementaryEntities_EdgeNN
   (List_T * InitialList, List_T ** ExtendedList, int Type_Entity)
