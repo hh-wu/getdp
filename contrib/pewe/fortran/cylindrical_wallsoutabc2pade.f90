@@ -23,109 +23,118 @@
 !  Modified by Vanessa Mattesi for inclusion in GetDP:
 !
 !  Exact solution for a cylindrical wall (zero displacement on the
-!  boundary).
+!  boundary) with Padé-localized ABC for an incident S-wave
 
-subroutine cylindrical_walloutabc(du,dv,dut,dvt,X,Y,t,omega,lambda,mu,rho,a,b)
+
+
+subroutine cylindrical_wallsoutabc2pade(du,dv,dut,dvt,X,Y,t,omega,lambda,mu,rho,a,b,L,alpha,eps_p,eps_s)
 
   implicit none
-  double precision :: x,y,du,dv,dvt,dut,t
-  double precision :: r,theta
+  integer :: n,ns,j,ind
+
+  double precision :: X,Y,du,dv,dvt,dut,t
+  double precision :: r,theta,L,alpha
   double precision :: lambda,mu,rho
   double precision :: cp,cs,omega,kp,ks,a,b
-  double precision :: phi_0,epsilon_n,C1
+  double precision :: psi_0,epsilon_n,tang,eps_p,eps_s
+  double precision cj(floor(L))
+  double precision dj(floor(L))
+  double precision , parameter :: pi = 4d0*datan(1d0)
 
-  double precision :: a0_n,a1_n
+  double complex   :: i,p,q,detinv,kpeps,kseps,xip,xis,det,D1,D2,D3,D4
   double complex M(4,4)
   double complex Minv(4,4)
   double complex AB(4)
   double complex F(4)
-  double complex   :: i,p,q,detinv
-  double complex   :: C2
-  double complex   :: C3
-  integer :: n
-  double precision , parameter :: pi = acos(-1.d0)
+  double complex Rj(floor(L))
+  double complex Sj(floor(L))
 
-  ! for GetDP
-  integer :: ns
- 
-  double complex, external :: besselh  !besselh(order n,kind 1 or 2,k*r) Hankel function of order n of the first or second kind of argument (kr)
-  double complex, external :: dr_h     !dr_h(kind 1 or 2,k,r,n) derivative of the Hankel function of order n of the first or second kind of argument (kr)
-  double complex, external :: dr2_h    !dr2_h(kind 1 or 2,k,r,n) second derivative of the Hankel function of order n of the first or second kind of argument (kr)
-  double complex, external :: dr_j     !dr_j(k,r,n) derivative of the bessel function of first kind of order n of argument (kr)
+  double complex, external :: besselh
+  double complex, external :: dr_h
+  double complex, external :: dr2_h
+  double complex, external :: dr_j
 
-  t=0
-  i = (0.d0,1.d0)
   ! Compute radius r and angle theta
   r = sqrt(X**2+Y**2)
   theta = atan2(Y,X)
-  C1 = lambda+2*mu
-
-
+  i=(0.d0,1.d0)
   ! P and S wave speeds
   cp = sqrt((lambda+2.d0*mu)/rho)
   cs = sqrt(mu/rho)
   ! To satisfy elastic wave equation
   kp = omega/cp
   ks = omega/cs
-
+  !Definition of kpeps et kseps
+  kpeps = kp +i* eps_p; 
+  kseps = ks +i* eps_s; 
   ! Amplitude of incomming wave
-  phi_0 = 1
-  ns = 2*floor(omega);
+  psi_0 = 1
+  !Definition of complex constant usefull for the series expansion
+  D1 = lambda+2*mu;
+  do j=0,floor(L)-1
+    tang=dtan((pi/(2*L))*(0.5+j));
+    cj(j+1)= (1.d0+tang*tang)/L;
+    dj(j+1)= (1.d0+tang*tang);
+    Rj(j+1)=cmplx(cj(j+1)*dcos(alpha/2.d0),cj(j+1)*dsin(alpha/2.d0));
+    Sj(j+1)=cmplx(dj(j+1)*dcos(alpha)+1-dcos(alpha),dj(j+1)*dsin(alpha) - dsin(alpha));
+  End do
+  !size of the series
+  ns=2*floor(omega);
   !-------------------------------
   ! Series expansion of solution -
   !-------------------------------
   ! initialisation of the radial and azimutal part of the solution
   p=0.d0
   q=0.d0
-!$OMP PARALLEL DO PRIVATE(epsilon_n,n,M,Minv,detinv,AB,F) REDUCTION(+:p,q)
-  do n = 0,ns
-    If(n.eq.0) Then
-      epsilon_n = 1.d0;
-      elseIf (n>0) Then
-      epsilon_n = 2.d0;
-    Endif
-    C2 = cmplx((lambda/b),-kp*(lambda+2*mu))
-    C3 = cmplx((mu/b), ks*mu)
-    M(1,1) = dr_h(1,kp,a,n)
-    M(1,2) = dr_h(2,kp,a,n)
-    M(1,3) = ( dble(n)/a) * besselh(int(n),1,ks*a)
-    M(1,4) = ( dble(n)/a) * besselh(int(n),2,ks*a)
+!$OMP PARALLEL DO PRIVATE(epsilon_n,n,ind,xip,xis,det,D2,D3,D4,detinv,M,Minv,F,AB) REDUCTION(+:p,q)
+ do n = 0,ns
+    If (n==0) then 
+      epsilon_n=1.d0 
+    else If (n>0) then 
+      epsilon_n=2.d0
+    endIf
+      xip = 0;
+      xis = 0;
+      do ind=0,floor(L)-1
+       xip = xip + Rj(ind+1)/(Sj(ind+1)-(dble(n)/(kpeps*b))**2); 
+       xis = xis + Rj(ind+1)/(Sj(ind+1)-(dble(n)/(kseps*b))**2); 
+      end do
+    xip=xip/kp;
+    xis=xis/ks;
+    det = 1 + ((dble(n)/b)**2) * xip * xis; 
 
-    M(2,1) = (-dble(n)/a)  * besselh(int(n),1,kp*a)
-    M(2,2) = (-dble(n)/a)  * besselh(int(n),2,kp*a)
-    M(2,3) = -dr_h(1,ks,a,n)
-    M(2,4) = -dr_h(2,ks,a,n)
+    D2 = (rho*(omega**2)*xip * xis) / det;
+    D3 = lambda/b - (i*rho*(omega**2)*xip)/det;
+    D4 = -mu/b - (i*rho*(omega**2)*xis)/det;
 
-    M(3,1) = C1 * dr2_h(1,kp,b,int(n)) - (lambda*(n**2)/b**2) * besselh(int(n),1,kp*b)&
-           + C2* dr_h(1,kp,b,n)    
+    M(1,1) = dr_h(1,kp,a,n);
+    M(1,2) = dr_h(2,kp,a,n); 
+    M(1,3) =-(dble(n)/a) * besselh(int(n),1,ks*a);
+    M(1,4) =-(dble(n)/a) * besselh(int(n),2,ks*a);
 
-    M(3,2) = C1* dr2_h(2,kp,b,int(n)) - (lambda*(n**2)/b**2) * besselh(int(n),2,kp*b)&
-           + C2* dr_h(2,kp,b,n)
+    M(2,1) = (dble(n)/a) * besselh(int(n),1,kp*a);
+    M(2,2) = (dble(n)/a) * besselh(int(n),2,kp*a);
+    M(2,3) = -dr_h(1,ks,a,n);
+    M(2,4) = -dr_h(2,ks,a,n);
 
-    M(3,3) = C1 * (-(dble(n)/b**2)*besselh(int(n),1,ks*b)+ (dble(n)/b)* dr_h(1,ks,b,int(n)) )&
-           - (lambda*n)/(b) * dr_h(1,ks,b,int(n)) + C2*(dble(n)/b)*besselh(int(n),1,ks*b) 
+    M(3,1) = D1*dr2_h(1,kp,b,n) + (D1-D2)*(-(dble(n)/b)**2)*besselh(int(n),1,kp*b) + D3*dr_h(1,kp,b,n);
+    M(3,2) = D1*dr2_h(2,kp,b,n) + (D1-D2)*(-(dble(n)/b)**2)*besselh(int(n),2,kp*b) + D3*dr_h(2,kp,b,n);
+    M(3,3) = -D1*(-(dble(n)/(b**2)) *besselh(int(n),1,ks*b) + (dble(n)/b)*dr_h(1,ks,b,n) )&
+           - (D1-D2)*(-dble(n)/b)*dr_h(1,ks,b,n) - D3*(dble(n)/b)*besselh(int(n),1,ks*b);            
+    M(3,4) = -D1*(-(dble(n)/(b**2)) *besselh(int(n),2,ks*b) + (dble(n)/b)*dr_h(2,ks,b,n) )&
+           - (D1-D2)*(-dble(n)/b)*dr_h(2,ks,b,n) - D3*(dble(n)/b)*besselh(int(n),2,ks*b);          
 
-    M(3,4) = C1 * (-(dble(n)/b**2)*besselh(int(n),2,ks*b)+ (dble(n)/b)* dr_h(2,ks,b,int(n)) )&
-           - (lambda*n)/(b) * dr_h(2,ks,b,int(n)) + C2*(dble(n)/b)*besselh(int(n),2,ks*b)   
+    M(4,1) = mu* (-(dble(n)/(b**2))*besselh(int(n),1,kp*b) + (dble(n)/b)*dr_h(1,kp,b,n) )&
+           + (D2-mu)* (dble(n)/b)*dr_h(1,kp,b,n) + D4*(dble(n)/b)*besselh(int(n),1,kp*b);
+    M(4,2) = mu* (-(dble(n)/(b**2))*besselh(int(n),2,kp*b) + (dble(n)/b)*dr_h(2,kp,b,n) )&
+           + (D2-mu)* (dble(n)/b)*dr_h(2,kp,b,n) + D4*(dble(n)/b)*besselh(int(n),2,kp*b);
+    M(4,3) = -mu*dr2_h(1,ks,b,n) + (D2-mu)*(-(dble(n)/b)**2)*besselh(int(n),1,ks*b) - D4*dr_h(1,ks,b,n);
+    M(4,4) = -mu*dr2_h(2,ks,b,n) + (D2-mu)*(-(dble(n)/b)**2)*besselh(int(n),2,ks*b) - D4*dr_h(2,ks,b,n);
 
-    M(4,1) = -mu*(-(dble(n)/b**2)*besselh(int(n),1,kp*b))&
-           - 2*mu*(dble(n)/b)* dr_h(1,kp,b,int(n)) + C3 *(dble(n)/b)* besselh(int(n),1,kp*b)
-
-    M(4,2) = -mu*(-(dble(n)/b**2)*besselh(int(n),2,kp*b))&
-           - 2*mu*(dble(n)/b)* dr_h(2,kp,b,int(n)) + C3*(dble(n)/b)* besselh(int(n),2,kp*b)
-
-
-    M(4,3) = -mu*((dble(n)/b)**2) * besselh(int(n),1,ks*b) - mu* dr2_h(1,ks,b,int(n))&
-           + C3 * dr_h(1,ks,b,int(n))
-
-    M(4,4) = -mu*((dble(n)/b)**2) * besselh(int(n),2,ks*b) - mu* dr2_h(2,ks,b,int(n))&
-           + C3 * dr_h(2,ks,b,int(n))
-
-    F(1) = -phi_0*epsilon_n * (0.d0,-1.d0)**n * dr_j(kp,a,int(n))
-    F(2) = (dble(n)/a) * phi_0 * epsilon_n* (0.d0,-1.d0)**n *besjn(int(n),kp*a)
-
-    F(3) = 0
-    F(4) = 0
+    F(1) = (dble(n)/a) * psi_0 * epsilon_n* (0d0,-1d0)**n*besjn(n,ks*a);
+    F(2) = psi_0*epsilon_n* (0d0,-1d0)**n * dr_j(ks,a,n);
+    F(3) = 0;
+    F(4) = 0;
 
     ! Calculate the inverse determinant of the matrix
     detinv = &
@@ -155,6 +164,7 @@ subroutine cylindrical_walloutabc(du,dv,dut,dvt,X,Y,t,omega,lambda,mu,rho,a,b)
      +M(1,2)*(M(3,1)*M(4,4)-M(3,4)*M(4,1))+M(1,4)*(M(3,2)*M(4,1)-M(3,1)*M(4,2)))
     Minv(4,2) = detinv*(M(1,1)*(M(3,2)*M(4,3)-M(3,3)*M(4,2))&
      +M(1,2)*(M(3,3)*M(4,1)-M(3,1)*M(4,3))+M(1,3)*(M(3,1)*M(4,2)-M(3,2)*M(4,1)))
+    
     Minv(1,3) = detinv*(M(1,2)*(M(2,3)*M(4,4)-M(2,4)*M(4,3))&
      +M(1,3)*(M(2,4)*M(4,2)-M(2,2)*M(4,4))+M(1,4)*(M(2,2)*M(4,3)-M(2,3)*M(4,2)))
     Minv(2,3) = detinv*(M(1,1)*(M(2,4)*M(4,3)-M(2,3)*M(4,4))&
@@ -179,23 +189,21 @@ subroutine cylindrical_walloutabc(du,dv,dut,dvt,X,Y,t,omega,lambda,mu,rho,a,b)
     AB(4) = Minv(4,1)*F(1) + Minv(4,2)*F(2) + Minv(4,3)*F(3) + Minv(4,4)*F(4)  
 
     ! Compute p and q
-    p = p + (AB(1)*dr_h(1,kp,r,int(n)) + AB(2)*dr_h(2,kp,r,int(n))&
- + (dble(n)/r)*AB(3)*besselh(int(n),1,ks*r)&
-      + (dble(n)/r)*AB(4)*besselh(int(n),2,ks*r) )*dcos(n*theta)
+    p = p + (AB(1)*dr_h(1,kp,r,n) + AB(2)* dr_h(2,kp,r,n) - (dble(n)/r)*AB(3)*besselh(int(n),1,ks*r)&
+          - (dble(n)/r)*AB(4)*besselh(int(n),2,ks*r) )*sin(dble(n)*theta);
 
-    q = q + (- (dble(n)/r)*AB(1)*besselh(int(n),1,kp*r)&
- - (dble(n)/r)*AB(2)*besselh(int(n),2,kp*r)&
-      - AB(3)*dr_h(1,ks,r,int(n))- AB(4)*dr_h(2,ks,r,int(n)) )*dsin(n*theta)
-
+    q = q + ( (dble(n)/r)*AB(1)*besselh(int(n),1,kp*r) + (dble(n)/r)*AB(2)*besselh(int(n),2,kp*r)&
+             - AB(3)*dr_h(1,ks,r,n) - AB(4)*dr_h(2,ks,r,n) )*cos(dble(n)*theta);
   end do
+
 !$OMP END PARALLEL DO
 
-  ! disp('DONE COMPUTING COEFICIENTS')
+  ! return real part in du,dv
   du = dreal(exp(omega*(0.d0,1.d0)*t)*(cos(theta)*p-sin(theta)*q))
   dv = dreal(exp(omega*(0.d0,1.d0)*t)*(sin(theta)*p+cos(theta)*q))
 
-  ! for GetDP: return imaginary part in dut, dvt
+  ! return imaginary part in dut, dvt
   dut = dimag(exp(omega*(0.d0,1.d0)*t)*(cos(theta)*p-sin(theta)*q))
   dvt = dimag(exp(omega*(0.d0,1.d0)*t)*(sin(theta)*p+cos(theta)*q))
 
-end subroutine cylindrical_walloutabc
+end subroutine cylindrical_wallsoutabc2pade
