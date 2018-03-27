@@ -388,6 +388,7 @@ SendToServer                 return tSendToServer;
 SetCommSelf                  return tSetCommSelf;
 SetCommWorld                 return tSetCommWorld;
 SetDTime                     return tSetDTime;
+SetExtrapolationOrder        return tSetExtrapolationOrder;
 SetFrequency                 return tSetFrequency;
 SetGlobalSolverOptions       return tSetGlobalSolverOptions;
 SetNumber                    return tSetNumber;

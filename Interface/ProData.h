@@ -1164,6 +1164,9 @@ struct Operation {
     struct {
       char *residual;
     } OptimizerUpdate;
+    struct {
+      int order;
+    } SetExtrapolationOrder;
   } Case;
 
 };
@@ -1317,6 +1320,7 @@ struct IterativeLoopSystem {
 #define OPERATION_OPTIMIZER_INITIALIZE     107
 #define OPERATION_OPTIMIZER_UPDATE         108
 #define OPERATION_OPTIMIZER_FINALIZE       109
+#define OPERATION_SETEXTRAPOLATIONORDER    110
 
 /* ChangeOfState.Type */
 #define CHANGEOFSTATE_NOCHANGE              0

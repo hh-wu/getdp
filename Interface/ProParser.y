@@ -321,6 +321,7 @@ struct doubleXstring{
 %token      tNbrMaxIteration tRelaxationFactor
 %token      tIterativeTimeReduction
 %token        tSetCommSelf tSetCommWorld tBarrier tBroadcastFields tBroadcastVariables
+%token        tSetExtrapolationOrder
 %token      tSleep
 %token      tDivisionCoefficient tChangeOfState
 %token      tChangeOfCoordinates tChangeOfCoordinates2 tSystemCommand tError
@@ -4648,6 +4649,13 @@ OperationTerm :
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_SLEEP;
       Operation_P->Case.Sleep.ExpressionIndex = $3;
+    }
+
+  | tSetExtrapolationOrder '[' FExpr ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_SETEXTRAPOLATIONORDER;
+      Operation_P->Case.SetExtrapolationOrder.order = (int)$3;
     }
 
   | tSetCommSelf tEND

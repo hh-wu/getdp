@@ -78,6 +78,8 @@ int Flag_AddMHMoving = 0 ; //one more :-)
 
 Tree_T  * DofTree_MH_moving ;
 
+int Flag_ExtrapolationOrder = 0;
+
 // For Cal_SolutionErrorRatio...
 // Changed in OPERATION_ITERATIVELOOP
 // double reltol = 1e-7;
@@ -107,6 +109,11 @@ void Free_UnusedSolutions(struct DofData * DofData_P)
       break;
     case TIME_NEWMARK :
       index = List_Nbr(DofData_P->Solutions)-4 ;
+      break;
+    default:
+      // FIXME: when doing a handmade loop in the pro file - we (@julien.dular
+      // :-) should clearly introduce a parameter for this.
+      index = List_Nbr(DofData_P->Solutions) - (Flag_ExtrapolationOrder + 3);
       break;
     }
 
@@ -187,7 +194,7 @@ static void  ZeroMatrix(gMatrix *M, gSolver *S, int N)
   LinAlg_CreateMatrix(M, S, N, N);
 }
 
-void ExtrapolatingPolynomial(int degreewanted,struct DofData * DofData_P,
+void ExtrapolatingPolynomial(int degreewanted, struct DofData * DofData_P,
                             struct Solution * Solution_S)
 {
     // Build Lagrange Interpolating Polynomial to predict current solution
@@ -197,8 +204,8 @@ void ExtrapolatingPolynomial(int degreewanted,struct DofData * DofData_P,
     // degree 1 ==> linear extrapolation from the 2 previous Time Solutions
     // degree 2 ==> quadratic extrapolation from the 3 previous Time Solutions
     // ...
-    // NB: The more data points that are used in the interpolation, 
-    // the higher the degree of the resulting polynomial, 
+    // NB: The more data points that are used in the interpolation,
+    // the higher the degree of the resulting polynomial,
     // thus the greater oscillation it will exhibit between the data points,
     // and therefore the poorest the prediction may be ...
 
@@ -207,25 +214,25 @@ void ExtrapolatingPolynomial(int degreewanted,struct DofData * DofData_P,
     double Pj=1., x = Solution_S->Time;
 
     //Vector to save the valid previous Time Solutions that will be interpolated
-    xi = new double[degreewanted+1];  
-    jvalid = new int[degreewanted+1]; 
+    xi = new double[degreewanted+1];
+    jvalid = new int[degreewanted+1];
 
     //Select the last Time Solution => degree 0 is achieved at least
-    xi[0]=((struct Solution *) 
-      List_Pointer(DofData_P->Solutions, 
-      List_Nbr(DofData_P->Solutions)-1))->Time;   
+    xi[0]=((struct Solution *)
+      List_Pointer(DofData_P->Solutions,
+      List_Nbr(DofData_P->Solutions)-1))->Time;
     jvalid[0]=0;
     Message::Info("ExtrapolatingPolynomial: Using previous "
                   "Theta Time = %g s (TimeStep %d)",
                   xi[0],Solution_S->TimeStep-1-jvalid[0]);
     int degree=0, j=1;
 
-    //Found other valid Time Solutions in order to reach 
+    //Found other valid Time Solutions in order to reach
     //the desired polynomial degree [degreewanted] (if possible)
-    while(degree<degreewanted && j<=List_Nbr(DofData_P->Solutions)-1) {  
-      xi[degree+1]=((struct Solution *) 
-        List_Pointer(DofData_P->Solutions, 
-        List_Nbr(DofData_P->Solutions)-1-j))->Time;  
+    while(degree<degreewanted && j<=List_Nbr(DofData_P->Solutions)-1) {
+      xi[degree+1]=((struct Solution *)
+        List_Pointer(DofData_P->Solutions,
+        List_Nbr(DofData_P->Solutions)-1-j))->Time;
       if (xi[degree+1]<xi[degree]){
         jvalid[degree+1]=j;
         degree++;
@@ -245,7 +252,7 @@ void ExtrapolatingPolynomial(int degreewanted,struct DofData * DofData_P,
       Message::Info("ExtrapolatingPolynomial: "
                        "Impossible to build polynomial of degree %d "
                        "(%d usable previous solution%s found "
-                       "while %d needed for degree %d)" 
+                       "while %d needed for degree %d)"
                        ,degreewanted, degree+1
                        ,((degree+1)==1)?"":"s"
                        ,degreewanted+1,degreewanted) ;
@@ -253,7 +260,7 @@ void ExtrapolatingPolynomial(int degreewanted,struct DofData * DofData_P,
 
     Message::Info("ExtrapolatingPolynomial: "
                   ">> Polynomial of degree %d "
-                  "based on %d previous solution%s (out of %d existing)" 
+                  "based on %d previous solution%s (out of %d existing)"
                   ,degree, degree+1
                   , ((degree+1)==1)?"":"s"
                   , List_Nbr(DofData_P->Solutions)) ;
@@ -268,10 +275,10 @@ void ExtrapolatingPolynomial(int degreewanted,struct DofData * DofData_P,
             Pj=Pj*(x-xi[k])/(xi[j]-xi[k]);
         }
       }
-    LinAlg_AddVectorProdVectorDouble(&Solution_S->x, 
+    LinAlg_AddVectorProdVectorDouble(&Solution_S->x,
       &((struct Solution *)
         List_Pointer(DofData_P->Solutions,
-               List_Nbr(DofData_P->Solutions)-1-jvalid[j]))->x, 
+               List_Nbr(DofData_P->Solutions)-1-jvalid[j]))->x,
       Pj, &Solution_S->x);
     }
 
@@ -308,13 +315,15 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
     Solution_S.SolutionExist = 1 ;
     LinAlg_CreateVector(&Solution_S.x, &DofData_P->Solver, DofData_P->NbrDof) ;
     if (List_Nbr(DofData_P->Solutions)) {
-      /*
-      LinAlg_CopyVector(&((struct Solution *)
-			  List_Pointer(DofData_P->Solutions,
-				       List_Nbr(DofData_P->Solutions)-1))->x,
-			&Solution_S.x) ;
-      */
-      ExtrapolatingPolynomial(2,DofData_P,&Solution_S);
+      if(Flag_ExtrapolationOrder <= 0){
+        LinAlg_CopyVector(&((struct Solution *)
+                            List_Pointer(DofData_P->Solutions,
+                                         List_Nbr(DofData_P->Solutions)-1))->x,
+                          &Solution_S.x) ;
+      }
+      else{
+        ExtrapolatingPolynomial(Flag_ExtrapolationOrder, DofData_P, &Solution_S);
+      }
     }
     else {
       LinAlg_ZeroVector(&Solution_S.x) ;
@@ -1566,7 +1575,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       /*===============================================================================
         CheckAll Meaning:
-          0 : try first relaxation factors (from the list) and stops when the residual goes up 
+          0 : try first relaxation factors (from the list) and stops when the residual goes up
           1 : try every relaxation factors (from the list) and keep the optimal one
           2 : find the maximum relaxation factor that decreases the residual:
               - start with the relaxation factor from the previous time step or from the previous iteration
@@ -1576,7 +1585,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       =================================================================================*/
 
       /* init Frelax for CheckAll==2: */
-      if (Operation_P->Case.SolveJac_AdaptRelax.CheckAll==2) {  
+      if (Operation_P->Case.SolveJac_AdaptRelax.CheckAll==2) {
         if (Current.Residual>0) {
           // if the residual is not 0, a previous TimeStep or iteration has been done
           // ==> Take the last RelaxFactor used from the previous TimeStep or iteration
@@ -1673,17 +1682,17 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         Current.NbrTestedFac=istep+1; //+++
 
         /*
-        if (Norm < Error_Prev ) 
-            Message::Warning("SolveJacAdapt: relaxation factor = %8f" 
+        if (Norm < Error_Prev )
+            Message::Warning("SolveJacAdapt: relaxation factor = %8f"
                              " Residual norm = %10.4e"
                              " (BETTER than %10.4e)",
                              Frelax, Norm, Error_Prev) ;
         else
-            Message::Warning("SolveJacAdapt: relaxation factor = %8f" 
+            Message::Warning("SolveJacAdapt: relaxation factor = %8f"
                              " Residual norm = %10.4e"
                              " (WORST  than %10.4e)",
                              Frelax, Norm, Error_Prev) ;
-        //*/  
+        //*/
 
         /* >>>>>>>>>>>>>for printing Error(Frelax) curve : <<<<<<<<<<<<<<<*/
         /*
@@ -1692,36 +1701,36 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         //>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         //*/
 
-      	if (Norm < Error_Prev ) { 
+      	if (Norm < Error_Prev ) {
         // if the residual has decreased ...............................
           // save the current relaxation factor as optimal
       	  Error_Prev = Norm;
           Frelax_Opt = Frelax;
           if ( Operation_P->Case.SolveJac_AdaptRelax.CheckAll==2 ){
           /* for CheckAll==2: */
-            if ( Frelax<Frelax_Prev && istep > 0) 
+            if ( Frelax<Frelax_Prev && istep > 0)
               // if the factor has been decreased ...
               // and a decreasing residual has been found => break
-              break; 
+              break;
             // if the factor has been increased ...
             // => increase the factor (as long as the residual decreases)
             Frelax_Prev=Frelax;
-            Frelax=Frelax*Fratio;  
+            Frelax=Frelax*Fratio;
           }
       	}
         else if ( Operation_P->Case.SolveJac_AdaptRelax.CheckAll==2 ) {
         /* for CheckAll==2: */
         // if the residual has increased ...............................
-          if ( Frelax>Frelax_Prev && istep > 0) 
+          if ( Frelax>Frelax_Prev && istep > 0)
             // if the factor has been increased ...
             // but the residual has increased => break
-            break; 
+            break;
           // if the factor has been decreased ...
           // => decrease the factor (until a decreasing residual is found)
           Frelax_Prev=Frelax;
-          Frelax=Frelax/Fratio; 
+          Frelax=Frelax/Fratio;
         }
-        else if (Operation_P->Case.SolveJac_AdaptRelax.CheckAll==0 && istep > 0 )  
+        else if (Operation_P->Case.SolveJac_AdaptRelax.CheckAll==0 && istep > 0 )
         /* for CheckAll==0: */
         // if the residual has increased ...............................
           // => break
@@ -1731,7 +1740,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         /*
         if ( Operation_P->Case.SolveJac_AdaptRelax.CheckAll==3 && istep<3){
           Error3[istep]=Norm;
-          if (istep==2) { 
+          if (istep==2) {
             // find Frelax "Opt" and compute corresponding Error
             para=(Error3[2]-Error3[0])/((Frelax3[2]-Frelax3[0])*(Frelax3[2]-Frelax3[1]))
                   -(Error3[1]-Error3[0])/((Frelax3[1]-Frelax3[0])*(Frelax3[2]-Frelax3[1]));
@@ -1747,10 +1756,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
           }
         }
         //>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        //*/ 
+        //*/
 
         if (istep==NbrSteps_relax-1 && Operation_P->Case.SolveJac_AdaptRelax.CheckAll!=1) {
-          Message::Warning("SolveJacAdapt: LineSearch failed at TimeStep %g iter %g",Current.TimeStep,Current.Iteration) ; 
+          Message::Warning("SolveJacAdapt: LineSearch failed at TimeStep %g iter %g",Current.TimeStep,Current.Iteration) ;
           Current.SolveJacAdaptFailed=1;
           //getchar();
         }
@@ -1795,7 +1804,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       Current.RelaxFac = Frelax_Opt; //kj+++
 
-      Current.Residual = MeanError; //kj+++ Residual computed here with SolveJacAdapt (usefull to test stop criterion in classical IterativeLoop then) 
+      Current.Residual = MeanError; //kj+++ Residual computed here with SolveJacAdapt (usefull to test stop criterion in classical IterativeLoop then)
       Message::Info("%3ld Nonlinear Residual norm %14.12e (optimal relaxation factor = %f)",
                     (int)Current.Iteration, MeanError, Frelax_Opt);
       //if(Current.Iteration==1) Current.Residual_Iter1=MeanError; //kj+++ to compute a relative residual (relative to residual at iter 1) in SolveJacAdapt (not necessary)
@@ -2907,7 +2916,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
  	Treatment_Operation(Resolution_P, Operation_P->Case.IterativeLoop.Operation,
 			    DofData_P0, GeoData_P0, Resolution2_P, DofData2_P0) ;
 
-  if (Current.RelaxFac==0) 
+  if (Current.RelaxFac==0)
     // SolveJacAdapt has not been called
     // ==> Copy the default RelaxationFactor in RelaxFac
     Current.RelaxFac =  Current.RelaxationFactor ; // +++
@@ -3460,15 +3469,14 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Current.DTime = Save_DTime ;
       break;
 
-      /*  -->  I t e r a t i v e L o o p N            */
-      /*  ------------------------------------------  */
+      /*  -->  S e t E x t r a p o l a t i o n O r d e r */
+      /*  ---------------------------------------------  */
 
-    case OPERATION_ITERATIVELOOPN :
-      Message::Info("IterativeLoopN ...") ;
-      Save_Iteration = Current.Iteration ;
-      Operation_IterativeLoopN(Resolution_P, Operation_P, DofData_P0, GeoData_P0,
-                               Resolution2_P, DofData2_P0, &Flag_Break) ;
-      Current.Iteration = Save_Iteration ;
+    case OPERATION_SETEXTRAPOLATIONORDER :
+      Message::Info("SetExtrapolationOrder [%d]...",
+                    Operation_P->Case.SetExtrapolationOrder.order) ;
+      Flag_ExtrapolationOrder = Operation_P->Case.SetExtrapolationOrder.order;
+      if(Flag_ExtrapolationOrder < 0) Flag_ExtrapolationOrder = 0;
       break;
 
       /*  -->  T i m e L o o p R u n g e K u t t a  */

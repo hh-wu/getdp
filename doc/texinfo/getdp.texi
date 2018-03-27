@@ -4879,6 +4879,12 @@ Aborts an iterative loop, a time loop or a While loop.
 
 Sleeps for @var{expression} seconds;
 
+@item SetExtrapolationOrder
+@code{[@var{expression-cst}]}
+
+Chooses the extrapolation order to compute the initialization of the
+solution vector in time loops. Default is 0.
+
 @item Print
 @code{[ @{ @var{expression-list} @} <, File @var{expression-char} > <, Format @var{expression-char} > ]}
 
