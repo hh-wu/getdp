@@ -2066,6 +2066,7 @@ Group @{
   < DefineGroup [ @var{group-id} <@{@var{integer}@}> <,@dots{}> ]; > @dots{}
   < @var{group-id} = @var{group-def}; > @dots{}
   < @var{group-id} += @var{group-def}; > @dots{}
+  < @var{group-id} -= @var{group-def}; > @dots{}
   < @var{affectation} > @dots{}
   < @var{loop} > @dots{}
 @}
