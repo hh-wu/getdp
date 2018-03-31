@@ -64,12 +64,11 @@ Group {
           },
           Name StrCat["Parameters/Materials/", name~{i}, "/0Type"]}
       ];
+      str = StrCat["Vol_Ele += ", reg];
       If(material~{i} == 0)
-        str = StrCat["Vol_Q_Ele += ", reg, "Vol_Ele += ", reg];
-      ElseIf(material~{i} == 1)
-        str = StrCat["Vol_Ele += ", reg];
+        str = StrCat[str, "Vol_Q_Ele += ", reg];
       ElseIf(material~{i} == 2)
-        str = StrCat["Vol_Inf_Ele += ", reg];
+        str = StrCat[str, "Vol_Inf_Ele += ", reg];
       EndIf
     EndIf
     Parse[str];
