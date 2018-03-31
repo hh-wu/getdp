@@ -3550,11 +3550,19 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         }
       }
       break ;
-
-    case OPERATION_BREAK :
-      Flag_Break = 1;
-      break ;
-
+      /*
+    case OPERATION_GETSIZE:
+      {
+        Init_OperationOnSystem("GetSize",
+                               Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+                               &DefineSystem_P, &DofData_P, Resolution2_P) ;
+        Cal_ZeroValue(&Value);
+        Value.Type = SCALAR;
+        Value.Val[0] = DofData_P->NbrDof;
+        Cal_StoreInVariable(&Value, Operation_P->Case.GetSize.VariableName);
+      }
+      break;
+      */
     case OPERATION_SLEEP :
       Get_ValueOfExpressionByIndex(Operation_P->Case.Sleep.ExpressionIndex,
                                    NULL, 0., 0., 0., &Value) ;

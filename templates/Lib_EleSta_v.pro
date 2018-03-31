@@ -19,10 +19,15 @@ DefineConstant[
 
 Group {
   DefineGroup[
-    Vol_Ele, // dielectric domain
+    // Full dielectric domain:
+    Vol_Ele,
+
+    // The following are subsets of Vol_Ele:
     Vol_Q_Ele, // domain with imposed volume charge density
     Vol_Inf_Ele, // infinite region
-    Sur_Neu_Ele, // Non-homogeneous Neumann boundary conditions (n.d)
+
+    // Boundaries:
+    Sur_Neu_Ele, // non-homogeneous Neumann boundary conditions (n.d)
     Sur_C_Ele // boundary of conductors
   ];
   Dom_Ele = Region[ {Vol_Ele, Sur_Neu_Ele} ];

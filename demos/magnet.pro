@@ -25,16 +25,14 @@ Group {
     Flag_NL = { 0, Choices{0,1}, Name "Parameters/Materials/1Nonlinear BH-curve"}
   ];
 
-  // These are the generic group names that are used in "Magnetostatics.pro"
+  // These are the generic group names that are used in the
+  // "Lib_MagSta_a_phi.pro" template included below
+  Vol_Mag = Region[ {Air, AirInf, Core, AirGap, Magnet} ] ;
+  If(Flag_NL)
+    Vol_NL_Mag = Region[ {Core} ] ;
+  EndIf
   Vol_Inf_Mag = Region[ AirInf ] ;
   Vol_M_Mag   = Region[ Magnet ] ;
-  Vol_L_Mag = Region[ {Air, AirInf, AirGap} ] ;
-  Vol_NL_Mag = Region[ {} ] ;
-  If(Flag_NL)
-    Vol_NL_Mag += Region[ {Core} ] ;
-  Else
-    Vol_L_Mag += Region[ {Core} ] ;
-  EndIf
 }
 
 Function {
@@ -44,19 +42,17 @@ Function {
       Name "Parameters/Materials/Core relative permeability"} ];
 
   nu [ Region[{Air, AirInf, AirGap, Magnet}] ] = 1. / mu0;
+  mu [ Region[{Air, AirInf, AirGap, Magnet}] ] = mu0 ;
 
   If(!Flag_NL)
     nu [ Core ]  = 1. / (murCore * mu0) ;
     mu [ Core ]  = murCore * mu0;
-  EndIf
-  If(Flag_NL)
+  Else
     nu [ Core ] = SteelGeneric_nu[$1] ;
-    dhdb_NL [ Core ] = SteelGeneric_dhdb_NL[$1];
+    dhdb [ Core ] = SteelGeneric_dhdb[$1];
     mu [ Core ] = SteelGeneric_mu[$1] ;
-    dbdh_NL [ Core ] = SteelGeneric_dbdh_NL[$1];
+    dbdh [ Core ] = SteelGeneric_dbdh[$1];
   EndIf
-
-  mu [ Region[{Air, AirInf, AirGap, Magnet}] ] = mu0 ;
 
   DefineConstant[ Hc = {920000,
       Name "Parameters/Materials/hc", Label "Magnet coercive field (A/m)"} ];

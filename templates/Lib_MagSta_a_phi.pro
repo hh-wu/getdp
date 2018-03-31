@@ -9,30 +9,33 @@
 DefineConstant[
   modelPath = "", // default path of the model
   resPath = StrCat[modelPath, "res/"], // path for post-operation files
-  mu0 = 4*Pi*1e-7, // magnetic permeability of vacuum
+  Flag_NewtonRaphson = 1, // Newton-Raphson or Picard method for nonlinear iterations
   modelDim = 2, // default model dimension (2D)
   Val_Rint = 0, // internal radius of Vol_Inf_Ele annulus
   Val_Rext = 0, // external radius of Vol_Inf_Ele annulus
   Val_Cx = 0, // x-coordinate of center of Vol_Inf_Ele
   Val_Cy = 0, // y-coordinate of center of Vol_Inf_Ele
   Val_Cz = 0, // z-coordinate of center of Vol_Inf_Ele
-  NL_max_iter = 20, // max number of nonlinear iterations
-  NL_relax = 1, // nonlinear iteration relexation
-  NL_tol = 1e-5 // stopping criterion for nonlinear iterations
+  NL_tol_abs = 1e-6, // absolute tolerance on residual for noninear iterations
+  NL_tol_rel = 1e-6, // relative tolerance on residual for noninear iterations
+  NL_iter_max = 20 // maximum number of noninear iterations
 ];
 
 Group {
   DefineGroup[
-    Vol_L_Mag, // linear magnetic materials
+    // The full magnetic domain:
+    Vol_Mag,
+
+    // Subsets of Vol_Mag:
     Vol_NL_Mag, // nonlinear magnetic materials
     Vol_M_Mag, // permenent magnets
     Vol_S0_Mag, // imposed current density
     Vol_Inf_Mag, // infinite domains
+
+    // Boundaries:
     Sur_Dir_Mag // Dirichlet boundary conditions
     Sur_Neu_Mag // Non-homogeneous Neumann boundary conditions
   ];
-  Vol_Mag = Region[{Vol_L_Mag, Vol_NL_Mag, Vol_M_Mag, Vol_S0_Mag, Vol_Inf_Mag}];
-  Dom_Mag = Region[{Vol_Mag, Sur_Neu_Mag}];
 }
 
 Function{
@@ -41,14 +44,21 @@ Function{
     nu, // magnetic reluctivity (= 1/nu)
     hc, // coercive magnetic field (in magnets)
     js, // source current density
-    dhdb_NL, // nonlinar part of Jacobian for phi formulation
-    dbdh_NL, // nonlinear part of Jacobian for a formulation
+    dhdb, // Jacobian for Newton-Raphson method a formulation
+    dbdh, // Jacobian for Newton-Raphson method phi formulation
     bn, // normal magnetic flux density on Sur_Neu_Mag for phi formulation
     nxh // tangential magnetic field on Sur_Neu_Mag for a formulation
   ];
 }
 
 // End of default definitions.
+
+Group {
+  // linear materials
+  Vol_L_Mag = Region[{Vol_Mag, -Vol_NL_Mag}];
+  // all volumes + surfaces on which integrals must be computed
+  Dom_Mag = Region[{Vol_Mag, Sur_Neu_Mag}];
+}
 
 Jacobian {
   { Name Vol;
@@ -66,7 +76,7 @@ Jacobian {
 }
 
 Integration {
-  { Name I1;
+  { Name Int;
     Case {
       { Type Gauss;
         Case {
@@ -133,14 +143,26 @@ Formulation {
       { Name phi; Type Local; NameOfSpace Hgrad_phi; }
     }
     Equation {
-      Integral { [ - mu[-{d phi}] * Dof{d phi} , {d phi} ];
-        In Vol_Mag; Jacobian Vol; Integration I1; }
-      Integral { JacNL [ - dbdh_NL[-{d phi}] * Dof{d phi} , {d phi} ];
-        In Vol_NL_Mag; Jacobian Vol; Integration I1; }
+      Integral { [ - mu[] * Dof{d phi} , {d phi} ];
+        In Vol_L_Mag; Jacobian Vol; Integration Int; }
+
+      If(Flag_NewtonRaphson)
+        Integral { [ - mu[-{d phi}] * {d phi} , {d phi} ];
+          In Vol_NL_Mag; Jacobian Vol; Integration Int; }
+        Integral { [ - dbdh[-{d phi}] * Dof{d phi} , {d phi}];
+          In Vol_NL_Mag; Jacobian Vol; Integration Int; }
+        Integral { [ dbdh[-{d phi}] * {d phi} , {d phi}];
+          In Vol_NL_Mag; Jacobian Vol; Integration Int; }
+      Else
+        Integral { [ - mu[-{d phi}] * Dof{d phi} , {d phi} ];
+          In Vol_NL_Mag; Jacobian Vol; Integration Int; }
+      EndIf
+
       Integral { [ - mu[] * hc[] , {d phi} ];
-        In Vol_M_Mag; Jacobian Vol; Integration I1; }
+        In Vol_M_Mag; Jacobian Vol; Integration Int; }
+
       Integral { [ bn[] , {phi} ];
-        In Sur_Neu_Mag; Jacobian Sur; Integration I1; }
+        In Sur_Neu_Mag; Jacobian Sur; Integration Int; }
     }
   }
   { Name MagSta_a; Type FemEquation;
@@ -148,16 +170,29 @@ Formulation {
       { Name a; Type Local; NameOfSpace Hcurl_a; }
     }
     Equation {
-      Integral { [ nu[{d a}] * Dof{d a} , {d a} ];
-        In Vol_Mag; Jacobian Vol; Integration I1; }
-      Integral { JacNL [ dhdb_NL[{d a}] * Dof{d a} , {d a} ];
-        In Vol_NL_Mag; Jacobian Vol; Integration I1; }
+      Integral { [ nu[] * Dof{d a} , {d a} ];
+        In Vol_L_Mag; Jacobian Vol; Integration Int; }
+
+      If(Flag_NewtonRaphson)
+        Integral { [ nu[{d a}] * {d a} , {d a} ];
+          In Vol_NL_Mag; Jacobian Vol; Integration Int; }
+        Integral { [ dhdb[{d a}] * Dof{d a} , {d a} ];
+          In Vol_NL_Mag; Jacobian Vol; Integration Int; }
+        Integral { [ - dhdb[{d a}] * {d a} , {d a} ];
+          In Vol_NL_Mag; Jacobian Vol; Integration Int; }
+      Else
+        Integral { [ nu[{d a}] * Dof{d a}, {d a} ];
+          In Vol_NL_Mag; Jacobian Vol; Integration Int; }
+      EndIf
+
       Integral { [ hc[] , {d a} ];
-        In Vol_M_Mag; Jacobian Vol; Integration I1; }
-      Integral { [ -js[] , {a} ];
-        In Vol_S0_Mag; Jacobian Vol; Integration I1; }
+        In Vol_M_Mag; Jacobian Vol; Integration Int; }
+
+      Integral { [ - js[] , {a} ];
+        In Vol_S0_Mag; Jacobian Vol; Integration Int; }
+
       Integral { [ nxh[] , {a} ];
-        In Sur_Neu_Mag; Jacobian Sur; Integration I1; }
+        In Sur_Neu_Mag; Jacobian Sur; Integration Int; }
     }
   }
 }
@@ -168,11 +203,19 @@ Resolution {
       { Name A; NameOfFormulation MagSta_phi; }
     }
     Operation {
-      If(!NbrRegions[Vol_NL_Mag])
-        Generate[A]; Solve[A];
-      Else
-        IterativeLoop[NL_max_iter, NL_tol, NL_relax]{
-          GenerateJac[A]; SolveJac[A];
+      InitSolution[A];
+      Generate[A]; Solve[A];
+      If(NbrRegions[Vol_NL_Mag])
+        Generate[A]; GetResidual[A, $res0];
+        Evaluate[ $res = $res0, $iter = 0 ];
+        Print[{$iter, $res, $res / $res0},
+          Format "Residual %03g: abs %14.12e rel %14.12e"];
+        While[$res > NL_tol_abs && $res / $res0 > NL_tol_rel &&
+              $res / $res0 <= 1 && $iter < NL_iter_max]{
+          Solve[A]; Generate[A]; GetResidual[A, $res];
+          Evaluate[ $iter = $iter + 1 ];
+          Print[{$iter, $res, $res / $res0},
+            Format "Residual %03g: abs %14.12e rel %14.12e"];
         }
       EndIf
       SaveSolution[A];
@@ -183,11 +226,19 @@ Resolution {
       { Name A; NameOfFormulation MagSta_a; }
     }
     Operation {
-      If(!NbrRegions[Vol_NL_Mag])
-        Generate[A]; Solve[A];
-      Else
-        IterativeLoop[NL_max_iter, NL_tol, NL_relax]{
-          GenerateJac[A]; SolveJac[A];
+      InitSolution[A];
+      Generate[A]; Solve[A];
+      If(NbrRegions[Vol_NL_Mag])
+        Generate[A]; GetResidual[A, $res0];
+        Evaluate[ $res = $res0, $iter = 0 ];
+        Print[{$iter, $res, $res / $res0},
+          Format "Residual %03g: abs %14.12e rel %14.12e"];
+        While[$res > NL_tol_abs && $res / $res0 > NL_tol_rel &&
+              $res / $res0 <= 1 && $iter < NL_iter_max]{
+          Solve[A]; Generate[A]; GetResidual[A, $res];
+          Evaluate[ $iter = $iter + 1 ];
+          Print[{$iter, $res, $res / $res0},
+            Format "Residual %03g: abs %14.12e rel %14.12e"];
         }
       EndIf
       SaveSolution[A];
