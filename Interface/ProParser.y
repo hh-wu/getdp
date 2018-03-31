@@ -144,7 +144,7 @@ void Alloc_ParserVariables();
 int Check_NameOfStructExist(const char *Struct, List_T *List_L, void *data,
                             int (*fcmp)(const void *a, const void *b),
                             int level_Append);
-int  Add_Group(struct Group *Group_P, char *Name, bool Flag_Add,
+int  Add_Group(struct Group *Group_P, char *Name, int Flag_AddRemove,
                int Flag_Plus, int Num_Index);
 int  Num_Group(struct Group *Group_P, char *Name, int Num_Group);
 void Fill_GroupInitialListFromString(List_T *list, const char *str);
@@ -454,10 +454,13 @@ Groups :
 Group :
 
     String__Index tDEF ReducedGroupRHS tEND
-    { Add_Group(&Group_S, $1, false, 0, 0); }
+    { Add_Group(&Group_S, $1, 0, 0, 0); }
 
   | String__Index '+' tDEF ReducedGroupRHS tEND
-    { Add_Group(&Group_S, $1, true, 0, 0); }
+    { Add_Group(&Group_S, $1, +1, 0, 0); }
+
+  | String__Index '-' tDEF ReducedGroupRHS tEND
+    { Add_Group(&Group_S, $1, -1, 0, 0); }
 
   | String__Index tDEF tMovingBand2D '[' IRegion
     {
@@ -484,7 +487,7 @@ Group :
     {
       Group_S.MovingBand2D->InitialList2 = $11;
       Group_S.MovingBand2D->Period2 = (int)$13;
-      Add_Group(&Group_S, $1, false, 0, 0);
+      Add_Group(&Group_S, $1, 0, 0, 0);
     }
 
   | tDefineGroup '[' DefineGroups ']' tEND
@@ -814,7 +817,7 @@ DefineGroups :
 	Group_S.Type = REGIONLIST ; Group_S.FunctionType = REGION ;
 	Group_S.InitialList = List_Create( 5, 5, sizeof(int)) ;
 	Group_S.SuppListType = SUPPLIST_NONE ; Group_S.InitialSuppList = NULL ;
-	i = Add_Group(&Group_S, $3, false, 0, 0) ;
+	i = Add_Group(&Group_S, $3, 0, 0, 0) ;
       }
       else  Free($3) ;
     }
@@ -834,7 +837,7 @@ DefineGroups :
             Fill_GroupInitialListFromString(Group_S.InitialList, vec[i].c_str());
         }
 	Group_S.SuppListType = SUPPLIST_NONE ; Group_S.InitialSuppList = NULL ;
-	i = Add_Group(&Group_S, $3, false, 0, 0) ;
+	i = Add_Group(&Group_S, $3, 0, 0, 0) ;
       }
       else  Free($3) ;
     }
@@ -850,7 +853,7 @@ DefineGroups :
 	  Group_S.Type = REGIONLIST ; Group_S.FunctionType = REGION ;
 	  Group_S.SuppListType = SUPPLIST_NONE ; Group_S.InitialSuppList = NULL ;
 	  Group_S.InitialList = List_Create( 5, 5, sizeof(int)) ;
-	  Add_Group(&Group_S, $3, false, 2, k+1) ;
+	  Add_Group(&Group_S, $3, 0, 2, k+1) ;
 	}
       }
       Free($3) ;
@@ -3056,7 +3059,7 @@ ConstraintInFSs :
 			    ConstraintPerRegion_P->SubRegion2Index))
 	      ->InitialList : NULL;
 	    ConstraintInFS_S.EntityIndex = Add_Group(&Group_S, (char*)"CO_Entity",
-                                                     false, 1, 0);
+                                                     0, 1, 0);
 	    ConstraintInFS_S.ConstraintPerRegion = ConstraintPerRegion_P;
 
 	    List_Add(FunctionSpace_S.Constraint, &ConstraintInFS_S);
@@ -10145,7 +10148,7 @@ void Free_ParserVariables()
 
 /*  A d d _ G r o u p   &   C o .  */
 
-int  Add_Group(struct Group *Group_P, char *Name, bool Flag_Add,
+int  Add_Group(struct Group *Group_P, char *Name, int Flag_AddRemove,
                int Flag_Plus, int Num_Index)
 {
   if(!Problem_S.Group)
@@ -10171,10 +10174,16 @@ int  Add_Group(struct Group *Group_P, char *Name, bool Flag_Add,
     Group_P->ExtendedList = Group_P->ExtendedSuppList = Group_P->ExtendedSuppList2 = NULL;
     List_Add(Problem_S.Group, Group_P);
   }
-  else if(Flag_Add) {
+  else if(Flag_AddRemove == +1) {
     List_T *InitialList = ((struct Group *)List_Pointer(Problem_S.Group, i))->InitialList;
     for(int j = 0; j < List_Nbr(Group_P->InitialList); j++) {
       List_Add(InitialList, (int *)List_Pointer(Group_P->InitialList, j));
+    }
+  }
+  else if(Flag_AddRemove == -1) {
+    List_T *InitialList = ((struct Group *)List_Pointer(Problem_S.Group, i))->InitialList;
+    for(int j = 0; j < List_Nbr(Group_P->InitialList); j++) {
+      List_Suppress(InitialList, (int *)List_Pointer(Group_P->InitialList, j), fcmp_Integer);
     }
   }
   else  List_Write(Problem_S.Group, i, Group_P);
@@ -10185,7 +10194,7 @@ int  Add_Group(struct Group *Group_P, char *Name, bool Flag_Add,
 int  Num_Group(struct Group *Group_P, char *Name, int Num_Group)
 {
   if     (Num_Group >= 0)   /* OK */;
-  else if(Num_Group == -1)  Num_Group = Add_Group(Group_P, Name, false, 1, 0);
+  else if(Num_Group == -1)  Num_Group = Add_Group(Group_P, Name, 0, 1, 0);
   else                      vyyerror(0, "Bad Group right hand side");
 
   return Num_Group;
