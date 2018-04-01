@@ -1,7 +1,7 @@
 // Lib_EleSta_v.pro
 //
 // Template library for electrostatics using a scalar electric potential (v)
-// formulation, with floating potentials
+// formulation, with floating potentials.
 
 // Default definitions of constants, groups and functions that can/should be
 // redefined from outside the template:
@@ -22,26 +22,26 @@ Group {
     // Full dielectric domain:
     Vol_Ele,
 
-    // The following are subsets of Vol_Ele:
-    Vol_Q_Ele, // domain with imposed volume charge density
-    Vol_Inf_Ele, // infinite region
+    // Subsets of Vol_Ele:
+    Vol_Q_Ele, // region with imposed free charge density rho[]
+    Vol_Inf_Ele, // annulus where a infinite shell transformation is applied
 
     // Boundaries:
-    Sur_Neu_Ele, // non-homogeneous Neumann boundary conditions (n.d)
-    Sur_C_Ele // boundary of conductors
+    Sur_Neu_Ele, // surfaces with Neumann boundary conditions (n . d = dn[])
+    Sur_C_Ele // boundary of conductors (constant v)
   ];
   Dom_Ele = Region[ {Vol_Ele, Sur_Neu_Ele} ];
 }
 
 Function{
   DefineFunction[
-    epsr, // relative permittivity
-    rho, // charge density in Vol_Q_Ele
-    dn // normal displacement on Sur_Neu_Ele
+    epsr, // relative permittivity (in Vol_Ele)
+    rho, // free charge density (in Vol_Q_Ele)
+    dn // normal displacement (on Sur_Neu_Ele)
   ];
 }
 
-// End of default definitions.
+// End of definitions.
 
 Jacobian {
   { Name Vol;
@@ -59,7 +59,7 @@ Jacobian {
 }
 
 Integration {
-  { Name GradGrad;
+  { Name Int;
     Case {
       { Type Gauss;
         Case {
@@ -119,14 +119,14 @@ Formulation {
       { Name vf; Type Local; NameOfSpace Hgrad_vf_Ele [vf]; }
     }
     Equation {
-      Integral { [ epsr[] * eps0 * Dof{Grad v} , {Grad v} ];
-        In Vol_Ele; Jacobian Vol; Integration GradGrad; }
+      Integral { [ epsr[] * eps0 * Dof{d v} , {d v} ];
+        In Vol_Ele; Jacobian Vol; Integration Int; }
 
       Integral { [ - rho[], {v} ];
-        In Vol_Q_Ele; Jacobian Vol; Integration GradGrad; }
+        In Vol_Q_Ele; Jacobian Vol; Integration Int; }
 
       Integral { [ dn[] , {v} ];
-        In Sur_Neu_Ele; Jacobian Sur; Integration GradGrad; }
+        In Sur_Neu_Ele; Jacobian Sur; Integration Int; }
 
       GlobalTerm { [ - Dof{Q}, {V} ]; In Sur_C_Ele; }
     }
@@ -176,16 +176,16 @@ PostProcessing {
         }
       }
       { Name force; Value {
-          Integral { [ eps0*epsr[] / 2. * VirtualWork[{Grad v}] ];
+          Integral { [ eps0*epsr[] / 2. * VirtualWork[{d v}] ];
             //In Vol_Ele; // restrict support to speed-up search
             In ElementsOf[Vol_Ele, OnOneSideOf Sur_C_Ele];
-            Jacobian Vol; Integration GradGrad;
+            Jacobian Vol; Integration Int;
 	  }
 	}
       }
       { Name energy; Value {
-          Integral {  [ eps0*epsr[] / 2. * SquNorm[{Grad v}] ];
-	    In Vol_Ele; Jacobian Vol; Integration GradGrad;
+          Integral {  [ eps0*epsr[] / 2. * SquNorm[{d v}] ];
+	    In Vol_Ele; Jacobian Vol; Integration Int;
           }
         }
       }

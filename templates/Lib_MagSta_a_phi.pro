@@ -1,7 +1,7 @@
 // Lib_MagSta_a_phi.pro
 //
 // Template library for magnetostatics using a scalar (phi) or a vector (a)
-// potential formulation
+// potential formulation.
 
 // Default definitions of constants, groups and functions that can/should be
 // redefined from outside the template:

@@ -289,13 +289,19 @@ Resolution{
       EndIf
     }
     Operation {
-      If(!NbrRegions[Vol_NL_Mag])
-        Generate[A]; Solve[A];
-      Else
-        //IterativeLoopN[ NL_max_iter, NL_relax,
-        //   System { {A, NL_reltol, NL_abstol, Solution MeanL2Norm} } ]{
-        IterativeLoop[NL_max_iter, NL_tol, NL_relax]{
-          GenerateJac[A]; SolveJac[A];
+      InitSolution[A];
+      Generate[A]; Solve[A];
+      If(NbrRegions[Vol_NL_Mag])
+        Generate[A]; GetResidual[A, $res0];
+        Evaluate[ $res = $res0, $iter = 0 ];
+        Print[{$iter, $res, $res / $res0},
+          Format "Residual %03g: abs %14.12e rel %14.12e"];
+        While[$res > NL_tol_abs && $res / $res0 > NL_tol_rel &&
+              $res / $res0 <= 1 && $iter < NL_iter_max]{
+          Solve[A]; Generate[A]; GetResidual[A, $res];
+          Evaluate[ $iter = $iter + 1 ];
+          Print[{$iter, $res, $res / $res0},
+            Format "Residual %03g: abs %14.12e rel %14.12e"];
         }
       EndIf
       SaveSolution[A];
