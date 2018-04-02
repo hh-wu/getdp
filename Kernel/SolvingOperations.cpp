@@ -3469,6 +3469,17 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Current.DTime = Save_DTime ;
       break;
 
+      /*  -->  I t e r a t i v e L o o p N            */
+      /*  ------------------------------------------  */
+
+    case OPERATION_ITERATIVELOOPN :
+      Message::Info("IterativeLoopN ...") ;
+      Save_Iteration = Current.Iteration ;
+      Operation_IterativeLoopN(Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+                               Resolution2_P, DofData2_P0, &Flag_Break) ;
+      Current.Iteration = Save_Iteration ;
+      break;
+      
       /*  -->  S e t E x t r a p o l a t i o n O r d e r */
       /*  ---------------------------------------------  */
 
