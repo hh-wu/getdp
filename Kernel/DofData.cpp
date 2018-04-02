@@ -976,7 +976,7 @@ void Dof_InitDofType(struct DofData * DofData_P)
 	  Dof_GetDofStruct(DofData_P, Dof_P->NumType-1,
 			   Dof_P->Case.Link.EntityRef, Dof_P->Harmonic) ;
 	if(Dof_P->Case.Link.Dof == NULL)
-	  Message::Error("Wrong Link Constraint: reference Dof (%d %d %d) does not exist",
+	  Message::Warning("Wrong Link Constraint: reference Dof (%d %d %d) does not exist",
                          Dof_P->NumType, Dof_P->Case.Link.EntityRef, Dof_P->Harmonic);
       }
       /*
