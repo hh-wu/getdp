@@ -1,12 +1,16 @@
-// This script allows to use Lib_EleSta_v.pro to setup an electrostatic model
-// interactively:
+// This script allows to setup an electrostatic model interactively:
 //
 // 1) Create a geometry with Gmsh
-// 2) Merge this file with Gmsh using File->Merge
+// 2) Merge this file with Gmsh using `File->Merge'
 // 3) You will be prompted to setup your materials and boundary conditions for
 //    each physical group, interactively
-// 4) Everytime you click on "Run", an "export.pro" file will also be created,
-//    which will contain all your choices for later non-interactive use
+// 4) Press "Run" to solve the model
+//
+// How does it work? This file interactively proposes choices for all the
+// constants, functions, groups and constraints needed by the Lib_EleSta_v.pro
+// template. In addition, everytime "Run" is pressed a ".pro" file is created
+// (with the same prefix as the geometry file) with all the choices made
+// interactively, for later non-interactive use.
 
 DefineConstant[
   formulationType = {0, Choices{0="Scalar potential"},
@@ -20,8 +24,10 @@ DefineConstant[
     Name "GetDP/Formulation"},
   modelDim = GetNumber["Gmsh/Model dimension"],
   modelPath = GetString["Gmsh/Model absolute path"],
+  modelName = GetString["Gmsh/Model name"],
   export = !StrCmp[OnelabAction, "compute"],
-  exportFile = StrCat[modelPath, "export.pro"],
+  // FIXME: code StrPrefix[] to simplify this:
+  exportFile = StrCat[modelPath, StrSub[modelName, 0, StrLen[modelName]-4], ".pro"],
   R_ = {"EleSta_v", Name "GetDP/1ResolutionChoices", Visible 0},
   C_ = {"-solve -pos -bin", Name "GetDP/9ComputeCommand", Visible 0},
   P_ = {"EleSta_v", Name "GetDP/2PostOperationChoices", Visible 0}
@@ -32,6 +38,10 @@ numPhysicals = GetNumber["Gmsh/Number of physical groups"];
 // interactive definition of groups
 Group {
   If(export)
+    If(FileExists[exportFile])
+      // FIXME code RenameFile[] at parse time + related functions
+      // RenameFile[exportFile, StrCat[exportFile, "_", Date]];
+    EndIf
     Printf('Group{') > Str[exportFile];
   EndIf
   DefineGroup[ Vol_Inf_Ele ];
@@ -95,7 +105,7 @@ EndIf
 // interactive definition of material properties
 Include "Lib_Materials.pro";
 If(export)
-  Printf('Include "Lib_Materials.pro";') >> Str[exportFile];
+Printf(StrCat['Include "', CurrentDirectory, 'Lib_Materials.pro";']) >> Str[exportFile];
 EndIf
 Function {
   If(export)
@@ -190,5 +200,5 @@ EndFor
 
 Include "Lib_EleSta_v.pro";
 If(export)
-  Printf('Include "Lib_EleSta_v.pro";') >> Str[exportFile];
+  Printf(StrCat['Include "', CurrentDirectory, 'Lib_EleSta_v.pro";']) >> Str[exportFile];
 EndIf
