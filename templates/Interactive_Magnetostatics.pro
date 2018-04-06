@@ -1,12 +1,19 @@
-// This script allows to use Lib_MagSta_a_phi.pro to setup a magnetostatic model
-// interactively:
+// This script allows to interactively setup 2D and 3D magnetostatic models:
 //
-// 1) Create a geometry with Gmsh
-// 2) Merge this file with Gmsh using File->Merge
+// 1) Create a geometry with Gmsh, or load an existing geometry (".geo" file)
+//    with `File->Open'
+// 2) Merge this file ("Interactive_Magnetostatics.pro") with `File->Merge'
 // 3) You will be prompted to setup your materials and boundary conditions for
 //    each physical group, interactively
-// 4) Everytime you click on "Run", an "export.pro" file will also be created,
-//    which will contain all your choices for later non-interactive use
+// 4) Press "Run" to solve the model
+//
+// How does it work?
+//
+// This file interactively proposes choices for all the constants, functions,
+// groups and constraints needed by the "Lib_MagSta_a_phi.pro" template. In
+// addition, everytime "Run" is pressed a ".pro" file is created (with the same
+// prefix as the geometry file) with all the choices made interactively, for
+// later non-interactive use.
 
 DefineConstant[
   formulationType = {1, Choices{0="Scalar potential", 1="Vector potential"},

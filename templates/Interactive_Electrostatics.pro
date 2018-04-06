@@ -1,16 +1,19 @@
-// This script allows to setup an electrostatic model interactively:
+// This script allows to interactively setup 2D and 3D electrostatic models:
 //
-// 1) Create a geometry with Gmsh
-// 2) Merge this file with Gmsh using `File->Merge'
+// 1) Create a geometry with Gmsh, or load an existing geometry (".geo" file)
+//    with `File->Open'
+// 2) Merge this file ("Interactive_Electrostatics.pro") with `File->Merge'
 // 3) You will be prompted to setup your materials and boundary conditions for
 //    each physical group, interactively
 // 4) Press "Run" to solve the model
 //
-// How does it work? This file interactively proposes choices for all the
-// constants, functions, groups and constraints needed by the Lib_EleSta_v.pro
-// template. In addition, everytime "Run" is pressed a ".pro" file is created
-// (with the same prefix as the geometry file) with all the choices made
-// interactively, for later non-interactive use.
+// How does it work?
+//
+// This file interactively proposes choices for all the constants, functions,
+// groups and constraints needed by the "Lib_EleSta_v.pro" template. In addition,
+// everytime "Run" is pressed a ".pro" file is created (with the same prefix as
+// the geometry file) with all the choices made interactively, for later
+// non-interactive use.
 
 DefineConstant[
   formulationType = {0, Choices{0="Scalar potential"},
@@ -34,6 +37,8 @@ DefineConstant[
 ];
 
 numPhysicals = GetNumber["Gmsh/Number of physical groups"];
+surPath = "Parameters/Boundary conditions/Physical group: ";
+volPath = "Parameters/Materials and sources/Physical group: ";
 
 // interactive definition of groups
 Group {
@@ -58,7 +63,7 @@ Group {
             2="Floating conductor: fixed q",
             3="Floating conductor: fixed v"
           },
-          Name StrCat["Parameters/Boundary conditions/", name~{i}, "/0Type"]}
+          Name StrCat[surPath, name~{i}, "/0Type"]}
       ];
       If(bc~{i} == 0)
         str = StrCat["Sur_Neu_Ele += ", reg];
@@ -72,7 +77,7 @@ Group {
             1="Linear dielectric material",
             2="Infinite air shell"
           },
-          Name StrCat["Parameters/Materials/", name~{i}, "/0Type"]}
+          Name StrCat[volPath, name~{i}, "/0Type"]}
       ];
       str = StrCat["Vol_Ele += ", reg];
       If(material~{i} == 0)
@@ -105,7 +110,7 @@ EndIf
 // interactive definition of material properties
 Include "Lib_Materials.pro";
 If(export)
-Printf(StrCat['Include "', CurrentDirectory, 'Lib_Materials.pro";']) >> Str[exportFile];
+  Printf(StrCat['Include "', CurrentDirectory, 'Lib_Materials.pro";']) >> Str[exportFile];
 EndIf
 Function {
   If(export)
@@ -116,7 +121,7 @@ Function {
     If(dim~{i} < modelDim)
       DefineConstant[
         bc_val~{i} = {0.,
-          Name StrCat["Parameters/Boundary conditions/", name~{i}, "/1Value"]}
+          Name StrCat[surPath, name~{i}, "/1Value"]}
       ];
       If(bc~{i} == 0)
         str = StrCat["dn", reg, Sprintf[" = %g; ", bc_val~{i}]];
@@ -125,27 +130,27 @@ Function {
       DefineConstant[
         rho_preset~{i} = {0, Visible (material~{i} == 0),
           Choices{ 0="Constant", 1="Function" },
-          Name StrCat["Parameters/Materials/", name~{i}, "/1rho preset"],
+          Name StrCat[volPath, name~{i}, "/1rho preset"],
           Label "Choice"},
         rho~{i} = {1, Visible (material~{i} == 0 && rho_preset~{i} == 0),
-          Name StrCat["Parameters/Materials/", name~{i}, "/rho value"],
+          Name StrCat[volPath, name~{i}, "/rho value"],
           Label "ρ [C/m³]", Help "Charge density"},
         rho_fct~{i} = {"1", Visible (material~{i} == 0 && rho_preset~{i} == 1),
-          Name StrCat["Parameters/Materials/", name~{i}, "/rho function"],
+          Name StrCat[volPath, name~{i}, "/rho function"],
           Label "ρ [C/m³]", Help "Charge density"},
         epsr_preset~{i} = {#linearDielectricMaterials() > 2 ? 2 : 0,
           Visible (material~{i} == 1),
           Choices{ 0:#linearDielectricMaterials()-1 = linearDielectricMaterials() },
-          Name StrCat["Parameters/Materials/", name~{i}, "/1epsr preset"],
+          Name StrCat[volPath, name~{i}, "/1epsr preset"],
           Label "Choice"}
         epsr~{i} = {1, Visible (material~{i} == 0 && rho_preset~{i} == 0) ||
           (material~{i} == 1 && epsr_preset~{i} == 0),
-          Name StrCat["Parameters/Materials/", name~{i}, "/epsr value"],
-          Label "ε_r", Help "Relative dielectric permittivity"},
+          Name StrCat[volPath, name~{i}, "/epsr value"],
+          Label "εr [-]", Help "Relative dielectric permittivity"},
         epsr_fct~{i} = {"1", Visible (material~{i} == 0 && rho_preset~{i} == 1) ||
           (material~{i} == 1 && epsr_preset~{i} == 1),
-          Name StrCat["Parameters/Materials/", name~{i}, "/epsr function"],
-          Label "ε_r", Help "Relative dielectric permittivity"}
+          Name StrCat[volPath, name~{i}, "/epsr function"],
+          Label "εr [-]", Help "Relative dielectric permittivity"}
       ];
       If(material~{i} == 0 && rho_preset~{i} == 0) // charged, constant
         str = StrCat["rho", reg, Sprintf[" = %g; ", rho~{i}], "epsr", reg,
