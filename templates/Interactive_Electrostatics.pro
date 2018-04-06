@@ -3,8 +3,8 @@
 // 1) Create a geometry with Gmsh, or load an existing geometry (".geo" file)
 //    with `File->Open'
 // 2) Merge this file ("Interactive_Electrostatics.pro") with `File->Merge'
-// 3) You will be prompted to setup your materials and boundary conditions for
-//    each physical group, interactively
+// 3) You will be prompted to setup your materials, sources and boundary
+//    conditions for each physical group, interactively
 // 4) Press "Run" to solve the model
 //
 // How does it work?
@@ -12,8 +12,8 @@
 // This file interactively proposes choices for all the constants, functions,
 // groups and constraints needed by the "Lib_EleSta_v.pro" template. In addition,
 // everytime "Run" is pressed a ".pro" file is created (with the same prefix as
-// the geometry file) with all the choices made interactively, for later
-// non-interactive use.
+// the geometry file) with all the choices made interactively, for later non-
+// interactive use.
 
 DefineConstant[
   formulationType = {0, Choices{0="Scalar potential"},
@@ -40,13 +40,14 @@ numPhysicals = GetNumber["Gmsh/Number of physical groups"];
 surPath = "Parameters/Boundary conditions/Physical group: ";
 volPath = "Parameters/Materials and sources/Physical group: ";
 
+If(export && FileExists[exportFile])
+  // FIXME code RenameFile[] at parse time + related functions
+  // RenameFile[exportFile, StrCat[exportFile, "_", Date]];
+EndIf
+
 // interactive definition of groups
 Group {
   If(export)
-    If(FileExists[exportFile])
-      // FIXME code RenameFile[] at parse time + related functions
-      // RenameFile[exportFile, StrCat[exportFile, "_", Date]];
-    EndIf
     Printf('Group{') > Str[exportFile];
   EndIf
   DefineGroup[ Vol_Inf_Ele ];

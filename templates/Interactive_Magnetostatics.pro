@@ -3,8 +3,8 @@
 // 1) Create a geometry with Gmsh, or load an existing geometry (".geo" file)
 //    with `File->Open'
 // 2) Merge this file ("Interactive_Magnetostatics.pro") with `File->Merge'
-// 3) You will be prompted to setup your materials and boundary conditions for
-//    each physical group, interactively
+// 3) You will be prompted to setup your materials, sources and boundary
+//    conditions for each physical group, interactively
 // 4) Press "Run" to solve the model
 //
 // How does it work?
@@ -26,14 +26,23 @@ DefineConstant[
     Name "GetDP/Formulation"},
   modelDim = GetNumber["Gmsh/Model dimension"],
   modelPath = GetString["Gmsh/Model absolute path"],
+  modelName = GetString["Gmsh/Model name"],
   export = !StrCmp[OnelabAction, "compute"],
-  exportFile = StrCat[modelPath, "export.pro"],
+  // FIXME: code StrPrefix[] to simplify this:
+  exportFile = StrCat[modelPath, StrSub[modelName, 0, StrLen[modelName]-4], ".pro"],
   R_ = {"Analysis", Name "GetDP/1ResolutionChoices", Visible 0},
   C_ = {"-solve -bin", Name "GetDP/9ComputeCommand", Visible 0},
   P_ = {"", Name "GetDP/2PostOperationChoices", Visible 0}
 ];
 
 numPhysicals = GetNumber["Gmsh/Number of physical groups"];
+surPath = "Parameters/Boundary conditions/Physical group: ";
+volPath = "Parameters/Materials and sources/Physical group: ";
+
+If(export && FileExists[exportFile])
+  // FIXME code RenameFile[] at parse time + related functions
+  // RenameFile[exportFile, StrCat[exportFile, "_", Date]];
+EndIf
 
 // interactive definition of groups
 Group {
@@ -51,7 +60,7 @@ Group {
             0=StrCat["Neumann: fixed ", StrChoice[formulationType, "n x h", "n . b"]],
             1=StrCat["Dirichlet: fixed ", StrChoice[formulationType, "a", "phi"]]
           },
-          Name StrCat["Parameters/Boundary conditions/", name~{i}, "/0Type"]}
+          Name StrCat[surPath, name~{i}, "/0Type"]}
       ];
       If(bc~{i} == 0)
         str = StrCat["Sur_Neu_Mag += ", reg];
@@ -67,7 +76,7 @@ Group {
             3="Nonlinear magnetic material",
             4="Infinite air shell"
           },
-          Name StrCat["Parameters/Materials/", name~{i}, "/0Type"]}
+          Name StrCat[volPath, name~{i}, "/0Type"]}
       ];
       str = StrCat["Vol_Mag += ", reg];
       If(material~{i} == 0)
@@ -107,7 +116,7 @@ Group{
 // interactive definition of material properties
 Include "Lib_Materials.pro";
 If(export)
-  Printf('Include "Lib_Materials.pro";') >> Str[exportFile];
+  Printf(StrCat['Include "', CurrentDirectory, 'Lib_Materials.pro";']) >> Str[exportFile];
 EndIf
 Function{
   If(export)
@@ -118,7 +127,7 @@ Function{
     If(dim~{i} < modelDim)
       DefineConstant[
         bc_val~{i} = {0.,
-          Name StrCat["Parameters/Boundary conditions/", name~{i}, "/1Value"]}
+          Name StrCat[surPath, name~{i}, "/1Value"]}
       ];
       If(bc~{i} == 0 && formulationType == 0)
         str = StrCat["bn", reg, Sprintf[" = %g; ", bc_val~{i}]];
@@ -130,74 +139,74 @@ Function{
         hc_preset~{i} = {#permanentMagnetMaterials() > 2 ? 2 : 0,
           Visible (material~{i} == 0),
           Choices{ 0:#permanentMagnetMaterials()-1 = permanentMagnetMaterials() },
-          Name StrCat["Parameters/Materials/", name~{i}, "/1hc preset"],
+          Name StrCat[volPath, name~{i}, "/1hc preset"],
           Label "Choice"},
         hcx~{i} = {920000, Visible (material~{i} == 0 && hc_preset~{i} == 0),
-          Name StrCat["Parameters/Materials/", name~{i}, "/hcx value"],
-          Label "h_cx [A/m]", Help "Coercive magnetic field along x-axis"},
+          Name StrCat[volPath, name~{i}, "/hcx value"],
+          Label "hcx [A/m]", Help "Coercive magnetic field along x-axis"},
         hcy~{i} = {0, Visible (material~{i} == 0 && hc_preset~{i} == 0),
-          Name StrCat["Parameters/Materials/", name~{i}, "/hcy value"],
-          Label "h_cy [A/m]", Help "Coercive magnetic field along y-axis"},
+          Name StrCat[volPath, name~{i}, "/hcy value"],
+          Label "hcy [A/m]", Help "Coercive magnetic field along y-axis"},
         hcz~{i} = {0, Visible (material~{i} == 0 && hc_preset~{i} == 0 && dim~{i} == 3),
-          Name StrCat["Parameters/Materials/", name~{i}, "/hcz value"],
-          Label "h_cz [A/m]", Help "Coercive magnetic field along z-axis"},
+          Name StrCat[volPath, name~{i}, "/hcz value"],
+          Label "hcz [A/m]", Help "Coercive magnetic field along z-axis"},
         hc_fct~{i} = {"Vector[92000, 0, 0]",
           Visible (material~{i} == 0 && hc_preset~{i} == 1),
-          Name StrCat["Parameters/Materials/", name~{i}, "/hc function"],
-          Label "h_c [A/m]", Help "Coercive magnetic field"},
+          Name StrCat[volPath, name~{i}, "/hc function"],
+          Label "hc [A/m]", Help "Coercive magnetic field"},
         js_preset~{i} = {0, Visible (material~{i} == 1),
           Choices{ 0="Constant", 1="Function" },
-          Name StrCat["Parameters/Materials/", name~{i}, "/1js preset"],
+          Name StrCat[volPath, name~{i}, "/1js preset"],
           Label "Choice"},
         jsx~{i} = {0, Visible (material~{i} == 1 && js_preset~{i} == 0 && dim~{i} == 3),
-          Name StrCat["Parameters/Materials/", name~{i}, "/jx value"],
-          Label "j_sx [A/m²]", Help "Current density along x-axis"},
+          Name StrCat[volPath, name~{i}, "/jx value"],
+          Label "jsx [A/m²]", Help "Current density along x-axis"},
         jsy~{i} = {0, Visible (material~{i} == 1 && js_preset~{i} == 0&& dim~{i} == 3),
-          Name StrCat["Parameters/Materials/", name~{i}, "/jy value"],
-          Label "j_sy [A/m²]", Help "Current density along y-axis"},
+          Name StrCat[volPath, name~{i}, "/jy value"],
+          Label "jsy [A/m²]", Help "Current density along y-axis"},
         jsz~{i} = {1, Visible (material~{i} == 1 && js_preset~{i} == 0),
-          Name StrCat["Parameters/Materials/", name~{i}, "/jz value"],
-          Label "j_sz [A/m²]", Help "Current density along z-axis"},
+          Name StrCat[volPath, name~{i}, "/jz value"],
+          Label "jsz [A/m²]", Help "Current density along z-axis"},
         js_fct~{i} = {"Vector[0, 0, 1]",
           Visible (material~{i} == 1 && js_preset~{i} == 1),
-          Name StrCat["Parameters/Materials/", name~{i}, "/js function"],
-          Label "j_s [A/m²]", Help "Current density"},
+          Name StrCat[volPath, name~{i}, "/js function"],
+          Label "js [A/m²]", Help "Current density"},
         mur_preset~{i} = {#linearMagneticMaterials() > 2 ? 2 : 0,
           Visible (material~{i} == 2),
           Choices{ 0:#linearMagneticMaterials()-1 = linearMagneticMaterials() },
-          Name StrCat["Parameters/Materials/", name~{i}, "/1mur preset"],
+          Name StrCat[volPath, name~{i}, "/1mur preset"],
           Label "Choice"}
         mur~{i} = {1, Visible (material~{i} == 2 && mur_preset~{i} == 0),
-          Name StrCat["Parameters/Materials/", name~{i}, "/mur value"],
-          Label "μ_r", Help "Relative magnetic permeability"},
+          Name StrCat[volPath, name~{i}, "/mur value"],
+          Label "μr [-]", Help "Relative magnetic permeability"},
         mur_fct~{i} = {"1", Visible (material~{i} == 2 && mur_preset~{i} == 1),
-          Name StrCat["Parameters/Materials/", name~{i}, "/mur function"],
-          Label "μ_r", Help "Relative magnetic permeability"},
+          Name StrCat[volPath, name~{i}, "/mur function"],
+          Label "μr [-]", Help "Relative magnetic permeability"},
         bh_preset~{i} = {#nonlinearMagneticMaterials() > 2 ? 2 : 0,
           Visible (material~{i} == 3),
           Choices{ 0:#nonlinearMagneticMaterials()-1 = nonlinearMagneticMaterials() },
-          Name StrCat["Parameters/Materials/", name~{i}, "/1bh preset"],
+          Name StrCat[volPath, name~{i}, "/1bh preset"],
           Label "Choice"}
         b_list~{i} = {"{0,0.3,0.7,1,1.4,1.7,2.2}",
           Visible (material~{i} == 3 && bh_preset~{i} == 0),
-          Name StrCat["Parameters/Materials/", name~{i}, "/3b values"]},
+          Name StrCat[volPath, name~{i}, "/3b values"]},
         h_list~{i} = {"{0,30,90,2e2,6e2,4e3,7e5}",
           Visible (material~{i} == 3 && bh_preset~{i} == 0),
-          Name StrCat["Parameters/Materials/", name~{i}, "/2h values"]},
+          Name StrCat[volPath, name~{i}, "/2h values"]},
         nu_fct~{i} = {"100. + 10. * Exp[1.8*SquNorm[$1]]",
           Visible (material~{i} == 3 && bh_preset~{i} == 1),
-          Name StrCat["Parameters/Materials/", name~{i}, "/2nu function"],
+          Name StrCat[volPath, name~{i}, "/2nu function"],
           Label "ν(b) [m/H]", Help "Magnetic reluctivity"},
         dnudb2_fct~{i} = {"18. * Exp[1.8*SquNorm[$1]]",
           Visible (material~{i} == 3 && bh_preset~{i} == 1),
-          Name StrCat["Parameters/Materials/", name~{i}, "/3dnudb2 function"],
-          Label "dν/db²"},
+          Name StrCat[volPath, name~{i}, "/3dnudb2 function"],
+          Label "dν(b)/db²"},
         mu_fct~{i} = {"***", Visible (material~{i} == 3 && bh_preset~{i} == 1),
-          Name StrCat["Parameters/Materials/", name~{i}, "/4mu function"],
+          Name StrCat[volPath, name~{i}, "/4mu function"],
           Label "μ(h) [H/m]", Help "Magnetic permeability"},
         dmudh2_fct~{i} = {"***", Visible (material~{i} == 3 && bh_preset~{i} == 1),
-          Name StrCat["Parameters/Materials/", name~{i}, "/5dmudh2 function"],
-          Label "dμ/dh²"}
+          Name StrCat[volPath, name~{i}, "/5dmudh2 function"],
+          Label "dμ(h)/dh²"}
       ];
       If(material~{i} == 0 && hc_preset~{i} == 0) // magnet, constant
         str = StrCat["hc", reg, Sprintf[" = Vector[%g, %g, %g]; ", hcx~{i},
@@ -283,7 +292,7 @@ EndFor
 
 Include "Lib_MagSta_a_phi.pro";
 If(export)
-  Printf('Include "Lib_MagSta_a_phi.pro";') >> Str[exportFile];
+  Printf(StrCat['Include "', CurrentDirectory, 'Lib_MagSta_a_phi.pro";']) >> Str[exportFile];
 EndIf
 
 Resolution{
