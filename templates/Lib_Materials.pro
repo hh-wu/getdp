@@ -1,4 +1,29 @@
-// This file defines material properties. You can add your
+// This file defines template material properties.
+//
+// You can add your own materials by simply
+//
+// 1) appending the material name to the Materials() list below;
+// 2) defining the relevant constants, lists and/or functions
+//      * whose names should begin with the material name
+//      * followed by one of the supported material characteristics
+//
+// Supported material characteristics:
+//
+// Constants:
+//   * _mur : relative magnetic permeability [-]
+//   * _epsilonr : relative dielectric permittivity [-]
+//   * _sigma : electric conductivity [S/m]
+//   * _hc : coercitive magnetic field [A/m]
+//
+// Lists:
+//   * _h_list() and _b_list() : pairs of magnetic fields h [A/m] and magnetic
+//     flux densities b [T]
+//
+// Functions:
+//   * _mu[] : magnetic permeability as a function of h [H/m]
+//   * _dmudh2[] : derivative of mu[] with respect to h^2
+//   * _nu[] : magnetic relectivity as a function of b [m/H]
+//   * _dnudb2[] : derivative of nu[] with respect to b^2
 
 DefineConstant[
   mu0 = 4*Pi*1e-7,
