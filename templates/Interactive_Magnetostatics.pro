@@ -28,8 +28,7 @@ DefineConstant[
   modelPath = GetString["Gmsh/Model absolute path"],
   modelName = GetString["Gmsh/Model name"],
   export = !StrCmp[OnelabAction, "compute"],
-  // FIXME: code StrPrefix[] to simplify this:
-  exportFile = StrCat[modelPath, StrSub[modelName, 0, StrLen[modelName]-4], ".pro"],
+  exportFile = StrCat[modelPath, StrPrefix[modelName], ".pro"],
   R_ = {"Analysis", Name "GetDP/1ResolutionChoices", Visible 0},
   C_ = {"-solve -bin", Name "GetDP/9ComputeCommand", Visible 0},
   P_ = {"", Name "GetDP/2PostOperationChoices", Visible 0}
@@ -40,8 +39,7 @@ surPath = "Parameters/Boundary conditions/Physical group: ";
 volPath = "Parameters/Materials and sources/Physical group: ";
 
 If(export && FileExists[exportFile])
-  // FIXME code RenameFile[] at parse time + related functions
-  // RenameFile[exportFile, StrCat[exportFile, "_", Date]];
+  RenameFile[exportFile, StrCat[exportFile, "_", Date["%F-%R"]]];
 EndIf
 
 // interactive definition of groups

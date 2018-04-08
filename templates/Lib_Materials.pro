@@ -1,3 +1,5 @@
+// This file defines material properties. You can add your
+
 DefineConstant[
   mu0 = 4*Pi*1e-7,
   eps0 = 8.854187818e-12

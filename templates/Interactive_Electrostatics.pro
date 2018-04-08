@@ -1,7 +1,7 @@
 // This script allows to interactively setup 2D and 3D electrostatic models:
 //
 // 1) Create a geometry with Gmsh, or load an existing geometry (".geo" file)
-//    with `File->Open'
+//    in Gmsh with `File->Open'
 // 2) Merge this file ("Interactive_Electrostatics.pro") with `File->Merge'
 // 3) You will be prompted to setup your materials, sources and boundary
 //    conditions for each physical group, interactively
@@ -29,8 +29,7 @@ DefineConstant[
   modelPath = GetString["Gmsh/Model absolute path"],
   modelName = GetString["Gmsh/Model name"],
   export = !StrCmp[OnelabAction, "compute"],
-  // FIXME: code StrPrefix[] to simplify this:
-  exportFile = StrCat[modelPath, StrSub[modelName, 0, StrLen[modelName]-4], ".pro"],
+  exportFile = StrCat[modelPath, StrPrefix[modelName], ".pro"],
   R_ = {"EleSta_v", Name "GetDP/1ResolutionChoices", Visible 0},
   C_ = {"-solve -pos -bin", Name "GetDP/9ComputeCommand", Visible 0},
   P_ = {"EleSta_v", Name "GetDP/2PostOperationChoices", Visible 0}
@@ -41,8 +40,7 @@ surPath = "Parameters/Boundary conditions/Physical group: ";
 volPath = "Parameters/Materials and sources/Physical group: ";
 
 If(export && FileExists[exportFile])
-  // FIXME code RenameFile[] at parse time + related functions
-  // RenameFile[exportFile, StrCat[exportFile, "_", Date]];
+  RenameFile[exportFile, StrCat[exportFile, "_", Date["%F-%R"]]];
 EndIf
 
 // interactive definition of groups

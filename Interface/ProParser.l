@@ -423,6 +423,8 @@ StoreMinXinRegister          return tStoreMinXinRegister;
 StoreMinYinRegister          return tStoreMinYinRegister;
 StoreMinZinRegister          return tStoreMinZinRegister;
 Str                          return tStr;
+StrPrefix                    return tStrPrefix;
+StrRelative                  return tStrRelative;
 StrCat                       return tStrCat;
 StrChoice                    return tStrChoice;
 StrCmp                       return tStrCmp;
