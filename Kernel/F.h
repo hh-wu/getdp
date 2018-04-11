@@ -78,7 +78,10 @@ void  F_ElastodynamicsCylinderWallS(F_ARG);
 void  F_ElastodynamicsCylinderWallOut(F_ARG);
 void  F_ElastodynamicsCylinderWallsOut(F_ARG);
 void  F_ElastoCylinderWallOutAbc(F_ARG);
+void  F_ElastoCylinderWallsOutAbc(F_ARG);
 void  F_ElastoCylinderWallOutAbc2(F_ARG);
+void  F_ElastoCylinderWallOutAbc2Pade(F_ARG);
+void  F_ElastoCylinderWallsOutAbc2Pade(F_ARG);
 
 /* F_Geometry */
 
@@ -116,6 +119,7 @@ void  F_Atan            (F_ARG) ;
 void  F_Sinh            (F_ARG) ;
 void  F_Cosh            (F_ARG) ;
 void  F_Tanh            (F_ARG) ;
+void  F_Atanh           (F_ARG) ;
 void  F_Fabs            (F_ARG) ;
 void  F_Abs             (F_ARG) ;
 void  F_Floor           (F_ARG) ;

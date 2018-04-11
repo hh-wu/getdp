@@ -1164,6 +1164,9 @@ struct Operation {
     struct {
       char *residual;
     } OptimizerUpdate;
+    struct {
+      int order;
+    } SetExtrapolationOrder;
   } Case;
 
 };
@@ -1317,6 +1320,7 @@ struct IterativeLoopSystem {
 #define OPERATION_OPTIMIZER_INITIALIZE     107
 #define OPERATION_OPTIMIZER_UPDATE         108
 #define OPERATION_OPTIMIZER_FINALIZE       109
+#define OPERATION_SETEXTRAPOLATIONORDER    110
 
 /* ChangeOfState.Type */
 #define CHANGEOFSTATE_NOCHANGE              0
@@ -1460,6 +1464,8 @@ struct PostOpSolutions {
 #define POP_GROUP         2
 #define POP_EXPRESSION    4
 #define POP_MERGE         5
+#define POP_DELETEFILE    6
+#define POP_CREATEDIR     7
 
 /* PostOperation.SubType */
 #define PRINT_ONREGION        1
@@ -1596,7 +1602,7 @@ struct CurrentData {
   // For IterativeLoop
   double  Iteration, RelativeDifference, RelativeDifferenceOld;
   double  RelaxationFactor, Residual, ResidualN, Residual_Iter1; //+++
-  double  RelaxFac, NbrTestedFac; //+++
+  double  RelaxFac, NbrTestedFac, SolveJacAdaptFailed; //+++
 
   // Iterative linear system solvers
   double  KSPIterations, KSPIteration, KSPResidual;

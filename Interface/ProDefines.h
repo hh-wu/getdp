@@ -285,6 +285,7 @@ struct StringXPointer  Current_Value[] = {
   {"ResidualN" , &Current.ResidualN}, //+++
   {"Residual_Iter1" , &Current.Residual_Iter1}, //+++
   {"NbrTestedFac" , &Current.NbrTestedFac}, //+++
+  {"SolveJacAdaptFailed" , &Current.SolveJacAdaptFailed}, //+++
   {"TimeImag" , &Current.TimeImag},   {"Eigenvalue", &Current.Time},
   {"EigenvalueReal" , &Current.Time}, {"EigenvalueImag" , &Current.TimeImag},
   {"ReOmega"  , &Current.Time},       {"ImOmega"   , &Current.TimeImag},
@@ -936,6 +937,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"Sinh"              , (CAST)F_Sinh             ,   0,   1 },
   {"Cosh"              , (CAST)F_Cosh             ,   0,   1 },
   {"Tanh"              , (CAST)F_Tanh             ,   0,   1 },
+  {"Atanh"             , (CAST)F_Atanh            ,   0,   1 },
   {"Fabs"              , (CAST)F_Fabs             ,   0,   1 },
   {"Abs"               , (CAST)F_Abs              ,   0,   1 },
   {"Floor"             , (CAST)F_Floor            ,   0,   1 },
@@ -1168,7 +1170,11 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"ElastodynamicsCylinderWallOut", (CAST)F_ElastodynamicsCylinderWallOut, 5, 1},
   {"ElastodynamicsCylinderWallsOut", (CAST)F_ElastodynamicsCylinderWallsOut, 5, 1},
   {"ElastoCylinderWallOutAbc",(CAST)F_ElastoCylinderWallOutAbc, 6, 1},
+  {"ElastoCylinderWallsOutAbc",(CAST)F_ElastoCylinderWallsOutAbc, 6, 1},
   {"ElastoCylinderWallOutAbc2",(CAST)F_ElastoCylinderWallOutAbc2, 6, 1},
+  {"ElastoCylinderWallOutAbc2Pade",(CAST)F_ElastoCylinderWallOutAbc2Pade, 10, 1},
+  {"ElastoCylinderWallsOutAbc2Pade",(CAST)F_ElastoCylinderWallsOutAbc2Pade, 10, 1},
+
 
   // F_Raytracing: ray tracing functions
   {"CylinderPhase",      (CAST)F_CylinderPhase, 0, 1 },

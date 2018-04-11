@@ -378,7 +378,10 @@ static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
   PC pc;
   _try(KSPGetPC(ksp, &pc));
   _try(PCSetType(pc, PCLU));
-#if (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
+
+#if (PETSC_VERSION_RELEASE == 0) && defined(PETSC_HAVE_MUMPS)
+  _try(PCFactorSetMatSolverType(pc, "mumps"));
+#elif (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
   _try(PCFactorSetMatSolverPackage(pc, "mumps"));
 #endif
 
@@ -496,7 +499,9 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
     PC pc;
     _try(KSPGetPC(ksp, &pc));
     _try(PCSetType(pc, PCLU));
-#if (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
+#if (PETSC_VERSION_RELEASE == 0) && defined(PETSC_HAVE_MUMPS)
+    _try(PCFactorSetMatSolverType(pc, "mumps"));
+#elif (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
     _try(PCFactorSetMatSolverPackage(pc, "mumps"));
 #endif
   }
@@ -614,7 +619,9 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
     PC pc;
     _try(KSPGetPC(ksp, &pc));
     _try(PCSetType(pc, PCLU));
-#if (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
+#if (PETSC_VERSION_RELEASE == 0) && defined(PETSC_HAVE_MUMPS)
+    _try(PCFactorSetMatSolverType(pc, "mumps"));
+#elif (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
     _try(PCFactorSetMatSolverPackage(pc, "mumps"));
 #endif
     _try(EPSSetFromOptions(eps));

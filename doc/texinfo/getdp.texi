@@ -1206,8 +1206,8 @@ messages produced when references to undefined quantities are made).
 
 When @var{onelab-options} are provided, the parameter is exchanged with
 the ONELAB server. See
-@uref{http://onelab.info/wiki/ONELAB_Syntax_for_Gmsh_and_GetDP} for more
-information.
+@uref{https://gitlab.onelab.info/doc/tutorials/wikis/ONELAB-syntax-for-Gmsh-and-GetDP}
+for more information.
 @item
 @code{DefineNumber} and @code{DefineString} allow to define a ONELAB
 parameter. In this case the affectation always takes
@@ -1720,16 +1720,16 @@ and should therefore not be considered as already computed.
 An @code{Equation} term must be linear with respect to the
 @code{Dof}. Thus, for example, a nonlinear term like 
 @example
-Galerkin @{ [ f[] * Dof@{T@}^4 , @{T@} ]; @dots{} @}
+Integral @{ [ f[] * Dof@{T@}^4 , @{T@} ]; @dots{} @}
 @end example
 must first be linearized; and while
 @example
-Galerkin @{ [ f[] * Dof@{T@} , @{T@} ]; @dots{} @}
-Galerkin @{ [ -f[] * 12 , @{T@} ]; @dots{} @}
+Integral @{ [ f[] * Dof@{T@} , @{T@} ]; @dots{} @}
+Integral @{ [ -f[] * 12 , @{T@} ]; @dots{} @}
 @end example
 is valid, the following, which is affine but not linear, is not:
 @example
-Galerkin @{ [ f[] * (Dof@{T@} - 12) , @{T@} ]; @dots{} @}
+Integral @{ [ f[] * (Dof@{T@} - 12) , @{T@} ]; @dots{} @}
 @end example
 
 GetDP supports two linearization techniques. The first is functional
@@ -2066,6 +2066,7 @@ Group @{
   < DefineGroup [ @var{group-id} <@{@var{integer}@}> <,@dots{}> ]; > @dots{}
   < @var{group-id} = @var{group-def}; > @dots{}
   < @var{group-id} += @var{group-def}; > @dots{}
+  < @var{group-id} -= @var{group-def}; > @dots{}
   < @var{affectation} > @dots{}
   < @var{loop} > @dots{}
 @}
@@ -2733,7 +2734,7 @@ Formulation @{
   FemEquation | @var{etc}
 
 @var{local-term-type}:
-  Galerkin | deRham
+  Integral | deRham
 
 @var{equation-term-sub-type}:
   Self (default) | Mutual | SelfAndMutual
@@ -3072,6 +3073,9 @@ PostOperation < (Append < @var{expression-cst} >) > @var{post-operation-id} Usin
   Print[ @var{post-quantity-id} <[@var{group-def}]>, @var{print-support} <,@var{print-option}> @dots{} ] |
   Print[ @var{expression-list}, Format "@var{string}" <,@var{print-option}> @dots{} ] |
   PrintGroup[ @var{group-id}, @var{print-support} <,@var{print-option}> @dots{} ] |
+  Echo[ "@var{string}" <,@var{print-option}> @dots{} ] |
+  CreateDir [ "@var{string}" ] |
+  DeleteFile [ "@var{string}" ] |
   SendMergeFileRequest[ @var{expression-char} ] |
   < @var{loop} > @dots{}
   @var{etc}
@@ -4483,8 +4487,8 @@ Finite element method formulation (all methods of moments, integral methods).
 @var{local-term-type}:
 @ftable @code
 
-@item Galerkin
-Integral of Galerkin type.
+@item Integral
+Integral of Galerkin or Petrov-Galerkin type.
 
 @item deRham
 deRham projection (collocation).
@@ -4586,6 +4590,12 @@ Solve the system of equations @var{system-id}.
 
 Save as @code{Solve}, but reuses the preconditionner when called
 multiple times.
+
+@item SetGlobalSolverOptions
+@code{[@var{char-expression}]}
+
+Set global PETSc solver options (with the same syntax as PETSc options
+specified on the command line, e.g. @code{"-ksp_type gmres -pc_type ilu"}).
 
 @item GenerateJac
 @code{[@var{system-id}]}
@@ -4870,6 +4880,12 @@ Aborts an iterative loop, a time loop or a While loop.
 
 Sleeps for @var{expression} seconds;
 
+@item SetExtrapolationOrder
+@code{[@var{expression-cst}]}
+
+Chooses the extrapolation order to compute the initialization of the
+solution vector in time loops. Default is 0.
+
 @item Print
 @code{[ @{ @var{expression-list} @} <, File @var{expression-char} > <, Format @var{expression-char} > ]}
 
@@ -4928,12 +4944,12 @@ they are provided using the @code{TimeFunction} mechanism in an
 @code{Assign}-type @code{Constraint} (@pxref{Constraint}). However,
 GetDP cannot automatically transform general time-dependent source terms
 in weak formulations (time-dependent functions written in a
-@code{Galerkin} term). Such source terms will be correctly treated only
-for implicit Euler, as the expression in the @code{Galerkin} term is
+@code{Integral} term). Such source terms will be correctly treated only
+for implicit Euler, as the expression in the @code{Integral} term is
 evaluated at the current time step. For other schemes, the source term
 should be written explicitly, by splitting it in two (@code{theta f_n+1
 + (1-theta) f_n}), making use of the @code{AtAnteriorTimeStep[]} for the
-second part, and specifying @code{NeverDt} in the @code{Galerkin} term.
+second part, and specifying @code{NeverDt} in the @code{Integral} term.
 
 @item TimeLoopNewmark
 @code{[@var{expression-cst},@var{expression-cst},@var{expression},@var{expression-cst},@var{expression-cst}]}@*
@@ -6440,7 +6456,7 @@ Formulation @{
       @{ Name v; Type Local; NameOfSpace Hgrad_v; @}
     @}
     Equation @{ 
-      Galerkin @{ [ epsr[] * Dof@{Grad v@} , @{Grad v@} ];
+      Integral @{ [ epsr[] * Dof@{Grad v@} , @{Grad v@} ];
                  In Domain; Jacobian Vol; Integration Int_1; @}
     @}
   @}
@@ -6448,7 +6464,7 @@ Formulation @{
 @end example
 
 @noindent
-The density of the @code{Galerkin} term is a copy of the symbolic form of
+The density of the @code{Integral} term is a copy of the symbolic form of
 the formulation, i.e., the product of a relative permittivity function
 @code{epsr[]} by a vector of degrees of freedom (@code{Dof@{.@}}); the
 scalar product of this with the gradient of test function @code{v} results
@@ -6485,7 +6501,7 @@ Formulation @{
         NameOfSpace Hgrad_v_floating [GlobalElectricCharge]; @}
     @}
     Equation @{ 
-      Galerkin @{ [ epsr[] * Dof@{Grad v@} , @{Grad v@} ];
+      Integral @{ [ epsr[] * Dof@{Grad v@} , @{Grad v@} ];
                  In Domain; Jacobian Vol; Integration Int_1; @}
       GlobalTerm @{ [ - Dof@{Q@}/eps0 , @{V@} ]; In SkinDomainC; @}
     @}
@@ -6527,9 +6543,9 @@ Formulation @{
       @{ Name a; Type Local; NameOfSpace Hcurl_a_Gauge; @}
     @}
     Equation @{ 
-      Galerkin @{ [ nu[] * Dof@{Curl a@} , @{Curl a@} ];
+      Integral @{ [ nu[] * Dof@{Curl a@} , @{Curl a@} ];
                  In Domain; Jacobian Vol; Integration Int_1; @}
-      Galerkin @{ [ - SourceCurrentDensity[] , @{a@} ];
+      Integral @{ [ - SourceCurrentDensity[] , @{a@} ];
                  In DomainWithSourceCurrentDensity;
                  Jacobian Vol; Integration Int_1; @}
     @}
@@ -6576,9 +6592,9 @@ Formulation @{
       @{ Name h; Type Local; NameOfSpace Hcurl_hphi; @}
     @}
     Equation @{ 
-      Galerkin @{ Dt [ mu[] * Dof@{h@} , @{h@} ];
+      Integral @{ Dt [ mu[] * Dof@{h@} , @{h@} ];
                  In Domain; Jacobian Vol; Integration Int_1; @}
-      Galerkin @{ [ rho[] * Dof@{Curl h@} , @{Curl h@} ];
+      Integral @{ [ rho[] * Dof@{Curl h@} , @{Curl h@} ];
                  In DomainC; Jacobian Vol; Integration Int_1; @}
     @}
   @}
@@ -7447,10 +7463,12 @@ by Gmsh.
 It depends on which linear solver toolkit was enabled when GetDP was
 compiled (PETSc or Sparskit).
 
-With PETSc-based linear solvers you can either specify options directly
-on the command line (e.g. with @code{-ksp_type gmres -pc_type ilu}),
-through a specific option file (with @code{-solver file}), or through
-the @file{.petscrc} file located in your home directly.
+With PETSc-based linear solvers you can either specify options on the
+command line (e.g. with @code{-ksp_type gmres -pc_type ilu}), through a
+specific option file (with @code{-solver file}), through the
+@file{.petscrc} file located in your home directly, or directly in the
+@code{Resolution} field using the @code{SetGlobalSolverOptions[]}
+command.
 
 With Sparskit-based linear solvers can either specify options directly
 on command line (e.g. with @code{-Nb_Fill 200}), specify an option file

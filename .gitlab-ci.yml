@@ -205,6 +205,7 @@ linux32_official_petsc_real_mh_release:
     - bash -c "/usr/bin/make package -j 1"
     - bash -c "PKG=`ls getdp-*.zip`; /usr/bin/scp -o StrictHostKeyChecking=no -i /home/geuzaine/.ssh/id_rsa ${PKG} geuzaine@getdp.info:.wwwgetdp/bin/Windows/${PKG/\.zip/r-MH\.zip}"
     - bash -c "/usr/bin/ctest -D Experimental -j 1 --output-on-failure"
+  allow_failure: true
 
 windows64_official_petsc_complex_snapshot:
   <<: *windows_official_petsc_complex

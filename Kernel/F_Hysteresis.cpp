@@ -28,6 +28,11 @@
 #define FLAG_WARNING_STOP_ROOTFINDING 102
 #define FLAG_WARNING_ITER             100
 
+#define MIN(a,b) (((a)<(b))?(a):(b))
+#define MAX(a,b) (((a)>(b))?(a):(b))
+
+extern struct CurrentData Current ;
+
 /* ------------------------------------------------------------------------ */
 /*
   Vectorized Jiles-Atherton hysteresis model
@@ -661,7 +666,6 @@ void set_sensi_param(struct FunctionActive *D)
 
 bool limiter(const double Js, double v[3])
 {
-
   double max = (1-::TOLERANCE_JS)*Js ;
   double mod = norm(v);
   if(mod >= max){
@@ -672,6 +676,36 @@ bool limiter(const double Js, double v[3])
     //Message::Warning("Js=%g, norm(J)=%g", Js, mod);
   }
   return false;
+}
+
+void DlalaAdaptation(double *M)
+{
+  int diagcoord[3];
+  switch(::FLAG_SYM)
+  {
+    case 1:
+      diagcoord[0]=0;
+      diagcoord[1]=3;
+      diagcoord[2]=5;
+    break;
+    case 0:
+      diagcoord[0]=0;
+      diagcoord[1]=4;
+      diagcoord[2]=8;
+    break;
+    default:
+      Message::Error("Invalid parameter for function 'DlalaAdaptation'");
+    break;
+  }
+
+  double mindiag=MIN(MIN(M[diagcoord[0]],M[diagcoord[1]]),M[diagcoord[2]]);
+  double maxdiag=MAX(MAX(M[diagcoord[0]],M[diagcoord[1]]),M[diagcoord[2]]);
+  double avediag=0.5*(mindiag+maxdiag);
+
+  for (int k=0; k<6; k++)
+    M[k]=0.;
+  for (int k=0; k<3; k++)
+    M[diagcoord[k]]=avediag;
 }
 
 double Mul_VecVec_K(const double *v1, const double *v2)
@@ -2766,6 +2800,33 @@ void Vector_h_Vinch_K(const double b[3], double bc[3],
 {
   //int dim = D->Case.Interpolation.x[0] ;
 
+  // Use an Inversion Method to deduce the h associated to b.
+
+  // KJ NEW since  2/3/2018. 
+  Vector_b_Vinch_K(h, Jk_all, Jkp_all, D, bc);
+  // * This recompute the bc (and Jkall) from h to start the NR
+  // (instead of taking the bc (and Jkall) given in argument...
+  // thus, the bc and Jkall given in argument are not necessary now.)
+
+  // * h can be {h}[1], ie. the h found at the last timestep. (original approach)
+  // in this case, bc={b}[1] could be used also 
+  // in order to avoid the re-evaluation of Vector_b_Vinch_K.
+  // However, this is not totally correct because 
+  // bc=b_Vinch({h[1]}) and {b}[1] are not exactly the same
+  // but are as close as the stopping criterion defined for
+  // the NR process allows to tolerate.
+
+  // * h can be {h}, ie. the h from the last iteration, (new since 2/3/2018)
+  // Note: this works because there is a small lag through iterations
+  // between the dof{h} that depends on {b} and dof{b} that depends on dof{h} 
+  // as can be seen in the formulation in magstadyna.pro (a-v formulation).
+  // Therefore the arguments b={b} and bc=b_Vinch({h}) are different, 
+  // otherwise the NR stop criterion would be directly satisfied.
+
+  // * This is even more recommended when ExtrapolatePolynomial
+  // is activated to init the next generated Timestep, because
+  // bc=b_Vinch({h}) has not yet been computed with the new predicted {h} 
+
   double TOL = ::TOLERANCE_NR;
   const int MAX_ITER = ::MAX_ITER_NR;
 
@@ -2889,7 +2950,7 @@ void Vector_h_Vinch_K(const double b[3], double bc[3],
       double *dhdb; dhdb = new double[ncomp];
       for (int n=0; n<ncomp; n++) {dbdh[n]=0.; dhdb[n]=0.;}
 
-      for (int n=0; n<3; n++) dh[n]=::DELTA_0; //KJNEW DELTA_00 +++
+      for (int n=0; n<3; n++) dh[n]=10.*::DELTA_0; //KJNEW DELTA_00 +++
       //*///-------------------------------------------------------------------------------------------
 
       int iter = 0 ;
@@ -4985,6 +5046,16 @@ void F_dbdh_Vinch_K(F_ARG)
       break;
   }
 
+
+  //---------------------------------------------------------------
+  //If the line search algorithm fails (Current.SolveJacAdaptFailed=1)
+  //==> Newton-Raphson has converged to a local minimum
+  //==> Continue with Dlala's optimal fixed point method
+  //    for the current time step
+  if(Current.SolveJacAdaptFailed)
+    DlalaAdaptation(dbdh);
+  //---------------------------------------------------------------
+
   for (int k=0 ; k<ncomp ; k++)
     V->Val[k] = dbdh[k] ;
 
@@ -5073,9 +5144,19 @@ void F_dhdb_Vinch_K(F_ARG)
     break;
   }
 
+  //---------------------------------------------------------------
+  //If the line search algorithm fails (Current.SolveJacAdaptFailed=1)
+  //==> Newton-Raphson has converged to a local minimum
+  //==> Continue with Dlala's optimal fixed point method
+  //    for the current time step
+  if(Current.SolveJacAdaptFailed)
+    DlalaAdaptation(dhdb);
+  //---------------------------------------------------------------
+
 
   for (int k=0 ; k<ncomp ; k++)
     V->Val[k] = dhdb[k] ;
+
 
   delete [] dhdb;
   delete [] dbdh;
