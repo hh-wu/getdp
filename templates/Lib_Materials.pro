@@ -13,7 +13,6 @@
 //   * _mur : relative magnetic permeability [-]
 //   * _epsilonr : relative dielectric permittivity [-]
 //   * _sigma : electric conductivity [S/m]
-//   * _hc : coercitive magnetic field [A/m]
 //
 // Lists:
 //   * _h_list() and _b_list() : pairs of magnetic fields h [A/m] and magnetic
@@ -104,12 +103,6 @@ Function{
   SteelAnalytic_dnudb2[] = 18. * Exp[1.8*SquNorm[$1]] ;
   SteelAnalytic_mu[] = ***;
   SteelAnalytic_dmudh2[] = ***;
-
-  // NdFeB magnet
-  Materials() += Str[ "NdFeB" ];
-  NdFeB_mur = 1;
-  NdFeB_sigma = 2e5;
-  NdFeB_hc = 1.85/mu0;
 }
 
 // The following macro automatically creates all the functions required by the
@@ -161,13 +154,6 @@ Macro DefineMaterialFunctions
     ] ];
     If(Exists[nonlinearMagneticMaterials] && !StrFind[n, "UserMaterial"])
       nonlinearMagneticMaterials() += Str[n];
-    EndIf
-  EndIf
-
-  // Permanent magnets:
-  If(Exists[StringToName[StrCat[n, "_hc"]]])
-    If(Exists[permanentMagnetMaterials] && !StrFind[n, "UserMaterial"])
-      permanentMagnetMaterials() += Str[n];
     EndIf
   EndIf
 
