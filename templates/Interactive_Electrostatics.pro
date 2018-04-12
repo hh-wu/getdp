@@ -24,7 +24,7 @@ DefineConstant[
       "v: scalar electric potential (e = -grad v) [V]",
       "rho: free charge density [C/m³]",
       "q: free charge [C]"],
-    Name "GetDP/Formulation", ServerAction "ResetDatabase"},
+    Name "Model/01Formulation"},
   modelDim = GetNumber["Gmsh/Model dimension"],
   modelPath = GetString["Gmsh/Model absolute path"],
   modelName = GetString["Gmsh/Model name"],
@@ -36,8 +36,8 @@ DefineConstant[
 ];
 
 numPhysicals = GetNumber["Gmsh/Number of physical groups"];
-surPath = "Parameters/Boundary conditions/Physical group: ";
-volPath = "Parameters/Materials and sources/Physical group: ";
+surPath = "Model/Boundary conditions/Physical group: ";
+volPath = "Model/Materials and sources/Physical group: ";
 
 If(export && FileExists[exportFile])
   RenameFile[exportFile, StrCat[exportFile, "_", Date["%F-%R"]]];
@@ -103,9 +103,9 @@ Group {
 
 DefineConstant[
   Val_Rint = {1, Visible NbrRegions[Vol_Inf_Ele],
-    Name "Parameters/Geometry/1Internal shell radius"},
+    Name "Model/Geometry/1Internal shell radius"},
   Val_Rext = {2, Visible NbrRegions[Vol_Inf_Ele],
-    Name "Parameters/Geometry/2External shell radius"}
+    Name "Model/Geometry/2External shell radius"}
 ];
 If(export && NbrRegions[Vol_Inf_Ele])
   Printf(Sprintf("Val_Rint = %g;", Val_Rint)) >> Str[exportFile];

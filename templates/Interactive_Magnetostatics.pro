@@ -23,7 +23,7 @@ DefineConstant[
       "b: magnetic flux density [T]",
       "phi: scalar magnetic potential (h = -grad phi) [A]",
       "a: vector magnetic potential (b = curl a) [T.m]"],
-    Name "GetDP/Formulation", ServerAction "ResetDatabase"},
+    Name "Model/01Formulation"},
   modelDim = GetNumber["Gmsh/Model dimension"],
   modelPath = GetString["Gmsh/Model absolute path"],
   modelName = GetString["Gmsh/Model name"],
@@ -35,8 +35,8 @@ DefineConstant[
 ];
 
 numPhysicals = GetNumber["Gmsh/Number of physical groups"];
-surPath = "Parameters/Boundary conditions/Physical group: ";
-volPath = "Parameters/Materials and sources/Physical group: ";
+surPath = "Model/Boundary conditions/Physical group: ";
+volPath = "Model/Materials and sources/Physical group: ";
 
 If(export && FileExists[exportFile])
   RenameFile[exportFile, StrCat[exportFile, "_", Date["%F-%R"]]];
@@ -74,7 +74,7 @@ Group {
             2="Infinite air shell"
           },
           Name StrCat[volPath, name~{i}, "/0Material type"]}
-        source~{i} = {0, Choices{
+        source~{i} = {0, ReadOnlyRange 1, Choices{
             0="None",
             1="Coercive magnetic field",
             formulationType ? 2="Current source"
@@ -107,9 +107,9 @@ Group{
   DefineGroup[ Vol_Inf_Mag, Vol_NL_Mag ];
   DefineConstant[
     Val_Rint = {1, Visible NbrRegions[Vol_Inf_Mag],
-      Name "Parameters/Geometry/0Internal shell radius"},
+      Name "Model/Geometry/0Internal shell radius"},
     Val_Rext = {2, Visible NbrRegions[Vol_Inf_Mag],
-      Name "Parameters/Geometry/1External shell radius"}
+      Name "Model/Geometry/1External shell radius"}
   ];
   If(export && NbrRegions[Vol_Inf_Mag])
     Printf(Sprintf("Val_Rint = %g;", Val_Rint)) >> Str[exportFile];
@@ -179,7 +179,8 @@ Function{
           Visible (source~{i} == 2 && js_preset~{i} == 1),
           Name StrCat[volPath, name~{i}, "/8js function"],
           Label "js [A/m²]", Help "Current density"},
-        mur_preset~{i} = {0, Visible (material~{i} == 0),
+        mur_preset~{i} = {#linearMagneticMaterials() > 2 ? 2 : 0,
+          Visible (material~{i} == 0),
           Choices{ 0:#linearMagneticMaterials()-1 = linearMagneticMaterials() },
           Name StrCat[volPath, name~{i}, "/1mur preset"],
           Label "Material choice"}
