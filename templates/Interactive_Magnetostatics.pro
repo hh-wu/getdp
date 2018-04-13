@@ -74,10 +74,10 @@ Group {
             2="Infinite air shell"
           },
           Name StrCat[volPath, name~{i}, "/0Material type"]}
-        source~{i} = {0, ReadOnlyRange 1, Choices{
+        source~{i} = {0, Visible (material~{i} != 2), ReadOnlyRange 1, Choices{
             0="None",
             1="Coercive magnetic field",
-            formulationType ? 2="Current source"
+            (formulationType == 1) ? 2="Current source"
           },
           Name StrCat[volPath, name~{i}, "/6Source type"]}
       ];
