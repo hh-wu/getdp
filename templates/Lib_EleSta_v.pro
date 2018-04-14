@@ -10,6 +10,7 @@ DefineConstant[
   modelPath = "", // default path of the model
   resPath = StrCat[modelPath, "res/"], // path for post-operation files
   eps0 = 8.854187818e-12, // permittivity of vacuum
+  Flag_Axi = 0, // axisymmetric model?
   Val_Rint = 0, // internal radius of Vol_Inf_Ele annulus
   Val_Rext = 0, // external radius of Vol_Inf_Ele annulus
   Val_Cx = 0, // x-coordinate of center of Vol_Inf_Ele
@@ -46,14 +47,24 @@ Function{
 Jacobian {
   { Name Vol;
     Case {
-      { Region Vol_Inf_Ele;
-        Jacobian VolSphShell{Val_Rint, Val_Rext, Val_Cx, Val_Cy, Val_Cz}; }
-      { Region All; Jacobian Vol; }
+      If(Flag_Axi && modelDim < 3)
+        { Region Vol_Inf_Ele;
+          Jacobian VolAxiSquSphShell{Val_Rint, Val_Rext, Val_Cx, Val_Cy, Val_Cz}; }
+        { Region All; Jacobian VolAxiSqu; }
+      Else
+        { Region Vol_Inf_Ele;
+          Jacobian VolSphShell{Val_Rint, Val_Rext, Val_Cx, Val_Cy, Val_Cz}; }
+        { Region All; Jacobian Vol; }
+      EndIf
     }
   }
   { Name Sur;
     Case {
-      { Region All; Jacobian Sur; }
+      If(Flag_Axi && modelDim < 3)
+        { Region All; Jacobian SurAxi; }
+      Else
+        { Region All; Jacobian Sur; }
+      EndIf
     }
   }
 }

@@ -9,13 +9,14 @@
 DefineConstant[
   modelPath = "", // default path of the model
   resPath = StrCat[modelPath, "res/"], // path for post-operation files
-  Flag_NewtonRaphson = 1, // Newton-Raphson or Picard method for nonlinear iterations
   modelDim = 2, // default model dimension (2D)
+  Flag_Axi = 0, // axisymmetric model?
+  Flag_NewtonRaphson = 1, // Newton-Raphson or Picard method for nonlinear iterations
   Val_Rint = 0, // internal radius of Vol_Inf_Ele annulus
   Val_Rext = 0, // external radius of Vol_Inf_Ele annulus
-  Val_Cx = 0, // x-coordinate of center of Vol_Inf_Ele
-  Val_Cy = 0, // y-coordinate of center of Vol_Inf_Ele
-  Val_Cz = 0, // z-coordinate of center of Vol_Inf_Ele
+  Val_Cx = 0, // x-coordinate of center of Vol_Inf_Mag
+  Val_Cy = 0, // y-coordinate of center of Vol_Inf_Mag
+  Val_Cz = 0, // z-coordinate of center of Vol_Inf_Mag
   NL_tol_abs = 1e-6, // absolute tolerance on residual for noninear iterations
   NL_tol_rel = 1e-6, // relative tolerance on residual for noninear iterations
   NL_iter_max = 20 // maximum number of noninear iterations
@@ -28,7 +29,7 @@ Group {
 
     // Subsets of Vol_Mag:
     Vol_NL_Mag, // nonlinear magnetic materials
-    Vol_M_Mag, // permenent magnets
+    Vol_M_Mag, // permanent magnets
     Vol_S0_Mag, // imposed current density
     Vol_Inf_Mag, // infinite domains
 
@@ -63,14 +64,24 @@ Group {
 Jacobian {
   { Name Vol;
     Case {
-      { Region Vol_Inf_Mag;
-        Jacobian VolSphShell{Val_Rint, Val_Rext, Val_Cx, Val_Cy, Val_Cz}; }
-      { Region All; Jacobian Vol; }
+      If(Flag_Axi && modelDim < 3)
+        { Region Vol_Inf_Mag;
+          Jacobian VolAxiSquSphShell{Val_Rint, Val_Rext, Val_Cx, Val_Cy, Val_Cz}; }
+        { Region All; Jacobian VolAxiSqu; }
+      Else
+        { Region Vol_Inf_Mag;
+          Jacobian VolSphShell{Val_Rint, Val_Rext, Val_Cx, Val_Cy, Val_Cz}; }
+        { Region All; Jacobian Vol; }
+      EndIf
     }
   }
   { Name Sur;
     Case {
-      { Region All; Jacobian Sur; }
+      If(Flag_Axi && modelDim < 3)
+        { Region All; Jacobian SurAxi; }
+      Else
+        { Region All; Jacobian Sur; }
+      EndIf
     }
   }
 }

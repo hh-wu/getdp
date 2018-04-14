@@ -47,6 +47,7 @@ Group {
   If(export)
     Printf('Group{') > Str[exportFile];
   EndIf
+  DefineGroup[ Vol_Inf_Mag, Vol_NL_Mag ];
   For i In {1:numPhysicals}
     dim~{i} = GetNumber[Sprintf["Gmsh/Physical group %g/Dimension", i]];
     name~{i} = GetString[Sprintf["Gmsh/Physical group %g/Name", i]];
@@ -103,19 +104,24 @@ Group {
   EndIf
 }
 
-Group{
-  DefineGroup[ Vol_Inf_Mag, Vol_NL_Mag ];
-  DefineConstant[
-    Val_Rint = {1, Visible NbrRegions[Vol_Inf_Mag],
-      Name "Model/Geometry/0Internal shell radius"},
-    Val_Rext = {2, Visible NbrRegions[Vol_Inf_Mag],
-      Name "Model/Geometry/1External shell radius"}
-  ];
-  If(export && NbrRegions[Vol_Inf_Mag])
+// global definitions
+DefineConstant[
+  Val_Rint = {1, Visible NbrRegions[Vol_Inf_Mag],
+    Name "Model/Geometry/0Internal shell radius"},
+  Val_Rext = {2, Visible NbrRegions[Vol_Inf_Mag],
+    Name "Model/Geometry/1External shell radius"}
+  Flag_Axi = {0, Choices{0,1}, Visible (modelDim == 2),
+    Name "Model/02Axisymmetric model"}
+];
+If(export)
+  If(NbrRegions[Vol_Inf_Mag])
     Printf(Sprintf("Val_Rint = %g;", Val_Rint)) >> Str[exportFile];
     Printf(Sprintf("Val_Rext = %g;", Val_Rext)) >> Str[exportFile];
   EndIf
-}
+  If(Flag_Axi)
+    Printf(Sprintf("Flag_Axi = 1;")) >> Str[exportFile];
+  EndIf
+EndIf
 
 // import material library
 Include "Lib_Materials.pro";

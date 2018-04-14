@@ -8,6 +8,9 @@
 // redefined from outside the template:
 
 DefineConstant[
+  modelPath = "", // default path of the model
+  resPath = StrCat[modelPath, "res/"], // path for post-operation files
+  Flag_Axi = 0, // axisymmetric model?
   Flag_FrequencyDomain = 1, // frequency-domain or time-domain simulation
   Flag_CircuitCoupling = 0, // consider coupling with external electric circuit
   Flag_NewtonRaphson = 1, // Newton-Raphson or Picard method for nonlinear iterations
@@ -19,6 +22,9 @@ DefineConstant[
   FE_Order = 1, // finite element order
   Val_Rint = 0, // interior radius of annulus shell transformation region (Vol_Inf_Mag)
   Val_Rext = 0 // exterior radius of annulus shell  transformation region (Vol_Inf_Mag)
+  Val_Cx = 0, // x-coordinate of center of Vol_Inf_Mag
+  Val_Cy = 0, // y-coordinate of center of Vol_Inf_Mag
+  Val_Cz = 0, // z-coordinate of center of Vol_Inf_Mag
   NL_tol_abs = 1e-6, // absolute tolerance on residual for noninear iterations
   NL_tol_rel = 1e-6, // relative tolerance on residual for noninear iterations
   NL_iter_max = 20 // maximum number of noninear iterations
@@ -98,14 +104,24 @@ Group{
 Jacobian {
   { Name Vol;
     Case {
-      { Region Vol_Inf_Mag ;
-        Jacobian VolSphShell {Val_Rint, Val_Rext} ; }
-      { Region All; Jacobian Vol; }
+      If(Flag_Axi)
+        { Region Vol_Inf_Mag;
+          Jacobian VolAxiSquSphShell{Val_Rint, Val_Rext, Val_Cx, Val_Cy, Val_Cz}; }
+        { Region All; Jacobian VolAxiSqu; }
+      Else
+        { Region Vol_Inf_Mag;
+          Jacobian VolSphShell{Val_Rint, Val_Rext, Val_Cx, Val_Cy, Val_Cz}; }
+        { Region All; Jacobian Vol; }
+      EndIf
     }
   }
   { Name Sur;
     Case {
-      { Region All; Jacobian Sur; }
+      If(Flag_Axi)
+        { Region All; Jacobian SurAxi; }
+      Else
+        { Region All; Jacobian Sur; }
+      EndIf
     }
   }
 }

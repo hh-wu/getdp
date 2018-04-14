@@ -101,15 +101,23 @@ Group {
   EndIf
 }
 
+// global definitions
 DefineConstant[
   Val_Rint = {1, Visible NbrRegions[Vol_Inf_Ele],
     Name "Model/Geometry/1Internal shell radius"},
   Val_Rext = {2, Visible NbrRegions[Vol_Inf_Ele],
     Name "Model/Geometry/2External shell radius"}
+  Flag_Axi = {0, Choices{0,1}, Visible (modelDim == 2),
+    Name "Model/02Axisymmetric model"}
 ];
-If(export && NbrRegions[Vol_Inf_Ele])
-  Printf(Sprintf("Val_Rint = %g;", Val_Rint)) >> Str[exportFile];
-  Printf(Sprintf("Val_Rext = %g;", Val_Rext)) >> Str[exportFile];
+If(export)
+  If(NbrRegions[Vol_Inf_Ele])
+    Printf(Sprintf("Val_Rint = %g;", Val_Rint)) >> Str[exportFile];
+    Printf(Sprintf("Val_Rext = %g;", Val_Rext)) >> Str[exportFile];
+  EndIf
+  If(Flag_Axi)
+    Printf(Sprintf("Flag_Axi = 1;")) >> Str[exportFile];
+  EndIf
 EndIf
 
 // import material library
