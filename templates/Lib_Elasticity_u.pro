@@ -198,12 +198,12 @@ Formulation {
       EndIf
 
       If(Flag_Regime)
-        Integral { DtDtDof [ rho[] * Dof{ux} , {ux} ];
+        Integral { DtDtDof [ -rho[] * Dof{ux} , {ux} ];
           In Vol_Mec ; Jacobian Vol ; Integration Int ; }
-        Integral { DtDtDof [ rho[] * Dof{uy} , {uy} ];
+        Integral { DtDtDof [ -rho[] * Dof{uy} , {uy} ];
           In Vol_Mec ; Jacobian Vol ; Integration Int ; }
         If(modelDim == 3)
-          Integral { DtDtDof [ rho[] * Dof{uz} , {uz} ];
+          Integral { DtDtDof [ -rho[] * Dof{uz} , {uz} ];
             In Vol_Mec ; Jacobian Vol ; Integration Int ; }
         EndIf
       EndIf
