@@ -22,7 +22,8 @@ DefineConstant[
       "e: electric field [V/m]",
       "d: electric displacement field [C/m²]",
       "v: scalar electric potential (e = -grad v) [V]",
-      "rho: free charge density [C/m³]",
+      "εr: relative dielectric permittivity [-]",
+      "ρ: free charge density [C/m³]",
       "q: free charge [C]"],
     Name "Model/01Formulation"},
   modelDim = GetNumber["Gmsh/Model dimension"],
@@ -149,38 +150,38 @@ Function {
           Choices{ 0="Constant", 1="Function" },
           Name StrCat[volPath, name~{i}, "/4rho preset"],
           Label "Source choice"},
-        rho~{i} = {1, Visible (source~{i} == 1 && rho_preset~{i} == 0),
+        rho_cst~{i} = {1, Visible (source~{i} == 1 && rho_preset~{i} == 0),
           Name StrCat[volPath, name~{i}, "/5rho value"],
           Label "ρ [C/m³]", Help "Charge density"},
         rho_fct~{i} = {"1", Visible (source~{i} == 1 && rho_preset~{i} == 1),
           Name StrCat[volPath, name~{i}, "/5rho function"],
           Label "ρ [C/m³]", Help "Charge density"},
-        epsr_preset~{i} = {#linearDielectricMaterials() > 2 ? 2 : 0,
+        material_preset~{i} = {#linearDielectricMaterials() > 2 ? 2 : 0,
           Visible (material~{i} == 0),
           Choices{ 0:#linearDielectricMaterials()-1 = linearDielectricMaterials() },
           Name StrCat[volPath, name~{i}, "/1epsr preset"],
           Label "Material choice"}
-        epsr~{i} = {1, Visible (material~{i} == 0 && epsr_preset~{i} == 0),
+        epsr_cst~{i} = {1, Visible (material~{i} == 0 && material_preset~{i} == 0),
           Name StrCat[volPath, name~{i}, "/2epsr value"],
           Label "εr [-]", Help "Relative dielectric permittivity"},
-        epsr_fct~{i} = {"1", Visible (material~{i} == 0 && epsr_preset~{i} == 1),
+        epsr_fct~{i} = {"1", Visible (material~{i} == 0 && material_preset~{i} == 1),
           Name StrCat[volPath, name~{i}, "/2epsr function"],
           Label "εr [-]", Help "Relative dielectric permittivity"}
       ];
       // rho[]
       If(source~{i} == 1 && rho_preset~{i} == 0) // constant
-        str = StrCat[str, "rho", reg, Sprintf[" = %g; ", rho~{i}]];
+        str = StrCat[str, "rho", reg, Sprintf[" = %g; ", rho_cst~{i}]];
       ElseIf(source~{i} == 1 && rho_preset~{i} == 1) // function
         str = StrCat[str, "rho", reg, " = ", rho_fct~{i}, "; "];
       EndIf
       // epsr[]
-      If(material~{i} == 0 && epsr_preset~{i} == 0) // constant
-        str = StrCat[str, "epsr", reg, Sprintf[" = %g;", epsr~{i}]];
-      ElseIf(material~{i} == 0 && epsr_preset~{i} == 1) // function
+      If(material~{i} == 0 && material_preset~{i} == 0) // constant
+        str = StrCat[str, "epsr", reg, Sprintf[" = %g;", epsr_cst~{i}]];
+      ElseIf(material~{i} == 0 && material_preset~{i} == 1) // function
         str = StrCat[str, "epsr", reg, " = ", epsr_fct~{i}, ";"];
-      ElseIf(material~{i} == 0 && epsr_preset~{i} > 1) // preset
-        str = StrCat[str, "epsr", reg, " = ", linearDielectricMaterials(epsr_preset~{i}),
-          "_epsilonr;"];
+      ElseIf(material~{i} == 0 && material_preset~{i} > 1) // preset
+        str = StrCat[str, "epsr", reg, " = ", linearDielectricMaterials(material_preset~{i}),
+          "_relative_dielectric_permittivity;"];
       ElseIf(material~{i} == 1) // infinite air region
         str = StrCat[str, "epsr", reg, " = 1;"];
       EndIf
