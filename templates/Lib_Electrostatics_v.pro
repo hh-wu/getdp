@@ -1,4 +1,4 @@
-// Lib_EleSta_v.pro
+// Lib_Electrostatics_v.pro
 //
 // Template library for electrostatics using a scalar electric potential (v)
 // formulation, with floating potentials.
@@ -145,18 +145,18 @@ Formulation {
 }
 
 Resolution {
-  { Name EleSta_v;
+  { Name Electrostatics_v;
     System {
-      { Name Sys_Ele; NameOfFormulation Electrostatics_vf; }
+      { Name A; NameOfFormulation Electrostatics_vf; }
     }
     Operation {
-      Generate[Sys_Ele]; Solve[Sys_Ele]; SaveSolution[Sys_Ele];
+      Generate[A]; Solve[A]; SaveSolution[A];
     }
   }
 }
 
 PostProcessing {
-  { Name EleSta_v; NameOfFormulation Electrostatics_vf;
+  { Name Electrostatics_v; NameOfFormulation Electrostatics_vf;
     PostQuantity {
       { Name v; Value {
           Term { [ {v} ]; In Vol_Ele; Jacobian Vol; }
@@ -205,15 +205,15 @@ PostProcessing {
 }
 
 PostOperation {
-  { Name EleSta_v; NameOfPostProcessing EleSta_v;
+  { Name Electrostatics_v; NameOfPostProcessing Electrostatics_v;
     Operation {
       CreateDir[resPath];
-      Print[ e, OnElementsOf Vol_Ele, File StrCat[resPath, "EleSta_v_e.pos"] ];
-      Print[ v, OnElementsOf Vol_Ele, File StrCat[resPath, "EleSta_v_v.pos"] ];
+      Print[ e, OnElementsOf Vol_Ele, File StrCat[resPath, "e.pos"] ];
+      Print[ v, OnElementsOf Vol_Ele, File StrCat[resPath, "v.pos"] ];
       If(NbrRegions[Sur_C_Ele])
-        Print[ Q, OnRegion Sur_C_Ele, File StrCat[resPath, "EleSta_v_q.txt"],
+        Print[ Q, OnRegion Sur_C_Ele, File StrCat[resPath, "q.txt"],
           Format Table, SendToServer "}Output/Floating charge [C]" ];
-        Print[ V, OnRegion Sur_C_Ele, File StrCat[resPath, "EleSta_v_q.txt"],
+        Print[ V, OnRegion Sur_C_Ele, File StrCat[resPath, "q.txt"],
           Format Table, SendToServer "}Output/Floating potential [V]" ];
       EndIf
     }

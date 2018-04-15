@@ -10,10 +10,10 @@
 // How does it work?
 //
 // This file interactively proposes choices for all the constants, functions,
-// groups and constraints needed by the "Lib_MagSta_a_phi.pro" template. In
-// addition, everytime "Run" is pressed a ".pro" file is created (with the same
-// prefix as the geometry file) with all the choices made interactively, for
-// later non-interactive use.
+// groups and constraints needed by the "Lib_Magnetostatics_a_phi.pro"
+// template. In addition, everytime "Run" is pressed a ".pro" file is created
+// (with the same prefix as the geometry file) with all the choices made
+// interactively, for later non-interactive use.
 
 DefineConstant[
   formulationType = {1, Choices{0="Scalar potential", 1="Vector potential"},
@@ -311,9 +311,9 @@ For j In {0:#constraintNames()-1}
 EndFor
 
 // import magnetostatics template
-Include "Lib_MagSta_a_phi.pro";
+Include "Lib_Magnetostatics_a_phi.pro";
 If(export)
-  Printf(StrCat['Include "', CurrentDirectory, 'Lib_MagSta_a_phi.pro";'])
+  Printf(StrCat['Include "', CurrentDirectory, 'Lib_Magnetostatics_a_phi.pro";'])
     >> Str[exportFile];
 EndIf
 
@@ -321,9 +321,9 @@ Resolution{
   { Name Analysis;
     System {
       If(formulationType == 0)
-        { Name A; NameOfFormulation MagSta_phi; }
+        { Name A; NameOfFormulation Magnetostatics_phi; }
       Else
-        { Name A; NameOfFormulation MagSta_a; }
+        { Name A; NameOfFormulation Magnetostatics_a; }
       EndIf
     }
     Operation {
@@ -344,9 +344,9 @@ Resolution{
       EndIf
       SaveSolution[A];
       If(formulationType == 0)
-        PostOperation[MagSta_phi];
+        PostOperation[Magnetostatics_phi];
       Else
-        PostOperation[MagSta_a];
+        PostOperation[Magnetostatics_a];
       EndIf
     }
   }

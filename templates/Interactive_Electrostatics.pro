@@ -10,10 +10,10 @@
 // How does it work?
 //
 // This file interactively proposes choices for all the constants, functions,
-// groups and constraints needed by the "Lib_EleSta_v.pro" template. In addition,
-// everytime "Run" is pressed a ".pro" file is created (with the same prefix as
-// the geometry file) with all the choices made interactively, for later non-
-// interactive use.
+// groups and constraints needed by the "Lib_Electrostatics_v.pro" template. In
+// addition, everytime "Run" is pressed a ".pro" file is created (with the same
+// prefix as the geometry file) with all the choices made interactively, for
+// later non- interactive use.
 
 DefineConstant[
   formulationType = {0, Choices{0="Scalar potential"},
@@ -30,9 +30,9 @@ DefineConstant[
   modelName = GetString["Gmsh/Model name"],
   export = !StrCmp[OnelabAction, "compute"],
   exportFile = StrCat[modelPath, StrPrefix[StrRelative[modelName]], ".pro"],
-  R_ = {"EleSta_v", Name "GetDP/1ResolutionChoices", Visible 0},
+  R_ = {"Electrostatics_v", Name "GetDP/1ResolutionChoices", Visible 0},
   C_ = {"-solve -pos -bin", Name "GetDP/9ComputeCommand", Visible 0},
-  P_ = {"EleSta_v", Name "GetDP/2PostOperationChoices", Visible 0}
+  P_ = {"Electrostatics_v", Name "GetDP/2PostOperationChoices", Visible 0}
 ];
 
 numPhysicals = GetNumber["Gmsh/Number of physical groups"];
@@ -123,7 +123,8 @@ EndIf
 // import material library
 Include "Lib_Materials.pro";
 If(export)
-  Printf(StrCat['Include "', CurrentDirectory, 'Lib_Materials.pro";']) >> Str[exportFile];
+  Printf(StrCat['Include "', CurrentDirectory, 'Lib_Materials.pro";'])
+    >> Str[exportFile];
 EndIf
 
 // interactive definition of materials and sources
@@ -219,7 +220,8 @@ For j In {0:#constraintNames()-1}
 EndFor
 
 // import electrostatic template
-Include "Lib_EleSta_v.pro";
+Include "Lib_Electrostatics_v.pro";
 If(export)
-  Printf(StrCat['Include "', CurrentDirectory, 'Lib_EleSta_v.pro";']) >> Str[exportFile];
+  Printf(StrCat['Include "', CurrentDirectory, 'Lib_Electrostatics_v.pro";'])
+    >> Str[exportFile];
 EndIf

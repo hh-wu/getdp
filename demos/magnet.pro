@@ -1,7 +1,7 @@
 /*
    To solve the problem
-   with scalar potential, type 'getdp test -solve MagSta_phi -pos phi'
-   with vector potential, type 'getdp test -solve MagSta_a -pos a'
+   with scalar potential, type 'getdp test -solve Magnetostatics_phi -pos phi'
+   with vector potential, type 'getdp test -solve Magnetostatics_a -pos a'
 */
 
 Include "magnet_data.pro";
@@ -26,7 +26,7 @@ Group {
   ];
 
   // These are the generic group names that are used in the
-  // "Lib_MagSta_a_phi.pro" template included below
+  // "Lib_Magnatostatics_a_phi.pro" template included below
   Vol_Mag = Region[ {Air, AirInf, Core, AirGap, Magnet} ] ;
   If(Flag_NL)
     Vol_NL_Mag = Region[ {Core} ] ;
@@ -73,12 +73,12 @@ Constraint {
 }
 
 modelPath = CurrentDirectory;
-Include "../templates/Lib_MagSta_a_phi.pro"
+Include "../templates/Lib_Magnetostatics_a_phi.pro"
 
 eps = 1.e-5;
 
 PostOperation {
-  { Name phi ; NameOfPostProcessing MagSta_phi;
+  { Name phi ; NameOfPostProcessing Magnetostatics_phi;
     Operation {
       Print[ phi, OnElementsOf Vol_Mag, File "phi.pos" ] ;
       Print[ hc, OnElementsOf Vol_Mag, File "hc.pos" ] ;
@@ -86,7 +86,7 @@ PostOperation {
       Print[ b, OnLine {{-0.07,eps,0}{0.09,eps,0}} {500}, File "b_phi.txt", Format Table ] ;
     }
   }
-  { Name a ; NameOfPostProcessing MagSta_a;
+  { Name a ; NameOfPostProcessing Magnetostatics_a;
     Operation {
       Print[ az, OnElementsOf Vol_Mag, File "az.pos"] ;
       Print[ b, OnElementsOf Vol_Mag, File "b_a.pos" ] ;
