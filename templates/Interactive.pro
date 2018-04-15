@@ -15,7 +15,8 @@ DefineConstant[
   physics = {0, Choices{
       0="-",
       1="Electrostatics",
-      2="Magnetostatics"
+      2="Magnetostatics",
+      3="Elasticity"
     },
     Name "Model/00Physical model", ServerAction "Reset"}
   _C = {0, Name "GetDP/}ModelCheck", Closed 1}
@@ -25,4 +26,6 @@ If(physics == 1)
   Include "Interactive_Electrostatics.pro";
 ElseIf(physics == 2)
   Include "Interactive_Magnetostatics.pro";
+ElseIf(physics == 3)
+  Include "Interactive_Elasticity.pro";
 EndIf
