@@ -231,12 +231,13 @@ Return
 
 Function{
   // create lists of available material names of various types:
-  linearMagneticMaterials() = Str["Constant", "Function"];
-  nonlinearMagneticMaterials() = Str["Data points", "Function"];
-  permanentMagnetMaterials() = Str["Constant", "Function"];
-  linearDielectricMaterials() = Str["Constant", "Function"];
-  electricConductors() = Str["Constant", "Function"];
-  linearElasticMaterials() = Str["Constant", "Function"];
+  linearMagneticMaterials() = Str["User-defined"];
+  nonlinearMagneticMaterials() = Str["User-defined data points",
+                                     "User-defined function"];
+  permanentMagnetMaterials() = Str["User-defined"];
+  linearDielectricMaterials() = Str["User-defined"];
+  electricConductors() = Str["User-defined"];
+  linearElasticMaterials() = Str["User-defined"];
   For i In {1 : #Materials()}
     _materialName = Str[ Materials(i - 1) ];
     Call DefineMaterialFunctions;

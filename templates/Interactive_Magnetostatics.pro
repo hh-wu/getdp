@@ -151,49 +151,21 @@ Function{
       EndIf
     Else
       DefineConstant[
-        hc_preset~{i} = {0, Visible (source~{i} == 1),
-          Choices{ 0="Constant", 1="Function" },
-          Name StrCat[volPath, name~{i}, "/7hc preset"],
-          Label "Source choice"},
-        hcx_cst~{i} = {920000, Visible (source~{i} == 1 && hc_preset~{i} == 0),
-          Name StrCat[volPath, name~{i}, "/8hcx value"],
-          Label "hcx [A/m]", Help "Coercive magnetic field along x-axis"},
-        hcy_cst~{i} = {0, Visible (source~{i} == 1 && hc_preset~{i} == 0),
-          Name StrCat[volPath, name~{i}, "/8hcy value"],
-          Label "hcy [A/m]", Help "Coercive magnetic field along y-axis"},
-        hcz_cst~{i} = {0, Visible (source~{i} == 1 && hc_preset~{i} == 0 && dim~{i} == 3),
-          Name StrCat[volPath, name~{i}, "/8hcz value"],
-          Label "hcz [A/m]", Help "Coercive magnetic field along z-axis"},
         hc_fct~{i} = {"Vector[92000, 0, 0]",
-          Visible (source~{i} == 1 && hc_preset~{i} == 1),
+          Visible (source~{i} == 1),
           Name StrCat[volPath, name~{i}, "/8hc function"],
           Label "hc [A/m]", Help "Coercive magnetic field"},
-        js_preset~{i} = {0, Visible (source~{i} == 2),
-          Choices{ 0="Constant", 1="Function" },
-          Name StrCat[volPath, name~{i}, "/7js preset"],
-          Label "Source choice"},
-        jsx_cst~{i} = {0, Visible (source~{i} == 2 && js_preset~{i} == 0 && dim~{i} == 3),
-          Name StrCat[volPath, name~{i}, "/8jx value"],
-          Label "jsx [A/m²]", Help "Current density along x-axis"},
-        jsy_cst~{i} = {0, Visible (source~{i} == 2 && js_preset~{i} == 0 && dim~{i} == 3),
-          Name StrCat[volPath, name~{i}, "/8jy value"],
-          Label "jsy [A/m²]", Help "Current density along y-axis"},
-        jsz_cst~{i} = {1, Visible (source~{i} == 2 && js_preset~{i} == 0),
-          Name StrCat[volPath, name~{i}, "/8jz value"],
-          Label "jsz [A/m²]", Help "Current density along z-axis"},
         js_fct~{i} = {"Vector[0, 0, 1]",
-          Visible (source~{i} == 2 && js_preset~{i} == 1),
+          Visible (source~{i} == 2),
           Name StrCat[volPath, name~{i}, "/8js function"],
           Label "js [A/m²]", Help "Current density"},
-        material_preset~{i} = {#linearMagneticMaterials() > 2 ? 2 : 0,
+        material_preset~{i} = {#linearMagneticMaterials() > 1 ? 1 : 0,
           Visible (material~{i} == 0),
           Choices{ 0:#linearMagneticMaterials()-1 = linearMagneticMaterials() },
           Name StrCat[volPath, name~{i}, "/1mur preset"],
           Label "Material choice"}
-        mur_cst~{i} = {1, Visible (material~{i} == 0 && material_preset~{i} == 0),
-          Name StrCat[volPath, name~{i}, "/2mur value"],
-          Label "μr [-]", Help "Relative magnetic permeability"},
-        mur_fct~{i} = {"1", Visible (material~{i} == 0 && material_preset~{i} == 1),
+        mur_fct~{i} = {"1",
+          Visible (material~{i} == 0 && material_preset~{i} == 0),
           Name StrCat[volPath, name~{i}, "/2mur function"],
           Label "μr [-]", Help "Relative magnetic permeability"},
         nl_material_preset~{i} = {#nonlinearMagneticMaterials() > 2 ? 2 : 0,
@@ -215,40 +187,35 @@ Function{
           Visible (material~{i} == 1 && nl_material_preset~{i} == 1),
           Name StrCat[volPath, name~{i}, "/3dnudb2 function"],
           Label "dν(b)/db²"},
-        mu_fct~{i} = {"***", Visible (material~{i} == 1 && nl_material_preset~{i} == 1),
+        mu_fct~{i} = {"***",
+          Visible (material~{i} == 1 && nl_material_preset~{i} == 1),
           Name StrCat[volPath, name~{i}, "/4mu function"],
           Label "μ(h) [H/m]", Help "Magnetic permeability"},
-        dmudh2_fct~{i} = {"***", Visible (material~{i} == 1 && nl_material_preset~{i} == 1),
+        dmudh2_fct~{i} = {"***",
+          Visible (material~{i} == 1 && nl_material_preset~{i} == 1),
           Name StrCat[volPath, name~{i}, "/5dmudh2 function"],
           Label "dμ(h)/dh²"}
       ];
-      // hc[] and js[]
-      If(source~{i} == 1 && hc_preset~{i} == 0) // magnet, constant
-        str = StrCat[str, "hc", reg,
-          Sprintf[" = Vector[%g, %g, %g]; ", hcx_cst~{i}, hcy_cst~{i}, hcz_cst~{i}]];
-      ElseIf(source~{i} == 1 && hc_preset~{i} == 1) // magnet, function
+      // sources
+      If(source~{i} == 1)
         str = StrCat[str, "hc", reg, " = ", hc_fct~{i}, "; "];
-      ElseIf(source~{i} == 2 && js_preset~{i} == 0) // current source, constant
-        str = StrCat[str, "js", reg, " = ",
-          Sprintf["Vector[%g, %g, %g]; ", jsx_cst~{i}, jsy_cst~{i}, jsz_cst~{i}]];
-      ElseIf(source~{i} == 2 && js_preset~{i} == 1) // current source, function
+      ElseIf(source~{i} == 2)
         str = StrCat[str, "js", reg, " = ", js_fct~{i}, "; "];
       EndIf
-      // mu[], nu[], dhdb[], etc.
-      If(material~{i} == 0 && material_preset~{i} == 0) // linear material, constant
-        str = StrCat[str,
-          "mu", reg, " = ", Sprintf["%g", mur_cst~{i}], "*mu0; ",
-          "nu", reg, " = 1/(", Sprintf["%g", mur_cst~{i}], "*mu0); "];
-      ElseIf(material~{i} == 0 && material_preset~{i} == 1) // linear material, function
-        str = StrCat[str,
-          "mu", reg, " = (", mur_fct~{i}, ")*mu0; ",
-          "nu", reg, " = 1/((", mur_fct~{i}, ")*mu0); "];
-      ElseIf(material~{i} == 0 && material_preset~{i} > 1) // linear material, preset
-        n = Str[ linearMagneticMaterials(material_preset~{i}) ];
-        str = StrCat[str,
-          "mu", reg, " = ", n, "_relative_magnetic_permeability*mu0; ",
-          "nu", reg, " = 1/(", n, "_relative_magnetic_permeability*mu0); "];
-      ElseIf(material~{i} == 1) // nonlinear material
+      // linear material
+      If(material~{i} == 0)
+        If(material_preset~{i} == 0)
+          str = StrCat[str,
+            "mu", reg, " = (", mur_fct~{i}, ")*mu0; ",
+            "nu", reg, " = 1/((", mur_fct~{i}, ")*mu0); "];
+        Else
+          n = Str[ linearMagneticMaterials(material_preset~{i}) ];
+          str = StrCat[str,
+            "mu", reg, " = ", n, "_relative_magnetic_permeability*mu0; ",
+            "nu", reg, " = 1/(", n, "_relative_magnetic_permeability*mu0); "];
+        EndIf
+      // nonlinear material
+      ElseIf(material~{i} == 1)
         If(nl_material_preset~{i} == 0) // data points
           n = Sprintf["UserMaterialPts_%g", i];
           str = StrCat[str,
@@ -272,7 +239,8 @@ Function{
           "dbdh", reg, " = ", n, "_dbdh[$1]; ",
           "nu", reg, " = ", n, "_nu[$1]; ",
           "dhdb", reg, " = ", n, "_dhdb[$1]; "];
-      ElseIf(material~{i} == 2) // infinite shell
+      // infinite shell
+      ElseIf(material~{i} == 2)
         str = StrCat[str, "mu", reg, " = mu0; ", "nu", reg, " = 1/mu0; "];
       EndIf
     EndIf

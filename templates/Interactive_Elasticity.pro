@@ -170,68 +170,50 @@ Function {
       EndIf
     Else
       DefineConstant[
-        f_fct~{i} = {"Vector[0,0,0]", Visible (source~{i} == 1),
+        f_fct~{i} = {"Vector[0,0,0]",
+          Visible (source~{i} == 1),
           Name StrCat[volPath, name~{i}, "/5f function"],
           Label "f [N/m³]", Help "Force density"},
-        material_preset~{i} = {#linearElasticMaterials() > 2 ? 2 : 0,
+        material_preset~{i} = {#linearElasticMaterials() > 1 ? 1 : 0,
           Visible (material~{i} == 0),
           Choices{ 0:#linearElasticMaterials()-1 = linearElasticMaterials() },
           Name StrCat[volPath, name~{i}, "/1material preset"],
           Label "Material choice"}
-        nu_cst~{i} = {0.32, Visible (material~{i} == 0 && material_preset~{i} == 0),
-          Name StrCat[volPath, name~{i}, "/2nu value"],
-          Label "ν [-]", Help "Poisson's ratio"},
-        nu_fct~{i} = {"0.32", Visible (material~{i} == 0 && material_preset~{i} == 1),
+        nu_fct~{i} = {"0.32",
+          Visible (material~{i} == 0 && material_preset~{i} == 0),
           Name StrCat[volPath, name~{i}, "/2nu function"],
           Label "ν [-]", Help "Poisson's ratio"}
-        E_cst~{i} = {69e9, Visible (material~{i} == 0 && material_preset~{i} == 0),
-          Name StrCat[volPath, name~{i}, "/2E value"],
-          Label "E [N/m²]", Help "Poisson's ratio"},
-        E_fct~{i} = {"69e9", Visible (material~{i} == 0 && material_preset~{i} == 1),
+        E_fct~{i} = {"69e9",
+          Visible (material~{i} == 0 && material_preset~{i} == 0),
           Name StrCat[volPath, name~{i}, "/2E function"],
           Label "E [N/m²]", Help "Poisson's ratio"}
-        rho_cst~{i} = {2700,
-          Visible (material~{i} == 0 && Flag_Regime && material_preset~{i} == 0),
-          Name StrCat[volPath, name~{i}, "/2rho value"],
-          Label "ρ [kg/m³]", Help "Mass density"},
         rho_fct~{i} = {"2700",
-          Visible (material~{i} == 0 && Flag_Regime && material_preset~{i} == 1),
+          Visible (material~{i} == 0 && Flag_Regime && material_preset~{i} == 0),
           Name StrCat[volPath, name~{i}, "/2rho function"],
           Label "ρ [kg/m³]", Help "Mass density"}
       ];
-      // f[]
+      // source
       If(source~{i} == 1) // function
         str = StrCat[str, "f", reg, " = ", f_fct~{i}, "; "];
       EndIf
-      // nu[]
-      If(material~{i} == 0 && material_preset~{i} == 0) // constant
-        str = StrCat[str, "nu", reg, Sprintf[" = %g;", nu_cst~{i}]];
-      ElseIf(material~{i} == 0 && material_preset~{i} == 1) // function
-        str = StrCat[str, "nu", reg, " = ", nu_fct~{i}, ";"];
-      ElseIf(material~{i} == 0 && material_preset~{i} > 1) // preset
-        str = StrCat[str, "nu", reg, " = ", linearElasticMaterials(material_preset~{i}),
-          "_elastic_poisson_ratio;"];
-      EndIf
-      // E[]
-      If(material~{i} == 0 && material_preset~{i} == 0) // constant
-        str = StrCat[str, "E", reg, Sprintf[" = %g;", E_cst~{i}]];
-      ElseIf(material~{i} == 0 && material_preset~{i} == 1) // function
-        str = StrCat[str, "E", reg, " = ", E_fct~{i}, ";"];
-      ElseIf(material~{i} == 0 && material_preset~{i} > 1) // preset
-        str = StrCat[str, "E", reg, " = ", linearElasticMaterials(material_preset~{i}),
-          "_elastic_young_modulus;"];
-      EndIf
-      // rho[]
-      If(Flag_Regime)
-        If(material~{i} == 0 && material_preset~{i} == 0) // constant
-          str = StrCat[str, "rho", reg, Sprintf[" = %g;", rho_cst~{i}]];
-        ElseIf(material~{i} == 0 && material_preset~{i} == 1) // function
+      // linear material
+      If(material~{i} == 0)
+        If(material_preset~{i} == 0)
+          str = StrCat[str, "nu", reg, " = ", nu_fct~{i}, ";"];
+          str = StrCat[str, "E", reg, " = ", E_fct~{i}, ";"];
           str = StrCat[str, "rho", reg, " = ", rho_fct~{i}, ";"];
-        ElseIf(material~{i} == 0 && material_preset~{i} > 1) // preset
-          str = StrCat[str, "rho", reg, " = ", linearElasticMaterials(material_preset~{i}),
+        Else
+          str = StrCat[str, "nu", reg, " = ",
+            linearElasticMaterials(material_preset~{i}),
+            "_elastic_poisson_ratio;"];
+          str = StrCat[str, "E", reg, " = ",
+            linearElasticMaterials(material_preset~{i}),
+            "_elastic_young_modulus;"];
+          str = StrCat[str, "rho", reg, " = ",
+            linearElasticMaterials(material_preset~{i}),
             "_mass_density;"];
         EndIf
-       EndIf
+      EndIf
     EndIf
     Parse[str];
     If(export && StrLen[str])
