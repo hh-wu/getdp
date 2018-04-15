@@ -876,7 +876,8 @@ set(CHANGELOG_FILE ${CMAKE_CURRENT_SOURCE_DIR}/CHANGELOG.txt)
 file(GLOB DEMO_FILES ${CMAKE_CURRENT_SOURCE_DIR}/demos/*.pro
                      ${CMAKE_CURRENT_SOURCE_DIR}/demos/*.geo
                      ${CMAKE_CURRENT_SOURCE_DIR}/demos/*.msh)
-file(GLOB TEMPLATE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/templates/*.pro)
+file(GLOB TEMPLATE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/templates/*.pro
+                         ${CMAKE_CURRENT_SOURCE_DIR}/templates/*.txt)
 file(GLOB DEMO_FILES_TMP ${CMAKE_CURRENT_SOURCE_DIR}/demos/*.pre
                          ${CMAKE_CURRENT_SOURCE_DIR}/demos/*.res
                          ${CMAKE_CURRENT_SOURCE_DIR}/demos/*.txt
