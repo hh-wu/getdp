@@ -57,8 +57,10 @@ Group {
     If(dim~{i} < modelDim)
       DefineConstant[
         bc~{i} = {0, ReadOnlyRange 1, Choices{
-            0=StrCat["Neumann: fixed ", StrChoice[formulationType, "n x h", "n . b"]],
-            1=StrCat["Dirichlet: fixed ", StrChoice[formulationType, "a", "phi"]]
+            0=StrCat["Neumann: ", StrChoice[formulationType,
+                "n x h (magnetic field)", "n . b (flux density)"]],
+            1=StrCat["Dirichlet: ", StrChoice[formulationType,
+                "a (vector potential)", "phi (scalar potential)"]]
           },
           Name StrCat[surPath, name~{i}, "/0Type"]}
       ];

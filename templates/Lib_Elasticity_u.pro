@@ -16,6 +16,9 @@ DefineConstant[
   Freq = 1, // frequency (for harmonic simulations)
   Freq_Target = 1, // frequency target (for modal simulations)
   Num_Modes = 10, // number of modes (for modal simulations)
+  TimeInit = 0, // intial time (for time-domain simulations)
+  TimeFinal = 1/50, // final time (for time-domain simulations)
+  DeltaTime = 1/500, // time step (for time-domain simulations)
   Flag_Axi = 0, // axisymmetric model?
   FE_Order = 1 // finite element order
 ];
@@ -39,8 +42,8 @@ Function{
     E, // Young modulus (in Vol_Mec)
     nu, // Poisson coefficient (in Vol_Mec)
     rho, // mass density (in Vol_Mec)
-    f, // applied force per unit volume (in Vol_Force_Mec)
-    p // applied pressure (on Sur_Neu_Mec)
+    f, // force per unit volume (in Vol_Force_Mec)
+    sigman // traction (on Sur_Neu_Mec)
   ];
 }
 
@@ -218,12 +221,12 @@ Formulation {
             In Vol_F_Mec; Jacobian Vol; Integration Int; }
         EndIf
 
-        Integral { [ CompX[p[]] , {ux} ];
+        Integral { [ CompX[sigman[]] , {ux} ];
           In Sur_Neu_Mec; Jacobian Sur; Integration Int; }
-        Integral { [ CompY[p[]] , {uy} ];
+        Integral { [ CompY[sigman[]] , {uy} ];
           In Sur_Neu_Mec; Jacobian Sur; Integration Int; }
         If(modelDim == 3)
-          Integral { [ CompZ[p[]] , {uz} ];
+          Integral { [ CompZ[sigman[]] , {uz} ];
             In Sur_Neu_Mec; Jacobian Sur; Integration Int; }
         EndIf
       EndIf
@@ -241,11 +244,13 @@ Resolution {
       }
     }
     Operation {
-      InitSolution[A];
       If(Flag_Regime == 0 || Flag_Regime == 1)
         Generate[A]; Solve[A]; SaveSolution[A];
       ElseIf(Flag_Regime == 2)
-        Error["Time-domain not done yet"];
+        InitSolution[A]; InitSolution[A] ;
+        TimeLoopNewmark[TimeInit, TimeFinal, DeltaTime, 1/4, 1/2] {
+          Generate[A]; Solve[A]; SaveSolution[A];
+        }
       Else
         GenerateSeparate[A]; EigenSolve[A, Num_Modes, (2*Pi*Freq_Target)^2, 0];
         SaveSolutions[A];

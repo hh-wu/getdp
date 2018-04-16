@@ -59,10 +59,10 @@ Group {
     If(dim~{i} < modelDim)
       DefineConstant[
         bc~{i} = {0, Choices{
-            0="Neumann: fixed n . d",
-            1="Dirichlet: fixed v",
-            2="Floating conductor: fixed q",
-            3="Floating conductor: fixed v"
+            0="Neumann: n . d (electric displacement)",
+            1="Dirichlet: v (scalar potential)",
+            2="Floating conductor: q (free charge)",
+            3="Floating conductor: v (scalar potential)"
           },
           Name StrCat[surPath, name~{i}, "/0Type"]}
       ];

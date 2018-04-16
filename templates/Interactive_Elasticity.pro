@@ -25,8 +25,7 @@ DefineConstant[
       "E: Young's modulus [N/m²]",
       "ν: Poisson's ratio [-]",
       "ρ: mass density [kg/m³]",
-      "f: force per unit volume [N/m³]",
-      "p: pressure [N/m²]"],
+      "f: force per unit volume [N/m³]"],
     Name "Model/01Formulation"},
   modelDim = GetNumber["Gmsh/Model dimension"],
   modelPath = GetString["Gmsh/Model absolute path"],
@@ -60,18 +59,18 @@ Group {
     If(dim~{i} < modelDim)
       DefineConstant[
         bcx~{i} = {0, Choices{
-            0="Neumann: fixed px",
-            1="Dirichlet: fixed ux"
+            0="Neumann: σ . n (traction)",
+            1="Dirichlet: u (displacement)"
           },
           Name StrCat[surPath, name~{i}, "/0X-component"]}
         bcy~{i} = {0, Choices{
-            0="Neumann: fixed py",
-            1="Dirichlet: fixed uy"
+            0="Neumann: σ . n (traction)",
+            1="Dirichlet: u (displacement)"
           },
           Name StrCat[surPath, name~{i}, "/2Y-component"]}
         bcz~{i} = {0, Visible (modelDim == 3), Choices{
-            0="Neumann: fixed pz",
-            1="Dirichlet: fixed uz"
+            0="Neumann: σ . n (traction)",
+            1="Dirichlet: u (displacement)"
           },
           Name StrCat[surPath, name~{i}, "/4Z-component"]}
       ];
@@ -165,7 +164,7 @@ Function {
           Name StrCat[surPath, name~{i}, "/5Value"]}
       ];
       If(bcx~{i} == 0 || bcy~{i} == 0 || (modelDim == 3 && bcz~{i} == 0))
-        str = StrCat[str, "p", reg, Sprintf[" = Vector[%g, %g, %g]; ",
+        str = StrCat[str, "sigman", reg, Sprintf[" = Vector[%g, %g, %g]; ",
             bcx_val~{i}, bcy_val~{i}, bcz_val~{i}]];
       EndIf
     Else
