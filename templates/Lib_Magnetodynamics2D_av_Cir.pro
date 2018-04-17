@@ -1,4 +1,4 @@
-// Lib_MagDyn_av_2D_Cir.pro
+// Lib_Magnetodynamics2D_av_Cir.pro
 //
 // Template library for 2D magnetostatic and magnetodynamic problems in terms
 // of the magnetic vector potential a (potentially coupled with the electric
@@ -8,6 +8,9 @@
 // redefined from outside the template:
 
 DefineConstant[
+  modelPath = "", // default path of the model
+  resPath = StrCat[modelPath, "res/"], // path for post-operation files
+  Flag_Axi = 0, // axisymmetric model?
   Flag_FrequencyDomain = 1, // frequency-domain or time-domain simulation
   Flag_CircuitCoupling = 0, // consider coupling with external electric circuit
   Flag_NewtonRaphson = 1, // Newton-Raphson or Picard method for nonlinear iterations
@@ -19,6 +22,9 @@ DefineConstant[
   FE_Order = 1, // finite element order
   Val_Rint = 0, // interior radius of annulus shell transformation region (Vol_Inf_Mag)
   Val_Rext = 0 // exterior radius of annulus shell  transformation region (Vol_Inf_Mag)
+  Val_Cx = 0, // x-coordinate of center of Vol_Inf_Mag
+  Val_Cy = 0, // y-coordinate of center of Vol_Inf_Mag
+  Val_Cz = 0, // z-coordinate of center of Vol_Inf_Mag
   NL_tol_abs = 1e-6, // absolute tolerance on residual for noninear iterations
   NL_tol_rel = 1e-6, // relative tolerance on residual for noninear iterations
   NL_iter_max = 20 // maximum number of noninear iterations
@@ -98,14 +104,24 @@ Group{
 Jacobian {
   { Name Vol;
     Case {
-      { Region Vol_Inf_Mag ;
-        Jacobian VolSphShell {Val_Rint, Val_Rext} ; }
-      { Region All; Jacobian Vol; }
+      If(Flag_Axi)
+        { Region Vol_Inf_Mag;
+          Jacobian VolAxiSquSphShell{Val_Rint, Val_Rext, Val_Cx, Val_Cy, Val_Cz}; }
+        { Region All; Jacobian VolAxiSqu; }
+      Else
+        { Region Vol_Inf_Mag;
+          Jacobian VolSphShell{Val_Rint, Val_Rext, Val_Cx, Val_Cy, Val_Cz}; }
+        { Region All; Jacobian Vol; }
+      EndIf
     }
   }
   { Name Sur;
     Case {
-      { Region All; Jacobian Sur; }
+      If(Flag_Axi)
+        { Region All; Jacobian SurAxi; }
+      Else
+        { Region All; Jacobian Sur; }
+      EndIf
     }
   }
 }
@@ -232,7 +248,7 @@ EndIf
 
 // Static Formulation
 Formulation {
-  { Name MagSta_a_2D; Type FemEquation;
+  { Name Magnetostatics2D_a; Type FemEquation;
     Quantity {
       { Name a; Type Local; NameOfSpace Hcurl_a_2D; }
       { Name ir; Type Local; NameOfSpace Hregion_i_2D; }
@@ -270,7 +286,7 @@ Formulation {
 
 // Dynamic Formulation (eddy currents)
 Formulation {
-  { Name MagDyn_a_2D; Type FemEquation;
+  { Name Magnetodynamics2D_av; Type FemEquation;
     Quantity {
       { Name a; Type Local; NameOfSpace Hcurl_a_2D; }
       { Name A_floating; Type Global; NameOfSpace Hcurl_a_2D [A]; }
@@ -383,9 +399,9 @@ Formulation {
 }
 
 Resolution {
-  { Name MagDyn_a_2D;
+  { Name Magnetodynamics2D_av;
     System {
-      { Name Sys; NameOfFormulation MagDyn_a_2D;
+      { Name A; NameOfFormulation Magnetodynamics2D_av;
         If(Flag_FrequencyDomain)
           Type ComplexValue; Frequency Freq;
         EndIf
@@ -393,51 +409,51 @@ Resolution {
     }
     Operation {
       If(Flag_FrequencyDomain)
-        Generate[Sys]; Solve[Sys]; SaveSolution[Sys];
+        Generate[A]; Solve[A]; SaveSolution[A];
       Else
-        InitSolution[Sys]; // provide initial condition
+        InitSolution[A]; // provide initial condition
         TimeLoopTheta[TimeInit, TimeFinal, DeltaTime, 1.]{
           // Euler implicit (1) -- Crank-Nicolson (0.5)
-          Generate[Sys]; Solve[Sys];
+          Generate[A]; Solve[A];
           If(NbrRegions[Vol_NL_Mag])
-            Generate[Sys]; GetResidual[Sys, $res0];
+            Generate[A]; GetResidual[A, $res0];
             Evaluate[ $res = $res0, $iter = 0 ];
             Print[{$iter, $res, $res / $res0},
               Format "Residual %03g: abs %14.12e rel %14.12e"];
             While[$res > NL_tol_abs && $res / $res0 > NL_tol_rel &&
                   $res / $res0 <= 1 && $iter < NL_iter_max]{
-              Solve[Sys]; Generate[Sys]; GetResidual[Sys, $res];
+              Solve[A]; Generate[A]; GetResidual[A, $res];
               Evaluate[ $iter = $iter + 1 ];
               Print[{$iter, $res, $res / $res0},
                 Format "Residual %03g: abs %14.12e rel %14.12e"];
             }
           EndIf
-          SaveSolution[Sys];
+          SaveSolution[A];
         }
       EndIf
     }
   }
-  { Name MagSta_a_2D;
+  { Name Magnetostatics2D_a;
     System {
-      { Name Sys; NameOfFormulation MagSta_a_2D; }
+      { Name A; NameOfFormulation Magnetostatics2D_a; }
     }
     Operation {
-      InitSolution[Sys];
-      Generate[Sys]; Solve[Sys];
+      InitSolution[A];
+      Generate[A]; Solve[A];
       If(NbrRegions[Vol_NL_Mag])
-        Generate[Sys]; GetResidual[Sys, $res0];
+        Generate[A]; GetResidual[A, $res0];
         Evaluate[ $res = $res0, $iter = 0 ];
         Print[{$iter, $res, $res / $res0},
           Format "Residual %03g: abs %14.12e rel %14.12e"];
         While[$res > NL_tol_abs && $res / $res0 > NL_tol_rel &&
               $res / $res0 <= 1 && $iter < NL_iter_max]{
-          Solve[Sys]; Generate[Sys]; GetResidual[Sys, $res];
+          Solve[A]; Generate[A]; GetResidual[A, $res];
           Evaluate[ $iter = $iter + 1 ];
           Print[{$iter, $res, $res / $res0},
             Format "Residual %03g: abs %14.12e rel %14.12e"];
         }
       EndIf
-      SaveSolution[Sys];
+      SaveSolution[A];
     }
   }
 }
@@ -445,7 +461,7 @@ Resolution {
 // Same PostProcessing for both static and dynamic formulations (both refer to
 // the same FunctionSpace from which the solution is obtained)
 PostProcessing {
-  { Name MagDyn_a_2D; NameOfFormulation MagDyn_a_2D;
+  { Name Magnetodynamics2D_av; NameOfFormulation Magnetodynamics2D_av;
     PostQuantity {
       // In 2D, a is a vector with only a z-component: (0,0,az)
       { Name a; Value {
@@ -516,7 +532,7 @@ PostProcessing {
     }
   }
 
-  { Name MagSta_a_2D; NameOfFormulation MagSta_a_2D;
+  { Name Magnetostatics2D_a; NameOfFormulation Magnetostatics2D_a;
     PostQuantity {
       { Name a; Value {
           Term { [ {a} ]; In Vol_Mag; Jacobian Vol; }

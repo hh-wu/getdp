@@ -8534,6 +8534,13 @@ Enumeration :
       doubleXstring v = {$3, $5};
       List_Add($$, &v);
     }
+  | Enumeration ',' FExpr '?' FExpr tDEF CharExpr
+    {
+      if($3){
+        doubleXstring v = {$5, $7};
+        List_Add($$, &v);
+      }
+    }
   | MultiFExpr tDEF String__Index '(' ')'
     {
       $$ = List_Create(20,20,sizeof(doubleXstring));

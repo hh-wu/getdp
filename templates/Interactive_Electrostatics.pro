@@ -10,10 +10,10 @@
 // How does it work?
 //
 // This file interactively proposes choices for all the constants, functions,
-// groups and constraints needed by the "Lib_EleSta_v.pro" template. In addition,
-// everytime "Run" is pressed a ".pro" file is created (with the same prefix as
-// the geometry file) with all the choices made interactively, for later non-
-// interactive use.
+// groups and constraints needed by the "Lib_Electrostatics_v.pro" template. In
+// addition, everytime "Run" is pressed a ".pro" file is created (with the same
+// prefix as the geometry file) with all the choices made interactively, for
+// later non- interactive use.
 
 DefineConstant[
   formulationType = {0, Choices{0="Scalar potential"},
@@ -22,22 +22,23 @@ DefineConstant[
       "e: electric field [V/m]",
       "d: electric displacement field [C/m²]",
       "v: scalar electric potential (e = -grad v) [V]",
-      "rho: free charge density [C/m³]",
+      "εr: relative dielectric permittivity [-]",
+      "ρ: free charge density [C/m³]",
       "q: free charge [C]"],
-    Name "GetDP/Formulation"},
+    Name "Model/01Formulation"},
   modelDim = GetNumber["Gmsh/Model dimension"],
   modelPath = GetString["Gmsh/Model absolute path"],
   modelName = GetString["Gmsh/Model name"],
   export = !StrCmp[OnelabAction, "compute"],
-  exportFile = StrCat[modelPath, StrPrefix[modelName], ".pro"],
-  R_ = {"EleSta_v", Name "GetDP/1ResolutionChoices", Visible 0},
+  exportFile = StrCat[modelPath, StrPrefix[StrRelative[modelName]], ".pro"],
+  R_ = {"Electrostatics_v", Name "GetDP/1ResolutionChoices", Visible 0},
   C_ = {"-solve -pos -bin", Name "GetDP/9ComputeCommand", Visible 0},
-  P_ = {"EleSta_v", Name "GetDP/2PostOperationChoices", Visible 0}
+  P_ = {"Electrostatics_v", Name "GetDP/2PostOperationChoices", Visible 0}
 ];
 
 numPhysicals = GetNumber["Gmsh/Number of physical groups"];
-surPath = "Parameters/Boundary conditions/Physical group: ";
-volPath = "Parameters/Materials and sources/Physical group: ";
+surPath = "Model/Boundary conditions/Physical group: ";
+volPath = "Model/Materials and sources/Physical group: ";
 
 If(export && FileExists[exportFile])
   RenameFile[exportFile, StrCat[exportFile, "_", Date["%F-%R"]]];
@@ -53,14 +54,15 @@ Group {
     dim~{i} = GetNumber[Sprintf["Gmsh/Physical group %g/Dimension", i]];
     name~{i} = GetString[Sprintf["Gmsh/Physical group %g/Name", i]];
     tag~{i} = GetNumber[Sprintf["Gmsh/Physical group %g/Number", i]];
-    reg = Sprintf["Region[%g]; ", tag~{i}]; str = "";
+    reg = Sprintf["Region[%g]; ", tag~{i}];
+    str = "";
     If(dim~{i} < modelDim)
       DefineConstant[
         bc~{i} = {0, Choices{
-            0="Neumann: fixed n . d",
-            1="Dirichlet: fixed v",
-            2="Floating conductor: fixed q",
-            3="Floating conductor: fixed v"
+            0="Neumann: n . d (electric displacement)",
+            1="Dirichlet: v (scalar potential)",
+            2="Floating conductor: q (free charge)",
+            3="Floating conductor: v (scalar potential)"
           },
           Name StrCat[surPath, name~{i}, "/0Type"]}
       ];
@@ -71,18 +73,23 @@ Group {
       EndIf
     Else
       DefineConstant[
-        material~{i} = {1, Choices{
-            0="Charged dielectric",
-            1="Linear dielectric material",
-            2="Infinite air shell"
+        material~{i} = {0, Choices{
+            0="Linear dielectric",
+            1="Infinite air shell"
           },
-          Name StrCat[volPath, name~{i}, "/0Type"]}
+          Name StrCat[volPath, name~{i}, "/0Material type"]}
+        source~{i} = {0, Visible (material~{i} != 1), Choices{
+            0="None",
+            1="Free charge density"
+          },
+          Name StrCat[volPath, name~{i}, "/3Source type"]}
       ];
       str = StrCat["Vol_Ele += ", reg];
-      If(material~{i} == 0)
-        str = StrCat[str, "Vol_Q_Ele += ", reg];
-      ElseIf(material~{i} == 2)
+      If(material~{i} == 1)
         str = StrCat[str, "Vol_Inf_Ele += ", reg];
+      EndIf
+      If(source~{i} == 1)
+        str = StrCat[str, "Vol_Q_Ele += ", reg];
       EndIf
     EndIf
     Parse[str];
@@ -95,77 +102,80 @@ Group {
   EndIf
 }
 
+// global definitions
 DefineConstant[
   Val_Rint = {1, Visible NbrRegions[Vol_Inf_Ele],
-    Name "Parameters/Geometry/1Internal shell radius"},
+    Name "Model/Geometry/1Internal shell radius"},
   Val_Rext = {2, Visible NbrRegions[Vol_Inf_Ele],
-    Name "Parameters/Geometry/2External shell radius"}
+    Name "Model/Geometry/2External shell radius"}
+  Flag_Axi = {0, Choices{0,1}, Visible (modelDim == 2),
+    Name "Model/02Axisymmetric model"}
 ];
-If(export && NbrRegions[Vol_Inf_Ele])
-  Printf(Sprintf("Val_Rint = %g;", Val_Rint)) >> Str[exportFile];
-  Printf(Sprintf("Val_Rext = %g;", Val_Rext)) >> Str[exportFile];
+If(export)
+  If(NbrRegions[Vol_Inf_Ele])
+    Printf(Sprintf("Val_Rint = %g;", Val_Rint)) >> Str[exportFile];
+    Printf(Sprintf("Val_Rext = %g;", Val_Rext)) >> Str[exportFile];
+  EndIf
+  If(Flag_Axi)
+    Printf(Sprintf("Flag_Axi = 1;")) >> Str[exportFile];
+  EndIf
 EndIf
 
-// interactive definition of material properties
+// import material library
 Include "Lib_Materials.pro";
 If(export)
-  Printf(StrCat['Include "', CurrentDirectory, 'Lib_Materials.pro";']) >> Str[exportFile];
+  Printf(StrCat['Include "', CurrentDirectory, 'Lib_Materials.pro";'])
+    >> Str[exportFile];
 EndIf
+
+// interactive definition of materials and sources
 Function {
   If(export)
     Printf('Function {') >> Str[exportFile];
   EndIf
   For i In {1:numPhysicals}
-    reg = Sprintf["[Region[%g]]", tag~{i}]; str = "";
+    reg = Sprintf["[Region[%g]]", tag~{i}];
+    str = "";
     If(dim~{i} < modelDim)
       DefineConstant[
         bc_val~{i} = {0.,
           Name StrCat[surPath, name~{i}, "/1Value"]}
       ];
       If(bc~{i} == 0)
-        str = StrCat["dn", reg, Sprintf[" = %g; ", bc_val~{i}]];
+        str = StrCat[str, "dn", reg, Sprintf[" = %g; ", bc_val~{i}]];
       EndIf
     Else
       DefineConstant[
-        rho_preset~{i} = {0, Visible (material~{i} == 0),
-          Choices{ 0="Constant", 1="Function" },
-          Name StrCat[volPath, name~{i}, "/1rho preset"],
-          Label "Choice"},
-        rho~{i} = {1, Visible (material~{i} == 0 && rho_preset~{i} == 0),
-          Name StrCat[volPath, name~{i}, "/rho value"],
+        rho_fct~{i} = {"1",
+          Visible (source~{i} == 1),
+          Name StrCat[volPath, name~{i}, "/5rho function"],
           Label "ρ [C/m³]", Help "Charge density"},
-        rho_fct~{i} = {"1", Visible (material~{i} == 0 && rho_preset~{i} == 1),
-          Name StrCat[volPath, name~{i}, "/rho function"],
-          Label "ρ [C/m³]", Help "Charge density"},
-        epsr_preset~{i} = {#linearDielectricMaterials() > 2 ? 2 : 0,
-          Visible (material~{i} == 1),
+        material_preset~{i} = {#linearDielectricMaterials() > 1 ? 1 : 0,
+          Visible (material~{i} == 0),
           Choices{ 0:#linearDielectricMaterials()-1 = linearDielectricMaterials() },
           Name StrCat[volPath, name~{i}, "/1epsr preset"],
-          Label "Choice"}
-        epsr~{i} = {1, Visible (material~{i} == 0 && rho_preset~{i} == 0) ||
-          (material~{i} == 1 && epsr_preset~{i} == 0),
-          Name StrCat[volPath, name~{i}, "/epsr value"],
-          Label "εr [-]", Help "Relative dielectric permittivity"},
-        epsr_fct~{i} = {"1", Visible (material~{i} == 0 && rho_preset~{i} == 1) ||
-          (material~{i} == 1 && epsr_preset~{i} == 1),
-          Name StrCat[volPath, name~{i}, "/epsr function"],
+          Label "Material choice"}
+        epsr_fct~{i} = {"1",
+          Visible (material~{i} == 0 && material_preset~{i} == 0),
+          Name StrCat[volPath, name~{i}, "/2epsr function"],
           Label "εr [-]", Help "Relative dielectric permittivity"}
       ];
-      If(material~{i} == 0 && rho_preset~{i} == 0) // charged, constant
-        str = StrCat["rho", reg, Sprintf[" = %g; ", rho~{i}], "epsr", reg,
-          Sprintf[" = %g; ", epsr~{i}]];
-      ElseIf(material~{i} == 0 && rho_preset~{i} == 1) // charged, function
-        str = StrCat["rho", reg, " = ", rho_fct~{i}, ";", "epsr", reg, " = ",
-          epsr_fct~{i}, "; "];
-      ElseIf(material~{i} == 1 && epsr_preset~{i} == 0) // linear, constant
-        str = StrCat["epsr", reg, Sprintf[" = %g; ", epsr~{i}]];
-      ElseIf(material~{i} == 1 && epsr_preset~{i} == 1) // linear, function
-        str = StrCat["epsr", reg, " = ", epsr_fct~{i}, "; "];
-      ElseIf(material~{i} == 1 && epsr_preset~{i} > 1) // linear, preset
-        str = StrCat["epsr", reg, " = ", linearDielectricMaterials(epsr_preset~{i}),
-          "_epsilonr;"];
-      ElseIf(material~{i} == 2) // infinite air region
-        str = StrCat["epsr", reg, " = 1; "];
+      // source
+      If(source~{i} == 1)
+        str = StrCat[str, "rho", reg, " = ", rho_fct~{i}, "; "];
+      EndIf
+      // linear material
+      If(material~{i} == 0)
+        If(material_preset~{i} == 0)
+          str = StrCat[str, "epsr", reg, " = ", epsr_fct~{i}, ";"];
+        Else
+          str = StrCat[str, "epsr", reg, " = ",
+            linearDielectricMaterials(material_preset~{i}),
+            "_relative_dielectric_permittivity;"];
+        EndIf
+      // infinite shell
+      ElseIf(material~{i} == 1)
+        str = StrCat[str, "epsr", reg, " = 1;"];
       EndIf
     EndIf
     Parse[str];
@@ -202,7 +212,9 @@ For j In {0:#constraintNames()-1}
   EndIf
 EndFor
 
-Include "Lib_EleSta_v.pro";
+// import electrostatic template
+Include "Lib_Electrostatics_v.pro";
 If(export)
-  Printf(StrCat['Include "', CurrentDirectory, 'Lib_EleSta_v.pro";']) >> Str[exportFile];
+  Printf(StrCat['Include "', CurrentDirectory, 'Lib_Electrostatics_v.pro";'])
+    >> Str[exportFile];
 EndIf

@@ -1,4 +1,4 @@
-// Lib_MagSta_a_phi.pro
+// Lib_Magnetostatics_a_phi.pro
 //
 // Template library for magnetostatics using a scalar (phi) or a vector (a)
 // potential formulation.
@@ -9,13 +9,14 @@
 DefineConstant[
   modelPath = "", // default path of the model
   resPath = StrCat[modelPath, "res/"], // path for post-operation files
-  Flag_NewtonRaphson = 1, // Newton-Raphson or Picard method for nonlinear iterations
   modelDim = 2, // default model dimension (2D)
+  Flag_Axi = 0, // axisymmetric model?
+  Flag_NewtonRaphson = 1, // Newton-Raphson or Picard method for nonlinear iterations
   Val_Rint = 0, // internal radius of Vol_Inf_Ele annulus
   Val_Rext = 0, // external radius of Vol_Inf_Ele annulus
-  Val_Cx = 0, // x-coordinate of center of Vol_Inf_Ele
-  Val_Cy = 0, // y-coordinate of center of Vol_Inf_Ele
-  Val_Cz = 0, // z-coordinate of center of Vol_Inf_Ele
+  Val_Cx = 0, // x-coordinate of center of Vol_Inf_Mag
+  Val_Cy = 0, // y-coordinate of center of Vol_Inf_Mag
+  Val_Cz = 0, // z-coordinate of center of Vol_Inf_Mag
   NL_tol_abs = 1e-6, // absolute tolerance on residual for noninear iterations
   NL_tol_rel = 1e-6, // relative tolerance on residual for noninear iterations
   NL_iter_max = 20 // maximum number of noninear iterations
@@ -28,7 +29,7 @@ Group {
 
     // Subsets of Vol_Mag:
     Vol_NL_Mag, // nonlinear magnetic materials
-    Vol_M_Mag, // permenent magnets
+    Vol_M_Mag, // permanent magnets
     Vol_S0_Mag, // imposed current density
     Vol_Inf_Mag, // infinite domains
 
@@ -63,14 +64,24 @@ Group {
 Jacobian {
   { Name Vol;
     Case {
-      { Region Vol_Inf_Mag;
-        Jacobian VolSphShell{Val_Rint, Val_Rext, Val_Cx, Val_Cy, Val_Cz}; }
-      { Region All; Jacobian Vol; }
+      If(Flag_Axi && modelDim < 3)
+        { Region Vol_Inf_Mag;
+          Jacobian VolAxiSquSphShell{Val_Rint, Val_Rext, Val_Cx, Val_Cy, Val_Cz}; }
+        { Region All; Jacobian VolAxiSqu; }
+      Else
+        { Region Vol_Inf_Mag;
+          Jacobian VolSphShell{Val_Rint, Val_Rext, Val_Cx, Val_Cy, Val_Cz}; }
+        { Region All; Jacobian Vol; }
+      EndIf
     }
   }
   { Name Sur;
     Case {
-      { Region All; Jacobian Sur; }
+      If(Flag_Axi && modelDim < 3)
+        { Region All; Jacobian SurAxi; }
+      Else
+        { Region All; Jacobian Sur; }
+      EndIf
     }
   }
 }
@@ -138,7 +149,7 @@ FunctionSpace {
 }
 
 Formulation {
-  { Name MagSta_phi; Type FemEquation;
+  { Name Magnetostatics_phi; Type FemEquation;
     Quantity {
       { Name phi; Type Local; NameOfSpace Hgrad_phi; }
     }
@@ -165,7 +176,7 @@ Formulation {
         In Sur_Neu_Mag; Jacobian Sur; Integration Int; }
     }
   }
-  { Name MagSta_a; Type FemEquation;
+  { Name Magnetostatics_a; Type FemEquation;
     Quantity {
       { Name a; Type Local; NameOfSpace Hcurl_a; }
     }
@@ -198,9 +209,9 @@ Formulation {
 }
 
 Resolution {
-  { Name MagSta_phi;
+  { Name Magnetostatics_phi;
     System {
-      { Name A; NameOfFormulation MagSta_phi; }
+      { Name A; NameOfFormulation Magnetostatics_phi; }
     }
     Operation {
       InitSolution[A];
@@ -221,9 +232,9 @@ Resolution {
       SaveSolution[A];
     }
   }
-  { Name MagSta_a;
+  { Name Magnetostatics_a;
     System {
-      { Name A; NameOfFormulation MagSta_a; }
+      { Name A; NameOfFormulation Magnetostatics_a; }
     }
     Operation {
       InitSolution[A];
@@ -247,7 +258,7 @@ Resolution {
 }
 
 PostProcessing {
-  { Name MagSta_phi; NameOfFormulation MagSta_phi;
+  { Name Magnetostatics_phi; NameOfFormulation Magnetostatics_phi;
     Quantity {
       { Name b; Value {
           Term { [ - mu[-{d phi}] * {d phi} ]; In Vol_Mag; Jacobian Vol; }
@@ -268,7 +279,7 @@ PostProcessing {
       }
     }
   }
-  { Name MagSta_a; NameOfFormulation MagSta_a;
+  { Name Magnetostatics_a; NameOfFormulation Magnetostatics_a;
     Quantity {
       { Name az; Value {
           Local { [ CompZ[{a}] ]; In Vol_Mag; Jacobian Vol; }
@@ -300,31 +311,31 @@ PostProcessing {
 }
 
 PostOperation {
-  { Name MagSta_phi; NameOfPostProcessing MagSta_phi;
+  { Name Magnetostatics_phi; NameOfPostProcessing Magnetostatics_phi;
     Operation {
       CreateDir[resPath];
       If(NbrRegions[Vol_M_Mag])
-        Print[ hc, OnElementsOf Vol_M_Mag, File StrCat[resPath, "MagSta_phi_hc.pos"] ];
+        Print[ hc, OnElementsOf Vol_M_Mag, File StrCat[resPath, "hc.pos"] ];
       EndIf
-      Print[ phi, OnElementsOf Vol_Mag, File StrCat[resPath, "MagSta_phi_phi.pos"] ];
-      Print[ h, OnElementsOf Vol_Mag, File StrCat[resPath, "MagSta_phi_h.pos"] ];
-      Print[ b, OnElementsOf Vol_Mag, File StrCat[resPath, "MagSta_phi_b.pos"] ];
+      Print[ phi, OnElementsOf Vol_Mag, File StrCat[resPath, "phi.pos"] ];
+      Print[ h, OnElementsOf Vol_Mag, File StrCat[resPath, "h.pos"] ];
+      Print[ b, OnElementsOf Vol_Mag, File StrCat[resPath, "b.pos"] ];
     }
   }
-  { Name MagSta_a; NameOfPostProcessing MagSta_a;
+  { Name Magnetostatics_a; NameOfPostProcessing Magnetostatics_a;
     Operation {
       CreateDir[resPath];
       If(NbrRegions[Vol_M_Mag])
-        Print[ hc, OnElementsOf Vol_M_Mag, File StrCat[resPath, "MagSta_a_hc.pos"] ];
+        Print[ hc, OnElementsOf Vol_M_Mag, File StrCat[resPath, "hc.pos"] ];
       EndIf
       If(NbrRegions[Vol_S0_Mag])
-        Print[ js, OnElementsOf Vol_S0_Mag, File StrCat[resPath, "MagSta_a_js.pos"] ];
+        Print[ js, OnElementsOf Vol_S0_Mag, File StrCat[resPath, "js.pos"] ];
       EndIf
       If(modelDim == 2)
-        Print[ az, OnElementsOf Vol_Mag, File StrCat[resPath, "MagSta_a_az.pos"] ];
+        Print[ az, OnElementsOf Vol_Mag, File StrCat[resPath, "az.pos"] ];
       EndIf
-      Print[ h, OnElementsOf Vol_Mag, File StrCat[resPath, "MagSta_a_h.pos"] ];
-      Print[ b, OnElementsOf Vol_Mag, File StrCat[resPath, "MagSta_a_b.pos"] ];
+      Print[ h, OnElementsOf Vol_Mag, File StrCat[resPath, "h.pos"] ];
+      Print[ b, OnElementsOf Vol_Mag, File StrCat[resPath, "b.pos"] ];
     }
   }
 }

@@ -1,4 +1,4 @@
-// Lib_EleSta_v.pro
+// Lib_Electrostatics_v.pro
 //
 // Template library for electrostatics using a scalar electric potential (v)
 // formulation, with floating potentials.
@@ -10,6 +10,7 @@ DefineConstant[
   modelPath = "", // default path of the model
   resPath = StrCat[modelPath, "res/"], // path for post-operation files
   eps0 = 8.854187818e-12, // permittivity of vacuum
+  Flag_Axi = 0, // axisymmetric model?
   Val_Rint = 0, // internal radius of Vol_Inf_Ele annulus
   Val_Rext = 0, // external radius of Vol_Inf_Ele annulus
   Val_Cx = 0, // x-coordinate of center of Vol_Inf_Ele
@@ -46,14 +47,24 @@ Function{
 Jacobian {
   { Name Vol;
     Case {
-      { Region Vol_Inf_Ele;
-        Jacobian VolSphShell{Val_Rint, Val_Rext, Val_Cx, Val_Cy, Val_Cz}; }
-      { Region All; Jacobian Vol; }
+      If(Flag_Axi && modelDim < 3)
+        { Region Vol_Inf_Ele;
+          Jacobian VolAxiSquSphShell{Val_Rint, Val_Rext, Val_Cx, Val_Cy, Val_Cz}; }
+        { Region All; Jacobian VolAxiSqu; }
+      Else
+        { Region Vol_Inf_Ele;
+          Jacobian VolSphShell{Val_Rint, Val_Rext, Val_Cx, Val_Cy, Val_Cz}; }
+        { Region All; Jacobian Vol; }
+      EndIf
     }
   }
   { Name Sur;
     Case {
-      { Region All; Jacobian Sur; }
+      If(Flag_Axi && modelDim < 3)
+        { Region All; Jacobian SurAxi; }
+      Else
+        { Region All; Jacobian Sur; }
+      EndIf
     }
   }
 }
@@ -134,18 +145,18 @@ Formulation {
 }
 
 Resolution {
-  { Name EleSta_v;
+  { Name Electrostatics_v;
     System {
-      { Name Sys_Ele; NameOfFormulation Electrostatics_vf; }
+      { Name A; NameOfFormulation Electrostatics_vf; }
     }
     Operation {
-      Generate[Sys_Ele]; Solve[Sys_Ele]; SaveSolution[Sys_Ele];
+      Generate[A]; Solve[A]; SaveSolution[A];
     }
   }
 }
 
 PostProcessing {
-  { Name EleSta_v; NameOfFormulation Electrostatics_vf;
+  { Name Electrostatics_v; NameOfFormulation Electrostatics_vf;
     PostQuantity {
       { Name v; Value {
           Term { [ {v} ]; In Vol_Ele; Jacobian Vol; }
@@ -194,15 +205,15 @@ PostProcessing {
 }
 
 PostOperation {
-  { Name EleSta_v; NameOfPostProcessing EleSta_v;
+  { Name Electrostatics_v; NameOfPostProcessing Electrostatics_v;
     Operation {
       CreateDir[resPath];
-      Print[ e, OnElementsOf Vol_Ele, File StrCat[resPath, "EleSta_v_e.pos"] ];
-      Print[ v, OnElementsOf Vol_Ele, File StrCat[resPath, "EleSta_v_v.pos"] ];
+      Print[ e, OnElementsOf Vol_Ele, File StrCat[resPath, "e.pos"] ];
+      Print[ v, OnElementsOf Vol_Ele, File StrCat[resPath, "v.pos"] ];
       If(NbrRegions[Sur_C_Ele])
-        Print[ Q, OnRegion Sur_C_Ele, File StrCat[resPath, "EleSta_v_q.txt"],
+        Print[ Q, OnRegion Sur_C_Ele, File StrCat[resPath, "q.txt"],
           Format Table, SendToServer "}Output/Floating charge [C]" ];
-        Print[ V, OnRegion Sur_C_Ele, File StrCat[resPath, "EleSta_v_q.txt"],
+        Print[ V, OnRegion Sur_C_Ele, File StrCat[resPath, "q.txt"],
           Format Table, SendToServer "}Output/Floating potential [V]" ];
       EndIf
     }
