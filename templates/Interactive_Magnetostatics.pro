@@ -58,9 +58,9 @@ Group {
       DefineConstant[
         bc~{i} = {0, ReadOnlyRange 1, Choices{
             0=StrCat["Neumann: ", StrChoice[formulationType,
-                "n x h (magnetic field)", "n . b (flux density)"]],
+                "n x h (n x magnetic field)", "n . b (normal flux density)"]],
             1=StrCat["Dirichlet: ", StrChoice[formulationType,
-                "a (vector potential)", "phi (scalar potential)"]]
+                "a (vector magnetic potential)", "phi (scalar magnetic potential)"]]
           },
           Name StrCat[surPath, name~{i}, "/0Type"]}
       ];
