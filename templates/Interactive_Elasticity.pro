@@ -123,6 +123,10 @@ DefineConstant[
   Flag_Axi = {0, Choices{0,1}, Visible (modelDim == 2),
     Name "Model/05Axisymmetric model"}
 ];
+If(Flag_Axi && (GetNumber["General.MinX"] < -1e-6 ||
+                Fabs[GetNumber["General.MaxZ"]] > 1e-6))
+  Error["The revolution axis for axisymmetric models should be X=Z=0"];
+EndIf
 If(export)
   If(Flag_Axi)
     Printf(Sprintf("Flag_Axi = 1;")) >> Str[exportFile];
