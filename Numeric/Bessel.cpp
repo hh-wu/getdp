@@ -9,19 +9,19 @@
 
 #if defined(HAVE_NO_FORTRAN)
 
-static void zbesj_(double*, double*, double*, int*, int*, double*, 
+static void zbesj_(double*, double*, double*, int*, int*, double*,
                    double*, int*, int*)
 {
   Message::Fatal("Bessel functions require Fortran compiler");
 }
 
-static void zbesy_(double*, double*, double*, int*, int*, double*, 
+static void zbesy_(double*, double*, double*, int*, int*, double*,
                    double*, int*, double*, double*, int*)
 {
   Message::Fatal("Bessel functions require Fortran compiler");
 }
 
-static void zbesh_(double*, double*, double*, int*, int*, int*, 
+static void zbesh_(double*, double*, double*, int*, int*, int*,
                    double*, double*, int*, int*)
 {
   Message::Fatal("Bessel functions require Fortran compiler");
@@ -36,12 +36,12 @@ static void zbesh_(double*, double*, double*, int*, int*, int*,
 #endif
 
 extern "C" {
-  void zbesj_(double*, double*, double*, int*, int*, double*, 
+  void zbesj_(double*, double*, double*, int*, int*, double*,
               double*, int*, int*);
   void zbesy_(double*, double*, double*, int*, int*, double*,
               double*, int*, double*,
               double*, int*);
-  void zbesh_(double*, double*, double*, int*, int*, int*, double*, 
+  void zbesh_(double*, double*, double*, int*, int*, int*, double*,
               double*, int*, int*);
 }
 
@@ -84,12 +84,21 @@ int BesselJn(double n, int num, double x, double *val)
   int nz = 0, ierr = 0, kode = 1;
   double xi = 0.0;
   double* ji = new double[num];
- 
+
   zbesj_(&x, &xi, &n, &kode, &num, val, ji, &nz, &ierr) ;
-  
+
   delete[] ji;
 
   return BesselError(ierr, "BesselJn");
+}
+
+int BesselJnComplex(double n, int num, double xr, double xi, double *valr, double *vali)
+{
+  int nz = 0, ierr = 0, kode = 1;
+
+  zbesj_(&xr, &xi, &n, &kode, &num, valr, vali, &nz, &ierr) ;
+
+  return BesselError(ierr, "BesselJnComplex");
 }
 
 int BesselSphericalJn(double n, int num, double x, double *val)
@@ -124,7 +133,7 @@ int BesselYn(double n, int num, double x, double *val)
 
   zbesy_(&x, &xi, &n, &kode, &num, val, yi, &nz, auxyr, auxyi, &ierr);
 
-  delete[] yi; 
+  delete[] yi;
   delete[] auxyr;
   delete[] auxyi;
 
@@ -158,7 +167,7 @@ int BesselHn(int type, double n, int num, double x, std::complex<double> *val)
   int nz = 0, ierr = 0, kode = 1;
   double* hr = new double[num];
   double* hi = new double[num];
-  double xi = 0.0; 
+  double xi = 0.0;
 
   zbesh_(&x, &xi, &n, &kode, &type, &num, hr, hi, &nz, &ierr);
 
@@ -221,4 +230,3 @@ double AltSpherical_y_n(int n, double x)
   BesselAltSphericalYn(n, 1, x, &res);
   return res;
 }
-

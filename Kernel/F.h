@@ -129,6 +129,7 @@ void  F_Sign            (F_ARG) ;
 void  F_Min             (F_ARG) ;
 void  F_Max             (F_ARG) ;
 void  F_Jn              (F_ARG) ;
+void  F_JnComplex       (F_ARG) ;
 void  F_Yn              (F_ARG) ;
 void  F_dJn             (F_ARG) ;
 void  F_dYn             (F_ARG) ;
@@ -341,7 +342,7 @@ void Vector_Find_Jk_K (const double hrk[3],
 void Vector_Find_hrk_K(const double Jk[3],
                        const double Ja, const double ha, const double Jb, const double hb,
                        double hrk[3]);
-void Tensor_dJkdhrk_K(const double hr[3], 
+void Tensor_dJkdhrk_K(const double hr[3],
                       const double Ja, const double ha, const double Jb, const double hb,
                       double mutg[6]);
 

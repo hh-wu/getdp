@@ -9,6 +9,7 @@
 #include "F.h"
 #include "MallocUtils.h"
 #include "Message.h"
+#include "Bessel.h"
 
 extern struct CurrentData Current ;
 
@@ -193,6 +194,27 @@ void F_Jn(F_ARG)
   if (Current.NbrHar > 1){
     V->Val[MAX_DIM] = 0. ;
     for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2)
+      V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;
+  }
+  V->Type = SCALAR;
+}
+
+void F_JnComplex(F_ARG)
+{
+  if(A->Type != SCALAR || (A+1)->Type != SCALAR)
+    Message::Error("Non scalar argument(s) for Bessel function of the first kind 'JnComplex'");
+  int n = (int)A->Val[0];
+  double xr = (A+1)->Val[0];
+  double xi = (A+1)->Val[MAX_DIM];
+  double valr, vali;
+
+  BesselJnComplex(n, 1, xr, xi, &valr, &vali);
+
+  V->Val[0] = valr;
+  V->Val[MAX_DIM] = vali;
+
+  if (Current.NbrHar > 1){
+    for (int k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2)
       V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;
   }
   V->Type = SCALAR;
