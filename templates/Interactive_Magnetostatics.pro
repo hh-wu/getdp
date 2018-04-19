@@ -58,9 +58,9 @@ Group {
       DefineConstant[
         bc~{i} = {0, ReadOnlyRange 1, Choices{
             0=StrCat["Neumann: ", StrChoice[formulationType,
-                "n x h (magnetic field)", "n . b (flux density)"]],
+                "n x h (n x magnetic field)", "n . b (normal flux density)"]],
             1=StrCat["Dirichlet: ", StrChoice[formulationType,
-                "a (vector potential)", "phi (scalar potential)"]]
+                "a (vector magnetic potential)", "phi (scalar magnetic potential)"]]
           },
           Name StrCat[surPath, name~{i}, "/0Type"]}
       ];
@@ -115,6 +115,10 @@ DefineConstant[
   Flag_Axi = {0, Choices{0,1}, Visible (modelDim == 2),
     Name "Model/02Axisymmetric model"}
 ];
+If(Flag_Axi && (GetNumber["General.MinX"] < -1e-6 ||
+                Fabs[GetNumber["General.MaxZ"]] > 1e-6))
+  Error["The revolution axis for axisymmetric models should be X=Z=0"];
+EndIf
 If(export)
   If(NbrRegions[Vol_Inf_Mag])
     Printf(Sprintf("Val_Rint = %g;", Val_Rint)) >> Str[exportFile];

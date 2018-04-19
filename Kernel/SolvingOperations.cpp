@@ -113,7 +113,7 @@ void Free_UnusedSolutions(struct DofData * DofData_P)
     default:
       // FIXME: when doing a handmade loop in the pro file - we (@julien.dular
       // :-) should clearly introduce a parameter for this.
-      index = List_Nbr(DofData_P->Solutions) - (Flag_ExtrapolationOrder + 3);
+      index = List_Nbr(DofData_P->Solutions) - (Flag_ExtrapolationOrder + 10);
       break;
     }
 
@@ -3479,7 +3479,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                                Resolution2_P, DofData2_P0, &Flag_Break) ;
       Current.Iteration = Save_Iteration ;
       break;
-      
+
       /*  -->  S e t E x t r a p o l a t i o n O r d e r */
       /*  ---------------------------------------------  */
 

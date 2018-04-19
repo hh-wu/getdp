@@ -59,10 +59,10 @@ Group {
     If(dim~{i} < modelDim)
       DefineConstant[
         bc~{i} = {0, Choices{
-            0="Neumann: n . d (electric displacement)",
-            1="Dirichlet: v (scalar potential)",
+            0="Neumann: n . d (normal electric displacement)",
+            1="Dirichlet: v (scalar electric potential)",
             2="Floating conductor: q (free charge)",
-            3="Floating conductor: v (scalar potential)"
+            3="Floating conductor: v (scalar electric potential)"
           },
           Name StrCat[surPath, name~{i}, "/0Type"]}
       ];
@@ -111,6 +111,10 @@ DefineConstant[
   Flag_Axi = {0, Choices{0,1}, Visible (modelDim == 2),
     Name "Model/02Axisymmetric model"}
 ];
+If(Flag_Axi && (GetNumber["General.MinX"] < -1e-6 ||
+                Fabs[GetNumber["General.MaxZ"]] > 1e-6))
+  Error["The revolution axis for axisymmetric models should be X=Z=0"];
+EndIf
 If(export)
   If(NbrRegions[Vol_Inf_Ele])
     Printf(Sprintf("Val_Rint = %g;", Val_Rint)) >> Str[exportFile];
