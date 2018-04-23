@@ -285,7 +285,7 @@ if(ENABLE_BLAS_LAPACK)
       endif(LAPACK_LIBRARIES)
     elseif(${CMAKE_SYSTEM_NAME} MATCHES "SunOS")
       # on SunOS we know blas and lapack are available in sunperf
-      set(LAPACK_FLAGS -library=sunperf)
+      set(LAPACK_LIBRARIES -library=sunperf)
       set_config_option(HAVE_BLAS "Blas(SunPerf)")
       set_config_option(HAVE_LAPACK "Lapack(SunPerf)")
     elseif(APPLE)
@@ -791,17 +791,15 @@ endif(ENABLE_BUILD_LIB)
 if(ENABLE_BUILD_SHARED OR ENABLE_BUILD_DYNAMIC)
   add_library(shared SHARED ${GETDP_SRC})
   set_target_properties(shared PROPERTIES OUTPUT_NAME getdp)
-  set_target_properties(shared PROPERTIES 
-    VERSION ${GETDP_MAJOR_VERSION}.${GETDP_MINOR_VERSION}.${GETDP_PATCH_VERSION}
-    SOVERSION ${GETDP_MAJOR_VERSION}.${GETDP_MINOR_VERSION})
-  if(HAVE_LAPACK AND LAPACK_FLAGS)
-    set_target_properties(shared PROPERTIES LINK_FLAGS ${LAPACK_FLAGS})
-  endif(HAVE_LAPACK AND LAPACK_FLAGS)
+  set_target_properties(shared PROPERTIES VERSION
+                        ${GETDP_MAJOR_VERSION}.${GETDP_MINOR_VERSION}.${GETDP_PATCH_VERSION})
+  set_target_properties(shared PROPERTIES SOVERSION
+                        ${GETDP_MAJOR_VERSION}.${GETDP_MINOR_VERSION})
+  target_link_libraries(shared ${LINK_LIBRARIES})
   if(MSVC AND ENABLE_MSVC_STATIC_RUNTIME)
     message(STATUS "Note: By enabling ENABLE_MSVC_STATIC_RUNTIME, shared library "
             "won't link. In MSVC change /MT to /MD in the shared project properties")
   endif(MSVC AND ENABLE_MSVC_STATIC_RUNTIME)
-  target_link_libraries(shared ${LINK_LIBRARIES})
 endif(ENABLE_BUILD_SHARED OR ENABLE_BUILD_DYNAMIC)
 
 if(ENABLE_BUILD_IOS)
@@ -839,12 +837,13 @@ endif(ENABLE_BUILD_DYNAMIC)
 
 # force static linking of system libraries with cygwin/mingw
 if(WIN32 AND NOT MSVC OR CYGWIN)
-  if(NOT ENABLE_BUILD_DYNAMIC)
-    set_target_properties(getdp PROPERTIES LINK_FLAGS "-static")
-    # remove stupid -Wl,-Bdynamic flags
+  set_target_properties(getdp PROPERTIES LINK_FLAGS "-static")
+  if(ENABLE_BUILD_SHARED OR ENABLE_BUILD_DYNAMIC)
+    set_target_properties(shared PROPERTIES LINK_FLAGS "-static")
+    # remove -Wl,-Bdynamic flags
     set(CMAKE_EXE_LINK_DYNAMIC_C_FLAGS)
     set(CMAKE_EXE_LINK_DYNAMIC_CXX_FLAGS)
-  endif(NOT ENABLE_BUILD_DYNAMIC)
+  endif(ENABLE_BUILD_SHARED OR ENABLE_BUILD_DYNAMIC)
 endif(WIN32 AND NOT MSVC OR CYGWIN)
 
 # parser target
