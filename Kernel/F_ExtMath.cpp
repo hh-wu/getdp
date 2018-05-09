@@ -53,17 +53,17 @@ void F_TanhC2(F_ARG)
   double denom =
     SQU(cosh(A->Val[0])*cos(A->Val[MAX_DIM])) +
     SQU(sinh(A->Val[0])*sin(A->Val[MAX_DIM]));
-  printf("arg=%g  cosh(arg)=%g\n", A->Val[0], cosh(A->Val[0]));
+  //printf("arg=%g  cosh(arg)=%g\n", A->Val[0], cosh(A->Val[0]));
 
 
   V->Val[0]       = sinh(A->Val[0])*cosh(A->Val[0]) / denom ;
   V->Val[MAX_DIM] = sin(A->Val[MAX_DIM])*cos(A->Val[MAX_DIM]) / denom ;
   V->Type = SCALAR ;
 
-  printf("numer_real=%g, numer_imag=%g, denom = %g\n",
+  /* printf("numer_real=%g, numer_imag=%g, denom = %g\n",
          sinh(A->Val[0])*cosh(A->Val[0]) ,
          sin(A->Val[MAX_DIM])*cos(A->Val[MAX_DIM]),
-         denom);
+         denom); */
 
 }
 
