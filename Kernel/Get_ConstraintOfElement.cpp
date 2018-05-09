@@ -1033,7 +1033,7 @@ void  Generate_GeoLinkNodes(struct ConstraintInFS * Constraint_P,
       List_Add(nodePairs_L, &nodePair);
     }
     else{
-      Message::Error("GeoLinkNodes: Found unpaired node %d at %f %f %f (j=%d)\n",
+      Message::Error("GeoLinkNodes: Found unpaired node %d at %16.10f %16.10f %16.10f (j=%d)\n",
 		     coincident[0].Num, coincident[0].x, coincident[0].y, coincident[0].z, j) ;
     }
     vCount[j-1]++;
