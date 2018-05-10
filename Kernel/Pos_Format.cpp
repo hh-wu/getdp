@@ -1407,7 +1407,7 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
     if(PostStream) Unv_PrintFooter(PostStream);
     break ;
   case FORMAT_NODE_TABLE :
-    if(PostStream || NodeTable.size()){
+    if(PostStream){
       fprintf(PostStream, "%d\n", (int)NodeTable.size());
       for(std::map<int, std::vector<double> >::iterator it = NodeTable.begin();
           it != NodeTable.end(); it++){
