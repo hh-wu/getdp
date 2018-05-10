@@ -67,7 +67,11 @@ Include "square_data.geo";
 // Output Directory
 //-------------------------------------------------------------------------
 
-Dir = 'res/';
+If (Exists(simulabel))
+    Dir = Sprintf("res%g/",simulabel);
+Else
+    Dir = 'res/';
+EndIf
 
 //Include "param_EnergHyst.dat";
 //Dir   = Sprintf("res_N%g_C%g/",N00,Flag_TestCase_00);
@@ -131,8 +135,8 @@ Function {
   hx[] = Frelax[] * (  hax     * Cos[2*Pi*Freq    *$Time]
                      + haharmx * Cos[2*Pi*freqharm*$Time]) ;
   hy[] = Frelax[] * (  hay0 
-                     + hay     * (Cos[phase]*Cos[2*Pi*Freq    *$Time] + Sin[phase]*Sin[2*Pi*Freq    *$Time])
-                     + haharmy * (Cos[phase]*Cos[2*Pi*freqharm*$Time] + Sin[phase]*Sin[2*Pi*freqharm*$Time]) );
+                     + hay     * (Cos[phase]*Cos[2*Pi*Freq    *$Time] - Sin[phase]*Sin[2*Pi*Freq    *$Time])
+                     + haharmy * (Cos[phase]*Cos[2*Pi*freqharm*$Time] - Sin[phase]*Sin[2*Pi*freqharm*$Time]) );
 /*
   hx[] = Frelax[] * (  hax     * Complex_MH[1,0]{Freq} 
                      + haharmx * Complex_MH[1,0]{freqharm}) ;
