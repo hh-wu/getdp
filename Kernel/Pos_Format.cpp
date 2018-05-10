@@ -1759,6 +1759,20 @@ void Format_PostValue(struct PostQuantity  *PQ_P,
   else if (Format == FORMAT_LOOP_ERROR) {
     StorePostOpResult(NbrHarmonics, Value);
   }
+  else if (Format == FORMAT_NODE_TABLE) {
+    // FIXME: this leads to output files without the total number of nodes at
+    // the beginning (i.e. not compatible with NodeTable obtained e.g. for
+    // OnElementsOf)
+    fprintf(PostStream, "%d", numRegion) ;
+    Geo_GetNodesCoordinates(1, &numRegion, &x, &y, &z) ;
+    fprintf(PostStream, " %.16g %.16g %.16g", x,y,z) ;
+    for (k = 0 ; k < NbrHarmonics ; k++) {
+      for(j = 0 ; j < Size ; j++) {
+	fprintf(PostStream, " %.16g", Value->Val[MAX_DIM*k+j]) ;
+      }
+    }
+    fprintf(PostStream, "\n") ;
+  }
   // else, for other FORMATs, e.g., FORMAT_FREQUENCY_TABLE
   else {
     if(iRegion == 0){
