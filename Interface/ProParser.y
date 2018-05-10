@@ -1690,7 +1690,7 @@ WholeQuantity_Single :
     { WholeQuantity_S.Type = WQ_CURRENTVALUE;
       Get_PointerForString(Current_Value, $2, &FlagError,
 			   (void **)&WholeQuantity_S.Case.CurrentValue.Value);
-      if(FlagError){
+      if(FlagError){ // if it's not a Current_Value, we query run-time variables
         WholeQuantity_S.Type = WQ_NAMEDVALUESAVED;
         WholeQuantity_S.Case.NamedValue.Name = $2;
       }
