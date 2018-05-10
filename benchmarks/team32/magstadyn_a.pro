@@ -677,6 +677,7 @@ Resolution {
         Evaluate[$relaxcounttot=0];
         Evaluate[$dnccount=0];
         Evaluate[$itertot=0];
+        Evaluate[$itermax=0];
 
         //Save TimeStep 0
         SaveSolution[A];
@@ -733,10 +734,10 @@ Resolution {
                 //*****Choose between one of the 3 following possibilities:*****
                 //System { { A , Reltol_Mag, Abstol_Mag, Solution MeanL2Norm }} ]{ //1a)  //dx=x-xp; x=x
                 //System { { A , Reltol_Mag, Abstol_Mag, RecalcResidual MeanL2Norm }} ]{ //1b)  //dx=res=b-Ax; x=b
-                //System { { A , Reltol_Mag, Abstol_Mag, Residual MeanL2Norm }} ]{ //1c)  //dx=res=b-Ax; x=b #(default for square) #CHECK here
+                System { { A , Reltol_Mag, Abstol_Mag, Residual MeanL2Norm }} ]{ //1c)  //dx=res=b-Ax; x=b #(default for square) #CHECK here
                 //PostOperation { { az_only , Reltol_Mag, Abstol_Mag,  MeanL2Norm }} ]{ //2)
                 //PostOperation { { b_only , Reltol_Mag, Abstol_Mag,  MeanL2Norm }} ]{ //3) 
-                PostOperation { { h_only , Reltol_Mag, Abstol_Mag,  MeanL2Norm }} ]{ //4) //(default for t32) #CHECK here //Need the above "INIT" for square with EnergHyst or JA because h_only = 0 at iter 1 
+                //PostOperation { { h_only , Reltol_Mag, Abstol_Mag,  MeanL2Norm }} ]{ //4) //(default for t32) #CHECK here //Need the above "INIT" for square with EnergHyst or JA because h_only = 0 at iter 1 
                 //**************************************************************
 
                 Evaluate[$res  = $ResidualN, $resL = $Residual,$resN = $ResidualN,$iter = $Iteration-1]; 
@@ -768,6 +769,10 @@ Resolution {
           //...............................................................
             EndIf
 
+
+          Test[$iter>$itermax]{
+            Evaluate[$itermax  = $iter]; 
+          }
           Evaluate[$itertot  = $itertot+$iter];        
           Test[ (Flag_NLRes==NLRES_ITERATIVELOOPPRO && $iter == Nb_max_iter) || 
                 (Flag_NLRes==NLRES_ITERATIVELOOP    && $res > Abstol_Mag   ) ||
@@ -797,6 +802,10 @@ Resolution {
       Print[{$dnccount}, Format "Total number of non converged TimeStep: %g"];
       Print["--------------------------------------------------------------"];      
       EndIf // End Flag_AnalysisType==AN_TIME (Time domain)
+
+      Print["syscount relaxcounttot meanrelaxcount iterFEtot meaniterFE maxiterFE dnccount CPUtime"];
+      Print[{$syscount, $relaxcounttot, $relaxcounttot/$TimeStep, $itertot,$itertot/$TimeStep, $itermax, $dnccount,GetCpuTime[]}, Format "%g %g %g %g %g %g %g %g"];
+
     }
   }
 }

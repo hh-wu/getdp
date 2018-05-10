@@ -702,7 +702,8 @@ void DlalaAdaptation(double *M)
   double maxdiag=MAX(MAX(M[diagcoord[0]],M[diagcoord[1]]),M[diagcoord[2]]);
   double avediag=0.5*(mindiag+maxdiag);
 
-  for (int k=0; k<6; k++)
+  int ncomp = ::NCOMP;
+  for (int k=0; k<ncomp; k++)
     M[k]=0.;
   for (int k=0; k<3; k++)
     M[diagcoord[k]]=avediag;

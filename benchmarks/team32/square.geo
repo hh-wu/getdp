@@ -36,6 +36,7 @@ Physical Line(15) = {1,2,3,4};
 
 Physical Surface(16)={6};
 
+Recursive Color LightGrey { Surface{ 6}; }
 
 
 // Post-processing point
@@ -50,4 +51,5 @@ For k In {1:num_postop_points}
   };
 EndFor
 EndIf
+
 

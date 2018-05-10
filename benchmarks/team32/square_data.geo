@@ -1,6 +1,10 @@
 //-------------------------------------------------------------------------
 // Default Parameters
 //-------------------------------------------------------------------------
+If (FileExists("square_data.dat"))
+        Printf('square_data.dat is used');
+        Include "square_data.dat";
+Else
 
 // GEO parameters .............................
 THICKNESS_00 = 1; // thickness of the sample
@@ -64,6 +68,8 @@ TestAllFactors00    = 2;  // 0 : try first relaxation factors (from the list) an
                           //     - the relaxation factor is multiplied by a ratio as long as the residual decreases
                           //     - the relaxation factor is decreased by a ratio until a decreasing residual is found
                           // [3 : Build a parabola based on three relaxation factors and deduce a minimizing relaxation factor (NOT WORKING!!)]
+EndIf
+
 Reltol_Mag00        = stop_criterion00; // 0 before with IterativeLoopN
 Abstol_Mag00        = stop_criterion00;
 Reltoldx_Mag00      = 1e-5*stop_criterion00;
