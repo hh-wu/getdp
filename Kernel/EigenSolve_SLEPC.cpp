@@ -309,7 +309,7 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv, EPS eps,
     Current.TimeStep += 1.;
   }
 
-#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
+#if (PETSC_VERSION_RELEASE == 0) || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2))
   _try(VecDestroy(&xr));
   _try(VecDestroy(&xi));
   if(Message::GetCommSize() > 1){
@@ -379,10 +379,12 @@ static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
   _try(KSPGetPC(ksp, &pc));
   _try(PCSetType(pc, PCLU));
 
-#if (PETSC_VERSION_RELEASE == 0) && defined(PETSC_HAVE_MUMPS)
+#if defined(PETSC_HAVE_MUMPS)
+#if (PETSC_VERSION_RELEASE == 0) || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 9))
   _try(PCFactorSetMatSolverType(pc, "mumps"));
-#elif (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
+#elif (PETSC_VERSION_MAJOR > 2)
   _try(PCFactorSetMatSolverPackage(pc, "mumps"));
+#endif
 #endif
 
   // print info
@@ -499,10 +501,12 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
     PC pc;
     _try(KSPGetPC(ksp, &pc));
     _try(PCSetType(pc, PCLU));
-#if (PETSC_VERSION_RELEASE == 0) && defined(PETSC_HAVE_MUMPS)
+#if defined(PETSC_HAVE_MUMPS)
+#if (PETSC_VERSION_RELEASE == 0) || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 9))
     _try(PCFactorSetMatSolverType(pc, "mumps"));
-#elif (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
+#elif (PETSC_VERSION_MAJOR > 2)
     _try(PCFactorSetMatSolverPackage(pc, "mumps"));
+#endif
 #endif
   }
 
@@ -619,10 +623,12 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
     PC pc;
     _try(KSPGetPC(ksp, &pc));
     _try(PCSetType(pc, PCLU));
-#if (PETSC_VERSION_RELEASE == 0) && defined(PETSC_HAVE_MUMPS)
+#if defined(PETSC_HAVE_MUMPS)
+#if (PETSC_VERSION_RELEASE == 0) || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 9))
     _try(PCFactorSetMatSolverType(pc, "mumps"));
-#elif (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
+#elif (PETSC_VERSION_MAJOR > 2)
     _try(PCFactorSetMatSolverPackage(pc, "mumps"));
+#endif
 #endif
     _try(EPSSetFromOptions(eps));
   }
