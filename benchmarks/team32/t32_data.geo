@@ -33,10 +33,15 @@ Flag_NL_law00 = 4;  // 0: "linear",
                     // 3: "Jiles-Atherton hysteresis model",
                     // 4: "EnergHyst model"
 
+Flag_ExtrapolationOrder = 1;  // degree 0 ==> initialization at the previous Time Solution
+                              // degree 1 ==> linear extrapolation from the 2 previous Time Solutions
+                              // degree 2 ==> quadratic extrapolation from the 3 previous Time Solutions
+
 // non linear loop default parameters
 Flag_NLRes00 = 1; // 0: use classical IterativeLoop to solve the NL (non linear) problem
                   // 1: use IterativeLoopN to solve the NL (non linear) problem
                   // 2: solve the NL (non linear) problem "by hand"
+
 Nb_max_iter00       = 50; // maximum number of NL (non linear) iterations
 stop_criterion00    = 1e-5;  // strop criterion for the NL (non linear) iteration
 relaxation_factor00 = 1; // default relaxation factor (between ]0,1] )

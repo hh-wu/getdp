@@ -49,6 +49,10 @@ Flag_NL_law00 = 4;  // 0: "linear",
                     // 3: "Jiles-Atherton hysteresis model",
                     // 4: "EnergHyst model"
 
+Flag_ExtrapolationOrder = 1;  // degree 0 ==> initialization at the previous Time Solution
+                              // degree 1 ==> linear extrapolation from the 2 previous Time Solutions
+                              // degree 2 ==> quadratic extrapolation from the 3 previous Time Solutions
+
 Flag_NLRes00 = 0; // 0: use classical IterativeLoop to solve the NL (non linear) problem
                   // 1: use IterativeLoopN to solve the NL (non linear) problem
                   // 2: solve the NL (non linear) problem "by hand"

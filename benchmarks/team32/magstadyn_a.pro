@@ -46,7 +46,8 @@ Function{
     Flag_PrintMaps =1,
     Flag_LiveLocalPostOp=1,
     Flag_LiveGlobalPostOp=1,
-    po = "Output_"
+    po = "Output_",
+    Flag_ExtrapolationOrder=0
   ];
 
   // Macro myname
@@ -670,6 +671,8 @@ Resolution {
       EndIf // End Flag_AnalysisType==AN_STATIC (Static) Flag_AnalysisType==AN_FREQUENCY (Frequency)
 
       If(Flag_AnalysisType==AN_TIME)
+
+        SetExtrapolationOrder[Flag_ExtrapolationOrder];
 
         // set some runtime variables
         Evaluate[$syscount = 0];
