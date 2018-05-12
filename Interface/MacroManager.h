@@ -6,18 +6,18 @@
 #ifndef _MACRO_MANAGER_H_
 #define _MACRO_MANAGER_H_
 
-class mystack;
-class mymap;
-
 #include <string>
 
 // Singleton, one macro manager for all parsers.
 
+class MacroManagerStack;
+class MacroManagerMap;
+
 class MacroManager
 {
  private:
-  mymap *_macros;
-  mystack *_calls;
+  MacroManagerMap *_macros;
+  MacroManagerStack *_calls;
   MacroManager();
   static MacroManager *_instance;
  public :

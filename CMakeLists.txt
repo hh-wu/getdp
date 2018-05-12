@@ -679,11 +679,7 @@ endif(MSVC)
 # disable compile optimization on some known problematic files
 check_cxx_compiler_flag("-O0" NOOPT)
 if(NOOPT OR ENABLE_BUILD_IOS)
-  if(ENABLE_BUILD_IOS)
-    file(GLOB_RECURSE NON_OPTIMIZED_SRC contrib/NR/*.cpp */*.cpp)
-  else(ENABLE_BUILD_IOS)
-    file(GLOB_RECURSE NON_OPTIMIZED_SRC contrib/NR/*.cpp)
-  endif(ENABLE_BUILD_IOS)
+  file(GLOB_RECURSE NON_OPTIMIZED_SRC contrib/NR/*.cpp)
   set_compile_flags(NON_OPTIMIZED_SRC "-O0")
 endif(NOOPT OR ENABLE_BUILD_IOS)
 

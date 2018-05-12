@@ -3,10 +3,13 @@
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to the public mailing list <getdp@onelab.info>.
 
+#include "GetDPConfig.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "MallocUtils.h"
 #include "Message.h"
+
+#if !defined(HAVE_GMSH)
 
 void *Malloc(size_t size)
 {
@@ -48,3 +51,5 @@ void Free(void *ptr)
     return;
   free(ptr);
 }
+
+#endif

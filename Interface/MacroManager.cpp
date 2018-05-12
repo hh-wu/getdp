@@ -20,13 +20,13 @@ class File_Position
   std::string filename;
 };
 
-class mystack
+class MacroManagerStack
 {
  public:
   std::stack<File_Position> s;
 };
 
-class mymap
+class MacroManagerMap
 {
  public:
   std::map<std::string, File_Position> inFile;
@@ -37,8 +37,8 @@ MacroManager *MacroManager::_instance = 0;
 
 MacroManager::MacroManager()
 {
-  _macros = new mymap;
-  _calls = new mystack;
+  _macros = new MacroManagerMap;
+  _calls = new MacroManagerStack;
 }
 
 MacroManager *MacroManager::Instance()

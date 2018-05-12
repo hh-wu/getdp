@@ -39,7 +39,7 @@
 #include <sstream>
 #include "GmshSocket.h"
 
-#undef HAVE_PICOJSON
+#define HAVE_PICOJSON
 #if defined(HAVE_PICOJSON)
 #include "picojson.h"
 #endif
@@ -234,6 +234,16 @@ namespace onelab{
       while(first != std::string::npos)
         out.push_back(getNextToken(msg, first, separator));
       return out;
+    }
+    static std::string trim(const std::string &str,
+                            const std::string &whitespace = " \t\n")
+    {
+      std::string::size_type strBegin = str.find_first_not_of(whitespace);
+      if(strBegin == std::string::npos)
+        return ""; // no content
+      std::string::size_type strEnd = str.find_last_not_of(whitespace);
+      std::string::size_type strRange = strEnd - strBegin + 1;
+      return str.substr(strBegin, strRange);
     }
     std::string sanitize(const std::string &in) const
     {
@@ -861,11 +871,6 @@ namespace onelab{
       }
       return NULL;
     }
-    void _getAllParameters(std::set<parameter*, parameterLessThan> &ps) const
-    {
-      ps.insert(_numbers.begin(), _numbers.end());
-      ps.insert(_strings.begin(), _strings.end());
-    }
   public:
     parameterSpace(){}
     ~parameterSpace(){ clear(); }
@@ -873,7 +878,7 @@ namespace onelab{
     {
       if(name.empty() && client.empty()){
         std::set<parameter*, parameterLessThan> ps;
-        _getAllParameters(ps);
+        getAllParameters(ps);
         for(std::set<parameter*, parameterLessThan>::iterator it = ps.begin();
             it != ps.end(); it++)
           delete *it;
@@ -924,7 +929,7 @@ namespace onelab{
     bool hasClient(const std::string &client) const
     {
       std::set<parameter*, parameterLessThan> ps;
-      _getAllParameters(ps);
+      getAllParameters(ps);
       for(std::set<parameter*, parameterLessThan>::iterator it = ps.begin();
           it != ps.end(); it++)
         if((*it)->hasClient(client)) return true;
@@ -935,7 +940,7 @@ namespace onelab{
     int getChanged(const std::string &client="") const
     {
       std::set<parameter*, parameterLessThan> ps;
-      _getAllParameters(ps);
+      getAllParameters(ps);
       int changed = 0;
       for(std::set<parameter*, parameterLessThan>::iterator it = ps.begin();
           it != ps.end(); it++){
@@ -948,7 +953,7 @@ namespace onelab{
     void setChanged(int changed, const std::string &client="")
     {
       std::set<parameter*, parameterLessThan> ps;
-      _getAllParameters(ps);
+      getAllParameters(ps);
       for(std::set<parameter*, parameterLessThan>::iterator it = ps.begin();
           it != ps.end(); it++)
         (*it)->setChanged(changed, client);
@@ -956,7 +961,7 @@ namespace onelab{
     void thresholdChanged(int threshold, const std::string &client="")
     {
       std::set<parameter*, parameterLessThan> ps;
-      _getAllParameters(ps);
+      getAllParameters(ps);
       for(std::set<parameter*, parameterLessThan>::iterator it = ps.begin();
           it != ps.end(); it++){
         int changed = (*it)->getChanged(client);
@@ -970,7 +975,7 @@ namespace onelab{
     {
       std::vector<std::string> s;
       std::set<parameter*, parameterLessThan> ps;
-      _getAllParameters(ps);
+      getAllParameters(ps);
       for(std::set<parameter*, parameterLessThan>::const_iterator it = ps.begin();
           it != ps.end(); it++)
         if(client.empty() || (*it)->hasClient(client)){
@@ -1011,7 +1016,7 @@ namespace onelab{
       json += "  \"version\":\"" + parameter::version() + "\",\n";
       json += "  \"parameters\":[\n";
       std::set<parameter*, parameterLessThan> ps;
-      _getAllParameters(ps);
+      getAllParameters(ps);
       for(std::set<parameter*, parameterLessThan>::const_iterator it = ps.begin();
           it != ps.end(); it++){
         if(it != ps.begin()) json += ",\n";
@@ -1024,9 +1029,9 @@ namespace onelab{
       json += "\n  ] }\n}\n";
       return true;
     }
-#if defined(HAVE_PICOJSON)
     bool fromJSON(const std::string &json, const std::string &client="")
     {
+#if defined(HAVE_PICOJSON)
       picojson::value v;
       std::string err = picojson::parse(v, json);
       if(err.size()) return false;
@@ -1061,8 +1066,10 @@ namespace onelab{
         }
       }
       return true;
-    }
+#else
+      return false;
 #endif
+    }
   };
 
   // The onelab client: a class that communicates with the onelab server. Each
@@ -1227,12 +1234,10 @@ namespace onelab{
     {
       return _parameterSpace.toJSON(json, client);
     }
-#if defined(HAVE_PICOJSON)
     bool fromJSON(const std::string &json, const std::string &client="")
     {
       return _parameterSpace.fromJSON(json, client);
     }
-#endif
   };
 
   // A local client, which lives in the same memory space as the server.
@@ -1390,7 +1395,7 @@ namespace onelab{
         // stop if we have no communications for 5 minutes
         int ret = _gmshClient->Select(500, 0);
         if(!ret){
-          _gmshClient->Info("Timout: aborting remote get");
+          _gmshClient->Info("Timeout: aborting remote get");
           return false;
         }
         else if(ret < 0){
@@ -1444,7 +1449,7 @@ namespace onelab{
       while(_numSubClients > 0){
         int ret = _gmshClient->Select(500, 0);
         if(!ret){
-          _gmshClient->Info("Timout: aborting wait on subclients");
+          _gmshClient->Info("Timeout: aborting wait on subclients");
           return;
         }
         else if(ret < 0){
