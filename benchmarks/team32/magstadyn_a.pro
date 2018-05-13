@@ -722,26 +722,42 @@ Resolution {
 
             If(Flag_NLRes==NLRES_ITERATIVELOOPN) 
           // I T E R A T I V E . L O O P . N ..............................
-                // INIT for h_only case::::::::::::
-                /*
+              //:::::::::::::::::::::::::::::::::::::::::::
+              If(Flag_ItLoopNDoFirstIter)
                 GenerateJac[A] ; 
                 If (!Flag_AdaptRelax)
                   SolveJac[A] ;                                       
                 Else
                   SolveJac_AdaptRelax[A, List[RelaxFac_Lin],TestAllFactors ] ; 
                 EndIf
-                //*/
-                //:::::::::::::::::::::::::::::::::
-
+              EndIf
+              //:::::::::::::::::::::::::::::::::::::::::::
+              //*****Choose between one of the following possibilities:*****
+              If(Flag_ItLoopNRes==NLITLOOPN_SOLUTION)
               IterativeLoopN[ Nb_max_iter, RF_tuned[],
-                //*****Choose between one of the 3 following possibilities:*****
-                //System { { A , Reltol_Mag, Abstol_Mag, Solution MeanL2Norm }} ]{ //1a)  //dx=x-xp; x=x
-                //System { { A , Reltol_Mag, Abstol_Mag, RecalcResidual MeanL2Norm }} ]{ //1b)  //dx=res=b-Ax; x=b
-                System { { A , Reltol_Mag, Abstol_Mag, Residual MeanL2Norm }} ]{ //1c)  //dx=res=b-Ax; x=b #(default for square) #CHECK here
-                //PostOperation { { az_only , Reltol_Mag, Abstol_Mag,  MeanL2Norm }} ]{ //2)
-                //PostOperation { { b_only , Reltol_Mag, Abstol_Mag,  MeanL2Norm }} ]{ //3) 
-                //PostOperation { { h_only , Reltol_Mag, Abstol_Mag,  MeanL2Norm }} ]{ //4) //(default for t32) #CHECK here //Need the above "INIT" for square with EnergHyst or JA because h_only = 0 at iter 1 
-                //**************************************************************
+                System { { A , Reltol_Mag, Abstol_Mag, Solution MeanL2Norm }} ]{ // 0  : Solution (dx=x-xp; x=x)
+              EndIf
+              If(Flag_ItLoopNRes==NLITLOOPN_RESIDUAL)
+              IterativeLoopN[ Nb_max_iter, RF_tuned[],
+                System { { A , Reltol_Mag, Abstol_Mag, Residual MeanL2Norm }} ]{ //1  : Residual (dx=res=b-Ax; x=b)
+              EndIf
+              If(Flag_ItLoopNRes==NLITLOOPN_RECALCRESIDUAL)
+              IterativeLoopN[ Nb_max_iter, RF_tuned[],
+                System { { A , Reltol_Mag, Abstol_Mag, RecalcResidual MeanL2Norm }} ]{ //2  : RecalcResidual (dx=res=b-Ax; x=b)
+              EndIf
+              If(Flag_ItLoopNRes==NLITLOOPN_POSTOPX)
+              IterativeLoopN[ Nb_max_iter, RF_tuned[],
+                PostOperation { { az_only , Reltol_Mag, Abstol_Mag,  MeanL2Norm }} ]{ // 31 : PostOp unknown field az
+              EndIf
+              If(Flag_ItLoopNRes==NLITLOOPN_POSTOPB)
+              IterativeLoopN[ Nb_max_iter, RF_tuned[],
+                PostOperation { { b_only , Reltol_Mag, Abstol_Mag,  MeanL2Norm }} ]{ // 32 : PostOp b field
+              EndIf
+              If(Flag_ItLoopNRes==NLITLOOPN_POSTOPH)
+              IterativeLoopN[ Nb_max_iter, RF_tuned[],
+                PostOperation { { h_only , Reltol_Mag, Abstol_Mag,  MeanL2Norm }} ]{ // 33 : PostOp h field
+              EndIf        
+              //**************************************************************
 
                 Evaluate[$res  = $ResidualN, $resL = $Residual,$resN = $ResidualN,$iter = $Iteration-1]; 
                 Test[ $iter>0]{

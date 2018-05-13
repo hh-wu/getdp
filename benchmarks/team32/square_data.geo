@@ -72,6 +72,16 @@ TestAllFactors00    = 2;  // 0 : try first relaxation factors (from the list) an
                           //     - the relaxation factor is multiplied by a ratio as long as the residual decreases
                           //     - the relaxation factor is decreased by a ratio until a decreasing residual is found
                           // [3 : Build a parabola based on three relaxation factors and deduce a minimizing relaxation factor (NOT WORKING!!)]
+Flag_ItLoopNRes00 = 1;// 0  : Solution (dx=x-xp; x=x)
+                       // 1  : Residual (dx=res=b-Ax; x=b) (default for square ???)
+                       // 2  : RecalcResidual (dx=res=b-Ax; x=b) 
+                       // 31 : PostOp unknown field (az or f)
+                       // 32 : PostOp b field
+                       // 33 : PostOp h field (default for t32)
+Flag_ItLoopNDoFirstIter00 = 0;// set to 1 if one wants to force the first NL iteration before evaluating the error with IterativeLoopN
+                              // helpfull for square.pro with EnergHyst or JA because PostOp h field = 0 at iter 1, which stops IterativeLoopN prematurely
+
+
 EndIf
 
 Reltol_Mag00        = stop_criterion00; // 0 before with IterativeLoopN
@@ -95,6 +105,13 @@ NL_ENERGHYST = 4;
 NLRES_ITERATIVELOOP    = 0;
 NLRES_ITERATIVELOOPN   = 1;
 NLRES_ITERATIVELOOPPRO = 2;
+
+NLITLOOPN_SOLUTION       = 0;
+NLITLOOPN_RESIDUAL       = 1;
+NLITLOOPN_RECALCRESIDUAL = 2;
+NLITLOOPN_POSTOPX        = 31;
+NLITLOOPN_POSTOPB        = 32;
+NLITLOOPN_POSTOPH        = 33;
 
 AN_STATIC    = 0;
 AN_TIME      = 1;
@@ -193,6 +210,23 @@ DefineConstant[
       Help Str["- Use 'IterativeLoop' to solve the NL (non linear) problem with classical IterativeLoop Operation",
                "- Use 'IterativeLoopN' to solve the NL (non linear) problem with IterativeLoopN Operation",
                "- Use 'IterativeLoopPro' to solve the NL (non linear) problem 'by hand'"]},
+  Flag_ItLoopNRes = { (Flag_NLRes!=NLRES_ITERATIVELOOPN)? NLITLOOPN_SOLUTION:Flag_ItLoopNRes00  , Choices {
+      NLITLOOPN_SOLUTION ="Solution",
+      NLITLOOPN_RESIDUAL ="RecalcResidual",
+      NLITLOOPN_RECALCRESIDUAL ="Residual",
+      NLITLOOPN_POSTOPX ="PostOp Potential",
+      NLITLOOPN_POSTOPB ="PostOp b field",
+      NLITLOOPN_POSTOPH ="PostOp h field"}, 
+    Name StrCat[ppNL, "1Error Calculation based on ..."], Highlight Str[colNL1], Visible Flag_NL ,ReadOnly (Flag_NLRes!=NLRES_ITERATIVELOOPN),
+      Help Str["- the solution (dx=x-xp; x=x)",
+               "- the residual (dx=res=b-Ax; x=b)",
+               "- the recalculated residual (dx=res=b-Ax; x=b)",
+               "- the post-operated potential field (az or phi)",
+               "- the post-operated flux density field (b)",
+               "- the post-operated magnetic field (h)"]},
+  Flag_ItLoopNDoFirstIter = {Flag_ItLoopNDoFirstIter00, Choices{0,1}, Name StrCat[ppNL, "1First iteration done before error calculation"], 
+    Highlight Str[colNL1], Visible (Flag_NL && Flag_NLRes==NLRES_ITERATIVELOOPN),
+    Help Str["Set to 1 to force the first NL iteration to be done before evaluating the error with IterativeLoopN"]},
 
   Nb_max_iter = {Nb_max_iter00, Name StrCat[ppNL, "1Nb max iter"], 
     Highlight Str[colNL4], Visible Flag_NL}
