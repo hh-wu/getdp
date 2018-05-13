@@ -51,13 +51,17 @@
 // equals 8 by default (tensors), reduced to 2 in multiharmonic case for allowing to go up
 // in the number of harmonics... Put back to 8 if you need tensors!
 
-#if !defined(HAVE_MULTIHARMONIC)
+#if defined(HAVE_SMALL_STACK)
 #define NBR_MAX_HARMONIC    2
 #define MAX_STACK_SIZE0     8
-#define MAX_STACK_SIZE     40
-#else
+#define MAX_STACK_SIZE     20
+#elif defined(HAVE_MULTIHARMONIC)
 #define NBR_MAX_HARMONIC   40
 #define MAX_STACK_SIZE0     2
+#define MAX_STACK_SIZE     40
+#else
+#define NBR_MAX_HARMONIC    2
+#define MAX_STACK_SIZE0     8
 #define MAX_STACK_SIZE     40
 #endif
 
@@ -1618,7 +1622,11 @@ struct CurrentData {
 
 // FIXME: this should be made dynamic (with std::vector in Element) ; setting a
 // static too large can easily lead to stack overflows
-#define NBR_MAX_GROUPS_IN_ELEMENT      100 // 600
+#if defined(HAVE_SMALL_STACK)
+#define NBR_MAX_GROUPS_IN_ELEMENT      30
+#else
+#define NBR_MAX_GROUPS_IN_ELEMENT      200
+#endif
 
 struct IntxList { int Int ; List_T * List ; } ;
 
