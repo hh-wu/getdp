@@ -1614,8 +1614,11 @@ struct CurrentData {
 
 #define NBR_MAX_NODES_IN_ELEMENT       60
 #define NBR_MAX_ENTITIES_IN_ELEMENT    60
-#define NBR_MAX_GROUPS_IN_ELEMENT      600
 #define NBR_MAX_SUBENTITIES_IN_ELEMENT  5
+
+// FIXME: this should be made dynamic (with std::vector in Element) ; setting a
+// static too large can easily lead to stack overflows
+#define NBR_MAX_GROUPS_IN_ELEMENT      100 // 600
 
 struct IntxList { int Int ; List_T * List ; } ;
 
