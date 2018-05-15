@@ -5053,8 +5053,9 @@ void F_dbdh_Vinch_K(F_ARG)
   //==> Newton-Raphson has converged to a local minimum
   //==> Continue with Dlala's optimal fixed point method
   //    for the current time step
-  if(Current.SolveJacAdaptFailed)
-    DlalaAdaptation(dbdh);
+  // NB: The calculated Jacobian should not be re-evaluated at every iterations 
+  // ==> Better to keep Pseudo-Dlala inactive
+  //if(Current.SolveJacAdaptFailed) DlalaAdaptation(dbdh);
   //---------------------------------------------------------------
 
   for (int k=0 ; k<ncomp ; k++)
@@ -5150,8 +5151,9 @@ void F_dhdb_Vinch_K(F_ARG)
   //==> Newton-Raphson has converged to a local minimum
   //==> Continue with Dlala's optimal fixed point method
   //    for the current time step
-  if(Current.SolveJacAdaptFailed)
-    DlalaAdaptation(dhdb);
+  // NB: The calculated Jacobian should not be re-evaluated at every iterations 
+  // ==> Better to keep Pseudo-Dlala inactive
+  //if(Current.SolveJacAdaptFailed) DlalaAdaptation(dhdb); 
   //---------------------------------------------------------------
 
 
