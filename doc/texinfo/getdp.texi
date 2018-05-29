@@ -3890,6 +3890,16 @@ identical.
 Counts the elements of physical numbers in @var{expression-cst-list} 
 or of the actual region if @var{expression-cst-list} is empty.
 
+@item ElementNum
+@code{[]}
+
+Returns the tag (number) of the current element.
+
+@item QuadraturePointIndex
+@code{[]}
+
+Returns the index of the current quadrature point.
+
 @item AtIndex
 @code{[@var{expression}]@{@var{expression-cst-list}@}}
 
