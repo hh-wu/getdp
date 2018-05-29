@@ -124,6 +124,9 @@ struct StringXDefine  Element_Type[] = {
   {"Triangle2"      , TRIANGLE_2},
   {"Quadrangle2"    , QUADRANGLE_2},
   {"Quadrangle2_8N" , QUADRANGLE_2_8N},
+  {"Line4"          , LINE_4},
+  {"Triangle4"      , TRIANGLE_4},
+  {"Tetrahedron4"   , TETRAHEDRON_4},
   {NULL             , TRIANGLE}
  } ;
 
