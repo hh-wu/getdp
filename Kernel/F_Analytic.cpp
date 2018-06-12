@@ -1686,7 +1686,7 @@ void F_AcousticFieldSoftCylinder(F_ARG)
   std::complex<double> I(0,1);
   double vr=0, vi=0;
 #if defined(_OPENMP)
-//#pragma omp parallel for reduction(+: vr,vi)
+#pragma omp parallel for reduction(+: vr,vi)
 #endif
   for(int n = nStart ; n < nEnd ; n++){
     std::complex<double> HnkR( jn(n,kR), yn(n,kR) );
@@ -1944,49 +1944,48 @@ void F_RCSSoftCylinder(F_ARG)
 
 void F_AcousticFieldHardCylinder(F_ARG)
 {
-  cplx I = {0.,1.}, Hnkr, dHnkR, tmp, *HnkRtab;
-  double k, R, r, kr, kR, theta, cost ;
-  int n, ns ;
+  double theta = atan2(A->Val[1], A->Val[0]);
+  double r = sqrt(A->Val[0]*A->Val[0] + A->Val[1]*A->Val[1]);
+  double k = Fct->Para[0];
+  double R = Fct->Para[1];
+  double kr = k*r;
+  double kR = k*R;
 
-  theta = atan2(A->Val[1], A->Val[0]) ;
-  r = sqrt(A->Val[0]*A->Val[0] + A->Val[1]*A->Val[1]) ;
-
-  k = Fct->Para[0] ;
-  R = Fct->Para[1] ;
-  kr = k*r;
-  kR = k*R;
-
-  V->Val[0] = 0.;
-  V->Val[MAX_DIM] = 0. ;
-
-  ns = (int)k + 10;
-
-  HnkRtab = (cplx*)Malloc(ns*sizeof(cplx));
-
-  for (n = 0 ; n < ns ; n++){
-    HnkRtab[n].r = jn(n,kR);
-    HnkRtab[n].i = yn(n,kR);
+  // 3rd parameter : change the incidence angle
+  if(Fct->NbrParameters > 2){
+    double thetaInc = Fct->Para[2];
+    theta += thetaInc;
   }
 
-  for (n = 0 ; n < ns ; n++){
-    Hnkr.r = jn(n,kr);
-    Hnkr.i = yn(n,kr);
-
-    dHnkR = DHn(HnkRtab, n, kR);
-
-    tmp = Cdiv( Cprod( Cpow(I,n) , Cprodr( dHnkR.r, Hnkr) ) , dHnkR );
-
-    cost = cos(n*theta);
-
-    V->Val[0] +=  cost * tmp.r * (!n ? 0.5 : 1.);
-    V->Val[MAX_DIM] += cost * tmp.i * (!n ? 0.5 : 1.);
+  // 4th/5th parameters : change the range of modes
+  int nStart = 0;
+  int nEnd = (int)(kR) + 10;
+  if(Fct->NbrParameters > 3){
+    int nStartNew = Fct->Para[3];
+    int nEndNew = Fct->Para[4];
+    nStart = nStartNew;
+    nEnd = nEndNew;
+  }
+  
+  std::complex<double> *HnkRtab;
+  HnkRtab = new std::complex<double>[nEnd];
+  for (int n=nStart; n<nEnd; n++){
+    HnkRtab[n] = std::complex<double>(jn(n,kR),yn(n,kR));
   }
 
-  Free(HnkRtab);
+  std::complex<double> I(0,1), val;
+  for (int n=nStart; n<nEnd; n++){
+    std::complex<double> Hnkr( jn(n,kr), yn(n,kr) );
+    std::complex<double> dHnkR = (!n ? -HnkRtab[1] : HnkRtab[n-1] - (double)n/kR * HnkRtab[n]);
+    std::complex<double> tmp1 = std::pow(I,n) * Hnkr/dHnkR;
+    double tmp2 = - (!n ? 1. : 2.) * cos(n*theta) * std::real(dHnkR);
+    val += tmp1 * tmp2;
+  }
 
-  V->Val[0] *= -2;
-  V->Val[MAX_DIM] *= -2;
+  delete HnkRtab;
 
+  V->Val[0]       = std::real(val);
+  V->Val[MAX_DIM] = std::imag(val);
   V->Type = SCALAR ;
 }
 
