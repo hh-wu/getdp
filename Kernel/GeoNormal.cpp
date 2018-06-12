@@ -103,6 +103,7 @@ void Geo_CreateNormal(int Type, double *x, double *y, double *z, double *N)
   switch (Type) {
 
   case LINE :
+  case LINE_2 :
     nx = y[1] - y[0] ;
     ny = x[0] - x[1] ;
     norm = sqrt(SQU(nx)+SQU(ny)) ;      
@@ -112,7 +113,9 @@ void Geo_CreateNormal(int Type, double *x, double *y, double *z, double *N)
     break ;
 
   case TRIANGLE :
+  case TRIANGLE_2 :
   case QUADRANGLE :
+  case QUADRANGLE_2 :
     x1x0 = x[1] - x[0] ;
     y1y0 = y[1] - y[0] ;
     z1z0 = z[1] - z[0] ;
