@@ -1691,6 +1691,9 @@ struct Element {
 #define PRISM_2          (1<<13)
 #define PYRAMID_2        (1<<14)
 #define QUADRANGLE_2_8N  (1<<16)
+#define LINE_4           (1<<17)
+#define TRIANGLE_4       (1<<18)
+#define TETRAHEDRON_4    (1<<19)
 
 /* Adapt.Type */
 #define P1 1

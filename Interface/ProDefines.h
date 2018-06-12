@@ -124,6 +124,9 @@ struct StringXDefine  Element_Type[] = {
   {"Triangle2"      , TRIANGLE_2},
   {"Quadrangle2"    , QUADRANGLE_2},
   {"Quadrangle2_8N" , QUADRANGLE_2_8N},
+  {"Line4"          , LINE_4},
+  {"Triangle4"      , TRIANGLE_4},
+  {"Tetrahedron4"   , TETRAHEDRON_4},
   {NULL             , TRIANGLE}
  } ;
 
@@ -432,10 +435,10 @@ struct DefineXFunction  FunctionForGaussLegendre[] = {
 } ;
 
 #define POI  POINT
-#define LIN  LINE | LINE_2
-#define TRI  TRIANGLE | TRIANGLE_2
+#define LIN  LINE | LINE_2 | LINE_4
+#define TRI  TRIANGLE | TRIANGLE_2 | TRIANGLE_4
 #define QUA  QUADRANGLE | QUADRANGLE_2 | QUADRANGLE_2_8N
-#define TET  TETRAHEDRON | TETRAHEDRON_2
+#define TET  TETRAHEDRON | TETRAHEDRON_2 | TETRAHEDRON_4
 #define HEX  HEXAHEDRON | HEXAHEDRON_2
 #define PRI  PRISM | PRISM_2
 #define PYR  PYRAMID | PYRAMID_2
