@@ -133,6 +133,10 @@ void  F_JnComplex       (F_ARG) ;
 void  F_Yn              (F_ARG) ;
 void  F_dJn             (F_ARG) ;
 void  F_dYn             (F_ARG) ;
+void  F_JnSph           (F_ARG) ;
+void  F_YnSph           (F_ARG) ;
+void  F_dJnSph          (F_ARG) ;
+void  F_dYnSph          (F_ARG) ;
 
 /* F_ExtMath */
 
