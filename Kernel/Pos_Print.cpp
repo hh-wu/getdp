@@ -531,11 +531,11 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
     if (PSO_P->StoreMaxInRegister >= 0)
       Cal_StoreInRegister(&ValueMax.Val, PSO_P->StoreMaxInRegister) ;
     if (PSO_P->StoreMaxXinRegister >= 0)
-      Cal_StoreInRegister(&ValueMax.Val, PSO_P->StoreMaxXinRegister) ;
+      Cal_StoreInRegister(&ValueMax.ValX, PSO_P->StoreMaxXinRegister) ;
     if (PSO_P->StoreMaxYinRegister >= 0)
-      Cal_StoreInRegister(&ValueMax.Val, PSO_P->StoreMaxYinRegister) ;
+      Cal_StoreInRegister(&ValueMax.ValY, PSO_P->StoreMaxYinRegister) ;
     if (PSO_P->StoreMaxZinRegister >= 0)
-      Cal_StoreInRegister(&ValueMax.Val, PSO_P->StoreMaxZinRegister) ;
+      Cal_StoreInRegister(&ValueMax.ValZ, PSO_P->StoreMaxZinRegister) ;
   }
 
   /* Perform Smoothing */
