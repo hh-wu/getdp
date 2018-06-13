@@ -406,7 +406,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
           (Group_P->Type == ELEMENTLIST  &&
            Check_IsEntityInExtendedGroup(Group_P, Element.GeoElement->Num, 0))
           ) {
-        int HighOrder = (PSO_P->Format == FORMAT_GMSH && (PSO_P->StoreInField >= 0 || PSO_P->StoreInMeshBasedField >= 0 || Flag_GMSH_VERSION == 2 || Flag_BIN)) ? 1 : 0; // [AM]
+        int HighOrder = (PSO_P->Format == FORMAT_GMSH && (PSO_P->StoreInField >= 0 || PSO_P->StoreInMeshBasedField >= 0 || Flag_GMSH_VERSION == 2 || Flag_BIN)) ? 1 : 0;
 	Fill_PostElement(Element.GeoElement, PostElement_L, iGeo,
 			 PSO_P->Depth, PSO_P->Skin,
 			 PSO_P->EvaluationPoints,
