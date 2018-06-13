@@ -952,6 +952,10 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"Yn"                , (CAST)F_Yn               ,   0,   2 },
   {"dJn"               , (CAST)F_dJn              ,   0,   2 },
   {"dYn"               , (CAST)F_dYn              ,   0,   2 },
+  {"JnSph"             , (CAST)F_JnSph            ,   0,   2 },
+  {"YnSph"             , (CAST)F_YnSph            ,   0,   2 },
+  {"dJnSph"            , (CAST)F_dJnSph           ,   0,   2 },
+  {"dYnSph"            , (CAST)F_dYnSph           ,   0,   2 },
 
   // F_ExtMath
   {"Hypot"             , (CAST)F_Hypot            ,   0,   2 },
