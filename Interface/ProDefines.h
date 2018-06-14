@@ -955,6 +955,10 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"Yn"                , (CAST)F_Yn               ,   0,   2 },
   {"dJn"               , (CAST)F_dJn              ,   0,   2 },
   {"dYn"               , (CAST)F_dYn              ,   0,   2 },
+  {"JnSph"             , (CAST)F_JnSph            ,   0,   2 },
+  {"YnSph"             , (CAST)F_YnSph            ,   0,   2 },
+  {"dJnSph"            , (CAST)F_dJnSph           ,   0,   2 },
+  {"dYnSph"            , (CAST)F_dYnSph           ,   0,   2 },
 
   // F_ExtMath
   {"Hypot"             , (CAST)F_Hypot            ,   0,   2 },
@@ -1146,7 +1150,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"AcousticFieldSoftCylinderABC",    (CAST)F_AcousticFieldSoftCylinderABC, 5, 1 },
   {"DrAcousticFieldSoftCylinder",     (CAST)F_DrAcousticFieldSoftCylinder, 2, 1 },
   {"RCSSoftCylinder",                 (CAST)F_RCSSoftCylinder,  2, 1 },
-  {"AcousticFieldHardCylinder",       (CAST)F_AcousticFieldHardCylinder, 2, 1 },
+  {"AcousticFieldHardCylinder",       (CAST)F_AcousticFieldHardCylinder, -1, 1 },
   {"AcousticFieldHardCylinderABC",    (CAST)F_AcousticFieldHardCylinderABC, 5, 1 },
   {"DthetaAcousticFieldHardCylinder", (CAST)F_DthetaAcousticFieldHardCylinder, 2, 1 },
   {"RCSHardCylinder",                 (CAST)F_RCSHardCylinder,  2, 1 },

@@ -302,3 +302,55 @@ void F_dYn(F_ARG)
   }
   V->Type = SCALAR;
 }
+
+/* ------------------------------------------------------------------------ */
+/*  Spherical Bessel functions jn, yn and their derivatives                 */
+/* ------------------------------------------------------------------------ */
+
+void F_JnSph(F_ARG)
+{
+  if(A->Type != SCALAR || (A+1)->Type != SCALAR)
+    Message::Error("Non scalar argument(s) for function 'JnSph' (spherical Bessel function)");
+
+  int n = (int)A->Val[0];
+  double x = (A+1)->Val[0];
+
+  V->Type = SCALAR;
+  V->Val[0] = Spherical_j_n(n, x);
+}
+
+void F_YnSph(F_ARG)
+{
+  if(A->Type != SCALAR || (A+1)->Type != SCALAR)
+    Message::Error("Non scalar argument(s) for function 'YnSph' (spherical Bessel function)");
+
+  int n = (int)A->Val[0];
+  double x = (A+1)->Val[0];
+
+  V->Type = SCALAR;
+  V->Val[0] = Spherical_y_n(n, x);
+}
+
+void F_dJnSph(F_ARG)
+{
+  if(A->Type != SCALAR || (A+1)->Type != SCALAR)
+    Message::Error("Non scalar argument(s) for function 'dJnSph' (derivative of spherical Bessel function)");
+
+  int n = (int)A->Val[0];
+  double x = (A+1)->Val[0];
+
+  V->Type = SCALAR;
+  V->Val[0] = (n/x) * Spherical_j_n(n, x) - Spherical_j_n(n+1, x);
+}
+
+void F_dYnSph(F_ARG)
+{
+  if(A->Type != SCALAR || (A+1)->Type != SCALAR)
+    Message::Error("Non scalar argument(s) for function 'dYnSph' (derivative of spherical Bessel function)");
+
+  int n = (int)A->Val[0];
+  double x = (A+1)->Val[0];
+
+  V->Type = SCALAR;
+  V->Val[0] = (n/x) * Spherical_y_n(n, x) - Spherical_y_n(n+1, x);
+}
