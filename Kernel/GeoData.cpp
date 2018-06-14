@@ -419,7 +419,6 @@ static std::string ExtractDoubleQuotedString(const char *str, int len)
 
 static void Geo_ReadFileWithGmsh(struct GeoData * GeoData_P)
 {
-  gmsh::option::setNumber("General.Terminal", 1);
   gmsh::open(name);
   
   /* N O D E S */
