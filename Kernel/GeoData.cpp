@@ -525,10 +525,12 @@ static void Geo_ReadFileWithGmsh(struct GeoData * GeoData_P)
         for (unsigned int k = 0; k < Geo_Element.NbrNodes; k++)
           Geo_Element.NumNodes[k] = elementNodeTags[i][Geo_Element.NbrNodes*j + k];
         
-        List_Sort(GeoData_P->Elements, fcmp_Elm) ;
+        List_Add(GeoData_P->Elements, &Geo_Element) ;
       }
     }
   }
+  
+  List_Sort(GeoData_P->Elements, fcmp_Elm) ;
 }
 
 void Geo_ReadFile(struct GeoData * GeoData_P)
@@ -558,8 +560,8 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
       if(!fgets(String, sizeof(String), File_GEO)) return;
       if(sscanf(String, "%lf %d %d", &Version, &Format, &Size) != 3) return;
       if(Version < 2.0){
-	Message::Error("Unsupported or unknown mesh file version (%g)", Version);
-	return;
+        Message::Error("Unsupported or unknown mesh file version (%g)", Version);
+        return;
       }
       else if(Version > 3.1){
         Geo_ReadFileWithGmsh(GeoData_P);
@@ -567,14 +569,14 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
       }
 
       if(Format){
-	binary = 1;
-	Message::Info("Mesh is in binary format");
-	int one;
-	if(fread(&one, sizeof(int), 1, File_GEO) != 1) return;
-	if(one != 1){
-	  swap = 1;
-	  Message::Info("Swapping bytes from binary file");
-	}
+        binary = 1;
+        Message::Info("Mesh is in binary format");
+        int one;
+        if(fread(&one, sizeof(int), 1, File_GEO) != 1) return;
+        if(one != 1){
+          swap = 1;
+          Message::Info("Swapping bytes from binary file");
+        }
       }
     }
 
