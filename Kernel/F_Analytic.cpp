@@ -1635,26 +1635,6 @@ void F_JFIE_TransZPolCyl(F_ARG)
   V->Type = SCALAR ;
 }
 
-/* Cylindrical harmonics normalized by the max. value at radius R.
-   Returns the mode 'm' */
-
-void F_CylindricalHarmonic(F_ARG)
-{
-  double theta = atan2(A->Val[1], A->Val[0]);
-  double r = sqrt(A->Val[0]*A->Val[0] + A->Val[1]*A->Val[1]);
-  double k = Fct->Para[0];
-  double R = Fct->Para[1];
-  int m = Fct->Para[2];
-  double kr = k*r;
-  double kR = k*R;
-  std::complex<double> HnkR( jn(m,kR), yn(m,kR) );
-  std::complex<double> Hnkr( jn(m,kr), yn(m,kr) );
-  std::complex<double> val = cos(m*theta) * Hnkr/HnkR;
-  V->Val[0]       = std::real(val);
-  V->Val[MAX_DIM] = std::imag(val);
-  V->Type = SCALAR ;
-}
-
 /* Scattering by acoustically soft circular cylinder of radius R,
    under plane wave incidence e^{ikx}. Returns scatterered field
    outside */
