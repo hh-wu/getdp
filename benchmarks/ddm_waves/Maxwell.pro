@@ -51,7 +51,7 @@ Group{
     For jj In {0:#myD~{i}()-1}
       j = myD~{i}(jj);
       DefineGroup [ Pml~{i}~{j}, PmlD0~{i}~{j}, PmlInf~{i}~{j} ];
-      BndSigmaInf~{i}~{j} = Region[BndSigma~{i}~{j},
+      TauInf~{i}~{j} = Region[Tau~{i}~{j},
                                           Not {GammaN~{i}, GammaD~{i}}];
       TrPmlSigma~{i}~{j} = ElementsOf[ Pml~{i}~{j},
         OnOneSideOf Sigma~{i}~{j} ];
@@ -62,7 +62,7 @@ Group{
       j = myD~{i}(jj);
       Pml~{i} += Region[{Pml~{i}~{j}}];
       PmlInf~{i} += Region[{PmlInf~{i}~{j}}];
-      BndSigmaInf~{i} += Region[{BndSigmaInf~{i}~{j}}];
+      TauInf~{i} += Region[{TauInf~{i}~{j}}];
     EndFor
   EndFor
 }

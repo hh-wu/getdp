@@ -88,8 +88,8 @@ Group{
       BndGammaInf~{idom}~{right} = Region[{}];
       BndGammaInf~{idom} = Region[{BndGammaD~{idom}~{right}}] ;
       
-      BndSigma~{idom}~{right} = Region[{}];
-      BndSigma~{idom} = Region[{BndGammaD~{idom}~{right}}] ;
+      Tau~{idom}~{right} = Region[{}];
+      Tau~{idom} = Region[{BndGammaD~{idom}~{right}}] ;
     EndIf
     If (idom == N_DOM-1)
       D~{idom} = {left};
@@ -106,8 +106,8 @@ Group{
       BndGammaInf~{idom}~{left} = Region[{}];
       BndGammaInf~{idom} = Region[{BndGammaD~{idom}~{left}}] ;
       
-      BndSigma~{idom}~{left} = Region[{}];
-      BndSigma~{idom} = Region[{BndGammaD~{idom}~{left}}] ;
+      Tau~{idom}~{left} = Region[{}];
+      Tau~{idom} = Region[{BndGammaD~{idom}~{left}}] ;
     EndIf
     If (idom > 0 && idom < N_DOM-1)
       D~{idom} = {left, right};
@@ -127,9 +127,9 @@ Group{
       BndGammaInf~{idom}~{right} = Region[{}];
       BndGammaInf~{idom} = Region[{BndGammaD~{idom}~{left}, BndGammaD~{idom}~{right}}] ;
       
-      BndSigma~{idom}~{left} = Region[{}];
-      BndSigma~{idom}~{right} = Region[{}];
-      BndSigma~{idom} = Region[{BndGammaD~{idom}~{left}, BndGammaD~{idom}~{right}}] ;
+      Tau~{idom}~{left} = Region[{}];
+      Tau~{idom}~{right} = Region[{}];
+      Tau~{idom} = Region[{BndGammaD~{idom}~{left}, BndGammaD~{idom}~{right}}] ;
     EndIf
   EndFor
 }

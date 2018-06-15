@@ -82,9 +82,9 @@ Group{
     BndGammaInf~{idom}~{right} = Region[{}];
     BndGammaInf~{idom} = Region[{BndGammaInf~{idom}~{left}, BndGammaInf~{idom}~{right}}] ;
 
-    BndSigma~{idom}~{left} = Region[{(7000 + idom)}];
-    BndSigma~{idom}~{right} = Region[{(8000 + idom)}];
-    BndSigma~{idom} = Region[{BndSigma~{idom}~{left}, BndSigma~{idom}~{right}}] ;
+    Tau~{idom}~{left} = Region[{(7000 + idom)}];
+    Tau~{idom}~{right} = Region[{(8000 + idom)}];
+    Tau~{idom} = Region[{Tau~{idom}~{left}, Tau~{idom}~{right}}] ;
   EndFor
 }
 

@@ -47,11 +47,11 @@ Group{
     For jj In {0: #myD~{i}()-1}
       j = myD~{i}(jj);
       DefineGroup [ Pml~{i}~{j}, PmlD0~{i}~{j}, PmlInf~{i}~{j} ];
-      BndSigmaD~{i}~{j} = Region[BndSigma~{i}~{j},
+      TauD~{i}~{j} = Region[Tau~{i}~{j},
                                         Not {GammaN~{i}, GammaInf~{i}}];
-      BndSigmaN~{i}~{j} = Region[BndSigma~{i}~{j},
+      TauN~{i}~{j} = Region[Tau~{i}~{j},
                                         Not {GammaD~{i}, GammaInf~{i}}];
-      BndSigmaInf~{i}~{j} = Region[BndSigma~{i}~{j},
+      TauInf~{i}~{j} = Region[Tau~{i}~{j},
                                           Not {GammaN~{i}, GammaD~{i}}];
       TrPmlSigma~{i}~{j} = ElementsOf[ Pml~{i}~{j},
                                                 OnOneSideOf Sigma~{i}~{j} ];
@@ -62,7 +62,7 @@ Group{
         j = myD~{i}(jj);
         Pml~{i} += Region[{Pml~{i}~{j}}];
         PmlInf~{i} += Region[{PmlInf~{i}~{j}}];
-        BndSigmaInf~{i} += Region[{BndSigmaInf~{i}~{j}}];
+        TauInf~{i} += Region[{TauInf~{i}~{j}}];
     EndFor
   EndFor
 }
@@ -109,7 +109,7 @@ FunctionSpace {
         { Name sxn; NameOfCoef uxn; Function BF_Node;
           Support Region[ {Omega~{i}, Pml~{i}, GammaInf~{i},
               BndGammaInf~{i}, PmlInf~{i}, Sigma~{i}, GammaPoint~{i},
-              BndSigmaInf~{i}}];
+              TauInf~{i}}];
           Entity NodesOf[ All ];
         }
       }
@@ -123,7 +123,7 @@ FunctionSpace {
         { Name syn; NameOfCoef uyn; Function BF_Node;
           Support Region[ {Omega~{i}, Pml~{i}, GammaInf~{i},
               BndGammaInf~{i}, PmlInf~{i}, Sigma~{i}, GammaPoint~{i},
-              BndSigmaInf~{i}} ];
+              TauInf~{i}} ];
           Entity NodesOf[ All ];
         }
       }

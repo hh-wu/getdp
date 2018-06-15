@@ -56,9 +56,9 @@ Group{
     For jj In {0:#myD~{i}()-1}
       j = myD~{i}(jj);
       DefineGroup [ Pml~{i}~{j}, PmlD0~{i}~{j}, PmlInf~{i}~{j} ];
-      BndSigmaD~{i}~{j} = Region[BndSigma~{i}~{j}, Not {GammaN~{i}, GammaInf~{i}}];
-      BndSigmaN~{i}~{j} = Region[BndSigma~{i}~{j}, Not {GammaD~{i}, GammaInf~{i}}];
-      BndSigmaInf~{i}~{j} = Region[BndSigma~{i}~{j}, Not {GammaN~{i}, GammaD~{i}}];
+      TauD~{i}~{j} = Region[Tau~{i}~{j}, Not {GammaN~{i}, GammaInf~{i}}];
+      TauN~{i}~{j} = Region[Tau~{i}~{j}, Not {GammaD~{i}, GammaInf~{i}}];
+      TauInf~{i}~{j} = Region[Tau~{i}~{j}, Not {GammaN~{i}, GammaD~{i}}];
       If (gPml == 1.)
         TrPmlSigma~{i}~{j} = ElementsOf[ Pml~{i}~{j}, OnOneSideOf Sigma~{i}~{j} ];
         TrBndPmlSigma~{i}~{j} = ElementsOf[ PmlInf~{i}~{j}, OnOneSideOf Sigma~{i}~{j} ];
@@ -73,7 +73,7 @@ Group{
       j = myD~{i}(jj);
       Pml~{i} += Region[{Pml~{i}~{j}}];
       PmlInf~{i} += Region[{PmlInf~{i}~{j}}];
-      BndSigmaInf~{i} += Region[{BndSigmaInf~{i}~{j}}];
+      TauInf~{i} += Region[{TauInf~{i}~{j}}];
     EndFor
   EndFor
 }
@@ -104,7 +104,7 @@ FunctionSpace {
     { Name Hgrad_u~{i}; Type Form0;
       BasisFunction {
         { Name sn; NameOfCoef un; Function BF_Node;
-          Support Region[ {Omega~{i}, Pml~{i}, GammaInf~{i}, BndGammaInf~{i}, PmlInf~{i}, Sigma~{i}, GammaPoint~{i},BndSigmaInf~{i}} ];
+          Support Region[ {Omega~{i}, Pml~{i}, GammaInf~{i}, BndGammaInf~{i}, PmlInf~{i}, Sigma~{i}, GammaPoint~{i},TauInf~{i}} ];
           Entity NodesOf[ All ];
         }
       }
@@ -129,7 +129,7 @@ FunctionSpace {
           { Name Hgrad_phi~{h}~{i}~{j}; Type Form0;
             BasisFunction {
               { Name sn; NameOfCoef un; Function BF_Node;
-                Support Region[ {Sigma~{i}~{j}, BndSigmaInf~{i}~{j}, BndSigmaN~{i}~{j}} ];
+                Support Region[ {Sigma~{i}~{j}, TauInf~{i}~{j}, TauN~{i}~{j}} ];
                 Entity NodesOf[All, Not {GammaD~{i}, GammaD0~{i}}];
               }
             }
@@ -200,7 +200,7 @@ Formulation {
               Galerkin { [ I[] * k[] * OSRC_Aj[]{h,NP_OSRC,theta_branch} / keps[]^2 * Dof{d phi~{h}~{i}~{j}} , {d u~{i}} ];
                 In Sigma~{i}~{j}; Jacobian JSur; Integration I1; }
               Galerkin { [ - I[] * k[] * OSRC_Aj[]{h,NP_OSRC,theta_branch} / keps[]^2 * ( I[] * kInf[] * Dof{phi~{h}~{i}~{j}}) , {u~{i}} ];
-                In BndSigmaInf~{i}~{j}; Jacobian JLin; Integration I1; }
+                In TauInf~{i}~{j}; Jacobian JLin; Integration I1; }
 
               Galerkin { [ - Dof{u~{i}} , {phi~{h}~{i}~{j}} ];
                 In Sigma~{i}~{j}; Jacobian JSur; Integration I1; }
@@ -209,7 +209,7 @@ Formulation {
               Galerkin { [ Dof{phi~{h}~{i}~{j}} , {phi~{h}~{i}~{j}} ];
                 In Sigma~{i}~{j}; Jacobian JSur; Integration I1; }
               Galerkin { [ OSRC_Bj[]{h,NP_OSRC,theta_branch} / keps[]^2 * ( I[] * kInf[] * Dof{phi~{h}~{i}~{j}}) , {phi~{h}~{i}~{j}} ];
-                In BndSigmaInf~{i}~{j}; Jacobian JLin; Integration I1; }
+                In TauInf~{i}~{j}; Jacobian JLin; Integration I1; }
             EndFor
           EndFor
         EndIf

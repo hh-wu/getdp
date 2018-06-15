@@ -180,7 +180,7 @@ Macro SolveSurfacePDE
       If(NbrRegions[Sigma~{i}~{j}])
         If(GenerateSurFlag~{i}~{j})
           // the matrix is already factorized, only regenerate the RHS
-          GenerateRHSGroup[Sur~{i}~{j}, Region[{Sigma~{i}~{j}, TrPmlSigma~{i}~{j}, TrBndPmlSigma~{i}~{j}, BndSigmaInf~{i}~{j}}] ];
+          GenerateRHSGroup[Sur~{i}~{j}, Region[{Sigma~{i}~{j}, TrPmlSigma~{i}~{j}, TrBndPmlSigma~{i}~{j}, TauInf~{i}~{j}}] ];
           SolveAgain[Sur~{i}~{j}];
         EndIf
         If(GenerateSurFlag~{i}~{j} == 0)
@@ -261,7 +261,7 @@ Macro SolveAndStepForward
 
     // compute the new g_out (fast way)
     If( NbrRegions[Sigma~{i_f}~{right}] )
-      GenerateRHSGroup[SurPc~{i_f}~{right}, Region[{Sigma~{i_f}~{right}, TrPmlSigma~{i_f}~{right}, BndSigma~{i_f}~{right}, TrBndPmlSigma~{i_f}~{right}}]];
+      GenerateRHSGroup[SurPc~{i_f}~{right}, Region[{Sigma~{i_f}~{right}, TrPmlSigma~{i_f}~{right}, Tau~{i_f}~{right}, TrBndPmlSigma~{i_f}~{right}}]];
       SolveAgain[SurPc~{i_f}~{right}];
     EndIf
     PostOperation[g_out~{i_f}~{right}];
@@ -300,7 +300,7 @@ Macro SolveAndStepBackward
 
     // compute the new g_out (fast way)
     If( NbrRegions[Sigma~{i_b}~{left}] )
-      GenerateRHSGroup[SurPc~{i_b}~{left}, Region[{Sigma~{i_b}~{left}, TrPmlSigma~{i_b}~{left}, BndSigma~{i_b}~{left}, TrBndPmlSigma~{i_b}~{left}}]];
+      GenerateRHSGroup[SurPc~{i_b}~{left}, Region[{Sigma~{i_b}~{left}, TrPmlSigma~{i_b}~{left}, Tau~{i_b}~{left}, TrBndPmlSigma~{i_b}~{left}}]];
       SolveAgain[SurPc~{i_b}~{left}];
     EndIf
     PostOperation[g_out~{i_b}~{left}];

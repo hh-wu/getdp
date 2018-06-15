@@ -130,8 +130,8 @@ Group{
       EndIf
       PmlInf~{idom}~{right} += Region[ ((idom+1)*1000+4) ];
   
-      BndSigma~{idom}~{right} = Region[{}];
-      BndSigma~{idom} = Region[{BndSigma~{idom}~{right}}] ;
+      Tau~{idom}~{right} = Region[{}];
+      Tau~{idom} = Region[{Tau~{idom}~{right}}] ;
   
       BndGammaInf~{idom}~{right} = Region[{}];
       BndGammaInf~{idom} = Region[{BndGammaInf~{idom}~{right}}] ;
@@ -157,8 +157,8 @@ Group{
       EndIf
       PmlInf~{idom}~{left} += Region[ ((idom+1)*1000+1) ];
   
-      BndSigma~{idom}~{left} = Region[{}];
-      BndSigma~{idom} = Region[{BndSigma~{idom}~{left}}] ;
+      Tau~{idom}~{left} = Region[{}];
+      Tau~{idom} = Region[{Tau~{idom}~{left}}] ;
   
       BndGammaInf~{idom}~{left} = Region[{}];
       BndGammaInf~{idom} = Region[{BndGammaInf~{idom}~{left}}] ;
@@ -191,9 +191,9 @@ Group{
       PmlInf~{idom}~{left} += Region[ ((idom+1)*1000+1) ];
       PmlInf~{idom}~{right} += Region[ ((idom+1)*1000+4) ];
   
-      BndSigma~{idom}~{left} = Region[{}];
-      BndSigma~{idom}~{right} = Region[{}];
-      BndSigma~{idom} = Region[{BndSigma~{idom}~{left}, BndSigma~{idom}~{right}}] ;
+      Tau~{idom}~{left} = Region[{}];
+      Tau~{idom}~{right} = Region[{}];
+      Tau~{idom} = Region[{Tau~{idom}~{left}, Tau~{idom}~{right}}] ;
   
       BndGammaInf~{idom}~{left} = Region[{}];
       BndGammaInf~{idom}~{right} = Region[{}];
