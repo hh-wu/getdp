@@ -70,73 +70,74 @@ Function {
 
 Group{
   D() = {};
-  For idom In {0:N_DOM-1}
-    left = (idom-1)%N_DOM; // left boundary
-    right = (idom+1)%N_DOM; // right boundary
+  For ii In {0:N_DOM-1}
+    i = ii+1;
+    left = (ii-1)%N_DOM + 1; // left boundary
+    right = (ii+1)%N_DOM + 1; // right boundary
   
-    D() += idom;
+    D() += i;
   
-    Omega~{idom} = Region[( 6001 + idom )];
-    GammaD0~{idom} = Region[{}];
-    GammaN~{idom} = Region[{}];
+    Omega~{i} = Region[( 6001 + ii )];
+    GammaD0~{i} = Region[{}];
+    GammaN~{i} = Region[{}];
 
-    If(idom == 0)
-      D~{idom} = {right};
+    If(ii == 0)
+      D~{i} = {right};
       
-      GammaD~{idom} = Region[{1001}];
-      GammaInf~{idom} = Region[{}];
+      GammaD~{i} = Region[{1001}];
+      GammaInf~{i} = Region[{}];
       
-      Sigma~{idom}~{right} = Region[{5000}];
-      Sigma~{idom} = Region[{Sigma~{idom}~{right}}] ;
+      Sigma~{i}~{right} = Region[{5000}];
+      Sigma~{i} = Region[{Sigma~{i}~{right}}] ;
       
-      BndGammaD~{idom}~{right} = Region[{}];
-      BndGammaD~{idom} = Region[{BndGammaD~{idom}~{right}}] ;
+      BndGammaD~{i}~{right} = Region[{}];
+      BndGammaD~{i} = Region[{BndGammaD~{i}~{right}}] ;
       
-      BndGammaInf~{idom}~{right} = Region[{}];
-      BndGammaInf~{idom} = Region[{BndGammaD~{idom}~{right}}] ;
+      BndGammaInf~{i}~{right} = Region[{}];
+      BndGammaInf~{i} = Region[{BndGammaInf~{i}~{right}}] ;
       
-      Tau~{idom}~{right} = Region[{}];
-      Tau~{idom} = Region[{BndGammaD~{idom}~{right}}] ;
+      Tau~{i}~{right} = Region[{}];
+      Tau~{i} = Region[{Tau~{i}~{right}}] ;
     EndIf
-    If(idom == N_DOM-1)
-      D~{idom} = {left};
+    If(ii == N_DOM-1)
+      D~{i} = {left};
       
-      GammaD~{idom} = Region[{}];
-      GammaInf~{idom} = Region[{(2000+N_DOM)}];
+      GammaD~{i} = Region[{}];
+      GammaInf~{i} = Region[{(2000+N_DOM)}];
       
-      Sigma~{idom}~{left} = Region[{(1000*(4+idom))}];
-      Sigma~{idom} = Region[{Sigma~{idom}~{left}}] ;
+      Sigma~{i}~{left} = Region[{(1000*(4+ii))}];
+      Sigma~{i} = Region[{Sigma~{i}~{left}}] ;
       
-      BndGammaD~{idom}~{left} = Region[{}];
-      BndGammaD~{idom} = Region[{BndGammaD~{idom}~{left}}] ;
+      BndGammaD~{i}~{left} = Region[{}];
+      BndGammaD~{i} = Region[{BndGammaD~{i}~{left}}] ;
       
-      BndGammaInf~{idom}~{left} = Region[{}];
-      BndGammaInf~{idom} = Region[{BndGammaD~{idom}~{left}}] ;
+      BndGammaInf~{i}~{left} = Region[{}];
+      BndGammaInf~{i} = Region[{BndGammaInf~{i}~{left}}] ;
       
-      Tau~{idom}~{left} = Region[{}];
-      Tau~{idom} = Region[{BndGammaD~{idom}~{left}}] ;
+      Tau~{i}~{left} = Region[{}];
+      Tau~{i} = Region[{Tau~{i}~{left}}] ;
     EndIf
-    If(idom > 0 && idom < N_DOM-1)
-      D~{idom} = {right, left};
+    If(ii > 0 && ii < N_DOM-1)
+      D~{i} = {right, left};
       
-      GammaD~{idom} = Region[{}];
-      GammaInf~{idom} = Region[{}];
+      GammaD~{i} = Region[{}];
+      GammaInf~{i} = Region[{}];
       
-      Sigma~{idom}~{left} = Region[{(1000*(4+idom))}];
-      Sigma~{idom}~{right} = Region[{(1000*(5+idom))}];
-      Sigma~{idom} = Region[{Sigma~{idom}~{left}, Sigma~{idom}~{right}}] ;
+      Sigma~{i}~{left} = Region[{(1000*(4+ii))}];
+      Sigma~{i}~{right} = Region[{(1000*(5+ii))}];
+      Sigma~{i} = Region[{Sigma~{i}~{left}, Sigma~{i}~{right}}] ;
       
-      BndGammaD~{idom}~{left} = Region[{}];
-      BndGammaD~{idom}~{right} = Region[{}];
-      BndGammaD~{idom} = Region[{BndGammaD~{idom}~{left}, BndGammaD~{idom}~{right}}] ;
+      BndGammaD~{i}~{left} = Region[{}];
+      BndGammaD~{i}~{right} = Region[{}];
+      BndGammaD~{i} = Region[{BndGammaD~{i}~{left}, BndGammaD~{i}~{right}}] ;
       
-      BndGammaInf~{idom}~{left} = Region[{}];
-      BndGammaInf~{idom}~{right} = Region[{}];
-      BndGammaInf~{idom} = Region[{BndGammaD~{idom}~{left}, BndGammaD~{idom}~{right}}] ;
+      BndGammaInf~{i}~{left} = Region[{}];
+      BndGammaInf~{i}~{right} = Region[{}];
+      BndGammaInf~{i} = Region[{BndGammaInf~{i}~{left}, BndGammaInf~{i}~{right}}] ;
       
-      Tau~{idom}~{left} = Region[{}];
-      Tau~{idom}~{right} = Region[{}];
-      Tau~{idom} = Region[{BndGammaD~{idom}~{left}, BndGammaD~{idom}~{right}}] ;
+      Tau~{i}~{left} = Region[{}];
+      Tau~{i}~{right} = Region[{}];
+      Tau~{i} = Region[{Tau~{i}~{left}, Tau~{i}~{right}}] ;
     EndIf
   EndFor
 }

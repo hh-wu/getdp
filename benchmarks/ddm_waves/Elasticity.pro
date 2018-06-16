@@ -24,8 +24,9 @@ Integration {
 
 Function{
   DefineFunction[c];
-  For i In {0:N_DOM-1}
-    If (i % MPI_Size == MPI_Rank)
+  For ii In {0:N_DOM-1}
+  i = ii+1;
+    If (ii % MPI_Size == MPI_Rank)
       For jj In {0:#myD~{i}()-1}
         j = myD~{i}(jj);
         g_in_c~{i}~{j}[Sigma~{i}~{j}] = g_in~{i}~{j}[];

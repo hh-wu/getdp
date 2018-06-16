@@ -30,6 +30,6 @@ ListOfCuts = {0, N_DOM-1};
 // ListOfCuts = {0, 4, N_DOM-1};
 
 ProcOwnsDomain = {};
-For idom In{0:N_DOM-1}
-  ProcOwnsDomain += {(idom%MPI_Size == MPI_Rank)}; // define your rule here -- must match listOfDom()
+For ii In{0:N_DOM-1}
+  ProcOwnsDomain += {(ii%MPI_Size == MPI_Rank)}; // define your rule here -- must match listOfDom()
 EndFor

@@ -11,12 +11,13 @@ If(MPI_Size > 1) // parallel meshing
   end = MPI_Rank;
 EndIf
 
-For idom In {start:end}
+For ii In {start:end}
 
+  i = ii+1;
   //NewModel;
   Delete Model;
 
-  Point(1) = {idom*dDom, 0, 0., LC};
+  Point(1) = {i*dDom, 0, 0., LC};
   myExtrudedLine[] = Extrude {0, DY, 0} {
     Point{1}; Layers{DY/LC};
   };
@@ -24,8 +25,8 @@ For idom In {start:end}
     Line{myExtrudedLine[1]}; Layers{dDom/LC}; Recombine;
   };
   lateralSides[] = {};
-  For i In {2:3}
-    lateralSides += myExtrudedSurface[i];
+  For iii In {2:3}
+    lateralSides += myExtrudedSurface[iii];
   EndFor
   pmlLeft[] = Extrude {-dBb, 0, 0} {
     Line{myExtrudedLine[1]}; Layers{dBb/LC}; Recombine;
@@ -35,33 +36,33 @@ For idom In {start:end}
   };
 
   pmlLeftSides[] = {};
-  For i In {2:3}
-    pmlLeftSides += pmlLeft[i];
+  For iii In {2:3}
+    pmlLeftSides += pmlLeft[iii];
   EndFor
 
   pmlRightSides[] = {};
-  For i In {2:3}
-    pmlRightSides += pmlRight[i];
+  For iii In {2:3}
+    pmlRightSides += pmlRight[iii];
   EndFor
 
-  Physical Line(-((idom+1)*1000+10)) = myExtrudedLine[1]; // left face
-  Physical Line(((idom+1)*1000+20)) = myExtrudedSurface[0]; // right face
-  Physical Line(-((idom+1)*1000+202)) = lateralSides[]; // lateral shell
-  Physical Surface(((idom+1)*1000+200)) = myExtrudedSurface[1];
+  Physical Line(-((i+1)*1000+10)) = myExtrudedLine[1]; // left face
+  Physical Line(((i+1)*1000+20)) = myExtrudedSurface[0]; // right face
+  Physical Line(-((i+1)*1000+202)) = lateralSides[]; // lateral shell
+  Physical Surface(((i+1)*1000+200)) = myExtrudedSurface[1];
 
-  Physical Line(-((idom+1)*1000+1)) = pmlLeft[0]; // left face
-  Physical Line(((idom+1)*1000+102)) = pmlLeftSides[]; // lateral shell
-  Physical Surface(((idom+1)*1000+100)) = pmlLeft[1];
+  Physical Line(-((i+1)*1000+1)) = pmlLeft[0]; // left face
+  Physical Line(((i+1)*1000+102)) = pmlLeftSides[]; // lateral shell
+  Physical Surface(((i+1)*1000+100)) = pmlLeft[1];
 
-  Physical Line(((idom+1)*1000+4)) = pmlRight[0]; // right face
-  Physical Line(-((idom+1)*1000+302)) = pmlRightSides[]; // lateral shell
-  Physical Surface(((idom+1)*1000+300)) = pmlRight[1];
+  Physical Line(((i+1)*1000+4)) = pmlRight[0]; // right face
+  Physical Line(-((i+1)*1000+302)) = pmlRightSides[]; // lateral shell
+  Physical Surface(((i+1)*1000+300)) = pmlRight[1];
 
   If(StrCmp(OnelabAction, "check")) // only mesh if not in onelab check mode
-    Printf("Meshing waveguide subdomain %g...", idom);
+    Printf("Meshing waveguide subdomain %g...", i);
     Mesh 2;
     CreateDir Str(DIR);
-    Save StrCat(MSH_NAME, Sprintf("%g.msh", idom));
+    Save StrCat(MSH_NAME, Sprintf("%g.msh", i));
     Printf("Done.");
   EndIf
 

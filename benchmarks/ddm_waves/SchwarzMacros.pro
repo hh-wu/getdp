@@ -243,9 +243,9 @@ Return
 
 Macro SolveAndStepForward
   SetCommSelf;
-  If( proc == MPI_Rank && ProcOwnsDomain(i_f) )
-    left = (i_f-1)%N_DOM; // left boundary
-    right = (i_f+1)%N_DOM; // right boundary
+  If( proc == MPI_Rank && ProcOwnsDomain(i_f-1) )
+    left = ((i_f-1)-1)%N_DOM + 1; // left boundary
+    right = ((i_f-1)+1)%N_DOM + 1; // right boundary
     
     Evaluate[$ArtificialSource~{left} = 1, $ArtificialSource~{right} = 0];
     Evaluate[$ArtificialSourceSGS~{left} = 0, $ArtificialSourceSGS~{right} = (PRECONDITIONER == 2)];
@@ -282,9 +282,9 @@ Return
 
 Macro SolveAndStepBackward
   SetCommSelf;
-  If( proc == MPI_Rank && ProcOwnsDomain(i_b) )
-    left = (i_b-1)%N_DOM; // left boundary
-    right = (i_b+1)%N_DOM; // right boundary
+  If( proc == MPI_Rank && ProcOwnsDomain(i_b-1) )
+    left = ((i_b-1)-1)%N_DOM + 1; // left boundary
+    right = ((i_b-1)+1)%N_DOM + 1; // right boundary
   
     Evaluate[$ArtificialSource~{left} = 0, $ArtificialSource~{right} = 1];
     Evaluate[$ArtificialSourceSGS~{left} = (PRECONDITIONER == 2), $ArtificialSourceSGS~{right} = 0];
@@ -321,10 +321,10 @@ Return
 
 Macro InitSweep
   SetCommSelf;
-  If( proc == MPI_Rank && ProcOwnsDomain(i) )
+  If( proc == MPI_Rank && ProcOwnsDomain(i-1) )
     If (PRECONDITIONER == 2)
-      left = (i-1)%N_DOM; // left boundary
-      right = (i+1)%N_DOM; // right boundary
+      left = (i-1)%N_DOM + 1; // left boundary
+      right = (i+1)%N_DOM + 1; // right boundary
     
       Evaluate[$ArtificialSource~{left} = (PRECONDITIONER == 2), $ArtificialSource~{right} = (PRECONDITIONER == 2)];
       Evaluate[$ArtificialSourceSGS~{left} = 0, $ArtificialSourceSGS~{right} = 0];

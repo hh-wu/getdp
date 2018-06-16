@@ -25,12 +25,12 @@ vol = vol_tot/N_DOM;
 //Radius of sphere
 R[0] = R_INT;
 
-For cpt In {0:N_DOM}
-  // r = (cpt+1)*R_INT; // constant subdomain radius -- problem size will depend on N_DOM
+For i In {0:N_DOM}
+  // r = (i+1)*R_INT; // constant subdomain radius -- problem size will depend on N_DOM
 
-  r = R[cpt]; // constant subdomain volume
+  r = R[i]; // constant subdomain volume
 
-  R += (3./4./Pi*vol+R[cpt]^3.)^(1./3.); // compute next radius -- will be used at next step
+  R += (3./4./Pi*vol+R[i]^3.)^(1./3.); // compute next radius -- will be used at next step
 
   //scatterer (intern sphere)
   p_down = newp; 	Point(p_down) = {0, -r, 0, myLc};
@@ -65,23 +65,23 @@ For cpt In {0:N_DOM}
   ll_ulb = newll; Line Loop(ll_ulb) = {-l_bu, l_bl, -l_ul};
   ll_dlb = newll; Line Loop(ll_dlb) = {-l_db, -l_ld, -l_bl};
 
-  surf_drf[cpt] = news; Ruled Surface(surf_drf[cpt]) = {ll_drf};
-  surf_urf[cpt] = news; Ruled Surface(surf_urf[cpt]) = {ll_urf};
-  surf_ulf[cpt] = news; Ruled Surface(surf_ulf[cpt]) = {ll_ulf};
-  surf_dlf[cpt] = news; Ruled Surface(surf_dlf[cpt]) = {ll_dlf};
+  surf_drf[i] = news; Ruled Surface(surf_drf[i]) = {ll_drf};
+  surf_urf[i] = news; Ruled Surface(surf_urf[i]) = {ll_urf};
+  surf_ulf[i] = news; Ruled Surface(surf_ulf[i]) = {ll_ulf};
+  surf_dlf[i] = news; Ruled Surface(surf_dlf[i]) = {ll_dlf};
 
-  surf_drb[cpt] = news; Ruled Surface(surf_drb[cpt]) = {ll_drb};
-  surf_urb[cpt] = news; Ruled Surface(surf_urb[cpt]) = {ll_urb};
-  surf_ulb[cpt] = news; Ruled Surface(surf_ulb[cpt]) = {ll_ulb};
-  surf_dlb[cpt] = news; Ruled Surface(surf_dlb[cpt]) = {ll_dlb};
+  surf_drb[i] = news; Ruled Surface(surf_drb[i]) = {ll_drb};
+  surf_urb[i] = news; Ruled Surface(surf_urb[i]) = {ll_urb};
+  surf_ulb[i] = news; Ruled Surface(surf_ulb[i]) = {ll_ulb};
+  surf_dlb[i] = news; Ruled Surface(surf_dlb[i]) = {ll_dlb};
 
-  surf_loop[cpt] = newsl; Surface Loop(surf_loop[cpt]) =
-       {surf_drf[cpt], surf_urf[cpt], surf_ulf[cpt],
-        surf_dlf[cpt], surf_drb[cpt], surf_urb[cpt],
-        surf_ulb[cpt], surf_dlb[cpt]};
+  surf_loop[i] = newsl; Surface Loop(surf_loop[i]) =
+       {surf_drf[i], surf_urf[i], surf_ulf[i],
+        surf_dlf[i], surf_drb[i], surf_urb[i],
+        surf_ulb[i], surf_dlb[i]};
 
-  If (cpt > 0)
-    v = newv; vl[] += v; Volume(v) = {surf_loop[cpt-1], surf_loop[cpt]};
+  If (i > 0)
+    v = newv; vl[] += v; Volume(v) = {surf_loop[i-1], surf_loop[i]};
   EndIf
 EndFor
 
@@ -89,39 +89,40 @@ If(StrCmp(OnelabAction, "check")) // only mesh if not in onelab check mode
   Mesh 3;
   CreateDir Str(DIR);
 
-  For cpt In {1:N_DOM}
+  For ii In {0:N_DOM-1}
+    i = ii+1;
     Delete Physicals;
 
-    If (cpt == 1)
-      Physical Surface(-1001) = {surf_drf[cpt-1], surf_urf[cpt-1],
-        surf_ulf[cpt-1], surf_dlf[cpt-1], surf_drb[cpt-1], surf_urb[cpt-1],
-        surf_ulb[cpt-1], surf_dlb[cpt-1]};
-      Physical Surface((4+cpt)*1000) = {surf_drf[cpt], surf_urf[cpt],
-        surf_ulf[cpt], surf_dlf[cpt], surf_drb[cpt], surf_urb[cpt],
-        surf_ulb[cpt], surf_dlb[cpt]};
-      Physical Volume(6000+cpt) = {vl[cpt-1]};
+    If (ii == 0)
+      Physical Surface(-1001) = {surf_drf[i-1], surf_urf[i-1],
+        surf_ulf[i-1], surf_dlf[i-1], surf_drb[i-1], surf_urb[i-1],
+        surf_ulb[i-1], surf_dlb[i-1]};
+      Physical Surface((4+i)*1000) = {surf_drf[i], surf_urf[i],
+        surf_ulf[i], surf_dlf[i], surf_drb[i], surf_urb[i],
+        surf_ulb[i], surf_dlb[i]};
+      Physical Volume(6000+i) = {vl[i-1]};
     EndIf
 
-    If (cpt == N_DOM)
-      Physical Surface(-(3+cpt)*1000) = {surf_drf[cpt-1], surf_urf[cpt-1],
-        surf_ulf[cpt-1], surf_dlf[cpt-1], surf_drb[cpt-1], surf_urb[cpt-1],
-        surf_ulb[cpt-1], surf_dlb[cpt-1]};
-      Physical Surface(2000+N_DOM) = {surf_drf[cpt], surf_urf[cpt], surf_ulf[cpt],
-        surf_dlf[cpt], surf_drb[cpt], surf_urb[cpt], surf_ulb[cpt], surf_dlb[cpt]};
-      Physical Volume(6000+cpt) = {vl[cpt-1]};
+    If (ii == N_DOM-1)
+      Physical Surface(-(3+i)*1000) = {surf_drf[i-1], surf_urf[i-1],
+        surf_ulf[i-1], surf_dlf[i-1], surf_drb[i-1], surf_urb[i-1],
+        surf_ulb[i-1], surf_dlb[i-1]};
+      Physical Surface(2000+N_DOM) = {surf_drf[i], surf_urf[i], surf_ulf[i],
+        surf_dlf[i], surf_drb[i], surf_urb[i], surf_ulb[i], surf_dlb[i]};
+      Physical Volume(6000+i) = {vl[i-1]};
     EndIf
 
-    If (cpt > 1 && cpt < N_DOM)
-      Physical Surface(-(3+cpt)*1000) = {surf_drf[cpt-1], surf_urf[cpt-1],
-        surf_ulf[cpt-1], surf_dlf[cpt-1], surf_drb[cpt-1], surf_urb[cpt-1],
-        surf_ulb[cpt-1], surf_dlb[cpt-1]};
-      Physical Surface((4+cpt)*1000) = {surf_drf[cpt], surf_urf[cpt], surf_ulf[cpt],
-        surf_dlf[cpt], surf_drb[cpt], surf_urb[cpt], surf_ulb[cpt], surf_dlb[cpt]};
-      Physical Volume(6000+cpt) = {vl[cpt-1]};
+    If (ii > 0 && ii < N_DOM-1)
+      Physical Surface(-(3+i)*1000) = {surf_drf[i-1], surf_urf[i-1],
+        surf_ulf[i-1], surf_dlf[i-1], surf_drb[i-1], surf_urb[i-1],
+        surf_ulb[i-1], surf_dlb[i-1]};
+      Physical Surface((4+i)*1000) = {surf_drf[i], surf_urf[i], surf_ulf[i],
+        surf_dlf[i], surf_drb[i], surf_urb[i], surf_ulb[i], surf_dlb[i]};
+      Physical Volume(6000+i) = {vl[i-1]};
     EndIf
 
-    Printf("Meshing sphere subdomain %g...", cpt-1);
-    Save StrCat(MSH_NAME, Sprintf("%g.msh", cpt-1));
+    Printf("Meshing sphere subdomain %g...", i);
+    Save StrCat(MSH_NAME, Sprintf("%g.msh", i));
 
   EndFor
 EndIf

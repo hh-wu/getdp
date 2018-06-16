@@ -24,8 +24,9 @@ Integration {
 
 Function{
   DefineFunction[c];
-  For i In {0:N_DOM-1}
-    If (i % MPI_Size == MPI_Rank)
+  For ii In {0:N_DOM-1}
+    i = ii+1;
+    If (ii % MPI_Size == MPI_Rank)
       // g_in_c~{i}~{0}[Sigma~{i}~{0}] =
       //   (1 ? ComplexScalarField[XYZ[]]{4*N_DOM+2*i-2} : 0.);
       // g_in_c~{i}~{1}[Sigma~{i}~{1}] =

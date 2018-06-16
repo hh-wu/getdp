@@ -7,8 +7,8 @@ If(ANALYSIS == 1)
   name = "e";
 EndIf
 
-For idom In {0:N_DOM-1}
-  Merge StrCat(DIR, StrCat(name, Sprintf("_%g.pos", idom)));
+For i In {1:N_DOM}
+  Merge StrCat(DIR, StrCat(name, Sprintf("_%g.pos", i)));
 EndFor
 Combine ElementsFromVisibleViews;
 

@@ -64,112 +64,113 @@ Function {
 
 Group{
   D() = {};
-  For idom In {0:N_DOM-1}
-    left = (idom-1)%N_DOM; // left boundary
-    right = (idom+1)%N_DOM; // right boundary
+  For ii In {0:N_DOM-1}
+    i = ii+1;
+    left = (ii-1)%N_DOM + 1; // left boundary
+    right = (ii+1)%N_DOM + 1; // right boundary
   
-    D() += idom;
+    D() += i;
   
-    Omega~{idom} = Region[((idom+1)*1000+200)];
-    GammaD0~{idom} = Region[{}];
+    Omega~{i} = Region[((i+1)*1000+200)];
+    GammaD0~{i} = Region[{}];
     
     If(WALLS == 1)
-      GammaD0~{idom} += Region[ ((idom+1)*1000+202) ];
+      GammaD0~{i} += Region[ ((i+1)*1000+202) ];
     EndIf
-    GammaInf~{idom} = Region[{}];
+    GammaInf~{i} = Region[{}];
     If(WALLS == 0)
-      GammaInf~{idom} += Region[ ((idom+1)*1000+202) ];
+      GammaInf~{i} += Region[ ((i+1)*1000+202) ];
     EndIf
-    GammaN~{idom} = Region[{}];
+    GammaN~{i} = Region[{}];
 
-    If (idom == 0)
-      D~{idom} = {right};
+    If (ii == 0)
+      D~{i} = {right};
     
-      Pml~{idom}~{right} = Region[{}];
-      PmlD0~{idom}~{right} = Region[{}];
-      PmlInf~{idom}~{right} = Region[{}];
+      Pml~{i}~{right} = Region[{}];
+      PmlD0~{i}~{right} = Region[{}];
+      PmlInf~{i}~{right} = Region[{}];
     
-      Sigma~{idom}~{right} = Region[ ((idom+1)*1000+20) ];
-      Sigma~{idom} = Region[{Sigma~{idom}~{right}}] ;
+      Sigma~{i}~{right} = Region[ ((i+1)*1000+20) ];
+      Sigma~{i} = Region[{Sigma~{i}~{right}}] ;
       
-      GammaD~{idom} = Region[ ((idom+1)*1000+10) ];
-      Pml~{idom}~{right} += Region[ ((idom+1)*1000+300) ];
+      GammaD~{i} = Region[ ((i+1)*1000+10) ];
+      Pml~{i}~{right} += Region[ ((i+1)*1000+300) ];
       If(WALLS == 1)
-        PmlD0~{idom}~{right} += Region[ ((idom+1)*1000+302) ];
+        PmlD0~{i}~{right} += Region[ ((i+1)*1000+302) ];
       EndIf
       If(WALLS == 0)
-        PmlInf~{idom}~{right} += Region[ ((idom+1)*1000+302) ];
+        PmlInf~{i}~{right} += Region[ ((i+1)*1000+302) ];
       EndIf
-      PmlInf~{idom}~{right} += Region[ ((idom+1)*1000+4) ];
+      PmlInf~{i}~{right} += Region[ ((i+1)*1000+4) ];
       
-      Tau~{idom}~{right} = Region[{}];
-      Tau~{idom} = Region[{Tau~{idom}~{right}}] ;
+      Tau~{i}~{right} = Region[{}];
+      Tau~{i} = Region[{Tau~{i}~{right}}] ;
       
-      BndGammaInf~{idom}~{right} = Region[{}];
-      BndGammaInf~{idom} = Region[{BndGammaInf~{idom}~{right}}] ;
+      BndGammaInf~{i}~{right} = Region[{}];
+      BndGammaInf~{i} = Region[{BndGammaInf~{i}~{right}}] ;
     EndIf
-    If (idom == N_DOM-1)
-      D~{idom} = {left};
+    If (ii == N_DOM-1)
+      D~{i} = {left};
     
-      Pml~{idom}~{left} = Region[{}];
-      PmlD0~{idom}~{left} = Region[{}];
-      PmlInf~{idom}~{left} = Region[{}];
+      Pml~{i}~{left} = Region[{}];
+      PmlD0~{i}~{left} = Region[{}];
+      PmlInf~{i}~{left} = Region[{}];
     
-      Sigma~{idom}~{left} = Region[ ((idom+1)*1000+10) ];
-      Sigma~{idom} = Region[{Sigma~{idom}~{left}}] ;
+      Sigma~{i}~{left} = Region[ ((i+1)*1000+10) ];
+      Sigma~{i} = Region[{Sigma~{i}~{left}}] ;
 
-      GammaInf~{idom} += Region[ ((idom+1)*1000+20) ];
-      GammaD~{idom} = Region[{}];
-      Pml~{idom}~{left} += Region[ ((idom+1)*1000+100) ];
+      GammaInf~{i} += Region[ ((i+1)*1000+20) ];
+      GammaD~{i} = Region[{}];
+      Pml~{i}~{left} += Region[ ((i+1)*1000+100) ];
       If(WALLS == 1)
-        PmlD0~{idom}~{left} += Region[ ((idom+1)*1000+102) ];
+        PmlD0~{i}~{left} += Region[ ((i+1)*1000+102) ];
       EndIf
       If(WALLS == 0)
-        PmlInf~{idom}~{left} += Region[ ((idom+1)*1000+102) ];
+        PmlInf~{i}~{left} += Region[ ((i+1)*1000+102) ];
       EndIf
-      PmlInf~{idom}~{left} += Region[ ((idom+1)*1000+1) ];
+      PmlInf~{i}~{left} += Region[ ((i+1)*1000+1) ];
       
-      Tau~{idom}~{left} = Region[{}];
-      Tau~{idom} = Region[{Tau~{idom}~{left}}] ;
+      Tau~{i}~{left} = Region[{}];
+      Tau~{i} = Region[{Tau~{i}~{left}}] ;
       
-      BndGammaInf~{idom}~{left} = Region[{}];
-      BndGammaInf~{idom} = Region[{BndGammaInf~{idom}~{left}}] ;
+      BndGammaInf~{i}~{left} = Region[{}];
+      BndGammaInf~{i} = Region[{BndGammaInf~{i}~{left}}] ;
     EndIf
-    If (idom >= 1 && idom < N_DOM-1)
-      D~{idom} = {left, right};
+    If (ii >= 1 && ii < N_DOM-1)
+      D~{i} = {left, right};
     
-      Pml~{idom}~{left} = Region[{}];
-      Pml~{idom}~{right} = Region[{}];
-      PmlD0~{idom}~{left} = Region[{}];
-      PmlD0~{idom}~{right} = Region[{}];
-      PmlInf~{idom}~{left} = Region[{}];
-      PmlInf~{idom}~{right} = Region[{}];
+      Pml~{i}~{left} = Region[{}];
+      Pml~{i}~{right} = Region[{}];
+      PmlD0~{i}~{left} = Region[{}];
+      PmlD0~{i}~{right} = Region[{}];
+      PmlInf~{i}~{left} = Region[{}];
+      PmlInf~{i}~{right} = Region[{}];
     
-      Sigma~{idom}~{left} = Region[ ((idom+1)*1000+10) ];
-      Sigma~{idom}~{right} = Region[ ((idom+1)*1000+20) ];
-      Sigma~{idom} = Region[{Sigma~{idom}~{left}, Sigma~{idom}~{right}}] ;
+      Sigma~{i}~{left} = Region[ ((i+1)*1000+10) ];
+      Sigma~{i}~{right} = Region[ ((i+1)*1000+20) ];
+      Sigma~{i} = Region[{Sigma~{i}~{left}, Sigma~{i}~{right}}] ;
     
-      GammaD~{idom} = Region[{}];
-      Pml~{idom}~{left} += Region[ ((idom+1)*1000+100) ];
-      Pml~{idom}~{right} += Region[ ((idom+1)*1000+300) ];
+      GammaD~{i} = Region[{}];
+      Pml~{i}~{left} += Region[ ((i+1)*1000+100) ];
+      Pml~{i}~{right} += Region[ ((i+1)*1000+300) ];
       If(WALLS == 1)
-        PmlD0~{idom}~{left} += Region[ ((idom+1)*1000+102) ];
-        PmlD0~{idom}~{right} += Region[ ((idom+1)*1000+302) ];
+        PmlD0~{i}~{left} += Region[ ((i+1)*1000+102) ];
+        PmlD0~{i}~{right} += Region[ ((i+1)*1000+302) ];
       EndIf
       If(WALLS == 0)
-        PmlInf~{idom}~{left} += Region[ ((idom+1)*1000+102) ];
-        PmlInf~{idom}~{right} += Region[ ((idom+1)*1000+302) ];
+        PmlInf~{i}~{left} += Region[ ((i+1)*1000+102) ];
+        PmlInf~{i}~{right} += Region[ ((i+1)*1000+302) ];
       EndIf
-      PmlInf~{idom}~{left} += Region[ ((idom+1)*1000+1) ];
-      PmlInf~{idom}~{right} += Region[ ((idom+1)*1000+4) ];
+      PmlInf~{i}~{left} += Region[ ((i+1)*1000+1) ];
+      PmlInf~{i}~{right} += Region[ ((i+1)*1000+4) ];
       
-      Tau~{idom}~{left} = Region[{}];
-      Tau~{idom}~{right} = Region[{}];
-      Tau~{idom} = Region[{Tau~{idom}~{left}, Tau~{idom}~{right}}] ;
+      Tau~{i}~{left} = Region[{}];
+      Tau~{i}~{right} = Region[{}];
+      Tau~{i} = Region[{Tau~{i}~{left}, Tau~{i}~{right}}] ;
       
-      BndGammaInf~{idom}~{left} = Region[{}];
-      BndGammaInf~{idom}~{right} = Region[{}];
-      BndGammaInf~{idom} = Region[{BndGammaInf~{idom}~{left}, BndGammaInf~{idom}~{right}}] ;
+      BndGammaInf~{i}~{left} = Region[{}];
+      BndGammaInf~{i}~{right} = Region[{}];
+      BndGammaInf~{i} = Region[{BndGammaInf~{i}~{left}, BndGammaInf~{i}~{right}}] ;
     EndIf
   EndFor
 }
@@ -183,39 +184,39 @@ Function{
     xSigmaList += i*dDom;
   EndFor
   For ii In {0: N_DOM-1}
-    idom = ii;
-    left = (idom-1)%N_DOM; // left boundary
-    right = (idom+1)%N_DOM; // right boundary
-    xSigma~{idom}~{left} = xSigmaList(idom);
-    xSigma~{idom}~{right} = xSigmaList(idom+1);
+    i = ii+1;
+    left = (ii-1)%N_DOM + 1; // left boundary
+    right = (ii+1)%N_DOM + 1; // right boundary
+    xSigma~{i}~{left} = xSigmaList(ii);
+    xSigma~{i}~{right} = xSigmaList(ii+1);
   EndFor
   For i In {0:N_DOM}
     distSigma~{i}[] = X[] - xSigmaList(i);
   EndFor
   For ii In {0: N_DOM-1}
-    idom = ii;
-    left = (idom-1)%N_DOM; // left boundary
-    right = (idom+1)%N_DOM; // right boundary
+    i = ii+1;
+    left = (ii-1)%N_DOM + 1; // left boundary
+    right = (ii+1)%N_DOM + 1; // right boundary
     
-    If (idom == 0)
-      kPml~{idom}~{right}[] = k[ Vector[xSigma~{idom}~{right},Y[],Z[]] ] ;
+    If (ii == 0)
+      kPml~{i}~{right}[] = k[ Vector[xSigma~{i}~{right},Y[],Z[]] ] ;
       // Bermudez damping functions
-      SigmaX[Omega~{idom}] = 0. ;
-      SigmaX[Pml~{idom}~{right}] = distSigma~{idom+1}[] > dTr ? c[]/(dBb-distSigma~{idom+1}[]) : 0. ;
+      SigmaX[Omega~{i}] = 0. ;
+      SigmaX[Pml~{i}~{right}] = distSigma~{i+1}[] > dTr ? c[]/(dBb-distSigma~{i+1}[]) : 0. ;
     EndIf
-    If (idom == N_DOM-1)
-      kPml~{idom}~{left}[] = k[ Vector[xSigma~{idom}~{left},Y[],Z[]] ] ;
+    If (ii == N_DOM-1)
+      kPml~{i}~{left}[] = k[ Vector[xSigma~{i}~{left},Y[],Z[]] ] ;
       // Bermudez damping functions
-      SigmaX[Omega~{idom}] = 0. ;
-      SigmaX[Pml~{idom}~{left}] = -distSigma~{idom}[] > dTr ? c[]/Fabs[(dBb+distSigma~{idom}[])] : 0. ;
+      SigmaX[Omega~{i}] = 0. ;
+      SigmaX[Pml~{i}~{left}] = -distSigma~{i}[] > dTr ? c[]/Fabs[(dBb+distSigma~{i}[])] : 0. ;
     EndIf
-    If (idom >= 1 && idom < N_DOM-1)
-      kPml~{idom}~{left}[] = k[ Vector[xSigma~{idom}~{left},Y[],Z[]] ] ;
-      kPml~{idom}~{right}[] = k[ Vector[xSigma~{idom}~{right},Y[],Z[]] ] ;
+    If (ii >= 1 && ii < N_DOM-1)
+      kPml~{i}~{left}[] = k[ Vector[xSigma~{i}~{left},Y[],Z[]] ] ;
+      kPml~{i}~{right}[] = k[ Vector[xSigma~{i}~{right},Y[],Z[]] ] ;
       // Bermudez damping functions
-      SigmaX[Omega~{idom}] = 0. ;
-      SigmaX[Pml~{idom}~{right}] = distSigma~{idom+1}[] > dTr ? c[]/(dBb-distSigma~{idom+1}[]) : 0. ;
-      SigmaX[Pml~{idom}~{left}] = -distSigma~{idom}[] > dTr ? c[]/Fabs[(dBb+distSigma~{idom}[])] : 0. ;
+      SigmaX[Omega~{i}] = 0. ;
+      SigmaX[Pml~{i}~{right}] = distSigma~{i+1}[] > dTr ? c[]/(dBb-distSigma~{i+1}[]) : 0. ;
+      SigmaX[Pml~{i}~{left}] = -distSigma~{i}[] > dTr ? c[]/Fabs[(dBb+distSigma~{i}[])] : 0. ;
     EndIf
   EndFor
   SigmaY[] = 0.;
@@ -229,9 +230,9 @@ Function{
 
 If (PRECONDITIONER)
   ProcOwnsDomain = {};
-  For idom In{0:N_DOM-1}
+  For ii In{0:N_DOM-1}
     // define your rule here -- must match listOfDom()
-    ProcOwnsDomain += {(idom%MPI_Size == MPI_Rank)};
+    ProcOwnsDomain += {(ii%MPI_Size == MPI_Rank)};
   EndFor
 EndIf
 

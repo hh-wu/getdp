@@ -6,7 +6,7 @@ Include "cobra_data.geo";
 
 Solver.AutoMesh = -1; // the geometry creates the mesh
 
-// For idom In {0:nDoms-1}
+// For ii In {0:nDoms-1}
 If(MPI_Size == 1) // sequential meshing
   start = 0;
   end = N_DOM-1;
@@ -35,48 +35,48 @@ Transfinite Surface{s}; Recombine Surface{s};
 
 theta = 0; // theta is the cumulative angle
 
-For i In {0:nDomList[0]-1} // straight part on the left
+For ii In {0:nDomList[0]-1} // straight part on the left
+  i = ii+1;
   nLayersDom = Ceil(D1/nDomList[0]/(LC*(1.+1e-6)));
-  If ( (MPI_Size == 1 || MPI_Rank == i) && nLayersDom < 5 )
+  If ( (MPI_Size == 1 || MPI_Rank == ii) && nLayersDom < 5 )
     Printf("WARNING: less than 5 layers (%g) in domain %g", nLayersDom, (i));
   EndIf
   ext[] = Extrude{D1/nDomList[0],0,0}{
-    Surface{ls[i]}; Layers{ nLayersDom }; Recombine;
+    Surface{ls[ii]}; Layers{ nLayersDom }; Recombine;
   };
   ls[] += ext[0];
   lv[] += ext[1];
   lSides[] += ext[{2:5}];
 
-  idom = i;
-  pmlLeft~{idom} = Extrude {-dBb*Cos(theta), -dBb*Sin(theta), 0} {
-    Surface{ls[i]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ;
+  pmlLeft~{i} = Extrude {-dBb*Cos(theta), -dBb*Sin(theta), 0} {
+    Surface{ls[ii]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ;
   };
-  pmlRight~{idom} = Extrude {dBb*Cos(theta), dBb*Sin(theta), 0} {
-    Surface{ls[i+1]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ;
+  pmlRight~{i} = Extrude {dBb*Cos(theta), dBb*Sin(theta), 0} {
+    Surface{ls[ii+1]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ;
   };
 EndFor
 
 If (PARTS > 1)
   n = nDomList[0];
-  For i In {n:n+nDomList[1]-1} // first bend
+  For ii In {n:n+nDomList[1]-1} // first bend
+    i = ii+1;
     nLayersDom = Ceil(R*alpha/nDomList[1]/LC); // perturbation of LC to help rounding
-    If ( (MPI_Size == 1 || MPI_Rank == i) && nLayersDom < 5 )
+    If ( (MPI_Size == 1 || MPI_Rank == ii) && nLayersDom < 5 )
       Printf("WARNING: less than 5 layers (%g) in domain %g", nLayersDom, (i));
     EndIf
     ext[] = Extrude{{0,0,1}, {shiftX+D1,R+d1+shiftY,0}, alpha/nDomList[1]}{
-      Surface{ls[i]}; Layers{ nLayersDom }; Recombine;
+      Surface{ls[ii]}; Layers{ nLayersDom }; Recombine;
     };
     ls[] += ext[0];
     lv[] += ext[1];
     lSides[] += ext[{2:5}];
 
-    idom =i;
-    pmlLeft~{idom} = Extrude {-dBb*Cos(theta), -dBb*Sin(theta), 0} {
-      Surface{ls[i]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ;
+    pmlLeft~{i} = Extrude {-dBb*Cos(theta), -dBb*Sin(theta), 0} {
+      Surface{ls[ii]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ;
     };
     theta += alpha/nDomList[1];
-    pmlRight~{idom} = Extrude {dBb*Cos(theta), dBb*Sin(theta), 0} {
-      Surface{ls[i+1]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ;
+    pmlRight~{i} = Extrude {dBb*Cos(theta), dBb*Sin(theta), 0} {
+      Surface{ls[ii+1]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ;
     };
   EndFor
 EndIf
@@ -84,24 +84,24 @@ EndIf
 If (PARTS > 2)
   If (D2 > 0)
     n += nDomList[1];
-    For i In {n:n+nDomList[2]-1} // straight part in the middle
+    For ii In {n:n+nDomList[2]-1} // straight part in the middle
+      i = ii+1;
       nLayersDom = Ceil(D2/nDomList[2]/(LC*(1.+1e-6))); // perturbation of LC to help rounding
-      If ( (MPI_Size == 1 || MPI_Rank == i) && nLayersDom < 5 )
-	Printf("WARNING: less than 5 layers (%g) in domain %g", nLayersDom, (i));
+      If ( (MPI_Size == 1 || MPI_Rank == ii) && nLayersDom < 5 )
+	      Printf("WARNING: less than 5 layers (%g) in domain %g", nLayersDom, (i));
       EndIf
       ext[] = Extrude{D2/nDomList[2]*Cos(alpha), D2/nDomList[2]*Sin(alpha), 0}{
-        Surface{ls[i]}; Layers{ nLayersDom }; Recombine;
+        Surface{ls[ii]}; Layers{ nLayersDom }; Recombine;
       };
       ls[] += ext[0];
       lv[] += ext[1];
       lSides[] += ext[{2:5}];
 
-      idom =i;
-      pmlLeft~{idom} = Extrude {-dBb*Cos(theta), -dBb*Sin(theta), 0} {
-        Surface{ls[i]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ;
+      pmlLeft~{i} = Extrude {-dBb*Cos(theta), -dBb*Sin(theta), 0} {
+        Surface{ls[ii]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ;
       };
-      pmlRight~{idom} = Extrude {dBb*Cos(theta), dBb*Sin(theta), 0} {
-        Surface{ls[i+1]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ;
+      pmlRight~{i} = Extrude {dBb*Cos(theta), dBb*Sin(theta), 0} {
+        Surface{ls[ii+1]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ;
       };
     EndFor
   EndIf
@@ -109,51 +109,51 @@ EndIf
 
 If (PARTS > 3)
   n += nDomList[2];
-  For i In {n:n+nDomList[3]-1} // second bend
+  For ii In {n:n+nDomList[3]-1} // second bend
+    i = ii+1;
     nLayersDom = Ceil(R*alpha/nDomList[3]/LC);
-    If ( (MPI_Size == 1 || MPI_Rank == i) && nLayersDom < 5 )
+    If ( (MPI_Size == 1 || MPI_Rank == ii) && nLayersDom < 5 )
       Printf("WARNING: less than 5 layers (%g) in domain %g", nLayersDom, (i));
     EndIf
     ext[] = Extrude{{0,0,1}, {shiftX+D1+(R+d1)*Sin[alpha]+D2*Cos(alpha)+R*Sin[alpha],
         shiftY+(R+d1)*(1-Cos[alpha])+D2*Sin[alpha]+R*(1-Cos[alpha])-R, 0},
       -alpha/nDomList[3]}{
-      Surface{ls[i]}; Layers{ nLayersDom }; Recombine;
+      Surface{ls[ii]}; Layers{ nLayersDom }; Recombine;
     };
     ls[] += ext[0];
     lv[] += ext[1];
     lSides[] += ext[{2:5}];
 
-    idom =i;
-    pmlLeft~{idom} = Extrude {-dBb*Cos(theta), -dBb*Sin(theta), 0} {
-      Surface{ls[i]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ;
+    pmlLeft~{i} = Extrude {-dBb*Cos(theta), -dBb*Sin(theta), 0} {
+      Surface{ls[ii]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ;
     };
     theta -= alpha/nDomList[1];
-    pmlRight~{idom} = Extrude {dBb*Cos(theta), dBb*Sin(theta), 0} {
-      Surface{ls[i+1]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ;
+    pmlRight~{i} = Extrude {dBb*Cos(theta), dBb*Sin(theta), 0} {
+      Surface{ls[ii+1]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ;
     };
   EndFor
 EndIf
 
 If (PARTS > 4)
   n += nDomList[3]; // straight part on the right
-  For i In {n:n+nDomList[4]-1}
+  For ii In {n:n+nDomList[4]-1}
+    i = ii+1;
     nLayersDom = Ceil(D3/nDomList[4]/(LC*(1.+1e-6))); // perturbation of LC to help rounding
-    If ( (MPI_Size == 1 || MPI_Rank == i) && nLayersDom < 5 )
+    If ( (MPI_Size == 1 || MPI_Rank == ii) && nLayersDom < 5 )
       Printf("WARNING: less than 5 layers (%g) in domain %g", nLayersDom, (i));
     EndIf
     ext[] = Extrude{D3/nDomList[4],0,0}{
-      Surface{ls[i]}; Layers{ nLayersDom }; Recombine;
+      Surface{ls[ii]}; Layers{ nLayersDom }; Recombine;
     };
     ls[] += ext[0];
     lv[] += ext[1];
     lSides[] += ext[{2:5}];
 
-    idom =i;
-    pmlLeft~{idom} = Extrude {-dBb*Cos(theta), -dBb*Sin(theta), 0} {
-      Surface{ls[i]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ;
+    pmlLeft~{i} = Extrude {-dBb*Cos(theta), -dBb*Sin(theta), 0} {
+      Surface{ls[ii]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ;
     };
-    pmlRight~{idom} = Extrude {dBb*Cos(theta), dBb*Sin(theta), 0} {
-      Surface{ls[i+1]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ;
+    pmlRight~{i} = Extrude {dBb*Cos(theta), dBb*Sin(theta), 0} {
+      Surface{ls[ii+1]} ; Layers{ (nLayersTr+nLayersPml) } ; Recombine ;
     };
   EndFor
 EndIf
@@ -165,77 +165,77 @@ If (MPI_Size == 1 && StrCmp(OnelabAction, "check")) // only mesh if not in onela
   Printf("Done.");
 EndIf
 
-// For i In {0:n-1}
-For i In {start:end}
+// For iiMPI In {0:n-1}
+For iiMPI In {start:end}
   Delete Physicals;
-  idom = i;
+  i = iiMPI+1;
 
   If(MPI_Size > 1) // parallel meshing
-    For iv In {0:N_DOM-1}
-      If (iv != idom)
+    For ii In {0:N_DOM-1}
+      If (ii != iiMPI)
     	Delete{
-    	  Volume{lv[iv]};
-    	  Volume{pmlLeft~{iv}[1]};
-    	  Volume{pmlRight~{iv}[1]};
-    	  Surface{pmlLeft~{idom}[0]};
-    	  Surface{pmlRight~{idom}[0]};
-    	  Surface{pmlLeft~{idom}[2]};
-    	  Surface{pmlLeft~{idom}[3]};
-    	  Surface{pmlLeft~{idom}[4]};
-    	  Surface{pmlLeft~{idom}[5]};
-    	  Surface{pmlRight~{idom}[2]};
-    	  Surface{pmlRight~{idom}[3]};
-    	  Surface{pmlRight~{idom}[4]};
-    	  Surface{pmlRight~{idom}[5]};
-    	  Surface{lSides[{(idom*4)}]};
-    	  Surface{lSides[{(idom*4+1)}]};
-    	  Surface{lSides[{(idom*4+2)}]};
-    	  Surface{lSides[{(idom*4)+3}]};
+    	  Volume{lv[ii]};
+    	  Volume{pmlLeft~{ii}[1]};
+    	  Volume{pmlRight~{ii}[1]};
+    	  Surface{pmlLeft~{i}[0]};
+    	  Surface{pmlRight~{i}[0]};
+    	  Surface{pmlLeft~{i}[2]};
+    	  Surface{pmlLeft~{i}[3]};
+    	  Surface{pmlLeft~{i}[4]};
+    	  Surface{pmlLeft~{i}[5]};
+    	  Surface{pmlRight~{i}[2]};
+    	  Surface{pmlRight~{i}[3]};
+    	  Surface{pmlRight~{i}[4]};
+    	  Surface{pmlRight~{i}[5]};
+    	  Surface{lSides[{(ii*4)}]};
+    	  Surface{lSides[{(ii*4+1)}]};
+    	  Surface{lSides[{(ii*4+2)}]};
+    	  Surface{lSides[{(ii*4)+3}]};
     	}
       EndIf
     EndFor
-    For is In {0:N_DOM}
-      If ( (is < idom) && (is > idom+1) )
+    For ii In {0:N_DOM}
+      If ( (ii < i) && (ii > i+1) )
     	Delete{
-    	  Surface{ls[is]};
+    	  Surface{ls[ii]};
     	}
       EndIf
     EndFor
   EndIf
 
-  Physical Volume(((idom+1)*1000+200)) = lv[i];
-  Physical Volume(((idom+1)*1000+100)) = pmlLeft~{idom}[1];
-  Physical Volume(((idom+1)*1000+300)) = pmlRight~{idom}[1];
+  Physical Volume(((i+1)*1000+200)) = lv[iiMPI];
+  Physical Volume(((i+1)*1000+100)) = pmlLeft~{i}[1];
+  Physical Volume(((i+1)*1000+300)) = pmlRight~{i}[1];
 
-  Physical Surface(((idom+1)*1000+10)) = ls[i];
-  Physical Surface(((idom+1)*1000+20)) = -ls[i+1];
+  Physical Surface(((i+1)*1000+10)) = ls[iiMPI];
+  Physical Surface(((i+1)*1000+20)) = -ls[iiMPI+1];
 
-  Physical Surface(((idom+1)*1000+1)) = pmlLeft~{idom}[0];
-  Physical Surface(((idom+1)*1000+4)) = -pmlRight~{idom}[0];
+  Physical Surface(((i+1)*1000+1)) = pmlLeft~{i}[0];
+  Physical Surface(((i+1)*1000+4)) = -pmlRight~{i}[0];
 
-  myList2[] = -lSides[{(idom*4):(idom*4+3)}];
-  myList1[] = pmlLeft~{idom}[2];
-  myList1[] += pmlLeft~{idom}[3];
-  myList1[] += pmlLeft~{idom}[4];
-  myList1[] += pmlLeft~{idom}[5];
-  myList3[] = -pmlRight~{idom}[2];
-  myList3[] += -pmlRight~{idom}[3];
-  myList3[] += -pmlRight~{idom}[4];
-  myList3[] += -pmlRight~{idom}[5];
+  myList2[] = -lSides[{(iiMPI*4):(iiMPI*4+3)}];
+  myList1[] = pmlLeft~{i}[2];
+  myList1[] += pmlLeft~{i}[3];
+  myList1[] += pmlLeft~{i}[4];
+  myList1[] += pmlLeft~{i}[5];
+  myList3[] = -pmlRight~{i}[2];
+  myList3[] += -pmlRight~{i}[3];
+  myList3[] += -pmlRight~{i}[4];
+  myList3[] += -pmlRight~{i}[5];
 
-  Physical Surface(((idom+1)*1000+202)) = {myList2[]};
-  Physical Surface(((idom+1)*1000+102)) = {myList1[]};
-  Physical Surface(((idom+1)*1000+302)) = {myList3[]};
+  Physical Surface(((i+1)*1000+202)) = {myList2[]};
+  Physical Surface(((i+1)*1000+102)) = {myList1[]};
+  Physical Surface(((i+1)*1000+302)) = {myList3[]};
 
   If (MPI_Size > 1 && StrCmp(OnelabAction, "check"))
-    Printf("Meshing waveguide subdomain %g...", idom);
+    Printf("Meshing waveguide subdomain %g...", i);
     Mesh 3 ;
     Printf("Done.");
   EndIf
 
   If(StrCmp(OnelabAction, "check")) // only mesh if not in onelab check mode
     CreateDir Str(DIR);
-    Save StrCat(MSH_NAME, Sprintf("%g.msh", idom));
+    Save StrCat(MSH_NAME, Sprintf("%g.msh", i));
   EndIf
 
 EndFor

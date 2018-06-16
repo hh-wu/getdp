@@ -45,24 +45,24 @@ Resolution {
       {
         // compute local part of (A g^n) and stores the result in ListOfFields()
 
-	Evaluate[ $t1 = GetWallClockTime[], $t1c = GetCpuTime[] ];
+	      Evaluate[ $t1 = GetWallClockTime[], $t1c = GetCpuTime[] ];
 	
-	Call SolveVolumePDE;
+	      Call SolveVolumePDE;
         Call SolveSurfacePDE;
         Call UpdateSurfaceFields;
 
-	Barrier;
-	Evaluate[ $t2 = GetWallClockTime[], $t2c = GetCpuTime[] ];
-	If (TIMING)
-	  Print[{$t2-$t1, $t2c-$t1c}, Format "WALL Schwarz iteration = %gs ; CPU = %gs"];
-	EndIf
+        Barrier;
+        Evaluate[ $t2 = GetWallClockTime[], $t2c = GetCpuTime[] ];
+        If (TIMING)
+          Print[{$t2-$t1, $t2c-$t1c}, Format "WALL Schwarz iteration = %gs ; CPU = %gs"];
+        EndIf
       }
       {
-        // applies a preconditioner
-	If (PRECONDITIONER)
-	  Evaluate[ $t1p = GetWallClockTime[], $t1pc = GetCpuTime[] ];
+          // applies a preconditioner
+	        If (PRECONDITIONER)
+	          Evaluate[ $t1p = GetWallClockTime[], $t1pc = GetCpuTime[] ];
 
-	  // for the 'clean' version of SGS, we use a copy of the data; in
+	        // for the 'clean' version of SGS, we use a copy of the data; in
       	  // practice (EXPERIMENTAL) it works best by not using it
       	  // (cf. definition of g_in_c[])
       	  Call CopySurfaceFields;
@@ -73,7 +73,7 @@ Resolution {
                                    // tested in cyclic case)
       	  For ii In{0:nCuts}
       	    For proc In {0:MPI_Size-1}
-      	      i = ListOfCuts(ii);
+      	      i = ListOfCuts(ii)+1;
       	      Call InitSweep;
       	    EndFor
       	  EndFor
@@ -84,9 +84,9 @@ Resolution {
             For ii In {ListOfCuts(iCut)+1: ListOfCuts(iCut+1)-1:1}
               For proc In {0:MPI_Size-1}
                 // index for the forward sweep
-                i_f = ii % N_DOM;
+                i_f = ii % N_DOM + 1;
                 // index for the backward sweep
-                i_b = (ListOfCuts(iCut) + ListOfCuts(iCut+1) - ii) % N_DOM;
+                i_b = (ListOfCuts(iCut) + ListOfCuts(iCut+1) - ii) % N_DOM + 1;
                 // these two calls are independent and work in parallel
                 Call SolveAndStepForward;
                 Call SolveAndStepBackward;
@@ -101,18 +101,18 @@ Resolution {
             EndFor
       	  EndFor
 
-	  Barrier;
-	  Evaluate[ $t2p = GetWallClockTime[], $t2pc = GetCpuTime[] ];
-	  If (TIMING)
-	    Print[{$t2p-$t1p, $t2pc-$t1pc}, Format "WALL total preconditioner = %gs ; CPU = %gs"];
-	  EndIf
+          Barrier;
+          Evaluate[ $t2p = GetWallClockTime[], $t2pc = GetCpuTime[] ];
+          If (TIMING)
+            Print[{$t2p-$t1p, $t2pc-$t1pc}, Format "WALL total preconditioner = %gs ; CPU = %gs"];
+          EndIf
 
         EndIf
       }
 
       Evaluate[ $tt2 = GetWallClockTime[], $tt2c = GetCpuTime[] ];
       If (TIMING)
-	Print[{$tt2-$tt1, $tt2c-$tt1c}, Format "WALL total DDM solver = %gs ; CPU = %gs"];
+	      Print[{$tt2-$tt1, $tt2c-$tt1c}, Format "WALL total DDM solver = %gs ; CPU = %gs"];
       EndIf      
 
       

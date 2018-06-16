@@ -54,37 +54,38 @@ Function {
 
 Group{
   D() = {};
-  For idom In {0:N_DOM-1}
-    left = (idom+1)%N_DOM; // left boundary (if looking to the center from infinity)
-    right = (idom-1)%N_DOM; // right boundary
-    If(right < 0)
-      right = N_DOM-1;
+  For ii In {0:N_DOM-1}
+    i = ii+1;
+    left = (ii+1)%N_DOM + 1; // left boundary (if looking to the center from infinity)
+    right = (ii-1)%N_DOM + 1; // right boundary
+    If(right < 1)
+      right = N_DOM;
     EndIf
     
-    D() += idom;
-    D~{idom} = {left, right};
+    D() += i;
+    D~{i} = {left, right};
   
-    Omega~{idom} = Region[(idom)];
-    GammaD0~{idom} = Region[{}];
-    GammaD~{idom} = Region[{(1000 + idom)}];
-    GammaN~{idom} = Region[{}];
-    GammaInf~{idom} = Region[{(2000 + idom)}];
+    Omega~{i} = Region[(i)];
+    GammaD0~{i} = Region[{}];
+    GammaD~{i} = Region[{(1000 + i)}];
+    GammaN~{i} = Region[{}];
+    GammaInf~{i} = Region[{(2000 + i)}];
 
-    Sigma~{idom}~{right} = Region[{(3000 + idom)}];
-    Sigma~{idom}~{left} = Region[{(4000 + idom)}];
-    Sigma~{idom} = Region[{Sigma~{idom}~{left}, Sigma~{idom}~{right}}] ;
+    Sigma~{i}~{right} = Region[{(3000 + i)}];
+    Sigma~{i}~{left} = Region[{(4000 + i)}];
+    Sigma~{i} = Region[{Sigma~{i}~{left}, Sigma~{i}~{right}}] ;
 
-    BndGammaD~{idom}~{left} = Region[{(5000 + idom)}];
-    BndGammaD~{idom}~{right} = Region[{}];
-    BndGammaD~{idom} = Region[{BndGammaD~{idom}~{left}, BndGammaD~{idom}~{right}}] ;
+    BndGammaD~{i}~{left} = Region[{(5000 + i)}];
+    BndGammaD~{i}~{right} = Region[{}];
+    BndGammaD~{i} = Region[{BndGammaD~{i}~{left}, BndGammaD~{i}~{right}}] ;
 
-    BndGammaInf~{idom}~{left} = Region[{(6000 + idom)}];
-    BndGammaInf~{idom}~{right} = Region[{}];
-    BndGammaInf~{idom} = Region[{BndGammaInf~{idom}~{left}, BndGammaInf~{idom}~{right}}] ;
+    BndGammaInf~{i}~{left} = Region[{(6000 + i)}];
+    BndGammaInf~{i}~{right} = Region[{}];
+    BndGammaInf~{i} = Region[{BndGammaInf~{i}~{left}, BndGammaInf~{i}~{right}}] ;
 
-    Tau~{idom}~{left} = Region[{(7000 + idom)}];
-    Tau~{idom}~{right} = Region[{(8000 + idom)}];
-    Tau~{idom} = Region[{Tau~{idom}~{left}, Tau~{idom}~{right}}] ;
+    Tau~{i}~{left} = Region[{(7000 + i)}];
+    Tau~{i}~{right} = Region[{(8000 + i)}];
+    Tau~{i} = Region[{Tau~{i}~{left}, Tau~{i}~{right}}] ;
   EndFor
 }
 

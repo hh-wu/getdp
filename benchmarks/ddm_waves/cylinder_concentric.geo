@@ -38,8 +38,8 @@ For i In {0:N_DOM}
 
   If(i > 0)
     s = news; Plane Surface(s) = {ll[i], ll[i-1]};
-    idom = i-1;
-    ss[idom] = s;
+    ii = i-1;
+    ss[ii] = s;
   EndIf
 EndFor
 
@@ -60,40 +60,41 @@ If(StrCmp(OnelabAction, "check")) // only mesh if not in onelab check mode
   Mesh 3;
   //Coherence Mesh; // circumvent duplicate geometrical entities
   CreateDir Str(DIR);
-  For idom In {0:N_DOM-1}
+  For ii In {0:N_DOM-1}
+    i = ii+1;
     Delete Physicals;
 
-    Physical Volume(100 + idom) = ret[10*idom + 1];
+    Physical Volume(100 + i) = ret[10*ii + 1];
 
-    Physical Surface(200 + idom) = {-ss[idom], ret[10*idom + 0]};
+    Physical Surface(200 + i) = {-ss[ii], ret[10*ii + 0]};
 
-    If(idom == 0)
-      Physical Surface(1000) = {
-        ret[10*idom+6], ret[10*idom+7], ret[10*idom+8], ret[10*idom+9]
+    If(ii == 0)
+      Physical Surface(1000 + i) = {
+        ret[10*ii+6], ret[10*ii+7], ret[10*ii+8], ret[10*ii+9]
       }; // GammaScat (interior)
     EndIf
-    If(idom == N_DOM-1)
-      Physical Surface(2000 + N_DOM-1) = {
-        ret[10*idom+2], ret[10*idom+3], ret[10*idom+4], ret[10*idom+5]
+    If(ii == N_DOM-1)
+      Physical Surface(2000 + N_DOM) = {
+        ret[10*ii+2], ret[10*ii+3], ret[10*ii+4], ret[10*ii+5]
       }; // GammaInf (exterior)
     EndIf
 
-    If(idom > 0)
+    If(ii > 0)
       //Sigma_ij on left (iside == 0)
       // "left" = "interior" boundary (toward the center)
-      Physical Surface(3000 + idom) = {
-        ret[10*idom+6], ret[10*idom+7], ret[10*idom+8], ret[10*idom+9]
+      Physical Surface(3000 + i) = {
+        ret[10*ii+6], ret[10*ii+7], ret[10*ii+8], ret[10*ii+9]
       };
     EndIf
-    If(idom < N_DOM-1)
+    If(ii < N_DOM-1)
       //Sigma_ij on right (iside == 1)
       // "left" = "exterior" boundary (toward infinity)
-      Physical Surface(4000 + idom) = {
-        ret[10*idom+2], ret[10*idom+3], ret[10*idom+4], ret[10*idom+5]
+      Physical Surface(4000 + i) = {
+        ret[10*ii+2], ret[10*ii+3], ret[10*ii+4], ret[10*ii+5]
       };
     EndIf
-    Printf("Meshing cylinder_concentric subdomain %g...", idom);
-    Save StrCat(MSH_NAME, Sprintf("%g.msh", idom));
+    Printf("Meshing cylinder_concentric subdomain %g...", i);
+    Save StrCat(MSH_NAME, Sprintf("%g.msh", i));
   EndFor
 EndIf
 

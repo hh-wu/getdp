@@ -16,7 +16,7 @@ Point(1) = {0,0,0,LC};
 For i In {0:N_DOM}
   //  r = R_INT + i * (R_EXT - R_INT) / N_DOM;
   If(i == N_DOM)
-    R[i] = R_EXT; //avoir numerical errors
+    R[i] = R_EXT; //avoid numerical errors
   EndIf
   If(i > 0 && i < N_DOM)
     R[i] = Sqrt[area/Pi +R[i-1]^2];
@@ -35,38 +35,39 @@ For i In {0:N_DOM}
 
   If(i > 0)
     s = news; Plane Surface(s) = {ll[i], ll[i-1]};
-    idom = i-1;
-    ss[idom] = s;
+    ii = i-1;
+    ss[ii] = s;
   EndIf
 EndFor
 
 If(StrCmp(OnelabAction, "check"))
   Mesh 2;
   CreateDir Str(DIR);
-  For idom In {0:N_DOM-1}
+  For ii In {0:N_DOM-1}
+    i = ii+1;
     Delete Physicals;
-    Physical Surface(100 + idom) = ss[idom];
-    If(idom == 0)
-      Physical Line(1000) = -{l1[0], l2[0], l3[0], l4[0]}; // GammaScat (interior)
+    Physical Surface(100 + i) = ss[ii];
+    If(ii == 0)
+      Physical Line(1000 + i) = -{l1[0], l2[0], l3[0], l4[0]}; // GammaScat (interior)
     EndIf
-    If(idom == N_DOM-1)
-      Physical Line(2000 + N_DOM-1) = {l1[N_DOM], l2[N_DOM],
-                                       l3[N_DOM], l4[N_DOM]}; // GammaInf (exterior)
+    If(ii == N_DOM-1)
+      Physical Line(2000 + N_DOM) = {l1[N_DOM], l2[N_DOM],
+                                     l3[N_DOM], l4[N_DOM]}; // GammaInf (exterior)
     EndIf
 
-    If(idom > 0)
+    If(ii > 0)
       //Sigma_ij on left (iside == 0)
       // "left" = "interior" boundary (toward the center)
-      Physical Line(3000 + idom) = {-l1[idom], -l2[idom], -l3[idom], -l4[idom]};
+      Physical Line(3000 + i) = {-l1[ii], -l2[ii], -l3[ii], -l4[ii]};
          // negative sign to have the exterior normal
     EndIf
-    If(idom < N_DOM-1)
+    If(ii < N_DOM-1)
       //Sigma_ij on right (iside == 1)
       // "left" = "exterior" boundary (toward infinity)
-      Physical Line(4000 + idom) = {l1[idom+1], l2[idom+1], l3[idom+1], l4[idom+1]};
+      Physical Line(4000 + i) = {l1[ii+1], l2[ii+1], l3[ii+1], l4[ii+1]};
     EndIf
-    Printf("Meshing circle_concentric subdomain %g...", idom);
-    Save StrCat(MSH_NAME, Sprintf("%g.msh", idom));
+    Printf("Meshing circle_concentric subdomain %g...", i);
+    Save StrCat(MSH_NAME, Sprintf("%g.msh", i));
   EndFor
 EndIf
 

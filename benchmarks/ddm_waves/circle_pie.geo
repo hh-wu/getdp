@@ -14,7 +14,7 @@ Point(1) = {0,0,0,LC};
 l_AllGammaScat[] = {}; idx_AllGammaScat[] = {0};
 l_AllGammaInf[] = {}; idx_AllGammaInf[] = {0};
 For i In {0:N_DOM}
-  idom = i-1; // number of the subdomain
+  ii = i-1; // subdomain index
   t_dn = i * 2 * Pi / N_DOM;
   l_GammaScat[] = {};
   l_GammaInf[] = {};
@@ -34,7 +34,7 @@ For i In {0:N_DOM}
                                                 R_EXT * Sin(t_half+angleRotate),0,LC};
     EndIf
   EndIf
-  If(idom >= 0)
+  If(ii >= 0)
     If(N_DOM == 2)
       l_GammaScat[0] = newl; Circle(l_GammaScat[0]) = {p_scat[i%N_DOM], 1, p_scatbis[i-1]};
       l_GammaScat[1] = newl; Circle(l_GammaScat[1]) = {p_scatbis[i-1], 1, p_scat[i-1]};
@@ -51,28 +51,28 @@ For i In {0:N_DOM}
 
     ll = newll; Line Loop(ll) = {l_sigma[i%N_DOM], l_GammaScat[], -l_sigma[i-1], l_GammaInf[]};
     s = news; Plane Surface(s) = {ll};
-    ss[idom] = s;
-    Physical Surface(idom) = s;
+    ss[ii] = s;
+    Physical Surface(i) = s;
 
     // Gamma Scatterer
-    Physical Line(1000 + idom) = {l_GammaScat[]};
+    Physical Line(1000 + i) = {l_GammaScat[]};
     // Gamma Infiny
-    Physical Line(2000 + idom) = {l_GammaInf[]};
+    Physical Line(2000 + i) = {l_GammaInf[]};
     // Sigma (both side)
-    // Physical Line(200 + idom) = {l_sigma[i%N_DOM], -l_sigma[i-1]};
-    Physical Line(3000 + idom) = {-l_sigma[i-1]}; // "Left" transm. boundary
+    // Physical Line(200 + i) = {l_sigma[i%N_DOM], -l_sigma[i-1]};
+    Physical Line(3000 + i) = {-l_sigma[i-1]}; // "Left" transm. boundary
                                                   // (if looking to the center from infinity)
-    Physical Line(4000 + idom) = {l_sigma[i%N_DOM]}; // "right" transm. boundary
+    Physical Line(4000 + i) = {l_sigma[i%N_DOM]}; // "right" transm. boundary
 
     //Boundary (=points) of GammaScat
-    Physical Point(5000 + idom) = {p_scat[i-1], p_scat[i%N_DOM]};
+    Physical Point(5000 + i) = {p_scat[i-1], p_scat[i%N_DOM]};
     //Boundary (=points) of GammaInf
-    Physical Point(6000 + idom) = {p_inf[i-1], p_inf[i%N_DOM]};
+    Physical Point(6000 + i) = {p_inf[i-1], p_inf[i%N_DOM]};
     // Boundary (=points) of Sigma
     //"left"
-    Physical Point(7000 + idom) = {p_scat[i-1], p_inf[i-1], p_scat[i%N_DOM], p_inf[i%N_DOM]};
+    Physical Point(7000 + i) = {p_scat[i-1], p_inf[i-1], p_scat[i%N_DOM], p_inf[i%N_DOM]};
     //"right"
-    Physical Point(8000 + idom) = {p_scat[i%N_DOM], p_inf[i%N_DOM]};
+    Physical Point(8000 + i) = {p_scat[i%N_DOM], p_inf[i%N_DOM]};
     //list of lines
     l_AllGammaScat[] += l_GammaScat[]; idx_AllGammaScat[] += #l_AllGammaScat[];
     l_AllGammaInf[] += l_GammaInf[];   idx_AllGammaInf[] += #l_AllGammaInf[];
@@ -88,17 +88,18 @@ Physical Point(99) = p_inf[];
 If(StrCmp(OnelabAction, "check")) // only mesh if not in onelab check mode
   Mesh 2;
   CreateDir Str(DIR);
-  For idom In {0:N_DOM-1}
+  For ii In {0:N_DOM-1}
+    i = ii+1;
     Delete Physicals;
-    Physical Surface(idom) = ss[idom];
+    Physical Surface(i) = ss[ii];
     // Gamma Scatterer
-    Physical Line(1000 + idom) = GammaScat[{idx_AllGammaScat[idom]:idx_AllGammaScat[idom+1]-1:1}];
+    Physical Line(1000 + i) = GammaScat[{idx_AllGammaScat[ii]:idx_AllGammaScat[ii+1]-1:1}];
     // Gamma Infiny
-    Physical Line(2000 + idom) = GammaInf[{idx_AllGammaInf[idom]:idx_AllGammaInf[idom+1]-1:1}];
-    Physical Line(3000 + idom) = {-l_sigma[idom]}; //left boundary
-    Physical Line(4000 + idom) = {l_sigma[(idom+1)%N_DOM]}; // right boundary
-    Printf("Meshing circle_pie subdomain %g...", idom);
-    Save StrCat(MSH_NAME, Sprintf("%g.msh", idom));
+    Physical Line(2000 + i) = GammaInf[{idx_AllGammaInf[ii]:idx_AllGammaInf[ii+1]-1:1}];
+    Physical Line(3000 + i) = {-l_sigma[ii]}; //left boundary
+    Physical Line(4000 + i) = {l_sigma[(ii+1)%N_DOM]}; // right boundary
+    Printf("Meshing circle_pie subdomain %g...", i);
+    Save StrCat(MSH_NAME, Sprintf("%g.msh", i));
   EndFor
 EndIf
 

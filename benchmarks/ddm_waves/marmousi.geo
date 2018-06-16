@@ -8,7 +8,7 @@ Ddom = DGeo/N_DOM;
 iPoint = Ceil(xSource/Ddom); // source location
 Printf("iPoint: %g",iPoint);
 
-// For idom In {0:nDoms-1}
+// For ii In {0:nDoms-1}
 If(MPI_Size == 1) // sequential meshing
   start = 0;
   end = N_DOM-1;
@@ -18,28 +18,30 @@ If(MPI_Size > 1) // parallel meshing
   end = MPI_Rank;
 EndIf
 
-For i In {start+1:end+1}
+For ii In {start+1:end+1}
 
   //NewModel;
   Delete Model;
 
-  If (i!=iPoint)
+  i = ii+1;
 
-    Point(1) = {(i-1)*Ddom,-dGeo,0,lc};
-    Point(2) = {i*Ddom,-dGeo,0,lc};
-    Point(3) = {i*Ddom,0,0,lc};
-    Point(4) = {(i-1)*Ddom,0,0,lc};
+  If (ii!=iPoint)
 
-    Point(7) = {i*Ddom,ySource,0,lc};
-    Point(9) = {(i-1)*Ddom,ySource,0,lc};
+    Point(1) = {(ii-1)*Ddom,-dGeo,0,lc};
+    Point(2) = {ii*Ddom,-dGeo,0,lc};
+    Point(3) = {ii*Ddom,0,0,lc};
+    Point(4) = {(ii-1)*Ddom,0,0,lc};
 
-    Point(52) = {(i)*Ddom+dBb,-dGeo,0,lc};
-    Point(57) = {(i)*Ddom+dBb,ySource,0,lc};
-    Point(53) = {(i)*Ddom+dBb,0,0,lc};
+    Point(7) = {ii*Ddom,ySource,0,lc};
+    Point(9) = {(ii-1)*Ddom,ySource,0,lc};
 
-    Point(51) = {(i-1)*Ddom-dBb,-dGeo,0,lc};
-    Point(59) = {(i-1)*Ddom-dBb,ySource,0,lc};
-    Point(54) = {(i-1)*Ddom-dBb,0,0,lc};
+    Point(52) = {(ii)*Ddom+dBb,-dGeo,0,lc};
+    Point(57) = {(ii)*Ddom+dBb,ySource,0,lc};
+    Point(53) = {(ii)*Ddom+dBb,0,0,lc};
+
+    Point(51) = {(ii-1)*Ddom-dBb,-dGeo,0,lc};
+    Point(59) = {(ii-1)*Ddom-dBb,ySource,0,lc};
+    Point(54) = {(ii-1)*Ddom-dBb,0,0,lc};
 
     Line(10) = {1,2};
     Line(11) = {2,7};
@@ -84,49 +86,47 @@ For i In {start+1:end+1}
     Transfinite Surface{100:101,104:107};
     Recombine Surface{100:101,104:107};
 
-    iDom = i;
+    Physical Point((i*1000+11)) = CombinedBoundary{ Line{14,15};};
+    Physical Point((i*1000+21)) = CombinedBoundary{ Line{11,12};};
 
-    Physical Point((iDom*1000+11)) = CombinedBoundary{ Line{14,15};};
-    Physical Point((iDom*1000+21)) = CombinedBoundary{ Line{11,12};};
+    Physical Line((i*1000+102)) = {78}; // bottom PML left
+    Physical Line((i*1000+202)) = {10}; // bottom Omega
+    Physical Line((i*1000+302)) = {61}; // bottom PML right
+    Physical Line((i*1000+103)) = {75}; // top PML left
+    Physical Line((i*1000+203)) = {13}; // top Omega
+    Physical Line((i*1000+303)) = {64}; // top PML right
 
-    Physical Line((iDom*1000+102)) = {78}; // bottom PML left
-    Physical Line((iDom*1000+202)) = {10}; // bottom Omega
-    Physical Line((iDom*1000+302)) = {61}; // bottom PML right
-    Physical Line((iDom*1000+103)) = {75}; // top PML left
-    Physical Line((iDom*1000+203)) = {13}; // top Omega
-    Physical Line((iDom*1000+303)) = {64}; // top PML right
+    Physical Line((i*1000+1)) = {76,77}; // left
+    Physical Line((i*1000+4)) = {62,63}; // right
 
-    Physical Line((iDom*1000+1)) = {76,77}; // left
-    Physical Line((iDom*1000+4)) = {62,63}; // right
+    Physical Line((i*1000+10)) = {14,15}; // interface with left PML
+    Physical Line((i*1000+20)) = {11,12}; // interface with right PML
 
-    Physical Line((iDom*1000+10)) = {14,15}; // interface with left PML
-    Physical Line((iDom*1000+20)) = {11,12}; // interface with right PML
-
-    Physical Surface((iDom*1000+200)) = {100:101};
-    Physical Surface((iDom*1000+300)) = {104,105};
-    Physical Surface((iDom*1000+100)) = {106,107};
+    Physical Surface((i*1000+200)) = {100:101};
+    Physical Surface((i*1000+300)) = {104,105};
+    Physical Surface((i*1000+100)) = {106,107};
   EndIf
 
-  If (i == iPoint)
-    Point(1) = {(i-1)*Ddom,-dGeo,0,lc};
-    Point(2) = {i*Ddom,-dGeo,0,lc};
-    Point(3) = {i*Ddom,0,0,lc};
-    Point(4) = {(i-1)*Ddom,0,0,lc};
+  If (ii == iPoint)
+    Point(1) = {(ii-1)*Ddom,-dGeo,0,lc};
+    Point(2) = {ii*Ddom,-dGeo,0,lc};
+    Point(3) = {ii*Ddom,0,0,lc};
+    Point(4) = {(ii-1)*Ddom,0,0,lc};
 
     Point(5) = {xSource,ySource,0,lc};
 
     Point(6) = {xSource,-dGeo,0,lc};
-    Point(7) = {i*Ddom,ySource,0,lc};
+    Point(7) = {ii*Ddom,ySource,0,lc};
     Point(8) = {xSource,0,0,lc};
-    Point(9) = {(i-1)*Ddom,ySource,0,lc};
+    Point(9) = {(ii-1)*Ddom,ySource,0,lc};
 
-    Point(52) = {(i)*Ddom+dBb,-dGeo,0,lc};
-    Point(57) = {(i)*Ddom+dBb,ySource,0,lc};
-    Point(53) = {(i)*Ddom+dBb,0,0,lc};
+    Point(52) = {(ii)*Ddom+dBb,-dGeo,0,lc};
+    Point(57) = {(ii)*Ddom+dBb,ySource,0,lc};
+    Point(53) = {(ii)*Ddom+dBb,0,0,lc};
 
-    Point(51) = {(i-1)*Ddom-dBb,-dGeo,0,lc};
-    Point(59) = {(i-1)*Ddom-dBb,ySource,0,lc};
-    Point(54) = {(i-1)*Ddom-dBb,0,0,lc};
+    Point(51) = {(ii-1)*Ddom-dBb,-dGeo,0,lc};
+    Point(59) = {(ii-1)*Ddom-dBb,ySource,0,lc};
+    Point(54) = {(ii-1)*Ddom-dBb,0,0,lc};
 
     Line(10) = {1,6};
     Line(11) = {6,2};
@@ -171,8 +171,8 @@ For i In {start+1:end+1}
     Line Loop(95) = {78,-17,-65,77};
     Plane Surface(107) = {95};
 
-    Transfinite Line{10,15,21} = (xSource-(i-1)*Ddom)/lc+1 Using Progression 1;
-    Transfinite Line{11,14,19} = (i*Ddom-xSource)/lc+1 Using Progression 1;
+    Transfinite Line{10,15,21} = (xSource-(ii-1)*Ddom)/lc+1 Using Progression 1;
+    Transfinite Line{11,14,19} = (ii*Ddom-xSource)/lc+1 Using Progression 1;
     Transfinite Line{12,17,18,77,62} = (dGeo+ySource)/lc+1 Using Progression 1;
     Transfinite Line{13,16,20,76,63} = (-ySource)/lc+1 Using Progression 1;
 
@@ -182,41 +182,38 @@ For i In {start+1:end+1}
     Transfinite Surface{100:107};
     Recombine Surface{100:107};
 
-    iDom = i;
-
     Physical Point(1) = {5};
 
-    Physical Point((iDom*1000+11)) = CombinedBoundary{ Line{16,17};};
-    Physical Point((iDom*1000+21)) = CombinedBoundary{ Line{12,13};};
+    Physical Point((i*1000+11)) = CombinedBoundary{ Line{16,17};};
+    Physical Point((i*1000+21)) = CombinedBoundary{ Line{12,13};};
 
-    Physical Line((iDom*1000+102)) = {78}; // bottom PML left
-    Physical Line((iDom*1000+202)) = {10,11}; // bottom Omega
-    Physical Line((iDom*1000+302)) = {61}; // bottom PML right
-    Physical Line((iDom*1000+103)) = {75}; // top PML left
-    Physical Line((iDom*1000+203)) = {15,14}; // top Omega
-    Physical Line((iDom*1000+303)) = {64}; // top PML right
-    Physical Line((iDom*1000+1)) = {76,77}; // left
-    Physical Line((iDom*1000+4)) = {62,63}; // right
+    Physical Line((i*1000+102)) = {78}; // bottom PML left
+    Physical Line((i*1000+202)) = {10,11}; // bottom Omega
+    Physical Line((i*1000+302)) = {61}; // bottom PML right
+    Physical Line((i*1000+103)) = {75}; // top PML left
+    Physical Line((i*1000+203)) = {15,14}; // top Omega
+    Physical Line((i*1000+303)) = {64}; // top PML right
+    Physical Line((i*1000+1)) = {76,77}; // left
+    Physical Line((i*1000+4)) = {62,63}; // right
 
-    Physical Line((iDom*1000+10)) = {16,17}; // interface with left PML
-    Physical Line((iDom*1000+20)) = {12,13}; // interface with right PML
+    Physical Line((i*1000+10)) = {16,17}; // interface with left PML
+    Physical Line((i*1000+20)) = {12,13}; // interface with right PML
 
-    Physical Surface((iDom*1000+200)) = {100:103};
-    Physical Surface((iDom*1000+300)) = {104,105};
-    Physical Surface((iDom*1000+100)) = {106,107};
+    Physical Surface((i*1000+200)) = {100:103};
+    Physical Surface((i*1000+300)) = {104,105};
+    Physical Surface((i*1000+100)) = {106,107};
   EndIf
 
-  idom = i-1;
   // Save Sprintf("marmousi_mshcut%g.msh", i-1);
   If(StrCmp(OnelabAction, "check")) // only mesh if not in onelab check mode
-    Printf("Meshing marmousi subdomain %g...", idom);
+    Printf("Meshing marmousi subdomain %g...", i-1);
     Mesh 2 ;
 
     nNodes = Mesh.NbNodes ;
     Printf("Nodes: %g", nNodes);
 
     CreateDir Str(DIR);
-    Save StrCat(MSH_NAME, Sprintf("%g.msh", idom));
+    Save StrCat(MSH_NAME, Sprintf("%g.msh", i-1));
     Printf("Done.");
   EndIf
 
