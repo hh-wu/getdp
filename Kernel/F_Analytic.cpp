@@ -1171,44 +1171,56 @@ void F_CurrentPerfectlyConductingSphere(F_ARG)
    radius R, under plane wave incidence e^{ikx}. Returns scattered field
    outside. (Colton and Kress, Inverse Acoustic..., p 51, eq. 3.29) */
 
-void  F_AcousticFieldSoftSphere(F_ARG)
+void F_AcousticFieldSoftSphere(F_ARG)
 {
-  cplx I = {0.,1.}, hnkR, hnkr, tmp;
-  double k, R, r, kr, kR, theta, fact ;
-  int n, ns ;
+  double x = A->Val[0];
+  double y = A->Val[1];
+  double z = A->Val[2];
+  double r = sqrt(x*x + y*y + z*z);
+  double k = Fct->Para[0];
+  double R = Fct->Para[1];
+  double kr = k*r;
+  double kR = k*R;
 
-  r = sqrt(A->Val[0]*A->Val[0] + A->Val[1]*A->Val[1] + A->Val[2]*A->Val[2]) ;
-  theta = acos(A->Val[0] / r); // angle between position vector and (1,0,0)
-
-  k = Fct->Para[0] ;
-  R = Fct->Para[1] ;
-  kr = k*r;
-  kR = k*R;
-
-  V->Val[0] = 0.;
-  V->Val[MAX_DIM] = 0. ;
-
-  ns = (int)k + 10;
-
-  for (n = 0 ; n < ns ; n++){
-    hnkR.r = Spherical_j_n(n, kR);
-    hnkR.i = Spherical_y_n(n, kR);
-
-    hnkr.r = Spherical_j_n(n, kr);
-    hnkr.i = Spherical_y_n(n, kr);
-
-    tmp = Cdiv( Cprod( Cpow(I,n) , Cprodr(hnkR.r, hnkr) ) , hnkR );
-
-    fact = (2*n+1) * Legendre(n, 0, cos(theta));
-
-    V->Val[0] +=  fact * tmp.r;
-    V->Val[MAX_DIM] += fact * tmp.i;
+  // 3rd/4th/5th parameters: incidence direction
+  double XdotK;
+  if(Fct->NbrParameters > 4){
+    double dx = Fct->Para[2];
+    double dy = Fct->Para[3];
+    double dz = Fct->Para[4];
+    double dr = sqrt(dx*dx + dy*dy + dz*dz);
+    XdotK = (x*dx + y*dy + z*dz)/(r*dr);
   }
-
-  V->Val[0] *= -1;
-  V->Val[MAX_DIM] *= -1;
-
-  V->Type = SCALAR ;
+  else{
+    XdotK = x/r;
+  }
+  XdotK = (XdotK > 1) ? 1 : XdotK;
+  XdotK = (XdotK < -1) ? -1 : XdotK;
+  
+  // 6th/7th parameters: range of modes
+  int nStart = 0;
+  int nEnd = (int)(kR) + 10;
+  if(Fct->NbrParameters > 5){
+    nStart = Fct->Para[5];
+    nEnd = (Fct->NbrParameters > 6) ? Fct->Para[6] : nStart+1;
+  }
+  
+  std::complex<double> I(0,1);
+  double vr=0, vi=0;
+#if defined(_OPENMP)
+#pragma omp parallel for reduction(+: vr,vi)
+#endif
+  for (int n=nStart ; n<nEnd; n++){
+    std::complex<double> hnkR( Spherical_j_n(n,kR), Spherical_y_n(n,kR) );
+    std::complex<double> hnkr( Spherical_j_n(n,kr), Spherical_y_n(n,kr) );
+    std::complex<double> tmp1 = std::pow(I,n) * hnkr / hnkR;
+    double tmp2 = -(2*n+1) * std::real(hnkR) * Legendre(n, 0, XdotK);
+    vr += tmp2 * std::real(tmp1);
+    vi += tmp2 * std::imag(tmp1);
+  }
+  V->Val[0]       = vr;
+  V->Val[MAX_DIM] = vi;
+  V->Type         = SCALAR ;
 }
 
 cplx Dhn_Spherical(cplx *hntab, int n, double x)
@@ -1414,52 +1426,67 @@ void  F_RCSSoftSphere(F_ARG)
    radius R, under plane wave incidence e^{ikx}. Returns scattered field
    outside */
 
-void  F_AcousticFieldHardSphere(F_ARG)
+void F_AcousticFieldHardSphere(F_ARG)
 {
-  cplx I = {0.,1.}, hnkr, tmp, DhnkR, *hnkRtab;
-  double k, R, r, kr, kR, theta, fact ;
-  int n, ns ;
+  double x = A->Val[0];
+  double y = A->Val[1];
+  double z = A->Val[2];
+  double r = sqrt(x*x + y*y + z*z);
+  double k = Fct->Para[0];
+  double R = Fct->Para[1];
+  double kr = k*r;
+  double kR = k*R;
 
-  r = sqrt(A->Val[0]*A->Val[0] + A->Val[1]*A->Val[1] + A->Val[2]*A->Val[2]) ;
-  theta = acos(A->Val[0] / r); // angle between position vector and (1,0,0)
+  // 3rd/4th/5th parameters: incidence direction
+  double XdotK;
+  if(Fct->NbrParameters > 4){
+    double dx = Fct->Para[2];
+    double dy = Fct->Para[3];
+    double dz = Fct->Para[4];
+    double dr = sqrt(dx*dx + dy*dy + dz*dz);
+    XdotK = (x*dx + y*dy + z*dz)/(r*dr);
+  }
+  else{
+    XdotK = x/r;
+  }
+  XdotK = (XdotK > 1) ? 1 : XdotK;
+  XdotK = (XdotK < -1) ? -1 : XdotK;
 
-  k = Fct->Para[0] ;
-  R = Fct->Para[1] ;
-  kr = k*r;
-  kR = k*R;
-
-  V->Val[0] = 0.;
-  V->Val[MAX_DIM] = 0. ;
-
-  ns = (int)k + 10;
-
-  hnkRtab = (cplx*)Malloc((ns + 1)*sizeof(cplx));
-
-  for (n = 0 ; n < ns + 1 ; n++){
-    hnkRtab[n].r = Spherical_j_n(n, kR);
-    hnkRtab[n].i = Spherical_y_n(n, kR);
+  // 6th/7th parameters: range of modes
+  int nStart = 0;
+  int nEnd = (int)(kR) + 10;
+  if(Fct->NbrParameters > 5){
+    nStart = Fct->Para[5];
+    nEnd = (Fct->NbrParameters > 6) ? Fct->Para[6] : nStart+1;
   }
 
-  for (n = 0 ; n < ns ; n++){
-    hnkr.r = Spherical_j_n(n, kr);
-    hnkr.i = Spherical_y_n(n, kr);
-
-    DhnkR = Dhn_Spherical(hnkRtab, n, kR);
-
-    tmp = Cdiv( Cprod( Cpow(I,n) , Cprodr(DhnkR.r, hnkr) ) , DhnkR );
-
-    fact = (2*n+1) * Legendre(n, 0, cos(theta));
-
-    V->Val[0] +=  fact * tmp.r;
-    V->Val[MAX_DIM] += fact * tmp.i;
+  std::complex<double> *hnkRtab;
+  hnkRtab = new std::complex<double>[nEnd+1];
+#if defined(_OPENMP)
+#pragma omp parallel for
+#endif
+  for (int n=nStart; n<nEnd+1; n++){
+    hnkRtab[n] = std::complex<double>(Spherical_j_n(n,kR), Spherical_y_n(n,kR));
   }
 
-  Free(hnkRtab);
-
-  V->Val[0] *= -1;
-  V->Val[MAX_DIM] *= -1;
-
-  V->Type = SCALAR ;
+  std::complex<double> I(0,1);
+  double vr=0, vi=0;
+#if defined(_OPENMP)
+#pragma omp parallel for reduction(+: vr,vi)
+#endif
+  for (int n=nStart ; n<nEnd; n++){
+    std::complex<double> hnkr( Spherical_j_n(n,kr), Spherical_y_n(n,kr) );
+    std::complex<double> DhnkR = ((double)n/kR) * hnkRtab[n] - hnkRtab[n+1];
+    std::complex<double> tmp1 = std::pow(I,n) * hnkr / DhnkR;
+    double tmp2 = -(2*n+1) * std::real(DhnkR) * Legendre(n, 0, XdotK);
+    vr += tmp2 * std::real(tmp1);
+    vi += tmp2 * std::imag(tmp1);
+  }
+  V->Val[0]       = vr;
+  V->Val[MAX_DIM] = vi;
+  V->Type         = SCALAR ;
+  
+  delete hnkRtab;
 }
 
 /* Scattering by an acoustically hard sphere (exterior Dirichlet problem) of
@@ -1635,26 +1662,6 @@ void F_JFIE_TransZPolCyl(F_ARG)
   V->Type = SCALAR ;
 }
 
-/* Cylindrical harmonics normalized by the max. value at radius R.
-   Returns the mode 'm' */
-
-void F_CylindricalHarmonic(F_ARG)
-{
-  double theta = atan2(A->Val[1], A->Val[0]);
-  double r = sqrt(A->Val[0]*A->Val[0] + A->Val[1]*A->Val[1]);
-  double k = Fct->Para[0];
-  double R = Fct->Para[1];
-  int m = Fct->Para[2];
-  double kr = k*r;
-  double kR = k*R;
-  std::complex<double> HnkR( jn(m,kR), yn(m,kR) );
-  std::complex<double> Hnkr( jn(m,kr), yn(m,kr) );
-  std::complex<double> val = cos(m*theta) * Hnkr/HnkR;
-  V->Val[0]       = std::real(val);
-  V->Val[MAX_DIM] = std::imag(val);
-  V->Type = SCALAR ;
-}
-
 /* Scattering by acoustically soft circular cylinder of radius R,
    under plane wave incidence e^{ikx}. Returns scatterered field
    outside */
@@ -1668,19 +1675,18 @@ void F_AcousticFieldSoftCylinder(F_ARG)
   double kr = k*r;
   double kR = k*R;
   
+  // 3rd parameter: incidence direction
   if(Fct->NbrParameters > 2){
     double thetaInc = Fct->Para[2];
     theta += thetaInc;
   }
   
+  // 4th/5th parameters: range of modes
   int nStart = 0;
   int nEnd = (int)(kR) + 10;
   if(Fct->NbrParameters > 3){
-    double mode = Fct->Para[3];
-    if(mode >= 0){
-      nStart = mode;
-      nEnd = mode+1;
-    }
+    nStart = Fct->Para[3];
+    nEnd = (Fct->NbrParameters > 4) ? Fct->Para[4] : nStart+1;
   }
   
   std::complex<double> I(0,1);
@@ -1951,41 +1957,48 @@ void F_AcousticFieldHardCylinder(F_ARG)
   double kr = k*r;
   double kR = k*R;
 
-  // 3rd parameter : change the incidence angle
+  // 3rd parameter: incidence direction
   if(Fct->NbrParameters > 2){
     double thetaInc = Fct->Para[2];
     theta += thetaInc;
   }
 
-  // 4th/5th parameters : change the range of modes
+  // 4th/5th parameters: range of modes
   int nStart = 0;
   int nEnd = (int)(kR) + 10;
   if(Fct->NbrParameters > 3){
-    int nStartNew = Fct->Para[3];
-    int nEndNew = Fct->Para[4];
-    nStart = nStartNew;
-    nEnd = nEndNew;
+    nStart = Fct->Para[3];
+    nEnd = (Fct->NbrParameters > 4) ? Fct->Para[4] : nStart+1;
   }
   
   std::complex<double> *HnkRtab;
   HnkRtab = new std::complex<double>[nEnd];
+#if defined(_OPENMP)
+#pragma omp parallel for
+#endif
   for (int n=nStart; n<nEnd; n++){
     HnkRtab[n] = std::complex<double>(jn(n,kR),yn(n,kR));
   }
 
-  std::complex<double> I(0,1), val;
+  std::complex<double> I(0,1);
+  double vr=0, vi=0;
+#if defined(_OPENMP)
+#pragma omp parallel for reduction(+: vr,vi)
+#endif
   for (int n=nStart; n<nEnd; n++){
     std::complex<double> Hnkr( jn(n,kr), yn(n,kr) );
     std::complex<double> dHnkR = (!n ? -HnkRtab[1] : HnkRtab[n-1] - (double)n/kR * HnkRtab[n]);
     std::complex<double> tmp1 = std::pow(I,n) * Hnkr/dHnkR;
     double tmp2 = - (!n ? 1. : 2.) * cos(n*theta) * std::real(dHnkR);
-    val += tmp1 * tmp2;
+    std::complex<double> val = tmp1 * tmp2;
+    vr += std::real(val);
+    vi += std::imag(val);
   }
 
   delete HnkRtab;
 
-  V->Val[0]       = std::real(val);
-  V->Val[MAX_DIM] = std::imag(val);
+  V->Val[0]       = vr;
+  V->Val[MAX_DIM] = vi;
   V->Type = SCALAR ;
 }
 
