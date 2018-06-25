@@ -1044,7 +1044,10 @@ void EigenSolve_SLEPC(struct DofData * DofData_P, int numEigenValues,
   }
   else{
 #if defined(PETSC_USE_COMPLEX)
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 7)
     Message::Error("Please upgrade to slepc >= 3.7.3 for non-linear EVP support!");
+    return;
+#else
     _nonlinearEVP(DofData_P, numEigenValues, shift_r, shift_i,
                   FilterExpressionIndex, RationalCoefsNum, RationalCoefsDen);
 #else
