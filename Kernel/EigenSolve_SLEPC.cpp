@@ -30,6 +30,8 @@
 //   -qep_st_ksp_type gmres -qep_st_pc_type ilu
 //
 // SLEPc >= 3.5 options are similar, but with pep instead of qep
+//
+// SLEPc >= 3.7 options are similar, new nep (non-linear class of solvers)
 
 #include <sstream>
 #include <string>
@@ -207,8 +209,7 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv, EPS eps,
     }
 #endif
     else if (nep){
-      // lambda != iw (!!! this is too misleading otherwise)
-      // lambda is lambda
+      // lambda = iw
       // ore = re;
       // oim = im;
       ore = im;
@@ -1046,7 +1047,7 @@ void EigenSolve_SLEPC(struct DofData * DofData_P, int numEigenValues,
   }
   else{
 #if defined(PETSC_USE_COMPLEX)
-    Message::Warning("Experimental: Non-linear EVP for real coefficients rational function!");
+    Message::Error("Please upgrade to slepc >= 3.7.3 for non-linear EVP support!");
     _nonlinearEVP(DofData_P, numEigenValues, shift_r, shift_i,
                   FilterExpressionIndex, RationalCoefsNum, RationalCoefsDen);
 #else
