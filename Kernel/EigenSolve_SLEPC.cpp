@@ -954,7 +954,7 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
   _try(NEPSetDimensions(nep, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
   _try(NEPSetTolerances(nep, 1.e-6, PETSC_DEFAULT));
   _try(NEPSetType(nep, NEPNLEIGS));
-  _try(NEPSetWhichEigenpairs(nep, NEP_LARGEST_MAGNITUDE));
+  _try(NEPSetWhichEigenpairs(nep, NEP_TARGET_MAGNITUDE));
   _try(NEPMonitorSet(nep, _myNepMonitor, PETSC_NULL, PETSC_NULL));
   _try(NEPSetTarget(nep, shift));
   _try(NEPSetFromOptions(nep));
