@@ -765,7 +765,7 @@ static void _polynomialEVP(struct DofData * DofData_P, int numEigenValues,
     Message::Error("SLEPc diverged after %d iterations", its);
   else if(reason == PEP_DIVERGED_BREAKDOWN)
     Message::Error("SLEPc generic breakdown in method");
-  _try(PEPView(pep, PETSC_VIEWER_STDOUT_SELF));
+  // _try(PEPView(pep, PETSC_VIEWER_STDOUT_SELF));
 
   // get number of converged approximate eigenpairs
   PetscInt nconv;
