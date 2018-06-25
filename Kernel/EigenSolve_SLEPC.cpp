@@ -948,9 +948,6 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
     Message::Info(str_coefsDen[k]);
   }
 
-  // SUBSET_NONZERO_PATTERN
-  // DIFFERENT_NONZERO_PATTERN
-  // SAME_NONZERO_PATTERN
   _try(NEPSetDimensions(nep, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
   _try(NEPSetTolerances(nep, 1.e-6, PETSC_DEFAULT));
   _try(NEPSetType(nep, NEPNLEIGS));
