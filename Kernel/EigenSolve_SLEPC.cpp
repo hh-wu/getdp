@@ -979,7 +979,7 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
     Message::Error("SLEPc diverged after %d iterations", its);
   else if(reason == NEP_DIVERGED_BREAKDOWN)
     Message::Error("SLEPc generic breakdown in method");
-  _try(NEPView(nep, PETSC_VIEWER_STDOUT_SELF));
+  // _try(NEPView(nep, PETSC_VIEWER_STDOUT_SELF));
 
   // get number of converged approximate eigenpairs
   PetscInt nconv;
