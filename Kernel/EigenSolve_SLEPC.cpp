@@ -187,7 +187,7 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv, EPS eps,
     }
 #if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 5)
     else if(qep){
-      // lambda == iw
+      // lambda = iw
       ore = im;
       oim = -re;
       Message::Info("EIG %03d   w = %s%.16e %s%.16e  %3.6e",
@@ -198,7 +198,7 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv, EPS eps,
     }
 #else
     else if (pep){
-      // lambda == iw
+      // lambda = iw
       ore = im;
       oim = -re;
       Message::Info("EIG %03d   w = %s%.16e %s%.16e  %3.6e",
@@ -210,8 +210,6 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv, EPS eps,
 #endif
     else if (nep){
       // lambda = iw
-      // ore = re;
-      // oim = im;
       ore = im;
       oim = -re;
       Message::Info("EIG %03d   w = %s%.16e %s%.16e  %3.6e",
