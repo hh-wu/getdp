@@ -930,7 +930,7 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
     sprintf(str_coefsDen[k],"den%d(iw)=", k + 1);
     for(unsigned int i = 0; i < tabCoefsNum[k].size() - 1; i++){
       sprintf(str_buff," (%+.2e)*(iw)^%d +",
-              PetscRealPart(tabCoefsNum[k][i]), (tabCoefsNum[k].size()-1-i));
+              PetscRealPart(tabCoefsNum[k][i]), int(tabCoefsNum[k].size()-1-i));
       strcat(str_coefsNum[k],str_buff);
     }
     sprintf(str_buff," (%+.2e)",
@@ -938,7 +938,7 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
     strcat(str_coefsNum[k],str_buff);
     for(unsigned int i = 0; i < tabCoefsDen[k].size() - 1; i++){
       sprintf(str_buff," (%+.2e)*(iw)^%d +",
-              PetscRealPart(tabCoefsDen[k][i]), (tabCoefsDen[k].size()-1-i));
+              PetscRealPart(tabCoefsDen[k][i]), int(tabCoefsDen[k].size()-1-i));
       strcat(str_coefsDen[k],str_buff);
     }
     sprintf(str_buff," (%+.2e)",
@@ -1050,6 +1050,7 @@ void EigenSolve_SLEPC(struct DofData * DofData_P, int numEigenValues,
 #else
     _nonlinearEVP(DofData_P, numEigenValues, shift_r, shift_i,
                   FilterExpressionIndex, RationalCoefsNum, RationalCoefsDen);
+#endif
 #else
     Message::Error("Please compile Petsc/Slepc with complex arithmetic for non linear EVP support!");
 #endif
