@@ -498,9 +498,11 @@ static void Geo_ReadFileWithGmsh(struct GeoData * GeoData_P)
   std::vector< std::vector<int> > elementNodeTags;
   gmsh::model::mesh::getElements(elementTypes, elementTags, elementNodeTags, -1, -1);
 
-  int nbr = 0;
+  int nbr = 0, maxTag = 0;
   for(unsigned int i = 0; i < elementTypes.size(); i++){
     nbr += elementTags[i].size();
+    for(unsigned int j = 0; j < elementTags[i].size(); j++)
+      maxTag = std::max(maxTag, elementTags[i][j]);
   }
 
   if (GeoData_P->Elements == NULL)
@@ -518,20 +520,22 @@ static void Geo_ReadFileWithGmsh(struct GeoData * GeoData_P)
     gmsh::model::getPhysicalGroupsForEntity(dimTags[entity].first,
                                             dimTags[entity].second, physicalsTags);
 
-    if(physicalsTags.size() == 0) continue;
-
-    for(unsigned int i = 0; i < elementTypes.size(); i++){
-      Geo_Element.Type = Geo_GetElementType(FORMAT_GMSH, elementTypes[i]) ;
-      Geo_Element.NbrNodes = elementNodeTags[i].size()/elementTags[i].size();
-      for(unsigned int j = 0; j < elementTags[i].size(); j++){
-        Geo_Element.Num = elementTags[i][j];
-        Geo_Element.Region = physicalsTags[0];
-        Geo_Element.ElementaryRegion = dimTags[i].second;
-        Geo_Element.NumNodes = (int *)Malloc(Geo_Element.NbrNodes * sizeof(int)) ;
-        for (unsigned int k = 0; k < Geo_Element.NbrNodes; k++)
-          Geo_Element.NumNodes[k] = elementNodeTags[i][Geo_Element.NbrNodes*j + k];
-
-        List_Add(GeoData_P->Elements, &Geo_Element) ;
+    for(int phys = 0; phys < physicalsTags.size(); phys++){
+      for(unsigned int i = 0; i < elementTypes.size(); i++){
+        Geo_Element.Type = Geo_GetElementType(FORMAT_GMSH, elementTypes[i]) ;
+        Geo_Element.NbrNodes = elementNodeTags[i].size()/elementTags[i].size();
+        for(unsigned int j = 0; j < elementTags[i].size(); j++){
+          // if more than one physical group, create new elements (with new
+          // tags) for all additional groups - this is consistent with the
+          // behavior of the old MSH2 file format
+          Geo_Element.Num = (phys == 0) ? elementTags[i][j] : ++maxTag;
+          Geo_Element.Region = physicalsTags[phys];
+          Geo_Element.ElementaryRegion = dimTags[i].second;
+          Geo_Element.NumNodes = (int *)Malloc(Geo_Element.NbrNodes * sizeof(int)) ;
+          for (unsigned int k = 0; k < Geo_Element.NbrNodes; k++)
+            Geo_Element.NumNodes[k] = elementNodeTags[i][Geo_Element.NbrNodes*j + k];
+          List_Add(GeoData_P->Elements, &Geo_Element) ;
+        }
       }
     }
   }
