@@ -30,6 +30,8 @@
 //   -qep_st_ksp_type gmres -qep_st_pc_type ilu
 //
 // SLEPc >= 3.5 options are similar, but with pep instead of qep
+//
+// SLEPc >= 3.7 options are similar, new nep (non-linear class of solvers)
 
 #include <sstream>
 #include <string>
@@ -185,7 +187,7 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv, EPS eps,
     }
 #if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 5)
     else if(qep){
-      // lambda == iw
+      // lambda = iw
       ore = im;
       oim = -re;
       Message::Info("EIG %03d   w = %s%.16e %s%.16e  %3.6e",
@@ -196,7 +198,7 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv, EPS eps,
     }
 #else
     else if (pep){
-      // lambda == iw
+      // lambda = iw
       ore = im;
       oim = -re;
       Message::Info("EIG %03d   w = %s%.16e %s%.16e  %3.6e",
@@ -207,10 +209,7 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv, EPS eps,
     }
 #endif
     else if (nep){
-      // lambda != iw (!!! this is too misleading otherwise)
-      // lambda is lambda
-      // ore = re;
-      // oim = im;
+      // lambda = iw
       ore = im;
       oim = -re;
       Message::Info("EIG %03d   w = %s%.16e %s%.16e  %3.6e",
@@ -766,7 +765,7 @@ static void _polynomialEVP(struct DofData * DofData_P, int numEigenValues,
     Message::Error("SLEPc diverged after %d iterations", its);
   else if(reason == PEP_DIVERGED_BREAKDOWN)
     Message::Error("SLEPc generic breakdown in method");
-  _try(PEPView(pep, PETSC_VIEWER_STDOUT_SELF));
+  // _try(PEPView(pep, PETSC_VIEWER_STDOUT_SELF));
 
   // get number of converged approximate eigenpairs
   PetscInt nconv;
@@ -929,7 +928,7 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
     sprintf(str_coefsDen[k],"den%d(iw)=", k + 1);
     for(unsigned int i = 0; i < tabCoefsNum[k].size() - 1; i++){
       sprintf(str_buff," (%+.2e)*(iw)^%d +",
-              PetscRealPart(tabCoefsNum[k][i]), (tabCoefsNum[k].size()-1-i));
+              PetscRealPart(tabCoefsNum[k][i]), int(tabCoefsNum[k].size()-1-i));
       strcat(str_coefsNum[k],str_buff);
     }
     sprintf(str_buff," (%+.2e)",
@@ -937,7 +936,7 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
     strcat(str_coefsNum[k],str_buff);
     for(unsigned int i = 0; i < tabCoefsDen[k].size() - 1; i++){
       sprintf(str_buff," (%+.2e)*(iw)^%d +",
-              PetscRealPart(tabCoefsDen[k][i]), (tabCoefsDen[k].size()-1-i));
+              PetscRealPart(tabCoefsDen[k][i]), int(tabCoefsDen[k].size()-1-i));
       strcat(str_coefsDen[k],str_buff);
     }
     sprintf(str_buff," (%+.2e)",
@@ -947,13 +946,10 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
     Message::Info(str_coefsDen[k]);
   }
 
-  // SUBSET_NONZERO_PATTERN
-  // DIFFERENT_NONZERO_PATTERN
-  // SAME_NONZERO_PATTERN
   _try(NEPSetDimensions(nep, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
   _try(NEPSetTolerances(nep, 1.e-6, PETSC_DEFAULT));
   _try(NEPSetType(nep, NEPNLEIGS));
-  _try(NEPSetWhichEigenpairs(nep, NEP_LARGEST_MAGNITUDE));
+  _try(NEPSetWhichEigenpairs(nep, NEP_TARGET_MAGNITUDE));
   _try(NEPMonitorSet(nep, _myNepMonitor, PETSC_NULL, PETSC_NULL));
   _try(NEPSetTarget(nep, shift));
   _try(NEPSetFromOptions(nep));
@@ -983,7 +979,7 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
     Message::Error("SLEPc diverged after %d iterations", its);
   else if(reason == NEP_DIVERGED_BREAKDOWN)
     Message::Error("SLEPc generic breakdown in method");
-  _try(NEPView(nep, PETSC_VIEWER_STDOUT_SELF));
+  // _try(NEPView(nep, PETSC_VIEWER_STDOUT_SELF));
 
   // get number of converged approximate eigenpairs
   PetscInt nconv;
@@ -1046,9 +1042,13 @@ void EigenSolve_SLEPC(struct DofData * DofData_P, int numEigenValues,
   }
   else{
 #if defined(PETSC_USE_COMPLEX)
-    Message::Warning("Experimental: Non-linear EVP for real coefficients rational function!");
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 7)
+    Message::Error("Please upgrade to slepc >= 3.7.3 for non-linear EVP support!");
+    return;
+#else
     _nonlinearEVP(DofData_P, numEigenValues, shift_r, shift_i,
                   FilterExpressionIndex, RationalCoefsNum, RationalCoefsDen);
+#endif
 #else
     Message::Error("Please compile Petsc/Slepc with complex arithmetic for non linear EVP support!");
 #endif
