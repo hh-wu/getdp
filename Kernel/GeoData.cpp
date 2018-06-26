@@ -520,7 +520,7 @@ static void Geo_ReadFileWithGmsh(struct GeoData * GeoData_P)
     gmsh::model::getPhysicalGroupsForEntity(dimTags[entity].first,
                                             dimTags[entity].second, physicalsTags);
 
-    for(int phys = 0; phys < physicalsTags.size(); phys++){
+    for(unsigned int phys = 0; phys < physicalsTags.size(); phys++){
       for(unsigned int i = 0; i < elementTypes.size(); i++){
         Geo_Element.Type = Geo_GetElementType(FORMAT_GMSH, elementTypes[i]) ;
         Geo_Element.NbrNodes = elementNodeTags[i].size()/elementTags[i].size();
