@@ -46,6 +46,7 @@ int Check_IsEntityInExtendedGroup(struct Group * Group_P, int Entity, int Flag)
       Generate_ExtendedGroup(Group_P) ;
     return((!Group_P->InitialList ||
 	    (List_Search(Group_P->ExtendedList, &Entity, fcmp_int))) &&
+           // assumes that SuppListType is SUPPLIST_NOT:
 	   (!Group_P->InitialSuppList ||
 	    (! List_Search(Group_P->ExtendedSuppList, &Entity, fcmp_int)))) ;
 
