@@ -66,7 +66,15 @@ endif(ENABLE_FORTRAN)
 set(GETDP_MAJOR_VERSION 2)
 set(GETDP_MINOR_VERSION 11)
 set(GETDP_PATCH_VERSION 4)
-set(GETDP_EXTRA_VERSION "" CACHE STRING "GetDP extra version string")
+set(GETDP_EXTRA_VERSION "")
+
+if(NOT GETDP_RELEASE)
+  execute_process(COMMAND git log -1 --format=%h WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+                  OUTPUT_VARIABLE GIT_COMMIT_HASH OUTPUT_STRIP_TRAILING_WHITESPACE)
+  if(GIT_COMMIT_HASH)
+    set(GETDP_EXTRA_VERSION "-git-${GIT_COMMIT_HASH}")
+  endif(GIT_COMMIT_HASH)
+endif(NOT GETDP_RELEASE)
 
 set(GETDP_VERSION "${GETDP_MAJOR_VERSION}.${GETDP_MINOR_VERSION}")
 set(GETDP_VERSION "${GETDP_VERSION}.${GETDP_PATCH_VERSION}${GETDP_EXTRA_VERSION}")
@@ -102,7 +110,7 @@ if(NOT GETDP_HOST)
   endif(NOT HOSTNAME)
   set(GETDP_HOST "${HOSTNAME}")
 endif(NOT GETDP_HOST)
-    
+
 if(NOT PACKAGER)
   set(PACKAGER "unknown")
 endif(NOT PACKAGER)
@@ -306,7 +314,7 @@ if(ENABLE_BLAS_LAPACK)
         if(GFORTRAN_LIB)
           list(APPEND LAPACK_LIBRARIES ${GFORTRAN_LIB})
         endif(GFORTRAN_LIB)
-      endif(LAPACK_LIBRARIES)  
+      endif(LAPACK_LIBRARIES)
     endif(NOT HAVE_BLAS OR NOT HAVE_LAPACK)
 
     if(NOT HAVE_BLAS OR NOT HAVE_LAPACK)
@@ -350,7 +358,7 @@ endif(ENABLE_MPI)
 
 if(ENABLE_GMSH)
   find_library(GMSH_LIB gmsh PATH_SUFFIXES lib)
-  # Currently GetDP uses the internal Gmsh developer API; this will be fixed 
+  # Currently GetDP uses the internal Gmsh developer API; this will be fixed
   # as we move to the stable API.
   find_path(GMSH_INC "gmsh/GmshGlobal.h" PATH_SUFFIXES include)
   if(GMSH_LIB AND GMSH_INC)
@@ -381,7 +389,7 @@ if(ENABLE_PETSC)
   else(PETSC_ARCH)
     set(ENV_PETSC_ARCH $ENV{PETSC_ARCH})
   endif(PETSC_ARCH)
-  set(PETSC_POSSIBLE_CONF_FILES 
+  set(PETSC_POSSIBLE_CONF_FILES
       ${ENV_PETSC_DIR}/${ENV_PETSC_ARCH}/conf/petscvariables
       ${ENV_PETSC_DIR}/${ENV_PETSC_ARCH}/lib/petsc-conf/petscvariables
       ${ENV_PETSC_DIR}/${ENV_PETSC_ARCH}/lib/petsc/conf/petscvariables)
@@ -539,7 +547,7 @@ if(ENABLE_FORTRAN)
     add_subdirectory(contrib/pewe)
     set_config_option(HAVE_PEWE "PeWe")
   endif(ENABLE_PEWE)
-  
+
   if(ENABLE_ZITSOL AND HAVE_PETSC)
     if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/ZITSOL_1/getdp.c)
       add_subdirectory(contrib/ZITSOL_1)
@@ -974,7 +982,7 @@ if(ENABLE_WRAP_PYTHON)
     endif(APPLE)
   endif(SWIG_FOUND AND PYTHONLIBS_FOUND)
 endif(ENABLE_WRAP_PYTHON)
-  
+
 add_custom_target(clean_demos COMMAND ${CMAKE_COMMAND} -E remove ${DEMO_FILES_TMP})
 
 add_custom_target(get_headers
@@ -1122,7 +1130,7 @@ include(CPack)
 include(CTest)
 file(GLOB_RECURSE TESTS demos/magnet.pro)
 foreach(TESTFILE ${TESTS})
-  # use relative path for cygwin/mingw (the pure win exe built with the mingw 
+  # use relative path for cygwin/mingw (the pure win exe built with the mingw
   # compilers does not understand a full cygwin-style path)
   FILE(RELATIVE_PATH TEST ${CMAKE_CURRENT_BINARY_DIR} ${TESTFILE})
   add_test(${TEST} getdp ${TEST} -solve \#1 -pos \#1)
