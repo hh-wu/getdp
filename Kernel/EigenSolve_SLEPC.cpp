@@ -794,9 +794,9 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
                           double shift_r, double shift_i, int filterExpressionIndex,
                           List_T *RationalCoefsNum, List_T *RationalCoefsDen)
 {
-#if (PETSC_VERSION_RELEASE != 0)
-  Message::Error("You need PETSc/SLEPc dev for nonlinear EVP support!");
-#else
+// #if (PETSC_VERSION_RELEASE != 0)
+//   Message::Error("You need PETSc/SLEPc dev for nonlinear EVP support!");
+// #else
   NEP nep;
   NEPType type;
   int max_Nchar = 1000;
@@ -992,7 +992,7 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
   _storeEigenVectors(DofData_P, nconv, PETSC_NULL, PETSC_NULL, nep, filterExpressionIndex);
 
   _try(NEPDestroy(&nep));
-#endif
+// #endif
 }
 
 void EigenSolve_SLEPC(struct DofData * DofData_P, int numEigenValues,
