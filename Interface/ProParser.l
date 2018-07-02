@@ -252,6 +252,7 @@ GmshOpen                     return tGmshOpen;
 GmshRead                     return tGmshRead;
 GmshWrite                    return tGmshWrite;
 Group                        return tGroup;
+GroupExists                  return tGroupExists;
 GETDP_MAJOR_VERSION          return tGETDP_MAJOR_VERSION;
 GETDP_MINOR_VERSION          return tGETDP_MINOR_VERSION;
 GETDP_PATCH_VERSION          return tGETDP_PATCH_VERSION;

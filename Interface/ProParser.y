@@ -243,7 +243,7 @@ struct doubleXstring{
 %token  tNbrRegions tGetRegion tGetRegions tStringToName tNameToString
 %token  tFor tEndFor tIf tElseIf tElse tEndIf tMacro tReturn tCall tCallTest
 %token  tTest tWhile tParse
-%token  tFlag tExists tFileExists tGetForced tGetForcedStr
+%token  tFlag tExists tFileExists tGroupExists tGetForced tGetForcedStr
 %token  tInclude tLevelInclude
 %token  tConstant tList tListAlt tLinSpace tLogSpace
 %token  tListFromFile
@@ -9110,6 +9110,16 @@ OneFExpr :
       $$ = !StatusFile(tmp);
       Free($3);
     }
+
+  | tGroupExists LP String__Index RP
+    {
+      if(List_ISearchSeq(Problem_S.Group, $3, fcmp_Group_Name) >= 0)
+        $$ = 1;
+      else
+        $$ = 0;
+      Free($3);
+    }
+
 ;
 
 GetForced_Default :
