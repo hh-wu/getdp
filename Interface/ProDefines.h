@@ -237,6 +237,7 @@ struct StringXDefine  Operation_Type[] = {
   {"SetRightHandSideAsSolution" , OPERATION_SETRHSASSOLUTION},
   {"SetSolutionAsRHS"       , OPERATION_SETSOLUTIONASRHS},
   {"SetSolutionAsRightHandSide", OPERATION_SETSOLUTIONASRHS},
+  {"SetIncrementAsSolution" , OPERATION_SETINCREMENTASSOLUTION},
   {"SwapSolutionAndRHS"     , OPERATION_SWAPSOLUTIONANDRHS},
   {"SwapSolutionAndRightHandSide" , OPERATION_SWAPSOLUTIONANDRHS},
   {"SwapSolutionAndResidual", OPERATION_SWAPSOLUTIONANDRESIDUAL},

@@ -1167,6 +1167,21 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       }
       break ;
 
+      /*  -->  S e t I n c r e m e n t A s S o l u t i o n      */
+      /*  ----------------------------------------------------  */
+    case OPERATION_SETINCREMENTASSOLUTION :
+      {
+        /*  Compute : x <- dx  */ 
+        Init_OperationOnSystem("SetIncrementAsSolution",
+                               Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+                               &DefineSystem_P, &DofData_P, Resolution2_P) ;
+        if(DofData_P->CurrentSolution)
+          LinAlg_CopyVector(&DofData_P->dx, &DofData_P->CurrentSolution->x);
+        else
+          Message::Error("No current solution available");
+      }
+      break ;
+
       /*  -->  S w a p S o l u t i o n              */
       /*  ----------------------------------------  */
     case OPERATION_SWAPSOLUTIONANDRHS :
