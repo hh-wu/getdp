@@ -5,6 +5,8 @@
 
 #include <string.h>
 #include <math.h>
+#include <vector>
+#include "GetDPConfig.h"
 #include "GeoData.h"
 #include "ProData.h"
 #include "Pos_Search.h"
@@ -12,11 +14,16 @@
 #include "Message.h"
 #include "OS.h"
 
+#if defined(HAVE_GMSH)
+#include "gmsh.h"
+#endif
+
 #define SQU(a)     ((a)*(a))
 
 extern double Flag_ORDER ;
 
 FILE  * File_GEO ;
+char *name;
 
 struct GeoData  * CurrentGeoData ;
 
@@ -156,6 +163,7 @@ void Geo_SetCurrentGeoData(struct GeoData * GeoData_P)
 void Geo_OpenFile(char * Name, const char * Mode)
 {
   File_GEO = FOpen(Name, Mode) ;
+  name = Name;
 
   if (!File_GEO) Message::Error("Unable to open file '%s'", Name);
 }
@@ -194,6 +202,9 @@ int Geo_GetElementType(int Format, int Type)
     case 13 : return PRISM_2;
     case 14 : return PYRAMID_2;
     case 16 : return QUADRANGLE_2_8N;
+    case 27 : return LINE_4;
+    case 23 : return TRIANGLE_4;
+    case 30 : return TETRAHEDRON_4;
     default :
       Message::Error("Unknown type of Element in Gmsh format (%d)", FORMAT_GMSH);
       return -1;
@@ -226,6 +237,9 @@ int Geo_GetElementTypeInv(int Format, int Type)
     case PRISM_2       : return 13;
     case PYRAMID_2     : return 14;
     case QUADRANGLE_2_8N: return 16;
+    case LINE_4        : return 27;
+    case TRIANGLE_4    : return 23;
+    case TETRAHEDRON_4 : return 30;
     default :
       Message::Error("Unknown type of Element in Gmsh format");
       return -1;
@@ -256,6 +270,9 @@ int Geo_GetNbNodesPerElement(int Type)
   case PRISM_2       : return 15;
   case PYRAMID_2     : return 13;
   case QUADRANGLE_2_8N: return 8;
+  case LINE_4        : return 5;
+  case TRIANGLE_4    : return 15;
+  case TETRAHEDRON_4 : return 35;
   default :
     Message::Error("Unknown type of Element");
     return -1;
@@ -281,6 +298,9 @@ int Geo_GetDimOfElement(int Type)
   case PRISM_2       : return 3;
   case PYRAMID_2     : return 3;
   case QUADRANGLE_2_8N: return 2;
+  case LINE_4        : return 1;
+  case TRIANGLE_4    : return 2;
+  case TETRAHEDRON_4 : return 3;
   default :
     Message::Error("Unknown type of Element");
     return -1;
@@ -401,6 +421,132 @@ static std::string ExtractDoubleQuotedString(const char *str, int len)
   return ret;
 }
 
+static void Geo_ReadFileWithGmsh(struct GeoData * GeoData_P)
+{
+#if defined(HAVE_GMSH)
+  gmsh::open(name);
+
+  /* N O D E S */
+
+  struct Geo_Node     Geo_Node ;
+
+  std::vector<int> nodeTags;
+  std::vector<double> coord;
+  std::vector<double> parametricCoord;
+  gmsh::model::mesh::getNodes(nodeTags, coord, parametricCoord, -1, -1);
+
+  if(GeoData_P->Nodes == NULL)
+    GeoData_P->Nodes = List_Create(nodeTags.size(), 1000, sizeof(struct Geo_Node)) ;
+
+  for(unsigned int i = 0; i < nodeTags.size(); i++){
+    Geo_Node.Num = nodeTags[i];
+    Geo_Node.x = coord[3*i + 0];
+    Geo_Node.y = coord[3*i + 1];
+    Geo_Node.z = coord[3*i + 2];
+    List_Add(GeoData_P->Nodes, &Geo_Node) ;
+
+    if(!i){
+      GeoData_P->Xmin = GeoData_P->Xmax = Geo_Node.x;
+      GeoData_P->Ymin = GeoData_P->Ymax = Geo_Node.y;
+      GeoData_P->Zmin = GeoData_P->Zmax = Geo_Node.z;
+    }
+    else{
+      GeoData_P->Xmin = std::min(GeoData_P->Xmin, Geo_Node.x);
+      GeoData_P->Xmax = std::max(GeoData_P->Xmax, Geo_Node.x);
+      GeoData_P->Ymin = std::min(GeoData_P->Ymin, Geo_Node.y);
+      GeoData_P->Ymax = std::max(GeoData_P->Ymax, Geo_Node.y);
+      GeoData_P->Zmin = std::min(GeoData_P->Zmin, Geo_Node.z);
+      GeoData_P->Zmax = std::max(GeoData_P->Zmax, Geo_Node.z);
+    }
+  }
+
+  if(GeoData_P->Xmin != GeoData_P->Xmax &&
+     GeoData_P->Ymin != GeoData_P->Ymax &&
+     GeoData_P->Zmin != GeoData_P->Zmax)
+    GeoData_P->Dimension = _3D;
+  else if(GeoData_P->Xmin != GeoData_P->Xmax && GeoData_P->Ymin != GeoData_P->Ymax)
+    GeoData_P->Dimension = _2D;
+  else if(GeoData_P->Xmin != GeoData_P->Xmax && GeoData_P->Zmin != GeoData_P->Zmax)
+    GeoData_P->Dimension = _2D;
+  else if(GeoData_P->Ymin != GeoData_P->Ymax && GeoData_P->Zmin != GeoData_P->Zmax)
+    GeoData_P->Dimension = _2D;
+  else if(GeoData_P->Xmin != GeoData_P->Xmax)
+    GeoData_P->Dimension = _1D;
+  else if(GeoData_P->Ymin != GeoData_P->Ymax)
+    GeoData_P->Dimension = _1D;
+  else if(GeoData_P->Zmin != GeoData_P->Zmax)
+    GeoData_P->Dimension = _1D;
+  else
+    GeoData_P->Dimension = _0D;
+
+  GeoData_P->CharacteristicLength =
+  sqrt(SQU(GeoData_P->Xmax - GeoData_P->Xmin) +
+       SQU(GeoData_P->Ymax - GeoData_P->Ymin) +
+       SQU(GeoData_P->Zmax - GeoData_P->Zmin));
+  if(!GeoData_P->CharacteristicLength)
+    GeoData_P->CharacteristicLength = 1.;
+
+  coord.clear();
+  parametricCoord.clear();
+
+  /*  E L E M E N T S  */
+
+  struct Geo_Element  Geo_Element ;
+
+  std::vector<int> elementTypes;
+  std::vector< std::vector<int> > elementTags;
+  std::vector< std::vector<int> > elementNodeTags;
+  gmsh::model::mesh::getElements(elementTypes, elementTags, elementNodeTags, -1, -1);
+
+  int nbr = 0, maxTag = 0;
+  for(unsigned int i = 0; i < elementTypes.size(); i++){
+    nbr += elementTags[i].size();
+    for(unsigned int j = 0; j < elementTags[i].size(); j++)
+      maxTag = std::max(maxTag, elementTags[i][j]);
+  }
+
+  if (GeoData_P->Elements == NULL)
+    GeoData_P->Elements = List_Create(nbr, 1000, sizeof(struct Geo_Element)) ;
+
+  Geo_Element.NbrEdges = Geo_Element.NbrFacets = 0 ;
+  Geo_Element.NumEdges = Geo_Element.NumFacets = NULL ;
+
+  gmsh::vectorpair dimTags;
+  gmsh::model::getEntities(dimTags, -1);
+  for(unsigned int entity = 0; entity < dimTags.size(); entity++){
+    gmsh::model::mesh::getElements(elementTypes, elementTags, elementNodeTags,
+                                   dimTags[entity].first, dimTags[entity].second);
+    std::vector<int> physicalsTags;
+    gmsh::model::getPhysicalGroupsForEntity(dimTags[entity].first,
+                                            dimTags[entity].second, physicalsTags);
+
+    for(unsigned int phys = 0; phys < physicalsTags.size(); phys++){
+      for(unsigned int i = 0; i < elementTypes.size(); i++){
+        Geo_Element.Type = Geo_GetElementType(FORMAT_GMSH, elementTypes[i]) ;
+        Geo_Element.NbrNodes = elementNodeTags[i].size()/elementTags[i].size();
+        for(unsigned int j = 0; j < elementTags[i].size(); j++){
+          // if more than one physical group, create new elements (with new
+          // tags) for all additional groups - this is consistent with the
+          // behavior of the old MSH2 file format
+          Geo_Element.Num = (phys == 0) ? elementTags[i][j] : ++maxTag;
+          Geo_Element.Region = physicalsTags[phys];
+          Geo_Element.ElementaryRegion = dimTags[i].second;
+          Geo_Element.NumNodes = (int *)Malloc(Geo_Element.NbrNodes * sizeof(int)) ;
+          for (unsigned int k = 0; k < Geo_Element.NbrNodes; k++)
+            Geo_Element.NumNodes[k] = elementNodeTags[i][Geo_Element.NbrNodes*j + k];
+          List_Add(GeoData_P->Elements, &Geo_Element) ;
+        }
+      }
+    }
+  }
+
+  List_Sort(GeoData_P->Elements, fcmp_Elm) ;
+#else
+  Message::Error("You need to compile GetDP with Gmsh support to open '%s'",
+                 name);
+#endif
+}
+
 void Geo_ReadFile(struct GeoData * GeoData_P)
 {
   int                 Nbr, i, j, Type, iDummy, Format, Size, NbTags ;
@@ -427,20 +573,24 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
 
       if(!fgets(String, sizeof(String), File_GEO)) return;
       if(sscanf(String, "%lf %d %d", &Version, &Format, &Size) != 3) return;
-      if(Version < 2.0 || Version >= 3.1){
-	Message::Error("Unsupported or unknown mesh file version (%g)", Version);
-	return;
+      if(Version < 2.0){
+        Message::Error("Unsupported or unknown mesh file version (%g)", Version);
+        return;
+      }
+      else if(Version > 3.1){
+        Geo_ReadFileWithGmsh(GeoData_P);
+        return;
       }
 
       if(Format){
-	binary = 1;
-	Message::Info("Mesh is in binary format");
-	int one;
-	if(fread(&one, sizeof(int), 1, File_GEO) != 1) return;
-	if(one != 1){
-	  swap = 1;
-	  Message::Info("Swapping bytes from binary file");
-	}
+        binary = 1;
+        Message::Info("Mesh is in binary format");
+        int one;
+        if(fread(&one, sizeof(int), 1, File_GEO) != 1) return;
+        if(one != 1){
+          swap = 1;
+          Message::Info("Swapping bytes from binary file");
+        }
       }
     }
 

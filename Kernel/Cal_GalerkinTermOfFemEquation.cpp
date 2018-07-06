@@ -921,6 +921,30 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
       }
     }
 
+    // store unassembled RHS in DofData, per element
+#if 0
+      for (j = 0 ; j < Nbr_Dof ; j++){
+        if(QuantityStorageDof_P->BasisFunction[j].Dof->Type == DOF_FIXED &&
+           QuantityStorageDof_P->BasisFunction[j].Dof->Entity == 0){
+
+          std::vector<std::pair<int, double> > &vec =
+            Current.DofData->unassembledRHS[Element->Num];
+
+          printf("ele %d: ", Element->Num);
+          for (i = 0 ; i < Nbr_Equ ; i++) {
+            if(QuantityStorageEqu_P->BasisFunction[i].Dof->Type == DOF_UNKNOWN){
+              for(k = 0 ; k < Current.NbrHar ; k++){
+                int n = QuantityStorageEqu_P->BasisFunction[i].Dof->Case.Unknown.NumDof;
+                printf("(%d, %g) ", n, Ek[i][j][k]) ;
+                vec.push_back(std::pair<int, double>(n, Ek[i][j][k]);
+              }
+            }
+          }
+          printf("\n") ;
+        }
+      }
+#endif
+
     /* Assembly in global matrix */
     /* ------------------------- */
     if (!Current.flagAssDiag) /*+++prov*/

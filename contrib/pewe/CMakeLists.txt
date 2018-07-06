@@ -11,8 +11,10 @@ set(SRC
     fortran/cylindrical_wallout.f90
     fortran/cylindrical_wallsout.f90
     fortran/cylindrical_walloutabc.f90
+    fortran/cylindrical_wallsoutabc.f90
     fortran/cylindrical_walloutabc2.f90
-
+    fortran/cylindrical_walloutabc2pade.f90
+    fortran/cylindrical_wallsoutabc2pade.f90
    )
 
 file(GLOB HDR RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.h)

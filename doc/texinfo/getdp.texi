@@ -8,7 +8,7 @@
 @c
 @c This is the GetDP documentation texinfo source file
 @c
-@c Things to do -> "Ctrl+s todo:" 
+@c Things to do -> "Ctrl+s todo:"
 @c
 @c Indexing: @cindex = concept index, e.g. "Numerical tools, overview"
 @c           @vindex = (metasyntactic) variable index, e.g.  "constraint-type"
@@ -17,7 +17,7 @@
 @c
 @c Before release, run C-u C-c C-u C-a in GNU Emacs
 @c This updates all node pointers and menus
-@c 
+@c
 @c =========================================================================
 @c %**start of header
 @setfilename getdp.info
@@ -61,7 +61,7 @@ Copyright @value{COPYRIGHT}.
 
 @subtitle The documentation for GetDP @value{GETDP-VERSION}
 @subtitle A General environment for the treatment of Discrete Problems
-@subtitle 
+@subtitle
 @subtitle @today{}
 
 @author Patrick Dular
@@ -150,7 +150,7 @@ How to read this manual
 
 * Syntactic rules::
 
-Expressions 
+Expressions
 
 * Comments::
 * Includes::
@@ -166,11 +166,11 @@ Expressions
 
 Expressions definition
 
-* Operators::                   
-* Constants::                   
-* Functions::                   
-* Current values::              
-* Fields::                      
+* Operators::
+* Constants::
+* Functions::
+* Current values::
+* Fields::
 
 Operators
 
@@ -421,7 +421,7 @@ Integration     @var{---}
 Formulation     Group, Function, (Constraint), FunctionSpace,
                 Jacobian, Integration
 Resolution      Function, Formulation
-PostProcessing  Group, Function, Jacobian, Integration, 
+PostProcessing  Group, Function, Jacobian, Integration,
                 Formulation, Resolution
 PostOperation   Group, PostProcessing
 @end example
@@ -434,7 +434,7 @@ the working philosophy and the linking of operations peculiar to GetDP, from
 group definition to results visualization.  The decomposition highlighted in
 the figure points out the separation between the objects defining the method
 of resolution, which may be isolated in a ``black box'' (bottom) and those
-defining the data peculiar to a given problem (top). 
+defining the data peculiar to a given problem (top).
 
 The computational tools which are in the center of a problem definition
 structure are formulations (@code{Formulation}) and function spaces
@@ -573,7 +573,7 @@ syntactic rules as well as all the available options.
 
 Indexes for many concepts (@pxref{Concept index}) and for all the syntax
 elements (@pxref{Syntax index}) are available at the end of this
-manual. 
+manual.
 
 @c -------------------------------------------------------------------------
 @c Syntactic Rules Used in this Document
@@ -603,24 +603,24 @@ appear). See @ref{Metasyntactic variable index}, for an index of all
 metasyntactic variables.
 
 @enumerate
-@item 
+@item
 Keywords and literal symbols are printed like @code{this}.
-@item 
+@item
 Metasyntactic variables (i.e., text bits that are not part of the syntax,
 but stand for other text bits) are printed like @var{this}.
-@item 
+@item
 A colon (@code{:}) after a metasyntactic variable separates the variable
 from its definition.
-@item 
+@item
 Optional rules are enclosed in @code{<} @code{>} pairs.
-@item 
+@item
 Multiple choices are separated by @code{|}.
-@item 
+@item
 Three dots (@dots{}) indicate a possible repetition of the preceding rule.
-@item 
+@item
 For conciseness, the notation @code{@var{rule} <, @var{rule} > @dots{}}
 is replaced by @code{@var{rule} <,@dots{}>}.
-@item 
+@item
 The @var{etc} symbol replaces nonlisted rules.
 @end enumerate
 
@@ -654,7 +654,7 @@ argument), you will get a short help on how to run GetDP. All GetDP
 calls look like
 
 @example
-getdp @var{filename} @var{options} 
+getdp @var{filename} @var{options}
 @end example
 
 @noindent
@@ -765,7 +765,7 @@ Specifies the maximum interpolation order.
 
 Caches network computations to disk.
 
-@item -bin 
+@item -bin
 
 Selects binary format for output files.
 
@@ -773,9 +773,9 @@ Selects binary format for output files.
 
 Creates mesh-based Gmsh output files when possible.
 
-@item -check  
+@item -check
 
-Lets you check the problem structure interactively. 
+Lets you check the problem structure interactively.
 
 @item -v
 @itemx -verbose
@@ -795,7 +795,7 @@ Reports CPU times for all operations.
 Sets the progress update rate. This controls the refreshment rate of the
 counter indicating the progress of the current computation (in %).
 
-@item -onelab 
+@item -onelab
 @var{name} <@var{address}>
 
 Communicates with OneLab (file or server address)
@@ -805,7 +805,7 @@ Communicates with OneLab (file or server address)
 
 Sets constant number @var{name} to @var{value}
 
-@item -setstring 
+@item -setstring
 @var{name} @var{value}
 
 Sets constant string  @var{name} to @var{value}
@@ -829,7 +829,7 @@ Displays a message listing basic usage and available options.
 @c =========================================================================
 
 @node Expressions, Objects, Running GetDP, Top
-@chapter Expressions 
+@chapter Expressions
 
 This chapter and the next two describe in a rather formal way all the
 commands that can be used in the ASCII text input files.  If you are
@@ -901,8 +901,8 @@ name) on a separate line, outside the GetDP objects.  Any text placed
 after an include command on the same line is ignored.
 
 @example
-@code{Include @var{expression-char}} 
-@code{#include @var{expression-char}} 
+@code{Include @var{expression-char}}
+@code{#include @var{expression-char}}
 @end example
 
 See @ref{Constants}, for the definition of the character expression
@@ -973,16 +973,16 @@ expression, and print the value of an expression for debugging purposes.
 List of expressions are defined as:
 
 @example
-@var{expression-list}: 
+@var{expression-list}:
   @var{expression} <,@dots{}>
 @end example
 
 @menu
-* Operators::                   
-* Constants::                   
-* Functions::                   
-* Current values::              
-* Fields::                      
+* Operators::
+* Constants::
+* Functions::
+* Current values::
+* Fields::
 @end menu
 
 @c -------------------------------------------------------------------------
@@ -1039,7 +1039,7 @@ purely constant expressions, denoted by the metasyntactic variable
   @var{constant-id} |
   @var{operator-unary} @var{expression-cst} |
   @var{expression-cst} @var{operator-binary} @var{expression-cst} |
-  @var{expression-cst} @var{operator-ternary-left} @var{expression-cst} @var{operator-ternary-right} 
+  @var{expression-cst} @var{operator-ternary-left} @var{expression-cst} @var{operator-ternary-right}
       @var{expression-cst} |
   @var{math-function-id} [ < @var{expression-cst-list} > ] |
   #@var{constant-id}() |
@@ -1048,7 +1048,7 @@ purely constant expressions, denoted by the metasyntactic variable
   StrCmp[ @var{expression-char}, @var{expression-char} ] |
   StrLen[ @var{expression-char} ] |
   StringToName[ @var{expression-char} ] | S2N[ @var{expression-char} ] |
-  Exists[ @var{string} ] | FileExists[ @var{string} ] |
+  Exists[ @var{string} ] | FileExists[ @var{string} ] | GroupExists[ @var{string} ] |
   GetForced[ @var{string} ] | NbrRegions [ @var{string} ] |
   GetNumber[ @var{expression-char} <, @var{expression-cst}> ]
 @end example
@@ -1061,7 +1061,8 @@ the second string).  @code{StrLen} returns the length of the
 string. @code{StringToName} creates a name from the provided
 string. @code{Exists} checks for the existence of a constant or a
 function. @code{FileExists} checks for the existence of a
-file. @code{GetForced} gets the value of a constant (zero if does not
+file. @code{GroupExists} checks for the existence of a
+group. @code{GetForced} gets the value of a constant (zero if does not
 exist).  @code{NbrRegions} counts the numbers of elementary regions in a
 group. @code{GetNumber} allows to get the value of a ONELAB number
 variable (the optional second argument specifies the default value
@@ -1181,7 +1182,7 @@ When @code{~@{@var{expression-cst}@}} is appended to a string @var{string},
 the result is a new string formed by the concatenation of @var{string},
 @code{_} (an underscore) and the value of the @var{expression-cst}. This is
 most useful in loops (@pxref{Macros loops and conditionals}), where it permits to
-define unique strings automatically. For example, 
+define unique strings automatically. For example,
 @example
 For i In @{1:3@}
   x~@{i@} = i;
@@ -1206,8 +1207,8 @@ messages produced when references to undefined quantities are made).
 
 When @var{onelab-options} are provided, the parameter is exchanged with
 the ONELAB server. See
-@uref{http://onelab.info/wiki/ONELAB_Syntax_for_Gmsh_and_GetDP} for more
-information.
+@uref{https://gitlab.onelab.info/doc/tutorials/wikis/ONELAB-syntax-for-Gmsh-and-GetDP}
+for more information.
 @item
 @code{DefineNumber} and @code{DefineString} allow to define a ONELAB
 parameter. In this case the affectation always takes
@@ -1234,13 +1235,13 @@ Character expressions are defined as follows:
   Sprintf[ @var{expression-char}, @var{expression-cst-list} ] |
   NameToString ( @var{string} ) | N2S ( @var{string} ) |
   GetString[ @var{expression-char} <, @var{expression-char},> ] |
-  Date | CurrentDirectory | CurrentDir | 
+  Date | CurrentDirectory | CurrentDir |
   AbsolutePath [ @var{expression-char} ] |
   DirName [ @var{expression-char} ] |
   OnelabAction
 @end example
 
-@noindent @code{StrCat} and @code{Str} permit to concatenate 
+@noindent @code{StrCat} and @code{Str} permit to concatenate
 character expressions (@code{Str} adds a newline character after each
 string except the last) when creating a string. @code{Str} is also used
 to create string lists (when @var{string-id} is followed by
@@ -1267,7 +1268,7 @@ file. @code{OnelabAction} returns the current ONELAB action
 List of character expressions are defined as:
 
 @example
-@var{expression-char-list}: 
+@var{expression-char-list}:
   @var{expression-char} <,@dots{}>
 @end example
 
@@ -1342,7 +1343,7 @@ Logical not.
 Exponentiation. The evaluation of the both arguments must result in a scalar
 value.
 @item *
-Multiplication or scalar product, depending on the type of the arguments. 
+Multiplication or scalar product, depending on the type of the arguments.
 @item /\
 Cross product. The evaluation of both arguments must result in vectors.
 @item /
@@ -1375,7 +1376,7 @@ values. Warning: the logical `or' always (unlike in C or C++) implies the
 evaluation of both arguments.  That is, the second operand of @code{||} is
 evaluated even if the first one is true.
 @item &
-Binary `and'. 
+Binary `and'.
 @item |
 Binary `or'.
 @item >>
@@ -1422,11 +1423,11 @@ i.e., @code{^} has the highest evaluation priority). Parentheses
 
 @table @code
 @item ^
-@item - (unary), ! 
-@item | & 
+@item - (unary), !
+@item | &
 @item /\
 @item *, /, %
-@item +, - 
+@item +, -
 @item <, >, <=, >=, <<, >>
 @item !=, ==
 @item &&, ||
@@ -1451,7 +1452,7 @@ i.e., @code{^} has the highest evaluation priority). Parentheses
 
 Two types of functions coexist in GetDP: user-defined functions
 (@var{function-id}, see @ref{Function}) and built-in functions
-(@var{built-in-function-id}, defined in this section). 
+(@var{built-in-function-id}, defined in this section).
 
 Both types of functions are always followed by a pair of brackets @code{[]}
 that can possibly contain arguments (@pxref{Arguments}). This makes it
@@ -1481,8 +1482,8 @@ evaluated during the analysis of the syntax (since they are of
 @enumerate
 @item
 All possible values for @var{built-in-function-id} are listed in
-@ref{Types for Function}.  
-@item 
+@ref{Types for Function}.
+@item
 Classical mathematical functions (@pxref{Math functions}) are
 the only functions allowed in a constant definition (see the definition of
 @var{expression-cst} in @ref{Constants}).
@@ -1522,7 +1523,7 @@ GetDP variable:
 
 @table @code
 @item $Time
-Value of the current time. This value is set to zero for non time dependent 
+Value of the current time. This value is set to zero for non time dependent
 analyses.
 @item $DTime
 Value of the current time increment used in a time stepping algorithm.
@@ -1627,7 +1628,7 @@ temporary variable, at run-time, in order to reuse them later on.
 Two mechanisms exit to handle such cases: run-time variables (which
 follow the same syntax as @ref{Current values}), and registers.
 
-Run-time variables have the following syntax: 
+Run-time variables have the following syntax:
 @example
 @var{variable-set}:
   $@var{variable-id} = @var{expression}
@@ -1644,7 +1645,7 @@ Run-time variables have the following syntax:
 and be reused later on. Current values can be seen as special cases of
 run-time variables, which are read-only.
 
-Registers have the following syntax: 
+Registers have the following syntax:
 @example
 @var{register-set}:
   @var{expression}#@var{expression-cst}
@@ -1696,7 +1697,7 @@ objects:
   @{ < @var{quantity-operator} > @var{quantity-id} @} [ @var{expression-cst-list} ]
 @end example
 
-@noindent with 
+@noindent with
 
 @example
 @var{quantity-id}:
@@ -1718,18 +1719,18 @@ of a discrete quantity indicates that this quantity is an unknown quantity,
 and should therefore not be considered as already computed.
 
 An @code{Equation} term must be linear with respect to the
-@code{Dof}. Thus, for example, a nonlinear term like 
+@code{Dof}. Thus, for example, a nonlinear term like
 @example
-Galerkin @{ [ f[] * Dof@{T@}^4 , @{T@} ]; @dots{} @}
+Integral @{ [ f[] * Dof@{T@}^4 , @{T@} ]; @dots{} @}
 @end example
 must first be linearized; and while
 @example
-Galerkin @{ [ f[] * Dof@{T@} , @{T@} ]; @dots{} @}
-Galerkin @{ [ -f[] * 12 , @{T@} ]; @dots{} @}
+Integral @{ [ f[] * Dof@{T@} , @{T@} ]; @dots{} @}
+Integral @{ [ -f[] * 12 , @{T@} ]; @dots{} @}
 @end example
 is valid, the following, which is affine but not linear, is not:
 @example
-Galerkin @{ [ f[] * (Dof@{T@} - 12) , @{T@} ]; @dots{} @}
+Integral @{ [ f[] * (Dof@{T@} - 12) , @{T@} ]; @dots{} @}
 @end example
 
 GetDP supports two linearization techniques. The first is functional
@@ -1943,17 +1944,17 @@ Ends a matching @code{For} command.
 
 @item If ( @var{expression-cst} )
 The body enclosed between `@code{If ( @var{expression-cst} )}' and the matching
-@code{ElseIf}, @code{Else} or @code{EndIf}, is evaluated if @var{expression-cst} 
+@code{ElseIf}, @code{Else} or @code{EndIf}, is evaluated if @var{expression-cst}
 is non-zero.
 
 @item ElseIf ( @var{expression-cst} )
-The body enclosed between `@code{ElseIf ( @var{expression-cst} )}' and the next 
-matching @code{ElseIf}, @code{Else} or @code{EndIf}, is evaluated if 
-@var{expression-cst} is non-zero and none of the @var{expression-cst} of the 
+The body enclosed between `@code{ElseIf ( @var{expression-cst} )}' and the next
+matching @code{ElseIf}, @code{Else} or @code{EndIf}, is evaluated if
+@var{expression-cst} is non-zero and none of the @var{expression-cst} of the
 previous matching codes @code{If} and @code{ElseIf} were non-zero.
 
 @item Else
-The body enclosed between @code{Else} and the matching @code{EndIf} is evaluated 
+The body enclosed between @code{Else} and the matching @code{EndIf} is evaluated
 if none of the @var{expression-cst} of the previous matching codes
 @code{If} and @code{ElseIf} were non-zero.
 
@@ -1961,7 +1962,7 @@ if none of the @var{expression-cst} of the previous matching codes
 Ends a matching @code{If} command.
 
 @item LevelTest
-Variable equal to the level of imbrication of a body in an 
+Variable equal to the level of imbrication of a body in an
 @code{If}-@code{EndIf} test.
 
 @item Parse [ @var{expression-char} ];
@@ -2066,6 +2067,7 @@ Group @{
   < DefineGroup [ @var{group-id} <@{@var{integer}@}> <,@dots{}> ]; > @dots{}
   < @var{group-id} = @var{group-def}; > @dots{}
   < @var{group-id} += @var{group-def}; > @dots{}
+  < @var{group-id} -= @var{group-def}; > @dots{}
   < @var{affectation} > @dots{}
   < @var{loop} > @dots{}
 @}
@@ -2083,19 +2085,19 @@ Group @{
   @var{group-id} <@{<@var{integer}>@}> |
   #@var{group-list}
 
-@var{group-type}: 
+@var{group-type}:
   Region | Global | NodesOf | EdgesOf | @var{etc}
 
 @var{group-list}:
   All | @var{group-list-item} | @{ @var{group-list-item} <,@dots{}> @}
 
 @var{group-list-item}:
-  @var{integer} | 
-  @var{integer} : @var{integer} | 
+  @var{integer} |
+  @var{integer} : @var{integer} |
   @var{integer} : @var{integer} : @var{integer} |
   @var{group-id} <@{<@var{integer}>@}>
 
-@var{group-sub-type}: 
+@var{group-sub-type}:
   Not | StartingOn | OnPositiveSideOf | @var{etc}
 @end example
 
@@ -2175,9 +2177,9 @@ The first optional @var{group-def} in brackets must be of @code{Region} type, an
 indicates on which region the (piecewise) function is defined.
 The second optional @var{group-def} in brackets, also of @code{Region} type, defines
 an association with a second region for mutual contributions.
-A default piecewise function can be defined with @code{All} for @var{group-def}, 
+A default piecewise function can be defined with @code{All} for @var{group-def},
 for all the other non-defined regions.
-Warning: it is incorrect to write @code{f[reg1]=1; g[reg2]=f[]+1;} since the 
+Warning: it is incorrect to write @code{f[reg1]=1; g[reg2]=f[]+1;} since the
 domains of definition of @code{f[]} and @code{g[]} don't match.
 @item
 One can also define initially empty functions inline by replacing the
@@ -2220,7 +2222,7 @@ used for boundary conditions, to impose global quantities or to
 initialize quantities.  These constraints can be expressed with
 functions or be imposed by the pre-resolution of another discrete
 problem. Other constraints can also be defined, e.g., constraints of
-network type for the definition of circuit connections, to be used in 
+network type for the definition of circuit connections, to be used in
 @code{Formulation} objects.
 
 The syntax for the definition of constraints is:
@@ -2231,14 +2233,14 @@ Constraint @{
     Name @var{constraint-id}; Type @var{constraint-type};
     Case @{
       @{ Region @var{group-def}; < Type @var{constraint-type}; >
-        < SubRegion @var{group-def}; > < TimeFunction @var{expression}; > 
-        < RegionRef @var{group-def}; > < SubRegionRef @var{group-def}; > 
+        < SubRegion @var{group-def}; > < TimeFunction @var{expression}; >
+        < RegionRef @var{group-def}; > < SubRegionRef @var{group-def}; >
         < Coefficient @var{expression}; > < Function @var{expression}; >
-        < Filter @var{expression}; > 
+        < Filter @var{expression}; >
         @var{constraint-val}; @} @dots{}
       < @var{loop} > @dots{}
-    @} 
-  | Case @var{constraint-case-id} @{ 
+    @}
+  | Case @var{constraint-case-id} @{
       @{ Region @var{group-def}; < Type @var{constraint-type}; >
         @var{constraint-case-val}; @} @dots{}
       < @var{loop} > @dots{}
@@ -2257,7 +2259,7 @@ Constraint @{
   @var{string} |
   @var{string} ~ @{ @var{expression-cst} @}
 
-@var{constraint-type}: 
+@var{constraint-type}:
   Assign | Init | Network | Link | @var{etc}
 
 @var{constraint-val}:
@@ -2270,8 +2272,8 @@ Constraint @{
 @noindent Notes:
 @enumerate
 @item
-The optional @code{Append < @var{expression-cst} >} (when the optional level 
-@var{expression-cst} is strictly positive) permits to append an existing 
+The optional @code{Append < @var{expression-cst} >} (when the optional level
+@var{expression-cst} is strictly positive) permits to append an existing
 @code{Constraint} of the same @code{Name} with additional @code{Case}s.
 @item
 The constraint type @var{constraint-type} defined outside the @code{Case}
@@ -2365,26 +2367,26 @@ FunctionSpace @{
   @{ < Append < @var{expression-cst} >; >
     Name @var{function-space-id};
     Type @var{function-space-type};
-    BasisFunction @{ 
-     @{ Name @var{basis-function-id}; NameOfCoef @var{coef-id}; 
+    BasisFunction @{
+     @{ Name @var{basis-function-id}; NameOfCoef @var{coef-id};
        Function @var{basis-function-type}
          < @{ Quantity @var{quantity-id};
-             Formulation @var{formulation-id} @{ @var{expression-cst} @}; 
-             Group @var{group-def}; 
+             Formulation @var{formulation-id} @{ @var{expression-cst} @};
+             Group @var{group-def};
              Resolution @var{resolution-id} @{ @var{expression-cst} @} @} >;
        < dFunction @{ @var{basis-function-type}, @var{basis-function-type} @} ; >
        Support @var{group-def}; Entity @var{group-def}; @} @dots{}
     @}
-  < SubSpace @{ 
+  < SubSpace @{
      @{ < Append < @var{expression-cst} >; >
-       Name @var{sub-space-id}; 
+       Name @var{sub-space-id};
        NameOfBasisFunction @var{basis-function-list}; @} @dots{}
     @} >
-  < GlobalQuantity @{ 
-     @{ Name @var{global-quantity-id}; Type @var{global-quantity-type}; 
+  < GlobalQuantity @{
+     @{ Name @var{global-quantity-id}; Type @var{global-quantity-type};
        NameOfCoef @var{coef-id}; @} @dots{}
     @} >
-  < Constraint @{ 
+  < Constraint @{
      @{ NameOfCoef @var{coef-id};
        EntityType Auto | @var{group-type}; < EntitySubType @var{group-sub-type}; >
        NameOfConstraint @var{constraint-id} <@{@}>; @} @dots{}
@@ -2398,7 +2400,7 @@ FunctionSpace @{
 @noindent with
 
 @example
-@var{function-space-id}: 
+@var{function-space-id}:
 @var{formulation-id}:
 @var{resolution-id}:
   @var{string} |
@@ -2407,17 +2409,17 @@ FunctionSpace @{
 @var{basis-function-id}:
 @var{coef-id}:
 @var{sub-space-id}:
-@var{global-quantity-id}: 
+@var{global-quantity-id}:
   @var{string}
 
-@var{function-space-type}:   
-  Scalar | Vector | Form0 | Form1 | @var{etc} 
+@var{function-space-type}:
+  Scalar | Vector | Form0 | Form1 | @var{etc}
 
 @var{basis-function-type}:
-  BF_Node | BF_Edge | @var{etc} 
+  BF_Node | BF_Edge | @var{etc}
 
 @var{basis-function-list}:
-  @var{basis-function-id} | @{ @var{basis-function-id} <,@dots{}> @} 
+  @var{basis-function-id} | @{ @var{basis-function-id} <,@dots{}> @}
 
 @var{global-quantity-type}:
   AliasOf | AssociatedWith
@@ -2427,20 +2429,20 @@ FunctionSpace @{
 @noindent Notes:
 @enumerate
 @item
-The optional @code{Append < @var{expression-cst} >} (when the optional level 
-@var{expression-cst} is strictly positive; its omission fixes it to a top 
-value) permits to append an existing 
-@code{FunctionSpace} of the same @code{Name} with additional 
-@code{BasisFunction}s, @code{SubSpace}s, @code{GlobalQuantity}'s and 
+The optional @code{Append < @var{expression-cst} >} (when the optional level
+@var{expression-cst} is strictly positive; its omission fixes it to a top
+value) permits to append an existing
+@code{FunctionSpace} of the same @code{Name} with additional
+@code{BasisFunction}s, @code{SubSpace}s, @code{GlobalQuantity}'s and
 @code{Constraint}s,
-or an existing @code{SubSpace} of the same @code{Name} with additional 
-@code{NameOfBasisFunction}'s. If the @code{Append} @code{FunctionSpace} level is 2, 
+or an existing @code{SubSpace} of the same @code{Name} with additional
+@code{NameOfBasisFunction}'s. If the @code{Append} @code{FunctionSpace} level is 2,
 the @code{Append} @code{SubSpace} level is automatically 1 if omitted.
 @item
-When the definition region of a function type group used as an @code{Entity} of 
-a @code{BasisFunction} is the same as that of the associated @code{Support}, 
-it is replaced by @code{All} for more efficient treatments during the 
-computation process (this prevents the construction and the analysis of a list 
+When the definition region of a function type group used as an @code{Entity} of
+a @code{BasisFunction} is the same as that of the associated @code{Support},
+it is replaced by @code{All} for more efficient treatments during the
+computation process (this prevents the construction and the analysis of a list
 of geometrical entities).
 @item
 The same @code{Name} for several @code{BasisFunction} fields permits to
@@ -2509,10 +2511,10 @@ The syntax for the definition of Jacobian methods is:
 Jacobian @{
   @{ < Append < @var{expression-cst} >; >
     Name @var{jacobian-id};
-    Case @{ 
-      @{ Region @var{group-def} | All; 
+    Case @{
+      @{ Region @var{group-def} | All;
         Jacobian @var{jacobian-type} < @{ @var{expression-cst-list} @} >; @} @dots{}
-    @} 
+    @}
   @} @dots{}
 @}
 @end example
@@ -2531,11 +2533,11 @@ Jacobian @{
 @noindent Note:
 @enumerate
 @item
-The optional @code{Append < @var{expression-cst} >} (when the optional level 
-@var{expression-cst} is strictly positive) permits to append an existing 
+The optional @code{Append < @var{expression-cst} >} (when the optional level
+@var{expression-cst} is strictly positive) permits to append an existing
 @code{Jacobian} of the same @code{Name} with additional @code{Case}s.
 @item
-The default case of a @code{Jacobian} object is defined by @code{Region All} 
+The default case of a @code{Jacobian} object is defined by @code{Region All}
 and must follow all the other cases.
 @end enumerate
 
@@ -2583,15 +2585,15 @@ The syntax for the definition of integration methods is:
 Integration @{
   @{ < Append < @var{expression-cst} >; >
     Name @var{integration-id}; < Criterion @var{expression}; >
-    Case @{ 
-    < @{ Type @var{integration-type}; 
-        Case @{ 
-          @{ GeoElement @var{element-type}; NumberOfPoints @var{expression-cst} @} @dots{} 
-        @} 
+    Case @{
+    < @{ Type @var{integration-type};
+        Case @{
+          @{ GeoElement @var{element-type}; NumberOfPoints @var{expression-cst} @} @dots{}
+        @}
       @} @dots{} >
     < @{ Type Analytic; @} @dots{} >
-    @} 
-  @} @dots{} 
+    @}
+  @} @dots{}
 @}
 @end example
 
@@ -2605,15 +2607,15 @@ Integration @{
   Gauss | @var{etc}
 
 @var{element-type}:
-  Line | Triangle | Tetrahedron @var{etc} 
+  Line | Triangle | Tetrahedron @var{etc}
 @end example
 
 
 @noindent Note:
 @enumerate
 @item
-The optional @code{Append < @var{expression-cst} >} (when the optional level 
-@var{expression-cst} is strictly positive) permits to append an existing 
+The optional @code{Append < @var{expression-cst} >} (when the optional level
+@var{expression-cst} is strictly positive) permits to append an existing
 @code{Integration} of the same @code{Name} with additional @code{Case}s.
 @end enumerate
 
@@ -2690,9 +2692,9 @@ The syntax for the definition of formulations is:
 @example
 Formulation @{
   @{ < Append < @var{expression-cst} >; >
-    Name @var{formulation-id}; Type @var{formulation-type}; 
-    Quantity @{ 
-      @{ Name @var{quantity-id}; Type @var{quantity-type}; 
+    Name @var{formulation-id}; Type @var{formulation-type};
+    Quantity @{
+      @{ Name @var{quantity-id}; Type @var{quantity-type};
         NameOfSpace @var{function-space-id} <@{@}>
                   < [ @var{sub-space-id} | @var{global-quantity-id} ] >;
         < Symmetry @var{expression-cst}; >
@@ -2700,15 +2702,15 @@ Formulation @{
           Jacobian @var{jacobian-id}; Integration @var{integration-id}; >
         < IndexOfSystem @var{integer}; >  @} @dots{}
     @}
-    Equation @{ 
-     < @var{local-term-type} 
-         @{ < @var{term-op-type} > [ @var{expression}, @var{expression} ]; 
+    Equation @{
+     < @var{local-term-type}
+         @{ < @var{term-op-type} > [ @var{expression}, @var{expression} ];
            In @var{group-def}; Jacobian @var{jacobian-id};
            Integration @var{integration-id}; @} > @dots{}
-     < GlobalTerm 
-         @{ < @var{term-op-type} > [ @var{expression}, @var{expression} ]; 
+     < GlobalTerm
+         @{ < @var{term-op-type} > [ @var{expression}, @var{expression} ];
            In @var{group-def}; < SubType @var{equation-term-sub-type}; > @} > @dots{}
-     < GlobalEquation 
+     < GlobalEquation
          @{ Type Network; NameOfConstraint @var{constraint-id};
            @{ Node @var{expression}; Loop @var{expression}; Equation @var{expression};
              In @var{group-def}; @} @dots{}
@@ -2733,7 +2735,7 @@ Formulation @{
   FemEquation | @var{etc}
 
 @var{local-term-type}:
-  Galerkin | deRham
+  Integral | deRham
 
 @var{equation-term-sub-type}:
   Self (default) | Mutual | SelfAndMutual
@@ -2748,9 +2750,9 @@ Formulation @{
 @noindent Note:
 @enumerate
 @item
-The optional @code{Append < @var{expression-cst} >} (when the optional level 
-@var{expression-cst} is strictly positive) permits to append an existing 
-@code{Formulation} of the same @code{Name} with additional 
+The optional @code{Append < @var{expression-cst} >} (when the optional level
+@var{expression-cst} is strictly positive) permits to append an existing
+@code{Formulation} of the same @code{Name} with additional
 @code{Quantity}'s and @code{Equation}s.
 @item
 @code{IndexOfSystem} permits to resolve ambiguous cases when several
@@ -2760,7 +2762,7 @@ of an @code{OriginSystem} command (@pxref{Resolution}).
 @item
 A @code{GlobalTerm} defines a term to be assembled in an equation associated
 with a global quantity. This equation is a finite element equation if that
-global quantity is linked with local quantities. The optional associated 
+global quantity is linked with local quantities. The optional associated
 @code{SubType} defines either self (default) or mutual contributions, or both.
 Mutual contributions need piecewise functions defined on pairs or regions.
 @item
@@ -2830,19 +2832,19 @@ and a list of elementary operations:
 Resolution @{
   @{ < Append < @var{expression-cst} >; >
     Name @var{resolution-id}; < Hidden @var{expression-cst}; >
-    System @{ 
-      @{ Name @var{system-id}; NameOfFormulation @var{formulation-list}; 
+    System @{
+      @{ Name @var{system-id}; NameOfFormulation @var{formulation-list};
         < Type @var{system-type}; >
-        < Frequency @var{expression-cst-list-item} | 
+        < Frequency @var{expression-cst-list-item} |
           Frequency @{ @var{expression-cst-list} @}; >
-        < DestinationSystem @var{system-id}; > 
+        < DestinationSystem @var{system-id}; >
         < OriginSystem @var{system-id}; | OriginSystem @{ @var{system-id} <,@dots{}> @}; >
-        < NameOfMesh @var{expression-char} > < Solver @var{expression-char} > 
+        < NameOfMesh @var{expression-char} > < Solver @var{expression-char} >
         < @var{loop} > @} @dots{}
       < @var{loop} > @dots{}
     @}
-    Operation @{ 
-      < @var{resolution-op}; > @dots{} 
+    Operation @{
+      < @var{resolution-op}; > @dots{}
       < @var{loop} > @dots{}
     @}
   @} @dots{}
@@ -2872,9 +2874,9 @@ Resolution @{
 @noindent Notes:
 @enumerate
 @item
-The optional @code{Append < @var{expression-cst} >} (when the optional level 
-@var{expression-cst} is strictly positive) permits to append an existing 
-@code{Resolution} of the same @code{Name} with additional 
+The optional @code{Append < @var{expression-cst} >} (when the optional level
+@var{expression-cst} is strictly positive) permits to append an existing
+@code{Resolution} of the same @code{Name} with additional
 @code{System}s and @code{Operation}s.
 @item
 The default type for a system of equations is @code{Real}. A frequency
@@ -2941,10 +2943,10 @@ interest:
 @example
 PostProcessing @{
   @{ < Append < @var{expression-cst} >; >
-    Name @var{post-processing-id}; 
+    Name @var{post-processing-id};
     NameOfFormulation @var{formulation-id} <@{@}>; < NameOfSystem @var{system-id}; >
     Quantity @{
-      @{ < Append < @var{expression-cst} >; > 
+      @{ < Append < @var{expression-cst} >; >
         Name @var{post-quantity-id}; Value @{ @var{post-value} @dots{} @} @} @dots{}
       < @var{loop} > @dots{}
     @}
@@ -2969,22 +2971,22 @@ PostProcessing @{
   [ @var{expression} ]; In @var{group-def}; Jacobian @var{jacobian-id};
 
 @var{integral-value}:
-  [ @var{expression} ]; In @var{group-def}; 
+  [ @var{expression} ]; In @var{group-def};
   Integration @var{integration-id}; Jacobian @var{jacobian-id};
 @end example
 
 @noindent Notes:
 @enumerate
 @item
-The optional @code{Append < @var{expression-cst} >} (when the optional level 
-@var{expression-cst} is strictly positive; its omission fixes it to a top 
-value) permits to append an existing 
-@code{PostProcessing} of the same @code{Name} with additional 
-@code{Value}s, 
-or an existing @code{Quantity} of the same @code{Name} with additional 
-@code{Quantity}'s. If the @code{Append} @code{PostProcessing} level is 2, 
+The optional @code{Append < @var{expression-cst} >} (when the optional level
+@var{expression-cst} is strictly positive; its omission fixes it to a top
+value) permits to append an existing
+@code{PostProcessing} of the same @code{Name} with additional
+@code{Value}s,
+or an existing @code{Quantity} of the same @code{Name} with additional
+@code{Quantity}'s. If the @code{Append} @code{PostProcessing} level is 2,
 the @code{Append} @code{Quantity} level is automatically 1 if omitted.
-Fixing the @code{Append} @code{Quantity} level to @var{-n} suppresses the 
+Fixing the @code{Append} @code{Quantity} level to @var{-n} suppresses the
 @var{n} lastly defined @code{Quantity}'s before appending.
 @item
 The quantity defined with @var{integral-value} is piecewise defined over the
@@ -3041,16 +3043,16 @@ user-defined plane, etc.), and outputs the results in several file formats.
 @example
 PostOperation @{
   @{ < Append < @var{expression-cst} >; >
-    Name @var{post-operation-id}; NameOfPostProcessing @var{post-processing-id}; 
+    Name @var{post-operation-id}; NameOfPostProcessing @var{post-processing-id};
     < Hidden @var{expression-cst}; >
     < Format @var{post-operation-fmt}; >
     < TimeValue @var{expression-cst-list}; > < TimeImagValue @var{expression-cst-list}; >
-    < LastTimeStepOnly < @var{expression-cst} >; > 
+    < LastTimeStepOnly < @var{expression-cst} >; >
     < OverrideTimeStepValue @var{expression-cst}; >
     < NoMesh @var{expression-cst}; > < AppendToExistingFile @var{expression-cst}; >
     < ResampleTime[@var{expression-cst}, @var{expression-cst}, @var{expression-cst}]; >
-    Operation @{ 
-      < @var{post-operation-op}; > @dots{} 
+    Operation @{
+      < @var{post-operation-op}; > @dots{}
     @}
   @} @dots{}
   < @var{affectation} > @dots{}
@@ -3072,6 +3074,9 @@ PostOperation < (Append < @var{expression-cst} >) > @var{post-operation-id} Usin
   Print[ @var{post-quantity-id} <[@var{group-def}]>, @var{print-support} <,@var{print-option}> @dots{} ] |
   Print[ @var{expression-list}, Format "@var{string}" <,@var{print-option}> @dots{} ] |
   PrintGroup[ @var{group-id}, @var{print-support} <,@var{print-option}> @dots{} ] |
+  Echo[ "@var{string}" <,@var{print-option}> @dots{} ] |
+  CreateDir [ "@var{string}" ] |
+  DeleteFile [ "@var{string}" ] |
   SendMergeFileRequest[ @var{expression-char} ] |
   < @var{loop} > @dots{}
   @var{etc}
@@ -3089,9 +3094,9 @@ PostOperation < (Append < @var{expression-cst} >) > @var{post-operation-id} Usin
 @noindent Notes:
 @enumerate
 @item
-The optional @code{Append < @var{expression-cst} >} (when the optional level 
-@var{expression-cst} is strictly positive) permits to append an existing 
-@code{PostOperation} of the same @code{Name} with additional 
+The optional @code{Append < @var{expression-cst} >} (when the optional level
+@var{expression-cst} is strictly positive) permits to append an existing
+@code{PostOperation} of the same @code{Name} with additional
 @code{Operation}s.
 @item
 Both @code{PostOperation} syntaxes are equivalent.  The first one conforms to
@@ -3166,58 +3171,58 @@ metasyntactic variables introduced for the ten GetDP objects.
 Regions in @var{R1}.
 
 @item Global
-Regions in @var{R1} 
-(variant of @code{Region} used with global @code{BasisFunction}s 
+Regions in @var{R1}
+(variant of @code{Region} used with global @code{BasisFunction}s
 @code{BF_Global} and @code{BF_dGlobal}).
 
 @item NodesOf
-Nodes of elements of @var{R1} 
+Nodes of elements of @var{R1}
 
 < @code{Not}: but not those of @var{R2} >.
 
 @item EdgesOf
-Edges of elements of @var{R1} 
+Edges of elements of @var{R1}
 
 < @code{Not}: but not those of @var{R2} >.
 
 @item FacetsOf
-Facets of elements of @var{R1} 
+Facets of elements of @var{R1}
 
 < @code{Not}: but not those of @var{R2} >.
 
 @item VolumesOf
-Volumes of elements of @var{R1} 
+Volumes of elements of @var{R1}
 
 < @code{Not}: but not those of @var{R2} >.
 
 @item ElementsOf
-Elements of regions in @var{R1} 
+Elements of regions in @var{R1}
 
-< @code{OnOneSideOf}: only elements on one side 
+< @code{OnOneSideOf}: only elements on one side
 of @var{R2} (non-automatic, i.e., both sides if both in @var{R1}) > |
-< @code{OnPositiveSideOf}: only elements on positive (normal) side of @var{R2} 
-  < , @code{Not}: but not those touching only its skin @var{R3} 
+< @code{OnPositiveSideOf}: only elements on positive (normal) side of @var{R2}
+  < , @code{Not}: but not those touching only its skin @var{R3}
   (mandatory for free skins for correct separation of side layers) > >.
 
 @item GroupsOfNodesOf
-Groups of nodes of elements of @var{R1} 
+Groups of nodes of elements of @var{R1}
 (a group is associated with each region).
 
 @item GroupsOfEdgesOf
-Groups of edges of elements of @var{R1} 
+Groups of edges of elements of @var{R1}
 (a group is associated with each region).
 
-< @code{InSupport}: in a support @var{R2} being a group of type @code{ElementOf}, 
+< @code{InSupport}: in a support @var{R2} being a group of type @code{ElementOf},
 i.e., containing elements >.
 
 @item GroupsOfEdgesOnNodesOf
-Groups of edges incident to nodes of elements of @var{R1} 
+Groups of edges incident to nodes of elements of @var{R1}
 (a group is associated with each node).
 
 < @code{Not}: but not those of @var{R2}) >.
 
 @item GroupOfRegionsOf
-Single group of elements of regions in @var{R1} 
+Single group of elements of regions in @var{R1}
 (with basis function BF_Region just one DOF is created for all elements of @var{R1}).
 
 @item EdgesOfTreeIn
@@ -3280,7 +3285,7 @@ When used in constant expressions (@var{expression-cst}, see
 @var{math-function-id}:
 @ftable @code
 
-@item Exp 
+@item Exp
 @code{[@var{expression}]}
 
 Exponential function: e^@var{expression}.
@@ -3305,29 +3310,29 @@ Square root, @var{expression}>=0.
 
 Sine of @var{expression}.
 
-@item Asin 
+@item Asin
 @code{[@var{expression}]}
 
 Arc sine (inverse sine) of @var{expression} in [-Pi/2,Pi/2],
 @var{expression} in [-1,1] (real valued only).
 
-@item Cos  
+@item Cos
 @code{[@var{expression}]}
 
 Cosine of @var{expression}.
 
-@item Acos 
+@item Acos
 @code{[@var{expression}]}
 
 Arc cosine (inverse cosine) of @var{expression} in [0,Pi],
 @var{expression} in [-1,1] (real valued only).
 
-@item Tan  
+@item Tan
 @code{[@var{expression}]}
 
 Tangent of @var{expression}.
 
-@item Atan 
+@item Atan
 @code{[@var{expression}]}
 
 Arc tangent (inverse tangent) of @var{expression} in [-Pi/2,Pi/2] (real
@@ -3339,43 +3344,43 @@ valued only).
 Arc tangent (inverse tangent) of the first @var{expression} divided by the
 second, in [-Pi,Pi] (real valued only).
 
-@item Sinh 
+@item Sinh
 @code{[@var{expression}]}
 
 Hyperbolic sine of @var{expression}.
 
-@item Cosh 
+@item Cosh
 @code{[@var{expression}]}
 
 Hyperbolic cosine of @var{expression}.
 
-@item Tanh 
+@item Tanh
 @code{[@var{expression}]}
 
 Hyperbolic tangent of the real valued @var{expression}.
 
-@item TanhC2 
+@item TanhC2
 @code{[@var{expression}]}
 
 Hyperbolic tangent of a complex valued @var{expression}.
 
-@item Fabs 
+@item Fabs
 @code{[@var{expression}]}
 
 Absolute value of @var{expression} (real valued only).
 
-@item Abs 
+@item Abs
 @code{[@var{expression}]}
 
 Absolute value of @var{expression}.
 
-@item Floor 
+@item Floor
 @code{[@var{expression}]}
 
 Rounds downwards to the nearest integer that is not greater than
 @var{expression} (real valued only).
 
-@item Ceil 
+@item Ceil
 @code{[@var{expression}]}
 
 Rounds upwards to the nearest integer that is not less than
@@ -3397,33 +3402,33 @@ Minimum of the two (scalar) expressions (real valued only).
 
 Maximum of the two (scalar) expressions (real valued only).
 
-@item Sign 
+@item Sign
 @code{[@var{expression}]}
 
 -1 for @var{expression} less than zero and 1 otherwise (real valued only).
 
-@item Jn 
+@item Jn
 @code{[@var{expression}]}
 
 Returns the Bessel function of the first kind of order given by the
 first @var{expression} for the value of the second @var{expression}
 (real valued only).
 
-@item dJn 
+@item dJn
 @code{[@var{expression}]}
 
 Returns the derivative of the Bessel function of the first kind of order
 given by the first @var{expression} for the value of the second
 @var{expression} (real valued only).
 
-@item Yn 
+@item Yn
 @code{[@var{expression}]}
 
 Returns the Bessel function of the second kind of order given by the
 first @var{expression} for the value of the second @var{expression}
 (real valued only).
 
-@item dYn 
+@item dYn
 @code{[@var{expression}]}
 
 Returns the derivative of the Bessel function of the second kind of
@@ -3520,7 +3525,7 @@ type of the current system is @code{Complex}, it is identical to
 @item Period
 @code{[@var{expression}]@{@var{expression-cst}@}}
 
-@code{Fmod[@var{expression},@var{expression-cst}]} 
+@code{Fmod[@var{expression},@var{expression-cst}]}
 @code{+}
 @code{(@var{expression}<0 ? @var{expression-cst} : 0)};
 the result is always in [0,@var{expression-cst}[.
@@ -3641,12 +3646,12 @@ Creates a vector from 3 scalars.
 
 @code{@var{expression},@var{expression},@var{expression}]}
 
-Creates a second-rank tensor of order 3 from 9 scalars, by row: 
+Creates a second-rank tensor of order 3 from 9 scalars, by row:
 @smallexample
 @group
-    [ scalar0 scalar1 scalar2 ]   [ CompXX CompXY CompXZ ]   
+    [ scalar0 scalar1 scalar2 ]   [ CompXX CompXY CompXZ ]
 T = [ scalar3 scalar4 scalar5 ] = [ CompYX CompYY CompYZ ]
-    [ scalar6 scalar7 scalar8 ]   [ CompZX CompZY CompZZ ]  
+    [ scalar6 scalar7 scalar8 ]   [ CompZX CompZY CompZZ ]
 @end group
 @end smallexample
 
@@ -3866,7 +3871,7 @@ Computes the element's volume.
 @item SurfaceArea
 @code{[]@{@var{expression-cst-list}@}}
 
-Computes the area of the physical surfaces in @var{expression-cst-list} 
+Computes the area of the physical surfaces in @var{expression-cst-list}
 or of the actual surface if @var{expression-cst-list} is empty.
 
 @item GetVolume
@@ -3883,8 +3888,18 @@ identical.
 @item GetNumElements
 @code{[]@{@var{expression-cst-list}@}}
 
-Counts the elements of physical numbers in @var{expression-cst-list} 
+Counts the elements of physical numbers in @var{expression-cst-list}
 or of the actual region if @var{expression-cst-list} is empty.
+
+@item ElementNum
+@code{[]}
+
+Returns the tag (number) of the current element.
+
+@item QuadraturePointIndex
+@code{[]}
+
+Returns the index of the current quadrature point.
 
 @item AtIndex
 @code{[@var{expression}]@{@var{expression-cst-list}@}}
@@ -3907,14 +3922,14 @@ expressions in @var{expression-cst-list} must be even.
 @item InterpolationBilinear
 @code{[@var{expression},@var{expression}]@{@var{expression-cst-list}@}}
 
-Bilinear interpolation of a table based on two variables. 
+Bilinear interpolation of a table based on two variables.
 @c FIXME See @url{https://onelab.info/trac/getdp/wiki/UsageOfTables} for an example.
 
 @item dInterpolationBilinear
 @code{[@var{expression},@var{expression}]@{@var{expression-cst-list}@}}
 
 Derivative of bilinear interpolation of a table based on two variables.
-The result is a vector. 
+The result is a vector.
 @c FIXME See @url{https://onelab.info/trac/getdp/wiki/UsageOfTables} for an example.
 
 @item InterpolationAkima
@@ -3990,7 +4005,7 @@ are treated in the same way as for @code{ScalarField}.
 @code{[]}
 
 Returns current CPU time, in seconds (total amount of time spent
-executing in user mode since GetDP was started). 
+executing in user mode since GetDP was started).
 
 @item GetWallClockTime
 @code{[]}
@@ -4155,7 +4170,7 @@ complex.
 curl-conform field (associated with a curl).
 
 @item Form2P
-2-form in the @var{z}=0 plane, i.e., parallel div-conform field 
+2-form in the @var{z}=0 plane, i.e., parallel div-conform field
 (associated with a divergence).
 
 @item Scalar
@@ -4184,31 +4199,31 @@ Facet function (on @code{FacetsOf}, value @code{Form2}).
 Volume function (on @code{VolumesOf}, value @code{Form3}).
 
 @item BF_GradNode
-Gradient of nodal function 
+Gradient of nodal function
 (on @code{NodesOf}, value @code{Form1}).
 
 @item BF_CurlEdge
-Curl of edge function 
+Curl of edge function
 (on @code{EdgesOf}, value @code{Form2}).
 
 @item BF_DivFacet
-Divergence of facet function 
+Divergence of facet function
 (on @code{FacetsOf}, value @code{Form3}).
 
 @item BF_GroupOfNodes
-Sum of nodal functions 
+Sum of nodal functions
 (on @code{GroupsOfNodesOf}, value @code{Form0}).
 
 @item BF_GradGroupOfNodes
-Gradient of sum of nodal functions 
+Gradient of sum of nodal functions
 (on @code{GroupsOfNodesOf}, value @code{Form1}).
 
 @item BF_GroupOfEdges
-Sum of edge functions 
+Sum of edge functions
 (on @code{GroupsOfEdgesOf}, value @code{Form1}).
 
 @item BF_CurlGroupOfEdges
-Curl of sum of edge functions 
+Curl of sum of edge functions
 (on @code{GroupsOfEdgesOf}, value @code{Form2}).
 
 @item BF_PerpendicularEdge
@@ -4221,15 +4236,15 @@ Curl of 1-form (0, 0, @code{BF_Node}) (on @code{NodesOf}, value @code{Form2P}).
 Sum of 1-forms (0, 0, @code{BF_Node}) (on @code{NodesOf}, value @code{Form1P}).
 
 @item BF_CurlGroupOfPerpendicularEdge
-Curl of sum of 1-forms (0, 0, @code{BF_Node}) (on @code{NodesOf}, 
+Curl of sum of 1-forms (0, 0, @code{BF_Node}) (on @code{NodesOf},
 value @code{Form2P}).
 
 @item BF_PerpendicularFacet
-2-form (90 degree rotation of @code{BF_Edge}) 
+2-form (90 degree rotation of @code{BF_Edge})
 (on @code{EdgesOf}, value @code{Form2P}).
 
 @item BF_DivPerpendicularFacet
-Div of 2-form (90 degree rotation of @code{BF_Edge}) 
+Div of 2-form (90 degree rotation of @code{BF_Edge})
 (on @code{EdgesOf}, value @code{Form3}).
 
 @item BF_Region
@@ -4245,23 +4260,23 @@ Unit vector (0, 1, 0) (on @code{Region}, value @code{Vector}).
 Unit vector (0, 0, 1) (on @code{Region}, value @code{Vector}).
 
 @item BF_Global
-Global pre-computed quantity 
+Global pre-computed quantity
 (on @code{Global}, value depends on parameters).
 
 @item BF_dGlobal
-Exterior derivative of global pre-computed quantity 
+Exterior derivative of global pre-computed quantity
 (on @code{Global}, value depends on parameters).
 
 @item BF_NodeX
-Vector (@code{BF_Node}, 0, 0) 
+Vector (@code{BF_Node}, 0, 0)
 (on @code{NodesOf}, value @code{Vector}).
 
 @item BF_NodeY
-Vector (0, @code{BF_Node}, 0) 
+Vector (0, @code{BF_Node}, 0)
 (on @code{NodesOf}, value @code{Vector}).
 
 @item BF_NodeZ
-Vector (0, 0, @code{BF_Node}) 
+Vector (0, 0, @code{BF_Node})
 (on @code{NodesOf}, value @code{Vector}).
 
 @item BF_Zero
@@ -4281,7 +4296,7 @@ Unit value 1 (on all regions, value @code{Scalar}).
 Another name for a name of coefficient of basis function.
 
 @item AssociatedWith
-A global quantity associated with a name of coefficient of basis function, 
+A global quantity associated with a name of coefficient of basis function,
 and therefore with this basis function.
 
 @end ftable
@@ -4303,34 +4318,34 @@ and therefore with this basis function.
 @ftable @code
 
 @item Vol
-Volume Jacobian, for @var{n}-D regions in @var{n}-D geometries, 
+Volume Jacobian, for @var{n}-D regions in @var{n}-D geometries,
 @var{n} = 1, 2 or 3.
 
 @item Sur
-Surface Jacobian, for (@var{n}-1)-D regions in @var{n}-D geometries, 
+Surface Jacobian, for (@var{n}-1)-D regions in @var{n}-D geometries,
 @var{n} = 1, 2 or 3.
 
 @item Lin
-Line Jacobian, for (@var{n}-2)-D regions in @var{n}-D geometries, 
+Line Jacobian, for (@var{n}-2)-D regions in @var{n}-D geometries,
 @var{n} = 2 or 3.
 
 
 @item VolAxi
-Axisymmetrical volume Jacobian (1st type: @math{r}), 
+Axisymmetrical volume Jacobian (1st type: @math{r}),
 for 2-D regions in axisymmetrical geometries.
 
 @item SurAxi
-Axisymmetrical surface Jacobian (1st type: @math{r}), 
+Axisymmetrical surface Jacobian (1st type: @math{r}),
 for 1-D regions in axisymmetrical geometries.
 
 
 @item VolAxiSqu
-Axisymmetrical volume Jacobian (2nd type: @math{r^2}), 
+Axisymmetrical volume Jacobian (2nd type: @math{r^2}),
 for 2-D regions in axisymmetrical geometries.
 
 
 @item VolSphShell
-Volume Jacobian with spherical shell transformation, 
+Volume Jacobian with spherical shell transformation,
 for @var{n}-D regions in @var{n}-D geometries, @var{n} = 2 or 3.
 
 @i{Parameters}: @var{radius-internal}, @var{radius-external}
@@ -4363,7 +4378,7 @@ Same as @code{VolAxiSqu}, but with spherical shell transformation.
 
 
 @item VolRectShell
-Volume Jacobian with rectangular shell transformation, 
+Volume Jacobian with rectangular shell transformation,
 for @var{n}-D regions in @var{n}-D geometries, @var{n} = 2 or 3.
 
 @i{Parameters}: @var{radius-internal}, @var{radius-external}
@@ -4449,7 +4464,7 @@ Point (1 node) (#15).
 @noindent Note:
 @enumerate
 @item
-@var{n} in (#@var{n}) is the type number of the element 
+@var{n} in (#@var{n}) is the type number of the element
 (@pxref{Input file format}).
 @end enumerate
 
@@ -4483,8 +4498,8 @@ Finite element method formulation (all methods of moments, integral methods).
 @var{local-term-type}:
 @ftable @code
 
-@item Galerkin
-Integral of Galerkin type.
+@item Integral
+Integral of Galerkin or Petrov-Galerkin type.
 
 @item deRham
 deRham projection (collocation).
@@ -4528,7 +4543,7 @@ Time derivative of 2nd order applied to the whole term of the
 equation. (Not implemented yet.)
 
 @item DtDtDof
-Time derivative of 2nd order applied only to the @code{Dof@{@}} term of the 
+Time derivative of 2nd order applied only to the @code{Dof@{@}} term of the
 equation.
 
 @item Eig
@@ -4587,6 +4602,12 @@ Solve the system of equations @var{system-id}.
 Save as @code{Solve}, but reuses the preconditionner when called
 multiple times.
 
+@item SetGlobalSolverOptions
+@code{[@var{char-expression}]}
+
+Set global PETSc solver options (with the same syntax as PETSc options
+specified on the command line, e.g. @code{"-ksp_type gmres -pc_type ilu"}).
+
 @item GenerateJac
 @code{[@var{system-id}]}
 
@@ -4608,7 +4629,7 @@ compute the relative error @var{dx}/@var{x}.
 @c formulas when there is a JacNL term, and when there isn't
 @c
 @c (A(x) + JacNL(x)) dx = b(x) - A(x) x ;
-@c x <- x + dx 
+@c x <- x + dx
 
 @item GenerateSeparate
 @code{[@var{system-id}]}
@@ -4745,7 +4766,7 @@ Copy the current solution @code{x} into a vector named
 @item CopySolution
 @code{[@var{char-expression} | @var{constant-id}(), @var{system-id}]}
 
-Copy the vector named @var{char-expression} or the list named 
+Copy the vector named @var{char-expression} or the list named
 @var{constant-id} into the current solution @code{x}.
 
 @item CopyRightHandSide
@@ -4757,7 +4778,7 @@ Copy the current right-hand side @code{b} into a vector named
 @item CopyRightHandSide
 @code{[@var{char-expression} | @var{constant-id}(), @var{system-id}]}
 
-Copy the vector named @var{char-expression} or the list named 
+Copy the vector named @var{char-expression} or the list named
 @var{constant-id} into the current right-hand-side @code{b}.
 
 @item CopyResidual
@@ -4842,20 +4863,20 @@ Execute the system command given by @var{expression-char}.
 Output error message @var{expression-char}.
 
 @item Test
-@code{[@var{expression}] @{ @var{resolution-op} @}} 
+@code{[@var{expression}] @{ @var{resolution-op} @}}
 
 If @var{expression} is true (nonzero), perform the operations in
 @var{resolution-op}.
 
 @item Test
-@code{[@var{expression}] @{ @var{resolution-op} @} @{ @var{resolution-op} @}} 
+@code{[@var{expression}] @{ @var{resolution-op} @} @{ @var{resolution-op} @}}
 
 If @var{expression} is true (nonzero), perform the operations in the first
 @var{resolution-op}, else perform the operations in the second
 @var{resolution-op}.
 
 @item While
-@code{[@var{expression}] @{ @var{resolution-op} @}} 
+@code{[@var{expression}] @{ @var{resolution-op} @}}
 
 While @var{expression} is true (nonzero), perform the operations in
 @var{resolution-op}.
@@ -4869,6 +4890,12 @@ Aborts an iterative loop, a time loop or a While loop.
 @code{[@var{expression}]}
 
 Sleeps for @var{expression} seconds;
+
+@item SetExtrapolationOrder
+@code{[@var{expression-cst}]}
+
+Chooses the extrapolation order to compute the initialization of the
+solution vector in time loops. Default is 0.
 
 @item Print
 @code{[ @{ @var{expression-list} @} <, File @var{expression-char} > <, Format @var{expression-char} > ]}
@@ -4913,7 +4940,7 @@ On-the-fly computation of a discrete Fourier transform. The parameters are:
 the (time domain) system, the destination system in which the result of the
 Fourier tranform is to be saved (it should be declared with @code{Type
 Complex}), the list of frequencies to consider in the discrete Fourier
-transform. 
+transform.
 
 @item TimeLoopTheta
 @code{[@var{expression-cst},@var{expression-cst},@var{expression},@var{expression-cst}]}
@@ -4928,12 +4955,12 @@ they are provided using the @code{TimeFunction} mechanism in an
 @code{Assign}-type @code{Constraint} (@pxref{Constraint}). However,
 GetDP cannot automatically transform general time-dependent source terms
 in weak formulations (time-dependent functions written in a
-@code{Galerkin} term). Such source terms will be correctly treated only
-for implicit Euler, as the expression in the @code{Galerkin} term is
+@code{Integral} term). Such source terms will be correctly treated only
+for implicit Euler, as the expression in the @code{Integral} term is
 evaluated at the current time step. For other schemes, the source term
 should be written explicitly, by splitting it in two (@code{theta f_n+1
 + (1-theta) f_n}), making use of the @code{AtAnteriorTimeStep[]} for the
-second part, and specifying @code{NeverDt} in the @code{Galerkin} term.
+second part, and specifying @code{NeverDt} in the @code{Integral} term.
 
 @item TimeLoopNewmark
 @code{[@var{expression-cst},@var{expression-cst},@var{expression},@var{expression-cst},@var{expression-cst}]}@*
@@ -4954,23 +4981,23 @@ PostOperation @{ @{@var{post-operation-id},@var{expression-cst},@var{expression-
 @code{@{ @var{resolution-op} @}}@*
 @code{@{ @var{resolution-op} @}}
 
-Time loop with variable time steps. The step size is adjusted according the local 
-truncation error (LTE) of the specified Systems/PostOperations via a predictor-corrector 
+Time loop with variable time steps. The step size is adjusted according the local
+truncation error (LTE) of the specified Systems/PostOperations via a predictor-corrector
 method.@*
-The parameters are: start time, end time, initial time step, min. time step, 
+The parameters are: start time, end time, initial time step, min. time step,
 max. time step, integration method, list of breakpoints (time points to be hit).
 The LTE calculation can be based on all DOFs of a system and/or on a PostOperation
-result. The parameters here are: System/PostOperation for LTE assessment, relative 
+result. The parameters here are: System/PostOperation for LTE assessment, relative
 LTE tolerance, absolute LTE tolerance, norm-type for LTE calculation.@*
-Possible choices for @var{integration-method} are: @code{Euler, Trapezoidal, Gear_2, 
+Possible choices for @var{integration-method} are: @code{Euler, Trapezoidal, Gear_2,
 Gear_3, Gear_4, Gear_5, Gear_6}.
-The Gear methods correspond to backward differentiation formulas of 
+The Gear methods correspond to backward differentiation formulas of
 order 2..6.@*
-Possible choices for @var{norm-type}: @code{L1Norm, MeanL1Norm, L2Norm, 
+Possible choices for @var{norm-type}: @code{L1Norm, MeanL1Norm, L2Norm,
 MeanL2Norm, LinfNorm}.@*
 @code{MeanL1Norm} and @code{MeanL2Norm} correspond to @code{L1Norm} and
 @code{L2Norm} divided by the number of degrees of freedom, respectively.@*
-The first @var{resolution-op} is executed every time step. The second one is 
+The first @var{resolution-op} is executed every time step. The second one is
 only executed if the actual time step is accepted (LTE is in the specified range).
 E.g. @code{SaveSolution[]} is usually placed in the 2nd @var{resolution-op}.@*
 @c FIXME See @url{https://onelab.info/trac/getdp/wiki/TimeLoopAdaptive} for more details and an example.
@@ -4989,7 +5016,7 @@ optional parameter is a flag for testing purposes.
 System @{ @{@var{system-id},@var{expression-cst},@var{expression-cst},
 @var{assessed-object} @var{norm-type}@} ... @} |@*
 PostOperation @{ @{@var{post-operation-id},@var{expression-cst},@var{expression-cst},
-@var{norm-type}@} ... @} ]}@* 
+@var{norm-type}@} ... @} ]}@*
 @{ @var{resolution-op} @}
 
 Similar to @code{IterativeLoop[]} but allows to specify in detail the
@@ -4997,17 +5024,17 @@ tolerances and the type of norm to be calculated for convergence assessment.@*
 The parameters are: the maximum number of iterations (if no convergence),
 the relaxation factor (multiplies the iterative correction @var{dx}).
 The convergence assessment can be based on all DOFs of a system and/or on a
-PostOperation result. The parameters here are: System/PostOperation for 
+PostOperation result. The parameters here are: System/PostOperation for
 convergence assessment, relative tolerance, absolute tolerance,
-assessed object (only applicable for a specified system), norm-type for 
+assessed object (only applicable for a specified system), norm-type for
 error calculation.@*
 Possible choices for @var{assessed-object}: @code{Solution, Residual,
 RecalcResidual}. @code{Residual} assesses the residual from the last iteration
 whereas @code{RecalcResidual} calculates the residual once again after each
 iteration. This means that with @code{Residual} usually one extra iteration is
-performed, but @code{RecalcResidual} causes higher computational effort per 
+performed, but @code{RecalcResidual} causes higher computational effort per
 iteration. Assessing the residual can only be used for Newton's method.@*
-Possible choices for @var{norm-type}: @code{L1Norm, MeanL1Norm, L2Norm, 
+Possible choices for @var{norm-type}: @code{L1Norm, MeanL1Norm, L2Norm,
 MeanL2Norm, LinfNorm}.@*
 @code{MeanL1Norm} and @code{MeanL2Norm} correspond to @code{L1Norm} and
 @code{L2Norm} divided by the number of degrees of freedom, respectively.@*
@@ -5098,7 +5125,7 @@ Broadcast all runtime variables over MPI.
 
 @c todo:
 
-@c @item Perturbation 
+@c @item Perturbation
 
 @c @item ChangeOfCoordinates
 
@@ -5108,8 +5135,8 @@ Broadcast all runtime variables over MPI.
 
 @c @item IterativeTimeReduction
 @c @{ @var{iterative-time-reduction-arg}; @}
-@c 
-@c  Iterative reduction of time interval to delimit variations of solutions 
+@c
+@c  Iterative reduction of time interval to delimit variations of solutions
 @c  (e.g., used in types of nonlinear analyses).
 
 @end ftable
@@ -5348,7 +5375,7 @@ exactly three elements (the coordinates of the points).
 @item File
 @code{@var{expression-char}}
 
-Outputs the result in a file named @var{expression-char}. 
+Outputs the result in a file named @var{expression-char}.
 
 @item File
 @code{> @var{expression-char}}
@@ -5385,7 +5412,7 @@ zero, derefinement if @var{expression-cst} is smaller than zero. If
 elements.
 
 @item Skin
-Computes the result on the boundary of the region. 
+Computes the result on the boundary of the region.
 
 @item Smoothing
 < @var{expression-cst} >
@@ -5446,7 +5473,7 @@ Appends the time step to the output file; only makes sense with @code{LastTimeSt
 
 Append the given @var{expression-char} to the filename.
 
-@item OverrideTimeStepValue 
+@item OverrideTimeStepValue
 @var{expression-cst}
 
 Overrides the value of the current time step with the given value.
@@ -5457,7 +5484,7 @@ Overrides the value of the current time step with the given value.
 Prevents the mesh from being written in the output file (useful with new
 mesh-based solution formats).
 
-@item SendToServer 
+@item SendToServer
 @var{expression-char}
 
 Send the value to the Onelab server, using @var{expression-char} as the
@@ -5509,7 +5536,7 @@ Performs p- or h-refinement on the post-processing result, considered as an
 error map.
 
 @item Target
-@var{expression-cst} 
+@var{expression-cst}
 
 Specifies the target for the optimizer during adaptation (error for
 @code{P1|H1}, number of elements for @code{H2}).
@@ -5557,7 +5584,7 @@ the current values of the cartesian coordinates @code{$X}, @code{$Y} and
 Changes the values of the results according to the expressions given in
 argument. The @var{expression}s represent the new values (@var{x}-compoment,
 @var{y}-component, etc.), and can be functions of the current values of the
-solution (@var{$Val0}, @var{$Val1}, etc.). 
+solution (@var{$Val0}, @var{$Val1}, etc.).
 
 @item DecomposeInSimplex
 
@@ -5784,22 +5811,22 @@ region groups while @code{NonConductingDom@-ain} and
 @code{ConductingDomain} are global region groups.
 
 Groups of function type contain lists of entities built on the region groups
-appearing in their arguments. For example, 
+appearing in their arguments. For example,
 
 @example
 NodesOf[NonConductingDomain]
 @end example
 
 @noindent
-represents the group of nodes of geometrical elements belonging to the regions 
-in @code{NonConduc@-tingDomain} and 
+represents the group of nodes of geometrical elements belonging to the regions
+in @code{NonConduc@-tingDomain} and
 
 @example
 EdgesOf[DomainC, Not SkinDomainC]
 @end example
 
 @noindent
-represents the group of edges of geometrical elements belonging to the regions 
+represents the group of edges of geometrical elements belonging to the regions
 in @code{DomainC} but not to those of @code{SkinDomainC}.
 
 
@@ -5818,13 +5845,13 @@ regions by
 
 @example
 Function @{
-  mu[Air] = 4.e-7*Pi; 
+  mu[Air] = 4.e-7*Pi;
   mu[Core] = 1000.*4.e-7*Pi;
 @}
 @end example
 
 @noindent
-A nonlinear characteristic can be defined through an @var{expression} 
+A nonlinear characteristic can be defined through an @var{expression}
 with arguments, e.g.,
 
 @example
@@ -5921,9 +5948,9 @@ case of harmonic analyses.
 
 @cindex Constraint, examples
 
-Constraints are referred to in @code{FunctionSpace}s and are usually used 
-for boundary conditions (@code{Assign} type). 
-For example, essential conditions on two surface regions, 
+Constraints are referred to in @code{FunctionSpace}s and are usually used
+for boundary conditions (@code{Assign} type).
+For example, essential conditions on two surface regions,
 @code{Surf0} and @code{Surf1}, will be first defined by
 
 @example
@@ -5954,12 +5981,12 @@ introduced as (cf.@: @ref{Function examples} for the definition of
 introduced in the @code{Value} field, since the @code{Value} is only
 evaluated once during the pre-processing.
 
-Other constraints can be referred to in @code{Formulation}s. It is the case of 
+Other constraints can be referred to in @code{Formulation}s. It is the case of
 those defining electrical circuit connections (@code{Network} type), e.g.,
 
 @example
 Constraint @{
-  @{ Name ElectricalCircuit; Type Network; 
+  @{ Name ElectricalCircuit; Type Network;
     Case Circuit1 @{
       @{ Region VoltageSource; Branch @{1,2@}; @}
       @{ Region PrimaryCoil; Branch @{1,2@}; @}
@@ -5975,7 +6002,7 @@ Constraint @{
 @noindent
 which defines two non-connected circuits (@code{Circuit1} and @code{Circuit2}),
 with an independent numbering of nodes: region @code{VoltageSource} is connected in
-parallel with region @code{PrimaryCoil}, and region @code{SecondaryCoil} is 
+parallel with region @code{PrimaryCoil}, and region @code{SecondaryCoil} is
 connected in parallel with region @code{Charge}.
 
 @c todo: ajouter un vrai exemple de circuit
@@ -5989,8 +6016,8 @@ connected in parallel with region @code{Charge}.
 
 @cindex Function space, examples
 
-Various discrete function spaces can be defined in the frame of the finite 
-element method. 
+Various discrete function spaces can be defined in the frame of the finite
+element method.
 
 @menu
 * Conform space::
@@ -6009,23 +6036,23 @@ element method.
 @node Conform space, High order space, FunctionSpace examples, FunctionSpace examples
 @subsection Nodal finite element spaces
 
-The most elementary function space is the nodal finite element space, 
-defined on a mesh of a domain @var{W} and denoted @i{S0(W)} 
-(associated finite elements can be of various geometries), 
-and associated with essential boundary conditions (Dirichlet conditions). 
+The most elementary function space is the nodal finite element space,
+defined on a mesh of a domain @var{W} and denoted @i{S0(W)}
+(associated finite elements can be of various geometries),
+and associated with essential boundary conditions (Dirichlet conditions).
 It contains 0-forms, i.e., scalar fields of potential type:
 
 @tex
 $$ v = \sum_{n\in N} v_n s_n \quad v\in S^0(W) $$
 @end tex
 @ifnottex
-@var{v} = Sum [ @var{vn} * @var{sn},  for all @var{n} in @var{N} ],  
+@var{v} = Sum [ @var{vn} * @var{sn},  for all @var{n} in @var{N} ],
 @var{v} in @i{S0(W)}
 @end ifnottex
 
 @noindent
-where @var{N} is the set of nodes of @var{W}, @var{sn} is the nodal basis function 
-associated with node @var{n} and @var{vn} is the value of @var{v} at node @var{n}. 
+where @var{N} is the set of nodes of @var{W}, @var{sn} is the nodal basis function
+associated with node @var{n} and @var{vn} is the value of @var{v} at node @var{n}.
 It is defined by
 
 @example
@@ -6044,14 +6071,14 @@ FunctionSpace @{
 @end example
 
 @noindent
-Function @code{sn} is the built-in basis function BF_Node associated with 
-all nodes (@code{NodesOf}) in the mesh of @var{W} (@code{Domain}). Previously 
-defined @code{Constraint DirichletBoundaryCondition1} 
-(@pxref{Constraint examples}) is used as boundary condition. 
+Function @code{sn} is the built-in basis function BF_Node associated with
+all nodes (@code{NodesOf}) in the mesh of @var{W} (@code{Domain}). Previously
+defined @code{Constraint DirichletBoundaryCondition1}
+(@pxref{Constraint examples}) is used as boundary condition.
 
-In the example above, @code{Entity NodesOf[All]} is preferred to 
-@code{Entity NodesOf[Domain]}. 
-In this way, the list of all the nodes of @code{Domain} will not have to be 
+In the example above, @code{Entity NodesOf[All]} is preferred to
+@code{Entity NodesOf[Domain]}.
+In this way, the list of all the nodes of @code{Domain} will not have to be
 generated. All the nodes of each geometrical element in @code{Support Domain}
 will be directly taken into account.
 
@@ -6063,9 +6090,9 @@ will be directly taken into account.
 @node High order space, Global values, Conform space, FunctionSpace examples
 @subsection High order nodal finite element space
 
-Higher order finite elements can be directly taken into account by @code{BF_Node}. 
-Hierarchical finite elements for 0-forms can be used by simply adding other basis 
-functions (associated with other geometrical entities, e.g., edges and facets) to 
+Higher order finite elements can be directly taken into account by @code{BF_Node}.
+Hierarchical finite elements for 0-forms can be used by simply adding other basis
+functions (associated with other geometrical entities, e.g., edges and facets) to
 @code{BasisFunction}, e.g.,
 
 @example
@@ -6086,7 +6113,7 @@ functions (associated with other geometrical entities, e.g., edges and facets) t
 @node Global values, Curl-conform space, High order space, FunctionSpace examples
 @subsection Nodal finite element space with floating potentials
 
-A scalar potential with floating values @var{vf} on certain boundaries @var{Gf}, 
+A scalar potential with floating values @var{vf} on certain boundaries @var{Gf},
 @var{f} in @var{Cf}, e.g., for electrostatic problems, can be expressed as
 
 @tex
@@ -6098,9 +6125,9 @@ $$ v = \sum_{n\in N_v} v_n s_n + \sum_{f\in C_f} v_f s_f    \quad v\in S^0(W)  $
 @end ifnottex
 
 @noindent
-where @var{Nv} is the set of inner nodes of @var{W} and each function @var{sf} 
-is associated with the group of nodes of boundary @var{Gf}, @var{f} in @var{Cf} 
-(@code{SkinDomainC}); @var{sf} is the sum of the nodal basis functions 
+where @var{Nv} is the set of inner nodes of @var{W} and each function @var{sf}
+is associated with the group of nodes of boundary @var{Gf}, @var{f} in @var{Cf}
+(@code{SkinDomainC}); @var{sf} is the sum of the nodal basis functions
 of all the nodes of @var{Cf}. Its function space is defined by
 
 @example
@@ -6109,12 +6136,12 @@ FunctionSpace @{
     BasisFunction @{
       @{ Name sn; NameOfCoef vn; Function BF_Node;
         Support Domain; Entity NodesOf[All, Not SkinDomainC]; @}
-      @{ Name sf; NameOfCoef vf; Function BF_GroupOfNodes; 
+      @{ Name sf; NameOfCoef vf; Function BF_GroupOfNodes;
         Support Domain; Entity GroupsOfNodesOf[SkinDomainC]; @}
     @}
     GlobalQuantity @{
       @{ Name GlobalElectricPotential; Type AliasOf; NameOfCoef vf; @}
-      @{ Name GlobalElectricCharge; Type AssociatedWith; 
+      @{ Name GlobalElectricCharge; Type AssociatedWith;
         NameOfCoef vf; @}
     @}
     Constraint @{ @dots{} @}
@@ -6136,7 +6163,7 @@ coefficient @code{vf}, and the electric charge
 @node Curl-conform space, Gauge condition, Global values, FunctionSpace examples
 @subsection Edge finite element space
 
-Another space is the edge finite element space, denoted @i{S1(W)}, 
+Another space is the edge finite element space, denoted @i{S1(W)},
 containing 1-forms, i.e., curl-conform fields:
 
 @tex
@@ -6148,8 +6175,8 @@ $$ {\bf h} = \sum_{e\in E} h_e {\bf s}_e   \quad{\bf h}\in S^1(W)  $$
 @end ifnottex
 
 @noindent
-where @var{E} is the set of edges of @var{W}, @var{se} is the edge basis 
-function for edge @var{e} and @var{he} is the circulation of @var{h} along 
+where @var{E} is the set of edges of @var{W}, @var{se} is the edge basis
+function for edge @var{e} and @var{he} is the circulation of @var{h} along
 edge @var{e}. It is defined by
 
 @example
@@ -6209,8 +6236,8 @@ FunctionSpace @{
 @node Coupled spaces, Multiply connected domains, Gauge condition, FunctionSpace examples
 @subsection Coupled edge and nodal finite element spaces
 
-A 1-form function space, containing curl free fields in certain regions @var{WcC} 
-(@code{DomainCC}) of @var{W}, which are the complementary part of @var{Wc} 
+A 1-form function space, containing curl free fields in certain regions @var{WcC}
+(@code{DomainCC}) of @var{W}, which are the complementary part of @var{Wc}
 (@code{DomainC}) in @var{W}, can be explicitly characterized by
 
 
@@ -6223,20 +6250,20 @@ $$ {\bf h} = \sum_{k\in E_c} h_k {\bf s}_k + \sum_{n\in N_c^C} \phi_n {\bf v}_n 
 @end ifnottex
 
 @noindent
-where @var{Ec} is the set of inner edges of @var{W}, @var{NcC} is the set of 
-nodes inside @var{WcC} and on its boundary @var{dWcC}, @var{sk} is an edge 
-basis function and @var{vn} is a vector nodal function. Such a space, coupling 
+where @var{Ec} is the set of inner edges of @var{W}, @var{NcC} is the set of
+nodes inside @var{WcC} and on its boundary @var{dWcC}, @var{sk} is an edge
+basis function and @var{vn} is a vector nodal function. Such a space, coupling
 a vector field with a scalar potential, can be defined by
 
 @example
 FunctionSpace @{
   @{ Name Hcurl_hphi; Type Form1;
     BasisFunction @{
-      @{ Name sk; NameOfCoef hk; Function BF_Edge; 
+      @{ Name sk; NameOfCoef hk; Function BF_Edge;
         Support DomainC; Entity EdgesOf[All, Not SkinDomainC]; @}
-      @{ Name vn; NameOfCoef phin; Function BF_GradNode; 
+      @{ Name vn; NameOfCoef phin; Function BF_GradNode;
         Support DomainCC; Entity NodesOf[All]; @}
-      @{ Name vn; NameOfCoef phic; Function BF_GroupOfEdges; 
+      @{ Name vn; NameOfCoef phic; Function BF_GroupOfEdges;
         Support DomainC; Entity GroupsOfEdgesOnNodesOf[SkinDomainC];@}
     @}
     Constraint @{
@@ -6253,7 +6280,7 @@ FunctionSpace @{
 
 @noindent
 This example points out the definition of a piecewise defined basis function, e.g.,
-function @code{vn} being defined with @code{BF_GradNode} in @code{DomainCC} and 
+function @code{vn} being defined with @code{BF_GradNode} in @code{DomainCC} and
 @code{BF_GroupOfEdges} in @code{DomainC}. This leads to an easy coupling
 between these regions.
 
@@ -6265,8 +6292,8 @@ between these regions.
 @node Multiply connected domains,  , Coupled spaces, FunctionSpace examples
 @subsection Coupled edge and nodal finite element spaces for multiply connected domains
 
-In case a multiply connected domain @var{WcC} is considered, basis functions 
-associated with cuts (@code{SurfaceCut}) have to be added to the previous 
+In case a multiply connected domain @var{WcC} is considered, basis functions
+associated with cuts (@code{SurfaceCut}) have to be added to the previous
 basis functions, which gives the function space below:
 
 @example
@@ -6310,7 +6337,7 @@ FunctionSpace @{
 @end example
 
 @noindent
-Global quantities associated with the cuts, i.e., currents and voltages 
+Global quantities associated with the cuts, i.e., currents and voltages
 if @var{h} is the magnetic field, have also been defined.
 
 
@@ -6324,8 +6351,8 @@ if @var{h} is the magnetic field, have also been defined.
 @cindex Jacobian, examples
 
 
-A simple Jacobian method is for volume transformations (of @var{n}-D 
-regions in @var{n}-D geometries; @var{n} = 1, 2 or 3), 
+A simple Jacobian method is for volume transformations (of @var{n}-D
+regions in @var{n}-D geometries; @var{n} = 1, 2 or 3),
 e.g., in region @code{Domain},
 
 @example
@@ -6369,7 +6396,7 @@ Jacobian @{
 
 
 A commonly used numerical integration method is the @code{Gauss} integration,
-with a number of integration points (@code{NumberOfPoints}) depending on 
+with a number of integration points (@code{NumberOfPoints}) depending on
 geometrical element types (@code{GeoElement}), i.e.
 
 @example
@@ -6439,8 +6466,8 @@ Formulation @{
     Quantity @{
       @{ Name v; Type Local; NameOfSpace Hgrad_v; @}
     @}
-    Equation @{ 
-      Galerkin @{ [ epsr[] * Dof@{Grad v@} , @{Grad v@} ];
+    Equation @{
+      Integral @{ [ epsr[] * Dof@{Grad v@} , @{Grad v@} ];
                  In Domain; Jacobian Vol; Integration Int_1; @}
     @}
   @}
@@ -6448,7 +6475,7 @@ Formulation @{
 @end example
 
 @noindent
-The density of the @code{Galerkin} term is a copy of the symbolic form of
+The density of the @code{Integral} term is a copy of the symbolic form of
 the formulation, i.e., the product of a relative permittivity function
 @code{epsr[]} by a vector of degrees of freedom (@code{Dof@{.@}}); the
 scalar product of this with the gradient of test function @code{v} results
@@ -6479,13 +6506,13 @@ Formulation @{
   @{ Name Electrostatics_v_floating; Type FemEquation;
     Quantity @{
       @{ Name v; Type Local; NameOfSpace Hgrad_v_floating; @}
-      @{ Name V; Type Global; 
+      @{ Name V; Type Global;
         NameOfSpace Hgrad_v_floating [GlobalElectricPotential]; @}
-      @{ Name Q; Type Global; 
+      @{ Name Q; Type Global;
         NameOfSpace Hgrad_v_floating [GlobalElectricCharge]; @}
     @}
-    Equation @{ 
-      Galerkin @{ [ epsr[] * Dof@{Grad v@} , @{Grad v@} ];
+    Equation @{
+      Integral @{ [ epsr[] * Dof@{Grad v@} , @{Grad v@} ];
                  In Domain; Jacobian Vol; Integration Int_1; @}
       GlobalTerm @{ [ - Dof@{Q@}/eps0 , @{V@} ]; In SkinDomainC; @}
     @}
@@ -6508,11 +6535,11 @@ with the predefinition @code{Function @{ eps0 = 8.854187818e-12; @}}.
 A magnetostatic 3D vector potential formulation
 
 @tex
-$$ (\nu\,{\rm curl}\,{\bf a}, {\rm curl}\,{\bf a}')_W = 
+$$ (\nu\,{\rm curl}\,{\bf a}, {\rm curl}\,{\bf a}')_W =
 ({\bf j}_s , {\bf a}')_{W_s}  \quad\forall{\bf a}'\in S^1(W), {\rm\ with\ gauge\ condition} $$
 @end tex
 @ifnottex
-( @var{nu} curl @var{a} , curl @var{ap} ) @var{W} - 
+( @var{nu} curl @var{a} , curl @var{ap} ) @var{W} -
 ( @var{js} , @var{ap} ) @var{Ws} = 0,
 for all @var{ap} in @i{S1(W)} with gauge condition,
 @end ifnottex
@@ -6526,10 +6553,10 @@ Formulation @{
     Quantity @{
       @{ Name a; Type Local; NameOfSpace Hcurl_a_Gauge; @}
     @}
-    Equation @{ 
-      Galerkin @{ [ nu[] * Dof@{Curl a@} , @{Curl a@} ];
+    Equation @{
+      Integral @{ [ nu[] * Dof@{Curl a@} , @{Curl a@} ];
                  In Domain; Jacobian Vol; Integration Int_1; @}
-      Galerkin @{ [ - SourceCurrentDensity[] , @{a@} ];
+      Integral @{ [ - SourceCurrentDensity[] , @{a@} ];
                  In DomainWithSourceCurrentDensity;
                  Jacobian Vol; Integration Int_1; @}
     @}
@@ -6538,10 +6565,10 @@ Formulation @{
 @end example
 
 @noindent
-Note that @var{js} is here given by a function @code{SourceCurrentDensity[]}, 
-but could also be given by data computed from another problem, 
-e.g., from an electrokinetic problem (coupling of formulations) or 
-from a fully fixed function space (constraints fixing the density, which is 
+Note that @var{js} is here given by a function @code{SourceCurrentDensity[]},
+but could also be given by data computed from another problem,
+e.g., from an electrokinetic problem (coupling of formulations) or
+from a fully fixed function space (constraints fixing the density, which is
 usually more efficient in time domain analyses).
 
 @c .........................................................................
@@ -6551,17 +6578,17 @@ usually more efficient in time domain analyses).
 @node Magnetodynamics, Other formulations, Magnetostatics, Formulation examples
 @subsection Magnetodynamic 3D or 2D magnetic field and magnetic scalar potential formulation
 
-A magnetodynamic 3D or 2D @var{h-phi} formulation, i.e., coupling the magnetic 
+A magnetodynamic 3D or 2D @var{h-phi} formulation, i.e., coupling the magnetic
 field @var{h} with a magnetic scalar potential @var{phi},
 
 @tex
-$$ \partial_t (\mu\,{\bf h}, {\bf h}')_W + 
+$$ \partial_t (\mu\,{\bf h}, {\bf h}')_W +
    (\rho\,{\rm curl}\,{\bf h}, {\rm curl}\,{\bf h}')_{W_c} = 0
    \quad\forall{\bf h}'\in S^1(W) $$
 @end tex
 @ifnottex
-Dt ( @var{mu} @var{h} , @var{hp} ) @var{W} + 
-( @var{ro} curl @var{h} , curl @var{hp} ) @var{Wc} = 0,  
+Dt ( @var{mu} @var{h} , @var{hp} ) @var{W} +
+( @var{ro} curl @var{h} , curl @var{hp} ) @var{Wc} = 0,
 for all @var{hp} in @i{S1(W)},
 @end ifnottex
 
@@ -6575,10 +6602,10 @@ Formulation @{
     Quantity @{
       @{ Name h; Type Local; NameOfSpace Hcurl_hphi; @}
     @}
-    Equation @{ 
-      Galerkin @{ Dt [ mu[] * Dof@{h@} , @{h@} ];
+    Equation @{
+      Integral @{ Dt [ mu[] * Dof@{h@} , @{h@} ];
                  In Domain; Jacobian Vol; Integration Int_1; @}
-      Galerkin @{ [ rho[] * Dof@{Curl h@} , @{Curl h@} ];
+      Integral @{ [ rho[] * Dof@{Curl h@} , @{Curl h@} ];
                  In DomainC; Jacobian Vol; Integration Int_1; @}
     @}
   @}
@@ -6622,7 +6649,7 @@ mixed formulations can be defined.
 @node Static resolution, Frequency domain resolution, Resolution examples, Resolution examples
 @subsection Static resolution (electrostatic problem)
 
-A static resolution, e.g., for the electrostatic formulation 
+A static resolution, e.g., for the electrostatic formulation
 (@pxref{Formulation examples}), can be defined by
 
 @example
@@ -6631,7 +6658,7 @@ Resolution @{
     System @{
       @{ Name Sys_Ele; NameOfFormulation Electrostatics_v; @}
     @}
-    Operation @{ 
+    Operation @{
       Generate[Sys_Ele]; Solve[Sys_Ele]; SaveSolution[Sys_Ele];
     @}
   @}
@@ -6639,8 +6666,8 @@ Resolution @{
 @end example
 
 @noindent
-The generation (@code{Generate}) of the matrix of the system @code{Sys_Ele} 
-will be made with the formulation @code{Electrostatics_v}, followed by its 
+The generation (@code{Generate}) of the matrix of the system @code{Sys_Ele}
+will be made with the formulation @code{Electrostatics_v}, followed by its
 solving (@code{Solve}) and the saving of the solution (@code{SaveSolution}).
 
 @c .........................................................................
@@ -6650,7 +6677,7 @@ solving (@code{Solve}) and the saving of the solution (@code{SaveSolution}).
 @node Frequency domain resolution, Time domain resolution, Static resolution, Resolution examples
 @subsection Frequency domain resolution (magnetodynamic problem)
 
-A frequency domain resolution, e.g., for the magnetodynamic @var{h-phi} 
+A frequency domain resolution, e.g., for the magnetodynamic @var{h-phi}
 formulation (@pxref{Formulation examples}), is given by
 
 @example
@@ -6683,7 +6710,7 @@ Function @{
 @node Time domain resolution, Nonlinear resolution, Frequency domain resolution, Resolution examples
 @subsection Time domain resolution (magnetodynamic problem)
 
-A time domain resolution, e.g., for the same magnetodynamic @var{h-phi} 
+A time domain resolution, e.g., for the same magnetodynamic @var{h-phi}
 formulation (@pxref{Formulation examples}), is given by
 
 @example
@@ -6695,7 +6722,7 @@ Resolution @{
     Operation @{
       InitSolution[Sys_Mag]; SaveSolution[Sys_Mag];
       TimeLoopTheta[Mag_Time0, Mag_TimeMax, Mag_DTime[], Mag_Theta[]] @{
-        Generate[Sys_Mag]; Solve[Sys_Mag]; SaveSolution[Sys_Mag]; 
+        Generate[Sys_Mag]; Solve[Sys_Mag]; SaveSolution[Sys_Mag];
       @}
     @}
   @}
@@ -6703,7 +6730,7 @@ Resolution @{
 @end example
 
 @noindent
-If, e.g., the @code{Resolution} above is preceded by the constant and function 
+If, e.g., the @code{Resolution} above is preceded by the constant and function
 definitions below
 
 @example
@@ -6736,7 +6763,7 @@ the magnetodynamic problem above,
       InitSolution[Sys_Mag]; SaveSolution[Sys_Mag];
       TimeLoopTheta[Mag_Time0, Mag_TimeMax, Mag_DTime[], Mag_Theta[]] @{
         IterativeLoop[NL_NbrMax, NL_Eps, NL_Relax] @{
-          GenerateJac[Sys_Mag]; SolveJac[Sys_Mag]; 
+          GenerateJac[Sys_Mag]; SolveJac[Sys_Mag];
         @}
         SaveSolution[Sys_Mag];
       @}
@@ -6762,15 +6789,15 @@ Function @{
 @node Coupled formulations,  , Nonlinear resolution, Resolution examples
 @subsection Coupled formulations
 
-A coupled problem, e.g., magnetodynamic (in frequency domain; 
-@code{Frequency Freq}) - thermal (in time domain) coupling, with temperature 
+A coupled problem, e.g., magnetodynamic (in frequency domain;
+@code{Frequency Freq}) - thermal (in time domain) coupling, with temperature
 dependent characteristics (e.g., @code{rho[@{T@}]}, @dots{}), can be defined by:
 
 @example
 Resolution @{
   @{ Name MagnetoThermalCoupling_hphi_T;
     System @{
-      @{ Name Sys_Mag; NameOfFormulation Magnetodynamics_hphi; 
+      @{ Name Sys_Mag; NameOfFormulation Magnetodynamics_hphi;
         Frequency Freq; @}
       @{ Name Sys_The; NameOfFormulation Thermal_T; @}
     @}
@@ -6787,12 +6814,12 @@ Resolution @{
 @end example
 
 @noindent
-Two systems of equations, @code{Sys_Mag} and @code{Sys_The}, will be solved 
-iteratively until convergence (@code{Criterion}), using a relaxation factor 
+Two systems of equations, @code{Sys_Mag} and @code{Sys_The}, will be solved
+iteratively until convergence (@code{Criterion}), using a relaxation factor
 (@code{RelaxationFactor}).
 
 
-It can be seen through these examples that many resolutions can be linked or 
+It can be seen through these examples that many resolutions can be linked or
 nested directly by the user, which gives a great freedom for coupled problems.
 
 
@@ -6829,7 +6856,7 @@ The electric scalar potential @var{v} (@code{v}), the electric field
 all be computed from the solution. They are all defined in the region
 @code{Domain}.
 
-The quantities for the solution associated with the formulation 
+The quantities for the solution associated with the formulation
 @code{Electrostatics_v_float@-ing} are defined by
 
 @example
@@ -6909,7 +6936,7 @@ boundary of the region @code{Domain}, in a table oriented format appended to
 an already existing file @code{out.txt}, the operation would be:
 
 @example
-Print [ v, OnElementsOf Domain, Depth 0, Skin, Format Table, 
+Print [ v, OnElementsOf Domain, Depth 0, Skin, Format Table,
         File >> "out.txt" ];
 @end example
 
@@ -7197,17 +7224,17 @@ with
 @noindent Notes:
 @enumerate
 @item
-There is one @code{$DofData} field for each system of equations considered in 
+There is one @code{$DofData} field for each system of equations considered in
 the resolution (including those considered in pre-resolutions).
 @item
-The @var{dofdata-number} of a @code{$DofData} field is determined by the order 
+The @var{dofdata-number} of a @code{$DofData} field is determined by the order
 of this field in the @file{.pre} file.
 @item
-@var{number-of-dof} is the dimension of the considered system of equations, while 
-@var{number-of-any-dof} is the total number of degrees of freedom before 
+@var{number-of-dof} is the dimension of the considered system of equations, while
+@var{number-of-any-dof} is the total number of degrees of freedom before
 the application of constraints.
 @item
-Each degree of freedom is coded with three integer values, which are the 
+Each degree of freedom is coded with three integer values, which are the
 associated basis function, entity and harmonic numbers, i.e.,
 @var{dof-basis-function-number}, @var{dof-entity} and @var{dof-harmonic}.
 @item
@@ -7246,7 +7273,7 @@ $EndSolution
 @noindent Notes:
 @enumerate
 @item
-A @code{$Solution} field contains the solution associated with a 
+A @code{$Solution} field contains the solution associated with a
 @code{$DofData} field.
 @item
 There is one @code{$Solution} field for each time step, of which the time is
@@ -7254,8 +7281,8 @@ There is one @code{$Solution} field for each time step, of which the time is
 imaginary time is @var{time-imag-value} (0 for non time dependent or non
 modal analyses).
 @item
-The order of the @var{solution-value}s in a @code{$Solution} field follows 
-the numbering of the equations given in the @file{.pre} file 
+The order of the @var{solution-value}s in a @code{$Solution} field follows
+the numbering of the equations given in the @file{.pre} file
 (one floating point value for each degree of freedom).
 @end enumerate
 
@@ -7433,7 +7460,7 @@ very simple (see the Gmsh reference manual for more details), it should
 be straightforward to write a converter from your mesh format to the
 `msh' format.
 
-@item How can I visualize the results produced by GetDP?  
+@item How can I visualize the results produced by GetDP?
 
 You can specify a format in all post-processing operations. Available
 formats include @code{Table}, @code{SimpleTable}, @code{TimeTable} and
@@ -7447,10 +7474,12 @@ by Gmsh.
 It depends on which linear solver toolkit was enabled when GetDP was
 compiled (PETSc or Sparskit).
 
-With PETSc-based linear solvers you can either specify options directly
-on the command line (e.g. with @code{-ksp_type gmres -pc_type ilu}),
-through a specific option file (with @code{-solver file}), or through
-the @file{.petscrc} file located in your home directly.
+With PETSc-based linear solvers you can either specify options on the
+command line (e.g. with @code{-ksp_type gmres -pc_type ilu}), through a
+specific option file (with @code{-solver file}), through the
+@file{.petscrc} file located in your home directly, or directly in the
+@code{Resolution} field using the @code{SetGlobalSolverOptions[]}
+command.
 
 With Sparskit-based linear solvers can either specify options directly
 on command line (e.g. with @code{-Nb_Fill 200}), specify an option file
@@ -7495,7 +7524,7 @@ model, and function spaces, formulations, resolutions and post-processings
 in files independent of the geometrical model.
 @item
 Use @code{All} as soon as possible in the definition of topological
-entities used as @code{Entity} of @code{BasisFunction}s. 
+entities used as @code{Entity} of @code{BasisFunction}s.
 This will prevent GetDP from constructing unnecessary lists of entities.
 @item
 Intentionally misspelling an object type in the problem definition
@@ -7531,7 +7560,7 @@ available PostOperations.
 @cindex Copyright
 @cindex Acknowledgments
 @cindex Contributors, list
-@cindex Credits 
+@cindex Credits
 
 @verbatiminclude ../../CREDITS.txt
 

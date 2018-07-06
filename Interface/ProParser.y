@@ -29,6 +29,11 @@
 #include "Message.h"
 #include "OS.h"
 
+#if defined(HAVE_GMSH)
+#include <gmsh/GmshGlobal.h>
+#include <gmsh/PView.h>
+#endif
+
 // Global problem structure filled by the parser
 extern struct Problem Problem_S;
 
@@ -144,7 +149,7 @@ void Alloc_ParserVariables();
 int Check_NameOfStructExist(const char *Struct, List_T *List_L, void *data,
                             int (*fcmp)(const void *a, const void *b),
                             int level_Append);
-int  Add_Group(struct Group *Group_P, char *Name, bool Flag_Add,
+int  Add_Group(struct Group *Group_P, char *Name, int Flag_AddRemove,
                int Flag_Plus, int Num_Index);
 int  Num_Group(struct Group *Group_P, char *Name, int Num_Group);
 void Fill_GroupInitialListFromString(List_T *list, const char *str);
@@ -223,7 +228,7 @@ struct doubleXstring{
 %type <l>  ListOfSystem RecursiveListOfSystem
 %type <l>  SubPostQuantities PostSubOperations
 %type <c>  NameForMathFunction NameForFunction CharExpr CharExprNoVar
-%type <c>  StrCat StringIndex String__Index CallArg
+%type <c>  StringIndex String__Index CallArg
 %type <c>  LP RP SendToFile tSTRING_Member GetForcedStr_Default
 %type <t>  Quantity_Def
 %type <l>  TimeLoopAdaptiveSystems TimeLoopAdaptivePOs IterativeLoopSystems
@@ -231,14 +236,14 @@ struct doubleXstring{
 %type <c2> Struct_FullName
 /* ------------------------------------------------------------------ */
 %token  tEND tDOTS tSCOPE
-%token  tStr tStrList
+%token  tStr tStrPrefix tStrRelative tStrList
 %token  tStrCat tSprintf tPrintf tMPI_Printf tRead tPrintConstants
 %token  tStrCmp tStrFind tStrLen
 %token  tStrChoice tStrSub tUpperCase tLowerCase tLowerCaseIn
 %token  tNbrRegions tGetRegion tGetRegions tStringToName tNameToString
 %token  tFor tEndFor tIf tElseIf tElse tEndIf tMacro tReturn tCall tCallTest
 %token  tTest tWhile tParse
-%token  tFlag tExists tFileExists tGetForced tGetForcedStr
+%token  tFlag tExists tFileExists tGroupExists tGetForced tGetForcedStr
 %token  tInclude tLevelInclude
 %token  tConstant tList tListAlt tLinSpace tLogSpace
 %token  tListFromFile
@@ -253,7 +258,7 @@ struct doubleXstring{
 %token  tGETDP_MAJOR_VERSION tGETDP_MINOR_VERSION tGETDP_PATCH_VERSION
 
 %token  tExp tLog tLog10 tSqrt tSin tAsin tCos tAcos tTan
-%token    tAtan tAtan2 tSinh tCosh tTanh tFabs tFloor tCeil tRound tSign
+%token    tAtan tAtan2 tSinh tCosh tTanh tAtanh tFabs tFloor tCeil tRound tSign
 %token    tFmod tModulo tHypot tRand
 %token    tSolidAngle tTrace tOrder tCrossProduct tDofValue tRational
 %token    tMHTransform tMHBilinear
@@ -292,7 +297,7 @@ struct doubleXstring{
 %token    tQuantity
 %token        tNameOfSpace tIndexOfSystem
 %token        tSymmetry
-%token    tGalerkin tdeRham tGlobalTerm tGlobalEquation
+%token    tIntegral tdeRham tGlobalTerm tGlobalEquation
 %token        tDt tDtDof tDtDt tDtDtDof tDtDtDtDof tDtDtDtDtDof tDtDtDtDtDtDof
 %token        tJacNL tDtDofJacNL tNeverDt tDtNL tEig
 %token        tAtAnteriorTimeStep tMaxOverTime tFourierSteinmetz
@@ -321,6 +326,7 @@ struct doubleXstring{
 %token      tNbrMaxIteration tRelaxationFactor
 %token      tIterativeTimeReduction
 %token        tSetCommSelf tSetCommWorld tBarrier tBroadcastFields tBroadcastVariables
+%token        tSetExtrapolationOrder
 %token      tSleep
 %token      tDivisionCoefficient tChangeOfState
 %token      tChangeOfCoordinates tChangeOfCoordinates2 tSystemCommand tError
@@ -425,16 +431,13 @@ ProblemDefinition :
   | tResolution        '{' Resolutions        '}'
   | tPostProcessing    '{' PostProcessings    '}'
   | tPostOperation     '{' PostOperations     '}'
-
   | SeparatePostOperation
-
-  | Loop // contains For, EndFor, If, ElseIf, Else, EndIf, Macro, Return, Call, Parse, Affectation
-
   | tInclude CharExpr
     {
       num_include++; level_include++;
       strcpy(getdp_yyincludename, $2); getdp_yyincludenum++; return(0);
     }
+  | ParserCommands
  ;
 
 
@@ -453,10 +456,13 @@ Groups :
 Group :
 
     String__Index tDEF ReducedGroupRHS tEND
-    { Add_Group(&Group_S, $1, false, 0, 0); }
+    { Add_Group(&Group_S, $1, 0, 0, 0); }
 
   | String__Index '+' tDEF ReducedGroupRHS tEND
-    { Add_Group(&Group_S, $1, true, 0, 0); }
+    { Add_Group(&Group_S, $1, +1, 0, 0); }
+
+  | String__Index '-' tDEF ReducedGroupRHS tEND
+    { Add_Group(&Group_S, $1, -1, 0, 0); }
 
   | String__Index tDEF tMovingBand2D '[' IRegion
     {
@@ -483,12 +489,12 @@ Group :
     {
       Group_S.MovingBand2D->InitialList2 = $11;
       Group_S.MovingBand2D->Period2 = (int)$13;
-      Add_Group(&Group_S, $1, false, 0, 0);
+      Add_Group(&Group_S, $1, 0, 0, 0);
     }
 
   | tDefineGroup '[' DefineGroups ']' tEND
 
-  | Loop
+  | ParserCommands
  ;
 
 ReducedGroupRHS :
@@ -813,7 +819,7 @@ DefineGroups :
 	Group_S.Type = REGIONLIST ; Group_S.FunctionType = REGION ;
 	Group_S.InitialList = List_Create( 5, 5, sizeof(int)) ;
 	Group_S.SuppListType = SUPPLIST_NONE ; Group_S.InitialSuppList = NULL ;
-	i = Add_Group(&Group_S, $3, false, 0, 0) ;
+	i = Add_Group(&Group_S, $3, 0, 0, 0) ;
       }
       else  Free($3) ;
     }
@@ -833,7 +839,7 @@ DefineGroups :
             Fill_GroupInitialListFromString(Group_S.InitialList, vec[i].c_str());
         }
 	Group_S.SuppListType = SUPPLIST_NONE ; Group_S.InitialSuppList = NULL ;
-	i = Add_Group(&Group_S, $3, false, 0, 0) ;
+	i = Add_Group(&Group_S, $3, 0, 0, 0) ;
       }
       else  Free($3) ;
     }
@@ -849,7 +855,7 @@ DefineGroups :
 	  Group_S.Type = REGIONLIST ; Group_S.FunctionType = REGION ;
 	  Group_S.SuppListType = SUPPLIST_NONE ; Group_S.InitialSuppList = NULL ;
 	  Group_S.InitialList = List_Create( 5, 5, sizeof(int)) ;
-	  Add_Group(&Group_S, $3, false, 2, k+1) ;
+	  Add_Group(&Group_S, $3, 0, 2, k+1) ;
 	}
       }
       Free($3) ;
@@ -1006,7 +1012,7 @@ Function :
       else  vyyerror(0, "Bad Group right hand side");
     }
 
-  | Loop
+  | ParserCommands
  ;
 
 
@@ -1684,7 +1690,7 @@ WholeQuantity_Single :
     { WholeQuantity_S.Type = WQ_CURRENTVALUE;
       Get_PointerForString(Current_Value, $2, &FlagError,
 			   (void **)&WholeQuantity_S.Case.CurrentValue.Value);
-      if(FlagError){
+      if(FlagError){ // if it's not a Current_Value, we query run-time variables
         WholeQuantity_S.Type = WQ_NAMEDVALUESAVED;
         WholeQuantity_S.Case.NamedValue.Name = $2;
       }
@@ -1811,7 +1817,7 @@ BracedJacobianMethod :
         List_Add(Problem_S.JacobianMethod, &JacobianMethod_S);
     }
 
-  | Loop
+  | ParserCommands
  ;
 
 JacobianMethod :
@@ -1822,7 +1828,7 @@ JacobianMethod :
       level_Append = 0;
     }
   | JacobianMethod  JacobianMethodTerm
-  | JacobianMethod  Loop
+  | JacobianMethod  ParserCommands
  ;
 
 
@@ -1859,7 +1865,7 @@ JacobianCases :
     }
   | JacobianCases  '{' JacobianCase '}'
     { List_Add($$ = $1, &JacobianCase_S); }
-  | JacobianCases  Loop
+  | JacobianCases  ParserCommands
  ;
 
 
@@ -1944,7 +1950,7 @@ BracedIntegrationMethod :
         List_Add(Problem_S.IntegrationMethod, &IntegrationMethod_S);
     }
 
-  | Loop
+  | ParserCommands
  ;
 
 IntegrationMethod :
@@ -1958,7 +1964,7 @@ IntegrationMethod :
     }
 
   | IntegrationMethod  IntegrationMethodTerm
-  | IntegrationMethod  Loop
+  | IntegrationMethod  ParserCommands
  ;
 
 
@@ -1998,7 +2004,7 @@ IntegrationCases :
 
   | IntegrationCases '{' IntegrationCase '}'
     { List_Add($$ = $1, &IntegrationCase_S); }
-  | IntegrationCases Loop
+  | IntegrationCases ParserCommands
  ;
 
 
@@ -2158,7 +2164,7 @@ BracedConstraint :
         List_Add(Problem_S.Constraint, &Constraint_S);
     }
 
-  | Loop
+  | ParserCommands
  ;
 
 Constraint :
@@ -2226,7 +2232,7 @@ ConstraintTerm :
 	       &MultiConstraintPerRegion_S);
     }
 
-   | ConstraintTerm Loop
+   | ConstraintTerm ParserCommands
 ;
 
 
@@ -2244,7 +2250,7 @@ ConstraintCases :
       List_Add($$ = $1, &ConstraintPerRegion_S);
     }
 
-  | ConstraintCases Loop
+  | ConstraintCases ParserCommands
     {
       $$ = $1;
     }
@@ -2479,7 +2485,7 @@ BracedFunctionSpace :
         List_Add(Problem_S.FunctionSpace, &FunctionSpace_S);
     }
 
-  | Loop
+  | ParserCommands
  ;
 
 
@@ -2492,9 +2498,9 @@ FunctionSpace :
       level_Append = 0;
     }
 
-  | FunctionSpace  FunctionSpaceTerm
+  | FunctionSpace FunctionSpaceTerm
 
-  | FunctionSpace  Loop
+  | FunctionSpace ParserCommands
  ;
 
 
@@ -2571,7 +2577,7 @@ BasisFunctions :
         List_Add(FunctionSpace_S.BasisFunction, &BasisFunction_S);
     }
 
-  | BasisFunctions  Loop
+  | BasisFunctions ParserCommands
  ;
 
 
@@ -2814,7 +2820,7 @@ SubSpaces :
         List_Add(FunctionSpace_S.SubSpace, &SubSpace_S);
     }
 
-  | SubSpaces  Loop
+  | SubSpaces ParserCommands
  ;
 
 
@@ -2970,7 +2976,7 @@ GlobalQuantities :
       List_Add(FunctionSpace_S.GlobalQuantity, &GlobalQuantity_S);
     }
 
-  | GlobalQuantities  Loop
+  | GlobalQuantities ParserCommands
  ;
 
 
@@ -3064,7 +3070,7 @@ ConstraintInFSs :
 			    ConstraintPerRegion_P->SubRegion2Index))
 	      ->InitialList : NULL;
 	    ConstraintInFS_S.EntityIndex = Add_Group(&Group_S, (char*)"CO_Entity",
-                                                     false, 1, 0);
+                                                     0, 1, 0);
 	    ConstraintInFS_S.ConstraintPerRegion = ConstraintPerRegion_P;
 
 	    List_Add(FunctionSpace_S.Constraint, &ConstraintInFS_S);
@@ -3073,7 +3079,7 @@ ConstraintInFSs :
       }
     }
 
-  | ConstraintInFSs  Loop
+  | ConstraintInFSs ParserCommands
  ;
 
 
@@ -3177,7 +3183,7 @@ BracedFormulation :
         List_Add(Problem_S.Formulation, &Formulation_S);
     }
 
-  | Loop
+  | ParserCommands
  ;
 
 
@@ -3190,9 +3196,9 @@ Formulation :
       level_Append = 0;
     }
 
-  | Formulation  FormulationTerm
+  | Formulation FormulationTerm
 
-  | Formulation  Loop
+  | Formulation ParserCommands
  ;
 
 
@@ -3247,7 +3253,7 @@ DefineQuantities :
       List_Add(Formulation_S.DefineQuantity, &DefineQuantity_S);
     }
 
-  | DefineQuantities Loop
+  | DefineQuantities ParserCommands
  ;
 
 
@@ -3281,8 +3287,8 @@ DefineQuantityTerm :
   | tType tGlobalQuantity tEND
     { DefineQuantity_S.Type = GLOBALQUANTITY; }
 
-    /* Doit rester tant qu'on ne supprime pas l'association 'Integral <-> tGalerkin' */
-  | tType tGalerkin tEND
+   // required as long as 'tIntegral' is a token
+  | tType tIntegral tEND
     { DefineQuantity_S.Type = INTEGRALQUANTITY; }
 
   | tType tSTRING tEND
@@ -3696,7 +3702,7 @@ Equations :
       List_Add($$ = $1, &EquationTerm_S);
     }
 
-  | Equations  Loop
+  | Equations ParserCommands
     {
       $$ = $1;
     }
@@ -3705,7 +3711,7 @@ Equations :
 
 EquationTerm :
 
-    tGalerkin  '{' LocalTerm '}'
+    tIntegral  '{' LocalTerm '}'
     { EquationTerm_S.Type = GALERKIN; }
 
   | tdeRham  '{' LocalTerm '}'
@@ -3728,7 +3734,7 @@ GlobalEquation :
       EquationTerm_S.Case.GlobalEquation.GlobalEquationTerm = NULL;
     }
   | GlobalEquation GlobalEquationTerm
-  | GlobalEquation Loop
+  | GlobalEquation ParserCommands
  ;
 
 GlobalEquationTerm :
@@ -4263,7 +4269,7 @@ BracedResolution :
         List_Add(Problem_S.Resolution, &Resolution_S);
     }
 
-  | Loop
+  | ParserCommands
  ;
 
 
@@ -4310,7 +4316,7 @@ ResolutionTerm :
     '{' Operation '}'
     { Resolution_S.Operation = $4;  List_Delete(Operation_L); }
 
-  | Loop
+  | ParserCommands
  ;
 
 
@@ -4332,7 +4338,7 @@ DefineSystems :
 	List_Write(Current_System_L, i, &DefineSystem_S) ;
     }
 
-  | DefineSystems Loop
+  | DefineSystems ParserCommands
      {
        $$ = $1;
      }
@@ -4413,7 +4419,7 @@ DefineSystemTerm :
       DefineSystem_S.SolverDataFileName = $2;
     }
 
-  | Loop
+  | ParserCommands
  ;
 
 
@@ -4657,6 +4663,13 @@ OperationTerm :
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_SLEEP;
       Operation_P->Case.Sleep.ExpressionIndex = $3;
+    }
+
+  | tSetExtrapolationOrder '[' FExpr ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_SETEXTRAPOLATIONORDER;
+      Operation_P->Case.SetExtrapolationOrder.order = (int)$3;
     }
 
   | tSetCommSelf tEND
@@ -5905,7 +5918,7 @@ OperationTerm :
       Operation_P->Type = OPERATION_OPTIMIZER_FINALIZE;
      }
 
-  | Loop
+  | ParserCommandsWithoutOperations
     {
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
@@ -6481,7 +6494,7 @@ BracedPostProcessing :
         List_Add(Problem_S.PostProcessing, &PostProcessing_S);
     }
 
-  | Loop
+  | ParserCommands
  ;
 
 PostProcessing :
@@ -6495,9 +6508,9 @@ PostProcessing :
       level_Append = 0;
     }
 
-  | PostProcessing  PostProcessingTerm
+  | PostProcessing PostProcessingTerm
 
-  | PostProcessing  Loop
+  | PostProcessing ParserCommands
  ;
 
 PostProcessingTerm :
@@ -6556,7 +6569,7 @@ PostQuantities :
         List_Add(PostProcessing_S.PostQuantity, &PostQuantity_S);
     }
 
-  | PostQuantities  Loop
+| PostQuantities ParserCommands
  ;
 
 PostQuantity :
@@ -6609,8 +6622,8 @@ SubPostQuantities :
           //+++ TODO: to be refined for clean delete of existing data
     }
 
-    /* Doit rester tant qu'on ne supprime pas l'association 'Integral <-> tGalerkin' */
-  | SubPostQuantities tGalerkin '{' SubPostQuantity '}'
+   // required as long as 'tIntegral' is a token
+  | SubPostQuantities tIntegral '{' SubPostQuantity '}'
     {
       PostQuantityTerm_S.EvaluationType = INTEGRAL;
       List_Add($$ = $1, &PostQuantityTerm_S);
@@ -6628,7 +6641,7 @@ SubPostQuantities :
       List_Add($$ = $1, &PostQuantityTerm_S);
     }
 
-  | SubPostQuantities Loop
+  | SubPostQuantities ParserCommands
     { $$ = $1 ; }
  ;
 
@@ -6755,7 +6768,7 @@ BracedPostOperation :
         List_Add(Problem_S.PostOperation, &PostOperation_S);
     }
 
-  | Loop
+  | ParserCommands
  ;
 
 PostOperation :
@@ -6870,7 +6883,7 @@ PostOperationTerm :
       PostOperation_S.PostSubOperation = $3;
     }
 
-  | Loop
+  | ParserCommands
  ;
 
 
@@ -7095,7 +7108,19 @@ PostSubOperation :
       PostSubOperation_S.FileOut = $3;
     }
 
-  | Loop
+  | tDeleteFile '[' CharExpr ']' tEND
+    {
+      PostSubOperation_S.Type = POP_DELETEFILE;
+      PostSubOperation_S.FileOut = $3;
+    }
+
+  | tCreateDir '[' CharExpr ']' tEND
+    {
+      PostSubOperation_S.Type = POP_CREATEDIR;
+      PostSubOperation_S.FileOut = $3;
+    }
+
+  | ParserCommandsWithoutOperations
     {
       PostSubOperation_S.Type = POP_NONE;
     }
@@ -7734,7 +7759,7 @@ PrintOption :
 
 
 /* ------------------------------------------------------------------------ */
-/*  L o o p                                                                 */
+/*  P a r s e r C o m m a n d s                                             */
 /* ------------------------------------------------------------------------ */
 
 CallArg :
@@ -7744,9 +7769,9 @@ CallArg :
     { $$ = $1; }
  ;
 
-Loop :
-
-    tFor '(' FExpr tDOTS FExpr ')'
+ParserCommandsWithoutOperations :
+    Affectation
+  | tFor '(' FExpr tDOTS FExpr ')'
     {
       LoopControlVariablesTab[ImbricatedLoop][0] = $3;
       LoopControlVariablesTab[ImbricatedLoop][1] = $5;
@@ -7978,12 +8003,78 @@ Loop :
       getdp_yystring = $3;
       Free($3);
     }
-  | Affectation
- ;
+  ;
+
+ParserCommands :
+    ParserCommandsWithoutOperations
+  | tError LP CharExpr RP tEND
+    {
+      Message::Error($3);
+      Free($3);
+    }
+  | GmshOperation '[' CharExpr ']' tEND
+    {
+#if defined(HAVE_GMSH)
+      switch($1){
+      case OPERATION_GMSHREAD: GmshMergePostProcessingFile($3); break;
+      case OPERATION_GMSHOPEN: GmshOpenProject($3); break;
+      case OPERATION_GMSHMERGE: GmshMergeFile($3); break;
+      }
+#else
+      vyyerror(0, "You need to compile GetDP with Gmsh support for this operation");
+#endif
+      Free($3);
+    }
+  | GmshOperation '[' CharExpr ',' FExpr ']' tEND
+    {
+#if defined(HAVE_GMSH)
+      if($5 >= 0) PView::setGlobalTag($5);
+      switch($1){
+      case OPERATION_GMSHREAD: GmshMergePostProcessingFile($3); break;
+      case OPERATION_GMSHOPEN: GmshOpenProject($3); break;
+      case OPERATION_GMSHMERGE: GmshMergeFile($3); break;
+      case OPERATION_GMSHWRITE:
+        {
+          PView *view = PView::getViewByTag($5);
+          if(view) view->write($3, 10);
+        }
+        break;
+      }
+#else
+      vyyerror(0, "You need to compile GetDP with Gmsh support for this operation");
+#endif
+      Free($3);
+    }
+  | tGmshClearAll '[' ']' tEND
+    {
+#if defined(HAVE_GMSH)
+      while(PView::list.size()) delete PView::list[0];
+      PView::setGlobalTag(0);
+#else
+      vyyerror(0, "You need to compile GetDP with Gmsh support for this operation");
+#endif
+    }
+  | tDeleteFile '[' CharExpr ']' tEND
+    {
+      RemoveFile($3);
+      Free($3);
+    }
+  | tRenameFile '[' CharExpr ',' CharExpr ']' tEND
+    {
+      RenameFile($3, $5);
+      Free($3);
+      Free($5);
+    }
+  | tCreateDir '[' CharExpr ']' tEND
+    {
+      CreateDirs($3);
+      Free($3);
+    }
+  ;
 
 
 /* ------------------------------------------------------------------------ */
-/*  C o n s t a n t   E x p r e s s i o n s  (FExpr)                        */
+/*  C o n s t a n t   E x p r e s s i o n s                                 */
 /* ------------------------------------------------------------------------ */
 
 Printf :
@@ -8380,12 +8471,6 @@ Affectation :
       List_Delete($5);
     }
 
-  | tError '(' CharExpr ')' tEND
-    {
-      Message::Error($3);
-      Free($3);
-    }
-
   // deprectated
   | tRead '(' String__Index ')' tEND
     {
@@ -8457,6 +8542,13 @@ Enumeration :
     {
       doubleXstring v = {$3, $5};
       List_Add($$, &v);
+    }
+  | Enumeration ',' FExpr '?' FExpr tDEF CharExpr
+    {
+      if($3){
+        doubleXstring v = {$5, $7};
+        List_Add($$, &v);
+      }
     }
   | MultiFExpr tDEF String__Index '(' ')'
     {
@@ -8806,6 +8898,7 @@ NameForMathFunction :
   | tSinh    { $$ = (char*)"Sinh";   }
   | tCosh    { $$ = (char*)"Cosh";   }
   | tTanh    { $$ = (char*)"Tanh";   }
+  | tAtanh   { $$ = (char*)"Atanh";  }
   | tFabs    { $$ = (char*)"Fabs";   }
   | tFloor   { $$ = (char*)"Floor";  }
   | tCeil    { $$ = (char*)"Ceil";   }
@@ -8859,6 +8952,7 @@ FExpr :
   | tSinh   '[' FExpr ']'            { $$ = sinh($3);     }
   | tCosh   '[' FExpr ']'            { $$ = cosh($3);     }
   | tTanh   '[' FExpr ']'            { $$ = tanh($3);     }
+  | tAtanh  '[' FExpr ']'            { $$ = atanh($3);    }
   | tFabs   '[' FExpr ']'            { $$ = fabs($3);     }
   | tFloor  '[' FExpr ']'            { $$ = floor($3);    }
   | tCeil   '[' FExpr ']'            { $$ = ceil($3);     }
@@ -9025,6 +9119,16 @@ OneFExpr :
       $$ = !StatusFile(tmp);
       Free($3);
     }
+
+  | tGroupExists LP String__Index RP
+    {
+      if(List_ISearchSeq(Problem_S.Group, $3, fcmp_Group_Name) >= 0)
+        $$ = 1;
+      else
+        $$ = 0;
+      Free($3);
+    }
+
 ;
 
 GetForced_Default :
@@ -9548,40 +9652,53 @@ CharExprNoVar :
   | tNameToString '[' String__Index ']'
     { $$ = $3; }
 
-  | StrCat
+  | tStrCat LP RecursiveListOfCharExpr RP
     {
-      $$ = $1;
+      int size = 1;
+      for(int i = 0; i < List_Nbr($3); i++){
+        char *s;
+        List_Read($3, i, &s);
+        size += strlen(s) + 1;
+      }
+      $$ = (char*)Malloc(size * sizeof(char));
+      $$[0] = '\0';
+      for(int i = 0; i < List_Nbr($3); i++){
+        char *s;
+        List_Read($3, i, &s);
+        strcat($$, s);
+        Free(s);
+      }
+      List_Delete($3);
     }
 
-  | tUpperCase '[' CharExpr ']'
+  | tStrPrefix LP CharExpr RP
     {
-      int i = 0;
-      while ($3[i]) {
-        $3[i] = toupper($3[i]);
-        i++;
+      $$ = (char *)Malloc((strlen($3) + 1) * sizeof(char));
+      int i;
+      for(i = strlen($3) - 1; i >= 0; i--){
+	if($3[i] == '.'){
+	  strncpy($$, $3, i);
+	  $$[i]='\0';
+	  break;
+	}
       }
-      $$ = $3;
+      if(i <= 0) strcpy($$, $3);
+      Free($3);
     }
 
-  | tLowerCase '[' CharExpr ']'
+  | tStrRelative LP CharExpr RP
     {
-      int i = 0;
-      while ($3[i]) {
-        $3[i] = tolower($3[i]);
-        i++;
+      $$ = (char *)Malloc((strlen($3) + 1) * sizeof(char));
+      int i;
+      for(i = strlen($3) - 1; i >= 0; i--){
+	if($3[i] == '/' || $3[i] == '\\')
+	  break;
       }
-      $$ = $3;
-    }
-
-  | tLowerCaseIn '[' CharExpr ']'
-    {
-      int i=0;
-      while ($3[i]) {
-        if (i > 0 && $3[i-1] != '_')
-          $3[i] = tolower($3[i]);
-        i++;
-      }
-      $$ = $3;
+      if(i <= 0)
+	strcpy($$, $3);
+      else
+	strcpy($$, &$3[i+1]);
+      Free($3);
     }
 
   | tStr LP RecursiveListOfCharExpr RP
@@ -9602,6 +9719,37 @@ CharExprNoVar :
         if(i != List_Nbr($3) - 1) strcat($$, "\n");
       }
       List_Delete($3);
+    }
+
+  | tUpperCase LP CharExpr RP
+    {
+      int i = 0;
+      while ($3[i]) {
+        $3[i] = toupper($3[i]);
+        i++;
+      }
+      $$ = $3;
+    }
+
+  | tLowerCase LP CharExpr RP
+    {
+      int i = 0;
+      while ($3[i]) {
+        $3[i] = tolower($3[i]);
+        i++;
+      }
+      $$ = $3;
+    }
+
+  | tLowerCaseIn LP CharExpr RP
+    {
+      int i=0;
+      while ($3[i]) {
+        if (i > 0 && $3[i-1] != '_')
+          $3[i] = tolower($3[i]);
+        i++;
+      }
+      $$ = $3;
     }
 
   | tStrChoice LP FExpr ',' CharExpr ',' CharExpr RP
@@ -9672,11 +9820,10 @@ CharExprNoVar :
     {
       char str_date[80];
       time_t rawtime;
-      struct tm * timeinfo;
-
-      time (&rawtime);
-      timeinfo = localtime (&rawtime);
-      strftime (str_date, 80, $3, timeinfo);
+      struct tm *timeinfo;
+      time(&rawtime);
+      timeinfo = localtime(&rawtime);
+      strftime(str_date, 80, $3, timeinfo);
       $$ = (char *)Malloc((strlen(str_date)+1)*sizeof(char));
       strcpy($$, str_date);
     }
@@ -9892,28 +10039,6 @@ MultiCharExpr :
 
 LP : '(' { $$ = (char*)"("; } | '[' { $$ = (char*)"["; } ;
 RP : ')' { $$ = (char*)")"; } | ']' { $$ = (char*)"]"; } ;
-
-StrCat :
-
-    tStrCat LP RecursiveListOfCharExpr RP
-    {
-      int size = 1;
-      for(int i = 0; i < List_Nbr($3); i++){
-        char *s;
-        List_Read($3, i, &s);
-        size += strlen(s) + 1;
-      }
-      $$ = (char*)Malloc(size * sizeof(char));
-      $$[0] = '\0';
-      for(int i = 0; i < List_Nbr($3); i++){
-        char *s;
-        List_Read($3, i, &s);
-        strcat($$, s);
-        Free(s);
-      }
-      List_Delete($3);
-    }
- ;
 
 StrCmp :
 
@@ -10132,7 +10257,7 @@ void Free_ParserVariables()
 
 /*  A d d _ G r o u p   &   C o .  */
 
-int  Add_Group(struct Group *Group_P, char *Name, bool Flag_Add,
+int  Add_Group(struct Group *Group_P, char *Name, int Flag_AddRemove,
                int Flag_Plus, int Num_Index)
 {
   if(!Problem_S.Group)
@@ -10158,10 +10283,16 @@ int  Add_Group(struct Group *Group_P, char *Name, bool Flag_Add,
     Group_P->ExtendedList = Group_P->ExtendedSuppList = Group_P->ExtendedSuppList2 = NULL;
     List_Add(Problem_S.Group, Group_P);
   }
-  else if(Flag_Add) {
+  else if(Flag_AddRemove == +1) {
     List_T *InitialList = ((struct Group *)List_Pointer(Problem_S.Group, i))->InitialList;
     for(int j = 0; j < List_Nbr(Group_P->InitialList); j++) {
       List_Add(InitialList, (int *)List_Pointer(Group_P->InitialList, j));
+    }
+  }
+  else if(Flag_AddRemove == -1) {
+    List_T *InitialList = ((struct Group *)List_Pointer(Problem_S.Group, i))->InitialList;
+    for(int j = 0; j < List_Nbr(Group_P->InitialList); j++) {
+      List_Suppress(InitialList, (int *)List_Pointer(Group_P->InitialList, j), fcmp_Integer);
     }
   }
   else  List_Write(Problem_S.Group, i, Group_P);
@@ -10172,7 +10303,7 @@ int  Add_Group(struct Group *Group_P, char *Name, bool Flag_Add,
 int  Num_Group(struct Group *Group_P, char *Name, int Num_Group)
 {
   if     (Num_Group >= 0)   /* OK */;
-  else if(Num_Group == -1)  Num_Group = Add_Group(Group_P, Name, false, 1, 0);
+  else if(Num_Group == -1)  Num_Group = Add_Group(Group_P, Name, 0, 1, 0);
   else                      vyyerror(0, "Bad Group right hand side");
 
   return Num_Group;

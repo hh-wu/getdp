@@ -42,7 +42,6 @@ void  F_DrAcousticFieldSoftSphere(F_ARG) ;
 void  F_RCSSoftSphere(F_ARG) ;
 void  F_AcousticFieldHardSphere(F_ARG) ;
 void  F_RCSHardSphere(F_ARG) ;
-void  F_CylindricalHarmonic(F_ARG) ;
 void  F_AcousticFieldSoftCylinder(F_ARG) ;
 void  F_AcousticFieldSoftCylinderABC(F_ARG) ;
 void  F_DrAcousticFieldSoftCylinder(F_ARG) ;
@@ -78,7 +77,10 @@ void  F_ElastodynamicsCylinderWallS(F_ARG);
 void  F_ElastodynamicsCylinderWallOut(F_ARG);
 void  F_ElastodynamicsCylinderWallsOut(F_ARG);
 void  F_ElastoCylinderWallOutAbc(F_ARG);
+void  F_ElastoCylinderWallsOutAbc(F_ARG);
 void  F_ElastoCylinderWallOutAbc2(F_ARG);
+void  F_ElastoCylinderWallOutAbc2Pade(F_ARG);
+void  F_ElastoCylinderWallsOutAbc2Pade(F_ARG);
 
 /* F_Geometry */
 
@@ -116,6 +118,7 @@ void  F_Atan            (F_ARG) ;
 void  F_Sinh            (F_ARG) ;
 void  F_Cosh            (F_ARG) ;
 void  F_Tanh            (F_ARG) ;
+void  F_Atanh           (F_ARG) ;
 void  F_Fabs            (F_ARG) ;
 void  F_Abs             (F_ARG) ;
 void  F_Floor           (F_ARG) ;
@@ -125,9 +128,14 @@ void  F_Sign            (F_ARG) ;
 void  F_Min             (F_ARG) ;
 void  F_Max             (F_ARG) ;
 void  F_Jn              (F_ARG) ;
+void  F_JnComplex       (F_ARG) ;
 void  F_Yn              (F_ARG) ;
 void  F_dJn             (F_ARG) ;
 void  F_dYn             (F_ARG) ;
+void  F_JnSph           (F_ARG) ;
+void  F_YnSph           (F_ARG) ;
+void  F_dJnSph          (F_ARG) ;
+void  F_dYnSph          (F_ARG) ;
 
 /* F_ExtMath */
 
@@ -337,7 +345,7 @@ void Vector_Find_Jk_K (const double hrk[3],
 void Vector_Find_hrk_K(const double Jk[3],
                        const double Ja, const double ha, const double Jb, const double hb,
                        double hrk[3]);
-void Tensor_dJkdhrk_K(const double hr[3], 
+void Tensor_dJkdhrk_K(const double hr[3],
                       const double Ja, const double ha, const double Jb, const double hb,
                       double mutg[6]);
 

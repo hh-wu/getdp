@@ -1917,6 +1917,7 @@ void init_solver (Solver_Params *p , const char *name){
     Message::Info("Parameter file not found");
     Message::Info("Enter parameter values:");
     for(i=0;i<NbInfosSolver;i++){
+      bool error = false;
       pI = &Tab_Params[i];
       switch(pI->typeinfo){
       case REEL :
@@ -1925,14 +1926,15 @@ void init_solver (Solver_Params *p , const char *name){
 	  strcpy(buff, "\n");
 	else{
 	  printf("%25s (Real)    [<h>=help, <return>=%g]: ",pI->str,pI->defaultfloat);
-	  fgets(buff, 128, stdin);
+	  if(!fgets(buff, 128, stdin))
+            error = true;
 	}
-	if(!strcmp(buff,"h\n")){
+	if(!error && !strcmp(buff,"h\n")){
 	  printf(pI->com,pI->str,pI->defaultfloat);
 	  printf("\n");
 	  goto getfloat;
 	}
-	if(!strcmp(buff,"\n")){
+	if(error || !strcmp(buff,"\n")){
 	  fprintf(file,"%25s %12g\n",pI->str,pI->defaultfloat);
 	  (pI->action)(p,pI->defaultint,pI->defaultfloat);
 	}
@@ -1948,14 +1950,15 @@ void init_solver (Solver_Params *p , const char *name){
         }
 	else{
 	  printf("%25s (Integer) [<h>=help, <return>=%d]: ",pI->str,pI->defaultint);
-	  fgets(buff, 128, stdin);
+	  if(!fgets(buff, 128, stdin))
+            error = true;
 	}
-	if(!strcmp(buff,"h\n")){
+	if(!error && !strcmp(buff,"h\n")){
 	  printf(pI->com,pI->str,pI->defaultint);
 	  printf("\n");
 	  goto getint;
 	}
-	if(!strcmp(buff,"\n")){
+	if(error || !strcmp(buff,"\n")){
 	  fprintf(file,"%25s %12d\n",pI->str,pI->defaultint);
 	  (pI->action)(p,pI->defaultint,pI->defaultfloat);
 	}

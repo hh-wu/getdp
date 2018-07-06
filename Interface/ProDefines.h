@@ -124,6 +124,9 @@ struct StringXDefine  Element_Type[] = {
   {"Triangle2"      , TRIANGLE_2},
   {"Quadrangle2"    , QUADRANGLE_2},
   {"Quadrangle2_8N" , QUADRANGLE_2_8N},
+  {"Line4"          , LINE_4},
+  {"Triangle4"      , TRIANGLE_4},
+  {"Tetrahedron4"   , TETRAHEDRON_4},
   {NULL             , TRIANGLE}
  } ;
 
@@ -234,6 +237,7 @@ struct StringXDefine  Operation_Type[] = {
   {"SetRightHandSideAsSolution" , OPERATION_SETRHSASSOLUTION},
   {"SetSolutionAsRHS"       , OPERATION_SETSOLUTIONASRHS},
   {"SetSolutionAsRightHandSide", OPERATION_SETSOLUTIONASRHS},
+  {"SetIncrementAsSolution" , OPERATION_SETINCREMENTASSOLUTION},
   {"SwapSolutionAndRHS"     , OPERATION_SWAPSOLUTIONANDRHS},
   {"SwapSolutionAndRightHandSide" , OPERATION_SWAPSOLUTIONANDRHS},
   {"SwapSolutionAndResidual", OPERATION_SWAPSOLUTIONANDRESIDUAL},
@@ -285,6 +289,7 @@ struct StringXPointer  Current_Value[] = {
   {"ResidualN" , &Current.ResidualN}, //+++
   {"Residual_Iter1" , &Current.Residual_Iter1}, //+++
   {"NbrTestedFac" , &Current.NbrTestedFac}, //+++
+  {"SolveJacAdaptFailed" , &Current.SolveJacAdaptFailed}, //+++
   {"TimeImag" , &Current.TimeImag},   {"Eigenvalue", &Current.Time},
   {"EigenvalueReal" , &Current.Time}, {"EigenvalueImag" , &Current.TimeImag},
   {"ReOmega"  , &Current.Time},       {"ImOmega"   , &Current.TimeImag},
@@ -431,10 +436,10 @@ struct DefineXFunction  FunctionForGaussLegendre[] = {
 } ;
 
 #define POI  POINT
-#define LIN  LINE | LINE_2
-#define TRI  TRIANGLE | TRIANGLE_2
+#define LIN  LINE | LINE_2 | LINE_4
+#define TRI  TRIANGLE | TRIANGLE_2 | TRIANGLE_4
 #define QUA  QUADRANGLE | QUADRANGLE_2 | QUADRANGLE_2_8N
-#define TET  TETRAHEDRON | TETRAHEDRON_2
+#define TET  TETRAHEDRON | TETRAHEDRON_2 | TETRAHEDRON_4
 #define HEX  HEXAHEDRON | HEXAHEDRON_2
 #define PRI  PRISM | PRISM_2
 #define PYR  PYRAMID | PYRAMID_2
@@ -936,6 +941,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"Sinh"              , (CAST)F_Sinh             ,   0,   1 },
   {"Cosh"              , (CAST)F_Cosh             ,   0,   1 },
   {"Tanh"              , (CAST)F_Tanh             ,   0,   1 },
+  {"Atanh"             , (CAST)F_Atanh            ,   0,   1 },
   {"Fabs"              , (CAST)F_Fabs             ,   0,   1 },
   {"Abs"               , (CAST)F_Abs              ,   0,   1 },
   {"Floor"             , (CAST)F_Floor            ,   0,   1 },
@@ -946,9 +952,14 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"Min"               , (CAST)F_Min              ,   0,   2 },
   {"Max"               , (CAST)F_Max              ,   0,   2 },
   {"Jn"                , (CAST)F_Jn               ,   0,   2 },
+  {"JnComplex"         , (CAST)F_JnComplex        ,   0,   2 },
   {"Yn"                , (CAST)F_Yn               ,   0,   2 },
   {"dJn"               , (CAST)F_dJn              ,   0,   2 },
   {"dYn"               , (CAST)F_dYn              ,   0,   2 },
+  {"JnSph"             , (CAST)F_JnSph            ,   0,   2 },
+  {"YnSph"             , (CAST)F_YnSph            ,   0,   2 },
+  {"dJnSph"            , (CAST)F_dJnSph           ,   0,   2 },
+  {"dYnSph"            , (CAST)F_dYnSph           ,   0,   2 },
 
   // F_ExtMath
   {"Hypot"             , (CAST)F_Hypot            ,   0,   2 },
@@ -1129,18 +1140,17 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"ExactOsrcSolutionPerfectlyConductingSphereMwt", (CAST)F_ExactOsrcSolutionPerfectlyConductingSphereMwt,  3, 1 },
   {"CurrentPerfectlyConductingSphereMwt",(CAST)F_CurrentPerfectlyConductingSphereMwt,  3, 1 },
 
-  {"AcousticFieldSoftSphere",         (CAST)F_AcousticFieldSoftSphere,  2, 1 },
+  {"AcousticFieldSoftSphere",         (CAST)F_AcousticFieldSoftSphere, -1, 1 },
   {"AcousticFieldSoftSphereABC",      (CAST)F_AcousticFieldSoftSphereABC, 5, 1 },
   {"DrAcousticFieldSoftSphere",       (CAST)F_DrAcousticFieldSoftSphere, 2, 1 },
   {"RCSSoftSphere",                   (CAST)F_RCSSoftSphere,  2, 1 },
-  {"AcousticFieldHardSphere",         (CAST)F_AcousticFieldHardSphere,  2, 1 },
+  {"AcousticFieldHardSphere",         (CAST)F_AcousticFieldHardSphere, -1, 1 },
   {"RCSHardSphere",                   (CAST)F_RCSHardSphere,  2, 1 },
   {"AcousticFieldSoftCylinder",       (CAST)F_AcousticFieldSoftCylinder, -1, 1 },
-  {"CylindricalHarmonic",             (CAST)F_CylindricalHarmonic, 3, 1 },
   {"AcousticFieldSoftCylinderABC",    (CAST)F_AcousticFieldSoftCylinderABC, 5, 1 },
   {"DrAcousticFieldSoftCylinder",     (CAST)F_DrAcousticFieldSoftCylinder, 2, 1 },
   {"RCSSoftCylinder",                 (CAST)F_RCSSoftCylinder,  2, 1 },
-  {"AcousticFieldHardCylinder",       (CAST)F_AcousticFieldHardCylinder, 2, 1 },
+  {"AcousticFieldHardCylinder",       (CAST)F_AcousticFieldHardCylinder, -1, 1 },
   {"AcousticFieldHardCylinderABC",    (CAST)F_AcousticFieldHardCylinderABC, 5, 1 },
   {"DthetaAcousticFieldHardCylinder", (CAST)F_DthetaAcousticFieldHardCylinder, 2, 1 },
   {"RCSHardCylinder",                 (CAST)F_RCSHardCylinder,  2, 1 },
@@ -1168,7 +1178,11 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"ElastodynamicsCylinderWallOut", (CAST)F_ElastodynamicsCylinderWallOut, 5, 1},
   {"ElastodynamicsCylinderWallsOut", (CAST)F_ElastodynamicsCylinderWallsOut, 5, 1},
   {"ElastoCylinderWallOutAbc",(CAST)F_ElastoCylinderWallOutAbc, 6, 1},
+  {"ElastoCylinderWallsOutAbc",(CAST)F_ElastoCylinderWallsOutAbc, 6, 1},
   {"ElastoCylinderWallOutAbc2",(CAST)F_ElastoCylinderWallOutAbc2, 6, 1},
+  {"ElastoCylinderWallOutAbc2Pade",(CAST)F_ElastoCylinderWallOutAbc2Pade, 10, 1},
+  {"ElastoCylinderWallsOutAbc2Pade",(CAST)F_ElastoCylinderWallsOutAbc2Pade, 10, 1},
+
 
   // F_Raytracing: ray tracing functions
   {"CylinderPhase",      (CAST)F_CylinderPhase, 0, 1 },

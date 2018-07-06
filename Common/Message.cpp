@@ -18,6 +18,10 @@
 #include "ProParser.h" // for onelab
 
 #if !defined(WIN32) || defined(__CYGWIN__)
+#include <unistd.h>
+#endif
+
+#if !defined(WIN32) || defined(__CYGWIN__)
 #include <sys/time.h>
 #include <sys/resource.h>
 #endif
@@ -197,6 +201,13 @@ static int streamIsFile(FILE* stream)
 
 static int streamIsVT100(FILE* stream)
 {
+  // on unix directly check if the file descriptor refers to a terminal
+#if !defined(WIN32) || defined(__CYGWIN__)
+  return isatty(fileno(stream));
+#endif
+
+  // otherwise try to detect some known cases:
+
   // if running inside emacs the terminal is not VT100
   const char* emacs = getenv("EMACS");
   if(emacs && *emacs == 't') return 0;

@@ -39,7 +39,6 @@ opt(FORTRAN "Enable Fortran (needed for Arpack/Sparskit/Zitsol & Bessel)" ${DEFA
 opt(GMSH "Enable Gmsh functions (for field interpolation)" ${DEFAULT})
 opt(GSL "Enable GSL functions (for some built-in functions)" ${DEFAULT})
 opt(HPDDM "Enable HPDDM support" ${DEFAULT})
-opt(INTERNAL_DEVELOPER_API "Enable internal developer API (will be off be default)" OFF)
 opt(KERNEL "Enable kernel (required for actual computations)" ON)
 opt(MMA "Enable MMA optimizer" ${DEFAULT})
 opt(MPI "Enable MPI parallelization (with PETSc/SLEPc)" OFF)
@@ -49,6 +48,7 @@ opt(NX "Enable proprietary NX extension" OFF)
 opt(OCTAVE "Enable Octave functions" OFF)
 opt(OPENMP "Enable OpenMP parallelization of some functions (experimental)" OFF)
 opt(PETSC "Enable PETSc linear solver" ${DEFAULT})
+opt(PRIVATE_API "Enable private API" OFF)
 opt(PYTHON "Enable Python functions" ${DEFAULT})
 opt(SLEPC "Enable SLEPc eigensolver" ${DEFAULT})
 opt(SMALLFEM "Enable experimental SmallFem assembler" OFF)
@@ -66,7 +66,22 @@ endif(ENABLE_FORTRAN)
 set(GETDP_MAJOR_VERSION 2)
 set(GETDP_MINOR_VERSION 11)
 set(GETDP_PATCH_VERSION 4)
-set(GETDP_EXTRA_VERSION "" CACHE STRING "GetDP extra version string")
+set(GETDP_EXTRA_VERSION "")
+
+if(NOT GETDP_RELEASE)
+  find_package(Git)
+  if(GIT_FOUND)
+    execute_process(COMMAND ${GIT_EXECUTABLE} log -1 --format=%h
+                    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+                    OUTPUT_VARIABLE GIT_COMMIT_HASH
+                    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  endif(GIT_FOUND)
+  if(GIT_COMMIT_HASH)
+    set(GETDP_EXTRA_VERSION "-git-${GIT_COMMIT_HASH}")
+  else(GIT_COMMIT_HASH)
+    set(GETDP_EXTRA_VERSION "-git")
+  endif(GIT_COMMIT_HASH)
+endif(NOT GETDP_RELEASE)
 
 set(GETDP_VERSION "${GETDP_MAJOR_VERSION}.${GETDP_MINOR_VERSION}")
 set(GETDP_VERSION "${GETDP_VERSION}.${GETDP_PATCH_VERSION}${GETDP_EXTRA_VERSION}")
@@ -74,11 +89,11 @@ set(GETDP_SHORT_LICENSE "GNU General Public License")
 
 set(GETDP_API Kernel/getdp.h)
 
-if(ENABLE_INTERNAL_DEVELOPER_API)
-  set(GETDP_INTERNAL_DEVELOPER_API Kernel/getdp.h
+if(ENABLE_PRIVATE_API)
+  set(GETDP_PRIVATE_API Kernel/getdp.h
     ${CMAKE_CURRENT_BINARY_DIR}/Common/GetDPConfig.h
     ${CMAKE_CURRENT_BINARY_DIR}/Common/GetDPVersion.h)
-endif(ENABLE_INTERNAL_DEVELOPER_API)
+endif(ENABLE_PRIVATE_API)
 
 if(${CMAKE_MAJOR_VERSION} GREATER 2)
   string(TIMESTAMP DATE "%Y%m%d")
@@ -102,7 +117,7 @@ if(NOT GETDP_HOST)
   endif(NOT HOSTNAME)
   set(GETDP_HOST "${HOSTNAME}")
 endif(NOT GETDP_HOST)
-    
+
 if(NOT PACKAGER)
   set(PACKAGER "unknown")
 endif(NOT PACKAGER)
@@ -285,7 +300,7 @@ if(ENABLE_BLAS_LAPACK)
       endif(LAPACK_LIBRARIES)
     elseif(${CMAKE_SYSTEM_NAME} MATCHES "SunOS")
       # on SunOS we know blas and lapack are available in sunperf
-      set(LAPACK_FLAGS -library=sunperf)
+      set(LAPACK_LIBRARIES -library=sunperf)
       set_config_option(HAVE_BLAS "Blas(SunPerf)")
       set_config_option(HAVE_LAPACK "Lapack(SunPerf)")
     elseif(APPLE)
@@ -306,7 +321,7 @@ if(ENABLE_BLAS_LAPACK)
         if(GFORTRAN_LIB)
           list(APPEND LAPACK_LIBRARIES ${GFORTRAN_LIB})
         endif(GFORTRAN_LIB)
-      endif(LAPACK_LIBRARIES)  
+      endif(LAPACK_LIBRARIES)
     endif(NOT HAVE_BLAS OR NOT HAVE_LAPACK)
 
     if(NOT HAVE_BLAS OR NOT HAVE_LAPACK)
@@ -350,7 +365,7 @@ endif(ENABLE_MPI)
 
 if(ENABLE_GMSH)
   find_library(GMSH_LIB gmsh PATH_SUFFIXES lib)
-  # Currently GetDP uses the internal Gmsh developer API; this will be fixed 
+  # Currently GetDP uses the internal Gmsh developer API; this will be fixed
   # as we move to the stable API.
   find_path(GMSH_INC "gmsh/GmshGlobal.h" PATH_SUFFIXES include)
   if(GMSH_LIB AND GMSH_INC)
@@ -381,7 +396,7 @@ if(ENABLE_PETSC)
   else(PETSC_ARCH)
     set(ENV_PETSC_ARCH $ENV{PETSC_ARCH})
   endif(PETSC_ARCH)
-  set(PETSC_POSSIBLE_CONF_FILES 
+  set(PETSC_POSSIBLE_CONF_FILES
       ${ENV_PETSC_DIR}/${ENV_PETSC_ARCH}/conf/petscvariables
       ${ENV_PETSC_DIR}/${ENV_PETSC_ARCH}/lib/petsc-conf/petscvariables
       ${ENV_PETSC_DIR}/${ENV_PETSC_ARCH}/lib/petsc/conf/petscvariables)
@@ -539,7 +554,7 @@ if(ENABLE_FORTRAN)
     add_subdirectory(contrib/pewe)
     set_config_option(HAVE_PEWE "PeWe")
   endif(ENABLE_PEWE)
-  
+
   if(ENABLE_ZITSOL AND HAVE_PETSC)
     if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/ZITSOL_1/getdp.c)
       add_subdirectory(contrib/ZITSOL_1)
@@ -791,17 +806,15 @@ endif(ENABLE_BUILD_LIB)
 if(ENABLE_BUILD_SHARED OR ENABLE_BUILD_DYNAMIC)
   add_library(shared SHARED ${GETDP_SRC})
   set_target_properties(shared PROPERTIES OUTPUT_NAME getdp)
-  set_target_properties(shared PROPERTIES 
-    VERSION ${GETDP_MAJOR_VERSION}.${GETDP_MINOR_VERSION}.${GETDP_PATCH_VERSION}
-    SOVERSION ${GETDP_MAJOR_VERSION}.${GETDP_MINOR_VERSION})
-  if(HAVE_LAPACK AND LAPACK_FLAGS)
-    set_target_properties(shared PROPERTIES LINK_FLAGS ${LAPACK_FLAGS})
-  endif(HAVE_LAPACK AND LAPACK_FLAGS)
+  set_target_properties(shared PROPERTIES VERSION
+                        ${GETDP_MAJOR_VERSION}.${GETDP_MINOR_VERSION}.${GETDP_PATCH_VERSION})
+  set_target_properties(shared PROPERTIES SOVERSION
+                        ${GETDP_MAJOR_VERSION}.${GETDP_MINOR_VERSION})
+  target_link_libraries(shared ${LINK_LIBRARIES})
   if(MSVC AND ENABLE_MSVC_STATIC_RUNTIME)
     message(STATUS "Note: By enabling ENABLE_MSVC_STATIC_RUNTIME, shared library "
             "won't link. In MSVC change /MT to /MD in the shared project properties")
   endif(MSVC AND ENABLE_MSVC_STATIC_RUNTIME)
-  target_link_libraries(shared ${LINK_LIBRARIES})
 endif(ENABLE_BUILD_SHARED OR ENABLE_BUILD_DYNAMIC)
 
 if(ENABLE_BUILD_IOS)
@@ -809,7 +822,7 @@ if(ENABLE_BUILD_IOS)
   if(NOT CMAKE_TOOLCHAIN_FILE)
     message(FATAL_ERROR "Cannot compile GetDP for iOS without a toolchain")
   endif(NOT CMAKE_TOOLCHAIN_FILE)
-  add_definitions(-DBUILD_IOS)
+  add_definitions(-DBUILD_IOS -DHAVE_SMALL_STACK)
 endif(ENABLE_BUILD_IOS)
 
 if(ENABLE_BUILD_ANDROID)
@@ -820,7 +833,7 @@ if(ENABLE_BUILD_ANDROID)
   set(CMAKE_BUILD_TYPE Release)
   set(LIBRARY_OUTPUT_PATH_ROOT ${CMAKE_CURRENT_BINARY_DIR})
   set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/libs/)
-  add_definitions(-DBUILD_ANDROID)
+  add_definitions(-DBUILD_ANDROID -DHAVE_SMALL_STACK)
   add_library(androidGetdp SHARED ${GETDP_SRC})
   set_target_properties(androidGetdp PROPERTIES OUTPUT_NAME getdp)
   target_link_libraries(androidGetdp ${LINK_LIBRARIES} ${LIBRARY_DEPS})
@@ -839,12 +852,13 @@ endif(ENABLE_BUILD_DYNAMIC)
 
 # force static linking of system libraries with cygwin/mingw
 if(WIN32 AND NOT MSVC OR CYGWIN)
-  if(NOT ENABLE_BUILD_DYNAMIC)
-    set_target_properties(getdp PROPERTIES LINK_FLAGS "-static")
-    # remove stupid -Wl,-Bdynamic flags
+  set_target_properties(getdp PROPERTIES LINK_FLAGS "-static")
+  if(ENABLE_BUILD_SHARED OR ENABLE_BUILD_DYNAMIC)
+    set_target_properties(shared PROPERTIES LINK_FLAGS "-static")
+    # remove -Wl,-Bdynamic flags
     set(CMAKE_EXE_LINK_DYNAMIC_C_FLAGS)
     set(CMAKE_EXE_LINK_DYNAMIC_CXX_FLAGS)
-  endif(NOT ENABLE_BUILD_DYNAMIC)
+  endif(ENABLE_BUILD_SHARED OR ENABLE_BUILD_DYNAMIC)
 endif(WIN32 AND NOT MSVC OR CYGWIN)
 
 # parser target
@@ -876,7 +890,8 @@ set(CHANGELOG_FILE ${CMAKE_CURRENT_SOURCE_DIR}/CHANGELOG.txt)
 file(GLOB DEMO_FILES ${CMAKE_CURRENT_SOURCE_DIR}/demos/*.pro
                      ${CMAKE_CURRENT_SOURCE_DIR}/demos/*.geo
                      ${CMAKE_CURRENT_SOURCE_DIR}/demos/*.msh)
-file(GLOB TEMPLATE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/templates/*.pro)
+file(GLOB TEMPLATE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/templates/*.pro
+                         ${CMAKE_CURRENT_SOURCE_DIR}/templates/*.txt)
 file(GLOB DEMO_FILES_TMP ${CMAKE_CURRENT_SOURCE_DIR}/demos/*.pre
                          ${CMAKE_CURRENT_SOURCE_DIR}/demos/*.res
                          ${CMAKE_CURRENT_SOURCE_DIR}/demos/*.txt
@@ -915,7 +930,7 @@ if(WIN32 OR CYGWIN)
   set(GETDP_INC .)
   if(CYGWIN)
     unix2dos(GETDP_API)
-    unix2dos(GETDP_INTERNAL_DEVELOPER_API)
+    unix2dos(GETDP_PRIVATE_API)
     unix2dos(WELCOME_FILE)
     unix2dos(LICENSE_FILE)
     unix2dos(CREDITS_FILE)
@@ -943,9 +958,9 @@ if(ENABLE_BUILD_SHARED OR ENABLE_BUILD_DYNAMIC)
 endif(ENABLE_BUILD_SHARED OR ENABLE_BUILD_DYNAMIC)
 if(ENABLE_BUILD_LIB OR ENABLE_BUILD_SHARED OR ENABLE_BUILD_DYNAMIC)
   install(FILES ${GETDP_API} DESTINATION ${GETDP_INC})
-  if(ENABLE_INTERNAL_DEVELOPER_API)
-    install(FILES ${GETDP_INTERNAL_DEVELOPER_API} DESTINATION ${GETDP_INC}/getdp)
-  endif(ENABLE_INTERNAL_DEVELOPER_API)
+  if(ENABLE_PRIVATE_API)
+    install(FILES ${GETDP_PRIVATE_API} DESTINATION ${GETDP_INC}/getdp)
+  endif(ENABLE_PRIVATE_API)
 endif(ENABLE_BUILD_LIB OR ENABLE_BUILD_SHARED OR ENABLE_BUILD_DYNAMIC)
 install(FILES ${WELCOME_FILE} DESTINATION ${GETDP_DOC} RENAME README.txt)
 install(FILES ${LICENSE_FILE} DESTINATION ${GETDP_DOC})
@@ -974,7 +989,7 @@ if(ENABLE_WRAP_PYTHON)
     endif(APPLE)
   endif(SWIG_FOUND AND PYTHONLIBS_FOUND)
 endif(ENABLE_WRAP_PYTHON)
-  
+
 add_custom_target(clean_demos COMMAND ${CMAKE_COMMAND} -E remove ${DEMO_FILES_TMP})
 
 add_custom_target(get_headers
@@ -985,13 +1000,13 @@ foreach(FILE ${GETDP_API})
     -E copy_if_different ${FILE} ${CMAKE_CURRENT_BINARY_DIR}/Headers/
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 endforeach(FILE)
-if(ENABLE_INTERNAL_DEVELOPER_API)
-  foreach(FILE ${GETDP_INTERNAL_DEVELOPER_API})
+if(ENABLE_PRIVATE_API)
+  foreach(FILE ${GETDP_PRIVATE_API})
     add_custom_command(TARGET get_headers POST_BUILD COMMAND ${CMAKE_COMMAND}
       -E copy_if_different ${FILE} ${CMAKE_CURRENT_BINARY_DIR}/Headers/getdp/
       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
   endforeach(FILE)
-endif(ENABLE_INTERNAL_DEVELOPER_API)
+endif(ENABLE_PRIVATE_API)
 
 find_program(MAKEINFO makeinfo)
 if(MAKEINFO)
@@ -1059,13 +1074,13 @@ if(APPLE AND ENABLE_BUILD_LIB)
         ${FILE} ${CMAKE_CURRENT_BINARY_DIR}/getdp.framework/Headers/
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
   endforeach(FILE)
-  if(ENABLE_INTERNAL_DEVELOPER_API)
-    foreach(FILE ${GETDP_INTERNAL_DEVELOPER_API})
+  if(ENABLE_PRIVATE_API)
+    foreach(FILE ${GETDP_PRIVATE_API})
       add_custom_command(TARGET framework POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy
           ${FILE} ${CMAKE_CURRENT_BINARY_DIR}/getdp.framework/Headers/
           WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
     endforeach(FILE)
-  endif(ENABLE_INTERNAL_DEVELOPER_API)
+  endif(ENABLE_PRIVATE_API)
 endif(APPLE AND ENABLE_BUILD_LIB)
 
 set(CPACK_PACKAGE_VENDOR "Patrick Dular and Christophe Geuzaine")
@@ -1117,37 +1132,15 @@ endif(APPLE AND PACKAGER STREQUAL "geuzaine - removed: we sign on a separate mac
 
 include(CPack)
 
+# comprehensive getdp testing is done through in the onelab documentation
+# project (as it also requires Gmsh)
 include(CTest)
-file(GLOB_RECURSE TESTS
-     demos/magnet.pro
-     benchmarks/academic_eigenvalues/main.pro
-     benchmarks/acoustic_scattering/scattering.pro
-     benchmarks/inductor/inductor.pro
-     benchmarks/machines/pmsm.pro
-     benchmarks/magnetometer/magnetometer.pro
-     benchmarks/magnets/magnets.pro
-     benchmarks/thermal_conduction/contact.pro
-     benchmarks/transfo_simple/transfo.pro
-     benchmarks/waveguides/waveguide3D_rectangle.pro)
-if(HAVE_PETSC)
-  file(GLOB_RECURSE TESTS_PETSC
-       benchmarks/ddm_waves/main.pro)
-endif(HAVE_PETSC)
-find_program(TEST_BIN ../../gmsh/bin/gmsh)
-if(TEST_BIN)
-  message(STATUS "Will test GetDP with Gmsh through ONELAB")
-  set(TEST_FLAG -)
-else(TEST_BIN)
-  message(STATUS "Will test GetDP stand-alone")
-  set(TEST_BIN getdp)
-  set(TEST_FLAG)
-endif(TEST_BIN)
-
-foreach(TESTFILE ${TESTS} ${TESTS_PETSC})
-  # use relative path for cygwin/mingw (the pure win exe built with the mingw 
+file(GLOB_RECURSE TESTS demos/magnet.pro)
+foreach(TESTFILE ${TESTS})
+  # use relative path for cygwin/mingw (the pure win exe built with the mingw
   # compilers does not understand a full cygwin-style path)
   FILE(RELATIVE_PATH TEST ${CMAKE_CURRENT_BINARY_DIR} ${TESTFILE})
-  add_test(${TEST} ${TEST_BIN} ${TEST} ${TEST_FLAG})
+  add_test(${TEST} getdp ${TEST} -solve \#1 -pos \#1)
 endforeach(TESTFILE)
 
 message(STATUS "")

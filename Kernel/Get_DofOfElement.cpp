@@ -239,9 +239,6 @@ void  Get_GroupsOfElementaryEntitiesOfElement
   int            i, j, Num_Entity, Nbr_SubFunction, i_SF ;
   struct TwoInt  * Key_P ;
 
-  // FIXME: we should check when we do Element->NbrGroupsOfEntities++ that we
-  // won't exceed NBR_MAX_GROUPS_IN_ELEMENT - this is dynamic and can happen
-
   if (Element->NumLastElementForGroupsOfEntities != Element->Num) {
     Element->NumLastElementForGroupsOfEntities = Element->Num ;
     Element->NbrGroupsOfEntities = 0 ;
@@ -270,6 +267,10 @@ void  Get_GroupsOfElementaryEntitiesOfElement
 	  Element->NumSubFunction[0][j] = -1 ;
 	  Element->NumGroupsOfEntities[j] = Key_P->Int2 ;
 	  Element->NbrEntitiesInGroups[Element->NbrGroupsOfEntities++] = 0 ;
+          if(Element->NbrGroupsOfEntities >= NBR_MAX_GROUPS_IN_ELEMENT - 1){
+            Message::Error("Reached limit number of groups of entities");
+            return;
+          }
 	}
 	Element->NumEntitiesInGroups[j][Element->NbrEntitiesInGroups[j]++] =
 	  (Key_P->Int1 > 0)?  (i+1) : -(i+1) ;
@@ -287,7 +288,11 @@ void  Get_GroupsOfElementaryEntitiesOfElement
 		*((int *)List_Pointer(BasisFunction_P->SubdFunction, i_SF)) ;
 	    Element->NumGroupsOfEntities[j+i_SF] = Key_P->Int2 ;
 	    Element->NbrEntitiesInGroups[Element->NbrGroupsOfEntities++] = 0 ;
-	  }
+            if(Element->NbrGroupsOfEntities >= NBR_MAX_GROUPS_IN_ELEMENT - 1){
+              Message::Error("Reached limit number of groups of entities");
+              return;
+            }
+          }
 	}
 	for (i_SF = 0 ; i_SF < Nbr_SubFunction ; i_SF++)
 	  Element->NumEntitiesInGroups[j+i_SF][Element->NbrEntitiesInGroups[j+i_SF]++] =
@@ -331,7 +336,11 @@ void  Get_GroupsOfEdgesOnNodesOfElement(struct Element * Element,
 	     (Element->NumGroupsOfEntities[j] != Num_Node))  j++ ;
       if (j == Element->NbrGroupsOfEntities) {
 	Element->NumGroupsOfEntities[Element->NbrGroupsOfEntities++] = Num_Node ;
-	Element->NbrEntitiesInGroups[j] = 0 ;
+        if(Element->NbrGroupsOfEntities >= NBR_MAX_GROUPS_IN_ELEMENT - 1){
+          Message::Error("Reached limit number of groups of entities");
+          return;
+        }
+        Element->NbrEntitiesInGroups[j] = 0 ;
       }
       Element->NumEntitiesInGroups[j] [Element->NbrEntitiesInGroups[j]++] =
 	(Element->GeoElement->NumEdges[i] > 0)? -(i+1) : (i+1) ;
@@ -346,7 +355,11 @@ void  Get_GroupsOfEdgesOnNodesOfElement(struct Element * Element,
 	     (Element->NumGroupsOfEntities[j] != Num_Node))  j++ ;
       if (j == Element->NbrGroupsOfEntities) {
 	Element->NumGroupsOfEntities[Element->NbrGroupsOfEntities++] = Num_Node ;
-	Element->NbrEntitiesInGroups[j] = 0 ;
+        if(Element->NbrGroupsOfEntities >= NBR_MAX_GROUPS_IN_ELEMENT - 1){
+          Message::Error("Reached limit number of groups of entities");
+          return;
+        }
+        Element->NbrEntitiesInGroups[j] = 0 ;
       }
       Element->NumEntitiesInGroups[j] [Element->NbrEntitiesInGroups[j]++] =
 	(Element->GeoElement->NumEdges[i] > 0)? (i+1) : -(i+1) ;
@@ -374,6 +387,10 @@ void  Get_RegionForElement(struct Element * Element, int * StartingIndex,
     Element->NumSubFunction[1][Element->NbrGroupsOfEntities] = 0 ;
     Element->NumSubFunction[0][Element->NbrGroupsOfEntities] = -1 ;
     Element->NumGroupsOfEntities[Element->NbrGroupsOfEntities++] = Element->Region ;
+    if(Element->NbrGroupsOfEntities >= NBR_MAX_GROUPS_IN_ELEMENT - 1){
+      Message::Error("Reached limit number of groups of entities");
+      return;
+    }
   }
   else { /* For SubFunctions (basis functions for a global function) */
     Nbr_SubFunction = List_Nbr(BasisFunction_P->SubFunction) ;
@@ -386,6 +403,10 @@ void  Get_RegionForElement(struct Element * Element, int * StartingIndex,
 	Element->NumSubFunction[2][Element->NbrGroupsOfEntities] =
 	  *((int *)List_Pointer(BasisFunction_P->SubdFunction, i_SF)) ; /* Index Expression */
       Element->NumGroupsOfEntities[Element->NbrGroupsOfEntities++] = Element->Region ;
+      if(Element->NbrGroupsOfEntities >= NBR_MAX_GROUPS_IN_ELEMENT - 1){
+        Message::Error("Reached limit number of groups of entities");
+        return;
+      }
     }
   }
 }
@@ -410,6 +431,10 @@ void  Get_GroupOfRegionsForElement(struct Element * Element, int * StartingIndex
     Element->NumSubFunction[1][Element->NbrGroupsOfEntities] = 0 ;
     Element->NumSubFunction[0][Element->NbrGroupsOfEntities] = -1 ;
     Element->NumGroupsOfEntities[Element->NbrGroupsOfEntities++] = GroupEntity_P->Num ;
+    if(Element->NbrGroupsOfEntities >= NBR_MAX_GROUPS_IN_ELEMENT - 1){
+      Message::Error("Reached limit number of groups of entities");
+      return;
+    }
   }
   else { /* For SubFunctions (basis functions for a global function) */
     Nbr_SubFunction = List_Nbr(BasisFunction_P->SubFunction) ;
@@ -422,6 +447,10 @@ void  Get_GroupOfRegionsForElement(struct Element * Element, int * StartingIndex
         Element->NumSubFunction[2][Element->NbrGroupsOfEntities] =
           *((int *)List_Pointer(BasisFunction_P->SubdFunction, i_SF)) ; /* Index Expression */
       Element->NumGroupsOfEntities[Element->NbrGroupsOfEntities++] = GroupEntity_P->Num ;
+      if(Element->NbrGroupsOfEntities >= NBR_MAX_GROUPS_IN_ELEMENT - 1){
+        Message::Error("Reached limit number of groups of entities");
+        return;
+      }
     }
   }
 }
@@ -452,6 +481,10 @@ void  Get_GlobalForElement(struct Element * Element, int * StartingIndex,
         List_Pointer(BasisFunction_P->GlobalBasisFunction, i) ;
       /* Attention: correspondance i-i si liste triee ! fait dans yacc */
       Element->NumGroupsOfEntities[Element->NbrGroupsOfEntities++] = Num_Global[i] ;
+      if(Element->NbrGroupsOfEntities >= NBR_MAX_GROUPS_IN_ELEMENT - 1){
+        Message::Error("Reached limit number of groups of entities");
+        return;
+      }
     }
 
     if (TreatmentStatus == _PRE)
@@ -460,6 +493,10 @@ void  Get_GlobalForElement(struct Element * Element, int * StartingIndex,
   else {
     for (i = 0 ; i < Nbr_Global ; i++) {
       Element->NumGroupsOfEntities[Element->NbrGroupsOfEntities++] = Num_Global[i] ;
+      if(Element->NbrGroupsOfEntities >= NBR_MAX_GROUPS_IN_ELEMENT - 1){
+        Message::Error("Reached limit number of groups of entities");
+        return;
+      }
     }
   }
 

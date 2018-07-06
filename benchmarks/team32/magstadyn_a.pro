@@ -46,7 +46,8 @@ Function{
     Flag_PrintMaps =1,
     Flag_LiveLocalPostOp=1,
     Flag_LiveGlobalPostOp=1,
-    po = "Output_"
+    po = "Output_",
+    Flag_ExtrapolationOrder=0
   ];
 
   // Macro myname
@@ -70,6 +71,8 @@ Include "BH.pro"; // nonlinear BH caracteristic of magnetic material
 Include "BH_anhysteretic.pro";
 If(Flag_NL_law==NL_ENERGHYST)
   Include "param_EnergHyst.pro";
+Else
+  N=0;
 EndIf
 
 
@@ -209,11 +212,19 @@ Constraint {
 
   { Name MVP_2D ;
     Case {
-      { Region Corner ; Value 0.0 ; }
+      { Region Corner ; Value 0. ; }
       { Region SurfaceGe0  ; Type Assign ; Value 0. ; }
       { Region SurfaceGInf ; Type Assign ; Value 0. ; }
     }
   }
+
+  For i_ In {0:1}
+    { Name Dirichlet~{i_}  ; Type Assign ;
+      Case {
+        { Region Boundary ; Type Assign; Value 0. * i_ ;   }
+      }
+    }
+  EndFor
 
   { Name Current_2D ;
     Case {
@@ -255,7 +266,8 @@ FunctionSpace {
       { NameOfCoef ae1 ; EntityType NodesOf ; NameOfConstraint MVP_2D ; }
       If (Flag_Degree_a == 2)
 	{ NameOfCoef ae2 ; // Only OK if homogeneous BC, otherwise specify zero-BC
-          EntityType EdgesOf ; NameOfConstraint MagneticVectorPotential_2D ; }
+          //EntityType EdgesOf ; NameOfConstraint MagneticVectorPotential_2D ; }
+          EntityType EdgesOf ; NameOfConstraint Dirichlet_0 ; }
       EndIf
     }
   }
@@ -433,7 +445,8 @@ Formulation {
         // BF is constant per element (Vector + BF_Volume) => 1 integration point is enough
         Galerkin { [  Dof{h}  , {h} ] ; 
           In DomainNL  ; Jacobian Vol ; Integration I1p ; } 
-        Galerkin { [  - (SetVariable[(h_Vinch_K[  {h}[1]         , 
+        //Galerkin { [  -0*Vector[X[],Y[],Z[]]  , {h} ] ; In DomainNL  ; Jacobian Vol ; Integration I1p ; } //For Debug
+        Galerkin { [  - (SetVariable[(h_Vinch_K[  {h}            , // new since 2/3/2018: use {h} instead of {h}[1] here (need to init bc by recomputing b from {h} in h_Vinch_K)
                                                   {d a}, {d a}[1],
                                                   {J_1}, {J_1}[1], 
                                                   {J_2}, {J_2}[1], 
@@ -487,7 +500,7 @@ Formulation {
         // BF is constant per element (Vector + BF_Volume) => 1 integration point is enough
         Galerkin { [  Dof{h}  , {h} ] ; 
           In DomainNL  ; Jacobian Vol ; Integration I1p ; } 
-        Galerkin { [  - (SetVariable[(h_Vinch_K[  {h}[1]         , 
+        Galerkin { [  - (SetVariable[(h_Vinch_K[  {h}            , // new since 2/3/2018: use {h} instead of {h}[1] here (need to init bc by recomputing b from {h} in h_Vinch_K)
                                                   {d a}, {d a}[1],
                                                   {J_1}, {J_1}[1], 
                                                   {J_2}, {J_2}[1], 
@@ -659,12 +672,15 @@ Resolution {
 
       If(Flag_AnalysisType==AN_TIME)
 
+        SetExtrapolationOrder[Flag_ExtrapolationOrder];
+
         // set some runtime variables
         Evaluate[$syscount = 0];
         Evaluate[$relaxcount=0];
         Evaluate[$relaxcounttot=0];
         Evaluate[$dnccount=0];
         Evaluate[$itertot=0];
+        Evaluate[$itermax=0];
 
         //Save TimeStep 0
         SaveSolution[A];
@@ -706,24 +722,42 @@ Resolution {
 
             If(Flag_NLRes==NLRES_ITERATIVELOOPN) 
           // I T E R A T I V E . L O O P . N ..............................
-                // INIT for h_only case::::::::::::
-                /*
+              //:::::::::::::::::::::::::::::::::::::::::::
+              If(Flag_ItLoopNDoFirstIter)
                 GenerateJac[A] ; 
                 If (!Flag_AdaptRelax)
                   SolveJac[A] ;                                       
                 Else
                   SolveJac_AdaptRelax[A, List[RelaxFac_Lin],TestAllFactors ] ; 
                 EndIf
-                //*/
-                //:::::::::::::::::::::::::::::::::
-
+              EndIf
+              //:::::::::::::::::::::::::::::::::::::::::::
+              //*****Choose between one of the following possibilities:*****
+              If(Flag_ItLoopNRes==NLITLOOPN_SOLUTION)
               IterativeLoopN[ Nb_max_iter, RF_tuned[],
-                //*****Choose between one of the 3 following possibilities:*****
-                //System { { A , Reltol_Mag, Abstol_Mag, Residual MeanL2Norm }} ]{ //1)
-                //PostOperation { { az_only , Reltol_Mag, Abstol_Mag,  MeanL2Norm }} ]{ //2)
-                //PostOperation { { b_only , Reltol_Mag, Abstol_Mag,  MeanL2Norm }} ]{ //3) 
-                PostOperation { { h_only , Reltol_Mag, Abstol_Mag,  MeanL2Norm }} ]{ //4)  //Need the above "INIT" for square with EnergHyst or JA because h_only = 0 at iter 1 
-                //**************************************************************
+                System { { A , Reltol_Mag, Abstol_Mag, Solution MeanL2Norm }} ]{ // 0  : Solution (dx=x-xp; x=x)
+              EndIf
+              If(Flag_ItLoopNRes==NLITLOOPN_RESIDUAL)
+              IterativeLoopN[ Nb_max_iter, RF_tuned[],
+                System { { A , Reltol_Mag, Abstol_Mag, Residual MeanL2Norm }} ]{ //1  : Residual (dx=res=b-Ax; x=b)
+              EndIf
+              If(Flag_ItLoopNRes==NLITLOOPN_RECALCRESIDUAL)
+              IterativeLoopN[ Nb_max_iter, RF_tuned[],
+                System { { A , Reltol_Mag, Abstol_Mag, RecalcResidual MeanL2Norm }} ]{ //2  : RecalcResidual (dx=res=b-Ax; x=b)
+              EndIf
+              If(Flag_ItLoopNRes==NLITLOOPN_POSTOPX)
+              IterativeLoopN[ Nb_max_iter, RF_tuned[],
+                PostOperation { { az_only , Reltol_Mag, Abstol_Mag,  MeanL2Norm }} ]{ // 31 : PostOp unknown field az
+              EndIf
+              If(Flag_ItLoopNRes==NLITLOOPN_POSTOPB)
+              IterativeLoopN[ Nb_max_iter, RF_tuned[],
+                PostOperation { { b_only , Reltol_Mag, Abstol_Mag,  MeanL2Norm }} ]{ // 32 : PostOp b field
+              EndIf
+              If(Flag_ItLoopNRes==NLITLOOPN_POSTOPH)
+              IterativeLoopN[ Nb_max_iter, RF_tuned[],
+                PostOperation { { h_only , Reltol_Mag, Abstol_Mag,  MeanL2Norm }} ]{ // 33 : PostOp h field
+              EndIf        
+              //**************************************************************
 
                 Evaluate[$res  = $ResidualN, $resL = $Residual,$resN = $ResidualN,$iter = $Iteration-1]; 
                 Test[ $iter>0]{
@@ -754,6 +788,10 @@ Resolution {
           //...............................................................
             EndIf
 
+
+          Test[$iter>$itermax]{
+            Evaluate[$itermax  = $iter]; 
+          }
           Evaluate[$itertot  = $itertot+$iter];        
           Test[ (Flag_NLRes==NLRES_ITERATIVELOOPPRO && $iter == Nb_max_iter) || 
                 (Flag_NLRes==NLRES_ITERATIVELOOP    && $res > Abstol_Mag   ) ||
@@ -783,6 +821,10 @@ Resolution {
       Print[{$dnccount}, Format "Total number of non converged TimeStep: %g"];
       Print["--------------------------------------------------------------"];      
       EndIf // End Flag_AnalysisType==AN_TIME (Time domain)
+
+      Print["syscount relaxcounttot meanrelaxcount iterFEtot meaniterFE maxiterFE dnccount CPUtime"];
+      Print[{$syscount, $relaxcounttot, $relaxcounttot/$TimeStep, $itertot,$itertot/$TimeStep, $itermax, $dnccount,GetCpuTime[]}, Format "%g %g %g %g %g %g %g %g"];
+
     }
   }
 }

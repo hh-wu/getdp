@@ -62,8 +62,8 @@ static int PointInElementBox(struct ElementBox ElementBox, double x, double y, d
 
 static int PointInRefElement (struct Element * Element, double u, double v, double w)
 {
-  double ONE = 1. + 1.e-12;
-  double ZERO = 1.e-12;
+  double ONE = 1. + 1.e-6;
+  double ZERO = 1.e-6;
 
   switch(Element->Type) {
   case LINE : case LINE_2 :
@@ -133,7 +133,7 @@ static int PointInElement (struct Element * Element,
   xyz2uvwInAnElement(Element, x, y, z, u, v, w);
 
   if(!PointInRefElement(Element, *u, *v, *w)){
-    /* Message::Info("Point was in box, but not in actual element"); */
+    // Message::Info("Point was in box, but not in actual element");
     return(0);
   }
 

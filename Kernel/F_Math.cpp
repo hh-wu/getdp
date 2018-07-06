@@ -9,6 +9,7 @@
 #include "F.h"
 #include "MallocUtils.h"
 #include "Message.h"
+#include "Bessel.h"
 
 extern struct CurrentData Current ;
 
@@ -37,6 +38,7 @@ void F_Fabs  (F_ARG) { scalar_real_1_arg (fabs, "Fabs")  }
 void F_Asin  (F_ARG) { scalar_real_1_arg (asin, "Asin")  }
 void F_Acos  (F_ARG) { scalar_real_1_arg (acos, "Acos")  }
 void F_Atan  (F_ARG) { scalar_real_1_arg (atan, "Atan")  }
+void F_Atanh (F_ARG) { scalar_real_1_arg (atanh, "Atanh")}
 
 #undef scalar_real_1_arg
 
@@ -197,6 +199,27 @@ void F_Jn(F_ARG)
   V->Type = SCALAR;
 }
 
+void F_JnComplex(F_ARG)
+{
+  if(A->Type != SCALAR || (A+1)->Type != SCALAR)
+    Message::Error("Non scalar argument(s) for Bessel function of the first kind 'JnComplex'");
+  int n = (int)A->Val[0];
+  double xr = (A+1)->Val[0];
+  double xi = (A+1)->Val[MAX_DIM];
+  double valr, vali;
+
+  BesselJnComplex(n, 1, xr, xi, &valr, &vali);
+
+  V->Val[0] = valr;
+  V->Val[MAX_DIM] = vali;
+
+  if (Current.NbrHar > 1){
+    for (int k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2)
+      V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;
+  }
+  V->Type = SCALAR;
+}
+
 void F_Yn(F_ARG)
 {
   int     k, n;
@@ -278,4 +301,56 @@ void F_dYn(F_ARG)
       V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;
   }
   V->Type = SCALAR;
+}
+
+/* ------------------------------------------------------------------------ */
+/*  Spherical Bessel functions jn, yn and their derivatives                 */
+/* ------------------------------------------------------------------------ */
+
+void F_JnSph(F_ARG)
+{
+  if(A->Type != SCALAR || (A+1)->Type != SCALAR)
+    Message::Error("Non scalar argument(s) for function 'JnSph' (spherical Bessel function)");
+
+  int n = (int)A->Val[0];
+  double x = (A+1)->Val[0];
+
+  V->Type = SCALAR;
+  V->Val[0] = Spherical_j_n(n, x);
+}
+
+void F_YnSph(F_ARG)
+{
+  if(A->Type != SCALAR || (A+1)->Type != SCALAR)
+    Message::Error("Non scalar argument(s) for function 'YnSph' (spherical Bessel function)");
+
+  int n = (int)A->Val[0];
+  double x = (A+1)->Val[0];
+
+  V->Type = SCALAR;
+  V->Val[0] = Spherical_y_n(n, x);
+}
+
+void F_dJnSph(F_ARG)
+{
+  if(A->Type != SCALAR || (A+1)->Type != SCALAR)
+    Message::Error("Non scalar argument(s) for function 'dJnSph' (derivative of spherical Bessel function)");
+
+  int n = (int)A->Val[0];
+  double x = (A+1)->Val[0];
+
+  V->Type = SCALAR;
+  V->Val[0] = (n/x) * Spherical_j_n(n, x) - Spherical_j_n(n+1, x);
+}
+
+void F_dYnSph(F_ARG)
+{
+  if(A->Type != SCALAR || (A+1)->Type != SCALAR)
+    Message::Error("Non scalar argument(s) for function 'dYnSph' (derivative of spherical Bessel function)");
+
+  int n = (int)A->Val[0];
+  double x = (A+1)->Val[0];
+
+  V->Type = SCALAR;
+  V->Val[0] = (n/x) * Spherical_y_n(n, x) - Spherical_y_n(n+1, x);
 }

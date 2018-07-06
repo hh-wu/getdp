@@ -814,25 +814,21 @@ static PetscErrorCode PrintMatrix(Mat A, const char* filename, const char* varna
   // in Kernel/LinAlg_PETSC.cpp
 
   std::string tmp(filename);
-  PetscInt m,n, m_max = 600;
+  PetscInt m,n;
 
   _try(PetscObjectSetName((PetscObject)A, varname));
   // ASCII (if the matrix is not too large)
   _try(MatGetSize(A, &m, &n));
-  if(m < m_max){
-    PetscViewer viewer;
-    _try(PetscViewerASCIIOpen(PETSC_COMM_WORLD, filename, &viewer));
-    _try(PetscViewerSetFormat(viewer, PETSC_VIEWER_ASCII_MATLAB));
-    _try(MatView(A, viewer));
+  PetscViewer viewer;
+  _try(PetscViewerASCIIOpen(PETSC_COMM_WORLD, filename, &viewer));
+  _try(PetscViewerSetFormat(viewer, PETSC_VIEWER_ASCII_MATLAB));
+  _try(MatView(A, viewer));
 #if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
-    _try(PetscViewerDestroy(&viewer));
+  _try(PetscViewerDestroy(&viewer));
 #else
-    _try(PetscViewerDestroy(viewer));
+  _try(PetscViewerDestroy(viewer));
 #endif
-  }
-  else{
-    Message::Warning("Matrix is too large, no ASCII Output (m=%d>%d)", m, m_max);
-  }
+
   // BINARY
   // Add the petscfolder/bin/matlab path to your matlab paths and
   // type the following command in matlab, for real arithmetic :

@@ -213,52 +213,41 @@ void F_ElementVol(F_ARG)
 void F_SurfaceArea(F_ARG)
 {
   struct Element  Element ;
-  List_T  * InitialList_L;
-
-  int     Nbr_Element, i_Element ;
-  double  Val_Surface ;
-  double  c11, c21, c12, c22, c13, c23, DetJac ;
-  int     i, k ;
 
   // FIXME: TODO redo integration when parameters change!
   if (!Fct->Active) {
     Fct->Active = (struct FunctionActive *)Malloc(sizeof(struct FunctionActive)) ;
 
-    if (Fct->NbrParameters == 1) {
-      int Index_Region = (int)(Fct->Para[0]) ;
-      InitialList_L = List_Create(1,1,sizeof(int));
-      List_Add(InitialList_L, &Index_Region);
-    }
-    else if (Fct->NbrParameters > 1) {
+    List_T *InitialList_L = NULL;
+    if (Fct->NbrParameters >= 1) {
       InitialList_L = List_Create(Fct->NbrParameters,1,sizeof(int));
-      List_Reset(InitialList_L);
-      for (i=0; i<Fct->NbrParameters; i++) {
+      for (int i = 0; i < Fct->NbrParameters; i++) {
         int Index_Region = (int)(Fct->Para[i]) ;
         List_Add(InitialList_L, &Index_Region);
       }
     }
-    else {
-      InitialList_L = NULL ;
-    }
 
-    Val_Surface = 0. ;
-    Nbr_Element = Geo_GetNbrGeoElements() ;
-    for (i_Element = 0 ; i_Element < Nbr_Element; i_Element++) {
+    double Val_Surface = 0. ;
+    int Nbr_Element = Geo_GetNbrGeoElements() ;
+    int Nbr_Found_Element = 0;
+    for (int i_Element = 0 ; i_Element < Nbr_Element; i_Element++) {
       Element.GeoElement = Geo_GetGeoElement(i_Element) ;
       if ((InitialList_L &&
 	   List_Search(InitialList_L, &(Element.GeoElement->Region), fcmp_int)) ||
 	  (!InitialList_L && Element.GeoElement->Region == Current.Region)) {
-	Element.Num    = Element.GeoElement->Num ;
+
+        Nbr_Found_Element++;
+
+        Element.Num    = Element.GeoElement->Num ;
 	Element.Type   = Element.GeoElement->Type ;
 
-	if (Element.Type == TRIANGLE || Element.Type == QUADRANGLE
-            || Element.Type == TRIANGLE_2) {
+	if (Element.Type == TRIANGLE || Element.Type == QUADRANGLE ||
+            Element.Type == TRIANGLE_2) {
 
 	  Get_NodesCoordinatesOfElement(&Element) ;
 	  Get_BFGeoElement(&Element, 0., 0., 0.) ;
-
-	  c11 = c21 = c12 = c22 = c13 = c23 = 0. ;
-	  for ( i = 0 ; i < Element.GeoElement->NbrNodes ; i++ ) {
+          double  c11 = 0., c21 = 0., c12 = 0., c22 = 0., c13 = 0., c23 = 0.;
+	  for (int i = 0 ; i < Element.GeoElement->NbrNodes ; i++ ) {
 	    c11 += Element.x[i] * Element.dndu[i][0] ;
 	    c21 += Element.x[i] * Element.dndu[i][1] ;
 	    c12 += Element.y[i] * Element.dndu[i][0] ;
@@ -266,9 +255,9 @@ void F_SurfaceArea(F_ARG)
 	    c13 += Element.z[i] * Element.dndu[i][0] ;
 	    c23 += Element.z[i] * Element.dndu[i][1] ;
 	  }
-          DetJac = sqrt( SQU(c11 * c22 - c12 * c21)
-                         + SQU(c13 * c21 - c11 * c23)
-                         + SQU(c12 * c23 - c13 * c22) );
+          double DetJac = sqrt(SQU(c11 * c22 - c12 * c21) +
+                               SQU(c13 * c21 - c11 * c23) +
+                               SQU(c12 * c23 - c13 * c22));
 
 	  if (Element.Type == TRIANGLE || Element.Type == TRIANGLE_2)
 	    Val_Surface += fabs(DetJac) * 0.5 ;
@@ -280,13 +269,13 @@ void F_SurfaceArea(F_ARG)
 	  Get_NodesCoordinatesOfElement(&Element) ;
 	  Get_BFGeoElement(&Element, 0., 0., 0.) ;
 
-	  c11 = c12 = c13 = 0. ;
-	  for ( i = 0 ; i < Element.GeoElement->NbrNodes ; i++ ) {
+          double  c11 = 0., c12 = 0., c13 = 0.;
+	  for (int i = 0; i < Element.GeoElement->NbrNodes; i++) {
 	    c11 += Element.x[i] * Element.dndu[i][0] ;
 	    c12 += Element.y[i] * Element.dndu[i][0] ;
 	    c13 += Element.z[i] * Element.dndu[i][0] ;
 	  }
-          DetJac = sqrt(SQU(c11)+SQU(c12)+SQU(c13));
+          double DetJac = sqrt(SQU(c11)+SQU(c12)+SQU(c13));
 
           Val_Surface += fabs(DetJac) * 2 ; // SurfaceArea of LINE x 1m
         }
@@ -297,13 +286,16 @@ void F_SurfaceArea(F_ARG)
       }
     }
     Fct->Active->Case.SurfaceArea.Value = Val_Surface ;
+
+    if(!Nbr_Found_Element)
+      Message::Warning("No element found in SurfaceArea[]");
   }
 
   V->Type = SCALAR ;
   V->Val[0] = Fct->Active->Case.SurfaceArea.Value ;
   V->Val[MAX_DIM] = 0.;
 
-  for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2) {
+  for (int k = 2; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar); k += 2) {
     V->Val[MAX_DIM* k] = V->Val[0] ;
     V->Val[MAX_DIM* (k+1)] = 0. ;
   }

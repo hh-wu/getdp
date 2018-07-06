@@ -46,12 +46,25 @@ void F_Hypot(F_ARG)
 
 void F_TanhC2(F_ARG)
 {
+  // @Jon: check this and the behavior of the overall function for large args
+  // lim_x\to\inf  cosh(x) = +\inf
+  // lim_x\to\inf  sinh(x) = 1
+
   double denom =
     SQU(cosh(A->Val[0])*cos(A->Val[MAX_DIM])) +
     SQU(sinh(A->Val[0])*sin(A->Val[MAX_DIM]));
+  //printf("arg=%g  cosh(arg)=%g\n", A->Val[0], cosh(A->Val[0]));
+
+
   V->Val[0]       = sinh(A->Val[0])*cosh(A->Val[0]) / denom ;
   V->Val[MAX_DIM] = sin(A->Val[MAX_DIM])*cos(A->Val[MAX_DIM]) / denom ;
   V->Type = SCALAR ;
+
+  /* printf("numer_real=%g, numer_imag=%g, denom = %g\n",
+         sinh(A->Val[0])*cosh(A->Val[0]) ,
+         sin(A->Val[MAX_DIM])*cos(A->Val[MAX_DIM]),
+         denom); */
+
 }
 
 /* ------------------------------------------------------------------------ */

@@ -51,13 +51,17 @@
 // equals 8 by default (tensors), reduced to 2 in multiharmonic case for allowing to go up
 // in the number of harmonics... Put back to 8 if you need tensors!
 
-#if !defined(HAVE_MULTIHARMONIC)
+#if defined(HAVE_SMALL_STACK)
 #define NBR_MAX_HARMONIC    2
 #define MAX_STACK_SIZE0     8
-#define MAX_STACK_SIZE     40
-#else
+#define MAX_STACK_SIZE     20
+#elif defined(HAVE_MULTIHARMONIC)
 #define NBR_MAX_HARMONIC   40
 #define MAX_STACK_SIZE0     2
+#define MAX_STACK_SIZE     40
+#else
+#define NBR_MAX_HARMONIC    2
+#define MAX_STACK_SIZE0     8
 #define MAX_STACK_SIZE     40
 #endif
 
@@ -1164,6 +1168,9 @@ struct Operation {
     struct {
       char *residual;
     } OptimizerUpdate;
+    struct {
+      int order;
+    } SetExtrapolationOrder;
   } Case;
 
 };
@@ -1317,6 +1324,8 @@ struct IterativeLoopSystem {
 #define OPERATION_OPTIMIZER_INITIALIZE     107
 #define OPERATION_OPTIMIZER_UPDATE         108
 #define OPERATION_OPTIMIZER_FINALIZE       109
+#define OPERATION_SETEXTRAPOLATIONORDER    110
+#define OPERATION_SETINCREMENTASSOLUTION   111
 
 /* ChangeOfState.Type */
 #define CHANGEOFSTATE_NOCHANGE              0
@@ -1460,6 +1469,8 @@ struct PostOpSolutions {
 #define POP_GROUP         2
 #define POP_EXPRESSION    4
 #define POP_MERGE         5
+#define POP_DELETEFILE    6
+#define POP_CREATEDIR     7
 
 /* PostOperation.SubType */
 #define PRINT_ONREGION        1
@@ -1596,7 +1607,7 @@ struct CurrentData {
   // For IterativeLoop
   double  Iteration, RelativeDifference, RelativeDifferenceOld;
   double  RelaxationFactor, Residual, ResidualN, Residual_Iter1; //+++
-  double  RelaxFac, NbrTestedFac; //+++
+  double  RelaxFac, NbrTestedFac, SolveJacAdaptFailed; //+++
 
   // Iterative linear system solvers
   double  KSPIterations, KSPIteration, KSPResidual;
@@ -1608,8 +1619,15 @@ struct CurrentData {
 
 #define NBR_MAX_NODES_IN_ELEMENT       60
 #define NBR_MAX_ENTITIES_IN_ELEMENT    60
-#define NBR_MAX_GROUPS_IN_ELEMENT      600
 #define NBR_MAX_SUBENTITIES_IN_ELEMENT  5
+
+// FIXME: this should be made dynamic (with std::vector in Element) ; setting a
+// static too large can easily lead to stack overflows
+#if defined(HAVE_SMALL_STACK)
+#define NBR_MAX_GROUPS_IN_ELEMENT      30
+#else
+#define NBR_MAX_GROUPS_IN_ELEMENT      200
+#endif
 
 struct IntxList { int Int ; List_T * List ; } ;
 
@@ -1674,6 +1692,9 @@ struct Element {
 #define PRISM_2          (1<<13)
 #define PYRAMID_2        (1<<14)
 #define QUADRANGLE_2_8N  (1<<16)
+#define LINE_4           (1<<17)
+#define TRIANGLE_4       (1<<18)
+#define TETRAHEDRON_4    (1<<19)
 
 /* Adapt.Type */
 #define P1 1
