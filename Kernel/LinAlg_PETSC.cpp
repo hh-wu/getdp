@@ -71,7 +71,7 @@ static void _try(int ierr)
 
 static int SolverInitialized = 0;
 
-#if (PETSC_VERSION_RELEASE == 0) || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 7))
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 7)
 #define PetscTruth PetscBool
 #define PetscOptionsGetTruth(A, B, C, D) PetscOptionsGetBool(A, NULL, B, C, D)
 #define PetscOptionsInsertFile(A, B, C) PetscOptionsInsertFile(A, NULL, B, C)
@@ -82,6 +82,10 @@ static int SolverInitialized = 0;
 #elif ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2))
 #define PetscTruth PetscBool
 #define PetscOptionsGetTruth PetscOptionsGetBool
+#endif
+
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 9)
+#define PCFactorSetMatSolverPackage PCFactorSetMatSolverType
 #endif
 
 void LinAlg_InitializeSolver(int* argc, char*** argv)
@@ -186,7 +190,7 @@ void _fillseq(Vec &V, Vec &Vseq)
   VecScatterEnd(ctx, V, Vseq, INSERT_VALUES, SCATTER_FORWARD);
 #endif
 
-#if (PETSC_VERSION_RELEASE == 0) || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2))
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)
   VecScatterDestroy(&ctx);
 #else
   VecScatterDestroy(ctx);
@@ -269,7 +273,7 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
 void LinAlg_DestroySolver(gSolver *Solver)
 {
   for(int i = 0; i < 10; i++){
-#if (PETSC_VERSION_RELEASE == 0) || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2))
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)
     if(Solver->ksp[i]) _try(KSPDestroy(&Solver->ksp[i]));
     if(Solver->snes[i]) _try(SNESDestroy(&Solver->snes[i]));
 #else
@@ -281,7 +285,7 @@ void LinAlg_DestroySolver(gSolver *Solver)
 
 void LinAlg_DestroyVector(gVector *V)
 {
-#if (PETSC_VERSION_RELEASE == 0) || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2))
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)
   _try(VecDestroy(&V->V));
   if(V->haveSeq) _try(VecDestroy(&V->Vseq));
 #else
@@ -292,7 +296,7 @@ void LinAlg_DestroyVector(gVector *V)
 
 void LinAlg_DestroyMatrix(gMatrix *M)
 {
-#if (PETSC_VERSION_RELEASE == 0) || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2))
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)
   _try(MatDestroy(&M->M));
 #else
   _try(MatDestroy(M->M));
@@ -436,7 +440,7 @@ void LinAlg_PrintVector(FILE *file, gVector *V, bool matlab,
     _try(PetscViewerSetFormat(fd, PETSC_VIEWER_ASCII_MATLAB));
     _try(PetscObjectSetName((PetscObject)V->V, varName));
     _try(VecView(V->V, fd));
-#if (PETSC_VERSION_RELEASE == 0) || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2))
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)
     _try(PetscViewerDestroy(&fd));
 #else
     _try(PetscViewerDestroy(fd));
@@ -480,7 +484,7 @@ void LinAlg_PrintMatrix(FILE *file, gMatrix *M, bool matlab,
     _try(PetscViewerSetFormat(fd2, PETSC_VIEWER_DEFAULT));
     _try(MatView(M->M, fd2));
 
-#if (PETSC_VERSION_RELEASE == 0) || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2))
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)
     _try(PetscViewerDestroy(&fd));
     _try(PetscViewerDestroy(&fd2));
 #else
@@ -1276,7 +1280,7 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
 
   if(!Solver->ksp[kspIndex]) {
     _try(KSPCreate(MyComm, &Solver->ksp[kspIndex]));
-#if (PETSC_VERSION_RELEASE == 0) || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 5))
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 5)
     _try(KSPSetOperators(Solver->ksp[kspIndex], A->M, A->M));
 #else
     _try(KSPSetOperators(Solver->ksp[kspIndex], A->M, A->M, DIFFERENT_NONZERO_PATTERN));
@@ -1289,9 +1293,7 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
     // native PETSc LU)
     _try(KSPSetType(Solver->ksp[kspIndex], "preonly"));
     _try(PCSetType(pc, PCLU));
-#if (PETSC_VERSION_RELEASE == 0) || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 9))
-    _try(PCFactorSetMatSolverType(pc, "mumps"));
-#elif (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
+#if (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
     _try(PCFactorSetMatSolverPackage(pc, "mumps"));
 #elif (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MKL_PARDISO)
     _try(PCFactorSetMatSolverPackage(pc, "mkl_pardiso"));
@@ -1314,7 +1316,7 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
       // either we are on parallel (!GetIsCommWorld) or in sequential with rank
       // = 0 (GetIsCommWorld)
 
-#if (PETSC_VERSION_RELEASE == 0) || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 4))
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 4)
       const char *ksptype = "";
       _try(KSPGetType(Solver->ksp[kspIndex], &ksptype));
       const char *pctype = "";
@@ -1326,7 +1328,7 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
       _try(PCGetType(pc, &pctype));
 #endif
 
-#if (PETSC_VERSION_RELEASE == 0) || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 9))
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 9)
       MatSolverType stype;
       _try(PCFactorGetMatSolverType(pc, &stype));
 #elif (PETSC_VERSION_MAJOR > 2)
@@ -1339,7 +1341,7 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
     }
   }
   else if(precond){
-#if (PETSC_VERSION_RELEASE == 0) || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 5))
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 5)
     _try(KSPSetReusePreconditioner(Solver->ksp[kspIndex], PETSC_FALSE));
     _try(KSPSetOperators(Solver->ksp[kspIndex], A->M, A->M));
 #else
@@ -1347,7 +1349,7 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
 #endif
   }
   else{
-#if (PETSC_VERSION_RELEASE == 0) || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 5))
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 5)
     _try(KSPSetReusePreconditioner(Solver->ksp[kspIndex], PETSC_TRUE));
 #endif
   }
@@ -1512,7 +1514,7 @@ static void _solveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R, gSolver *So
     if (fd_jacobian || snes_fd) {
       //  Message::Error("Finite Difference Jacobian not yet implemented");
 
-#if (PETSC_VERSION_RELEASE == 0) || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 4))
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 4)
       _try(SNESSetJacobian(Solver->snes[solverIndex], J->M, J->M,
                            SNESComputeJacobianDefault, PETSC_NULL));
 #else
@@ -1535,9 +1537,7 @@ static void _solveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R, gSolver *So
   _try(KSPGetPC(ksp, &pc));
   _try(KSPSetType(ksp, "preonly"));
   _try(PCSetType(pc, PCLU));
-#if (PETSC_VERSION_RELEASE == 0) || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 9))
-  _try(PCFactorSetMatSolverType(pc, "mumps"));
-#elif (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
+#if (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
   _try(PCFactorSetMatSolverPackage(pc, "mumps"));
 #endif
   _try(SNESSolve(Solver->snes[solverIndex], PETSC_NULL, X->V));
