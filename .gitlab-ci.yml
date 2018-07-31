@@ -24,6 +24,20 @@ linux64_docker_ci:
   except:
     - tags
 
+linux64_docker_ci_new:
+  image: onelab/ubuntu18.04
+  script:
+    - mkdir build
+    - cd build
+    - cmake ${EXTRA_OPTION} ..
+    - make -j 4
+    - ctest -j 4 --output-on-failure
+  tags:
+    - linux64
+    - docker
+  except:
+    - tags
+
 # ------------------------------------------
 # Official Linux builds (master branch only)
 # ------------------------------------------
