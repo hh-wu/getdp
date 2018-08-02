@@ -1101,27 +1101,31 @@ List of constant expressions are defined as:
   @var{expression-cst-list-item} - @var{expression-cst-list-item} |
   @var{expression-cst-list-item} * @var{expression-cst-list-item} |
   @var{expression-cst-list-item} / @var{expression-cst-list-item} |
-  ListFromFile [ @var{expression-char} ]
+  ListFromFile [ @var{expression-char} ] |
+  ListFromServer [ @var{expression-char} ]
 @end example
 
-The second case in this last definition permits to create a list containing
-the range of numbers comprised between the two @var{expression-cst}, with a
-unit incrementation step. The third case also permits to create a list
+The second case in this last definition permits to create a list
 containing the range of numbers comprised between the two
-@var{expression-cst}, but with a positive or negative incrementation step
-equal to the third @var{expression-cst}. The fourth and fifth cases permit
-to reference constant identifiers (@var{constant-id}s) of lists of constants
-and constant identifiers of sublists of constants (see below for the
-definition of constant identifiers) . The sixth case is a synonym for the
-fourth. The seventh case permits to create alternate lists: the arguments of
-@code{ListAlt} must be @var{constant-id}s of lists of constants of the same
+@var{expression-cst}, with a unit incrementation step. The third case
+also permits to create a list containing the range of numbers comprised
+between the two @var{expression-cst}, but with a positive or negative
+incrementation step equal to the third @var{expression-cst}. The fourth
+and fifth cases permit to reference constant identifiers
+(@var{constant-id}s) of lists of constants and constant identifiers of
+sublists of constants (see below for the definition of constant
+identifiers) . The sixth case is a synonym for the fourth. The seventh
+case permits to create alternate lists: the arguments of @code{ListAlt}
+must be @var{constant-id}s of lists of constants of the same
 dimension. The result is an alternate list of these constants: first
 constant of argument 1, first constant of argument 2, second constant of
 argument 1, etc. These kinds of lists of constants are for example often
-used for function parameters (@pxref{Functions}). The next two cases permit
-to create linear and logarithmic lists of numbers, respectively. The
-remaining cases permit to apply arithmetic operators item-wise in lists.
-@code{ListFromFile} reads a list of numbers from a file.
+used for function parameters (@pxref{Functions}). The next two cases
+permit to create linear and logarithmic lists of numbers,
+respectively. The remaining cases permit to apply arithmetic operators
+item-wise in lists.  @code{ListFromFile} reads a list of numbers from a
+file.  @code{ListFromServer} attemps to get a list of numbers from the
+ONELAB variable @var{expression-char}.
 
 Contrary to a general @var{expression} which is evaluated at runtime (thanks
 to an internal stack mechanism), an @var{expression-cst} is completely

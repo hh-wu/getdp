@@ -287,6 +287,7 @@ LinSpace                     return tLinSpace;
 List                         return tList;
 ListAlt                      return tListAlt;
 ListFromFile                 return tListFromFile;
+ListFromServer               return tListFromServer;
 Log                          return tLog;
 Log10                        return tLog10;
 LogSpace                     return tLogSpace;

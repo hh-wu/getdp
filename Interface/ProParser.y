@@ -246,7 +246,7 @@ struct doubleXstring{
 %token  tFlag tExists tFileExists tGroupExists tGetForced tGetForcedStr
 %token  tInclude tLevelInclude
 %token  tConstant tList tListAlt tLinSpace tLogSpace
-%token  tListFromFile
+%token  tListFromFile tListFromServer
 %token  tChangeCurrentPosition
 %token  tDefineConstant tUndefineConstant tDefineNumber tDefineString
 %token  tDefineStruct tNameStruct tDimNameSpace
@@ -9591,7 +9591,18 @@ MultiFExpr :
       }
       Free($3);
     }
- ;
+
+  | tListFromServer '[' CharExpr ']'
+    {
+      Message::Barrier();
+      std::vector<double> val;
+      Message::GetOnelabNumbers($3, val, false);
+      $$ = List_Create(val.size() + 1, 100, sizeof(double));
+      for(unsigned int i = 0; i < val.size(); i++)
+        List_Add($$, &val[i]);
+      Free($3);
+    }
+;
 
 StringIndex :
 
