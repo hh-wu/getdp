@@ -1651,7 +1651,9 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
     Message::Error("Unknown format in Format_PostElement");
   }
 
-  if (PE->NbrNodes == 1 && PSO_P->Format != FORMAT_NODE_TABLE){
+  if (PE->NbrNodes == 1 &&
+      PSO_P->Format != FORMAT_NODE_TABLE &&
+      PSO_P->Format != FORMAT_ELEMENT_TABLE){
     if(PSO_P->SendToServer && strcmp(PSO_P->SendToServer, "No")){
       std::vector<double> v;
       Export_Value(&PE->Value[0], v, PSO_P->SendToServerList);
