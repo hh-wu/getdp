@@ -932,6 +932,23 @@ double Message::GetOnelabNumber(std::string name, double defaultValue,
   return defaultValue;
 }
 
+void Message::GetOnelabNumbers(std::string name, std::vector<double> &value,
+                               bool errorIfMissing)
+{
+  if(_onelabClient){
+    std::vector<onelab::number> numbers;
+    _onelabClient->get(numbers, name);
+    if(numbers.empty()){
+      if(errorIfMissing)
+        Message::Error("Unknown ONELAB number parameter '%s'", name.c_str());
+    }
+    else
+      value = numbers[0].getValues();
+  }
+  if(errorIfMissing)
+    Message::Warning("GetNumber requires a ONELAB client");
+}
+
 std::string Message::GetOnelabString(std::string name, const std::string &defaultValue,
                                      bool errorIfMissing)
 {

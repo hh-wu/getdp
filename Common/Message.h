@@ -107,6 +107,8 @@ class Message {
                                 bool errorIfMissing=false);
   static std::string GetOnelabString(std::string name, const std::string &defaultValue="",
                                      bool errorIfMissing=false);
+  static void GetOnelabNumbers(std::string name, std::vector<double> &value,
+                               bool errorIfMissing);
   static std::string GetOnelabAction();
   static void AddOnelabNumberChoice(std::string name, const std::vector<double> &value,
                                     const char *color=0, const char *units=0,
