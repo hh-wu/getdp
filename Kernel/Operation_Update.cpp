@@ -362,7 +362,7 @@ void Operation_Update(struct DefineSystem * DefineSystem_P,
   }
 
   LinAlg_GetVectorSize(&DofData_P->b, &i) ;
-  if(!i) Message::Error("Generated system is of dimension zero");
+  if(!i) Message::Info("Generated system is of dimension zero");
 
   Free_UnusedSolutions(DofData_P);
 }

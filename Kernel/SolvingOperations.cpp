@@ -506,7 +506,7 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
     LinAlg_AssembleVector(&DofData_P->b) ;
     int i;
     LinAlg_GetVectorSize(&DofData_P->b, &i) ;
-    if(!i) Message::Warning("Generated system is of dimension zero");
+    if(!i) Message::Info("Generated system is of dimension zero");
 
     if(DofData_P->Flag_Only){
       for(int i = 0 ; i < List_Nbr( DofData_P->OnlyTheseMatrices ); i++){
@@ -567,7 +567,7 @@ void  ReGenerate_System(struct DefineSystem * DefineSystem_P,
   LinAlg_AssembleVector(&DofData_P->b) ;
   int i;
   LinAlg_GetVectorSize(&DofData_P->b, &i) ;
-  if(!i) Message::Warning("ReGenerated system is of dimension zero");
+  if(!i) Message::Info("ReGenerated system is of dimension zero");
 
   if(Flag_Jac){ /* This should in fact only be done if a JacNL term
                    exists in the formulation... */
@@ -1171,7 +1171,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  ----------------------------------------------------  */
     case OPERATION_SETINCREMENTASSOLUTION :
       {
-        /*  Compute : x <- dx  */ 
+        /*  Compute : x <- dx  */
         Init_OperationOnSystem("SetIncrementAsSolution",
                                Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                                &DefineSystem_P, &DofData_P, Resolution2_P) ;
