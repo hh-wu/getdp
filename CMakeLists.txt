@@ -5,7 +5,7 @@
 
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 
-# do not warn about non-definition of WIN32 on cygwin
+# do not warn about non-definition of WIN32 on Cygwin
 set(CMAKE_LEGACY_CYGWIN_WIN32 0)
 
 # if CMAKE_BUILD_TYPE is specified use it; otherwise set the default
@@ -126,8 +126,20 @@ set(GETDP_PACKAGER "${PACKAGER}")
 if(APPLE)
   set(GETDP_OS "MacOSX")
 elseif(CYGWIN)
-  set(GETDP_OS "Windows")
-  add_definitions(-DWIN32) # recent mingw compiler doesn't define it
+  # detect if we use the MinGW compilers on Cygwin - if we do, handle the build
+  # as a pure Windows build
+  if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR
+     CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    execute_process(COMMAND ${CMAKE_CXX_COMPILER} -dumpmachine
+                    OUTPUT_VARIABLE CXX_COMPILER_MACHINE
+                    OUTPUT_STRIP_TRAILING_WHITESPACE)
+    if(CXX_COMPILER_MACHINE MATCHES "mingw")
+      set(GMSH_OS "Windows")
+      set(WIN32 1)
+      add_definitions(-DWIN32)
+    endif(CXX_COMPILER_MACHINE MATCHES "mingw")
+  endif(CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR
+        CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 else(APPLE)
   set(GETDP_OS "${CMAKE_SYSTEM_NAME}")
 endif(APPLE)
@@ -850,7 +862,7 @@ else(ENABLE_BUILD_DYNAMIC)
   target_link_libraries(getdp ${LINK_LIBRARIES})
 endif(ENABLE_BUILD_DYNAMIC)
 
-# force static linking of system libraries with cygwin/mingw
+# force static linking of system libraries with Cygwin/MinGW
 if(WIN32 AND NOT MSVC OR CYGWIN)
   set_target_properties(getdp PROPERTIES LINK_FLAGS "-static")
   if(ENABLE_BUILD_SHARED OR ENABLE_BUILD_DYNAMIC)
@@ -914,7 +926,7 @@ macro(unix2dos VARNAME)
     if(CYGWIN)
       string(REGEX REPLACE "\n" "\r\n" F1 "${F0}")
       file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/unix2dos/${N} "${F1}")
-    else(CYGWIN) # if not in cygwin, cmake adds '\r's automatically
+    else(CYGWIN) # if not in Cygwin, cmake adds '\r's automatically
       file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/unix2dos/${N} "${F0}")
     endif(CYGWIN)
     list(APPEND UNIX2DOS_FILES ${CMAKE_CURRENT_BINARY_DIR}/unix2dos/${N})
@@ -1137,8 +1149,8 @@ include(CPack)
 include(CTest)
 file(GLOB_RECURSE TESTS demos/magnet.pro)
 foreach(TESTFILE ${TESTS})
-  # use relative path for cygwin/mingw (the pure win exe built with the mingw
-  # compilers does not understand a full cygwin-style path)
+  # use relative path for Cygwin/MinGW (the pure win exe built with the mingw
+  # compilers does not understand a full Cygwin-style path)
   FILE(RELATIVE_PATH TEST ${CMAKE_CURRENT_BINARY_DIR} ${TESTFILE})
   add_test(${TEST} getdp ${TEST} -solve \#1 -pos \#1)
 endforeach(TESTFILE)
