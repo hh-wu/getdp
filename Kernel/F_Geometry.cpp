@@ -288,7 +288,7 @@ void F_SurfaceArea(F_ARG)
     Fct->Active->Case.SurfaceArea.Value = Val_Surface ;
 
     if(!Nbr_Found_Element)
-      Message::Warning("No element found in SurfaceArea[]");
+      Message::Info("No element found in SurfaceArea[]");
   }
 
   V->Type = SCALAR ;
