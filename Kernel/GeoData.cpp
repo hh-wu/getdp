@@ -529,7 +529,7 @@ static void Geo_ReadFileWithGmsh(struct GeoData * GeoData_P)
           // tags) for all additional groups - this is consistent with the
           // behavior of the old MSH2 file format
           Geo_Element.Num = (phys == 0) ? elementTags[i][j] : ++maxTag;
-          Geo_Element.Region = physicalsTags[phys];
+          Geo_Element.Region = std::abs(physicalsTags[phys]);
           Geo_Element.ElementaryRegion = dimTags[i].second;
           Geo_Element.NumNodes = (int *)Malloc(Geo_Element.NbrNodes * sizeof(int)) ;
           for (unsigned int k = 0; k < Geo_Element.NbrNodes; k++)
