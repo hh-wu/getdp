@@ -21,8 +21,12 @@ Enable Fortran (needed for Arpack/Sparskit/Zitsol & Bessel) (default: ON)
 Enable Gmsh functions (for field interpolation) (default: ON)
 @item ENABLE_GSL
 Enable GSL functions (for some built-in functions) (default: ON)
-@item ENABLE_LEGACY
-Use legacy assembler (required for actual computations) (default: ON)
+@item ENABLE_HPDDM
+Enable HPDDM support (default: ON)
+@item ENABLE_KERNEL
+Enable kernel (required for actual computations) (default: ON)
+@item ENABLE_MMA
+Enable MMA optimizer (default: ON)
 @item ENABLE_MPI
 Enable MPI parallelization (with PETSc/SLEPc) (default: OFF)
 @item ENABLE_MULTIHARMONIC
@@ -32,11 +36,13 @@ Enable NR functions (if GSL is unavailable) (default: ON)
 @item ENABLE_NX
 Enable proprietary NX extension (default: OFF)
 @item ENABLE_OCTAVE
-Enable Octave functions (default: ON)
+Enable Octave functions (default: OFF)
 @item ENABLE_OPENMP
 Enable OpenMP parallelization of some functions (experimental) (default: OFF)
 @item ENABLE_PETSC
 Enable PETSc linear solver (default: ON)
+@item ENABLE_PRIVATE_API
+Enable private API (default: OFF)
 @item ENABLE_PYTHON
 Enable Python functions (default: ON)
 @item ENABLE_SLEPC
@@ -45,6 +51,8 @@ Enable SLEPc eigensolver (default: ON)
 Enable experimental SmallFem assembler (default: OFF)
 @item ENABLE_SPARSKIT
 Enable Sparskit solver instead of PETSc (requires Fortran) (default: ON)
+@item ENABLE_PEWE
+Enable PeWe exact solutions (requires Fortran) (default: ON)
 @item ENABLE_WRAP_PYTHON
 Build Python wrappers (default: OFF)
 @item ENABLE_ZITSOL
