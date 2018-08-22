@@ -7,6 +7,7 @@
 #define _DOFDATA_H_
 
 #include <vector>
+#include <map>
 #include "ListUtils.h"
 #include "TreeUtils.h"
 #include "LinAlg.h"
@@ -139,6 +140,8 @@ struct DofData {
   gVector   b_MH_moving ;
 
   std::vector<int> NonLocalEquations;
+
+  std::map<int, std::vector<std::pair<int, double> > > unassembledRHS;
 } ;
 
 
