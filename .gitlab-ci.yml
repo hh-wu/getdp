@@ -509,6 +509,7 @@ doc_official_release:
     - make doc
     - scp -o StrictHostKeyChecking=no -i /home/gitlab-runner/.ssh/id_rsa getdp-*-doc.tgz geuzaine@getdp.info:.wwwgetdp/doc.tgz
     - ssh -o StrictHostKeyChecking=no -i /home/gitlab-runner/.ssh/id_rsa geuzaine@getdp.info 'cd .wwwgetdp && tar zxvf doc.tgz'
+    - scp -o StrictHostKeyChecking=no -i /home/gitlab-runner/.ssh/id_rsa ../doc/getdp.html geuzaine@getdp.info:.wwwgetdp/
   tags:
     - linux64
     - official
