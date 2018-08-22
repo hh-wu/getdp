@@ -476,3 +476,41 @@ source_official_release:
     - official
   only:
     - /^getdp_.*$/
+
+# ----------------------------------------------
+# Official documentation (master branch only)
+# ----------------------------------------------
+
+doc_official_snapshot:
+  only:
+    - master@getdp/getdp
+  script:
+    - mkdir build_doc
+    - cd build_doc
+    - /usr/local/bin/cmake ${EXTRA_OPTION} ..
+    - make doc
+    - scp -o StrictHostKeyChecking=no -i /home/gitlab-runner/.ssh/id_rsa getdp-*-doc.tgz geuzaine@getdp.info:.wwwgetdp/doc.tgz
+    - ssh -o StrictHostKeyChecking=no -i /home/gitlab-runner/.ssh/id_rsa geuzaine@getdp.info 'cd .wwwgetdp/dev && tar zxvf ../doc.tgz'
+  tags:
+    - linux64
+    - official
+  except:
+    - tags
+
+doc_official_release:
+  variables:
+    EXTRA_OPTION: "-DGETDP_RELEASE=1"
+  only:
+    - master@getdp/getdp
+  script:
+    - mkdir build_doc
+    - cd build_doc
+    - /usr/local/bin/cmake ${EXTRA_OPTION} ..
+    - make doc
+    - scp -o StrictHostKeyChecking=no -i /home/gitlab-runner/.ssh/id_rsa getdp-*-doc.tgz geuzaine@getdp.info:.wwwgetdp/doc.tgz
+    - ssh -o StrictHostKeyChecking=no -i /home/gitlab-runner/.ssh/id_rsa geuzaine@getdp.info 'cd .wwwgetdp && tar zxvf doc.tgz'
+  tags:
+    - linux64
+    - official
+  only:
+    - /^getdp_.*$/
