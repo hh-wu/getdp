@@ -1,9 +1,9 @@
-3.0.0: new extrapolation (see SetExtrapolationOrder) in time-domain resolutions;
-new string macros; added support for Gmsh MSH4 file format; new file handling
-operations and ElementTable format in PostOperation; added support for curved
-(2nd order) simplices; enhanced communication of post-processing data with
-ONELAB; many new functions (Atanh, JnSph, YnSph, ValueFromTable, ListFromServer,
-GroupExists, ...); various small bug fixes.
+3.0.0 (August 22. 2018): new extrapolation (see SetExtrapolationOrder) in
+time-domain resolutions; new string macros; added support for Gmsh MSH4 file
+format; new file handling operations and ElementTable format in PostOperation;
+added support for curved (2nd order) simplices; enhanced communication of
+post-processing data with ONELAB; many new functions (Atanh, JnSph, YnSph,
+ValueFromTable, ListFromServer, GroupExists, ...); various small bug fixes.
 
 2.11.3 (November 5, 2017): new 'Eig' operator for general eigenvalue problems
 (polynomial, rational); small improvements and bug fixes.
