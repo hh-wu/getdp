@@ -98,7 +98,7 @@ linux64_official_petsc_complex_snapshot:
 
 linux64_official_petsc_complex_release:
   variables:
-    EXTRA_VERSION: "-DGETDP_RELEASE=1"
+    EXTRA_OPTION: "-DGETDP_RELEASE=1"
   <<: *linux_official_petsc_complex
   tags:
     - linux64
@@ -116,7 +116,7 @@ linux64_official_petsc_real_snapshot:
 
 linux64_official_petsc_real_release:
   variables:
-    EXTRA_VERSION: "-DGETDP_RELEASE=1"
+    EXTRA_OPTION: "-DGETDP_RELEASE=1"
   <<: *linux_official_petsc_real
   tags:
     - linux64
@@ -134,7 +134,7 @@ linux64_official_petsc_real_mh_snapshot:
 
 linux64_official_petsc_real_mh_release:
   variables:
-    EXTRA_VERSION: "-DGETDP_RELEASE=1"
+    EXTRA_OPTION: "-DGETDP_RELEASE=1"
   <<: *linux_official_petsc_real_mh
   tags:
     - linux64
@@ -152,7 +152,7 @@ linux32_official_petsc_complex_snapshot:
 
 linux32_official_petsc_complex_release:
   variables:
-    EXTRA_VERSION: "-DGETDP_RELEASE=1"
+    EXTRA_OPTION: "-DGETDP_RELEASE=1"
   <<: *linux_official_petsc_complex
   tags:
     - linux32
@@ -170,7 +170,7 @@ linux32_official_petsc_real_snapshot:
 
 linux32_official_petsc_real_release:
   variables:
-    EXTRA_VERSION: "-DGETDP_RELEASE=1"
+    EXTRA_OPTION: "-DGETDP_RELEASE=1"
   <<: *linux_official_petsc_real
   tags:
     - linux32
@@ -188,7 +188,7 @@ linux32_official_petsc_real_mh_snapshot:
 
 linux32_official_petsc_real_mh_release:
   variables:
-    EXTRA_VERSION: "-DGETDP_RELEASE=1"
+    EXTRA_OPTION: "-DGETDP_RELEASE=1"
   <<: *linux_official_petsc_real_mh
   tags:
     - linux32
@@ -244,7 +244,7 @@ windows64_official_petsc_complex_snapshot:
 
 windows64_official_petsc_complex_release:
   variables:
-    EXTRA_VERSION: "-DGETDP_RELEASE=1"
+    EXTRA_OPTION: "-DGETDP_RELEASE=1"
   <<: *windows_official_petsc_complex
   tags:
     - windows64
@@ -262,7 +262,7 @@ windows64_official_petsc_real_snapshot:
 
 windows64_official_petsc_real_release:
   variables:
-    EXTRA_VERSION: "-DGETDP_RELEASE=1"
+    EXTRA_OPTION: "-DGETDP_RELEASE=1"
   <<: *windows_official_petsc_real
   tags:
     - windows64
@@ -280,7 +280,7 @@ windows64_official_petsc_real_mh_snapshot:
 
 windows64_official_petsc_real_mh_release:
   variables:
-    EXTRA_VERSION: "-DGETDP_RELEASE=1"
+    EXTRA_OPTION: "-DGETDP_RELEASE=1"
   <<: *windows_official_petsc_real_mh
   tags:
     - windows64
@@ -298,7 +298,7 @@ windows32_official_petsc_complex_snapshot:
 
 windows32_official_petsc_complex_release:
   variables:
-    EXTRA_VERSION: "-DGETDP_RELEASE=1"
+    EXTRA_OPTION: "-DGETDP_RELEASE=1"
   <<: *windows_official_petsc_complex
   tags:
     - windows32
@@ -316,7 +316,7 @@ windows32_official_petsc_real_snapshot:
 
 windows32_official_petsc_real_release:
   variables:
-    EXTRA_VERSION: "-DGETDP_RELEASE=1"
+    EXTRA_OPTION: "-DGETDP_RELEASE=1"
   <<: *windows_official_petsc_real
   tags:
     - windows32
@@ -334,7 +334,7 @@ windows32_official_petsc_real_mh_snapshot:
 
 windows32_official_petsc_real_mh_release:
   variables:
-    EXTRA_VERSION: "-DGETDP_RELEASE=1"
+    EXTRA_OPTION: "-DGETDP_RELEASE=1"
   <<: *windows_official_petsc_real_mh
   tags:
     - windows32
@@ -401,7 +401,7 @@ macos64_official_petsc_complex_snapshot:
 
 macos64_official_petsc_complex_release:
   variables:
-    EXTRA_VERSION: "-DGETDP_RELEASE=1"
+    EXTRA_OPTION: "-DGETDP_RELEASE=1"
   <<: *macos_official_petsc_complex
   tags:
     - macos64
@@ -419,7 +419,7 @@ macos64_official_petsc_real_snapshot:
 
 macos64_official_petsc_real_release:
   variables:
-    EXTRA_VERSION: "-DGETDP_RELEASE=1"
+    EXTRA_OPTION: "-DGETDP_RELEASE=1"
   <<: *macos_official_petsc_real
   tags:
     - macos64
@@ -437,7 +437,7 @@ macos64_official_petsc_real_mh_snapshot:
 
 macos64_official_petsc_real_mh_release:
   variables:
-    EXTRA_VERSION: "-DGETDP_RELEASE=1"
+    EXTRA_OPTION: "-DGETDP_RELEASE=1"
   <<: *macos_official_petsc_real_mh
   tags:
     - macos64
@@ -469,7 +469,7 @@ source_official_snapshot:
 
 source_official_release:
   variables:
-    EXTRA_VERSION: "-DGETDP_RELEASE=1"
+    EXTRA_OPTION: "-DGETDP_RELEASE=1"
   <<: *source_official
   tags:
     - linux64
