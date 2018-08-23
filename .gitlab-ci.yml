@@ -6,25 +6,11 @@
 variables:
   EXTRA_OPTION: ""
 
-# ------------------------------
-# Docker builds for all branches
-# ------------------------------
+# ---------------------------------------------
+# Continuous integation builds for all branches
+# ---------------------------------------------
 
-linux64_docker_ci:
-  image: onelab/ubuntu16.04
-  script:
-    - mkdir build
-    - cd build
-    - cmake ${EXTRA_OPTION} ..
-    - make -j 4
-    - ctest -j 4 --output-on-failure
-  tags:
-    - linux64
-    - docker
-  except:
-    - tags
-
-linux64_docker_ci_new:
+linux64_ci:
   image: onelab/ubuntu18.04
   script:
     - mkdir build
