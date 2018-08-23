@@ -28,7 +28,7 @@ windows64_ci:
   script:
     - md build
     - cd build
-    - bash -c "/usr/bin/cmake -DCMAKE_PREFIX_PATH='/usr/local;/usr/x86_64-w64-mingw32/sys-root/mingw' -DCMAKE_C_COMPILER=/usr/bin/x86_64-w64-mingw32-gcc.exe -DCMAKE_CXX_COMPILER=/usr/bin/x86_64-w64-mingw32-g++.exe -DCMAKE_Fortran_COMPILER=/usr/bin/x86_64-w64-mingw32-gfortran.exe -DCMAKE_RC_COMPILER=/usr/bin/x86_64-w64-mingw32-windres.exe -DENABLE_SPARSKIT=1 -DENABLE_PETSC=0 -DPETSC_ARCH=complex_mumps_seq -DPETSC_DIR=/home/Administrator/petsc -DSLEPC_DIR=/home/Administrator/slepc ${EXTRA_OPTION} .."
+    - bash -c "/usr/bin/cmake -DCMAKE_PREFIX_PATH='/usr/local;/usr/x86_64-w64-mingw32/sys-root/mingw' -DCMAKE_C_COMPILER=/usr/bin/x86_64-w64-mingw32-gcc.exe -DCMAKE_CXX_COMPILER=/usr/bin/x86_64-w64-mingw32-g++.exe -DCMAKE_Fortran_COMPILER=/usr/bin/x86_64-w64-mingw32-gfortran.exe -DCMAKE_RC_COMPILER=/usr/bin/x86_64-w64-mingw32-windres.exe -DENABLE_SPARSKIT=0 -DENABLE_PETSC=1 -DPETSC_ARCH=complex_mumps_seq -DPETSC_DIR=/home/Administrator/petsc -DSLEPC_DIR=/home/Administrator/slepc ${EXTRA_OPTION} .."
     - bash -c "/usr/bin/make -j 4"
     - bash -c "/usr/bin/ctest -j 4 --output-on-failure"
   tags:
