@@ -908,6 +908,7 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
       printf("Galerkin = ") ;
       for (j = 0 ; j < Nbr_Dof ; j++)
 	Print_DofNumber(QuantityStorageDof_P->BasisFunction[j].Dof) ;
+
       printf("\n") ;
       for (i = 0 ; i < Nbr_Equ ; i++) {
 	Print_DofNumber(QuantityStorageEqu_P->BasisFunction[i].Dof) ;
@@ -921,10 +922,11 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
       }
     }
 
-    int Flag_StoreUnassembedRHS = 1;
+    static int Flag_StoreUnassembedRHS = 1;
+    static std::map<int, std::vector<std::pair<int,double> > > unassembledRHS;
 
     // store unassembled RHS in DofData, per element
-    if(0){// && Flag_StoreUnassembedRHS){
+    if(Flag_StoreUnassembedRHS){
       for (j = 0 ; j < Nbr_Dof ; j++){
         if(QuantityStorageDof_P->BasisFunction[j].Dof->Type == DOF_FIXED &&
            QuantityStorageDof_P->BasisFunction[j].Dof->Entity == 0){
@@ -938,7 +940,8 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
               for(k = 0 ; k < Current.NbrHar ; k++){
                 int n = QuantityStorageEqu_P->BasisFunction[i].Dof->Case.Unknown.NumDof;
                 printf("(%d, %g) ", n, Ek[i][j][k]) ;
-                Current.DofData->unassembledRHS[Element->Num].
+                //Current.DofData->unassembledRHS[Element->Num].
+                unassembledRHS[Element->Num].
                   push_back(std::pair<int, double>(n, Ek[i][j][k]));
               }
             }
