@@ -33,6 +33,9 @@ FILE  * File_PRE = 0, * File_RES = 0, * File_TMP = 0 ;
 
 struct DofData  * CurrentDofData ;
 
+// FIXME: make this non-static !
+std::map<int, std::vector<std::pair<int, double> > > DofData::unassembledRHS;
+
 int fcmp_Dof(const void * a, const void * b)
 {
   int Result ;
@@ -95,6 +98,8 @@ void Dof_InitDofData(struct DofData * DofData_P, int Num,
   DofData_P->CorrectionSolutions.AllSolutions = NULL;
 
   DofData_P->DummyDof = NULL ;
+
+  DofData_P->Flag_UnassembledRHS = 0 ;
 }
 
 /* ------------------------------------------------------------------------ */

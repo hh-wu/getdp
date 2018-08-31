@@ -107,6 +107,8 @@ void Operation_OptimizerUpdate(struct Operation *Operation_P);
 
 void Operation_OptimizerFinalize(struct Operation *Operation_P);
 
+void Operation_SolveMultipleRHS(struct DofData * DofData_P);
+
 void Cal_SolutionError(gVector *dx, gVector *x, int diff, double *MeanError);
 
 void Free_UnusedSolutions(struct DofData * DofData_P);

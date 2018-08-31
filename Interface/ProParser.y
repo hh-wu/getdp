@@ -4561,7 +4561,8 @@ OperationTerm :
       if(Operation_P->Type == OPERATION_GENERATE ||
          Operation_P->Type == OPERATION_GENERATERHS ||
          Operation_P->Type == OPERATION_GENERATEJAC ||
-         Operation_P->Type == OPERATION_GENERATESEPARATE)
+         Operation_P->Type == OPERATION_GENERATESEPARATE ||
+         Operation_P->Type == OPERATION_GENERATE_UNASSEMBLED_RHS)
 	Operation_P->Case.Generate.GroupIndex = -1;
     }
 
@@ -4623,7 +4624,8 @@ OperationTerm :
       if(Operation_P->Type == OPERATION_GENERATE ||
          Operation_P->Type == OPERATION_GENERATERHS ||
          Operation_P->Type == OPERATION_GENERATEJAC ||
-         Operation_P->Type == OPERATION_GENERATESEPARATE)
+         Operation_P->Type == OPERATION_GENERATESEPARATE ||
+         Operation_P->Type == OPERATION_GENERATE_UNASSEMBLED_RHS)
 	Operation_P->Case.Generate.GroupIndex = -1;
       Operation_P->Flag = $4;
     }
@@ -5875,39 +5877,6 @@ OperationTerm :
       Operation_P->Case.Copy.to = 0 ;
       Operation_P->Case.Copy.from = $3 ;
     }
-
-  | tOptimizerInitialize '[' CharExpr ',' CharExpr ','
-                             ListOfFExpr ',' ListOfFExpr ','
-                             CharExpr ',' BracedRecursiveListOfCharExpr ','
-                             CharExpr ',' BracedRecursiveListOfCharExpr ']' tEND
-    {
-      Operation_P = (struct Operation*)
-	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      Operation_P->Type = OPERATION_OPTIMIZER_INITIALIZE;
-      Operation_P->Case.OptimizerInitialize.algorithm = $3;
-      Operation_P->Case.OptimizerInitialize.currentPoint = $5;
-      Operation_P->Case.OptimizerInitialize.currentPointLowerBounds = $7;
-      Operation_P->Case.OptimizerInitialize.currentPointUpperBounds = $9;
-      Operation_P->Case.OptimizerInitialize.objective = $11;
-      Operation_P->Case.OptimizerInitialize.constraints = $13;
-      Operation_P->Case.OptimizerInitialize.objectiveSensitivity = $15;
-      Operation_P->Case.OptimizerInitialize.constraintsSensitivity = $17;
-    }
-
-  | tOptimizerUpdate '[' '$' String__Index ']' tEND
-    {
-      Operation_P = (struct Operation*)
-	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      Operation_P->Type = OPERATION_OPTIMIZER_UPDATE;
-      Operation_P->Case.OptimizerUpdate.residual = $4;
-    }
-
-  | tOptimizerFinalize '[' ']' tEND
-    {
-      Operation_P = (struct Operation*)
-	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      Operation_P->Type = OPERATION_OPTIMIZER_FINALIZE;
-     }
 
   | ParserCommandsWithoutOperations
     {

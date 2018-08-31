@@ -141,7 +141,9 @@ struct DofData {
 
   std::vector<int> NonLocalEquations;
 
-  std::map<int, std::vector<std::pair<int, double> > > unassembledRHS;
+  // FIXME: make this non-static !
+  int       Flag_UnassembledRHS ; // store unassembled RHS
+  static std::map<int, std::vector<std::pair<int, double> > > unassembledRHS;
 } ;
 
 

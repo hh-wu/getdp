@@ -827,6 +827,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_GENERATERHS_CUMULATIVE :
     case OPERATION_GENERATE :
     case OPERATION_GENERATE_CUMULATIVE :
+    case OPERATION_GENERATE_UNASSEMBLED_RHS :
       {
 #ifdef TIMER
         double tstart = MPI_Wtime();
@@ -839,7 +840,11 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                                Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                                &DefineSystem_P, &DofData_P, Resolution2_P) ;
 
-        if(Operation_P->Type == OPERATION_GENERATERHS) DofData_P->Flag_RHS = 1;
+        if(Operation_P->Type == OPERATION_GENERATERHS)
+          DofData_P->Flag_RHS = 1;
+
+        if(Operation_P->Type == OPERATION_GENERATE_UNASSEMBLED_RHS)
+          DofData_P->Flag_UnassembledRHS = 1;
 
         Current.TypeAssembly = ASSEMBLY_AGGREGATE ;
 
@@ -870,6 +875,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
           Generate_Group = NULL ;
 
         DofData_P->Flag_RHS = 0;
+        DofData_P->Flag_UnassembledRHS = 0;
+
 #ifdef TIMER
         double timer = MPI_Wtime() - tstart;
         if(Operation_P->Type == OPERATION_GENERATERHS)
@@ -1413,6 +1420,17 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                Message::GetCommRank(), timer);
 #endif
       }
+      break ;
+
+
+      /*  -->  S o l v e M u l t i p l e R H S        */
+      /*  ------------------------------------------  */
+    case OPERATION_SOLVE_MULTIPLE_RHS :
+      Init_OperationOnSystem("SolveMultipleRHS",
+			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+                             &DefineSystem_P, &DofData_P, Resolution2_P) ;
+      Init_SystemData(DofData_P, 1);
+      Operation_SolveMultipleRHS(DofData_P) ;
       break ;
 
       /*  -->  S o l v e N L                          */
@@ -3613,21 +3631,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       MPI_Barrier(PETSC_COMM_WORLD);
       Message::Info("Barrier: let's continue");
 #endif
-      break ;
-
-      /*  -->  O p t i m i z e r                      */
-      /*  ------------------------------------------  */
-
-    case OPERATION_OPTIMIZER_INITIALIZE :
-      Operation_OptimizerInitialize(Operation_P);
-      break ;
-
-    case OPERATION_OPTIMIZER_UPDATE :
-      Operation_OptimizerUpdate(Operation_P);
-      break ;
-
-    case OPERATION_OPTIMIZER_FINALIZE :
-      Operation_OptimizerFinalize(Operation_P);
       break ;
 
       /*  -->  O t h e r                              */

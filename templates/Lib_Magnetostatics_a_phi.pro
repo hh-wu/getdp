@@ -215,7 +215,8 @@ Resolution {
     }
     Operation {
       InitSolution[A];
-      Generate[A]; Solve[A];
+      GenerateUnassembledRHS[A];
+      SolveMultipleRHS[A];
       If(NbrRegions[Vol_NL_Mag])
         Generate[A]; GetResidual[A, $res0];
         Evaluate[ $res = $res0, $iter = 0 ];
