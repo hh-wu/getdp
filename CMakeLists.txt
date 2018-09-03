@@ -134,7 +134,7 @@ elseif(CYGWIN)
                     OUTPUT_VARIABLE CXX_COMPILER_MACHINE
                     OUTPUT_STRIP_TRAILING_WHITESPACE)
     if(CXX_COMPILER_MACHINE MATCHES "mingw")
-      set(GMSH_OS "Windows")
+      set(GETDP_OS "Windows")
       set(WIN32 1)
       add_definitions(-DWIN32)
     endif(CXX_COMPILER_MACHINE MATCHES "mingw")
