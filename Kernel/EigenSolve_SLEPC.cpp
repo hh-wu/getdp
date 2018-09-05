@@ -991,7 +991,7 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
 
   _try(NEPDestroy(&nep));
 #else
-  Msg::Error("Nonlinear eigenvalue solver requires PETSc/SLEPc >= 3.8");
+  Message::Error("Nonlinear eigenvalue solver requires PETSc/SLEPc >= 3.8");
 #endif
 }
 
