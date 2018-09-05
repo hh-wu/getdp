@@ -790,9 +790,9 @@ static PetscErrorCode _myNepMonitor(NEP nep, int its, int nconv, PetscScalar *ei
   return _myMonitor("NEP", its, nconv, eigr, eigi, errest);
 }
 
-static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
-                          double shift_r, double shift_i, int filterExpressionIndex,
-                          List_T *RationalCoefsNum, List_T *RationalCoefsDen)
+static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
+                         double shift_r, double shift_i, int filterExpressionIndex,
+                         List_T *RationalCoefsNum, List_T *RationalCoefsDen)
 {
 #if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 8)
   NEP nep;
@@ -915,7 +915,7 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
     _try(NEPSetSplitOperator(nep,6,A,funs,SUBSET_NONZERO_PATTERN));
   }
   else{
-    Message::Info("Illegal use of NLEig1Dof or NLEig2Dof or...");
+    Message::Info("Illegal use of Rational...");
   }
 
   Message::Info("Solving non-linear eigenvalue problem using slepc NEP");
@@ -947,6 +947,7 @@ static void _nonlinearEVP(struct DofData * DofData_P, int numEigenValues,
   _try(NEPSetDimensions(nep, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
   _try(NEPSetTolerances(nep, 1.e-6, PETSC_DEFAULT));
   _try(NEPSetType(nep, NEPNLEIGS));
+  _try(NEPSetProblemType(nep, NEP_RATIONAL));
   _try(NEPSetWhichEigenpairs(nep, NEP_TARGET_MAGNITUDE));
   _try(NEPMonitorSet(nep, _myNepMonitor, PETSC_NULL, PETSC_NULL));
   _try(NEPSetTarget(nep, shift));
@@ -1046,7 +1047,7 @@ void EigenSolve_SLEPC(struct DofData * DofData_P, int numEigenValues,
     Message::Error("Please upgrade to slepc >= 3.7.3 for non-linear EVP support!");
     return;
 #else
-    _nonlinearEVP(DofData_P, numEigenValues, shift_r, shift_i,
+    _rationalEVP(DofData_P, numEigenValues, shift_r, shift_i,
                   FilterExpressionIndex, RationalCoefsNum, RationalCoefsDen);
 #endif
 #else
