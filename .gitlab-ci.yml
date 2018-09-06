@@ -16,8 +16,8 @@ linux64_ci:
     - mkdir build
     - cd build
     - cmake ${EXTRA_OPTION} ..
-    - make -j 4
-    - ctest -j 4 --output-on-failure
+    - make -j 8
+    - ctest -j 8 --output-on-failure
   tags:
     - linux64
     - docker
@@ -29,8 +29,8 @@ windows64_ci:
     - md build
     - cd build
     - bash -c "/usr/bin/cmake -DCMAKE_PREFIX_PATH='/usr/local;/usr/x86_64-w64-mingw32/sys-root/mingw' -DCMAKE_C_COMPILER=/usr/bin/x86_64-w64-mingw32-gcc.exe -DCMAKE_CXX_COMPILER=/usr/bin/x86_64-w64-mingw32-g++.exe -DCMAKE_Fortran_COMPILER=/usr/bin/x86_64-w64-mingw32-gfortran.exe -DCMAKE_RC_COMPILER=/usr/bin/x86_64-w64-mingw32-windres.exe -DENABLE_SPARSKIT=0 -DENABLE_PETSC=1 -DPETSC_ARCH=complex_mumps_seq -DPETSC_DIR=/home/Administrateur/petsc -DSLEPC_DIR=/home/Administrateur/slepc ${EXTRA_OPTION} .."
-    - bash -c "/usr/bin/make -j 4"
-    - bash -c "/usr/bin/ctest -j 4 --output-on-failure"
+    - bash -c "/usr/bin/make -j 8"
+    - bash -c "/usr/bin/ctest -j 8 --output-on-failure"
   tags:
     - windows64
     - shared
