@@ -719,7 +719,7 @@ static void _polynomialEVP(struct DofData * DofData_P, int numEigenValues,
   _try(PEPSetDimensions(pep, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
   _try(PEPSetTolerances(pep, 1.e-6, 100));
   _try(PEPSetType(pep, PEPTOAR));
-  _try(PEPSetWhichEigenpairs(pep, PEP_SMALLEST_MAGNITUDE));
+  _try(PEPSetWhichEigenpairs(pep, PEP_TARGET_MAGNITUDE));
   _try(PEPMonitorSet(pep, _myPepMonitor, PETSC_NULL, PETSC_NULL));
 #if defined(PETSC_USE_COMPLEX)
   PetscScalar shift = shift_r + PETSC_i * shift_i;
