@@ -689,8 +689,13 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
 static void _polynomialEVP(struct DofData * DofData_P, int numEigenValues,
                            double shift_r, double shift_i, int filterExpressionIndex)
 {
-  Message::Info("Solving polynomial eigenvalue problem using PEP");
   PEP pep;
+  ST  st;
+  KSP ksp;
+  PC pc;
+
+  Message::Info("Solving polynomial eigenvalue problem using PEP");
+
   _try(PEPCreate(PETSC_COMM_WORLD, &pep));
   if(DofData_P->Flag_Init[6]){
     Message::Info("Solving polynomial i*w^5 M6 x + w^4 M5 x + -iw^3 M4 x +"
@@ -719,6 +724,15 @@ static void _polynomialEVP(struct DofData * DofData_P, int numEigenValues,
   _try(PEPSetDimensions(pep, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
   _try(PEPSetTolerances(pep, 1.e-6, 100));
   _try(PEPSetType(pep, PEPTOAR));
+  _try(PEPGetST(pep,&st));
+  _try(STSetType(st,STSINVERT));
+  _try(STGetKSP(st,&ksp));
+  _try(KSPSetType(ksp,KSPPREONLY));
+  _try(KSPGetPC(ksp,&pc));
+  _try(PCSetType(pc,PCLU));
+#if defined(PETSC_HAVE_MUMPS)
+  _try(PCFactorSetMatSolverPackage(pc,MATSOLVERMUMPS));
+#endif
   _try(PEPSetWhichEigenpairs(pep, PEP_TARGET_MAGNITUDE));
   _try(PEPMonitorSet(pep, _myPepMonitor, PETSC_NULL, PETSC_NULL));
 #if defined(PETSC_USE_COMPLEX)
