@@ -1,4 +1,6 @@
-3.0.0 (August 22. 2018): new extrapolation (see SetExtrapolationOrder) in
+3.0.1 (September 7, 2018): small bug fixes.
+
+3.0.0 (August 22, 2018): new extrapolation (see SetExtrapolationOrder) in
 time-domain resolutions; new string macros; added support for Gmsh MSH4 file
 format; new file handling operations and ElementTable format in PostOperation;
 added support for curved (2nd order) simplices; enhanced communication of
