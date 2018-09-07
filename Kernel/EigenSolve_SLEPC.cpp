@@ -570,9 +570,15 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
 
   // GetDP notation: -w^2 M3 x + iw M2 x + M1 x = 0
   // SLEPC notations for quadratic EVP: (\lambda^2 A[2] + \lambda A[1] + A[0]) x = 0
+  
+  PEP pep;
+  ST  st;
+  KSP ksp;
+  PC pc;
+  PEPType type;
+  
   Mat A[3] = {DofData_P->M1.M, DofData_P->M2.M, DofData_P->M3.M};
 
-  PEP pep;
   _try(PEPCreate(PETSC_COMM_WORLD, &pep));
   _try(PEPSetOperators(pep, 3, A));
   _try(PEPSetProblemType(pep, PEP_GENERAL));
@@ -668,6 +674,7 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
   }
 
   // print info
+  _try(PEPGetType(pep, &type));
   Message::Info("SLEPc solution method: %s", type);
   PetscInt nev;
   _try(PEPGetDimensions(pep, &nev, PETSC_NULL, PETSC_NULL));
