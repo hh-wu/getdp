@@ -580,57 +580,77 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
   // set some default options
   _try(PEPSetDimensions(pep, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
   _try(PEPSetTolerances(pep, 1.e-6, 100));
-  _try(PEPSetType(pep, PEPLINEAR));
-  _try(PEPMonitorSet(pep, _myPepMonitor, PETSC_NULL, PETSC_NULL));
-
-  // shift
-  PetscScalar shift = 0;
-  if(shift_r || shift_i){
-#if defined(PETSC_USE_COMPLEX)
-    shift = shift_r + PETSC_i * shift_i;
-#else
-    shift = shift_r;
-    if(shift_i)
-      Message::Warning("Imaginary part of shift discarded: use PETSc with complex numbers");
-#endif
-  }
-
-  if(shift_r || shift_i){
-    _try(PEPSetTarget(pep, shift));
-    _try(PEPSetWhichEigenpairs(pep, PEP_TARGET_MAGNITUDE));
-  }
-
-  // if we linearize we can set additional options
-  const char *type = "";
-  _try(PEPGetType(pep, &type));
-  if(!strcmp(type, PEPLINEAR)){
-    EPS eps;
-    _try(PEPLinearGetEPS(pep, &eps));
-    _try(EPSSetType(eps, EPSKRYLOVSCHUR));
-    ST st;
-    _try(EPSGetST(eps, &st));
-    _try(STSetType(st, STSINVERT));
-    if(shift_r || shift_i){
-      _try(EPSSetTarget(eps, shift));
-      _try(EPSSetWhichEigenpairs(eps, EPS_TARGET_MAGNITUDE));
-    }
-    _try(PEPLinearSetExplicitMatrix(pep, PETSC_TRUE));
-    Message::Info("SLEPc forcing explicit construction of matrix");
-    KSP ksp;
-    _try(STGetKSP(st, &ksp));
-    _try(KSPSetType(ksp, "preonly"));
-    PC pc;
-    _try(KSPGetPC(ksp, &pc));
-    _try(PCSetType(pc, PCLU));
+  // _try(PEPSetType(pep, PEPLINEAR));
+  _try(PEPSetType(pep, PEPTOAR));
+  _try(PEPGetST(pep,&st));
+  _try(STSetType(st,STSINVERT));
+  _try(STGetKSP(st,&ksp));
+  _try(KSPSetType(ksp,KSPPREONLY));
+  _try(KSPGetPC(ksp,&pc));
+  _try(PCSetType(pc,PCLU));
 #if defined(PETSC_HAVE_MUMPS)
-#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 9)
-    _try(PCFactorSetMatSolverType(pc, "mumps"));
-#elif (PETSC_VERSION_MAJOR > 2)
-    _try(PCFactorSetMatSolverPackage(pc, "mumps"));
+  _try(PCFactorSetMatSolverPackage(pc,MATSOLVERMUMPS));
 #endif
+  _try(PEPSetWhichEigenpairs(pep, PEP_TARGET_MAGNITUDE));
+  _try(PEPMonitorSet(pep, _myPepMonitor, PETSC_NULL, PETSC_NULL));
+#if defined(PETSC_USE_COMPLEX)
+  PetscScalar shift = shift_r + PETSC_i * shift_i;
+#else
+  PetscScalar shift = shift_r;
 #endif
-    _try(EPSSetFromOptions(eps));
-  }
+  _try(PEPSetTarget(pep, shift));
+
+  
+//   _try(PEPMonitorSet(pep, _myPepMonitor, PETSC_NULL, PETSC_NULL));
+//
+//   // shift
+//   PetscScalar shift = 0;
+//   if(shift_r || shift_i){
+// #if defined(PETSC_USE_COMPLEX)
+//     shift = shift_r + PETSC_i * shift_i;
+// #else
+//     shift = shift_r;
+//     if(shift_i)
+//       Message::Warning("Imaginary part of shift discarded: use PETSc with complex numbers");
+// #endif
+//   }
+//
+//   if(shift_r || shift_i){
+//     _try(PEPSetTarget(pep, shift));
+//     _try(PEPSetWhichEigenpairs(pep, PEP_TARGET_MAGNITUDE));
+//   }
+//
+//   // if we linearize we can set additional options
+//   const char *type = "";
+//   _try(PEPGetType(pep, &type));
+//   if(!strcmp(type, PEPLINEAR)){
+//     EPS eps;
+//     _try(PEPLinearGetEPS(pep, &eps));
+//     _try(EPSSetType(eps, EPSKRYLOVSCHUR));
+//     ST st;
+//     _try(EPSGetST(eps, &st));
+//     _try(STSetType(st, STSINVERT));
+//     if(shift_r || shift_i){
+//       _try(EPSSetTarget(eps, shift));
+//       _try(EPSSetWhichEigenpairs(eps, EPS_TARGET_MAGNITUDE));
+//     }
+//     _try(PEPLinearSetExplicitMatrix(pep, PETSC_TRUE));
+//     Message::Info("SLEPc forcing explicit construction of matrix");
+//     KSP ksp;
+//     _try(STGetKSP(st, &ksp));
+//     _try(KSPSetType(ksp, "preonly"));
+//     PC pc;
+//     _try(KSPGetPC(ksp, &pc));
+//     _try(PCSetType(pc, PCLU));
+// #if defined(PETSC_HAVE_MUMPS)
+// #if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 9)
+//     _try(PCFactorSetMatSolverType(pc, "mumps"));
+// #elif (PETSC_VERSION_MAJOR > 2)
+//     _try(PCFactorSetMatSolverPackage(pc, "mumps"));
+// #endif
+// #endif
+//     _try(EPSSetFromOptions(eps));
+//   }
 
 #if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 6)
   _try(PEPSetScale(pep, PEP_SCALE_SCALAR, PETSC_DECIDE, PETSC_DECIDE, PETSC_DECIDE));
