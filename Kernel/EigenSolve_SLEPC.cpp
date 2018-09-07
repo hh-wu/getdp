@@ -603,10 +603,10 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
   PetscScalar shift = shift_r + PETSC_i * shift_i;
 #else
   PetscScalar shift = shift_r;
+  Message::Warning("Imaginary part of shift discarded: use PETSc with complex numbers");
 #endif
   _try(PEPSetTarget(pep, shift));
 
-  
 //   _try(PEPMonitorSet(pep, _myPepMonitor, PETSC_NULL, PETSC_NULL));
 //
 //   // shift
