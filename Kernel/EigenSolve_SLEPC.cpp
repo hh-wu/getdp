@@ -576,7 +576,7 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
   KSP ksp;
   PC pc;
   PEPType type;
-  
+
   Mat A[3] = {DofData_P->M1.M, DofData_P->M2.M, DofData_P->M3.M};
 
   _try(PEPCreate(PETSC_COMM_WORLD, &pep));
