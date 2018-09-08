@@ -570,9 +570,15 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
 
   // GetDP notation: -w^2 M3 x + iw M2 x + M1 x = 0
   // SLEPC notations for quadratic EVP: (\lambda^2 A[2] + \lambda A[1] + A[0]) x = 0
+  
+  PEP pep;
+  ST  st;
+  KSP ksp;
+  PC pc;
+  PEPType type;
+
   Mat A[3] = {DofData_P->M1.M, DofData_P->M2.M, DofData_P->M3.M};
 
-  PEP pep;
   _try(PEPCreate(PETSC_COMM_WORLD, &pep));
   _try(PEPSetOperators(pep, 3, A));
   _try(PEPSetProblemType(pep, PEP_GENERAL));
@@ -580,57 +586,77 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
   // set some default options
   _try(PEPSetDimensions(pep, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
   _try(PEPSetTolerances(pep, 1.e-6, 100));
-  _try(PEPSetType(pep, PEPLINEAR));
-  _try(PEPMonitorSet(pep, _myPepMonitor, PETSC_NULL, PETSC_NULL));
-
-  // shift
-  PetscScalar shift = 0;
-  if(shift_r || shift_i){
-#if defined(PETSC_USE_COMPLEX)
-    shift = shift_r + PETSC_i * shift_i;
-#else
-    shift = shift_r;
-    if(shift_i)
-      Message::Warning("Imaginary part of shift discarded: use PETSc with complex numbers");
-#endif
-  }
-
-  if(shift_r || shift_i){
-    _try(PEPSetTarget(pep, shift));
-    _try(PEPSetWhichEigenpairs(pep, PEP_TARGET_MAGNITUDE));
-  }
-
-  // if we linearize we can set additional options
-  const char *type = "";
-  _try(PEPGetType(pep, &type));
-  if(!strcmp(type, PEPLINEAR)){
-    EPS eps;
-    _try(PEPLinearGetEPS(pep, &eps));
-    _try(EPSSetType(eps, EPSKRYLOVSCHUR));
-    ST st;
-    _try(EPSGetST(eps, &st));
-    _try(STSetType(st, STSINVERT));
-    if(shift_r || shift_i){
-      _try(EPSSetTarget(eps, shift));
-      _try(EPSSetWhichEigenpairs(eps, EPS_TARGET_MAGNITUDE));
-    }
-    _try(PEPLinearSetExplicitMatrix(pep, PETSC_TRUE));
-    Message::Info("SLEPc forcing explicit construction of matrix");
-    KSP ksp;
-    _try(STGetKSP(st, &ksp));
-    _try(KSPSetType(ksp, "preonly"));
-    PC pc;
-    _try(KSPGetPC(ksp, &pc));
-    _try(PCSetType(pc, PCLU));
+  // _try(PEPSetType(pep, PEPLINEAR));
+  _try(PEPSetType(pep, PEPTOAR));
+  _try(PEPGetST(pep,&st));
+  _try(STSetType(st,STSINVERT));
+  _try(STGetKSP(st,&ksp));
+  _try(KSPSetType(ksp,KSPPREONLY));
+  _try(KSPGetPC(ksp,&pc));
+  _try(PCSetType(pc,PCLU));
 #if defined(PETSC_HAVE_MUMPS)
-#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 9)
-    _try(PCFactorSetMatSolverType(pc, "mumps"));
-#elif (PETSC_VERSION_MAJOR > 2)
-    _try(PCFactorSetMatSolverPackage(pc, "mumps"));
+  _try(PCFactorSetMatSolverPackage(pc,MATSOLVERMUMPS));
 #endif
+  _try(PEPSetWhichEigenpairs(pep, PEP_TARGET_MAGNITUDE));
+  _try(PEPMonitorSet(pep, _myPepMonitor, PETSC_NULL, PETSC_NULL));
+#if defined(PETSC_USE_COMPLEX)
+  PetscScalar shift = shift_r + PETSC_i * shift_i;
+#else
+  PetscScalar shift = shift_r;
+  Message::Warning("Imaginary part of shift discarded: use PETSc with complex numbers");
 #endif
-    _try(EPSSetFromOptions(eps));
-  }
+  _try(PEPSetTarget(pep, shift));
+
+//   _try(PEPMonitorSet(pep, _myPepMonitor, PETSC_NULL, PETSC_NULL));
+//
+//   // shift
+//   PetscScalar shift = 0;
+//   if(shift_r || shift_i){
+// #if defined(PETSC_USE_COMPLEX)
+//     shift = shift_r + PETSC_i * shift_i;
+// #else
+//     shift = shift_r;
+//     if(shift_i)
+//       Message::Warning("Imaginary part of shift discarded: use PETSc with complex numbers");
+// #endif
+//   }
+//
+//   if(shift_r || shift_i){
+//     _try(PEPSetTarget(pep, shift));
+//     _try(PEPSetWhichEigenpairs(pep, PEP_TARGET_MAGNITUDE));
+//   }
+//
+//   // if we linearize we can set additional options
+//   const char *type = "";
+//   _try(PEPGetType(pep, &type));
+//   if(!strcmp(type, PEPLINEAR)){
+//     EPS eps;
+//     _try(PEPLinearGetEPS(pep, &eps));
+//     _try(EPSSetType(eps, EPSKRYLOVSCHUR));
+//     ST st;
+//     _try(EPSGetST(eps, &st));
+//     _try(STSetType(st, STSINVERT));
+//     if(shift_r || shift_i){
+//       _try(EPSSetTarget(eps, shift));
+//       _try(EPSSetWhichEigenpairs(eps, EPS_TARGET_MAGNITUDE));
+//     }
+//     _try(PEPLinearSetExplicitMatrix(pep, PETSC_TRUE));
+//     Message::Info("SLEPc forcing explicit construction of matrix");
+//     KSP ksp;
+//     _try(STGetKSP(st, &ksp));
+//     _try(KSPSetType(ksp, "preonly"));
+//     PC pc;
+//     _try(KSPGetPC(ksp, &pc));
+//     _try(PCSetType(pc, PCLU));
+// #if defined(PETSC_HAVE_MUMPS)
+// #if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 9)
+//     _try(PCFactorSetMatSolverType(pc, "mumps"));
+// #elif (PETSC_VERSION_MAJOR > 2)
+//     _try(PCFactorSetMatSolverPackage(pc, "mumps"));
+// #endif
+// #endif
+//     _try(EPSSetFromOptions(eps));
+//   }
 
 #if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 6)
   _try(PEPSetScale(pep, PEP_SCALE_SCALAR, PETSC_DECIDE, PETSC_DECIDE, PETSC_DECIDE));
@@ -648,6 +674,7 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
   }
 
   // print info
+  _try(PEPGetType(pep, &type));
   Message::Info("SLEPc solution method: %s", type);
   PetscInt nev;
   _try(PEPGetDimensions(pep, &nev, PETSC_NULL, PETSC_NULL));
@@ -689,8 +716,13 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
 static void _polynomialEVP(struct DofData * DofData_P, int numEigenValues,
                            double shift_r, double shift_i, int filterExpressionIndex)
 {
-  Message::Info("Solving polynomial eigenvalue problem using PEP");
   PEP pep;
+  ST  st;
+  KSP ksp;
+  PC pc;
+
+  Message::Info("Solving polynomial eigenvalue problem using PEP");
+
   _try(PEPCreate(PETSC_COMM_WORLD, &pep));
   if(DofData_P->Flag_Init[6]){
     Message::Info("Solving polynomial i*w^5 M6 x + w^4 M5 x + -iw^3 M4 x +"
@@ -719,7 +751,16 @@ static void _polynomialEVP(struct DofData * DofData_P, int numEigenValues,
   _try(PEPSetDimensions(pep, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
   _try(PEPSetTolerances(pep, 1.e-6, 100));
   _try(PEPSetType(pep, PEPTOAR));
-  _try(PEPSetWhichEigenpairs(pep, PEP_SMALLEST_MAGNITUDE));
+  _try(PEPGetST(pep,&st));
+  _try(STSetType(st,STSINVERT));
+  _try(STGetKSP(st,&ksp));
+  _try(KSPSetType(ksp,KSPPREONLY));
+  _try(KSPGetPC(ksp,&pc));
+  _try(PCSetType(pc,PCLU));
+#if defined(PETSC_HAVE_MUMPS)
+  _try(PCFactorSetMatSolverPackage(pc,MATSOLVERMUMPS));
+#endif
+  _try(PEPSetWhichEigenpairs(pep, PEP_TARGET_MAGNITUDE));
   _try(PEPMonitorSet(pep, _myPepMonitor, PETSC_NULL, PETSC_NULL));
 #if defined(PETSC_USE_COMPLEX)
   PetscScalar shift = shift_r + PETSC_i * shift_i;
