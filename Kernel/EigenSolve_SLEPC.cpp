@@ -50,6 +50,10 @@
 #include <slepcnep.h> //nleigchange
 #endif
 
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 9)
+#define PCFactorSetMatSolverPackage PCFactorSetMatSolverType
+#endif
+
 extern struct CurrentData Current ;
 
 extern void _fillseq(Vec &V, Vec &Vseq); // from LinAlg_PETsc.cpp
@@ -377,13 +381,8 @@ static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
   PC pc;
   _try(KSPGetPC(ksp, &pc));
   _try(PCSetType(pc, PCLU));
-
-#if defined(PETSC_HAVE_MUMPS)
-#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 9)
-  _try(PCFactorSetMatSolverType(pc, "mumps"));
-#elif (PETSC_VERSION_MAJOR > 2)
+#if (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
   _try(PCFactorSetMatSolverPackage(pc, "mumps"));
-#endif
 #endif
 
   // print info
@@ -500,12 +499,8 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
     PC pc;
     _try(KSPGetPC(ksp, &pc));
     _try(PCSetType(pc, PCLU));
-#if defined(PETSC_HAVE_MUMPS)
-#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 9)
-    _try(PCFactorSetMatSolverType(pc, "mumps"));
-#elif (PETSC_VERSION_MAJOR > 2)
+#if (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
     _try(PCFactorSetMatSolverPackage(pc, "mumps"));
-#endif
 #endif
   }
 
@@ -570,7 +565,7 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
 
   // GetDP notation: -w^2 M3 x + iw M2 x + M1 x = 0
   // SLEPC notations for quadratic EVP: (\lambda^2 A[2] + \lambda A[1] + A[0]) x = 0
-  
+
   PEP pep;
   ST  st;
   KSP ksp;
@@ -594,8 +589,8 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
   _try(KSPSetType(ksp,KSPPREONLY));
   _try(KSPGetPC(ksp,&pc));
   _try(PCSetType(pc,PCLU));
-#if defined(PETSC_HAVE_MUMPS)
-  _try(PCFactorSetMatSolverPackage(pc,MATSOLVERMUMPS));
+#if (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
+  _try(PCFactorSetMatSolverPackage(pc, "mumps"));
 #endif
   _try(PEPSetWhichEigenpairs(pep, PEP_TARGET_MAGNITUDE));
   _try(PEPMonitorSet(pep, _myPepMonitor, PETSC_NULL, PETSC_NULL));
@@ -648,12 +643,8 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
 //     PC pc;
 //     _try(KSPGetPC(ksp, &pc));
 //     _try(PCSetType(pc, PCLU));
-// #if defined(PETSC_HAVE_MUMPS)
-// #if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 9)
-//     _try(PCFactorSetMatSolverType(pc, "mumps"));
-// #elif (PETSC_VERSION_MAJOR > 2)
+// #if (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
 //     _try(PCFactorSetMatSolverPackage(pc, "mumps"));
-// #endif
 // #endif
 //     _try(EPSSetFromOptions(eps));
 //   }
@@ -757,8 +748,8 @@ static void _polynomialEVP(struct DofData * DofData_P, int numEigenValues,
   _try(KSPSetType(ksp,KSPPREONLY));
   _try(KSPGetPC(ksp,&pc));
   _try(PCSetType(pc,PCLU));
-#if defined(PETSC_HAVE_MUMPS)
-  _try(PCFactorSetMatSolverPackage(pc,MATSOLVERMUMPS));
+#if (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
+  _try(PCFactorSetMatSolverPackage(pc, "mumps"));
 #endif
   _try(PEPSetWhichEigenpairs(pep, PEP_TARGET_MAGNITUDE));
   _try(PEPMonitorSet(pep, _myPepMonitor, PETSC_NULL, PETSC_NULL));
