@@ -770,24 +770,21 @@ endif(EXTERNAL_INCLUDES)
 
 set(LINK_LIBRARIES ${EXTERNAL_LIBRARIES} ${LAPACK_LIBRARIES})
 
-# Linux-specific linking
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  # try to use static gfortran on static Linux builds
-  if(NOT ENABLE_BUILD_DYNAMIC AND NOT ENABLE_BUILD_SHARED)
-    set(CMAKE_Fortran_IMPLICIT_LINK_LIBRARIES)
-    set(CMAKE_EXE_LINK_DYNAMIC_C_FLAGS)
-    set(CMAKE_EXE_LINK_DYNAMIC_CXX_FLAGS)
-    find_library(GFORTRAN_STATIC libgfortran.a)
-    if(GFORTRAN_STATIC)
-      message(STATUS "Using static libgfortran")
-      foreach(STR ${LINK_LIBRARIES})
-        string(REPLACE "-lgfortran" ${GFORTRAN_STATIC} STR2 ${STR})
-        list(APPEND LINK_LIBRARIES2 ${STR2})
-      endforeach(STR)
-      set(LINK_LIBRARIES ${LINK_LIBRARIES2})
-    endif(GFORTRAN_STATIC)
-  endif(NOT ENABLE_BUILD_DYNAMIC AND NOT ENABLE_BUILD_SHARED)
-endif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+# try to use static gfortran on static builds
+if(NOT ENABLE_BUILD_DYNAMIC AND NOT ENABLE_BUILD_SHARED)
+  set(CMAKE_Fortran_IMPLICIT_LINK_LIBRARIES)
+  set(CMAKE_EXE_LINK_DYNAMIC_C_FLAGS)
+  set(CMAKE_EXE_LINK_DYNAMIC_CXX_FLAGS)
+  find_library(GFORTRAN_STATIC libgfortran.a)
+  if(GFORTRAN_STATIC)
+    message(STATUS "Using static libgfortran")
+    foreach(STR ${LINK_LIBRARIES})
+      string(REPLACE "-lgfortran" ${GFORTRAN_STATIC} STR2 ${STR})
+      list(APPEND LINK_LIBRARIES2 ${STR2})
+    endforeach(STR)
+    set(LINK_LIBRARIES ${LINK_LIBRARIES2})
+  endif(GFORTRAN_STATIC)
+endif(NOT ENABLE_BUILD_DYNAMIC AND NOT ENABLE_BUILD_SHARED)
 
 # we could specify include dirs more selectively, but this is simpler
 include_directories(Common Interface Kernel Numeric ${EXTERNAL_INCLUDES}
