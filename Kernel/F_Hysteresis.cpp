@@ -2952,6 +2952,7 @@ void Vector_h_Vinch_K(const double b[3], double bc[3],
       for (int n=0; n<ncomp; n++) {dbdh[n]=0.; dhdb[n]=0.;}
 
       for (int n=0; n<3; n++) dh[n]=10.*::DELTA_0; //KJNEW DELTA_00 +++
+      double ndh=norm(dh); //NEW v4 v5
       //*///-------------------------------------------------------------------------------------------
 
       int iter = 0 ;
@@ -2960,7 +2961,6 @@ void Vector_h_Vinch_K(const double b[3], double bc[3],
               (fabs(bc[1]-b[1])/(1+fabs(b[1]))) > TOL ||
               (fabs(bc[2]-b[2])/(1+fabs(b[2]))) > TOL ))
       {
-
 
         ::DELTA_0=norm(dh)/10;//KJNEW DELTA_00 +++ // IS it Interesting ?
 
@@ -3328,8 +3328,10 @@ void Vector_h_Vinch_K(const double b[3], double bc[3],
           dh[n] = 2*dh[n];
         }
         int counter=0;
+        ndh=norm(dh); //NEW v4 v5
         do
         {
+          ndh=ndh/2; //NEW v4 v5
           for (int n=0 ; n<3 ; n++)
           {
             dh[n]=dh[n]/2;
@@ -3343,7 +3345,10 @@ void Vector_h_Vinch_K(const double b[3], double bc[3],
           if (::FLAG_WARNING>=FLAG_WARNING_DISP_INV && counter>1)
             Message::Warning("activated dh/2 in inversion process %d",counter);
         }
-        while ((norm(b_btest) > Ib_bcI) && counter<5);
+        //while ((norm(b_btest) > Ib_bcI) && counter<5 ); //previous version
+        //while (::FLAG_INVMETHOD!=3 && (norm(b_btest) > Ib_bcI) && counter<100 && ndh>::TOLERANCE_NR); //NEW v4
+        //while ((norm(b_btest) > Ib_bcI) && counter<5 && ndh>::TOLERANCE_NR); //NEW v5
+        while ((norm(b_btest) > Ib_bcI) && counter<10 && ndh>::TOLERANCE_NR); //NEW v6
 
         for (int n=0 ; n<3 ; n++){
           dx[n]= dh[n];

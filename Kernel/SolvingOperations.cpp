@@ -1604,7 +1604,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         if (Current.Residual>0) {
           // if the residual is not 0, a previous TimeStep or iteration has been done
           // ==> Take the last RelaxFactor used from the previous TimeStep or iteration
-          Frelax=Current.RelaxFac;
+          Frelax=1;//Current.RelaxFac; //NEW
           /*Message::Warning("Init SolveJacAdapt: Start with RelaxFactor "
                            "from the last iteration (or TimeStep) = %g",Frelax);//*/
         }
