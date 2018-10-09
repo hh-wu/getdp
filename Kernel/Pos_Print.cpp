@@ -338,7 +338,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 	Fill_PostElement(Element.GeoElement, PostElement_L, iGeo,
 			 Depth, PSO_P->Skin,
 			 PSO_P->EvaluationPoints,
-			 DecomposeInSimplex, 0) ;
+			 DecomposeInSimplex, 0, PSO_P->Gauss) ;
       }
       Message::ProgressMeter(iGeo + 1, NbrGeo, "Post-processing (Generate)");
       if(Message::GetErrorCount()) break;
@@ -406,11 +406,14 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
           (Group_P->Type == ELEMENTLIST  &&
            Check_IsEntityInExtendedGroup(Group_P, Element.GeoElement->Num, 0))
           ) {
-        int HighOrder = (PSO_P->Format == FORMAT_GMSH && (PSO_P->StoreInField >= 0 || PSO_P->StoreInMeshBasedField >= 0 || Flag_GMSH_VERSION == 2 || Flag_BIN)) ? 1 : 0;
+        int HighOrder =
+          (PSO_P->Format == FORMAT_GMSH && (PSO_P->StoreInField >= 0 ||
+                                            PSO_P->StoreInMeshBasedField >= 0 ||
+                                            Flag_GMSH_VERSION == 2 || Flag_BIN)) ? 1 : 0;
 	Fill_PostElement(Element.GeoElement, PostElement_L, iGeo,
 			 PSO_P->Depth, PSO_P->Skin,
 			 PSO_P->EvaluationPoints,
-			 DecomposeInSimplex, HighOrder) ;
+			 DecomposeInSimplex, HighOrder, PSO_P->Gauss) ;
       }
     }
 
@@ -1710,7 +1713,7 @@ void  Pos_PrintGroup(struct PostSubOperation *PSO_P)
           SL->z[0] = z[abs(NumNodes[0])-1]; SL->z[1] = z[abs(NumNodes[1])-1];
           SL->Value[0].Type = SL->Value[1].Type = SCALAR ;
 
-          //          SL->Value[0].Val[0] = SL->Value[1].Val[0] = fabs(GeoElement->NumEdges[i]);
+          // SL->Value[0].Val[0] = SL->Value[1].Val[0] = fabs(GeoElement->NumEdges[i]);
 
           // Dof : type, num, 0
           if (List_Nbr(PSO_P->Value_L)<2)
@@ -1726,9 +1729,11 @@ void  Pos_PrintGroup(struct PostSubOperation *PSO_P)
              != NULL) ;
 
           if (CodeExist) {
-            sizeEdge = sqrt( SQU(SL->x[1]-SL->x[0]) + SQU(SL->y[1]-SL->y[0]) + SQU(SL->z[1]-SL->z[0]) );
+            sizeEdge = sqrt( SQU(SL->x[1]-SL->x[0]) +
+                             SQU(SL->y[1]-SL->y[0]) +
+                             SQU(SL->z[1]-SL->z[0]) );
             if(Current.NbrHar==1){
-              Dof_GetRealDofValue(Current.DofData_P0+ numDofData, Dof_P, &Val_Dof) ;
+              Dof_GetRealDofValue(Current.DofData_P0 + numDofData, Dof_P, &Val_Dof) ;
 
               Val_Dof = Val_Dof / sizeEdge ;
 

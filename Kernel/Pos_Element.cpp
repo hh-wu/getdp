@@ -16,6 +16,7 @@
 #include "Cal_Value.h"
 #include "MallocUtils.h"
 #include "Message.h"
+#include "ProDefine.h"
 
 extern struct CurrentData Current ;
 
@@ -354,12 +355,28 @@ void Cut_PostElement(struct PostElement * PE, struct Geo_Element * GE,
 
 void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 		      int Index, int Depth, int Skin, List_T * EvaluationPoints_L,
-		      int DecomposeInSimplex, int HighOrder)
+		      int DecomposeInSimplex, int HighOrder, int Gauss)
 {
   struct PostElement * PE ;
   int Nbr_EP, i_EP, Type, NbrNodes;
 
-  if(!Depth){
+  if(Gauss > 0){
+
+    Depth = 0;
+    int error;
+    void (*f)(int, int, double *, double *, double *, double *);
+    Get_FunctionForDefine(FunctionForGauss, GE->Type, &error, (void (**)())&f);
+    if(!error){
+      double dummy;
+      for(int i = 0; i < Gauss; i++){
+        PE = Create_PostElement(Index, POINT, 1, 0) ;
+        f(Gauss, i, &PE->u[0], &PE->v[0], &PE->w[0], &dummy);
+        POS_CUT_FILL ;
+      }
+    }
+
+  }
+  else if(!Depth){
 
     PE = Create_PostElement(Index, POINT, 1, 0) ;
     switch(GE->Type){
@@ -399,7 +416,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
         PE = Create_PostElement(Index, Type, NbrNodes, 1) ;
         for(int i=0; i<NbrNodes; i++){
           PE->NumNodes[i] = GE->NumNodes[i] ;
-                PE->u[i] = Nodes_Line_2[i][0] ;
+          PE->u[i] = Nodes_Line_2[i][0] ;
           PE->v[i] = Nodes_Line_2[i][1] ;
           PE->w[i] = Nodes_Line_2[i][2] ;
         }

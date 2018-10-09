@@ -13,7 +13,7 @@
 /*  P o s t E l e m e n t                                                   */
 /* ------------------------------------------------------------------------ */
 
-struct PostElement {    
+struct PostElement {
   int              Index, Type, Depth;
   int              NbrNodes, * NumNodes;
   double           * u, * v, * w, * x, * y, * z;
@@ -25,9 +25,9 @@ void                 Destroy_PostElement(struct PostElement * PostElement) ;
 struct PostElement * NodeCopy_PostElement(struct PostElement *PostElement);
 struct PostElement * PartialCopy_PostElement(struct PostElement *PostElement);
 
-void  Fill_PostElement(struct Geo_Element *GE, List_T *PostElement_L, 
+void  Fill_PostElement(struct Geo_Element *GE, List_T *PostElement_L,
 		       int Index, int Depth, int Skin, List_T * EvaluationPoints_L,
-		       int DecomposeInSimplex, int HighOrder) ;
+		       int DecomposeInSimplex, int HighOrder, int Gauss) ;
 void Cut_PostElement(struct PostElement * PE, struct Geo_Element * GE,
 		     List_T * PE_L, int Index, int Depth, int Skin,
 		     int DecomposeInSimplex) ;

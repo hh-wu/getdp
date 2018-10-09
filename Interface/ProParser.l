@@ -95,6 +95,7 @@ AppendStringToFileName       return tAppendStringToFileName;
 AppendToExistingFile         return tAppendToExistingFile;
 Asin                         return tAsin;
 AtAnteriorTimeStep           return tAtAnteriorTimeStep;
+AtGaussPoints                return tAtGaussPoints;
 MaxOverTime                  return tMaxOverTime;
 FourierSteinmetz             return tFourierSteinmetz;
 Atan                         return tAtan;

@@ -1447,6 +1447,7 @@ struct PostSubOperation {
   double  TimeInterval[2];
   List_T *ChangeOfValues;
   List_T *EvaluationPoints;
+  int     Gauss;
   union {
     struct { int RegionIndex; } OnRegion;
     struct { double x[4], y[4], z[4]; int n[3]; } OnGrid;

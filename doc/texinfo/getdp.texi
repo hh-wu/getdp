@@ -5415,6 +5415,11 @@ zero, derefinement if @var{expression-cst} is smaller than zero. If
 @var{expression-cst} is equal to zero, evaluation at the barycenter of the
 elements.
 
+@item AtGaussPoints
+@var{expression-cst}
+
+Print result at the specified number of Gauss points.
+
 @item Skin
 Computes the result on the boundary of the region.
 

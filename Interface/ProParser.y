@@ -363,7 +363,7 @@ struct doubleXstring{
 %token        tStoreMaxZinRegister tStoreMinInRegister tStoreMinXinRegister
 %token        tStoreMinYinRegister tStoreMinZinRegister
 %token        tLastTimeStepOnly tAppendTimeStepToFileName tTimeValue tTimeImagValue
-%token        tTimeInterval
+%token        tTimeInterval tAtGaussPoints
 %token        tAppendExpressionToFileName tAppendExpressionFormat
 %token        tOverrideTimeStepValue tNoMesh
 %token        tSendToServer
@@ -6972,6 +6972,7 @@ PostSubOperations :
       PostSubOperation_S.LegendPosition[1] = 0.;
       PostSubOperation_S.LegendPosition[2] = 0.;
       PostSubOperation_S.EvaluationPoints = NULL;
+      PostSubOperation_S.Gauss = 0;
       PostSubOperation_S.StoreInVariable = NULL;
       PostSubOperation_S.StoreInRegister = -1;
       PostSubOperation_S.StoreMinInRegister = -1;
@@ -7623,6 +7624,10 @@ PrintOption :
   | ',' tStoreInVariable '$' String__Index
     {
       PostSubOperation_S.StoreInVariable = $4;
+    }
+  | ',' tAtGaussPoints FExpr
+    {
+      PostSubOperation_S.Gauss = $3;
     }
   | ',' tStoreInRegister FExpr
     {
