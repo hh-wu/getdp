@@ -530,7 +530,7 @@ static void Geo_ReadFileWithGmsh(struct GeoData * GeoData_P)
           // behavior of the old MSH2 file format
           Geo_Element.Num = (phys == 0) ? elementTags[i][j] : ++maxTag;
           Geo_Element.Region = abs(physicalsTags[phys]);
-          Geo_Element.ElementaryRegion = dimTags[i].second;
+          Geo_Element.ElementaryRegion = dimTags[entity].second;
           Geo_Element.NumNodes = (int *)Malloc(Geo_Element.NbrNodes * sizeof(int)) ;
           for (unsigned int k = 0; k < Geo_Element.NbrNodes; k++)
             Geo_Element.NumNodes[k] = elementNodeTags[i][Geo_Element.NbrNodes*j + k];
