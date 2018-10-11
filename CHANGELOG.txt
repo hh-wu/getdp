@@ -1,3 +1,5 @@
+3.0.3: new AtGaussPoint PostOperation option; bug fixes.
+
 3.0.2 (September 10, 2018): small compilation fixes.
 
 3.0.1 (September 7, 2018): small bug fixes.
