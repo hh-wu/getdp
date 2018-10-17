@@ -3576,6 +3576,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         }
       }
       break ;
+
       /*
     case OPERATION_GETSIZE:
       {
@@ -3589,6 +3590,11 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       }
       break;
       */
+
+    case OPERATION_BREAK :
+      Flag_Break = 1;
+      break ;
+
     case OPERATION_SLEEP :
       Get_ValueOfExpressionByIndex(Operation_P->Case.Sleep.ExpressionIndex,
                                    NULL, 0., 0., 0., &Value) ;
