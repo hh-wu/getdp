@@ -5678,6 +5678,12 @@ void skipUntil_test(const char *skip, const char *until,
         else if(c_next ==  '/') cxxStyleComments();
         else unput(c_next);
       }
+      if(chars[0] == '"'){
+        parseString('"');
+      }
+      if(chars[0] == '\''){
+        parseString('\"');
+      }
       if(!c_previous || !is_alpha(c_previous)){
         if(chars[0] == until[0]) break;
         if(skip && chars[0] == skip[0]) break;
