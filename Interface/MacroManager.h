@@ -1,7 +1,7 @@
 // GetDP - Copyright (C) 1997-2015 P. Dular, C. Geuzaine
 //
 // See the LICENSE.txt file for license information. Please report all
-// bugs and problems to the public mailing list <getdp@onelab.info>.
+// issues on https://gitlab.onelab.info/getdp/getdp/issues
 
 #ifndef _MACRO_MANAGER_H_
 #define _MACRO_MANAGER_H_

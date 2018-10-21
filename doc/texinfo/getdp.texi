@@ -2,7 +2,7 @@
 @c GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
 @c
 @c See the LICENSE.txt file for license information. Please report all
-@c bugs and problems to the public mailing list <getdp@onelab.info>.
+@c issues on https://gitlab.onelab.info/getdp/getdp/issues
 @c
 @c =========================================================================
 @c

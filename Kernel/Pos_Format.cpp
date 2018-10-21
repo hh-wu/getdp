@@ -1,7 +1,7 @@
 // GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
-// bugs and problems to the public mailing list <getdp@onelab.info>.
+// issues on https://gitlab.onelab.info/getdp/getdp/issues
 
 #include <sstream>
 #include <map>
