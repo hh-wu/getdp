@@ -1,7 +1,7 @@
 # GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
 #
 # See the LICENSE.txt file for license information. Please report all
-# bugs and problems to the public mailing list <getdp@onelab.info>.
+# issues on https://gitlab.onelab.info/getdp/getdp/issues
 
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 
@@ -65,7 +65,7 @@ endif(ENABLE_FORTRAN)
 
 set(GETDP_MAJOR_VERSION 3)
 set(GETDP_MINOR_VERSION 0)
-set(GETDP_PATCH_VERSION 3)
+set(GETDP_PATCH_VERSION 4)
 set(GETDP_EXTRA_VERSION "")
 
 if(NOT GETDP_RELEASE)
