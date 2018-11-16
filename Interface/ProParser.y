@@ -1884,7 +1884,7 @@ JacobianCaseTerm :
 
     tRegion GroupRHS tEND
     {
-      if ($2 >=0)
+      if ($2 >= -1)
         JacobianCase_S.RegionIndex = Num_Group(&Group_S, (char*)"JA_Region", $2);
       else if ($2 == -3)
         JacobianCase_S.RegionIndex = -1;

@@ -10365,7 +10365,7 @@ yyreduce:
   case 178:
 #line 1886 "ProParser.y"
     {
-      if ((yyvsp[(2) - (3)].i) >=0)
+      if ((yyvsp[(2) - (3)].i) >= -1)
         JacobianCase_S.RegionIndex = Num_Group(&Group_S, (char*)"JA_Region", (yyvsp[(2) - (3)].i));
       else if ((yyvsp[(2) - (3)].i) == -3)
         JacobianCase_S.RegionIndex = -1;
