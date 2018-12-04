@@ -5682,7 +5682,7 @@ void skipUntil_test(const char *skip, const char *until,
         parseString('"');
       }
       if(chars[0] == '\''){
-        parseString('\"');
+        parseString('\'');
       }
       if(!c_previous || !is_alpha(c_previous)){
         if(chars[0] == until[0]) break;
