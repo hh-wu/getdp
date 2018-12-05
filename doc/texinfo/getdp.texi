@@ -4940,11 +4940,13 @@ routine is deprecated: use @code{EigenSolve} instead.
 @item FourierTransform
 @code{[@var{system-id}, @var{system-id}, @{ @var{expression-cst-list} @}]}
 
-On-the-fly computation of a discrete Fourier transform. The parameters are:
-the (time domain) system, the destination system in which the result of the
-Fourier tranform is to be saved (it should be declared with @code{Type
-Complex}), the list of frequencies to consider in the discrete Fourier
-transform.
+On-the-fly (incremental) computation of a Fourier transform. The
+parameters are: the (time domain) system, the destination system in
+which the result of the Fourier tranform is to be saved (it should be
+declared with @code{Type Complex}) and the list of frequencies to
+consider. The computation is an approximation that assumes that the time
+step is constant; it is not an actual Discrete Fourier Transform (the
+number of samples is unknown a priori).
 
 @item TimeLoopTheta
 @code{[@var{expression-cst},@var{expression-cst},@var{expression},@var{expression-cst}]}
