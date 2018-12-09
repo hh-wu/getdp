@@ -1,3 +1,6 @@
+3.0.4 (December 9, 2018): allow general groups in Jacobian definitions; fixed
+string parser regression.
+
 3.0.3 (October 18, 2018): new AtGaussPoint PostOperation option; bug fixes.
 
 3.0.2 (September 10, 2018): small compilation fixes.
