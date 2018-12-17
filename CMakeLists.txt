@@ -65,7 +65,7 @@ endif()
 
 set(GETDP_MAJOR_VERSION 3)
 set(GETDP_MINOR_VERSION 0)
-set(GETDP_PATCH_VERSION 4)
+set(GETDP_PATCH_VERSION 5)
 set(GETDP_EXTRA_VERSION "")
 
 if(NOT GETDP_RELEASE)
@@ -78,8 +78,6 @@ if(NOT GETDP_RELEASE)
   endif()
   if(GIT_COMMIT_HASH)
     set(GETDP_EXTRA_VERSION "-git-${GIT_COMMIT_HASH}")
-  else()
-    set(GETDP_EXTRA_VERSION "-git")
   endif()
 endif()
 
