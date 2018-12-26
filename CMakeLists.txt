@@ -77,7 +77,7 @@ if(NOT GETDP_RELEASE)
                     OUTPUT_STRIP_TRAILING_WHITESPACE)
   endif()
   if(GIT_COMMIT_HASH)
-    set(GETDP_EXTRA_VERSION "-git-${GIT_COMMIT_HASH}")
+    set(GETDP_EXTRA_VERSION "${GETDP_EXTRA_VERSION}-git-${GIT_COMMIT_HASH}")
   endif()
 endif()
 
