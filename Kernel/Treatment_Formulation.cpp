@@ -1,7 +1,7 @@
 // GetDP - Copyright (C) 1997-2013 P. Dular, C. Geuzaine
 //
 // See the LICENSE.txt file for license information. Please report all
-// issues on https://gitlab.onelab.info/getdp/getdp/issues
+// issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
 #include "ProData.h"
 #include "GeoData.h"
