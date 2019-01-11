@@ -1,7 +1,7 @@
-// GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2019 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
-// issues on https://gitlab.onelab.info/getdp/getdp/issues
+// issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
 // $Id: avl.cpp,v 1.2 2009-09-26 06:44:38 geuzaine Exp $
 

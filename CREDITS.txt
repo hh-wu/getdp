@@ -1,11 +1,11 @@
-                 GetDP is copyright (C) 1997-2018
+                 GetDP is copyright (C) 1997-2019
 
                           Patrick Dular
                   <patrick.dular at uliege.be>
 
                                and
 
-                       Christophe Geuzaine 
+                       Christophe Geuzaine
                      <cgeuzaine at uliege.be>
 
                        University of Liege

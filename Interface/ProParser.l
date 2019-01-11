@@ -2,7 +2,7 @@
 // GetDP - Copyright (C) 1997-2015 P. Dular, C. Geuzaine
 //
 // See the LICENSE.txt file for license information. Please report all
-// issues on https://gitlab.onelab.info/getdp/getdp/issues
+// issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
 #include <stdio.h>
 #include <stdlib.h>

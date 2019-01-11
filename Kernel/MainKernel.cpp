@@ -1,7 +1,7 @@
-// GetDP - Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2019 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
-// issues on https://gitlab.onelab.info/getdp/getdp/issues
+// issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
 #include <sstream>
 #include <vector>
@@ -45,7 +45,7 @@ static void Info(int level, char *arg0)
   case 0 :
     fprintf(stderr,
 	    "GetDP, a General environment for the treatment of Discrete Problems\n"
-	    "Copyright (C) 1997-2018 P. Dular and C. Geuzaine, University of Liege\n"
+	    "Copyright (C) 1997-2019 P. Dular and C. Geuzaine, University of Liege\n"
 	    "Usage: %s [file] [options]\n"
 	    "Processing options:\n"
 	    "  -pre 'Resolution'         pre-processing\n"
