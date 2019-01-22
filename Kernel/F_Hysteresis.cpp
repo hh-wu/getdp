@@ -1653,6 +1653,7 @@ struct FullDiff_params_new
 };
 
 
+#if defined(HAVE_GSL)
 void FullDiff_ehi_3d(const double x[2], double ehi[3])
 {
   const double theta = x[0];
@@ -1702,12 +1703,13 @@ int FullDiff_ff_3d (const gsl_vector * gsl_ang, void *params, gsl_vector * f)
 
   //return dJ[0]*sin(y)-dJ[1]*cos(y);
 
-  gsl_vector_set (f, 0, y0);
+  gsl_vector_set (f, 0, y0); // TODO : Which eq to choose ? ? 
   gsl_vector_set (f, 1, y1);
+  //gsl_vector_set (f, 1, y2);
 
   return GSL_SUCCESS;
 }
-
+#endif
 
 
 
@@ -2065,7 +2067,9 @@ void print_state_1d (int iterb, const char *s_name, int status,
 
 void print_state_3d (int iterb, const char *s_name, int status, gsl_multiroot_fsolver * s)  // not in F.h
 {
-  if(::FLAG_WARNING>=FLAG_WARNING_DISP_ROOTFINDING && iterb>=FLAG_WARNING_ITER){
+  if(::FLAG_WARNING>=FLAG_WARNING_DISP_ROOTFINDING 
+    //&& iterb>=FLAG_WARNING_ITER
+    ){
     if (iterb == 1)
       printf ("using %s method",
               s_name);
@@ -2625,6 +2629,8 @@ void Vector_Update_hr_K_3d(const double h[3], double hr[3], const double hrp[3],
     tmp[n] = h[n]-hrp[n];
   if (norm(tmp)>chi)
   {
+
+    // TODO : Why calculating when chi==0, we automatically know that hr=h !!!
     int status;
     int iterb = 0, max_iterb = ::MAX_ITER_NR;
 
