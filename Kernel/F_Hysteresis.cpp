@@ -1653,6 +1653,67 @@ struct FullDiff_params_new
 };
 
 
+#if defined(HAVE_GSL)
+void FullDiff_ehi_3d(const double x[2], double ehi[3])
+{
+  const double theta = x[0];
+  const double phi   = x[1];
+
+  ehi[0]=sin(phi)*cos(theta);
+  ehi[1]=sin(phi)*sin(theta);
+  ehi[2]=cos(phi)  ;
+}
+
+
+void FullDiff_xup_3d(const double x[2], const double chi, const double ehi[3], const double h[3], double xup[3])
+{
+  for (int n=0 ; n<3 ; n++)
+    xup[n]=h[n] + chi*ehi[n];
+}
+
+
+int FullDiff_ff_3d (const gsl_vector * gsl_ang, void *params, gsl_vector * f)
+{
+  double ang[2];
+  for (int n=0; n<2; n++) 
+    ang[n]=gsl_vector_get (gsl_ang, n);
+
+  struct FullDiff_params_new *p = (struct FullDiff_params_new *) params;
+  double chi  = p->chi;
+  double Ja   = p->Ja;
+  double ha   = p->ha;
+  double Jb   = p->Jb;
+  double hb   = p->hb;
+  double h[3]  = { p->h[0] , p->h[1] , p->h[2]  };
+  double Jp[3] = { p->Jp[0], p->Jp[1], p->Jp[2] };
+
+  double xup[3];
+  double dJ[3];
+  double ehi[3];
+  FullDiff_ehi_3d(ang,ehi);
+  FullDiff_xup_3d(ang, chi, ehi,h, xup);
+
+  Vector_Find_Jk_K (xup, Ja, ha,  Jb, hb, dJ); // dJ contains Jup here
+  for (int n=0; n<3; n++) 
+    dJ[n] -= Jp[n]; // dJ = Jup - Jp as it should be here
+
+  const double y0 = dJ[1]*ehi[2] -  dJ[2]*ehi[1];
+  const double y1 = dJ[2]*ehi[0] -  dJ[0]*ehi[2];
+  //const double y2 = dJ[0]*ehi[1] -  dJ[1]*ehi[0];
+
+  //return dJ[0]*sin(y)-dJ[1]*cos(y);
+
+  gsl_vector_set (f, 0, y0); // TODO : Which eq to choose ? ? 
+  gsl_vector_set (f, 1, y1);
+  //gsl_vector_set (f, 1, y2);
+
+  return GSL_SUCCESS;
+}
+#endif
+
+
+
+
 void FullDiff_hi(double x, double chi, double ex[3])
 {
   ex[0]=chi*cos(x);
@@ -1681,12 +1742,12 @@ double FullDiff_ff_new (double y, void *params)
 
   double xup[3];
   double dJ[3];
-  double nxup;
+  //double nxup;
 
 
   FullDiff_xup(y, chi, h, xup);
 
-  nxup=norm(xup);
+  //nxup=norm(xup);
   Vector_Find_Jk_K (xup, Ja, ha,  Jb, hb, dJ); // dJ contains Jup here
   for (int n=0; n<3; n++) 
     dJ[n] -= Jp[n]; // dJ = Jup - Jp as it should be here
@@ -2002,6 +2063,30 @@ void print_state_1d (int iterb, const char *s_name, int status,
             alpha, err);
   }
 }
+
+
+void print_state_3d (int iterb, const char *s_name, int status, gsl_multiroot_fsolver * s)  // not in F.h
+{
+  if(::FLAG_WARNING>=FLAG_WARNING_DISP_ROOTFINDING 
+    //&& iterb>=FLAG_WARNING_ITER
+    ){
+    if (iterb == 1)
+      printf ("using %s method",
+              s_name);
+
+      printf ("\niter = %3u x = % .3f % .3f "
+              "f(x) = % .3e % .3e",
+              iterb,
+              gsl_vector_get (s->x, 0),
+              gsl_vector_get (s->x, 1),
+              gsl_vector_get (s->f, 0),
+              gsl_vector_get (s->f, 1));
+
+    if (status == GSL_SUCCESS)
+      printf (" (Converged)\n");
+  }
+}
+
 #endif
 
 
@@ -2528,7 +2613,103 @@ void Vector_Update_Jk_K(const double h[3], double Jk[3], const double Jkp[3], co
   }
 }
 
-void Vector_Update_hr_K(const double h[3], double hr[3], const double hrp[3], const double chi,
+void Vector_Update_hr_K_3d(const double h[3], double hr[3], const double hrp[3], const double chi,
+                        const double Ja, const double ha, const double Jb, const double hb)
+{
+ #if !defined(HAVE_GSL)
+  Message::Error("FLAG_VARORDIFF = %d requires the GSL for the moment in Vector_Update_hr_K\n"
+                      "FLAG_VARORDIFF = 1 --> Variational Approach\n"
+                      "FLAG_VARORDIFF = 2 --> Simple Differential Approach\n"
+                      "FLAG_VARORDIFF = 3 --> Full Differential Approach (gsl)", ::FLAG_VARORDIFF);
+#else
+  // Full Differential Case
+  double TOL = ::TOLERANCE_OM;
+  double tmp[3];
+  for (int n=0; n<3; n++)
+    tmp[n] = h[n]-hrp[n];
+  if (norm(tmp)>chi)
+  {
+
+    // TODO : Why calculating when chi==0, we automatically know that hr=h !!!
+    int status;
+    int iterb = 0, max_iterb = ::MAX_ITER_NR;
+
+
+    struct FullDiff_params_new params;
+    params.chi= chi;
+    params.Ja= Ja;
+    params.ha= ha;
+    params.Jb= Jb;
+    params.hb= hb;
+    for (int n=0 ; n<3 ; n++)
+      params.h[n]=h[n];
+    Vector_Find_Jk_K (hrp,Ja, ha, Jb, hb, params.Jp); 
+
+    const size_t nang = 2;
+    char solver_type[100]="'Multivariate Angles Root Finding for Update hr' ";
+    
+    const gsl_multiroot_fsolver_type *T;
+    gsl_multiroot_fsolver *s;
+
+    gsl_multiroot_function f = {&FullDiff_ff_3d, nang, &params};
+
+    double xinit[2]= {atan2(-tmp[1],-tmp[0]), acos(-tmp[2]/norm(tmp))};
+    gsl_vector *x = gsl_vector_alloc(nang);
+
+    gsl_vector_set (x, 0, xinit[0]);
+    gsl_vector_set (x, 1, xinit[1]);
+
+    T = gsl_multiroot_fsolver_hybrids; // BEST
+    //T = gsl_multiroot_fsolver_hybrid;
+    //T = gsl_multiroot_fsolver_dnewton; // may lead to Error   : GSL: matrix is singular 
+    //T = gsl_multiroot_fsolver_broyden; // may lead to Error   : GSL: matrix is singular
+
+    s = gsl_multiroot_fsolver_alloc (T, 2);
+    gsl_multiroot_fsolver_set (s, &f, x);
+
+
+
+    strcat(solver_type,gsl_multiroot_fsolver_name(s));
+
+    do
+      {
+        iterb++;
+        status = gsl_multiroot_fsolver_iterate (s);
+
+        if (status)   //check if solver is stuck 
+          break;
+
+        status =
+          gsl_multiroot_test_residual (s->f, TOL);
+
+        print_state_3d (iterb, solver_type, status, s);
+      }
+    while (status == GSL_CONTINUE && iterb < max_iterb);
+
+    //printf ("status = %s\n", gsl_strerror (status));
+
+    double x0[2];
+    x0[0]=gsl_vector_get (s->x, 0);
+    x0[1]=gsl_vector_get (s->x, 1);
+
+
+    double ehi[3];
+    FullDiff_ehi_3d(x0, ehi);
+    for (int n=0; n<3; n++)
+      hr[n]=h[n]+chi*ehi[n];
+
+    gsl_multiroot_fsolver_free (s);
+    gsl_vector_free (x);
+  }
+  else
+  {
+    for (int n=0; n<3; n++)
+      hr[n]=hrp[n];
+  }
+#endif
+}
+
+void Vector_Update_hr_K_2d(const double h[3], double hr[3], const double hrp[3], const double chi,
                         const double Ja, const double ha, const double Jb, const double hb)
 {
 #if !defined(HAVE_GSL)
@@ -2645,6 +2826,23 @@ void Vector_Update_hr_K(const double h[3], double hr[3], const double hrp[3], co
       hr[n]=hrp[n];
   }
 #endif
+}
+
+void Vector_Update_hr_K(const double h[3], double hr[3], const double hrp[3], const double chi,
+                        const double Ja, const double ha, const double Jb, const double hb)
+{
+  switch(::FLAG_DIM)
+  {
+    case 2: // 2D case
+      Vector_Update_hr_K_2d(h,hr,hrp,chi,Ja,ha,Jb,hb);
+    break;
+    case 3: // 3D case
+      Vector_Update_hr_K_3d(h,hr,hrp,chi,Ja,ha,Jb,hb);
+    break;
+    default:
+      Message::Error("Invalid parameter (dimension = 2 or 3) for function 'Vector_Update_hr_K'.");
+    break;
+  }
 }
 
 void Vector_Update_Simple_hr_K(const double h[3], double hr[3], const double hrp[3], const double chi)
