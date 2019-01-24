@@ -2893,26 +2893,20 @@ void  F_Mnm(F_ARG)
 
   switch (Mtype) {
     case 1: // Spherical Bessel function of the first kind j_n
-      sph_bessel_n_ofkr_re = sqrt(M_PI/(2.*k0*r))
-                  *gsl_sf_bessel_Jnu((double)n+0.5,k0*r);
+      sph_bessel_n_ofkr_re = Spherical_j_n(n, k0*r);
       sph_bessel_n_ofkr_im = 0;
       break;
     case 2: // Spherical Bessel function of the second kind y_n
-      sph_bessel_n_ofkr_re = sqrt(M_PI/(2.*k0*r))
-                  *gsl_sf_bessel_Ynu((double)n+0.5,k0*r);
+      sph_bessel_n_ofkr_re = Spherical_y_n(n, k0*r);
       sph_bessel_n_ofkr_im = 0;
       break;
     case 3: // Spherical Hankel function of the first kind h^1_n
-      sph_bessel_n_ofkr_re = sqrt(M_PI/(2.*k0*r))
-                  *gsl_sf_bessel_Jnu((double)n+0.5,k0*r);
-      sph_bessel_n_ofkr_im = sqrt(M_PI/(2.*k0*r))
-                  *gsl_sf_bessel_Ynu((double)n+0.5,k0*r);
+      sph_bessel_n_ofkr_re = Spherical_j_n(n, k0*r);
+      sph_bessel_n_ofkr_im = Spherical_y_n(n, k0*r);
       break;
     case 4: // Spherical Hankel function of the second kind h^2_n
-      sph_bessel_n_ofkr_re = sqrt(M_PI/(2.*k0*r))
-                  *gsl_sf_bessel_Jnu((double)n+0.5,k0*r);
-      sph_bessel_n_ofkr_im =-sqrt(M_PI/(2.*k0*r))
-                  *gsl_sf_bessel_Ynu((double)n+0.5,k0*r);
+      sph_bessel_n_ofkr_re = Spherical_j_n(n, k0*r);
+      sph_bessel_n_ofkr_im =-Spherical_y_n(n, k0*r);
       break;
     default:
       sph_bessel_n_ofkr_re =0.;
@@ -3018,40 +3012,28 @@ void  F_Nnm(F_ARG)
   Znm_p_im =     unm_costheta * exp_jm_phi_re;
   switch (Ntype) {
     case 1: // Spherical Bessel function of the first kind j_n
-      sph_bessel_n_ofkr_re       = sqrt(M_PI/(2.*k0*r))
-                                    *gsl_sf_bessel_Jnu((double)n   +0.5,k0*r);
-      sph_bessel_nminus1_ofkr_re = sqrt(M_PI/(2.*k0*r))
-                                    *gsl_sf_bessel_Jnu((double)n-1.+0.5,k0*r);
+      sph_bessel_n_ofkr_re       = Spherical_j_n(n  ,k0*r);
+      sph_bessel_nminus1_ofkr_re = Spherical_j_n(n-1,k0*r);
       sph_bessel_n_ofkr_im       = 0;
       sph_bessel_nminus1_ofkr_im = 0;
       break;
     case 2: // Spherical Bessel function of the second kind y_n
-      sph_bessel_n_ofkr_re       = sqrt(M_PI/(2.*k0*r))
-                                    *gsl_sf_bessel_Ynu((double)n   +0.5,k0*r);
-      sph_bessel_nminus1_ofkr_re = sqrt(M_PI/(2.*k0*r))
-                                    *gsl_sf_bessel_Ynu((double)n-1.+0.5,k0*r);
+      sph_bessel_n_ofkr_re       = Spherical_y_n(n  ,k0*r);
+      sph_bessel_nminus1_ofkr_re = Spherical_y_n(n-1,k0*r);
       sph_bessel_n_ofkr_im       = 0;
       sph_bessel_nminus1_ofkr_im = 0;
       break;
     case 3: // Spherical Hankel function of the first kind h^1_n
-      sph_bessel_n_ofkr_re       = sqrt(M_PI/(2.*k0*r))
-                                    *gsl_sf_bessel_Jnu((double)n   +0.5,k0*r);
-      sph_bessel_nminus1_ofkr_re = sqrt(M_PI/(2.*k0*r))
-                                    *gsl_sf_bessel_Jnu((double)n-1.+0.5,k0*r);
-      sph_bessel_n_ofkr_im       = sqrt(M_PI/(2.*k0*r))
-                                    *gsl_sf_bessel_Ynu((double)n   +0.5,k0*r);
-      sph_bessel_nminus1_ofkr_im = sqrt(M_PI/(2.*k0*r))
-                                    *gsl_sf_bessel_Ynu((double)n-1.+0.5,k0*r);
+      sph_bessel_n_ofkr_re       = Spherical_j_n(n  ,k0*r);
+      sph_bessel_nminus1_ofkr_re = Spherical_j_n(n-1,k0*r);
+      sph_bessel_n_ofkr_im       = Spherical_y_n(n  ,k0*r);
+      sph_bessel_nminus1_ofkr_im = Spherical_y_n(n-1,k0*r);
       break;
     case 4: // Spherical Hankel function of the second kind h^2_n
-      sph_bessel_n_ofkr_re       = sqrt(M_PI/(2.*k0*r))
-                                    *gsl_sf_bessel_Jnu((double)n   +0.5,k0*r);
-      sph_bessel_nminus1_ofkr_re = sqrt(M_PI/(2.*k0*r))
-                                    *gsl_sf_bessel_Jnu((double)n-1.+0.5,k0*r);
-      sph_bessel_n_ofkr_im       =-sqrt(M_PI/(2.*k0*r))
-                                    *gsl_sf_bessel_Ynu((double)n   +0.5,k0*r);
-      sph_bessel_nminus1_ofkr_im =-sqrt(M_PI/(2.*k0*r))
-                                    *gsl_sf_bessel_Ynu((double)n-1.+0.5,k0*r);
+      sph_bessel_n_ofkr_re       = Spherical_j_n(n  ,k0*r);
+      sph_bessel_nminus1_ofkr_re = Spherical_j_n(n-1,k0*r);
+      sph_bessel_n_ofkr_im       =-Spherical_y_n(n  ,k0*r);
+      sph_bessel_nminus1_ofkr_im =-Spherical_y_n(n-1,k0*r);
       break;
     default:
       sph_bessel_n_ofkr_re       = 0.;
