@@ -16,9 +16,6 @@
 #include "Bessel.h"
 #include "MallocUtils.h"
 #include "Message.h"
-#if defined(HAVE_GSL)
-#include <gsl/gsl_sf_bessel.h>
-#endif
 
 #define SQU(a)     ((a)*(a))
 
@@ -2615,11 +2612,11 @@ void F_snm(F_ARG)
 void  F_Xnm(F_ARG)
 {
   int     n, m;
-  double  x, y, z, k0;
+  double  x, y, z;
   double  r, theta, phi;
   double Xnm_r_re,Xnm_r_im,Xnm_t_re,Xnm_t_im,Xnm_p_re,Xnm_p_im;
   double Xnm_x_re,Xnm_x_im,Xnm_y_re,Xnm_y_im,Xnm_z_re,Xnm_z_im;
-  double costheta, pnm_costheta, unm_costheta, snm_costheta;
+  double costheta, unm_costheta, snm_costheta;
   double exp_jm_phi_re, exp_jm_phi_im;
   double avoid_r_singularity = 1.E-13;
 
@@ -2635,7 +2632,7 @@ void  F_Xnm(F_ARG)
   x     = (A+2)->Val[0];
   y     = (A+3)->Val[0];
   z     = (A+4)->Val[0];
-  k0    = (A+5)->Val[0];
+  // k0    = (A+5)->Val[0];
 
   if(n < 0)      Message::Error("n should be a positive integer for the Xnm's");
   if(abs(m) > n) Message::Error("|m|<=n is required for the Xnm's");
@@ -2646,7 +2643,6 @@ void  F_Xnm(F_ARG)
   theta    = acos(costheta);
   phi      = atan2(-y,-x)+M_PI;
 
-  pnm_costheta  = sph_pnm(n,m,costheta);
   unm_costheta  = sph_unm(n,m,costheta);
   snm_costheta  = sph_snm(n,m,costheta);
   exp_jm_phi_re = cos( ((double)m) *phi);
@@ -2686,11 +2682,11 @@ void  F_Xnm(F_ARG)
 void  F_Ynm(F_ARG)
 {
   int     n, m;
-  double  x, y, z, k0;
+  double  x, y, z;
   double  r, theta, phi;
   double Ynm_r_re,Ynm_r_im,Ynm_t_re,Ynm_t_im,Ynm_p_re,Ynm_p_im;
   double Ynm_x_re,Ynm_x_im,Ynm_y_re,Ynm_y_im,Ynm_z_re,Ynm_z_im;
-  double costheta, pnm_costheta, unm_costheta, snm_costheta;
+  double costheta, pnm_costheta;
   double exp_jm_phi_re, exp_jm_phi_im;
   double avoid_r_singularity = 1.E-13;
 
@@ -2706,7 +2702,7 @@ void  F_Ynm(F_ARG)
   x     = (A+2)->Val[0];
   y     = (A+3)->Val[0];
   z     = (A+4)->Val[0];
-  k0    = (A+5)->Val[0];
+  // k0    = (A+5)->Val[0];
 
   if(n < 0)      Message::Error("n should be a positive integer for the Ynm's");
   if(abs(m) > n) Message::Error("|m|<=n is required for the Ynm's");
@@ -2718,8 +2714,8 @@ void  F_Ynm(F_ARG)
   phi      = atan2(-y,-x)+M_PI;
 
   pnm_costheta  = sph_pnm(n,m,costheta);
-  unm_costheta  = sph_unm(n,m,costheta);
-  snm_costheta  = sph_snm(n,m,costheta);
+  // unm_costheta  = sph_unm(n,m,costheta);
+  // snm_costheta  = sph_snm(n,m,costheta);
   exp_jm_phi_re = cos( ((double)m) *phi);
   exp_jm_phi_im = sin( ((double)m) *phi);
 
@@ -2756,11 +2752,11 @@ void  F_Ynm(F_ARG)
 void  F_Znm(F_ARG)
 {
   int     n, m;
-  double  x, y, z, k0;
+  double  x, y, z;
   double  r, theta, phi;
   double Znm_r_re,Znm_r_im,Znm_t_re,Znm_t_im,Znm_p_re,Znm_p_im;
   double Znm_x_re,Znm_x_im,Znm_y_re,Znm_y_im,Znm_z_re,Znm_z_im;
-  double costheta, pnm_costheta, unm_costheta, snm_costheta;
+  double costheta, unm_costheta, snm_costheta;
   double exp_jm_phi_re, exp_jm_phi_im;
   double avoid_r_singularity = 1.E-13;
 
@@ -2776,7 +2772,7 @@ void  F_Znm(F_ARG)
   x     = (A+2)->Val[0];
   y     = (A+3)->Val[0];
   z     = (A+4)->Val[0];
-  k0    = (A+5)->Val[0];
+  // k0    = (A+5)->Val[0];
 
   if(n < 0)
     Message::Error("n should be a positive integer for the Znm's");
@@ -2789,7 +2785,6 @@ void  F_Znm(F_ARG)
   theta    = acos(costheta);
   phi      = atan2(-y,-x)+M_PI;
 
-  pnm_costheta  = sph_pnm(n,m,costheta);
   unm_costheta  = sph_unm(n,m,costheta);
   snm_costheta  = sph_snm(n,m,costheta);
   exp_jm_phi_re = cos( ((double)m) *phi);
@@ -2825,18 +2820,15 @@ void  F_Znm(F_ARG)
   V->Val[2] = Znm_z_re ; V->Val[MAX_DIM+2] = Znm_z_im ;
 }
 
-#if defined(HAVE_GSL)
 void  F_Mnm(F_ARG)
 {
   int     Mtype, n, m;
   double  x, y, z, k0;
   double  r=0., theta=0., phi=0.;
-  double Ynm_r_re,Ynm_r_im,Ynm_t_re,Ynm_t_im,Ynm_p_re,Ynm_p_im;
-  double Xnm_r_re,Xnm_r_im,Xnm_t_re,Xnm_t_im,Xnm_p_re,Xnm_p_im;
-  double Znm_r_re,Znm_r_im,Znm_t_re,Znm_t_im,Znm_p_re,Znm_p_im;
+  double Xnm_t_re,Xnm_t_im,Xnm_p_re,Xnm_p_im;
   double Mnm_r_re,Mnm_r_im,Mnm_t_re,Mnm_t_im,Mnm_p_re,Mnm_p_im;
   double Mnm_x_re,Mnm_x_im,Mnm_y_re,Mnm_y_im,Mnm_z_re,Mnm_z_im;
-  double costheta, pnm_costheta, unm_costheta, snm_costheta;
+  double costheta, unm_costheta, snm_costheta;
   double exp_jm_phi_re, exp_jm_phi_im;
   double sph_bessel_n_ofkr_re, sph_bessel_n_ofkr_im;
   double avoid_r_singularity = 1.E-13;
@@ -2864,32 +2856,16 @@ void  F_Mnm(F_ARG)
   theta    = acos(costheta);
   phi      = atan2(-y,-x)+M_PI;
 
-  pnm_costheta  = sph_pnm(n,m,costheta);
+  // pnm_costheta  = sph_pnm(n,m,costheta);
   unm_costheta  = sph_unm(n,m,costheta);
   snm_costheta  = sph_snm(n,m,costheta);
   exp_jm_phi_re = cos( ((double)m) *phi);
   exp_jm_phi_im = sin( ((double)m) *phi);
 
-  Ynm_r_re = pnm_costheta * exp_jm_phi_re;
-  Ynm_r_im = pnm_costheta * exp_jm_phi_im;
-  Ynm_t_re = 0.;
-  Ynm_t_im = 0.;
-  Ynm_p_re = 0.;
-  Ynm_p_im = 0.;
-
-  Xnm_r_re = 0.;
-  Xnm_r_im = 0.;
   Xnm_t_re = -1.*unm_costheta * exp_jm_phi_im;
   Xnm_t_im =     unm_costheta * exp_jm_phi_re;
   Xnm_p_re = -1.*snm_costheta * exp_jm_phi_re;
   Xnm_p_im = -1.*snm_costheta * exp_jm_phi_im;
-
-  Znm_r_re = 0.;
-  Znm_r_im = 0.;
-  Znm_t_re = snm_costheta * exp_jm_phi_re;
-  Znm_t_im = snm_costheta * exp_jm_phi_im;
-  Znm_p_re = -1.*unm_costheta * exp_jm_phi_im;
-  Znm_p_im =     unm_costheta * exp_jm_phi_re;
 
   switch (Mtype) {
     case 1: // Spherical Bessel function of the first kind j_n
@@ -2950,9 +2926,8 @@ void  F_Nnm(F_ARG)
   int     Ntype, n, m;
   double  x, y, z, k0;
   double  r, theta, phi;
-  double Ynm_r_re,Ynm_r_im,Ynm_t_re,Ynm_t_im,Ynm_p_re,Ynm_p_im;
-  double Xnm_r_re,Xnm_r_im,Xnm_t_re,Xnm_t_im,Xnm_p_re,Xnm_p_im;
-  double Znm_r_re,Znm_r_im,Znm_t_re,Znm_t_im,Znm_p_re,Znm_p_im;
+  double Ynm_r_re,Ynm_r_im;
+  double Znm_t_re,Znm_t_im,Znm_p_re,Znm_p_im;
   double Nnm_r_re,Nnm_t_re,Nnm_p_re,Nnm_r_im,Nnm_t_im,Nnm_p_im;
   double Nnm_x_re,Nnm_y_re,Nnm_z_re,Nnm_x_im,Nnm_y_im,Nnm_z_im;
   double costheta, pnm_costheta, unm_costheta, snm_costheta;
@@ -2992,20 +2967,7 @@ void  F_Nnm(F_ARG)
 
   Ynm_r_re = pnm_costheta * exp_jm_phi_re;
   Ynm_r_im = pnm_costheta * exp_jm_phi_im;
-  Ynm_t_re = 0.;
-  Ynm_t_im = 0.;
-  Ynm_p_re = 0.;
-  Ynm_p_im = 0.;
 
-  Xnm_r_re = 0.;
-  Xnm_r_im = 0.;
-  Xnm_t_re = -1.*unm_costheta * exp_jm_phi_im;
-  Xnm_t_im =     unm_costheta * exp_jm_phi_re;
-  Xnm_p_re = -1.*snm_costheta * exp_jm_phi_re;
-  Xnm_p_im = -1.*snm_costheta * exp_jm_phi_im;
-
-  Znm_r_re = 0.;
-  Znm_r_im = 0.;
   Znm_t_re = snm_costheta * exp_jm_phi_re;
   Znm_t_im = snm_costheta * exp_jm_phi_im;
   Znm_p_re = -1.*unm_costheta * exp_jm_phi_im;
@@ -3086,17 +3048,6 @@ void  F_Nnm(F_ARG)
   V->Val[1] = Nnm_y_re ; V->Val[MAX_DIM+1] = Nnm_y_im ;
   V->Val[2] = Nnm_z_re ; V->Val[MAX_DIM+2] = Nnm_z_im ;
 }
-
-#else
-void F_Mnm(F_ARG)
-{
-  Message::Error("Vector partial waves Mnm require GSL!");
-}
-void F_Nnm(F_ARG)
-{
-  Message::Error("Vector partial waves Nnm require GSL!");
-}
-#endif
 
 /* ------------------------------------------------------------ */
 /*  Dyadic Green's Function for homogeneous lossless media)     */
