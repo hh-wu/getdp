@@ -21,6 +21,7 @@ void BF_Node_2E(struct Element * Element, int NumEntity,
 {
   switch (Element->Type) {
   case LINE :
+  case LINE_2 :
     switch(NumEntity) {
     case 1  : *s = 0.25 * (1.-u) * (1.+u) ; break ;
     default : WrongNumEntity ;
@@ -28,6 +29,7 @@ void BF_Node_2E(struct Element * Element, int NumEntity,
     break ;
 
   case TRIANGLE :
+  case TRIANGLE_2 :
     switch(NumEntity) {
     case 1  : *s = (1.-u-v) * u ; break ;
     case 2  : *s = (1.-u-v) * v ; break ;
@@ -118,7 +120,9 @@ void BF_Node_2F(struct Element * Element, int NumEntity,
   switch (Element->Type) {
 
   case LINE :
+  case LINE_2 :
   case TRIANGLE :
+  case TRIANGLE_2 :
   case TETRAHEDRON :
     Message::Error("BF_Node_2F cannot be associated with this type of element");
     break;
@@ -179,7 +183,9 @@ void BF_Node_2V(struct Element * Element, int NumEntity,
   switch (Element->Type) {
 
   case LINE :
+  case LINE_2 :
   case TRIANGLE :
+  case TRIANGLE_2 :
   case QUADRANGLE :
   case TETRAHEDRON :
   case PRISM :
@@ -214,6 +220,7 @@ void  BF_GradNode_2E(struct Element * Element, int NumEntity,
 {
   switch (Element->Type) {
   case LINE :
+  case LINE_2 :
     switch(NumEntity) {
     case 1  : s[0] = -0.5*u ; s[1] = 0. ; s[2] = 0. ; break ;
     default : WrongNumEntity ;
@@ -221,6 +228,7 @@ void  BF_GradNode_2E(struct Element * Element, int NumEntity,
     break ;
 
   case TRIANGLE :
+  case TRIANGLE_2 :
     switch(NumEntity) {
     case 1  : s[0] = 1.-2.*u-v ; s[1] = -u        ; s[2] = 0. ; break ;
     case 2  : s[0] = -v        ; s[1] = 1.-u-2.*v ; s[2] = 0. ; break ;
@@ -382,7 +390,9 @@ void BF_GradNode_2F(struct Element * Element, int NumEntity,
   switch (Element->Type) {
 
   case LINE :
+  case LINE_2 :
   case TRIANGLE :
+  case TRIANGLE_2 :
   case TETRAHEDRON :    
     Message::Error("BF_GradNode_2F cannot be associated with this type of element");
     break;
@@ -469,7 +479,9 @@ void BF_GradNode_2V(struct Element * Element, int NumEntity,
   switch (Element->Type) {
 
   case LINE :
+  case LINE_2 :
   case TRIANGLE :
+  case TRIANGLE_2 :
   case QUADRANGLE :
   case TETRAHEDRON :
   case PRISM :
