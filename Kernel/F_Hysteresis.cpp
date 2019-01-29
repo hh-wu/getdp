@@ -1650,6 +1650,7 @@ struct FullDiff_params_new
 {
   double chi,w,Ja, ha, Jb, hb;
   double h[3], Jp[3]; 
+  int compout;
 };
 
 
@@ -1671,12 +1672,37 @@ void FullDiff_xup_3d(const double x[2], const double chi, const double ehi[3], c
     xup[n]=h[n] + chi*ehi[n];
 }
 
-
-int FullDiff_ff_3d (const gsl_vector * gsl_ang, void *params, gsl_vector * f)
+void FullDiff_ffall_3d (const double ang[2],   struct FullDiff_params_new *p, double fall[3])
 {
-  double ang[2];
-  for (int n=0; n<2; n++) 
-    ang[n]=gsl_vector_get (gsl_ang, n);
+
+ // struct FullDiff_params_new *p = (struct FullDiff_params_new *) params;
+  double chi  = p->chi;
+  double Ja   = p->Ja;
+  double ha   = p->ha;
+  double Jb   = p->Jb;
+  double hb   = p->hb;
+  double h[3]  = { p->h[0] , p->h[1] , p->h[2]  };
+  double Jp[3] = { p->Jp[0], p->Jp[1], p->Jp[2] };
+
+  double xup[3];
+  double dJ[3];
+  double ehi[3];
+  FullDiff_ehi_3d(ang,ehi);
+  FullDiff_xup_3d(ang, chi, ehi,h, xup);
+
+  Vector_Find_Jk_K (xup, Ja, ha,  Jb, hb, dJ); // dJ contains Jup here
+  for (int n=0; n<3; n++) 
+    dJ[n] -= Jp[n]; // dJ = Jup - Jp as it should be here
+
+  fall[0] =  dJ[1]*ehi[2] -  dJ[2]*ehi[1];
+  fall[1] =  dJ[2]*ehi[0] -  dJ[0]*ehi[2];
+  fall[2] =  dJ[0]*ehi[1] -  dJ[1]*ehi[0];
+
+}
+
+/*
+void FullDiff_ffall_3dold (const double ang[2], void *params, double fall[3])
+{
 
   struct FullDiff_params_new *p = (struct FullDiff_params_new *) params;
   double chi  = p->chi;
@@ -1697,15 +1723,58 @@ int FullDiff_ff_3d (const gsl_vector * gsl_ang, void *params, gsl_vector * f)
   for (int n=0; n<3; n++) 
     dJ[n] -= Jp[n]; // dJ = Jup - Jp as it should be here
 
-  const double y0 = dJ[1]*ehi[2] -  dJ[2]*ehi[1];
-  const double y1 = dJ[2]*ehi[0] -  dJ[0]*ehi[2];
-  //const double y2 = dJ[0]*ehi[1] -  dJ[1]*ehi[0];
+  fall[0] =  dJ[1]*ehi[2] -  dJ[2]*ehi[1];
+  fall[1] =  dJ[2]*ehi[0] -  dJ[0]*ehi[2];
+  fall[2] =  dJ[0]*ehi[1] -  dJ[1]*ehi[0];
+}
+*/
 
-  //return dJ[0]*sin(y)-dJ[1]*cos(y);
 
-  gsl_vector_set (f, 0, y0); // TODO : Which eq to choose ? ? 
-  gsl_vector_set (f, 1, y1);
-  //gsl_vector_set (f, 1, y2);
+int FullDiff_ff_3d (const gsl_vector * gsl_ang, void *params, gsl_vector * f)
+{
+  struct FullDiff_params_new *p = (struct FullDiff_params_new *) params;
+  double ang[2];
+  for (int n=0; n<2; n++) 
+    ang[n]=gsl_vector_get (gsl_ang, n);
+
+  double fall[3];
+  FullDiff_ffall_3d(ang,p,fall);
+  //FullDiff_ffall_3dold(ang,params,fall);
+
+  //printf("inside compout=%d\n",p->compout );
+  //printf("inside compout=%d fall=%g %g %g\n",p->compout,fall[0],fall[1],fall[2] );
+///*
+  // TODO : Which eq to choose ? ? 
+  /*
+  int i=0;
+  for (int n=0; n<2; n++)
+  {
+    if(p->compout!=n)
+    {
+      gsl_vector_set (f, i, fall[n]);
+      i++; 
+    }
+  }
+*/
+  if (p->compout==0)
+  {
+    gsl_vector_set (f, 0, fall[1]); 
+    gsl_vector_set (f, 1, fall[2]);
+  }
+  else if (p->compout==1)
+  {
+    gsl_vector_set (f, 0, fall[0]); 
+    gsl_vector_set (f, 1, fall[2]);
+  }
+  else //if (p-> compout==2)
+  {
+    gsl_vector_set (f, 0, fall[0]); 
+    gsl_vector_set (f, 1, fall[1]);
+  }
+/*/
+    gsl_vector_set (f, 0, fall[0]); 
+    gsl_vector_set (f, 1, fall[2]); // TODO problem with lamination
+//*/
 
   return GSL_SUCCESS;
 }
@@ -2623,88 +2692,111 @@ void Vector_Update_hr_K_3d(const double h[3], double hr[3], const double hrp[3],
                       "FLAG_VARORDIFF = 3 --> Full Differential Approach (gsl)", ::FLAG_VARORDIFF);
 #else
   // Full Differential Case
-  double TOL = ::TOLERANCE_OM;
-  double tmp[3];
-  for (int n=0; n<3; n++)
-    tmp[n] = h[n]-hrp[n];
-  if (norm(tmp)>chi)
+  if (chi==0) // When chi =0, we automatically know that hr=h !!!
   {
-
-    // TODO : Why calculating when chi==0, we automatically know that hr=h !!!
-    int status;
-    int iterb = 0, max_iterb = ::MAX_ITER_NR;
-
-
-    struct FullDiff_params_new params;
-    params.chi= chi;
-    params.Ja= Ja;
-    params.ha= ha;
-    params.Jb= Jb;
-    params.hb= hb;
-    for (int n=0 ; n<3 ; n++)
-      params.h[n]=h[n];
-    Vector_Find_Jk_K (hrp,Ja, ha, Jb, hb, params.Jp); 
-
-    const size_t nang = 2;
-    char solver_type[100]="'Multivariate Angles Root Finding for Update hr' ";
-    
-    const gsl_multiroot_fsolver_type *T;
-    gsl_multiroot_fsolver *s;
-
-    gsl_multiroot_function f = {&FullDiff_ff_3d, nang, &params};
-
-    double xinit[2]= {atan2(-tmp[1],-tmp[0]), acos(-tmp[2]/norm(tmp))};
-    gsl_vector *x = gsl_vector_alloc(nang);
-
-    gsl_vector_set (x, 0, xinit[0]);
-    gsl_vector_set (x, 1, xinit[1]);
-
-    T = gsl_multiroot_fsolver_hybrids; // BEST
-    //T = gsl_multiroot_fsolver_hybrid;
-    //T = gsl_multiroot_fsolver_dnewton; // may lead to Error   : GSL: matrix is singular 
-    //T = gsl_multiroot_fsolver_broyden; // may lead to Error   : GSL: matrix is singular
-
-    s = gsl_multiroot_fsolver_alloc (T, 2);
-    gsl_multiroot_fsolver_set (s, &f, x);
-
-
-
-    strcat(solver_type,gsl_multiroot_fsolver_name(s));
-
-    do
-      {
-        iterb++;
-        status = gsl_multiroot_fsolver_iterate (s);
-
-        if (status)   //check if solver is stuck 
-          break;
-
-        status =
-          gsl_multiroot_test_residual (s->f, TOL);
-
-        print_state_3d (iterb, solver_type, status, s);
-      }
-    while (status == GSL_CONTINUE && iterb < max_iterb);
-
-    //printf ("status = %s\n", gsl_strerror (status));
-
-    double x0[2];
-    x0[0]=gsl_vector_get (s->x, 0);
-    x0[1]=gsl_vector_get (s->x, 1);
-
-
-    double ehi[3];
-    FullDiff_ehi_3d(x0, ehi);
     for (int n=0; n<3; n++)
-      hr[n]=h[n]+chi*ehi[n];
-
-    gsl_multiroot_fsolver_free (s);
-    gsl_vector_free (x);
+      hr[n]=h[n];
   }
   else
-  {
+  {  
+    double tmp[3];
     for (int n=0; n<3; n++)
-      hr[n]=hrp[n];
+      tmp[n] = h[n]-hrp[n];
+
+    if (norm(tmp)>chi)
+    {
+      int status;
+      int iterb = 0, max_iterb = ::MAX_ITER_NR;
+      double TOL = ::TOLERANCE_OM;
+
+      struct FullDiff_params_new params;
+      params.chi= chi;
+      params.Ja= Ja;
+      params.ha= ha;
+      params.Jb= Jb;
+      params.hb= hb;
+      for (int n=0 ; n<3 ; n++)
+        params.h[n]=h[n];
+      Vector_Find_Jk_K (hrp,Ja, ha, Jb, hb, params.Jp); 
+
+      const size_t nang = 2;
+      char solver_type[100]="'Multivariate Angles Root Finding for Update hr' ";
+      
+      const gsl_multiroot_fsolver_type *T;
+      gsl_multiroot_fsolver *s;
+
+      double xinit[2]= {atan2(-tmp[1],-tmp[0]), acos(-tmp[2]/norm(tmp))};
+      
+      double finit[3];
+      FullDiff_ffall_3d(xinit, &params,finit);
+      //FullDiff_ffall_3dold(xinit, &params,finit);
+
+      params.compout=0;
+      double finitmin=abs(finit[0]);
+      for (int n=1; n<3; n++)
+      {
+        if (abs(finit[n])<finitmin)
+        {
+          finitmin=abs(finit[n]);
+          params.compout=n;
+        }
+      }
+      //printf("\ncompout=%d\n",params.compout );
+      //printf("%g %g %g\n",finit[0],finit[1],finit[2]);
+
+      gsl_multiroot_function f = {&FullDiff_ff_3d, nang, &params};
+
+
+      gsl_vector *x = gsl_vector_alloc(nang);
+
+      gsl_vector_set (x, 0, xinit[0]);
+      gsl_vector_set (x, 1, xinit[1]);
+
+      T = gsl_multiroot_fsolver_hybrids; // BEST
+      //T = gsl_multiroot_fsolver_hybrid;
+      //T = gsl_multiroot_fsolver_dnewton; // may lead to Error   : GSL: matrix is singular 
+      //T = gsl_multiroot_fsolver_broyden; // may lead to Error   : GSL: matrix is singular
+
+      s = gsl_multiroot_fsolver_alloc (T, 2);
+      gsl_multiroot_fsolver_set (s, &f, x);
+
+      strcat(solver_type,gsl_multiroot_fsolver_name(s));
+
+      do
+        {
+          iterb++;
+          status = gsl_multiroot_fsolver_iterate (s);
+
+          if (status)   //check if solver is stuck 
+            break;
+
+          status =
+            gsl_multiroot_test_residual (s->f, TOL);
+
+          print_state_3d (iterb, solver_type, status, s);
+        }
+      while (status == GSL_CONTINUE && iterb < max_iterb);
+
+      //printf ("status = %s\n", gsl_strerror (status));
+
+      double x0[2];
+      x0[0]=gsl_vector_get (s->x, 0);
+      x0[1]=gsl_vector_get (s->x, 1);
+
+
+      double ehi[3];
+      FullDiff_ehi_3d(x0, ehi);
+      for (int n=0; n<3; n++)
+        hr[n]=h[n]+chi*ehi[n];
+
+      gsl_multiroot_fsolver_free (s);
+      gsl_vector_free (x);
+    }
+    else
+    {
+      for (int n=0; n<3; n++)
+        hr[n]=hrp[n];
+    }
   }
 #endif
 }
@@ -2719,111 +2811,124 @@ void Vector_Update_hr_K_2d(const double h[3], double hr[3], const double hrp[3],
                       "FLAG_VARORDIFF = 3 --> Full Differential Approach (gsl)", ::FLAG_VARORDIFF);
 #else
   // Full Differential Case
-  double TOL = ::TOLERANCE_OM;
-  double tmp[3];
-  for (int n=0; n<3; n++)
-    tmp[n] = h[n]-hrp[n];
-  if (norm(tmp)>chi)
+  if (chi==0) // When chi =0, we automatically know that hr=h !!!
   {
-    int status;
-    int iterb = 0, max_iterb = ::MAX_ITER_NR;
-
-    //............................................. NEW VERSION
-    ///*
-    struct FullDiff_params_new params;
-    params.chi= chi;
-    params.Ja= Ja;
-    params.ha= ha;
-    params.Jb= Jb;
-    params.hb= hb;
-    for (int n=0 ; n<3 ; n++)
-      params.h[n]=h[n];
-    Vector_Find_Jk_K (hrp,Ja, ha, Jb, hb, params.Jp); 
-    //*/
-    //............................................. OLD VERSION
-    /*
-    struct FullDiff_params params;
-    params.chi= chi;
-    for (int n=0 ; n<3 ; n++)
-      params.tmp[n]=tmp[n];
-    Tensor_dJkdhrk_K(hrp, Ja, ha, Jb, hb, params.mutg);
-    //*/
-    //..............................................
-
-
-    char solver_type[100]="'1D Brent for Update hr' ";
-    const gsl_root_fsolver_type *T;
-    gsl_root_fsolver *s;
-    double xinit= atan2(tmp[1],tmp[0]);
-    double r = xinit;
-
-    double al, br;
-
-    //............................................. OLD VERSION
-    //al = xinit - (1./4)*M_PI; br = xinit + (1./4)*M_PI; 
-
-    //............................................. NEW VERSION
-    ///*
-    //double phi = atan2(chi,norm(tmp));
-    double phi = acos(chi/norm(tmp));
-    al=xinit-phi; br=xinit+phi; 
-    //*/
-    //..............................................
-
-    double x0;
-
-    double ffa=FullDiff_ff_new(al, &params);
-    double ffb=FullDiff_ff_new(br, &params);
-    if (ffa * ffb>0)
-    {
-      if (::FLAG_WARNING>=FLAG_WARNING_INFO_MIN)
-        Message::Warning("ff(a)*ff(b) > 0 : ff(a)=%g; ff(b)=%g chi=%g",ffa,ffb,chi);
-      x0=xinit;
-    }
-    else
-    {
-      gsl_function F;
-
-      F.function = &FullDiff_ff_new;
-      F.params = &params;
-
-      //T = gsl_root_fsolver_bisection;
-      T = gsl_root_fsolver_brent; // BEST
-      //T = gsl_root_fsolver_falsepos;
-
-      s = gsl_root_fsolver_alloc (T);
-      gsl_root_fsolver_set (s, &F, al, br);
-      strcat(solver_type,gsl_root_fsolver_name(s));
-
-      do
-        {
-          iterb++;
-          status = gsl_root_fsolver_iterate (s);
-
-          r = gsl_root_fsolver_root (s);
-          al = gsl_root_fsolver_x_lower (s);
-          br = gsl_root_fsolver_x_upper (s);
-
-          status
-            = gsl_root_test_interval (al, br, TOL, TOL);
-
-          print_state_1d(iterb, solver_type,
-                         status, al, br, r, br - al);
-        }
-      while (status == GSL_CONTINUE && iterb < max_iterb);
-
-      gsl_root_fsolver_free (s);
-      x0=r;
-    }
-    double hi[3];
-    FullDiff_hi(x0,  chi, hi);
     for (int n=0; n<3; n++)
-      hr[n]=h[n]-hi[n];
+      hr[n]=h[n];
   }
   else
   {
+    double tmp[3];
     for (int n=0; n<3; n++)
-      hr[n]=hrp[n];
+      tmp[n] = h[n]-hrp[n];
+
+    if (norm(tmp)>chi)
+    {
+      int status;
+      int iterb = 0, max_iterb = ::MAX_ITER_NR;
+      double TOL = ::TOLERANCE_OM;
+
+      //............................................. NEW VERSION
+      ///*
+      struct FullDiff_params_new params;
+      params.chi= chi;
+      params.Ja= Ja;
+      params.ha= ha;
+      params.Jb= Jb;
+      params.hb= hb;
+      for (int n=0 ; n<3 ; n++)
+        params.h[n]=h[n];
+      Vector_Find_Jk_K (hrp,Ja, ha, Jb, hb, params.Jp); 
+      //*/
+      //............................................. OLD VERSION
+      /*
+      struct FullDiff_params params;
+      params.chi= chi;
+      for (int n=0 ; n<3 ; n++)
+        params.tmp[n]=tmp[n];
+      Tensor_dJkdhrk_K(hrp, Ja, ha, Jb, hb, params.mutg);
+      //*/
+      //..............................................
+
+
+      char solver_type[100]="'1D Brent for Update hr' ";
+      const gsl_root_fsolver_type *T;
+      gsl_root_fsolver *s;
+      double xinit= atan2(tmp[1],tmp[0]);
+      double r = xinit;
+
+      double al, br;
+
+      //............................................. OLD VERSION
+      //al = xinit - (1./4)*M_PI; br = xinit + (1./4)*M_PI; 
+
+      //............................................. NEW VERSION
+      ///*
+      //double phi = atan2(chi,norm(tmp));
+      double phi = acos(chi/norm(tmp));
+      al=xinit-phi; br=xinit+phi; 
+      //*/
+      //..............................................
+
+      double x0;
+
+      double ffa=FullDiff_ff_new(al, &params);
+      double ffb=FullDiff_ff_new(br, &params);
+      if (ffa * ffb>0)
+      {
+        if (::FLAG_WARNING>=FLAG_WARNING_INFO_MIN)
+          Message::Warning("ff(a)*ff(b) > 0 : ff(a)=%g; ff(b)=%g chi=%g",ffa,ffb,chi);
+        x0=xinit;
+      }
+      else
+      {
+        gsl_function F;
+
+        F.function = &FullDiff_ff_new;
+        F.params = &params;
+
+        //T = gsl_root_fsolver_bisection;
+        T = gsl_root_fsolver_brent; // BEST
+        //T = gsl_root_fsolver_falsepos;
+
+        s = gsl_root_fsolver_alloc (T);
+        gsl_root_fsolver_set (s, &F, al, br);
+        strcat(solver_type,gsl_root_fsolver_name(s));
+
+        do
+          {
+            iterb++;
+            status = gsl_root_fsolver_iterate (s);
+
+            r = gsl_root_fsolver_root (s);
+            al = gsl_root_fsolver_x_lower (s);
+            br = gsl_root_fsolver_x_upper (s);
+
+            status
+              = gsl_root_test_interval (al, br, TOL, TOL);
+
+            print_state_1d(iterb, solver_type,
+                           status, al, br, r, br - al);
+          }
+        while (status == GSL_CONTINUE && iterb < max_iterb);
+
+        gsl_root_fsolver_free (s);
+        x0=r;
+      }
+      double hi[3];
+      FullDiff_hi(x0,  chi, hi);
+      for (int n=0; n<3; n++)
+        hr[n]=h[n]-hi[n];
+    }
+    else
+    {
+      for (int n=0; n<3; n++)
+        hr[n]=hrp[n];
+    }
+
+
+
+
   }
 #endif
 }
