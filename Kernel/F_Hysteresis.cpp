@@ -20,13 +20,10 @@
 #define MU0 1.25663706144e-6
 
 #define FLAG_WARNING_INFO_INV         1
-#define FLAG_WARNING_INFO_ROOTFINDING 2
-#define FLAG_WARNING_INFO_MIN         3
-#define FLAG_WARNING_DISP_INV         11
-#define FLAG_WARNING_DISP_ROOTFINDING 12
-#define FLAG_WARNING_STOP_INV         101
-#define FLAG_WARNING_STOP_ROOTFINDING 102
-#define FLAG_WARNING_ITER             100
+#define FLAG_WARNING_INFO_APPROACH    2
+#define FLAG_WARNING_STOP_INV         10
+
+#define FLAG_WARNING_DISPABOVEITER    1
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
@@ -546,9 +543,9 @@ int    FLAG_SYM;
 int    FLAG_CENTRAL_DIFF;
 int    FLAG_INVMETHOD;
 int    FLAG_JACEVAL;
-int    FLAG_VARORDIFF;
+int    FLAG_APPROACH;
 int    FLAG_MINMETHOD;
-int    FLAG_TANORLANG;
+int    FLAG_ANHYLAW;
 int    FLAG_WARNING;
 double TOLERANCE_JS;
 double TOLERANCE_0;
@@ -582,11 +579,11 @@ void set_sensi_param(struct FunctionActive *D)
   FLAG_JACEVAL  = 1 --> JAC_ana
   FLAG_JACEVAL  = 2 --> JAC_num
   */
-  ::FLAG_VARORDIFF      = D->Case.Interpolation.x[j+3] ;
+  ::FLAG_APPROACH      = D->Case.Interpolation.x[j+3] ;
   /*
-  FLAG_VARORDIFF = 1 --> variational approach (Jk)
-  FLAG_VARORDIFF = 2 --> Vector Play Model approach (hrk)
-  FLAG_VARORDIFF = 3 --> full differential approach (hrk)
+  FLAG_APPROACH = 1 --> variational approach (Jk)
+  FLAG_APPROACH = 2 --> Vector Play Model approach (hrk)
+  FLAG_APPROACH = 3 --> full differential approach (hrk)
   */
   ::FLAG_MINMETHOD      = D->Case.Interpolation.x[j+4] ;
   /*
@@ -596,22 +593,26 @@ void set_sensi_param(struct FunctionActive *D)
   FLAG_MINMETHOD = 4 --> bfgs2 (gsl)
   FLAG_MINMETHOD = 5 --> bfgs (gsl)
   FLAG_MINMETHOD = 6 --> steepest descent (gsl)
+  FLAG_MINMETHOD = 11   --> steepest descent+ (homemade)\n"
+  FLAG_MINMETHOD = 22   --> conjugate Fletcher-Reeves (homemade)\n"
+  FLAG_MINMETHOD = 33   --> conjugate Polak-Ribiere (homemade)\n"
+  FLAG_MINMETHOD = 333  --> conjugate Polak-Ribiere+ (homemade)\n"
+  FLAG_MINMETHOD = 1999 --> conjugate Dai Yuan 1999 (p.85) (homemade)\n"
+  FLAG_MINMETHOD = 2005 --> conjugate Hager Zhang 2005 (p.161) (homemade)\n"
+  FLAG_MINMETHOD = 77   --> newton (homemade)\n", ::FLAG_MINMETHOD);
   */
-  ::FLAG_TANORLANG      = D->Case.Interpolation.x[j+5] ;
+  ::FLAG_ANHYLAW      = D->Case.Interpolation.x[j+5] ;
   /*
-  FLAG_TANORLANG = 1 --> hyperbolic tangent
-  FLAG_TANORLANG = 2 --> double langevin function
+  FLAG_ANHYLAW = 1 --> hyperbolic tangent
+  FLAG_ANHYLAW = 2 --> double langevin function
   */
   ::FLAG_WARNING        = D->Case.Interpolation.x[j+6] ;
   /*
   #define FLAG_WARNING_INFO_INV         1
-  #define FLAG_WARNING_INFO_ROOTFINDING 2
-  #define FLAG_WARNING_INFO_MIN         3
-  #define FLAG_WARNING_DISP_INV         11
-  #define FLAG_WARNING_DISP_ROOTFINDING 12
-  #define FLAG_WARNING_STOP_INV         101
-  #define FLAG_WARNING_STOP_ROOTFINDING 102
-  #define FLAG_WARNING_ITER             100
+  #define FLAG_WARNING_INFO_APPROACH    2
+  #define FLAG_WARNING_STOP_INV         10
+
+  #define FLAG_WARNING_DISPABOVEITER    1
   */
 
   ::TOLERANCE_JS        = D->Case.Interpolation.x[j+7] ; // SENSITIVE_PARAM (1.e-3) // 1.e-4
@@ -1159,11 +1160,10 @@ double IJanhy(double nhr, double Ja, double ha, double Jb, double hb)  // = Co-e
 
 double InvJanhy(double nJ, double Ja, double ha, double Jb, double hb)
 {
-    //printf("new\n");
     double y=nJ;
     if (fabs(y)<(::TOLERANCE_0))
         return y/dJanhy(0.,Ja,ha,Jb,hb);
-    ///* New Element from FH : fictitious slope above 1e6 (09/06/2016)-------------
+    ///* Fictitious slope above 1e6 (09/06/2016)-------------
     double tmp = y - Janhy(1100,Ja,ha,Jb,hb);
     if (tmp>0)
       return 1100+1e16*tmp;
@@ -1171,13 +1171,13 @@ double InvJanhy(double nJ, double Ja, double ha, double Jb, double hb)
     int i=0;
     double x=0.0;
     double dJan=dJanhy(x,Ja,ha,Jb,hb);
-    dJan=(dJan>1e-10)?dJan:1e-10; // New Limitation from FH (09/06/2016)
+    dJan=(dJan>1e-10)?dJan:1e-10; // Limitation
     double dx = (y-Janhy(x,Ja,ha,Jb,hb))/dJan;
     int imax=100;
       while ( ((fabs(dx)/((1>fabs(x))?1:fabs(x))) > ::TOLERANCE_NR) && (i<imax) )
       {
           dJan = dJanhy(x,Ja,ha,Jb,hb);
-          dJan = (dJan>1e-10)?dJan:1e-10; // New Limitation from FH (09/06/2016)
+          dJan = (dJan>1e-10)?dJan:1e-10; // Limitation
           dx = (y-Janhy(x,Ja,ha,Jb,hb))/dJan;
           x +=  dx;
           i++;
@@ -1216,7 +1216,7 @@ void Vector_Jk_From_hrk (const double hrk[3],
   double nhrk=norm(hrk);
   double Xan;
 
-  switch(::FLAG_TANORLANG) {
+  switch(::FLAG_ANHYLAW) {
     case 1: // Hyperbolic Tangent Case
         Xan = Xanhy(nhrk, Ja, ha);
     break;
@@ -1237,7 +1237,7 @@ void Vector_hrk_From_Jk(const double Jk[3],
 {
   double nhrk;
   double nJk  = norm(Jk);
-  switch(::FLAG_TANORLANG) {
+  switch(::FLAG_ANHYLAW) {
     case 1: // Hyperbolic Tangent Case
         nhrk = InvJanhy(nJk, Ja, ha) ;
     break;
@@ -1261,7 +1261,7 @@ void Tensor_dJkdhrk(const double hr[3],
   double nhr  = norm(hr);
   double Xan=0., dXandH2=0.;
 
-  switch(::FLAG_TANORLANG) {
+  switch(::FLAG_ANHYLAW) {
     case 1: // Hyperbolic Tangent Case
       Xan      = Xanhy(nhr, Ja, ha);
       dXandH2  = (nhr>(::TOLERANCE_0)) ? (dXanhy(nhr, Ja, ha)/(2*nhr)) : 0. ;
@@ -1364,7 +1364,7 @@ double fct_omega_VAR(const double h[3], const double Jk[3], const double Jkp[3],
   for (int n=0; n<3; n++)
     diff[n] = Jk[n]-Jkp[n]; // J-Jp
 
-  switch(::FLAG_TANORLANG) {
+  switch(::FLAG_ANHYLAW) {
     case 1: // Hyperbolic Tangent Case
       u     = u_J(nJk,Ja,ha); // magnetic energy u(J)
     break;
@@ -1419,7 +1419,7 @@ void fct_dd_omega_VAR(const double h[3], const double Jk[3], const double Jkp[3]
     double kappaOverndJk = kappa/ndJk;
     double nhr=0.; double dhrdJkOvernJk2=0.; double nhrOvernJk=0.;
 
-    switch(::FLAG_TANORLANG) {
+    switch(::FLAG_ANHYLAW) {
       case 1: // Hyperbolic Tangent Case
           nhr = InvJanhy(nJk, Ja, ha) ;
           nhrOvernJk = nhr/nJk;
@@ -1743,8 +1743,10 @@ double fct_f_DIFF_2d (double y, void *params)
 void print_state_2d (int iterb, const char *s_name, int status,
                     double al, double br, double alpha, double err)  // not in F.h
 {
-  if(::FLAG_WARNING>=FLAG_WARNING_DISP_ROOTFINDING && iterb>=FLAG_WARNING_ITER){
-    if( iterb==FLAG_WARNING_ITER)
+  if(::FLAG_WARNING>=FLAG_WARNING_INFO_APPROACH
+    && iterb>=FLAG_WARNING_DISPABOVEITER )
+  {
+    if( iterb==FLAG_WARNING_DISPABOVEITER)
     {
       printf ("using %s method\n",
               s_name);
@@ -1762,12 +1764,13 @@ void print_state_2d (int iterb, const char *s_name, int status,
   }
 }
 
-void print_state_3d (int iterb, const char *s_name, int status, gsl_multiroot_fsolver * s)  // not in F.h
+void print_state_3d (int iterb, const char *s_name, int status, 
+                     gsl_multiroot_fsolver * s)  // not in F.h
 {
-  if(::FLAG_WARNING>=FLAG_WARNING_DISP_ROOTFINDING 
-    //&& iterb>=FLAG_WARNING_ITER
-    ){
-    if (iterb == 1)
+  if(::FLAG_WARNING>=FLAG_WARNING_INFO_APPROACH
+    && iterb>=FLAG_WARNING_DISPABOVEITER)
+  {
+    if (iterb == FLAG_WARNING_DISPABOVEITER)
       printf ("using %s method",
               s_name);
 
@@ -1876,7 +1879,7 @@ void Vector_Update_Jk_VAR(const double h[3], double Jk[3], const double Jkp[3], 
         iter++ ;
       }
       //printf("itersd needed=%d\n", iter);
-      if (::FLAG_WARNING>=FLAG_WARNING_INFO_MIN && iter==MAX_ITER)
+      if (::FLAG_WARNING>=FLAG_WARNING_INFO_APPROACH && iter==MAX_ITER)
         Message::Warning("\t\tMinimization status : the minimization has not converged yet, after %d iteration(s)", MAX_ITER);
 
       for (int n=0 ; n<3 ; n++)
@@ -2165,7 +2168,7 @@ void Vector_Update_Jk_VAR(const double h[3], double Jk[3], const double Jkp[3], 
         getchar();
       }
       //*/
-      if (::FLAG_WARNING>=FLAG_WARNING_INFO_MIN && k>=MAX_ITER)
+      if (::FLAG_WARNING>=FLAG_WARNING_INFO_APPROACH && k>=MAX_ITER)
         Message::Warning("\t\tMinimization status : the minimization has not converged yet, after %d iteration(s)", MAX_ITER);
 
       for (int n=0 ; n<3 ; n++)
@@ -2270,7 +2273,7 @@ void Vector_Update_Jk_VAR(const double h[3], double Jk[3], const double Jkp[3], 
       }  while( fabs(solver->f-omegap)>TOL && iter < MAX_ITER);
 
 
-      if (::FLAG_WARNING>=FLAG_WARNING_INFO_MIN && iter==MAX_ITER)
+      if (::FLAG_WARNING>=FLAG_WARNING_INFO_APPROACH && iter==MAX_ITER)
         Message::Warning("Minimization status : the iteration has not converged yet, after %d iteration(s)", iter);
 
       for (int n=0 ; n<3 ; n++)
@@ -2304,10 +2307,10 @@ void Vector_Update_hrk_DIFF_3d(const double h[3], double hr[3], const double hrp
                         const double Ja, const double ha, const double Jb, const double hb)
 {
  #if !defined(HAVE_GSL)
-  Message::Error("FLAG_VARORDIFF = %d requires the GSL for the moment in Vector_Update_hrk_DIFF\n"
-                      "FLAG_VARORDIFF = 1 --> Variational Approach\n"
-                      "FLAG_VARORDIFF = 2 --> Vector Play Model approach\n"
-                      "FLAG_VARORDIFF = 3 --> Full Differential Approach (gsl)", ::FLAG_VARORDIFF);
+  Message::Error("FLAG_APPROACH = %d requires the GSL for the moment in Vector_Update_hrk_DIFF\n"
+                      "FLAG_APPROACH = 1 --> Variational Approach\n"
+                      "FLAG_APPROACH = 2 --> Vector Play Model approach\n"
+                      "FLAG_APPROACH = 3 --> Full Differential Approach (gsl)", ::FLAG_APPROACH);
 #else
   // Full Differential Case
   if (kappa==0) // When kappa =0, we automatically know that hr=h !!!
@@ -2423,10 +2426,10 @@ void Vector_Update_hrk_DIFF_2d(const double h[3], double hr[3], const double hrp
                         const double Ja, const double ha, const double Jb, const double hb)
 {
 #if !defined(HAVE_GSL)
-  Message::Error("FLAG_VARORDIFF = %d requires the GSL for the moment in Vector_Update_hrk_DIFF\n"
-                      "FLAG_VARORDIFF = 1 --> Variational Approach\n"
-                      "FLAG_VARORDIFF = 2 --> Vector Play Model approach\n"
-                      "FLAG_VARORDIFF = 3 --> Full Differential Approach (gsl)", ::FLAG_VARORDIFF);
+  Message::Error("FLAG_APPROACH = %d requires the GSL for the moment in Vector_Update_hrk_DIFF\n"
+                      "FLAG_APPROACH = 1 --> Variational Approach\n"
+                      "FLAG_APPROACH = 2 --> Vector Play Model approach\n"
+                      "FLAG_APPROACH = 3 --> Full Differential Approach (gsl)", ::FLAG_APPROACH);
 #else
   // Full Differential Case
   if (kappa==0) // When kappa =0, we automatically know that hr=h !!!
@@ -2474,7 +2477,7 @@ void Vector_Update_hrk_DIFF_2d(const double h[3], double hr[3], const double hrp
       double ffb=fct_f_DIFF_2d(br, &params);
       if (ffa * ffb>0)
       {
-        if (::FLAG_WARNING>=FLAG_WARNING_INFO_MIN)
+        if (::FLAG_WARNING>=FLAG_WARNING_INFO_APPROACH)
           Message::Warning("ff(a)*ff(b) > 0 : ff(a)=%g; ff(b)=%g kappa=%g",ffa,ffb,kappa);
         x0=xinit;
       }
@@ -2597,7 +2600,7 @@ void Vector_b_EB(const double h[3],
       xkp[n] = xkp_all[n+3*k];
     }
 
-    switch(::FLAG_VARORDIFF) {
+    switch(::FLAG_APPROACH) {
       case 1: // Variationnal Case
       {
         Vector_Update_Jk_VAR(h, xk, xkp, kappa, Jak, ha, Jbk, hb);
@@ -2632,7 +2635,7 @@ void Vector_b_EB(const double h[3],
       case 2: // VPM Approach
       case 3: // Full Differential Approach
       {
-        switch(::FLAG_VARORDIFF) {
+        switch(::FLAG_APPROACH) {
           case 2:
           {
             Vector_Update_hrk_VPM(h, xk, xkp, kappa);
@@ -2673,10 +2676,10 @@ void Vector_b_EB(const double h[3],
       }
       break;
       default:
-        Message::Error("Invalid parameter (VarorDiff = 1,2 or 3) for function 'Vector_b_EB'.\n"
-                      "FLAG_VARORDIFF = 1 --> Variational Approach\n"
-                      "FLAG_VARORDIFF = 2 --> Vector Play Model approach\n"
-                      "FLAG_VARORDIFF = 3 --> Full Differential Approach (gsl)");
+        Message::Error("Invalid parameter (FLAG_APPROACH = 1,2 or 3) for function 'Vector_b_EB'.\n"
+                      "FLAG_APPROACH = 1 --> Variational Approach\n"
+                      "FLAG_APPROACH = 2 --> Vector Play Model approach\n"
+                      "FLAG_APPROACH = 3 --> Full Differential Approach (gsl)");
       break;
     }
   }
@@ -2853,7 +2856,7 @@ void Vector_h_EB(const double b[3], double bc[3],
         b_btest[n]=b[n]-bc[n];
       }
       counter++;
-      if (::FLAG_WARNING>=FLAG_WARNING_DISP_INV && counter>1)
+      if (::FLAG_WARNING>=FLAG_WARNING_INFO_INV && counter>1)
         Message::Warning("activated dh/2 in inversion process %d",counter);
     }
     while ((norm(b_btest) > Ib_bcI) && counter<10 && ndh>::TOLERANCE_NR); 
@@ -2865,7 +2868,7 @@ void Vector_h_EB(const double b[3], double bc[3],
     }
     //...............................................
 
-    if(::FLAG_WARNING>=FLAG_WARNING_DISP_INV && iter>=FLAG_WARNING_ITER){
+    if(::FLAG_WARNING>=FLAG_WARNING_INFO_INV && iter>=FLAG_WARNING_DISPABOVEITER){
       //printf("dh(%d)=[%.8g,%.8g,%.8g];\t",iter,dh[0],dh[1],dh[2] );
       printf("h(%d)=[%.8g,%.8g,%.8g];\t",iter,h[0],h[1],h[2] );
       printf("b(%d)=[%.8g,%.8g,%.8g];\t",iter,bc[0],bc[1],bc[2] );
@@ -2882,7 +2885,7 @@ void Vector_h_EB(const double b[3], double bc[3],
   // Affichage de b et h obtenu à la fin de la boucle de NR :
   if (::FLAG_WARNING>=FLAG_WARNING_INFO_INV && iter==MAX_ITER){
     Message::Warning("Inversion status = the inversion has not converged yet, after %d iteration(s)",iter);
-    if (::FLAG_WARNING>=FLAG_WARNING_DISP_INV){
+    if (::FLAG_WARNING>=FLAG_WARNING_INFO_INV){
       Message::Warning("b_desired : [%.10g, %.10g, %.10g]", b[0],b[1],b[2]);
       Message::Warning("b_get     : [%.10g, %.10g, %.10g]", bc[0],bc[1],bc[2]);
       Message::Warning("h_get     : [%.10g, %.10g, %.10g]", h[0],h[1],h[2]);
@@ -3097,7 +3100,7 @@ void Tensor_dJkdh_VPMorDIFF( const double h[3], const double hrk[3], const doubl
 
 
     // dhrkdh -----------------------------------------------------------------------------------
-    switch(::FLAG_VARORDIFF)
+    switch(::FLAG_APPROACH)
     {
       case 2: // VPM // NB: dhrkdh is symmetric in that case but still stored with non-syn
       {
@@ -3111,9 +3114,9 @@ void Tensor_dJkdh_VPMorDIFF( const double h[3], const double hrk[3], const doubl
       }
       break;
       default:
-        Message::Error("Invalid parameter (VarorDiff = 2 or 3) for function 'Tensor_dJkdh_VPMorDIFF'.\n"
-                      "FLAG_VARORDIFF = 2 --> Vector Play Model approach\n"
-                      "FLAG_VARORDIFF = 3 --> Full Differential Approach (gsl)");
+        Message::Error("Invalid parameter (FLAG_APPROACH = 2 or 3) for function 'Tensor_dJkdh_VPMorDIFF'.\n"
+                      "FLAG_APPROACH = 2 --> Vector Play Model approach\n"
+                      "FLAG_APPROACH = 3 --> Full Differential Approach (gsl)");
       break;
     }
     
@@ -3265,20 +3268,20 @@ void Tensor_dhrkdh_num(const double h[3], const double xkp[3], const double kapp
   double hzr[3]={h[0],          h[1]          ,h[2]+delta[2]};
 
 
-    switch(::FLAG_VARORDIFF)
+    switch(::FLAG_APPROACH)
     {
-      case 2: // Simplified Differential Case
+      case 2: // Vector Play Model Case
         Vector_Update_hrk_VPM(hxr, hrxr, xkp, kappa);
         Vector_Update_hrk_VPM(hyr, hryr, xkp, kappa);
       break;
-      case 3:
+      case 3: // Full Differential Approach
         Vector_Update_hrk_DIFF(hxr, hrxr, xkp, kappa, Ja, ha, Jb, hb);
         Vector_Update_hrk_DIFF(hyr, hryr, xkp, kappa, Ja, ha, Jb, hb);
       break;
       default:
-        Message::Error("Invalid parameter (VarorDiff = 2 or 3) for function 'Tensor_dhrkdh_num'.\n"
-                      "FLAG_VARORDIFF = 2 --> Vector Play Model approach\n"
-                      "FLAG_VARORDIFF = 3 --> Full Differential Approach (gsl)");
+        Message::Error("Invalid parameter (FLAG_APPROACH = 2 or 3) for function 'Tensor_dhrkdh_num'.\n"
+                      "FLAG_APPROACH = 2 --> Vector Play Model approach\n"
+                      "FLAG_APPROACH = 3 --> Full Differential Approach (gsl)");
       break;
     }
 
@@ -3292,7 +3295,7 @@ void Tensor_dhrkdh_num(const double h[3], const double xkp[3], const double kapp
       hzl[2]=h[2]-delta[2];
 
 
-      switch(::FLAG_VARORDIFF)
+      switch(::FLAG_APPROACH)
       {
         case 2: // Simplified Differential Case
           Vector_Update_hrk_VPM(hxl, hrxl, xkp, kappa);
@@ -3303,16 +3306,16 @@ void Tensor_dhrkdh_num(const double h[3], const double xkp[3], const double kapp
           Vector_Update_hrk_DIFF(hyl, hryl, xkp, kappa, Ja, ha, Jb, hb);
         break;
         default:
-          Message::Error("Invalid parameter (VarorDiff = 2 or 3) for function 'Tensor_dhrkdh_num'.\n"
-                        "FLAG_VARORDIFF = 2 --> Vector Play Model approach\n"
-                        "FLAG_VARORDIFF = 3 --> Full Differential Approach (gsl)");
+          Message::Error("Invalid parameter (FLAG_APPROACH = 2 or 3) for function 'Tensor_dhrkdh_num'.\n"
+                        "FLAG_APPROACH = 2 --> Vector Play Model approach\n"
+                        "FLAG_APPROACH = 3 --> Full Differential Approach (gsl)");
         break;
       }
 
     break;
     case 0: // Forward Differences
 
-      switch(::FLAG_VARORDIFF)
+      switch(::FLAG_APPROACH)
       {
         case 2: // Simplified Differential Case
           Vector_Update_hrk_VPM(h, hrxl, xkp, kappa);
@@ -3321,9 +3324,9 @@ void Tensor_dhrkdh_num(const double h[3], const double xkp[3], const double kapp
           Vector_Update_hrk_DIFF(h, hrxl, xkp, kappa, Ja, ha, Jb, hb);
         break;
         default:
-          Message::Error("Invalid parameter (VarorDiff = 2 or 3) for function 'Tensor_dhrkdh_num'.\n"
-                        "FLAG_VARORDIFF = 2 --> Vector Play Model approach\n"
-                        "FLAG_VARORDIFF = 3 --> Full Differential Approach (gsl)");
+          Message::Error("Invalid parameter (FLAG_APPROACH = 2 or 3) for function 'Tensor_dhrkdh_num'.\n"
+                        "FLAG_APPROACH = 2 --> Vector Play Model approach\n"
+                        "FLAG_APPROACH = 3 --> Full Differential Approach (gsl)");
         break;
       }
 
@@ -3347,7 +3350,7 @@ void Tensor_dhrkdh_num(const double h[3], const double xkp[3], const double kapp
     break;
     case 3: // 3D case
 
-      switch(::FLAG_VARORDIFF)
+      switch(::FLAG_APPROACH)
       {
         case 2: // Simplified Differential Case
           Vector_Update_hrk_VPM(hzr, hrzr, xkp, kappa);
@@ -3356,9 +3359,9 @@ void Tensor_dhrkdh_num(const double h[3], const double xkp[3], const double kapp
           Vector_Update_hrk_DIFF(hzr, hrzr, xkp, kappa, Ja, ha, Jb, hb);
         break;
         default:
-          Message::Error("Invalid parameter (VarorDiff = 2 or 3) for function 'Tensor_dhrkdh_num'.\n"
-                        "FLAG_VARORDIFF = 2 --> Vector Play Model approach\n"
-                        "FLAG_VARORDIFF = 3 --> Full Differential Approach (gsl)");
+          Message::Error("Invalid parameter (FLAG_APPROACH = 2 or 3) for function 'Tensor_dhrkdh_num'.\n"
+                        "FLAG_APPROACH = 2 --> Vector Play Model approach\n"
+                        "FLAG_APPROACH = 3 --> Full Differential Approach (gsl)");
         break;
       }
 
@@ -3367,7 +3370,7 @@ void Tensor_dhrkdh_num(const double h[3], const double xkp[3], const double kapp
       {
         case 1: // Central Differences
 
-          switch(::FLAG_VARORDIFF)
+          switch(::FLAG_APPROACH)
           {
             case 2: // Simplified Differential Case
               Vector_Update_hrk_VPM(hzl, hrzl, xkp, kappa);
@@ -3376,9 +3379,9 @@ void Tensor_dhrkdh_num(const double h[3], const double xkp[3], const double kapp
               Vector_Update_hrk_DIFF(hzl, hrzl, xkp, kappa, Ja, ha, Jb, hb);
             break;
             default:
-              Message::Error("Invalid parameter (VarorDiff = 2 or 3) for function 'Tensor_dhrkdh_num'.\n"
-                            "FLAG_VARORDIFF = 2 --> Vector Play Model approach\n"
-                            "FLAG_VARORDIFF = 3 --> Full Differential Approach (gsl)");
+              Message::Error("Invalid parameter (FLAG_APPROACH = 2 or 3) for function 'Tensor_dhrkdh_num'.\n"
+                            "FLAG_APPROACH = 2 --> Vector Play Model approach\n"
+                            "FLAG_APPROACH = 3 --> Full Differential Approach (gsl)");
             break;
           }
 
@@ -3490,7 +3493,7 @@ void Tensor_dbdh_ana(const double h[3],
     {
       case 0:
       {
-        switch(::FLAG_VARORDIFF) {
+        switch(::FLAG_APPROACH) {
           case 1: // Variationnal Case
             Tensor_dJkdh_VAR(h, xk, xkp, kappa, Jak, ha, Jbk, hb, dJkdh);
           break;
@@ -3499,10 +3502,10 @@ void Tensor_dbdh_ana(const double h[3],
             Tensor_dJkdh_VPMorDIFF(h, xk, xkp, kappa, Jak, ha, Jbk, hb, dJkdh);
           break;
           default:
-            Message::Error("Invalid parameter (VarorDiff = 1,2 or 3) for function 'Tensor_dbdh_ana'.\n"
-                          "FLAG_VARORDIFF = 1 --> Variational Approach\n"
-                          "FLAG_VARORDIFF = 2 --> Vector Play Model approach\n"
-                          "FLAG_VARORDIFF = 3 --> Full Differential Approach (gsl)");
+            Message::Error("Invalid parameter (FLAG_APPROACH = 1,2 or 3) for function 'Tensor_dbdh_ana'.\n"
+                          "FLAG_APPROACH = 1 --> Variational Approach\n"
+                          "FLAG_APPROACH = 2 --> Vector Play Model approach\n"
+                          "FLAG_APPROACH = 3 --> Full Differential Approach (gsl)");
           break;
         }
         for (int n=0; n<ncomp; n++)
@@ -3511,7 +3514,7 @@ void Tensor_dbdh_ana(const double h[3],
       break;
       case 1: //KJNEW
       {
-        switch(::FLAG_VARORDIFF) {
+        switch(::FLAG_APPROACH) {
           case 1: // Variationnal Case
             // Find hrk
             Vector_hrk_From_Jk(xk,Jak, ha, Jbk, hb, hrk);
@@ -3538,7 +3541,7 @@ void Tensor_dbdh_ana(const double h[3],
             for (int n=0; n<3; n++) 
               hrtot[n] +=  wk*xk[n];  
             // Build dhrkdh //TODO
-            switch(::FLAG_VARORDIFF)
+            switch(::FLAG_APPROACH)
             {
               case 2: // VPM // NB: dhrkdh is symmetric in that case but still stored with non-syn
                 Tensor_dhrkdh_VPM_ana(h, xkp, kappa, Jak, ha, Jbk, hb, dhrkdh); //KJNEW
@@ -3548,9 +3551,9 @@ void Tensor_dbdh_ana(const double h[3],
                 Tensor_dhrkdh_DIFF_ana(h, xk, xkp, kappa, Jak, ha, Jbk, hb, mutg, dhrkdh); //KJNEW
               break;
               default:
-                Message::Error("Invalid parameter (VarorDiff = 2 or 3) for function 'Tensor_dJkdh_VPMorDIFF'.\n"
-                              "FLAG_VARORDIFF = 2 --> Vector Play Model approach\n"
-                              "FLAG_VARORDIFF = 3 --> Full Differential Approach (gsl)");
+                Message::Error("Invalid parameter (FLAG_APPROACH = 2 or 3) for function 'Tensor_dJkdh_VPMorDIFF'.\n"
+                              "FLAG_APPROACH = 2 --> Vector Play Model approach\n"
+                              "FLAG_APPROACH = 3 --> Full Differential Approach (gsl)");
               break;
             }
             //dhrtotdh=dhrtotdh+ cc.w*dhrkdh 
@@ -3559,10 +3562,10 @@ void Tensor_dbdh_ana(const double h[3],
           }
           break;
           default:
-            Message::Error("Invalid parameter (VarorDiff = 1,2 or 3) for function 'Tensor_dbdh_ana'.\n"
-                          "FLAG_VARORDIFF = 1 --> Variational Approach\n"
-                          "FLAG_VARORDIFF = 2 --> Vector Play Model approach\n"
-                          "FLAG_VARORDIFF = 3 --> Full Differential Approach (gsl)");
+            Message::Error("Invalid parameter (FLAG_APPROACH = 1,2 or 3) for function 'Tensor_dbdh_ana'.\n"
+                          "FLAG_APPROACH = 1 --> Variational Approach\n"
+                          "FLAG_APPROACH = 2 --> Vector Play Model approach\n"
+                          "FLAG_APPROACH = 3 --> Full Differential Approach (gsl)");
           break;
         }
       }
@@ -3888,7 +3891,7 @@ void F_Cell_EB(F_ARG) {
     xkp[n] = (A+3)->Val[n];
   }
 
-    switch(::FLAG_VARORDIFF)
+    switch(::FLAG_APPROACH)
     {
       case 1: // Variationnal Case
         Vector_Update_Jk_VAR(h, xk, xkp, kappa, Jak, ha, Jbk, hb);
@@ -3900,10 +3903,10 @@ void F_Cell_EB(F_ARG) {
         Vector_Update_hrk_DIFF(h, xk, xkp, kappa, Jak, ha, Jbk, hb);
       break;
       default:
-        Message::Error("Invalid parameter (VarorDiff = 1,2 or 3) for function 'Update_Cell'.\n"
-                      "FLAG_VARORDIFF = 1 --> Variational Approach\n"
-                      "FLAG_VARORDIFF = 2 --> Vector Play Model approach\n"
-                      "FLAG_VARORDIFF = 3 --> Full Differential Approach (gsl)");
+        Message::Error("Invalid parameter (FLAG_APPROACH = 1,2 or 3) for function 'Update_Cell'.\n"
+                      "FLAG_APPROACH = 1 --> Variational Approach\n"
+                      "FLAG_APPROACH = 2 --> Vector Play Model approach\n"
+                      "FLAG_APPROACH = 3 --> Full Differential Approach (gsl)");
       break;
     }
   V->Type = VECTOR ;
@@ -4019,7 +4022,7 @@ void F_hr_EB(F_ARG)
   Jak    = wk*Ja;
   Jbk    = wk*Jb;
 
-  switch(::FLAG_VARORDIFF) {
+  switch(::FLAG_APPROACH) {
     case 1:
         for (int n=0; n<3; n++)  
           xk[n]  = (A+1)->Val[n];
@@ -4031,10 +4034,10 @@ void F_hr_EB(F_ARG)
         hrk[n]  = (A+1)->Val[n];
     break;
     default:
-      Message::Error("Invalid parameter (VarorDiff = 1,2 or 3) for function 'F_hr_EB'.\n"
-                      "FLAG_VARORDIFF = 1 --> Variational Approach\n"
-                      "FLAG_VARORDIFF = 2 --> Vector Play Model approach\n"
-                      "FLAG_VARORDIFF = 3 --> Full Differential Approach (gsl)");
+      Message::Error("Invalid parameter (FLAG_APPROACH = 1,2 or 3) for function 'F_hr_EB'.\n"
+                      "FLAG_APPROACH = 1 --> Variational Approach\n"
+                      "FLAG_APPROACH = 2 --> Vector Play Model approach\n"
+                      "FLAG_APPROACH = 3 --> Full Differential Approach (gsl)");
     break;
   }
 
@@ -4076,7 +4079,7 @@ void F_Jrev_EB(F_ARG)
   Jak    = wk*Ja;
   Jbk    = wk*Jb;
 
-  switch(::FLAG_VARORDIFF) {
+  switch(::FLAG_APPROACH) {
     case 1:
       for (int n=0; n<3; n++)  
         Jk[n]  = (A+1)->Val[n];
@@ -4088,10 +4091,10 @@ void F_Jrev_EB(F_ARG)
         Vector_Jk_From_hrk(xk,Jak, ha, Jbk, hb, Jk);
     break;
     default:
-      Message::Error("Invalid parameter (VarorDiff = 1,2 or 3) for function 'F_Jr_EB'.\n"
-                      "FLAG_VARORDIFF = 1 --> Variational Approach\n"
-                      "FLAG_VARORDIFF = 2 --> Vector Play Model approach\n"
-                      "FLAG_VARORDIFF = 3 --> Full Differential Approach (gsl)");
+      Message::Error("Invalid parameter (FLAG_APPROACH = 1,2 or 3) for function 'F_Jr_EB'.\n"
+                      "FLAG_APPROACH = 1 --> Variational Approach\n"
+                      "FLAG_APPROACH = 2 --> Vector Play Model approach\n"
+                      "FLAG_APPROACH = 3 --> Full Differential Approach (gsl)");
     break;
   }
 
@@ -4144,22 +4147,17 @@ void F_dbdh_EB(F_ARG)
       Jkp_all[n+3*k] = (A+2+2*k)->Val[n];
     }
   }
-  switch(::FLAG_INVMETHOD) {
+  switch(::FLAG_JACEVAL) {
       case 1: // NR
-      case 3:
-      case 4:
-      case 5:
-      case 6:
-      case 7:
         Tensor_dbdh_ana(h, Jk_all, Jkp_all, D, dbdh); // eval dbdh
       break;
       case 2:
         Tensor_dbdh_num(h, Jk_all, Jkp_all, D, dbdh);
       break;
       default:
-        Message::Error("Invalid parameter (FLAG_INVMETHOD = 1,2,..7) for function 'F_dhdb_EB'.\n"
-                       "FLAG_INVMETHOD = 1=3=4=5=6=7 --> analytical dbdh\n"
-                       "FLAG_INVMETHOD = 2           --> numerical dbdh");
+        Message::Error("Invalid parameter (FLAG_JACEVAL = 1,2) for function 'F_dhdb_EB'.\n"
+                       "FLAG_JACEVAL = 1 --> analytical Jacobian dbdh\n"
+                       "FLAG_JACEVAL = 2 --> numerical Jacobian dbdh");
       break;
   }
 
@@ -4220,22 +4218,17 @@ void F_dhdb_EB(F_ARG)
     }
   }
 
-  switch(::FLAG_INVMETHOD) {
+  switch(::FLAG_JACEVAL) {
     case 1: // NR
-    case 3:
-    case 4:
-    case 5:
-    case 6:
-    case 7:
       Tensor_dbdh_ana(h, Jk_all, Jkp_all, D, dbdh); // eval dbdh
     break;
     case 2:
       Tensor_dbdh_num(h, Jk_all, Jkp_all, D, dbdh);
     break;
     default:
-      Message::Error("Invalid parameter (FLAG_INVMETHOD = 1,2,..7) for function 'F_dhdb_EB'.\n"
-                     "FLAG_INVMETHOD = 1=3=4=5=6=7 --> analytical dhdb\n"
-                     "FLAG_INVMETHOD = 2           --> numerical dhdb");
+      Message::Error("Invalid parameter (FLAG_JACEVAL = 1,2) for function 'F_dhdb_EB'.\n"
+                     "FLAG_JACEVAL = 1 --> analytical Jacobian dhdb\n"
+                     "FLAG_JACEVAL = 2 --> numerical Jacobian dhdb");
     break;
   }
 
