@@ -2704,7 +2704,7 @@ void Vector_h_EB(const double b[3], double bc[3],
 
   // KJ NEW since  2/3/2018. 
   Vector_b_EB(h, Jk_all, Jkp_all, D, bc);
-  // * This recompute the bc (and Jkall) from h to start the NR
+  // * This recompute the bc (and Jkall) from h - which is a hinit - to start the NR
   // (instead of taking the bc (and Jkall) given in argument...
   // thus, the bc and Jkall given in argument are not necessary now.)
 
@@ -3817,36 +3817,6 @@ void Tensor_dhdb_GoodBFGS(const double dx[3],const double df[3], double *dhdb)
 // Functions usable in a .pro file
 //************************************************
 
-void F_Update_Cell_K(F_ARG) {
-  //Message::Info("Function 'Update_Cell_K[...]' will be depecriated, please replace by 'Cell_EB[...]'");
-  F_Cell_EB(Fct,A,V);
-}
-void F_h_Vinch_K(F_ARG){
-  //Message::Info("Function 'h_Vinch_K[...]' will be depecriated, please replace by 'h_EB[...]'");
-  F_h_EB(Fct,A,V);
-}
-void F_b_Vinch_K(F_ARG){
-  //Message::Info("Function 'b_Vinch_K[...]' will be depecriated, please replace by 'b_EB[...]'");
-  F_b_EB(Fct,A,V);
-}
-void F_hr_Vinch_K(F_ARG){
-  //Message::Info("Function 'hr_Vinch_K[...]' will be depecriated, please replace by 'hr_EB[...]'");
-  F_hr_EB(Fct,A,V);
-}
-void F_Jr_Vinch_K(F_ARG){
-  //Message::Info("Function 'Jr_Vinch_K[...]' will be depecriated, please replace by 'Jrev_EB[...]'");
-  F_Jrev_EB(Fct,A,V);
-}
-void F_dbdh_Vinch_K(F_ARG){
-  //Message::Info("Function 'dbdh_Vinch_K[...]' will be depecriated, please replace by 'dbdh_EB[...]'");
-  F_dbdh_EB(Fct,A,V);
-}
-void F_dhdb_Vinch_K(F_ARG){
-  //Message::Info("Function 'dhdb_Vinch_K[...]' will be depecriated, please replace by 'dhdb_EB[...]'");
-  F_dhdb_EB(Fct,A,V);
-}
-
-
 void F_Cell_EB(F_ARG) {
 
   // Updating the Cell variable : Jk (for variationnal approach) or hrk (for differential approach)
@@ -3854,8 +3824,7 @@ void F_Cell_EB(F_ARG) {
   // input:
   // (A+0)->Val = number corresponding to the cell studied -- k
   // (A+1)->Val = magnetic field -- h
-  // (A+2)->Val = material magnetization (var) or reversible magnetic field (diff) -- xk
-  // (A+3)->Val = material magnetization (var) or reversible magnetic field (diff) at previous time step -- xkp
+  // (A+2)->Val = material magnetization (var) or reversible magnetic field (diff) at previous time step -- xkp
   // Material parameters: e.g. param_EnergHyst = { dim, N, Ja, ha, w_1, kappa_1, ..., w_N, kappa_N};==> struct FunctionActive *D
   // ---------------------------------------------
   // output: updated Jk
@@ -3879,16 +3848,14 @@ void F_Cell_EB(F_ARG) {
 
   if( (A+0)->Type != SCALAR ||
       (A+1)->Type != VECTOR ||
-      (A+2)->Type != VECTOR ||
-      (A+3)->Type != VECTOR )
-    Message::Error("Function 'Update_Cell' requires one scalar argument (n) and three vector arguments (h, Jk, Jkp)");
+      (A+2)->Type != VECTOR )
+    Message::Error("Function 'Cell_EB' requires one scalar argument (n) and two vector arguments (h, Jkp)");
 
   double h[3], xk[3], xkp[3] ;
 
   for (int n=0; n<3; n++) {
     h[n]   = (A+1)->Val[n];
-    xk[n]  = (A+2)->Val[n];
-    xkp[n] = (A+3)->Val[n];
+    xkp[n]  = (A+2)->Val[n];
   }
 
     switch(::FLAG_APPROACH)
@@ -3919,11 +3886,9 @@ void F_h_EB(F_ARG)
 {
   // #define F_ARG   struct Function * Fct, struct Value * A, struct Value * V
   // input :
-  // (A+0)    ->Val = magnetic field at previous time step -- hp
+  // (A+0)    ->Val = last computed magnetic field (for example at previous time step -- hp) // usefull for initialization
   // (A+1)    ->Val = magnetic induction -- b
-  // (A+2)    ->Val = magnetic induction at previous time step -- bp
-  // (A+3+2*k)->Val = material magnetization -- Jk
-  // (A+4+2*k)->Val = material magnetization at previous time step -- Jkp
+  // (A+2+1*k)->Val = material magnetization at previous time step -- Jkp
   // Material parameters: e.g. param_EnergHyst = { dim, N, Ja, ha, w_1, kappa_1, ..., w_N, kappa_N};==> struct FunctionActive *D
   // ---------------------------------------------
   // output: magnetic field -- h
@@ -3939,14 +3904,11 @@ void F_h_EB(F_ARG)
   for (int n=0; n<3; n++) {
      h[n]  = (A+0)->Val[n]; // h is initialized at hp
      b[n]  = (A+1)->Val[n];
-     bc[n] = (A+2)->Val[n]; // b computed, is initialized at bp
   }
 
   for (int k=0; k<N; k++) {
-    for (int n=0; n<3; n++)  {
-      Jk_all[n+3*k]  = (A+3+2*k)->Val[n]; // useless !!!
-      Jkp_all[n+3*k] = (A+4+2*k)->Val[n];
-    }
+    for (int n=0; n<3; n++)  
+      Jkp_all[n+3*k] = (A+2+1*k)->Val[n];
   }
 
   Vector_h_EB(b, bc, Jk_all, Jkp_all, D, h); // Update h
@@ -3960,8 +3922,7 @@ void F_b_EB(F_ARG)
   // #define F_ARG   struct Function * Fct, struct Value * A, struct Value * V
   // input :
   // (A+0)    ->Val = magnetic field  -- h
-  // (A+1+2*k)->Val = material magnetization -- Jk
-  // (A+2+2*k)->Val = material magnetization at previous time step -- Jkp
+  // (A+1+1*k)->Val = material magnetization at previous time step -- Jkp
   // Material parameters: e.g. param_EnergHyst = { dim, N, Ja, ha, w_1, kappa_1, ..., w_N, kappa_N};==> struct FunctionActive *D
   // ---------------------------------------------
   // output: magnetic induction -- b
@@ -3979,19 +3940,17 @@ void F_b_EB(F_ARG)
     h[n] = (A+0)->Val[n];
 
   for (int k=0; k<N; k++) {
-    for (int n=0; n<3; n++)  {
-      Jk_all[n+3*k]  = (A+1+2*k)->Val[n]; //useless
-      Jkp_all[n+3*k] = (A+2+2*k)->Val[n];
-    }
+    for (int n=0; n<3; n++) 
+      Jkp_all[n+3*k] = (A+1+1*k)->Val[n];
   }
 
-  Vector_b_EB(h, Jk_all, Jkp_all, D, b);
+  Vector_b_EB(h, Jk_all, Jkp_all, D, b); // compute b and Jk_all;
 
   V->Type = VECTOR ;
   for (int n=0 ; n<3 ; n++) V->Val[n] = b[n];
 }
 
-void F_hr_EB(F_ARG)
+void F_hrev_EB(F_ARG)
 {
   // #define F_ARG   struct Function * Fct, struct Value * A, struct Value * V
   // input :
@@ -4108,8 +4067,7 @@ void F_dbdh_EB(F_ARG)
   // #define F_ARG   struct Function * Fct, struct Value * A, struct Value * V
   // input :
   // (A+0)    ->Val = magnetic field -- h
-  // (A+1+2*k)->Val = material magnetization -- Jk
-  // (A+2+2*k)->Val = material magnetization at previous time step -- Jkp
+  // (A+1+1*k)->Val = material magnetization at previous time step -- Jkp
   // Material parameters: e.g. param_EnergHyst = { dim, N, Ja, ha, w_1, kappa_1, ..., w_N, kappa_N};==> struct FunctionActive *D
   // ---------------------------------------------
   // output: differential reluctivity -- dbdh
@@ -4142,11 +4100,13 @@ void F_dbdh_EB(F_ARG)
      h[n]  = (A+0)->Val[n];
 
   for (int k=0; k<N; k++) {
-    for (int n=0; n<3; n++)  {
-      Jk_all[n+3*k]  = (A+1+2*k)->Val[n];
-      Jkp_all[n+3*k] = (A+2+2*k)->Val[n];
-    }
+    for (int n=0; n<3; n++)  
+      Jkp_all[n+3*k] = (A+1+1*k)->Val[n];
   }
+
+  double bdummy[3];
+  Vector_b_EB(h, Jk_all, Jkp_all, D, bdummy); // recompute Jk_all;
+
   switch(::FLAG_JACEVAL) {
       case 1: // NR
         Tensor_dbdh_ana(h, Jk_all, Jkp_all, D, dbdh); // eval dbdh
@@ -4173,8 +4133,7 @@ void F_dhdb_EB(F_ARG)
   // #define F_ARG   struct Function * Fct, struct Value * A, struct Value * V
   // input :
   // (A+0)    ->Val = magnetic field -- h
-  // (A+1+2*k)->Val = material magnetization -- Jk
-  // (A+2+2*k)->Val = material magnetization at previous time step -- Jkp
+  // (A+1+1*k)->Val = material magnetization at previous time step -- Jkp
   // Material parameters: e.g. param_EnergHyst = { dim, N, Ja, ha, w_1, kappa_1, ..., w_N, kappa_N};==> struct FunctionActive *D
   // ---------------------------------------------
   // output: differential reluctivity -- dhdb
@@ -4212,11 +4171,12 @@ void F_dhdb_EB(F_ARG)
      h[n]  = (A+0)->Val[n];
 
   for (int k=0; k<N; k++) {
-    for (int n=0; n<3; n++)  {
-      Jk_all[n+3*k]  = (A+1+2*k)->Val[n];
-      Jkp_all[n+3*k] = (A+2+2*k)->Val[n];
-    }
+    for (int n=0; n<3; n++) 
+      Jkp_all[n+3*k] = (A+1+1*k)->Val[n];
   }
+
+  double bdummy[3];
+  Vector_b_EB(h, Jk_all, Jkp_all, D, bdummy); // recompute Jk_all;
 
   switch(::FLAG_JACEVAL) {
     case 1: // NR
@@ -4251,3 +4211,129 @@ void F_dhdb_EB(F_ARG)
   delete [] dhdb;
   delete [] dbdh;
 }
+
+//************************************************
+// Energy-Based Model - GetDP Functions (DEPRECIATED):
+//************************************************
+
+void F_Update_Cell_K(F_ARG) {
+  // Updating the Cell variable : Jk (for variationnal approach) or hrk (for differential approach)
+  // ---------------------------------------------
+  // input:
+  // (A+0)->Val = number corresponding to the cell studied -- k
+  // (A+1)->Val = magnetic field -- h
+  // (A+2)->Val = material magnetization (var) or reversible magnetic field (diff) -- xk // USELESS recomputed inside
+  // (A+3)->Val = material magnetization (var) or reversible magnetic field (diff) at previous time step -- xkp
+  // Material parameters: e.g. param_EnergHyst = { dim, N, Ja, ha, w_1, kappa_1, ..., w_N, kappa_N};==> struct FunctionActive *D
+  // ---------------------------------------------
+  // output: updated Jk
+
+  Message::Warning("Function 'Update_Cell_K[k, {h}, {xk}, {xk}[1] ]' will be depecriated, please replace by 'Cell_EB[k, {h}, {xk}[1]]'");
+  for (int n=0; n<3; n++) {
+    (A+2)->Val[n]=(A+3)->Val[n];
+  }
+  F_Cell_EB(Fct,A,V);
+}
+
+void F_h_Vinch_K(F_ARG){
+  // #define F_ARG   struct Function * Fct, struct Value * A, struct Value * V
+  // input :
+  // (A+0)    ->Val = last computed magnetic field (for example at previous time step -- hp) // usefull for initialization
+  // (A+1)    ->Val = magnetic induction -- b
+  // (A+2)    ->Val = magnetic induction corresponding to the last computed magnetic field (for example at previous time step -- bp) // USELESS hp is enhough
+  // (A+3+2*k)->Val = material magnetization -- Jk // USELESS because recomputed
+  // (A+4+2*k)->Val = material magnetization at previous time step -- Jkp
+  // Material parameters: e.g. param_EnergHyst = { dim, N, Ja, ha, w_1, kappa_1, ..., w_N, kappa_N};==> struct FunctionActive *D
+  // ---------------------------------------------
+  // output: magnetic field -- h
+
+  Message::Warning("Function 'h_Vinch_K[{h},{b},{b}[1], {xk}, {xk}[1], ...]' will be depecriated, please replace by 'h_EB[{h},{b}, {xk}[1], ...]'");
+  struct FunctionActive  * D ;
+  if (!Fct->Active)  Fi_InitListX (Fct, A, V) ;
+  D = Fct->Active ;
+
+  int N = D->Case.Interpolation.x[1] ;
+  for (int k=0; k<N; k++) {
+    for (int n=0; n<3; n++)  
+      (A+2+1*k)->Val[n]=(A+4+2*k)->Val[n];
+  }
+  F_h_EB(Fct,A,V);
+}
+
+void F_b_Vinch_K(F_ARG){
+  // #define F_ARG   struct Function * Fct, struct Value * A, struct Value * V
+  // input :
+  // (A+0)    ->Val = magnetic field  -- h
+  // (A+1+2*k)->Val = material magnetization -- Jk  // USELESS because recomputed
+  // (A+2+2*k)->Val = material magnetization at previous time step -- Jkp
+  // Material parameters: e.g. param_EnergHyst = { dim, N, Ja, ha, w_1, kappa_1, ..., w_N, kappa_N};==> struct FunctionActive *D
+  // ---------------------------------------------
+  // output: magnetic induction -- b
+  Message::Warning("Function 'b_Vinch_K[{h}, {xk}, {xk}[1], ...]' will be depecriated, please replace by 'b_EB[{h}, {xk}[1]]'");
+
+  struct FunctionActive  * D ;
+  if (!Fct->Active)  Fi_InitListX (Fct, A, V) ;
+  D = Fct->Active ;
+
+  int N = D->Case.Interpolation.x[1] ;
+  for (int k=0; k<N; k++) {
+    for (int n=0; n<3; n++)  
+      (A+1+1*k)->Val[n]=(A+2+2*k)->Val[n];
+  }
+  F_b_EB(Fct,A,V);
+}
+
+void F_hr_Vinch_K(F_ARG){
+  Message::Warning("Function 'hr_Vinch_K[...]' will be depecriated, please replace by 'hr_EB[...]'");
+  F_hrev_EB(Fct,A,V);
+}
+void F_Jr_Vinch_K(F_ARG){
+  Message::Warning("Function 'Jr_Vinch_K[...]' will be depecriated, please replace by 'Jrev_EB[...]'");
+  F_Jrev_EB(Fct,A,V);
+}
+void F_dbdh_Vinch_K(F_ARG){
+  // #define F_ARG   struct Function * Fct, struct Value * A, struct Value * V
+  // input :
+  // (A+0)    ->Val = magnetic field -- h
+  // (A+1+2*k)->Val = material magnetization -- Jk // USELESS if recomputed with Vector_b_EB here after
+  // (A+2+2*k)->Val = material magnetization at previous time step -- Jkp
+  // Material parameters: e.g. param_EnergHyst = { dim, N, Ja, ha, w_1, kappa_1, ..., w_N, kappa_N};==> struct FunctionActive *D
+  // ---------------------------------------------
+  // output: differential reluctivity -- dbdh
+
+  Message::Warning("Function 'dbdh_Vinch_K[{h}, {xk}, {xk}[1], ...]' will be depecriated, please replace by 'dbdh_EB[{h}, {xk}[1], ...]'");
+  struct FunctionActive  * D ;
+  if (!Fct->Active)  Fi_InitListX (Fct, A, V) ;
+  D = Fct->Active ;
+
+  int N = D->Case.Interpolation.x[1] ;
+  for (int k=0; k<N; k++) {
+    for (int n=0; n<3; n++)  
+      (A+1+1*k)->Val[n]=(A+2+2*k)->Val[n];
+  }
+  F_dbdh_EB(Fct,A,V);
+}
+void F_dhdb_Vinch_K(F_ARG){
+  // #define F_ARG   struct Function * Fct, struct Value * A, struct Value * V
+  // input :
+  // (A+0)    ->Val = magnetic field -- h
+  // (A+1+2*k)->Val = material magnetization -- Jk // USELESS if recomputed with Vector_b_EB here after
+  // (A+2+2*k)->Val = material magnetization at previous time step -- Jkp
+  // Material parameters: e.g. param_EnergHyst = { dim, N, Ja, ha, w_1, kappa_1, ..., w_N, kappa_N};==> struct FunctionActive *D
+  // ---------------------------------------------
+  // output: differential reluctivity -- dhdb
+
+  Message::Warning("Function 'dhdb_Vinch_K[{h}, {xk}, {xk}[1], ...]' will be depecriated, please replace by 'dhdb_EB[{h}, {xk}[1], ...]'");
+
+  struct FunctionActive  * D ;
+  if (!Fct->Active)  Fi_InitListX (Fct, A, V) ;
+  D = Fct->Active ;
+
+  int N = D->Case.Interpolation.x[1] ;
+  for (int k=0; k<N; k++) {
+    for (int n=0; n<3; n++)  
+      (A+1+1*k)->Val[n]=(A+2+2*k)->Val[n];
+  }
+  F_dhdb_EB(Fct,A,V);
+}
+

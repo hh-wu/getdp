@@ -408,7 +408,7 @@ void Tensor_dhdb_GoodBFGS(const double dx[3],const double df[3],double *dhdb);
 void F_Cell_EB (F_ARG) ;
 void F_h_EB(F_ARG);
 void F_b_EB(F_ARG);
-void F_hr_EB(F_ARG);
+void F_hrev_EB(F_ARG);
 void F_Jrev_EB(F_ARG);
 void F_dbdh_EB(F_ARG);
 void F_dhdb_EB(F_ARG);
