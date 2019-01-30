@@ -1159,6 +1159,10 @@ struct Operation {
       char *from, *to;
     } Copy;
     struct {
+      double alpha, beta;
+      char *v1, *v2, *v3; // v3=alpha*v1+beta*v2
+    } AddVector;
+    struct {
       char *algorithm;
       char *currentPoint; // input and ouput
       List_T *currentPointLowerBounds, *currentPointUpperBounds;
@@ -1326,6 +1330,7 @@ struct IterativeLoopSystem {
 #define OPERATION_OPTIMIZER_FINALIZE       109
 #define OPERATION_SETEXTRAPOLATIONORDER    110
 #define OPERATION_SETINCREMENTASSOLUTION   111
+#define OPERATION_ADDVECTOR                112
 
 /* ChangeOfState.Type */
 #define CHANGEOFSTATE_NOCHANGE              0
