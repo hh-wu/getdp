@@ -10,6 +10,7 @@
 #include "ProParser.h"
 #include "DofData.h"
 #include "Message.h"
+#include "Cal_Quantity.h"
 
 #include "petscvec.h"
 
@@ -55,8 +56,9 @@ int manageVectorMap(int action, char *name, gVector **vector,
   else if(action == VV_GET_AND_ADD_IF_NOT_EXIST)
   {
     std::map<std::string, gVector>::iterator it = vectorMap.find(name);
-    if(it != vectorMap.end())
+    if(it != vectorMap.end()){
       *vector = &it->second;
+    }
     else{
       gVector n;
       LinAlg_CreateVector(&n, &DofData_P->Solver, DofData_P->NbrDof) ;
@@ -220,8 +222,14 @@ void Operation_CopyVector(struct Operation *Operation_P,
 void Operation_AddVector(struct Operation *Operation_P,
                           struct DofData *DofData_P)
 {
-  double alpha = Operation_P->Case.AddVector.alpha;
-  double beta = Operation_P->Case.AddVector.beta;
+  struct Value Value;
+  Get_ValueOfExpressionByIndex(Operation_P->Case.AddVector.alphaIndex,
+              NULL, 0., 0., 0., &Value);
+  double alpha = Value.Val[0];
+  Get_ValueOfExpressionByIndex(Operation_P->Case.AddVector.betaIndex,
+              NULL, 0., 0., 0., &Value);
+  double beta = Value.Val[0];
+
   gVector *v1, *v2, *v3;
   // Checking if v1 and v2 exist. If not: error.
   if(manageVectorMap(VV_GET_IF_EXISTS, Operation_P->Case.AddVector.v1, &v1, DofData_P))
@@ -232,14 +240,22 @@ void Operation_AddVector(struct Operation *Operation_P,
                     Operation_P->Case.AddVector.v2);
   // Checking if v3 exists. If not: create it.
   manageVectorMap(VV_GET_AND_ADD_IF_NOT_EXIST, Operation_P->Case.AddVector.v3, &v3, DofData_P);
-  // Perform the operation
-  LinAlg_AddProdVectorDoubleProdVectorDouble(alpha, v1, beta, v2, v3);
+  // Check the sizes and perform the operation if OK
+  int n1, n2, n3;
+  LinAlg_GetVectorSize(v1, &n1);
+  LinAlg_GetVectorSize(v2, &n2);
+  LinAlg_GetVectorSize(v3, &n3);
+  if(n1 == n2 && n1 == n3)
+    LinAlg_AddProdVectorDoubleProdVectorDouble(alpha, v1, beta, v2, v3);
+  else
+    Message::Error("Incompatible sizes for vector manipulation (%d, %d and %d)",
+                   n1, n2, n3);
   /* DEBUG (to check the operation is ok)
   PetscScalar *a, *b, *c;
   VecGetArray(v1->V, &a);   VecGetArray(v2->V, &b);  VecGetArray(v3->V, &c);
-  for(int i=0; i<10; i++)
+  for(int i=100; i<110; i++)
   {
-    Message::Warning("%f\t%f\t%f", real(a[i]), real(b[i]), real(c[i]));
+    Message::Warning("%g\t%g\t%g", real(a[i]), real(b[i]), real(c[i]));
   }
-  */
+  // */
 }

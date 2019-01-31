@@ -5130,16 +5130,22 @@ OperationTerm :
       Operation_P->DefineSystemIndex = i ;
     }
 
-  | tAddVector '[' FExpr ',' CharExprNoVar ',' FExpr ',' CharExprNoVar ',' CharExprNoVar ']' tEND
+  | tAddVector '[' String__Index ',' Expression ',' CharExprNoVar ','
+    Expression ',' CharExprNoVar ',' CharExprNoVar ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_ADDVECTOR;
-
-      Operation_P->Case.AddVector.alpha = (double)$3;
-      Operation_P->Case.AddVector.beta = (double)$7;
-      Operation_P->Case.AddVector.v1 = $5;
-      Operation_P->Case.AddVector.v2 = $9;
-      Operation_P->Case.AddVector.v3 = $11;
+      int i;
+      if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+             fcmp_DefineSystem_Name)) < 0)
+  vyyerror(0, "Unknown System: %s", $3);
+      Free($3);
+      Operation_P->DefineSystemIndex = i;
+      Operation_P->Case.AddVector.alphaIndex = $5;
+      Operation_P->Case.AddVector.betaIndex = $9;
+      Operation_P->Case.AddVector.v1 = $7;
+      Operation_P->Case.AddVector.v2 = $11;
+      Operation_P->Case.AddVector.v3 = $13;
     }
 
   | tPerturbation '[' String__Index ',' String__Index ',' String__Index ','

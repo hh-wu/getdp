@@ -1159,7 +1159,7 @@ struct Operation {
       char *from, *to;
     } Copy;
     struct {
-      double alpha, beta;
+      int alphaIndex, betaIndex;
       char *v1, *v2, *v3; // v3=alpha*v1+beta*v2
     } AddVector;
     struct {
