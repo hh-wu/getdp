@@ -318,6 +318,7 @@ struct doubleXstring{
 %token      tUpdate tUpdateConstraint tBreak tGetResidual tCreateSolution
 %token      tEvaluate tSelectCorrection tAddCorrection tMultiplySolution
 %token      tAddOppositeFullSolution tSolveAgainWithOther tSetGlobalSolverOptions
+%token      tAddVector
 
 %token      tTimeLoopTheta tTimeLoopNewmark tTimeLoopRungeKutta tTimeLoopAdaptive
 %token        tTime0 tTimeMax tTheta
@@ -5127,6 +5128,24 @@ OperationTerm :
 	vyyerror(0, "Unknown System: %s", $3) ;
       Free($3) ;
       Operation_P->DefineSystemIndex = i ;
+    }
+
+  | tAddVector '[' String__Index ',' Expression ',' CharExprNoVar ','
+    Expression ',' CharExprNoVar ',' CharExprNoVar ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_ADDVECTOR;
+      int i;
+      if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+             fcmp_DefineSystem_Name)) < 0)
+  vyyerror(0, "Unknown System: %s", $3);
+      Free($3);
+      Operation_P->DefineSystemIndex = i;
+      Operation_P->Case.AddVector.alphaIndex = $5;
+      Operation_P->Case.AddVector.betaIndex = $9;
+      Operation_P->Case.AddVector.v1 = $7;
+      Operation_P->Case.AddVector.v2 = $11;
+      Operation_P->Case.AddVector.v3 = $13;
     }
 
   | tPerturbation '[' String__Index ',' String__Index ',' String__Index ','

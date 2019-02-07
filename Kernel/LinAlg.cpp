@@ -78,6 +78,8 @@ void LinAlg_AddDoubleInMatrix(double d, gMatrix *M, int i, int j){ err; }
 void LinAlg_AddComplexInMatrix(double d1, double d2, gMatrix *M, int i, int j, int k, int l){ err; }
 void LinAlg_AddVectorVector(gVector *V1, gVector *V2, gVector *V3){ err; }
 void LinAlg_AddVectorProdVectorDouble(gVector *V1, gVector *V2, double d, gVector *V3){ err; }
+void LinAlg_AddProdVectorDoubleProdVectorDouble(double alpha, gVector *V1,
+        double beta, gVector *V2, gVector *V3){ err; }
 void LinAlg_AddMatrixMatrix(gMatrix *M1, gMatrix *M2, gMatrix *M3){ err; }
 void LinAlg_AddMatrixProdMatrixDouble(gMatrix *M1, gMatrix *M2, double d, gMatrix *M3){ err; }
 void LinAlg_SubScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3){ err; }

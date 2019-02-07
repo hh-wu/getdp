@@ -931,6 +931,14 @@ void LinAlg_AddVectorProdVectorDouble(gVector *V1, gVector *V2, double d, gVecto
     Message::Error("Wrong arguments in 'LinAlg_AddVectorProdVectorDouble'");
 }
 
+void LinAlg_AddProdVectorDoubleProdVectorDouble(double alpha, gVector *V1,
+        double beta, gVector *V2, gVector *V3)
+{
+  PetscScalar alpha1 = alpha, beta1 = beta;
+  PetscScalar gamma1 = 0.0;
+  _try(VecAXPBYPCZ(V3->V, alpha1, beta1, gamma1, V1->V, V2->V));
+}
+
 void LinAlg_AddMatrixMatrix(gMatrix *M1, gMatrix *M2, gMatrix *M3)
 {
   PetscScalar tmp = 1.0;

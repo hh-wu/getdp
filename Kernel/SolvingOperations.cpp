@@ -1224,6 +1224,15 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Operation_CopyVector(Operation_P, DofData_P);
       break ;
 
+      /*  -->  A d d V e c t o r                    */
+      /*  ----------------------------------------  */
+    case OPERATION_ADDVECTOR :
+      Init_OperationOnSystem
+        ("AddVector", Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+         &DefineSystem_P, &DofData_P, Resolution2_P) ;
+      Operation_AddVector(Operation_P, DofData_P);
+      break ;
+
       /*  -->  C o p y D o f s                      */
       /*  ----------------------------------------  */
     case OPERATION_COPYDOFS :
