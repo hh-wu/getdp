@@ -479,6 +479,12 @@ void LinAlg_AddVectorProdVectorDouble(gVector *V1, gVector *V2, double d, gVecto
     Message::Error("Wrong arguments in 'LinAlg_AddVectorProdVectorDouble'");
 }
 
+void LinAlg_AddProdVectorDoubleProdVectorDouble(double alpha, gVector *V1,
+        double beta, gVector *V2, gVector *V3)
+{
+  Message::Error("'LinAlg_AddProdVectorDoubleProdVectorDouble' not yet implemented");
+}
+
 void LinAlg_AddMatrixMatrix(gMatrix *M1, gMatrix *M2, gMatrix *M3)
 {
   if(M3 == M1)
