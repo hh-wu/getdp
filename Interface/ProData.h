@@ -1152,8 +1152,11 @@ struct Operation {
       char    *String;
     } SetGlobalSolverOptions;
     struct {
-      List_T  *FieldsToSkip;
+      List_T  *ViewTags;
     } BroadcastFields;
+    struct {
+      List_T  *Names;
+    } BroadcastVariables;
     struct {
       int useList;
       char *from, *to;
