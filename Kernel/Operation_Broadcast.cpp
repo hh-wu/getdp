@@ -3,12 +3,14 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
-#include <set>
+#include <vector>
+#include <string>
 #include <stdio.h>
 #include <stdlib.h>
 #include "GetDPConfig.h"
 #include "ProData.h"
 #include "SolvingOperations.h"
+#include "Cal_Quantity.h"
 #include "Message.h"
 
 #if defined(HAVE_MPI)
@@ -61,7 +63,7 @@ int Operation_BroadcastFieldsGeneric(struct Resolution  *Resolution_P,
   }
 
 #if !defined(HAVE_GMSH)
-  Msg::Error("GetDP must be compiled with Gmsh support for BroadcastFields");
+  Message::Error("GetDP must be compiled with Gmsh support for BroadcastFields");
 #else
 
   std::vector<int> tags;
@@ -137,7 +139,52 @@ int Operation_BroadcastVariables(struct Resolution  *Resolution_P,
   int commrank = Message::GetCommRank();
   Message::Info("BroadcastVariables: rank %d (size %d)", commrank, commsize);
 
-  // TODO!
+  std::map<std::string, struct Value> &values = Get_AllValueSaved();
+
+  std::vector<std::string> names;
+  for(int i = 0; i < List_Nbr(Operation_P->Case.BroadcastVariables.Names); i++){
+    char *s;
+    List_Read(Operation_P->Case.BroadcastVariables.Names, i, &s);
+    if(values.find(s) != values.end())
+      names.push_back(s);
+    else
+      Message::Error("Unknown variable %s", s);
+  }
+  if(names.empty()){
+    for(std::map<std::string, struct Value>::iterator it = values.begin();
+        it != values.end(); it++)
+      names.push_back(it->first);
+  }
+
+  for(int rank = 0; rank < commsize; rank++){
+    if(rank == commrank){
+      int numValues = names.size();
+      MPI_Bcast(&numValues, 1, MPI_INT, rank, MPI_COMM_WORLD);
+      for(unsigned int i = 0; i < names.size(); i++){
+        char key[256];
+        strncpy(key, names[i].c_str(), sizeof(key));
+        MPI_Bcast(key, sizeof(key), MPI_SIGNED_CHAR, rank, MPI_COMM_WORLD);
+        struct Value &v = values[key];
+        MPI_Bcast(&v.Type, 1, MPI_INT, rank, MPI_COMM_WORLD);
+        MPI_Bcast(&v.Val, NBR_MAX_HARMONIC * MAX_DIM, MPI_DOUBLE,
+                  rank, MPI_COMM_WORLD);
+      }
+    }
+    else{
+      int numValues;
+      MPI_Bcast(&numValues, 1, MPI_INT, rank, MPI_COMM_WORLD);
+      for(int i = 0; i < numValues; i++){
+        char key[256];
+        MPI_Bcast(key, sizeof(key), MPI_SIGNED_CHAR, rank, MPI_COMM_WORLD);
+        struct Value v;
+        MPI_Bcast(&v.Type, 1, MPI_INT, rank, MPI_COMM_WORLD);
+        MPI_Bcast(&v.Val, NBR_MAX_HARMONIC * MAX_DIM, MPI_DOUBLE,
+                  rank, MPI_COMM_WORLD);
+        values[key] = v;
+      }
+    }
+  }
+
   return 0;
 }
 
