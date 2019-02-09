@@ -49,8 +49,8 @@ int Operation_BroadcastFieldsGeneric(struct Resolution  *Resolution_P,
                                      struct GeoData     *GeoData_P0)
 {
   // Operation_BroadCastFields was originally designed to work exclusively
-  // within the context of Operation_IterativeLinearSolver; this version was
-  // more sophisticated, as it allowed to broadcast only to certain processors
+  // within the context of Operation_IterativeLinearSolver; that version is
+  // quite sophisticated, as it allows to broadcast only to certain processors
   // (usually the neighbors in a domain decomposition method). This new version
   // is generic, and uses the new Gmsh API.
 
