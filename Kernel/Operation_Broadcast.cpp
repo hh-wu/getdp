@@ -46,32 +46,84 @@ int Operation_BroadcastFieldsGeneric(struct Resolution  *Resolution_P,
                                      struct DofData     *DofData_P0,
                                      struct GeoData     *GeoData_P0)
 {
-  // Operation_BroadCastFields was originally design to work exclusively within
-  // the context of Operation_IterativeLinearSolver. This new version is
-  // generic, and uses the new Gmsh API.
+  // Operation_BroadCastFields was originally designed to work exclusively
+  // within the context of Operation_IterativeLinearSolver; this version was
+  // more sophisticated, as it allowed to broadcast only to certain processors
+  // (usually the neighbors in a domain decomposition method). This new version
+  // is generic, and uses the new Gmsh API.
 
-  if(Message::GetCommSize() == 1){
+  int commsize = Message::GetCommSize();
+  int commrank = Message::GetCommRank();
+
+  if(commsize == 1){
     Message::Info("Nothing to broacast: communicator size is 1");
     return 0;
   }
 
-  std::set<int> viewTags;
+#if !defined(HAVE_GMSH)
+  Msg::Error("GetDP must be compiled with Gmsh support for BroadcastFields");
+#else
+
+  std::vector<int> tags;
   for(int i = 0; i < List_Nbr(Operation_P->Case.BroadcastFields.ViewTags); i++){
     double j;
     List_Read(Operation_P->Case.BroadcastFields.ViewTags, i, &j);
-    viewTags.insert((int)j);
+    tags.push_back((int)j);
   }
-  if(viewTags.size())
-    Message::Info("Will broadcast %d fields", viewTags.size());
-  else
-    Message::Info("Will broadcast all fields");
+  if(tags.empty()) // broadcast all views
+    gmsh::view::getTags(tags);
 
-  int commsize = Message::GetCommSize();
-  int commrank = Message::GetCommRank();
-  Message::Info("BroadcastFields: rank %d (size %d)", commrank, commsize);
+  Message::Info(0, "BroadcastFields: %d fields from rank %d (comm. size %d)",
+                tags.size(), commrank, commsize);
 
-#if defined(HAVE_GMSH)
-  // do the job!
+  for(int rank = 0; rank < commsize; rank++){
+    if(rank == commrank){
+      int numTags = tags.size();
+      MPI_Bcast(&numTags, 1, MPI_INT, rank, MPI_COMM_WORLD);
+      for(int t = 0; t < numTags; t++){
+        int tag = tags[t];
+        MPI_Bcast(&tag, 1, MPI_INT, rank, MPI_COMM_WORLD);
+        std::vector<std::vector<double> > data;
+        std::vector<std::string> dataTypes;
+        std::vector<int> numElements;
+        gmsh::view::getListData(tag, dataTypes, numElements, data);
+        int numDataTypes = dataTypes.size();
+        MPI_Bcast(&numDataTypes, 1, MPI_INT, rank, MPI_COMM_WORLD);
+        for(unsigned int i = 0; i < dataTypes.size(); i++){
+          char dataType[2] = {dataTypes[i][0], dataTypes[i][1]};
+          MPI_Bcast(dataType, 2, MPI_SIGNED_CHAR, rank, MPI_COMM_WORLD);
+          MPI_Bcast(&numElements[i], 1, MPI_INT, rank, MPI_COMM_WORLD);
+          int numData = data[i].size();
+          MPI_Bcast(&numData, 1, MPI_INT, rank, MPI_COMM_WORLD);
+          MPI_Bcast(&data[i][0], data[i].size(), MPI_DOUBLE, rank, MPI_COMM_WORLD);
+        }
+      }
+    }
+    else{
+      int numTags;
+      MPI_Bcast(&numTags, 1, MPI_INT, rank, MPI_COMM_WORLD);
+      for(int t = 0; t < numTags; t++){
+        int tag;
+        MPI_Bcast(&tag, 1, MPI_INT, rank, MPI_COMM_WORLD);
+        gmsh::view::add("copy from rank " + std::to_string(rank) +
+                        " to on rank " + std::to_string(commrank), tag);
+        int numDataTypes;
+        MPI_Bcast(&numDataTypes, 1, MPI_INT, rank, MPI_COMM_WORLD);
+        for(int i = 0; i < numDataTypes; i++){
+          char dataType[2];
+          MPI_Bcast(dataType, 2, MPI_SIGNED_CHAR, rank, MPI_COMM_WORLD);
+          int numElements;
+          MPI_Bcast(&numElements, 1, MPI_INT, rank, MPI_COMM_WORLD);
+          int numData;
+          MPI_Bcast(&numData, 1, MPI_INT, rank, MPI_COMM_WORLD);
+          std::vector<double> data(numData);
+          MPI_Bcast(&data[0], data.size(), MPI_DOUBLE, rank, MPI_COMM_WORLD);
+          gmsh::view::addListData(tag, dataType, numElements, data);
+          gmsh::fltk::run();
+        }
+      }
+    }
+  }
 #endif
   return 0;
 }
@@ -83,7 +135,7 @@ int Operation_BroadcastVariables(struct Resolution  *Resolution_P,
 {
   int commsize = Message::GetCommSize();
   int commrank = Message::GetCommRank();
-  Message::Info("BroadcastFields: rank %d (size %d)", commrank, commsize);
+  Message::Info("BroadcastVariables: rank %d (size %d)", commrank, commsize);
 
   // TODO!
   return 0;
