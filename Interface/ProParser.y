@@ -4704,13 +4704,28 @@ OperationTerm :
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_BROADCASTFIELDS;
-      Operation_P->Case.BroadcastFields.FieldsToSkip = $3;
+      Operation_P->Case.BroadcastFields.ViewTags = $3;
+    }
+
+  | tBroadcastFields '[' ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_BROADCASTFIELDS;
+      Operation_P->Case.BroadcastFields.ViewTags = 0;
+    }
+
+  | tBroadcastVariables '[' BracedOrNotRecursiveListOfCharExpr ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_BROADCASTVARIABLES;
+      Operation_P->Case.BroadcastVariables.Names = $3;
     }
 
   | tBroadcastVariables '[' ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_BROADCASTVARIABLES;
+      Operation_P->Case.BroadcastVariables.Names = 0;
     }
 
   | tBreak tEND

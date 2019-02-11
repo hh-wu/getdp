@@ -31,6 +31,16 @@ int Operation_BroadcastFields(struct Resolution  *Resolution_P,
                               struct DofData     *DofData_P0,
                               struct GeoData     *GeoData_P0) ;
 
+int Operation_BroadcastFieldsGeneric(struct Resolution  *Resolution_P,
+                                     struct Operation   *Operation_P,
+                                     struct DofData     *DofData_P0,
+                                     struct GeoData     *GeoData_P0) ;
+
+int Operation_BroadcastVariables(struct Resolution  *Resolution_P,
+                                 struct Operation   *Operation_P,
+                                 struct DofData     *DofData_P0,
+                                 struct GeoData     *GeoData_P0) ;
+
 void Operation_TimeLoopAdaptive(struct Resolution  *Resolution_P,
                                 struct Operation   *Operation_P,
                                 struct DofData     *DofData_P0,

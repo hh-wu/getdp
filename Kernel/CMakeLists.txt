@@ -38,6 +38,7 @@ set(SRC
       Operation_PostOperation.cpp
       Operation_HPDDM.cpp Operation_Debug.cpp
       Operation_Optimizer.cpp
+      Operation_Broadcast.cpp
       Treatment_Formulation.cpp
         Get_DofOfElement.cpp
         Get_ConstraintOfElement.cpp

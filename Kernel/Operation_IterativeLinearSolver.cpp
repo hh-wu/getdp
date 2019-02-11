@@ -1239,10 +1239,19 @@ int Operation_BroadcastFields(struct Resolution  *Resolution_P,
                               struct DofData     *DofData_P0,
                               struct GeoData     *GeoData_P0)
 {
+  if(!MyStaticField || !AllStaticField){
+    // we are not in Operation_IterativeLinearSolver: call the new, generic
+    // BroadcastFields operation:
+    return Operation_BroadcastFieldsGeneric(Resolution_P, Operation_P,
+                                            DofData_P0, GeoData_P0);
+  }
+
+  // in the IterativeLinearSolver-specific BroadCastFields operation, the list
+  // of view tags contains the list of views to *not* broadcast
   std::set<int> fieldsToSkip;
-  for(int i = 0; i < List_Nbr(Operation_P->Case.BroadcastFields.FieldsToSkip); i++){
+  for(int i = 0; i < List_Nbr(Operation_P->Case.BroadcastFields.ViewTags); i++){
     double j;
-    List_Read(Operation_P->Case.BroadcastFields.FieldsToSkip, i, &j);
+    List_Read(Operation_P->Case.BroadcastFields.ViewTags, i, &j);
     fieldsToSkip.insert((int) j);
   }
 
@@ -1266,8 +1275,8 @@ int Operation_BroadcastFields(struct Resolution  *Resolution_P,
                               struct DofData     *DofData_P0,
                               struct GeoData     *GeoData_P0)
 {
-  Message::Error("BroadcastFields requires PETSc and Gmsh");
-  return 0;
+  return Operation_BroadcastFieldsGeneric(Resolution_P, Operation_P,
+                                          DofData_P0, GeoData_P0);
 }
 
 #endif
