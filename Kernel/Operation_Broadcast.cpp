@@ -78,6 +78,8 @@ int Operation_BroadcastFieldsGeneric(struct Resolution  *Resolution_P,
   Message::Info(0, "BroadcastFields: %d fields from rank %d (comm. size %d)",
                 tags.size(), commrank, commsize);
 
+  // TODO: this should probably be implemented using MPI_Allgatherv
+
   for(int rank = 0; rank < commsize; rank++){
     if(rank == commrank){
       int numTags = tags.size();
@@ -155,6 +157,8 @@ int Operation_BroadcastVariables(struct Resolution  *Resolution_P,
         it != values.end(); it++)
       names.push_back(it->first);
   }
+
+  // TODO: this should probably be implemented using MPI_Allgatherv
 
   for(int rank = 0; rank < commsize; rank++){
     if(rank == commrank){

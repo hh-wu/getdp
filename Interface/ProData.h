@@ -1334,6 +1334,7 @@ struct IterativeLoopSystem {
 #define OPERATION_SETEXTRAPOLATIONORDER    110
 #define OPERATION_SETINCREMENTASSOLUTION   111
 #define OPERATION_ADDVECTOR                112
+#define OPERATION_CLEARVARIABLES           113
 
 /* ChangeOfState.Type */
 #define CHANGEOFSTATE_NOCHANGE              0

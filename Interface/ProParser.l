@@ -121,6 +121,7 @@ ChangeOfCoordinates          return tChangeOfCoordinates;
 ChangeOfCoordinates2         return tChangeOfCoordinates2;
 ChangeOfState                return tChangeOfState;
 ChangeOfValues               return tChangeOfValues;
+ClearVariables               return tClearVariables;
 CodeName                     return tCodeName;
 Coefficient                  return tCoefficient;
 Comma                        return tComma;
