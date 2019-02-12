@@ -326,7 +326,8 @@ struct doubleXstring{
 %token      tIterativeLoop tIterativeLoopN tIterativeLinearSolver
 %token      tNbrMaxIteration tRelaxationFactor
 %token      tIterativeTimeReduction
-%token        tSetCommSelf tSetCommWorld tBarrier tBroadcastFields tBroadcastVariables
+%token        tSetCommSelf tSetCommWorld tBarrier
+%token        tBroadcastFields tBroadcastVariables tClearVariables
 %token        tSetExtrapolationOrder
 %token      tSleep
 %token      tDivisionCoefficient tChangeOfState
@@ -4726,6 +4727,12 @@ OperationTerm :
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_BROADCASTVARIABLES;
       Operation_P->Case.BroadcastVariables.Names = 0;
+    }
+
+  | tClearVariables '[' ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_CLEARVARIABLES;
     }
 
   | tBreak tEND
