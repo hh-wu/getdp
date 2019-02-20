@@ -430,7 +430,7 @@ static void Geo_ReadFileWithGmsh(struct GeoData * GeoData_P)
 
   struct Geo_Node     Geo_Node ;
 
-  std::vector<int> nodeTags;
+  std::vector<std::size_t> nodeTags;
   std::vector<double> coord;
   std::vector<double> parametricCoord;
   gmsh::model::mesh::getNodes(nodeTags, coord, parametricCoord, -1, -1);
@@ -494,11 +494,11 @@ static void Geo_ReadFileWithGmsh(struct GeoData * GeoData_P)
   struct Geo_Element  Geo_Element ;
 
   std::vector<int> elementTypes;
-  std::vector< std::vector<int> > elementTags;
-  std::vector< std::vector<int> > elementNodeTags;
+  std::vector< std::vector<std::size_t> > elementTags;
+  std::vector< std::vector<std::size_t> > elementNodeTags;
   gmsh::model::mesh::getElements(elementTypes, elementTags, elementNodeTags, -1, -1);
 
-  int nbr = 0, maxTag = 0;
+  std::size_t nbr = 0, maxTag = 0;
   for(unsigned int i = 0; i < elementTypes.size(); i++){
     nbr += elementTags[i].size();
     for(unsigned int j = 0; j < elementTags[i].size(); j++)
