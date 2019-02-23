@@ -3,8 +3,8 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
-#ifndef _EXTENDED_GROUP_H_
-#define _EXTENDED_GROUP_H_
+#ifndef EXTENDED_GROUP_H
+#define EXTENDED_GROUP_H
 
 #include "ProData.h"
 #include "ListUtils.h"

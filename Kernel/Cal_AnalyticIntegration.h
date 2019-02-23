@@ -3,8 +3,8 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
-#ifndef _CAL_ANALYTIC_INTEGRATION_H_
-#define _CAL_ANALYTIC_INTEGRATION_H_
+#ifndef CAL_ANALYTIC_INTEGRATION_H
+#define CAL_ANALYTIC_INTEGRATION_H
 
 #include "ProData.h"
 

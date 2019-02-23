@@ -3,8 +3,8 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
-#ifndef _GET_CONSTRAINT_OF_ELEMENT_H_
-#define _GET_CONSTRAINT_OF_ELEMENT_H_
+#ifndef GET_CONSTRAINT_OF_ELEMENT_H
+#define GET_CONSTRAINT_OF_ELEMENT_H
 
 #include "ProData.h"
 

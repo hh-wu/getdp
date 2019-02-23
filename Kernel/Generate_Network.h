@@ -3,8 +3,8 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
-#ifndef _GENERATE_NETWORK_H_
-#define _GENERATE_NETWORK_H_
+#ifndef GENERATE_NETWORK_H
+#define GENERATE_NETWORK_H
 
 #include "ProData.h"
 

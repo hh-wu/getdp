@@ -3,8 +3,8 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
-#ifndef _BESSEL_H_
-#define _BESSEL_H_
+#ifndef BESSEL_H
+#define BESSEL_H
 
 #include <math.h>
 #include <complex>

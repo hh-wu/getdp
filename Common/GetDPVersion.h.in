@@ -3,8 +3,8 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
-#ifndef _GETDP_VERSION_H_
-#define _GETDP_VERSION_H_
+#ifndef GETDP_VERSION_H
+#define GETDP_VERSION_H
 
 #define GETDP_MAJOR_VERSION ${GETDP_MAJOR_VERSION}
 #define GETDP_MINOR_VERSION ${GETDP_MINOR_VERSION}

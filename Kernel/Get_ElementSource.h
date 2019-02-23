@@ -3,8 +3,8 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
-#ifndef _GET_ELEMENT_SOURCE_H_
-#define _GET_ELEMENT_SOURCE_H_
+#ifndef GET_ELEMENT_SOURCE_H
+#define GET_ELEMENT_SOURCE_H
 
 #include "ProData.h"
 

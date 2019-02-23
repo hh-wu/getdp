@@ -3,8 +3,8 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
-#ifndef _POS_SEARCH_H_
-#define _POS_SEARCH_H_
+#ifndef POS_SEARCH_H
+#define POS_SEARCH_H
 
 #include "ProData.h"
 #include "GeoData.h"

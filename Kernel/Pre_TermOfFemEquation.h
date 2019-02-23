@@ -3,8 +3,8 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
-#ifndef _PRE_TERM_OF_FEM_EQUATION_H_
-#define _PRE_TERM_OF_FEM_EQUATION_H_
+#ifndef PRE_TERM_OF_FEM_EQUATION_H
+#define PRE_TERM_OF_FEM_EQUATION_H
 
 #include "ProData.h"
 

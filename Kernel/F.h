@@ -3,8 +3,8 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
-#ifndef _F_H_
-#define _F_H_
+#ifndef F_H
+#define F_H
 
 #include <vector>
 #include "ProData.h"
@@ -349,11 +349,11 @@ double fct_omega_VAR( const double h[3],
 
 void fct_d_omega_VAR( const double Jk[3],
                       double *d_omega,
-                      double h[3], 
+                      double h[3],
                       void * params ) ;
 
-void fct_dd_omega_VAR ( const double h[3], 
-                        const double Jk[3], 
+void fct_dd_omega_VAR ( const double h[3],
+                        const double Jk[3],
                         void * params,
                         double *ddfdJ2 );
 
@@ -369,59 +369,59 @@ double fct_f_DIFF_2d (double y, void *params);
 
 //Energy-Based Model - Vector Update:
 void Vector_Update_Jk_VAR(  const double h[3],
-                            double Jk[3], 
-                            double Jk0[3], 
+                            double Jk[3],
+                            double Jk0[3],
                             void * params);
 
 void Vector_Update_hrk_DIFF(  const double h[3],
-                              double hrk[3], 
-                              double hrk0[3], 
+                              double hrk[3],
+                              double hrk0[3],
                               void * params);
 
 void Vector_Update_hrk_VPM( const double h[3],
-                            double hrk[3], 
-                            double hrk0[3], 
+                            double hrk[3],
+                            double hrk0[3],
                             void * params);
 
-void Vector_Update_hrk_VPM_ ( const double h[3], 
-                             double hr[3], 
-                             const double hrp[3], 
+void Vector_Update_hrk_VPM_ ( const double h[3],
+                             double hr[3],
+                             const double hrp[3],
                              const double kappa);
 
 void Vector_b_EB  ( const double h[3],
-                    double b[3], 
+                    double b[3],
                     double *Xk_all,
                     void * params ) ;
 
 void Vector_h_EB  (  const double b[3],
-                     double bc[3], 
+                     double bc[3],
                      double h[3],
                      double *Xk_all,
                      void * params ) ;
 
 //Energy-Based Model - Tensor Construction:
 void Tensor_dJkdh_VAR ( const double h[3],
-                        const double Jk[3], 
+                        const double Jk[3],
                         void * params,
                         double *dJkdh);
 
 void Tensor_dJkdh_VPMorDIFF ( const double h[3],
-                              const double hrk[3], 
+                              const double hrk[3],
                               void * params,
                               double *dJkdh);
 
 void Tensor_dhrkdh_DIFF_ana ( const double h[3],
-                              const double hrk[3], 
+                              const double hrk[3],
                               const double dJkdhrk[6],
                               void * params,
                               double *dhrkdh);
 
 void Tensor_dhrkdh_VPM_ana ( const double h[3],
-                             const double hrk[3], 
+                             const double hrk[3],
                              void * params,
                              double *dhrkdh);
 
-void Tensor_dbdh_ana ( const double h[3], 
+void Tensor_dbdh_ana ( const double h[3],
                        const double *Xk_all,
                        void * params,
                        double *dbdh );

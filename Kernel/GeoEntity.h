@@ -3,8 +3,8 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
-#ifndef _GEO_ENTITY_H_
-#define _GEO_ENTITY_H_
+#ifndef GEO_ENTITY_H
+#define GEO_ENTITY_H
 
 /* Incidence Matrices : Den (EdgesXNodes), Dfe (FacetsXEdges) */
 /* Xp stands for 'expanded' (used in discrete operators)      */

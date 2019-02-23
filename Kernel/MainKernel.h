@@ -3,8 +3,8 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
-#ifndef _MAIN_KERNEL_H_
-#define _MAIN_KERNEL_H_
+#ifndef MAIN_KERNEL_H
+#define MAIN_KERNEL_H
 
 int MainKernel(int argc, char *argv[]);
 

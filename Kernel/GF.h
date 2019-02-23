@@ -3,8 +3,8 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
-#ifndef _GF_H_
-#define _GF_H_
+#ifndef GF_H
+#define GF_H
 
 #include "ProData.h"
 

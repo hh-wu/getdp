@@ -3,8 +3,8 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
-#ifndef _GAUSS_H_
-#define _GAUSS_H_
+#ifndef GAUSS_H
+#define GAUSS_H
 
 #define GAUSS_ARGS  int Nbr_Points, int Num_Point, \
                     double *u, double *v, double *w, double *wght

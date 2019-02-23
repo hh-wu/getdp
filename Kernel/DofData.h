@@ -3,8 +3,8 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
-#ifndef _DOFDATA_H_
-#define _DOFDATA_H_
+#ifndef DOFDATA_H
+#define DOFDATA_H
 
 #include <vector>
 #include "ListUtils.h"

@@ -3,8 +3,8 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
-#ifndef _BF_H_
-#define _BF_H_
+#ifndef BF_H
+#define BF_H
 
 #include "ProData.h"
 

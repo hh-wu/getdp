@@ -3,8 +3,8 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
-#ifndef _LINALG_H_
-#define _LINALG_H_
+#ifndef LIN_ALG_H
+#define LIN_ALG_H
 
 #include <stdio.h>
 #include <map>

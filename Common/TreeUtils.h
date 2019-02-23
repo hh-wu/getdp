@@ -3,8 +3,8 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
-#ifndef _TREE_UTILS_H_
-#define _TREE_UTILS_H_
+#ifndef TREE_UTILS_H
+#define TREE_UTILS_H
 
 #include "avl.h"
 #include "ListUtils.h"
@@ -29,4 +29,3 @@ void    Tree_Action(Tree_T *tree, void (*action) (void *data, void *dummy));
 List_T *Tree2List(Tree_T *pTree);
 
 #endif
-

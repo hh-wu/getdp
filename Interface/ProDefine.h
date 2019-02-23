@@ -3,8 +3,8 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
-#ifndef _PRO_DEFINE_H_
-#define _PRO_DEFINE_H_
+#ifndef PRO_DEFINE_H
+#define PRO_DEFINE_H
 
 #include "ProData.h"
 

@@ -3,8 +3,8 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
-#ifndef _PRO_PARSER_H_
-#define _PRO_PARSER_H_
+#ifndef PRO_PARSER_H
+#define PRO_PARSER_H
 
 #include <stdlib.h>
 #include <stdio.h>
