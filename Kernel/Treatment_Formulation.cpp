@@ -375,10 +375,10 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
       EquationTerm_P->Case.LocalTerm.Active = (struct FemLocalTermActive*)
 	List_Pointer(FemLocalTermActive_L, i_EquTerm) ;
       switch (TreatmentStatus) {
-      case _PRE :
+      case STATUS_PRE :
 	Pre_InitTermOfFemEquation(EquationTerm_P, QuantityStorage_P0) ;
 	break ;
-      case _CAL :
+      case STATUS_CAL :
 	Cal_InitGalerkinTermOfFemEquation(EquationTerm_P, QuantityStorage_P0,
 					  &QuantityStorage_S, DofForNoDof_P) ;
 	break ;
@@ -387,7 +387,7 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
 
     case GLOBALTERM :
       switch (TreatmentStatus) {
-      case _PRE :
+      case STATUS_PRE :
 	Pre_InitGlobalTermOfFemEquation(EquationTerm_P, QuantityStorage_P0) ;
 	break ;
       }
@@ -544,10 +544,10 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
 	  /* -------------------------------------- */
 
 	  switch (TreatmentStatus) {
-	  case _PRE :
+	  case STATUS_PRE :
 	    Pre_TermOfFemEquation(&Element, EquationTerm_P, QuantityStorage_P0) ;
 	    break ;
-	  case _CAL :
+	  case STATUS_CAL :
 	    Flag_Only = 0 ;
 
 	    if (Current.DofData->Flag_Only){
@@ -597,7 +597,7 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
 	    }/* Flag_Only */
 	    break ;
 
-          case _CST :
+          case STATUS_CST :
             Cst_TermOfFemEquation(&Element, EquationTerm_P, QuantityStorage_P0) ;
             break ;
 
@@ -609,7 +609,7 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
 
     }  /* for i_EquTerm ... */
 
-    Message::ProgressMeter(i_Element + 1, Nbr_Element, (TreatmentStatus == _PRE) ?
+    Message::ProgressMeter(i_Element + 1, Nbr_Element, (TreatmentStatus == STATUS_PRE) ?
                            "Pre-processing" : "Processing (Generate)");
     if(Message::GetErrorCount()) break;
   }  /* for i_Element ... */
@@ -746,16 +746,16 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
             /* ------------------------------ */
 
             switch (TreatmentStatus) {
-            case _PRE :
+            case STATUS_PRE :
               Pre_GlobalTermOfFemEquation(Num_Region, EquationTerm_P,
                                           QuantityStorage_P0) ;
               break ;
-            case _CAL :
+            case STATUS_CAL :
               Cal_GlobalTermOfFemEquation(Num_Region, EquationTerm_P,
                                           QuantityStorage_P0,
                                           &QuantityStorage_S, DofForNoDof_P) ;
               break ;
-            case _CST :
+            case STATUS_CST :
               Cst_GlobalTermOfFemEquation(Num_Region, EquationTerm_P,
                                           QuantityStorage_P0) ;
               break ;
@@ -782,11 +782,11 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
       if (EquationTerm_P->Case.GlobalEquation.ConstraintIndex >= 0)
 
 	  switch (TreatmentStatus) {
-	  case _PRE :
+	  case STATUS_PRE :
 	    Pre_FemGlobalEquation(EquationTerm_P,
 				  DefineQuantity_P0, QuantityStorage_P0) ;
 	    break ;
-	  case _CAL :
+	  case STATUS_CAL :
 	    Cal_FemGlobalEquation(EquationTerm_P,
 				  DefineQuantity_P0, QuantityStorage_P0) ;
 	    break ;

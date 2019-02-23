@@ -284,7 +284,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
   /* Check if everything is OK for Adaption */
 
   if(PSO_P->Adapt){
-    if(PSO_P->Dimension == _ALL){
+    if(PSO_P->Dimension == DIM_ALL){
       Message::Error("You have to specify a Dimension for the adaptation (2 or 3)");
       return;
     }
@@ -870,13 +870,13 @@ void  Pos_PrintOnSection(struct PostQuantity     *NCPQ_P,
       Element.Type       = Element.GeoElement->Type ;
       Current.Region = Element.Region = Element.GeoElement->Region ;
 
-      if((PSO_P->Dimension == _ALL &&
+      if((PSO_P->Dimension == DIM_ALL &&
 	  (Element.GeoElement->Type != POINT)) ||
-	 (PSO_P->Dimension == _3D &&
+	 (PSO_P->Dimension == DIM_3D &&
 	  (Element.GeoElement->Type & (TETRAHEDRON|HEXAHEDRON|PRISM|PYRAMID))) ||
-	 (PSO_P->Dimension == _2D &&
+	 (PSO_P->Dimension == DIM_2D &&
 	  (Element.GeoElement->Type & (TRIANGLE|QUADRANGLE))) ||
-	 (PSO_P->Dimension == _1D &&
+	 (PSO_P->Dimension == DIM_1D &&
 	  (Element.GeoElement->Type & LINE))){
 
 	Get_NodesCoordinatesOfElement(&Element) ;

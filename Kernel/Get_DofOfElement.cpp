@@ -75,7 +75,7 @@ void  Get_DofOfElement(struct Element          * Element,
   /* Set the DofData if explicitely specified */
 
   switch (TreatmentStatus) {
-  case _CAL :  case _POS :
+  case STATUS_CAL :  case STATUS_POS :
     if(QuantityStorage_P->DefineQuantity->DofData)
       FunctionSpace_P->DofData = QuantityStorage_P->DefineQuantity->DofData ;
     else
@@ -487,7 +487,7 @@ void  Get_GlobalForElement(struct Element * Element, int * StartingIndex,
       }
     }
 
-    if (TreatmentStatus == _PRE)
+    if (TreatmentStatus == STATUS_PRE)
       Get_PreResolutionForGlobalBasisFunction(Nbr_Global, *StartingIndex, Element) ;
   }
   else {
@@ -529,9 +529,9 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
       BasisFunction_P->Num + (Num_SubFunction? Num_SubFunction[i_Entity] : 0) ;
 
     switch (TreatmentStatus) {
-    case _CAL :
-    case _POS :
-    case _CST :
+    case STATUS_CAL :
+    case STATUS_POS :
+    case STATUS_CST :
       if(!FunctionSpace_P->DofData){
 	Message::Error("Empty DofData in FunctionSpace '%s' (no unknowns?)",
                        FunctionSpace_P->Name);
@@ -543,13 +543,13 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
 			   Code_BasisFunction, abs(Num_Entity[i_Entity]), 0))
 	 != NULL) ;
 
-      if (Flag_SubSpace && CodeExist && TreatmentStatus != _POS)
+      if (Flag_SubSpace && CodeExist && TreatmentStatus != STATUS_POS)
 	CodeExist =
 	  Check_IsEntityInExtendedGroup(GroupEntity_P, abs(Num_Entity[i_Entity]), 0) ;
       /* ... parce que le code peut ne pas exister quand sous-espace ! */
       break ;
 
-    case _PRE :
+    case STATUS_PRE :
       CodeExist =
 	Check_IsEntityInExtendedGroup(GroupEntity_P, abs(Num_Entity[i_Entity]), 0) ;
       break ;
@@ -574,8 +574,8 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
       QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].BasisFunction
 	= BasisFunction_P ;
 
-      if (TreatmentStatus == _PRE ||
-	  TreatmentStatus == _CST)  /* Associated Contraints? */
+      if (TreatmentStatus == STATUS_PRE ||
+	  TreatmentStatus == STATUS_CST)  /* Associated Contraints? */
 	Treatment_ConstraintForElement(FunctionSpace_P, QuantityStorage_P,
 				       Num_Entity, i_Entity,
 				       i_BFunction, TypeConstraint) ;
@@ -626,9 +626,9 @@ void  Get_DofOfRegion(int  Num_Region,
       Num_Entity = Num_Region;
 
     switch (TreatmentStatus) {
-    case _CAL :
-    case _POS :
-    case _CST :
+    case STATUS_CAL :
+    case STATUS_POS :
+    case STATUS_CST :
       if(!FunctionSpace_P->DofData){
 	Message::Error("Empty DofData in FunctionSpace '%s' (no unknowns?)",
 		   FunctionSpace_P->Name);
@@ -639,7 +639,7 @@ void  Get_DofOfRegion(int  Num_Region,
 	((Dof_P = Dof_GetDofStruct(FunctionSpace_P->DofData,
 				   Num_BasisFunction, Num_Entity, 0)) != NULL) ;
       break ;
-    case _PRE :
+    case STATUS_PRE :
       CodeExist = 1 ;
       break ;
     default : break ;
@@ -654,8 +654,8 @@ void  Get_DofOfRegion(int  Num_Region,
       QuantityStorage_P->BasisFunction[0].CodeAssociateBasisFunction =
 	Num_AssociateBasisFunction ;
 
-      if (TreatmentStatus == _PRE ||
-	  TreatmentStatus == _CST)  /* Contrainte associee ? */
+      if (TreatmentStatus == STATUS_PRE ||
+	  TreatmentStatus == STATUS_CST)  /* Contrainte associee ? */
 	Treatment_ConstraintForRegion(GlobalQuantity_P,
 				      FunctionSpace_P, QuantityStorage_P) ;
       Nbr_ElementaryBF = 1 ;

@@ -15433,7 +15433,7 @@ yyreduce:
       PostSubOperation_S.Smoothing = 0;
       PostSubOperation_S.Skin = 0;
       PostSubOperation_S.Comma = 0;
-      PostSubOperation_S.Dimension = _ALL;
+      PostSubOperation_S.Dimension = DIM_ALL;
       PostSubOperation_S.Adapt = 0;
       PostSubOperation_S.Target = -1.;
       PostSubOperation_S.HarmonicToTime = 1;
@@ -18420,25 +18420,25 @@ yyreduce:
 
   case 984:
 #line 9017 "ProParser.y" /* yacc.c:1645  */
-    { (yyval.d) = (double)_0D; }
+    { (yyval.d) = (double)DIM_0D; }
 #line 18425 "ProParser.tab.cpp" /* yacc.c:1645  */
     break;
 
   case 985:
 #line 9018 "ProParser.y" /* yacc.c:1645  */
-    { (yyval.d) = (double)_1D; }
+    { (yyval.d) = (double)DIM_1D; }
 #line 18431 "ProParser.tab.cpp" /* yacc.c:1645  */
     break;
 
   case 986:
 #line 9019 "ProParser.y" /* yacc.c:1645  */
-    { (yyval.d) = (double)_2D; }
+    { (yyval.d) = (double)DIM_2D; }
 #line 18437 "ProParser.tab.cpp" /* yacc.c:1645  */
     break;
 
   case 987:
 #line 9020 "ProParser.y" /* yacc.c:1645  */
-    { (yyval.d) = (double)_3D; }
+    { (yyval.d) = (double)DIM_3D; }
 #line 18443 "ProParser.tab.cpp" /* yacc.c:1645  */
     break;
 

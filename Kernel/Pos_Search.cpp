@@ -372,9 +372,9 @@ void InWhichElement (struct Grid * Grid, List_T *ExcludeRegion_L,
      bounding box, and even more if we search for elements of
      dimension smaller than the current dimension. This way we can for
      example also find 1D elements with points not exactly on them. */
-  if ((Dim == _1D && Current.GeoData->Dimension == _3D) ||
-      (Dim == _1D && Current.GeoData->Dimension == _2D) ||
-      (Dim == _2D && Current.GeoData->Dimension == _3D))
+  if ((Dim == DIM_1D && Current.GeoData->Dimension == DIM_3D) ||
+      (Dim == DIM_1D && Current.GeoData->Dimension == DIM_2D) ||
+      (Dim == DIM_2D && Current.GeoData->Dimension == DIM_3D))
     tol = Current.GeoData->CharacteristicLength * 1.e-4; /* instead of 5.e-3 */
   else
     tol = Current.GeoData->CharacteristicLength * 1.e-8;
@@ -399,11 +399,11 @@ void InWhichElement (struct Grid * Grid, List_T *ExcludeRegion_L,
   }
 
   switch(Dim){
-  case _1D  : lowdim = 0 ; highdim = 0 ; break;
-  case _2D  : lowdim = 1 ; highdim = 1 ; break;
-  case _3D  : lowdim = 2 ; highdim = 2 ; break;
-  case _ALL :
-  default   : lowdim = 0 ; highdim = 2 ; break;
+  case DIM_1D  : lowdim = 0 ; highdim = 0 ; break;
+  case DIM_2D  : lowdim = 1 ; highdim = 1 ; break;
+  case DIM_3D  : lowdim = 2 ; highdim = 2 ; break;
+  case DIM_ALL :
+  default      : lowdim = 0 ; highdim = 2 ; break;
   }
 
   for(dim = highdim ; dim >= lowdim ; dim--) {
@@ -441,28 +441,28 @@ void xyz2uvwInAnElement (struct Element *Element,
   double   u_new, v_new, w_new;
   double   Error = 1.0 ;
   int      i, iter = 1 ;
-  int      ChainDim = _3D, Type_Dimension, Type_Jacobian ;
+  int      ChainDim = DIM_3D, Type_Dimension, Type_Jacobian ;
   double (*Get_Jacobian)(struct Element*, MATRIX3x3*) ;
 
   *u = *v = *w = 0.0;
 
   if(Element->Type & (TETRAHEDRON|TETRAHEDRON_2|HEXAHEDRON|PRISM|PYRAMID))
-    ChainDim = _3D;
+    ChainDim = DIM_3D;
   else if(Element->Type & (TRIANGLE|QUADRANGLE|TRIANGLE_2|QUADRANGLE_2))
-    ChainDim = _2D;
+    ChainDim = DIM_2D;
   else if(Element->Type & (LINE|LINE_2))
-    ChainDim = _1D;
+    ChainDim = DIM_1D;
   else if(Element->Type & POINT)
-    ChainDim = _0D;
+    ChainDim = DIM_0D;
   else{
     Message::Error("Unknown type of element in xyz2uvwInAnElement");
     return;
   }
 
-  if (ChainDim == _1D && Current.GeoData->Dimension == _3D)
+  if (ChainDim == DIM_1D && Current.GeoData->Dimension == DIM_3D)
     Type_Jacobian = JACOBIAN_LIN;
-  else if((ChainDim == _1D && Current.GeoData->Dimension == _2D) ||
-	  (ChainDim == _2D && Current.GeoData->Dimension == _3D))
+  else if((ChainDim == DIM_1D && Current.GeoData->Dimension == DIM_2D) ||
+	  (ChainDim == DIM_2D && Current.GeoData->Dimension == DIM_3D))
     Type_Jacobian = JACOBIAN_SUR;
   else
     Type_Jacobian = JACOBIAN_VOL;
