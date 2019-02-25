@@ -3,8 +3,8 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
-#ifndef _GEODATA_H_
-#define _GEODATA_H_
+#ifndef GEO_DATA_H
+#define GEO_DATA_H
 
 #include "ListUtils.h"
 #include "TreeUtils.h"

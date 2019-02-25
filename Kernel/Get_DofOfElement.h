@@ -3,8 +3,8 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
-#ifndef _GET_DOF_OF_ELEMENT_H_
-#define _GET_DOF_OF_ELEMENT_H_
+#ifndef GET_DOF_OF_ELEMENT_H
+#define GET_DOF_OF_ELEMENT_H
 
 #include "ProData.h"
 
@@ -32,7 +32,7 @@ void  Get_GlobalForElement(struct Element * Element, int * StartingIndex,
 
 void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
 			 struct QuantityStorage  * QuantityStorage_P,
-			 int Nbr_Entity, int Num_Entity[], 
+			 int Nbr_Entity, int Num_Entity[],
 			 int StartingIndex,
 			 int i_BFunction, int TypeConstraint, int * Num_SubFunction) ;
 

@@ -653,7 +653,7 @@ List_T* GenEle_OnPositiveSideOf::gen_ExtendedList
       if (List_Search(InitialSuppList, &geoElement->Region, fcmp_int) ) {
         // Get dimension of element
         Get_JacobianFunction (JACOBIAN_VOL, geoElement->Type, &type_Dimension);
-        if (type_Dimension > _2D)
+        if (type_Dimension > DIM_2D)
           Message::Error("Bad dimension (%d>2) for 'OnPositiveSideOf'", type_Dimension);
         if (_type_Dimension_Sur == -1)
           _type_Dimension_Sur = type_Dimension;
@@ -666,7 +666,7 @@ List_T* GenEle_OnPositiveSideOf::gen_ExtendedList
       else if (_flag_SuppList2_Type_Not &&
                List_Search(InitialSuppList2, &geoElement->Region, fcmp_int) ) {
         Get_JacobianFunction (JACOBIAN_VOL, geoElement->Type, &type_Dimension);
-        if (type_Dimension > _1D)
+        if (type_Dimension > DIM_1D)
           Message::Error("Bad dimension (%d>1) for 'Not' (border)", type_Dimension);
         if (_type_Dimension_Sur == -1)
           _type_Dimension_Sur = type_Dimension+1;
@@ -679,7 +679,7 @@ List_T* GenEle_OnPositiveSideOf::gen_ExtendedList
       else if (_type_SuppList2 == SUPPLIST_STARTINGON &&
                List_Search(InitialSuppList2, &geoElement->Region, fcmp_int) ) {
         Get_JacobianFunction (JACOBIAN_VOL, geoElement->Type, &type_Dimension);
-        if (type_Dimension != _1D)
+        if (type_Dimension != DIM_1D)
           Message::Error("Bad dimension (%d, 1 needed) for 'StartingOn' (border)", type_Dimension);
         add_EdgesOfStartingOn(geoElement);
       }
@@ -734,15 +734,15 @@ void GenEle_OnPositiveSideOf::get_Entities
 (struct Geo_Element * geoElement,
  int level_operator_d, int * nbr_Entity, int ** num_Entities)
 {
-  if (_type_Dimension_Sur - level_operator_d == _0D) {
+  if (_type_Dimension_Sur - level_operator_d == DIM_0D) {
     *nbr_Entity = geoElement->NbrNodes; *num_Entities = geoElement->NumNodes;
   }
   else {
     if (geoElement->NbrEdges == 0)  Geo_CreateEdgesOfElement(geoElement) ;
-    if (_type_Dimension_Sur - level_operator_d == _1D) {
+    if (_type_Dimension_Sur - level_operator_d == DIM_1D) {
       *nbr_Entity = geoElement->NbrEdges; *num_Entities = geoElement->NumEdges;
     }
-    else if (_type_Dimension_Sur - level_operator_d == _2D) {
+    else if (_type_Dimension_Sur - level_operator_d == DIM_2D) {
       if (geoElement->NbrFacets == 0)  Geo_CreateFacetsOfElement(geoElement) ;
       *nbr_Entity = geoElement->NbrFacets; *num_Entities = geoElement->NumFacets;
     }
@@ -810,7 +810,7 @@ void GenEle_OnPositiveSideOf::add_EdgesAndNodesOnSurBorder
     _entitiesOnSurBorder[0].insert(num_Entity);
   }
   // Nodes
-  if (_type_Dimension_Sur == _2D) {
+  if (_type_Dimension_Sur == DIM_2D) {
     for (i_Entity = 0; i_Entity < nbr_Entity[1]; i_Entity++) {
       num_Entity = abs(num_Entities[1][i_Entity]) ;
       _entitiesOnSurBorder[1].insert(num_Entity);
@@ -911,7 +911,7 @@ void GenEle_OnPositiveSideOf::add_Facets
       }
       // ... or else only one node could be on Sur border
       if (!flag_OnBorder && nb_nodesOnSur == 1
-          && _type_Dimension_Sur == _2D) {
+          && _type_Dimension_Sur == DIM_2D) {
         for (i_Entity[2] = 0; i_Entity[2] < nbr_Entity[2]; i_Entity[2]++) {
           num_Entity[2] = abs(num_Entities[2][i_Entity[2]]) ;
           if (_entitiesOnSurBorder[1].find(num_Entity[2]) !=
@@ -936,7 +936,7 @@ void GenEle_OnPositiveSideOf::add_Facets
     // An Edge (for _type_Dimension_Sur == 1 or 0) of current element could be on StartingOn
     for (i_Entity[0] = 0; i_Entity[0] < nbr_Entity[0]; i_Entity[0]++) {
       num_Entity[0] = abs(num_Entities[0][i_Entity[0]]) ;
-      if (_type_Dimension_Sur == _1D) {
+      if (_type_Dimension_Sur == DIM_1D) {
         if (_entitiesOnStartingOn.find(num_Entity[0]) !=
             _entitiesOnStartingOn.end()) {
           sideOfSur_perEntity[i_Entity[0]] = 1; // Only one side (#1) is considered
@@ -945,7 +945,7 @@ void GenEle_OnPositiveSideOf::add_Facets
           sideOfSur_perEntity[i_Entity[0]] = 0;
         }
       }
-      else if (_type_Dimension_Sur == _0D) {
+      else if (_type_Dimension_Sur == DIM_0D) {
         if (geoElement->NbrEdges == 0)  Geo_CreateEdgesOfElement(geoElement) ;
         if (geoElement->NbrEdges >= 1
             &&

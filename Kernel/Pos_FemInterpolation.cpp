@@ -104,7 +104,7 @@ void Pos_FemInterpolation(struct Element * Element,
 	}
       }
       InWhichElement(&Current.GeoData->Grid, NULL, &TheElement,
-		     (Type_Dimension >= 0) ? Type_Dimension : _ALL,
+		     (Type_Dimension >= 0) ? Type_Dimension : DIM_ALL,
 		     x, y, z, &u, &v, &w) ;
       TheElement_P = &TheElement ;
       Get_InitDofOfElement(&TheElement) ;

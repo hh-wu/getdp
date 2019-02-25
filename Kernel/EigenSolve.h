@@ -3,8 +3,8 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
-#ifndef _EIGEN_SOLVE_H_
-#define _EIGEN_SOLVE_H_
+#ifndef EIGEN_SOLVE_H
+#define EIGEN_SOLVE_H
 
 #include "DofData.h"
 

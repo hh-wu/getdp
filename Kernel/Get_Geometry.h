@@ -3,8 +3,8 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
-#ifndef _GET_GEOMETRY_H_
-#define _GET_GEOMETRY_H_
+#ifndef GET_GEOMETRY_H
+#define GET_GEOMETRY_H
 
 #include "ProData.h"
 

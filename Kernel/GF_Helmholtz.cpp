@@ -34,7 +34,7 @@ void GF_Helmholtz(GF_ARG)
   V->Type = SCALAR ;
 
   switch((int)Fct->Para[0]){
-  case _2D :
+  case DIM_2D :
     r = sqrt(SQU(Current.x-Current.xs)+
 	     SQU(Current.y-Current.ys) ) ;
     if(!r) Message::Error("1/0 in 'GF_Helmholtz'") ;
@@ -44,7 +44,7 @@ void GF_Helmholtz(GF_ARG)
     V->Val[MAX_DIM] = -j0(kr)/4 ;
     break ;
 
-  case _3D :
+  case DIM_3D :
     r = sqrt(SQU(Current.x-Current.xs)+
 	     SQU(Current.y-Current.ys)+
 	     SQU(Current.z-Current.zs)) ;
@@ -75,7 +75,7 @@ void GF_HelmholtzThinWire(GF_ARG)
   V->Type = SCALAR ;
 
   switch((int)Fct->Para[0]){
-  case _2D :
+  case DIM_2D :
     a =  Fct->Para[2] ;
     r = sqrt(SQU(Current.x-Current.xs)+
 	     SQU(Current.y-Current.ys)+SQU(a)) ;
@@ -86,7 +86,7 @@ void GF_HelmholtzThinWire(GF_ARG)
     V->Val[MAX_DIM] = -j0(kr)/4 ;
     break ;
 
-  case _3D :
+  case DIM_3D :
     a =  Fct->Para[2] ;
 
     r = sqrt(SQU(Current.x-Current.xs)+
@@ -122,7 +122,7 @@ void GF_GradHelmholtz(GF_ARG)
   V->Type = VECTOR ;
 
   switch((int)Fct->Para[0]){
-  case _2D :
+  case DIM_2D :
     xxs  = Current.x-Current.xs ;
     yys  = Current.y-Current.ys ;
     r = sqrt(SQU(xxs)+SQU(yys)) ;
@@ -138,7 +138,7 @@ void GF_GradHelmholtz(GF_ARG)
     }
     break ;
 
-  case _3D :
+  case DIM_3D :
     xxs  = Current.x-Current.xs ;
     yys  = Current.y-Current.ys ;
     zzs  = Current.z-Current.zs ;
@@ -187,7 +187,7 @@ void GF_NPxGradHelmholtz(GF_ARG)
   }
 
   switch((int)Fct->Para[0]){
-  case _3D :
+  case DIM_3D :
     Geo_CreateNormal(Current.Element->Type,
 		     Current.Element->x,Current.Element->y,Current.Element->z, N);
 
@@ -222,7 +222,7 @@ void GF_NSxGradHelmholtz(GF_ARG)
   V->Type = SCALAR ;
 
   switch((int)Fct->Para[0]){
-  case _2D :
+  case DIM_2D :
     xxs  = Current.x-Current.xs ;
     yys  = Current.y-Current.ys ;
     r = sqrt(SQU(xxs)+SQU(yys)) ;
@@ -247,7 +247,7 @@ void GF_NSxGradHelmholtz(GF_ARG)
     }
     break ;
 
-  case _3D :
+  case DIM_3D :
     xxs  = Current.x-Current.xs ;
     yys  = Current.y-Current.ys ;
     zzs  = Current.z-Current.zs ;

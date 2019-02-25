@@ -440,7 +440,7 @@ void SolvingAnalyse()
   /* Pre-processing */
   /* -------------- */
 
-  TreatmentStatus = _PRE ;
+  TreatmentStatus = STATUS_PRE ;
 
   Message::Direct("P r e - P r o c e s s i n g . . .") ;
   Message::ProgressMeter(0, 0, "Pre-processing");
@@ -467,7 +467,7 @@ void SolvingAnalyse()
                            &Resolution2_P, &DefineSystem2_P0,
                            &DofData2_P0, &DofData2_L, GeoData_L, &GeoData_P0) ;
 
-      TreatmentStatus = _PRE ;
+      TreatmentStatus = STATUS_PRE ;
       Treatment_Preprocessing(Nbr_DefineSystem2, DofData2_P0,
 			      DefineSystem2_P0, GeoData_P0) ;
 
@@ -482,7 +482,7 @@ void SolvingAnalyse()
       Current.RelativeDifference = 0. ; Current.RelaxationFactor = 1. ;
       Current.Breakpoint = -1;
 
-      TreatmentStatus = _CAL ;
+      TreatmentStatus = STATUS_CAL ;
 
       Current.NbrSystem  = Nbr_DefineSystem2 ;  /* Attention: init for Dt[] */
       Current.DofData_P0 = DofData2_P0 ;
@@ -561,7 +561,7 @@ void SolvingAnalyse()
   /* ---------- */
 
   if (Flag_CAL) {
-    TreatmentStatus = _CAL ;
+    TreatmentStatus = STATUS_CAL ;
     Message::Direct("P r o c e s s i n g . . .") ;
     Message::ProgressMeter(0, 0, "Processing");
 
@@ -608,7 +608,7 @@ void SolvingAnalyse()
   /* --------------- */
 
   if (Flag_POS) {
-    TreatmentStatus = _POS ;
+    TreatmentStatus = STATUS_POS ;
 
     Message::Direct("P o s t - P r o c e s s i n g . . .") ;
     Message::ProgressMeter(0, 0, "Post-processing");

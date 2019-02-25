@@ -3,8 +3,8 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
-#ifndef _NUMERIC_UTILS_H_
-#define _NUMERIC_UTILS_H_
+#ifndef NUMERIC_UTILS_H
+#define NUMERIC_UTILS_H
 
 // Numerical routines implemented using either the GSL or Numerical Recipes
 double brent(double ax, double bx, double cx,

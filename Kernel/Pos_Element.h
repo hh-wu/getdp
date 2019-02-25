@@ -3,8 +3,8 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
-#ifndef _POS_ELEMENT_H_
-#define _POS_ELEMENT_H_
+#ifndef POS_ELEMENT_H
+#define POS_ELEMENT_H
 
 #include "ProData.h"
 #include "ListUtils.h"

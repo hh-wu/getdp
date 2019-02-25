@@ -3,8 +3,8 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
-#ifndef _PRO_DEFINES_H_
-#define _PRO_DEFINES_H_
+#ifndef PRO_DEFINES_H
+#define PRO_DEFINES_H
 
 #include "GetDPConfig.h"
 #include "ProDefine.h"
@@ -1114,7 +1114,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   //{"dbdh_Vinch"            , (CAST)F_dbdh_Vinch            ,  -1,   3 }, // NOT USED FOR NOW (26/06/2016)
   //{"Update_Jk"             , (CAST)F_Update_Jk             ,  -1,   6 },  //kj+++ // NOT USED FOR NOW (26/06/2016)
   //{"Update_Jk_sd"          , (CAST)F_Update_Jk_sd          ,  -1,   6 },  //kj+++ // NOT USED FOR NOW (26/06/2016)
-  
+
   {"Update_Cell_K"         , (CAST)F_Update_Cell_K         ,  -1,   4 },  //kj+++
   {"b_Vinch_K"             , (CAST)F_b_Vinch_K             ,  -1,   -1 },  // 1+3*2=7 //kj+++
   {"hr_Vinch_K"            , (CAST)F_hr_Vinch_K            ,  -1,   -1 },  // 1+3*1=4 //kj+++

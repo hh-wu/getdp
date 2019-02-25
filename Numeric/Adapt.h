@@ -3,8 +3,8 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
-#ifndef _ADAPT_H_
-#define _ADAPT_H_
+#ifndef ADAPT_H
+#define ADAPT_H
 
 #define P1 1
 #define P2 2

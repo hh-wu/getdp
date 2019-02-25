@@ -463,21 +463,21 @@ static void Geo_ReadFileWithGmsh(struct GeoData * GeoData_P)
   if(GeoData_P->Xmin != GeoData_P->Xmax &&
      GeoData_P->Ymin != GeoData_P->Ymax &&
      GeoData_P->Zmin != GeoData_P->Zmax)
-    GeoData_P->Dimension = _3D;
+    GeoData_P->Dimension = DIM_3D;
   else if(GeoData_P->Xmin != GeoData_P->Xmax && GeoData_P->Ymin != GeoData_P->Ymax)
-    GeoData_P->Dimension = _2D;
+    GeoData_P->Dimension = DIM_2D;
   else if(GeoData_P->Xmin != GeoData_P->Xmax && GeoData_P->Zmin != GeoData_P->Zmax)
-    GeoData_P->Dimension = _2D;
+    GeoData_P->Dimension = DIM_2D;
   else if(GeoData_P->Ymin != GeoData_P->Ymax && GeoData_P->Zmin != GeoData_P->Zmax)
-    GeoData_P->Dimension = _2D;
+    GeoData_P->Dimension = DIM_2D;
   else if(GeoData_P->Xmin != GeoData_P->Xmax)
-    GeoData_P->Dimension = _1D;
+    GeoData_P->Dimension = DIM_1D;
   else if(GeoData_P->Ymin != GeoData_P->Ymax)
-    GeoData_P->Dimension = _1D;
+    GeoData_P->Dimension = DIM_1D;
   else if(GeoData_P->Zmin != GeoData_P->Zmax)
-    GeoData_P->Dimension = _1D;
+    GeoData_P->Dimension = DIM_1D;
   else
-    GeoData_P->Dimension = _0D;
+    GeoData_P->Dimension = DIM_0D;
 
   GeoData_P->CharacteristicLength =
   sqrt(SQU(GeoData_P->Xmax - GeoData_P->Xmin) +
@@ -776,21 +776,21 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
       if(GeoData_P->Xmin != GeoData_P->Xmax &&
 	 GeoData_P->Ymin != GeoData_P->Ymax &&
 	 GeoData_P->Zmin != GeoData_P->Zmax)
-	GeoData_P->Dimension = _3D;
+	GeoData_P->Dimension = DIM_3D;
       else if(GeoData_P->Xmin != GeoData_P->Xmax && GeoData_P->Ymin != GeoData_P->Ymax)
-	GeoData_P->Dimension = _2D;
+	GeoData_P->Dimension = DIM_2D;
       else if(GeoData_P->Xmin != GeoData_P->Xmax && GeoData_P->Zmin != GeoData_P->Zmax)
-	GeoData_P->Dimension = _2D;
+	GeoData_P->Dimension = DIM_2D;
       else if(GeoData_P->Ymin != GeoData_P->Ymax && GeoData_P->Zmin != GeoData_P->Zmax)
-	GeoData_P->Dimension = _2D;
+	GeoData_P->Dimension = DIM_2D;
       else if(GeoData_P->Xmin != GeoData_P->Xmax)
-	GeoData_P->Dimension = _1D;
+	GeoData_P->Dimension = DIM_1D;
       else if(GeoData_P->Ymin != GeoData_P->Ymax)
-	GeoData_P->Dimension = _1D;
+	GeoData_P->Dimension = DIM_1D;
       else if(GeoData_P->Zmin != GeoData_P->Zmax)
-	GeoData_P->Dimension = _1D;
+	GeoData_P->Dimension = DIM_1D;
       else
-	GeoData_P->Dimension = _0D;
+	GeoData_P->Dimension = DIM_0D;
 
       GeoData_P->CharacteristicLength =
 	sqrt(SQU(GeoData_P->Xmax - GeoData_P->Xmin) +

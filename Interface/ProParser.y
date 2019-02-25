@@ -6986,7 +6986,7 @@ PostSubOperations :
       PostSubOperation_S.Smoothing = 0;
       PostSubOperation_S.Skin = 0;
       PostSubOperation_S.Comma = 0;
-      PostSubOperation_S.Dimension = _ALL;
+      PostSubOperation_S.Dimension = DIM_ALL;
       PostSubOperation_S.Adapt = 0;
       PostSubOperation_S.Target = -1.;
       PostSubOperation_S.HarmonicToTime = 1;
@@ -9014,10 +9014,10 @@ OneFExpr :
     tFLOAT    { $$ = $1; }
   | tINT      { $$ = (double)$1; }
   | tPi       { $$ = 3.1415926535897932; }
-  | t0D       { $$ = (double)_0D; }
-  | t1D       { $$ = (double)_1D; }
-  | t2D       { $$ = (double)_2D; }
-  | t3D       { $$ = (double)_3D; }
+  | t0D       { $$ = (double)DIM_0D; }
+  | t1D       { $$ = (double)DIM_1D; }
+  | t2D       { $$ = (double)DIM_2D; }
+  | t3D       { $$ = (double)DIM_3D; }
   | tMPI_Rank { $$ = Message::GetCommRank(); }
   | tMPI_Size { $$ = Message::GetCommSize(); }
   | tGETDP_MAJOR_VERSION { $$ = GETDP_MAJOR_VERSION; }

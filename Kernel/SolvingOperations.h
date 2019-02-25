@@ -3,8 +3,8 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
-#ifndef _SOLVING_OPERATIONS_H_
-#define _SOLVING_OPERATIONS_H_
+#ifndef SOLVING_OPERATIONS_H
+#define SOLVING_OPERATIONS_H
 
 #include "ProData.h"
 #include "LinAlg.h"

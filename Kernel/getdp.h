@@ -3,8 +3,8 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
-#ifndef _GETDP_H_
-#define _GETDP_H_
+#ifndef GETDP_H
+#define GETDP_H
 
 #include <string>
 #include <vector>

@@ -373,7 +373,7 @@ void Cal_WholeQuantity(struct Element * Element,
     case WQ_OPERATORANDQUANTITY : /* {op qty}  Dof{op qty}  BF{op qty} */
       Save_Region = Current.Region ;
       Save_CurrentElement = Current.Element ;
-      if (i_WQ != DofIndexInWholeQuantity){ /* Attention!!! || TreatmentStatus == _POS){  */
+      if (i_WQ != DofIndexInWholeQuantity){ /* Attention!!! || TreatmentStatus == STATUS_POS){  */
 	Pos_FemInterpolation
 	  (Element,
 	   QuantityStorage_P0,
@@ -409,7 +409,7 @@ void Cal_WholeQuantity(struct Element * Element,
       /* {op qty}[x,y,z], {op qty}[x,y,z,dimension]
 	 or {op qty}[Vector[x,y,x],dimension]
 	 or {op qty}[ntime] */
-      if (i_WQ != DofIndexInWholeQuantity || TreatmentStatus == _POS){
+      if (i_WQ != DofIndexInWholeQuantity || TreatmentStatus == STATUS_POS){
 	j = WholeQuantity_P->Case.OperatorAndQuantity.NbrArguments;
 	if (j == 2 || j == 3 || j == 4) {
 	  if (j == 3 || j == 4) {
@@ -1193,7 +1193,7 @@ void Cal_WholeQuantity(struct Element * Element,
         Cal_CopyValue(&ValueSaved[WholeQuantity_P->Case.ValueSaved.Index],
                       &Stack[0][Index]) ;
       else{
-        if(TreatmentStatus != _PRE)
+        if(TreatmentStatus != STATUS_PRE)
           Message::Warning("Empty register %d: assuming zero value",
                            WholeQuantity_P->Case.ValueSaved.Index + 1);
         Cal_ZeroValue(&Stack[0][Index]);
@@ -1213,7 +1213,7 @@ void Cal_WholeQuantity(struct Element * Element,
         Cal_CopyValue(&NamedValueSaved[WholeQuantity_P->Case.NamedValue.Name],
                       &Stack[0][Index]) ;
       else{
-        if(TreatmentStatus != _PRE)
+        if(TreatmentStatus != STATUS_PRE)
           Message::Warning("Unknown current value '$%s': assuming zero value",
                            WholeQuantity_P->Case.NamedValue.Name);
         Cal_ZeroValue(&Stack[0][Index]);

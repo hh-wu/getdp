@@ -3,8 +3,8 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
-#ifndef _SOLVING_ANALYSE_H_
-#define _SOLVING_ANALYSE_H_
+#ifndef SOLVING_ANALYSE_H
+#define SOLVING_ANALYSE_H
 
 #include "ProData.h"
 

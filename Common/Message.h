@@ -3,8 +3,8 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
-#ifndef _MESSAGE_H_
-#define _MESSAGE_H_
+#ifndef MESSAGE_H
+#define MESSAGE_H
 
 #include <map>
 #include <string>

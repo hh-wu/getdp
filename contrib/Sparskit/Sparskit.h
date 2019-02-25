@@ -1,5 +1,5 @@
-#ifndef _SPARSKIT_H_
-#define _SPARSKIT_H_
+#ifndef SPARSKIT_H
+#define SPARSKIT_H
 
 #include "ListUtils.h"
 

@@ -3,8 +3,8 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
-#ifndef _CAL_SMALLFEM_TERM_OF_FEM_EQUATION_H_
-#define _CAL_SMALLFEM_TERM_OF_FEM_EQUATION_H_
+#ifndef CAL_SMALLFEM_TERM_OF_FEM_EQUATION_H
+#define CAL_SMALLFEM_TERM_OF_FEM_EQUATION_H
 
 #include "ProData.h"
 void Cal_SmallFemTermOfFemEquation(struct Element*         Element,

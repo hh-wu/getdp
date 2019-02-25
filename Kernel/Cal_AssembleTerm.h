@@ -3,8 +3,8 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
-#ifndef _CAL_ASSEMBLE_TERM_H_
-#define _CAL_ASSEMBLE_TERM_H_
+#ifndef CAL_ASSEMBLE_TERM_H
+#define CAL_ASSEMBLE_TERM_H
 
 #include "ProData.h"
 
@@ -13,9 +13,9 @@ void Cal_AssembleTerm_DtDof(struct Dof * Equ, struct Dof * Dof, double Val[]);
 void Cal_AssembleTerm_Dt(struct Dof * Equ, struct Dof * Dof, double Val[]);
 void Cal_AssembleTerm_DtNL(struct Dof * Equ, struct Dof * Dof, double Val[]);
 void Cal_AssembleTerm_DtDtDof(struct Dof * Equ, struct Dof * Dof, double Val[]);
-void Cal_AssembleTerm_DtDtDtDof(struct Dof * Equ, struct Dof * Dof, double Val[]); 
-void Cal_AssembleTerm_DtDtDtDtDof(struct Dof * Equ, struct Dof * Dof, double Val[]); 
-void Cal_AssembleTerm_DtDtDtDtDtDof(struct Dof * Equ, struct Dof * Dof, double Val[]); 
+void Cal_AssembleTerm_DtDtDtDof(struct Dof * Equ, struct Dof * Dof, double Val[]);
+void Cal_AssembleTerm_DtDtDtDtDof(struct Dof * Equ, struct Dof * Dof, double Val[]);
+void Cal_AssembleTerm_DtDtDtDtDtDof(struct Dof * Equ, struct Dof * Dof, double Val[]);
 // nleigchange
 void Cal_AssembleTerm_NLEig1Dof(struct Dof * Equ, struct Dof * Dof, double Val[]);
 void Cal_AssembleTerm_NLEig2Dof(struct Dof * Equ, struct Dof * Dof, double Val[]);

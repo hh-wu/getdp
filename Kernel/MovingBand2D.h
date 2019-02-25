@@ -3,8 +3,8 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
-#ifndef _MOVING_BAND_2D_H_
-#define _MOVING_BAND_2D_H_
+#ifndef MOVING_BAND_2D_H
+#define MOVING_BAND_2D_H
 
 #include "ProData.h"
 

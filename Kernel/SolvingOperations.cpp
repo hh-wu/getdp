@@ -645,7 +645,7 @@ void  UpdateConstraint_System(struct DefineSystem * DefineSystem_P,
 			      struct DofData * DofData_P0,
 			      int GroupIndex, int Type_Constraint, int Flag_Jac)
 {
-  // Update constraints, i.e. new preprocessing of _CST type
+  // Update constraints, i.e. new preprocessing of STATUS_CST type
   int Nbr_Formulation, Index_Formulation,  Save_TreatmentStatus ;
   struct Formulation    * Formulation_P ;
 
@@ -653,7 +653,7 @@ void  UpdateConstraint_System(struct DefineSystem * DefineSystem_P,
   Current.SubTimeStep++;
 
   Save_TreatmentStatus = TreatmentStatus ;
-  TreatmentStatus = _CST ;
+  TreatmentStatus = STATUS_CST ;
 
   Nbr_Formulation = List_Nbr(DefineSystem_P->FormulationIndex) ;
 

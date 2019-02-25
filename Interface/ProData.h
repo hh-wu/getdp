@@ -3,28 +3,28 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
-#ifndef _PRO_DATA_H_
-#define _PRO_DATA_H_
+#ifndef PRO_DATA_H
+#define PRO_DATA_H
 
 #include <string>
 #include <map>
 #include "GetDPConfig.h"
 #include "ListUtils.h"
 
-#define _0D      0
-#define _1D      1
-#define _2D      2
-#define _3D      3
-#define _ALL     4
-#define _AXI     5
+#define DIM_0D      0
+#define DIM_1D      1
+#define DIM_2D      2
+#define DIM_3D      3
+#define DIM_ALL     4
+#define DIM_AXI     5
 
 #define NBR_MAX_RES           2500
 #define NBR_MAX_POS           10
 
-#define _PRE  1 // pre-processing
-#define _CAL  2 // processing
-#define _POS  3 // post-processing
-#define _CST  5 // update constraint
+#define STATUS_PRE  1 // pre-processing
+#define STATUS_CAL  2 // processing
+#define STATUS_POS  3 // post-processing
+#define STATUS_CST  5 // update constraint
 
 #define TIME_STATIC   1
 #define TIME_THETA    2

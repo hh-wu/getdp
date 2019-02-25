@@ -1884,7 +1884,7 @@ void Print_PostOperation()
       if(PSO->Smoothing)
 	Message::Check(", Smoothing %d", PSO->Smoothing);
 
-      if(PSO->Dimension != _ALL)
+      if(PSO->Dimension != DIM_ALL)
 	Message::Check(", Dimension %d", PSO->Dimension);
 
       if(PSO->HarmonicToTime > 1)

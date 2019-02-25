@@ -25,8 +25,8 @@
 // Please report all bugs and problems to the public mailing list
 // <gmsh@onelab.info>.
 
-#ifndef _GMSH_SOCKET_H_
-#define _GMSH_SOCKET_H_
+#ifndef GMSH_SOCKET_H
+#define GMSH_SOCKET_H
 
 #include "GetDPConfig.h"
 
