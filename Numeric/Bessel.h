@@ -23,6 +23,7 @@ int BesselSphericalJn(double n, int num, double x, double *val);
 int BesselAltSphericalJn(double n, int num, double x, double *val);
 
 int BesselJnComplex(double n, int num, double xr, double xi, double *valr, double *vali);
+int BesselKnComplex(double n, int num, double xr, double xi, double *valr, double *vali);
 
 int BesselYn(double n, int num, double x, double *val);
 int BesselSphericalYn(double n, int num, double x, double *val);

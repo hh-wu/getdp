@@ -129,6 +129,7 @@ void  F_Min             (F_ARG) ;
 void  F_Max             (F_ARG) ;
 void  F_Jn              (F_ARG) ;
 void  F_JnComplex       (F_ARG) ;
+void  F_KnComplex       (F_ARG) ;
 void  F_Yn              (F_ARG) ;
 void  F_dJn             (F_ARG) ;
 void  F_dYn             (F_ARG) ;
