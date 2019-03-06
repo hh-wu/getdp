@@ -220,6 +220,27 @@ void F_JnComplex(F_ARG)
   V->Type = SCALAR;
 }
 
+void F_KnComplex(F_ARG)
+{
+  if(A->Type != SCALAR || (A+1)->Type != SCALAR)
+    Message::Error("Non scalar argument(s) for modified Bessel function of the second kind 'KnComplex'");
+  int n = (int)A->Val[0];
+  double xr = (A+1)->Val[0];
+  double xi = (A+1)->Val[MAX_DIM];
+  double valr, vali;
+
+  BesselKnComplex(n, 1, xr, xi, &valr, &vali);
+
+  V->Val[0] = valr;
+  V->Val[MAX_DIM] = vali;
+
+  if (Current.NbrHar > 1){
+    for (int k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2)
+      V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;
+  }
+  V->Type = SCALAR;
+}
+
 void F_Yn(F_ARG)
 {
   int     k, n;

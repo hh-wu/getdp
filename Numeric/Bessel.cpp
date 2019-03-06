@@ -15,6 +15,12 @@ static void zbesj_(double*, double*, double*, int*, int*, double*,
   Message::Fatal("Bessel functions require Fortran compiler");
 }
 
+static void zbesk_(double*, double*, double*, int*, int*, double*,
+                   double*, int*, int*)
+{
+  Message::Fatal("Bessel functions require Fortran compiler");
+}
+
 static void zbesy_(double*, double*, double*, int*, int*, double*,
                    double*, int*, double*, double*, int*)
 {
@@ -31,6 +37,7 @@ static void zbesh_(double*, double*, double*, int*, int*, int*,
 
 #if defined(HAVE_UNDERSCORE)
 #define zbesj_ zbesj
+define zbesk_ zbesk
 #define zbesy_ zbesy
 #define zbesh_ zbesh
 #endif
@@ -38,6 +45,9 @@ static void zbesh_(double*, double*, double*, int*, int*, int*,
 extern "C" {
   void zbesj_(double*, double*, double*, int*, int*, double*,
               double*, int*, int*);
+  void zbesk_(double*, double*, double*, int*, int*, double*,
+              double*, int*, int*);
+
   void zbesy_(double*, double*, double*, int*, int*, double*,
               double*, int*, double*,
               double*, int*);
@@ -99,6 +109,15 @@ int BesselJnComplex(double n, int num, double xr, double xi, double *valr, doubl
   zbesj_(&xr, &xi, &n, &kode, &num, valr, vali, &nz, &ierr) ;
 
   return BesselError(ierr, "BesselJnComplex");
+}
+
+int BesselKnComplex(double n, int num, double xr, double xi, double *valr, double *vali)
+{
+  int nz = 0, ierr = 0, kode = 1;
+
+  zbesk_(&xr, &xi, &n, &kode, &num, valr, vali, &nz, &ierr) ;
+
+  return BesselError(ierr, "BesselKnComplex");
 }
 
 int BesselSphericalJn(double n, int num, double x, double *val)
