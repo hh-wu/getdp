@@ -37,6 +37,20 @@ windows64_ci:
   except:
     - tags
 
+linux64_beta_petsc_complex:
+  image: onelab/debian.wheezy.64bit
+  script:
+    - echo "$SSH_TOKEN" > ~/.ssh/id_rsa
+    - echo "Host *" > ~/.ssh/config
+    - echo "StrictHostKeyChecking no" >> ~/.ssh/config
+    - chmod 700 ~/.ssh/id_rsa ~/.ssh/config
+    - mkdir build
+    - cd build
+    - cmake -DGETDP_EXTRA_BUILD_NAME=-PetscComplex -DGETDP_HOST=getdp.info -DENABLE_SPARSKIT=0 -DENABLE_PETSC=1 -DPETSC_ARCH=complex_mumps_seq -DPETSC_DIR=/petsc-3.10.2 -DSLEPC_DIR=/slepc-3.10.1 -DBLAS_LAPACK_LIBRARIES='/usr/local/lib/libopenblas.a;/usr/local/lib64/libgfortran.a;/usr/local/lib64/libquadmath.a;-lpthread;-static-libstdc++' ${EXTRA_OPTION} ..
+    - make package -j 8
+    - PKG=`ls getdp-*.tar*`; scp ${PKG} geuzaine@getdp.info:.wwwgmsh/beta/${PKG/\.tar\.gz/c\.tgz}
+    - ctest -j 8 --output-on-failure
+
 # ------------------------------------------
 # Official Linux builds (master branch only)
 # ------------------------------------------
