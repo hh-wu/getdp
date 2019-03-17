@@ -576,7 +576,11 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
   struct Value  Value ;
 
   TOL = Current.GeoData->CharacteristicLength * ToleranceFactor ;
-  // by default, ToleranceFactor is 1.e-8 (to be defined with ToleranceFactor value; in the Link constraint
+  // by default, ToleranceFactor is 1.e-8 (to be defined with ToleranceFactor
+  // value; in the Link constraint
+
+  // FIXME: read the periodic node information from gmsh if available, and
+  // bypass the xyz-sort
 
   /* Nodes with Constraint */
 
