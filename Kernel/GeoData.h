@@ -36,6 +36,7 @@ struct GeoData {
 
   double  * H, * P ;
 
+  List_T  * PeriodicNodes;
 } ;
 
 int  Geo_AddGeoData(List_T * GeoData_L,
