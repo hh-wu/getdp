@@ -4,15 +4,19 @@
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
 #include <math.h>
+#include "GetDPConfig.h"
 #include "ProData.h"
 #include "ProDefine.h"
-#include "GeoData.h"
-#include "DofData.h"
-#include "Get_Geometry.h"
 #include "F.h"
 #include "NumericUtils.h"
 #include "MallocUtils.h"
 #include "Message.h"
+
+#if defined(HAVE_KERNEL)
+#include "GeoData.h"
+#include "DofData.h"
+#include "Get_Geometry.h"
+#endif
 
 #define SQU(a)     ((a)*(a))
 
@@ -20,6 +24,9 @@ extern struct CurrentData Current ;
 
 void F_Normal(F_ARG)
 {
+#if !defined(HAVE_KERNEL)
+  Message::Error("F_Normal requires Kernel");
+#else
   int  k ;
 
   if(!Current.Element || Current.Element->Num == NO_ELEMENT)
@@ -45,10 +52,14 @@ void F_Normal(F_ARG)
     }
   }
   V->Type = VECTOR ;
+#endif
 }
 
 void F_NormalSource(F_ARG)
 {
+#if !defined(HAVE_KERNEL)
+  Message::Error("F_NormalSource requires Kernel");
+#else
   int  k ;
 
   if(!Current.ElementSource || Current.ElementSource->Num == NO_ELEMENT)
@@ -74,6 +85,7 @@ void F_NormalSource(F_ARG)
     }
   }
   V->Type = VECTOR ;
+#endif
 }
 
 void F_Tangent(F_ARG)
@@ -158,6 +170,9 @@ void F_TangentSource(F_ARG)
 
 void F_ElementVol(F_ARG)
 {
+#if !defined(HAVE_KERNEL)
+  Message::Error("F_ElementVol requires Kernel");
+#else
   int k;
   double Vol = 0.;
   MATRIX3x3 Jac;
@@ -208,10 +223,14 @@ void F_ElementVol(F_ARG)
     V->Val[MAX_DIM* k] = V->Val[0] ;
     V->Val[MAX_DIM* (k+1)] = 0. ;
   }
+#endif
 }
 
 void F_SurfaceArea(F_ARG)
 {
+#if !defined(HAVE_KERNEL)
+  Message::Error("F_SurfaceArea requires Kernel");
+#else
   struct Element  Element ;
 
   // FIXME: TODO redo integration when parameters change!
@@ -299,10 +318,14 @@ void F_SurfaceArea(F_ARG)
     V->Val[MAX_DIM* k] = V->Val[0] ;
     V->Val[MAX_DIM* (k+1)] = 0. ;
   }
+#endif
 }
 
 void F_GetVolume(F_ARG)
 {
+#if !defined(HAVE_KERNEL)
+  Message::Error("F_GetVolume requires Kernel");
+#else
   struct Element  Element ;
   List_T  * InitialList_L;
 
@@ -390,7 +413,7 @@ void F_GetVolume(F_ARG)
     V->Val[MAX_DIM* k] = V->Val[0] ;
     V->Val[MAX_DIM* (k+1)] = 0. ;
   }
-
+#endif
 }
 
 void F_GetNumElement(F_ARG)
@@ -409,6 +432,9 @@ void F_GetNumElement(F_ARG)
 
 void F_GetNumElements(F_ARG)
 {
+#if !defined(HAVE_KERNEL)
+  Message::Error("F_GetNumElements requires Kernel");
+#else
   struct Element  Element ;
 
   if (!Fct->Active) {
@@ -457,10 +483,14 @@ void F_GetNumElements(F_ARG)
     V->Val[MAX_DIM* k] = V->Val[0] ;
     V->Val[MAX_DIM* (k+1)] = 0. ;
   }
+#endif
 }
 
 void F_GetNumNodes(F_ARG)
 {
+#if !defined(HAVE_KERNEL)
+  Message::Error("F_GetNumNodes requires Kernel");
+#else
   // TODO: accept arguments to limit to some regions
   V->Type = SCALAR ;
   V->Val[0] = Geo_GetNbrGeoNodes() ;
@@ -469,10 +499,14 @@ void F_GetNumNodes(F_ARG)
     V->Val[MAX_DIM* k] = V->Val[0] ;
     V->Val[MAX_DIM* (k+1)] = 0. ;
   }
+#endif
 }
 
 void F_CellSize(F_ARG)
 {
+#if !defined(HAVE_KERNEL)
+  Message::Error("F_CellSize requires Kernel");
+#else
   double cellSize, Vol;
   MATRIX3x3 Jac;
   double  c11, c21, c12, c22, DetJac;
@@ -542,10 +576,14 @@ void F_CellSize(F_ARG)
     V->Val[MAX_DIM* k] = V->Val[0] ;
     V->Val[MAX_DIM* (k+1)] = 0. ;
   }
+#endif
 }
 
 void F_SquNormEdgeValues(F_ARG)
 {
+#if !defined(HAVE_KERNEL)
+  Message::Error("F_SquNormEdgeValues requires Kernel");
+#else
   struct Geo_Element  *GeoElement;
   int                  i, *NumNodes;
   double               x [NBR_MAX_NODES_IN_ELEMENT] ;
@@ -614,6 +652,7 @@ void F_SquNormEdgeValues(F_ARG)
     V->Val[MAX_DIM* k] = V->Val[0] ;
     V->Val[MAX_DIM* (k+1)] = 0. ;
   }
+#endif
 }
 
 static double POINT_TO_PROJECT[3], ELLIPSE_PARAMETERS[2];

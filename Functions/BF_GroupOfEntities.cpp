@@ -4,9 +4,14 @@
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
 #include <stdlib.h>
+#include "GetDPConfig.h"
 #include "ProData.h"
 #include "BF.h"
+#include "Message.h"
+
+#if defined(HAVE_KERNEL)
 #include "Get_Geometry.h"
+#endif
 
 #define ARGS 					\
   struct Element * Element, int NumGroup, 	\
@@ -263,6 +268,11 @@ void BF_GroupOfNodesZ(struct Element * Element, int NumGroup,
 /* ------------------------------------------------------------------------ */
 /*  B F _ G r o u p O f N o d e X ,  Y ,  Z _ D . . .                       */
 /* ------------------------------------------------------------------------ */
+
+#if !defined(HAVE_KERNEL)
+#define ChangeOfCoord_Form1(Element, su, s) \
+  Message::Error("ChangeOfCoord_Form1 requires Kernel");
+#endif
 
 void BF_GroupOfNodesX_D12(struct Element * Element, int NumNode,
 			  double u, double v, double w,  double s[])

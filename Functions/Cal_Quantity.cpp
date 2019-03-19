@@ -6,24 +6,33 @@
 #include <string.h>
 #include <math.h>
 #include <map>
+#include "GetDPConfig.h"
 #include "ProData.h"
-#include "GeoData.h"
 #include "DofData.h"
 #include "F.h"
 #include "Cal_Quantity.h"
 #include "Cal_Value.h"
+#include "MallocUtils.h"
+#include "Message.h"
+#include "ProParser.h"
+
+#if defined(HAVE_KERNEL)
+#include "GeoData.h"
 #include "Get_Geometry.h"
 #include "Pos_FemInterpolation.h"
 #include "Pos_Search.h"
 #include "Get_FunctionValue.h"
-#include "MallocUtils.h"
-#include "Message.h"
-#include "ProParser.h"
 #include "Pos_Format.h"
+#endif
 
 extern struct Problem Problem_S ;
 extern struct CurrentData Current ;
+
+#if defined(HAVE_KERNEL)
 extern int TreatmentStatus ;
+#else
+const int TreatmentStatus = 0; // FIXME
+#endif
 
 /* ------------------------------------------------------------------------ */
 /*  G e t _ V a l u e O f E x p r e s s i o n                               */
@@ -197,6 +206,9 @@ void Cal_SolidAngle(int Source, struct Element *Element,
 		    int Nbr_Dof, int Index,
 		    struct Value **Stack)
 {
+#if !defined(HAVE_KERNEL)
+  Message::Error("Cal_SolidAngle requires Kernel");
+#else
   struct Element     *Elt ;
   struct Geo_Element *GeoElement ;
   struct Geo_Node    *GeoNode1, *GeoNode2, *GeoNode3 ;
@@ -305,6 +317,7 @@ void Cal_SolidAngle(int Source, struct Element *Element,
     Elt->NumLastElementForSolidAngle = Elt->Num ;
     for(i=0 ; i<Nbr_Dof ; i++) Elt->angle[i] = Stack[i][Index].Val[0] ;
   }
+#endif
 }
 
 /* ------------------------------------------------------------------------ */
@@ -374,6 +387,7 @@ void Cal_WholeQuantity(struct Element * Element,
       Save_Region = Current.Region ;
       Save_CurrentElement = Current.Element ;
       if (i_WQ != DofIndexInWholeQuantity){ /* Attention!!! || TreatmentStatus == STATUS_POS){  */
+#if defined(HAVE_KERNEL)
 	Pos_FemInterpolation
 	  (Element,
 	   QuantityStorage_P0,
@@ -381,6 +395,9 @@ void Cal_WholeQuantity(struct Element * Element,
 	   WholeQuantity_P->Case.OperatorAndQuantity.TypeQuantity,
 	   WholeQuantity_P->Case.OperatorAndQuantity.TypeOperator, -1, 0,
 	   u, v, w, 0, 0, 0, Stack[0][Index].Val, &Stack[0][Index].Type, 1) ;
+#else
+        Message::Error("TODO Post_FemInterpolation");
+#endif
 	Multi[Index] = 0 ;
       }
       else {
@@ -392,8 +409,12 @@ void Cal_WholeQuantity(struct Element * Element,
       break ;
 
     case WQ_ORDER : /* Order[{qty}] */
+#if defined(HAVE_KERNEL)
       Order = Cal_InterpolationOrder
 	(Element, QuantityStorage_P0 + WholeQuantity_P->Case.OperatorAndQuantity.Index) ;
+#else
+        Message::Error("TODO Cal_InterpolationOrder");
+#endif
       for (k = 0 ; k < Current.NbrHar ; k += 2) {
 	Stack[0][Index].Val[MAX_DIM* k   ] = Order ;
 	Stack[0][Index].Val[MAX_DIM*(k+1)] = 0. ;
@@ -429,6 +450,7 @@ void Cal_WholeQuantity(struct Element * Element,
 	    Z = Stack[0][Index  ].Val[2] ;
 	    Type_Dimension = (int)Stack[0][Index+1].Val[0] ;
 	  }
+#if defined(HAVE_KERNEL)
 	  Pos_FemInterpolation
 	    (Element,
 	     QuantityStorage_P0,
@@ -436,6 +458,9 @@ void Cal_WholeQuantity(struct Element * Element,
 	     WholeQuantity_P->Case.OperatorAndQuantity.TypeQuantity,
 	     WholeQuantity_P->Case.OperatorAndQuantity.TypeOperator, Type_Dimension, 1,
 	     u, v, w, X, Y, Z, Stack[0][Index].Val, &Stack[0][Index].Type, 1) ;
+#else
+          Message::Error("TODO Post_FemInterpolation");
+#endif
 	  Multi[Index] = 0 ;
 	  Index++ ;
 	}
@@ -466,6 +491,7 @@ void Cal_WholeQuantity(struct Element * Element,
 	    }
 	  }
 
+#if defined(HAVE_KERNEL)
 	  Pos_FemInterpolation
 	    (Element,
 	     QuantityStorage_P0,
@@ -473,6 +499,9 @@ void Cal_WholeQuantity(struct Element * Element,
 	     WholeQuantity_P->Case.OperatorAndQuantity.TypeQuantity,
 	     WholeQuantity_P->Case.OperatorAndQuantity.TypeOperator, -1, 0,
 	     u, v, w, 0, 0, 0, Stack[0][Index].Val, &Stack[0][Index].Type, 1) ;
+#else
+          Message::Error("TODO Post_FemInterpolation");
+#endif
 
 	  Multi[Index] = 0 ;
 	  Index++ ;
@@ -521,8 +550,12 @@ void Cal_WholeQuantity(struct Element * Element,
 	  Current.y += Element->y[j] * Element->n[j] ;
 	  Current.z += Element->z[j] * Element->n[j] ;
 	}
+#if defined(HAVE_KERNEL)
 	xyz2uvwInAnElement(Element->ElementTrace, Current.x, Current.y, Current.z,
 			   &Current.ut, &Current.vt, &Current.wt) ;
+#else
+        Message::Error("TODO xyz2uvwInAnElement");
+#endif
 	for (j=0; j<NbrArguments; j++) {
           Cal_CopyValue(DofValue + j, &Stack[0][Index]) ;
           Multi[Index] = 0 ;
@@ -1041,10 +1074,13 @@ void Cal_WholeQuantity(struct Element * Element,
         double *Frequencies;
         struct Value *FourierValues;
 
+#if defined(HAVE_KERNEL)
         Pos_FourierTransform(NbrTimeStep, 1, Times, TmpValues, Size,
                              2, nbrFrequencyInFormula,
                              &NbrFreq, &Frequencies, &FourierValues);
-
+#else
+        Message::Error("TODO Pos_FourierTransform");
+#endif
         /*
           we calculate the Sum for all frequencies of frequency_i^exponent_f *
           b_i^exponent_b
