@@ -6,13 +6,22 @@
 #include <stdio.h>
 #include "MainKernel.h"
 #include "Message.h"
+#include "GetDPConfig.h"
+#include "ProData.h"
 #include "getdp.h"
 
 int main(int argc, char **argv)
 {
-#if 1
+#if defined(HAVE_KERNEL)
   Message::SetExitOnError(true);
   MainKernel(argc, argv);
+#else
+  Init_ProblemStructure();
+  Read_ProblemPreamble();
+  if(argc > 1)
+    Read_ProblemStructure(argv[1]);
+  Finalize_ProblemStructure();
+  Print_ProblemStructure();
 #endif
 
 #if 0 // debug memory leaks

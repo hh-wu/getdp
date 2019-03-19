@@ -9,7 +9,12 @@
 #include "Message.h"
 
 extern struct CurrentData Current ;
+
+#if defined(HAVE_KERNEL)
 extern char *Name_Path ;
+#else
+static const char *Name_Path = "";
+#endif
 
 // This file defines a simple interface to Python.
 //

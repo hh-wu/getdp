@@ -363,6 +363,7 @@ endif()
 add_subdirectory(Common)
 add_subdirectory(Interface)
 add_subdirectory(Numeric)
+add_subdirectory(Functions)
 
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/Kernel AND ENABLE_KERNEL)
   add_subdirectory(Kernel)
@@ -718,7 +719,7 @@ endif()
 check_cxx_compiler_flag("-Wall" WALL)
 if(WALL AND NOT MSVC)
   file(GLOB_RECURSE WALL_SRC Common/*.cpp Interface/*.cpp Kernel/*.cpp
-       Main/*.cpp Numeric/*.cpp)
+       Main/*.cpp Numeric/*.cpp Functions/*.cpp)
   set(WF "-Wall")
   check_cxx_compiler_flag("-Wmisleading-indentation" WIND)
   if(WIND)
@@ -788,8 +789,8 @@ if(NOT ENABLE_BUILD_DYNAMIC AND NOT ENABLE_BUILD_SHARED)
 endif()
 
 # we could specify include dirs more selectively, but this is simpler
-include_directories(Common Interface Kernel Numeric ${EXTERNAL_INCLUDES}
-                    ${CMAKE_CURRENT_BINARY_DIR}/Common)
+include_directories(Common Interface Kernel Numeric Functions
+                    ${EXTERNAL_INCLUDES} ${CMAKE_CURRENT_BINARY_DIR}/Common)
 
 # set this for external codes that might include this CMakeList file
 set(GETDP_EXTERNAL_INCLUDE_DIRS ${EXTERNAL_INCLUDES} CACHE
