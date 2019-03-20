@@ -3,10 +3,14 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
+#include "GetDPConfig.h"
 #include "ProData.h"
 #include "BF.h"
-#include "Get_Geometry.h"
 #include "Message.h"
+
+#if defined(HAVE_KERNEL)
+#include "Get_Geometry.h"
+#endif
 
 #define ARGS					\
   struct Element * Element, int NumNode,	\
@@ -49,6 +53,11 @@ void BF_NodeZ_3V(ARGS) { BF("BF_NodeZ_3V", BF_Node_3V, 2, 0, 1) ; }
 /* ------------------------------------------------------------------------ */
 /*  B F _ N o d e X ,  Y ,  Z _ D . . .                                     */
 /* ------------------------------------------------------------------------ */
+
+#if !defined(HAVE_KERNEL)
+#define ChangeOfCoord_Form1(Element, su, s) \
+  Message::Error("ChangeOfCoord_Form1 requires Kernel");
+#endif
 
 void BF_NodeX_D12(struct Element * Element, int NumNode,
 		  double u, double v, double w,  double s[])

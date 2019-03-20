@@ -11,12 +11,13 @@
 
 #if defined(HAVE_KERNEL)
 #include "Gauss.h"
+#endif
+
 #include "F.h"
 #include "BF.h"
 #include "GF.h"
 #include "Cal_Value.h"
 extern struct CurrentData Current;
-#endif
 
 struct StringXDefine  Mesh_Format[] = {
   {"gmsh"  , FORMAT_GMSH}, {"Gmsh"  , FORMAT_GMSH},
@@ -279,7 +280,6 @@ struct StringXDefine  NormOf_Type[] = {
 } ;
 
 struct StringXPointer  Current_Value[] = {
-#if defined(HAVE_KERNEL)
   {"Time"     , &Current.Time},       {"DTime"     , &Current.DTime},
   {"Theta"    , &Current.Theta},      {"TimeStep"  , &Current.TimeStep},
   {"Iter"      , &Current.Iteration},
@@ -315,7 +315,6 @@ struct StringXPointer  Current_Value[] = {
   {"KSPIterations", &Current.KSPIterations}, {"KSPIts", &Current.KSPIterations},
   {"KSPIteration", &Current.KSPIteration},
   {"KSPResidual", &Current.KSPResidual},
-#endif
   {NULL       , NULL}
 } ;
 
@@ -411,6 +410,20 @@ struct DefineXFunction  FunctionForGauss[] = {
   {TRIANGLE_2     , (CAST)Gauss_Triangle},
   {QUADRANGLE_2   , (CAST)Gauss_Quadrangle},
   {QUADRANGLE_2_8N, (CAST)Gauss_Quadrangle},
+#else
+  {POINT          , NULL},
+  {LINE           , NULL},
+  {TRIANGLE       , NULL},
+  {QUADRANGLE     , NULL},
+  {TETRAHEDRON    , NULL},
+  {TETRAHEDRON_2  , NULL},
+  {HEXAHEDRON     , NULL},
+  {PRISM          , NULL},
+  {PYRAMID        , NULL},
+  {LINE_2         , NULL},
+  {TRIANGLE_2     , NULL},
+  {QUADRANGLE_2   , NULL},
+  {QUADRANGLE_2_8N, NULL},
 #endif
   {0              , 0}
 } ;
@@ -419,6 +432,9 @@ struct DefineXFunction  FunctionForSingularGauss[] = {
 #if defined(HAVE_KERNEL)
   {TRIANGLE       , (CAST)GaussSingularR_Triangle},
   {QUADRANGLE     , (CAST)GaussSingularR_Quadrangle},
+#else
+  {TRIANGLE       , NULL},
+  {QUADRANGLE     , NULL},
 #endif
   {0              , 0}
 } ;
@@ -431,6 +447,13 @@ struct DefineXFunction  FunctionForGaussLegendre[] = {
   {QUADRANGLE     , (CAST)GaussLegendre_Quadrangle},
   {TETRAHEDRON    , (CAST)GaussLegendre_Tetrahedron},
   {HEXAHEDRON     , (CAST)GaussLegendre_Hexahedron},
+#else
+  {POINT          , NULL},
+  {LINE           , NULL},
+  {TRIANGLE       , NULL},
+  {QUADRANGLE     , NULL},
+  {TETRAHEDRON    , NULL},
+  {HEXAHEDRON     , NULL},
 #endif
   {0              , 0}
 } ;
@@ -446,7 +469,6 @@ struct DefineXFunction  FunctionForGaussLegendre[] = {
 #define ALL  POI|LIN|TRI|QUA|TET|HEX|PRI|PYR
 
 struct StringX3Function3Nbr  BF_Function[] = {
-#if defined(HAVE_KERNEL)
   // H^1 Basis Functions and their gradients
 
   {"BF_Node",    (CAST)BF_Node,
@@ -906,7 +928,6 @@ struct StringX3Function3Nbr  BF_Function[] = {
 
   {"BF_Global"  , (CAST)BF_Global   , (CAST)BF_dGlobal , (CAST)BF_dInvGlobal , 0. , ALL, 0 },
   {"BF_dGlobal" , (CAST)BF_dGlobal  , (CAST)BF_Zero    , (CAST)BF_Global, 0. , ALL, 0 },
-#endif
 
   {NULL , NULL , NULL , NULL , 0. , ALL, 0 }
 } ;
@@ -926,7 +947,6 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   /* #Par = -1 => free number of Parameters ; = -2 free even number */
   /* #Arg ... same */
 
-#if defined(HAVE_KERNEL)
   // F_Math
   {"Exp"               , (CAST)F_Exp              ,   0,   1 },
   {"Log"               , (CAST)F_Log              ,   0,   1 },
@@ -1247,21 +1267,19 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"GradHelmholtz"     , (CAST)GF_GradHelmholtz    ,   2,   0 },
   {"NPxGradHelmholtz"  , (CAST)GF_NPxGradHelmholtz ,   2,   0 },
   {"NSxGradHelmholtz"  , (CAST)GF_NSxGradHelmholtz ,   2,   0 },
-#endif
 
   {NULL                , NULL                      ,   0,   0 }
 
 } ;
 
 struct FunctionXFunction  GF_Function[] = {
-#if defined(HAVE_KERNEL)
   {(CAST)GF_Laplace         , (CAST)GF_LaplacexForm        } ,
   {(CAST)GF_GradLaplace     , (CAST)GF_GradLaplacexForm    } ,
   {(CAST)GF_NPxGradLaplace  , (CAST)GF_NPxGradLaplacexForm } ,
   {(CAST)GF_NSxGradLaplace  , (CAST)GF_NSxGradLaplacexForm } ,
   {(CAST)GF_ApproximateLaplace  , (CAST)GF_ApproximateLaplacexForm  } ,
   {(CAST)GF_Helmholtz         , (CAST)GF_HelmholtzxForm        } ,
-#endif
+
   {NULL                       , NULL }
 } ;
 

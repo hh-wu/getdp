@@ -8,13 +8,17 @@
 //
 
 #include <math.h>
+#include "GetDPConfig.h"
 #include "ProData.h"
 #include "ProDefine.h"
 #include "BF.h"
 #include "GF.h"
+#include "Message.h"
+
+#if defined(HAVE_KERNEL)
 #include "Gauss.h"
 #include "GeoData.h"
-#include "Message.h"
+#endif
 
 #define SQU(a)     ((a)*(a))
 #define CUB(a)     ((a)*(a)*(a))
@@ -29,6 +33,9 @@
 
 void GF_HelmholtzxForm(GF_ARGX)
 {
+#if !defined(HAVE_KERNEL)
+  Message::Error("GF_HelmholtzxForm requires Kernel");
+#else
   double   xs[MAX_NODES], ys[MAX_NODES], zs[MAX_NODES], u[3], v[3], n[3], l2[2];
   double   xl, yl, zl ;
   int      i, j = 1 ;
@@ -157,4 +164,5 @@ void GF_HelmholtzxForm(GF_ARGX)
 	       (int)Fct->Para[0]);
 
   }
+#endif
 }

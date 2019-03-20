@@ -8,12 +8,16 @@
 //
 
 #include <math.h>
+#include "GetDPConfig.h"
 #include "ProData.h"
 #include "ProDefine.h"
 #include "BF.h"
 #include "GF.h"
-#include "GeoData.h"
 #include "Message.h"
+
+#if defined(HAVE_KERNEL)
+#include "GeoData.h"
+#endif
 
 #define SQU(a)     ((a)*(a))
 #define THESIGN(a) ((a)>=0 ? 1 : -1)
@@ -31,6 +35,9 @@
 
 void GF_LaplacexForm(GF_ARGX)
 {
+#if !defined(HAVE_KERNEL)
+  Message::Error("GF_LaplacexForm requires Kernel");
+#else
   double   xs[MAX_NODES], ys[MAX_NODES], zs[MAX_NODES], u[3], v[3], n[3];
   double   u2=0., v2=0., xl=0., yl=0., zl=0., zl_2=0. ;
   double   Area, m0[3], m1[3], m2[3] ;
@@ -324,6 +331,7 @@ void GF_LaplacexForm(GF_ARGX)
 	(int)Fct->Para[0]);
 
   }
+#endif
 }
 
 /* ------------------------------------------------------------------------ */
@@ -332,6 +340,9 @@ void GF_LaplacexForm(GF_ARGX)
 
 void GF_GradLaplacexForm(GF_ARGX)
 {
+#if !defined(HAVE_KERNEL)
+  Message::Error("GF_GradLaplacexForm requires Kernel");
+#else
   double  xs[MAX_NODES], ys[MAX_NODES], zs[MAX_NODES] ;
   double  xxs, yys, r2, EPS ;
   double  a, b, c, a2, I1, I2 ;
@@ -611,6 +622,7 @@ void GF_GradLaplacexForm(GF_ARGX)
 	(int)Fct->Para[0]);
 
   }
+#endif
 }
 
 /* ------------------------------------------------------------------------ */
@@ -619,6 +631,9 @@ void GF_GradLaplacexForm(GF_ARGX)
 
 void GF_NPxGradLaplacexForm(GF_ARGX)
 {
+#if !defined(HAVE_KERNEL)
+  Message::Error("GF_NPGradLaplacexForm requires Kernel");
+#else
   double  xs[MAX_NODES], ys[MAX_NODES] ;
   double  xp[MAX_NODES], yp[MAX_NODES], N[3] ;
   int     Type_Int;
@@ -715,6 +730,7 @@ void GF_NPxGradLaplacexForm(GF_ARGX)
     Message::Error("Unknown Dimension (%d) for 'GF_NPxGradLaplacexForm'",
 	(int)Fct->Para[0]);
   }
+#endif
 }
 
 

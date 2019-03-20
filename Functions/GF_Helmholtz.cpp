@@ -8,11 +8,15 @@
 //
 
 #include <math.h>
+#include "GetDPConfig.h"
 #include "ProData.h"
 #include "GF.h"
 #include "Cal_Value.h"
-#include "GeoData.h"
 #include "Message.h"
+
+#if defined(HAVE_KERNEL)
+#include "GeoData.h"
+#endif
 
 #define SQU(a)     ((a)*(a))
 #define CUB(a)     ((a)*(a)*(a))
@@ -172,6 +176,9 @@ void GF_GradHelmholtz(GF_ARG)
 
 void GF_NPxGradHelmholtz(GF_ARG)
 {
+#if !defined(HAVE_KERNEL)
+  Message::Error("GF_NPxGradHelmholtz requires Kernel");
+#else
   double  N[3] ;
   struct Value ValGrad ;
 
@@ -205,6 +212,7 @@ void GF_NPxGradHelmholtz(GF_ARG)
     Message::Error("Bad Parameter for 'GF_NPxGradHelmholtz' (%d)", (int)Fct->Para[0]);
     break;
   }
+#endif
 }
 
 /* ------------------------------------------------------------------------ */

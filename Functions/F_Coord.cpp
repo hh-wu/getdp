@@ -4,11 +4,15 @@
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
 #include <stdlib.h>
+#include "GetDPConfig.h"
 #include "ProData.h"
-#include "GeoData.h"
 #include "F.h"
-#include "Get_Geometry.h"
 #include "Message.h"
+
+#if defined(HAVE_KERNEL)
+#include "GeoData.h"
+#include "Get_Geometry.h"
+#endif
 
 extern struct CurrentData Current ;
 
@@ -18,6 +22,9 @@ extern struct CurrentData Current ;
 
 void F_CoordXYZ(F_ARG)
 {
+#if !defined(HAVE_KERNEL)
+  Message::Error("F_CoordXYZ requires Kernel");
+#else
   int     i, k ;
   double  X, Y, Z ;
 
@@ -37,22 +44,23 @@ void F_CoordXYZ(F_ARG)
     }
   }
 
-  if (Current.NbrHar == 1){ 
-    V->Val[0] = X ; 
-    V->Val[1] = Y ; 
-    V->Val[2] = Z ;    
-  } 
+  if (Current.NbrHar == 1){
+    V->Val[0] = X ;
+    V->Val[1] = Y ;
+    V->Val[2] = Z ;
+  }
   else {
     for (k = 0 ; k < Current.NbrHar ; k+=2) {
-      V->Val[MAX_DIM* k     ] = X ; 
-      V->Val[MAX_DIM* k   +1] = Y ; 
+      V->Val[MAX_DIM* k     ] = X ;
+      V->Val[MAX_DIM* k   +1] = Y ;
       V->Val[MAX_DIM* k   +2] = Z ;
-      V->Val[MAX_DIM*(k+1)  ] = 0. ; 
-      V->Val[MAX_DIM*(k+1)+1] = 0. ; 
+      V->Val[MAX_DIM*(k+1)  ] = 0. ;
+      V->Val[MAX_DIM*(k+1)+1] = 0. ;
       V->Val[MAX_DIM*(k+1)+2] = 0. ;
     }
   }
   V->Type = VECTOR ;
+#endif
 }
 
 void F_CoordXYZS(F_ARG)
@@ -64,18 +72,18 @@ void F_CoordXYZS(F_ARG)
   Y = Current.ys ;
   Z = Current.zs ;
 
-  if (Current.NbrHar == 1){ 
-    V->Val[0] = X ; 
-    V->Val[1] = Y ; 
-    V->Val[2] = Z ;    
-  } 
+  if (Current.NbrHar == 1){
+    V->Val[0] = X ;
+    V->Val[1] = Y ;
+    V->Val[2] = Z ;
+  }
   else {
     for (k = 0 ; k < Current.NbrHar ; k+=2) {
-      V->Val[MAX_DIM* k     ] = X ; 
-      V->Val[MAX_DIM* k   +1] = Y ; 
+      V->Val[MAX_DIM* k     ] = X ;
+      V->Val[MAX_DIM* k   +1] = Y ;
       V->Val[MAX_DIM* k   +2] = Z ;
-      V->Val[MAX_DIM*(k+1)  ] = 0. ; 
-      V->Val[MAX_DIM*(k+1)+1] = 0. ; 
+      V->Val[MAX_DIM*(k+1)  ] = 0. ;
+      V->Val[MAX_DIM*(k+1)+1] = 0. ;
       V->Val[MAX_DIM*(k+1)+2] = 0. ;
     }
   }
@@ -86,6 +94,7 @@ void F_CoordXYZS(F_ARG)
 /*  Get the X, Y or Z coordinate                                            */
 /* ------------------------------------------------------------------------ */
 
+#if defined(HAVE_KERNEL)
 #define get_1_coord(name, coord)						\
   int     i, k;									\
   double  tmp;									\
@@ -111,6 +120,10 @@ void F_CoordXYZS(F_ARG)
     }										\
   }										\
   V->Type = SCALAR ;
+#else
+#define get_1_coord(name, coord)						\
+  Message::Error("%s requires Kernel", name);
+#endif
 
 void F_CoordX(F_ARG){ get_1_coord("F_CoordX",x) }
 void F_CoordY(F_ARG){ get_1_coord("F_CoordY",y) }
@@ -146,22 +159,26 @@ void F_CoordZS(F_ARG){ get_1_coord_source("F_CoordZS",zs) }
 
 void F_aX_bY_cZ(F_ARG)
 {
+#if !defined(HAVE_KERNEL)
+  Message::Error("F_aX_bY_cZ requires Kernel");
+#else
   int     k ;
   double  X, Y, Z, tmp ;
 
   Geo_GetNodesCoordinates(1, &Current.NumEntity, &X, &Y, &Z) ;
 
-  if (Current.NbrHar == 1){ 
+  if (Current.NbrHar == 1){
     V->Val[0] = Fct->Para[0] * X + Fct->Para[1] * Y + Fct->Para[2] * Z ;
   }
   else {
     tmp = Fct->Para[0] * X + Fct->Para[1] * Y + Fct->Para[2] * Z ;
     for (k = 0 ; k < Current.NbrHar ; k+=2) {
-      V->Val[MAX_DIM* k     ] = tmp ; 
-      V->Val[MAX_DIM*(k+1)  ] = 0. ; 
+      V->Val[MAX_DIM* k     ] = tmp ;
+      V->Val[MAX_DIM*(k+1)  ] = 0. ;
     }
   }
   V->Type = SCALAR ;
+#endif
 }
 
 
@@ -171,13 +188,16 @@ void F_aX_bY_cZ(F_ARG)
 
 void F_aX21_bY21_cZ21 (F_ARG)
 {
+#if !defined(HAVE_KERNEL)
+  Message::Error("F_aX21_bY21_cZ21 requires Kernel");
+#else
   int     k, * NumNodes ;
   double  X1, Y1, Z1, X2, Y2, Z2, tmp ;
 
   if(!Current.Element || Current.Element->Num == NO_ELEMENT)
     Message::Error("No element on which to perform F_aX21_bY21_cZ21");
 
-  NumNodes = Geo_GetNodesOfEdgeInElement (Current.Element->GeoElement, 
+  NumNodes = Geo_GetNodesOfEdgeInElement (Current.Element->GeoElement,
 					  Current.NumEntityInElement) ;
   Get_NodesCoordinatesOfElement(Current.Element) ;
   X1 = Current.Element->x[abs(NumNodes[0])-1] ;
@@ -192,14 +212,15 @@ void F_aX21_bY21_cZ21 (F_ARG)
   if (Current.Element->GeoElement->NumEdges[Current.NumEntityInElement] < 0)
     tmp *= -1. ;
 
-  if (Current.NbrHar == 1){ 
+  if (Current.NbrHar == 1){
     V->Val[0] = tmp ;
   }
   else {
     for (k = 0 ; k < Current.NbrHar ; k+=2) {
-      V->Val[MAX_DIM* k     ] = tmp ; 
-      V->Val[MAX_DIM*(k+1)  ] = 0. ; 
-    }    
+      V->Val[MAX_DIM* k     ] = tmp ;
+      V->Val[MAX_DIM*(k+1)  ] = 0. ;
+    }
   }
   V->Type = SCALAR ;
+#endif
 }

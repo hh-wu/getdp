@@ -4,9 +4,13 @@
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
 #include <stdlib.h>
+#include "GetDPConfig.h"
 #include "ProData.h"
-#include "GeoData.h"
 #include "Message.h"
+
+#if defined(HAVE_KERNEL)
+#include "GeoData.h"
+#endif
 
 /* The non-symmetric facet functions are selected according to the
    NumIndex^th smallest global node number */
@@ -18,6 +22,11 @@ int fcmp_Int2(const void * a, const void * b)
 
 int Get_FacetFunctionIndex(struct Element * Element, int NumEntity, int NumIndex)
 {
+#if !defined(HAVE_KERNEL)
+  Message::Error("Get_FacetFunctionIndex requires Kernel");
+  return 0;
+#else
+
   int i, j, *NumNodes ;
 
   if(Element->NumLastElementForSortedNodesByFacet != Element->Num){
@@ -39,6 +48,7 @@ int Get_FacetFunctionIndex(struct Element * Element, int NumEntity, int NumIndex
   }
 
   return Element->SortedNodesByFacet[NumEntity-1][NumIndex-1].Int1;
+#endif
 }
 
 

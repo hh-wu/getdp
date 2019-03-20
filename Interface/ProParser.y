@@ -1189,138 +1189,104 @@ WholeQuantity :
   | WholeQuantity '*' WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_TIME;
-#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_ProductValue;
-#endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
   | WholeQuantity tCROSSPRODUCT WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_CROSSPRODUCT;
-#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_CrossProductValue;
-#endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
   | tCrossProduct '[' WholeQuantity ',' WholeQuantity ']'
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_CROSSPRODUCT;
-#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_CrossProductValue;
-#endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
   | WholeQuantity '/' WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_DIVIDE;
-#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_DivideValue;
-#endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
   | WholeQuantity '+' WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_PLUS;
-#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_AddValue;
-#endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
   | WholeQuantity '-' WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_MINUS;
-#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_SubstractValue;
-#endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
   | WholeQuantity '%' WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_MODULO;
-#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_ModuloValue;
-#endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
   | WholeQuantity '^' WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_POWER;
-#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_PowerValue;
-#endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
   | WholeQuantity '<' WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_LESS;
-#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_LessValue;
-#endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
   | WholeQuantity '>' WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_GREATER;
-#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_GreaterValue;
-#endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
   | WholeQuantity tLESSOREQUAL WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_LESSOREQUAL;
-#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_LessOrEqualValue;
-#endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
   | WholeQuantity tGREATEROREQUAL WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_GREATEROREQUAL;
-#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_GreaterOrEqualValue;
-#endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
   | WholeQuantity tEQUAL WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_EQUAL;
-#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_EqualValue;
-#endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
 
    | WholeQuantity tNOTEQUAL WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_NOTEQUAL;
-#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_NotEqualValue;
-#endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
   | WholeQuantity tAPPROXEQUAL WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_APPROXEQUAL;
-#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_ApproxEqualValue;
-#endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
   | WholeQuantity tAND WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_AND;
-#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_AndValue;
-#endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
   | WholeQuantity tOR WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_OR;
-#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_OrValue;
-#endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
 
@@ -1334,9 +1300,7 @@ WholeQuantity :
   | '-' WholeQuantity %prec UNARYPREC
     { WholeQuantity_S.Type = WQ_UNARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_NEG;
-#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_NegValue;
-#endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S); }
 
   | '+' WholeQuantity %prec UNARYPREC
@@ -1344,9 +1308,7 @@ WholeQuantity :
   | '!' WholeQuantity
     { WholeQuantity_S.Type = WQ_UNARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_NOT;
-#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_NotValue;
-#endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S); }
 
   | '<' tChangeCurrentPosition '[' WholeQuantity ']' '>'
@@ -2068,7 +2030,7 @@ QuadratureCase :
       QuadratureCase_S.NumberOfDivisions = 1;
       QuadratureCase_S.MaxNumberOfDivisions = 1;
       QuadratureCase_S.StoppingCriterion = 1.E-4;
-      QuadratureCase_S.Function = 0; //FIXME(void (*)())Gauss_Triangle;
+      QuadratureCase_S.Function = NULL;
     }
 
   | QuadratureCase QuadratureCaseTerm
