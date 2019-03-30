@@ -18,11 +18,11 @@ variables:
 # ---------------------------------------------
 
 linux64_ci:
-  image: onelab/ubuntu18.04
+  image: onelab/ubuntu18.10
   script:
     - mkdir build
     - cd build
-    - cmake ${EXTRA_OPTION} ..
+    - cmake -DENABLE_MPI=1 ${EXTRA_OPTION} ..
     - make -j 8
     - ctest -j 8 --output-on-failure
   tags:
@@ -431,7 +431,7 @@ macos64_official_petsc_real_mh_release:
 # ----------------------------------------------
 
 .source_official: &source_official
-  image: onelab/ubuntu18.04.simple
+  image: onelab/ubuntu18.10
   only:
     - master@getdp/getdp
   <<: *ssh_config
@@ -462,7 +462,7 @@ source_official_release:
 # ----------------------------------------------
 
 doc_official_snapshot:
-  image: onelab/ubuntu18.04.simple
+  image: onelab/ubuntu18.10
   only:
     - master@getdp/getdp
   <<: *ssh_config
@@ -480,7 +480,7 @@ doc_official_snapshot:
     - tags
 
 doc_official_release:
-  image: onelab/ubuntu18.04.simple
+  image: onelab/ubuntu18.10
   variables:
     EXTRA_OPTION: "-DGETDP_RELEASE=1"
   only:
