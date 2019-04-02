@@ -22,6 +22,7 @@ double * Geo_GetNodes_uvw(int Type, int *nbn)
 {
   switch(Type){
   case POINT       : *nbn = NbrNodes_Point ;       return(*Nodes_Point) ;
+
   case LINE        : *nbn = NbrNodes_Line ;        return(*Nodes_Line) ;
   case TRIANGLE    : *nbn = NbrNodes_Triangle ;    return(*Nodes_Triangle) ;
   case QUADRANGLE  : *nbn = NbrNodes_Quadrangle ;  return(*Nodes_Quadrangle) ;
@@ -29,11 +30,13 @@ double * Geo_GetNodes_uvw(int Type, int *nbn)
   case HEXAHEDRON  : *nbn = NbrNodes_Hexahedron ;  return(*Nodes_Hexahedron) ;
   case PRISM       : *nbn = NbrNodes_Prism ;       return(*Nodes_Prism) ;
   case PYRAMID     : *nbn = NbrNodes_Pyramid ;     return(*Nodes_Pyramid) ;
+
   case LINE_2      : *nbn = NbrNodes_Line_2 ;      return(*Nodes_Line_2) ;
   case TRIANGLE_2  : *nbn = NbrNodes_Triangle_2 ;  return(*Nodes_Triangle_2) ;
   case QUADRANGLE_2: *nbn = NbrNodes_Quadrangle_2 ;return(*Nodes_Quadrangle_2) ;
   case QUADRANGLE_2_8N: *nbn = NbrNodes_Quadrangle_2_8N ;return(*Nodes_Quadrangle_2_8N);
   case TETRAHEDRON_2: *nbn = NbrNodes_Tetrahedron_2; return(*Nodes_Tetrahedron_2) ;
+
   default :
     Message::Error("Unknown type of Element in Geo_GetNodes_uvw") ; return(NULL) ;
   }
@@ -106,6 +109,7 @@ int *Geo_GetIM_Den(int Type_Element, int * Nbe)
 
   switch (Type_Element) {
   case POINT :       *Nbe = NbrEdges_Point       ; return(NULL) ;
+
   case LINE :        *Nbe = NbrEdges_Line        ; return(*Den_Line) ;
   case TRIANGLE :    *Nbe = NbrEdges_Triangle    ; return(*Den_Triangle) ;
   case QUADRANGLE :  *Nbe = NbrEdges_Quadrangle  ; return(*Den_Quadrangle) ;
@@ -113,11 +117,13 @@ int *Geo_GetIM_Den(int Type_Element, int * Nbe)
   case HEXAHEDRON :  *Nbe = NbrEdges_Hexahedron  ; return(*Den_Hexahedron) ;
   case PRISM :       *Nbe = NbrEdges_Prism       ; return(*Den_Prism) ;
   case PYRAMID :     *Nbe = NbrEdges_Pyramid     ; return(*Den_Pyramid) ;
+
   case LINE_2 :      *Nbe = NbrEdges_Line_2      ; return(*Den_Line_2) ;
   case TRIANGLE_2 :  *Nbe = NbrEdges_Triangle_2  ; return(*Den_Triangle_2) ;
   case QUADRANGLE_2 :*Nbe = NbrEdges_Quadrangle_2; return(*Den_Quadrangle_2) ;
   case QUADRANGLE_2_8N :*Nbe = NbrEdges_Quadrangle_2_8N; return(*Den_Quadrangle_2_8N) ;
   case TETRAHEDRON_2 : *Nbe = NbrEdges_Tetrahedron_2; return(*Den_Tetrahedron_2) ;
+
   default :
     Message::Error("Unknown incidence matrix for element type %d", Type_Element);
     return(NULL) ;
@@ -132,6 +138,7 @@ int *Geo_GetIM_Dfe(int Type_Element, int * Nbf)
 {
   switch (Type_Element) {
   case POINT :       *Nbf = NbrFacets_Point       ; return(NULL) ;
+
   case LINE :        *Nbf = NbrFacets_Line        ; return(NULL) ;
   case TRIANGLE :    *Nbf = NbrFacets_Triangle    ; return(*Dfe_Triangle) ;
   case QUADRANGLE :  *Nbf = NbrFacets_Quadrangle  ; return(*Dfe_Quadrangle) ;
@@ -139,11 +146,13 @@ int *Geo_GetIM_Dfe(int Type_Element, int * Nbf)
   case HEXAHEDRON :  *Nbf = NbrFacets_Hexahedron  ; return(*Dfe_Hexahedron) ;
   case PRISM :       *Nbf = NbrFacets_Prism       ; return(*Dfe_Prism) ;
   case PYRAMID :     *Nbf = NbrFacets_Pyramid     ; return(*Dfe_Pyramid) ;
+
   case LINE_2 :      *Nbf = NbrFacets_Line_2      ; return(NULL) ;
   case TRIANGLE_2 :  *Nbf = NbrFacets_Triangle_2  ; return(*Dfe_Triangle_2) ;
   case QUADRANGLE_2 :*Nbf = NbrFacets_Quadrangle_2; return(*Dfe_Quadrangle_2) ;
   case QUADRANGLE_2_8N :*Nbf = NbrFacets_Quadrangle_2_8N; return(*Dfe_Quadrangle_2_8N) ;
   case TETRAHEDRON_2 : *Nbf = NbrFacets_Tetrahedron_2; return(*Dfe_Tetrahedron_2);
+
   default :
     Message::Error("Unknown incidence matrix for element type %d", Type_Element);
     return(NULL) ;
@@ -165,11 +174,13 @@ int *Geo_GetIM_Dfn(int Type_Element, int * Nbf)
   case HEXAHEDRON : *Nbf = NbrFacets_Hexahedron  ; return(*Dfn_Hexahedron) ;
   case PRISM :	    *Nbf = NbrFacets_Prism       ; return(*Dfn_Prism) ;
   case PYRAMID :    *Nbf = NbrFacets_Pyramid     ; return(*Dfn_Pyramid) ;
+
   case LINE_2 :     *Nbf = NbrFacets_Line_2      ; return(NULL) ;
   case TRIANGLE_2 : *Nbf = NbrFacets_Triangle_2  ; return(*Dfn_Triangle_2) ;
   case QUADRANGLE_2:*Nbf = NbrFacets_Quadrangle_2; return(*Dfn_Quadrangle_2) ;
   case QUADRANGLE_2_8N:*Nbf = NbrFacets_Quadrangle_2_8N; return(*Dfn_Quadrangle_2_8N) ;
   case TETRAHEDRON_2: *Nbf = NbrFacets_Tetrahedron_2; return(*Dfn_Tetrahedron_2);
+
   default :
     Message::Error("Unknown incidence matrix for element type %d", Type_Element);
     return(NULL) ;
@@ -186,6 +197,7 @@ int * Geo_GetIM_Den_Xp(int Type_Element, int * Nbe, int * Nbn)
   case POINT :
     *Nbe = NbrEdges_Point ; *Nbn = NbrNodes_Point ;
     return(NULL) ;
+
   case LINE :
     *Nbe = NbrEdges_Line ; *Nbn = NbrNodes_Line ;
     return(Den_Line_Xp) ;
@@ -207,6 +219,7 @@ int * Geo_GetIM_Den_Xp(int Type_Element, int * Nbe, int * Nbn)
   case PYRAMID :
     *Nbe = NbrEdges_Pyramid ; *Nbn = NbrNodes_Pyramid ;
     return(Den_Pyramid_Xp) ;
+
   case LINE_2 :
     *Nbe = NbrEdges_Line_2 ; *Nbn = NbrNodes_Line_2 ;
     return(Den_Line_2_Xp) ;
@@ -222,6 +235,7 @@ int * Geo_GetIM_Den_Xp(int Type_Element, int * Nbe, int * Nbn)
   case TETRAHEDRON_2 :
     *Nbe = NbrEdges_Tetrahedron_2 ; *Nbn = NbrNodes_Tetrahedron_2 ;
     return(Den_Tetrahedron_2_Xp) ;
+
   default :
     Message::Error("Unknown incidence matrix for element type %d", Type_Element);
     return(NULL) ;
@@ -238,6 +252,7 @@ int * Geo_GetIM_Dfe_Xp(int Type_Element, int * nbf, int * nbe)
   case POINT :
     *nbf = NbrFacets_Point ; *nbe = NbrEdges_Point ;
     return(NULL) ;
+
   case LINE :
     *nbf = NbrFacets_Line ; *nbe = NbrEdges_Line ;
     return(NULL) ;
@@ -259,6 +274,7 @@ int * Geo_GetIM_Dfe_Xp(int Type_Element, int * nbf, int * nbe)
   case PYRAMID :
     *nbf = NbrFacets_Pyramid ; *nbe = NbrEdges_Pyramid ;
     return(Dfe_Pyramid_Xp) ;
+
   case LINE_2 :
     *nbf = NbrFacets_Line_2 ; *nbe = NbrEdges_Line_2 ;
     return(NULL) ;
@@ -274,6 +290,7 @@ int * Geo_GetIM_Dfe_Xp(int Type_Element, int * nbf, int * nbe)
   case TETRAHEDRON_2 :
     *nbf = NbrFacets_Tetrahedron_2 ; *nbe = NbrEdges_Tetrahedron_2 ;
     return(Dfe_Tetrahedron_2_Xp) ;
+
   default :
     Message::Error("Unknown incidence matrix for element type %d", Type_Element);
     return(NULL) ;

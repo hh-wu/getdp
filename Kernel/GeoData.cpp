@@ -189,6 +189,7 @@ int Geo_GetElementType(int Format, int Type)
   case FORMAT_GMSH :
     switch(Type){
     case 15 : return POINT;
+
     case 1  : return LINE;
     case 2  : return TRIANGLE;
     case 3  : return QUADRANGLE;
@@ -196,6 +197,7 @@ int Geo_GetElementType(int Format, int Type)
     case 5  : return HEXAHEDRON;
     case 6  : return PRISM;
     case 7  : return PYRAMID;
+
     case 8  : return LINE_2;
     case 9  : return TRIANGLE_2;
     case 10 : return QUADRANGLE_2;
@@ -204,11 +206,25 @@ int Geo_GetElementType(int Format, int Type)
     case 13 : return PRISM_2;
     case 14 : return PYRAMID_2;
     case 16 : return QUADRANGLE_2_8N;
+
+    case 26 : return LINE_3;
+    case 21 : return TRIANGLE_3;
+    case 36 : return QUADRANGLE_3;
+    case 29 : return TETRAHEDRON_3;
+    case 92 : return HEXAHEDRON_3;
+    case 90 : return PRISM_3;
+    case 118 : return PYRAMID_3;
+
     case 27 : return LINE_4;
     case 23 : return TRIANGLE_4;
+    case 37 : return QUADRANGLE_4;
     case 30 : return TETRAHEDRON_4;
+    case 93 : return HEXAHEDRON_4;
+    case 91 : return PRISM_4;
+    case 119 : return PYRAMID_4;
+
     default :
-      Message::Error("Unknown type of Element in Gmsh format (%d)", FORMAT_GMSH);
+      Message::Error("Unknown type of element (%d) in Gmsh format", Type);
       return -1;
     }
     break ;
@@ -224,6 +240,7 @@ int Geo_GetElementTypeInv(int Format, int Type)
   case FORMAT_GMSH :
     switch(Type){
     case POINT         : return 15;
+
     case LINE          : return 1;
     case TRIANGLE      : return 2;
     case QUADRANGLE    : return 3;
@@ -231,6 +248,7 @@ int Geo_GetElementTypeInv(int Format, int Type)
     case HEXAHEDRON    : return 5;
     case PRISM         : return 6;
     case PYRAMID       : return 7;
+
     case LINE_2        : return 8;
     case TRIANGLE_2    : return 9;
     case QUADRANGLE_2  : return 10;
@@ -239,9 +257,22 @@ int Geo_GetElementTypeInv(int Format, int Type)
     case PRISM_2       : return 13;
     case PYRAMID_2     : return 14;
     case QUADRANGLE_2_8N: return 16;
+
+    case LINE_3        : return 26;
+    case TRIANGLE_3    : return 21;
+    case QUADRANGLE_3  : return 36;
+    case TETRAHEDRON_3 : return 29;
+    case HEXAHEDRON_3  : return 92;
+    case PRISM_3       : return 90;
+    case PYRAMID_3     : return 118;
+
     case LINE_4        : return 27;
     case TRIANGLE_4    : return 23;
+    case QUADRANGLE_4  : return 37;
     case TETRAHEDRON_4 : return 30;
+    case HEXAHEDRON_4  : return 93;
+    case PRISM_4       : return 91;
+    case PYRAMID_4     : return 119;
     default :
       Message::Error("Unknown type of Element in Gmsh format");
       return -1;
@@ -257,6 +288,7 @@ int Geo_GetNbNodesPerElement(int Type)
 {
   switch(Type){
   case POINT         : return 1;
+
   case LINE          : return 2;
   case TRIANGLE      : return 3;
   case QUADRANGLE    : return 4;
@@ -264,6 +296,7 @@ int Geo_GetNbNodesPerElement(int Type)
   case HEXAHEDRON    : return 8;
   case PRISM         : return 6;
   case PYRAMID       : return 5;
+
   case LINE_2        : return 3;
   case TRIANGLE_2    : return 6;
   case QUADRANGLE_2  : return 9;
@@ -272,9 +305,23 @@ int Geo_GetNbNodesPerElement(int Type)
   case PRISM_2       : return 15;
   case PYRAMID_2     : return 13;
   case QUADRANGLE_2_8N: return 8;
+
+  case LINE_3        : return 4;
+  case TRIANGLE_3    : return 10;
+  case QUADRANGLE_3  : return 16;
+  case TETRAHEDRON_3 : return 20;
+  case HEXAHEDRON_3  : return 64;
+  case PRISM_3       : return 40;
+  case PYRAMID_3     : return 30;
+
   case LINE_4        : return 5;
   case TRIANGLE_4    : return 15;
+  case QUADRANGLE_4  : return 25;
   case TETRAHEDRON_4 : return 35;
+  case HEXAHEDRON_4  : return 125;
+  case PRISM_4       : return 75;
+  case PYRAMID_4     : return 55;
+
   default :
     Message::Error("Unknown type of Element");
     return -1;
@@ -285,6 +332,7 @@ int Geo_GetDimOfElement(int Type)
 {
   switch(Type){
   case POINT         : return 0;
+
   case LINE          : return 1;
   case TRIANGLE      : return 2;
   case QUADRANGLE    : return 2;
@@ -292,6 +340,7 @@ int Geo_GetDimOfElement(int Type)
   case HEXAHEDRON    : return 3;
   case PRISM         : return 3;
   case PYRAMID       : return 3;
+
   case LINE_2        : return 1;
   case TRIANGLE_2    : return 2;
   case QUADRANGLE_2  : return 2;
@@ -300,9 +349,22 @@ int Geo_GetDimOfElement(int Type)
   case PRISM_2       : return 3;
   case PYRAMID_2     : return 3;
   case QUADRANGLE_2_8N: return 2;
+
+  case LINE_3        : return 1;
+  case TRIANGLE_3    : return 2;
+  case QUADRANGLE_3  : return 2;
+  case TETRAHEDRON_3 : return 3;
+  case HEXAHEDRON_3  : return 3;
+  case PRISM_3       : return 3;
+  case PYRAMID_3     : return 3;
+
   case LINE_4        : return 1;
   case TRIANGLE_4    : return 2;
+  case QUADRANGLE_4  : return 2;
   case TETRAHEDRON_4 : return 3;
+  case HEXAHEDRON_4  : return 3;
+  case PRISM_4       : return 3;
+  case PYRAMID_4     : return 3;
   default :
     Message::Error("Unknown type of Element");
     return -1;
@@ -313,6 +375,8 @@ void Geo_ReverseElement(Geo_Element *Geo_Element)
 {
   int tmp;
   switch(Geo_Element->Type){
+  case POINT :
+    break;
   case LINE :
   case LINE_2 :
     tmp = Geo_Element->NumNodes[0];
@@ -350,6 +414,8 @@ void Geo_ReverseElement(Geo_Element *Geo_Element)
     Geo_Element->NumNodes[6] = tmp;
     break;
   default :
+    Message::Error("Unknown type of element (%d) to reverse",
+                   Geo_Element->Type);
     break;
   }
 }

@@ -65,17 +65,18 @@ void  * Get_JacobianFunction(int Type_Jacobian, int Type_Element,
     case POINT       :
       *Type_Dimension = DIM_0D; return((void *)JacobianVol0D);
 
-    case LINE        : case LINE_2 :
+    case LINE        : case LINE_2       : case LINE_3       : case LINE_4 :
       *Type_Dimension = DIM_1D; return((void *)JacobianVol1D);
 
-    case TRIANGLE    : case TRIANGLE_2   :
+    case TRIANGLE    : case TRIANGLE_2   : case TRIANGLE_3   : case TRIANGLE_4   :
     case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
+    case QUADRANGLE_3: case QUADRANGLE_4 :
       *Type_Dimension = DIM_2D; return((void *)JacobianVol2D);
 
-    case TETRAHEDRON : case TETRAHEDRON_2 :
-    case HEXAHEDRON  : case HEXAHEDRON_2  :
-    case PRISM       : case PRISM_2       :
-    case PYRAMID     : case PYRAMID_2     :
+    case TETRAHEDRON : case TETRAHEDRON_2 : case TETRAHEDRON_3 : case TETRAHEDRON_4 :
+    case HEXAHEDRON  : case HEXAHEDRON_2  : case HEXAHEDRON_3  : case HEXAHEDRON_4  :
+    case PRISM       : case PRISM_2       : case PRISM_3       : case PRISM_4       :
+    case PYRAMID     : case PYRAMID_2     : case PYRAMID_3     : case PYRAMID_4     :
       *Type_Dimension = DIM_3D; return((void *)JacobianVol3D);
 
     default :
@@ -87,14 +88,15 @@ void  * Get_JacobianFunction(int Type_Jacobian, int Type_Element,
 
     switch (Type_Element) {
 
-    case TRIANGLE    : case TRIANGLE_2   :
+    case TRIANGLE    : case TRIANGLE_2   : case TRIANGLE_3   : case TRIANGLE_4   :
     case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
+    case QUADRANGLE_3: case QUADRANGLE_4 :
       *Type_Dimension = DIM_2D; return((void *)JacobianVolSphShell2D);
 
-    case TETRAHEDRON : case TETRAHEDRON_2 :
-    case HEXAHEDRON  : case HEXAHEDRON_2  :
-    case PRISM       : case PRISM_2       :
-    case PYRAMID     : case PYRAMID_2     :
+    case TETRAHEDRON : case TETRAHEDRON_2 : case TETRAHEDRON_3 : case TETRAHEDRON_4 :
+    case HEXAHEDRON  : case HEXAHEDRON_2  : case HEXAHEDRON_3  : case HEXAHEDRON_4  :
+    case PRISM       : case PRISM_2       : case PRISM_3       : case PRISM_4       :
+    case PYRAMID     : case PYRAMID_2     : case PYRAMID_3     : case PYRAMID_4     :
       *Type_Dimension = DIM_3D; return((void *)JacobianVolSphShell3D);
 
     default :
@@ -106,14 +108,15 @@ void  * Get_JacobianFunction(int Type_Jacobian, int Type_Element,
 
     switch (Type_Element) {
 
-    case TRIANGLE    : case TRIANGLE_2   :
+    case TRIANGLE    : case TRIANGLE_2   : case TRIANGLE_3   : case TRIANGLE_4   :
     case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
+    case QUADRANGLE_3: case QUADRANGLE_4 :
       *Type_Dimension = DIM_2D; return((void *)JacobianVolSphShell2D);
 
-    case TETRAHEDRON : case TETRAHEDRON_2 :
-    case HEXAHEDRON  : case HEXAHEDRON_2  :
-    case PRISM       : case PRISM_2       :
-    case PYRAMID     : case PYRAMID_2     :
+    case TETRAHEDRON : case TETRAHEDRON_2 : case TETRAHEDRON_3 : case TETRAHEDRON_4 :
+    case HEXAHEDRON  : case HEXAHEDRON_2  : case HEXAHEDRON_3  : case HEXAHEDRON_4  :
+    case PRISM       : case PRISM_2       : case PRISM_3       : case PRISM_4       :
+    case PYRAMID     : case PYRAMID_2     : case PYRAMID_3     : case PYRAMID_4     :
       *Type_Dimension = DIM_3D; return((void *)JacobianVolCylShell3D);
 
     default :
@@ -125,14 +128,15 @@ void  * Get_JacobianFunction(int Type_Jacobian, int Type_Element,
 
     switch (Type_Element) {
 
-    case TRIANGLE    : case TRIANGLE_2   :
+    case TRIANGLE    : case TRIANGLE_2   : case TRIANGLE_3   : case TRIANGLE_4   :
     case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
+    case QUADRANGLE_3: case QUADRANGLE_4 :
       *Type_Dimension = DIM_2D; return((void *)JacobianVolRectShell2D);
 
-    case TETRAHEDRON : case TETRAHEDRON_2 :
-    case HEXAHEDRON  : case HEXAHEDRON_2  :
-    case PRISM       : case PRISM_2       :
-    case PYRAMID     : case PYRAMID_2     :
+    case TETRAHEDRON : case TETRAHEDRON_2 : case TETRAHEDRON_3 : case TETRAHEDRON_4 :
+    case HEXAHEDRON  : case HEXAHEDRON_2  : case HEXAHEDRON_3  : case HEXAHEDRON_4  :
+    case PRISM       : case PRISM_2       : case PRISM_3       : case PRISM_4       :
+    case PYRAMID     : case PYRAMID_2     : case PYRAMID_3     : case PYRAMID_4     :
       *Type_Dimension = DIM_3D; return((void *)JacobianVolRectShell3D);
 
     default :
@@ -144,10 +148,10 @@ void  * Get_JacobianFunction(int Type_Jacobian, int Type_Element,
 
     switch (Type_Element) {
 
-    case TETRAHEDRON : case TETRAHEDRON_2 :
-    case HEXAHEDRON  : case HEXAHEDRON_2  :
-    case PRISM       : case PRISM_2       :
-    case PYRAMID     : case PYRAMID_2     :
+    case TETRAHEDRON : case TETRAHEDRON_2 : case TETRAHEDRON_3 : case TETRAHEDRON_4 :
+    case HEXAHEDRON  : case HEXAHEDRON_2  : case HEXAHEDRON_3  : case HEXAHEDRON_4  :
+    case PRISM       : case PRISM_2       : case PRISM_3       : case PRISM_4       :
+    case PYRAMID     : case PYRAMID_2     : case PYRAMID_3     : case PYRAMID_4     :
       *Type_Dimension = DIM_3D; return((void *)JacobianVolUniDirShell3D);
 
     default :
@@ -159,8 +163,9 @@ void  * Get_JacobianFunction(int Type_Jacobian, int Type_Element,
 
     switch (Type_Element) {
 
-    case TRIANGLE    : case TRIANGLE_2   :
+    case TRIANGLE    : case TRIANGLE_2   : case TRIANGLE_3   : case TRIANGLE_4   :
     case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
+    case QUADRANGLE_3: case QUADRANGLE_4 :
       *Type_Dimension = DIM_2D; return((void *)JacobianVolPlpdX2D);
 
     default :
@@ -172,11 +177,12 @@ void  * Get_JacobianFunction(int Type_Jacobian, int Type_Element,
 
     switch (Type_Element) {
 
-    case LINE        : case LINE_2 :
+    case LINE        : case LINE_2       : case LINE_3       : case LINE_4 :
       *Type_Dimension = DIM_1D; return((void *)JacobianVolAxi1D);
 
-    case TRIANGLE    : case TRIANGLE_2   :
+    case TRIANGLE    : case TRIANGLE_2   : case TRIANGLE_3   : case TRIANGLE_4   :
     case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
+    case QUADRANGLE_3: case QUADRANGLE_4 :
       *Type_Dimension = DIM_2D; return((void *)JacobianVolAxi2D);
 
     default :
@@ -188,8 +194,9 @@ void  * Get_JacobianFunction(int Type_Jacobian, int Type_Element,
 
     switch (Type_Element) {
 
-    case TRIANGLE    : case TRIANGLE_2   :
+    case TRIANGLE    : case TRIANGLE_2   : case TRIANGLE_3   : case TRIANGLE_4   :
     case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
+    case QUADRANGLE_3: case QUADRANGLE_4 :
       *Type_Dimension = DIM_2D; return((void *)JacobianVolAxiSphShell2D);
 
     default :
@@ -201,8 +208,9 @@ void  * Get_JacobianFunction(int Type_Jacobian, int Type_Element,
 
     switch (Type_Element) {
 
-    case TRIANGLE    : case TRIANGLE_2   :
+    case TRIANGLE    : case TRIANGLE_2   : case TRIANGLE_3   : case TRIANGLE_4   :
     case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
+    case QUADRANGLE_3: case QUADRANGLE_4 :
       *Type_Dimension = DIM_2D; return((void *)JacobianVolAxiRectShell2D);
 
     default :
@@ -214,8 +222,9 @@ void  * Get_JacobianFunction(int Type_Jacobian, int Type_Element,
 
     switch (Type_Element) {
 
-    case TRIANGLE    : case TRIANGLE_2   :
+    case TRIANGLE    : case TRIANGLE_2   : case TRIANGLE_3   : case TRIANGLE_4   :
     case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
+    case QUADRANGLE_3: case QUADRANGLE_4 :
       *Type_Dimension = DIM_2D; return((void *)JacobianVolAxiPlpdX2D);
 
     default :
@@ -228,11 +237,12 @@ void  * Get_JacobianFunction(int Type_Jacobian, int Type_Element,
 
     switch (Type_Element) {
 
-    case LINE        : case LINE_2 :
+    case LINE        : case LINE_2       : case LINE_3       : case LINE_4 :
       *Type_Dimension = DIM_1D; return((void *)JacobianVolAxiSqu1D);
 
-    case TRIANGLE    : case TRIANGLE_2   :
+    case TRIANGLE    : case TRIANGLE_2   : case TRIANGLE_3   : case TRIANGLE_4   :
     case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
+    case QUADRANGLE_3: case QUADRANGLE_4 :
       *Type_Dimension = DIM_2D; return((void *)JacobianVolAxiSqu2D);
 
     default :
@@ -244,8 +254,9 @@ void  * Get_JacobianFunction(int Type_Jacobian, int Type_Element,
 
     switch (Type_Element) {
 
-    case TRIANGLE    : case TRIANGLE_2   :
+    case TRIANGLE    : case TRIANGLE_2   : case TRIANGLE_3   : case TRIANGLE_4   :
     case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
+    case QUADRANGLE_3: case QUADRANGLE_4 :
       *Type_Dimension = DIM_2D; return((void *)JacobianVolAxiSquSphShell2D);
 
     default :
@@ -257,8 +268,9 @@ void  * Get_JacobianFunction(int Type_Jacobian, int Type_Element,
 
     switch (Type_Element) {
 
-    case TRIANGLE    : case TRIANGLE_2   :
+    case TRIANGLE    : case TRIANGLE_2   : case TRIANGLE_3   : case TRIANGLE_4   :
     case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
+    case QUADRANGLE_3: case QUADRANGLE_4 :
       *Type_Dimension = DIM_2D; return((void *)JacobianVolAxiSquRectShell2D);
 
     default :
@@ -273,11 +285,12 @@ void  * Get_JacobianFunction(int Type_Jacobian, int Type_Element,
     case POINT :
       *Type_Dimension = DIM_1D; return((void *)JacobianVol0D);
 
-    case LINE        : case LINE_2 :
+    case LINE        : case LINE_2       : case LINE_3       : case LINE_4 :
       *Type_Dimension = DIM_2D; return((void *)JacobianSur2D);
 
-    case TRIANGLE    : case TRIANGLE_2   :
+    case TRIANGLE    : case TRIANGLE_2   : case TRIANGLE_3   : case TRIANGLE_4   :
     case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
+    case QUADRANGLE_3: case QUADRANGLE_4 :
       *Type_Dimension = DIM_3D; return((void *)JacobianSur3D);
 
     default :
@@ -289,7 +302,7 @@ void  * Get_JacobianFunction(int Type_Jacobian, int Type_Element,
 
     switch (Type_Element) {
 
-    case LINE        : case LINE_2 :
+    case LINE        : case LINE_2       : case LINE_3       : case LINE_4 :
       *Type_Dimension = DIM_2D; return((void *)JacobianSurSphShell2D);
 
     default :
@@ -301,13 +314,14 @@ void  * Get_JacobianFunction(int Type_Jacobian, int Type_Element,
 
     switch (Type_Element) {
 
-    case LINE        : case LINE_2 :
+    case LINE        : case LINE_2       : case LINE_3       : case LINE_4 :
       *Type_Dimension = DIM_2D; return((void *)JacobianSurAxi2D);
 
       // for integrals on surfaces in the study plane in axisymm. problems
       // e.g. the computation of the area of a region
-    case TRIANGLE    : case TRIANGLE_2   :
+    case TRIANGLE    : case TRIANGLE_2   : case TRIANGLE_3   : case TRIANGLE_4   :
     case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
+    case QUADRANGLE_3: case QUADRANGLE_4 :
       *Type_Dimension = DIM_2D; return((void *)JacobianVol2D);
 
     default :
@@ -322,7 +336,7 @@ void  * Get_JacobianFunction(int Type_Jacobian, int Type_Element,
     case POINT :
       *Type_Dimension = DIM_2D; return((void *)JacobianVol0D);
 
-    case LINE        : case LINE_2 :
+    case LINE        : case LINE_2       : case LINE_3       : case LINE_4 :
       *Type_Dimension = DIM_3D; return((void *)JacobianLin3D);
 
     default :
@@ -345,22 +359,23 @@ void  * Get_JacobianFunctionAuto (int Type_Element, int Dimension)
   switch(Type_Element){
   case POINT :
     return((void *)JacobianVol0D);
-  case LINE : case LINE_2 :
+  case LINE        : case LINE_2       : case LINE_3       : case LINE_4 :
     switch(Dimension){
     case DIM_3D : return((void *)JacobianLin3D);
     case DIM_2D : return((void *)JacobianSur2D);
     default : return((void *)JacobianVol1D);
     }
-  case TRIANGLE : case TRIANGLE_2 :
-  case QUADRANGLE : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
+  case TRIANGLE    : case TRIANGLE_2   : case TRIANGLE_3   : case TRIANGLE_4   :
+  case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
+  case QUADRANGLE_3: case QUADRANGLE_4 :
     switch(Dimension){
     case DIM_3D : return((void *)JacobianSur3D);
     default :  return((void *)JacobianVol2D);
     }
-  case TETRAHEDRON : case TETRAHEDRON_2 :
-  case HEXAHEDRON  : case HEXAHEDRON_2  :
-  case PRISM       : case PRISM_2       :
-  case PYRAMID     : case PYRAMID_2     :
+  case TETRAHEDRON : case TETRAHEDRON_2 : case TETRAHEDRON_3 : case TETRAHEDRON_4 :
+  case HEXAHEDRON  : case HEXAHEDRON_2  : case HEXAHEDRON_3  : case HEXAHEDRON_4  :
+  case PRISM       : case PRISM_2       : case PRISM_3       : case PRISM_4       :
+  case PYRAMID     : case PYRAMID_2     : case PYRAMID_3     : case PYRAMID_4     :
   default:
     return((void *)JacobianVol3D);
   }

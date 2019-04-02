@@ -187,6 +187,8 @@ void Cut_PostElement(struct PostElement * PE, struct Geo_Element * GE,
 
     case LINE :
     case LINE_2 :
+    case LINE_3 :
+    case LINE_4 :
       u01 = .5 * (PE->u[0] + PE->u[1]);
       v01 = .5 * (PE->v[0] + PE->v[1]);
       w01 = .5 * (PE->w[0] + PE->w[1]);
@@ -203,6 +205,8 @@ void Cut_PostElement(struct PostElement * PE, struct Geo_Element * GE,
 
     case TRIANGLE :
     case TRIANGLE_2 :
+    case TRIANGLE_3 :
+    case TRIANGLE_4 :
       u01 = .5 * (PE->u[0] + PE->u[1]); u02 = .5 * (PE->u[0] + PE->u[2]);
       v01 = .5 * (PE->v[0] + PE->v[1]);	v02 = .5 * (PE->v[0] + PE->v[2]);
       w01 = .5 * (PE->w[0] + PE->w[1]);	w02 = .5 * (PE->w[0] + PE->w[2]);
@@ -236,6 +240,8 @@ void Cut_PostElement(struct PostElement * PE, struct Geo_Element * GE,
 
     case TETRAHEDRON :
     case TETRAHEDRON_2 :
+    case TETRAHEDRON_3 :
+    case TETRAHEDRON_4 :
       u01 = .5 * (PE->u[0] + PE->u[1]); u02 = .5 * (PE->u[0] + PE->u[2]);
       v01 = .5 * (PE->v[0] + PE->v[1]);	v02 = .5 * (PE->v[0] + PE->v[2]);
       w01 = .5 * (PE->w[0] + PE->w[1]);	w02 = .5 * (PE->w[0] + PE->w[2]);
@@ -380,19 +386,44 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 
     PE = Create_PostElement(Index, POINT, 1, 0) ;
     switch(GE->Type){
-    case POINT       : PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 0.   ; break ;
-    case LINE        :
-    case LINE_2      : PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 0.   ; break ;
-    case TRIANGLE    :
-    case TRIANGLE_2  : PE->u[0] = 1./3.; PE->v[0] = 1./3.; PE->w[0] = 0.   ; break ;
-    case QUADRANGLE  :
-    case QUADRANGLE_2:
-    case QUADRANGLE_2_8N: PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 0.   ; break ;
+    case POINT :
+      PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 0.   ; break ;
+    case LINE :
+    case LINE_2 :
+    case LINE_3 :
+    case LINE_4 :
+      PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 0.   ; break ;
+    case TRIANGLE :
+    case TRIANGLE_2 :
+    case TRIANGLE_3 :
+    case TRIANGLE_4 :
+      PE->u[0] = 1./3.; PE->v[0] = 1./3.; PE->w[0] = 0.   ; break ;
+    case QUADRANGLE :
+    case QUADRANGLE_2 :
+    case QUADRANGLE_2_8N :
+    case QUADRANGLE_3 :
+    case QUADRANGLE_4 :
+      PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 0.   ; break ;
     case TETRAHEDRON :
-    case TETRAHEDRON_2 : PE->u[0] = 0.25 ; PE->v[0] = 0.25 ; PE->w[0] = 0.25 ; break ;
-    case HEXAHEDRON  : PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 0.   ; break ;
-    case PRISM       : PE->u[0] = 1./3.; PE->v[0] = 1./3.; PE->w[0] = 0.   ; break ;
-    case PYRAMID     : PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 1./3.; break ;
+    case TETRAHEDRON_2 :
+    case TETRAHEDRON_3 :
+    case TETRAHEDRON_4 :
+      PE->u[0] = 0.25 ; PE->v[0] = 0.25 ; PE->w[0] = 0.25 ; break ;
+    case HEXAHEDRON :
+    case HEXAHEDRON_2 :
+    case HEXAHEDRON_3 :
+    case HEXAHEDRON_4 :
+      PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 0.   ; break ;
+    case PRISM :
+    case PRISM_2 :
+    case PRISM_3 :
+    case PRISM_4 :
+      PE->u[0] = 1./3.; PE->v[0] = 1./3.; PE->w[0] = 0.   ; break ;
+    case PYRAMID :
+    case PYRAMID_2 :
+    case PYRAMID_3 :
+    case PYRAMID_4 :
+      PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 1./3.; break ;
     }
     POS_CUT_FILL ;
 

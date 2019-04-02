@@ -114,20 +114,34 @@ struct StringXDefine  Integration_SubType[] = {
 struct StringXDefine  Element_Type[] = {
   {"Point"          , POINT},
   {"Line"           , LINE},
-  {"Triangle"       , TRIANGLE},
-  {"Quadrangle"     , QUADRANGLE},
-  {"Tetrahedron"    , TETRAHEDRON},
-  {"Tetrahedron2"   , TETRAHEDRON_2},
-  {"Hexahedron"     , HEXAHEDRON},
-  {"Prism"          , PRISM},
-  {"Pyramid"        , PYRAMID},
   {"Line2"          , LINE_2},
+  {"Line3"          , LINE_3},
+  {"Line4"          , LINE_4},
+  {"Triangle"       , TRIANGLE},
   {"Triangle2"      , TRIANGLE_2},
+  {"Triangle3"      , TRIANGLE_3},
+  {"Triangle4"      , TRIANGLE_4},
+  {"Quadrangle"     , QUADRANGLE},
   {"Quadrangle2"    , QUADRANGLE_2},
   {"Quadrangle2_8N" , QUADRANGLE_2_8N},
-  {"Line4"          , LINE_4},
-  {"Triangle4"      , TRIANGLE_4},
+  {"Quadrangle3"    , QUADRANGLE_3},
+  {"Quadrangle4"    , QUADRANGLE_4},
+  {"Tetrahedron"    , TETRAHEDRON},
+  {"Tetrahedron2"   , TETRAHEDRON_2},
+  {"Tetrahedron3"   , TETRAHEDRON_3},
   {"Tetrahedron4"   , TETRAHEDRON_4},
+  {"Hexahedron"     , HEXAHEDRON},
+  {"Hexahedron2"    , HEXAHEDRON_2},
+  {"Hexahedron3"    , HEXAHEDRON_3},
+  {"Hexahedron4"    , HEXAHEDRON_4},
+  {"Prism"          , PRISM},
+  {"Prism2"         , PRISM_2},
+  {"Prism3"         , PRISM_3},
+  {"Prism4"         , PRISM_4},
+  {"Pyramid"        , PYRAMID},
+  {"Pyramid2"       , PYRAMID_2},
+  {"Pyramid3"       , PYRAMID_3},
+  {"Pyramid4"       , PYRAMID_4},
   {NULL             , TRIANGLE}
  } ;
 
@@ -399,31 +413,65 @@ struct DefineXFunction  FunctionForGauss[] = {
 #if defined(HAVE_KERNEL)
   {POINT          , (CAST)Gauss_Point},
   {LINE           , (CAST)Gauss_Line},
-  {TRIANGLE       , (CAST)Gauss_Triangle},
-  {QUADRANGLE     , (CAST)Gauss_Quadrangle},
-  {TETRAHEDRON    , (CAST)Gauss_Tetrahedron},
-  {TETRAHEDRON_2  , (CAST)Gauss_Tetrahedron},
-  {HEXAHEDRON     , (CAST)Gauss_Hexahedron},
-  {PRISM          , (CAST)Gauss_Prism},
-  {PYRAMID        , (CAST)Gauss_Pyramid},
   {LINE_2         , (CAST)Gauss_Line},
+  {LINE_3         , (CAST)Gauss_Line},
+  {LINE_4         , (CAST)Gauss_Line},
+  {TRIANGLE       , (CAST)Gauss_Triangle},
   {TRIANGLE_2     , (CAST)Gauss_Triangle},
+  {TRIANGLE_3     , (CAST)Gauss_Triangle},
+  {TRIANGLE_4     , (CAST)Gauss_Triangle},
+  {QUADRANGLE     , (CAST)Gauss_Quadrangle},
   {QUADRANGLE_2   , (CAST)Gauss_Quadrangle},
   {QUADRANGLE_2_8N, (CAST)Gauss_Quadrangle},
+  {QUADRANGLE_3   , (CAST)Gauss_Quadrangle},
+  {QUADRANGLE_4   , (CAST)Gauss_Quadrangle},
+  {TETRAHEDRON    , (CAST)Gauss_Tetrahedron},
+  {TETRAHEDRON_2  , (CAST)Gauss_Tetrahedron},
+  {TETRAHEDRON_3  , (CAST)Gauss_Tetrahedron},
+  {TETRAHEDRON_4  , (CAST)Gauss_Tetrahedron},
+  {HEXAHEDRON     , (CAST)Gauss_Hexahedron},
+  {HEXAHEDRON_2   , (CAST)Gauss_Hexahedron},
+  {HEXAHEDRON_3   , (CAST)Gauss_Hexahedron},
+  {HEXAHEDRON_4   , (CAST)Gauss_Hexahedron},
+  {PRISM          , (CAST)Gauss_Prism},
+  {PRISM_2        , (CAST)Gauss_Prism},
+  {PRISM_3        , (CAST)Gauss_Prism},
+  {PRISM_4        , (CAST)Gauss_Prism},
+  {PYRAMID        , (CAST)Gauss_Pyramid},
+  {PYRAMID_2      , (CAST)Gauss_Pyramid},
+  {PYRAMID_3      , (CAST)Gauss_Pyramid},
+  {PYRAMID_4      , (CAST)Gauss_Pyramid},
 #else
   {POINT          , NULL},
   {LINE           , NULL},
-  {TRIANGLE       , NULL},
-  {QUADRANGLE     , NULL},
-  {TETRAHEDRON    , NULL},
-  {TETRAHEDRON_2  , NULL},
-  {HEXAHEDRON     , NULL},
-  {PRISM          , NULL},
-  {PYRAMID        , NULL},
   {LINE_2         , NULL},
+  {LINE_3         , NULL},
+  {LINE_4         , NULL},
+  {TRIANGLE       , NULL},
   {TRIANGLE_2     , NULL},
+  {TRIANGLE_3     , NULL},
+  {TRIANGLE_4     , NULL},
+  {QUADRANGLE     , NULL},
   {QUADRANGLE_2   , NULL},
   {QUADRANGLE_2_8N, NULL},
+  {QUADRANGLE_3   , NULL},
+  {QUADRANGLE_4   , NULL},
+  {TETRAHEDRON    , NULL},
+  {TETRAHEDRON_2  , NULL},
+  {TETRAHEDRON_3  , NULL},
+  {TETRAHEDRON_4  , NULL},
+  {HEXAHEDRON     , NULL},
+  {HEXAHEDRON_2   , NULL},
+  {HEXAHEDRON_3   , NULL},
+  {HEXAHEDRON_4   , NULL},
+  {PRISM          , NULL},
+  {PRISM_2        , NULL},
+  {PRISM_3        , NULL},
+  {PRISM_4        , NULL},
+  {PYRAMID        , NULL},
+  {PYRAMID_2      , NULL},
+  {PYRAMID_3      , NULL},
+  {PYRAMID_4      , NULL},
 #endif
   {0              , 0}
 } ;
@@ -459,13 +507,13 @@ struct DefineXFunction  FunctionForGaussLegendre[] = {
 } ;
 
 #define POI  POINT
-#define LIN  LINE | LINE_2 | LINE_4
-#define TRI  TRIANGLE | TRIANGLE_2 | TRIANGLE_4
-#define QUA  QUADRANGLE | QUADRANGLE_2 | QUADRANGLE_2_8N
-#define TET  TETRAHEDRON | TETRAHEDRON_2 | TETRAHEDRON_4
-#define HEX  HEXAHEDRON | HEXAHEDRON_2
-#define PRI  PRISM | PRISM_2
-#define PYR  PYRAMID | PYRAMID_2
+#define LIN  LINE | LINE_2 | LINE_3 | LINE_4
+#define TRI  TRIANGLE | TRIANGLE_2 | TRIANGLE_3 | TRIANGLE_4
+#define QUA  QUADRANGLE | QUADRANGLE_2 | QUADRANGLE_2_8N | QUADRANGLE_3 | QUADRANGLE_4
+#define TET  TETRAHEDRON | TETRAHEDRON_2 | TETRAHEDRON_3 | TETRAHEDRON_4
+#define HEX  HEXAHEDRON | HEXAHEDRON_2 | HEXAHEDRON_3 | HEXAHEDRON_4
+#define PRI  PRISM | PRISM_2 | PRISM_3 | PRISM_4
+#define PYR  PYRAMID | PYRAMID_2 | PYRAMID_3 | PYRAMID_4
 #define ALL  POI|LIN|TRI|QUA|TET|HEX|PRI|PYR
 
 struct StringX3Function3Nbr  BF_Function[] = {

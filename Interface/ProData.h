@@ -1687,6 +1687,7 @@ struct Element {
 
 /* Element.Type */
 #define POINT            (1<<0)
+
 #define LINE             (1<<1)
 #define TRIANGLE         (1<<2)
 #define QUADRANGLE       (1<<3)
@@ -1694,6 +1695,7 @@ struct Element {
 #define HEXAHEDRON       (1<<5)
 #define PRISM            (1<<6)
 #define PYRAMID          (1<<7)
+
 #define LINE_2           (1<<8)
 #define TRIANGLE_2       (1<<9)
 #define QUADRANGLE_2     (1<<10)
@@ -1702,9 +1704,22 @@ struct Element {
 #define PRISM_2          (1<<13)
 #define PYRAMID_2        (1<<14)
 #define QUADRANGLE_2_8N  (1<<16)
-#define LINE_4           (1<<17)
-#define TRIANGLE_4       (1<<18)
-#define TETRAHEDRON_4    (1<<19)
+
+#define LINE_3           (1<<17)
+#define TRIANGLE_3       (1<<18)
+#define QUADRANGLE_3     (1<<19)
+#define TETRAHEDRON_3    (1<<20)
+#define HEXAHEDRON_3     (1<<21)
+#define PRISM_3          (1<<22)
+#define PYRAMID_3        (1<<23)
+
+#define LINE_4           (1<<24)
+#define TRIANGLE_4       (1<<25)
+#define QUADRANGLE_4     (1<<26)
+#define TETRAHEDRON_4    (1<<27)
+#define HEXAHEDRON_4     (1<<28)
+#define PRISM_4          (1<<29)
+#define PYRAMID_4        (1<<30)
 
 /* Adapt.Type */
 #define P1 1
