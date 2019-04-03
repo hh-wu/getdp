@@ -533,8 +533,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
         POS_CUT_FILL ;
         break ;
 
-      case TETRAHEDRON : case TETRAHEDRON_2 :
-      case TETRAHEDRON_3 : case TETRAHEDRON_4 :
+      case TETRAHEDRON : case TETRAHEDRON_2 : case TETRAHEDRON_3 : case TETRAHEDRON_4 :
         if(HighOrder && GE->Type != TETRAHEDRON)
           PE = Create_HighOrderPostElement(GE, Index);
         if(!PE){
@@ -551,7 +550,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
         POS_CUT_FILL;
         break ;
 
-      case HEXAHEDRON :
+      case HEXAHEDRON : case HEXAHEDRON_2 : case HEXAHEDRON_3 :case HEXAHEDRON_4 :
         if(HighOrder && GE->Type != HEXAHEDRON)
           PE = Create_HighOrderPostElement(GE, Index);
         if(!PE){
@@ -639,7 +638,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
         POS_CUT_FILL;
 	break ;
 
-      case PRISM :
+      case PRISM : case PRISM_2 : case PRISM_3 : case PRISM_4 :
         if(HighOrder && GE->Type != PRISM)
           PE = Create_HighOrderPostElement(GE, Index);
         if(!PE){
@@ -693,7 +692,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
         POS_CUT_FILL;
 	break ;
 
-      case PYRAMID :
+      case PYRAMID : case PYRAMID_2 : case PYRAMID_3 : case PYRAMID_4 :
         if(HighOrder && GE->Type != PYRAMID)
           PE = Create_HighOrderPostElement(GE, Index);
         if(!PE){
