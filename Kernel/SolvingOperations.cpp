@@ -766,7 +766,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   gVector x_Save;
   int NbrSteps_relax;
   double  Norm;
-  double Frelax, Frelax_Opt, Error_Prev, Frelax_Prev, Fratio;
+  double Frelax, Frelax_Opt, Error_Prev, Frelax_Prev = 0., Fratio;
   int istep;
 
   int Nbr_Formulation, Index_Formulation ;
