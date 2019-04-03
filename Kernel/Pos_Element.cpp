@@ -11,7 +11,6 @@
 #include "GetDPConfig.h"
 #include "Pos_Element.h"
 #include "GeoData.h"
-#include "GeoEntity.h"
 #include "Get_Geometry.h"
 #include "Get_DofOfElement.h"
 #include "Cal_Value.h"
