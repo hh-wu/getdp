@@ -15,6 +15,7 @@
 #include "Message.h"
 #include "MallocUtils.h"
 #include "OS.h"
+
 #if defined(HAVE_KERNEL)
 #include "Generate_Network.h"
 #endif

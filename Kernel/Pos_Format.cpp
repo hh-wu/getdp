@@ -121,31 +121,6 @@ static void Gmsh_StringEnd(int Format)
   }
 }
 
-static int Gmsh_GetElementType(int Type)
-{
-  switch(Type){
-  case POINT :         return(15) ;
-  case LINE :	       return(1)  ;
-  case TRIANGLE :      return(2)  ;
-  case QUADRANGLE :    return(3)  ;
-  case TETRAHEDRON :   return(4)  ;
-  case HEXAHEDRON :    return(5)  ;
-  case PRISM :	       return(6)  ;
-  case PYRAMID :       return(7)  ;
-  case LINE_2 :	       return(8)  ;
-  case TRIANGLE_2 :    return(9)  ;
-  case QUADRANGLE_2 :  return(10) ;
-  case TETRAHEDRON_2 : return(11) ;
-  case HEXAHEDRON_2 :  return(12) ;
-  case PRISM_2 :       return(13) ;
-  case PYRAMID_2 :     return(14) ;
-  case QUADRANGLE_2_8N : return(16) ;
-  default :
-    Message::Error("Unknown type of element in Gmsh format") ;
-    return(-1) ;
-  }
-}
-
 static void Gmsh_PrintElementNodeData(struct PostSubOperation *PSO_P, int numTimeStep,
                                       int numComp, int Nb[8], std::vector<double> *L[8])
 {
@@ -242,11 +217,6 @@ static void GmshParsed_PrintElement(double Time, int TimeStep, int NbTimeStep, i
       case HEXAHEDRON  : fprintf(PostStream, "SH("); break;
       case PRISM       : fprintf(PostStream, "SI("); break;
       case PYRAMID     : fprintf(PostStream, "SY("); break;
-      case LINE_2      : fprintf(PostStream, "SL("); break;
-      case TRIANGLE_2  : fprintf(PostStream, "ST("); break;
-      case QUADRANGLE_2: fprintf(PostStream, "SQ("); break;
-      case QUADRANGLE_2_8N: fprintf(PostStream, "SQ("); break;
-      case TETRAHEDRON_2 : fprintf(PostStream, "SS("); break;
       }
       for(i = 0 ; i < NbrNodes ; i++){
 	if(i) fprintf(PostStream, ",");
@@ -292,11 +262,6 @@ static void GmshParsed_PrintElement(double Time, int TimeStep, int NbTimeStep, i
       case HEXAHEDRON  : fprintf(PostStream, "VH("); break;
       case PRISM       : fprintf(PostStream, "VI("); break;
       case PYRAMID     : fprintf(PostStream, "VY("); break;
-      case LINE_2      : fprintf(PostStream, "VL("); break;
-      case TRIANGLE_2  : fprintf(PostStream, "VT("); break;
-      case QUADRANGLE_2: fprintf(PostStream, "VQ("); break;
-      case QUADRANGLE_2_8N: fprintf(PostStream, "VQ("); break;
-      case TETRAHEDRON_2 : fprintf(PostStream, "VS("); break;
       }
       for(i = 0 ; i < NbrNodes ; i++){
 	if(i) fprintf(PostStream, ",");
@@ -350,11 +315,6 @@ static void GmshParsed_PrintElement(double Time, int TimeStep, int NbTimeStep, i
       case HEXAHEDRON  : fprintf(PostStream, "TH("); break;
       case PRISM       : fprintf(PostStream, "TI("); break;
       case PYRAMID     : fprintf(PostStream, "TY("); break;
-      case LINE_2      : fprintf(PostStream, "TL("); break;
-      case TRIANGLE_2  : fprintf(PostStream, "TT("); break;
-      case QUADRANGLE_2: fprintf(PostStream, "TQ("); break;
-      case QUADRANGLE_2_8N: fprintf(PostStream, "TQ("); break;
-      case TETRAHEDRON_2 : fprintf(PostStream, "TS("); break;
       }
       for(i = 0 ; i < NbrNodes ; i++){
 	if(i) fprintf(PostStream, ",");
@@ -448,11 +408,31 @@ static void Gmsh_PrintElement(double Time, int TimeStep, int NbTimeStep, int NbH
       case HEXAHEDRON  : Current_L = &SH ; NbSH++ ; break ;
       case PRISM       : Current_L = &SI ; NbSI++ ; break ;
       case PYRAMID     : Current_L = &SY ; NbSY++ ; break ;
-      case LINE_2      : Current_L = &SL ; NbSL++ ; break ;
-      case TRIANGLE_2  : Current_L = &ST ; NbST++ ; break ;
-      case QUADRANGLE_2: Current_L = &SQ ; NbSQ++ ; break ;
+
+      case LINE_2         : Current_L = &SL ; NbSL++ ; break ;
+      case TRIANGLE_2     : Current_L = &ST ; NbST++ ; break ;
+      case QUADRANGLE_2   : Current_L = &SQ ; NbSQ++ ; break ;
       case QUADRANGLE_2_8N: Current_L = &SQ ; NbSQ++ ; break ;
-      case TETRAHEDRON_2 : Current_L = &SS ; NbSS++ ; break ;
+      case TETRAHEDRON_2  : Current_L = &SS ; NbSS++ ; break ;
+      case HEXAHEDRON_2   : Current_L = &SH ; NbSH++ ; break ;
+      case PRISM_2        : Current_L = &SI ; NbSI++ ; break ;
+      case PYRAMID_2      : Current_L = &SY ; NbSY++ ; break ;
+
+      case LINE_3         : Current_L = &SL ; NbSL++ ; break ;
+      case TRIANGLE_3     : Current_L = &ST ; NbST++ ; break ;
+      case QUADRANGLE_3   : Current_L = &SQ ; NbSQ++ ; break ;
+      case TETRAHEDRON_3  : Current_L = &SS ; NbSS++ ; break ;
+      case HEXAHEDRON_3   : Current_L = &SH ; NbSH++ ; break ;
+      case PRISM_3        : Current_L = &SI ; NbSI++ ; break ;
+      case PYRAMID_3      : Current_L = &SY ; NbSY++ ; break ;
+
+      case LINE_4         : Current_L = &SL ; NbSL++ ; break ;
+      case TRIANGLE_4     : Current_L = &ST ; NbST++ ; break ;
+      case QUADRANGLE_4   : Current_L = &SQ ; NbSQ++ ; break ;
+      case TETRAHEDRON_4  : Current_L = &SS ; NbSS++ ; break ;
+      case HEXAHEDRON_4   : Current_L = &SH ; NbSH++ ; break ;
+      case PRISM_4        : Current_L = &SI ; NbSI++ ; break ;
+      case PYRAMID_4      : Current_L = &SY ; NbSY++ ; break ;
       }
       if(Flag_GMSH_VERSION != 2){
         for(i = 0 ; i < NbrNodes ; i++) Current_L->push_back(x[i]);
@@ -485,6 +465,7 @@ static void Gmsh_PrintElement(double Time, int TimeStep, int NbTimeStep, int NbH
     if(TimeStep == 0){
       switch(Type){
       case POINT       : Current_L = &VP ; NbVP++ ; break ;
+
       case LINE        : Current_L = &VL ; NbVL++ ; break ;
       case TRIANGLE    : Current_L = &VT ; NbVT++ ; break ;
       case QUADRANGLE  : Current_L = &VQ ; NbVQ++ ; break ;
@@ -492,11 +473,31 @@ static void Gmsh_PrintElement(double Time, int TimeStep, int NbTimeStep, int NbH
       case HEXAHEDRON  : Current_L = &VH ; NbVH++ ; break ;
       case PRISM       : Current_L = &VI ; NbVI++ ; break ;
       case PYRAMID     : Current_L = &VY ; NbVY++ ; break ;
-      case LINE_2      : Current_L = &VL ; NbVL++ ; break ;
-      case TRIANGLE_2  : Current_L = &VT ; NbVT++ ; break ;
-      case QUADRANGLE_2: Current_L = &VQ ; NbVQ++ ; break ;
+
+      case LINE_2         : Current_L = &VL ; NbVL++ ; break ;
+      case TRIANGLE_2     : Current_L = &VT ; NbVT++ ; break ;
+      case QUADRANGLE_2   : Current_L = &VQ ; NbVQ++ ; break ;
       case QUADRANGLE_2_8N: Current_L = &VQ ; NbVQ++ ; break ;
-      case TETRAHEDRON_2 : Current_L = &VS ; NbVS++ ; break ;
+      case TETRAHEDRON_2  : Current_L = &VS ; NbVS++ ; break ;
+      case HEXAHEDRON_2   : Current_L = &VH ; NbVH++ ; break ;
+      case PRISM_2        : Current_L = &VI ; NbVI++ ; break ;
+      case PYRAMID_2      : Current_L = &VY ; NbVY++ ; break ;
+
+      case LINE_3         : Current_L = &VL ; NbVL++ ; break ;
+      case TRIANGLE_3     : Current_L = &VT ; NbVT++ ; break ;
+      case QUADRANGLE_3   : Current_L = &VQ ; NbVQ++ ; break ;
+      case TETRAHEDRON_3  : Current_L = &VS ; NbVS++ ; break ;
+      case HEXAHEDRON_3   : Current_L = &VH ; NbVH++ ; break ;
+      case PRISM_3        : Current_L = &VI ; NbVI++ ; break ;
+      case PYRAMID_3      : Current_L = &VY ; NbVY++ ; break ;
+
+      case LINE_4         : Current_L = &VL ; NbVL++ ; break ;
+      case TRIANGLE_4     : Current_L = &VT ; NbVT++ ; break ;
+      case QUADRANGLE_4   : Current_L = &VQ ; NbVQ++ ; break ;
+      case TETRAHEDRON_4  : Current_L = &VS ; NbVS++ ; break ;
+      case HEXAHEDRON_4   : Current_L = &VH ; NbVH++ ; break ;
+      case PRISM_4        : Current_L = &VI ; NbVI++ ; break ;
+      case PYRAMID_4      : Current_L = &VY ; NbVY++ ; break ;
       }
       if(Flag_GMSH_VERSION != 2){
         for(i = 0 ; i < NbrNodes ; i++) Current_L->push_back(x[i]);
@@ -533,6 +534,7 @@ static void Gmsh_PrintElement(double Time, int TimeStep, int NbTimeStep, int NbH
     if(TimeStep == 0){
       switch(Type){
       case POINT       : Current_L = &TP ; NbTP++ ; break ;
+
       case LINE        : Current_L = &TL ; NbTL++ ; break ;
       case TRIANGLE    : Current_L = &TT ; NbTT++ ; break ;
       case QUADRANGLE  : Current_L = &TQ ; NbTQ++ ; break ;
@@ -540,11 +542,31 @@ static void Gmsh_PrintElement(double Time, int TimeStep, int NbTimeStep, int NbH
       case HEXAHEDRON  : Current_L = &TH ; NbTH++ ; break ;
       case PRISM       : Current_L = &TI ; NbTI++ ; break ;
       case PYRAMID     : Current_L = &TY ; NbTY++ ; break ;
-      case LINE_2      : Current_L = &TL ; NbTL++ ; break ;
-      case TRIANGLE_2  : Current_L = &TT ; NbTT++ ; break ;
-      case QUADRANGLE_2: Current_L = &TQ ; NbTQ++ ; break ;
+
+      case LINE_2         : Current_L = &TL ; NbTL++ ; break ;
+      case TRIANGLE_2     : Current_L = &TT ; NbTT++ ; break ;
+      case QUADRANGLE_2   : Current_L = &TQ ; NbTQ++ ; break ;
       case QUADRANGLE_2_8N: Current_L = &TQ ; NbTQ++ ; break ;
-      case TETRAHEDRON_2 : Current_L = &TS1 ; NbTS++ ; break ;
+      case TETRAHEDRON_2  : Current_L = &TS1 ; NbTS++ ; break ;
+      case HEXAHEDRON_2   : Current_L = &TH ; NbTH++ ; break ;
+      case PRISM_2        : Current_L = &TI ; NbTI++ ; break ;
+      case PYRAMID_2      : Current_L = &TY ; NbTY++ ; break ;
+
+      case LINE_3         : Current_L = &TL ; NbTL++ ; break ;
+      case TRIANGLE_3     : Current_L = &TT ; NbTT++ ; break ;
+      case QUADRANGLE_3   : Current_L = &TQ ; NbTQ++ ; break ;
+      case TETRAHEDRON_3  : Current_L = &TS1 ; NbTS++ ; break ;
+      case HEXAHEDRON_3   : Current_L = &TH ; NbTH++ ; break ;
+      case PRISM_3        : Current_L = &TI ; NbTI++ ; break ;
+      case PYRAMID_3      : Current_L = &TY ; NbTY++ ; break ;
+
+      case LINE_4         : Current_L = &TL ; NbTL++ ; break ;
+      case TRIANGLE_4     : Current_L = &TT ; NbTT++ ; break ;
+      case QUADRANGLE_4   : Current_L = &TQ ; NbTQ++ ; break ;
+      case TETRAHEDRON_4  : Current_L = &TS1 ; NbTS++ ; break ;
+      case HEXAHEDRON_4   : Current_L = &TH ; NbTH++ ; break ;
+      case PRISM_4        : Current_L = &TI ; NbTI++ ; break ;
+      case PYRAMID_4      : Current_L = &TY ; NbTY++ ; break ;
       }
       if(Flag_GMSH_VERSION != 2){
         for(i = 0 ; i < NbrNodes ; i++) Current_L->push_back(x[i]);
@@ -673,7 +695,7 @@ static void Gnuplot_PrintElement(int Format, double Time, int TimeStep, int NbrT
 	else i2 = 0 ;
       }
 
-      fprintf(PostStream, "%d %d ", Gmsh_GetElementType(ElementType), NumElement);
+      fprintf(PostStream, "%d %d ", GetDP2Gmsh(ElementType), NumElement);
       fprintf(PostStream, " %.16g %.16g %.16g ", x[i2], y[i2], z[i2]);
       if(Dummy){
 	if(Dummy[3]<0){
@@ -764,7 +786,7 @@ static void Tabular_PrintElement(struct PostSubOperation *PSO_P,
      || Format == FORMAT_VALUE_ONLY){
     if(TimeStep == 0){
       if(Format != FORMAT_SIMPLE_SPACE_TABLE && Format != FORMAT_VALUE_ONLY)
-        fprintf(PostStream, "%d %d  ", Gmsh_GetElementType(ElementType), NumElement);
+        fprintf(PostStream, "%d %d  ", GetDP2Gmsh(ElementType), NumElement);
       if(Format != FORMAT_VALUE_ONLY)
         for(i=0 ; i<NbrNodes ; i++)
           fprintf(PostStream, "%.16g %.16g %.16g  ", x[i], y[i], z[i]);
@@ -1050,7 +1072,7 @@ void  Format_PostFormat(struct PostSubOperation *PSO_P)
         fprintf(PostStream, "$EndNodes\n$Elements\n%d\n", (int)elements.size());
         for (unsigned int i = 0 ; i < elements.size() ; i++) {
           Geo_Element *Geo_Element = elements[i];
-          int Type = Geo_GetElementTypeInv(FORMAT_GMSH, Geo_Element->Type) ;
+          int Type = GetDP2Gmsh(Geo_Element->Type) ;
           if(Flag_BIN){
             int blob[6] = {Type, 1, 2, Geo_Element->Num, Geo_Element->Region,
                            Geo_Element->ElementaryRegion};

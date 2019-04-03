@@ -7,56 +7,14 @@
 //   Christophe Trophime
 //
 
+#include "GetDPConfig.h"
 #include "ProData.h"
+#include "ProDefine.h"
 #include "Message.h"
 
 #if defined(HAVE_GMSH)
-
 #include <gmsh/BasisFactory.h>
 #include <gmsh/nodalBasis.h>
-
-static int getMshType(int Type)
-{
-  switch(Type){
-  case POINT         : return 15;
-
-  case LINE          : return 1;
-  case TRIANGLE      : return 2;
-  case QUADRANGLE    : return 3;
-  case TETRAHEDRON   : return 4;
-  case HEXAHEDRON    : return 5;
-  case PRISM         : return 6;
-  case PYRAMID       : return 7;
-
-  case LINE_2        : return 8;
-  case TRIANGLE_2    : return 9;
-  case QUADRANGLE_2  : return 10;
-  case TETRAHEDRON_2 : return 11;
-  case HEXAHEDRON_2  : return 12;
-  case PRISM_2       : return 13;
-  case PYRAMID_2     : return 14;
-  case QUADRANGLE_2_8N: return 16;
-
-  case LINE_3        : return 26;
-  case TRIANGLE_3    : return 21;
-  case QUADRANGLE_3  : return 36;
-  case TETRAHEDRON_3 : return 29;
-  case HEXAHEDRON_3  : return 92;
-  case PRISM_3       : return 90;
-  case PYRAMID_3     : return 118;
-
-  case LINE_4        : return 27;
-  case TRIANGLE_4    : return 23;
-  case QUADRANGLE_4  : return 37;
-  case TETRAHEDRON_4 : return 30;
-  case HEXAHEDRON_4  : return 93;
-  case PRISM_4       : return 91;
-  case PYRAMID_4     : return 119;
-
-  default: return -1;
-  }
-}
-
 #endif
 
 #define SQU(a)     ((a)*(a))
@@ -228,7 +186,7 @@ void BF_Node(struct Element * Element, int NumNode,
     {
 #if defined(HAVE_GMSH)
       const nodalBasis *basis =
-        BasisFactory::getNodalBasis(getMshType(Element->Type));
+        BasisFactory::getNodalBasis(GetDP2Gmsh(Element->Type));
       if(basis)
         basis->f(u, v, w, NumNode - 1, s);
       else
@@ -468,7 +426,7 @@ void BF_GradNode(struct Element * Element, int NumNode,
     {
 #if defined(HAVE_GMSH)
       const nodalBasis *basis =
-        BasisFactory::getNodalBasis(getMshType(Element->Type));
+        BasisFactory::getNodalBasis(GetDP2Gmsh(Element->Type));
       if(basis)
         basis->df(u, v, w, NumNode - 1, s);
       else
