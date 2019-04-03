@@ -365,7 +365,6 @@ struct StringXDefine  PostSubOperation_Format[] = {
   {"Unv"                 , FORMAT_NXUNV},
   {"NX"                  , FORMAT_NXUNV},
   {"Gnuplot"             , FORMAT_GNUPLOT },
-  {"Matlab"              , FORMAT_MATLAB },
   {"Adaptation"          , FORMAT_ADAPT },
   {NULL                  , FORMAT_GMSH }
 } ;
