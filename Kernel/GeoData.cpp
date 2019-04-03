@@ -500,7 +500,7 @@ static void Geo_ReadFileWithGmsh(struct GeoData * GeoData_P)
           Geo_Element.Region = abs(physicalsTags[phys]);
           Geo_Element.ElementaryRegion = dimTags[entity].second;
           Geo_Element.NumNodes = (int *)Malloc(Geo_Element.NbrNodes * sizeof(int)) ;
-          for (unsigned int k = 0; k < Geo_Element.NbrNodes; k++)
+          for (int k = 0; k < Geo_Element.NbrNodes; k++)
             Geo_Element.NumNodes[k] = elementNodeTags[i][Geo_Element.NbrNodes*j + k];
           List_Add(GeoData_P->Elements, &Geo_Element) ;
         }
@@ -660,7 +660,8 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
         if(!parametric){
           if(!binary){
             if(fscanf(File_GEO, "%d %lf %lf %lf",
-                      &Geo_Node.Num, &Geo_Node.x, &Geo_Node.y, &Geo_Node.z) != 4) return;
+                      &Geo_Node.Num, &Geo_Node.x, &Geo_Node.y, &Geo_Node.z) != 4)
+              return;
           }
           else {
             if(fread(&Geo_Node.Num, sizeof(int), 1, File_GEO) != 1) return;
@@ -737,7 +738,8 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
           else if(dim == 3 && Version >= 3.0 && entity){
             double uvw[3];
             if(!binary){
-              if(fscanf(File_GEO, "%lf %lf %lf", &uvw[0], &uvw[1], &uvw[2]) != 3) return;
+              if(fscanf(File_GEO, "%lf %lf %lf", &uvw[0], &uvw[1], &uvw[2]) != 3)
+                return;
             }
             else{
               if(fread(uvw, sizeof(double), 3, File_GEO) != 2) return;
@@ -851,9 +853,10 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
           }
 
 	  Geo_Element.NumNodes = (int *)Malloc(Geo_Element.NbrNodes * sizeof(int)) ;
-	  for (j = 0 ; j < Geo_Element.NbrNodes ; j++)
-	    fscanf(File_GEO, "%d", &Geo_Element.NumNodes[j]) ;
-
+	  for (j = 0 ; j < Geo_Element.NbrNodes ; j++){
+	    if(fscanf(File_GEO, "%d", &Geo_Element.NumNodes[j]) != 1)
+              return;
+          }
           if(Geo_Element.Region < 0){
             Geo_ReverseElement(&Geo_Element);
             Geo_Element.Region = -Geo_Element.Region;
@@ -984,7 +987,10 @@ void Geo_ReadFileAdapt(struct GeoData * GeoData_P)
     if (!strncmp(&String[1], "Adapt", 5)) {
       fscanf(File_GEO, "%d", &Nbr) ;
       for (i = 0 ; i < Nbr ; i++) {
-	fscanf(File_GEO, "%d %lf %lf %lf", &Geo_Element.Num, &E, &H, &P) ;
+	if(fscanf(File_GEO, "%d %lf %lf %lf", &Geo_Element.Num, &E, &H, &P) != 4){
+          Message::Error("Could not read adaptation data");
+          break;
+        }
 	if(!(Geo_Element_P = (struct Geo_Element *)
 	     List_PQuery(GeoData_P->Elements, &Geo_Element, fcmp_Elm))){
 	  Message::Error("Element %d not found in database", Geo_Element.Num) ;

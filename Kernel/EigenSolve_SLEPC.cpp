@@ -822,6 +822,7 @@ static PetscErrorCode _myNepMonitor(NEP nep, int its, int nconv, PetscScalar *ei
   return _myMonitor("NEP", its, nconv, eigr, eigi, errest);
 }
 
+#if defined(PETSC_USE_COMPLEX)
 static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
                          double shift_r, double shift_i, int filterExpressionIndex,
                          List_T *RationalCoefsNum, List_T *RationalCoefsDen)
@@ -1027,6 +1028,7 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
   Message::Error("Nonlinear eigenvalue solver requires PETSc/SLEPc >= 3.8");
 #endif
 }
+#endif
 
 void EigenSolve_SLEPC(struct DofData * DofData_P, int numEigenValues,
                       double shift_r, double shift_i, int FilterExpressionIndex,

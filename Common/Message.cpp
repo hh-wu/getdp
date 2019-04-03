@@ -612,7 +612,7 @@ void Message::ProgressMeter(int n, int N, const char *fmt, ...)
 
   if(N <= 0 || percent >= _progressMeterCurrent || n > N - 1){
 
-    char str[1024], str2[1024];
+    char str[1024], str2[4096];
     va_list args;
     va_start(args, fmt);
     vsnprintf(str, sizeof(str), fmt, args);

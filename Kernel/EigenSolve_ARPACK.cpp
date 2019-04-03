@@ -88,9 +88,9 @@ void EigenPar(const char *filename, struct EigenPar *par)
   fp = FOpen(path, "r");
   if(fp) {
     Message::Info("Loading eigenproblem parameter file '%s'", path);
-    fscanf(fp, "%lf", &par->prec);
-    fscanf(fp, "%d", &par->reortho);
-    fscanf(fp, "%d", &par->size);
+    if(fscanf(fp, "%lf %d %d", &par->prec, &par->reortho, &par->size) != 3){
+      Message::Error("Could not read parameters");
+    }
     fclose(fp);
   }
   else{

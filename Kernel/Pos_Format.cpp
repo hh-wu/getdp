@@ -1527,22 +1527,22 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
 			 int NbrHarmonics, int HarmonicToTime, double *Dummy,
 			 struct PostElement * PE)
 {
-  static int  Size ;
+  static int  Size = 0 ;
   int    i, j, k, l, Num_Element ;
   struct PostElement  * PE2 ;
   struct Value          Value ;
 
   static int Warning_FirstHarmonic = 0 ;
 
-  int flag_storeAllTimeResults; //, indexInTmpValues;
-  /* Added soon
+  /* TODO
+  int flag_storeAllTimeResults, indexInTmpValues;
   static struct Value  TmpValue, *TmpValues ;
   static double *Times ;
   struct Value *FourierValues;
-  */
 
   flag_storeAllTimeResults = PSO_P->TimeToHarmonic ;
-  //  indexInTmpValues = flag_storeAllTimeResults? iTime * NbrRegion : 0 ;
+  indexInTmpValues = flag_storeAllTimeResults? iTime * NbrRegion : 0 ;
+  */
 
   if(1){
     switch(PE->Value[0].Type){

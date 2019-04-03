@@ -512,8 +512,8 @@ void Geo_ReadFilePRE(struct GeoData * GeoData_P0, int NbrGeoData,
   while (1) {
 
     do {
-      fgets(String, sizeof(String), File_PRE) ;
-      if (feof(File_PRE))  break ;
+      if(!fgets(String, sizeof(String), File_PRE) || feof(File_PRE))
+        break ;
     } while (String[0] != '$') ;
 
     if (feof(File_PRE))  break ;
@@ -522,7 +522,10 @@ void Geo_ReadFilePRE(struct GeoData * GeoData_P0, int NbrGeoData,
 
     if (!strncmp(&String[1], "ElementsXEdges", 14)) {
 
-      fscanf(File_PRE, "%d", &GeoDataIndex) ;
+      if(fscanf(File_PRE, "%d", &GeoDataIndex) != 1){
+        Message::Error("Could not read GeoData index");
+        return;
+      }
       if(GeoDataIndex > NbrGeoData-1){
 	Message::Error("Unknown GeoData: %d", GeoDataIndex);
         return;
@@ -531,14 +534,24 @@ void Geo_ReadFilePRE(struct GeoData * GeoData_P0, int NbrGeoData,
       GeoData_P = GeoData_P0 + GeoDataIndex ;
       Geo_Element_P0 = (struct Geo_Element*)List_Pointer(GeoData_P->Elements, 0) ;
 
-      fscanf(File_PRE, "%d", &GeoData_P->NbrElementsWithEdges) ;
+      if(fscanf(File_PRE, "%d", &GeoData_P->NbrElementsWithEdges) != 1){
+        Message::Error("Could not read number of elements with edges");
+        return;
+      }
       for (i = 0 ; i < GeoData_P->NbrElementsWithEdges ; i++) {
-	fscanf(File_PRE, "%d %d", &Index_Element, &Nbr_Entities) ;
+	if(fscanf(File_PRE, "%d %d", &Index_Element, &Nbr_Entities) != 2){
+          Message::Error("Could not read element index and number of edges");
+          return;
+        }
 	Geo_Element_P = Geo_Element_P0 + Index_Element ;
 	Geo_Element_P->NbrEdges = Nbr_Entities ;
 	Geo_Element_P->NumEdges = (int *)Malloc(Nbr_Entities * sizeof(int)) ;
-	for (j = 0 ; j < Geo_Element_P->NbrEdges ; j++)
-	  fscanf(File_PRE, "%d", &Geo_Element_P->NumEdges[j]) ;
+	for (j = 0 ; j < Geo_Element_P->NbrEdges ; j++){
+	  if(fscanf(File_PRE, "%d", &Geo_Element_P->NumEdges[j]) != 1){
+            Message::Error("Could not read edge");
+            return;
+          }
+        }
       }
     }
 
@@ -546,7 +559,10 @@ void Geo_ReadFilePRE(struct GeoData * GeoData_P0, int NbrGeoData,
 
     else if (!strncmp(&String[1], "ElementsXFacets", 15)) {
 
-      fscanf(File_PRE, "%d", &GeoDataIndex) ;
+      if(fscanf(File_PRE, "%d", &GeoDataIndex) != 1){
+        Message::Error("Could not read GeoData index");
+        return;
+      }
       if(GeoDataIndex > NbrGeoData-1){
 	Message::Error("Unknown GeoData: %d", GeoDataIndex);
         return;
@@ -555,14 +571,24 @@ void Geo_ReadFilePRE(struct GeoData * GeoData_P0, int NbrGeoData,
       GeoData_P = GeoData_P0 + GeoDataIndex ;
       Geo_Element_P0 = (struct Geo_Element*)List_Pointer(GeoData_P->Elements, 0) ;
 
-      fscanf(File_PRE, "%d", &GeoData_P->NbrElementsWithFacets) ;
+      if(fscanf(File_PRE, "%d", &GeoData_P->NbrElementsWithFacets) != 1){
+        Message::Error("Could not read number of elements with facets");
+        return;
+      }
       for (i = 0 ; i < GeoData_P->NbrElementsWithFacets ; i++) {
-	fscanf(File_PRE, "%d %d", &Index_Element, &Nbr_Entities) ;
+	if(fscanf(File_PRE, "%d %d", &Index_Element, &Nbr_Entities) != 2){
+          Message::Error("Could not read element index and number of facets");
+          return;
+        }
 	Geo_Element_P = Geo_Element_P0 + Index_Element ;
 	Geo_Element_P->NbrFacets = Nbr_Entities ;
 	Geo_Element_P->NumFacets = (int *)Malloc(Nbr_Entities * sizeof(int)) ;
-	for (j = 0 ; j < Geo_Element_P->NbrFacets ; j++)
-	  fscanf(File_PRE, "%d", &Geo_Element_P->NumFacets[j]) ;
+	for (j = 0 ; j < Geo_Element_P->NbrFacets ; j++){
+	  if(fscanf(File_PRE, "%d", &Geo_Element_P->NumFacets[j]) != 1){
+            Message::Error("Could not read facet");
+            return;
+          }
+        }
       }
     }
 
@@ -570,18 +596,24 @@ void Geo_ReadFilePRE(struct GeoData * GeoData_P0, int NbrGeoData,
 
     else if (!strncmp(&String[1], "ExtendedGroup", 13)) {
 
-      fscanf(File_PRE, "%d %d", &Index_Group, &Nbr_Entities) ;
+      if(fscanf(File_PRE, "%d %d", &Index_Group, &Nbr_Entities) != 2){
+        Message::Error("Could not read extended group index and number of entities");
+        return;
+      }
       Group_P = (struct Group*)List_Pointer(Group_L, Index_Group) ;
       Group_P->ExtendedList = List_Create(Nbr_Entities, 1, sizeof(int)) ;
       for (i = 0 ; i < Nbr_Entities ; i++) {
-	fscanf(File_PRE, "%d", &Num_Entity) ;
+	if(fscanf(File_PRE, "%d", &Num_Entity) != 1){
+          Message::Error("Could not read entity");
+          return;
+        }
 	List_Add(Group_P->ExtendedList, &Num_Entity) ;
       }
     }
 
     do {
-      fgets(String, sizeof(String), File_PRE) ;
-      if (feof(File_PRE)){ Message::Error("Prematured end of file"); return; }
+      if(!fgets(String, sizeof(String), File_PRE) || feof(File_PRE))
+        break;
     } while (String[0] != '$') ;
 
   }   /* while 1 ... */

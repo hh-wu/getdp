@@ -438,8 +438,8 @@ double Transformation(int Dim, int Type, struct Element * Element, MATRIX3x3 * J
   double  X = 0., Y = 0., Z = 0.;
   double  p = 1., L= 0.;
   double  Ca = 0., Cx = 0., Cy = 0., Cz = 0., A = 0., B = 0., R = 0.;
-  double  theta, XR, YR, ZR, f, dRdx = 0., dRdy = 0., dRdz = 0.;
-  double  DetJac;
+  double  theta = 0., XR = 0., YR = 0., ZR = 0., f = 0., dRdx = 0., dRdy = 0., dRdz = 0.;
+  double  DetJac = 0.;
 
   /*
     A          = interior radius

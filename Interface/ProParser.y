@@ -8466,22 +8466,24 @@ Affectation :
     {
       Message::Info("? ");
       char tmpstr[256];
-      fgets(tmpstr, sizeof(tmpstr), stdin);
-      Constant_S.Value.Float = atof(tmpstr);
-      Constant_S.Name = $3;
-      Constant_S.Type = VAR_FLOAT;
-      Tree_Replace(ConstantTable_L, &Constant_S);
+      if(fgets(tmpstr, sizeof(tmpstr), stdin)){
+        Constant_S.Value.Float = atof(tmpstr);
+        Constant_S.Name = $3;
+        Constant_S.Type = VAR_FLOAT;
+        Tree_Replace(ConstantTable_L, &Constant_S);
+      }
     }
 
   | tRead '[' String__Index ']' tEND
     {
       Message::Info("? ");
       char tmpstr[256];
-      fgets(tmpstr, sizeof(tmpstr), stdin);
-      Constant_S.Value.Float = atof(tmpstr);
-      Constant_S.Name = $3;
-      Constant_S.Type = VAR_FLOAT;
-      Tree_Replace(ConstantTable_L, &Constant_S);
+      if(fgets(tmpstr, sizeof(tmpstr), stdin)){
+        Constant_S.Value.Float = atof(tmpstr);
+        Constant_S.Name = $3;
+        Constant_S.Type = VAR_FLOAT;
+        Tree_Replace(ConstantTable_L, &Constant_S);
+      }
     }
 
   // deprectated
@@ -8489,30 +8491,30 @@ Affectation :
     {
       Message::Info("[<return>=%g] ? ",$6);
       char tmpstr[256];
-      fgets(tmpstr, sizeof(tmpstr), stdin);
-
-      if(!strcmp(tmpstr,"\n"))
-	Constant_S.Value.Float = $6;
-      else
-	Constant_S.Value.Float = atof(tmpstr);
-      Constant_S.Name = $3;
-      Constant_S.Type = VAR_FLOAT;
-      Tree_Replace(ConstantTable_L, &Constant_S);
+      if(fgets(tmpstr, sizeof(tmpstr), stdin)){
+        if(!strcmp(tmpstr,"\n"))
+          Constant_S.Value.Float = $6;
+        else
+          Constant_S.Value.Float = atof(tmpstr);
+        Constant_S.Name = $3;
+        Constant_S.Type = VAR_FLOAT;
+        Tree_Replace(ConstantTable_L, &Constant_S);
+      }
     }
 
   | tRead '[' String__Index ',' FExpr '}' tEND
     {
       Message::Info("[<return>=%g] ? ",$5);
       char tmpstr[256];
-      fgets(tmpstr, sizeof(tmpstr), stdin);
-
-      if(!strcmp(tmpstr,"\n"))
-	Constant_S.Value.Float = $5;
-      else
-	Constant_S.Value.Float = atof(tmpstr);
-      Constant_S.Name = $3;
-      Constant_S.Type = VAR_FLOAT;
-      Tree_Replace(ConstantTable_L, &Constant_S);
+      if(fgets(tmpstr, sizeof(tmpstr), stdin)){
+        if(!strcmp(tmpstr,"\n"))
+          Constant_S.Value.Float = $5;
+        else
+          Constant_S.Value.Float = atof(tmpstr);
+        Constant_S.Name = $3;
+        Constant_S.Type = VAR_FLOAT;
+        Tree_Replace(ConstantTable_L, &Constant_S);
+      }
     }
 
   | tPrintConstants tEND
@@ -9582,8 +9584,8 @@ MultiFExpr :
           }
           else{
             char dummy[1024];
-            fscanf(File, "%s", dummy);
-            vyyerror(1, "Ignoring '%s' in file '%s'", dummy, $3);
+            if(fscanf(File, "%s", dummy))
+              vyyerror(1, "Ignoring '%s' in file '%s'", dummy, $3);
           }
         }
 	fclose(File);
