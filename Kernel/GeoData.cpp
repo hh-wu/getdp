@@ -985,7 +985,10 @@ void Geo_ReadFileAdapt(struct GeoData * GeoData_P)
     if (feof(File_GEO))  break ;
 
     if (!strncmp(&String[1], "Adapt", 5)) {
-      fscanf(File_GEO, "%d", &Nbr) ;
+      if(fscanf(File_GEO, "%d", &Nbr) != 1){
+        Message::Error("Could not read adapation data");
+        break;
+      }
       for (i = 0 ; i < Nbr ; i++) {
 	if(fscanf(File_GEO, "%d %lf %lf %lf", &Geo_Element.Num, &E, &H, &P) != 4){
           Message::Error("Could not read adaptation data");

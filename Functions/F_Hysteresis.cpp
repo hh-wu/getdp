@@ -2865,8 +2865,10 @@ void Vector_h_EB  ( const double b[3],
       Message::Warning("b_desired : [%.10g, %.10g, %.10g]", b[0],b[1],b[2]);
       Message::Warning("b_get     : [%.10g, %.10g, %.10g]", bc[0],bc[1],bc[2]);
       Message::Warning("h_get     : [%.10g, %.10g, %.10g]", h[0],h[1],h[2]);
-      if (::FLAG_WARNING>=FLAG_WARNING_STOP_INV)
-        {char c;c=getchar();}
+      if (::FLAG_WARNING >= FLAG_WARNING_STOP_INV){
+        if(getchar()){
+        }
+      }
     }
   }
 

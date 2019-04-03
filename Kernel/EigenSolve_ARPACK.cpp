@@ -58,18 +58,20 @@ static void EigenGetDouble(const char *text, double *d)
 {
   char str[256];
   printf("%s (default=%.16g): ", text, *d);
-  fgets(str, sizeof(str), stdin);
-  if(strlen(str) && strcmp(str, "\n"))
-    *d = atof(str);
+  if(fgets(str, sizeof(str), stdin)){
+    if(strlen(str) && strcmp(str, "\n"))
+      *d = atof(str);
+  }
 }
 
 static void EigenGetInt(const char *text, int *i)
 {
   char str[256];
   printf("%s (default=%d): ", text, *i);
-  fgets(str, sizeof(str), stdin);
-  if(strlen(str) && strcmp(str, "\n"))
-    *i = atoi(str);
+  if(fgets(str, sizeof(str), stdin)){
+    if(strlen(str) && strcmp(str, "\n"))
+      *i = atoi(str);
+  }
 }
 
 void EigenPar(const char *filename, struct EigenPar *par)

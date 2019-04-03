@@ -1527,7 +1527,6 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
 			 int NbrHarmonics, int HarmonicToTime, double *Dummy,
 			 struct PostElement * PE)
 {
-  static int  Size = 0 ;
   int    i, j, k, l, Num_Element ;
   struct PostElement  * PE2 ;
   struct Value          Value ;
@@ -1535,6 +1534,9 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
   static int Warning_FirstHarmonic = 0 ;
 
   /* TODO
+
+  static int  Size = 0 ;
+
   int flag_storeAllTimeResults, indexInTmpValues;
   static struct Value  TmpValue, *TmpValues ;
   static double *Times ;
@@ -1542,7 +1544,6 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
 
   flag_storeAllTimeResults = PSO_P->TimeToHarmonic ;
   indexInTmpValues = flag_storeAllTimeResults? iTime * NbrRegion : 0 ;
-  */
 
   if(1){
     switch(PE->Value[0].Type){
@@ -1554,6 +1555,7 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
     default          : Size = 9 ; break ;
     }
   }
+  */
 
   if(PE->Index != NO_ELEMENT)
     Num_Element = Geo_GetGeoElement(PE->Index)->Num ;
