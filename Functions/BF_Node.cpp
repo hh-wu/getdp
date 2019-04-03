@@ -114,6 +114,10 @@ void BF_Node(struct Element * Element, int NumNode,
     }
     break ;
 
+  // For consistency, the following cases (LINE_2, TRIANGLE_2, QUADRANGLE_2,
+  // TETRAHEDRON_2) should be removed, and handled automatically by gmsh (see
+  // below):
+
   case LINE_2 :
     switch(NumNode) {
     case 1  : *s = 0.5*u*(u-1.) ; break ;
@@ -353,6 +357,10 @@ void BF_GradNode(struct Element * Element, int NumNode,
       }
     }
     break ;
+
+  // For consistency, the following cases (LINE_2, TRIANGLE_2, QUADRANGLE_2,
+  // TETRAHEDRON_2) should be removed, and handled automatically by gmsh (see
+  // below):
 
   case LINE_2 :
     switch(NumNode) {
