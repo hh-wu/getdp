@@ -9,6 +9,7 @@
 #include "GetDPConfig.h"
 #include "GeoData.h"
 #include "ProData.h"
+#include "ProDefine.h"
 #include "Pos_Search.h"
 #include "MallocUtils.h"
 #include "Message.h"
@@ -109,6 +110,8 @@ void Geo_InitGeoData(struct GeoData * GeoData_P, int Num, char * Name)
   GeoData_P->Grid.Init = 0 ;
 
   GeoData_P->H = GeoData_P->P = NULL ;
+
+  GeoData_P->PeriodicNodes = NULL ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -181,80 +184,11 @@ void Geo_CloseFile(void)
 /*  G e o _ R e a d F i l e                                                 */
 /* ------------------------------------------------------------------------ */
 
-int Geo_GetElementType(int Format, int Type)
-{
-  switch(Format){
-  case FORMAT_GMSH :
-    switch(Type){
-    case 15 : return POINT;
-    case 1  : return LINE;
-    case 2  : return TRIANGLE;
-    case 3  : return QUADRANGLE;
-    case 4  : return TETRAHEDRON;
-    case 5  : return HEXAHEDRON;
-    case 6  : return PRISM;
-    case 7  : return PYRAMID;
-    case 8  : return LINE_2;
-    case 9  : return TRIANGLE_2;
-    case 10 : return QUADRANGLE_2;
-    case 11 : return TETRAHEDRON_2;
-    case 12 : return HEXAHEDRON_2;
-    case 13 : return PRISM_2;
-    case 14 : return PYRAMID_2;
-    case 16 : return QUADRANGLE_2_8N;
-    case 27 : return LINE_4;
-    case 23 : return TRIANGLE_4;
-    case 30 : return TETRAHEDRON_4;
-    default :
-      Message::Error("Unknown type of Element in Gmsh format (%d)", FORMAT_GMSH);
-      return -1;
-    }
-    break ;
-  default :
-    Message::Error("Unknown mesh format (%d)", Format);
-    return -1;
-  }
-}
-
-int Geo_GetElementTypeInv(int Format, int Type)
-{
-  switch(Format){
-  case FORMAT_GMSH :
-    switch(Type){
-    case POINT         : return 15;
-    case LINE          : return 1;
-    case TRIANGLE      : return 2;
-    case QUADRANGLE    : return 3;
-    case TETRAHEDRON   : return 4;
-    case HEXAHEDRON    : return 5;
-    case PRISM         : return 6;
-    case PYRAMID       : return 7;
-    case LINE_2        : return 8;
-    case TRIANGLE_2    : return 9;
-    case QUADRANGLE_2  : return 10;
-    case TETRAHEDRON_2 : return 11;
-    case HEXAHEDRON_2  : return 12;
-    case PRISM_2       : return 13;
-    case PYRAMID_2     : return 14;
-    case QUADRANGLE_2_8N: return 16;
-    case LINE_4        : return 27;
-    case TRIANGLE_4    : return 23;
-    case TETRAHEDRON_4 : return 30;
-    default :
-      Message::Error("Unknown type of Element in Gmsh format");
-      return -1;
-    }
-    break ;
-  default :
-    Message::Error("Unknown mesh format");
-    return -1;
-  }
-}
-
 int Geo_GetNbNodesPerElement(int Type)
 {
   switch(Type){
   case POINT         : return 1;
+
   case LINE          : return 2;
   case TRIANGLE      : return 3;
   case QUADRANGLE    : return 4;
@@ -262,6 +196,7 @@ int Geo_GetNbNodesPerElement(int Type)
   case HEXAHEDRON    : return 8;
   case PRISM         : return 6;
   case PYRAMID       : return 5;
+
   case LINE_2        : return 3;
   case TRIANGLE_2    : return 6;
   case QUADRANGLE_2  : return 9;
@@ -270,9 +205,23 @@ int Geo_GetNbNodesPerElement(int Type)
   case PRISM_2       : return 15;
   case PYRAMID_2     : return 13;
   case QUADRANGLE_2_8N: return 8;
+
+  case LINE_3        : return 4;
+  case TRIANGLE_3    : return 10;
+  case QUADRANGLE_3  : return 16;
+  case TETRAHEDRON_3 : return 20;
+  case HEXAHEDRON_3  : return 64;
+  case PRISM_3       : return 40;
+  case PYRAMID_3     : return 30;
+
   case LINE_4        : return 5;
   case TRIANGLE_4    : return 15;
+  case QUADRANGLE_4  : return 25;
   case TETRAHEDRON_4 : return 35;
+  case HEXAHEDRON_4  : return 125;
+  case PRISM_4       : return 75;
+  case PYRAMID_4     : return 55;
+
   default :
     Message::Error("Unknown type of Element");
     return -1;
@@ -283,6 +232,7 @@ int Geo_GetDimOfElement(int Type)
 {
   switch(Type){
   case POINT         : return 0;
+
   case LINE          : return 1;
   case TRIANGLE      : return 2;
   case QUADRANGLE    : return 2;
@@ -290,6 +240,7 @@ int Geo_GetDimOfElement(int Type)
   case HEXAHEDRON    : return 3;
   case PRISM         : return 3;
   case PYRAMID       : return 3;
+
   case LINE_2        : return 1;
   case TRIANGLE_2    : return 2;
   case QUADRANGLE_2  : return 2;
@@ -298,9 +249,22 @@ int Geo_GetDimOfElement(int Type)
   case PRISM_2       : return 3;
   case PYRAMID_2     : return 3;
   case QUADRANGLE_2_8N: return 2;
+
+  case LINE_3        : return 1;
+  case TRIANGLE_3    : return 2;
+  case QUADRANGLE_3  : return 2;
+  case TETRAHEDRON_3 : return 3;
+  case HEXAHEDRON_3  : return 3;
+  case PRISM_3       : return 3;
+  case PYRAMID_3     : return 3;
+
   case LINE_4        : return 1;
   case TRIANGLE_4    : return 2;
+  case QUADRANGLE_4  : return 2;
   case TETRAHEDRON_4 : return 3;
+  case HEXAHEDRON_4  : return 3;
+  case PRISM_4       : return 3;
+  case PYRAMID_4     : return 3;
   default :
     Message::Error("Unknown type of Element");
     return -1;
@@ -311,6 +275,8 @@ void Geo_ReverseElement(Geo_Element *Geo_Element)
 {
   int tmp;
   switch(Geo_Element->Type){
+  case POINT :
+    break;
   case LINE :
   case LINE_2 :
     tmp = Geo_Element->NumNodes[0];
@@ -348,6 +314,8 @@ void Geo_ReverseElement(Geo_Element *Geo_Element)
     Geo_Element->NumNodes[6] = tmp;
     break;
   default :
+    Message::Error("Unknown type of element (%d) to reverse",
+                   Geo_Element->Type);
     break;
   }
 }
@@ -394,7 +362,7 @@ void Geo_SaveMesh(struct GeoData * GeoData_P, List_T * InitialList, char * FileN
   fprintf(file, "$ENDNOD\n$ELM\n%d\n", List_Nbr(GeoData.Elements));
   for (int i = 0 ; i < List_Nbr(GeoData.Elements) ; i++) {
     List_Read(GeoData.Elements, i, &Geo_Element) ;
-    int Type = Geo_GetElementTypeInv(FORMAT_GMSH, Geo_Element.Type) ;
+    int Type = GetDP2Gmsh(Geo_Element.Type) ;
     fprintf(file, "%d %d %d %d %d ",
             Geo_Element.Num, Type, Geo_Element.Region,
             Geo_Element.Region, Geo_Element.NbrNodes) ;
@@ -522,7 +490,7 @@ static void Geo_ReadFileWithGmsh(struct GeoData * GeoData_P)
 
     for(unsigned int phys = 0; phys < physicalsTags.size(); phys++){
       for(unsigned int i = 0; i < elementTypes.size(); i++){
-        Geo_Element.Type = Geo_GetElementType(FORMAT_GMSH, elementTypes[i]) ;
+        Geo_Element.Type = Gmsh2GetDP(elementTypes[i]) ;
         Geo_Element.NbrNodes = elementNodeTags[i].size()/elementTags[i].size();
         for(unsigned int j = 0; j < elementTags[i].size(); j++){
           // if more than one physical group, create new elements (with new
@@ -532,7 +500,7 @@ static void Geo_ReadFileWithGmsh(struct GeoData * GeoData_P)
           Geo_Element.Region = abs(physicalsTags[phys]);
           Geo_Element.ElementaryRegion = dimTags[entity].second;
           Geo_Element.NumNodes = (int *)Malloc(Geo_Element.NbrNodes * sizeof(int)) ;
-          for (unsigned int k = 0; k < Geo_Element.NbrNodes; k++)
+          for (int k = 0; k < Geo_Element.NbrNodes; k++)
             Geo_Element.NumNodes[k] = elementNodeTags[i][Geo_Element.NbrNodes*j + k];
           List_Add(GeoData_P->Elements, &Geo_Element) ;
         }
@@ -541,6 +509,26 @@ static void Geo_ReadFileWithGmsh(struct GeoData * GeoData_P)
   }
 
   List_Sort(GeoData_P->Elements, fcmp_Elm) ;
+
+  // Keep track of periodic nodes correspondance, if any
+  for(unsigned int entity = 0; entity < dimTags.size(); entity++){
+    int tagMaster;
+    std::vector<std::size_t> nodeTags, nodeTagsMaster;
+    std::vector<double> affineTransform;
+    gmsh::model::mesh::getPeriodicNodes(dimTags[entity].first, dimTags[entity].second,
+                                        tagMaster, nodeTags, nodeTagsMaster,
+                                        affineTransform);
+    if(!nodeTags.empty()){
+      if(!GeoData_P->PeriodicNodes)
+        GeoData_P->PeriodicNodes =
+          List_Create(nodeTags.size(), 1000, sizeof(TwoInt));
+      for(std::size_t i = 0; i < nodeTags.size(); i++){
+        TwoInt pair = {(int)nodeTags[i], (int)nodeTagsMaster[i]};
+        List_Add(GeoData_P->PeriodicNodes, &pair);
+      }
+    }
+  }
+
 #else
   Message::Error("You need to compile GetDP with Gmsh support to open '%s'",
                  name);
@@ -672,7 +660,8 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
         if(!parametric){
           if(!binary){
             if(fscanf(File_GEO, "%d %lf %lf %lf",
-                      &Geo_Node.Num, &Geo_Node.x, &Geo_Node.y, &Geo_Node.z) != 4) return;
+                      &Geo_Node.Num, &Geo_Node.x, &Geo_Node.y, &Geo_Node.z) != 4)
+              return;
           }
           else {
             if(fread(&Geo_Node.Num, sizeof(int), 1, File_GEO) != 1) return;
@@ -749,7 +738,8 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
           else if(dim == 3 && Version >= 3.0 && entity){
             double uvw[3];
             if(!binary){
-              if(fscanf(File_GEO, "%lf %lf %lf", &uvw[0], &uvw[1], &uvw[2]) != 3) return;
+              if(fscanf(File_GEO, "%lf %lf %lf", &uvw[0], &uvw[1], &uvw[2]) != 3)
+                return;
             }
             else{
               if(fread(uvw, sizeof(double), 3, File_GEO) != 2) return;
@@ -823,7 +813,7 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
                       &Geo_Element.Num, &Type, &Geo_Element.Region,
                       &Geo_Element.ElementaryRegion, &Geo_Element.NbrNodes) != 5)
               return;
-	    Geo_Element.Type = Geo_GetElementType(FORMAT_GMSH, Type) ;
+	    Geo_Element.Type = Gmsh2GetDP(Type) ;
 	  }
 	  else if(Version < 3.0){
 	    if(fscanf(File_GEO, "%d %d %d", &Geo_Element.Num, &Type, &NbTags) != 3)
@@ -837,14 +827,14 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
                 Geo_Element.ElementaryRegion = iDummy;
 	      /* ignore any other tags for now */
 	    }
-	    Geo_Element.Type = Geo_GetElementType(FORMAT_GMSH, Type) ;
+	    Geo_Element.Type = Gmsh2GetDP(Type) ;
 	    Geo_Element.NbrNodes = Geo_GetNbNodesPerElement(Geo_Element.Type);
 	  }
           else{
             int numData;
 	    if(fscanf(File_GEO, "%d %d %d %d", &Geo_Element.Num, &Type,
                       &Geo_Element.ElementaryRegion, &numData) != 4) return;
-	    Geo_Element.Type = Geo_GetElementType(FORMAT_GMSH, Type) ;
+	    Geo_Element.Type = Gmsh2GetDP(Type) ;
 	    Geo_Element.NbrNodes = Geo_GetNbNodesPerElement(Geo_Element.Type);
             std::vector<int> phys = entities[Geo_GetDimOfElement(Geo_Element.Type)]
               [Geo_Element.ElementaryRegion];
@@ -863,9 +853,10 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
           }
 
 	  Geo_Element.NumNodes = (int *)Malloc(Geo_Element.NbrNodes * sizeof(int)) ;
-	  for (j = 0 ; j < Geo_Element.NbrNodes ; j++)
-	    fscanf(File_GEO, "%d", &Geo_Element.NumNodes[j]) ;
-
+	  for (j = 0 ; j < Geo_Element.NbrNodes ; j++){
+	    if(fscanf(File_GEO, "%d", &Geo_Element.NumNodes[j]) != 1)
+              return;
+          }
           if(Geo_Element.Region < 0){
             Geo_ReverseElement(&Geo_Element);
             Geo_Element.Region = -Geo_Element.Region;
@@ -884,7 +875,7 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
             Type = header[0];
             int numElms = header[1];
             int numTags = header[2];
-            Geo_Element.Type = Geo_GetElementType(FORMAT_GMSH, Type) ;
+            Geo_Element.Type = Gmsh2GetDP(Type) ;
             Geo_Element.NbrNodes = Geo_GetNbNodesPerElement(Geo_Element.Type);
             unsigned int n = 1 + numTags + Geo_Element.NbrNodes;
             int *data = (int *)Malloc(n * sizeof(int)) ;
@@ -920,7 +911,7 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
               if((int)fread(&data[0], sizeof(int), numData, File_GEO) != numData) return;
               if(swap) swapBytes((char*)&data[0], sizeof(int), numData);
             }
-            Geo_Element.Type = Geo_GetElementType(FORMAT_GMSH, Type) ;
+            Geo_Element.Type = Gmsh2GetDP(Type) ;
             Geo_Element.NbrNodes = Geo_GetNbNodesPerElement(Geo_Element.Type);
             Geo_Element.NumNodes = (int *)Malloc(Geo_Element.NbrNodes * sizeof(int)) ;
             if((int)data.size() >= Geo_Element.NbrNodes){
@@ -994,9 +985,15 @@ void Geo_ReadFileAdapt(struct GeoData * GeoData_P)
     if (feof(File_GEO))  break ;
 
     if (!strncmp(&String[1], "Adapt", 5)) {
-      fscanf(File_GEO, "%d", &Nbr) ;
+      if(fscanf(File_GEO, "%d", &Nbr) != 1){
+        Message::Error("Could not read adapation data");
+        break;
+      }
       for (i = 0 ; i < Nbr ; i++) {
-	fscanf(File_GEO, "%d %lf %lf %lf", &Geo_Element.Num, &E, &H, &P) ;
+	if(fscanf(File_GEO, "%d %lf %lf %lf", &Geo_Element.Num, &E, &H, &P) != 4){
+          Message::Error("Could not read adaptation data");
+          break;
+        }
 	if(!(Geo_Element_P = (struct Geo_Element *)
 	     List_PQuery(GeoData_P->Elements, &Geo_Element, fcmp_Elm))){
 	  Message::Error("Element %d not found in database", Geo_Element.Num) ;

@@ -121,4 +121,7 @@ void Get_Valid_SXP(const char *value, struct StringXPointer V[]);
 void Get_Valid_SX3F3N(const char *value, struct StringX3Function3Nbr V[]);
 void Get_Valid_SXF2N(const char *value, struct StringXFunction2Nbr V[]);
 
+int Gmsh2GetDP(int type);
+int GetDP2Gmsh(int type);
+
 #endif

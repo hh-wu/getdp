@@ -8,15 +8,20 @@
 //
 
 #include <math.h>
+#include "GetDPConfig.h"
 #include "Pos_Element.h"
 #include "GeoData.h"
-#include "GeoEntity.h"
 #include "Get_Geometry.h"
 #include "Get_DofOfElement.h"
 #include "Cal_Value.h"
 #include "MallocUtils.h"
 #include "Message.h"
 #include "ProDefine.h"
+
+#if defined(HAVE_GMSH)
+#include <gmsh/BasisFactory.h>
+#include <gmsh/nodalBasis.h>
+#endif
 
 extern struct CurrentData Current ;
 
@@ -187,6 +192,8 @@ void Cut_PostElement(struct PostElement * PE, struct Geo_Element * GE,
 
     case LINE :
     case LINE_2 :
+    case LINE_3 :
+    case LINE_4 :
       u01 = .5 * (PE->u[0] + PE->u[1]);
       v01 = .5 * (PE->v[0] + PE->v[1]);
       w01 = .5 * (PE->w[0] + PE->w[1]);
@@ -203,6 +210,8 @@ void Cut_PostElement(struct PostElement * PE, struct Geo_Element * GE,
 
     case TRIANGLE :
     case TRIANGLE_2 :
+    case TRIANGLE_3 :
+    case TRIANGLE_4 :
       u01 = .5 * (PE->u[0] + PE->u[1]); u02 = .5 * (PE->u[0] + PE->u[2]);
       v01 = .5 * (PE->v[0] + PE->v[1]);	v02 = .5 * (PE->v[0] + PE->v[2]);
       w01 = .5 * (PE->w[0] + PE->w[1]);	w02 = .5 * (PE->w[0] + PE->w[2]);
@@ -236,6 +245,8 @@ void Cut_PostElement(struct PostElement * PE, struct Geo_Element * GE,
 
     case TETRAHEDRON :
     case TETRAHEDRON_2 :
+    case TETRAHEDRON_3 :
+    case TETRAHEDRON_4 :
       u01 = .5 * (PE->u[0] + PE->u[1]); u02 = .5 * (PE->u[0] + PE->u[2]);
       v01 = .5 * (PE->v[0] + PE->v[1]);	v02 = .5 * (PE->v[0] + PE->v[2]);
       w01 = .5 * (PE->w[0] + PE->w[1]);	w02 = .5 * (PE->w[0] + PE->w[2]);
@@ -350,15 +361,35 @@ void Cut_PostElement(struct PostElement * PE, struct Geo_Element * GE,
 /*  F i l l _ P o s t E l e m e n t                                         */
 /* ------------------------------------------------------------------------ */
 
+static struct PostElement *Create_HighOrderPostElement(struct Geo_Element * GE,
+                                                       int Index)
+{
+  struct PostElement * PE = NULL;
+#if defined(HAVE_GMSH)
+  const nodalBasis *basis = BasisFactory::getNodalBasis(GetDP2Gmsh(GE->Type));
+  if(basis){
+    int NbrNodes = basis->points.size1();
+    PE = Create_PostElement(Index, GE->Type, NbrNodes, 1) ;
+    for(int i = 0; i < NbrNodes; i++){
+      PE->NumNodes[i] = GE->NumNodes[i] ;
+      int dim = basis->points.size2();
+      PE->u[i] = (dim >= 1) ? basis->points(i, 0) : 0;
+      PE->v[i] = (dim >= 2) ? basis->points(i, 1) : 0;
+      PE->w[i] = (dim >= 3) ? basis->points(i, 2) : 0;
+    }
+  }
+#endif
+  return PE;
+}
+
 #define POS_CUT_FILL  Cut_PostElement(PE, GE, PE_L, Index, Depth, 0, DecomposeInSimplex)
 #define POS_CUT_SKIN  Cut_PostElement(PE, GE, PE_L, Index, Depth, 1, DecomposeInSimplex)
 
 void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
-		      int Index, int Depth, int Skin, List_T * EvaluationPoints_L,
+		      int Index, int Depth, int Skin,
 		      int DecomposeInSimplex, int HighOrder, int Gauss)
 {
   struct PostElement * PE ;
-  int Nbr_EP, i_EP, Type, NbrNodes;
 
   if(Gauss > 0){
 
@@ -380,19 +411,44 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 
     PE = Create_PostElement(Index, POINT, 1, 0) ;
     switch(GE->Type){
-    case POINT       : PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 0.   ; break ;
-    case LINE        :
-    case LINE_2      : PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 0.   ; break ;
-    case TRIANGLE    :
-    case TRIANGLE_2  : PE->u[0] = 1./3.; PE->v[0] = 1./3.; PE->w[0] = 0.   ; break ;
-    case QUADRANGLE  :
-    case QUADRANGLE_2:
-    case QUADRANGLE_2_8N: PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 0.   ; break ;
+    case POINT :
+      PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 0.   ; break ;
+    case LINE :
+    case LINE_2 :
+    case LINE_3 :
+    case LINE_4 :
+      PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 0.   ; break ;
+    case TRIANGLE :
+    case TRIANGLE_2 :
+    case TRIANGLE_3 :
+    case TRIANGLE_4 :
+      PE->u[0] = 1./3.; PE->v[0] = 1./3.; PE->w[0] = 0.   ; break ;
+    case QUADRANGLE :
+    case QUADRANGLE_2 :
+    case QUADRANGLE_2_8N :
+    case QUADRANGLE_3 :
+    case QUADRANGLE_4 :
+      PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 0.   ; break ;
     case TETRAHEDRON :
-    case TETRAHEDRON_2 : PE->u[0] = 0.25 ; PE->v[0] = 0.25 ; PE->w[0] = 0.25 ; break ;
-    case HEXAHEDRON  : PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 0.   ; break ;
-    case PRISM       : PE->u[0] = 1./3.; PE->v[0] = 1./3.; PE->w[0] = 0.   ; break ;
-    case PYRAMID     : PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 1./3.; break ;
+    case TETRAHEDRON_2 :
+    case TETRAHEDRON_3 :
+    case TETRAHEDRON_4 :
+      PE->u[0] = 0.25 ; PE->v[0] = 0.25 ; PE->w[0] = 0.25 ; break ;
+    case HEXAHEDRON :
+    case HEXAHEDRON_2 :
+    case HEXAHEDRON_3 :
+    case HEXAHEDRON_4 :
+      PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 0.   ; break ;
+    case PRISM :
+    case PRISM_2 :
+    case PRISM_3 :
+    case PRISM_4 :
+      PE->u[0] = 1./3.; PE->v[0] = 1./3.; PE->w[0] = 0.   ; break ;
+    case PYRAMID :
+    case PYRAMID_2 :
+    case PYRAMID_3 :
+    case PYRAMID_4 :
+      PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 1./3.; break ;
     }
     POS_CUT_FILL ;
 
@@ -400,6 +456,8 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
   else{
 
     if(!Skin){
+
+      PE = NULL;
 
       switch(GE->Type){
 
@@ -410,76 +468,57 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
         POS_CUT_FILL ;
         break ;
 
-      case LINE_2 :
-        Type = (HighOrder) ? LINE_2 : LINE;
-        NbrNodes = (HighOrder) ? NbrNodes_Line_2 : NbrNodes_Line;
-        PE = Create_PostElement(Index, Type, NbrNodes, 1) ;
-        for(int i=0; i<NbrNodes; i++){
-          PE->NumNodes[i] = GE->NumNodes[i] ;
-          PE->u[i] = Nodes_Line_2[i][0] ;
-          PE->v[i] = Nodes_Line_2[i][1] ;
-          PE->w[i] = Nodes_Line_2[i][2] ;
-        }
-        POS_CUT_FILL ;
-        break ;
-
-      case LINE :
-        PE = Create_PostElement(Index, LINE, 2, 1) ; /* nodes 1 2 */
-        PE->NumNodes[0] = GE->NumNodes[0] ;
-        PE->NumNodes[1] = GE->NumNodes[1] ;
-        PE->u[0] =-1. ; PE->v[0] = 0. ; PE->w[0] = 0. ;
-        PE->u[1] = 1. ; PE->v[1] = 0. ; PE->w[1] = 0. ;
-        POS_CUT_FILL ;
-        break ;
-
-      case TRIANGLE_2 :
-        Type = (HighOrder) ? TRIANGLE_2 : TRIANGLE;
-        NbrNodes = (HighOrder) ? NbrNodes_Triangle_2 : NbrNodes_Triangle;
-        PE = Create_PostElement(Index, Type, NbrNodes, 1) ;
-        for(int i=0; i<NbrNodes; i++){
-          PE->NumNodes[i] = GE->NumNodes[i] ;
-                PE->u[i] = Nodes_Triangle_2[i][0] ;
-          PE->v[i] = Nodes_Triangle_2[i][1] ;
-          PE->w[i] = Nodes_Triangle_2[i][2] ;
-        }
-        POS_CUT_FILL ;
-        break ;
-
-      case TRIANGLE :
-        PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 1 2 3 */
-        PE->NumNodes[0] = GE->NumNodes[0] ;
-        PE->NumNodes[1] = GE->NumNodes[1] ;
-        PE->NumNodes[2] = GE->NumNodes[2] ;
-        PE->u[0] = 0. ; PE->v[0] = 0. ; PE->w[0] = 0. ;
-        PE->u[1] = 1. ; PE->v[1] = 0. ; PE->w[1] = 0. ;
-        PE->u[2] = 0. ; PE->v[2] = 1. ; PE->w[2] = 0. ;
-        POS_CUT_FILL ;
-        break ;
-
-      case QUADRANGLE :
-      case QUADRANGLE_2 :
-      case QUADRANGLE_2_8N:
-        if(DecomposeInSimplex){
-          PE = Create_PostElement(Index, TRIANGLE, 3, 1); /* nodes 1 2 4 */
+      case LINE : case LINE_2 : case LINE_3 : case LINE_4 :
+        if(HighOrder && GE->Type != LINE)
+          PE = Create_HighOrderPostElement(GE, Index);
+        if(!PE){
+          PE = Create_PostElement(Index, LINE, 2, 1) ; /* nodes 1 2 */
           PE->NumNodes[0] = GE->NumNodes[0] ;
           PE->NumNodes[1] = GE->NumNodes[1] ;
-          PE->NumNodes[2] = GE->NumNodes[3] ;
-          PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] = 0. ;
-          PE->u[1] = 1. ; PE->v[1] =-1. ; PE->w[1] = 0. ;
-          PE->u[2] =-1. ; PE->v[2] = 1. ; PE->w[2] = 0. ;
-          POS_CUT_FILL;
-
-          PE = Create_PostElement(Index, TRIANGLE, 3, 1); /* nodes 2 3 4 */
-          PE->NumNodes[0] = GE->NumNodes[1] ;
-          PE->NumNodes[1] = GE->NumNodes[2] ;
-          PE->NumNodes[2] = GE->NumNodes[3] ;
-          PE->u[0] = 1. ; PE->v[0] =-1. ; PE->w[0] = 0. ;
-          PE->u[1] = 1. ; PE->v[1] = 1. ; PE->w[1] = 0. ;
-          PE->u[2] =-1. ; PE->v[2] = 1. ; PE->w[2] = 0. ;
-          POS_CUT_FILL;
+          PE->u[0] =-1. ; PE->v[0] = 0. ; PE->w[0] = 0. ;
+          PE->u[1] = 1. ; PE->v[1] = 0. ; PE->w[1] = 0. ;
         }
-        else{
-          if (!EvaluationPoints_L) {
+        POS_CUT_FILL ;
+        break ;
+
+      case TRIANGLE : case TRIANGLE_2 : case TRIANGLE_3 : case TRIANGLE_4 :
+        if(HighOrder && GE->Type != TRIANGLE)
+          PE = Create_HighOrderPostElement(GE, Index);
+        if(!PE){
+          PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 1 2 3 */
+          PE->NumNodes[0] = GE->NumNodes[0] ;
+          PE->NumNodes[1] = GE->NumNodes[1] ;
+          PE->NumNodes[2] = GE->NumNodes[2] ;
+          PE->u[0] = 0. ; PE->v[0] = 0. ; PE->w[0] = 0. ;
+          PE->u[1] = 1. ; PE->v[1] = 0. ; PE->w[1] = 0. ;
+          PE->u[2] = 0. ; PE->v[2] = 1. ; PE->w[2] = 0. ;
+        }
+        POS_CUT_FILL ;
+        break ;
+
+      case QUADRANGLE : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
+      case QUADRANGLE_3 : case QUADRANGLE_4 :
+        if(HighOrder && GE->Type != QUADRANGLE)
+          PE = Create_HighOrderPostElement(GE, Index);
+        if(!PE){
+          if(DecomposeInSimplex){
+            PE = Create_PostElement(Index, TRIANGLE, 3, 1); /* nodes 1 2 4 */
+            PE->NumNodes[0] = GE->NumNodes[0] ;
+            PE->NumNodes[1] = GE->NumNodes[1] ;
+            PE->NumNodes[2] = GE->NumNodes[3] ;
+            PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] = 0. ;
+            PE->u[1] = 1. ; PE->v[1] =-1. ; PE->w[1] = 0. ;
+            PE->u[2] =-1. ; PE->v[2] = 1. ; PE->w[2] = 0. ;
+            POS_CUT_FILL;
+            PE = Create_PostElement(Index, TRIANGLE, 3, 1); /* nodes 2 3 4 */
+            PE->NumNodes[0] = GE->NumNodes[1] ;
+            PE->NumNodes[1] = GE->NumNodes[2] ;
+            PE->NumNodes[2] = GE->NumNodes[3] ;
+            PE->u[0] = 1. ; PE->v[0] =-1. ; PE->w[0] = 0. ;
+            PE->u[1] = 1. ; PE->v[1] = 1. ; PE->w[1] = 0. ;
+            PE->u[2] =-1. ; PE->v[2] = 1. ; PE->w[2] = 0. ;
+          }
+          else{
             PE = Create_PostElement(Index, QUADRANGLE, 4, 1) ; /* nodes 1 2 3 4 */
             PE->NumNodes[0] = GE->NumNodes[0] ;
             PE->NumNodes[1] = GE->NumNodes[1] ;
@@ -490,231 +529,209 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
             PE->u[2] =  1. ; PE->v[2] =  1. ; PE->w[2] = 0. ;
             PE->u[3] = -1. ; PE->v[3] =  1. ; PE->w[3] = 0. ;
           }
-          else { /* Only for Quadrangles now, to be extended... */
-            Nbr_EP = List_Nbr(EvaluationPoints_L)/3;
-            PE = Create_PostElement(Index, QUADRANGLE, Nbr_EP, 1) ;
-            for (i_EP=0 ; i_EP<Nbr_EP ; i_EP++) {
-              List_Read(EvaluationPoints_L, i_EP*3+0, &PE->u[i_EP]);
-              List_Read(EvaluationPoints_L, i_EP*3+1, &PE->v[i_EP]);
-              List_Read(EvaluationPoints_L, i_EP*3+2, &PE->w[i_EP]);
-            }
-          }
-          POS_CUT_FILL ;
-        }
-        break ;
-
-      case TETRAHEDRON_2 :
-        Type = (HighOrder) ? TETRAHEDRON_2 : TETRAHEDRON;
-        NbrNodes = (HighOrder) ? NbrNodes_Tetrahedron_2 : NbrNodes_Tetrahedron;
-        PE = Create_PostElement(Index, Type, NbrNodes, 1) ;
-        for(int i=0; i<NbrNodes; i++){
-          PE->NumNodes[i] = GE->NumNodes[i] ;
-                PE->u[i] = Nodes_Tetrahedron_2[i][0] ;
-          PE->v[i] = Nodes_Tetrahedron_2[i][1] ;
-          PE->w[i] = Nodes_Tetrahedron_2[i][2] ;
         }
         POS_CUT_FILL ;
         break ;
 
-      case TETRAHEDRON :
-        PE = Create_PostElement(Index, TETRAHEDRON, 4, 1) ; /* nodes 1 2 3 4 */
-        PE->NumNodes[0] = GE->NumNodes[0] ;
-        PE->NumNodes[1] = GE->NumNodes[1] ;
-        PE->NumNodes[2] = GE->NumNodes[2] ;
-        PE->NumNodes[3] = GE->NumNodes[3] ;
-        PE->u[0] = 0. ; PE->v[0] = 0. ; PE->w[0] = 0. ;
-        PE->u[1] = 1. ; PE->v[1] = 0. ; PE->w[1] = 0. ;
-        PE->u[2] = 0. ; PE->v[2] = 1. ; PE->w[2] = 0. ;
-        PE->u[3] = 0. ; PE->v[3] = 0. ; PE->w[3] = 1. ;
+      case TETRAHEDRON : case TETRAHEDRON_2 : case TETRAHEDRON_3 : case TETRAHEDRON_4 :
+        if(HighOrder && GE->Type != TETRAHEDRON)
+          PE = Create_HighOrderPostElement(GE, Index);
+        if(!PE){
+          PE = Create_PostElement(Index, TETRAHEDRON, 4, 1) ; /* nodes 1 2 3 4 */
+          PE->NumNodes[0] = GE->NumNodes[0] ;
+          PE->NumNodes[1] = GE->NumNodes[1] ;
+          PE->NumNodes[2] = GE->NumNodes[2] ;
+          PE->NumNodes[3] = GE->NumNodes[3] ;
+          PE->u[0] = 0. ; PE->v[0] = 0. ; PE->w[0] = 0. ;
+          PE->u[1] = 1. ; PE->v[1] = 0. ; PE->w[1] = 0. ;
+          PE->u[2] = 0. ; PE->v[2] = 1. ; PE->w[2] = 0. ;
+          PE->u[3] = 0. ; PE->v[3] = 0. ; PE->w[3] = 1. ;
+        }
         POS_CUT_FILL;
         break ;
 
-      case HEXAHEDRON :
-	if(DecomposeInSimplex){
-	  PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 1 2 3 6 */
-	  PE->NumNodes[0] = GE->NumNodes[0] ;
-	  PE->NumNodes[1] = GE->NumNodes[1] ;
-	  PE->NumNodes[2] = GE->NumNodes[2] ;
-	  PE->NumNodes[3] = GE->NumNodes[5] ;
-	  PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] =-1. ;
-	  PE->u[1] = 1. ; PE->v[1] =-1. ; PE->w[1] =-1. ;
-	  PE->u[2] = 1. ; PE->v[2] = 1. ; PE->w[2] =-1. ;
-	  PE->u[3] = 1. ; PE->v[3] =-1. ; PE->w[3] = 1. ;
-	  POS_CUT_FILL;
-
-	  PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 1 3 6 7 */
-	  PE->NumNodes[0] = GE->NumNodes[0] ;
-	  PE->NumNodes[1] = GE->NumNodes[2] ;
-	  PE->NumNodes[2] = GE->NumNodes[5] ;
-	  PE->NumNodes[3] = GE->NumNodes[6] ;
-	  PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] =-1. ;
-	  PE->u[1] = 1. ; PE->v[1] = 1. ; PE->w[1] =-1. ;
-	  PE->u[2] = 1. ; PE->v[2] =-1. ; PE->w[2] = 1. ;
-	  PE->u[3] = 1. ; PE->v[3] = 1. ; PE->w[3] = 1. ;
-	  POS_CUT_FILL;
-
-	  PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 1 5 6 7 */
-	  PE->NumNodes[0] = GE->NumNodes[0] ;
-	  PE->NumNodes[1] = GE->NumNodes[4] ;
-	  PE->NumNodes[2] = GE->NumNodes[5] ;
-	  PE->NumNodes[3] = GE->NumNodes[6] ;
-	  PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] =-1. ;
-	  PE->u[1] =-1. ; PE->v[1] =-1. ; PE->w[1] = 1. ;
-	  PE->u[2] = 1. ; PE->v[2] =-1. ; PE->w[2] = 1. ;
-	  PE->u[3] = 1. ; PE->v[3] = 1. ; PE->w[3] = 1. ;
-	  POS_CUT_FILL;
-
-	  PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 1 3 4 7 */
-	  PE->NumNodes[0] = GE->NumNodes[0] ;
-	  PE->NumNodes[1] = GE->NumNodes[2] ;
-	  PE->NumNodes[2] = GE->NumNodes[3] ;
-	  PE->NumNodes[3] = GE->NumNodes[6] ;
-	  PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] =-1. ;
-	  PE->u[1] = 1. ; PE->v[1] = 1. ; PE->w[1] =-1. ;
-	  PE->u[2] =-1. ; PE->v[2] = 1. ; PE->w[2] =-1. ;
-	  PE->u[3] = 1. ; PE->v[3] = 1. ; PE->w[3] = 1. ;
-	  POS_CUT_FILL;
-
-	  PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 1 5 7 8 */
-	  PE->NumNodes[0] = GE->NumNodes[0] ;
-	  PE->NumNodes[1] = GE->NumNodes[4] ;
-	  PE->NumNodes[2] = GE->NumNodes[6] ;
-	  PE->NumNodes[3] = GE->NumNodes[7] ;
-	  PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] =-1. ;
-	  PE->u[1] =-1. ; PE->v[1] =-1. ; PE->w[1] = 1. ;
-	  PE->u[2] = 1. ; PE->v[2] = 1. ; PE->w[2] = 1. ;
-	  PE->u[3] =-1. ; PE->v[3] = 1. ; PE->w[3] = 1. ;
-	  POS_CUT_FILL;
-
-	  PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 1 4 7 8 */
-	  PE->NumNodes[0] = GE->NumNodes[0] ;
-	  PE->NumNodes[1] = GE->NumNodes[3] ;
-	  PE->NumNodes[2] = GE->NumNodes[6] ;
-	  PE->NumNodes[3] = GE->NumNodes[7] ;
-	  PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] =-1. ;
-	  PE->u[1] =-1. ; PE->v[1] = 1. ; PE->w[1] =-1. ;
-	  PE->u[2] = 1. ; PE->v[2] = 1. ; PE->w[2] = 1. ;
-	  PE->u[3] =-1. ; PE->v[3] = 1. ; PE->w[3] = 1. ;
-	  POS_CUT_FILL;
-	}
-	else{
-	  PE = Create_PostElement(Index, HEXAHEDRON, 8, 1) ; /* nodes 1 2 3 4 5 6 7 8 */
-	  PE->NumNodes[0] = GE->NumNodes[0] ;
-	  PE->NumNodes[1] = GE->NumNodes[1] ;
-	  PE->NumNodes[2] = GE->NumNodes[2] ;
-	  PE->NumNodes[3] = GE->NumNodes[3] ;
-	  PE->NumNodes[4] = GE->NumNodes[4] ;
-	  PE->NumNodes[5] = GE->NumNodes[5] ;
-	  PE->NumNodes[6] = GE->NumNodes[6] ;
-	  PE->NumNodes[7] = GE->NumNodes[7] ;
-	  PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] =-1. ;
-	  PE->u[1] = 1. ; PE->v[1] =-1. ; PE->w[1] =-1. ;
-	  PE->u[2] = 1. ; PE->v[2] = 1. ; PE->w[2] =-1. ;
-	  PE->u[3] =-1. ; PE->v[3] = 1. ; PE->w[3] =-1. ;
-	  PE->u[4] =-1. ; PE->v[4] =-1. ; PE->w[4] = 1. ;
-	  PE->u[5] = 1. ; PE->v[5] =-1. ; PE->w[5] = 1. ;
-	  PE->u[6] = 1. ; PE->v[6] = 1. ; PE->w[6] = 1. ;
-	  PE->u[7] =-1. ; PE->v[7] = 1. ; PE->w[7] = 1. ;
-	  POS_CUT_FILL;
-	}
+      case HEXAHEDRON : case HEXAHEDRON_2 : case HEXAHEDRON_3 :case HEXAHEDRON_4 :
+        if(HighOrder && GE->Type != HEXAHEDRON)
+          PE = Create_HighOrderPostElement(GE, Index);
+        if(!PE){
+          if(DecomposeInSimplex){
+            PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 1 2 3 6 */
+            PE->NumNodes[0] = GE->NumNodes[0] ;
+            PE->NumNodes[1] = GE->NumNodes[1] ;
+            PE->NumNodes[2] = GE->NumNodes[2] ;
+            PE->NumNodes[3] = GE->NumNodes[5] ;
+            PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] =-1. ;
+            PE->u[1] = 1. ; PE->v[1] =-1. ; PE->w[1] =-1. ;
+            PE->u[2] = 1. ; PE->v[2] = 1. ; PE->w[2] =-1. ;
+            PE->u[3] = 1. ; PE->v[3] =-1. ; PE->w[3] = 1. ;
+            POS_CUT_FILL;
+            PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 1 3 6 7 */
+            PE->NumNodes[0] = GE->NumNodes[0] ;
+            PE->NumNodes[1] = GE->NumNodes[2] ;
+            PE->NumNodes[2] = GE->NumNodes[5] ;
+            PE->NumNodes[3] = GE->NumNodes[6] ;
+            PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] =-1. ;
+            PE->u[1] = 1. ; PE->v[1] = 1. ; PE->w[1] =-1. ;
+            PE->u[2] = 1. ; PE->v[2] =-1. ; PE->w[2] = 1. ;
+            PE->u[3] = 1. ; PE->v[3] = 1. ; PE->w[3] = 1. ;
+            POS_CUT_FILL;
+            PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 1 5 6 7 */
+            PE->NumNodes[0] = GE->NumNodes[0] ;
+            PE->NumNodes[1] = GE->NumNodes[4] ;
+            PE->NumNodes[2] = GE->NumNodes[5] ;
+            PE->NumNodes[3] = GE->NumNodes[6] ;
+            PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] =-1. ;
+            PE->u[1] =-1. ; PE->v[1] =-1. ; PE->w[1] = 1. ;
+            PE->u[2] = 1. ; PE->v[2] =-1. ; PE->w[2] = 1. ;
+            PE->u[3] = 1. ; PE->v[3] = 1. ; PE->w[3] = 1. ;
+            POS_CUT_FILL;
+            PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 1 3 4 7 */
+            PE->NumNodes[0] = GE->NumNodes[0] ;
+            PE->NumNodes[1] = GE->NumNodes[2] ;
+            PE->NumNodes[2] = GE->NumNodes[3] ;
+            PE->NumNodes[3] = GE->NumNodes[6] ;
+            PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] =-1. ;
+            PE->u[1] = 1. ; PE->v[1] = 1. ; PE->w[1] =-1. ;
+            PE->u[2] =-1. ; PE->v[2] = 1. ; PE->w[2] =-1. ;
+            PE->u[3] = 1. ; PE->v[3] = 1. ; PE->w[3] = 1. ;
+            POS_CUT_FILL;
+            PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 1 5 7 8 */
+            PE->NumNodes[0] = GE->NumNodes[0] ;
+            PE->NumNodes[1] = GE->NumNodes[4] ;
+            PE->NumNodes[2] = GE->NumNodes[6] ;
+            PE->NumNodes[3] = GE->NumNodes[7] ;
+            PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] =-1. ;
+            PE->u[1] =-1. ; PE->v[1] =-1. ; PE->w[1] = 1. ;
+            PE->u[2] = 1. ; PE->v[2] = 1. ; PE->w[2] = 1. ;
+            PE->u[3] =-1. ; PE->v[3] = 1. ; PE->w[3] = 1. ;
+            POS_CUT_FILL;
+            PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 1 4 7 8 */
+            PE->NumNodes[0] = GE->NumNodes[0] ;
+            PE->NumNodes[1] = GE->NumNodes[3] ;
+            PE->NumNodes[2] = GE->NumNodes[6] ;
+            PE->NumNodes[3] = GE->NumNodes[7] ;
+            PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] =-1. ;
+            PE->u[1] =-1. ; PE->v[1] = 1. ; PE->w[1] =-1. ;
+            PE->u[2] = 1. ; PE->v[2] = 1. ; PE->w[2] = 1. ;
+            PE->u[3] =-1. ; PE->v[3] = 1. ; PE->w[3] = 1. ;
+          }
+          else{
+            PE = Create_PostElement(Index, HEXAHEDRON, 8, 1) ; /* nodes 1 2 3 4 5 6 7 8 */
+            PE->NumNodes[0] = GE->NumNodes[0] ;
+            PE->NumNodes[1] = GE->NumNodes[1] ;
+            PE->NumNodes[2] = GE->NumNodes[2] ;
+            PE->NumNodes[3] = GE->NumNodes[3] ;
+            PE->NumNodes[4] = GE->NumNodes[4] ;
+            PE->NumNodes[5] = GE->NumNodes[5] ;
+            PE->NumNodes[6] = GE->NumNodes[6] ;
+            PE->NumNodes[7] = GE->NumNodes[7] ;
+            PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] =-1. ;
+            PE->u[1] = 1. ; PE->v[1] =-1. ; PE->w[1] =-1. ;
+            PE->u[2] = 1. ; PE->v[2] = 1. ; PE->w[2] =-1. ;
+            PE->u[3] =-1. ; PE->v[3] = 1. ; PE->w[3] =-1. ;
+            PE->u[4] =-1. ; PE->v[4] =-1. ; PE->w[4] = 1. ;
+            PE->u[5] = 1. ; PE->v[5] =-1. ; PE->w[5] = 1. ;
+            PE->u[6] = 1. ; PE->v[6] = 1. ; PE->w[6] = 1. ;
+            PE->u[7] =-1. ; PE->v[7] = 1. ; PE->w[7] = 1. ;
+          }
+        }
+        POS_CUT_FILL;
 	break ;
 
-      case PRISM :
-	if(DecomposeInSimplex){
-	  PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 1 2 3 5 */
-	  PE->NumNodes[0] = GE->NumNodes[0] ;
-	  PE->NumNodes[1] = GE->NumNodes[1] ;
-	  PE->NumNodes[2] = GE->NumNodes[2] ;
-	  PE->NumNodes[3] = GE->NumNodes[4] ;
-	  PE->u[0] = 0. ; PE->v[0] = 0. ; PE->w[0] =-1. ;
-	  PE->u[1] = 1. ; PE->v[1] = 0. ; PE->w[1] =-1. ;
-	  PE->u[2] = 0. ; PE->v[2] = 1. ; PE->w[2] =-1. ;
-	  PE->u[3] = 1. ; PE->v[3] = 0. ; PE->w[3] = 1. ;
-	  POS_CUT_FILL;
-
-	  PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 1 3 5 6 */
-	  PE->NumNodes[0] = GE->NumNodes[0] ;
-	  PE->NumNodes[1] = GE->NumNodes[2] ;
-	  PE->NumNodes[2] = GE->NumNodes[4] ;
-	  PE->NumNodes[3] = GE->NumNodes[5] ;
-	  PE->u[0] = 0. ; PE->v[0] = 0. ; PE->w[0] =-1. ;
-	  PE->u[1] = 0. ; PE->v[1] = 1. ; PE->w[1] =-1. ;
-	  PE->u[2] = 1. ; PE->v[2] = 0. ; PE->w[2] = 1. ;
-	  PE->u[3] = 0. ; PE->v[3] = 1. ; PE->w[3] = 1. ;
-	  POS_CUT_FILL;
-
-	  PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 1 4 5 6 */
-	  PE->NumNodes[0] = GE->NumNodes[0] ;
-	  PE->NumNodes[1] = GE->NumNodes[3] ;
-	  PE->NumNodes[2] = GE->NumNodes[4] ;
-	  PE->NumNodes[3] = GE->NumNodes[5] ;
-	  PE->u[0] = 0. ; PE->v[0] = 0. ; PE->w[0] =-1. ;
-	  PE->u[1] = 0. ; PE->v[1] = 0. ; PE->w[1] = 1. ;
-	  PE->u[2] = 1. ; PE->v[2] = 0. ; PE->w[2] = 1. ;
-	  PE->u[3] = 0. ; PE->v[3] = 1. ; PE->w[3] = 1. ;
-	  POS_CUT_FILL;
-	}
-	else{
-	  PE = Create_PostElement(Index, PRISM, 6, 1) ; /* nodes 1 2 3 4 5 6 */
-	  PE->NumNodes[0] = GE->NumNodes[0] ;
-	  PE->NumNodes[1] = GE->NumNodes[1] ;
-	  PE->NumNodes[2] = GE->NumNodes[2] ;
-	  PE->NumNodes[3] = GE->NumNodes[3] ;
-	  PE->NumNodes[4] = GE->NumNodes[4] ;
-	  PE->NumNodes[5] = GE->NumNodes[5] ;
-	  PE->u[0] = 0. ; PE->v[0] = 0. ; PE->w[0] =-1. ;
-	  PE->u[1] = 1. ; PE->v[1] = 0. ; PE->w[1] =-1. ;
-	  PE->u[2] = 0. ; PE->v[2] = 1. ; PE->w[2] =-1. ;
-	  PE->u[3] = 0. ; PE->v[3] = 0. ; PE->w[3] = 1. ;
-	  PE->u[4] = 1. ; PE->v[4] = 0. ; PE->w[4] = 1. ;
-	  PE->u[5] = 0. ; PE->v[5] = 1. ; PE->w[5] = 1. ;
-	  POS_CUT_FILL;
-	}
+      case PRISM : case PRISM_2 : case PRISM_3 : case PRISM_4 :
+        if(HighOrder && GE->Type != PRISM)
+          PE = Create_HighOrderPostElement(GE, Index);
+        if(!PE){
+          if(DecomposeInSimplex){
+            PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 1 2 3 5 */
+            PE->NumNodes[0] = GE->NumNodes[0] ;
+            PE->NumNodes[1] = GE->NumNodes[1] ;
+            PE->NumNodes[2] = GE->NumNodes[2] ;
+            PE->NumNodes[3] = GE->NumNodes[4] ;
+            PE->u[0] = 0. ; PE->v[0] = 0. ; PE->w[0] =-1. ;
+            PE->u[1] = 1. ; PE->v[1] = 0. ; PE->w[1] =-1. ;
+            PE->u[2] = 0. ; PE->v[2] = 1. ; PE->w[2] =-1. ;
+            PE->u[3] = 1. ; PE->v[3] = 0. ; PE->w[3] = 1. ;
+            POS_CUT_FILL;
+            PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 1 3 5 6 */
+            PE->NumNodes[0] = GE->NumNodes[0] ;
+            PE->NumNodes[1] = GE->NumNodes[2] ;
+            PE->NumNodes[2] = GE->NumNodes[4] ;
+            PE->NumNodes[3] = GE->NumNodes[5] ;
+            PE->u[0] = 0. ; PE->v[0] = 0. ; PE->w[0] =-1. ;
+            PE->u[1] = 0. ; PE->v[1] = 1. ; PE->w[1] =-1. ;
+            PE->u[2] = 1. ; PE->v[2] = 0. ; PE->w[2] = 1. ;
+            PE->u[3] = 0. ; PE->v[3] = 1. ; PE->w[3] = 1. ;
+            POS_CUT_FILL;
+            PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 1 4 5 6 */
+            PE->NumNodes[0] = GE->NumNodes[0] ;
+            PE->NumNodes[1] = GE->NumNodes[3] ;
+            PE->NumNodes[2] = GE->NumNodes[4] ;
+            PE->NumNodes[3] = GE->NumNodes[5] ;
+            PE->u[0] = 0. ; PE->v[0] = 0. ; PE->w[0] =-1. ;
+            PE->u[1] = 0. ; PE->v[1] = 0. ; PE->w[1] = 1. ;
+            PE->u[2] = 1. ; PE->v[2] = 0. ; PE->w[2] = 1. ;
+            PE->u[3] = 0. ; PE->v[3] = 1. ; PE->w[3] = 1. ;
+          }
+          else{
+            PE = Create_PostElement(Index, PRISM, 6, 1) ; /* nodes 1 2 3 4 5 6 */
+            PE->NumNodes[0] = GE->NumNodes[0] ;
+            PE->NumNodes[1] = GE->NumNodes[1] ;
+            PE->NumNodes[2] = GE->NumNodes[2] ;
+            PE->NumNodes[3] = GE->NumNodes[3] ;
+            PE->NumNodes[4] = GE->NumNodes[4] ;
+            PE->NumNodes[5] = GE->NumNodes[5] ;
+            PE->u[0] = 0. ; PE->v[0] = 0. ; PE->w[0] =-1. ;
+            PE->u[1] = 1. ; PE->v[1] = 0. ; PE->w[1] =-1. ;
+            PE->u[2] = 0. ; PE->v[2] = 1. ; PE->w[2] =-1. ;
+            PE->u[3] = 0. ; PE->v[3] = 0. ; PE->w[3] = 1. ;
+            PE->u[4] = 1. ; PE->v[4] = 0. ; PE->w[4] = 1. ;
+            PE->u[5] = 0. ; PE->v[5] = 1. ; PE->w[5] = 1. ;
+          }
+        }
+        POS_CUT_FILL;
 	break ;
 
-      case PYRAMID :
-	if(DecomposeInSimplex){
-	  PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 1 2 4 5 */
-	  PE->NumNodes[0] = GE->NumNodes[0] ;
-	  PE->NumNodes[1] = GE->NumNodes[1] ;
-	  PE->NumNodes[2] = GE->NumNodes[3] ;
-	  PE->NumNodes[3] = GE->NumNodes[4] ;
-	  PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] = 0. ;
-	  PE->u[1] = 1. ; PE->v[1] =-1. ; PE->w[1] = 0. ;
-	  PE->u[2] =-1. ; PE->v[2] = 1. ; PE->w[2] = 0. ;
-	  PE->u[3] = 0. ; PE->v[3] = 0. ; PE->w[3] = 1. ;
-
-	  POS_CUT_FILL;
-
-	  PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 2 3 4 5 */
-	  PE->NumNodes[0] = GE->NumNodes[1] ;
-	  PE->NumNodes[1] = GE->NumNodes[2] ;
-	  PE->NumNodes[2] = GE->NumNodes[3] ;
-	  PE->NumNodes[3] = GE->NumNodes[4] ;
-
-	  PE->u[0] = 1. ; PE->v[0] =-1. ; PE->w[0] = 0. ;
-	  PE->u[1] = 1. ; PE->v[1] = 1. ; PE->w[1] = 0. ;
-	  PE->u[2] =-1. ; PE->v[2] = 1. ; PE->w[2] = 0. ;
-	  PE->u[3] = 0. ; PE->v[3] = 0. ; PE->w[3] = 1. ;
-
-	  POS_CUT_FILL;
-	}
-	else{
-	  PE = Create_PostElement(Index, PYRAMID, 5, 1) ; /* nodes 1 2 3 4 5 */
-	  PE->NumNodes[0] = GE->NumNodes[0] ;
-	  PE->NumNodes[1] = GE->NumNodes[1] ;
-	  PE->NumNodes[2] = GE->NumNodes[2] ;
-	  PE->NumNodes[3] = GE->NumNodes[3] ;
-	  PE->NumNodes[4] = GE->NumNodes[4] ;
-
-	  PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] = 0. ;
-	  PE->u[1] = 1. ; PE->v[1] =-1. ; PE->w[1] = 0. ;
-	  PE->u[2] = 1. ; PE->v[2] = 1. ; PE->w[2] = 0. ;
-	  PE->u[3] =-1. ; PE->v[3] = 1. ; PE->w[3] = 0. ;
-	  PE->u[4] = 0. ; PE->v[4] = 0. ; PE->w[4] = 1. ;
-
-	  POS_CUT_FILL;
-	}
+      case PYRAMID : case PYRAMID_2 : case PYRAMID_3 : case PYRAMID_4 :
+        if(HighOrder && GE->Type != PYRAMID)
+          PE = Create_HighOrderPostElement(GE, Index);
+        if(!PE){
+          if(DecomposeInSimplex){
+            PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 1 2 4 5 */
+            PE->NumNodes[0] = GE->NumNodes[0] ;
+            PE->NumNodes[1] = GE->NumNodes[1] ;
+            PE->NumNodes[2] = GE->NumNodes[3] ;
+            PE->NumNodes[3] = GE->NumNodes[4] ;
+            PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] = 0. ;
+            PE->u[1] = 1. ; PE->v[1] =-1. ; PE->w[1] = 0. ;
+            PE->u[2] =-1. ; PE->v[2] = 1. ; PE->w[2] = 0. ;
+            PE->u[3] = 0. ; PE->v[3] = 0. ; PE->w[3] = 1. ;
+            POS_CUT_FILL;
+            PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 2 3 4 5 */
+            PE->NumNodes[0] = GE->NumNodes[1] ;
+            PE->NumNodes[1] = GE->NumNodes[2] ;
+            PE->NumNodes[2] = GE->NumNodes[3] ;
+            PE->NumNodes[3] = GE->NumNodes[4] ;
+            PE->u[0] = 1. ; PE->v[0] =-1. ; PE->w[0] = 0. ;
+            PE->u[1] = 1. ; PE->v[1] = 1. ; PE->w[1] = 0. ;
+            PE->u[2] =-1. ; PE->v[2] = 1. ; PE->w[2] = 0. ;
+            PE->u[3] = 0. ; PE->v[3] = 0. ; PE->w[3] = 1. ;
+          }
+          else{
+            PE = Create_PostElement(Index, PYRAMID, 5, 1) ; /* nodes 1 2 3 4 5 */
+            PE->NumNodes[0] = GE->NumNodes[0] ;
+            PE->NumNodes[1] = GE->NumNodes[1] ;
+            PE->NumNodes[2] = GE->NumNodes[2] ;
+            PE->NumNodes[3] = GE->NumNodes[3] ;
+            PE->NumNodes[4] = GE->NumNodes[4] ;
+            PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] = 0. ;
+            PE->u[1] = 1. ; PE->v[1] =-1. ; PE->w[1] = 0. ;
+            PE->u[2] = 1. ; PE->v[2] = 1. ; PE->w[2] = 0. ;
+            PE->u[3] =-1. ; PE->v[3] = 1. ; PE->w[3] = 0. ;
+            PE->u[4] = 0. ; PE->v[4] = 0. ; PE->w[4] = 1. ;
+          }
+        }
+        POS_CUT_FILL;
 	break ;
 
       }

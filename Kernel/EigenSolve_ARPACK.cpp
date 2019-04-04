@@ -58,18 +58,20 @@ static void EigenGetDouble(const char *text, double *d)
 {
   char str[256];
   printf("%s (default=%.16g): ", text, *d);
-  fgets(str, sizeof(str), stdin);
-  if(strlen(str) && strcmp(str, "\n"))
-    *d = atof(str);
+  if(fgets(str, sizeof(str), stdin)){
+    if(strlen(str) && strcmp(str, "\n"))
+      *d = atof(str);
+  }
 }
 
 static void EigenGetInt(const char *text, int *i)
 {
   char str[256];
   printf("%s (default=%d): ", text, *i);
-  fgets(str, sizeof(str), stdin);
-  if(strlen(str) && strcmp(str, "\n"))
-    *i = atoi(str);
+  if(fgets(str, sizeof(str), stdin)){
+    if(strlen(str) && strcmp(str, "\n"))
+      *i = atoi(str);
+  }
 }
 
 void EigenPar(const char *filename, struct EigenPar *par)
@@ -88,9 +90,9 @@ void EigenPar(const char *filename, struct EigenPar *par)
   fp = FOpen(path, "r");
   if(fp) {
     Message::Info("Loading eigenproblem parameter file '%s'", path);
-    fscanf(fp, "%lf", &par->prec);
-    fscanf(fp, "%d", &par->reortho);
-    fscanf(fp, "%d", &par->size);
+    if(fscanf(fp, "%lf %d %d", &par->prec, &par->reortho, &par->size) != 3){
+      Message::Error("Could not read parameters");
+    }
     fclose(fp);
   }
   else{

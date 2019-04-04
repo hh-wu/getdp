@@ -359,7 +359,7 @@ struct doubleXstring{
 %token        tFormat tHeader tFooter tSkin tSmoothing
 %token        tTarget tSort tIso tNoNewLine tNoTitle tDecomposeInSimplex tChangeOfValues
 %token        tTimeLegend tFrequencyLegend tEigenvalueLegend
-%token        tEvaluationPoints tStoreInRegister tStoreInVariable
+%token        tStoreInRegister tStoreInVariable
 %token        tStoreInField tStoreInMeshBasedField
 %token        tStoreMaxInRegister tStoreMaxXinRegister tStoreMaxYinRegister
 %token        tStoreMaxZinRegister tStoreMinInRegister tStoreMinXinRegister
@@ -1189,138 +1189,104 @@ WholeQuantity :
   | WholeQuantity '*' WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_TIME;
-#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_ProductValue;
-#endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
   | WholeQuantity tCROSSPRODUCT WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_CROSSPRODUCT;
-#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_CrossProductValue;
-#endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
   | tCrossProduct '[' WholeQuantity ',' WholeQuantity ']'
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_CROSSPRODUCT;
-#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_CrossProductValue;
-#endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
   | WholeQuantity '/' WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_DIVIDE;
-#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_DivideValue;
-#endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
   | WholeQuantity '+' WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_PLUS;
-#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_AddValue;
-#endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
   | WholeQuantity '-' WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_MINUS;
-#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_SubstractValue;
-#endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
   | WholeQuantity '%' WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_MODULO;
-#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_ModuloValue;
-#endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
   | WholeQuantity '^' WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_POWER;
-#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_PowerValue;
-#endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
   | WholeQuantity '<' WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_LESS;
-#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_LessValue;
-#endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
   | WholeQuantity '>' WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_GREATER;
-#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_GreaterValue;
-#endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
   | WholeQuantity tLESSOREQUAL WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_LESSOREQUAL;
-#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_LessOrEqualValue;
-#endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
   | WholeQuantity tGREATEROREQUAL WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_GREATEROREQUAL;
-#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_GreaterOrEqualValue;
-#endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
   | WholeQuantity tEQUAL WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_EQUAL;
-#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_EqualValue;
-#endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
 
    | WholeQuantity tNOTEQUAL WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_NOTEQUAL;
-#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_NotEqualValue;
-#endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
   | WholeQuantity tAPPROXEQUAL WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_APPROXEQUAL;
-#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_ApproxEqualValue;
-#endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
   | WholeQuantity tAND WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_AND;
-#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_AndValue;
-#endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
   | WholeQuantity tOR WholeQuantity
     { WholeQuantity_S.Type = WQ_BINARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_OR;
-#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_OrValue;
-#endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
     }
 
@@ -1334,9 +1300,7 @@ WholeQuantity :
   | '-' WholeQuantity %prec UNARYPREC
     { WholeQuantity_S.Type = WQ_UNARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_NEG;
-#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_NegValue;
-#endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S); }
 
   | '+' WholeQuantity %prec UNARYPREC
@@ -1344,9 +1308,7 @@ WholeQuantity :
   | '!' WholeQuantity
     { WholeQuantity_S.Type = WQ_UNARYOPERATOR;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_NOT;
-#if defined(HAVE_KERNEL)
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_NotValue;
-#endif
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S); }
 
   | '<' tChangeCurrentPosition '[' WholeQuantity ']' '>'
@@ -2068,7 +2030,7 @@ QuadratureCase :
       QuadratureCase_S.NumberOfDivisions = 1;
       QuadratureCase_S.MaxNumberOfDivisions = 1;
       QuadratureCase_S.StoppingCriterion = 1.E-4;
-      QuadratureCase_S.Function = 0; //FIXME(void (*)())Gauss_Triangle;
+      QuadratureCase_S.Function = NULL;
     }
 
   | QuadratureCase QuadratureCaseTerm
@@ -7012,7 +6974,6 @@ PostSubOperations :
       PostSubOperation_S.LegendPosition[0] = 0.;
       PostSubOperation_S.LegendPosition[1] = 0.;
       PostSubOperation_S.LegendPosition[2] = 0.;
-      PostSubOperation_S.EvaluationPoints = NULL;
       PostSubOperation_S.Gauss = 0;
       PostSubOperation_S.StoreInVariable = NULL;
       PostSubOperation_S.StoreInRegister = -1;
@@ -7653,14 +7614,6 @@ PrintOption :
       PostSubOperation_S.LegendPosition[0] = $4;
       PostSubOperation_S.LegendPosition[1] = $6;
       PostSubOperation_S.LegendPosition[2] = $8;
-    }
-  | ',' tEvaluationPoints '{' RecursiveListOfFExpr '}'
-    {
-      if(List_Nbr($4)%3 != 0)
-	vyyerror(0, "Expected 3n coordinates, got %d", List_Nbr($4));
-      else {
-	PostSubOperation_S.EvaluationPoints = $4;
-      }
     }
   | ',' tStoreInVariable '$' String__Index
     {
@@ -8513,22 +8466,24 @@ Affectation :
     {
       Message::Info("? ");
       char tmpstr[256];
-      fgets(tmpstr, sizeof(tmpstr), stdin);
-      Constant_S.Value.Float = atof(tmpstr);
-      Constant_S.Name = $3;
-      Constant_S.Type = VAR_FLOAT;
-      Tree_Replace(ConstantTable_L, &Constant_S);
+      if(fgets(tmpstr, sizeof(tmpstr), stdin)){
+        Constant_S.Value.Float = atof(tmpstr);
+        Constant_S.Name = $3;
+        Constant_S.Type = VAR_FLOAT;
+        Tree_Replace(ConstantTable_L, &Constant_S);
+      }
     }
 
   | tRead '[' String__Index ']' tEND
     {
       Message::Info("? ");
       char tmpstr[256];
-      fgets(tmpstr, sizeof(tmpstr), stdin);
-      Constant_S.Value.Float = atof(tmpstr);
-      Constant_S.Name = $3;
-      Constant_S.Type = VAR_FLOAT;
-      Tree_Replace(ConstantTable_L, &Constant_S);
+      if(fgets(tmpstr, sizeof(tmpstr), stdin)){
+        Constant_S.Value.Float = atof(tmpstr);
+        Constant_S.Name = $3;
+        Constant_S.Type = VAR_FLOAT;
+        Tree_Replace(ConstantTable_L, &Constant_S);
+      }
     }
 
   // deprectated
@@ -8536,30 +8491,30 @@ Affectation :
     {
       Message::Info("[<return>=%g] ? ",$6);
       char tmpstr[256];
-      fgets(tmpstr, sizeof(tmpstr), stdin);
-
-      if(!strcmp(tmpstr,"\n"))
-	Constant_S.Value.Float = $6;
-      else
-	Constant_S.Value.Float = atof(tmpstr);
-      Constant_S.Name = $3;
-      Constant_S.Type = VAR_FLOAT;
-      Tree_Replace(ConstantTable_L, &Constant_S);
+      if(fgets(tmpstr, sizeof(tmpstr), stdin)){
+        if(!strcmp(tmpstr,"\n"))
+          Constant_S.Value.Float = $6;
+        else
+          Constant_S.Value.Float = atof(tmpstr);
+        Constant_S.Name = $3;
+        Constant_S.Type = VAR_FLOAT;
+        Tree_Replace(ConstantTable_L, &Constant_S);
+      }
     }
 
   | tRead '[' String__Index ',' FExpr '}' tEND
     {
       Message::Info("[<return>=%g] ? ",$5);
       char tmpstr[256];
-      fgets(tmpstr, sizeof(tmpstr), stdin);
-
-      if(!strcmp(tmpstr,"\n"))
-	Constant_S.Value.Float = $5;
-      else
-	Constant_S.Value.Float = atof(tmpstr);
-      Constant_S.Name = $3;
-      Constant_S.Type = VAR_FLOAT;
-      Tree_Replace(ConstantTable_L, &Constant_S);
+      if(fgets(tmpstr, sizeof(tmpstr), stdin)){
+        if(!strcmp(tmpstr,"\n"))
+          Constant_S.Value.Float = $5;
+        else
+          Constant_S.Value.Float = atof(tmpstr);
+        Constant_S.Name = $3;
+        Constant_S.Type = VAR_FLOAT;
+        Tree_Replace(ConstantTable_L, &Constant_S);
+      }
     }
 
   | tPrintConstants tEND
@@ -9629,8 +9584,8 @@ MultiFExpr :
           }
           else{
             char dummy[1024];
-            fscanf(File, "%s", dummy);
-            vyyerror(1, "Ignoring '%s' in file '%s'", dummy, $3);
+            if(fscanf(File, "%s", dummy))
+              vyyerror(1, "Ignoring '%s' in file '%s'", dummy, $3);
           }
         }
 	fclose(File);

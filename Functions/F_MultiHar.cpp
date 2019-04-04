@@ -8,20 +8,26 @@
 //
 
 #include <math.h>
+#include "GetDPConfig.h"
 #include "ProData.h"
 #include "ProDefine.h"
-#include "DofData.h"
 #include "F.h"
-#include "Get_Geometry.h"
-#include "Get_FunctionValue.h"
-#include "Cal_Quantity.h"
 #include "MallocUtils.h"
 #include "Message.h"
+#include "Cal_Quantity.h"
+
+#if defined(HAVE_KERNEL)
+#include "DofData.h"
+#include "Get_Geometry.h"
+#include "Get_FunctionValue.h"
+#endif
 
 #define TWO_PI             6.2831853071795865
 
 extern struct Problem Problem_S ;
 extern struct CurrentData Current ;
+
+#if defined(HAVE_KERNEL)
 
 struct MH_InitData{
   int Case ;
@@ -45,6 +51,8 @@ int fcmp_MH_InitData(const void * a, const void * b)
   else
     return ((struct MH_InitData *)a)->NbrPointsX - ((struct MH_InitData *)b)->NbrPointsX ;
 }
+
+#endif
 
 int NbrValues_Type (int Type)
 {
@@ -125,6 +133,9 @@ void  *Get_RealProductFunction_Type1xType2xType1 (int Type1, int Type2)
 void MH_Get_InitData(int Case, int NbrPoints, int *NbrPointsX_P,
 		     double ***H_P, double ****HH_P, double **t_P, double **w_P)
 {
+#if !defined(HAVE_KERNEL)
+  Message::Error("MH_Get_InitData requires Kernal");
+#else
   int NbrHar, iPul, iTime, iHar, jHar, NbrPointsX ;
   double *Val_Pulsation, MaxPuls, MinPuls ;
   double **H, ***HH = 0, *t, *w ;
@@ -249,6 +260,7 @@ void MH_Get_InitData(int Case, int NbrPoints, int *NbrPointsX_P,
   *HH_P = MH_InitData_S.HH = HH;
   *NbrPointsX_P = MH_InitData_S.NbrPointsX = NbrPointsX;
   List_Add (MH_InitData_L, &MH_InitData_S);
+#endif
 }
 
 /* ------------------------------------------------------------------------ */
@@ -283,7 +295,11 @@ void F_MHToTime0(int init, struct Value * A, struct Value * V,
 /*  F_MHToTime                                                            */
 /* ---------------------------------------------------------------------- */
 
-void  F_MHToTime (struct Function * Fct, struct Value * A, struct Value * V) {
+void  F_MHToTime (struct Function * Fct, struct Value * A, struct Value * V)
+{
+#if !defined(HAVE_KERNEL)
+  Message::Error("F_MHToTime requires Kernel");
+#else
   int iHar, iVal, nVal ;
   double time, H[NBR_MAX_HARMONIC];
   struct Value Vtemp;
@@ -320,7 +336,9 @@ void  F_MHToTime (struct Function * Fct, struct Value * A, struct Value * V) {
   for (iVal = 0 ; iVal < MAX_DIM ; iVal++)
     for (iHar = 0 ; iHar < Current.NbrHar ; iHar++)
       V->Val[iHar*MAX_DIM+iVal] = Vtemp.Val[iHar*MAX_DIM+iVal] ;
+#endif
 }
+
 
 /* ------------------------------------------------------------------------ */
 /*  MHTransform                                                             */
@@ -371,6 +389,8 @@ void MHTransform(struct Element * Element, struct QuantityStorage * QuantityStor
 
   Current.NbrHar = NbrHar ; // reset NbrHar
 }
+
+#if defined(HAVE_KERNEL)
 
 /* ----------------------------------------------------------------------------------- */
 /*  C a l _ I n i t G a l e r k i n T e r m O f F e m E q u a t i o n _ M H J a c N L  */
@@ -751,5 +771,6 @@ void  Cal_GalerkinTermOfFemEquation_MHBilinear(struct Element          * Element
   }
 }
 
-
 #undef OFFSET
+
+#endif

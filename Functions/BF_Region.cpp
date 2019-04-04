@@ -3,13 +3,17 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
+#include "GetDPConfig.h"
 #include "ProData.h"
 #include "BF.h"
-#include "Get_DofOfElement.h"
-#include "Pos_FemInterpolation.h"
-#include "Cal_Quantity.h"
 #include "MallocUtils.h"
 #include "Message.h"
+#include "Cal_Quantity.h"
+
+#if defined(HAVE_KERNEL)
+#include "Get_DofOfElement.h"
+#include "Pos_FemInterpolation.h"
+#endif
 
 extern struct Problem Problem_S ;
 extern struct CurrentData Current ;
@@ -41,7 +45,7 @@ void BF_SubFunction(struct Element * Element, int NumExpression,
 /*  B F _ R e g i o n                                                       */
 /* ------------------------------------------------------------------------ */
 
-void BF_Region(struct Element * Element, int NumRegion, 
+void BF_Region(struct Element * Element, int NumRegion,
 	       double u, double v, double w, double *s)
 {
   *s = 1. ;
@@ -50,7 +54,7 @@ void BF_Region(struct Element * Element, int NumRegion,
     BF_SubFunction(Element, Element->NumSubFunction[0][NumRegion-1], 1, s) ;
 }
 
-void BF_dRegion(struct Element * Element, int NumRegion, 
+void BF_dRegion(struct Element * Element, int NumRegion,
 		double u, double v, double w, double *s)
 {
   *s = 1. ;
@@ -65,7 +69,7 @@ void BF_dRegion(struct Element * Element, int NumRegion,
 /*  B F _ R e g i o n X ,  Y ,  Z                                           */
 /* ------------------------------------------------------------------------ */
 
-void BF_RegionX(struct Element * Element, int NumRegion, 
+void BF_RegionX(struct Element * Element, int NumRegion,
 		double u, double v, double w, double s[])
 {
   s[1] = s[2] = 0. ;  s[0] = 1. ;
@@ -74,7 +78,7 @@ void BF_RegionX(struct Element * Element, int NumRegion,
     BF_SubFunction(Element, Element->NumSubFunction[0][NumRegion-1], 3, s) ;
 }
 
-void BF_RegionY(struct Element * Element, int NumRegion, 
+void BF_RegionY(struct Element * Element, int NumRegion,
 		double u, double v, double w, double s[])
 {
 
@@ -84,7 +88,7 @@ void BF_RegionY(struct Element * Element, int NumRegion,
     BF_SubFunction(Element, Element->NumSubFunction[0][NumRegion-1], 3, s) ;
 }
 
-void  BF_RegionZ(struct Element * Element, int NumRegion, 
+void  BF_RegionZ(struct Element * Element, int NumRegion,
 		 double u, double v, double w, double s[])
 {
   s[0] = s[1] = 0. ;  s[2] = 1. ;
@@ -93,7 +97,7 @@ void  BF_RegionZ(struct Element * Element, int NumRegion,
     BF_SubFunction(Element, Element->NumSubFunction[0][NumRegion-1], 3, s) ;
 }
 
-void  BF_dRegionX(struct Element * Element, int NumRegion, 
+void  BF_dRegionX(struct Element * Element, int NumRegion,
 		  double u, double v, double w, double s[])
 {
   s[1] = s[2] = 0. ;  s[0] = 1. ; /* Patrick (a finaliser) */
@@ -104,7 +108,7 @@ void  BF_dRegionX(struct Element * Element, int NumRegion,
     s[0] = 0. ;
 }
 
-void BF_dRegionY(struct Element * Element, int NumRegion, 
+void BF_dRegionY(struct Element * Element, int NumRegion,
 		 double u, double v, double w, double s[])
 {
   s[0] = s[2] = 0. ;  s[1] = 1. ; /* Patrick (a finaliser) */
@@ -115,7 +119,7 @@ void BF_dRegionY(struct Element * Element, int NumRegion,
     s[1] = 0. ;
 }
 
-void BF_dRegionZ(struct Element * Element, int NumRegion, 
+void BF_dRegionZ(struct Element * Element, int NumRegion,
 		 double u, double v, double w, double s[])
 {
   /* Patrick (a finaliser)
@@ -161,7 +165,7 @@ void  BF_InitGlobal(struct GlobalBasisFunction * GlobalBasisFunction_P)
   struct Formulation      * Formulation_P ;
 
   QuantityStorage_P =
-    GlobalBasisFunction_P->QuantityStorage = 
+    GlobalBasisFunction_P->QuantityStorage =
     (struct QuantityStorage *)Malloc(sizeof(struct QuantityStorage)) ;
 
   QuantityStorage_P->NumLastElementForFunctionSpace = 0 ;
@@ -182,21 +186,24 @@ void  BF_InitGlobal(struct GlobalBasisFunction * GlobalBasisFunction_P)
 /*  B F _ G l o b a l ,  B F _ d G l o b a l ,  B F _ d I n v G l o b a l   */
 /* ------------------------------------------------------------------------ */
 
-void  BF_Global_OP(struct Element * Element, int NumGlobal, 
+void  BF_Global_OP(struct Element * Element, int NumGlobal,
                    double u, double v, double w, double *s, int type_OP)
 {
+#if !defined(HAVE_KERNEL)
+  Message::Error("BF_Global_OP requires Kernel");
+#else
   struct Value  Value ;
   struct GlobalBasisFunction  * GlobalBasisFunction_P ;
   struct QuantityStorage  * QuantityStorage_P ;
   int Save_NbrHar;
-  
+
   GlobalBasisFunction_P = Element->GlobalBasisFunction[NumGlobal-1] ;
 
   if (!GlobalBasisFunction_P->QuantityStorage)
     BF_InitGlobal(GlobalBasisFunction_P) ;  /* Init QuantityStorage */
 
   QuantityStorage_P = GlobalBasisFunction_P->QuantityStorage ;
-  
+
   if (QuantityStorage_P->NumLastElementForFunctionSpace != Element->Num) {
     QuantityStorage_P->NumLastElementForFunctionSpace = Element->Num ;
 
@@ -225,23 +232,24 @@ void  BF_Global_OP(struct Element * Element, int NumGlobal,
   default :
     Message::Error("Bad type of value for Global BasisFunction") ;
   }
+#endif
 }
 
 /* ------------------------------------------------------------------------ */
 
-void  BF_Global(struct Element * Element, int NumGlobal, 
+void  BF_Global(struct Element * Element, int NumGlobal,
 		double u, double v, double w, double *s)
 {
   BF_Global_OP(Element, NumGlobal, u, v, w, s, NOOP);
 }
 
-void  BF_dGlobal(struct Element * Element, int NumGlobal, 
+void  BF_dGlobal(struct Element * Element, int NumGlobal,
 		 double u, double v, double w,  double *s )
 {
   BF_Global_OP(Element, NumGlobal, u, v, w, s, EXTDER);
 }
 
-void  BF_dInvGlobal(struct Element * Element, int NumGlobal, 
+void  BF_dInvGlobal(struct Element * Element, int NumGlobal,
                     double u, double v, double w,  double *s )
 {
   BF_Global_OP(Element, NumGlobal, u, v, w, s, EXTDERINV);

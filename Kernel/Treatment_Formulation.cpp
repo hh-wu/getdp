@@ -299,7 +299,8 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
 
   List_T  * InitialListInIndex_L ;
   int Nbr_Region, i_Region, Num_Region ;
-  int i_Region_Dof, Num_Region_Dof, i_Region_Dof_ini, i_Region_Dof_end, i_Region_Dof_skip;
+  int i_Region_Dof = 0, Num_Region_Dof = 0, i_Region_Dof_ini = 0;
+  int i_Region_Dof_end = 0, i_Region_Dof_skip = 0;
 
   extern struct Group * Generate_Group ;
   extern double ** MH_Moving_Matrix ;

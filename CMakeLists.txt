@@ -65,8 +65,8 @@ else()
 endif()
 
 set(GETDP_MAJOR_VERSION 3)
-set(GETDP_MINOR_VERSION 0)
-set(GETDP_PATCH_VERSION 5)
+set(GETDP_MINOR_VERSION 1)
+set(GETDP_PATCH_VERSION 0)
 set(GETDP_EXTRA_VERSION "")
 
 if(NOT GETDP_RELEASE)
@@ -363,6 +363,7 @@ endif()
 add_subdirectory(Common)
 add_subdirectory(Interface)
 add_subdirectory(Numeric)
+add_subdirectory(Functions)
 
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/Kernel AND ENABLE_KERNEL)
   add_subdirectory(Kernel)
@@ -595,16 +596,13 @@ if(ENABLE_FORTRAN)
   endif()
 
   if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
-    if(CMAKE_Fortran_COMPILER MATCHES "gfortran")
-      if(NOT EXTERNAL_LIBRARIES MATCHES "gfortran")
-        list(APPEND LAPACK_LIBRARIES -lgfortran)
-      endif()
-    elseif(CMAKE_Fortran_COMPILER MATCHES "f95")
-      list(APPEND LAPACK_LIBRARIES -lgfortran)
-    elseif(CMAKE_Fortran_COMPILER MATCHES "g77")
+    if(CMAKE_Fortran_COMPILER MATCHES "g77")
       list(APPEND LAPACK_LIBRARIES -lg2c)
+    elseif(NOT EXTERNAL_LIBRARIES MATCHES "gfortran")
+      list(APPEND LAPACK_LIBRARIES -lgfortran)
     endif()
   endif()
+
 else()
   set_config_option(HAVE_NO_FORTRAN "NoFortran")
 endif()
@@ -718,7 +716,7 @@ endif()
 check_cxx_compiler_flag("-Wall" WALL)
 if(WALL AND NOT MSVC)
   file(GLOB_RECURSE WALL_SRC Common/*.cpp Interface/*.cpp Kernel/*.cpp
-       Main/*.cpp Numeric/*.cpp)
+       Main/*.cpp Numeric/*.cpp Functions/*.cpp)
   set(WF "-Wall")
   check_cxx_compiler_flag("-Wmisleading-indentation" WIND)
   if(WIND)
@@ -788,8 +786,8 @@ if(NOT ENABLE_BUILD_DYNAMIC AND NOT ENABLE_BUILD_SHARED)
 endif()
 
 # we could specify include dirs more selectively, but this is simpler
-include_directories(Common Interface Kernel Numeric ${EXTERNAL_INCLUDES}
-                    ${CMAKE_CURRENT_BINARY_DIR}/Common)
+include_directories(Common Interface Kernel Numeric Functions
+                    ${EXTERNAL_INCLUDES} ${CMAKE_CURRENT_BINARY_DIR}/Common)
 
 # set this for external codes that might include this CMakeList file
 set(GETDP_EXTERNAL_INCLUDE_DIRS ${EXTERNAL_INCLUDES} CACHE

@@ -15,6 +15,7 @@
 #include "Message.h"
 #include "MallocUtils.h"
 #include "OS.h"
+
 #if defined(HAVE_KERNEL)
 #include "Generate_Network.h"
 #endif
@@ -399,7 +400,10 @@ void Read_ProblemStructure(const char *name)
     Read_ProblemStructure(getdp_yyincludename);
     getdp_yyin = FOpen(getdp_yyname.c_str(), "rb"); // same comment as above
     getdp_yyrestart(getdp_yyin);
-    for(i = 0; i < getdp_yylinenum; i++) fgets(AbsPath, sizeof(AbsPath), getdp_yyin);
+    for(i = 0; i < getdp_yylinenum; i++){
+      if(!fgets(AbsPath, sizeof(AbsPath), getdp_yyin))
+        Message::Warning("Could not read line %d", getdp_yylinenum);
+    }
     getdp_yylinenum++;
     getdp_yyparse();
     // don't close the file here: we'll need it if there is a Macro in it:
@@ -495,10 +499,8 @@ void Print_WholeQuantity(List_T *WholeQuantity, List_T *DQ_L)
 
     case WQ_BUILTINFUNCTION :
     case WQ_EXTERNBUILTINFUNCTION :
-#if defined(HAVE_KERNEL)
       Message::Check(" %s", Get_StringForFunction2Nbr(F_Function,
                                                       (WQ+k)->Case.Function.Fct));
-#endif
       if ((WQ+k)->Type == WQ_EXTERNBUILTINFUNCTION)  Message::Check("[.]");
       if ((WQ+k)->Type == WQ_BUILTINFUNCTION)  Message::Check("[]");
       if ((WQ+k)->Case.Function.NbrParameters) {
@@ -1049,11 +1051,9 @@ void Print_FunctionSpace()
       BF = (struct BasisFunction*)List_Pointer(BF_L, 0);
       for (i=0; i<Nbr; i++) {
 	Message::Check("    /* GlobalNum : %d */\n", BF->Num);
-#if defined(HAVE_KERNEL)
 	Message::Check("      Name %s; NameOfCoef %s; Function %s;\n",
                        BF->Name, BF->NameOfCoef,
                        Get_StringFor3Function3Nbr(BF_Function, BF->Function));
-#endif
 	if (BF->SubFunction) {
 	  Message::Check("      SubFunction {");
 	  Nbrj = List_Nbr(BF->SubFunction);
@@ -1978,7 +1978,8 @@ void  Print_ProblemStructure()
     Message::Direct("(7) FunctionSpaces   (8) Formulations    (9) Resolutions");
     Message::Direct("(10) PostProcessings (11) PostOperations (other) Quit");
     Message::Check("Choice: ");
-    fgets(buff, 128, stdin);
+    if(!fgets(buff, 128, stdin))
+      break;
     ichoice = atoi(buff);
     if(Print_Object(ichoice ? ichoice - 1 : -1)){
       Message::Check("E n d C h e c k i n g\n");
@@ -2028,8 +2029,8 @@ void Print_ListResolution(int choose, int Flag_LRES, char **name)
       }
       if(choose){
 	Message::Check("Choice: ");
-	fgets(buff, 128, stdin);
-	ichoice = atoi(buff);
+	if(fgets(buff, 128, stdin))
+          ichoice = atoi(buff);
       }
     }
     if(ichoice > 0 && ichoice < (int)choices.size() + 1){
@@ -2106,8 +2107,8 @@ void Print_ListPostOperation(int choose, int Flag_LPOS, char *name[NBR_MAX_POS])
 
       if(choose){
 	Message::Check("Choice: ");
-	fgets(buff, 128, stdin);
-	ichoice = atoi(buff);
+	if(fgets(buff, 128, stdin))
+          ichoice = atoi(buff);
       }
     }
     if(ichoice > 0 && ichoice < (int)choices.size() + 1){

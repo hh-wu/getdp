@@ -36,6 +36,7 @@ struct GeoData {
 
   double  * H, * P ;
 
+  List_T  * PeriodicNodes;
 } ;
 
 int  Geo_AddGeoData(List_T * GeoData_L,
@@ -52,9 +53,6 @@ void  Geo_ReadFile(struct GeoData * GeoData_P) ;
 void  Geo_ReadFileAdapt(struct GeoData * GeoData_P) ;
 
 void  Geo_SaveMesh(struct GeoData * GeoData_P, List_T * InitialList, char * FileName) ;
-
-int Geo_GetElementType(int Format, int Type);
-int Geo_GetElementTypeInv(int Format, int Type);
 
 int  Geo_GetNbrGeoElements(void) ;
 struct Geo_Element  * Geo_GetGeoElement(int Index_Element) ;

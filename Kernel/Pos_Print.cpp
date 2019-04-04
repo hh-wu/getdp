@@ -337,7 +337,6 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
           ) {
 	Fill_PostElement(Element.GeoElement, PostElement_L, iGeo,
 			 Depth, PSO_P->Skin,
-			 PSO_P->EvaluationPoints,
 			 DecomposeInSimplex, 0, PSO_P->Gauss) ;
       }
       Message::ProgressMeter(iGeo + 1, NbrGeo, "Post-processing (Generate)");
@@ -412,7 +411,6 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
                                             Flag_GMSH_VERSION == 2 || Flag_BIN)) ? 1 : 0;
 	Fill_PostElement(Element.GeoElement, PostElement_L, iGeo,
 			 PSO_P->Depth, PSO_P->Skin,
-			 PSO_P->EvaluationPoints,
 			 DecomposeInSimplex, HighOrder, PSO_P->Gauss) ;
       }
     }

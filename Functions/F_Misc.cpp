@@ -12,9 +12,9 @@
 #include "ProParser.h"
 #include "F.h"
 #include "Message.h"
+#include "OS.h"
 #include "Cal_Value.h"
 #include "Cal_Quantity.h"
-#include "OS.h"
 
 extern struct CurrentData Current ;
 
@@ -185,8 +185,6 @@ void F_SetCumulativeVariable (F_ARG)
 
   Cal_StoreInVariable(V, tmp);
 }
-
-
 
 void F_GetVariable (F_ARG)
 {
