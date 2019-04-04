@@ -120,7 +120,7 @@ void Message::Initialize(int argc, char **argv)
   MPI_Init(&argc, &argv);
   MPI_Comm_rank(MPI_COMM_WORLD, &_commRank);
   MPI_Comm_size(MPI_COMM_WORLD, &_commSize);
-  MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
+  MPI_Comm_set_errhandler(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
 #endif
 #if defined(HAVE_GSL)
   gsl_set_error_handler(&gslErrorHandler);
@@ -612,7 +612,7 @@ void Message::ProgressMeter(int n, int N, const char *fmt, ...)
 
   if(N <= 0 || percent >= _progressMeterCurrent || n > N - 1){
 
-    char str[1024], str2[1024];
+    char str[1024], str2[4096];
     va_list args;
     va_start(args, fmt);
     vsnprintf(str, sizeof(str), fmt, args);

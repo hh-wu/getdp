@@ -393,7 +393,10 @@ void LinAlg_ReadVector(FILE *file, gVector *V)
   PetscInt n;
   _try(VecGetSize(V->V, &n));
   PetscScalar *tmp = (PetscScalar*)Malloc(n*sizeof(PetscScalar));
-  fread(tmp, sizeof(PetscScalar), n, file);
+  if(!fread(tmp, sizeof(PetscScalar), n, file)){
+    Message::Error("Could not read vector");
+    return;
+  }
   for(PetscInt i = 0; i < n; i++){
     _try(VecSetValues(V->V, 1, &i, &tmp[i], INSERT_VALUES));
   }

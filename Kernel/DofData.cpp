@@ -321,10 +321,16 @@ void Dof_ReadFilePRE0(int * Num_Resolution, int * Nbr_DofData)
     if(feof(File_PRE))  break;
   } while (String[0] != '$');
 
-  if(feof(File_PRE)){ Message::Error("$Resolution field not found in file"); return; }
+  if(feof(File_PRE)){
+    Message::Error("$Resolution field not found in file");
+    return;
+  }
 
   if(!strncmp(&String[1], "Resolution", 10)) {
-    fscanf(File_PRE, "%d %d", Num_Resolution, Nbr_DofData) ;
+    if(fscanf(File_PRE, "%d %d", Num_Resolution, Nbr_DofData) != 2){
+      Message::Error("Could not read resolution data");
+      return;
+    }
   }
 
   do {
@@ -453,32 +459,60 @@ void Dof_ReadFilePRE(struct DofData * DofData_P)
     if(feof(File_PRE))  break;
   } while (String[0] != '$') ;
 
-  if(feof(File_PRE)){ Message::Error("$DofData field not found in file"); return; }
+  if(feof(File_PRE)){
+    Message::Error("$DofData field not found in file");
+    return;
+  }
 
   if(!strncmp(&String[1], "DofData", 7)) {
 
-    fscanf(File_PRE, "%d %d",
-	   &DofData_P->ResolutionIndex, &DofData_P->SystemIndex) ;
+    if(fscanf(File_PRE, "%d %d",
+              &DofData_P->ResolutionIndex, &DofData_P->SystemIndex) != 2){
+      Message::Error("Could not read Resolution and DofData indices");
+      return;
+    }
 
-    fscanf(File_PRE, "%d", &Nbr_Index) ;
+    if(fscanf(File_PRE, "%d", &Nbr_Index) != 1){
+      Message::Error("Could not read number of function spaces");
+      return;
+    }
     DofData_P->FunctionSpaceIndex = List_Create(Nbr_Index, 1, sizeof(int)) ;
     for(i = 0 ; i < Nbr_Index ; i++) {
-      fscanf(File_PRE, "%d", &Int) ;
+      if(fscanf(File_PRE, "%d", &Int) != 1){
+        Message::Error("Could not read FunctionSpace index");
+        return;
+      }
       List_Add(DofData_P->FunctionSpaceIndex, &Int) ;
     }
 
-    fscanf(File_PRE, "%d", &Nbr_Index) ;
+    if(fscanf(File_PRE, "%d", &Nbr_Index) != 1){
+      Message::Error("Could not read number of time functions");
+      return;
+    }
     DofData_P->TimeFunctionIndex = List_Create(Nbr_Index, 1, sizeof(int)) ;
     for(i = 0 ; i < Nbr_Index ; i++) {
-      fscanf(File_PRE, "%d", &Int) ;
+      if(fscanf(File_PRE, "%d", &Int) != 1){
+        Message::Error("Could not read TimeFunction index");
+        return;
+      }
       List_Add(DofData_P->TimeFunctionIndex, &Int) ;
     }
 
-    fscanf(File_PRE, "%d", &Dummy) ;
-    for(i = 0 ; i < 1 ; i++)
-      fscanf(File_PRE, "%d", &Dummy) ;
+    if(fscanf(File_PRE, "%d", &Dummy) != 1){
+      Message::Error("Format error");
+      return;
+    }
+    for(i = 0 ; i < 1 ; i++){
+      if(fscanf(File_PRE, "%d", &Dummy) != 1){
+        Message::Error("Format error");
+        return;
+      }
+    }
 
-    fscanf(File_PRE, "%d %d", &DofData_P->NbrAnyDof, &DofData_P->NbrDof) ;
+    if(fscanf(File_PRE, "%d %d", &DofData_P->NbrAnyDof, &DofData_P->NbrDof) != 2){
+      Message::Error("Could not read number of dofs");
+      return;
+    }
 
     DofData_P->DofList = List_Create(DofData_P->NbrAnyDof, 1, sizeof(struct Dof)) ;
     Tree_Delete(DofData_P->DofTree);
@@ -486,46 +520,76 @@ void Dof_ReadFilePRE(struct DofData * DofData_P)
 
     for(i = 0 ; i < DofData_P->NbrAnyDof ; i++) {
 
-      fscanf(File_PRE, "%d %d %d %d",
-	     &Dof.NumType, &Dof.Entity, &Dof.Harmonic, &Dof.Type) ;
+      if(fscanf(File_PRE, "%d %d %d %d",
+                &Dof.NumType, &Dof.Entity, &Dof.Harmonic, &Dof.Type) != 4){
+        Message::Error("Could not dof");
+        return;
+      }
 
       switch (Dof.Type) {
       case DOF_UNKNOWN :
-	fscanf(File_PRE, "%d", &Dof.Case.Unknown.NumDof) ;
-	fscanf(File_PRE, "%d", &Dummy) ;
+	if(fscanf(File_PRE, "%d %d", &Dof.Case.Unknown.NumDof, &Dummy) != 2){
+          Message::Error("Could not read DOF_UNKNOWN");
+          return;
+        }
         Dof.Case.Unknown.NonLocal = (Dummy < 0) ? true : false;
         if(Dummy < 0)
           DofData_P->NonLocalEquations.push_back(Dof.Case.Unknown.NumDof);
 	break ;
       case DOF_FIXEDWITHASSOCIATE :
-	fscanf(File_PRE, "%d", &Dof.Case.FixedAssociate.NumDof) ;
+	if(fscanf(File_PRE, "%d", &Dof.Case.FixedAssociate.NumDof) != 1){
+          Message::Error("Could not read DOF_FIXEDWITHASSOCIATE");
+          return;
+        }
 	LinAlg_ScanScalar(File_PRE, &Dof.Val) ;
-	fscanf(File_PRE, "%d", &Dof.Case.FixedAssociate.TimeFunctionIndex) ;
+	if(fscanf(File_PRE, "%d", &Dof.Case.FixedAssociate.TimeFunctionIndex) != 1){
+          Message::Error("Could not read DOF_FIXEDWITHASSOCIATE");
+          return;
+        }
 	break ;
       case DOF_FIXED :
 	LinAlg_ScanScalar(File_PRE, &Dof.Val) ;
-	fscanf(File_PRE, "%d", &Dof.Case.FixedAssociate.TimeFunctionIndex) ;
+	if(fscanf(File_PRE, "%d", &Dof.Case.FixedAssociate.TimeFunctionIndex) != 1){
+          Message::Error("Could not read DOF_FIXED");
+          return;
+        }
 	break ;
       case DOF_FIXED_SOLVE :
-	fscanf(File_PRE, "%d", &Dof.Case.FixedAssociate.TimeFunctionIndex) ;
+	if(fscanf(File_PRE, "%d", &Dof.Case.FixedAssociate.TimeFunctionIndex) != 1){
+          Message::Error("Could not read DOF_FIXED_SOLVED");
+          return;
+        }
 	break ;
       case DOF_UNKNOWN_INIT :
-	fscanf(File_PRE, "%d", &Dof.Case.Unknown.NumDof) ;
+	if(fscanf(File_PRE, "%d", &Dof.Case.Unknown.NumDof) != 1){
+          Message::Error("Could not read DOF_UNKNOWN_INIT");
+          return;
+        }
 	LinAlg_ScanScalar(File_PRE, &Dof.Val) ;
 	LinAlg_ScanScalar(File_PRE, &Dof.Val2) ;
-	fscanf(File_PRE, "%d", &Dummy) ;
+	if(fscanf(File_PRE, "%d", &Dummy) != 1){
+          Message::Error("Could not read DOF_UNKNOWN_INIT");
+          return;
+        }
         Dof.Case.Unknown.NonLocal = (Dummy < 0) ? true : false;
         if(Dummy < 0)
           DofData_P->NonLocalEquations.push_back(Dof.Case.Unknown.NumDof);
 	break ;
       case DOF_LINK :
-	fscanf(File_PRE, "%lf %d",
-	       &Dof.Case.Link.Coef, &Dof.Case.Link.EntityRef) ;
+	if(fscanf(File_PRE, "%lf %d",
+                  &Dof.Case.Link.Coef, &Dof.Case.Link.EntityRef) != 2){
+          Message::Error("Could not read DOF_LINK");
+          return;
+        }
 	Dof.Case.Link.Dof = NULL ;
 	break ;
       case DOF_LINKCPLX :
-	fscanf(File_PRE, "%lf %lf %d",
-	       &Dof.Case.Link.Coef, &Dof.Case.Link.Coef2, &Dof.Case.Link.EntityRef) ;
+	if(fscanf(File_PRE, "%lf %lf %d",
+                  &Dof.Case.Link.Coef, &Dof.Case.Link.Coef2,
+                  &Dof.Case.Link.EntityRef) != 3){
+          Message::Error("Could not read DOF_LINKCPLX");
+          return;
+        }
 	Dof.Case.Link.Dof = NULL ;
 	break ;
       }
@@ -866,7 +930,10 @@ void Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
     /*  F o r m a t  */
 
     if(!strncmp(&String[1], "ResFormat", 9)) {
-      fscanf(File_RES, "%lf %d\n", &Version, &Format) ;
+      if(fscanf(File_RES, "%lf %d\n", &Version, &Format) != 2){
+        Message::Error("Could not read ResFormat");
+        return;
+      }
     }
 
     /*  S o l u t i o n  */
@@ -877,7 +944,10 @@ void Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
 	 follows can be binary, and the first character could be
 	 e.g. 0x0d, which would cause fscanf to eat-up one character
 	 too much, leading to an offset in fread */
-      fgets(String, sizeof(String), File_RES) ;
+      if(!fgets(String, sizeof(String), File_RES)){
+        Message::Error("Could not read Solution");
+        return;
+      }
       if(Version <= 1.0)
 	sscanf(String, "%d %lf %d", &Num_DofData, &Val_Time, &Val_TimeStep) ;
       else

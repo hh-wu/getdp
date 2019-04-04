@@ -194,7 +194,6 @@ EntitySubType                return tEntitySubType;
 EntityType                   return tEntityType;
 Error                        return tError;
 Evaluate                     return tEvaluate;
-EvaluationPoints             return tEvaluationPoints;
 Exists                       return tExists;
 Exp                          return tExp;
 

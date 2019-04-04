@@ -7,8 +7,15 @@
 //   Christophe Trophime
 //
 
+#include "GetDPConfig.h"
 #include "ProData.h"
+#include "ProDefine.h"
 #include "Message.h"
+
+#if defined(HAVE_GMSH)
+#include <gmsh/BasisFactory.h>
+#include <gmsh/nodalBasis.h>
+#endif
 
 #define SQU(a)     ((a)*(a))
 
@@ -19,7 +26,7 @@
 #define WrongNumNode   Message::Error("Wrong Node number in 'BF_Node'")
 
 void BF_Node(struct Element * Element, int NumNode,
-	     double u, double v, double w,  double *s )
+	     double u, double v, double w,  double *s)
 {
   double r;
 
@@ -107,6 +114,10 @@ void BF_Node(struct Element * Element, int NumNode,
     }
     break ;
 
+  // For consistency, the following cases (LINE_2, TRIANGLE_2, QUADRANGLE_2,
+  // TETRAHEDRON_2) should be removed, and handled automatically by gmsh (see
+  // below):
+
   case LINE_2 :
     switch(NumNode) {
     case 1  : *s = 0.5*u*(u-1.) ; break ;
@@ -176,7 +187,16 @@ void BF_Node(struct Element * Element, int NumNode,
     break ;
 
   default :
-    Message::Error("Unknown type of Element in BF_Node");
+    {
+#if defined(HAVE_GMSH)
+      const nodalBasis *basis =
+        BasisFactory::getNodalBasis(GetDP2Gmsh(Element->Type));
+      if(basis)
+        basis->f(u, v, w, NumNode - 1, s);
+      else
+#endif
+        Message::Error("Unknown type of Element in BF_Node");
+    }
     break;
   }
 
@@ -338,6 +358,10 @@ void BF_GradNode(struct Element * Element, int NumNode,
     }
     break ;
 
+  // For consistency, the following cases (LINE_2, TRIANGLE_2, QUADRANGLE_2,
+  // TETRAHEDRON_2) should be removed, and handled automatically by gmsh (see
+  // below):
+
   case LINE_2 :
     switch(NumNode) {
     case 1  : s[0] = -0.5+u ; s[1] = 0. ; s[2] =  0. ; break ;
@@ -407,7 +431,16 @@ void BF_GradNode(struct Element * Element, int NumNode,
     break ;
 
   default :
-    Message::Error("Unknown type of Element in BF_GradNode");
+    {
+#if defined(HAVE_GMSH)
+      const nodalBasis *basis =
+        BasisFactory::getNodalBasis(GetDP2Gmsh(Element->Type));
+      if(basis)
+        basis->df(u, v, w, NumNode - 1, s);
+      else
+#endif
+        Message::Error("Unknown type of Element in BF_GradNode");
+    }
     break;
   }
 
