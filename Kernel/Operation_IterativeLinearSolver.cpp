@@ -49,9 +49,10 @@ void inflateNodalVector(std::vector<std::vector<double> > &vec)
   for(int i = 0; i < vec.size(); i++){
     int N = 2 * vec[i].size();
     std::vector<double> tmp(N);
-    for(int j = 0; j < N; j++){
-      tmp[j] = vec[i][j / 2];
+    for(int j = 1; j < N; j++){
+      tmp[j-1] = vec[i][j / 2];
     }
+    tmp[N-1] = vec[i][0];
     vec[i] = tmp;
   }
 }
