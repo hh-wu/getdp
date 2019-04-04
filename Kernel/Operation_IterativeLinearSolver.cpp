@@ -25,9 +25,36 @@ extern struct CurrentData Current ;
 #include <gmsh/PView.h>
 #include <gmsh/PViewData.h>
 
-
 #if ((PETSC_VERSION_RELEASE == 0) || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 7)))
 #define PetscViewerSetFormat(A, B) PetscViewerPushFormat(A, B)
+#endif
+
+#define HACK_VANESSA_NODAL
+#ifdef HACK_VANESSA_NODAL
+void compressNodalVector(std::vector<std::vector<double> > &vec)
+{
+  printf("compressing vec %d %d\n", vec.size(), vec[0].size());
+  for(int i = 0; i < vec.size(); i++){
+    int N = vec[i].size();
+    for(int j = 0; j < N / 2; j++){
+      vec[i][j] = vec[i][2*j];
+    }
+    vec[i].resize(N / 2);
+  }
+}
+
+void inflateNodalVector(std::vector<std::vector<double> > &vec)
+{
+  printf("inflating vec %d %d\n", vec.size(), vec[0].size());
+  for(int i = 0; i < vec.size(); i++){
+    int N = 2 * vec[i].size();
+    std::vector<double> tmp(N);
+    for(int j = 0; j < N; j++){
+      tmp[j] = vec[i][j / 2];
+    }
+    vec[i] = tmp;
+  }
+}
 #endif
 
 static void _try(int ierr)
@@ -207,6 +234,9 @@ static PetscErrorCode InitData(ILSField *MyField, ILSField *AllField,
     int d;
     PView *view = GetViewByTag(MyField->GmshTag[iField]);
     view->getData()->toVector((*B_std)[iField]);
+#ifdef HACK_VANESSA_NODAL
+    compressNodalVector((*B_std)[iField]);
+#endif
     d = (*B_std)[iField][0].size();
     MyField->size[iField] = d;
     MyField->n_elem += d;
@@ -253,6 +283,13 @@ static PetscErrorCode InitData(ILSField *MyField, ILSField *AllField,
   // and changed !)
   int nNeighbor_aux = 0;
   nNeighbor_aux = List_Nbr(Operation_P->Case.IterativeLinearSolver.NeighborFieldTag);
+
+#ifdef HACK_VANESSA_NODAL
+  if(mpi_comm_size > 1){
+    Message::Error("Vanessa hack for nodal views only OK for serial computations");
+    Message::Exit(1);
+  }
+#endif
 
   // make every process agreed on whether there is neighbor or not
   if(mpi_comm_size < 2){
@@ -697,6 +734,9 @@ static PetscErrorCode MatMultILSMat(Mat A, Vec X, Vec Y)
   // Update PViews
   for (int cpt_view = 0; cpt_view < ctx->MyField->nb_field; cpt_view++){
     PView *view = GetViewByTag(ctx->MyField->GmshTag[cpt_view]);
+#ifdef HACK_VANESSA_NODAL
+    inflateNodalVector(std_vec[cpt_view]);
+#endif
     view->getData()->fromVector(std_vec[cpt_view]);
   }
 
@@ -728,6 +768,9 @@ static PetscErrorCode MatMultILSMat(Mat A, Vec X, Vec Y)
   for(int cpt_view = 0; cpt_view < ctx->MyField->nb_field; cpt_view++) {
     PView *view = GetViewByTag(ctx->MyField->GmshTag[cpt_view]);
     view->getData()->toVector(std_vec[cpt_view]);
+#ifdef HACK_VANESSA_NODAL
+    compressNodalVector(std_vec[cpt_view]);
+#endif
   }
 
   // Convert the obtained vector to a Petsc Vec
@@ -953,6 +996,9 @@ static PetscErrorCode MatMultPC(PC pc, Vec X, Vec Y)
   // Update PViews
   for (int cpt_view = 0; cpt_view < ctx->MyField->nb_field; cpt_view++){
     PView *view = GetViewByTag(ctx->MyField->GmshTag[cpt_view]);
+#ifdef HACK_VANESSA_NODAL
+    inflateNodalVector(std_vec[cpt_view]);
+#endif
     view->getData()->fromVector(std_vec[cpt_view]);
   }
 
@@ -969,6 +1015,9 @@ static PetscErrorCode MatMultPC(PC pc, Vec X, Vec Y)
   for(int cpt_view = 0; cpt_view < ctx->MyField->nb_field; cpt_view++) {
     PView *view = GetViewByTag(ctx->MyField->GmshTag[cpt_view]);
     view->getData()->toVector(std_vec[cpt_view]);
+#ifdef HACK_VANESSA_NODAL
+    compressNodalVector(std_vec[cpt_view]);
+#endif
   }
 
   //Convert the obtained vector to a Petsc Vec
@@ -1175,6 +1224,9 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   // update views
   for (int cpt_view = 0 ; cpt_view < MyField.nb_field; cpt_view++){
     PView *view = GetViewByTag(MyField.GmshTag[cpt_view]);
+#ifdef HACK_VANESSA_NODAL
+    inflateNodalVector(B_std[cpt_view]);
+#endif
     view->getData()->fromVector(B_std[cpt_view]);
   }
   // Transfer PView
