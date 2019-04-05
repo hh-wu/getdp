@@ -26,6 +26,29 @@
 
 #define STRING_SIZE  256
 
+int Operation_CheckVariables(struct Resolution  *Resolution_P,
+                                 struct Operation   *Operation_P,
+                                 struct DofData     *DofData_P0,
+                                 struct GeoData     *GeoData_P0)
+{
+
+  int commsize = Message::GetCommSize();
+  int commrank = Message::GetCommRank();
+  Message::Info("CheckVariables: rank %d (size %d)", commrank, commsize);
+
+  FILE    *fp = stdout;
+  std::map<std::string, struct Value> &values = Get_AllValueSaved();
+
+  for(std::map<std::string, struct Value>::iterator it = values.begin();
+      it != values.end(); it++){
+    //char *cstr = new char[it->first.length() + 1]; strcpy(cstr, it->first.c_str()); Message::Info(0, "CheckVariables: %s\n", cstr);
+    std::cout << "rank " << commrank << " " << it->first<<": ";
+    Print_Value(&it->second, fp);
+  }
+  //getchar();
+  return 0;
+}
+
 #if !defined(HAVE_MPI)
 
 int Operation_BroadcastFieldsGeneric(struct Resolution  *Resolution_P,
@@ -146,29 +169,6 @@ int Operation_BroadcastFieldsGeneric(struct Resolution  *Resolution_P,
   return 0;
 }
 
-int Operation_CheckVariables(struct Resolution  *Resolution_P,
-                                 struct Operation   *Operation_P,
-                                 struct DofData     *DofData_P0,
-                                 struct GeoData     *GeoData_P0)
-{
-
-  int commsize = Message::GetCommSize();
-  int commrank = Message::GetCommRank();
-  Message::Info("CheckVariables: rank %d (size %d)", commrank, commsize);
-
-  FILE    *fp = stdout;
-  std::map<std::string, struct Value> &values = Get_AllValueSaved();
-
-  for(std::map<std::string, struct Value>::iterator it = values.begin();
-      it != values.end(); it++){
-    //char *cstr = new char[it->first.length() + 1]; strcpy(cstr, it->first.c_str()); Message::Info(0, "CheckVariables: %s\n", cstr);
-    std::cout << "rank " << commrank << " " << it->first<<": ";
-    Print_Value(&it->second, fp);
-  }
-  //getchar();
-  return 0;
-}
-
 int Operation_GatherVariables(struct Resolution  *Resolution_P,
                                  struct Operation   *Operation_P,
                                  struct DofData     *DofData_P0,
@@ -181,10 +181,10 @@ int Operation_GatherVariables(struct Resolution  *Resolution_P,
 
   int numid = List_Nbr(Operation_P->Case.GatherVariables.id);
 
-  if (Operation_P->Case.GatherVariables.from<-1 ||
-      Operation_P->Case.GatherVariables.from>commsize-1)
+  if (Operation_P->Case.GatherVariables.to<-1 ||
+      Operation_P->Case.GatherVariables.to>commsize-1)
     Message::Warning("GatherVariables: impossible to Gather towards rank %d which does not exist", 
-      Operation_P->Case.GatherVariables.from);
+      Operation_P->Case.GatherVariables.to);
 
   std::map<std::string, struct Value> &values = Get_AllValueSaved();
 

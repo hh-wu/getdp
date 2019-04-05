@@ -1160,7 +1160,7 @@ struct Operation {
       List_T  *id;
     } BroadcastVariables;
     struct {
-      int from;
+      int to;
       List_T  *Names;
       List_T  *id;
     } GatherVariables;
