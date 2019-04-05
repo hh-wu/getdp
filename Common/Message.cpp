@@ -156,7 +156,7 @@ void Message::Finalize()
 #if defined(HAVE_PETSC)
   // if: to avoid a 'PETSC ERROR' message when calling MPI_Finalize()
   // (not coherent with prior MPI_Init(&argc, &argv)... but do nothing when _commSize == 1)
-  if(_commSize > 1){
+  if(_commSize >= 1){
     int initialized, finalized;
     MPI_Initialized(&initialized);
     MPI_Finalized(&finalized);

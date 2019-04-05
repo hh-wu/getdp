@@ -13,6 +13,9 @@
 #include "Cal_Quantity.h"
 #include "Message.h"
 
+#include <iostream>
+#include "Cal_Value.h"
+
 #if defined(HAVE_MPI)
 #include <mpi.h>
 #endif
@@ -20,6 +23,8 @@
 #if defined(HAVE_GMSH)
 #include <gmsh.h>
 #endif
+
+#define STRING_SIZE  256
 
 #if !defined(HAVE_MPI)
 
@@ -38,6 +43,15 @@ int Operation_BroadcastVariables(struct Resolution  *Resolution_P,
                                  struct GeoData     *GeoData_P0)
 {
   Message::Info("BroacastVariables is noop without MPI");
+  return 0;
+}
+
+int Operation_GatherVariables(struct Resolution  *Resolution_P,
+                                 struct Operation   *Operation_P,
+                                 struct DofData     *DofData_P0,
+                                 struct GeoData     *GeoData_P0)
+{
+  Message::Info("GatherVariables is noop without MPI");
   return 0;
 }
 
@@ -132,6 +146,287 @@ int Operation_BroadcastFieldsGeneric(struct Resolution  *Resolution_P,
   return 0;
 }
 
+int Operation_CheckVariables(struct Resolution  *Resolution_P,
+                                 struct Operation   *Operation_P,
+                                 struct DofData     *DofData_P0,
+                                 struct GeoData     *GeoData_P0)
+{
+
+  int commsize = Message::GetCommSize();
+  int commrank = Message::GetCommRank();
+  Message::Info("CheckVariables: rank %d (size %d)", commrank, commsize);
+
+  FILE    *fp = stdout;
+  std::map<std::string, struct Value> &values = Get_AllValueSaved();
+
+  for(std::map<std::string, struct Value>::iterator it = values.begin();
+      it != values.end(); it++){
+    //char *cstr = new char[it->first.length() + 1]; strcpy(cstr, it->first.c_str()); Message::Info(0, "CheckVariables: %s\n", cstr);
+    std::cout << "rank " << commrank << " " << it->first<<": ";
+    Print_Value(&it->second, fp);
+  }
+  //getchar();
+  return 0;
+}
+
+int Operation_GatherVariables(struct Resolution  *Resolution_P,
+                                 struct Operation   *Operation_P,
+                                 struct DofData     *DofData_P0,
+                                 struct GeoData     *GeoData_P0)
+{
+
+  int commsize = Message::GetCommSize();
+  int commrank = Message::GetCommRank();
+  Message::Info("GatherVariables: rank %d (size %d)", commrank, commsize);
+
+  int numid = List_Nbr(Operation_P->Case.GatherVariables.id);
+
+  if (Operation_P->Case.GatherVariables.from<-1 ||
+      Operation_P->Case.GatherVariables.from>commsize-1)
+    Message::Warning("GatherVariables: impossible to Gather towards rank %d which does not exist", 
+      Operation_P->Case.GatherVariables.from);
+
+  std::map<std::string, struct Value> &values = Get_AllValueSaved();
+
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+  std::vector<std::string> names;
+  for(unsigned int i = 0; i < List_Nbr(Operation_P->Case.GatherVariables.Names); i++){
+    char *s;
+    List_Read(Operation_P->Case.GatherVariables.Names, i, &s);
+    //if(values.find(s) != values.end())
+    //  names.push_back(s);
+    //else if (numid && '_'==s[strlen(s)-1])
+    {
+      for(unsigned int j = 0; j < numid; j++){
+        char sidj[STRING_SIZE];
+        strncpy(sidj, s, sizeof(sidj));
+        double idj;
+        List_Read(Operation_P->Case.GatherVariables.id, j, &idj);
+        char cidj[STRING_SIZE];
+        snprintf(cidj, sizeof(cidj), "_%g", idj); 
+        strcat(sidj, cidj);
+        if(values.find(sidj) != values.end())
+          names.push_back(sidj);
+        else
+          Message::Warning("GatherVariables: Unknown variable %s", sidj);
+      }
+    }
+    //else
+    //  Message::Warning("GatherVariables: Unknown variable %s", s);  
+  }
+  if(names.empty()){
+    Message::Warning("GatherVariables: No variable given to gather");
+    return 0;
+    for(std::map<std::string, struct Value>::iterator it = values.begin();
+        it != values.end(); it++)
+      names.push_back(it->first);
+  }
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+  int numVar = names.size();
+  //Message::Warning("GatherVariables: number of variables= %d", numVar);
+
+  char vnames[numVar][STRING_SIZE];
+  int vtypes[numVar];
+  double vvals[numVar][NBR_MAX_HARMONIC * MAX_DIM];
+  //double vvals_[numVar*NBR_MAX_HARMONIC * MAX_DIM];
+
+  for(unsigned int i = 0; i < numVar; i++){
+    strncpy(vnames[i], names[i].c_str(), sizeof(vnames[i]));
+    struct Value &v = values[vnames[i]];
+    vtypes[i]= v.Type;
+    for(unsigned int k = 0; k < NBR_MAX_HARMONIC * MAX_DIM; k++){
+      vvals[i][k]= v.Val[k];
+      //vvals_[i*NBR_MAX_HARMONIC * MAX_DIM + k]=v.Val[k];
+    }
+    //Message::Warning("GatherVariables: Check Name= %s type=%d, val=%g %g %g ...", vnames[i], vtypes[i], vvals[i][0], vvals[i][1], vvals[i][2]);
+  }
+
+  /*
+  for(int i = 0; i < numVar; i++){
+    //Message::Warning("GatherVariables: %d Check Namebis= %s type=%d, val=%g %g %g", i, vnames[i], vtypes[i], *(*(vvals+i)+0), *(*(vvals+i)+1), *(*(vvals+i)+1));
+    //Message::Warning("GatherVariables: %d Check Nameter= %s type=%d, val=%g %g %g", i, vnames[i], vtypes[i], *(&vvals[0][0]+i*NBR_MAX_HARMONIC*MAX_DIM+0), *(&vvals[0][0]+i*NBR_MAX_HARMONIC*MAX_DIM+1), *(&vvals[0][0]+i*NBR_MAX_HARMONIC*MAX_DIM+2));   
+    //Message::Warning("GatherVariables: %d Check Namequa= %s type=%d, val=%g %g %g", i, vnames[i], vtypes[i], vvals_[i*NBR_MAX_HARMONIC * MAX_DIM+0], vvals_[i*NBR_MAX_HARMONIC * MAX_DIM+1],vvals_[i*NBR_MAX_HARMONIC * MAX_DIM+2]);   
+    Message::Warning("GatherVariables: %d Check Namequin= %s type=%d, val=%g %g %g", i, vnames[i], vtypes[i], *(vvals_+i*NBR_MAX_HARMONIC * MAX_DIM+0), *(vvals_+i*NBR_MAX_HARMONIC * MAX_DIM+1),*(vvals_+i*NBR_MAX_HARMONIC * MAX_DIM+2));   
+  }
+  //*/
+
+  /*
+  for(int i = 0; i < numVar*NBR_MAX_HARMONIC * MAX_DIM; i++){
+    //Message::Warning("GatherVariables: allval  %d = %g", i, *(&vvals[0][0]+i));   
+    //Message::Warning("GatherVariables: allval_ %d = %g", i, *(&vvals_[0]+i)); 
+
+    //Message::Warning("GatherVariables: allval_ %d = %g", i, vvals_[i]);
+
+    Message::Warning("GatherVariables: allval  %d = %g", i, *( *(vvals )+i) );  
+    Message::Warning("GatherVariables: allval_ %d = %g", i, *( vvals_+i) ); 
+  }
+  //*/
+
+  //Message::Warning("GatherVariables: Check vnames: size=%d", sizeof(vnames));
+  /*
+  for(int i = 0; i < numVar; i++){
+    Message::Warning("GatherVariables: Check vnames    %d : %s",i,vnames[i]);
+    Message::Warning("GatherVariables: Check vnamesbis %d : %s",i,*(vnames+i));
+    Message::Warning("GatherVariables: Check vnamester %d : %s",i,*(vnames)+i*sizeof(key));
+  }
+  //*/
+  int vnamessize = sizeof(vnames);
+  
+  int vnamessize_gathered[commsize];
+  MPI_Allgather(
+      &vnamessize,          // const void *sendbuf
+      1,                    // int sendcount
+      MPI_INT,              // MPI_Datatype sendtype
+      &vnamessize_gathered, // void *recvbuf
+      1,                    // int recvcount
+      MPI_INT,              // MPI_Datatype recvtype
+      MPI_COMM_WORLD);      // MPI_Comm comm
+
+  //for(int i = 0; i < commsize; i++)
+  //Message::Warning("GatherVariables: Check after Allgather vnamessize_gathered : %d = %d", i, vnamessize_gathered[i]);
+
+  int vnumVar_gathered[commsize];
+  MPI_Allgather(
+      &numVar,           // const void *sendbuf
+      1,                 // int sendcount
+      MPI_INT,           // MPI_Datatype sendtype
+      &vnumVar_gathered, // void *recvbuf
+      1,                 // int recvcount
+      MPI_INT,           // MPI_Datatype recvtype
+      MPI_COMM_WORLD);   // MPI_Comm comm
+
+
+  //for(int i = 0; i < commsize; i++)
+  //Message::Warning("GatherVariables: Check after Allgather vnumVar_gathered %d = %d", i, vnumVar_gathered[i]);
+
+
+  int numVartot;
+  MPI_Allreduce(
+      &numVar,
+      &numVartot,
+      1,
+      MPI_INT,
+      MPI_SUM,
+      MPI_COMM_WORLD);
+
+  //Message::Warning("GatherVariables: Check idtot= %d", numVartot);
+  /*
+  int numVartot_bad=0;
+  for(int i = 0; i < commsize; i++)
+    numVartot_bad+=vnumVar_gathered[i];
+  Message::Warning("GatherVariables: numVartot= %d ; numVartot_bad=%d", numVartot, numVartot_bad);
+  */
+
+  char vnames_gathered[numVartot][STRING_SIZE];
+
+  int vnamesdispls[commsize];
+  vnamesdispls[0]=0;
+  for(int i = 1; i < commsize; i++)
+    vnamesdispls[i]=vnamesdispls[i-1]+vnamessize_gathered[i-1];
+
+  /*
+  Message::Warning("GatherVariables: Check vnamessize %d", vnamessize);
+  for(int i = 0; i < commsize; i++)
+  {
+
+    Message::Warning("GatherVariables: Check vnamessize_gathered %d: %d", i, vnamessize_gathered[i]);
+    Message::Warning("GatherVariables: Check vnamesdispls %d: %d", i, vnamesdispls[i]);
+  }
+  */
+
+MPI_Allgatherv( 
+  &vnames,             //void * sendbuff, 
+  vnamessize,          //int sendcount, 
+  MPI_SIGNED_CHAR,     //MPI_Datatype sendtype, 
+  &vnames_gathered,    //void * recvbuf, 
+  vnamessize_gathered, //int * recvcounts, 
+  vnamesdispls,        //int * displs, 
+  MPI_SIGNED_CHAR,     //MPI_Datatype recvtype, 
+  MPI_COMM_WORLD       //MPI_Comm comm
+  );
+
+  //for(int i = 0; i < numVar; i++)
+  //  Message::Warning("GatherVariables: Check loc vnames %d: %s", i, vnames[i]);
+
+  //for(int i = 0; i < numVartot; i++)
+  //  Message::Warning("GatherVariables: Check after Allgatherv vnames_gathered %d: %s", i, vnames_gathered[i]);
+
+
+  int vvalssize_gathered[commsize];
+  for(int i = 0; i < commsize; i++)
+    vvalssize_gathered[i]=vnumVar_gathered[i]*NBR_MAX_HARMONIC * MAX_DIM; 
+
+  int vvaldispls[commsize];
+  vvaldispls[0]=0;
+  for(int i = 1; i < commsize; i++)
+    vvaldispls[i]=vvaldispls[i-1]+vvalssize_gathered[i-1];
+
+  double vvalsall[numVartot][NBR_MAX_HARMONIC * MAX_DIM];
+
+MPI_Allgatherv( 
+  &vvals,                             //void * sendbuff, 
+  numVar*NBR_MAX_HARMONIC * MAX_DIM,  //int sendcount, 
+  MPI_DOUBLE,                         //MPI_Datatype sendtype, 
+  &vvalsall,                          //void * recvbuf, 
+  vvalssize_gathered,                 //int * recvcounts, 
+  vvaldispls,                         //int * displs, 
+  MPI_DOUBLE,                         //MPI_Datatype recvtype, 
+  MPI_COMM_WORLD                      //MPI_Comm comm
+  );
+
+  /*
+  double vvalsall_[numVartot*NBR_MAX_HARMONIC * MAX_DIM];
+  MPI_Allgatherv( 
+    &vvals_,                            //void * sendbuff, 
+    numVar*NBR_MAX_HARMONIC * MAX_DIM,  //int sendcount, 
+    MPI_DOUBLE,                         //MPI_Datatype sendtype, 
+    &vvalsall_,                         //void * recvbuf, 
+    vvalssize_gathered,                 //int * recvcounts, 
+    vvaldispls,                         //int * displs, 
+    MPI_DOUBLE,                         //MPI_Datatype recvtype, 
+    MPI_COMM_WORLD                      //MPI_Comm comm
+    );
+  */
+
+int vtypes_gathered[numVartot];
+
+int vtypedispls[commsize];
+vtypedispls[0]=0;
+for(int i = 1; i < commsize; i++)
+  vtypedispls[i]=vtypedispls[i-1]+vnumVar_gathered[i-1];
+
+MPI_Allgatherv( 
+  &vtypes,          //void * sendbuff, 
+  numVar,           //int sendcount, 
+  MPI_INT,          //MPI_Datatype sendtype, 
+  &vtypes_gathered, //void * recvbuf, 
+  vnumVar_gathered, //int * recvcounts, 
+  vtypedispls,      //int * displs, 
+  MPI_INT,          //MPI_Datatype recvtype, 
+  MPI_COMM_WORLD    //MPI_Comm comm
+  );
+
+  //for(int i = 0; i < numVartot; i++)
+  //  Message::Warning("GatherVariables: Check after Allgatherv vnames_gathered %d : %s",i,vnames_gathered[i]);
+
+  //for(int i = 0; i < numVartot; i++)
+  //  Message::Warning("GatherVariables: Check after Allgatherv vnames_gathered %d: %s, type=%d, val=%g %g %g", i, vnames_gathered[i], vtypes_gathered[i], vvalsall[i][0], vvalsall[i][1], vvalsall[i][2]);
+
+  for(unsigned int i = 0; i < numVartot; i++){
+    struct Value v;
+    v.Type = vtypes_gathered[i];
+    for(unsigned int k = 0; k < NBR_MAX_HARMONIC * MAX_DIM; k++){
+      v.Val[k]=vvalsall[i][k];
+      //v.Val[k]=vvalsall_[i*NBR_MAX_HARMONIC * MAX_DIM+k];
+    }
+    values[vnames_gathered[i]]=v;
+  }
+  return 0;
+}
+
+
 int Operation_BroadcastVariables(struct Resolution  *Resolution_P,
                                  struct Operation   *Operation_P,
                                  struct DofData     *DofData_P0,
@@ -141,16 +436,21 @@ int Operation_BroadcastVariables(struct Resolution  *Resolution_P,
   int commrank = Message::GetCommRank();
   Message::Info("BroadcastVariables: rank %d (size %d)", commrank, commsize);
 
+  if (Operation_P->Case.BroadcastVariables.from<-1 ||
+      Operation_P->Case.BroadcastVariables.from>commsize-1)
+    Message::Warning("BroadcastVariables: impossible to Broadcast from rank %d which does not exist", 
+      Operation_P->Case.BroadcastVariables.from);
+
   std::map<std::string, struct Value> &values = Get_AllValueSaved();
 
   std::vector<std::string> names;
-  for(int i = 0; i < List_Nbr(Operation_P->Case.BroadcastVariables.Names); i++){
+  for(unsigned int i = 0; i < List_Nbr(Operation_P->Case.BroadcastVariables.Names); i++){
     char *s;
     List_Read(Operation_P->Case.BroadcastVariables.Names, i, &s);
     if(values.find(s) != values.end())
       names.push_back(s);
     else
-      Message::Error("Unknown variable %s", s);
+      Message::Warning("BroadcastVariables: Unknown variable %s", s);
   }
   if(names.empty()){
     for(std::map<std::string, struct Value>::iterator it = values.begin();
@@ -159,35 +459,77 @@ int Operation_BroadcastVariables(struct Resolution  *Resolution_P,
   }
 
   // TODO: this should probably be implemented using MPI_Allgatherv
+  //http://mpitutorial.com/tutorials/mpi-scatter-gather-and-allgather/
+  //http://mpitutorial.com/tutorials/mpi-broadcast-and-collective-communication/
+
 
   for(int rank = 0; rank < commsize; rank++){
-    if(rank == commrank){
-      int numValues = names.size();
-      MPI_Bcast(&numValues, 1, MPI_INT, rank, MPI_COMM_WORLD);
-      for(unsigned int i = 0; i < names.size(); i++){
-        char key[256];
-        strncpy(key, names[i].c_str(), sizeof(key));
-        MPI_Bcast(key, sizeof(key), MPI_SIGNED_CHAR, rank, MPI_COMM_WORLD);
-        struct Value &v = values[key];
-        MPI_Bcast(&v.Type, 1, MPI_INT, rank, MPI_COMM_WORLD);
-        MPI_Bcast(&v.Val, NBR_MAX_HARMONIC * MAX_DIM, MPI_DOUBLE,
-                  rank, MPI_COMM_WORLD);
+    if (Operation_P->Case.BroadcastVariables.from==-1 ||
+        rank==Operation_P->Case.BroadcastVariables.from ){
+      if(rank == commrank){
+        int numValues = names.size();
+        MPI_Bcast(&numValues, 1, MPI_INT, rank, MPI_COMM_WORLD);
+        for(unsigned int i = 0; i < names.size(); i++){
+          char key[STRING_SIZE];
+          strncpy(key, names[i].c_str(), sizeof(key));
+          //Message::Warning("I am %d Sending %s from %d", commrank, key, rank);
+          MPI_Bcast(key, sizeof(key), MPI_SIGNED_CHAR, rank, MPI_COMM_WORLD);
+          struct Value &v = values[key];
+          MPI_Bcast(&v.Type, 1, MPI_INT, rank, MPI_COMM_WORLD);
+          MPI_Bcast(&v.Val, NBR_MAX_HARMONIC * MAX_DIM, MPI_DOUBLE,
+                    rank, MPI_COMM_WORLD);
+        }
+      }
+      else{
+        int numValues;
+        MPI_Bcast(&numValues, 1, MPI_INT, rank, MPI_COMM_WORLD);
+        for(unsigned int i = 0; i < numValues; i++){
+          char key[STRING_SIZE];
+          MPI_Bcast(key, sizeof(key), MPI_SIGNED_CHAR, rank, MPI_COMM_WORLD);
+          //Message::Warning("I am %d Receving %s from %d", commrank, key, rank);
+          struct Value v;
+          MPI_Bcast(&v.Type, 1, MPI_INT, rank, MPI_COMM_WORLD);
+          MPI_Bcast(&v.Val, NBR_MAX_HARMONIC * MAX_DIM, MPI_DOUBLE,
+                    rank, MPI_COMM_WORLD);
+          values[key] = v;
+        }
       }
     }
-    else{
+    else
+    {
+       //Message::Warning("I am %d and I do nothing from rank=%d", commrank, rank);
+    }
+  }
+
+  /*
+  if (0) {
+  for(int rank = 0; rank < commsize; rank++){
+    if (Operation_P->Case.BroadcastVariables.from==-1 ||
+        rank==Operation_P->Case.BroadcastVariables.from ){
+
       int numValues;
+      if(rank == commrank)
+        numValues = names.size();   
       MPI_Bcast(&numValues, 1, MPI_INT, rank, MPI_COMM_WORLD);
-      for(int i = 0; i < numValues; i++){
-        char key[256];
-        MPI_Bcast(key, sizeof(key), MPI_SIGNED_CHAR, rank, MPI_COMM_WORLD);
+
+      for(unsigned int i = 0; i < names.size(); i++){
+        char key[STRING_SIZE];
         struct Value v;
+        if(rank == commrank){
+          strncpy(key, names[i].c_str(), sizeof(key));
+          v = values[key];
+        }
+        MPI_Bcast(key, sizeof(key), MPI_SIGNED_CHAR, rank, MPI_COMM_WORLD);
         MPI_Bcast(&v.Type, 1, MPI_INT, rank, MPI_COMM_WORLD);
         MPI_Bcast(&v.Val, NBR_MAX_HARMONIC * MAX_DIM, MPI_DOUBLE,
                   rank, MPI_COMM_WORLD);
-        values[key] = v;
+        if(rank != commrank)
+          values[key] = v;
       }
     }
   }
+  } //endif(0)
+  */
 
   return 0;
 }

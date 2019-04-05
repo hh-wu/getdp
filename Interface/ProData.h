@@ -1155,8 +1155,21 @@ struct Operation {
       List_T  *ViewTags;
     } BroadcastFields;
     struct {
+      int from;
       List_T  *Names;
+      List_T  *id;
     } BroadcastVariables;
+    struct {
+      int from;
+      List_T  *Names;
+      List_T  *id;
+    } GatherVariables;
+    struct {
+      List_T  *Names;
+    } ClearVariables;
+    struct {
+      List_T  *Names;
+    } ClearVectors;
     struct {
       int useList;
       char *from, *to;
@@ -1335,6 +1348,9 @@ struct IterativeLoopSystem {
 #define OPERATION_SETINCREMENTASSOLUTION   111
 #define OPERATION_ADDVECTOR                112
 #define OPERATION_CLEARVARIABLES           113
+#define OPERATION_CHECKVARIABLES           114
+#define OPERATION_CLEARVECTORS             115
+#define OPERATION_GATHERVARIABLES          116
 
 /* ChangeOfState.Type */
 #define CHANGEOFSTATE_NOCHANGE              0

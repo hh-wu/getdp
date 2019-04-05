@@ -38,6 +38,8 @@
 #define VV_INITIALIZE 0
 #define VV_GET_IF_EXISTS 1
 #define VV_GET_AND_ADD_IF_NOT_EXIST 2
+#define VV_ERASE_IF_EXISTS 3
+#define VV_CLEAR_ALL 4
 int manageVectorMap(int action, char *name, gVector **vector,
                           struct DofData *DofData_P)
 {
@@ -65,6 +67,26 @@ int manageVectorMap(int action, char *name, gVector **vector,
       vectorMap[name] = n;
       *vector = &vectorMap[name];
     }
+  }
+  else if(action == VV_ERASE_IF_EXISTS)
+  {
+    std::map<std::string, gVector>::iterator it = vectorMap.find(name);
+    if(it != vectorMap.end())
+    {
+      LinAlg_DestroyVector(&it->second);
+      vectorMap.erase(name);
+    }
+    else
+      return 1;
+  }
+  else if(action == VV_CLEAR_ALL)
+  {
+    for(std::map<std::string, gVector>::iterator it = vectorMap.begin();
+        it != vectorMap.end(); it++)
+    {
+      LinAlg_DestroyVector(&it->second);
+    }
+    vectorMap.clear();
   }
   else
   {
@@ -258,4 +280,24 @@ void Operation_AddVector(struct Operation *Operation_P,
     Message::Warning("%g\t%g\t%g", real(a[i]), real(b[i]), real(c[i]));
   }
   // */
+}
+
+void Operation_ClearVectors( struct Operation *Operation_P,
+                            struct DofData *DofData_P)
+{
+  if (List_Nbr(Operation_P->Case.ClearVectors.Names)==0)
+  {
+    Message::Info("ClearVectors: Clear All Vectors");
+    manageVectorMap(VV_CLEAR_ALL, NULL, NULL, DofData_P);
+  }
+
+  for(int i = 0; i < List_Nbr(Operation_P->Case.ClearVectors.Names); i++){
+    char *s;
+    List_Read(Operation_P->Case.ClearVectors.Names, i, &s);
+
+    if(manageVectorMap(VV_ERASE_IF_EXISTS,s, NULL, DofData_P))
+      Message::Info("ClearVectors: Unknown Vector %s",  s);
+    else
+      Message::Info("ClearVectors: Clear Vector %s",  s);        
+  }
 }

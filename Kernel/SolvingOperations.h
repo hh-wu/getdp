@@ -41,6 +41,16 @@ int Operation_BroadcastVariables(struct Resolution  *Resolution_P,
                                  struct DofData     *DofData_P0,
                                  struct GeoData     *GeoData_P0) ;
 
+int Operation_GatherVariables(struct Resolution  *Resolution_P,
+                                 struct Operation   *Operation_P,
+                                 struct DofData     *DofData_P0,
+                                 struct GeoData     *GeoData_P0) ;
+
+int Operation_CheckVariables(struct Resolution  *Resolution_P,
+                                 struct Operation   *Operation_P,
+                                 struct DofData     *DofData_P0,
+                                 struct GeoData     *GeoData_P0) ;
+
 void Operation_TimeLoopAdaptive(struct Resolution  *Resolution_P,
                                 struct Operation   *Operation_P,
                                 struct DofData     *DofData_P0,
@@ -85,6 +95,9 @@ void Operation_CopyVector(struct Operation *Operation_P,
 
 void Operation_AddVector(struct Operation *Operation_P,
                         struct DofData   *DofData_P);
+
+void Operation_ClearVectors(struct Operation *Operation_P,
+                            struct DofData   *DofData_P);
 
 void Operation_HPDDMSolve(struct Operation *Operation_P,
                           struct DofData   *DofData_P);

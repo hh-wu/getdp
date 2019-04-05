@@ -2997,21 +2997,63 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       break;
 
     case OPERATION_BROADCASTFIELDS :
-      Message::Info("BroadCastFields ...") ;
+      Message::Info("BroadcastFields ...") ;
       Operation_BroadcastFields
 	(Resolution_P, Operation_P, DofData_P0, GeoData_P0) ;
       break;
 
     case OPERATION_BROADCASTVARIABLES :
-      Message::Info("BroadCastVariables ...") ;
+      Message::Info("BroadcastVariables ...") ;
       Operation_BroadcastVariables
 	(Resolution_P, Operation_P, DofData_P0, GeoData_P0) ;
       break;
 
-    case OPERATION_CLEARVARIABLES :
-      Message::Info("ClearVariables ...") ;
-      Get_AllValueSaved().clear();
+    case OPERATION_GATHERVARIABLES :
+      Message::Info("GatherVariables ...") ;
+      Operation_GatherVariables
+  (Resolution_P, Operation_P, DofData_P0, GeoData_P0) ;
       break;
+
+    case OPERATION_CLEARVARIABLES :
+    {
+      Message::Info("ClearVariables ...") ;
+
+      if (List_Nbr(Operation_P->Case.ClearVariables.Names)==0)
+      {
+        Message::Info("ClearVariables: Clear All Run-time Variables");
+        Get_AllValueSaved().clear();
+      }
+      else
+      {
+        std::map<std::string, struct Value> &values = Get_AllValueSaved();
+        for(int i = 0; i < List_Nbr(Operation_P->Case.ClearVariables.Names); i++){
+          char *s;
+          List_Read(Operation_P->Case.ClearVariables.Names, i, &s);
+          if(values.find(s) != values.end())
+          {
+            Message::Info("ClearVariables: Clear Run-time Variable %s", s);
+            values.erase(s);
+          }
+          else
+            Message::Info("ClearVariables: Unknown Run-time Variable %s", s);  
+        }
+      }
+    }
+    break;
+
+   case OPERATION_CHECKVARIABLES :
+     Message::Info("CheckVariables ...") ;
+     Operation_CheckVariables
+  (Resolution_P, Operation_P, DofData_P0, GeoData_P0) ;
+     break;
+
+    case OPERATION_CLEARVECTORS :
+    {
+      Message::Info("ClearVectors ...") ;
+      Operation_ClearVectors
+  ( Operation_P, DofData_P);
+    }
+    break;
 
       /*  -->  I t e r a t i v e T i m e R e d u c t i o n  */
       /*  ------------------------------------------------  */
