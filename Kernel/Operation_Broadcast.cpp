@@ -179,20 +179,22 @@ int Operation_GatherVariables(struct Resolution  *Resolution_P,
   int commrank = Message::GetCommRank();
   Message::Info("GatherVariables: rank %d (size %d)", commrank, commsize);
 
-  int numid = List_Nbr(Operation_P->Case.GatherVariables.id);
-
   int Allgather=1;
   if (Operation_P->Case.GatherVariables.to<-1 ||
-      Operation_P->Case.GatherVariables.to>commsize-1)
-    Message::Warning("GatherVariables: impossible to Gather towards " 
-                     "rank %d which does not exist => Gather All and distribute to All", 
+      Operation_P->Case.GatherVariables.to>commsize-1){
+    Message::Warning("GatherVariables: impossible to Gather towards rank %d which does not exist "
+                     "=> GatherVariables is aborted", 
       Operation_P->Case.GatherVariables.to);
+    return 0;
+  }
   else if (Operation_P->Case.GatherVariables.to!=-1)
     Allgather=0;
 
   std::map<std::string, struct Value> &values = Get_AllValueSaved();
 
+
 /////////////////////////////////////////////////////////////////////////////////////
+// Identify Valid Variable names to gather ...
 /////////////////////////////////////////////////////////////////////////////////////
   std::vector<std::string> names;
   for(unsigned int i = 0; i < List_Nbr(Operation_P->Case.GatherVariables.Names); i++){
@@ -202,7 +204,7 @@ int Operation_GatherVariables(struct Resolution  *Resolution_P,
     //  names.push_back(s);
     //else if (numid && '_'==s[strlen(s)-1])
     {
-      for(unsigned int j = 0; j < numid; j++){
+      for(unsigned int j = 0; j < List_Nbr(Operation_P->Case.GatherVariables.id); j++){
         char sidj[STRING_SIZE];
         strncpy(sidj, s, sizeof(sidj));
         double idj;
@@ -220,28 +222,26 @@ int Operation_GatherVariables(struct Resolution  *Resolution_P,
     //  Message::Warning("GatherVariables: Unknown variable %s", s);  
   }
   if(names.empty()){
-    Message::Warning("GatherVariables: No variable given to gather");
+    Message::Warning("GatherVariables: No known variable given to gather ",
+                     "=> GatherVariables is aborted");
     return 0;
-    for(std::map<std::string, struct Value>::iterator it = values.begin();
-        it != values.end(); it++)
-      names.push_back(it->first);
+    //for(std::map<std::string, struct Value>::iterator it = values.begin();
+    //    it != values.end(); it++)
+    //  names.push_back(it->first);
   }
-/////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////
   int numVar = names.size();
   //Message::Warning("GatherVariables: number of variables= %d", numVar);
 
+  /////////////////////////////////////////////////////////////////////////////////////
+  // Build vectors: vnames, vtypes, vvals ...
+  /////////////////////////////////////////////////////////////////////////////////////
   int vnamessize = numVar*STRING_SIZE;
-
   char *vnames;
   vnames= new char[vnamessize];
-
   int *vtypes;
   vtypes = new int[numVar];
-  
   double *vvals;
   vvals= new double[numVar*NBR_MAX_HARMONIC * MAX_DIM];
-
   for(unsigned int i = 0; i < numVar; i++){
     strncpy(&(vnames[i*STRING_SIZE]), names[i].c_str(), STRING_SIZE);
     struct Value &v = values[&(vnames[i*STRING_SIZE])];
@@ -250,307 +250,130 @@ int Operation_GatherVariables(struct Resolution  *Resolution_P,
       vvals[i*NBR_MAX_HARMONIC * MAX_DIM + k]=v.Val[k]; 
   }
 
-  ///*
-  for(int i = 0; i < numVar; i++){  
-    Message::Warning("GatherVariables: %d Check Namequin= %s type=%d, val=%g %g %g", i, &(vnames[i*STRING_SIZE]), vtypes[i], *(vvals+i*NBR_MAX_HARMONIC * MAX_DIM+0), *(vvals+i*NBR_MAX_HARMONIC * MAX_DIM+1),*(vvals+i*NBR_MAX_HARMONIC * MAX_DIM+2));   
-  }
-  //*/
+  /////////////////////////////////////////////////////////////////////////////////////
+  // Prepare Gather ...
+  /////////////////////////////////////////////////////////////////////////////////////
+  int numVartot, *vnumVar_gathered;
+  //int *vnamessizes; //(v1) //vnamessizes could be gathered (v1) or deduced from vnumVar_gathered and STRING_SIZE (v2)
 
-  int *vnamessize_gathered;
-
-  if (Allgather || commrank==Operation_P->Case.GatherVariables.to)
-    vnamessize_gathered= new int[commsize];
-
-  if (Allgather)
-  {
-    MPI_Allgather(
-        &vnamessize,          // const void *sendbuf
-        1,                    // int sendcount
-        MPI_INT,              // MPI_Datatype sendtype
-        vnamessize_gathered, // void *recvbuf
-        1,                    // int recvcount
-        MPI_INT,              // MPI_Datatype recvtype
-        MPI_COMM_WORLD);      // MPI_Comm comm
-  }
-  else 
-  {
-    MPI_Gather(
-        &vnamessize,          // const void *sendbuf
-        1,                    // int sendcount
-        MPI_INT,              // MPI_Datatype sendtype
-        vnamessize_gathered, // void *recvbuf
-        1,                    // int recvcount
-        MPI_INT,              // MPI_Datatype recvtype
-        Operation_P->Case.GatherVariables.to,  // int root
-        MPI_COMM_WORLD);      // MPI_Comm comm
+  if (Allgather || commrank==Operation_P->Case.GatherVariables.to) {
+    vnumVar_gathered    = new int[commsize];
+    //vnamessizes = new int[commsize]; // (v1)
   }
 
-  
-  //for(int i = 0; i < commsize; i++)
-  //Message::Warning("GatherVariables: Check after Allgather vnamessize_gathered : %d = %d", i, vnamessize_gathered[i]);
-
-  int *vnumVar_gathered;
-  if (Allgather || commrank==Operation_P->Case.GatherVariables.to)
-    vnumVar_gathered= new int[commsize];
-
-  if (Allgather)
-  {
-    MPI_Allgather(
-        &numVar,           // const void *sendbuf
-        1,                 // int sendcount
-        MPI_INT,           // MPI_Datatype sendtype
-        vnumVar_gathered, // void *recvbuf
-        1,                 // int recvcount
-        MPI_INT,           // MPI_Datatype recvtype
-        MPI_COMM_WORLD);   // MPI_Comm comm
+  if (Allgather) {
+    MPI_Allreduce(&numVar, &numVartot,1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);  
+    MPI_Allgather(&numVar, 1, MPI_INT, vnumVar_gathered,1,MPI_INT,MPI_COMM_WORLD); 
+    //MPI_Allgather(&vnamessize,1, MPI_INT, vnamessizes, 1, MPI_INT, MPI_COMM_WORLD); // (v1)
   }
-  else 
-  {
-    MPI_Gather(
-        &numVar,          // const void *sendbuf
-        1,                    // int sendcount
-        MPI_INT,              // MPI_Datatype sendtype
-        vnumVar_gathered, // void *recvbuf
-        1,                    // int recvcount
-        MPI_INT,              // MPI_Datatype recvtype
-        Operation_P->Case.GatherVariables.to,  // int root
-        MPI_COMM_WORLD);      // MPI_Comm comm
-  } 
-
-  //for(int i = 0; i < commsize; i++)
-  //Message::Warning("GatherVariables: Check after Allgather vnumVar_gathered %d = %d", i, vnumVar_gathered[i]);
-
-
-  int numVartot;
-
-  if (Allgather)
-  {
-    MPI_Allreduce(
-        &numVar,
-        &numVartot,
-        1,
-        MPI_INT,
-        MPI_SUM,
-        MPI_COMM_WORLD);
-  }
-  {
-    MPI_Reduce(
-        &numVar,
-        &numVartot,
-        1,
-        MPI_INT,
-        MPI_SUM,
-        Operation_P->Case.GatherVariables.to,
-        MPI_COMM_WORLD);
+  else {
+    MPI_Reduce(&numVar,&numVartot,1,MPI_INT, MPI_SUM, Operation_P->Case.GatherVariables.to, MPI_COMM_WORLD);
+    MPI_Gather( &numVar,1,MPI_INT, vnumVar_gathered, 1, MPI_INT, Operation_P->Case.GatherVariables.to, MPI_COMM_WORLD);  
+    //MPI_Gather(&vnamessize,1,MPI_INT,vnamessizes,1,MPI_INT,Operation_P->Case.GatherVariables.to,MPI_COMM_WORLD); // (v1)
   }
 
-
-
-  //Message::Warning("GatherVariables: Check idtot= %d", numVartot);
-  /*
-  int numVartot_bad=0;
-  for(int i = 0; i < commsize; i++)
-    numVartot_bad+=vnumVar_gathered[i];
-  Message::Warning("GatherVariables: numVartot= %d ; numVartot_bad=%d", numVartot, numVartot_bad);
-  */
-
+  /////////////////////////////////////////////////////////////////////////////////////
+  // Gather vnames vectors in vnames_gathered ...
+  /////////////////////////////////////////////////////////////////////////////////////
   char *vnames_gathered;
+  int *vnamessizes, // (v2)
+      *vnamesdispls;
+  if (Allgather || commrank==Operation_P->Case.GatherVariables.to){
+    vnames_gathered = new char[numVartot*STRING_SIZE];
+    vnamessizes     = new int[commsize]; // (v2)
+    vnamesdispls    = new int[commsize];
 
-  if (Allgather || commrank==Operation_P->Case.GatherVariables.to)
-    vnames_gathered= new char[numVartot*STRING_SIZE];
+    for(int i = 0; i < commsize; i++) // (v2)
+      vnamessizes[i]=vnumVar_gathered[i]*STRING_SIZE; // (v2)
 
-  int *vnamesdispls;
-
-  if (Allgather || commrank==Operation_P->Case.GatherVariables.to)
-  {
-    vnamesdispls= new int[commsize];
     vnamesdispls[0]=0;
     for(int i = 1; i < commsize; i++)
-      vnamesdispls[i]=vnamesdispls[i-1]+vnamessize_gathered[i-1];
+      vnamesdispls[i]=vnamesdispls[i-1]+vnamessizes[i-1];
   }
-
-  /*
-  Message::Warning("GatherVariables: Check vnamessize %d", vnamessize);
-  for(int i = 0; i < commsize; i++)
-  {
-
-    Message::Warning("GatherVariables: Check vnamessize_gathered %d: %d", i, vnamessize_gathered[i]);
-    Message::Warning("GatherVariables: Check vnamesdispls %d: %d", i, vnamesdispls[i]);
-  }
-  */
 
   if (Allgather)
-  {
-    MPI_Allgatherv( 
-      vnames,             //void * sendbuff, 
-      vnamessize,          //int sendcount, 
-      MPI_SIGNED_CHAR,     //MPI_Datatype sendtype, 
-      vnames_gathered,    //void * recvbuf, 
-      vnamessize_gathered, //int * recvcounts, 
-      vnamesdispls,        //int * displs, 
-      MPI_SIGNED_CHAR,     //MPI_Datatype recvtype, 
-      MPI_COMM_WORLD       //MPI_Comm comm
-      );
-  }
+    MPI_Allgatherv(vnames,vnamessize,MPI_SIGNED_CHAR,vnames_gathered, vnamessizes, vnamesdispls,MPI_SIGNED_CHAR,MPI_COMM_WORLD); // Build vnames_gathered (needs vnames (ok), vnamessizes, vnamesdispls) !!!
   else
-  {
-    MPI_Gatherv( 
-      vnames,             //void * sendbuff, 
-      vnamessize,          //int sendcount, 
-      MPI_SIGNED_CHAR,     //MPI_Datatype sendtype, 
-      vnames_gathered,    //void * recvbuf, 
-      vnamessize_gathered, //int * recvcounts, 
-      vnamesdispls,        //int * displs, 
-      MPI_SIGNED_CHAR,     //MPI_Datatype recvtype, 
-      Operation_P->Case.GatherVariables.to,  // int root
-      MPI_COMM_WORLD       //MPI_Comm comm
-      );
+    MPI_Gatherv(vnames,vnamessize,MPI_SIGNED_CHAR,vnames_gathered, vnamessizes, vnamesdispls,MPI_SIGNED_CHAR,Operation_P->Case.GatherVariables.to,MPI_COMM_WORLD);
+
+  if (Allgather || commrank==Operation_P->Case.GatherVariables.to) {
+    delete [] vnames;
+    delete [] vnamessizes;
+    delete [] vnamesdispls;
   }
 
-  //for(int i = 0; i < numVar; i++)
-  //  Message::Warning("GatherVariables: Check loc vnames %d: %s", i, vnames[i]);
+  /////////////////////////////////////////////////////////////////////////////////////
+  // Gather vvals vectors in vvals_gathered ...
+  /////////////////////////////////////////////////////////////////////////////////////
+  double *vvals_gathered;
+  int *vvalssizes,
+      *vvaldispls;
+  if (Allgather || commrank==Operation_P->Case.GatherVariables.to) {
+    vvals_gathered = new double[numVartot*NBR_MAX_HARMONIC * MAX_DIM]; 
+    vvalssizes     = new int[commsize];
+    vvaldispls     = new int[commsize];
 
-  if (Allgather || commrank==Operation_P->Case.GatherVariables.to)
-  {
-    for(int i = 0; i < numVartot; i++)
-    {
-      Message::Warning("GatherVariables: Check after Allgatherv vnames_gathered %d: %s", i, (&vnames_gathered[i*STRING_SIZE]));
-    }
-  }
-
-  int *vvalssize_gathered;
-
-  if (Allgather || commrank==Operation_P->Case.GatherVariables.to)
-  {
-    vvalssize_gathered= new int[commsize];
     for(int i = 0; i < commsize; i++)
-      vvalssize_gathered[i]=vnumVar_gathered[i]*NBR_MAX_HARMONIC * MAX_DIM; 
-  }
-
-
-
-  int *vvaldispls;
-
-  if (Allgather || commrank==Operation_P->Case.GatherVariables.to)
-  {
-    vvaldispls= new int[commsize];
+      vvalssizes[i]=vnumVar_gathered[i]*NBR_MAX_HARMONIC * MAX_DIM; 
 
     vvaldispls[0]=0;
     for(int i = 1; i < commsize; i++)
-      vvaldispls[i]=vvaldispls[i-1]+vvalssize_gathered[i-1];
+      vvaldispls[i]=vvaldispls[i-1]+vvalssizes[i-1];
   }
-
-  double *vvalsall;
-  if (Allgather || commrank==Operation_P->Case.GatherVariables.to)  
-    vvalsall= new double[numVartot*NBR_MAX_HARMONIC * MAX_DIM]; 
-
-
 
   if (Allgather)
-  {
-    MPI_Allgatherv( 
-      vvals,                             //void * sendbuff, 
-      numVar*NBR_MAX_HARMONIC * MAX_DIM,  //int sendcount, 
-      MPI_DOUBLE,                         //MPI_Datatype sendtype, 
-      vvalsall,                          //void * recvbuf, 
-      vvalssize_gathered,                 //int * recvcounts, 
-      vvaldispls,                         //int * displs, 
-      MPI_DOUBLE,                         //MPI_Datatype recvtype, 
-      MPI_COMM_WORLD                      //MPI_Comm comm
-      );
-  }
+    MPI_Allgatherv(vvals,numVar*NBR_MAX_HARMONIC * MAX_DIM, MPI_DOUBLE, vvals_gathered, vvalssizes, vvaldispls, MPI_DOUBLE, MPI_COMM_WORLD);
   else
-  {
-    MPI_Gatherv( 
-      vvals,                             //void * sendbuff, 
-      numVar*NBR_MAX_HARMONIC * MAX_DIM,  //int sendcount, 
-      MPI_DOUBLE,                         //MPI_Datatype sendtype, 
-      vvalsall,                          //void * recvbuf, 
-      vvalssize_gathered,                 //int * recvcounts, 
-      vvaldispls,                         //int * displs, 
-      MPI_DOUBLE,                         //MPI_Datatype recvtype, 
-      Operation_P->Case.GatherVariables.to,  // int root
-      MPI_COMM_WORLD                      //MPI_Comm comm
-      );
+    MPI_Gatherv(vvals,numVar*NBR_MAX_HARMONIC * MAX_DIM, MPI_DOUBLE, vvals_gathered, vvalssizes, vvaldispls, MPI_DOUBLE, Operation_P->Case.GatherVariables.to, MPI_COMM_WORLD);
+
+  if (Allgather || commrank==Operation_P->Case.GatherVariables.to){
+    delete [] vvals;
+    delete [] vvalssizes;
+    delete [] vvaldispls;
   }
 
-  int *vtypes_gathered;
-  if (Allgather || commrank==Operation_P->Case.GatherVariables.to)
-    vtypes_gathered= new int[numVartot];
+  /////////////////////////////////////////////////////////////////////////////////////
+  // Gather vtypes vectors in vtypes_gathered ...
+  /////////////////////////////////////////////////////////////////////////////////////
+  int *vtypes_gathered,
+      *vtypedispls;
+  if (Allgather || commrank==Operation_P->Case.GatherVariables.to){
+    vtypes_gathered = new int[numVartot];
+    //vtypessizes = vnumVar_gathered which is already known at this stage
+    vtypedispls     = new int[commsize];
 
-  int *vtypedispls;
-  if (Allgather || commrank==Operation_P->Case.GatherVariables.to)
-  {
-    vtypedispls= new int[commsize];
     vtypedispls[0]=0;
     for(int i = 1; i < commsize; i++)
       vtypedispls[i]=vtypedispls[i-1]+vnumVar_gathered[i-1];
   }
 
   if (Allgather)
-  {
-    MPI_Allgatherv( 
-      vtypes,          //void * sendbuff, 
-      numVar,           //int sendcount, 
-      MPI_INT,          //MPI_Datatype sendtype, 
-      vtypes_gathered, //void * recvbuf, 
-      vnumVar_gathered, //int * recvcounts, 
-      vtypedispls,      //int * displs, 
-      MPI_INT,          //MPI_Datatype recvtype, 
-      MPI_COMM_WORLD    //MPI_Comm comm
-      );
-  }
+    MPI_Allgatherv(vtypes,numVar,MPI_INT, vtypes_gathered, vnumVar_gathered, vtypedispls, MPI_INT, MPI_COMM_WORLD);
   else
-  {
-    MPI_Gatherv( 
-      vtypes,          //void * sendbuff, 
-      numVar,           //int sendcount, 
-      MPI_INT,          //MPI_Datatype sendtype, 
-      vtypes_gathered, //void * recvbuf, 
-      vnumVar_gathered, //int * recvcounts, 
-      vtypedispls,      //int * displs, 
-      MPI_INT,          //MPI_Datatype recvtype,
-      Operation_P->Case.GatherVariables.to,  // int root 
-      MPI_COMM_WORLD    //MPI_Comm comm
-      );
+    MPI_Gatherv(vtypes,numVar,MPI_INT, vtypes_gathered, vnumVar_gathered, vtypedispls, MPI_INT, Operation_P->Case.GatherVariables.to,MPI_COMM_WORLD);
+
+  if (Allgather || commrank==Operation_P->Case.GatherVariables.to){
+    delete [] vtypes;
+    delete [] vnumVar_gathered;
+    delete [] vtypedispls;
   }
 
-  //for(int i = 0; i < numVartot; i++)
-  //  Message::Warning("GatherVariables: Check after Allgatherv vnames_gathered %d : %s",i,vnames_gathered[i]);
-
-  //for(int i = 0; i < numVartot; i++)
-  //  Message::Warning("GatherVariables: Check after Allgatherv vnames_gathered %d: %s, type=%d, val=%g %g %g", i, vnames_gathered[i], vtypes_gathered[i], vvalsall[i][0], vvalsall[i][1], vvalsall[i][2]);
-
-  if (Allgather || commrank==Operation_P->Case.GatherVariables.to)
-  {
+  /////////////////////////////////////////////////////////////////////////////////////
+  // Update Variables from gathered vectors
+  /////////////////////////////////////////////////////////////////////////////////////
+  if (Allgather || commrank==Operation_P->Case.GatherVariables.to){
     for(unsigned int i = 0; i < numVartot; i++){
       struct Value v;
       v.Type = vtypes_gathered[i];
       for(unsigned int k = 0; k < NBR_MAX_HARMONIC * MAX_DIM; k++)
-        v.Val[k]=vvalsall[i*NBR_MAX_HARMONIC * MAX_DIM+k];
+        v.Val[k]=vvals_gathered[i*NBR_MAX_HARMONIC * MAX_DIM+k];
       values[&(vnames_gathered[i*STRING_SIZE])]=v;
     }
 
-
-
-    delete[] vnames;
-    delete[] vtypes;
-    delete[] vvals;
-
-    delete [] vnamessize_gathered;
-    delete [] vnumVar_gathered;
-    delete [] vnamesdispls;
-    delete [] vvalssize_gathered;
-    delete [] vvaldispls;
-    delete [] vtypes_gathered;
-    delete [] vtypedispls;
-
-    delete [] vnames_gathered;
-    delete [] vvalsall;
-
+    delete [] vtypes_gathered; 
+    delete [] vnames_gathered; 
+    delete [] vvals_gathered; 
   }
-
-
 
   return 0;
 }
