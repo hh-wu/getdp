@@ -222,7 +222,7 @@ int Operation_GatherVariables(struct Resolution  *Resolution_P,
     //  Message::Warning("GatherVariables: Unknown variable %s", s);  
   }
   if(names.empty()){
-    Message::Warning("GatherVariables: No known variable given to gather ",
+    Message::Warning("GatherVariables: No known variable given to gather "
                      "=> GatherVariables is aborted");
     return 0;
     //for(std::map<std::string, struct Value>::iterator it = values.begin();
