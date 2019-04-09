@@ -3014,6 +3014,12 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   (Resolution_P, Operation_P, DofData_P0, GeoData_P0) ;
       break;
 
+    case OPERATION_SCATTERVARIABLES :
+      Message::Info("ScatterVariables ...") ;
+      Operation_ScatterVariables
+  (Resolution_P, Operation_P, DofData_P0, GeoData_P0) ;
+      break;
+
     case OPERATION_CLEARVARIABLES :
     {
       Message::Info("ClearVariables ...") ;

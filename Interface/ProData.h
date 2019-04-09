@@ -1165,6 +1165,11 @@ struct Operation {
       List_T  *id;
     } GatherVariables;
     struct {
+      int from;
+      List_T  *Names;
+      List_T  *id;
+    } ScatterVariables;
+    struct {
       List_T  *Names;
     } ClearVariables;
     struct {
@@ -1351,6 +1356,7 @@ struct IterativeLoopSystem {
 #define OPERATION_CHECKVARIABLES           114
 #define OPERATION_CLEARVECTORS             115
 #define OPERATION_GATHERVARIABLES          116
+#define OPERATION_SCATTERVARIABLES         117
 
 /* ChangeOfState.Type */
 #define CHANGEOFSTATE_NOCHANGE              0

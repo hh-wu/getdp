@@ -328,7 +328,7 @@ struct doubleXstring{
 %token      tIterativeTimeReduction
 %token        tSetCommSelf tSetCommWorld tBarrier
 %token        tBroadcastFields tBroadcastVariables tClearVariables tCheckVariables tClearVectors
-%token        tGatherVariables
+%token        tGatherVariables tScatterVariables
 %token        tSetExtrapolationOrder
 %token      tSleep
 %token      tDivisionCoefficient tChangeOfState
@@ -4774,18 +4774,36 @@ OperationTerm :
     { Operation_P = (struct Operation*)
   List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_GATHERVARIABLES;
-      Operation_P->Case.GatherVariables.to  = -1;
+      Operation_P->Case.GatherVariables.to    = -1;
       Operation_P->Case.GatherVariables.Names = $3;
       Operation_P->Case.GatherVariables.id    = $5;
+    }
+
+  | tGatherVariables '[' BracedOrNotRecursiveListOfCharExpr ']' '{' FExpr  '}' tEND
+    { Operation_P = (struct Operation*)
+  List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_GATHERVARIABLES;
+      Operation_P->Case.GatherVariables.to    = $6;
+      Operation_P->Case.GatherVariables.Names = $3;
+      Operation_P->Case.GatherVariables.id    = 0;
     }
 
   | tGatherVariables '[' BracedOrNotRecursiveListOfCharExpr ']' tEND
     { Operation_P = (struct Operation*)
   List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_GATHERVARIABLES;
-      Operation_P->Case.GatherVariables.to  = -1;
+      Operation_P->Case.GatherVariables.to    = -1;
       Operation_P->Case.GatherVariables.Names = $3;
       Operation_P->Case.GatherVariables.id    = 0;
+    }
+
+  | tScatterVariables '[' BracedOrNotRecursiveListOfCharExpr '{' ListOfFExpr '}' ']' '{' FExpr  '}' tEND
+    { Operation_P = (struct Operation*)
+  List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_SCATTERVARIABLES;
+      Operation_P->Case.ScatterVariables.from  = $9;
+      Operation_P->Case.ScatterVariables.Names = $3;
+      Operation_P->Case.ScatterVariables.id    = $5;
     }
 
   | tTest '[' Expression ']' '{' Operation '}'

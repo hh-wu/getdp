@@ -46,6 +46,11 @@ int Operation_GatherVariables(struct Resolution  *Resolution_P,
                                  struct DofData     *DofData_P0,
                                  struct GeoData     *GeoData_P0) ;
 
+int Operation_ScatterVariables(struct Resolution  *Resolution_P,
+                                 struct Operation   *Operation_P,
+                                 struct DofData     *DofData_P0,
+                                 struct GeoData     *GeoData_P0) ;
+
 int Operation_CheckVariables(struct Resolution  *Resolution_P,
                                  struct Operation   *Operation_P,
                                  struct DofData     *DofData_P0,
