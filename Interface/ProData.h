@@ -1170,6 +1170,11 @@ struct Operation {
       List_T  *id;
     } ScatterVariables;
     struct {
+      int from;
+      List_T  *Names;
+      List_T  *id;
+    } CheckVariables;
+    struct {
       List_T  *Names;
     } ClearVariables;
     struct {
