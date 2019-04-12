@@ -217,7 +217,7 @@ struct doubleXstring{
 %type <l>  MultiCharExpr RecursiveListOfListOfFExpr
 %type <l>  RecursiveListOfCharExpr Str_BracedRecursiveListOfCharExpr
 %type <l>  BracedOrNotRecursiveListOfCharExpr BracedRecursiveListOfCharExpr
-%type <l>  ParametersForFunction
+%type <l>  RecursiveListOfVariables ParametersForFunction
 %type <l>  ListOfRegion ListOfRegionOrAll SuppListOfRegion
 %type <l>  ConstraintCases IntegrationCases QuadratureCases JacobianCases
 %type <l>  ListOfBasisFunction RecursiveListOfBasisFunction
@@ -4808,36 +4808,27 @@ OperationTerm :
       Operation_P->Type = OPERATION_BREAK;
     }
 
-  | tGatherVariables '[' BracedOrNotRecursiveListOfCharExpr '{' ListOfFExpr '}' ']' '{' FExpr  '}' tEND
+  | tGatherVariables '[' RecursiveListOfVariables ']' '{' ListOfFExpr '}' '{' FExpr  '}' tEND
     { Operation_P = (struct Operation*)
-  List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+        List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_GATHERVARIABLES;
       Operation_P->Case.GatherVariables.to    = $9;
       Operation_P->Case.GatherVariables.Names = $3;
-      Operation_P->Case.GatherVariables.id    = $5;
+      Operation_P->Case.GatherVariables.id    = $6;
     }
 
-  | tGatherVariables '[' BracedOrNotRecursiveListOfCharExpr '{' ListOfFExpr '}' ']' tEND
+  | tGatherVariables '[' RecursiveListOfVariables ']' '{' ListOfFExpr '}' tEND
     { Operation_P = (struct Operation*)
-  List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+        List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_GATHERVARIABLES;
       Operation_P->Case.GatherVariables.to    = -1;
       Operation_P->Case.GatherVariables.Names = $3;
-      Operation_P->Case.GatherVariables.id    = $5;
+      Operation_P->Case.GatherVariables.id    = $6;
     }
 
-  | tGatherVariables '[' BracedOrNotRecursiveListOfCharExpr ']' '{' FExpr  '}' tEND
+  | tGatherVariables '[' RecursiveListOfVariables ']' tEND
     { Operation_P = (struct Operation*)
-  List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
-      Operation_P->Type = OPERATION_GATHERVARIABLES;
-      Operation_P->Case.GatherVariables.to    = $6;
-      Operation_P->Case.GatherVariables.Names = $3;
-      Operation_P->Case.GatherVariables.id    = 0;
-    }
-
-  | tGatherVariables '[' BracedOrNotRecursiveListOfCharExpr ']' tEND
-    { Operation_P = (struct Operation*)
-  List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+        List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_GATHERVARIABLES;
       Operation_P->Case.GatherVariables.to    = -1;
       Operation_P->Case.GatherVariables.Names = $3;
@@ -10151,6 +10142,18 @@ RecursiveListOfCharExpr :
 	List_Add($$, &c);
       }
       List_Delete($3);
+    }
+ ;
+
+RecursiveListOfVariables :
+    '$' String__Index
+    {
+      $$ = List_Create(20,20,sizeof(char*));
+      List_Add($$, &($2));
+    }
+  | RecursiveListOfVariables ',' '$' String__Index
+    {
+      List_Add($$, &($4));
     }
  ;
 
