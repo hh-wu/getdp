@@ -4726,6 +4726,15 @@ OperationTerm :
       Operation_P->Case.BroadcastVariables.from  = -1;
     }
 
+  | tBroadcastVariables '['  ']' '{'  '}' '{' FExpr  '}' tEND
+    { Operation_P = (struct Operation*)
+  List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_BROADCASTVARIABLES;
+      Operation_P->Case.BroadcastVariables.Names = 0;
+      Operation_P->Case.BroadcastVariables.id    = 0;
+      Operation_P->Case.BroadcastVariables.from  = (int)$7;
+    }
+
   | tBroadcastVariables '[' ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
@@ -4769,6 +4778,15 @@ OperationTerm :
       Operation_P->Case.CheckVariables.Names = $3;
       Operation_P->Case.CheckVariables.id    = 0;
       Operation_P->Case.CheckVariables.from  = -1;
+    }
+
+  | tCheckVariables '[' ']' '{' '}' '{' FExpr '}' tEND
+    { Operation_P = (struct Operation*)
+  List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_CHECKVARIABLES;
+      Operation_P->Case.CheckVariables.Names = 0;
+      Operation_P->Case.CheckVariables.id    = 0;
+      Operation_P->Case.CheckVariables.from  = (int)$7;
     }
 
   | tCheckVariables '[' ']' tEND
