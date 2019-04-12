@@ -4664,6 +4664,18 @@ OperationTerm :
       Operation_P->Type = OPERATION_BARRIER;
     }
 
+  | tBreak tEND
+    { Operation_P = (struct Operation*)
+  List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_BREAK;
+    }
+
+  | tBreak '[' ']' tEND
+    { Operation_P = (struct Operation*)
+  List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_BREAK;
+    }
+
   | tBroadcastFields '[' ListOfFExpr ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
@@ -4678,43 +4690,97 @@ OperationTerm :
       Operation_P->Case.BroadcastFields.ViewTags = 0;
     }
 
-  | tBroadcastVariables '[' BracedOrNotRecursiveListOfCharExpr ']' '{' FExpr  '}' tEND
+  | tBroadcastVariables '[' RecursiveListOfVariables ']' '{' ListOfFExpr '}' '{' FExpr  '}' tEND
     { Operation_P = (struct Operation*)
   List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_BROADCASTVARIABLES;
-      Operation_P->Case.BroadcastVariables.from  = (int)$6;
+      Operation_P->Case.BroadcastVariables.Names = $3;
+      Operation_P->Case.BroadcastVariables.id    = $6;
+      Operation_P->Case.BroadcastVariables.from  = (int)$9;
+    }
+
+  | tBroadcastVariables '[' RecursiveListOfVariables ']' '{'  '}' '{' FExpr  '}' tEND
+    { Operation_P = (struct Operation*)
+  List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_BROADCASTVARIABLES;
       Operation_P->Case.BroadcastVariables.Names = $3;
       Operation_P->Case.BroadcastVariables.id    = 0;
+      Operation_P->Case.BroadcastVariables.from  = (int)$8;
     }
 
-  | tBroadcastVariables '[' BracedOrNotRecursiveListOfCharExpr '{' ListOfFExpr '}' ']' tEND
+  | tBroadcastVariables '[' RecursiveListOfVariables ']' '{' ListOfFExpr '}' tEND
     { Operation_P = (struct Operation*)
   List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_BROADCASTVARIABLES;
-      Operation_P->Case.BroadcastVariables.from  = -1;
       Operation_P->Case.BroadcastVariables.Names = $3;
-      Operation_P->Case.BroadcastVariables.id    = $5;
+      Operation_P->Case.BroadcastVariables.id    = $6;
+      Operation_P->Case.BroadcastVariables.from  = -1;
     }
 
-  | tBroadcastVariables '[' BracedOrNotRecursiveListOfCharExpr ']' tEND
+  | tBroadcastVariables '[' RecursiveListOfVariables ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_BROADCASTVARIABLES;
-      Operation_P->Case.BroadcastVariables.from  = -1;
       Operation_P->Case.BroadcastVariables.Names = $3;
       Operation_P->Case.BroadcastVariables.id    = 0;
+      Operation_P->Case.BroadcastVariables.from  = -1;
     }
 
   | tBroadcastVariables '[' ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_BROADCASTVARIABLES;
-      Operation_P->Case.BroadcastVariables.from  = -1;
       Operation_P->Case.BroadcastVariables.Names = 0;
       Operation_P->Case.BroadcastVariables.id    = 0;
+      Operation_P->Case.BroadcastVariables.from  = -1;
     }
 
-  | tClearVariables '[' BracedOrNotRecursiveListOfCharExpr ']' tEND
+  | tCheckVariables '[' RecursiveListOfVariables ']' '{' ListOfFExpr '}' '{' FExpr '}' tEND
+    { Operation_P = (struct Operation*)
+  List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_CHECKVARIABLES;
+      Operation_P->Case.CheckVariables.Names = $3;
+      Operation_P->Case.CheckVariables.id    = $6;
+      Operation_P->Case.CheckVariables.from  = (int)$9;
+    }
+
+  | tCheckVariables '[' RecursiveListOfVariables ']' '{' '}' '{' FExpr '}' tEND
+    { Operation_P = (struct Operation*)
+  List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_CHECKVARIABLES;
+      Operation_P->Case.CheckVariables.Names = $3;
+      Operation_P->Case.CheckVariables.id    = 0;
+      Operation_P->Case.CheckVariables.from  = (int)$8;
+    }
+
+  | tCheckVariables '[' RecursiveListOfVariables ']' '{' ListOfFExpr '}' tEND
+    { Operation_P = (struct Operation*)
+  List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_CHECKVARIABLES;
+      Operation_P->Case.CheckVariables.Names = $3;
+      Operation_P->Case.CheckVariables.id    = $6;
+      Operation_P->Case.CheckVariables.from  = -1;
+    }
+
+  | tCheckVariables '[' RecursiveListOfVariables ']' tEND
+    { Operation_P = (struct Operation*)
+  List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_CHECKVARIABLES;
+      Operation_P->Case.CheckVariables.Names = $3;
+      Operation_P->Case.CheckVariables.id    = 0;
+      Operation_P->Case.CheckVariables.from  = -1;
+    }
+
+  | tCheckVariables '[' ']' tEND
+    { Operation_P = (struct Operation*)
+  List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_CHECKVARIABLES;
+      Operation_P->Case.CheckVariables.Names = 0;
+      Operation_P->Case.CheckVariables.id    = 0;
+      Operation_P->Case.CheckVariables.from  = -1;
+    }
+
+  | tClearVariables '[' RecursiveListOfVariables ']' tEND
     { Operation_P = (struct Operation*)
   List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_CLEARVARIABLES;
@@ -4742,106 +4808,49 @@ OperationTerm :
       Operation_P->Case.ClearVectors.Names = 0;
     }
 
-  | tCheckVariables '[' BracedOrNotRecursiveListOfCharExpr '{' ListOfFExpr '}' ']' '{' FExpr  '}' tEND
-    { Operation_P = (struct Operation*)
-  List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
-      Operation_P->Type = OPERATION_CHECKVARIABLES;
-      Operation_P->Case.CheckVariables.from  = $9;
-      Operation_P->Case.CheckVariables.Names = $3;
-      Operation_P->Case.CheckVariables.id    = $5;
-    }
-
-  | tCheckVariables '[' BracedOrNotRecursiveListOfCharExpr ']' '{' FExpr  '}' tEND
-    { Operation_P = (struct Operation*)
-  List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
-      Operation_P->Type = OPERATION_CHECKVARIABLES;
-      Operation_P->Case.CheckVariables.from  = $6;
-      Operation_P->Case.CheckVariables.Names = $3;
-      Operation_P->Case.CheckVariables.id = 0;
-    }
-
-  | tCheckVariables '[' ']' '{' FExpr  '}' tEND
-    { Operation_P = (struct Operation*)
-  List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
-      Operation_P->Type = OPERATION_CHECKVARIABLES;
-      Operation_P->Case.CheckVariables.from  = $5;
-      Operation_P->Case.CheckVariables.Names = 0;
-      Operation_P->Case.CheckVariables.id = 0;
-    }
-
-  | tCheckVariables '[' BracedOrNotRecursiveListOfCharExpr '{' ListOfFExpr '}' ']' tEND
-    { Operation_P = (struct Operation*)
-  List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
-      Operation_P->Type = OPERATION_CHECKVARIABLES;
-      Operation_P->Case.CheckVariables.from  = -1;
-      Operation_P->Case.CheckVariables.Names = $3;
-      Operation_P->Case.CheckVariables.id    = $5;
-    }
-
-  | tCheckVariables '[' BracedOrNotRecursiveListOfCharExpr ']' tEND
-    { Operation_P = (struct Operation*)
-  List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
-      Operation_P->Type = OPERATION_CHECKVARIABLES;
-      Operation_P->Case.CheckVariables.from  = -1;
-      Operation_P->Case.CheckVariables.Names = $3;
-      Operation_P->Case.CheckVariables.id = 0;
-    }
-
-  | tCheckVariables '[' ']' tEND
-    { Operation_P = (struct Operation*)
-  List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
-      Operation_P->Type = OPERATION_CHECKVARIABLES;
-      Operation_P->Case.CheckVariables.from  = -1;
-      Operation_P->Case.CheckVariables.Names = 0;
-      Operation_P->Case.CheckVariables.id = 0;
-    }
-
-  | tBreak tEND
-    { Operation_P = (struct Operation*)
-	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
-      Operation_P->Type = OPERATION_BREAK;
-    }
-
-  | tBreak '[' ']' tEND
-    { Operation_P = (struct Operation*)
-	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
-      Operation_P->Type = OPERATION_BREAK;
-    }
-
   | tGatherVariables '[' RecursiveListOfVariables ']' '{' ListOfFExpr '}' '{' FExpr  '}' tEND
     { Operation_P = (struct Operation*)
         List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_GATHERVARIABLES;
-      Operation_P->Case.GatherVariables.to    = $9;
       Operation_P->Case.GatherVariables.Names = $3;
       Operation_P->Case.GatherVariables.id    = $6;
+      Operation_P->Case.GatherVariables.to    = (int) $9;
+    }
+
+  | tGatherVariables '[' RecursiveListOfVariables ']' '{' '}' '{' FExpr  '}' tEND
+    { Operation_P = (struct Operation*)
+        List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_GATHERVARIABLES;
+      Operation_P->Case.GatherVariables.Names = $3;
+      Operation_P->Case.GatherVariables.id    = 0;
+      Operation_P->Case.GatherVariables.to    = (int) $8;
     }
 
   | tGatherVariables '[' RecursiveListOfVariables ']' '{' ListOfFExpr '}' tEND
     { Operation_P = (struct Operation*)
         List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_GATHERVARIABLES;
-      Operation_P->Case.GatherVariables.to    = -1;
       Operation_P->Case.GatherVariables.Names = $3;
       Operation_P->Case.GatherVariables.id    = $6;
+      Operation_P->Case.GatherVariables.to    = -1;
     }
 
   | tGatherVariables '[' RecursiveListOfVariables ']' tEND
     { Operation_P = (struct Operation*)
         List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_GATHERVARIABLES;
-      Operation_P->Case.GatherVariables.to    = -1;
       Operation_P->Case.GatherVariables.Names = $3;
       Operation_P->Case.GatherVariables.id    = 0;
+      Operation_P->Case.GatherVariables.to    = -1;
     }
 
-  | tScatterVariables '[' BracedOrNotRecursiveListOfCharExpr '{' ListOfFExpr '}' ']' '{' FExpr  '}' tEND
+  | tScatterVariables '[' RecursiveListOfVariables ']' '{' ListOfFExpr '}' '{' FExpr  '}' tEND
     { Operation_P = (struct Operation*)
   List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_SCATTERVARIABLES;
-      Operation_P->Case.ScatterVariables.from  = $9;
       Operation_P->Case.ScatterVariables.Names = $3;
-      Operation_P->Case.ScatterVariables.id    = $5;
+      Operation_P->Case.ScatterVariables.id    = $6;
+      Operation_P->Case.ScatterVariables.from  = (int) $9;
     }
 
   | tTest '[' Expression ']' '{' Operation '}'

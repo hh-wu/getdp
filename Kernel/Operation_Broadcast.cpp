@@ -44,7 +44,7 @@ int Operation_CheckVariables(struct Resolution  *Resolution_P,
         for(std::map<std::string, struct Value>::iterator it = values.begin();
             it != values.end(); it++)
           names.push_back(it->first);
-        Message::Warning("CheckVariables: Show all %d variables existing in rank %d",names.size(),commrank);
+        Message::Direct("CheckVariables: Show all %d variables existing in rank %d",names.size(),commrank);
       }
       else{
         for(unsigned int i = 0; i < List_Nbr(Operation_P->Case.CheckVariables.Names); i++){
