@@ -12974,7 +12974,7 @@ yyreduce:
   case 480:
 #line 4694 "ProParser.y" /* yacc.c:1652  */
     { Operation_P = (struct Operation*)
-  List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+        List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_BROADCASTVARIABLES;
       Operation_P->Case.BroadcastVariables.Names = (yyvsp[-8].l);
       Operation_P->Case.BroadcastVariables.id    = (yyvsp[-5].l);
@@ -12986,7 +12986,7 @@ yyreduce:
   case 481:
 #line 4703 "ProParser.y" /* yacc.c:1652  */
     { Operation_P = (struct Operation*)
-  List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+        List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_BROADCASTVARIABLES;
       Operation_P->Case.BroadcastVariables.Names = (yyvsp[-7].l);
       Operation_P->Case.BroadcastVariables.id    = 0;
@@ -12998,7 +12998,7 @@ yyreduce:
   case 482:
 #line 4712 "ProParser.y" /* yacc.c:1652  */
     { Operation_P = (struct Operation*)
-  List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+        List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_BROADCASTVARIABLES;
       Operation_P->Case.BroadcastVariables.Names = (yyvsp[-5].l);
       Operation_P->Case.BroadcastVariables.id    = (yyvsp[-2].l);
@@ -13022,7 +13022,7 @@ yyreduce:
   case 484:
 #line 4730 "ProParser.y" /* yacc.c:1652  */
     { Operation_P = (struct Operation*)
-  List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+        List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_BROADCASTVARIABLES;
       Operation_P->Case.BroadcastVariables.Names = 0;
       Operation_P->Case.BroadcastVariables.id    = 0;
@@ -13046,7 +13046,7 @@ yyreduce:
   case 486:
 #line 4748 "ProParser.y" /* yacc.c:1652  */
     { Operation_P = (struct Operation*)
-  List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+        List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_CHECKVARIABLES;
       Operation_P->Case.CheckVariables.Names = (yyvsp[-8].l);
       Operation_P->Case.CheckVariables.id    = (yyvsp[-5].l);
@@ -13058,7 +13058,7 @@ yyreduce:
   case 487:
 #line 4757 "ProParser.y" /* yacc.c:1652  */
     { Operation_P = (struct Operation*)
-  List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+        List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_CHECKVARIABLES;
       Operation_P->Case.CheckVariables.Names = (yyvsp[-7].l);
       Operation_P->Case.CheckVariables.id    = 0;
@@ -13070,7 +13070,7 @@ yyreduce:
   case 488:
 #line 4766 "ProParser.y" /* yacc.c:1652  */
     { Operation_P = (struct Operation*)
-  List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+        List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_CHECKVARIABLES;
       Operation_P->Case.CheckVariables.Names = (yyvsp[-5].l);
       Operation_P->Case.CheckVariables.id    = (yyvsp[-2].l);
@@ -13082,7 +13082,7 @@ yyreduce:
   case 489:
 #line 4775 "ProParser.y" /* yacc.c:1652  */
     { Operation_P = (struct Operation*)
-  List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+        List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_CHECKVARIABLES;
       Operation_P->Case.CheckVariables.Names = (yyvsp[-2].l);
       Operation_P->Case.CheckVariables.id    = 0;
@@ -13094,7 +13094,7 @@ yyreduce:
   case 490:
 #line 4784 "ProParser.y" /* yacc.c:1652  */
     { Operation_P = (struct Operation*)
-  List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+        List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_CHECKVARIABLES;
       Operation_P->Case.CheckVariables.Names = 0;
       Operation_P->Case.CheckVariables.id    = 0;
@@ -13106,7 +13106,7 @@ yyreduce:
   case 491:
 #line 4793 "ProParser.y" /* yacc.c:1652  */
     { Operation_P = (struct Operation*)
-  List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+        List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_CHECKVARIABLES;
       Operation_P->Case.CheckVariables.Names = 0;
       Operation_P->Case.CheckVariables.id    = 0;
@@ -13118,7 +13118,7 @@ yyreduce:
   case 492:
 #line 4802 "ProParser.y" /* yacc.c:1652  */
     { Operation_P = (struct Operation*)
-  List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+        List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_CLEARVARIABLES;
       Operation_P->Case.ClearVariables.Names = (yyvsp[-2].l);
     }
@@ -13138,7 +13138,7 @@ yyreduce:
   case 494:
 #line 4816 "ProParser.y" /* yacc.c:1652  */
     { Operation_P = (struct Operation*)
-  List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+        List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_CLEARVECTORS;
       Operation_P->Case.ClearVectors.Names = (yyvsp[-2].l);
     }
@@ -13148,7 +13148,7 @@ yyreduce:
   case 495:
 #line 4823 "ProParser.y" /* yacc.c:1652  */
     { Operation_P = (struct Operation*)
-  List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+        List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_CLEARVECTORS;
       Operation_P->Case.ClearVectors.Names = 0;
     }
@@ -13206,7 +13206,7 @@ yyreduce:
   case 500:
 #line 4866 "ProParser.y" /* yacc.c:1652  */
     { Operation_P = (struct Operation*)
-  List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+        List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_SCATTERVARIABLES;
       Operation_P->Case.ScatterVariables.Names = (yyvsp[-8].l);
       Operation_P->Case.ScatterVariables.id    = (yyvsp[-5].l);
