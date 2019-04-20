@@ -12,8 +12,6 @@
 #include "Message.h"
 #include "Cal_Quantity.h"
 
-#include "petscvec.h"
-
 /* TODO:
 
       Copy[ x() , y() ];
@@ -298,6 +296,6 @@ void Operation_ClearVectors( struct Operation *Operation_P,
     if(manageVectorMap(VV_ERASE_IF_EXISTS,s, NULL, DofData_P))
       Message::Info("ClearVectors: Unknown Vector %s",  s);
     else
-      Message::Info("ClearVectors: Clear Vector %s",  s);        
+      Message::Info("ClearVectors: Clear Vector %s",  s);
   }
 }
