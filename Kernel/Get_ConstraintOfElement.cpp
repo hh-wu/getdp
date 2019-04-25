@@ -13,6 +13,7 @@
 #include "Cal_Value.h"
 #include "MallocUtils.h"
 #include "Message.h"
+#include "rtree.h"
 
 extern struct Problem Problem_S ;
 extern struct CurrentData Current ;
@@ -474,6 +475,59 @@ void  Generate_ElementaryEntities_EdgeNN
 void  Generate_ElementaryEntities_FacetNNN
   (List_T * InitialList, List_T ** ExtendedList, int Type_Entity) ;
 
+class NodeXYZRTree {
+private:
+  RTree<struct NodeXYZ *, double, 3, double> *_rtree;
+  double _tol;
+  static bool rtree_callback(struct NodeXYZ *v, void *ctx)
+  {
+    struct NodeXYZ **out = static_cast<NodeXYZ **>(ctx);
+    *out = v;
+    return false; // we're done searching
+  }
+
+public:
+  NodeXYZRTree(double tolerance = 1.e-8)
+  {
+    _rtree = new RTree<struct NodeXYZ *, double, 3, double>();
+    _tol = tolerance;
+  }
+  ~NodeXYZRTree()
+  {
+    _rtree->RemoveAll();
+    delete _rtree;
+  }
+  void insert(struct NodeXYZ *v)
+  {
+    struct NodeXYZ *out;
+    double _min[3] = {v->x - _tol, v->y - _tol, v->z - _tol};
+    double _max[3] = {v->x + _tol, v->y + _tol, v->z + _tol};
+    if(!_rtree->Search(_min, _max, rtree_callback, &out)) {
+      _rtree->Insert(_min, _max, v);
+    }
+    else {
+      Message::Warning("Node %d (%.16g, %.16g, %.16g) already exists "
+                       "with tolerance %g: node %d (%.16g, %.16g, %.16g)",
+                       v->NumNode, v->x, v->y, v->z, _tol, out->NumNode,
+                       out->x, out->y, out->z);
+    }
+  }
+  struct NodeXYZ *find(struct NodeXYZ *n)
+  {
+    struct NodeXYZ *out;
+    double _min[3] = {n->x - _tol, n->y - _tol, n->z - _tol};
+    double _max[3] = {n->x + _tol, n->y + _tol, n->z + _tol};
+    if(_rtree->Search(_min, _max, rtree_callback, &out)){
+      return out;
+    }
+    else{
+      Message::Warning("Could not find node corresponding to reference node "
+                       "%d (%g, %g, %g)", n->NumNode, n->x, n->y, n->z);
+      return 0;
+    }
+  }
+};
+
 /* ----- */
 
 
@@ -643,8 +697,25 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
   }
   Nbr_EntityRef = List_Nbr(NodeXYZRef_L) ;
 
+#if 1
+  NodeXYZRTree rt(TOL);
+  List_T *tmp = List_Create(List_Nbr(NodeXYZ_L), 1, sizeof(struct NodeXYZ));
+  List_Copy(NodeXYZ_L, tmp);
+  List_Reset(NodeXYZ_L);
+  for(int i = 0; i < List_Nbr(tmp); i++){
+    rt.insert((struct NodeXYZ *)List_Pointer(tmp, i));
+  }
+  for(int i = 0; i < List_Nbr(NodeXYZRef_L); i++){
+    struct NodeXYZ *ref = (struct NodeXYZ *)List_Pointer(NodeXYZRef_L, i);
+    struct NodeXYZ *n = rt.find(ref);
+    if(n) List_Add(NodeXYZ_L, n);
+  }
+  Nbr_Entity = List_Nbr(NodeXYZ_L) ;
+  List_Delete(tmp);
+#else
   List_Sort(NodeXYZ_L   , fcmp_XYZ) ;
   List_Sort(NodeXYZRef_L, fcmp_XYZ) ;
+#endif
 
   if (Nbr_EntityRef != Nbr_Entity){
     Message::Error("Constraint Link: bad correspondance of number of Nodes (%d, %d)",
