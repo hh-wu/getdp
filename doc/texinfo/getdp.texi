@@ -709,6 +709,11 @@ Reads the mesh (in @code{.msh} format) from @var{filename} (@pxref{File
 formats}) rather than from the default problem file name (with the
 @file{.msh} extension appended).
 
+@item -msh_scaling
+@var{value}
+
+Multiplies the coordinates of all the nodes in the mesh by @var{value}.
+
 @item -gmshread
 @var{filename} @dots{}
 

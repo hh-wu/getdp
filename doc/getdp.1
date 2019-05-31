@@ -63,9 +63,12 @@ same command line. If \fIpost-operation-id\fP is omitted, the list of
 available choices is displayed.
 .TP 4
 .B \-msh \fIfilename\fP
-reads the mesh database from \fIfilename\fP rather than reading it
+reads the mesh from \fIfilename\fP rather than reading it
 from the default problem file name with the \fI.msh\fP extension
 appended.
+.TP 4
+.B \-msh_scaling \fIvalue\fP
+multiplies the coordinates of all the nodes in the mesh by \fIvalue\fP.
 .TP 4
 .B \-restart
 resumes time loop processing from where it stopped.

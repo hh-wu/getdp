@@ -21,7 +21,7 @@
 
 #define SQU(a)     ((a)*(a))
 
-extern double Flag_ORDER ;
+extern double Flag_ORDER, Flag_MSH_SCALING ;
 
 FILE  * File_GEO ;
 char *name;
@@ -411,6 +411,11 @@ static void Geo_ReadFileWithGmsh(struct GeoData * GeoData_P)
     Geo_Node.x = coord[3*i + 0];
     Geo_Node.y = coord[3*i + 1];
     Geo_Node.z = coord[3*i + 2];
+    if(Flag_MSH_SCALING != 1.0){
+      Geo_Node.x *= Flag_MSH_SCALING;
+      Geo_Node.y *= Flag_MSH_SCALING;
+      Geo_Node.z *= Flag_MSH_SCALING;
+    }
     List_Add(GeoData_P->Nodes, &Geo_Node) ;
 
     if(!i){
@@ -666,6 +671,11 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
             if(fscanf(File_GEO, "%d %lf %lf %lf",
                       &Geo_Node.Num, &Geo_Node.x, &Geo_Node.y, &Geo_Node.z) != 4)
               return;
+            if(Flag_MSH_SCALING != 1.0){
+              Geo_Node.x *= Flag_MSH_SCALING;
+              Geo_Node.y *= Flag_MSH_SCALING;
+              Geo_Node.z *= Flag_MSH_SCALING;
+            }
           }
           else {
             if(fread(&Geo_Node.Num, sizeof(int), 1, File_GEO) != 1) return;
@@ -676,6 +686,11 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
             Geo_Node.x = xyz[0];
             Geo_Node.y = xyz[1];
             Geo_Node.z = xyz[2];
+            if(Flag_MSH_SCALING != 1.0){
+              Geo_Node.x *= Flag_MSH_SCALING;
+              Geo_Node.y *= Flag_MSH_SCALING;
+              Geo_Node.z *= Flag_MSH_SCALING;
+            }
           }
         }
         else{
@@ -685,11 +700,21 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
               if(fscanf(File_GEO, "%d %lf %lf %lf %d %d",
                         &Geo_Node.Num, &Geo_Node.x, &Geo_Node.y, &Geo_Node.z,
                         &dim, &entity) != 6) return;
+              if(Flag_MSH_SCALING != 1.0){
+                Geo_Node.x *= Flag_MSH_SCALING;
+                Geo_Node.y *= Flag_MSH_SCALING;
+                Geo_Node.z *= Flag_MSH_SCALING;
+              }
             }
             else{
               if(fscanf(File_GEO, "%d %lf %lf %lf %d",
                         &Geo_Node.Num, &Geo_Node.x, &Geo_Node.y, &Geo_Node.z,
                         &entity) != 5) return;
+              if(Flag_MSH_SCALING != 1.0){
+                Geo_Node.x *= Flag_MSH_SCALING;
+                Geo_Node.y *= Flag_MSH_SCALING;
+                Geo_Node.z *= Flag_MSH_SCALING;
+              }
               if(entity){
                 if(fscanf(File_GEO, "%d", &dim) != 1) return;
               }
@@ -718,6 +743,11 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
             Geo_Node.x = xyz[0];
             Geo_Node.y = xyz[1];
             Geo_Node.z = xyz[2];
+            if(Flag_MSH_SCALING != 1.0){
+              Geo_Node.x *= Flag_MSH_SCALING;
+              Geo_Node.y *= Flag_MSH_SCALING;
+              Geo_Node.z *= Flag_MSH_SCALING;
+            }
           }
           if(dim == 1 && (Version < 3.0 || entity)){
             double u[1];
