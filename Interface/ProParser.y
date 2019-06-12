@@ -6939,6 +6939,7 @@ PostOperation :
       PostOperation_S.TimeImagValue_L = NULL;
       PostOperation_S.LastTimeStepOnly = 0;
       PostOperation_S.OverrideTimeStepValue = -1;
+      PostOperation_S.AppendTimeStepToFileName = 0;
       PostOperation_S.NoMesh = 0;
       PostOperation_S.CatFile = 0;
       PostOperation_S.PostSubOperation = NULL;
@@ -7011,6 +7012,16 @@ PostOperationTerm :
       PostOperation_S.LastTimeStepOnly = (int)$2;
     }
 
+  | tAppendTimeStepToFileName tEND
+    {
+      PostOperation_S.AppendTimeStepToFileName = 1;
+    }
+
+  | tAppendTimeStepToFileName FExpr tEND
+    {
+      PostOperation_S.AppendTimeStepToFileName = (int)$2;
+    }
+
   | tAppendToExistingFile FExpr tEND
     {
       PostOperation_S.CatFile = $2;
@@ -7053,6 +7064,7 @@ SeparatePostOperation :
       PostOperation_S.TimeValue_L = NULL;
       PostOperation_S.TimeImagValue_L = NULL;
       PostOperation_S.LastTimeStepOnly = 0;
+      PostOperation_S.AppendTimeStepToFileName = 0;
       PostOperation_S.OverrideTimeStepValue = -1;
       PostOperation_S.NoMesh = 0;
       PostOperation_S.CatFile = 0;
@@ -7183,6 +7195,8 @@ PostSubOperations :
           PostSubOperation_S.TimeImagValue_L = PostOperation_S.TimeImagValue_L;
 	if(!PostSubOperation_S.LastTimeStepOnly)
           PostSubOperation_S.LastTimeStepOnly = PostOperation_S.LastTimeStepOnly;
+	if(!PostSubOperation_S.AppendTimeStepToFileName)
+          PostSubOperation_S.AppendTimeStepToFileName = PostOperation_S.AppendTimeStepToFileName;
 	if(!PostSubOperation_S.NoMesh)
           PostSubOperation_S.NoMesh = PostOperation_S.NoMesh;
 	if(PostSubOperation_S.OverrideTimeStepValue < 0)
