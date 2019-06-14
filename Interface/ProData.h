@@ -1448,6 +1448,7 @@ struct PostOperation {
   bool     ResampleTime;
   List_T  *TimeValue_L, *TimeImagValue_L;
   int      LastTimeStepOnly, OverrideTimeStepValue, NoMesh, CatFile;
+  int      AppendTimeStepToFileName;
 };
 
 struct PostSubOperation {
