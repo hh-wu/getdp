@@ -3060,6 +3060,7 @@ PostOperation @{
     < OverrideTimeStepValue @var{expression-cst}; >
     < NoMesh @var{expression-cst}; > < AppendToExistingFile @var{expression-cst}; >
     < ResampleTime[@var{expression-cst}, @var{expression-cst}, @var{expression-cst}]; >
+    < AppendTimeStepToFileName < @var{expression-cst} >; >
     Operation @{
       < @var{post-operation-op}; > @dots{}
     @}
