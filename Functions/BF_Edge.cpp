@@ -69,6 +69,7 @@ void BF_Edge(struct Element * Element, int NumEdge,
 
   case HEXAHEDRON :
   case HEXAHEDRON_2 :
+  case HEXAHEDRON_2_20N :
     switch(NumEdge) {
     case 1  : s[0] =  0.125 * (1.-v) * (1.-w) ; s[1] = 0. ; s[2] = 0. ; break ;
     case 6  : s[0] = -0.125 * (1.+v) * (1.-w) ; s[1] = 0. ; s[2] = 0. ; break ;
@@ -252,6 +253,7 @@ void BF_CurlEdge(struct Element * Element, int NumEdge,
 
   case HEXAHEDRON :
   case HEXAHEDRON_2 :
+  case HEXAHEDRON_2_20N :
     switch(NumEdge) {
     case 1  : s[0] = 0. ; s[1] = 0.125*(v-1.) ; s[2] = 0.125*(1.-w) ; break ;
     case 6  : s[0] = 0. ; s[1] = 0.125*(v+1.) ; s[2] = 0.125*(1.-w) ; break ;

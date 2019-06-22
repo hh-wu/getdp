@@ -61,6 +61,7 @@ void BF_Edge_2E(struct Element * Element, int NumEntity,
 
   case HEXAHEDRON :
   case HEXAHEDRON_2 :
+  case HEXAHEDRON_2_20N :
     switch(NumEntity) {
     default : Message::Error("BF_Edge_2E not ready for HEXAHEDRON");
     }

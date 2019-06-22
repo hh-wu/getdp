@@ -205,6 +205,7 @@ int Gmsh2GetDP(int Type)
   case 13 : return PRISM_2;
   case 14 : return PYRAMID_2;
   case 16 : return QUADRANGLE_2_8N;
+  case 17 : return HEXAHEDRON_2_20N;
 
   case 26 : return LINE_3;
   case 21 : return TRIANGLE_3;
@@ -249,6 +250,7 @@ int GetDP2Gmsh(int Type)
   case PRISM_2       : return 13;
   case PYRAMID_2     : return 14;
   case QUADRANGLE_2_8N: return 16;
+  case HEXAHEDRON_2_20N : return 17;
 
   case LINE_3        : return 26;
   case TRIANGLE_3    : return 21;

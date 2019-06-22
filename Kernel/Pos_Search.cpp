@@ -87,7 +87,8 @@ static int PointInRefElement (struct Element * Element, double u, double v, doub
       return(0);
     }
     return(1);
-  case HEXAHEDRON : case HEXAHEDRON_2 : case HEXAHEDRON_3 : case HEXAHEDRON_4 :
+  case HEXAHEDRON : case HEXAHEDRON_2 : case HEXAHEDRON_2_20N :
+  case HEXAHEDRON_3 : case HEXAHEDRON_4 :
     if (u<-ONE || v<-ONE || w<-ONE || u>ONE || v>ONE || w>ONE){
       return(0);
     }
@@ -292,7 +293,7 @@ static void Init_SearchGrid(struct Grid * Grid)
 	      break;
 	    case TETRAHEDRON   : case TETRAHEDRON_2 :
             case TETRAHEDRON_3 : case TETRAHEDRON_4 :
-	    case HEXAHEDRON    : case HEXAHEDRON_2 :
+	    case HEXAHEDRON    : case HEXAHEDRON_2 : case HEXAHEDRON_2_20N :
             case HEXAHEDRON_3  : case HEXAHEDRON_4 :
 	    case PRISM         : case PRISM_2 :
             case PRISM_3       : case PRISM_4 :
@@ -455,7 +456,7 @@ void xyz2uvwInAnElement (struct Element *Element,
   *u = *v = *w = 0.0;
 
   if(Element->Type & (TETRAHEDRON|TETRAHEDRON_2|TETRAHEDRON_3|TETRAHEDRON_4|
-                      HEXAHEDRON|HEXAHEDRON_2|HEXAHEDRON_3|HEXAHEDRON_4|
+                      HEXAHEDRON|HEXAHEDRON_2|HEXAHEDRON_2_20N|HEXAHEDRON_3|HEXAHEDRON_4|
                       PRISM|PRISM_2|PRISM_3|PRISM_4|
                       PYRAMID|PYRAMID_2|PYRAMID_3|PYRAMID_4))
     ChainDim = DIM_3D;

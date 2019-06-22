@@ -436,6 +436,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
       PE->u[0] = 0.25 ; PE->v[0] = 0.25 ; PE->w[0] = 0.25 ; break ;
     case HEXAHEDRON :
     case HEXAHEDRON_2 :
+    case HEXAHEDRON_2_20N :
     case HEXAHEDRON_3 :
     case HEXAHEDRON_4 :
       PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 0.   ; break ;
@@ -550,7 +551,8 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
         POS_CUT_FILL;
         break ;
 
-      case HEXAHEDRON : case HEXAHEDRON_2 : case HEXAHEDRON_3 :case HEXAHEDRON_4 :
+      case HEXAHEDRON : case HEXAHEDRON_2 : case HEXAHEDRON_2_20N :
+      case HEXAHEDRON_3 :case HEXAHEDRON_4 :
         if(HighOrder && GE->Type != HEXAHEDRON)
           PE = Create_HighOrderPostElement(GE, Index);
         if(!PE){

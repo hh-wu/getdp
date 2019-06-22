@@ -88,6 +88,7 @@ void BF_Edge_4E(struct Element * Element, int NumEntity,
 
   case HEXAHEDRON :
   case HEXAHEDRON_2 :
+  case HEXAHEDRON_2_20N :
     switch(NumEntity) {
     default : Message::Error("BF_Edge_4E not ready for HEXAHEDRON");
     }
@@ -176,6 +177,7 @@ void BF_Edge_4F(struct Element * Element, int NumEntity,
 
   case HEXAHEDRON :
   case HEXAHEDRON_2 :
+  case HEXAHEDRON_2_20N :
     switch(NumEntity) {
     default : Message::Error("BF_Edge_4F not ready for QUADRANGLE");
     }

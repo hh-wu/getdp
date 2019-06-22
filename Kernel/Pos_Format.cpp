@@ -415,6 +415,7 @@ static void Gmsh_PrintElement(double Time, int TimeStep, int NbTimeStep, int NbH
       case QUADRANGLE_2_8N: Current_L = &SQ ; NbSQ++ ; break ;
       case TETRAHEDRON_2  : Current_L = &SS ; NbSS++ ; break ;
       case HEXAHEDRON_2   : Current_L = &SH ; NbSH++ ; break ;
+      case HEXAHEDRON_2_20N: Current_L = &SH ; NbSH++ ; break ;
       case PRISM_2        : Current_L = &SI ; NbSI++ ; break ;
       case PYRAMID_2      : Current_L = &SY ; NbSY++ ; break ;
 
@@ -480,6 +481,7 @@ static void Gmsh_PrintElement(double Time, int TimeStep, int NbTimeStep, int NbH
       case QUADRANGLE_2_8N: Current_L = &VQ ; NbVQ++ ; break ;
       case TETRAHEDRON_2  : Current_L = &VS ; NbVS++ ; break ;
       case HEXAHEDRON_2   : Current_L = &VH ; NbVH++ ; break ;
+      case HEXAHEDRON_2_20N: Current_L = &VH ; NbVH++ ; break ;
       case PRISM_2        : Current_L = &VI ; NbVI++ ; break ;
       case PYRAMID_2      : Current_L = &VY ; NbVY++ ; break ;
 
@@ -549,6 +551,7 @@ static void Gmsh_PrintElement(double Time, int TimeStep, int NbTimeStep, int NbH
       case QUADRANGLE_2_8N: Current_L = &TQ ; NbTQ++ ; break ;
       case TETRAHEDRON_2  : Current_L = &TS1 ; NbTS++ ; break ;
       case HEXAHEDRON_2   : Current_L = &TH ; NbTH++ ; break ;
+      case HEXAHEDRON_2_20N: Current_L = &TH ; NbTH++ ; break ;
       case PRISM_2        : Current_L = &TI ; NbTI++ ; break ;
       case PYRAMID_2      : Current_L = &TY ; NbTY++ ; break ;
 

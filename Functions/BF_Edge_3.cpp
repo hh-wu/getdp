@@ -145,6 +145,7 @@ void BF_Edge_3F(struct Element * Element, int NumEntity, int Index,
 
   case HEXAHEDRON :
   case HEXAHEDRON_2 :
+  case HEXAHEDRON_2_20N :
     switch(NumEntity) {
     default : Message::Error("BF_Edge_3F not ready for HEXAHEDRON");
     }
@@ -295,6 +296,7 @@ void BF_CurlEdge_3F(struct Element * Element, int NumEntity, int Index,
 
   case HEXAHEDRON :
   case HEXAHEDRON_2 :
+  case HEXAHEDRON_2_20N :
     switch(NumEntity) {
     default : Message::Error("BF_CurlEdge_3F not ready for HEXAHEDRON");
     }

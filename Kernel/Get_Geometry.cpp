@@ -74,7 +74,8 @@ void  * Get_JacobianFunction(int Type_Jacobian, int Type_Element,
       *Type_Dimension = DIM_2D; return((void *)JacobianVol2D);
 
     case TETRAHEDRON : case TETRAHEDRON_2 : case TETRAHEDRON_3 : case TETRAHEDRON_4 :
-    case HEXAHEDRON  : case HEXAHEDRON_2  : case HEXAHEDRON_3  : case HEXAHEDRON_4  :
+    case HEXAHEDRON  : case HEXAHEDRON_2  : case HEXAHEDRON_2_20N  :
+    case HEXAHEDRON_3: case HEXAHEDRON_4  :
     case PRISM       : case PRISM_2       : case PRISM_3       : case PRISM_4       :
     case PYRAMID     : case PYRAMID_2     : case PYRAMID_3     : case PYRAMID_4     :
       *Type_Dimension = DIM_3D; return((void *)JacobianVol3D);
@@ -94,7 +95,8 @@ void  * Get_JacobianFunction(int Type_Jacobian, int Type_Element,
       *Type_Dimension = DIM_2D; return((void *)JacobianVolSphShell2D);
 
     case TETRAHEDRON : case TETRAHEDRON_2 : case TETRAHEDRON_3 : case TETRAHEDRON_4 :
-    case HEXAHEDRON  : case HEXAHEDRON_2  : case HEXAHEDRON_3  : case HEXAHEDRON_4  :
+    case HEXAHEDRON  : case HEXAHEDRON_2  : case HEXAHEDRON_2_20N  :
+    case HEXAHEDRON_3: case HEXAHEDRON_4  :
     case PRISM       : case PRISM_2       : case PRISM_3       : case PRISM_4       :
     case PYRAMID     : case PYRAMID_2     : case PYRAMID_3     : case PYRAMID_4     :
       *Type_Dimension = DIM_3D; return((void *)JacobianVolSphShell3D);
@@ -114,7 +116,8 @@ void  * Get_JacobianFunction(int Type_Jacobian, int Type_Element,
       *Type_Dimension = DIM_2D; return((void *)JacobianVolSphShell2D);
 
     case TETRAHEDRON : case TETRAHEDRON_2 : case TETRAHEDRON_3 : case TETRAHEDRON_4 :
-    case HEXAHEDRON  : case HEXAHEDRON_2  : case HEXAHEDRON_3  : case HEXAHEDRON_4  :
+    case HEXAHEDRON  : case HEXAHEDRON_2  : case HEXAHEDRON_2_20N  :
+    case HEXAHEDRON_3: case HEXAHEDRON_4  :
     case PRISM       : case PRISM_2       : case PRISM_3       : case PRISM_4       :
     case PYRAMID     : case PYRAMID_2     : case PYRAMID_3     : case PYRAMID_4     :
       *Type_Dimension = DIM_3D; return((void *)JacobianVolCylShell3D);
@@ -134,7 +137,8 @@ void  * Get_JacobianFunction(int Type_Jacobian, int Type_Element,
       *Type_Dimension = DIM_2D; return((void *)JacobianVolRectShell2D);
 
     case TETRAHEDRON : case TETRAHEDRON_2 : case TETRAHEDRON_3 : case TETRAHEDRON_4 :
-    case HEXAHEDRON  : case HEXAHEDRON_2  : case HEXAHEDRON_3  : case HEXAHEDRON_4  :
+    case HEXAHEDRON  : case HEXAHEDRON_2  : case HEXAHEDRON_2_20N  :
+    case HEXAHEDRON_3: case HEXAHEDRON_4  :
     case PRISM       : case PRISM_2       : case PRISM_3       : case PRISM_4       :
     case PYRAMID     : case PYRAMID_2     : case PYRAMID_3     : case PYRAMID_4     :
       *Type_Dimension = DIM_3D; return((void *)JacobianVolRectShell3D);
@@ -149,7 +153,8 @@ void  * Get_JacobianFunction(int Type_Jacobian, int Type_Element,
     switch (Type_Element) {
 
     case TETRAHEDRON : case TETRAHEDRON_2 : case TETRAHEDRON_3 : case TETRAHEDRON_4 :
-    case HEXAHEDRON  : case HEXAHEDRON_2  : case HEXAHEDRON_3  : case HEXAHEDRON_4  :
+    case HEXAHEDRON  : case HEXAHEDRON_2  : case HEXAHEDRON_2_20N  :
+    case HEXAHEDRON_3: case HEXAHEDRON_4  :
     case PRISM       : case PRISM_2       : case PRISM_3       : case PRISM_4       :
     case PYRAMID     : case PYRAMID_2     : case PYRAMID_3     : case PYRAMID_4     :
       *Type_Dimension = DIM_3D; return((void *)JacobianVolUniDirShell3D);
@@ -373,7 +378,8 @@ void  * Get_JacobianFunctionAuto (int Type_Element, int Dimension)
     default :  return((void *)JacobianVol2D);
     }
   case TETRAHEDRON : case TETRAHEDRON_2 : case TETRAHEDRON_3 : case TETRAHEDRON_4 :
-  case HEXAHEDRON  : case HEXAHEDRON_2  : case HEXAHEDRON_3  : case HEXAHEDRON_4  :
+  case HEXAHEDRON  : case HEXAHEDRON_2  : case HEXAHEDRON_2_20N  :
+  case HEXAHEDRON_3: case HEXAHEDRON_4  :
   case PRISM       : case PRISM_2       : case PRISM_3       : case PRISM_4       :
   case PYRAMID     : case PYRAMID_2     : case PYRAMID_3     : case PYRAMID_4     :
   default:
@@ -405,7 +411,7 @@ void  * Get_IntegrationFunctionAuto (int Type_Element, int Order, int *NumPoints
   case TETRAHEDRON : case TETRAHEDRON_2 :
     *NumPoints = 15;
     return ((void*)Gauss_Tetrahedron);
-  case HEXAHEDRON  : case HEXAHEDRON_2  :
+  case HEXAHEDRON  : case HEXAHEDRON_2  : case HEXAHEDRON_2_20N :
     *NumPoints = 34;
     return ((void*)Gauss_Hexahedron);
   case PRISM       : case PRISM_2       :
