@@ -524,9 +524,9 @@ struct nodePair makeNodePair(const nodeLoc &master,  const nodeLoc &slave,
   np.x = master.x ;
   np.y = master.y ;
   np.z = master.z ;
-  if(fabs(slave.x-np.x)>TOL) printf("Fuck off\n"); 
-  if(fabs(slave.y-np.y)>TOL) printf("Fuck off\n"); 
-  if(fabs(slave.z-np.z)>TOL) printf("Fuck off\n"); 
+  if(fabs(slave.x-np.x)>TOL) printf("Zut\n"); 
+  if(fabs(slave.y-np.y)>TOL) printf("Zut\n"); 
+  if(fabs(slave.z-np.z)>TOL) printf("Zut\n"); 
   return np;
 }
 
