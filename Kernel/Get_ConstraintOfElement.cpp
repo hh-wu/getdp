@@ -455,8 +455,8 @@ struct FacetNNN { int NumFacet ; int Node1, Node2, Node3 ; double Coef, Coef2 ; 
 void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
 			 List_T * ExtendedList_L, List_T * ExtendedSuppList_L,
 			 struct Group * RegionRef_P, struct Group * SubRegionRef_P,
-			 int Index_Filter, int Index_Function, int Index_Coef,
-                         double ToleranceFactor,
+			 int Index_Filter, int Index_Function, int Index_FunctionRef,
+                         int Index_Coef, double ToleranceFactor,
 			 List_T * Couples_L) ;
 void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
 			 struct Group * Group_P,
@@ -587,6 +587,7 @@ void  Generate_Link(struct ConstraintInFS * Constraint_P, int Flag_New)
 		       RegionRef_P, SubRegionRef_P,
 		       Constraint_P->ConstraintPerRegion->Case.Link.FilterIndex,
 		       Constraint_P->ConstraintPerRegion->Case.Link.FunctionIndex,
+		       Constraint_P->ConstraintPerRegion->Case.Link.FunctionRefIndex,
 		       Constraint_P->ConstraintPerRegion->Case.Link.CoefIndex,
 		       Constraint_P->ConstraintPerRegion->Case.Link.ToleranceFactor,
 		       Active->Case.Link.Couples) ;
@@ -619,8 +620,8 @@ void  Generate_Link(struct ConstraintInFS * Constraint_P, int Flag_New)
 void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
 			 List_T * ExtendedList_L, List_T * ExtendedSuppList_L,
 			 struct Group * RegionRef_P, struct Group * SubRegionRef_P,
-			 int Index_Filter, int Index_Function, int Index_Coef,
-                         double ToleranceFactor,
+			 int Index_Filter, int Index_Function, int Index_FunctionRef,
+                         int Index_Coef, double ToleranceFactor,
 			 List_T * Couples_L)
 {
   int  Nbr_Entity, i, Nbr_EntityRef, Flag_Filter ;
@@ -646,11 +647,11 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
     List_Read(ExtendedList_L, i, &NodeXYZ.NumNode) ;
     if (!(ExtendedSuppList_L &&
 	  List_Search(ExtendedSuppList_L, &NodeXYZ.NumNode, fcmp_int))) {
-      Geo_GetNodesCoordinates( 1, &NodeXYZ.NumNode,
-			       &Current.x, &Current.y, &Current.z) ;
+      Geo_GetNodesCoordinates(1, &NodeXYZ.NumNode,
+                              &Current.x, &Current.y, &Current.z) ;
       Get_ValueOfExpressionByIndex(Index_Function, NULL, 0., 0., 0., &Value) ;
-
-      Current.x = Value.Val[0] ; Current.y = Value.Val[1] ;
+      Current.x = Value.Val[0] ;
+      Current.y = Value.Val[1] ;
       Current.z = Value.Val[2] ;
       if (Index_Filter < 0)  Flag_Filter = 1 ;
       else {
@@ -682,8 +683,14 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
     List_Read(ExtendedListRef_L, i, &NodeXYZRef.NumNode) ;
     if (!(ExtendedSuppListRef_L &&
 	  List_Search(ExtendedSuppListRef_L, &NodeXYZRef.NumNode, fcmp_int))) {
-      Geo_GetNodesCoordinates( 1, &NodeXYZRef.NumNode,
-			       &Current.x, &Current.y, &Current.z) ;
+      Geo_GetNodesCoordinates(1, &NodeXYZRef.NumNode,
+                              &Current.x, &Current.y, &Current.z);
+      if(Index_FunctionRef >= 0){
+        Get_ValueOfExpressionByIndex(Index_FunctionRef, NULL, 0., 0., 0., &Value) ;
+        Current.x = Value.Val[0] ;
+        Current.y = Value.Val[1] ;
+        Current.z = Value.Val[2] ;
+      }
       if (Index_Filter < 0)  Flag_Filter = 1 ;
       else {
 	Get_ValueOfExpressionByIndex(Index_Filter, NULL, 0., 0., 0., &Value) ;
@@ -820,6 +827,7 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
     Generate_LinkNodes(Constraint_P, ExtendedListNodes_L, NULL, RegionRef_P, NULL,
 		       Constraint_P->ConstraintPerRegion->Case.Link.FilterIndex,
 		       Constraint_P->ConstraintPerRegion->Case.Link.FunctionIndex,
+                       Constraint_P->ConstraintPerRegion->Case.Link.FunctionRefIndex,
 		       Constraint_P->ConstraintPerRegion->Case.Link.CoefIndex,
                        Constraint_P->ConstraintPerRegion->Case.Link.ToleranceFactor,
 		       CouplesOfNodes_L) ;
@@ -831,12 +839,14 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
     Generate_LinkNodes(Constraint_P, ExtendedListNodes_L, NULL, RegionRef_P, NULL,
 		       Constraint_P->ConstraintPerRegion->Case.Link.FilterIndex,
 		       Constraint_P->ConstraintPerRegion->Case.Link.FunctionIndex,
+                       Constraint_P->ConstraintPerRegion->Case.Link.FunctionRefIndex,
 		       Constraint_P->ConstraintPerRegion->Case.Link.CoefIndex,
                        Constraint_P->ConstraintPerRegion->Case.Link.ToleranceFactor,
 		       CouplesOfNodes_L) ;
     Generate_LinkNodes(Constraint_P, ExtendedListNodes_L, NULL, RegionRef_P, NULL,
 		       Constraint_P->ConstraintPerRegion->Case.Link.FilterIndex2,
 		       Constraint_P->ConstraintPerRegion->Case.Link.FunctionIndex2,
+                       Constraint_P->ConstraintPerRegion->Case.Link.FunctionRefIndex,
 		       Constraint_P->ConstraintPerRegion->Case.Link.CoefIndex2,
                        Constraint_P->ConstraintPerRegion->Case.Link.ToleranceFactor,
 		       CouplesOfNodes2_L) ;
@@ -1086,6 +1096,7 @@ void  Generate_LinkFacets(struct ConstraintInFS * Constraint_P,
     Generate_LinkNodes(Constraint_P, ExtendedListNodes_L, NULL, RegionRef_P, NULL,
 		       Constraint_P->ConstraintPerRegion->Case.Link.FilterIndex,
 		       Constraint_P->ConstraintPerRegion->Case.Link.FunctionIndex,
+                       Constraint_P->ConstraintPerRegion->Case.Link.FunctionRefIndex,
 		       Constraint_P->ConstraintPerRegion->Case.Link.CoefIndex,
                        Constraint_P->ConstraintPerRegion->Case.Link.ToleranceFactor,
 		       CouplesOfNodes_L) ;
@@ -1097,12 +1108,14 @@ void  Generate_LinkFacets(struct ConstraintInFS * Constraint_P,
     Generate_LinkNodes(Constraint_P, ExtendedListNodes_L, NULL, RegionRef_P, NULL,
 		       Constraint_P->ConstraintPerRegion->Case.Link.FilterIndex,
 		       Constraint_P->ConstraintPerRegion->Case.Link.FunctionIndex,
+                       Constraint_P->ConstraintPerRegion->Case.Link.FunctionRefIndex,
 		       Constraint_P->ConstraintPerRegion->Case.Link.CoefIndex,
                        Constraint_P->ConstraintPerRegion->Case.Link.ToleranceFactor,
 		       CouplesOfNodes_L) ;
     Generate_LinkNodes(Constraint_P, ExtendedListNodes_L, NULL, RegionRef_P, NULL,
 		       Constraint_P->ConstraintPerRegion->Case.Link.FilterIndex2,
 		       Constraint_P->ConstraintPerRegion->Case.Link.FunctionIndex2,
+                       Constraint_P->ConstraintPerRegion->Case.Link.FunctionRefIndex,
 		       Constraint_P->ConstraintPerRegion->Case.Link.CoefIndex2,
                        Constraint_P->ConstraintPerRegion->Case.Link.ToleranceFactor,
 		       CouplesOfNodes2_L) ;
