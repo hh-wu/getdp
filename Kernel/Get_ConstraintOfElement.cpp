@@ -441,7 +441,9 @@ void  Get_LinkForConstraint(struct ConstraintInFS * Constraint_P,
     Value[1] = TwoIntOneDouble_P->Double2 ;  /* LinkCplx */
     if (Orient && TwoIntOneDouble_P->Int1 < 0)  Value[1] *= -1. ;
   }
-
+  else{
+    Message::Warning("Did not find link for entity %d", Num_Entity);
+  }
   Current.Element = old;
 }
 
@@ -698,19 +700,22 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
   Nbr_EntityRef = List_Nbr(NodeXYZRef_L) ;
 
 #if 1
+  // fill the rtree with the master (ref) nodes: filling with the slaves could
+  // mean losing some if two are at the same location (and the search for DoFs
+  // is performed on slaves)
   NodeXYZRTree rt(TOL);
-  List_T *tmp = List_Create(List_Nbr(NodeXYZ_L), 1, sizeof(struct NodeXYZ));
-  List_Copy(NodeXYZ_L, tmp);
-  List_Reset(NodeXYZ_L);
+  List_T *tmp = List_Create(List_Nbr(NodeXYZRef_L), 1, sizeof(struct NodeXYZ));
+  List_Copy(NodeXYZRef_L, tmp);
+  List_Reset(NodeXYZRef_L);
   for(int i = 0; i < List_Nbr(tmp); i++){
     rt.insert((struct NodeXYZ *)List_Pointer(tmp, i));
   }
-  for(int i = 0; i < List_Nbr(NodeXYZRef_L); i++){
-    struct NodeXYZ *ref = (struct NodeXYZ *)List_Pointer(NodeXYZRef_L, i);
+  for(int i = 0; i < List_Nbr(NodeXYZ_L); i++){
+    struct NodeXYZ *ref = (struct NodeXYZ *)List_Pointer(NodeXYZ_L, i);
     struct NodeXYZ *n = rt.find(ref);
-    if(n) List_Add(NodeXYZ_L, n);
+    if(n) List_Add(NodeXYZRef_L, n);
   }
-  Nbr_Entity = List_Nbr(NodeXYZ_L) ;
+  Nbr_Entity = List_Nbr(NodeXYZRef_L) ;
   List_Delete(tmp);
 #else
   List_Sort(NodeXYZ_L   , fcmp_XYZ) ;
