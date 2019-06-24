@@ -270,7 +270,7 @@ struct doubleXstring{
 %token  tDefineFunction tUndefineFunction
 
 %token  tConstraint
-%token    tRegion tSubRegion tSubRegion2 tRegionRef tSubRegionRef
+%token    tRegion tSubRegion tSubRegion2 tRegionRef tSubRegionRef tFunctionRef
 %token    tFilter tToleranceFactor tCoefficient tValue tTimeFunction
 %token    tBranch tNameOfResolution
 
@@ -2330,6 +2330,7 @@ ConstraintCaseTerm :
 	ConstraintPerRegion_S.Case.Link.FilterIndex = -1;
 	ConstraintPerRegion_S.Case.Link.FunctionIndex = -1;
 	ConstraintPerRegion_S.Case.Link.CoefIndex = -1;
+	ConstraintPerRegion_S.Case.Link.FunctionRefIndex = -1;
 	ConstraintPerRegion_S.Case.Link.FilterIndex2 = -1;
 	ConstraintPerRegion_S.Case.Link.FunctionIndex2 = -1;
 	ConstraintPerRegion_S.Case.Link.CoefIndex2 = -1;
@@ -2361,6 +2362,14 @@ ConstraintCaseTerm :
 	  ConstraintPerRegion_S.Type == CST_LINKCPLX)
 	ConstraintPerRegion_S.Case.Link.CoefIndex = $2;
       else  vyyerror(0, "Coefficient incompatible with Type");
+    }
+
+  | tFunctionRef Expression tEND
+    {
+      if(ConstraintPerRegion_S.Type == CST_LINK ||
+	  ConstraintPerRegion_S.Type == CST_LINKCPLX)
+	ConstraintPerRegion_S.Case.Link.FunctionRefIndex = $2;
+      else  vyyerror(0, "FunctionRef incompatible with Type");
     }
 
   | tFilter Expression tEND
