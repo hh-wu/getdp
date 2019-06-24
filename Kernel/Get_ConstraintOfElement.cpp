@@ -451,7 +451,7 @@ struct EdgeNN {
   int NumEdge ;
   int Node1, Node2 ;
   double x, y, z;
-  // Coef and Coef2 can be removed once the old LinkEdge is removed
+  // FIXME Coef and Coef2 can be removed once the old LinkEdge is removed
   double Coef, Coef2 ;
 } ;
 
@@ -776,9 +776,9 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
     rt.insert((struct NodeXYZ *)List_Pointer(tmp, i));
   }
   for(int i = 0; i < List_Nbr(NodeXYZ_L); i++){
-    struct NodeXYZ *ref = (struct NodeXYZ *)List_Pointer(NodeXYZ_L, i);
-    struct NodeXYZ *n = rt.find(ref);
-    if(n) List_Add(NodeXYZRef_L, n);
+    struct NodeXYZ *n = (struct NodeXYZ *)List_Pointer(NodeXYZ_L, i);
+    struct NodeXYZ *ref = rt.find(n);
+    if(ref) List_Add(NodeXYZRef_L, ref);
   }
   Nbr_EntityRef = List_Nbr(NodeXYZRef_L) ;
   List_Delete(tmp);
@@ -916,9 +916,9 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
     rt.insert((struct EdgeNN *)List_Pointer(tmp, i));
   }
   for(int i = 0; i < List_Nbr(EdgeNN_L); i++){
-    struct EdgeNN *ref = (struct EdgeNN *)List_Pointer(EdgeNN_L, i);
-    struct EdgeNN *n = rt.find(ref);
-    if(n) List_Add(EdgeNNRef_L, n);
+    struct EdgeNN *n = (struct EdgeNN *)List_Pointer(EdgeNN_L, i);
+    struct EdgeNN *ref = rt.find(n);
+    if(ref) List_Add(EdgeNNRef_L, ref);
   }
   Nbr_EntityRef = List_Nbr(EdgeNNRef_L) ;
   List_Delete(tmp);
@@ -954,17 +954,17 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
       (Constraint_P->ConstraintPerRegion->Case.Link.CoefIndex,
        NULL, 0., 0., 0., &Value) ;
     TwoIntOneDouble.Double = Value.Val[0] ;
-
     if (Current.NbrHar == 1)
       TwoIntOneDouble.Double2 = 0. ;
     else
       TwoIntOneDouble.Double2 = Value.Val[MAX_DIM] ; // LinkCplx
 
-    if((EdgeNN.Node1 < EdgeNN.Node2 && EdgeNNRef.Node1 < EdgeNNRef.Node2) ||
-       (EdgeNN.Node1 > EdgeNN.Node2 && EdgeNNRef.Node1 > EdgeNNRef.Node2))
-      TwoIntOneDouble.Double *= 1;
+    // FIXME:
+    if((EdgeNN.Node1 < EdgeNN.Node2 && EdgeNNRef.Node1 > EdgeNNRef.Node2) ||
+       (EdgeNN.Node1 > EdgeNN.Node2 && EdgeNNRef.Node1 < EdgeNNRef.Node2))
+      TwoIntOneDouble.Int1 *= 1;
     else
-      TwoIntOneDouble.Double *= -1;
+      TwoIntOneDouble.Int1 *= -1;
 
     List_Add(Couples_L, &TwoIntOneDouble) ;
   }
