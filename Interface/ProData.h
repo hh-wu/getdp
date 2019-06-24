@@ -217,7 +217,7 @@ struct ConstraintPerRegion {
     struct { int  Node1, Node2;    } Network;
     struct {
       int  RegionRefIndex, SubRegionRefIndex;
-      int  FilterIndex, CoefIndex, FunctionIndex;
+      int  FilterIndex, CoefIndex, FunctionIndex, FunctionRefIndex;
       int  FilterIndex2, CoefIndex2, FunctionIndex2;
       double ToleranceFactor;
     } Link;

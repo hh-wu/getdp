@@ -455,8 +455,8 @@ struct FacetNNN { int NumFacet ; int Node1, Node2, Node3 ; double Coef, Coef2 ; 
 void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
 			 List_T * ExtendedList_L, List_T * ExtendedSuppList_L,
 			 struct Group * RegionRef_P, struct Group * SubRegionRef_P,
-			 int Index_Filter, int Index_Function, int Index_Coef,
-                         double ToleranceFactor,
+			 int Index_Filter, int Index_Function, int Index_FunctionRef,
+                         int Index_Coef, double ToleranceFactor,
 			 List_T * Couples_L) ;
 void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
 			 struct Group * Group_P,
@@ -587,6 +587,7 @@ void  Generate_Link(struct ConstraintInFS * Constraint_P, int Flag_New)
 		       RegionRef_P, SubRegionRef_P,
 		       Constraint_P->ConstraintPerRegion->Case.Link.FilterIndex,
 		       Constraint_P->ConstraintPerRegion->Case.Link.FunctionIndex,
+		       Constraint_P->ConstraintPerRegion->Case.Link.FunctionRefIndex,
 		       Constraint_P->ConstraintPerRegion->Case.Link.CoefIndex,
 		       Constraint_P->ConstraintPerRegion->Case.Link.ToleranceFactor,
 		       Active->Case.Link.Couples) ;
@@ -619,8 +620,8 @@ void  Generate_Link(struct ConstraintInFS * Constraint_P, int Flag_New)
 void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
 			 List_T * ExtendedList_L, List_T * ExtendedSuppList_L,
 			 struct Group * RegionRef_P, struct Group * SubRegionRef_P,
-			 int Index_Filter, int Index_Function, int Index_Coef,
-                         double ToleranceFactor,
+			 int Index_Filter, int Index_Function, int Index_FunctionRef,
+                         int Index_Coef, double ToleranceFactor,
 			 List_T * Couples_L)
 {
   int  Nbr_Entity, i, Nbr_EntityRef, Flag_Filter ;
@@ -646,11 +647,11 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
     List_Read(ExtendedList_L, i, &NodeXYZ.NumNode) ;
     if (!(ExtendedSuppList_L &&
 	  List_Search(ExtendedSuppList_L, &NodeXYZ.NumNode, fcmp_int))) {
-      Geo_GetNodesCoordinates( 1, &NodeXYZ.NumNode,
-			       &Current.x, &Current.y, &Current.z) ;
+      Geo_GetNodesCoordinates(1, &NodeXYZ.NumNode,
+                              &Current.x, &Current.y, &Current.z) ;
       Get_ValueOfExpressionByIndex(Index_Function, NULL, 0., 0., 0., &Value) ;
-
-      Current.x = Value.Val[0] ; Current.y = Value.Val[1] ;
+      Current.x = Value.Val[0] ;
+      Current.y = Value.Val[1] ;
       Current.z = Value.Val[2] ;
       if (Index_Filter < 0)  Flag_Filter = 1 ;
       else {
@@ -682,8 +683,14 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
     List_Read(ExtendedListRef_L, i, &NodeXYZRef.NumNode) ;
     if (!(ExtendedSuppListRef_L &&
 	  List_Search(ExtendedSuppListRef_L, &NodeXYZRef.NumNode, fcmp_int))) {
-      Geo_GetNodesCoordinates( 1, &NodeXYZRef.NumNode,
-			       &Current.x, &Current.y, &Current.z) ;
+      Geo_GetNodesCoordinates(1, &NodeXYZRef.NumNode,
+                              &Current.x, &Current.y, &Current.z);
+      if(Index_FunctionRef >= 0){
+        Get_ValueOfExpressionByIndex(Index_FunctionRef, NULL, 0., 0., 0., &Value) ;
+        Current.x = Value.Val[0] ;
+        Current.y = Value.Val[1] ;
+        Current.z = Value.Val[2] ;
+      }
       if (Index_Filter < 0)  Flag_Filter = 1 ;
       else {
 	Get_ValueOfExpressionByIndex(Index_Filter, NULL, 0., 0., 0., &Value) ;
@@ -820,6 +827,7 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
     Generate_LinkNodes(Constraint_P, ExtendedListNodes_L, NULL, RegionRef_P, NULL,
 		       Constraint_P->ConstraintPerRegion->Case.Link.FilterIndex,
 		       Constraint_P->ConstraintPerRegion->Case.Link.FunctionIndex,
+                       Constraint_P->ConstraintPerRegion->Case.Link.FunctionRefIndex,
 		       Constraint_P->ConstraintPerRegion->Case.Link.CoefIndex,
                        Constraint_P->ConstraintPerRegion->Case.Link.ToleranceFactor,
 		       CouplesOfNodes_L) ;
@@ -831,12 +839,14 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
     Generate_LinkNodes(Constraint_P, ExtendedListNodes_L, NULL, RegionRef_P, NULL,
 		       Constraint_P->ConstraintPerRegion->Case.Link.FilterIndex,
 		       Constraint_P->ConstraintPerRegion->Case.Link.FunctionIndex,
+                       Constraint_P->ConstraintPerRegion->Case.Link.FunctionRefIndex,
 		       Constraint_P->ConstraintPerRegion->Case.Link.CoefIndex,
                        Constraint_P->ConstraintPerRegion->Case.Link.ToleranceFactor,
 		       CouplesOfNodes_L) ;
     Generate_LinkNodes(Constraint_P, ExtendedListNodes_L, NULL, RegionRef_P, NULL,
 		       Constraint_P->ConstraintPerRegion->Case.Link.FilterIndex2,
 		       Constraint_P->ConstraintPerRegion->Case.Link.FunctionIndex2,
+                       Constraint_P->ConstraintPerRegion->Case.Link.FunctionRefIndex,
 		       Constraint_P->ConstraintPerRegion->Case.Link.CoefIndex2,
                        Constraint_P->ConstraintPerRegion->Case.Link.ToleranceFactor,
 		       CouplesOfNodes2_L) ;
@@ -875,7 +885,7 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
 	EdgeNN.Node2 = EdgeNN.Node1 ;  EdgeNN.Node1 = Save_Num ;
       }
 
-      Message::Debug("Image %d: a%d, n%d - n%d",
+      Message::Debug("Slave %d: edge %d (nodes %d %d)",
                      i, EdgeNN.NumEdge, EdgeNN.Node1, EdgeNN.Node2) ;
 
       TwoIntOneDouble_P = (struct TwoIntOneDouble *)
@@ -899,14 +909,29 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
 
       EdgeNN.Node1 = TwoIntOneDouble_P->Int2 ;
       EdgeNN.Node2 = TwoIntOneDouble2_P->Int2 ;
-
-      if (fabs(TwoIntOneDouble_P->Double - TwoIntOneDouble2_P->Double) > 1.e-18){
-	Message::Error("Constraint Link: Bad Coefficient for Edges") ;
-        return;
+      if (fabs(TwoIntOneDouble_P->Double - TwoIntOneDouble2_P->Double) < 1.e-18){
+        EdgeNN.Coef = TwoIntOneDouble_P->Double ;
+        EdgeNN.Coef2 = TwoIntOneDouble_P->Double2 ; /* LinkCplx */
       }
-
-      EdgeNN.Coef = TwoIntOneDouble_P->Double ;
-      EdgeNN.Coef2 = TwoIntOneDouble_P->Double2 ; /* LinkCplx */
+      else{
+        // we need to reevaluate the coeffient at the barycenter of the edge:
+        double x1, y1, z1, x2, y2, z2;
+        Geo_GetNodesCoordinates(1, &EdgeNN.Node1, &x1, &y1, &z1) ;
+        Geo_GetNodesCoordinates(1, &EdgeNN.Node2, &x2, &y2, &z2) ;
+        Current.x = 0.5 * (x1 + x2);
+        Current.y = 0.5 * (y1 + y2);
+        Current.z = 0.5 * (z1 + z2);
+        struct Value  Value ;
+        Get_ValueOfExpressionByIndex
+          (Constraint_P->ConstraintPerRegion->Case.Link.CoefIndex, NULL,
+           0., 0., 0., &Value) ;
+        EdgeNN.Coef = Value.Val[0] ;
+        printf("haha new coef = %g\n", EdgeNN.Coef);
+        if (Current.NbrHar == 1)
+          EdgeNN.Coef2 = 0. ;
+        else
+          EdgeNN.Coef2 = Value.Val[MAX_DIM] ; /* LinkCplx */
+      }
 
       if (EdgeNN.Node2 < EdgeNN.Node1) {
 	Save_Num = EdgeNN.Node2 ;
@@ -916,8 +941,8 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
 
       List_Add(EdgeNN_L, &EdgeNN) ;
 
-      Message::Debug("                         --- (whose source is) --->  a%d, n%d - n%d",
-                     EdgeNN.NumEdge, EdgeNN.Node1, EdgeNN.Node2) ;
+      Message::Debug("  -> setting nodes to reference nodes %d %d",
+                     EdgeNN.Node1, EdgeNN.Node2) ;
 
     }
   }
@@ -947,14 +972,14 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
       }
       List_Add(EdgeNNRef_L, &EdgeNNRef) ;
 
-      Message::Debug("Ref   %d: a%d, n%d - n%d",
+      Message::Debug("Ref   %d: edge %d (nodes %d %d)",
                      i, EdgeNNRef.NumEdge, EdgeNNRef.Node1, EdgeNNRef.Node2) ;
     }
   }
   Nbr_EntityRef = List_Nbr(EdgeNNRef_L) ;
 
   if (Nbr_EntityRef != Nbr_Entity){
-    Message::Error("Constraint Link: bad correspondance of number of Edges (%d, %d)",
+    Message::Error("Constraint Link: bad correspondance of number of edges (%d, %d)",
                    Nbr_Entity, Nbr_EntityRef) ;
     return;
   }
@@ -966,14 +991,14 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
     List_Read(EdgeNN_L, i, &EdgeNN) ;
     List_Read(EdgeNNRef_L, i, &EdgeNNRef) ;
 
-    Message::Debug("Final : %d: a%d, n%d - n%d (%.16g + %.16g i) / a%d, n%d - n%d",
-                   i,
+    Message::Debug("Final : %d: edge %d (nodes %d %d) (%.16g + %.16g i) / "
+                   "edge %d (nodes %d %d)", i,
                    EdgeNN.NumEdge, EdgeNN.Node1, EdgeNN.Node2, EdgeNN.Coef, EdgeNN.Coef2,
                    EdgeNNRef.NumEdge, EdgeNNRef.Node1, EdgeNNRef.Node2) ;
 
     if (EdgeNN.Node1 != EdgeNNRef.Node1 ||
 	EdgeNN.Node2 != EdgeNNRef.Node2){
-      Message::Error("Constraint Link: bad correspondance of Edges (%d, %d)",
+      Message::Error("Constraint Link: bad correspondance of edges (%d, %d)",
                      EdgeNN.NumEdge, EdgeNNRef.NumEdge) ;
       return;
     }
@@ -1086,6 +1111,7 @@ void  Generate_LinkFacets(struct ConstraintInFS * Constraint_P,
     Generate_LinkNodes(Constraint_P, ExtendedListNodes_L, NULL, RegionRef_P, NULL,
 		       Constraint_P->ConstraintPerRegion->Case.Link.FilterIndex,
 		       Constraint_P->ConstraintPerRegion->Case.Link.FunctionIndex,
+                       Constraint_P->ConstraintPerRegion->Case.Link.FunctionRefIndex,
 		       Constraint_P->ConstraintPerRegion->Case.Link.CoefIndex,
                        Constraint_P->ConstraintPerRegion->Case.Link.ToleranceFactor,
 		       CouplesOfNodes_L) ;
@@ -1097,12 +1123,14 @@ void  Generate_LinkFacets(struct ConstraintInFS * Constraint_P,
     Generate_LinkNodes(Constraint_P, ExtendedListNodes_L, NULL, RegionRef_P, NULL,
 		       Constraint_P->ConstraintPerRegion->Case.Link.FilterIndex,
 		       Constraint_P->ConstraintPerRegion->Case.Link.FunctionIndex,
+                       Constraint_P->ConstraintPerRegion->Case.Link.FunctionRefIndex,
 		       Constraint_P->ConstraintPerRegion->Case.Link.CoefIndex,
                        Constraint_P->ConstraintPerRegion->Case.Link.ToleranceFactor,
 		       CouplesOfNodes_L) ;
     Generate_LinkNodes(Constraint_P, ExtendedListNodes_L, NULL, RegionRef_P, NULL,
 		       Constraint_P->ConstraintPerRegion->Case.Link.FilterIndex2,
 		       Constraint_P->ConstraintPerRegion->Case.Link.FunctionIndex2,
+                       Constraint_P->ConstraintPerRegion->Case.Link.FunctionRefIndex,
 		       Constraint_P->ConstraintPerRegion->Case.Link.CoefIndex2,
                        Constraint_P->ConstraintPerRegion->Case.Link.ToleranceFactor,
 		       CouplesOfNodes2_L) ;

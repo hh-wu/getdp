@@ -4127,17 +4127,20 @@ coeficient @code{-1}, one could write:
 @{ Name periodic;
   Case @{
     @{ Region Left; Type Link ; RegionRef Right;
-      Coefficient -1; Function Vector[$X+Pi,$Y,$Z] ;
+      Coefficient -1; Function Vector[X[]+Pi, Y[], Z[]] ;
+      < FunctionRef XYZ[]; >
     @}
   @}
 @}
 @end example
 
 In this example, @code{Function} defines the mapping that translates the
-geometrical elements in the region @code{Left} by Pi units along the X-axis, so
-that they correspond with the elements in the region @code{Right}. For this
-mapping to work, the meshes of @code{Left} and @code{Right} must be
-identical.
+geometrical elements in the region @code{Left} by Pi units along the
+X-axis, so that they correspond with the elements in the reference
+region @code{Right}. For this mapping to work, the meshes of @code{Left}
+and @code{Right} must be identical. (The optional @code{FunctionRef}
+function allows to transform the reference region, useful e.g. to avoid
+generating overlapping meshes for rotational links.)
 
 @item LinkCplx
 To define complex-valued links between degrees of freedom. The syntax is the
