@@ -216,7 +216,7 @@ struct ConstraintPerRegion {
     struct { char *ResolutionName; } Solve;
     struct { int  Node1, Node2;    } Network;
     struct {
-      int  RegionRefIndex, SubRegionRefIndex;
+      int  RegionRefIndex, SubRegionRefIndex, FunctionRefIndex;
       int  FilterIndex, CoefIndex, FunctionIndex;
       int  FilterIndex2, CoefIndex2, FunctionIndex2;
       double ToleranceFactor;
