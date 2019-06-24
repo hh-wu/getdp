@@ -132,6 +132,7 @@ struct StringXDefine  Element_Type[] = {
   {"Tetrahedron4"   , TETRAHEDRON_4},
   {"Hexahedron"     , HEXAHEDRON},
   {"Hexahedron2"    , HEXAHEDRON_2},
+  {"Hexahedron2_20N", HEXAHEDRON_2_20N},
   {"Hexahedron3"    , HEXAHEDRON_3},
   {"Hexahedron4"    , HEXAHEDRON_4},
   {"Prism"          , PRISM},
@@ -430,6 +431,7 @@ struct DefineXFunction  FunctionForGauss[] = {
   {TETRAHEDRON_4  , (CAST)Gauss_Tetrahedron},
   {HEXAHEDRON     , (CAST)Gauss_Hexahedron},
   {HEXAHEDRON_2   , (CAST)Gauss_Hexahedron},
+  {HEXAHEDRON_2_20N, (CAST)Gauss_Hexahedron},
   {HEXAHEDRON_3   , (CAST)Gauss_Hexahedron},
   {HEXAHEDRON_4   , (CAST)Gauss_Hexahedron},
   {PRISM          , (CAST)Gauss_Prism},
@@ -461,6 +463,7 @@ struct DefineXFunction  FunctionForGauss[] = {
   {TETRAHEDRON_4  , NULL},
   {HEXAHEDRON     , NULL},
   {HEXAHEDRON_2   , NULL},
+  {HEXAHEDRON_2_20N, NULL},
   {HEXAHEDRON_3   , NULL},
   {HEXAHEDRON_4   , NULL},
   {PRISM          , NULL},
@@ -510,7 +513,7 @@ struct DefineXFunction  FunctionForGaussLegendre[] = {
 #define TRI  TRIANGLE | TRIANGLE_2 | TRIANGLE_3 | TRIANGLE_4
 #define QUA  QUADRANGLE | QUADRANGLE_2 | QUADRANGLE_2_8N | QUADRANGLE_3 | QUADRANGLE_4
 #define TET  TETRAHEDRON | TETRAHEDRON_2 | TETRAHEDRON_3 | TETRAHEDRON_4
-#define HEX  HEXAHEDRON | HEXAHEDRON_2 | HEXAHEDRON_3 | HEXAHEDRON_4
+#define HEX  HEXAHEDRON | HEXAHEDRON_2 | HEXAHEDRON_2_20N | HEXAHEDRON_3 | HEXAHEDRON_4
 #define PRI  PRISM | PRISM_2 | PRISM_3 | PRISM_4
 #define PYR  PYRAMID | PYRAMID_2 | PYRAMID_3 | PYRAMID_4
 #define ALL  POI|LIN|TRI|QUA|TET|HEX|PRI|PYR

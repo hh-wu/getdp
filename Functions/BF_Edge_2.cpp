@@ -21,6 +21,7 @@ void BF_Edge_2E(struct Element * Element, int NumEntity,
 {
   switch (Element->Type) {
   case LINE :
+  case LINE_2 :
     switch(NumEntity) {
     case 1  : s[0] = u  ; s[1] = 0. ; s[2] = 0. ; break ;
     default : WrongNumEntity ;
@@ -38,12 +39,15 @@ void BF_Edge_2E(struct Element * Element, int NumEntity,
     break ;
 
   case QUADRANGLE :
+  case QUADRANGLE_2 :
+  case QUADRANGLE_2_8N :
     switch(NumEntity) {
     default : Message::Error("BF_Edge_2E not ready for QUADRANGLE");
     }
     break ;
 
   case TETRAHEDRON :
+  case TETRAHEDRON_2 :
     switch(NumEntity) {
     case 1  : s[0] = -2.0*u+1.0-v-w ; s[1] = -u             ; s[2] = -u             ; break ;
     case 2  : s[0] = -v             ; s[1] = -2.0*v+1.0-u-w ; s[2] = -v             ; break ;
@@ -56,18 +60,22 @@ void BF_Edge_2E(struct Element * Element, int NumEntity,
     break ;
 
   case HEXAHEDRON :
+  case HEXAHEDRON_2 :
+  case HEXAHEDRON_2_20N :
     switch(NumEntity) {
     default : Message::Error("BF_Edge_2E not ready for HEXAHEDRON");
     }
     break ;
 
   case PRISM :
+  case PRISM_2 :
     switch(NumEntity) {
     default : Message::Error("BF_Edge_2E not ready for PRISM");
     }
     break ;
 
   case PYRAMID :
+  case PYRAMID_2 :
     switch(NumEntity) {
     default : Message::Error("BF_Edge_2E not ready for PYRAMID");
     }
