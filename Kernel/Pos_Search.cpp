@@ -93,12 +93,13 @@ static int PointInRefElement (struct Element * Element, double u, double v, doub
       return(0);
     }
     return(1);
-  case PRISM : case PRISM_2 : case PRISM_3 : case PRISM_4 :
+  case PRISM : case PRISM_2 : case PRISM_2_15N : case PRISM_3 : case PRISM_4 :
     if (w>ONE || w<-ONE || u<-ZERO || v<-ZERO || u>(ONE-v)){
       return(0);
     }
     return(1);
-  case PYRAMID : case PYRAMID_2 : case PYRAMID_3 : case PYRAMID_4 :
+  case PYRAMID : case PYRAMID_2 : case PYRAMID_2_13N :
+  case PYRAMID_3 : // case PYRAMID_4 :
     if (u<(w-ONE) || u>(ONE-w) || v<(w-ONE) || v>(ONE-w) || w<-ZERO || w>ONE){
       return(0);
     }
@@ -295,10 +296,10 @@ static void Init_SearchGrid(struct Grid * Grid)
             case TETRAHEDRON_3 : case TETRAHEDRON_4 :
 	    case HEXAHEDRON    : case HEXAHEDRON_2 : case HEXAHEDRON_2_20N :
             case HEXAHEDRON_3  : case HEXAHEDRON_4 :
-	    case PRISM         : case PRISM_2 :
+	    case PRISM         : case PRISM_2 :      case PRISM_2_15N :
             case PRISM_3       : case PRISM_4 :
-	    case PYRAMID       : case PYRAMID_2 :
-            case PYRAMID_3     : case PYRAMID_4 :
+	    case PYRAMID       : case PYRAMID_2 :    case PYRAMID_2_13N :
+            case PYRAMID_3     : // case PYRAMID_4 :
 	      List_Add(Brick_P->p[2], &Element.GeoElement);
 	      break;
 	    }
@@ -457,8 +458,8 @@ void xyz2uvwInAnElement (struct Element *Element,
 
   if(Element->Type & (TETRAHEDRON|TETRAHEDRON_2|TETRAHEDRON_3|TETRAHEDRON_4|
                       HEXAHEDRON|HEXAHEDRON_2|HEXAHEDRON_2_20N|HEXAHEDRON_3|HEXAHEDRON_4|
-                      PRISM|PRISM_2|PRISM_3|PRISM_4|
-                      PYRAMID|PYRAMID_2|PYRAMID_3|PYRAMID_4))
+                      PRISM|PRISM_2|PRISM_2_15N|PRISM_3|PRISM_4|
+                      PYRAMID|PYRAMID_2|PYRAMID_2_13N|PYRAMID_3/*|PYRAMID_4*/))
     ChainDim = DIM_3D;
   else if(Element->Type & (TRIANGLE|TRIANGLE_2|TRIANGLE_3|TRIANGLE_4|
                            QUADRANGLE|QUADRANGLE_2|QUADRANGLE_2_8N|

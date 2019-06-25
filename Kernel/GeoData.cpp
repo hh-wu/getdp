@@ -221,7 +221,7 @@ int Geo_GetNbNodesPerElement(int Type)
   case TETRAHEDRON_4 : return 35;
   case HEXAHEDRON_4  : return 125;
   case PRISM_4       : return 75;
-  case PYRAMID_4     : return 55;
+  //case PYRAMID_4     : return 55;
 
   default :
     Message::Error("Unknown type of Element");
@@ -266,7 +266,7 @@ int Geo_GetDimOfElement(int Type)
   case TETRAHEDRON_4 : return 3;
   case HEXAHEDRON_4  : return 3;
   case PRISM_4       : return 3;
-  case PYRAMID_4     : return 3;
+  //case PYRAMID_4     : return 3;
   default :
     Message::Error("Unknown type of Element");
     return -1;

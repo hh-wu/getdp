@@ -204,8 +204,11 @@ int Gmsh2GetDP(int Type)
   case 12 : return HEXAHEDRON_2;
   case 13 : return PRISM_2;
   case 14 : return PYRAMID_2;
+
   case 16 : return QUADRANGLE_2_8N;
   case 17 : return HEXAHEDRON_2_20N;
+  case 18 : return PRISM_2_15N;
+  case 19 : return PYRAMID_2_13N;
 
   case 26 : return LINE_3;
   case 21 : return TRIANGLE_3;
@@ -221,7 +224,7 @@ int Gmsh2GetDP(int Type)
   case 30 : return TETRAHEDRON_4;
   case 93 : return HEXAHEDRON_4;
   case 91 : return PRISM_4;
-  case 119 : return PYRAMID_4;
+  //case 119 : return PYRAMID_4;
 
   default :
     Message::Error("Unknown Gmsh element type %d", Type);
@@ -249,8 +252,11 @@ int GetDP2Gmsh(int Type)
   case HEXAHEDRON_2  : return 12;
   case PRISM_2       : return 13;
   case PYRAMID_2     : return 14;
+
   case QUADRANGLE_2_8N: return 16;
   case HEXAHEDRON_2_20N : return 17;
+  case PRISM_2_15N   : return 18;
+  case PYRAMID_2_13N : return 19;
 
   case LINE_3        : return 26;
   case TRIANGLE_3    : return 21;
@@ -266,7 +272,7 @@ int GetDP2Gmsh(int Type)
   case TETRAHEDRON_4 : return 30;
   case HEXAHEDRON_4  : return 93;
   case PRISM_4       : return 91;
-  case PYRAMID_4     : return 119;
+  //case PYRAMID_4     : return 119;
 
   default :
     Message::Error("Unknown GetDP element type %d", Type);

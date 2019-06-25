@@ -442,13 +442,15 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
       PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 0.   ; break ;
     case PRISM :
     case PRISM_2 :
+    case PRISM_2_15N :
     case PRISM_3 :
     case PRISM_4 :
       PE->u[0] = 1./3.; PE->v[0] = 1./3.; PE->w[0] = 0.   ; break ;
     case PYRAMID :
     case PYRAMID_2 :
+    case PYRAMID_2_13N :
     case PYRAMID_3 :
-    case PYRAMID_4 :
+    //case PYRAMID_4 :
       PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 1./3.; break ;
     }
     POS_CUT_FILL ;
@@ -640,7 +642,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
         POS_CUT_FILL;
 	break ;
 
-      case PRISM : case PRISM_2 : case PRISM_3 : case PRISM_4 :
+      case PRISM : case PRISM_2 : case PRISM_2_15N : case PRISM_3 : case PRISM_4 :
         if(HighOrder && GE->Type != PRISM)
           PE = Create_HighOrderPostElement(GE, Index);
         if(!PE){
@@ -694,7 +696,8 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
         POS_CUT_FILL;
 	break ;
 
-      case PYRAMID : case PYRAMID_2 : case PYRAMID_3 : case PYRAMID_4 :
+      case PYRAMID : case PYRAMID_2 : case PYRAMID_2_13N :
+      case PYRAMID_3 : // case PYRAMID_4 :
         if(HighOrder && GE->Type != PYRAMID)
           PE = Create_HighOrderPostElement(GE, Index);
         if(!PE){

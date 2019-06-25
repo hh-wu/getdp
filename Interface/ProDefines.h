@@ -137,12 +137,14 @@ struct StringXDefine  Element_Type[] = {
   {"Hexahedron4"    , HEXAHEDRON_4},
   {"Prism"          , PRISM},
   {"Prism2"         , PRISM_2},
+  {"Prism2_15N"     , PRISM_2_15N},
   {"Prism3"         , PRISM_3},
   {"Prism4"         , PRISM_4},
   {"Pyramid"        , PYRAMID},
   {"Pyramid2"       , PYRAMID_2},
+  {"Pyramid2_15N"   , PYRAMID_2_13N},
   {"Pyramid3"       , PYRAMID_3},
-  {"Pyramid4"       , PYRAMID_4},
+  //{"Pyramid4"       , PYRAMID_4},
   {NULL             , TRIANGLE}
  } ;
 
@@ -436,12 +438,14 @@ struct DefineXFunction  FunctionForGauss[] = {
   {HEXAHEDRON_4   , (CAST)Gauss_Hexahedron},
   {PRISM          , (CAST)Gauss_Prism},
   {PRISM_2        , (CAST)Gauss_Prism},
+  {PRISM_2_15N    , (CAST)Gauss_Prism},
   {PRISM_3        , (CAST)Gauss_Prism},
   {PRISM_4        , (CAST)Gauss_Prism},
   {PYRAMID        , (CAST)Gauss_Pyramid},
   {PYRAMID_2      , (CAST)Gauss_Pyramid},
+  {PYRAMID_2_13N  , (CAST)Gauss_Pyramid},
   {PYRAMID_3      , (CAST)Gauss_Pyramid},
-  {PYRAMID_4      , (CAST)Gauss_Pyramid},
+  //{PYRAMID_4      , (CAST)Gauss_Pyramid},
 #else
   {POINT          , NULL},
   {LINE           , NULL},
@@ -468,12 +472,14 @@ struct DefineXFunction  FunctionForGauss[] = {
   {HEXAHEDRON_4   , NULL},
   {PRISM          , NULL},
   {PRISM_2        , NULL},
+  {PRISM_2_15N    , NULL},
   {PRISM_3        , NULL},
   {PRISM_4        , NULL},
   {PYRAMID        , NULL},
   {PYRAMID_2      , NULL},
+  {PYRAMID_2_13N  , NULL},
   {PYRAMID_3      , NULL},
-  {PYRAMID_4      , NULL},
+  //{PYRAMID_4      , NULL},
 #endif
   {0              , 0}
 } ;
@@ -514,8 +520,8 @@ struct DefineXFunction  FunctionForGaussLegendre[] = {
 #define QUA  QUADRANGLE | QUADRANGLE_2 | QUADRANGLE_2_8N | QUADRANGLE_3 | QUADRANGLE_4
 #define TET  TETRAHEDRON | TETRAHEDRON_2 | TETRAHEDRON_3 | TETRAHEDRON_4
 #define HEX  HEXAHEDRON | HEXAHEDRON_2 | HEXAHEDRON_2_20N | HEXAHEDRON_3 | HEXAHEDRON_4
-#define PRI  PRISM | PRISM_2 | PRISM_3 | PRISM_4
-#define PYR  PYRAMID | PYRAMID_2 | PYRAMID_3 | PYRAMID_4
+#define PRI  PRISM | PRISM_2 | PRISM_2_15N | PRISM_3 | PRISM_4
+#define PYR  PYRAMID | PYRAMID_2 | PYRAMID_2_13N | PYRAMID_3 // | PYRAMID_4
 #define ALL  POI|LIN|TRI|QUA|TET|HEX|PRI|PYR
 
 struct StringX3Function3Nbr  BF_Function[] = {
