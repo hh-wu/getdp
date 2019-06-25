@@ -76,8 +76,10 @@ void  * Get_JacobianFunction(int Type_Jacobian, int Type_Element,
     case TETRAHEDRON : case TETRAHEDRON_2 : case TETRAHEDRON_3 : case TETRAHEDRON_4 :
     case HEXAHEDRON  : case HEXAHEDRON_2  : case HEXAHEDRON_2_20N  :
     case HEXAHEDRON_3: case HEXAHEDRON_4  :
-    case PRISM       : case PRISM_2       : case PRISM_3       : case PRISM_4       :
-    case PYRAMID     : case PYRAMID_2     : case PYRAMID_3     : case PYRAMID_4     :
+    case PRISM       : case PRISM_2       : case PRISM_2_15N   :
+    case PRISM_3     : case PRISM_4       :
+    case PYRAMID     : case PYRAMID_2     : case PYRAMID_2_13N :
+    case PYRAMID_3   : // case PYRAMID_4     :
       *Type_Dimension = DIM_3D; return((void *)JacobianVol3D);
 
     default :
@@ -97,8 +99,10 @@ void  * Get_JacobianFunction(int Type_Jacobian, int Type_Element,
     case TETRAHEDRON : case TETRAHEDRON_2 : case TETRAHEDRON_3 : case TETRAHEDRON_4 :
     case HEXAHEDRON  : case HEXAHEDRON_2  : case HEXAHEDRON_2_20N  :
     case HEXAHEDRON_3: case HEXAHEDRON_4  :
-    case PRISM       : case PRISM_2       : case PRISM_3       : case PRISM_4       :
-    case PYRAMID     : case PYRAMID_2     : case PYRAMID_3     : case PYRAMID_4     :
+    case PRISM       : case PRISM_2       : case PRISM_2_15N   :
+    case PRISM_3     : case PRISM_4       :
+    case PYRAMID     : case PYRAMID_2     : case PYRAMID_2_13N :
+    case PYRAMID_3   : // case PYRAMID_4     :
       *Type_Dimension = DIM_3D; return((void *)JacobianVolSphShell3D);
 
     default :
@@ -118,8 +122,10 @@ void  * Get_JacobianFunction(int Type_Jacobian, int Type_Element,
     case TETRAHEDRON : case TETRAHEDRON_2 : case TETRAHEDRON_3 : case TETRAHEDRON_4 :
     case HEXAHEDRON  : case HEXAHEDRON_2  : case HEXAHEDRON_2_20N  :
     case HEXAHEDRON_3: case HEXAHEDRON_4  :
-    case PRISM       : case PRISM_2       : case PRISM_3       : case PRISM_4       :
-    case PYRAMID     : case PYRAMID_2     : case PYRAMID_3     : case PYRAMID_4     :
+    case PRISM       : case PRISM_2       : case PRISM_2_15N   :
+    case PRISM_3     : case PRISM_4       :
+    case PYRAMID     : case PYRAMID_2     : case PYRAMID_2_13N :
+    case PYRAMID_3   : // case PYRAMID_4     :
       *Type_Dimension = DIM_3D; return((void *)JacobianVolCylShell3D);
 
     default :
@@ -139,8 +145,10 @@ void  * Get_JacobianFunction(int Type_Jacobian, int Type_Element,
     case TETRAHEDRON : case TETRAHEDRON_2 : case TETRAHEDRON_3 : case TETRAHEDRON_4 :
     case HEXAHEDRON  : case HEXAHEDRON_2  : case HEXAHEDRON_2_20N  :
     case HEXAHEDRON_3: case HEXAHEDRON_4  :
-    case PRISM       : case PRISM_2       : case PRISM_3       : case PRISM_4       :
-    case PYRAMID     : case PYRAMID_2     : case PYRAMID_3     : case PYRAMID_4     :
+    case PRISM       : case PRISM_2       : case PRISM_2_15N   :
+    case PRISM_3     : case PRISM_4       :
+    case PYRAMID     : case PYRAMID_2     : case PYRAMID_2_13N :
+    case PYRAMID_3   : // case PYRAMID_4     :
       *Type_Dimension = DIM_3D; return((void *)JacobianVolRectShell3D);
 
     default :
@@ -155,8 +163,10 @@ void  * Get_JacobianFunction(int Type_Jacobian, int Type_Element,
     case TETRAHEDRON : case TETRAHEDRON_2 : case TETRAHEDRON_3 : case TETRAHEDRON_4 :
     case HEXAHEDRON  : case HEXAHEDRON_2  : case HEXAHEDRON_2_20N  :
     case HEXAHEDRON_3: case HEXAHEDRON_4  :
-    case PRISM       : case PRISM_2       : case PRISM_3       : case PRISM_4       :
-    case PYRAMID     : case PYRAMID_2     : case PYRAMID_3     : case PYRAMID_4     :
+    case PRISM       : case PRISM_2       : case PRISM_2_15N   :
+    case PRISM_3     : case PRISM_4       :
+    case PYRAMID     : case PYRAMID_2     : case PYRAMID_2_13N :
+    case PYRAMID_3   : // case PYRAMID_4     :
       *Type_Dimension = DIM_3D; return((void *)JacobianVolUniDirShell3D);
 
     default :
@@ -380,8 +390,10 @@ void  * Get_JacobianFunctionAuto (int Type_Element, int Dimension)
   case TETRAHEDRON : case TETRAHEDRON_2 : case TETRAHEDRON_3 : case TETRAHEDRON_4 :
   case HEXAHEDRON  : case HEXAHEDRON_2  : case HEXAHEDRON_2_20N  :
   case HEXAHEDRON_3: case HEXAHEDRON_4  :
-  case PRISM       : case PRISM_2       : case PRISM_3       : case PRISM_4       :
-  case PYRAMID     : case PYRAMID_2     : case PYRAMID_3     : case PYRAMID_4     :
+  case PRISM       : case PRISM_2       : case PRISM_2_15N   :
+  case PRISM_3     : case PRISM_4       :
+  case PYRAMID     : case PYRAMID_2     : case PYRAMID_2_13N :
+  case PYRAMID_3   : // case PYRAMID_4     :
   default:
     return((void *)JacobianVol3D);
   }
