@@ -570,6 +570,46 @@ void  Generate_ElementaryEntities_FacetNNN
   else  *ExtendedList = NULL ;
 }
 
+bool SameOrientation_EdgeNN(EdgeNN &e, EdgeNN &eref, double TOL,
+                            int Function_Index, int FunctionRef_Index)
+{
+  // Instead of mapping both end vertices (which can be wrapped by the
+  // periodicity for sliding surfaces), just map an intermediate point... which
+  // is not in the middle :-)
+  double x1, y1, z1, x2, y2, z2;
+  Geo_GetNodesCoordinates(1, &e.Node1, &x1, &y1, &z1) ;
+  Geo_GetNodesCoordinates(1, &e.Node2, &x2, &y2, &z2) ;
+  double x3 = Current.x = 0.25 * x1 + 0.75 * x2;
+  double y3 = Current.y = 0.25 * y1 + 0.75 * y2;
+  double z3 = Current.z = 0.25 * z1 + 0.75 * z2;
+  if(Function_Index >= 0){
+    struct Value  Value ;
+    Get_ValueOfExpressionByIndex(Function_Index, NULL, 0., 0., 0., &Value) ;
+    x3 = Value.Val[0] ;
+    y3 = Value.Val[1] ;
+    z3 = Value.Val[2] ;
+  }
+
+  Geo_GetNodesCoordinates(1, &eref.Node1, &x1, &y1, &z1) ;
+  Geo_GetNodesCoordinates(1, &eref.Node2, &x2, &y2, &z2) ;
+  double x3ref = Current.x = 0.25 * x1 + 0.75 * x2;
+  double y3ref = Current.y = 0.25 * y1 + 0.75 * y2;
+  double z3ref = Current.z = 0.25 * z1 + 0.75 * z2;
+  if(FunctionRef_Index >= 0){
+    struct Value  Value ;
+    Get_ValueOfExpressionByIndex(FunctionRef_Index, NULL, 0., 0., 0., &Value) ;
+    x3ref = Value.Val[0] ;
+    y3ref = Value.Val[1] ;
+    z3ref = Value.Val[2] ;
+  }
+
+  if ((fabs(x3 - x3ref) > TOL) ||
+      (fabs(y3 - y3ref) > TOL) ||
+      (fabs(z3 - z3ref) > TOL))
+    return false;
+  return true;
+}
+
 class NodeXYZRTree {
 private:
   RTree<struct NodeXYZ *, double, 3, double> *_rtree;
@@ -944,8 +984,8 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
 
     // Compute coefficient based on the barycenter of the master (ref) edge
     double x1, y1, z1, x2, y2, z2;
-    Geo_GetNodesCoordinates(1, &EdgeNN.Node1, &x1, &y1, &z1) ;
-    Geo_GetNodesCoordinates(1, &EdgeNN.Node2, &x2, &y2, &z2) ;
+    Geo_GetNodesCoordinates(1, &EdgeNNRef.Node1, &x1, &y1, &z1) ;
+    Geo_GetNodesCoordinates(1, &EdgeNNRef.Node2, &x2, &y2, &z2) ;
     Current.x = 0.5 * (x1 + x2);
     Current.y = 0.5 * (y1 + y2);
     Current.z = 0.5 * (z1 + z2);
@@ -959,11 +999,21 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
     else
       TwoIntOneDouble.Double2 = Value.Val[MAX_DIM] ; // LinkCplx
 
-    // FIXME:
-    if((EdgeNN.Node1 < EdgeNN.Node2 && EdgeNNRef.Node1 > EdgeNNRef.Node2) ||
-       (EdgeNN.Node1 > EdgeNN.Node2 && EdgeNNRef.Node1 < EdgeNNRef.Node2))
-      TwoIntOneDouble.Int1 *= 1;
-    else
+    // Set positive orientation for both edges
+    if(EdgeNN.Node1 > EdgeNN.Node2){
+      int tmp = EdgeNN.Node1;
+      EdgeNN.Node1 = EdgeNN.Node2;
+      EdgeNN.Node2 = tmp;
+    }
+    if(EdgeNNRef.Node1 > EdgeNNRef.Node2){
+      int tmp = EdgeNNRef.Node1;
+      EdgeNNRef.Node1 = EdgeNNRef.Node2;
+      EdgeNNRef.Node2 = tmp;
+    }
+    if(!SameOrientation_EdgeNN
+       (EdgeNN, EdgeNNRef, TOL,
+        Constraint_P->ConstraintPerRegion->Case.Link.FunctionIndex,
+        Constraint_P->ConstraintPerRegion->Case.Link.FunctionRefIndex))
       TwoIntOneDouble.Int1 *= -1;
 
     List_Add(Couples_L, &TwoIntOneDouble) ;
