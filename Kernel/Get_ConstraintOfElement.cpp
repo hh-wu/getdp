@@ -872,7 +872,7 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
 
 #if 1
 
-// new implementation, based on direct geometrical search of edges
+// New implementation, based on direct geometrical search of edges
 
 void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
 			 struct Group * Group_P,
@@ -1026,10 +1026,10 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
 
 #else
 
-// This old implementation is based on node lookups. This is OK for simple
-// cases, but cannot easily be used for sliding surfaces with symmetries, where
-// the edges touching the periodicity condition should be either mapped to the
-// other side; or on the boundary.
+// Old implementation based on node lookups. This is OK for simple cases, but
+// cannot easily be used for sliding surfaces with symmetries, where the edges
+// touching the periodicity condition can have one node mapped to the other
+// side.
 
 void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
 			 struct Group * Group_P,
