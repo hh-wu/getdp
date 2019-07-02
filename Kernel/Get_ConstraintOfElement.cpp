@@ -740,7 +740,10 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
   // We could also use the periodic node information right from the $Periodic
   // section in Gmsh meshes, when available
 
-  // Slave nodes
+  // Slave nodes from 'Region'=ExtendedList_L 
+  // excluding those in 'SubRegion'=ExtendedSuppList_L 
+  // and accounting for a possible user-defined Filter.
+  // 'Function' is applied to the coordinates before storing them in the list. 
   Nbr_Entity = List_Nbr(ExtendedList_L) ;
   NodeXYZ_L = List_Create(Nbr_Entity, 1, sizeof(struct NodeXYZ)) ;
   for (i = 0 ; i < Nbr_Entity ; i++) {
@@ -767,7 +770,10 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
   }
   Nbr_Entity = List_Nbr(NodeXYZ_L) ;
 
-  // Reference (master) nodes
+  // Reference (master) nodes from 'RegionRef'=RegionRef_P->InitialList 
+  // excluding those in 'SubRegionRef'=SubRegionRef_P->InitialList 
+  // and accounting for a possible user-defined Filter
+ // 'FunctionRef' is applied to the coordinates before storing them in the list. 
   Generate_ElementaryEntities
     (RegionRef_P->InitialList, &ExtendedListRef_L, NODESOF) ;
   if (SubRegionRef_P)
@@ -805,8 +811,15 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
   }
   Nbr_EntityRef = List_Nbr(NodeXYZRef_L) ;
 
-  // fill the rtree with the master (ref) nodes: filling with the slaves could
-  // mean losing some if two are at the same location (and the search for DoFs
+  // Master (ref) and slave nodes to be paired are now in NodeXYZRef_L and 
+  // NodeXYZ_L resp. Master nodes are listed with their actual position. 
+  // Slave nodes are listed with their position after applying 'Function',
+  // which maps the coordinates of the slave nodes onto their periodic 
+  // correspondant in the master surface. 
+  // Due to the periodicity, 2 slave nodes can be mapped onto the same location
+  // (depending on whether or not the 'subRegions' were given)
+  // Fill the rtree with the master (ref) nodes. Filling with the slaves could
+  // mean losing some when two are at the same location (and the search for DoFs
   // is performed on slaves)
   NodeXYZRTree rt(TOL);
   List_T *tmp = List_Create(List_Nbr(NodeXYZRef_L), 1, sizeof(struct NodeXYZ));
@@ -817,7 +830,7 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
   }
   for(int i = 0; i < List_Nbr(NodeXYZ_L); i++){
     struct NodeXYZ *n = (struct NodeXYZ *)List_Pointer(NodeXYZ_L, i);
-    struct NodeXYZ *ref = rt.find(n);
+    struct NodeXYZ *ref = rt.find(n); // find matching master node
     if(ref) List_Add(NodeXYZRef_L, ref);
   }
   Nbr_EntityRef = List_Nbr(NodeXYZRef_L) ;
@@ -828,6 +841,9 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
                    Nbr_Entity, Nbr_EntityRef) ;
     return;
   }
+  // The master node list  NodeXYZRef_L has been reordered so that the ith
+  // node in NodeXYZ_L is at the same location as the ith node in NodeXYZRef_L
+  // Two slave nodes can be paired with the same master node. 
 
   Message::Debug("==> List of link for nodes") ;
 
@@ -849,7 +865,10 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
     TwoIntOneDouble.Int1 = NodeXYZ.NumNode ;
     TwoIntOneDouble.Int2 = NodeXYZRef.NumNode ;
 
-    // Compute coefficient based on the coord of the master (ref) node
+    // Computes the coefficient of the link based on the user-defined 'Coef' 
+    // function which determines whether the preimage of the coordinates of the
+    // matched stator-slave pair by 'Function' is in a positive or a negative 
+    // periodic copy of the master surface.  
     Geo_GetNodesCoordinates(1, &NodeXYZRef.NumNode,
                             &Current.x, &Current.y, &Current.z) ;
     Get_ValueOfExpressionByIndex(Index_Coef, NULL, 0., 0., 0., &Value) ;
@@ -873,6 +892,7 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
 #if 1
 
 // New implementation, based on direct geometrical search of edges
+// based on their barycenter
 
 void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
 			 struct Group * Group_P,
@@ -881,7 +901,8 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
 {
   Message::Info("====> Begin Link Edge") ;
 
-  // Slave edges
+  // Slave edges from Group_P->InitialList excluding those in 
+  // Group_P->InitialSuppList. No Filter for edges.
   List_T  * ExtendedList_L, * ExtendedSuppList_L ;
   Generate_ElementaryEntities_EdgeNN
     (Group_P->InitialList, &ExtendedList_L, EDGESOF) ;
@@ -912,7 +933,8 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
   }
   Nbr_Entity = List_Nbr(EdgeNN_L) ;
 
-  // Master (ref) edges
+  // Master (ref) edges from RegionRef_P->InitialList excluding those in 
+  // SubRegionRef_P->InitialList
   List_T  * ExtendedListRef_L, * ExtendedSuppListRef_L ;
   Generate_ElementaryEntities_EdgeNN
     (RegionRef_P->InitialList, &ExtendedListRef_L, EDGESOF) ;
