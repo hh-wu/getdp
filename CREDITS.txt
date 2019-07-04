@@ -23,7 +23,7 @@ Olivier Adam, Alejandro Angulo, Geoffrey Deliege, Mark Evans, Philippe Geuzaine,
 Eric Godard, Sebastien Guenneau, Francois Henrotte, Daniel Kedzierski, Samuel
 Kvasnica, Benoit Meys, Uwe Pahner, Georgia Psoni, Robert Struijs, Ahmed Rassili,
 Thierry Scordilis, Herve Tortel, Jose Geraldo A. Brito Neto, Matthias Fenner,
-Daryl Van Vorst, Guillaume Dem\'esy.
+Daryl Van Vorst, Guillaume Dem\'esy, Peter Binde.
 
 The AVL tree code (Common/avl.*) is copyright (C) 1988-1993, 1995 The Regents
 of the University of California. Permission to use, copy, modify, and distribute

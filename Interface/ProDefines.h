@@ -142,7 +142,7 @@ struct StringXDefine  Element_Type[] = {
   {"Prism4"         , PRISM_4},
   {"Pyramid"        , PYRAMID},
   {"Pyramid2"       , PYRAMID_2},
-  {"Pyramid2_15N"   , PYRAMID_2_13N},
+  {"Pyramid2_13N"   , PYRAMID_2_13N},
   {"Pyramid3"       , PYRAMID_3},
   //{"Pyramid4"       , PYRAMID_4},
   {NULL             , TRIANGLE}

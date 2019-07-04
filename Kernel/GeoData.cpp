@@ -202,10 +202,12 @@ int Geo_GetNbNodesPerElement(int Type)
   case QUADRANGLE_2  : return 9;
   case TETRAHEDRON_2 : return 10;
   case HEXAHEDRON_2  : return 27;
-  case PRISM_2       : return 15;
+  case PRISM_2       : return 18;
   case PYRAMID_2     : return 13;
   case QUADRANGLE_2_8N: return 8;
   case HEXAHEDRON_2_20N : return 20;
+  case PRISM_2_15N   : return 15;
+  case PYRAMID_2_13N : return 13;
 
   case LINE_3        : return 4;
   case TRIANGLE_3    : return 10;
@@ -251,6 +253,8 @@ int Geo_GetDimOfElement(int Type)
   case PYRAMID_2     : return 3;
   case QUADRANGLE_2_8N: return 2;
   case HEXAHEDRON_2_20N : return 3;
+  case PRISM_2_15N   : return 3;
+  case PYRAMID_2_13N : return 3;
 
   case LINE_3        : return 1;
   case TRIANGLE_3    : return 2;

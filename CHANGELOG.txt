@@ -1,5 +1,6 @@
-3.1.1: improved link constraint search using rtree; added support for BF_Edge_*
-on curved elements; small fixes.
+3.2.0 (July 1, 2019): improved node and edge link constraints search using
+rtree; added support for BF_Edge basis functions on curved elements; small
+fixes.
 
 3.1.0 (April 19, 2019): added support for high-order (curved) Lagrange elements
 (P2, P3 and P4); added support for latest Gmsh version; code refactoring.

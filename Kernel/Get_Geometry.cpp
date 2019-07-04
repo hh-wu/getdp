@@ -426,10 +426,10 @@ void  * Get_IntegrationFunctionAuto (int Type_Element, int Order, int *NumPoints
   case HEXAHEDRON  : case HEXAHEDRON_2  : case HEXAHEDRON_2_20N :
     *NumPoints = 34;
     return ((void*)Gauss_Hexahedron);
-  case PRISM       : case PRISM_2       :
+  case PRISM       : case PRISM_2       : case PRISM_2_15N   :
     *NumPoints = 21;
     return ((void*)Gauss_Prism);
-  case PYRAMID     : case PYRAMID_2     :
+  case PYRAMID     : case PYRAMID_2     : case PYRAMID_2_13N :
     *NumPoints = 8;
     return ((void*)Gauss_Pyramid);
   default:
