@@ -274,11 +274,23 @@ void LinAlg_DestroySolver(gSolver *Solver)
 {
   for(int i = 0; i < 10; i++){
 #if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)
-    if(Solver->ksp[i]) _try(KSPDestroy(&Solver->ksp[i]));
-    if(Solver->snes[i]) _try(SNESDestroy(&Solver->snes[i]));
+    if(Solver->ksp[i]){
+      _try(KSPDestroy(&Solver->ksp[i]));
+      Solver->ksp[i] = NULL;
+    }
+    if(Solver->snes[i]){
+      _try(SNESDestroy(&Solver->snes[i]));
+      Solver->snes[i] = NULL;
+    }
 #else
-    if(Solver->ksp[i]) _try(KSPDestroy(Solver->ksp[i]));
-    if(Solver->snes[i]) _try(SNESDestroy(Solver->snes[i]));
+    if(Solver->ksp[i]){
+      _try(KSPDestroy(Solver->ksp[i]));
+      Solver->ksp[i] = NULL;
+    }
+    if(Solver->snes[i]){
+      _try(SNESDestroy(Solver->snes[i]));
+      Solver->snes[i] = NULL;
+    }
 #endif
   }
 }
@@ -1379,6 +1391,14 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
     if(its > 1) Message::Info("%d iterations", its);
   }
   Current.KSPIterations = its;
+
+  PetscTruth set, kspfree = PETSC_FALSE;
+  PetscOptionsGetTruth(PETSC_NULL, "-kspfree", &kspfree, &set);
+  if(kspfree){
+    Message::Info("Freeing KSP solver");
+    LinAlg_DestroySolver(Solver);
+  }
+
 }
 
 void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
