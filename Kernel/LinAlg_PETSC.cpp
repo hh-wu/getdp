@@ -1182,6 +1182,8 @@ static void _zitsol(gMatrix *A, gVector *B, gVector *X)
   PetscInt n;
   _try(VecGetLocalSize(B->V, &n));
 
+  Current.KSPSystemSize = n;
+
   int *row = (int*)Malloc(nnz * sizeof(int));
   int *col = (int*)Malloc(nnz * sizeof(int));
   double *valr = (double*)Malloc(nnz * sizeof(double));
@@ -1291,6 +1293,7 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
 
   PetscInt i, j;
   _try(MatGetSize(A->M, &i, &j));
+  Current.KSPSystemSize = i;
   if(!i){
     Message::Warning("Zero-size system: skipping solve!");
     return;
