@@ -1647,7 +1647,7 @@ struct CurrentData {
   double  RelaxFac, NbrTestedFac, SolveJacAdaptFailed; //+++
 
   // Iterative linear system solvers
-  double  KSPIterations, KSPIteration, KSPResidual;
+  double  KSPIterations, KSPIteration, KSPResidual, KSPSystemSize;
 };
 
 /* ------------------------------------------------------------------------ */
