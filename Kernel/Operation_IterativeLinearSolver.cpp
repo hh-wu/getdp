@@ -917,12 +917,19 @@ static PetscErrorCode PrintVec(Vec b, const char* filename, const char* varname)
 static PetscErrorCode Jacobi_Solver(Mat A, Vec X, Vec B, double Tol, int MaxIter)
 {
   Vec X_old, W;
-  double residu;
+  double residu, residuInit;
 
   _try(VecSet(X, 0.));
   _try(VecDuplicate(X, &X_old));
   _try(VecDuplicate(X, &W));
   _try(VecCopy(X, W));
+
+  _try(VecNorm(B, NORM_2, &residuInit));
+  Message::Info(3, "Jacobi initial residual %g", residuInit);
+  Current.Iteration = 0;
+  Current.KSPIteration = 0;
+  Current.Residual = residuInit;
+  Current.KSPResidual = residuInit;
 
   for (int j=1; j < MaxIter; j++){
     _try(VecCopy(X, X_old));
@@ -932,7 +939,12 @@ static PetscErrorCode Jacobi_Solver(Mat A, Vec X, Vec B, double Tol, int MaxIter
     _try(VecWAXPY(W, -1.,X_old, X)); //W = X-X_old
     _try(VecNorm(W, NORM_2, &residu));
     Message::Info(3, "Jacobi iteration %d residual %g", j, residu);
-    if(residu < Tol) break;
+
+    Current.Iteration = j;
+    Current.KSPIteration = j;
+    Current.Residual = residu;
+    Current.KSPResidual = residu;
+    if(residu/residuInit < Tol) break;
   }
   PetscFunctionReturn(0);
 }
