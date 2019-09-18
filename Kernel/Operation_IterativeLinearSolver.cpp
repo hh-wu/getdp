@@ -927,7 +927,7 @@ static PetscErrorCode Jacobi_Solver(Mat A, Vec X, Vec B, double Tol, int MaxIter
   _try(VecNorm(B, NORM_2, &residuInit));
   Message::Info(3, "Jacobi initial residual %g", residuInit);
   Current.Iteration = 0;
-  Current.Iteration = 0;
+  Current.KSPIteration = 0;
   Current.Residual = residuInit;
   Current.KSPResidual = residuInit;
 
