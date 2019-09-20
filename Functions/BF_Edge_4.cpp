@@ -20,16 +20,16 @@ void BF_Edge_4E(struct Element * Element, int NumEntity,
 		double u, double v, double w, double s[])
 {
   switch (Element->Type) {
-  case LINE :
-  case LINE_2 :
+  case LINE   : case LINE_2 :
+  case LINE_3 : case LINE_4 :
     switch(NumEntity) {
     case 1  : s[0] = u*u ; s[1] = 0. ; s[2] = 0. ; break ;
     default : WrongNumEntity ;
     }
     break ;
 
-  case TRIANGLE :
-  case TRIANGLE_2 :
+  case TRIANGLE   : case TRIANGLE_2 :
+  case TRIANGLE_3 : case TRIANGLE_4 :
     switch(NumEntity) {
     case 1  : s[0] = -6.0*u+1.0-2.0*v+6.0*u*u+6.0*u*v+v*v ;
               s[1] = -2.0*u+3.0*u*u+2.0*u*v ;
@@ -47,16 +47,15 @@ void BF_Edge_4E(struct Element * Element, int NumEntity,
     }
     break ;
 
-  case QUADRANGLE :
-  case QUADRANGLE_2 :
-  case QUADRANGLE_2_8N :
+  case QUADRANGLE   : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
+  case QUADRANGLE_3 : case QUADRANGLE_4 :
     switch(NumEntity) {
     default : Message::Error("BF_Edge_4E not ready for QUADRANGLE");
     }
     break ;
 
-  case TETRAHEDRON :
-  case TETRAHEDRON_2 :
+  case TETRAHEDRON   : case TETRAHEDRON_2 :
+  case TETRAHEDRON_3 : case TETRAHEDRON_4 :
     switch(NumEntity) {
     case 1  : s[0] = -6.0*u+1.0-2.0*v-2.0*w+6.0*u*u+6.0*u*v+6.0*u*w+v*v+2.0*v*w+w*w;
               s[1] = -2.0*u+3.0*u*u+2.0*u*v+2.0*u*w;
@@ -86,23 +85,22 @@ void BF_Edge_4E(struct Element * Element, int NumEntity,
     }
     break ;
 
-  case HEXAHEDRON :
-  case HEXAHEDRON_2 :
-  case HEXAHEDRON_2_20N :
+  case HEXAHEDRON   : case HEXAHEDRON_2 : case HEXAHEDRON_2_20N :
+  case HEXAHEDRON_3 : case HEXAHEDRON_4 :
     switch(NumEntity) {
     default : Message::Error("BF_Edge_4E not ready for HEXAHEDRON");
     }
     break ;
 
-  case PRISM :
-  case PRISM_2 :
+  case PRISM   : case PRISM_2 : case PRISM_2_15N :
+  case PRISM_3 : case PRISM_4 :
     switch(NumEntity) {
     default : Message::Error("BF_Edge_4E not ready for PRISM");
     }
     break ;
 
-  case PYRAMID :
-  case PYRAMID_2 :
+  case PYRAMID : case PYRAMID_2 : case PYRAMID_2_13N :
+  case PYRAMID_3 : // case PYRAMID_4
     switch(NumEntity) {
     default : Message::Error("BF_Edge_4E not ready for PYRAMID");
     }
@@ -131,29 +129,28 @@ void BF_Edge_4F(struct Element * Element, int NumEntity,
 {
   switch (Element->Type) {
 
-  case LINE :
-  case LINE_2 :
+  case LINE   : case LINE_2 :
+  case LINE_3 : case LINE_4 :
     Message::Error("You should never end up here!") ;
     break;
 
-  case TRIANGLE :
-  case TRIANGLE_2 :
+  case TRIANGLE   : case TRIANGLE_2 :
+  case TRIANGLE_3 : case TRIANGLE_4 :
     switch(NumEntity) {
     case 1  : s[0] = v-2.0*u*v-v*v ; s[1] = u-u*u-2.0*u*v ; s[2] = 0. ; break ;
     default : WrongNumEntity ;
     }
     break ;
 
-  case QUADRANGLE :
-  case QUADRANGLE_2 :
-  case QUADRANGLE_2_8N :
+  case QUADRANGLE   : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
+  case QUADRANGLE_3 : case QUADRANGLE_4 :
     switch(NumEntity) {
     default : Message::Error("BF_Edge_4F not ready for QUADRANGLE");
     }
     break ;
 
-  case TETRAHEDRON :
-  case TETRAHEDRON_2 :
+  case TETRAHEDRON   : case TETRAHEDRON_2 :
+  case TETRAHEDRON_3 : case TETRAHEDRON_4 :
     switch(NumEntity) {
     case 1  : s[0] = w-2.0*u*w-v*w-w*w ;
               s[1] = -u*w ;
@@ -175,16 +172,15 @@ void BF_Edge_4F(struct Element * Element, int NumEntity,
     }
     break ;
 
-  case HEXAHEDRON :
-  case HEXAHEDRON_2 :
-  case HEXAHEDRON_2_20N :
+  case HEXAHEDRON   : case HEXAHEDRON_2 : case HEXAHEDRON_2_20N :
+  case HEXAHEDRON_3 : case HEXAHEDRON_4 :
     switch(NumEntity) {
     default : Message::Error("BF_Edge_4F not ready for QUADRANGLE");
     }
     break ;
 
-  case PRISM :
-  case PRISM_2 :
+  case PRISM   : case PRISM_2 : case PRISM_2_15N :
+  case PRISM_3 : case PRISM_4 :
     switch(NumEntity) {
     default : Message::Error("BF_Edge_4F not ready for PRISM");
     }
