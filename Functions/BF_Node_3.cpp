@@ -16,20 +16,20 @@
 
 #define WrongNumEntity   Message::Error("Wrong Edge number in 'BF_Node_3E'")
 
-void  BF_Node_3E(struct Element * Element, int NumEntity, 
+void  BF_Node_3E(struct Element * Element, int NumEntity,
 		   double u, double v, double w,  double *s)
 {
   switch (Element->Type) {
-  case LINE :
-  case LINE_2 :
+  case LINE   : case LINE_2 :
+  case LINE_3 : case LINE_4 :
     switch(NumEntity) {
     case 1  : *s = 0.25 * (1.-u) * (1.+u) * (-u) ; break ;
     default : WrongNumEntity ;
     }
     break ;
 
-  case TRIANGLE :
-  case TRIANGLE_2 :
+  case TRIANGLE   : case TRIANGLE_2 :
+  case TRIANGLE_3 : case TRIANGLE_4 :
     switch(NumEntity) {
     case 1  : *s = (1.-u-v) * u * (1.-2*u-v) ; break ;
     case 2  : *s = (1.-u-v) * v * (1.-u-2*v) ; break ;
@@ -38,13 +38,15 @@ void  BF_Node_3E(struct Element * Element, int NumEntity,
     }
     break ;
 
-  case QUADRANGLE :
+  case QUADRANGLE   : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
+  case QUADRANGLE_3 : case QUADRANGLE_4 :
     switch(NumEntity) {
     default : Message::Error("BF_Node_3E not ready for QUADRANGLE");
     }
     break ;
-    
-  case TETRAHEDRON :
+
+  case TETRAHEDRON   : case TETRAHEDRON_2 :
+  case TETRAHEDRON_3 : case TETRAHEDRON_4 :
     switch(NumEntity) {
     case 1  : *s = (1.-u-v-w) * u * (1.-2*u-v-w) ; break ;
     case 2  : *s = (1.-u-v-w) * v * (1.-u-2*v-w) ; break ;
@@ -56,19 +58,22 @@ void  BF_Node_3E(struct Element * Element, int NumEntity,
     }
     break ;
 
-  case HEXAHEDRON :
+  case HEXAHEDRON   : case HEXAHEDRON_2 : case HEXAHEDRON_2_20N :
+  case HEXAHEDRON_3 : case HEXAHEDRON_4 :
     switch(NumEntity) {
     default : Message::Error("BF_Node_3E not ready for HEXAHEDRON");
     }
     break ;
 
-  case PRISM :
+  case PRISM   : case PRISM_2 : case PRISM_2_15N :
+  case PRISM_3 : case PRISM_4 :
     switch(NumEntity) {
     default : Message::Error("BF_Node_3E not ready for PRISM");
     }
     break ;
 
-  case PYRAMID :
+  case PYRAMID : case PYRAMID_2 : case PYRAMID_2_13N :
+  case PYRAMID_3 : // case PYRAMID_4
     switch(NumEntity) {
     default : Message::Error("BF_Node_3E not ready for PYRAMID");
     }
@@ -79,7 +84,7 @@ void  BF_Node_3E(struct Element * Element, int NumEntity,
     break ;
   }
 
-  if (Element->GeoElement->NumEdges[NumEntity-1] < 0) 
+  if (Element->GeoElement->NumEdges[NumEntity-1] < 0)
     *s = -*s ;
 
 }
@@ -92,31 +97,33 @@ void  BF_Node_3E(struct Element * Element, int NumEntity,
 
 #define WrongNumEntity   Message::Error("Wrong Face number in 'BF_Node_3F'")
 
-void  BF_Node_3F(struct Element * Element, int NumEntity, 
+void  BF_Node_3F(struct Element * Element, int NumEntity,
 		 double u, double v, double w,  double *s)
 {
   switch (Element->Type) {
 
-  case LINE :
-  case LINE_2 :
+  case LINE   : case LINE_2 :
+  case LINE_3 : case LINE_4 :
     Message::Error("BF_Node_3F cannot be associated with this type of element");
     break;
 
-  case TRIANGLE :
-  case TRIANGLE_2 :
+  case TRIANGLE   : case TRIANGLE_2 :
+  case TRIANGLE_3 : case TRIANGLE_4 :
     switch(NumEntity) {
     case 1  : *s = (1.-u-v) * u * v ; break ;
     default : WrongNumEntity ;
     }
     break ;
 
-  case QUADRANGLE :
+  case QUADRANGLE   : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
+  case QUADRANGLE_3 : case QUADRANGLE_4 :
     switch(NumEntity) {
     default : Message::Error("BF_Node_3F not ready for QUADRANGLE");
     }
     break ;
 
-  case TETRAHEDRON :
+  case TETRAHEDRON   : case TETRAHEDRON_2 :
+  case TETRAHEDRON_3 : case TETRAHEDRON_4 :
     switch(NumEntity) {
     case 1  : *s = (1.-u-v-w) * u * w ; break ;
     case 2  : *s = (1.-u-v-w) * v * u ; break ;
@@ -126,13 +133,15 @@ void  BF_Node_3F(struct Element * Element, int NumEntity,
     }
     break ;
 
-  case HEXAHEDRON :
+  case HEXAHEDRON   : case HEXAHEDRON_2 : case HEXAHEDRON_2_20N :
+  case HEXAHEDRON_3 : case HEXAHEDRON_4 :
     switch(NumEntity) {
     default : Message::Error("BF_Node_3F not ready for HEXAHEDRON");
     }
     break ;
 
-  case PRISM :
+  case PRISM   : case PRISM_2 : case PRISM_2_15N :
+  case PRISM_3 : case PRISM_4 :
     switch(NumEntity) {
     default : Message::Error("BF_Node_3F not ready for PRISM");
     }
@@ -151,27 +160,31 @@ void  BF_Node_3F(struct Element * Element, int NumEntity,
 /*  Volume  */
 /* -------- */
 
-void  BF_Node_3V(struct Element * Element, int NumEntity, 
+void  BF_Node_3V(struct Element * Element, int NumEntity,
 		 double u, double v, double w,  double *s)
 {
   switch (Element->Type) {
-    
-  case LINE :
-  case LINE_2 :
-  case TRIANGLE :
-  case TRIANGLE_2 :
-  case QUADRANGLE :
-  case TETRAHEDRON :
+
+  case LINE   : case LINE_2 :
+  case LINE_3 : case LINE_4 :
+  case TRIANGLE   : case TRIANGLE_2 :
+  case TRIANGLE_3 : case TRIANGLE_4 :
+  case QUADRANGLE   : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
+  case QUADRANGLE_3 : case QUADRANGLE_4 :
+  case TETRAHEDRON   : case TETRAHEDRON_2 :
+  case TETRAHEDRON_3 : case TETRAHEDRON_4 :
     Message::Error("BF_Node_3V cannot be associated with this type of element");
     break;
 
-  case HEXAHEDRON :
+  case HEXAHEDRON   : case HEXAHEDRON_2 : case HEXAHEDRON_2_20N :
+  case HEXAHEDRON_3 : case HEXAHEDRON_4 :
     switch(NumEntity) {
     default : Message::Error("BF_Node_3V not ready for HEXAHEDRON");
     }
     break ;
 
-  case PRISM :
+  case PRISM   : case PRISM_2 : case PRISM_2_15N :
+  case PRISM_3 : case PRISM_4 :
     switch(NumEntity) {
     default : Message::Error("BF_Node_3V not ready for PRISM");
     }
@@ -195,44 +208,46 @@ void  BF_Node_3V(struct Element * Element, int NumEntity,
 
 #define WrongNumEntity   Message::Error("Wrong Edge number in 'BF_GradNode_3E'")
 
-void BF_GradNode_3E(struct Element * Element, int NumEntity, 
+void BF_GradNode_3E(struct Element * Element, int NumEntity,
 		    double u, double v, double w,  double s[])
 {
   switch (Element->Type) {
-  case LINE :
-  case LINE_2 :
+  case LINE   : case LINE_2 :
+  case LINE_3 : case LINE_4 :
     switch(NumEntity) {
     case 1  : s[0] = -0.25 + 0.75 * u * u ; s[1] = 0. ; s[2] = 0. ; break ;
     default : WrongNumEntity ;
     }
     break ;
 
-  case TRIANGLE :
-  case TRIANGLE_2 :
+  case TRIANGLE   : case TRIANGLE_2 :
+  case TRIANGLE_3 : case TRIANGLE_4 :
     switch(NumEntity) {
     case 1  : s[0] = 1.0-6.0*u-2.0*v+6.0*u*u+6.0*u*v+v*v ;
-              s[1] = -2.0*u+3.0*u*u+2.0*u*v ;  
-	      s[2] = 0. ; 
+              s[1] = -2.0*u+3.0*u*u+2.0*u*v ;
+	      s[2] = 0. ;
 	      break ;
     case 2  : s[0] = -2.0*v+2.0*u*v+3.0*v*v ;
               s[1] = 1.0-2.0*u-6.0*v+u*u+6.0*u*v+6.0*v*v ;
-              s[2] = 0. ; 
+              s[2] = 0. ;
 	      break ;
     case 3  : s[0] = 2.0*u*v-v*v ;
               s[1] = u*u-2.0*u*v ;
-              s[2] = 0. ; 
+              s[2] = 0. ;
 	      break ;
     default : WrongNumEntity ;
     }
     break ;
 
-  case QUADRANGLE :
+  case QUADRANGLE   : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
+  case QUADRANGLE_3 : case QUADRANGLE_4 :
     switch(NumEntity) {
     default : Message::Error("BF_GradNode_3E not ready for QUADRANGLE");
     }
     break ;
 
-  case TETRAHEDRON :
+  case TETRAHEDRON   : case TETRAHEDRON_2 :
+  case TETRAHEDRON_3 : case TETRAHEDRON_4 :
     switch(NumEntity) {
     case 1  : s[0] = 1.0-6.0*u-2.0*v-2.0*w+6.0*u*u+6.0*u*v+6.0*u*w+v*v+2.0*v*w+w*w ;
               s[1] = -2.0*u+3.0*u*u+2.0*u*v+2.0*u*w ;
@@ -243,7 +258,7 @@ void BF_GradNode_3E(struct Element * Element, int NumEntity,
               s[2] = -2.0*v+2.0*u*v+3.0*v*v+2.0*v*w ;
 	      break ;
     case 3  : s[0] = -2.0*w+2.0*u*w+2.0*v*w+3.0*w*w ;
-              s[1] = -2.0*w+2.0*u*w+2.0*v*w+3.0*w*w ; 
+              s[1] = -2.0*w+2.0*u*w+2.0*v*w+3.0*w*w ;
               s[2] = 1.0-2.0*u-2.0*v-6.0*w+u*u+2.0*u*v+6.0*u*w+v*v+6.0*v*w+6.0*w*w ;
 	      break ;
     case 4  : s[0] = 2.0*u*v-v*v ;
@@ -262,13 +277,15 @@ void BF_GradNode_3E(struct Element * Element, int NumEntity,
     }
     break ;
 
-  case HEXAHEDRON :
+  case HEXAHEDRON   : case HEXAHEDRON_2 : case HEXAHEDRON_2_20N :
+  case HEXAHEDRON_3 : case HEXAHEDRON_4 :
     switch(NumEntity) {
     default : Message::Error("BF_GradNode_3E not ready for HEXAHEDRON");
     }
     break ;
 
-  case PRISM :
+  case PRISM   : case PRISM_2 : case PRISM_2_15N :
+  case PRISM_3 : case PRISM_4 :
     switch(NumEntity) {
     default : Message::Error("BF_GradNode_3E not ready for PRISM");
     }
@@ -293,31 +310,33 @@ void BF_GradNode_3E(struct Element * Element, int NumEntity,
 
 #define WrongNumEntity   Message::Error("Wrong Face number in 'BF_GradNode_3F'")
 
-void BF_GradNode_3F(struct Element * Element, int NumEntity, 
+void BF_GradNode_3F(struct Element * Element, int NumEntity,
 		    double u, double v, double w,  double s[])
 {
   switch (Element->Type) {
 
-  case LINE :
-  case LINE_2 :
+  case LINE   : case LINE_2 :
+  case LINE_3 : case LINE_4 :
     Message::Error("BF_GradNode_3F cannot be associated with this type of element");
     break ;
 
-  case TRIANGLE :
-  case TRIANGLE_2 :
+  case TRIANGLE   : case TRIANGLE_2 :
+  case TRIANGLE_3 : case TRIANGLE_4 :
     switch(NumEntity) {
     case 1  : s[0] = v-2.0*u*v-v*v ; s[1] = u-u*u-2.0*u*v ; s[2] = 0. ; break ;
     default : WrongNumEntity ;
     }
     break ;
 
-  case QUADRANGLE :
+  case QUADRANGLE   : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
+  case QUADRANGLE_3 : case QUADRANGLE_4 :
     switch(NumEntity) {
     default : Message::Error("BF_GradNode_3F not ready for QUADRANGLE");
     }
     break ;
 
-  case TETRAHEDRON :
+  case TETRAHEDRON   : case TETRAHEDRON_2 :
+  case TETRAHEDRON_3 : case TETRAHEDRON_4 :
     switch(NumEntity) {
     case 1  : s[0] = w-2.0*u*w-v*w-w*w ; s[1] = -u*w ; s[2] = u-u*u-u*v-2.0*u*w ; break ;
     case 2  : s[0] = v-2.0*u*v-v*v-v*w ; s[1] = u-u*u-2.0*u*v-u*w ; s[2] = -u*v ; break ;
@@ -327,13 +346,15 @@ void BF_GradNode_3F(struct Element * Element, int NumEntity,
     }
     break ;
 
-  case HEXAHEDRON :
+  case HEXAHEDRON   : case HEXAHEDRON_2 : case HEXAHEDRON_2_20N :
+  case HEXAHEDRON_3 : case HEXAHEDRON_4 :
     switch(NumEntity) {
     default : Message::Error("BF_GradNode_3F not ready for HEXAHEDRON");
     }
     break ;
 
-  case PRISM :
+  case PRISM   : case PRISM_2 : case PRISM_2_15N :
+  case PRISM_3 : case PRISM_4 :
     switch(NumEntity) {
     default : Message::Error("BF_GradNode_3F not ready for PRISM");
     }
@@ -352,27 +373,31 @@ void BF_GradNode_3F(struct Element * Element, int NumEntity,
 /*  Volume  */
 /* -------- */
 
-void BF_GradNode_3V(struct Element * Element, int NumEntity, 
+void BF_GradNode_3V(struct Element * Element, int NumEntity,
 		    double u, double v, double w,  double s[])
 {
   switch (Element->Type) {
 
-  case LINE :
-  case LINE_2 :
-  case TRIANGLE :
-  case TRIANGLE_2 :
-  case QUADRANGLE :
-  case TETRAHEDRON :
+  case LINE   : case LINE_2 :
+  case LINE_3 : case LINE_4 :
+  case TRIANGLE   : case TRIANGLE_2 :
+  case TRIANGLE_3 : case TRIANGLE_4 :
+  case QUADRANGLE   : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
+  case QUADRANGLE_3 : case QUADRANGLE_4 :
+  case TETRAHEDRON   : case TETRAHEDRON_2 :
+  case TETRAHEDRON_3 : case TETRAHEDRON_4 :
     Message::Error("BF_GradNode_3V cannot be associated with this type of element");
     break;
 
-  case HEXAHEDRON :
+  case HEXAHEDRON   : case HEXAHEDRON_2 : case HEXAHEDRON_2_20N :
+  case HEXAHEDRON_3 : case HEXAHEDRON_4 :
     switch(NumEntity) {
     default : Message::Error("BF_GradNode_3V not ready for HEXAHEDRON");
     }
     break ;
 
-  case PRISM :
+  case PRISM   : case PRISM_2 : case PRISM_2_15N :
+  case PRISM_3 : case PRISM_4 :
     switch(NumEntity) {
     default : Message::Error("BF_GradNode_3V not ready for PRISM");
     }
@@ -383,4 +408,3 @@ void BF_GradNode_3V(struct Element * Element, int NumEntity,
     break ;
   }
 }
-
