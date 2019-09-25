@@ -81,13 +81,13 @@ void BF_Edge_3F(struct Element * Element, int NumEntity, int Index,
 {
   switch (Element->Type) {
 
-  case LINE :
-  case LINE_2 :
+  case LINE   : case LINE_2 :
+  case LINE_3 : case LINE_4 :
     Message::Error("You should never end up here!") ;
     break;
 
-  case TRIANGLE :
-  case TRIANGLE_2 :
+  case TRIANGLE   : case TRIANGLE_2 :
+  case TRIANGLE_3 : case TRIANGLE_4 :
     switch(NumEntity) {
     case 1  :
       switch(Get_FacetFunctionIndex(Element, NumEntity, Index)){
@@ -100,16 +100,15 @@ void BF_Edge_3F(struct Element * Element, int NumEntity, int Index,
     }
     break ;
 
-  case QUADRANGLE :
-  case QUADRANGLE_2 :
-  case QUADRANGLE_2_8N :
+  case QUADRANGLE   : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
+  case QUADRANGLE_3 : case QUADRANGLE_4 :
     switch(NumEntity) {
     default : Message::Error("BF_Edge_3F not ready for QUADRANGLE");
     }
     break ;
 
-  case TETRAHEDRON :
-  case TETRAHEDRON_2 :
+  case TETRAHEDRON   : case TETRAHEDRON_2 :
+  case TETRAHEDRON_3 : case TETRAHEDRON_4 :
     switch(NumEntity) {
     case 1  :
       switch(Get_FacetFunctionIndex(Element, NumEntity, Index)){
@@ -143,23 +142,22 @@ void BF_Edge_3F(struct Element * Element, int NumEntity, int Index,
     }
     break ;
 
-  case HEXAHEDRON :
-  case HEXAHEDRON_2 :
-  case HEXAHEDRON_2_20N :
+  case HEXAHEDRON   : case HEXAHEDRON_2 : case HEXAHEDRON_2_20N :
+  case HEXAHEDRON_3 : case HEXAHEDRON_4 :
     switch(NumEntity) {
     default : Message::Error("BF_Edge_3F not ready for HEXAHEDRON");
     }
     break ;
 
-  case PRISM :
-  case PRISM_2 :
+  case PRISM   : case PRISM_2 : case PRISM_2_15N :
+  case PRISM_3 : case PRISM_4 :
     switch(NumEntity) {
     default : Message::Error("BF_Edge_3F not ready for PRISM");
     }
     break ;
 
-  case PYRAMID :
-  case PYRAMID_2 :
+  case PYRAMID : case PYRAMID_2 : case PYRAMID_2_13N :
+  case PYRAMID_3 : // case PYRAMID_4
     switch(NumEntity) {
     default : Message::Error("BF_Edge_3F not ready for PYRAMID");
     }
@@ -232,13 +230,13 @@ void BF_CurlEdge_3F(struct Element * Element, int NumEntity, int Index,
 {
   switch (Element->Type) {
 
-  case LINE :
-  case LINE_2 :
+  case LINE   : case LINE_2 :
+  case LINE_3 : case LINE_4 :
     Message::Error("You should never end up here!") ;
     break;
 
-  case TRIANGLE :
-  case TRIANGLE_2 :
+  case TRIANGLE   : case TRIANGLE_2 :
+  case TRIANGLE_3 : case TRIANGLE_4 :
     switch(NumEntity) {
     case 1  :
       switch(Get_FacetFunctionIndex(Element, NumEntity, Index)){
@@ -251,16 +249,15 @@ void BF_CurlEdge_3F(struct Element * Element, int NumEntity, int Index,
     }
     break ;
 
-  case QUADRANGLE :
-  case QUADRANGLE_2 :
-  case QUADRANGLE_2_8N :
+  case QUADRANGLE   : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
+  case QUADRANGLE_3 : case QUADRANGLE_4 :
     switch(NumEntity) {
     default : Message::Error("BF_CurlEdge_3F not ready for QUADRANGLE");
     }
     break ;
 
-  case TETRAHEDRON :
-  case TETRAHEDRON_2 :
+  case TETRAHEDRON   : case TETRAHEDRON_2 :
+  case TETRAHEDRON_3 : case TETRAHEDRON_4 :
     switch(NumEntity) {
     case 1  :
       switch(Get_FacetFunctionIndex(Element, NumEntity, Index)){
@@ -294,18 +291,24 @@ void BF_CurlEdge_3F(struct Element * Element, int NumEntity, int Index,
     }
     break ;
 
-  case HEXAHEDRON :
-  case HEXAHEDRON_2 :
-  case HEXAHEDRON_2_20N :
+  case HEXAHEDRON   : case HEXAHEDRON_2 : case HEXAHEDRON_2_20N :
+  case HEXAHEDRON_3 : case HEXAHEDRON_4 :
     switch(NumEntity) {
     default : Message::Error("BF_CurlEdge_3F not ready for HEXAHEDRON");
     }
     break ;
 
-  case PRISM :
-  case PRISM_2 :
+  case PRISM   : case PRISM_2 : case PRISM_2_15N :
+  case PRISM_3 : case PRISM_4 :
     switch(NumEntity) {
     default : Message::Error("BF_CurlEdge_3F not ready for PRISM");
+    }
+    break ;
+
+  case PYRAMID : case PYRAMID_2 : case PYRAMID_2_13N :
+  case PYRAMID_3 : // case PYRAMID_4
+    switch(NumEntity) {
+    default : Message::Error("BF_CurlEdge_3F not ready for PYRAMID");
     }
     break ;
 

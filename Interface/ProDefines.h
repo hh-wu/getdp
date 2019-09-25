@@ -332,6 +332,7 @@ struct StringXPointer  Current_Value[] = {
   {"KSPIterations", &Current.KSPIterations}, {"KSPIts", &Current.KSPIterations},
   {"KSPIteration", &Current.KSPIteration},
   {"KSPResidual", &Current.KSPResidual},
+  {"KSPSystemSize", &Current.KSPSystemSize},
   {NULL       , NULL}
 } ;
 

@@ -1569,6 +1569,8 @@ Current iteration in a Krylov subspace solver.
 Current residual in a Krylov subspace solver.
 @item $KSPIterations
 Total number of iterations of Krylov subspace solver.
+@item $KSPSystemSize
+System size of Krylov subspace solver.
 @end table
 
 @noindent Note:

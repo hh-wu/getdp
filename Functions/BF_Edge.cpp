@@ -24,16 +24,16 @@ void BF_Edge(struct Element * Element, int NumEdge,
 	     double u, double v, double w,  double s[])
 {
   switch (Element->Type) {
-  case LINE :
-  case LINE_2 :
+  case LINE   : case LINE_2 :
+  case LINE_3 : case LINE_4 :
     switch(NumEdge) {
     case 1  : s[0] = 0.5 ; s[1] = 0. ; s[2] = 0. ; break ;
     default : WrongNumEdge ;
     }
     break ;
 
-  case TRIANGLE :
-  case TRIANGLE_2 :
+  case TRIANGLE   : case TRIANGLE_2 :
+  case TRIANGLE_3 : case TRIANGLE_4 :
     switch(NumEdge) {
     case 1  : s[0] = 1.-v ; s[1] = u    ; s[2] = 0.  ; break ;
     case 2  : s[0] = v    ; s[1] = 1.-u ; s[2] = 0.  ; break ;
@@ -42,9 +42,8 @@ void BF_Edge(struct Element * Element, int NumEdge,
     }
     break ;
 
-  case QUADRANGLE :
-  case QUADRANGLE_2 :
-  case QUADRANGLE_2_8N :
+  case QUADRANGLE   : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
+  case QUADRANGLE_3 : case QUADRANGLE_4 :
     switch(NumEdge) {
     case 1  : s[0] =  0.25 * (1.-v) ; s[1] = 0.            ; s[2] = 0. ; break ;
     case 2  : s[0] =  0.            ; s[1] = 0.25 * (1.-u) ; s[2] = 0. ; break ;
@@ -54,8 +53,8 @@ void BF_Edge(struct Element * Element, int NumEdge,
     }
     break ;
 
-  case TETRAHEDRON :
-  case TETRAHEDRON_2 :
+  case TETRAHEDRON   : case TETRAHEDRON_2 :
+  case TETRAHEDRON_3 : case TETRAHEDRON_4 :
     switch(NumEdge) {
     case 1  : s[0] =  1.-v-w ; s[1] =  u      ; s[2] = u      ; break ;
     case 2  : s[0] =  v      ; s[1] =  1.-u-w ; s[2] = v      ; break ;
@@ -67,9 +66,8 @@ void BF_Edge(struct Element * Element, int NumEdge,
     }
     break ;
 
-  case HEXAHEDRON :
-  case HEXAHEDRON_2 :
-  case HEXAHEDRON_2_20N :
+  case HEXAHEDRON   : case HEXAHEDRON_2 : case HEXAHEDRON_2_20N :
+  case HEXAHEDRON_3 : case HEXAHEDRON_4 :
     switch(NumEdge) {
     case 1  : s[0] =  0.125 * (1.-v) * (1.-w) ; s[1] = 0. ; s[2] = 0. ; break ;
     case 6  : s[0] = -0.125 * (1.+v) * (1.-w) ; s[1] = 0. ; s[2] = 0. ; break ;
@@ -89,8 +87,8 @@ void BF_Edge(struct Element * Element, int NumEdge,
     }
     break ;
 
-  case PRISM :
-  case PRISM_2 :
+  case PRISM   : case PRISM_2 : case PRISM_2_15N :
+  case PRISM_3 : case PRISM_4 :
     switch(NumEdge) {
     case 1  : s[0] =  0.5 * (1.-v) * (1.-w) ;
               s[1] =  0.5 * u      * (1.-w) ;
@@ -123,8 +121,8 @@ void BF_Edge(struct Element * Element, int NumEdge,
     }
     break ;
 
-  case PYRAMID :
-  case PYRAMID_2 :
+  case PYRAMID : case PYRAMID_2 : case PYRAMID_2_13N :
+  case PYRAMID_3 : // case PYRAMID_4
     if (w != 1){
       switch(NumEdge) {
       case 1  : s[0] =  0.25 * (1 - v - w) ;
@@ -208,16 +206,16 @@ void BF_CurlEdge(struct Element * Element, int NumEdge,
 		 double u, double v, double w,  double s[])
 {
   switch (Element->Type) {
-  case LINE :
-  case LINE_2 :
+  case LINE   : case LINE_2 :
+  case LINE_3 : case LINE_4 :
     switch(NumEdge) {
     case 1  : s[0] = 0. ; s[1] = 0. ; s[2] = 0. ; break ;
     default : WrongNumEdge ;
     }
     break ;
 
-  case TRIANGLE :
-  case TRIANGLE_2 :
+  case TRIANGLE   : case TRIANGLE_2 :
+  case TRIANGLE_3 : case TRIANGLE_4 :
     switch(NumEdge) {
     case 1  : s[0] = 0. ; s[1] = 0. ; s[2] =  2. ; break ;
     case 2  : s[0] = 0. ; s[1] = 0. ; s[2] = -2. ; break ;
@@ -226,9 +224,8 @@ void BF_CurlEdge(struct Element * Element, int NumEdge,
     }
     break ;
 
-  case QUADRANGLE :
-  case QUADRANGLE_2 :
-  case QUADRANGLE_2_8N :
+  case QUADRANGLE   : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
+  case QUADRANGLE_3 : case QUADRANGLE_4 :
     switch(NumEdge) {
     case 1  : s[0] = 0. ; s[1] = 0. ; s[2] =  0.25 ; break ;
     case 2  : s[0] = 0. ; s[1] = 0. ; s[2] = -0.25 ; break ;
@@ -238,8 +235,8 @@ void BF_CurlEdge(struct Element * Element, int NumEdge,
     }
     break ;
 
-  case TETRAHEDRON :
-  case TETRAHEDRON_2 :
+  case TETRAHEDRON   : case TETRAHEDRON_2 :
+  case TETRAHEDRON_3 : case TETRAHEDRON_4 :
     switch(NumEdge) {
     case 1  : s[0] =  0. ; s[1] = -2. ; s[2] =  2. ; break ;
     case 2  : s[0] =  2. ; s[1] =  0. ; s[2] = -2. ; break ;
@@ -251,9 +248,8 @@ void BF_CurlEdge(struct Element * Element, int NumEdge,
     }
     break ;
 
-  case HEXAHEDRON :
-  case HEXAHEDRON_2 :
-  case HEXAHEDRON_2_20N :
+  case HEXAHEDRON   : case HEXAHEDRON_2 : case HEXAHEDRON_2_20N :
+  case HEXAHEDRON_3 : case HEXAHEDRON_4 :
     switch(NumEdge) {
     case 1  : s[0] = 0. ; s[1] = 0.125*(v-1.) ; s[2] = 0.125*(1.-w) ; break ;
     case 6  : s[0] = 0. ; s[1] = 0.125*(v+1.) ; s[2] = 0.125*(1.-w) ; break ;
@@ -273,8 +269,8 @@ void BF_CurlEdge(struct Element * Element, int NumEdge,
     }
     break ;
 
-  case PRISM :
-  case PRISM_2 :
+  case PRISM   : case PRISM_2 : case PRISM_2_15N :
+  case PRISM_3 : case PRISM_4 :
     switch(NumEdge) {
     case 1  : s[0] =  0.5*u      ; s[1] =  0.5*(v-1.) ; s[2] =  1.-w ; break ;
     case 2  : s[0] =  0.5*(1.-u) ; s[1] = -0.5*v      ; s[2] =  w-1. ; break ;
@@ -291,8 +287,8 @@ void BF_CurlEdge(struct Element * Element, int NumEdge,
     }
     break ;
 
-  case PYRAMID :
-  case PYRAMID_2 :
+  case PYRAMID : case PYRAMID_2 : case PYRAMID_2_13N :
+  case PYRAMID_3 : // case PYRAMID_4
     if (w != 1){
       switch(NumEdge) {
       case 1  : s[0] = -0.25 * u / (1. - w) ;       s[1] = -0.5 + 0.25 * v / (1. - w) ; s[2] =  0.25 ; break ;
