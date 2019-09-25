@@ -740,10 +740,10 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
   // We could also use the periodic node information right from the $Periodic
   // section in Gmsh meshes, when available
 
-  // Slave nodes from 'Region'=ExtendedList_L 
+  // Establish the list of slave nodes, i.e., nodes in 'Region'=ExtendedList_L 
   // excluding those in 'SubRegion'=ExtendedSuppList_L 
   // and accounting for a possible user-defined Filter.
-  // 'Function' is applied to the coordinates before storing them in the list. 
+  // 'Function' is applied to the coordinates of the node before storing it in the list.
   Nbr_Entity = List_Nbr(ExtendedList_L) ;
   NodeXYZ_L = List_Create(Nbr_Entity, 1, sizeof(struct NodeXYZ)) ;
   for (i = 0 ; i < Nbr_Entity ; i++) {
@@ -770,10 +770,11 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
   }
   Nbr_Entity = List_Nbr(NodeXYZ_L) ;
 
-  // Reference (master) nodes from 'RegionRef'=RegionRef_P->InitialList 
+  // Establish the list of reference (master) nodes, i.e., nodes in 
+  // 'RegionRef'=RegionRef_P->InitialList 
   // excluding those in 'SubRegionRef'=SubRegionRef_P->InitialList 
-  // and accounting for a possible user-defined Filter
- // 'FunctionRef' is applied to the coordinates before storing them in the list. 
+  // and accounting for a possible user-defined Filter.
+ // 'FunctionRef' is applied to the coordinates of the node before storing it in the list. 
   Generate_ElementaryEntities
     (RegionRef_P->InitialList, &ExtendedListRef_L, NODESOF) ;
   if (SubRegionRef_P)
