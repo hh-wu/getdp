@@ -26,8 +26,10 @@ class Message {
   static int _warningCount, _errorCount;
   // last PETSc error code
   static int _lastPETScError;
-  // should we exit on error?
-  static bool _exitOnError, _operatingInTimeLoopAdaptive;
+  // behavior on error (0: none, 1: exit, 2: throw exception)
+  static int _exitOnError;
+  // are we inside an adaptive time loop?
+  static bool _operatingInTimeLoopAdaptive;
   // verbosity level (0: silent except fatal errors, 1: +errors, 2: +warnings,
   // 3: +direct+important info, 4: +info+progress, 5 (=normal): +cpu, 6:
   // +matinfo, 10: elementary matrices, 99: debug)
@@ -66,7 +68,7 @@ class Message {
   static void Error(const char *fmt, ...);
   static void ResetErrorCounter(){ _errorCount = 0; }
   static int GetErrorCount(){ return _errorCount; }
-  static void SetExitOnError(bool val){ _exitOnError = val; }
+  static void SetExitOnError(int val){ _exitOnError = val; }
   static void SetOperatingInTimeLoopAdaptive(bool val){ _operatingInTimeLoopAdaptive = val; }
   static bool GetOperatingInTimeLoopAdaptive(){ return _operatingInTimeLoopAdaptive; }
   static void Warning(const char *fmt, ...);
