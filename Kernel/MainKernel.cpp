@@ -713,7 +713,11 @@ int MainKernel(int argc, char *argv[])
   if(Flag_PRE || Flag_CAL || Flag_POS)
     SolvingAnalyse();
 
-  LinAlg_FinalizeSolver();
+  // PETSc cannot be finalized if it will be re-initialized again in the same
+  // process - so just don't finalize it if we use getdp as a library with a
+  // provided onelab server (e.g. for the mobile apps)
+  if(!Flag_CALLED_WITH_ONELAB_SERVER)
+    LinAlg_FinalizeSolver();
 
   Message::PrintErrorCounter("Run");
   Message::Cpu(3, true, true, true, true, true, "Stopped");
