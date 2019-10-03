@@ -58,7 +58,16 @@ extern struct CurrentData Current ;
 
 extern void _fillseq(Vec &V, Vec &Vseq); // from LinAlg_PETsc.cpp
 
-static void _try(int ierr){ CHKERRABORT(PETSC_COMM_WORLD, ierr); }
+static void _try(int ierr)
+{
+  CHKERRCONTINUE(ierr);
+  if(PetscUnlikely(ierr)){
+    const char *text;
+    PetscErrorMessage(ierr, &text, 0);
+    Message::Error("PETSc error: %s", text);
+    Message::SetLastPETScError(ierr);
+  }
+}
 
 static PetscErrorCode _myMonitor(const char *str, int its, int nconv, PetscScalar *eigr,
                                  PetscScalar *eigi, PetscReal* errest)
@@ -357,11 +366,11 @@ static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
   if(numEigenValues)
     _try(EPSSetDimensions(eps, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
 
+  // apply shift-and-invert transformation
   ST st;
   _try(EPSGetST(eps, &st));
   _try(STSetType(st, STSINVERT));
-
-  // apply shift-and-invert transformation
+  _try(EPSSetWhichEigenpairs(eps, EPS_TARGET_MAGNITUDE));
   if(shift_r || shift_i){
 #if defined(PETSC_USE_COMPLEX)
     PetscScalar shift = shift_r + PETSC_i * shift_i;
@@ -372,7 +381,6 @@ static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
 #endif
     //_try(STSetShift(st, shift));
     _try(EPSSetTarget(eps, shift));
-    _try(EPSSetWhichEigenpairs(eps, EPS_TARGET_MAGNITUDE));
   }
 
   KSP ksp;
@@ -476,10 +484,12 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
     EPS eps;
     _try(QEPLinearGetEPS(qep, &eps));
     _try(EPSSetType(eps, EPSKRYLOVSCHUR));
+
+    // apply shift-and-invert transformation
     ST st;
     _try(EPSGetST(eps, &st));
     _try(STSetType(st, STSINVERT));
-    // apply shift-and-invert transformation
+    _try(EPSSetWhichEigenpairs(eps, EPS_TARGET_MAGNITUDE));
     if(shift_r || shift_i){
 #if defined(PETSC_USE_COMPLEX)
       PetscScalar shift = shift_r + PETSC_i * shift_i;
@@ -489,7 +499,6 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
         Message::Warning("Imaginary part of shift discarded: use PETSc with complex numbers");
 #endif
       _try(EPSSetTarget(eps, shift));
-      _try(EPSSetWhichEigenpairs(eps, EPS_TARGET_MAGNITUDE));
     }
     _try(QEPLinearSetExplicitMatrix(qep, PETSC_TRUE));
     Message::Info("SLEPc forcing explicit construction of matrix");
@@ -583,16 +592,16 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
   _try(PEPSetTolerances(pep, 1.e-6, 100));
   // _try(PEPSetType(pep, PEPLINEAR));
   _try(PEPSetType(pep, PEPTOAR));
-  _try(PEPGetST(pep,&st));
-  _try(STSetType(st,STSINVERT));
-  _try(STGetKSP(st,&ksp));
-  _try(KSPSetType(ksp,KSPPREONLY));
-  _try(KSPGetPC(ksp,&pc));
-  _try(PCSetType(pc,PCLU));
+  _try(PEPGetST(pep, &st));
+  _try(STSetType(st, STSINVERT));
+  _try(PEPSetWhichEigenpairs(pep, PEP_TARGET_MAGNITUDE));
+  _try(STGetKSP(st, &ksp));
+  _try(KSPSetType(ksp, KSPPREONLY));
+  _try(KSPGetPC(ksp, &pc));
+  _try(PCSetType(pc, PCLU));
 #if (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
   _try(PCFactorSetMatSolverPackage(pc, "mumps"));
 #endif
-  _try(PEPSetWhichEigenpairs(pep, PEP_TARGET_MAGNITUDE));
   _try(PEPMonitorSet(pep, _myPepMonitor, PETSC_NULL, PETSC_NULL));
 #if defined(PETSC_USE_COMPLEX)
   PetscScalar shift = shift_r + PETSC_i * shift_i;
@@ -631,9 +640,9 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
 //     ST st;
 //     _try(EPSGetST(eps, &st));
 //     _try(STSetType(st, STSINVERT));
+//     _try(EPSSetWhichEigenpairs(eps, EPS_TARGET_MAGNITUDE));
 //     if(shift_r || shift_i){
 //       _try(EPSSetTarget(eps, shift));
-//       _try(EPSSetWhichEigenpairs(eps, EPS_TARGET_MAGNITUDE));
 //     }
 //     _try(PEPLinearSetExplicitMatrix(pep, PETSC_TRUE));
 //     Message::Info("SLEPc forcing explicit construction of matrix");
@@ -742,16 +751,16 @@ static void _polynomialEVP(struct DofData * DofData_P, int numEigenValues,
   _try(PEPSetDimensions(pep, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
   _try(PEPSetTolerances(pep, 1.e-6, 100));
   _try(PEPSetType(pep, PEPTOAR));
-  _try(PEPGetST(pep,&st));
-  _try(STSetType(st,STSINVERT));
-  _try(STGetKSP(st,&ksp));
-  _try(KSPSetType(ksp,KSPPREONLY));
-  _try(KSPGetPC(ksp,&pc));
-  _try(PCSetType(pc,PCLU));
+  _try(PEPGetST(pep, &st));
+  _try(STSetType(st, STSINVERT));
+  _try(PEPSetWhichEigenpairs(pep, PEP_TARGET_MAGNITUDE));
+  _try(STGetKSP(st, &ksp));
+  _try(KSPSetType(ksp, KSPPREONLY));
+  _try(KSPGetPC(ksp, &pc));
+  _try(PCSetType(pc, PCLU));
 #if (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
   _try(PCFactorSetMatSolverPackage(pc, "mumps"));
 #endif
-  _try(PEPSetWhichEigenpairs(pep, PEP_TARGET_MAGNITUDE));
   _try(PEPMonitorSet(pep, _myPepMonitor, PETSC_NULL, PETSC_NULL));
 #if defined(PETSC_USE_COMPLEX)
   PetscScalar shift = shift_r + PETSC_i * shift_i;
