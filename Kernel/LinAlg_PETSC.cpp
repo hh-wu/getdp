@@ -117,14 +117,6 @@ void LinAlg_InitializeSolver(int* argc, char*** argv)
 
 void LinAlg_FinalizeSolver()
 {
-  // this causes random crashes with PETSC 3 when doing several
-  // initialize/finalize calls (when using getdp as a library). Until we figure
-  // out what's happening, let's simply initialize petsc/slepc once, and never
-  // finalize.
-#if (PETSC_VERSION_MAJOR == 3)  && (PETSC_VERSION_MINOR <= 7)
-  return;
-#endif
-
   if(SolverInitialized){
 #if defined(HAVE_SLEPC)
     SlepcFinalize();

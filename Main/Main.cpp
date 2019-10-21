@@ -13,7 +13,7 @@
 int main(int argc, char **argv)
 {
 #if defined(HAVE_KERNEL)
-  Message::SetExitOnError(true);
+  Message::SetExitOnError(1);
   MainKernel(argc, argv);
 #else
   Init_ProblemStructure();

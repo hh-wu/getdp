@@ -73,7 +73,7 @@ int Message::_commSize = 1;
 int Message::_isCommWorld = 1; // is the communicator set to WORLD (==1) or SELF (!=1)
 int Message::_errorCount = 0;
 int Message::_lastPETScError = 0;
-bool Message::_exitOnError = false;
+int Message::_exitOnError = 0;
 bool Message::_operatingInTimeLoopAdaptive = false;
 int Message::_verbosity = 5;
 int Message::_progressMeterStep = 10;
@@ -292,9 +292,11 @@ void Message::Error(const char *fmt, ...)
     fflush(stderr);
   }
 
-  if(_exitOnError){
-    // Error() should normally not exit; use Fatal() for that
+  if(_exitOnError == 1){
     Exit(1);
+  }
+  else if(_exitOnError == 2){
+    throw "GetDP error";
   }
 }
 
