@@ -497,17 +497,19 @@ void  Generate_ElementaryEntities_EdgeNN
       GeoElement = Geo_GetGeoElement(i_Element) ;
 
       if (List_Search(InitialList, &GeoElement->Region, fcmp_int) ) {
-	switch (Type_Entity) {
-	case EDGESOF :
-	  if (GeoElement->NbrEdges == 0)  Geo_CreateEdgesOfElement(GeoElement) ;
-	  Nbr_Entity = GeoElement->NbrEdges  ; Num_Entities = GeoElement->NumEdges ;
-	  break ;
-	}
-	for (i_Entity = 0; i_Entity < Nbr_Entity ; i_Entity++) {
-	  EdgeNN.NumEdge = abs(Num_Entities[i_Entity]) ;
-	  Num_Nodes = Geo_GetNodesOfEdgeInElement(GeoElement, i_Entity) ;
-	  EdgeNN.Node1 = GeoElement->NumNodes[abs(Num_Nodes[0])-1] ;
-	  EdgeNN.Node2 = GeoElement->NumNodes[abs(Num_Nodes[1])-1] ;
+		switch (Type_Entity) {
+		case EDGESOF :
+		  if (GeoElement->NbrEdges == 0)  
+			Geo_CreateEdgesOfElement(GeoElement) ;
+		  Nbr_Entity = GeoElement->NbrEdges  ; 
+		  Num_Entities = GeoElement->NumEdges ;
+		  break ;
+		}
+		for (i_Entity = 0; i_Entity < Nbr_Entity ; i_Entity++) {
+		  EdgeNN.NumEdge = abs(Num_Entities[i_Entity]) ;
+		  Num_Nodes = Geo_GetNodesOfEdgeInElement(GeoElement, i_Entity) ;
+		  EdgeNN.Node1 = GeoElement->NumNodes[abs(Num_Nodes[0])-1] ;
+		  EdgeNN.Node2 = GeoElement->NumNodes[abs(Num_Nodes[1])-1] ;
           double x1, y1, z1, x2, y2, z2;
           Geo_GetNodesCoordinates(1, &EdgeNN.Node1, &x1, &y1, &z1) ;
           Geo_GetNodesCoordinates(1, &EdgeNN.Node2, &x2, &y2, &z2) ;
@@ -515,8 +517,8 @@ void  Generate_ElementaryEntities_EdgeNN
           EdgeNN.y = 0.5 * (y1 + y2);
           EdgeNN.z = 0.5 * (z1 + z2);
           if (!Tree_Search(Entity_Tr, &EdgeNN))
-	    Tree_Add(Entity_Tr, &EdgeNN) ;
-	}
+			Tree_Add(Entity_Tr, &EdgeNN) ;
+		}
       }
     }
 
@@ -743,7 +745,8 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
   // Establish the list of slave nodes, i.e., nodes in 'Region'=ExtendedList_L 
   // excluding those in 'SubRegion'=ExtendedSuppList_L 
   // and accounting for a possible user-defined Filter.
-  // 'Function' is applied to the coordinates of the node before storing it in the list.
+  // 'Function' is applied to the coordinates of the node 
+  // before storing it in the list.
   Nbr_Entity = List_Nbr(ExtendedList_L) ;
   NodeXYZ_L = List_Create(Nbr_Entity, 1, sizeof(struct NodeXYZ)) ;
   for (i = 0 ; i < Nbr_Entity ; i++) {
@@ -756,15 +759,16 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
       Current.x = Value.Val[0] ;
       Current.y = Value.Val[1] ;
       Current.z = Value.Val[2] ;
-      if (Index_Filter < 0)  Flag_Filter = 1 ;
+      if (Index_Filter < 0)  
+		Flag_Filter = 1 ;
       else {
-	Get_ValueOfExpressionByIndex(Index_Filter, NULL, 0., 0., 0., &Value) ;
-	Flag_Filter = (int)Value.Val[0] ;
+		Get_ValueOfExpressionByIndex(Index_Filter, NULL, 0., 0., 0., &Value) ;
+		Flag_Filter = (int)Value.Val[0] ;
       }
 
       if (Flag_Filter) {
-	NodeXYZ.x = Current.x ; NodeXYZ.y = Current.y ; NodeXYZ.z = Current.z ;
-	List_Add(NodeXYZ_L, &NodeXYZ) ;
+		NodeXYZ.x = Current.x ; NodeXYZ.y = Current.y ; NodeXYZ.z = Current.z ;
+		List_Add(NodeXYZ_L, &NodeXYZ) ;
       }
     }
   }
@@ -774,7 +778,8 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
   // 'RegionRef'=RegionRef_P->InitialList 
   // excluding those in 'SubRegionRef'=SubRegionRef_P->InitialList 
   // and accounting for a possible user-defined Filter.
- // 'FunctionRef' is applied to the coordinates of the node before storing it in the list. 
+  // 'FunctionRef' is applied to the coordinates of the node 
+  // before storing it in the list. 
   Generate_ElementaryEntities
     (RegionRef_P->InitialList, &ExtendedListRef_L, NODESOF) ;
   if (SubRegionRef_P)
@@ -797,16 +802,18 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
         Current.y = Value.Val[1] ;
         Current.z = Value.Val[2] ;
       }
-      if (Index_Filter < 0)  Flag_Filter = 1 ;
+      if (Index_Filter < 0) 
+		Flag_Filter = 1 ;
       else {
-	Get_ValueOfExpressionByIndex(Index_Filter, NULL, 0., 0., 0., &Value) ;
-	Flag_Filter = (int)Value.Val[0] ;
+		Get_ValueOfExpressionByIndex(Index_Filter, NULL, 0., 0., 0., &Value) ;
+		Flag_Filter = (int)Value.Val[0] ;
       }
 
       if (Flag_Filter) {
-	NodeXYZRef.x = Current.x ; NodeXYZRef.y = Current.y ;
-	NodeXYZRef.z = Current.z ;
-	List_Add(NodeXYZRef_L, &NodeXYZRef) ;
+		NodeXYZRef.x = Current.x ; 
+		NodeXYZRef.y = Current.y ;
+		NodeXYZRef.z = Current.z ;
+		List_Add(NodeXYZRef_L, &NodeXYZRef) ;
       }
     }
   }
@@ -827,7 +834,7 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
   List_Copy(NodeXYZRef_L, tmp);
   List_Reset(NodeXYZRef_L);
   for(int i = 0; i < List_Nbr(tmp); i++){
-    rt.insert((struct NodeXYZ *)List_Pointer(tmp, i));
+    rt.insert((struct NodeXYZ *) List_Pointer(tmp, i));
   }
   for(int i = 0; i < List_Nbr(NodeXYZ_L); i++){
     struct NodeXYZ *n = (struct NodeXYZ *)List_Pointer(NodeXYZ_L, i);
@@ -853,8 +860,8 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
     List_Read(NodeXYZRef_L, i, &NodeXYZRef) ;
 
     if ((fabs(NodeXYZ.x - NodeXYZRef.x) > TOL) ||
-	(fabs(NodeXYZ.y - NodeXYZRef.y) > TOL) ||
-	(fabs(NodeXYZ.z - NodeXYZRef.z) > TOL)){
+		(fabs(NodeXYZ.y - NodeXYZRef.y) > TOL) ||
+		(fabs(NodeXYZ.z - NodeXYZRef.z) > TOL)){
       Message::Error("Constraint Link: bad correspondance of Nodes (%d, %d)"
                      " (%e %e %e), TOL=%g",
                      NodeXYZ.NumNode, NodeXYZRef.NumNode,
@@ -902,8 +909,11 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
 {
   Message::Info("====> Begin Link Edge") ;
 
-  // Slave edges from Group_P->InitialList excluding those in 
-  // Group_P->InitialSuppList. No Filter for edges.
+  // Fill ExtendedList_L with the barycenters of the edges 
+  // of all elements in Group_P->InitialList
+  // Fill ExtendedSuppList_L with the barycenters of the edges 
+  // of all elements in Group_P->InitialSuppList
+
   List_T  * ExtendedList_L, * ExtendedSuppList_L ;
   Generate_ElementaryEntities_EdgeNN
     (Group_P->InitialList, &ExtendedList_L, EDGESOF) ;
@@ -912,6 +922,14 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
       (Group_P->InitialSuppList, &ExtendedSuppList_L, EDGESOF) ;
   else
     ExtendedSuppList_L = NULL ;
+
+  // Add slave edges in the list EdgeNN_L
+  // from ExtendedList_L 
+  // excluding possibly those in ExtendedSuppList_L. 
+  // No Filter for edges.
+  // The function 'Function' is applied to the edge barycenter coordinates
+  // before storing it in the list.
+
   int Nbr_Entity = List_Nbr(ExtendedList_L) ;
   List_T *EdgeNN_L = List_Create(Nbr_Entity, 1, sizeof(struct EdgeNN)) ;
   for (int i = 0 ; i < Nbr_Entity ; i++) {
@@ -934,8 +952,12 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
   }
   Nbr_Entity = List_Nbr(EdgeNN_L) ;
 
-  // Master (ref) edges from RegionRef_P->InitialList excluding those in 
-  // SubRegionRef_P->InitialList
+
+  // Fill ExtendedListRef_L with the barycenters of the edges 
+  // of all elements in RegionRef_P->InitialList
+  // Fill ExtendedSuppListRef_L with the barycenters of the edges 
+  // of all elements in SubRegionRef_P->InitialList
+
   List_T  * ExtendedListRef_L, * ExtendedSuppListRef_L ;
   Generate_ElementaryEntities_EdgeNN
     (RegionRef_P->InitialList, &ExtendedListRef_L, EDGESOF) ;
@@ -944,6 +966,13 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
       (SubRegionRef_P->InitialList, &ExtendedSuppListRef_L, EDGESOF) ;
   else
     ExtendedSuppListRef_L = NULL ;
+
+  // Add master (ref) edges in the list EdgeNNRef_L
+  // from ExtendedListRef_L 
+  // excluding possibly those in ExtendedSuppListRef_L
+  // The function 'FunctionRef' is applied to the edge barycenter coordinates 
+  // before storing it in the list. 
+
   int Nbr_EntityRef = List_Nbr(ExtendedListRef_L) ;
   List_T *EdgeNNRef_L = List_Create(Nbr_EntityRef, 1, sizeof(struct EdgeNN)) ;
   for (int i = 0 ; i < Nbr_EntityRef ; i++) {
@@ -968,7 +997,7 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
   }
   Nbr_EntityRef = List_Nbr(EdgeNNRef_L) ;
 
-  // fill the rtree with the master (ref) edges
+  // fill the rtree 'rt' with the master (ref) edges
   double TOL = Current.GeoData->CharacteristicLength *
     Constraint_P->ConstraintPerRegion->Case.Link.ToleranceFactor ;
   EdgeNNRTree rt(TOL);
