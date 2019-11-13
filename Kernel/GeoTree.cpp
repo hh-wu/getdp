@@ -15,7 +15,7 @@ static int  Tree_IndexToChange, Tree_NewIndex ;
 /* ------------------------------------------------------------------------ */
 
 // FH
-#include <math.h>  
+#include <math.h>
 #include <iostream> // for debug
 #include "Get_Geometry.h"
 
@@ -27,7 +27,7 @@ void Geo_GenerateEdgesOfTreeByDimension(int dim, List_T * InitialList, List_T * 
 
 
 void Geo_GenerateEdgesOfTree(List_T * InitialList, List_T * InitialSuppList,
-                             List_T * InitialSuppList2,
+                             List_T * InitialSuppList2, int SuppListType2,
 			     List_T ** ExtendedList)
 {
   Tree_T  * EntitiesInTree_T ;
@@ -36,7 +36,7 @@ void Geo_GenerateEdgesOfTree(List_T * InitialList, List_T * InitialSuppList,
 
   EntitiesInTree_T = Tree_Create(2*sizeof(int), fcmp_int) ;
 
-  if (InitialSuppList != NULL) 
+  if (InitialSuppList != NULL)
 	Geo_GenerateTreeOnSlidingSurface(InitialSuppList, *ExtendedList, EntitiesInTree_T) ;
   if (InitialList != NULL){
 	Geo_GenerateEdgesOfTreeByDimension(1, InitialList, *ExtendedList, EntitiesInTree_T) ;
@@ -44,10 +44,12 @@ void Geo_GenerateEdgesOfTree(List_T * InitialList, List_T * InitialSuppList,
 	Geo_GenerateEdgesOfTreeByDimension(3, InitialList, *ExtendedList, EntitiesInTree_T) ;
   }
 
+  printf("got SuppListType2 = %d in tree code\n", SuppListType2);
+
   /*
   if (InitialSuppList2 != NULL)  // Line
     Geo_GenerateEdgesOfSubTree(InitialSuppList2, *ExtendedList, EntitiesInTree_T) ;
-  if (InitialSuppList != NULL)  // Surf 
+  if (InitialSuppList != NULL)  // Surf
     Geo_GenerateEdgesOfSubTree(InitialSuppList, *ExtendedList, EntitiesInTree_T) ;
   if (InitialList != NULL) // Vol
 	Geo_GenerateEdgesOfSubTree(NULL, *ExtendedList, EntitiesInTree_T) ;
@@ -168,7 +170,7 @@ void Geo_GenerateEdgesOfTreeByDimension(int dim, List_T * InitialList, List_T * 
 	  if(Dim_Element == dim ){
 		if (Geo_Element->NbrEdges == 0)  Geo_CreateEdgesOfElement(Geo_Element) ;
 		D_Element = Geo_GetIM_Den(Geo_Element->Type, &Nbr_Entities2) ;
-	  
+
 		for (i = 0 ; i < Geo_Element->NbrNodes ; i++) {
 		  Num_Entity1 = abs(Geo_Element->NumNodes[i]) ;
 		  EntitiesInTree_P[i] = (struct EntityInTree*)
@@ -203,13 +205,13 @@ void Geo_GenerateEdgesOfTreeByDimension(int dim, List_T * InitialList, List_T * 
 			  Flag_Change = 1 ;
 			}
 		  }
-		  
+
 		  if (Flag_Change) {
 			Num_Entity2 = abs(Geo_Element->NumEdges[i_Entity2]) ;
 			List_Add(ExtendedList, &Num_Entity2) ;
 		  }
 		}   /* for i_Entity2 ... */
-	  }   /* if (Dim) */  
+	  }   /* if (Dim) */
 	}   /* if Region ... */
   }   /* for i_Element ... */
 }
