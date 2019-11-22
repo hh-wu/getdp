@@ -16,11 +16,10 @@ static int  Tree_IndexToChange, Tree_NewIndex ;
 
 // FH
 #include <math.h>
-#include <iostream> // for debug
 #include "Get_Geometry.h"
 
 void Geo_GenerateTreeOnSlidingSurface(List_T * InitialList, List_T * ExtendedList,
-									Tree_T * EntitiesInTree_T);
+									  Tree_T * EntitiesInTree_T, int SuppListType2);
 void Geo_GenerateEdgesOfTreeByDimension(int dim, List_T * InitialList, List_T * ExtendedList,
 										Tree_T * EntitiesInTree_T);
 // FH
@@ -36,24 +35,15 @@ void Geo_GenerateEdgesOfTree(List_T * InitialList, List_T * InitialSuppList,
 
   EntitiesInTree_T = Tree_Create(2*sizeof(int), fcmp_int) ;
 
-  if (InitialSuppList != NULL)
-	Geo_GenerateTreeOnSlidingSurface(InitialSuppList, *ExtendedList, EntitiesInTree_T) ;
-  if (InitialList != NULL){
-	Geo_GenerateEdgesOfTreeByDimension(1, InitialList, *ExtendedList, EntitiesInTree_T) ;
-	Geo_GenerateEdgesOfTreeByDimension(2, InitialList, *ExtendedList, EntitiesInTree_T) ;
+  if (InitialSuppList2 != NULL) // SubRegion2
+	Geo_GenerateTreeOnSlidingSurface(InitialSuppList2, *ExtendedList, EntitiesInTree_T, SuppListType2) ;
+  if (InitialSuppList != NULL){ // SubRegion
+	Geo_GenerateEdgesOfTreeByDimension(1, InitialSuppList, *ExtendedList, EntitiesInTree_T) ;
+	Geo_GenerateEdgesOfTreeByDimension(2, InitialSuppList, *ExtendedList, EntitiesInTree_T) ;
+  }
+  if (InitialList != NULL){ // Region 
 	Geo_GenerateEdgesOfTreeByDimension(3, InitialList, *ExtendedList, EntitiesInTree_T) ;
   }
-
-  printf("got SuppListType2 = %d in tree code\n", SuppListType2);
-
-  /*
-  if (InitialSuppList2 != NULL)  // Line
-    Geo_GenerateEdgesOfSubTree(InitialSuppList2, *ExtendedList, EntitiesInTree_T) ;
-  if (InitialSuppList != NULL)  // Surf
-    Geo_GenerateEdgesOfSubTree(InitialSuppList, *ExtendedList, EntitiesInTree_T) ;
-  if (InitialList != NULL) // Vol
-	Geo_GenerateEdgesOfSubTree(NULL, *ExtendedList, EntitiesInTree_T) ;
-  */
 
   Tree_Delete(EntitiesInTree_T) ;
   List_Sort(*ExtendedList, fcmp_int) ;
@@ -89,6 +79,8 @@ void Geo_GenerateFacetsOfTree(List_T * InitialList, List_T * InitialSuppList,
 /*  G e o _ G e n e r a t e E d g e s O f S u b T r e e                     */
 /* ------------------------------------------------------------------------ */
 
+
+// FH: This routine is obsolete 
 void Geo_GenerateEdgesOfSubTree(List_T * InitialList, List_T * ExtendedList,
 				 Tree_T * EntitiesInTree_T)
 {
@@ -216,8 +208,30 @@ void Geo_GenerateEdgesOfTreeByDimension(int dim, List_T * InitialList, List_T * 
   }   /* for i_Element ... */
 }
 
+
+bool testEdgeAlignedWith(double *x, double *y, double *z, int *Entity_P, int SuppListType2){
+  bool aligned = false;
+  double tol = 1e-7;
+
+  switch (SuppListType2){
+  case -1: // aligned with Cartesian X direction
+	aligned = fabs(x[abs(Entity_P[0])-1] - x[abs(Entity_P[1])-1]) < tol;
+	break;
+  case -2: // aligned with Cartesian Y direction
+	aligned = fabs(y[abs(Entity_P[0])-1] - y[abs(Entity_P[1])-1]) < tol;
+	break;
+  case -3: // aligned with Cartesian Z direction
+	aligned = fabs(z[abs(Entity_P[0])-1] - z[abs(Entity_P[1])-1]) < tol;
+	break;
+  default:
+	printf("Unknown 'AlignedWith parameter' %d\n", SuppListType2);	
+  }
+  return aligned;
+}
+
+
 void Geo_GenerateTreeOnSlidingSurface(List_T * InitialList, List_T * ExtendedList,
-				 Tree_T * EntitiesInTree_T)
+									  Tree_T * EntitiesInTree_T, int SuppListType2)
 {
   int  Nbr_Element, Nbr_Edges, i_Element, i_Edge, Num_Edge ;
   struct Geo_Element  * Geo_Element ;
@@ -243,7 +257,7 @@ void Geo_GenerateTreeOnSlidingSurface(List_T * InitialList, List_T * ExtendedLis
 	  for (i_Edge = 0 ; i_Edge < Geo_Element->NbrEdges ; i_Edge++) {
 		Entity_P = D_Element + i_Edge * NBR_MAX_SUBENTITIES_IN_ELEMENT ;
 
-		if ( fabs(z[abs(Entity_P[0])-1] - z[abs(Entity_P[1])-1]) < 1e-7 ){
+		if ( testEdgeAlignedWith(x,y,z,Entity_P,SuppListType2) ){
 		  EntityInTree_S.Index = Geo_Element->Region;
 		  EntityInTree_S.Num = abs(Geo_Element->NumNodes[abs(Entity_P[0])-1]) ;
 	      Tree_Add(EntitiesInTree_T, &EntityInTree_S) ;
