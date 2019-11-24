@@ -546,7 +546,7 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
 
       std::vector<GEntity*> entities;
       m->getEntities(entities);
-      std::map<MVertex*, std::vector<double>, MVertexLessThanNum> newcoords;
+      std::map<MVertex*, std::vector<double>, MVertexPtrLessThan> newcoords;
       for(unsigned int i = 0; i < entities.size(); i++) {
         for(unsigned int j = 0; j < entities[i]->mesh_vertices.size(); j++) {
           MVertex* v = entities[i]->mesh_vertices[j];
@@ -558,7 +558,7 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
         }
       }
 
-      for(std::map<MVertex*, std::vector<double>, MVertexLessThanNum>::iterator
+      for(std::map<MVertex*, std::vector<double>, MVertexPtrLessThan>::iterator
             it = newcoords.begin(); it != newcoords.end(); it++) {
         it->first->x() = it->second[0];
         it->first->y() = it->second[1];

@@ -760,7 +760,7 @@ public:
   void sendInfo(const std::string &msg){ Msg::Info("%s", msg.c_str()); }
   void sendWarning(const std::string &msg){ Msg::Warning("%s", msg.c_str()); }
   void sendError(const std::string &msg){ Msg::Error("%s", msg.c_str()); }
-  void sendProgress(const std::string &msg){ Msg::ProgressMeter(0, 0, true, msg.c_str()); }
+  void sendProgress(const std::string &msg){ }
 #endif
 };
 
