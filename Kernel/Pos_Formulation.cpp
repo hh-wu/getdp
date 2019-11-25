@@ -443,7 +443,8 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
   // force Gmsh version 1 for anything else than OnElementsOf, or if we store in
   // memory (which requires old-style list ordering)
   int oldVersion = Flag_GMSH_VERSION;
-  if(PostSubOperation_P->SubType != PRINT_ONELEMENTSOF ||
+  if(PostSubOperation_P->Type != POP_PRINT ||
+     PostSubOperation_P->SubType != PRINT_ONELEMENTSOF ||
      PostSubOperation_P->Depth != 1 ||
      PostSubOperation_P->StoreInField >= 0)
     Flag_GMSH_VERSION = 1;
