@@ -112,6 +112,28 @@ void F_SetNumberRunTime (F_ARG)
   V->Val[0] = val ;
 }
 
+void F_SetNumberRunTimeWithChoices (F_ARG)
+{
+  double val = A->Val[0];
+  int type = A->Type;
+
+  for (int k = 0; k < Current.NbrHar; k++)
+    V->Val[MAX_DIM * k] = 0. ;
+  V->Type = SCALAR;
+  if(type != SCALAR){
+    Message::Error("Non scalar argument for function 'SetNumberRunTime'");
+    return;
+  }
+  if(!Fct->String){
+    Message::Error("Missing ONELAB variable name: use SetNumberRunTime[value]{\"name\"}");
+    return;
+  }
+
+  std::vector<double> v(1, val);
+  Message::AddOnelabNumberChoice(Fct->String, v);
+  V->Val[0] = val ;
+}
+
 void F_GetNumberRunTime (F_ARG)
 {
   if(Fct->NbrArguments){

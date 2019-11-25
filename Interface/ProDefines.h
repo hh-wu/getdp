@@ -1133,6 +1133,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"Memory"            , (CAST)F_GetMemory        ,   0,   0 },
   {"GetMemory"         , (CAST)F_GetMemory        ,   0,   0 },
   {"SetNumberRunTime"  , (CAST)F_SetNumberRunTime ,  -1,  -1 },
+  {"SetNumberRunTimeWithChoices"  , (CAST)F_SetNumberRunTimeWithChoices ,  -1,  -1 },
   {"GetNumberRunTime"  , (CAST)F_GetNumberRunTime ,  -1,  -1 },
   {"SetVariable"       , (CAST)F_SetVariable      ,  -1,  -1 },
   {"SetCumulativeVariable" , (CAST)F_SetCumulativeVariable ,  -1,  -1 },

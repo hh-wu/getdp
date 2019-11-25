@@ -215,6 +215,7 @@ void  F_GetCpuTime      (F_ARG) ;
 void  F_GetWallClockTime(F_ARG) ;
 void  F_GetMemory       (F_ARG) ;
 void  F_SetNumberRunTime(F_ARG) ;
+void  F_SetNumberRunTimeWithChoices(F_ARG) ;
 void  F_GetNumberRunTime(F_ARG) ;
 void  F_SetVariable     (F_ARG) ;
 void  F_SetCumulativeVariable (F_ARG) ;
