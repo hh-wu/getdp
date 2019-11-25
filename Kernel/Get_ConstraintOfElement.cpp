@@ -1346,6 +1346,8 @@ void Generate_LinkFacets(struct ConstraintInFS *Constraint_P,
   struct TwoIntOneDouble *TwoIntOneDouble3_P, TwoIntOneDouble;
 
   List_T *ExtendedList_L;
+  int tmp[3] ;
+  int n = sizeof(tmp)/sizeof(tmp[0]);
   // int  Save_Num1, Save_Num2, Save_Num3;
   int Flag_Filter;
 
@@ -1423,6 +1425,13 @@ void Generate_LinkFacets(struct ConstraintInFS *Constraint_P,
     List_Read(ExtendedList_L, i, &FacetNNN);
     if(!(ExtendedSuppListRef_L &&
          List_Search(ExtendedSuppListRef_L, &FacetNNN.NumFacet, fcmp_int))) {
+          tmp[0] = FacetNNN.Node1;
+          tmp[1] = FacetNNN.Node2;
+          tmp[2] = FacetNNN.Node3;
+          std::sort(tmp, tmp+n);
+          FacetNNN.Node1 = tmp[0];
+          FacetNNN.Node2 = tmp[1];
+          FacetNNN.Node3 = tmp[2];
       // FIXME TODO
       /*if (FacetNNN.Node3 < FacetNNN.Node2) {
          Save_Num1 = FacetNNN.Node3 ;
@@ -1529,6 +1538,13 @@ void Generate_LinkFacets(struct ConstraintInFS *Constraint_P,
     List_Read(ExtendedListRef_L, i, &FacetNNNRef.NumFacet);
     if(!(ExtendedSuppListRef_L &&
          List_Search(ExtendedSuppListRef_L, &FacetNNNRef.NumFacet, fcmp_int))) {
+          tmp[0] = FacetNNNRef.Node1;
+          tmp[1] = FacetNNNRef.Node2;
+          tmp[2] = FacetNNNRef.Node3;
+          std::sort(tmp, tmp+n);
+          FacetNNNRef.Node1 = tmp[0];
+          FacetNNNRef.Node2 = tmp[1];
+          FacetNNNRef.Node3 = tmp[2];
       // FIXME TODO
       /*if (FacetNNNRef.Node3 < FacetNNNRef.Node2) {
          Save_Num1 = FacetNNNRef.Node3 ;
