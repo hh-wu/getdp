@@ -632,6 +632,10 @@ SuppListOfRegion :
 
   | SuppListOfRegion Comma tAlignedWith tSTRING
     {
+      // This is a bit of a hack, due to the fact the groups needed for trees
+      // with autosimilarity constraints are constructed in the parser when
+      // analysing the Constraint field. Since we cannot "just create a group",
+      // we use the SyppList type to encode the AlignedWith parameter.
       if (nb_SuppList+1 <= 2) {
         if(!strcmp($4, "Z")) {
           Type_SuppLists[nb_SuppList] = -3;
@@ -3061,6 +3065,7 @@ ConstraintInFSs :
 			    ConstraintPerRegion_P->SubRegion2Index))
 	      ->InitialList : NULL;
 
+            // this is the hack :-)
             if(ConstraintPerRegion_P->SubRegion2Index >= 0) {
               Group_S.SuppListType2 =
                 ((struct Group *)
