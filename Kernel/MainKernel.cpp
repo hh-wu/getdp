@@ -499,6 +499,8 @@ public:
       Message::Error("%s", msg.c_str());
     else if(level == "Warning")
       Message::Warning("%s", msg.c_str());
+    else if(level == "Progress"){
+    }
     else
       Message::Info("%s", msg.c_str());
   }
