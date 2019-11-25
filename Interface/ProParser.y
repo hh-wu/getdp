@@ -69,7 +69,7 @@ static List_T *Current_WholeQuantity_L = 0;
 static List_T *Current_System_L = 0;
 static int Num_BasisFunction = 1;
 static int FlagError = 0;
-static int Type_TermOperator = 0, Type_Function = 0, Type_SuppList = 0, Type_SuppList2 = 0;
+static int Type_TermOperator = 0, Type_Function = 0, Type_SuppList = 0;
 static int nb_SuppList, Type_SuppLists[2];
 static List_T *ListsOfRegion[2];
 static int Quantity_TypeOperator = 0, Quantity_Index = 0;
@@ -265,7 +265,7 @@ struct doubleXstring{
 
 %token  tAppend
 
-%token  tGroup tDefineGroup tAll tInSupport tMovingBand2D
+%token  tGroup tDefineGroup tAll tInSupport tMovingBand2D tAlignedWith
 
 %token  tDefineFunction tUndefineFunction
 
@@ -629,7 +629,28 @@ SuppListOfRegion :
       else
         vyyerror(0, "More than 2 supplementary lists of Regions not allowed");
     }
- ;
+
+  | SuppListOfRegion Comma tAlignedWith tSTRING
+    {
+      // This is a bit of a hack, due to the fact the groups needed for trees
+      // with autosimilarity constraints are constructed in the parser when
+      // analysing the Constraint field. Since we cannot "just create a group",
+      // we use the SyppList type to encode the AlignedWith parameter.
+      if (nb_SuppList+1 <= 2) {
+        if(!strcmp($4, "Z")) {
+          Type_SuppLists[nb_SuppList] = -3;
+        }
+        else{
+          vyyerror(0, "Unknown AlignedWith parameter: %s", $4);
+          Type_SuppLists[nb_SuppList] = SUPPLIST_NONE;
+        }
+        ListsOfRegion[nb_SuppList] = NULL;
+        nb_SuppList++;
+      }
+      else
+        vyyerror(0, "More than 2 supplementary lists not allowed");
+    }
+;
 
 SuppListTypeForGroup :
 
@@ -3003,7 +3024,16 @@ ConstraintInFSs :
     {
       Group_S.FunctionType = Type_Function;
       Group_S.SuppListType = Type_SuppList;
-      Group_S.SuppListType2 = Type_SuppList2;
+
+      /* If a SubRegion2 is specified, the following will be overwritten by the
+         SuppListType of the corresponding region. This is used for constraints
+         of type Assign, with EntityType EdgesOfTreeIn and EntitySubType
+         StartingOn, and with a SubRegion2 defining an autosimilar region with a
+         SuppListType encoding the autosimilar direction. When creating the
+         group here, we will store the SuppListType into the group's
+         SuppListType2 */
+      Group_S.SuppListType2 = Type_SuppList;
+
       switch (Group_S.FunctionType) {
       case ELEMENTSOF :  Group_S.Type = ELEMENTLIST;  break;
       default :          Group_S.Type = REGIONLIST ;  break;
@@ -3034,7 +3064,17 @@ ConstraintInFSs :
 	       List_Pointer(Problem_S.Group,
 			    ConstraintPerRegion_P->SubRegion2Index))
 	      ->InitialList : NULL;
-	    ConstraintInFS_S.EntityIndex = Add_Group(&Group_S, (char*)"CO_Entity",
+
+            // this is the hack :-)
+            if(ConstraintPerRegion_P->SubRegion2Index >= 0) {
+              Group_S.SuppListType2 =
+                ((struct Group *)
+                 List_Pointer(Problem_S.Group,
+                              ConstraintPerRegion_P->SubRegion2Index))
+                ->SuppListType;
+            }
+
+            ConstraintInFS_S.EntityIndex = Add_Group(&Group_S, (char*)"CO_Entity",
                                                      0, 1, 0);
 	    ConstraintInFS_S.ConstraintPerRegion = ConstraintPerRegion_P;
 
@@ -3111,7 +3151,7 @@ ConstraintInFSTerm :
     }
 
   | tEntitySubType SuppListTypeForGroup tEND
-    { Type_SuppList = $2; Type_SuppList2 = $2; }
+    { Type_SuppList = $2; }
 
   | tNameOfConstraint String__Index tEND
     {

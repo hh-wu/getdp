@@ -87,6 +87,7 @@ AddCorrection                return tAddCorrection ;
 AddMHMoving                  return tAddMHMoving;
 AddOppositeFullSolution      return tAddOppositeFullSolution ;
 AddVector                    return tAddVector;
+AlignedWith                  return tAlignedWith;
 All                          return tAll;
 Append                       return tAppend;
 AppendTimeStepToFileName     return tAppendTimeStepToFileName;

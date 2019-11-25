@@ -98,16 +98,11 @@ void  Geo_CreateEntitiesOfElement
 
 
 void  Geo_GenerateEdgesOfTree(List_T * InitialList, List_T * InitialSuppList,
-                              List_T * InitialSuppList2,
+                              List_T * InitialSuppList2, int SuppListType2,
 			      List_T ** ExtendedList) ;
 void  Geo_GenerateFacetsOfTree(List_T * InitialList, List_T * InitialSuppList,
                                List_T * InitialSuppList2,
 			       List_T ** ExtendedList) ;
-void  Geo_GenerateEdgesOfSubTree(List_T * InitialList, List_T * ExtendedList,
-				 Tree_T * EntitiesInTree_T) ;
-void  Geo_GenerateFacetsOfSubTree(List_T * InitialList, List_T * ExtendedList,
-				  Tree_T * EntitiesInTree_T) ;
-void  Geo_ChangeTreeIndex(void * a, void * b) ;
 
 int  fcmp_GeoData_Name(const void * a, const void * b) ;
 int  fcmp_Elm(const void * a, const void * b) ;
