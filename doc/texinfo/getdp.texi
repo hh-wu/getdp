@@ -4037,6 +4037,14 @@ size).
 Sets the @var{char-expression} ONELAB variable at run-time to
 @var{expression}.
 
+@item SetNumberRunTimeWithChoices
+@code{[@var{expression}]@{@var{char-expression}@}}
+
+Same as @code{SetNumberRunTime}, but adds the value to the choices of
+the ONELAB variable (i.e. in the same way as @code{SendToServer} in
+@code{PostOperation}, which are used for plotting the history of the
+variable).
+
 @item GetNumberRunTime
 @code{[ <@var{expression}> ]@{@var{char-expression}@}}
 
