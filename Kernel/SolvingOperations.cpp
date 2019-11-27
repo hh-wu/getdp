@@ -2523,24 +2523,27 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
     case OPERATION_GMSHREAD :
 #if defined(HAVE_GMSH)
-      if(Operation_P->Case.GmshRead.ViewTag >= 0){
-        PView::setGlobalTag(Operation_P->Case.GmshRead.ViewTag);
-        Message::Info("GmshRead[%s] -> View[%d]", Operation_P->Case.GmshRead.FileName,
-                      Operation_P->Case.GmshRead.ViewTag);
-      }
-      else if(Operation_P->Case.GmshRead.RunTimeVar){
+      if(Operation_P->Case.GmshRead.RunTimeVar){
         // FIXME: well, this is reaaally ugly and unsafe - we should sanitize
         // the string and verify that it contains a valid format specification :-)
         struct Value val;
         Cal_GetValueSaved(&val, Operation_P->Case.GmshRead.RunTimeVar);
         char tmp[256];
         sprintf(tmp, Operation_P->Case.GmshRead.FileName, val.Val[0]);
-        Message::Info("GmshRead[%s]", Operation_P->Case.GmshRead.FileName);
+        Message::Info("GmshRead[%s]", tmp);
+        GmshMergePostProcessingFile(tmp);
       }
       else{
-        Message::Info("GmshRead[%s]", Operation_P->Case.GmshRead.FileName);
+        if(Operation_P->Case.GmshRead.ViewTag >= 0){
+          PView::setGlobalTag(Operation_P->Case.GmshRead.ViewTag);
+          Message::Info("GmshRead[%s] -> View[%d]", Operation_P->Case.GmshRead.FileName,
+                        Operation_P->Case.GmshRead.ViewTag);
+        }
+        else {
+          Message::Info("GmshRead[%s]", Operation_P->Case.GmshRead.FileName);
+        }
+        GmshMergePostProcessingFile(Operation_P->Case.GmshRead.FileName);
       }
-      GmshMergePostProcessingFile(Operation_P->Case.GmshRead.FileName);
 #else
       Message::Error("You need to compile GetDP with Gmsh support to use 'GmshRead'");
 #endif

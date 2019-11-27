@@ -5102,7 +5102,7 @@ retrieve the given field with the built-in @code{Field[]},
 @code{[@var{expression-char}, @code{$}@var{string}]}
 
 Same as the @code{GmshRead}, but evaluates @var{expression-char} by
-replacing a double precision format specifier with the value the runtime
+replacing a double precision format specifier with the value of the runtime
 variable @code{$}@var{string}.
 
 @item GmshWrite
