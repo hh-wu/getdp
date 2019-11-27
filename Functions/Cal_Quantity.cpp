@@ -469,6 +469,7 @@ void Cal_WholeQuantity(struct Element * Element,
 	  ntime = (int)Stack[0][Index].Val[0] ;
 
 	  for (k = 0 ; k < Current.NbrSystem ; k++){
+            if(!List_Nbr((Current.DofData_P0+k)->Solutions)) continue;
 	    Solution_P0 = (struct Solution*)List_Pointer((Current.DofData_P0+k)->Solutions, 0);
 	    if(((Current.DofData_P0+k)->CurrentSolution - Solution_P0) >= ntime){
 	      ((Current.DofData_P0+k)->CurrentSolution) -= ntime ;
@@ -507,6 +508,7 @@ void Cal_WholeQuantity(struct Element * Element,
 	  Index++ ;
 
 	  for (k = 0 ; k < Current.NbrSystem ; k++){
+            if(!List_Nbr((Current.DofData_P0+k)->Solutions)) continue;
 	    Solution_PN = (struct Solution*)
 	      List_Pointer((Current.DofData_P0+k)->Solutions,
 			   List_Nbr((Current.DofData_P0+k)->Solutions)-1);
