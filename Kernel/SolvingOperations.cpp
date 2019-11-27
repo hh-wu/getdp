@@ -2528,6 +2528,15 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         Message::Info("GmshRead[%s] -> View[%d]", Operation_P->Case.GmshRead.FileName,
                       Operation_P->Case.GmshRead.ViewTag);
       }
+      else if(Operation_P->Case.GmshRead.RunTimeVar){
+        // FIXME: well, this is reaaally ugly and unsafe - we should sanitize
+        // the string and verify that it contains a valid format specification :-)
+        struct Value val;
+        Cal_GetValueSaved(&val, Operation_P->Case.GmshRead.RunTimeVar);
+        char tmp[256];
+        sprintf(tmp, Operation_P->Case.GmshRead.FileName, val.Val[0]);
+        Message::Info("GmshRead[%s]", Operation_P->Case.GmshRead.FileName);
+      }
       else{
         Message::Info("GmshRead[%s]", Operation_P->Case.GmshRead.FileName);
       }
@@ -3041,7 +3050,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
             values.erase(s);
           }
           else
-            Message::Info("ClearVariables: Unknown Run-time Variable %s", s);  
+            Message::Info("ClearVariables: Unknown Run-time Variable %s", s);
         }
       }
     }
