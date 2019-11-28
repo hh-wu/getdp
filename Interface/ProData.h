@@ -959,7 +959,7 @@ struct Operation {
       char *String;
     } Error;
     struct {
-      char *FileName;
+      char *FileName, *RunTimeVar;
       int ViewTag;
     } GmshRead;
     struct {

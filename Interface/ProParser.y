@@ -5594,6 +5594,7 @@ OperationTerm :
       Operation_P->Type = $1;
       Operation_P->Case.GmshRead.FileName = strSave(Fix_RelativePath($3).c_str());
       Operation_P->Case.GmshRead.ViewTag = -1;
+      Operation_P->Case.GmshRead.RunTimeVar = NULL;
       Free($3);
     }
 
@@ -5604,6 +5605,18 @@ OperationTerm :
       Operation_P->Type = $1;
       Operation_P->Case.GmshRead.FileName = strSave(Fix_RelativePath($3).c_str());
       Operation_P->Case.GmshRead.ViewTag = (int)$5;
+      Operation_P->Case.GmshRead.RunTimeVar = NULL;
+      Free($3);
+    }
+
+  | GmshOperation '[' CharExpr ',' '$' String__Index ']' tEND
+    {
+      Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = $1;
+      Operation_P->Case.GmshRead.FileName = strSave(Fix_RelativePath($3).c_str());
+      Operation_P->Case.GmshRead.ViewTag = -1;
+      Operation_P->Case.GmshRead.RunTimeVar = $6;
       Free($3);
     }
 

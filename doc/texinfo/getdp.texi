@@ -5098,6 +5098,13 @@ retrieve the given field with the built-in @code{Field[]},
 @code{ScalarField[]}, @code{VectorField[]}, etc., functions
 (@pxref{Miscellaneous functions}).
 
+@item GmshRead
+@code{[@var{expression-char}, @code{$}@var{string}]}
+
+Same as the @code{GmshRead}, but evaluates @var{expression-char} by
+replacing a double precision format specifier with the value of the runtime
+variable @code{$}@var{string}.
+
 @item GmshWrite
 @code{[@var{expression-char}, @var{expression-cst}]}
 
