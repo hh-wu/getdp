@@ -884,22 +884,22 @@ void Message::AddOnelabStringChoice(std::string name, std::string kind,
   }
 }
 
-void Message::SetOnelabNumber(std::string name, double val, bool visible)
+void Message::SetOnelabNumber(std::string name, double val)
 {
   if(_onelabClient){
     std::vector<onelab::number> numbers;
+    // get if first so we can keep its options
     _onelabClient->get(numbers, name);
     if(numbers.empty()){
       numbers.resize(1);
       numbers[0].setName(name);
     }
     numbers[0].setValue(val);
-    numbers[0].setVisible(visible);
     _onelabClient->set(numbers[0]);
   }
 }
 
-void Message::SetOnelabString(std::string name, std::string val, bool visible)
+void Message::SetOnelabString(std::string name, std::string val)
 {
   if(_onelabClient){
     std::vector<onelab::string> strings;
@@ -909,7 +909,6 @@ void Message::SetOnelabString(std::string name, std::string val, bool visible)
       strings[0].setName(name);
     }
     strings[0].setValue(val);
-    strings[0].setVisible(visible);
     _onelabClient->set(strings[0]);
   }
 }
