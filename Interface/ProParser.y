@@ -257,7 +257,7 @@ struct doubleXstring{
 %token  tCurrentDirectory tAbsolutePath tDirName tBaseFileName tCurrentFileName
 %token  tGETDP_MAJOR_VERSION tGETDP_MINOR_VERSION tGETDP_PATCH_VERSION
 
-%token  tExp tLog tLog10 tSqrt tSin tAsin tCos tAcos tTan
+%token  tExp tLog tLog10 tSqrt tSin tAsin tCos tAcos tTan tMin tMax
 %token    tAtan tAtan2 tSinh tCosh tTanh tAtanh tFabs tFloor tCeil tRound tSign
 %token    tFmod tModulo tHypot tRand
 %token    tSolidAngle tTrace tOrder tCrossProduct tDofValue tRational
@@ -8842,6 +8842,16 @@ FloatParameterOption :
       List_Delete($2);
     }
 
+  | tMin FExpr
+    {
+      floatOptions["Min"].push_back($2);
+    }
+
+  | tMax FExpr
+    {
+      floatOptions["Max"].push_back($2);
+    }
+
   | tSTRING
     {
       std::string key($1);
@@ -9138,6 +9148,8 @@ NameForMathFunction :
   | tModulo  { $$ = (char*)"Modulo"; }
   | tHypot   { $$ = (char*)"Hypot";  }
   | tRand    { $$ = (char*)"Rand";   }
+  | tMin     { $$ = (char*)"Min";    }
+  | tMax     { $$ = (char*)"Max";    }
  ;
 
 NameForFunction :
@@ -9192,6 +9204,8 @@ FExpr :
   | tModulo '[' FExpr ',' FExpr ']'  { $$ = fmod($3,$5);  }
   | tHypot  '[' FExpr ',' FExpr ']'  { $$ = sqrt($3*$3+$5*$5);  }
   | tRand   '[' FExpr ']'  { $$ = $3 * (double)rand() / (double)RAND_MAX;  }
+  | tMax    '[' FExpr ',' FExpr ']'  { $$ = std::max($3, $5); }
+  | tMin    '[' FExpr ',' FExpr ']'  { $$ = std::min($3, $5); }
 
   | FExpr '?' FExpr tDOTS FExpr      { $$ = $1? $3 : $5; }
 

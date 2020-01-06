@@ -1,5 +1,9 @@
-3.3.0 (Work in progress): improved support for curved elements; added support
-for auto-similar trees of edges (e.g. for sliding surfaces in 3D).
+3.3.1 (Work-in-progress): new Min and Max functions on constants (at parse
+time).
+
+3.3.0 (December 21, 2019): improved support for curved elements; added support
+for auto-similar trees of edges (e.g. for sliding surfaces in 3D); update for
+latest Gmsh version.
 
 3.2.0 (July 1, 2019): improved node and edge link constraints search using
 rtree; added support for BF_Edge basis functions on curved elements; small

@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2019 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2020 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
@@ -236,8 +236,8 @@ void MH_Get_InitData(int Case, int NbrPoints, int *NbrPointsX_P,
 
 
   if (Case == 2) {
-    if(Current.DofData->Flag_Init[0] < 2)
-      Message::Error("Jacobian system not initialized (missing GenerateJac?)");
+    //if(Current.DofData->Flag_Init[0] < 2)
+    //  Message::Error("Jacobian system not initialized (missing GenerateJac?)");
 
     HH = (double ***)Malloc(sizeof(double **)*NbrPointsX) ;
     for (iTime = 0 ; iTime < NbrPointsX ; iTime++){
@@ -660,10 +660,16 @@ void  Cal_GalerkinTermOfFemEquation_MHBilinear(struct Element          * Element
 
     Current.NbrHar = 1;  /* evaluation in time domain */
 
+    int saveTime = Current.Time;
+    int saveTimeStep = Current.TimeStep;
+
     std::vector<struct Value> t_Values(N + 1); // in case N==0
 
     // time integration over fundamental period
     for (iTime = 0 ; iTime < NbrPointsX ; iTime++) {
+
+      Current.TimeStep = iTime;
+      Current.Time = iTime * 2. * M_PI / (double)NbrPointsX;
 
       t_Values[0].Type = Type1 ;
       for (iVal1 = 0 ; iVal1 < nVal1 ; iVal1++){
@@ -703,6 +709,9 @@ void  Cal_GalerkinTermOfFemEquation_MHBilinear(struct Element          * Element
 	}
 
     } /* for iTime ... */
+
+    Current.TimeStep = saveTimeStep;
+    Current.Time = saveTime;
 
     for (iDof = 0 ; iDof < Nbr_Dof ; iDof++)
       for (jDof = 0 ; jDof <= iDof ; jDof++)

@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2019 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2020 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
@@ -56,7 +56,7 @@
 #define MAX_STACK_SIZE0     8
 #define MAX_STACK_SIZE     20
 #elif defined(HAVE_MULTIHARMONIC)
-#define NBR_MAX_HARMONIC   40
+#define NBR_MAX_HARMONIC   200
 #define MAX_STACK_SIZE0     2
 #define MAX_STACK_SIZE     40
 #else
