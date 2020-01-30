@@ -727,7 +727,8 @@ void  Cal_GalerkinTermOfFemEquation_MHBilinear(struct Element          * Element
 
   }  /* for i_IntPoint ... */
 
-  /* dummy terms for sinus-term of dc-component */
+  /* set imaginary part = to real part for 0th harmonic; this replaces the dummy
+     regularization that we did before (see below, "dummy 1's on the diagonal...") */
   if(ZeroHarmonic){
     for (iDof = 0 ; iDof < Nbr_Dof ; iDof++){
       for (jDof = 0 ; jDof < Nbr_Dof ; jDof++){
@@ -735,7 +736,6 @@ void  Cal_GalerkinTermOfFemEquation_MHBilinear(struct Element          * Element
       }
     }
   }
-
 
   /*  --------------------------------------------------------------------  */
   /*  A d d   c o n t r i b u t i o n   t o  J a c o b i a n   M a t r i x  */
