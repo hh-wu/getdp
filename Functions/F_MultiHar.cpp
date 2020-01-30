@@ -727,6 +727,15 @@ void  Cal_GalerkinTermOfFemEquation_MHBilinear(struct Element          * Element
 
   }  /* for i_IntPoint ... */
 
+  /* set imaginary part = to real part for 0th harmonic; this replaces the dummy
+     regularization that we did before (see below, "dummy 1's on the diagonal...") */
+  if(ZeroHarmonic){
+    for (iDof = 0 ; iDof < Nbr_Dof ; iDof++){
+      for (jDof = 0 ; jDof < Nbr_Dof ; jDof++){
+        E_MH[iDof][jDof][1][1] = E_MH[iDof][jDof][0][0];
+      }
+    }
+  }
 
   /*  --------------------------------------------------------------------  */
   /*  A d d   c o n t r i b u t i o n   t o  J a c o b i a n   M a t r i x  */
@@ -768,7 +777,7 @@ void  Cal_GalerkinTermOfFemEquation_MHBilinear(struct Element          * Element
   }
 
   /* dummy 1's on the diagonal for sinus-term of dc-component */
-
+  /*
   if (ZeroHarmonic) {
     for (iDof = 0 ; iDof < Nbr_Dof ; iDof++){
       Dofi = QuantityStorage_P->BasisFunction[iDof].Dof + ZeroHarmonic ;
@@ -778,6 +787,8 @@ void  Cal_GalerkinTermOfFemEquation_MHBilinear(struct Element          * Element
       Dof_AssembleInMat(Dofi, Dofi, 1, &one, matrix, rhs) ;
     }
   }
+  */
+
 }
 
 #undef OFFSET
