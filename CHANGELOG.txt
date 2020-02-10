@@ -1,5 +1,5 @@
 3.3.1 (Work-in-progress): new Min and Max functions on constants (at parse
-time).
+time); fixed regression in trees of edges in 2D.
 
 3.3.0 (December 21, 2019): improved support for curved elements; added support
 for auto-similar trees of edges (e.g. for sliding surfaces in 3D); update for

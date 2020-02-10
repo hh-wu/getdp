@@ -106,7 +106,7 @@ static void Geo_GenerateEdgesOfTreeByDimension(int dim, List_T *InitialList,
 
     if(List_Search(InitialList, &Geo_Element->Region, fcmp_int)) {
       Get_JacobianFunction(JACOBIAN_VOL, Geo_Element->Type, &Dim_Element);
-      if(Dim_Element == dim) {
+      if(dim < 0 || Dim_Element == dim) {
         if(Geo_Element->NbrEdges == 0) Geo_CreateEdgesOfElement(Geo_Element);
         D_Element = Geo_GetIM_Den(Geo_Element->Type, &Nbr_Entities2);
 
@@ -175,7 +175,7 @@ void Geo_GenerateEdgesOfTree(List_T *InitialList, List_T *InitialSuppList,
                                        EntitiesInTree_T);
   }
   if(InitialList != NULL) { // Region
-    Geo_GenerateEdgesOfTreeByDimension(3, InitialList, *ExtendedList,
+    Geo_GenerateEdgesOfTreeByDimension(-1, InitialList, *ExtendedList,
                                        EntitiesInTree_T);
   }
 

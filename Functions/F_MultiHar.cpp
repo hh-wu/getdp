@@ -482,7 +482,7 @@ void  Cal_GalerkinTermOfFemEquation_MHBilinear(struct Element          * Element
   struct Expression * Expression_P;
   struct Dof * Dofi, *Dofj;
 
-  double one=1.0 ;
+  // double one = 1.0 ;
   int iPul, ZeroHarmonic, DcHarmonic;
   double E_D[NBR_MAX_HARMONIC][NBR_MAX_HARMONIC][MAX_DIM];
 
