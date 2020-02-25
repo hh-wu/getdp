@@ -46,9 +46,9 @@ int Check_IsEntityInExtendedGroup(struct Group * Group_P, int Entity, int Flag)
       Generate_ExtendedGroup(Group_P) ;
     return((!Group_P->InitialList ||
 	    (List_Search(Group_P->ExtendedList, &Entity, fcmp_int))) &&
-           // assumes that SuppListType is SUPPLIST_NOT:
 	   (!Group_P->InitialSuppList ||
-	    (! List_Search(Group_P->ExtendedSuppList, &Entity, fcmp_int)))) ;
+	    (Group_P->SuppListType == SUPPLIST_NOT &&
+             !List_Search(Group_P->ExtendedSuppList, &Entity, fcmp_int)))) ;
 
   case ELEMENTSOF :  case EDGESOFTREEIN :  case FACETSOFTREEIN :
     if (!Group_P->ExtendedList) Generate_ExtendedGroup(Group_P) ;
@@ -84,10 +84,25 @@ void Generate_ExtendedGroup(struct Group * Group_P)
 
   case NODESOF :  case EDGESOF :  case FACETSOF :  case VOLUMESOF :
   case GROUPOFREGIONSOF :
-    Generate_ElementaryEntities(Group_P->InitialList,
-				&Group_P->ExtendedList, Group_P->FunctionType) ;
-    Generate_ElementaryEntities(Group_P->InitialSuppList,
-				&Group_P->ExtendedSuppList, Group_P->FunctionType) ;
+    if(Group_P->FunctionType == EDGESOF &&
+       Group_P->SuppListType == SUPPLIST_CONNECTEDTO) {
+      Generate_ElementaryEntities(Group_P->InitialSuppList,
+                                  &Group_P->ExtendedSuppList, NODESOF) ;
+      Generate_EdgesConnectedToNodesOf(Group_P->InitialList,
+                                       Group_P->ExtendedSuppList,
+                                       &Group_P->ExtendedList) ;
+    }
+    else {
+      Generate_ElementaryEntities(Group_P->InitialList,
+                                  &Group_P->ExtendedList, Group_P->FunctionType) ;
+      if(Group_P->SuppListType == SUPPLIST_NOT) {
+        Generate_ElementaryEntities(Group_P->InitialSuppList,
+                                    &Group_P->ExtendedSuppList, Group_P->FunctionType) ;
+      }
+      else if(Group_P->SuppListType != SUPPLIST_NONE){
+        Message::Warning("Unhandled group modifier");
+      }
+    }
     break ;
 
   case GROUPSOFEDGESONNODESOF :
@@ -478,6 +493,35 @@ void Generate_GroupsOfFacets(List_T * InitialList,
     Message::Info(" (%d, %d)", Num_GroupOfFacets.Int1, Num_GroupOfFacets.Int2) ;
   }
   */
+}
+
+/* ------------------------------------------------------------------------ */
+/*  G e n e r a t e _ E d g e s C o n n e c t e d T o N o d e s O f         */
+/* ------------------------------------------------------------------------ */
+
+void Generate_EdgesConnectedToNodesOf(List_T *InitialList,
+                                      List_T *NodeList,
+                                      List_T **ExtendedList)
+{
+  Tree_T *Entity_Tr = Tree_Create(sizeof(int), fcmp_int) ;
+  int Nbr_Element = Geo_GetNbrGeoElements();
+  for(int i_Element = 0; i_Element < Nbr_Element; i_Element++) {
+    struct Geo_Element *Geo_Element = Geo_GetGeoElement(i_Element);
+    if(List_Search(InitialList, &Geo_Element->Region, fcmp_int)) {
+      if (Geo_Element->NbrEdges == 0)  Geo_CreateEdgesOfElement(Geo_Element) ;
+      for (int i_Entity = 0 ; i_Entity < Geo_Element->NbrEdges ; i_Entity++) {
+        int *Num_Nodes = Geo_GetNodesOfEdgeInElement(Geo_Element, i_Entity) ;
+        int N1 = Geo_Element->NumNodes[abs(Num_Nodes[0]) - 1];
+        int N2 = Geo_Element->NumNodes[abs(Num_Nodes[1]) - 1];
+        if(List_Search(NodeList, &N1, fcmp_absint) ||
+           List_Search(NodeList, &N2, fcmp_absint)) {
+          Tree_Add(Entity_Tr, &Geo_Element->NumEdges[i_Entity]);
+        }
+      }
+    }
+  }
+  *ExtendedList = Tree2List(Entity_Tr) ;
+  Tree_Delete(Entity_Tr) ;
 }
 
 /* ------------------------------------------------------------------------ */
