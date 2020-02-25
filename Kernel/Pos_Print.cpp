@@ -1332,10 +1332,26 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 
   if (CPQ_P) {
     PQ_P = CPQ_P ;
-    Support_L = /* for e.g. PQ[ Support ] ... */
-      ((struct Group *)
-       List_Pointer(Problem_S.Group,
-		    PSO_P->PostQuantitySupport[Order]))->InitialList ;
+    Group *g = (struct Group *)List_Pointer(Problem_S.Group, PSO_P->PostQuantitySupport[Order]);
+    printf("AHAHAHA support = %s (typ=%d, functiontyp=%d, supplisttyp=%d, supplisttype2=%d)\n", g->Name,
+           g->Type, g->FunctionType, g->SuppListType, g->SuppListType2);
+
+    if(g->SuppListType != SUPPLIST_NONE)
+      Message::Warning("Ignoring SuppList of %s in post-processing evaluation", g->Name);
+
+    //if (!g->ExtendedList)  Generate_ExtendedGroup(g) ;
+    //printf("#extendedlist=%d #extendedsupplist=%d\n", List_Nbr(g->ExtendedList), List_Nbr(g->ExtendedSuppList));
+
+    // FIXME: CHANGE THIS !
+    //
+    // This is a bad indea: we directly give a list of regions; but in some
+    // cases we would like to integrate on e.g. ElementsOf[ region, OnOneSideOf
+    // ], for which we need the explicit ExtendedGroup, i.e. the list of
+    // elements!
+    //
+    // --> pass the group to Cal_PostQuantity, and not its InitialSuport, so
+    // that we can make the appropriate tests in there
+    Support_L = g->InitialList ; // for e.g. PQ[ Support ]
   }
   else {
     PQ_P = NCPQ_P ;  Support_L = NULL ;
@@ -1439,6 +1455,8 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
       Element.Type = -1 ;
       Current.Region = Element.Region = Num_Region ;
       Current.x = Current.y = Current.z = 0. ;
+
+      printf("SUPPORT = %p\n", Support_L);
 
       if (Type_Evaluation == GLOBAL) {
 	Cal_PostQuantity(PQ_P, DefineQuantity_P0, QuantityStorage_P0,
