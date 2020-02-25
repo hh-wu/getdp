@@ -356,6 +356,10 @@ void Cal_PostQuantity(struct PostQuantity    *PostQuantity_P,
 {
   struct PostQuantityTerm  PostQuantityTerm ;
 
+  // InRegion_L is the region (group) on which the quantity in the
+  // PostProcessing section is defined (so it's actually a "support"...)
+
+
   List_T   *InRegion_L ;
   int       i_PQT, Type_Quantity, Type_InRegion ;
   struct Group * Group_P ;/* For generating extended group */
