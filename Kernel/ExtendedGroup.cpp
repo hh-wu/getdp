@@ -99,7 +99,8 @@ void Generate_ExtendedGroup(struct Group * Group_P)
                                   &Group_P->ExtendedList, Group_P->FunctionType) ;
       Generate_ElementaryEntities(Group_P->InitialSuppList,
                                   &Group_P->ExtendedSuppList, Group_P->FunctionType) ;
-      if(Group_P->SuppListType != SUPPLIST_NOT){
+      if(Group_P->SuppListType != SUPPLIST_NONE &&
+         Group_P->SuppListType != SUPPLIST_NOT){
         Message::Warning("Unhandled group modifier");
       }
     }
