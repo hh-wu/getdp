@@ -47,6 +47,8 @@ int Check_IsEntityInExtendedGroup(struct Group * Group_P, int Entity, int Flag)
     return((!Group_P->InitialList ||
 	    (List_Search(Group_P->ExtendedList, &Entity, fcmp_int))) &&
 	   (!Group_P->InitialSuppList ||
+            (Group_P->SuppListType == SUPPLIST_NONE) ||
+            (Group_P->SuppListType == SUPPLIST_CONNECTEDTO) ||
 	    (Group_P->SuppListType == SUPPLIST_NOT &&
              !List_Search(Group_P->ExtendedSuppList, &Entity, fcmp_int)))) ;
 
@@ -56,7 +58,7 @@ int Check_IsEntityInExtendedGroup(struct Group * Group_P, int Entity, int Flag)
 
   case GROUPSOFNODESOF :  case GROUPSOFEDGESOF : case GROUPSOFFACETSOF :
   case REGION :  case GROUPOFREGIONSOF :  case GLOBAL :
-    return( (Flag)? List_Search(Group_P->InitialList, &Entity, fcmp_int) : 1 ) ;
+    return( (Flag) ? List_Search(Group_P->InitialList, &Entity, fcmp_int) : 1 ) ;
 
   case GROUPSOFEDGESONNODESOF :
     if (!Group_P->InitialSuppList){
@@ -97,7 +99,7 @@ void Generate_ExtendedGroup(struct Group * Group_P)
                                   &Group_P->ExtendedList, Group_P->FunctionType) ;
       Generate_ElementaryEntities(Group_P->InitialSuppList,
                                   &Group_P->ExtendedSuppList, Group_P->FunctionType) ;
-      if(Group_P->SuppListType != SUPPLIST_NONE){
+      if(Group_P->SuppListType != SUPPLIST_NOT){
         Message::Warning("Unhandled group modifier");
       }
     }
