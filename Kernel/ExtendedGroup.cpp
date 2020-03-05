@@ -1197,6 +1197,33 @@ void  Generate_Elements(List_T * InitialList,
     Tree_Delete(Entity_Tr) ;
     break ;
 
+  case SUPPLIST_DISJOINTOF :
+    Entity_Tr = Tree_Create(sizeof(int), fcmp_int) ;
+    if (List_Nbr(InitialSuppList)) {
+      Generate_ElementaryEntities(InitialSuppList,
+                                  &ExtendedSuppList, NODESOF) ;
+      for (i_Element = 0 ; i_Element < Nbr_Element ; i_Element++) {
+	GeoElement = Geo_GetGeoElement(i_Element) ;
+	if (List_Search(InitialList, &GeoElement->Region, fcmp_int)) {
+	  Nbr_Node = GeoElement->NbrNodes ;
+          bool touch = false;
+	  for (i_Node = 0 ; i_Node < Nbr_Node ; i_Node++) {
+	    if (List_Search(ExtendedSuppList,
+                            &(GeoElement->NumNodes[i_Node]), fcmp_int)) {
+              touch = true;
+              break;
+            }
+          }
+          if(!touch) Tree_Add(Entity_Tr, &GeoElement->Num) ;
+	}
+      }
+      List_Delete(ExtendedSuppList) ;
+    }
+
+    *ExtendedList = Tree2List(Entity_Tr) ;
+    Tree_Delete(Entity_Tr) ;
+    break ;
+
   case SUPPLIST_ONNEGATIVESIDEOF :
     side = -1;
   case SUPPLIST_ONPOSITIVESIDEOF :
