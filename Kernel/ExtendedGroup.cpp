@@ -101,7 +101,7 @@ void Generate_ExtendedGroup(struct Group * Group_P)
                                   &Group_P->ExtendedSuppList, Group_P->FunctionType) ;
       if(Group_P->SuppListType != SUPPLIST_NONE &&
          Group_P->SuppListType != SUPPLIST_NOT){
-        Message::Warning("Unhandled group modifier");
+        Message::Warning("Unhandled group modifier %d", Group_P->SuppListType);
       }
     }
     break ;
@@ -514,7 +514,7 @@ void Generate_EdgesConnectedToNodesOf(List_T *InitialList,
         int *Num_Nodes = Geo_GetNodesOfEdgeInElement(Geo_Element, i_Entity) ;
         int N1 = Geo_Element->NumNodes[abs(Num_Nodes[0]) - 1];
         int N2 = Geo_Element->NumNodes[abs(Num_Nodes[1]) - 1];
-        if(List_Search(NodeList, &N1, fcmp_absint) ||
+        if(List_Search(NodeList, &N1, fcmp_absint) ^
            List_Search(NodeList, &N2, fcmp_absint)) {
           Tree_Add(Entity_Tr, &Geo_Element->NumEdges[i_Entity]);
         }
