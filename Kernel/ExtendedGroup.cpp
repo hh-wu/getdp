@@ -47,9 +47,8 @@ int Check_IsEntityInExtendedGroup(struct Group * Group_P, int Entity, int Flag)
     return((!Group_P->InitialList ||
 	    (List_Search(Group_P->ExtendedList, &Entity, fcmp_int))) &&
 	   (!Group_P->InitialSuppList ||
-            (Group_P->SuppListType == SUPPLIST_NONE) ||
-            (Group_P->SuppListType == SUPPLIST_CONNECTEDTO) ||
-	    (Group_P->SuppListType == SUPPLIST_NOT &&
+            ((Group_P->SuppListType == SUPPLIST_CONNECTEDTO) ||
+             // anything remaining in ExtendedSuppList is checked as an exclusion
              !List_Search(Group_P->ExtendedSuppList, &Entity, fcmp_int)))) ;
 
   case ELEMENTSOF :  case EDGESOFTREEIN :  case FACETSOFTREEIN :
