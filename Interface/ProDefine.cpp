@@ -98,7 +98,7 @@ const char *Get_StringForDefine(struct StringXDefine SXD[], int define)
   int i = 0 ; const char *string ;
 
   while ((SXD[i].string != NULL) && (SXD[i].define != define))  i++ ;
-  if (SXD[i].string != NULL)  string = SXD[i].string ;  else  string = "?" ;
+  if (SXD[i].string != NULL)  string = SXD[i].string ;  else  string = "None" ;
 
   return(string) ;
 }

@@ -79,8 +79,9 @@ int Check_IsEntityInExtendedGroup(struct Group * Group_P, int Entity, int Flag)
 void Generate_ExtendedGroup(struct Group * Group_P)
 {
 
-  Message::Info("  Generate ExtendedGroup '%s' (%s)", Group_P->Name,
-            Get_StringForDefine(FunctionForGroup_Type, Group_P->FunctionType)) ;
+  Message::Info("  Generate ExtendedGroup '%s' (%s, %s)", Group_P->Name,
+                Get_StringForDefine(FunctionForGroup_Type, Group_P->FunctionType),
+                Get_StringForDefine(FunctionForGroup_SuppList, Group_P->SuppListType)) ;
 
   switch (Group_P->FunctionType) {
 
@@ -1177,16 +1178,16 @@ void  Generate_Elements(List_T * InitialList,
       Generate_GroupsOfNodes(InitialSuppList, &ExtendedSuppList) ;
 
       for (i_Element = 0 ; i_Element < Nbr_Element ; i_Element++) {
-	GeoElement = Geo_GetGeoElement(i_Element) ;
-	if (List_Search(InitialList, &GeoElement->Region, fcmp_int)) {
-	  Nbr_Node = GeoElement->NbrNodes ;
-	  for (i_Node = 0 ; i_Node < Nbr_Node ; i_Node++)
-	    if (List_Search(ExtendedSuppList,
+        GeoElement = Geo_GetGeoElement(i_Element) ;
+        if (List_Search(InitialList, &GeoElement->Region, fcmp_int)) {
+          Nbr_Node = GeoElement->NbrNodes ;
+          for (i_Node = 0 ; i_Node < Nbr_Node ; i_Node++)
+            if (List_Search(ExtendedSuppList,
 			    &(GeoElement->NumNodes[i_Node]), fcmp_int)) {
 	      Tree_Add(Entity_Tr, &GeoElement->Num) ;
 	      break ;  // at least one node of element is on surface Supp
-	    }
-	}
+            }
+        }
       }
       /* + ne conserver que certains des elements qui viennent d'etre groupes ... ! */
       // Now: rather done with SUPPLIST_ONPOSITIVESIDEOF (to be unified later)
@@ -1203,19 +1204,19 @@ void  Generate_Elements(List_T * InitialList,
       Generate_ElementaryEntities(InitialSuppList,
                                   &ExtendedSuppList, NODESOF) ;
       for (i_Element = 0 ; i_Element < Nbr_Element ; i_Element++) {
-	GeoElement = Geo_GetGeoElement(i_Element) ;
-	if (List_Search(InitialList, &GeoElement->Region, fcmp_int)) {
-	  Nbr_Node = GeoElement->NbrNodes ;
+        GeoElement = Geo_GetGeoElement(i_Element) ;
+        if (List_Search(InitialList, &GeoElement->Region, fcmp_int)) {
+          Nbr_Node = GeoElement->NbrNodes ;
           bool touch = false;
-	  for (i_Node = 0 ; i_Node < Nbr_Node ; i_Node++) {
-	    if (List_Search(ExtendedSuppList,
+          for (i_Node = 0 ; i_Node < Nbr_Node ; i_Node++) {
+            if (List_Search(ExtendedSuppList,
                             &(GeoElement->NumNodes[i_Node]), fcmp_int)) {
               touch = true;
               break;
             }
           }
           if(!touch) Tree_Add(Entity_Tr, &GeoElement->Num) ;
-	}
+        }
       }
       List_Delete(ExtendedSuppList) ;
     }
