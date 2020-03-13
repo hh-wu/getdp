@@ -596,7 +596,7 @@ ListOfRegionOrAll :
 SuppListOfRegion :
 
     /* none */
-    { nb_SuppList = 0; /*Type_SuppList = SUPPLIST_NONE;*/  $$ = NULL; }
+    { nb_SuppList = 0; $$ = NULL; }
 
   | SuppListOfRegion Comma SuppListTypeForGroup ListOfRegion
     {
@@ -3099,6 +3099,7 @@ ConstraintInFS :
       ConstraintInFS_S.Active.Active = NULL;
       Constraint_Index = -1;
       Type_Function = 0;
+      Type_SuppList = SUPPLIST_NONE;
     }
 
   | ConstraintInFS  ConstraintInFSTerm

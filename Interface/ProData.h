@@ -157,6 +157,7 @@ struct MovingBand2D {
 #define SUPPLIST_ONNEGATIVESIDEOF 5
 #define SUPPLIST_INSUPPORT        6
 #define SUPPLIST_CONNECTEDTO      7
+#define SUPPLIST_DISJOINTOF       8
 
 
 /* ------------------------------------------------------------------------ */
