@@ -78,6 +78,8 @@ int Check_IsEntityInExtendedGroup(struct Group * Group_P, int Entity, int Flag)
 void Generate_ExtendedGroup(struct Group * Group_P)
 {
 
+  struct Group  * GroupForSupport_P=NULL; //FH
+
   Message::Info("  Generate ExtendedGroup '%s' (%s, %s)", Group_P->Name,
                 Get_StringForDefine(FunctionForGroup_Type, Group_P->FunctionType),
                 Get_StringForDefine(FunctionForGroup_SuppList, Group_P->SuppListType)) ;
@@ -138,6 +140,36 @@ void Generate_ExtendedGroup(struct Group * Group_P)
     Geo_GenerateEdgesOfTree(Group_P->InitialList, Group_P->InitialSuppList,
                             Group_P->InitialSuppList2, Group_P->SuppListType2,
 			    &Group_P->ExtendedList) ;
+
+    printf("Name: %s\n", Group_P->Name); 
+    printf("Types: %d = %s\n %d = %s\n %d = %s\n", 
+           Group_P->Type, Get_StringForDefine(FunctionForGroup_Type, Group_P->FunctionType),
+           Group_P->SuppListType, Get_StringForDefine(FunctionForGroup_SuppList, Group_P->SuppListType),
+           Group_P->SuppListType2, Get_StringForDefine(FunctionForGroup_SuppList, Group_P->SuppListType2));
+    int j;
+    for( int i=0 ; i<List_Nbr(Group_P->InitialList) ; i++) {
+      List_Read(Group_P->InitialList, i, &j);
+      printf("%d ", j);
+    }
+    printf("\n");
+    for( int i=0 ; i<List_Nbr(Group_P->InitialSuppList) ; i++) {
+      List_Read(Group_P->InitialSuppList, i, &j);
+      printf("%d ", j);
+    }
+    printf("\n");
+    for( int i=0 ; i<List_Nbr(Group_P->InitialSuppList2) ; i++) {
+      List_Read(Group_P->InitialSuppList2, i, &j);
+      printf("%d ", j);
+    }
+    printf("\n");
+    for( int i=0 ; i<List_Nbr(Problem_S.Group) ; i++) {
+      GroupForSupport_P = (struct Group*) List_Pointer(Problem_S.Group, i);
+      printf("%s %s\n", GroupForSupport_P->Name, Get_StringForDefine(FunctionForGroup_Type, GroupForSupport_P->FunctionType));
+    }
+    // GroupForSupport_P = (struct Group*)
+    //   List_Pointer(Problem_S.Group, *((int *)List_Pointer(Group_P->InitialList, 0))) ;
+    // printf("Group: %s\n", GroupForSupport_P->Name);
+
     Geo_AddGroupForPRE(Group_P->Num) ;
     break ;
 
