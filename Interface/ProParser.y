@@ -3034,6 +3034,10 @@ ConstraintInFSs :
          SuppListType2 */
       Group_S.SuppListType2 = Type_SuppList;
 
+      Group_S.RegionIndex = -1;
+      Group_S.SubRegionIndex = -1;
+      Group_S.SubRegion2Index = -1;
+
       switch (Group_S.FunctionType) {
       case ELEMENTSOF :  Group_S.Type = ELEMENTLIST;  break;
       default :          Group_S.Type = REGIONLIST ;  break;
@@ -3048,10 +3052,18 @@ ConstraintInFSs :
 	    List_Pointer(Constraint_P->ConstraintPerRegion, i);
 
 	  if(ConstraintPerRegion_P->RegionIndex >= 0) {
-	    Group_S.InitialList =
-	      ((struct Group *)
-	       List_Pointer(Problem_S.Group, ConstraintPerRegion_P->RegionIndex))
-	      ->InitialList;
+
+        //FH
+        Group_S.RegionIndex = ConstraintPerRegion_P->RegionIndex;
+        Group_S.SubRegionIndex = ConstraintPerRegion_P->SubRegionIndex;
+        Group_S.SubRegion2Index = ConstraintPerRegion_P->SubRegion2Index;
+        // end FH
+
+        Group_S.InitialList =
+          ((struct Group *)
+           List_Pointer(Problem_S.Group, ConstraintPerRegion_P->RegionIndex))
+          ->InitialList;
+
 	    Group_S.InitialSuppList =
 	      (ConstraintPerRegion_P->SubRegionIndex >= 0)?
 	      ((struct Group *)

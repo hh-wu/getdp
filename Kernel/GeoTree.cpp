@@ -155,6 +155,35 @@ static void Geo_GenerateEdgesOfTreeByDimension(int dim, List_T *InitialList,
   } /* for i_Element ... */
 }
 
+void Geo_GenerateEdgesOfTree(List_T * InitialList, int RegionIndex,
+                             List_T * InitialSuppList, int SubRegionIndex,
+                             List_T * InitialSuppList2, int SubRegion2Index, 
+                             int SuppListType2, List_T ** ExtendedList)
+{
+  Tree_T *EntitiesInTree_T;
+
+  *ExtendedList = List_Create(2000, 2000, sizeof(int));
+
+  EntitiesInTree_T = Tree_Create(2 * sizeof(int), fcmp_int);
+
+  if(InitialSuppList2 != NULL) // SubRegion2
+    Geo_GenerateTreeOnSlidingSurface(InitialSuppList2, *ExtendedList,
+                                     EntitiesInTree_T, SuppListType2);
+  if(InitialSuppList != NULL) { // SubRegion
+    Geo_GenerateEdgesOfTreeByDimension(1, InitialSuppList, *ExtendedList,
+                                       EntitiesInTree_T);
+    Geo_GenerateEdgesOfTreeByDimension(2, InitialSuppList, *ExtendedList,
+                                       EntitiesInTree_T);
+  }
+  if(InitialList != NULL) { // Region
+    Geo_GenerateEdgesOfTreeByDimension(-1, InitialList, *ExtendedList,
+                                       EntitiesInTree_T);
+  }
+
+  Tree_Delete(EntitiesInTree_T);
+  List_Sort(*ExtendedList, fcmp_int);
+}
+
 void Geo_GenerateEdgesOfTree(List_T *InitialList, List_T *InitialSuppList,
                              List_T *InitialSuppList2, int SuppListType2,
                              List_T **ExtendedList)
