@@ -147,12 +147,14 @@ void Generate_ExtendedGroup(struct Group * Group_P)
     bool isElementList1 = false;
     bool isElementList2 = false;
 
-    struct Group * RegionGroup_P = (struct Group *)
-      List_Pointer(Problem_S.Group, Group_P->InitialListGroupIndex);
-    if( RegionGroup_P->Type == ELEMENTLIST) {
-      if (!RegionGroup_P->ExtendedList) Generate_ExtendedGroup(RegionGroup_P);
-      isElementList0 = true;
-      List0 = RegionGroup_P->ExtendedList;
+    if( Group_P->InitialListGroupIndex != -1){
+      struct Group * RegionGroup_P = (struct Group *)
+        List_Pointer(Problem_S.Group, Group_P->InitialListGroupIndex);
+      if( RegionGroup_P->Type == ELEMENTLIST) {
+        if (!RegionGroup_P->ExtendedList) Generate_ExtendedGroup(RegionGroup_P);
+        isElementList0 = true;
+        List0 = RegionGroup_P->ExtendedList;
+      }
     } // similar operation could be done for List1 and List2 if need be
 
     Geo_GenerateEdgesOfTree(List0, isElementList0,
