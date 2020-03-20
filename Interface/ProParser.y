@@ -480,6 +480,9 @@ Group :
       Group_S.FunctionType = REGION;
       Group_S.InitialSuppList = NULL;
       Group_S.SuppListType = SUPPLIST_NONE;
+      Group_S.InitialListGroupIndex = -1;
+      Group_S.InitialSuppListGroupIndex  = -1;
+      Group_S.InitialSuppList2GroupIndex  = -1;
       Group_S.MovingBand2D = (struct MovingBand2D *)Malloc(sizeof(struct MovingBand2D));
       Group_S.MovingBand2D->PhysNum = j;
     }
@@ -510,6 +513,9 @@ ReducedGroupRHS :
       default :          Group_S.Type = REGIONLIST;  break;
       }
       Group_S.InitialList = $3;
+      Group_S.InitialListGroupIndex = -1;
+      Group_S.InitialSuppListGroupIndex  = -1;
+      Group_S.InitialSuppList2GroupIndex  = -1;
     }
     SuppListOfRegion ']'
     {
@@ -538,6 +544,9 @@ ReducedGroupRHS :
       Group_S.FunctionType = REGION;  Group_S.Type = REGIONLIST;
       Group_S.InitialList = $2;
       Group_S.SuppListType = SUPPLIST_NONE;  Group_S.InitialSuppList = NULL;
+      Group_S.InitialListGroupIndex = -1;
+      Group_S.InitialSuppListGroupIndex  = -1;
+      Group_S.InitialSuppList2GroupIndex  = -1;
       $$ = -1;
     }
  ;
@@ -843,6 +852,10 @@ DefineGroups :
 	Group_S.Type = REGIONLIST ; Group_S.FunctionType = REGION ;
 	Group_S.InitialList = List_Create( 5, 5, sizeof(int)) ;
 	Group_S.SuppListType = SUPPLIST_NONE ; Group_S.InitialSuppList = NULL ;
+    Group_S.InitialListGroupIndex = -1;
+    Group_S.InitialSuppListGroupIndex  = -1;
+    Group_S.InitialSuppList2GroupIndex  = -1;
+ 
 	i = Add_Group(&Group_S, $3, 0, 0, 0) ;
       }
       else  Free($3) ;
@@ -863,6 +876,9 @@ DefineGroups :
             Fill_GroupInitialListFromString(Group_S.InitialList, vec[i].c_str());
         }
 	Group_S.SuppListType = SUPPLIST_NONE ; Group_S.InitialSuppList = NULL ;
+    Group_S.InitialListGroupIndex = -1;
+    Group_S.InitialSuppListGroupIndex  = -1;
+    Group_S.InitialSuppList2GroupIndex  = -1;
 	i = Add_Group(&Group_S, $3, 0, 0, 0) ;
       }
       else  Free($3) ;
@@ -879,6 +895,9 @@ DefineGroups :
 	  Group_S.Type = REGIONLIST ; Group_S.FunctionType = REGION ;
 	  Group_S.SuppListType = SUPPLIST_NONE ; Group_S.InitialSuppList = NULL ;
 	  Group_S.InitialList = List_Create( 5, 5, sizeof(int)) ;
+      Group_S.InitialListGroupIndex = -1;
+      Group_S.InitialSuppListGroupIndex  = -1;
+      Group_S.InitialSuppList2GroupIndex  = -1;
 	  Add_Group(&Group_S, $3, 0, 2, k+1) ;
 	}
       }
@@ -3034,9 +3053,9 @@ ConstraintInFSs :
          SuppListType2 */
       Group_S.SuppListType2 = Type_SuppList;
 
-      Group_S.RegionIndex = -1;
-      Group_S.SubRegionIndex = -1;
-      Group_S.SubRegion2Index = -1;
+      Group_S.InitialListGroupIndex = -1;
+      Group_S.InitialSuppListGroupIndex  = -1;
+      Group_S.InitialSuppList2GroupIndex  = -1;
 
       switch (Group_S.FunctionType) {
       case ELEMENTSOF :  Group_S.Type = ELEMENTLIST;  break;
@@ -3053,11 +3072,11 @@ ConstraintInFSs :
 
 	  if(ConstraintPerRegion_P->RegionIndex >= 0) {
 
-        //FH
-        Group_S.RegionIndex = ConstraintPerRegion_P->RegionIndex;
-        Group_S.SubRegionIndex = ConstraintPerRegion_P->SubRegionIndex;
-        Group_S.SubRegion2Index = ConstraintPerRegion_P->SubRegion2Index;
-        // end FH
+        // Keep track of Group indices (called RegionIndex)
+        // 
+        Group_S.InitialListGroupIndex = ConstraintPerRegion_P->RegionIndex;
+        Group_S.InitialSuppListGroupIndex = ConstraintPerRegion_P->SubRegionIndex;
+        Group_S.InitialSuppList2GroupIndex = ConstraintPerRegion_P->SubRegion2Index;
 
         Group_S.InitialList =
           ((struct Group *)

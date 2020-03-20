@@ -155,7 +155,7 @@ static void Geo_GenerateEdgesOfTreeByDimension(int dim, List_T *InitialList,
   } /* for i_Element ... */
 }
 
-static void Geo_GenerateEdgesOfTreeByDimension(int dim, List_T *InitialList,
+static void Geo_GenerateEdgesOfTreeByDimension(int dim, List_T *List,
                                                bool isElementList, 
                                                List_T *ExtendedList,
                                                Tree_T *EntitiesInTree_T)
@@ -167,16 +167,16 @@ static void Geo_GenerateEdgesOfTreeByDimension(int dim, List_T *InitialList,
   struct EntityInTree EntityInTree_S;
 
 
-  Nbr_Element = isElementList ? List_Nbr(InitialList) : Geo_GetNbrGeoElements();
+  Nbr_Element = isElementList ? List_Nbr(List) : Geo_GetNbrGeoElements();
 
   for(i_Element = 0; i_Element < Nbr_Element; i_Element++) {
     if( isElementList ){
-      List_Read(InitialList,i_Element, &Num_Element);
+      List_Read(List,i_Element, &Num_Element);
       Geo_Element = Geo_GetGeoElementOfNum(Num_Element);
     }
     else{
       Geo_Element = Geo_GetGeoElement(i_Element);
-      if(!List_Search(InitialList, &Geo_Element->Region, fcmp_int)) 
+      if(!List_Search(List, &Geo_Element->Region, fcmp_int)) 
         continue;
     }
 
