@@ -302,7 +302,7 @@ void Message::Error(const char *fmt, ...)
 
 void Message::Warning(const char *fmt, ...)
 {
-  if((_commRank && _isCommWorld) || _verbosity < 2) return;
+  if(_verbosity < 2) return;
   char str[1024];
   va_list args;
   va_start(args, fmt);
@@ -320,10 +320,10 @@ void Message::Warning(const char *fmt, ...)
     if(!streamIsFile(stdout) && streamIsVT100(stdout)){
       c0 = "\33[35m"; c1 = "\33[0m";  // magenta
     }
-    if(_isCommWorld)
-      fprintf(stdout, "%sWarning : %s%s\n", c0, str, c1);
-    else
+    if(_commSize > 1)
       fprintf(stdout, "%sWarning : [rank %3d] %s%s\n", c0, _commRank, str, c1);
+    else
+      fprintf(stdout, "%sWarning : %s%s\n", c0, str, c1);
     fflush(stdout);
   }
 }
