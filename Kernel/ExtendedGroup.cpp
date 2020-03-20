@@ -77,6 +77,10 @@ int Check_IsEntityInExtendedGroup(struct Group * Group_P, int Entity, int Flag)
 
 void Generate_ExtendedGroup(struct Group * Group_P)
 {
+  struct Group * RegionGroup_P = NULL;
+  bool isInitialListEL = false;
+  bool isInitialSuppListEL = false;
+  bool isInitialSuppList2EL = false;
 
   Message::Info("  Generate ExtendedGroup '%s' (%s, %s)", Group_P->Name,
                 Get_StringForDefine(FunctionForGroup_Type, Group_P->FunctionType),
@@ -135,9 +139,45 @@ void Generate_ExtendedGroup(struct Group * Group_P)
     break ;
 
   case EDGESOFTREEIN :
-    Geo_GenerateEdgesOfTree(Group_P->InitialList, Group_P->RegionIndex,
-                            Group_P->InitialSuppList, Group_P->SubRegionIndex,
-                            Group_P->InitialSuppList2, Group_P->SubRegion2Index,
+    printf("Nbr_Element = %d\n", Geo_GetNbrGeoElements());
+
+    RegionGroup_P = (struct Group *)
+      List_Pointer(Problem_S.Group, Group_P->RegionIndex);
+    if( RegionGroup_P->Type == ELEMENTLIST) {
+      printf("Group %s (%d) is of ELEMENTLIST type\n", RegionGroup_P->Name, RegionGroup_P->Num);
+      printf("Name: %s\n", RegionGroup_P->Name); 
+      printf("Types: %d\n %d = %s\n %d = %s\n %d = %s\n", 
+             RegionGroup_P->Type, 
+             RegionGroup_P->FunctionType, Get_StringForDefine(FunctionForGroup_Type, RegionGroup_P->FunctionType),
+             RegionGroup_P->SuppListType, Get_StringForDefine(FunctionForGroup_SuppList, RegionGroup_P->SuppListType),
+             RegionGroup_P->SuppListType2, Get_StringForDefine(FunctionForGroup_SuppList, RegionGroup_P->SuppListType2));
+      int j;
+      for( int i=0 ; i<List_Nbr(RegionGroup_P->InitialList) ; i++) {
+        List_Read(RegionGroup_P->InitialList, i, &j);
+        printf("%d ", j);
+      }
+      printf("\n");
+      for( int i=0 ; i<List_Nbr(RegionGroup_P->InitialSuppList) ; i++) {
+        List_Read(RegionGroup_P->InitialSuppList, i, &j);
+        printf("%d ", j);
+      }
+      printf("\n");
+      if (!RegionGroup_P->ExtendedList) {
+        printf("before\n");
+        Generate_ExtendedGroup(RegionGroup_P);
+        printf("after\n");
+        // Generate_Elements(RegionGroup_P->InitialList,
+		//       RegionGroup_P->SuppListType, RegionGroup_P->InitialSuppList,
+		//       RegionGroup_P->SuppListType2, RegionGroup_P->InitialSuppList2,
+		//       &RegionGroup_P->ExtendedList) ;
+      }
+      isInitialListEL = true;
+      Group_P->InitialList = RegionGroup_P->ExtendedList;
+    } // similar operation could be done for the SuppLists if need be
+
+    Geo_GenerateEdgesOfTree(Group_P->InitialList, isInitialListEL,
+                            Group_P->InitialSuppList, isInitialSuppListEL,
+                            Group_P->InitialSuppList2, isInitialSuppList2EL,
                             Group_P->SuppListType2, &Group_P->ExtendedList) ;
 
     Geo_AddGroupForPRE(Group_P->Num) ;
@@ -1202,8 +1242,10 @@ void  Generate_Elements(List_T * InitialList,
   case SUPPLIST_DISJOINTOF :
     Entity_Tr = Tree_Create(sizeof(int), fcmp_int) ;
     if (List_Nbr(InitialSuppList)) {
+
       Generate_ElementaryEntities(InitialSuppList,
                                   &ExtendedSuppList, NODESOF) ;
+
       for (i_Element = 0 ; i_Element < Nbr_Element ; i_Element++) {
         GeoElement = Geo_GetGeoElement(i_Element) ;
         if (List_Search(InitialList, &GeoElement->Region, fcmp_int)) {
@@ -1289,5 +1331,4 @@ void  Generate_Elements(List_T * InitialList,
     break ;
 
   }
-
 }

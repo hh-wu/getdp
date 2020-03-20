@@ -96,9 +96,9 @@ void  Geo_CreateEntitiesOfElement
    int * Geo_NbrElementsWithEntities2,
    int * Geo_NumCurrentEntity2, Tree_T * Geo_Entities2XEntities1) ;
 
-void Geo_GenerateEdgesOfTree(List_T * InitialList, int RegionIndex,
-                             List_T * InitialSuppList, int SubRegionIndex,
-                             List_T * InitialSuppList2, int SubRegion2Index, 
+void Geo_GenerateEdgesOfTree(List_T * InitialList, bool isInitialListEL,
+                             List_T * InitialSuppList, bool isInitialSuppListEL,
+                             List_T * InitialSuppList2, bool isInitialSuppList2EL,
                              int SuppListType2, List_T ** ExtendedList);
 void  Geo_GenerateEdgesOfTree(List_T * InitialList, List_T * InitialSuppList,
                               List_T * InitialSuppList2, int SuppListType2,
