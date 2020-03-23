@@ -34,7 +34,6 @@ int Operation_CheckVariables(struct Resolution  *Resolution_P,
 
   int commsize = Message::GetCommSize();
   int commrank = Message::GetCommRank();
-  Message::Info("CheckVariables: rank %d (size %d)", commrank, commsize);
 
   std::map<std::string, struct Value> &values = Get_AllValueSaved();
   std::vector<std::string> names;
@@ -44,7 +43,6 @@ int Operation_CheckVariables(struct Resolution  *Resolution_P,
         for(std::map<std::string, struct Value>::iterator it = values.begin();
             it != values.end(); it++)
           names.push_back(it->first);
-        Message::Direct("CheckVariables: Show all %d variables existing in rank %d",names.size(),commrank);
       }
       else{
         for(unsigned int i = 0; i < List_Nbr(Operation_P->Case.CheckVariables.Names); i++){
@@ -54,7 +52,7 @@ int Operation_CheckVariables(struct Resolution  *Resolution_P,
             if(values.find(s) != values.end())
               names.push_back(s);
             else
-              Message::Warning("CheckVariables: Unknown variable %s", s);
+              Message::Warning("Unknown runtime variable '%s'", s);
           }
           else{
             for(unsigned int j = 0; j < List_Nbr(Operation_P->Case.CheckVariables.id); j++){
@@ -68,32 +66,32 @@ int Operation_CheckVariables(struct Resolution  *Resolution_P,
               if(values.find(sidj) != values.end())
                 names.push_back(sidj);
               else
-                Message::Warning("CheckVariables: Unknown variable %s", sidj);
+                Message::Warning("Unknown runtime variable '%s'", sidj);
             }
           }
         }
       }
     }
-    #if defined(HAVE_MPI)
-      MPI_Barrier(MPI_COMM_WORLD);
-    #endif
+#if defined(HAVE_MPI)
+    MPI_Barrier(MPI_COMM_WORLD);
+#endif
   }
+
   for(int rank = 0; rank < commsize; rank++){
-    if (( Operation_P->Case.CheckVariables.from==-1 ||
+    if (( Operation_P->Case.CheckVariables.from == -1 ||
           rank == Operation_P->Case.CheckVariables.from ) &&
         ( rank == commrank) ){
-        for(unsigned int i = 0; i < names.size(); i++){
-          char key[STRING_SIZE];
-          strncpy(key, names[i].c_str(), sizeof(key));
-          struct Value &v = values[key];
-          std::string stringvalue= Print_Value_ToString(&v);
-          Message::Direct("CheckVariables: %d) %s = %s", i, key, stringvalue.c_str());
-        }
-        //Message::Direct("");
+      for(unsigned int i = 0; i < names.size(); i++){
+        char key[STRING_SIZE];
+        strncpy(key, names[i].c_str(), sizeof(key));
+        struct Value &v = values[key];
+        std::string stringvalue= Print_Value_ToString(&v);
+        printf("On rank %d: %s = %s\n", rank, key, stringvalue.c_str());
+      }
     }
-    #if defined(HAVE_MPI)
-      MPI_Barrier(MPI_COMM_WORLD);
-    #endif
+#if defined(HAVE_MPI)
+    MPI_Barrier(MPI_COMM_WORLD);
+#endif
   }
   return 0;
 }
