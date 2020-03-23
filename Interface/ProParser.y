@@ -562,13 +562,13 @@ GroupRHS :
     {
       int i;
       if(!strcmp($1, "All")) { //+++ Never considered because token tAll exists!
-	$$ = -3;
+        $$ = -3;
       }
       else if((i = List_ISearchSeq(Problem_S.Group, $1, fcmp_Group_Name)) >= 0) {
-	List_Read(Problem_S.Group, i, &Group_S); $$ = i;
+        List_Read(Problem_S.Group, i, &Group_S); $$ = i;
       }
       else {
-	$$ = -2; vyyerror(0, "Unknown Group: %s", $1);
+        $$ = -2; vyyerror(0, "Unknown Group: %s", $1);
       }
       Free($1);
     }
@@ -587,8 +587,8 @@ FunctionForGroup :
   | tSTRING
     { $$ = Get_DefineForString(FunctionForGroup_Type, $1, &FlagError);
       if(FlagError){
-	Get_Valid_SXD($1, FunctionForGroup_Type);
-	vyyerror(0, "Unknown type of Function for Group: %s", $1);
+        Get_Valid_SXD($1, FunctionForGroup_Type);
+        vyyerror(0, "Unknown type of Function for Group: %s", $1);
       }
       Free($1);
     }
@@ -628,6 +628,11 @@ SuppListOfRegion :
             $$ = List_Create(1, 5, sizeof(int));
             List_Add($$, &i);
             ListsOfRegion[nb_SuppList] = $$;
+
+            if( nb_SuppList+1 == 1 )
+              Group_S.InitialSuppListGroupIndex = i;
+            if( nb_SuppList+1 == 2 )
+              Group_S.InitialSuppList2GroupIndex = i;
           }
           else  vyyerror(0, "Not a Support of Element Type: %s", $4);
         }
@@ -644,7 +649,7 @@ SuppListOfRegion :
       // This is a bit of a hack, due to the fact the groups needed for trees
       // with autosimilarity constraints are constructed in the parser when
       // analysing the Constraint field. Since we cannot "just create a group",
-      // we use the SyppList type to encode the AlignedWith parameter.
+      // we use the SuppList type to encode the AlignedWith parameter.
       if (nb_SuppList+1 <= 2) {
         if(!strcmp($4, "Z")) {
           Type_SuppLists[nb_SuppList] = -3;
@@ -679,7 +684,7 @@ ListOfRegion :
     {
       $$ = List_Create(((List_Nbr($1) > 0)? List_Nbr($1) : 1), 5, sizeof(int));
       for(int i = 0; i < List_Nbr($1); i++)
-	List_Add($$, (int *)List_Pointer($1, i));
+        List_Add($$, (int *)List_Pointer($1, i));
     }
 
   | '{' RecursiveListOfRegion '}'
@@ -697,14 +702,14 @@ RecursiveListOfRegion :
     {
       $$ = $1;
       for(int i = 0; i < List_Nbr($3); i++)
-	List_Add($$, (int *)List_Pointer($3, i));
+        List_Add($$, (int *)List_Pointer($3, i));
     }
 
   | RecursiveListOfRegion Comma '-' IRegion
     {
       $$ = $1;
       for(int i = 0; i < List_Nbr($4); i++)
-	List_Suppress($$, (int *)List_Pointer($4, i), fcmp_Integer);
+        List_Suppress($$, (int *)List_Pointer($4, i), fcmp_Integer);
     }
  ;
 
@@ -769,7 +774,7 @@ IRegion :
 	  }
       }
       else // Si c'est un nom de groupe :
-	$$ = ((struct Group *)List_Pointer(Problem_S.Group, i))->InitialList;
+        $$ = ((struct Group *)List_Pointer(Problem_S.Group, i))->InitialList;
       Free($1.char1); Free($1.char2);
     }
 
@@ -786,10 +791,10 @@ IRegion :
       List_Reset(ListOfInt_L);
 
       for(int i = 0; i < List_Nbr($2); i++) {
-	double d;
-	List_Read($2, i, &d);
-	int j = (int)d;
-	List_Add(ListOfInt_L, &j);
+        double d;
+        List_Read($2, i, &d);
+        int j = (int)d;
+        List_Add(ListOfInt_L, &j);
       }
       $$ = ListOfInt_L;
     }
@@ -800,10 +805,10 @@ IRegion :
       List_Reset(ListOfInt_L);
 
       for(int i = 0; i < List_Nbr($2); i++) {
-	double d;
-	List_Read($2, i, &d);
-	int j = (int)d;
-	List_Add(ListOfInt_L, &j);
+        double d;
+        List_Read($2, i, &d);
+        int j = (int)d;
+        List_Add(ListOfInt_L, &j);
       }
       $$ = ListOfInt_L;
     }
