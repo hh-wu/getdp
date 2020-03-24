@@ -147,6 +147,11 @@ void Generate_ExtendedGroup(struct Group * Group_P)
     bool isElementList1 = false;
     bool isElementList2 = false;
 
+    printf("ExtendedGroup %d %d %d\n", 
+           Group_P->InitialListGroupIndex,
+           Group_P->InitialSuppListGroupIndex,
+           Group_P->InitialSuppList2GroupIndex);
+
     if( Group_P->InitialListGroupIndex != -1){
       struct Group * RegionGroup_P = (struct Group *)
         List_Pointer(Problem_S.Group, Group_P->InitialListGroupIndex);
