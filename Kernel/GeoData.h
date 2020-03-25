@@ -100,9 +100,6 @@ void Geo_GenerateEdgesOfTree(List_T * InitialList, bool isInitialListEL,
                              List_T * InitialSuppList, bool isInitialSuppListEL,
                              List_T * InitialSuppList2, bool isInitialSuppList2EL,
                              int SuppListType2, List_T ** ExtendedList);
-void  Geo_GenerateEdgesOfTree(List_T * InitialList, List_T * InitialSuppList,
-                              List_T * InitialSuppList2, int SuppListType2,
-			      List_T ** ExtendedList) ;
 void  Geo_GenerateFacetsOfTree(List_T * InitialList, List_T * InitialSuppList,
                                List_T * InitialSuppList2,
 			       List_T ** ExtendedList) ;
