@@ -533,12 +533,6 @@ ReducedGroupRHS :
         Group_S.InitialSuppList2 = NULL;
       }
       $$ = -1;
-      if( Group_S.FunctionType == EDGESOFTREEIN) { //FH
-        printf("ReducedGroupRHS Group EdgesOfTreeIn = %d %d %d\n", 
-               Group_S.InitialListGroupIndex, 
-               Group_S.InitialSuppListGroupIndex, 
-               Group_S.InitialSuppList2GroupIndex);
-      }
     }
 
   /* shortcut: #list ==  Region[ list ] */
@@ -586,10 +580,10 @@ FunctionForGroup :
 
     tRegion
     { 
-      /* Group_S.InitialListGroupIndex = -1; */
-      /* Group_S.InitialSuppListGroupIndex  = -1; */
-      /* Group_S.InitialSuppList2GroupIndex  = -1; */
-      //nb_SuppList = -1;
+      Group_S.InitialListGroupIndex = -1;
+      Group_S.InitialSuppListGroupIndex  = -1;
+      Group_S.InitialSuppList2GroupIndex  = -1;
+      nb_SuppList = -1;
       $$ = REGION; 
     }
 
@@ -598,7 +592,7 @@ FunctionForGroup :
       Group_S.InitialListGroupIndex = -1;
       Group_S.InitialSuppListGroupIndex  = -1;
       Group_S.InitialSuppList2GroupIndex  = -1;
-      //nb_SuppList = -1;
+      nb_SuppList = -1;
       $$ = Get_DefineForString(FunctionForGroup_Type, $1, &FlagError);
       if(FlagError){
         Get_Valid_SXD($1, FunctionForGroup_Type);
@@ -747,12 +741,12 @@ IRegion :
     {
       List_Reset($$ = ListOfInt_L);
       if(!$5 || ($1 < $3 && $5 < 0) || ($1 > $3 && $5 > 0)){
-	vyyerror(0, "Wrong increment in '%d : %d : %d'", $1, $3, $5);
-	List_Add(ListOfInt_L, &($1));
+        vyyerror(0, "Wrong increment in '%d : %d : %d'", $1, $3, $5);
+        List_Add(ListOfInt_L, &($1));
       }
       else
-	for(int j = $1; ($5 > 0) ? (j <= $3) : (j >= $3); j += $5)
-	  List_Add($$, &j);
+        for(int j = $1; ($5 > 0) ? (j <= $3) : (j >= $3); j += $5)
+          List_Add($$, &j);
     }
 
   | Struct_FullName
@@ -789,13 +783,19 @@ IRegion :
         }
       }
       else{ // Si c'est un nom de groupe :
-        $$ = ((struct Group *)List_Pointer(Problem_S.Group, i))->InitialList;
-        /* struct Group * theGroup_P = (struct Group *)List_Pointer(Problem_S.Group, i); */
-        /* $$ = theGroup_P->InitialList; */
-        /* if( theGroup_P->Type == ELEMENTLIST){ //FH */
-        /*   printf("Group name %s index = %d nb_Supplist = %d\n", theGroup_P->Name, i, nb_SuppList); */
-        /*   Group_S.InitialListGroupIndex = i; */
-        /* } */
+        struct Group * theGroup_P = (struct Group *)List_Pointer(Problem_S.Group, i);
+        $$ = theGroup_P->InitialList;
+
+        // if the group is en ELEMENTLIST keep track of its index
+        // in the appropriate GroupIndex parameter
+        if( theGroup_P->Type == ELEMENTLIST){ 
+          if( nb_SuppList < 1 )
+            Group_S.InitialListGroupIndex = i;
+          else if( nb_SuppList == 1 )
+            Group_S.InitialSuppListGroupIndex = i;
+          else
+            Group_S.InitialSuppList2GroupIndex = i;
+        }
       }
       Free($1.char1); Free($1.char2);
     }
@@ -3103,7 +3103,7 @@ ConstraintInFSs :
               List_Pointer(Problem_S.Group, ConstraintPerRegion_P->RegionIndex);
             Group_S.InitialList = theGroup_P->InitialList;
             if( theGroup_P->Type == ELEMENTLIST)
-              Group_S.InitialListGroupIndex = ConstraintPerRegion_P->RegionIndex; //FH
+              Group_S.InitialListGroupIndex = ConstraintPerRegion_P->RegionIndex;
 
             if( ConstraintPerRegion_P->SubRegionIndex >= 0 ){
               theGroup_P = (struct Group *)
@@ -3124,7 +3124,7 @@ ConstraintInFSs :
                 Group_S.InitialSuppList2GroupIndex = ConstraintPerRegion_P->SubRegion2Index;
             }
             else
-              Group_S.InitialSuppList = NULL;
+              Group_S.InitialSuppList2 = NULL;
 
             /* Group_S.InitialSuppList = */
             /*   (ConstraintPerRegion_P->SubRegionIndex >= 0) ? */
@@ -7399,7 +7399,6 @@ PostSubOperation :
       PostSubOperation_S.Type = POP_GROUP;
       PostSubOperation_S.Case.Group.ExtendedGroupIndex =
         Num_Group(&Group_S, (char*)"PO_Group", $3);
-      printf("PrintGroup name=%s type=%d %d\n", Group_S.Name, Group_S.Type, Group_S.FunctionType); // FH
       PostSubOperation_S.PostQuantityIndex[0] = -1;
     }
     ',' tIn GroupRHS PrintOptions ']' tEND
