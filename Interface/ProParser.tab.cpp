@@ -17102,7 +17102,7 @@ yyreduce:
 /* Line 1787 of yacc.c  */
 #line 7398 "ProParser.y"
     {
-      PostSubOperation_S.Type = POP_GROUP;
+      PostSubOperation_S.Type = POP_GROUP; 
       PostSubOperation_S.Case.Group.ExtendedGroupIndex =
         Num_Group(&Group_S, (char*)"PO_Group", (yyvsp[(3) - (3)].i));
       PostSubOperation_S.PostQuantityIndex[0] = -1;
@@ -17235,7 +17235,7 @@ yyreduce:
 /* Line 1787 of yacc.c  */
 #line 7493 "ProParser.y"
     {
-      PostSubOperation_S.SubType = PRINT_ONREGION;
+      PostSubOperation_S.SubType = PRINT_ONREGION; 
       PostSubOperation_S.Case.OnRegion.RegionIndex = -1;
     }
     break;

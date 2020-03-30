@@ -7396,7 +7396,7 @@ PostSubOperation :
 
   | tPrintGroup '[' GroupRHS
     {
-      PostSubOperation_S.Type = POP_GROUP;
+      PostSubOperation_S.Type = POP_GROUP; 
       PostSubOperation_S.Case.Group.ExtendedGroupIndex =
         Num_Group(&Group_S, (char*)"PO_Group", $3);
       PostSubOperation_S.PostQuantityIndex[0] = -1;
@@ -7481,9 +7481,9 @@ Combination :
 
 PostQuantitySupport :
 
-    /* none */
-    { $$ = -1; }
-  | '[' GroupRHS ']'
+  /* none */
+  { $$ = -1; }
+  | '[' GroupRHS ']' 
   { $$ = Num_Group(&Group_S, (char*)"PO_Support", $2); }
  ;
 
@@ -7491,7 +7491,7 @@ PrintSubType :
 
     tOnGlobal
     {
-      PostSubOperation_S.SubType = PRINT_ONREGION;
+      PostSubOperation_S.SubType = PRINT_ONREGION; 
       PostSubOperation_S.Case.OnRegion.RegionIndex = -1;
     }
 
