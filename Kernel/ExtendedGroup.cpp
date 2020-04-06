@@ -77,6 +77,10 @@ int Check_IsEntityInExtendedGroup(struct Group * Group_P, int Entity, int Flag)
 
 void Generate_ExtendedGroup(struct Group * Group_P)
 {
+  // struct Group * RegionGroup_P = NULL;
+  // bool isInitialListEL = false;
+  // bool isInitialSuppListEL = false;
+  // bool isInitialSuppList2EL = false;
 
   Message::Info("  Generate ExtendedGroup '%s' (%s, %s)", Group_P->Name,
                 Get_StringForDefine(FunctionForGroup_Type, Group_P->FunctionType),
@@ -135,10 +139,31 @@ void Generate_ExtendedGroup(struct Group * Group_P)
     break ;
 
   case EDGESOFTREEIN :
-    Geo_GenerateEdgesOfTree(Group_P->InitialList, Group_P->InitialSuppList,
-                            Group_P->InitialSuppList2, Group_P->SuppListType2,
-			    &Group_P->ExtendedList) ;
+    {
+    List_T * List0 = Group_P->InitialList;
+    List_T * List1 = Group_P->InitialSuppList;
+    List_T * List2 = Group_P->InitialSuppList2;
+    bool isElementList0 = false;
+    bool isElementList1 = false;
+    bool isElementList2 = false;
+
+    if( Group_P->InitialListGroupIndex != -1){
+      struct Group * RegionGroup_P = (struct Group *)
+        List_Pointer(Problem_S.Group, Group_P->InitialListGroupIndex);
+      if( RegionGroup_P->Type == ELEMENTLIST) {
+        if (!RegionGroup_P->ExtendedList) Generate_ExtendedGroup(RegionGroup_P);
+        isElementList0 = true;
+        List0 = RegionGroup_P->ExtendedList;
+      }
+    } // similar operation could be done for List1 and List2 if need be
+
+    Geo_GenerateEdgesOfTree(List0, isElementList0,
+                            List1, isElementList1,
+                            List2, isElementList2,
+                            Group_P->SuppListType2, &Group_P->ExtendedList) ;
+
     Geo_AddGroupForPRE(Group_P->Num) ;
+    }
     break ;
 
   case FACETSOFTREEIN :
@@ -1200,8 +1225,10 @@ void  Generate_Elements(List_T * InitialList,
   case SUPPLIST_DISJOINTOF :
     Entity_Tr = Tree_Create(sizeof(int), fcmp_int) ;
     if (List_Nbr(InitialSuppList)) {
+
       Generate_ElementaryEntities(InitialSuppList,
                                   &ExtendedSuppList, NODESOF) ;
+
       for (i_Element = 0 ; i_Element < Nbr_Element ; i_Element++) {
         GeoElement = Geo_GetGeoElement(i_Element) ;
         if (List_Search(InitialList, &GeoElement->Region, fcmp_int)) {
@@ -1287,5 +1314,4 @@ void  Generate_Elements(List_T * InitialList,
     break ;
 
   }
-
 }

@@ -480,6 +480,9 @@ Group :
       Group_S.FunctionType = REGION;
       Group_S.InitialSuppList = NULL;
       Group_S.SuppListType = SUPPLIST_NONE;
+      Group_S.InitialListGroupIndex = -1;
+      Group_S.InitialSuppListGroupIndex  = -1;
+      Group_S.InitialSuppList2GroupIndex  = -1;
       Group_S.MovingBand2D = (struct MovingBand2D *)Malloc(sizeof(struct MovingBand2D));
       Group_S.MovingBand2D->PhysNum = j;
     }
@@ -538,6 +541,9 @@ ReducedGroupRHS :
       Group_S.FunctionType = REGION;  Group_S.Type = REGIONLIST;
       Group_S.InitialList = $2;
       Group_S.SuppListType = SUPPLIST_NONE;  Group_S.InitialSuppList = NULL;
+      Group_S.InitialListGroupIndex = -1;
+      Group_S.InitialSuppListGroupIndex  = -1;
+      Group_S.InitialSuppList2GroupIndex  = -1;
       $$ = -1;
     }
  ;
@@ -553,13 +559,13 @@ GroupRHS :
     {
       int i;
       if(!strcmp($1, "All")) { //+++ Never considered because token tAll exists!
-	$$ = -3;
+        $$ = -3;
       }
       else if((i = List_ISearchSeq(Problem_S.Group, $1, fcmp_Group_Name)) >= 0) {
-	List_Read(Problem_S.Group, i, &Group_S); $$ = i;
+        List_Read(Problem_S.Group, i, &Group_S); $$ = i;
       }
       else {
-	$$ = -2; vyyerror(0, "Unknown Group: %s", $1);
+        $$ = -2; vyyerror(0, "Unknown Group: %s", $1);
       }
       Free($1);
     }
@@ -573,13 +579,24 @@ GroupRHS :
 FunctionForGroup :
 
     tRegion
-    { $$ = REGION; }
+    { 
+      Group_S.InitialListGroupIndex = -1;
+      Group_S.InitialSuppListGroupIndex  = -1;
+      Group_S.InitialSuppList2GroupIndex  = -1;
+      nb_SuppList = -1;
+      $$ = REGION; 
+    }
 
   | tSTRING
-    { $$ = Get_DefineForString(FunctionForGroup_Type, $1, &FlagError);
+    {
+      Group_S.InitialListGroupIndex = -1;
+      Group_S.InitialSuppListGroupIndex  = -1;
+      Group_S.InitialSuppList2GroupIndex  = -1;
+      nb_SuppList = -1;
+      $$ = Get_DefineForString(FunctionForGroup_Type, $1, &FlagError);
       if(FlagError){
-	Get_Valid_SXD($1, FunctionForGroup_Type);
-	vyyerror(0, "Unknown type of Function for Group: %s", $1);
+        Get_Valid_SXD($1, FunctionForGroup_Type);
+        vyyerror(0, "Unknown type of Function for Group: %s", $1);
       }
       Free($1);
     }
@@ -619,6 +636,11 @@ SuppListOfRegion :
             $$ = List_Create(1, 5, sizeof(int));
             List_Add($$, &i);
             ListsOfRegion[nb_SuppList] = $$;
+
+            if( nb_SuppList+1 == 1 )
+              Group_S.InitialSuppListGroupIndex = i;
+            if( nb_SuppList+1 == 2 )
+              Group_S.InitialSuppList2GroupIndex = i;
           }
           else  vyyerror(0, "Not a Support of Element Type: %s", $4);
         }
@@ -635,7 +657,7 @@ SuppListOfRegion :
       // This is a bit of a hack, due to the fact the groups needed for trees
       // with autosimilarity constraints are constructed in the parser when
       // analysing the Constraint field. Since we cannot "just create a group",
-      // we use the SyppList type to encode the AlignedWith parameter.
+      // we use the SuppList type to encode the AlignedWith parameter.
       if (nb_SuppList+1 <= 2) {
         if(!strcmp($4, "Z")) {
           Type_SuppLists[nb_SuppList] = -3;
@@ -657,8 +679,8 @@ SuppListTypeForGroup :
     tSTRING
     { $$ = Get_DefineForString(FunctionForGroup_SuppList, $1, &FlagError);
       if(FlagError){
-	Get_Valid_SXD($1, FunctionForGroup_SuppList);
-	vyyerror(0, "Unknown type of Supplementary Region: %s", $1);
+        Get_Valid_SXD($1, FunctionForGroup_SuppList);
+        vyyerror(0, "Unknown type of Supplementary Region: %s", $1);
       }
       Free($1);
     }
@@ -670,7 +692,7 @@ ListOfRegion :
     {
       $$ = List_Create(((List_Nbr($1) > 0)? List_Nbr($1) : 1), 5, sizeof(int));
       for(int i = 0; i < List_Nbr($1); i++)
-	List_Add($$, (int *)List_Pointer($1, i));
+        List_Add($$, (int *)List_Pointer($1, i));
     }
 
   | '{' RecursiveListOfRegion '}'
@@ -688,14 +710,14 @@ RecursiveListOfRegion :
     {
       $$ = $1;
       for(int i = 0; i < List_Nbr($3); i++)
-	List_Add($$, (int *)List_Pointer($3, i));
+        List_Add($$, (int *)List_Pointer($3, i));
     }
 
   | RecursiveListOfRegion Comma '-' IRegion
     {
       $$ = $1;
       for(int i = 0; i < List_Nbr($4); i++)
-	List_Suppress($$, (int *)List_Pointer($4, i), fcmp_Integer);
+        List_Suppress($$, (int *)List_Pointer($4, i), fcmp_Integer);
     }
  ;
 
@@ -711,20 +733,20 @@ IRegion :
     {
       List_Reset($$ = ListOfInt_L);
       for(int j = $1; ($1 < $3) ? (j <= $3) : (j >= $3);
-	  ($1 < $3) ? (j += 1) : (j -= 1))
-	List_Add(ListOfInt_L, &j);
+          ($1 < $3) ? (j += 1) : (j -= 1))
+        List_Add(ListOfInt_L, &j);
     }
 
   | tINT tDOTS tINT tDOTS tINT
     {
       List_Reset($$ = ListOfInt_L);
       if(!$5 || ($1 < $3 && $5 < 0) || ($1 > $3 && $5 > 0)){
-	vyyerror(0, "Wrong increment in '%d : %d : %d'", $1, $3, $5);
-	List_Add(ListOfInt_L, &($1));
+        vyyerror(0, "Wrong increment in '%d : %d : %d'", $1, $3, $5);
+        List_Add(ListOfInt_L, &($1));
       }
       else
-	for(int j = $1; ($5 > 0) ? (j <= $3) : (j >= $3); j += $5)
-	  List_Add($$, &j);
+        for(int j = $1; ($5 > 0) ? (j <= $3) : (j >= $3); j += $5)
+          List_Add($$, &j);
     }
 
   | Struct_FullName
@@ -732,35 +754,49 @@ IRegion :
       if ($1.char1) vyyerror(1, "NameSpace '%s' not used yet", $1.char1);
       int i;
       if((i = List_ISearchSeq(Problem_S.Group, $1.char2, fcmp_Group_Name)) < 0) {
-	// Si ce n'est pas un nom de groupe, est-ce un nom de constante ? :
-	Constant_S.Name = $1.char2;
-	if(!Tree_Query(ConstantTable_L, &Constant_S)) {
-	  vyyerror(0, "Unknown Constant: %s", $1.char2);
-	  i = 0;
-	  List_Reset(ListOfInt_L); List_Add($$ = ListOfInt_L, &i);
-	}
-	else
-	  if(Constant_S.Type == VAR_FLOAT) {
-	    i = (int)Constant_S.Value.Float;
-	    List_Reset(ListOfInt_L); List_Add($$ = ListOfInt_L, &i);
-	  }
-	  else if(Constant_S.Type == VAR_LISTOFFLOAT) {
-	    List_Reset($$ = ListOfInt_L);
-	    for(int i = 0; i < List_Nbr(Constant_S.Value.List); i++) {
-	      double d;
-	      List_Read(Constant_S.Value.List, i, &d);
-	      int j = (int)d;
-	      List_Add(ListOfInt_L, &j);
-	    }
-	  }
-	  else {
-	    vyyerror(0, "Unknown type of Constant: %s", $1.char2);
-	    i = 0;
-	    List_Reset(ListOfInt_L); List_Add($$ = ListOfInt_L, &i);
-	  }
+        // Si ce n'est pas un nom de groupe, est-ce un nom de constante ? :
+        Constant_S.Name = $1.char2;
+        if(!Tree_Query(ConstantTable_L, &Constant_S)) {
+          vyyerror(0, "Unknown Constant: %s", $1.char2);
+          i = 0;
+          List_Reset(ListOfInt_L); List_Add($$ = ListOfInt_L, &i);
+        }
+        else {
+          if(Constant_S.Type == VAR_FLOAT) {
+            i = (int)Constant_S.Value.Float;
+            List_Reset(ListOfInt_L); List_Add($$ = ListOfInt_L, &i);
+          }
+          else if(Constant_S.Type == VAR_LISTOFFLOAT) {
+            List_Reset($$ = ListOfInt_L);
+            for(int i = 0; i < List_Nbr(Constant_S.Value.List); i++) {
+              double d;
+              List_Read(Constant_S.Value.List, i, &d);
+              int j = (int)d;
+              List_Add(ListOfInt_L, &j);
+            }
+          }
+          else {
+            vyyerror(0, "Unknown type of Constant: %s", $1.char2);
+            i = 0;
+            List_Reset(ListOfInt_L); List_Add($$ = ListOfInt_L, &i);
+          }
+        }
       }
-      else // Si c'est un nom de groupe :
-	$$ = ((struct Group *)List_Pointer(Problem_S.Group, i))->InitialList;
+      else{ // Si c'est un nom de groupe :
+        struct Group * theGroup_P = (struct Group *)List_Pointer(Problem_S.Group, i);
+        $$ = theGroup_P->InitialList;
+
+        // if the group is en ELEMENTLIST keep track of its index
+        // in the appropriate GroupIndex parameter
+        if( theGroup_P->Type == ELEMENTLIST){ 
+          if( nb_SuppList < 1 )
+            Group_S.InitialListGroupIndex = i;
+          else if( nb_SuppList == 1 )
+            Group_S.InitialSuppListGroupIndex = i;
+          else
+            Group_S.InitialSuppList2GroupIndex = i;
+        }
+      }
       Free($1.char1); Free($1.char2);
     }
 
@@ -777,10 +813,10 @@ IRegion :
       List_Reset(ListOfInt_L);
 
       for(int i = 0; i < List_Nbr($2); i++) {
-	double d;
-	List_Read($2, i, &d);
-	int j = (int)d;
-	List_Add(ListOfInt_L, &j);
+        double d;
+        List_Read($2, i, &d);
+        int j = (int)d;
+        List_Add(ListOfInt_L, &j);
       }
       $$ = ListOfInt_L;
     }
@@ -791,10 +827,10 @@ IRegion :
       List_Reset(ListOfInt_L);
 
       for(int i = 0; i < List_Nbr($2); i++) {
-	double d;
-	List_Read($2, i, &d);
-	int j = (int)d;
-	List_Add(ListOfInt_L, &j);
+        double d;
+        List_Read($2, i, &d);
+        int j = (int)d;
+        List_Add(ListOfInt_L, &j);
       }
       $$ = ListOfInt_L;
     }
@@ -840,10 +876,14 @@ DefineGroups :
     {
       int i;
       if ( (i = List_ISearchSeq(Problem_S.Group, $3, fcmp_Group_Name)) < 0 ) {
-	Group_S.Type = REGIONLIST ; Group_S.FunctionType = REGION ;
-	Group_S.InitialList = List_Create( 5, 5, sizeof(int)) ;
-	Group_S.SuppListType = SUPPLIST_NONE ; Group_S.InitialSuppList = NULL ;
-	i = Add_Group(&Group_S, $3, 0, 0, 0) ;
+        Group_S.Type = REGIONLIST ; Group_S.FunctionType = REGION ;
+        Group_S.InitialList = List_Create( 5, 5, sizeof(int)) ;
+        Group_S.SuppListType = SUPPLIST_NONE ; Group_S.InitialSuppList = NULL ;
+        Group_S.InitialListGroupIndex = -1;
+        Group_S.InitialSuppListGroupIndex  = -1;
+        Group_S.InitialSuppList2GroupIndex  = -1;
+ 
+        i = Add_Group(&Group_S, $3, 0, 0, 0) ;
       }
       else  Free($3) ;
     }
@@ -863,6 +903,9 @@ DefineGroups :
             Fill_GroupInitialListFromString(Group_S.InitialList, vec[i].c_str());
         }
 	Group_S.SuppListType = SUPPLIST_NONE ; Group_S.InitialSuppList = NULL ;
+    Group_S.InitialListGroupIndex = -1;
+    Group_S.InitialSuppListGroupIndex  = -1;
+    Group_S.InitialSuppList2GroupIndex  = -1;
 	i = Add_Group(&Group_S, $3, 0, 0, 0) ;
       }
       else  Free($3) ;
@@ -879,6 +922,9 @@ DefineGroups :
 	  Group_S.Type = REGIONLIST ; Group_S.FunctionType = REGION ;
 	  Group_S.SuppListType = SUPPLIST_NONE ; Group_S.InitialSuppList = NULL ;
 	  Group_S.InitialList = List_Create( 5, 5, sizeof(int)) ;
+      Group_S.InitialListGroupIndex = -1;
+      Group_S.InitialSuppListGroupIndex  = -1;
+      Group_S.InitialSuppList2GroupIndex  = -1;
 	  Add_Group(&Group_S, $3, 0, 2, k+1) ;
 	}
       }
@@ -3034,53 +3080,79 @@ ConstraintInFSs :
          SuppListType2 */
       Group_S.SuppListType2 = Type_SuppList;
 
+      Group_S.InitialListGroupIndex = -1;
+      Group_S.InitialSuppListGroupIndex  = -1;
+      Group_S.InitialSuppList2GroupIndex  = -1;
+
       switch (Group_S.FunctionType) {
       case ELEMENTSOF :  Group_S.Type = ELEMENTLIST;  break;
       default :          Group_S.Type = REGIONLIST ;  break;
       }
 
       if(Constraint_Index >= 0) {
-	Constraint_P = (struct Constraint *)
-	  List_Pointer(Problem_S.Constraint, Constraint_Index);
+        Constraint_P = (struct Constraint *)
+          List_Pointer(Problem_S.Constraint, Constraint_Index);
 
-	for(int i = 0; i < List_Nbr(Constraint_P->ConstraintPerRegion); i++) {
-	  ConstraintPerRegion_P = (struct ConstraintPerRegion *)
-	    List_Pointer(Constraint_P->ConstraintPerRegion, i);
+        for(int i = 0; i < List_Nbr(Constraint_P->ConstraintPerRegion); i++) {
+          ConstraintPerRegion_P = (struct ConstraintPerRegion *)
+            List_Pointer(Constraint_P->ConstraintPerRegion, i);
 
-	  if(ConstraintPerRegion_P->RegionIndex >= 0) {
-	    Group_S.InitialList =
-	      ((struct Group *)
-	       List_Pointer(Problem_S.Group, ConstraintPerRegion_P->RegionIndex))
-	      ->InitialList;
-	    Group_S.InitialSuppList =
-	      (ConstraintPerRegion_P->SubRegionIndex >= 0)?
-	      ((struct Group *)
-	       List_Pointer(Problem_S.Group,
-			    ConstraintPerRegion_P->SubRegionIndex))
-	      ->InitialList : NULL;
-	    Group_S.InitialSuppList2 =
-	      (ConstraintPerRegion_P->SubRegion2Index >= 0)?
-	      ((struct Group *)
-	       List_Pointer(Problem_S.Group,
-			    ConstraintPerRegion_P->SubRegion2Index))
-	      ->InitialList : NULL;
+          if( ConstraintPerRegion_P->RegionIndex >= 0 ) {
 
-            // this is the hack :-)
-            if(ConstraintPerRegion_P->SubRegion2Index >= 0) {
-              Group_S.SuppListType2 =
-                ((struct Group *)
-                 List_Pointer(Problem_S.Group,
-                              ConstraintPerRegion_P->SubRegion2Index))
-                ->SuppListType;
+            struct Group * theGroup_P = (struct Group *)
+              List_Pointer(Problem_S.Group, ConstraintPerRegion_P->RegionIndex);
+            Group_S.InitialList = theGroup_P->InitialList;
+            if( theGroup_P->Type == ELEMENTLIST)
+              Group_S.InitialListGroupIndex = ConstraintPerRegion_P->RegionIndex;
+
+            if( ConstraintPerRegion_P->SubRegionIndex >= 0 ){
+              theGroup_P = (struct Group *)
+                List_Pointer(Problem_S.Group, ConstraintPerRegion_P->SubRegionIndex);
+              Group_S.InitialSuppList = theGroup_P->InitialList;
+              if( theGroup_P->Type == ELEMENTLIST)
+                Group_S.InitialSuppListGroupIndex = ConstraintPerRegion_P->SubRegionIndex;
             }
+            else
+              Group_S.InitialSuppList = NULL;
 
-            ConstraintInFS_S.EntityIndex = Add_Group(&Group_S, (char*)"CO_Entity",
-                                                     0, 1, 0);
-	    ConstraintInFS_S.ConstraintPerRegion = ConstraintPerRegion_P;
+            if( ConstraintPerRegion_P->SubRegion2Index >= 0 ){
+              theGroup_P = (struct Group *)
+                List_Pointer(Problem_S.Group, ConstraintPerRegion_P->SubRegion2Index);
+              Group_S.InitialSuppList2 = theGroup_P->InitialList;
+              Group_S.SuppListType2 = theGroup_P->SuppListType; // this is the hack :-)
+              if( theGroup_P->Type == ELEMENTLIST)
+                Group_S.InitialSuppList2GroupIndex = ConstraintPerRegion_P->SubRegion2Index;
+            }
+            else
+              Group_S.InitialSuppList2 = NULL;
 
-	    List_Add(FunctionSpace_S.Constraint, &ConstraintInFS_S);
-	  }
-	}
+            /* Group_S.InitialSuppList = */
+            /*   (ConstraintPerRegion_P->SubRegionIndex >= 0) ? */
+            /*   ((struct Group *) List_Pointer(Problem_S.Group, ConstraintPerRegion_P->SubRegionIndex)) */
+            /*   ->InitialList : NULL; */
+            /* Group_S.InitialSuppListGroupIndex = ConstraintPerRegion_P->SubRegionIndex; */
+            /* Group_S.InitialSuppList2 = */
+            /*   (ConstraintPerRegion_P->SubRegion2Index >= 0) ? */
+            /*   ((struct Group *) List_Pointer(Problem_S.Group, */
+            /*       ConstraintPerRegion_P->SubRegion2Index)) */
+            /*   ->InitialList : NULL; */
+            /* Group_S.InitialSuppList2GroupIndex = ConstraintPerRegion_P->SubRegion2Index; */
+            // this is the hack :-)
+            /* if(ConstraintPerRegion_P->SubRegion2Index >= 0) { */
+            /*   Group_S.SuppListType2 = */
+            /*     ((struct Group *) */
+            /*      List_Pointer(Problem_S.Group, */
+            /*                   ConstraintPerRegion_P->SubRegion2Index)) */
+            /*     ->SuppListType; */
+            /* } */
+
+            ConstraintInFS_S.EntityIndex = 
+              Add_Group(&Group_S, (char*)"CO_Entity",0, 1, 0);
+            ConstraintInFS_S.ConstraintPerRegion = ConstraintPerRegion_P;
+
+            List_Add(FunctionSpace_S.Constraint, &ConstraintInFS_S);
+          }
+        }
       }
     }
 
@@ -7324,7 +7396,7 @@ PostSubOperation :
 
   | tPrintGroup '[' GroupRHS
     {
-      PostSubOperation_S.Type = POP_GROUP;
+      PostSubOperation_S.Type = POP_GROUP; 
       PostSubOperation_S.Case.Group.ExtendedGroupIndex =
         Num_Group(&Group_S, (char*)"PO_Group", $3);
       PostSubOperation_S.PostQuantityIndex[0] = -1;
@@ -7409,9 +7481,9 @@ Combination :
 
 PostQuantitySupport :
 
-    /* none */
-    { $$ = -1; }
-  | '[' GroupRHS ']'
+  /* none */
+  { $$ = -1; }
+  | '[' GroupRHS ']' 
   { $$ = Num_Group(&Group_S, (char*)"PO_Support", $2); }
  ;
 
@@ -7419,7 +7491,7 @@ PrintSubType :
 
     tOnGlobal
     {
-      PostSubOperation_S.SubType = PRINT_ONREGION;
+      PostSubOperation_S.SubType = PRINT_ONREGION; 
       PostSubOperation_S.Case.OnRegion.RegionIndex = -1;
     }
 
