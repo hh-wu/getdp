@@ -98,6 +98,7 @@ struct Group {
   int     Num,  Type, FunctionType, SuppListType, SuppListType2;
   List_T *InitialList, *InitialSuppList, *InitialSuppList2;
   List_T *ExtendedList, *ExtendedSuppList, *ExtendedSuppList2;
+  int     InitialListGroupIndex, InitialSuppListGroupIndex, InitialSuppList2GroupIndex;
   std::multimap<int, TwoInt> ExtendedListForSearch;
   struct  MovingBand2D *MovingBand2D;
 };

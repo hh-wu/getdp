@@ -1332,10 +1332,41 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 
   if (CPQ_P) {
     PQ_P = CPQ_P ;
-    Support_L = /* for e.g. PQ[ Support ] ... */
+    /* 
+       If the PostQuantityTerm is an Integral quantity to be integrated 
+       over a support in this 'Print' PostOperation
+       (i.e. syntax: PQ[ Support ]), the InitialList (list of regions) of the 
+       group 'Support' is affected to Support_L.
+       If however the group 'Support' is of type ELEMENTLIST,
+       the latter is substituted to the ->InIndex of the PostQuantityTerm here,
+       i.e., just before evaluation.
+
+       For consistency, it should be checked that all ellements
+       in the ELEMENTLIST Support are indeed in the region PostQuantityTerm->InIndex.
+       This is not done. 
+    */
+
+    /* code original - enlever apres vérification FH
+    Support_L = // for e.g. PQ[ Support ] ...
       ((struct Group *)
        List_Pointer(Problem_S.Group,
-                    PSO_P->PostQuantitySupport[Order]))->InitialList ;
+                    PSO_P->PostQuantitySupport[Order]))->InitialList ; 
+    */
+
+    // FIXME reuse Group_P instead of definig a specific variable ?
+    struct Group * SupportGroup_P = (struct Group *)  
+      List_Pointer(Problem_S.Group, PSO_P->PostQuantitySupport[Order]);
+
+    Support_L = SupportGroup_P->InitialList; // for e.g. PQ[ Support ] ...
+
+    if( SupportGroup_P->Type == ELEMENTLIST ) {
+      ((struct PostQuantityTerm *)
+       List_Pointer(PQ_P->PostQuantityTerm, 0))->InIndex = SupportGroup_P->Num;
+      // FIXME What if PostQuantity has several PostQuantityTerm's ?
+      // Here only the first term (index 0) is considered.
+    }
+
+
   }
   else {
     PQ_P = NCPQ_P ;  Support_L = NULL ;
@@ -1351,6 +1382,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
     (struct Group *)
      List_Pointer(Problem_S.Group,
 		  PSO_P->Case.OnRegion.RegionIndex);
+
   Region_L =  Group_P?  Group_P->InitialList : NULL ;
   Group_FunctionType = Group_P? Group_P->FunctionType : REGION;
 
@@ -1441,8 +1473,8 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
       Current.x = Current.y = Current.z = 0. ;
 
       if (Type_Evaluation == GLOBAL) {
-	Cal_PostQuantity(PQ_P, DefineQuantity_P0, QuantityStorage_P0,
-			 Support_L, &Element, 0., 0., 0., &Value) ;
+        Cal_PostQuantity(PQ_P, DefineQuantity_P0, QuantityStorage_P0,
+                         Support_L, &Element, 0., 0., 0., &Value) ;
       }
       else {
 	if (Group_FunctionType == NODESOF)
