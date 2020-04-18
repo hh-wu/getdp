@@ -1441,7 +1441,7 @@ struct PostQuantityTerm {
 /* ------------------------------------------------------------------------ */
 
 struct PostOperation {
-  char    *Name, *AppendString;
+  char    *Name, *AppendString, *Comma;
   bool     Hidden;
   int      PostProcessingIndex, Format;
   List_T  *PostSubOperation;
@@ -1456,7 +1456,8 @@ struct PostOperation {
 struct PostSubOperation {
   int    PostQuantityIndex[2], PostQuantitySupport[2];
   int    Type, SubType, CombinationType;
-  int    Depth, Skin, Smoothing, Dimension, Comma, HarmonicToTime, CatFile;
+  int    Depth, Skin, Smoothing, Dimension, HarmonicToTime, CatFile;
+  char  *Comma;
   int    TimeToHarmonic;
   int    FourierTransform;
   int    Format, Adapt, Sort, Iso, NoNewLine, NoTitle, DecomposeInSimplex;
