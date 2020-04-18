@@ -7341,7 +7341,7 @@ PostSubOperations :
           PostSubOperation_S.AppendTimeStepToFileName = PostOperation_S.AppendTimeStepToFileName;
 	if(!PostSubOperation_S.NoMesh)
           PostSubOperation_S.NoMesh = PostOperation_S.NoMesh;
-	if(!PostSubOperation_S.Comma)
+	if(!PostSubOperation_S.Comma && PostOperation_S.Comma)
           PostSubOperation_S.Comma = strSave(PostOperation_S.Comma);
 	if(PostSubOperation_S.OverrideTimeStepValue < 0)
           PostSubOperation_S.OverrideTimeStepValue = PostOperation_S.OverrideTimeStepValue;
