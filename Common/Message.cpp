@@ -1160,6 +1160,8 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
       ps[0].setAttribute("Closed", copt["Closed"][0]);
     if(noClosed && fopt.count("Closed"))
       ps[0].setAttribute("Closed", fopt["Closed"][0] ? "1" : "0");
+    if(copt.count("NumberFormat"))
+      ps[0].setAttribute("NumberFormat", copt["NumberFormat"][0]);
     _setStandardOptions(&ps[0], fopt, copt);
     _onelabClient->set(ps[0]);
   }

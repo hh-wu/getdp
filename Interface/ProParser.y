@@ -579,12 +579,12 @@ GroupRHS :
 FunctionForGroup :
 
     tRegion
-    { 
+    {
       Group_S.InitialListGroupIndex = -1;
       Group_S.InitialSuppListGroupIndex  = -1;
       Group_S.InitialSuppList2GroupIndex  = -1;
       nb_SuppList = -1;
-      $$ = REGION; 
+      $$ = REGION;
     }
 
   | tSTRING
@@ -788,7 +788,7 @@ IRegion :
 
         // if the group is en ELEMENTLIST keep track of its index
         // in the appropriate GroupIndex parameter
-        if( theGroup_P->Type == ELEMENTLIST){ 
+        if( theGroup_P->Type == ELEMENTLIST){
           if( nb_SuppList < 1 )
             Group_S.InitialListGroupIndex = i;
           else if( nb_SuppList == 1 )
@@ -882,7 +882,7 @@ DefineGroups :
         Group_S.InitialListGroupIndex = -1;
         Group_S.InitialSuppListGroupIndex  = -1;
         Group_S.InitialSuppList2GroupIndex  = -1;
- 
+
         i = Add_Group(&Group_S, $3, 0, 0, 0) ;
       }
       else  Free($3) ;
@@ -3146,7 +3146,7 @@ ConstraintInFSs :
             /*     ->SuppListType; */
             /* } */
 
-            ConstraintInFS_S.EntityIndex = 
+            ConstraintInFS_S.EntityIndex =
               Add_Group(&Group_S, (char*)"CO_Entity",0, 1, 0);
             ConstraintInFS_S.ConstraintPerRegion = ConstraintPerRegion_P;
 
@@ -7076,6 +7076,7 @@ PostOperation :
       PostOperation_S.OverrideTimeStepValue = -1;
       PostOperation_S.AppendTimeStepToFileName = 0;
       PostOperation_S.NoMesh = 0;
+      PostOperation_S.Comma = NULL;
       PostOperation_S.CatFile = 0;
       PostOperation_S.PostSubOperation = NULL;
       level_Append = 0;
@@ -7167,6 +7168,11 @@ PostOperationTerm :
       PostOperation_S.NoMesh = $2;
     }
 
+  | tComma CharExpr tEND
+    {
+      PostOperation_S.Comma = $2;
+    }
+
   | tOverrideTimeStepValue FExpr tEND
     {
       PostOperation_S.OverrideTimeStepValue = $2;
@@ -7202,6 +7208,7 @@ SeparatePostOperation :
       PostOperation_S.AppendTimeStepToFileName = 0;
       PostOperation_S.OverrideTimeStepValue = -1;
       PostOperation_S.NoMesh = 0;
+      PostOperation_S.Comma = NULL;
       PostOperation_S.CatFile = 0;
       PostOperation_S.PostSubOperation = NULL;
       level_Append = $2; index_Append = -1;
@@ -7256,7 +7263,7 @@ PostSubOperations :
       PostSubOperation_S.Depth = 1;
       PostSubOperation_S.Smoothing = 0;
       PostSubOperation_S.Skin = 0;
-      PostSubOperation_S.Comma = 0;
+      PostSubOperation_S.Comma = NULL;
       PostSubOperation_S.Dimension = DIM_ALL;
       PostSubOperation_S.Adapt = 0;
       PostSubOperation_S.Target = -1.;
@@ -7334,6 +7341,8 @@ PostSubOperations :
           PostSubOperation_S.AppendTimeStepToFileName = PostOperation_S.AppendTimeStepToFileName;
 	if(!PostSubOperation_S.NoMesh)
           PostSubOperation_S.NoMesh = PostOperation_S.NoMesh;
+	if(!PostSubOperation_S.Comma && PostOperation_S.Comma)
+          PostSubOperation_S.Comma = strSave(PostOperation_S.Comma);
 	if(PostSubOperation_S.OverrideTimeStepValue < 0)
           PostSubOperation_S.OverrideTimeStepValue = PostOperation_S.OverrideTimeStepValue;
 	if(!PostSubOperation_S.CatFile)
@@ -7396,7 +7405,7 @@ PostSubOperation :
 
   | tPrintGroup '[' GroupRHS
     {
-      PostSubOperation_S.Type = POP_GROUP; 
+      PostSubOperation_S.Type = POP_GROUP;
       PostSubOperation_S.Case.Group.ExtendedGroupIndex =
         Num_Group(&Group_S, (char*)"PO_Group", $3);
       PostSubOperation_S.PostQuantityIndex[0] = -1;
@@ -7483,7 +7492,7 @@ PostQuantitySupport :
 
   /* none */
   { $$ = -1; }
-  | '[' GroupRHS ']' 
+  | '[' GroupRHS ']'
   { $$ = Num_Group(&Group_S, (char*)"PO_Support", $2); }
  ;
 
@@ -7491,7 +7500,7 @@ PrintSubType :
 
     tOnGlobal
     {
-      PostSubOperation_S.SubType = PRINT_ONREGION; 
+      PostSubOperation_S.SubType = PRINT_ONREGION;
       PostSubOperation_S.Case.OnRegion.RegionIndex = -1;
     }
 
@@ -7756,7 +7765,11 @@ PrintOption :
     }
   | ',' tComma
     {
-      PostSubOperation_S.Comma = 1;
+      PostSubOperation_S.Comma = strSave(",");
+    }
+  | ',' tComma CharExpr
+    {
+      PostSubOperation_S.Comma = $3;
     }
   | ',' tValueIndex FExpr
     {
