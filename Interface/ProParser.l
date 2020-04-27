@@ -579,6 +579,7 @@ void parseString(char endchar)
       break;
     }
     else if(c == '\n') {
+      getdp_yylinenum++;
       getdp_yycolnum = 0;
     }
     else if(i >= (int)sizeof(tmp)-1) {
@@ -734,7 +735,7 @@ void skipUntil_test(const char *skip, const char *until,
     for(int i = 1; i < l; i++){
       chars[i] = input();
       if(chars[i] == '\n'){
-        //        getdp_yylinenum++;
+        // getdp_yylinenum++;
         unput(chars[i]); chars[i] = 0; l = i; flag_EOL_EOF = 1;
         break;
       }
@@ -759,7 +760,7 @@ void skipUntil_test(const char *skip, const char *until,
       *type_until2 = 1; // Found word is full until2 (e.g., "ElseIf")
       for(int i = 1; i <= l; i++){ // Only correct if l == l_until2
         unput(chars[l-i]);
-        //        if(chars[l-i] == '\n') getdp_yylinenum--;
+        // if(chars[l-i] == '\n') getdp_yylinenum--;
       } // New file position points "ElseIf", that will be then analysed by the parser
       return;
     }
@@ -767,14 +768,14 @@ void skipUntil_test(const char *skip, const char *until,
       *type_until2 = 2; // Found word is subword from until2 (e.g., "Else")
       for(int i = 1; i <= l-l_until2_sub; i++){ // Only correct if l_until2_sub < l
         unput(chars[l-i]);
-        //        if(chars[l-i] == '\n') getdp_yylinenum--;
+        // if(chars[l-i] == '\n') getdp_yylinenum--;
       }
       return;
     }
     else if(!strncmp(chars,until,l_until) && !is_alpha(c_next_until)){
       for(int i = 1; i <= l-l_until; i++){
         unput(chars[l-i]);
-        //        if(chars[l-i] == '\n') getdp_yylinenum--;
+        // if(chars[l-i] == '\n') getdp_yylinenum--;
       }
       if(!nb_skip){
 	return;
@@ -789,7 +790,7 @@ void skipUntil_test(const char *skip, const char *until,
     else{
       for(int i = 1; i < l - 1; i++){
 	unput(chars[l-i]);
-        //        if(chars[l-i] == '\n') getdp_yylinenum--;
+        // if(chars[l-i] == '\n') getdp_yylinenum--;
       }
     }
 
