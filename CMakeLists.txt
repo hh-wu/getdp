@@ -68,6 +68,7 @@ set(GETDP_MAJOR_VERSION 3)
 set(GETDP_MINOR_VERSION 3)
 set(GETDP_PATCH_VERSION 1)
 set(GETDP_EXTRA_VERSION "")
+set(GETDP_EXTRA_VERSION_TEXI "${GETDP_EXTRA_VERSION}")
 
 if(NOT GETDP_RELEASE)
   find_package(Git)
@@ -80,6 +81,7 @@ if(NOT GETDP_RELEASE)
   if(GIT_COMMIT_HASH)
     set(GETDP_EXTRA_VERSION "${GETDP_EXTRA_VERSION}-git-${GIT_COMMIT_HASH}")
   endif()
+  set(GETDP_EXTRA_VERSION_TEXI "${GETDP_EXTRA_VERSION_TEXI} (development version)")
 endif()
 
 set(GETDP_VERSION "${GETDP_MAJOR_VERSION}.${GETDP_MINOR_VERSION}")
@@ -742,6 +744,12 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Common/GetDPConfig.h.in
                ${CMAKE_CURRENT_BINARY_DIR}/Common/GetDPConfig.h)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Common/GetDPVersion.h.in
                ${CMAKE_CURRENT_BINARY_DIR}/Common/GetDPVersion.h)
+
+# the texi file is modified in the source directory (not ideal, but since git
+# tracks the contents of the file this is acceptable as it will only change when
+# the actual version is changed - not for each git hash)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/doc/texinfo/version.texi.in
+               ${CMAKE_CURRENT_SOURCE_DIR}/doc/texinfo/version.texi)
 
 # process cmake environment variables so we can append them to the -I
 # include commands. This is not recommended (we should only use the
