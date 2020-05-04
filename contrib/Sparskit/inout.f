@@ -1,7 +1,7 @@
 c $Id: inout.f,v 1.1 2008-04-11 06:01:06 geuzaine Exp $
 c----------------------------------------------------------------------c
       subroutine psplot (ncol,ja,ia,iunt,mode)
-      integer ja(*),ia(*),iunt,ncol,id,mode
+      integer ja(*),ia(*),iunt,ncol,id(0),mode
       call pspltm (ncol, ncol, mode, ja, ia, ' ',
      &     0, 5.0, "in", 0, id, iunt)
       return

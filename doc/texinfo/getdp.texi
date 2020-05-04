@@ -21,7 +21,7 @@
 @c =========================================================================
 @c %**start of header
 @setfilename getdp.info
-@set GETDP-VERSION 3.0
+@include version.texi
 @set COPYRIGHT @copyright{} 1997-2020 P. Dular and C. Geuzaine, University of Liege
 @settitle GetDP @value{GETDP-VERSION}
 @footnotestyle separate
@@ -308,7 +308,6 @@ work. References and the latest news about GetDP are always available on
 
 @cindex Web site
 @cindex Internet address
-@cindex Mailing list
 @cindex Download
 
 GetDP is ``free software''; this means that everyone is free to use it and
@@ -533,23 +532,17 @@ free to join the project: we gladly accept all code contributions!
 
 @cindex Bugs, reporting
 @cindex Reporting bugs
-@cindex Contact information
-@cindex Mailing list
-@cindex Authors, e-mail
-@cindex E-mail, authors
 
-If you think you have found a bug in GetDP, you can report it by
-electronic mail to the GetDP mailing list at @email{getdp@@onelab.info},
-or file it directly into our bug tracking system at
-@url{http://gitlab.onelab.info/getdp/getdp/issues} (User name and password:
-@code{getdp}).  Please send as precise a description of the problem as
-you can, including sample input files that produce the bug (problem
-definition and mesh files). Don't forget to mention both the version of
-GetDP and the version of your operation system (@pxref{Running GetDP} to
-see how to get this information).
+Please file issues on
+@url{https://gitlab.onelab.info/getdp/getdp/issues}. Provide as precise
+a description of the problem as you can, including sample input files
+that produce the bug.  Don't forget to mention both the version of GetDP
+and the version of your operation system (@pxref{Running GetDP} to see
+how to get this information).
 
-See @ref{Frequently asked questions}, and the bug tracking system to see
-which problems we already know about.
+See @ref{Frequently asked questions}, and the
+@url{https://gitlab.onelab.info/getdp/getdp/issues,bug tracking system}
+to see which problems we already know about.
 
 @c =========================================================================
 @c How to Read this Manual
@@ -7442,10 +7435,10 @@ Discrete Problems''.
 
 @item Where can I find more information?
 
-@url{http://getdp.info} is the primary site to obtain information
-about GetDP. You will find a short presentation, a complete reference
-guide as well as a searchable archive of the GetDP mailing list
-(@email{getdp@@onelab.info}) on this site.
+@url{http://getdp.info} is the primary location to obtain information
+about GetDP. There you will for example find the complete reference
+manual and the @url{https://gitlab.onelab.info/getdp/getdp/issues,bug
+tracking database}.
 @end enumerate
 
 @c -------------------------------------------------------------------------
