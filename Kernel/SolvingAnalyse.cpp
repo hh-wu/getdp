@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2019 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2020 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
@@ -223,9 +223,10 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
 
   Nbr_PostSubOperation = List_Nbr(PostOperation_P->PostSubOperation) ;
   for (i_POP = 0 ; i_POP < Nbr_PostSubOperation ; i_POP++) {
-    Message::Info("PostOperation %d/%d ", i_POP+1, Nbr_PostSubOperation) ;
     PostSubOperation_P = (struct PostSubOperation*)
       List_Pointer(PostOperation_P->PostSubOperation, i_POP) ;
+    Message::Info("PostOperation '%s' %d/%d", PostOperation_P->Name, i_POP+1,
+                  Nbr_PostSubOperation) ;
     Pos_Formulation(Formulation_P, PostProcessing_P, PostSubOperation_P) ;
   }
 

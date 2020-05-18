@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2019 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2020 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
@@ -236,8 +236,8 @@ void MH_Get_InitData(int Case, int NbrPoints, int *NbrPointsX_P,
 
 
   if (Case == 2) {
-    if(Current.DofData->Flag_Init[0] < 2)
-      Message::Error("Jacobian system not initialized (missing GenerateJac?)");
+    //if(Current.DofData->Flag_Init[0] < 2)
+    //  Message::Error("Jacobian system not initialized (missing GenerateJac?)");
 
     HH = (double ***)Malloc(sizeof(double **)*NbrPointsX) ;
     for (iTime = 0 ; iTime < NbrPointsX ; iTime++){
@@ -482,7 +482,7 @@ void  Cal_GalerkinTermOfFemEquation_MHBilinear(struct Element          * Element
   struct Expression * Expression_P;
   struct Dof * Dofi, *Dofj;
 
-  double one=1.0 ;
+  // double one = 1.0 ;
   int iPul, ZeroHarmonic, DcHarmonic;
   double E_D[NBR_MAX_HARMONIC][NBR_MAX_HARMONIC][MAX_DIM];
 
@@ -660,10 +660,16 @@ void  Cal_GalerkinTermOfFemEquation_MHBilinear(struct Element          * Element
 
     Current.NbrHar = 1;  /* evaluation in time domain */
 
+    int saveTime = Current.Time;
+    int saveTimeStep = Current.TimeStep;
+
     std::vector<struct Value> t_Values(N + 1); // in case N==0
 
     // time integration over fundamental period
     for (iTime = 0 ; iTime < NbrPointsX ; iTime++) {
+
+      Current.TimeStep = iTime;
+      Current.Time = iTime * 2. * M_PI / (double)NbrPointsX;
 
       t_Values[0].Type = Type1 ;
       for (iVal1 = 0 ; iVal1 < nVal1 ; iVal1++){
@@ -704,6 +710,9 @@ void  Cal_GalerkinTermOfFemEquation_MHBilinear(struct Element          * Element
 
     } /* for iTime ... */
 
+    Current.TimeStep = saveTimeStep;
+    Current.Time = saveTime;
+
     for (iDof = 0 ; iDof < Nbr_Dof ; iDof++)
       for (jDof = 0 ; jDof <= iDof ; jDof++)
 	for (iHar = 0 ; iHar < NbrHar ; iHar++)
@@ -718,6 +727,15 @@ void  Cal_GalerkinTermOfFemEquation_MHBilinear(struct Element          * Element
 
   }  /* for i_IntPoint ... */
 
+  /* set imaginary part = to real part for 0th harmonic; this replaces the dummy
+     regularization that we did before (see below, "dummy 1's on the diagonal...") */
+  if(ZeroHarmonic){
+    for (iDof = 0 ; iDof < Nbr_Dof ; iDof++){
+      for (jDof = 0 ; jDof < Nbr_Dof ; jDof++){
+        E_MH[iDof][jDof][1][1] = E_MH[iDof][jDof][0][0];
+      }
+    }
+  }
 
   /*  --------------------------------------------------------------------  */
   /*  A d d   c o n t r i b u t i o n   t o  J a c o b i a n   M a t r i x  */
@@ -759,7 +777,7 @@ void  Cal_GalerkinTermOfFemEquation_MHBilinear(struct Element          * Element
   }
 
   /* dummy 1's on the diagonal for sinus-term of dc-component */
-
+  /*
   if (ZeroHarmonic) {
     for (iDof = 0 ; iDof < Nbr_Dof ; iDof++){
       Dofi = QuantityStorage_P->BasisFunction[iDof].Dof + ZeroHarmonic ;
@@ -769,6 +787,8 @@ void  Cal_GalerkinTermOfFemEquation_MHBilinear(struct Element          * Element
       Dof_AssembleInMat(Dofi, Dofi, 1, &one, matrix, rhs) ;
     }
   }
+  */
+
 }
 
 #undef OFFSET

@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2019 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2020 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
@@ -56,7 +56,7 @@
 #define MAX_STACK_SIZE0     8
 #define MAX_STACK_SIZE     20
 #elif defined(HAVE_MULTIHARMONIC)
-#define NBR_MAX_HARMONIC   40
+#define NBR_MAX_HARMONIC   200
 #define MAX_STACK_SIZE0     2
 #define MAX_STACK_SIZE     40
 #else
@@ -98,6 +98,7 @@ struct Group {
   int     Num,  Type, FunctionType, SuppListType, SuppListType2;
   List_T *InitialList, *InitialSuppList, *InitialSuppList2;
   List_T *ExtendedList, *ExtendedSuppList, *ExtendedSuppList2;
+  int     InitialListGroupIndex, InitialSuppListGroupIndex, InitialSuppList2GroupIndex;
   std::multimap<int, TwoInt> ExtendedListForSearch;
   struct  MovingBand2D *MovingBand2D;
 };
@@ -157,6 +158,7 @@ struct MovingBand2D {
 #define SUPPLIST_ONNEGATIVESIDEOF 5
 #define SUPPLIST_INSUPPORT        6
 #define SUPPLIST_CONNECTEDTO      7
+#define SUPPLIST_DISJOINTOF       8
 
 
 /* ------------------------------------------------------------------------ */
@@ -1439,7 +1441,7 @@ struct PostQuantityTerm {
 /* ------------------------------------------------------------------------ */
 
 struct PostOperation {
-  char    *Name, *AppendString;
+  char    *Name, *AppendString, *Comma;
   bool     Hidden;
   int      PostProcessingIndex, Format;
   List_T  *PostSubOperation;
@@ -1454,7 +1456,8 @@ struct PostOperation {
 struct PostSubOperation {
   int    PostQuantityIndex[2], PostQuantitySupport[2];
   int    Type, SubType, CombinationType;
-  int    Depth, Skin, Smoothing, Dimension, Comma, HarmonicToTime, CatFile;
+  int    Depth, Skin, Smoothing, Dimension, HarmonicToTime, CatFile;
+  char  *Comma;
   int    TimeToHarmonic;
   int    FourierTransform;
   int    Format, Adapt, Sort, Iso, NoNewLine, NoTitle, DecomposeInSimplex;

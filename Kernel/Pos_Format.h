@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2019 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2020 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
@@ -23,7 +23,7 @@ void  Format_PostElement(struct PostSubOperation * PSO_P, int Contour, int Store
 
 void  Format_PostValue(struct PostQuantity  *PQ_P,
                        struct PostSubOperation *PSO_P,
-                       int Format, int Flag_Comma, int Group_FunctionType,
+                       int Format, char * Comma, int Group_FunctionType,
 		       int iTime, double Time, int NbrTimeStep,
                        int iRegion, int numRegion, int NbrRegion,
 		       int NbrHarmonics, int HarmonicToTime, int FourierTransform,

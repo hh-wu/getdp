@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2019 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2020 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
@@ -17,6 +17,8 @@ void Generate_GroupsOfNodes(List_T * InitialList, List_T ** ExtendedList) ;
 void Generate_GroupsOfEdges(List_T * InitialList, int Type_SuppList,
 			    List_T * InitialSuppList, List_T ** ExtendedList) ;
 void Generate_GroupsOfFacets(List_T * InitialList, List_T ** ExtendedList) ;
+void Generate_EdgesConnectedToNodesOf(List_T *InitialList, List_T *NodeList,
+                                      List_T ** ExtendedList) ;
 void Generate_Elements(List_T * InitialList,
                        int Type_SuppList, List_T * InitialSuppList,
                        int Type_SuppList2, List_T * InitialSuppList2,

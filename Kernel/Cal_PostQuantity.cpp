@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2019 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2020 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
@@ -355,6 +355,10 @@ void Cal_PostQuantity(struct PostQuantity    *PostQuantity_P,
 		      struct Value *Value)
 {
   struct PostQuantityTerm  PostQuantityTerm ;
+
+  // InRegion_L is the region (group) on which the quantity in the
+  // PostProcessing section is defined (so it's actually a "support"...)
+
 
   List_T   *InRegion_L ;
   int       i_PQT, Type_Quantity, Type_InRegion ;

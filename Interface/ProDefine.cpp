@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2019 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2020 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
@@ -98,7 +98,7 @@ const char *Get_StringForDefine(struct StringXDefine SXD[], int define)
   int i = 0 ; const char *string ;
 
   while ((SXD[i].string != NULL) && (SXD[i].define != define))  i++ ;
-  if (SXD[i].string != NULL)  string = SXD[i].string ;  else  string = "?" ;
+  if (SXD[i].string != NULL)  string = SXD[i].string ;  else  string = "None" ;
 
   return(string) ;
 }

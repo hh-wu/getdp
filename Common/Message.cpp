@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2019 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2020 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
@@ -302,7 +302,7 @@ void Message::Error(const char *fmt, ...)
 
 void Message::Warning(const char *fmt, ...)
 {
-  if((_commRank && _isCommWorld) || _verbosity < 2) return;
+  if(_verbosity < 2) return;
   char str[1024];
   va_list args;
   va_start(args, fmt);
@@ -320,10 +320,10 @@ void Message::Warning(const char *fmt, ...)
     if(!streamIsFile(stdout) && streamIsVT100(stdout)){
       c0 = "\33[35m"; c1 = "\33[0m";  // magenta
     }
-    if(_isCommWorld)
-      fprintf(stdout, "%sWarning : %s%s\n", c0, str, c1);
-    else
+    if(_commSize > 1)
       fprintf(stdout, "%sWarning : [rank %3d] %s%s\n", c0, _commRank, str, c1);
+    else
+      fprintf(stdout, "%sWarning : %s%s\n", c0, str, c1);
     fflush(stdout);
   }
 }
@@ -884,22 +884,22 @@ void Message::AddOnelabStringChoice(std::string name, std::string kind,
   }
 }
 
-void Message::SetOnelabNumber(std::string name, double val, bool visible)
+void Message::SetOnelabNumber(std::string name, double val)
 {
   if(_onelabClient){
     std::vector<onelab::number> numbers;
+    // get if first so we can keep its options
     _onelabClient->get(numbers, name);
     if(numbers.empty()){
       numbers.resize(1);
       numbers[0].setName(name);
     }
     numbers[0].setValue(val);
-    numbers[0].setVisible(visible);
     _onelabClient->set(numbers[0]);
   }
 }
 
-void Message::SetOnelabString(std::string name, std::string val, bool visible)
+void Message::SetOnelabString(std::string name, std::string val)
 {
   if(_onelabClient){
     std::vector<onelab::string> strings;
@@ -909,7 +909,6 @@ void Message::SetOnelabString(std::string name, std::string val, bool visible)
       strings[0].setName(name);
     }
     strings[0].setValue(val);
-    strings[0].setVisible(visible);
     _onelabClient->set(strings[0]);
   }
 }
@@ -1161,6 +1160,8 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
       ps[0].setAttribute("Closed", copt["Closed"][0]);
     if(noClosed && fopt.count("Closed"))
       ps[0].setAttribute("Closed", fopt["Closed"][0] ? "1" : "0");
+    if(copt.count("NumberFormat"))
+      ps[0].setAttribute("NumberFormat", copt["NumberFormat"][0]);
     _setStandardOptions(&ps[0], fopt, copt);
     _onelabClient->set(ps[0]);
   }

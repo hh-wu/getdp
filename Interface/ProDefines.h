@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2019 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2020 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
@@ -67,6 +67,7 @@ struct StringXDefine  FunctionForGroup_SuppList[] = {
   {"OnNegativeSideOf", SUPPLIST_ONNEGATIVESIDEOF},
   {"InSupport"       , SUPPLIST_INSUPPORT},
   {"ConnectedTo"     , SUPPLIST_CONNECTEDTO},
+  {"DisjointOf"      , SUPPLIST_DISJOINTOF},
   {NULL              , 0}
 } ;
 
@@ -500,10 +501,19 @@ struct DefineXFunction  FunctionForGaussLegendre[] = {
 #if defined(HAVE_KERNEL)
   {POINT          , (CAST)Gauss_Point},
   {LINE           , (CAST)Gauss_Line},
+  {LINE_2         , (CAST)Gauss_Line},
   {TRIANGLE       , (CAST)GaussLegendre_Triangle},
+  {TRIANGLE_2     , (CAST)GaussLegendre_Triangle},
   {QUADRANGLE     , (CAST)GaussLegendre_Quadrangle},
+  {QUADRANGLE_2   , (CAST)GaussLegendre_Quadrangle},
   {TETRAHEDRON    , (CAST)GaussLegendre_Tetrahedron},
+  {TETRAHEDRON_2  , (CAST)GaussLegendre_Tetrahedron},
   {HEXAHEDRON     , (CAST)GaussLegendre_Hexahedron},
+  {HEXAHEDRON_2   , (CAST)GaussLegendre_Hexahedron},
+  {PRISM          , (CAST)Gauss_Prism},
+  {PRISM_2        , (CAST)Gauss_Prism},
+  {PYRAMID        , (CAST)Gauss_Pyramid},
+  {PYRAMID_2      , (CAST)Gauss_Pyramid},
 #else
   {POINT          , NULL},
   {LINE           , NULL},

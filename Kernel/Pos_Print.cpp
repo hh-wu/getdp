@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2019 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2020 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
@@ -1332,10 +1332,41 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 
   if (CPQ_P) {
     PQ_P = CPQ_P ;
-    Support_L = /* for e.g. PQ[ Support ] ... */
+    /* 
+       If the PostQuantityTerm is an Integral quantity to be integrated 
+       over a support in this 'Print' PostOperation
+       (i.e. syntax: PQ[ Support ]), the InitialList (list of regions) of the 
+       group 'Support' is affected to Support_L.
+       If however the group 'Support' is of type ELEMENTLIST,
+       the latter is substituted to the ->InIndex of the PostQuantityTerm here,
+       i.e., just before evaluation.
+
+       For consistency, it should be checked that all ellements
+       in the ELEMENTLIST Support are indeed in the region PostQuantityTerm->InIndex.
+       This is not done. 
+    */
+
+    /* code original - enlever apres vérification FH
+    Support_L = // for e.g. PQ[ Support ] ...
       ((struct Group *)
        List_Pointer(Problem_S.Group,
-		    PSO_P->PostQuantitySupport[Order]))->InitialList ;
+                    PSO_P->PostQuantitySupport[Order]))->InitialList ; 
+    */
+
+    // FIXME reuse Group_P instead of definig a specific variable ?
+    struct Group * SupportGroup_P = (struct Group *)  
+      List_Pointer(Problem_S.Group, PSO_P->PostQuantitySupport[Order]);
+
+    Support_L = SupportGroup_P->InitialList; // for e.g. PQ[ Support ] ...
+
+    if( SupportGroup_P->Type == ELEMENTLIST ) {
+      ((struct PostQuantityTerm *)
+       List_Pointer(PQ_P->PostQuantityTerm, 0))->InIndex = SupportGroup_P->Num;
+      // FIXME What if PostQuantity has several PostQuantityTerm's ?
+      // Here only the first term (index 0) is considered.
+    }
+
+
   }
   else {
     PQ_P = NCPQ_P ;  Support_L = NULL ;
@@ -1351,6 +1382,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
     (struct Group *)
      List_Pointer(Problem_S.Group,
 		  PSO_P->Case.OnRegion.RegionIndex);
+
   Region_L =  Group_P?  Group_P->InitialList : NULL ;
   Group_FunctionType = Group_P? Group_P->FunctionType : REGION;
 
@@ -1441,8 +1473,8 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
       Current.x = Current.y = Current.z = 0. ;
 
       if (Type_Evaluation == GLOBAL) {
-	Cal_PostQuantity(PQ_P, DefineQuantity_P0, QuantityStorage_P0,
-			 Support_L, &Element, 0., 0., 0., &Value) ;
+        Cal_PostQuantity(PQ_P, DefineQuantity_P0, QuantityStorage_P0,
+                         Support_L, &Element, 0., 0., 0., &Value) ;
       }
       else {
 	if (Group_FunctionType == NODESOF)
@@ -1651,10 +1683,6 @@ void  Pos_PrintGroup(struct PostSubOperation *PSO_P)
   double               y [NBR_MAX_NODES_IN_ELEMENT] ;
   double               z [NBR_MAX_NODES_IN_ELEMENT] ;
 
-  int                  numDofData, Code_BasisFunction, CodeExist = 0, k;
-  struct Dof  * Dof_P = NULL;
-  double               sizeEdge, Val_Dof, Val_Dof_i ;
-
   NbrGeo = Geo_GetNbrGeoElements() ;
 
   Format_PostHeader(PSO_P, 1, 0, PSO_P->Label, NULL);
@@ -1683,7 +1711,7 @@ void  Pos_PrintGroup(struct PostSubOperation *PSO_P)
 
       switch (Group_P->FunctionType) {
 
-      case EDGESOFTREEIN :
+      case EDGESOF : case EDGESOFTREEIN :
 	if(!GeoElement->NbrEdges) Geo_CreateEdgesOfElement(GeoElement) ;
 	for(i=0 ; i<GeoElement->NbrEdges ; i++){
 	  if(List_Search(Group_P->ExtendedList, &GeoElement->NumEdges[i], fcmp_absint)){
@@ -1698,66 +1726,6 @@ void  Pos_PrintGroup(struct PostSubOperation *PSO_P)
 			       0, 0, 1, 1, 1,
 			       NULL, SL);
 	  }
-	}
-	break ;
-
-      case EDGESOF :
-	if(!GeoElement->NbrEdges) Geo_CreateEdgesOfElement(GeoElement) ;
-	for(i=0 ; i<GeoElement->NbrEdges ; i++){
-          NumNodes = Geo_GetNodesOfEdgeInElement(GeoElement, i) ;
-          SL->Index = iGeo;
-          SL->x[0] = x[abs(NumNodes[0])-1]; SL->x[1] = x[abs(NumNodes[1])-1];
-          SL->y[0] = y[abs(NumNodes[0])-1]; SL->y[1] = y[abs(NumNodes[1])-1];
-          SL->z[0] = z[abs(NumNodes[0])-1]; SL->z[1] = z[abs(NumNodes[1])-1];
-          SL->Value[0].Type = SL->Value[1].Type = SCALAR ;
-
-          // SL->Value[0].Val[0] = SL->Value[1].Val[0] = fabs(GeoElement->NumEdges[i]);
-
-          // Dof : type, num, 0
-          if (List_Nbr(PSO_P->Value_L)<2)
-            Message::Error("Number of Values needed: 2");
-
-          numDofData         = int(*(double*)List_Pointer(PSO_P->Value_L, 0));
-          Code_BasisFunction = int(*(double*)List_Pointer(PSO_P->Value_L, 1));
-
-          CodeExist =
-            ((Dof_P =
-              Dof_GetDofStruct(Current.DofData_P0+ numDofData,
-                               Code_BasisFunction, abs(GeoElement->NumEdges[i]), 0))
-             != NULL) ;
-
-          if (CodeExist) {
-            sizeEdge = sqrt( SQU(SL->x[1]-SL->x[0]) +
-                             SQU(SL->y[1]-SL->y[0]) +
-                             SQU(SL->z[1]-SL->z[0]) );
-            if(Current.NbrHar==1){
-              Dof_GetRealDofValue(Current.DofData_P0 + numDofData, Dof_P, &Val_Dof) ;
-
-              Val_Dof = Val_Dof / sizeEdge ;
-
-              SL->Value[0].Val[0] = SL->Value[1].Val[0] = Val_Dof;
-            }
-            else{
-              for (k = 0 ; k < Current.NbrHar ; k+=2) {
-		Dof_GetComplexDofValue
-		  (Current.DofData_P0+ numDofData,
-                   Dof_P + k/2*gCOMPLEX_INCREMENT,
-		   &Val_Dof, &Val_Dof_i) ;
-
-              Val_Dof   = Val_Dof / sizeEdge ;
-              Val_Dof_i = Val_Dof_i / sizeEdge ;
-
-              SL->Value[0].Val[MAX_DIM*k    ] = SL->Value[1].Val[MAX_DIM*k    ] = Val_Dof;
-              SL->Value[0].Val[MAX_DIM*(k+1)] = SL->Value[1].Val[MAX_DIM*(k+1)] = Val_Dof_i;
-              }
-            }
-
-            Format_PostElement(PSO_P, PSO_P->Iso, 0,
-                               0, 0, 1,
-                               Current.NbrHar, PSO_P->HarmonicToTime,
-                               NULL, SL);
-          }
-
 	}
 	break ;
 

@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2019 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2020 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
@@ -103,8 +103,8 @@ class Message {
   static void FinalizeOnelab();
   static bool UseOnelab(){ return _onelabClient ? true : false; }
   static std::string GetOnelabClientName();
-  static void SetOnelabNumber(std::string name, double val, bool visible=true);
-  static void SetOnelabString(std::string name, std::string val, bool visible=true);
+  static void SetOnelabNumber(std::string name, double val);
+  static void SetOnelabString(std::string name, std::string val);
   static double GetOnelabNumber(std::string name, double defaultValue=0.,
                                 bool errorIfMissing=false);
   static std::string GetOnelabString(std::string name, const std::string &defaultValue="",

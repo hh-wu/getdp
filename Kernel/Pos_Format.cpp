@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2019 P. Dular and C. Geuzaine, University of Liege
+// GetDP - Copyright (C) 1997-2020 P. Dular and C. Geuzaine, University of Liege
 //
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
@@ -1703,7 +1703,7 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
 
 void Format_PostValue(struct PostQuantity  *PQ_P,
                       struct PostSubOperation *PSO_P,
-                      int Format, int Flag_Comma, int Group_FunctionType,
+                      int Format, char *Comma, int Group_FunctionType,
 		      int iTime, double Time, int NbrTimeStep,
                       int iRegion, int numRegion, int NbrRegion,
 		      int NbrHarmonics, int HarmonicToTime, int FourierTransform,
@@ -1733,18 +1733,20 @@ void Format_PostValue(struct PostQuantity  *PQ_P,
 
   if (Format == FORMAT_REGION_TABLE) {
     if(iRegion == 0){
-      if(PostStream == stdout || PostStream == stderr)
-        Message::Direct("%d", NbrRegion);
-      else if(PostStream)
-        fprintf(PostStream, "%d\n", NbrRegion) ;
+      if(PostStream == stdout || PostStream == stderr) {
+        Message::Direct("%d%s", NbrRegion, Comma ? Comma : "");
+      }
+      else if(PostStream) {
+        fprintf(PostStream, "%d%s\n", NbrRegion, Comma ? Comma : "") ;
+      }
     }
     std::ostringstream sstream;
     sstream.precision(16);
     sstream << numRegion;
     for (k = 0 ; k < NbrHarmonics ; k++) {
       for(j = 0 ; j < Size ; j++) {
-	if (Flag_Comma) sstream << ",";
-	sstream << " " << Value->Val[MAX_DIM*k+j] ;
+        sstream << " " << Value->Val[MAX_DIM*k+j] ;
+	if (Comma) sstream << Comma;
       }
     }
     if(PostStream == stdout || PostStream == stderr)
@@ -1789,7 +1791,7 @@ void Format_PostValue(struct PostQuantity  *PQ_P,
   }
   else if (Format == FORMAT_NXUNV) {
     if(PostStream)
-      Unv_PrintRegion(PostStream, Flag_Comma, numRegion, NbrHarmonics, Size, Value);
+      Unv_PrintRegion(PostStream, Comma ? 1 : 0, numRegion, NbrHarmonics, Size, Value);
   }
   else if (Format == FORMAT_LOOP_ERROR) {
     StorePostOpResult(NbrHarmonics, Value);
@@ -1838,23 +1840,29 @@ void Format_PostValue(struct PostQuantity  *PQ_P,
         case FORMAT_VALUE_ONLY :
           break;
 	default :
-	  fprintf(PostStream, "%.16g ", Time) ;
-	  break ;
+	  fprintf(PostStream, " %.16g", Time) ;
+          if (Comma) fprintf(PostStream, "%s", Comma);
+          break ;
 	}
-	for (iRegion = 0 ; iRegion < NbrRegion ; iRegion++)
+	for (iRegion = 0 ; iRegion < NbrRegion ; iRegion++) {
 	  for (k = 0 ; k < NbrHarmonics ; k++) {
 	    if ((Format == FORMAT_FREQUENCY_TABLE ||
                  Format == FORMAT_FREQUENCY_REGION_VALUE)
-                && !(k%2) && iRegion==0) {
+                && !(k % 2) && iRegion == 0) {
 	      Freq = Current.DofData->Val_Pulsation[0] / TWO_PI ;
-	      fprintf(PostStream, "%.16g ", Freq) ;
+	      fprintf(PostStream, " %.16g", Freq) ;
+              if (Comma) fprintf(PostStream, "%s", Comma);
 	    }
-	    for(j = 0 ; j < Size ; j++)
+	    for(j = 0 ; j < Size ; j++) {
               if (Format != FORMAT_REGION_VALUE &&
-                  Format != FORMAT_FREQUENCY_REGION_VALUE)
-	      fprintf(PostStream, " %.16g",
-                      TmpValues[indexInTmpValues+iRegion].Val[MAX_DIM*k+j]) ;
+                  Format != FORMAT_FREQUENCY_REGION_VALUE) {
+                fprintf(PostStream, " %.16g",
+                        TmpValues[indexInTmpValues+iRegion].Val[MAX_DIM*k+j]) ;
+                if (Comma) fprintf(PostStream, "%s", Comma);
+              }
+            }
 	  }
+        }
 	if (Flag_NoNewLine ||
             Format == FORMAT_REGION_VALUE || Format == FORMAT_FREQUENCY_REGION_VALUE)
 	  fprintf(PostStream, " ") ;
@@ -1866,9 +1874,14 @@ void Format_PostValue(struct PostQuantity  *PQ_P,
 	  for (iRegion = 0 ; iRegion < NbrRegion ; iRegion++) {
 	    F_MHToTime0(k+iRegion, &TmpValues[indexInTmpValues+iRegion], &TmpValue,
 			k, HarmonicToTime, &TimeMH) ;
-	    if (iRegion == 0)  fprintf(PostStream, "%.16g ", TimeMH) ;
-	    for(j = 0 ; j < Size ; j++)
+	    if (iRegion == 0) {
+              fprintf(PostStream, " %.16g", TimeMH) ;
+              if (Comma) fprintf(PostStream, "%s", Comma);
+            }
+	    for(j = 0 ; j < Size ; j++) {
 	      fprintf(PostStream, " %.16g", TmpValue.Val[j]) ;
+              if (Comma) fprintf(PostStream, "%s", Comma);
+            }
 	  }
 	  fprintf(PostStream, "\n") ;
 	}
