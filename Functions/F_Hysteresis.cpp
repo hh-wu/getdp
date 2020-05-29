@@ -169,7 +169,7 @@ void Vector_dBdH(double H[3], double B[3], double dH[3],
   dMdH[4] = e[1]*f[2]+e[3]*f[4]+e[4]*f[5] ;
   dMdH[5] = e[2]*f[2]+e[4]*f[4]+e[5]*f[5] ;
 
-  double slope_factor = 1e0; // 1e2 => increasing slope for reducing NR iterations (better convergence)
+  double slope_factor = 1; // choose 1e2 for increasing slope, for reducing NR iterations (better convergence)
 
   dBdH[0] =  MU0 * (slope_factor + dMdH[0]) ;
   dBdH[3] =  MU0 * (slope_factor + dMdH[3]) ;
@@ -630,7 +630,7 @@ void set_sensi_param(struct FunctionActive *D)
   ::DELTA_0             = D->Case.Interpolation.x[j+15] ; // SENSITIVE_PARAM (1.e-3 for square;
                                                           //                  1.e0 for VinchT & transfo)
   ::DELTAJ_0            = 1e-3; //only used with VAR approach when a Numerical approx of the hessian dd_omega is called in Taylor approx
-  ::SLOPE_FACTOR        = 1e2;
+  ::SLOPE_FACTOR        = 1; // or 1e2 for better convergence
   ::FLAG_HOMO           = D->Case.Interpolation.x[j+16] ; //
 
   /*
