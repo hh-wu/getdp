@@ -1,10 +1,3 @@
-// GetDP - Copyright (C) 1997-2020 P. Dular and C. Geuzaine, University of Liege
-//
-// See the LICENSE.txt file for license information. Please report all
-// issues on https://gitlab.onelab.info/getdp/getdp/issues.
-
-// $Id: avl.cpp,v 1.2 2009-09-26 06:44:38 geuzaine Exp $
-
 /*
  * avl package
  *
@@ -30,7 +23,7 @@
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-// Modified for Gmsh (C++, 64 bits, ...)
+// Modified for GetDP (C++ and 64 bit compatibility)
 
 #include "GetDPConfig.h"
 #if !defined(HAVE_NO_STDINT_H)
@@ -84,8 +77,8 @@ avl_tree *avl_init_table(int (*compar)(const void *key1, const void *key2))
 
 int avl_lookup(avl_tree *tree, void *key, void **value_p)
 {
-    register avl_node *node;
-    register int (*compare)(const void*, const void *) = tree->compar, diff;
+    avl_node *node;
+    int (*compare)(const void*, const void *) = tree->compar, diff;
 
     node = tree->root;
     while (node != NIL(avl_node)) {
@@ -102,9 +95,9 @@ int avl_lookup(avl_tree *tree, void *key, void **value_p)
 
 int avl_insert(avl_tree *tree, void *key, void *value)
 {
-    register avl_node **node_p, *node;
-    register int stack_n = 0;
-    register int (*compare)(const void*, const void *) = tree->compar;
+    avl_node **node_p, *node;
+    int stack_n = 0;
+    int (*compare)(const void*, const void *) = tree->compar;
     avl_node **stack_nodep[32];
     int diff, status;
 
@@ -129,8 +122,8 @@ int avl_insert(avl_tree *tree, void *key, void *value)
 
 int avl_delete(avl_tree *tree, void **key_p, void **value_p)
 {
-    register avl_node **node_p, *node, *rightmost;
-    register int stack_n = 0;
+    avl_node **node_p, *node, *rightmost;
+    int stack_n = 0;
     void *key = *key_p;
     int (*compare)(const void*, const void*) = tree->compar, diff;
     avl_node **stack_nodep[32];
@@ -230,8 +223,8 @@ void avl_free_gen(avl_generator *gen)
 
 static avl_node *find_rightmost(avl_node **node_p)
 {
-    register avl_node *node;
-    register int stack_n = 0;
+    avl_node *node;
+    int stack_n = 0;
     avl_node **stack_nodep[32];
 
     node = *node_p;
@@ -248,8 +241,8 @@ static avl_node *find_rightmost(avl_node **node_p)
 
 static void do_rebalance(avl_node ***stack_nodep, int stack_n)
 {
-    register avl_node **node_p, *node;
-    register int hl, hr;
+    avl_node **node_p, *node;
+    int hl, hr;
     int height;
 
     /* work our way back up, re-balancing the tree */
@@ -272,7 +265,7 @@ static void do_rebalance(avl_node ***stack_nodep, int stack_n)
 
 static void rotate_left(avl_node **node_p)
 {
-    register avl_node *old_root = *node_p, *new_root, *new_right;
+    avl_node *old_root = *node_p, *new_root, *new_right;
 
     if (BALANCE(old_root->right) >= 0) {
         *node_p = new_root = old_root->right;
@@ -293,7 +286,7 @@ static void rotate_left(avl_node **node_p)
 
 static void rotate_right(avl_node **node_p)
 {
-    register avl_node *old_root = *node_p, *new_root, *new_left;
+    avl_node *old_root = *node_p, *new_root, *new_left;
 
     if (BALANCE(old_root->left) <= 0) {
         *node_p = new_root = old_root->left;
@@ -315,7 +308,7 @@ static void rotate_right(avl_node **node_p)
 
 int avl_extremum(avl_tree *tree, int side, void **value_p)
 {
-    register avl_node *node;
+    avl_node *node;
 
     node = tree->root;
     if (node == NIL(avl_node)) return 0;
@@ -356,7 +349,7 @@ int avl_count(avl_tree *tree)
 
 static avl_node *new_node(void *key, void *value)
 {
-    register avl_node *newn;
+    avl_node *newn;
 
     newn = ALLOC(avl_node, 1);
     newn->key = key;
@@ -365,6 +358,7 @@ static avl_node *new_node(void *key, void *value)
     newn->left = newn->right = NIL(avl_node);
     return newn;
 }
+
 int avl_numcmp(const void *x, const void*y)
 {
     return (intptr_t) x - (intptr_t) y;

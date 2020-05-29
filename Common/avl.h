@@ -1,8 +1,3 @@
-// GetDP - Copyright (C) 1997-2020 P. Dular and C. Geuzaine, University of Liege
-//
-// See the LICENSE.txt file for license information. Please report all
-// issues on https://gitlab.onelab.info/getdp/getdp/issues.
-
 #ifndef AVL_H
 #define AVL_H
 
@@ -31,7 +26,7 @@
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-// Modified for Gmsh (C++, 64 bits, ...)
+// Modified for GetDP (C++, 64 bits, ...)
 
 typedef struct avl_node_struct avl_node;
 struct avl_node_struct {
