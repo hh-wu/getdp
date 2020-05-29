@@ -8,6 +8,11 @@
 //   Xavier Antoine
 //
 
+// g++ -std=c++11 on mingw does not define bessel functions
+#if defined (WIN32) && !defined(__CYGWIN__)
+#undef __STRICT_ANSI__
+#endif
+
 #include <math.h>
 #include <stdlib.h>
 #include "ProData.h"
@@ -16,11 +21,6 @@
 #include "Bessel.h"
 #include "MallocUtils.h"
 #include "Message.h"
-
-// g++ -std=c++11 on mingw does not define bessel functions
-#if defined (WIN32) && !defined(__CYGWIN__)
-#undef __STRICT_ANSI__
-#endif
 
 #define SQU(a)     ((a)*(a))
 
