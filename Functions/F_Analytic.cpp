@@ -8,6 +8,11 @@
 //   Xavier Antoine
 //
 
+// g++ -std=c++11 on mingw does not define bessel functions
+#if defined (WIN32) && !defined(__CYGWIN__)
+#undef __STRICT_ANSI__
+#endif
+
 #include <math.h>
 #include <stdlib.h>
 #include "ProData.h"
@@ -1193,7 +1198,7 @@ void F_AcousticFieldSoftSphere(F_ARG)
   }
   XdotK = (XdotK > 1) ? 1 : XdotK;
   XdotK = (XdotK < -1) ? -1 : XdotK;
-  
+
   // 6th/7th parameters: range of modes
   int nStart = 0;
   int nEnd = (int)(kR) + 10;
@@ -1201,7 +1206,7 @@ void F_AcousticFieldSoftSphere(F_ARG)
     nStart = Fct->Para[5];
     nEnd = (Fct->NbrParameters > 6) ? Fct->Para[6] : nStart+1;
   }
-  
+
   std::complex<double> I(0,1);
   double vr=0, vi=0;
 #if defined(_OPENMP)
@@ -1482,7 +1487,7 @@ void F_AcousticFieldHardSphere(F_ARG)
   V->Val[0]       = vr;
   V->Val[MAX_DIM] = vi;
   V->Type         = SCALAR ;
-  
+
   delete hnkRtab;
 }
 
@@ -1671,13 +1676,13 @@ void F_AcousticFieldSoftCylinder(F_ARG)
   double R = Fct->Para[1];
   double kr = k*r;
   double kR = k*R;
-  
+
   // 3rd parameter: incidence direction
   if(Fct->NbrParameters > 2){
     double thetaInc = Fct->Para[2];
     theta += thetaInc;
   }
-  
+
   // 4th/5th parameters: range of modes
   int nStart = 0;
   int nEnd = (int)(kR) + 10;
@@ -1685,7 +1690,7 @@ void F_AcousticFieldSoftCylinder(F_ARG)
     nStart = Fct->Para[3];
     nEnd = (Fct->NbrParameters > 4) ? Fct->Para[4] : nStart+1;
   }
-  
+
   std::complex<double> I(0,1);
   double vr=0, vi=0;
 #if defined(_OPENMP)
@@ -1967,7 +1972,7 @@ void F_AcousticFieldHardCylinder(F_ARG)
     nStart = Fct->Para[3];
     nEnd = (Fct->NbrParameters > 4) ? Fct->Para[4] : nStart+1;
   }
-  
+
   std::complex<double> *HnkRtab;
   HnkRtab = new std::complex<double>[nEnd];
 #if defined(_OPENMP)

@@ -3,6 +3,11 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
+// g++ -std=c++11 on mingw does not define bessel functions
+#if defined (WIN32) && !defined(__CYGWIN__)
+#undef __STRICT_ANSI__
+#endif
+
 #include <math.h>
 #include <complex>
 #include "ProData.h"
