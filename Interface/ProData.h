@@ -1364,6 +1364,7 @@ struct IterativeLoopSystem {
 #define OPERATION_CLEARVECTORS             115
 #define OPERATION_GATHERVARIABLES          116
 #define OPERATION_SCATTERVARIABLES         117
+#define OPERATION_EXIT                     118
 
 /* ChangeOfState.Type */
 #define CHANGEOFSTATE_NOCHANGE              0

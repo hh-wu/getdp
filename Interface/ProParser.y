@@ -315,7 +315,7 @@ struct doubleXstring{
 %token      tGetNormSolution tGetNormResidual tGetNormRHS tGetNormIncrement
 %token      tOptimizerInitialize tOptimizerUpdate tOptimizerFinalize
 %token      tLanczos tEigenSolve tEigenSolveJac tPerturbation
-%token      tUpdate tUpdateConstraint tBreak tGetResidual tCreateSolution
+%token      tUpdate tUpdateConstraint tBreak tExit tGetResidual tCreateSolution
 %token      tEvaluate tSelectCorrection tAddCorrection tMultiplySolution
 %token      tAddOppositeFullSolution tSolveAgainWithOther tSetGlobalSolverOptions
 %token      tAddVector
@@ -4796,6 +4796,12 @@ OperationTerm :
     { Operation_P = (struct Operation*)
   List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_BREAK;
+    }
+
+  | tExit tEND
+    { Operation_P = (struct Operation*)
+  List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_EXIT;
     }
 
   | tBroadcastFields '[' ListOfFExpr ']' tEND
