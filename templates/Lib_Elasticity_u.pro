@@ -244,6 +244,9 @@ Resolution {
       }
     }
     Operation {
+      // uncomment this for faster assembly with high order elements
+      // SetGlobalSolverOptions["-petsc_prealloc 400"];
+
       If(Flag_Regime == 0 || Flag_Regime == 1)
         Generate[A]; Solve[A]; SaveSolution[A];
       ElseIf(Flag_Regime == 2)
