@@ -408,7 +408,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
         int HighOrder =
           (PSO_P->Format == FORMAT_GMSH && (PSO_P->StoreInField >= 0 ||
                                             PSO_P->StoreInMeshBasedField >= 0 ||
-                                            Flag_GMSH_VERSION == 2 || Flag_BIN)) ? 1 : 0;
+                                            Flag_GMSH_VERSION == 2)) ? 1 : 0;
 	Fill_PostElement(Element.GeoElement, PostElement_L, iGeo,
 			 PSO_P->Depth, PSO_P->Skin,
 			 DecomposeInSimplex, HighOrder, PSO_P->Gauss) ;
@@ -1332,10 +1332,10 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 
   if (CPQ_P) {
     PQ_P = CPQ_P ;
-    /* 
-       If the PostQuantityTerm is an Integral quantity to be integrated 
+    /*
+       If the PostQuantityTerm is an Integral quantity to be integrated
        over a support in this 'Print' PostOperation
-       (i.e. syntax: PQ[ Support ]), the InitialList (list of regions) of the 
+       (i.e. syntax: PQ[ Support ]), the InitialList (list of regions) of the
        group 'Support' is affected to Support_L.
        If however the group 'Support' is of type ELEMENTLIST,
        the latter is substituted to the ->InIndex of the PostQuantityTerm here,
@@ -1343,18 +1343,18 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 
        For consistency, it should be checked that all ellements
        in the ELEMENTLIST Support are indeed in the region PostQuantityTerm->InIndex.
-       This is not done. 
+       This is not done.
     */
 
     /* code original - enlever apres vérification FH
     Support_L = // for e.g. PQ[ Support ] ...
       ((struct Group *)
        List_Pointer(Problem_S.Group,
-                    PSO_P->PostQuantitySupport[Order]))->InitialList ; 
+                    PSO_P->PostQuantitySupport[Order]))->InitialList ;
     */
 
     // FIXME reuse Group_P instead of definig a specific variable ?
-    struct Group * SupportGroup_P = (struct Group *)  
+    struct Group * SupportGroup_P = (struct Group *)
       List_Pointer(Problem_S.Group, PSO_P->PostQuantitySupport[Order]);
 
     Support_L = SupportGroup_P->InitialList; // for e.g. PQ[ Support ] ...

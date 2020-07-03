@@ -4902,6 +4902,11 @@ While @var{expression} is true (nonzero), perform the operations in
 
 Aborts an iterative loop, a time loop or a While loop.
 
+@item Exit
+@code{[]}
+
+Exit, brutally.
+
 @item Sleep
 @code{[@var{expression}]}
 
