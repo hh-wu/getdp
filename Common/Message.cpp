@@ -150,9 +150,10 @@ void Message::Initialize(int argc, char **argv)
   HPDDM::Option& opt = *HPDDM::Option::get();
   opt.parse(argc, argv, _commRank == 0);
 #endif
-  // make sure to use the "C" locale; in particular this ensure that we will use
-  // a for for the decimal separator when writing ASCII mesh files
+  // make sure to use the "C" locale; in particular this ensures that we will
+  // use a dot for for the decimal separator when writing ASCII mesh files
   std::setlocale(LC_ALL, "C");
+  std::setlocale(LC_NUMERIC, "C");
 }
 
 void Message::Finalize()
