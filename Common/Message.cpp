@@ -3,6 +3,7 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
+#include <clocale>
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -149,6 +150,9 @@ void Message::Initialize(int argc, char **argv)
   HPDDM::Option& opt = *HPDDM::Option::get();
   opt.parse(argc, argv, _commRank == 0);
 #endif
+  // make sure to use the "C" locale; in particular this ensure that we will use
+  // a for for the decimal separator when writing ASCII mesh files
+  std::setlocale(LC_ALL, "C");
 }
 
 void Message::Finalize()
