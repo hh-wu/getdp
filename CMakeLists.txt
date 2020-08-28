@@ -102,10 +102,6 @@ else()
   execute_process(COMMAND date "+%Y%m%d" OUTPUT_VARIABLE DATE
                   OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif()
-execute_process(COMMAND hostname OUTPUT_VARIABLE HOSTNAME
-                OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process(COMMAND whoami OUTPUT_VARIABLE PACKAGER
-                OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 if(NOT DATE)
   set(DATE "unknown")
@@ -113,16 +109,23 @@ endif()
 set(GETDP_DATE "${DATE}")
 
 if(NOT GETDP_HOST)
+  execute_process(COMMAND hostname OUTPUT_VARIABLE HOSTNAME
+                  OUTPUT_STRIP_TRAILING_WHITESPACE)
   if(NOT HOSTNAME)
     set(HOSTNAME "unknown")
   endif()
   set(GETDP_HOST "${HOSTNAME}")
 endif()
 
-if(NOT PACKAGER)
-  set(PACKAGER "unknown")
+if(NOT GETDP_PACKAGER)
+  execute_process(COMMAND whoami OUTPUT_VARIABLE PACKAGER
+                  OUTPUT_STRIP_TRAILING_WHITESPACE)
+  if(NOT PACKAGER)
+    set(PACKAGER "unknown")
+  endif()
+  string(REPLACE "\\" " " PACKAGER ${PACKAGER})
+  set(GETDP_PACKAGER "${PACKAGER}")
 endif()
-set(GETDP_PACKAGER "${PACKAGER}")
 
 if(APPLE)
   set(GETDP_OS "MacOSX")
@@ -392,6 +395,7 @@ if(ENABLE_GMSH)
   if(GMSH_LIB AND GMSH_INC)
     list(APPEND EXTERNAL_LIBRARIES ${GMSH_LIB})
     list(APPEND EXTERNAL_INCLUDES ${GMSH_INC})
+    include_directories(contrib/eigen)
     set_config_option(HAVE_GMSH "Gmsh")
   endif()
 endif()
