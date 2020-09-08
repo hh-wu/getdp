@@ -845,6 +845,12 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
   char str_coefsDen[6][max_Nchar];
   char str_buff[50];
   int NumOperators = 2;
+  
+  // A bit hacky but at this point Flag_Init[1]=1 can be used for i.e. a potential RHS since 
+  // we started backwards (from M7,M6,...,M2) : M1 isn't used in the NL problem, 
+  // we can use it to ApplyResolvent to a RHS term
+  int Flag_ApplyResolvent = DofData_P->Flag_Init[1];
+
 #if defined(PETSC_USE_COMPLEX)
   PetscScalar shift = shift_r + PETSC_i * shift_i;
 #else
@@ -996,6 +1002,14 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
   _try(NEPSetTarget(nep, shift));
   _try(NEPSetFromOptions(nep));
 
+  if(Flag_ApplyResolvent){
+    // TODO
+    Message::Info("Full basis and TwoSided are required for ApplyResolvent!");
+    _try(NEPNLEIGSSetFullBasis(nep,PETSC_TRUE));
+    _try(NEPNLEIGSSetRestart(nep,0.5));
+    _try(NEPSetTwoSided(nep,PETSC_TRUE));
+  }
+
   // print info
   _try(NEPGetType(nep, &type));
   Message::Info("SLEPc solution method: %s", type);
@@ -1032,6 +1046,26 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
   if(nconv > nev) nconv = nev;
 
   _storeEigenVectors(DofData_P, nconv, PETSC_NULL, PETSC_NULL, nep, filterExpressionIndex);
+
+  // resolventchange
+  // TODO list of working frequencies (i.e. real omega)
+  Message::Warning("TODO : The working real frequency is currently set to 1");
+  PetscComplex Lambda = -PETSC_i;
+  Vec VRHS;
+  Vec VRES;
+  char fname[100]="result_applyresolvent.m";
+  PetscViewer viewer;
+  if(Flag_ApplyResolvent){
+    Message::Info("An RHS term is available for ApplyResolvent!");
+    VRHS = DofData_P->m1.V;
+    _try(MatCreateVecs(DofData_P->M1.M,PETSC_NULL,&VRES));
+    _try(NEPApplyResolvent(nep,NULL,Lambda,VRHS,VRES));
+    PetscViewerASCIIOpen(PETSC_COMM_WORLD, fname , &viewer);
+    PetscViewerPushFormat(viewer, PETSC_VIEWER_ASCII_MATLAB);
+    VecView(VRES,viewer);
+    PetscViewerPopFormat(viewer);
+  }
+  PetscViewerDestroy(&viewer);
 
   _try(NEPDestroy(&nep));
 #else
