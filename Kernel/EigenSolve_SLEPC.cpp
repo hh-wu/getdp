@@ -1003,7 +1003,7 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
   _try(NEPSetFromOptions(nep));
 
   if(Flag_ApplyResolvent){
-    // TODO
+    // TODO : check
     Message::Info("Full basis and TwoSided are required for ApplyResolvent!");
     _try(NEPNLEIGSSetFullBasis(nep,PETSC_TRUE));
     _try(NEPNLEIGSSetRestart(nep,0.5));
@@ -1035,7 +1035,8 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
     Message::Error("SLEPc diverged after %d iterations", its);
   else if(reason == NEP_DIVERGED_BREAKDOWN)
     Message::Error("SLEPc generic breakdown in method");
-  // _try(NEPView(nep, PETSC_VIEWER_STDOUT_SELF));
+
+  // TODO : we should also check left residual here
 
   // get number of converged approximate eigenpairs
   PetscInt nconv;
@@ -1046,9 +1047,9 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
   if(nconv > nev) nconv = nev;
 
   _storeEigenVectors(DofData_P, nconv, PETSC_NULL, PETSC_NULL, nep, filterExpressionIndex);
+  // TODO : we could print the left eigenvectors as well
 
-  // resolventchange
-  // TODO list of working frequencies (i.e. real omega)
+  // TODO : list of working frequencies (i.e. real omega)
   Message::Warning("TODO : The working real frequency is currently set to 1");
   PetscComplex Lambda = -PETSC_i;
   Vec VRHS;
@@ -1056,7 +1057,7 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
   char fname[100]="result_applyresolvent.m";
   PetscViewer viewer;
   if(Flag_ApplyResolvent){
-    Message::Info("An RHS term is available for ApplyResolvent!");
+    Message::Info("A RHS term is available for ApplyResolvent!");
     VRHS = DofData_P->m1.V;
     _try(MatCreateVecs(DofData_P->M1.M,PETSC_NULL,&VRES));
     _try(NEPApplyResolvent(nep,NULL,Lambda,VRHS,VRES));
@@ -1065,7 +1066,12 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
     VecView(VRES,viewer);
     PetscViewerPopFormat(viewer);
   }
-  PetscViewerDestroy(&viewer);
+  // TODO : store or write VRES 
+  // TODO : Can we generalize this to several (pre-assembled) RHS ? 
+  // TODO : Pass a list of real freqs 
+  _try(PetscViewerDestroy(&viewer));
+  _try(VecDestroy(&VRHS));
+  _try(VecDestroy(&VRES));
 
   _try(NEPDestroy(&nep));
 #else
