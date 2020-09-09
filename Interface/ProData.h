@@ -1014,6 +1014,7 @@ struct Operation {
       double  Shift_r, Shift_i;
       int     FilterExpressionIndex;
       List_T *RationalCoefsNum, *RationalCoefsDen;
+      List_T *ApplyResolventRealFreqs;
     } EigenSolve;
     struct {
       List_T  *Expressions;

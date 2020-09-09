@@ -835,7 +835,8 @@ static PetscErrorCode _myNepMonitor(NEP nep, int its, int nconv, PetscScalar *ei
 
 static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
                          double shift_r, double shift_i, int filterExpressionIndex,
-                         List_T *RationalCoefsNum, List_T *RationalCoefsDen)
+                         List_T *RationalCoefsNum, List_T *RationalCoefsDen,
+                         List_T *ApplyResolventRealFreqs)
 {
 #if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 8)
   NEP nep;
@@ -881,6 +882,13 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
     }
   }
 
+  std::vector<PetscReal> tabApplyResolventRealFreqs;
+  if (Flag_ApplyResolvent){
+    for(int i = 0; i < List_Nbr(ApplyResolventRealFreqs); i++){
+        double c; List_Read(ApplyResolventRealFreqs, i, &c);
+        tabApplyResolventRealFreqs.push_back(c);
+    }
+  }
   _try(NEPCreate(PETSC_COMM_WORLD, &nep));
 
   // NLEig1Dof and NLEig2Dof
@@ -1049,29 +1057,30 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
   _storeEigenVectors(DofData_P, nconv, PETSC_NULL, PETSC_NULL, nep, filterExpressionIndex);
   // TODO : we could print the left eigenvectors as well
 
-  // TODO : list of working frequencies (i.e. real omega)
-  Message::Warning("TODO : The working real frequency is currently set to 1");
-  PetscComplex Lambda = -PETSC_i;
+  PetscComplex Lambda;
   Vec VRHS;
   Vec VRES;
-  char fname[100]="result_applyresolvent.m";
-  PetscViewer viewer;
+  char fname[100];
+  static PetscViewer myviewer;
   if(Flag_ApplyResolvent){
     Message::Info("A RHS term is available for ApplyResolvent!");
     VRHS = DofData_P->m1.V;
     _try(MatCreateVecs(DofData_P->M1.M,PETSC_NULL,&VRES));
-    _try(NEPApplyResolvent(nep,NULL,Lambda,VRHS,VRES));
-    PetscViewerASCIIOpen(PETSC_COMM_WORLD, fname , &viewer);
-    PetscViewerPushFormat(viewer, PETSC_VIEWER_ASCII_MATLAB);
-    VecView(VRES,viewer);
-    PetscViewerPopFormat(viewer);
+    for(int i = 0; i < tabApplyResolventRealFreqs.size(); i++){
+      Message::Info("Applying Resolvent with real angular frequency : %f",tabApplyResolventRealFreqs[i]);
+      Lambda = PETSC_i*tabApplyResolventRealFreqs[i];
+      sprintf(fname,"applyresolvent_vec_result_%03d.m",i);
+      _try(NEPApplyResolvent(nep,NULL,Lambda,VRHS,VRES));
+      PetscViewerASCIIOpen(PETSC_COMM_WORLD, fname , &myviewer);
+      PetscViewerPushFormat(myviewer, PETSC_VIEWER_ASCII_MATLAB);
+      VecView(VRES,myviewer);
+      PetscViewerPopFormat(myviewer);
+    }
   }
-  // TODO : store or write VRES 
-  // TODO : Can we generalize this to several (pre-assembled) RHS ? 
-  // TODO : Pass a list of real freqs 
-  _try(PetscViewerDestroy(&viewer));
-  _try(VecDestroy(&VRHS));
-  _try(VecDestroy(&VRES));
+  // TODO : store VRES as a new getdp solution
+  // TODO : How can we generalize this to several (pre-assembled) RHS ? 
+
+  _try(PetscViewerDestroy(&myviewer));
 
   _try(NEPDestroy(&nep));
 #else
@@ -1083,7 +1092,8 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
 
 void EigenSolve_SLEPC(struct DofData * DofData_P, int numEigenValues,
                       double shift_r, double shift_i, int FilterExpressionIndex,
-                      List_T *RationalCoefsNum, List_T *RationalCoefsDen)
+                      List_T *RationalCoefsNum, List_T *RationalCoefsDen,
+                      List_T *ApplyResolventRealFreqs)
 {
   // Warn if we are not in harmonic regime (we won't be able to compute/store
   // complex eigenvectors).
@@ -1132,8 +1142,8 @@ void EigenSolve_SLEPC(struct DofData * DofData_P, int numEigenValues,
     Message::Error("Please upgrade to slepc >= 3.7.3 for non-linear EVP support!");
     return;
 #else
-    _rationalEVP(DofData_P, numEigenValues, shift_r, shift_i,
-                  FilterExpressionIndex, RationalCoefsNum, RationalCoefsDen);
+    _rationalEVP(DofData_P, numEigenValues, shift_r, shift_i, FilterExpressionIndex, 
+                 RationalCoefsNum, RationalCoefsDen, ApplyResolventRealFreqs);
 #endif
 #else
     Message::Error("Please compile Petsc/Slepc with complex arithmetic for non linear EVP support!");

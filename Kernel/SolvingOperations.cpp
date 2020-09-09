@@ -1855,7 +1855,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                  Operation_P->Case.EigenSolve.Shift_i,
                  Operation_P->Case.EigenSolve.FilterExpressionIndex,
                  Operation_P->Case.EigenSolve.RationalCoefsNum,
-                 Operation_P->Case.EigenSolve.RationalCoefsDen);
+                 Operation_P->Case.EigenSolve.RationalCoefsDen,
+                 Operation_P->Case.EigenSolve.ApplyResolventRealFreqs);
       break ;
 
       /*  -->  EigenSolveJac                             */
@@ -1869,7 +1870,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                  Operation_P->Case.EigenSolve.Shift_r,
                  Operation_P->Case.EigenSolve.Shift_i,
                  Operation_P->Case.EigenSolve.FilterExpressionIndex,
-                 NULL, NULL);
+                 NULL, NULL, NULL);
       /* Insert intelligent convergence test here :-) */
       Current.RelativeDifference = 1.0 ;
       break ;

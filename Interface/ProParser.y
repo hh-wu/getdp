@@ -5274,6 +5274,7 @@ OperationTerm :
       Operation_P->Case.EigenSolve.FilterExpressionIndex = -1;
       Operation_P->Case.EigenSolve.RationalCoefsNum = 0;
       Operation_P->Case.EigenSolve.RationalCoefsDen = 0;
+      Operation_P->Case.EigenSolve.ApplyResolventRealFreqs = 0;
     }
 
   | tEigenSolve '[' String__Index ',' FExpr ',' FExpr ',' FExpr
@@ -5293,6 +5294,7 @@ OperationTerm :
       Operation_P->Case.EigenSolve.FilterExpressionIndex = $11;
       Operation_P->Case.EigenSolve.RationalCoefsNum = 0;
       Operation_P->Case.EigenSolve.RationalCoefsDen = 0;
+      Operation_P->Case.EigenSolve.ApplyResolventRealFreqs = 0;
     }
 
   | tEigenSolve '[' String__Index ',' FExpr ',' FExpr ',' FExpr
@@ -5313,6 +5315,29 @@ OperationTerm :
       Operation_P->Case.EigenSolve.FilterExpressionIndex = $11;
       Operation_P->Case.EigenSolve.RationalCoefsNum = $14;
       Operation_P->Case.EigenSolve.RationalCoefsDen = $18;
+      Operation_P->Case.EigenSolve.ApplyResolventRealFreqs = 0;
+    }
+
+  | tEigenSolve '[' String__Index ',' FExpr ',' FExpr ',' FExpr
+                ',' '{' RecursiveListOfListOfFExpr '}'  
+                ',' '{' RecursiveListOfListOfFExpr '}' 
+                ',' '{' RecursiveListOfFExpr '}' ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_EIGENSOLVE;
+      int i;
+      if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror(0, "Unknown System: %s", $3);
+      Free($3);
+      Operation_P->DefineSystemIndex = i;
+      Operation_P->Case.EigenSolve.NumEigenvalues = (int)$5;
+      Operation_P->Case.EigenSolve.Shift_r = $7;
+      Operation_P->Case.EigenSolve.Shift_i = $9;
+      Operation_P->Case.EigenSolve.FilterExpressionIndex = -1;
+      Operation_P->Case.EigenSolve.RationalCoefsNum = $12;
+      Operation_P->Case.EigenSolve.RationalCoefsDen = $16;
+      Operation_P->Case.EigenSolve.ApplyResolventRealFreqs = $20;
     }
 
   | tEigenSolveJac '[' String__Index ',' FExpr ',' FExpr ',' FExpr ']' tEND
