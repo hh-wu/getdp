@@ -5321,7 +5321,7 @@ OperationTerm :
   | tEigenSolve '[' String__Index ',' FExpr ',' FExpr ',' FExpr
                 ',' '{' RecursiveListOfListOfFExpr '}'  
                 ',' '{' RecursiveListOfListOfFExpr '}' 
-                ',' '{' RecursiveListOfFExpr '}' ']' tEND
+                ',' RecursiveListOfFExpr ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_EIGENSOLVE;
@@ -5337,7 +5337,7 @@ OperationTerm :
       Operation_P->Case.EigenSolve.FilterExpressionIndex = -1;
       Operation_P->Case.EigenSolve.RationalCoefsNum = $12;
       Operation_P->Case.EigenSolve.RationalCoefsDen = $16;
-      Operation_P->Case.EigenSolve.ApplyResolventRealFreqs = $20;
+      Operation_P->Case.EigenSolve.ApplyResolventRealFreqs = $19;
     }
 
   | tEigenSolveJac '[' String__Index ',' FExpr ',' FExpr ',' FExpr ']' tEND
