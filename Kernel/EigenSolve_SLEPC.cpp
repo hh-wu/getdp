@@ -338,6 +338,81 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv, EPS eps,
 #endif
 }
 
+static void _storeExpansion(struct DofData *DofData_P, int nbFreqs, 
+                            std::vector<PetscReal> tabApplyResolventRealFreqs, 
+                            std::vector<Vec> &tabVRES)
+{
+  Vec x;
+  _try(MatCreateVecs(DofData_P->M7.M, PETSC_NULL, &x));
+  // temporary sequential vectors to transfer eigenvectors to getdp
+  Vec x_seq;
+  if(Message::GetCommSize() > 1){
+    PetscInt n;
+    _try(VecGetSize(x, &n));
+    _try(VecCreateSeq(PETSC_COMM_SELF, n, &x_seq));
+  }
+  bool newsol = false;
+  for (int i = 0; i < nbFreqs; i++){
+    x = tabVRES[i];
+    Current.Time = tabApplyResolventRealFreqs[i];
+    Current.TimeImag = 0;
+    // create new solution vector if necessary
+    if(newsol) {
+      struct Solution Solution_S;
+      Solution_S.TimeFunctionValues = NULL;
+      LinAlg_CreateVector(&Solution_S.x, &DofData_P->Solver, DofData_P->NbrDof);
+      List_Add(DofData_P->Solutions, &Solution_S);
+      DofData_P->CurrentSolution = (struct Solution*)
+        List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1);
+    }
+    newsol = true;
+    DofData_P->CurrentSolution->Time = tabApplyResolventRealFreqs[i];
+    DofData_P->CurrentSolution->TimeImag = 0;
+    DofData_P->CurrentSolution->TimeStep = (int)Current.TimeStep;
+    Free(DofData_P->CurrentSolution->TimeFunctionValues);
+    DofData_P->CurrentSolution->TimeFunctionValues = NULL;
+    DofData_P->CurrentSolution->SolutionExist = 1;
+
+    // store eigenvector
+    PetscScalar *tmp;
+    if(Message::GetCommSize() == 1){
+      _try(VecGetArray(x, &tmp));
+    }
+    else{
+      _fillseq(x, x_seq);
+      _try(VecGetArray(x_seq, &tmp));
+    }
+
+    int incr = (Current.NbrHar == 2) ? gCOMPLEX_INCREMENT : 1;
+    for(int l = 0; l < DofData_P->NbrDof; l += incr){
+      double var_r = (double)PetscRealPart(tmp[l]);
+      double var_i = (double)PetscImaginaryPart(tmp[l]);
+      if(Current.NbrHar == 2)
+        LinAlg_SetComplexInVector(var_r, var_i, &DofData_P->CurrentSolution->x, l, l+1);
+      else
+        LinAlg_SetDoubleInVector(var_r, &DofData_P->CurrentSolution->x, l);
+    }
+
+    if(Message::GetCommSize() == 1){
+      _try(VecRestoreArray(x, &tmp));
+    }
+    else{
+      _try(VecRestoreArray(x_seq, &tmp));
+    }
+
+    LinAlg_AssembleVector(&DofData_P->CurrentSolution->x);
+
+    // increment the global timestep counter so that a future
+    // GenerateSystem knows which solutions exist
+    Current.TimeStep += 1.;
+  }
+  _try(VecDestroy(&x));
+  if(Message::GetCommSize() > 1){
+    _try(VecDestroy(&x_seq));
+  }
+}
+
+
 static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
                        double shift_r, double shift_i, int filterExpressionIndex)
 {
@@ -1016,6 +1091,7 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
     _try(NEPNLEIGSSetFullBasis(nep,PETSC_TRUE));
     _try(NEPNLEIGSSetRestart(nep,0.5));
     _try(NEPSetTwoSided(nep,PETSC_TRUE));
+    // _try(NEPNLEIGSSetLocking(nep,PETSC_FALSE));
   }
 
   // print info
@@ -1060,13 +1136,16 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
   PetscComplex Lambda;
   Vec VRHS;
   Vec VRES;
+  int nbFreqs = 0;
+  std::vector<Vec> tabVRES;
   char fname[100];
   static PetscViewer myviewer;
   if(Flag_ApplyResolvent){
     Message::Info("A RHS term is available for ApplyResolvent!");
     VRHS = DofData_P->m1.V;
+    nbFreqs = tabApplyResolventRealFreqs.size();
     _try(MatCreateVecs(DofData_P->M1.M,PETSC_NULL,&VRES));
-    for(int i = 0; i < tabApplyResolventRealFreqs.size(); i++){
+    for(int i = 0; i < nbFreqs; i++){
       Message::Info("Applying Resolvent with real angular frequency : %f",tabApplyResolventRealFreqs[i]);
       Lambda = PETSC_i*tabApplyResolventRealFreqs[i];
       sprintf(fname,"applyresolvent_vec_result_%03d.m",i);
@@ -1075,7 +1154,9 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
       PetscViewerPushFormat(myviewer, PETSC_VIEWER_ASCII_MATLAB);
       VecView(VRES,myviewer);
       PetscViewerPopFormat(myviewer);
+      tabVRES.push_back(VRES);
     }
+    _storeExpansion(DofData_P, nbFreqs, tabApplyResolventRealFreqs, tabVRES);
   }
   // TODO : store VRES as a new getdp solution
   // TODO : How can we generalize this to several (pre-assembled) RHS ? 
