@@ -318,7 +318,7 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv, EPS eps,
 
     // increment the global timestep counter so that a future
     // GenerateSystem knows which solutions exist
-    Current.TimeStep += 1.; Message::Info("i=%d TIMESTEP %d",i,(int)Current.TimeStep);
+    Current.TimeStep += 1.;
   }
 
 #if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)
@@ -415,7 +415,7 @@ static void _storeExpansion(struct DofData *DofData_P, int nbFreqs,
 
     // increment the global timestep counter so that a future
     // GenerateSystem knows which solutions exist
-    Current.TimeStep += 1.;Message::Info("i=%d TIMESTEP %d",i,(int)Current.TimeStep);
+    Current.TimeStep += 1.;
   }
   _try(PetscViewerDestroy(&myviewer));
   _try(VecDestroy(&x));
@@ -1151,16 +1151,21 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
   std::vector<Vec> tabVRES;
   if(Flag_ApplyResolvent){
     nbFreqs = tabApplyResolventRealFreqs.size();
-    tabVRES.reserve(nbFreqs);
     Message::Info("A RHS term is available for ApplyResolvent!");
-    VRHS = DofData_P->m1.V;
-    for(int i = 0; i < nbFreqs; i++){
-      _try(MatCreateVecs(DofData_P->M1.M,PETSC_NULL,&tabVRES[i]));
-      Message::Info("Applying Resolvent with real angular frequency : %f",tabApplyResolventRealFreqs[i]);
-      Lambda = PETSC_i*tabApplyResolventRealFreqs[i];
-      _try(NEPApplyResolvent(nep,NULL,Lambda,VRHS,tabVRES[i]));
+    if (nbFreqs>0){
+      tabVRES.reserve(nbFreqs);
+      VRHS = DofData_P->m1.V;
+      for(int i = 0; i < nbFreqs; i++){
+        _try(MatCreateVecs(DofData_P->M1.M,PETSC_NULL,&tabVRES[i]));
+        Message::Info("Applying Resolvent with real angular frequency : %f",tabApplyResolventRealFreqs[i]);
+        Lambda = PETSC_i*tabApplyResolventRealFreqs[i];
+        _try(NEPApplyResolvent(nep,NULL,Lambda,VRHS,tabVRES[i]));
     }
     _storeExpansion(DofData_P, nbFreqs, tabApplyResolventRealFreqs, tabVRES);
+    }
+    else{
+      Message::Info("Provide a list of frequencies...");
+    }
   }
   // TODO : store VRES as a new getdp solution
   // TODO : How can we generalize this to several (pre-assembled) RHS ? 
