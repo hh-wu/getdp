@@ -106,6 +106,7 @@ struct DofData {
   } CorrectionSolutions ;
 
   int       Flag_RHS ; // only assemble RHS
+  int       Flag_ListOfRHS = 0 ; // only assemble RHS
   int       Flag_Init[8] ; //nleigchange
   int       Flag_Only ;
   int       Flag_InitOnly[3] ;
@@ -117,6 +118,9 @@ struct DofData {
   gMatrix   A;
   gVector   b;
   gSolver   Solver;
+  std::vector<gVector> listb;//fixme!!
+  int       Count_RHS=0 ; 
+  int       NumberOfRHS ; 
 
   // Flag_Init[0] == 2
   gMatrix   Jac ;
@@ -130,7 +134,8 @@ struct DofData {
   gMatrix   M1, M2, M3, M4, M5, M6, M7;
   gVector   m1, m2, m3, m4, m5, m6, m7;
   List_T   *m1s, *m2s, *m3s, *m4s, *m5s, *m6s, *m7s;
-
+  std::vector<gVector> listm7;
+  
   // Flag_Only and Flag_InitOnly[0,1,2]
   gMatrix   A1, A2, A3 ;
   gVector   b1, b2, b3 ;

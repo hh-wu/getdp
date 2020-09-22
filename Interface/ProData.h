@@ -851,7 +851,7 @@ struct WholeQuantity {
     struct { List_T *WholeQuantity ; }                           ChangeCurrentPosition ;
     struct { List_T *WholeQuantity ;
              int InIndex, DofIndexInWholeQuantity; }             Trace;
-    struct { char *SystemName; int DefineSystemIndex;
+    struct { char *SystemName; int DefineSystemIndex; int DefineOtherSystemIndex; 
              int DofNumber; }                                    DofValue;
     struct { List_T *WholeQuantity_L; int Index, NbrPoints; }    MHTransform;
     struct { List_T *WholeQuantity_L; int Index, NbrPoints, FreqOffSet; } MHBilinear;
@@ -945,14 +945,14 @@ struct DefineSystem {
 #define VAL_COMPLEX  2
 
 struct Operation {
-  int  Type, DefineSystemIndex, Flag;
+  int  Type, DefineSystemIndex, DefineOtherSystemIndex, Flag;
 
   union {
     struct {
       List_T *MatrixIndex_L;
     } GenerateOnly;
     struct {
-      int DefineSystemIndex;
+      int DefineSystemIndex, DefineOtherSystemIndex;
     } SolveAgainWithOther;
     struct {
       char *String;
@@ -1138,6 +1138,7 @@ struct Operation {
     } Generate_MH_Moving_S;
     struct {
       int     GroupIndex;
+      int     NumListOfRHS;
     } Generate;
     struct {
       int     GroupIndex;
@@ -1366,6 +1367,7 @@ struct IterativeLoopSystem {
 #define OPERATION_GATHERVARIABLES          116
 #define OPERATION_SCATTERVARIABLES         117
 #define OPERATION_EXIT                     118
+#define OPERATION_GENERATELISTOFRHS        119
 
 /* ChangeOfState.Type */
 #define CHANGEOFSTATE_NOCHANGE              0

@@ -235,6 +235,7 @@ GenerateMHMoving             return tGenerateMHMoving;
 GenerateMHMovingSeparate     return tGenerateMHMovingSeparate;
 GenerateOnly                 return tGenerateOnly;
 GenerateOnlyJac              return tGenerateOnlyJac;
+GenerateListOfRHS            return tGenerateListOfRHS;
 GenerateRHSGroup             return tGenerateRHSGroup;
 GenerateRightHandSideGroup   return tGenerateRHSGroup;
 GenerateRHSGroupCumulative   return tGenerateRHSGroupCumulative;

@@ -338,7 +338,7 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv, EPS eps,
 #endif
 }
 
-static void _storeExpansion(struct DofData *DofData_P, int nbFreqs, 
+static void _storeExpansion(struct DofData *DofData_P, int nbApplyResolventRealFreqs, 
                             std::vector<PetscReal> tabApplyResolventRealFreqs, 
                             std::vector<Vec> &tabVRES)
 {
@@ -356,7 +356,7 @@ static void _storeExpansion(struct DofData *DofData_P, int nbFreqs,
   bool newsol = true;
   char fname[100];
   static PetscViewer myviewer;
-  for (int i = 0; i < nbFreqs; i++){
+  for (int i = 0; i < nbApplyResolventRealFreqs; i++){
     x = tabVRES[i];
 
     // store vectors in petsc/matlab format
@@ -923,7 +923,7 @@ static PetscErrorCode _myNepMonitor(NEP nep, int its, int nconv, PetscScalar *ei
 static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
                          double shift_r, double shift_i, int filterExpressionIndex,
                          List_T *RationalCoefsNum, List_T *RationalCoefsDen,
-                         List_T *ApplyResolventRealFreqs)
+                         List_T *ApplyResolventRealFreqs, struct DofData * DofData_P2)
 {
 #if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 8)
   NEP nep;
@@ -934,10 +934,9 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
   char str_buff[50];
   int NumOperators = 2;
   
-  // A bit hacky but at this point Flag_Init[1]=1 can be used for i.e. a potential RHS since 
-  // we started backwards (from M7,M6,...,M2) : M1 isn't used in the NL problem, 
-  // we can use it to ApplyResolvent to a RHS term
-  int Flag_ApplyResolvent = DofData_P->Flag_Init[1];
+  int Flag_ApplyResolvent;
+
+  int nbApplyResolventRealFreqs = (int)List_Nbr(ApplyResolventRealFreqs);
 
 #if defined(PETSC_USE_COMPLEX)
   PetscScalar shift = shift_r + PETSC_i * shift_i;
@@ -950,6 +949,14 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
     Message::Error("Too many rational terms in nonlinear eigenvalue problem (max = 6)");
     return;
   }
+
+  if (List_Nbr(ApplyResolventRealFreqs)>0)
+    Flag_ApplyResolvent = 1;
+
+  // if (nbApplyResolventRealFreqs!=(int)(DofData_P2->listb).size())
+  //   Message::Error("Please provide a number of RHS terms equal to the number of real pulsations");
+  
+  // Message::Error("(int)DofData_P2->listb.size() = %d",(int)DofData_P2->listb.size());
 
   std::vector<PetscScalar> tabCoefsNum[6], tabCoefsDen[6];
   for(int i = 0; i < List_Nbr(RationalCoefsNum); i++){
@@ -1143,33 +1150,34 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
   if(nconv > nev) nconv = nev;
 
   _storeEigenVectors(DofData_P, nconv, PETSC_NULL, PETSC_NULL, nep, filterExpressionIndex);
-  // TODO : we could print the left eigenvectors as well
+  // TODO ? : we could print the left eigenvectors as well
 
   PetscComplex Lambda;
-  int nbFreqs = 0;
   Vec VRHS;
   std::vector<Vec> tabVRES;
-  if(Flag_ApplyResolvent){
-    nbFreqs = tabApplyResolventRealFreqs.size();
-    Message::Info("A RHS term is available for ApplyResolvent!");
-    if (nbFreqs>0){
-      tabVRES.reserve(nbFreqs);
-      VRHS = DofData_P->m1.V;
-      for(int i = 0; i < nbFreqs; i++){
-        _try(MatCreateVecs(DofData_P->M1.M,PETSC_NULL,&tabVRES[i]));
-        Message::Info("Applying Resolvent with real angular frequency : %f",tabApplyResolventRealFreqs[i]);
-        Lambda = PETSC_i*tabApplyResolventRealFreqs[i];
-        _try(NEPApplyResolvent(nep,NULL,Lambda,VRHS,tabVRES[i]));
-    }
-    _storeExpansion(DofData_P, nbFreqs, tabApplyResolventRealFreqs, tabVRES);
-    }
-    else{
-      Message::Info("Provide a list of frequencies...");
-    }
-  }
-  // TODO : store VRES as a new getdp solution
-  // TODO : How can we generalize this to several (pre-assembled) RHS ? 
+  char fname[100];
+  static PetscViewer myviewer;
 
+  if(Flag_ApplyResolvent){
+    Message::Info("A RHS term is available for ApplyResolvent!");
+    tabVRES.reserve(nbApplyResolventRealFreqs);
+    for(int i = 0; i < nbApplyResolventRealFreqs; i++){
+      VRHS = DofData_P2->listb.at(i).V;
+      // VRHS = DofData_P->m1.V;
+      sprintf(fname,"applyresolvent_vec_input_%03d.m",i);
+      PetscViewerASCIIOpen(PETSC_COMM_WORLD, fname , &myviewer);
+      PetscViewerPushFormat(myviewer, PETSC_VIEWER_ASCII_MATLAB);
+      VecView(DofData_P2->listb.at(i).V,myviewer);
+      PetscViewerPopFormat(myviewer);
+
+      _try(MatCreateVecs(DofData_P->M7.M,PETSC_NULL,&tabVRES[i]));
+      Message::Info("Applying Resolvent with real angular frequency : %f",tabApplyResolventRealFreqs[i]);
+      Lambda = PETSC_i*tabApplyResolventRealFreqs[i];
+      _try(NEPApplyResolvent(nep,NULL,Lambda,VRHS,tabVRES[i]));
+    }
+    _storeExpansion(DofData_P, nbApplyResolventRealFreqs, tabApplyResolventRealFreqs, tabVRES);
+  }
+  _try(PetscViewerDestroy(&myviewer));
   _try(NEPDestroy(&nep));
 #else
   Message::Error("Nonlinear eigenvalue solver requires PETSc/SLEPc >= 3.8");
@@ -1181,7 +1189,7 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
 void EigenSolve_SLEPC(struct DofData * DofData_P, int numEigenValues,
                       double shift_r, double shift_i, int FilterExpressionIndex,
                       List_T *RationalCoefsNum, List_T *RationalCoefsDen,
-                      List_T *ApplyResolventRealFreqs)
+                      List_T *ApplyResolventRealFreqs, struct DofData * DofData_P2)
 {
   // Warn if we are not in harmonic regime (we won't be able to compute/store
   // complex eigenvectors).
@@ -1231,7 +1239,7 @@ void EigenSolve_SLEPC(struct DofData * DofData_P, int numEigenValues,
     return;
 #else
     _rationalEVP(DofData_P, numEigenValues, shift_r, shift_i, FilterExpressionIndex, 
-                 RationalCoefsNum, RationalCoefsDen, ApplyResolventRealFreqs);
+                 RationalCoefsNum, RationalCoefsDen, ApplyResolventRealFreqs, DofData_P2);
 #endif
 #else
     Message::Error("Please compile Petsc/Slepc with complex arithmetic for non linear EVP support!");
