@@ -414,7 +414,7 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
     if(!Flag_Cumulative){
       LinAlg_ZeroVector(&Current.DofData->b) ;
       if(Current.DofData->Flag_ListOfRHS){
-        for(int i = 0; i < Current.DofData->NumberOfRHS; i++){
+        for(int i = 0; i < Current.DofData->TotalNumberOfRHS; i++){
           gVector m;
           LinAlg_CreateVector(&m, &Current.DofData->Solver,
                               Current.DofData->NbrDof) ;
@@ -850,7 +850,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
             List_Pointer(Problem_S.Group,
                          Operation_P->Case.Generate.GroupIndex) ;
 	      }
-        DofData_P->NumberOfRHS = Operation_P->Case.Generate.NumListOfRHS;
+        DofData_P->TotalNumberOfRHS = Operation_P->Case.Generate.NumListOfRHS;
         Generate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac, 0, 0) ;
         DofData_P->CounterOfRHS+=1;
       }
