@@ -118,8 +118,9 @@ struct DofData {
   gMatrix   A;
   gVector   b;
   gSolver   Solver;
-  std::vector<gVector> listb;//fixme!!
-  int       Count_RHS=0 ; 
+  
+  std::vector<gVector> ListOfRHS ;
+  int       CounterOfRHS=0 ; 
   int       NumberOfRHS ; 
 
   // Flag_Init[0] == 2

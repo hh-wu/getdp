@@ -340,7 +340,7 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv, EPS eps,
 
 static void _storeExpansion(struct DofData *DofData_P, int nbApplyResolventRealFreqs, 
                             std::vector<PetscReal> tabApplyResolventRealFreqs, 
-                            std::vector<Vec> &tabVRES)
+                            std::vector<Vec> &ListOfExpansionResults)
 {
   Vec x;
   _try(MatCreateVecs(DofData_P->M7.M, PETSC_NULL, &x));
@@ -357,7 +357,7 @@ static void _storeExpansion(struct DofData *DofData_P, int nbApplyResolventRealF
   char fname[100];
   static PetscViewer myviewer;
   for (int i = 0; i < nbApplyResolventRealFreqs; i++){
-    x = tabVRES[i];
+    x = ListOfExpansionResults[i];
 
     // store vectors in petsc/matlab format
     sprintf(fname,"applyresolvent_vec_result_%03d.m",i);
@@ -953,11 +953,9 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
   if (List_Nbr(ApplyResolventRealFreqs)>0)
     Flag_ApplyResolvent = 1;
 
-  // if (nbApplyResolventRealFreqs!=(int)(DofData_P2->listb).size())
-  //   Message::Error("Please provide a number of RHS terms equal to the number of real pulsations");
+  if (nbApplyResolventRealFreqs!=(int)(DofData_P2->ListOfRHS).size())
+    Message::Error("Please provide a number of RHS terms equal to the number of real pulsations");
   
-  // Message::Error("(int)DofData_P2->listb.size() = %d",(int)DofData_P2->listb.size());
-
   std::vector<PetscScalar> tabCoefsNum[6], tabCoefsDen[6];
   for(int i = 0; i < List_Nbr(RationalCoefsNum); i++){
     List_T *coefs;
@@ -1105,12 +1103,11 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
   _try(NEPSetFromOptions(nep));
 
   if(Flag_ApplyResolvent){
-    // TODO : check
-    Message::Info("Full basis and TwoSided are required for ApplyResolvent!");
+    Message::Info("Using full basis variant (required for ApplyResolvent)");
+    Message::Info("Using two sided variant  (required for ApplyResolvent)");
     _try(NEPNLEIGSSetFullBasis(nep,PETSC_TRUE));
     _try(NEPNLEIGSSetRestart(nep,0.5));
     _try(NEPSetTwoSided(nep,PETSC_TRUE));
-    // _try(NEPNLEIGSSetLocking(nep,PETSC_FALSE));
   }
 
   // print info
@@ -1139,7 +1136,7 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
   else if(reason == NEP_DIVERGED_BREAKDOWN)
     Message::Error("SLEPc generic breakdown in method");
 
-  // TODO : we should also check left residual here
+  // TODO : we could also check left residual here
 
   // get number of converged approximate eigenpairs
   PetscInt nconv;
@@ -1153,29 +1150,29 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
   // TODO ? : we could print the left eigenvectors as well
 
   PetscComplex Lambda;
-  Vec VRHS;
-  std::vector<Vec> tabVRES;
+  // Vec VRHS;
+  std::vector<Vec> ListOfExpansionResults;
   char fname[100];
   static PetscViewer myviewer;
 
   if(Flag_ApplyResolvent){
     Message::Info("A RHS term is available for ApplyResolvent!");
-    tabVRES.reserve(nbApplyResolventRealFreqs);
+    ListOfExpansionResults.reserve(nbApplyResolventRealFreqs);
     for(int i = 0; i < nbApplyResolventRealFreqs; i++){
-      VRHS = DofData_P2->listb.at(i).V;
-      // VRHS = DofData_P->m1.V;
+      // debug : print RHS in matlab format
       sprintf(fname,"applyresolvent_vec_input_%03d.m",i);
       PetscViewerASCIIOpen(PETSC_COMM_WORLD, fname , &myviewer);
       PetscViewerPushFormat(myviewer, PETSC_VIEWER_ASCII_MATLAB);
-      VecView(DofData_P2->listb.at(i).V,myviewer);
+      VecView(DofData_P2->ListOfRHS[i].V,myviewer);
       PetscViewerPopFormat(myviewer);
-
-      _try(MatCreateVecs(DofData_P->M7.M,PETSC_NULL,&tabVRES[i]));
-      Message::Info("Applying Resolvent with real angular frequency : %f",tabApplyResolventRealFreqs[i]);
+      
+      _try(MatCreateVecs(DofData_P->M7.M,PETSC_NULL,&ListOfExpansionResults[i]));
       Lambda = PETSC_i*tabApplyResolventRealFreqs[i];
-      _try(NEPApplyResolvent(nep,NULL,Lambda,VRHS,tabVRES[i]));
+      Message::Info("Applying Resolvent with real angular frequency : %f",tabApplyResolventRealFreqs[i]);
+      _try(NEPApplyResolvent(nep,NULL,Lambda,
+              DofData_P2->ListOfRHS[i].V,ListOfExpansionResults[i]));
     }
-    _storeExpansion(DofData_P, nbApplyResolventRealFreqs, tabApplyResolventRealFreqs, tabVRES);
+    _storeExpansion(DofData_P, nbApplyResolventRealFreqs, tabApplyResolventRealFreqs, ListOfExpansionResults);
   }
   _try(PetscViewerDestroy(&myviewer));
   _try(NEPDestroy(&nep));

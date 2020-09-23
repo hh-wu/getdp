@@ -419,7 +419,7 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
           LinAlg_CreateVector(&m, &Current.DofData->Solver,
                               Current.DofData->NbrDof) ;
           LinAlg_ZeroVector(&m);
-          Current.DofData->listb.push_back(m);
+          Current.DofData->ListOfRHS.push_back(m);
         }
       }
     }
@@ -514,8 +514,8 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
     LinAlg_AssembleMatrix(&DofData_P->A) ;
     LinAlg_AssembleVector(&DofData_P->b) ;
     if(DofData_P->Flag_ListOfRHS){
-      LinAlg_CopyVector(&DofData_P->b , &DofData_P->listb[DofData_P->Count_RHS]);
-      Message::Info("There are now %d RHS terms",DofData_P->Count_RHS+1);
+      LinAlg_CopyVector(&DofData_P->b , &DofData_P->ListOfRHS[DofData_P->CounterOfRHS]);
+      Message::Info("There are now %d RHS terms",DofData_P->CounterOfRHS+1);
     }
     int i;
     LinAlg_GetVectorSize(&DofData_P->b, &i) ;
@@ -852,21 +852,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	      }
         DofData_P->NumberOfRHS = Operation_P->Case.Generate.NumListOfRHS;
         Generate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac, 0, 0) ;
-        DofData_P->Count_RHS+=1;
-        // Init_OperationOnSystem(Get_StringForDefine(Operation_Type, Operation_P->Type),
-        //                        Resolution_P, Operation_P, DofData_P0, GeoData_P0,
-        //                        &DefineSystem_P, &DofData_P, Resolution2_P) ;
-        // Current.TypeAssembly = ASSEMBLY_SEPARATE;
-        // // Current.TypeAssembly = ASSEMBLY_AGGREGATE;
-        // Init_SystemData(DofData_P, Flag_Jac) ;
-        // if(Operation_P->Case.Generate.GroupIndex >= 0){
-        //   Generate_Group = (struct Group *)
-        //     List_Pointer(Problem_S.Group,
-        //                  Operation_P->Case.Generate.GroupIndex) ;
-	      // }
-        // Generate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac, 1, 0) ;
-
-
+        DofData_P->CounterOfRHS+=1;
       }
       break ;        
     case OPERATION_GENERATERHS :
