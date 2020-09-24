@@ -51,6 +51,7 @@ void Geo_CreateEdgesOfElement(struct Geo_Element * Geo_Element)
   int  Nbr_Entities2, * D_Element ;
 
   D_Element = Geo_GetIM_Den(Geo_Element->Type, &Nbr_Entities2) ;
+  if(!Nbr_Entities2) return;
   Geo_CreateEntitiesOfElement(Nbr_Entities2, D_Element,
 			      Geo_Element->NbrNodes, Geo_Element->NumNodes,
 			      &Geo_Element->NbrEdges, &Geo_Element->NumEdges,
@@ -92,6 +93,7 @@ void Geo_CreateFacetsOfElement(struct Geo_Element * Geo_Element)
   int  Nbr_Entities2, * D_Element ;
 
   D_Element = Geo_GetIM_Dfe(Geo_Element->Type, &Nbr_Entities2) ;
+  if(!Nbr_Entities2) return;
   Geo_CreateEntitiesOfElement(Nbr_Entities2, D_Element,
 			      Geo_Element->NbrEdges, Geo_Element->NumEdges,
 			      &Geo_Element->NbrFacets, &Geo_Element->NumFacets,
