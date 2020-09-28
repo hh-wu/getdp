@@ -2018,6 +2018,10 @@ void Print_ListResolution(int choose, int Flag_LRES, char **name)
         c.Type = VAR_CHAR;
         c.Value.Char = strSave(choices[0].c_str());
         std::map<std::string, std::vector<double> > floatOptions;
+        // force *not* read-only here, in case the parameter already exists *as
+        // read-only* in the DB, in which case we do want to keep the value
+        // from the server
+        floatOptions["ReadOnly"].push_back(0);
         std::map<std::string, std::vector<std::string> > charOptions;
         charOptions["Choices"] = choices;
         charOptions["Name"].push_back(Message::GetOnelabClientName() + "/1ResolutionChoices");
@@ -2083,6 +2087,10 @@ void Print_ListPostOperation(int choose, int Flag_LPOS, char *name[NBR_MAX_POS])
         c.Type = VAR_CHAR;
         c.Value.Char = strSave(choices[0].c_str());
         std::map<std::string, std::vector<double> > floatOptions;
+        // force *not* read-only here, in case the parameter already exists *as
+        // read-only* in the DB, in which case we do want to keep the value
+        // from the server
+        floatOptions["ReadOnly"].push_back(0);
         std::map<std::string, std::vector<std::string> > charOptions;
         charOptions["Choices"] = choices;
         charOptions["Name"].push_back(Message::GetOnelabClientName() + "/2PostOperationChoices");
