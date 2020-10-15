@@ -1046,7 +1046,6 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   Message::Info(3, "Iterative solver: %s", Solver.c_str());
   Message::Info(3, "Tolerance: %g", Tol);
   Message::Info(3, "Max. numb. of iterations: %i", MaxIter);
-  Message::Info(3, "Restart: %i", Restart);
 
   // if jacobi then MatMult(A,X) = A*X for linear system (I-A)*X=B
   if(Solver == "jacobi"){
@@ -1162,8 +1161,14 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
 #endif
     }
     _try(KSPSetType(ksp, Solver.c_str()));
-    if(Restart > 0 && Solver.find("gmres") != std::string::npos)
+    if(Restart > 0 && Solver.find("gmres") != std::string::npos){
       _try(KSPGMRESSetRestart(ksp, Restart));
+      Message::Info(3, "GMRES Restart: %i", Restart);
+    }
+    if(Restart > 0 && Solver.find("bcgsl") != std::string::npos){
+      _try(KSPBCGSLSetEll(ksp, Restart));
+      Message::Info(3, "BiCGL Ell: %i", Restart);
+    }
     // set ksp
     _try(KSPSetFromOptions(ksp));
     // Solve
