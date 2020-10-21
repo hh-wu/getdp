@@ -4006,6 +4006,14 @@ are treated in the same way as for @code{ScalarField}.
 Idem, but consider only complex-valued tensor fields. Optional arguments
 are treated in the same way as for @code{ScalarField}.
 
+@item Distance
+@code{[@var{expression}]@{@var{expression-cst}@}}
+
+Evaluate the distance between the point (whose x, y, z coordinates are
+given as a vector argument) and a vector valued view, interpreted as a
+displacement field (i.e. compute the minimal distance between the point
+and the deformed mesh in the view).
+
 @item GetCpuTime
 @code{[]}
 

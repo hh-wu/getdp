@@ -1303,6 +1303,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"GradVectorField",        (CAST)F_GradVectorField       ,   -1,   -1 },
   {"GradComplexScalarField", (CAST)F_GradComplexScalarField,   -1,   -1 },
   {"GradComplexVectorField", (CAST)F_GradComplexVectorField,   -1,   -1 },
+  {"Distance",           (CAST)F_Distance          ,    1,   1 },
 
   // F_DiffGeom
   {"Hodge",              (CAST)F_Hodge             ,    1,   2 },
