@@ -874,9 +874,9 @@ struct StringX3Function3Nbr  BF_Function[] = {
   {"BF_NodeY" , (CAST)BF_NodeY , (CAST)BF_NodeY_D1 , (CAST)BF_NodeY_D2 , 1. , ALL, 0 },
   {"BF_NodeZ" , (CAST)BF_NodeZ , (CAST)BF_NodeZ_D1 , (CAST)BF_NodeZ_D2 , 1. , ALL, 0 },
 
-  {"BF_NodeX_2E" , (CAST)BF_NodeX_2E , (CAST)BF_NodeX_D1_2E , (CAST)BF_NodeX_D2_2E , 2. , ALL, 0 },
-  {"BF_NodeY_2E" , (CAST)BF_NodeY_2E , (CAST)BF_NodeY_D1_2E , (CAST)BF_NodeY_D2_2E , 2. , ALL, 0 },
-  {"BF_NodeZ_2E" , (CAST)BF_NodeZ_2E , (CAST)BF_NodeZ_D1_2E , (CAST)BF_NodeZ_D2_2E , 2. , ALL, 0 },
+  {"BF_NodeX_2E" , (CAST)BF_NodeX_2E , (CAST)BF_NodeX_D1_2E , (CAST)BF_NodeX_D2_2E , 2. , LIN|TRI|TET|HEX, 0 },
+  {"BF_NodeY_2E" , (CAST)BF_NodeY_2E , (CAST)BF_NodeY_D1_2E , (CAST)BF_NodeY_D2_2E , 2. , LIN|TRI|TET|HEX, 0 },
+  {"BF_NodeZ_2E" , (CAST)BF_NodeZ_2E , (CAST)BF_NodeZ_D1_2E , (CAST)BF_NodeZ_D2_2E , 2. , LIN|TRI|TET|HEX, 0 },
 
   {"BF_NodeX_2F" , (CAST)BF_NodeX_2F , (CAST)BF_NodeX_D1_2F , (CAST)BF_NodeX_D2_2F , 2. , QUA|HEX/*|PRI*/, 0 },
   {"BF_NodeY_2F" , (CAST)BF_NodeY_2F , (CAST)BF_NodeY_D1_2F , (CAST)BF_NodeY_D2_2F , 2. , QUA|HEX/*|PRI*/, 0 },
