@@ -110,12 +110,12 @@ endif()
 set(GETDP_DATE "${DATE}")
 
 if(NOT GETDP_HOST)
-  execute_process(COMMAND hostname OUTPUT_VARIABLE HOSTNAME
+  execute_process(COMMAND hostname OUTPUT_VARIABLE HOST
                   OUTPUT_STRIP_TRAILING_WHITESPACE)
-  if(NOT HOSTNAME)
-    set(HOSTNAME "unknown")
+  if(NOT HOST)
+    set(HOST "unknown")
   endif()
-  set(GETDP_HOST "${HOSTNAME}")
+  set(GETDP_HOST "${HOST}")
 endif()
 
 if(NOT GETDP_PACKAGER)

@@ -15,6 +15,7 @@ extern struct CurrentData Current ;
 #include <gmsh/GmshGlobal.h>
 #include <gmsh/PView.h>
 #include <gmsh/PViewData.h>
+#include <gmsh/Numeric.h>
 
 void F_Field(F_ARG)
 {
@@ -222,18 +223,99 @@ static void F_X_Field(F_ARG, int type, bool complex, bool grad=false)
   }
 }
 
+void F_Distance(F_ARG)
+{
+  if(A->Type != VECTOR){
+    Message::Error("Distance[] expects XYZ coordinates as argument");
+    return;
+  }
+
+  SPoint3 p(A->Val[0], A->Val[1], A->Val[2]);
+
+  if(Fct->NbrParameters != 1){
+    Message::Error("Distance[] requires one view tag as parameter");
+    return;
+  }
+
+  PView *v = PView::getViewByTag(Fct->Para[0]);
+  if(!v){
+    Message::Error("View with tag %d does not exist", Fct->Para[0]);
+    return;
+  }
+
+  PViewData *data = v->getData();
+  if(data->getNumTimeSteps() != 1 || !data->hasTimeStep(0)) {
+    Message::Error("View used in Distance[] should have a single step");
+    return;
+  }
+
+  double dist = 1e200;
+
+  for(int ent = 0; ent < data->getNumEntities(0); ent++) {
+    if(data->skipEntity(0, ent)) continue;
+    for(int ele = 0; ele < data->getNumElements(0, ent); ele++) {
+      if(data->skipElement(0, ent, ele)) continue;
+      int numComp = data->getNumComponents(0, ent, ele);
+      if(numComp != 3) {
+        Message::Error("Distance[] expects a vector-valued view");
+        return;
+      }
+      int numNodes = data->getNumNodes(0, ent, ele);
+      if(numNodes != 2 && numNodes != 3) {
+        Message::Error("Distance[] can only currently handle lines and triangles");
+        return;
+      }
+      double nx[3], ny[3], nz[3], dx[3], dy[3], dz[3];
+      for(int nod = 0; nod < numNodes; nod++) {
+        data->getValue(0, ent, ele, nod, 0, dx[nod]);
+        data->getValue(0, ent, ele, nod, 1, dy[nod]);
+        data->getValue(0, ent, ele, nod, 2, dz[nod]);
+        data->getNode(0, ent, ele, nod, nx[nod], ny[nod], nz[nod]);
+      }
+      double d;
+      SPoint3 p1(nx[0] + dx[0], ny[0] + dy[0], nz[0] + dz[0]);
+      SPoint3 p2(nx[1] + dx[1], ny[1] + dy[1], nz[1] + dz[1]);
+      SPoint3 closePt;
+      if(numNodes == 2) {
+        // Warning: this is currently NOT signed!
+        signedDistancePointLine(p1, p2, p, d, closePt);
+      }
+      else if(numNodes == 3) {
+        SPoint3 p3(nx[2] + dx[2], ny[2] + dy[2], nz[2] + dz[2]);
+        signedDistancePointTriangle(p1, p2, p3, p, d, closePt);
+      }
+      dist = std::min(dist, d);
+    }
+  }
+
+  V->Type = SCALAR ;
+  V->Val[0] = dist;
+  V->Val[MAX_DIM] = 0.;
+  for (int k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2) {
+    V->Val[MAX_DIM* k] = V->Val[0] ;
+    V->Val[MAX_DIM* (k+1)] = 0. ;
+  }
+}
+
 #else
 
 void F_Field(F_ARG)
 {
-  Message::Error("You need to compile GetDP with Gmsh support to use 'Field'");
+  Message::Error("You need to compile GetDP with Gmsh support to use Field[]");
   V->Val[0] = 0. ;
   V->Type = SCALAR ;
 }
 
 static void F_X_Field(F_ARG, int type, bool complex, bool grad=false)
 {
-  Message::Error("You need to compile GetDP with Gmsh support to use 'Field'");
+  Message::Error("You need to compile GetDP with Gmsh support to use Field[]");
+  V->Val[0] = 0. ;
+  V->Type = SCALAR ;
+}
+
+void F_Distance(F_ARG)
+{
+  Message::Error("You need to compile GetDP with Gmsh support to use Distance[]");
   V->Val[0] = 0. ;
   V->Type = SCALAR ;
 }
