@@ -70,9 +70,14 @@ void F_Atanh (F_ARG) { scalar_real_1_arg (atanh, "Atanh")}
     V->Val[MAX_DIM] = std::imag(tmp);                                   \
     break;                                                              \
   default:                                                              \
-    V->Val[MAX_DIM] = 0. ;                                              \
-    for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2) \
-      V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;                  \
+    tmp = std::complex<double>(A->Val[0], A->Val[MAX_DIM]);             \
+    tmp = func(tmp);                                                    \
+    V->Val[0]       = std::real(tmp);                                   \
+    V->Val[MAX_DIM] = std::imag(tmp);                                   \
+    for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2) { \
+      V->Val[MAX_DIM*k] = std::real(tmp);                               \
+      V->Val[MAX_DIM*(k+1)] = std::imag(tmp);                           \
+    }                                                                   \
   }                                                                     \
   V->Type = SCALAR;                                                     \
 
@@ -106,8 +111,10 @@ void F_Abs   (F_ARG) { scalar_cmplx_1_arg (std::abs, "Abs")  }
   V->Val[0] = func(A->Val[0], (A+1)->Val[0]) ;				\
   if (Current.NbrHar > 1){						\
     V->Val[MAX_DIM] = 0. ;						\
-    for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2) \
-      V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;			\
+    for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2) { \
+      V->Val[MAX_DIM*k] = func(A->Val[0], (A+1)->Val[0]) ;		\
+      V->Val[MAX_DIM*(k+1)] = 0. ;                                      \
+    }                                                                   \
   }									\
   V->Type = SCALAR;
 

@@ -1261,9 +1261,9 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"pnm"               , (CAST)F_pnm              ,   0,   3 },
   {"unm"               , (CAST)F_unm              ,   0,   3 },
   {"snm"               , (CAST)F_snm              ,   0,   3 },
-  {"Xnm"               , (CAST)F_Xnm              ,   0,   4 },
-  {"Ynm"               , (CAST)F_Ynm              ,   0,   4 },
-  {"Znm"               , (CAST)F_Znm              ,   0,   4 },
+  {"Xnm"               , (CAST)F_Xnm              ,   0,   5 },
+  {"Ynm"               , (CAST)F_Ynm              ,   0,   5 },
+  {"Znm"               , (CAST)F_Znm              ,   0,   5 },
   {"Mnm"               , (CAST)F_Mnm              ,   0,   5 },
   {"Nnm"               , (CAST)F_Nnm              ,   0,   5 },
 
