@@ -2629,8 +2629,7 @@ void  F_Xnm(F_ARG)
     || (A+1)->Type != SCALAR
       || (A+2)->Type != SCALAR
         || (A+3)->Type != SCALAR
-          || (A+4)->Type != SCALAR
-            || (A+5)->Type != SCALAR)
+          || (A+4)->Type != SCALAR)
     Message::Error("Non scalar argument(s) for the Mnm's");
   n     = (int)A->Val[0];
   m     = (int)(A+1)->Val[0];
@@ -2699,8 +2698,7 @@ void  F_Ynm(F_ARG)
     || (A+1)->Type != SCALAR
       || (A+2)->Type != SCALAR
         || (A+3)->Type != SCALAR
-          || (A+4)->Type != SCALAR
-            || (A+5)->Type != SCALAR)
+          || (A+4)->Type != SCALAR)
     Message::Error("Non scalar argument(s) for the Mnm's");
   n     = (int)A->Val[0];
   m     = (int)(A+1)->Val[0];
@@ -2769,8 +2767,7 @@ void  F_Znm(F_ARG)
     || (A+1)->Type != SCALAR
       || (A+2)->Type != SCALAR
         || (A+3)->Type != SCALAR
-          || (A+4)->Type != SCALAR
-            || (A+5)->Type != SCALAR)
+          || (A+4)->Type != SCALAR)
     Message::Error("Non scalar argument(s) for the Mnm's");
   n     = (int)A->Val[0];
   m     = (int)(A+1)->Val[0];
