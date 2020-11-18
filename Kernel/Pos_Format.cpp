@@ -1007,11 +1007,11 @@ static void StorePostOpResult(int NbrHarmonics, struct Value *Value)
 #define NX ;
 #endif
 
-void Unv_PrintHeader(FILE *PostStream, char *name, int SubType, double Time, int TimeStep) NX
+int UnitFactor = 1;
+void Unv_PrintHeader(FILE *PostStream, char *name, int SubType, double Time, int TimeStep, int& UnitFactor) NX
 void Unv_PrintFooter(FILE *PostStream) NX
-void Unv_PrintElement(FILE *PostStream, int Num_Element, int NbrNodes, struct Value *Value, int NbrHarmonics) NX
-void Unv_PrintRegion(FILE *PostStream, int Flag_Comma, int numRegion, int NbrHarmonics,
-                     int Size, struct Value *Value) NX
+void Unv_PrintElement(FILE *PostStream, int Num_Element, int NbrNodes, struct Value *Value, int NbrHarmonics, int& UnitFactor) NX
+void Unv_PrintRegion(FILE *PostStream, int Flag_Comma, int numRegion, int NbrHarmonics, int Size, struct Value *Value, int& UnitFactor) NX
 
 #undef NX
 
@@ -1175,7 +1175,7 @@ void  Format_PostHeader(struct PostSubOperation *PSO_P, int NbTimeStep,
     }
     break ;
   case FORMAT_NXUNV :
-    if(PostStream) Unv_PrintHeader(PostStream, name, SubType, Time, TimeStep);
+    if(PostStream) Unv_PrintHeader(PostStream, name, SubType, Time, TimeStep, UnitFactor);
     break ;
   case FORMAT_GNUPLOT :
     if(PostStream){
@@ -1631,7 +1631,7 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
                             PE->Value) ;
     break ;
   case FORMAT_NXUNV :
-    if(PostStream) Unv_PrintElement(PostStream, Num_Element, PE->NbrNodes, PE->Value, NbrHarmonics) ;
+    if(PostStream) Unv_PrintElement(PostStream, Num_Element, PE->NbrNodes, PE->Value, NbrHarmonics, UnitFactor) ;
     break ;
   case FORMAT_GMSH :
     if(PSO_P->StoreInField >= 0 || PSO_P->StoreInMeshBasedField >= 0){
@@ -1791,7 +1791,7 @@ void Format_PostValue(struct PostQuantity  *PQ_P,
   }
   else if (Format == FORMAT_NXUNV) {
     if(PostStream)
-      Unv_PrintRegion(PostStream, Comma ? 1 : 0, numRegion, NbrHarmonics, Size, Value);
+      Unv_PrintRegion(PostStream, Comma ? 1 : 0, numRegion, NbrHarmonics, Size, Value, UnitFactor);
   }
   else if (Format == FORMAT_LOOP_ERROR) {
     StorePostOpResult(NbrHarmonics, Value);
