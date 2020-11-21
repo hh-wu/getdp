@@ -663,6 +663,7 @@ int MainKernel(int argc, char *argv[])
 #if defined(HAVE_GMSH)
   Message::Info("Initializing Gmsh");
   gmsh::initialize();
+  gmsh::option::setNumber("General.Terminal", 0);
   GmshMsg *msg = 0;
   if(!GmshGetMessageHandler() && !Flag_CALLED_WITH_ONELAB_SERVER){
     // do not set msg handler if one is provided (e.g. on Android/iOS)
