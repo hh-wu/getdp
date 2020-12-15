@@ -5038,8 +5038,8 @@ E.g. @code{SaveSolution[]} is usually placed in the 2nd @var{resolution-op}.@*
 @{ @var{resolution-op} @}
 
 Iterative loop for nonlinear analysis. The parameters are: the maximum
-number of iterations (if no convergence), the relaxation factor (multiplies
-the iterative correction @var{dx}) and the relative error to achieve. The
+number of iterations (if no convergence), the relative error to achieve and
+the relaxation factor (multiplies the iterative correction @var{dx}). The 
 optional parameter is a flag for testing purposes.
 
 @item IterativeLoopN
