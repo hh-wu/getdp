@@ -1,4 +1,4 @@
-// ONELAB - Copyright (C) 2011-2019 Universite de Liege - Universite catholique
+// ONELAB - Copyright (C) 2011-2020 Universite de Liege - Universite catholique
 // de Louvain
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -32,10 +32,8 @@
 #include <iostream>
 #include <algorithm>
 #include <sstream>
-
-#if __cplusplus >= 201103L
 #include <mutex>
-#endif
+#include <regex>
 
 #include "GmshSocket.h"
 
@@ -497,6 +495,12 @@ namespace onelab {
       if(_values.empty()) return 0.;
       return _values[0];
     }
+    std::string getValueAsString() const
+    {
+      std::ostringstream sstream;
+      sstream << getValue();
+      return sstream.str();
+    }
     const std::vector<double> &getValues() const { return _values; }
     int getNumValues() const { return (int)_values.size(); }
     double getMin() const { return _min; }
@@ -725,6 +729,10 @@ namespace onelab {
       if(_values.empty()) return n;
       return _values[0];
     }
+    std::string getValueAsString() const
+    {
+      return getValue();
+    }
     const std::vector<std::string> &getValues() const { return _values; }
     int getNumValues() const { return (int)_values.size(); }
     const std::string &getKind() const { return _kind; }
@@ -858,9 +866,7 @@ namespace onelab {
   private:
     std::set<number *, parameterLessThan> _numbers;
     std::set<string *, parameterLessThan> _strings;
-#if __cplusplus >= 201103L
     std::mutex _mutex;
-#endif
 
     // delete a parameter from the parameter space
     template <class T>
@@ -903,9 +909,7 @@ namespace onelab {
     bool _set(const T &p, const std::string &client,
               std::set<T *, parameterLessThan> &ps)
     {
-#if __cplusplus >= 201103L
       _mutex.lock();
-#endif
       typename std::set<T *, parameterLessThan>::iterator it = ps.find((T *)&p);
       if(it != ps.end()) {
         (*it)->update(p);
@@ -918,9 +922,7 @@ namespace onelab {
           newp->addClient(client, parameter::defaultChangedValue());
         ps.insert(newp);
       }
-#if __cplusplus >= 201103L
       _mutex.unlock();
-#endif
       return true;
     }
     // get the parameter matching the given name, or all the parameters in the
@@ -942,13 +944,9 @@ namespace onelab {
         typename std::set<T *, parameterLessThan>::iterator it = ps.find(&tmp);
         if(it != ps.end()) {
           if(client.size()){
-#if __cplusplus >= 201103L
             _mutex.lock();
-#endif
             (*it)->addClient(client, parameter::defaultChangedValue());
-#if __cplusplus >= 201103L
             _mutex.unlock();
-#endif
           }
           p.push_back(**it);
         }
@@ -963,13 +961,9 @@ namespace onelab {
       typename std::set<T *, parameterLessThan>::iterator it = ps.find(&tmp);
       if(it != ps.end()) {
         if(client.size()){
-#if __cplusplus >= 201103L
           _mutex.lock();
-#endif
           (*it)->addClient(client, parameter::defaultChangedValue());
-#if __cplusplus >= 201103L
           _mutex.unlock();
-#endif
         }
         return *it;
       }
@@ -1031,6 +1025,29 @@ namespace onelab {
     int getNumParameters()
     {
       return (int)(_numbers.size() + _strings.size());
+    }
+    void getParameterNames(std::vector<std::string> &names,
+                           const std::string &search = "") const
+    {
+      names.clear();
+      if(search.empty()) {
+        for(auto &p : _numbers) names.push_back(p->getName());
+        for(auto &p : _strings) names.push_back(p->getName());
+      }
+      else{
+        try{
+          for(auto &p : _numbers) {
+            if(std::regex_search(p->getName(), std::regex(search)))
+              names.push_back(p->getName());
+          }
+          for(auto &p : _strings) {
+            if(std::regex_search(p->getName(), std::regex(search)))
+              names.push_back(p->getName());
+          }
+        }
+        catch(...) {
+        }
+      }
     }
     // check if at least one parameter depends on the given client
     bool hasClient(const std::string &client) const
@@ -1376,6 +1393,11 @@ namespace onelab {
     int getNumParameters()
     {
       return _parameterSpace.getNumParameters();
+    }
+    void getParameterNames(std::vector<std::string> &names,
+                           const std::string &search = "") const
+    {
+      _parameterSpace.getParameterNames(names, search);
     }
     std::vector<std::string> toChar(const std::string &client = "")
     {
