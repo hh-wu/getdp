@@ -1194,6 +1194,11 @@ void  Generate_Elements(List_T * InitialList,
 
   Nbr_Element = Geo_GetNbrGeoElements() ;
 
+  // TODO: Add a warning when the initial group is not empty (i.e. there are
+  // some candidate elements) but and Generate_Elements() returns an empty list
+  // of elements? Cf. debugging of OnPositiveSideOf of a curve located on the
+  // boundary :-)
+
   switch (Type_SuppList) {
 
   case SUPPLIST_ONONESIDEOF :

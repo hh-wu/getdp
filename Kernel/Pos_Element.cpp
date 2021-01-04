@@ -243,6 +243,50 @@ void Cut_PostElement(struct PostElement * PE, struct Geo_Element * GE,
       NbCut = 4 ;
       break;
 
+    case QUADRANGLE :
+    case QUADRANGLE_2 :
+    case QUADRANGLE_3 :
+    case QUADRANGLE_4 :
+      u01 = .5 * (PE->u[0] + PE->u[1]); u12 = .5 * (PE->u[1] + PE->u[2]);
+      v01 = .5 * (PE->v[0] + PE->v[1]);	v12 = .5 * (PE->v[1] + PE->v[2]);
+      w01 = .5 * (PE->w[0] + PE->w[1]);	w12 = .5 * (PE->w[1] + PE->w[2]);
+
+      u23 = .5 * (PE->u[2] + PE->u[3]); u03 = .5 * (PE->u[0] + PE->u[3]);
+      v23 = .5 * (PE->v[2] + PE->v[3]); v03 = .5 * (PE->v[0] + PE->v[3]);
+      w23 = .5 * (PE->w[2] + PE->w[3]); w03 = .5 * (PE->w[0] + PE->w[3]);
+
+      u02 = .5 * (PE->u[0] + PE->u[2]);
+      v02 = .5 * (PE->v[0] + PE->v[2]);
+      w02 = .5 * (PE->w[0] + PE->w[2]);
+
+      C[0] = Create_PostElement(Index, QUADRANGLE, 4, PE->Depth) ;
+      C[0]->u[0] = PE->u[0] ; C[0]->v[0] = PE->v[0] ; C[0]->w[0] = PE->w[0] ;
+      C[0]->u[1] = u01      ; C[0]->v[1] = v01      ; C[0]->w[1] = w01      ;
+      C[0]->u[2] = u02      ; C[0]->v[2] = v02      ; C[0]->w[2] = w02      ;
+      C[0]->u[3] = u03      ; C[0]->v[3] = v03      ; C[0]->w[3] = w03      ;
+
+      C[1] = Create_PostElement(Index, QUADRANGLE, 4, PE->Depth) ;
+      C[1]->u[0] = u01      ; C[1]->v[0] = v01      ; C[1]->w[0] = w01      ;
+      C[1]->u[1] = PE->u[1] ; C[1]->v[1] = PE->v[1] ; C[1]->w[1] = PE->w[1] ;
+      C[1]->u[2] = u12      ; C[1]->v[2] = v12      ; C[1]->w[2] = w12      ;
+      C[1]->u[3] = u02      ; C[1]->v[3] = v02      ; C[1]->w[3] = w02      ;
+
+      C[2] = Create_PostElement(Index, QUADRANGLE, 4, PE->Depth) ;
+      C[2]->u[0] = u02      ; C[2]->v[0] = v02      ; C[2]->w[0] = w02      ;
+      C[2]->u[1] = u12      ; C[2]->v[1] = v12      ; C[2]->w[1] = w12      ;
+      C[2]->u[2] = PE->u[2] ; C[2]->v[2] = PE->v[2] ; C[2]->w[2] = PE->w[2] ;
+      C[2]->u[3] = u23      ; C[2]->v[3] = v23      ; C[2]->w[3] = w23      ;
+
+      C[3] = Create_PostElement(Index, QUADRANGLE, 4, PE->Depth) ;
+      C[3]->u[0] = u03      ; C[3]->v[0] = v03      ; C[3]->w[0] = w03      ;
+      C[3]->u[1] = u02      ; C[3]->v[1] = v02      ; C[3]->w[1] = w02      ;
+      C[3]->u[2] = u23      ; C[3]->v[2] = v23      ; C[3]->w[2] = w23      ;
+      C[3]->u[3] = PE->u[3] ; C[3]->v[3] = PE->v[3] ; C[3]->w[3] = PE->w[3] ;
+
+      NbCut = 4 ;
+      break;
+
+
     case TETRAHEDRON :
     case TETRAHEDRON_2 :
     case TETRAHEDRON_3 :

@@ -489,6 +489,7 @@ void  F_GradScalarField(F_ARG) ;
 void  F_GradVectorField(F_ARG) ;
 void  F_GradComplexScalarField(F_ARG) ;
 void  F_GradComplexVectorField(F_ARG) ;
+void  F_Distance(F_ARG) ;
 
 /* F_DiffGeom */
 void  F_Hodge(F_ARG) ;

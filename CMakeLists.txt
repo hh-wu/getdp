@@ -3,10 +3,7 @@
 # See the LICENSE.txt file for license information. Please report all
 # issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
-cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
-
-# do not warn about non-definition of WIN32 on Cygwin
-set(CMAKE_LEGACY_CYGWIN_WIN32 0)
+cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 
 # if CMAKE_BUILD_TYPE is specified use it; otherwise set the default
 # build type to "RelWithDebInfo" ("-O2 -g" with gcc) prior to calling
@@ -35,7 +32,6 @@ opt(BUILD_SHARED "Enable 'shared' target for building shared GetDP library" OFF)
 opt(BUILD_DYNAMIC "Enable dynamic GetDP executable (linked with shared lib)" OFF)
 opt(BUILD_ANDROID "Enable Android NDK library target (experimental)" OFF)
 opt(BUILD_IOS "Enable iOS (ARM) library target (experimental)" OFF)
-opt(CXX11 "Enable C++11" ON)
 opt(FORTRAN "Enable Fortran (needed for Arpack/Sparskit/Zitsol & Bessel)" ${DEFAULT})
 opt(GMSH "Enable Gmsh functions (for field interpolation)" ${DEFAULT})
 opt(GSL "Enable GSL functions (for some built-in functions)" ${DEFAULT})
@@ -63,6 +59,11 @@ if(ENABLE_FORTRAN)
 else()
   project(getdp CXX C)
 endif()
+
+# require C++11 and request C99
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_C_STANDARD 99)
 
 set(GETDP_MAJOR_VERSION 3)
 set(GETDP_MINOR_VERSION 3)
@@ -109,12 +110,12 @@ endif()
 set(GETDP_DATE "${DATE}")
 
 if(NOT GETDP_HOST)
-  execute_process(COMMAND hostname OUTPUT_VARIABLE HOSTNAME
+  execute_process(COMMAND hostname OUTPUT_VARIABLE HOST
                   OUTPUT_STRIP_TRAILING_WHITESPACE)
-  if(NOT HOSTNAME)
-    set(HOSTNAME "unknown")
+  if(NOT HOST)
+    set(HOST "unknown")
   endif()
-  set(GETDP_HOST "${HOSTNAME}")
+  set(GETDP_HOST "${HOST}")
 endif()
 
 if(NOT GETDP_PACKAGER)
@@ -200,14 +201,6 @@ if(ENABLE_OPENMP)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
     set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${OpenMP_Fortran_FLAGS}")
-  endif()
-endif()
-
-if(ENABLE_CXX11)
-  # in recent cmake versions we could do e.g. set(CMAKE_CXX_STANDARD 11)
-  check_cxx_compiler_flag("-std=c++11" STDCXX11)
-  if(STDCXX11)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
   endif()
 endif()
 
@@ -559,10 +552,6 @@ if(ENABLE_HPDDM)
   if(HPDDM_INC)
     list(APPEND EXTERNAL_INCLUDES ${HPDDM_INC})
     set_config_option(HAVE_HPDDM "HPDDM")
-    check_cxx_compiler_flag("-std=c++11" STDCXX11)
-    if(STDCXX11)
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-    endif()
   endif()
 endif()
 
@@ -1082,8 +1071,7 @@ if(APPLE AND ENABLE_BUILD_LIB)
   file(READ ${CMAKE_CURRENT_SOURCE_DIR}/utils/misc/getdp_framework.plist F0)
   string(REPLACE GETDP_VERSION "${GETDP_VERSION}" F1 "${F0}")
   file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/Info_framework.plist "${F1}")
-  get_target_property(LIBNAME lib LOCATION)
-  #set(LIBNAME $<TARGET_FILE:lib>) # FIXME: use this in the future
+  set(LIBNAME $<TARGET_FILE:lib>)
   add_custom_target(framework DEPENDS lib
     COMMAND ${CMAKE_COMMAND} -E remove_directory getdp.framework
     COMMAND ${CMAKE_COMMAND} -E make_directory getdp.framework/Headers

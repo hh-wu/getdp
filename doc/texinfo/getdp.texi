@@ -4006,6 +4006,14 @@ are treated in the same way as for @code{ScalarField}.
 Idem, but consider only complex-valued tensor fields. Optional arguments
 are treated in the same way as for @code{ScalarField}.
 
+@item Distance
+@code{[@var{expression}]@{@var{expression-cst}@}}
+
+Evaluate the distance between the point (whose x, y, z coordinates are
+given as a vector argument) and a vector valued view, interpreted as a
+displacement field (i.e. compute the minimal distance between the point
+and the deformed mesh in the view).
+
 @item GetCpuTime
 @code{[]}
 
@@ -5030,8 +5038,8 @@ E.g. @code{SaveSolution[]} is usually placed in the 2nd @var{resolution-op}.@*
 @{ @var{resolution-op} @}
 
 Iterative loop for nonlinear analysis. The parameters are: the maximum
-number of iterations (if no convergence), the relaxation factor (multiplies
-the iterative correction @var{dx}) and the relative error to achieve. The
+number of iterations (if no convergence), the relative error to achieve and
+the relaxation factor (multiplies the iterative correction @var{dx}). The 
 optional parameter is a flag for testing purposes.
 
 @item IterativeLoopN

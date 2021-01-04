@@ -395,6 +395,25 @@ static std::string ExtractDoubleQuotedString(const char *str, int len)
   return ret;
 }
 
+static void Geo_SnapNodes(struct GeoData * GeoData_P)
+{
+  // 2D meshes used for axisymmetric calculations should have the minimum
+  // x-coordinate *exactly* equal to 0: snap x coordinate of all vertices of 2D
+  // meshes with fabs(x) < 1e-13 to 0.
+  if(GeoData_P->Dimension != DIM_2D || fabs(GeoData_P->Xmin) > 1e-13) return;
+  int snaps = 0;
+  for(int i = 0; i < List_Nbr(GeoData_P->Nodes); i++) {
+    Geo_Node *n = (Geo_Node*)List_Pointer(GeoData_P->Nodes, i);
+    if(fabs(n->x) < 1e-13) {
+      n->x = 0.;
+      snaps++;
+    }
+  }
+  if(snaps)
+    Message::Info("Snapped x coordinate of %d node%s to 0", snaps,
+                  (snaps > 1) ? "s" : "");
+}
+
 static void Geo_ReadFileWithGmsh(struct GeoData * GeoData_P)
 {
 #if defined(HAVE_GMSH)
@@ -457,6 +476,7 @@ static void Geo_ReadFileWithGmsh(struct GeoData * GeoData_P)
     GeoData_P->Dimension = DIM_1D;
   else
     GeoData_P->Dimension = DIM_0D;
+
 
   GeoData_P->CharacteristicLength =
   sqrt(SQU(GeoData_P->Xmax - GeoData_P->Xmin) +
@@ -543,6 +563,8 @@ static void Geo_ReadFileWithGmsh(struct GeoData * GeoData_P)
       }
     }
   }
+
+  Geo_SnapNodes(GeoData_P);
 
 #else
   Message::Error("You need to compile GetDP with Gmsh support to open '%s'",
@@ -995,6 +1017,8 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
 
   }   /* while 1 ... */
 
+
+  Geo_SnapNodes(GeoData_P);
 }
 
 void Geo_ReadFileAdapt(struct GeoData * GeoData_P)
