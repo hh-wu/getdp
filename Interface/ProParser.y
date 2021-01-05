@@ -314,7 +314,7 @@ struct doubleXstring{
 %token      tCopySolution tCopyRHS tCopyResidual tCopyIncrement tCopyDofs
 %token      tGetNormSolution tGetNormResidual tGetNormRHS tGetNormIncrement
 %token      tOptimizerInitialize tOptimizerUpdate tOptimizerFinalize
-%token      tLanczos tEigenSolve tEigenSolveJac tPerturbation
+%token      tLanczos tEigenSolve tEigenSolveAndExpand tEigenSolveJac tPerturbation
 %token      tUpdate tUpdateConstraint tBreak tExit tGetResidual tCreateSolution
 %token      tEvaluate tSelectCorrection tAddCorrection tMultiplySolution
 %token      tAddOppositeFullSolution tSolveAgainWithOther tSetGlobalSolverOptions
@@ -5322,7 +5322,7 @@ OperationTerm :
     }
 
   // TODO : fix shift-reduce conflict, name EigenSolve does not work
-  | tEigenSolve '[' String__Index ',' FExpr ',' FExpr ',' FExpr
+  |tEigenSolveAndExpand '[' String__Index ',' FExpr ',' FExpr ',' FExpr
                 ',' '{' RecursiveListOfListOfFExpr '}'  
                 ',' '{' RecursiveListOfListOfFExpr '}' 
                 ',' RecursiveListOfFExpr ',' String__Index ']' tEND
@@ -5337,6 +5337,7 @@ OperationTerm :
 			       fcmp_DefineSystem_Name)) < 0)
 	vyyerror(0, "Unknown System: %s", $21);
       Free($3);
+      Free($21);
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.EigenSolve.NumEigenvalues = (int)$5;
       Operation_P->Case.EigenSolve.Shift_r = $7;
@@ -6143,6 +6144,7 @@ OperationTerm :
       Operation_P->Type = OPERATION_GENERATELISTOFRHS;
       Operation_P->Case.Generate.GroupIndex =
         Num_Group(&Group_S, (char*)"OP_GenerateGroup", $5);
+      // Operation_P->Case.GenerateListOfRHS.NumListOfRHS = $7;
       Operation_P->Case.Generate.NumListOfRHS = $7;
     }
 

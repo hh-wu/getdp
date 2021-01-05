@@ -186,6 +186,7 @@ DtNL                         return tDtNL;
 Echo                         return tEcho;
 Eig                          return tEig;
 EigenSolve                   return tEigenSolve;
+EigenSolveAndExpand          return tEigenSolveAndExpand;
 EigenSolveJac                return tEigenSolveJac;
 EigenvalueLegend             return tEigenvalueLegend;
 Else                         return tElse;

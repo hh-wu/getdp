@@ -843,6 +843,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                                &DefineSystem_P, &DofData_P, Resolution2_P) ;
         // Current.TypeAssembly = ASSEMBLY_SEPARATE;
         Current.TypeAssembly = ASSEMBLY_AGGREGATE;
+        // DofData_P->TotalNumberOfRHS = Operation_P->Case.GenerateListOfRHS.NumListOfRHS;
+        DofData_P->TotalNumberOfRHS = Operation_P->Case.Generate.NumListOfRHS;
         Init_SystemData(DofData_P, Flag_Jac) ;
         DofData_P->Flag_ListOfRHS = 1;
         if(Operation_P->Case.Generate.GroupIndex >= 0){
@@ -850,7 +852,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
             List_Pointer(Problem_S.Group,
                          Operation_P->Case.Generate.GroupIndex) ;
 	      }
-        DofData_P->TotalNumberOfRHS = Operation_P->Case.Generate.NumListOfRHS;
+        // printf("DofData_P->TotalNumberOfRHS %d\n", DofData_P->TotalNumberOfRHS);
+        // printf("Operation_P->Case.GenerateListOfRHS.NumListOfRHS %d\n", Operation_P->Case.GenerateListOfRHS.NumListOfRHS);
         Generate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac, 0, 0) ;
         DofData_P->CounterOfRHS+=1;
       }
