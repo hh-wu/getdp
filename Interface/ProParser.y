@@ -5275,6 +5275,7 @@ OperationTerm :
       Operation_P->Case.EigenSolve.RationalCoefsNum = 0;
       Operation_P->Case.EigenSolve.RationalCoefsDen = 0;
       Operation_P->Case.EigenSolve.ApplyResolventRealFreqs = 0;
+      Operation_P->Case.EigenSolve.DefineOtherSystemIndex = -1;
     }
 
   | tEigenSolve '[' String__Index ',' FExpr ',' FExpr ',' FExpr
@@ -5295,6 +5296,7 @@ OperationTerm :
       Operation_P->Case.EigenSolve.RationalCoefsNum = 0;
       Operation_P->Case.EigenSolve.RationalCoefsDen = 0;
       Operation_P->Case.EigenSolve.ApplyResolventRealFreqs = 0;
+      Operation_P->Case.EigenSolve.DefineOtherSystemIndex = -1;
     }
 
   | tEigenSolve '[' String__Index ',' FExpr ',' FExpr ',' FExpr
@@ -5316,8 +5318,10 @@ OperationTerm :
       Operation_P->Case.EigenSolve.RationalCoefsNum = $14;
       Operation_P->Case.EigenSolve.RationalCoefsDen = $18;
       Operation_P->Case.EigenSolve.ApplyResolventRealFreqs = 0;
+      Operation_P->Case.EigenSolve.DefineOtherSystemIndex = -1;
     }
 
+  // TODO : fix shift-reduce conflict, name EigenSolve does not work
   | tEigenSolve '[' String__Index ',' FExpr ',' FExpr ',' FExpr
                 ',' '{' RecursiveListOfListOfFExpr '}'  
                 ',' '{' RecursiveListOfListOfFExpr '}' 
@@ -5341,7 +5345,7 @@ OperationTerm :
       Operation_P->Case.EigenSolve.RationalCoefsNum = $12;
       Operation_P->Case.EigenSolve.RationalCoefsDen = $16;
       Operation_P->Case.EigenSolve.ApplyResolventRealFreqs = $19;
-      Operation_P->DefineOtherSystemIndex = j;
+      Operation_P->Case.EigenSolve.DefineOtherSystemIndex = j;
     }
 
   | tEigenSolveJac '[' String__Index ',' FExpr ',' FExpr ',' FExpr ']' tEND

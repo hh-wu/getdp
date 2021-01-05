@@ -851,7 +851,7 @@ struct WholeQuantity {
     struct { List_T *WholeQuantity ; }                           ChangeCurrentPosition ;
     struct { List_T *WholeQuantity ;
              int InIndex, DofIndexInWholeQuantity; }             Trace;
-    struct { char *SystemName; int DefineSystemIndex; int DefineOtherSystemIndex; 
+    struct { char *SystemName; int DefineSystemIndex;
              int DofNumber; }                                    DofValue;
     struct { List_T *WholeQuantity_L; int Index, NbrPoints; }    MHTransform;
     struct { List_T *WholeQuantity_L; int Index, NbrPoints, FreqOffSet; } MHBilinear;
@@ -944,6 +944,7 @@ struct DefineSystem {
 #define VAL_REAL     1
 #define VAL_COMPLEX  2
 
+// FIXME : DefineOtherSystemIndex in EigenSolve
 struct Operation {
   int  Type, DefineSystemIndex, DefineOtherSystemIndex, Flag;
 
@@ -1015,6 +1016,7 @@ struct Operation {
       int     FilterExpressionIndex;
       List_T *RationalCoefsNum, *RationalCoefsDen;
       List_T *ApplyResolventRealFreqs;
+      int DefineOtherSystemIndex;
     } EigenSolve;
     struct {
       List_T  *Expressions;

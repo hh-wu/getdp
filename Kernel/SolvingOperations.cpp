@@ -1883,7 +1883,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Init_OperationOnSystem("EigenSolve",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
-      DofData2_P0 = DofData_P0 + Operation_P->DefineOtherSystemIndex ;
+      // TODO : DefineOtherSystemIndex
+      DofData2_P0 = DofData_P0 + Operation_P->Case.EigenSolve.DefineOtherSystemIndex ;
       EigenSolve(DofData_P, Operation_P->Case.EigenSolve.NumEigenvalues,
                  Operation_P->Case.EigenSolve.Shift_r,
                  Operation_P->Case.EigenSolve.Shift_i,
