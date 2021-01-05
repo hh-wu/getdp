@@ -944,16 +944,15 @@ struct DefineSystem {
 #define VAL_REAL     1
 #define VAL_COMPLEX  2
 
-// FIXME : DefineOtherSystemIndex in EigenSolve
 struct Operation {
-  int  Type, DefineSystemIndex, DefineOtherSystemIndex, Flag;
+  int  Type, DefineSystemIndex, Flag;
 
   union {
     struct {
       List_T *MatrixIndex_L;
     } GenerateOnly;
     struct {
-      int DefineSystemIndex, DefineOtherSystemIndex;
+      int DefineSystemIndex;
     } SolveAgainWithOther;
     struct {
       char *String;
