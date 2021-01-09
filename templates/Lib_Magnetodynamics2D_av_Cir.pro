@@ -408,6 +408,7 @@ Resolution {
       }
     }
     Operation {
+      CreateDirectory[resPath];
       If(Flag_FrequencyDomain)
         Generate[A]; Solve[A]; SaveSolution[A];
       Else
@@ -438,6 +439,7 @@ Resolution {
       { Name A; NameOfFormulation Magnetostatics2D_a; }
     }
     Operation {
+      CreateDirectory[resPath];
       InitSolution[A];
       Generate[A]; Solve[A];
       If(NbrRegions[Vol_NL_Mag])
@@ -471,6 +473,10 @@ PostProcessing {
       // The equilines of az are field lines (giving the magnetic field direction)
       { Name az; Value {
           Term { [ CompZ[{a}] ]; In Vol_Mag; Jacobian Vol; }
+        }
+      }
+      { Name xaz; Value {
+          Term { [ X[] * CompZ[{a}] ]; In Vol_Mag; Jacobian Vol; }
         }
       }
       { Name b; Value {
@@ -542,6 +548,10 @@ PostProcessing {
           Term { [ CompZ[{a}] ]; In Vol_Mag; Jacobian Vol; }
         }
       }
+      { Name xaz; Value {
+          Term { [ X[] * CompZ[{a}] ]; In Vol_Mag; Jacobian Vol; }
+        }
+      }
       { Name b; Value {
           Term { [ {d a} ]; In Vol_Mag; Jacobian Vol; }
         }
@@ -556,6 +566,9 @@ PostProcessing {
           Term { [ Vector[0,0,0] ]; In Vol_Mag; Jacobian Vol; }
         }
       }
+      { Name flux; Value {
+          Integral { [ CoefGeos[] * Ns[] / Sc[] * CompZ[{a}] ];
+            In Vol_S_Mag; Jacobian Vol; Integration Gauss_v; } } }
     }
   }
 }
