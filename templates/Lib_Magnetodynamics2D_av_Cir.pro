@@ -556,6 +556,10 @@ PostProcessing {
           Term { [ {d a} ]; In Vol_Mag; Jacobian Vol; }
         }
       }
+      { Name norm_of_b; Value {
+          Term { [ Norm[{d a}] ]; In Vol_Mag; Jacobian Vol; }
+        }
+      }
       { Name h; Value {
           Term { [ nu[] * {d a} ]; In Vol_Mag; Jacobian Vol; }
         }
