@@ -71,6 +71,10 @@ void Dof_InitDofData(struct DofData * DofData_P, int Num,
 
   DofData_P->SolverDataFileName = Name_SolverDataFile ;
   DofData_P->Flag_RHS = 0 ;
+  DofData_P->Flag_ListOfRHS = 0 ;
+  DofData_P->CounterOfRHS = 0 ;
+  DofData_P->TotalNumberOfRHS = 0 ;
+
   DofData_P->Flag_Init[0] = 0 ;
   DofData_P->Flag_Init[1] = 0 ;
   DofData_P->Flag_Init[2] = 0 ;
@@ -78,7 +82,6 @@ void Dof_InitDofData(struct DofData * DofData_P, int Num,
   DofData_P->Flag_Init[4] = 0 ;
   DofData_P->Flag_Init[5] = 0 ;
   DofData_P->Flag_Init[6] = 0 ;
-  // nleigchange
   DofData_P->Flag_Init[7] = 0 ;
 
   DofData_P->Flag_Only = 0 ;
