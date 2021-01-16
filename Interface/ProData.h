@@ -1141,12 +1141,6 @@ struct Operation {
       int     GroupIndex;
       int     NumListOfRHS;
     } Generate;
-    // struct {
-    //   int     GroupIndex;
-    // } Generate;
-    // struct {
-    //   int     NumListOfRHS;
-    // } GenerateListOfRHS;
     struct {
       int     GroupIndex;
       char    *FileName;
