@@ -4843,14 +4843,6 @@ constraint, to the system of equations defined with a
 @code{DestinationSystem} command. This is used with the
 @code{AssignFromResolution} constraint type (@pxref{Types for Constraint}).
 
-@item TransferInitSolution
-@code{[@var{system-id}]}
-
-Transfer the solution of system @var{system-id}, as an @code{Init}
-constraint, to the system of equations defined with a
-@code{DestinationSystem} command. This is used with the
-@code{InitFromResolution} constraint type (@pxref{Types for Constraint}).
-
 @item Evaluate
 @code{[@var{expression} <, @var{expression}>]}
 
@@ -5039,7 +5031,7 @@ E.g. @code{SaveSolution[]} is usually placed in the 2nd @var{resolution-op}.@*
 
 Iterative loop for nonlinear analysis. The parameters are: the maximum
 number of iterations (if no convergence), the relative error to achieve and
-the relaxation factor (multiplies the iterative correction @var{dx}). The 
+the relaxation factor (multiplies the iterative correction @var{dx}). The
 optional parameter is a flag for testing purposes.
 
 @item IterativeLoopN
