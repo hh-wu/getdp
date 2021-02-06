@@ -338,8 +338,8 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv, EPS eps,
 #endif
 }
 
-static void _storeExpansion(struct DofData *DofData_P, int nbApplyResolventRealFreqs, 
-                            std::vector<PetscReal> tabApplyResolventRealFreqs, 
+static void _storeExpansion(struct DofData *DofData_P, int nbApplyResolventRealFreqs,
+                            std::vector<PetscReal> tabApplyResolventRealFreqs,
                             std::vector<Vec> &ListOfExpansionResults)
 {
   Vec x;
@@ -933,7 +933,7 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
   char str_coefsDen[6][max_Nchar];
   char str_buff[50];
   int NumOperators = 2;
-  
+
   int Flag_ApplyResolvent;
 
   int nbApplyResolventRealFreqs = (int)List_Nbr(ApplyResolventRealFreqs);
@@ -954,7 +954,7 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
     Flag_ApplyResolvent = 1;
   if (nbApplyResolventRealFreqs!=DofData_P2->CounterOfRHS)
     Message::Error("Please provide a number of RHS terms equal to the number of real pulsations");
-  
+
   std::vector<PetscScalar> tabCoefsNum[6], tabCoefsDen[6];
   for(int i = 0; i < List_Nbr(RationalCoefsNum); i++){
     List_T *coefs;
@@ -1102,11 +1102,15 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
   _try(NEPSetFromOptions(nep));
 
   if(Flag_ApplyResolvent){
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 12)
     Message::Info("Using full basis variant (required for ApplyResolvent)");
     Message::Info("Using two sided variant  (required for ApplyResolvent)");
     _try(NEPNLEIGSSetFullBasis(nep,PETSC_TRUE));
     _try(NEPNLEIGSSetRestart(nep,0.5));
     _try(NEPSetTwoSided(nep,PETSC_TRUE));
+#else
+    Message::Error("SLEPC >= 3.12 required for ApplyResolvant");
+#endif
   }
 
   // print info
@@ -1155,6 +1159,7 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
   static PetscViewer myviewer;
 
   if(Flag_ApplyResolvent){
+#if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 12)
     Message::Info("A RHS term is available for ApplyResolvent!");
     ListOfExpansionResults.reserve(nbApplyResolventRealFreqs);
     for(int i = 0; i < nbApplyResolventRealFreqs; i++){
@@ -1164,7 +1169,7 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
       PetscViewerPushFormat(myviewer, PETSC_VIEWER_ASCII_MATLAB);
       VecView(DofData_P2->ListOfRHS[i].V,myviewer);
       PetscViewerPopFormat(myviewer);
-      
+
       _try(MatCreateVecs(DofData_P->M7.M,PETSC_NULL,&ListOfExpansionResults[i]));
       Lambda = PETSC_i*tabApplyResolventRealFreqs[i];
       Message::Info("Applying Resolvent with real angular frequency : %f",tabApplyResolventRealFreqs[i]);
@@ -1172,6 +1177,9 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
               DofData_P2->ListOfRHS[i].V,ListOfExpansionResults[i]));
     }
     _storeExpansion(DofData_P, nbApplyResolventRealFreqs, tabApplyResolventRealFreqs, ListOfExpansionResults);
+#else
+    Message::Error("SLEPC >= 3.12 required for ApplyResolvant");
+#endif
   }
   _try(PetscViewerDestroy(&myviewer));
   _try(NEPDestroy(&nep));
@@ -1234,7 +1242,7 @@ void EigenSolve_SLEPC(struct DofData * DofData_P, int numEigenValues,
     Message::Error("Please upgrade to slepc >= 3.7.3 for non-linear EVP support!");
     return;
 #else
-    _rationalEVP(DofData_P, numEigenValues, shift_r, shift_i, FilterExpressionIndex, 
+    _rationalEVP(DofData_P, numEigenValues, shift_r, shift_i, FilterExpressionIndex,
                  RationalCoefsNum, RationalCoefsDen, ApplyResolventRealFreqs, DofData_P2);
 #endif
 #else
