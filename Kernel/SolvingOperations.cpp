@@ -411,9 +411,18 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
       ZeroMatrix(&Current.DofData->A, &Current.DofData->Solver,
                  Current.DofData->NbrDof);
     }
-    if(!Flag_Cumulative)
+    if(!Flag_Cumulative){
       LinAlg_ZeroVector(&Current.DofData->b) ;
-
+      if(Current.DofData->Flag_ListOfRHS){
+        for(int i = 0; i < Current.DofData->TotalNumberOfRHS; i++){
+          gVector m;
+          LinAlg_CreateVector(&m, &Current.DofData->Solver,
+                              Current.DofData->NbrDof) ;
+          LinAlg_ZeroVector(&m);
+          Current.DofData->ListOfRHS.push_back(m);
+        }
+      }
+    }
     if(DofData_P->Flag_Only){
       for(int i = 0 ; i < List_Nbr( DofData_P->OnlyTheseMatrices ); i++){
 	List_Read(DofData_P->OnlyTheseMatrices, i, &iMat);
@@ -504,6 +513,10 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
   else{
     LinAlg_AssembleMatrix(&DofData_P->A) ;
     LinAlg_AssembleVector(&DofData_P->b) ;
+    if(DofData_P->Flag_ListOfRHS){
+      LinAlg_CopyVector(&DofData_P->b , &DofData_P->ListOfRHS[DofData_P->CounterOfRHS]);
+      Message::Info("There are now %d RHS terms",DofData_P->CounterOfRHS+1);
+    }
     int i;
     LinAlg_GetVectorSize(&DofData_P->b, &i) ;
     if(!i) Message::Info("Generated system is of dimension zero");
@@ -823,6 +836,28 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
     case OPERATION_GENERATEJAC :  Flag_Jac = 1 ;
     case OPERATION_GENERATEJAC_CUMULATIVE :  Flag_Jac = 1 ;
+    case OPERATION_GENERATELISTOFRHS :
+      {
+        Init_OperationOnSystem(Get_StringForDefine(Operation_Type, Operation_P->Type),
+                               Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+                               &DefineSystem_P, &DofData_P, Resolution2_P) ;
+        // Current.TypeAssembly = ASSEMBLY_SEPARATE;
+        Current.TypeAssembly = ASSEMBLY_AGGREGATE;
+        // DofData_P->TotalNumberOfRHS = Operation_P->Case.GenerateListOfRHS.NumListOfRHS;
+        DofData_P->TotalNumberOfRHS = Operation_P->Case.Generate.NumListOfRHS;
+        Init_SystemData(DofData_P, Flag_Jac) ;
+        DofData_P->Flag_ListOfRHS = 1;
+        if(Operation_P->Case.Generate.GroupIndex >= 0){
+          Generate_Group = (struct Group *)
+            List_Pointer(Problem_S.Group,
+                         Operation_P->Case.Generate.GroupIndex) ;
+	      }
+        // printf("DofData_P->TotalNumberOfRHS %d\n", DofData_P->TotalNumberOfRHS);
+        // printf("Operation_P->Case.GenerateListOfRHS.NumListOfRHS %d\n", Operation_P->Case.GenerateListOfRHS.NumListOfRHS);
+        Generate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac, 0, 0) ;
+        DofData_P->CounterOfRHS+=1;
+      }
+      break ;        
     case OPERATION_GENERATERHS :
     case OPERATION_GENERATERHS_CUMULATIVE :
     case OPERATION_GENERATE :
@@ -896,6 +931,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       Init_SystemData(DofData_P, Flag_Jac) ;
       Generate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac, 1) ;
+      // Generate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac, 0) ;
 
       if (Operation_P->Case.Generate.GroupIndex >= 0) Generate_Group = NULL ;
       break ;
@@ -1850,12 +1886,16 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Init_OperationOnSystem("EigenSolve",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
+      // TODO : DefineOtherSystemIndex
+      DofData2_P0 = DofData_P0 + Operation_P->Case.EigenSolve.DefineOtherSystemIndex ;
       EigenSolve(DofData_P, Operation_P->Case.EigenSolve.NumEigenvalues,
                  Operation_P->Case.EigenSolve.Shift_r,
                  Operation_P->Case.EigenSolve.Shift_i,
                  Operation_P->Case.EigenSolve.FilterExpressionIndex,
                  Operation_P->Case.EigenSolve.RationalCoefsNum,
-                 Operation_P->Case.EigenSolve.RationalCoefsDen);
+                 Operation_P->Case.EigenSolve.RationalCoefsDen,
+                 Operation_P->Case.EigenSolve.ApplyResolventRealFreqs,
+                 DofData2_P0);
       break ;
 
       /*  -->  EigenSolveJac                             */
@@ -1869,7 +1909,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                  Operation_P->Case.EigenSolve.Shift_r,
                  Operation_P->Case.EigenSolve.Shift_i,
                  Operation_P->Case.EigenSolve.FilterExpressionIndex,
-                 NULL, NULL);
+                 NULL, NULL, NULL, NULL);
       /* Insert intelligent convergence test here :-) */
       Current.RelativeDifference = 1.0 ;
       break ;

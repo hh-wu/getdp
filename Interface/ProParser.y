@@ -314,7 +314,7 @@ struct doubleXstring{
 %token      tCopySolution tCopyRHS tCopyResidual tCopyIncrement tCopyDofs
 %token      tGetNormSolution tGetNormResidual tGetNormRHS tGetNormIncrement
 %token      tOptimizerInitialize tOptimizerUpdate tOptimizerFinalize
-%token      tLanczos tEigenSolve tEigenSolveJac tPerturbation
+%token      tLanczos tEigenSolve tEigenSolveAndExpand tEigenSolveJac tPerturbation
 %token      tUpdate tUpdateConstraint tBreak tExit tGetResidual tCreateSolution
 %token      tEvaluate tSelectCorrection tAddCorrection tMultiplySolution
 %token      tAddOppositeFullSolution tSolveAgainWithOther tSetGlobalSolverOptions
@@ -340,7 +340,7 @@ struct doubleXstring{
 %token      tSaveSolutionExtendedMH tSaveSolutionMHtoTime tSaveSolutionWithEntityNum
 %token      tInitMovingBand2D tMeshMovingBand2D
 %token      tGenerateMHMoving tGenerateMHMovingSeparate tAddMHMoving
-%token      tGenerateGroup tGenerateJacGroup tGenerateRHSGroup
+%token      tGenerateGroup tGenerateJacGroup tGenerateRHSGroup tGenerateListOfRHS
 %token      tGenerateGroupCumulative tGenerateJacGroupCumulative tGenerateRHSGroupCumulative
 %token      tSaveMesh
 %token      tDeformMesh
@@ -5274,6 +5274,8 @@ OperationTerm :
       Operation_P->Case.EigenSolve.FilterExpressionIndex = -1;
       Operation_P->Case.EigenSolve.RationalCoefsNum = 0;
       Operation_P->Case.EigenSolve.RationalCoefsDen = 0;
+      Operation_P->Case.EigenSolve.ApplyResolventRealFreqs = 0;
+      Operation_P->Case.EigenSolve.DefineOtherSystemIndex = -1;
     }
 
   | tEigenSolve '[' String__Index ',' FExpr ',' FExpr ',' FExpr
@@ -5293,6 +5295,8 @@ OperationTerm :
       Operation_P->Case.EigenSolve.FilterExpressionIndex = $11;
       Operation_P->Case.EigenSolve.RationalCoefsNum = 0;
       Operation_P->Case.EigenSolve.RationalCoefsDen = 0;
+      Operation_P->Case.EigenSolve.ApplyResolventRealFreqs = 0;
+      Operation_P->Case.EigenSolve.DefineOtherSystemIndex = -1;
     }
 
   | tEigenSolve '[' String__Index ',' FExpr ',' FExpr ',' FExpr
@@ -5313,6 +5317,36 @@ OperationTerm :
       Operation_P->Case.EigenSolve.FilterExpressionIndex = $11;
       Operation_P->Case.EigenSolve.RationalCoefsNum = $14;
       Operation_P->Case.EigenSolve.RationalCoefsDen = $18;
+      Operation_P->Case.EigenSolve.ApplyResolventRealFreqs = 0;
+      Operation_P->Case.EigenSolve.DefineOtherSystemIndex = -1;
+    }
+
+  // TODO : fix shift-reduce conflict, name EigenSolve does not work
+  |tEigenSolveAndExpand '[' String__Index ',' FExpr ',' FExpr ',' FExpr
+                ',' '{' RecursiveListOfListOfFExpr '}'  
+                ',' '{' RecursiveListOfListOfFExpr '}' 
+                ',' RecursiveListOfFExpr ',' String__Index ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_EIGENSOLVE;
+      int i,j;
+      if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror(0, "Unknown System: %s", $3);
+      if((j = List_ISearchSeq(Resolution_S.DefineSystem, $21,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror(0, "Unknown System: %s", $21);
+      Free($3);
+      Free($21);
+      Operation_P->DefineSystemIndex = i;
+      Operation_P->Case.EigenSolve.NumEigenvalues = (int)$5;
+      Operation_P->Case.EigenSolve.Shift_r = $7;
+      Operation_P->Case.EigenSolve.Shift_i = $9;
+      Operation_P->Case.EigenSolve.FilterExpressionIndex = -1;
+      Operation_P->Case.EigenSolve.RationalCoefsNum = $12;
+      Operation_P->Case.EigenSolve.RationalCoefsDen = $16;
+      Operation_P->Case.EigenSolve.ApplyResolventRealFreqs = $19;
+      Operation_P->Case.EigenSolve.DefineOtherSystemIndex = j;
     }
 
   | tEigenSolveJac '[' String__Index ',' FExpr ',' FExpr ',' FExpr ']' tEND
@@ -6096,6 +6130,22 @@ OperationTerm :
       Operation_P->Type = $1;
       Operation_P->Case.Generate.GroupIndex =
         Num_Group(&Group_S, (char*)"OP_GenerateGroup", $5);
+    }
+
+  | tGenerateListOfRHS  '[' String__Index ',' GroupRHS ',' FExpr ']'  tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      int i;
+      if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+                              fcmp_DefineSystem_Name)) < 0)
+	vyyerror(0, "Unknown System: %s", $3);
+      Free($3);
+      Operation_P->DefineSystemIndex = i;
+      Operation_P->Type = OPERATION_GENERATELISTOFRHS;
+      Operation_P->Case.Generate.GroupIndex =
+        Num_Group(&Group_S, (char*)"OP_GenerateGroup", $5);
+      // Operation_P->Case.GenerateListOfRHS.NumListOfRHS = $7;
+      Operation_P->Case.Generate.NumListOfRHS = $7;
     }
 
   | tSolveAgainWithOther '[' String__Index ',' String__Index ']'  tEND
