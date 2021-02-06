@@ -338,6 +338,93 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv, EPS eps,
 #endif
 }
 
+static void _storeExpansion(struct DofData *DofData_P, int nbApplyResolventRealFreqs, 
+                            std::vector<PetscReal> tabApplyResolventRealFreqs, 
+                            std::vector<Vec> &ListOfExpansionResults)
+{
+  Vec x;
+  _try(MatCreateVecs(DofData_P->M7.M, PETSC_NULL, &x));
+
+  // temporary sequential vectors to transfer eigenvectors to getdp
+  Vec x_seq;
+  if(Message::GetCommSize() > 1){
+    PetscInt n;
+    _try(VecGetSize(x, &n));
+    _try(VecCreateSeq(PETSC_COMM_SELF, n, &x_seq));
+  }
+
+  bool newsol = true;
+  char fname[100];
+  static PetscViewer myviewer;
+  for (int i = 0; i < nbApplyResolventRealFreqs; i++){
+    x = ListOfExpansionResults[i];
+
+    // store vectors in petsc/matlab format
+    sprintf(fname,"applyresolvent_vec_result_%03d.m",i);
+    PetscViewerASCIIOpen(PETSC_COMM_WORLD, fname , &myviewer);
+    PetscViewerPushFormat(myviewer, PETSC_VIEWER_ASCII_MATLAB);
+    VecView(x,myviewer);
+    PetscViewerPopFormat(myviewer);
+
+    Current.Time = tabApplyResolventRealFreqs[i];
+    Current.TimeImag = 0;
+    // create new solution vector if necessary
+    if(newsol) {
+      struct Solution Solution_S;
+      Solution_S.TimeFunctionValues = NULL;
+      LinAlg_CreateVector(&Solution_S.x, &DofData_P->Solver, DofData_P->NbrDof);
+      List_Add(DofData_P->Solutions, &Solution_S);
+      DofData_P->CurrentSolution = (struct Solution*)
+        List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1);
+    }
+    DofData_P->CurrentSolution->Time = tabApplyResolventRealFreqs[i];
+    DofData_P->CurrentSolution->TimeImag = 0;
+    DofData_P->CurrentSolution->TimeStep = (int)Current.TimeStep;
+    Free(DofData_P->CurrentSolution->TimeFunctionValues);
+    DofData_P->CurrentSolution->TimeFunctionValues = NULL;
+    DofData_P->CurrentSolution->SolutionExist = 1;
+
+    // store eigenvector
+    PetscScalar *tmp;
+    if(Message::GetCommSize() == 1){
+      _try(VecGetArray(x, &tmp));
+    }
+    else{
+      _fillseq(x, x_seq);
+      _try(VecGetArray(x_seq, &tmp));
+    }
+
+    int incr = (Current.NbrHar == 2) ? gCOMPLEX_INCREMENT : 1;
+    for(int l = 0; l < DofData_P->NbrDof; l += incr){
+      double var_r = (double)PetscRealPart(tmp[l]);
+      double var_i = (double)PetscImaginaryPart(tmp[l]);
+      if(Current.NbrHar == 2)
+        LinAlg_SetComplexInVector(var_r, var_i, &DofData_P->CurrentSolution->x, l, l+1);
+      else
+        LinAlg_SetDoubleInVector(var_r, &DofData_P->CurrentSolution->x, l);
+    }
+
+    if(Message::GetCommSize() == 1){
+      _try(VecRestoreArray(x, &tmp));
+    }
+    else{
+      _try(VecRestoreArray(x_seq, &tmp));
+    }
+
+    LinAlg_AssembleVector(&DofData_P->CurrentSolution->x);
+
+    // increment the global timestep counter so that a future
+    // GenerateSystem knows which solutions exist
+    Current.TimeStep += 1.;
+  }
+  _try(PetscViewerDestroy(&myviewer));
+  _try(VecDestroy(&x));
+  if(Message::GetCommSize() > 1){
+    _try(VecDestroy(&x_seq));
+  }
+}
+
+
 static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
                        double shift_r, double shift_i, int filterExpressionIndex)
 {
@@ -835,7 +922,8 @@ static PetscErrorCode _myNepMonitor(NEP nep, int its, int nconv, PetscScalar *ei
 
 static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
                          double shift_r, double shift_i, int filterExpressionIndex,
-                         List_T *RationalCoefsNum, List_T *RationalCoefsDen)
+                         List_T *RationalCoefsNum, List_T *RationalCoefsDen,
+                         List_T *ApplyResolventRealFreqs, struct DofData * DofData_P2)
 {
 #if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 8)
   NEP nep;
@@ -845,6 +933,11 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
   char str_coefsDen[6][max_Nchar];
   char str_buff[50];
   int NumOperators = 2;
+  
+  int Flag_ApplyResolvent;
+
+  int nbApplyResolventRealFreqs = (int)List_Nbr(ApplyResolventRealFreqs);
+
 #if defined(PETSC_USE_COMPLEX)
   PetscScalar shift = shift_r + PETSC_i * shift_i;
 #else
@@ -857,6 +950,11 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
     return;
   }
 
+  if (List_Nbr(ApplyResolventRealFreqs)>0)
+    Flag_ApplyResolvent = 1;
+  if (nbApplyResolventRealFreqs!=DofData_P2->CounterOfRHS)
+    Message::Error("Please provide a number of RHS terms equal to the number of real pulsations");
+  
   std::vector<PetscScalar> tabCoefsNum[6], tabCoefsDen[6];
   for(int i = 0; i < List_Nbr(RationalCoefsNum); i++){
     List_T *coefs;
@@ -875,6 +973,13 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
     }
   }
 
+  std::vector<PetscReal> tabApplyResolventRealFreqs;
+  if (Flag_ApplyResolvent){
+    for(int i = 0; i < List_Nbr(ApplyResolventRealFreqs); i++){
+        double c; List_Read(ApplyResolventRealFreqs, i, &c);
+        tabApplyResolventRealFreqs.push_back(c);
+    }
+  }
   _try(NEPCreate(PETSC_COMM_WORLD, &nep));
 
   // NLEig1Dof and NLEig2Dof
@@ -996,6 +1101,14 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
   _try(NEPSetTarget(nep, shift));
   _try(NEPSetFromOptions(nep));
 
+  if(Flag_ApplyResolvent){
+    Message::Info("Using full basis variant (required for ApplyResolvent)");
+    Message::Info("Using two sided variant  (required for ApplyResolvent)");
+    _try(NEPNLEIGSSetFullBasis(nep,PETSC_TRUE));
+    _try(NEPNLEIGSSetRestart(nep,0.5));
+    _try(NEPSetTwoSided(nep,PETSC_TRUE));
+  }
+
   // print info
   _try(NEPGetType(nep, &type));
   Message::Info("SLEPc solution method: %s", type);
@@ -1021,7 +1134,8 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
     Message::Error("SLEPc diverged after %d iterations", its);
   else if(reason == NEP_DIVERGED_BREAKDOWN)
     Message::Error("SLEPc generic breakdown in method");
-  // _try(NEPView(nep, PETSC_VIEWER_STDOUT_SELF));
+
+  // TODO : we could also check left residual here
 
   // get number of converged approximate eigenpairs
   PetscInt nconv;
@@ -1032,7 +1146,34 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
   if(nconv > nev) nconv = nev;
 
   _storeEigenVectors(DofData_P, nconv, PETSC_NULL, PETSC_NULL, nep, filterExpressionIndex);
+  // TODO ? : we could print the left eigenvectors as well
 
+  PetscComplex Lambda;
+  // Vec VRHS;
+  std::vector<Vec> ListOfExpansionResults;
+  char fname[100];
+  static PetscViewer myviewer;
+
+  if(Flag_ApplyResolvent){
+    Message::Info("A RHS term is available for ApplyResolvent!");
+    ListOfExpansionResults.reserve(nbApplyResolventRealFreqs);
+    for(int i = 0; i < nbApplyResolventRealFreqs; i++){
+      // debug : print RHS in matlab format
+      sprintf(fname,"applyresolvent_vec_input_%03d.m",i);
+      PetscViewerASCIIOpen(PETSC_COMM_WORLD, fname , &myviewer);
+      PetscViewerPushFormat(myviewer, PETSC_VIEWER_ASCII_MATLAB);
+      VecView(DofData_P2->ListOfRHS[i].V,myviewer);
+      PetscViewerPopFormat(myviewer);
+      
+      _try(MatCreateVecs(DofData_P->M7.M,PETSC_NULL,&ListOfExpansionResults[i]));
+      Lambda = PETSC_i*tabApplyResolventRealFreqs[i];
+      Message::Info("Applying Resolvent with real angular frequency : %f",tabApplyResolventRealFreqs[i]);
+      _try(NEPApplyResolvent(nep,NULL,Lambda,
+              DofData_P2->ListOfRHS[i].V,ListOfExpansionResults[i]));
+    }
+    _storeExpansion(DofData_P, nbApplyResolventRealFreqs, tabApplyResolventRealFreqs, ListOfExpansionResults);
+  }
+  _try(PetscViewerDestroy(&myviewer));
   _try(NEPDestroy(&nep));
 #else
   Message::Error("Nonlinear eigenvalue solver requires PETSc/SLEPc >= 3.8");
@@ -1043,7 +1184,8 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
 
 void EigenSolve_SLEPC(struct DofData * DofData_P, int numEigenValues,
                       double shift_r, double shift_i, int FilterExpressionIndex,
-                      List_T *RationalCoefsNum, List_T *RationalCoefsDen)
+                      List_T *RationalCoefsNum, List_T *RationalCoefsDen,
+                      List_T *ApplyResolventRealFreqs, struct DofData * DofData_P2)
 {
   // Warn if we are not in harmonic regime (we won't be able to compute/store
   // complex eigenvectors).
@@ -1092,8 +1234,8 @@ void EigenSolve_SLEPC(struct DofData * DofData_P, int numEigenValues,
     Message::Error("Please upgrade to slepc >= 3.7.3 for non-linear EVP support!");
     return;
 #else
-    _rationalEVP(DofData_P, numEigenValues, shift_r, shift_i,
-                  FilterExpressionIndex, RationalCoefsNum, RationalCoefsDen);
+    _rationalEVP(DofData_P, numEigenValues, shift_r, shift_i, FilterExpressionIndex, 
+                 RationalCoefsNum, RationalCoefsDen, ApplyResolventRealFreqs, DofData_P2);
 #endif
 #else
     Message::Error("Please compile Petsc/Slepc with complex arithmetic for non linear EVP support!");

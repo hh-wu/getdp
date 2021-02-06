@@ -1014,6 +1014,8 @@ struct Operation {
       double  Shift_r, Shift_i;
       int     FilterExpressionIndex;
       List_T *RationalCoefsNum, *RationalCoefsDen;
+      List_T *ApplyResolventRealFreqs;
+      int DefineOtherSystemIndex;
     } EigenSolve;
     struct {
       List_T  *Expressions;
@@ -1137,6 +1139,7 @@ struct Operation {
     } Generate_MH_Moving_S;
     struct {
       int     GroupIndex;
+      int     NumListOfRHS;
     } Generate;
     struct {
       int     GroupIndex;
@@ -1365,6 +1368,7 @@ struct IterativeLoopSystem {
 #define OPERATION_GATHERVARIABLES          116
 #define OPERATION_SCATTERVARIABLES         117
 #define OPERATION_EXIT                     118
+#define OPERATION_GENERATELISTOFRHS        119
 
 /* ChangeOfState.Type */
 #define CHANGEOFSTATE_NOCHANGE              0
