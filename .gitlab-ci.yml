@@ -22,7 +22,7 @@ linux64_ci:
   script:
     - mkdir build
     - cd build
-    - cmake -DENABLE_MPI=1 ${EXTRA_OPTION} ..
+    - cmake -DENABLE_MPI=1 -DENABLE_SYSTEM_CONTRIB=1 ${EXTRA_OPTION} ..
     - make -j 8
     - ctest -j 8 --output-on-failure
   tags:
