@@ -3,7 +3,7 @@
 # See the LICENSE.txt file for license information. Please report all
 # issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
-cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
 
 # if CMAKE_BUILD_TYPE is specified use it; otherwise set the default
 # build type to "RelWithDebInfo" ("-O2 -g" with gcc) prior to calling
@@ -25,7 +25,6 @@ macro(opt OPTION HELP VALUE)
 endmacro()
 
 opt(ARPACK "Enable Arpack eigensolver (requires Fortran)" ${DEFAULT})
-opt(CONTRIB_ARPACK "Enable Arpack eigensolver from GetDP's contrib folder (requires Fortran)" OFF)
 opt(BLAS_LAPACK "Enable BLAS/Lapack for linear algebra (e.g. for Arpack)" ${DEFAULT})
 opt(BUILD_LIB "Enable 'lib' target for building static GetDP library" OFF)
 opt(BUILD_SHARED "Enable 'shared' target for building shared GetDP library" OFF)
@@ -50,6 +49,7 @@ opt(PYTHON "Enable Python functions" ${DEFAULT})
 opt(SLEPC "Enable SLEPc eigensolver" ${DEFAULT})
 opt(SMALLFEM "Enable experimental SmallFem assembler" OFF)
 opt(SPARSKIT "Enable Sparskit solver instead of PETSc (requires Fortran)" ${DEFAULT})
+opt(SYSTEM_CONTRIB "Use system versions of contrib libraries, when possible" OFF)
 opt(PEWE "Enable PeWe exact solutions (requires Fortran)" ${DEFAULT})
 opt(WRAP_PYTHON "Build Python wrappers" OFF)
 opt(ZITSOL "Enable Zitsol solvers (requires PETSc and Fortran)" OFF)
@@ -152,6 +152,7 @@ include(CheckTypeSize)
 include(CheckFunctionExists)
 include(CheckIncludeFile)
 include(CheckCXXCompilerFlag)
+include(CheckFortranCompilerFlag)
 
 macro(set_config_option VARNAME STRING)
   set(${VARNAME} TRUE)
@@ -363,7 +364,7 @@ add_subdirectory(Interface)
 add_subdirectory(Numeric)
 add_subdirectory(Functions)
 
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/Kernel AND ENABLE_KERNEL)
+if(ENABLE_KERNEL AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/Kernel)
   add_subdirectory(Kernel)
   set_config_option(HAVE_KERNEL "Kernel")
 endif()
@@ -537,16 +538,6 @@ if(ENABLE_PETSC)
   endif()
 endif()
 
-if(ENABLE_ARPACK AND NOT ENABLE_CONTRIB_ARPACK)
-  if(HAVE_LAPACK OR HAVE_PETSC)
-    find_library(ARPACK_LIB arpack PATH_SUFFIXES lib)
-    if(ARPACK_LIB)
-      list(APPEND EXTERNAL_LIBRARIES ${ARPACK_LIB})
-      set_config_option(HAVE_ARPACK "Arpack[system]")
-    endif()
-  endif()
-endif()
-
 if(ENABLE_HPDDM)
   find_path(HPDDM_INC "HPDDM.hpp" PATH_SUFFIXES include)
   if(HPDDM_INC)
@@ -556,8 +547,8 @@ if(ENABLE_HPDDM)
 endif()
 
 if(ENABLE_FORTRAN)
-  if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/Sparskit AND
-     ENABLE_SPARSKIT AND NOT HAVE_PETSC)
+  if(ENABLE_SPARSKIT AND NOT HAVE_PETSC AND
+     EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/Sparskit)
     add_subdirectory(contrib/Sparskit)
     include_directories(contrib/Sparskit)
     set_config_option(HAVE_SPARSKIT "Sparskit")
@@ -566,27 +557,37 @@ if(ENABLE_FORTRAN)
     set_compile_flags(SPARSKIT_SRC "-DHAVE_ILU_FLOAT")
   endif()
 
-  if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/pewe AND
-     ENABLE_PEWE)
+  if(ENABLE_PEWE AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/pewe)
     add_subdirectory(contrib/pewe)
     set_config_option(HAVE_PEWE "PeWe")
   endif()
 
-  if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/ZITSOL_1 AND
-     ENABLE_ZITSOL AND HAVE_PETSC)
+  if(ENABLE_ZITSOL AND HAVE_PETSC AND
+     EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/ZITSOL_1)
     add_subdirectory(contrib/ZITSOL_1)
     set_config_option(HAVE_ZITSOL "Zitsol")
   endif()
 
-  if(ENABLE_ARPACK OR ENABLE_CONTRIB_ARPACK)
-    if(HAVE_LAPACK OR HAVE_PETSC)
-      if(NOT ARPACK_LIB)
-        if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/Arpack AND
-           ENABLE_CONTRIB_ARPACK)
-          add_subdirectory(contrib/Arpack)
-          set_config_option(HAVE_ARPACK "Arpack")
-        endif()
+  if(ENABLE_ARPACK)
+    if(ENABLE_SYSTEM_CONTRIB)
+      find_library(ARPACK_LIB arpack PATH_SUFFIXES lib)
+      if(ARPACK_LIB)
+        list(APPEND EXTERNAL_LIBRARIES ${ARPACK_LIB})
+        set_config_option(HAVE_ARPACK "Arpack[system]")
       endif()
+    endif()
+    if(NOT HAVE_ARPACK AND (HAVE_LAPACK OR HAVE_PETSC) AND
+       EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/Arpack)
+      # GCC 10 does not allow argument mismatches in a single file; this feature
+      # is used in Arpack to e.g. scalars and vectors using the same routine
+      # (e.g. svout)
+      check_fortran_compiler_flag("-fallow-argument-mismatch" ARGMISMATCH)
+      if(ARGMISMATCH)
+        file(GLOB_RECURSE ARPACK_SRC contrib/Arpack/*.f)
+        set_compile_flags(ARPACK_SRC "-fallow-argument-mismatch")
+      endif()
+      add_subdirectory(contrib/Arpack)
+      set_config_option(HAVE_ARPACK "Arpack")
     endif()
   endif()
 
@@ -606,15 +607,14 @@ if(NOT HAVE_PETSC AND NOT HAVE_SPARSKIT)
   message(STATUS "Warning: building without PETSc and without Sparskit")
 endif()
 
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/NX AND
-   ENABLE_NX)
+if(ENABLE_NX AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/NX)
   message(STATUS "Note: Building non-free version of GetDP with code "
           "(C) 2012 Dr. Binde Ingenieure.")
   add_subdirectory(contrib/NX)
   set_config_option(HAVE_NX "NX")
 endif()
 
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/mma AND ENABLE_MMA)
+if(ENABLE_MMA AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/mma)
   add_subdirectory(contrib/mma)
   include_directories(contrib/mma/cpp/src)
   set_config_option(HAVE_MMA "MMA")
@@ -631,8 +631,8 @@ if(ENABLE_GSL)
   endif()
 endif()
 
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/NR/newt.cpp AND
-   ENABLE_NR AND NOT HAVE_GSL)
+if(ENABLE_NR AND NOT HAVE_GSL AND
+   EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/NR/newt.cpp)
   message(STATUS "Note: Building non-free version of GetDP, with code "
           "(C) 1986-92 Numerical Recipes Software.")
   add_subdirectory(contrib/NR)
