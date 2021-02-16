@@ -1,4 +1,4 @@
-// Gmsh - Copyright (C) 1997-2020 C. Geuzaine, J.-F. Remacle
+// Gmsh - Copyright (C) 1997-2021 C. Geuzaine, J.-F. Remacle
 //
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
@@ -178,7 +178,7 @@ class GmshSocket{
     FD_SET(s, &rfds);
     // select checks all IO descriptors between 0 and its first arg, minus 1;
     // hence the +1 below
-    return select(s + 1, &rfds, NULL, NULL, &tv);
+    return select(s + 1, &rfds, nullptr, nullptr, &tv);
   }
   void SendMessage(int type, int length, const void *msg)
   {
@@ -290,8 +290,8 @@ class GmshClient : public GmshSocket {
       // try to connect socket to host:port
       const char *port = strstr(sockname, ":");
       int portno = atoi(port + 1);
-      int remotelen = (int)(strlen(sockname) - strlen(port));
       char *remote = strdup(sockname);
+      int remotelen = (int)(strlen(remote) - strlen(port));
       if(remotelen > 0)
         strncpy(remote, sockname, remotelen);
       if(remotelen >= 0)
