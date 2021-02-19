@@ -955,7 +955,7 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
     if (nbApplyResolventRealFreqs!=DofData_P2->CounterOfRHS)
       Message::Error("Please provide a number of RHS terms equal to the number of real pulsations");
   }
-  
+
   std::vector<PetscScalar> tabCoefsNum[6], tabCoefsDen[6];
   for(int i = 0; i < List_Nbr(RationalCoefsNum); i++){
     List_T *coefs;
@@ -1100,7 +1100,6 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
   _try(NEPSetWhichEigenpairs(nep, NEP_TARGET_MAGNITUDE));
   _try(NEPMonitorSet(nep, _myNepMonitor, PETSC_NULL, PETSC_NULL));
   _try(NEPSetTarget(nep, shift));
-  _try(NEPSetFromOptions(nep));
 
   if(Flag_ApplyResolvent){
 #if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 12)
@@ -1113,6 +1112,8 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
     Message::Error("SLEPC >= 3.12 required for ApplyResolvant");
 #endif
   }
+
+  _try(NEPSetFromOptions(nep));
 
   // print info
   _try(NEPGetType(nep, &type));
