@@ -934,7 +934,7 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
   char str_buff[50];
   int NumOperators = 2;
 
-  int Flag_ApplyResolvent;
+  int Flag_ApplyResolvent=0;
 
   int nbApplyResolventRealFreqs = (int)List_Nbr(ApplyResolventRealFreqs);
 
@@ -950,7 +950,7 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
     return;
   }
 
-  if (List_Nbr(ApplyResolventRealFreqs)>0){
+  if (nbApplyResolventRealFreqs>0){
     Flag_ApplyResolvent = 1;
     if (nbApplyResolventRealFreqs!=DofData_P2->CounterOfRHS)
       Message::Error("Please provide a number of RHS terms equal to the number of real pulsations");
