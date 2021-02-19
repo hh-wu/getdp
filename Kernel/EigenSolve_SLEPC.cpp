@@ -934,7 +934,7 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
   char str_buff[50];
   int NumOperators = 2;
 
-  int Flag_ApplyResolvent;
+  int Flag_ApplyResolvent=0;
 
   int nbApplyResolventRealFreqs = (int)List_Nbr(ApplyResolventRealFreqs);
 
@@ -950,10 +950,11 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
     return;
   }
 
-  if (List_Nbr(ApplyResolventRealFreqs)>0)
+  if (nbApplyResolventRealFreqs>0){
     Flag_ApplyResolvent = 1;
-  if (nbApplyResolventRealFreqs!=DofData_P2->CounterOfRHS)
-    Message::Error("Please provide a number of RHS terms equal to the number of real pulsations");
+    if (nbApplyResolventRealFreqs!=DofData_P2->CounterOfRHS)
+      Message::Error("Please provide a number of RHS terms equal to the number of real pulsations");
+  }
 
   std::vector<PetscScalar> tabCoefsNum[6], tabCoefsDen[6];
   for(int i = 0; i < List_Nbr(RationalCoefsNum); i++){
@@ -1099,8 +1100,8 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
   _try(NEPSetWhichEigenpairs(nep, NEP_TARGET_MAGNITUDE));
   _try(NEPMonitorSet(nep, _myNepMonitor, PETSC_NULL, PETSC_NULL));
   _try(NEPSetTarget(nep, shift));
-  _try(NEPSetFromOptions(nep));
-
+  _try(NEPSetConvergenceTest(nep, NEP_CONV_REL));
+     
   if(Flag_ApplyResolvent){
 #if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 12)
     Message::Info("Using full basis variant (required for ApplyResolvent)");
@@ -1112,6 +1113,8 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
     Message::Error("SLEPC >= 3.12 required for ApplyResolvant");
 #endif
   }
+
+  _try(NEPSetFromOptions(nep));
 
   // print info
   _try(NEPGetType(nep, &type));
