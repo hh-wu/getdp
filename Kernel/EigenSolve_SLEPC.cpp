@@ -950,11 +950,12 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
     return;
   }
 
-  if (List_Nbr(ApplyResolventRealFreqs)>0)
+  if (List_Nbr(ApplyResolventRealFreqs)>0){
     Flag_ApplyResolvent = 1;
-  if (nbApplyResolventRealFreqs!=DofData_P2->CounterOfRHS)
-    Message::Error("Please provide a number of RHS terms equal to the number of real pulsations");
-
+    if (nbApplyResolventRealFreqs!=DofData_P2->CounterOfRHS)
+      Message::Error("Please provide a number of RHS terms equal to the number of real pulsations");
+  }
+  
   std::vector<PetscScalar> tabCoefsNum[6], tabCoefsDen[6];
   for(int i = 0; i < List_Nbr(RationalCoefsNum); i++){
     List_T *coefs;
