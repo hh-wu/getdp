@@ -1100,7 +1100,8 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
   _try(NEPSetWhichEigenpairs(nep, NEP_TARGET_MAGNITUDE));
   _try(NEPMonitorSet(nep, _myNepMonitor, PETSC_NULL, PETSC_NULL));
   _try(NEPSetTarget(nep, shift));
-
+  _try(NEPSetConvergenceTest(nep, NEP_CONV_REL));
+     
   if(Flag_ApplyResolvent){
 #if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 12)
     Message::Info("Using full basis variant (required for ApplyResolvent)");
