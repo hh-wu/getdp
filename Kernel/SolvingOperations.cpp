@@ -515,7 +515,7 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
     LinAlg_AssembleVector(&DofData_P->b) ;
     if(DofData_P->Flag_ListOfRHS){
       LinAlg_CopyVector(&DofData_P->b , &DofData_P->ListOfRHS[DofData_P->CounterOfRHS]);
-      Message::Info("There are now %d RHS terms",DofData_P->CounterOfRHS+1);
+      Message::Info("There are now %d RHS terms", DofData_P->CounterOfRHS + 1);
     }
     int i;
     LinAlg_GetVectorSize(&DofData_P->b, &i) ;
@@ -831,33 +831,33 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Message::Error(Operation_P->Case.Error.String);
       break ;
 
-      /*  -->  G e n e r a t e                        */
+      /*  -->  G e n e r a t e L i s t O f R H S      */
       /*  ------------------------------------------  */
 
-    case OPERATION_GENERATEJAC :  Flag_Jac = 1 ;
-    case OPERATION_GENERATEJAC_CUMULATIVE :  Flag_Jac = 1 ;
     case OPERATION_GENERATELISTOFRHS :
       {
         Init_OperationOnSystem(Get_StringForDefine(Operation_Type, Operation_P->Type),
                                Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                                &DefineSystem_P, &DofData_P, Resolution2_P) ;
-        // Current.TypeAssembly = ASSEMBLY_SEPARATE;
         Current.TypeAssembly = ASSEMBLY_AGGREGATE;
-        // DofData_P->TotalNumberOfRHS = Operation_P->Case.GenerateListOfRHS.NumListOfRHS;
         DofData_P->TotalNumberOfRHS = Operation_P->Case.Generate.NumListOfRHS;
-        Init_SystemData(DofData_P, Flag_Jac) ;
+        Init_SystemData(DofData_P, 0) ;
         DofData_P->Flag_ListOfRHS = 1;
         if(Operation_P->Case.Generate.GroupIndex >= 0){
           Generate_Group = (struct Group *)
             List_Pointer(Problem_S.Group,
                          Operation_P->Case.Generate.GroupIndex) ;
-	      }
-        // printf("DofData_P->TotalNumberOfRHS %d\n", DofData_P->TotalNumberOfRHS);
-        // printf("Operation_P->Case.GenerateListOfRHS.NumListOfRHS %d\n", Operation_P->Case.GenerateListOfRHS.NumListOfRHS);
+        }
         Generate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac, 0, 0) ;
-        DofData_P->CounterOfRHS+=1;
+        DofData_P->CounterOfRHS += 1;
       }
-      break ;        
+      break ;
+
+      /*  -->  G e n e r a t e                        */
+      /*  ------------------------------------------  */
+
+    case OPERATION_GENERATEJAC :  Flag_Jac = 1 ;
+    case OPERATION_GENERATEJAC_CUMULATIVE :  Flag_Jac = 1 ;
     case OPERATION_GENERATERHS :
     case OPERATION_GENERATERHS_CUMULATIVE :
     case OPERATION_GENERATE :
@@ -931,7 +931,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       Init_SystemData(DofData_P, Flag_Jac) ;
       Generate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac, 1) ;
-      // Generate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac, 0) ;
 
       if (Operation_P->Case.Generate.GroupIndex >= 0) Generate_Group = NULL ;
       break ;
