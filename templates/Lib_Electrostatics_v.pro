@@ -9,6 +9,7 @@
 DefineConstant[
   modelPath = "", // default path of the model
   resPath = StrCat[modelPath, "res/"], // path for post-operation files
+  modelDim = 2, // default model dimension (2D)
   eps0 = 8.854187818e-12, // permittivity of vacuum
   Flag_Axi = 0, // axisymmetric model?
   Val_Rint = 0, // internal radius of Vol_Inf_Ele annulus
