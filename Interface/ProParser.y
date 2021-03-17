@@ -903,9 +903,9 @@ DefineGroups :
             Fill_GroupInitialListFromString(Group_S.InitialList, vec[i].c_str());
         }
 	Group_S.SuppListType = SUPPLIST_NONE ; Group_S.InitialSuppList = NULL ;
-    Group_S.InitialListGroupIndex = -1;
-    Group_S.InitialSuppListGroupIndex  = -1;
-    Group_S.InitialSuppList2GroupIndex  = -1;
+        Group_S.InitialListGroupIndex = -1;
+        Group_S.InitialSuppListGroupIndex  = -1;
+        Group_S.InitialSuppList2GroupIndex  = -1;
 	i = Add_Group(&Group_S, $3, 0, 0, 0) ;
       }
       else  Free($3) ;
@@ -922,10 +922,10 @@ DefineGroups :
 	  Group_S.Type = REGIONLIST ; Group_S.FunctionType = REGION ;
 	  Group_S.SuppListType = SUPPLIST_NONE ; Group_S.InitialSuppList = NULL ;
 	  Group_S.InitialList = List_Create( 5, 5, sizeof(int)) ;
-      Group_S.InitialListGroupIndex = -1;
-      Group_S.InitialSuppListGroupIndex  = -1;
-      Group_S.InitialSuppList2GroupIndex  = -1;
-	  Add_Group(&Group_S, $3, 0, 2, k+1) ;
+          Group_S.InitialListGroupIndex = -1;
+          Group_S.InitialSuppListGroupIndex  = -1;
+          Group_S.InitialSuppList2GroupIndex  = -1;
+	  Add_Group(&Group_S, strSave($3), 0, 2, k+1) ;
 	}
       }
       Free($3) ;
@@ -1139,7 +1139,7 @@ Expression :
   /* expressions constantes: evaluees lors de l'analyse syntaxique */
     tConstant '[' FExpr ']'
     { Expression_S.Type = CONSTANT;  Expression_S.Case.Constant = $3;
-      $$ = Add_Expression(&Expression_S, (char*)"Exp_Cst", 1);
+      $$ = Add_Expression(&Expression_S, strSave("Exp_Cst"), 1);
     }
 
   /* reutilisation de fonctions deja definies en amont */
@@ -1155,12 +1155,12 @@ Expression :
       List_Reset(ListOfPointer_L); List_Reset(ListOfPointer2_L); }
     WholeQuantityExpression
     { Expression_S.Type = WHOLEQUANTITY;  Expression_S.Case.WholeQuantity = $2;
-      $$ = Add_Expression(&Expression_S, (char*)"Exp_Fct", 1); }
+      $$ = Add_Expression(&Expression_S, strSave("Exp_Fct"), 1); }
 
   /* undefined expression (same as DefineFunction, but inline) */
   | '*' '*' '*'
     { Expression_S.Type = UNDEFINED_EXP;
-      $$ = Add_Expression(&Expression_S, (char*)"Exp_Undefined", 1);
+      $$ = Add_Expression(&Expression_S, strSave("Exp_Undefined"), 1);
     }
  ;
 
@@ -1666,7 +1666,8 @@ WholeQuantity_Single :
     '[' WholeQuantityExpression ',' GroupRHS ']'
     { WholeQuantity_S.Type = WQ_TRACE;
       WholeQuantity_S.Case.Trace.WholeQuantity = $4;
-      WholeQuantity_S.Case.Trace.InIndex = Num_Group(&Group_S, (char*)"WQ_Trace_In", $6);
+      WholeQuantity_S.Case.Trace.InIndex =
+        Num_Group(&Group_S, strSave("WQ_Trace_In"), $6);
 
       if(Group_S.Type != ELEMENTLIST || Group_S.SuppListType != SUPPLIST_CONNECTEDTO)
 	vyyerror(0, "Group for Trace should be of Type 'ElementsOf[x, ConnectedTo y]'");
@@ -1812,7 +1813,7 @@ ParametersForFunction :
     { /* Attention: provisoire. Note: Impossible a mettre dans MultiFExpr
          car conflit avec Affectation dans Group */
       $$ = List_Create(2, 1, sizeof(double));
-      double d = (double)Num_Group(&Group_S, (char*)"PA_Region", $4);
+      double d = (double)Num_Group(&Group_S, strSave("PA_Region"), $4);
       List_Add($$, &d);
     }
 
@@ -1917,7 +1918,8 @@ JacobianCaseTerm :
     tRegion GroupRHS tEND
     {
       if ($2 >= -1)
-        JacobianCase_S.RegionIndex = Num_Group(&Group_S, (char*)"JA_Region", $2);
+        JacobianCase_S.RegionIndex =
+          Num_Group(&Group_S, strSave("JA_Region"), $2);
       else if ($2 == -3)
         JacobianCase_S.RegionIndex = -1;
     }
@@ -2318,19 +2320,20 @@ ConstraintCaseTerm :
 
   | tRegion GroupRHS tEND
     {
-      ConstraintPerRegion_S.RegionIndex = Num_Group(&Group_S, (char*)"CO_Region", $2);
+      ConstraintPerRegion_S.RegionIndex =
+        Num_Group(&Group_S, strSave("CO_Region"), $2);
     }
 
   | tSubRegion GroupRHS tEND
     {
       ConstraintPerRegion_S.SubRegionIndex =
-	Num_Group(&Group_S, (char*)"CO_SubRegion", $2);
+	Num_Group(&Group_S, strSave("CO_SubRegion"), $2);
     }
 
   | tSubRegion2 GroupRHS tEND
     {
       ConstraintPerRegion_S.SubRegion2Index =
-	Num_Group(&Group_S, (char*)"CO_SubRegion2", $2);
+	Num_Group(&Group_S, strSave("CO_SubRegion2"), $2);
     }
 
   | tTimeFunction Expression tEND
@@ -2391,7 +2394,7 @@ ConstraintCaseTerm :
       if(ConstraintPerRegion_S.Type == CST_LINK ||
 	  ConstraintPerRegion_S.Type == CST_LINKCPLX) {
 	ConstraintPerRegion_S.Case.Link.RegionRefIndex =
-	  Num_Group(&Group_S, (char*)"CO_RegionRef", $2);
+	  Num_Group(&Group_S, strSave("CO_RegionRef"), $2);
 	ConstraintPerRegion_S.Case.Link.SubRegionRefIndex = -1;
 
 	ConstraintPerRegion_S.Case.Link.FilterIndex = -1;
@@ -2411,7 +2414,7 @@ ConstraintCaseTerm :
       if(ConstraintPerRegion_S.Type == CST_LINK ||
 	  ConstraintPerRegion_S.Type == CST_LINKCPLX)
 	ConstraintPerRegion_S.Case.Link.SubRegionRefIndex =
-	  Num_Group(&Group_S, (char*)"CO_RegionRef", $2);
+	  Num_Group(&Group_S, strSave("CO_RegionRef"), $2);
       else  vyyerror(0, "SubRegionRef incompatible with Type");
     }
 
@@ -2745,12 +2748,14 @@ BasisFunctionTerm :
 
   | tSupport GroupRHS tEND
     {
-      BasisFunction_S.SupportIndex = Num_Group(&Group_S, (char*)"BF_Support", $2);
+      BasisFunction_S.SupportIndex =
+        Num_Group(&Group_S, strSave("BF_Support"), $2);
     }
 
   | tEntity GroupRHS tEND
     {
-      BasisFunction_S.EntityIndex = Num_Group(&Group_S, (char*)"BF_Entity", $2);
+      BasisFunction_S.EntityIndex =
+        Num_Group(&Group_S, strSave("BF_Entity"), $2);
       if(Group_S.InitialList)
 	List_Sort(Group_S.InitialList, fcmp_Integer);  /* Needed for Global Region */
 
@@ -3126,28 +3131,8 @@ ConstraintInFSs :
             else
               Group_S.InitialSuppList2 = NULL;
 
-            /* Group_S.InitialSuppList = */
-            /*   (ConstraintPerRegion_P->SubRegionIndex >= 0) ? */
-            /*   ((struct Group *) List_Pointer(Problem_S.Group, ConstraintPerRegion_P->SubRegionIndex)) */
-            /*   ->InitialList : NULL; */
-            /* Group_S.InitialSuppListGroupIndex = ConstraintPerRegion_P->SubRegionIndex; */
-            /* Group_S.InitialSuppList2 = */
-            /*   (ConstraintPerRegion_P->SubRegion2Index >= 0) ? */
-            /*   ((struct Group *) List_Pointer(Problem_S.Group, */
-            /*       ConstraintPerRegion_P->SubRegion2Index)) */
-            /*   ->InitialList : NULL; */
-            /* Group_S.InitialSuppList2GroupIndex = ConstraintPerRegion_P->SubRegion2Index; */
-            // this is the hack :-)
-            /* if(ConstraintPerRegion_P->SubRegion2Index >= 0) { */
-            /*   Group_S.SuppListType2 = */
-            /*     ((struct Group *) */
-            /*      List_Pointer(Problem_S.Group, */
-            /*                   ConstraintPerRegion_P->SubRegion2Index)) */
-            /*     ->SuppListType; */
-            /* } */
-
             ConstraintInFS_S.EntityIndex =
-              Add_Group(&Group_S, (char*)"CO_Entity",0, 1, 0);
+              Add_Group(&Group_S, strSave("CO_Entity"), 0, 1, 0);
             ConstraintInFS_S.ConstraintPerRegion = ConstraintPerRegion_P;
 
             List_Add(FunctionSpace_S.Constraint, &ConstraintInFS_S);
@@ -3692,7 +3677,8 @@ DefineQuantityTerm :
 
   | tIn GroupRHS tEND
     {
-      DefineQuantity_S.IntegralQuantity.InIndex = Num_Group(&Group_S, (char*)"IQ_In", $2);
+      DefineQuantity_S.IntegralQuantity.InIndex =
+        Num_Group(&Group_S, strSave("IQ_In"), $2);
     }
 
   | tIntegration tSTRING tEND
@@ -3876,7 +3862,9 @@ GlobalEquationTermTermTerm :
       Free($1);
     }
   | tIn GroupRHS tEND
-  { GlobalEquationTerm_S.InIndex = Num_Group(&Group_S, (char*)"FO_In", $2); }
+    {
+      GlobalEquationTerm_S.InIndex = Num_Group(&Group_S, strSave("FO_In"), $2);
+    }
  ;
 
 
@@ -4053,12 +4041,14 @@ LocalTermTerm  :
 
   | tIn GroupRHS tEND
     {
-      EquationTerm_S.Case.LocalTerm.InIndex = Num_Group(&Group_S, (char*)"FO_In", $2);
+      EquationTerm_S.Case.LocalTerm.InIndex =
+        Num_Group(&Group_S, strSave("FO_In"), $2);
     }
 
   | tSubRegion GroupRHS tEND
     {
-      EquationTerm_S.Case.LocalTerm.SubRegion = Num_Group(&Group_S, (char*)"FO_In", $2);
+      EquationTerm_S.Case.LocalTerm.SubRegion =
+        Num_Group(&Group_S, strSave("FO_In"), $2);
     }
 
   | tJacobian String__Index tEND
@@ -4171,7 +4161,8 @@ GlobalTerm :
 GlobalTermTerm :
     tIn GroupRHS tEND
     {
-      EquationTerm_S.Case.GlobalTerm.InIndex = Num_Group(&Group_S, (char*)"FO_In", $2);
+      EquationTerm_S.Case.GlobalTerm.InIndex =
+        Num_Group(&Group_S, strSave("FO_In"), $2);
     }
 
   | tSubType tSTRING tEND
@@ -4449,8 +4440,10 @@ DefineSystemTerm :
       int i;
       if ((i = List_ISearchSeq(Current_System_L, $2, fcmp_DefineSystem_Name)) < 0)
 	DefineSystem_S.Name = $2 ;
-      else
+      else {
 	List_Read(Current_System_L, i, &DefineSystem_S) ;
+        Free($2);
+      }
     }
 
   | tType tSTRING tEND
@@ -5126,7 +5119,7 @@ OperationTerm :
       Free($3);
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.UpdateConstraint.GroupIndex =
-	Num_Group(&Group_S, (char*)"OP_UpdateCst", $5);
+	Num_Group(&Group_S, strSave("OP_UpdateCst"), $5);
       Operation_P->Case.UpdateConstraint.Type =
 	Get_DefineForString(Constraint_Type, $7, &FlagError);
       if(FlagError){
@@ -5323,8 +5316,8 @@ OperationTerm :
 
   // TODO : fix shift-reduce conflict, name EigenSolve does not work
   |tEigenSolveAndExpand '[' String__Index ',' FExpr ',' FExpr ',' FExpr
-                ',' '{' RecursiveListOfListOfFExpr '}'  
-                ',' '{' RecursiveListOfListOfFExpr '}' 
+                ',' '{' RecursiveListOfListOfFExpr '}'
+                ',' '{' RecursiveListOfListOfFExpr '}'
                 ',' RecursiveListOfFExpr ',' String__Index ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
@@ -5657,7 +5650,7 @@ OperationTerm :
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_CHANGEOFCOORDINATES;
       Operation_P->Case.ChangeOfCoordinates.GroupIndex =
-	Num_Group(&Group_S, (char*)"OP_ChgCoord", $3);
+	Num_Group(&Group_S, strSave("OP_ChgCoord"), $3);
       Operation_P->Case.ChangeOfCoordinates.ExpressionIndex = $5;
       Operation_P->Case.ChangeOfCoordinates.ExpressionIndex2 = -1;
     }
@@ -5668,7 +5661,7 @@ OperationTerm :
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_CHANGEOFCOORDINATES;
       Operation_P->Case.ChangeOfCoordinates.GroupIndex =
-	Num_Group(&Group_S, (char*)"OP_ChgCoord", $3);
+	Num_Group(&Group_S, strSave("OP_ChgCoord"), $3);
       Operation_P->Case.ChangeOfCoordinates.ExpressionIndex = $5;
       Operation_P->Case.ChangeOfCoordinates.NumNode = (int)$7;
       Operation_P->Case.ChangeOfCoordinates.ExpressionIndex2 = $9;
@@ -5815,7 +5808,7 @@ OperationTerm :
       Free($3);
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.SaveSolutionWithEntityNum.GroupIndex =
-        Num_Group(&Group_S, (char*)"OP_SaveSolutionWithEntityNum", $5);
+        Num_Group(&Group_S, strSave("OP_SaveSolutionWithEntityNum"), $5);
       Operation_P->Case.SaveSolutionWithEntityNum.SaveFixed = ($6 >= 0) ? $6 : 0;
     }
 
@@ -5878,7 +5871,8 @@ OperationTerm :
 	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
-      Operation_P->Case.SaveMesh.GroupIndex = Num_Group(&Group_S, (char*)"OP_SaveMesh", $5);
+      Operation_P->Case.SaveMesh.GroupIndex =
+        Num_Group(&Group_S, strSave("OP_SaveMesh"), $5);
       Operation_P->Case.SaveMesh.FileName = $7;
       Operation_P->Case.SaveMesh.ExprIndex = $9;
       Operation_P->Type = OPERATION_SAVEMESH;
@@ -5893,7 +5887,8 @@ OperationTerm :
 	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
-      Operation_P->Case.SaveMesh.GroupIndex = Num_Group(&Group_S, (char*)"OP_SaveMesh", $5);
+      Operation_P->Case.SaveMesh.GroupIndex =
+        Num_Group(&Group_S, strSave("OP_SaveMesh"), $5);
       Operation_P->Case.SaveMesh.FileName = $7;
       Operation_P->Case.SaveMesh.ExprIndex = -1;
       Operation_P->Type = OPERATION_SAVEMESH;
@@ -5908,7 +5903,8 @@ OperationTerm :
 	vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
-      Operation_P->Case.SaveMesh.GroupIndex = Num_Group(&Group_S, (char*)"OP_SaveMesh", $5);
+      Operation_P->Case.SaveMesh.GroupIndex =
+        Num_Group(&Group_S, strSave("OP_SaveMesh"), $5);
       Operation_P->Case.SaveMesh.FileName = 0;
       Operation_P->Case.SaveMesh.ExprIndex = -1;
       Operation_P->Type = OPERATION_SAVEMESH;
@@ -5998,7 +5994,7 @@ OperationTerm :
       Operation_P->Case.DeformMesh.GeoDataIndex = -1;
       Operation_P->Case.DeformMesh.Factor = $10;
       Operation_P->Case.DeformMesh.GroupIndex =
-        Num_Group(&Group_S, (char*)"OP_DeformMesh", $12);
+        Num_Group(&Group_S, strSave("OP_DeformMesh"), $12);
       Operation_P->Type = OPERATION_DEFORMMESH;
     }
 
@@ -6114,7 +6110,7 @@ OperationTerm :
       Operation_P->Case.DeformMesh.GeoDataIndex = -1;
       Operation_P->Case.DeformMesh.Factor = $7;
       Operation_P->Case.DeformMesh.GroupIndex =
-        Num_Group(&Group_S, (char*)"OP_DeformMesh", $9);
+        Num_Group(&Group_S, strSave("OP_DeformMesh"), $9);
       Operation_P->Type = OPERATION_DEFORMMESH;
     }
 
@@ -6129,7 +6125,7 @@ OperationTerm :
       Operation_P->DefineSystemIndex = i;
       Operation_P->Type = $1;
       Operation_P->Case.Generate.GroupIndex =
-        Num_Group(&Group_S, (char*)"OP_GenerateGroup", $5);
+        Num_Group(&Group_S, strSave("OP_GenerateGroup"), $5);
     }
 
   | tGenerateListOfRHS  '[' String__Index ',' GroupRHS ',' FExpr ']'  tEND
@@ -6143,7 +6139,7 @@ OperationTerm :
       Operation_P->DefineSystemIndex = i;
       Operation_P->Type = OPERATION_GENERATELISTOFRHS;
       Operation_P->Case.Generate.GroupIndex =
-        Num_Group(&Group_S, (char*)"OP_GenerateGroup", $5);
+        Num_Group(&Group_S, strSave("OP_GenerateGroup"), $5);
       // Operation_P->Case.GenerateListOfRHS.NumListOfRHS = $7;
       Operation_P->Case.Generate.NumListOfRHS = $7;
     }
@@ -6790,7 +6786,9 @@ ChangeOfStateTerm :
     }
 
   | tIn GroupRHS tEND
-  { ChangeOfState_S.InIndex = Num_Group(&Group_S, (char*)"OP_In", $2); }
+    {
+      ChangeOfState_S.InIndex = Num_Group(&Group_S, strSave("OP_In"), $2);
+    }
 
   | tCriterion FExpr tEND
     { ChangeOfState_S.Criterion = $2; }
@@ -7057,12 +7055,12 @@ SubPostQuantityTerm :
 
  | tIn GroupRHS tEND
    {
-     PostQuantityTerm_S.InIndex = Num_Group(&Group_S, (char*)"PQ_In", $2);
+     PostQuantityTerm_S.InIndex = Num_Group(&Group_S, strSave("PQ_In"), $2);
    }
 
   | tSubRegion GroupRHS tEND
     {
-      PostQuantityTerm_S.SubRegion = Num_Group(&Group_S, (char*)"PQ_SR", $2);
+      PostQuantityTerm_S.SubRegion = Num_Group(&Group_S, strSave("PQ_SR"), $2);
     }
 
   | tJacobian String__Index tEND
@@ -7463,13 +7461,13 @@ PostSubOperation :
     {
       PostSubOperation_S.Type = POP_GROUP;
       PostSubOperation_S.Case.Group.ExtendedGroupIndex =
-        Num_Group(&Group_S, (char*)"PO_Group", $3);
+        Num_Group(&Group_S, strSave("PO_Group"), $3);
       PostSubOperation_S.PostQuantityIndex[0] = -1;
     }
     ',' tIn GroupRHS PrintOptions ']' tEND
     {
       PostSubOperation_S.Case.Group.GroupIndex =
-        Num_Group(&Group_S, (char*)"PO_Group", $7);
+        Num_Group(&Group_S, strSave("PO_Group"), $7);
     }
 
   | tSendMergeFileRequest '[' CharExpr ']' tEND
@@ -7549,7 +7547,7 @@ PostQuantitySupport :
   /* none */
   { $$ = -1; }
   | '[' GroupRHS ']'
-  { $$ = Num_Group(&Group_S, (char*)"PO_Support", $2); }
+  { $$ = Num_Group(&Group_S, strSave("PO_Support"), $2); }
  ;
 
 PrintSubType :
@@ -7564,14 +7562,14 @@ PrintSubType :
     {
       PostSubOperation_S.SubType = PRINT_ONREGION;
       PostSubOperation_S.Case.OnRegion.RegionIndex =
-	Num_Group(&Group_S, (char*)"PO_OnRegion", $2);
+	Num_Group(&Group_S, strSave("PO_OnRegion"), $2);
     }
 
   | tOnElementsOf GroupRHS
     {
       PostSubOperation_S.SubType = PRINT_ONELEMENTSOF;
       PostSubOperation_S.Case.OnRegion.RegionIndex =
-	Num_Group(&Group_S, (char*)"PO_OnElementsOf", $2);
+	Num_Group(&Group_S, strSave("PO_OnElementsOf"), $2);
     }
 
   | tOnSection '{' '{' RecursiveListOfFExpr '}'
@@ -7602,7 +7600,7 @@ PrintSubType :
     {
       PostSubOperation_S.SubType = PRINT_ONGRID;
       PostSubOperation_S.Case.OnRegion.RegionIndex =
-	Num_Group(&Group_S, (char*)"PO_OnGrid", $2);
+	Num_Group(&Group_S, strSave("PO_OnGrid"), $2);
     }
 
   | tOnGrid '{' Expression ',' Expression ',' Expression '}'
@@ -7716,7 +7714,7 @@ PrintSubType :
       PostSubOperation_S.SubType = PRINT_WITHARGUMENT;
 
       PostSubOperation_S.Case.WithArgument.RegionIndex =
-	Num_Group(&Group_S, (char*)"PO_On", $2);
+	Num_Group(&Group_S, strSave("PO_On"), $2);
       int i;
 
       if((i = List_ISearchSeq(Problem_S.Expression, $4, fcmp_Expression_Name)) < 0)
@@ -7736,7 +7734,7 @@ PrintSubType :
       PostSubOperation_S.SubType = PRINT_WITHARGUMENT;
 
       PostSubOperation_S.Case.WithArgument.RegionIndex =
-	Num_Group(&Group_S, (char*)"PO_On", $2);
+	Num_Group(&Group_S, strSave("PO_On"), $2);
       int i;
 
       if((i = List_ISearchSeq(Problem_S.Expression, $4, fcmp_Expression_Name)) < 0)
@@ -8852,6 +8850,8 @@ Affectation :
         Constant_S.Type = VAR_FLOAT;
         Tree_Replace(ConstantTable_L, &Constant_S);
       }
+      else
+        Free($3);
     }
 
   | tRead '[' String__Index ']' tEND
@@ -9383,7 +9383,7 @@ OneFExpr :
     { init_Options(); }
     FloatParameterOptionsOrNone ']'
     {
-      Constant_S.Name = (char*)""; Constant_S.Type = VAR_FLOAT;
+      Constant_S.Name = strSave(""); Constant_S.Type = VAR_FLOAT;
       Constant_S.Value.Float = $3;
       Message::ExchangeOnelabParameter(&Constant_S, floatOptions, charOptions);
       $$ = Constant_S.Value.Float;
@@ -9565,7 +9565,7 @@ tSTRING_Member :
     tSTRING
     { $$ = $1; flag_tSTRING_alloc = 1; }
   | tType
-    { $$ = (char*)"Type"; flag_tSTRING_alloc = 0; }
+    { $$ = strSave("Type"); flag_tSTRING_alloc = 0; }
 ;
 
 RecursiveListOfListOfFExpr :
@@ -10234,7 +10234,7 @@ CharExprNoVar :
 
   | tCodeName
     {
-      $$ = strSave((char*)"GetDP");
+      $$ = strSave("GetDP");
     }
 
   | tCurrentFileName
@@ -10276,7 +10276,7 @@ CharExprNoVar :
     { init_Options(); }
     CharParameterOptionsOrNone ']'
     {
-      Constant_S.Name = (char*)""; Constant_S.Type = VAR_CHAR;
+      Constant_S.Name = strSave(""); Constant_S.Type = VAR_CHAR;
       Constant_S.Value.Char = $3;
       Message::ExchangeOnelabParameter(&Constant_S, floatOptions, charOptions);
       $$ = strSave(Constant_S.Value.Char);
@@ -10733,7 +10733,7 @@ void Fill_GroupInitialListFromString(List_T *list, const char *str)
   }
 
   // try to find a constant with name "str"
-  Constant_S.Name = (char*)str;
+  Constant_S.Name = strSave(str);
   Constant *Constant_P = (Constant*)Tree_PQuery(ConstantTable_L, &Constant_S);
   if(Constant_P){
     switch(Constant_P->Type){
