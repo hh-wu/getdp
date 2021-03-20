@@ -56,6 +56,7 @@ Function {
 
   DefineConstant[ Hc = {920000,
       Name "Parameters/Materials/hc", Label "Magnet coercive field (A/m)"} ];
+
   hc [ Magnet ] = Rotate[ Vector[Hc, 0, 0.], 0, 0, Pi/2] ;
 }
 

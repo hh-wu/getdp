@@ -36,6 +36,10 @@ extern std::string getdp_yystring;
   result = (c == EOF) ? YY_NULL : (buf[0] = c, 1);	\
 }
 
+// undefine register for C++11 compatibility of files generated with old
+// versions of flex/bison
+#define register
+
 %}
 
 alpha      [a-zA-Z\_]
