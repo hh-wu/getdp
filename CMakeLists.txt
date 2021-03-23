@@ -1,4 +1,4 @@
-# GetDP - Copyright (C) 1997-2020 P. Dular and C. Geuzaine, University of Liege
+# GetDP - Copyright (C) 1997-2021 P. Dular and C. Geuzaine, University of Liege
 #
 # See the LICENSE.txt file for license information. Please report all
 # issues on https://gitlab.onelab.info/getdp/getdp/issues.
@@ -864,7 +864,7 @@ endif()
 
 # force static linking of system libraries with Cygwin/MinGW
 if(WIN32 AND NOT MSVC OR CYGWIN)
-  set_target_properties(getdp PROPERTIES LINK_FLAGS "-static")
+  set_target_properties(getdp PROPERTIES LINK_FLAGS "-static -municode")
   if(ENABLE_BUILD_SHARED OR ENABLE_BUILD_DYNAMIC)
     set_target_properties(shared PROPERTIES LINK_FLAGS "-static")
     # remove -Wl,-Bdynamic flags
